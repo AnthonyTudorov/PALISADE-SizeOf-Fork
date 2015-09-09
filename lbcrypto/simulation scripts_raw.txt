@@ -1,0 +1,345 @@
+void NTRUPRE_ForScript(DataParams &d,double&,double&,double&,double&);
+
+
+//defination of input parameters for 
+struct DataParams{
+	usint ringDimension;
+	BigBinaryInteger cipherTextModulus;
+	BigBinaryInteger rootOfUnity;
+	usint relWindow;
+};
+
+
+void NTRUPRE_ForScript(DataParams &d, double &enc, double &decrypt,double &reEnc, double &reDecrypt ){
+
+		//Set element params
+
+		usint m = d.ringDimension * 2;
+		BigBinaryInteger modulus(d.cipherTextModulus);
+		BigBinaryInteger rootOfUnity(d.rootOfUnity);
+		usint relWindow = d.relWindow;
+
+		ByteArray originalString = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW_NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
+
+		ByteArray plaintext;
+
+		for (usint i = 0; i < d.ringDimension / 1024; i++)
+			plaintext += originalString;
+
+		std::cout << "Working plaintext  ::\n" << plaintext << std::endl;
+
+		ofstream fout;
+		fout.open("output.txt");
+
+
+		std::cout << "Cryptosystem initialization: Performing precomputations..." << std::endl;
+
+		//Prepare for parameters.
+		ILParams ilParams(m, modulus, rootOfUnity);
+
+		//Set crypto parametes
+		LP_CryptoParameters_LWE<ILVector2n, ILParams> cryptoParams;
+		cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
+		cryptoParams.SetDistributionParameter(4);			// Set the noise parameters.
+		cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
+
+		DiscreteGaussianGenerator dgg(4, modulus);			// Create the noise generator
+
+		// Disrete Gaussian and FFT precomputations are done
+		ILVector2n testElement(dgg, ilParams);
+		testElement.SwitchFormat();
+
+		// Initialize the public key containers.
+		LP_PublicKey_LWE_NTRU<ILVector2n, ILParams> pk;
+
+		LP_PrivateKey_LWE_NTRU<ILVector2n, ILParams> sk;
+		sk.AccessCryptoParameters() = cryptoParams;
+		pk.AccessCryptoParameters() = cryptoParams;
+
+		//Regular LWE-NTRU encryption algorithm
+
+		////////////////////////////////////////////////////////////
+		//Perform the key generation operation.
+		////////////////////////////////////////////////////////////
+
+		LP_Algorithm_LWE_NTRU<ILVector2n, ILParams> algorithm;
+
+		bool successKeyGen = false;
+
+		double diff=0, start=0, finish=0;
+
+		std::cout << "\n" << "Running key generation..." << std::endl;
+
+		start = currentDateTime();
+
+		successKeyGen = algorithm.KeyGen(pk, sk, dgg);	// This is the core function call that generates the keys.
+
+		finish = currentDateTime();
+		diff = finish - start;
+
+		cout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
+		fout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
+
+		fout<< currentDateTime()  << " pk = "<<pk.GetPublicElement().GetValues()<<endl;
+		fout<< currentDateTime()  << " sk = "<<sk.GetPrivateElement().GetValues()<<endl;
+
+		if (!successKeyGen) {
+			std::cout << "Key generation failed!" << std::endl;
+			exit(1);
+		}
+
+		////////////////////////////////////////////////////////////
+		//Encryption
+		////////////////////////////////////////////////////////////
+
+		// Begin the initial encryption operation.
+		cout << "\n" << "original plaintext: " << plaintext << "\n" << endl;
+		fout << "\n" << "original plaintext: " << plaintext << "\n" << endl;
+
+		ILVector2n ciphertext;
+
+		std::cout << "Running encryption..." << std::endl;
+
+		start = currentDateTime();
+
+		algorithm.Encrypt(pk, dgg, plaintext, &ciphertext);	// This is the core encryption operation.
+
+		finish = currentDateTime();
+		diff = finish - start;
+
+		enc += diff;
+
+		cout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+		//fout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+
+		cout<<"ciphertext: "<<ciphertext.GetValues()<<endl;
+
+		////////////////////////////////////////////////////////////
+		//Decryption
+		////////////////////////////////////////////////////////////
+
+		ByteArray plaintextNew;
+
+		std::cout << "\n" << "Running decryption..." << std::endl;
+
+		start = currentDateTime();
+
+		DecodingResult result = algorithm.Decrypt(sk, ciphertext, &plaintextNew);  // This is the core decryption operation.
+
+		finish = currentDateTime();
+		diff = finish - start;
+		decrypt += diff;
+
+		cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+		//fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+
+		cout << "\n" << "decrypted plaintext (NTRU encryption): " << plaintextNew << "\n" << endl;
+		//fout << "\n" << "decrypted plaintext (NTRU encryption): " << plaintextNew << "\n" << endl;
+		if (plaintext.compare(plaintextNew) != 0){
+			cout << "Error at decryption \n Execution will be halted\n";
+			system("pause");
+			exit(-20);
+		}
+
+
+		if (!result.isValidCoding) {
+			std::cout << "Decryption failed!" << std::endl;
+			exit(1);
+		}
+		//PRE SCHEME
+
+		//system("pause");
+
+		LP_Algorithm_PRE_LWE_NTRU<ILVector2n, ILParams> algorithmPRE;
+
+		////////////////////////////////////////////////////////////
+		//Perform the second key generation operation.
+		// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
+		////////////////////////////////////////////////////////////
+
+		LP_PublicKey_LWE_NTRU<ILVector2n, ILParams> newPK;
+		LP_PrivateKey_LWE_NTRU<ILVector2n, ILParams> newSK;
+		newSK.AccessCryptoParameters() = cryptoParams;
+		newPK.AccessCryptoParameters() = cryptoParams;
+
+		std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
+
+		start = currentDateTime();
+
+		successKeyGen = algorithmPRE.KeyGen(newPK, newSK, dgg);	// This is the same core key generation operation.
+
+		finish = currentDateTime();
+		diff = finish - start;
+
+		cout << "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
+		//fout << "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
+
+		//	cout<<"newPK = "<<newPK.GetPublicElement().GetValues()<<endl;
+		//	cout<<"newSK = "<<newSK.GetPrivateElement().GetValues()<<endl;
+		//	fout<<"newPK = "<<newPK.GetPublicElement().GetValues()<<endl;
+		//	fout<<"newSK = "<<newSK.GetPrivateElement().GetValues()<<endl;
+
+		////////////////////////////////////////////////////////////
+		//Perform the proxy re-encryption key generation operation.
+		// This generates the keys which are used to perform the key switching.
+		////////////////////////////////////////////////////////////
+
+		std::cout << "\n" << "Generating proxy re-encryption key..." << std::endl;
+
+		start = currentDateTime();
+
+		std::vector<ILVector2n> &proxyGen = algorithmPRE.ProxyGen(newPK, sk, dgg, relWindow);  // This is the core re-encryption operation.
+
+		finish = currentDateTime();
+		diff = finish - start;
+
+		cout<< "Re-encryption key generation time: "<<"\t"<<diff<<" ms"<<endl;
+		//fout<< "Re-encryption key generation time: "<<"\t"<<diff<<" ms"<<endl;
+
+		////////////////////////////////////////////////////////////
+		//Perform the proxy re-encryption operation.
+		// This switches the keys which are used to perform the key switching.
+		////////////////////////////////////////////////////////////
+
+
+		ILVector2n newCiphertext;
+
+		std::cout << "\n" << "Running re-encryption..." << std::endl;
+
+		start = currentDateTime();
+
+		algorithmPRE.ReEncrypt(proxyGen, cryptoParams, relWindow, ciphertext, &newCiphertext);  // This is the core re-encryption operation.
+
+		finish = currentDateTime();
+		diff = finish - start;
+		reEnc += diff;
+
+		cout<< "Re-encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+		//fout<< "Re-encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+
+		//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
+
+		////////////////////////////////////////////////////////////
+		//Decryption
+		////////////////////////////////////////////////////////////
+
+		ByteArray plaintextNew2;
+
+		std::cout << "\n" << "Running decryption of re-encrypted cipher..." << std::endl;
+
+		start = currentDateTime();
+
+		DecodingResult result1 = algorithmPRE.Decrypt(newSK, newCiphertext, &plaintextNew2);  // This is the core decryption operation.
+
+		finish = currentDateTime();
+		diff = finish - start;
+		reDecrypt += diff;
+		cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+		//fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+
+		cout << "\n" << "decrypted plaintext (PRE Re-Encrypt): " << plaintextNew2 << "\n" << endl;
+		//fout << "\n" << "decrypted plaintext (PRE Re-Encrypt): " << plaintextNew2 << "\n" << endl;
+
+		if (plaintext.compare(plaintextNew2) != 0){
+			cout << "Error at decryption \n Execution will be halted\n";
+			system("pause");
+			exit(-20);
+		}
+
+		if (!result1.isValidCoding) {
+			std::cout << "Decryption failed!" << std::endl;
+			exit(1);
+		}
+
+		std::cout << "Execution completed.  Please any key to finish." << std::endl;
+
+		fout.close();
+
+		delete &proxyGen;
+
+		ChineseRemainderTransformFTT::GetInstance().Destroy();
+		FastFourierTransform::GetInstance().Destroy();
+
+		ILVector2n::destroyPreComputedSamples();
+
+		//ILVector2n::printPreComputedSamples();
+		
+}
+
+void SimulationRunScript(){
+
+	DataParams inputData[29] = {
+
+		//r ->Relinearisation factor
+		//n ->Ring Dimension
+
+		{ 1024, BigBinaryInteger("8590983169"), BigBinaryInteger("4810681236"), 1 },//r = 1; n = 2048
+		{ 2048, BigBinaryInteger("17179926529"), BigBinaryInteger("1874048014"), 1 },//r = 1; n = 4096
+		{ 4096, BigBinaryInteger("34359754753"), BigBinaryInteger("13851565183"), 1 },//r = 1; n = 8192
+		{ 8192, BigBinaryInteger("68720050177"), BigBinaryInteger("36553785585"), 1 },//r = 1; n = 16384
+		{ 16384, BigBinaryInteger("137439510529"), BigBinaryInteger("127846869968"), 1 },//r = 1; n = 32768
+		{ 32768, BigBinaryInteger("274879414273"), BigBinaryInteger("105322812880"), 1 },//r = 1; n = 65536
+		{ 1024, BigBinaryInteger("17179875329"), BigBinaryInteger("8079001841"), 2 },//r = 2; n = 2048
+		{ 2048, BigBinaryInteger("34359754753"), BigBinaryInteger("13153977022"), 2 },//r = 2; n = 4096
+		{ 4096, BigBinaryInteger("68719484929"), BigBinaryInteger("56749534281"), 2 },//r = 2; n = 8192
+		{ 8192, BigBinaryInteger("137439510529"), BigBinaryInteger("53983025593"), 2 },//r = 2; n = 16384
+		{ 16384, BigBinaryInteger("274878136321"), BigBinaryInteger("209984486825"), 2 },//r = 2; n = 32768
+		{ 32768, BigBinaryInteger("549757714433"), BigBinaryInteger("322238512309"), 2 },//r = 2; n = 65536
+		{ 1024, BigBinaryInteger("34359754753"), BigBinaryInteger("34316244289"), 4 },//r = 4; n = 2048
+		{ 2048, BigBinaryInteger("68719484929"), BigBinaryInteger("13855733803"), 4 },//r = 4; n = 4096
+		{ 4096, BigBinaryInteger("137439010817"), BigBinaryInteger("2782127127"), 4 },//r = 4; n = 8192
+		{ 8192, BigBinaryInteger("274878136321"), BigBinaryInteger("134223227748"), 4 },//r = 4; n = 16384
+		{ 16384, BigBinaryInteger("549756174337"), BigBinaryInteger("440437404428"), 4 },//r = 4; n = 32768
+		{ 32768, BigBinaryInteger("1099512938497"), BigBinaryInteger("375006155685"), 4 },//r = 4; n = 65536
+		{ 1024, BigBinaryInteger("137439004673"), BigBinaryInteger("7643730114"), 8 },//r = 8; n = 2048
+		{ 2048, BigBinaryInteger("274877976577"), BigBinaryInteger("222542988809"), 8 },//r = 8; n = 4096
+		{ 4096, BigBinaryInteger("549755904001"), BigBinaryInteger("97301185496"), 8 },//r = 8; n = 8192
+		{ 8192, BigBinaryInteger("1099511922689"), BigBinaryInteger("299284966050"), 8 },//r = 8; n = 16384
+		{ 16384, BigBinaryInteger("2199023288321"), BigBinaryInteger("2169748357953"), 8 },//r = 8; n = 32768
+		{ 32768, BigBinaryInteger("4398047232001"), BigBinaryInteger("1725920503285"), 8 },//r = 8; n = 65536
+		{ 2048, BigBinaryInteger("35184372121601"), BigBinaryInteger("16870007166633"), 16 },//r = 16; n = 4096
+		{ 4096, BigBinaryInteger("70368744210433"), BigBinaryInteger("30476670240605"), 16 },//r = 16; n = 8192
+		{ 8192, BigBinaryInteger("140737488486401"), BigBinaryInteger("24551031954999"), 16 },//r = 16; n = 16384
+		{ 16384, BigBinaryInteger("281474977595393"), BigBinaryInteger("192100341815155"), 16 },//r = 16; n = 32768
+		{ 32768, BigBinaryInteger("562949954142209"), BigBinaryInteger("272989540323468"), 16 },//r = 16; n = 65536
+	};
+	usint inputRingDimension = 0;
+	usint inputRelWindow = 0;
+	usint inputIdx = 0;
+	cout << "Enter the ring dimension, options are 0{1024}, 1{2028}, 2{4096}, 3{8192}, 4{16384}, 5{32768} :>>\n";
+	cin >> inputRingDimension;
+
+	cout << "Enter the relinearisation window, options are 0{1}, 1{2}, 2{4}, 3{8}, 4{16} :>>\n";
+	cin >> inputRelWindow;
+
+	inputIdx = inputRingDimension + 6 * inputRelWindow;
+
+	cout << "Executing Proxy Re-Encryption for the following Parameter:: \n";
+	cout << "Ring Dimension: \n";
+	cout << "      " << inputData[inputIdx].ringDimension << endl;
+	cout << "Cyclotomic Order: \n";
+	cout << "      " << inputData[inputIdx].ringDimension * 2 << endl;
+	cout << "Relinearisation window used: \n";
+	cout << inputData[inputIdx].relWindow << endl;
+
+	double timeEncrypt = 0, timeDecrypt = 0, timeReEncrypt = 0, timeReDecrypt;
+	
+	usint iterationFactor = 100;
+
+	for (usint i = 0; i < iterationFactor; i++){
+		NTRUPRE_ForScript(inputData[inputIdx],timeEncrypt,timeDecrypt,timeReEncrypt,timeReDecrypt);
+	}
+
+	timeEncrypt /= iterationFactor;
+	timeEncrypt /= iterationFactor;
+	timeReEncrypt /= iterationFactor;
+	timeReDecrypt /= iterationFactor;
+
+	cout << "Average Encryption Time is\n:" << timeEncrypt << endl;
+	cout << "Average Decryption Time is\n:" << timeDecrypt << endl;
+	cout << "Average ReEncryption Time is\n:" << timeReEncrypt << endl;
+	cout << "Average ReDecryption Time is\n:" << timeReDecrypt << endl;
+
+	std::cout << "Simulation run ends here.....\n FINISH\n";
+
+}
