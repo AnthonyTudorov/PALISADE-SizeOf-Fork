@@ -26,6 +26,7 @@
 #include "ideals.h"
 #include "nbtheory.h"
 #include "transfrm.h"
+#include "ptxtencoding.h"
 
 /**
  * @namespace lbcrypto
@@ -214,7 +215,7 @@ public:
 	 */
 	bool Equal(const ILVector2n &element) const;
 	
-	// addition operation - PRE_V1
+	// addition operation - PREV1
 	/**
 	 * Performs an addition operation and returns the result.
 	 *
@@ -240,7 +241,7 @@ public:
 	 */
 	ILVector2n Minus(const ILVector2n &element) const;
 
-	// multiplication operation - PRE_V1
+	// multiplication operation - PREV1
 	/**
 	 * Performs a multiplication operation and returns the result.
 	 *
@@ -334,7 +335,7 @@ public:
 	 * @param *text the byte array output.  	
 	 * @param &modulus modulus to convert from.  	  
 	 */
-	void DecodeElement(ByteArray *text, const BigBinaryInteger &modulus) const;
+	void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const;
 		
 	//Convert binary string to lattice format; do p=2 first but document that we need to generalize it later
 	/**
@@ -343,7 +344,7 @@ public:
 	 * @param &encoded the byte array output.  	
 	 * @param &modulus modulus to convert to.  	  
 	 */
-	void EncodeElement(const ByteArray &encoded, const BigBinaryInteger &modulus);
+	void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus);
 
 	/**
 	 * Print the pre-computed discrete Gaussian samples.  	  
@@ -389,16 +390,16 @@ private:
 };
 
 // overloaded operators for ILVector2n
-//PRE_V1
+//PREV1
 inline lbcrypto::ILVector2n operator+(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Plus(b);}
 inline lbcrypto::ILVector2n operator-(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Minus(b);}
-//PRE_V1
+//PREV1
 inline lbcrypto::ILVector2n operator*(const lbcrypto::BigBinaryInteger &b, const lbcrypto::ILVector2n &a) {return a.Times(b);}
 inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) {return a.DividedBy(b);}
-//PRE_V1
+//PREV1
 inline lbcrypto::ILVector2n operator+(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.Plus(b);}
 inline lbcrypto::ILVector2n operator-(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.Minus(b);}
-//PRE_V1
+//PREV1
 inline lbcrypto::ILVector2n operator*(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.Times(b);}
 inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.DividedBy(b);}
 
@@ -630,7 +631,7 @@ public:
 	 * @param *text the byte array to take as input.  	
 	 * @param &modulus modulus to convert from.  	  
 	 */
-	void DecodeElement(ByteArray *text, const BigBinaryInteger &modulus) const;
+	void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const;
 		
 	//Convert binary string to lattice format
 	/**
@@ -639,7 +640,7 @@ public:
 	 * @param &encoded the byte array to take as input.  	
 	 * @param &modulus modulus to convert to.  	  
 	 */
-	void EncodeElement(const ByteArray &encoded, const BigBinaryInteger &modulus);
+	void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus);
 	
 	/*
 

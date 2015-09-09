@@ -35,7 +35,7 @@ namespace lbcrypto {
 	 * @tparam P a set of element parameters.
 	 */
 	template <class T, class P>
-	class LP_Algorithm_PRE_LWE_NTRU : public LP_Algorithm_LWE_NTRU<T,P>, public LP_PRE_Algorithm<T,P> {
+	class LPAlgorithmPRELWENTRU : public LPAlgorithmLWENTRU<T,P>, public LPPREAlgorithm<T,P> {
 		public:
 			typedef T Element;
 			typedef P ElementParams;
@@ -48,8 +48,8 @@ namespace lbcrypto {
 			 * @param &dg discrete Gaussian generator.
 			 * @return the re-encryption key.
 			 */
-			 bool ProxyGen(const LP_PublicKey<Element,ElementParams> &newPublicKey, 
-				LP_PrivateKey<Element,ElementParams> &origPrivateKey,
+			 bool ProxyGen(const LPPublicKey<Element,ElementParams> &newPublicKey, 
+				LPPrivateKey<Element,ElementParams> &origPrivateKey,
 				DiscreteGaussianGenerator &ddg, usint relinWindow, std::vector<Element> *evalKey) const;
 			
 			/**
@@ -61,7 +61,7 @@ namespace lbcrypto {
 			 * @param *newCiphertext the new ciphertext.
 			 */
 			void ReEncrypt(const std::vector<Element> &evalKey,
-				const LP_CryptoParameters<Element,ElementParams> &params,
+				const LPCryptoParameters<Element,ElementParams> &params,
 				usint relinWindow,
 				const Element &ciphertext, 
 				Element *newCiphertext) const;

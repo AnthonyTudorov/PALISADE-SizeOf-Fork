@@ -145,7 +145,7 @@ namespace lbcrypto {
 		m_format = format;
 	}
 
-	 // addition operation - PRE_V1
+	 // addition operation - PREV1
 	ILVector2n ILVector2n::Plus(const BigBinaryInteger &element) const{
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->ModAdd(element);
@@ -153,14 +153,14 @@ namespace lbcrypto {
 	}
 
 	
-	// multiplication operation - PRE_V1
+	// multiplication operation - PREV1
 	ILVector2n ILVector2n::Times(const BigBinaryInteger &element) const{
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->ModMul(element);
 		return tmp;
 	}
 
-	// modulo operation - PRE_V1
+	// modulo operation - PREV1
 	ILVector2n ILVector2n::Mod(const BigBinaryInteger & modulus) const{
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->Mod(modulus);
@@ -191,7 +191,7 @@ namespace lbcrypto {
 
 	// VECTOR OPERATIONS
 	
-	// addition operation - PRE_V1
+	// addition operation - PREV1
 	ILVector2n ILVector2n::Plus(const ILVector2n &element) const{
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->ModAdd(*element.m_values);
@@ -203,7 +203,7 @@ namespace lbcrypto {
 		return *this;
 	}
 
-	// multiplication operation - PRE_V1
+	// multiplication operation - PREV1
 	ILVector2n ILVector2n::Times(const ILVector2n &element) const{
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->ModMul(*element.m_values);
@@ -250,8 +250,9 @@ namespace lbcrypto {
 
 
 	//Represent the lattice in binary format
-	void ILVector2n::DecodeElement(ByteArray *text, const BigBinaryInteger &modulus) const{
+	void ILVector2n::DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const{
 
+		ByteArray byteArray;
 		usint mod = modulus.ConvertToInt();
 		usint p  = ceil((float)log((double)255)/log((double)mod));
 		usint resultant_char;
@@ -263,21 +264,24 @@ namespace lbcrypto {
 				resultant_char += m_values->GetValAtIndex(i+j).ConvertToInt()*exp ;
 				exp *= mod;
 			}
-			*text+=((char)resultant_char);
+			byteArray+=((char)resultant_char);
 		}
+		*text = ByteArrayPlaintextEncoding(byteArray);
 
 	}
 		
 	//Convert binary string to lattice format; do p=2 first but document that we need to generalize it later
-	void ILVector2n::EncodeElement(const ByteArray &encoded, const BigBinaryInteger &modulus){
+	void ILVector2n::EncodeElement(const ByteArrayPlaintextEncoding &encodedPlaintext, const BigBinaryInteger &modulus){
 	
+		ByteArray encoded = encodedPlaintext.GetData();
+		
 		if(m_values!=NULL){
 			delete m_values;
 		}
 
 		usint mod = modulus.ConvertToInt();
 		usint p  = ceil((float)log((double)255)/log((double)mod));
-		
+
 		m_values = new BigBinaryVector(p*encoded.length());
 		(*m_values).SetModulus(m_params.GetModulus());
 		m_format = COEFFICIENT;

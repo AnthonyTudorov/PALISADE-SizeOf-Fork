@@ -21,6 +21,7 @@
 #include "binint.h"
 #include "inttypes.h"
 #include "nbtheory.h"
+#include "ptxtencoding.h"
 
 /**
  * @namespace lbcrypto
@@ -57,7 +58,7 @@ public:
 	 * @param *text the byte array to take as input.  	
 	 * @param &modulus modulus to convert from.  	  
 	 */
-	virtual void DecodeElement(ByteArray *text, const BigBinaryInteger &modulus) const = 0;
+	virtual void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const = 0;
 		
 	//Convert binary string to lattice format
 	/**
@@ -66,7 +67,7 @@ public:
 	 * @param &encoded the byte array to take as input.  	
 	 * @param &modulus modulus to convert to.  	  
 	 */
-	virtual void EncodeElement(const ByteArray &encoded, const BigBinaryInteger &modulus) = 0;
+	virtual void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus) = 0;
 
 };
 

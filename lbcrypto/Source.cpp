@@ -136,7 +136,7 @@ void NTRUPRE(int input) {
 	//usint m = 2048;
 	//BigBinaryInteger modulus("8590983169");
 	//BigBinaryInteger rootOfUnity("4810681236");
-	//ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW_NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
+	//ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
 	
 	SecureParams const SECURE_PARAMS[] = {
 		{ 2048, BigBinaryInteger("8590983169"), BigBinaryInteger("4810681236"), 1 }, //r = 1
@@ -150,7 +150,7 @@ void NTRUPRE(int input) {
 	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
 	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
 	usint relWindow = SECURE_PARAMS[input].relinWindow;
-	ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW_NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
+	ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
 	if (m == 4096)
 		plaintext += plaintext;
 
@@ -164,7 +164,7 @@ void NTRUPRE(int input) {
 	ILParams ilParams(m,modulus,rootOfUnity);
 	
 	//Set crypto parametes
-	LP_CryptoParameters_LWE<ILVector2n,ILParams> cryptoParams;
+	LPCryptoParametersLWE<ILVector2n,ILParams> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(4);			// Set the noise parameters.
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
@@ -176,9 +176,9 @@ void NTRUPRE(int input) {
 	testElement.SwitchFormat();
 
 	// Initialize the public key containers.
-	LP_PublicKey_LWE_NTRU<ILVector2n,ILParams> pk;
+	LPPublicKeyLWENTRU<ILVector2n,ILParams> pk;
 
-	LP_PrivateKey_LWE_NTRU<ILVector2n,ILParams> sk;
+	LPPrivateKeyLWENTRU<ILVector2n,ILParams> sk;
 	sk.AccessCryptoParameters() = cryptoParams;
 	pk.AccessCryptoParameters() = cryptoParams;
 	
@@ -188,7 +188,7 @@ void NTRUPRE(int input) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	LP_Algorithm_LWE_NTRU<ILVector2n,ILParams> algorithm;
+	LPAlgorithmLWENTRU<ILVector2n,ILParams> algorithm;
 
 	bool successKeyGen=false;
 
@@ -223,12 +223,13 @@ void NTRUPRE(int input) {
 	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;	
 
 	ILVector2n ciphertext;
+	ByteArrayPlaintextEncoding ptxt(plaintext);
 
 	std::cout << "Running encryption..." << std::endl;
 
 	start = currentDateTime();
 
-	algorithm.Encrypt(pk,dgg,plaintext,&ciphertext);	// This is the core encryption operation.
+	algorithm.Encrypt(pk,dgg,ptxt,&ciphertext);	// This is the core encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -242,7 +243,7 @@ void NTRUPRE(int input) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArray plaintextNew;
+	ByteArrayPlaintextEncoding plaintextNew;
 
 	std::cout <<"\n"<< "Running decryption..." << std::endl;
 
@@ -256,8 +257,8 @@ void NTRUPRE(int input) {
 	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
-	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
+	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew.GetData()<<"\n"<<endl;
+	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew.GetData()<<"\n"<<endl;
 
 	if (!result.isValidCoding) {
 		std::cout<<"Decryption failed!"<<std::endl;
@@ -267,15 +268,15 @@ void NTRUPRE(int input) {
 
 	//system("pause");
 
-	LP_Algorithm_PRE_LWE_NTRU<ILVector2n,ILParams> algorithmPRE;
+	LPAlgorithmPRELWENTRU<ILVector2n,ILParams> algorithmPRE;
 
 	////////////////////////////////////////////////////////////
 	//Perform the second key generation operation.
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LP_PublicKey_LWE_NTRU<ILVector2n,ILParams> newPK;
-	LP_PrivateKey_LWE_NTRU<ILVector2n,ILParams> newSK;
+	LPPublicKeyLWENTRU<ILVector2n,ILParams> newPK;
+	LPPrivateKeyLWENTRU<ILVector2n,ILParams> newSK;
 	newSK.AccessCryptoParameters() = cryptoParams;
 	newPK.AccessCryptoParameters() = cryptoParams;
 
@@ -341,7 +342,7 @@ void NTRUPRE(int input) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArray plaintextNew2;
+	ByteArrayPlaintextEncoding plaintextNew2;
 
 	std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
 
@@ -355,8 +356,8 @@ void NTRUPRE(int input) {
 	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
-	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
+	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2.GetData()<<"\n"<<endl;
+	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2.GetData()<<"\n"<<endl;
 
 	if (!result1.isValidCoding) {
 		std::cout<<"Decryption failed!"<<std::endl;

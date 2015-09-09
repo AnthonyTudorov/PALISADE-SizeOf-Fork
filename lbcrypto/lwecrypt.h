@@ -37,7 +37,7 @@ namespace lbcrypto {
 	 * @tparam P a set of element parameters.
 	 */
 	template <class T, class P>
-	class LP_CryptoParameters_LWE : public LP_CryptoParametersImpl<T,P> {
+	class LPCryptoParametersLWE : public LPCryptoParametersImpl<T,P> {
 		public:
 			typedef T Element;
 			typedef P ElementParams;
@@ -45,7 +45,7 @@ namespace lbcrypto {
 			/**
 			 * Constructor that initializes all values to 0.
 			 */
-			LP_CryptoParameters_LWE() {
+			LPCryptoParametersLWE() {
 				//m_params = new ElementParams();commented out by Gyana
 				//m_plaintextModulus = new BigBinaryInteger();commented out by Gyana 
 				m_distributionParameter = 0.0f;
@@ -64,7 +64,7 @@ namespace lbcrypto {
 			 * @param securityLevel security level.
 			 * @param depth depth which is set to 1.
 			 */
-			LP_CryptoParameters_LWE(const ElementParams &params,
+			LPCryptoParametersLWE(const ElementParams &params,
 				const BigBinaryInteger &plaintextModulus, 
 				float distributionParameter, 
 				float assuranceMeasure, 
@@ -221,13 +221,13 @@ namespace lbcrypto {
 	 * @tparam P a set of element parameters.
 	 */
 	template <class T, class P>
-	class LP_PublicKey_LWE_NTRU : public LP_PublicKeyImpl<LP_CryptoParameters_LWE<T,P>>{
+	class LPPublicKeyLWENTRU : public LPPublicKeyImpl<LPCryptoParametersLWE<T,P>>{
 		public:
 			typedef T Element;
 			typedef P ElementParams;
 
-			//Uses the LP_CryptoParameters_LWE instance
-			/*void Initialize(const LP_CryptoParameters_LWE<Element,ElementParams> &params, 
+			//Uses the LPCryptoParametersLWE instance
+			/*void Initialize(const LPCryptoParametersLWE<Element,ElementParams> &params, 
 				const Element &generatedElement, 
 				const Element &publicElement)
 			{
@@ -243,13 +243,13 @@ namespace lbcrypto {
 	 * @tparam P a set of element parameters.
 	 */
 	template <class T, class P>
-	class LP_PrivateKey_LWE_NTRU : public LP_PrivateKeyImpl<LP_CryptoParameters_LWE<T,P> >{
+	class LPPrivateKeyLWENTRU : public LPPrivateKeyImpl<LPCryptoParametersLWE<T,P> >{
 		public:
 			typedef T Element;
 			typedef P ElementParams;
 			
-			//Uses the LP_CryptoParameters_LWE instance
-			/*void Initialize(const LP_CryptoParameters_LWE<Element,ElementParams> &params, 
+			//Uses the LPCryptoParametersLWE instance
+			/*void Initialize(const LPCryptoParametersLWE<Element,ElementParams> &params, 
 				const Element &privateElement)
 			{
 				AccessCryptoParameters() = params;
@@ -262,7 +262,7 @@ namespace lbcrypto {
 			 *
 			 * @param &pub a public key.
 			 */
-			void MakePublicKey(LP_PublicKey<Element,ElementParams> &pub) const
+			void MakePublicKey(LPPublicKey<Element,ElementParams> &pub) const
 			{
 				pub.SetPublicElement(this->GetCryptoParameters().GetPlaintextModulus()*this->GetPrivateErrorElement()*this->GetPrivateElement().MultiplicativeInverse());
 			}
@@ -274,7 +274,7 @@ namespace lbcrypto {
 	 * @tparam P a set of element parameters.
 	 */
 	template <class T, class P>
-	class LP_Algorithm_LWE_NTRU : public LP_EncryptionAlgorithm<T,P>{
+	class LPAlgorithmLWENTRU : public LPEncryptionAlgorithm<T,P>{
 		public:
 			typedef T Element;
 			typedef P ElementParams;
@@ -287,9 +287,9 @@ namespace lbcrypto {
 			 * @param &plaintext the plaintext input.
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			void Encrypt(const LP_PublicKey<Element,ElementParams> &publicKey, 
+			void Encrypt(const LPPublicKey<Element,ElementParams> &publicKey, 
 				DiscreteGaussianGenerator &dg, 
-				const ByteArray &plaintext, 
+				const PlaintextEncodingInterface &plaintext, 
 				Element *ciphertext) const;
 			
 			/**
@@ -300,9 +300,9 @@ namespace lbcrypto {
 			 * @param *plaintext the plaintext output.
 			 * @return the decrypted plaintext returned.
 			 */			
-			DecodingResult Decrypt(const LP_PrivateKey<Element,ElementParams> &privateKey, 
+			DecodingResult Decrypt(const LPPrivateKey<Element,ElementParams> &privateKey, 
 				const Element &ciphertext, 
-				ByteArray *plaintext) const;
+				PlaintextEncodingInterface *plaintext) const;
 			
 			/**
 			 * Function to generate public and private keys
@@ -312,8 +312,8 @@ namespace lbcrypto {
 			 * @param &dg discrete Gaussian generator.
 			 * @return function ran correctly.
 			 */
-			bool KeyGen(LP_PublicKey<Element,ElementParams> &publicKey, 
-		        LP_PrivateKey<Element,ElementParams> &privateKey, 
+			bool KeyGen(LPPublicKey<Element,ElementParams> &publicKey, 
+		        LPPrivateKey<Element,ElementParams> &privateKey, 
 		        DiscreteGaussianGenerator &dgg) const;
 
 	};
