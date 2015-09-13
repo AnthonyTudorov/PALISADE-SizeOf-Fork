@@ -1,0 +1,678 @@
+/**
+ * @file
+ * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+ * @version 00_03
+ *
+ * @section LICENSE
+ *
+ * All rights retained by NJIT.  Our intention is to release this software as an open-source library under a license comparable in spirit to BSD, Apache or MIT.
+ *
+ * This software is being provided as an alpha-test version.  This software has not been audited or externally verified to be correct.  NJIT makes no guarantees or assurances about the correctness of this software.  This software is not ready for use in safety-critical or security-critical applications.
+ *
+ * @section DESCRIPTION
+ *
+ * This code provides basic lattice ideal manipulation functionality.
+ */
+
+#ifndef LBCRYPTO_IL2N_H
+#define LBCRYPTO_IL2N_H
+
+#include <vector>
+#include "binint.h"
+#include "binvect.h"
+#include "inttypes.h"
+#include "distrgen.h"
+#include "ideals.h"
+#include "nbtheory.h"
+#include "transfrm.h"
+
+/**
+ * @namespace lbcrypto
+ * The namespace of lbcrypto
+ */
+namespace lbcrypto {
+
+const usint SAMPLE_SIZE = 30; //!< @brief The maximum number of samples used for random variable sampling.
+
+/**
+ * @brief Ideal lattice in vector representation or a vector in the double-CRT "matrix".  This is not fully implemented and is currently only stubs.
+ */
+class ILVector2n : public ILElement    
+{
+public:
+
+	/**
+	 * Constructor that initializes nothing.
+	 */
+	ILVector2n();	
+
+	/**
+	 * Constructor that initializes parameters.
+	 *
+	 * @param &params element parameters.
+	 */
+	ILVector2n(const ILParams &params);
+    
+	/**
+	 * Copy constructor.
+	 *
+	 * @param &element the copied element.
+	 */
+	ILVector2n(const ILVector2n &element);
+	
+	/**
+	 * Copy constructor.
+	 *
+	 * @param &&element the copied element.
+	 */
+	ILVector2n(ILVector2n &&element);
+	
+	/**
+	 * Assignment Operator.
+	 *
+	 * @param &rhs the copied vector.
+	 * @return the resulting vector.
+	 */
+	ILVector2n& operator=(const ILVector2n &rhs);
+
+	/**
+	 * Assignment Operator.
+	 *
+	 * @param &&rhs the copied vector.
+	 * @return the resulting vector.
+	 */
+	ILVector2n& operator=(ILVector2n &&rhs);
+
+    // construct using an array in either Coefficient (0) or CRT format (1)
+    //ILVector2n (const BigBinaryVector &values, Format format, const ILParams &params):m_values(new BigBinaryVector(values)),
+	//m_params(params),m_format(format){	}
+
+	/**
+	 * Constructor based on full methods.
+	 *
+	 * @param &dgg the input discrete Gaussian Generator.
+	 * @param &params the input params.
+	 * @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.	 
+	 */
+	ILVector2n(DiscreteGaussianGenerator &dgg,const ILParams &params,Format format = EVALUATION);
+
+	/**
+	 * Destructor.	 
+	 */
+	~ILVector2n();
+
+	//void GenerateGaussian(DiscreteGaussianGenerator &dgg);
+
+	/**
+	 * Get method of the modulus.
+	 *
+	 * @return the modulus.	 
+	 */
+	const BigBinaryInteger &GetModulus() const;
+
+	/**
+	 * Get method of the vector.
+	 *
+	 * @return the vector.	 
+	 */
+	const BigBinaryVector &GetValues() const;
+
+	/**
+	 * Get method of the root of unity.
+	 *
+	 * @return the root of unity.	 
+	 */
+	BigBinaryInteger &GetRootOfUnity();
+
+	/**
+	 * Get method of the format.
+	 *
+	 * @return the format.	 
+	 */
+	Format GetFormat();
+
+	/**
+	 * Get method of the parameter set.
+	 *
+	 * @return the parameter set.	 
+	 */
+	const ILParams &GetParams();
+
+	/**
+	 * Get method of the length of the element.
+	 *
+	 * @return the length of the element.	 
+	 */
+	usint GetLength();
+
+	/**
+	 * Set method of the values.
+	 *
+	 * @param values is the set of values of the vector.	
+	 * @param format is the format.	  
+	 */
+	void SetValues(const BigBinaryVector& values, Format format);
+   
+	// SCALAR OPERATIONS
+
+	
+	/**
+	 * Scalar addition - add an element to all entries.
+	 *
+	 * @param &element is the element to add entry-wise.
+	 * @return is the return of the addition operation.	  
+	 */
+	ILVector2n Plus(const BigBinaryInteger &element) const;
+
+	/**
+	 * Scalar subtraction - subtract an element to all entries.
+	 *
+	 * @param &element is the element to subtract entry-wise.
+	 * @return is the return value of the minus operation.	  	  
+	 */
+	ILVector2n Minus(const BigBinaryInteger &element) const;
+	
+	/**
+	 * Scalar multiplication - multiply all entries.
+	 *
+	 * @param &element is the element to multiply entry-wise.
+	 * @return is the return value of the times operation.	  	  
+	 */
+	ILVector2n Times(const BigBinaryInteger &element) const;
+
+	/**
+	 * Scalar division - divide an element to all entries.
+	 *
+	 * @param &element is the element to divide entry-wise.
+	 * @return is the return value of the division operation.	  	  
+	 */
+	ILVector2n DividedBy(const BigBinaryInteger &element) const;
+
+	/**
+	 * Modulus - perform a modulus operation.
+	 *
+	 * @param modulus is the modulus to use.
+	 * @return is the return value of the modulus.	  	  
+	 */
+	ILVector2n Mod(const BigBinaryInteger & modulus) const;
+
+	/**
+	 * Perform a modulus by 2 operation.  Returns the least significant bit.
+	 *
+	 * @return is the return value of the modulus by 2, also the least significant bit.	  
+	 */
+	BigBinaryVector ModByTwo() const;
+
+	// VECTOR OPERATIONS
+
+	/**
+	 * Determines if two vectors are equal.
+	 *
+	 * @param &element is the element to test equality with.
+	 * @return is the Boolean representation of equality.	  	  
+	 */
+	bool Equal(const ILVector2n &element) const;
+	
+	// addition operation - PRE_V1
+	/**
+	 * Performs an addition operation and returns the result.
+	 *
+	 * @param &element is the element to add with.
+	 * @return is the result of the addition.	  	  
+	 */
+	ILVector2n Plus(const ILVector2n &element) const;
+
+	/**
+	 * Performs an addition operation and returns the result.
+	 *
+	 * @param &element is the element to add with.
+	 * @return is the result of the addition.	  	  
+	 */
+	const ILVector2n& operator+=(const ILVector2n &element);
+
+	// subtraction operation
+	/**
+	 * Performs a subtraction operation and returns the result.
+	 *
+	 * @param &element is the element to subtract with.
+	 * @return is the result of the subtraction.	  	  
+	 */
+	ILVector2n Minus(const ILVector2n &element) const;
+
+	// multiplication operation - PRE_V1
+	/**
+	 * Performs a multiplication operation and returns the result.
+	 *
+	 * @param &element is the element to multiply with.
+	 * @return is the result of the multiplication.	  	  
+	 */
+	ILVector2n Times(const ILVector2n &element) const;
+
+	// division operation
+	/**
+	 * Performs a division operation and returns the result.
+	 *
+	 * @param &element is the element to divide with.
+	 * @return is the result of the division.	  	  
+	 */
+	ILVector2n DividedBy(const ILVector2n &element) const;
+
+	// automorphism operation
+	/**
+	 * Performs an automorphism transform operation and returns the result.
+	 *
+	 * @param &i is the element to perform the automorphism transform with.
+	 * @return is the result of the automorphism transform.	  	  
+	 */
+	ILVector2n AutomorphismTransform(const BigBinaryInteger &i) const;
+
+	// multiplicative inverse operation
+	/**
+	 * Performs a multiplicative inverse operation and returns the result.
+	 *
+	 * @return is the result of the multiplicative inverse.	  	  
+	 */
+	ILVector2n MultiplicativeInverse() const;
+
+	// OTHER METHODS
+
+	// rounds polynomial to a certain integer x
+	/**
+	 * Rounds the polynomial to an input integer.
+	 *
+	 * @param x is integer to round to.
+	 * @return is the result of the rounding operation.	  	  
+	 */
+	ILVector2n Round(const BigBinaryInteger& x) const;
+
+	// convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT
+	/**
+	 * Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.	  	  
+	 */
+	void SwitchFormat();
+
+	// get digit for a specific based - used for PRE scheme
+	/**
+	 * Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  Used in bit decomposition/relinearization operations.
+	 *
+	 * @param index is the index to get.
+	 * @param base is the base the result should be in.
+	 * @return is the result.	  	  
+	 */
+	ILVector2n GetDigitAtIndexForBase(usint index, usint base) const;
+
+	// does the vector have any coefficients
+	/**
+	 * Returns whether the vector is all zero.
+	 *
+	 * @return returns whether the vector is all zero.	  	  
+	 */
+	bool IsZero() const;
+
+	/**
+	 * Shift entries in the vector left a specific number of entries.
+	 *
+	 * @param n the number of entries to shift left.
+	 * @return is the resulting vector from shifting left.	  	  
+	 */
+	ILVector2n ShiftLeft(unsigned int n) const;
+
+	/**
+	 * Shift entries in the vector right a specific number of entries.
+	 *
+	 * @param n the number of entries to shift right.
+	 * @return is the resulting vector from shifting right.	  	  
+	 */
+	ILVector2n ShiftRight(unsigned int n) const;
+
+	//Represent the lattice in binary format
+	/**
+	 * We assume the plaintext comes as an array of bits and this function converts those bits input a ByteArray.
+	 * This method saves the result into the output parameter text.
+	 *
+	 * @param *text the byte array output.  	
+	 * @param &modulus modulus to convert from.  	  
+	 */
+	void DecodeElement(ByteArray *text, const BigBinaryInteger &modulus) const;
+		
+	//Convert binary string to lattice format; do p=2 first but document that we need to generalize it later
+	/**
+	 * Convert binary string to lattice format.
+	 *
+	 * @param &encoded the byte array output.  	
+	 * @param &modulus modulus to convert to.  	  
+	 */
+	void EncodeElement(const ByteArray &encoded, const BigBinaryInteger &modulus);
+
+	/**
+	 * Print the pre-computed discrete Gaussian samples.  	  
+	 */
+	static void PrintPreComputedSamples(){
+		for (usint i = 0; i < SAMPLE_SIZE; i++)
+			std::cout << m_dggSamples[i].GetValues() <<  std::endl;
+	}
+
+	/**
+	 * Clear the pre-computed discrete Gaussian samples.  	  
+	 */
+	static void DestroyPreComputedSamples(){
+		m_dggSamples.clear();	
+	}
+
+private:
+
+	// stores either coefficient or evaluation representation
+	BigBinaryVector *m_values;
+
+	// 0 for coefficient and 1 for evaluation format
+	Format m_format;
+	
+	// noise norm associated with this vector - to be defined later
+	// BigBinaryInteger m_norm;
+	
+	// reference to the parameters for ideal lattices
+	ILParams m_params;
+	
+	// static variable to store pre-computed samples
+	static std::vector<ILVector2n> m_dggSamples;
+
+	// static variable to store the sample size for each set of ILParams
+	static const usint m_sampleSize = SAMPLE_SIZE;
+
+	// computes the samples
+	void PreComputeDggSamples(DiscreteGaussianGenerator &dgg,const ILParams &params);
+
+	// gets a random discrete Gaussian polynomial
+	const ILVector2n GetPrecomputedVector(const ILParams &params);
+	
+};
+
+// overloaded operators for ILVector2n
+//PRE_V1
+inline lbcrypto::ILVector2n operator+(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Plus(b);}
+inline lbcrypto::ILVector2n operator-(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Minus(b);}
+//PRE_V1
+inline lbcrypto::ILVector2n operator*(const lbcrypto::BigBinaryInteger &b, const lbcrypto::ILVector2n &a) {return a.Times(b);}
+inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) {return a.DividedBy(b);}
+//PRE_V1
+inline lbcrypto::ILVector2n operator+(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.Plus(b);}
+inline lbcrypto::ILVector2n operator-(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.Minus(b);}
+//PRE_V1
+inline lbcrypto::ILVector2n operator*(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.Times(b);}
+inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.DividedBy(b);}
+
+// ideal lattice in the double-CRT representation
+
+/**
+ * @brief Ideal lattice in the double-CRT representation.  This is not fully implemented and is currently only stubs.
+ */
+class ILVectorArray2n : public ILElement      
+{
+public:
+
+	// CONSTRUCTORS
+	/**
+	 * Constructor that initializes parameters.
+	 *
+	 * @param &params element parameters.
+	 */
+	ILVectorArray2n(const ILParams &params);
+
+	// copy constructor
+	/**
+	 * Copy constructor.
+	 *
+	 * @param &element the copied element.
+	 */
+	ILVectorArray2n(const ILVectorArray2n &element);
+
+	// construct using an array in either Coefficient (0) or CRT format (1)
+	/**
+	 * Construct using an array in either Coefficient (0) or CRT format (1).
+	 *
+	 * @param params the input parameters.
+	 * @param &levels the levels.
+	 */
+	ILVectorArray2n(const ILParams& params, std::vector<ILVector2n> &levels);
+
+	/**
+	 * Construct using a discrete Gaussian generator and a set of parameters.
+	 *
+	 * @param &dgg the input discrete Gaussian Generator.
+	 * @param &params the input params.
+	 */ 
+	ILVectorArray2n(DiscreteGaussianGenerator &dgg, const ILParams &params);
+
+	// DESTRUCTORS
+	/**
+	 * Destructor.	 
+	 */
+	~ILVectorArray2n();
+
+	// Get accessors
+	/**
+	 * Get method of the vector values.
+	 *
+	 * @return the vector.	 
+	 */
+	std::vector<ILVector2n> GetValues() const;
+
+	/**
+	 * Get method of the parameter set.
+	 *
+	 * @return the parameter set.	 
+	 */
+	ILParams& GetParams() const;
+
+	// Set accessors
+
+	/**
+	 * Set method of the values.
+	 *
+	 * @param values is the set of values of the vector.	
+	 */
+	void SetValues(std::vector<ILVector2n>& values);
+   
+	// SCALAR OPERATIONS
+
+	// addition operation	
+	/**
+	 * Scalar addition - add an element to all entries.
+	 *
+	 * @param &element is the element to add entry-wise.
+	 * @return is the return of the addition operation.	  
+	 */
+	ILVectorArray2n& Plus(const BigBinaryInteger &element) const;
+
+	// subtraction operation
+	/**
+	 * Scalar subtraction - subtract an element to all entries.
+	 *
+	 * @param &element is the element to subtract entry-wise.
+	 * @return is the return value of the minus operation.	  	  
+	 */
+	ILVectorArray2n& Minus(const BigBinaryInteger &element) const;
+
+	// multiplication operation
+	/**
+	 * Scalar multiplication - multiply all entries.
+	 *
+	 * @param &element is the element to multiply entry-wise.
+	 * @return is the return value of the times operation.	  	  
+	 */
+	ILVectorArray2n& Times(const BigBinaryInteger &element) const;
+
+	// division operation
+	/**
+	 * Scalar division - divide an element to all entries.
+	 *
+	 * @param &element is the element to divide entry-wise.
+	 * @return is the return value of the division operation.	  	  
+	 */
+	ILVectorArray2n& DividedBy(const BigBinaryInteger &element) const;
+
+	// modulo operation
+	/**
+	 * Modulus - perform a modulus operation.
+	 *
+	 * @param modulus is the modulus to use.
+	 * @return is the return value of the modulus.	  	  
+	 */
+	ILVectorArray2n& Mod(const BigBinaryInteger & modulus) const;
+
+	// VECTOR OPERATIONS
+	
+	// equality operation
+	/**
+	 * Determines if two vectors are equal.
+	 *
+	 * @param &element is the element to test equality with.
+	 * @return is the Boolean representation of equality.	  	  
+	 */
+	bool Equal(const ILVectorArray2n &element) const;
+
+	// addition operation
+	/**
+	 * Performs an addition operation and returns the result.
+	 *
+	 * @param &element is the element to add with.
+	 * @return is the result of the addition.	  	  
+	 */
+	ILVectorArray2n& Plus(const ILVectorArray2n &element) const;
+
+	// subtraction operation
+	/**
+	 * Performs a subtraction operation and returns the result.
+	 *
+	 * @param &element is the element to subtract with.
+	 * @return is the result of the subtraction.	  	  
+	 */
+	ILVectorArray2n& Minus(const ILVectorArray2n &element) const;
+
+	// multiplication operation
+	/**
+	 * Performs a multiplication operation and returns the result.
+	 *
+	 * @param &element is the element to multiply with.
+	 * @return is the result of the multiplication.	  	  
+	 */
+	ILVectorArray2n& Times(const ILVectorArray2n &element) const;
+
+	// division operation
+	/**
+	 * Performs a division operation and returns the result.
+	 *
+	 * @param &element is the element to divide with.
+	 * @return is the result of the division.	  	  
+	 */
+	ILVectorArray2n& DividedBy(const ILVectorArray2n &element) const;
+
+	// automorphism operation
+	/**
+	 * Performs an automorphism transform operation and returns the result.
+	 *
+	 * @param &i is the element to perform the automorphism transform with.
+	 * @return is the result of the automorphism transform.	  	  
+	 */
+	ILVectorArray2n& AutomorphismTransform(const BigBinaryInteger& i) const;
+
+	// multiplicative inverse operation
+	/**
+	 * Performs a multiplicative inverse operation and returns the result.
+	 *
+	 * @return is the result of the multiplicative inverse.	  	  
+	 */
+	ILVectorArray2n& MultiplicativeInverse() const;
+
+	// OTHER METHODS
+
+	// rounds polynomial to a certain integer x
+	/**
+	 * Rounds the polynomial to an input integer.
+	 *
+	 * @param x is integer to round to.
+	 * @return is the result of the rounding operation.	  	  
+	 */
+	ILVectorArray2n& Round(const BigBinaryInteger& x) const;
+
+	// scaling operation used in modulus switching; will be used for FHE
+	/**
+	 * Scaling operation used in modulus switching
+	 *
+	 * @param newModulus the new modulus to scale to.
+	 * @return is the result of the scaling operation.	  	  
+	 */
+	ILVectorArray2n& Scale(const BigBinaryInteger& newModulus) const;
+
+	// add new level - will be used for FHE
+	/**
+	 * Add new level operation.
+	 *
+	 * @param &element is the element to add.
+	 * @return is the result of the add level operation.	  	  
+	 */
+	void AddLevel(const ILVector2n &element);
+
+	// remove level - will be used for FHE
+	/**
+	 * Remove level operation.
+	 *
+	 * @param index is the level to remove.
+	 * @return is the result of the remove level operation.	  	  
+	 */
+	ILVector2n& RemoveLevel(usint index);
+
+	//Represent the lattice in binary format
+	/**
+	 * Convert the lattice to be represented internally in binary format.
+	 *
+	 * @param *text the byte array to take as input.  	
+	 * @param &modulus modulus to convert from.  	  
+	 */
+	void DecodeElement(ByteArray *text, const BigBinaryInteger &modulus) const;
+		
+	//Convert binary string to lattice format
+	/**
+	 * Convert binary string to lattice format.
+	 *
+	 * @param &encoded the byte array to take as input.  	
+	 * @param &modulus modulus to convert to.  	  
+	 */
+	void EncodeElement(const ByteArray &encoded, const BigBinaryInteger &modulus);
+	
+	/*
+
+
+		// modulus factors in ciphertext modulus
+    BigBinaryVector m_modulusFactors;
+
+	// computes moduli qi
+    void ComputeModuli();
+
+	// when modulus factors are set, m_moduli are automatically computed by calling ComputeModuli()
+    void SetModulusFactors(const BigBinaryVector& m_modulusFactors);
+
+	*/
+
+private:
+	// array of vectors used for double-CRT presentation
+	std::vector<ILVector2n> m_vectors;
+
+	// parameters for the ideal lattice: cyclotomic order and ciphertext modulus factors
+	ILParams m_params;
+};
+
+// overloaded operators for ILVectorArray2n
+inline lbcrypto::ILVectorArray2n operator+(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Plus(b);}
+inline lbcrypto::ILVectorArray2n operator-(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Minus(b);}
+inline lbcrypto::ILVectorArray2n operator*(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Times(b);}
+inline lbcrypto::ILVectorArray2n operator/(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) {return a.DividedBy(b);}
+inline lbcrypto::ILVectorArray2n operator+(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) {return a.Plus(b);}
+inline lbcrypto::ILVectorArray2n operator-(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) {return a.Minus(b);}
+inline lbcrypto::ILVectorArray2n operator*(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) {return a.Times(b);}
+inline lbcrypto::ILVectorArray2n operator/(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) {return a.DividedBy(b);}
+
+} // namespace lbcrypto ends
+
+#endif

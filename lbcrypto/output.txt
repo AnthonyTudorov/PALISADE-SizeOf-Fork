@@ -1,0 +1,16 @@
+Key generation execution time: 	66.3374 ms
+
+original plaintext: NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW_NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL
+
+Encryption execution time: 	7.15889 ms
+Decryption execution time: 	8.99438 ms
+
+decrypted plaintext (NTRU encryption): NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW_NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL
+
+Key generation execution time: 	64.0979 ms
+Re-encryption key generation time: 	118.177 ms
+Re-encryption execution time: 	252.516 ms
+Decryption execution time: 	9.22534 ms
+
+decrypted plaintext (PRE Re-Encrypt): NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW_NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL
+
