@@ -1,22 +1,35 @@
-/*
-PRE SCHEME PROJECT, Crypto Lab, NJIT
-Version: 
-	v00.01 
-Last Edited: 
-	6/1/2015 5:37AM
-List of Authors:
-	TPOC: 
-		Dr. Kurt Rohloff, rohloff@njit.edu
-	Programmers:
-		Dr. Yuriy Polyakov, polyakov@njit.edu
-		Gyana Sahu, grs22@njit.edu
-Description:	
-	This code provides basic queueing functionality.
-
-All rights retained by NJIT.  Our intention is to release this software as an open-source library under a license comparable in spirit to BSD, Apache or MIT.
-
-This software is being provided as an alpha-test version.  This software has not been audited or externally verified to be correct.  NJIT makes no guarantees or assurances about the correctness of this software.  This software is not ready for use in safety-critical or security-critical applications.
-*/
+/**
+ * @file
+ * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+ * @version 00_03
+ *
+ * @section LICENSE
+ * 
+ * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification, 
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this 
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this 
+ * list of conditions and the following disclaimer in the documentation and/or other 
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @section DESCRIPTION
+ *
+ *	This code provides basic queueing functionality.
+ */
 
 #ifndef LBCRYPTO_DTSTRUCT_H
 #define LBCRYPTO_DTSTRUCT_H
@@ -26,30 +39,69 @@ This software is being provided as an alpha-test version.  This software has not
 #include "inttypes.h"
 #include <queue>
 
-
+/**
+ * @namespace lbcrypto
+ * The namespace of lbcrypto
+ */
 namespace lbcrypto {
 
-	const usint FRAGMENTATION_FACTOR = 14;
-	
-	const usint BUFFER_SIZE = 1024 * 512 * FRAGMENTATION_FACTOR;
+const usint FRAGMENTATION_FACTOR = 14;	//!< @brief ???
 
-	// circular character array implementation of queue used for memory pools
-	class CircularQueue {
-		private:
-			int m_front, m_back, m_size, m_count;
-			uschar* m_array[BUFFER_SIZE/FRAGMENTATION_FACTOR];
-		public:
-			CircularQueue();
-			void Push(uschar*);
+const usint BUFFER_SIZE = 1024 * 512 * FRAGMENTATION_FACTOR; //!< @brief Amount of memory stored in the queue data structure.
 
-			void Show();
-			void Pop();
-			int GetSize();
-			//int GetFront();
-			int GetBack();
-			uschar* GetFront();
+/**
+ * @brief circular character array implementation of queue used for memory pools
+ */
+class CircularQueue
+{
+private:
+	int m_front, m_back, m_size, m_count;
+	uschar* m_array[BUFFER_SIZE/FRAGMENTATION_FACTOR];
+public:
+	/**
+	 * Basic constructor.	  	  
+	 */
+	CircularQueue();
 
-	};
+	/**
+	 * Push operator to push data onto the queue.	
+	 *  	  
+	 * @param item the data to push onto the queue.
+	 */
+	void Push(uschar* item);
+
+	/**
+	 * Show the data in the queue by printing to stdout.  Prints a message if the queue is empty.
+	 */
+	void Show();
+
+	/**
+	 * Pop data from the queue.
+	 */
+	void Pop();
+
+	/**
+	 * Returns the size of the queue.
+	 *  	  
+	 * @return the size of the queue.
+	 */
+	int GetSize();
+	//int GetFront();
+
+	/**
+	 * Returns the position of the back of the queue.
+	 *  	  
+	 * @return the back of the queue.
+	 */
+	int GetBack();
+
+	/**
+	 * Returns the data at the front of the queue.
+	 *  	  
+	 * @return the data at the front of the queue.
+	 */
+	uschar* GetFront();
+};
 
 }
 
