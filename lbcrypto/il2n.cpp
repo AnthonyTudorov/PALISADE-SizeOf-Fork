@@ -14,9 +14,15 @@ List of Authors:
 Description:	
 	This code provides basic lattice ideal manipulation functionality.
 
-All rights retained by NJIT.  Our intention is to release this software as an open-source library under a license comparable in spirit to BSD, Apache or MIT.
+License Information:
 
-This software is being provided as an alpha-test version.  This software has not been audited or externally verified to be correct.  NJIT makes no guarantees or assurances about the correctness of this software.  This software is not ready for use in safety-critical or security-critical applications.
+Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+All rights reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 */
 
 #include "il2n.h"
@@ -145,7 +151,7 @@ namespace lbcrypto {
 		m_format = format;
 	}
 
-	 // addition operation - PRE_V1
+	 // addition operation - PREV1
 	ILVector2n ILVector2n::Plus(const BigBinaryInteger &element) const{
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->ModAdd(element);
@@ -153,14 +159,14 @@ namespace lbcrypto {
 	}
 
 	
-	// multiplication operation - PRE_V1
+	// multiplication operation - PREV1
 	ILVector2n ILVector2n::Times(const BigBinaryInteger &element) const{
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->ModMul(element);
 		return tmp;
 	}
 
-	// modulo operation - PRE_V1
+	// modulo operation - PREV1
 	ILVector2n ILVector2n::Mod(const BigBinaryInteger & modulus) const{
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->Mod(modulus);
@@ -191,7 +197,7 @@ namespace lbcrypto {
 
 	// VECTOR OPERATIONS
 	
-	// addition operation - PRE_V1
+	// addition operation - PREV1
 	ILVector2n ILVector2n::Plus(const ILVector2n &element) const{
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->ModAdd(*element.m_values);
@@ -203,7 +209,7 @@ namespace lbcrypto {
 		return *this;
 	}
 
-	// multiplication operation - PRE_V1
+	// multiplication operation - PREV1
 	ILVector2n ILVector2n::Times(const ILVector2n &element) const{
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->ModMul(*element.m_values);
@@ -250,8 +256,9 @@ namespace lbcrypto {
 
 
 	//Represent the lattice in binary format
-	void ILVector2n::DecodeElement(ByteArray *text, const BigBinaryInteger &modulus) const{
+	void ILVector2n::DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const{
 
+		ByteArray byteArray;
 		usint mod = modulus.ConvertToInt();
 		usint p  = ceil((float)log((double)255)/log((double)mod));
 		usint resultant_char;
@@ -263,21 +270,24 @@ namespace lbcrypto {
 				resultant_char += m_values->GetValAtIndex(i+j).ConvertToInt()*exp ;
 				exp *= mod;
 			}
-			*text+=((char)resultant_char);
+			byteArray+=((char)resultant_char);
 		}
+		*text = ByteArrayPlaintextEncoding(byteArray);
 
 	}
 		
 	//Convert binary string to lattice format; do p=2 first but document that we need to generalize it later
-	void ILVector2n::EncodeElement(const ByteArray &encoded, const BigBinaryInteger &modulus){
+	void ILVector2n::EncodeElement(const ByteArrayPlaintextEncoding &encodedPlaintext, const BigBinaryInteger &modulus){
 	
+		ByteArray encoded = encodedPlaintext.GetData();
+		
 		if(m_values!=NULL){
 			delete m_values;
 		}
 
 		usint mod = modulus.ConvertToInt();
 		usint p  = ceil((float)log((double)255)/log((double)mod));
-		
+
 		m_values = new BigBinaryVector(p*encoded.length());
 		(*m_values).SetModulus(m_params.GetModulus());
 		m_format = COEFFICIENT;

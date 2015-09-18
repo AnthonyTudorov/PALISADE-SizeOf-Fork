@@ -15,9 +15,15 @@ Description:
 Description:	
 	This file contains the linear transform interface functionality.
 
-All rights retained by NJIT.  Our intention is to release this software as an open-source library under a license comparable in spirit to BSD, Apache or MIT.
+License Information:
 
-This software is being provided as an alpha-test version.  This software has not been audited or externally verified to be correct.  NJIT makes no guarantees or assurances about the correctness of this software.  This software is not ready for use in safety-critical or security-critical applications.
+Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+All rights reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 */
 
 #include "transfrm.h"
@@ -345,6 +351,49 @@ BigBinaryVector ChineseRemainderTransformFTT::InverseTransform(const BigBinaryVe
 	return OpIFFT;
 }
 
+void ChineseRemainderTransformFTT::PreCompute(const BigBinaryInteger& rootOfUnity, const usint CycloOrder, const BigBinaryInteger &modulus){
+
+	//Pre-compute mu for Barrett function
+	BigBinaryInteger temp(BigBinaryInteger::ONE);
+	temp <<= 2 * modulus.GetMSB() + 3;
+	BigBinaryInteger mu = temp.DividedBy(modulus);
+
+	BigBinaryInteger x(BigBinaryInteger::ONE);
+	BigBinaryInteger phi(BigBinaryInteger::ONE);
+
+	//Precomputes twiddle factor omega and FTT parameter phi for Forward Transform
+	if (m_rootOfUnityTable == NULL){
+		m_rootOfUnityTable = new BigBinaryVector(CycloOrder / 2);
+		m_phiTable = new BigBinaryVector(CycloOrder / 2);
+		BigBinaryInteger rootOfUnitySquare(rootOfUnity.ModBarrettMul(rootOfUnity, modulus, mu));
+		for (usint i = 0; i<CycloOrder / 2; i++){
+			m_rootOfUnityTable->SetValAtIndex(i, x);
+			x = x.ModBarrettMul(rootOfUnitySquare, modulus, mu);
+			m_phiTable->SetValAtIndex(i, phi);
+			phi = phi.ModBarrettMul(rootOfUnity, modulus, mu);
+		}
+	}
+
+	//Precomputes twiddle factor omega and FTT parameter phi for Inverse Transform
+	if (m_rootOfUnityInverseTable == NULL){
+
+		BigBinaryInteger rootOfUnitySquare(rootOfUnity.ModBarrettMul(rootOfUnity, modulus, mu));
+		BigBinaryInteger rootOfUnityInverse = rootOfUnitySquare.ModInverse(modulus);
+		BigBinaryInteger phiInverse = rootOfUnity.ModInverse(modulus);
+
+		m_rootOfUnityInverseTable = new BigBinaryVector(CycloOrder / 2);
+		m_phiInverseTable = new BigBinaryVector(CycloOrder / 2);
+		x = BigBinaryInteger::ONE;
+		phi = BigBinaryInteger::ONE;
+		for (usint i = 0; i<CycloOrder / 2; i++){
+			m_rootOfUnityInverseTable->SetValAtIndex(i, x);
+			x = x.ModBarrettMul(rootOfUnityInverse, modulus, mu);
+			m_phiInverseTable->SetValAtIndex(i, phi);
+			phi = phi.ModBarrettMul(phiInverse, modulus, mu);
+		}
+	}
+
+}
 
 void ChineseRemainderTransform::Destroy(){
 	//delete m_onlyInstance;

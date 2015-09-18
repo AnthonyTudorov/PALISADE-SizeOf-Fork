@@ -23,9 +23,15 @@ Description:
 		- Decrypt the re-encrypted data.
 	We configured parameters (namely the ring dimension and ciphertext modulus) to provide a level of security roughly equivalent to a root hermite factor of 1.007 which is generally considered secure and conservatively comparable to AES-128 in terms of computational work factor and may be closer to AES-256.
 
-All rights retained by NJIT.  Our intention is to release this software as an open-source library under a license comparable in spirit to BSD, Apache or MIT.
+License Information:
 
-This software is being provided as an alpha-test version.  This software has not been audited or externally verified to be correct.  NJIT makes no guarantees or assurances about the correctness of this software.  This software is not ready for use in safety-critical or security-critical applications.
+Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+All rights reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 */
 
 #include <iostream>
@@ -82,7 +88,7 @@ int main(){
 	// The below lines clean up the memory use.
 	//system("pause");
 	std::cin.get();
-	ChineseRemainderTransform::GetInstance().Destroy();
+	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();
 	
 	return 0;
@@ -136,7 +142,7 @@ void NTRUPRE(int input) {
 	//usint m = 2048;
 	//BigBinaryInteger modulus("8590983169");
 	//BigBinaryInteger rootOfUnity("4810681236");
-	//ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW_NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
+	//ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
 	
 	SecureParams const SECURE_PARAMS[] = {
 		{ 2048, BigBinaryInteger("8590983169"), BigBinaryInteger("4810681236"), 1 }, //r = 1
@@ -150,37 +156,57 @@ void NTRUPRE(int input) {
 	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
 	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
 	usint relWindow = SECURE_PARAMS[input].relinWindow;
-	ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW_NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
+	ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
 	if (m == 4096)
 		plaintext += plaintext;
+
+	float stdDev = 4;
 
 	ofstream fout;
 	fout.open ("output.txt");
 
 	
-	std::cout << "Cryptosystem initialization: Performing precomputations..." << std::endl;
+	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
 	//Prepare for parameters.
 	ILParams ilParams(m,modulus,rootOfUnity);
+
+	//Should eventually be replaced with the following code
+	//ILParams ilParams;
+	//ilParams.Initialize(m,bitLength);
+	//Or
+	//ilParams.Initialize(m,bitLenght,inputFile);
 	
 	//Set crypto parametes
-	LP_CryptoParameters_LWE<ILVector2n,ILParams> cryptoParams;
+	LPCryptoParametersLWE<ILVector2n,ILParams> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(4);			// Set the noise parameters.
+	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
+	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(4,modulus);			// Create the noise generator
+	DiscreteGaussianGenerator dgg(stdDev,modulus);			// Create the noise generator
 
-	// Disrete Gaussian and FFT precomputations are done
-	ILVector2n testElement(dgg,ilParams);
-	testElement.SwitchFormat();
+	double diff, start, finish;
+
+	start = currentDateTime();
+
+	//This code is run only when performing execution time measurements
+
+	//Precomputations for FTT
+	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
+
+	//Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(dgg, ilParams);
+
+	finish = currentDateTime();
+	diff = finish - start;
+
+	cout << "Precomputation time: " << "\t" << diff << " ms" << endl;
+	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
-	LP_PublicKey_LWE_NTRU<ILVector2n,ILParams> pk;
-
-	LP_PrivateKey_LWE_NTRU<ILVector2n,ILParams> sk;
-	sk.AccessCryptoParameters() = cryptoParams;
-	pk.AccessCryptoParameters() = cryptoParams;
+	LPPublicKeyLWENTRU<ILVector2n,ILParams> pk(cryptoParams);
+	LPPrivateKeyLWENTRU<ILVector2n, ILParams> sk(cryptoParams);
 	
 	//Regular LWE-NTRU encryption algorithm
 	
@@ -188,11 +214,9 @@ void NTRUPRE(int input) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	LP_Algorithm_LWE_NTRU<ILVector2n,ILParams> algorithm;
+	LPAlgorithmLWENTRU<ILVector2n,ILParams> algorithm;
 
 	bool successKeyGen=false;
-
-	double diff, start, finish;
 
 	std::cout <<"\n" <<  "Running key generation..." << std::endl;
 
@@ -223,12 +247,13 @@ void NTRUPRE(int input) {
 	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;	
 
 	ILVector2n ciphertext;
+	ByteArrayPlaintextEncoding ptxt(plaintext);
 
 	std::cout << "Running encryption..." << std::endl;
 
 	start = currentDateTime();
 
-	algorithm.Encrypt(pk,dgg,plaintext,&ciphertext);	// This is the core encryption operation.
+	algorithm.Encrypt(pk,dgg,ptxt,&ciphertext);	// This is the core encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -242,7 +267,7 @@ void NTRUPRE(int input) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArray plaintextNew;
+	ByteArrayPlaintextEncoding plaintextNew;
 
 	std::cout <<"\n"<< "Running decryption..." << std::endl;
 
@@ -256,8 +281,8 @@ void NTRUPRE(int input) {
 	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
-	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
+	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew.GetData()<<"\n"<<endl;
+	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew.GetData()<<"\n"<<endl;
 
 	if (!result.isValidCoding) {
 		std::cout<<"Decryption failed!"<<std::endl;
@@ -267,17 +292,15 @@ void NTRUPRE(int input) {
 
 	//system("pause");
 
-	LP_Algorithm_PRE_LWE_NTRU<ILVector2n,ILParams> algorithmPRE;
+	LPAlgorithmPRELWENTRU<ILVector2n,ILParams> algorithmPRE;
 
 	////////////////////////////////////////////////////////////
 	//Perform the second key generation operation.
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LP_PublicKey_LWE_NTRU<ILVector2n,ILParams> newPK;
-	LP_PrivateKey_LWE_NTRU<ILVector2n,ILParams> newSK;
-	newSK.AccessCryptoParameters() = cryptoParams;
-	newPK.AccessCryptoParameters() = cryptoParams;
+	LPPublicKeyLWENTRU<ILVector2n,ILParams> newPK(cryptoParams);
+	LPPrivateKeyLWENTRU<ILVector2n, ILParams> newSK(cryptoParams);
 
 	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
@@ -307,7 +330,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 		
-	algorithmPRE.ProxyGen(newPK, sk, dgg, relWindow, &evalKey);  // This is the core re-encryption operation.
+	algorithmPRE.ProxyKeyGen(newPK, sk, dgg , &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -327,7 +350,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	algorithmPRE.ReEncrypt(evalKey,cryptoParams, relWindow, ciphertext,&newCiphertext);  // This is the core re-encryption operation.
+	algorithmPRE.ReEncrypt(evalKey,cryptoParams, ciphertext,&newCiphertext);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -341,7 +364,7 @@ void NTRUPRE(int input) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArray plaintextNew2;
+	ByteArrayPlaintextEncoding plaintextNew2;
 
 	std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
 
@@ -355,8 +378,8 @@ void NTRUPRE(int input) {
 	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
-	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
+	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2.GetData()<<"\n"<<endl;
+	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2.GetData()<<"\n"<<endl;
 
 	if (!result1.isValidCoding) {
 		std::cout<<"Decryption failed!"<<std::endl;

@@ -1,14 +1,30 @@
-/**
+/**0
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
  *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
  * @version 00_03
  *
  * @section LICENSE
- *
- * All rights retained by NJIT.  Our intention is to release this software as an open-source library under a license comparable in spirit to BSD, Apache or MIT.
- *
- * This software is being provided as an alpha-test version.  This software has not been audited or externally verified to be correct.  NJIT makes no guarantees or assurances about the correctness of this software.  This software is not ready for use in safety-critical or security-critical applications.
+ * 
+ * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification, 
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this 
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this 
+ * list of conditions and the following disclaimer in the documentation and/or other 
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @section DESCRIPTION
  *
@@ -37,7 +53,7 @@ namespace lbcrypto {
 	 * @tparam P a set of element parameters.
 	 */
 	template <class T, class P>
-	class LP_CryptoParameters_LWE : public LP_CryptoParametersImpl<T,P> {
+	class LPCryptoParametersLWE : public LPCryptoParametersImpl<T,P> {
 		public:
 			typedef T Element;
 			typedef P ElementParams;
@@ -45,12 +61,13 @@ namespace lbcrypto {
 			/**
 			 * Constructor that initializes all values to 0.
 			 */
-			LP_CryptoParameters_LWE() {
+			LPCryptoParametersLWE() {
 				//m_params = new ElementParams();commented out by Gyana
 				//m_plaintextModulus = new BigBinaryInteger();commented out by Gyana 
 				m_distributionParameter = 0.0f;
 				m_assuranceMeasure = 0.0f;
 				m_securityLevel = 0.0f;
+				m_relinWindow = 1;
 				m_depth = 0;
 			}
 
@@ -64,11 +81,12 @@ namespace lbcrypto {
 			 * @param securityLevel security level.
 			 * @param depth depth which is set to 1.
 			 */
-			LP_CryptoParameters_LWE(const ElementParams &params,
+			LPCryptoParametersLWE(const ElementParams &params,
 				const BigBinaryInteger &plaintextModulus, 
 				float distributionParameter, 
 				float assuranceMeasure, 
 				float securityLevel, 
+				usint relinWindow,
 				int depth = 1)
 			{
 				m_params = params;
@@ -76,6 +94,7 @@ namespace lbcrypto {
 				m_distributionParameter = distributionParameter;
 				m_assuranceMeasure = assuranceMeasure;
 				m_securityLevel = securityLevel;
+				m_relinWindow = relinWindow;
 				m_depth = depth;
 			}
 			
@@ -94,6 +113,7 @@ namespace lbcrypto {
 				float distributionParameter, 
 				float assuranceMeasure, 
 				float securityLevel, 
+				usint relinWindow,
 				int depth = 1)
 			{
 				m_params = params;
@@ -101,6 +121,7 @@ namespace lbcrypto {
 				m_distributionParameter = distributionParameter;
 				m_assuranceMeasure = assuranceMeasure;
 				m_securityLevel = securityLevel;
+				m_relinWindow = relinWindow;
 				m_depth = depth;
 			}
 			
@@ -131,6 +152,13 @@ namespace lbcrypto {
 			 * @return the root Hermite factor /delta.
 			 */
 			float GetSecurityLevel() const {return m_securityLevel;}
+
+			/**
+			* Returns the value of relinearization window.
+			*
+			* @return the relinearization window.
+			*/
+			float GetRelinWindow() const { return m_relinWindow; }
 			
 			/**
 			 * Returns the value of computation depth d
@@ -167,6 +195,11 @@ namespace lbcrypto {
 			 * Sets the value of security level /delta
 			 */
 			void SetSecurityLevel(float securityLevel) {m_securityLevel = securityLevel;}
+
+			/**
+			* Sets the value of relinearization window
+			*/
+			void SetRelinWindow(usint relinWindow) { m_relinWindow = relinWindow; }
 			
 			/**
 			 * Sets the value of supported computation depth d
@@ -211,6 +244,8 @@ namespace lbcrypto {
 			float m_assuranceMeasure;
 			//root Hermite value /delta
 			float m_securityLevel;
+			//relinearization window
+			usint m_relinWindow;
 			//depth of computations; used for FHE
 			int m_depth;
 	};
@@ -221,13 +256,29 @@ namespace lbcrypto {
 	 * @tparam P a set of element parameters.
 	 */
 	template <class T, class P>
-	class LP_PublicKey_LWE_NTRU : public LP_PublicKeyImpl<LP_CryptoParameters_LWE<T,P>>{
+	class LPPublicKeyLWENTRU : public LPPublicKeyImpl<LPCryptoParametersLWE<T,P>>{
 		public:
 			typedef T Element;
 			typedef P ElementParams;
 
-			//Uses the LP_CryptoParameters_LWE instance
-			/*void Initialize(const LP_CryptoParameters_LWE<Element,ElementParams> &params, 
+			/**
+			* Default constructor
+			*/
+
+			LPPublicKeyLWENTRU() {}
+
+			/**
+			* Basic constructor for setting crypto params
+			*
+			* @param cryptoParams is the reference to cryptoParams
+			*/
+
+			LPPublicKeyLWENTRU(LPCryptoParametersLWE<Element, ElementParams> &cryptoParams) {
+				this->AccessCryptoParameters() = cryptoParams;
+			}
+
+			//Uses the LPCryptoParametersLWE instance
+			/*void Initialize(const LPCryptoParametersLWE<Element,ElementParams> &params, 
 				const Element &generatedElement, 
 				const Element &publicElement)
 			{
@@ -243,13 +294,29 @@ namespace lbcrypto {
 	 * @tparam P a set of element parameters.
 	 */
 	template <class T, class P>
-	class LP_PrivateKey_LWE_NTRU : public LP_PrivateKeyImpl<LP_CryptoParameters_LWE<T,P> >{
+	class LPPrivateKeyLWENTRU : public LPPrivateKeyImpl<LPCryptoParametersLWE<T,P> >{
 		public:
 			typedef T Element;
 			typedef P ElementParams;
+
+			/**
+			* Default constructor
+			*/
+
+			LPPrivateKeyLWENTRU() {}
+
+			/**
+			* Basic constructor for setting crypto params
+			*
+			* @param cryptoParams is the reference to cryptoParams
+			*/
+
+			LPPrivateKeyLWENTRU(LPCryptoParametersLWE<Element, ElementParams> &cryptoParams) {
+				this->AccessCryptoParameters() = cryptoParams;
+			}
 			
-			//Uses the LP_CryptoParameters_LWE instance
-			/*void Initialize(const LP_CryptoParameters_LWE<Element,ElementParams> &params, 
+			//Uses the LPCryptoParametersLWE instance
+			/*void Initialize(const LPCryptoParametersLWE<Element,ElementParams> &params, 
 				const Element &privateElement)
 			{
 				AccessCryptoParameters() = params;
@@ -262,7 +329,7 @@ namespace lbcrypto {
 			 *
 			 * @param &pub a public key.
 			 */
-			void MakePublicKey(LP_PublicKey<Element,ElementParams> &pub) const
+			void MakePublicKey(LPPublicKey<Element,ElementParams> &pub) const
 			{
 				pub.SetPublicElement(this->GetCryptoParameters().GetPlaintextModulus()*this->GetPrivateErrorElement()*this->GetPrivateElement().MultiplicativeInverse());
 			}
@@ -274,7 +341,7 @@ namespace lbcrypto {
 	 * @tparam P a set of element parameters.
 	 */
 	template <class T, class P>
-	class LP_Algorithm_LWE_NTRU : public LP_EncryptionAlgorithm<T,P>{
+	class LPAlgorithmLWENTRU : public LPEncryptionAlgorithm<T,P>{
 		public:
 			typedef T Element;
 			typedef P ElementParams;
@@ -287,9 +354,9 @@ namespace lbcrypto {
 			 * @param &plaintext the plaintext input.
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			void Encrypt(const LP_PublicKey<Element,ElementParams> &publicKey, 
+			void Encrypt(const LPPublicKey<Element,ElementParams> &publicKey, 
 				DiscreteGaussianGenerator &dg, 
-				const ByteArray &plaintext, 
+				const PlaintextEncodingInterface &plaintext, 
 				Element *ciphertext) const;
 			
 			/**
@@ -300,9 +367,9 @@ namespace lbcrypto {
 			 * @param *plaintext the plaintext output.
 			 * @return the decrypted plaintext returned.
 			 */			
-			DecodingResult Decrypt(const LP_PrivateKey<Element,ElementParams> &privateKey, 
+			DecodingResult Decrypt(const LPPrivateKey<Element,ElementParams> &privateKey, 
 				const Element &ciphertext, 
-				ByteArray *plaintext) const;
+				PlaintextEncodingInterface *plaintext) const;
 			
 			/**
 			 * Function to generate public and private keys
@@ -312,8 +379,8 @@ namespace lbcrypto {
 			 * @param &dg discrete Gaussian generator.
 			 * @return function ran correctly.
 			 */
-			bool KeyGen(LP_PublicKey<Element,ElementParams> &publicKey, 
-		        LP_PrivateKey<Element,ElementParams> &privateKey, 
+			bool KeyGen(LPPublicKey<Element,ElementParams> &publicKey, 
+		        LPPrivateKey<Element,ElementParams> &privateKey, 
 		        DiscreteGaussianGenerator &dgg) const;
 
 	};

@@ -5,10 +5,26 @@
  * @version 00_03
  *
  * @section LICENSE
- *
- * All rights retained by NJIT.  Our intention is to release this software as an open-source library under a license comparable in spirit to BSD, Apache or MIT.
- *
- * This software is being provided as an alpha-test version.  This software has not been audited or externally verified to be correct.  NJIT makes no guarantees or assurances about the correctness of this software.  This software is not ready for use in safety-critical or security-critical applications.
+ * 
+ * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification, 
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this 
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this 
+ * list of conditions and the following disclaimer in the documentation and/or other 
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @section DESCRIPTION
  *
@@ -26,6 +42,7 @@
 #include "ideals.h"
 #include "nbtheory.h"
 #include "transfrm.h"
+#include "ptxtencoding.h"
 
 /**
  * @namespace lbcrypto
@@ -214,7 +231,7 @@ public:
 	 */
 	bool Equal(const ILVector2n &element) const;
 	
-	// addition operation - PRE_V1
+	// addition operation - PREV1
 	/**
 	 * Performs an addition operation and returns the result.
 	 *
@@ -240,7 +257,7 @@ public:
 	 */
 	ILVector2n Minus(const ILVector2n &element) const;
 
-	// multiplication operation - PRE_V1
+	// multiplication operation - PREV1
 	/**
 	 * Performs a multiplication operation and returns the result.
 	 *
@@ -334,7 +351,7 @@ public:
 	 * @param *text the byte array output.  	
 	 * @param &modulus modulus to convert from.  	  
 	 */
-	void DecodeElement(ByteArray *text, const BigBinaryInteger &modulus) const;
+	void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const;
 		
 	//Convert binary string to lattice format; do p=2 first but document that we need to generalize it later
 	/**
@@ -343,7 +360,7 @@ public:
 	 * @param &encoded the byte array output.  	
 	 * @param &modulus modulus to convert to.  	  
 	 */
-	void EncodeElement(const ByteArray &encoded, const BigBinaryInteger &modulus);
+	void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus);
 
 	/**
 	 * Print the pre-computed discrete Gaussian samples.  	  
@@ -352,6 +369,9 @@ public:
 		for (usint i = 0; i < SAMPLE_SIZE; i++)
 			std::cout << m_dggSamples[i].GetValues() <<  std::endl;
 	}
+
+	// computes the samples
+	static void PreComputeDggSamples(DiscreteGaussianGenerator &dgg, const ILParams &params);
 
 	/**
 	 * Clear the pre-computed discrete Gaussian samples.  	  
@@ -380,25 +400,22 @@ private:
 	// static variable to store the sample size for each set of ILParams
 	static const usint m_sampleSize = SAMPLE_SIZE;
 
-	// computes the samples
-	void PreComputeDggSamples(DiscreteGaussianGenerator &dgg,const ILParams &params);
-
 	// gets a random discrete Gaussian polynomial
 	const ILVector2n GetPrecomputedVector(const ILParams &params);
 	
 };
 
 // overloaded operators for ILVector2n
-//PRE_V1
+//PREV1
 inline lbcrypto::ILVector2n operator+(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Plus(b);}
 inline lbcrypto::ILVector2n operator-(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Minus(b);}
-//PRE_V1
+//PREV1
 inline lbcrypto::ILVector2n operator*(const lbcrypto::BigBinaryInteger &b, const lbcrypto::ILVector2n &a) {return a.Times(b);}
 inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) {return a.DividedBy(b);}
-//PRE_V1
+//PREV1
 inline lbcrypto::ILVector2n operator+(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.Plus(b);}
 inline lbcrypto::ILVector2n operator-(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.Minus(b);}
-//PRE_V1
+//PREV1
 inline lbcrypto::ILVector2n operator*(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.Times(b);}
 inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.DividedBy(b);}
 
@@ -630,7 +647,7 @@ public:
 	 * @param *text the byte array to take as input.  	
 	 * @param &modulus modulus to convert from.  	  
 	 */
-	void DecodeElement(ByteArray *text, const BigBinaryInteger &modulus) const;
+	void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const;
 		
 	//Convert binary string to lattice format
 	/**
@@ -639,7 +656,7 @@ public:
 	 * @param &encoded the byte array to take as input.  	
 	 * @param &modulus modulus to convert to.  	  
 	 */
-	void EncodeElement(const ByteArray &encoded, const BigBinaryInteger &modulus);
+	void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus);
 	
 	/*
 

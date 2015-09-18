@@ -14,9 +14,15 @@ List of Authors:
 Description:	
 	This code provides the core proxy re-encryption functionality.
 
-All rights retained by NJIT.  Our intention is to release this software as an open-source library under a license comparable in spirit to BSD, Apache or MIT.
+License Information:
 
-This software is being provided as an alpha-test version.  This software has not been audited or externally verified to be correct.  NJIT makes no guarantees or assurances about the correctness of this software.  This software is not ready for use in safety-critical or security-critical applications.
+Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+All rights reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 */
 
 #include "lwecrypt.h"
@@ -24,11 +30,11 @@ This software is being provided as an alpha-test version.  This software has not
 namespace lbcrypto {
 
 template <class T,class P>
-bool LP_Algorithm_LWE_NTRU<T,P>::KeyGen(LP_PublicKey<Element,ElementParams> &publicKey, 
-		LP_PrivateKey<Element,ElementParams> &privateKey, 
+bool LPAlgorithmLWENTRU<T,P>::KeyGen(LPPublicKey<Element,ElementParams> &publicKey, 
+		LPPrivateKey<Element,ElementParams> &privateKey, 
 		DiscreteGaussianGenerator &dgg) const
 {
-	const LP_CryptoParameters<Element,ElementParams> &cryptoParams = privateKey.GetAbstractCryptoParameters();
+	const LPCryptoParameters<Element,ElementParams> &cryptoParams = privateKey.GetAbstractCryptoParameters();
 	const ElementParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
@@ -36,12 +42,7 @@ bool LP_Algorithm_LWE_NTRU<T,P>::KeyGen(LP_PublicKey<Element,ElementParams> &pub
 
 	f = p*f;
 
-	//need to be written cleaner; references to BigBinaryVector should be removed
-	//Add a Set accessor to ILVector2n to set individual element of vector
-	//then update the three lines below
-	BigBinaryVector &fHandle = const_cast<BigBinaryVector&>(f.GetValues());
-	const BigBinaryInteger &fIntHandle = fHandle.GetValAtIndex(0);
-	fHandle.SetValAtIndex(0,fIntHandle+BigBinaryInteger::ONE);
+	f = f + BigBinaryInteger::ONE;
 
 	//cout<<"f="<<f.GetValues()<<endl;
 
@@ -62,19 +63,19 @@ bool LP_Algorithm_LWE_NTRU<T,P>::KeyGen(LP_PublicKey<Element,ElementParams> &pub
 }
 
 template <class T,class P>
-void LP_Algorithm_LWE_NTRU<T,P>::Encrypt(const LP_PublicKey<Element,ElementParams> &publicKey, 
+void LPAlgorithmLWENTRU<T,P>::Encrypt(const LPPublicKey<Element,ElementParams> &publicKey, 
 				DiscreteGaussianGenerator &dgg, 
-				const ByteArray &plaintext, 
+				const PlaintextEncodingInterface &plaintext, 
 				Element *ciphertext) const
 {
 
-	const LP_CryptoParameters<Element,ElementParams> &cryptoParams = publicKey.GetAbstractCryptoParameters();
+	const LPCryptoParameters<Element,ElementParams> &cryptoParams = publicKey.GetAbstractCryptoParameters();
 	const ElementParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
 	Element m(elementParams);
 	
-	m.EncodeElement(plaintext,p);
+	m.EncodeElement(static_cast<const ByteArrayPlaintextEncoding&>(plaintext),p);
 
 	//cout<<"m original ="<<m.GetValues()<<endl;
 
@@ -97,11 +98,11 @@ void LP_Algorithm_LWE_NTRU<T,P>::Encrypt(const LP_PublicKey<Element,ElementParam
 }
 
 template <class T,class P>
-DecodingResult LP_Algorithm_LWE_NTRU<T,P>::Decrypt(const LP_PrivateKey<Element,ElementParams> &privateKey, 
+DecodingResult LPAlgorithmLWENTRU<T,P>::Decrypt(const LPPrivateKey<Element,ElementParams> &privateKey, 
 				const Element &ciphertext, 
-				ByteArray *plaintext) const
+				PlaintextEncodingInterface *plaintext) const
 {
-	const LP_CryptoParameters<Element,ElementParams> &cryptoParams = privateKey.GetAbstractCryptoParameters();
+	const LPCryptoParameters<Element,ElementParams> &cryptoParams = privateKey.GetAbstractCryptoParameters();
 	const ElementParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
@@ -125,9 +126,9 @@ DecodingResult LP_Algorithm_LWE_NTRU<T,P>::Decrypt(const LP_PrivateKey<Element,E
 
 	//cout<<"m ="<<m.GetValues()<<endl;
 
-	m.DecodeElement(plaintext,p);
+	m.DecodeElement(static_cast<ByteArrayPlaintextEncoding*>(plaintext),p);
 
-	return DecodingResult((*plaintext).length());
+	return DecodingResult(plaintext->GetLength());
 }
 
 
