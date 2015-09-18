@@ -28,8 +28,6 @@ CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g
 TaskLDFLAGS = -lpthread
 TimeLDFLAGS = -lm -lrt
 
-#comment. again.
-
 TARGETS= NTRU-PRE
 all: $(TARGETS)
 
