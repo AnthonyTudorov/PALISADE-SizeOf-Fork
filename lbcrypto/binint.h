@@ -375,6 +375,14 @@ public:
 	//friend std::istream& operator>>(std::istream& in, BigBinaryInteger *a);
 
 	/**
+	 * Stores the value of this BigBinaryInteger in a string object and returns it.
+	 * Added by Arnab Deb Gupta <ad479@njit.edu> on 9/21/15.
+	 *
+	 * @return the value of this BigBinaryInteger as a string.
+	 */
+	std::string ToString();
+
+	/**
 	 * Tests whether the value is a power of 2.
 	 *
 	 * @param m_numToCheck is the value to check.

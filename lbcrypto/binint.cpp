@@ -1331,6 +1331,64 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger &ptr_obj){
 	return os;
 }
 
+/**
+* This method's logic is based on the
+* std::ostream& operator<<(std::ostream& os, const BigBinaryInteger &ptr_obj)
+* method in this class.
+* 
+* Added by Arnab Deb Gupta <ad479@njit.edu> on 9/21/15.
+*
+*/
+std::string BigBinaryInteger::ToString() {
+	
+	//this string object will store this BigBinaryInteger's value
+	std::string bbiString;
+
+	//create reference for object to be converted to string
+	BigBinaryInteger *print_obj;
+
+	usint counter;
+
+	//initiate to object to be converted
+	print_obj = new BigBinaryInteger(*this);
+
+	//print_VALUE array stores the decimal value in the array
+	uschar *print_VALUE = new uschar[NUM_DIGIT_IN_PRINTVAL];
+
+	//reset to zero
+	for (sint i = 0; i < NUM_DIGIT_IN_PRINTVAL; i++) {
+		*(print_VALUE + i) = 0;
+	}
+
+	//starts the conversion from base 256 to decimal value
+	for (sint i = print_obj->m_MSB; i > 0; i--) {
+
+		double_bitVal(print_VALUE);
+
+		//adds the bit value to the print_VALUE
+		add_bitVal(print_VALUE, print_obj->GetBitAtIndex(i));
+	}
+
+	//find the first occurrence of non-zero value in print_VALUE
+	for (counter = 0; counter < NUM_DIGIT_IN_PRINTVAL - 1; counter++) {
+		if ((sint)print_VALUE[counter] != 0) {
+			break;
+		}
+	}
+
+	//append this BigBinaryInteger's digits to this method's returned string object
+	for (; counter < NUM_DIGIT_IN_PRINTVAL; counter++) {
+		bbiString += std::to_string(print_VALUE[counter]);
+	}
+
+	delete[] print_VALUE;
+	//deallocate the memory since values are inserted into the string object
+	delete print_obj;
+
+	return bbiString;
+}
+
+
 //Check if number is power of two i.e. 16 = 2^4 etc.
 bool CheckPowerofTwos(BigBinaryInteger& m_numToCheck){
 	usint m_MSB = m_numToCheck.m_MSB;
