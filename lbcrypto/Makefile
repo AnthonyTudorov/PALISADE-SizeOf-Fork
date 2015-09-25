@@ -26,7 +26,7 @@
 CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g
 
 TaskLDFLAGS = -lpthread
-TimeLDFLAGS = -lm -lrt
+TimeLDFLAGS = -lm # -lrt
 
 TARGETS= NTRU-PRE
 all: $(TARGETS)
@@ -54,8 +54,8 @@ utilities.o
 NTRU-PRE: $(MAINDEPS) Source.o
 	$(CXX) -o $@ $^ $(TaskLDFLAGS) $(TimeLDFLAGS)
 
-NTRU-PRE-Key: $(MAINDEPS) Source_key.o
-	$(CXX) -o $@ $^ $(TaskLDFLAGS) $(TimeLDFLAGS)
+#NTRU-PRE-Key: $(MAINDEPS) Source_key.o
+#	$(CXX) -o $@ $^ $(TaskLDFLAGS) $(TimeLDFLAGS)
 
 .PHONEY: apidocs
 apidocs:
