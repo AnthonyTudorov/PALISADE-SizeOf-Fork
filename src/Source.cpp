@@ -119,7 +119,7 @@ double currentDateTime()
 //		- Decrypt the data.
 //		- Generate a new key pair.
 //		- Generate a proxy re-encryption key.
-//		- Re-Encrypt the encrypted data.
+//		- Re-Encrypt the encrypted data.  
 //		- Decrypt the re-encrypted data.
 //////////////////////////////////////////////////////////////////////
 //	We provide two different paramet settings.
