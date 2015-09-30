@@ -46,6 +46,12 @@ $(TARGET): $(OBJECTS)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)
+	@mkdir -p $(BUILDDIR)/crypto
+	@mkdir -p $(BUILDDIR)/encoding
+	@mkdir -p $(BUILDDIR)/lattice
+	@mkdir -p $(BUILDDIR)/math
+	@mkdir -p $(BUILDDIR)/utils
+#	@echo " $(BUILDDIR)"
 	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<
 
 clean:
