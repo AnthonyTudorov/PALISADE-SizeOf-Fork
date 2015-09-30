@@ -76,13 +76,13 @@ clean:
 #NTRU-PRE-Key: $(MAINDEPS) Source_key.o
 #	$(CXX) -o $@ $^ $(TaskLDFLAGS) $(TimeLDFLAGS)
 
-#.PHONEY: apidocs
-#apidocs:
-#	doxygen lbcrypto-doxy-config
+.PHONEY: apidocs
+apidocs:
+	doxygen lbcrypto-doxy-config
 
-#.PHONEY: cleandocs
-#cleandocs:
-#	rm -rf apidocs
+.PHONEY: cleandocs
+cleandocs:
+	rm -rf doc/apidocs
 
 #.PHONEY: publishapi
 #publishapi: apidocs
