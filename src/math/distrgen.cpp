@@ -25,6 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
+#include <random>
 #include "distrgen.h"
 #include "nbtheory.h"
 #include "time.h"
@@ -43,7 +44,9 @@ DiscreteGaussianGenerator::DiscreteGaussianGenerator(sint std,BigBinaryInteger &
 	m_std = std;
 	m_modulus = mod;
 	InitiateVals();
-	srand (time(NULL));
+	std::random_device rd;
+	std::srand(rd());
+	//srand (time(NULL));
 	/*
 	for(usint i=0;i<m_vals.size();i++)
 		std::cout<<m_vals[i]<<std::endl;
@@ -121,7 +124,7 @@ schar* DiscreteGaussianGenerator::GenerateCharVector(usint size) const{
 	schar *ans = new schar[size];
 	for(usint i=0;i<size;i++){
 		//generator.seed(time(NULL));
-		seed = ((double) rand() / (RAND_MAX)) - 0.5;
+		seed = ((double) std::rand() / (RAND_MAX)) - 0.5;
 		//std::cout<<seed<<std::endl;
 		//seed = distribution(generator)-0.5;
         if(std::abs(seed) <= m_a/2)
@@ -132,7 +135,6 @@ schar* DiscreteGaussianGenerator::GenerateCharVector(usint size) const{
             val = -(int)FindInVector(m_vals,(std::abs(seed)-m_a/2));
         
         ans[i] = val;
-		//std::cout<<val<<std::endl;
 	}
 
 	return ans;
@@ -154,7 +156,7 @@ BigBinaryVector DiscreteGaussianGenerator::DiscreteGaussianPositiveGenerator(usi
 
           
        for(usint i=0;i<vectorLength;i++){
-		   ans.SetValAtIndex(i,intToBigBinaryInteger(rand()%8));
+		   ans.SetValAtIndex(i,intToBigBinaryInteger(std::rand()%8));
        }
 
        return ans;
