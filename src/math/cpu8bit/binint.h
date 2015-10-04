@@ -38,14 +38,15 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include "../utils/inttypes.h"
+#include "../../utils/inttypes.h"
+#include "../interface.h"
 #include "mempool.h"
 
 /**
- * @namespace lbcrypto
- * The namespace of lbcrypto
+ * @namespace cpu8bit
+ * The namespace of cpu8bit
  */
-namespace lbcrypto {
+namespace cpu8bit {
 
 const usint NUM_DIGIT_IN_PRINTVAL = 25;	//!< @brief The maximum number of digits in bigbinaryinteger. It is used by the cout(ostream) function for printing the bigbinarynumber.
 const usint BIT_LENGTH = 100;		//!< @brief The number of bits in the bigbinaryinteger. Any operation that crosses this bit limit will throw an exception.
@@ -55,7 +56,7 @@ const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels used in the Ba
 /**
  * @brief Class for big binary integers.
  */
-class BigBinaryInteger
+class BigBinaryInteger : public lbcrypto::BigBinaryIntegerInterface
 {
 public: 
 	/**

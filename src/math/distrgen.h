@@ -34,8 +34,7 @@
 #ifndef LBCRYPTO_DISTRGEN_H
 #define LBCRYPTO_DISTRGEN_H
 
-#include "binint.h"
-#include "binvect.h"
+#include "backend.h"
 #include <math.h>
 #include <random>
 

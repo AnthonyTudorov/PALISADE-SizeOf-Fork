@@ -26,10 +26,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 
 #include "binvect.h"
-#include "nbtheory.h"
+#include "../nbtheory.h"
 
 
-namespace lbcrypto {
+namespace cpu8bit {
 
 //CTORS
 BigBinaryVector::BigBinaryVector(){
@@ -337,7 +337,7 @@ BigBinaryVector BigBinaryVector::ModMatrixMul(const BigBinaryMatrix &a) const{
 BigBinaryVector BigBinaryVector::GetDigitAtIndexForBase(usint index, usint base) const{
 	BigBinaryVector ans(*this);
 	for(usint i=0;i<this->m_length;i++){
-		*ans.m_data[i] = intToBigBinaryInteger(ans.m_data[i]->GetDigitAtIndexForBase(index,base));
+		*ans.m_data[i] = lbcrypto::intToBigBinaryInteger(ans.m_data[i]->GetDigitAtIndexForBase(index,base));
 	}
 
 	return ans;

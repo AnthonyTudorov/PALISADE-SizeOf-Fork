@@ -34,7 +34,7 @@
 #ifndef LBCRYPTO_IDEALS_H
 #define LBCRYPTO_IDEALS_H
 
-#include "../math/binint.h"
+#include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
 #include "../encoding/ptxtencoding.h"
