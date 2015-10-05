@@ -50,6 +50,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)/encoding
 	@mkdir -p $(BUILDDIR)/lattice
 	@mkdir -p $(BUILDDIR)/math
+	@mkdir -p $(BUILDDIR)/math/cpu8bit
 	@mkdir -p $(BUILDDIR)/utils
 #	@echo " $(BUILDDIR)"
 	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<
