@@ -28,62 +28,32 @@
  *
  * @section DESCRIPTION
  *
- * This code provides basic integer types for lattice crypto.
+ * This file contains the functionality to switch between math backends
  */
 
-#ifndef LBCRYPTO_INTTYPES_H
-#define LBCRYPTO_INTTYPES_H
+#ifndef LBCRYPTO_MATH_BACKEND_H
+#define LBCRYPTO_MATH_BACKEND_H
 
-#include <string>
-#include <stdint.h>
+#define MATHBACKEND 1  // 1 for 8-bit CPU; 2 for 64-bit CPU, and so on
+
+#if MATHBACKEND == 1
+	#include "cpu8bit/binint.h"
+	#include "cpu8bit/binvect.h"
+	#include "cpu8bit/binmat.h"	
+#endif
 
 /**
  * @namespace lbcrypto
  * The namespace of lbcrypto
  */
-//namespace lbcrypto {
+namespace lbcrypto {
 
-/**
- * @brief Type used for representing signed 8-bit integers.
- */
-typedef int8_t schar;
+#if MATHBACKEND == 1
+	typedef cpu8bit::BigBinaryInteger BigBinaryInteger;
+	typedef cpu8bit::BigBinaryVector BigBinaryVector;
+	typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
+#endif
 
-/**
- * @brief Type used for representing signed 16-bit short integers.
- */
-typedef int16_t sshort;
-
-/**
- * @brief Type used for representing signed 32-bit integers.
- */
-typedef int32_t sint;
-
-/**
- * @brief Type used for representing unsigned 8-bit integers.
- */
-typedef uint8_t uschar;
-
-/**
- * @brief Type used for representing unsigned 16-bit short integers.
- */
-typedef uint16_t usshort;
-
-/**
- * @brief Type used for representing unsigned 32-bit integers.
- */
-typedef uint32_t usint;
-
-/**
- * @brief Type used for representing string ByteArray types.
- */
-typedef std::string ByteArray;
-
-/**
- * @brief Represents whether the polynomial ring is in EVALUATION or COEFFICIENT representation.
- */
-enum Format{ EVALUATION=0, COEFFICIENT=1};
-
-
-//} // namespace lbcrypto ends
+} // namespace lbcrypto ends
 
 #endif

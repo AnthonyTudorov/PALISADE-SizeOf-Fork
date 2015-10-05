@@ -28,62 +28,18 @@
  *
  * @section DESCRIPTION
  *
- * This code provides basic integer types for lattice crypto.
+ * This file contains the interfaces for math data types
  */
 
-#ifndef LBCRYPTO_INTTYPES_H
-#define LBCRYPTO_INTTYPES_H
+#ifndef LBCRYPTO_MATH_INTERFACE_H
+#define LBCRYPTO_MATH_INTERFACE_H
 
-#include <string>
-#include <stdint.h>
+namespace lbcrypto {
 
-/**
- * @namespace lbcrypto
- * The namespace of lbcrypto
- */
-//namespace lbcrypto {
+	class BigBinaryIntegerInterface{}; //will be defined later; all methods will be pure virtual
+	class BigBinaryVectorInterface{}; //will be defined later; all methods will be pure virtual
+	class BigBinaryMatrixInterface{}; //will be defined later; all methods will be pure virtual
 
-/**
- * @brief Type used for representing signed 8-bit integers.
- */
-typedef int8_t schar;
-
-/**
- * @brief Type used for representing signed 16-bit short integers.
- */
-typedef int16_t sshort;
-
-/**
- * @brief Type used for representing signed 32-bit integers.
- */
-typedef int32_t sint;
-
-/**
- * @brief Type used for representing unsigned 8-bit integers.
- */
-typedef uint8_t uschar;
-
-/**
- * @brief Type used for representing unsigned 16-bit short integers.
- */
-typedef uint16_t usshort;
-
-/**
- * @brief Type used for representing unsigned 32-bit integers.
- */
-typedef uint32_t usint;
-
-/**
- * @brief Type used for representing string ByteArray types.
- */
-typedef std::string ByteArray;
-
-/**
- * @brief Represents whether the polynomial ring is in EVALUATION or COEFFICIENT representation.
- */
-enum Format{ EVALUATION=0, COEFFICIENT=1};
-
-
-//} // namespace lbcrypto ends
+} // namespace lbcrypto ends
 
 #endif

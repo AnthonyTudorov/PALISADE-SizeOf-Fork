@@ -36,14 +36,14 @@
 
 #include <iostream>
 #include <stdexcept>
-#include "../utils/inttypes.h"
+#include "../../utils/inttypes.h"
 #include <queue>
 
 /**
- * @namespace lbcrypto
- * The namespace of lbcrypto
+ * @namespace cpu8bit
+ * The namespace of cpu8bit
  */
-namespace lbcrypto {
+namespace cpu8bit {
 
 const usint FRAGMENTATION_FACTOR = 14;	//!< @brief ???
 

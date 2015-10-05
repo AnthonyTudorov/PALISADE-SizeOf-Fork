@@ -31,8 +31,7 @@ This software is being provided as an alpha-test version.  This software has not
 #ifndef LBCRYPTO_NBTHEORY_H
 #define LBCRYPTO_NBTHEORY_H
 
-#include "binint.h"
-#include "binvect.h"
+#include "backend.h"
 #include <vector>
 
 namespace lbcrypto {

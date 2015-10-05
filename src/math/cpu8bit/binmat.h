@@ -35,20 +35,20 @@
 #define LBCRYPTO_BINMAT_H
 
 
-#include "../utils/inttypes.h"
+#include "../../utils/inttypes.h"
 #include "binint.h"
 
 /**
- * @namespace lbcrypto
- * The namespace of lbcrypto
+ * @namespace cpu8bit
+ * The namespace of cpu8bit
  */
-namespace lbcrypto {
+namespace cpu8bit {
 
 //GENERAL NOTE. YSP. Several methods and data members have been moved from BigBinaryVector
 /**
  * @brief Class for matrices of big binary integer values.
  */
-class BigBinaryMatrix
+	class BigBinaryMatrix : public lbcrypto::BigBinaryMatrixInterface
 {
 
 public:

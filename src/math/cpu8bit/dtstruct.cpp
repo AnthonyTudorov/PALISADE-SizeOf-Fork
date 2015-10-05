@@ -3,7 +3,7 @@ PRE SCHEME PROJECT, Crypto Lab, NJIT
 Version: 
 	v00.01 
 Last Edited: 
-	6/14/2015 5:37AM
+	6/1/2015 5:37AM
 List of Authors:
 	TPOC: 
 		Dr. Kurt Rohloff, rohloff@njit.edu
@@ -11,7 +11,7 @@ List of Authors:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
 Description:	
-	This code provides the core memory pool functionality.
+	This code provides basic queueing functionality.
 
 License Information:
 
@@ -24,39 +24,86 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "mempool.h"
+#include "dtstruct.h"
 
-namespace lbcrypto{
+namespace cpu8bit {
 
-	MemoryPoolChar::MemoryPoolChar(){
-		//initiate the available queue
-		for(usint i=0;i<lbcrypto::BUFFER_SIZE;i+=FRAGMENTATION_FACTOR){
-			//std::cout<<(int)(buffer+i)<<std::endl;
-			/*for(usint j=0;j<fragmentationFactor;j++)
-				*(buffer+i+j)=0;*/
-			m_available.Push((m_buffer+i));
-		}
-
-		//std::cout<<"Memory Pool started with size"<<m_available.GetSize()<<std::endl;
-
-	}
-
-	uschar * MemoryPoolChar::Allocate(){
-		if(m_available.GetSize()==0)
-			throw std::bad_alloc();
-		else{
-			uschar* temp = m_available.GetFront();
-			//std::cout<<(int)temp<<std::endl;
-			m_available.Pop();
-			return temp;
+	CircularQueue::CircularQueue() {
+		m_front = m_back = -1;
+		CircularQueue::m_size = BUFFER_SIZE/FRAGMENTATION_FACTOR - 1;
+		m_count = 0;
+ 
+		for(int i = 0; i <= BUFFER_SIZE/FRAGMENTATION_FACTOR; i++) {
+			m_array[i] = 0;
 		}
 	}
+ 
+	void CircularQueue::Push(uschar* item) {
+		if (m_front == 0 && m_back == m_size || m_front == m_back + 1) {
+			std::cout << "Queue is full\n";
+		}
+		else if (m_front == -1 && m_back == -1) {
+			m_front = 0;
+			m_back = 0;
+			m_array[m_front] = item;
+			m_count++;
+		}
+		else if (m_back == m_size) {
+			m_back = 0;
+			m_array[m_back] = item;
+			m_count++;
+		}
+		else {
+			m_back++;
+			m_array[m_back] = item;
+			m_count++;
+		}
+	}
+ 
+	void CircularQueue::Pop() {
+		if (m_front == -1 && m_back == -1) {
+			std::cout << "Queue is empty\n";
+		}
+		else {
+			if (m_front == m_back) {
+			m_array[m_front] = 0;
+			m_front = -1;
+			m_back = -1;
+			m_count--;
+		}
+		else if (m_front == m_size) {
+			m_array[m_front] = 0;
+			m_front = 0;
+			m_count--;
+		}
+		else {
+			m_array[m_front] = 0;
+			m_front++;
+			m_count--;
+		}
+		}
+	}
+ 
+	void CircularQueue::Show() {
+		if (m_count == 0) {
+			std::cout << "Queue is empty\n";
+		} else {
+			for(int i = 0; i < m_size + 1; i++)
+				std::cout << m_array[i] << " ";
+			std::cout << std::endl;
+		}
+	}
 
-	void MemoryPoolChar::Deallocate(uschar* memRelease){
-		//std::cout<<(int)memRelease<<std::endl;
-		if(memRelease!=NULL)
-			m_available.Push(memRelease);
-		memRelease = NULL;
+	int CircularQueue::GetSize() {
+		return m_size;
+	}
+
+	uschar* CircularQueue::GetFront() {
+		return m_array[m_front];
+	}
+
+	int CircularQueue::GetBack() {
+		return m_back;
 	}
 
 }

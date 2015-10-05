@@ -22,10 +22,10 @@ This software is being provided as an alpha-test version.  This software has not
 #define LBCRYPTO_MEMPOOL_H
 
 #include <iostream>
-#include "../utils/inttypes.h"
+#include "../../utils/inttypes.h"
 #include "dtstruct.h"
 
-namespace lbcrypto {
+namespace cpu8bit {
 
 	class MemoryPoolChar{
 
