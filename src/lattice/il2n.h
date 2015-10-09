@@ -35,8 +35,7 @@
 #define LBCRYPTO_IL2N_H
 
 #include <vector>
-#include "../math/binint.h"
-#include "../math/binvect.h"
+#include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/distrgen.h"
 #include "../lattice/ideals.h"

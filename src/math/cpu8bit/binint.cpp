@@ -26,9 +26,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 
 #include "binint.h"
-#include "nbtheory.h"
+#include "../nbtheory.h"
 
-namespace lbcrypto {
+namespace cpu8bit {
 
 //YSP - these 5 methods should either be moved to a separate header file or encapsulated in this class
 uschar bin82dec(sshort *a);
@@ -1000,7 +1000,7 @@ BigBinaryInteger  BigBinaryInteger::operator<<(usshort shift) const{
 	BigBinaryInteger ans(*this);
 
 	//first check whether shifts are possible without overflow
-	if(ans.m_MSB+shift > lbcrypto::BIT_LENGTH)
+	if(ans.m_MSB+shift > cpu8bit::BIT_LENGTH)
 		throw std::logic_error("OVERFLOW \n");
 
 	//calculate the no.of 8shifts
@@ -1054,7 +1054,7 @@ const BigBinaryInteger& BigBinaryInteger::operator<<=(usshort shift){
 		return *this;
 
 	//first check whether shifts are possible without overflow
-	if(this->m_MSB+shift > lbcrypto::BIT_LENGTH)
+	if(this->m_MSB+shift > cpu8bit::BIT_LENGTH)
 		throw std::logic_error ("OVERFLOW \n");
 
 	//calculate the no.of 8shifts
@@ -1658,13 +1658,13 @@ uschar* dec2bin(uschar a){
 
 uschar MSB_in_short(usshort in){
 
-	return GetMSB32(in);
+	return lbcrypto::GetMSB32(in);
 
 }
 
 uschar MSB_in_char(uschar in){
 
-	return GetMSB32(in);
+	return lbcrypto::GetMSB32(in);
 
 }
 
@@ -1774,7 +1774,7 @@ bool operator<=(const BigBinaryInteger& a, const BigBinaryInteger& b){
 BigBinaryInteger BigBinaryInteger::intToBigBinaryInteger(usint m){
 
 	BigBinaryInteger result;
-	usint msb = GetMSB32(m);
+	usint msb = lbcrypto::GetMSB32(m);
 	uschar ceilInt8 = ceilIntBy8(msb);
 
 	for(sint i= m_nchar-1;i>= m_nchar-ceilInt8;i--){

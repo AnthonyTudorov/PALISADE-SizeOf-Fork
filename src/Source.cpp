@@ -36,9 +36,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <fstream>
-#include "math/binint.h"
-#include "math/binmat.h"
-#include "math/binvect.h"
+#include "math/backend.h"
 #include "utils/inttypes.h"
 #include "math/nbtheory.h"
 //#include <thread>

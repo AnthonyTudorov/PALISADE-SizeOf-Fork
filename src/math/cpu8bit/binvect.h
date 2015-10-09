@@ -39,11 +39,10 @@
 #include "binmat.h"
 
 /**
- * @namespace lbcrypto
- * The namespace of lbcrypto
+ * @namespace cpu8bit
+ * The namespace of cpu8bit
  */
-namespace lbcrypto {
-
+namespace cpu8bit {
 	
 
 //GENERAL NOTE. YSP. I believe we should use this class for vectors only. Matrices should be defined in a separate class: BigBinaryMatrix.
@@ -51,7 +50,7 @@ namespace lbcrypto {
 /**
  * @brief The class for representing vectors of big binary integers.
  */
-class BigBinaryVector     
+	class BigBinaryVector : public lbcrypto::BigBinaryVectorInterface
 {
 public:
 	/**

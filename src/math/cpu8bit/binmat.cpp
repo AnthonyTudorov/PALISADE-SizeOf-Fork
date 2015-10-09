@@ -27,7 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "binmat.h"
 
-namespace lbcrypto {
+namespace cpu8bit {
 
 BigBinaryMatrix::BigBinaryMatrix(){
 	this->m_columns = 1;

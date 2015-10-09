@@ -34,8 +34,7 @@
 #ifndef LBCRYPTO_TRANSFRM_H
 #define LBCRYPTO_TRANSFRM_H
 
-#include "binint.h"
-#include "binvect.h"
+#include "backend.h"
 #include "nbtheory.h"
 #include "../utils/utilities.h"
 #include <chrono>
