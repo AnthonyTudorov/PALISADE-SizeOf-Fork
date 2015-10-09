@@ -29,6 +29,7 @@ CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g
 SRCDIR := src
 BUILDDIR := build
 TARGET := bin/NTRU-PRE
+HEADERS := src/*.h
 
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
@@ -54,9 +55,49 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 #	@echo " $(BUILDDIR)"
 	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<
 
+TESTSRCDIR := test/src
+TESTBUILDDIR := test/build
+TESTTARGET := test/bin/tests
+
+TESTSOURCES := $(shell find $(TESTSRCDIR) -type f -name *.$(SRCEXT))
+TESTOBJECTS := $(patsubst $(TESTSRCDIR)/%,$(TESTBUILDDIR)/%,$(TESTSOURCES:.$(SRCEXT)=.o))
+TESTLIB := -lgtest -lgtest_main -lpthread#-pthread -lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
+
+# Points to the root of Google Test, relative to where this file is.
+# Remember to tweak this if you move this file.
+GTEST_DIR = /usr/local
+
+# All Google Test headers.  Usually you shouldn't change this
+# definition.
+GTEST_HEADERS =	$(GTEST_DIR)/include/gtest/gtest.h \
+		$(GTEST_DIR)/include/gtest/gtest-death-test.h \
+		$(GTEST_DIR)/include/gtest/gtest-message.h \
+		$(GTEST_DIR)/include/gtest/gtest-printers.h \
+		$(GTEST_DIR)/include/gtest/gtest-spi.h \
+		$(GTEST_DIR)/include/gtest/gtest-typed-test.h \
+		$(GTEST_DIR)/include/gtest/gtest.h \
+		$(GTEST_DIR)/include/gtest/gtest-param-test.h \
+		$(GTEST_DIR)/include/gtest/gtest_prod.h \
+		$(GTEST_DIR)/include/gtest/gtest-test-part.h \
+#GTEST_HEADERS =	$(GTEST_DIR)/include/gtest/*.h \
+               $(GTEST_DIR)/include/gtest/internal/*.h
+
+$(TESTTARGET): $(TESTOBJECTS) $(GTEST_HEADERS)
+	@echo " Linking..."
+	@echo " $(CC) $(OBJECTS) $^ -o $(TESTTARGET) $(TESTLIB)"; $(CC) $^ -o $(TESTTARGET) $(TESTLIB)
+
+$(TESTBUILDDIR)/%.o: $(TESTSRCDIR)/%.$(SRCEXT)
+	@mkdir -p $(TESTBUILDDIR)
+#	@echo " $(BUILDDIR)"
+	@echo " $(CC) $(CPPFLAGS) $(TESTLIB) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(TESTLIB) -c -o $@ $<
+
 clean:
 	@echo " Cleaning..."; 
-	@echo " $(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
+	@echo " $(RM) -r $(BUILDDIR) $(TARGET) $(TESTBUILDDIR) $(TESTTARGET)"; $(RM) -r $(BUILDDIR) $(TARGET) $(TESTBUILDDIR) $(TESTTARGET)
+
+cleantests:
+	@echo " Cleaning..."; 
+	@echo " $(RM) -r $(TESTBUILDDIR) $(TESTTARGET)"; $(RM) -r $(TESTBUILDDIR) $(TESTTARGET)
 
 .PHONEY: clean
 

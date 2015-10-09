@@ -53,6 +53,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "time.h"
 //#include "vld.h"
 #include <chrono>
+//#include "gtest/gtest.h"
 
 using namespace std;
 using namespace lbcrypto;
