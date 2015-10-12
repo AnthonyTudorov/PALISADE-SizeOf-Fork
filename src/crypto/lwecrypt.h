@@ -158,7 +158,7 @@ namespace lbcrypto {
 			*
 			* @return the relinearization window.
 			*/
-			float GetRelinWindow() const { return m_relinWindow; }
+			usint GetRelinWindow() const { return m_relinWindow; }
 			
 			/**
 			 * Returns the value of computation depth d
