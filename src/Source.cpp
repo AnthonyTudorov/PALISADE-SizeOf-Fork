@@ -37,6 +37,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <fstream>
 #include "math/backend.h"
+//#include "math/cpu8bit/backend.h"
 #include "utils/inttypes.h"
 #include "math/nbtheory.h"
 //#include <thread>
@@ -52,6 +53,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //#include "vld.h"
 #include <chrono>
 //#include "gtest/gtest.h"
+//#include "math/cpu8bit/binint.h"
+//#include "math/cpu8bit/binvect.h"
+//#include "math/cpu8bit/binmat.h"	
 
 using namespace std;
 using namespace lbcrypto;

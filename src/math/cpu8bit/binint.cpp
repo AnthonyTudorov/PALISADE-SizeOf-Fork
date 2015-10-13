@@ -724,26 +724,20 @@ BigBinaryInteger BigBinaryInteger::ModBarrettAdd(const BigBinaryInteger& b, cons
 
 BigBinaryInteger BigBinaryInteger::ModSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const{
 
-	BigBinaryInteger* a = NULL;
-	BigBinaryInteger* b_op = NULL;
+	BigBinaryInteger* a = const_cast<BigBinaryInteger*>(this);
+	BigBinaryInteger* b_op = const_cast<BigBinaryInteger*>(&b);
 
 	if(*this>modulus){
+
 		*a = std::move(this->Mod(modulus));
-	}
-	else{
-		a = const_cast<BigBinaryInteger*>(this);
 	}
 
 	if(b>modulus){
 		*b_op = std::move(b.Mod(modulus));
 	}
-	else{
-		b_op = const_cast<BigBinaryInteger*>(&b);
-	}
 
-	if(!(*a<*b_op)){
-		return ((*a-*b_op).Mod(modulus));
-		
+	if(*a>=*b_op){
+		return ((*a-*b_op).Mod(modulus));		
 	}
 	else{
 		return ((*a + modulus) - *b_op);
