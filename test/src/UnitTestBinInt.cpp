@@ -26,9 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "gtest/gtest.h"
 #include <iostream>
 
-#include "../../src/math/binint.h"
-#include "../../src/math/binmat.h"
-#include "../../src/math/binvect.h"
+#include "../../src/math/backend.h"
 #include "../../src/utils/inttypes.h"
 #include "../../src/math/nbtheory.h"
 #include "../../src/lattice/ideals.h"
