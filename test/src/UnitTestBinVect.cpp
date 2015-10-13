@@ -142,7 +142,7 @@ TEST(method_modadd_vect,modadd_result_smaller_than_modulus){
 	
 	BigBinaryVector calculatedResult = m.ModAdd(n);
 
-	int expectedResult[5] = {9871,5882,4557,2346,9792};
+	int expectedResult[5] = {9871,5879,4554,2343,9789};
 
 	for (i=0,j=0;i<5;i++,j++)
 	{
@@ -173,7 +173,7 @@ TEST(method_modadd_vect,modadd_result_greater_than_modulus){
 	BigBinaryVector calculatedResult = m.ModAdd(n);
 
 
-	int expectedResult[5] = {1825,1370,45,1368,1746};
+	int expectedResult[5] = {1825,5879,4554,2343,9789};
 
 	for (i=0,j=0;i<5;i++,j++)
 	{
@@ -276,8 +276,12 @@ TEST(method_modmul_vect,test_modmul){
 	m.SetValAtIndex(2,"4554");
 	m.SetValAtIndex(3,"2343");
 	m.SetValAtIndex(4,"9789");
+
+	std::cout << "Before : " << std::endl;
 	
 	BigBinaryVector calculatedResult = m.ModMul(n);
+
+	std::cout << "After : " << std::endl;
 
 	int expectedResult[5] = {1576,1850,978,1758,1476};
 

@@ -825,20 +825,20 @@ BigBinaryInteger BigBinaryInteger::ModMul(const BigBinaryInteger& b, const BigBi
 
 BigBinaryInteger BigBinaryInteger::ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus, const BigBinaryInteger& mu) const{
 	
-	BigBinaryInteger* a  = NULL;
-	BigBinaryInteger* bb = NULL;
+	BigBinaryInteger* a  = const_cast<BigBinaryInteger*>(this);
+	BigBinaryInteger* bb = const_cast<BigBinaryInteger*>(&b);
 
 	//if a is greater than q reduce a to its mod value
 	if(*this>modulus)
 		*a = std::move(this->ModBarrett(modulus,mu));
-	else
-		a = const_cast<BigBinaryInteger*>(this);
+//	else
+//		a = const_cast<BigBinaryInteger*>(this);
 
 	//if b is greater than q reduce b to its mod value
 	if(b>modulus)
 		*bb = std::move(b.ModBarrett(modulus,mu));
-	else
-		bb = const_cast<BigBinaryInteger*>(&b);
+//	else
+//		bb = const_cast<BigBinaryInteger*>(&b);
 
 	//return a*b%q
 
