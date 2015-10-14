@@ -213,15 +213,15 @@ BigBinaryVector BigBinaryVector::ModMul(const BigBinaryInteger &b) const{
 	//Precompute the Barrett mu parameter
 	BigBinaryInteger temp(BigBinaryInteger::ONE);
 
-	std::cout << "A : " << std::endl;
+	// std::cout << "A : " << std::endl;
 
 	temp<<=2*this->GetModulus().GetMSB()+3;
 
-	std::cout << "B : " << std::endl;
+	// std::cout << "B : " << std::endl;
 
 	BigBinaryInteger mu = temp.DividedBy(this->GetModulus());
 
-	std::cout << "C : " << std::endl;
+	// std::cout << "C : " << std::endl;
 
 	//Precompute the Barrett mu values
 	/*BigBinaryInteger temp;
@@ -237,7 +237,7 @@ BigBinaryVector BigBinaryVector::ModMul(const BigBinaryInteger &b) const{
 
 	for(usint i=0;i<this->m_length;i++){
 
-		std::cout << "D : " << std::endl;
+		// std::cout << "D : " << std::endl;
 
 //		*ans.m_data[i] = ans.m_data[i]->ModAdd(*b.m_data[i],this->m_modulus);
 		*ans.m_data[i] = ans.m_data[i]->ModBarrettMul(b,this->m_modulus,mu);

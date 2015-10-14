@@ -277,11 +277,11 @@ TEST(method_modmul_vect,test_modmul){
 	m.SetValAtIndex(3,"2343");
 	m.SetValAtIndex(4,"9789");
 
-	std::cout << "Before : " << std::endl;
+	// std::cout << "Before : " << std::endl;
 	
 	BigBinaryVector calculatedResult = m.ModMul(n);
 
-	std::cout << "After : " << std::endl;
+	// std::cout << "After : " << std::endl;
 
 	int expectedResult[5] = {1576,1850,978,1758,1476};
 
