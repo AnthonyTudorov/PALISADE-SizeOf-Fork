@@ -18,8 +18,8 @@ All rights retained by NJIT.  Our intention is to release this software as an op
 This software is being provided as an alpha-test version.  This software has not been audited or externally verified to be correct.  NJIT makes no guarantees or assurances about the correctness of this software.  This software is not ready for use in safety-critical or security-critical applications.
 */
 
-#ifndef LBCRYPTO_MEMPOOL_H
-#define LBCRYPTO_MEMPOOL_H
+#ifndef LBCRYPTO_MATH_CPU8BIT_MEMPOOL_H
+#define LBCRYPTO_MATH_CPU8BIT_MEMPOOL_H
 
 #include <iostream>
 #include "../../utils/inttypes.h"

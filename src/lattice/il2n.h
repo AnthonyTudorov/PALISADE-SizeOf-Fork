@@ -31,8 +31,8 @@
  * This code provides basic lattice ideal manipulation functionality.
  */
 
-#ifndef LBCRYPTO_IL2N_H
-#define LBCRYPTO_IL2N_H
+#ifndef LBCRYPTO_LATTICE_IL2N_H
+#define LBCRYPTO_LATTICE_IL2N_H
 
 #include <vector>
 #include "../math/backend.h"

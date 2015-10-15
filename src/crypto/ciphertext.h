@@ -31,8 +31,8 @@
 * This file contains the big binary integer functionality.
 */
 
-#ifndef CIPHERTEXT_H
-#define CIPHERTEXT_H
+#ifndef LBCRYPTO_CRYPTO_CIPHERTEXT_H
+#define LBCRYPTO_CRYPTO_CIPHERTEXT_H
 
 template <class T, class P>
 class Ciphertext {

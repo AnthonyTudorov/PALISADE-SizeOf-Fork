@@ -31,8 +31,8 @@
  * This file contains the big binary integer functionality.
  */
 
-#ifndef LBCRYPTO_BININT_H
-#define LBCRYPTO_BININT_H
+#ifndef LBCRYPTO_MATH_CPU8BIT_BININT_H
+#define LBCRYPTO_MATH_CPU8BIT_BININT_H
 
 #include <iostream>
 #include <string>

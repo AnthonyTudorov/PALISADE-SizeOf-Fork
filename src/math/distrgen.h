@@ -31,8 +31,8 @@
  * This code provides basic noise generation functionality.
  */
 
-#ifndef LBCRYPTO_DISTRGEN_H
-#define LBCRYPTO_DISTRGEN_H
+#ifndef LBCRYPTO_MATH_DISTRGEN_H
+#define LBCRYPTO_MATH_DISTRGEN_H
 
 #include "backend.h"
 #include <math.h>

@@ -31,8 +31,8 @@
  *	This code provides basic queueing functionality.
  */
 
-#ifndef LBCRYPTO_DTSTRUCT_H
-#define LBCRYPTO_DTSTRUCT_H
+#ifndef LBCRYPTO_MATH_CPU8BIT_DTSTRUCT_H
+#define LBCRYPTO_MATH_CPU8BIT_DTSTRUCT_H
 
 #include <iostream>
 #include <stdexcept>

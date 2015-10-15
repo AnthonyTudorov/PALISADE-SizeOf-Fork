@@ -31,8 +31,8 @@
  * This file contains the core public key interface functionality.
  */
 
-#ifndef LBCRYPTO_PUBKEYLP_H
-#define LBCRYPTO_PUBKEYLP_H
+#ifndef LBCRYPTO_CRYPTO_PUBKEYLP_H
+#define LBCRYPTO_CRYPTO_PUBKEYLP_H
 
 //Includes Section
 #include <vector>

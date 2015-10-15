@@ -31,8 +31,8 @@
  * This code provides basic integer types for lattice crypto.
  */
 
-#ifndef LBCRYPTO_INTTYPES_H
-#define LBCRYPTO_INTTYPES_H
+#ifndef LBCRYPTO_UTILS_INTTYPES_H
+#define LBCRYPTO_UTILS_INTTYPES_H
 
 #include <string>
 #include <stdint.h>
