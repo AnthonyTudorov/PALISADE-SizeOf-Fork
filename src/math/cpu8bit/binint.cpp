@@ -165,6 +165,8 @@ void BigBinaryInteger::PrintValueInDec() const{
 }
 
 void BigBinaryInteger::SetValue(const std::string& str){
+	for (usint i = 0; i<m_nchar; i++)
+		m_value[i] = 0;
 	AssignVal(str);
 	SetMSB();
 }
