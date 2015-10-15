@@ -139,7 +139,7 @@ public:
 	 *
 	 * @return the root of unity.	 
 	 */
-	BigBinaryInteger &GetRootOfUnity();
+	const BigBinaryInteger &GetRootOfUnity();
 
 	/**
 	 * Get method of the format.

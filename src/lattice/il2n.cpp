@@ -127,7 +127,7 @@ namespace lbcrypto {
 		return *m_values;
 	}
 
-	BigBinaryInteger &ILVector2n::GetRootOfUnity() {
+	const BigBinaryInteger &ILVector2n::GetRootOfUnity() {
 		return m_params.GetRootOfUnity();
 	}
 
