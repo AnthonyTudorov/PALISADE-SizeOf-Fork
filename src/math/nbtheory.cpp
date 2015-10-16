@@ -274,7 +274,7 @@ bool witnessFunction(const BigBinaryInteger& a, const BigBinaryInteger& d, usint
 
 /*
 	Finds a Prime Modulus Corresponding to a Given Cyclotomic Number
-	Assuming that "GCD(twoTonBitsminusone, M) != M"
+	Assuming that "GCD(twoTonBitsminusone, M) == M"
 */
 BigBinaryInteger FindPrimeModulus(usint m, usint nBits)
 {
