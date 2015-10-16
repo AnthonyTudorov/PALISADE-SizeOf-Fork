@@ -31,8 +31,8 @@
  * This code provides the core proxy re-encryption functionality.
  */
 
-#ifndef LBCRYPTO_LWECRYPT_H
-#define LBCRYPTO_LWECRYPT_H
+#ifndef LBCRYPTO_CRYPTO_LWECRYPT_H
+#define LBCRYPTO_CRYPTO_LWECRYPT_H
 
 //Includes Section
 #include "../utils/inttypes.h"
@@ -158,7 +158,7 @@ namespace lbcrypto {
 			*
 			* @return the relinearization window.
 			*/
-			float GetRelinWindow() const { return m_relinWindow; }
+			usint GetRelinWindow() const { return m_relinWindow; }
 			
 			/**
 			 * Returns the value of computation depth d

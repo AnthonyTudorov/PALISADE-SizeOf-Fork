@@ -169,6 +169,8 @@ void BigBinaryInteger::PrintValueInDec() const{
 }
 
 void BigBinaryInteger::SetValue(const std::string& str){
+	for (usint i = 0; i<m_nchar; i++)
+		m_value[i] = 0;
 	AssignVal(str);
 	SetMSB();
 }
@@ -728,26 +730,20 @@ BigBinaryInteger BigBinaryInteger::ModBarrettAdd(const BigBinaryInteger& b, cons
 
 BigBinaryInteger BigBinaryInteger::ModSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const{
 
-	BigBinaryInteger* a = NULL;
-	BigBinaryInteger* b_op = NULL;
+	BigBinaryInteger* a = const_cast<BigBinaryInteger*>(this);
+	BigBinaryInteger* b_op = const_cast<BigBinaryInteger*>(&b);
 
 	if(*this>modulus){
+
 		*a = std::move(this->Mod(modulus));
-	}
-	else{
-		a = const_cast<BigBinaryInteger*>(this);
 	}
 
 	if(b>modulus){
 		*b_op = std::move(b.Mod(modulus));
 	}
-	else{
-		b_op = const_cast<BigBinaryInteger*>(&b);
-	}
 
-	if(!(*a<*b_op)){
-		return ((*a-*b_op).Mod(modulus));
-		
+	if(*a>=*b_op){
+		return ((*a-*b_op).Mod(modulus));		
 	}
 	else{
 		return ((*a + modulus) - *b_op);
@@ -835,20 +831,20 @@ BigBinaryInteger BigBinaryInteger::ModMul(const BigBinaryInteger& b, const BigBi
 
 BigBinaryInteger BigBinaryInteger::ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus, const BigBinaryInteger& mu) const{
 	
-	BigBinaryInteger* a  = NULL;
-	BigBinaryInteger* bb = NULL;
+	BigBinaryInteger* a  = const_cast<BigBinaryInteger*>(this);
+	BigBinaryInteger* bb = const_cast<BigBinaryInteger*>(&b);
 
 	//if a is greater than q reduce a to its mod value
 	if(*this>modulus)
 		*a = std::move(this->ModBarrett(modulus,mu));
-	else
-		a = const_cast<BigBinaryInteger*>(this);
+//	else
+//		a = const_cast<BigBinaryInteger*>(this);
 
 	//if b is greater than q reduce b to its mod value
 	if(b>modulus)
 		*bb = std::move(b.ModBarrett(modulus,mu));
-	else
-		bb = const_cast<BigBinaryInteger*>(&b);
+//	else
+//		bb = const_cast<BigBinaryInteger*>(&b);
 
 	//return a*b%q
 

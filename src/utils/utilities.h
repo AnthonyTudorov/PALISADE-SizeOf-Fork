@@ -31,8 +31,8 @@
  * This file contains the utility function functionality.
  */
 
-#ifndef LBCRYPTO_UTILITIES_H
-#define LBCRYPTO_UTILITIES_H
+#ifndef LBCRYPTO_UTILS_UTILITIES_H
+#define LBCRYPTO_UTILS_UTILITIES_H
 
 #include "../math/backend.h"
 #include "../math/nbtheory.h"

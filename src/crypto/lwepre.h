@@ -31,8 +31,8 @@
  * This code provides the core proxy re-encryption functionality.
  */
 
-#ifndef LBCRYPTO_LWEPRE_H
-#define LBCRYPTO_LWEPRE_H
+#ifndef LBCRYPTO_CRYPTO_LWEPRE_H
+#define LBCRYPTO_CRYPTO_LWEPRE_H
 
 //Includes Section
 #include "pubkeylp.h"

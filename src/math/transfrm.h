@@ -31,8 +31,8 @@
  * This file contains the linear transform interface functionality.
  */
 
-#ifndef LBCRYPTO_TRANSFRM_H
-#define LBCRYPTO_TRANSFRM_H
+#ifndef LBCRYPTO_MATH_TRANSFRM_H
+#define LBCRYPTO_MATH_TRANSFRM_H
 
 #include "backend.h"
 #include "nbtheory.h"

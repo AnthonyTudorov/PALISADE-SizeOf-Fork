@@ -31,8 +31,8 @@
  * This file contains the vector manipulation functionality.
  */
 
-#ifndef LBCRYPTO_BINVECT_H
-#define LBCRYPTO_BINVECT_H
+#ifndef LBCRYPTO_MATH_CPU8BIT_BINVECT_H
+#define LBCRYPTO_MATH_CPU8BIT_BINVECT_H
 
 
 #include "binint.h"

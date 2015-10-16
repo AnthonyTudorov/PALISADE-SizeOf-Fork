@@ -31,8 +31,8 @@
  * This code provides basic lattice ideal manipulation functionality.
  */
 
-#ifndef LBCRYPTO_IDEALS_H
-#define LBCRYPTO_IDEALS_H
+#ifndef LBCRYPTO_LATTICE_IDEALS_H
+#define LBCRYPTO_LATTICE_IDEALS_H
 
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
@@ -193,7 +193,7 @@ public:
 	 *
 	 * @return the root of unity.	 
 	 */
-	BigBinaryInteger &GetRootOfUnity() {
+	const BigBinaryInteger &GetRootOfUnity() {
 		return m_rootOfUnity;
 	}
 
