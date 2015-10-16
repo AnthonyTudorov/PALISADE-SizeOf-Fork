@@ -11,6 +11,7 @@ List of Authors:
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
+		Nishanth Pasham, np386@njit.edu
 Description:	
 
 Description:	
@@ -33,8 +34,14 @@ This software is being provided as an alpha-test version.  This software has not
 
 #include "backend.h"
 #include <vector>
+#include <set>
+#include <string>
+
+using namespace cpu8bit;
 
 namespace lbcrypto {
+
+const usint PRIMALITY_NO_OF_ITERATIONS = 100;
 
 BigBinaryInteger RootOfUnity(int m, const BigBinaryInteger& modulo);
 
@@ -45,7 +52,21 @@ usint ReverseBits(usint input, usint msb);
 //converts signed char generated using GDG to BigBinaryInteger for polynomial operations
 BigBinaryInteger scharToBigBinaryInteger(schar, const BigBinaryInteger &modulus);
 
-unsigned int GetMSB32(unsigned int x);
+usint GetMSB32(usint x);
+
+BigBinaryInteger GCD(const BigBinaryInteger& a, const BigBinaryInteger& b);
+
+bool PrimalityTest(const BigBinaryInteger& p);
+
+BigBinaryInteger FindGenerator(const BigBinaryInteger& q);
+
+BigBinaryInteger RNG(const BigBinaryInteger& n);
+
+const BigBinaryInteger PollardRho(const BigBinaryInteger &n);
+
+void Factorize(const BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors);
+
+bool witnessFunction(const BigBinaryInteger& a, const BigBinaryInteger& d, usint s, const BigBinaryInteger& p);
 
 } // namespace lbcrypto ends
 

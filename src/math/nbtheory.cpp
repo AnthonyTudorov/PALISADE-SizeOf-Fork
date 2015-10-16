@@ -11,6 +11,7 @@ List of Authors:
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
+		Nishanth Pasham, np386@njit.edu
 Description:	
 
 Description:	
@@ -45,7 +46,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
-
 /*
 	finds roots of unity for given input
 	input:	m as number which is cyclotomic(in format of int),
@@ -53,17 +53,20 @@ namespace lbcrypto {
 	
 	output:	root of unity (in format of BigBinaryInteger)
 */
-BigBinaryInteger RootOfUnity(int m, const BigBinaryInteger& modulo){
+BigBinaryInteger RootOfUnity(int m, const BigBinaryInteger& modulo) 
+{
 	BigBinaryInteger result;
+	BigBinaryInteger gen = FindGenerator(modulo);
+	result = gen.ModExp((modulo-BigBinaryInteger::ONE).DividedBy(BigBinaryInteger(std::to_string(m))), modulo);
 	return result;
-
 }
 
 
 /*
 	This method can be used to convert int to BigBinaryInteger
 */
-BigBinaryInteger intToBigBinaryInteger(usint m){
+BigBinaryInteger intToBigBinaryInteger(usint m)
+{
 	/*
 	std::ostringstream s;
 	s << m;
@@ -115,5 +118,158 @@ unsigned int GetMSB32(unsigned int x)
   v = (v >> 1) + 1;
   return pos[(v * 0x077CB531UL) >> 27];
 }*/
+
+/*
+	A recurise function used to find the Greatest Common Divisor (GCD) of two BigBinaryIntegers.
+	Input: BigBinaryInteger's a and b.
+	Output: A BigBinaryInteger which is GCD of a and b.
+*/
+ BigBinaryInteger GCD(const BigBinaryInteger& a, const BigBinaryInteger& b)
+ {
+ 	BigBinaryInteger m_rkminus2, m_rkminus1, m_rk;
+ 	m_rkminus2 = a;
+ 	m_rkminus1 = b;
+ 	while(m_rkminus2 >= m_rkminus1) {
+ 		m_rkminus2 -= m_rkminus1;
+ 	}
+ 	m_rk = m_rkminus2;
+	if(m_rk == BigBinaryInteger::ZERO) {
+		return m_rkminus1;
+	}
+ 	return GCD(m_rkminus1, m_rk);
+ }
+
+/*
+	A witness function used for the Miller-Rabin Primality test.
+	Inputs: a is a randomly generated witness between 2 and p-1,
+			p is the number to be tested for primality,
+			s and d satisfy p-1 = ((2^s) * d), d is odd.
+	Output: true if p is composite,
+			false if p is likely prime
+*/
+bool witnessFunction(const BigBinaryInteger& a, const BigBinaryInteger& d, usint s, const BigBinaryInteger& p)
+{
+	BigBinaryInteger mod = a.ModExp(d, p);
+	bool prevMod = false;
+	for(int i=1; i<s+1; i++) {
+		if(mod != BigBinaryInteger::ONE and mod != p-BigBinaryInteger::ONE)
+			prevMod = true;
+		else
+			prevMod = false;
+		mod = mod.ModExp(BigBinaryInteger::TWO, p);
+		if(mod == BigBinaryInteger::ONE and prevMod) return true;
+	}
+	return (mod != BigBinaryInteger::ONE);
+}
+
+/*
+	The Miller-Rabin Primality Test
+	Input: p the number to be tested for primality.
+	Output: true if p is prime,
+			false if p is not prime
+*/
+ bool PrimalityTest(const BigBinaryInteger& p)
+ {
+ 	if(p < BigBinaryInteger::TWO || ((p != BigBinaryInteger::TWO) && (p.Mod(BigBinaryInteger::TWO) == BigBinaryInteger::ZERO)))
+ 		return false;
+ 	if(p == BigBinaryInteger::TWO || p == BigBinaryInteger::THREE || p == BigBinaryInteger::FIVE)
+ 		return true;
+ 	BigBinaryInteger d = p-BigBinaryInteger::ONE;
+ 	usint s = 0;
+ 	while(d.Mod(BigBinaryInteger::TWO) == BigBinaryInteger::ZERO) {
+ 		d = d.DividedBy(BigBinaryInteger::TWO);
+ 		s++;
+ 	}
+ 	bool composite = true;
+ 	for(int i=0; i<PRIMALITY_NO_OF_ITERATIONS; i++) {
+ 		BigBinaryInteger a = RNG(p-BigBinaryInteger::THREE).ModAdd(BigBinaryInteger::TWO, p);
+ 		composite = (witnessFunction(a, d, s, p));
+		if(composite)
+			break;
+	}
+	return (!composite);
+ }
+
+/*
+	The Pollard Rho factorization of a number n.
+	Input: n the number to be factorized.
+	Output: a factor of n.
+*/
+ const BigBinaryInteger PollardRho(const BigBinaryInteger &n)
+ {
+ 	BigBinaryInteger divisor(BigBinaryInteger::ONE);
+ 	
+ 	BigBinaryInteger c(RNG(n));
+ 	BigBinaryInteger x(RNG(n));
+ 	BigBinaryInteger xx(x);
+ 	
+ 	//check divisibility by 2
+ 	if(n.Mod(BigBinaryInteger::TWO) == BigBinaryInteger::ZERO)
+ 		return BigBinaryInteger(BigBinaryInteger::TWO);
+
+ 	do {
+ 		x = (x.ModMul(x, n) + c).Mod(n);
+ 		xx = (xx.ModMul(xx, n) + c).Mod(n);
+ 		xx = (xx.ModMul(xx, n) + c).Mod(n);
+ 		divisor = GCD(((x-xx) > BigBinaryInteger::ZERO) ? x-xx : xx-x, n);
+ 	} while (divisor == BigBinaryInteger::ONE);
+ 	
+ 	return divisor;
+ }
+
+/*
+	Recursively factorizes and find the distinct primefactors of a number
+	Input: n is the number to be prime factorized,
+		   primeFactors is a set of prime factors of n. Empty to start-off with.
+*/
+ void Factorize(const BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors)
+ {
+ 	if(n == BigBinaryInteger::ONE) return;
+ 	if( PrimalityTest(n) ) {
+ 		primeFactors.insert(n);
+ 		return;
+ 	}
+ 	BigBinaryInteger divisor(PollardRho(n));
+ 	Factorize(divisor, primeFactors);
+ 	BigBinaryInteger reducedN(n.DividedBy(divisor));
+ 	Factorize(reducedN, primeFactors);
+ }
+
+/*
+	A helper function to RootOfUnity function. This finds a generator for a given prime q.
+	Input: BigBinaryInteger q which is a prime.
+	Output: A generator of prime q
+*/
+ BigBinaryInteger FindGenerator(const BigBinaryInteger& q)
+ {
+ 	std::set<BigBinaryInteger> primeFactors;
+ 	Factorize(q-BigBinaryInteger::ONE, primeFactors);
+ 	bool generatorFound = false;
+ 	BigBinaryInteger gen;
+ 	while(!generatorFound) {
+ 		usint count = 0;
+ 		gen = RNG(q-BigBinaryInteger::TWO).ModAdd(BigBinaryInteger::ONE, q);
+ 		for(std::set<BigBinaryInteger>::iterator it = primeFactors.begin(); it != primeFactors.end(); ++it) {
+ 			BigBinaryInteger exponent = (q-BigBinaryInteger::ONE).DividedBy(*it);
+ 			if(gen.ModExp(exponent, q) == BigBinaryInteger::ONE) break;
+ 			else count++;
+ 		}
+ 		if(count == primeFactors.size()) generatorFound = true;
+ 	}
+ 	return gen;
+ }
+
+/*
+	Generates a random number between 0 and n.
+	Input: BigBinaryInteger n.
+	Output: A BigBinaryInteger between 0 and n.
+*/
+ BigBinaryInteger RNG(const BigBinaryInteger& n)
+ {
+	std::string rand1 = std::to_string(rand());
+	std::string rand2 = std::to_string(rand());
+	std::string randstr = rand1 + rand2;
+	return BigBinaryInteger(randstr).Mod(n);
+}
 
 }

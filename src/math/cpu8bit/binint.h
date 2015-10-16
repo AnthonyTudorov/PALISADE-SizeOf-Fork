@@ -1,7 +1,7 @@
 /**
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Nishanth Pasham <np386@njit.edu>
  * @version 00_03
  *
  * @section LICENSE
@@ -446,6 +446,21 @@ public:
 	 * Constant two.	  
 	 */
 	const static BigBinaryInteger TWO;
+
+	/**
+	 * Constant THREE.	  
+	 */
+	const static BigBinaryInteger THREE;
+
+	/**
+	 * Constant four.	  
+	 */
+	const static BigBinaryInteger FOUR;
+
+	/**
+	 * Constant five.	  
+	 */
+	const static BigBinaryInteger FIVE;
 
 	/**
 	 * Test equality of the inputs.
