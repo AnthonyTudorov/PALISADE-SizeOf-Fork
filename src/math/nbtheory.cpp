@@ -262,7 +262,7 @@ bool witnessFunction(const BigBinaryInteger& a, const BigBinaryInteger& d, usint
 /*
 	Generates a random number between 0 and n.
 	Input: BigBinaryInteger n.
-	Output: A BigBinaryInteger between 0 and n.
+	Output: Randomly generated BigBinaryInteger between 0 and n.
 */
  BigBinaryInteger RNG(const BigBinaryInteger& n)
  {
@@ -270,6 +270,32 @@ bool witnessFunction(const BigBinaryInteger& a, const BigBinaryInteger& d, usint
 	std::string rand2 = std::to_string(rand());
 	std::string randstr = rand1 + rand2;
 	return BigBinaryInteger(randstr).Mod(n);
+}
+
+/*
+	Finds a Prime Modulus Corresponding to a Given Cyclotomic Number
+*/
+BigBinaryInteger FindPrimeModulus(usint m, usint nBits)
+{
+	BigBinaryInteger twoTonBitsminusone("1"), M(m), q;
+	for(usint i=0; i<nBits-1; i++)
+		twoTonBitsminusone = twoTonBitsminusone * BigBinaryInteger::TWO;
+	if(GCD(twoTonBitsminusone, M) != M)
+		// throw error
+	q = twoTonBitsminusone + M + BigBinaryInteger::ONE;
+	bool found = false;
+	while(!found) {
+		if(GCD(q-BigBinaryInteger::ONE, M) != M) {
+			q += M;
+			continue;
+		}
+		if(!PrimalityTest(q)) {
+			q += M;
+			continue;
+		}
+		found = true;
+	}
+	return q;
 }
 
 }

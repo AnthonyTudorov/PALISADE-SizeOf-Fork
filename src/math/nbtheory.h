@@ -68,6 +68,8 @@ void Factorize(const BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFacto
 
 bool witnessFunction(const BigBinaryInteger& a, const BigBinaryInteger& d, usint s, const BigBinaryInteger& p);
 
+BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
+
 } // namespace lbcrypto ends
 
 #endif
