@@ -153,6 +153,7 @@ void NTRUPRE(int input) {
 		{ 2048, BigBinaryInteger("34359754753"), BigBinaryInteger("34316244289"), 4 },  // r = 4
 		{ 2048, BigBinaryInteger("137439004673"), BigBinaryInteger("7643730114"), 8 }, //r = 8
 		{ 4096, BigBinaryInteger("35184372121601"), BigBinaryInteger("16870007166633"), 16 }  // r= 16
+		//{ 2048, CalltoModulusComputation(), CalltoRootComputation, 0 }  // r= 16
 	};
 
 	usint m = SECURE_PARAMS[input].m;
