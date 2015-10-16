@@ -11,6 +11,7 @@ List of Authors:
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
+		Nishanth Pasham, np386@njit.edu
 Description:	
 	This code provides basic arithmetic functionality.
 
@@ -45,6 +46,9 @@ MemoryPoolChar BigBinaryInteger::m_memReserve = MemoryPoolChar();
 const BigBinaryInteger BigBinaryInteger::ZERO = BigBinaryInteger();
 const BigBinaryInteger BigBinaryInteger::ONE = BigBinaryInteger("1");
 const BigBinaryInteger BigBinaryInteger::TWO = BigBinaryInteger("2");
+const BigBinaryInteger BigBinaryInteger::THREE = BigBinaryInteger("3");
+const BigBinaryInteger BigBinaryInteger::FOUR = BigBinaryInteger("4");
+const BigBinaryInteger BigBinaryInteger::FIVE = BigBinaryInteger("5");
 
 //usshort BigBinaryInteger::m_nchar = ceilIntBy8(BIT_LENGTH)+1;
 
