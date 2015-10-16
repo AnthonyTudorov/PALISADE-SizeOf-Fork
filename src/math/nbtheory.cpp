@@ -47,7 +47,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 /*
-	finds roots of unity for given input
+	finds roots of unity for given input.  Assumes the the input is a power of two.  Mostly likely does not give correct results otherwise.
 	input:	m as number which is cyclotomic(in format of int),
 			modulo which is used to find generator (in format of BigBinaryInteger)
 	
@@ -274,17 +274,18 @@ bool witnessFunction(const BigBinaryInteger& a, const BigBinaryInteger& d, usint
 
 /*
 	Finds a Prime Modulus Corresponding to a Given Cyclotomic Number
+	Assuming that "GCD(twoTonBitsminusone, M) != M"
 */
 BigBinaryInteger FindPrimeModulus(usint m, usint nBits)
 {
 	BigBinaryInteger twoTonBitsminusone("1"), M(m), q;
-	for(usint i=0; i<nBits-1; i++)
+	for(usint i=0; i<nBits-1; i++)	// Iterating until initial search condition.
 		twoTonBitsminusone = twoTonBitsminusone * BigBinaryInteger::TWO;
-	if(GCD(twoTonBitsminusone, M) != M)
+	//if(GCD(twoTonBitsminusone, M) != M)  // Implementing a guard to make sure assumptions are satisfied.
 		// throw error
 	q = twoTonBitsminusone + M + BigBinaryInteger::ONE;
 	bool found = false;
-	while(!found) {
+	while(!found) {  //Looping over invariant until test condition satisfied.
 		if(GCD(q-BigBinaryInteger::ONE, M) != M) {
 			q += M;
 			continue;
