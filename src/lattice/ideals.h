@@ -106,7 +106,7 @@ public:
 	 *
 	 * @param cyclotomic_order the order of the ciphertext
 	 * @param &moduli is the tower of moduli
-	 * @param &rootOfUnity the roots of unity for the toer of moduli
+	 * @param rootsOfUnity the roots of unity for the toer of moduli
 	 * @param cri_values Chinese remainder interpolation values to calculate inverse double-crt
 	 */
 	ILDCRTParams(usint cyclotomic_order, BigBinaryVector &moduli, BigBinaryVector& rootsOfUnity, BigBinaryVector& cri_values){
@@ -135,7 +135,7 @@ public:
 	 *
 	 * @param cyclotomic_order the order of the ciphertext
 	 * @param &moduli is the tower of moduli
-	 * @param &rootOfUnity the roots of unity for the toer of moduli
+	 * @param rootsOfUnity the roots of unity for the toer of moduli
 	 */
 	ILDCRTParams( BigBinaryVector& rootsOfUnity, usint cyclotomic_order, BigBinaryVector &moduli){
 	         m_cyclotomicOrder = cyclotomic_order;
@@ -207,7 +207,7 @@ public:
 	/**
 	 * Set the root of unity.
 	 *
-	 * @param &rootOfUnity the root of unity.	  
+	 * @param &rootsOfUnity the root of unity.	  
 	 */
 	void SetRootOfUnity(const BigBinaryVector &rootsOfUnity){
 		m_rootsOfUnity = rootsOfUnity;
