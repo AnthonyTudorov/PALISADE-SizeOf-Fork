@@ -3,9 +3,7 @@
 //#include "UnitTestBinMat.cpp"
 #include "gtest/gtest.h"
 
-#include "../../src/math/binint.h"
-#include "../../src/math/binmat.h"
-#include "../../src/math/binvect.h"
+#include "../../src/math/backend.h"
 #include "../../src/utils/inttypes.h"
 #include "../../src/math/nbtheory.h"
 #include "../../src/lattice/ideals.h"
@@ -33,6 +31,7 @@ using namespace std;
 using namespace lbcrypto;
 
 int main(int argc, char **argv) {
+
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

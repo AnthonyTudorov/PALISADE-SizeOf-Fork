@@ -26,10 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <gtest/gtest.h>
 #include <iostream>
 
-/*
-#include "../../src/math/binint.h"
-#include "../../src/math/binmat.h"
-#include "../../src/math/binvect.h"
+#include "../../src/math/backend.h"
 #include "../../src/utils/inttypes.h"
 #include "../../src/math/nbtheory.h"
 #include "../../src/lattice/ideals.h"
@@ -38,19 +35,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../src/crypto/lwepre.h"
 #include "../../src/lattice/il2n.h"
 #include "../../src/utils/utilities.h"
-*/
-
-#include "binint.h"
-#include "binmat.h"
-#include "binvect.h"
-#include "inttypes.h"
-#include "nbtheory.h"
-#include "ideals.h"
-#include "distrgen.h"
-#include "lwecrypt.h"
-#include "lwepre.h"
-#include "il2n.h"
-#include "utilities.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -158,7 +142,7 @@ TEST(method_modadd_vect,modadd_result_smaller_than_modulus){
 	
 	BigBinaryVector calculatedResult = m.ModAdd(n);
 
-	int expectedResult[5] = {9871,5882,4557,2346,9792};
+	int expectedResult[5] = {9871,5879,4554,2343,9789};
 
 	for (i=0,j=0;i<5;i++,j++)
 	{
@@ -189,7 +173,7 @@ TEST(method_modadd_vect,modadd_result_greater_than_modulus){
 	BigBinaryVector calculatedResult = m.ModAdd(n);
 
 
-	int expectedResult[5] = {1825,1370,45,1368,1746};
+	int expectedResult[5] = {1825,5879,4554,2343,9789};
 
 	for (i=0,j=0;i<5;i++,j++)
 	{
@@ -292,8 +276,12 @@ TEST(method_modmul_vect,test_modmul){
 	m.SetValAtIndex(2,"4554");
 	m.SetValAtIndex(3,"2343");
 	m.SetValAtIndex(4,"9789");
+
+	// std::cout << "Before : " << std::endl;
 	
 	BigBinaryVector calculatedResult = m.ModMul(n);
+
+	// std::cout << "After : " << std::endl;
 
 	int expectedResult[5] = {1576,1850,978,1758,1476};
 

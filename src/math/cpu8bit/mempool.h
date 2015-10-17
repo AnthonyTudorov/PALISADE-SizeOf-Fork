@@ -1,39 +1,74 @@
-/*
-PRE SCHEME PROJECT, Crypto Lab, NJIT
-Version: 
-	v00.01 
-Last Edited: 
-	6/14/2015 5:37AM
-List of Authors:
-	TPOC: 
-		Dr. Kurt Rohloff, rohloff@njit.edu
-	Programmers:
-		Dr. Yuriy Polyakov, polyakov@njit.edu
-		Gyana Sahu, grs22@njit.edu
-Description:	
-	This code provides the core proxy re-encryption functionality.
+/**
+ * @file
+ * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+ * @version 00_03
+ *
+ * @section LICENSE
+ * 
+ * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification, 
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this 
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this 
+ * list of conditions and the following disclaimer in the documentation and/or other 
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @section DESCRIPTION
+ *
+ *	This code provides basic queueing functionality.
+ */
 
-All rights retained by NJIT.  Our intention is to release this software as an open-source library under a license comparable in spirit to BSD, Apache or MIT.
-
-This software is being provided as an alpha-test version.  This software has not been audited or externally verified to be correct.  NJIT makes no guarantees or assurances about the correctness of this software.  This software is not ready for use in safety-critical or security-critical applications.
-*/
-
-#ifndef LBCRYPTO_MEMPOOL_H
-#define LBCRYPTO_MEMPOOL_H
+#ifndef LBCRYPTO_MATH_CPU8BIT_MEMPOOL_H
+#define LBCRYPTO_MATH_CPU8BIT_MEMPOOL_H
 
 #include <iostream>
 #include "../../utils/inttypes.h"
 #include "dtstruct.h"
 
+/**
+ * @namespace cpu8bit
+ * The namespace of cpu8bit
+ */
 namespace cpu8bit {
 
+	/**
+	 * @brief Basic memory pool implementation.
+	 */
 	class MemoryPoolChar{
 
 	public:
+
+		/**
+		 * Basic constructor.	  	  
+		 */
 		MemoryPoolChar();//ctor
 
+		/**
+		 * Allocate memory operation of chunks specified in dtstruct.h file.
+		 *
+		 * @return the location of the allocated memory
+		 */
 		uschar* Allocate();
-		void Deallocate(uschar*);
+
+		/**
+		 * Allocate memory operation of chunks specified in dtstruct.h file.
+		 *
+		 * @param memRelease the location of the deallocated memory.
+		 */
+		void Deallocate(uschar* memRelease);
 	
 	private:
 		CircularQueue m_available;

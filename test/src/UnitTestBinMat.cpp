@@ -26,10 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <gtest/gtest.h>
 #include <iostream>
 
-/*
-#include "../../src/math/binint.h"
-#include "../../src/math/binmat.h"
-#include "../../src/math/binvect.h"
+#include "../../src/math/backend.h"
 #include "../../src/utils/inttypes.h"
 #include "../../src/math/nbtheory.h"
 #include "../../src/lattice/ideals.h"
@@ -38,19 +35,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../src/crypto/lwepre.h"
 #include "../../src/lattice/il2n.h"
 #include "../../src/utils/utilities.h"
-*/
-
-#include "binint.h"
-#include "binmat.h"
-#include "binvect.h"
-#include "inttypes.h"
-#include "nbtheory.h"
-#include "ideals.h"
-#include "distrgen.h"
-#include "lwecrypt.h"
-#include "lwepre.h"
-#include "il2n.h"
-#include "utilities.h"
 
 using namespace std;
 using namespace lbcrypto;

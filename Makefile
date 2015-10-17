@@ -41,10 +41,6 @@ INC := -I include
 #TaskLDFLAGS = -lpthread
 #TimeLDFLAGS = -lm # -lrt
 
-$(TARGET): $(OBJECTS)
-	@echo " Linking..."
-	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB)
-
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)
 	@mkdir -p $(BUILDDIR)/crypto
@@ -56,9 +52,16 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 #	@echo " $(BUILDDIR)"
 	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<
 
+$(TARGET): $(OBJECTS)
+	@echo " Linking..."
+	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB)
+
 TESTSRCDIR := test/src
 TESTBUILDDIR := test/build
 TESTTARGET := test/bin/tests
+
+LIBSOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT) | xargs grep -L "main()")
+LIBOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(LIBSOURCES:.$(SRCEXT)=.o))
 
 TESTSOURCES := $(shell find $(TESTSRCDIR) -type f -name *.$(SRCEXT))
 TESTOBJECTS := $(patsubst $(TESTSRCDIR)/%,$(TESTBUILDDIR)/%,$(TESTSOURCES:.$(SRCEXT)=.o))
@@ -83,14 +86,14 @@ GTEST_HEADERS =	$(GTEST_DIR)/include/gtest/gtest.h \
 #GTEST_HEADERS =	$(GTEST_DIR)/include/gtest/*.h \
                $(GTEST_DIR)/include/gtest/internal/*.h
 
-$(TESTTARGET): $(TESTOBJECTS) $(GTEST_HEADERS)
-	@echo " Linking..."
-	@echo " $(CC) $(OBJECTS) $^ -o $(TESTTARGET) $(TESTLIB)"; $(CC) $^ -o $(TESTTARGET) $(TESTLIB)
-
 $(TESTBUILDDIR)/%.o: $(TESTSRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(TESTBUILDDIR)
 #	@echo " $(BUILDDIR)"
-	@echo " $(CC) $(CPPFLAGS) $(TESTLIB) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(TESTLIB) -c -o $@ $<
+	@echo " $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<
+
+$(TESTTARGET): $(TESTOBJECTS) $(GTEST_HEADERS)
+	@echo " Linking..."
+	@echo " $(CC) $(LIBOBJECTS) $^ -o $(TESTTARGET) $(TESTLIB)"; $(CC) $(LIBOBJECTS) $^ -o $(TESTTARGET) $(TESTLIB)
 
 clean:
 	@echo " Cleaning..."; 

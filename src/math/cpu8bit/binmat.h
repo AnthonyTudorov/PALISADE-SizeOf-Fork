@@ -31,8 +31,8 @@
  * This file contains the matrix manipulation functionality.
  */
 
-#ifndef LBCRYPTO_BINMAT_H
-#define LBCRYPTO_BINMAT_H
+#ifndef LBCRYPTO_MATH_CPU8BIT_BINMAT_H
+#define LBCRYPTO_MATH_CPU8BIT_BINMAT_H
 
 
 #include "../../utils/inttypes.h"

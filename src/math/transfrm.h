@@ -31,8 +31,8 @@
  * This file contains the linear transform interface functionality.
  */
 
-#ifndef LBCRYPTO_TRANSFRM_H
-#define LBCRYPTO_TRANSFRM_H
+#ifndef LBCRYPTO_MATH_TRANSFRM_H
+#define LBCRYPTO_MATH_TRANSFRM_H
 
 #include "backend.h"
 #include "nbtheory.h"
@@ -97,9 +97,9 @@ public:
 	/**
 	 * Forward transform.
 	 *
-	 * @param &element is the element to perform the transform on.
-	 * @param rootOfUnity the root of unity.
-	 * @param CycloOrder is the cyclotomic order.
+	 * @param element is the element to perform the transform on.
+	 * @param rootOfUnityTable the root of unity table.
+	 * @param cycloOrder is the cyclotomic order.
 	 * @return is the output result of the transform.	  	  
 	 */
 	BigBinaryVector ForwardTransformIterative(const BigBinaryVector& element, const BigBinaryVector& rootOfUnityTable,const usint cycloOrder) ;
@@ -107,9 +107,9 @@ public:
 	/**
 	 * Inverse transform.
 	 *
-	 * @param &element is the element to perform the transform on.
-	 * @param rootOfUnity the root of unity.
-	 * @param CycloOrder is the cyclotomic order.
+	 * @param element is the element to perform the transform on.
+	 * @param rootOfUnityInverseTable the root of unity table.
+	 * @param cycloOrder is the cyclotomic order.
 	 * @return is the output result of the transform.	  	  
 	 */
 	BigBinaryVector InverseTransformIterative(const BigBinaryVector& element,const BigBinaryVector& rootOfUnityInverseTable,const usint cycloOrder) ;

@@ -1,7 +1,7 @@
 /**
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Nishanth Pasham <np386@njit.edu>
  * @version 00_03
  *
  * @section LICENSE
@@ -31,8 +31,8 @@
  * This file contains the big binary integer functionality.
  */
 
-#ifndef LBCRYPTO_BININT_H
-#define LBCRYPTO_BININT_H
+#ifndef LBCRYPTO_MATH_CPU8BIT_BININT_H
+#define LBCRYPTO_MATH_CPU8BIT_BININT_H
 
 #include <iostream>
 #include <string>
@@ -204,10 +204,10 @@ public:
 	 * returns the Barret modulus with respect to the input modulus and the Barrett value.
 	 *
 	 * @param modulus is the modulus to perform operations with.
-	 * @param mu[BARRETT_LEVELS] is an array of the Barrett values of length BARRETT_LEVELS.
+	 * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
 	 * @return is the result of the modulus operation.
 	 */
-	virtual BigBinaryInteger ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger mu[BARRETT_LEVELS]) const;
+	virtual BigBinaryInteger ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger mu_arr[BARRETT_LEVELS+1]) const;
 	//virtual BigBinaryInteger BigBinaryInteger::ModBarrettKnezevic(const BigBinaryInteger& modulus, const BigBinaryInteger& mu, uschar flag) const;
 
 	/**
@@ -232,7 +232,7 @@ public:
 	 *
 	 * @param &b is the scalar to add.
 	 * @param modulus is the modulus to perform operations with.
-	 * @param mu[BARRETT_LEVELS] is the Barrett value.
+	 * @param mu is the Barrett value.
 	 * @return is the result of the modulus addition operation.
 	 */
 	virtual BigBinaryInteger ModBarrettAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu[BARRETT_LEVELS]) const;
@@ -269,9 +269,9 @@ public:
 	/**
 	 * Scalar Barrett modulus subtraction.
 	 *
-	 * @param &b is the scalar to subtract.
+	 * @param b is the scalar to subtract.
 	 * @param modulus is the modulus to perform operations with.
-	 * @param mu[BARRETT_LEVELS] is an array of the Barrett values of length BARRETT_LEVELS.
+	 * @param mu is an array of the Barrett values of length BARRETT_LEVELS.
 	 * @return is the result of the modulus subtraction operation.
 	 */
 	virtual BigBinaryInteger ModBarrettSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu[BARRETT_LEVELS]) const;
@@ -288,7 +288,7 @@ public:
 	/**
 	 * Scalar Barrett modulus multiplication.
 	 *
-	 * @param &b is the scalar to multiply.
+	 * @param b is the scalar to multiply.
 	 * @param modulus is the modulus to perform operations with.
 	 * @param mu is the Barrett value.
 	 * @return is the result of the modulus multiplication operation.
@@ -300,7 +300,7 @@ public:
 	 *
 	 * @param &b is the scalar to multiply.
 	 * @param modulus is the modulus to perform operations with.
-	 * @param mu[BARRETT_LEVELS] is an array of the Barrett values of length BARRETT_LEVELS.
+	 * @param mu is an array of the Barrett values of length BARRETT_LEVELS.
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	virtual BigBinaryInteger ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu[BARRETT_LEVELS]) const;
@@ -425,7 +425,7 @@ public:
 	/**
 	 * Convert a value from an int to a BigBinaryInt.
 	 *
-	 * @param the value to convert from.
+	 * @param m the value to convert from.
 	 * @return the int represented as a big binary int.	  
 	 */
 	static BigBinaryInteger intToBigBinaryInteger(usint m);
@@ -446,6 +446,21 @@ public:
 	 * Constant two.	  
 	 */
 	const static BigBinaryInteger TWO;
+
+	/**
+	 * Constant THREE.	  
+	 */
+	const static BigBinaryInteger THREE;
+
+	/**
+	 * Constant four.	  
+	 */
+	const static BigBinaryInteger FOUR;
+
+	/**
+	 * Constant five.	  
+	 */
+	const static BigBinaryInteger FIVE;
 
 	/**
 	 * Test equality of the inputs.

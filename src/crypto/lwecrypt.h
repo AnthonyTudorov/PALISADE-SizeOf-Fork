@@ -31,8 +31,8 @@
  * This code provides the core proxy re-encryption functionality.
  */
 
-#ifndef LBCRYPTO_LWECRYPT_H
-#define LBCRYPTO_LWECRYPT_H
+#ifndef LBCRYPTO_CRYPTO_LWECRYPT_H
+#define LBCRYPTO_CRYPTO_LWECRYPT_H
 
 //Includes Section
 #include "../utils/inttypes.h"
@@ -55,8 +55,8 @@ namespace lbcrypto {
 	template <class T, class P>
 	class LPCryptoParametersLWE : public LPCryptoParametersImpl<T,P> {
 		public:
-			typedef T Element;
-			typedef P ElementParams;
+			typedef T Element;		/**< The ring element */
+			typedef P ElementParams;	/**< The ring element params */
 			
 			/**
 			 * Constructor that initializes all values to 0.
@@ -79,6 +79,7 @@ namespace lbcrypto {
 			 * @param distributionParameter noise distribution parameter.
 			 * @param assuranceMeasure assurance level.
 			 * @param securityLevel security level.
+			 * @param relinWindow the size of the relinearization window.
 			 * @param depth depth which is set to 1.
 			 */
 			LPCryptoParametersLWE(const ElementParams &params,
@@ -106,6 +107,7 @@ namespace lbcrypto {
 			 * @param distributionParameter noise distribution parameter.
 			 * @param assuranceMeasure assurance level.
 			 * @param securityLevel security level.
+			 * @param relinWindow the size of the relinearization window.
 			 * @param depth depth which is set to 1.
 			 */
 			void Initialize(const ElementParams &params,
@@ -158,7 +160,7 @@ namespace lbcrypto {
 			*
 			* @return the relinearization window.
 			*/
-			float GetRelinWindow() const { return m_relinWindow; }
+			usint GetRelinWindow() const { return m_relinWindow; }
 			
 			/**
 			 * Returns the value of computation depth d
@@ -258,8 +260,8 @@ namespace lbcrypto {
 	template <class T, class P>
 	class LPPublicKeyLWENTRU : public LPPublicKeyImpl<LPCryptoParametersLWE<T,P>>{
 		public:
-			typedef T Element;
-			typedef P ElementParams;
+			typedef T Element;		/**< The ring element */
+			typedef P ElementParams;	/**< The ring element params */
 
 			/**
 			* Default constructor
@@ -296,8 +298,8 @@ namespace lbcrypto {
 	template <class T, class P>
 	class LPPrivateKeyLWENTRU : public LPPrivateKeyImpl<LPCryptoParametersLWE<T,P> >{
 		public:
-			typedef T Element;
-			typedef P ElementParams;
+			typedef T Element;		/**< The ring element */
+			typedef P ElementParams;	/**< The ring element params */
 
 			/**
 			* Default constructor
@@ -343,8 +345,8 @@ namespace lbcrypto {
 	template <class T, class P>
 	class LPAlgorithmLWENTRU : public LPEncryptionAlgorithm<T,P>{
 		public:
-			typedef T Element;
-			typedef P ElementParams;
+			typedef T Element;		/**< The ring element */
+			typedef P ElementParams;	/**< The ring element params */
 
 			/**
 			 * Method for encrypting plaintext using Ring-LWE NTRU
@@ -376,7 +378,7 @@ namespace lbcrypto {
 			 *
 			 * @param &publicKey private key used for decryption.
 			 * @param &privateKey private key used for decryption.
-			 * @param &dg discrete Gaussian generator.
+			 * @param &dgg discrete Gaussian generator.
 			 * @return function ran correctly.
 			 */
 			bool KeyGen(LPPublicKey<Element,ElementParams> &publicKey, 

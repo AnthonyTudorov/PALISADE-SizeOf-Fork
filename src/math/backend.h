@@ -33,7 +33,8 @@
 
 #ifndef LBCRYPTO_MATH_BACKEND_H
 #define LBCRYPTO_MATH_BACKEND_H
-
+ 
+/*! Define the library being used.  Use 1 to represent 8-bit CPU.*/
 #define MATHBACKEND 1  // 1 for 8-bit CPU; 2 for 64-bit CPU, and so on
 
 #if MATHBACKEND == 1
@@ -49,8 +50,11 @@
 namespace lbcrypto {
 
 #if MATHBACKEND == 1
+	/** Define the mapping for BigBinaryInteger */
 	typedef cpu8bit::BigBinaryInteger BigBinaryInteger;
+	/** Define the mapping for BigBinaryVector */
 	typedef cpu8bit::BigBinaryVector BigBinaryVector;
+	/** Define the mapping for BigBinaryMatrix */
 	typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
 #endif
 

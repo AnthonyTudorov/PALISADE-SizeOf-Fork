@@ -26,9 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "gtest/gtest.h"
 #include <iostream>
 
-#include "../../src/math/binint.h"
-#include "../../src/math/binmat.h"
-#include "../../src/math/binvect.h"
+#include "../../src/math/backend.h"
 #include "../../src/utils/inttypes.h"
 #include "../../src/math/nbtheory.h"
 #include "../../src/lattice/ideals.h"
@@ -699,6 +697,8 @@ TEST(method_mod_sub, first_number_greater_than_modulus){
 	BigBinaryInteger m("595");
 	BigBinaryInteger n("399");
 	BigBinaryInteger q("406");
+
+	std::cout << "Before : " << std::endl;
 
 	BigBinaryInteger calculatedResult = m.ModSub(n,q);
 	int expectedResult = 196;

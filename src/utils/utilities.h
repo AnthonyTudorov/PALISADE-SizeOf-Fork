@@ -31,8 +31,8 @@
  * This file contains the utility function functionality.
  */
 
-#ifndef LBCRYPTO_UTILITIES_H
-#define LBCRYPTO_UTILITIES_H
+#ifndef LBCRYPTO_UTILS_UTILITIES_H
+#define LBCRYPTO_UTILS_UTILITIES_H
 
 #include "../math/backend.h"
 #include "../math/nbtheory.h"
@@ -49,7 +49,7 @@ namespace lbcrypto {
  * It is used by the forward transform of ChineseRemainderTransform (a modified version of ZeroPadd will be used for the non-power-of-2 case).
  *
  * @param &InputPoly is the element to perform the transform on.
- * @param target_order.
+ * @param target_order is the intended target ordering.
  * @return is the output of the zero padding.	  	  
  */
 BigBinaryVector ZeroPadForward(const BigBinaryVector &InputPoly, usint target_order);
@@ -60,7 +60,7 @@ BigBinaryVector ZeroPadForward(const BigBinaryVector &InputPoly, usint target_or
  * It is used by the inverse transform of ChineseRemainderTransform (a modified version of ZeroPadInverse will be used for the non-power-of-2 case).
  *
  * @param &InputPoly is the element to perform the transform on.
- * @param target_order.
+ * @param target_order is the intended target ordering.
  * @return is the output of the zero padding.	  	  
  */
 BigBinaryVector ZeroPadInverse(const BigBinaryVector &InputPoly, usint target_order);
@@ -68,7 +68,7 @@ BigBinaryVector ZeroPadInverse(const BigBinaryVector &InputPoly, usint target_or
 /**
  * Determines if a number is a power of 2.
  *
- * @param input to test if it is a power of 2.
+ * @param Input to test if it is a power of 2.
  * @return is true if the unsigned int is a power of 2.	  	  
  */
 bool IsPowerOfTwo(usint Input);

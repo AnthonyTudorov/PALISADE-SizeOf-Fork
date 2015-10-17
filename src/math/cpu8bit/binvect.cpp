@@ -190,9 +190,10 @@ BigBinaryVector BigBinaryVector::Mod(const BigBinaryInteger& modulus) const{
 
 BigBinaryVector BigBinaryVector::ModAdd(const BigBinaryInteger &b) const{
 	BigBinaryVector ans(*this);
-	//for(usint i=0;i<this->m_length;i++){
-	//	*ans.m_data[i] = ans.m_data[i]->ModAdd(b,this->m_modulus);
-	//}
+//	for(usint i=0;i<this->m_length;i++){
+//		*ans.m_data[0] = ans.m_data[0]->ModAdd(b,this->m_modulus);
+//		*ans.m_data[i] = ans.m_data[i]->ModAdd(b, this->m_modulus);
+//	}
 	*ans.m_data[0] = ans.m_data[0]->ModAdd(b, this->m_modulus);
 	return ans;
 }
@@ -211,8 +212,16 @@ BigBinaryVector BigBinaryVector::ModMul(const BigBinaryInteger &b) const{
 
 	//Precompute the Barrett mu parameter
 	BigBinaryInteger temp(BigBinaryInteger::ONE);
+
+	// std::cout << "A : " << std::endl;
+
 	temp<<=2*this->GetModulus().GetMSB()+3;
+
+	// std::cout << "B : " << std::endl;
+
 	BigBinaryInteger mu = temp.DividedBy(this->GetModulus());
+
+	// std::cout << "C : " << std::endl;
 
 	//Precompute the Barrett mu values
 	/*BigBinaryInteger temp;
@@ -227,6 +236,10 @@ BigBinaryVector BigBinaryVector::ModMul(const BigBinaryInteger &b) const{
 	}*/
 
 	for(usint i=0;i<this->m_length;i++){
+
+		// std::cout << "D : " << std::endl;
+
+//		*ans.m_data[i] = ans.m_data[i]->ModAdd(*b.m_data[i],this->m_modulus);
 		*ans.m_data[i] = ans.m_data[i]->ModBarrettMul(b,this->m_modulus,mu);
 	}
 
@@ -337,7 +350,7 @@ BigBinaryVector BigBinaryVector::ModMatrixMul(const BigBinaryMatrix &a) const{
 BigBinaryVector BigBinaryVector::GetDigitAtIndexForBase(usint index, usint base) const{
 	BigBinaryVector ans(*this);
 	for(usint i=0;i<this->m_length;i++){
-		*ans.m_data[i] = lbcrypto::intToBigBinaryInteger(ans.m_data[i]->GetDigitAtIndexForBase(index,base));
+		*ans.m_data[i] = lbcrypto::UintToBigBinaryInteger(ans.m_data[i]->GetDigitAtIndexForBase(index,base));
 	}
 
 	return ans;

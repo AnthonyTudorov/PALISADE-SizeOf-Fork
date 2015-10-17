@@ -11,6 +11,7 @@ List of Authors:
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
+		Nishanth Pasham, np386@njit.edu
 Description:	
 	This code provides basic arithmetic functionality.
 
@@ -31,12 +32,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace cpu8bit {
 
 //YSP - these 5 methods should either be moved to a separate header file or encapsulated in this class
-uschar bin82dec(sshort *a);
-uschar* dec2bin(uschar a);
-uschar MSB_in_short(usshort in);
-uschar MSB_in_char(uschar in);
-void double_bitVal(uschar* a);
-void add_bitVal(uschar* a,uschar b);
+static uschar bin82dec(sshort *a);
+static uschar* dec2bin(uschar a);
+static uschar MSB_in_char(uschar in);
+static void double_bitVal(uschar* a);
+static void add_bitVal(uschar* a,uschar b);
 
 usshort BigBinaryInteger::m_nchar = ceilIntBy8(BIT_LENGTH) + 1;
 //MemoryPool_uschar BigBinaryInteger::memReserve = MemoryPool_uschar();
@@ -45,6 +45,9 @@ MemoryPoolChar BigBinaryInteger::m_memReserve = MemoryPoolChar();
 const BigBinaryInteger BigBinaryInteger::ZERO = BigBinaryInteger();
 const BigBinaryInteger BigBinaryInteger::ONE = BigBinaryInteger("1");
 const BigBinaryInteger BigBinaryInteger::TWO = BigBinaryInteger("2");
+const BigBinaryInteger BigBinaryInteger::THREE = BigBinaryInteger("3");
+const BigBinaryInteger BigBinaryInteger::FOUR = BigBinaryInteger("4");
+const BigBinaryInteger BigBinaryInteger::FIVE = BigBinaryInteger("5");
 
 //usshort BigBinaryInteger::m_nchar = ceilIntBy8(BIT_LENGTH)+1;
 
@@ -165,6 +168,8 @@ void BigBinaryInteger::PrintValueInDec() const{
 }
 
 void BigBinaryInteger::SetValue(const std::string& str){
+	for (usint i = 0; i<m_nchar; i++)
+		m_value[i] = 0;
 	AssignVal(str);
 	SetMSB();
 }
@@ -724,26 +729,20 @@ BigBinaryInteger BigBinaryInteger::ModBarrettAdd(const BigBinaryInteger& b, cons
 
 BigBinaryInteger BigBinaryInteger::ModSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const{
 
-	BigBinaryInteger* a = NULL;
-	BigBinaryInteger* b_op = NULL;
+	BigBinaryInteger* a = const_cast<BigBinaryInteger*>(this);
+	BigBinaryInteger* b_op = const_cast<BigBinaryInteger*>(&b);
 
 	if(*this>modulus){
+
 		*a = std::move(this->Mod(modulus));
-	}
-	else{
-		a = const_cast<BigBinaryInteger*>(this);
 	}
 
 	if(b>modulus){
 		*b_op = std::move(b.Mod(modulus));
 	}
-	else{
-		b_op = const_cast<BigBinaryInteger*>(&b);
-	}
 
-	if(!(*a<*b_op)){
-		return ((*a-*b_op).Mod(modulus));
-		
+	if(*a>=*b_op){
+		return ((*a-*b_op).Mod(modulus));		
 	}
 	else{
 		return ((*a + modulus) - *b_op);
@@ -831,20 +830,20 @@ BigBinaryInteger BigBinaryInteger::ModMul(const BigBinaryInteger& b, const BigBi
 
 BigBinaryInteger BigBinaryInteger::ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus, const BigBinaryInteger& mu) const{
 	
-	BigBinaryInteger* a  = NULL;
-	BigBinaryInteger* bb = NULL;
+	BigBinaryInteger* a  = const_cast<BigBinaryInteger*>(this);
+	BigBinaryInteger* bb = const_cast<BigBinaryInteger*>(&b);
 
 	//if a is greater than q reduce a to its mod value
 	if(*this>modulus)
 		*a = std::move(this->ModBarrett(modulus,mu));
-	else
-		a = const_cast<BigBinaryInteger*>(this);
+//	else
+//		a = const_cast<BigBinaryInteger*>(this);
 
 	//if b is greater than q reduce b to its mod value
 	if(b>modulus)
 		*bb = std::move(b.ModBarrett(modulus,mu));
-	else
-		bb = const_cast<BigBinaryInteger*>(&b);
+//	else
+//		bb = const_cast<BigBinaryInteger*>(&b);
 
 	//return a*b%q
 
@@ -1632,7 +1631,7 @@ BigBinaryInteger BigBinaryInteger::ShiftRight(uschar shift) const{
 
 //AUXILIARY FUNCTIONS
 
-uschar bin82dec(sshort *a){
+static uschar bin82dec(sshort *a){
 	uschar Val=0;
 	uschar one=1;
 	for(sint i=7;i>=0;i--){
@@ -1643,7 +1642,7 @@ uschar bin82dec(sshort *a){
 	return Val;
 }
 
-uschar* dec2bin(uschar a){
+static uschar* dec2bin(uschar a){
 	uschar *arr = new uschar[8]();
 	uschar arrPtr=7;
 	/*for(usint i=0;i<8;i++)
@@ -1656,19 +1655,19 @@ uschar* dec2bin(uschar a){
 	return arr;
 }
 
-uschar MSB_in_short(usshort in){
+static uschar MSB_in_short(usshort in){
 
 	return lbcrypto::GetMSB32(in);
 
 }
 
-uschar MSB_in_char(uschar in){
+static uschar MSB_in_char(uschar in){
 
 	return lbcrypto::GetMSB32(in);
 
 }
 
-void double_bitVal(uschar* a){
+static void double_bitVal(uschar* a){
 	uschar ofl=0;
 	for(sint i=NUM_DIGIT_IN_PRINTVAL-1;i>-1;i--){
 		*(a+i)<<=1;
@@ -1685,7 +1684,7 @@ void double_bitVal(uschar* a){
 
 }
 
-void add_bitVal(uschar* a,uschar b){
+static void add_bitVal(uschar* a,uschar b){
 	uschar ofl=0;
 	*(a+NUM_DIGIT_IN_PRINTVAL-1)+=b;
 	for(sint i=NUM_DIGIT_IN_PRINTVAL-1;i>-1;i--){

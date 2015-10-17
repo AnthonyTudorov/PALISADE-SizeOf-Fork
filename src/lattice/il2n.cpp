@@ -127,7 +127,7 @@ namespace lbcrypto {
 		return *m_values;
 	}
 
-	BigBinaryInteger &ILVector2n::GetRootOfUnity() {
+	const BigBinaryInteger &ILVector2n::GetRootOfUnity() {
 		return m_params.GetRootOfUnity();
 	}
 
@@ -297,7 +297,7 @@ namespace lbcrypto {
 			usint exp = mod,Rem=0;
 			for(usint j=0;j<p;j++){
 				Rem = Num%exp;
-				m_values->SetValAtIndex(i*p+j,intToBigBinaryInteger((Rem/(exp/mod))));
+				m_values->SetValAtIndex(i*p+j,UintToBigBinaryInteger((Rem/(exp/mod))));
 				Num -= Rem;
 				exp*=mod;
 			}

@@ -54,7 +54,7 @@ bool LPAlgorithmPRELWENTRU<T,P>::ProxyKeyGen(const LPPublicKey<Element,ElementPa
 		Element s(dgg,elementParams);
 		Element e(dgg,elementParams);
 
-		BigBinaryInteger pI(p.ModExp(intToBigBinaryInteger(i*relinWindow),elementParams.GetModulus()));
+		BigBinaryInteger pI(p.ModExp(UintToBigBinaryInteger(i*relinWindow),elementParams.GetModulus()));
 		evalKey->push_back( hn*s + p*e + pI*f );
 	}
 
