@@ -156,7 +156,7 @@ BigBinaryVector DiscreteGaussianGenerator::DiscreteGaussianPositiveGenerator(usi
 
           
        for(usint i=0;i<vectorLength;i++){
-		   ans.SetValAtIndex(i,intToBigBinaryInteger(std::rand()%8));
+		   ans.SetValAtIndex(i,UintToBigBinaryInteger(std::rand()%8));
        }
 
        return ans;
@@ -182,11 +182,11 @@ BigBinaryVector DiscreteGaussianGenerator::GenerateVector(usint size) const{
 	for(usint i=0;i<size;i++){
 		if( result_vector[i]<0 ){
 			result_vector[i] *= -1;
-			ans.SetValAtIndex(i,intToBigBinaryInteger(result_vector[i]));
+			ans.SetValAtIndex(i,UintToBigBinaryInteger(result_vector[i]));
 			ans.SetValAtIndex(i, m_modulus-ans.GetValAtIndex(i) );
 		}
 		else{
-			ans.SetValAtIndex(i,intToBigBinaryInteger(result_vector[i]));
+			ans.SetValAtIndex(i,UintToBigBinaryInteger(result_vector[i]));
 		}
 	}
 

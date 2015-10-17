@@ -140,7 +140,7 @@ BigBinaryVector NumberTheoreticTransform::InverseTransformIterative(const BigBin
 
 	ans.SetModulus(element.GetModulus());
 
-	ans = ans.ModMul(intToBigBinaryInteger(cycloOrder).ModInverse(element.GetModulus()));
+	ans = ans.ModMul(UintToBigBinaryInteger(cycloOrder).ModInverse(element.GetModulus()));
 
 	return ans;
 }

@@ -350,7 +350,7 @@ BigBinaryVector BigBinaryVector::ModMatrixMul(const BigBinaryMatrix &a) const{
 BigBinaryVector BigBinaryVector::GetDigitAtIndexForBase(usint index, usint base) const{
 	BigBinaryVector ans(*this);
 	for(usint i=0;i<this->m_length;i++){
-		*ans.m_data[i] = lbcrypto::intToBigBinaryInteger(ans.m_data[i]->GetDigitAtIndexForBase(index,base));
+		*ans.m_data[i] = lbcrypto::UintToBigBinaryInteger(ans.m_data[i]->GetDigitAtIndexForBase(index,base));
 	}
 
 	return ans;
