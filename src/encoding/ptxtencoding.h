@@ -55,22 +55,24 @@ namespace lbcrypto {
 	class PlaintextEncodingInterface
 	{
 	public:
-		/**
-		* Interface for the operation of converting from current plaintext encoding to AmbientPlaintext.
-		*
-		* @param  *ambPtxt encoded plaintext - output argument.
-		*/
-		//virtual long Encode(AmbientPlaintext *ambPtxt) const = 0;
-		/**
-		* Interface for the operation of converting from AmbientPlaintext to original plaintext encoding.
-		*
-		* @param &ambPtxt encoded plaintext.
-		*/
-		//virtual long Decode(const AmbientPlaintext &ambPtxt) const = 0;
+		//
+		//* Interface for the operation of converting from current plaintext encoding to AmbientPlaintext.
+		//*
+		//* @param  *ambPtxt encoded plaintext - output argument.
+		//
+		////virtual long Encode(AmbientPlaintext *ambPtxt) const = 0;
+		//
+		//* Interface for the operation of converting from AmbientPlaintext to original plaintext encoding.
+		//*
+		//* @param &ambPtxt encoded plaintext.
+		//
+		////virtual long Decode(const AmbientPlaintext &ambPtxt) const = 0;
 
 		/**
-		* Get method to return the length of plaintext
-		*/
+		 * Get method to return the length of plaintext
+		 *
+		 * @return the length of the plaintext in terms of the number of bits.
+		 */
 		virtual size_t GetLength() const = 0;
 
 	};
@@ -95,13 +97,13 @@ namespace lbcrypto {
 		ByteArrayPlaintextEncoding(const ByteArray &byteArray):m_data(byteArray) {
 		}
 
-		/**
+		/*
 		* Implementation of the method of PlaintextEncodingInterface.
 		*
 		* @param  *ambPtxt encoded plaintext - output argument.
 		*/
 		//long Encode(AmbientPlaintext *ambPtxt) const { return 0; };
-		/**
+		/*
 		* Implementation of the method of PlaintextEncodingInterface.
 		*
 		* @param &ambPtxt encoded plaintext.
@@ -109,8 +111,9 @@ namespace lbcrypto {
 		//long Decode(const AmbientPlaintext &ambPtxt) { return 0; };
 
 		/**
-		* Get method to return the byte array
-		*/
+		 * Get method to return the byte array
+		 * @return the byte array of data.
+		 */
 		const ByteArray &GetData() const{
 			return m_data;
 		}

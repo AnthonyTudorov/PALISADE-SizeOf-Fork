@@ -147,7 +147,7 @@ public:
 	/**
 	 * Sets the vector modulus.
 	 *
-	 * @param modulus is the value to set.
+	 * @param value is the value to set.
 	 */
 	void SetModulus(const BigBinaryInteger& value);
 

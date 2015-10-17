@@ -32,12 +32,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace cpu8bit {
 
 //YSP - these 5 methods should either be moved to a separate header file or encapsulated in this class
-uschar bin82dec(sshort *a);
-uschar* dec2bin(uschar a);
-uschar MSB_in_short(usshort in);
-uschar MSB_in_char(uschar in);
-void double_bitVal(uschar* a);
-void add_bitVal(uschar* a,uschar b);
+static uschar bin82dec(sshort *a);
+static uschar* dec2bin(uschar a);
+static uschar MSB_in_char(uschar in);
+static void double_bitVal(uschar* a);
+static void add_bitVal(uschar* a,uschar b);
 
 usshort BigBinaryInteger::m_nchar = ceilIntBy8(BIT_LENGTH) + 1;
 //MemoryPool_uschar BigBinaryInteger::memReserve = MemoryPool_uschar();
@@ -1632,7 +1631,7 @@ BigBinaryInteger BigBinaryInteger::ShiftRight(uschar shift) const{
 
 //AUXILIARY FUNCTIONS
 
-uschar bin82dec(sshort *a){
+static uschar bin82dec(sshort *a){
 	uschar Val=0;
 	uschar one=1;
 	for(sint i=7;i>=0;i--){
@@ -1643,7 +1642,7 @@ uschar bin82dec(sshort *a){
 	return Val;
 }
 
-uschar* dec2bin(uschar a){
+static uschar* dec2bin(uschar a){
 	uschar *arr = new uschar[8]();
 	uschar arrPtr=7;
 	/*for(usint i=0;i<8;i++)
@@ -1656,19 +1655,19 @@ uschar* dec2bin(uschar a){
 	return arr;
 }
 
-uschar MSB_in_short(usshort in){
+static uschar MSB_in_short(usshort in){
 
 	return lbcrypto::GetMSB32(in);
 
 }
 
-uschar MSB_in_char(uschar in){
+static uschar MSB_in_char(uschar in){
 
 	return lbcrypto::GetMSB32(in);
 
 }
 
-void double_bitVal(uschar* a){
+static void double_bitVal(uschar* a){
 	uschar ofl=0;
 	for(sint i=NUM_DIGIT_IN_PRINTVAL-1;i>-1;i--){
 		*(a+i)<<=1;
@@ -1685,7 +1684,7 @@ void double_bitVal(uschar* a){
 
 }
 
-void add_bitVal(uschar* a,uschar b){
+static void add_bitVal(uschar* a,uschar b){
 	uschar ofl=0;
 	*(a+NUM_DIGIT_IN_PRINTVAL-1)+=b;
 	for(sint i=NUM_DIGIT_IN_PRINTVAL-1;i>-1;i--){

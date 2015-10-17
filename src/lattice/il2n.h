@@ -370,6 +370,12 @@ public:
 	}
 
 	// computes the samples
+	/**
+	 * Pre computes the Dgg samples.
+	 *
+	 * @param &dgg the discrete Gaussian Generator.  	
+	 * @param &params are the relevant ring parameters.  	  
+	 */
 	static void PreComputeDggSamples(DiscreteGaussianGenerator &dgg, const ILParams &params);
 
 	/**
@@ -406,17 +412,89 @@ private:
 
 // overloaded operators for ILVector2n
 //PREV1
-inline lbcrypto::ILVector2n operator+(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Plus(b);}
-inline lbcrypto::ILVector2n operator-(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Minus(b);}
+
+	/**
+	 * Addition operator overload.  Performs an addition in the ring.
+	 *
+	 * @param &a the first parameter.
+	 * @param &b the first parameter.
+	 *
+	 * @return The result of addition in the ring.
+	 */ 
+	inline lbcrypto::ILVector2n operator+(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Plus(b);}
+
+	/**
+	 * Subtraction operator overload.  Performs a subtraction in the ring.
+	 *
+	 * @param &a the first parameter.
+	 * @param &b the first parameter.
+	 *
+	 * @return The result of subtraction in the ring.
+	 */ 
+	inline lbcrypto::ILVector2n operator-(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Minus(b);}
 //PREV1
-inline lbcrypto::ILVector2n operator*(const lbcrypto::BigBinaryInteger &b, const lbcrypto::ILVector2n &a) {return a.Times(b);}
-inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) {return a.DividedBy(b);}
+
+	/**
+	 * Multiplication operator overload.  Performs a multiplication in the ring.
+	 *
+	 * @param &a the first parameter.
+	 * @param &b the first parameter.
+	 *
+	 * @return The result of multiplication in the ring.
+	 */ 
+	inline lbcrypto::ILVector2n operator*(const lbcrypto::BigBinaryInteger &b, const lbcrypto::ILVector2n &a) {return a.Times(b);}
+
+	/**
+	 * Division operator overload.  Performs an division in the ring.
+	 *
+	 * @param &a the first parameter.
+	 * @param &b the first parameter.
+	 *
+	 * @return The result of division in the ring.
+	 */ 
+	inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) {return a.DividedBy(b);}
 //PREV1
-inline lbcrypto::ILVector2n operator+(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.Plus(b);}
-inline lbcrypto::ILVector2n operator-(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.Minus(b);}
+
+	/**
+	 * Addition operator overload.  Performs an addition in the ring.
+	 *
+	 * @param &a the first parameter.
+	 * @param &b the first parameter.
+	 *
+	 * @return The result of addition in the ring.
+	 */ 
+	inline lbcrypto::ILVector2n operator+(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.Plus(b);}
+
+	/**
+	 * Subtraction operator overload.  Performs a subtraction in the ring.
+	 *
+	 * @param &a the first parameter.
+	 * @param &b the first parameter.
+	 *
+	 * @return The result of subtraction in the ring.
+	 */ 
+	inline lbcrypto::ILVector2n operator-(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.Minus(b);}
 //PREV1
-inline lbcrypto::ILVector2n operator*(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.Times(b);}
-inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.DividedBy(b);}
+
+	/**
+	 * Multiplication operator overload.  Performs a multiplication in the ring.
+	 *
+	 * @param &a the first parameter.
+	 * @param &b the first parameter.
+	 *
+	 * @return The result of multiplication in the ring.
+	 */ 
+	inline lbcrypto::ILVector2n operator*(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.Times(b);}
+
+	/**
+	 * Division operator overload.  Performs an division in the ring.
+	 *
+	 * @param &a the first parameter.
+	 * @param &b the first parameter.
+	 *
+	 * @return The result of division in the ring.
+	 */ 
+	inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) {return a.DividedBy(b);}
 
 // ideal lattice in the double-CRT representation
 
@@ -680,15 +758,87 @@ private:
 };
 
 // overloaded operators for ILVectorArray2n
-inline lbcrypto::ILVectorArray2n operator+(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Plus(b);}
-inline lbcrypto::ILVectorArray2n operator-(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Minus(b);}
-inline lbcrypto::ILVectorArray2n operator*(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Times(b);}
-inline lbcrypto::ILVectorArray2n operator/(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) {return a.DividedBy(b);}
-inline lbcrypto::ILVectorArray2n operator+(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) {return a.Plus(b);}
-inline lbcrypto::ILVectorArray2n operator-(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) {return a.Minus(b);}
-inline lbcrypto::ILVectorArray2n operator*(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) {return a.Times(b);}
-inline lbcrypto::ILVectorArray2n operator/(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) {return a.DividedBy(b);}
 
+	/**
+	 * Addition operator overload.  Performs an addition in the ring.
+	 *
+	 * @param &a the first parameter.
+	 * @param &b the first parameter.
+	 *
+	 * @return The result of addition in the ring.
+	 */ 
+	inline lbcrypto::ILVectorArray2n operator+(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Plus(b);}
+
+	/**
+	 * Subtraction operator overload.  Performs an subtraction in the ring.
+	 *
+	 * @param &a the first parameter.
+	 * @param &b the first parameter.
+	 *
+	 * @return The result of subtraction in the ring.
+	 */ 
+	inline lbcrypto::ILVectorArray2n operator-(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Minus(b);}
+
+	/**
+	 * Multiplication operator overload.  Performs a multiplication in the ring.
+	 *
+	 * @param &a the first parameter.
+	 * @param &b the first parameter.
+	 *
+	 * @return The result of multiplication in the ring.
+	 */ 
+	inline lbcrypto::ILVectorArray2n operator*(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) {return a.Times(b);}
+
+	/**
+	 * Division operator overload.  Performs a division in the ring.
+	 *
+	 * @param &a the first parameter.
+	 * @param &b the first parameter.
+	 *
+	 * @return The result of division in the ring.
+	 */ 
+	inline lbcrypto::ILVectorArray2n operator/(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) {return a.DividedBy(b);}
+
+	/**
+	 * Addition operator overload.  Performs an addition in the ring.
+	 *
+	 * @param &a the first parameter.
+	 * @param &b the first parameter.
+	 *
+	 * @return The result of addition in the ring.
+	 */ 
+	inline lbcrypto::ILVectorArray2n operator+(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) {return a.Plus(b);}
+
+	/**
+	 * Subtraction operator overload.  Performs a subtraction in the ring.
+	 *
+	 * @param &a the first parameter.
+	 * @param &b the first parameter.
+	 *
+	 * @return The result of subtraction in the ring.
+	 */ 
+	inline lbcrypto::ILVectorArray2n operator-(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) {return a.Minus(b);}
+
+	/**
+	 * Multiplication operator overload.  Performs a multiplication in the ring.
+	 *
+	 * @param &a the first parameter.
+	 * @param &b the first parameter.
+	 *
+	 * @return The result of multiplication in the ring.
+	 */ 
+	inline lbcrypto::ILVectorArray2n operator*(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) {return a.Times(b);}
+
+	/**
+	 * Division operator overload.  Performs an division in the ring.
+	 *
+	 * @param &a the first parameter.
+	 * @param &b the first parameter.
+	 *
+	 * @return The result of division in the ring.
+	 */ 
+	inline lbcrypto::ILVectorArray2n operator/(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) {return a.DividedBy(b);}
+	
 } // namespace lbcrypto ends
 
 #endif

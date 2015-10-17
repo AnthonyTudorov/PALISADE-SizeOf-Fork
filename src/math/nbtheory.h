@@ -89,7 +89,7 @@ namespace lbcrypto {
 	 */
 	usint ReverseBits(usint input, usint msb);
 
-//	/**
+//	/*
 //	 * Method that converts signed char to BigBinaryInteger
 //	 *
 //	 * @param input an unsigned int

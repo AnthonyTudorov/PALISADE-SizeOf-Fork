@@ -51,7 +51,7 @@ namespace lbcrypto {
 	Input: BigBinaryInteger n.
 	Output: Randomly generated BigBinaryInteger between 0 and n.
 */
- BigBinaryInteger RNG(const BigBinaryInteger& n)
+ static BigBinaryInteger RNG(const BigBinaryInteger& n)
  {
 	std::cout << " \n********WARNING: This code is calling an incorrect random number generator that is tended for temporary use ONLY!!!!!  This function, RNG(const BigBinaryInteger& n), is in nbtheory.cpp*********" << std::endl;
 
@@ -69,7 +69,7 @@ namespace lbcrypto {
 	Output: true if p is composite,
 			false if p is likely prime
 */
-bool WitnessFunction(const BigBinaryInteger& a, const BigBinaryInteger& d, usint s, const BigBinaryInteger& p)
+static bool WitnessFunction(const BigBinaryInteger& a, const BigBinaryInteger& d, usint s, const BigBinaryInteger& p)
 {
 	BigBinaryInteger mod = a.ModExp(d, p);
 	bool prevMod = false;
@@ -89,7 +89,7 @@ bool WitnessFunction(const BigBinaryInteger& a, const BigBinaryInteger& d, usint
 	Input: BigBinaryInteger q which is a prime.
 	Output: A generator of prime q
 */
- BigBinaryInteger FindGenerator(const BigBinaryInteger& q)
+static BigBinaryInteger FindGenerator(const BigBinaryInteger& q)
  {
  	std::set<BigBinaryInteger> primeFactors;
  	Factorize(q-BigBinaryInteger::ONE, primeFactors);
@@ -141,9 +141,9 @@ BigBinaryInteger UintToBigBinaryInteger(usint m)
 }
 
 /* Function to reverse bits of num */
-unsigned int ReverseBits(unsigned int num, unsigned int msb)
+usint ReverseBits(usint num, usint msb)
 {
-    unsigned int reverse_num = 0, i, temp;
+    usint reverse_num = 0, i, temp;
  
     for (i = 0; i < msb; i++)
     {
@@ -156,19 +156,19 @@ unsigned int ReverseBits(unsigned int num, unsigned int msb)
 }
 
 //gets MSB for an unsigned integer
-unsigned int GetMSB32(unsigned int x)
+usint GetMSB32(usint x)
 {
-    static const unsigned int bval[] =
+    static const usint bval[] =
     {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
 
-    unsigned int r = 0;
+    usint r = 0;
     if (x & 0xFFFF0000) { r += 16/1; x >>= 16/1; }
     if (x & 0x0000FF00) { r += 16/2; x >>= 16/2; }
     if (x & 0x000000F0) { r += 16/4; x >>= 16/4; }
     return r + bval[x];
 }
 
-/*unsigned int GetMSB32(unsigned int v) {
+/*usint GetMSB32(usint v) {
   static const int pos[32] = {0, 1, 28, 2, 29, 14, 24, 3,
     30, 22, 20, 15, 25, 17, 4, 8, 31, 27, 13, 23, 21, 19,
     16, 7, 26, 12, 18, 6, 11, 5, 10, 9};

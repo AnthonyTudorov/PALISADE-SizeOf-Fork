@@ -34,21 +34,35 @@
 #ifndef LBCRYPTO_CRYPTO_CIPHERTEXT_H
 #define LBCRYPTO_CRYPTO_CIPHERTEXT_H
 
+/**
+ * @brief Template for crypto PRE.
+ * @tparam T a ring element.
+ * @tparam P a set of element parameters.
+ */
 template <class T, class P>
 class Ciphertext {
 public:
-	typedef T Element;
-	typedef P ElementParams;
+	typedef T Element;		/**< The ring element */
+	typedef P ElementParams;	/**< The ring element params */
 
 
+	/**
+	 * Constructor
+	 * @param &cp the ciphertext parameters.
+	 * @param &dataHolder the container of the ciphertext data.
+	 */
 	Ciphertext(LPCryptoParameters< Element, ElementParams > &cp, Element &dataHolder) {
-
 		
 		cryptoParameters = cp;
 		cipherTextData = dataHolder;
 	
 	}
+
+	/**
+	 * Destructor
+	 */
 	~Ciphertext(){}
+
 	/**
 	* Get Crypto Parameters.
 	* @return the crypto parameters.

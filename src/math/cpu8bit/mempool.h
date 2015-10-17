@@ -66,9 +66,9 @@ namespace cpu8bit {
 		/**
 		 * Allocate memory operation of chunks specified in dtstruct.h file.
 		 *
-		 * @param uschar* the location of the deallocated memory.
+		 * @param memRelease the location of the deallocated memory.
 		 */
-		void Deallocate(uschar*);
+		void Deallocate(uschar* memRelease);
 	
 	private:
 		CircularQueue m_available;

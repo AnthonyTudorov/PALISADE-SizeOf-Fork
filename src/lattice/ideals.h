@@ -163,7 +163,7 @@ public:
 	* @param bitLength minimum bit length for ciphertext modulus.
 	* @param &inputFile the full path to the text file containing the ciphertext modulues and root of unity for a given set of m and bitLength
 	*/
-	bool Initialize(usint m, usint bitLength, const std::string &inputfile){
+	bool Initialize(usint m, usint bitLength, const std::string &inputFile){
 		//add a code that sets all parameters using an entry in the text file with pre-computed values
 	}
 
