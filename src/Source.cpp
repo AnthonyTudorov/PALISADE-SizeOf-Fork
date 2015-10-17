@@ -63,12 +63,14 @@ using namespace lbcrypto;
 void NTRUPRE(int input);
 double currentDateTime();
 
-//defination of input parameters for 
+/**
+ * @brief Input parameters for PRE example.
+ */
 struct SecureParams {
-	usint m;
-	BigBinaryInteger modulus;
-	BigBinaryInteger rootOfUnity;
-	usint relinWindow;
+	usint m;			///< The ring parameter.
+	BigBinaryInteger modulus;	///< The modulus
+	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
+	usint relinWindow;		///< The relinearization window parameter.
 };
 
 int main(){
