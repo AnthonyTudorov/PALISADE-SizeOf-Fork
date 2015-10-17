@@ -50,7 +50,19 @@ namespace lbcrypto {
 class DistributionGenerator
 {
 public:
+
+	/**
+	 * Basic virtual method.
+	 *
+	 * @return a return value set to 0.  	  
+	 */
 	virtual BigBinaryInteger GenerateInteger() const = 0;
+
+	/**
+	 * Basic virtual method.
+	 *
+	 * @return a return value set to 0.  	  
+	 */
 	virtual BigBinaryVector GenerateVector(usint size) const = 0;
 };
 
@@ -107,19 +119,61 @@ public:
 	//ACCESSORS
 
     //int GetMean() const;
+
+	/**
+	 * Returns the standard deviation of the generator.
+	 *
+	 * @return the analytically obtained standard deviation of the generator.	  
+	 */
 	sint GetStd() const;
     //int GetUpperBound() const;
     //void SetMean(int mean);
+
+	/**
+	 * Sets the standard deviation of the generator.
+	 *
+	 * @param std the analytic standard deviation of the generator.	  
+	 */
 	void SetStd(sint std);
     //void SetUpperBound(int upperBound);
+
+	/**
+	 * Sets the modulus of the generator.
+	 *
+	 * @param &modulus the analytic standard deviation of the generator.	  
+	 */
 	void SetModulus(BigBinaryInteger &modulus);
 
+	/**
+	 * Returns a generated char vector.
+	 *
+	 * @param size the number of values to return.	  
+	 * @return a pointer to an array of schar values generated with the distribution.
+	 */
 	schar* GenerateCharVector(usint size) const;
 
+	/**
+	 * Returns a generated integer.
+	 *  
+	 * @return a generated integer.
+	 */
 	BigBinaryInteger GenerateInteger() const;
 
+	/**
+	 * Returns a generated vector.
+	 *
+	 * @param size the number of values to return.	  
+	 * @return vector of values generated with the distribution.
+	 */
 	BigBinaryVector GenerateVector(usint size) const;
 
+	/**
+	 * Returns a generated vector.
+	 *
+	 * @param vectorLength the number of values to return.	
+	 * @param &modValue the number of values to return.	   
+	 * @return vector of values generated with the distribution.
+	 */
 	static BigBinaryVector DiscreteGaussianPositiveGenerator(usint vectorLength,const BigBinaryInteger &modValue);
 
 private: 
