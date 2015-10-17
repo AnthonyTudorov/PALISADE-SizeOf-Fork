@@ -1,7 +1,7 @@
 /**
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>
  * @version 00_03
  *
  * @section LICENSE
@@ -84,6 +84,161 @@ public:
 	 * @param &modulus modulus to convert to.  	  
 	 */
 	virtual void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus) = 0;
+
+};
+
+// Parameters for an array of ideal lattices (used for Double-CRT)
+/**
+ * @brief Parameters for array of ideal lattices (used for Double-CRT)
+ */
+class ILDCRTParams{
+public:
+
+	/**
+	 * Constructor that initializes nothing.
+	 * All of the private members will be initialised to null.
+	 */
+	ILDCRTParams(){}
+
+		// constructor for the pre-computed case;
+	/**
+	 * Constructor for the pre-computed case.
+	 *
+	 * @param cyclotomic_order the order of the ciphertext
+	 * @param &moduli is the tower of moduli
+	 * @param &rootOfUnity the roots of unity for the toer of moduli
+	 * @param cri_values Chinese remainder interpolation values to calculate inverse double-crt
+	 */
+	ILDCRTParams(usint cyclotomic_order, BigBinaryVector &moduli, BigBinaryVector& rootsOfUnity, BigBinaryVector& cri_values){
+	         m_cyclotomicOrder = cyclotomic_order;
+			 m_moduli = moduli;
+			 m_rootsOfUnity = rootsOfUnity;
+			 m_criValues = cri_values;
+	}
+
+
+	/**
+	 * Constructor for the pre-computed case without roots of unity. Note the order is different from other constructors.
+	 *
+	 * @param cyclotomic_order the order of the ciphertext
+	 * @param &moduli is the tower of moduli
+	 * @param cri_values Chinese remainder interpolation values to calculate inverse double-crt
+	 */
+	ILDCRTParams(usint cyclotomic_order, BigBinaryVector &moduli, BigBinaryVector& cri_values){
+	         m_cyclotomicOrder = cyclotomic_order;
+			 m_moduli = moduli;
+			 m_criValues = cri_values;
+	}
+	
+	/**
+	 * Constructor for the pre-computed case without cri_values.
+	 *
+	 * @param cyclotomic_order the order of the ciphertext
+	 * @param &moduli is the tower of moduli
+	 * @param &rootOfUnity the roots of unity for the toer of moduli
+	 */
+	ILDCRTParams( BigBinaryVector& rootsOfUnity, usint cyclotomic_order, BigBinaryVector &moduli){
+	         m_cyclotomicOrder = cyclotomic_order;
+			 m_moduli = moduli;
+			 m_rootsOfUnity = rootsOfUnity;
+	}
+
+	/**
+	 * Constructor for the pre-computed case without cri_values and without roots of unity.
+	 *
+	 * @param cyclotomic_order the order of the ciphertext
+	 * @param &moduli is the tower of moduli
+	 */
+	ILDCRTParams(usint cyclotomic_order, BigBinaryVector &moduli){
+	         m_cyclotomicOrder = cyclotomic_order;
+			 m_moduli = moduli;
+	}
+
+	// ACCESSORS
+
+	// Get accessors
+	/**
+	 * Get method of the order.
+	 *
+	 * @return the order.	 
+	 */
+	usint GetCyclotomicOrder() const{
+		return m_cyclotomicOrder;
+	}
+
+	/**
+	 * Get the moduli.
+	 *
+	 * @return the moduli.	 
+	 */
+	const BigBinaryVector &GetModuli() const {
+		return m_moduli;
+	}
+
+	/**
+	 * Get the root of unity.
+	 *
+	 * @return the root of unity.	 
+	 */
+	BigBinaryVector &GetRootsOfUnity() {
+		return m_rootsOfUnity;
+	}
+	/**
+	 * Get cri-values.
+	 *
+	 * @return the cri-values.	 
+	 */
+	BigBinaryVector &GetCRI(){
+		return m_criValues; 
+	}
+
+
+	// Set accessors
+	/**
+	 * Set method of the order.
+	 *
+	 * @param order the order variable.	  
+	 */
+
+	void SetOrder(usint order){
+		m_cyclotomicOrder = order;
+	}
+
+	/**
+	 * Set the root of unity.
+	 *
+	 * @param &rootOfUnity the root of unity.	  
+	 */
+	void SetRootOfUnity(const BigBinaryVector &rootsOfUnity){
+		m_rootsOfUnity = rootsOfUnity;
+	}
+
+	/**
+	 * Set the moduli.
+	 *
+	 * @param &moduli the moduli.	  
+	 */
+	void SetModuli(const BigBinaryVector &moduli){
+		m_moduli = moduli;
+	}
+
+	/**
+	 * Destructor.	 
+	 */
+	~ILDCRTParams() {}
+
+private:
+	// order of cyclotomic polynomial
+	usint m_cyclotomicOrder;
+
+	// value of moduli
+	BigBinaryVector m_moduli;
+
+	// primitive root unity that is used to transform from coefficient to evaluation representation and vice versa
+	BigBinaryVector m_rootsOfUnity;
+
+	//Chinese Remainder Interpolation values used for Inverse CRT
+	BigBinaryVector m_criValues;
 
 };
 
