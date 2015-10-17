@@ -26,6 +26,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 
 #include "lwecrypt.h"
+#include <cstring>
+#include <iostream>
+//#include "saveparams.h"
+using namespace std;
 
 namespace lbcrypto {
 
@@ -43,9 +47,24 @@ bool LPAlgorithmLWENTRU<T,P>::KeyGen(LPPublicKey<Element,ElementParams> &publicK
 	f = p*f;
 
 	f = f + BigBinaryInteger::ONE;
-
+	
 	//cout<<"f="<<f.GetValues()<<endl;
 
+
+	//added for saving the crypto params in JSON format	
+	//AllParams All_Params;
+	//All_Params.AddParams("","","","","","");
+	//All_Params.JsonSave("../../documents/params.json");
+
+	const LPCryptoParametersLWE<Element, ElementParams> &cryptoParamsLWE = static_cast<const LPCryptoParametersLWE<Element, ElementParams>&>(cryptoParams);
+
+	float DistributionParameter = cryptoParamsLWE.GetDistributionParameter();
+	float AssuranceMeasure = cryptoParamsLWE.GetAssuranceMeasure();
+	float SecurityLevel = cryptoParamsLWE.GetSecurityLevel();
+	usint RelinWindow = cryptoParamsLWE.GetRelinWindow(); 
+	int Depth = cryptoParamsLWE.GetDepth(); 
+	//std::cout<<p<<DistributionParameter<<AssuranceMeasure<<SecurityLevel<<RelinWindow<<Depth<<std::endl;
+	//////
 	f.SwitchFormat();
 
 	privateKey.SetPrivateElement(f);
