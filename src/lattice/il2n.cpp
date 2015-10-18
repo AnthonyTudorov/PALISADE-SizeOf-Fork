@@ -299,6 +299,8 @@ namespace lbcrypto {
 		}
 		*text = ByteArrayPlaintextEncoding(byteArray);
 
+		
+
 	}
 
 	//Convert binary string to lattice format; do p=2 first but document that we need to generalize it later
@@ -369,4 +371,81 @@ namespace lbcrypto {
 
 	}
 
+
+	lbcrypto::ILVectorArray2n::ILVectorArray2n(const ILDCRTParams & params)
+	{
+		m_params = params;
+	}
+
+	lbcrypto::ILVectorArray2n::ILVectorArray2n(const ILVectorArray2n & element)
+	{
+		*this = element;
+	}
+
+	ILVectorArray2n::ILVectorArray2n(const ILDCRTParams & params, std::vector<ILVector2n>& levels)
+	{
+		m_params = params;
+		m_vectors = levels;
+	}
+	lbcrypto::ILVectorArray2n::~ILVectorArray2n()
+	{
+	//	delete m_vectors;
+	}
+	std::vector<ILVector2n> lbcrypto::ILVectorArray2n::GetValues() const
+	{
+		return std::vector<ILVector2n>();
+	}
+	ILDCRTParams & lbcrypto::ILVectorArray2n::GetParams() const
+	{
+		// TODO: insert return statement here
+	//	return m_params;
+	//	return null;
+	}
+	void lbcrypto::ILVectorArray2n::SetValues(std::vector<ILVector2n>& values)
+	{
+		m_vectors = values;
+	}
+	/*ILDCRTParams& ILVectorArray2n::GetParams() const
+	{
+		return m_params;
+	}*/
+	/*Switch format simply calls IlVector2n's switchformat*/
+	void ILVectorArray2n::SwitchFormat() {
+		usint currentFormat = -1;
+		
+		if (m_vectors.size() > 0) {
+			 currentFormat = m_vectors[0].GetFormat();
+		}
+		else {
+			return;
+		}
+
+		for (ILVector2n ilv:m_vectors) {
+			ilv.SwitchFormat();
+		}
+
+		if (currentFormat == EVALUATION) {
+			Cri_dblcrt();
+		}
+	}
+
+	void lbcrypto::ILVectorArray2n::Cri_dblcrt()
+	{
+
+	}
+	void lbcrypto::ILVectorArray2n::Convert_moduli()
+	{
+		if (m_vectors.size() != m_params.GetModuli().GetLength()) return;
+		
+		usint i = 0;
+
+		for (ILVector2n ilv : m_vectors) {
+			
+			ilv.SetModulus(m_params.GetModuli().GetValAtIndex(i));
+
+			i++;
+
+		}
+
+	}
 } // namespace lbcrypto ends
