@@ -51,11 +51,7 @@ bool LPAlgorithmLWENTRU<T,P>::KeyGen(LPPublicKey<Element,ElementParams> &publicK
 	//cout<<"f="<<f.GetValues()<<endl;
 
 
-	//added for saving the crypto params in JSON format	
-	//AllParams All_Params;
-	//All_Params.AddParams("","","","","","");
-	//All_Params.JsonSave("../../documents/params.json");
-
+	//added for saving the cryptoparams
 	const LPCryptoParametersLWE<Element, ElementParams> &cryptoParamsLWE = static_cast<const LPCryptoParametersLWE<Element, ElementParams>&>(cryptoParams);
 
 	float DistributionParameter = cryptoParamsLWE.GetDistributionParameter();
