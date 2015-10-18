@@ -545,7 +545,12 @@ namespace lbcrypto {
 		* @param &levels the levels.
 		*/
 		ILVectorArray2n(const ILDCRTParams& params, std::vector<ILVector2n> &levels);
-
+		/**
+		* Construct using an array in either Coefficient (0) or CRT format (1).
+		*
+		* @param element the input parameter to build ILVectorArray2n from one vector for double-CRT representation.
+		*/
+		ILVectorArray2n(ILVector2n &element);
 		/**
 		* Construct using a discrete Gaussian generator and a set of parameters.
 		*
