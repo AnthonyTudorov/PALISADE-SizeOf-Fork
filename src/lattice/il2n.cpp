@@ -387,6 +387,10 @@ namespace lbcrypto {
 		m_params = params;
 		m_vectors = levels;
 	}
+	lbcrypto::ILVectorArray2n::ILVectorArray2n(ILVector2n & element)
+	{
+		// construct vector of IlVectorArray2n... 
+	}
 	lbcrypto::ILVectorArray2n::~ILVectorArray2n()
 	{
 	//	delete m_vectors;
@@ -415,6 +419,7 @@ namespace lbcrypto {
 		
 		if (m_vectors.size() > 0) {
 			 currentFormat = m_vectors[0].GetFormat();
+			 Convert_moduli();
 		}
 		else {
 			return;
