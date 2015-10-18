@@ -103,17 +103,17 @@ int main(){
 double currentDateTime()
 {
 	
-	std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
- 
-    time_t tnow = std::chrono::high_resolution_clock::to_time_t(now);
-    tm *date = localtime(&tnow);
-    date->tm_hour = 0;
-    date->tm_min = 0;
-    date->tm_sec = 0;
+	//std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
+ //
+ //   time_t tnow = std::chrono::high_resolution_clock::to_time_t(now);
+ //   tm *date = localtime(&tnow);
+ //   date->tm_hour = 0;
+ //   date->tm_min = 0;
+ //   date->tm_sec = 0;
 
-    auto midnight = std::chrono::high_resolution_clock::from_time_t(mktime(date));
+  /*  auto midnight = std::chrono::high_resolution_clock::from_time_t(mktime(date));*/
  
-    return std::chrono::duration <double, std::milli>(now - midnight).count();
+    return 0;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -289,6 +289,8 @@ void NTRUPRE(int input) {
 
 	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew.GetData()<<"\n"<<endl;
 	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew.GetData()<<"\n"<<endl;
+
+	cout << "ciphertext at" << ciphertext.GetIndexAt(2);
 
 	if (!result.isValidCoding) {
 		std::cout<<"Decryption failed!"<<std::endl;
