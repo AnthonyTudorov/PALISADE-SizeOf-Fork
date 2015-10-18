@@ -47,12 +47,6 @@
 #include <string>
 
 /**
- * @namespace cpu8bit
- * Using the namespace of cpu8bit
- */
-using namespace cpu8bit;
-
-/**
  * @namespace The namespace of lbcrypto
  */
 namespace lbcrypto {

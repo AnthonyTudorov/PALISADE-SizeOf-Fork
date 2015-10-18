@@ -74,12 +74,12 @@ static bool WitnessFunction(const BigBinaryInteger& a, const BigBinaryInteger& d
 	BigBinaryInteger mod = a.ModExp(d, p);
 	bool prevMod = false;
 	for(int i=1; i<s+1; i++) {
-		if(mod != BigBinaryInteger::ONE and mod != p-BigBinaryInteger::ONE)
+		if(mod != BigBinaryInteger::ONE && mod != p-BigBinaryInteger::ONE)
 			prevMod = true;
 		else
 			prevMod = false;
 		mod = mod.ModExp(BigBinaryInteger::TWO, p);
-		if(mod == BigBinaryInteger::ONE and prevMod) return true;
+		if(mod == BigBinaryInteger::ONE && prevMod) return true;
 	}
 	return (mod != BigBinaryInteger::ONE);
 }
