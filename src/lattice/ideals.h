@@ -191,7 +191,14 @@ public:
 	BigBinaryVector &GetCRI(){
 		return m_criValues; 
 	}
-
+	/**
+	* Get modulus.
+	*
+	* @return the modulus.
+	*/
+	BigBinaryInteger &GetModulus() {
+		return m_modulus;
+	}
 
 	// Set accessors
 	/**
@@ -221,6 +228,15 @@ public:
 	void SetModuli(const BigBinaryVector &moduli){
 		m_moduli = moduli;
 	}
+	/**
+	* Set the moduli.
+	*
+	* @param &moduli the moduli.
+	*/
+	void SetModulus(const BigBinaryInteger &modulus) {
+		m_modulus = modulus;
+	}
+
 
 	/**
 	 * Destructor.	 
@@ -240,6 +256,8 @@ private:
 	//Chinese Remainder Interpolation values used for Inverse CRT
 	BigBinaryVector m_criValues;
 
+	//Modulus that is factorized into m_moduli
+	BigBinaryInteger m_modulus;
 };
 
 // Parameters for ideal lattice: cyclotomic order and modulus
@@ -392,6 +410,7 @@ private:
 
 	// primitive root unity that is used to transform from coefficient to evaluation representation and vice versa
 	BigBinaryInteger m_rootOfUnity;
+
 };
 
 
