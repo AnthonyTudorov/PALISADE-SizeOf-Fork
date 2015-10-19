@@ -387,10 +387,21 @@ namespace lbcrypto {
 		m_params = params;
 		m_vectors = levels;
 	}
-	lbcrypto::ILVectorArray2n::ILVectorArray2n(ILVector2n & element)
+
+	lbcrypto::ILVectorArray2n::ILVectorArray2n(ILVector2n element, const ILDCRTParams & params)
 	{
-		// construct vector of IlVectorArray2n... 
+		m_params = params;
+		usint i = 0;
+
+		usint size = params.GetModuli().GetLength();
+
+		for (i = 0; i < size; i++) {
+			m_vectors[i] = element;
+		}
+
+
 	}
+
 	lbcrypto::ILVectorArray2n::~ILVectorArray2n()
 	{
 	//	delete m_vectors;
