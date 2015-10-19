@@ -550,7 +550,7 @@ namespace lbcrypto {
 		*
 		* @param element the input parameter to build ILVectorArray2n from one vector for double-CRT representation.
 		*/
-		ILVectorArray2n(ILVector2n &element);
+		ILVectorArray2n(ILVector2n element, const ILDCRTParams& params);
 		/**
 		* Construct using a discrete Gaussian generator and a set of parameters.
 		*
