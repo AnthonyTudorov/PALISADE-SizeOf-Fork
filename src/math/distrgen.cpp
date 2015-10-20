@@ -178,6 +178,7 @@ BigBinaryVector DiscreteGaussianGenerator::GenerateVector(usint size) const{
 	schar* result_vector = GenerateCharVector(size);
 
 	BigBinaryVector ans(size);
+	ans.SetModulus(m_modulus);
 
 	for(usint i=0;i<size;i++){
 		if( result_vector[i]<0 ){
