@@ -33,7 +33,7 @@ namespace cpu8bit {
 
 //CTORS
 BigBinaryVector::BigBinaryVector(){
-	this->m_length = 1;
+	this->m_length = 0;
 	this->m_modulus;
 	
 	m_data = NULL;
