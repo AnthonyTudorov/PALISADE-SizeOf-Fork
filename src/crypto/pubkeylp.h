@@ -328,13 +328,79 @@ namespace lbcrypto {
 				Element *newCiphertext) const = 0;
 	};
 
+
+
 	/**
-	 * @brief Abstract interface class for LBC FHE algorithms
+	 * @brief Abstract interface class for LBC AHE algorithms
 	 * @tparam T a ring element.
 	 * @tparam P a set of element parameters.
 	 */
 	template <class T, class P>
-	class LPFHEAlgorithm : public LPEncryptionAlgorithm<T,P>{
+	class LPAHEAlgorithm {
+		public:
+			typedef T Element;		/**< The ring element */
+			typedef P ElementParams;	/**< The ring element params */
+						
+			/**
+			 * Virtual function to define the interface for additive homomorphic evaluation of ciphertext
+			 *
+			 * @param &params re-ecryption parameters.
+			 * @param &ciphertext1 the input ciphertext.
+			 * @param &ciphertext2 the input ciphertext.
+			 * @param *newCiphertext the new ciphertext.
+			 */
+			virtual void EvalAdd(const LPCryptoParameters<Element,ElementParams> &params,
+				const Element &ciphertext1, 
+				const Element &ciphertext2, 
+				Element *newCiphertext) const = 0;
+	};
+
+	/**
+	 * @brief Abstract interface class for LBC SHE algorithms
+	 * @tparam T a ring element.
+	 * @tparam P a set of element parameters.
+	 */
+	template <class T, class P>
+	class LPSHEAlgorithm : public LPAHEAlgorithm<T,P> {
+		public:
+			typedef T Element;		/**< The ring element */
+			typedef P ElementParams;	/**< The ring element params */
+						
+			/**
+			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext
+			 *
+			 * @param &params re-ecryption parameters.
+			 * @param &ciphertext1 the input ciphertext.
+			 * @param &ciphertext2 the input ciphertext.
+			 * @param *newCiphertext the new ciphertext.
+			 */
+			virtual void EvalMult(const LPCryptoParameters<Element,ElementParams> &params,
+				const Element &ciphertext1, 
+				const Element &ciphertext2, 
+				Element *newCiphertext) const = 0;
+	};
+
+	/**
+	 * @brief Abstract interface class for LBC SHE algorithms
+	 * @tparam T a ring element.
+	 * @tparam P a set of element parameters.
+	 */
+	template <class T, class P>
+	class LPFHEAlgorithm : public LPSHEAlgorithm<T,P> {
+		public:
+			typedef T Element;		/**< The ring element */
+			typedef P ElementParams;	/**< The ring element params */
+						
+			/**
+			 * Virtual function to define the interface for bootstrapping evaluation of ciphertext
+			 *
+			 * @param &params parameters.
+			 * @param &ciphertext the input ciphertext.
+			 * @param *newCiphertext the new ciphertext.
+			 */
+			virtual void Bootstrap(const LPCryptoParameters<Element,ElementParams> &params,
+				const Element &ciphertext, 
+				Element *newCiphertext) const = 0;
 	};
 
 	/**
