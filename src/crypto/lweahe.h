@@ -47,6 +47,8 @@
 namespace lbcrypto {
 
 	/**
+	 * Evaluation addition for homomorphic encryption operations.
+	 *
 	 * @brief Template for crypto PRE.
 	 * @tparam T a ring element.
 	 * @tparam P a set of element parameters.

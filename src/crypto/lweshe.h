@@ -47,6 +47,8 @@
 namespace lbcrypto {
 
 	/**
+	 * Evaluation multiplication for homomorphic encryption operations.
+	 *
 	 * @brief Template for crypto PRE.
 	 * @tparam T a ring element.
 	 * @tparam P a set of element parameters.
@@ -58,7 +60,7 @@ namespace lbcrypto {
 			typedef P ElementParams;	/**< The ring element params */
 			
 			/**
-			 * Virtual function to define the interface for evaluation addition on ciphertext.
+			 * Function for evaluation addition on ciphertext.
 			 *
 			 * @param &ciphertext1 the input ciphertext.
 			 * @param &ciphertext2 the input ciphertext.
@@ -68,6 +70,34 @@ namespace lbcrypto {
 				const Element &ciphertext1, 
 				const Element &ciphertext2, 
 				Element *newCiphertext) const;
+
+		protected:
+
+			/**
+			 * Function to generate key switch hint on a ciphertext.
+			 *
+			 * @param &newPrivateKey private key for the new ciphertext.
+			 * @param &origPrivateKey original private key used for decryption.
+			 * @param &ddg discrete Gaussian generator.
+			 * @param *keySwitchHint the key switch hint.
+			 */
+			 bool KeySwitchHintGen(const LPPrivateKey<Element,ElementParams> &newPrivateKey, 
+				LPPrivateKey<Element,ElementParams> &origPrivateKey,
+				DiscreteGaussianGenerator &ddg, std::vector<Element> *keySwitchHint) const;
+			
+			/**
+			 * Function to define key switching operation
+			 *
+			 * @param &keySwitchHint the evaluation key.
+			 * @param &params re-ecryption parameters.
+			 * @param &ciphertext the input ciphertext.
+			 * @param *newCiphertext the new ciphertext.
+			 */
+			void KeySwitch(const std::vector<Element> &keySwitchHint,
+				const LPCryptoParameters<Element,ElementParams> &params,
+				const Element &ciphertext, 
+				Element *newCiphertext) const;
+
 	};
 
 } // namespace lbcrypto ends

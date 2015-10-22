@@ -35,11 +35,34 @@ void LPAlgorithmSHELWENTRU<T, P>::EvalMult(const LPCryptoParameters<Element,Elem
 				const Element &ciphertext1, 
 				const Element &ciphertext2, 
 				Element *newCiphertext) const
-
 {
-	Element ct();
+	Element ctOut(ciphertext1);
 
-	*newCiphertext = ct;
+	ctOut.Mult(ciphertext2);
+
+	*newCiphertext = ctOut;
+
+}  
+
+
+//Function to generate 1..log(q) encryptions for each bit of the original private key
+template <class T,class P>
+bool LPAlgorithmSHELWENTRU<T, P>::KeySwitchHintGen(const LPPrivateKey<Element,ElementParams> &newPrivateKey, 
+				LPPrivateKey<Element,ElementParams> &origPrivateKey,
+				DiscreteGaussianGenerator &ddg, std::vector<Element> *keySwitchHint) const
+{
+	return true;
 }
 
-}  // namespace lbcrypto ends
+template <class T,class P>
+void LPAlgorithmSHELWENTRU<T, P>::KeySwitch(const std::vector<Element> &keySwitchHint,
+				const LPCryptoParameters<Element,ElementParams> &params,
+				const Element &ciphertext, 
+				Element *newCiphertext) const
+{
+	Element ctOut();
+
+	*newCiphertext = ctOut;
+}  
+
+}
