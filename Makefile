@@ -96,11 +96,11 @@ $(TESTTARGET): $(TESTOBJECTS) $(GTEST_HEADERS)
 	@echo " $(CC) $(LIBOBJECTS) $^ -o $(TESTTARGET) $(TESTLIB)"; $(CC) $(LIBOBJECTS) $^ -o $(TESTTARGET) $(TESTLIB)
 
 clean:
-	@echo " Cleaning..."; 
+	@echo " Cleaning Primary Library and Tests...";
 	@echo " $(RM) -r $(BUILDDIR) $(TARGET) $(TESTBUILDDIR) $(TESTTARGET)"; $(RM) -r $(BUILDDIR) $(TARGET) $(TESTBUILDDIR) $(TESTTARGET)
 
 cleantests:
-	@echo " Cleaning..."; 
+	@echo " Cleaning Tests..."; 
 	@echo " $(RM) -r $(TESTBUILDDIR) $(TESTTARGET)"; $(RM) -r $(TESTBUILDDIR) $(TESTTARGET)
 
 .PHONEY: clean
