@@ -100,19 +100,11 @@ $(TESTTARGET): $(TESTOBJECTS) $(GTEST_HEADERS) $(LIBOBJECTS)
 	@echo " $(CC) $^ -o $(TESTTARGET) $(TESTLIB)"; $(CC) $^ -o $(TESTTARGET) $(TESTLIB)
 
 clean:
-<<<<<<< HEAD
-	@echo " Cleaning Primary Library and Tests...";
-	@echo " $(RM) -r $(BUILDDIR) $(TARGET) $(TESTBUILDDIR) $(TESTTARGET)"; $(RM) -r $(BUILDDIR) $(TARGET) $(TESTBUILDDIR) $(TESTTARGET)
-
-cleantests:
-	@echo " Cleaning Tests..."; 
-=======
 	@echo " Cleaning...";
 	@echo " $(RM) -r $(BUILDDIR) $(TARGET) $(TESTBUILDDIR) $(TESTTARGET)"; $(RM) -r $(BUILDDIR) $(TARGET) $(TESTBUILDDIR) $(TESTTARGET)
 
 cleantests:
 	@echo " Cleaning...";
->>>>>>> bd994f532cd5f78e284c49a4c0988ef0fccf1700
 	@echo " $(RM) -r $(TESTBUILDDIR) $(TESTTARGET)"; $(RM) -r $(TESTBUILDDIR) $(TESTTARGET)
 
 .PHONEY: clean
