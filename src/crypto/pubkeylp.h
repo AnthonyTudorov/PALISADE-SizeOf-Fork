@@ -36,6 +36,7 @@
 
 //Includes Section
 #include <vector>
+#include "../lattice/ideals.h"
 #include "../utils/inttypes.h"
 #include "../math/distrgen.h"
 #include "../encoding/ptxtencoding.h"
@@ -74,14 +75,11 @@ namespace lbcrypto {
 
 	/**
 	 * @brief Abstract Interface Class to capture common Crypto Parameters 
-	 * @tparam T a ring element.
-	 * @tparam P a set of element parameters.
+	 * @tparam Element a ring element.
 	 */
-	template <class T, class P>
+	template <class Element>
 	class LPCryptoParameters{
 	public:
-		typedef T Element;		/**< The ring element */
-		typedef P ElementParams;	/**< The ring element params */
 		
 		//@Get Properties
 	
@@ -101,7 +99,7 @@ namespace lbcrypto {
 		/**
 		 * Gets the value of element parameters
 		 */
-		virtual const ElementParams &GetElementParams() const = 0;
+		virtual const ElemParams &GetElementParams() const = 0;
 		
 		//virtual ElementParams &AccessParams() = 0;
 
@@ -133,34 +131,30 @@ namespace lbcrypto {
 
 	/**
 	 * @brief Abstract interface class for LP Keys
-	 * @tparam T a ring element.
-	 * @tparam P a set of element parameters.
+	 * @tparam Element a ring element.
 	 */
-	template <class T, class P>
+	template <class Element>
 	class LPKey{
 		public:
 			/**
 			 * Gets a read-only reference to an LPCryptoParameters-derived class
 			 * @return the crypto parameters.
 			 */
-			virtual const LPCryptoParameters<T,P> &GetAbstractCryptoParameters() const = 0;
+			virtual const LPCryptoParameters<Element> &GetAbstractCryptoParameters() const = 0;
 			/**
 			 * Gets a writable reference to an LPCryptoParameters-derived class
 			 * @return the crypto parameters.
 			 */
-			virtual LPCryptoParameters<T,P> &AccessAbstractCryptoParameters() = 0;
+			virtual LPCryptoParameters<Element> &AccessAbstractCryptoParameters() = 0;
 	};
 
 	/**
 	 * @brief Abstract interface for LP public keys
-	 * @tparam T a ring element.
-	 * @tparam P a set of element parameters.
+	 * @tparam Element a ring element.
 	 */
-	template <class T, class P>
-	class LPPublicKey : public LPKey<T,P>{
+	template <class Element>
+	class LPPublicKey : public LPKey<Element>{
 		public:
-			typedef T Element;		/**< The ring element */
-			typedef P ElementParams;	/**< The ring element params */
 			
 			//@Get Properties
 
@@ -194,14 +188,11 @@ namespace lbcrypto {
 
 	/**
 	 * @brief Abstract interface for LP private keys
-	 * @tparam T a ring element.
-	 * @tparam P a set of element parameters.
+	 * @tparam Element a ring element.
 	 */
-	template <class T, class P>
-	class LPPrivateKey : public LPKey<T,P>{
+	template <class Element>
+	class LPPrivateKey : public LPKey<Element>{
 		public:
-			typedef T Element;		/**< The ring element */
-			typedef P ElementParams;	/**< The ring element params */
 
 			//@Get Properties
 			
@@ -236,19 +227,16 @@ namespace lbcrypto {
 			 * Computes the public key using the parameters stored in implementations of LPPublicKey and LPPrivateKey interfaces 
 			 * @param &pub the public key element.
 			 */ 
-			virtual void MakePublicKey(LPPublicKey<Element,ElementParams> &pub) const = 0;
+			virtual void MakePublicKey(LPPublicKey<Element> &pub) const = 0;
 	};
 
 	/**
 	 * @brief Abstract interface for encryption algorithm
-	 * @tparam T a ring element.
-	 * @tparam P a set of element parameters.
+	 * @tparam Element a ring element.
 	 */
-	template <class T, class P>
+	template <class Element>
 	class LPEncryptionAlgorithm {
-		public:
-			typedef T Element;		/**< The ring element */
-			typedef P ElementParams;	/**< The ring element params */			
+		public:	
 
 			/**
 			 * Method for encrypting plaintex using LBC
@@ -258,7 +246,7 @@ namespace lbcrypto {
 			 * @param &plaintext the plaintext input.
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			virtual void Encrypt(const LPPublicKey<Element,ElementParams> &publicKey, 
+			virtual void Encrypt(const LPPublicKey<Element> &publicKey, 
 				DiscreteGaussianGenerator &dg, 
 				const PlaintextEncodingInterface &plaintext, 
 				Element *ciphertext) const = 0;
@@ -271,7 +259,7 @@ namespace lbcrypto {
 			 * @param *plaintext the plaintext output.
 			 * @return the decoding result.
 			 */
-			virtual DecodingResult Decrypt(const LPPrivateKey<Element,ElementParams> &privateKey, 
+			virtual DecodingResult Decrypt(const LPPrivateKey<Element> &privateKey, 
 				const Element &ciphertext,  
 				PlaintextEncodingInterface *plaintext) const = 0;
 
@@ -283,23 +271,19 @@ namespace lbcrypto {
 			 * @param &dgg discrete Gaussian generator.
 			 * @return function ran correctly.
 			 */
-			virtual bool KeyGen(LPPublicKey<Element,ElementParams> &publicKey, 
-				LPPrivateKey<Element,ElementParams> &privateKey, 
+			virtual bool KeyGen(LPPublicKey<Element> &publicKey, 
+				LPPrivateKey<Element> &privateKey, 
 				DiscreteGaussianGenerator &dgg) const = 0;
 
 	};
 
 	/**
 	 * @brief Abstract interface class for LBC PRE algorithms
-	 * @tparam T a ring element.
-	 * @tparam P a set of element parameters.
+	 * @tparam Element a ring element.
 	 */
-	template <class T, class P>
+	template <class Element>
 	class LPPREAlgorithm {
 		public:
-			typedef T Element;		/**< The ring element */
-			typedef P ElementParams;	/**< The ring element params */
-
 
 			/**
 			 * Virtual function to generate 1..log(q) encryptions for each bit of the original private key
@@ -310,8 +294,8 @@ namespace lbcrypto {
 			 * @param *evalKey the evaluation key.
 			 * @return the re-encryption key.
 			 */
-			virtual bool ProxyKeyGen(const LPPublicKey<Element,ElementParams> &newPublicKey, 
-				LPPrivateKey<Element,ElementParams> &origPrivateKey,
+			virtual bool ProxyKeyGen(const LPPublicKey<Element> &newPublicKey, 
+				LPPrivateKey<Element> &origPrivateKey,
 				DiscreteGaussianGenerator &ddg, std::vector<Element> *evalKey) const = 0;
 						
 			/**
@@ -323,7 +307,7 @@ namespace lbcrypto {
 			 * @param *newCiphertext the new ciphertext.
 			 */
 			virtual void ReEncrypt(const std::vector<Element> &evalKey, 
-				const LPCryptoParameters<Element,ElementParams> &params,
+				const LPCryptoParameters<Element> &params,
 				const Element &ciphertext, 
 				Element *newCiphertext) const = 0;
 	};
@@ -332,15 +316,11 @@ namespace lbcrypto {
 
 	/**
 	 * @brief Abstract interface class for LBC AHE algorithms
-	 * @tparam T a ring element.
-	 * @tparam P a set of element parameters.
+	 * @tparam Element a ring element.
 	 */
-	template <class T, class P>
+	template <class Element>
 	class LPAHEAlgorithm {
-		public:
-			typedef T Element;		/**< The ring element */
-			typedef P ElementParams;	/**< The ring element params */
-						
+		public:		
 			/**
 			 * Virtual function to define the interface for additive homomorphic evaluation of ciphertext
 			 *
@@ -349,7 +329,7 @@ namespace lbcrypto {
 			 * @param &ciphertext2 the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			virtual void EvalAdd(const LPCryptoParameters<Element,ElementParams> &params,
+			virtual void EvalAdd(const LPCryptoParameters<Element> &params,
 				const Element &ciphertext1, 
 				const Element &ciphertext2, 
 				Element *newCiphertext) const = 0;
@@ -357,14 +337,11 @@ namespace lbcrypto {
 
 	/**
 	 * @brief Abstract interface class for LBC SHE algorithms
-	 * @tparam T a ring element.
-	 * @tparam P a set of element parameters.
+	 * @tparam Element a ring element.
 	 */
-	template <class T, class P>
-	class LPSHEAlgorithm : public LPAHEAlgorithm<T,P> {
+	template <class Element>
+	class LPSHEAlgorithm : public LPAHEAlgorithm<Element> {
 		public:
-			typedef T Element;		/**< The ring element */
-			typedef P ElementParams;	/**< The ring element params */
 						
 			/**
 			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext
@@ -374,7 +351,7 @@ namespace lbcrypto {
 			 * @param &ciphertext2 the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			virtual void EvalMult(const LPCryptoParameters<Element,ElementParams> &params,
+			virtual void EvalMult(const LPCryptoParameters<Element> &params,
 				const Element &ciphertext1, 
 				const Element &ciphertext2, 
 				Element *newCiphertext) const = 0;
@@ -382,14 +359,11 @@ namespace lbcrypto {
 
 	/**
 	 * @brief Abstract interface class for LBC SHE algorithms
-	 * @tparam T a ring element.
-	 * @tparam P a set of element parameters.
+	 * @tparam Element a ring element.
 	 */
-	template <class T, class P>
-	class LPFHEAlgorithm : public LPSHEAlgorithm<T,P> {
+	template <class Element>
+	class LPFHEAlgorithm : public LPSHEAlgorithm<Element> {
 		public:
-			typedef T Element;		/**< The ring element */
-			typedef P ElementParams;	/**< The ring element params */
 						
 			/**
 			 * Virtual function to define the interface for bootstrapping evaluation of ciphertext
@@ -398,18 +372,17 @@ namespace lbcrypto {
 			 * @param &ciphertext the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			virtual void Bootstrap(const LPCryptoParameters<Element,ElementParams> &params,
+			virtual void Bootstrap(const LPCryptoParameters<Element> &params,
 				const Element &ciphertext, 
 				Element *newCiphertext) const = 0;
 	};
 
 	/**
 	 * @brief main implementation class to capture essential cryptoparameters of any LBC system
-	 * @tparam T a ring element.
-	 * @tparam P a set of element parameters.
+	 * @tparam Element a ring element.
 	 */
-	template <class T, class P>
-	class LPCryptoParametersImpl : public LPCryptoParameters<T,P>
+	template <class Element>
+	class LPCryptoParametersImpl : public LPCryptoParameters<Element>
 	{		
 	};
 
@@ -421,39 +394,35 @@ namespace lbcrypto {
 	 * @brief Implementation class for private and public keys
 	 * @tparam CP a cryptoparameter
 	 */
-	template <class CP>
+	template <class Element>
 	class LPKeyImpl {
 		
 		public:
-			typedef CP CryptoParameters;		/**< The crypto params */
 
 			/**
 			 * Get Crypto Parameters.
 			 * @return the crypto parameters.
 			 */
-			const CryptoParameters &GetCryptoParameters() const {return m_cryptoParameters;}
+			const LPCryptoParameters<Element> &GetCryptoParameters() const {return *m_cryptoParameters;}
 
 			/**
 			 * Access Crypto Parameters.
 			 * @return the crypto parameters.
 			 */
-			CryptoParameters &AccessCryptoParameters() {return m_cryptoParameters;}
+			LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
 		private:
-			CryptoParameters m_cryptoParameters;
+			LPCryptoParameters<Element> *m_cryptoParameters;
 	};
 
 	//! Implementation class for private key
 	// PKCS8PrivateKey will be implemented later - copied from Crypto++
 	/**
 	 * @brief Implementation class for private keys
-	 * @tparam CP a cryptoparameter
+	 * @tparam Element a ring element
 	 */
-	template <class CP>
-	class LPPrivateKeyImpl: public LPPrivateKey<typename CP::Element,typename CP::ElementParams>, public LPKeyImpl<CP>{
+	template <class Element>
+	class LPPrivateKeyImpl: public LPPrivateKey<Element>, public LPKeyImpl<Element>{
 		public:
-			typedef CP CryptoParameters;		/**< The crypto params */
-			typedef typename CP::Element Element;	/**< The ring element */
-			typedef typename CP::ElementParams ElementParams;	/**< The ring element parmas*/
 
 			/**
 			 * Validate that a key is correct.  This is stubbed out for now.
@@ -470,13 +439,13 @@ namespace lbcrypto {
 			 * Get Abstract Crypto Parameters.
 			 * @return get the parameters.
 			 */
-			const LPCryptoParameters<Element,ElementParams> &GetAbstractCryptoParameters() const {return this->GetCryptoParameters();}
+			const LPCryptoParameters<Element> &GetAbstractCryptoParameters() const {return this->GetCryptoParameters();}
 			
 			/**
 			 * Access Abstract Crypto Parameters.
 			 * @return the parameters accessed.
 			 */
-			LPCryptoParameters<Element,ElementParams> &AccessAbstractCryptoParameters() {return this->AccessCryptoParameters();}
+			LPCryptoParameters<Element> &AccessAbstractCryptoParameters() {return this->AccessCryptoParameters();}
 			
 			/**
 			 * Implementation of the Get accessor for private element.
@@ -506,7 +475,7 @@ namespace lbcrypto {
 			 * Can be redefined in derived classes (to support both NTRU and Ring-LWE schemes).
 			 * @private &pub the public key.
 			 */
-			virtual void MakePublicKey(LPPublicKey<Element,ElementParams> &pub) const {};
+			virtual void MakePublicKey(LPPublicKey<Element> &pub) const {};
 
 		private:
 			//private key polynomial
@@ -516,16 +485,13 @@ namespace lbcrypto {
 
 	};
 
-	template <class CP>
+	template <class Element>
 	/**
 	 * @brief Implementation class for public key	
-	 * @tparam CP a cryptoparameter
+	 * @tparam Element a ring element
 	 */
-	class LPPublicKeyImpl : public LPPublicKey<typename CP::Element,typename CP::ElementParams>, public LPKeyImpl<CP>{	
+	class LPPublicKeyImpl : public LPPublicKey<Element>, public LPKeyImpl<Element>{	
 		public:
-			typedef CP CryptoParameters;		/**< The crypto params */
-			typedef typename CP::Element Element;	/**< The ring element */
-			typedef typename CP::ElementParams ElementParams;	/**< The ring element parmas*/
 			
 			/**
 			 * Validate a key. This is stubbed out for now.
@@ -546,13 +512,13 @@ namespace lbcrypto {
 			 * Get Abstract Crypto Parameters.
 			 * @return get the parameters.
 			 */
-			const LPCryptoParameters<Element,ElementParams> &GetAbstractCryptoParameters() const {return this->GetCryptoParameters();}
+			const LPCryptoParameters<Element> &GetAbstractCryptoParameters() const {return this->GetCryptoParameters();}
 
 			/**
 			 * Access Abstract Crypto Parameters.
 			 * @return the parameters accessed.
 			 */
-			LPCryptoParameters<Element,ElementParams> &AccessAbstractCryptoParameters() {return this->AccessCryptoParameters();}
+			LPCryptoParameters<Element> &AccessAbstractCryptoParameters() {return this->AccessCryptoParameters();}
 			
 			/**
 			 * Implementation of the Get accessor for public element.

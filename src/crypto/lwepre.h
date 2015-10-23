@@ -47,14 +47,11 @@ namespace lbcrypto {
 
 	/**
 	 * @brief Template for crypto PRE.
-	 * @tparam T a ring element.
-	 * @tparam P a set of element parameters.
+	 * @tparam Element a ring element.
 	 */
-	template <class T, class P>
-	class LPAlgorithmPRELWENTRU : public LPAlgorithmLWENTRU<T,P>, public LPPREAlgorithm<T,P> {
+	template <class Element>
+	class LPAlgorithmPRELWENTRU : public LPAlgorithmLWENTRU<Element>, public LPPREAlgorithm<Element> {
 		public:
-			typedef T Element;		/**< The ring element */
-			typedef P ElementParams;	/**< The ring element params */
 
 			/**
 			 * Function to generate 1..log(q) encryptions for each bit of the original private key
@@ -64,8 +61,8 @@ namespace lbcrypto {
 			 * @param &ddg discrete Gaussian generator.
 			 * @param *evalKey the evaluation key.
 			 */
-			 bool ProxyKeyGen(const LPPublicKey<Element,ElementParams> &newPublicKey, 
-				LPPrivateKey<Element,ElementParams> &origPrivateKey,
+			 bool ProxyKeyGen(const LPPublicKey<Element> &newPublicKey, 
+				LPPrivateKey<Element> &origPrivateKey,
 				DiscreteGaussianGenerator &ddg, std::vector<Element> *evalKey) const;
 			
 			/**
@@ -77,7 +74,7 @@ namespace lbcrypto {
 			 * @param *newCiphertext the new ciphertext.
 			 */
 			void ReEncrypt(const std::vector<Element> &evalKey,
-				const LPCryptoParameters<Element,ElementParams> &params,
+				const LPCryptoParameters<Element> &params,
 				const Element &ciphertext, 
 				Element *newCiphertext) const;
 	};

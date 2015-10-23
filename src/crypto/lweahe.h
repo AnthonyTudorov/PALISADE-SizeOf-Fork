@@ -50,14 +50,11 @@ namespace lbcrypto {
 	 * Evaluation addition for homomorphic encryption operations.
 	 *
 	 * @brief Template for crypto PRE.
-	 * @tparam T a ring element.
-	 * @tparam P a set of element parameters.
+	 * @tparam Element a ring element.
 	 */
-	template <class T, class P>
-	class LPAlgorithmAHELWENTRU : public LPAlgorithmPRELWENTRU<T,P>, public LPAHEAlgorithm<T,P> {
+	template <class Element>
+	class LPAlgorithmAHELWENTRU : public LPAlgorithmPRELWENTRU<Element>, public LPAHEAlgorithm<Element> {
 		public:
-			typedef T Element;		/**< The ring element */
-			typedef P ElementParams;	/**< The ring element params */
 			
 			/**
 			 * Virtual function to define the interface for evaluation addition on ciphertext.
@@ -66,7 +63,7 @@ namespace lbcrypto {
 			 * @param &ciphertext2 the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			void EvalAdd(const LPCryptoParameters<Element,ElementParams> &params,
+			void EvalAdd(const LPCryptoParameters<Element> &params,
 				const Element &ciphertext1, 
 				const Element &ciphertext2, 
 				Element *newCiphertext) const;

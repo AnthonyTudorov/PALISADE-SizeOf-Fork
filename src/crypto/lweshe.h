@@ -50,14 +50,11 @@ namespace lbcrypto {
 	 * Evaluation multiplication for homomorphic encryption operations.
 	 *
 	 * @brief Template for crypto PRE.
-	 * @tparam T a ring element.
-	 * @tparam P a set of element parameters.
+	 * @tparam Element a ring element.
 	 */
-	template <class T, class P>
-	class LPAlgorithmSHELWENTRU : public LPAlgorithmAHELWENTRU<T,P>, public LPSHEAlgorithm<T,P> {
+	template <class Element>
+	class LPAlgorithmSHELWENTRU : public LPAlgorithmAHELWENTRU<Element>, public LPSHEAlgorithm<Element> {
 		public:
-			typedef T Element;		/**< The ring element */
-			typedef P ElementParams;	/**< The ring element params */
 			
 			/**
 			 * Function for evaluation addition on ciphertext.
@@ -66,7 +63,7 @@ namespace lbcrypto {
 			 * @param &ciphertext2 the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			void EvalMult(const LPCryptoParameters<Element,ElementParams> &params,
+			void EvalMult(const LPCryptoParameters<Element> &params,
 				const Element &ciphertext1, 
 				const Element &ciphertext2, 
 				Element *newCiphertext) const;
@@ -81,8 +78,8 @@ namespace lbcrypto {
 			 * @param &ddg discrete Gaussian generator.
 			 * @param *keySwitchHint the key switch hint.
 			 */
-			 bool KeySwitchHintGen(const LPPrivateKey<Element,ElementParams> &newPrivateKey, 
-				LPPrivateKey<Element,ElementParams> &origPrivateKey,
+			 bool KeySwitchHintGen(const LPPrivateKey<Element> &newPrivateKey, 
+				LPPrivateKey<Element> &origPrivateKey,
 				DiscreteGaussianGenerator &ddg, std::vector<Element> *keySwitchHint) const;
 			
 			/**
@@ -94,7 +91,7 @@ namespace lbcrypto {
 			 * @param *newCiphertext the new ciphertext.
 			 */
 			void KeySwitch(const std::vector<Element> &keySwitchHint,
-				const LPCryptoParameters<Element,ElementParams> &params,
+				const LPCryptoParameters<Element> &params,
 				const Element &ciphertext, 
 				Element *newCiphertext) const;
 

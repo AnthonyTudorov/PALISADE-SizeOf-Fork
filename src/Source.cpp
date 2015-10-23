@@ -182,7 +182,7 @@ void NTRUPRE(int input) {
 	//ilParams.Initialize(m,bitLenght,inputFile);
 
 	//Set crypto parametes
-	LPCryptoParametersLWE<ILVector2n,ILParams> cryptoParams;
+	LPCryptoParametersLWE<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
@@ -209,8 +209,8 @@ void NTRUPRE(int input) {
 	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
-	LPPublicKeyLWENTRU<ILVector2n,ILParams> pk(cryptoParams);
-	LPPrivateKeyLWENTRU<ILVector2n, ILParams> sk(cryptoParams);
+	LPPublicKeyLWENTRU<ILVector2n> pk(cryptoParams);
+	LPPrivateKeyLWENTRU<ILVector2n> sk(cryptoParams);
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -218,7 +218,7 @@ void NTRUPRE(int input) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	LPAlgorithmLWENTRU<ILVector2n,ILParams> algorithm;
+	LPAlgorithmLWENTRU<ILVector2n> algorithm;
 
 	bool successKeyGen=false;
 
@@ -300,15 +300,15 @@ void NTRUPRE(int input) {
 
 	//system("pause");
 
-	LPAlgorithmPRELWENTRU<ILVector2n,ILParams> algorithmPRE;
+	LPAlgorithmPRELWENTRU<ILVector2n> algorithmPRE;
 
 	////////////////////////////////////////////////////////////
 	//Perform the second key generation operation.
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPPublicKeyLWENTRU<ILVector2n,ILParams> newPK(cryptoParams);
-	LPPrivateKeyLWENTRU<ILVector2n, ILParams> newSK(cryptoParams);
+	LPPublicKeyLWENTRU<ILVector2n> newPK(cryptoParams);
+	LPPrivateKeyLWENTRU<ILVector2n> newSK(cryptoParams);
 
 	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 

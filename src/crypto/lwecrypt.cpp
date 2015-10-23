@@ -33,13 +33,13 @@ using namespace std;
 
 namespace lbcrypto {
 
-template <class T,class P>
-bool LPAlgorithmLWENTRU<T,P>::KeyGen(LPPublicKey<Element,ElementParams> &publicKey, 
-		LPPrivateKey<Element,ElementParams> &privateKey, 
+template <class Element>
+bool LPAlgorithmLWENTRU<Element>::KeyGen(LPPublicKey<Element> &publicKey, 
+		LPPrivateKey<Element> &privateKey, 
 		DiscreteGaussianGenerator &dgg) const
 {
-	const LPCryptoParameters<Element,ElementParams> &cryptoParams = privateKey.GetAbstractCryptoParameters();
-	const ElementParams &elementParams = cryptoParams.GetElementParams();
+	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetAbstractCryptoParameters();
+	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
@@ -52,7 +52,7 @@ bool LPAlgorithmLWENTRU<T,P>::KeyGen(LPPublicKey<Element,ElementParams> &publicK
 
 
 	//added for saving the cryptoparams
-	const LPCryptoParametersLWE<Element, ElementParams> &cryptoParamsLWE = static_cast<const LPCryptoParametersLWE<Element, ElementParams>&>(cryptoParams);
+	const LPCryptoParametersLWE<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLWE<Element>&>(cryptoParams);
 
 	float DistributionParameter = cryptoParamsLWE.GetDistributionParameter();
 	float AssuranceMeasure = cryptoParamsLWE.GetAssuranceMeasure();
@@ -77,15 +77,15 @@ bool LPAlgorithmLWENTRU<T,P>::KeyGen(LPPublicKey<Element,ElementParams> &publicK
 	return true;
 }
 
-template <class T,class P>
-void LPAlgorithmLWENTRU<T,P>::Encrypt(const LPPublicKey<Element,ElementParams> &publicKey, 
+template <class Element>
+void LPAlgorithmLWENTRU<Element>::Encrypt(const LPPublicKey<Element> &publicKey, 
 				DiscreteGaussianGenerator &dgg, 
 				const PlaintextEncodingInterface &plaintext, 
 				Element *ciphertext) const
 {
 
-	const LPCryptoParameters<Element,ElementParams> &cryptoParams = publicKey.GetAbstractCryptoParameters();
-	const ElementParams &elementParams = cryptoParams.GetElementParams();
+	const LPCryptoParameters<Element> &cryptoParams = publicKey.GetAbstractCryptoParameters();
+	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
 	Element m(elementParams);
@@ -112,13 +112,13 @@ void LPAlgorithmLWENTRU<T,P>::Encrypt(const LPPublicKey<Element,ElementParams> &
 
 }
 
-template <class T,class P>
-DecodingResult LPAlgorithmLWENTRU<T,P>::Decrypt(const LPPrivateKey<Element,ElementParams> &privateKey, 
+template <class Element>
+DecodingResult LPAlgorithmLWENTRU<Element>::Decrypt(const LPPrivateKey<Element> &privateKey, 
 				const Element &ciphertext, 
 				PlaintextEncodingInterface *plaintext) const
 {
-	const LPCryptoParameters<Element,ElementParams> &cryptoParams = privateKey.GetAbstractCryptoParameters();
-	const ElementParams &elementParams = cryptoParams.GetElementParams();
+	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetAbstractCryptoParameters();
+	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
 	Element c(elementParams);
