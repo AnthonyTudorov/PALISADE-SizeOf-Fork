@@ -291,6 +291,32 @@ namespace lbcrypto {
 	};
 
 	/**
+	* @brief Evaluation/proxy key implementation template for Ring-LWE NTRU-based schemes,
+	* @tparam Element a ring element.
+	*/
+	template <class Element>
+	class LPEvalKeyLWENTRU : public LPEvalKeyImpl<Element>{
+	public:
+
+		/**
+		* Default constructor
+		*/
+
+		LPEvalKeyLWENTRU() {}
+
+		/**
+		* Basic constructor for setting crypto params
+		*
+		* @param cryptoParams is the reference to cryptoParams
+		*/
+
+		LPEvalKeyLWENTRU(LPCryptoParameters<Element> &cryptoParams) {
+			this->SetCryptoParameters(&cryptoParams);
+		}
+
+	};
+
+	/**
 	 * @brief Private key implementation template for Ring-LWE NTRU-based schemes,
 	 * @tparam Element a ring element.
 	 */

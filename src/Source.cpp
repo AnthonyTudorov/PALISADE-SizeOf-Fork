@@ -290,7 +290,7 @@ void NTRUPRE(int input) {
 	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew.GetData()<<"\n"<<endl;
 	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew.GetData()<<"\n"<<endl;
 
-	cout << "ciphertext at" << ciphertext.GetIndexAt(2);
+	//cout << "ciphertext at" << ciphertext.GetIndexAt(2);
 
 	if (!result.isValidCoding) {
 		std::cout<<"Decryption failed!"<<std::endl;
@@ -334,7 +334,7 @@ void NTRUPRE(int input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	std::vector<ILVector2n> evalKey;
+	LPEvalKeyLWENTRU<ILVector2n> evalKey(cryptoParams);
 
 	start = currentDateTime();
 
@@ -358,7 +358,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	algorithmPRE.ReEncrypt(evalKey,cryptoParams, ciphertext,&newCiphertext);  // This is the core re-encryption operation.
+	algorithmPRE.ReEncrypt(evalKey, ciphertext,&newCiphertext);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
