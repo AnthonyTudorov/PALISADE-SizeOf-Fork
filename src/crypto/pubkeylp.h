@@ -406,10 +406,19 @@ namespace lbcrypto {
 			const LPCryptoParameters<Element> &GetCryptoParameters() const {return *m_cryptoParameters;}
 
 			/**
-			 * Access Crypto Parameters.
+			* Gets writable instance of cryptoparams.
+			* @return the crypto parameters.
+			*/
+			LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
+
+			/**
+			 * Sets crypto params.
+			 *
+			 * @param *cryptoParams parameters.
 			 * @return the crypto parameters.
 			 */
-			LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
+			void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
+
 		private:
 			LPCryptoParameters<Element> *m_cryptoParameters;
 	};
@@ -445,7 +454,7 @@ namespace lbcrypto {
 			 * Access Abstract Crypto Parameters.
 			 * @return the parameters accessed.
 			 */
-			LPCryptoParameters<Element> &AccessAbstractCryptoParameters() {return this->AccessCryptoParameters();}
+			LPCryptoParameters<Element> &AccessAbstractCryptoParameters() { return this->AccessCryptoParameters(); }
 			
 			/**
 			 * Implementation of the Get accessor for private element.

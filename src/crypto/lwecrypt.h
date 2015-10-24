@@ -95,6 +95,12 @@ namespace lbcrypto {
 				m_relinWindow = relinWindow;
 				m_depth = depth;
 			}
+
+			/**
+			* Destructor
+			*/
+			~LPCryptoParametersLWE() {
+			}
 			
 			/**
 			 * Initialization methods.
@@ -208,7 +214,7 @@ namespace lbcrypto {
 			/**
 			 * Sets the reference to element params
 			 */
-			void SetElementParams(const ElemParams &params) {*m_params = params;}
+			void SetElementParams(ElemParams &params) { m_params = &params; }
 			
 			/**
 			 * Validates the parameters of cryptosystem up to a certain level will be implemented later
@@ -269,8 +275,8 @@ namespace lbcrypto {
 			* @param cryptoParams is the reference to cryptoParams
 			*/
 
-			LPPublicKeyLWENTRU(LPCryptoParametersLWE<Element> &cryptoParams) {
-				this->AccessCryptoParameters() = cryptoParams;
+			LPPublicKeyLWENTRU(LPCryptoParameters<Element> &cryptoParams) {
+				this->SetCryptoParameters(&cryptoParams);
 			}
 
 			//Uses the LPCryptoParametersLWE instance
@@ -305,7 +311,7 @@ namespace lbcrypto {
 			*/
 
 			LPPrivateKeyLWENTRU(LPCryptoParametersLWE<Element> &cryptoParams) {
-				this->AccessCryptoParameters() = cryptoParams;
+				this->SetCryptoParameters(&cryptoParams);
 			}
 			
 			//Uses the LPCryptoParametersLWE instance
