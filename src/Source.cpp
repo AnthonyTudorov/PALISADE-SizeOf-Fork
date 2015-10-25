@@ -163,7 +163,9 @@ void NTRUPRE(int input) {
 	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
 	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
 	usint relWindow = SECURE_PARAMS[input].relinWindow;
-	ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJK";
+
+	ByteArray plaintext = ByteArrayFromString(
+        "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 
 	float stdDev = 4;
 
@@ -253,7 +255,7 @@ void NTRUPRE(int input) {
 
 	Ciphertext<ILVector2n> ciphertext;
 	ByteArrayPlaintextEncoding ptxt(plaintext);
-    ptxt.Pad<OneZeroPad>(m/16);
+    ptxt.Pad<ZeroPad>(m/16);
 
 	std::cout << "Running encryption..." << std::endl;
 
@@ -280,7 +282,7 @@ void NTRUPRE(int input) {
 	start = currentDateTime();
 
 	DecodingResult result = algorithm.Decrypt(sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
-    plaintextNew.Unpad<OneZeroPad>();
+    plaintextNew.Unpad<ZeroPad>();
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -288,8 +290,8 @@ void NTRUPRE(int input) {
 	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
-	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew.GetData()<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew.GetData()<<"\n"<<endl;
+	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
+	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
 
 	//cout << "ciphertext at" << ciphertext.GetIndexAt(2);
 
@@ -380,7 +382,7 @@ void NTRUPRE(int input) {
 	start = currentDateTime();
 
 	DecodingResult result1 = algorithmPRE.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
-    plaintextNew2.Unpad<OneZeroPad>();
+    plaintextNew2.Unpad<ZeroPad>();
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -388,8 +390,8 @@ void NTRUPRE(int input) {
 	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
-	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2.GetData()<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2.GetData()<<"\n"<<endl;
+	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
+	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
 
 	if (!result1.isValidCoding) {
 		std::cout<<"Decryption failed!"<<std::endl;
