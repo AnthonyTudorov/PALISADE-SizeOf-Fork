@@ -38,6 +38,7 @@
 #include "pubkeylp.h"
 #include "../utils/inttypes.h"
 #include "lwecrypt.h"
+#include "ciphertext.h"
 
 /**
  * @namespace lbcrypto
@@ -74,8 +75,8 @@ namespace lbcrypto {
 			 * @param *newCiphertext the new ciphertext.
 			 */
 			 void ReEncrypt(const LPEvalKey<Element> &evalKey,
-				const Element &ciphertext, 
-				Element *newCiphertext) const;
+				 const Ciphertext<Element> &ciphertext,
+				 Ciphertext<Element> *newCiphertext) const;
 	};
 
 } // namespace lbcrypto ends

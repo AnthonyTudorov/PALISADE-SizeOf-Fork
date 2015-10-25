@@ -81,7 +81,7 @@ template <class Element>
 void LPAlgorithmLWENTRU<Element>::Encrypt(const LPPublicKey<Element> &publicKey, 
 				DiscreteGaussianGenerator &dgg, 
 				const PlaintextEncodingInterface &plaintext, 
-				Element *ciphertext) const
+				Ciphertext<Element> *ciphertext) const
 {
 
 	const LPCryptoParameters<Element> &cryptoParams = publicKey.GetAbstractCryptoParameters();
@@ -108,13 +108,16 @@ void LPAlgorithmLWENTRU<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 
 	c = h*s + p*e + m;
 
-	*ciphertext = c;
+	ciphertext->SetCryptoParameters(cryptoParams);
+	ciphertext->SetPublicKey(publicKey);
+	ciphertext->SetEncryptionAlgorithm(*this);
+	ciphertext->SetElement(c);
 
 }
 
 template <class Element>
 DecodingResult LPAlgorithmLWENTRU<Element>::Decrypt(const LPPrivateKey<Element> &privateKey, 
-				const Element &ciphertext, 
+				const Ciphertext<Element> &ciphertext,
 				PlaintextEncodingInterface *plaintext) const
 {
 	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetAbstractCryptoParameters();
@@ -122,7 +125,7 @@ DecodingResult LPAlgorithmLWENTRU<Element>::Decrypt(const LPPrivateKey<Element> 
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
 	Element c(elementParams);
-	c = ciphertext;
+	c = ciphertext.GetElement();
 
 	Element b(elementParams);
 	Element f = privateKey.GetPrivateElement(); //add const

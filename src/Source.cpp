@@ -50,6 +50,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "crypto/lwepre.cpp"
 #include "lattice/il2n.h"
 #include "time.h"
+#include "crypto/ciphertext.cpp"
 //#include "vld.h"
 #include <chrono>
 //#include "gtest/gtest.h"
@@ -250,7 +251,7 @@ void NTRUPRE(int input) {
 	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
-	ILVector2n ciphertext;
+	Ciphertext<ILVector2n> ciphertext;
 	ByteArrayPlaintextEncoding ptxt(plaintext);
     ptxt.Pad<OneZeroPad>(m/16);
 
@@ -352,7 +353,7 @@ void NTRUPRE(int input) {
 	////////////////////////////////////////////////////////////
 
 
-	ILVector2n newCiphertext;
+	Ciphertext<ILVector2n> newCiphertext;
 
 	std::cout <<"\n"<< "Running re-encryption..." << std::endl;
 

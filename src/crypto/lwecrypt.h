@@ -39,6 +39,7 @@
 #include "../math/distrgen.h"
 #include "../math/backend.h"
 #include "pubkeylp.h"
+#include "ciphertext.h"
 #include "../lattice/ideals.h"
 
 /**
@@ -379,7 +380,7 @@ namespace lbcrypto {
 			void Encrypt(const LPPublicKey<Element> &publicKey, 
 				DiscreteGaussianGenerator &dg, 
 				const PlaintextEncodingInterface &plaintext, 
-				Element *ciphertext) const;
+				Ciphertext<Element> *ciphertext) const;
 			
 			/**
 			 * Method for decrypting plaintext using Ring-LWE NTRU
@@ -390,7 +391,7 @@ namespace lbcrypto {
 			 * @return the decrypted plaintext returned.
 			 */			
 			DecodingResult Decrypt(const LPPrivateKey<Element> &privateKey, 
-				const Element &ciphertext, 
+				const Ciphertext<Element> &ciphertext,
 				PlaintextEncodingInterface *plaintext) const;
 			
 			/**

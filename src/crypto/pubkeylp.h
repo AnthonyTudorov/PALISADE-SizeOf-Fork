@@ -47,6 +47,10 @@
  */
 namespace lbcrypto {
 
+	//forward declaration of Ciphertext class; used to resolve circular header dependency
+	template <class Element>
+	class Ciphertext;
+
 	/** 
 	 * @brief Decoding output.  This represents whether the decoding/decryption of a cipheretext was performed correctly.
 	 *
@@ -198,9 +202,15 @@ namespace lbcrypto {
 
 		/**
 		* Gets the computed evaluation key
-		* @return the public key element.
+		* @return the eval key elements.
 		*/
 		virtual const std::vector<Element> &GetEvalKeyElements() const = 0;
+
+		/**
+		* Gets the public key associated with the evaluation key
+		* @return the public key element.
+		*/
+		virtual const LPPublicKey<Element> &GetPublicKey() const = 0;
 
 		/**
 		* Gets a writeable copy of the computed evaluation key
@@ -213,6 +223,12 @@ namespace lbcrypto {
 		* @param &elements the evaluation key elements.
 		*/
 		virtual void SetEvalKeyElements(std::vector<Element> &elements) = 0;
+
+		/**
+		* Sets the public
+		* @param &elements the evaluation key elements.
+		*/
+		virtual void SetPublicKey(const LPPublicKey<Element> &publicKey) = 0;
 
 	};
 
@@ -279,7 +295,7 @@ namespace lbcrypto {
 			virtual void Encrypt(const LPPublicKey<Element> &publicKey, 
 				DiscreteGaussianGenerator &dg, 
 				const PlaintextEncodingInterface &plaintext, 
-				Element *ciphertext) const = 0;
+				Ciphertext<Element> *ciphertext) const = 0;
 			
 			/**
 			 * Method for decrypting plaintext using LBC
@@ -290,7 +306,7 @@ namespace lbcrypto {
 			 * @return the decoding result.
 			 */
 			virtual DecodingResult Decrypt(const LPPrivateKey<Element> &privateKey, 
-				const Element &ciphertext,  
+				const Ciphertext<Element> &ciphertext,
 				PlaintextEncodingInterface *plaintext) const = 0;
 
 			/**
@@ -337,8 +353,8 @@ namespace lbcrypto {
 			 * @param *newCiphertext the new ciphertext.
 			 */
 			virtual void ReEncrypt(const LPEvalKey<Element> &evalKey, 
-				const Element &ciphertext, 
-				Element *newCiphertext) const = 0;
+				const Ciphertext<Element> &ciphertext,
+				Ciphertext<Element> *newCiphertext) const = 0;
 	};
 
 
@@ -615,20 +631,35 @@ namespace lbcrypto {
 		const std::vector<Element> &GetEvalKeyElements() const { return m_elements; }
 
 		/**
+		* Implementation of the Get accessor for public key.
+		* @return the public.
+		*/
+		const LPPublicKey<Element> &GetPublicKey() const { return *m_publicKey; }
+
+		/**
 		* Implementation of the writeable accessor for eval key elements.
 		* @return the private element.
 		*/
 		std::vector<Element> &AccessEvalKeyElements() { return m_elements; }
 
 		/**
-		* Implementation of the Set accessor for public element.
+		* Implementation of the Set accessor for evaluation key elements.
 		* @private &x the public element.
 		*/
 		void SetEvalKeyElements(std::vector<Element> &elements) { m_elements = elements; }
 
+		/**
+		* Implementation of the Set accessor for public key.
+		* @private &publicKey the public element.
+		*/
+		void SetPublicKey(const LPPublicKey<Element> &publicKey) { m_publicKey = &publicKey; }
+
 	private:
 		//elements used for evaluation key
 		std::vector<Element> m_elements;
+
+		//pointer to public key
+		const LPPublicKey<Element> *m_publicKey;
 	};
 
 } // namespace lbcrypto ends

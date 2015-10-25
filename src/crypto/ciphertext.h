@@ -1,7 +1,11 @@
 /**
 * @file
-* @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
-*	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>
+* @author	TPOC: 
+				Dr. Kurt Rohloff <rohloff@njit.edu>,
+			Programmers: 
+				Dr. Yuriy Polyakov <polyakov@njit.edu>
+				Hadi Sajjadpour <ss2959@njit.edu>
+
 * @version 00_03
 *
 * @section LICENSE
@@ -34,55 +38,142 @@
 #ifndef LBCRYPTO_CRYPTO_CIPHERTEXT_H
 #define LBCRYPTO_CRYPTO_CIPHERTEXT_H
 
+//Includes Section
+#include "pubkeylp.h"
+
 /**
- * @brief Template for crypto PRE.
- * @tparam T a ring element.
- * @tparam P a set of element parameters.
- */
-template <class T, class P>
-class Ciphertext {
-public:
-	typedef T Element;		/**< The ring element */
-	typedef P ElementParams;	/**< The ring element params */
-
+* @namespace lbcrypto
+* The namespace of lbcrypto
+*/
+namespace lbcrypto {
 
 	/**
-	 * Constructor
-	 * @param &cp the ciphertext parameters.
-	 * @param &dataHolder the container of the ciphertext data.
+	 * @brief Main ciphertext class.
+	 * @tparam Element a ring element.
 	 */
-	Ciphertext(LPCryptoParameters< Element, ElementParams > &cp, Element &dataHolder) {
-		
-		cryptoParameters = cp;
-		cipherTextData = dataHolder;
+	template <class Element>
+	class Ciphertext {
+	public:
+
+		/**
+		 * Default constructor
+		 */
+		Ciphertext() : m_cryptoParameters(NULL), m_publicKey(NULL), m_encryptionAlgorithm(NULL) {}
+
+		/**
+		* Copy constructor
+		*/
+		explicit Ciphertext(const Ciphertext<Element> &ciphertext);
+
+		/**
+		* Moveable copy constructor
+		*/
+		Ciphertext(Ciphertext<Element> &&ciphertext); 
+
+		/**
+		 * Destructor
+		 */
+		~Ciphertext(){}
+
+		/**
+		* Assignment Operator.
+		*
+		* @param &rhs the copied vector.
+		* @return the resulting vector.
+		*/
+		Ciphertext<Element>& operator=(const Ciphertext<Element> &rhs);
+
+		/**
+		* Moveable Assignment Operator.
+		*
+		* @param &rhs the copied vector.
+		* @return the resulting vector.
+		*/
+		Ciphertext<Element>& operator=(Ciphertext<Element> &&rhs);
+
+		/**
+		* Get a reference to crypto parameters.
+		* @return the crypto parameters.
+		*/
+		const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
+
+		/**
+		* Get a reference to public key.
+		* @return the public key.
+		*/
+		const LPPublicKey<Element> &GetPublicKey() const { return *m_publicKey; }
+
+		/**
+		* Get a reference to the encryption algorithm.
+		* @return the encryption alorithm.
+		*/
+		const LPEncryptionAlgorithm<Element> &GetEncryptionAlgorithm() const { return *m_encryptionAlgorithm; }
+
+		/**
+		* Get current estimate of estimate norm
+		* @return the current estimate of ciphertext norm.
+		*/
+		const BigBinaryInteger &GetNorm() const { return m_norm; }
+
+		/**
+		* Get the element
+		* @return the ring element.
+		*/
+		const Element &GetElement() const { return m_element; }
+
+		/**
+		* Sets a reference to crypto parameters.
+		*
+		* @param &cryptoParams is crypto params passed by reference.
+		*/
+		void SetCryptoParameters(const LPCryptoParameters<Element> &cryptoParameters) { m_cryptoParameters = &cryptoParameters; }
+
+		/**
+		* Sets a reference to public key.
+		*
+		* @param &publicKey is public key passed by reference.
+		*/
+		void SetPublicKey(const LPPublicKey<Element> &publicKey) { m_publicKey = &publicKey; }
+
+		/**
+		* Sets a reference to algorithm.
+		*
+		* @param &encryptionAlgorithm is encryption algorithm passed by reference.
+		*/
+		void SetEncryptionAlgorithm(const LPEncryptionAlgorithm<Element> &encryptionAlgorithm) { m_encryptionAlgorithm = &encryptionAlgorithm; }
+
+		/**
+		* Sets ciphertext norm.
+		*
+		* @param &norm is ciphertext norm estimate.
+		*/
+		void SetNorm(const BigBinaryInteger &norm) {  m_norm = norm; }
+
+		/**
+		* Sets the data element.
+		*
+		* @param &element is a polynomial ring element.
+		*/
+		void SetElement(const Element &element) { m_element = element; }
 	
-	}
+	private:
 
-	/**
-	 * Destructor
-	 */
-	~Ciphertext(){}
+		//pointer to crypto parameters
+		const LPCryptoParameters<Element> *m_cryptoParameters;
 
-	/**
-	* Get Crypto Parameters.
-	* @return the crypto parameters.
-	*/
-	const LPCryptoParameters &GetCryptoParameters() const { return cryptoParameters; }
+		//pointer to public key
+		const LPPublicKey<Element> *m_publicKey;
 
-	/**
-	* Get Ciphertext.
-	* @return the ciphertext parameters.
-	*/
-	const Element &GetCipherText() const { return cipherTextData; }
+		//pointer to algorithm
+		const LPEncryptionAlgorithm<Element> *m_encryptionAlgorithm;
 
- 
-	
-private:
-	LPCryptoParameters cryptoParameters;
-	Element cipherTextData;
+		//current value of error norm
+		BigBinaryInteger m_norm;
 
-};
+		//data element
+		Element m_element;
 
+	};
 
-
+} // namespace lbcrypto ends
 #endif
