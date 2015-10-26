@@ -68,7 +68,7 @@ namespace lbcrypto {
 		*
 		* @param &params element parameters.
 		*/
-		ILVector2n(const ILParams &params);
+		ILVector2n(const ElemParams &params);
 
 		/**
 		* Copy constructor.
@@ -111,7 +111,7 @@ namespace lbcrypto {
 		* @param &params the input params.
 		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVector2n(DiscreteGaussianGenerator &dgg, const ILParams &params, Format format = EVALUATION);
+		ILVector2n(DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
 
 		/**
 		* Destructor.

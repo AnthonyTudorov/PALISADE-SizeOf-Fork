@@ -30,8 +30,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 			
 //Function for addition evaluation of homomorphic cryptosystem.
-template <class T,class P>
-void LPAlgorithmAHELWENTRU<T, P>::EvalAdd(const LPCryptoParameters<Element,ElementParams> &params,
+template <class Element>
+void LPAlgorithmAHELWENTRU<Element>::EvalAdd(const LPCryptoParameters<Element> &params,
 				const Element &ciphertext1, 
 				const Element &ciphertext2, 
 				Element *newCiphertext) const

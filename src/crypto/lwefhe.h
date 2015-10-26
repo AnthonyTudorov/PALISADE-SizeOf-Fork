@@ -48,14 +48,11 @@ namespace lbcrypto {
 
 	/**
 	 * @brief Template for crypto PRE.
-	 * @tparam T a ring element.
-	 * @tparam P a set of element parameters.
+	 * @tparam Element a ring element.
 	 */
-	template <class T, class P>
-	class LPAlgorithmFHELWENTRU : public LPAlgorithmSHELWENTRU<T,P>, public LPFHEAlgorithm<T,P> {
+	template <class Element>
+	class LPAlgorithmFHELWENTRU : public LPAlgorithmSHELWENTRU<Element>, public LPFHEAlgorithm<Element> {
 		public:
-			typedef T Element;		/**< The ring element */
-			typedef P ElementParams;	/**< The ring element params */
 			
 			/**
 			 * Virtual function to define the interface for evaluation addition on ciphertext.
@@ -64,7 +61,7 @@ namespace lbcrypto {
 			 * @param &ciphertext the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			void Bootstrap(const LPCryptoParameters<Element,ElementParams> &params,
+			void Bootstrap(const LPCryptoParameters<Element> &params,
 				const Element &ciphertext, 
 				Element *newCiphertext)  const;
 	};

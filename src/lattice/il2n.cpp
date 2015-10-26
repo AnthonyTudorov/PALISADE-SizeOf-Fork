@@ -37,7 +37,7 @@ namespace lbcrypto {
 
 	}
 
-	ILVector2n::ILVector2n(const ILParams &params) : m_params(params), m_values(NULL), m_format(EVALUATION) {
+	ILVector2n::ILVector2n(const ElemParams &params) : m_params(static_cast<const ILParams&>(params)), m_values(NULL), m_format(EVALUATION) {
 
 	}
 
@@ -79,7 +79,7 @@ namespace lbcrypto {
 		return *this;
 	}
 
-	ILVector2n::ILVector2n(DiscreteGaussianGenerator &dgg, const ILParams &params, Format format) :m_params(params) {
+	ILVector2n::ILVector2n(DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
 		/*
 		//usint vectorSize = EulerPhi(params.GetOrder());
 		usint vectorSize = params.GetOrder()/2;
@@ -91,10 +91,12 @@ namespace lbcrypto {
 		SwitchFormat();
 		*/
 
+		const ILParams &ilParams = static_cast<const ILParams&>(params);
+
 		if (format == COEFFICIENT)
 		{
 			//usint vectorSize = EulerPhi(params.GetOrder());
-			usint vectorSize = params.GetOrder() / 2;
+			usint vectorSize = ilParams.GetOrder() / 2;
 			m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize));
 			(*m_values).SetModulus(params.GetModulus());
 			m_format = COEFFICIENT;
@@ -103,9 +105,9 @@ namespace lbcrypto {
 		{
 			if (m_dggSamples.size() == 0)
 			{
-				PreComputeDggSamples(dgg, params);
+				PreComputeDggSamples(dgg, ilParams);
 			}
-			ILVector2n randomElement = GetPrecomputedVector(params);
+			ILVector2n randomElement = GetPrecomputedVector(ilParams);
 			m_values = new BigBinaryVector(*randomElement.m_values);
 			(*m_values).SetModulus(params.GetModulus());
 			m_format = EVALUATION;
@@ -410,12 +412,13 @@ namespace lbcrypto {
 	{
 		return std::vector<ILVector2n>();
 	}
-	ILDCRTParams & lbcrypto::ILVectorArray2n::GetParams() const
-	{
+	//ILDCRTParams & lbcrypto::ILVectorArray2n::GetParams() const
+	//{
 		// TODO: insert return statement here
 	//	return m_params;
-	//	return null;
-	}
+		//return NULL;
+	
+	//}
 	void lbcrypto::ILVectorArray2n::SetValues(std::vector<ILVector2n>& values)
 	{
 		m_vectors = values;

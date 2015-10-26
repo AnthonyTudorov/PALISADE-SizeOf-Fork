@@ -50,6 +50,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "crypto/lwepre.cpp"
 #include "lattice/il2n.h"
 #include "time.h"
+#include "crypto/ciphertext.cpp"
 //#include "vld.h"
 #include <chrono>
 //#include "gtest/gtest.h"
@@ -162,7 +163,7 @@ void NTRUPRE(int input) {
 	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
 	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
 	usint relWindow = SECURE_PARAMS[input].relinWindow;
-	ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABC";
+	ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJK";
 
 	float stdDev = 4;
 
@@ -182,7 +183,7 @@ void NTRUPRE(int input) {
 	//ilParams.Initialize(m,bitLenght,inputFile);
 
 	//Set crypto parametes
-	LPCryptoParametersLWE<ILVector2n,ILParams> cryptoParams;
+	LPCryptoParametersLWE<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
@@ -209,8 +210,8 @@ void NTRUPRE(int input) {
 	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
-	LPPublicKeyLWENTRU<ILVector2n,ILParams> pk(cryptoParams);
-	LPPrivateKeyLWENTRU<ILVector2n, ILParams> sk(cryptoParams);
+	LPPublicKeyLWENTRU<ILVector2n> pk(cryptoParams);
+	LPPrivateKeyLWENTRU<ILVector2n> sk(cryptoParams);
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -218,7 +219,7 @@ void NTRUPRE(int input) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	LPAlgorithmLWENTRU<ILVector2n,ILParams> algorithm;
+	LPAlgorithmLWENTRU<ILVector2n> algorithm;
 
 	bool successKeyGen=false;
 
@@ -250,7 +251,7 @@ void NTRUPRE(int input) {
 	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
-	ILVector2n ciphertext;
+	Ciphertext<ILVector2n> ciphertext;
 	ByteArrayPlaintextEncoding ptxt(plaintext);
     ptxt.Pad<OneZeroPad>(m/16);
 
@@ -290,7 +291,7 @@ void NTRUPRE(int input) {
 	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew.GetData()<<"\n"<<endl;
 	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew.GetData()<<"\n"<<endl;
 
-	cout << "ciphertext at" << ciphertext.GetIndexAt(2);
+	//cout << "ciphertext at" << ciphertext.GetIndexAt(2);
 
 	if (!result.isValidCoding) {
 		std::cout<<"Decryption failed!"<<std::endl;
@@ -300,15 +301,15 @@ void NTRUPRE(int input) {
 
 	//system("pause");
 
-	LPAlgorithmPRELWENTRU<ILVector2n,ILParams> algorithmPRE;
+	LPAlgorithmPRELWENTRU<ILVector2n> algorithmPRE;
 
 	////////////////////////////////////////////////////////////
 	//Perform the second key generation operation.
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPPublicKeyLWENTRU<ILVector2n,ILParams> newPK(cryptoParams);
-	LPPrivateKeyLWENTRU<ILVector2n, ILParams> newSK(cryptoParams);
+	LPPublicKeyLWENTRU<ILVector2n> newPK(cryptoParams);
+	LPPrivateKeyLWENTRU<ILVector2n> newSK(cryptoParams);
 
 	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
@@ -334,7 +335,7 @@ void NTRUPRE(int input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	std::vector<ILVector2n> evalKey;
+	LPEvalKeyLWENTRU<ILVector2n> evalKey(cryptoParams);
 
 	start = currentDateTime();
 
@@ -352,13 +353,13 @@ void NTRUPRE(int input) {
 	////////////////////////////////////////////////////////////
 
 
-	ILVector2n newCiphertext;
+	Ciphertext<ILVector2n> newCiphertext;
 
 	std::cout <<"\n"<< "Running re-encryption..." << std::endl;
 
 	start = currentDateTime();
 
-	algorithmPRE.ReEncrypt(evalKey,cryptoParams, ciphertext,&newCiphertext);  // This is the core re-encryption operation.
+	algorithmPRE.ReEncrypt(evalKey, ciphertext,&newCiphertext);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
