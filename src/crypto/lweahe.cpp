@@ -39,7 +39,7 @@ void LPAlgorithmAHELWENTRU<T, P>::EvalAdd(const LPCryptoParameters<Element,Eleme
 {
 	Element ctOut(ciphertext1);
 
-	ctOut.Mult(ciphertext2);
+	ctOut.Plus(ciphertext2);
 
 	*newCiphertext = ctOut;
 
