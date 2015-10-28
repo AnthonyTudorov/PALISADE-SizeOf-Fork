@@ -522,15 +522,9 @@ namespace lbcrypto {
 	public:
 
 		// CONSTRUCTORS
-		/**
-		* Constructor that initializes parameters.
-		*
-		* @param &params element parameters.
-		*/
-		ILVectorArray2n(const ILDCRTParams &params);
 
 		// copy constructor
-		/**
+		/*
 		* Copy constructor.
 		*
 		* @param &element the copied element.
@@ -538,26 +532,26 @@ namespace lbcrypto {
 		ILVectorArray2n(const ILVectorArray2n &element);
 
 		// construct using an array in either Coefficient (0) or CRT format (1)
-		/**
+		/*
 		* Construct using an array in either Coefficient (0) or CRT format (1).
 		*
 		* @param params the input parameters.
 		* @param &levels the levels.
 		*/
-		ILVectorArray2n(const ILDCRTParams& params, std::vector<ILVector2n> &levels);
-		/**
+		ILVectorArray2n(const ILDCRTParams& params, std::vector<ILVector2n> &levels, Format format);
+		/*
 		* Construct using an array in either Coefficient (0) or CRT format (1).
 		*
 		* @param element the input parameter to build ILVectorArray2n from one vector for double-CRT representation.
 		*/
-		ILVectorArray2n(ILVector2n element, const ILDCRTParams& params);
-		/**
+		ILVectorArray2n(ILVector2n element, const ILDCRTParams& params, Format format);
+		/*
 		* Construct using a discrete Gaussian generator and a set of parameters.
 		*
 		* @param &dgg the input discrete Gaussian Generator.
 		* @param &params the input params.
 		*/
-	//	ILVectorArray2n(DiscreteGaussianGenerator &dgg, const ILDCRTParams &params);
+		//	ILVectorArray2n(DiscreteGaussianGenerator &dgg, const ILDCRTParams &params);
 
 		// DESTRUCTORS
 		/**
@@ -571,13 +565,21 @@ namespace lbcrypto {
 		*
 		* @return the vector.
 		*/
-		std::vector<ILVector2n> GetValues() const;
+		ILVector2n GetValues(usint i) const;
+
+		/**
+		* Get method of the format.
+		*
+		* @return the format.
+		*/
+		Format GetFormat();
 
 		/**
 		* Get method of the parameter set.
 		*
 		* @return the parameter set.
 		*/
+
 		ILDCRTParams &GetParams() const;
 
 		// Set accessors
@@ -592,151 +594,151 @@ namespace lbcrypto {
 		// SCALAR OPERATIONS
 
 		// addition operation	
-		/**
+		/*
 		* Scalar addition - add an element to all entries.
 		*
 		* @param &element is the element to add entry-wise.
 		* @return is the return of the addition operation.
 		*/
-//		ILVectorArray2n& Plus(const BigBinaryInteger &element) const;
+		//		ILVectorArray2n& Plus(const BigBinaryInteger &element) const;
 
 		// subtraction operation
-		/**
+		/*
 		* Scalar subtraction - subtract an element to all entries.
 		*
 		* @param &element is the element to subtract entry-wise.
 		* @return is the return value of the minus operation.
 		*/
-//		ILVectorArray2n& Minus(const BigBinaryInteger &element) const;
+		//		ILVectorArray2n& Minus(const BigBinaryInteger &element) const;
 
 		// multiplication operation
-		/**
+		/*
 		* Scalar multiplication - multiply all entries.
 		*
 		* @param &element is the element to multiply entry-wise.
 		* @return is the return value of the times operation.
 		*/
-//		ILVectorArray2n& Times(const BigBinaryInteger &element) const;
+		//		ILVectorArray2n& Times(const BigBinaryInteger &element) const;
 
 		// division operation
-		/**
+		/*
 		* Scalar division - divide an element to all entries.
 		*
 		* @param &element is the element to divide entry-wise.
 		* @return is the return value of the division operation.
 		*/
-//		ILVectorArray2n& DividedBy(const BigBinaryInteger &element) const;
+		//		ILVectorArray2n& DividedBy(const BigBinaryInteger &element) const;
 
 		// modulo operation
-		/**
+		/*
 		* Modulus - perform a modulus operation.
 		*
 		* @param modulus is the modulus to use.
 		* @return is the return value of the modulus.
 		*/
-//		ILVectorArray2n& Mod(const BigBinaryInteger & modulus) const;
+		//		ILVectorArray2n& Mod(const BigBinaryInteger & modulus) const;
 
 		// VECTOR OPERATIONS
 
 		// equality operation
-		/**
+		/*
 		* Determines if two vectors are equal.
 		*
 		* @param &element is the element to test equality with.
 		* @return is the Boolean representation of equality.
 		*/
-//		bool Equal(const ILVectorArray2n &element) const;
+		//		bool Equal(const ILVectorArray2n &element) const;
 
 		// addition operation
-		/**
+		/*
 		* Performs an addition operation and returns the result.
 		*
 		* @param &element is the element to add with.
 		* @return is the result of the addition.
 		*/
-//		ILVectorArray2n& Plus(const ILVectorArray2n &element) const;
+		//		ILVectorArray2n& Plus(const ILVectorArray2n &element) const;
 
 		// subtraction operation
-		/**
+		/*
 		* Performs a subtraction operation and returns the result.
 		*
 		* @param &element is the element to subtract with.
 		* @return is the result of the subtraction.
 		*/
-//		ILVectorArray2n& Minus(const ILVectorArray2n &element) const;
+		//		ILVectorArray2n& Minus(const ILVectorArray2n &element) const;
 
 		// multiplication operation
-		/**
+		/*
 		* Performs a multiplication operation and returns the result.
 		*
 		* @param &element is the element to multiply with.
 		* @return is the result of the multiplication.
 		*/
-//		ILVectorArray2n& Times(const ILVectorArray2n &element) const;
+		//		ILVectorArray2n& Times(const ILVectorArray2n &element) const;
 
 		// division operation
-		/**
+		/*
 		* Performs a division operation and returns the result.
 		*
 		* @param &element is the element to divide with.
 		* @return is the result of the division.
 		*/
-	//	ILVectorArray2n& DividedBy(const ILVectorArray2n &element) const;
+		//	ILVectorArray2n& DividedBy(const ILVectorArray2n &element) const;
 
 		// automorphism operation
-		/**
+		/*
 		* Performs an automorphism transform operation and returns the result.
 		*
 		* @param &i is the element to perform the automorphism transform with.
 		* @return is the result of the automorphism transform.
 		*/
-//		ILVectorArray2n& AutomorphismTransform(const BigBinaryInteger& i) const;
+		//		ILVectorArray2n& AutomorphismTransform(const BigBinaryInteger& i) const;
 
 		// multiplicative inverse operation
-		/**
+		/*
 		* Performs a multiplicative inverse operation and returns the result.
 		*
 		* @return is the result of the multiplicative inverse.
 		*/
-//		ILVectorArray2n& MultiplicativeInverse() const;
+		//		ILVectorArray2n& MultiplicativeInverse() const;
 
 		// OTHER METHODS
 
 		// rounds polynomial to a certain integer x
-		/**
+		/*
 		* Rounds the polynomial to an input integer.
 		*
 		* @param x is integer to round to.
 		* @return is the result of the rounding operation.
 		*/
-//		ILVectorArray2n& Round(const BigBinaryInteger& x) const;
+		//		ILVectorArray2n& Round(const BigBinaryInteger& x) const;
 
 		// scaling operation used in modulus switching; will be used for FHE
-		/**
+		/*
 		* Scaling operation used in modulus switching
 		*
 		* @param newModulus the new modulus to scale to.
 		* @return is the result of the scaling operation.
 		*/
-	//	ILVectorArray2n& Scale(const BigBinaryInteger& newModulus) const;
+		//	ILVectorArray2n& Scale(const BigBinaryInteger& newModulus) const;
 
 		// add new level - will be used for FHE
-		/**
+		/*
 		* Add new level operation.
 		*
 		* @param &element is the element to add.
 		* @return is the result of the add level operation.
 		*/
-//		void AddLevel(const ILVector2n &element);
+		//		void AddLevel(const ILVector2n &element);
 
 		// remove level - will be used for FHE
-		/**
+		/*
 		* Remove level operation.
 		*
 		* @param index is the level to remove.
 		* @return is the result of the remove level operation.
 		*/
-	//	ILVector2n& RemoveLevel(usint index);
+		//	ILVector2n& RemoveLevel(usint index);
 
 		//Represent the lattice in binary format
 		/**
@@ -745,7 +747,7 @@ namespace lbcrypto {
 		* @param *text the byte array to take as input.
 		* @param &modulus modulus to convert from.
 		*/
-//		void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const;
+		void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const;
 
 		//Convert binary string to lattice format
 		/**
@@ -754,34 +756,47 @@ namespace lbcrypto {
 		* @param &encoded the byte array to take as input.
 		* @param &modulus modulus to convert to.
 		*/
-//		void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus);
+		void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus);
 		// convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT
 		/**
 		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
 		*/
 		void SwitchFormat();
 
-		/**
-		*Helper method to interpolate IlVector2n's with different moduli into a the coefficient representation with a single moduli
-		*/
-		private:void Cri_dblcrt();
-		/*
-		*This method will apply the modulo operatio to the vector of Ilvector2n's based on the tower of moduli in ILDCRTParams
-		*/
-		private:void Convert_moduli();
-		/*
+	private:ILVector2n InterpolateIlArrayVector2n();
+
+			/**
+			*Helper method to interpolate IlVector2n's with different moduli into a the coefficient representation with a single moduli
+			*/
+	private:ILVector2n Cri_dblcrt();
+			/*
+			*This method will apply the modulo operatio to the vector of Ilvector2n's based on the tower of moduli in ILDCRTParams
+			*/
+	private:void Convert_moduli();
 
 
-		// modulus factors in ciphertext modulus
-		BigBinaryVector m_modulusFactors;
+	private:std::vector<BigBinaryInteger> BuildIndexVector(usint i);
 
-		// computes moduli qi
-		void ComputeModuli();
+	private:std::vector<std::vector<BigBinaryInteger>> BuildVectorOfIndicies(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors);
+			/*This function takes in a row and a vector of vector of BigBinaryIntegers and calculates the sum of each
+			row, module the value set by the CRI formula*/
+	private:BigBinaryInteger CalculateInterpolationSum(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors, usint index);
+			/*This method calculates the value for CRI*/
+	private:BigBinaryInteger CalculatInterpolateModulu(BigBinaryInteger value, usint index);
 
-		// when modulus factors are set, m_moduli are automatically computed by calling ComputeModuli()
-		void SetModulusFactors(const BigBinaryVector& m_modulusFactors);
+			/*
 
-		*/
+
+			// modulus factors in ciphertext modulus
+			BigBinaryVector m_modulusFactors;
+
+			// computes moduli qi
+			void ComputeModuli();
+
+			// when modulus factors are set, m_moduli are automatically computed by calling ComputeModuli()
+			void SetModulusFactors(const BigBinaryVector& m_modulusFactors);
+
+			*/
 
 	private:
 		// array of vectors used for double-CRT presentation
@@ -789,11 +804,15 @@ namespace lbcrypto {
 
 		// parameters for the ideal lattice: cyclotomic order and ciphertext modulus factors
 		ILDCRTParams m_params;
+
+		// 0 for coefficient and 1 for evaluation format
+		Format m_format;
+
 	};
 
 	// overloaded operators for ILVectorArray2n
 
-	/**
+	/*
 	* Addition operator overload.  Performs an addition in the ring.
 	*
 	* @param &a the first parameter.
@@ -801,9 +820,9 @@ namespace lbcrypto {
 	*
 	* @return The result of addition in the ring.
 	*/
-//	inline lbcrypto::ILVectorArray2n operator+(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) { return a.Plus(b); }
+	//	inline lbcrypto::ILVectorArray2n operator+(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) { return a.Plus(b); }
 
-	/**
+	/*
 	* Subtraction operator overload.  Performs an subtraction in the ring.
 	*
 	* @param &a the first parameter.
@@ -811,9 +830,9 @@ namespace lbcrypto {
 	*
 	* @return The result of subtraction in the ring.
 	*/
-//	inline lbcrypto::ILVectorArray2n operator-(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) { return a.Minus(b); }
+	//	inline lbcrypto::ILVectorArray2n operator-(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) { return a.Minus(b); }
 
-	/**
+	/*
 	* Multiplication operator overload.  Performs a multiplication in the ring.
 	*
 	* @param &a the first parameter.
@@ -821,9 +840,9 @@ namespace lbcrypto {
 	*
 	* @return The result of multiplication in the ring.
 	*/
-//	inline lbcrypto::ILVectorArray2n operator*(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) { return a.Times(b); }
+	//	inline lbcrypto::ILVectorArray2n operator*(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) { return a.Times(b); }
 
-	/**
+	/*
 	* Division operator overload.  Performs a division in the ring.
 	*
 	* @param &a the first parameter.
@@ -831,9 +850,9 @@ namespace lbcrypto {
 	*
 	* @return The result of division in the ring.
 	*/
-//	inline lbcrypto::ILVectorArray2n operator/(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) { return a.DividedBy(b); }
+	//	inline lbcrypto::ILVectorArray2n operator/(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) { return a.DividedBy(b); }
 
-	/**
+	/*
 	* Addition operator overload.  Performs an addition in the ring.
 	*
 	* @param &a the first parameter.
@@ -841,9 +860,9 @@ namespace lbcrypto {
 	*
 	* @return The result of addition in the ring.
 	*/
-//	inline lbcrypto::ILVectorArray2n operator+(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) { return a.Plus(b); }
+	//	inline lbcrypto::ILVectorArray2n operator+(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) { return a.Plus(b); }
 
-	/**
+	/*
 	* Subtraction operator overload.  Performs a subtraction in the ring.
 	*
 	* @param &a the first parameter.
@@ -851,9 +870,9 @@ namespace lbcrypto {
 	*
 	* @return The result of subtraction in the ring.
 	*/
-//	inline lbcrypto::ILVectorArray2n operator-(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) { return a.Minus(b); }
+	//	inline lbcrypto::ILVectorArray2n operator-(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) { return a.Minus(b); }
 
-	/**
+	/*
 	* Multiplication operator overload.  Performs a multiplication in the ring.
 	*
 	* @param &a the first parameter.
@@ -861,9 +880,9 @@ namespace lbcrypto {
 	*
 	* @return The result of multiplication in the ring.
 	*/
-//	inline lbcrypto::ILVectorArray2n operator*(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) { return a.Times(b); }
+	//	inline lbcrypto::ILVectorArray2n operator*(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) { return a.Times(b); }
 
-	/**
+	/*
 	* Division operator overload.  Performs an division in the ring.
 	*
 	* @param &a the first parameter.
@@ -871,7 +890,7 @@ namespace lbcrypto {
 	*
 	* @return The result of division in the ring.
 	*/
-//	inline lbcrypto::ILVectorArray2n operator/(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) { return a.DividedBy(b); }
+	//	inline lbcrypto::ILVectorArray2n operator/(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) { return a.DividedBy(b); }
 
 } // namespace lbcrypto ends
 
