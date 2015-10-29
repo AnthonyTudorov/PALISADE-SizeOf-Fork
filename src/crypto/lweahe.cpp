@@ -31,13 +31,12 @@ namespace lbcrypto {
 			
 //Function for addition evaluation of homomorphic cryptosystem.
 template <class Element>
-void LPAlgorithmAHELWENTRU<Element>::EvalAdd(const LPCryptoParameters<Element> &params,
-				const Element &ciphertext1, 
-				const Element &ciphertext2, 
-				Element *newCiphertext) const
+void LPAlgorithmAHELWENTRU<Element>::EvalAdd(const Ciphertext<Element> &ciphertext1, 
+				const Ciphertext<Element> &ciphertext2, 
+				Ciphertext<Element> *newCiphertext) const
 
 {
-	Element ctOut(ciphertext1);
+	Ciphertext<Element> ctOut(ciphertext1);
 
 	ctOut.Plus(ciphertext2);
 

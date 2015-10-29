@@ -63,10 +63,9 @@ namespace lbcrypto {
 			 * @param &ciphertext2 the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			void EvalMult(const LPCryptoParameters<Element> &params,
-				const Element &ciphertext1, 
-				const Element &ciphertext2, 
-				Element *newCiphertext) const;
+			void EvalMult(const Ciphertext<Element> &ciphertext1, 
+				const Ciphertext<Element> &ciphertext2, 
+				Ciphertext<Element> *newCiphertext) const;
 
 		protected:
 
@@ -80,20 +79,19 @@ namespace lbcrypto {
 			 */
 			 bool KeySwitchHintGen(const LPPrivateKey<Element> &newPrivateKey, 
 				LPPrivateKey<Element> &origPrivateKey,
-				DiscreteGaussianGenerator &ddg, std::vector<Element> *keySwitchHint) const;
+				DiscreteGaussianGenerator &ddg, 
+				std::vector<Element> *keySwitchHint) const;
 			
 			/**
 			 * Function to define key switching operation
 			 *
 			 * @param &keySwitchHint the evaluation key.
-			 * @param &params re-ecryption parameters.
 			 * @param &ciphertext the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
 			void KeySwitch(const std::vector<Element> &keySwitchHint,
-				const LPCryptoParameters<Element> &params,
-				const Element &ciphertext, 
-				Element *newCiphertext) const;
+				const Ciphertext<Element> &ciphertext, 
+				Ciphertext<Element> *newCiphertext) const;
 
 	};
 
