@@ -59,15 +59,16 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<
 
 $(TARGET_PRE): $(OBJECTSDEEP)
+	@echo " Linking..."
 	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o build/Source.o src/Source.cpp"; $(CC) $(CPPFLAGS) $(INC) -c -o build/Source.o src/Source.cpp
 	@echo " $(CC) $^ build/Source.o -o $(TARGET_PRE) $(LIB)"; $(CC) $^ build/Source.o -o $(TARGET_PRE) $(LIB)
 	@echo "rm build/Source.o"; rm build/Source.o
 
 $(TARGET_AHE): $(OBJECTSDEEP)
 	@echo " Linking..."
-	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o build/Source_SHE.o src/Source_SHE.cpp"; $(CC) $(CPPFLAGS) $(INC) -c -o build/Source_SHE.o src/Source_SHE.cpp
-	@echo " $(CC) $^ build/Source_SHE.o -o $(TARGET_PRE) $(LIB)"; $(CC) $^ build/Source_SHE.o -o $(TARGET_PRE) $(LIB)
-	@echo "rm build/Source_SHE.o"; rm build/Source_SHE.o
+	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o build/Source_AHE.o src/Source_AHE.cpp"; $(CC) $(CPPFLAGS) $(INC) -c -o build/Source_AHE.o src/Source_AHE.cpp
+	@echo " $(CC) $^ build/Source_AHE.o -o $(TARGET_PRE) $(LIB)"; $(CC) $^ build/Source_AHE.o -o $(TARGET_PRE) $(LIB)
+	@echo "rm build/Source_AHE.o"; rm build/Source_AHE.o
 
 
 TESTSRCDIR := test/src
