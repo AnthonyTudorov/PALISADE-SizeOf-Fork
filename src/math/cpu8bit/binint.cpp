@@ -707,7 +707,9 @@ BigBinaryInteger BigBinaryInteger::ModAdd(const BigBinaryInteger& b, const BigBi
 
 	//BigBinaryInteger result = this->Plus(b).Mod(modulus);
 
+	//std::cout << "Function 1 : " << std::endl;
 	return this->Plus(b).Mod(modulus);
+	//std::cout << "Function 2 : " << std::endl;
 
 }
 

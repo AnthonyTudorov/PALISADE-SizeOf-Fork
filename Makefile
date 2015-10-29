@@ -28,10 +28,13 @@ CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g
 
 SRCDIR := src
 BUILDDIR := build
-TARGET := bin/NTRU-PRE
+TARGET_PRE := bin/NTRU-PRE
+TARGET_AHE := bin/NTRU-AHE
 HEADERS := src/*.h
 
 SRCEXT := cpp
+SOURCESDEEP := $(shell find $(SRCDIR) -mindepth 2 -type f -name *.$(SRCEXT))
+OBJECTSDEEP := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCESDEEP:.$(SRCEXT)=.o))
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 #CFLAGS := -g # -Wall
@@ -49,16 +52,27 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)/math
 	@mkdir -p $(BUILDDIR)/math/cpu8bit
 	@mkdir -p $(BUILDDIR)/utils
+#	@echo " $@"
+#	@echo " $<"
 #	@echo " $(BUILDDIR)"
+#	@echo " $(SRCDIR)"
 	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<
 
-$(TARGET): $(OBJECTS)
+$(TARGET_PRE): $(OBJECTSDEEP)
+	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o build/Source.o src/Source.cpp"; $(CC) $(CPPFLAGS) $(INC) -c -o build/Source.o src/Source.cpp
+	@echo " $(CC) $^ build/Source.o -o $(TARGET_PRE) $(LIB)"; $(CC) $^ build/Source.o -o $(TARGET_PRE) $(LIB)
+	@echo "rm build/Source.o"; rm build/Source.o
+
+$(TARGET_AHE): $(OBJECTSDEEP)
 	@echo " Linking..."
-	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB)
+	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o build/Source_SHE.o src/Source_SHE.cpp"; $(CC) $(CPPFLAGS) $(INC) -c -o build/Source_SHE.o src/Source_SHE.cpp
+	@echo " $(CC) $^ build/Source_SHE.o -o $(TARGET_PRE) $(LIB)"; $(CC) $^ build/Source_SHE.o -o $(TARGET_PRE) $(LIB)
+	@echo "rm build/Source_SHE.o"; rm build/Source_SHE.o
 
 
 TESTSRCDIR := test/src
 TESTBUILDDIR := test/build
+TESTTARGETDIR := test/bin
 TESTTARGET := test/bin/tests
 
 check: $(TESTTARGET)
@@ -97,6 +111,7 @@ $(TESTBUILDDIR)/%.o: $(TESTSRCDIR)/%.$(SRCEXT)
 
 $(TESTTARGET): $(TESTOBJECTS) $(GTEST_HEADERS) $(LIBOBJECTS)
 	@echo " Linking..."
+	@mkdir -p $(TESTTARGETDIR)
 	@echo " $(CC) $^ -o $(TESTTARGET) $(TESTLIB)"; $(CC) $^ -o $(TESTTARGET) $(TESTLIB)
 
 clean:
@@ -105,7 +120,7 @@ clean:
 
 cleantests:
 	@echo " Cleaning...";
-	@echo " $(RM) -r $(TESTBUILDDIR) $(TESTTARGET)"; $(RM) -r $(TESTBUILDDIR) $(TESTTARGET)
+	@echo " $(RM) -r $(TESTBUILDDIR) $(TESTTARGETDIR)"; $(RM) -r $(TESTBUILDDIR) $(TESTTARGETDIR)
 
 .PHONEY: clean
 
