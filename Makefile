@@ -28,21 +28,31 @@ CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g
 
 SRCDIR := src
 BUILDDIR := build
-TARGET_PRE := bin/NTRU-PRE
-TARGET_AHE := bin/NTRU-AHE
+TARGETDIR := bin
 HEADERS := src/*.h
+
+#MAINSOURCES := src/Source.cpp src/Source_AHE.cpp
+TESTTARGET := test/bin/tests
 
 SRCEXT := cpp
 SOURCESDEEP := $(shell find $(SRCDIR) -mindepth 2 -type f -name *.$(SRCEXT))
+SOURCESMAIN := $(shell find $(SRCDIR) -maxdepth 1 -type f -name *.$(SRCEXT))
+TARGETSMAIN := $(patsubst $(SRCDIR)/%,%,$(SOURCESMAIN:.$(SRCEXT)=))
 OBJECTSDEEP := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCESDEEP:.$(SRCEXT)=.o))
-SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
-OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
+#SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
+#OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 #CFLAGS := -g # -Wall
 LIB := #-pthread -lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 INC := -I include
 
 #TaskLDFLAGS = -lpthread
 #TimeLDFLAGS = -lm # -lrt
+
+all: alltargets apidocs alltesttargets runtests
+
+alltargets: $(TARGETSMAIN)
+
+alltesttargets: $(TESTTARGET)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)
@@ -58,18 +68,13 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 #	@echo " $(SRCDIR)"
 	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<
 
-$(TARGET_PRE): $(OBJECTSDEEP)
-	@echo " Linking..."
-	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o build/Source.o src/Source.cpp"; $(CC) $(CPPFLAGS) $(INC) -c -o build/Source.o src/Source.cpp
-	@echo " $(CC) $^ build/Source.o -o $(TARGET_PRE) $(LIB)"; $(CC) $^ build/Source.o -o $(TARGET_PRE) $(LIB)
-	@echo "rm build/Source.o"; rm build/Source.o
-
-$(TARGET_AHE): $(OBJECTSDEEP)
-	@echo " Linking..."
-	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o build/Source_AHE.o src/Source_AHE.cpp"; $(CC) $(CPPFLAGS) $(INC) -c -o build/Source_AHE.o src/Source_AHE.cpp
-	@echo " $(CC) $^ build/Source_AHE.o -o $(TARGET_PRE) $(LIB)"; $(CC) $^ build/Source_AHE.o -o $(TARGET_PRE) $(LIB)
-	@echo "rm build/Source_AHE.o"; rm build/Source_AHE.o
-
+$(TARGETSMAIN): $(OBJECTSDEEP)
+	@echo " Target: $(TARGETDIR)/$@"
+#	@echo " $^"
+	@mkdir -p $(TARGETDIR)
+	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $(BUILDDIR)/$@.o $(SRCDIR)/$@.$(SRCEXT)"; $(CC) $(CPPFLAGS) $(INC) -c -o $(BUILDDIR)/$@.o $(SRCDIR)/$@.$(SRCEXT)
+	@echo " $(CC) $^ $(BUILDDIR)/$@.o -o $(TARGETDIR)/$@ $(LIB)"; $(CC) $^ $(BUILDDIR)/$@.o -o $(TARGETDIR)/$@ $(LIB)
+#	@echo "rm $(BUILDDIR)/$@.o"; rm $(BUILDDIR)/$@.o
 
 TESTSRCDIR := test/src
 TESTBUILDDIR := test/build
@@ -115,15 +120,27 @@ $(TESTTARGET): $(TESTOBJECTS) $(GTEST_HEADERS) $(LIBOBJECTS)
 	@mkdir -p $(TESTTARGETDIR)
 	@echo " $(CC) $^ -o $(TESTTARGET) $(TESTLIB)"; $(CC) $^ -o $(TESTTARGET) $(TESTLIB)
 
-clean:
-	@echo " Cleaning...";
-	@echo " $(RM) -r $(BUILDDIR) $(TARGET) $(TESTBUILDDIR) $(TESTTARGET)"; $(RM) -r $(BUILDDIR) $(TARGET) $(TESTBUILDDIR) $(TESTTARGET)
+.PHONY: runtests
+runtests: $(TESTTARGET)
+	$(TESTTARGET)
 
+.PHONEY: apidocs
+apidocs:
+	doxygen lbcrypto-doxy-config
+
+.PHONEY: clean
+clean: cleantests cleandocs
+	@echo " Cleaning...";
+	@echo " $(RM) -r $(BUILDDIR) $(TARGETDIR)"; $(RM) -r $(BUILDDIR) $(TARGETDIR)
+
+.PHONEY: cleantests
 cleantests:
 	@echo " Cleaning...";
 	@echo " $(RM) -r $(TESTBUILDDIR) $(TESTTARGETDIR)"; $(RM) -r $(TESTBUILDDIR) $(TESTTARGETDIR)
 
-.PHONEY: clean
+.PHONEY: cleandocs
+cleandocs:
+	rm -rf doc/apidocs
 
 #all: $(TARGETS)
 
@@ -141,13 +158,8 @@ cleantests:
 #NTRU-PRE-Key: $(MAINDEPS) Source_key.o
 #	$(CXX) -o $@ $^ $(TaskLDFLAGS) $(TimeLDFLAGS)
 
-.PHONEY: apidocs
-apidocs:
-	doxygen lbcrypto-doxy-config
 
-.PHONEY: cleandocs
-cleandocs:
-	rm -rf doc/apidocs
+
 
 #.PHONEY: publishapi
 #publishapi: apidocs
