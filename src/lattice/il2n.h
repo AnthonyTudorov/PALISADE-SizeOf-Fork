@@ -178,10 +178,9 @@ namespace lbcrypto {
 		void SetValues(const BigBinaryVector& values, Format format);
 
 		/**
-		* Set method of the values.
+		* Set method of the modulus value.
 		*
-		* @param values is the set of values of the vector.
-		* @param format is the format.
+		* @param &modulus the modulus used.
 		*/
 		void SetModulus(const BigBinaryInteger &modulus);
 
@@ -545,13 +544,16 @@ namespace lbcrypto {
 		* @param &levels the levels.
 		*/
 		ILVectorArray2n(const ILDCRTParams& params, std::vector<ILVector2n> &levels);
+
 		/**
 		* Construct using an array in either Coefficient (0) or CRT format (1).
 		*
 		* @param element the input parameter to build ILVectorArray2n from one vector for double-CRT representation.
+		* @param params The params to be used for operations.
 		*/
 		ILVectorArray2n(ILVector2n element, const ILDCRTParams& params);
-		/**
+
+		/*
 		* Construct using a discrete Gaussian generator and a set of parameters.
 		*
 		* @param &dgg the input discrete Gaussian Generator.
@@ -592,7 +594,7 @@ namespace lbcrypto {
 		// SCALAR OPERATIONS
 
 		// addition operation	
-		/**
+		/*
 		* Scalar addition - add an element to all entries.
 		*
 		* @param &element is the element to add entry-wise.
@@ -601,7 +603,7 @@ namespace lbcrypto {
 //		ILVectorArray2n& Plus(const BigBinaryInteger &element) const;
 
 		// subtraction operation
-		/**
+		/*
 		* Scalar subtraction - subtract an element to all entries.
 		*
 		* @param &element is the element to subtract entry-wise.
@@ -610,7 +612,7 @@ namespace lbcrypto {
 //		ILVectorArray2n& Minus(const BigBinaryInteger &element) const;
 
 		// multiplication operation
-		/**
+		/*
 		* Scalar multiplication - multiply all entries.
 		*
 		* @param &element is the element to multiply entry-wise.
@@ -619,7 +621,7 @@ namespace lbcrypto {
 //		ILVectorArray2n& Times(const BigBinaryInteger &element) const;
 
 		// division operation
-		/**
+		/*
 		* Scalar division - divide an element to all entries.
 		*
 		* @param &element is the element to divide entry-wise.
@@ -628,7 +630,7 @@ namespace lbcrypto {
 //		ILVectorArray2n& DividedBy(const BigBinaryInteger &element) const;
 
 		// modulo operation
-		/**
+		/*
 		* Modulus - perform a modulus operation.
 		*
 		* @param modulus is the modulus to use.
@@ -639,7 +641,7 @@ namespace lbcrypto {
 		// VECTOR OPERATIONS
 
 		// equality operation
-		/**
+		/*
 		* Determines if two vectors are equal.
 		*
 		* @param &element is the element to test equality with.
@@ -648,7 +650,7 @@ namespace lbcrypto {
 //		bool Equal(const ILVectorArray2n &element) const;
 
 		// addition operation
-		/**
+		/*
 		* Performs an addition operation and returns the result.
 		*
 		* @param &element is the element to add with.
@@ -657,7 +659,7 @@ namespace lbcrypto {
 //		ILVectorArray2n& Plus(const ILVectorArray2n &element) const;
 
 		// subtraction operation
-		/**
+		/*
 		* Performs a subtraction operation and returns the result.
 		*
 		* @param &element is the element to subtract with.
@@ -666,7 +668,7 @@ namespace lbcrypto {
 //		ILVectorArray2n& Minus(const ILVectorArray2n &element) const;
 
 		// multiplication operation
-		/**
+		/*
 		* Performs a multiplication operation and returns the result.
 		*
 		* @param &element is the element to multiply with.
@@ -675,7 +677,7 @@ namespace lbcrypto {
 //		ILVectorArray2n& Times(const ILVectorArray2n &element) const;
 
 		// division operation
-		/**
+		/*
 		* Performs a division operation and returns the result.
 		*
 		* @param &element is the element to divide with.
@@ -684,7 +686,7 @@ namespace lbcrypto {
 	//	ILVectorArray2n& DividedBy(const ILVectorArray2n &element) const;
 
 		// automorphism operation
-		/**
+		/*
 		* Performs an automorphism transform operation and returns the result.
 		*
 		* @param &i is the element to perform the automorphism transform with.
@@ -693,7 +695,7 @@ namespace lbcrypto {
 //		ILVectorArray2n& AutomorphismTransform(const BigBinaryInteger& i) const;
 
 		// multiplicative inverse operation
-		/**
+		/*
 		* Performs a multiplicative inverse operation and returns the result.
 		*
 		* @return is the result of the multiplicative inverse.
@@ -703,7 +705,7 @@ namespace lbcrypto {
 		// OTHER METHODS
 
 		// rounds polynomial to a certain integer x
-		/**
+		/*
 		* Rounds the polynomial to an input integer.
 		*
 		* @param x is integer to round to.
@@ -712,7 +714,7 @@ namespace lbcrypto {
 //		ILVectorArray2n& Round(const BigBinaryInteger& x) const;
 
 		// scaling operation used in modulus switching; will be used for FHE
-		/**
+		/*
 		* Scaling operation used in modulus switching
 		*
 		* @param newModulus the new modulus to scale to.
@@ -721,7 +723,7 @@ namespace lbcrypto {
 	//	ILVectorArray2n& Scale(const BigBinaryInteger& newModulus) const;
 
 		// add new level - will be used for FHE
-		/**
+		/*
 		* Add new level operation.
 		*
 		* @param &element is the element to add.
@@ -730,7 +732,7 @@ namespace lbcrypto {
 //		void AddLevel(const ILVector2n &element);
 
 		// remove level - will be used for FHE
-		/**
+		/*
 		* Remove level operation.
 		*
 		* @param index is the level to remove.
@@ -739,7 +741,7 @@ namespace lbcrypto {
 	//	ILVector2n& RemoveLevel(usint index);
 
 		//Represent the lattice in binary format
-		/**
+		/*
 		* Convert the lattice to be represented internally in binary format.
 		*
 		* @param *text the byte array to take as input.
@@ -748,7 +750,7 @@ namespace lbcrypto {
 //		void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const;
 
 		//Convert binary string to lattice format
-		/**
+		/*
 		* Convert binary string to lattice format.
 		*
 		* @param &encoded the byte array to take as input.

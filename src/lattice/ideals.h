@@ -231,7 +231,7 @@ public:
 	/**
 	* Set the moduli.
 	*
-	* @param &moduli the moduli.
+	* @param &modulus the moduli.
 	*/
 	void SetModulus(const BigBinaryInteger &modulus) {
 		m_modulus = modulus;

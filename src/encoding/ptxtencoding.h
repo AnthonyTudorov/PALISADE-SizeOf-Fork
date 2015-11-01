@@ -126,6 +126,10 @@ namespace lbcrypto {
 			return m_data.length();
 		}
 
+	/**
+	 * @brief Abstract Interface Class to capture Padding operation 
+	 * @tparam Padding the passing used.
+	 */
         template <typename Padding>
         void Pad(const usint blockSize) {
             static_assert(std::is_base_of<PaddingScheme, Padding>::value,
@@ -133,6 +137,10 @@ namespace lbcrypto {
             Padding::Pad(blockSize, &m_data);
         }
 
+	/**
+	 * @brief Abstract Interface Class to capture Unpadding operation 
+	 * @tparam Padding the passing used.
+	 */
         template <typename Padding>
         void Unpad() {
             static_assert(std::is_base_of<PaddingScheme, Padding>::value,
