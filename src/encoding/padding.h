@@ -57,7 +57,7 @@ namespace lbcrypto {
     };
 
     /**
-     *  A PaddingScheme which appends a '\x80' byte followed by enough '\0'
+     *  A PaddingScheme which appends a '\\x80' byte followed by enough '\\0'
      *  bytes to fill the remainder of the block.
      */
     class OneZeroPad : public PaddingScheme {
@@ -65,16 +65,37 @@ namespace lbcrypto {
         /**
          *  @param blockSize
          *  @param byteArray
-         *  Appends a '\x80' byte followed by enough '\0' bytes such that the
+         *  Appends a '\\x80' byte followed by enough '\\0' bytes such that the
          *  size of `byteArray` is 0 mod `blockSize`.
          */
         static void Pad(const usint blockSize, ByteArray *byteArray);
         /**
          *  @param byteArray
-         *  Unpada `byteArray` by removing the last '\x80' byte and all
-         *  following '\0' bytes.
+         *  Unpada `byteArray` by removing the last '\\x80' byte and all
+         *  following '\\0' bytes.
          */
         static void Unpad(ByteArray *byteArray);
+    };
+
+    /**
+     *  Padding for a single block, only appends 0 bytes to preserve homomorphic
+     *  operations.
+     */
+    class ZeroPad : public PaddingScheme {
+    public:
+        /**
+         *  @param blockSize
+         *  @param byteArray
+         *  Append enough 0 bytes such that the *  size of `byteArray` is
+         *  `blockSize`.
+         */
+        static void Pad(const usint blockSize, ByteArray *byteArray);
+        /**
+         *  @param byteArray
+         *  Unpad `byteArray` by removing all ending 0 bytes.
+         */
+        static void Unpad(ByteArray *byteArray);
+
     };
 }
 

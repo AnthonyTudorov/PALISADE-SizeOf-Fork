@@ -247,6 +247,41 @@ public:
 };
 
 
+
+/**
+ * @brief The class for binary uniform distribution generator.
+ */
+class BinaryUniformGenerator: DistributionGenerator
+{
+public:
+	/**
+	 * Basic constructor.	  	  
+	 */
+	BinaryUniformGenerator(); //srand(time(NULL)) is called here
+
+	/**
+	 * Destructor.	  
+	 */
+	~BinaryUniformGenerator();
+
+	/**
+	 * Returns a generated integer.
+	 *  
+	 * @return a generated integer.
+	 */
+	BigBinaryInteger GenerateInteger() const;
+
+	/**
+	 * Returns a generated vector.
+	 *
+	 * @param size the number of values to return.	  
+	 * @return vector of values generated with the distribution.
+	 */
+	BigBinaryVector GenerateVector(usint size) const;
+
+};
+
+
 } // namespace lbcrypto ends
 
 #endif

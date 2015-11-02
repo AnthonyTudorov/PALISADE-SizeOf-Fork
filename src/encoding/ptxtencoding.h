@@ -87,7 +87,7 @@ namespace lbcrypto {
 		/**
 		* Default constructore
 		*/
-		ByteArrayPlaintextEncoding():m_data("") {
+		ByteArrayPlaintextEncoding():m_data() {
 		}
 
 		/**
@@ -95,7 +95,8 @@ namespace lbcrypto {
 		*
 		* @param &byteArray input byte array
 		*/
-		ByteArrayPlaintextEncoding(const ByteArray &byteArray):m_data(byteArray) {
+		ByteArrayPlaintextEncoding(const ByteArray &byteArray):
+            m_data(byteArray) {
 		}
 
 		/*
@@ -123,9 +124,13 @@ namespace lbcrypto {
 		* Get method to return the length of byte array
 		*/
 		size_t GetLength() const{
-			return m_data.length();
+			return m_data.size();
 		}
 
+	/**
+	 * @brief Abstract Interface Class to capture Padding operation 
+	 * @tparam Padding the passing used.
+	 */
         template <typename Padding>
         void Pad(const usint blockSize) {
             static_assert(std::is_base_of<PaddingScheme, Padding>::value,
@@ -133,6 +138,10 @@ namespace lbcrypto {
             Padding::Pad(blockSize, &m_data);
         }
 
+	/**
+	 * @brief Abstract Interface Class to capture Unpadding operation 
+	 * @tparam Padding the passing used.
+	 */
         template <typename Padding>
         void Unpad() {
             static_assert(std::is_base_of<PaddingScheme, Padding>::value,
@@ -143,6 +152,8 @@ namespace lbcrypto {
 	private:
 		ByteArray m_data;
 	};
+
+    std::ostream &operator<<(std::ostream &out, const ByteArrayPlaintextEncoding &ptxt);
 
 } // namespace lbcrypto ends
 #endif
