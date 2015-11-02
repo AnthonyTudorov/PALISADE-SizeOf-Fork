@@ -76,6 +76,27 @@ namespace lbcrypto {
          */
         static void Unpad(ByteArray *byteArray);
     };
+
+    /**
+     *  Padding for a single block, only appends 0 bytes to preserve homomorphic
+     *  operations.
+     */
+    class ZeroPad : public PaddingScheme {
+    public:
+        /**
+         *  @param blockSize
+         *  @param byteArray
+         *  Append enough 0 bytes such that the *  size of `byteArray` is
+         *  `blockSize`.
+         */
+        static void Pad(const usint blockSize, ByteArray *byteArray);
+        /**
+         *  @param byteArray
+         *  Unpad `byteArray` by removing all ending 0 bytes.
+         */
+        static void Unpad(ByteArray *byteArray);
+
+    };
 }
 
 #endif // LBCRYPTO_ENCODING_PADDING_H

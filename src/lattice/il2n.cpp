@@ -296,12 +296,9 @@ namespace lbcrypto {
 				resultant_char += m_values->GetValAtIndex(i + j).ConvertToInt()*exp;
 				exp *= mod;
 			}
-			byteArray += ((char)resultant_char);
+			byteArray.push_back(resultant_char);
 		}
 		*text = ByteArrayPlaintextEncoding(byteArray);
-
-
-
 	}
 
 	//Convert binary string to lattice format; do p=2 first but document that we need to generalize it later
@@ -316,11 +313,11 @@ namespace lbcrypto {
 		usint mod = modulus.ConvertToInt();
 		usint p = ceil((float)log((double)255) / log((double)mod));
 
-		m_values = new BigBinaryVector(p*encoded.length());
+		m_values = new BigBinaryVector(p*encoded.size());
 		(*m_values).SetModulus(m_params.GetModulus());
 		m_format = COEFFICIENT;
 
-		for (usint i = 0; i<encoded.length(); i++) {
+		for (usint i = 0; i<encoded.size(); i++) {
 			usint Num = encoded.at(i);
 			usint exp = mod, Rem = 0;
 			for (usint j = 0; j<p; j++) {
@@ -437,7 +434,7 @@ namespace lbcrypto {
 	}*/
 	/*Switch format simply calls IlVector2n's switchformat*/
 	void ILVectorArray2n::SwitchFormat() {
-	
+
 		if (m_format == COEFFICIENT) {
 
 			m_format = EVALUATION;
@@ -509,7 +506,7 @@ namespace lbcrypto {
 
 		}
 		// create ILVector2n (const ElemParams &params);
-		// ILVector2nInstance.SetValues(const BigBinaryVector& values, Format format); 
+		// ILVector2nInstance.SetValues(const BigBinaryVector& values, Format format);
 
 
 		return polynomialReconstructed;

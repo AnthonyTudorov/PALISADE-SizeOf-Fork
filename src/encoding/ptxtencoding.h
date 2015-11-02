@@ -87,7 +87,7 @@ namespace lbcrypto {
 		/**
 		* Default constructore
 		*/
-		ByteArrayPlaintextEncoding():m_data("") {
+		ByteArrayPlaintextEncoding():m_data() {
 		}
 
 		/**
@@ -95,7 +95,8 @@ namespace lbcrypto {
 		*
 		* @param &byteArray input byte array
 		*/
-		ByteArrayPlaintextEncoding(const ByteArray &byteArray):m_data(byteArray) {
+		ByteArrayPlaintextEncoding(const ByteArray &byteArray):
+            m_data(byteArray) {
 		}
 
 		/*
@@ -123,7 +124,7 @@ namespace lbcrypto {
 		* Get method to return the length of byte array
 		*/
 		size_t GetLength() const{
-			return m_data.length();
+			return m_data.size();
 		}
 
 	/**
@@ -151,6 +152,8 @@ namespace lbcrypto {
 	private:
 		ByteArray m_data;
 	};
+
+    std::ostream &operator<<(std::ostream &out, const ByteArrayPlaintextEncoding &ptxt);
 
 } // namespace lbcrypto ends
 #endif
