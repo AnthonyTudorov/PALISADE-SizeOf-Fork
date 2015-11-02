@@ -222,6 +222,15 @@ namespace lbcrypto {
 		return ans;
 	}
 
+	// check if inverse exists
+	bool ILVector2n::InverseExists() const {
+		for (usint i = 0; i < m_values->GetLength(); i++) {
+			if ((m_values->GetValAtIndex(i) == BigBinaryInteger::ZERO) || (m_values->GetValAtIndex(i) == BigBinaryInteger::ONE))
+				return false;
+		}
+		return true;
+	}
+
 	// VECTOR OPERATIONS
 
 	// addition operation - PREV1

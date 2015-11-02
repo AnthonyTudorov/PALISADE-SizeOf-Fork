@@ -246,6 +246,13 @@ namespace lbcrypto {
 		*/
 		bool Equal(const ILVector2n &element) const;
 
+		/**
+		* Determines if inverse exists
+		*
+		* @return is the Boolean representation of the existence of multiplicative inverse.
+		*/
+		bool InverseExists() const;
+
 		// addition operation - PREV1
 		/**
 		* Performs an addition operation and returns the result.
