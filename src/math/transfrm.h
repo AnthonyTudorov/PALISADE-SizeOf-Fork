@@ -34,11 +34,13 @@
 #ifndef LBCRYPTO_MATH_TRANSFRM_H
 #define LBCRYPTO_MATH_TRANSFRM_H
 
+
 #include "backend.h"
 #include "nbtheory.h"
 #include "../utils/utilities.h"
 #include <chrono>
 #include <time.h>
+#include <map>
 
 /**
  * @namespace lbcrypto
@@ -222,22 +224,30 @@ public:
 	* @param modulus is the modulus
 	*/
 	void PreCompute(const BigBinaryInteger& rootOfUnity, const usint CycloOrder, const BigBinaryInteger &modulus);
-
+	void PreCompute(std::vector<BigBinaryInteger> &rootOfUnity, const usint CycloOrder, std::vector<BigBinaryInteger> &moduliiChain);
 	/**
 	 * Destructor.	 
 	 */
 	void Destroy();
+	static std::map< std::string,BigBinaryVector > m_rootOfUnityTableByModulus;
+	static std::map< std::string,BigBinaryVector > m_rootOfUnitySquareTableByModulus;
+	static std::map<std::string,BigBinaryVector> m_rootOfUnityInverseTableByModulus;
+	static std::map< std::string,BigBinaryVector > m_rootOfUnityInverseSquareTableByModulus;
 private:
 	static ChineseRemainderTransformFTT *m_onlyInstance;
-	static BigBinaryVector *m_rootOfUnityTable;
-	static BigBinaryVector *m_rootOfUnityInverseTable;
-	static BigBinaryVector *m_phiTable;
-	static BigBinaryVector *m_phiInverseTable;
+	//static BigBinaryVector *m_rootOfUnityTable;
+	
+	//static BigBinaryVector *m_rootOfUnityInverseTable;
+	//static BigBinaryVector *m_phiTable;
+	//static BigBinaryVector *m_phiInverseTable;
 	ChineseRemainderTransformFTT(){}
 	~ChineseRemainderTransformFTT(){}
 	ChineseRemainderTransformFTT(const ChineseRemainderTransform&){}
 	ChineseRemainderTransformFTT& operator=(ChineseRemainderTransform const&){};
 };
+
+
+
 
 } // namespace lbcrypto ends
 
