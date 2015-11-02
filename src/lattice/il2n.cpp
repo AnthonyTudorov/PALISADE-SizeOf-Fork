@@ -398,6 +398,7 @@ namespace lbcrypto {
 			m_vectors[i] = element;
 		}
 
+		ChangeModuliOfIlVectorsToMatchDBLCRT();
 
 	}
 
@@ -515,7 +516,7 @@ namespace lbcrypto {
 	}
 
 
-	void lbcrypto::ILVectorArray2n::Convert_moduli()
+	void lbcrypto::ILVectorArray2n::ChangeModuliOfIlVectorsToMatchDBLCRT()
 	{
 		if (m_vectors.size() != m_params.GetModuli().size()) return;
 

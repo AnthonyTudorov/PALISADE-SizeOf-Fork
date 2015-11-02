@@ -789,10 +789,10 @@ namespace lbcrypto {
 	    ILVector2n InterpolateIlArrayVector2n();
 
 	    /*
-		*Helper method to interpolate IlVector2n's with different moduli into a the coefficient representation with a single moduli
+		*This function is a helper function that applies a modulus to all IlVector2n's so they don't wrap their respective modulus
 		*/
 	
-	void Convert_moduli();
+	void ChangeModuliOfIlVectorsToMatchDBLCRT();
 
 	/*
 	*helper function for chinese remainder interpolation
