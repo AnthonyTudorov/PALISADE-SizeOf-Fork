@@ -53,7 +53,7 @@ namespace lbcrypto {
 */
  static BigBinaryInteger RNG(const BigBinaryInteger& n)
  {
-	std::cout << " \n********WARNING: This code is calling an incorrect random number generator that is tended for temporary use ONLY!!!!!  This function, RNG(const BigBinaryInteger& n), is in nbtheory.cpp*********" << std::endl;
+	// std::cout << " \n********WARNING: This code is calling an incorrect random number generator that is tended for temporary use ONLY!!!!!  This function, RNG(const BigBinaryInteger& n), is in nbtheory.cpp*********" << std::endl;
 
 	std::string rand1 = std::to_string(rand());
 	std::string rand2 = std::to_string(rand());
@@ -282,7 +282,7 @@ usint GetMSB32(usint x)
 */
 BigBinaryInteger FindPrimeModulus(usint m, usint nBits)
 {
-	BigBinaryInteger twoTonBitsminusone("1"), M(m), q;
+	BigBinaryInteger twoTonBitsminusone("1"), M(std::to_string(m)), q;
 	for(usint i=0; i<nBits-1; i++)	// Iterating until initial search condition.
 		twoTonBitsminusone = twoTonBitsminusone * BigBinaryInteger::TWO;
 	//if(GreatestCommonDivisor(twoTonBitsminusone, M) != M)  // Implementing a guard to make sure assumptions are satisfied.
