@@ -392,7 +392,7 @@ namespace lbcrypto {
 		m_format = format;
 		usint i = 0;
 
-		usint size = params.GetModuli().GetLength();
+		usint size = params.GetModuli().size();
 
 		for (i = 0; i < size; i++) {
 			m_vectors[i] = element;
@@ -436,16 +436,52 @@ namespace lbcrypto {
 	}*/
 	/*Switch format simply calls IlVector2n's switchformat*/
 	void ILVectorArray2n::SwitchFormat() {
-	//	usint currentFormat = -1;
-		//change format
-	/*	for (ILVector2n ilv : m_vectors) {
-			std::cout << "ENTERED THE LOOP" << std::endl;
-			ilv.SwitchFormat();
-		}*/
+	
+		if (m_format == COEFFICIENT) {
+
+			m_format = EVALUATION;
+		}
+		else {
+			m_format = COEFFICIENT;
+		}
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			m_vectors[i].SwitchFormat();
 		}
+	}
+
+	BigBinaryInteger lbcrypto::ILVectorArray2n::CalculateChineseRemainderInterpolationModuluForIndex(usint i)
+	{
+		BigBinaryInteger pIndex(m_params.GetModuli()[i]);
+
+		std::cout << "value of pIndex is : " << pIndex << std::endl;
+
+	//	m_params.SetModulus(BigBinaryInteger("100"));
+
+		std::cout << "VALUE OF BIG MODULUS IS : " << m_params.GetModulus() << std::endl;
+
+		BigBinaryInteger bigModulus(m_params.GetModulus());
+
+		std::cout << "value of bigModulus is : " << bigModulus << std::endl;
+
+		BigBinaryInteger divideBigModulusByIndexModulus;
+
+		divideBigModulusByIndexModulus = bigModulus.DividedBy(pIndex);
+
+		std::cout << "value of division is  : " << divideBigModulusByIndexModulus << std::endl;
+
+		BigBinaryInteger modularInverse;
+
+		std::cout << "value of cyclotomic order is is  : " << m_params.GetCyclotomicOrder() << std::endl;
+
+
+		modularInverse = divideBigModulusByIndexModulus.ModInverse(pIndex);
+
+		std::cout << "value of division is  : " << modularInverse << std::endl;
+
+
+
+		return modularInverse;
 	}
 
 	ILVector2n lbcrypto::ILVectorArray2n::InterpolateIlArrayVector2n()
@@ -454,7 +490,7 @@ namespace lbcrypto {
 
 		std::vector<std::vector<BigBinaryInteger>> vectorOfvectors(m_vectors.size());
 
-		vectorOfvectors = BuildVectorOfIndicies(vectorOfvectors);
+		vectorOfvectors = BuildChineseRemainderInterpolationVector(vectorOfvectors);
 
 		usint sizeOfCoefficientVector = m_params.GetCyclotomicOrder() / 2;
 
@@ -466,7 +502,7 @@ namespace lbcrypto {
 
 			temp = CalculateInterpolationSum(vectorOfvectors, i);
 
-			temp.Mod(m_params.GetModulus());
+		//	temp.Mod(m_params.GetModulus());
 
 			coefficients.SetValAtIndex(i, BigBinaryInteger(temp));
 
@@ -478,29 +514,21 @@ namespace lbcrypto {
 		return polynomialReconstructed;
 	}
 
-	ILVector2n lbcrypto::ILVectorArray2n::Cri_dblcrt()
-	{
-		return InterpolateIlArrayVector2n();
-	}
-
 
 	void lbcrypto::ILVectorArray2n::Convert_moduli()
 	{
-		if (m_vectors.size() != m_params.GetModuli().GetLength()) return;
+		if (m_vectors.size() != m_params.GetModuli().size()) return;
 
-		usint i = 0;
 
-		for (ILVector2n ilv : m_vectors) {
+		for (usint j = 0; j < m_vectors.size(); j++) {
 
-			ilv.SetModulus(m_params.GetModuli().GetValAtIndex(i));
-
-			i++;
+			m_vectors[j].SetModulus(m_params.GetModuli()[j]);
 
 		}
 
 	}
 
-	std::vector<BigBinaryInteger> lbcrypto::ILVectorArray2n::BuildIndexVector(usint i)
+	std::vector<BigBinaryInteger> lbcrypto::ILVectorArray2n::BuildChineseRemainderInterpolationVectorForRow(usint i)
 	{
 		usint j = 0;
 		usint size = m_vectors.size();
@@ -514,13 +542,14 @@ namespace lbcrypto {
 
 	}
 
-	std::vector<std::vector<BigBinaryInteger>> lbcrypto::ILVectorArray2n::BuildVectorOfIndicies(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors)
+	std::vector<std::vector<BigBinaryInteger>> lbcrypto::ILVectorArray2n::BuildChineseRemainderInterpolationVector(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors)
 	{
 
 		//		std::vector<std::vector<BigBinaryInteger>> vectorOfvectors(m_vectors.size());
-		usint sizeOfVector = m_vectors.size();
-		for (usint i = 0; i < sizeOfVector; i++) {
-			vectorOfvectors[i] = BuildIndexVector(i);
+		//usint sizeOfVector = m_vectors[0].GetLength();
+		usint cyclotomicOrder = m_params.GetCyclotomicOrder() / 2;
+		for (usint i = 0; i < cyclotomicOrder; i++) {
+			vectorOfvectors[i] = BuildChineseRemainderInterpolationVectorForRow(i);
 		}
 
 		return vectorOfvectors;
@@ -529,16 +558,24 @@ namespace lbcrypto {
 	BigBinaryInteger lbcrypto::ILVectorArray2n::CalculateInterpolationSum(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors, usint index)
 	{
 		BigBinaryInteger results;
-		for (usint i = 0; i < vectorOfvectors.size(); i++) {
-			results = results.Plus((vectorOfvectors[i])[index]);
+
+		for (usint i = 0; i < m_vectors.size(); i++) {
+
+			results = results.Plus(vectorOfvectors[index][i]);
+
+			std::cout << "[" << vectorOfvectors[index][i] << "]" << std::endl;
+
+			std::cout << std::endl;
+
 		}
 
 		return results;
+
 	}
 
 	BigBinaryInteger lbcrypto::ILVectorArray2n::CalculatInterpolateModulu(BigBinaryInteger value, usint index)
 	{
-		return value.Mod(m_params.GetCRI().GetValAtIndex(index));
+		return value.Mod(m_params.GetCRI()[index]);
 	}
 
 

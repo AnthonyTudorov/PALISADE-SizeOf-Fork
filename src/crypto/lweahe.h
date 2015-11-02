@@ -63,10 +63,9 @@ namespace lbcrypto {
 			 * @param &ciphertext2 the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			void EvalAdd(const LPCryptoParameters<Element> &params,
-				const Element &ciphertext1, 
-				const Element &ciphertext2, 
-				Element *newCiphertext) const;
+			void EvalAdd(const Ciphertext<Element> &ciphertext1, 
+				const Ciphertext<Element> &ciphertext2, 
+				Ciphertext<Element> *newCiphertext) const;
 	};
 
 } // namespace lbcrypto ends

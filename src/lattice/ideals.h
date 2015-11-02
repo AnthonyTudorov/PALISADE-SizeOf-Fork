@@ -91,7 +91,7 @@ namespace lbcrypto {
 	/**
 	* @brief Parameters for array of ideal lattices (used for Double-CRT)
 	*/
-	class ILDCRTParams {
+	class ILDCRTParams : public ElemParams {
 	public:
 
 		/**
@@ -109,7 +109,7 @@ namespace lbcrypto {
 		* @param rootsOfUnity the roots of unity for the toer of moduli
 		* @param cri_values Chinese remainder interpolation values to calculate inverse double-crt
 		*/
-		ILDCRTParams(usint cyclotomic_order, BigBinaryVector &moduli, BigBinaryVector& rootsOfUnity, BigBinaryVector& cri_values) {
+		ILDCRTParams(usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli, std::vector<BigBinaryInteger>& rootsOfUnity, std::vector<BigBinaryInteger>& cri_values) {
 			m_cyclotomicOrder = cyclotomic_order;
 			m_moduli = moduli;
 			m_rootsOfUnity = rootsOfUnity;
@@ -124,7 +124,7 @@ namespace lbcrypto {
 		* @param &moduli is the tower of moduli
 		* @param cri_values Chinese remainder interpolation values to calculate inverse double-crt
 		*/
-		ILDCRTParams(usint cyclotomic_order, BigBinaryVector &moduli, BigBinaryVector& cri_values) {
+		ILDCRTParams(usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli, std::vector<BigBinaryInteger>& cri_values) {
 			m_cyclotomicOrder = cyclotomic_order;
 			m_moduli = moduli;
 			m_CRIFactors = cri_values;
@@ -137,7 +137,21 @@ namespace lbcrypto {
 		* @param &moduli is the tower of moduli
 		* @param rootsOfUnity the roots of unity for the toer of moduli
 		*/
-		ILDCRTParams(BigBinaryVector& rootsOfUnity, usint cyclotomic_order, BigBinaryVector &moduli) {
+		ILDCRTParams(std::vector<BigBinaryInteger>& rootsOfUnity, usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli, BigBinaryInteger &modulus) {
+			m_cyclotomicOrder = cyclotomic_order;
+			m_moduli = moduli;
+			m_rootsOfUnity = rootsOfUnity;
+			m_modulus = modulus;
+		}
+
+		/**
+		* Constructor for the pre-computed case without cri_values.
+		*
+		* @param cyclotomic_order the order of the ciphertext
+		* @param &moduli is the tower of moduli
+		* @param rootsOfUnity the roots of unity for the toer of moduli
+		*/
+		ILDCRTParams(std::vector<BigBinaryInteger>& rootsOfUnity, usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli) {
 			m_cyclotomicOrder = cyclotomic_order;
 			m_moduli = moduli;
 			m_rootsOfUnity = rootsOfUnity;
@@ -149,7 +163,7 @@ namespace lbcrypto {
 		* @param cyclotomic_order the order of the ciphertext
 		* @param &moduli is the tower of moduli
 		*/
-		ILDCRTParams(usint cyclotomic_order, BigBinaryVector &moduli) {
+		ILDCRTParams(usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli) {
 			m_cyclotomicOrder = cyclotomic_order;
 			m_moduli = moduli;
 		}
@@ -180,7 +194,7 @@ namespace lbcrypto {
 		*
 		* @return the moduli.
 		*/
-		const BigBinaryVector &GetModuli() const {
+		const std::vector<BigBinaryInteger> &GetModuli() const {
 			return m_moduli;
 		}
 
@@ -189,7 +203,7 @@ namespace lbcrypto {
 		*
 		* @return the root of unity.
 		*/
-		BigBinaryVector &GetRootsOfUnity() {
+		std::vector<BigBinaryInteger> &GetRootsOfUnity() {
 			return m_rootsOfUnity;
 		}
 		/**
@@ -197,7 +211,7 @@ namespace lbcrypto {
 		*
 		* @return the cri-values.
 		*/
-		BigBinaryVector &GetCRI() {
+		std::vector<BigBinaryInteger> &GetCRI() {
 			return m_CRIFactors;
 		}
 		/**
@@ -205,7 +219,7 @@ namespace lbcrypto {
 		*
 		* @return the modulus.
 		*/
-		BigBinaryInteger &GetModulus() {
+		const BigBinaryInteger &GetModulus() const {
 			return m_modulus;
 		}
 
@@ -225,7 +239,7 @@ namespace lbcrypto {
 		*
 		* @param &rootsOfUnity the root of unity.
 		*/
-		void SetRootOfUnity(const BigBinaryVector &rootsOfUnity) {
+		void SetRootOfUnity(const std::vector<BigBinaryInteger> &rootsOfUnity) {
 			m_rootsOfUnity = rootsOfUnity;
 		}
 
@@ -234,7 +248,7 @@ namespace lbcrypto {
 		*
 		* @param &moduli the moduli.
 		*/
-		void SetModuli(const BigBinaryVector &moduli) {
+		void SetModuli(const std::vector<BigBinaryInteger> &moduli) {
 			m_moduli = moduli;
 		}
 		/**
@@ -257,13 +271,13 @@ namespace lbcrypto {
 		usint m_cyclotomicOrder;
 
 		// value of moduli
-		BigBinaryVector m_moduli;
+		std::vector<BigBinaryInteger> m_moduli;
 
 		// primitive root unity that is used to transform from coefficient to evaluation representation and vice versa
-		BigBinaryVector m_rootsOfUnity;
+		std::vector<BigBinaryInteger> m_rootsOfUnity;
 
 		//Chinese Remainder Interpolation values used for Inverse CRT
-		BigBinaryVector m_CRIFactors;
+		std::vector<BigBinaryInteger> m_CRIFactors;
 
 		//Modulus that is factorized into m_moduli
 		BigBinaryInteger m_modulus;

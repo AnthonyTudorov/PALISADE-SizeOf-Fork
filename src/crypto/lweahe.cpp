@@ -31,18 +31,20 @@ namespace lbcrypto {
 			
 //Function for addition evaluation of homomorphic cryptosystem.
 template <class Element>
-void LPAlgorithmAHELWENTRU<Element>::EvalAdd(const LPCryptoParameters<Element> &params,
-				const Element &ciphertext1, 
-				const Element &ciphertext2, 
-				Element *newCiphertext) const
+void LPAlgorithmAHELWENTRU<Element>::EvalAdd(const Ciphertext<Element> &ciphertext1, 
+				const Ciphertext<Element> &ciphertext2, 
+				Ciphertext<Element> *newCiphertext) const
 
 {
-	Element ctOut(ciphertext1);
-
-	ctOut.Mult(ciphertext2);
-
+//Need to check the same crypto parameters hold.
+//Need to check a common encryption key was used.
+//Make sure compatible encryption algorithm was used.
+	*newCiphertext = ciphertext1.Plus(ciphertext2);
+/*
+	Ciphertext<Element> ctOut(ciphertext1);
+	ctOut.Plus(ciphertext2);
 	*newCiphertext = ctOut;
-
+*/
 }  // namespace lbcrypto ends
 
 }

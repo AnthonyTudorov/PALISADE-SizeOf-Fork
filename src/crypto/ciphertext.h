@@ -124,7 +124,7 @@ namespace lbcrypto {
 		/**
 		* Sets a reference to crypto parameters.
 		*
-		* @param &cryptoParams is crypto params passed by reference.
+		* @param &cryptoParameters is crypto params passed by reference.
 		*/
 		void SetCryptoParameters(const LPCryptoParameters<Element> &cryptoParameters) { m_cryptoParameters = &cryptoParameters; }
 

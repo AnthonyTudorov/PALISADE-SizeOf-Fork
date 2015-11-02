@@ -698,7 +698,7 @@ TEST(method_mod_sub, first_number_greater_than_modulus){
 	BigBinaryInteger n("399");
 	BigBinaryInteger q("406");
 
-	std::cout << "Before : " << std::endl;
+	//std::cout << "Before : " << std::endl;
 
 	BigBinaryInteger calculatedResult = m.ModSub(n,q);
 	int expectedResult = 196;

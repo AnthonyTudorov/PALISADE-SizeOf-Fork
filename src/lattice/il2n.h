@@ -748,6 +748,18 @@ namespace lbcrypto {
 		* @param &modulus modulus to convert from.
 		*/
 		void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const;
+		
+		/*
+		Helper method for chinese remainder interpolatiom
+		*/
+
+		BigBinaryInteger CalculateInterpolationSum(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors, usint index);
+
+		/*
+		Helper method for chinese remainder interpolatiom
+		*/
+
+		std::vector<std::vector<BigBinaryInteger>> BuildChineseRemainderInterpolationVector(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors);
 
 		//Convert binary string to lattice format
 		/**
@@ -763,26 +775,34 @@ namespace lbcrypto {
 		*/
 		void SwitchFormat();
 
-	private:ILVector2n InterpolateIlArrayVector2n();
 
-			/**
-			*Helper method to interpolate IlVector2n's with different moduli into a the coefficient representation with a single moduli
-			*/
-	private:ILVector2n Cri_dblcrt();
-			/*
-			*This method will apply the modulo operatio to the vector of Ilvector2n's based on the tower of moduli in ILDCRTParams
-			*/
-	private:void Convert_moduli();
+		/*
+		Helper method for chinese remainder interpolatiom
+		*/
 
+		BigBinaryInteger CalculateChineseRemainderInterpolationModuluForIndex(usint i);
 
-	private:std::vector<BigBinaryInteger> BuildIndexVector(usint i);
+		/**
+		*This function returns the interpolated vectors
+		*/
 
-	private:std::vector<std::vector<BigBinaryInteger>> BuildVectorOfIndicies(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors);
+	    ILVector2n InterpolateIlArrayVector2n();
+
+	    /*
+		*Helper method to interpolate IlVector2n's with different moduli into a the coefficient representation with a single moduli
+		*/
+	
+	void Convert_moduli();
+
+	/*
+	*helper function for chinese remainder interpolation
+	*/
+	std::vector<BigBinaryInteger> BuildChineseRemainderInterpolationVectorForRow(usint i);
+
 			/*This function takes in a row and a vector of vector of BigBinaryIntegers and calculates the sum of each
 			row, module the value set by the CRI formula*/
-	private:BigBinaryInteger CalculateInterpolationSum(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors, usint index);
 			/*This method calculates the value for CRI*/
-	private:BigBinaryInteger CalculatInterpolateModulu(BigBinaryInteger value, usint index);
+	BigBinaryInteger CalculatInterpolateModulu(BigBinaryInteger value, usint index);
 
 			/*
 

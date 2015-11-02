@@ -110,8 +110,8 @@ Compares two integer values
 
 /*--------------TESTING METHOD MODADD FOR ALL CONDITIONS---------------------------*/
 
-
-/*TEST(binmat_method_modadd, test_binmat_modadd){
+/*
+TEST(binmat_method_modadd, test_binmat_modadd){
 	BigBinaryMatrix a(3,3);	
 
 	a.SetValAtIndex(0,0,"4");
@@ -138,8 +138,15 @@ Compares two integer values
 
 	a.SetModulus("7");
 	
+	std::cout << "Before : " << std::endl;
+	
+	a.ModAdd(b); 
+
+	std::cout << "Between : " << std::endl;
+
 	BigBinaryMatrix c(a.ModAdd(b));
 
+	std::cout << "After : " << std::endl;
 
 	int i,j;
 	usint rindex, cindex;
@@ -152,14 +159,13 @@ Compares two integer values
 			EXPECT_EQ(expectedResult[i][j], (c.GetValAtIndex(rindex,cindex)).ConvertToInt());
 		}
 	}		
-}*/
-
-
+}
+*/
 
 /*--------------TESTING METHOD MODSUB FOR ALL CONDITIONS---------------------------*/
 
-
-/*TEST(binmat_method_modsub,test_binmat_modsub){
+/*
+TEST(binmat_method_modsub,test_binmat_modsub){
 	BigBinaryMatrix a(3,3);	
 
 	a.SetValAtIndex(0,0,"14");

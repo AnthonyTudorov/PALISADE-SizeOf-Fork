@@ -57,13 +57,11 @@ namespace lbcrypto {
 			/**
 			 * Virtual function to define the interface for evaluation addition on ciphertext.
 			 *
-			 * @param &params the ciphertext params.
 			 * @param &ciphertext the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			void Bootstrap(const LPCryptoParameters<Element> &params,
-				const Element &ciphertext, 
-				Element *newCiphertext)  const;
+			void Bootstrap(const Ciphertext<Element> &ciphertext, 
+				Ciphertext<Element> *newCiphertext)  const;
 	};
 
 } // namespace lbcrypto ends
