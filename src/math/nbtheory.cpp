@@ -92,7 +92,7 @@ static bool WitnessFunction(const BigBinaryInteger& a, const BigBinaryInteger& d
 static BigBinaryInteger FindGenerator(const BigBinaryInteger& q)
  {
  	std::set<BigBinaryInteger> primeFactors;
- 	Factorize(q-BigBinaryInteger::ONE, primeFactors);
+ 	PrimeFactorize(q-BigBinaryInteger::ONE, primeFactors);
  	bool generatorFound = false;
  	BigBinaryInteger gen;
  	while(!generatorFound) {
@@ -261,7 +261,7 @@ usint GetMSB32(usint x)
 	Input: n is the number to be prime factorized,
 		   primeFactors is a set of prime factors of n. All initial values are cleared.
 */
- void Factorize(const BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors)
+ void PrimeFactorize(const BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors)
  {
 	primeFactors.clear();
 
@@ -271,9 +271,9 @@ usint GetMSB32(usint x)
  		return;
  	}
  	BigBinaryInteger divisor(PollardRhoFactorization(n));
- 	Factorize(divisor, primeFactors);
+ 	PrimeFactorize(divisor, primeFactors);
  	BigBinaryInteger reducedN(n.DividedBy(divisor));
- 	Factorize(reducedN, primeFactors);
+ 	PrimeFactorize(reducedN, primeFactors);
  }
 
 /*

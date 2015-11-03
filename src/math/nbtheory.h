@@ -139,7 +139,7 @@ namespace lbcrypto {
 	 * @param &n the value to factorize.
 	 * @param &primeFactors the input set which is cleared and then results are returned in.  
 	 */
-	void Factorize(const BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors);
+	void PrimeFactorize(const BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors);
 
 	/**
 	 * Finds a Prime Modulus Corresponding to a Given Cyclotomic Number.
