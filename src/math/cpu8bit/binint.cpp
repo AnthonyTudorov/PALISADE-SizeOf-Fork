@@ -1340,7 +1340,7 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger &ptr_obj){
 * Added by Arnab Deb Gupta <ad479@njit.edu> on 9/21/15.
 *
 */
-std::string BigBinaryInteger::ToString() {
+std::string BigBinaryInteger::ToString() const {
 	
 	//this string object will store this BigBinaryInteger's value
 	std::string bbiString;

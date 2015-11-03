@@ -102,7 +102,7 @@ BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBin
 
 				const BigBinaryInteger& omega = rootOfUnityTable.GetValAtIndex(x);
 
-				std::cout<<omega<<std::endl;
+				//std::cout<<omega<<std::endl;
 
 				usint indexEven = j + i;
 				usint indexOdd = j + i + m/2;
