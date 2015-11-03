@@ -28,8 +28,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "transfrm.h"
 
-using namespace cpu8bit;
-
 namespace lbcrypto {
 
 //static Initializations
