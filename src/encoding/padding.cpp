@@ -37,19 +37,45 @@ namespace lbcrypto {
     void OneZeroPad::Pad(const usint blockSize, ByteArray *byteArray) {
         usint nPadding = blockSize - (byteArray->size() % blockSize);
         byteArray->reserve(byteArray->size() + nPadding);
-        byteArray->push_back('\x80');
+        byteArray->push_back(0x80);
         for (usint i = 0; i < nPadding - 1; ++i) {
-            byteArray->push_back('\x00');
+            byteArray->push_back(0x0);
         }
     }
     void OneZeroPad::Unpad(ByteArray *byteArray) {
         usint nPadding = 0;
-        for (usint i = byteArray->size() - 1; i >= 0; --i) {
+        for (sint i = byteArray->size() - 1; i >= 0; --i) {
             nPadding++;
-            if ((*byteArray)[i] == '\x80') {
+            if (byteArray->at(i) == 0x80) {
                 break;
             }
         }
-        byteArray->resize(byteArray->size() - nPadding, '\0');
+        byteArray->resize(byteArray->size() - nPadding, 0x0);
+    }
+    /**
+     *  @param blockSize
+     *  @param byteArray
+     *  Append enough 0 bytes such that the *  size of `byteArray` is
+     *  `blockSize`.
+     */
+    void ZeroPad::Pad(const usint blockSize, ByteArray *byteArray) {
+        if (blockSize > byteArray->size()) {
+            byteArray->resize(blockSize, 0);
+        }
+    }
+    /**
+     *  @param byteArray
+     *  Unpad `byteArray` by removing all ending 0 bytes.
+     */
+    void ZeroPad::Unpad(ByteArray *byteArray) {
+        usint nPadding = 0;
+        for (auto it = byteArray->rbegin(); it != byteArray->rend(); ++it) {
+            if (*it == 0) {
+                ++nPadding;
+            } else {
+                break;
+            }
+        }
+        byteArray->resize(byteArray->size() - nPadding, 0);
     }
 }

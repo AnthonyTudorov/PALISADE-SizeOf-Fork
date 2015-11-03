@@ -63,6 +63,17 @@ bool LPAlgorithmLWENTRU<Element>::KeyGen(LPPublicKey<Element> &publicKey,
 	//////
 	f.SwitchFormat();
 
+	//check if inverse does not exist
+	while (!f.InverseExists())
+	{
+		//std::cout << "inverse does not exist" << std::endl;
+		Element temp(dgg, elementParams, Format::COEFFICIENT);
+		f = temp;
+		f = p*f;
+		f = f + BigBinaryInteger::ONE;
+		f.SwitchFormat();
+	}
+
 	privateKey.SetPrivateElement(f);
 	privateKey.AccessAbstractCryptoParameters() = cryptoParams;
 

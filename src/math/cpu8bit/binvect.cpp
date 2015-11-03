@@ -1,17 +1,17 @@
 //LAYER 1 : PRIMITIVE DATA STRUCTURES AND OPERATIONS
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
-Version: 
-	v00.01 
-Last Edited: 
+Version:
+	v00.01
+Last Edited:
 	3/1/2015 4:37AM
 List of Authors:
-	TPOC: 
+	TPOC:
 		Dr. Kurt Rohloff, rohloff@njit.edu
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
-Description:	
+Description:
 	This code provides basic arithmetic functionality.
 
 License Information:
@@ -35,7 +35,7 @@ namespace cpu8bit {
 BigBinaryVector::BigBinaryVector(){
 	this->m_length = 0;
 	this->m_modulus;
-	
+
 	m_data = NULL;
 }
 
@@ -43,10 +43,10 @@ BigBinaryVector::BigBinaryVector(usint length){
 	this->m_length = length;
 	this->m_modulus;
 	this->m_data = new BigBinaryInteger*[m_length];
-	
+
 	for(usint i=0;i<m_length;i++)
 		m_data[i]=new BigBinaryInteger();
-		
+
 }
 
 BigBinaryVector::BigBinaryVector(usint length, const BigBinaryInteger& modulus){
@@ -59,13 +59,13 @@ BigBinaryVector::BigBinaryVector(usint length, const BigBinaryInteger& modulus){
 }
 
 BigBinaryVector::BigBinaryVector(const BigBinaryVector &bigBinaryVector){
-	
+
 	m_length = bigBinaryVector.m_length;
 	m_modulus = bigBinaryVector.m_modulus;
 	m_data = new BigBinaryInteger*[m_length];
 	for(usint i=0;i<m_length;i++)
 		m_data[i]= new BigBinaryInteger(*bigBinaryVector.m_data[i]);
-	
+
 }
 
 BigBinaryVector::BigBinaryVector(BigBinaryVector &&bigBinaryVector){
@@ -80,10 +80,10 @@ BigBinaryVector& BigBinaryVector::operator=(const BigBinaryVector &rhs){
 	if(this!=&rhs){
 		if(this->m_length==rhs.m_length){
 			for(usint i=0;i<m_length;i++)
-				*this->m_data[i] = *rhs.m_data[i];				
+				*this->m_data[i] = *rhs.m_data[i];
 		}
 		else{
-			//throw std::logic_error("Trying to copy vectors of different size");	
+			//throw std::logic_error("Trying to copy vectors of different size");
 			delete m_data;
 			m_length = rhs.m_length;
 			m_modulus = rhs.m_modulus;
@@ -123,12 +123,12 @@ BigBinaryVector::~BigBinaryVector(){
 		}
 		delete [] m_data;
 	}
-	
+
 }
 
 //ACCESSORS
 std::ostream& operator<<(std::ostream& os, const BigBinaryVector &ptr_obj){
-	
+
 	os<<std::endl;
 	for(usint i=0;i<ptr_obj.m_length;i++){
 		os<<*ptr_obj.m_data[i] <<std::endl;
@@ -138,12 +138,12 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryVector &ptr_obj){
 }
 
 void BigBinaryVector::SetValAtIndex(usint index, const BigBinaryInteger& value){
-	
+
 	if(!this->IndexCheck(index)){
 			std::cout<<"Invalid index input \n";
 	}
 	else{
-		*this->m_data[index] = value; 
+		*this->m_data[index] = value;
 	}
 }
 
@@ -152,7 +152,7 @@ void BigBinaryVector::SetValAtIndex(usint index, const std::string& str){
 		std::cout<<"Invalid index input \n";
 	}
 	else{
-		this->m_data[index]->SetValue(str);  
+		this->m_data[index]->SetValue(str);
 	}
 }
 
@@ -165,11 +165,11 @@ const BigBinaryInteger& BigBinaryVector::GetValAtIndex(usint index) const{
 }
 
 void BigBinaryVector::SetModulus(const BigBinaryInteger& value){
-	this->m_modulus = value; 
+	this->m_modulus = value;
 }
 
 const BigBinaryInteger& BigBinaryVector::GetModulus() const{
-	
+
 	return this->m_modulus;
 
 }
@@ -179,9 +179,9 @@ usint BigBinaryVector::GetLength() const{
 }
 
 BigBinaryVector BigBinaryVector::Mod(const BigBinaryInteger& modulus) const{
-	
+
 	BigBinaryVector ans(*this);
-	
+
 	for(usint i=0;i<this->m_length;i++){
 		*ans.m_data[i] = ans.m_data[i]->Mod(modulus);
 	}
@@ -200,7 +200,7 @@ BigBinaryVector BigBinaryVector::ModAdd(const BigBinaryInteger &b) const{
 
 BigBinaryVector BigBinaryVector::ModSub(const BigBinaryInteger &b) const{
 	BigBinaryVector ans(*this);
-	
+
 	for(usint i=0;i<this->m_length;i++){
 		*ans.m_data[i] = ans.m_data[i]->ModSub(b,this->m_modulus);
 	}
@@ -255,17 +255,17 @@ BigBinaryVector BigBinaryVector::ModExp(const BigBinaryInteger &b) const{
 }
 
 BigBinaryVector BigBinaryVector::ModInverse() const{
-		
+
 	BigBinaryVector ans(*this);
 	for(usint i=0;i<this->m_length;i++){
 		*ans.m_data[i] = ans.m_data[i]->ModInverse(this->m_modulus);
 	}
 	return ans;
-		
+
 }
 
 BigBinaryVector BigBinaryVector::ModAdd(const BigBinaryVector &b) const{
-		
+
 	if(this->m_length!=b.m_length){
 		std::cout<<" Invalid argument \n";
 		return (BigBinaryVector)NULL;
@@ -281,7 +281,7 @@ BigBinaryVector BigBinaryVector::ModAdd(const BigBinaryVector &b) const{
 }
 
 const BigBinaryVector& BigBinaryVector::operator+=(const BigBinaryVector &b) {
-		
+
 	if(this->m_length!=b.m_length){
 		std::cout<<" Invalid argument \n";
 		return (BigBinaryVector)NULL;
@@ -342,8 +342,8 @@ BigBinaryVector BigBinaryVector::ModMatrixMul(const BigBinaryMatrix &a) const{
 		*ans.m_data[i] = mid_ans.Mod(m_modulus);
 	}
 
-	return ans;				
-	
+	return ans;
+
 }
 
 //Gets the ind

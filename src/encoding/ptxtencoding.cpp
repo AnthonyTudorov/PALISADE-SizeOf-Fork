@@ -1,17 +1,17 @@
 //LAYER 4 : PLAINTEXT ENCODING
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
-Version: 
-	v00.01 
-Last Edited: 
+Version:
+	v00.01
+Last Edited:
 	6/14/2015 5:37AM
 List of Authors:
-	TPOC: 
+	TPOC:
 		Dr. Kurt Rohloff, rohloff@njit.edu
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
-Description:	
+Description:
 	This code provides the core proxy re-encryption functionality.
 
 License Information:
@@ -26,9 +26,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 
 #include "ptxtencoding.h"
+#include <string>
 
 namespace lbcrypto {
 
 	// Implementation will be added in future releases
-
+    std::ostream &operator<<(std::ostream &out, const ByteArrayPlaintextEncoding &ptxt)
+    {
+        const ByteArray& byteArray = ptxt.GetData();
+        std::string str(byteArray.begin(), byteArray.end());
+        out << str;
+        return out ;
+    }
 }  // namespace lbcrypto ends
