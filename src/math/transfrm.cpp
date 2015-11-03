@@ -476,7 +476,7 @@ void ChineseRemainderTransformFTT::PreCompute(std::vector<BigBinaryInteger> &roo
 	usint numModulii = moduliiChain.size();
 
 	if( numOfRootU != numModulii){
-		throw std::exception("size of root of unity and size of moduli chain not of same size");
+		throw std::logic_error("size of root of unity and size of moduli chain not of same size");
 		system("pause");
 	}
 
