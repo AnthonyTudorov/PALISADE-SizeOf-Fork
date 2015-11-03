@@ -1,8 +1,8 @@
 /**
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
- * @version 00_03
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Nishanth Pasham, np386@njit.edu
+ * @version 00_04
  *
  * @section LICENSE
  * 
@@ -187,6 +187,100 @@ private:
 	sint m_std;
 	BigBinaryInteger m_modulus;
 };
+
+/**
+ * @brief The class for discrete Uniform distribution generator over Zq.
+ */
+class DiscreteUniformGenerator: DistributionGenerator
+{
+public:
+	/**
+	 * Basic constructor.	  	  
+	 */
+	DiscreteUniformGenerator(); //srand(time(NULL)) is called here
+
+	/**
+	 * Basic constructor for specifying distribution modulus.
+	 *
+	 * @param &mod is the distirbution modulus.  	  
+	 */
+	DiscreteUniformGenerator(BigBinaryInteger &mod);
+
+	/**
+	 * Destructor.	  
+	 */
+	~DiscreteUniformGenerator();
+
+	//ACCESSORS
+
+    //int GetMean() const;
+
+	/**
+	 * Returns the modulus of the generator.
+	 *
+	 * @return the modulus of the generator.	  
+	 */
+	BigBinaryInteger GetModulus() const;
+
+	/**
+	 * Sets the modulus of the generator.
+	 *
+	 * @param &mod is the distirbution modulus.  
+	 */
+	void SetModulus(BigBinaryInteger &mod);
+
+	/**
+	 * Returns a generated integer.
+	 *  
+	 * @return a generated integer.
+	 */
+	BigBinaryInteger GenerateInteger() const;
+
+	/**
+	 * Returns a generated vector.
+	 *
+	 * @param size the number of values to return.	  
+	 * @return vector of values generated with the distribution.
+	 */
+	BigBinaryVector GenerateVector(usint size) const;
+
+};
+
+
+
+/**
+ * @brief The class for binary uniform distribution generator.
+ */
+class BinaryUniformGenerator: DistributionGenerator
+{
+public:
+	/**
+	 * Basic constructor.	  	  
+	 */
+	BinaryUniformGenerator(); //srand(time(NULL)) is called here
+
+	/**
+	 * Destructor.	  
+	 */
+	~BinaryUniformGenerator();
+
+	/**
+	 * Returns a generated integer.
+	 *  
+	 * @return a generated integer.
+	 */
+	BigBinaryInteger GenerateInteger() const;
+
+	/**
+	 * Returns a generated vector.
+	 *
+	 * @param size the number of values to return.	  
+	 * @return vector of values generated with the distribution.
+	 */
+	BigBinaryVector GenerateVector(usint size) const;
+
+};
+
 
 } // namespace lbcrypto ends
 

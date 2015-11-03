@@ -5,25 +5,25 @@
  * @version 00_03
  *
  * @section LICENSE
- * 
+ *
  * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification, 
+ * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this 
+ * 1. Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this 
- * list of conditions and the following disclaimer in the documentation and/or other 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
  * materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @section DESCRIPTION
@@ -36,6 +36,7 @@
 
 //Includes Section
 #include "../utils/inttypes.h"
+#include "padding.h"
 
 /**
  * @namespace lbcrypto
@@ -81,12 +82,12 @@ namespace lbcrypto {
 	 * @brief Byte array encoding
 	 */
 	class ByteArrayPlaintextEncoding : public PlaintextEncodingInterface {
-	
+
 	public:
 		/**
 		* Default constructore
 		*/
-		ByteArrayPlaintextEncoding():m_data("") {
+		ByteArrayPlaintextEncoding():m_data() {
 		}
 
 		/**
@@ -94,7 +95,8 @@ namespace lbcrypto {
 		*
 		* @param &byteArray input byte array
 		*/
-		ByteArrayPlaintextEncoding(const ByteArray &byteArray):m_data(byteArray) {
+		ByteArrayPlaintextEncoding(const ByteArray &byteArray):
+            m_data(byteArray) {
 		}
 
 		/*
@@ -122,12 +124,36 @@ namespace lbcrypto {
 		* Get method to return the length of byte array
 		*/
 		size_t GetLength() const{
-			return m_data.length();
+			return m_data.size();
 		}
-	
+
+	/**
+	 * @brief Abstract Interface Class to capture Padding operation 
+	 * @tparam Padding the passing used.
+	 */
+        template <typename Padding>
+        void Pad(const usint blockSize) {
+            static_assert(std::is_base_of<PaddingScheme, Padding>::value,
+                "Padding must derive from PaddingScheme");
+            Padding::Pad(blockSize, &m_data);
+        }
+
+	/**
+	 * @brief Abstract Interface Class to capture Unpadding operation 
+	 * @tparam Padding the passing used.
+	 */
+        template <typename Padding>
+        void Unpad() {
+            static_assert(std::is_base_of<PaddingScheme, Padding>::value,
+                "Padding must derive from PaddingScheme");
+            Padding::Unpad(&m_data);
+        }
+
 	private:
 		ByteArray m_data;
 	};
+
+    std::ostream &operator<<(std::ostream &out, const ByteArrayPlaintextEncoding &ptxt);
 
 } // namespace lbcrypto ends
 #endif

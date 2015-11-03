@@ -1,17 +1,17 @@
 ﻿//Hi Level Execution/Demonstration
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
-Version: 
-	v00.01 
-Last Edited: 
+Version:
+	v00.01
+Last Edited:
 	6/17/2015 4:37AM
 List of Authors:
-	TPOC: 
+	TPOC:
 		Dr. Kurt Rohloff, rohloff@njit.edu
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
-Description:	
+Description:
 	This code exercises the Proxy Re-Encryption capabilities of the NJIT Lattice crypto library.
 	In this code we:
 		- Generate a key pair.
@@ -50,12 +50,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "crypto/lwepre.cpp"
 #include "lattice/il2n.h"
 #include "time.h"
+#include "crypto/ciphertext.cpp"
 //#include "vld.h"
 #include <chrono>
 //#include "gtest/gtest.h"
 //#include "math/cpu8bit/binint.h"
 //#include "math/cpu8bit/binvect.h"
-//#include "math/cpu8bit/binmat.h"	
+//#include "math/cpu8bit/binmat.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -77,7 +78,7 @@ int main(){
 
 	std::cout << "Relinearization window : " << std::endl;
 	std::cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
-	
+
 	int input = 0;
 	std::cin >> input;
 	//cleans up the buffer
@@ -95,25 +96,25 @@ int main(){
 	std::cin.get();
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();
-	
+
 	return 0;
 }
 
 
 double currentDateTime()
 {
-	
-	//std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
- //
- //   time_t tnow = std::chrono::high_resolution_clock::to_time_t(now);
- //   tm *date = localtime(&tnow);
- //   date->tm_hour = 0;
- //   date->tm_min = 0;
- //   date->tm_sec = 0;
 
-  /*  auto midnight = std::chrono::high_resolution_clock::from_time_t(mktime(date));*/
- 
-    return 0;
+	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+
+    time_t tnow = std::chrono::system_clock::to_time_t(now);
+    tm *date = localtime(&tnow);
+    date->tm_hour = 0;
+    date->tm_min = 0;
+    date->tm_sec = 0;
+
+    auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
+
+	return std::chrono::duration <double, std::milli>(now - midnight).count();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -124,7 +125,7 @@ double currentDateTime()
 //		- Decrypt the data.
 //		- Generate a new key pair.
 //		- Generate a proxy re-encryption key.
-//		- Re-Encrypt the encrypted data.  
+//		- Re-Encrypt the encrypted data.
 //		- Decrypt the re-encrypted data.
 //////////////////////////////////////////////////////////////////////
 //	We provide two different paramet settings.
@@ -148,7 +149,7 @@ void NTRUPRE(int input) {
 	//BigBinaryInteger modulus("8590983169");
 	//BigBinaryInteger rootOfUnity("4810681236");
 	//ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
-	
+
 	SecureParams const SECURE_PARAMS[] = {
 		{ 2048, BigBinaryInteger("8590983169"), BigBinaryInteger("4810681236"), 1 }, //r = 1
 		{ 2048, BigBinaryInteger("17179875329"), BigBinaryInteger("8079001841"), 2 }, // r = 2
@@ -162,16 +163,16 @@ void NTRUPRE(int input) {
 	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
 	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
 	usint relWindow = SECURE_PARAMS[input].relinWindow;
-	ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
-	if (m == 4096)
-		plaintext += plaintext;
+
+	ByteArray plaintext = ByteArrayFromString(
+        "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 
 	float stdDev = 4;
 
 	ofstream fout;
 	fout.open ("output.txt");
 
-	
+
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
 	//Prepare for parameters.
@@ -182,9 +183,9 @@ void NTRUPRE(int input) {
 	//ilParams.Initialize(m,bitLength);
 	//Or
 	//ilParams.Initialize(m,bitLenght,inputFile);
-	
+
 	//Set crypto parametes
-	LPCryptoParametersLWE<ILVector2n,ILParams> cryptoParams;
+	LPCryptoParametersLWE<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
@@ -211,16 +212,16 @@ void NTRUPRE(int input) {
 	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
-	LPPublicKeyLWENTRU<ILVector2n,ILParams> pk(cryptoParams);
-	LPPrivateKeyLWENTRU<ILVector2n, ILParams> sk(cryptoParams);
-	
+	LPPublicKeyLWENTRU<ILVector2n> pk(cryptoParams);
+	LPPrivateKeyLWENTRU<ILVector2n> sk(cryptoParams);
+
 	//Regular LWE-NTRU encryption algorithm
-	
+
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	LPAlgorithmLWENTRU<ILVector2n,ILParams> algorithm;
+	LPAlgorithmLWENTRU<ILVector2n> algorithm;
 
 	bool successKeyGen=false;
 
@@ -250,10 +251,11 @@ void NTRUPRE(int input) {
 
 	// Begin the initial encryption operation.
 	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
-	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;	
+	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
-	ILVector2n ciphertext;
+	Ciphertext<ILVector2n> ciphertext;
 	ByteArrayPlaintextEncoding ptxt(plaintext);
+    ptxt.Pad<ZeroPad>(m/16);
 
 	std::cout << "Running encryption..." << std::endl;
 
@@ -268,7 +270,7 @@ void NTRUPRE(int input) {
 	fout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
 	//cout<<"ciphertext: "<<ciphertext.GetValues()<<endl;
-	
+
 	////////////////////////////////////////////////////////////
 	//Decryption
 	////////////////////////////////////////////////////////////
@@ -280,6 +282,7 @@ void NTRUPRE(int input) {
 	start = currentDateTime();
 
 	DecodingResult result = algorithm.Decrypt(sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
+    plaintextNew.Unpad<ZeroPad>();
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -287,10 +290,10 @@ void NTRUPRE(int input) {
 	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
-	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew.GetData()<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew.GetData()<<"\n"<<endl;
+	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
+	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
 
-	cout << "ciphertext at" << ciphertext.GetIndexAt(2);
+	//cout << "ciphertext at" << ciphertext.GetIndexAt(2);
 
 	if (!result.isValidCoding) {
 		std::cout<<"Decryption failed!"<<std::endl;
@@ -300,15 +303,15 @@ void NTRUPRE(int input) {
 
 	//system("pause");
 
-	LPAlgorithmPRELWENTRU<ILVector2n,ILParams> algorithmPRE;
+	LPAlgorithmPRELWENTRU<ILVector2n> algorithmPRE;
 
 	////////////////////////////////////////////////////////////
 	//Perform the second key generation operation.
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPPublicKeyLWENTRU<ILVector2n,ILParams> newPK(cryptoParams);
-	LPPrivateKeyLWENTRU<ILVector2n, ILParams> newSK(cryptoParams);
+	LPPublicKeyLWENTRU<ILVector2n> newPK(cryptoParams);
+	LPPrivateKeyLWENTRU<ILVector2n> newSK(cryptoParams);
 
 	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
@@ -334,10 +337,10 @@ void NTRUPRE(int input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	std::vector<ILVector2n> evalKey;
+	LPEvalKeyLWENTRU<ILVector2n> evalKey(cryptoParams);
 
 	start = currentDateTime();
-		
+
 	algorithmPRE.ProxyKeyGen(newPK, sk, dgg , &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
@@ -352,13 +355,13 @@ void NTRUPRE(int input) {
 	////////////////////////////////////////////////////////////
 
 
-	ILVector2n newCiphertext;
+	Ciphertext<ILVector2n> newCiphertext;
 
 	std::cout <<"\n"<< "Running re-encryption..." << std::endl;
 
 	start = currentDateTime();
 
-	algorithmPRE.ReEncrypt(evalKey,cryptoParams, ciphertext,&newCiphertext);  // This is the core re-encryption operation.
+	algorithmPRE.ReEncrypt(evalKey, ciphertext,&newCiphertext);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -379,6 +382,7 @@ void NTRUPRE(int input) {
 	start = currentDateTime();
 
 	DecodingResult result1 = algorithmPRE.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
+    plaintextNew2.Unpad<ZeroPad>();
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -386,8 +390,8 @@ void NTRUPRE(int input) {
 	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
-	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2.GetData()<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2.GetData()<<"\n"<<endl;
+	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
+	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
 
 	if (!result1.isValidCoding) {
 		std::cout<<"Decryption failed!"<<std::endl;
@@ -399,7 +403,7 @@ void NTRUPRE(int input) {
 	fout.close();
 
 	//system("pause");
-	
+
 }
 
 

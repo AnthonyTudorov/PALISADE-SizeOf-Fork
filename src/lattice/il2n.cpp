@@ -37,7 +37,7 @@ namespace lbcrypto {
 
 	}
 
-	ILVector2n::ILVector2n(const ILParams &params) : m_params(params), m_values(NULL), m_format(EVALUATION) {
+	ILVector2n::ILVector2n(const ElemParams &params) : m_params(static_cast<const ILParams&>(params)), m_values(NULL), m_format(EVALUATION) {
 
 	}
 
@@ -79,7 +79,7 @@ namespace lbcrypto {
 		return *this;
 	}
 
-	ILVector2n::ILVector2n(DiscreteGaussianGenerator &dgg, const ILParams &params, Format format) :m_params(params) {
+	ILVector2n::ILVector2n(DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
 		/*
 		//usint vectorSize = EulerPhi(params.GetOrder());
 		usint vectorSize = params.GetOrder()/2;
@@ -91,10 +91,12 @@ namespace lbcrypto {
 		SwitchFormat();
 		*/
 
+		const ILParams &ilParams = static_cast<const ILParams&>(params);
+
 		if (format == COEFFICIENT)
 		{
 			//usint vectorSize = EulerPhi(params.GetOrder());
-			usint vectorSize = params.GetOrder() / 2;
+			usint vectorSize = ilParams.GetOrder() / 2;
 			m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize));
 			(*m_values).SetModulus(params.GetModulus());
 			m_format = COEFFICIENT;
@@ -103,9 +105,9 @@ namespace lbcrypto {
 		{
 			if (m_dggSamples.size() == 0)
 			{
-				PreComputeDggSamples(dgg, params);
+				PreComputeDggSamples(dgg, ilParams);
 			}
-			ILVector2n randomElement = GetPrecomputedVector(params);
+			ILVector2n randomElement = GetPrecomputedVector(ilParams);
 			m_values = new BigBinaryVector(*randomElement.m_values);
 			(*m_values).SetModulus(params.GetModulus());
 			m_format = EVALUATION;
@@ -159,16 +161,15 @@ namespace lbcrypto {
 	void ILVector2n::SetModulus(const BigBinaryInteger &modulus) {
 
 
-		m_params.SetModulus(modulus);
-
-
-		if ((modulus) > m_params.GetModulus()) {
+		if ((modulus) < m_params.GetModulus()) {
 
 			BigBinaryVector bigVector = m_values->Mod(modulus);
 
 			*m_values = bigVector;
 
 		}
+
+		m_params.SetModulus(modulus);
 
 
 	}
@@ -218,6 +219,15 @@ namespace lbcrypto {
 
 		}
 		return ans;
+	}
+
+	// check if inverse exists
+	bool ILVector2n::InverseExists() const {
+		for (usint i = 0; i < m_values->GetLength(); i++) {
+			if ((m_values->GetValAtIndex(i) == BigBinaryInteger::ZERO) || (m_values->GetValAtIndex(i) == BigBinaryInteger::ONE))
+				return false;
+		}
+		return true;
 	}
 
 	// VECTOR OPERATIONS
@@ -295,12 +305,9 @@ namespace lbcrypto {
 				resultant_char += m_values->GetValAtIndex(i + j).ConvertToInt()*exp;
 				exp *= mod;
 			}
-			byteArray += ((char)resultant_char);
+			byteArray.push_back(resultant_char);
 		}
 		*text = ByteArrayPlaintextEncoding(byteArray);
-
-		
-
 	}
 
 	//Convert binary string to lattice format; do p=2 first but document that we need to generalize it later
@@ -315,11 +322,11 @@ namespace lbcrypto {
 		usint mod = modulus.ConvertToInt();
 		usint p = ceil((float)log((double)255) / log((double)mod));
 
-		m_values = new BigBinaryVector(p*encoded.length());
+		m_values = new BigBinaryVector(p*encoded.size());
 		(*m_values).SetModulus(m_params.GetModulus());
 		m_format = COEFFICIENT;
 
-		for (usint i = 0; i<encoded.length(); i++) {
+		for (usint i = 0; i<encoded.size(); i++) {
 			usint Num = encoded.at(i);
 			usint exp = mod, Rem = 0;
 			for (usint j = 0; j<p; j++) {
@@ -372,96 +379,212 @@ namespace lbcrypto {
 	}
 
 
-	lbcrypto::ILVectorArray2n::ILVectorArray2n(const ILDCRTParams & params)
-	{
-		m_params = params;
-	}
 
 	lbcrypto::ILVectorArray2n::ILVectorArray2n(const ILVectorArray2n & element)
 	{
 		*this = element;
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const ILDCRTParams & params, std::vector<ILVector2n>& levels)
+	ILVectorArray2n::ILVectorArray2n(const ILDCRTParams& params, std::vector<ILVector2n>& levels, Format format)
 	{
-		m_params = params;
 		m_vectors = levels;
+		m_params = params;
+		m_format = format;
 	}
 
-	lbcrypto::ILVectorArray2n::ILVectorArray2n(ILVector2n element, const ILDCRTParams & params)
+	lbcrypto::ILVectorArray2n::ILVectorArray2n(ILVector2n element, const ILDCRTParams & params, Format format)
 	{
 		m_params = params;
+		m_format = format;
 		usint i = 0;
 
-		usint size = params.GetModuli().GetLength();
+		usint size = params.GetModuli().size();
 
 		for (i = 0; i < size; i++) {
 			m_vectors[i] = element;
 		}
 
+		ChangeModuliOfIlVectorsToMatchDBLCRT();
 
 	}
 
 	lbcrypto::ILVectorArray2n::~ILVectorArray2n()
 	{
-	//	delete m_vectors;
+		//	delete m_vectors;
 	}
-	std::vector<ILVector2n> lbcrypto::ILVectorArray2n::GetValues() const
+	ILVector2n lbcrypto::ILVectorArray2n::GetValues(usint i) const
 	{
-		return std::vector<ILVector2n>();
+		return m_vectors[i];
+	}
+	Format lbcrypto::ILVectorArray2n::GetFormat()
+	{
+		return m_format;
 	}
 	ILDCRTParams & lbcrypto::ILVectorArray2n::GetParams() const
 	{
 		// TODO: insert return statement here
-	//	return m_params;
-	//	return null;
+		//return *this.m_params;
+		ILDCRTParams a;
+		return a;
 	}
 	void lbcrypto::ILVectorArray2n::SetValues(std::vector<ILVector2n>& values)
 	{
 		m_vectors = values;
 	}
+	void lbcrypto::ILVectorArray2n::DecodeElement(ByteArrayPlaintextEncoding * text, const BigBinaryInteger & modulus) const
+	{
+	}
+	void lbcrypto::ILVectorArray2n::EncodeElement(const ByteArrayPlaintextEncoding & encoded, const BigBinaryInteger & modulus)
+	{
+	}
 	/*ILDCRTParams& ILVectorArray2n::GetParams() const
 	{
-		return m_params;
+	return m_params;
 	}*/
 	/*Switch format simply calls IlVector2n's switchformat*/
 	void ILVectorArray2n::SwitchFormat() {
-		usint currentFormat = -1;
-		
-		if (m_vectors.size() > 0) {
-			 currentFormat = m_vectors[0].GetFormat();
-			 Convert_moduli();
+
+		if (m_format == COEFFICIENT) {
+
+			m_format = EVALUATION;
 		}
 		else {
-			return;
+			m_format = COEFFICIENT;
 		}
 
-		for (ILVector2n ilv:m_vectors) {
-			ilv.SwitchFormat();
-		}
-
-		if (currentFormat == EVALUATION) {
-			Cri_dblcrt();
+		for (usint i = 0; i < m_vectors.size(); i++) {
+			m_vectors[i].SwitchFormat();
 		}
 	}
 
-	void lbcrypto::ILVectorArray2n::Cri_dblcrt()
+	BigBinaryInteger lbcrypto::ILVectorArray2n::CalculateChineseRemainderInterpolationModuluForIndex(usint i)
+	{
+		BigBinaryInteger pIndex(m_params.GetModuli()[i]);
+
+		std::cout << "value of pIndex is : " << pIndex << std::endl;
+
+	//	m_params.SetModulus(BigBinaryInteger("100"));
+
+		std::cout << "VALUE OF BIG MODULUS IS : " << m_params.GetModulus() << std::endl;
+
+		BigBinaryInteger bigModulus(m_params.GetModulus());
+
+		std::cout << "value of bigModulus is : " << bigModulus << std::endl;
+
+		BigBinaryInteger divideBigModulusByIndexModulus;
+
+		divideBigModulusByIndexModulus = bigModulus.DividedBy(pIndex);
+
+		std::cout << "value of division is  : " << divideBigModulusByIndexModulus << std::endl;
+
+		BigBinaryInteger modularInverse;
+
+		std::cout << "value of cyclotomic order is is  : " << m_params.GetCyclotomicOrder() << std::endl;
+
+
+		modularInverse = divideBigModulusByIndexModulus.ModInverse(pIndex);
+
+		std::cout << "value of division is  : " << modularInverse << std::endl;
+
+
+
+		return modularInverse;
+	}
+
+	ILVector2n lbcrypto::ILVectorArray2n::InterpolateIlArrayVector2n()
+	{
+		ILVector2n polynomialReconstructed;
+
+		std::vector<std::vector<BigBinaryInteger>> vectorOfvectors(m_vectors.size());
+
+		vectorOfvectors = BuildChineseRemainderInterpolationVector(vectorOfvectors);
+
+		usint sizeOfCoefficientVector = m_params.GetCyclotomicOrder() / 2;
+
+		BigBinaryVector coefficients(sizeOfCoefficientVector);
+
+		BigBinaryInteger temp(0);
+
+		for (usint i = 0; i < sizeOfCoefficientVector; i++) {
+
+			temp = CalculateInterpolationSum(vectorOfvectors, i);
+
+		//	temp.Mod(m_params.GetModulus());
+
+			coefficients.SetValAtIndex(i, BigBinaryInteger(temp));
+
+		}
+		// create ILVector2n (const ElemParams &params);
+		// ILVector2nInstance.SetValues(const BigBinaryVector& values, Format format);
+
+
+		return polynomialReconstructed;
+	}
+
+
+	void lbcrypto::ILVectorArray2n::ChangeModuliOfIlVectorsToMatchDBLCRT()
+	{
+		if (m_vectors.size() != m_params.GetModuli().size()) return;
+
+
+		for (usint j = 0; j < m_vectors.size(); j++) {
+
+			m_vectors[j].SetModulus(m_params.GetModuli()[j]);
+
+		}
+
+	}
+
+	std::vector<BigBinaryInteger> lbcrypto::ILVectorArray2n::BuildChineseRemainderInterpolationVectorForRow(usint i)
+	{
+		usint j = 0;
+		usint size = m_vectors.size();
+		std::vector<BigBinaryInteger> vAtIndexi(size);
+
+		for (j = 0; j < size; j++) {
+			vAtIndexi[j] = m_vectors[j].GetIndexAt(i);
+		}
+
+		return vAtIndexi;
+
+	}
+
+	std::vector<std::vector<BigBinaryInteger>> lbcrypto::ILVectorArray2n::BuildChineseRemainderInterpolationVector(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors)
 	{
 
+		//		std::vector<std::vector<BigBinaryInteger>> vectorOfvectors(m_vectors.size());
+		//usint sizeOfVector = m_vectors[0].GetLength();
+		usint cyclotomicOrder = m_params.GetCyclotomicOrder() / 2;
+		for (usint i = 0; i < cyclotomicOrder; i++) {
+			vectorOfvectors[i] = BuildChineseRemainderInterpolationVectorForRow(i);
+		}
+
+		return vectorOfvectors;
 	}
-	void lbcrypto::ILVectorArray2n::Convert_moduli()
+
+	BigBinaryInteger lbcrypto::ILVectorArray2n::CalculateInterpolationSum(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors, usint index)
 	{
-		if (m_vectors.size() != m_params.GetModuli().GetLength()) return;
-		
-		usint i = 0;
+		BigBinaryInteger results;
 
-		for (ILVector2n ilv : m_vectors) {
-			
-			ilv.SetModulus(m_params.GetModuli().GetValAtIndex(i));
+		for (usint i = 0; i < m_vectors.size(); i++) {
 
-			i++;
+			results = results.Plus(vectorOfvectors[index][i]);
+
+			std::cout << "[" << vectorOfvectors[index][i] << "]" << std::endl;
+
+			std::cout << std::endl;
 
 		}
 
+		return results;
+
 	}
+
+	BigBinaryInteger lbcrypto::ILVectorArray2n::CalculatInterpolateModulu(BigBinaryInteger value, usint index)
+	{
+		return value.Mod(m_params.GetCRI()[index]);
+	}
+
+
+
 } // namespace lbcrypto ends

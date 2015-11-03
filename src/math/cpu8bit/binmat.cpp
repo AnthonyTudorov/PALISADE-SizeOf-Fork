@@ -211,9 +211,11 @@ BigBinaryMatrix& BigBinaryMatrix::ModAdd(BigBinaryMatrix &rhs) const{
 	BigBinaryMatrix *ans=NULL; 
 	if(this->IndexCheck(rhs.GetRowSize(),rhs.GetColumnSize())){
 		ans = new BigBinaryMatrix();
-		for(usint i=0;i<this->m_rows;i++)
-			for(usint j=0;j<this->m_columns;j++)
+		for(usint i=0;i<this->m_rows;i++) {
+			for(usint j=0;j<this->m_columns;j++) {
 				*ans->m_data[i][j] = this->m_data[i][j]->ModAdd(rhs.GetValAtIndex(i,j),this->m_modulus);
+				}
+		}
 		return *ans; 
 	}
 

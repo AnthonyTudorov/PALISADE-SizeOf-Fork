@@ -2,15 +2,16 @@
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
 Version: 
-	v00.01 
+	v00.04 
 Last Edited: 
-	6/1/2015 5:37AM
+	10/27/2015 5:37AM
 List of Authors:
 	TPOC: 
 		Dr. Kurt Rohloff, rohloff@njit.edu
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
+		Nishanth Pasham, np386@njit.edu
 Description:	
 	This code provides basic noise generation functionality.
 
@@ -178,6 +179,7 @@ BigBinaryVector DiscreteGaussianGenerator::GenerateVector(usint size) const{
 	schar* result_vector = GenerateCharVector(size);
 
 	BigBinaryVector ans(size);
+	ans.SetModulus(m_modulus);
 
 	for(usint i=0;i<size;i++){
 		if( result_vector[i]<0 ){

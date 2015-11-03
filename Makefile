@@ -4,22 +4,22 @@
 #Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
 #met:
-#1. Redistributions of source code must retain the above copyright 
+#1. Redistributions of source code must retain the above copyright
 #notice, this list of conditions and the following disclaimer.
-#2. Redistributions in binary form must reproduce the above copyright 
-#notice, this list of conditions and the following disclaimer in the 
+#2. Redistributions in binary form must reproduce the above copyright
+#notice, this list of conditions and the following disclaimer in the
 #documentation and/or other materials provided with the distribution.
-#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS 
-#IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED 
-#TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A 
-#PARTICULAR PURPOSE ARE DISCLAIMED. 
-#IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
-#ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-#DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS 
-#OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
-#HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
-#STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
-#IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+#IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+#TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+#PARTICULAR PURPOSE ARE DISCLAIMED.
+#IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+#ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+#DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+#OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+#STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+#IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
@@ -28,18 +28,31 @@ CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g
 
 SRCDIR := src
 BUILDDIR := build
-TARGET := bin/NTRU-PRE
+TARGETDIR := bin
 HEADERS := src/*.h
 
+#MAINSOURCES := src/Source.cpp src/Source_AHE.cpp
+TESTTARGET := test/bin/tests
+
 SRCEXT := cpp
-SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
-OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
+SOURCESDEEP := $(shell find $(SRCDIR) -mindepth 2 -type f -name *.$(SRCEXT))
+SOURCESMAIN := $(shell find $(SRCDIR) -maxdepth 1 -type f -name *.$(SRCEXT))
+TARGETSMAIN := $(patsubst $(SRCDIR)/%,%,$(SOURCESMAIN:.$(SRCEXT)=))
+OBJECTSDEEP := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCESDEEP:.$(SRCEXT)=.o))
+#SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
+#OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 #CFLAGS := -g # -Wall
 LIB := #-pthread -lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 INC := -I include
 
 #TaskLDFLAGS = -lpthread
 #TimeLDFLAGS = -lm # -lrt
+
+all: alltargets apidocs alltesttargets runtests
+
+alltargets: $(TARGETSMAIN)
+
+alltesttargets: $(TESTTARGET)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)
@@ -49,16 +62,27 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)/math
 	@mkdir -p $(BUILDDIR)/math/cpu8bit
 	@mkdir -p $(BUILDDIR)/utils
+#	@echo " $@"
+#	@echo " $<"
 #	@echo " $(BUILDDIR)"
+#	@echo " $(SRCDIR)"
 	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<
 
-$(TARGET): $(OBJECTS)
-	@echo " Linking..."
-	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB)
+$(TARGETSMAIN): $(OBJECTSDEEP)
+	@echo " Target: $(TARGETDIR)/$@"
+#	@echo " $^"
+	@mkdir -p $(TARGETDIR)
+	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $(BUILDDIR)/$@.o $(SRCDIR)/$@.$(SRCEXT)"; $(CC) $(CPPFLAGS) $(INC) -c -o $(BUILDDIR)/$@.o $(SRCDIR)/$@.$(SRCEXT)
+	@echo " $(CC) $^ $(BUILDDIR)/$@.o -o $(TARGETDIR)/$@ $(LIB)"; $(CC) $^ $(BUILDDIR)/$@.o -o $(TARGETDIR)/$@ $(LIB)
+#	@echo "rm $(BUILDDIR)/$@.o"; rm $(BUILDDIR)/$@.o
 
 TESTSRCDIR := test/src
 TESTBUILDDIR := test/build
+TESTTARGETDIR := test/bin
 TESTTARGET := test/bin/tests
+
+check: $(TESTTARGET)
+	$(TESTTARGET)
 
 LIBSOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT) | xargs grep -L "main()")
 LIBOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(LIBSOURCES:.$(SRCEXT)=.o))
@@ -87,23 +111,36 @@ GTEST_HEADERS =	$(GTEST_DIR)/include/gtest/gtest.h \
                $(GTEST_DIR)/include/gtest/internal/*.h
 
 $(TESTBUILDDIR)/%.o: $(TESTSRCDIR)/%.$(SRCEXT)
-	@mkdir -p $(TESTBUILDDIR)
+	@mkdir -p $(@D)
 #	@echo " $(BUILDDIR)"
 	@echo " $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<
 
-$(TESTTARGET): $(TESTOBJECTS) $(GTEST_HEADERS)
+$(TESTTARGET): $(TESTOBJECTS) $(GTEST_HEADERS) $(LIBOBJECTS)
 	@echo " Linking..."
-	@echo " $(CC) $(LIBOBJECTS) $^ -o $(TESTTARGET) $(TESTLIB)"; $(CC) $(LIBOBJECTS) $^ -o $(TESTTARGET) $(TESTLIB)
+	@mkdir -p $(TESTTARGETDIR)
+	@echo " $(CC) $^ -o $(TESTTARGET) $(TESTLIB)"; $(CC) $^ -o $(TESTTARGET) $(TESTLIB)
 
-clean:
-	@echo " Cleaning..."; 
-	@echo " $(RM) -r $(BUILDDIR) $(TARGET) $(TESTBUILDDIR) $(TESTTARGET)"; $(RM) -r $(BUILDDIR) $(TARGET) $(TESTBUILDDIR) $(TESTTARGET)
+.PHONY: runtests
+runtests: $(TESTTARGET)
+	$(TESTTARGET)
 
-cleantests:
-	@echo " Cleaning..."; 
-	@echo " $(RM) -r $(TESTBUILDDIR) $(TESTTARGET)"; $(RM) -r $(TESTBUILDDIR) $(TESTTARGET)
+.PHONEY: apidocs
+apidocs:
+	doxygen lbcrypto-doxy-config
 
 .PHONEY: clean
+clean: cleantests cleandocs
+	@echo " Cleaning...";
+	@echo " $(RM) -r $(BUILDDIR) $(TARGETDIR)"; $(RM) -r $(BUILDDIR) $(TARGETDIR)
+
+.PHONEY: cleantests
+cleantests:
+	@echo " Cleaning...";
+	@echo " $(RM) -r $(TESTBUILDDIR) $(TESTTARGETDIR)"; $(RM) -r $(TESTBUILDDIR) $(TESTTARGETDIR)
+
+.PHONEY: cleandocs
+cleandocs:
+	rm -rf doc/apidocs
 
 #all: $(TARGETS)
 
@@ -121,13 +158,8 @@ cleantests:
 #NTRU-PRE-Key: $(MAINDEPS) Source_key.o
 #	$(CXX) -o $@ $^ $(TaskLDFLAGS) $(TimeLDFLAGS)
 
-.PHONEY: apidocs
-apidocs:
-	doxygen lbcrypto-doxy-config
 
-.PHONEY: cleandocs
-cleandocs:
-	rm -rf doc/apidocs
+
 
 #.PHONEY: publishapi
 #publishapi: apidocs

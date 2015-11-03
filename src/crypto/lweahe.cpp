@@ -1,18 +1,18 @@
-//LAYER 4 : PLAINTEXT ENCODING
+//LAYER 3 : CRYPTO DATA STRUCTURES AND OPERATIONS
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
-Version:
-	v00.01
-Last Edited:
+Version: 
+	v00.01 
+Last Edited: 
 	6/14/2015 5:37AM
 List of Authors:
-	TPOC:
+	TPOC: 
 		Dr. Kurt Rohloff, rohloff@njit.edu
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
-Description:
-	This code provides the core proxy re-encryption functionality.
+Description:	
+	This code provides the core additive homomorphic encryption functionality.
 
 License Information:
 
@@ -25,17 +25,26 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "ptxtencoding.h"
-#include <string>
+#include "lweahe.h"
 
 namespace lbcrypto {
+			
+//Function for addition evaluation of homomorphic cryptosystem.
+template <class Element>
+void LPAlgorithmAHELWENTRU<Element>::EvalAdd(const Ciphertext<Element> &ciphertext1, 
+				const Ciphertext<Element> &ciphertext2, 
+				Ciphertext<Element> *newCiphertext) const
 
-	// Implementation will be added in future releases
-    std::ostream &operator<<(std::ostream &out, const ByteArrayPlaintextEncoding &ptxt)
-    {
-        const ByteArray& byteArray = ptxt.GetData();
-        std::string str(byteArray.begin(), byteArray.end());
-        out << str;
-        return out ;
-    }
+{
+//Need to check the same crypto parameters hold.
+//Need to check a common encryption key was used.
+//Make sure compatible encryption algorithm was used.
+	*newCiphertext = ciphertext1.Plus(ciphertext2);
+/*
+	Ciphertext<Element> ctOut(ciphertext1);
+	ctOut.Plus(ciphertext2);
+	*newCiphertext = ctOut;
+*/
 }  // namespace lbcrypto ends
+
+}
