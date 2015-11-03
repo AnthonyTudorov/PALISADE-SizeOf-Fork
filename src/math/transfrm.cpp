@@ -349,7 +349,7 @@ BigBinaryVector ChineseRemainderTransformFTT::ForwardTransform(const BigBinaryVe
 	BigBinaryVector InputToFFT(element);
 
 	for(usint i=0;i<CycloOrder/2;i++)
-		InputToFFT.SetValAtIndex(i,element.GetValAtIndex(i).ModMul(rootOfUnityTable->GetValAtIndex(i),element.GetModulus()));
+		InputToFFT.SetValAtIndex(i,element.GetValAtIndex(i).ModBarrettMul(rootOfUnityTable->GetValAtIndex(i),element.GetModulus(),mu));
 
 	OpFFT = NumberTheoreticTransform::GetInstance().ForwardTransformIterative(InputToFFT,this->m_rootOfUnitySquareTableByModulus[element.GetModulus().ToString()],CycloOrder/2);
 	//OpFFT = NumberTheoreticTransform::GetInstance().ForwardTransformIterative(InputToFFT,*rootOfUnityTable,CycloOrder/2);
@@ -404,7 +404,7 @@ BigBinaryVector ChineseRemainderTransformFTT::InverseTransform(const BigBinaryVe
 
 	BigBinaryVector rInvTable(this->m_rootOfUnityInverseTableByModulus[element.GetModulus().ToString()]);
 	for(usint i=0;i<CycloOrder/2;i++)
-		OpIFFT.SetValAtIndex(i,OpIFFT.GetValAtIndex(i).ModMul(rInvTable.GetValAtIndex(i),element.GetModulus()));
+		OpIFFT.SetValAtIndex(i,OpIFFT.GetValAtIndex(i).ModBarrettMul(rInvTable.GetValAtIndex(i),element.GetModulus(),mu));
 
 	return OpIFFT;
 }
@@ -425,13 +425,13 @@ void ChineseRemainderTransformFTT::PreCompute(const BigBinaryInteger& rootOfUnit
 	if (rootOfUnityTableCheck->GetLength() == 0){
 		BigBinaryVector Table(CycloOrder / 2);
 		BigBinaryVector TableSquare(CycloOrder / 2);
-		BigBinaryInteger rootOfUnitySquare(rootOfUnity.ModMul(rootOfUnity,modulus));
+		BigBinaryInteger rootOfUnitySquare(rootOfUnity.ModBarrettMul(rootOfUnity,modulus,mu));
 
 		for (usint i = 0; i<CycloOrder / 2; i++){
 			Table.SetValAtIndex(i, x);
-			x = x.ModMul(rootOfUnity, modulus);
+			x = x.ModBarrettMul(rootOfUnity, modulus,mu);
 			TableSquare.SetValAtIndex(i,phi);
-			phi = phi.ModMul(rootOfUnitySquare,modulus);
+			phi = phi.ModBarrettMul(rootOfUnitySquare,modulus,mu);
 		}
 
 		//this->m_rootOfUnityTableByModulus.insert( std::make_pair(modulus.ToString(),Table));
@@ -455,9 +455,9 @@ void ChineseRemainderTransformFTT::PreCompute(const BigBinaryInteger& rootOfUnit
 
 		for (usint i = 0; i<CycloOrder / 2; i++){
 			TableI.SetValAtIndex(i, x);
-			x = x.ModMul(rootOfUnityInverse, modulus);
+			x = x.ModBarrettMul(rootOfUnityInverse, modulus,mu);
 			TableISquare.SetValAtIndex(i,phi);
-			phi = phi.ModMul(rootOfUnitySquareInverse,modulus);
+			phi = phi.ModBarrettMul(rootOfUnitySquareInverse,modulus,mu);
 		}
 
 		//this->m_rootOfUnityInverseTableByModulus.insert(std::make_pair(modulus.ToString(),TableI));
