@@ -48,18 +48,53 @@ void LPAlgorithmSHELWENTRU<Element>::EvalMult(const Ciphertext<Element> &ciphert
 template <class Element>
 bool LPAlgorithmSHELWENTRU<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &newPrivateKey, 
 				LPPrivateKey<Element> &origPrivateKey,
-				DiscreteGaussianGenerator &ddg, 
-				std::vector<Element> *keySwitchHint) const
+				usint depth,
+				DiscreteGaussianGenerator &dgg, 
+				LPKeySwitchHint<Element> *keySwitchHint) const
 {
+	const LPCryptoParameters<Element> &cryptoParams = origPrivateKey.GetAbstractCryptoParameters();
+	const ElemParams &elementParams = cryptoParams.GetElementParams();
+
+	Element m(dgg,elementParams,Format::COEFFICIENT);
+/*
+	privKeyInverse = inverse(newPrivateKey);
+
+	origPrivateKeyExp = exp(origPrivateKey,depth)
+
+	keySwitchHint = m*origPrivateKeyExp*privKeyInverse;
+*/
 	return true;
+
+}
+
+
+//Function to generate 1..log(q) encryptions for each bit of the original private key
+template <class Element>
+bool LPAlgorithmSHELWENTRU<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &privateKey, 
+				DiscreteGaussianGenerator &dgg, 
+				LPKeySwitchHint<Element> *keySwitchHint) const
+{
+	const LPCryptoParameters<Element> &cryptoParams = origPrivateKey.GetAbstractCryptoParameters();
+	const ElemParams &elementParams = cryptoParams.GetElementParams();
+
+	Element m(dgg,elementParams,Format::COEFFICIENT);
+/*
+	keySwitchHint = m*privateKey;
+*/
+	return true;
+
 }
 
 template <class Element>
-void LPAlgorithmSHELWENTRU<Element>::KeySwitch(const std::vector<Element> &keySwitchHint,
+void LPAlgorithmSHELWENTRU<Element>::KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint,
 				const Ciphertext<Element> &ciphertext, 
 				Ciphertext<Element> *newCiphertext) const
 {
 	Ciphertext<Element> ctOut();
+
+/*
+	ctOut = keySwitchHint * ciphertext;
+*/
 
 	*newCiphertext = ctOut;
 }  

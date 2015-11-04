@@ -276,6 +276,31 @@ namespace lbcrypto {
 			virtual void MakePublicKey(LPPublicKey<Element> &pub) const = 0;
 	};
 
+
+	/**
+	 * @brief Abstract interface for LP key switch hints
+	 * @tparam Element a ring element.
+	 */
+	template <class Element>
+	class LPKeySwitchHint : public LPKey<Element>{
+		public:
+
+			//@Get Properties
+			
+			/**
+			 * Gets the private key polynomial 
+			 * @return the private key element.
+			 */ 
+			virtual const Element & GetHintElement() const = 0;
+
+			//@Set Properties
+			
+			/**
+			 * Sets the private key polynomial
+			 * @param &x the public key element.
+			 */ 
+			virtual void SetHintElement(const Element &x) = 0;
+	};
 	/**
 	 * @brief Abstract interface for encryption algorithm
 	 * @tparam Element a ring element.
@@ -601,6 +626,55 @@ namespace lbcrypto {
 			//polynomials used for public key
 			Element m_g;
 			Element m_h;
+	};
+
+	//! Implementation class for key switch hint
+	/**
+	 * @brief Implementation class for key switch hints
+	 * @tparam Element a ring element
+	 */
+	template <class Element>
+	class LPKeySwitchHintImpl: public LPKeySwitchHint<Element>, public LPKeyImpl<Element>{
+		public:
+
+			/**
+			 * Validate that a key is correct.  This is stubbed out for now.
+			 * @param level
+			 * @return validate the parameters.
+			 */
+			bool Validate(unsigned int level) const;
+
+			//computes a ``small'' coefficient polynomial
+			//Generator depends on the type of element; should be implemented at the element level
+			//Element & GenerateElement (DistributionGenerator &dg) const;
+			
+			/**
+			 * Get Abstract Crypto Parameters.
+			 * @return get the parameters.
+			 */
+			const LPCryptoParameters<Element> &GetAbstractCryptoParameters() const {return this->GetCryptoParameters();}
+			
+			/**
+			 * Access Abstract Crypto Parameters.
+			 * @return the parameters accessed.
+			 */
+			LPCryptoParameters<Element> &AccessAbstractCryptoParameters() { return this->AccessCryptoParameters(); }
+			
+			/**
+			 * Implementation of the Get accessor for private element.
+			 * @return the private element.
+			 */
+			const Element & GetHintElement() const {return m_sk;}
+
+			/**
+			 * Implementation of the Set accessor for private element.
+			 * @private &x the private element.
+			 */
+			void SetHintElement(const Element &x) {m_sk = x;}
+
+		private:
+			//private key polynomial
+			Element m_sk;
 	};
 
 	template <class Element>
