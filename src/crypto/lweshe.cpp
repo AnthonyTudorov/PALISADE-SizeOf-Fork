@@ -74,7 +74,7 @@ bool LPAlgorithmSHELWENTRU<Element>::KeySwitchHintGen(const LPPrivateKey<Element
 				DiscreteGaussianGenerator &dgg, 
 				LPKeySwitchHint<Element> *keySwitchHint) const
 {
-	const LPCryptoParameters<Element> &cryptoParams = origPrivateKey.GetAbstractCryptoParameters();
+	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetAbstractCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 
 	Element m(dgg,elementParams,Format::COEFFICIENT);
