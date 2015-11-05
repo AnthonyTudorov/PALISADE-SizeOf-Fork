@@ -33,6 +33,7 @@
 
 #ifndef LBCRYPTO_ENCODING_PADDING_H
 #define LBCRYPTO_ENCODING_PADDING_H
+#include "../utils/bytearray.h"
 #include "../utils/inttypes.h"
 
 namespace lbcrypto {

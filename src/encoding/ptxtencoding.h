@@ -35,6 +35,7 @@
 #define LBCRYPTO_ENCODING_PTXTENCODING_H
 
 //Includes Section
+#include "../utils/bytearray.h"
 #include "../utils/inttypes.h"
 #include "padding.h"
 
@@ -128,7 +129,7 @@ namespace lbcrypto {
 		}
 
 	/**
-	 * @brief Abstract Interface Class to capture Padding operation 
+	 * @brief Abstract Interface Class to capture Padding operation
 	 * @tparam Padding the passing used.
 	 */
         template <typename Padding>
@@ -139,7 +140,7 @@ namespace lbcrypto {
         }
 
 	/**
-	 * @brief Abstract Interface Class to capture Unpadding operation 
+	 * @brief Abstract Interface Class to capture Unpadding operation
 	 * @tparam Padding the passing used.
 	 */
         template <typename Padding>
