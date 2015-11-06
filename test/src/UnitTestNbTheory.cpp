@@ -93,7 +93,7 @@ TEST(method_greatest_common_divisor_small_numbers,equals){
 // TEST CASE TO FIND GREATEST COMMON DIVISOR OF TWO POWERS OF 2 NUMBERS
 
 TEST(method_greatest_common_divisor_powers_of_two_numbers,equals){
-	BigBinaryInteger a("1099511627776"), b("4096");
+	BigBinaryInteger a("1048576"), b("4096");
 	BigBinaryInteger c(lbcrypto::GreatestCommonDivisor(a, b));
 	
 	BigBinaryInteger expectedResult(b);
