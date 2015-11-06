@@ -618,14 +618,7 @@ namespace lbcrypto {
 		*/
 		//		ILVectorArray2n& Minus(const BigBinaryInteger &element) const;
 
-		// multiplication operation
-		/*
-		* Scalar multiplication - multiply all entries.
-		*
-		* @param &element is the element to multiply entry-wise.
-		* @return is the return value of the times operation.
-		*/
-		//		ILVectorArray2n& Times(const BigBinaryInteger &element) const;
+		
 
 		// division operation
 		/*
@@ -747,6 +740,15 @@ namespace lbcrypto {
 		*/
 		//	ILVector2n& RemoveLevel(usint index);
 
+		// multiplication operation - PREV1
+		/*
+		* Performs a multiplication operation and returns the result.
+		*
+		* @param &element is the element to multiply with.
+		* @return is the result of the multiplication.
+		*/
+	//	ILVectorArray2n Times(const ILVectorArray2n &element) const;
+
 		//Represent the lattice in binary format
 		/**
 		* Convert the lattice to be represented internally in binary format.
@@ -754,6 +756,14 @@ namespace lbcrypto {
 		* @param *text the byte array to take as input.
 		* @param &modulus modulus to convert from.
 		*/
+
+		// multiplicative inverse operation
+		/*
+		* Performs a multiplicative inverse operation and returns the result.
+		* For double-crt, call multiplicative inverse on all Ilvector2ns (this is with respect to the modulus of each vector from the tower)
+		* @return is the result of the multiplicative inverse.
+		*/
+		//ILVector2n MultiplicativeInverse() const;
 		void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const;
 		
 		/*

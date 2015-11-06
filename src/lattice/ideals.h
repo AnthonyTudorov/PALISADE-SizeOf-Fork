@@ -173,6 +173,7 @@ namespace lbcrypto {
 			this->m_CRIFactors = ild.m_CRIFactors;
 			this->m_rootsOfUnity = ild.m_rootsOfUnity;
 			this->m_cyclotomicOrder = usint(ild.m_cyclotomicOrder);
+			this->m_modulus = ild.m_modulus;
 
 			return *this;
 		}

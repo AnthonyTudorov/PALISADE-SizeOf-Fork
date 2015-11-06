@@ -431,6 +431,10 @@ namespace lbcrypto {
 	{
 		m_vectors = values;
 	}
+	/*ILVectorArray2n lbcrypto::ILVectorArray2n::Times(const ILVectorArray2n & element) const
+	{
+		return ILVectorArray2n();
+	}*/
 	void lbcrypto::ILVectorArray2n::DecodeElement(ByteArrayPlaintextEncoding * text, const BigBinaryInteger & modulus) const
 	{
 	}
@@ -461,32 +465,23 @@ namespace lbcrypto {
 	{
 		BigBinaryInteger pIndex(m_params.GetModuli()[i]);
 
-		std::cout << "value of pIndex is : " << pIndex << std::endl;
-
-	//	m_params.SetModulus(BigBinaryInteger("100"));
-
-		std::cout << "VALUE OF BIG MODULUS IS : " << m_params.GetModulus() << std::endl;
+		std::cout << "Value of pIndex is : " << pIndex << std::endl;
 
 		BigBinaryInteger bigModulus(m_params.GetModulus());
 
-		std::cout << "value of bigModulus is : " << bigModulus << std::endl;
+		std::cout << "Value of bigModulus is : " << bigModulus << std::endl;
 
 		BigBinaryInteger divideBigModulusByIndexModulus;
 
 		divideBigModulusByIndexModulus = bigModulus.DividedBy(pIndex);
 
-		std::cout << "value of division is  : " << divideBigModulusByIndexModulus << std::endl;
+		std::cout << "value of division is : " << divideBigModulusByIndexModulus << std::endl;
 
 		BigBinaryInteger modularInverse;
 
-		std::cout << "value of cyclotomic order is is  : " << m_params.GetCyclotomicOrder() << std::endl;
-
-
 		modularInverse = divideBigModulusByIndexModulus.ModInverse(pIndex);
 
-		std::cout << "value of division is  : " << modularInverse << std::endl;
-
-
+		std::cout << "Modular inverse is : " << modularInverse << std::endl;
 
 		return modularInverse;
 	}
