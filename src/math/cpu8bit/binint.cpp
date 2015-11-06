@@ -1788,6 +1788,31 @@ BigBinaryInteger BigBinaryInteger::intToBigBinaryInteger(usint m){
 	
 }
 
+BigBinaryInteger BigBinaryInteger::BinaryToBigBinaryInt(const std::string& bitString){
+	std::string zero = "0";
+	BigBinaryInteger value("0");
+	usint len = bitString.length();
+	for (usint index = 0; index < len; index++)
+  	{
+  		if((zero[0] == bitString[index]))
+  			continue;
+  		else {
+  			value += BigBinaryInteger::TWO.Exp(len - 1 - index);
+  		}
+  	}
+  	return value;
+}
+
+BigBinaryInteger BigBinaryInteger::Exp(usint p) const{
+	if (p == 0) return BigBinaryInteger(BigBinaryInteger::ONE);
+	BigBinaryInteger x(*this);
+  	if (p == 1) return x;
+
+	BigBinaryInteger tmp = x.Exp(p/2);
+	if (p%2 == 0) return tmp * tmp;
+	else return tmp * tmp * x;
+}
+
 } // namespace lbcrypto ends
 
 

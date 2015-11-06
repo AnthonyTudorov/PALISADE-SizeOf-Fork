@@ -10,6 +10,7 @@ List of Authors:
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
+		Nishanth Pasham, np386@njit.edu
 Description:	
 	This code exercises the math libraries of the PALISADE lattice encryption library.
 
@@ -955,8 +956,26 @@ TEST(method_right_shift_equals,shift_greater_than_max_shift){
 	EXPECT_EQ(expectedResult, a.ConvertToInt());
 }
 
+//TEST CASE FOR STATIC METHOD BinaryToBigBinaryInt in BigBinaryInteger
 
+TEST(method_binary_string_to_big_binary_integer, equals){
 
+	std:string binaryString = "1011101101110001111010111011000000011";
+	BigBinaryInteger b = lbcrypto::BigBinaryInteger::BinaryToBigBinaryInt(binaryString);
 
+	BigBinaryInteger expectedResult("100633769475");
 
+	EXPECT_EQ(expectedResult, b);
+
+}
+
+TEST(method_big_binary_int_exponentiation_without_modulus, equals){
+
+	BigBinaryInteger x("56");
+	BigBinaryInteger result = x.Exp(10);
+
+	BigBinaryInteger expectedResult("303305489096114176");
+
+	EXPECT_EQ(expectedResult, result);
+}
 

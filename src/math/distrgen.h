@@ -38,6 +38,9 @@
 #include <math.h>
 #include <random>
 
+ #include <bitset>
+ #include <string>
+
 /**
  * @namespace lbcrypto
  * The namespace of lbcrypto
@@ -106,8 +109,8 @@ public:
 	/**
 	 * Basic constructor for specifying distribution parameter and modulus.
 	 *
-	 * @param std is the distirbution parameter.
-	 * @param &mod is the distirbution modulus.  	  
+	 * @param std is the distribution parameter.
+	 * @param &mod is the distribution modulus.  	  
 	 */
 	DiscreteGaussianGenerator(sint std,BigBinaryInteger &mod);
 
@@ -220,7 +223,7 @@ public:
 	 *
 	 * @return the modulus of the generator.	  
 	 */
-	BigBinaryInteger GetModulus() const;
+	const BigBinaryInteger& GetModulus() const;
 
 	/**
 	 * Sets the modulus of the generator.
@@ -244,6 +247,16 @@ public:
 	 */
 	BigBinaryVector GenerateVector(usint size) const;
 
+private:
+	BigBinaryInteger m_modulus;
+	// usint minVal;
+	// usint lenOfMax;
+	// usint maxVal;
+	// usint moduloLength;
+	// usint noOfIter;
+	// usint remainder;
+	void InitializeVals();
+	usint Exponentiation(usint x, usint p) const;
 };
 
 

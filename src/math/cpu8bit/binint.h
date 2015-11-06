@@ -430,6 +430,22 @@ public:
 	 */
 	static BigBinaryInteger intToBigBinaryInteger(usint m);
 
+	/**
+	 * Convert a string representation of a binary number to a decimal BigBinaryInt.
+	 *
+	 * @param s the binary num in string.
+	 * @return the binary number represented as a decimal big binary int.	  
+	 */
+	static BigBinaryInteger BinaryToBigBinaryInt(const std::string& bitString);
+
+	/**
+	 * Exponentiation of a bigBinaryInteger x. Returns x^p
+	 *
+	 * @param p the exponent.
+	 * @return the big binary integer x^p.	  
+	 */
+	BigBinaryInteger Exp(usint p) const;
+
 	//constant definations
 
 	/**

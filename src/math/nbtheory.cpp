@@ -53,7 +53,7 @@ namespace lbcrypto {
 */
  static BigBinaryInteger RNG(const BigBinaryInteger& n)
  {
-	std::cout << " \n********WARNING: This code is calling an incorrect random number generator that is intended for temporary use ONLY!!!!!  This function, RNG(const BigBinaryInteger& n), is in nbtheory.cpp*********" << std::endl;
+	// std::cout << " \n********WARNING: This code is calling an incorrect random number generator that is intended for temporary use ONLY!!!!!  This function, RNG(const BigBinaryInteger& n), is in nbtheory.cpp*********" << std::endl;
 
 	std::string rand1 = std::to_string(rand());
 	std::string rand2 = std::to_string(rand());
