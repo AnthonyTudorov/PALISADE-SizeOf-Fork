@@ -15,35 +15,35 @@ TEST(OneZeroPad, test_empty) {
 }
 
 TEST(OneZeroPad, test_one_char_short) {
-    ByteArray partialBlock = ByteArrayFromString("almost 22 characters!");
+    ByteArray partialBlock("almost 22 characters!");
     OneZeroPad::Pad(22, &partialBlock);
-    EXPECT_EQ(ByteArrayFromString("almost 22 characters!\x80"), partialBlock);
+    EXPECT_EQ(ByteArray("almost 22 characters!\x80"), partialBlock);
 
     OneZeroPad::Unpad(&partialBlock);
-    EXPECT_EQ(ByteArrayFromString("almost 22 characters!"), partialBlock);
+    EXPECT_EQ(ByteArray("almost 22 characters!"), partialBlock);
 }
 
 TEST(OneZeroPad, test_two_chars_short) {
-    ByteArray partialBlock = ByteArrayFromString("almost 23 characters!");
+    ByteArray partialBlock = ByteArray("almost 23 characters!");
     OneZeroPad::Pad(23, &partialBlock);
-    EXPECT_EQ(ByteArrayFromString("almost 23 characters!\x80\0", 23), partialBlock);
+    EXPECT_EQ(ByteArray("almost 23 characters!\x80\0", 23), partialBlock);
 
     OneZeroPad::Unpad(&partialBlock);
-    EXPECT_EQ(ByteArrayFromString("almost 23 characters!"), partialBlock);
+    EXPECT_EQ(ByteArray("almost 23 characters!"), partialBlock);
 }
 
 TEST(OneZeroPad, test_full_block) {
-    ByteArray fullBlock = ByteArrayFromString("21 whole characters!!");
+    ByteArray fullBlock = ByteArray("21 whole characters!!");
     OneZeroPad::Pad(21, &fullBlock);
     EXPECT_EQ(
-        ByteArrayFromString(
+        ByteArray(
         "21 whole characters!!\x80\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 42
         ),
         fullBlock
         );
 
     OneZeroPad::Unpad(&fullBlock);
-    EXPECT_EQ(ByteArrayFromString("21 whole characters!!"), fullBlock);
+    EXPECT_EQ(ByteArray("21 whole characters!!"), fullBlock);
 }
 
 TEST(ZeroPad, test_one_byte_short) {

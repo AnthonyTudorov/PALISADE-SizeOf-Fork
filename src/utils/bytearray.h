@@ -1,7 +1,8 @@
 /**
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>,
+ *	Kevin King <4kevinking@gmail.com>
  * @version 00_03
  *
  * @section LICENSE
@@ -28,57 +29,48 @@
  *
  * @section DESCRIPTION
  *
- * This code provides basic integer types for lattice crypto.
+ * This code provides a byte array abstraction.
+ *
  */
+#ifndef LBCRYPTO_UTILS_BYTEARRAY_H
+#define LBCRYPTO_UTILS_BYTEARRAY_H
 
-#ifndef LBCRYPTO_UTILS_INTTYPES_H
-#define LBCRYPTO_UTILS_INTTYPES_H
-
-#include <string>
-#include <stdint.h>
+#include "inttypes.h"
+#include <vector>
 
 /**
- * @namespace lbcrypto
- * The namespace of lbcrypto
+ * @brief Type used for representing string ByteArray types.
+ * Provides conversion functions to vector<uint8_t> from standard string types.
  */
-//namespace lbcrypto {
-
-/**
- * @brief Type used for representing signed 8-bit integers.
- */
-typedef int8_t schar;
-
-/**
- * @brief Type used for representing signed 16-bit short integers.
- */
-typedef int16_t sshort;
-
-/**
- * @brief Type used for representing signed 32-bit integers.
- */
-typedef int32_t sint;
-
-/**
- * @brief Type used for representing unsigned 8-bit integers.
- */
-typedef uint8_t uschar;
-
-/**
- * @brief Type used for representing unsigned 16-bit short integers.
- */
-typedef uint16_t usshort;
-
-/**
- * @brief Type used for representing unsigned 32-bit integers.
- */
-typedef uint32_t usint;
-
-/**
- * @brief Represents whether the polynomial ring is in EVALUATION or COEFFICIENT representation.
- */
-enum Format{ EVALUATION=0, COEFFICIENT=1};
-
-
-//} // namespace lbcrypto ends
+struct ByteArray : public std::vector<uint8_t> {
+public:
+    /**
+     *  @brief Standard string constructor.
+     */
+    ByteArray(const std::string& str);
+    /**
+     *  @brief C-string string constructor.
+     */
+    ByteArray(const char* cstr);
+    /**
+     *  @brief Explicit constructor for C-strings that do not end at the first null
+     *  byte.
+     */
+    ByteArray(const char* cstr, usint len);
+    ByteArray();
+    /**
+     *  Initializer-list assignment, i.e. `ByteArray{1,2,3}`;
+     */
+    ByteArray(std::initializer_list<uint8_t> l);
+    /**
+     *  @brief C-string assignment.
+     */
+    ByteArray& operator=(const char* cstr);
+    /**
+     *  @brief string assignment.
+     */
+    ByteArray& operator= (const std::string& s);
+private:
+};
 
 #endif

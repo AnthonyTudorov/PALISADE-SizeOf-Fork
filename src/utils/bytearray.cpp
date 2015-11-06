@@ -1,7 +1,8 @@
 /**
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>,
+ *	Kevin King <4kevinking@gmail.com>
  * @version 00_03
  *
  * @section LICENSE
@@ -28,57 +29,25 @@
  *
  * @section DESCRIPTION
  *
- * This code provides basic integer types for lattice crypto.
+ * This code provides a byte array abstraction.
+ *
  */
 
-#ifndef LBCRYPTO_UTILS_INTTYPES_H
-#define LBCRYPTO_UTILS_INTTYPES_H
+#include "bytearray.h"
 
-#include <string>
-#include <stdint.h>
+using namespace std;
 
-/**
- * @namespace lbcrypto
- * The namespace of lbcrypto
- */
-//namespace lbcrypto {
-
-/**
- * @brief Type used for representing signed 8-bit integers.
- */
-typedef int8_t schar;
-
-/**
- * @brief Type used for representing signed 16-bit short integers.
- */
-typedef int16_t sshort;
-
-/**
- * @brief Type used for representing signed 32-bit integers.
- */
-typedef int32_t sint;
-
-/**
- * @brief Type used for representing unsigned 8-bit integers.
- */
-typedef uint8_t uschar;
-
-/**
- * @brief Type used for representing unsigned 16-bit short integers.
- */
-typedef uint16_t usshort;
-
-/**
- * @brief Type used for representing unsigned 32-bit integers.
- */
-typedef uint32_t usint;
-
-/**
- * @brief Represents whether the polynomial ring is in EVALUATION or COEFFICIENT representation.
- */
-enum Format{ EVALUATION=0, COEFFICIENT=1};
-
-
-//} // namespace lbcrypto ends
-
-#endif
+ByteArray::ByteArray(const std::string& str) : vector(str.begin(), str.end()) {};
+ByteArray::ByteArray(const char* cstr) : ByteArray(string(cstr)) {};
+ByteArray::ByteArray(const char* cstr, usint len) : ByteArray(string(cstr, len)) {};
+ByteArray::ByteArray(){};
+ByteArray::ByteArray(std::initializer_list<uint8_t> l) : vector(l) {};
+ByteArray& ByteArray::operator=(const string& s) {
+    vector::operator=(vector(s.begin(), s.end()));
+    return *this;
+};
+ByteArray& ByteArray::operator=(const char* cstr) {
+    string s(cstr);
+    operator=(s);
+    return *this;
+};
