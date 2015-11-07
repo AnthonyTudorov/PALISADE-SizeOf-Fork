@@ -51,17 +51,17 @@ public:
     /**
      *  @brief C-string string constructor.
      */
-    ByteArray(const char* cstr);
+    //ByteArray(const char* cstr);
     /**
      *  @brief Explicit constructor for C-strings that do not end at the first null
      *  byte.
      */
-    ByteArray(const char* cstr, usint len);
+    //ByteArray(const char* cstr, usint len);
     ByteArray();
     /**
      *  Initializer-list assignment, i.e. `ByteArray{1,2,3}`;
      */
-    ByteArray(std::initializer_list<uint8_t> l);
+    //ByteArray(std::initializer_list<uint8_t> l);
     /**
      *  @brief C-string assignment.
      */
