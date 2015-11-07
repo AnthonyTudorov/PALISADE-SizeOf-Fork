@@ -76,7 +76,7 @@ struct SecureParams {
 
 int main(){
 	
-	/*
+	
 	std::cout << "Relinearization window : " << std::endl;
 	std::cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
 
@@ -91,34 +91,36 @@ int main(){
 	////NTRUPRE is where the core functionality is provided.
 	NTRUPRE(input);
 	//NTRUPRE(3);
-	*/
+	
 
 	// The below lines clean up the memory use.
 	//system("pause");
 
-	//Hadi's code
-	usint m = 16;
-	BigBinaryInteger rootOfUnity("61564");
-	Format format = COEFFICIENT;
+	////Hadi's code
+	//usint m = 16;
+	//BigBinaryInteger rootOfUnity("61564");
+	//Format format = COEFFICIENT;
 
-	BigBinaryInteger modulu1;
-    modulu1 = FindPrimeModulus(16, 20);
-	cout<<modulu1<<endl;
+	//BigBinaryInteger modulu1;
+ //   modulu1 = FindPrimeModulus(16, 20);
+	//cout<<modulu1<<endl;
 
-    BigBinaryInteger rootOfUnity1;
-	rootOfUnity1 = RootOfUnity(m, modulu1);
+ //   BigBinaryInteger rootOfUnity1;
+	//rootOfUnity1 = RootOfUnity(m, modulu1);
 
-	ILParams ilParams2(m, modulu1, rootOfUnity);
+	//ILParams ilParams2(m, modulu1, rootOfUnity);
 
 
-	ILVector2n c2(ilParams2);
-	usint m2 = 16;
-	DiscreteGaussianGenerator d2(m2/2, modulu1);
-	BigBinaryVector x2 = d2.GenerateVector(m2/2);
-	c2.SetValues(x2, Format::COEFFICIENT);
+	//ILVector2n c2(ilParams2);
+	//usint m2 = 16;
+	//DiscreteGaussianGenerator d2(m2/2, modulu1);
+	//BigBinaryVector x2 = d2.GenerateVector(m2/2);
+	//c2.SetValues(x2, Format::COEFFICIENT);
 
-	c2.SwitchFormat();
-	c2.SwitchFormat();
+	//c2.SwitchFormat();
+	//c2.SwitchFormat();
+
+
 	std::cin.get();
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();

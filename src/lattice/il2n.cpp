@@ -309,11 +309,13 @@ namespace lbcrypto {
 		}
 		*text = ByteArrayPlaintextEncoding(byteArray);
 	}
-
 	//Convert binary string to lattice format; do p=2 first but document that we need to generalize it later
 	void ILVector2n::EncodeElement(const ByteArrayPlaintextEncoding &encodedPlaintext, const BigBinaryInteger &modulus) {
 
 		ByteArray encoded = encodedPlaintext.GetData();
+
+		//number of bytes in ring element
+		usint len = m_params.GetOrder()/16;
 
 		if (m_values != NULL) {
 			delete m_values;
@@ -322,11 +324,11 @@ namespace lbcrypto {
 		usint mod = modulus.ConvertToInt();
 		usint p = ceil((float)log((double)255) / log((double)mod));
 
-		m_values = new BigBinaryVector(p*encoded.size());
+		m_values = new BigBinaryVector(p*len);
 		(*m_values).SetModulus(m_params.GetModulus());
 		m_format = COEFFICIENT;
 
-		for (usint i = 0; i<encoded.size(); i++) {
+		for (usint i = 0; i<len; i++) {
 			usint Num = encoded.at(i);
 			usint exp = mod, Rem = 0;
 			for (usint j = 0; j<p; j++) {
