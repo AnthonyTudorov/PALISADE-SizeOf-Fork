@@ -224,6 +224,15 @@ namespace lbcrypto {
 			return m_modulus;
 		}
 
+		/**
+		* Get rootOfUnity.
+		*
+		* @return the rootOfUnity.
+		*/
+		const BigBinaryInteger &GetRootOfUnity() const {
+			return m_rootOfUnity;
+		}
+
 		// Set accessors
 		/**
 		* Set method of the order.
@@ -261,6 +270,15 @@ namespace lbcrypto {
 			m_modulus = modulus;
 		}
 
+		/**
+		* Set the rootOfUnity.
+		*
+		* @param &rootOfUnity the rootOfUnity.
+		*/
+		void SetRootOfUnity(const BigBinaryInteger &rootOfUnity) {
+			m_rootOfUnity = rootOfUnity;
+		}
+
 
 		/**
 		* Destructor.
@@ -282,6 +300,10 @@ namespace lbcrypto {
 
 		//Modulus that is factorized into m_moduli
 		BigBinaryInteger m_modulus;
+
+		//rootOfUnity of Modulus
+		BigBinaryInteger m_rootOfUnity;
+
 	};
 
 	// Parameters for ideal lattice: cyclotomic order and modulus

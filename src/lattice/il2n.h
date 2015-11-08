@@ -770,13 +770,11 @@ namespace lbcrypto {
 		Helper method for chinese remainder interpolatiom
 		*/
 
-		BigBinaryInteger CalculateInterpolationSum(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors, usint index);
-
-		/*
-		Helper method for chinese remainder interpolatiom
+		/**
+		*This function returns the interpolated vectors
 		*/
 
-		std::vector<std::vector<BigBinaryInteger>> BuildChineseRemainderInterpolationVector(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors);
+		ILVector2n InterpolateIlArrayVector2n();
 
 		//Convert binary string to lattice format
 		/**
@@ -792,34 +790,35 @@ namespace lbcrypto {
 		*/
 		void SwitchFormat();
 
+		private:BigBinaryInteger CalculateInterpolationSum(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors, usint index);
 
 		/*
 		Helper method for chinese remainder interpolatiom
 		*/
 
-		BigBinaryInteger CalculateChineseRemainderInterpolationModuluForIndex(usint i);
+		private:std::vector<std::vector<BigBinaryInteger>> BuildChineseRemainderInterpolationVector(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors);
 
-		/**
-		*This function returns the interpolated vectors
+		/*
+		Helper method for chinese remainder interpolatiom
 		*/
 
-	    ILVector2n InterpolateIlArrayVector2n();
+		private:BigBinaryInteger CalculateChineseRemainderInterpolationCoefficient(usint i);
 
 	    /*
 		*This function is a helper function that applies a modulus to all IlVector2n's so they don't wrap their respective modulus
 		*/
 	
-	void ChangeModuliOfIlVectorsToMatchDBLCRT();
+	private:void ChangeModuliOfIlVectorsToMatchDBLCRT();
 
 	/*
 	*helper function for chinese remainder interpolation
 	*/
-	std::vector<BigBinaryInteger> BuildChineseRemainderInterpolationVectorForRow(usint i);
+	private:std::vector<BigBinaryInteger> BuildChineseRemainderInterpolationVectorForRow(usint i);
 
 			/*This function takes in a row and a vector of vector of BigBinaryIntegers and calculates the sum of each
 			row, module the value set by the CRI formula*/
 			/*This method calculates the value for CRI*/
-	BigBinaryInteger CalculatInterpolateModulu(BigBinaryInteger value, usint index);
+	private:BigBinaryInteger CalculatInterpolateModulu(BigBinaryInteger value, usint index);
 
 			/*
 
