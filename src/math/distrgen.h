@@ -259,8 +259,12 @@ private:
 	BigBinaryInteger m_modulus;
 
 	static const usint MINVAL = 0;
-	static const usint LENOFMAX = std::numeric_limits<usint>::digits;
-	static const usint MAXVAL = std::numeric_limits<usint>::max();
+	//This code does not work in VS 2012 - need to find a solution
+	//static const usint LENOFMAX = std::numeric_limits<usint>::digits;
+	//static const usint MAXVAL = std::numeric_limits<usint>::max();
+
+	static const usint LENOFMAX = 16;
+	static const usint MAXVAL = 2^16-1;
 
 	usint moduloLength;
 	usint noOfIter;
