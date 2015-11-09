@@ -380,9 +380,15 @@ namespace lbcrypto {
 
 
 
-	lbcrypto::ILVectorArray2n::ILVectorArray2n(const ILVectorArray2n & element)
+	lbcrypto::ILVectorArray2n::ILVectorArray2n() : m_vectors(NULL), m_format(EVALUATION),m_params()
 	{
-		*this = element;
+	}
+
+	ILVectorArray2n::ILVectorArray2n(const ILVectorArray2n &element)  {
+		this->m_params = element.m_params;
+		this->m_format = element.m_format;
+		this->m_vectors = element.m_vectors;
+
 	}
 
 	ILVectorArray2n::ILVectorArray2n(const ILDCRTParams& params, std::vector<ILVector2n>& levels, Format format)
@@ -408,6 +414,21 @@ namespace lbcrypto {
 
 	}
 
+	ILVectorArray2n & lbcrypto::ILVectorArray2n::operator=(const ILVectorArray2n & rhs)
+	{
+		if (this != &rhs) {
+			
+				this->m_vectors = rhs.m_vectors;			
+			    this->m_params = rhs.m_params;
+			    this->m_format = rhs.m_format;
+				
+		}
+
+		return *this;
+
+
+	}
+
 	lbcrypto::ILVectorArray2n::~ILVectorArray2n()
 	{
 		//	delete m_vectors;
@@ -430,6 +451,52 @@ namespace lbcrypto {
 	void lbcrypto::ILVectorArray2n::SetValues(std::vector<ILVector2n>& values)
 	{
 		m_vectors = values;
+	}
+	ILVectorArray2n lbcrypto::ILVectorArray2n::MultiplicativeInverse() const
+	{
+
+		ILVectorArray2n tmp(*this);
+		for (usint i = 0; i < m_vectors.size(); i++) {
+
+			tmp.m_vectors[i] = tmp.m_vectors[i].MultiplicativeInverse();
+
+		}
+
+
+
+		return tmp;
+	}
+	ILVectorArray2n & lbcrypto::ILVectorArray2n::Plus(const ILVectorArray2n & element) const
+	{
+		ILVectorArray2n tmp(*this);
+
+		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
+
+			tmp.m_vectors[i] = ((tmp.GetValues(i)).Plus(element.GetValues(i))).Mod(m_params.GetModuli()[0]);
+
+			std::cout << "HELPER FUNCTION ORIGNAL VALUE " << tmp.m_vectors[i].GetValues() << std::endl;
+			std::cout << "HELPER FUNCTION ADDED VALUE " << element.m_vectors[i].GetValues() << std::endl;
+
+
+		}
+		
+		return tmp;
+	}
+	ILVectorArray2n lbcrypto::ILVectorArray2n::Times(const ILVectorArray2n & element) const
+	{
+
+		ILVectorArray2n tmp(*this);
+		for (usint i = 0; i < m_vectors.size(); i++) {
+
+	//		tmp.m_vectors[i] = m_vectors[i].Times(element.m_vectors[i]);
+			tmp.m_vectors[i].SetValues(((m_vectors[i].GetValues()).ModMul(element.m_vectors[i].GetValues())), m_format);
+		//		*tmp.m_values = m_values->ModMul(*element.m_values);
+
+
+		}
+		return tmp;
+
+		//return ILVectorArray2n();
 	}
 	/*ILVectorArray2n lbcrypto::ILVectorArray2n::Times(const ILVectorArray2n & element) const
 	{
@@ -514,6 +581,10 @@ namespace lbcrypto {
 		modulus = m_params.GetModulus();
 		BigBinaryInteger rootOfUnity;
 		rootOfUnity = m_params.GetRootOfUnity();
+
+	//	std::cout << "M_PARAM MODULUS" << m_params.GetModulus() << std::endl;
+	//	std::cout << "M_PARAM CYCLOTOMIC ORDER" << m_params.GetCyclotomicOrder() << std::endl;
+
 
 		ILParams ilParams(m_params.GetCyclotomicOrder(), modulus, rootOfUnity);
 		

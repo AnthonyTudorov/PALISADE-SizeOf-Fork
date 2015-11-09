@@ -530,6 +530,11 @@ namespace lbcrypto {
 
 		// CONSTRUCTORS
 
+
+		/**
+		* Constructor that initializes nothing.
+		*/
+		ILVectorArray2n();
 		// copy constructor
 		/*
 		* Copy constructor.
@@ -552,6 +557,24 @@ namespace lbcrypto {
 		* @param element the input parameter to build ILVectorArray2n from one vector for double-CRT representation.
 		*/
 		ILVectorArray2n(ILVector2n element, const ILDCRTParams& params, Format format);
+
+		/**
+		* Assignment Operator.
+		*
+		* @param &rhs the copied vector.
+		* @return the resulting vector.
+		*/
+		ILVectorArray2n& operator=(const ILVectorArray2n &rhs);
+
+		/**
+		* Assignment Operator.
+		*
+		* @param &rhs the copied vector.
+		* @return the resulting vector.
+		*/
+	//	ILVectorArray2n& operator*(const ILVectorArray2n &rhs, const ILVectorArray2n &b) { return *this.Times(rhs); }
+
+
 		/*
 		* Construct using a discrete Gaussian generator and a set of parameters.
 		*
@@ -598,8 +621,18 @@ namespace lbcrypto {
 		*/
 		void SetValues(std::vector<ILVector2n>& values);
 
+
+
 		// SCALAR OPERATIONS
 
+
+		// multiplicative inverse operation
+		/**
+		* Performs a multiplicative inverse operation and returns the result.
+		*
+		* @return is the result of the multiplicative inverse.
+		*/
+		ILVectorArray2n MultiplicativeInverse() const;
 		// addition operation	
 		/*
 		* Scalar addition - add an element to all entries.
@@ -656,7 +689,16 @@ namespace lbcrypto {
 		* @param &element is the element to add with.
 		* @return is the result of the addition.
 		*/
-		//		ILVectorArray2n& Plus(const ILVectorArray2n &element) const;
+			ILVectorArray2n& Plus(const ILVectorArray2n &element) const;
+
+		// multiplication operation - 
+		/**
+		* Performs a multiplication operation and returns the result.
+		*
+		* @param &element is the element to multiply with.
+		* @return is the result of the multiplication.
+		*/
+		ILVectorArray2n Times(const ILVectorArray2n &element) const;
 
 		// subtraction operation
 		/*
