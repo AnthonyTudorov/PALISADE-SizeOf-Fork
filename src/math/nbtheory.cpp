@@ -120,6 +120,9 @@ BigBinaryInteger RootOfUnity(int m, const BigBinaryInteger& modulo)
 	BigBinaryInteger result;
 	BigBinaryInteger gen = FindGenerator(modulo);
 	result = gen.ModExp((modulo-BigBinaryInteger::ONE).DividedBy(BigBinaryInteger(std::to_string(m))), modulo);
+	if(result == BigBinaryInteger::ONE) {
+		return RootOfUnity(m, modulo);
+	}
 	return result;
 }
 
