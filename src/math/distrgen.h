@@ -249,14 +249,15 @@ public:
 
 private:
 	BigBinaryInteger m_modulus;
-	// usint minVal;
-	// usint lenOfMax;
-	// usint maxVal;
-	// usint moduloLength;
-	// usint noOfIter;
-	// usint remainder;
+	
+	static const usint MINVAL = 0;
+	static const usint LENOFMAX = std::numeric_limits<usint>::digits;
+	static const usint MAXVAL = std::numeric_limits<usint>::max();
+
+	usint moduloLength;
+	usint noOfIter;
+	usint remainder;
 	void InitializeVals();
-	usint Exponentiation(usint x, usint p) const;
 };
 
 
