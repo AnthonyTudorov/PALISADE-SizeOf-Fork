@@ -5,25 +5,25 @@
  * @version 00_04
  *
  * @section LICENSE
- * 
+ *
  * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification, 
+ * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this 
+ * 1. Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this 
- * list of conditions and the following disclaimer in the documentation and/or other 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
  * materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @section DESCRIPTION
@@ -57,17 +57,25 @@ public:
 	/**
 	 * Basic virtual method.
 	 *
-	 * @return a return value set to 0.  	  
+	 * @return a return value set to 0.
 	 */
 	virtual BigBinaryInteger GenerateInteger() const = 0;
 
 	/**
 	 * Basic virtual method.
 	 *
-	 * @return a return value set to 0.  	  
+	 * @return a return value set to 0.
 	 */
 	virtual BigBinaryVector GenerateVector(usint size) const = 0;
+
+
+    /**
+     *  Interface requires virtual destructor.
+     */
+    virtual ~DistributionGenerator() = 0;
 };
+
+inline DistributionGenerator::~DistributionGenerator() { };
 
 //class UniformIntegerGenerator: DistributionGenerator
 //{
@@ -86,7 +94,7 @@ public:
 //    BigBinaryInteger& GenerateInteger() const;
 //    BigBinaryVector& GenerateVector(int size) const;
 //
-//private: 
+//private:
 //    //it is assumed that lower and higher bounds for uniform random distribution can be up to the value of ciphertext modulus
 //	BigBinaryInteger m_lowerBound;
 //    BigBinaryInteger m_upperBound;
@@ -102,7 +110,7 @@ class DiscreteGaussianGenerator: DistributionGenerator
 {
 public:
 	/**
-	 * Basic constructor.	  	  
+	 * Basic constructor.
 	 */
 	DiscreteGaussianGenerator(); //srand(time(NULL)) is called here
 
@@ -110,12 +118,12 @@ public:
 	 * Basic constructor for specifying distribution parameter and modulus.
 	 *
 	 * @param std is the distribution parameter.
-	 * @param &mod is the distribution modulus.  	  
+	 * @param &mod is the distribution modulus.
 	 */
 	DiscreteGaussianGenerator(sint std,BigBinaryInteger &mod);
 
 	/**
-	 * Destructor.	  
+	 * Destructor.
 	 */
 	~DiscreteGaussianGenerator();
 
@@ -126,7 +134,7 @@ public:
 	/**
 	 * Returns the standard deviation of the generator.
 	 *
-	 * @return the analytically obtained standard deviation of the generator.	  
+	 * @return the analytically obtained standard deviation of the generator.
 	 */
 	sint GetStd() const;
     //int GetUpperBound() const;
@@ -135,7 +143,7 @@ public:
 	/**
 	 * Sets the standard deviation of the generator.
 	 *
-	 * @param std the analytic standard deviation of the generator.	  
+	 * @param std the analytic standard deviation of the generator.
 	 */
 	void SetStd(sint std);
     //void SetUpperBound(int upperBound);
@@ -143,21 +151,21 @@ public:
 	/**
 	 * Sets the modulus of the generator.
 	 *
-	 * @param &modulus the analytic standard deviation of the generator.	  
+	 * @param &modulus the analytic standard deviation of the generator.
 	 */
 	void SetModulus(BigBinaryInteger &modulus);
 
 	/**
 	 * Returns a generated char vector.
 	 *
-	 * @param size the number of values to return.	  
+	 * @param size the number of values to return.
 	 * @return a pointer to an array of schar values generated with the distribution.
 	 */
 	schar* GenerateCharVector(usint size) const;
 
 	/**
 	 * Returns a generated integer.
-	 *  
+	 *
 	 * @return a generated integer.
 	 */
 	BigBinaryInteger GenerateInteger() const;
@@ -165,7 +173,7 @@ public:
 	/**
 	 * Returns a generated vector.
 	 *
-	 * @param size the number of values to return.	  
+	 * @param size the number of values to return.
 	 * @return vector of values generated with the distribution.
 	 */
 	BigBinaryVector GenerateVector(usint size) const;
@@ -173,13 +181,13 @@ public:
 	/**
 	 * Returns a generated vector.
 	 *
-	 * @param vectorLength the number of values to return.	
-	 * @param &modValue the number of values to return.	   
+	 * @param vectorLength the number of values to return.
+	 * @param &modValue the number of values to return.
 	 * @return vector of values generated with the distribution.
 	 */
 	static BigBinaryVector DiscreteGaussianPositiveGenerator(usint vectorLength,const BigBinaryInteger &modValue);
 
-private: 
+private:
 	usint FindInVector(const std::vector<double> &S,double search) const;
     //Gyana to add precomputation methods and data members
 	//all parameters are set as int because it is assumed that they are used for generating "small" polynomials only
@@ -198,19 +206,19 @@ class DiscreteUniformGenerator: DistributionGenerator
 {
 public:
 	/**
-	 * Basic constructor.	  	  
+	 * Basic constructor.
 	 */
 	DiscreteUniformGenerator(); //srand(time(NULL)) is called here
 
 	/**
 	 * Basic constructor for specifying distribution modulus.
 	 *
-	 * @param &mod is the distirbution modulus.  	  
+	 * @param &mod is the distirbution modulus.
 	 */
 	DiscreteUniformGenerator(BigBinaryInteger &mod);
 
 	/**
-	 * Destructor.	  
+	 * Destructor.
 	 */
 	~DiscreteUniformGenerator();
 
@@ -221,20 +229,20 @@ public:
 	/**
 	 * Returns the modulus of the generator.
 	 *
-	 * @return the modulus of the generator.	  
+	 * @return the modulus of the generator.
 	 */
 	const BigBinaryInteger& GetModulus() const;
 
 	/**
 	 * Sets the modulus of the generator.
 	 *
-	 * @param &mod is the distirbution modulus.  
+	 * @param &mod is the distirbution modulus.
 	 */
 	void SetModulus(BigBinaryInteger &mod);
 
 	/**
 	 * Returns a generated integer.
-	 *  
+	 *
 	 * @return a generated integer.
 	 */
 	BigBinaryInteger GenerateInteger() const;
@@ -242,14 +250,14 @@ public:
 	/**
 	 * Returns a generated vector.
 	 *
-	 * @param size the number of values to return.	  
+	 * @param size the number of values to return.
 	 * @return vector of values generated with the distribution.
 	 */
 	BigBinaryVector GenerateVector(usint size) const;
 
 private:
 	BigBinaryInteger m_modulus;
-	
+
 	static const usint MINVAL = 0;
 	static const usint LENOFMAX = std::numeric_limits<usint>::digits;
 	static const usint MAXVAL = std::numeric_limits<usint>::max();
@@ -269,18 +277,18 @@ class BinaryUniformGenerator: DistributionGenerator
 {
 public:
 	/**
-	 * Basic constructor.	  	  
+	 * Basic constructor.
 	 */
 	BinaryUniformGenerator(); //srand(time(NULL)) is called here
 
 	/**
-	 * Destructor.	  
+	 * Destructor.
 	 */
-	~BinaryUniformGenerator();
+	~BinaryUniformGenerator() { };
 
 	/**
 	 * Returns a generated integer.
-	 *  
+	 *
 	 * @return a generated integer.
 	 */
 	BigBinaryInteger GenerateInteger() const;
@@ -288,7 +296,7 @@ public:
 	/**
 	 * Returns a generated vector.
 	 *
-	 * @param size the number of values to return.	  
+	 * @param size the number of values to return.
 	 * @return vector of values generated with the distribution.
 	 */
 	BigBinaryVector GenerateVector(usint size) const;

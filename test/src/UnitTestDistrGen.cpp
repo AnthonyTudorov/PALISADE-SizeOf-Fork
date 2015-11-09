@@ -1,17 +1,17 @@
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
-Version: 
-	v00.01 
-Last Edited: 
+Version:
+	v00.01
+Last Edited:
 	11/05/2015 4:37AM
 List of Authors:
-	TPOC: 
+	TPOC:
 		Dr. Kurt Rohloff, rohloff@njit.edu
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
 		Nishanth Pasham, np386@njit.edu
-Description:	
+Description:
 	This code exercises the math libraries of the PALISADE lattice encryption library.
 
 License Information:
@@ -90,7 +90,7 @@ TEST(method_generate_uniform_big_binary_integer_large_modulus,with_in_large_modu
 TEST(method_generate_uniform_big_binary_vector_small_modulus,vector_uniform){
 	BigBinaryInteger modulus("10403");
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
-	
+
 	usint size = 10;
 	BigBinaryVector uniRandVector = distrUniGen.GenerateVector(size);
 
@@ -106,7 +106,7 @@ TEST(method_generate_uniform_big_binary_vector_small_modulus,vector_uniform){
 TEST(method_generate_uniform_big_binary_vector_large_modulus,vector_uniform){
 	BigBinaryInteger modulus("10402635286389262637365363");
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
-	
+
 	usint size = 100;
 	BigBinaryVector uniRandVector = distrUniGen.GenerateVector(size);
 
@@ -120,9 +120,9 @@ TEST(method_generate_uniform_big_binary_vector_large_modulus,vector_uniform){
 TEST(method_generate_uniform_big_binary_vector_mean,vector_uniform){
 	BigBinaryInteger modulus("10403");
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
-	
+
 	usint size = 10000;
-	BigBinaryVector uniRandVector = distrUniGen.GenerateVector(size);
+	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
 
 	BigBinaryInteger mean("0");
 	BigBinaryInteger length(randBigBinaryVector.GetLength());
@@ -135,15 +135,15 @@ TEST(method_generate_uniform_big_binary_vector_mean,vector_uniform){
 
 	BigBinaryInteger acceptableDiff("10");
 
-	EXPECT_LT(diff, acceptableDiff)
+	EXPECT_LT(diff, acceptableDiff);
 }
 
 TEST(method_generate_binary_uniform_big_binary_integer,equals){
 	BinaryUniformGenerator bug = lbcrypto::BinaryUniformGenerator();
 	BigBinaryInteger binUniRandNum = bug.GenerateInteger();
 
-	EXPECT_LT(binUniRandNum, 2);
-	EXPECT_GE(binUniRandNum, 0);
+	EXPECT_LT(binUniRandNum, BigBinaryInteger("2"));
+	EXPECT_GE(binUniRandNum, BigBinaryInteger("0"));
 }
 
 // a large sample. Max of them should be less than q
