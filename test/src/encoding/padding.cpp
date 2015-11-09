@@ -47,7 +47,7 @@ TEST(OneZeroPad, test_full_block) {
 }
 
 TEST(ZeroPad, test_one_byte_short) {
-    ByteArray oneShort{0,1,2};
+    ByteArray oneShort({0,1,2});
     ZeroPad::Pad(4, &oneShort);
 
     EXPECT_EQ(ByteArray({0,1,2,0}), oneShort);

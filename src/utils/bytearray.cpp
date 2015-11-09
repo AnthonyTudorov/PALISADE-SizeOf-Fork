@@ -38,10 +38,17 @@
 using namespace std;
 
 ByteArray::ByteArray(const std::string& str) : vector(str.begin(), str.end()) {};
-//ByteArray::ByteArray(const char* cstr) : ByteArray(string(cstr)) {};
-//ByteArray::ByteArray(const char* cstr, usint len) : ByteArray(string(cstr, len)) {};
+ByteArray::ByteArray(const char* cstr) {
+    string s(cstr);
+    *this = s;
+};
+ByteArray::ByteArray(const char* cstr, usint len) {
+    string s(cstr, len);
+    *this = s;
+};
 ByteArray::ByteArray(){};
-//ByteArray::ByteArray(std::initializer_list<uint8_t> l) : vector(l) {};
+template<size_t N>
+ByteArray::ByteArray(array<uint8_t, N> arr) : vector(arr.begin(), arr.end()){ };
 ByteArray& ByteArray::operator=(const string& s) {
     vector::operator=(vector(s.begin(), s.end()));
     return *this;
