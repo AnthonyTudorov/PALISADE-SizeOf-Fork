@@ -204,7 +204,7 @@ BigBinaryVector DiscreteGaussianGenerator::GenerateVector(usint size) const{
 }
 
 DiscreteUniformGenerator::DiscreteUniformGenerator(){
-	m_modulus = BigBinaryInteger("1");
+	m_modulus = BigBinaryInteger("2");
 	InitializeVals();
 }
 
@@ -226,50 +226,25 @@ void DiscreteUniformGenerator::SetModulus(BigBinaryInteger &mod){
 }
 
 void DiscreteUniformGenerator::InitializeVals(){
-	//TODO: Figure out a way to initialize all these values once!
-	
-	// minVal = 0;
-	// lenOfMax = 5;
-	// maxVal = Exponentiation(2, lenOfMax)-1;
-	// moduloLength = m_modulus.GetMSB();
-	// noOfIter = (moduloLength/lenOfMax) + 1;
-	// remainder = moduloLength % lenOfMax;
-
-	// std::random_device rd;
- 	// std::mt19937 gen(rd());
- 	// std::uniform_int_distribution<> dis(minVal, maxVal);
-}
-
-usint DiscreteUniformGenerator::Exponentiation(usint x, usint p) const{
-  if (p == 0) return 1;
-  if (p == 1) return x;
-
-  usint tmp = Exponentiation(x, p/2);
-  if (p%2 == 0) return tmp * tmp;
-  else return x * tmp * tmp;
+	moduloLength = m_modulus.GetMSB();
+	noOfIter = ((moduloLength % LENOFMAX) == 0) ? (moduloLength/LENOFMAX) : (moduloLength/LENOFMAX) + 1;
+	remainder = moduloLength % LENOFMAX;
 }
 
 BigBinaryInteger DiscreteUniformGenerator::GenerateInteger() const{
-	usint minVal = 0;
-	const usint lenOfMax = 5;
-	usint two = 2;
-	usint maxVal = Exponentiation(two, lenOfMax)-1;
-	usint moduloLength = m_modulus.GetMSB();
-	usint noOfIter = (moduloLength/lenOfMax) + 1;
-	usint remainder = moduloLength % lenOfMax;
 	usint randNum;
 	std::string temp;
 	std::string bigBinaryInteger = "";
 	std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(minVal, maxVal);
+    std::uniform_int_distribution<> dis(DiscreteUniformGenerator::MINVAL, DiscreteUniformGenerator::MAXVAL);
 	for(usint i=0; i< noOfIter; ++i) {
 		randNum = dis(gen);
 		if(i == noOfIter-1) {
-			temp = std::bitset<lenOfMax>(randNum).to_string();
+			temp = std::bitset<DiscreteUniformGenerator::LENOFMAX>(randNum).to_string();
 			bigBinaryInteger += temp.substr(0, remainder);
 		} else {
-			bigBinaryInteger += std::bitset<lenOfMax>(randNum).to_string();
+			bigBinaryInteger += std::bitset<DiscreteUniformGenerator::LENOFMAX>(randNum).to_string();
 		}
 	}
 	BigBinaryInteger randBigBinaryInteger(BigBinaryInteger::BinaryToBigBinaryInt(bigBinaryInteger));
@@ -288,5 +263,22 @@ BigBinaryVector DiscreteUniformGenerator::GenerateVector(usint size) const{
 	return randBigBinaryVector;
 }
 
-} // namespace lbcrypto ends
+BinaryUniformGenerator::BinaryUniformGenerator(){
+}
 
+BigBinaryInteger BinaryUniformGenerator::GenerateInteger() const{
+	std::default_random_engine generator;
+    std::bernoulli_distribution distribution(0.5);
+	return (distribution(generator) ? BigBinaryInteger(BigBinaryInteger::ONE) : BigBinaryInteger(BigBinaryInteger::ZERO)); 
+}
+
+BigBinaryVector BinaryUniformGenerator::GenerateVector(usint size) const{
+	BigBinaryVector randBigBinaryVector(size);
+	for(usint index = 0; index<size; ++index) {
+		BigBinaryInteger temp(this->GenerateInteger());
+		randBigBinaryVector.SetValAtIndex(index, temp);
+	}
+	return randBigBinaryVector;
+}
+
+} // namespace lbcrypto ends

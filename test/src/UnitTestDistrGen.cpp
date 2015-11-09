@@ -117,4 +117,33 @@ TEST(method_generate_uniform_big_binary_vector_large_modulus,vector_uniform){
 	}
 }
 
+TEST(method_generate_uniform_big_binary_vector_mean,vector_uniform){
+	BigBinaryInteger modulus("10403");
+	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+	
+	usint size = 10000;
+	BigBinaryVector uniRandVector = distrUniGen.GenerateVector(size);
 
+	BigBinaryInteger mean("0");
+	BigBinaryInteger length(randBigBinaryVector.GetLength());
+	for(usint index=0; index<randBigBinaryVector.GetLength(); index++) {
+		mean += randBigBinaryVector.GetValAtIndex(index);
+	}
+	BigBinaryInteger computedMean = mean.DividedBy(length);
+	BigBinaryInteger expectedMean = modulus.DividedBy(BigBinaryInteger::TWO);
+	BigBinaryInteger diff = (expectedMean>computedMean) ? (expectedMean.Minus(computedMean)) : (computedMean.Minus(expectedMean));
+
+	BigBinaryInteger acceptableDiff("10");
+
+	EXPECT_LT(diff, acceptableDiff)
+}
+
+TEST(method_generate_binary_uniform_big_binary_integer,equals){
+	BinaryUniformGenerator bug = lbcrypto::BinaryUniformGenerator();
+	BigBinaryInteger binUniRandNum = bug.GenerateInteger();
+
+	EXPECT_LT(binUniRandNum, 2);
+	EXPECT_GE(binUniRandNum, 0);
+}
+
+// a large sample. Max of them should be less than q
