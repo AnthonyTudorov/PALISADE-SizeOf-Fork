@@ -41,6 +41,8 @@
 #include <chrono>
 #include <time.h>
 #include <map>
+#include <fstream>
+#include <thread>
 
 /**
  * @namespace lbcrypto
@@ -229,12 +231,11 @@ public:
 	 * Destructor.	 
 	 */
 	void Destroy();
-	static std::map< std::string,BigBinaryVector > m_rootOfUnityTableByModulus;
-	static std::map< std::string,BigBinaryVector > m_rootOfUnitySquareTableByModulus;
-	static std::map<std::string,BigBinaryVector> m_rootOfUnityInverseTableByModulus;
-	static std::map< std::string,BigBinaryVector > m_rootOfUnityInverseSquareTableByModulus;
+	
 private:
 	static ChineseRemainderTransformFTT *m_onlyInstance;
+	static std::map< std::string,BigBinaryVector > m_rootOfUnityTableByModulus;
+	static std::map<std::string,BigBinaryVector> m_rootOfUnityInverseTableByModulus;
 	//static BigBinaryVector *m_rootOfUnityTable;
 	
 	//static BigBinaryVector *m_rootOfUnityInverseTable;
