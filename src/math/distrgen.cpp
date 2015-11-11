@@ -271,9 +271,10 @@ BinaryUniformGenerator::BinaryUniformGenerator(){
 }
 
 BigBinaryInteger BinaryUniformGenerator::GenerateInteger() const{
-	std::default_random_engine generator;
+	std::random_device rd;
+	std::mt19937 gen(rd());
     std::bernoulli_distribution distribution(0.5);
-	return (distribution(generator) ? BigBinaryInteger(BigBinaryInteger::ONE) : BigBinaryInteger(BigBinaryInteger::ZERO)); 
+	return (distribution(gen) ? BigBinaryInteger(BigBinaryInteger::ONE) : BigBinaryInteger(BigBinaryInteger::ZERO)); 
 }
 
 BigBinaryVector BinaryUniformGenerator::GenerateVector(usint size) const{

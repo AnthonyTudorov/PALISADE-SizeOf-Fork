@@ -190,7 +190,7 @@ TEST(method_generate_uniform_big_binary_vector_mean_smaller_modulus,vector_unifo
 	EXPECT_LE(diff, acceptableDiff);
 }
 
-TEST(method_generate_uniform_big_binary_vector_std_deviation_smaller_modulus,vector_uniform){
+TEST(method_generate_uniform_big_binary_vector_variance_smaller_modulus,vector_uniform){
 	BigBinaryInteger modulus("7919"), twelve("12"), expectedVariance((modulus.Minus(BigBinaryInteger::ONE)*modulus.Minus(BigBinaryInteger::ONE)).DividedBy(twelve));
 
 	BigBinaryInteger expectedMean = modulus.DividedBy(BigBinaryInteger::TWO);
@@ -233,6 +233,30 @@ TEST(method_generate_binary_uniform_big_binary_integer,equals) {
 
 	EXPECT_LT(binUniRandNum, BigBinaryInteger("2"));
 	EXPECT_GE(binUniRandNum, BigBinaryInteger("0"));
+}
+
+TEST(method_test_mean_sample_of_binary_uniform_big_binary_integers,vector_binary_uniform){
+	BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
+
+	ofstream fout;
+	fout.open ("binurns.log");
+
+	usint size = 10;
+	BigBinaryVector randBigBinaryVector = binaryUniGen.GenerateVector(size);
+
+	BigBinaryInteger mean("0");
+	BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
+
+	for(usint index=0; index<randBigBinaryVector.GetLength(); index++) {
+		fout << randBigBinaryVector.GetValAtIndex(index) << std::endl;
+		mean += randBigBinaryVector.GetValAtIndex(index);
+	}
+	fout.close();
+	BigBinaryInteger computedMean = mean.DividedBy(length);
+	std::cout << "The computedMean is " << computedMean << std::endl;
+	BigBinaryInteger expectedMean(BigBinaryInteger::ZERO);
+	
+	EXPECT_EQ(computedMean, expectedMean);
 }
 
 // a large sample. Max of them should be less than q
