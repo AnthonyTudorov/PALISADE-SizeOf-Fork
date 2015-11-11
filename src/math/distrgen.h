@@ -264,7 +264,8 @@ private:
 	//static const usint MAXVAL = std::numeric_limits<usint>::max();
 
 	static const usint LENOFMAX = 16;
-	static const usint MAXVAL = 2^16-1;
+	static const usint MAXVAL = 65535;
+	//2^16-1 = 65535
 
 	usint moduloLength;
 	usint noOfIter;

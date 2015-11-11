@@ -229,6 +229,10 @@ void DiscreteUniformGenerator::InitializeVals(){
 	moduloLength = m_modulus.GetMSB();
 	noOfIter = ((moduloLength % LENOFMAX) == 0) ? (moduloLength/LENOFMAX) : (moduloLength/LENOFMAX) + 1;
 	remainder = moduloLength % LENOFMAX;
+	// std::cout << "moduloLength = " << moduloLength << std::endl;
+	// std::cout << "noOfIter = " << noOfIter << std::endl;
+	// std::cout << "remainder = " << remainder << std::endl;
+	// std::cout << "MAXVAL = " << MAXVAL << std::endl;
 }
 
 BigBinaryInteger DiscreteUniformGenerator::GenerateInteger() const{
@@ -240,9 +244,9 @@ BigBinaryInteger DiscreteUniformGenerator::GenerateInteger() const{
     std::uniform_int_distribution<> dis(DiscreteUniformGenerator::MINVAL, DiscreteUniformGenerator::MAXVAL);
 	for(usint i=0; i< noOfIter; ++i) {
 		randNum = dis(gen);
-		if(i == noOfIter-1) {
+		if(remainder != 0 && i == noOfIter-1) {
 			temp = std::bitset<DiscreteUniformGenerator::LENOFMAX>(randNum).to_string();
-			bigBinaryInteger += temp.substr(0, remainder);
+			bigBinaryInteger += temp.substr(LENOFMAX-remainder, LENOFMAX);
 		} else {
 			bigBinaryInteger += std::bitset<DiscreteUniformGenerator::LENOFMAX>(randNum).to_string();
 		}
