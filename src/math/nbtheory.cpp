@@ -54,9 +54,8 @@ namespace lbcrypto {
  static BigBinaryInteger RNG(const BigBinaryInteger& n)
  {
 	// std::cout << " \n********WARNING: This code is calling an incorrect random number generator that is intended for temporary use ONLY!!!!!  This function, RNG(const BigBinaryInteger& n), is in nbtheory.cpp*********" << std::endl;
- 	srand (time(NULL));
+
 	std::string rand1 = std::to_string(rand());
-	srand (time(NULL));
 	std::string rand2 = std::to_string(rand());
 	std::string randstr = rand1 + rand2;
 	return BigBinaryInteger(randstr).Mod(n);
@@ -119,8 +118,9 @@ static BigBinaryInteger FindGenerator(const BigBinaryInteger& q)
 BigBinaryInteger RootOfUnity(int m, const BigBinaryInteger& modulo) 
 {
 	BigBinaryInteger result;
+	BigBinaryInteger M(std::to_string(m));
 	BigBinaryInteger gen = FindGenerator(modulo);
-	result = gen.ModExp((modulo-BigBinaryInteger::ONE).DividedBy(BigBinaryInteger(std::to_string(m))), modulo);
+	result = gen.ModExp((modulo-BigBinaryInteger::ONE).DividedBy(M), modulo);
 	if(result == BigBinaryInteger::ONE) {
 		return RootOfUnity(m, modulo);
 	}
@@ -267,10 +267,9 @@ usint GetMSB32(usint x)
 */
  void PrimeFactorize(const BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors)
  {
-	primeFactors.clear();
-
+	// primeFactors.clear();
  	if(n == BigBinaryInteger::ONE) return;
- 	if( MillerRabinPrimalityTest(n) ) {
+ 	if(MillerRabinPrimalityTest(n)) {
  		primeFactors.insert(n);
  		return;
  	}
@@ -294,7 +293,7 @@ BigBinaryInteger FindPrimeModulus(usint m, usint nBits)
 	q = twoTonBitsminusone + M + BigBinaryInteger::ONE;
 	bool found = false;
 	while(!found) {  //Looping over invariant until test condition satisfied.
-		if(GreatestCommonDivisor(q-BigBinaryInteger::ONE, M) != M) {
+		if((q-BigBinaryInteger::ONE).Mod(M) != BigBinaryInteger::ZERO) {
 			q += M;
 			continue;
 		}

@@ -135,11 +135,12 @@ TEST(method_miller_rabin_primality_big_composite_number, is_not_prime){
 // TEST CASE FOR FACTORIZATION
 
 TEST(method_factorize, returns_factors){
-	BigBinaryInteger comp("30");
+	BigBinaryInteger comp("53093040");
 	std::set<BigBinaryInteger> factors;
 	lbcrypto::PrimeFactorize(comp, factors);
 
 	for(std::set<BigBinaryInteger>::iterator it = factors.begin(); it != factors.end(); ++it) {
+		// std::cout << *it << std::endl;
 		// ASSERT_THAT(*it, ElementsAre(2, 3, 5));
 	}
 }
@@ -155,20 +156,139 @@ TEST(method_Find_Prime_Modulus, foundPrimeModulus){
 	EXPECT_EQ(expectedResult, lbcrypto::FindPrimeModulus(m, nBits));
 }
 
-//TEST CASE TO FIND ROOTS OF UNITY FOR SMALL CYCLOTOMIC NUMBERS
+//TEST CASE TO ENSURE THE ROOT OF UNITY THAT IS FOUND IS A PRIMITIVE ROOT OF UNTIY
 
-// TEST(method_root_of_unity, foundRootOfUnity){
-// 	int m = 8;
-// 	BigBinaryInteger prime("17");
+TEST(method_test_primitive_root_of_unity, equals_m_not_equals_mbytwo){
+	
+	usint m=4096; 
+	usint nBits=33;
+	
+	BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
+	BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(m, primeModulus);
 
-// 	BigBinaryInteger expectedResult("15");
+	BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO));
 
-// 	ASSERT_EQ(expectedResult, lbcrypto::RootOfUnity(m, prime));
-// }
+	BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
+	EXPECT_EQ(wpowerm, BigBinaryInteger::ONE);
 
-// TEST(random_number_generator, less_than) {
+	BigBinaryInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
+	EXPECT_NE(wpowermbytwo, BigBinaryInteger::ONE);
+}
+
+//TEST CASE TO ENSURE THE ROOTS OF UNITY THAT ARE FOUND ARE CONSISTENTLY THE PRIMITIVE ROOTS OF UNTIY
+
+TEST(method_test_multiple_primitive_roots_of_unity_single_input, equals_m_not_equals_mbytwo_mbyfour){
+
+	const usint n=2048;
+	const usint m=2*n;
+	const usint nBits=43;
+	const int ITERATIONS = m*2;
+
+	BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO)), MbyFour(MbyTwo.DividedBy(BigBinaryInteger::TWO));
+
+	BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
+
+	for(int i=0; i<ITERATIONS; i++) {
+		BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(m, primeModulus);
+
+		BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
+		EXPECT_EQ(wpowerm, BigBinaryInteger::ONE);
+
+		BigBinaryInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
+		EXPECT_NE(wpowermbytwo, BigBinaryInteger::ONE);
+
+		BigBinaryInteger wpowermbyfour = primitiveRootOfUnity.ModExp(MbyFour, primeModulus);
+		EXPECT_NE(wpowermbyfour, BigBinaryInteger::ONE);
+	}
+}
+
+//TEST CASE TO ENSURE THE ROOTS OF UNITY FOUND FOR MULTIPLE CYCLOTOMIC NUMBERS ARE ALL PRIMITIVE ROOTS OF UNTIY
+
+TEST(method_test_primitive_root_of_unity_multiple_inputs, equals_m_not_equals_mbytwo_mbyfour){
+	// ofstream fout;
+	// fout.open ("primitiveRootsBug.log");
+	usint nqBitsArray[] = {
+		1, 1 
+		,2, 4
+		,8, 20
+		,1024, 30
+		,2048, 31 
+		,2048, 33
+		,2048, 40
+		,2048, 41 
+		// ,2048, 51
+		,4096, 32 
+		,4096, 43 
+		// ,4096, 53 
+		,8192, 33 
+		,8192, 44 
+		// ,8192, 55 
+		,16384, 34 
+		,16384, 46 
+		// ,16384, 57 
+		,32768, 35 
+		,32768, 47 
+		// ,32768, 59 
+	};
+	int length = sizeof(nqBitsArray)/sizeof(nqBitsArray[0]);
+	// double diff, start, finish;
+	usint n, qBits, m;
+	// BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO)), MbyFour(MbyTwo.DividedBy(BigBinaryInteger::TWO));
+
+	for(int i=2; i<length; i += 2) {
+		// fout << "----------------------------------------------------------------------------------------------------------------------------------" << endl;
+		// fout << "i = " << i << endl;
+		n = nqBitsArray[i];
+		qBits = nqBitsArray[i+1];
+		m = 2 * n;
+
+		BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO)), MbyFour(MbyTwo.DividedBy(BigBinaryInteger::TWO));
+
+		// start = currentDateTime();
+		// fout << "m=" << m << ", qBits=" << qBits << ", M=" << M << ", MbyTwo=" << MbyTwo << endl;
+		BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, qBits);
+		// fout << "Prime modulus for n = " << n << " and qbits = " << qBits << " is " << primeModulus << endl;
+
+		BigBinaryInteger primitiveRootOfUnity(lbcrypto::RootOfUnity(m, primeModulus));
+
+		// fout << "The primitiveRootOfUnity is " << primitiveRootOfUnity << endl;
+
+		// std::set<BigBinaryInteger> rootsOfUnity = testRootsOfUnity(m, primeModulus);
+
+		// fout << "Roots of unity for prime modulus " << primeModulus << " are: " << endl;
+		// for(std::set<BigBinaryInteger>::iterator it = rootsOfUnity.begin(); it != rootsOfUnity.end(); ++it) {
+		// 	fout << (*it) << ", ";
+		// }
+		// fout << endl;
+		// finish = currentDateTime();
+		// diff = finish - start;
+		// fout << "Computation time: " << "\t" << diff << " ms" << endl;
+		// fout << "----------------------------------------------------------------------------------------------------------------------------------" << endl;
+
+		BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
+		// fout << "w^m = " << wpowerm << endl;
+		EXPECT_EQ(wpowerm, BigBinaryInteger::ONE);
+
+		BigBinaryInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
+		// fout << "w^(m/2) = " << wpowermbytwo << endl;
+		EXPECT_NE(wpowermbytwo, BigBinaryInteger::ONE);
+
+		BigBinaryInteger wpowermbyfour = primitiveRootOfUnity.ModExp(MbyFour, primeModulus);
+		// fout << "w^(m/4) = " << wpowermbyfour << endl;
+		EXPECT_NE(wpowermbyfour, BigBinaryInteger::ONE);
+		// fout << "----------------------------------------------------------------------------------------------------------------------------------" << endl;
+		// fout << endl;
+	}
+	// fout << "End of Computation" << endl;
+	// fout.close();
+
+}
+
+// TEST(random_number_generator_small_modulus, less_than) {
 // 	BigBinaryInteger prime("101");
-// 	ASSERT_EQ(lbcrypto::RNG(prime), prime);
+// 	const int ITERATIONS = 101;
+// 	for(int i=0; i<ITERATIONS; i++)
+// 		ASSERT_LT(lbcrypto::RNG(prime), prime);
 // }
 
 // TEST(method_witness_function, is_composite){

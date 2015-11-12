@@ -208,6 +208,9 @@ TEST(method_generate_uniform_big_binary_vector_variance_smaller_modulus,vector_u
 	}
 
 	BigBinaryInteger computedMean = mean.DividedBy(length);
+
+	std::cout << "The computedMean is " << computedMean << std::endl;
+	std::cout << "The expectedMean is " << expectedMean << std::endl;
 	
 	BigBinaryInteger varianceComputedUsingComputedMean("0"), varianceComputedUsingExpectedMean("0");
 	for(usint index=0; index<randBigBinaryVector.GetLength(); index++) {
@@ -220,10 +223,14 @@ TEST(method_generate_uniform_big_binary_vector_variance_smaller_modulus,vector_u
 		varianceComputedUsingExpectedMean += (tempForExpectedMean * tempForExpectedMean);		
 	}
 	varianceComputedUsingComputedMean = varianceComputedUsingComputedMean.DividedBy(length);
+	std::cout << "The varianceComputedUsingComputedMean is " << varianceComputedUsingComputedMean << std::endl;
 	EXPECT_GE(varianceComputedUsingComputedMean, BigBinaryInteger::ZERO);
 
 	varianceComputedUsingExpectedMean = varianceComputedUsingExpectedMean.DividedBy(length);
+	std::cout << "The varianceComputedUsingExpectedMean is " << varianceComputedUsingExpectedMean << std::endl;
 	EXPECT_GE(varianceComputedUsingExpectedMean, BigBinaryInteger::ZERO);
+
+	std::cout << "The expectedVariance is " << expectedVariance << std::endl;
 }
 
 TEST(method_generate_binary_uniform_big_binary_integer,equals) {
@@ -238,9 +245,6 @@ TEST(method_generate_binary_uniform_big_binary_integer,equals) {
 TEST(method_test_mean_sample_of_binary_uniform_big_binary_integers,vector_binary_uniform){
 	BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
 
-	ofstream fout;
-	fout.open ("binurns.log");
-
 	usint size = 10;
 	BigBinaryVector randBigBinaryVector = binaryUniGen.GenerateVector(size);
 
@@ -248,12 +252,10 @@ TEST(method_test_mean_sample_of_binary_uniform_big_binary_integers,vector_binary
 	BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
 
 	for(usint index=0; index<randBigBinaryVector.GetLength(); index++) {
-		fout << randBigBinaryVector.GetValAtIndex(index) << std::endl;
 		mean += randBigBinaryVector.GetValAtIndex(index);
 	}
-	fout.close();
 	BigBinaryInteger computedMean = mean.DividedBy(length);
-	std::cout << "The computedMean is " << computedMean << std::endl;
+	// std::cout << "The computedMean is " << computedMean << std::endl;
 	BigBinaryInteger expectedMean(BigBinaryInteger::ZERO);
 	
 	EXPECT_EQ(computedMean, expectedMean);
