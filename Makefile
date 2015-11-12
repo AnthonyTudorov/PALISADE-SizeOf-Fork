@@ -48,7 +48,9 @@ INC := -I include
 #TaskLDFLAGS = -lpthread
 #TimeLDFLAGS = -lm # -lrt
 
-all: alltargets apidocs alltesttargets runtests
+#all: alltargets apidocs alltesttargets runtests
+#dbc: runtests takes very long. so should not be automatically run
+all: alltargets apidocs alltesttargets 
 
 alltargets: $(TARGETSMAIN)
 

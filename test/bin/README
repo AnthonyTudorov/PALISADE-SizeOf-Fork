@@ -1,0 +1,8 @@
+test/bin contents
+tests 	 -	main google test fixture
+	 	run ./tests --help for full details
+		running ./tests with no parameters runs all tests, which
+		can take a long time.
+test_subset -   a script to run only a subset of tests.
+	    	run ./test_subset method_plus
+		for example will only run tests in the method_plus test case.
