@@ -398,10 +398,9 @@ namespace lbcrypto {
 			 * @param &ciphertext2 the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			virtual void EvalAdd(const LPCryptoParameters<Element> &params,
-				const Element &ciphertext1, 
-				const Element &ciphertext2, 
-				Element *newCiphertext) const = 0;
+			virtual void EvalAdd(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const = 0;
 	};
 
 	/**
@@ -409,7 +408,7 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPSHEAlgorithm : public LPAHEAlgorithm<Element> {
+	class LPSHEAlgorithm {
 		public:
 						
 			/**
@@ -420,10 +419,9 @@ namespace lbcrypto {
 			 * @param &ciphertext2 the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			virtual void EvalMult(const LPCryptoParameters<Element> &params,
-				const Element &ciphertext1, 
-				const Element &ciphertext2, 
-				Element *newCiphertext) const = 0;
+			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const = 0;
 	};
 
 	/**
@@ -431,7 +429,7 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPFHEAlgorithm : public LPSHEAlgorithm<Element> {
+	class LPFHEAlgorithm {
 		public:
 						
 			/**
@@ -441,9 +439,8 @@ namespace lbcrypto {
 			 * @param &ciphertext the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			virtual void Bootstrap(const LPCryptoParameters<Element> &params,
-				const Element &ciphertext, 
-				Element *newCiphertext) const = 0;
+			virtual void Bootstrap(const Ciphertext<Element> &ciphertext,
+				Ciphertext<Element> *newCiphertext) const = 0;
 	};
 
 	/**
@@ -638,6 +635,14 @@ namespace lbcrypto {
 		public:
 
 			/**
+			* Constructor that initializes nothing.
+			*/
+			LPKeySwitchHintImpl() {
+				m_sk = null;
+				m_cryptoParameters;
+			}
+
+			/**
 			 * Validate that a key is correct.  This is stubbed out for now.
 			 * @param level
 			 * @return validate the parameters.
@@ -652,14 +657,28 @@ namespace lbcrypto {
 			 * Get Abstract Crypto Parameters.
 			 * @return get the parameters.
 			 */
-			const LPCryptoParameters<Element> &GetAbstractCryptoParameters() const {return this->GetCryptoParameters();}
-			
-			/**
-			 * Access Abstract Crypto Parameters.
-			 * @return the parameters accessed.
-			 */
-			LPCryptoParameters<Element> &AccessAbstractCryptoParameters() { return this->AccessCryptoParameters(); }
-			
+			//const LPCryptoParameters<Element> &GetAbstractCryptoParameters() const {return this->GetCryptoParameters();}
+			//
+			///**
+			// * Access Abstract Crypto Parameters.
+			// * @return the parameters accessed.
+			// */
+			//LPCryptoParameters<Element> &AccessAbstractCryptoParameters() { return this->AccessCryptoParameters(); }
+			//
+			///**
+			//* Get Abstract Crypto Parameters.
+			//* @return get the parameters.
+			//*/
+			//const LPCryptoParameters<Element> &GetCryptoParameters() const { return m_cryptoParameters; }
+
+			///**
+			//* Access Abstract Crypto Parameters.
+			//* @return the parameters accessed.
+			//*/
+			//LPCryptoParameters<Element> &AccessCryptoParameters() { return m_cryptoParameters; }
+
+
+
 			/**
 			 * Implementation of the Get accessor for private element.
 			 * @return the private element.
@@ -675,6 +694,7 @@ namespace lbcrypto {
 		private:
 			//private key polynomial
 			Element m_sk;
+
 	};
 
 	template <class Element>
