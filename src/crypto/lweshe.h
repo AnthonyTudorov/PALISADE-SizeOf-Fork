@@ -55,7 +55,11 @@ namespace lbcrypto {
 	template <class Element>
 	class LPAlgorithmSHELWENTRU : public LPAlgorithmAHELWENTRU<Element>, public LPSHEAlgorithm<Element> {
 		public:
-			
+
+			/**
+			* Constructor that initializes nothing.
+			*/
+			LPAlgorithmSHELWENTRU() {}
 			/**
 			 * Function for evaluation addition on ciphertext.
 			 *
@@ -63,7 +67,7 @@ namespace lbcrypto {
 			 * @param &ciphertext2 the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			void EvalMult(const Ciphertext<Element> &ciphertext1, 
+			void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2, 
 				Ciphertext<Element> *newCiphertext) const;
 

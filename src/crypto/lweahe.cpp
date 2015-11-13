@@ -39,7 +39,7 @@ void LPAlgorithmAHELWENTRU<Element>::EvalAdd(const Ciphertext<Element> &cipherte
 //Need to check the same crypto parameters hold.
 //Need to check a common encryption key was used.
 //Make sure compatible encryption algorithm was used.
-	*newCiphertext = ciphertext1.Plus(ciphertext2);
+//	*newCiphertext = ciphertext1.Plus(ciphertext2);
 /*
 	Ciphertext<Element> ctOut(ciphertext1);
 	ctOut.Plus(ciphertext2);

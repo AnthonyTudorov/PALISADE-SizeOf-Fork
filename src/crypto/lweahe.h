@@ -66,6 +66,7 @@ namespace lbcrypto {
 			void EvalAdd(const Ciphertext<Element> &ciphertext1, 
 				const Ciphertext<Element> &ciphertext2, 
 				Ciphertext<Element> *newCiphertext) const;
+
 	};
 
 } // namespace lbcrypto ends
