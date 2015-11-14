@@ -52,6 +52,8 @@ INC := -I include
 #dbc: runtests takes very long. so should not be automatically run
 all: alltargets apidocs alltesttargets 
 
+targets: alltargets alltesttargets 
+
 alltargets: $(TARGETSMAIN)
 
 alltesttargets: $(TESTTARGET)
@@ -131,7 +133,10 @@ apidocs:
 	doxygen lbcrypto-doxy-config
 
 .PHONEY: clean
-clean: cleantests cleandocs
+clean: cleantargets cleantests cleandocs
+
+.PHONEY: cleantargets
+cleantargets:
 	@echo " Cleaning...";
 	@echo " $(RM) -r $(BUILDDIR) $(TARGETDIR)"; $(RM) -r $(BUILDDIR) $(TARGETDIR)
 

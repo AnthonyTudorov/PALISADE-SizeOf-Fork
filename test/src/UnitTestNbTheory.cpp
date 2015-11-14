@@ -147,13 +147,25 @@ TEST(method_factorize, returns_factors){
 
 //TEST CASE TO FIND PRIME MODULUS
 
-TEST(method_Find_Prime_Modulus, foundPrimeModulus){
+TEST(method_find_prime_modulus, foundPrimeModulus){
 	usint m = 2048;
 	usint nBits = 30;
 
 	BigBinaryInteger expectedResult("536881153");
 
 	EXPECT_EQ(expectedResult, lbcrypto::FindPrimeModulus(m, nBits));
+}
+
+// TEST CASE TO FIND PRIME MODULUS FOR A HIGHER BIT LENGTH 
+
+TEST(method_test_prime_modulus_higher_bit_length, returns){
+	
+	usint m=4096; 
+	usint nBits=49;
+	
+	BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
+	BigBinaryInteger expectedResult("281474976768001");
+	EXPECT_EQ(expectedResult, primeModulus);
 }
 
 //TEST CASE TO ENSURE THE ROOT OF UNITY THAT IS FOUND IS A PRIMITIVE ROOT OF UNTIY
@@ -216,6 +228,8 @@ TEST(method_test_primitive_root_of_unity_multiple_inputs, equals_m_not_equals_mb
 		,2048, 33
 		,2048, 40
 		,2048, 41 
+		//NOTE: To test for prime modulus greater than bit length of 50, set the following two constants in binint.h and dtstruct.h: 
+		// const usint BIT_LENGTH = 200 and const usint FRAGMENTATION_FACTOR = 27
 		// ,2048, 51
 		,4096, 32 
 		,4096, 43 
