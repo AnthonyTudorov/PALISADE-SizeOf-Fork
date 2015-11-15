@@ -507,7 +507,9 @@ BigBinaryInteger BigBinaryInteger::Mod(const BigBinaryInteger& modulus) const{
 	if(this->m_MSB > modulus.m_MSB)
 		initial_shift=this->m_MSB - modulus.m_MSB -1;
 	//cout<<initial_shift<<endl;
+	//std::cout << " \n********Before Shift*********" << std::endl;
 	BigBinaryInteger j = modulus<<initial_shift;
+	//std::cout << " \n********After Shift*********" << std::endl;
 	//cout<<"initial j value"<<j<<endl;
 	BigBinaryInteger result(*this);
 	//cout<<"printing result "<<*result<<endl;
