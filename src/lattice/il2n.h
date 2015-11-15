@@ -185,6 +185,14 @@ namespace lbcrypto {
 		*/
 		void SetModulus(const BigBinaryInteger &modulus);
 
+		/**
+		* Set method of the values.
+		*
+		* @param values is the ILParams.
+		* @param params is the ILParams.
+		*/
+		void SetParams(const ILParams &params);
+
 
 		// SCALAR OPERATIONS
 
@@ -610,7 +618,7 @@ namespace lbcrypto {
 		* @return the parameter set.
 		*/
 
-		ILDCRTParams &GetParams() const;
+		const ILDCRTParams &GetParams() const;
 
 		// Set accessors
 
@@ -689,7 +697,7 @@ namespace lbcrypto {
 		* @param &element is the element to add with.
 		* @return is the result of the addition.
 		*/
-			ILVectorArray2n& Plus(const ILVectorArray2n &element) const;
+			ILVectorArray2n Plus(const ILVectorArray2n &element) const;
 
 		// multiplication operation - 
 		/**

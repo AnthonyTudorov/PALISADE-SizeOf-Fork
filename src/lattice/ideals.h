@@ -412,7 +412,7 @@ namespace lbcrypto {
 		*
 		* @return the root of unity.
 		*/
-		const BigBinaryInteger &GetRootOfUnity() const {
+		const BigBinaryInteger &GetRootOfUnity() {
 			return m_rootOfUnity;
 		}
 
