@@ -397,6 +397,12 @@ namespace lbcrypto {
 	{
 	}
 
+
+	lbcrypto::ILVectorArray2n::ILVectorArray2n(const ElemParams & params) : m_params(static_cast<const ILDCRTParams&>(params)), m_vectors(NULL), m_format(EVALUATION)
+	{
+
+	}
+
 	ILVectorArray2n::ILVectorArray2n(const ILVectorArray2n &element)  {
 		this->m_params = element.m_params;
 		this->m_format = element.m_format;
@@ -438,10 +444,38 @@ namespace lbcrypto {
 
 	}
 
+	lbcrypto::ILVectorArray2n::ILVectorArray2n(DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format) :m_params(static_cast<const ILDCRTParams&>(params))
+	{
+
+		const ILDCRTParams &m_params = static_cast<const ILDCRTParams&>(params);
+
+		m_vectors.resize(m_params.GetModuli().size());
+
+		for (usint i = 0; i < m_params.GetModuli().size(); i++) {
+
+			BigBinaryInteger rootOfUnity(m_params.GetRootsOfUnity()[i]);
+			usint cyclotomicOrder = m_params.GetCyclotomicOrder();
+			BigBinaryInteger modulus(m_params.GetModuli()[i]);
+
+
+			ILParams ilParams(cyclotomicOrder, modulus, rootOfUnity);
+
+			ILVector2n ilvector(dgg, ilParams, m_format);
+
+			m_vectors[i] = ilvector;
+			m_vectors[i].SetModulus(m_params.GetModuli()[i]);
+
+		}
+
+
+	}
+
 	ILVectorArray2n & lbcrypto::ILVectorArray2n::operator=(const ILVectorArray2n & rhs)
 	{
 		if (this != &rhs) {
-			
+			if (m_vectors.empty()) {
+				m_vectors.resize(rhs.GetParams().GetModuli().size());
+			}
 				this->m_vectors = rhs.m_vectors;			
 			    this->m_params = rhs.m_params;
 			    this->m_format = rhs.m_format;
@@ -449,7 +483,6 @@ namespace lbcrypto {
 		}
 
 		return *this;
-
 
 	}
 
@@ -472,9 +505,10 @@ namespace lbcrypto {
 	}
 
 
-	void lbcrypto::ILVectorArray2n::SetValues(std::vector<ILVector2n>& values)
+	void lbcrypto::ILVectorArray2n::SetValues(std::vector<ILVector2n>& values, Format format)
 	{
 		m_vectors = values;
+		m_format = format;
 	}
 	ILVectorArray2n lbcrypto::ILVectorArray2n::MultiplicativeInverse() const
 	{
@@ -489,6 +523,33 @@ namespace lbcrypto {
 
 		return tmp;
 	}
+
+	ILVectorArray2n lbcrypto::ILVectorArray2n::Plus(const BigBinaryInteger & element) const
+	{
+		ILVectorArray2n tmp(*this);
+
+		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
+
+			tmp.m_vectors[i] = (tmp.GetValues(i)).Plus(element).Mod(m_params.GetModuli()[i]);
+
+		}
+
+		return tmp;
+	}
+
+	BigBinaryVector lbcrypto::ILVectorArray2n::ModByTwo() const
+	{
+		BigBinaryVector bigVector(m_vectors.size());
+
+		ILVectorArray2n tmp(*this);
+
+		ILVector2n bigILVector2n(tmp.InterpolateIlArrayVector2n());
+
+		return bigILVector2n.ModByTwo();
+	}
+
+
+
 	ILVectorArray2n lbcrypto::ILVectorArray2n::Plus(const ILVectorArray2n & element) const
 	{
 		ILVectorArray2n tmp(*this);
@@ -498,7 +559,6 @@ namespace lbcrypto {
 			tmp.m_vectors[i] = ((tmp.GetValues(i)).Plus(element.GetValues(i))).Mod(m_params.GetModuli()[i]);
 
 		}
-		
 		return tmp;
 	}
 
@@ -508,15 +568,29 @@ namespace lbcrypto {
 		ILVectorArray2n tmp(*this);
 		for (usint i = 0; i < m_vectors.size(); i++) {
 
-	//		tmp.m_vectors[i] = m_vectors[i].Times(element.m_vectors[i]);
 			tmp.m_vectors[i].SetValues(((m_vectors[i].GetValues()).ModMul(element.m_vectors[i].GetValues())), m_format);
-		//		*tmp.m_values = m_values->ModMul(*element.m_values);
 
 
 		}
 		return tmp;
 
 		//return ILVectorArray2n();
+	}
+
+	ILVectorArray2n lbcrypto::ILVectorArray2n::Times(const BigBinaryInteger & element) const
+	{
+	//	ILVector2n tmp(*this);
+	//	*tmp.m_values = m_values->ModMul(element);
+	//	return tmp;
+
+		ILVectorArray2n tmp(*this);
+
+		for (usint i = 0; i < m_vectors.size(); i++) {
+
+			(tmp.m_vectors[i].Times(element)).Mod(m_params.GetModuli()[i]);
+		}
+
+		return tmp;
 	}
 	
 
@@ -652,6 +726,18 @@ namespace lbcrypto {
 		}
 
 		return vectorOfvectors;
+	}
+
+	bool lbcrypto::ILVectorArray2n::InverseExists() const
+	{
+	
+
+		for (usint i = 0; i < m_vectors.size(); i++) {
+			if (!m_vectors[i].InverseExists()) return false;
+		}
+
+
+		return true;
 	}
 
 	BigBinaryInteger lbcrypto::ILVectorArray2n::CalculateInterpolationSum(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors, usint index)

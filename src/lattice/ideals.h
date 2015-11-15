@@ -186,7 +186,7 @@ namespace lbcrypto {
 		*
 		* @return the order.
 		*/
-		usint GetCyclotomicOrder() const {
+		const usint GetCyclotomicOrder() const {
 			return m_cyclotomicOrder;
 		}
 
@@ -204,7 +204,7 @@ namespace lbcrypto {
 		*
 		* @return the root of unity.
 		*/
-		std::vector<BigBinaryInteger> &GetRootsOfUnity() {
+		const std::vector<BigBinaryInteger> &GetRootsOfUnity() const{
 			return m_rootsOfUnity;
 		}
 		/**
