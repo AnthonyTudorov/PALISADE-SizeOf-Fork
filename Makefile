@@ -61,6 +61,7 @@ alltesttargets: $(TESTTARGET)
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)
 	@mkdir -p $(BUILDDIR)/crypto
+	@mkdir -p $(BUILDDIR)/obfuscate
 	@mkdir -p $(BUILDDIR)/encoding
 	@mkdir -p $(BUILDDIR)/lattice
 	@mkdir -p $(BUILDDIR)/math
