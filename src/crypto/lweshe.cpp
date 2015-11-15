@@ -87,7 +87,7 @@ bool LPAlgorithmSHELWENTRU<Element>::KeySwitchHintGen(const LPPrivateKey<Element
 
 	keySwitchHint->SetHintElement((privateKey.Times(privateKey)).Times(modularInverseOfNewPrivateKey));// frogot to add modulu
 
-	cout << *(keySwitchHint).GetValues() << endl;
+	std::cout << *(keySwitchHint).GetValues() << std::endl;
 
 	return true;
 

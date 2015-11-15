@@ -403,8 +403,8 @@ namespace lbcrypto {
 			 * @return function ran correctly.
 			 */
 			bool KeyGen(LPPublicKey<Element> &publicKey, 
-		        LPPrivateKey<Element> &privateKey, 
-		        DiscreteGaussianGenerator &dgg) const;
+		        	LPPrivateKey<Element> &privateKey, 
+			        DiscreteGaussianGenerator &dgg) const;
 
 	};
 
