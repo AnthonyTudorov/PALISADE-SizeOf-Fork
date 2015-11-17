@@ -207,7 +207,7 @@ void NTRUPRE(int input) {
 	//Prepare for parameters.
 	ILParams ilParams(m,modulus,rootOfUnity);
 
-	std::cout << ilParams.GetRootOfUnity() << std::endl;
+	//std::cout << ilParams.GetRootOfUnity() << std::endl;
 
 	//Should eventually be replaced with the following code
 	//ILParams ilParams;
