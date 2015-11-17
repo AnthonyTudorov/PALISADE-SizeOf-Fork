@@ -73,6 +73,13 @@ public:
 	explicit BigBinaryInteger(uschar init);
 
 	/**
+	 * Basic constructor for initializing big binary integer from an unsigned integer.
+	 *
+	 * @param init is the initial integer.	  	  
+	 */
+	explicit BigBinaryInteger(usint init);
+
+	/**
 	 * Basic constructor for specifying the integer.
 	 *
 	 * @param str is the initial integer represented as a string.	  	  

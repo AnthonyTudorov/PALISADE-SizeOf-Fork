@@ -83,6 +83,18 @@ BigBinaryInteger::BigBinaryInteger(uschar init)
 	}
 }
 
+BigBinaryInteger::BigBinaryInteger(usint init){
+
+	usint msb = lbcrypto::GetMSB32(init);
+	uschar ceilInt8 = ceilIntBy8(msb);
+
+	for(sint i= m_nchar-1;i>= m_nchar-ceilInt8;i--){
+		this->m_value[i] = (uschar) init;
+		init>>=8;
+	}
+	this->m_MSB = msb;
+}
+
 BigBinaryInteger::BigBinaryInteger(const std::string& str){
 	//m_nchar= ceilIntBy8(BIT_LENGTH)+1;
 	//number of character in the arrays
