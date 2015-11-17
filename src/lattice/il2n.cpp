@@ -205,26 +205,11 @@ namespace lbcrypto {
 		return tmp;
 	}
 
-	BigBinaryVector ILVector2n::ModByTwo() const {
-
-		BigBinaryVector ans(this->m_values->GetLength());
-		BigBinaryInteger halfQ(m_params.GetModulus() >> 1);
-		for (usint i = 0; i<ans.GetLength(); i++) {
-			if (m_values->GetValAtIndex(i)>halfQ) {
-				if (m_values->GetValAtIndex(i).Mod(BigBinaryInteger::TWO) == BigBinaryInteger::ONE)
-					ans.SetValAtIndex(i, BigBinaryInteger::ZERO);
-				else
-					ans.SetValAtIndex(i, BigBinaryInteger::ONE);
-			}
-			else {
-				if (m_values->GetValAtIndex(i).Mod(BigBinaryInteger::TWO) == BigBinaryInteger::ONE)
-					ans.SetValAtIndex(i, BigBinaryInteger::ONE);
-				else
-					ans.SetValAtIndex(i, BigBinaryInteger::ZERO);
-			}
-
-		}
-		return ans;
+	// modulo by two
+	ILVector2n ILVector2n::ModByTwo() const {
+		ILVector2n tmp(*this);
+		*tmp.m_values = m_values->ModByTwo();
+		return tmp;
 	}
 
 	// check if inverse exists
@@ -539,15 +524,15 @@ namespace lbcrypto {
 		return tmp;
 	}
 
-	BigBinaryVector lbcrypto::ILVectorArray2n::ModByTwo() const
+	ILVectorArray2n lbcrypto::ILVectorArray2n::ModByTwo() const
 	{
-		BigBinaryVector bigVector(m_vectors.size());
+		//BigBinaryVector bigVector(m_vectors.size());
 
-		ILVectorArray2n tmp(*this);
+		//ILVectorArray2n tmp(*this);
 
-		ILVector2n bigILVector2n(tmp.InterpolateIlArrayVector2n());
+		//ILVector2n bigILVector2n(tmp.InterpolateIlArrayVector2n());
 
-		return bigILVector2n.ModByTwo();
+		return *this;
 	}
 
 

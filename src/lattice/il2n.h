@@ -242,7 +242,7 @@ namespace lbcrypto {
 		*
 		* @return is the return value of the modulus by 2, also the least significant bit.
 		*/
-		BigBinaryVector ModByTwo() const;
+		ILVector2n ModByTwo() const;
 
 		// VECTOR OPERATIONS
 
@@ -675,7 +675,7 @@ namespace lbcrypto {
 		*
 		* @return is the return value of the modulus by 2, also the least significant bit.
 		*/
-		BigBinaryVector ModByTwo() const;
+		ILVectorArray2n ModByTwo() const;
 
 		// addition operation
 		/*
