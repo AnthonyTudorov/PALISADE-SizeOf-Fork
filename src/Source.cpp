@@ -48,6 +48,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "crypto/lwecrypt.cpp"
 #include "crypto/lwepre.h"
 #include "crypto/lwepre.cpp"
+#include "crypto/lweahe.cpp"
+#include "crypto/lweshe.cpp"
 #include "lattice/il2n.h"
 #include "time.h"
 #include "crypto/ciphertext.cpp"
@@ -205,6 +207,8 @@ void NTRUPRE(int input) {
 	//Prepare for parameters.
 	ILParams ilParams(m,modulus,rootOfUnity);
 
+	std::cout << ilParams.GetRootOfUnity() << std::endl;
+
 	//Should eventually be replaced with the following code
 	//ILParams ilParams;
 	//ilParams.Initialize(m,bitLength);
@@ -218,7 +222,9 @@ void NTRUPRE(int input) {
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(stdDev,modulus);			// Create the noise generator
+	DiscreteGaussianGenerator dgg(stdDev);			// Create the noise generator
+
+	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
 
 	double diff, start, finish;
 
