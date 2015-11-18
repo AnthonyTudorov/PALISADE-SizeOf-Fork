@@ -1,7 +1,0 @@
-# script to run a subset of all the tests.
-# for example 
-# test_subset method_plus
-# will only run test cases called method_plus
-echo running subset of test $1
-./tests --gtest_filter=$1.*
-
