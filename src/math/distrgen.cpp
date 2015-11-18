@@ -36,14 +36,14 @@ namespace lbcrypto {
 DiscreteGaussianGenerator::DiscreteGaussianGenerator(){
 	
 	m_std = 1;
-	m_modulus = BigBinaryInteger("1");
+	//m_modulus = BigBinaryInteger("1");
 
 }
 
-DiscreteGaussianGenerator::DiscreteGaussianGenerator(sint std,BigBinaryInteger &mod){
+DiscreteGaussianGenerator::DiscreteGaussianGenerator(sint std){
 	
 	m_std = std;
-	m_modulus = mod;
+	//m_modulus = mod;
 	InitiateVals();
 	std::random_device rd;
 	std::srand(rd());
@@ -66,11 +66,11 @@ DiscreteGaussianGenerator::~DiscreteGaussianGenerator(){
 // 	return m_modulus;
 // }
 
-void DiscreteGaussianGenerator::SetModulus(BigBinaryInteger &modulus){
-	
-	m_modulus = modulus;
-
-}
+//void DiscreteGaussianGenerator::SetModulus(BigBinaryInteger &modulus){
+//	
+//	m_modulus = modulus;
+//
+//}
 
 void DiscreteGaussianGenerator::InitiateVals(){
 
@@ -172,7 +172,7 @@ BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger() const{
 	return std::move(*(new BigBinaryInteger()));
 }
 
-BigBinaryVector DiscreteGaussianGenerator::GenerateVector(usint size) const{
+BigBinaryVector DiscreteGaussianGenerator::GenerateVector(usint size, const BigBinaryInteger &modulus) const{
 
 	
 	//BigBinaryVector ans(DiscreteGaussianGenerator::DiscreteGaussianPositiveGenerator(size,this->m_modulus));
@@ -183,13 +183,13 @@ BigBinaryVector DiscreteGaussianGenerator::GenerateVector(usint size) const{
 	schar* result_vector = GenerateCharVector(size);
 
 	BigBinaryVector ans(size);
-	ans.SetModulus(m_modulus);
+	ans.SetModulus(modulus);
 
 	for(usint i=0;i<size;i++){
 		if( result_vector[i]<0 ){
 			result_vector[i] *= -1;
 			ans.SetValAtIndex(i,UintToBigBinaryInteger(result_vector[i]));
-			ans.SetValAtIndex(i, m_modulus-ans.GetValAtIndex(i) );
+			ans.SetValAtIndex(i, modulus-ans.GetValAtIndex(i) );
 		}
 		else{
 			ans.SetValAtIndex(i,UintToBigBinaryInteger(result_vector[i]));

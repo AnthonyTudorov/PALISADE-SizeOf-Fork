@@ -230,6 +230,13 @@ public:
 	BigBinaryVector ModAdd(const BigBinaryVector &b) const;
 
 	/**
+	* Perform a modulus by 2 operation.  Returns the least significant bit.
+	*
+	* @return is the return value of the modulus by 2, also the least significant bit.
+	*/
+	BigBinaryVector ModByTwo() const;
+
+	/**
 	 * vector modulus addition.
 	 *
 	 * @param &b is the vector to add at all locations.

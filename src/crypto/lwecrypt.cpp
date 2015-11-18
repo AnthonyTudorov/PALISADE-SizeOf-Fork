@@ -148,10 +148,12 @@ DecodingResult LPAlgorithmLWENTRU<Element>::Decrypt(const LPPrivateKey<Element> 
 	//Element m(elementParams);
 	//m = b.Mod(p);
 
-	//need to be written cleaner - as an Element
-	BigBinaryVector mTemp(b.ModByTwo());
-	Element m(elementParams);
-	m.SetValues(mTemp,Format::COEFFICIENT);
+	Element m(b.ModByTwo());
+
+	////need to be written cleaner - as an Element
+	//BigBinaryVector mTemp(b.ModByTwo());
+	//Element m(elementParams);
+	//m.SetValues(mTemp,Format::COEFFICIENT);
 
 	//cout<<"m ="<<m.GetValues()<<endl;
 

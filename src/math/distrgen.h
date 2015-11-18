@@ -66,7 +66,7 @@ public:
 	 *
 	 * @return a return value set to 0.
 	 */
-	virtual BigBinaryVector GenerateVector(usint size) const = 0;
+	virtual BigBinaryVector GenerateVector(usint size, const BigBinaryInteger &modulus) const = 0;
 
 
     /**
@@ -120,7 +120,7 @@ public:
 	 * @param std is the distribution parameter.
 	 * @param &mod is the distribution modulus.
 	 */
-	DiscreteGaussianGenerator(sint std,BigBinaryInteger &mod);
+	DiscreteGaussianGenerator(sint std);
 
 	/**
 	 * Destructor.
@@ -153,7 +153,7 @@ public:
 	 *
 	 * @param &modulus the analytic standard deviation of the generator.
 	 */
-	void SetModulus(BigBinaryInteger &modulus);
+	//void SetModulus(BigBinaryInteger &modulus);
 
 	/**
 	 * Returns a generated char vector.
@@ -176,7 +176,7 @@ public:
 	 * @param size the number of values to return.
 	 * @return vector of values generated with the distribution.
 	 */
-	BigBinaryVector GenerateVector(usint size) const;
+	BigBinaryVector GenerateVector(usint size, const BigBinaryInteger &modulus) const;
 
 	/**
 	 * Returns a generated vector.
@@ -196,7 +196,7 @@ private:
 	void InitiateVals();
 	std::vector<double> m_vals;
 	sint m_std;
-	BigBinaryInteger m_modulus;
+	//BigBinaryInteger m_modulus;
 };
 
 /**

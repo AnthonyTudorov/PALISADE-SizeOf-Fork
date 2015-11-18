@@ -68,7 +68,7 @@ BigBinaryInteger::BigBinaryInteger()
 }
 
 //this constructor is used in the functions where all elements of the character array are set
-BigBinaryInteger::BigBinaryInteger(uschar init)
+/*BigBinaryInteger::BigBinaryInteger(uschar init)
 {
 	if (init==1) {
 		m_value = m_memReserve.Allocate();
@@ -81,6 +81,19 @@ BigBinaryInteger::BigBinaryInteger(uschar init)
 			m_value[i] = 0;
 		m_MSB = 0;
 	}
+}*/
+
+BigBinaryInteger::BigBinaryInteger(usint init){
+
+	m_value = m_memReserve.Allocate();
+	usint msb = lbcrypto::GetMSB32(init);
+	uschar ceilInt8 = ceilIntBy8(msb);
+
+	for(sint i= m_nchar-1;i>= m_nchar-ceilInt8;i--){
+		this->m_value[i] = (uschar) init;
+		init>>=8;
+	}
+	this->m_MSB = msb;
 }
 
 BigBinaryInteger::BigBinaryInteger(const std::string& str){
