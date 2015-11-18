@@ -70,7 +70,7 @@ public:
 	 *
 	 * @param init is the initial integer.	  	  
 	 */
-	explicit BigBinaryInteger(uschar init);
+	//explicit BigBinaryInteger(uschar init);
 
 	/**
 	 * Basic constructor for initializing big binary integer from an unsigned integer.
