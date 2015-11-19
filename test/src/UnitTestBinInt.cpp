@@ -1,28 +1,28 @@
 /*
-PRE SCHEME PROJECT, Crypto Lab, NJIT
-Version: 
-	v00.01 
-Last Edited: 
-	11/15/2015
-List of Authors:
-	TPOC: 
-		Dr. Kurt Rohloff, rohloff@njit.edu
-	Programmers:
-		Dr. Yuriy Polyakov, polyakov@njit.edu
-		Gyana Sahu, grs22@njit.edu
-		Nishanth Pasham, np386@njit.edu
-		Dr. David Bruce Cousins, dcousins@bbn.com
-Description:	
-	This code exercises the math libraries of the PALISADE lattice encryption library.
+  PRE SCHEME PROJECT, Crypto Lab, NJIT
+  Version: 
+  v00.01 
+  Last Edited: 
+  11/15/2015
+  List of Authors:
+  TPOC: 
+  Dr. Kurt Rohloff, rohloff@njit.edu
+  Programmers:
+  Dr. Yuriy Polyakov, polyakov@njit.edu
+  Gyana Sahu, grs22@njit.edu
+  Nishanth Pasham, np386@njit.edu
+  Dr. David Bruce Cousins, dcousins@bbn.com
+  Description:	
+  This code exercises the math libraries of the PALISADE lattice encryption library.
 
-License Information:
+  License Information:
 
-Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
-All rights reserved.
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+  All rights reserved.
+  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+  1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <gtest/gtest.h>
@@ -43,7 +43,7 @@ using namespace lbcrypto;
 
 
 class UnitTestBinInt : public ::testing::Test {
- protected:
+protected:
   virtual void SetUp() {
   }
 
@@ -58,15 +58,17 @@ class UnitTestBinInt : public ::testing::Test {
 /************************************************/
 
 /************************************************/
-/* TESTING METHOD PLUS FOR ALL CONDITIONS       */
+/* TESTING BASIC MATH METHODS AND OPERATORS     */
 /************************************************/
+TEST(UTBinInt,basic_math){
 
-// The method "Plus" does addition on two BigBinary Integers a,b
-// Returns a+b, which is stored in another BigBinary Integer
-// calculatedResult ConvertToInt converts BigBinaryInteger
-// calculatedResult to integer
-
-TEST(UTBinInt,method_plus){
+  /************************************************/
+  /* TESTING METHOD PLUS FOR ALL CONDITIONS       */
+  /************************************************/
+  // The method "Plus" does addition on two BigBinary Integers a,b
+  // Returns a+b, which is stored in another BigBinary Integer
+  // calculatedResult ConvertToInt converts BigBinaryInteger
+  // calculatedResult to integer
 
   BigBinaryInteger calculatedResult;  
   int expectedResult;
@@ -119,18 +121,16 @@ TEST(UTBinInt,method_plus){
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt()) 
       << "Failure testing plus_no_overflow_to_next_byte";
   }
-}
 
-/************************************************/
-/* TESTING OPERATOR += FOR ALL CONDITIONS       */
-/************************************************/
+  /************************************************/
+  /* TESTING OPERATOR += FOR ALL CONDITIONS       */
+  /************************************************/
+  
+  // The operator "+=(Plus Equals)" does addition of two BigBinary
+  // Integers a,b Calculates a+b, and stores result in a ConvertToInt
+  // converts BigBinaryInteger a to integer
+  
 
-// The operator "+=(Plus Equals)" does addition of two BigBinary
-// Integers a,b Calculates a+b, and stores result in a ConvertToInt
-// converts BigBinaryInteger a to integer
-
-TEST(UTBinInt,operator_plus_equals){
-    int expectedResult;
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
@@ -179,21 +179,16 @@ TEST(UTBinInt,operator_plus_equals){
     EXPECT_EQ(expectedResult,a.ConvertToInt())
       << "Falure testing plus_equals_no_overflow_to_next_byte";
   }
-}
-
-/************************************************/
-/* TESTING METHOD MINUS FOR ALL CONDITIONS      */
-/************************************************/
-
-// The method "Minus" does subtraction on two BigBinary Integers a,b
-// Returns a-b, which is stored in another BigBinary Integer
-// calculatedResult When a<b, the result is 0, since there is no
-// support for negative numbers as of now ConvertToInt converts
-// BigBinaryInteger calculatedResult to integer
-
-TEST(UTBinInt,method_minus){
-  BigBinaryInteger calculatedResult;
-  int expectedResult = 0;
+  /************************************************/
+  /* TESTING METHOD MINUS FOR ALL CONDITIONS      */
+  /************************************************/
+  
+  // The method "Minus" does subtraction on two BigBinary Integers a,b
+  // Returns a-b, which is stored in another BigBinary Integer
+  // calculatedResult When a<b, the result is 0, since there is no
+  // support for negative numbers as of now ConvertToInt converts
+  // BigBinaryInteger calculatedResult to integer
+  
   {
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
     
@@ -241,18 +236,15 @@ TEST(UTBinInt,method_minus){
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing minus_borrow_from_next_byte";
   }
-}
-/************************************************/
-/* TESTING OPERATOR -= FOR ALL CONDITIONS       */
-/************************************************/
 
-// The operator "-=(Minus Equals)" does subtractionn of two BigBinary
-// Integers a,b Calculates a-b, and stores result in a Results to 0,
-// when a<b, since there is no concept of negative number as of now
-// ConvertToInt converts BigBinaryInteger a to integer
-  
-TEST(UTBinInt,operator_minus_equals){
-  int expectedResult;
+  /************************************************/
+  /* TESTING OPERATOR -= FOR ALL CONDITIONS       */
+  /************************************************/
+
+  // The operator "-=(Minus Equals)" does subtractionn of two BigBinary
+  // Integers a,b Calculates a-b, and stores result in a Results to 0,
+  // when a<b, since there is no concept of negative number as of now
+  // ConvertToInt converts BigBinaryInteger a to integer
   {
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
     
@@ -301,21 +293,15 @@ TEST(UTBinInt,operator_minus_equals){
     EXPECT_EQ(expectedResult,a.ConvertToInt())
       << "Failure testing minus_equals_borrow_from_next_byte";
   }
-}
 
-/************************************************/
-/* TESTING METHOD TIMES FOR ALL CONDITIONS      */
-/************************************************/
-
-// The method "Times" does multiplication on two BigBinary Integers
-// a,b Returns a*b, which is stored in another BigBinary Integer
-// calculatedResult ConvertToInt converts BigBinaryInteger
-// calculatedResult to integer
-
-TEST(UTBinInt,method_times){
-  BigBinaryInteger calculatedResult;
-  int expectedResult;
-
+  /************************************************/
+  /* TESTING METHOD TIMES FOR ALL CONDITIONS      */
+  /************************************************/
+  
+  // The method "Times" does multiplication on two BigBinary Integers
+  // a,b Returns a*b, which is stored in another BigBinary Integer
+  // calculatedResult ConvertToInt converts BigBinaryInteger
+  // calculatedResult to integer
   {
     //ask about the branching if (b.m_MSB==0 or 1)
     BigBinaryInteger a("1967");
@@ -327,23 +313,18 @@ TEST(UTBinInt,method_times){
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing times_test";
   }
-}
+  /************************************************/
+  /* TESTING METHOD DIVIDED_BY FOR ALL CONDITIONS */
+  /************************************************/
+  
+  // The method "Divided By" does division of BigBinary Integer a by
+  // another BigBinary Integer b Returns a/b, which is stored in another
+  // BigBinary Integer calculatedResult ConvertToInt converts
+  // BigBinaryInteger calculatedResult to integer When b=0, throws
+  // error, since division by Zero is not allowed When a<b, returns 0,
+  // since decimal value is not returned
 
-/************************************************/
-/* TESTING METHOD DIVIDED_BY FOR ALL CONDITIONS */
-/************************************************/
 
-// The method "Divided By" does division of BigBinary Integer a by
-// another BigBinary Integer b Returns a/b, which is stored in another
-// BigBinary Integer calculatedResult ConvertToInt converts
-// BigBinaryInteger calculatedResult to integer When b=0, throws
-// error, since division by Zero is not allowed When a<b, returns 0,
-// since decimal value is not returned
-
-TEST(UTBinInt,method_divided_by){
-
-  BigBinaryInteger calculatedResult;
-  int expectedResult;
   // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
   {
     BigBinaryInteger a("2048");
@@ -380,32 +361,36 @@ TEST(UTBinInt,method_divided_by){
       << "Failure testing divided_by_a_greater_than_b";
   }
 }
-
-/************************************************/
-/* TESTING METHOD COMPARE FOR ALL CONDITIONS    */
-/************************************************/
-
-// The method "Comapare" comapres two BigBinary Integers a,b
-// Returns:
-//    1, when a>b
-//    0, when a=b
-//   -1, when a<b
-//			
-// Result is stored in signed integer, and then the result is
-// typecasted to int as EXPECT_EQ takes integer
-
-TEST(UTBinInt,method_compare){
+TEST(UTBinInt,basic_compare){
+  
+  /************************************************/
+  /* TESTING BASIC COMPARATOR METHODS AND OPERATORS */
+  /**************************************************/
+  
+  /************************************************/
+  /* TESTING METHOD COMPARE FOR ALL CONDITIONS    */
+  /************************************************/
+  
+  // The method "Comapare" comapres two BigBinary Integers a,b
+  // Returns:
+  //    1, when a>b
+  //    0, when a=b
+  //   -1, when a<b
+  //			
+  // Result is stored in signed integer, and then the result is
+  // typecasted to int as EXPECT_EQ takes integer
+  
   sint c;
   int expectedResult;
-
+  
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER
   {
     BigBinaryInteger a("112504");
     BigBinaryInteger b("46968");
-
+    
     c = a.Compare(b);
     expectedResult = 1;
-
+    
     EXPECT_EQ(expectedResult,(int)c)
       << "Failure testing compare_a_greater_than_b";
   }
@@ -413,10 +398,10 @@ TEST(UTBinInt,method_compare){
   {
     BigBinaryInteger a("12504");
     BigBinaryInteger b("46968");
-
+    
     c = a.Compare(b);
     expectedResult = -1;
-
+    
     EXPECT_EQ(expectedResult,(int)c)
       << "Failure testing compare_a_less_than_b";
   }
@@ -424,35 +409,36 @@ TEST(UTBinInt,method_compare){
   {
     BigBinaryInteger a("34512504");
     BigBinaryInteger b("34512504");
-
+    
     c = a.Compare(b);
     expectedResult = 0;
-
+    
     EXPECT_EQ(expectedResult,(int)c)
       << "Failure testing compare_a_equals_b";
   }
 }
 
-/************************************************/
-/* TESTING METHOD MOD FOR ALL CONDITIONS        */
-/************************************************/
-
-// The method "Mod" does modulus operation on two BigBinary Integers
-// m,p Returns (m mod p), which is stored in another BigBinary Integer
-// calculatedResult ConvertToInt converts BigBinaryInteger r to
-// integer
-
-TEST(UTBinInt,method_modulus){
+TEST(UTBinInt,mod_operations){
+  
+  /************************************************/
+  /* TESTING METHOD MOD FOR ALL CONDITIONS        */
+  /************************************************/
+  
+  // The method "Mod" does modulus operation on two BigBinary Integers
+  // m,p Returns (m mod p), which is stored in another BigBinary Integer
+  // calculatedResult ConvertToInt converts BigBinaryInteger r to
+  // integer
+  
   BigBinaryInteger calculatedResult;
   int expectedResult;
   // TEST CASE WHEN THE NUMBER IS LESS THAN MOD
   {
     BigBinaryInteger m("27");
     BigBinaryInteger p("240");
-
+    
     calculatedResult = m.Mod(p);
     expectedResult = 27;
-
+    
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing number_less_than_modulus";
   }
@@ -460,10 +446,10 @@ TEST(UTBinInt,method_modulus){
   {
     BigBinaryInteger m("93409673");
     BigBinaryInteger p("406");
-
+    
     calculatedResult = m.Mod(p);
     expectedResult = 35;
-
+    
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing number_greater_than_modulus";
   }
@@ -471,68 +457,66 @@ TEST(UTBinInt,method_modulus){
   {
     BigBinaryInteger m("32768");
     BigBinaryInteger p("16");
-
+    
     calculatedResult = m.Mod(p);
     expectedResult = 0;
-
+    
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing number_dividible_by_modulus";
   }
-}
-
-/************************************************/
-/* TESTING METHOD MOD BARRETT FOR ALL CONDITIONS */
-/************************************************/
 
 
-/* 	The method "Divided By" does division of BigBinary Integer m by another BigBinary Integer p
+  /************************************************/
+  /* TESTING METHOD MOD BARRETT FOR ALL CONDITIONS */
+  /************************************************/
+
+
+  /* 	The method "Divided By" does division of BigBinary Integer m by another BigBinary Integer p
 	Function takes b as argument and operates on a
   	Returns a/b, which is stored in another BigBinary Integer calculatedResult
 	ConvertToInt converts BigBinaryInteger calculatedResult to integer
 	When b=0, throws error, since division by Zero is not allowed
 	When a<b, returns 0, since decimal value is not returned
-*/
+  */
 
 
 
-// TEST CASE WHEN THE NUMBER IS LESS THAN MOD			//NOT GIVING PROPER OUTPUT AS OF NOW
+  // TEST CASE WHEN THE NUMBER IS LESS THAN MOD			//NOT GIVING PROPER OUTPUT AS OF NOW
 
-/*TEST(UTBinInt_METHOD_MOD_BARRETT,NUMBER_LESS_THAN_MOD){
+  /*TEST(UTBinInt_METHOD_MOD_BARRETT,NUMBER_LESS_THAN_MOD){
+  
+    BigBinaryInteger a("9587");
+    BigBinaryInteger b("3591");
+    BigBinaryInteger c("177");
+  
+    BigBinaryInteger calculatedResult = a.ModBarrett(b,c);
+    int expectedResult = 205484;
+  
+    std::cout<<"\n"<<d.ConvertToInt()<<"\n";	//for testing purpose
+  
+    //EXPECT_EQ(27,calculatedResult.ConvertToInt());
+    }
+  */
 
-	BigBinaryInteger a("9587");
-	BigBinaryInteger b("3591");
-	BigBinaryInteger c("177");
+  /*************************************************/
+  /* TESTING METHOD MOD INVERSE FOR ALL CONDITIONS */
+  /*************************************************/
+  // The method "Mod Inverse" operates on BigBinary Integers m,p
+  // Returns {(m)^(-1)}mod p
+  //    which is multiplicative inverse of m with respect to p, and is
+  //    uses extended Euclidean algorithm m and p are co-primes (i,e GCD
+  //    of m and p is 1)
+  // If m and p are not co-prime, the method throws an error
+  // ConvertToInt converts BigBinaryInteger calculatedResult to integer
 
-	BigBinaryInteger calculatedResult = a.ModBarrett(b,c);
-	int expectedResult = 205484;
 
-	std::cout<<"\n"<<d.ConvertToInt()<<"\n";	//for testing purpose
-
-	//EXPECT_EQ(27,calculatedResult.ConvertToInt());
-}
-*/
-
-/*************************************************/
-/* TESTING METHOD MOD INVERSE FOR ALL CONDITIONS */
-/*************************************************/
-// The method "Mod Inverse" operates on BigBinary Integers m,p
-// Returns {(m)^(-1)}mod p
-//    which is multiplicative inverse of m with respect to p, and is
-//    uses extended Euclidean algorithm m and p are co-primes (i,e GCD
-//    of m and p is 1)
-// If m and p are not co-prime, the method throws an error
-// ConvertToInt converts BigBinaryInteger calculatedResult to integer
-
-TEST(UTBinInt,method_mod_inverse){
-  BigBinaryInteger calculatedResult;
-  int expectedResult;
   // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
   {
     BigBinaryInteger m("5");
     BigBinaryInteger p("108");
     
-     calculatedResult = m.ModInverse(p);
-     expectedResult = 65;
+    calculatedResult = m.ModInverse(p);
+    expectedResult = 65;
     
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing number_less_than_modulus";
@@ -548,22 +532,20 @@ TEST(UTBinInt,method_mod_inverse){
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing number_greater_than_modulus";
   }
-}
-
-/************************************************/
-/* TESTING METHOD MODADD FOR ALL CONDITIONS     */
-/************************************************/
-// The method "Mod Add" operates on BigBinary Integers m,n,q
-//   Returns:
-//     (m+n)mod q 
-//      = {(m mod q) + (n mod q)}mod q
-//   ConvertToInt converts BigBinaryInteger calculatedResult to integer
 
 
-
-TEST(UTBinInt,method_mod_add){
-  BigBinaryInteger calculatedResult;
-  int expectedResult;
+  /************************************************/
+  /* TESTING METHOD MODADD FOR ALL CONDITIONS     */
+  /************************************************/
+  // The method "Mod Add" operates on BigBinary Integers m,n,q
+  //   Returns:
+  //     (m+n)mod q 
+  //      = {(m mod q) + (n mod q)}mod q
+  //   ConvertToInt converts BigBinaryInteger calculatedResult to integer
+  
+  
+  
+  
   // TEST CASE WHEN THE FIRST NUMBER IS GREATER THAN MOD
   {
     BigBinaryInteger m("58059595");
@@ -612,27 +594,24 @@ TEST(UTBinInt,method_mod_add){
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing both_numbers_greater_than_modulus";
   }
-}
 
-/************************************************/
-/* TESTING METHOD MODSUB FOR ALL CONDITIONS -*/
-/************************************************/
+  /************************************************/
+  /* TESTING METHOD MODSUB FOR ALL CONDITIONS -*/
+  /************************************************/
 
-// The method "Mod Sub" operates on BigBinary Integers m,n,q
-//   Returns:
-//    (m-n)mod q 
-//    = {(m mod q) - (n mod q)}mod q	when m>n
-//    = 0 when m=n
-//    = {(m mod q)+q-(n mod q)}mod q when m<n
+  // The method "Mod Sub" operates on BigBinary Integers m,n,q
+  //   Returns:
+  //    (m-n)mod q 
+  //    = {(m mod q) - (n mod q)}mod q	when m>n
+  //    = 0 when m=n
+  //    = {(m mod q)+q-(n mod q)}mod q when m<n
 	 
-//   ConvertToInt converts BigBinaryInteger calculatedResult to
-//   integer
+  //   ConvertToInt converts BigBinaryInteger calculatedResult to
+  //   integer
 
-//MEMORY ALLOCATION ERROR IN MODSUB METHOD (due to copying value to null pointer)
+  //MEMORY ALLOCATION ERROR IN MODSUB METHOD (due to copying value to null pointer)
 
-TEST(UTBinInt,method_mod_sub){ 
-  BigBinaryInteger calculatedResult;
-  int expectedResult;
+
   // TEST CASE WHEN THE FIRST NUMBER IS GREATER THAN MOD
   {
     BigBinaryInteger m("595");
@@ -672,67 +651,72 @@ TEST(UTBinInt,method_mod_sub){
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing first_number_equals_second_number";
   }
-}
 
-/************************************************/
-/* TESTING METHOD MODMUL FOR ALL CONDITIONS     */
-/************************************************/
+  /************************************************/
+  /* TESTING METHOD MODMUL FOR ALL CONDITIONS     */
+  /************************************************/
 
-// The method "Mod Mul" operates on BigBinary Integers m,n,q
-//   Returns:  (m*n)mod q
-//              = {(m mod q)*(n mod q)} 
-// ConvertToInt converts BigBinaryInteger calculatedResult to integer
+  // The method "Mod Mul" operates on BigBinary Integers m,n,q
+  //   Returns:  (m*n)mod q
+  //              = {(m mod q)*(n mod q)} 
+  // ConvertToInt converts BigBinaryInteger calculatedResult to integer
 
-TEST(UTBinInt,method_mod_mul){
-  BigBinaryInteger m("39960");
-  BigBinaryInteger n("7959");
-  BigBinaryInteger q("406756");
+  {
+    BigBinaryInteger m("39960");
+    BigBinaryInteger n("7959");
+    BigBinaryInteger q("406756");
   
-  BigBinaryInteger calculatedResult = m.ModMul(n,q);
-  int expectedResult = 365204;
+    BigBinaryInteger calculatedResult = m.ModMul(n,q);
+    int expectedResult = 365204;
   
-  EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-    << "Failure testing mod_mul_test";
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+      << "Failure testing mod_mul_test";
+  }
+
+  /************************************************/
+  /* TESTING METHOD MODEXP FOR ALL CONDITIONS     */
+  /************************************************/
+
+  // The method "Mod Exp" operates on BigBinary Integers m,n,q
+  // Returns:  (m^n)mod q 
+  //   = {(m mod q)^(n mod q)}mod q
+  // ConvertToInt converts BigBinaryInteger calculatedResult to integer
+
+  {
+    BigBinaryInteger m("39960");
+    BigBinaryInteger n("9");
+    BigBinaryInteger q("406756");
+
+    BigBinaryInteger calculatedResult = m.ModExp(n,q);
+    int expectedResult = 96776;
+
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+      << "Failure testing mod_exp_test";
+  }
 }
 
-/************************************************/
-/* TESTING METHOD MODEXP FOR ALL CONDITIONS     */
-/************************************************/
+TEST(UTBinInt,shift){
 
-// The method "Mod Exp" operates on BigBinary Integers m,n,q
-// Returns:  (m^n)mod q 
-//   = {(m mod q)^(n mod q)}mod q
-// ConvertToInt converts BigBinaryInteger calculatedResult to integer
+  /****************************/
+  /* TESTING SHIFT OPERATORS  */
+  /****************************/
 
-TEST(UTBinInt,method_mod_exp){
-	BigBinaryInteger m("39960");
-	BigBinaryInteger n("9");
-	BigBinaryInteger q("406756");
+  /*******************************************************/
+  /* TESTING OPERATOR LEFT SHIFT (<<) FOR ALL CONDITIONS */
+  /*******************************************************/
 
-	BigBinaryInteger calculatedResult = m.ModExp(n,q);
-	int expectedResult = 96776;
+  // The operator 'Left Shift' operates on BigBinary Integer a, and it
+  // is shifted by a number
 
-	EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-	  << "Failure testing mod_exp_test";
-}
+  // Returns: a<<(num), and the result is stored in BigBinaryInterger
+  // calculatedResult 'a' is left shifted by 'num' number of bits, and
+  // filled up by 0s from right which is equivalent to a * (2^num)
+  //
+  //        example:
+  //            4<<3 => (100)<<3 => (100000) => 32
+  //           this is equivalent to: 4* (2^3) => 4*8 =32 
+  //ConvertToInt converts BigBinaryInteger calculatedResult to integer
 
-/*******************************************************/
-/* TESTING OPERATOR LEFT SHIFT (<<) FOR ALL CONDITIONS */
-/*******************************************************/
-
-// The operator 'Left Shift' operates on BigBinary Integer a, and it
-// is shifted by a number
-
-// Returns: a<<(num), and the result is stored in BigBinaryInterger
-// calculatedResult 'a' is left shifted by 'num' number of bits, and
-// filled up by 0s from right which is equivalent to a * (2^num)
-//
-//        example:
-//            4<<3 => (100)<<3 => (100000) => 32
-//           this is equivalent to: 4* (2^3) => 4*8 =32 
-//ConvertToInt converts BigBinaryInteger calculatedResult to integer
-
-TEST(UTBinInt,method_left_shift){
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
     BigBinaryInteger a("39960");
@@ -755,25 +739,25 @@ TEST(UTBinInt,method_left_shift){
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing shift_greater_than_max_shift";
   }
-}
-
-/************************************************/
-/* TESTING OPERATOR LEFT SHIFT EQUALS (<<=) FOR ALL CONDITIONS -*/
-/************************************************/
-
-// The operator 'Left Shift Equals' operates on BigBinary Integer a,
-// and it is shifted by a number
-// Returns: 
-// a<<(num), and the result is stored in 'a'
-// 'a' is left shifted by 'num' number of bits, and filled up by 0s
-// from right which is equivalent to a * (2^num)
-// example :4<<3 => (100)<<3 => (100000) => 32
-// this is equivalent to: 4* (2^3) => 4*8 =32 
-// ConvertToInt converts BigBinaryInteger a to integer
 
 
+  /************************************************/
+  /* TESTING OPERATOR LEFT SHIFT EQUALS (<<=) FOR ALL CONDITIONS -*/
+  /************************************************/
 
-TEST(UTBinInt,method_left_shift_equals){
+  // The operator 'Left Shift Equals' operates on BigBinary Integer a,
+  // and it is shifted by a number
+  // Returns: 
+  // a<<(num), and the result is stored in 'a'
+  // 'a' is left shifted by 'num' number of bits, and filled up by 0s
+  // from right which is equivalent to a * (2^num)
+  // example :4<<3 => (100)<<3 => (100000) => 32
+  // this is equivalent to: 4* (2^3) => 4*8 =32 
+  // ConvertToInt converts BigBinaryInteger a to integer
+
+
+
+
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
     BigBinaryInteger a("39960");
@@ -796,24 +780,24 @@ TEST(UTBinInt,method_left_shift_equals){
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << "Failure testing shift_greater_than_max_shift";
   }
-}
 
-/********************************************************/
-/* TESTING OPERATOR RIGHT SHIFT (>>) FOR ALL CONDITIONS */
-/********************************************************/
-// The operator 'Right Shift' operates on BigBinary Integer a, and it
-// is shifted by a number
 
-// Returns: a>>(num), and the result is stored in BigBinary Integer
-// calculated. Result 'a' is right shifted by 'num' number of bits,
-// and filled up by 0s from left which is equivalent to a / (2^num)
+  /********************************************************/
+  /* TESTING OPERATOR RIGHT SHIFT (>>) FOR ALL CONDITIONS */
+  /********************************************************/
+  // The operator 'Right Shift' operates on BigBinary Integer a, and it
+  // is shifted by a number
 
-//  ex:4>>3 => (100000)>>3 => (000100) => 4
+  // Returns: a>>(num), and the result is stored in BigBinary Integer
+  // calculated. Result 'a' is right shifted by 'num' number of bits,
+  // and filled up by 0s from left which is equivalent to a / (2^num)
+
+  //  ex:4>>3 => (100000)>>3 => (000100) => 4
 					   
-// this is equivalent to: 32*(2^3) => 32/8 = 4 
-// ConvertToInt converts BigBinaryInteger calculatedResult to integer
+  // this is equivalent to: 32*(2^3) => 32/8 = 4 
+  // ConvertToInt converts BigBinaryInteger calculatedResult to integer
 
-TEST(UTBinInt,method_right_shift){
+
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
     BigBinaryInteger a("39965675");
@@ -836,25 +820,25 @@ TEST(UTBinInt,method_right_shift){
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing shift_greater_than_max_shift";
   }
-}
 
-/***************************************************************/
-/* TESTING OPERATOR RIGHT SHIFT EQUALS(>>=) FOR ALL CONDITIONS */
-/***************************************************************/
 
-// The operator 'Right Shift Equals' operates on BigBinary Integer a,
-// and it is shifted by a number 
+  /***************************************************************/
+  /* TESTING OPERATOR RIGHT SHIFT EQUALS(>>=) FOR ALL CONDITIONS */
+  /***************************************************************/
 
-// Returns: a>>=(num), and the result is stored in a 'a' is right
-// shifted by 'num' number of bits, and filled up by 0s from left
-// which is equivalent to a / (2^num)
+  // The operator 'Right Shift Equals' operates on BigBinary Integer a,
+  // and it is shifted by a number 
 
-//   ex:4>>3 => (100000)>>3 => (000100) => 4
+  // Returns: a>>=(num), and the result is stored in a 'a' is right
+  // shifted by 'num' number of bits, and filled up by 0s from left
+  // which is equivalent to a / (2^num)
 
-//   this is equivalent to: 32*(2^3) => 32/8 = 4 
-//   ConvertToInt converts BigBinaryInteger calculatedResult to integer
+  //   ex:4>>3 => (100000)>>3 => (000100) => 4
 
-TEST(UTBinInt,method_right_shift_equals){
+  //   this is equivalent to: 32*(2^3) => 32/8 = 4 
+  //   ConvertToInt converts BigBinaryInteger calculatedResult to integer
+
+
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
     BigBinaryInteger a("39965675");
@@ -886,7 +870,7 @@ TEST(UTBinInt,method_right_shift_equals){
 TEST(UTBinInt,method_binary_string_to_big_binary_integer){
   //TEST CASE FOR STATIC METHOD BinaryToBigBinaryInt in BigBinaryInteger
   
-  std:string binaryString = "1011101101110001111010111011000000011";
+ std:string binaryString = "1011101101110001111010111011000000011";
   BigBinaryInteger b = 
     lbcrypto::BigBinaryInteger::BinaryToBigBinaryInt(binaryString);
   
