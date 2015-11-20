@@ -35,9 +35,9 @@ namespace lbcrypto {
 		this->m_dimension = dimension;
 
 		// Create 2D array of pointers:
-		this->m_ringMatrix = new Element**[this->m_length];
-		for (usint i = 0; i < 2*this->m_dimension; ++i) {
-			this->m_ringMatrix[i] = new Element*[2];
+		this->m_ringMatrix = new Element**[this->m_dimension];
+		for (usint i = 0; i < this->m_dimension; ++i) {
+			this->m_ringMatrix[i] = new Element*[m_dimension];
 		}
 
 		// Null out the pointers contained in the array:
@@ -51,24 +51,50 @@ namespace lbcrypto {
 
 	// copy constructor
 	template <class Element>
-	RingMatrix<Element>::RingMatrix(const RingMatrix<Element> &RingMatrix) {
-		this->m_cryptoParameters = RingMatrix.m_cryptoParameters;
-		this->m_element = RingMatrix.m_element;
-		this->m_dimension = RingMatrix.m_dimension;
+	RingMatrix<Element>::RingMatrix(const RingMatrix<Element> &ringMatrix) {
+		this->m_cryptoParameters = ringMatrix.m_cryptoParameters;
+		//this->m_element = RingMatrix.m_element;
+		this->m_dimension = ringMatrix.m_dimension;
 
 		// Create 2D array of pointers:
-		this->m_ringMatrix = new Element**[this->m_length];
-		for (usint i = 0; i < 2*this->m_dimension; ++i) {
-			this->m_ringMatrix[i] = new Element*[2];
+		this->m_ringMatrix = new Element**[this->m_dimension];
+		for (usint i = 0; i < this->m_dimension; ++i) {
+			this->m_ringMatrix[i] = new Element*[m_dimension];
 		}
 
 		// Null out the pointers contained in the array:
 		for (usint i = 0; i < this->m_dimension; ++i) {
 			for (usint j = 0; j < this->m_dimension; ++j) {
-				this->m_ringMatrix[i][j] = RingMatrix.m_ringMatrix[i][j];
+				this->m_ringMatrix[i][j] = ringMatrix.m_ringMatrix[i][j];
 			}
 		}
 
 	}
+
+
+
+	template <class Element>
+	RingMatrix<Element> RingMatrix<Element>::ModMul(const RingMatrix<Element> &ringMatrix) const {
+
+		RingMatrix<Element> returnMatrix(this->m_dimension);
+		returnMatrix.setCryptoParams(this->m_cryptoParameters);
+
+		// Null out the pointers contained in the array:
+		for (usint i = 0; i < this->m_dimension; ++i) {
+			for (usint j = 0; j < this->m_dimension; ++j) {				
+				Element result = this->m_ringMatrix[i][0].Times(ringMatrix->m_ringMatrix[0][j]);
+				for (usint k = 1; k < this->m_dimension; ++k) {
+					Element sum = result.Plus(this->m_ringMatrix[i][k].Times(ringMatrix->m_ringMatrix[k][j]));
+					result = sum;
+					~sum;
+				}
+				ringMatrix->m_ringMatrix[i][j] = result;
+			}
+		}
+
+
+	}
+
+
 
 }  // namespace lbcrypto ends

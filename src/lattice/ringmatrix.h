@@ -123,7 +123,7 @@ namespace lbcrypto {
 		* @param column the column of the index
 		* @return the ring element.
 		*/
-		const Element &GetElement(usint row, usint column) const { return m_element; }
+		const Element &GetElement(usint row, usint column) const { return ringMatrix[row][column]; }
 
 		/**
 		* Sets a reference to crypto parameters.
@@ -139,24 +139,21 @@ namespace lbcrypto {
 		* @param row the row of the index
 		* @param column the column of the index
 		*/
-		void SetElement(const Element &element, usint row, usint column) { m_element = element; }
+		void SetElement(const Element &element, usint row, usint column) { ringMatrix[row][column] = element; }
 
 		/**
-		* Sets the data element.
-		*
-		* @param row the row of the index
-		* @param column the column of the index
-		* @param &element is a polynomial ring element.
-		*/
-		void GetElement(usint row, usint column, const Element &element) { return m_element; }
+		 * Matrix modulus multiplication.
+		 *
+		 * @param &b is the RingMatrix to multiply.
+		 * @return is the result of the modulus multiplication operation.
+		 */
+		RingMatrix<Element> ModMul(const RingMatrix<Element> &ringMatrix) const;
+
 	
 	private:
 
 		//pointer to crypto parameters
 		const LPCryptoParameters<Element> *m_cryptoParameters;
-
-		//data element
-		Element m_element;
 
 		//size of matrix
 		usint m_dimension=1;
