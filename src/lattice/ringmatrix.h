@@ -35,12 +35,13 @@
 * This file contains the ILVector2n Matrix for Matrices of Ring operations.
 */
 
-#ifndef LBCRYPTO_CRYPTO_RingMatrix_H
-#define LBCRYPTO_CRYPTO_RingMatrix_H
+#ifndef LBCRYPTO_CRYPTO_RINGMATRIX_H
+#define LBCRYPTO_CRYPTO_RINGMATRIX_H
 
 //Includes Section
 #include "il2n.h"
 #include "ideals.h"
+#include "../crypto/pubkeylp.h"
 
 /**
 * @namespace lbcrypto
@@ -114,7 +115,7 @@ namespace lbcrypto {
 		* Get current estimate of estimate norm
 		* @return the current estimate of RingMatrix norm.
 		*/
-		const BigBinaryInteger &GetNorm() const { return m_norm; }
+		const BigBinaryInteger &GetNorm();
 
 		/**
 		* Get the element
@@ -159,6 +160,9 @@ namespace lbcrypto {
 
 		//size of matrix
 		usint m_dimension=1;
+
+		//ring matrix
+		Element ***ringMatrix = NULL;
 
 	};
 

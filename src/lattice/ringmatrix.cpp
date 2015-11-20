@@ -23,50 +23,52 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "RingMatrix.h"
+#include "ringmatrix.h"
 
 namespace lbcrypto {
 
 	// copy constructor
 	template <class Element>
+	RingMatrix<Element>::RingMatrix(usint dimension) {
+		//m_cryptoParameters = RingMatrix.m_cryptoParameters;
+		//m_element = RingMatrix.m_element;
+		this->m_dimension = dimension;
+
+		// Create 2D array of pointers:
+		this->m_ringMatrix = new Element**[this->m_length];
+		for (usint i = 0; i < 2*this->m_dimension; ++i) {
+			this->m_ringMatrix[i] = new Element*[2];
+		}
+
+		// Null out the pointers contained in the array:
+		for (usint i = 0; i < this->m_dimension; ++i) {
+			for (usint j = 0; j < this->m_dimension; ++j) {
+				this->m_ringMatrix[i][j] = NULL;
+			}
+		}
+	}
+
+
+	// copy constructor
+	template <class Element>
 	RingMatrix<Element>::RingMatrix(const RingMatrix<Element> &RingMatrix) {
-		m_cryptoParameters = RingMatrix.m_cryptoParameters;
-		m_element = RingMatrix.m_element;
-		m_dimension = RingMatrix.m_dimension;
-	}
+		this->m_cryptoParameters = RingMatrix.m_cryptoParameters;
+		this->m_element = RingMatrix.m_element;
+		this->m_dimension = RingMatrix.m_dimension;
 
-	// move constructor
-	template <class Element>
-	RingMatrix<Element>::RingMatrix(RingMatrix<Element> &&RingMatrix) {
-		m_cryptoParameters = RingMatrix.m_cryptoParameters;
-		m_element = RingMatrix.m_element;
-		m_dimension = RingMatrix.m_dimension;
-	}
-
-	// assignment operator
-	template <class Element>
-	RingMatrix<Element>& RingMatrix<Element>::operator=(const RingMatrix<Element> &rhs)
-	{
-		if (this != &rhs) {
-			this->m_cryptoParameters = rhs.m_cryptoParameters;
-			this->m_element = rhs.m_element;
-			this->m_dimension = rhs.m_dimension;
+		// Create 2D array of pointers:
+		this->m_ringMatrix = new Element**[this->m_length];
+		for (usint i = 0; i < 2*this->m_dimension; ++i) {
+			this->m_ringMatrix[i] = new Element*[2];
 		}
 
-		return *this;
-	}
-
-	// moveable assignment operator
-	template <class Element>
-	RingMatrix<Element>& RingMatrix<Element>::operator=(RingMatrix<Element> &&rhs)
-	{
-		if (this != &rhs) {
-			this->m_cryptoParameters = rhs.m_cryptoParameters;
-			this->m_element = rhs.m_element;
-			this->m_dimension = rhs.m_dimension;
+		// Null out the pointers contained in the array:
+		for (usint i = 0; i < this->m_dimension; ++i) {
+			for (usint j = 0; j < this->m_dimension; ++j) {
+				this->m_ringMatrix[i][j] = RingMatrix.m_ringMatrix[i][j];
+			}
 		}
 
-		return *this;
 	}
 
 }  // namespace lbcrypto ends

@@ -112,7 +112,7 @@ namespace lbcrypto {
 
 		private:
 			Element ***ringArray = NULL;
-			Element *ringComparator = NULL;
+			//Element *ringComparator = NULL;
 
 	};
 
