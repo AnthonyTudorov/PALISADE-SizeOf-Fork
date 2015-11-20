@@ -638,6 +638,8 @@ namespace lbcrypto {
 			* Constructor that initializes nothing.
 			*/
 			LPKeySwitchHintImpl() {
+				m_sk = NULL;
+				//m_cryptoParameters;
 			}
 
 			/**

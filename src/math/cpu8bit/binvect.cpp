@@ -280,6 +280,28 @@ BigBinaryVector BigBinaryVector::ModAdd(const BigBinaryVector &b) const{
 
 }
 
+BigBinaryVector BigBinaryVector::ModByTwo() const {
+
+	BigBinaryVector ans(this->GetLength());
+	BigBinaryInteger halfQ(this->GetModulus() >> 1);
+	for (usint i = 0; i<ans.GetLength(); i++) {
+		if (this->GetValAtIndex(i)>halfQ) {
+			if (this->GetValAtIndex(i).Mod(BigBinaryInteger::TWO) == BigBinaryInteger::ONE)
+				ans.SetValAtIndex(i, BigBinaryInteger::ZERO);
+			else
+				ans.SetValAtIndex(i, BigBinaryInteger::ONE);
+		}
+		else {
+			if (this->GetValAtIndex(i).Mod(BigBinaryInteger::TWO) == BigBinaryInteger::ONE)
+				ans.SetValAtIndex(i, BigBinaryInteger::ONE);
+			else
+				ans.SetValAtIndex(i, BigBinaryInteger::ZERO);
+		}
+
+	}
+	return ans;
+}
+
 const BigBinaryVector& BigBinaryVector::operator+=(const BigBinaryVector &b) {
 
 	if(this->m_length!=b.m_length){
