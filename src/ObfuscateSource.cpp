@@ -123,36 +123,11 @@ void NTRUPRE(int input) {
 	//Set element params
 
 	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
-	/*
+	
 	usint m = 16;
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
-	ByteArray plaintext = "N";
-	*/
-
-	// The comments below provide a high-security parameterization for prototype use.  If this code were verified/certified for high-security applications, we would say that the following parameters would be appropriate for "production" use.
-	//usint m = 2048;
-	//BigBinaryInteger modulus("8590983169");
-	//BigBinaryInteger rootOfUnity("4810681236");
-	//ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
-
-	SecureParams const SECURE_PARAMS[] = {
-		{ 2048, BigBinaryInteger("8590983169"), BigBinaryInteger("4810681236"), 1 }, //r = 1
-		{ 2048, BigBinaryInteger("17179875329"), BigBinaryInteger("8079001841"), 2 }, // r = 2
-		{ 2048, BigBinaryInteger("34359754753"), BigBinaryInteger("34316244289"), 4 },  // r = 4
-		{ 2048, BigBinaryInteger("137439004673"), BigBinaryInteger("7643730114"), 8 }, //r = 8
-		{ 4096, BigBinaryInteger("35184372121601"), BigBinaryInteger("16870007166633"), 16 }  // r= 16
-		//{ 2048, CalltoModulusComputation(), CalltoRootComputation, 0 }  // r= 16
-	};
-
-	usint m = SECURE_PARAMS[input].m;
-	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
-	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
-
 	float stdDev = 4;
-
-	ofstream fout;
-	fout.open ("output.txt");
 
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
@@ -167,208 +142,32 @@ void NTRUPRE(int input) {
 	DiscreteGaussianGenerator dgg(stdDev);			// Create the noise generator
 
 	double diff, start, finish;
-
-	start = currentDateTime();
+	//start = currentDateTime();
 
 	////////////////////////////////////////////////////////////
 	//Perform the Pattern Generation Algorithm
 	////////////////////////////////////////////////////////////
-	LPAlgorithmLWENTRU<ILVector2n> algorithm1;
-//	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm2;
 
-	ClearLWEConjunctionPattern<ILVector2n> clearPattern("10x");
+	std:string inputPattern = "101";
+	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 
 	std::cout << " \nCleartext pattern: " << std::endl;
 	std::cout << clearPattern.getPatternString() << std::endl;
 
-	usint patternLength = 3;
-	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(patternLength);
-/*
-	for (usint i = 0; i < patternLength; ++i) {
-		for (usint j = 0; j < patternLength; ++j) {
-			ringArray[i][j] = getRandomRingMatrix();
-		}
-	}
-*/
+	std::cout << " \nCleartext pattern length: " << std::endl;
+	std::cout << clearPattern.getLength() << std::endl;
 
-/*
-	LPAlgorithmLWENTRU<ILVector2n> algorithm;
+	std:string inputStr1 = "101";
+	bool out1 = clearPattern.evaluate(inputStr);
+	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << std::endl;
+	std::cout << out1 << std::endl;
 
-	bool successKeyGen=false;
+	std:string inputStr2 = "101";
+	bool out2 = clearPattern.evaluate(inputStr);
+	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << std::endl;
+	std::cout << out2 << std::endl;
 
-	std::cout <<"\n" <<  "Running key generation..." << std::endl;
-
-	start = currentDateTime();
-
-	successKeyGen = algorithm.KeyGen(pk,sk,dgg);	// This is the core function call that generates the keys.
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	//fout<< currentDateTime()  << " pk = "<<pk.GetPublicElement().GetValues()<<endl;
-	//fout<< currentDateTime()  << " sk = "<<sk.GetPrivateElement().GetValues()<<endl;
-
-	if (!successKeyGen) {
-		std::cout<<"Key generation failed!"<<std::endl;
-		exit(1);
-	}
-
-	////////////////////////////////////////////////////////////
-	//Encryption
-	////////////////////////////////////////////////////////////
-
-	// Begin the initial encryption operation.
-	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
-	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
-
-	Ciphertext<ILVector2n> ciphertext;
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-    ptxt.Pad<ZeroPad>(m/16);
-
-	std::cout << "Running encryption..." << std::endl;
-
-	start = currentDateTime();
-
-	algorithm.Encrypt(pk,dgg,ptxt,&ciphertext);	// This is the core encryption operation.
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	//cout<<"ciphertext: "<<ciphertext.GetValues()<<endl;
-
-	////////////////////////////////////////////////////////////
-	//Decryption
-	////////////////////////////////////////////////////////////
-
-	ByteArrayPlaintextEncoding plaintextNew;
-
-	std::cout <<"\n"<< "Running decryption..." << std::endl;
-
-	start = currentDateTime();
-
-	DecodingResult result = algorithm.Decrypt(sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
-    plaintextNew.Unpad<ZeroPad>();
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
-
-	//cout << "ciphertext at" << ciphertext.GetIndexAt(2);
-
-	if (!result.isValidCoding) {
-		std::cout<<"Decryption failed!"<<std::endl;
-		exit(1);
-	}
-	//PRE SCHEME
-
-	//system("pause");
-
-	LPAlgorithmPRELWENTRU<ILVector2n> algorithmPRE;
-
-	////////////////////////////////////////////////////////////
-	//Perform the second key generation operation.
-	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
-	////////////////////////////////////////////////////////////
-
-	LPPublicKeyLWENTRU<ILVector2n> newPK(cryptoParams);
-	LPPrivateKeyLWENTRU<ILVector2n> newSK(cryptoParams);
-
-	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
-
-	start = currentDateTime();
-
-	successKeyGen = algorithmPRE.KeyGen(newPK,newSK,dgg);	// This is the same core key generation operation.
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout << "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout << "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-//	cout<<"newPK = "<<newPK.GetPublicElement().GetValues()<<endl;
-//	cout<<"newSK = "<<newSK.GetPrivateElement().GetValues()<<endl;
-//	fout<<"newPK = "<<newPK.GetPublicElement().GetValues()<<endl;
-//	fout<<"newSK = "<<newSK.GetPrivateElement().GetValues()<<endl;
-
-	////////////////////////////////////////////////////////////
-	//Perform the proxy re-encryption key generation operation.
-	// This generates the keys which are used to perform the key switching.
-	////////////////////////////////////////////////////////////
-
-	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
-
-	LPEvalKeyLWENTRU<ILVector2n> evalKey(cryptoParams);
-
-	start = currentDateTime();
-
-	algorithmPRE.ProxyKeyGen(newPK, sk, dgg , &evalKey);  // This is the core re-encryption operation.
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Re-encryption key generation time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Re-encryption key generation time: "<<"\t"<<diff<<" ms"<<endl;
-
-	////////////////////////////////////////////////////////////
-	//Perform the proxy re-encryption operation.
-	// This switches the keys which are used to perform the key switching.
-	////////////////////////////////////////////////////////////
-
-
-	Ciphertext<ILVector2n> newCiphertext;
-
-	std::cout <<"\n"<< "Running re-encryption..." << std::endl;
-
-	start = currentDateTime();
-
-	algorithmPRE.ReEncrypt(evalKey, ciphertext,&newCiphertext);  // This is the core re-encryption operation.
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Re-encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Re-encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
-
-	////////////////////////////////////////////////////////////
-	//Decryption
-	////////////////////////////////////////////////////////////
-
-	ByteArrayPlaintextEncoding plaintextNew2;
-
-	std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
-
-	start = currentDateTime();
-
-	DecodingResult result1 = algorithmPRE.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
-    plaintextNew2.Unpad<ZeroPad>();
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
-
-	if (!result1.isValidCoding) {
-		std::cout<<"Decryption failed!"<<std::endl;
-		exit(1);
-	}
-*/
+//	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(patternLength);
 
 	std::cout << "Execution completed.  Please any key to finish." << std::endl;
 
