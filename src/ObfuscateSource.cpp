@@ -139,7 +139,7 @@ void NTRUPRE(int input) {
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(stdDev);			// Create the noise generator
+	DiscreteGaussianGenerator dgg(stdDev,modulus);			// Create the noise generator
 
 	double diff, start, finish;
 	//start = currentDateTime();
