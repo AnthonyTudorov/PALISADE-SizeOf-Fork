@@ -2,6 +2,7 @@
 //#include "UnitTestBinVect.cpp"
 //#include "UnitTestBinMat.cpp"
 #include "gtest/gtest.h"
+//#include "gtest/gtest-all.cc"
 
 #include "../../src/math/backend.h"
 #include "../../src/utils/inttypes.h"
