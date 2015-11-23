@@ -95,36 +95,52 @@ LIBOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(LIBSOURCES:.$(SRCEXT)=.o))
 
 TESTSOURCES := $(shell find $(TESTSRCDIR) -type f -name *.$(SRCEXT))
 TESTOBJECTS := $(patsubst $(TESTSRCDIR)/%,$(TESTBUILDDIR)/%,$(TESTSOURCES:.$(SRCEXT)=.o))
-TESTLIB := -lgtest -lgtest_main -lpthread#-pthread -lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
+TESTLIB := -lpthread #-pthread -lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
+
+TESTLIBSRCEXT := cc
+TESTLIBSRCDIR := test/include/gtest
+TESTLIBSOURCES := $(shell find $(TESTLIBSRCDIR) -type f -name *.$(TESTLIBSRCEXT))
+TESTLIBOBJECTS := $(patsubst $(TESTLIBSRCDIR)/%,$(TESTBUILDDIR)/%,$(TESTLIBSOURCES:.$(TESTLIBSRCEXT)=.o))
 
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
-GTEST_DIR = /usr/local
+#GTEST_DIR = test/include
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
-GTEST_HEADERS =	$(GTEST_DIR)/include/gtest/gtest.h \
-		$(GTEST_DIR)/include/gtest/gtest-death-test.h \
-		$(GTEST_DIR)/include/gtest/gtest-message.h \
-		$(GTEST_DIR)/include/gtest/gtest-printers.h \
-		$(GTEST_DIR)/include/gtest/gtest-spi.h \
-		$(GTEST_DIR)/include/gtest/gtest-typed-test.h \
-		$(GTEST_DIR)/include/gtest/gtest.h \
-		$(GTEST_DIR)/include/gtest/gtest-param-test.h \
-		$(GTEST_DIR)/include/gtest/gtest_prod.h \
-		$(GTEST_DIR)/include/gtest/gtest-test-part.h \
-#GTEST_HEADERS =	$(GTEST_DIR)/include/gtest/*.h \
-               $(GTEST_DIR)/include/gtest/internal/*.h
+GTEST_HEADERS =	test/include/gtest/gtest.h
+#		$(GTEST_DIR)/include/gtest/gtest-death-test.h \
+#		$(GTEST_DIR)/include/gtest/gtest-message.h \
+#		$(GTEST_DIR)/include/gtest/gtest-printers.h \
+#		$(GTEST_DIR)/include/gtest/gtest-spi.h \
+#		$(GTEST_DIR)/include/gtest/gtest-typed-test.h \
+#		$(GTEST_DIR)/include/gtest/gtest.h \
+#		$(GTEST_DIR)/include/gtest/gtest-param-test.h \
+#		$(GTEST_DIR)/include/gtest/gtest_prod.h \
+#		$(GTEST_DIR)/include/gtest/gtest-test-part.h \
+##GTEST_HEADERS =	$(GTEST_DIR)/include/gtest/*.h \
+#               $(GTEST_DIR)/include/gtest/internal/*.h
+
+$(TESTBUILDDIR)/%.o: $(TESTLIBSRCDIR)/%.$(TESTLIBSRCEXT)
+	@mkdir -p $(@D)
+#	@echo " $(BUILDDIR)"
+#	@echo "------ $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<
+	@echo "------ $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<
+	@echo "ar -rv $(TESTBUILDDIR)/libgtest.a $@"; ar -rv $(TESTBUILDDIR)/libgtest.a $@
 
 $(TESTBUILDDIR)/%.o: $(TESTSRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(@D)
 #	@echo " $(BUILDDIR)"
 	@echo " $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<
 
-$(TESTTARGET): $(TESTOBJECTS) $(GTEST_HEADERS) $(LIBOBJECTS)
+$(TESTTARGET): $(TESTOBJECTS) $(TESTLIBOBJECTS) $(LIBOBJECTS)
+	@echo "- $(TESTLIBSRCEXT)"
+	@echo "-- $(TESTLIBSRCDIR)"
+	@echo "--- $(TESTLIBSOURCES)"
+	@echo "---- $(TESTLIBOBJECTS)"
 	@echo " Linking..."
 	@mkdir -p $(TESTTARGETDIR)
-	@echo " $(CC) $^ -o $(TESTTARGET) $(TESTLIB)"; $(CC) $^ -o $(TESTTARGET) $(TESTLIB)
+	@echo " $(CC) $^ $(TESTLIB) $(TESTBUILDDIR)/libgtest.a -o $(TESTTARGET)"; $(CC) $^ $(TESTLIB) $(TESTBUILDDIR)/libgtest.a -o $(TESTTARGET)
 
 .PHONY: runtests
 runtests: $(TESTTARGET)
