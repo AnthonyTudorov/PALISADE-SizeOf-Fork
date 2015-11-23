@@ -181,11 +181,11 @@ void NTRUPRE(int input) {
 	//ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
 
 	SecureParams const SECURE_PARAMS[] = {
-		{ 2048, BigBinaryInteger("8590983169"), BigBinaryInteger("4810681236"), 1 }, //r = 1
-		{ 2048, BigBinaryInteger("17179875329"), BigBinaryInteger("8079001841"), 2 }, // r = 2
-		{ 2048, BigBinaryInteger("34359754753"), BigBinaryInteger("34316244289"), 4 },  // r = 4
-		{ 2048, BigBinaryInteger("137439004673"), BigBinaryInteger("7643730114"), 8 }, //r = 8
-		{ 4096, BigBinaryInteger("35184372121601"), BigBinaryInteger("16870007166633"), 16 }  // r= 16
+		{ 2048, BigBinaryInteger("268441601"), BigBinaryInteger("16947867"), 1 }, //r = 1
+		{ 2048, BigBinaryInteger("536881153"), BigBinaryInteger("267934765"), 2 }, // r = 2
+		{ 2048, BigBinaryInteger("1073750017"), BigBinaryInteger("180790047"), 4 },  // r = 4
+		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("2678760785"), 8 }, //r = 8
+		{ 4096, BigBinaryInteger("2199023288321"), BigBinaryInteger("1858080237421"), 16 }  // r= 16
 		//{ 2048, CalltoModulusComputation(), CalltoRootComputation, 0 }  // r= 16
 	};
 
