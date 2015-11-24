@@ -68,11 +68,10 @@ public:
 	 */
 	virtual BigBinaryVector GenerateVector(usint size, const BigBinaryInteger &modulus) const = 0;
 
-
-    /**
-     *  Interface requires virtual destructor.
-     */
-    virtual ~DistributionGenerator() = 0;
+	/**
+	 *  Interface requires virtual destructor.
+	 */
+	virtual ~DistributionGenerator() = 0;
 };
 
 inline DistributionGenerator::~DistributionGenerator() { };
@@ -118,7 +117,6 @@ public:
 	 * Basic constructor for specifying distribution parameter and modulus.
 	 *
 	 * @param std is the distribution parameter.
-	 * @param &mod is the distribution modulus.
 	 */
 	DiscreteGaussianGenerator(sint std);
 
@@ -148,7 +146,7 @@ public:
 	void SetStd(sint std);
     //void SetUpperBound(int upperBound);
 
-	/**
+	/*
 	 * Sets the modulus of the generator.
 	 *
 	 * @param &modulus the analytic standard deviation of the generator.
@@ -174,6 +172,7 @@ public:
 	 * Returns a generated vector.
 	 *
 	 * @param size the number of values to return.
+	 * @param &modulus the modulus of the returned data.
 	 * @return vector of values generated with the distribution.
 	 */
 	BigBinaryVector GenerateVector(usint size, const BigBinaryInteger &modulus) const;

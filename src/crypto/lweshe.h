@@ -89,7 +89,7 @@ namespace lbcrypto {
 			/**
 			 * Function to generate key switch hint on a ciphertext for depth 2.
 			 *
-			 * @param &privateKey private key for the new ciphertext.
+			 * @param &newPrivateKey private key for the new ciphertext.
 			 * @param &dgg discrete Gaussian generator.
 			 * @param *keySwitchHint the key switch hint.
 			 */
