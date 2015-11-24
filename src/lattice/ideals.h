@@ -133,6 +133,7 @@ namespace lbcrypto {
 		/**
 		* Constructor for the pre-computed case without cri_values.
 		*
+		* @param rootsOfUnity the roots of unity for the toer of moduli
 		* @param cyclotomic_order the order of the ciphertext
 		* @param &moduli is the tower of moduli
 		* @param rootsOfUnity the roots of unity for the toer of moduli
@@ -261,10 +262,11 @@ namespace lbcrypto {
 		void SetModuli(const std::vector<BigBinaryInteger> &moduli) {
 			m_moduli = moduli;
 		}
+
 		/**
-		* Set the moduli.
+		* Set the modulus.
 		*
-		* @param &moduli the moduli.
+		* @param &modulus the modulus.
 		*/
 		void SetModulus(const BigBinaryInteger &modulus) {
 			m_modulus = modulus;

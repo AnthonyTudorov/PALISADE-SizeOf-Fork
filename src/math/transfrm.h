@@ -226,6 +226,14 @@ public:
 	* @param modulus is the modulus
 	*/
 	void PreCompute(const BigBinaryInteger& rootOfUnity, const usint CycloOrder, const BigBinaryInteger &modulus);
+
+	/**
+	* Precomputation of root of unity tables.
+	*
+	* @param &rootOfUnity the root of unity.
+	* @param CycloOrder is the cyclotomic order.
+	* @param &moduliiChain is the modulus
+	*/
 	void PreCompute(std::vector<BigBinaryInteger> &rootOfUnity, const usint CycloOrder, std::vector<BigBinaryInteger> &moduliiChain);
 	/**
 	 * Destructor.	 
