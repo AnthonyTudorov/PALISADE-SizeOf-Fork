@@ -242,7 +242,7 @@ TEST(method_generate_binary_uniform_big_binary_integer,equals) {
 
 	EXPECT_LT(binUniRandNum, BigBinaryInteger("2"));
 	EXPECT_GE(binUniRandNum, BigBinaryInteger("0"));
-	BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
+//	BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
 
 	usint size = 10;
 	BigBinaryVector randBigBinaryVector = binaryUniGen.GenerateVector(size);
