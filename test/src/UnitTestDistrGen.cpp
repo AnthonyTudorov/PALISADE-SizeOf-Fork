@@ -234,30 +234,58 @@ TEST(method_generate_uniform_big_binary_vector_variance_smaller_modulus,vector_u
 	// std::cout << "The expectedVariance is " << expectedVariance << std::endl;
 }
 
-TEST(method_generate_binary_uniform_big_binary_integer,equals) {
+TEST(method_generate_binary_uniform_big_binary_integer,greater_than_0)
+{
 
 	BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
 
 	BigBinaryInteger binUniRandNum = binaryUniGen.GenerateInteger();
 
-	EXPECT_LT(binUniRandNum, BigBinaryInteger("2"));
-	EXPECT_GE(binUniRandNum, BigBinaryInteger("0"));
-//	BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
+	//EXPECT_LT(binUniRandNum.ConverToInt(), 2);
 
-	usint size = 10;
-	BigBinaryVector randBigBinaryVector = binaryUniGen.GenerateVector(size);
-
-	BigBinaryInteger mean("0");
-	BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
-
-	for(usint index=0; index<randBigBinaryVector.GetLength(); index++) {
-		mean += randBigBinaryVector.GetValAtIndex(index);
-	}
-	BigBinaryInteger computedMean = mean.DividedBy(length);
-	// std::cout << "The computedMean is " << computedMean << std::endl;
-	BigBinaryInteger expectedMean(BigBinaryInteger::ZERO);
-	
-	EXPECT_EQ(computedMean, expectedMean);
+	//std::cout << "Running Test." << std::endl;
+	EXPECT_GE(binUniRandNum.ConvertToInt(), 0)
+	<< "Result is less than 0";
+	//EXPECT_LE(binUniRandNum.ConvertToInt(), 1);
 }
 
+TEST(method_generate_binary_uniform_big_binary_integer,less_than_1) 
+{
+
+	BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
+
+	BigBinaryInteger binUniRandNum = binaryUniGen.GenerateInteger();
+
+	//EXPECT_LT(binUniRandNum.ConverToInt(), 2);
+	//EXPECT_GE(binUniRandNum.ConvertToInt(), 0);
+	//std::cout << "Running Test." << std::endl;
+	EXPECT_LE(binUniRandNum.ConvertToInt(), 1)
+	<< "Result is greater than 1";
+}
+
+TEST(method_generate_binary_uniform_big_binary_integer,mean) 
+{
+
+	BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
+
+	usint length = 100000;
+	BigBinaryVector randBigBinaryVector = binaryUniGen.GenerateVector(length);
+
+	usint sum = 0;
+
+	for(usint index=0; index<randBigBinaryVector.GetLength(); index++) {
+		sum += randBigBinaryVector.GetValAtIndex(index).ConvertToInt();
+	}
+	//std::cout << "Observed sum is " << sum << std::endl;
+	//std::cout << "Length is " << length << std::endl;
+	float computedMean = (float)sum/(float)length;
+	//std::cout << "The computedMean is " << computedMean << std::endl;
+	float expectedMean = 0.5;
+	float dif = abs(computedMean-expectedMean);
+	//std::cout << "The difference is " << dif << std::endl;
+	
+	//std::cout << "Running Test." << std::endl;
+	EXPECT_LT(dif,0.01)
+	<< "Mean is incorrect";
+}
 // a large sample. Max of them should be less than q
