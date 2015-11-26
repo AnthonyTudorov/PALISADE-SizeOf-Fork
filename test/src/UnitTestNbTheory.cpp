@@ -81,7 +81,7 @@ Compares two integer values
 
 // TEST CASE TO FIND GREATEST COMMON DIVISOR OF TWO SMALL NUMBERS
 
-TEST(method_greatest_common_divisor_small_numbers,equals){
+TEST(method_greatest_common_divisor,equals_small_numbers){
 	BigBinaryInteger a("10403"), b("103");
 	BigBinaryInteger c = lbcrypto::GreatestCommonDivisor(a, b);
 
@@ -92,7 +92,7 @@ TEST(method_greatest_common_divisor_small_numbers,equals){
 
 // TEST CASE TO FIND GREATEST COMMON DIVISOR OF TWO POWERS OF 2 NUMBERS
 
-TEST(method_greatest_common_divisor_powers_of_two_numbers,equals){
+TEST(method_greatest_common_divisor,equals_powers_of_two_numbers){
 	BigBinaryInteger a("1048576"), b("4096");
 	BigBinaryInteger c(lbcrypto::GreatestCommonDivisor(a, b));
 	
@@ -103,14 +103,14 @@ TEST(method_greatest_common_divisor_powers_of_two_numbers,equals){
 
 // TEST CASE FOR MILLER RABIN PRIMALITY TEST FOR SMALL PRIME
 
-TEST(method_miller_rabin_primality_small_prime, is_prime){
+TEST(method_miller_rabin_primality, is_prime_small_prime){
 	BigBinaryInteger prime("24469");
 	EXPECT_TRUE(lbcrypto::MillerRabinPrimalityTest(prime));
 }
 
 // TEST CASE FOR MILLER RABIN PRIMALITY TEST FOR BIG PRIME
 
-TEST(method_miller_rabin_primality_big_prime, is_prime){
+TEST(method_miller_rabin_primality, is_prime_big_prime){
 	BigBinaryInteger prime("952229140957");
 
 	EXPECT_TRUE(lbcrypto::MillerRabinPrimalityTest(prime));
@@ -118,7 +118,7 @@ TEST(method_miller_rabin_primality_big_prime, is_prime){
 
 // TEST CASE FOR MILLER RABIN PRIMALITY TEST FOR SMALL COMPOSITE NUMBER
 
-TEST(method_miller_rabin_primality_small_composite_number, is_not_prime){
+TEST(method_miller_rabin_primality, is_not_prime_small_composite_number){
 	BigBinaryInteger isNotPrime("10403");
 
 	EXPECT_FALSE(lbcrypto::MillerRabinPrimalityTest(isNotPrime));
@@ -126,7 +126,7 @@ TEST(method_miller_rabin_primality_small_composite_number, is_not_prime){
 
 // TEST CASE FOR MILLER RABIN PRIMALITY TEST FOR BIG COMPOSITE NUMBER
 
-TEST(method_miller_rabin_primality_big_composite_number, is_not_prime){
+TEST(method_miller_rabin_primality, is_not_prime_big_composite_number){
 	BigBinaryInteger isNotPrime("952229140959");
 
 	EXPECT_FALSE(lbcrypto::MillerRabinPrimalityTest(isNotPrime));
@@ -147,7 +147,7 @@ TEST(method_factorize, returns_factors){
 
 //TEST CASE TO FIND PRIME MODULUS
 
-TEST(method_find_prime_modulus, foundPrimeModulus){
+TEST(method_prime_modulus, foundPrimeModulus){
 	usint m = 2048;
 	usint nBits = 30;
 
@@ -158,7 +158,7 @@ TEST(method_find_prime_modulus, foundPrimeModulus){
 
 // TEST CASE TO FIND PRIME MODULUS FOR A HIGHER BIT LENGTH 
 
-TEST(method_test_prime_modulus_higher_bit_length, returns){
+TEST(method_prime_modulus, returns_higher_bit_length){
 	
 	usint m=4096; 
 	usint nBits=49;
@@ -170,7 +170,7 @@ TEST(method_test_prime_modulus_higher_bit_length, returns){
 
 //TEST CASE TO ENSURE THE ROOT OF UNITY THAT IS FOUND IS A PRIMITIVE ROOT OF UNTIY
 
-TEST(method_test_primitive_root_of_unity, equals_m_not_equals_mbytwo){
+TEST(method_primitive_root_of_unity, equals_m_not_equals_mbytwo){
 	
 	usint m=4096; 
 	usint nBits=33;
@@ -189,7 +189,7 @@ TEST(method_test_primitive_root_of_unity, equals_m_not_equals_mbytwo){
 
 //TEST CASE TO ENSURE THE ROOTS OF UNITY THAT ARE FOUND ARE CONSISTENTLY THE PRIMITIVE ROOTS OF UNTIY
 
-TEST(method_test_multiple_primitive_roots_of_unity_single_input, equals_m_not_equals_mbytwo_mbyfour){
+TEST(method_primitive_root_of_unity, equals_m_not_equals_mbytwo_mbyfour_single_input){
 
 	const usint n=2048;
 	const usint m=2*n;
@@ -216,7 +216,7 @@ TEST(method_test_multiple_primitive_roots_of_unity_single_input, equals_m_not_eq
 
 //TEST CASE TO ENSURE THE ROOTS OF UNITY FOUND FOR MULTIPLE CYCLOTOMIC NUMBERS ARE ALL PRIMITIVE ROOTS OF UNTIY
 
-TEST(method_test_primitive_root_of_unity_multiple_inputs, equals_m_not_equals_mbytwo_mbyfour){
+TEST(method_primitive_root_of_unity, equals_m_not_equals_mbytwo_mbyfour_multiple_inputs){
 	// ofstream fout;
 	// fout.open ("primitiveRootsBug.log");
 	usint nqBitsArray[] = {

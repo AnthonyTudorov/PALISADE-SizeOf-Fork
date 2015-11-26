@@ -284,8 +284,6 @@ public:
 	 * @return vector of values generated with the distribution.
 	 */
 	BigBinaryVector GenerateVector(usint size) const;
-
-
 };
 
 
