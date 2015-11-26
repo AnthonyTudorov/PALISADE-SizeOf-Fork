@@ -50,7 +50,7 @@ namespace lbcrypto {
 /**
  * @brief The class for random number distribution generator
  */
-class DistributionGenerator
+class ModulusDistributionGenerator
 {
 public:
 
@@ -59,7 +59,7 @@ public:
 	 *
 	 * @return a return value set to 0.
 	 */
-	virtual BigBinaryInteger GenerateInteger() const = 0;
+	virtual BigBinaryInteger GenerateInteger(const BigBinaryInteger &modulus) const = 0;
 
 	/**
 	 * Basic virtual method.
@@ -71,10 +71,10 @@ public:
 	/**
 	 *  Interface requires virtual destructor.
 	 */
-	virtual ~DistributionGenerator() = 0;
+	virtual ~ModulusDistributionGenerator() = 0;
 };
 
-inline DistributionGenerator::~DistributionGenerator() { };
+inline ModulusDistributionGenerator::~ModulusDistributionGenerator() { };
 
 //class UniformIntegerGenerator: DistributionGenerator
 //{
@@ -105,7 +105,7 @@ inline DistributionGenerator::~DistributionGenerator() { };
 /**
  * @brief The class for discrete Gaussion distribution generator
  */
-class DiscreteGaussianGenerator: DistributionGenerator
+class DiscreteGaussianGenerator: ModulusDistributionGenerator
 {
 public:
 	/**
@@ -166,7 +166,7 @@ public:
 	 *
 	 * @return a generated integer.
 	 */
-	BigBinaryInteger GenerateInteger() const;
+	BigBinaryInteger GenerateInteger(const BigBinaryInteger &modulus) const;
 
 	/**
 	 * Returns a generated vector.
@@ -201,7 +201,7 @@ private:
 /**
  * @brief The class for discrete Uniform distribution generator over Zq.
  */
-class DiscreteUniformGenerator: DistributionGenerator
+class DiscreteUniformGenerator: ModulusDistributionGenerator
 {
 public:
 	/**
@@ -209,12 +209,6 @@ public:
 	 */
 	DiscreteUniformGenerator(); //srand(time(NULL)) is called here
 
-	/**
-	 * Basic constructor for specifying distribution modulus.
-	 *
-	 * @param &mod is the distirbution modulus.
-	 */
-	DiscreteUniformGenerator(BigBinaryInteger &mod);
 
 	/**
 	 * Destructor.
@@ -226,25 +220,11 @@ public:
     //int GetMean() const;
 
 	/**
-	 * Returns the modulus of the generator.
-	 *
-	 * @return the modulus of the generator.
-	 */
-	const BigBinaryInteger& GetModulus() const;
-
-	/**
-	 * Sets the modulus of the generator.
-	 *
-	 * @param &mod is the distirbution modulus.
-	 */
-	void SetModulus(BigBinaryInteger &mod);
-
-	/**
 	 * Returns a generated integer.
 	 *
 	 * @return a generated integer.
 	 */
-	BigBinaryInteger GenerateInteger() const;
+	BigBinaryInteger GenerateInteger(const BigBinaryInteger &modulus) const;
 
 	/**
 	 * Returns a generated vector.
@@ -252,7 +232,7 @@ public:
 	 * @param size the number of values to return.
 	 * @return vector of values generated with the distribution.
 	 */
-	BigBinaryVector GenerateVector(usint size) const;
+	BigBinaryVector GenerateVector(usint size, const BigBinaryInteger &modulus) const;
 
 private:
 	BigBinaryInteger m_modulus;
@@ -266,10 +246,10 @@ private:
 	static const usint MAXVAL = 65535;
 	//2^16-1 = 65535
 
-	usint moduloLength;
-	usint noOfIter;
-	usint remainder;
-	void InitializeVals();
+	//usint moduloLength;
+	//usint noOfIter;
+	//usint remainder;
+	//void InitializeVals(modulus);
 };
 
 
@@ -277,7 +257,7 @@ private:
 /**
  * @brief The class for binary uniform distribution generator.
  */
-class BinaryUniformGenerator: DistributionGenerator
+class BinaryUniformGenerator
 {
 public:
 	/**
@@ -304,6 +284,7 @@ public:
 	 * @return vector of values generated with the distribution.
 	 */
 	BigBinaryVector GenerateVector(usint size) const;
+
 
 };
 
