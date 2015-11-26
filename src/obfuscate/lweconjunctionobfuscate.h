@@ -4,7 +4,7 @@
  *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
  * @version 00_05
  *
- * @section LICENSE
+ * @section LICENSE 
  * 
  * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
  * All rights reserved.

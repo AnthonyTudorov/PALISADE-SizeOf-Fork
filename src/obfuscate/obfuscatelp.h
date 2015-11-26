@@ -3,7 +3,7 @@
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
  *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
  * @version 00_03
- *
+ * 
  * @section LICENSE
  * 
  * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
