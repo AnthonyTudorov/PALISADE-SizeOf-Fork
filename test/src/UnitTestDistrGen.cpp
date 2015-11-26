@@ -67,7 +67,7 @@ Compares two integer values
 
 // TEST CASE TO GENERATE A UNIFORM BIG BINARY INTEGER WITH SMALL MODULUS
 
-TEST(method_generate_uniform_big_binary_integer_small_modulus,with_in_small_modulus){
+TEST(method_generate_uniform_big_binary,with_in_small_modulus_integer_small_modulus){
 	BigBinaryInteger modulus("10403");
 	DiscreteUniformGenerator dug = lbcrypto::DiscreteUniformGenerator();
 	//dug.SetModulus(&modulus);
@@ -78,7 +78,7 @@ TEST(method_generate_uniform_big_binary_integer_small_modulus,with_in_small_modu
 
 // TEST CASE TO GENERATE A UNIFORM BIG BINARY INTEGER WITH LARGE MODULUS
 
-TEST(method_generate_uniform_big_binary_integer_large_modulus,with_in_large_modulus){
+TEST(method_generate_uniform_big_binary,with_in_large_modulus_integer_large_modulus){
 	BigBinaryInteger modulus("10402635286389262637365363");
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator();
 	BigBinaryInteger uniRandNum = distrUniGen.GenerateInteger(modulus);
@@ -88,7 +88,7 @@ TEST(method_generate_uniform_big_binary_integer_large_modulus,with_in_large_modu
 
 //TEST CASE TO GENERATE A UNIFORM BIG BINARY VECTOR WITH SMALL MODULUS
 
-TEST(method_generate_uniform_big_binary_vector_small_modulus,vector_uniform){
+TEST(method_generate_uniform_big_binary,vector_uniform_vector_small_modulus){
 	BigBinaryInteger modulus("10403");
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator();
 
@@ -104,7 +104,7 @@ TEST(method_generate_uniform_big_binary_vector_small_modulus,vector_uniform){
 
 //TEST CASE TO GENERATE A UNIFORM BIG BINARY VECTOR WITH LARGE MODULUS
 
-TEST(method_generate_uniform_big_binary_vector_large_modulus,vector_uniform){
+TEST(method_generate_uniform_big_binary,vector_uniform_vector_large_modulus){
 	BigBinaryInteger modulus("10402635286389262637365363");
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator();
 
@@ -118,7 +118,7 @@ TEST(method_generate_uniform_big_binary_vector_large_modulus,vector_uniform){
 	}
 }
 
-TEST(method_generate_uniform_big_binary_vector_mean_big_modulus,vector_uniform){
+TEST(method_generate_uniform_big_binary,vector_uniform_vector_mean_big_modulus){
 	//999999999961, 999998869, 998443, 4294991873, 100019, 10403
 	BigBinaryInteger modulus("100019");
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator();
@@ -143,7 +143,7 @@ TEST(method_generate_uniform_big_binary_vector_mean_big_modulus,vector_uniform){
 	EXPECT_LT(diff, acceptableDiff);
 }
 
-TEST(method_generate_uniform_big_binary_vector_mean_small_modulus,vector_uniform){
+TEST(method_generate_uniform_big_binary,vector_uniform_vector_mean_small_modulus){
 	BigBinaryInteger modulus("10403");
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator();
 
@@ -167,7 +167,7 @@ TEST(method_generate_uniform_big_binary_vector_mean_small_modulus,vector_uniform
 	EXPECT_LT(diff, acceptableDiff);
 }
 
-TEST(method_generate_uniform_big_binary_vector_mean_smaller_modulus,vector_uniform){
+TEST(method_generate_uniform_big_binary,vector_uniform_vector_mean_smaller_modulus){
 	BigBinaryInteger modulus("7919");
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator();
 
@@ -191,7 +191,7 @@ TEST(method_generate_uniform_big_binary_vector_mean_smaller_modulus,vector_unifo
 	EXPECT_LE(diff, acceptableDiff);
 }
 
-TEST(method_generate_uniform_big_binary_vector_variance_smaller_modulus,vector_uniform){
+TEST(method_generate_uniform_big_binary,vector_uniform_vector_variance_smaller_modulus){
 	BigBinaryInteger modulus("7919"), twelve("12"), expectedVariance((modulus.Minus(BigBinaryInteger::ONE)*modulus.Minus(BigBinaryInteger::ONE)).DividedBy(twelve));
 
 	BigBinaryInteger expectedMean = modulus.DividedBy(BigBinaryInteger::TWO);
