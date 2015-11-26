@@ -236,29 +236,16 @@ TEST(method_generate_uniform_big_binary,vector_uniform_vector_variance_smaller_m
 
 TEST(method_generate_binary_uniform_big_binary_integer,greater_than_0)
 {
-
 	BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
-
 	BigBinaryInteger binUniRandNum = binaryUniGen.GenerateInteger();
-
-	//EXPECT_LT(binUniRandNum.ConverToInt(), 2);
-
-	//std::cout << "Running Test." << std::endl;
 	EXPECT_GE(binUniRandNum.ConvertToInt(), 0)
 	<< "Result is less than 0";
-	//EXPECT_LE(binUniRandNum.ConvertToInt(), 1);
 }
 
 TEST(method_generate_binary_uniform_big_binary_integer,less_than_1) 
 {
-
 	BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
-
 	BigBinaryInteger binUniRandNum = binaryUniGen.GenerateInteger();
-
-	//EXPECT_LT(binUniRandNum.ConverToInt(), 2);
-	//EXPECT_GE(binUniRandNum.ConvertToInt(), 0);
-	//std::cout << "Running Test." << std::endl;
 	EXPECT_LE(binUniRandNum.ConvertToInt(), 1)
 	<< "Result is greater than 1";
 }
