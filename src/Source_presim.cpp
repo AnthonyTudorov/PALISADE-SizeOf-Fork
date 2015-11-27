@@ -81,8 +81,8 @@ void PRESimulation(usint count, usint dataset);
 
 int main() {
 
-	EncryptionSchemeSimulation(100);
-	//PRESimulation(100,0);
+	//EncryptionSchemeSimulation(100);
+	PRESimulation(100,0);
 
 	std::cout<<"Press any key to continue..."<<std::endl;
 	std::cin.get();
