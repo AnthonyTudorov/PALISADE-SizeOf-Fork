@@ -3,7 +3,7 @@ Source_presim.cpp was developed for paper "Fast Proxy Re-Encryption for Publish/
 To run Source_presim
 
 1. Compile Source_presim
-2. Copy n_sample.txt, inp_data_1pre.txt, inp_data.txt to the folder where the Source_presim binary is located (needs to be done every time if "make clean" is used)
+2. Copy n_sample.txt, inp_data_1pre.txt, inp_data.txt to the folder from which bin/Source_presim will be executed (current path: pwd)
 
 To change the value of index (based on Root_Of_Unity.xlsx), please 
 	update Source_presim.cpp
@@ -13,4 +13,3 @@ To change the value of index (based on Root_Of_Unity.xlsx), please
 	update math\cpu8bit\dtstruct.h
 		const usint FRAGMENTATION_FACTOR = 11; //set FRAGMENTATION_FACTOR to FRAG_FACT in Root_Of_Unity.xlsx
 	Recompile Source_presim
-	If using "make clean", recopy the input text files
