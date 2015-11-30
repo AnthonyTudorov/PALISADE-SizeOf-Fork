@@ -103,12 +103,14 @@ void LPAlgorithmLWENTRU<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	
 	m.EncodeElement(static_cast<const ByteArrayPlaintextEncoding&>(plaintext),p);
 
-	//cout<<"m original ="<<m.GetValues()<<endl;
+	cout<<"m decrypted ="<<m.GetValues().GetValAtIndex(1)<<endl;
+	cout<<"m decrypted ="<<m.GetValues().GetValAtIndex(7)<<endl;
+	cout<<"m decrypted ="<<m.GetValues().GetValAtIndex(14)<<endl;
 
 	m.SwitchFormat();
 
 	const Element &h = publicKey.GetPublicElement();
-
+	
 	Element s(dgg,elementParams);
 	Element e(dgg,elementParams);
 
@@ -148,12 +150,9 @@ DecodingResult LPAlgorithmLWENTRU<Element>::Decrypt(const LPPrivateKey<Element> 
 	//Element m(elementParams);
 	//m = b.Mod(p);
 
-	Element m(b.ModByTwo());
+	//Element m(b.ModByTwo());
 
-	////need to be written cleaner - as an Element
-	//BigBinaryVector mTemp(b.ModByTwo());
-	//Element m(elementParams);
-	//m.SetValues(mTemp,Format::COEFFICIENT);
+	Element m(b.Mod(p));
 
 	//cout<<"m ="<<m.GetValues()<<endl;
 

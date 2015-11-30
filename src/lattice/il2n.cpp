@@ -291,6 +291,8 @@ namespace lbcrypto {
 	//Represent the lattice in binary format
 	void ILVector2n::DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const {
 
+		std::cout << "plaintext modulus " << modulus << std::endl;
+
 		ByteArray byteArray;
 		usint mod = modulus.ConvertToInt();
 		usint p = ceil((float)log((double)255) / log((double)mod));
