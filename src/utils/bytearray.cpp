@@ -47,8 +47,8 @@ ByteArray::ByteArray(const char* cstr, usint len) {
     *this = s;
 };
 ByteArray::ByteArray(){};
-template<size_t N>
-ByteArray::ByteArray(array<uint8_t, N> arr) : vector(arr.begin(), arr.end()){ };
+//template<size_t N>
+//ByteArray::ByteArray(array<uint8_t, N> arr) : vector(arr.begin(), arr.end()){ };
 ByteArray& ByteArray::operator=(const string& s) {
     vector::operator=(vector(s.begin(), s.end()));
     return *this;

@@ -36,6 +36,8 @@ namespace lbcrypto {
 DiscreteGaussianGenerator::DiscreteGaussianGenerator(){
 	
 	m_std = 1;
+	std::random_device rd;
+	std::srand(rd());
 	//m_modulus = BigBinaryInteger("1");
 
 }
@@ -60,6 +62,16 @@ DiscreteGaussianGenerator::DiscreteGaussianGenerator(sint std){
 
 DiscreteGaussianGenerator::~DiscreteGaussianGenerator(){
 	//std::cout<<"Discrete Guassian destructor called \n\n";
+}
+
+void DiscreteGaussianGenerator::SetStd(sint std){
+	m_std = std;
+}
+
+void DiscreteGaussianGenerator::Initialize(){
+	
+	InitiateVals();
+
 }
 
 // BigBinaryInteger DiscreteGaussianGenerator::GetModulus(){
