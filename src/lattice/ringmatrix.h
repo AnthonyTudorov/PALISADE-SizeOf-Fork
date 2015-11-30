@@ -159,10 +159,12 @@ namespace lbcrypto {
 		Element m_element;
 
 		//size of matrix
-		usint m_dimension=1;
+		//usint m_dimension=1; - does not compile in Windows
+		usint m_dimension;
 
 		//ring matrix
-		Element ***ringMatrix = NULL;
+		//Element ***ringMatrix = NULL; - does not compile in Windows
+		Element ***ringMatrix;
 
 	};
 

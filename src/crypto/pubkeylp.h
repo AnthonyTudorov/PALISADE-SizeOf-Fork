@@ -393,7 +393,6 @@ namespace lbcrypto {
 			/**
 			 * Virtual function to define the interface for additive homomorphic evaluation of ciphertext
 			 *
-			 * @param &params re-ecryption parameters.
 			 * @param &ciphertext1 the input ciphertext.
 			 * @param &ciphertext2 the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
@@ -414,7 +413,6 @@ namespace lbcrypto {
 			/**
 			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext
 			 *
-			 * @param &params re-ecryption parameters.
 			 * @param &ciphertext1 the input ciphertext.
 			 * @param &ciphertext2 the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
@@ -435,7 +433,6 @@ namespace lbcrypto {
 			/**
 			 * Virtual function to define the interface for bootstrapping evaluation of ciphertext
 			 *
-			 * @param &params parameters.
 			 * @param &ciphertext the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */

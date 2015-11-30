@@ -125,7 +125,7 @@ $(TESTBUILDDIR)/%.o: $(TESTLIBSRCDIR)/%.$(TESTLIBSRCEXT)
 	@mkdir -p $(@D)
 #	@echo " $(BUILDDIR)"
 #	@echo "------ $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<
-	@echo "------ $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<
+	@echo "$(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<
 	@echo "ar -rv $(TESTBUILDDIR)/libgtest.a $@"; ar -rv $(TESTBUILDDIR)/libgtest.a $@
 
 $(TESTBUILDDIR)/%.o: $(TESTSRCDIR)/%.$(SRCEXT)
@@ -134,10 +134,10 @@ $(TESTBUILDDIR)/%.o: $(TESTSRCDIR)/%.$(SRCEXT)
 	@echo " $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) $(TESTLIB) -c -o $@ $<
 
 $(TESTTARGET): $(TESTOBJECTS) $(TESTLIBOBJECTS) $(LIBOBJECTS)
-	@echo "- $(TESTLIBSRCEXT)"
-	@echo "-- $(TESTLIBSRCDIR)"
-	@echo "--- $(TESTLIBSOURCES)"
-	@echo "---- $(TESTLIBOBJECTS)"
+	@echo "$(TESTLIBSRCEXT)"
+	@echo "$(TESTLIBSRCDIR)"
+	@echo "$(TESTLIBSOURCES)"
+	@echo "$(TESTLIBOBJECTS)"
 	@echo " Linking..."
 	@mkdir -p $(TESTTARGETDIR)
 	@echo " $(CC) $^ $(TESTLIB) $(TESTBUILDDIR)/libgtest.a -o $(TESTTARGET)"; $(CC) $^ $(TESTLIB) $(TESTBUILDDIR)/libgtest.a -o $(TESTTARGET)

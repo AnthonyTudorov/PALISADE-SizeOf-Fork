@@ -62,7 +62,7 @@ public:
      *  @brief Array constructor, i.e. `ByteArray({1,2,3})`.
      */
     template<size_t N>
-    ByteArray(std::array<uint8_t, N>);
+	ByteArray(std::array<uint8_t, N> arr) : vector(arr.begin(), arr.end()) {};
     ByteArray();
     /**
      *  @brief C-string assignment.
