@@ -103,10 +103,6 @@ void LPAlgorithmLWENTRU<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	
 	m.EncodeElement(static_cast<const ByteArrayPlaintextEncoding&>(plaintext),p);
 
-	cout<<"m decrypted ="<<m.GetValues().GetValAtIndex(1)<<endl;
-	cout<<"m decrypted ="<<m.GetValues().GetValAtIndex(7)<<endl;
-	cout<<"m decrypted ="<<m.GetValues().GetValAtIndex(14)<<endl;
-
 	m.SwitchFormat();
 
 	const Element &h = publicKey.GetPublicElement();
