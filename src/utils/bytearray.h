@@ -59,6 +59,11 @@ public:
      */
     ByteArray(const char* cstr, usint len);
     /**
+     *  @brief Explicit constructor for vectors
+     *  byte.
+     */
+	ByteArray(const std::vector<uint8_t> &rhs) : std::vector<uint8_t>(rhs) {};
+    /**
      *  @brief Array constructor, i.e. `ByteArray({1,2,3})`.
      */
     template<size_t N>
