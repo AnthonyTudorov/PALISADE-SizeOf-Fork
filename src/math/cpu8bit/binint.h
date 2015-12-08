@@ -389,7 +389,7 @@ public:
 	 *
 	 * @return the value of this BigBinaryInteger as a string.
 	 */
-	std::string ToString() const;
+	const std::string ToString() const;
 
 	/**
 	 * Tests whether the value is a power of 2.
