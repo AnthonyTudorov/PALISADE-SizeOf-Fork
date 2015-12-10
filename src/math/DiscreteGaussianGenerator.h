@@ -77,7 +77,7 @@ namespace lbcrypto {
          *
          * @return a generated integer.
          */
-        BigBinaryInteger GenerateInteger (const BigBinaryInteger &modulus) const;
+        BigBinaryInteger GenerateInteger (const BigBinaryInteger &modulus);
 
         /**
          * Returns a generated vector.
@@ -86,7 +86,7 @@ namespace lbcrypto {
          * @param &modulus the modulus of the returned data.
          * @return vector of values generated with the distribution.
          */
-        BigBinaryVector GenerateVector (usint size, const BigBinaryInteger &modulus) const;
+        BigBinaryVector GenerateVector (usint size, const BigBinaryInteger &modulus);
 
         /**
          * Returns a generated vector.

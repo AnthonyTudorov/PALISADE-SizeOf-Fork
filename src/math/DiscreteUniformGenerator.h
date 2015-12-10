@@ -34,7 +34,7 @@ namespace lbcrypto {
          *
          * @return a generated integer.
          */
-        BigBinaryInteger GenerateInteger (const BigBinaryInteger &modulus) const;
+        BigBinaryInteger GenerateInteger (const BigBinaryInteger &modulus);
 
         /**
          * Returns a generated vector.
@@ -42,19 +42,19 @@ namespace lbcrypto {
          * @param size the number of values to return.
          * @return vector of values generated with the distribution.
          */
-        BigBinaryVector GenerateVector (usint size, const BigBinaryInteger &modulus) const;
+        BigBinaryVector GenerateVector (usint size, const BigBinaryInteger &modulus);
 
     private:
+        std::mt19937 _generator;
         BigBinaryInteger m_modulus;
 
         static const usint MINVAL = 0;
-        //This code does not work in VS 2012 - need to find a solution
+        // This code does not work in VS 2012 - need to find a solution
         //static const usint LENOFMAX = std::numeric_limits<usint>::digits;
         //static const usint MAXVAL = std::numeric_limits<usint>::max();
-
+        // this is a quick fix in the meantime, should get rid of these magic values though...
         static const usint LENOFMAX = 16;
-        static const usint MAXVAL = 65535;
-        //2^16-1 = 65535
+        static const usint MAXVAL   = 65535; // 2^16-1 = 65535
 
         //usint moduloLength;
         //usint noOfIter;

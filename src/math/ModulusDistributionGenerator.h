@@ -24,14 +24,14 @@ namespace lbcrypto {
          *
          * @return a return value set to 0.
          */
-        virtual BigBinaryInteger GenerateInteger (const BigBinaryInteger &modulus) const = 0;
+        virtual BigBinaryInteger GenerateInteger (const BigBinaryInteger &modulus) = 0;
 
         /**
          * Basic virtual method.
          *
          * @return a return value set to 0.
          */
-        virtual BigBinaryVector GenerateVector (usint size, const BigBinaryInteger &modulus) const = 0;
+        virtual BigBinaryVector GenerateVector (usint size, const BigBinaryInteger &modulus) = 0;
 
         /**
          *  Interface requires virtual destructor.

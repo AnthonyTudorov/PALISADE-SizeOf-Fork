@@ -153,12 +153,12 @@ namespace lbcrypto {
         return ans;
     }
 
-    BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(const BigBinaryInteger &modulus) const{
+    BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(const BigBinaryInteger &modulus) {
 
         return std::move(*(new BigBinaryInteger()));
     }
 
-    BigBinaryVector DiscreteGaussianGenerator::GenerateVector(usint size, const BigBinaryInteger &modulus) const{
+    BigBinaryVector DiscreteGaussianGenerator::GenerateVector(usint size, const BigBinaryInteger &modulus) {
 
 
         //BigBinaryVector ans(DiscreteGaussianGenerator::DiscreteGaussianPositiveGenerator(size,this->m_modulus));
