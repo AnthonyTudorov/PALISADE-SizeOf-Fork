@@ -3,3 +3,8 @@
 *.o
 # Except this file
 !.gitignore
+output.txt
+bin
+test/bin
+test/build
+.idea
