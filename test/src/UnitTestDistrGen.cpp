@@ -296,9 +296,9 @@ TEST(method_test_guassian_rand_generator_generate_char_vector, mean_test_generat
 	EXPECT_GE(mean, -0.1);
 }
 
-TEST(method_test_guassian_rand_generator_generate_vector, mean_test) {
+TEST(method_test_guassian_rand_generator_generate_vector, mean_test_generate_vector_with_modulus) {
 	sint stdev = 5;
-	usint size = 100;
+	usint size = 10000;
 	BigBinaryInteger modulus("10403");
 	BigBinaryInteger modulusByTwo(modulus.DividedBy(BigBinaryInteger::TWO));
 	DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
