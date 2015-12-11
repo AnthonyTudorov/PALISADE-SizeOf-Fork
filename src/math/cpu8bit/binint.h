@@ -431,6 +431,13 @@ public:
 	usint ConvertToInt() const;
 
 	/**
+	 * Convert the value to a double.
+	 *
+	 * @return the double representation of the value.	  
+	 */
+	double ConvertToDouble() const;
+
+	/**
 	 * Convert a value from an int to a BigBinaryInt.
 	 *
 	 * @param m the value to convert from.

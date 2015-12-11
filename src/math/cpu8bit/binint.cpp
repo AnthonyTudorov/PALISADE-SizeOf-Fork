@@ -218,6 +218,10 @@ usint BigBinaryInteger::ConvertToInt() const{
 	return ans;
 }
 
+double BigBinaryInteger::ConvertToDouble() const{
+	return std::stod(this->ToString());
+}
+
 //PUBLIC FUNCTIONS
 
 BigBinaryInteger BigBinaryInteger::Plus(const BigBinaryInteger& b) const{
