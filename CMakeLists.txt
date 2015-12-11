@@ -59,6 +59,6 @@ set(SOURCE_FILES
         test/src/UnitTestBinMat.cpp
         test/src/UnitTestBinVect.cpp
         test/src/UnitTestDistrGen.cpp
-        test/src/UnitTestNbTheory.cpp src/math/DiscreteGaussianGenerator.cpp src/math/DiscreteGaussianGenerator.h src/math/ModulusDistributionGenerator.h src/math/DiscreteUniformGenerator.cpp src/math/DiscreteUniformGenerator.h src/math/UniformIntegerGenerator.cpp src/math/UniformIntegerGenerator.h src/math/BinaryUniformGenerator.cpp src/math/BinaryUniformGenerator.h)
+        test/src/UnitTestNbTheory.cpp src/math/DiscreteGaussianGenerator.cpp src/math/DiscreteGaussianGenerator.h src/math/DiscreteUniformGenerator.cpp src/math/DiscreteUniformGenerator.h src/math/UniformIntegerGenerator.cpp src/math/UniformIntegerGenerator.h src/math/DistributionGenerator.cpp src/math/DistributionGenerator.h src/math/Distribution.cpp src/math/Distribution.h src/math/BinaryUniformDistribution.cpp src/math/BinaryUniformDistribution.h src/math/Distribution.cpp src/math/Distribution.cpp.h)
 
 add_executable(palisade_student_edition ${SOURCE_FILES})

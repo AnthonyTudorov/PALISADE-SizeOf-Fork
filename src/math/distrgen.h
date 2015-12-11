@@ -40,7 +40,7 @@
 #include <bitset>
 #include <string>
 
-#include "BinaryUniformGenerator.h"
+#include "DistributionGenerator.h"
 #include "DiscreteGaussianGenerator.h"
 #include "DiscreteUniformGenerator.h"
 #include "ModulusDistributionGenerator.h"

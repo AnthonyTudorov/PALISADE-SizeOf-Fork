@@ -36,6 +36,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../src/crypto/lwepre.h"
 #include "../../src/lattice/il2n.h"
 #include "../../src/utils/utilities.h"
+#include "../../src/math/BinaryUniformDistribution.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -236,6 +237,7 @@ TEST(method_generate_uniform_big_binary,vector_uniform_vector_variance_smaller_m
 
 TEST(method_generate_binary_uniform_big_binary_integer,greater_than_0)
 {
+	DistributionGenerator::getInstance().nextInteger<BinaryUniformDistribution>();
 	BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
 	BigBinaryInteger binUniRandNum = binaryUniGen.GenerateInteger();
 	EXPECT_GE(binUniRandNum.ConvertToInt(), 0)
