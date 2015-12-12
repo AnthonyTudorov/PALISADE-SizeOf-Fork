@@ -181,6 +181,10 @@ void NTRUPRE(int input) {
 	//ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
 
 	SecureParams const SECURE_PARAMS[] = {
+//<<<<<<< HEAD
+//=======
+		//{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("2678760785"), 1 }, //r = 8
+//>>>>>>> 98034a0563cc8cab2eb1c179288561a65ad5a7f0
 		{ 2048, BigBinaryInteger("268441601"), BigBinaryInteger("16947867"), 1 }, //r = 1
 		{ 2048, BigBinaryInteger("536881153"), BigBinaryInteger("267934765"), 2 }, // r = 2
 		{ 2048, BigBinaryInteger("1073750017"), BigBinaryInteger("180790047"), 4 },  // r = 4
@@ -195,6 +199,8 @@ void NTRUPRE(int input) {
 	usint relWindow = SECURE_PARAMS[input].relinWindow;
 
 	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	//ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+
 
 	float stdDev = 4;
 
@@ -218,6 +224,7 @@ void NTRUPRE(int input) {
 	//Set crypto parametes
 	LPCryptoParametersLWE<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
+	//cryptoParams.SetPlaintextModulus(BigBinaryInteger("4"));  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
@@ -289,6 +296,7 @@ void NTRUPRE(int input) {
 	Ciphertext<ILVector2n> ciphertext;
 	ByteArrayPlaintextEncoding ptxt(plaintext);
     ptxt.Pad<ZeroPad>(m/16);
+	//ptxt.Pad<ZeroPad>(m/8);
 
 	std::cout << "Running encryption..." << std::endl;
 

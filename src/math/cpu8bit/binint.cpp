@@ -218,6 +218,10 @@ usint BigBinaryInteger::ConvertToInt() const{
 	return ans;
 }
 
+double BigBinaryInteger::ConvertToDouble() const{
+	return std::stod(this->ToString());
+}
+
 //PUBLIC FUNCTIONS
 
 BigBinaryInteger BigBinaryInteger::Plus(const BigBinaryInteger& b) const{
@@ -1355,7 +1359,7 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger &ptr_obj){
 * Added by Arnab Deb Gupta <ad479@njit.edu> on 9/21/15.
 *
 */
-std::string BigBinaryInteger::ToString() const {
+const std::string BigBinaryInteger::ToString() const {
 	
 	//this string object will store this BigBinaryInteger's value
 	std::string bbiString;

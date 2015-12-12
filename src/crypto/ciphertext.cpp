@@ -77,4 +77,15 @@ namespace lbcrypto {
 		return *this;
 	}
 
+	// EvalAdd Operation
+	template <class Element>
+	Ciphertext<Element> Ciphertext<Element>::EvalAdd(const Ciphertext<Element> &ciphertext) const
+	{
+		Ciphertext<Element> sum(*this);
+
+		sum.m_element = this->m_element + ciphertext.m_element;
+
+		return sum;
+	}
+
 }  // namespace lbcrypto ends

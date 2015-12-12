@@ -276,3 +276,44 @@ TEST(method_generate_binary_uniform_big_binary_integer,mean)
 	<< "Mean is incorrect";
 }
 // a large sample. Max of them should be less than q
+
+
+TEST(method_test_guassian_rand_generator_generate_char_vector, mean_test_generate_char_vector) {
+	sint stdev = 5;
+	usint size = 10000;
+	DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
+	schar* dggCharVector = dgg.GenerateCharVector(size);
+
+	double mean = 0;
+	for(usint i=0; i<size; i++) {
+		mean += (double) dggCharVector[i];
+		// std::cout << i << "th value is " << std::to_string(dggCharVector[i]) << std::endl;
+	}
+	mean /= size;
+	std::cout << "The mean of the values is " << mean << std::endl;
+	
+	EXPECT_LE(mean, 0.1);
+	EXPECT_GE(mean, -0.1);
+}
+
+TEST(method_test_guassian_rand_generator_generate_vector, mean_test_generate_vector_with_modulus) {
+	sint stdev = 5;
+	usint size = 10000;
+	BigBinaryInteger modulus("10403");
+	BigBinaryInteger modulusByTwo(modulus.DividedBy(BigBinaryInteger::TWO));
+	DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
+	BigBinaryVector dggBigBinaryVector = dgg.GenerateVector(size, modulus);
+
+	double mean = 0;
+	for(usint i=0; i<size; i++) {
+		mean += std::stod(dggBigBinaryVector.GetValAtIndex(i).ToString());
+		// std::cout << i << "th value is " << dggBigBinaryVector.GetValAtIndex(i).ToString() << std::endl;
+	}
+	mean /= size;
+	// std::cout << "The mean of the values is " << mean << std::endl;
+
+	double modulusByTwoInDouble = std::stod(modulusByTwo.ToString());
+	// std::cout << "modulusInDouble is " << modulusByTwoInDouble << std::endl;
+	double diff = abs(modulusByTwoInDouble - mean);
+	EXPECT_LT(diff, 1040);
+}

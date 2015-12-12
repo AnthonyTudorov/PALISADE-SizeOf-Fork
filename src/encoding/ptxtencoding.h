@@ -35,6 +35,7 @@
 #define LBCRYPTO_ENCODING_PTXTENCODING_H
 
 //Includes Section
+#include <vector>
 #include "../utils/bytearray.h"
 #include "../utils/inttypes.h"
 #include "padding.h"
@@ -77,6 +78,13 @@ namespace lbcrypto {
 		 */
 		virtual size_t GetLength() const = 0;
 
+		/**
+		 * Get method to return a vector of 32-bit integers
+		 *
+		 * @return the data as a vector of integers.
+		 */
+		virtual std::vector<uint32_t> ToInt32() const = 0;
+
 	};
 
 	/**
@@ -98,6 +106,30 @@ namespace lbcrypto {
 		*/
 		ByteArrayPlaintextEncoding(const ByteArray &byteArray):
             m_data(byteArray) {
+		}
+
+		/**
+		* Copy Constructor
+		*
+		* @param &encoding input plaintext to be copied
+		*/
+		ByteArrayPlaintextEncoding(const ByteArrayPlaintextEncoding &encoding):
+            m_data(encoding.m_data) {
+		}
+
+		/**
+		* Assignment Operator.
+		*
+		* @param &&rhs the copied plaintext.
+		* @return the resulting plaintext.
+		*/
+		ByteArrayPlaintextEncoding& operator=(const ByteArrayPlaintextEncoding &rhs)
+		{
+			if (this != &rhs) {
+				this->m_data = rhs.m_data;
+			}
+
+			return *this;
 		}
 
 		/*
@@ -127,6 +159,13 @@ namespace lbcrypto {
 		size_t GetLength() const{
 			return m_data.size();
 		}
+
+		/**
+		 * Get method to return a vector of 32-bit integers
+		 *
+		 * @return the data as vector of integers.
+		 */
+		std::vector<uint32_t> ToInt32() const;
 
 	/**
 	 * @brief Abstract Interface Class to capture Padding operation

@@ -389,7 +389,7 @@ public:
 	 *
 	 * @return the value of this BigBinaryInteger as a string.
 	 */
-	std::string ToString() const;
+	const std::string ToString() const;
 
 	/**
 	 * Tests whether the value is a power of 2.
@@ -429,6 +429,13 @@ public:
 	 * @return the int representation of the value.	  
 	 */
 	usint ConvertToInt() const;
+
+	/**
+	 * Convert the value to a double.
+	 *
+	 * @return the double representation of the value.	  
+	 */
+	double ConvertToDouble() const;
 
 	/**
 	 * Convert a value from an int to a BigBinaryInt.

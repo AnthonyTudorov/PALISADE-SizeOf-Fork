@@ -155,6 +155,14 @@ namespace lbcrypto {
 		* @param &element is a polynomial ring element.
 		*/
 		void SetElement(const Element &element) { m_element = element; }
+
+		/**
+		* Performs EvalAdd operation.
+		*
+		* @param &ciphertext is the element to add.
+		* @return the new ciphertext.
+		*/
+		Ciphertext<Element> EvalAdd(const Ciphertext<Element> &ciphertext) const;
 	
 	private:
 

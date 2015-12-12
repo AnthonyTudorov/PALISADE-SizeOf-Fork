@@ -180,12 +180,29 @@ usint BigBinaryVector::GetLength() const{
 
 BigBinaryVector BigBinaryVector::Mod(const BigBinaryInteger& modulus) const{
 
-	BigBinaryVector ans(*this);
+	//BigBinaryVector ans(*this);
 
-	for(usint i=0;i<this->m_length;i++){
-		*ans.m_data[i] = ans.m_data[i]->Mod(modulus);
+	//for(usint i=0;i<this->m_length;i++){
+	//	*ans.m_data[i] = ans.m_data[i]->Mod(modulus);
+	//}
+	//return ans;
+
+	if (modulus==BigBinaryInteger::TWO)
+		return this->ModByTwo();
+	else 
+	{
+		BigBinaryVector ans(this->GetLength());
+		BigBinaryInteger halfQ(this->GetModulus() >> 1);
+		for (usint i = 0; i<ans.GetLength(); i++) {
+			if (this->GetValAtIndex(i)>halfQ) {
+				ans.SetValAtIndex(i,this->GetValAtIndex(i).ModSub(this->GetModulus(),modulus));
+			}
+			else {
+				ans.SetValAtIndex(i,this->GetValAtIndex(i).Mod(modulus));
+			}
+		}
+		return ans;
 	}
-	return ans;
 }
 
 BigBinaryVector BigBinaryVector::ModAdd(const BigBinaryInteger &b) const{

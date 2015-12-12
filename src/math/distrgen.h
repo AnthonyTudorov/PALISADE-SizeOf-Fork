@@ -125,6 +125,11 @@ public:
 	 */
 	~DiscreteGaussianGenerator();
 
+	/**
+	 * Initiate the generator
+	 */
+	void Initialize();
+
 	//ACCESSORS
 
     //int GetMean() const;

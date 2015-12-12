@@ -892,3 +892,9 @@ TEST(UTBinInt,method_exponentiation_without_modulus){
     << "Failure testing exp";
 }
 
+TEST(method_to_test_convert_to_double, ConvertToDouble) {
+  BigBinaryInteger x("104037585658683683");
+  double xInDouble = 104037585658683683;
+
+  EXPECT_EQ(xInDouble, x.ConvertToDouble());
+}
