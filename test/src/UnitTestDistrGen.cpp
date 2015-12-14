@@ -118,120 +118,113 @@ TEST(method_generate_uniform_big_binary,vector_uniform_vector_large_modulus){
 	}
 }
 
-TEST(method_generate_uniform_big_binary,vector_uniform_vector_mean_big_modulus){
+TEST(method_generate_uniform_big_binary, first_moment_test_convertToDouble_small_modulus){
+	BigBinaryInteger modulus("7919");
+
+	double modulusInDouble = modulus.ConvertToDouble();
+	double expectedMeanInDouble = modulusInDouble / 2.0;
+
+	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator();
+
+	usint size = 500000;
+	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size,modulus);
+
+	double sum;
+	BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
+	
+	for(usint index=0; index<size; index++) {
+		sum += (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble();
+	}
+
+	double computedMeanInDouble = sum/size;
+	double diffInMeans = abs(computedMeanInDouble - expectedMeanInDouble);
+
+	//within 1% of expected mean
+	EXPECT_LT(diffInMeans, 0.01*modulusInDouble);
+}
+
+TEST(method_generate_uniform_big_binary, second_moment_test_convertToDouble_small_modulus){
+	
+	BigBinaryInteger modulus("7919");
+
+	double modulusInDouble = modulus.ConvertToDouble();
+	double expectedMeanInDouble = modulusInDouble / 2.0;
+	double expectedVarianceInDouble = ((modulusInDouble - 1.0)*(modulusInDouble - 1.0))/12.0;
+	double expectedStdDevInDouble = sqrt(expectedVarianceInDouble);
+	
+	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator();
+	usint size = 500000;
+	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size, modulus);
+
+	double sum, temp;
+	for(usint index=0; index<size; index++) {
+		temp = (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble() - expectedMeanInDouble;
+		temp *= temp;
+		sum += temp;
+	}
+
+	double computedVariance = (sum/size);
+	double computedStdDev = sqrt(computedVariance);
+
+	double diffInStdDev = abs(computedStdDev - expectedStdDevInDouble);
+
+	//within 1% of expected std dev
+	EXPECT_LT(diffInStdDev, 0.01*expectedStdDevInDouble);
+}
+
+TEST(method_generate_uniform_big_binary, first_moment_test_convertToDouble_big_modulus){
 	//999999999961, 999998869, 998443, 4294991873, 100019, 10403
 	BigBinaryInteger modulus("100019");
+
+	double modulusInDouble = modulus.ConvertToDouble();
+	double expectedMeanInDouble = modulusInDouble / 2.0;
+
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator();
 
-	usint size = 500000;
+	usint size = 50000;
 	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size,modulus);
 
-	BigBinaryInteger mean("0");
+	double sum;
 	BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
-
-	for(usint index=0; index<randBigBinaryVector.GetLength(); index++) {
-		mean += randBigBinaryVector.GetValAtIndex(index);
-	}
-	BigBinaryInteger computedMean = mean.DividedBy(length);
-	BigBinaryInteger expectedMean = modulus.DividedBy(BigBinaryInteger::TWO);
 	
-	BigBinaryInteger diff = (expectedMean>computedMean) ? (expectedMean.Minus(computedMean)) : (computedMean.Minus(expectedMean));
+	for(usint index=0; index<size; index++) {
+		sum += (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble();
+	}
 
-	//within 0.1% of expected mean
-	BigBinaryInteger acceptableDiff("100");
+	double computedMeanInDouble = sum/size;
+	double diffInMeans = abs(computedMeanInDouble - expectedMeanInDouble);
 
-	EXPECT_LT(diff, acceptableDiff);
+	//within 1% of expected mean
+	EXPECT_LT(diffInMeans, 0.01*modulusInDouble);
 }
 
-TEST(method_generate_uniform_big_binary,vector_uniform_vector_mean_small_modulus){
-	BigBinaryInteger modulus("10403");
+TEST(method_generate_uniform_big_binary, second_moment_test_convertToDouble_big_modulus){
+	//999999999961, 999998869, 998443, 4294991873, 100019, 10403
+	BigBinaryInteger modulus("100019");
+
+	double modulusInDouble = modulus.ConvertToDouble();
+	double expectedMeanInDouble = modulusInDouble / 2.0;
+	double expectedVarianceInDouble = ((modulusInDouble - 1.0)*(modulusInDouble - 1.0))/12.0;
+	double expectedStdDevInDouble = sqrt(expectedVarianceInDouble);
+	
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator();
+	usint size = 50000;
+	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size, modulus);
 
-	usint size = 500000;
-	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size,modulus);
-
-	BigBinaryInteger mean("0");
-	BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
-	
-	for(usint index=0; index<randBigBinaryVector.GetLength(); index++) {
-		mean += randBigBinaryVector.GetValAtIndex(index);
+	double sum, temp;
+	for(usint index=0; index<size; index++) {
+		temp = (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble() - expectedMeanInDouble;
+		temp *= temp;
+		sum += temp;
 	}
 
-	BigBinaryInteger computedMean = mean.DividedBy(length);
-	BigBinaryInteger expectedMean = modulus.DividedBy(BigBinaryInteger::TWO);
-	BigBinaryInteger diff = (expectedMean>computedMean) ? (expectedMean.Minus(computedMean)) : (computedMean.Minus(expectedMean));
-	
-	//within 0.1% of expected mean
-	BigBinaryInteger acceptableDiff("10");
+	double computedVariance = (sum/size);
+	double computedStdDev = sqrt(computedVariance);
 
-	EXPECT_LT(diff, acceptableDiff);
-}
+	double diffInStdDev = abs(computedStdDev - expectedStdDevInDouble);
 
-TEST(method_generate_uniform_big_binary,vector_uniform_vector_mean_smaller_modulus){
-	BigBinaryInteger modulus("7919");
-	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator();
-
-	usint size = 500000;
-	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size,modulus);
-
-	BigBinaryInteger mean("0");
-	BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
-	
-	for(usint index=0; index<randBigBinaryVector.GetLength(); index++) {
-		mean += randBigBinaryVector.GetValAtIndex(index);
-	}
-
-	BigBinaryInteger computedMean = mean.DividedBy(length);
-	BigBinaryInteger expectedMean = modulus.DividedBy(BigBinaryInteger::TWO);
-	BigBinaryInteger diff = (expectedMean>computedMean) ? (expectedMean.Minus(computedMean)) : (computedMean.Minus(expectedMean));
-	
-	//within 0.1% of expected mean
-	BigBinaryInteger acceptableDiff("8");
-
-	EXPECT_LE(diff, acceptableDiff);
-}
-
-TEST(method_generate_uniform_big_binary,vector_uniform_vector_variance_smaller_modulus){
-	BigBinaryInteger modulus("7919"), twelve("12"), expectedVariance((modulus.Minus(BigBinaryInteger::ONE)*modulus.Minus(BigBinaryInteger::ONE)).DividedBy(twelve));
-
-	BigBinaryInteger expectedMean = modulus.DividedBy(BigBinaryInteger::TWO);
-
-	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator();
-
-	usint size = 500000;
-	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size,modulus);
-
-	BigBinaryInteger mean("0");
-	BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
-	
-	for(usint index=0; index<randBigBinaryVector.GetLength(); index++) {
-		mean += randBigBinaryVector.GetValAtIndex(index);
-	}
-
-	BigBinaryInteger computedMean = mean.DividedBy(length);
-
-	// std::cout << "The computedMean is " << computedMean << std::endl;
-	// std::cout << "The expectedMean is " << expectedMean << std::endl;
-	
-	BigBinaryInteger varianceComputedUsingComputedMean("0"), varianceComputedUsingExpectedMean("0");
-	for(usint index=0; index<randBigBinaryVector.GetLength(); index++) {
-		BigBinaryInteger tempForComputedMean(randBigBinaryVector.GetValAtIndex(index)), tempForExpectedMean(randBigBinaryVector.GetValAtIndex(index));
-		
-		tempForComputedMean = (tempForComputedMean>computedMean) ? tempForComputedMean.Minus(computedMean) : computedMean.Minus(tempForComputedMean);
-		varianceComputedUsingComputedMean += (tempForComputedMean * tempForComputedMean);
-
-		tempForExpectedMean = (tempForExpectedMean>expectedMean) ? tempForExpectedMean.Minus(expectedMean) : expectedMean.Minus(tempForExpectedMean);
-		varianceComputedUsingExpectedMean += (tempForExpectedMean * tempForExpectedMean);		
-	}
-	varianceComputedUsingComputedMean = varianceComputedUsingComputedMean.DividedBy(length);
-	// std::cout << "The varianceComputedUsingComputedMean is " << varianceComputedUsingComputedMean << std::endl;
-	EXPECT_GE(varianceComputedUsingComputedMean, BigBinaryInteger::ZERO);
-
-	varianceComputedUsingExpectedMean = varianceComputedUsingExpectedMean.DividedBy(length);
-	// std::cout << "The varianceComputedUsingExpectedMean is " << varianceComputedUsingExpectedMean << std::endl;
-	EXPECT_GE(varianceComputedUsingExpectedMean, BigBinaryInteger::ZERO);
-
-	// std::cout << "The expectedVariance is " << expectedVariance << std::endl;
+	//within 1% of expected std dev
+	EXPECT_LT(diffInStdDev, 0.01*expectedStdDevInDouble);
 }
 
 TEST(method_generate_binary_uniform_big_binary_integer,greater_than_0)
@@ -278,7 +271,7 @@ TEST(method_generate_binary_uniform_big_binary_integer,mean)
 // a large sample. Max of them should be less than q
 
 
-TEST(method_test_guassian_rand_generator_generate_char_vector, mean_test_generate_char_vector) {
+TEST(method_test_guassian_rand_generator, generate_char_vector_mean_test) {
 	sint stdev = 5;
 	usint size = 10000;
 	DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
@@ -290,13 +283,13 @@ TEST(method_test_guassian_rand_generator_generate_char_vector, mean_test_generat
 		// std::cout << i << "th value is " << std::to_string(dggCharVector[i]) << std::endl;
 	}
 	mean /= size;
-	std::cout << "The mean of the values is " << mean << std::endl;
+	// std::cout << "The mean of the values is " << mean << std::endl;
 	
 	EXPECT_LE(mean, 0.1);
 	EXPECT_GE(mean, -0.1);
 }
 
-TEST(method_test_guassian_rand_generator_generate_vector, mean_test_generate_vector_with_modulus) {
+TEST(method_test_guassian_rand_generator, generate_vector_mean_test) {
 	sint stdev = 5;
 	usint size = 10000;
 	BigBinaryInteger modulus("10403");
