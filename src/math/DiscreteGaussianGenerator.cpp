@@ -8,7 +8,7 @@
 
 namespace lbcrypto {
 
-    DiscreteGaussianGenerator::DiscreteGaussianGenerator (const BigBinaryInteger & modulus, const sint std) : ModulusDistributionGenerator (modulus){
+    DiscreteGaussianGenerator::DiscreteGaussianGenerator (const BigBinaryInteger & modulus, const sint std) : DiscreteDistributionGenerator (modulus) {
         this->m_std = std;
 
         InitiateVals();
@@ -32,7 +32,7 @@ namespace lbcrypto {
         //weightDiscreteGaussian
         double acc = 0.00000001;
 
-        int fin = ceil(sqrt(2 * pi) * m_std * sqrt(-1 * log(acc) / pi));
+        int fin = (int)ceil(sqrt(2 * pi) * m_std * sqrt(-1 * log(acc) / pi));
 
         double cusum = 1.0;
 
@@ -44,11 +44,11 @@ namespace lbcrypto {
 
         m_a = 1 / cusum;
 
-        fin = ceil(sqrt(-2 * (m_std * m_std) * log(acc)));
+        fin = (int)ceil(sqrt(-2 * (m_std * m_std) * log(acc)));
         double temp;
 
         for (sint i = 1; i <= fin; i++) {
-            temp = m_a * exp((double) -((double) (i * i) / (2 * m_std * m_std)));
+            temp = m_a * exp(-((double) (i * i) / (2 * m_std * m_std)));
             m_vals.push_back(temp);
         }
 

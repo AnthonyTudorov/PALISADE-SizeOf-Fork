@@ -6,35 +6,27 @@
 #define DISCRETE_UNIFORM_GENERATOR_H
 
 #include "backend.h"
-#include "ModulusDistributionGenerator.h"
+#include "DiscreteDistributionGenerator.h"
 
 namespace lbcrypto {
-/**
- * @brief The class for discrete Uniform distribution generator over Zq.
- */
-    class DiscreteUniformGenerator : protected ModulusDistributionGenerator {
+    /**
+     * @brief The class for Discrete Uniform Distribution generator over Zq.
+     */
+    class DiscreteUniformGenerator : protected DiscreteDistributionGenerator {
     public:
         /**
-         * Basic constructor.
+         * @brief         Constructs a new DiscreteUniformGenerator with the given modulus.
+         * @param modulus The modulus to be used when generating discrete values.
          */
-        DiscreteUniformGenerator (const BigBinaryInteger & modulus); //srand(time(NULL)) is called here
-
-        //ACCESSORS
-
-        //int GetMean() const;
+        DiscreteUniformGenerator (const BigBinaryInteger & modulus);
 
         /**
-         * Returns a generated integer.
-         *
-         * @return a generated integer.
+         * Required by DistributionGenerator.
          */
         BigBinaryInteger generateInteger ();
 
         /**
-         * Returns a generated vector.
-         *
-         * @param size the number of values to return.
-         * @return vector of values generated with the distribution.
+         * Required by DistributionGenerator.
          */
         BigBinaryVector generateVector (const usint size);
 

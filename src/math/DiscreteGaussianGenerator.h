@@ -6,85 +6,64 @@
 #define DISCRETE_GAUSSIAN_GENERATOR_H
 
 #include "backend.h"
-#include "ModulusDistributionGenerator.h"
+#include "DiscreteDistributionGenerator.h"
 
 namespace lbcrypto {
-/**
- * @brief The class for discrete Gaussion distribution generator
- */
-    class DiscreteGaussianGenerator : ModulusDistributionGenerator {
+    /**
+     * @brief The class for Discrete Gaussion Distribution generator.
+     */
+    class DiscreteGaussianGenerator : DiscreteDistributionGenerator {
     public:
-
         /**
-         * Basic constructor for specifying distribution parameter and modulus.
-         *
-         * @param std is the distribution parameter.
+         * @brief         Basic constructor for specifying distribution parameter and modulus.
+         * @param modulus The modulus to use to generate discrete values.
+         * @param std     The standard deviation for this Gaussian Distribution.
          */
         DiscreteGaussianGenerator (const BigBinaryInteger & modulus, const sint std);
 
         /**
-         * Initiate the generator
+         * @brief Initializes the generator.
          */
         void Initialize ();
 
-        //ACCESSORS
-
-        //int GetMean() const;
-
         /**
-         * Returns the standard deviation of the generator.
-         *
-         * @return the analytically obtained standard deviation of the generator.
+         * @brief  Returns the standard deviation of the generator.
+         * @return The analytically obtained standard deviation of the generator.
          */
         sint getStd () const;
-        //int GetUpperBound() const;
-        //void SetMean(int mean);
 
         /**
-         * Sets the standard deviation of the generator.
-         *
-         * @param std the analytic standard deviation of the generator.
+         * @brief     Sets the standard deviation of the generator.
+         * @param std The analytic standard deviation of the generator.
          */
         void setStd (const sint std);
-        //void SetUpperBound(int upperBound);
-
-        /*
-         * Sets the modulus of the generator.
-         *
-         * @param &modulus the analytic standard deviation of the generator.
-         */
-        //void SetModulus(BigBinaryInteger &modulus);
 
         /**
-         * Returns a generated char vector.
-         *
-         * @param size the number of values to return.
-         * @return a pointer to an array of schar values generated with the distribution.
+         * @brief      Returns a generated char vector.
+         * @param size The number of values to return.
+         * @return     A pointer to an array of schar values generated with the distribution.
          */
-        schar *GenerateCharVector (usint size) const;
+        schar * GenerateCharVector (usint size) const;
 
         /**
-         * Returns a generated integer.
-         *
-         * @return a generated integer.
+         * @brief  Returns a generated integer.
+         * @return A random value within this Discrete Gaussian Distribution.
          */
         BigBinaryInteger generateInteger ();
 
         /**
-         * Returns a generated vector.
+         * @brief           Generates a vector of random values within this Discrete Gaussian Distribution.
          *
-         * @param size the number of values to return.
-         * @param &modulus the modulus of the returned data.
-         * @return vector of values generated with the distribution.
+         * @param  size     The number of values to return.
+         * @return          The vector of values within this Discrete Gaussian Distribution.
          */
         BigBinaryVector generateVector (usint size);
 
         /**
-         * Returns a generated vector.
-         *
-         * @param vectorLength the number of values to return.
-         * @param &modValue the number of values to return.
-         * @return vector of values generated with the distribution.
+         * @brief               Generates a vector of random, positive values within this Discrete Gaussian Distribution.
+         * @param  vectorLength The number of values to return.
+         * @param  &modValue    The number of values to return.
+         * @return              The vector of positive values within this Discrete Gaussian Distribution.
          */
         static BigBinaryVector DiscreteGaussianPositiveGenerator (usint vectorLength, const BigBinaryInteger &modValue);
 
@@ -93,14 +72,16 @@ namespace lbcrypto {
 
         //Gyana to add precomputation methods and data members
         //all parameters are set as int because it is assumed that they are used for generating "small" polynomials only
-//	int m_mean;
-        float m_a;
+        double m_a;
 
         void InitiateVals ();
 
         std::vector<double> m_vals;
+
+        /**
+         * The standard deviation of the distribution.
+         */
         sint m_std;
-        //BigBinaryInteger m_modulus;
     };
 }
 

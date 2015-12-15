@@ -4,13 +4,13 @@
 
 #include "DiscreteUniformGenerator.h"
 #include "DistributionGenerator.h"
-#include "ModulusDistributionGenerator.h"
+#include "DiscreteDistributionGenerator.h"
 
 #include "backend.h"
 
 namespace lbcrypto {
 
-    DiscreteUniformGenerator::DiscreteUniformGenerator (const BigBinaryInteger & modulus) : ModulusDistributionGenerator (modulus) { }
+    DiscreteUniformGenerator::DiscreteUniformGenerator (const BigBinaryInteger & modulus) : DiscreteDistributionGenerator (modulus) { }
 
 /*
 void DiscreteUniformGenerator::InitializeVals(const BigBinaryInteger &modulus){
