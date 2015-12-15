@@ -98,7 +98,7 @@ namespace lbcrypto {
 		{
 			//usint vectorSize = EulerPhi(params.GetOrder());
 			usint vectorSize = ilParams.GetOrder() / 2;
-			m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize, params.GetModulus()));
+			m_values = new BigBinaryVector(dgg.generateVector(vectorSize));
 			(*m_values).SetModulus(params.GetModulus());
 			m_format = COEFFICIENT;
 		}
@@ -346,7 +346,7 @@ namespace lbcrypto {
 		{
 			ILVector2n current(params);
 			usint vectorSize = params.GetOrder() / 2;
-			current.m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,params.GetModulus()));
+			current.m_values = new BigBinaryVector(dgg.generateVector(vectorSize));
 			(*current.m_values).SetModulus(params.GetModulus());
 			current.m_format = COEFFICIENT;
 

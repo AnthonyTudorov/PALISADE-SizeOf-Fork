@@ -8,14 +8,17 @@
 
 namespace lbcrypto {
 
+    std::once_flag DistributionGenerator::flag;
+    std::shared_ptr<std::mt19937> DistributionGenerator::prng = nullptr;
+
     DistributionGenerator::DistributionGenerator () { }
 
-    std::mt19937 & DistributionGenerator::getGenerator () {
+    std::mt19937 & DistributionGenerator::getPRNG () {
         std::call_once(DistributionGenerator::flag, [] {
             std::random_device rd;
-            DistributionGenerator::generator.reset(new std::mt19937(rd()));
+            DistributionGenerator::prng.reset(new std::mt19937(rd()));
         });
 
-        return *DistributionGenerator::generator;
+        return *prng;
     }
 }

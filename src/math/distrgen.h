@@ -43,6 +43,7 @@
 #include "DistributionGenerator.h"
 #include "DiscreteGaussianGenerator.h"
 #include "DiscreteUniformGenerator.h"
+#include "BinaryUniformGenerator.h"
 #include "ModulusDistributionGenerator.h"
 #include "UniformIntegerGenerator.h"
 

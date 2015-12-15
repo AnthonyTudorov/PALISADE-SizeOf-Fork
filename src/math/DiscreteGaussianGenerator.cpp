@@ -12,14 +12,6 @@ namespace lbcrypto {
         this->m_std = std;
 
         InitiateVals();
-
-        //srand (time(NULL));
-        /*
-        for(usint i=0;i<m_vals.size();i++)
-            std::cout<<m_vals[i]<<std::endl;
-
-        std::cout<<std::endl;
-        */
     }
 
     void DiscreteGaussianGenerator::setStd (const sint std) {
@@ -31,20 +23,8 @@ namespace lbcrypto {
     }
 
     void DiscreteGaussianGenerator::Initialize () {
-
         InitiateVals();
-
     }
-
-// BigBinaryInteger DiscreteGaussianGenerator::GetModulus(){
-// 	return m_modulus;
-// }
-
-//void DiscreteGaussianGenerator::SetModulus(BigBinaryInteger &modulus){
-//
-//	m_modulus = modulus;
-//
-//}
 
     void DiscreteGaussianGenerator::InitiateVals () {
 
@@ -133,20 +113,19 @@ namespace lbcrypto {
         BigBinaryVector ans(vectorLength);
         ans.SetModulus(modValue);
 
-
-        for(usint i=0;i<vectorLength;i++){
-            ans.SetValAtIndex(i,UintToBigBinaryInteger(std::rand()%8));
+        for (usint i = 0; i < vectorLength; i++) {
+            ans.SetValAtIndex(i, UintToBigBinaryInteger(std::rand()%8));
         }
 
         return ans;
     }
 
-    BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(const BigBinaryInteger &modulus) {
+    BigBinaryInteger DiscreteGaussianGenerator::generateInteger() {
 
         return std::move(*(new BigBinaryInteger()));
     }
 
-    BigBinaryVector DiscreteGaussianGenerator::GenerateVector(usint size, const BigBinaryInteger &modulus) {
+    BigBinaryVector DiscreteGaussianGenerator::generateVector(const usint size) {
 
 
         //BigBinaryVector ans(DiscreteGaussianGenerator::DiscreteGaussianPositiveGenerator(size,this->m_modulus));
@@ -157,16 +136,15 @@ namespace lbcrypto {
         schar* result_vector = GenerateCharVector(size);
 
         BigBinaryVector ans(size);
-        ans.SetModulus(modulus);
+        ans.SetModulus(this->modulus);
 
-        for(usint i=0;i<size;i++){
-            if( result_vector[i]<0 ){
+        for (usint i = 0; i < size; i++) {
+            if (result_vector[i] < 0) {
                 result_vector[i] *= -1;
-                ans.SetValAtIndex(i,UintToBigBinaryInteger(result_vector[i]));
-                ans.SetValAtIndex(i, modulus-ans.GetValAtIndex(i) );
-            }
-            else{
-                ans.SetValAtIndex(i,UintToBigBinaryInteger(result_vector[i]));
+                ans.SetValAtIndex(i, UintToBigBinaryInteger(result_vector[i]));
+                ans.SetValAtIndex(i, this->modulus - ans.GetValAtIndex(i));
+            } else {
+                ans.SetValAtIndex(i, UintToBigBinaryInteger(result_vector[i]));
             }
         }
 

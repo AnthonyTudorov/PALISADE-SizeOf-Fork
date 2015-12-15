@@ -9,7 +9,7 @@ namespace lbcrypto {
 
     BigBinaryInteger BinaryUniformGenerator::generateInteger () {
         std::bernoulli_distribution distribution(0.5);
-        return (distribution(this->getGenerator()) ? BigBinaryInteger(BigBinaryInteger::ONE) : BigBinaryInteger(BigBinaryInteger::ZERO));
+        return (distribution(this->getPRNG()) ? BigBinaryInteger(BigBinaryInteger::ONE) : BigBinaryInteger(BigBinaryInteger::ZERO));
     }
 
     BigBinaryVector BinaryUniformGenerator::generateVector (const usint size) {

@@ -37,7 +37,7 @@ void DiscreteUniformGenerator::InitializeVals(const BigBinaryInteger &modulus){
         std::uniform_int_distribution<usint> dis(DiscreteUniformGenerator::MINVAL, DiscreteUniformGenerator::MAXVAL);
 
         for (usint i = 0; i < noOfIter; ++i) {
-            randNum = dis(this->getGenerator());
+            randNum = dis(this->getPRNG());
             if (remainder != 0 && i == noOfIter - 1) {
                 temp = std::bitset<DiscreteUniformGenerator::LENOFMAX>(randNum).to_string();
                 bigBinaryInteger += temp.substr(LENOFMAX-remainder, LENOFMAX);

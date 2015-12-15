@@ -20,12 +20,12 @@ namespace lbcrypto {
         DistributionGenerator ();
 
     protected:
-        static std::mt19937 & getGenerator ();
+        static std::mt19937 & getPRNG ();
+        static std::shared_ptr<std::mt19937> prng;
+        static std::once_flag flag;
 
     private:
 
-        static std::shared_ptr<std::mt19937> generator;
-        static std::once_flag flag;
 
     };
 }
