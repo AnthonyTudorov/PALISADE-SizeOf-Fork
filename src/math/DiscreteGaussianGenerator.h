@@ -14,22 +14,13 @@ namespace lbcrypto {
  */
     class DiscreteGaussianGenerator : ModulusDistributionGenerator {
     public:
-        /**
-         * Basic constructor.
-         */
-        DiscreteGaussianGenerator (); //srand(time(NULL)) is called here
 
         /**
          * Basic constructor for specifying distribution parameter and modulus.
          *
          * @param std is the distribution parameter.
          */
-        DiscreteGaussianGenerator (sint std);
-
-        /**
-         * Destructor.
-         */
-        ~DiscreteGaussianGenerator ();
+        DiscreteGaussianGenerator (const BigBinaryInteger & modulus, const sint std);
 
         /**
          * Initiate the generator
@@ -45,7 +36,7 @@ namespace lbcrypto {
          *
          * @return the analytically obtained standard deviation of the generator.
          */
-        sint GetStd () const;
+        sint getStd () const;
         //int GetUpperBound() const;
         //void SetMean(int mean);
 
@@ -54,7 +45,7 @@ namespace lbcrypto {
          *
          * @param std the analytic standard deviation of the generator.
          */
-        void SetStd (sint std);
+        void setStd (const sint std);
         //void SetUpperBound(int upperBound);
 
         /*
@@ -77,7 +68,7 @@ namespace lbcrypto {
          *
          * @return a generated integer.
          */
-        BigBinaryInteger GenerateInteger (const BigBinaryInteger &modulus);
+        BigBinaryInteger generateInteger ();
 
         /**
          * Returns a generated vector.
@@ -86,7 +77,7 @@ namespace lbcrypto {
          * @param &modulus the modulus of the returned data.
          * @return vector of values generated with the distribution.
          */
-        BigBinaryVector GenerateVector (usint size, const BigBinaryInteger &modulus);
+        BigBinaryVector generateVector (usint size);
 
         /**
          * Returns a generated vector.

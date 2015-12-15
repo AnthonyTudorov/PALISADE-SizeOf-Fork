@@ -2,10 +2,11 @@
 // Created by matt on 12/10/15.
 //
 
-#ifndef PALISADE_STUDENT_EDITION_MODULUSDISTRIBUTIONGENERATOR_H
-#define PALISADE_STUDENT_EDITION_MODULUSDISTRIBUTIONGENERATOR_H
+#ifndef MODULUS_DISTRIBUTION_GENERATOR_H
+#define MODULUS_DISTRIBUTION_GENERATOR_H
 
 #include "backend.h"
+#include "DistributionGenerator.h"
 #include <math.h>
 #include <random>
 
@@ -13,33 +14,15 @@
 #include <string>
 
 namespace lbcrypto {
-/**
- * @brief The class for random number distribution generator
- */
-    class ModulusDistributionGenerator {
+
+    class ModulusDistributionGenerator : protected DistributionGenerator {
     public:
 
-        /**
-         * Basic virtual method.
-         *
-         * @return a return value set to 0.
-         */
-        virtual BigBinaryInteger GenerateInteger (const BigBinaryInteger &modulus) = 0;
+        ModulusDistributionGenerator (const BigBinaryInteger & modulus);
 
-        /**
-         * Basic virtual method.
-         *
-         * @return a return value set to 0.
-         */
-        virtual BigBinaryVector GenerateVector (usint size, const BigBinaryInteger &modulus) = 0;
-
-        /**
-         *  Interface requires virtual destructor.
-         */
-        virtual ~ModulusDistributionGenerator () = 0;
+    protected:
+        BigBinaryInteger modulus;
     };
-
-    inline ModulusDistributionGenerator::~ModulusDistributionGenerator () { };
 }
 
-#endif //PALISADE_STUDENT_EDITION_MODULUSDISTRIBUTIONGENERATOR_H
+#endif // MODULUS_DISTRIBUTION_GENERATOR_H

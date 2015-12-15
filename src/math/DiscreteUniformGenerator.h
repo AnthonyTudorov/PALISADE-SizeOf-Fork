@@ -12,18 +12,12 @@ namespace lbcrypto {
 /**
  * @brief The class for discrete Uniform distribution generator over Zq.
  */
-    class DiscreteUniformGenerator : ModulusDistributionGenerator {
+    class DiscreteUniformGenerator : protected ModulusDistributionGenerator {
     public:
         /**
          * Basic constructor.
          */
-        DiscreteUniformGenerator (); //srand(time(NULL)) is called here
-
-
-        /**
-         * Destructor.
-         */
-        ~DiscreteUniformGenerator ();
+        DiscreteUniformGenerator (const BigBinaryInteger & modulus); //srand(time(NULL)) is called here
 
         //ACCESSORS
 
@@ -34,7 +28,7 @@ namespace lbcrypto {
          *
          * @return a generated integer.
          */
-        BigBinaryInteger GenerateInteger (const BigBinaryInteger &modulus);
+        BigBinaryInteger generateInteger ();
 
         /**
          * Returns a generated vector.
@@ -42,11 +36,9 @@ namespace lbcrypto {
          * @param size the number of values to return.
          * @return vector of values generated with the distribution.
          */
-        BigBinaryVector GenerateVector (usint size, const BigBinaryInteger &modulus);
+        BigBinaryVector generateVector (const usint size);
 
     private:
-        std::mt19937 _generator;
-        BigBinaryInteger m_modulus;
 
         static const usint MINVAL = 0;
         // This code does not work in VS 2012 - need to find a solution

@@ -2,41 +2,32 @@
 // Created by matt on 12/10/15.
 //
 
-#ifndef PALISADE_STUDENT_EDITION_DISTRIBUTIONGENERATOR_H
-#define PALISADE_STUDENT_EDITION_DISTRIBUTIONGENERATOR_H
+#ifndef DISTRIBUTION_GENERATOR_H
+#define DISTRIBUTION_GENERATOR_H
 
 #include "backend.h"
 #include <memory>
 #include <mutex>
 #include <random>
+
 namespace lbcrypto {
     class DistributionGenerator {
     public:
 
-        static DistributionGenerator & getInstance () {
-            std::call_once(DistributionGenerator::flag, [] {
-                DistributionGenerator::instance.reset(new DistributionGenerator());
-            });
-
-            return *DistributionGenerator::instance;
-        }
-
-        template<class D>
-        BigBinaryInteger nextInt ();
-
-    private:
-
-        static std::shared_ptr<DistributionGenerator> instance;
-        static std::once_flag flag;
-
-        std::mt19937 generator;
+        virtual BigBinaryInteger generateInteger () = 0;
+        virtual BigBinaryVector  generateVector  (const usint size) = 0;
 
         DistributionGenerator ();
 
-        DistributionGenerator (const DistributionGenerator &other) = delete;
+    protected:
+        static std::mt19937 & getGenerator ();
 
-        DistributionGenerator &operator= (const DistributionGenerator &other) = delete;
+    private:
+
+        static std::shared_ptr<std::mt19937> generator;
+        static std::once_flag flag;
+
     };
 }
 
-#endif //PALISADE_STUDENT_EDITION_DISTRIBUTIONGENERATOR_H
+#endif // DISTRIBUTION_GENERATOR_H

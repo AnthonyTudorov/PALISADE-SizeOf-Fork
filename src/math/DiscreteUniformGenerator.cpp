@@ -3,20 +3,15 @@
 //
 
 #include "DiscreteUniformGenerator.h"
+#include "DistributionGenerator.h"
 #include "ModulusDistributionGenerator.h"
 
 #include "backend.h"
 
 namespace lbcrypto {
 
-    DiscreteUniformGenerator::DiscreteUniformGenerator () : ModulusDistributionGenerator () {
-        std::random_device rd;
-        this->_generator = std::mt19937(rd());
-    }
+    DiscreteUniformGenerator::DiscreteUniformGenerator (const BigBinaryInteger & modulus) : ModulusDistributionGenerator (modulus) { }
 
-    DiscreteUniformGenerator::~DiscreteUniformGenerator () {
-        //Destructor of DiscreteUniformGenerator is called
-    }
 /*
 void DiscreteUniformGenerator::InitializeVals(const BigBinaryInteger &modulus){
 	//m_modulus = modulus;
@@ -29,11 +24,11 @@ void DiscreteUniformGenerator::InitializeVals(const BigBinaryInteger &modulus){
 	// std::cout << "MAXVAL = " << MAXVAL << std::endl;
 }
 */
-    BigBinaryInteger DiscreteUniformGenerator::GenerateInteger (const BigBinaryInteger &modulus) {
+    BigBinaryInteger DiscreteUniformGenerator::generateInteger () {
         //if m_modulus != modulus {
         //	this->InitializeVals(modulus);
         //}
-        usint moduloLength = modulus.GetMSB();
+        usint moduloLength = this->modulus.GetMSB();
         usint noOfIter = ((moduloLength % LENOFMAX) == 0) ? (moduloLength/LENOFMAX) : (moduloLength/LENOFMAX) + 1;
         usint remainder = moduloLength % LENOFMAX;
         usint randNum;
@@ -42,7 +37,7 @@ void DiscreteUniformGenerator::InitializeVals(const BigBinaryInteger &modulus){
         std::uniform_int_distribution<usint> dis(DiscreteUniformGenerator::MINVAL, DiscreteUniformGenerator::MAXVAL);
 
         for (usint i = 0; i < noOfIter; ++i) {
-            randNum = dis(this->_generator);
+            randNum = dis(this->getGenerator());
             if (remainder != 0 && i == noOfIter - 1) {
                 temp = std::bitset<DiscreteUniformGenerator::LENOFMAX>(randNum).to_string();
                 bigBinaryInteger += temp.substr(LENOFMAX-remainder, LENOFMAX);
@@ -53,16 +48,18 @@ void DiscreteUniformGenerator::InitializeVals(const BigBinaryInteger &modulus){
 
         BigBinaryInteger randBigBinaryInteger(BigBinaryInteger::BinaryToBigBinaryInt(bigBinaryInteger));
 
+        // if the random number is within modulus, return
+        // otherwise, generate another random number
         if (randBigBinaryInteger < modulus)
             return randBigBinaryInteger;
         else
-            return DiscreteUniformGenerator::GenerateInteger(modulus);
+            return this->generateInteger();
     }
 
-    BigBinaryVector DiscreteUniformGenerator::GenerateVector(usint size, const BigBinaryInteger &modulus) {
+    BigBinaryVector DiscreteUniformGenerator::generateVector(const usint size) {
         BigBinaryVector randBigBinaryVector(size);
         for(usint index = 0; index<size; ++index) {
-            BigBinaryInteger temp(this->GenerateInteger(modulus));
+            BigBinaryInteger temp(this->generateInteger());
             randBigBinaryVector.SetValAtIndex(index, temp);
         }
         return randBigBinaryVector;

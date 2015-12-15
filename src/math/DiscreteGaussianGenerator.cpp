@@ -4,25 +4,15 @@
 
 #include "DiscreteGaussianGenerator.h"
 #include "nbtheory.h"
+#include "backend.h"
 
 namespace lbcrypto {
 
-    DiscreteGaussianGenerator::DiscreteGaussianGenerator () {
+    DiscreteGaussianGenerator::DiscreteGaussianGenerator (const BigBinaryInteger & modulus, const sint std) : ModulusDistributionGenerator (modulus){
+        this->m_std = std;
 
-        m_std = 1;
-        std::random_device rd;
-        std::srand(rd());
-        //m_modulus = BigBinaryInteger("1");
-
-    }
-
-    DiscreteGaussianGenerator::DiscreteGaussianGenerator (sint std) {
-
-        m_std = std;
-        //m_modulus = mod;
         InitiateVals();
-        std::random_device rd;
-        std::srand(rd());
+
         //srand (time(NULL));
         /*
         for(usint i=0;i<m_vals.size();i++)
@@ -30,16 +20,14 @@ namespace lbcrypto {
 
         std::cout<<std::endl;
         */
-
-
     }
 
-    DiscreteGaussianGenerator::~DiscreteGaussianGenerator () {
-        //std::cout<<"Discrete Guassian destructor called \n\n";
+    void DiscreteGaussianGenerator::setStd (const sint std) {
+        this->m_std = std;
     }
 
-    void DiscreteGaussianGenerator::SetStd (sint std) {
-        m_std = std;
+    sint DiscreteGaussianGenerator::getStd () const {
+        return this->m_std;
     }
 
     void DiscreteGaussianGenerator::Initialize () {

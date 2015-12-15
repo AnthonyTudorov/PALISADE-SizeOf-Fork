@@ -3,21 +3,19 @@
 //
 
 #include "DistributionGenerator.h"
-#include <random>
 #include "backend.h"
+#include <random>
 
 namespace lbcrypto {
 
-    DistributionGenerator::DistributionGenerator () {
-        std::random_device rd;
-        this->generator = std::mt19937(rd());
-    }
+    DistributionGenerator::DistributionGenerator () { }
 
+    std::mt19937 & DistributionGenerator::getGenerator () {
+        std::call_once(DistributionGenerator::flag, [] {
+            std::random_device rd;
+            DistributionGenerator::generator.reset(new std::mt19937(rd()));
+        });
 
-
-    template<class D>
-    BigBinaryInteger DistributionGenerator::nextInt () {
-        D d(this->generator);
-        return d.nextInt();
+        return *DistributionGenerator::generator;
     }
 }

@@ -36,7 +36,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../src/crypto/lwepre.h"
 #include "../../src/lattice/il2n.h"
 #include "../../src/utils/utilities.h"
-#include "../../src/math/BinaryUniformDistribution.h"
+#include "BinaryUniformGenerator.h"
 
 using namespace std;
 using namespace lbcrypto;
