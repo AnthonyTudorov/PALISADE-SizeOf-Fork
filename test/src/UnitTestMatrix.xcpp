@@ -1,0 +1,312 @@
+/*
+PRE SCHEME PROJECT, Crypto Lab, NJIT
+Version: 
+	v00.01 
+Last Edited: 
+	9/29/2015 4:37AM
+List of Authors:
+	TPOC: 
+		Dr. Kurt Rohloff, rohloff@njit.edu
+	Programmers:
+		Dr. Yuriy Polyakov, polyakov@njit.edu
+		Gyana Sahu, grs22@njit.edu
+Description:	
+	This code exercises the math libraries of the PALISADE lattice encryption library.
+
+License Information:
+
+Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+All rights reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#include "../include/gtest/gtest.h"
+#include <iostream>
+
+#include "../../src/math/backend.h"
+#include "../../src/utils/inttypes.h"
+#include "../../src/lattice/il2n.h"
+#include "../../src/lattice/matrix.h"
+#include "../../src/lattice/matrix.cpp"
+
+using namespace std;
+using namespace lbcrypto;
+
+
+/*--------------TESTING METHOD MATRIX FOR ALL CONDITIONS---------------------------*/
+
+/* 
+*/
+
+TEST(method_matrix,test_constructor_params_only){
+
+	usint m = 16;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+
+	ILParams ilParams(m,modulus,rootOfUnity);
+
+	Matrix<ILVector2n> mat(ilParams); // calling constructor of null matrix
+
+//	usint n = mat.getRingDimension();
+//	mat.GetModulus();
+//	BigBinaryInteger root = mat.getRrootOfUnity();
+
+	//bool condition = true;
+
+	EXPECT_EQ (mat.GetModulus(), modulus);
+	EXPECT_EQ (mat.GetCyclotomicOrder(), m);
+
+}
+
+/*--------------TESTING METHOD MATRIX FOR ALL CONDITIONS---------------------------*/
+
+/* 
+*/
+
+TEST(method_matrix,test_constructor_params_dim){
+
+	usint m = 16;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+
+	ILParams ilParams(m,modulus,rootOfUnity);
+
+	usint dim = 3;
+
+	Matrix<ILVector2n> mat(ilParams,dim); // calling constructor of null matrix
+
+//	usint n = mat.getRingDimension();
+//	mat.GetModulus();
+//	BigBinaryInteger root = mat.getRrootOfUnity();
+
+	//bool condition = true;
+
+	EXPECT_EQ (mat.GetDimension1(), dim);
+	EXPECT_EQ (mat.GetDimension2(), dim);
+
+}
+
+/*--------------TESTING METHOD MATRIX FOR ALL CONDITIONS---------------------------*/
+
+/* 
+*/
+
+TEST(method_matrix,test_constructor_params_dims){
+
+	usint m = 16;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+
+	ILParams ilParams(m,modulus,rootOfUnity);
+
+	usint dim1 = 3;
+	usint dim2 = 4;
+
+	Matrix<ILVector2n> mat(ilParams,dim1,dim2); // calling constructor of null matrix
+
+//	usint n = mat.getRingDimension();
+//	mat.GetModulus();
+//	BigBinaryInteger root = mat.getRrootOfUnity();
+
+	//bool condition = true;
+
+	EXPECT_EQ (mat.GetDimension1(), dim1);
+	EXPECT_EQ (mat.GetDimension2(), dim2);
+
+}
+
+/*--------------TESTING METHOD MATRIX FOR ALL CONDITIONS---------------------------*/
+
+/* 
+*/
+
+TEST(method_matrix,test_element_generation_0){
+
+	usint m = 16;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+
+	ILVector2n elem = ILVector2n();
+	ByteArray byteArray({0});
+	ByteArrayPlaintextEncoding encoding = ByteArrayPlaintextEncoding(byteArray);
+	encoding.Pad<ZeroPad>(m/2);
+	elem.EncodeElement(encoding,modulus);
+//	cout<<"\n"<<"element: "<<elem<<"\n"<<endl;
+
+	EXPECT_EQ (BigBinaryInteger("1"), elem.GetIndexAt(0));
+	for(usint i=1; i<m/2; i++) {
+		EXPECT_EQ (BigBinaryInteger("0"), elem.GetIndexAt(i));	
+	}
+
+	EXPECT_EQ (m, m);
+
+}
+
+/*--------------TESTING METHOD MATRIX FOR ALL CONDITIONS---------------------------*/
+
+/* 
+*/
+
+TEST(method_matrix,test_element_generation_1){
+
+	usint m = 16;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+
+	ILVector2n elem = ILVector2n();
+	ByteArray byteArray({1});
+	ByteArrayPlaintextEncoding encoding = ByteArrayPlaintextEncoding(byteArray);
+	encoding.Pad<ZeroPad>(m/2);
+	elem.EncodeElement(encoding,modulus);
+//	cout<<"\n"<<"element: "<<elem<<"\n"<<endl;
+
+	EXPECT_EQ (BigBinaryInteger("1"), elem.GetIndexAt(0));
+	for(usint i=1; i<m/2; i++) {
+		EXPECT_EQ (BigBinaryInteger("0"), elem.GetIndexAt(i));	
+	}
+
+	EXPECT_EQ (m, m);
+
+}
+
+/*--------------TESTING METHOD MATRIX FOR ALL CONDITIONS---------------------------*/
+
+/* 
+*/
+
+TEST(method_matrix,test_one){
+
+	usint m = 16;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+
+	ILParams ilParams(m,modulus,rootOfUnity);
+
+	usint dim = 3;
+
+	Matrix<ILVector2n> mat(ilParams,dim); // calling constructor of null matrix
+	mat.One();
+
+	ILVector2n elem;
+	mat.GetElement(0,0,&elem);
+	cout<<"---------------"<<endl;
+	EXPECT_EQ (modulus, elem.GetModulus());
+	cout<<"---------------"<<endl;
+	EXPECT_EQ (BigBinaryInteger("1"), elem.GetIndexAt(0));
+	cout<<"---------------"<<endl;
+	for(usint i=1; i<m/2; i++) {
+		cout<<"---------------"<<endl;
+		EXPECT_EQ (BigBinaryInteger("0"), elem.GetIndexAt(i));	
+	}
+
+/*
+	for(usint i=1; i<dim; i++) {
+		for(usint j=1; j<dim; j++) {
+			const ILVector2n &elem = mat.GetElement(i,j);
+			//for(usint k=1; k<m/2; k++) {
+			//	cout<<elem.GetIndexAt(k)<<" "<<endl;
+			//}	
+		}		
+	}
+*/
+
+//	usint n = mat.getRingDimension();
+//	mat.GetModulus();
+//	BigBinaryInteger root = mat.getRrootOfUnity();
+
+	//bool condition = true;
+
+	EXPECT_EQ (mat.GetDimension1(), dim);
+	EXPECT_EQ (mat.GetDimension2(), dim);
+
+}
+
+/*--------------TESTING METHOD MATRIX FOR ALL CONDITIONS---------------------------*/
+
+/* 
+*/
+
+TEST(method_matrix,test_zero){
+
+	usint m = 16;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+
+	ILParams ilParams(m,modulus,rootOfUnity);
+
+	usint dim = 3;
+
+	Matrix<ILVector2n> mat(ilParams,dim); // calling constructor of null matrix
+	mat.Zero();
+
+	//const ILVector2n &elem = mat.GetElement(i,j);
+
+/*
+	for(usint i=1; i<dim; i++) {
+		for(usint j=1; j<dim; j++) {
+			const ILVector2n &elem = mat.GetElement(i,j);
+			//for(usint k=1; k<m/2; k++) {
+			//	cout<<elem.GetIndexAt(k)<<" "<<endl;
+			//}	
+		}		
+	}
+*/
+
+//	usint n = mat.getRingDimension();
+//	mat.GetModulus();
+//	BigBinaryInteger root = mat.getRrootOfUnity();
+
+	//bool condition = true;
+
+	EXPECT_EQ (mat.GetDimension1(), dim);
+	EXPECT_EQ (mat.GetDimension2(), dim);
+
+}
+
+/*--------------TESTING METHOD MATRIX FOR ALL CONDITIONS---------------------------*/
+
+/* 
+*/
+
+TEST(method_matrix,test_eye){
+
+	usint m = 16;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+
+	ILParams ilParams(m,modulus,rootOfUnity);
+
+	usint dim = 3;
+
+	Matrix<ILVector2n> mat(ilParams,dim); // calling constructor of null matrix
+	mat.Eye();
+
+	//const ILVector2n &elem = mat.GetElement(i,j);
+
+/*
+	for(usint i=1; i<dim; i++) {
+		for(usint j=1; j<dim; j++) {
+			const ILVector2n &elem = mat.GetElement(i,j);
+			//for(usint k=1; k<m/2; k++) {
+			//	cout<<elem.GetIndexAt(k)<<" "<<endl;
+			//}	
+		}		
+	}
+*/
+
+//	usint n = mat.getRingDimension();
+//	mat.GetModulus();
+//	BigBinaryInteger root = mat.getRrootOfUnity();
+
+	//bool condition = true;
+
+	EXPECT_EQ (mat.GetDimension1(), dim);
+	EXPECT_EQ (mat.GetDimension2(), dim);
+
+}
+
+
