@@ -21,24 +21,34 @@ namespace lbcrypto {
         DiscreteUniformGenerator (const BigBinaryInteger & modulus);
 
         /**
-         * Required by DistributionGenerator.
+         * @brief         Sets the modulus. Overrides parent function
+         * @param modulus The new modulus.
+         */
+        void setModulus (const BigBinaryInteger & modulus);
+        /**
+         * @brief Required by DistributionGenerator.
          */
         BigBinaryInteger generateInteger ();
 
         /**
-         * Required by DistributionGenerator.
+         * @brief Required by DistributionGenerator.
          */
         BigBinaryVector generateVector (const usint size);
 
     private:
 
-        static const usint MINVAL = 0;
+        static const usint CHUNK_MIN = 0;
         // This code does not work in VS 2012 - need to find a solution
-        //static const usint LENOFMAX = std::numeric_limits<usint>::digits;
-        //static const usint MAXVAL = std::numeric_limits<usint>::max();
+        //static const usint CHUNK_WIDTH = std::numeric_limits<usint>::digits;
+        //static const usint CHUNK_MAX = std::numeric_limits<usint>::max();
         // this is a quick fix in the meantime, should get rid of these magic values though...
-        static const usint LENOFMAX = 16;
-        static const usint MAXVAL   = 65535; // 2^16-1 = 65535
+        static const usint CHUNK_WIDTH = 16;
+        static const usint CHUNK_MAX   = 65535; // 2^16-1 = 65535
+
+        usint remainingWidth = 0;
+        usint chunksPerValue = 0;
+        std::uniform_int_distribution<usint> distribution;
+
 
         //usint moduloLength;
         //usint noOfIter;

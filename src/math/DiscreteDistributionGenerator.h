@@ -26,6 +26,12 @@ namespace lbcrypto {
          */
         DiscreteDistributionGenerator (const BigBinaryInteger & modulus);
 
+        /**
+         * @brief         Sets the modulus of the distribution.
+         * @param modulus The new modulus to use to generate discrete values.
+         */
+        void setModulus (const BigBinaryInteger & modulus);
+
     protected:
         /**
          * The modulus value that should be used to generate discrete values.
