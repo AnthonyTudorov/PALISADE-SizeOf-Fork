@@ -91,10 +91,10 @@ namespace lbcrypto {
 		/**
 		* Constructor for the pre-computed case without cri_values.
 		*
-		* @param rootsOfUnity the roots of unity for the toer of moduli
+		* @param &rootsOfUnity the roots of unity for the toer of moduli
 		* @param cyclotomic_order the order of the ciphertext
 		* @param &moduli is the tower of moduli
-		* @param rootsOfUnity the roots of unity for the toer of moduli
+		* @param &modulus is the input modulus
 		*/
 		ILDCRTParams(std::vector<BigBinaryInteger>& rootsOfUnity, usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli, BigBinaryInteger &modulus) {
 			m_cyclotomicOrder = cyclotomic_order;

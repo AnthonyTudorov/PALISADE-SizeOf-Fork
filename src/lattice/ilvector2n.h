@@ -183,16 +183,14 @@ namespace lbcrypto {
 		/**
 		* Set method of the values.
 		*
-		* @param values is the set of values of the vector.
-		* @param format is the format.
+		* @param &modulus is the modulus to be set.
 		*/
 		void SetModulus(const BigBinaryInteger &modulus);
 
 		/**
 		* Set method of the values.
 		*
-		* @param values is the ILParams.
-		* @param params is the ILParams.
+		* @param &params is the ILParams.
 		*/
 		void SetParams(const ILParams &params);
 

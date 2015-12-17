@@ -67,6 +67,7 @@ namespace lbcrypto {
 		* Constructor that initializes nothing.
 		*/
 		ILVectorArray2n();
+
 		// copy constructor
 		/*
 		* Copy constructor.
@@ -82,23 +83,32 @@ namespace lbcrypto {
 		ILVectorArray2n(const ElemParams &params);
 
 
+
+		/**
+		* Constructor that initializes from another ILVectorArray2n.
+		*
+		* @param &element the element to construct from.
+		*/
 		ILVectorArray2n(const ILVectorArray2n &element);
 
 		// construct using an array in either Coefficient (0) or CRT format (1)
-		/*
+		/**
 		* Construct using an array in either Coefficient (0) or CRT format (1).
 		*
-		* @param params the input parameters.
+		* @param &params the input parameters.
 		* @param &levels the levels.
+		* @param format the intended format.
 		*/
 		ILVectorArray2n(const ILDCRTParams& params, std::vector<ILVector2n> &levels, Format format);
-		/*
+
+		/**
 		* Construct using an array in either Coefficient (0) or CRT format (1).
 		*
 		* @param element the input parameter to build ILVectorArray2n from one vector for double-CRT representation.
+		* @param params the input parameters.
+		* @param format the intended format.
 		*/
 		ILVectorArray2n(ILVector2n element, const ILDCRTParams& params, Format format);
-
 
 		/**
 		* Constructor based on full methods.
@@ -118,7 +128,7 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n& operator=(const ILVectorArray2n &rhs);
 
-		/**
+		/*
 		* Assignment Operator.
 		*
 		* @param &rhs the copied vector.
@@ -145,6 +155,7 @@ namespace lbcrypto {
 		/**
 		* Get method of the vector values.
 		*
+		* @param i the index of the tower level to get
 		* @return the vector.
 		*/
 		ILVector2n GetValues(usint i) const;
@@ -170,6 +181,7 @@ namespace lbcrypto {
 		* Set method of the values.
 		*
 		* @param values is the set of values of the vector.
+		* @param format the intended format.
 		*/
 		void SetValues(std::vector<ILVector2n>& values, Format format);
 
@@ -202,7 +214,7 @@ namespace lbcrypto {
 		ILVectorArray2n ModByTwo() const;
 
 		// addition operation
-		/*
+		/**
 		* Performs an addition operation and returns the result.
 		*
 		* @param &element is the element to add with.
