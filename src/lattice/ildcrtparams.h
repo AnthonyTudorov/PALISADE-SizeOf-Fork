@@ -127,6 +127,12 @@ namespace lbcrypto {
 			m_moduli = moduli;
 		}
 
+		/**
+		* Assignment operator
+		*
+		* @param &ild the input parameters
+		* @return the assigned operator
+		*/
 		ILDCRTParams& operator=(const ILDCRTParams &ild) {
 			this->m_moduli = ild.m_moduli;
 			this->m_CRIFactors = ild.m_CRIFactors;

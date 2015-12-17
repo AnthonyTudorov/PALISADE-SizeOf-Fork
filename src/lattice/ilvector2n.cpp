@@ -82,8 +82,8 @@ namespace lbcrypto {
 
 	ILVector2n::ILVector2n(DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
 		/*
-		//usint vectorSize = EulerPhi(params.GetOrder());
-		usint vectorSize = params.GetOrder()/2;
+		//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
+		usint vectorSize = params.GetCyclotomicOrder()/2;
 		m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize));
 		(*m_values).SetModulus(params.GetModulus());
 		m_format = COEFFICIENT;
@@ -96,8 +96,8 @@ namespace lbcrypto {
 
 		if (format == COEFFICIENT)
 		{
-			//usint vectorSize = EulerPhi(params.GetOrder());
-			usint vectorSize = ilParams.GetOrder() / 2;
+			//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
+			usint vectorSize = ilParams.GetCyclotomicOrder() / 2;
 			m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize, params.GetModulus()));
 			(*m_values).SetModulus(params.GetModulus());
 			m_format = COEFFICIENT;
@@ -267,15 +267,15 @@ namespace lbcrypto {
 			//std::cout << "starting CRT" << std::endl;
 			/*std::cout << *m_values << std::endl;
 			std::cout << m_params.GetRootOfUnity() << std::endl;
-			std::cout << m_params.GetOrder() << std::endl;*/
+			std::cout << m_params.GetCyclotomicOrder() << std::endl;*/
 
-			*m_values = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(*m_values, m_params.GetRootOfUnity(), m_params.GetOrder());
+			*m_values = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(*m_values, m_params.GetRootOfUnity(), m_params.GetCyclotomicOrder());
 
 		}
 
 		else {
 			m_format = COEFFICIENT;
-			*m_values = ChineseRemainderTransformFTT::GetInstance().InverseTransform(*m_values, m_params.GetRootOfUnity(), m_params.GetOrder());
+			*m_values = ChineseRemainderTransformFTT::GetInstance().InverseTransform(*m_values, m_params.GetRootOfUnity(), m_params.GetCyclotomicOrder());
 		}
 
 	}
@@ -345,7 +345,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < m_sampleSize; ++i)
 		{
 			ILVector2n current(params);
-			usint vectorSize = params.GetOrder() / 2;
+			usint vectorSize = params.GetCyclotomicOrder() / 2;
 			current.m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,params.GetModulus()));
 			(*current.m_values).SetModulus(params.GetModulus());
 			current.m_format = COEFFICIENT;

@@ -57,6 +57,13 @@ namespace lbcrypto {
 		* Each element params should give the effective modulus regardless of the representation
 		*/
 		virtual const BigBinaryInteger &GetModulus() const = 0;
+
+		/**
+		* Get method of the order.
+		*
+		* @return the order.
+		*/
+		virtual const usint GetCyclotomicOrder() const = 0;
 	};
 
 } // namespace lbcrypto ends

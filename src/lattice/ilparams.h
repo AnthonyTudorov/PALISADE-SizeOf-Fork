@@ -133,7 +133,7 @@ namespace lbcrypto {
 		*
 		* @return the order.
 		*/
-		usint GetOrder() const {
+		const usint GetCyclotomicOrder() const {
 			return m_order;
 		}
 
