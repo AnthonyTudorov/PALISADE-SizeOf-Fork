@@ -47,7 +47,8 @@
 #include <string>
 
 /**
- * @namespace The namespace of lbcrypto
+ * @namespace lbcrypto
+ * The namespace of lbcrypto
  */
 namespace lbcrypto {
 
