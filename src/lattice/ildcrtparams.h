@@ -31,8 +31,8 @@
 * This code provides basic lattice ideal manipulation functionality.
 */
 
-#ifndef LBCRYPTO_LATTICE_IDEALS_H
-#define LBCRYPTO_LATTICE_IDEALS_H
+#ifndef LBCRYPTO_LATTICE_ILDCRTELEMENT_H
+#define LBCRYPTO_LATTICE_ILDCRTELEMENT_H
 
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
@@ -44,48 +44,6 @@
 * The namespace of lbcrypto
 */
 namespace lbcrypto {
-
-	// Interface for element params; all these methods have to be supported by any element parameters class
-	/**
-	* @brief Interface for element params; all these methods have to be supported by any element parameters class
-	*/
-	class ElemParams
-	{
-	public:
-		//each element params should give the effective modulus regardless of the representation
-		/**
-		* Each element params should give the effective modulus regardless of the representation
-		*/
-		virtual const BigBinaryInteger &GetModulus() const = 0;
-	};
-
-	// interface for ideal lattices
-	/**
-	* @brief Interface for ideal lattices
-	*/
-	class ILElement
-	{
-	public:
-
-		//Represent the lattice in binary format
-		/**
-		* Convert the lattice to be represented internally in binary format.
-		*
-		* @param *text the byte array to take as input.
-		* @param &modulus modulus to convert from.
-		*/
-		virtual void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const = 0;
-
-		//Convert binary string to lattice format
-		/**
-		* Convert binary string to lattice format.
-		*
-		* @param &encoded the byte array to take as input.
-		* @param &modulus modulus to convert to.
-		*/
-		virtual void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus) = 0;
-
-	};
 
 	// Parameters for an array of ideal lattices (used for Double-CRT)
 	/**
@@ -133,10 +91,10 @@ namespace lbcrypto {
 		/**
 		* Constructor for the pre-computed case without cri_values.
 		*
-		* @param rootsOfUnity the roots of unity for the toer of moduli
+		* @param &rootsOfUnity the roots of unity for the toer of moduli
 		* @param cyclotomic_order the order of the ciphertext
 		* @param &moduli is the tower of moduli
-		* @param rootsOfUnity the roots of unity for the toer of moduli
+		* @param &modulus is the input modulus
 		*/
 		ILDCRTParams(std::vector<BigBinaryInteger>& rootsOfUnity, usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli, BigBinaryInteger &modulus) {
 			m_cyclotomicOrder = cyclotomic_order;
@@ -169,6 +127,12 @@ namespace lbcrypto {
 			m_moduli = moduli;
 		}
 
+		/**
+		* Assignment operator
+		*
+		* @param &ild the input parameters
+		* @return the assigned operator
+		*/
 		ILDCRTParams& operator=(const ILDCRTParams &ild) {
 			this->m_moduli = ild.m_moduli;
 			this->m_CRIFactors = ild.m_CRIFactors;
@@ -307,160 +271,6 @@ namespace lbcrypto {
 		BigBinaryInteger m_rootOfUnity;
 
 	};
-
-	// Parameters for ideal lattice: cyclotomic order and modulus
-	/**
-	* @brief Parameters for ideal lattice: cyclotomic order and modulus.
-	*/
-	class ILParams : public ElemParams
-	{
-	public:
-
-		/**
-		* Constructor that initializes nothing.
-		* All of the private members will be initialised to zero.
-		*/
-		ILParams() {
-		}//no need of writing this as all of the private members will be initialised to zero
-
-		 // constructor for the pre-computed case;
-		 /**
-		 * Constructor for the pre-computed case.
-		 *
-		 * @param &order the order of the ciphertext.
-		 * @param &modulus the ciphertext modulus.
-		 * @param &rootOfUnity the root of unity used in the ciphertext.
-		 */
-		ILParams(usint order, BigBinaryInteger &modulus, BigBinaryInteger& rootOfUnity) {
-			m_modulus = modulus;
-			m_order = order;
-			m_rootOfUnity = rootOfUnity;
-		}
-
-		/**
-		* Constructor for the pre-computed case.
-		*
-		* @param &order the order of the ciphertext.
-		* @param &modulus the ciphertext modulus.
-		*/
-		ILParams(usint order, BigBinaryInteger &modulus) {
-			m_modulus = modulus;
-			m_order = order;
-			m_rootOfUnity = RootOfUnity(order, modulus);
-		}
-
-		//copy constructor
-		/**
-		* Copy constructor.
-		*
-		* @param &rhs the input set of parameters which is copied.
-		*/
-		ILParams(const ILParams &rhs) {
-			m_modulus = rhs.m_modulus;
-			m_order = rhs.m_order;
-			m_rootOfUnity = rhs.m_rootOfUnity;
-		}
-
-		/**
-		* Destructor.
-		*/
-		~ILParams() {
-		}
-
-		/**
-		* Initialize the values - used with default constructor; the values are computed
-		*
-		* @param m the cyclotimic order.
-		* @param bitLength minimum bit length for ciphertext modulus.
-		*/
-		bool Initialize(usint m, usint bitLength) {
-			//add a code that selects a modulus and computes a root of unity
-		}
-
-		/**
-		* Initialize the values - used with default constructor; the values are imported from a pre-computed taxt file.
-		*
-		* @param m the cyclotimic order.
-		* @param bitLength minimum bit length for ciphertext modulus.
-		* @param &inputFile the full path to the text file containing the ciphertext modulues and root of unity for a given set of m and bitLength
-		*/
-		bool Initialize(usint m, usint bitLength, const std::string &inputFile) {
-			//add a code that sets all parameters using an entry in the text file with pre-computed values
-		}
-
-		// ACCESSORS
-
-		// Get accessors
-		/**
-		* Get method of the order.
-		*
-		* @return the order.
-		*/
-		usint GetOrder() const {
-			return m_order;
-		}
-
-		/**
-		* Get the modulus.
-		*
-		* @return the modulus.
-		*/
-		const BigBinaryInteger &GetModulus() const {
-			return m_modulus;
-		}
-
-		/**
-		* Get the root of unity.
-		*
-		* @return the root of unity.
-		*/
-		const BigBinaryInteger &GetRootOfUnity() const {
-			return m_rootOfUnity;
-		}
-
-		// Set accessors
-		/**
-		* Set method of the order.
-		*
-		* @param order the order variable.
-		*/
-		void SetOrder(usint order) {
-			m_order = order;
-		}
-
-		/**
-		* Set the root of unity.
-		*
-		* @param &rootOfUnity the root of unity.
-		*/
-		void SetRootOfUnity(const BigBinaryInteger &rootOfUnity) {
-			m_rootOfUnity = rootOfUnity;
-		}
-
-		/**
-		* Set the modulus.
-		*
-		* @param &modulus the modulus.
-		*/
-		void SetModulus(const BigBinaryInteger &modulus) {
-			m_modulus = modulus;
-		}
-
-
-
-
-	private:
-		// order of cyclotomic polynomial
-		usint m_order;
-
-		// value of modulus
-		BigBinaryInteger m_modulus;
-
-		// primitive root unity that is used to transform from coefficient to evaluation representation and vice versa
-		BigBinaryInteger m_rootOfUnity;
-
-	};
-
 
 } // namespace lbcrypto ends
 

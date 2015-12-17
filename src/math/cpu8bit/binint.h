@@ -448,7 +448,7 @@ public:
 	/**
 	 * Convert a string representation of a binary number to a decimal BigBinaryInt.
 	 *
-	 * @param s the binary num in string.
+	 * @param bitString the binary num in string.
 	 * @return the binary number represented as a decimal big binary int.	  
 	 */
 	static BigBinaryInteger BinaryToBigBinaryInt(const std::string& bitString);

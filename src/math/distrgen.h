@@ -235,6 +235,7 @@ public:
 	 * Returns a generated vector.
 	 *
 	 * @param size the number of values to return.
+	 * @param &modulus is the modulus of the sample.
 	 * @return vector of values generated with the distribution.
 	 */
 	BigBinaryVector GenerateVector(usint size, const BigBinaryInteger &modulus) const;
