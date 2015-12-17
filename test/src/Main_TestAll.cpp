@@ -14,7 +14,8 @@
 #include "../../src/math/distrgen.h"
 #include "../../src/crypto/lwecrypt.h"
 #include "../../src/crypto/lwepre.h"
-#include "../../src/lattice/il2n.h"
+#include "../../src/lattice/ilvector2n.h"
+#include "../../src/lattice/ilvectorarray2n.h"
 #include "../../src/utils/utilities.h"
 
 /*
