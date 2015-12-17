@@ -31,7 +31,7 @@
  * This code provides basic noise generation functionality.
  */
 
-#ifndef LBCRYPTO_MATH_DISTRGEN_H
+#ifndef PALISADE_MATH_DISTRGEN_H
 #define LBCRYPTO_MATH_DISTRGEN_H
 
 #include <math.h>

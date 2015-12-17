@@ -2,8 +2,8 @@
 // Created by matt on 12/10/15.
 //
 
-#include <sstream>
 #include "DiscreteUniformGenerator.h"
+#include <sstream>
 #include "DistributionGenerator.h"
 #include "DiscreteDistributionGenerator.h"
 

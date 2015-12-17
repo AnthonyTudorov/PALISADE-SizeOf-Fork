@@ -2,8 +2,8 @@
 // Created by matt on 12/10/15.
 //
 
-#ifndef DISTRIBUTION_GENERATOR_H
-#define DISTRIBUTION_GENERATOR_H
+#ifndef LBCRYPTO_MATH_DISTRIBUTIONGENERATOR_H_
+#define LBCRYPTO_MATH_DISTRIBUTIONGENERATOR_H_
 
 #include "backend.h"
 #include <memory>
@@ -62,4 +62,4 @@ namespace lbcrypto {
     };
 }
 
-#endif // DISTRIBUTION_GENERATOR_H
+#endif // LBCRYPTO_MATH_DISTRIBUTIONGENERATOR_H_

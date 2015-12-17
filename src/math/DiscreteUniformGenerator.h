@@ -2,8 +2,8 @@
 // Created by matt on 12/10/15.
 //
 
-#ifndef DISCRETE_UNIFORM_GENERATOR_H
-#define DISCRETE_UNIFORM_GENERATOR_H
+#ifndef LBCRYPTO_MATH_DISCRETEUNIFORMGENERATOR_H_
+#define LBCRYPTO_MATH_DISCRETEUNIFORMGENERATOR_H_
 
 #include "backend.h"
 #include "DiscreteDistributionGenerator.h"
@@ -57,4 +57,4 @@ namespace lbcrypto {
     };
 }
 
-#endif // DISCRETE_UNIFORM_GENERATOR_H
+#endif // LBCRYPTO_MATH_DISCRETEUNIFORMGENERATOR_H_

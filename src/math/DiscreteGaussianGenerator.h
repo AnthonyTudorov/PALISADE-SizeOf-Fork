@@ -2,8 +2,8 @@
 // Created by matt on 12/10/15.
 //
 
-#ifndef DISCRETE_GAUSSIAN_GENERATOR_H
-#define DISCRETE_GAUSSIAN_GENERATOR_H
+#ifndef LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATOR_H_
+#define LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATOR_H_
 
 #include "backend.h"
 #include "DiscreteDistributionGenerator.h"
@@ -85,4 +85,4 @@ namespace lbcrypto {
     };
 }
 
-#endif // DISCRETE_GAUSSIAN_GENERATOR_H
+#endif // LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATOR_H_
