@@ -286,33 +286,21 @@ usint GetMSB32(usint x)
 BigBinaryInteger FindPrimeModulus(usint m, usint nBits)
 {
 	BigBinaryInteger twoTonBitsminusone("1"), M(std::to_string(m)), q;
+	
 	for(usint i=0; i<nBits-1; i++)	// Iterating until initial search condition.
 		twoTonBitsminusone = twoTonBitsminusone * BigBinaryInteger::TWO;
-	//if(GreatestCommonDivisor(twoTonBitsminusone, M) != M)  // Implementing a guard to make sure assumptions are satisfied.
-		// throw error
+	
 	q = twoTonBitsminusone + M + BigBinaryInteger::ONE;
 	bool found = false;
 	while(!found) {  //Looping over invariant until test condition satisfied.
-		//std::cout << " \n********Inside Loop*********" << std::endl;
-		//std::cout << m << std::endl;
-		//std::cout << q << std::endl;
-		//std::cout << BigBinaryInteger::ONE << std::endl;
-		//std::cout << (q-BigBinaryInteger::ONE) << std::endl;
-		//std::cout << M << std::endl;
 		if((q-BigBinaryInteger::ONE).Mod(M) != BigBinaryInteger::ZERO) {
-			//std::cout << " \n********Inside Loop Start 1*********" << std::endl;
 			q += M;
-			//std::cout << " \n********Inside Loop End 1*********" << std::endl;
 			continue;
 		}
-		//std::cout << " \n********Middle Loop*********" << std::endl;
 		if(!MillerRabinPrimalityTest(q)) {
-			//std::cout << " \n********Inside Loop Start 2*********" << std::endl;
 			q += M;
-			//std::cout << " \n********Inside Loop End 2*********" << std::endl;
 			continue;
 		}
-		//std::cout << " \n********End Loop*********" << std::endl;
 		found = true;
 	}
 	return q;
