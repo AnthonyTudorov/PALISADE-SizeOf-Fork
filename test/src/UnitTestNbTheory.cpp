@@ -30,11 +30,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../src/math/backend.h"
 #include "../../src/utils/inttypes.h"
 #include "../../src/math/nbtheory.h"
-#include "../../src/lattice/ideals.h"
+#include "../../src/lattice/elemparams.h"
+#include "../../src/lattice/ilparams.h"
+#include "../../src/lattice/ildcrtparams.h"
+#include "../../src/lattice/ilelement.h"
 #include "../../src/math/distrgen.h"
 #include "../../src/crypto/lwecrypt.h"
 #include "../../src/crypto/lwepre.h"
-#include "../../src/lattice/il2n.h"
+#include "../../src/lattice/ilvector2n.h"
+#include "../../src/lattice/ilvectorarray2n.h"
 #include "../../src/utils/utilities.h"
 
 /*

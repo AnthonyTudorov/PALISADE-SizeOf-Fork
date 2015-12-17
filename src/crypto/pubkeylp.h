@@ -36,7 +36,10 @@
 
 //Includes Section
 #include <vector>
-#include "../lattice/ideals.h"
+#include "../lattice/elemparams.h"
+#include "../lattice/ilparams.h"
+#include "../lattice/ildcrtparams.h"
+#include "../lattice/ilelement.h"
 #include "../utils/inttypes.h"
 #include "../math/distrgen.h"
 #include "../encoding/ptxtencoding.h"

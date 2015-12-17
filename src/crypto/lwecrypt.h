@@ -40,7 +40,10 @@
 #include "../math/backend.h"
 #include "pubkeylp.h"
 #include "ciphertext.h"
-#include "../lattice/ideals.h"
+#include "../lattice/elemparams.h"
+#include "../lattice/ilparams.h"
+#include "../lattice/ildcrtparams.h"
+#include "../lattice/ilelement.h"
 
 /**
  * @namespace lbcrypto
