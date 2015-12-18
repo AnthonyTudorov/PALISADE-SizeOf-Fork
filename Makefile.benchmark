@@ -1,0 +1,80 @@
+#
+#Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+#All rights reserved.
+#Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+#met:
+#1. Redistributions of source code must retain the above copyright
+#notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright
+#notice, this list of conditions and the following disclaimer in the
+#documentation and/or other materials provided with the distribution.
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+#IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+#TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+#PARTICULAR PURPOSE ARE DISCLAIMED.
+#IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+#ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+#DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+#OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+#STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+#IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+
+ALLBENCHMARKS: makebenchmarklib makebenchmarks
+	@echo 'making $(BENCHMARK_LIB)' 
+#	@echo 'libobj: $(BENCHMARK_LIBOBJ)' 
+#	@echo 'libsrcdir: $(BENCHMARK_LIBSRCDIR)'
+#	@echo 'libsrc: $(BENCHMARK_LIBSRC)'
+	@echo 'making $(BENCHMARK_SRC)' 
+
+BENCHMARK_LIBSRCDIR = benchmark/include/libsrc
+
+BENCHMARK_LIB_INCLUDES = -Ibenchmark/include
+
+BENCHMARK_LIBSRC =  $(wildcard $(BENCHMARK_LIBSRCDIR)/*.cc)
+BENCHMARK_LIBOBJ = $(BENCHMARK_LIBSRC:.cc=.o)
+
+.SUFFIXES: .cc
+
+LIBBENCHMARK_FLAGS = -DHAVE_POSIX_REGEX
+
+BENCHMARK_LIB = $(BENCHMARK_LIBSRCDIR)/libbenchmark.a
+
+$(BENCHMARK_LIBOBJ): $(BENCHMARK_LIBSRC)
+	@echo '	$(CC) $(BENCHMARK_LIB_INCLUDES) $(CPPFLAGS) -c $< -o $@'
+	$(CC) $(BENCHMARK_LIB_INCLUDES) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS) -c $< -o $@
+
+.PHONY:makebenchmarklib
+makebenchmarklib: $(BENCHMARK_LIB)
+
+BENCHMARK_SRCDIR = benchmark/src
+BENCHMARK_INCLUDES = -Ibenchmark/include
+
+BENCHMARK_SRC =  $(wildcard $(BENCHMARK_SRCDIR)/*.cc)
+BENCHMARK_OBJ = $(BENCHMARK_SRC:.cc=.o)
+
+
+BENCHMARK_HEADERS =	benchmark/include/benchmark/benchmark.h \
+			benchmark/include/benchmark/benchmark_api.h \
+			benchmark/include/benchmark/macros.h \
+			benchmark/include/benchmark/reporter.h 
+
+$(BENCHMARK_OBJ): $(BENCHMARK_SRC)
+	@echo '$(CC) $(BENCHMARK_INCLUDES) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS) -c $< -o $@'
+	$(CC) $(BENCHMARK_INCLUDES) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS) -c $< -o $@
+
+$(BENCHMARK_LIB): $(BENCHMARK_LIBOBJ)
+	@echo '	ar rcs $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)'
+	ar rcs $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
+
+
+,PHONY:makebenchmarks
+makebenchmarks: $(BENCHMARKS)
+
+$(BENCHMARKS): $(BENCHMARK_OBJ)
+	@echo '$(CC) $(CPPFLAGS) -o $@ -c $< $(BENCHMARK_LIB)'
+	echo '$(CC) $(CPPFLAGS) -o $@ -c $< $(BENCHMARK_LIB)'
+
