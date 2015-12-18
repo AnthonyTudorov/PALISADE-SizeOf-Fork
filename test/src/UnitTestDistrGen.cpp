@@ -295,22 +295,27 @@ TEST(method_test_guassian_rand_generator, generate_char_vector_mean_test) {
 
 TEST(method_test_guassian_rand_generator, generate_vector_mean_test) {
 	sint stdev = 5;
-	usint size = 10000;
+	usint size = 100000;
 	BigBinaryInteger modulus("10403");
 	BigBinaryInteger modulusByTwo(modulus.DividedBy(BigBinaryInteger::TWO));
 	DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
 	BigBinaryVector dggBigBinaryVector = dgg.GenerateVector(size, modulus);
 
-	double mean = 0;
+	usint countOfZero = 0;
+	double mean = 0, current = 0;
+
 	for(usint i=0; i<size; i++) {
-		mean += std::stod(dggBigBinaryVector.GetValAtIndex(i).ToString());
-		// std::cout << i << "th value is " << dggBigBinaryVector.GetValAtIndex(i).ToString() << std::endl;
+		current = std::stod(dggBigBinaryVector.GetValAtIndex(i).ToString());
+		if(current == 0)
+			countOfZero++;
+		mean += current;
 	}
-	mean /= size;
+
+	mean /= (size - countOfZero);
 	// std::cout << "The mean of the values is " << mean << std::endl;
 
 	double modulusByTwoInDouble = std::stod(modulusByTwo.ToString());
-	// std::cout << "modulusInDouble is " << modulusByTwoInDouble << std::endl;
+
 	double diff = abs(modulusByTwoInDouble - mean);
-	EXPECT_LT(diff, 1040);
+	EXPECT_LT(diff, 104);
 }
