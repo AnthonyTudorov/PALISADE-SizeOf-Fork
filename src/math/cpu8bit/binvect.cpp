@@ -191,7 +191,8 @@ BigBinaryVector BigBinaryVector::Mod(const BigBinaryInteger& modulus) const{
 		return this->ModByTwo();
 	else 
 	{
-		BigBinaryVector ans(this->GetLength());
+		BigBinaryVector ans(*this);
+		//BigBinaryVector ans(this->GetLength());
 		BigBinaryInteger halfQ(this->GetModulus() >> 1);
 		for (usint i = 0; i<ans.GetLength(); i++) {
 			if (this->GetValAtIndex(i)>halfQ) {
