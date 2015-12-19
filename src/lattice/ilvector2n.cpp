@@ -37,8 +37,9 @@ namespace lbcrypto {
 
 	}
 
-	ILVector2n::ILVector2n(const ElemParams &params) : m_params(static_cast<const ILParams&>(params)), m_values(NULL), m_format(EVALUATION) {
-
+	ILVector2n::ILVector2n(const ElemParams &params, Format format) : m_params(static_cast<const ILParams&>(params)), m_values(NULL), m_format(format) {
+        usint vectorSize = m_params.GetCyclotomicOrder() / 2;
+        m_values = new BigBinaryVector(vectorSize, m_params.GetModulus());
 	}
 
 	ILVector2n::ILVector2n(const ILVector2n &element) : m_params(element.m_params), m_format(element.m_format),
@@ -146,7 +147,7 @@ namespace lbcrypto {
 		return m_params.GetRootOfUnity();
 	}
 
-	Format ILVector2n::GetFormat() {
+	Format ILVector2n::GetFormat() const {
 		return m_format;
 	}
 
@@ -239,6 +240,12 @@ namespace lbcrypto {
 	ILVector2n ILVector2n::Plus(const ILVector2n &element) const {
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->ModAdd(*element.m_values);
+		return tmp;
+	}
+
+	ILVector2n ILVector2n::Minus(const ILVector2n &element) const {
+		ILVector2n tmp(*this);
+		*tmp.m_values = m_values->ModSub(*element.m_values);
 		return tmp;
 	}
 

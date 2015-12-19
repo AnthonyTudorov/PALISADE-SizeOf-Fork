@@ -71,7 +71,14 @@ namespace lbcrypto {
 		*
 		* @param &params element parameters.
 		*/
-		ILVector2n(const ElemParams &params);
+        ILVector2n(const ElemParams &params, Format format = EVALUATION);
+
+        /**
+         *  Sets BigBinarayVector value to val
+         */
+        inline void SetValAtIndex(size_t index, int val) {
+            m_values->SetValAtIndex(index, BigBinaryInteger(val));
+        }
 
 		/**
 		* Copy constructor.
@@ -97,11 +104,31 @@ namespace lbcrypto {
 
 		/**
 		* Assignment Operator.
-		*
-		* @param &&rhs the copied vector.
-		* @return the resulting vector.
-		*/
-		ILVector2n& operator=(ILVector2n &&rhs);
+        *
+        * @param &&rhs the copied vector.
+        * @return the resulting vector.
+        */
+        ILVector2n& operator=(ILVector2n &&rhs);
+
+        inline bool operator==(const lbcrypto::ILVector2n &b) const {
+            if (this->GetFormat() != b.GetFormat()) {
+                return false;
+            }
+            if (this->GetValues() != b.GetValues()) {
+                return false;
+            }
+            return true;
+        }
+
+        inline bool operator!=(const lbcrypto::ILVector2n &b) const {
+            return !(*this == b);
+        }
+
+        inline lbcrypto::ILVector2n& operator-=(const lbcrypto::ILVector2n &b) {
+            ILVector2n result = this->Minus(b);
+            *this = result;
+            return *this;
+        }
 
 		// construct using an array in either Coefficient (0) or CRT format (1)
 		//ILVector2n (const BigBinaryVector &values, Format format, const ILParams &params):m_values(new BigBinaryVector(values)),
@@ -149,7 +176,7 @@ namespace lbcrypto {
 		*
 		* @return the format.
 		*/
-		Format GetFormat();
+		Format GetFormat() const;
 
 		/**
 		* Get method of the parameter set.
@@ -493,6 +520,7 @@ namespace lbcrypto {
 	* @return The result of subtraction in the ring.
 	*/
 	inline lbcrypto::ILVector2n operator-(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) { return a.Minus(b); }
+
 	//PREV1
 
 	/**
@@ -515,8 +543,11 @@ namespace lbcrypto {
 	*/
 	inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) { return a.DividedBy(b); }
 
-	// ideal lattice in the double-CRT representation
 
+    inline std::ostream& operator<<(std::ostream& os, const ILVector2n& vec){
+        os << vec.GetValues();
+        return os;
+    }
 
 } // namespace lbcrypto ends
 

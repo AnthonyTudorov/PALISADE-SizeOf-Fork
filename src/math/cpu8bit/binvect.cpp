@@ -129,10 +129,11 @@ BigBinaryVector::~BigBinaryVector(){
 //ACCESSORS
 std::ostream& operator<<(std::ostream& os, const BigBinaryVector &ptr_obj){
 
-	os<<std::endl;
+    os << "< ";
 	for(usint i=0;i<ptr_obj.m_length;i++){
-		os<<*ptr_obj.m_data[i] <<std::endl;
+		os<<*ptr_obj.m_data[i] << " ";
 	}
+    os << ">";
 
 	return os;
 }
@@ -189,7 +190,7 @@ BigBinaryVector BigBinaryVector::Mod(const BigBinaryInteger& modulus) const{
 
 	if (modulus==BigBinaryInteger::TWO)
 		return this->ModByTwo();
-	else 
+	else
 	{
 		//BigBinaryVector ans(*this);
 		BigBinaryVector ans(this->GetLength(),this->GetModulus());
@@ -293,6 +294,22 @@ BigBinaryVector BigBinaryVector::ModAdd(const BigBinaryVector &b) const{
 
 	for(usint i=0;i<ans.m_length;i++){
 		*ans.m_data[i] = ans.m_data[i]->ModAdd(*b.m_data[i],this->m_modulus);
+	}
+	return ans;
+
+}
+
+BigBinaryVector BigBinaryVector::ModSub(const BigBinaryVector &b) const{
+
+	if(this->m_length!=b.m_length){
+		std::cout<<" Invalid argument \n";
+		return (BigBinaryVector)NULL;
+	}
+
+	BigBinaryVector ans(*this);
+
+	for(usint i=0;i<ans.m_length;i++){
+		*ans.m_data[i] = ans.m_data[i]->ModSub(*b.m_data[i],this->m_modulus);
 	}
 	return ans;
 
