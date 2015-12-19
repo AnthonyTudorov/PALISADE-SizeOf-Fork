@@ -39,6 +39,8 @@
 #include "../math/nbtheory.h"
 //#include "../encoding/ptxtencoding.h"
 
+#include "../serializable.h"
+
 /**
 * @namespace lbcrypto
 * The namespace of lbcrypto

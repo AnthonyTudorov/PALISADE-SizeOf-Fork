@@ -37,7 +37,6 @@
 
 #include "binint.h"
 #include "binmat.h"
-
 #include "../../utils/serializable.h"
 
 /**
