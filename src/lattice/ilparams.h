@@ -39,6 +39,8 @@
 #include "../math/nbtheory.h"
 //#include "../encoding/ptxtencoding.h"
 
+#include "../serializable.h"
+
 /**
 * @namespace lbcrypto
 * The namespace of lbcrypto
@@ -163,6 +165,7 @@ namespace lbcrypto {
 		*/
 		void SetOrder(usint order) {
 			m_order = order;
+			std::cout << "m_order set: " << m_order << std::endl;
 		}
 
 		/**
@@ -172,6 +175,7 @@ namespace lbcrypto {
 		*/
 		void SetRootOfUnity(const BigBinaryInteger &rootOfUnity) {
 			m_rootOfUnity = rootOfUnity;
+			std::cout << "m_rootOfUnity set: " << m_rootOfUnity << std::endl;
 		}
 
 		/**
@@ -181,6 +185,25 @@ namespace lbcrypto {
 		*/
 		void SetModulus(const BigBinaryInteger &modulus) {
 			m_modulus = modulus;
+			std::cout << "m_modulus set: " << m_modulus << std::endl;
+		}
+
+		//JSON FACILITY
+		std::unordered_map <std::string, std::string> SetIdFlag(std::unordered_map <std::string, std::string> serializationMap, std::string flag) const {
+
+			//Place holder
+
+			return serializationMap;
+		}
+
+		//JSON FACILITY
+		std::unordered_map <std::string, std::string> Serialize(std::unordered_map <std::string, std::string> serializationMap, std::string fileFlag) const {
+
+			serializationMap.emplace("ilpModulus", this->GetModulus().ToString());
+			serializationMap.emplace("ilpOrder", ToStr(this->GetCyclotomicOrder()));
+			serializationMap.emplace("ilpRootOfUnity", this->GetRootOfUnity().ToString());
+
+			return serializationMap;
 		}
 
         inline bool operator==(ILParams const& other) {
@@ -200,6 +223,24 @@ namespace lbcrypto {
             return !(*this == other);
         }
 
+		//JSON FACILITY
+		void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
+
+			std::cout << "In ilparams.h Deserialize(): " << std::endl;
+
+			BigBinaryInteger bbiModulus(serializationMap["ilpModulus"]);
+			usint order = stoi(serializationMap["ilpOrder"]);
+			BigBinaryInteger bbiRootOfUnity(serializationMap["ilpRootOfUnity"]);
+
+			this->SetModulus(bbiModulus);
+			this->SetOrder(order);
+			this->SetRootOfUnity(bbiRootOfUnity);
+
+			std::cout << "In ilparams.h Deserialize() called all Setter methods " << std::endl;
+			std::cout << "Modulus " << (this->GetModulus()).ToString() << std::endl;
+			std::cout << "CyclotomicOrder " << this->GetCyclotomicOrder() << std::endl;
+			std::cout << "RootOfUnity " << (this->GetRootOfUnity()).ToString() << std::endl;
+		}
 
 	private:
 		// order of cyclotomic polynomial

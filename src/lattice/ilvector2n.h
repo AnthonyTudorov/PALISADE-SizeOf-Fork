@@ -60,7 +60,7 @@ namespace lbcrypto {
 								  /**
 								  * @brief Ideal lattice in vector representation or a vector in the double-CRT "matrix".  This is not fully implemented and is currently only stubs.
 								  */
-	class ILVector2n : public ILElement
+	class ILVector2n : public ILElement, public Serializable
 	{
 	public:
 
@@ -493,6 +493,57 @@ namespace lbcrypto {
 		static void DestroyPreComputedSamples() {
 			m_dggSamples.clear();
 
+		}
+
+		//JSON FACILITY
+		std::unordered_map <std::string, std::string> SetIdFlag(std::unordered_map <std::string, std::string> serializationMap, std::string flag) const {
+
+			//Place holder
+
+			return serializationMap;
+		}
+
+		//JSON FACILITY
+		std::unordered_map <std::string, std::string> Serialize(std::unordered_map <std::string, std::string> serializationMap, std::string fileFlag) const {
+
+			serializationMap = this->GetValues().Serialize(serializationMap, "");
+
+			return serializationMap;
+		}
+
+		//JSON FACILITY
+		void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
+
+			std::cout << "In ilvector2n.h Deserialize(): " << std::endl;
+
+			//usint vectorLength = 1024; //Should this stay hard coded?
+			usint vectorLength = 8;
+			BigBinaryVector vectorBBV = BigBinaryVector(vectorLength);
+
+			std::cout << "Setting Values for ILVector2n" << std::endl;
+			vectorBBV.Deserialize(serializationMap);
+
+			//set values for this ILVector2n
+			this->SetValues(vectorBBV, Format::EVALUATION);
+			std::cout << "SetValues called for ILVector2n" << std::endl;
+			std::cout << "Values " << this->GetValues() << std::endl;
+
+			std::cout << "Setting Modulus for ILVector2n" << std::endl;
+			//set modulus for this ILVector2n
+			BigBinaryInteger bbiModulus(serializationMap["ilpModulus"]);
+			this->SetModulus(bbiModulus);
+			std::cout << "SetModulus called for ILVector2n" << std::endl;
+			std::cout << "Modulus " << (this->GetModulus()).ToString() << std::endl;
+
+			std::cout << "Setting ILParams for ILVector2n" << std::endl;
+			//set ILParams for this ILVector2n
+			ILParams json_ilParams;
+			json_ilParams.Deserialize(serializationMap);
+			this->SetParams(json_ilParams);
+			std::cout << "SetParams called for ILVector2n" << std::endl;
+			std::cout << "CyclotomicOrder " << this->GetParams().GetCyclotomicOrder() << std::endl;
+			std::cout << "Modulus " << this->GetParams().GetModulus().ToString() << std::endl;
+			std::cout << "RootOfUnity " << this->GetParams().GetRootOfUnity().ToString() << std::endl;
 		}
 
 	private:

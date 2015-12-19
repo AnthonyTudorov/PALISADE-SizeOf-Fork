@@ -40,6 +40,9 @@
 
 //Includes Section
 #include "pubkeylp.h"
+#include "lwecrypt.h"
+
+#include "../serializable.h"
 
 /**
 * @namespace lbcrypto
@@ -163,6 +166,62 @@ namespace lbcrypto {
 		* @return the new ciphertext.
 		*/
 		Ciphertext<Element> EvalAdd(const Ciphertext<Element> &ciphertext) const;
+
+		//JSON FACILITY
+		std::unordered_map <std::string, std::string> SetIdFlag(std::unordered_map <std::string, std::string> serializationMap, std::string flag) const {
+
+			serializationMap.emplace("ID", "Ciphertext");
+			serializationMap.emplace("Flag", flag);
+
+			return serializationMap;
+		}
+
+		//JSON FACILITY
+		std::unordered_map <std::string, std::string> Serialize(std::unordered_map <std::string, std::string> serializationMap, std::string fileFlag) {
+
+			string jsonInputBuffer = "";
+			SerializableHelper jsonHelper;
+
+			serializationMap = this->SetIdFlag(serializationMap, fileFlag);
+
+			//Changed to pointer to access stuff through it and treat it like an instantiation
+			const LPCryptoParameters<Element> *lpCryptoParams = &this->GetCryptoParameters();
+			serializationMap = lpCryptoParams->Serialize(serializationMap, "");
+
+			serializationMap.emplace("Norm", this->GetNorm().ToString());
+
+			serializationMap = this->GetElement().Serialize(serializationMap, "");
+
+			/*m_serializationMapBuffer = this->GetPublicKey().Serialize(m_serializationMapBuffer, "");
+			cout << "m_serializationMapBuffer size: " << m_serializationMapBuffer.size() << endl;
+			jsonInputBuffer = jsonHelper.GetJsonString(m_serializationMapBuffer);
+			cout << "m_serializationMapBuffer jsonInputBuffer: " << jsonInputBuffer << endl;
+			serializationMap.emplace("PublicKey", jsonInputBuffer);*/
+
+			return serializationMap;
+		}
+
+		//JSON FACILITY
+		void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
+
+			std::cout << "+++Setting Cyphertext.CryptoParameters: " << endl;
+			LPCryptoParametersLWE<Element> json_cryptoParams;
+			json_cryptoParams.Deserialize(serializationMap);
+			this->SetCryptoParameters(json_cryptoParams);
+			std::cout << "&&&Set Cyphertext.CryptoParameters" << endl;
+
+			std::cout << "+++Setting Cyphertext.Norm: " << endl;
+			BigBinaryInteger bbiNorm(serializationMap["Norm"]);
+			this->SetNorm(bbiNorm);
+			std::cout << "&&&Set Cyphertext.Norm" << endl;
+			std::cout << "Norm " << this->GetNorm().ToString() << endl;
+
+			std::cout << "+++Setting Cyphertext.Element<ILVector2n>: " << endl;
+			ILVector2n json_ilVector2n;
+			json_ilVector2n.Deserialize(serializationMap);
+			this->SetElement(json_ilVector2n);
+			std::cout << "&&&Set Cyphertext.Element<ILVector2n>" << endl;
+		}
 	
 	private:
 

@@ -38,6 +38,8 @@
 #include "binint.h"
 #include "binmat.h"
 
+#include "../../serializable.h"
+
 /**
  * @namespace cpu8bit
  * The namespace of cpu8bit
@@ -50,7 +52,8 @@ namespace cpu8bit {
 /**
  * @brief The class for representing vectors of big binary integers.
  */
-	class BigBinaryVector : public lbcrypto::BigBinaryVectorInterface
+	//JSON FACILITY
+	class BigBinaryVector : public lbcrypto::BigBinaryVectorInterface, public lbcrypto::Serializable
 {
 public:
 	/**
@@ -307,6 +310,91 @@ public:
    // BigBinaryVector&  operator+=(const BigBinaryVector& t) {*this = *this+t; return *this;}
 	//BigBinaryVector&  operator*=(const BigBinaryVector& t) {return *this = *this*t;}
 	//Gyana to add -= operator
+
+	//JSON FACILITY
+	std::unordered_map <std::string, std::string> SetIdFlag(std::unordered_map <std::string, std::string> serializationMap, std::string flag) const {
+
+		//Place holder
+
+		return serializationMap;
+	}
+
+	//JSON FACILITY
+	std::unordered_map <std::string, std::string> Serialize(std::unordered_map <std::string, std::string> serializationMap, std::string fileFlag) const {
+
+		serializationMap.emplace("bbvModulus", this->GetModulus().ToString());
+		
+		std::string pkBufferString;
+		BigBinaryInteger pkVectorElem;
+		usint pkVectorLength = 0;
+		std::string pkVectorElemVal;
+		pkVectorLength = GetLength();
+		for (int i = 0; i < pkVectorLength; i++) {
+			pkVectorElem = GetValAtIndex(i);
+
+			pkVectorElemVal = pkVectorElem.ToString();
+
+			pkBufferString += pkVectorElemVal;
+			if (i != (pkVectorLength - 1)) {
+				pkBufferString += "|";
+			}
+		}
+		serializationMap.emplace("ilvVectorValues", pkBufferString);
+
+		return serializationMap;
+	}
+
+	//JSON FACILITY
+	void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
+
+		std::cout << "In binvect.h Deserialize(): " << std::endl;
+
+		std::cout << "Setting Modulus for BigBinaryVector" << std::endl;
+		//set modulus for BBV
+		BigBinaryInteger bbiModulus(serializationMap["bbvModulus"]);
+		this->SetModulus(bbiModulus);
+		std::cout << "SetModulus called for BigBinaryVector" << std::endl;
+		std::cout << "Modulus " << (this->GetModulus()).ToString() << std::endl;
+
+		std::cout << "Setting Values for BigBinaryVector" << std::endl;
+
+		std::string vectorVals = serializationMap["ilvVectorValues"];
+
+		BigBinaryInteger vectorElem;
+		std::string vectorElemVal;
+
+		usint i = 0;
+
+		while (vectorVals.find("|", 0)) {
+			size_t pos = vectorVals.find("|", 0);
+			vectorElemVal = vectorVals.substr(0, pos);
+
+			std::string::size_type posTrim = vectorElemVal.find_last_not_of(' ');
+			if (posTrim != std::string::npos) {
+				if (vectorElemVal.length() != posTrim + 1) {
+					vectorElemVal.erase(posTrim + 1);
+				}
+				posTrim = vectorElemVal.find_first_not_of(' ');
+				if (posTrim != 0) {
+					vectorElemVal.erase(0, posTrim);
+				}
+			}
+			else {
+				vectorElemVal = "";
+			}
+
+			vectorElem.SetValue(vectorElemVal);
+			vectorVals.erase(0, pos + 1);
+			this->SetValAtIndex(i, vectorElem);
+			i++;
+
+			if (i == this->GetLength()) { //Should be 1024
+				break;
+			}
+		}
+
+		std::cout << "Set Values for BigBinaryVector" << std::endl;
+	}
 
 private:
 	BigBinaryInteger **m_data;

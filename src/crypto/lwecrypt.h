@@ -242,6 +242,65 @@ namespace lbcrypto {
 			//Convert binary string to lattice format
 			//void EncodeElement(const byte *encoded, size_t byteCount, Element& element) {element.EncodeElement(encoded,byteCount,GetPlaintextModulus());}
 
+			//JSON FACILITY
+			std::unordered_map <std::string, std::string> SetIdFlag(std::unordered_map <std::string, std::string> serializationMap, std::string flag) const {
+
+				//Place holder
+
+				return serializationMap;
+			}
+
+			//JSON FACILITY
+			std::unordered_map <std::string, std::string> Serialize(std::unordered_map <std::string, std::string> serializationMap, std::string fileFlag) const {
+
+				serializationMap.emplace("DistributionParameter", ToStr(GetDistributionParameter()));
+				serializationMap.emplace("AssuranceMeasure", ToStr(GetAssuranceMeasure()));
+				serializationMap.emplace("SecurityLevel", ToStr(GetSecurityLevel()));
+				serializationMap.emplace("RelinWindow", ToStr(GetRelinWindow()));
+				serializationMap.emplace("Depth", ToStr(GetDepth()));
+				serializationMap.emplace("PlaintextModulus", ToStr(GetPlaintextModulus().ToString()));
+
+				// using sub typing / runtime polymorphism simulate what happens with downward casting 
+				// (only works for methods defined in abstract class)
+				const ElemParams *cpElemParams = &GetElementParams();
+				serializationMap = cpElemParams->Serialize(serializationMap, "");
+
+				return serializationMap;
+			}
+
+			//JSON FACILITY
+			void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
+
+				std::cout << "In lwecrypt.h Deserialize() for LPCryptoParametersLWE: " << std::endl;
+
+				ILParams json_ilParams;
+				json_ilParams.Deserialize(serializationMap);
+
+				BigBinaryInteger bbiPlaintextModulus(serializationMap["PlaintextModulus"]);
+				float distributionParameter = stof(serializationMap["DistributionParameter"]);
+				float assuranceMeasure = stof(serializationMap["AssuranceMeasure"]);
+				float securityLevel = stof(serializationMap["SecurityLevel"]);
+				usint relinWindow = stoi(serializationMap["RelinWindow"]);
+				int depth = stoi(serializationMap["Depth"]);
+
+				this->SetPlaintextModulus(bbiPlaintextModulus);
+				this->SetDistributionParameter(distributionParameter);
+				this->SetAssuranceMeasure(assuranceMeasure);
+				this->SetSecurityLevel(securityLevel);
+				this->SetRelinWindow(relinWindow);
+				this->SetDepth(depth);
+				this->SetElementParams(json_ilParams);
+
+				std::cout << "In lwecrypt.h Deserialize() called all Setter methods " << std::endl;
+				std::cout << "PlaintextModulus " << (this->GetPlaintextModulus()).ToString() << std::endl;
+				std::cout << "DistributionParameter " << this->GetDistributionParameter() << std::endl;
+				std::cout << "AssuranceMeasure " << this->GetAssuranceMeasure() << std::endl;
+				std::cout << "SecurityLevel " << this->GetSecurityLevel() << std::endl;
+				std::cout << "RelinWindow " << this->GetRelinWindow() << std::endl;
+				std::cout << "Modulus " << (this->GetElementParams().GetModulus()).ToString() << std::endl;
+				std::cout << "CyclotomicOrder " << this->GetElementParams().GetCyclotomicOrder() << std::endl;
+			}
+
 		private:
 			//element-specific parameters
 			ElemParams *m_params;
@@ -292,6 +351,42 @@ namespace lbcrypto {
 				SetGeneratedElement(generatedElement);
 				SetPublicElement(publicElement);
 			}*/
+
+			//JSON FACILITY
+			std::unordered_map <std::string, std::string> SetIdFlag(std::unordered_map <std::string, std::string> serializationMap, std::string flag) const {
+
+				serializationMap.emplace("ID", "LPPublicKeyLWENTRU");
+				serializationMap.emplace("Flag", flag);
+
+				return serializationMap;
+			}
+
+			//JSON FACILITY
+			std::unordered_map <std::string, std::string> Serialize(std::unordered_map <std::string, std::string> serializationMap, std::string fileFlag) const {
+
+				serializationMap = this->SetIdFlag(serializationMap, fileFlag);
+
+				const LPCryptoParameters<Element> *lpCryptoParams = &this->GetAbstractCryptoParameters();
+				serializationMap = lpCryptoParams->Serialize(serializationMap, "");
+
+				serializationMap = this->GetPublicElement().Serialize(serializationMap, "");
+
+				return serializationMap;
+			}
+
+			//JSON FACILITY
+			void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
+
+				LPCryptoParametersLWE<Element> json_cryptoParams;
+				json_cryptoParams.Deserialize(serializationMap);
+				this->SetCryptoParameters(&json_cryptoParams);
+
+				ILVector2n json_ilVector2n;
+				json_ilVector2n.Deserialize(serializationMap);
+				this->SetPublicElement(json_ilVector2n);
+
+			}
+
 	};
 
 	/**
@@ -316,6 +411,28 @@ namespace lbcrypto {
 
 		LPEvalKeyLWENTRU(LPCryptoParameters<Element> &cryptoParams) {
 			this->SetCryptoParameters(&cryptoParams);
+		}
+
+		//JSON FACILITY
+		std::unordered_map <std::string, std::string> SetIdFlag(std::unordered_map <std::string, std::string> serializationMap, std::string flag) const {
+
+			serializationMap.emplace("ID", "LPEvalKeyLWENTRU");
+			serializationMap.emplace("Flag", flag);
+
+			return serializationMap;
+		}
+
+		//JSON FACILITY
+		std::unordered_map <std::string, std::string> Serialize(std::unordered_map <std::string, std::string> serializationMap, std::string fileFlag) const {
+
+			return serializationMap;
+		}
+
+		//JSON FACILITY
+		void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
+
+			//Place holder
+
 		}
 
 	};
@@ -361,6 +478,45 @@ namespace lbcrypto {
 			void MakePublicKey(LPPublicKey<Element> &pub) const
 			{
 				pub.SetPublicElement(this->GetCryptoParameters().GetPlaintextModulus()*this->GetPrivateErrorElement()*this->GetPrivateElement().MultiplicativeInverse());
+			}
+
+			//JSON FACILITY
+			std::unordered_map <std::string, std::string> SetIdFlag(std::unordered_map <std::string, std::string> serializationMap, std::string flag) const {
+
+				serializationMap.emplace("ID", "LPPrivateKeyLWENTRU");
+				serializationMap.emplace("Flag", flag);
+
+				return serializationMap;
+			}
+
+			//JSON FACILITY
+			std::unordered_map <std::string, std::string> Serialize(std::unordered_map <std::string, std::string> serializationMap, std::string fileFlag) const {
+
+				serializationMap = this->SetIdFlag(serializationMap, fileFlag);
+
+				const LPCryptoParameters<Element> *lpCryptoParams = &this->GetAbstractCryptoParameters();
+				serializationMap = lpCryptoParams->Serialize(serializationMap, "");
+
+				serializationMap = this->GetPrivateElement().Serialize(serializationMap, "");
+
+				return serializationMap;
+			}
+
+			//JSON FACILITY
+			void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
+
+				std::cout << "+++Setting LPPrivateKeyLWENTRU.CryptoParameters: " << endl;
+				LPCryptoParametersLWE<Element> json_cryptoParams;
+				json_cryptoParams.Deserialize(serializationMap);
+				this->SetCryptoParameters(&json_cryptoParams);
+				std::cout << "&&&Set LPPrivateKeyLWENTRU.CryptoParameters" << endl;
+
+				std::cout << "+++Setting LPPrivateKeyLWENTRU.PrivateElement<ILVector2n>: " << endl;
+				ILVector2n json_ilVector2n;
+				json_ilVector2n.Deserialize(serializationMap);
+				this->SetPrivateElement(json_ilVector2n);
+				std::cout << "&&&Setting LPPrivateKeyLWENTRU.PrivateElement<ILVector2n>" << endl;
+
 			}
 	};
 
