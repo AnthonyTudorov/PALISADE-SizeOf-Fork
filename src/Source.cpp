@@ -66,6 +66,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //#include "math/cpu8bit/binvect.h"
 //#include "math/cpu8bit/binmat.h"
 
+#include "serializablehelper.cpp"
+
 using namespace std;
 using namespace lbcrypto;
 void NTRUPRE(int input);
@@ -175,12 +177,13 @@ void NTRUPRE(int input) {
 	//Set element params
 
 	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
-	/*
+	
 	usint m = 16;
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
 	ByteArray plaintext = "N";
-	*/
+	
+	usint relWindow = 8;
 
 	// The comments below provide a high-security parameterization for prototype use.  If this code were verified/certified for high-security applications, we would say that the following parameters would be appropriate for "production" use.
 	//usint m = 2048;
@@ -201,12 +204,12 @@ void NTRUPRE(int input) {
 		//{ 2048, CalltoModulusComputation(), CalltoRootComputation, 0 }  // r= 16
 	};
 
-	usint m = SECURE_PARAMS[input].m;
-	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
-	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
-	usint relWindow = SECURE_PARAMS[input].relinWindow;
+	//SIMPLIFYusint m = SECURE_PARAMS[input].m;
+	//SIMPLIFYBigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
+	//SIMPLIFYBigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
+	//SIMPLIFYusint relWindow = SECURE_PARAMS[input].relinWindow;
 
-	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	//SIMPLIFYByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	//ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 
 
@@ -446,6 +449,62 @@ void NTRUPRE(int input) {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}
+
+	std::cout << "---------------------------START JSON FACIlTY TESTING------------------------------" << endl;
+
+	string jsonInputBuffer = "";
+	string jsonFileName = "";
+	SerializableHelper jsonHelper;
+
+	unordered_map <string, string> testMap1;
+	testMap1 = pk.Serialize(testMap1, "Enc");
+	jsonFileName = jsonHelper.GetJsonFileName(testMap1);
+	cout << "jsonFileName:  " << jsonFileName << endl;
+	jsonInputBuffer = jsonHelper.GetJsonString(testMap1);
+	cout << "pk jsonInputBuffer:  " << jsonInputBuffer << endl;
+	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
+
+	testMap1 = jsonHelper.GetSerializationMap("LPPublicKeyLWENTRU_Enc.txt");
+	LPPublicKeyLWENTRU<ILVector2n> pk1;
+	pk1.Deserialize(testMap1);
+
+	unordered_map <string, string> testMap2;
+	testMap2 = sk.Serialize(testMap2, "Enc");
+	jsonFileName = jsonHelper.GetJsonFileName(testMap2);
+	cout << "jsonFileName:  " << jsonFileName << endl;
+	jsonInputBuffer = jsonHelper.GetJsonString(testMap2);
+	cout << "sk jsonInputBuffer:  " << jsonInputBuffer << endl;
+	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
+
+	cout << "----------BEGIN LPPrivateKeyLWENTRU DESERIALIZATION TESTING----------" << endl;
+	testMap2 = jsonHelper.GetSerializationMap("LPPrivateKeyLWENTRU_Enc.txt");
+	LPPrivateKeyLWENTRU<ILVector2n> sk1;
+	sk1.Deserialize(testMap2);
+	cout << "----------END LPPrivateKeyLWENTRU DESERIALIZATION TESTING----------" << endl;
+
+	unordered_map <string, string> testMap3;
+	testMap3 = ciphertext.Serialize(testMap3, "Enc");
+	jsonFileName = jsonHelper.GetJsonFileName(testMap3);
+	cout << "jsonFileName:  " << jsonFileName << endl;
+	jsonInputBuffer = jsonHelper.GetJsonString(testMap3);
+	cout << "ciphertext jsonInputBuffer:  " << jsonInputBuffer << endl;
+	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
+
+	cout << "----------BEGIN CIPHERTEXT DESERIALIZATION TESTING----------" << endl;
+	testMap3 = jsonHelper.GetSerializationMap("Ciphertext_Enc.txt");
+	Ciphertext<ILVector2n> c1;
+	c1.Deserialize(testMap3);
+	cout << "----------END CIPHERTEXT DESERIALIZATION TESTING----------" << endl;
+
+	/****UNCOMMENT TO TEST DECRYPT WITH DESERIALIZED PrivateKey and Ciphertext*****/
+	//cout << "----------BEGIN LPAlgorithmLWENTRU.Decrypt TESTING----------" << endl;
+	//ByteArrayPlaintextEncoding testPlaintextRec;
+	//DecodingResult testResult = algorithm.Decrypt(sk1, c1, &testPlaintextRec);
+	//testPlaintextRec.Unpad<ZeroPad>();
+	//cout << testPlaintextRec << endl;
+	//cout << "----------END LPAlgorithmLWENTRU.Decrypt TESTING----------" << endl;
+
+	std::cout << "---------------------------END JSON FACIlTY TESTING------------------------------" << endl;
 
 	std::cout << "Execution completed.  Please any key to finish." << std::endl;
 
