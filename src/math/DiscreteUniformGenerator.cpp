@@ -13,22 +13,22 @@ namespace lbcrypto {
 
     DiscreteUniformGenerator::DiscreteUniformGenerator (const BigBinaryInteger & modulus) : DiscreteDistributionGenerator (modulus) {
         // We generate the distribution here because the parameters are static.
-        this->distribution = std::uniform_int_distribution<usint>(CHUNK_MIN, CHUNK_MAX);
+        this->distribution_ = std::uniform_int_distribution<usint>(CHUNK_MIN, CHUNK_MAX);
     }
 
-    void DiscreteUniformGenerator::setModulus (const BigBinaryInteger & modulus) {
+    void DiscreteUniformGenerator::SetModulus (const BigBinaryInteger & modulus) {
         // Why do work when you don't need to?
-        if (this->modulus == modulus) {
+        if (this->modulus_ == modulus) {
             return;
         }
 
         //  Update local modulus.
-        this->modulus = modulus;
+        this->modulus_ = modulus;
 
         // Update values that depend on modulus.
-        usint moduloWidth = this->modulus.GetMSB();
-        this->chunksPerValue = moduloWidth / CHUNK_WIDTH;
-        this->remainingWidth = moduloWidth % CHUNK_WIDTH;
+        usint modulo_width      = this->modulus_.GetMSB();
+        this->chunks_per_value_ = modulo_width / CHUNK_WIDTH;
+        this->remaining_width_   = modulo_width % CHUNK_WIDTH;
     }
 
 /*
@@ -45,31 +45,31 @@ void DiscreteUniformGenerator::InitializeVals(const BigBinaryInteger &modulus){
 */
 
     // updated version using string streams and comments!
-    BigBinaryInteger DiscreteUniformGenerator::generateInteger () {
+    BigBinaryInteger DiscreteUniformGenerator::GenerateInteger () {
 
-        auto prng = this->getPRNG();
+        auto prng = this->GetPRNG();
         std::stringstream buffer("");
 
-        for (usint i = 0; i < this->chunksPerValue; i++) {
+        for (usint i = 0; i < this->chunks_per_value_; i++) {
             // generate the next random value, then append it's binary form to the buffer
-            usint value = this->distribution(prng);
+            usint value = this->distribution_(prng);
             buffer << std::bitset<CHUNK_WIDTH>(value).to_string();
         }
 
         // If the chunk width did not fit perfectly, we need to generate a final partial chunk
-        if (this->remainingWidth > 0) {
-            usint value = this->distribution(prng);
+        if (this->remaining_width_ > 0) {
+            usint value = this->distribution_(prng);
             std::string temp = std::bitset<CHUNK_WIDTH>(value).to_string();
-            buffer << temp.substr(CHUNK_WIDTH - this->remainingWidth, CHUNK_WIDTH);
+            buffer << temp.substr(CHUNK_WIDTH - this->remaining_width_, CHUNK_WIDTH);
         }
 
         // convert the binary into a BBI
         BigBinaryInteger result(BigBinaryInteger::BinaryToBigBinaryInt(buffer.str()));
 
-        if (result < this->modulus) {
+        if (result < this->modulus_) {
             return result;
         } else {
-            return this->generateInteger();
+            return this->GenerateInteger();
         }
     }
 
@@ -78,7 +78,7 @@ void DiscreteUniformGenerator::InitializeVals(const BigBinaryInteger &modulus){
 //        //if m_modulus != modulus {
 //        //	this->InitializeVals(modulus);
 //        //}
-//        usint moduloLength = this->modulus.GetMSB();
+//        usint moduloLength = this->modulus_.GetMSB();
 //        usint noOfIter     = ((moduloLength % CHUNK_WIDTH) == 0) ? (moduloLength/CHUNK_WIDTH) : (moduloLength/CHUNK_WIDTH) + 1;
 //        usint remainder    = moduloLength % CHUNK_WIDTH;
 //        usint randNum;
@@ -106,10 +106,10 @@ void DiscreteUniformGenerator::InitializeVals(const BigBinaryInteger &modulus){
 //            return this->generateInteger();
 //    }
 
-    BigBinaryVector DiscreteUniformGenerator::generateVector(const usint size) {
+    BigBinaryVector DiscreteUniformGenerator::GenerateVector(const usint size) {
         BigBinaryVector randBigBinaryVector(size);
         for(usint i = 0; i < size; i++) {
-            BigBinaryInteger temp(this->generateInteger());
+            BigBinaryInteger temp(this->GenerateInteger());
             randBigBinaryVector.SetValAtIndex(i, temp);
         }
         return randBigBinaryVector;

@@ -32,32 +32,32 @@ namespace lbcrypto {
          * @brief  Generates a single random value in the distribution.
          * @return The resulting value.
          */
-        virtual BigBinaryInteger generateInteger () = 0;
+        virtual BigBinaryInteger GenerateInteger () = 0;
 
         /**
          * @brief       Generates a vector of values in the distribution.
          * @param  size The size of the vector to create.
          * @return      The resulting vector of values.
          */
-        virtual BigBinaryVector  generateVector  (const usint size) = 0;
+        virtual BigBinaryVector  GenerateVector (const usint size) = 0;
 
     protected:
         /**
          * @brief  Returns the singleton PRNG. This should be used to generate all random numbers in implementing classes.
          * @return The singleton PRNG.
          */
-        static std::mt19937 & getPRNG ();
+        static std::mt19937 &GetPRNG ();
 
     private:
         /**
          * A shared pointer to the singleton prng.
          */
-        static std::shared_ptr<std::mt19937> prng;
+        static std::shared_ptr<std::mt19937> prng_;
 
         /**
          * The flag that is used to ensure the prng is only constructed once.
          */
-        static std::once_flag flag;
+        static std::once_flag flag_;
 
     };
 }

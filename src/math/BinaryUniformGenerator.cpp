@@ -7,15 +7,15 @@
 
 namespace lbcrypto {
 
-    BigBinaryInteger BinaryUniformGenerator::generateInteger () {
+    BigBinaryInteger BinaryUniformGenerator::GenerateInteger () {
         std::bernoulli_distribution distribution(0.5);
-        return (distribution(this->getPRNG()) ? BigBinaryInteger(BigBinaryInteger::ONE) : BigBinaryInteger(BigBinaryInteger::ZERO));
+        return (distribution(this->GetPRNG()) ? BigBinaryInteger(BigBinaryInteger::ONE) : BigBinaryInteger(BigBinaryInteger::ZERO));
     }
 
-    BigBinaryVector BinaryUniformGenerator::generateVector (const usint size) {
+    BigBinaryVector BinaryUniformGenerator::GenerateVector (const usint size) {
         BigBinaryVector randBigBinaryVector(size);
         for(usint index = 0; index < size; index++) {
-            randBigBinaryVector.SetValAtIndex(index, this->generateInteger());
+            randBigBinaryVector.SetValAtIndex(index, this->GenerateInteger());
         }
         return randBigBinaryVector;
     }

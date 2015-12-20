@@ -30,13 +30,13 @@ namespace lbcrypto {
          * @brief  Returns the standard deviation of the generator.
          * @return The analytically obtained standard deviation of the generator.
          */
-        sint getStd () const;
+        sint GetStd () const;
 
         /**
          * @brief     Sets the standard deviation of the generator.
          * @param std The analytic standard deviation of the generator.
          */
-        void setStd (const sint std);
+        void SetStd (const sint std);
 
         /**
          * @brief      Returns a generated char vector.
@@ -49,7 +49,7 @@ namespace lbcrypto {
          * @brief  Returns a generated integer.
          * @return A random value within this Discrete Gaussian Distribution.
          */
-        BigBinaryInteger generateInteger ();
+        BigBinaryInteger GenerateInteger ();
 
         /**
          * @brief           Generates a vector of random values within this Discrete Gaussian Distribution.
@@ -57,7 +57,7 @@ namespace lbcrypto {
          * @param  size     The number of values to return.
          * @return          The vector of values within this Discrete Gaussian Distribution.
          */
-        BigBinaryVector generateVector (usint size);
+        BigBinaryVector GenerateVector (usint size);
 
         /**
          * @brief               Generates a vector of random, positive values within this Discrete Gaussian Distribution.
@@ -76,12 +76,12 @@ namespace lbcrypto {
 
         void InitiateVals ();
 
-        std::vector<double> m_vals;
+        std::vector<double> vals_;
 
         /**
          * The standard deviation of the distribution.
          */
-        sint m_std;
+        sint std_;
     };
 }
 

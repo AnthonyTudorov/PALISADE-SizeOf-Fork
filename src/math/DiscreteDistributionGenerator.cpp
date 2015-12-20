@@ -3,10 +3,10 @@
 
 namespace lbcrypto {
     DiscreteDistributionGenerator::DiscreteDistributionGenerator (const BigBinaryInteger & modulus) : DistributionGenerator () {
-        this->setModulus(modulus);
+        this->SetModulus(modulus);
     }
 
-    void DiscreteDistributionGenerator::setModulus (const BigBinaryInteger & modulus) {
-        this->modulus = modulus;
+    void DiscreteDistributionGenerator::SetModulus (const BigBinaryInteger & modulus) {
+        this->modulus_ = modulus;
     }
 }

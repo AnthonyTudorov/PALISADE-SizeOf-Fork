@@ -24,16 +24,16 @@ namespace lbcrypto {
          * @brief         Sets the modulus. Overrides parent function
          * @param modulus The new modulus.
          */
-        void setModulus (const BigBinaryInteger & modulus);
+        void SetModulus (const BigBinaryInteger & modulus);
         /**
          * @brief Required by DistributionGenerator.
          */
-        BigBinaryInteger generateInteger ();
+        BigBinaryInteger GenerateInteger ();
 
         /**
          * @brief Required by DistributionGenerator.
          */
-        BigBinaryVector generateVector (const usint size);
+        BigBinaryVector GenerateVector (const usint size);
 
     private:
 
@@ -45,10 +45,9 @@ namespace lbcrypto {
         static const usint CHUNK_WIDTH = 16;
         static const usint CHUNK_MAX   = 65535; // 2^16-1 = 65535
 
-        usint remainingWidth = 0;
-        usint chunksPerValue = 0;
-        std::uniform_int_distribution<usint> distribution;
-
+        usint remaining_width_ = 0;
+        usint chunks_per_value_ = 0;
+        std::uniform_int_distribution<usint> distribution_;
 
         //usint moduloLength;
         //usint noOfIter;

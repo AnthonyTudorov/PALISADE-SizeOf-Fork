@@ -23,13 +23,13 @@ namespace lbcrypto {
          * @brief  Generates a random value within the Binary Uniform Distribution.
          * @return A random value within this Binary Uniform Distribution.
          */
-        BigBinaryInteger generateInteger ();
+        BigBinaryInteger GenerateInteger ();
 
         /**
          * @brief  Generates a vector of random values within the Binary Uniform Distribution.
          * @return A vector of random values within this Binary Uniform Distribution.
          */
-        BigBinaryVector  generateVector  (const usint size);
+        BigBinaryVector GenerateVector  (const usint size);
 
     };
 }
