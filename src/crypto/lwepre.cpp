@@ -31,7 +31,7 @@ namespace lbcrypto {
 
 //Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
-bool LPAlgorithmPRELWENTRU<Element>::ProxyKeyGen(const LPPublicKey<Element> &newPublicKey, 
+bool LPAlgorithmPRELWENTRU<Element>::EvalKeyGen(const LPPublicKey<Element> &newPublicKey, 
 				LPPrivateKey<Element> &origPrivateKey,
 				DiscreteGaussianGenerator &dgg, LPEvalKey<Element> *evalKey) const
 {

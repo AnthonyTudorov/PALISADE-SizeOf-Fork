@@ -287,58 +287,6 @@ namespace lbcrypto {
 		return tmp;
 	}
 
-
-	//Represent the lattice in binary format
-	void ILVector2n::DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const {
-
-		//std::cout << "plaintext modulus " << modulus << std::endl;
-
-		ByteArray byteArray;
-		usint mod = modulus.ConvertToInt();
-		usint p = ceil((float)log((double)255) / log((double)mod));
-		usint resultant_char;
-
-		for (usint i = 0; i<m_values->GetLength(); i = i + p) {
-			usint exp = 1;
-			resultant_char = 0;
-			for (usint j = 0; j<p; j++) {
-				resultant_char += m_values->GetValAtIndex(i + j).ConvertToInt()*exp;
-				exp *= mod;
-			}
-			byteArray.push_back(resultant_char);
-		}
-		*text = ByteArrayPlaintextEncoding(byteArray);
-	}
-
-	//Convert binary string to lattice format; do p=2 first but document that we need to generalize it later
-	void ILVector2n::EncodeElement(const ByteArrayPlaintextEncoding &encodedPlaintext, const BigBinaryInteger &modulus) {
-
-		ByteArray encoded = encodedPlaintext.GetData();
-
-		if (m_values != NULL) {
-			delete m_values;
-		}
-
-		usint mod = modulus.ConvertToInt();
-		usint p = ceil((float)log((double)255) / log((double)mod));
-
-		m_values = new BigBinaryVector(p*encoded.size());
-		(*m_values).SetModulus(m_params.GetModulus());
-		m_format = COEFFICIENT;
-
-		for (usint i = 0; i<encoded.size(); i++) {
-			usint Num = encoded.at(i);
-			usint exp = mod, Rem = 0;
-			for (usint j = 0; j<p; j++) {
-				Rem = Num%exp;
-				m_values->SetValAtIndex(i*p + j, UintToBigBinaryInteger((Rem / (exp / mod))));
-				Num -= Rem;
-				exp *= mod;
-			}
-		}
-
-	}
-
 	//Precompute a sample of disrete gaussian polynomials
 	void ILVector2n::PreComputeDggSamples(DiscreteGaussianGenerator &dgg, const ILParams &params) {
 

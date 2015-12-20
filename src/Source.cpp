@@ -45,7 +45,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
-//#include "il2n.h"
+//#include "ilvector2n.h"
 #include "math/distrgen.h"
 #include "crypto/lwecrypt.h"
 #include "crypto/lwecrypt.cpp"
@@ -386,7 +386,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	algorithmPRE.ProxyKeyGen(newPK, sk, dgg , &evalKey);  // This is the core re-encryption operation.
+	algorithmPRE.EvalKeyGen(newPK, sk, dgg , &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;

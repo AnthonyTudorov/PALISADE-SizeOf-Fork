@@ -100,8 +100,10 @@ void LPAlgorithmLWENTRU<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
 	Element m(elementParams);
+
+	plaintext.Encode(p,&m);
 	
-	m.EncodeElement(static_cast<const ByteArrayPlaintextEncoding&>(plaintext),p);
+	//m.EncodeElement(plaintext,p);
 
 	m.SwitchFormat();
 
@@ -152,7 +154,8 @@ DecodingResult LPAlgorithmLWENTRU<Element>::Decrypt(const LPPrivateKey<Element> 
 
 	//cout<<"m ="<<m.GetValues()<<endl;
 
-	m.DecodeElement(static_cast<ByteArrayPlaintextEncoding*>(plaintext),p);
+	//m.DecodeElement(static_cast<ByteArrayPlaintextEncoding*>(plaintext),p);
+	plaintext->Decode(p,m);
 
 	return DecodingResult(plaintext->GetLength());
 }

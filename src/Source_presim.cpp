@@ -380,7 +380,7 @@ void PRESimulation(usint count, usint dataset){
 
 		successKeyGen = algorithm.KeyGen(*newPK, *newSK, dgg);	// This is the same core key generation operation.
 
-		algorithm.ProxyKeyGen(*newPK, *privateKeys[d], dgg, evalKey);  // This is the core re-encryption operation.
+		algorithm.EvalKeyGen(*newPK, *privateKeys[d], dgg, evalKey);  // This is the core re-encryption operation.
 
 		publicKeys.push_back(newPK);
 		privateKeys.push_back(newSK);

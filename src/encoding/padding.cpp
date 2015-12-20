@@ -34,24 +34,24 @@
 #include "padding.h"
 
 namespace lbcrypto {
-    void OneZeroPad::Pad(const usint blockSize, ByteArray *byteArray) {
-        usint nPadding = blockSize - (byteArray->size() % blockSize);
-        byteArray->reserve(byteArray->size() + nPadding);
-        byteArray->push_back(0x80);
-        for (usint i = 0; i < nPadding - 1; ++i) {
-            byteArray->push_back(0x0);
-        }
-    }
-    void OneZeroPad::Unpad(ByteArray *byteArray) {
-        usint nPadding = 0;
-        for (sint i = byteArray->size() - 1; i >= 0; --i) {
-            nPadding++;
-            if (byteArray->at(i) == 0x80) {
-                break;
-            }
-        }
-        byteArray->resize(byteArray->size() - nPadding, 0x0);
-    }
+    //void OneZeroPad::Pad(const usint blockSize, ByteArray *byteArray) {
+    //    usint nPadding = blockSize - (byteArray->size() % blockSize);
+    //    byteArray->reserve(byteArray->size() + nPadding);
+    //    byteArray->push_back(0x80);
+    //    for (usint i = 0; i < nPadding - 1; ++i) {
+    //        byteArray->push_back(0x0);
+    //    }
+    //}
+    //void OneZeroPad::Unpad(ByteArray *byteArray) {
+    //    usint nPadding = 0;
+    //    for (sint i = byteArray->size() - 1; i >= 0; --i) {
+    //        nPadding++;
+    //        if (byteArray->at(i) == 0x80) {
+    //            break;
+    //        }
+    //    }
+    //    byteArray->resize(byteArray->size() - nPadding, 0x0);
+    //}
     /**
      *  @param blockSize
      *  @param byteArray
@@ -77,5 +77,23 @@ namespace lbcrypto {
             }
         }
         byteArray->resize(byteArray->size() - nPadding, 0);
+    }
+
+    void ZeroPad::Pad(const usint blockSize, std::vector<uint32_t> *intArray) {
+        if (blockSize > intArray->size()) {
+            intArray->resize(blockSize, 0);
+        }
+    }
+
+    void ZeroPad::Unpad(std::vector<uint32_t> *intArray) {
+        usint nPadding = 0;
+        for (auto it = intArray->rbegin(); it != intArray->rend(); ++it) {
+            if (*it == 0) {
+                ++nPadding;
+            } else {
+                break;
+            }
+        }
+        intArray->resize(intArray->size() - nPadding, 0);
     }
 }

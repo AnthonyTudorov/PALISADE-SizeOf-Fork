@@ -31,8 +31,8 @@
 * This code provides basic lattice ideal manipulation functionality.
 */
 
-#ifndef LBCRYPTO_LATTICE_IL2N_H
-#define LBCRYPTO_LATTICE_IL2N_H
+#ifndef LBCRYPTO_LATTICE_IL2VECTORARRAY2N_H
+#define LBCRYPTO_LATTICE_IL2VECTORARRAY2N_H
 
 #include <vector>
 #include "../math/backend.h"
@@ -45,7 +45,7 @@
 #include "../lattice/ilvector2n.h"
 #include "../math/nbtheory.h"
 #include "../math/transfrm.h"
-#include "../encoding/ptxtencoding.h"
+//#include "../encoding/ptxtencoding.h"
 
 /**
 * @namespace lbcrypto
@@ -345,7 +345,7 @@ namespace lbcrypto {
 		* @return is the result of the multiplicative inverse.
 		*/
 		//ILVector2n MultiplicativeInverse() const;
-		void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const;
+		//void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const;
 		
 		/*
 		Helper method for chinese remainder interpolatiom
@@ -364,7 +364,7 @@ namespace lbcrypto {
 		* @param &encoded the byte array to take as input.
 		* @param &modulus modulus to convert to.
 		*/
-		void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus);
+		//void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus);
 		// convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT
 		/**
 		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.

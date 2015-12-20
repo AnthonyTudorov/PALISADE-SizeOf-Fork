@@ -368,7 +368,7 @@ namespace lbcrypto {
 			 * @param *evalKey the evaluation key.
 			 * @return the re-encryption key.
 			 */
-			virtual bool ProxyKeyGen(const LPPublicKey<Element> &newPublicKey, 
+			virtual bool EvalKeyGen(const LPPublicKey<Element> &newPublicKey, 
 				LPPrivateKey<Element> &origPrivateKey,
 				DiscreteGaussianGenerator &ddg, LPEvalKey<Element> *evalKey) const = 0;
 						

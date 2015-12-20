@@ -300,7 +300,7 @@ BigBinaryVector BigBinaryVector::ModAdd(const BigBinaryVector &b) const{
 
 BigBinaryVector BigBinaryVector::ModByTwo() const {
 
-	BigBinaryVector ans(this->GetLength());
+	BigBinaryVector ans(this->GetLength(),this->GetModulus());
 	BigBinaryInteger halfQ(this->GetModulus() >> 1);
 	for (usint i = 0; i<ans.GetLength(); i++) {
 		if (this->GetValAtIndex(i)>halfQ) {

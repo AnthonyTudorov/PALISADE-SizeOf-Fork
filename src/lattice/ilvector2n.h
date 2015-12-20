@@ -44,7 +44,7 @@
 #include "../lattice/ilelement.h"
 #include "../math/nbtheory.h"
 #include "../math/transfrm.h"
-#include "../encoding/ptxtencoding.h"
+//#include "../encoding/ptxtencoding.h"
 
 /**
 * @namespace lbcrypto
@@ -373,25 +373,6 @@ namespace lbcrypto {
 		* @return is the resulting vector from shifting right.
 		*/
 		ILVector2n ShiftRight(unsigned int n) const;
-
-		//Represent the lattice in binary format
-		/**
-		* We assume the plaintext comes as an array of bits and this function converts those bits input a ByteArray.
-		* This method saves the result into the output parameter text.
-		*
-		* @param *text the byte array output.
-		* @param &modulus modulus to convert from.
-		*/
-		void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const;
-
-		//Convert binary string to lattice format; do p=2 first but document that we need to generalize it later
-		/**
-		* Convert binary string to lattice format.
-		*
-		* @param &encoded the byte array output.
-		* @param &modulus modulus to convert to.
-		*/
-		void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus);
 
 		/**
 		* Print the pre-computed discrete Gaussian samples.

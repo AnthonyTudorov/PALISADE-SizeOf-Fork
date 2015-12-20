@@ -233,12 +233,12 @@ namespace lbcrypto {
 	}
 	
 
-	void lbcrypto::ILVectorArray2n::DecodeElement(ByteArrayPlaintextEncoding * text, const BigBinaryInteger & modulus) const
-	{
-	}
-	void lbcrypto::ILVectorArray2n::EncodeElement(const ByteArrayPlaintextEncoding & encoded, const BigBinaryInteger & modulus)
-	{
-	}
+	//void lbcrypto::ILVectorArray2n::DecodeElement(ByteArrayPlaintextEncoding * text, const BigBinaryInteger & modulus) const
+	//{
+	//}
+	//void lbcrypto::ILVectorArray2n::EncodeElement(const ByteArrayPlaintextEncoding & encoded, const BigBinaryInteger & modulus)
+	//{
+	//}
 	/*ILDCRTParams& ILVectorArray2n::GetParams() const
 	{
 	return m_params;
