@@ -38,7 +38,6 @@ BENCHMARK_LIB_INCLUDES = -Ibenchmark/include -Ibenchmark/include/libsrc
 BENCHMARK_LIBSRC =  $(wildcard $(BENCHMARK_LIBSRCDIR)/*.cc)
 BENCHMARK_LIBOBJ = $(BENCHMARK_LIBSRC:.cc=.o)
 
-.SUFFIXES: .cc
 
 #note the following may need to be set automatically ala cmake
 LIBBENCHMARK_FLAGS = -DHAVE_POSIX_REGEX -DHAVE_STEADY_CLOCK  -std=c++11 -Wall -Wextra -Wshadow -pedantic -pedantic-errors -Wfloat-equal -Wzero-as-null-pointer-constant -fstrict-aliasing -Wstrict-aliasing -O3 -DNDEBUG -Werror 
@@ -46,8 +45,8 @@ LIBBENCHMARK_FLAGS = -DHAVE_POSIX_REGEX -DHAVE_STEADY_CLOCK  -std=c++11 -Wall -W
 BENCHMARK_LIB = $(BENCHMARK_LIBSRCDIR)/libbenchmark.a
 
 $(BENCHMARK_LIBSRCDIR)/%.o: $(BENCHMARK_LIBSRCDIR)/%.cc
-	@echo '$(CC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<'
-	$(CC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<
+	@echo '$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<'
+	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<
 
 .PHONY:makebenchmarklib
 makebenchmarklib: $(BENCHMARK_LIB)
@@ -71,8 +70,8 @@ BENCHMARK_HEADERS =	benchmark/include/benchmark/benchmark.h \
 			benchmark/include/benchmark/reporter.h 
 
 $(BENCHMARK_SRCDIR)/%.o: $(BENCHMARK_SRCDIR)/%.cc
-	@echo '$(CC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@'
-	$(CC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@
+	@echo '$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@'
+	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@
 
 .PHONY:makebenchmarks
 makebenchmarks: $(BENCHMARKS)
@@ -80,8 +79,8 @@ makebenchmarks: $(BENCHMARKS)
 $(BENCHMARKS): $(BENCHMARK_OBJ)
 
 $(BENCHMARK_SRCDIR)/%: $(BENCHMARK_SRCDIR)/%.o
-	@echo '$(CC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $< -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread'
-	$(CC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread
+	@echo '$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $< -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread'
+	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread
 
 cleanbenchmarks:
 	@echo 'removing $(BENCHMARKS) $(BENCHMARK_OBJ) $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)'
