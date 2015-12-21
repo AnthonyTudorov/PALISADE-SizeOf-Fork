@@ -229,7 +229,7 @@ namespace lbcrypto {
 
             inline ILMat<Element>& Transpose() {
                 ILMat<Element> copy(*this);
-                std::swap<size_t>(cols, rows);
+                std::swap(cols, rows);
                 data.clear();
                 data.resize(rows);
                 for (size_t row = 0; row < rows; ++row) {
