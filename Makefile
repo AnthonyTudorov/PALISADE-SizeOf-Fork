@@ -50,9 +50,9 @@ INC := -I include
 
 #all: alltargets apidocs alltesttargets runtests
 #dbc: runtests takes very long. so should not be automatically run
-all: alltargets apidocs alltesttargets 
+all: alltargets apidocs alltesttargets allbenchmarktargets
 
-targets: alltargets alltesttargets 
+targets: alltargets alltesttargets allbencmarktargets
 
 alltargets: $(TARGETSMAIN)
 
@@ -87,7 +87,8 @@ TESTBUILDDIR := test/build
 TESTTARGETDIR := test/bin
 TESTTARGET := test/bin/tests
 
-check: $(TESTTARGET)
+#DBC: what is the following for?
+check: $(TESTTARGET)   
 	$(TESTTARGET)
 
 LIBSOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT) | xargs grep -L "main()")
@@ -151,7 +152,7 @@ apidocs:
 	doxygen lbcrypto-doxy-config
 
 .PHONEY: clean
-clean: cleantargets cleantests cleandocs
+clean: cleantargets cleantests cleandocs cleanbenchmarks
 
 .PHONEY: cleantargets
 cleantargets:
@@ -202,3 +203,5 @@ cleandocs:
 #	@echo "Done."
 #
 #-include .depends
+
+include Makefile.benchmark

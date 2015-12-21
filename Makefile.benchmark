@@ -23,39 +23,58 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
-ALLBENCHMARKS: makebenchmarklib makebenchmarks
+
+allbenchmarktargets: makebenchmarklib makebenchmarks
 	@echo 'making $(BENCHMARK_LIB)' 
 #	@echo 'libobj: $(BENCHMARK_LIBOBJ)' 
 #	@echo 'libsrcdir: $(BENCHMARK_LIBSRCDIR)'
-#	@echo 'libsrc: $(BENCHMARK_LIBSRC)'
-	@echo 'making $(BENCHMARK_SRC)' 
+	@echo 'libsrc: $(BENCHMARK_LIBSRC)'
+#	@echo 'making $(BENCHMARKS)' 
 
 BENCHMARK_LIBSRCDIR = benchmark/include/libsrc
+BENCHMARK_LIB_INCLUDES = -Ibenchmark/include -Ibenchmark/include/libsrc    
 
-BENCHMARK_LIB_INCLUDES = -Ibenchmark/include
 
 BENCHMARK_LIBSRC =  $(wildcard $(BENCHMARK_LIBSRCDIR)/*.cc)
 BENCHMARK_LIBOBJ = $(BENCHMARK_LIBSRC:.cc=.o)
 
 .SUFFIXES: .cc
 
-LIBBENCHMARK_FLAGS = -DHAVE_POSIX_REGEX
+#note the following may need to be set automatically ala cmake
+LIBBENCHMARK_FLAGS = -DHAVE_POSIX_REGEX -DHAVE_STEADY_CLOCK  -std=c++11 -Wall -Wextra -Wshadow -pedantic -pedantic-errors -Wfloat-equal -Wzero-as-null-pointer-constant -fstrict-aliasing -Wstrict-aliasing -O3 -DNDEBUG -Werror 
+
+MYCC = /usr/bin/c++
+
+
+
 
 BENCHMARK_LIB = $(BENCHMARK_LIBSRCDIR)/libbenchmark.a
 
-$(BENCHMARK_LIBOBJ): $(BENCHMARK_LIBSRC)
-	@echo '	$(CC) $(BENCHMARK_LIB_INCLUDES) $(CPPFLAGS) -c $< -o $@'
-	$(CC) $(BENCHMARK_LIB_INCLUDES) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS) -c $< -o $@
+#$(BENCHMARK_LIBOBJ): $(BENCHMARK_LIBSRC)
+#	@echo 'libsrc: $(BENCHMARK_LIBSRC)'
+#	@echo '$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<'
+#	$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<
+
+$(BENCHMARK_LIBSRCDIR)/%.o: $(BENCHMARK_LIBSRCDIR)/%.cc
+	@echo '$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<'
+	$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<
+
 
 .PHONY:makebenchmarklib
 makebenchmarklib: $(BENCHMARK_LIB)
+
+$(BENCHMARK_LIB): $(BENCHMARK_LIBOBJ)
+	@echo '	ar rcs $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)'
+	/usr/bin/ar cr $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
+	ranlib $(BENCHMARK_LIB) 
+
 
 BENCHMARK_SRCDIR = benchmark/src
 BENCHMARK_INCLUDES = -Ibenchmark/include
 
 BENCHMARK_SRC =  $(wildcard $(BENCHMARK_SRCDIR)/*.cc)
 BENCHMARK_OBJ = $(BENCHMARK_SRC:.cc=.o)
-
+BENCHMARKS = $(BENCHMARK_SRC:.cc=)
 
 BENCHMARK_HEADERS =	benchmark/include/benchmark/benchmark.h \
 			benchmark/include/benchmark/benchmark_api.h \
@@ -63,18 +82,26 @@ BENCHMARK_HEADERS =	benchmark/include/benchmark/benchmark.h \
 			benchmark/include/benchmark/reporter.h 
 
 $(BENCHMARK_OBJ): $(BENCHMARK_SRC)
-	@echo '$(CC) $(BENCHMARK_INCLUDES) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS) -c $< -o $@'
-	$(CC) $(BENCHMARK_INCLUDES) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS) -c $< -o $@
+	@echo '$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@'
+	$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@
 
-$(BENCHMARK_LIB): $(BENCHMARK_LIBOBJ)
-	@echo '	ar rcs $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)'
-	ar rcs $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
+
+
+
 
 
 ,PHONY:makebenchmarks
 makebenchmarks: $(BENCHMARKS)
 
-$(BENCHMARKS): $(BENCHMARK_OBJ)
-	@echo '$(CC) $(CPPFLAGS) -o $@ -c $< $(BENCHMARK_LIB)'
-	echo '$(CC) $(CPPFLAGS) -o $@ -c $< $(BENCHMARK_LIB)'
+#$(BENCHMARKS): $(BENCHMARK_OBJ)
+$(BENCHMARKS): benchmark/src/basic_test.o
+	@echo '$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread'
+	$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread
 
+
+#CMakeFiles/options_test.dir/options_test.cc.o  -o options_test -rdynamic ../src/libbenchmark.a -lpthread 
+
+
+cleanbenchmarks:
+	@echo 'removing $(BENCHMARK) $(BENCHMARK_OBJ) $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)'
+	rm $(BENCHMARK) $(BENCHMARK_OBJ) $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
