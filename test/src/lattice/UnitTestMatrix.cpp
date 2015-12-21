@@ -26,7 +26,7 @@
 */
 
 
-#include "../include/gtest/gtest.h"
+#include "../../include/gtest/gtest.h"
 #include <iostream>
 
 #include "../../../src/math/backend.h"
