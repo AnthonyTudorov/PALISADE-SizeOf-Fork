@@ -90,16 +90,15 @@ $(BENCHMARK_SRCDIR)/%.o: $(BENCHMARK_SRCDIR)/%.cc
 
 
 
-
-
-
-,PHONY:makebenchmarks
+.PHONY:makebenchmarks
 makebenchmarks: $(BENCHMARKS)
 
-#$(BENCHMARKS): $(BENCHMARK_OBJ)
-$(BENCHMARKS): benchmark/src/basic_test.o benchmark/src/benchmark_test.o benchmark/src/cxx03_test.o benchmark/src/filter_test.o benchmark/src/fixture_test.o  benchmark/src/options_test.o 
+$(BENCHMARKS): $(BENCHMARK_OBJ)
+
+
+$(BENCHMARK_SRCDIR)/%: $(BENCHMARK_SRCDIR)/%.o
 	@echo '$(BENCHMARKS)'
-	@echo '$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread'
+	@echo '$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $< -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread'
 	$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread
 
 
