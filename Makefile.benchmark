@@ -25,11 +25,11 @@
 
 
 allbenchmarktargets: makebenchmarklib makebenchmarks
-	@echo 'making $(BENCHMARK_LIB)' 
+#	@echo 'making $(BENCHMARK_LIB)' 
 #	@echo 'libobj: $(BENCHMARK_LIBOBJ)' 
 #	@echo 'libsrcdir: $(BENCHMARK_LIBSRCDIR)'
 #	@echo 'libsrc: $(BENCHMARK_LIBSRC)'
-	@echo 'making $(BENCHMARKS)' 
+#	@echo 'making $(BENCHMARKS)' 
 
 BENCHMARK_LIBSRCDIR = benchmark/include/libsrc
 BENCHMARK_LIB_INCLUDES = -Ibenchmark/include -Ibenchmark/include/libsrc    
@@ -45,20 +45,11 @@ LIBBENCHMARK_FLAGS = -DHAVE_POSIX_REGEX -DHAVE_STEADY_CLOCK  -std=c++11 -Wall -W
 
 MYCC = /usr/bin/c++
 
-
-
-
 BENCHMARK_LIB = $(BENCHMARK_LIBSRCDIR)/libbenchmark.a
-
-#$(BENCHMARK_LIBOBJ): $(BENCHMARK_LIBSRC)
-#	@echo 'libsrc: $(BENCHMARK_LIBSRC)'
-#	@echo '$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<'
-#	$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<
 
 $(BENCHMARK_LIBSRCDIR)/%.o: $(BENCHMARK_LIBSRCDIR)/%.cc
 	@echo '$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<'
 	$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<
-
 
 .PHONY:makebenchmarklib
 makebenchmarklib: $(BENCHMARK_LIB)
@@ -81,29 +72,18 @@ BENCHMARK_HEADERS =	benchmark/include/benchmark/benchmark.h \
 			benchmark/include/benchmark/macros.h \
 			benchmark/include/benchmark/reporter.h 
 
-
-## this is broken it uses the first entry on the left all the time
-#XSA$$(BENCHMARK_OBJ): $(BENCHMARK_SRC)
 $(BENCHMARK_SRCDIR)/%.o: $(BENCHMARK_SRCDIR)/%.cc
 	@echo '$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@'
 	$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@
-
-
 
 .PHONY:makebenchmarks
 makebenchmarks: $(BENCHMARKS)
 
 $(BENCHMARKS): $(BENCHMARK_OBJ)
 
-
 $(BENCHMARK_SRCDIR)/%: $(BENCHMARK_SRCDIR)/%.o
-	@echo '$(BENCHMARKS)'
 	@echo '$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $< -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread'
 	$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread
-
-
-#CMakeFiles/options_test.dir/options_test.cc.o  -o options_test -rdynamic ../src/libbenchmark.a -lpthread 
-
 
 cleanbenchmarks:
 	@echo 'removing $(BENCHMARKS) $(BENCHMARK_OBJ) $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)'
