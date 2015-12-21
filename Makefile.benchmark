@@ -28,8 +28,8 @@ allbenchmarktargets: makebenchmarklib makebenchmarks
 	@echo 'making $(BENCHMARK_LIB)' 
 #	@echo 'libobj: $(BENCHMARK_LIBOBJ)' 
 #	@echo 'libsrcdir: $(BENCHMARK_LIBSRCDIR)'
-	@echo 'libsrc: $(BENCHMARK_LIBSRC)'
-#	@echo 'making $(BENCHMARKS)' 
+#	@echo 'libsrc: $(BENCHMARK_LIBSRC)'
+	@echo 'making $(BENCHMARKS)' 
 
 BENCHMARK_LIBSRCDIR = benchmark/include/libsrc
 BENCHMARK_LIB_INCLUDES = -Ibenchmark/include -Ibenchmark/include/libsrc    
@@ -81,7 +81,10 @@ BENCHMARK_HEADERS =	benchmark/include/benchmark/benchmark.h \
 			benchmark/include/benchmark/macros.h \
 			benchmark/include/benchmark/reporter.h 
 
-$(BENCHMARK_OBJ): $(BENCHMARK_SRC)
+
+## this is broken it uses the first entry on the left all the time
+#XSA$$(BENCHMARK_OBJ): $(BENCHMARK_SRC)
+$(BENCHMARK_SRCDIR)/%.o: $(BENCHMARK_SRCDIR)/%.cc
 	@echo '$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@'
 	$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@
 
@@ -94,7 +97,8 @@ $(BENCHMARK_OBJ): $(BENCHMARK_SRC)
 makebenchmarks: $(BENCHMARKS)
 
 #$(BENCHMARKS): $(BENCHMARK_OBJ)
-$(BENCHMARKS): benchmark/src/basic_test.o
+$(BENCHMARKS): benchmark/src/basic_test.o benchmark/src/benchmark_test.o benchmark/src/cxx03_test.o benchmark/src/filter_test.o benchmark/src/fixture_test.o  benchmark/src/options_test.o 
+	@echo '$(BENCHMARKS)'
 	@echo '$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread'
 	$(MYCC) $(MYCPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread
 
