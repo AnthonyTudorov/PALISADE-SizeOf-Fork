@@ -11,6 +11,7 @@
 #include <random>
 
 namespace lbcrypto {
+
     /**
      * @brief Abstract class describing generator requirements.
      *
@@ -60,6 +61,7 @@ namespace lbcrypto {
         static std::once_flag flag_;
 
     };
-}
+
+} // namespace lbcrypto
 
 #endif // LBCRYPTO_MATH_DISTRIBUTIONGENERATOR_H_

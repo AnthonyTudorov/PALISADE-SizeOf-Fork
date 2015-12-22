@@ -115,4 +115,4 @@ void DiscreteUniformGenerator::InitializeVals(const BigBinaryInteger &modulus){
         return randBigBinaryVector;
     }
 
-}
+} // namespace lbcrypto

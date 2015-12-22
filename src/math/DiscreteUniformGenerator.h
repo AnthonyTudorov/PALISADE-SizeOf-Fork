@@ -9,6 +9,7 @@
 #include "DiscreteDistributionGenerator.h"
 
 namespace lbcrypto {
+
     /**
      * @brief The class for Discrete Uniform Distribution generator over Zq.
      */
@@ -54,6 +55,7 @@ namespace lbcrypto {
         //usint remainder;
         //void InitializeVals(modulus);
     };
-}
+
+} // namespace lbcrypto
 
 #endif // LBCRYPTO_MATH_DISCRETEUNIFORMGENERATOR_H_

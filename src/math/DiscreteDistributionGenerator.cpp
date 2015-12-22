@@ -2,6 +2,7 @@
 #include "backend.h"
 
 namespace lbcrypto {
+
     DiscreteDistributionGenerator::DiscreteDistributionGenerator (const BigBinaryInteger & modulus) : DistributionGenerator () {
         this->SetModulus(modulus);
     }
@@ -9,4 +10,5 @@ namespace lbcrypto {
     void DiscreteDistributionGenerator::SetModulus (const BigBinaryInteger & modulus) {
         this->modulus_ = modulus;
     }
-}
+
+} // namespace lbcrypto

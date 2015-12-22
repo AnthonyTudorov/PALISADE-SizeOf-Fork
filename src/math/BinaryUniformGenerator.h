@@ -8,6 +8,7 @@
 #include "DistributionGenerator.h"
 
 namespace lbcrypto {
+
     /**
      * @brief A generator of the Binary Uniform Distribution.
      */
@@ -32,7 +33,8 @@ namespace lbcrypto {
         BigBinaryVector GenerateVector  (const usint size);
 
     };
-}
+
+} // namespace lbcrypto
 
 
 #endif // LBCRYPTO_MATH_BINARYUNIFORMGENERATOR_H_

@@ -148,4 +148,4 @@ namespace lbcrypto {
 
     }
 
-}
+} // namespace lbcrypto

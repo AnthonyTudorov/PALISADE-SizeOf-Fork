@@ -23,4 +23,5 @@ namespace lbcrypto {
 
         return * DistributionGenerator::prng_;
     }
-}
+
+} // namespace lbcrypto

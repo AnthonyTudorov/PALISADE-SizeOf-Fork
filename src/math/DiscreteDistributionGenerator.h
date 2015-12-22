@@ -38,6 +38,7 @@ namespace lbcrypto {
          */
         BigBinaryInteger modulus_;
     };
-}
+
+} // namespace lbcrypto
 
 #endif // LBCRYPTO_MATH_DISCRETEDISTRIBUTIONGENERATOR_H_

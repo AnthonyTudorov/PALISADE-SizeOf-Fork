@@ -9,6 +9,7 @@
 #include "DiscreteDistributionGenerator.h"
 
 namespace lbcrypto {
+
     /**
      * @brief The class for Discrete Gaussion Distribution generator.
      */
@@ -83,6 +84,7 @@ namespace lbcrypto {
          */
         sint std_;
     };
-}
+
+}  // namespace lbcrypto
 
 #endif // LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATOR_H_
