@@ -70,6 +70,7 @@ namespace lbcrypto {
 		* @param &modulus modulus to convert to.
 		*/
 		//virtual void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus) = 0;
+		virtual void PrintValues() const = 0;
 
 	};
 
