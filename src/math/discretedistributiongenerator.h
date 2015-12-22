@@ -5,13 +5,12 @@
 #ifndef LBCRYPTO_MATH_DISCRETEDISTRIBUTIONGENERATOR_H_
 #define LBCRYPTO_MATH_DISCRETEDISTRIBUTIONGENERATOR_H_
 
-#include "backend.h"
 #include "distributiongenerator.h"
 #include <math.h>
 #include <random>
-
 #include <bitset>
 #include <string>
+#include "backend.h"
 
 namespace lbcrypto {
 

@@ -31,20 +31,17 @@
  * This code provides basic noise generation functionality.
  */
 
-#ifndef PALISADE_MATH_DISTRGEN_H
-#define LBCRYPTO_MATH_DISTRGEN_H
+#ifndef LBCRYPTO_MATH_DISTRGEN_H_
+#define LBCRYPTO_MATH_DISTRGEN_H_
 
 #include <math.h>
 #include <random>
-
 #include <bitset>
 #include <string>
-
 #include "distributiongenerator.h"
 #include "discretegaussiangenerator.h"
 #include "discreteuniformgenerator.h"
 #include "binaryuniformgenerator.h"
 #include "discretedistributiongenerator.h"
-#include "UniformIntegerGenerator.h"
 
-#endif
+#endif // LBCRYPTO_MATH_DISTRGEN_H_

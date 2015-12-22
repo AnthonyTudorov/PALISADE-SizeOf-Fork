@@ -5,10 +5,10 @@
 #ifndef LBCRYPTO_MATH_DISTRIBUTIONGENERATOR_H_
 #define LBCRYPTO_MATH_DISTRIBUTIONGENERATOR_H_
 
-#include "backend.h"
 #include <memory>
 #include <mutex>
 #include <random>
+#include "backend.h"
 
 namespace lbcrypto {
 

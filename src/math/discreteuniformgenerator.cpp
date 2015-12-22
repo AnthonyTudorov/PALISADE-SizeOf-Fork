@@ -3,10 +3,9 @@
 //
 
 #include "discreteuniformgenerator.h"
-#include <sstream>
 #include "distributiongenerator.h"
 #include "discretedistributiongenerator.h"
-
+#include <sstream>
 #include "backend.h"
 
 namespace lbcrypto {
