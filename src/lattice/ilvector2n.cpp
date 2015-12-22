@@ -122,6 +122,18 @@ namespace lbcrypto {
 		delete m_values;
 	}
 
+	/**
+		Print values
+		*/
+	void ILVector2n::PrintValues() const {
+	
+	std::cout << "Printing values in ILVECTOR2N" << std::endl;
+		if (m_values != NULL) {
+			std::cout << *m_values << std::endl;
+		}
+
+	}
+
 	const BigBinaryInteger &ILVector2n::GetModulus() const {
 		return m_params.GetModulus();
 	}

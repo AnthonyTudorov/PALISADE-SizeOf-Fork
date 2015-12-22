@@ -245,6 +245,11 @@ namespace lbcrypto {
 		*/
 		ILVector2n ModByTwo() const;
 
+		/**
+		Print values
+		*/
+		void PrintValues() const;
+
 		// VECTOR OPERATIONS
 
 		/**
@@ -396,6 +401,7 @@ namespace lbcrypto {
 		*/
 		static void DestroyPreComputedSamples() {
 			m_dggSamples.clear();
+
 		}
 
 	private:
