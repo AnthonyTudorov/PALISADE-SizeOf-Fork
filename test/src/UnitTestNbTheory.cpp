@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
     return RUN_ALL_TESTS();
 }
 */
-class UnitTestBinInt : public ::testing::Test {
+class UnitTestNbTheory : public ::testing::Test {
  protected:
   virtual void SetUp() {
   }
