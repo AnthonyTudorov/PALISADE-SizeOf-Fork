@@ -77,21 +77,23 @@ namespace lbcrypto {
 		m_params = params;
 		m_format = format;
 		m_vectors.resize(params.GetModuli().size());
-	   
+
 		usint i = 0;
 
 		usint size = params.GetModuli().size();
 
 		ILVector2n temp();
 		for (i = 0; i < size; i++) {
-		
-			ILParams ilParams2(m_params.GetCyclotomicOrder(), BigBinaryInteger(m_params.GetModuli()[i]), BigBinaryInteger(m_params.GetRootsOfUnity()[i]));
-			
+
+			BigBinaryInteger a(m_params.GetModuli()[i]);
+			BigBinaryInteger b(m_params.GetRootsOfUnity()[i]);
+			ILParams ilParams2(m_params.GetCyclotomicOrder(), a, b);
+
 			m_vectors[i] = element;
 			m_vectors[i].SetParams(ilParams2);
 			m_vectors[i].SetModulus(m_params.GetModuli()[i]);
-			
-		
+
+
 		}
 
 	//	ChangeModuliOfIlVectorsToMatchDBLCRT();

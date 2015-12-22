@@ -68,7 +68,7 @@ namespace lbcrypto {
 		 * @param &modulus the ciphertext modulus.
 		 * @param &rootOfUnity the root of unity used in the ciphertext.
 		 */
-		ILParams(usint order, BigBinaryInteger &modulus, BigBinaryInteger& rootOfUnity) {
+		ILParams(usint order, BigBinaryInteger & modulus, BigBinaryInteger & rootOfUnity) {
 			m_modulus = modulus;
 			m_order = order;
 			m_rootOfUnity = rootOfUnity;
