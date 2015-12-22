@@ -40,6 +40,7 @@
 #include "../utils/inttypes.h"
 #include "../math/backend.h"
 #include "../lattice/ilvector2n.h"
+#include "../lattice/ilvectorarray2n.h"
 #include "padding.h"
 
 /**
@@ -60,7 +61,22 @@ namespace lbcrypto {
 	class PlaintextEncodingInterface
 	{
 	public:
-		
+
+
+		/** Interface for the operation of converting from current plaintext encoding to ilVectorArray2n.
+		*
+		* @param  modulus - used for encoding.
+		* @param  *ilVectorArray2n encoded plaintext - output argument.
+		*/
+		virtual void Encode(const BigBinaryInteger &modulus, ILVectorArray2n *iLVectorArray2n) const = 0;
+
+		/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
+		*
+		* @param  modulus - used for encoding.
+		* @param  ilVectorArray2n encoded plaintext - input argument.
+		*/
+		virtual void Decode(const BigBinaryInteger &modulus,  ILVectorArray2n &iLVectorArray2n) = 0;
+
 		/** Interface for the operation of converting from current plaintext encoding to ILVector2n.
 		*
 		* @param  modulus - used for encoding.
@@ -73,7 +89,7 @@ namespace lbcrypto {
 		* @param  modulus - used for encoding.
 		* @param  ilVector encoded plaintext - input argument.
 		*/
-		virtual void Decode(const BigBinaryInteger &modulus, const ILVector2n &ilVector) = 0;
+		virtual void Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector) = 0;
 
 		//
 		//* Interface for the operation of converting from current plaintext encoding to AmbientPlaintext.
@@ -174,7 +190,22 @@ namespace lbcrypto {
 		* @param  modulus - used for encoding.
 		* @param  ilVector encoded plaintext - input argument.
 		*/
-		void Decode(const BigBinaryInteger &modulus, const ILVector2n &ilVector);
+		void Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector);
+
+		
+		/** Method for the operation of converting from current plaintext encoding to ILVector2n.
+		*
+		* @param  modulus - used for encoding.
+		* @param  *ilVectorArray2n encoded plaintext - output argument.
+		*/
+		void Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVectorArray2n) const;
+
+		/** Method for the operation of converting from ILVector2n to current plaintext encoding.
+		*
+		* @param  modulus - used for encoding.
+		* @param  ilVectorArray2n encoded plaintext - input argument.
+		*/
+		void Decode(const BigBinaryInteger &modulus,  ILVectorArray2n &ilVectorArray2n);
 
 		/**
 		 * Get method to return the byte array
@@ -284,6 +315,22 @@ namespace lbcrypto {
 		*/
 		//long Decode(const AmbientPlaintext &ambPtxt) { return 0; };
 
+
+		/** Method for the operation of converting from current plaintext encoding to ILVector2n.
+		*
+		* @param  modulus - used for encoding.
+		* @param  *ilVectorArray2n encoded plaintext - output argument.
+		*/
+		void Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVectorArray2n) const;
+
+		/** Method for the operation of converting from ILVector2n to current plaintext encoding.
+		*
+		* @param  modulus - used for encoding.
+		* @param  ilVectorArray2n encoded plaintext - input argument.
+		*/
+		void Decode(const BigBinaryInteger &modulus,  ILVectorArray2n &ilVectorArray2n);
+
+
 		/** Method for the operation of converting from current plaintext encoding to ILVector2n.
 		*
 		* @param  modulus - used for encoding.
@@ -296,9 +343,7 @@ namespace lbcrypto {
 		* @param  modulus - used for encoding.
 		* @param  ilVector encoded plaintext - input argument.
 		*/
-		void Decode(const BigBinaryInteger &modulus, const ILVector2n &ilVector);
-
-
+		void Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector);
 		/**
 		 * Get method to return the byte array
 		 * @return the byte array of data.
