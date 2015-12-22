@@ -5,7 +5,7 @@
 #ifndef LBCRYPTO_MATH_BINARYUNIFORMGENERATOR_H_
 #define LBCRYPTO_MATH_BINARYUNIFORMGENERATOR_H_
 
-#include "DistributionGenerator.h"
+#include "distributiongenerator.h"
 
 namespace lbcrypto {
 

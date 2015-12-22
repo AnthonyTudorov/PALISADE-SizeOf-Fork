@@ -6,7 +6,7 @@
 #define LBCRYPTO_MATH_DISCRETEDISTRIBUTIONGENERATOR_H_
 
 #include "backend.h"
-#include "DistributionGenerator.h"
+#include "distributiongenerator.h"
 #include <math.h>
 #include <random>
 

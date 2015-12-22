@@ -1,4 +1,4 @@
-#include "DiscreteDistributionGenerator.h"
+#include "discretedistributiongenerator.h"
 #include "backend.h"
 
 namespace lbcrypto {

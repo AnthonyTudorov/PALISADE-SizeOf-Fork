@@ -2,7 +2,7 @@
 // Created by matt on 12/10/15.
 //
 
-#include "DistributionGenerator.h"
+#include "distributiongenerator.h"
 #include <random>
 #include "backend.h"
 

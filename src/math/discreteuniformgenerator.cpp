@@ -2,10 +2,10 @@
 // Created by matt on 12/10/15.
 //
 
-#include "DiscreteUniformGenerator.h"
+#include "discreteuniformgenerator.h"
 #include <sstream>
-#include "DistributionGenerator.h"
-#include "DiscreteDistributionGenerator.h"
+#include "distributiongenerator.h"
+#include "discretedistributiongenerator.h"
 
 #include "backend.h"
 

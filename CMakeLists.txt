@@ -37,24 +37,24 @@ set(SOURCE_FILES
     src/math/cpu8bit/mempool.cpp
     src/math/cpu8bit/mempool.h
     src/math/backend.h
-    src/math/BinaryUniformGenerator.cpp
-    src/math/BinaryUniformGenerator.h
-    src/math/DiscreteDistributionGenerator.cpp
-    src/math/DiscreteDistributionGenerator.h
-    src/math/DiscreteGaussianGenerator.cpp
-    src/math/DiscreteGaussianGenerator.h
-    src/math/DiscreteUniformGenerator.cpp
-    src/math/DiscreteUniformGenerator.h
+    src/math/binaryuniformgenerator.cpp
+    src/math/binaryuniformgenerator.h
+    src/math/discretedistributiongenerator.cpp
+    src/math/discretedistributiongenerator.h
+    src/math/discretegaussiangenerator.cpp
+    src/math/discretegaussiangenerator.h
+    src/math/discreteuniformgenerator.cpp
+    src/math/discreteuniformgenerator.h
     src/math/distrgen.h
-    src/math/DistributionGenerator.cpp
-    src/math/DistributionGenerator.h
+    src/math/distributiongenerator.cpp
+    src/math/distributiongenerator.h
     src/math/interface.h
     src/math/nbtheory.cpp
     src/math/nbtheory.h
     src/math/transfrm.cpp
     src/math/transfrm.h
-    src/math/UniformIntegerGenerator.cpp
-    src/math/UniformIntegerGenerator.h
+    src/math/uniformintegergenerator.cpp
+    src/math/uniformintegergenerator.h
     src/multilinearmap/directedencoding.h
     src/utils/bytearray.cpp
     src/utils/bytearray.h

@@ -6,7 +6,7 @@
 #define LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATOR_H_
 
 #include "backend.h"
-#include "DiscreteDistributionGenerator.h"
+#include "discretedistributiongenerator.h"
 
 namespace lbcrypto {
 

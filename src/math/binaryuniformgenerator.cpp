@@ -2,7 +2,7 @@
 // Created by matt on 12/11/15.
 //
 
-#include "BinaryUniformGenerator.h"
+#include "binaryuniformgenerator.h"
 #include <random>
 
 namespace lbcrypto {

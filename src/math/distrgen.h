@@ -40,11 +40,11 @@
 #include <bitset>
 #include <string>
 
-#include "DistributionGenerator.h"
-#include "DiscreteGaussianGenerator.h"
-#include "DiscreteUniformGenerator.h"
-#include "BinaryUniformGenerator.h"
-#include "DiscreteDistributionGenerator.h"
+#include "distributiongenerator.h"
+#include "discretegaussiangenerator.h"
+#include "discreteuniformgenerator.h"
+#include "binaryuniformgenerator.h"
+#include "discretedistributiongenerator.h"
 #include "UniformIntegerGenerator.h"
 
 #endif
