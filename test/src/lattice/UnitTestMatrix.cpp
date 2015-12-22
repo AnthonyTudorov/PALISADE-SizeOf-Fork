@@ -62,19 +62,55 @@ protected:
 /************************************************/
 /* TESTING BASIC MATH METHODS AND OPERATORS     */
 /************************************************/
-TEST(UTMatrix,basic_math){
-    BigBinaryInteger modulus("8590983169");
-    BigBinaryInteger rootOfUnity("4810681236");
-    ILParams ilParams(2048, modulus, rootOfUnity);
-    ILMat<ILVector2n> z(ilParams, EVALUATION, 2,2);
-    ILMat<ILVector2n> n = ILMat<ILVector2n>::Ones(ilParams, EVALUATION, 2, 2);
-    ILMat<ILVector2n> I = ILMat<ILVector2n>::Identity(ilParams, EVALUATION, 2, 2);
+
+static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
+    BigBinaryInteger secureModulus("8590983169");
+    BigBinaryInteger secureRootOfUnity("4810681236");
+    return ILVector2n::MakeAllocator(
+        ILParams(
+        2048, secureModulus, secureRootOfUnity),
+        EVALUATION
+        );
+}
+
+static function<unique_ptr<ILVector2n>()> fastIL2nAlloc() {
+	usint m = 16;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+    return ILVector2n::MakeAllocator(
+        ILParams(
+        m, modulus, rootOfUnity),
+        EVALUATION
+        );
+}
+
+TEST(UTMatrix,basic_il2n_math){
+    ILMat<ILVector2n> z(secureIL2nAlloc(), 2,2);
+    ILMat<ILVector2n> n = ILMat<ILVector2n>(secureIL2nAlloc(), 2, 2).Ones();
+    ILMat<ILVector2n> I = ILMat<ILVector2n>(secureIL2nAlloc(), 2, 2).Identity();
+    I.SwitchFormat();
+    I.SwitchFormat();
     EXPECT_EQ(n, I*n);
 
     n -= n;
     EXPECT_EQ(n, z);
 
-    ILMat<ILVector2n> m = ILMat<ILVector2n>::Ones(ilParams, EVALUATION, 2, 2);
+    ILMat<ILVector2n> m = ILMat<ILVector2n>(secureIL2nAlloc(), 2, 2).Ones();
+    m.Fill(2);
+    n.Fill(1);
+    n = n + n;
+    EXPECT_EQ(n, m);
+}
+
+TEST(UTMatrix,basic_int_math){
+    ILMat<BigBinaryInteger> z(BigBinaryInteger::Allocator, 2,2);
+    ILMat<BigBinaryInteger> n = ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, 2, 2).Ones();
+    ILMat<BigBinaryInteger> I = ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, 2, 2).Identity();
+    EXPECT_EQ(n, I*n);
+    n -= n;
+    EXPECT_EQ(n, z);
+
+    ILMat<BigBinaryInteger> m = ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, 2, 2).Ones();
     m.Fill(2);
     n.Fill(1);
     n = n + n;
@@ -82,29 +118,62 @@ TEST(UTMatrix,basic_math){
 }
 
 TEST(UTMatrix, transpose){
-    BigBinaryInteger modulus("8590983169");
-    BigBinaryInteger rootOfUnity("4810681236");
-    ILParams ilParams(2, modulus, rootOfUnity);
-    ILMat<ILVector2n> n = ILMat<ILVector2n>::Ones(ilParams, EVALUATION, 4, 2);
+    ILMat<ILVector2n> n = ILMat<ILVector2n>(secureIL2nAlloc(), 4, 2).Ones();
     ILMat<ILVector2n> nT = ILMat<ILVector2n>(n).Transpose();
-    ILMat<ILVector2n> I = ILMat<ILVector2n>::Identity(ilParams, EVALUATION, 2, 2);
+    ILMat<ILVector2n> I = ILMat<ILVector2n>(secureIL2nAlloc(), 2, 2).Identity();
     EXPECT_EQ(nT, I*nT);
 }
 
+TEST(UTMatrix, scalar_mult){
+    ILMat<ILVector2n> n = ILMat<ILVector2n>(secureIL2nAlloc(), 4, 2).Ones();
+    auto one = secureIL2nAlloc()();
+    *one = 1;
+    EXPECT_EQ(n, *one*n);
+    EXPECT_EQ(n, n**one);
+
+    auto two = secureIL2nAlloc()();
+    ILMat<ILVector2n> twos = ILMat<ILVector2n>(secureIL2nAlloc(), 4, 2).Fill(2);
+    *two = 2;
+    EXPECT_EQ(*two*n, twos);
+    EXPECT_EQ(n**two, twos);
+}
+
+TEST(UTMatrix, gadget_vector) {
+    ILMat<ILVector2n> n = ILMat<ILVector2n>(secureIL2nAlloc(), 4, 1).GadgetVector();
+	auto v = secureIL2nAlloc()();
+	*v = 1;
+    EXPECT_EQ(*v, n(0,0));
+	*v = 2;
+    EXPECT_EQ(*v, n(1,0));
+	*v = 4;
+    EXPECT_EQ(*v, n(2,0));
+	*v = 8;
+    EXPECT_EQ(*v, n(3,0));
+}
+TEST(UTMatrix, rotate) {
+    ILMat<ILVector2n> n = ILMat<ILVector2n>(fastIL2nAlloc(), 1, 2).Ones();
+	n(0,0).SetValAtIndex(2, 1);
+    ILMat<BigBinaryInteger> R = Rotate(n);
+	EXPECT_EQ(8, R.GetRows());
+	EXPECT_EQ(16, R.GetCols());
+	EXPECT_EQ(BigBinaryInteger::ONE, R(0,0));
+	BigBinaryInteger negOne = n(0,0).GetParams().GetModulus() - BigBinaryInteger("1");
+	EXPECT_EQ(negOne, R(0,6));
+	EXPECT_EQ(negOne, R(1,7));
+
+	EXPECT_EQ(BigBinaryInteger(), R(0,6 + 8));
+	EXPECT_EQ(BigBinaryInteger(), R(1,7 + 8));
+
+}
+
 TEST(UTMatrix, vstack) {
-    BigBinaryInteger modulus("8590983169");
-    BigBinaryInteger rootOfUnity("4810681236");
-    ILParams ilParams(2, modulus, rootOfUnity);
-    ILMat<ILVector2n> n = ILMat<ILVector2n>::Ones(ilParams, EVALUATION, 4, 2);
-    ILMat<ILVector2n> m = ILMat<ILVector2n>::Ones(ilParams, EVALUATION, 8, 2);
+    ILMat<ILVector2n> n = ILMat<ILVector2n>(secureIL2nAlloc(), 4, 2).Ones();
+    ILMat<ILVector2n> m = ILMat<ILVector2n>(secureIL2nAlloc(), 8, 2).Ones();
     EXPECT_EQ(m, n.VStack(n));
 }
 
 TEST(UTMatrix, hstack) {
-    BigBinaryInteger modulus("8590983169");
-    BigBinaryInteger rootOfUnity("4810681236");
-    ILParams ilParams(2, modulus, rootOfUnity);
-    ILMat<ILVector2n> n = ILMat<ILVector2n>::Ones(ilParams, EVALUATION, 2, 2);
-    ILMat<ILVector2n> m = ILMat<ILVector2n>::Ones(ilParams, EVALUATION, 2, 4);
+    ILMat<ILVector2n> n = ILMat<ILVector2n>(secureIL2nAlloc(), 2, 2).Ones();
+    ILMat<ILVector2n> m = ILMat<ILVector2n>(secureIL2nAlloc(), 2, 4).Ones();
     EXPECT_EQ(m, n.HStack(n));
 }

@@ -28,6 +28,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define LBCRYPTO_LATTICE_MATRIX_H
 
 #include <iostream>
+#include <functional>
+
+using std::function;
 
 #include "../../src/math/backend.h"
 #include "../../src/math/nbtheory.h"
@@ -43,67 +46,87 @@ namespace lbcrypto {
     template<class Element>
         class ILMat {
             typedef vector<vector<unique_ptr<Element>>> data_t;
+            typedef function<unique_ptr<Element>(void)> alloc_func;
         public:
-            //  concat
-
             //  Zero constructor
-            ILMat(ILParams params, Format format, size_t rows, size_t cols): params(make_unique<ILParams>(params)), format(format), rows(rows), cols(cols), data() {
+            ILMat(alloc_func allocZero, size_t rows, size_t cols): rows(rows), cols(cols), data(), allocZero(allocZero) {
                 data.resize(rows);
                 for (auto row = data.begin(); row != data.end(); ++row) {
                     for (size_t col = 0; col < cols; ++col) {
-                        row->push_back(make_unique<Element>(params, format));
+                        row->push_back(allocZero());
                     }
                 }
             }
 
-            ILMat(const ILMat<Element>& other) : params(make_unique<ILParams>(*other.params)), format(other.format), data(), rows(other.rows), cols(other.cols) {
+            ILMat(const ILMat<Element>& other) : data(), rows(other.rows), cols(other.cols), allocZero(other.allocZero) {
                 deepCopyData(other.data);
             }
 
             inline ILMat<Element>& operator=(const ILMat<Element>& other) {
-                format = other.format;
-                params = make_unique<ILParams>(*other.params);
                 rows = other.rows;
                 cols = other.cols;
                 deepCopyData(other.data);
                 return *this;
             }
 
-            inline static ILMat<Element> Ones(ILParams params, Format format, size_t rows, size_t cols) {
-                ILMat m(params, format, rows, cols);
+            inline ILMat<Element>& Ones() {
                 for (size_t row = 0; row < rows; ++row) {
                     for (size_t col = 0; col < cols; ++col) {
-                        m.data[row][col]->SetValAtIndex(0, 1);
+                        *data[row][col] = 1;
                     }
                 }
-                return m;
+                return *this;
             }
 
-            inline void Fill(int val) {
+            inline ILMat<Element>& Fill(int val) {
                 for (size_t row = 0; row < rows; ++row) {
                     for (size_t col = 0; col < cols; ++col) {
-                        data[row][col]->SetValAtIndex(0, val);
+                        *data[row][col] = val;
                     }
                 }
+                return *this;
             }
 
-            inline static ILMat<Element> Identity(ILParams params, Format format, size_t rows, size_t cols) {
-                ILMat m(params, format, rows, cols);
+            inline ILMat<Element>& Fill(Element val) {
+                for (size_t row = 0; row < rows; ++row) {
+                    for (size_t col = 0; col < cols; ++col) {
+                        *data[row][col] = val;
+                    }
+                }
+                return *this;
+            }
+
+            inline ILMat<Element>& Identity() {
                 for (size_t row = 0; row < rows; ++row) {
                     for (size_t col = 0; col < cols; ++col) {
                         if (row == col) {
-                            m.data[row][col]->SetValAtIndex(0, 1);
+                            *data[row][col] = 1;
+                        } else {
+                            *data[row][col] = 0;
                         }
                     }
                 }
-                return m;
+                return *this;
+            }
+
+            /*
+             *  Sets the first column to be powers of two
+             */
+            inline ILMat<Element>& GadgetVector() {
+                auto two = allocZero();
+                *two = 2;
+                (*this)(0, 0) = 1;
+                for (size_t row = 1; row < rows; ++row) {
+                    (*this)(row, 0) = (*this)(row-1, 0) * *two;
+                }
+                return *this;
             }
 
             inline ILMat<Element> Mult(ILMat<Element> const& other) const {
                 if (cols != other.rows) {
                     throw "incompatible matrix multiplication";
                 }
-                ILMat<Element> result(*params, format, rows, other.cols);
+                ILMat<Element> result(allocZero, rows, other.cols);
                 for (size_t row = 0; row < result.rows; ++row) {
                     for (size_t col = 0; col < result.cols; ++col) {
                         for (size_t i = 0; i < cols; ++i) {
@@ -118,14 +141,22 @@ namespace lbcrypto {
                 return Mult(other);
             }
 
+            inline ILMat<Element> ScalarMult(Element const& other) const {
+                ILMat<Element> result(*this);
+                for (size_t row = 0; row < result.rows; ++row) {
+                    for (size_t col = 0; col < result.cols; ++col) {
+                        *result.data[row][col] = *result.data[row][col] * other;
+                    }
+                }
+                return result;
+            }
+
+            inline ILMat<Element> operator*(Element const& other) const {
+                return ScalarMult(other);
+            }
+
             inline bool Equal(ILMat<Element> const& other) const {
                 if (rows != other.rows || cols != other.cols) {
-                    return false;
-                }
-                if (format != other.format) {
-                    return false;
-                }
-                if (*params != *other.params) {
                     return false;
                 }
 
@@ -158,14 +189,11 @@ namespace lbcrypto {
                 return cols;
             }
 
-            void SetFormat(Format format) {
-                if (*this->format != format) {
-                    for (size_t row = 0; row < rows; ++row) {
-                        for (size_t col = 0; col < cols; ++col) {
-                            data[row][col]->SwitchFormat();
-                        }
+            void SwitchFormat() {
+                for (size_t row = 0; row < rows; ++row) {
+                    for (size_t col = 0; col < cols; ++col) {
+                        data[row][col]->SwitchFormat();
                     }
-                    *this->format = format;
                 }
             }
 
@@ -202,7 +230,7 @@ namespace lbcrypto {
                 if (rows != other.rows || cols != other.cols) {
                     throw "Subtraction operands have incompatible dimensions";
                 }
-                ILMat<Element> result(*params, format, rows, other.cols);
+                ILMat<Element> result(allocZero, rows, other.cols);
                 for (size_t i = 0; i < rows; ++i) {
                     for (size_t j = 0; j < cols; ++j) {
                         *result.data[i][j] = *data[i][j] - *other.data[i][j];
@@ -272,12 +300,19 @@ namespace lbcrypto {
                 return *this;
             }
 
+            inline Element& operator()(size_t row, size_t col) {
+                return *data[row][col];
+            }
+
+            inline Element const& operator()(size_t row, size_t col) const {
+                return *data[row][col];
+            }
+
         private:
             data_t data;
             size_t rows;
             size_t cols;
-            unique_ptr<ILParams> params;
-            Format format;
+            alloc_func allocZero;
             void deepCopyData(data_t const& src) {
                 data.clear();
                 data.resize(src.size());
@@ -288,6 +323,44 @@ namespace lbcrypto {
                 }
             }
         };
+    template<class Element>
+    inline ILMat<Element> operator*(Element const& e, ILMat<Element> const& M) {
+        return M.ScalarMult(e);
+    }
+
+    /**
+     *  Each element becomes a square matrix with columns of that element's
+     *  rotations.
+     */
+    ILMat<BigBinaryInteger> Rotate(ILMat<ILVector2n> const& mat) {
+        size_t n = mat(0,0).GetLength();
+        BigBinaryInteger const& modulus = mat(0,0).GetParams().GetModulus();
+        size_t rows = mat.GetRows() * n;
+        size_t cols = mat.GetCols() * n;
+        ILMat<BigBinaryInteger> result(BigBinaryInteger::Allocator, rows, cols);
+        for (size_t row = 0; row < mat.GetRows(); ++row) {
+            for (size_t col = 0; col < mat.GetCols(); ++col) {
+                for (size_t rotRow = 0; rotRow < n; ++rotRow) {
+                    for (size_t rotCol = 0; rotCol < n; ++rotCol) {
+                        BigBinaryInteger& elem = result(row*n + rotRow, col*n + rotCol);
+                        elem =
+                            mat(row, col).GetValues().GetValAtIndex(
+                                (rotRow - rotCol + n) % n
+                            );
+                        //  negate (mod q) upper-right triangle to account for
+                        //  (mod x^n + 1)
+                        if (rotRow < rotCol) {
+                            elem =
+                                modulus.ModSub(
+                                    elem,
+                                    modulus);
+                        }
+                    }
+                }
+            }
+        }
+        return result;
+    }
     template<class Element>
     inline std::ostream& operator<<(std::ostream& os, const ILMat<Element>& m){
         os << "[ ";

@@ -151,7 +151,7 @@ namespace lbcrypto {
 		return m_format;
 	}
 
-	const ILParams &ILVector2n::GetParams() {
+	const ILParams &ILVector2n::GetParams() const {
 		return m_params;
 	}
 
@@ -160,7 +160,7 @@ namespace lbcrypto {
 		return m_values->GetValAtIndex(i);
 	}
 
-	usint ILVector2n::GetLength() {
+	usint ILVector2n::GetLength() const {
 		return m_values->GetLength();
 	}
 

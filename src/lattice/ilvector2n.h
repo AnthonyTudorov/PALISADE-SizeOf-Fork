@@ -35,8 +35,11 @@
 #define LBCRYPTO_LATTICE_ILVECTOR2N_H
 
 #include <vector>
+#include <functional>
+using std::function;
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
+#include "../utils/memory.h"
 #include "../math/distrgen.h"
 #include "../lattice/elemparams.h"
 #include "../lattice/ilparams.h"
@@ -74,10 +77,39 @@ namespace lbcrypto {
         ILVector2n(const ElemParams &params, Format format = EVALUATION);
 
         /**
-         *  Sets BigBinarayVector value to val
+         *  Set BigBinaryVector value to val
          */
         inline void SetValAtIndex(size_t index, int val) {
             m_values->SetValAtIndex(index, BigBinaryInteger(val));
+        }
+
+        /**
+         *  Set to the constant polynomial 1.
+         */
+        inline void SetIdentity() {
+            *this = ILVector2n(*this);
+            this->SetValAtIndex(0, 1);
+            for (size_t i = 1; i < m_values->GetLength(); ++i) {
+                this->SetValAtIndex(i, 0);
+            }
+        }
+
+        inline ILVector2n& operator=(usint val) {
+            this->SetValAtIndex(0, val);
+            for (size_t i = 1; i < m_values->GetLength(); ++i) {
+                this->SetValAtIndex(i, 0);
+            }
+            return *this;
+        }
+
+        /**
+         *  Create lambda that allocates a zeroed element with the specified
+         *  parameters and format
+         */
+        inline static function<unique_ptr<ILVector2n>()> MakeAllocator(ILParams params, Format format) {
+            return [=]() {
+                return make_unique<ILVector2n>(params, format);
+            };
         }
 
 		/**
@@ -183,7 +215,7 @@ namespace lbcrypto {
 		*
 		* @return the parameter set.
 		*/
-		const ILParams &GetParams();
+		const ILParams &GetParams() const;
 
 		/**
 		* Get value of binaryvector at index i.
@@ -197,7 +229,7 @@ namespace lbcrypto {
 		*
 		* @return the length of the element.
 		*/
-		usint GetLength();
+		usint GetLength() const;
 
 		/**
 		* Set method of the values.

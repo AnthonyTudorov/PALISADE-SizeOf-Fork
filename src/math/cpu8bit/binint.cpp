@@ -49,6 +49,7 @@ const BigBinaryInteger BigBinaryInteger::THREE = BigBinaryInteger("3");
 const BigBinaryInteger BigBinaryInteger::FOUR = BigBinaryInteger("4");
 const BigBinaryInteger BigBinaryInteger::FIVE = BigBinaryInteger("5");
 
+
 //usshort BigBinaryInteger::m_nchar = ceilIntBy8(BIT_LENGTH)+1;
 
 //CONSTRUCTORS
@@ -66,6 +67,11 @@ BigBinaryInteger::BigBinaryInteger()
 	//m_MSB = SetMSB(m_value);
 	m_MSB = 0;
 }
+
+std::function<unique_ptr<BigBinaryInteger>()> BigBinaryInteger::Allocator = [=](){
+    return make_unique<BigBinaryInteger>();
+};
+
 
 //this constructor is used in the functions where all elements of the character array are set
 /*BigBinaryInteger::BigBinaryInteger(uschar init)
