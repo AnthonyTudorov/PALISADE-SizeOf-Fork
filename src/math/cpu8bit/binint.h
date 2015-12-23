@@ -5,25 +5,25 @@
  * @version 00_03
  *
  * @section LICENSE
- * 
+ *
  * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification, 
+ * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this 
+ * 1. Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this 
- * list of conditions and the following disclaimer in the documentation and/or other 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
  * materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @section DESCRIPTION
@@ -39,6 +39,8 @@
 #include <vector>
 #include <memory>
 #include "../../utils/inttypes.h"
+#include "../../utils/memory.h"
+#include <functional>
 #include "../interface.h"
 #include "mempool.h"
 
@@ -59,86 +61,91 @@ const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels used in the Ba
  */
 class BigBinaryInteger : public lbcrypto::BigBinaryIntegerInterface
 {
-public: 
+public:
 	/**
-	 * Basic constructor.	  	  
+	 * Basic constructor.
 	 */
 	BigBinaryInteger();
 
 	/**
 	 * Basic constructor for specifying the integer.
 	 *
-	 * @param init is the initial integer.	  	  
+	 * @param init is the initial integer.
 	 */
 	//explicit BigBinaryInteger(uschar init);
 
 	/**
 	 * Basic constructor for initializing big binary integer from an unsigned integer.
 	 *
-	 * @param init is the initial integer.	  	  
+	 * @param init is the initial integer.
 	 */
 	explicit BigBinaryInteger(usint init);
 
 	/**
 	 * Basic constructor for specifying the integer.
 	 *
-	 * @param str is the initial integer represented as a string.	  	  
+	 * @param str is the initial integer represented as a string.
 	 */
 	explicit BigBinaryInteger(const std::string& str);
 
 	/**
 	 * Basic constructor for copying a big binary integer
 	 *
-	 * @param bigInteger is the big binary integer to be copied.  	  
+	 * @param bigInteger is the big binary integer to be copied.
 	 */
 	explicit BigBinaryInteger(const BigBinaryInteger& bigInteger);
 
 	/**
 	 * Basic constructor for move copying a big binary integer
 	 *
-	 * @param &&bigInteger is the big binary integer to be copied.  	  
+	 * @param &&bigInteger is the big binary integer to be copied.
 	 */
 	BigBinaryInteger(BigBinaryInteger &&bigInteger);//move copy constructor
 
 	/**
 	 * ???
 	 *
-	 * @param &rhs is the big binary matrix to test equality with.  
-	 * @return the return value.	  
+	 * @param &rhs is the big binary matrix to test equality with.
+	 * @return the return value.
 	 */
 	virtual BigBinaryInteger&  operator=(const BigBinaryInteger &rhs);
+
+    inline BigBinaryInteger& operator=(usint val) {
+        *this = intToBigBinaryInteger(val);
+        return *this;
+    }
 
 	/**
 	 * ???
 	 *
-	 * @param &&rhs is the big binary matrix to test equality with.  
-	 * @return the return value.	  
+	 * @param &&rhs is the big binary matrix to test equality with.
+	 * @return the return value.
 	 */
 	virtual BigBinaryInteger&  operator=(BigBinaryInteger &&rhs);
 
 	/**
-	 * Destructor.	  
+	 * Destructor.
 	 */
 	~BigBinaryInteger();
 
 	//ACCESSORS
 
 	/**
-	 * Prints the value to stdout in decimal format.	  
+	 * Prints the value to stdout in decimal format.
 	 */
 	void PrintValueInDec() const;
 
 	/**
 	 * Basic set method for setting the value of a big binary integer
 	 *
-	 * @param str is the string representation of the big binary integer to be copied.  	  
+	 * @param str is the string representation of the big binary integer to be copied.
 	 */
 	virtual void SetValue(const std::string& str);
 
 	/**
 	 * Basic set method for setting the value of a big binary integer
 	 *
-	 * @param a is the big binary integer representation of the big binary integer to be copied.  	  
+	 * @param a is the big binary integer representation of the big binary integer to be copied.
 	 */
 	virtual void SetValue(const BigBinaryInteger& a);
 
@@ -344,7 +351,7 @@ public:
 	 * Left shift operator and creates a new variable as output.
 	 *
 	 * @param shift is the amount to shift.
-	 * @return the result of the shift.	  
+	 * @return the result of the shift.
 	 */
 	virtual BigBinaryInteger  operator<<(usshort shift) const;
 
@@ -352,7 +359,7 @@ public:
 	 * Right shift operator and creates a new variable as output.
 	 *
 	 * @param shift is the amount to shift.
-	 * @return the result of the shift.	  
+	 * @return the result of the shift.
 	 */
 	virtual BigBinaryInteger  operator>>(usshort shift) const;
 
@@ -360,7 +367,7 @@ public:
 	 * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
 	 *
 	 * @param shift is the amount to shift.
-	 * @return the result of the shift.	  
+	 * @return the result of the shift.
 	 */
 	virtual const BigBinaryInteger& operator<<=(usshort shift);
 
@@ -368,7 +375,7 @@ public:
 	 * Right shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
 	 *
 	 * @param shift is the amount to shift.
-	 * @return the result of the shift.	  
+	 * @return the result of the shift.
 	 */
 	virtual const BigBinaryInteger& operator>>=(usshort shift);
 
@@ -378,7 +385,7 @@ public:
 	 *
 	 * @param os the output stream.
 	 * @param &ptr_obj ???.
-	 * @return the return value.	  
+	 * @return the return value.
 	 */
 	friend std::ostream& operator<<(std::ostream& os, const BigBinaryInteger &ptr_obj);
 	//friend std::istream& operator>>(std::istream& in, BigBinaryInteger *a);
@@ -395,14 +402,14 @@ public:
 	 * Tests whether the value is a power of 2.
 	 *
 	 * @param m_numToCheck is the value to check.
-	 * @return true if the input is a power of 2, false otherwise.	  
+	 * @return true if the input is a power of 2, false otherwise.
 	 */
 	friend bool CheckPowerofTwos(BigBinaryInteger& m_numToCheck);
 
 	/**
 	 * Returns the MSB location of the value.
 	 *
-	 * @return the index of the most significant bit.	  
+	 * @return the index of the most significant bit.
 	 */
 	usint GetMSB()const;
 
@@ -410,7 +417,7 @@ public:
 	 * Get the number of digits using a specific base - support for arbitrary base may be needed.
 	 *
 	 * @param base is the base with which to determine length in.
-	 * @return the length of the representation in a specific base.	  
+	 * @return the length of the representation in a specific base.
 	 */
 	usint GetLengthForBase(usint base) const {return GetMSB();}
 
@@ -419,21 +426,21 @@ public:
 	 *
 	 * @param index is the location to return value from in the specific base.
 	 * @param base is the base with which to determine length in.
-	 * @return the length of the representation in a specific base.	  
+	 * @return the length of the representation in a specific base.
 	 */
 	usint GetDigitAtIndexForBase(usint index, usint base) const;
 
 	/**
 	 * Convert the value to an int.
 	 *
-	 * @return the int representation of the value.	  
+	 * @return the int representation of the value.
 	 */
 	usint ConvertToInt() const;
 
 	/**
 	 * Convert the value to a double.
 	 *
-	 * @return the double representation of the value.	  
+	 * @return the double representation of the value.
 	 */
 	double ConvertToDouble() const;
 
@@ -441,7 +448,7 @@ public:
 	 * Convert a value from an int to a BigBinaryInt.
 	 *
 	 * @param m the value to convert from.
-	 * @return the int represented as a big binary int.	  
+	 * @return the int represented as a big binary int.
 	 */
 	static BigBinaryInteger intToBigBinaryInteger(usint m);
 
@@ -449,7 +456,7 @@ public:
 	 * Convert a string representation of a binary number to a decimal BigBinaryInt.
 	 *
 	 * @param bitString the binary num in string.
-	 * @return the binary number represented as a decimal big binary int.	  
+	 * @return the binary number represented as a decimal big binary int.
 	 */
 	static BigBinaryInteger BinaryToBigBinaryInt(const std::string& bitString);
 
@@ -457,39 +464,39 @@ public:
 	 * Exponentiation of a bigBinaryInteger x. Returns x^p
 	 *
 	 * @param p the exponent.
-	 * @return the big binary integer x^p.	  
+	 * @return the big binary integer x^p.
 	 */
 	BigBinaryInteger Exp(usint p) const;
 
 	//constant definations
 
 	/**
-	 * Constant zero.	  
+	 * Constant zero.
 	 */
 	const static BigBinaryInteger ZERO;
 
 	/**
-	 * Constant one.	  
+	 * Constant one.
 	 */
 	const static BigBinaryInteger ONE;
 
 	/**
-	 * Constant two.	  
+	 * Constant two.
 	 */
 	const static BigBinaryInteger TWO;
 
 	/**
-	 * Constant THREE.	  
+	 * Constant THREE.
 	 */
 	const static BigBinaryInteger THREE;
 
 	/**
-	 * Constant four.	  
+	 * Constant four.
 	 */
 	const static BigBinaryInteger FOUR;
 
 	/**
-	 * Constant five.	  
+	 * Constant five.
 	 */
 	const static BigBinaryInteger FIVE;
 
@@ -498,7 +505,7 @@ public:
 	 *
 	 * @param a first value to test.
 	 * @param b second value to test.
-	 * @return true if the inputs are equal.	  
+	 * @return true if the inputs are equal.
 	 */
 	friend bool operator==(const BigBinaryInteger& a, const BigBinaryInteger& b);
 
@@ -507,7 +514,7 @@ public:
 	 *
 	 * @param a first value to test.
 	 * @param b second value to test.
-	 * @return true if the inputs are inequal.	  
+	 * @return true if the inputs are inequal.
 	 */
 	friend bool operator!=(const BigBinaryInteger& a, const BigBinaryInteger& b);
 
@@ -546,8 +553,14 @@ public:
 	 * @return true if the first inputs is less than or equal to the second input.
 	 */
 	friend bool operator<=(const BigBinaryInteger& a, const BigBinaryInteger& b);
-	
-protected: 
+
+    /**
+     *  Set this int to 1.
+     */
+    inline void SetIdentity() { *this = intToBigBinaryInteger(1); };
+
+	static std::function<unique_ptr<BigBinaryInteger>()> Allocator;
+protected:
 
 	/**
 	 * Converts a string into base 256 numbers by the algorithm that you provided me in the beginning of this project.
@@ -591,7 +604,7 @@ private:
 	BigBinaryInteger MulIntegerByChar(uschar b) const;
 	uschar *m_value;
 	usshort m_MSB;
-	static usshort m_nchar ;	
+	static usshort m_nchar ;
 	static uschar ceilIntBy8(uschar Number);
 	//static MemoryPool_uschar memReserve;
 	static MemoryPoolChar m_memReserve;
