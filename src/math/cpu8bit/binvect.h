@@ -5,25 +5,25 @@
  * @version 00_03
  *
  * @section LICENSE
- * 
+ *
  * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification, 
+ * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this 
+ * 1. Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this 
- * list of conditions and the following disclaimer in the documentation and/or other 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
  * materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @section DESCRIPTION
@@ -43,7 +43,7 @@
  * The namespace of cpu8bit
  */
 namespace cpu8bit {
-	
+
 
 //GENERAL NOTE. YSP. I believe we should use this class for vectors only. Matrices should be defined in a separate class: BigBinaryMatrix.
 
@@ -54,57 +54,72 @@ namespace cpu8bit {
 {
 public:
 	/**
-	 * Basic constructor.	  	  
+	 * Basic constructor.
 	 */
 	explicit BigBinaryVector();
 
 	/**
 	 * Basic constructor for specifying the length of the vector.
 	 *
-	 * @param length is the length of the big binary vector, in terms of the number of entries.	  	  
+	 * @param length is the length of the big binary vector, in terms of the number of entries.
 	 */
 	explicit BigBinaryVector(usint length);
 
 	/**
 	 * Basic constructor for specifying the length of the vector and the modulus.
 	 *
-	 * @param length is the length of the big binary vector, in terms of the number of entries.	
-	 * @param modulus is the modulus of the entries in the vector.  	  
+	 * @param length is the length of the big binary vector, in terms of the number of entries.
+	 * @param modulus is the modulus of the entries in the vector.
 	 */
 	explicit BigBinaryVector(usint length, const BigBinaryInteger& modulus);
 
 	/**
 	 * Basic constructor for copying a vector
 	 *
-	 * @param bigBinaryVector is the big binary vector to be copied.  	  
+	 * @param bigBinaryVector is the big binary vector to be copied.
 	 */
 	explicit BigBinaryVector(const BigBinaryVector& bigBinaryVector);
 
 	/**
 	 * Basic constructor for copying a vector
 	 *
-	 * @param &&bigBinaryVector is the big binary vector to be copied.  	  
+	 * @param &&bigBinaryVector is the big binary vector to be copied.
 	 */
 	BigBinaryVector(BigBinaryVector &&bigBinaryVector);//move copy constructor
 
 	/**
 	 * ???
 	 *
-	 * @param &rhs is the big binary vector to test equality with.  
-	 * @return the return value.	  
+	 * @param &rhs is the big binary vector to test equality with.
+	 * @return the return value.
 	 */
 	BigBinaryVector&  operator=(const BigBinaryVector &rhs);
 
 	/**
 	 * ???
-	 *
-	 * @param &&rhs is the big binary vector to test equality with.  
-	 * @return the return value.	  
-	 */
-	BigBinaryVector&  operator=(BigBinaryVector &&rhs);
+     *
+     * @param &&rhs is the big binary vector to test equality with.
+     * @return the return value.
+     */
+    BigBinaryVector&  operator=(BigBinaryVector &&rhs);
+    inline bool operator==(const BigBinaryVector &b) const {
+        if (this->GetLength() != b.GetLength()) {
+            return false;
+        }
+        for (size_t i = 0; i < this->GetLength(); ++i) {
+            if (this->GetValAtIndex(i) != b.GetValAtIndex(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    inline bool operator!=(const BigBinaryVector &b) const {
+        return !(*this == b);
+    }
 
 	/**
-	 * Destructor.	  
+	 * Destructor.
 	 */
 	~BigBinaryVector();
 
@@ -116,7 +131,7 @@ public:
 	 *
 	 * @param os ???.
 	 * @param &ptr_obj ???.
-	 * @return the return value.	  
+	 * @return the return value.
 	 */
 	friend std::ostream& operator<<(std::ostream& os, const BigBinaryVector &ptr_obj);
 
@@ -164,7 +179,7 @@ public:
 	 * @return the vector length.
 	 */
 	usint GetLength() const;
-	
+
 	//METHODS
 
 	/**
@@ -174,7 +189,7 @@ public:
 	 * @return is the result of the modulus operation.
 	 */
 	BigBinaryVector Mod(const BigBinaryInteger& modulus) const;
-	
+
 	//scalar operations
 
 	/**
@@ -209,7 +224,7 @@ public:
 	 */
 	BigBinaryVector ModExp(const BigBinaryInteger &b) const;
 	//BigBinaryVector& ScalarExp(const BigBinaryInteger &a) const;
-	
+
 
 	/**
 	 * Modulus inverse.
@@ -265,7 +280,7 @@ public:
 	BigBinaryVector ModMul(const BigBinaryVector &b) const;
 
 	//matrix operations
-	
+
 	//matrix product - used in FFT and IFFT; new_vector = A*this_vector
 
 	/**
