@@ -115,10 +115,14 @@ static BigBinaryInteger FindGenerator(const BigBinaryInteger& q)
 	
 	output:	root of unity (in format of BigBinaryInteger)
 */
-BigBinaryInteger RootOfUnity(int m, const BigBinaryInteger& modulo) 
+BigBinaryInteger RootOfUnity(usint m, const BigBinaryInteger& modulo) 
 {
+	BigBinaryInteger M(m);
+	if((modulo-BigBinaryInteger::ONE).Mod(M) != BigBinaryInteger::ZERO) {
+		std::string errMsg = "Please provide a primeModulus(q) and a cyclotomic number(m) satisfying the condition: (q-1)/m is an integer. The values of primeModulus = " + modulo.ToString() + " and m = " + std::to_string(m) + " do not satisfy this condition";
+		throw std::runtime_error(errMsg);
+	}
 	BigBinaryInteger result;
-	BigBinaryInteger M(std::to_string(m));
 	BigBinaryInteger gen = FindGenerator(modulo);
 	result = gen.ModExp((modulo-BigBinaryInteger::ONE).DividedBy(M), modulo);
 	if(result == BigBinaryInteger::ONE) {

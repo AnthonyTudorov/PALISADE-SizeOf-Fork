@@ -302,6 +302,26 @@ TEST(method_primitive_root_of_unity, equals_m_not_equals_mbytwo_mbyfour_multiple
 
 }
 
+TEST(method_primitive_root_of_unity, exception_handling) {
+	
+	int m = 32;
+	BigBinaryInteger modulus1("67108913"), modulus2("17729"), modulus3("2097169"), modulus4("8353"), modulus5("8369");
+	BigBinaryInteger primitiveRootOfUnity1 = lbcrypto::RootOfUnity(m, modulus1);
+	BigBinaryInteger primitiveRootOfUnity2 = lbcrypto::RootOfUnity(m, modulus2);
+	// BigBinaryInteger primitiveRootOfUnity3 = lbcrypto::RootOfUnity(m, modulus3);
+	// BigBinaryInteger primitiveRootOfUnity4 = lbcrypto::RootOfUnity(m, modulus4);
+	// BigBinaryInteger primitiveRootOfUnity5 = lbcrypto::RootOfUnity(m, modulus5);
+	std::cout << "RootOfUnity for " << modulus1 << " is " << primitiveRootOfUnity1 << std::endl;
+	std::cout << "RootOfUnity for " << modulus2 << " is " << primitiveRootOfUnity2 << std::endl;
+	// std::cout << "RootOfUnity for " << modulus3 << " is " << primitiveRootOfUnity3 << std::endl;
+	// std::cout << "RootOfUnity for " << modulus4 << " is " << primitiveRootOfUnity4 << std::endl;
+	// std::cout << "RootOfUnity for " << modulus5 << " is " << primitiveRootOfUnity5 << std::endl;
+	// BigBinaryInteger expectedRootOfUnity("57697672");
+
+	// BigBinaryInteger rootOfUnityPowerm = expectedRootOfUnity.ModExp(m, modulus);
+	// std::cout << "Exponential is: " << rootOfUnityPowerm << std::endl; 
+}
+
 // TEST(random_number_generator_small_modulus, less_than) {
 // 	BigBinaryInteger prime("101");
 // 	const int ITERATIONS = 101;
@@ -320,4 +340,3 @@ TEST(method_primitive_root_of_unity, equals_m_not_equals_mbytwo_mbyfour_multiple
 // 	BigBinaryInteger comp("124");
 // 	std::cout << "A factor of " << comp << " is " << lbcrypto::PollardRho(comp) << std::endl;
 // }
-

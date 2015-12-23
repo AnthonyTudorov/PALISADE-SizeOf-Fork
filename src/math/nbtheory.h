@@ -63,7 +63,7 @@ namespace lbcrypto {
 	 * 
 	 * @return a root of unity.  	  
 	 */
-	BigBinaryInteger RootOfUnity(int m, const BigBinaryInteger& modulo);
+	BigBinaryInteger RootOfUnity(usint m, const BigBinaryInteger& modulo);
 
 	/**
 	 * This method can be used to convert an unsigned int to BigBinaryInteger
