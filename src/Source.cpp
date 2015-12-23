@@ -62,7 +62,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 using namespace std;
 using namespace lbcrypto;
-
 void NTRUPRE(int input);
 double currentDateTime();
 
@@ -76,9 +75,12 @@ struct SecureParams {
 	usint relinWindow;		///< The relinearization window parameter.
 };
 
-int main(){
-	
-	
+#include <iterator>
+int main() {
+
+	DiscreteUniformGenerator gen(BigBinaryInteger("100000"));
+	auto v = gen.GenerateVector(10000);
+
 	std::cout << "Relinearization window : " << std::endl;
 	std::cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
 

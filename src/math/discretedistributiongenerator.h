@@ -29,7 +29,7 @@ public:
      * @brief         Sets the modulus of the distribution.
      * @param modulus The new modulus to use to generate discrete values.
      */
-    void SetModulus (const BigBinaryInteger &modulus);
+    virtual void SetModulus (const BigBinaryInteger &modulus);
 
 protected:
     /**

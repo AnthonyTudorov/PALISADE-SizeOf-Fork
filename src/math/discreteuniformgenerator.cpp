@@ -13,21 +13,17 @@ namespace lbcrypto {
 DiscreteUniformGenerator::DiscreteUniformGenerator (const BigBinaryInteger & modulus) : DiscreteDistributionGenerator (modulus) {
     // We generate the distribution here because the parameters are static.
     this->distribution_ = std::uniform_int_distribution<usint>(CHUNK_MIN, CHUNK_MAX);
+    this->SetModulus(modulus);
 }
 
 void DiscreteUniformGenerator::SetModulus (const BigBinaryInteger & modulus) {
-    // Why do work when you don't need to?
-    if (this->modulus_ == modulus) {
-        return;
-    }
 
-    //  Update local modulus.
-    this->modulus_ = modulus;
+    DiscreteDistributionGenerator::SetModulus(modulus);
 
     // Update values that depend on modulus.
     usint modulo_width      = this->modulus_.GetMSB();
     this->chunks_per_value_ = modulo_width / CHUNK_WIDTH;
-    this->remaining_width_   = modulo_width % CHUNK_WIDTH;
+    this->remainder_width_ = modulo_width % CHUNK_WIDTH;
 }
 
 /*
@@ -45,65 +41,62 @@ remainder = moduloLength % LENOFMAX;
 
 // updated version using string streams and comments!
 BigBinaryInteger DiscreteUniformGenerator::GenerateInteger () {
+    BigBinaryInteger result;
 
-    auto prng = this->GetPRNG();
-    std::stringstream buffer("");
+    do {
+        std::stringstream buffer("");
+        for (usint i = 0; i < this->chunks_per_value_; i++) {
+            // generate the next random value, then append it's binary form to the buffer
+            usint value = this->distribution_(this->GetPRNG());
+            buffer << std::bitset<CHUNK_WIDTH>(value).to_string();
+        }
 
-    for (usint i = 0; i < this->chunks_per_value_; i++) {
-        // generate the next random value, then append it's binary form to the buffer
-        usint value = this->distribution_(prng);
-        buffer << std::bitset<CHUNK_WIDTH>(value).to_string();
-    }
+        // If the chunk width did not fit perfectly, we need to generate a final partial chunk
+        if (this->remainder_width_ > 0) {
+            usint value = this->distribution_(this->GetPRNG());
+            std::string temp = std::bitset<CHUNK_WIDTH>(value).to_string();
+            buffer << temp.substr(CHUNK_WIDTH - this->remainder_width_, CHUNK_WIDTH);
+        }
 
-    // If the chunk width did not fit perfectly, we need to generate a final partial chunk
-    if (this->remaining_width_ > 0) {
-        usint value = this->distribution_(prng);
-        std::string temp = std::bitset<CHUNK_WIDTH>(value).to_string();
-        buffer << temp.substr(CHUNK_WIDTH - this->remaining_width_, CHUNK_WIDTH);
-    }
+        // convert the binary into a BBI
+        std::string str = buffer.str();
+        result = BigBinaryInteger::BinaryToBigBinaryInt(str);
+    } while (result > this->modulus_);
 
-    // convert the binary into a BBI
-    BigBinaryInteger result(BigBinaryInteger::BinaryToBigBinaryInt(buffer.str()));
-
-    if (result < this->modulus_) {
-        return result;
-    } else {
-        return this->GenerateInteger();
-    }
+    return result;
 }
 
 // original version
-//    BigBinaryInteger DiscreteUniformGenerator::generateInteger () {
-//        //if m_modulus != modulus {
-//        //	this->InitializeVals(modulus);
-//        //}
-//        usint moduloLength = this->modulus_.GetMSB();
-//        usint noOfIter     = ((moduloLength % CHUNK_WIDTH) == 0) ? (moduloLength/CHUNK_WIDTH) : (moduloLength/CHUNK_WIDTH) + 1;
-//        usint remainder    = moduloLength % CHUNK_WIDTH;
-//        usint randNum;
-//        std::string temp;
-//        std::string bigBinaryInteger = "";
-//        std::uniform_int_distribution<usint> dis(CHUNK_MIN, CHUNK_MAX);
-//
-//        for (usint i = 0; i < noOfIter; ++i) {
-//            randNum = dis(this->getPRNG());
-//            if (remainder != 0 && i == noOfIter - 1) {
-//                temp = std::bitset<CHUNK_WIDTH>(randNum).to_string();
-//                bigBinaryInteger += temp.substr(CHUNK_WIDTH - remainder, CHUNK_WIDTH);
-//            } else {
-//                bigBinaryInteger += std::bitset<CHUNK_WIDTH>(randNum).to_string();
-//            }
-//        }
-//
-//        BigBinaryInteger randBigBinaryInteger(BigBinaryInteger::BinaryToBigBinaryInt(bigBinaryInteger));
-//
-//        // if the random number is within modulus, return
-//        // otherwise, generate another random number
-//        if (randBigBinaryInteger < modulus)
-//            return randBigBinaryInteger;
-//        else
-//            return this->generateInteger();
-//    }
+    BigBinaryInteger DiscreteUniformGenerator::GenerateInteger_old () {
+        //if m_modulus != modulus {
+        //	this->InitializeVals(modulus);
+        //}
+        usint moduloLength = this->modulus_.GetMSB();
+        usint noOfIter     = ((moduloLength % CHUNK_WIDTH) == 0) ? (moduloLength/CHUNK_WIDTH) : (moduloLength/CHUNK_WIDTH) + 1;
+        usint remainder    = moduloLength % CHUNK_WIDTH;
+        usint randNum;
+        std::string temp;
+        std::string bigBinaryInteger = "";
+        std::uniform_int_distribution<usint> dis(CHUNK_MIN, CHUNK_MAX);
+
+        for (usint i = 0; i < noOfIter; ++i) {
+            randNum = dis(this->GetPRNG());
+            if (remainder != 0 && i == noOfIter - 1) {
+                temp = std::bitset<CHUNK_WIDTH>(randNum).to_string();
+                bigBinaryInteger += temp.substr(CHUNK_WIDTH - remainder, CHUNK_WIDTH);
+            } else {
+                bigBinaryInteger += std::bitset<CHUNK_WIDTH>(randNum).to_string();
+            }
+        }
+        BigBinaryInteger randBigBinaryInteger(BigBinaryInteger::BinaryToBigBinaryInt(bigBinaryInteger));
+
+        // if the random number is within modulus, return
+        // otherwise, generate another random number
+        if (randBigBinaryInteger < this->modulus_)
+            return randBigBinaryInteger;
+        else
+            return this->GenerateInteger_old();
+    }
 
 BigBinaryVector DiscreteUniformGenerator::GenerateVector(const usint size) {
     BigBinaryVector randBigBinaryVector(size);

@@ -30,6 +30,7 @@ public:
      * @brief Required by DistributionGenerator.
      */
     BigBinaryInteger GenerateInteger ();
+    BigBinaryInteger GenerateInteger_old ();
 
     /**
      * @brief Required by DistributionGenerator.
@@ -46,7 +47,7 @@ private:
     static const usint CHUNK_WIDTH = 16;
     static const usint CHUNK_MAX   = 65535; // 2^16-1 = 65535
 
-    usint remaining_width_ = 0;
+    usint remainder_width_ = 0;
     usint chunks_per_value_ = 0;
     std::uniform_int_distribution<usint> distribution_;
 
