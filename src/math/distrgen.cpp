@@ -264,6 +264,7 @@ BigBinaryInteger DiscreteUniformGenerator::GenerateInteger(const BigBinaryIntege
 
 BigBinaryVector DiscreteUniformGenerator::GenerateVector(usint size, const BigBinaryInteger &modulus) const{
 	BigBinaryVector randBigBinaryVector(size);
+	randBigBinaryVector.SetModulus(modulus);
 	for(usint index = 0; index<size; ++index) {
 		BigBinaryInteger temp(this->GenerateInteger(modulus));
 		randBigBinaryVector.SetValAtIndex(index, temp);
@@ -283,8 +284,9 @@ BigBinaryInteger BinaryUniformGenerator::GenerateInteger() const{
 
 BigBinaryVector BinaryUniformGenerator::GenerateVector(usint size) const{
 	BigBinaryVector randBigBinaryVector(size);
+	randBigBinaryVector.SetModulus(BigBinaryInteger::TWO);
 	for(usint index = 0; index<size; ++index) {
-		BigBinaryInteger temp(GenerateInteger());
+		BigBinaryInteger temp(BinaryUniformGenerator::GenerateInteger());
 		randBigBinaryVector.SetValAtIndex(index, temp);
 	}
 	return randBigBinaryVector;

@@ -75,8 +75,8 @@ class UnitTestTransform : public ::testing::Test {
 
 TEST(method_CRT_polynomial_multiplication, compares_to_brute_force_multiplication){
 	
-	BigBinaryInteger primeModulus("65537");
-	usint cycloOrder = 8;
+	BigBinaryInteger primeModulus("101"); //65537
+	usint cycloOrder = 4;
 	usint n = cycloOrder / 2;
 	
 	BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(cycloOrder, primeModulus);
@@ -85,13 +85,16 @@ TEST(method_CRT_polynomial_multiplication, compares_to_brute_force_multiplicatio
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator();
 	BigBinaryVector a = distrUniGen.GenerateVector(n, primeModulus);
 	BigBinaryVector b = distrUniGen.GenerateVector(n, primeModulus);
-	std::cout << "Generated vectors. n=" << n << std::endl;
+	std::cout << "Generated vectors: " << a << " and " << b << std::endl;
 
-	BigBinaryVector AA = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(a, primitiveRootOfUnity, cycloOrder);
-	// BigBinaryVector BB = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(b, primitiveRootOfUnity, cycloOrder);
+	BigBinaryVector A = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(a, primitiveRootOfUnity, cycloOrder);
+	BigBinaryVector B = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(b, primitiveRootOfUnity, cycloOrder);
 
-	// BigBinaryVector AB = A*B;
+	BigBinaryVector AB = A.ModMul(B);
+	BigBinaryVector ab = a.ModMul(b);
 
-	// BigBinaryVector ab = ChineseRemainderTransform::GetInstance().InverseTransform(AB, primitiveRootOfUnity, cycloOrder);
+	BigBinaryVector InverseFFTAB = ChineseRemainderTransform::GetInstance().InverseTransform(AB, primitiveRootOfUnity, cycloOrder);
+
+	// EXPECT_EQ(ab, InverseFFTAB);
 
 }
