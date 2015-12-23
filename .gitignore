@@ -1,5 +1,8 @@
 # Ignore everything in this directory
 *~
 *.o
+bin/
+test/build
+test/bin
 # Except this file
 !.gitignore
