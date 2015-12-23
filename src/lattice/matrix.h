@@ -29,6 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <functional>
+#include <math.h>
 
 using std::function;
 
@@ -255,17 +256,14 @@ namespace lbcrypto {
                 return *this;
             }
 
-            inline ILMat<Element>& Transpose() {
-                ILMat<Element> copy(*this);
-                std::swap(cols, rows);
-                data.clear();
-                data.resize(rows);
+            inline ILMat<Element> Transpose() const {
+                ILMat<Element> result(allocZero, cols, rows);
                 for (size_t row = 0; row < rows; ++row) {
                     for (size_t col = 0; col < cols; ++col) {
-                        data[row].push_back(make_unique<Element>(*copy.data[col][row]));
+                        result(col, row) = (*this)(row, col);
                     }
                 }
-                return *this;
+                return result;
             }
 
             //  add rows to bottom of the matrix
@@ -306,6 +304,29 @@ namespace lbcrypto {
 
             inline Element const& operator()(size_t row, size_t col) const {
                 return *data[row][col];
+            }
+
+            inline ILMat<Element> Cholesky() const {
+                //  http://eprint.iacr.org/2013/297.pdf
+                if (rows != cols) {
+                    throw "not square";
+                }
+                ILMat<Element> result(*this);
+                for (size_t k = 0; k < rows; ++k) {
+                    result(k, k) = sqrt(result(k, k));
+                    for (size_t i = k+1; i < rows; ++i) {
+                        result(i, k) = result(i, k) / result(k, k);
+
+                        //  zero upper-right triangle
+                        result(k, i) = 0;
+                    }
+                    for (size_t j = k+1; j < rows; ++j) {
+                        for (size_t i = j; i < rows; ++i) {
+                            result(i, j) = result(i, j) - result(i, k) * result(j, k);
+                        }
+                    }
+                }
+                return result;
             }
 
         private:
