@@ -4,5 +4,6 @@
 bin/
 test/build
 test/bin
+output.txt
 # Except this file
 !.gitignore
