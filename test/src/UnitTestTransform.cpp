@@ -1,17 +1,17 @@
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
-Version: 
-	v00.01 
-Last Edited: 
+Version:
+	v00.01
+Last Edited:
 	12/22/2015 2:37PM
 List of Authors:
-	TPOC: 
+	TPOC:
 		Dr. Kurt Rohloff, rohloff@njit.edu
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
 		Nishanth Pasham, np386@njit.edu
-Description:	
+Description:
 	This code tests the transform feature of the PALISADE lattice encryption library.
 
 License Information:
@@ -74,17 +74,17 @@ class UnitTestTransform : public ::testing::Test {
 // TEST CASE TO TEST POLYNOMIAL MULTIPLICATION USING CHINESE REMAINDER THEOREM
 
 TEST(method_CRT_polynomial_multiplication, compares_to_brute_force_multiplication){
-	
+
 	BigBinaryInteger primeModulus("101"); //65537
 	usint cycloOrder = 4;
 	usint n = cycloOrder / 2;
-	
+
 	BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(cycloOrder, primeModulus);
 	std::cout <<"The primitiveRootOfUnity for modulus " << primeModulus << " is " << primitiveRootOfUnity << std::endl;
-	
-	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator();
-	BigBinaryVector a = distrUniGen.GenerateVector(n, primeModulus);
-	BigBinaryVector b = distrUniGen.GenerateVector(n, primeModulus);
+
+	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(primeModulus);
+	BigBinaryVector a = distrUniGen.GenerateVector(n);
+	BigBinaryVector b = distrUniGen.GenerateVector(n);
 	std::cout << "Generated vectors: " << a << " and " << b << std::endl;
 
 	BigBinaryVector A = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(a, primitiveRootOfUnity, cycloOrder);
