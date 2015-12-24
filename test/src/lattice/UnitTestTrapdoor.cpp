@@ -39,6 +39,7 @@
 #include "../../../src/utils/utilities.h"
 
 #include "../../../src/math/randomizedround.h"
+#include "../../../src/lattice/trapdoor.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -63,6 +64,26 @@ protected:
 /* TESTING BASIC MATH METHODS AND OPERATORS     */
 /************************************************/
 
+static function<unique_ptr<ILVector2n>()> fastIL2nAlloc() {
+	usint m = 16;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+    return ILVector2n::MakeAllocator(
+        ILParams(
+        m, modulus, rootOfUnity),
+        EVALUATION
+        );
+}
+
 TEST(UTTrapdoor,randomized_round){
+    //  It compiles! ...
     randomized_round(0, 4.3, 1024);
+}
+
+TEST(UTTrapdoor,trapdoor_sample){
+	usint m = 16;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+    ILParams fastParams( m, modulus, rootOfUnity);
+    TrapdoorSample(fastParams, 5);
 }
