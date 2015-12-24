@@ -71,7 +71,8 @@ Compares two integer values
 
 // TEST CASE TO GENERATE A UNIFORM BIG BINARY INTEGER WITH SMALL MODULUS
 
-TEST(method_generate_uniform_big_binary,with_in_small_modulus_integer_small_modulus){
+TEST(method_generate_uniform_big_binary,with_in_small_modulus_integer_small_modulus)
+{
 	BigBinaryInteger modulus("10403");
 	DiscreteUniformGenerator dug = lbcrypto::DiscreteUniformGenerator(modulus);
 	BigBinaryInteger uniRandNum = dug.GenerateInteger();
@@ -81,7 +82,8 @@ TEST(method_generate_uniform_big_binary,with_in_small_modulus_integer_small_modu
 
 // TEST CASE TO GENERATE A UNIFORM BIG BINARY INTEGER WITH LARGE MODULUS
 
-TEST(method_generate_uniform_big_binary,with_in_large_modulus_integer_large_modulus){
+TEST(method_generate_uniform_big_binary,with_in_large_modulus_integer_large_modulus)
+{
 	BigBinaryInteger modulus("10402635286389262637365363");
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
 	BigBinaryInteger uniRandNum = distrUniGen.GenerateInteger();
@@ -91,7 +93,8 @@ TEST(method_generate_uniform_big_binary,with_in_large_modulus_integer_large_modu
 
 //TEST CASE TO GENERATE A UNIFORM BIG BINARY VECTOR WITH SMALL MODULUS
 
-TEST(method_generate_uniform_big_binary,vector_uniform_vector_small_modulus){
+TEST(method_generate_uniform_big_binary,vector_uniform_vector_small_modulus)
+{
 	BigBinaryInteger modulus("10403");
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
 
@@ -107,7 +110,8 @@ TEST(method_generate_uniform_big_binary,vector_uniform_vector_small_modulus){
 
 //TEST CASE TO GENERATE A UNIFORM BIG BINARY VECTOR WITH LARGE MODULUS
 
-TEST(method_generate_uniform_big_binary,vector_uniform_vector_large_modulus){
+TEST(method_generate_uniform_big_binary,vector_uniform_vector_large_modulus)
+{
 	BigBinaryInteger modulus("10402635286389262637365363");
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
 
@@ -121,7 +125,8 @@ TEST(method_generate_uniform_big_binary,vector_uniform_vector_large_modulus){
 	}
 }
 
-TEST(method_generate_uniform_big_binary, first_moment_test_convertToDouble_small_modulus){
+TEST(method_generate_uniform_big_binary, first_moment_test_convertToDouble_small_modulus)
+{
 	BigBinaryInteger modulus("7919");
 
 	double modulusInDouble = modulus.ConvertToDouble();
@@ -146,7 +151,8 @@ TEST(method_generate_uniform_big_binary, first_moment_test_convertToDouble_small
 	EXPECT_LT(diffInMeans, 0.01*modulusInDouble);
 }
 
-TEST(method_generate_uniform_big_binary, second_moment_test_convertToDouble_small_modulus){
+TEST(method_generate_uniform_big_binary, second_moment_test_convertToDouble_small_modulus)
+{
 	BigBinaryInteger modulus("7919");
 
 	double modulusInDouble = modulus.ConvertToDouble();
@@ -174,7 +180,8 @@ TEST(method_generate_uniform_big_binary, second_moment_test_convertToDouble_smal
 	EXPECT_LT(diffInStdDev, 0.01*expectedStdDevInDouble);
 }
 
-TEST(method_generate_uniform_big_binary, first_moment_test_convertToDouble_big_modulus){
+TEST(method_generate_uniform_big_binary, first_moment_test_convertToDouble_big_modulus)
+{
 	//999999999961, 999998869, 998443, 4294991873, 100019, 10403
 	BigBinaryInteger modulus("100019");
 
@@ -200,7 +207,8 @@ TEST(method_generate_uniform_big_binary, first_moment_test_convertToDouble_big_m
 	EXPECT_LT(diffInMeans, 0.01*modulusInDouble);
 }
 
-TEST(method_generate_uniform_big_binary, second_moment_test_convertToDouble_big_modulus){
+TEST(method_generate_uniform_big_binary, second_moment_test_convertToDouble_big_modulus)
+{
 	//999999999961, 999998869, 998443, 4294991873, 100019, 10403
 	BigBinaryInteger modulus("100019");
 
@@ -227,6 +235,28 @@ TEST(method_generate_uniform_big_binary, second_moment_test_convertToDouble_big_
 
 	//within 1% of expected std dev
 	EXPECT_LT(diffInStdDev, 0.01*expectedStdDevInDouble);
+}
+
+//TEST CASE TO RECREATE OVERFLOW ISSUE CAUSED WHEN CALCULATING MEAN OF BBI's
+//Issue#73
+TEST(method_generate_uniform_big_binary, recreate_overflow_issue)
+{
+	BigBinaryInteger modulus("10402635286389262637365363"); //10402635286389262637365363
+	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+
+	usint eachIterationSize = 1000, noOfIterations = 100;
+	BigBinaryInteger sum, mean, N(eachIterationSize);
+	
+	BigBinaryVector uniRandVector = distrUniGen.GenerateVector(eachIterationSize * noOfIterations);
+	
+	for(usint i=0; i<noOfIterations; i++) {
+		sum = BigBinaryInteger::ZERO;
+		mean = BigBinaryInteger::ZERO;
+		for(int j=i*eachIterationSize; j<(i+1)*eachIterationSize; j++) {
+			sum += uniRandVector.GetValAtIndex(j);
+		}
+		mean = sum.DividedBy(N);
+	}
 }
 
 TEST(method_generate_binary_uniform_big_binary_integer,greater_than_0)
@@ -273,7 +303,8 @@ TEST(method_generate_binary_uniform_big_binary_integer,mean)
 // a large sample. Max of them should be less than q
 
 
-TEST(method_test_guassian_rand_generator, generate_char_vector_mean_test) {
+TEST(method_test_guassian_rand_generator, generate_char_vector_mean_test)
+{
 	sint stdev = 5;
 	usint size = 10000;
   BigBinaryInteger modulus("10403");
@@ -292,7 +323,8 @@ TEST(method_test_guassian_rand_generator, generate_char_vector_mean_test) {
 	EXPECT_GE(mean, -0.1);
 }
 
-TEST(method_test_guassian_rand_generator, generate_vector_mean_test) {
+TEST(method_test_guassian_rand_generator, generate_vector_mean_test)
+{
 	sint stdev = 5;
 	usint size = 100000;
 	BigBinaryInteger modulus("10403");
