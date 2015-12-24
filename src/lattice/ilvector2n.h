@@ -112,6 +112,13 @@ namespace lbcrypto {
             };
         }
 
+        inline static function<unique_ptr<ILVector2n>()> MakeDiscreteGaussianAllocator(ILParams params, Format format, int stddev) {
+            return [=]() {
+                DiscreteGaussianGenerator dgg(params.GetModulus(), stddev);
+                return make_unique<ILVector2n>(dgg, params, format);
+            };
+        }
+
 		/**
 		* Copy constructor.
 		*

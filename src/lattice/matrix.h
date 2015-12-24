@@ -111,16 +111,17 @@ namespace lbcrypto {
             }
 
             /*
-             *  Sets the first column to be powers of two
+             *  Sets the first row to be powers of two
              */
-            inline ILMat<Element>& GadgetVector() {
+            inline ILMat<Element> GadgetVector() const {
+                ILMat<Element> g(allocZero, rows, cols);
                 auto two = allocZero();
                 *two = 2;
-                (*this)(0, 0) = 1;
-                for (size_t row = 1; row < rows; ++row) {
-                    (*this)(row, 0) = (*this)(row-1, 0) * *two;
+                g(0, 0) = 1;
+                for (size_t col = 1; col < cols; ++col) {
+                    g(0, col) = g(0, col-1) * *two;
                 }
-                return *this;
+                return g;
             }
 
             inline ILMat<Element> Mult(ILMat<Element> const& other) const {
@@ -353,7 +354,7 @@ namespace lbcrypto {
      *  Each element becomes a square matrix with columns of that element's
      *  rotations.
      */
-    ILMat<BigBinaryInteger> Rotate(ILMat<ILVector2n> const& mat) {
+    inline ILMat<BigBinaryInteger> Rotate(ILMat<ILVector2n> const& mat) {
         size_t n = mat(0,0).GetLength();
         BigBinaryInteger const& modulus = mat(0,0).GetParams().GetModulus();
         size_t rows = mat.GetRows() * n;
