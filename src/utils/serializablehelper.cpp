@@ -56,7 +56,7 @@ namespace lbcrypto {
 
 			ofstream jsonFout;
 			jsonFout.open(jsonFileName);
-			jsonFout << "\n" << buffer.GetString() << endl;
+			jsonFout << "\n" << buffer.GetString() << std::endl;
 			jsonFout.close();
 
 		}
