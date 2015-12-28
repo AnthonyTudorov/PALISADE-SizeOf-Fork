@@ -1,6 +1,6 @@
-#include "document.h"
-#include "writer.h"
-#include "stringbuffer.h"
+#include "../../include/rapidjson/document.h"
+#include "../../include/rapidjson/writer.h"
+#include "../../include/rapidjson/stringbuffer.h"
 #include <iostream>
 #include <fstream>
 #include <string>
