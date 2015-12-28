@@ -1,7 +1,3 @@
-//
-// Created by matt on 12/10/15.
-//
-
 #include "discretegaussiangenerator.h"
 #include "nbtheory.h"
 #include "backend.h"

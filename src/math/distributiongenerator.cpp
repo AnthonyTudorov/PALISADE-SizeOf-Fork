@@ -1,7 +1,3 @@
-//
-// Created by matt on 12/10/15.
-//
-
 #include "distributiongenerator.h"
 #include <random>
 #include "backend.h"
