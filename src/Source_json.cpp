@@ -236,7 +236,7 @@ void NTRUPRE(int input) {
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(stdDev);			// Create the noise generator
+	DiscreteGaussianGenerator dgg(modulus, stdDev);			// Create the noise generator
 
 	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
 
@@ -389,7 +389,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	algorithmPRE.ProxyKeyGen(newPK, sk, dgg , &evalKey);  // This is the core re-encryption operation.
+	algorithmPRE.EvalKeyGen(newPK, sk, dgg , &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
