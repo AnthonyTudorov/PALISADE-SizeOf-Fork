@@ -42,7 +42,7 @@
 #include "pubkeylp.h"
 #include "lwecrypt.h"
 
-#include "../serializable.h"
+#include "../utils/serializable.h"
 
 /**
 * @namespace lbcrypto

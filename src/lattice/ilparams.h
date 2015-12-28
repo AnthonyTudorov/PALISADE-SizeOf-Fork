@@ -39,7 +39,7 @@
 #include "../math/nbtheory.h"
 //#include "../encoding/ptxtencoding.h"
 
-#include "../serializable.h"
+#include "../utils/serializable.h"
 
 /**
 * @namespace lbcrypto

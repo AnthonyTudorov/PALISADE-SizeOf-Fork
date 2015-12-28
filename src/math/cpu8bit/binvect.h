@@ -38,7 +38,7 @@
 #include "binint.h"
 #include "binmat.h"
 
-#include "../../serializable.h"
+#include "../../utils/serializable.h"
 
 /**
  * @namespace cpu8bit
