@@ -66,7 +66,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //#include "math/cpu8bit/binvect.h"
 //#include "math/cpu8bit/binmat.h"
 
-#include "serializablehelper.cpp"
+#include "utils/serializablehelper.cpp"
 
 using namespace std;
 using namespace lbcrypto;

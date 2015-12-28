@@ -212,8 +212,8 @@ namespace lbcrypto {
 			std::cout << "+++Setting Cyphertext.CryptoParameters: " << std::endl;
 
 			//YURIY's FIX
-			//LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
-			//json_cryptoParams->Deserialize(serializationMap);
+			LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
+			json_cryptoParams->Deserialize(serializationMap);
 
 			LPCryptoParameters<Element> *json_cryptoParams = new LPCryptoParametersLWE<Element>();
 			json_cryptoParams->Deserialize(serializationMap);
