@@ -14,6 +14,8 @@ DiscreteUniformGenerator::DiscreteUniformGenerator (const BigBinaryInteger & mod
     // We generate the distribution here because the parameters are static.
     this->distribution_ = std::uniform_int_distribution<usint>(CHUNK_MIN, CHUNK_MAX);
     this->SetModulus(modulus);
+	remainder_width_ = 0;
+	chunks_per_value_ = 0;
 }
 
 void DiscreteUniformGenerator::SetModulus (const BigBinaryInteger & modulus) {

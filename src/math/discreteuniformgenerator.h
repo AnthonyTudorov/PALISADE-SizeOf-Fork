@@ -75,8 +75,8 @@ private:
     static const usint CHUNK_WIDTH = 16;
     static const usint CHUNK_MAX   = 65535; // 2^16-1 = 65535
 
-    usint remainder_width_ = 0;
-    usint chunks_per_value_ = 0;
+    usint remainder_width_;
+    usint chunks_per_value_;
     std::uniform_int_distribution<usint> distribution_;
 
     //usint moduloLength;
