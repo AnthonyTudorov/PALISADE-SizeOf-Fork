@@ -43,6 +43,12 @@ namespace lbcrypto {
  */
 class DiscreteGaussianGenerator : DiscreteDistributionGenerator {
 public:
+
+	/**
+	* Default constructor.
+	*/
+	DiscreteGaussianGenerator();
+
     /**
      * @brief         Basic constructor for specifying distribution parameter and modulus.
      * @param modulus The modulus to use to generate discrete values.

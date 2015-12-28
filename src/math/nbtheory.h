@@ -153,6 +153,17 @@ namespace lbcrypto {
 	 */
 	BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
 
+	/**
+	 * Multiplicative inverse for primitive unsigned integer data types
+	 *
+	 * @param a the number we need the inverse of.
+	 * @param b the modulus we are working with.
+	 *
+	 * @return the multiplicative inverse  
+	 */
+	usint ModInverse(usint a, usint b);
+
+
 //private:
 //
 //	BigBinaryInteger RNG(const BigBinaryInteger& n);

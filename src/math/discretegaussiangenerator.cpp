@@ -8,6 +8,9 @@
 
 namespace lbcrypto {
 
+DiscreteGaussianGenerator::DiscreteGaussianGenerator() : DiscreteDistributionGenerator() {
+}
+
 DiscreteGaussianGenerator::DiscreteGaussianGenerator (const BigBinaryInteger & modulus, const sint std) : DiscreteDistributionGenerator (modulus) {
     this->std_ = std;
     InitiateVals();

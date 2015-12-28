@@ -27,6 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "ilvector2n.h"
 #include <fstream>
+#include <cmath>
 
 namespace lbcrypto {
 
@@ -273,6 +274,33 @@ namespace lbcrypto {
 			throw std::logic_error("ILVector2n has no inverse\n");
 
 		}
+	}
+
+	//automorphism operation
+	ILVector2n ILVector2n::AutomorphismTransform(const usint &i) const {
+
+		if (i % 2 == 0)
+			throw std::logic_error("automorphism index should be odd\n");
+		else
+		{
+			ILVector2n result(*this);
+
+			usint m = m_params.GetCyclotomicOrder();
+			usint iInverse = ModInverse(i,m);
+			uschar sign;
+
+			for (usint j = 1; j < m; j = j + 2)
+			{
+
+				usint newIndex = (j*iInverse) % m;
+
+				result.m_values->SetValAtIndex((newIndex + 1)/2-1,this->m_values->GetValAtIndex((j+1)/2-1));
+
+			}
+
+			return result;
+		}
+
 	}
 
 	// OTHER METHODS

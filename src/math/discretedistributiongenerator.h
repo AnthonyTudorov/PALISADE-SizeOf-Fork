@@ -47,6 +47,12 @@ namespace lbcrypto {
  */
 class DiscreteDistributionGenerator : protected DistributionGenerator {
 public:
+
+	/**
+	* Default constructor.
+	*/
+	DiscreteDistributionGenerator();
+
     /**
      * @brief         Constructor for Discrete Distribution Generators that sets the discrete modulus.
      * @param modulus The modulus to use to generate discrete values.

@@ -377,7 +377,7 @@ namespace lbcrypto {
 		* @param &i is the element to perform the automorphism transform with.
 		* @return is the result of the automorphism transform.
 		*/
-		ILVector2n AutomorphismTransform(const BigBinaryInteger &i) const;
+		ILVector2n AutomorphismTransform(const usint &i) const;
 
 		// multiplicative inverse operation
 		/**

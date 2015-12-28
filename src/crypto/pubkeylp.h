@@ -444,6 +444,39 @@ namespace lbcrypto {
 	};
 
 	/**
+	 * @brief Abstract interface class for automorphism-based SHE algorithms
+	 * @tparam Element a ring element.
+	 */
+	template <class Element>
+	class LPAutoMorphAlgorithm {
+		public:
+						
+			/**
+			 * Virtual function to define the interface for evaluating ciphertext at an index
+			 *
+			 * @param &ciphertext the input ciphertext.
+			 * @param *newCiphertext the new ciphertext.
+			 */
+			virtual void EvalAtIndex(const Ciphertext<Element> &ciphertext, const usint i, const std::vector<LPEvalKey<Element> *> &evalKeys,
+				Ciphertext<Element> *newCiphertext) const = 0;
+
+			/**
+			 * Virtual function to generate all isomorphism keys for a given private key
+			 *
+			 * @param &publicKey encryption key for the new ciphertext.
+			 * @param &origPrivateKey original private key used for decryption.
+			 * @param &ddg discrete Gaussian generator.
+			 * @param *evalKeys the evaluation keys.
+			 * @return a vector of re-encryption keys.
+			 */
+			virtual bool EvalAutomorphismKeyGen(const LPPublicKey<Element> &publicKey, 
+				const LPPrivateKey<Element> &origPrivateKey,
+				DiscreteGaussianGenerator &ddg, const usint size, LPPrivateKey<Element> *tempPrivateKey, 
+				std::vector<LPEvalKey<Element> *> *evalKeys) const = 0;
+				};
+
+
+	/**
 	 * @brief main implementation class to capture essential cryptoparameters of any LBC system
 	 * @tparam Element a ring element.
 	 */
