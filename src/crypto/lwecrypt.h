@@ -391,6 +391,7 @@ namespace lbcrypto {
 			void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
 
 				std::cout << "+++Setting LPPublicKeyLWENTRU.CryptoParameters: " << std::endl;
+
 				/*LPCryptoParametersLWE<Element> json_cryptoParams;*/
 				//json_cryptoParams.Deserialize(serializationMap);
 				//this->SetCryptoParameters(&json_cryptoParams);
@@ -411,7 +412,6 @@ namespace lbcrypto {
 				json_ilElement.Deserialize(serializationMap);
 				this->SetPublicElement(json_ilElement);
 				std::cout << "&&&Setting LPPublicKeyLWENTRU.PublicElement<ILVector2n>" << std::endl;
-
 			}
 
 	};
@@ -533,6 +533,7 @@ namespace lbcrypto {
 			void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
 
 				std::cout << "+++Setting LPPrivateKeyLWENTRU.CryptoParameters: " << std::endl;
+
 				/*LPCryptoParametersLWE<Element> json_cryptoParams;*/
 				//json_cryptoParams.Deserialize(serializationMap);
 				//this->SetCryptoParameters(&json_cryptoParams);

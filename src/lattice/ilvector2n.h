@@ -526,7 +526,6 @@ namespace lbcrypto {
 			//set values for this ILVector2n
 			this->SetValues(vectorBBV, Format::EVALUATION);
 			std::cout << "SetValues called for ILVector2n" << std::endl;
-
 			//std::cout << "Values " << this->GetValues() << std::endl;
 
 			std::cout << "Setting Modulus for ILVector2n" << std::endl;
