@@ -39,8 +39,6 @@
 #include "../math/nbtheory.h"
 //#include "../encoding/ptxtencoding.h"
 
-#include "../utils/serializable.h"
-
 /**
 * @namespace lbcrypto
 * The namespace of lbcrypto
@@ -200,7 +198,7 @@ namespace lbcrypto {
 		std::unordered_map <std::string, std::string> Serialize(std::unordered_map <std::string, std::string> serializationMap, std::string fileFlag) const {
 
 			serializationMap.emplace("ilpModulus", this->GetModulus().ToString());
-			serializationMap.emplace("ilpOrder", ToStr(this->GetCyclotomicOrder()));
+			serializationMap.emplace("ilpOrder", this->ToStr(this->GetCyclotomicOrder()));
 			serializationMap.emplace("ilpRootOfUnity", this->GetRootOfUnity().ToString());
 
 			return serializationMap;
