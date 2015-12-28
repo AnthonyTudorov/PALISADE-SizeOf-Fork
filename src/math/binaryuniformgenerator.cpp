@@ -1,7 +1,3 @@
-//
-// Created by matt on 12/11/15.
-//
-
 #include "binaryuniformgenerator.h"
 #include <random>
 

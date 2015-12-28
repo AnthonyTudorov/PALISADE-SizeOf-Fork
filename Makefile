@@ -50,9 +50,9 @@ INC := -I include
 
 #all: alltargets apidocs alltesttargets runtests
 #dbc: runtests takes very long. so should not be automatically run
-all: alltargets apidocs alltesttargets 
+all: alltargets apidocs alltesttargets
 
-targets: alltargets alltesttargets 
+targets: alltargets alltesttargets
 
 alltargets: $(TARGETSMAIN)
 
@@ -151,7 +151,7 @@ apidocs:
 	doxygen lbcrypto-doxy-config
 
 .PHONEY: clean
-clean: cleantargets cleantests cleandocs
+clean: cleantargets cleantests cleandocs cleangnuheaders
 
 .PHONEY: cleantargets
 cleantargets:
@@ -166,6 +166,10 @@ cleantests:
 .PHONEY: cleandocs
 cleandocs:
 	rm -rf doc/apidocs
+
+.PHONEY: cleangnuheaders
+cleangnuheaders:
+	rm -f */**/*.h.gch
 
 #all: $(TARGETS)
 
