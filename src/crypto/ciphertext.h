@@ -100,6 +100,9 @@ namespace lbcrypto {
 		*/
 		const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
 
+		//LPCryptoParameters<Element> &AccessCryptoParameters() const { return *m_cryptoParameters; }
+		//cannot convert from 'const lbcrypto::LPCryptoParameters<Element>' to 'lbcrypto::LPCryptoParameters<Element> &'
+
 		/**
 		* Get a reference to public key.
 		* @return the public key.
@@ -208,7 +211,14 @@ namespace lbcrypto {
 			LPCryptoParametersLWE<Element> json_cryptoParams;
 			json_cryptoParams.Deserialize(serializationMap);
 			this->SetCryptoParameters(json_cryptoParams);
+
+			//YURIY's FIX
+			//LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
+			//json_cryptoParams->Deserialize(serializationMap);
+
 			std::cout << "&&&Set Cyphertext.CryptoParameters" << endl;
+
+			std::cout << "YURIY: In Deserialize for ciphertext.h: " << this->GetCryptoParameters().GetPlaintextModulus() << endl;
 
 			std::cout << "+++Setting Cyphertext.Norm: " << endl;
 			BigBinaryInteger bbiNorm(serializationMap["Norm"]);
@@ -217,9 +227,9 @@ namespace lbcrypto {
 			std::cout << "Norm " << this->GetNorm().ToString() << endl;
 
 			std::cout << "+++Setting Cyphertext.Element<ILVector2n>: " << endl;
-			ILVector2n json_ilVector2n;
-			json_ilVector2n.Deserialize(serializationMap);
-			this->SetElement(json_ilVector2n);
+			Element json_ilElement;
+			json_ilElement.Deserialize(serializationMap);
+			this->SetElement(json_ilElement);
 			std::cout << "&&&Set Cyphertext.Element<ILVector2n>" << endl;
 		}
 	

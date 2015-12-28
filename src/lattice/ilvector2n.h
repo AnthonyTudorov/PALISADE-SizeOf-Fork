@@ -526,7 +526,7 @@ namespace lbcrypto {
 			//set values for this ILVector2n
 			this->SetValues(vectorBBV, Format::EVALUATION);
 			std::cout << "SetValues called for ILVector2n" << std::endl;
-			std::cout << "Values " << this->GetValues() << std::endl;
+			//std::cout << "Values " << this->GetValues() << std::endl;
 
 			std::cout << "Setting Modulus for ILVector2n" << std::endl;
 			//set modulus for this ILVector2n
@@ -538,7 +538,7 @@ namespace lbcrypto {
 			std::cout << "Setting ILParams for ILVector2n" << std::endl;
 			//set ILParams for this ILVector2n
 			ILParams json_ilParams;
-			json_ilParams.Deserialize(serializationMap);
+			json_ilParams.Deserialize(serializationMap); 
 			this->SetParams(json_ilParams);
 			std::cout << "SetParams called for ILVector2n" << std::endl;
 			std::cout << "CyclotomicOrder " << this->GetParams().GetCyclotomicOrder() << std::endl;
