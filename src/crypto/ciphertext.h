@@ -182,7 +182,7 @@ namespace lbcrypto {
 		//JSON FACILITY
 		std::unordered_map <std::string, std::string> Serialize(std::unordered_map <std::string, std::string> serializationMap, std::string fileFlag) {
 
-			string jsonInputBuffer = "";
+			std::string jsonInputBuffer = "";
 			SerializableHelper jsonHelper;
 
 			serializationMap = this->SetIdFlag(serializationMap, fileFlag);
