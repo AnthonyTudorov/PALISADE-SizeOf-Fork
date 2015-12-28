@@ -35,7 +35,7 @@ using std::unique_ptr;
 #include <algorithm>
 
 //  make_unique was left out of c++11, these are the accepted implementation
-#if _MSC_VER
+#if _MSC_VER == 1700
 
 //	MSVC11 does not support variadic templates
 #define _MAKE_UNIQUE(TEMPLATE_LIST, PADDING_LIST, LIST, COMMA, X1, X2, X3, X4)  \
