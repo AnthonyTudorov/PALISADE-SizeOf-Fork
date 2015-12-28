@@ -390,7 +390,7 @@ namespace lbcrypto {
 			//JSON FACILITY
 			void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
 
-				std::cout << "+++Setting LPPublicKeyLWENTRU.CryptoParameters: " << endl;
+				std::cout << "+++Setting LPPublicKeyLWENTRU.CryptoParameters: " << std::endl;
 				/*LPCryptoParametersLWE<Element> json_cryptoParams;*/
 				//json_cryptoParams.Deserialize(serializationMap);
 				//this->SetCryptoParameters(&json_cryptoParams);
@@ -399,18 +399,18 @@ namespace lbcrypto {
 				LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
 				json_cryptoParams->Deserialize(serializationMap);
 
-				std::cout << "&&&Set LPPublicKeyLWENTRU.CryptoParameters" << endl;
+				std::cout << "&&&Set LPPublicKeyLWENTRU.CryptoParameters" << std::endl;
 
 				//Use AccessCryptoParameters to retrieve empty cryptoparams set in Source.cpp and then populate it DO NOT SET IT AFTER UPDATE
 				//Retrieve as a pointer
 
-				std::cout << "YURIY: In Deserialize for lwecrypt.h PublicKey: " << this->GetCryptoParameters().GetPlaintextModulus() << endl;
+				std::cout << "YURIY: In Deserialize for lwecrypt.h PublicKey: " << this->GetCryptoParameters().GetPlaintextModulus() << std::endl;
 
-				std::cout << "+++Setting LPPublicKeyLWENTRU.PublicElement<ILVector2n>: " << endl;
+				std::cout << "+++Setting LPPublicKeyLWENTRU.PublicElement<ILVector2n>: " << std::endl;
 				Element json_ilElement;
 				json_ilElement.Deserialize(serializationMap);
 				this->SetPublicElement(json_ilElement);
-				std::cout << "&&&Setting LPPublicKeyLWENTRU.PublicElement<ILVector2n>" << endl;
+				std::cout << "&&&Setting LPPublicKeyLWENTRU.PublicElement<ILVector2n>" << std::endl;
 
 			}
 
@@ -532,7 +532,7 @@ namespace lbcrypto {
 			//JSON FACILITY
 			void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
 
-				std::cout << "+++Setting LPPrivateKeyLWENTRU.CryptoParameters: " << endl;
+				std::cout << "+++Setting LPPrivateKeyLWENTRU.CryptoParameters: " << std::endl;
 				/*LPCryptoParametersLWE<Element> json_cryptoParams;*/
 				//json_cryptoParams.Deserialize(serializationMap);
 				//this->SetCryptoParameters(&json_cryptoParams);
@@ -541,18 +541,18 @@ namespace lbcrypto {
 				LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
 				json_cryptoParams->Deserialize(serializationMap);
 
-				std::cout << "&&&Set LPPrivateKeyLWENTRU.CryptoParameters" << endl;
+				std::cout << "&&&Set LPPrivateKeyLWENTRU.CryptoParameters" << std::endl;
 
 				//Use AccessCryptoParameters to retrieve empty cryptoparams set in Source.cpp and then populate it DO NOT SET IT AFTER UPDATE
 				//Retrieve as a pointer
 
-				std::cout << "YURIY: In Deserialize for lwecrypt.h PrivateKey: " << this->GetCryptoParameters().GetPlaintextModulus() << endl;
+				std::cout << "YURIY: In Deserialize for lwecrypt.h PrivateKey: " << this->GetCryptoParameters().GetPlaintextModulus() << std::endl;
 
-				std::cout << "+++Setting LPPrivateKeyLWENTRU.PrivateElement<ILVector2n>: " << endl;
+				std::cout << "+++Setting LPPrivateKeyLWENTRU.PrivateElement<ILVector2n>: " << std::endl;
 				Element json_ilElement;
 				json_ilElement.Deserialize(serializationMap);
 				this->SetPrivateElement(json_ilElement);
-				std::cout << "&&&Setting LPPrivateKeyLWENTRU.PrivateElement<ILVector2n>" << endl;
+				std::cout << "&&&Setting LPPrivateKeyLWENTRU.PrivateElement<ILVector2n>" << std::endl;
 
 			}
 	};

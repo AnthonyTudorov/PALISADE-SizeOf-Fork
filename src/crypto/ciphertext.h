@@ -198,7 +198,7 @@ namespace lbcrypto {
 			/*m_serializationMapBuffer = this->GetPublicKey().Serialize(m_serializationMapBuffer, "");
 			cout << "m_serializationMapBuffer size: " << m_serializationMapBuffer.size() << endl;
 			jsonInputBuffer = jsonHelper.GetJsonString(m_serializationMapBuffer);
-			cout << "m_serializationMapBuffer jsonInputBuffer: " << jsonInputBuffer << endl;
+			cout << "m_serializationMapBuffer jsonInputBuffer: " << jsonInputBuffer << std::endl;
 			serializationMap.emplace("PublicKey", jsonInputBuffer);*/
 
 			return serializationMap;
@@ -207,7 +207,7 @@ namespace lbcrypto {
 		//JSON FACILITY
 		void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
 
-			std::cout << "+++Setting Cyphertext.CryptoParameters: " << endl;
+			std::cout << "+++Setting Cyphertext.CryptoParameters: " << std::endl;
 			LPCryptoParametersLWE<Element> json_cryptoParams;
 			json_cryptoParams.Deserialize(serializationMap);
 			this->SetCryptoParameters(json_cryptoParams);
@@ -216,21 +216,21 @@ namespace lbcrypto {
 			//LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
 			//json_cryptoParams->Deserialize(serializationMap);
 
-			std::cout << "&&&Set Cyphertext.CryptoParameters" << endl;
+			std::cout << "&&&Set Cyphertext.CryptoParameters" << std::endl;
 
-			std::cout << "YURIY: In Deserialize for ciphertext.h: " << this->GetCryptoParameters().GetPlaintextModulus() << endl;
+			std::cout << "YURIY: In Deserialize for ciphertext.h: " << this->GetCryptoParameters().GetPlaintextModulus() << std::endl;
 
-			std::cout << "+++Setting Cyphertext.Norm: " << endl;
+			std::cout << "+++Setting Cyphertext.Norm: " << std::endl;
 			BigBinaryInteger bbiNorm(serializationMap["Norm"]);
 			this->SetNorm(bbiNorm);
-			std::cout << "&&&Set Cyphertext.Norm" << endl;
-			std::cout << "Norm " << this->GetNorm().ToString() << endl;
+			std::cout << "&&&Set Cyphertext.Norm" << std::endl;
+			std::cout << "Norm " << this->GetNorm().ToString() << std::endl;
 
-			std::cout << "+++Setting Cyphertext.Element<ILVector2n>: " << endl;
+			std::cout << "+++Setting Cyphertext.Element<ILVector2n>: " << std::endl;
 			Element json_ilElement;
 			json_ilElement.Deserialize(serializationMap);
 			this->SetElement(json_ilElement);
-			std::cout << "&&&Set Cyphertext.Element<ILVector2n>" << endl;
+			std::cout << "&&&Set Cyphertext.Element<ILVector2n>" << std::endl;
 		}
 	
 	private:
