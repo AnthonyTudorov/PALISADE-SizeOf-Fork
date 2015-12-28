@@ -39,11 +39,12 @@ void LPAlgorithmAutoMorphLWENTRU<Element>::EvalAtIndex(const Ciphertext<Element>
 	usint autoIndex = 2*i - 1;
 	usint m = ciphertext.GetElement().GetParams().GetCyclotomicOrder();
 
-	usint iInverse = ModInverse(autoIndex,m);
+	//usint iInverse = ModInverse(autoIndex,m);
 
 	Ciphertext<Element> permutedCiphertext;
 	permutedCiphertext = ciphertext;
-	permutedCiphertext.SetElement(ciphertext.GetElement().AutomorphismTransform(iInverse));
+	//permutedCiphertext.SetElement(ciphertext.GetElement().AutomorphismTransform(iInverse));
+	permutedCiphertext.SetElement(ciphertext.GetElement().AutomorphismTransform(autoIndex));
 
 	*newCiphertext = ciphertext;
 
@@ -85,11 +86,13 @@ bool LPAlgorithmAutoMorphLWENTRU<Element>::EvalAutomorphismKeyGen(const LPPublic
 
 		for (usint index = 0; index < size - 1; index++)
 		{
-			usint iInverse = ModInverse(i,m);
+			//usint iInverse = ModInverse(i,m);
 
 			//std::cout<< "before " << i << " \n" << privateKeyElement.GetValues() << std::endl;
 
-			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(iInverse);
+			//Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(iInverse);
+			
+			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(i);
 
 			//std::cout<< "after " << i << " \n" << permutedPrivateKeyElement.GetValues() << std::endl;
 			

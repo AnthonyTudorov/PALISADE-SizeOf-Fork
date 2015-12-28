@@ -286,13 +286,14 @@ namespace lbcrypto {
 			ILVector2n result(*this);
 
 			usint m = m_params.GetCyclotomicOrder();
-			usint iInverse = ModInverse(i,m);
-			uschar sign;
+			//usint iInverse = ModInverse(i,m);
+			//uschar sign;
 
 			for (usint j = 1; j < m; j = j + 2)
 			{
 
-				usint newIndex = (j*iInverse) % m;
+				//usint newIndex = (j*iInverse) % m;
+				usint newIndex = (j*i) % m;
 
 				result.m_values->SetValAtIndex((newIndex + 1)/2-1,this->m_values->GetValAtIndex((j+1)/2-1));
 
