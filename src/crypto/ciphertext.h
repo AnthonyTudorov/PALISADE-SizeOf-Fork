@@ -100,8 +100,7 @@ namespace lbcrypto {
 		*/
 		const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
 
-		//LPCryptoParameters<Element> &AccessCryptoParameters() const { return *m_cryptoParameters; }
-		//cannot convert from 'const lbcrypto::LPCryptoParameters<Element>' to 'lbcrypto::LPCryptoParameters<Element> &'
+		//LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
 
 		/**
 		* Get a reference to public key.
@@ -210,8 +209,12 @@ namespace lbcrypto {
 			std::cout << "+++Setting Cyphertext.CryptoParameters: " << std::endl;
 
 			//YURIY's FIX
-			LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
+			//LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
+			//json_cryptoParams->Deserialize(serializationMap);
+
+			LPCryptoParameters<Element> *json_cryptoParams = new LPCryptoParametersLWE<Element>();
 			json_cryptoParams->Deserialize(serializationMap);
+			this->SetCryptoParameters(*json_cryptoParams);
 
 			std::cout << "&&&Set Cyphertext.CryptoParameters" << std::endl;
 
