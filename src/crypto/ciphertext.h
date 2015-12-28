@@ -183,7 +183,7 @@ namespace lbcrypto {
 		std::unordered_map <std::string, std::string> Serialize(std::unordered_map <std::string, std::string> serializationMap, std::string fileFlag) {
 
 			std::string jsonInputBuffer = "";
-			SerializableHelper jsonHelper;
+			//SerializableHelper jsonHelper;
 
 			serializationMap = this->SetIdFlag(serializationMap, fileFlag);
 
@@ -208,13 +208,10 @@ namespace lbcrypto {
 		void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
 
 			std::cout << "+++Setting Cyphertext.CryptoParameters: " << std::endl;
-			LPCryptoParametersLWE<Element> json_cryptoParams;
-			json_cryptoParams.Deserialize(serializationMap);
-			this->SetCryptoParameters(json_cryptoParams);
 
 			//YURIY's FIX
-			//LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
-			//json_cryptoParams->Deserialize(serializationMap);
+			LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
+			json_cryptoParams->Deserialize(serializationMap);
 
 			std::cout << "&&&Set Cyphertext.CryptoParameters" << std::endl;
 
