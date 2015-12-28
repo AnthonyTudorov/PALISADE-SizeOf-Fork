@@ -132,11 +132,10 @@ DecodingResult LPAlgorithmLWENTRU<Element>::Decrypt(const LPPrivateKey<Element> 
 				const Ciphertext<Element> &ciphertext,
 				PlaintextEncodingInterface *plaintext) const
 {	
+
 	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetAbstractCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
-
-	cout << "YURIY: In Decrypt value of plaintext modulus: " << p << endl;
 
 	Element c(elementParams);
 	c = ciphertext.GetElement();

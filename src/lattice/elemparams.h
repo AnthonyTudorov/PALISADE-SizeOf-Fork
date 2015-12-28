@@ -38,6 +38,7 @@
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
 //#include "../encoding/ptxtencoding.h"
+
 #include "../utils/serializable.h"
 
 /**

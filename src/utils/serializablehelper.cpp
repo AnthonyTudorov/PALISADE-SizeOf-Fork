@@ -1,6 +1,6 @@
-#include "../../include/rapidjson/document.h"
-#include "../../include/rapidjson/writer.h"
-#include "../../include/rapidjson/stringbuffer.h"
+#include "document.h"
+#include "writer.h"
+#include "stringbuffer.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -56,7 +56,7 @@ namespace lbcrypto {
 
 			ofstream jsonFout;
 			jsonFout.open(jsonFileName);
-			jsonFout << "\n" << buffer.GetString() << std::endl;
+			jsonFout << "\n" << buffer.GetString() << endl;
 			jsonFout.close();
 
 		}
