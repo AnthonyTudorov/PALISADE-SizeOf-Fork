@@ -36,6 +36,7 @@
 
 //Includes Section
 #include "../utils/inttypes.h"
+//#include "../utils/serializable.h"
 #include "../math/distrgen.h"
 #include "../math/backend.h"
 #include "pubkeylp.h"
@@ -253,12 +254,12 @@ namespace lbcrypto {
 			//JSON FACILITY
 			std::unordered_map <std::string, std::string> Serialize(std::unordered_map <std::string, std::string> serializationMap, std::string fileFlag) const {
 
-				serializationMap.emplace("DistributionParameter", ToStr(GetDistributionParameter()));
-				serializationMap.emplace("AssuranceMeasure", ToStr(GetAssuranceMeasure()));
-				serializationMap.emplace("SecurityLevel", ToStr(GetSecurityLevel()));
-				serializationMap.emplace("RelinWindow", ToStr(GetRelinWindow()));
-				serializationMap.emplace("Depth", ToStr(GetDepth()));
-				serializationMap.emplace("PlaintextModulus", ToStr(GetPlaintextModulus().ToString()));
+				serializationMap.emplace("DistributionParameter", this->ToStr(GetDistributionParameter()));
+				serializationMap.emplace("AssuranceMeasure", this->ToStr(GetAssuranceMeasure()));
+				serializationMap.emplace("SecurityLevel", this->ToStr(GetSecurityLevel()));
+				serializationMap.emplace("RelinWindow", this->ToStr(GetRelinWindow()));
+				serializationMap.emplace("Depth", this->ToStr(GetDepth()));
+				serializationMap.emplace("PlaintextModulus", this->ToStr(GetPlaintextModulus().ToString()));
 
 				// using sub typing / runtime polymorphism simulate what happens with downward casting 
 				// (only works for methods defined in abstract class)

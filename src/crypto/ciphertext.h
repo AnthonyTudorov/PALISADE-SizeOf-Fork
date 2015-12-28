@@ -40,7 +40,7 @@
 
 //Includes Section
 #include "pubkeylp.h"
-#include "lwecrypt.h"
+//#include "lwecrypt.h"
 
 #include "../utils/serializable.h"
 
@@ -49,6 +49,10 @@
 * The namespace of lbcrypto
 */
 namespace lbcrypto {
+
+
+	template <class Element>	
+	class LPCryptoParametersLWE;
 
 	/**
 	 * @brief Main ciphertext class.
