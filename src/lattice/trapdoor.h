@@ -10,8 +10,10 @@ namespace lbcrypto {
 
     class TrapdoorPair {
     public:
-        RingMat r;
-        RingMat e;
+        RingMat m_r;
+        RingMat m_e;
+
+		TrapdoorPair(const RingMat &r, const RingMat &e): m_r(r), m_e(e) {}; 
     };
 
     inline pair<RingMat, TrapdoorPair> TrapdoorSample(ILParams params, int stddev) {
@@ -36,7 +38,7 @@ namespace lbcrypto {
             A(0, i+2) = g(0, i) - (*a*r(i, 0) + e(i, 0));
         }
 
-        return pair<RingMat, TrapdoorPair>(A, TrapdoorPair{r, e});
+        return pair<RingMat, TrapdoorPair>(A, TrapdoorPair(r, e));
     }
 }
 #endif

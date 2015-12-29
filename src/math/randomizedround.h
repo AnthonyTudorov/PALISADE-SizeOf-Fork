@@ -31,6 +31,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <random>
 using std::uniform_int_distribution;
 using std::uniform_real_distribution;
+//#include <math.h>
+
+#define _USE_MATH_DEFINES // added for Visual Studio support
 #include <math.h>
 
 static std::random_device rd;
@@ -48,7 +51,7 @@ inline double unnormalized_gaussian_pdf(double mean, double sigma, double x) {
  *  @param n the ring dimension
  */
 inline double integer_sample(double mean, double stddev, size_t n) {
-    double t = log2(n);
+    double t = log(n)/log(2);  //fix for Visual Studio
     uniform_int_distribution<long> uniform_int(floor(mean - t), ceil(mean + t));
     std::uniform_real_distribution<double> uniform_real(0.0, 1.0);
     while (true) {
