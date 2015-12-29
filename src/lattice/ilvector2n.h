@@ -516,8 +516,8 @@ namespace lbcrypto {
 
 			std::cout << "In ilvector2n.h Deserialize(): " << std::endl;
 
-			//usint vectorLength = 1024; //Should this stay hard coded?
-			usint vectorLength = 8;
+			usint vectorLength = 1024; //Should this stay hard coded?
+			//usint vectorLength = 8; //For simplified parameterizations
 			BigBinaryVector vectorBBV = BigBinaryVector(vectorLength);
 
 			std::cout << "Setting Values for ILVector2n" << std::endl;

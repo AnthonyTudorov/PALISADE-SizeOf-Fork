@@ -387,7 +387,7 @@ public:
 			this->SetValAtIndex(i, vectorElem);
 			i++;
 
-			if (i == this->GetLength()) { //Should be 1024
+			if (i == this->GetLength()) { 
 				break;
 			}
 		}

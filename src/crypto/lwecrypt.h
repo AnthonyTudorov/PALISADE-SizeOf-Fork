@@ -273,11 +273,8 @@ namespace lbcrypto {
 
 				std::cout << "In lwecrypt.h Deserialize() for LPCryptoParametersLWE: " << std::endl;
 
-				//ILParams json_ilParams;
-				//json_ilParams.Deserialize(serializationMap);
 
 				//YURIY's FIX
-
 				//find out the type of object using the input JSON and static object id
 				//create an object of that class using the new operator (on the heap)
 				// if (classname=="ILParams")
@@ -285,7 +282,6 @@ namespace lbcrypto {
 				//Rely on object factory approach to determine what class to instantiate for
 				//deserialization.
 
-				//ElemParams *json_ilParams = &this->AccessElementParams();
 				ElemParams *json_ilParams = new ILParams();
 				json_ilParams->Deserialize(serializationMap);
 				this->SetElementParams(*json_ilParams);
@@ -391,18 +387,11 @@ namespace lbcrypto {
 			void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
 
 				std::cout << "+++Setting LPPublicKeyLWENTRU.CryptoParameters: " << std::endl;
-				/*LPCryptoParametersLWE<Element> json_cryptoParams;*/
-				//json_cryptoParams.Deserialize(serializationMap);
-				//this->SetCryptoParameters(&json_cryptoParams);
 
-				//YURIY's FIX
 				LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
 				json_cryptoParams->Deserialize(serializationMap);
 
 				std::cout << "&&&Set LPPublicKeyLWENTRU.CryptoParameters" << std::endl;
-
-				//Use AccessCryptoParameters to retrieve empty cryptoparams set in Source.cpp and then populate it DO NOT SET IT AFTER UPDATE
-				//Retrieve as a pointer
 
 				std::cout << "YURIY: In Deserialize for lwecrypt.h PublicKey: " << this->GetCryptoParameters().GetPlaintextModulus() << std::endl;
 
@@ -532,18 +521,11 @@ namespace lbcrypto {
 			void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
 
 				std::cout << "+++Setting LPPrivateKeyLWENTRU.CryptoParameters: " << std::endl;
-				/*LPCryptoParametersLWE<Element> json_cryptoParams;*/
-				//json_cryptoParams.Deserialize(serializationMap);
-				//this->SetCryptoParameters(&json_cryptoParams);
 
-				//YURIY's FIX
 				LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
 				json_cryptoParams->Deserialize(serializationMap);
 
 				std::cout << "&&&Set LPPrivateKeyLWENTRU.CryptoParameters" << std::endl;
-
-				//Use AccessCryptoParameters to retrieve empty cryptoparams set in Source.cpp and then populate it DO NOT SET IT AFTER UPDATE
-				//Retrieve as a pointer
 
 				std::cout << "YURIY: In Deserialize for lwecrypt.h PrivateKey: " << this->GetCryptoParameters().GetPlaintextModulus() << std::endl;
 
