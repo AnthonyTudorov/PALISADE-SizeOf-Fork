@@ -232,13 +232,27 @@ namespace lbcrypto {
 		*This function returns the interpolated vectors
 		*/
 
+		// get digit for a specific based - used for PRE scheme
+		/**
+		* Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  Used in bit decomposition/relinearization operations.
+		*
+		* @param index is the index to get.
+		* @param base is the base the result should be in.
+		* @return is the result.
+		*/
+		ILVectorArray2n GetDigitAtIndexForBase(usint index, usint base) const;
+
+
 		ILVector2n InterpolateIlArrayVector2n();
 
+		
 		// convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT
 		/**
 		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
 		*/
 		void SwitchFormat();
+
+		
 
 		/**
 		* Determines if inverse exists
@@ -247,7 +261,9 @@ namespace lbcrypto {
 		*/
 		bool InverseExists() const;
 
-		private:BigBinaryInteger CalculateInterpolationSum(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors, usint index);
+		private:BigBinaryInteger CalculateInterpolationSum2(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors, usint index);
+
+		private:BigBinaryInteger CalculateInterpolationSum(std::vector<BigBinaryInteger> vectorOfBigInts, usint index);
 
 		/*
 		Helper method for chinese remainder interpolatiom
