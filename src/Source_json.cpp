@@ -457,6 +457,7 @@ void NTRUPRE(int input) {
 	SerializableHelper jsonHelper;
 
 	cout << "---BEGIN LPPublicKeyLWENTRU SERIALIZATION---" << endl;
+	cout << "Serializing previously used pk object..." << endl;
 	unordered_map <string, unordered_map <string, string>> testMap1;
 	testMap1 = pk.Serialize(testMap1, "Enc");
 	jsonFileName = jsonHelper.GetJsonFileName(testMap1);
@@ -466,6 +467,7 @@ void NTRUPRE(int input) {
 	cout << "---END LPPublicKeyLWENTRU SERIALIZATION TESTING---" << endl;
 
 	cout << "---BEGIN LPPrivateKeyLWENTRU SERIALIZATION---" << endl;
+	cout << "Serializing previously used sk object..." << endl;
 	unordered_map <string, unordered_map <string, string>> testMap2;
 	testMap2 = sk.Serialize(testMap2, "Enc");
 	jsonFileName = jsonHelper.GetJsonFileName(testMap2);
@@ -475,6 +477,7 @@ void NTRUPRE(int input) {
 	cout << "---END LPPrivateKeyLWENTRU SERIALIZATION---" << endl;
 
 	cout << "---BEGIN CIPHERTEXT SERIALIZATION---" << endl;
+	cout << "Serializing previously used ciphertext object..." << endl;
 	unordered_map <string, unordered_map <string, string>> testMap3;
 	testMap3 = ciphertext.Serialize(testMap3, "Enc");
 	jsonFileName = jsonHelper.GetJsonFileName(testMap3);
@@ -485,30 +488,33 @@ void NTRUPRE(int input) {
 
 	cout << "---BEGIN LPPublicKeyLWENTRU DESERIALIZATION---" << endl;
 	jsonFileName = "LPPublicKeyLWENTRU_Enc.txt";
+	cout << "Deserializing instance from " << jsonFileName << endl;
 	testMap1 = jsonHelper.GetSerializationMap(jsonFileName);
-	LPPublicKeyLWENTRU<ILVector2n> pk1;
+	LPPublicKeyLWENTRU<ILVector2n> pkDeserialized;
 	LPCryptoParametersLWE<ILVector2n> json_cryptoParamsPub;
-	pk1.SetCryptoParameters(&json_cryptoParamsPub);
-	pk1.Deserialize(testMap1);
-	cout << "Deserialized from " << jsonFileName << endl;
+	pkDeserialized.SetCryptoParameters(&json_cryptoParamsPub);
+	pkDeserialized.Deserialize(testMap1);
+	cout << "Deserialized into pkDeserialized" << endl;
 	cout << "---END LPPublicKeyLWENTRU DESERIALIZATION---" << endl;
 
 	cout << "---BEGIN LPPrivateKeyLWENTRU DESERIALIZATION---" << endl;
 	jsonFileName = "LPPrivateKeyLWENTRU_Enc.txt";
+	cout << "Deserializing instance from " << jsonFileName << endl;
 	testMap2 = jsonHelper.GetSerializationMap(jsonFileName);
-	LPPrivateKeyLWENTRU<ILVector2n> sk1;
+	LPPrivateKeyLWENTRU<ILVector2n> skDeserialized;
 	LPCryptoParametersLWE<ILVector2n> json_cryptoParamsPriv;
-	sk1.SetCryptoParameters(&json_cryptoParamsPriv);
-	sk1.Deserialize(testMap2);
-	cout << "Deserialized from " << jsonFileName << endl;
+	skDeserialized.SetCryptoParameters(&json_cryptoParamsPriv);
+	skDeserialized.Deserialize(testMap2);
+	cout << "Deserialized into skDeserialized" << endl;
 	cout << "---END LPPrivateKeyLWENTRU DESERIALIZATION---" << endl;
 
 	cout << "---BEGIN CIPHERTEXT DESERIALIZATION---" << endl;
 	jsonFileName = "Ciphertext_Enc.txt";
+	cout << "Deserializing instance from " << jsonFileName << endl;
 	testMap3 = jsonHelper.GetSerializationMap(jsonFileName);
-	Ciphertext<ILVector2n> c1;
-	c1.Deserialize(testMap3);
-	cout << "Deserialized from " << jsonFileName << endl;
+	Ciphertext<ILVector2n> ciphertextDeserialized;
+	ciphertextDeserialized.Deserialize(testMap3);
+	cout << "Deserialized into ciphertextDeserialized" << endl;
 	cout << "---END CIPHERTEXT DESERIALIZATION---" << endl;
 
 	cout << "\n" << endl;
@@ -517,11 +523,97 @@ void NTRUPRE(int input) {
 	cout << "Calling Decrypt in LPAlgorithmLWENTRU with deserialized instances of" << endl;
 	cout << "LPPrivateKeyLWENTRU and Ciphertext." << endl;
 	ByteArrayPlaintextEncoding testPlaintextRec;
-	DecodingResult testResult = algorithm.Decrypt(sk1, c1, &testPlaintextRec);
+	DecodingResult testResult = algorithm.Decrypt(skDeserialized, ciphertextDeserialized, &testPlaintextRec);
 	testPlaintextRec.Unpad<ZeroPad>();
 	cout << "Recovered plaintext from call to Decrypt: " << endl;
 	cout << testPlaintextRec << endl;
 	cout << "----------END LPAlgorithmLWENTRU.Decrypt TESTING----------" << endl;
+
+	cout << "\n" << endl;
+
+	cout << "---BEGIN LPEvalKeyLWENTRU SERIALIZATION---" << endl;
+	cout << "Serializing previously used evalKey object..." << endl;
+	unordered_map <string, unordered_map <string, string>> testMap4;
+	testMap4 = evalKey.Serialize(testMap4, "Pre");
+	jsonFileName = jsonHelper.GetJsonFileName(testMap4);
+	jsonInputBuffer = jsonHelper.GetJsonString(testMap4);
+	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
+	cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
+	cout << "---END LPEvalKeyLWENTRU SERIALIZATION TESTING---" << endl;
+
+	cout << "---BEGIN LPEvalKeyLWENTRU DESERIALIZATION---" << endl;
+	jsonFileName = "LPEvalKeyLWENTRU_Pre.txt";
+	cout << "Deserializing instance from " << jsonFileName << endl;
+	testMap4 = jsonHelper.GetSerializationMap(jsonFileName);
+	LPEvalKeyLWENTRU<ILVector2n> evalKeyDeserialized;
+	LPCryptoParametersLWE<ILVector2n> json_cryptoParamsEval;
+	evalKeyDeserialized.SetCryptoParameters(&json_cryptoParamsEval);
+	evalKeyDeserialized.Deserialize(testMap4);
+	cout << "Deserialized into evalKeyDeserialized" << endl;
+	cout << "---END LPEvalKeyLWENTRU DESERIALIZATION---" << endl;
+
+	cout << "\n" << endl;
+
+	cout << "----------BEGIN LPAlgorithmPRELWENTRU.ReEcrypt TESTING----------" << endl;
+	cout << "Calling ReEncrypt in LPAlgorithmPRELWENTRU with deserialized instances of" << endl;
+	cout << "LPEvalKeyLWENTRU and Ciphertext." << endl;
+	Ciphertext<ILVector2n> preCiphertext;
+	algorithmPRE.ReEncrypt(evalKeyDeserialized, ciphertextDeserialized, &preCiphertext);
+	cout << "----------END LPAlgorithmPRELWENTRU.ReEcrypt TESTING----------" << endl;
+
+	cout << "\n" << endl;
+
+	cout << "---BEGIN PRE LPPrivateKeyLWENTRU SERIALIZATION---" << endl;
+	cout << "Serializing previously used newSK object..." << endl;
+	unordered_map <string, unordered_map <string, string>> testMap5;
+	testMap5 = newSK.Serialize(testMap5, "Pre");
+	jsonFileName = jsonHelper.GetJsonFileName(testMap5);
+	jsonInputBuffer = jsonHelper.GetJsonString(testMap5);
+	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
+	cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
+	cout << "---END PRE LPPrivateKeyLWENTRU SERIALIZATION---" << endl;
+
+	cout << "---BEGIN PRE CIPHERTEXT SERIALIZATION---" << endl;
+	cout << "Serializing preCiphertext object generated by ReEncrypt TESTING..." << endl;
+	unordered_map <string, unordered_map <string, string>> testMap6;
+	testMap6 = preCiphertext.Serialize(testMap6, "Pre");
+	jsonFileName = jsonHelper.GetJsonFileName(testMap6);
+	jsonInputBuffer = jsonHelper.GetJsonString(testMap6);
+	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
+	cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
+	cout << "---END PRE CIPHERTEXT SERIALIZATION---" << endl;
+
+	cout << "---BEGIN PRE LPPrivateKeyLWENTRU DESERIALIZATION---" << endl;
+	jsonFileName = "LPPrivateKeyLWENTRU_Pre.txt";
+	cout << "Deserializing instance from " << jsonFileName << endl;
+	testMap5 = jsonHelper.GetSerializationMap(jsonFileName);
+	LPPrivateKeyLWENTRU<ILVector2n> newSKDeserialized;
+	LPCryptoParametersLWE<ILVector2n> json_cryptoParamsNewPriv;
+	newSKDeserialized.SetCryptoParameters(&json_cryptoParamsNewPriv);
+	newSKDeserialized.Deserialize(testMap5);
+	cout << "Deserialized into newSKDeserialized" << endl;
+	cout << "---END PRE LPPrivateKeyLWENTRU DESERIALIZATION---" << endl;
+
+	cout << "---BEGIN PRE CIPHERTEXT DESERIALIZATION---" << endl;
+	jsonFileName = "Ciphertext_Pre.txt";
+	cout << "Deserializing instance from " << jsonFileName << endl;
+	testMap3 = jsonHelper.GetSerializationMap(jsonFileName);
+	Ciphertext<ILVector2n> preCiphertextDeserialized;
+	preCiphertextDeserialized.Deserialize(testMap3);
+	cout << "Deserialized into preCiphertextDeserialized" << endl;
+	cout << "---END PRE CIPHERTEXT DESERIALIZATION---" << endl;
+
+	cout << "\n" << endl;
+
+	cout << "----------BEGIN LPAlgorithmPRELWENTRU.Decrypt TESTING----------" << endl;
+	cout << "Calling Decrypt in LPAlgorithmPRELWENTRU with deserialized instances of" << endl;
+	cout << "PRE LPPrivateKeyLWENTRU and PRE Ciphertext." << endl;
+	ByteArrayPlaintextEncoding testPlaintextPreRec;
+	DecodingResult testResult1 = algorithmPRE.Decrypt(newSKDeserialized, preCiphertextDeserialized, &testPlaintextPreRec);
+	testPlaintextPreRec.Unpad<ZeroPad>();
+	cout << "Recovered plaintext from call to PRE Decrypt: " << endl;
+	cout << testPlaintextPreRec << endl;
+	cout << "----------END LPAlgorithmPRELWENTRU.Decrypt TESTING----------" << endl;
 
 	cout << "\n" << endl;
 

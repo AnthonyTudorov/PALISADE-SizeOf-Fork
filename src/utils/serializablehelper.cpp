@@ -36,6 +36,7 @@
 #include "../../include/rapidjson/stringbuffer.h"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #define RAPIDJSON_NO_SIZETYPEDEFINE
@@ -50,6 +51,18 @@ namespace lbcrypto {
 		SerializableHelper() {}
 
 		/**
+		* Converts the input data type into a string
+		* @tparam T a data type.
+		* @return the string equivalent.
+		*/
+		template <typename T>
+		std::string ToStr(const T& num) const {
+			std::ostringstream buffer;
+			buffer << num;
+			return buffer.str();
+		}
+
+		/**
 		* Generates a nested JSON data string for a serialized Palisade object
 		* @param serializationMap stores the serialized Palisade object's attributes.
 		* @return string reflecting the nested data structure of the serialized Palisade object.
@@ -62,6 +75,7 @@ namespace lbcrypto {
 			jsonInputBuffer.append("{");
 
 			mapBuffer = serializationMap["Root"];
+			string ID = mapBuffer["ID"];
 			jsonInputBuffer.append("\"Root\":");
 			jsonInputBuffer.append("{");
 			for (unordered_map<string, string>::iterator i = mapBuffer.begin(); i != mapBuffer.end(); i++) {
@@ -112,22 +126,46 @@ namespace lbcrypto {
 			jsonInputBuffer.append("}");
 			jsonInputBuffer.append(",");
 
-			mapBuffer = serializationMap["ILVector2n"];
-			jsonInputBuffer.append("\"ILVector2n\":");
-			jsonInputBuffer.append("{");
-			for (unordered_map<string, string>::iterator i = mapBuffer.begin(); i != mapBuffer.end(); i++) {
-				jsonInputBuffer.append("\"");
-				jsonInputBuffer.append(i->first);
-				jsonInputBuffer.append("\"");
-				jsonInputBuffer.append(":");
-				jsonInputBuffer.append("\"");
-				jsonInputBuffer.append(i->second);
-				jsonInputBuffer.append("\"");
-				jsonInputBuffer.append(",");
-			}
-			jsonInputBuffer = jsonInputBuffer.substr(0, jsonInputBuffer.length() - 1);
-			jsonInputBuffer.append("}");
-
+			if (ID.compare("LPEvalKeyLWENTRU") != 0) {
+				mapBuffer = serializationMap["ILVector2n"];
+				jsonInputBuffer.append("\"ILVector2n\":");
+				jsonInputBuffer.append("{");
+				for (unordered_map<string, string>::iterator i = mapBuffer.begin(); i != mapBuffer.end(); i++) {
+					jsonInputBuffer.append("\"");
+					jsonInputBuffer.append(i->first);
+					jsonInputBuffer.append("\"");
+					jsonInputBuffer.append(":");
+					jsonInputBuffer.append("\"");
+					jsonInputBuffer.append(i->second);
+					jsonInputBuffer.append("\"");
+					jsonInputBuffer.append(",");
+				}
+				jsonInputBuffer = jsonInputBuffer.substr(0, jsonInputBuffer.length() - 1);
+				jsonInputBuffer.append("}");
+			} else {
+				std::unordered_map <std::string, std::string> ilVector2nMapBuffer;
+				for (int i = 0; i < 5; i++) {
+					std::string indexName = "ILVector2n";
+					indexName.append(this->ToStr(i));
+					jsonInputBuffer.append("\"" + indexName + "\":");
+					ilVector2nMapBuffer = serializationMap[indexName];
+					jsonInputBuffer.append("{");
+					for (unordered_map<string, string>::iterator i = ilVector2nMapBuffer.begin(); i != ilVector2nMapBuffer.end(); i++) {
+						jsonInputBuffer.append("\"");
+						jsonInputBuffer.append(i->first);
+						jsonInputBuffer.append("\"");
+						jsonInputBuffer.append(":");
+						jsonInputBuffer.append("\"");
+						jsonInputBuffer.append(i->second);
+						jsonInputBuffer.append("\"");
+						jsonInputBuffer.append(",");
+					}
+					jsonInputBuffer = jsonInputBuffer.substr(0, jsonInputBuffer.length() - 1);
+					jsonInputBuffer.append("}");
+					jsonInputBuffer.append(",");
+				}
+				jsonInputBuffer = jsonInputBuffer.substr(0, jsonInputBuffer.length() - 1);
+			}	
 			jsonInputBuffer.append("}");
 
 			return jsonInputBuffer;
@@ -193,6 +231,7 @@ namespace lbcrypto {
 
 			//cout << "---Root---" << endl;
 			const rapidjson::Value& rootNode = doc["Root"];
+			string ID = rootNode["ID"].GetString();
 			for (rapidjson::Value::ConstMemberIterator it = rootNode.MemberBegin(); it != rootNode.MemberEnd(); it++) {
 				//cout << it->name.GetString() << " | " << it->value.GetString() << endl;
 				childMap.emplace(it->name.GetString(), it->value.GetString());
@@ -219,13 +258,28 @@ namespace lbcrypto {
 			childMap.clear();
 
 			//cout << "---ILVector2n---" << endl;
-			const rapidjson::Value& ilVector2nNode = doc["ILVector2n"];
-			for (rapidjson::Value::ConstMemberIterator it = ilVector2nNode.MemberBegin(); it != ilVector2nNode.MemberEnd(); it++) {
-				//cout << it->name.GetString() << " | " << it->value.GetString() << endl;
-				childMap.emplace(it->name.GetString(), it->value.GetString());
+			if (ID.compare("LPEvalKeyLWENTRU") != 0) {
+				const rapidjson::Value& ilVector2nNode = doc["ILVector2n"];
+				for (rapidjson::Value::ConstMemberIterator it = ilVector2nNode.MemberBegin(); it != ilVector2nNode.MemberEnd(); it++) {
+					//cout << it->name.GetString() << " | " << it->value.GetString() << endl;
+					childMap.emplace(it->name.GetString(), it->value.GetString());
+				}
+				serializationMap.emplace("ILVector2n", childMap);
+				childMap.clear();
+			} else {
+				for (int i = 0; i < 5; i++) {
+					string indexName = "ILVector2n";
+					indexName.append(ToStr(i));
+					const rapidjson::Value& ilVector2nNode = doc[indexName.c_str()];
+					for (rapidjson::Value::ConstMemberIterator it = ilVector2nNode.MemberBegin(); it != ilVector2nNode.MemberEnd(); it++) {
+						//cout << it->name.GetString() << " | " << it->value.GetString() << endl;
+						childMap.emplace(it->name.GetString(), it->value.GetString());
+					}
+					serializationMap.emplace(indexName, childMap);
+					childMap.clear();
+
+				}
 			}
-			serializationMap.emplace("ILVector2n", childMap);
-			childMap.clear();
 
 			return serializationMap;
 		}
