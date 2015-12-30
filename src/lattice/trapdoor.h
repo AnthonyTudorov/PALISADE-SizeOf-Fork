@@ -19,12 +19,12 @@ namespace lbcrypto {
     inline pair<RingMat, TrapdoorPair> TrapdoorSample(ILParams params, int stddev) {
         auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
         auto gaussian_alloc = ILVector2n::MakeDiscreteGaussianAllocator(params, EVALUATION, stddev);
+		auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
         size_t n = params.GetCyclotomicOrder() / 2;
         //  k ~= bitlength of q
         size_t k = params.GetModulus().GetMSB();
 
-        //  TODO: sample from uniform [0,q)
-        auto a = zero_alloc();
+        auto a = uniform_alloc();
 
         RingMat r(gaussian_alloc, k, 1);
         RingMat e(gaussian_alloc, k, 1);
