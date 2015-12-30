@@ -13,3 +13,8 @@ test/bin
 test/build
 .idea
 */**/*.gch
+
+
+# Ignore intellij project files/cmake files
+CMakeLists.txt
+.idea/

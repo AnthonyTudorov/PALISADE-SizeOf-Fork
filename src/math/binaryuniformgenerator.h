@@ -34,35 +34,38 @@
 #define LBCRYPTO_MATH_BINARYUNIFORMGENERATOR_H_
 
 #include "distributiongenerator.h"
+#include <random>
 
 namespace lbcrypto {
 
 /**
- * @brief A generator of the Binary Uniform Distribution.
- */
+* @brief A generator of the Binary Uniform Distribution.
+*/
 class BinaryUniformGenerator : public DistributionGenerator {
 
 public:
-    /**
-     * @brief Basic constructor for Binary Uniform Generator.
-     */
-    BinaryUniformGenerator () : DistributionGenerator () {}
+	/**
+	* @brief Basic constructor for Binary Uniform Generator.
+	*/
+	BinaryUniformGenerator () : DistributionGenerator () {}
 
-    /**
-     * @brief  Generates a random value within the Binary Uniform Distribution.
-     * @return A random value within this Binary Uniform Distribution.
-     */
-    BigBinaryInteger GenerateInteger ();
+	/**
+	* @brief  Generates a random value within the Binary Uniform Distribution.
+	* @return A random value within this Binary Uniform Distribution.
+	*/
+	BigBinaryInteger GenerateInteger ();
 
-    /**
-     * @brief  Generates a vector of random values within the Binary Uniform Distribution.
-     * @return A vector of random values within this Binary Uniform Distribution.
-     */
-    BigBinaryVector GenerateVector  (const usint size);
+	/**
+	* @brief  Generates a vector of random values within the Binary Uniform Distribution.
+	* @return A vector of random values within this Binary Uniform Distribution.
+	*/
+	BigBinaryVector GenerateVector  (const usint size);
+
+private:
+	static std::bernoulli_distribution m_distribution;
 
 };
 
 } // namespace lbcrypto
-
 
 #endif // LBCRYPTO_MATH_BINARYUNIFORMGENERATOR_H_

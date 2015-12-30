@@ -43,8 +43,8 @@
 namespace lbcrypto {
 
 /**
- * @brief Abstract class for Discrete Distribution Generators.
- */
+* @brief Abstract class for Discrete Distribution Generators.
+*/
 class DiscreteDistributionGenerator : protected DistributionGenerator {
 public:
 
@@ -53,23 +53,24 @@ public:
 	*/
 	DiscreteDistributionGenerator();
 
-    /**
-     * @brief         Constructor for Discrete Distribution Generators that sets the discrete modulus.
-     * @param modulus The modulus to use to generate discrete values.
-     */
-    DiscreteDistributionGenerator (const BigBinaryInteger & modulus);
+	/**
+	* @brief         Constructor for Discrete Distribution Generators that sets the discrete modulus.
+	* @param modulus The modulus to use to generate discrete values.
+	*/
+	DiscreteDistributionGenerator (const BigBinaryInteger & modulus);
 
-    /**
-     * @brief         Sets the modulus of the distribution.
-     * @param modulus The new modulus to use to generate discrete values.
-     */
-    virtual void SetModulus (const BigBinaryInteger &modulus);
+	/**
+	* @brief         Sets the modulus of the distribution.
+	* @param modulus The new modulus to use to generate discrete values.
+	*/
+	virtual void SetModulus (const BigBinaryInteger &modulus);
 
 protected:
-    /**
-     * The modulus value that should be used to generate discrete values.
-     */
-    BigBinaryInteger modulus_;
+	/**
+	* The modulus value that should be used to generate discrete values.
+	*/
+	BigBinaryInteger m_modulus;
+
 };
 
 } // namespace lbcrypto

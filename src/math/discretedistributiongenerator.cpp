@@ -4,14 +4,15 @@
 namespace lbcrypto {
 
 DiscreteDistributionGenerator::DiscreteDistributionGenerator() : DistributionGenerator() {
+	this->SetModulus(BigBinaryInteger::ONE);
 }
 
 DiscreteDistributionGenerator::DiscreteDistributionGenerator (const BigBinaryInteger & modulus) : DistributionGenerator () {
-    this->SetModulus(modulus);
+	this->SetModulus(modulus);
 }
 
 void DiscreteDistributionGenerator::SetModulus (const BigBinaryInteger & modulus) {
-    this->modulus_ = modulus;
+	m_modulus = modulus;
 }
 
 } // namespace lbcrypto

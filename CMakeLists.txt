@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.0)
 project(palisade_student_edition)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
+set(CMAKE_CXX_FLAGS "-Wall -O3 -std=gnu++11 -w -g")
 
 set(SOURCE_FILES
     src/crypto/ciphertext.cpp
@@ -21,11 +21,16 @@ set(SOURCE_FILES
     src/encoding/padding.h
     src/encoding/ptxtencoding.cpp
     src/encoding/ptxtencoding.h
-    src/lattice/ideals.h
-    src/lattice/il2n.cpp
-    src/lattice/il2n.h
-    src/lattice/ringmatrix.cpp
-    src/lattice/ringmatrix.h
+    src/lattice/elemparams.h
+    src/lattice/ildcrtparams.h
+    src/lattice/ilparams.h
+    src/lattice/ilelement.h
+    src/lattice/ilvector2n.cpp
+    src/lattice/ilvector2n.h
+    src/lattice/elemparams.h
+    src/lattice/ilvectorarray2n.cpp
+    src/lattice/ilvectorarray2n.h
+    src/lattice/matrix.h
     src/math/cpu8bit/binint.cpp
     src/math/cpu8bit/binint.h
     src/math/cpu8bit/binmat.cpp
@@ -55,13 +60,11 @@ set(SOURCE_FILES
     src/math/transfrm.h
     src/math/uniformintegergenerator.cpp
     src/math/uniformintegergenerator.h
-    src/multilinearmap/directedencoding.h
     src/utils/bytearray.cpp
     src/utils/bytearray.h
     src/utils/inttypes.h
     src/utils/utilities.cpp
     src/utils/utilities.h
-    src/Source.cpp
-    Makefile)
+    src/Source.cpp)
 
 add_executable(palisade_student_edition ${SOURCE_FILES})
