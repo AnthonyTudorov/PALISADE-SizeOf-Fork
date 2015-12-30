@@ -112,6 +112,28 @@ namespace lbcrypto {
             };
         }
 
+        inline static function<unique_ptr<ILVector2n>()> MakeDiscreteGaussianAllocator(ILParams params, Format format, int stddev) {
+            return [=]() {
+                DiscreteGaussianGenerator dgg(params.GetModulus(), stddev);
+                return make_unique<ILVector2n>(dgg, params, format);
+            };
+        }
+
+		/**
+		* Allocator for discrete uniform distribution.
+		*
+		* @param params ILParams instance that is is passed.
+		* @param format format for the polynomials generated.
+		* @return the resulting vector.
+		*/
+
+        inline static function<unique_ptr<ILVector2n>()> MakeDiscreteUniformAllocator(ILParams params, Format format) {
+            return [=]() {
+                DiscreteUniformGenerator dug(params.GetModulus());
+                return make_unique<ILVector2n>(dug, params, format);
+            };
+        }
+
 		/**
 		* Copy constructor.
 		*
@@ -174,6 +196,16 @@ namespace lbcrypto {
 		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVector2n(DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
+
+
+		/**
+		* Constructor based on full methods.
+		*
+		* @param &dug the input discrete Uniform Generator.
+		* @param &params the input params.
+		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVector2n(DiscreteUniformGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
 
 		/**
 		* Destructor.

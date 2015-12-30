@@ -161,16 +161,16 @@ TEST(UTMatrix, cholesky) {
 }
 
 TEST(UTMatrix, gadget_vector) {
-    ILMat<ILVector2n> n = ILMat<ILVector2n>(secureIL2nAlloc(), 4, 1).GadgetVector();
+    ILMat<ILVector2n> n = ILMat<ILVector2n>(secureIL2nAlloc(), 1, 4).GadgetVector();
 	auto v = secureIL2nAlloc()();
 	*v = 1;
     EXPECT_EQ(*v, n(0,0));
 	*v = 2;
-    EXPECT_EQ(*v, n(1,0));
+    EXPECT_EQ(*v, n(0,1));
 	*v = 4;
-    EXPECT_EQ(*v, n(2,0));
+    EXPECT_EQ(*v, n(0,2));
 	*v = 8;
-    EXPECT_EQ(*v, n(3,0));
+    EXPECT_EQ(*v, n(0,3));
 }
 TEST(UTMatrix, rotate) {
     ILMat<ILVector2n> n = ILMat<ILVector2n>(fastIL2nAlloc(), 1, 2).Ones();
