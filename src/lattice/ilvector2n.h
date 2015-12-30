@@ -496,7 +496,13 @@ namespace lbcrypto {
 		}
 
 		//JSON FACILITY
-		std::unordered_map <std::string, std::string> SetIdFlag(std::unordered_map <std::string, std::string> serializationMap, std::string flag) const {
+		/**
+		* Implemented by this object only for inheritance requirements of abstract class Serializable.
+		*
+		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @return map passed in.
+		*/
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
 
 			//Place holder
 
@@ -504,46 +510,51 @@ namespace lbcrypto {
 		}
 
 		//JSON FACILITY
-		std::unordered_map <std::string, std::string> Serialize(std::unordered_map <std::string, std::string> serializationMap, std::string fileFlag) const {
+		/**
+		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
+		* Invokes nested serialization of BigBinaryVector.
+		*
+		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @return map updated with the attribute name value pairs required to serialize this object.
+		*/
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
 
 			serializationMap = this->GetValues().Serialize(serializationMap, "");
+
+			std::unordered_map <std::string, std::string> ilVector2nMap = serializationMap["BigBinaryVector"];
+			serializationMap.erase("BigBinaryVector");
+			serializationMap.emplace("ILVector2n", ilVector2nMap);
 
 			return serializationMap;
 		}
 
 		//JSON FACILITY
-		void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
+		/**
+		* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
+		* Invokes nested deserialization of BigBinaryVector.
+		*
+		* @param serializationMap stores this object's serialized attribute name value pairs.
+		*/
+		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
 
-			std::cout << "In ilvector2n.h Deserialize(): " << std::endl;
+			std::unordered_map<std::string, std::string> ilVector2nMap = serializationMap["ILVector2n"];
 
 			usint vectorLength = 1024; //Should this stay hard coded?
 			//usint vectorLength = 8; //For simplified parameterizations
 			BigBinaryVector vectorBBV = BigBinaryVector(vectorLength);
 
-			std::cout << "Setting Values for ILVector2n" << std::endl;
-			vectorBBV.Deserialize(serializationMap);
-
-			//set values for this ILVector2n
+			std::unordered_map<std::string, std::unordered_map<std::string, std::string>> bbvSerializationMap;
+			bbvSerializationMap.emplace("BigBinaryVector", ilVector2nMap);
+			vectorBBV.Deserialize(bbvSerializationMap);
 			this->SetValues(vectorBBV, Format::EVALUATION);
-			std::cout << "SetValues called for ILVector2n" << std::endl;
 			//std::cout << "Values " << this->GetValues() << std::endl;
 
-			std::cout << "Setting Modulus for ILVector2n" << std::endl;
-			//set modulus for this ILVector2n
-			BigBinaryInteger bbiModulus(serializationMap["ilpModulus"]);
+			BigBinaryInteger bbiModulus(ilVector2nMap["Modulus"]);
 			this->SetModulus(bbiModulus);
-			std::cout << "SetModulus called for ILVector2n" << std::endl;
-			std::cout << "Modulus " << (this->GetModulus()).ToString() << std::endl;
 
-			std::cout << "Setting ILParams for ILVector2n" << std::endl;
-			//set ILParams for this ILVector2n
 			ILParams json_ilParams;
 			json_ilParams.Deserialize(serializationMap); 
 			this->SetParams(json_ilParams);
-			std::cout << "SetParams called for ILVector2n" << std::endl;
-			std::cout << "CyclotomicOrder " << this->GetParams().GetCyclotomicOrder() << std::endl;
-			std::cout << "Modulus " << this->GetParams().GetModulus().ToString() << std::endl;
-			std::cout << "RootOfUnity " << this->GetParams().GetRootOfUnity().ToString() << std::endl;
 		}
 
 	private:

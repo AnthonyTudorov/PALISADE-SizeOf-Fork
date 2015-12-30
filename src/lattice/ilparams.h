@@ -163,7 +163,6 @@ namespace lbcrypto {
 		*/
 		void SetOrder(usint order) {
 			m_order = order;
-			std::cout << "m_order set: " << m_order << std::endl;
 		}
 
 		/**
@@ -173,7 +172,6 @@ namespace lbcrypto {
 		*/
 		void SetRootOfUnity(const BigBinaryInteger &rootOfUnity) {
 			m_rootOfUnity = rootOfUnity;
-			std::cout << "m_rootOfUnity set: " << m_rootOfUnity << std::endl;
 		}
 
 		/**
@@ -183,11 +181,16 @@ namespace lbcrypto {
 		*/
 		void SetModulus(const BigBinaryInteger &modulus) {
 			m_modulus = modulus;
-			std::cout << "m_modulus set: " << m_modulus << std::endl;
 		}
 
 		//JSON FACILITY
-		std::unordered_map <std::string, std::string> SetIdFlag(std::unordered_map <std::string, std::string> serializationMap, std::string flag) const {
+		/**
+		* Implemented by this object only for inheritance requirements of abstract class Serializable.
+		*
+		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @return map passed in.
+		*/
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
 
 			//Place holder
 
@@ -195,11 +198,19 @@ namespace lbcrypto {
 		}
 
 		//JSON FACILITY
-		std::unordered_map <std::string, std::string> Serialize(std::unordered_map <std::string, std::string> serializationMap, std::string fileFlag) const {
+		/**
+		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
+		*
+		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @return map updated with the attribute name value pairs required to serialize this object.
+		*/
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
 
-			serializationMap.emplace("ilpModulus", this->GetModulus().ToString());
-			serializationMap.emplace("ilpOrder", this->ToStr(this->GetCyclotomicOrder()));
-			serializationMap.emplace("ilpRootOfUnity", this->GetRootOfUnity().ToString());
+			std::unordered_map <std::string, std::string> ilParamsMap;
+			ilParamsMap.emplace("Modulus", this->GetModulus().ToString());
+			ilParamsMap.emplace("Order", this->ToStr(this->GetCyclotomicOrder()));
+			ilParamsMap.emplace("RootOfUnity", this->GetRootOfUnity().ToString());
+			serializationMap.emplace("ILParams", ilParamsMap);
 
 			return serializationMap;
 		}
@@ -222,22 +233,21 @@ namespace lbcrypto {
         }
 
 		//JSON FACILITY
-		void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
+		/**
+		* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
+		*
+		* @param serializationMap stores this object's serialized attribute name value pairs.
+		*/
+		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
 
-			std::cout << "In ilparams.h Deserialize(): " << std::endl;
-
-			BigBinaryInteger bbiModulus(serializationMap["ilpModulus"]);
-			usint order = stoi(serializationMap["ilpOrder"]);
-			BigBinaryInteger bbiRootOfUnity(serializationMap["ilpRootOfUnity"]);
+			std::unordered_map<std::string, std::string> ilParamsMap = serializationMap["ILParams"];
+			BigBinaryInteger bbiModulus(ilParamsMap["Modulus"]);
+			usint order = stoi(ilParamsMap["Order"]);
+			BigBinaryInteger bbiRootOfUnity(ilParamsMap["RootOfUnity"]);
 
 			this->SetModulus(bbiModulus);
 			this->SetOrder(order);
 			this->SetRootOfUnity(bbiRootOfUnity);
-
-			std::cout << "In ilparams.h Deserialize() called all Setter methods " << std::endl;
-			std::cout << "Modulus " << (this->GetModulus()).ToString() << std::endl;
-			std::cout << "CyclotomicOrder " << this->GetCyclotomicOrder() << std::endl;
-			std::cout << "RootOfUnity " << (this->GetRootOfUnity()).ToString() << std::endl;
 		}
 
 	private:

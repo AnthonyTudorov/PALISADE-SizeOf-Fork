@@ -446,67 +446,88 @@ void NTRUPRE(int input) {
 		exit(1);
 	}
 
+	cout << "\n" << endl;
+
 	std::cout << "----------------------START JSON FACIlTY TESTING-------------------------" << endl;
+
+	cout << "\n" << endl;
 
 	string jsonInputBuffer = "";
 	string jsonFileName = "";
 	SerializableHelper jsonHelper;
 
-	unordered_map <string, string> testMap1;
+	cout << "---BEGIN LPPublicKeyLWENTRU SERIALIZATION---" << endl;
+	unordered_map <string, unordered_map <string, string>> testMap1;
 	testMap1 = pk.Serialize(testMap1, "Enc");
 	jsonFileName = jsonHelper.GetJsonFileName(testMap1);
-	//cout << "jsonFileName:  " << jsonFileName << endl;
 	jsonInputBuffer = jsonHelper.GetJsonString(testMap1);
-	//cout << "pk jsonInputBuffer:  " << jsonInputBuffer << endl;
 	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
+	cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
+	cout << "---END LPPublicKeyLWENTRU SERIALIZATION TESTING---" << endl;
 
-	testMap1 = jsonHelper.GetSerializationMap("LPPublicKeyLWENTRU_Enc.txt");
+	cout << "---BEGIN LPPrivateKeyLWENTRU SERIALIZATION---" << endl;
+	unordered_map <string, unordered_map <string, string>> testMap2;
+	testMap2 = sk.Serialize(testMap2, "Enc");
+	jsonFileName = jsonHelper.GetJsonFileName(testMap2);
+	jsonInputBuffer = jsonHelper.GetJsonString(testMap2);
+	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
+	cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
+	cout << "---END LPPrivateKeyLWENTRU SERIALIZATION---" << endl;
+
+	cout << "---BEGIN CIPHERTEXT SERIALIZATION---" << endl;
+	unordered_map <string, unordered_map <string, string>> testMap3;
+	testMap3 = ciphertext.Serialize(testMap3, "Enc");
+	jsonFileName = jsonHelper.GetJsonFileName(testMap3);
+	jsonInputBuffer = jsonHelper.GetJsonString(testMap3);
+	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
+	cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
+	cout << "---END CIPHERTEXT SERIALIZATION---" << endl;
+
+	cout << "---BEGIN LPPublicKeyLWENTRU DESERIALIZATION---" << endl;
+	jsonFileName = "LPPublicKeyLWENTRU_Enc.txt";
+	testMap1 = jsonHelper.GetSerializationMap(jsonFileName);
 	LPPublicKeyLWENTRU<ILVector2n> pk1;
 	LPCryptoParametersLWE<ILVector2n> json_cryptoParamsPub;
 	pk1.SetCryptoParameters(&json_cryptoParamsPub);
 	pk1.Deserialize(testMap1);
+	cout << "Deserialized from " << jsonFileName << endl;
+	cout << "---END LPPublicKeyLWENTRU DESERIALIZATION---" << endl;
 
-	unordered_map <string, string> testMap2;
-	testMap2 = sk.Serialize(testMap2, "Enc");
-	jsonFileName = jsonHelper.GetJsonFileName(testMap2);
-	//cout << "jsonFileName:  " << jsonFileName << endl;
-	jsonInputBuffer = jsonHelper.GetJsonString(testMap2);
-	//cout << "sk jsonInputBuffer:  " << jsonInputBuffer << endl;
-	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
-
-	cout << "----------BEGIN LPPrivateKeyLWENTRU DESERIALIZATION TESTING----------" << endl;
-	testMap2 = jsonHelper.GetSerializationMap("LPPrivateKeyLWENTRU_Enc.txt");
+	cout << "---BEGIN LPPrivateKeyLWENTRU DESERIALIZATION---" << endl;
+	jsonFileName = "LPPrivateKeyLWENTRU_Enc.txt";
+	testMap2 = jsonHelper.GetSerializationMap(jsonFileName);
 	LPPrivateKeyLWENTRU<ILVector2n> sk1;
 	LPCryptoParametersLWE<ILVector2n> json_cryptoParamsPriv;
 	sk1.SetCryptoParameters(&json_cryptoParamsPriv);
 	sk1.Deserialize(testMap2);
+	cout << "Deserialized from " << jsonFileName << endl;
+	cout << "---END LPPrivateKeyLWENTRU DESERIALIZATION---" << endl;
 
-	cout << "----------END LPPrivateKeyLWENTRU DESERIALIZATION TESTING----------" << endl;
-
-	unordered_map <string, string> testMap3;
-	testMap3 = ciphertext.Serialize(testMap3, "Enc");
-	jsonFileName = jsonHelper.GetJsonFileName(testMap3);
-	//cout << "jsonFileName:  " << jsonFileName << endl;
-	jsonInputBuffer = jsonHelper.GetJsonString(testMap3);
-	//cout << "ciphertext jsonInputBuffer:  " << jsonInputBuffer << endl;
-	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
-
-	cout << "----------BEGIN CIPHERTEXT DESERIALIZATION TESTING----------" << endl;
-	testMap3 = jsonHelper.GetSerializationMap("Ciphertext_Enc.txt");
+	cout << "---BEGIN CIPHERTEXT DESERIALIZATION---" << endl;
+	jsonFileName = "Ciphertext_Enc.txt";
+	testMap3 = jsonHelper.GetSerializationMap(jsonFileName);
 	Ciphertext<ILVector2n> c1;
 	c1.Deserialize(testMap3);
-	cout << "----------END CIPHERTEXT DESERIALIZATION TESTING----------" << endl;
+	cout << "Deserialized from " << jsonFileName << endl;
+	cout << "---END CIPHERTEXT DESERIALIZATION---" << endl;
 
-	/****UNCOMMENT TO TEST DECRYPT WITH DESERIALIZED PrivateKey and Ciphertext*****/
+	cout << "\n" << endl;
+
 	cout << "----------BEGIN LPAlgorithmLWENTRU.Decrypt TESTING----------" << endl;
+	cout << "Calling Decrypt in LPAlgorithmLWENTRU with deserialized instances of" << endl;
+	cout << "LPPrivateKeyLWENTRU and Ciphertext." << endl;
 	ByteArrayPlaintextEncoding testPlaintextRec;
-
 	DecodingResult testResult = algorithm.Decrypt(sk1, c1, &testPlaintextRec);
 	testPlaintextRec.Unpad<ZeroPad>();
-	cout << "Recovered plaintext from Decrypt: " << testPlaintextRec << endl;
+	cout << "Recovered plaintext from call to Decrypt: " << endl;
+	cout << testPlaintextRec << endl;
 	cout << "----------END LPAlgorithmLWENTRU.Decrypt TESTING----------" << endl;
 
+	cout << "\n" << endl;
+
 	std::cout << "----------------------END JSON FACIlTY TESTING-------------------------" << endl;
+
+	cout << "\n" << endl;
 
 	std::cout << "Execution completed.  Please any key to finish." << std::endl;
 

@@ -174,10 +174,18 @@ namespace lbcrypto {
 		Ciphertext<Element> EvalAdd(const Ciphertext<Element> &ciphertext) const;
 
 		//JSON FACILITY
-		std::unordered_map <std::string, std::string> SetIdFlag(std::unordered_map <std::string, std::string> serializationMap, std::string flag) const {
+		/**
+		* Sets the ID and Flag attribute values for use in serializing this object to a JSON file.
+		*
+		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @return map updated with ID and Flag attribute values.
+		*/
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
 
-			serializationMap.emplace("ID", "Ciphertext");
-			serializationMap.emplace("Flag", flag);
+			std::unordered_map <std::string, std::string> idFlagMap;
+			idFlagMap.emplace("ID", "Ciphertext");
+			idFlagMap.emplace("Flag", flag);
+			serializationMap.emplace("Root", idFlagMap);
 
 			return serializationMap;
 		}
@@ -189,31 +197,27 @@ namespace lbcrypto {
 
 			serializationMap = this->SetIdFlag(serializationMap, fileFlag);
 
-			//Changed to pointer to access stuff through it and treat it like an instantiation
 			const LPCryptoParameters<Element> *lpCryptoParams = &this->GetCryptoParameters();
 			serializationMap = lpCryptoParams->Serialize(serializationMap, "");
 
-			serializationMap.emplace("Norm", this->GetNorm().ToString());
+			std::unordered_map <std::string, std::string> rootMap = serializationMap["Root"];
+			serializationMap.erase("Root");
+			rootMap.emplace("Norm", this->GetNorm().ToString());
+			serializationMap.emplace("Root", rootMap);
 
 			serializationMap = this->GetElement().Serialize(serializationMap, "");
-
-			/*m_serializationMapBuffer = this->GetPublicKey().Serialize(m_serializationMapBuffer, "");
-			cout << "m_serializationMapBuffer size: " << m_serializationMapBuffer.size() << endl;
-			jsonInputBuffer = jsonHelper.GetJsonString(m_serializationMapBuffer);
-			cout << "m_serializationMapBuffer jsonInputBuffer: " << jsonInputBuffer << std::endl;
-			serializationMap.emplace("PublicKey", jsonInputBuffer);*/
 
 			return serializationMap;
 		}
 
 		//JSON FACILITY
-		void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
-
-			std::cout << "+++Setting Cyphertext.CryptoParameters: " << std::endl;
-
-			//YURIY's FIX
-			//LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
-			//json_cryptoParams->Deserialize(serializationMap);
+		/**
+		* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
+		* Invokes nested deserialization of LPCryptoParametersLWE, ILParams, ILVector2n, and BigBinaryVector.
+		*
+		* @param serializationMap stores this object's serialized attribute name value pairs.
+		*/
+		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
 
 			LPCryptoParameters<Element> *json_cryptoParams = new LPCryptoParametersLWE<Element>();
 			json_cryptoParams->Deserialize(serializationMap);
@@ -230,14 +234,10 @@ namespace lbcrypto {
 			std::cout << "+++Setting Cyphertext.Norm: " << std::endl;
 			BigBinaryInteger bbiNorm(serializationMap["Norm"]);
 			this->SetNorm(bbiNorm);
-			std::cout << "&&&Set Cyphertext.Norm" << std::endl;
-			std::cout << "Norm " << this->GetNorm().ToString() << std::endl;
 
-			std::cout << "+++Setting Cyphertext.Element<ILVector2n>: " << std::endl;
 			Element json_ilElement;
 			json_ilElement.Deserialize(serializationMap);
 			this->SetElement(json_ilElement);
-			std::cout << "&&&Set Cyphertext.Element<ILVector2n>" << std::endl;
 		}
 	
 	private:

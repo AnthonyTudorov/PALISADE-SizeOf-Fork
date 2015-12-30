@@ -311,7 +311,13 @@ public:
 	//Gyana to add -= operator
 
 	//JSON FACILITY
-	std::unordered_map <std::string, std::string> SetIdFlag(std::unordered_map <std::string, std::string> serializationMap, std::string flag) const {
+	/**
+	* Implemented by this object only for inheritance requirements of abstract class Serializable.
+	*
+	* @param serializationMap stores this object's serialized attribute name value pairs.
+	* @return map passed in.
+	*/
+	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
 
 		//Place holder
 
@@ -319,10 +325,18 @@ public:
 	}
 
 	//JSON FACILITY
-	std::unordered_map <std::string, std::string> Serialize(std::unordered_map <std::string, std::string> serializationMap, std::string fileFlag) const {
+	/**
+	* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
+	*
+	* @param serializationMap stores this object's serialized attribute name value pairs.
+	* @return map updated with the attribute name value pairs required to serialize this object.
+	*/
+	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
 
-		serializationMap.emplace("bbvModulus", this->GetModulus().ToString());
-		
+		std::unordered_map <std::string, std::string> bbvMap;
+
+		bbvMap.emplace("Modulus", this->GetModulus().ToString());
+
 		std::string pkBufferString;
 		BigBinaryInteger pkVectorElem;
 		usint pkVectorLength = 0;
@@ -338,32 +352,30 @@ public:
 				pkBufferString += "|";
 			}
 		}
-		serializationMap.emplace("ilvVectorValues", pkBufferString);
+		bbvMap.emplace("VectorValues", pkBufferString);
+
+		serializationMap.emplace("BigBinaryVector", bbvMap);
 
 		return serializationMap;
 	}
 
 	//JSON FACILITY
-	void Deserialize(std::unordered_map <std::string, std::string> serializationMap) {
+	/**
+	* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
+	*
+	* @param serializationMap stores this object's serialized attribute name value pairs.
+	*/
+	void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
 
-		std::cout << "In binvect.h Deserialize(): " << std::endl;
+		std::unordered_map<std::string, std::string> bbvMap = serializationMap["BigBinaryVector"];
 
-		std::cout << "Setting Modulus for BigBinaryVector" << std::endl;
-		//set modulus for BBV
-		BigBinaryInteger bbiModulus(serializationMap["bbvModulus"]);
+		BigBinaryInteger bbiModulus(bbvMap["Modulus"]);
 		this->SetModulus(bbiModulus);
-		std::cout << "SetModulus called for BigBinaryVector" << std::endl;
-		std::cout << "Modulus " << (this->GetModulus()).ToString() << std::endl;
 
-		std::cout << "Setting Values for BigBinaryVector" << std::endl;
-
-		std::string vectorVals = serializationMap["ilvVectorValues"];
-
+		std::string vectorVals = bbvMap["VectorValues"];
 		BigBinaryInteger vectorElem;
 		std::string vectorElemVal;
-
 		usint i = 0;
-
 		while (vectorVals.find("|", 0)) {
 			size_t pos = vectorVals.find("|", 0);
 			vectorElemVal = vectorVals.substr(0, pos);
@@ -391,8 +403,6 @@ public:
 				break;
 			}
 		}
-
-		std::cout << "Set Values for BigBinaryVector" << std::endl;
 	}
 
 private:
