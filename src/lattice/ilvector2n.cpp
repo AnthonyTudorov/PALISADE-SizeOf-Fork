@@ -126,14 +126,10 @@ namespace lbcrypto {
 		m_values = new BigBinaryVector(dug.GenerateVector(vectorSize));
 		(*m_values).SetModulus(params.GetModulus());
 
-		if (format == COEFFICIENT)
-		{
-			m_format = COEFFICIENT;
-		}
-		else
-		{
+		m_format = COEFFICIENT;
+
+		if (format == EVALUATION)
 			this->SwitchFormat();
-		}
 
 	}
 
