@@ -516,7 +516,7 @@ namespace lbcrypto {
 			std::unordered_map<std::string, std::string> ilParamsMapBuffer = serializationMap["ILParams"];
 			ilVector2nMap.emplace("ILParams", ilParamsMapBuffer);
 			for (int i = 0; i < evalKeyVectorLength; i++) {
-				string indexName = "ILVector2n";
+				std::string indexName = "ILVector2n";
 				indexName.append(this->ToStr(i));
 				ilVector2nMapBuffer = serializationMap[indexName];
 				ilVector2nMap.emplace("ILVector2n", ilVector2nMapBuffer);
