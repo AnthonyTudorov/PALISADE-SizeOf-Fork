@@ -419,6 +419,7 @@ BigBinaryInteger BigBinaryInteger::Times(const BigBinaryInteger& b) const{
 }
 
 BigBinaryInteger BigBinaryInteger::DividedBy(const BigBinaryInteger& b) const{
+	//std::cout<<*this<<std::endl<<b<<std::endl;
 
 	//std::cout<<*this<<std::endl<<b<<std::endl;
 
@@ -532,7 +533,6 @@ BigBinaryInteger BigBinaryInteger::Mod(const BigBinaryInteger& modulus) const{
 		initial_shift=this->m_MSB - modulus.m_MSB -1;
 	//cout<<initial_shift<<endl;
 	//std::cout << " \n********Before Shift*********" << std::endl;
-	//std::cout << "CRASH TEST modulus value in binint.cpp: " << modulus << std::endl;
 	BigBinaryInteger j = modulus<<initial_shift;
 	//std::cout << " \n********After Shift*********" << std::endl;
 	//cout<<"initial j value"<<j<<endl;

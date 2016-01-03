@@ -183,6 +183,23 @@ namespace lbcrypto {
 			m_modulus = modulus;
 		}
 
+        inline bool operator==(ILParams const& other) {
+            if (m_modulus != other.GetModulus()) {
+                return false;
+            }
+            if (m_order != other.GetCyclotomicOrder()) {
+                return false;
+            }
+            if (m_rootOfUnity != other.GetRootOfUnity()) {
+                return false;
+            }
+            return true;
+        }
+
+        inline bool operator!=(ILParams const& other) {
+            return !(*this == other);
+        }
+
 		//JSON FACILITY
 		/**
 		* Implemented by this object only for inheritance requirements of abstract class Serializable.
@@ -214,23 +231,6 @@ namespace lbcrypto {
 
 			return serializationMap;
 		}
-
-        inline bool operator==(ILParams const& other) {
-            if (m_modulus != other.GetModulus()) {
-                return false;
-            }
-            if (m_order != other.GetCyclotomicOrder()) {
-                return false;
-            }
-            if (m_rootOfUnity != other.GetRootOfUnity()) {
-                return false;
-            }
-            return true;
-        }
-
-        inline bool operator!=(ILParams const& other) {
-            return !(*this == other);
-        }
 
 		//JSON FACILITY
 		/**

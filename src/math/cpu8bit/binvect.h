@@ -399,7 +399,7 @@ public:
 			this->SetValAtIndex(i, vectorElem);
 			i++;
 
-			if (i == this->GetLength()) { 
+			if (i == this->GetLength()) {
 				break;
 			}
 		}

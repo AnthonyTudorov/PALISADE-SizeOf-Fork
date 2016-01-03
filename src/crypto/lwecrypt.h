@@ -422,7 +422,6 @@ namespace lbcrypto {
 				this->SetPublicElement(json_ilElement);
 				std::cout << "&&&Setting LPPublicKeyLWENTRU.PublicElement<ILVector2n>" << std::endl;
 			}
-
 	};
 
 	/**
@@ -481,7 +480,7 @@ namespace lbcrypto {
 			const LPCryptoParameters<Element> *lpCryptoParams = &this->GetAbstractCryptoParameters();
 			serializationMap = lpCryptoParams->Serialize(serializationMap, "");
 
-			std::vector<int>::size_type evalKeyVectorLength = this->GetEvalKeyElements().size();			
+			std::vector<int>::size_type evalKeyVectorLength = this->GetEvalKeyElements().size();
 			Element evalKeyElemVector;
 			std::unordered_map <std::string, std::string> ilVector2nMap;
 			for (unsigned i = 0; i < evalKeyVectorLength; i++) {

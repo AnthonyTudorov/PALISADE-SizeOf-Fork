@@ -1,4 +1,4 @@
-//Hi Level Execution/Demonstration
+﻿//Hi Level Execution/Demonstration
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
 Version:
@@ -33,8 +33,6 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
-
-//GIT TEST
 
 #include <iostream>
 #include <fstream>
@@ -175,13 +173,12 @@ void NTRUPRE(int input) {
 	//Set element params
 
 	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
-	
+	/*
 	usint m = 16;
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
 	ByteArray plaintext = "N";
-	
-	usint relWindow = 8;
+	*/
 
 	// The comments below provide a high-security parameterization for prototype use.  If this code were verified/certified for high-security applications, we would say that the following parameters would be appropriate for "production" use.
 	//usint m = 2048;
@@ -202,12 +199,12 @@ void NTRUPRE(int input) {
 		//{ 2048, CalltoModulusComputation(), CalltoRootComputation, 0 }  // r= 16
 	};
 
-	//SIMPLIFYusint m = SECURE_PARAMS[input].m;
-	//SIMPLIFYBigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
-	//SIMPLIFYBigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
-	//SIMPLIFYusint relWindow = SECURE_PARAMS[input].relinWindow;
+	usint m = SECURE_PARAMS[input].m;
+	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
+	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
+	usint relWindow = SECURE_PARAMS[input].relinWindow;
 
-	//SIMPLIFYByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	//ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 
 

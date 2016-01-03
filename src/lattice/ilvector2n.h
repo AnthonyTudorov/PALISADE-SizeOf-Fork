@@ -60,6 +60,7 @@ namespace lbcrypto {
 								  /**
 								  * @brief Ideal lattice in vector representation or a vector in the double-CRT "matrix".  This is not fully implemented and is currently only stubs.
 								  */
+	//JSON FACILITY
 	class ILVector2n : public ILElement, public Serializable
 	{
 	public:
@@ -553,7 +554,7 @@ namespace lbcrypto {
 			this->SetModulus(bbiModulus);
 
 			ILParams json_ilParams;
-			json_ilParams.Deserialize(serializationMap); 
+			json_ilParams.Deserialize(serializationMap);
 			this->SetParams(json_ilParams);
 		}
 

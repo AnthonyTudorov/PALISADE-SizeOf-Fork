@@ -40,7 +40,6 @@
 
 //Includes Section
 #include "pubkeylp.h"
-//#include "lwecrypt.h"
 
 #include "../utils/serializable.h"
 
@@ -49,10 +48,6 @@
 * The namespace of lbcrypto
 */
 namespace lbcrypto {
-
-
-	template <class Element>	
-	class LPCryptoParametersLWE;
 
 	/**
 	 * @brief Main ciphertext class.
@@ -103,8 +98,6 @@ namespace lbcrypto {
 		* @return the crypto parameters.
 		*/
 		const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
-
-		//LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
 
 		/**
 		* Get a reference to public key.
@@ -172,7 +165,7 @@ namespace lbcrypto {
 		* @return the new ciphertext.
 		*/
 		Ciphertext<Element> EvalAdd(const Ciphertext<Element> &ciphertext) const;
-
+	
 		//JSON FACILITY
 		/**
 		* Sets the ID and Flag attribute values for use in serializing this object to a JSON file.
@@ -239,7 +232,7 @@ namespace lbcrypto {
 			json_ilElement.Deserialize(serializationMap);
 			this->SetElement(json_ilElement);
 		}
-	
+
 	private:
 
 		//pointer to crypto parameters

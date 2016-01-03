@@ -51,6 +51,7 @@ namespace lbcrypto {
 	/**
 	* @brief Interface for element params; all these methods have to be supported by any element parameters class
 	*/
+	//JSON FACILITY
 	class ElemParams : public Serializable
 	{
 	public:
