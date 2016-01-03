@@ -49,6 +49,10 @@
 */
 namespace lbcrypto {
 
+	//JSON FACILITY - Forward declaration for temporary fix of lweautomorph.cpp Linux compilation error
+	template <class Element>
+	class LPCryptoParametersLWE;
+
 	/**
 	 * @brief Main ciphertext class.
 	 * @tparam Element a ring element.
