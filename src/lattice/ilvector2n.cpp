@@ -390,4 +390,49 @@ namespace lbcrypto {
 
 	}
 
+	// JSON FACILITY - SetIdFlag Operation
+	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ILVector2n::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+
+		//Place holder
+
+		return serializationMap;
+	}
+
+	// JSON FACILITY - Serialize Operation
+	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ILVector2n::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+
+		serializationMap = this->GetValues().Serialize(serializationMap, "");
+
+		std::unordered_map <std::string, std::string> ilVector2nMap = serializationMap["BigBinaryVector"];
+		ilVector2nMap.emplace("Format", "0");
+		serializationMap.erase("BigBinaryVector");
+		serializationMap.emplace("ILVector2n", ilVector2nMap);
+
+		return serializationMap;
+	}
+
+	// JSON FACILITY - Deserialize Operation
+	void ILVector2n::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+
+		std::unordered_map<std::string, std::string> ilVector2nMap = serializationMap["ILVector2n"];
+
+		usint vectorLength = 1024; //Should this stay hard coded?
+		//usint vectorLength = 8; //For simplified parameterizations
+		BigBinaryVector vectorBBV = BigBinaryVector(vectorLength);
+
+		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> bbvSerializationMap;
+		bbvSerializationMap.emplace("BigBinaryVector", ilVector2nMap);
+		vectorBBV.Deserialize(bbvSerializationMap);
+		//this->SetValues(vectorBBV, Format::EVALUATION);
+		this->SetValues(vectorBBV, Format(stoi(ilVector2nMap["Format"])));
+		//std::cout << "Values " << this->GetValues() << std::endl;
+
+		BigBinaryInteger bbiModulus(ilVector2nMap["Modulus"]);
+		this->SetModulus(bbiModulus);
+
+		ILParams json_ilParams;
+		json_ilParams.Deserialize(serializationMap);
+		this->SetParams(json_ilParams);
+	}
+
 } // namespace lbcrypto ends

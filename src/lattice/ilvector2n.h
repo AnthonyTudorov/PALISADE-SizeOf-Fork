@@ -503,12 +503,7 @@ namespace lbcrypto {
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		* @return map passed in.
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
-
-			//Place holder
-
-			return serializationMap;
-		}
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
 
 		//JSON FACILITY
 		/**
@@ -518,16 +513,7 @@ namespace lbcrypto {
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		* @return map updated with the attribute name value pairs required to serialize this object.
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
-
-			serializationMap = this->GetValues().Serialize(serializationMap, "");
-
-			std::unordered_map <std::string, std::string> ilVector2nMap = serializationMap["BigBinaryVector"];
-			serializationMap.erase("BigBinaryVector");
-			serializationMap.emplace("ILVector2n", ilVector2nMap);
-
-			return serializationMap;
-		}
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
 
 		//JSON FACILITY
 		/**
@@ -536,27 +522,7 @@ namespace lbcrypto {
 		*
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		*/
-		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
-
-			std::unordered_map<std::string, std::string> ilVector2nMap = serializationMap["ILVector2n"];
-
-			usint vectorLength = 1024; //Should this stay hard coded?
-			//usint vectorLength = 8; //For simplified parameterizations
-			BigBinaryVector vectorBBV = BigBinaryVector(vectorLength);
-
-			std::unordered_map<std::string, std::unordered_map<std::string, std::string>> bbvSerializationMap;
-			bbvSerializationMap.emplace("BigBinaryVector", ilVector2nMap);
-			vectorBBV.Deserialize(bbvSerializationMap);
-			this->SetValues(vectorBBV, Format::EVALUATION);
-			//std::cout << "Values " << this->GetValues() << std::endl;
-
-			BigBinaryInteger bbiModulus(ilVector2nMap["Modulus"]);
-			this->SetModulus(bbiModulus);
-
-			ILParams json_ilParams;
-			json_ilParams.Deserialize(serializationMap);
-			this->SetParams(json_ilParams);
-		}
+		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
 
 	private:
 

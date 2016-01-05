@@ -177,15 +177,7 @@ namespace lbcrypto {
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		* @return map updated with ID and Flag attribute values.
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
-
-			std::unordered_map <std::string, std::string> idFlagMap;
-			idFlagMap.emplace("ID", "Ciphertext");
-			idFlagMap.emplace("Flag", flag);
-			serializationMap.emplace("Root", idFlagMap);
-
-			return serializationMap;
-		}
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
 
 		//JSON FACILITY
 		std::unordered_map <std::string, std::string> Serialize(std::unordered_map <std::string, std::string> serializationMap, std::string fileFlag) {

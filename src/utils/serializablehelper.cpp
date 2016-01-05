@@ -67,7 +67,7 @@ namespace lbcrypto {
 		* @param nodeMap stores the serialized Palisade object's node attributes.
 		* @return string reflecting the JSON data structure of the serialized Palisade object's node.
 		*/
-		string getJsonNodeString(unordered_map<string, string> nodeMap) {
+		string GetJsonNodeString(unordered_map<string, string> nodeMap) {
 			
 			string jsonNodeInputBuffer = "";
 			jsonNodeInputBuffer.append("{");
@@ -107,26 +107,27 @@ namespace lbcrypto {
 			string ID = serializationMap["Root"]["ID"];
 
 			jsonInputBuffer.append("\"Root\":");
-			jsonInputBuffer.append(getJsonNodeString(serializationMap["Root"]));
+			jsonInputBuffer.append(GetJsonNodeString(serializationMap["Root"]));
 			jsonInputBuffer.append(",");
 
 			jsonInputBuffer.append("\"LPCryptoParametersLWE\":");
-			jsonInputBuffer.append(getJsonNodeString(serializationMap["LPCryptoParametersLWE"]));
+			jsonInputBuffer.append(GetJsonNodeString(serializationMap["LPCryptoParametersLWE"]));
 			jsonInputBuffer.append(",");
 
 			jsonInputBuffer.append("\"ILParams\":");
-			jsonInputBuffer.append(getJsonNodeString(serializationMap["ILParams"]));
+			jsonInputBuffer.append(GetJsonNodeString(serializationMap["ILParams"]));
 			jsonInputBuffer.append(",");
 
 			if (ID.compare("LPEvalKeyLWENTRU") != 0) {
 				jsonInputBuffer.append("\"ILVector2n\":");
-				jsonInputBuffer.append(getJsonNodeString(serializationMap["ILVector2n"]));
+				jsonInputBuffer.append(GetJsonNodeString(serializationMap["ILVector2n"]));
 			} else {
-				for (int i = 0; i < 5; i++) {
+				int evalKeyVectorLength = stoi(serializationMap["Root"]["VectorLength"]);
+				for (int i = 0; i < evalKeyVectorLength; i++) {
 					std::string indexName = "ILVector2n";
 					indexName.append(this->ToStr(i));
 					jsonInputBuffer.append("\"" + indexName + "\":");
-					jsonInputBuffer.append(getJsonNodeString(serializationMap[indexName]));
+					jsonInputBuffer.append(GetJsonNodeString(serializationMap[indexName]));
 					jsonInputBuffer.append(",");
 				}
 				jsonInputBuffer = jsonInputBuffer.substr(0, jsonInputBuffer.length() - 1);
@@ -220,7 +221,8 @@ namespace lbcrypto {
 			if (ID.compare("LPEvalKeyLWENTRU") != 0) {
 				serializationMap.emplace("ILVector2n", GetSerializationMapNode(doc, "ILVector2n"));
 			} else {
-				for (int i = 0; i < 5; i++) {
+				int evalKeyVectorLength = stoi(doc["Root"]["VectorLength"].GetString());
+				for (int i = 0; i < evalKeyVectorLength; i++) {
 					string indexName = "ILVector2n";
 					indexName.append(ToStr(i));
 					serializationMap.emplace(indexName, GetSerializationMapNode(doc, indexName));
