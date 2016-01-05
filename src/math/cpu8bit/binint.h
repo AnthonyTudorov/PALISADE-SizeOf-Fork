@@ -59,7 +59,7 @@ const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels used in the Ba
 /**
  * @brief Class for big binary integers.
  */
-class BigBinaryInteger : public lbcrypto::BigBinaryIntegerInterface
+class BigBinaryInteger //: public lbcrypto::BigBinaryIntegerInterface
 {
 public:
 	/**
