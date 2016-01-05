@@ -67,11 +67,11 @@ namespace lbcrypto {
 		* @param nodeMap stores the serialized Palisade object's node attributes.
 		* @return string reflecting the JSON data structure of the serialized Palisade object's node.
 		*/
-		string GetJsonNodeString(unordered_map<string, string> nodeMap) {
+		std::string GetJsonNodeString(std::unordered_map<std::string, std::string> nodeMap) {
 			
-			string jsonNodeInputBuffer = "";
+			std::string jsonNodeInputBuffer = "";
 			jsonNodeInputBuffer.append("{");
-			for (unordered_map<string, string>::iterator i = nodeMap.begin(); i != nodeMap.end(); i++) {
+			for (std::unordered_map<std::string, std::string>::iterator i = nodeMap.begin(); i != nodeMap.end(); i++) {
 				jsonNodeInputBuffer.append("\"");
 				jsonNodeInputBuffer.append(i->first);
 				jsonNodeInputBuffer.append("\"");
@@ -92,7 +92,7 @@ namespace lbcrypto {
 		* @param serializationMap stores the serialized Palisade object's attributes.
 		* @return string reflecting the nested JSON data structure of the serialized Palisade object.
 		*/
-		string GetJsonString(unordered_map<string, unordered_map<string, string>> serializationMap) {
+		std::string GetJsonString(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap) {
 
 			/*
 			for (unordered_map<string, unordered_map<string, string>>::iterator i = serializationMap.begin(); i != serializationMap.end(); i++) {
@@ -100,11 +100,11 @@ namespace lbcrypto {
 			}
 			*/
 
-			string jsonInputBuffer = "";
+			std::string jsonInputBuffer = "";
 
 			jsonInputBuffer.append("{");
 
-			string ID = serializationMap["Root"]["ID"];
+			std::string ID = serializationMap["Root"]["ID"];
 
 			jsonInputBuffer.append("\"Root\":");
 			jsonInputBuffer.append(GetJsonNodeString(serializationMap["Root"]));
@@ -122,15 +122,17 @@ namespace lbcrypto {
 				jsonInputBuffer.append("\"ILVector2n\":");
 				jsonInputBuffer.append(GetJsonNodeString(serializationMap["ILVector2n"]));
 			} else {
+				jsonInputBuffer.append("\"ILVector2nArray\":");
+				jsonInputBuffer.append("{");
 				int evalKeyVectorLength = stoi(serializationMap["Root"]["VectorLength"]);
 				for (int i = 0; i < evalKeyVectorLength; i++) {
-					std::string indexName = "ILVector2n";
-					indexName.append(this->ToStr(i));
+					std::string indexName = this->ToStr(i);
 					jsonInputBuffer.append("\"" + indexName + "\":");
 					jsonInputBuffer.append(GetJsonNodeString(serializationMap[indexName]));
 					jsonInputBuffer.append(",");
 				}
 				jsonInputBuffer = jsonInputBuffer.substr(0, jsonInputBuffer.length() - 1);
+				jsonInputBuffer.append("}");
 			}
 
 			jsonInputBuffer.append("}");
@@ -143,9 +145,9 @@ namespace lbcrypto {
 		* @param serializationMap stores the serialized Palisade object's attributes.
 		* @return string reflecting file name to save serialized Palisade object to.
 		*/
-		string GetJsonFileName(unordered_map<string, unordered_map<string, string>> serializationMap) {
+		std::string GetJsonFileName(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap) {
 
-			unordered_map<string, string> rootMap = serializationMap["Root"];
+			std::unordered_map<std::string, std::string> rootMap = serializationMap["Root"];
 			return rootMap["ID"].append("_").append(rootMap["Flag"]);
 		}
 
@@ -154,9 +156,9 @@ namespace lbcrypto {
 		* @param jsoninputstring is the serialized object's nested JSON data string.
 		* @param outputFileName is the name of the file to save JSON data string to.
 		*/
-		void OutputRapidJsonFile(string jsonInputString, string outputFileName) {
+		void OutputRapidJsonFile(std::string jsonInputString, std::string outputFileName) {
 
-			string jsonFileName = outputFileName.append(".txt");
+			std::string jsonFileName = outputFileName.append(".txt");
 
 			const char* jsonInput = jsonInputString.c_str();
 
@@ -166,7 +168,7 @@ namespace lbcrypto {
 			rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
 			d.Accept(writer);
 
-			ofstream jsonFout;
+			std::ofstream jsonFout;
 			jsonFout.open(jsonFileName);
 			jsonFout << "\n" << buffer.GetString() << std::endl;
 			jsonFout.close();
@@ -178,10 +180,10 @@ namespace lbcrypto {
 		* @param nodeName is the node to read in for the Palisade object's node's serialized JSON data structure.
 		* @return map containing name value pairs for the attributes of the Palisade object's node to be deserialized.
 		*/
-		unordered_map<string, string> GetSerializationMapNode(rapidjson::Document &doc, string nodeName) {
+		std::unordered_map<std::string, std::string> GetSerializationMapNode(rapidjson::Document &doc, std::string nodeName) {
 			
 			//cout << "---" << nodeName << "---" << endl;
-			unordered_map<string, string> nodeMap;
+			std::unordered_map<std::string, std::string> nodeMap;
 			const rapidjson::Value& node = doc[nodeName.c_str()];
 			for (rapidjson::Value::ConstMemberIterator it = node.MemberBegin(); it != node.MemberEnd(); it++) {
 				//cout << it->name.GetString() << " | " << it->value.GetString() << endl;
@@ -192,19 +194,49 @@ namespace lbcrypto {
 		}
 
 		/**
+		* Generates and adds maps of attribute name value pairs for deserializing a Palisade object's array node from a JSON file
+		* @param doc is the RapidJson DOM object created for the Palisdae object's JSON file
+		* @serializationMap is a map of attribute name value pairs to be used for deserializing a Palisade object
+		* @param nodeName is the node to read in for the Palisade object's node's serialized JSON data structure.
+		* @param childNodeFlag is used to label each map created for the array node's indexes
+		* @return map containing maps of name value pairs for the attributes of the Palisade object's array node to be deserialized.
+		*/
+		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> GetSerializationMapNodeArray(rapidjson::Document &doc, std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap, std::string nodeName, std::string childNodeFlag) {
+			
+			//cout << "---" << nodeName << "---" << endl;
+			std::unordered_map<std::string, std::string> childNodeMap;
+			const rapidjson::Value& node = doc[nodeName.c_str()];
+			std::string childNodeFlagBuffer = childNodeFlag;
+			for (rapidjson::Value::ConstMemberIterator it = node.MemberBegin(); it != node.MemberEnd(); it++) {
+				//cout << it->name.GetString() << endl;
+				std::string indexValue = it->name.GetString();
+				const rapidjson::Value& childNode = doc[nodeName.c_str()][it->name.GetString()];
+				for (rapidjson::Value::ConstMemberIterator childIt = childNode.MemberBegin(); childIt != childNode.MemberEnd(); childIt++) {
+					//cout << childIt->name.GetString() << endl;
+					childNodeMap.emplace(childIt->name.GetString(), childIt->value.GetString());
+				}
+				serializationMap.emplace(childNodeFlagBuffer.append(indexValue), childNodeMap);
+				childNodeMap.clear();
+				childNodeFlagBuffer = childNodeFlag;
+			}
+
+			return serializationMap;
+		}
+
+		/**
 		* Generates a map of attribute name value pairs for deserializing a Palisade object from a JSON file
 		* @param jsonFileName is the file to read in for the Palisade object's nested serialized JSON data structure.
 		* @return map containing name value pairs for the attributes of the Palisade object to be deserialized.
 		*/
-		unordered_map<string, unordered_map<string, string>> GetSerializationMap(string jsonFileName) {
+		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> GetSerializationMap(std::string jsonFileName) {
 			
-			unordered_map<string, unordered_map<string, string>> serializationMap;
-			unordered_map<string, string> childMap;
+			std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap;
+			std::unordered_map<std::string, std::string> childMap;
 
 			//Retrieve contents of output Json file
-			string jsonReadLine;
-			string jsonReadBuffer;
-			ifstream jsonFin(jsonFileName);
+			std::string jsonReadLine;
+			std::string jsonReadBuffer;
+			std::ifstream jsonFin(jsonFileName);
 			while (getline(jsonFin, jsonReadLine)) {
 				jsonReadBuffer += jsonReadLine;
 			}
@@ -214,19 +246,14 @@ namespace lbcrypto {
 			rapidjson::Document doc;
 			doc.Parse(jsonReadBuffer.c_str());
 
-			string ID = doc["Root"]["ID"].GetString();
+			std::string ID = doc["Root"]["ID"].GetString();
 			serializationMap.emplace("Root", GetSerializationMapNode(doc, "Root"));
 			serializationMap.emplace("LPCryptoParametersLWE", GetSerializationMapNode(doc, "LPCryptoParametersLWE"));
 			serializationMap.emplace("ILParams", GetSerializationMapNode(doc, "ILParams"));
 			if (ID.compare("LPEvalKeyLWENTRU") != 0) {
 				serializationMap.emplace("ILVector2n", GetSerializationMapNode(doc, "ILVector2n"));
 			} else {
-				int evalKeyVectorLength = stoi(doc["Root"]["VectorLength"].GetString());
-				for (int i = 0; i < evalKeyVectorLength; i++) {
-					string indexName = "ILVector2n";
-					indexName.append(ToStr(i));
-					serializationMap.emplace(indexName, GetSerializationMapNode(doc, indexName));
-				}
+				serializationMap = GetSerializationMapNodeArray(doc, serializationMap, "ILVector2nArray", "ILVector2n");
 			}
 
 			return serializationMap;
