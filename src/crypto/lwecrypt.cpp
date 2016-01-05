@@ -292,10 +292,9 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 	for (unsigned i = 0; i < evalKeyVectorLength; i++) {
 		evalKeyElemVector = this->GetEvalKeyElements().at(i);
 		serializationMap = evalKeyElemVector.Serialize(serializationMap, "");
-		std::string indexName = "ILVector2n";
-		indexName.append(this->ToStr(i));
 		ilVector2nMap = serializationMap["ILVector2n"];
 		serializationMap.erase("ILVector2n");
+		std::string indexName = this->ToStr(i);
 		serializationMap.emplace(indexName, ilVector2nMap);
 	}
 
