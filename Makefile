@@ -66,6 +66,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)/lattice
 	@mkdir -p $(BUILDDIR)/math
 	@mkdir -p $(BUILDDIR)/math/cpu8bit
+	@mkdir -p $(BUILDDIR)/math/cpu_int
 	@mkdir -p $(BUILDDIR)/multilinearmap
 	@mkdir -p $(BUILDDIR)/utils
 #	@echo " $@"
