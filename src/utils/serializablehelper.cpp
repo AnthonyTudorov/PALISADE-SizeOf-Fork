@@ -145,7 +145,7 @@ namespace lbcrypto {
 				jsonInputBuffer.append("\"ILVector2n\":");
 				jsonInputBuffer.append(GetJsonNodeString(serializationMap["ILVector2n"]));
 			} else {
-				jsonInputBuffer.append("\"ILVector2nArray\":");
+				jsonInputBuffer.append("\"ILVector2nVector\":");
 				jsonInputBuffer.append(GetJsonNodeVectorString(serializationMap));
 			}
 
