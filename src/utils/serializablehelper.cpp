@@ -87,6 +87,12 @@ namespace lbcrypto {
 			return jsonNodeInputBuffer;
 		}
 
+		/**
+		* Generates a JSON data string for a node array of a serialized Palisade object's nested JSON structure
+		* @param nodeMap stores the serialized Palisade object's node attributes.
+		* @param serializationMap is a map of attribute name value pairs to used for serializing a Palisade object.
+		* @return string reflecting the JSON data structure of the serialized Palisade object's node array.
+		*/
 		std::string GetJsonNodeArrayString(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap) {
 
 			std::string jsonNodeInputBuffer = "";
@@ -204,7 +210,7 @@ namespace lbcrypto {
 		/**
 		* Generates and adds maps of attribute name value pairs for deserializing a Palisade object's array node from a JSON file
 		* @param doc is the RapidJson DOM object created for the Palisdae object's JSON file
-		* @serializationMap is a map of attribute name value pairs to be used for deserializing a Palisade object
+		* @param serializationMap is a map of attribute name value pairs to be used for deserializing a Palisade object
 		* @param nodeName is the node to read in for the Palisade object's node's serialized JSON data structure.
 		* @param childNodeFlag is used to label each map created for the array node's indexes
 		* @return map containing maps of name value pairs for the attributes of the Palisade object's array node to be deserialized.
