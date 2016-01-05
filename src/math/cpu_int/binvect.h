@@ -5,25 +5,25 @@
  * @version 00_03
  *
  * @section LICENSE
- *
+ * 
  * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification,
+ * Redistribution and use in source and binary forms, with or without modification, 
  * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this
+ * 1. Redistributions of source code must retain the above copyright notice, this 
  * list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or other
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this 
+ * list of conditions and the following disclaimer in the documentation and/or other 
  * materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @section DESCRIPTION
@@ -31,79 +31,81 @@
  * This file contains the vector manipulation functionality.
  */
 
-#ifndef LBCRYPTO_MATH_CPU8BIT_BINVECT_H
-#define LBCRYPTO_MATH_CPU8BIT_BINVECT_H
+#ifndef LBCRYPTO_MATH_CPUINT_BINVECT_H
+#define LBCRYPTO_MATH_CPUINT_BINVECT_H
 
+#include <iostream>
 
-#include "binint.h"
-#include "binmat.h"
+//#include "binmat.h"
+#include "../../utils/inttypes.h"
 
 /**
  * @namespace cpu8bit
  * The namespace of cpu8bit
  */
-namespace cpu8bit {
-
+namespace cpu_int {
+	
 
 //GENERAL NOTE. YSP. I believe we should use this class for vectors only. Matrices should be defined in a separate class: BigBinaryMatrix.
 
 /**
  * @brief The class for representing vectors of big binary integers.
  */
-	class BigBinaryVector : public lbcrypto::BigBinaryVectorInterface
+	template <class IntegerType>
+	class BigBinaryVector
 {
 public:
 	/**
-	 * Basic constructor.
+	 * Basic constructor.	  	  
 	 */
 	explicit BigBinaryVector();
 
 	/**
 	 * Basic constructor for specifying the length of the vector.
 	 *
-	 * @param length is the length of the big binary vector, in terms of the number of entries.
+	 * @param length is the length of the big binary vector, in terms of the number of entries.	  	  
 	 */
 	explicit BigBinaryVector(usint length);
 
 	/**
 	 * Basic constructor for specifying the length of the vector and the modulus.
 	 *
-	 * @param length is the length of the big binary vector, in terms of the number of entries.
-	 * @param modulus is the modulus of the entries in the vector.
+	 * @param length is the length of the big binary vector, in terms of the number of entries.	
+	 * @param modulus is the modulus of the entries in the vector.  	  
 	 */
-	explicit BigBinaryVector(usint length, const BigBinaryInteger& modulus);
+	explicit BigBinaryVector(usint length, const IntegerType& modulus);
 
 	/**
 	 * Basic constructor for copying a vector
 	 *
-	 * @param bigBinaryVector is the big binary vector to be copied.
+	 * @param bigBinaryVector is the big binary vector to be copied.  	  
 	 */
 	explicit BigBinaryVector(const BigBinaryVector& bigBinaryVector);
 
 	/**
 	 * Basic constructor for copying a vector
 	 *
-	 * @param &&bigBinaryVector is the big binary vector to be copied.
+	 * @param &&bigBinaryVector is the big binary vector to be copied.  	  
 	 */
 	BigBinaryVector(BigBinaryVector &&bigBinaryVector);//move copy constructor
 
 	/**
 	 * ???
 	 *
-	 * @param &rhs is the big binary vector to test equality with.
-	 * @return the return value.
+	 * @param &rhs is the big binary vector to test equality with.  
+	 * @return the return value.	  
 	 */
 	BigBinaryVector&  operator=(const BigBinaryVector &rhs);
 
 	/**
 	 * ???
-     *
-     * @param &&rhs is the big binary vector to test equality with.
-     * @return the return value.
-     */
-    BigBinaryVector&  operator=(BigBinaryVector &&rhs);
+	 *
+	 * @param &&rhs is the big binary vector to test equality with.  
+	 * @return the return value.	  
+	 */
+	BigBinaryVector&  operator=(BigBinaryVector &&rhs);
 
-    inline bool operator==(const BigBinaryVector &b) const {
+	inline bool operator==(const BigBinaryVector &b) const {
         if (this->GetLength() != b.GetLength()) {
             return false;
         }
@@ -120,7 +122,7 @@ public:
     }
 
 	/**
-	 * Destructor.
+	 * Destructor.	  
 	 */
 	~BigBinaryVector();
 
@@ -132,9 +134,10 @@ public:
 	 *
 	 * @param os ???.
 	 * @param &ptr_obj ???.
-	 * @return the return value.
+	 * @return the return value.	  
 	 */
-	friend std::ostream& operator<<(std::ostream& os, const BigBinaryVector &ptr_obj);
+	template<class IntegerType_c>
+	friend std::ostream& operator<<(std::ostream& os, const BigBinaryVector<IntegerType_c> &ptr_obj);
 
 	/**
 	 * Sets a value at an index.
@@ -142,7 +145,7 @@ public:
 	 * @param index is the index to set a value at.
 	 * @param value is the value to set at the index.
 	 */
-	void SetValAtIndex(usint index, const BigBinaryInteger& value);
+	void SetValAtIndex(usint index, const IntegerType& value);
 
 	/**
 	 * Sets a value at an index.
@@ -158,21 +161,21 @@ public:
 	 * @param index is the index to set a value at.
 	 * @return is the value at the index.
 	 */
-	const BigBinaryInteger& GetValAtIndex(usint index) const;
+	const IntegerType& GetValAtIndex(usint index) const;
 
 	/**
 	 * Sets the vector modulus.
 	 *
 	 * @param value is the value to set.
 	 */
-	void SetModulus(const BigBinaryInteger& value);
+	void SetModulus(const IntegerType& value);
 
 	/**
 	 * Gets the vector modulus.
 	 *
 	 * @return the vector modulus.
 	 */
-	const BigBinaryInteger& GetModulus() const;
+	const IntegerType& GetModulus() const;
 
 	/**
 	 * Gets the vector length.
@@ -180,7 +183,7 @@ public:
 	 * @return the vector length.
 	 */
 	usint GetLength() const;
-
+	
 	//METHODS
 
 	/**
@@ -189,8 +192,8 @@ public:
 	 * @param modulus is the modulus to perform.
 	 * @return is the result of the modulus operation.
 	 */
-	BigBinaryVector Mod(const BigBinaryInteger& modulus) const;
-
+	BigBinaryVector Mod(const IntegerType& modulus) const;
+	
 	//scalar operations
 
 	/**
@@ -199,7 +202,7 @@ public:
 	 * @param &b is the scalar to add at all locations.
 	 * @return is the result of the modulus addition operation.
 	 */
-	BigBinaryVector ModAdd(const BigBinaryInteger &b) const;
+	BigBinaryVector ModAdd(const IntegerType &b) const;
 
 	/**
 	 * Scalar modulus subtraction.
@@ -207,7 +210,7 @@ public:
 	 * @param &b is the scalar to subtract from all locations.
 	 * @return is the result of the modulus subtraction operation.
 	 */
-	BigBinaryVector ModSub(const BigBinaryInteger &b) const;
+	BigBinaryVector ModSub(const IntegerType &b) const;
 
 	/**
 	 * Scalar modulus multiplication.
@@ -215,7 +218,7 @@ public:
 	 * @param &b is the scalar to multiply at all locations.
 	 * @return is the result of the modulus multiplication operation.
 	 */
-	BigBinaryVector ModMul(const BigBinaryInteger &b) const;
+	BigBinaryVector ModMul(const IntegerType &b) const;
 
 	/**
 	 * Scalar modulus exponentiation.
@@ -223,9 +226,9 @@ public:
 	 * @param &b is the scalar to exponentiate at all locations.
 	 * @return is the result of the modulus exponentiation operation.
 	 */
-	BigBinaryVector ModExp(const BigBinaryInteger &b) const;
+	BigBinaryVector ModExp(const IntegerType &b) const;
 	//BigBinaryVector& ScalarExp(const BigBinaryInteger &a) const;
-
+	
 
 	/**
 	 * Modulus inverse.
@@ -281,7 +284,7 @@ public:
 	BigBinaryVector ModMul(const BigBinaryVector &b) const;
 
 	//matrix operations
-
+	
 	//matrix product - used in FFT and IFFT; new_vector = A*this_vector
 
 	/**
@@ -290,7 +293,7 @@ public:
 	 * @param &a is the matrix to left-multiply with.
 	 * @return is the result of the modulus multiplication operation.
 	 */
-	BigBinaryVector ModMatrixMul(const BigBinaryMatrix &a) const;
+	//BigBinaryVector ModMatrixMul(const BigBinaryMatrix &a) const;
 
 	/**
 	 * Returns a vector of digit at a specific index for all entries for a given number base.
@@ -309,9 +312,9 @@ public:
 	//Gyana to add -= operator
 
 private:
-	BigBinaryInteger **m_data;
+	IntegerType **m_data;
 	usint m_length;
-	BigBinaryInteger m_modulus;
+	IntegerType m_modulus;
 	bool IndexCheck(usint) const;
 };
 
@@ -324,7 +327,8 @@ private:
  * @param &i is the input integer to add.
  * @return is the result of the modulus addition operation.
  */
-inline BigBinaryVector operator+(const BigBinaryVector &a, const BigBinaryInteger &i) {return a.ModAdd(i);}
+template<class IntegerType>
+inline BigBinaryVector<IntegerType> operator+(const BigBinaryVector<IntegerType> &a, const IntegerType &i) {return a.ModAdd(i);}
 
 /**
  * Modulus scalar multiplication.
@@ -333,7 +337,8 @@ inline BigBinaryVector operator+(const BigBinaryVector &a, const BigBinaryIntege
  * @param &i is the input integer to multiply.
  * @return is the result of the modulus multiplication operation.
  */
-inline BigBinaryVector operator*(const BigBinaryVector &a, const BigBinaryInteger &i) {return a.ModMul(i);}
+template<class IntegerType>
+inline BigBinaryVector<IntegerType> operator*(const BigBinaryVector<IntegerType> &a, const IntegerType &i) {return a.ModMul(i);}
 
 /**
  * Modulus vector addition.
@@ -342,7 +347,8 @@ inline BigBinaryVector operator*(const BigBinaryVector &a, const BigBinaryIntege
  * @param &b is the second input vector to add.
  * @return is the result of the modulus addition operation.
  */
-inline BigBinaryVector operator+(const BigBinaryVector &a, const BigBinaryVector &b) {return a.ModAdd(b);}
+template<class IntegerType>
+inline BigBinaryVector<IntegerType> operator+(const BigBinaryVector<IntegerType> &a, const BigBinaryVector<IntegerType> &b) {return a.ModAdd(b);}
 
 /**
  * Modulus vector multiplication.
@@ -351,7 +357,8 @@ inline BigBinaryVector operator+(const BigBinaryVector &a, const BigBinaryVector
  * @param &b is the second input vector to multiply.
  * @return is the result of the modulus multiplication operation.
  */
-inline BigBinaryVector operator*(const BigBinaryVector &a, const BigBinaryVector &b) {return a.ModMul(b);}
+template<class IntegerType>
+inline BigBinaryVector<IntegerType> operator*(const BigBinaryVector<IntegerType> &a, const BigBinaryVector<IntegerType> &b) {return a.ModMul(b);}
 //Gyana to add both minus operators
 
 } // namespace lbcrypto ends
