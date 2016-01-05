@@ -87,6 +87,23 @@ namespace lbcrypto {
 			return jsonNodeInputBuffer;
 		}
 
+		std::string GetJsonNodeArrayString(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap) {
+
+			std::string jsonNodeInputBuffer = "";
+			jsonNodeInputBuffer.append("{");
+			int evalKeyVectorLength = stoi(serializationMap["Root"]["VectorLength"]);
+			for (int i = 0; i < evalKeyVectorLength; i++) {
+				std::string indexName = this->ToStr(i);
+				jsonNodeInputBuffer.append("\"" + indexName + "\":");
+				jsonNodeInputBuffer.append(GetJsonNodeString(serializationMap[indexName]));
+				jsonNodeInputBuffer.append(",");
+			}
+			jsonNodeInputBuffer = jsonNodeInputBuffer.substr(0, jsonNodeInputBuffer.length() - 1);
+			jsonNodeInputBuffer.append("}");
+
+			return jsonNodeInputBuffer;
+		}
+
 		/**
 		* Generates a nested JSON data string for a serialized Palisade object
 		* @param serializationMap stores the serialized Palisade object's attributes.
@@ -123,16 +140,7 @@ namespace lbcrypto {
 				jsonInputBuffer.append(GetJsonNodeString(serializationMap["ILVector2n"]));
 			} else {
 				jsonInputBuffer.append("\"ILVector2nArray\":");
-				jsonInputBuffer.append("{");
-				int evalKeyVectorLength = stoi(serializationMap["Root"]["VectorLength"]);
-				for (int i = 0; i < evalKeyVectorLength; i++) {
-					std::string indexName = this->ToStr(i);
-					jsonInputBuffer.append("\"" + indexName + "\":");
-					jsonInputBuffer.append(GetJsonNodeString(serializationMap[indexName]));
-					jsonInputBuffer.append(",");
-				}
-				jsonInputBuffer = jsonInputBuffer.substr(0, jsonInputBuffer.length() - 1);
-				jsonInputBuffer.append("}");
+				jsonInputBuffer.append(GetJsonNodeArrayString(serializationMap));
 			}
 
 			jsonInputBuffer.append("}");
