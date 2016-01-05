@@ -28,49 +28,84 @@
  *
  * @section DESCRIPTION
  *
- * This file contains the functionality to switch between math backends
+ *	This code provides basic queueing functionality.
  */
 
-#ifndef LBCRYPTO_MATH_BACKEND_H
-#define LBCRYPTO_MATH_BACKEND_H
- 
-/*! Define the library being used.  Use 1 to represent 8-bit CPU.*/
-#define MATHBACKEND 1  // 1 for 8-bit CPU; 2 for 64-bit CPU, and so on
+#ifndef LBCRYPTO_MATH_CPU_INT_DTSTRUCT_H
+#define LBCRYPTO_MATH_CPU_INT_DTSTRUCT_H
 
-#if MATHBACKEND == 1
-	#include "cpu8bit/binint.h"
-	#include "cpu8bit/binvect.h"
-	#include "cpu8bit/binmat.h"	
-#endif
-#if MATHBACKEND == 2
-	#include "cpu_int/binint.cpp"
-	#include "cpu_int/binvect.cpp"	
-#endif
+#include <iostream>
+#include <stdexcept>
+#include "../../utils/inttypes.h"
+#include <queue>
 
 /**
- * @namespace lbcrypto
- * The namespace of lbcrypto
+ * @namespace cpu8bit
+ * The namespace of cpu8bit
  */
-namespace lbcrypto {
+namespace cpu_int {
 
-#if MATHBACKEND == 1
-	/** Define the mapping for BigBinaryInteger */
-	typedef cpu8bit::BigBinaryInteger BigBinaryInteger;
-	/** Define the mapping for BigBinaryVector */
-	typedef cpu8bit::BigBinaryVector BigBinaryVector;
-	/** Define the mapping for BigBinaryMatrix */
-	typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
-#endif
+//const usint FRAGMENTATION_FACTOR = 14;	//!< @brief ???
+// const usint FRAGMENTATION_FACTOR = 27;
 
-#if MATHBACKEND == 2
-	/** Define the mapping for BigBinaryInteger */
-	typedef cpu_int::BigBinaryInteger<uint32_t,100> BigBinaryInteger;
-	/** Define the mapping for BigBinaryVector */
-	typedef cpu_int::BigBinaryVector<BigBinaryInteger> BigBinaryVector;
-	/** Define the mapping for BigBinaryMatrix */
-	//typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
-#endif
+const usint BUFFER_SIZE = 1024 * 512;// *FRAGMENTATION_FACTOR; //!< @brief Amount of memory stored in the queue data structure.
 
-} // namespace lbcrypto ends
+/**
+ * @brief circular character array implementation of queue used for memory pools
+ */
+template<typename uint_t, usint BITLENGTH>
+class CircularQueue
+{
+private:
+	int m_front, m_back, m_size, m_count;
+	/*uschar* m_array[BUFFER_SIZE/FRAGMENTATION_FACTOR];*/
+	uint_t* m_array[BUFFER_SIZE];
+public:
+	/**
+	 * Basic constructor.	  	  
+	 */
+	CircularQueue();
+
+	/**
+	 * Push operator to push data onto the queue.	
+	 *  	  
+	 * @param item the data to push onto the queue.
+	 */
+	void Push(uschar* item);
+
+	/**
+	 * Show the data in the queue by printing to stdout.  Prints a message if the queue is empty.
+	 */
+	void Show();
+
+	/**
+	 * Pop data from the queue.
+	 */
+	void Pop();
+
+	/**
+	 * Returns the size of the queue.
+	 *  	  
+	 * @return the size of the queue.
+	 */
+	int GetSize();
+	//int GetFront();
+
+	/**
+	 * Returns the position of the back of the queue.
+	 *  	  
+	 * @return the back of the queue.
+	 */
+	int GetBack();
+
+	/**
+	 * Returns the data at the front of the queue.
+	 *  	  
+	 * @return the data at the front of the queue.
+	 */
+	uschar* GetFront();
+};
+
+}
 
 #endif

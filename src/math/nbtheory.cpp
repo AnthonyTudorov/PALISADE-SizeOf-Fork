@@ -144,7 +144,7 @@ BigBinaryInteger UintToBigBinaryInteger(usint m)
 	return result;
 	*/
 	
-	return BigBinaryInteger::intToBigBinaryInteger(m);
+	return BigBinaryInteger(m);
 	
 }
 
