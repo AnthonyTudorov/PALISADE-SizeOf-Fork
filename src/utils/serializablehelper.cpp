@@ -88,12 +88,12 @@ namespace lbcrypto {
 		}
 
 		/**
-		* Generates a JSON data string for a node array of a serialized Palisade object's nested JSON structure
+		* Generates a JSON data string for a node vector of a serialized Palisade object's nested JSON structure
 		* @param nodeMap stores the serialized Palisade object's node attributes.
 		* @param serializationMap is a map of attribute name value pairs to used for serializing a Palisade object.
-		* @return string reflecting the JSON data structure of the serialized Palisade object's node array.
+		* @return string reflecting the JSON data structure of the serialized Palisade object's node vector.
 		*/
-		std::string GetJsonNodeArrayString(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap) {
+		std::string GetJsonNodeVectorString(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap) {
 
 			std::string jsonNodeInputBuffer = "";
 			jsonNodeInputBuffer.append("{");
@@ -146,7 +146,7 @@ namespace lbcrypto {
 				jsonInputBuffer.append(GetJsonNodeString(serializationMap["ILVector2n"]));
 			} else {
 				jsonInputBuffer.append("\"ILVector2nArray\":");
-				jsonInputBuffer.append(GetJsonNodeArrayString(serializationMap));
+				jsonInputBuffer.append(GetJsonNodeVectorString(serializationMap));
 			}
 
 			jsonInputBuffer.append("}");
@@ -208,14 +208,14 @@ namespace lbcrypto {
 		}
 
 		/**
-		* Generates and adds maps of attribute name value pairs for deserializing a Palisade object's array node from a JSON file
+		* Generates and adds maps of attribute name value pairs for deserializing a Palisade object's node vector from a JSON file
 		* @param doc is the RapidJson DOM object created for the Palisdae object's JSON file
 		* @param serializationMap is a map of attribute name value pairs to be used for deserializing a Palisade object
 		* @param nodeName is the node to read in for the Palisade object's node's serialized JSON data structure.
-		* @param childNodeFlag is used to label each map created for the array node's indexes
-		* @return map containing maps of name value pairs for the attributes of the Palisade object's array node to be deserialized.
+		* @param childNodeFlag is used to label each map created for the node vector's members
+		* @return map containing maps of name value pairs for the attributes of the Palisade object's node vector to be deserialized.
 		*/
-		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> GetSerializationMapNodeArray(rapidjson::Document &doc, std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap, std::string nodeName, std::string childNodeFlag) {
+		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> GetSerializationMapNodeVector(rapidjson::Document &doc, std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap, std::string nodeName, std::string childNodeFlag) {
 			
 			//cout << "---" << nodeName << "---" << endl;
 			std::unordered_map<std::string, std::string> childNodeMap;
@@ -267,7 +267,7 @@ namespace lbcrypto {
 			if (ID.compare("LPEvalKeyLWENTRU") != 0) {
 				serializationMap.emplace("ILVector2n", GetSerializationMapNode(doc, "ILVector2n"));
 			} else {
-				serializationMap = GetSerializationMapNodeArray(doc, serializationMap, "ILVector2nArray", "ILVector2n");
+				serializationMap = GetSerializationMapNodeVector(doc, serializationMap, "ILVector2nVector", "ILVector2n");
 			}
 
 			return serializationMap;
