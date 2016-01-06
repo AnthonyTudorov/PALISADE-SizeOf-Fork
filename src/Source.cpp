@@ -68,7 +68,10 @@ using namespace std;
 using namespace lbcrypto;
 void NTRUPRE(int input);
 double currentDateTime();
-
+void TESTMultipleValues();
+void TestBigBinaryInteger();
+void nextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
+void multTest();
 /**
  * @brief Input parameters for PRE example.
  */
@@ -82,8 +85,8 @@ struct SecureParams {
 #include <iterator>
 int main() {
 
-	//DiscreteUniformGenerator gen(BigBinaryInteger("100000"));
-	//auto v = gen.GenerateVector(10000);
+	DiscreteUniformGenerator gen(BigBinaryInteger("100000"));
+	auto v = gen.GenerateVector(10000);
 
 	std::cout << "Relinearization window : " << std::endl;
 	std::cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
@@ -97,9 +100,9 @@ int main() {
 		input = 0;
 
 	////NTRUPRE is where the core functionality is provided.
-	NTRUPRE(input);
+//	NTRUPRE(input);
 	//NTRUPRE(3);
-	
+	TESTMultipleValues();
 
 	// The below lines clean up the memory use.
 	//system("pause");
@@ -453,4 +456,200 @@ void NTRUPRE(int input) {
 
 }
 
+void TESTMultipleValues() {
 
+	double diff, start, finish;
+
+	start = currentDateTime();
+
+	usint m = 1024;
+
+	const ByteArray plaintext = "I am good boy";
+	ByteArrayPlaintextEncoding ptxt(plaintext);
+	ptxt.Pad<ZeroPad>(m/16);
+//	ptxt.Pad<ZeroPad>(m/8);
+
+	float stdDev = 4;
+
+	usint size =20;
+
+	ByteArrayPlaintextEncoding ctxtd;
+
+	vector<BigBinaryInteger> moduli(size);
+
+	vector<BigBinaryInteger> rootsOfUnity(size);
+
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+	BigBinaryInteger modulus("1");
+
+	for(int i=0; i < size;i++){
+        nextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+		moduli[i] = q;
+	//	cout << q << endl;
+		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+	//	cout << rootsOfUnity[i] << endl;
+		modulus = modulus* moduli[i];
+	
+	}
+
+		cout << modulus << endl;
+	DiscreteGaussianGenerator dgg(modulus,stdDev);
+
+	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
+
+//	ILDCRTParams params(rootsOfUnity, m, moduli,modulus1*modulus2);
+
+	LPCryptoParametersLWE<ILVectorArray2n> cryptoParams2;
+//	BigBinaryInteger plaintextm("8");
+	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
+//	cryptoParams2.SetPlaintextModulus(plaintextm);
+	cryptoParams2.SetDistributionParameter(stdDev);
+	cryptoParams2.SetRelinWindow(1);
+	cryptoParams2.SetElementParams(params);
+
+	Ciphertext<ILVectorArray2n> cipherText2;
+	cipherText2.SetCryptoParameters(cryptoParams2);
+
+
+	LPPublicKeyLWENTRU<ILVectorArray2n> pk2(cryptoParams2);
+	LPPrivateKeyLWENTRU<ILVectorArray2n> sk2(cryptoParams2);
+
+	LPAlgorithmLWENTRU<ILVectorArray2n> algorithm2;
+
+	algorithm2.KeyGen(pk2, sk2, dgg);
+
+	algorithm2.Encrypt(pk2, dgg, ptxt, &cipherText2);
+
+	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+
+	finish = currentDateTime();
+
+	diff = finish - start;
+	ctxtd.Unpad<ZeroPad>();
+
+	cout << "Decrypted value ILVectorArray2n" << endl;
+	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+
+	cout << ctxtd<< endl;
+
+	//LPAlgorithmPRELWENTRU<ILVectorArray2n> algorithmPRE;
+
+	////////////////////////////////////////////////////////////////
+	//////Perform the second key generation operation.
+	////// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
+	////////////////////////////////////////////////////////////////
+
+	//LPPublicKeyLWENTRU<ILVectorArray2n> newPK(cryptoParams2);
+	//LPPrivateKeyLWENTRU<ILVectorArray2n> newSK(cryptoParams2);
+
+	//std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
+
+	//algorithmPRE.KeyGen(newPK,newSK,dgg);	// This is the same core key generation operation.
+
+	//LPEvalKeyLWENTRU<ILVectorArray2n> evalKey(cryptoParams2);
+
+	//algorithmPRE.EvalKeyGen(newPK, sk2, dgg , &evalKey);  // This is the core re-encryption operation.
+
+	//Ciphertext<ILVectorArray2n> newCiphertext;
+
+	//
+	//algorithmPRE.ReEncrypt(evalKey, cipherText2,&newCiphertext);  // This is the core re-encryption operation.
+
+	//
+	//ByteArrayPlaintextEncoding plaintextNew2;
+
+	//std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
+
+	//
+	//DecodingResult result1 = algorithmPRE.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
+ //   plaintextNew2.Unpad<ZeroPad>();
+
+	//
+	//cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
+
+
+}
+
+void nextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha) {
+	BigBinaryInteger bigOne("1");
+	BigBinaryInteger bigTwo("2");
+	BigBinaryInteger bigSixteen("16");
+	BigBinaryInteger lowerBound;
+	BigBinaryInteger ringDimensions(ringDimension);
+
+	lowerBound = bigSixteen * ringDimensions * sigma  * sigma * alpha;
+	if (!(q >= lowerBound)) {
+		q = lowerBound;
+	}
+	else {
+		q = q + bigOne;
+	}
+
+	while (q.Mod(plainTextModulus) != bigOne) {
+		q = q + bigOne;
+	}
+
+	BigBinaryInteger cyclotomicOrder = ringDimensions * bigTwo;
+
+	while (q.Mod(cyclotomicOrder) != bigOne) {
+		q = q + plainTextModulus;
+	}
+
+	BigBinaryInteger productValue = cyclotomicOrder * plainTextModulus;
+
+	while (!MillerRabinPrimalityTest(q)) {
+		q = q + productValue;
+	}
+
+	BigBinaryInteger gcd;
+	gcd = GreatestCommonDivisor(q - BigBinaryInteger::ONE, ringDimensions);
+
+	if(!(ringDimensions == gcd)){
+	  	nextQ(q+BigBinaryInteger::ONE, plainTextModulus, ringDimension, sigma, alpha);
+	}
+
+}
+
+void TestBigBinaryInteger(){
+
+	BigBinaryInteger a("1234567891234567123123123");
+	BigBinaryInteger b("9876543219876543123123123");
+
+	BigBinaryInteger result;
+	result = a*b;
+	cout << result << endl;
+
+}
+
+void multTest(){
+
+	//usint size = 13;
+	//usint m = 256;
+
+	//vector<BigBinaryInteger> moduli(size);
+
+	//vector<BigBinaryInteger> rootsOfUnity(size);
+
+	//BigBinaryInteger q("1");
+	//BigBinaryInteger temp;
+	//BigBinaryInteger modulus("1");
+
+	//for(int i=0; i < size;i++){
+ //       nextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+	//	moduli[i] = q;
+	//	cout << q << endl;
+	//	rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+	//	cout << rootsOfUnity[i] << endl;
+	//	modulus = modulus* moduli[i];
+
+	//}
+
+	BigBinaryInteger a("74471752732523630645384307306446953954019437908300901063771594096080830");
+	BigBinaryInteger b("270330");
+	BigBinaryInteger results;
+	results = a*b;
+	cout << results << endl;
+
+
+}
