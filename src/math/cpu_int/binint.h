@@ -188,7 +188,13 @@ namespace cpu_int{
    	 */
         BigBinaryInteger&  operator=(BigBinaryInteger &&rhs);
 
-		BigBinaryInteger  operator<<(usshort shift) const;
+	
+	/**
+	* Left shift operator of big binary integer
+	* @param shift is the amount to shift 
+	* @return the object of type BigBinaryInteger
+	**/
+	BigBinaryInteger  operator<<(usshort shift) const;
 
 		BigBinaryInteger&  operator<<=(usshort shift);
 
