@@ -51,7 +51,7 @@
 namespace cpu8bit {
 
 const usint NUM_DIGIT_IN_PRINTVAL = 25;	//!< @brief The maximum number of digits in bigbinaryinteger. It is used by the cout(ostream) function for printing the bigbinarynumber.
-const usint BIT_LENGTH = 100;		//!< @brief The number of bits in the bigbinaryinteger. Any operation that crosses this bit limit will throw an exception.
+const usint BIT_LENGTH = 1023;		//!< @brief The number of bits in the bigbinaryinteger. Any operation that crosses this bit limit will throw an exception.
 // const usint BIT_LENGTH = 200;
 const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
 const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels used in the Barrett reductions.
