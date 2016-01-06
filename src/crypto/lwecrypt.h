@@ -347,16 +347,7 @@ namespace lbcrypto {
 			*
 			* @param serializationMap stores this object's serialized attribute name value pairs.
 			*/
-			void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
-
-				LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
-				json_cryptoParams->Deserialize(serializationMap);
-
-				Element json_ilElement;
-				json_ilElement.Deserialize(serializationMap);
-				this->SetPublicElement(json_ilElement);
-				std::cout << "&&&Setting LPPublicKeyLWENTRU.PublicElement<ILVector2n>" << std::endl;
-			}
+			void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
 	};
 
 	/**

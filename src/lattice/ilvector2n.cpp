@@ -422,7 +422,6 @@ namespace lbcrypto {
 		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> bbvSerializationMap;
 		bbvSerializationMap.emplace("BigBinaryVector", ilVector2nMap);
 		vectorBBV.Deserialize(bbvSerializationMap);
-		//this->SetValues(vectorBBV, Format::EVALUATION);
 		this->SetValues(vectorBBV, Format(stoi(ilVector2nMap["Format"])));
 		//std::cout << "Values " << this->GetValues() << std::endl;
 
