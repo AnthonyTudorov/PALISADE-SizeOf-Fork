@@ -416,8 +416,7 @@ namespace lbcrypto {
 
 		std::unordered_map<std::string, std::string> ilVector2nMap = serializationMap["ILVector2n"];
 
-		usint vectorLength = 1024; //Should this stay hard coded?
-		//usint vectorLength = 8; //For simplified parameterizations
+		usint vectorLength = (stoi(serializationMap["ILParams"]["Order"])) / 2;
 		BigBinaryVector vectorBBV = BigBinaryVector(vectorLength);
 
 		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> bbvSerializationMap;
