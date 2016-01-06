@@ -462,16 +462,16 @@ void TESTMultipleValues() {
 
 	start = currentDateTime();
 
-	usint m = 1024;
+	usint m = 16;
 
-	const ByteArray plaintext = "I am good boy";
+	const ByteArray plaintext = "I";
 	ByteArrayPlaintextEncoding ptxt(plaintext);
 	ptxt.Pad<ZeroPad>(m/16);
 //	ptxt.Pad<ZeroPad>(m/8);
 
 	float stdDev = 4;
 
-	usint size =20;
+	usint size =2;
 
 	ByteArrayPlaintextEncoding ctxtd;
 
@@ -533,40 +533,40 @@ void TESTMultipleValues() {
 
 	cout << ctxtd<< endl;
 
-	//LPAlgorithmPRELWENTRU<ILVectorArray2n> algorithmPRE;
+	LPAlgorithmPRELWENTRU<ILVectorArray2n> algorithmPRE;
 
-	////////////////////////////////////////////////////////////////
-	//////Perform the second key generation operation.
-	////// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
-	////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////
+	////Perform the second key generation operation.
+	//// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
+	//////////////////////////////////////////////////////////////
 
-	//LPPublicKeyLWENTRU<ILVectorArray2n> newPK(cryptoParams2);
-	//LPPrivateKeyLWENTRU<ILVectorArray2n> newSK(cryptoParams2);
+	LPPublicKeyLWENTRU<ILVectorArray2n> newPK(cryptoParams2);
+	LPPrivateKeyLWENTRU<ILVectorArray2n> newSK(cryptoParams2);
 
-	//std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
+	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
-	//algorithmPRE.KeyGen(newPK,newSK,dgg);	// This is the same core key generation operation.
+	algorithmPRE.KeyGen(newPK,newSK,dgg);	// This is the same core key generation operation.
 
-	//LPEvalKeyLWENTRU<ILVectorArray2n> evalKey(cryptoParams2);
+	LPEvalKeyLWENTRU<ILVectorArray2n> evalKey(cryptoParams2);
 
-	//algorithmPRE.EvalKeyGen(newPK, sk2, dgg , &evalKey);  // This is the core re-encryption operation.
+	algorithmPRE.EvalKeyGen(newPK, sk2, dgg , &evalKey);  // This is the core re-encryption operation.
 
-	//Ciphertext<ILVectorArray2n> newCiphertext;
+	Ciphertext<ILVectorArray2n> newCiphertext;
 
-	//
-	//algorithmPRE.ReEncrypt(evalKey, cipherText2,&newCiphertext);  // This is the core re-encryption operation.
+	
+	algorithmPRE.ReEncrypt(evalKey, cipherText2,&newCiphertext);  // This is the core re-encryption operation.
 
-	//
-	//ByteArrayPlaintextEncoding plaintextNew2;
+	
+	ByteArrayPlaintextEncoding plaintextNew2;
 
-	//std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
+	std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
 
-	//
-	//DecodingResult result1 = algorithmPRE.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
- //   plaintextNew2.Unpad<ZeroPad>();
+	
+	DecodingResult result1 = algorithmPRE.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
+    plaintextNew2.Unpad<ZeroPad>();
 
-	//
-	//cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
+	
+	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
 
 
 }
