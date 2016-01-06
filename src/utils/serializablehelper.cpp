@@ -31,24 +31,11 @@
 * This code serves as a helper class for Palisade's JSON Facility.
 *
 */
-#include "../../include/rapidjson/document.h"
-#include "../../include/rapidjson/prettywriter.h"
-#include "../../include/rapidjson/stringbuffer.h"
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <unordered_map>
-#define RAPIDJSON_NO_SIZETYPEDEFINE
+#include "serializablehelper.h"
+
 using namespace std;
 
 namespace lbcrypto {
-
-	class SerializableHelper {
-
-	public:
-
-		SerializableHelper() {}
 
 		/**
 		* Converts the input data type into a string
@@ -56,7 +43,7 @@ namespace lbcrypto {
 		* @return the string equivalent.
 		*/
 		template <typename T>
-		std::string ToStr(const T& num) const {
+		std::string SerializableHelper::ToStr(const T& num) const {
 			std::ostringstream buffer;
 			buffer << num;
 			return buffer.str();
@@ -67,7 +54,7 @@ namespace lbcrypto {
 		* @param nodeMap stores the serialized Palisade object's node attributes.
 		* @return string reflecting the JSON data structure of the serialized Palisade object's node.
 		*/
-		std::string GetJsonNodeString(std::unordered_map<std::string, std::string> nodeMap) {
+		std::string SerializableHelper::GetJsonNodeString(std::unordered_map<std::string, std::string> nodeMap) {
 			
 			std::string jsonNodeInputBuffer = "";
 			jsonNodeInputBuffer.append("{");
@@ -93,7 +80,7 @@ namespace lbcrypto {
 		* @param serializationMap is a map of attribute name value pairs to used for serializing a Palisade object.
 		* @return string reflecting the JSON data structure of the serialized Palisade object's node vector.
 		*/
-		std::string GetJsonNodeVectorString(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap) {
+		std::string SerializableHelper::GetJsonNodeVectorString(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap) {
 
 			std::string jsonNodeInputBuffer = "";
 			jsonNodeInputBuffer.append("{");
@@ -115,7 +102,7 @@ namespace lbcrypto {
 		* @param serializationMap stores the serialized Palisade object's attributes.
 		* @return string reflecting the nested JSON data structure of the serialized Palisade object.
 		*/
-		std::string GetJsonString(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap) {
+		std::string SerializableHelper::GetJsonString(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap) {
 
 			/*
 			for (unordered_map<string, unordered_map<string, string>>::iterator i = serializationMap.begin(); i != serializationMap.end(); i++) {
@@ -159,7 +146,7 @@ namespace lbcrypto {
 		* @param serializationMap stores the serialized Palisade object's attributes.
 		* @return string reflecting file name to save serialized Palisade object to.
 		*/
-		std::string GetJsonFileName(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap) {
+		std::string SerializableHelper::GetJsonFileName(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap) {
 
 			std::unordered_map<std::string, std::string> rootMap = serializationMap["Root"];
 			return rootMap["ID"].append("_").append(rootMap["Flag"]);
@@ -170,7 +157,7 @@ namespace lbcrypto {
 		* @param jsoninputstring is the serialized object's nested JSON data string.
 		* @param outputFileName is the name of the file to save JSON data string to.
 		*/
-		void OutputRapidJsonFile(std::string jsonInputString, std::string outputFileName) {
+		void SerializableHelper::OutputRapidJsonFile(std::string jsonInputString, std::string outputFileName) {
 
 			std::string jsonFileName = outputFileName.append(".txt");
 
@@ -194,7 +181,7 @@ namespace lbcrypto {
 		* @param nodeName is the node to read in for the Palisade object's node's serialized JSON data structure.
 		* @return map containing name value pairs for the attributes of the Palisade object's node to be deserialized.
 		*/
-		std::unordered_map<std::string, std::string> GetSerializationMapNode(rapidjson::Document &doc, std::string nodeName) {
+		std::unordered_map<std::string, std::string> SerializableHelper::GetSerializationMapNode(rapidjson::Document &doc, std::string nodeName) {
 			
 			//cout << "---" << nodeName << "---" << endl;
 			std::unordered_map<std::string, std::string> nodeMap;
@@ -215,7 +202,7 @@ namespace lbcrypto {
 		* @param childNodeFlag is used to label each map created for the node vector's members
 		* @return map containing maps of name value pairs for the attributes of the Palisade object's node vector to be deserialized.
 		*/
-		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> GetSerializationMapNodeVector(rapidjson::Document &doc, std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap, std::string nodeName, std::string childNodeFlag) {
+		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> SerializableHelper::GetSerializationMapNodeVector(rapidjson::Document &doc, std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap, std::string nodeName, std::string childNodeFlag) {
 			
 			//cout << "---" << nodeName << "---" << endl;
 			std::unordered_map<std::string, std::string> childNodeMap;
@@ -242,7 +229,7 @@ namespace lbcrypto {
 		* @param jsonFileName is the file to read in for the Palisade object's nested serialized JSON data structure.
 		* @return map containing name value pairs for the attributes of the Palisade object to be deserialized.
 		*/
-		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> GetSerializationMap(std::string jsonFileName) {
+		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> SerializableHelper::GetSerializationMap(std::string jsonFileName) {
 			
 			std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap;
 			std::unordered_map<std::string, std::string> childMap;
@@ -272,5 +259,4 @@ namespace lbcrypto {
 
 			return serializationMap;
 		}
-	};
 }

@@ -34,6 +34,7 @@
 #ifndef LBCRYPTO_LATTICE_ILPARAMS_H
 #define LBCRYPTO_LATTICE_ILPARAMS_H
 
+#include "elemparams.h"
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
@@ -207,12 +208,7 @@ namespace lbcrypto {
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		* @return map passed in.
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
-
-			//Place holder
-
-			return serializationMap;
-		}
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
 
 		//JSON FACILITY
 		/**
@@ -221,16 +217,7 @@ namespace lbcrypto {
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		* @return map updated with the attribute name value pairs required to serialize this object.
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
-
-			std::unordered_map <std::string, std::string> ilParamsMap;
-			ilParamsMap.emplace("Modulus", this->GetModulus().ToString());
-			ilParamsMap.emplace("Order", this->ToStr(this->GetCyclotomicOrder()));
-			ilParamsMap.emplace("RootOfUnity", this->GetRootOfUnity().ToString());
-			serializationMap.emplace("ILParams", ilParamsMap);
-
-			return serializationMap;
-		}
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
 
 		//JSON FACILITY
 		/**
@@ -238,17 +225,7 @@ namespace lbcrypto {
 		*
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		*/
-		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
-
-			std::unordered_map<std::string, std::string> ilParamsMap = serializationMap["ILParams"];
-			BigBinaryInteger bbiModulus(ilParamsMap["Modulus"]);
-			usint order = stoi(ilParamsMap["Order"]);
-			BigBinaryInteger bbiRootOfUnity(ilParamsMap["RootOfUnity"]);
-
-			this->SetModulus(bbiModulus);
-			this->SetOrder(order);
-			this->SetRootOfUnity(bbiRootOfUnity);
-		}
+		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
 
 	private:
 		// order of cyclotomic polynomial
