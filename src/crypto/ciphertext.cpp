@@ -88,4 +88,52 @@ namespace lbcrypto {
 		return sum;
 	}
 
+	// JSON FACILITY - SetIdFlag Operation
+	template <class Element>
+	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Ciphertext<Element>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+
+		std::unordered_map <std::string, std::string> idFlagMap;
+		idFlagMap.emplace("ID", "Ciphertext");
+		idFlagMap.emplace("Flag", flag);
+		serializationMap.emplace("Root", idFlagMap);
+
+		return serializationMap;
+	}
+
+	// JSON FACILITY - Serialize Operation
+	template <class Element>
+	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Ciphertext<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+
+		serializationMap = this->SetIdFlag(serializationMap, fileFlag);
+
+		const LPCryptoParameters<Element> *lpCryptoParams = &this->GetCryptoParameters();
+		serializationMap = lpCryptoParams->Serialize(serializationMap, "");
+
+		std::unordered_map <std::string, std::string> rootMap = serializationMap["Root"];
+		serializationMap.erase("Root");
+		rootMap.emplace("Norm", this->GetNorm().ToString());
+		serializationMap.emplace("Root", rootMap);
+
+		serializationMap = this->GetElement().Serialize(serializationMap, "");
+
+		return serializationMap;
+	}
+
+	// JSON FACILITY - Deserialize Operation
+	template <class Element>
+	void Ciphertext<Element>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+
+		LPCryptoParameters<Element> *json_cryptoParams = new LPCryptoParametersLWE<Element>();
+		json_cryptoParams->Deserialize(serializationMap);
+		this->SetCryptoParameters(*json_cryptoParams);
+
+		std::unordered_map<std::string, std::string> rootMap = serializationMap["Root"];
+		BigBinaryInteger bbiNorm(rootMap["Norm"]);
+		this->SetNorm(bbiNorm);
+
+		Element json_ilElement;
+		json_ilElement.Deserialize(serializationMap);
+		this->SetElement(json_ilElement);
+	}
+
 }  // namespace lbcrypto ends

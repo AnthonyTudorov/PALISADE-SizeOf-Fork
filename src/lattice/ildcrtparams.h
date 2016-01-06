@@ -245,6 +245,29 @@ namespace lbcrypto {
 		*/
 		~ILDCRTParams() {}
 
+		//JSON FACILITY
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+
+			//Place holder
+
+			return serializationMap;
+		}
+
+		//JSON FACILITY
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+
+			//Place holder
+
+			return serializationMap;
+		}
+
+		//JSON FACILITY
+		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+
+			//Place holder
+
+		}
+
 	private:
 		// order of cyclotomic polynomial
 		usint m_cyclotomicOrder;

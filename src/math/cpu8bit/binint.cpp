@@ -421,6 +421,8 @@ BigBinaryInteger BigBinaryInteger::Times(const BigBinaryInteger& b) const{
 BigBinaryInteger BigBinaryInteger::DividedBy(const BigBinaryInteger& b) const{
 	//std::cout<<*this<<std::endl<<b<<std::endl;
 
+	//std::cout<<*this<<std::endl<<b<<std::endl;
+
 	if(b.m_MSB>this->m_MSB)
 		return std::move(BigBinaryInteger(ZERO));
 	else if(b==*this)

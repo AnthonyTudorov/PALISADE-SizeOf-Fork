@@ -34,6 +34,7 @@
 #ifndef LBCRYPTO_LATTICE_ILPARAMS_H
 #define LBCRYPTO_LATTICE_ILPARAMS_H
 
+#include "elemparams.h"
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
@@ -200,6 +201,31 @@ namespace lbcrypto {
             return !(*this == other);
         }
 
+		//JSON FACILITY
+		/**
+		* Implemented by this object only for inheritance requirements of abstract class Serializable.
+		*
+		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @return map passed in.
+		*/
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+
+		//JSON FACILITY
+		/**
+		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
+		*
+		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @return map updated with the attribute name value pairs required to serialize this object.
+		*/
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
+
+		//JSON FACILITY
+		/**
+		* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
+		*
+		* @param serializationMap stores this object's serialized attribute name value pairs.
+		*/
+		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
 
 	private:
 		// order of cyclotomic polynomial

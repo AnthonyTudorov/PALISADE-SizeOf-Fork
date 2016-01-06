@@ -84,8 +84,9 @@ namespace lbcrypto {
 	 * @brief Abstract Interface Class to capture common Crypto Parameters 
 	 * @tparam Element a ring element.
 	 */
+	//JSON FACILITY
 	template <class Element>
-	class LPCryptoParameters{
+	class LPCryptoParameters : public Serializable {
 	public:
 		
 		//@Get Properties
@@ -140,8 +141,9 @@ namespace lbcrypto {
 	 * @brief Abstract interface class for LP Keys
 	 * @tparam Element a ring element.
 	 */
+	//JSON FACILITY
 	template <class Element>
-	class LPKey{
+	class LPKey : public Serializable {
 		public:
 			/**
 			 * Gets a read-only reference to an LPCryptoParameters-derived class

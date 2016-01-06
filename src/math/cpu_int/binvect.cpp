@@ -448,6 +448,87 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::GetDigitAtIndexForBas
 	return ans;
 }
 
+// JSON FACILITY - SetIdFlag Operation
+template<class IntegerType>
+std::unordered_map <std::string, std::unordered_map <std::string, std::string>> BigBinaryVector<IntegerType>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+
+	//Place holder
+
+	return serializationMap;
+}
+
+// JSON FACILITY - Serialize Operation
+template<class IntegerType>
+std::unordered_map <std::string, std::unordered_map <std::string, std::string>> BigBinaryVector<IntegerType>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+
+	std::unordered_map <std::string, std::string> bbvMap;
+
+	bbvMap.emplace("Modulus", this->GetModulus().ToString());
+
+	std::string pkBufferString;
+	IntegerType pkVectorElem;
+	usint pkVectorLength = 0;
+	std::string pkVectorElemVal;
+	pkVectorLength = GetLength();
+	for (int i = 0; i < pkVectorLength; i++) {
+		pkVectorElem = GetValAtIndex(i);
+
+		pkVectorElemVal = pkVectorElem.ToString();
+
+		pkBufferString += pkVectorElemVal;
+		if (i != (pkVectorLength - 1)) {
+			pkBufferString += "|";
+		}
+	}
+	bbvMap.emplace("VectorValues", pkBufferString);
+
+	serializationMap.emplace("BigBinaryVector", bbvMap);
+
+	return serializationMap;
+}
+
+// JSON FACILITY - Deserialize Operation
+template<class IntegerType>
+void BigBinaryVector<IntegerType>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+
+	std::unordered_map<std::string, std::string> bbvMap = serializationMap["BigBinaryVector"];
+
+	IntegerType bbiModulus(bbvMap["Modulus"]);
+	this->SetModulus(bbiModulus);
+
+	std::string vectorVals = bbvMap["VectorValues"];
+	IntegerType vectorElem;
+	std::string vectorElemVal;
+	usint i = 0;
+	while (vectorVals.find("|", 0)) {
+		size_t pos = vectorVals.find("|", 0);
+		vectorElemVal = vectorVals.substr(0, pos);
+
+		std::string::size_type posTrim = vectorElemVal.find_last_not_of(' ');
+		if (posTrim != std::string::npos) {
+			if (vectorElemVal.length() != posTrim + 1) {
+				vectorElemVal.erase(posTrim + 1);
+			}
+			posTrim = vectorElemVal.find_first_not_of(' ');
+			if (posTrim != 0) {
+				vectorElemVal.erase(0, posTrim);
+			}
+		}
+		else {
+			vectorElemVal = "";
+		}
+
+		vectorElem.SetValue(vectorElemVal);
+		vectorVals.erase(0, pos + 1);
+		this->SetValAtIndex(i, vectorElem);
+		i++;
+
+		if (i == this->GetLength()) {
+			break;
+		}
+	}
+}
+
 //Private functions
 template<class IntegerType>
 bool BigBinaryVector<IntegerType>::IndexCheck(usint length) const{
