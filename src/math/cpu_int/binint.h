@@ -141,129 +141,228 @@ namespace cpu_int{
 
 	public:
 
-   	/**
-   	 * Basic constructor.	  	  
-   	 */
-		BigBinaryInteger();
-   	/**
-   	 * Basic constructor for specifying the integer.
-   	 *
-   	 * @param str is the initial integer represented as a string.	  	  
-   	 */
-        explicit BigBinaryInteger(const std::string& str);
-   	/**
-   	 * Basic constructor for initializing big binary integer from an unsigned integer.
-   	 *
-   	 * @param init is the initial integer.	  	  
-   	 */
-		explicit BigBinaryInteger(usint init);
-   	/**
-   	 * Basic constructor for copying a big binary integer
-   	 *
-   	 * @param bigInteger is the big binary integer to be copied.  	  
-   	 */
-        explicit BigBinaryInteger(const BigBinaryInteger& bigInteger);
-   	/**
-   	 * Basic constructor for move copying a big binary integer
-   	 *
-   	 * @param &&bigInteger is the big binary integer to be copied.  	  
-   	 */
-        BigBinaryInteger(BigBinaryInteger &&bigInteger);//move copy constructor
-   	/**
-   	 * Destructor.	  
-   	 */
-        ~BigBinaryInteger();
-   	/**
-   	 * Copy constructor
-   	 *
-   	 * @param &rhs is the big binary matrix to test equality with.  
-   	 * @return the return value.	  
-   	 */
-        BigBinaryInteger&  operator=(const BigBinaryInteger &rhs);
-   	/**
-   	 * Move copy constructor
-   	 *
-   	 * @param &&rhs is the big binary matrix to test equality with.  
-   	 * @return the return value.	  
-   	 */
-        BigBinaryInteger&  operator=(BigBinaryInteger &&rhs);
+        /**
+         * Basic constructor.
+         */
+    BigBinaryInteger();
+        /**
+        * Basic constructor for specifying the integer.
+        *
+        * @param str is the initial integer represented as a string.
+        */
+    explicit BigBinaryInteger(const std::string& str);
+        /**
+        * Basic constructor for initializing big binary integer from an unsigned integer.
+        *
+        * @param init is the initial integer.
+        */
+    explicit BigBinaryInteger(usint init);
+        /**
+        * Basic constructor for copying a big binary integer
+        *
+        * @param bigInteger is the big binary integer to be copied.
+        */
+    explicit BigBinaryInteger(const BigBinaryInteger& bigInteger);
+        /**
+        * Basic constructor for move copying a big binary integer
+        *
+        * @param &&bigInteger is the big binary integer to be copied.
+        */
+    BigBinaryInteger(BigBinaryInteger &&bigInteger);//move copy constructor
+    
+        /**
+        * Destructor.
+        */
+    ~BigBinaryInteger();
+        
+        /**
+        * Copy constructor
+        *
+        * @param &rhs is the big binary matrix to test equality with.
+        * @return the return value.
+        */
+    BigBinaryInteger&  operator=(const BigBinaryInteger &rhs);
+        /**
+         * Move copy constructor
+         *
+         * @param &&rhs is the big binary matrix to test equality with.
+         * @return the return value.
+         */
+    BigBinaryInteger&  operator=(BigBinaryInteger &&rhs);
 
-	
-	/**
-	* Left shift operator of big binary integer
-	* @param shift is the amount to shift 
-	* @return the object of type BigBinaryInteger
-	**/
+//Shift Operators
+        /**
+         * Left shift operator of big binary integer
+         * @param shift is the amount to shift of type usshort.
+         * @return the object of type BigBinaryInteger
+        **/
 	BigBinaryInteger  operator<<(usshort shift) const;
 
-		BigBinaryInteger&  operator<<=(usshort shift);
+        /**
+         * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
+         *
+         * @param shift is the amount to shift of type usshort.
+         * @return the object of type BigBinaryInteger
+         */
+    BigBinaryInteger&  operator<<=(usshort shift);
+        
+        /**
+         * Right shift operator of big binary integer
+         * @param shift is the amount to shift of type usshort.
+         * @return the object of type BigBinaryInteger
+         **/
+    BigBinaryInteger  operator>>(usshort shift) const;
 
-		BigBinaryInteger  operator>>(usshort shift) const;
+        /**
+         * Right shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
+         *
+         * @param shift is the amount to shift of type usshort.
+         * @return the object of type BigBinaryInteger
+         */
+    BigBinaryInteger&  operator>>=(usshort shift);
 
-		BigBinaryInteger&  operator>>=(usshort shift);
+//Auxillary Functions
+        /**
+         * Prints the value to stdout in decimal format.
+         */
+    void PrintValueInDec() const;
 
-        void PrintValueInDec() const;
+        /**
+         * Basic set method for setting the value of a big binary integer
+         *
+         * @param str is the string representation of the big binary integer to be copied.
+         * @returns nothing
+         */
+    void SetValue(const std::string& str);
+        
+        /**
+         * Basic set method for setting the value of a big binary integer
+         *
+         * @param a is the big binary integer representation of the big binary integer to be copied.
+         * @returns nothing
+         */
+    void SetValue(const BigBinaryInteger& a);
 
-        void SetValue(const std::string& str);
+        
+        /**
+         * Returns the MSB location of the value.
+         *
+         * @return the index of the most significant bit.
+         */
+    usshort GetMSB()const;
 
-        void SetValue(const BigBinaryInteger& a);
+        /**
+         * Returns the index number of the array in which MSB is located.
+         *
+         * @return the index of array of the most significant bit as usshort.
+         */
+    usshort GetMSBCharNum()const;
 
-        usshort GetMSB()const;
+        /**
+         * Convert the value to an int.
+         *
+         * @return the int representation of the value as usint.
+         */
+    usint ConvertToInt() const;
 
-		usshort GetMSBCharNum()const;
+//Arithemetic Operations
+        /**
+         * Addition operation.
+         *
+         * @param b is the value to add of type Big Binary Integer.
+         * @return is the result of the addition operation of type BigBinary Integer.
+         */
+    BigBinaryInteger Plus(const BigBinaryInteger& b) const;
 
-        usint ConvertToInt() const;
+		
+        /**
+         * Addition accumulator.
+         *
+         * @param &b is the value to add of type Big Binary Integer.
+         * @return is the result of the addition operation of type Big Binary Integer.
+         */
+    const BigBinaryInteger& operator+=(const BigBinaryInteger &b);
 
-		BigBinaryInteger Plus(const BigBinaryInteger& b) const;
+		
+        /**
+         * Subtraction accumulator.
+         *
+         * @param &b is the value to subtract of type Big Binary Integer.
+         * @return is the result of the subtraction operation of type Big Binary Integer.
+         */
+    const BigBinaryInteger& operator-=(const BigBinaryInteger &b);
 
-		const BigBinaryInteger& operator+=(const BigBinaryInteger &b);
+        /**
+         * Subtraction operation.
+         *
+         * @param b is the value to subtract of type Big Binary Integer.
+         * @return is the result of the subtraction operation of type Big Binary Integer.
+         */
+    BigBinaryInteger Minus(const BigBinaryInteger& b) const;
 
-		const BigBinaryInteger& operator-=(const BigBinaryInteger &b);
+        
+        /**
+         * Multiplication operation.
+         *
+         * @param b of type Big Binary Integer is the value to multiply with.
+         * @return is the result of the multiplication operation.
+         */
+    BigBinaryInteger Times(const BigBinaryInteger& b) const;
 
-		BigBinaryInteger Minus(const BigBinaryInteger& b) const;
+        /**
+         * Division operation.
+         *
+         * @param b of type BigBinaryInteger is the value to divide by.
+         * @return is the result of the division operation.
+         */
+    BigBinaryInteger DividedBy(const BigBinaryInteger& b) const;
 
-		BigBinaryInteger Times(const BigBinaryInteger& b) const;
+//modular arithmetic operations
+		
+        /**
+         * returns the modulus with respect to the input value.
+         *
+         * @param modulus is value of the modulus to perform. Its of type BigBinaryInteger.
+         * @returns a BigBinaryInteger that is the result of the modulus operation.
+         */
+    BigBinaryInteger Mod(const BigBinaryInteger& modulus) const;
 
-		BigBinaryInteger DividedBy(const BigBinaryInteger& b) const;
+    BigBinaryInteger ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger& mu) const;
 
-		BigBinaryInteger Mod(const BigBinaryInteger& modulus) const;
+    BigBinaryInteger ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger mu_arr[BARRETT_LEVELS+1]) const;
 
-		BigBinaryInteger ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger& mu) const;
+    BigBinaryInteger ModInverse(const BigBinaryInteger& modulus) const;
 
-		BigBinaryInteger ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger mu_arr[BARRETT_LEVELS+1]) const;
+    BigBinaryInteger ModAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
 
-		BigBinaryInteger ModInverse(const BigBinaryInteger& modulus) const;
+    BigBinaryInteger ModBarrettAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const;
 
-		BigBinaryInteger ModAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
+    BigBinaryInteger ModBarrettAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const;
 
-		BigBinaryInteger ModBarrettAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const;
+    BigBinaryInteger ModSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
 
-		BigBinaryInteger ModBarrettAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const;
+    BigBinaryInteger ModBarrettSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const;
 
-		BigBinaryInteger ModSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
+    BigBinaryInteger ModBarrettSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const;
 
-		BigBinaryInteger ModBarrettSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const;
+    BigBinaryInteger ModMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
 
-		BigBinaryInteger ModBarrettSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const;
+    BigBinaryInteger ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const;
 
-		BigBinaryInteger ModMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
+    BigBinaryInteger ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const;
 
-		BigBinaryInteger ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const;
+    BigBinaryInteger ModExp(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
 
-		BigBinaryInteger ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const;
-
-		BigBinaryInteger ModExp(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
-
-		const std::string ToString() const;
+    const std::string ToString() const;
 
 		//template<typename uint_type,usint BITLENGTH>
 		//friend bool CheckPowerofTwos(const BigBinaryInteger<uint_type,BITLENGTH>& m_numToCheck);
 
-		bool CheckPowerofTwos(const BigBinaryInteger& m_numToCheck);
+    bool CheckPowerofTwos(const BigBinaryInteger& m_numToCheck);
 
-		usint GetLengthForBase(usint base) const {return GetMSB();}
+    usint GetLengthForBase(usint base) const {return GetMSB();}
 
-		usint GetDigitAtIndexForBase(usint index, usint base) const;
+    usint GetDigitAtIndexForBase(usint index, usint base) const;
 
 		/**
 		 * Convert a string representation of a binary number to a decimal BigBinaryInt.
@@ -271,7 +370,7 @@ namespace cpu_int{
 		 * @param bitString the binary num in string.
 		 * @return the binary number represented as a decimal big binary int.
 		 */
-		static BigBinaryInteger BinaryToBigBinaryInt(const std::string& bitString);
+    static BigBinaryInteger BinaryToBigBinaryInt(const std::string& bitString);
 
 		/**
 		 * Exponentiation of a bigBinaryInteger x. Returns x^p
@@ -279,50 +378,50 @@ namespace cpu_int{
 		 * @param p the exponent.
 		 * @return the big binary integer x^p.
 		 */
-		BigBinaryInteger Exp(usint p) const;
+    BigBinaryInteger Exp(usint p) const;
 
-		bool operator==(const BigBinaryInteger& a) const;
+    bool operator==(const BigBinaryInteger& a) const;
 
-		bool operator!=(const BigBinaryInteger& a) const;
+    bool operator!=(const BigBinaryInteger& a) const;
 
-		bool operator> (const BigBinaryInteger& a) const;
+    bool operator> (const BigBinaryInteger& a) const;
 
-		bool operator>=(const BigBinaryInteger& a) const;
+    bool operator>=(const BigBinaryInteger& a) const;
 
-		bool operator< (const BigBinaryInteger& a) const;
+    bool operator< (const BigBinaryInteger& a) const;
 
-		bool operator<=(const BigBinaryInteger& a) const;
+    bool operator<=(const BigBinaryInteger& a) const;
 
-		//primitive operators
-		inline BigBinaryInteger operator+(const BigBinaryInteger &a) const {return this->Plus(a);}
+//primitive operators
+    inline BigBinaryInteger operator+(const BigBinaryInteger &a) const {return this->Plus(a);}
 
-		inline BigBinaryInteger operator-(const BigBinaryInteger &a) const {return this->Minus(a);}
+    inline BigBinaryInteger operator-(const BigBinaryInteger &a) const {return this->Minus(a);}
 
-		inline BigBinaryInteger operator*(const BigBinaryInteger &a) const {return this->Times(a);}
+    inline BigBinaryInteger operator*(const BigBinaryInteger &a) const {return this->Times(a);}
 
-		inline BigBinaryInteger operator%(const BigBinaryInteger &a) const {return this->Mod(a);}
+    inline BigBinaryInteger operator%(const BigBinaryInteger &a) const {return this->Mod(a);}
 
-		template<typename uint_type_c,usint BITLENGTH_c>
+    template<typename uint_type_c,usint BITLENGTH_c>
 		friend std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BITLENGTH_c> &ptr_obj);
 
-		uschar GetBitAtIndex(usint index) const;
+    uschar GetBitAtIndex(usint index) const;
 
-		BigBinaryInteger MulIntegerByChar(uint_type b) const;
+    BigBinaryInteger MulIntegerByChar(uint_type b) const;
 
-		static const BigBinaryInteger ZERO;
-		static const BigBinaryInteger ONE;
-		static const BigBinaryInteger TWO;
-		static const BigBinaryInteger THREE;
-		static const BigBinaryInteger FOUR;
-		static const BigBinaryInteger FIVE;
+    static const BigBinaryInteger ZERO;
+    static const BigBinaryInteger ONE;
+    static const BigBinaryInteger TWO;
+    static const BigBinaryInteger THREE;
+    static const BigBinaryInteger FOUR;
+    static const BigBinaryInteger FIVE;
 
-	protected: 
+    protected:
 
-		void AssignVal(const std::string& v);
+    void AssignVal(const std::string& v);
+        
+    void SetMSB();
 
-		void SetMSB();
-
-		void SetMSB(usint guessIdxChar);
+    void SetMSB(usint guessIdxChar);
 
 	private:
 		uint_type *m_value;
