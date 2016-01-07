@@ -64,7 +64,7 @@ namespace lbcrypto {
 		/**
 		 * Default constructor
 		 */
-		Ciphertext() : m_cryptoParameters(NULL), m_publicKey(NULL), m_encryptionAlgorithm(NULL) {}
+		Ciphertext() : m_cryptoParameters(NULL), m_publicKey(NULL), m_encryptionAlgorithm(NULL), m_norm(BigBinaryInteger::ZERO) {}
 
 		/**
 		* Copy constructor
