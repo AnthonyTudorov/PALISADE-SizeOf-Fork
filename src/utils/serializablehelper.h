@@ -123,6 +123,13 @@ namespace lbcrypto {
 		*/
 		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> GetSerializationMap(std::string jsonFileName);
 
+		/**
+		* Generates a map of attribute name value pairs for deserializing a Palisade object from a const char * JSON data string
+		* @param jsonInputString is the string to process for the Palisade object's nested serialized JSON data structure.
+		* @return map containing name value pairs for the attributes of the Palisade object to be deserialized.
+		*/
+		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> GetSerializationMap(const char *jsonInputString);
+
 	};
 }
 

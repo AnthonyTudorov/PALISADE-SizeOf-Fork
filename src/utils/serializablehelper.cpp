@@ -232,9 +232,8 @@ namespace lbcrypto {
 		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> SerializableHelper::GetSerializationMap(std::string jsonFileName) {
 			
 			std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap;
-			std::unordered_map<std::string, std::string> childMap;
 
-			//Retrieve contents of output Json file
+			//Retrieve contents of input Json file
 			std::string jsonReadLine;
 			std::string jsonReadBuffer;
 			std::ifstream jsonFin(jsonFileName);
@@ -243,9 +242,23 @@ namespace lbcrypto {
 			}
 			jsonFin.close();
 
-			//Retrieve elements from output Json file
+			serializationMap = GetSerializationMap(jsonReadBuffer.c_str());
+
+			return serializationMap;
+		}
+
+		/**
+		* Generates a map of attribute name value pairs for deserializing a Palisade object from a const char * JSON data string
+		* @param jsonInputString is the string to process for the Palisade object's nested serialized JSON data structure.
+		* @return map containing name value pairs for the attributes of the Palisade object to be deserialized.
+		*/
+		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> SerializableHelper::GetSerializationMap(const char *jsonInputString) {
+
+			std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap;
+
+			//Retrieve elements from input Json const char*
 			rapidjson::Document doc;
-			doc.Parse(jsonReadBuffer.c_str());
+			doc.Parse(jsonInputString);
 
 			std::string ID = doc["Root"]["ID"].GetString();
 			serializationMap.emplace("Root", GetSerializationMapNode(doc, "Root"));
@@ -253,7 +266,8 @@ namespace lbcrypto {
 			serializationMap.emplace("ILParams", GetSerializationMapNode(doc, "ILParams"));
 			if (ID.compare("LPEvalKeyLWENTRU") != 0) {
 				serializationMap.emplace("ILVector2n", GetSerializationMapNode(doc, "ILVector2n"));
-			} else {
+			}
+			else {
 				serializationMap = GetSerializationMapNodeVector(doc, serializationMap, "ILVector2nVector", "ILVector2n");
 			}
 
