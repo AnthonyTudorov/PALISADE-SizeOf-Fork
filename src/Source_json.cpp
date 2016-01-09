@@ -638,6 +638,30 @@ void NTRUPRE(int input) {
 
 	std::cout << "----------------------END JSON FACILITY TESTING-------------------------" << endl;
 
+	std::cout << "------------START STRING DESERIALIZATION TESTING---------------" << endl;
+
+	cout << "\n" << endl;
+
+	string jsonInStringTestBuff;
+
+	unordered_map <string, unordered_map <string, string>> testMap7;
+	testMap7 = testCiphertext.Serialize(testMap7, "Enc");
+	jsonInStringTestBuff = jsonHelper.GetJsonString(testMap7);
+	cout << "jsonInputBuffer: " << endl;
+	cout << jsonInStringTestBuff << endl;
+	
+	cout << "\n" << endl;
+
+	unordered_map <string, unordered_map <string, string>> testMap8;
+	testMap8 = jsonHelper.GetSerializationMap(jsonInputBuffer.c_str());
+	jsonInStringTestBuff = jsonHelper.GetJsonString(testMap8);
+	cout << "Recovered jsonInputBuffer: " << endl;
+	cout << jsonInStringTestBuff << endl;
+
+	cout << "\n" << endl;
+
+	std::cout << "------------END STRING DESERIALIZATION TESTING---------------" << endl;
+
 	cout << "\n" << endl;
 
 	std::cout << "Execution completed.  Please any key to finish." << std::endl;
