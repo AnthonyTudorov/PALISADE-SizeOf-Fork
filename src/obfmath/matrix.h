@@ -44,6 +44,7 @@ using std::function;
 #include "../../src/utils/memory.h"
 
 namespace lbcrypto {
+
     template<class Element>
         class ILMat {
             typedef vector<vector<unique_ptr<Element>>> data_t;

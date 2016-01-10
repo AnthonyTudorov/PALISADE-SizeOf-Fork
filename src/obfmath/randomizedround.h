@@ -25,8 +25,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#ifndef LBCRYPTO_MATH_RANDOMIZED_ROUND_H
-#define LBCRYPTO_MATH_RANDOMIZED_ROUND_H
+#ifndef LBCRYPTO_MATHOBF_RANDOMIZED_ROUND_H
+#define LBCRYPTO_MATHOBF_RANDOMIZED_ROUND_H
 
 #include <random>
 using std::uniform_int_distribution;
@@ -46,14 +46,14 @@ namespace lbcrypto {
 	//  doubles for now.
 	//
 
-	inline double unnormalized_gaussian_pdf(double mean, double sigma, double x) {
+	inline double UnnormalizedGaussianPDF(double mean, double sigma, double x) {
 		return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
 	}
 
 	/**
 	 *  @param n the ring dimension
 	 */
-	inline usint integer_sample(double mean, double stddev, size_t n) {
+	inline usint IntegerRejectionSample(double mean, double stddev, size_t n) {
 		double t = log(n)/log(2);  //fix for Visual Studio
 		uniform_int_distribution<long> uniform_int(floor(mean - t), ceil(mean + t));
 		std::uniform_real_distribution<double> uniform_real(0.0, 1.0);
@@ -63,7 +63,7 @@ namespace lbcrypto {
 			//  roll the uniform dice
 			double dice = uniform_real(rd);
 			//  check if dice land below pdf
-			if (dice <= unnormalized_gaussian_pdf(mean, stddev, x)) {
+			if (dice <= UnnormalizedGaussianPDF(mean, stddev, x)) {
 				return x;
 			}
 		}
@@ -74,9 +74,9 @@ namespace lbcrypto {
 	 *
 	 *  @return
 	 */
-	inline usint randomized_round(double x, double sigma, size_t n) {
+	inline usint RandomizeRound(double x, double sigma, size_t n) {
 		//  sample from gaussian over integers centered at x
-		return integer_sample(x, sigma, n);
+		return IntegerRejectionSample(x, sigma, n);
 	}
 
 }
