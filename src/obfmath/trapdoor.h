@@ -4,7 +4,7 @@
 using std::pair;
 
 #include "matrix.h"
-#include "ilvector2n.h"
+#include "../lattice/ilvector2n.h"
 namespace lbcrypto {
     typedef ILMat<ILVector2n> RingMat;
 

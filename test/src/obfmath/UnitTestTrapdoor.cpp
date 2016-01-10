@@ -38,8 +38,8 @@
 #include "../../../src/utils/inttypes.h"
 #include "../../../src/utils/utilities.h"
 
-#include "../../../src/math/randomizedround.h"
-#include "../../../src/lattice/trapdoor.h"
+#include "../../../src/obfmath/randomizedround.h"
+#include "../../../src/obfmath/trapdoor.h"
 
 using namespace std;
 using namespace lbcrypto;

@@ -35,45 +35,50 @@ using std::uniform_real_distribution;
 
 #define _USE_MATH_DEFINES // added for Visual Studio support
 #include <math.h>
+#include "../utils/inttypes.h"
 
-static std::random_device rd;
+namespace lbcrypto {
 
-//
-//  Since we do not have a BigRational implementation, everything is computed in
-//  doubles for now.
-//
+	static std::random_device rd;
 
-inline double unnormalized_gaussian_pdf(double mean, double sigma, double x) {
-    return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
-}
+	//
+	//  Since we do not have a BigRational implementation, everything is computed in
+	//  doubles for now.
+	//
 
-/**
- *  @param n the ring dimension
- */
-inline double integer_sample(double mean, double stddev, size_t n) {
-    double t = log(n)/log(2);  //fix for Visual Studio
-    uniform_int_distribution<long> uniform_int(floor(mean - t), ceil(mean + t));
-    std::uniform_real_distribution<double> uniform_real(0.0, 1.0);
-    while (true) {
-        //  pick random int
-        long x = uniform_int(rd);
-        //  roll the uniform dice
-        double dice = uniform_real(rd);
-        //  check if dice land below pdf
-        if (dice <= unnormalized_gaussian_pdf(mean, stddev, x)) {
-            return x;
-        }
-    }
-}
+	inline double unnormalized_gaussian_pdf(double mean, double sigma, double x) {
+		return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
+	}
 
-/**
- *  @param n the ring dimension
- *
- *  @return
- */
-inline double randomized_round(double x, double sigma, size_t n) {
-    //  sample from gaussian over integers centered at x
-    return integer_sample(x, sigma, n);
+	/**
+	 *  @param n the ring dimension
+	 */
+	inline usint integer_sample(double mean, double stddev, size_t n) {
+		double t = log(n)/log(2);  //fix for Visual Studio
+		uniform_int_distribution<long> uniform_int(floor(mean - t), ceil(mean + t));
+		std::uniform_real_distribution<double> uniform_real(0.0, 1.0);
+		while (true) {
+			//  pick random int
+			usint x = uniform_int(rd);
+			//  roll the uniform dice
+			double dice = uniform_real(rd);
+			//  check if dice land below pdf
+			if (dice <= unnormalized_gaussian_pdf(mean, stddev, x)) {
+				return x;
+			}
+		}
+	}
+
+	/**
+	 *  @param n the ring dimension
+	 *
+	 *  @return
+	 */
+	inline usint randomized_round(double x, double sigma, size_t n) {
+		//  sample from gaussian over integers centered at x
+		return integer_sample(x, sigma, n);
+	}
+
 }
 
 #endif

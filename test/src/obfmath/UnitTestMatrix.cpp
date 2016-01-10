@@ -38,7 +38,7 @@
 #include "../../../src/utils/inttypes.h"
 #include "../../../src/utils/utilities.h"
 
-#include "../../../src/lattice/matrix.h"
+#include "../../../src/obfmath/matrix.h"
 
 using namespace std;
 using namespace lbcrypto;

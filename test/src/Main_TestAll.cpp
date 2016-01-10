@@ -1,8 +1,11 @@
+#include <iostream>
+
 //#include "UnitTestBinInt.cpp"
 //#include "UnitTestBinVect.cpp"
 //#include "UnitTestBinMat.cpp"
 #include "../include/gtest/gtest.h"
 //#include "gtest/gtest-all.cc"
+
 
 #include "../../src/math/backend.h"
 #include "../../src/utils/inttypes.h"
@@ -38,6 +41,11 @@ using namespace lbcrypto;
 int main(int argc, char **argv) {
 
   ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  RUN_ALL_TESTS();
+
+  std::cout << "Press any key to continue..." << std::endl;
+  std::cin.get();
+
+  return 0;
 }
 
