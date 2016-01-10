@@ -140,14 +140,26 @@ namespace lbcrypto {
 		delete m_values;
 	}
 
-	/**
-		Print values
+	/*
+		Print values an flush buffer after printing with new line.
 		*/
-	void ILVector2n::PrintValues() const {
+	void ILVector2n::PrintValuesEndl() const {
 
 	std::cout << "Printing values in ILVECTOR2N" << std::endl;
 		if (m_values != NULL) {
 			std::cout << *m_values << std::endl;
+		}
+
+	}
+
+	/*
+		Print values and don't flush before and don't print new line.
+		*/
+	void ILVector2n::PrintValues() const {
+
+	//std::cout << "Printing values in ILVECTOR2N" << std::endl;
+		if (m_values != NULL) {
+			std::cout << *m_values;// << std::endl;
 		}
 
 	}

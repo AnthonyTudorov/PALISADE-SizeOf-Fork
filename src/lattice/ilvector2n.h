@@ -338,7 +338,12 @@ namespace lbcrypto {
 		ILVector2n ModByTwo() const;
 
 		/**
-		Print values
+		Print values an flush buffer after printing with new line.
+		*/
+		void PrintValuesEndl() const;
+
+		/**
+		Print values and don't flush before and don't print new line.
 		*/
 		void PrintValues() const;
 
