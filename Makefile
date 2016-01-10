@@ -61,13 +61,13 @@ alltesttargets: $(TESTTARGET)
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)
 	@mkdir -p $(BUILDDIR)/crypto
-	@mkdir -p $(BUILDDIR)/obfuscate
 	@mkdir -p $(BUILDDIR)/encoding
 	@mkdir -p $(BUILDDIR)/lattice
 	@mkdir -p $(BUILDDIR)/math
 	@mkdir -p $(BUILDDIR)/math/cpu8bit
 	@mkdir -p $(BUILDDIR)/math/cpu_int
-	@mkdir -p $(BUILDDIR)/multilinearmap
+	@mkdir -p $(BUILDDIR)/obfmath
+	@mkdir -p $(BUILDDIR)/obfuscate
 	@mkdir -p $(BUILDDIR)/utils
 #	@echo " $@"
 #	@echo " $<"
