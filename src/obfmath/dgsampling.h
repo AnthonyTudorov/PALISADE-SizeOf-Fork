@@ -29,10 +29,27 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define LBCRYPTO_OBFMATH_DGSAMPLING_H
 
 #include "randomizedround.h"
+#include "matrix.h"
 
 namespace lbcrypto {
 
+	/**
+	* Nonspherical sampling that is used to generate perturbation vectors (for spherically distributed premimages in GaussSample)
+	*
+	* @param sigmaP covariance matrix of dimension (2+k)n * (2+k)n.
+	* @param stddev standard deviation.
+	* @param *perturbationVector perturbation vector (2+k)n
+	*/
+	void NonSphericalSample(const ILMat<BigBinaryInteger> &sigmaP, double stddev, ILMat<BigBinaryInteger> *perturbationVector) 
+	{
+		BigBinaryInteger a(floor(stddev/2));
+		size_t n = sigmaP.GetRows();
+		
+		ILMat<BigBinaryInteger>sigmaA = sigmaP - a*ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n, n).Identity();
+		ILMat<BigBinaryInteger>sigmaSqrt = sigmaA.Cholesky();
 
+
+	}
 
 }
 

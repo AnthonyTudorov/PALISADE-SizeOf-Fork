@@ -6,7 +6,8 @@ using std::pair;
 #include "matrix.h"
 #include "../lattice/ilvector2n.h"
 namespace lbcrypto {
-    typedef ILMat<ILVector2n> RingMat;
+
+	typedef ILMat<ILVector2n> RingMat;
 
     class TrapdoorPair {
     public:
