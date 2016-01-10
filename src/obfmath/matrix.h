@@ -330,6 +330,26 @@ namespace lbcrypto {
                 return result;
             }
 
+            void PrintValues() const {
+		for (size_t col = 0; col < cols; ++col) {
+			for (size_t row = 0; row < rows; ++row) {
+				data[row][col]->PrintValues();
+				std::cout << " ";
+			}
+			std::cout << std::endl;
+		}
+            }
+
+            double Norm() const {
+		double norm = 0.0;
+		for (size_t col = 0; col < cols; ++col) {
+			for (size_t row = 0; row < rows; ++row) {
+				norm = 0.0;  //TODO  Need to update this logic.
+			}
+		}
+		return norm;
+            }
+
         private:
             data_t data;
             size_t rows;
