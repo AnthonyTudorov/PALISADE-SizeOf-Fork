@@ -145,7 +145,7 @@ namespace lbcrypto {
 		*/
 	void ILVector2n::PrintValuesEndl() const {
 
-	std::cout << "Printing values in ILVECTOR2N" << std::endl;
+	//std::cout << "Printing values in ILVECTOR2N" << std::endl;
 		if (m_values != NULL) {
 			std::cout << *m_values << std::endl;
 		}
