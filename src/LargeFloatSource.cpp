@@ -36,15 +36,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "obfmath/largefloat.h"
 #include <iostream>
-#include <limits>
-
 
 using namespace std;
 using namespace lbcrypto;
 
 int main(){
 
-	LargeFloat seventh = LargeFloat(1) / 7;
+	LargeFloat seventh = LargeFloat(0.34234324) / 74398734298;
 
 	//std::cout.precision(std::numeric_limits<LargeFloat>::digits10);
 	std::cout << seventh << std::endl;
