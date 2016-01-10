@@ -52,22 +52,37 @@
 */
 namespace cpu_int{
 
+        /*
+         *???
+         *
+         */
 	template <usint N>
 	struct log2{
 		const static usint value = 1 + log2<N/2>::value;
 	};
-
+    
+        /*
+        *???
+        *
+        */
 	template<>
 	struct log2<2>{
 		const static usint value = 1;
 	};
-	
+    
+        /*
+        *???
+        *
+        */
 	template <typename U>
 	struct logdtype{
 		const static usint value = log2<8*sizeof(U)>::value;
 	};
-
-	
+    
+        /*
+         *???
+         *
+         */
 	template<typename dtype>
 	struct datatypechecker{
 		// const static bool value = false ;
@@ -76,21 +91,34 @@ namespace cpu_int{
 		static_assert(value,"Data type provided is not supported in BigBinaryInteger");
 	};
 
+        /**
+         *Structure for checking datatype
+         * @Return Returns bool true if datatype is unsigned integer 8 bit.
+         */
 	template<>
 	struct datatypechecker<uint8_t>{
 		const static bool value = true ;	
 	};
-
+        /**
+        *Structure for checking datatype
+         * @Return Returns bool true if datatype is unsigned integer 16 bit.
+         */
 	template<>
 	struct datatypechecker<uint16_t>{
 		const static bool value = true ;	
 	};
-
+        /**
+         *Structure for checking datatype
+         * @Return Returns bool true if datatype is unsigned integer 32 bit.
+         */
 	template<>
 	struct datatypechecker<uint32_t>{
 		const static bool value = true ;	
 	};
-
+        /**
+         *Structure for checking datatype
+         * @Return Returns bool true if datatype is unsigned integer 64 bit.
+         */
 	template<>
 	struct datatypechecker<uint64_t>{
 		const static bool value = true ;	
@@ -109,22 +137,34 @@ namespace cpu_int{
 		static_assert(datatypechecker<uint_type>::value,"Data type provided is not supported in BigBinaryInteger");
 		const static int value = 8*sizeof(uint_type);
 	};
-	
+        /*
+         * ???
+         */
 	template<typename utype>
 	struct doubleDataType{
 		typedef void T;
 	};
 
+        /*
+         * Datatype double template function
+         * sets T as of type unsigned integer 16 bit if initial datatype is 8bit
+         */
 	template<>
 	struct doubleDataType<uint8_t>{
 		typedef uint16_t T;
 	};
-
-	template<>
+        /*
+         * Datatype double template function
+         * sets T as of type unsigned integer 32 bit if initial datatype is 16bit
+         */
+    template<>
 	struct doubleDataType<uint16_t>{
 		typedef uint32_t T;
 	};
-
+        /*
+         * Datatype double template function
+         * sets T as of type unsigned integer 64 bit if initial datatype is 32bit
+         */
 	template<>
 	struct doubleDataType<uint32_t>{
 		typedef uint64_t T;
