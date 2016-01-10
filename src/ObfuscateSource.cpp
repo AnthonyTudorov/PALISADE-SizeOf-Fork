@@ -40,12 +40,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "math/backend.h"
 #include "math/nbtheory.h"
 #include "math/distrgen.h"
-#include "lattice/ideals.h"
-#include "lattice/ilvector2n.h"
+#include "lattice/elemparams.h"
+#include "lattice/ilparams.h"
+#include "lattice/ildcrtparams.h"
+#include "lattice/ilelement.h"
 #include "crypto/lwecrypt.h"
-//#include "obfuscate/lweconjunctionobfuscate.h"
+#include "obfuscate/lweconjunctionobfuscate.h"
 //#include "obfuscate/lweconjunctionobfuscate.cpp"
-//#include "obfuscate/obfuscatelp.h"
+#include "obfuscate/obfuscatelp.h"
 #include "time.h"
 #include <chrono>
 
@@ -66,7 +68,7 @@ struct SecureParams {
 };
 
 int main(){
-	
+
 	int input = 0;
 	/*
 	std::cout << "Relinearization window : " << std::endl;
@@ -123,10 +125,12 @@ void NTRUPRE(int input) {
 	//Set element params
 
 	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
-	
+
 	usint m = 16;
-	BigBinaryInteger modulus("67108913");
-	BigBinaryInteger rootOfUnity("61564");
+	//BigBinaryInteger modulus("67108913");
+	BigBinaryInteger modulus("61");
+	//BigBinaryInteger rootOfUnity("61564");
+	BigBinaryInteger rootOfUnity("6");
 	float stdDev = 4;
 
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
@@ -135,43 +139,67 @@ void NTRUPRE(int input) {
 	ILParams ilParams(m,modulus,rootOfUnity);
 
 	//Set crypto parametes
-	LPCryptoParametersLWE<ILVector2n> cryptoParams;
-	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
+	//LPCryptoParametersLWE<ILVector2n> cryptoParams;
+	//cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
+	//cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(stdDev,modulus);			// Create the noise generator
+	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(modulus, stdDev);			// Create the noise generator
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
+	BinaryUniformGenerator bug = BinaryUniformGenerator();			// Create the noise generator
 
 	double diff, start, finish;
 	//start = currentDateTime();
 
 	////////////////////////////////////////////////////////////
-	//Perform the Pattern Generation Algorithm
+	//Generate and test the cleartext pattern
 	////////////////////////////////////////////////////////////
 
-	std:string inputPattern = "101";
+	std::string inputPattern = "10?";
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 
+	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
+
 	std::cout << " \nCleartext pattern: " << std::endl;
-	std::cout << clearPattern.getPatternString() << std::endl;
+	std::cout << clearPattern.GetPatternString() << std::endl;
 
 	std::cout << " \nCleartext pattern length: " << std::endl;
-	std::cout << clearPattern.getLength() << std::endl;
+	std::cout << clearPattern.GetLength() << std::endl;
 
-	std:string inputStr1 = "101";
-	bool out1 = clearPattern.evaluate(inputStr);
+	std::string inputStr1 = "100";
+	bool out1 = algorithm.Evaluate(clearPattern,inputStr1);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << std::endl;
 	std::cout << out1 << std::endl;
 
-	std:string inputStr2 = "101";
-	bool out2 = clearPattern.evaluate(inputStr);
-	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << std::endl;
+	std::string inputStr2 = "101";
+	bool out2 = algorithm.Evaluate(clearPattern,inputStr2);
+	std::cout << " \nCleartext pattern evaluation of: " << inputStr2 << std::endl;
 	std::cout << out2 << std::endl;
 
-//	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(patternLength);
+	std::string inputStr3 = "001";
+	bool out3 = algorithm.Evaluate(clearPattern,inputStr3);
+	std::cout << " \nCleartext pattern evaluation of: " << inputStr3 << std::endl;
+	std::cout << out3 << std::endl;
 
-	std::cout << "Execution completed.  Please any key to finish." << std::endl;
+	////////////////////////////////////////////////////////////
+	//Generate and test the obfuscated pattern
+	////////////////////////////////////////////////////////////
 
-	fout.close();
+
+//	Ciphertext<ILVector2n> ciphertext;
+//	algorithm.Encrypt(pk,dgg,ptxt,&ciphertext);	// This is the core encryption operation.
+
+	bool result;
+
+	std::cout << " \nCleartext pattern: " << std::endl;
+	std::cout << clearPattern.GetPatternString() << std::endl;
+
+	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(ilParams);
+	algorithm.Obfuscate(clearPattern,dgg,dug,obfuscatedPattern);
+	std::cout << "Obfuscation Execution completed." << std::endl;
+
+	result = algorithm.Evaluate(obfuscatedPattern,inputStr1);
+	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << " is " << result << "." <<std::endl;
+
 
 	//system("pause");
 
