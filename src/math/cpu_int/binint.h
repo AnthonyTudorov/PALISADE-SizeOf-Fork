@@ -53,7 +53,7 @@
 namespace cpu_int{
 
         /*
-         *???
+         *Struct to Assign Value
          *
          */
 	template <usint N>
@@ -62,7 +62,7 @@ namespace cpu_int{
 	};
     
         /*
-        *???
+        *Struct to assign value to 1
         *
         */
 	template<>
@@ -71,7 +71,7 @@ namespace cpu_int{
 	};
     
         /*
-        *???
+        *Struct to assign value
         *
         */
 	template <typename U>
