@@ -82,6 +82,12 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 	template <class Element>
 	class ClearLWEConjunctionPattern : public ClearPattern<Element>, public ConjunctionPattern<Element>{
 		public:
+
+			/**
+			 * Default constructor
+			 */
+			ClearLWEConjunctionPattern() : m_patternString("") {};
+
 			/**
 			 * Method to define conjunction pattern.
 			 *
@@ -109,7 +115,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 */
 			usint GetLength() const;
 		private:
-			std::string m_patternString = "";
+			std::string m_patternString;
 	};
 
 	/**

@@ -90,7 +90,7 @@ template <class Element>
 usint ObfuscatedLWEConjunctionPattern<Element>::GetLogModulus() const{
 	double val = this->m_cryptoParameters->GetModulus().ConvertToDouble();
 	//std::cout << "val : " << val << std::endl;
-	double logTwo = log2(val-1.0)+1.0;
+	double logTwo = log(val-1.0)/log(2)+1.0;
 	//std::cout << "logTwo : " << logTwo << std::endl;
 	usint logModulus = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 	return logModulus;
