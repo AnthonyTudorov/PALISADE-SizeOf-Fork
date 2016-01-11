@@ -30,38 +30,54 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <random>
 using std::uniform_int_distribution;
-using std::uniform_real_distribution;
+//using std::uniform_real_distribution;
 //#include <math.h>
 
 #define _USE_MATH_DEFINES // added for Visual Studio support
 #include <math.h>
+#include <boost/multiprecision/random.hpp>
+#include <boost/random.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
+#include <boost/multiprecision/cpp_dec_float.hpp>
 #include "../utils/inttypes.h"
+#include "largefloat.h"
+#include "matrix.h"
 
 namespace lbcrypto {
 
 	static std::random_device rd;
+	static unsigned s = std::random_device()(); // Set seed from random_device
+	static std::mt19937 gen(s);                   // Initialize URNG
 
 	//
 	//  Since we do not have a BigRational implementation, everything is computed in
 	//  doubles for now.
 	//
 
-	inline double UnnormalizedGaussianPDF(double mean, double sigma, double x) {
+	inline LargeFloat UnnormalizedGaussianPDF(const LargeFloat &mean, const LargeFloat &sigma, int32_t x) {
 		return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
 	}
 
 	/**
 	 *  @param n the ring dimension
 	 */
-	inline usint IntegerRejectionSample(double mean, double stddev, size_t n) {
-		double t = log(n)/log(2);  //fix for Visual Studio
-		uniform_int_distribution<long> uniform_int(floor(mean - t), ceil(mean + t));
-		std::uniform_real_distribution<double> uniform_real(0.0, 1.0);
+	inline int32_t IntegerRejectionSample(const LargeFloat &mean, const LargeFloat &stddev, size_t n) {
+		
+		LargeFloat t = log(n)/log(2);  //fix for Visual Studio
+
+		double dbmean = mean.convert_to<double>();
+		double dbt = t.convert_to<double>();
+
+		uniform_int_distribution<int32_t> uniform_int(floor(dbmean - dbt), ceil(dbmean + dbt));
+		boost::random::uniform_real_distribution<LargeFloat> uniform_real(0.0,1.0);
+
+		//std::uniform_real_distribution<double> uniform_real(0.0, 1.0);
 		while (true) {
 			//  pick random int
-			usint x = uniform_int(rd);
+			int32_t x = uniform_int(rd);
 			//  roll the uniform dice
-			double dice = uniform_real(rd);
+			LargeFloat dice = uniform_real(gen);
 			//  check if dice land below pdf
 			if (dice <= UnnormalizedGaussianPDF(mean, stddev, x)) {
 				return x;
@@ -69,14 +85,12 @@ namespace lbcrypto {
 		}
 	}
 
-	/**
-	 *  @param n the ring dimension
-	 *
-	 *  @return
-	 */
-	inline usint RandomizeRound(double x, double sigma, size_t n) {
-		//  sample from gaussian over integers centered at x
-		return IntegerRejectionSample(x, sigma, n);
+	inline void RandomizeRound(const ILMat<LargeFloat> &p, const LargeFloat &sigma, ILMat<int32_t> *perturbationVector) {
+		
+		for (size_t i = 0; i < p.GetRows(); i++) {
+			(*perturbationVector)(i,0) = IntegerRejectionSample(p(i,0), sigma, p.GetRows());
+		}
+
 	}
 
 }
