@@ -137,7 +137,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * @param &cryptoParams the parameters being used.
 			 */
 			explicit ObfuscatedLWEConjunctionPattern(ILParams &cryptoParams) {
-				this->SetParameters(&cryptoParams);
+				this->SetParameters(cryptoParams);
 				this->m_length = 0;
 
 				//usint m = this->GetLogModulus();
@@ -159,7 +159,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 *
 			 * @param *cryptoParams parameters.
 			 */
-			void SetParameters(ILParams *cryptoParams) { m_cryptoParameters = cryptoParams;}
+			void SetParameters(ILParams &cryptoParams) { m_cryptoParameters = &cryptoParams;}
 
 			/**
 			 * Gets crypto params.
@@ -237,46 +237,76 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 
 				this->m_Sl = &Sl;
 				this->m_Rl = &Rl;
+
+				//Sl.PrintValues();
+				this->m_Sl->PrintValues();
 			}
+
 
 			/**
 			 * Sets the matrices that define the obfuscated pattern.
 			 * @return the S_l matrix.
 			 */
-			void GetS(usint i, char testVal,ILMat<Element> &Sib) const {
-				if (testVal == 1) {
-					Sib = this->m_S0_vec[i];
-				} else {
-					Sib = this->m_S1_vec[i];
-				}
+			void GetSl() const {
+				this->m_Sl->PrintValues();
+				//return this->m_Sl;
 			}
 
 			/**
 			 * Sets the matrices that define the obfuscated pattern.
 			 * @return the R_l matrix.
 			 */
-			void GetR(usint i, char testVal,ILMat<Element> &Rib) const {
-				if (testVal == 1) {
-					Rib = this->m_R0_vec[i];
-				} else {
-					Rib = this->m_R1_vec[i];
-				}
+			void GetRl() const {
+				this->m_Sl->PrintValues();
 			}
 
 			/**
 			 * Sets the matrices that define the obfuscated pattern.
 			 * @return the S_l matrix.
 			 */
-			void GetSl(ILMat<Element> &Sl) const {
-				Sl = this->m_Sl;
+			ILMat<Element>* GetS(usint i, char testVal) const {
+/*
+				std::cout << " Before if statement. " << std::endl;
+				(this->m_S0_vec.operator[](i)->PrintValues());
+				std::cout << " Before if statement. " << std::endl;
+				//ILMat<Element> Si0 = (VecRef[i]);
+				std::cout << " Before if statement. " << std::endl;
+				//VecRef.PrintValues();
+				std::cout << " Before if statement. " << std::endl;
+*/				
+//				usint m = this->GetLogModulus();
+//				std::cout << " Before if statement. " << std::endl;
+//				ILMat<Element> S_vec = ILMat<Element>(secureIL2nAlloc(), m, m);
+//				std::cout << " Before if statement. " << std::endl;
+/*
+				if (testVal == 1) {
+					((this->m_S0_vec)->[i]).PrintValues();
+				} else {
+					((this->m_S1_vec)->[i]).PrintValues();
+				}
+				std::cout << " After if statement. " << std::endl;
+*/
+				//Sib = &S_vec;
 			}
 
 			/**
 			 * Sets the matrices that define the obfuscated pattern.
 			 * @return the R_l matrix.
 			 */
-			void GetRl(ILMat<Element> &Rl) const {
-				Rl = this->m_Rl;
+			ILMat<Element>* GetR(usint i, char testVal) const {
+/*
+				usint m = this->GetLogModulus();
+				vector<ILMat<Element>> *R_vec;
+
+				if (testVal == 1) {
+					R_vec = this->m_R0_vec;
+				} else {
+					R_vec = this->m_R1_vec;
+				}
+				std::cout << " After if statement. " << std::endl;
+				vector<ILMat<Element>> R_vec_prime = R_vec;
+				Rib = R_vec_prime[i];
+*/
 			}
 
 		private:
@@ -316,16 +346,16 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			/**
 			 * Method to obfuscate the cleartext pattern into an obfuscated pattern.
 			 *
+			 * @param *obfuscatedPattern the obfuscated pattern.
 			 * @param &clearPattern cleartext pattern to obfuscate.
 			 * @param &dgg discrete Gaussian generator.
 			 * @param &dug discrete uniform generator.
 			 * @param &bug binary uniform generator.
-			 * @param *obfuscatedPattern the obfuscated pattern.
 			 */
-			void Obfuscate(const ClearLWEConjunctionPattern<Element> &clearPattern,
+			void Obfuscate(ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
+				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				DiscreteGaussianGenerator &dgg,
-				DiscreteUniformGenerator &dug,
-				ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern) const;
+				DiscreteUniformGenerator &dug) const;
 
 			/**
 			 * Method to obfuscate the cleartext pattern into an obfuscated pattern.
@@ -334,13 +364,31 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * @param &Aj ending key.
 			 * @param &Ti Trapdoor.
 			 * @param &elem a ring element.
-			 * @return the encoded element.
+			 * @param &dgg the discrete Gaussian Generator.
+			 * @param &encodedElem the encoded element.
 			 */
 			void Encode(
 				const ILMat<Element> &Ai,
 				const ILMat<Element> &Aj,
 				const TrapdoorPair &Ti,
-				const Element &elem,
+				const Element &elemS,
+				DiscreteGaussianGenerator &dgg,
+				ILMat<Element> &encodedElem) const;
+
+			/**
+			 * Method to obfuscate the cleartext pattern into an obfuscated pattern.
+			 *
+			 * @param &Ai starting key.
+			 * @param &Ti Trapdoor.
+			 * @param &elemB a ring element.
+			 * @param &dgg the discrete Gaussian Generator.
+			 * @param &encodedElem the encoded element.
+			 */
+			void GaussSamp(
+				const ILMat<Element> &Ai,
+				const TrapdoorPair &Ti,
+				const Element &elemB,
+				DiscreteGaussianGenerator &dgg,
 				ILMat<Element> &encodedElem) const;
 
 			/**
@@ -350,7 +398,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * @param &testString cleartext pattern to test for.
 			 * @return true if the string matches the pattern and false otherwise.
 			 */
-			bool Evaluate(const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
+			bool Evaluate(const ObfuscatedLWEConjunctionPattern<Element> * obfuscatedPattern,
 				 const std::string &testString) const;
 	};
 
