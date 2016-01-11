@@ -34,20 +34,35 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "obfmath/largefloat.h"
 #include <iostream>
-#include <limits>
+#include "obfmath/largefloat.h"
+#include "obfmath/matrix.h"
+#include "obfmath/dgsampling.h"
+//#include <limits>
 
-
-using namespace std;
+//using namespace std;
 using namespace lbcrypto;
 
-int main(){
+
+int main()
+{
 
 	LargeFloat seventh = LargeFloat(1) / 7;
 
+	std::cout << std::setprecision(50);
+
 	//std::cout.precision(std::numeric_limits<LargeFloat>::digits10);
 	std::cout << seventh << std::endl;
+
+	ILMat<LargeFloat> sample([](){ return make_unique<LargeFloat>(); }, 10, 1);
+
+	ContinuousGaussianGenerator(&sample);
+
+	std::cout << sample << std::endl;
+
+	std::cin.get();
+
+	return 0;
 
 }
 

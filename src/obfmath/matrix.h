@@ -33,6 +33,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 using std::function;
 
+#include "largefloat.h"
 #include "../../src/math/backend.h"
 #include "../../src/math/nbtheory.h"
 #include "../../src/math/distrgen.h"
@@ -80,14 +81,14 @@ namespace lbcrypto {
                 return *this;
             }
 
-            inline ILMat<Element>& Fill(int val) {
-                for (size_t row = 0; row < rows; ++row) {
-                    for (size_t col = 0; col < cols; ++col) {
-                        *data[row][col] = val;
-                    }
-                }
-                return *this;
-            }
+            //inline ILMat<Element>& Fill(int val) {
+            //    for (size_t row = 0; row < rows; ++row) {
+            //        for (size_t col = 0; col < cols; ++col) {
+            //            *data[row][col] = val;
+            //        }
+            //    }
+            //    return *this;
+            //}
 
             inline ILMat<Element>& Fill(Element val) {
                 for (size_t row = 0; row < rows; ++row) {
@@ -308,29 +309,6 @@ namespace lbcrypto {
                 return *data[row][col];
             }
 
-            inline ILMat<Element> Cholesky() const {
-                //  http://eprint.iacr.org/2013/297.pdf
-                if (rows != cols) {
-                    throw "not square";
-                }
-                ILMat<Element> result(*this);
-                for (size_t k = 0; k < rows; ++k) {
-                    result(k, k) = sqrt(result(k, k));
-                    for (size_t i = k+1; i < rows; ++i) {
-                        result(i, k) = result(i, k) / result(k, k);
-
-                        //  zero upper-right triangle
-                        result(k, i) = 0;
-                    }
-                    for (size_t j = k+1; j < rows; ++j) {
-                        for (size_t i = j; i < rows; ++i) {
-                            result(i, j) = result(i, j) - result(i, k) * result(j, k);
-                        }
-                    }
-                }
-                return result;
-            }
-
             void PrintValues() const {
 		for (size_t col = 0; col < cols; ++col) {
 			for (size_t row = 0; row < rows; ++row) {
@@ -417,6 +395,45 @@ namespace lbcrypto {
         os << " ]\n";
         return os;
     }
+
+	// removed the ILMat class because it is not defined for all possible data types
+	// needs to be checked to make sure input is used in the right places
+    inline ILMat<LargeFloat> Cholesky(const ILMat<int32_t> &input) {
+        //  http://eprint.iacr.org/2013/297.pdf
+        if (input.GetRows() != input.GetCols()) {
+            throw "not square";
+        }
+		size_t rows = input.GetRows();
+        ILMat<LargeFloat> result([](){ return make_unique<LargeFloat>(); }, rows, rows);
+
+        for (size_t k = 0; k < rows; ++k) {
+            //result(k, k) = result(k, k);
+			result(k, k) = sqrt(input(k, k));
+            for (size_t i = k+1; i < rows; ++i) {
+                result(i, k) = input(i, k) / result(k, k);
+                //  zero upper-right triangle
+                result(k, i) = 0;
+            }
+            for (size_t j = k+1; j < rows; ++j) {
+                for (size_t i = j; i < rows; ++i) {
+                    result(i, j) = input(i, j) - result(i, k) * result(j, k);
+                }
+            }
+        }
+        return result;
+    }
+
+	inline ILMat<uint32_t> ConvertToInt32(const ILMat<BigBinaryInteger> &input) {
+		size_t rows = input.GetRows();
+		size_t cols = input.GetCols();
+        ILMat<uint32_t> result([](){ return make_unique<uint32_t>(); }, rows, cols);
+		for (size_t i = 0; i < rows; ++i) {
+			for (size_t j = 0; j < cols; ++i) {
+				result(i,j) = input(i,j).ConvertToInt();
+			}
+		}
+		return result;
+	}
 
 }
 #endif // LBCRYPTO_LATTICE_MATRIX_H

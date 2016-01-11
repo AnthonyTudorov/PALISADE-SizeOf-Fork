@@ -38,9 +38,13 @@
 #define LARGEFLOATBACKEND 1  // 1 for 8-bit CPU; 2 for 64-bit CPU, and so on
 
 #if LARGEFLOATBACKEND == 1
-	#include <boost/math/constants/constants.hpp>
+	//#include <boost/math/constants/constants.hpp>
 	#include <boost/multiprecision/cpp_dec_float.hpp>
 #endif
+
+#include <random>
+#include <boost/multiprecision/random.hpp>
+#include <boost/random.hpp>
 
 /**
  * @namespace lbcrypto

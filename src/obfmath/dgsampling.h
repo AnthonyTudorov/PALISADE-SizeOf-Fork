@@ -28,10 +28,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef LBCRYPTO_OBFMATH_DGSAMPLING_H
 #define LBCRYPTO_OBFMATH_DGSAMPLING_H
 
+//#include <boost/multiprecision/random.hpp>
+//#include <boost/random.hpp>
+//#include <boost/multiprecision/cpp_int.hpp>
+//#include <boost/multiprecision/number.hpp>
+
+#include "largefloat.h"
 #include "randomizedround.h"
 #include "matrix.h"
 
 namespace lbcrypto {
+		
+	//static unsigned s = std::random_device()(); // Set seed from random_device
+	//static std::mt19937 gen(s);                   // Initialize URNG
+
+	void ContinuousGaussianGenerator(ILMat<LargeFloat> *randomVector);
 
 	/**
 	* Nonspherical sampling that is used to generate perturbation vectors (for spherically distributed premimages in GaussSample)
@@ -40,17 +51,45 @@ namespace lbcrypto {
 	* @param stddev standard deviation.
 	* @param *perturbationVector perturbation vector (2+k)n
 	*/
-	void NonSphericalSample(const ILMat<BigBinaryInteger> &sigmaP, double stddev, ILMat<BigBinaryInteger> *perturbationVector) 
+	void NonSphericalSample(const ILMat<int32_t> &sigmaP, double stddev, ILMat<int32_t> *perturbationVector) 
 	{
-		BigBinaryInteger a(floor(stddev/2));
+		int32_t a(floor(stddev/2));
 		size_t n = sigmaP.GetRows();
 		
-		ILMat<BigBinaryInteger>sigmaA = sigmaP - a*ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n, n).Identity();
-		ILMat<BigBinaryInteger>sigmaSqrt = sigmaA.Cholesky();
+		ILMat<int32_t> sigmaA = sigmaP - a*ILMat<int32_t>([](){ return make_unique<int32_t>(); }, n, n).Identity();
+		
+		ILMat<LargeFloat> sigmaSqrt = Cholesky(sigmaA);
 
+		ILMat<LargeFloat> sample([](){ return make_unique<LargeFloat>(); }, n, 1);
+			
+		ContinuousGaussianGenerator(&sample);
+
+		ILMat<LargeFloat> p = sigmaSqrt.Mult(sample);
+
+		RandomizeRound(p,a,perturbationVector);
 
 	}
 
+	/**
+	* Generates a vector using continuous Guassian distribution with mean = 0 and std = 1; uses Box-Muller method
+	*
+	* @param size vector length
+	* @param *vector where results are written
+	*/
+	void ContinuousGaussianGenerator(ILMat<LargeFloat> *randomVector) 
+	{
+
+		namespace mp = boost::multiprecision;
+
+		boost::normal_distribution<LargeFloat> dgg(0.0, 1.0);
+
+		//boost::random::independent_bits_engine<boost::mt19937, 50L * 1000L / 301L, mp::number<mp::cpp_int::backend_type, mp::et_off> > gen;
+
+		for (size_t i = 0; i < randomVector->GetRows(); i++) {
+			(*randomVector)(i,0) = dgg(gen);
+		}		
+
+	}
 }
 
 #endif
