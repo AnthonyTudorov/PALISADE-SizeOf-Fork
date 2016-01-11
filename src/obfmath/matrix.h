@@ -313,7 +313,7 @@ namespace lbcrypto {
 		for (size_t col = 0; col < cols; ++col) {
 			for (size_t row = 0; row < rows; ++row) {
 				data[row][col]->PrintValues();
-				std::cout << " " << data[row][col]->GetModulus() << " ";
+				std::cout << " ";
 			}
 			std::cout << std::endl;
 		}
