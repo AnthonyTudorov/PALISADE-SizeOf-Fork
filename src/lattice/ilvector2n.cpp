@@ -123,7 +123,7 @@ namespace lbcrypto {
 		const ILParams &ilParams = static_cast<const ILParams&>(params);
 
 		usint vectorSize = ilParams.GetCyclotomicOrder() / 2;
-		m_values = new BigBinaryVector(dug.GenerateVector(vectorSize));
+		m_values = new BigBinaryVector(dug.GenerateVector(vectorSize,params.GetModulus()));
 		(*m_values).SetModulus(params.GetModulus());
 
 		m_format = COEFFICIENT;
@@ -146,9 +146,8 @@ namespace lbcrypto {
 	void ILVector2n::PrintValuesEndl() const {
 
 	//std::cout << "Printing values in ILVECTOR2N" << std::endl;
-		if (m_values != NULL) {
-			std::cout << *m_values << std::endl;
-		}
+		this->PrintValues();
+		std::cout << std::endl;
 
 	}
 
@@ -161,6 +160,7 @@ namespace lbcrypto {
 		if (m_values != NULL) {
 			std::cout << *m_values;// << std::endl;
 		}
+		std::cout << " mod:" << m_values->GetModulus();
 
 	}
 

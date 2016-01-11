@@ -158,11 +158,12 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 		std::cout << " Index B: " << i << std::endl;
 		//Set the elements s and r to a discrete uniform generated vector.
 		Element elems0(params,EVALUATION);
-		elems0.SetValues(dug.GenerateVector(n),EVALUATION);
+		elems0.SetValues(dug.GenerateVector(n,q),EVALUATION);
+		elems0.PrintValuesEndl();
 		s_small_0.push_back(elems0);
 
 		Element	elemr0(params,EVALUATION);
-		elemr0.SetValues(dug.GenerateVector(n),EVALUATION);
+		elemr0.SetValues(dug.GenerateVector(n,q),EVALUATION);
 		r_small_0.push_back(elemr0);
 
 		//Determine wildcard or not.  If wildcard, copy s and r.  Else, don't copy.
@@ -175,24 +176,24 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 		} else {
 			std::cout << " Following else A: " << i << std::endl;
 			Element elems1(params,EVALUATION);
-			elems1.SetValues(dug.GenerateVector(n),EVALUATION);
+			elems1.SetValues(dug.GenerateVector(n,q),EVALUATION);
 			s_small_1.push_back(elems1);
 
 			Element	elemr1(params,EVALUATION);
-			elemr1.SetValues(dug.GenerateVector(n),EVALUATION);
+			elemr1.SetValues(dug.GenerateVector(n,q),EVALUATION);
 			r_small_1.push_back(elemr1);
 		}
 		if (i==0) {
 			std::cout << " Following if B: " << i << std::endl;
 			s_prod = s_small_0.back();
-			s_prod.PrintValues();
+			s_prod.PrintValuesEndl();
 		} else {
 			std::cout << " Following else B: " << i << std::endl;
 			Element s_prod_prime = s_small_0.back();
-			s_prod_prime.PrintValues();
+			s_prod_prime.PrintValuesEndl();
 			std::cout << " Middle else B: " << i << std::endl;
-			s_prod_prime.PrintValues();
-			s_prod.PrintValues();
+			s_prod_prime.PrintValuesEndl();
+			s_prod.PrintValuesEndl();
 			s_prod = s_prod_prime * s_prod;			//TODO There is an odd error here.
 			std::cout << " Ending else B: " << i << std::endl;
 		}
@@ -200,7 +201,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	}
 
 	Element r_l1(params,EVALUATION);
-	r_l1.SetValues(dug.GenerateVector(n),EVALUATION);
+	r_l1.SetValues(dug.GenerateVector(n,q),EVALUATION);
 
 
 	std::vector<ILMat<Element>> S0_vec;
@@ -235,7 +236,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 //	ILMat<Element> Rl = ILMat<ILVector2n>(secureIL2nAlloc(), m, m).Identity();
 
 	Element	elemrl1(params,EVALUATION);
-	elemrl1.SetValues(dug.GenerateVector(n),EVALUATION);
+	elemrl1.SetValues(dug.GenerateVector(n,q),EVALUATION);
 
 	ILMat<Element> Sl = ILMat<ILVector2n>(secureIL2nAlloc(), m, m);
 	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],r_small_0[l+1]*s_prod,Sl);

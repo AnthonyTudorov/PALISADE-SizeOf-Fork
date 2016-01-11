@@ -83,8 +83,8 @@ TEST(method_CRT_polynomial_multiplication, compares_to_brute_force_multiplicatio
 	std::cout <<"The primitiveRootOfUnity for modulus " << primeModulus << " is " << primitiveRootOfUnity << std::endl;
 
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(primeModulus);
-	BigBinaryVector a = distrUniGen.GenerateVector(n);
-	BigBinaryVector b = distrUniGen.GenerateVector(n);
+	BigBinaryVector a = distrUniGen.GenerateVector(n,primeModulus);
+	BigBinaryVector b = distrUniGen.GenerateVector(n,primeModulus);
 	std::cout << "Generated vectors: " << a << " and " << b << std::endl;
 
 	BigBinaryVector A = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(a, primitiveRootOfUnity, cycloOrder);
