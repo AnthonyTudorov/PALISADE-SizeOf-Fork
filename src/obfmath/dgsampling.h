@@ -81,8 +81,8 @@ namespace lbcrypto {
 
 		namespace mp = boost::multiprecision;
 
-		unsigned s = std::random_device()(); // Set seed from random_device
-		std::mt19937 gen(s);                   // Initialize URNG
+		//unsigned s = std::random_device()(); // Set seed from random_device
+		//std::mt19937 gen(s);                   // Initialize URNG
 
 		boost::random::normal_distribution<> dgg(0.0, 1.0);
 
