@@ -124,8 +124,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	std::cout << "Num bits \t m : " << m << std::endl;
 
 	char val=0;
-
-	//ILMat<Element> z(secureIL2nAlloc(), m,m);
+/*
+	ILMat<Element> z(secureIL2nAlloc(), m,m);
 	std::cout << "One " << m << "x" << m << std::endl;
 	const ILMat<Element> one = ILMat<Element>(secureIL2nAlloc(), m, m).Ones();
 	one.PrintValues();
@@ -133,13 +133,12 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	std::cout << "Eye " << m << "x" << m << std::endl;
 	const ILMat<Element> eye = ILMat<Element>(secureIL2nAlloc(), m, m).Identity();
 	eye.PrintValues();
-
+*/
 	// Initialize the Pk and Ek matrices.
 	std::vector<ILMat<Element>> Pk_vector;
 	std::vector<TrapdoorPair>   Ek_vector;
 
 	for(usint i=0; i<=l+1; i++) {
-		std::cout << " Index A: " << i << std::endl;
 		pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev); //TODO remove stddev
 		Pk_vector.push_back(trapPair.first);
 		Ek_vector.push_back(trapPair.second);
@@ -155,11 +154,10 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	Element s_prod;
 
 	for(usint i=0; i<=l-1; i++) {
-		std::cout << " Index B: " << i << std::endl;
 		//Set the elements s and r to a discrete uniform generated vector.
 		Element elems0(params,EVALUATION);
 		elems0.SetValues(dug.GenerateVector(n,q),EVALUATION);
-		elems0.PrintValuesEndl();
+		//elems0.PrintValuesEndl();
 		s_small_0.push_back(elems0);
 
 		Element	elemr0(params,EVALUATION);
@@ -169,12 +167,10 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 		//Determine wildcard or not.  If wildcard, copy s and r.  Else, don't copy.
 		bool wildCard = ((char)clearPattern.GetIndex(i) == '?');
 		if (wildCard) {
-			std::cout << " Following if A: " << i << std::endl;
 			val = 1;
 			s_small_1.push_back(s_small_0.back());
 			r_small_1.push_back(r_small_0.back());
 		} else {
-			std::cout << " Following else A: " << i << std::endl;
 			Element elems1(params,EVALUATION);
 			elems1.SetValues(dug.GenerateVector(n,q),EVALUATION);
 			s_small_1.push_back(elems1);
@@ -184,20 +180,11 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 			r_small_1.push_back(elemr1);
 		}
 		if (i==0) {
-			std::cout << " Following if B: " << i << std::endl;
 			s_prod = s_small_0.back();
-			s_prod.PrintValuesEndl();
 		} else {
-			std::cout << " Following else B: " << i << std::endl;
 			Element s_prod_prime = s_small_0.back();
-			s_prod_prime.PrintValuesEndl();
-			std::cout << " Middle else B: " << i << std::endl;
-			s_prod_prime.PrintValuesEndl();
-			s_prod.PrintValuesEndl();
-			s_prod = s_prod_prime * s_prod;			//TODO There is an odd error here.
-			std::cout << " Ending else B: " << i << std::endl;
+			s_prod = s_prod_prime * s_prod;			
 		}
-		std::cout << " End Index B: " << i << std::endl;
 	}
 
 	Element r_l1(params,EVALUATION);
@@ -210,10 +197,26 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	std::vector<ILMat<Element>> R0_vec;
 	std::vector<ILMat<Element>> R1_vec;
 
-	for(usint i=1; i<=l+1; i++) {
-		std::cout << " Index C: " << i << std::endl;
+	for(usint i=1; i<=l; i++) {
 
 		ILMat<Element> S0_i = ILMat<ILVector2n>(secureIL2nAlloc(), m, m);
+/*
+		std::cout << " Index C-A-A: " << i << std::endl;
+		RingMat Pk_0 = Pk_vector[i-1];
+		Pk_0.PrintValues();
+		std::cout << " Index C-A-B: " << i << std::endl;
+		RingMat Pk_1 = Pk_vector[i];
+		Pk_1.PrintValues();
+		std::cout << " Index C-A-C: " << i << std::endl;
+		TrapdoorPair Ek = Ek_vector[i-1];
+		std::cout << " Index C-A-D: " << i << std::endl;
+		Element s0 = s_small_0[i-1];
+		s0.PrintValuesEndl();
+		std::cout << " Index C-A-E: " << i << std::endl;
+		Element r0 = r_small_0[i-1];
+		r0.PrintValuesEndl();
+		std::cout << " Index C-A-F: " << i << std::endl;
+*/
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small_0[i-1]*r_small_0[i-1],S0_i);
 		S0_vec.push_back(S0_i);
 
@@ -230,17 +233,11 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 		R1_vec.push_back(R1_i);
 	}
 
-	std::cout << " After looping. " << std::endl;
-
-//	ILMat<Element> Sl = ILMat<ILVector2n>(secureIL2nAlloc(), m, m).Identity();
-//	ILMat<Element> Rl = ILMat<ILVector2n>(secureIL2nAlloc(), m, m).Identity();
-
 	Element	elemrl1(params,EVALUATION);
 	elemrl1.SetValues(dug.GenerateVector(n,q),EVALUATION);
 
 	ILMat<Element> Sl = ILMat<ILVector2n>(secureIL2nAlloc(), m, m);
-	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],r_small_0[l+1]*s_prod,Sl);
-
+	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],elemrl1*s_prod,Sl);
 
 	ILMat<Element> Rl = ILMat<ILVector2n>(secureIL2nAlloc(), m, m);
 	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],elemrl1,Rl);
@@ -257,6 +254,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				const Element &elem,
 				ILMat<Element> &encodedElem) const {
 	
+	std::cout << " Inside Encode. " << std::endl;
 	encodedElem.Identity();
 
 };
@@ -329,41 +327,6 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	double norm = CrossProd.Norm();
 
 	return (norm <= constraint);
-*/
-	return false;
-
-	//ILMat<ILMat<Element>> S(l,1);
-	//ILMat<ILMat<Element>> R(l,1);
-/*
-	ILMat<Element> Sprod(m,m);
-	ILMat<Element> Rprod(m,m);
-
-	ILMat<Element> CrossDiff;
-
-	usint input = ((char)testString[0] == '0');
-	if (input) {
-		Sprod = obfuscatedPattern.GetS(0,0);
-		Rprod = obfuscatedPattern.GetR(0,0);
-	} else {
-		Sprod = obfuscatedPattern.GetS(0,1);
-		Rprod = obfuscatedPattern.GetR(0,1);
-	}
-
-	for(usint i=1; i<=l-1; i++) {
-		input  = ((char)testString[i] == '0');
-		if (input) {
-			Sprod = Sprod*obfuscatedPattern.GetS(i,0);
-			Rprod = Rprod*obfuscatedPattern.GetR(i,0);
-		} else {
-			Sprod = Sprod*obfuscatedPattern.GetS(i,1);
-			Rprod = Sprod*obfuscatedPattern.GetR(i,1);
-		}
-	}
-
-	CrossDiff = (Sprod*obfuscatedPattern.getRl()) - (Rprod*obfuscatedPattern.getSl());
-	float norm = CrossDiff.InfinityNorm();
-
-	return norm<constraint;
 */
 	return false;
 };
