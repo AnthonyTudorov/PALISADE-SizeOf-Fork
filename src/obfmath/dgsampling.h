@@ -81,14 +81,17 @@ namespace lbcrypto {
 
 		namespace mp = boost::multiprecision;
 
-		boost::normal_distribution<LargeFloat> dgg(0.0, 1.0);
+		unsigned s = std::random_device()(); // Set seed from random_device
+		std::mt19937 gen(s);                   // Initialize URNG
 
-		//boost::random::independent_bits_engine<boost::mt19937, 50L * 1000L / 301L, mp::number<mp::cpp_int::backend_type, mp::et_off> > gen;
+		boost::random::normal_distribution<> dgg(0.0, 1.0);
+
+		//boost::random::independent_bits_engine<boost::mt19937, 50L * 1000L / 301L, mp::number<mp::cpp_int::backend_type, mp::et_off> > gen1;
 
 		for (size_t i = 0; i < randomVector->GetRows(); i++) {
+			//std::cout<<dgg(gen)<<std::endl;
 			(*randomVector)(i,0) = dgg(gen);
-		}		
-
+		}	
 	}
 }
 
