@@ -30,8 +30,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <random>
 using std::uniform_int_distribution;
-//using std::uniform_real_distribution;
-//#include <math.h>
 
 #define _USE_MATH_DEFINES // added for Visual Studio support
 #include <math.h>
@@ -46,13 +44,13 @@ using std::uniform_int_distribution;
 
 namespace lbcrypto {
 
+	//static variables used for initializing continuous and discrete distributions
 	static std::random_device rd;
 	static unsigned s = std::random_device()(); // Set seed from random_device
 	static std::mt19937 gen(s);                   // Initialize URNG
 
 	//
-	//  Since we do not have a BigRational implementation, everything is computed in
-	//  doubles for now.
+	// All rational computations use boost floating point typedefed in largefloat.h
 	//
 
 	inline LargeFloat UnnormalizedGaussianPDF(const LargeFloat &mean, const LargeFloat &sigma, int32_t x) {
@@ -60,12 +58,13 @@ namespace lbcrypto {
 	}
 
 	/**
-	 *  @param n the ring dimension
+	 *  int32_t is used here as the components are relatively small
 	 */
 	inline int32_t IntegerRejectionSample(const LargeFloat &mean, const LargeFloat &stddev, size_t n) {
 		
 		LargeFloat t = log(n)/log(2);  //fix for Visual Studio
 
+		//YSP this double conversion is necessary for uniform_int to work properly; the use of double is justified in this case
 		double dbmean = mean.convert_to<double>();
 		double dbt = t.convert_to<double>();
 

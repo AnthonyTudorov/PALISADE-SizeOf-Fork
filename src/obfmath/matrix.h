@@ -81,6 +81,8 @@ namespace lbcrypto {
                 return *this;
             }
 
+			//YSP - Removed this definition as it conflicts with FIll(Element val) for int32_t - error is generated in VSS
+
             //inline ILMat<Element>& Fill(int val) {
             //    for (size_t row = 0; row < rows; ++row) {
             //        for (size_t col = 0; col < cols; ++col) {
@@ -396,8 +398,11 @@ namespace lbcrypto {
         return os;
     }
 
-	// removed the ILMat class because it is not defined for all possible data types
-	// needs to be checked to make sure input is used in the right places
+	// YSP removed the ILMat class because it is not defined for all possible data types
+	// needs to be checked to make sure input matrix is used in the right places
+	// the assumption is that covariance matrix does not have large coefficients because it is formed by 
+	// discrete gaussians e and s; this implies int32_t can be used
+	// This algorithm can be further improved - see the Darmstadt paper section 4.4
     inline ILMat<LargeFloat> Cholesky(const ILMat<int32_t> &input) {
         //  http://eprint.iacr.org/2013/297.pdf
         if (input.GetRows() != input.GetCols()) {
@@ -423,6 +428,7 @@ namespace lbcrypto {
         return result;
     }
 
+	// YSP this function is not used anymore. Was needed at a previous iteration
 	inline ILMat<uint32_t> ConvertToInt32(const ILMat<BigBinaryInteger> &input) {
 		size_t rows = input.GetRows();
 		size_t cols = input.GetCols();

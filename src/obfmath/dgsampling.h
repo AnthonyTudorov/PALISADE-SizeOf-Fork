@@ -28,20 +28,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef LBCRYPTO_OBFMATH_DGSAMPLING_H
 #define LBCRYPTO_OBFMATH_DGSAMPLING_H
 
-//#include <boost/multiprecision/random.hpp>
-//#include <boost/random.hpp>
-//#include <boost/multiprecision/cpp_int.hpp>
-//#include <boost/multiprecision/number.hpp>
-
 #include "largefloat.h"
 #include "randomizedround.h"
 #include "matrix.h"
 
 namespace lbcrypto {
-		
-	//static unsigned s = std::random_device()(); // Set seed from random_device
-	//static std::mt19937 gen(s);                   // Initialize URNG
 
+	// forward declaration as it is defined after a call to it is made
 	void ContinuousGaussianGenerator(ILMat<LargeFloat> *randomVector);
 
 	/**
@@ -56,7 +49,8 @@ namespace lbcrypto {
 		int32_t a(floor(stddev/2));
 		size_t n = sigmaP.GetRows();
 		
-		ILMat<int32_t> sigmaA = sigmaP - a*ILMat<int32_t>([](){ return make_unique<int32_t>(); }, n, n).Identity();
+		// YSP added the a^2*I term which was missing in the original LaTex document
+		ILMat<int32_t> sigmaA = sigmaP - (a*a)*ILMat<int32_t>([](){ return make_unique<int32_t>(); }, n, n).Identity();
 		
 		ILMat<LargeFloat> sigmaSqrt = Cholesky(sigmaA);
 
@@ -81,15 +75,12 @@ namespace lbcrypto {
 
 		namespace mp = boost::multiprecision;
 
-		//unsigned s = std::random_device()(); // Set seed from random_device
-		//std::mt19937 gen(s);                   // Initialize URNG
-
+		// YSP we use Box-Muller method for generating continuous gaussians included with Boost
+		// please note that <> is used; boost::random::normal_distribution<LargeFloat> was causing a compilation error in Linux
 		boost::random::normal_distribution<> dgg(0.0, 1.0);
 
-		//boost::random::independent_bits_engine<boost::mt19937, 50L * 1000L / 301L, mp::number<mp::cpp_int::backend_type, mp::et_off> > gen1;
-
+		// gen is a static variable (defined in this file only through #include to largefloat.h) 
 		for (size_t i = 0; i < randomVector->GetRows(); i++) {
-			//std::cout<<dgg(gen)<<std::endl;
 			(*randomVector)(i,0) = dgg(gen);
 		}	
 	}
