@@ -194,15 +194,13 @@ void NTRUPRE(int input) {
 	std::cout << clearPattern.GetPatternString() << std::endl;
 
 	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(ilParams);
-	algorithm.Obfuscate(obfuscatedPattern,clearPattern,dgg,dug);
+	algorithm.Obfuscate(clearPattern,dgg,dug,&obfuscatedPattern);
 	std::cout << "Obfuscation Execution completed." << std::endl;
 
-	obfuscatedPattern.GetSl();
+//	obfuscatedPattern.GetSl();
 
-/*
-	result = algorithm.Evaluate(obfuscatedPattern,inputStr1);
+	result = algorithm.Evaluate(&obfuscatedPattern,inputStr1);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << " is " << result << "." <<std::endl;
-*/
 
 	//system("pause");
 

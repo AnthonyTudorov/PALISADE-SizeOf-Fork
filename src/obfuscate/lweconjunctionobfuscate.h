@@ -131,6 +131,37 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 	template <class Element>
 	class ObfuscatedLWEConjunctionPattern : public ObfuscatedPattern<Element>, public ConjunctionPattern<Element>{
 		public:
+
+			/**
+			 * Constructor
+			 */
+			explicit ObfuscatedLWEConjunctionPattern() {
+				this->m_S0_vec = NULL;
+				this->m_S1_vec = NULL;
+
+				this->m_R0_vec = NULL;
+				this->m_R1_vec = NULL;
+
+				this->m_Sl = NULL;
+				this->m_Rl = NULL;
+			}
+
+			/**
+			 * Destructor
+			 */
+			~ObfuscatedLWEConjunctionPattern() {
+				if (this->m_S0_vec != NULL){
+					delete this->m_S0_vec;
+					delete this->m_S1_vec;
+	
+					delete this->m_R0_vec;
+					delete this->m_R1_vec;
+	
+					delete this->m_Sl;
+					delete this->m_Rl;
+				}
+			}
+
 			/**
 			 * Method to define conjunction pattern.
 			 *
@@ -222,24 +253,24 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * @param &Sl the Sl vector from the obfuscated pattern definition.
 			 * @param &Rl the Rl vector from the obfuscated pattern definition.
 			 */
-			void SetMatrices(vector<ILMat<Element>> &S0_vec,
-					vector<ILMat<Element>> &S1_vec,
-					vector<ILMat<Element>> &R0_vec,
-					vector<ILMat<Element>> &R1_vec,
-					ILMat<Element> &Sl,
-					ILMat<Element> &Rl) {
+			void SetMatrices(vector<ILMat<Element>> * S0_vec,
+					vector<ILMat<Element>> * S1_vec,
+					vector<ILMat<Element>> * R0_vec,
+					vector<ILMat<Element>> * R1_vec,
+					ILMat<Element> * Sl,
+					ILMat<Element> * Rl) {
 
-				this->m_S0_vec = &S0_vec;
-				this->m_S1_vec = &S1_vec;
+				this->m_S0_vec = S0_vec;
+				this->m_S1_vec = S1_vec;
 
-				this->m_R0_vec = &R0_vec;
-				this->m_R1_vec = &R1_vec;
+				this->m_R0_vec = R0_vec;
+				this->m_R1_vec = R1_vec;
 
-				this->m_Sl = &Sl;
-				this->m_Rl = &Rl;
+				this->m_Sl = Sl;
+				this->m_Rl = Rl;
 
 				//Sl.PrintValues();
-				this->m_Sl->PrintValues();
+				//this->m_Sl->PrintValues();
 			}
 
 
@@ -248,7 +279,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * @return the S_l matrix.
 			 */
 			void GetSl() const {
-				this->m_Sl->PrintValues();
+				//this->m_Sl->PrintValues();
 				//return this->m_Sl;
 			}
 
@@ -257,7 +288,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * @return the R_l matrix.
 			 */
 			void GetRl() const {
-				this->m_Sl->PrintValues();
+				//this->m_Sl->PrintValues();
 			}
 
 			/**
@@ -346,16 +377,17 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			/**
 			 * Method to obfuscate the cleartext pattern into an obfuscated pattern.
 			 *
-			 * @param *obfuscatedPattern the obfuscated pattern.
+			 * @param &obfuscatedPattern the obfuscated pattern.
 			 * @param &clearPattern cleartext pattern to obfuscate.
 			 * @param &dgg discrete Gaussian generator.
 			 * @param &dug discrete uniform generator.
 			 * @param &bug binary uniform generator.
 			 */
-			void Obfuscate(ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
+			void Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				DiscreteGaussianGenerator &dgg,
-				DiscreteUniformGenerator &dug) const;
+				DiscreteUniformGenerator &dug,
+				ObfuscatedLWEConjunctionPattern<Element> * obfuscatedPattern) const;
 
 			/**
 			 * Method to obfuscate the cleartext pattern into an obfuscated pattern.
@@ -373,7 +405,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 				const TrapdoorPair &Ti,
 				const Element &elemS,
 				DiscreteGaussianGenerator &dgg,
-				ILMat<Element> &encodedElem) const;
+				ILMat<Element> * encodedElem) const;
 
 			/**
 			 * Method to obfuscate the cleartext pattern into an obfuscated pattern.
