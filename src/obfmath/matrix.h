@@ -411,17 +411,25 @@ namespace lbcrypto {
 		size_t rows = input.GetRows();
         ILMat<LargeFloat> result([](){ return make_unique<LargeFloat>(); }, rows, rows);
 
+	for (size_t i = 0; i < rows; ++i) {
+		for (size_t j = 0; j < rows; ++j) {
+			result(i,j) = input(i,j);
+		}
+	}
+
         for (size_t k = 0; k < rows; ++k) {
-            //result(k, k) = result(k, k);
-			result(k, k) = sqrt(input(k, k));
+            result(k, k) = sqrt(result(k, k));
+	    //result(k, k) = sqrt(input(k, k));
             for (size_t i = k+1; i < rows; ++i) {
-                result(i, k) = input(i, k) / result(k, k);
+                //result(i, k) = input(i, k) / result(k, k);
+		result(i, k) = result(i, k) / result(k, k);
                 //  zero upper-right triangle
                 result(k, i) = 0;
             }
             for (size_t j = k+1; j < rows; ++j) {
                 for (size_t i = j; i < rows; ++i) {
-                    result(i, j) = input(i, j) - result(i, k) * result(j, k);
+			result(i, j) = result(i, j) - result(i, k) * result(j, k);
+                	//result(i, j) = input(i, j) - result(i, k) * result(j, k);
                 }
             }
         }
