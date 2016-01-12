@@ -55,6 +55,7 @@ namespace lbcrypto {
 
 #if LARGEFLOATBACKEND == 1
 
+	//defined for floats with 50 significant decimal digits; can be increased to 100 if needed
 	using boost::multiprecision::cpp_dec_float_50;
 	
 	/** Define the mapping for type large float */
