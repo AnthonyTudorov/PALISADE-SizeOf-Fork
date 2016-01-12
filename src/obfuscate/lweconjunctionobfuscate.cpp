@@ -344,31 +344,34 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 		std::cout << " Index: " << i << std::endl;
 		std::cout << " \t Input: \t" << testVal << std::endl;
 		
-		//S_ib = obfuscatedPattern.GetS(i,testVal);
-		//R_ib = obfuscatedPattern.GetR(i,testVal);
+		S_ib = obfuscatedPattern->GetS(i,testVal);
+		R_ib = obfuscatedPattern->GetR(i,testVal);
 
 		//S_ib->PrintValues();
 		//R_ib->PrintValues();
 
-		/*
-		S_prod = S_prod * S_ib;
-		R_prod = R_prod * R_ib;
-		*/
+		
+		S_prod = S_prod * (*S_ib);
+		R_prod = R_prod * (*R_ib);
+		
 	}
+	std::cout << " S_prod: " << std::endl;
+	S_prod.PrintValues();
+	std::cout << " R_prod: " << std::endl;
+	R_prod.PrintValues();
 
-	//ILMat<Element>* Sl = obfuscatedPattern.GetSl();
-	//ILMat<Element>* Rl = obfuscatedPattern.GetRl();
+	ILMat<Element>* Sl = obfuscatedPattern->GetSl();
+	ILMat<Element>* Rl = obfuscatedPattern->GetRl();
 	
-	obfuscatedPattern->GetSl();
-	obfuscatedPattern->GetRl();
+	std::cout << " Sl: " << std::endl;
+	Sl->PrintValues();
+	std::cout << " Rl: " << std::endl;
+	Rl->PrintValues();
 
-	//Sl->PrintValues();
-	//Rl->PrintValues();
 
-/*
-	ILMat<Element> CrossProd = ((S_prod * R_l) - (R_prod * S_l));
-	double norm = CrossProd.Norm();
-*/
+	ILMat<Element> CrossProd = ((S_prod * (*Rl)) - (R_prod * (*Sl)));
+	norm = CrossProd.Norm();
+
 	return (norm <= constraint);
 
 };

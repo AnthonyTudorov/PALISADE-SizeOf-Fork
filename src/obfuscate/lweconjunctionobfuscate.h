@@ -278,66 +278,55 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * Sets the matrices that define the obfuscated pattern.
 			 * @return the S_l matrix.
 			 */
-			void GetSl() const {
+			ILMat<Element>*  GetSl() const {
 				//this->m_Sl->PrintValues();
-				//return this->m_Sl;
+				return this->m_Sl;
 			}
 
 			/**
 			 * Sets the matrices that define the obfuscated pattern.
 			 * @return the R_l matrix.
 			 */
-			void GetRl() const {
-				//this->m_Sl->PrintValues();
+			ILMat<Element>*  GetRl() const {
+				return this->m_Rl;
 			}
 
 			/**
 			 * Sets the matrices that define the obfuscated pattern.
-			 * @return the S_l matrix.
+			 * @return the S_ib matrix.
 			 */
 			ILMat<Element>* GetS(usint i, char testVal) const {
-/*
+
+				ILMat<Element> *S_ib;
+
 				std::cout << " Before if statement. " << std::endl;
-				(this->m_S0_vec.operator[](i)->PrintValues());
-				std::cout << " Before if statement. " << std::endl;
-				//ILMat<Element> Si0 = (VecRef[i]);
-				std::cout << " Before if statement. " << std::endl;
-				//VecRef.PrintValues();
-				std::cout << " Before if statement. " << std::endl;
-*/				
-//				usint m = this->GetLogModulus();
-//				std::cout << " Before if statement. " << std::endl;
-//				ILMat<Element> S_vec = ILMat<Element>(secureIL2nAlloc(), m, m);
-//				std::cout << " Before if statement. " << std::endl;
-/*
-				if (testVal == 1) {
-					((this->m_S0_vec)->[i]).PrintValues();
+				if (testVal == 0) {
+					S_ib = &(this->m_S0_vec->at(i));
 				} else {
-					((this->m_S1_vec)->[i]).PrintValues();
+					S_ib = &(this->m_S0_vec->at(i));
 				}
 				std::cout << " After if statement. " << std::endl;
-*/
-				//Sib = &S_vec;
+
+				return S_ib;
 			}
 
 			/**
 			 * Sets the matrices that define the obfuscated pattern.
-			 * @return the R_l matrix.
+			 * @return the R_ib matrix.
 			 */
 			ILMat<Element>* GetR(usint i, char testVal) const {
-/*
-				usint m = this->GetLogModulus();
-				vector<ILMat<Element>> *R_vec;
 
-				if (testVal == 1) {
-					R_vec = this->m_R0_vec;
+				ILMat<Element> *R_ib;
+
+				std::cout << " Before if statement. " << std::endl;
+				if (testVal == 0) {
+					R_ib = &(this->m_R0_vec->at(i));
 				} else {
-					R_vec = this->m_R1_vec;
+					R_ib = &(this->m_R0_vec->at(i));
 				}
 				std::cout << " After if statement. " << std::endl;
-				vector<ILMat<Element>> R_vec_prime = R_vec;
-				Rib = R_vec_prime[i];
-*/
+
+				return R_ib;
 			}
 
 		private:
