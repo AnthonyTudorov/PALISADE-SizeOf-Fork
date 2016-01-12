@@ -349,24 +349,23 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 		//S_ib->PrintValues();
 		//R_ib->PrintValues();
-
 		
 		S_prod = S_prod * (*S_ib);
 		R_prod = R_prod * (*R_ib);
 		
 	}
 	std::cout << " S_prod: " << std::endl;
-	S_prod.PrintValues();
+	//S_prod.PrintValues();
 	std::cout << " R_prod: " << std::endl;
-	R_prod.PrintValues();
+	//R_prod.PrintValues();
 
 	ILMat<Element>* Sl = obfuscatedPattern->GetSl();
 	ILMat<Element>* Rl = obfuscatedPattern->GetRl();
 	
 	std::cout << " Sl: " << std::endl;
-	Sl->PrintValues();
+	//Sl->PrintValues();
 	std::cout << " Rl: " << std::endl;
-	Rl->PrintValues();
+	//Rl->PrintValues();
 
 
 	ILMat<Element> CrossProd = ((S_prod * (*Rl)) - (R_prod * (*Sl)));

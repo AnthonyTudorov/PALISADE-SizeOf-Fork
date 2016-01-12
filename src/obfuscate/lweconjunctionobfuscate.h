@@ -299,13 +299,13 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 
 				ILMat<Element> *S_ib;
 
-				std::cout << " Before if statement. " << std::endl;
+				//std::cout << " Before if statement. " << std::endl;
 				if (testVal == 0) {
 					S_ib = &(this->m_S0_vec->at(i));
 				} else {
 					S_ib = &(this->m_S0_vec->at(i));
 				}
-				std::cout << " After if statement. " << std::endl;
+				//std::cout << " After if statement. " << std::endl;
 
 				return S_ib;
 			}
@@ -318,13 +318,13 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 
 				ILMat<Element> *R_ib;
 
-				std::cout << " Before if statement. " << std::endl;
+				//std::cout << " Before if statement. " << std::endl;
 				if (testVal == 0) {
 					R_ib = &(this->m_R0_vec->at(i));
 				} else {
 					R_ib = &(this->m_R0_vec->at(i));
 				}
-				std::cout << " After if statement. " << std::endl;
+				//std::cout << " After if statement. " << std::endl;
 
 				return R_ib;
 			}
