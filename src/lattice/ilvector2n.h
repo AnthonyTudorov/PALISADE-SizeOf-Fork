@@ -84,6 +84,14 @@ namespace lbcrypto {
             m_values->SetValAtIndex(index, BigBinaryInteger(val));
         }
 
+	
+        /**
+         *  Get BigBinaryVector value at index
+         */
+        double GetValAtIndex(size_t index) {
+            m_values->GetValAtIndex(index);
+        }
+
         /**
          *  Set to the constant polynomial 1.
          */
@@ -102,6 +110,19 @@ namespace lbcrypto {
             }
             return *this;
         }
+/*
+        BigBinaryInteger& Norm() {
+            BigBinaryInteger& norm = 0;
+	    BigBinaryInteger& norm_t;
+            for (size_t i = 0; i < m_values->GetLength(); ++i) {
+                norm_t = this->GetValAtIndex(i);
+		if (norm_t > norm) {
+			norm = norm_t;
+		}
+            }
+            return norm;
+        }
+*/
 
         /**
          *  Create lambda that allocates a zeroed element with the specified

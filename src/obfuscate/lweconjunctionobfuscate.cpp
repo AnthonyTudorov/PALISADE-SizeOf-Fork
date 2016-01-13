@@ -369,7 +369,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 
 	ILMat<Element> CrossProd = ((S_prod * (*Rl)) - (R_prod * (*Sl)));
-	norm = CrossProd.Norm();
+	norm = 0.0;//CrossProd.Norm();
 
 	return (norm <= constraint);
 

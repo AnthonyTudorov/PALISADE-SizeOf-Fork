@@ -320,16 +320,21 @@ namespace lbcrypto {
 			std::cout << std::endl;
 		}
             }
-
-            double Norm() const {
-		double norm = 0.0;
+/*
+            BigBinaryInteger& Norm() const {
+		BigBinaryInteger& norm = 0;
+		BigBinaryInteger& norm_t = 0;
 		for (size_t col = 0; col < cols; ++col) {
 			for (size_t row = 0; row < rows; ++row) {
-				norm = 0.0;  //TODO  Need to update this logic.
+				norm_t = data[row][col]->Norm();
+				if norm_t > norm {
+					norm = norm_t;
+				}
 			}
 		}
 		return norm;
             }
+*/
 
         private:
             data_t data;
