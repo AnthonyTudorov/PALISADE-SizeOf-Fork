@@ -276,7 +276,7 @@ namespace lbcrypto {
 		*
 		* @return value at index i.
 		*/
-		const BigBinaryInteger& GetIndexAt(usint i);
+		const BigBinaryInteger& GetValAtIndex(usint i) const;
 
 		/**
 		* Get method of the length of the element.

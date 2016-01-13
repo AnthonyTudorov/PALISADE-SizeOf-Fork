@@ -84,6 +84,51 @@ namespace lbcrypto {
 			(*randomVector)(i,0) = dgg(gen);
 		}	
 	}
+
+	/**
+	* Gaussian sampling from lattice for gagdet matrix G and syndrome u
+	*
+	* @param u syndrome (a polynomial)
+	* @param sttdev standard deviation
+	* @param gadgetVector gadget vector g corresponding to the gadget matrix G
+	* @param dgg discrete Gaussian generator
+	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
+	*/
+	void GaussSampG(const ILVector2n &u, double sttdev, const ILMat<BigBinaryVector> &gadgetVector, 
+		DiscreteGaussianGenerator &dgg, ILMat<BigBinaryInteger> *z) 
+	{
+		for (size_t i = 0; i < u.GetLength(); i++) {
+			
+			//initial value of integer syndrome corresponding to component u_i
+			BigBinaryInteger t(u.GetValAtIndex(i));
+			
+			for (size_t j = 0; j < gadgetVector.GetCols(); j++) {
+
+				//get the least significant digit of t; used for choosing the right coset to sample from 2Z or 2Z+1
+				uint32_t lsb = t.GetDigitAtIndexForBase(0,2);
+
+				//dgLSB keeps track of the least significant bit of discrete gaussian; initialized to 2 to make sure the loop is entered
+				uint32_t dgLSB = 2;
+				BigBinaryInteger sampleInteger;
+
+				//checks if the least significant bit of t matches the least signficant bit of a discrete Gaussian sample
+				while(dgLSB != lsb)
+				{
+					sampleInteger = dgg.GenerateInteger();
+					dgLSB = t.GetDigitAtIndexForBase(0,2);
+				}
+
+				(*z)(j,i) = sampleInteger;
+				
+				//division by 2
+				t = (t - (*z)(j,i))>>1;
+
+			}
+
+		}
+
+	}
+
 }
 
 #endif

@@ -184,7 +184,7 @@ namespace lbcrypto {
 		return m_params;
 	}
 
-	const BigBinaryInteger& ILVector2n::GetIndexAt(usint i)
+	const BigBinaryInteger& ILVector2n::GetValAtIndex(usint i) const
 	{
 		return m_values->GetValAtIndex(i);
 	}
