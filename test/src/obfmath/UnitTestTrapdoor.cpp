@@ -57,7 +57,7 @@ protected:
 };
 
 /************************************************/
-/*	TESTING METHODS OF BININT CLASS		*/
+/*	TESTING METHODS OF TRAPDOOR CLASS		*/
 /************************************************/
 
 /************************************************/
@@ -80,10 +80,64 @@ TEST(UTTrapdoor,randomized_round){
     //RandomizeRound(0, 4.3, 1024);
 }
 
-TEST(UTTrapdoor,trapdoor_sample){
+
+
+TEST(UTTrapdoor,sizes){
 	usint m = 16;
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
-    ILParams fastParams( m, modulus, rootOfUnity);
-    TrapdoorSample(fastParams, 5);
+	float stddev = 4;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = log(val-1.0)/log(2)+1.0;
+	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	ILParams fastParams( m, modulus, rootOfUnity);
+	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(fastParams, stddev);    
+
+	EXPECT_EQ(trapPair.first.GetRows(),1) 
+		<< "Failure testing number of rows";
+	EXPECT_EQ(trapPair.first.GetCols(),2+k) 
+		<< "Failure testing number of colums";
+
+	EXPECT_EQ(trapPair.second.m_r.GetRows(),k) 
+		<< "Failure testing number of rows";
+	EXPECT_EQ(trapPair.second.m_r.GetCols(),1) 
+		<< "Failure testing number of colums";
+
+	EXPECT_EQ(trapPair.second.m_e.GetRows(),k) 
+		<< "Failure testing number of rows";
+	EXPECT_EQ(trapPair.second.m_e.GetCols(),1) 
+		<< "Failure testing number of colums";
+
+
 }
+
+TEST(UTTrapdoor,gadget){
+	usint m = 16;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	float stddev = 4;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = log(val-1.0)/log(2)+1.0;
+	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	ILParams params( m, modulus, rootOfUnity);
+        auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+
+	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev);    
+
+	RingMat eHat = trapPair.second.m_e;
+	RingMat rHat = trapPair.second.m_r;
+        RingMat eyeKK = RingMat(zero_alloc, k, k).Identity();
+
+	//eHat.PrintValues();
+	//rHat.PrintValues();
+	//eyeKK.PrintValues();
+
+	//RingMat stackedTrap = (eHat.VStack(rHat)).VStack(eyeKK);
+
+        //RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
+}
+

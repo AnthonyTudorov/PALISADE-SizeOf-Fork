@@ -115,7 +115,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	BigBinaryInteger q(obfuscatedPattern->GetModulus());
 	usint m = obfuscatedPattern->GetLogModulus();
 	ILParams params = *(obfuscatedPattern->GetParameters());
-	usint stddev = 6;  // TODO remove this.
+	usint stddev = 4;  // TODO remove this.
 
 	std::cout << "" << std::endl;
 	std::cout << "Pattern length \t l : " << l << std::endl;
@@ -355,17 +355,17 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 		
 	}
 	std::cout << " S_prod: " << std::endl;
-	//S_prod.PrintValues();
+	S_prod.PrintValues();
 	std::cout << " R_prod: " << std::endl;
-	//R_prod.PrintValues();
+	R_prod.PrintValues();
 
 	ILMat<Element>* Sl = obfuscatedPattern->GetSl();
 	ILMat<Element>* Rl = obfuscatedPattern->GetRl();
 	
 	std::cout << " Sl: " << std::endl;
-	//Sl->PrintValues();
+	Sl->PrintValues();
 	std::cout << " Rl: " << std::endl;
-	//Rl->PrintValues();
+	Rl->PrintValues();
 
 
 	ILMat<Element> CrossProd = ((S_prod * (*Rl)) - (R_prod * (*Sl)));

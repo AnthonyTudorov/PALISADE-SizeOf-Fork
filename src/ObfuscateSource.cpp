@@ -127,10 +127,10 @@ void NTRUPRE(int input) {
 	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
 
 	usint m = 16;
-	//BigBinaryInteger modulus("67108913");
-	BigBinaryInteger modulus("61");
-	//BigBinaryInteger rootOfUnity("61564");
-	BigBinaryInteger rootOfUnity("6");
+	BigBinaryInteger modulus("67108913");
+	//BigBinaryInteger modulus("61");
+	BigBinaryInteger rootOfUnity("61564");
+	//BigBinaryInteger rootOfUnity("6");
 	float stdDev = 4;
 
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
