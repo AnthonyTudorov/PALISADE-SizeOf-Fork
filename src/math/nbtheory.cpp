@@ -36,6 +36,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 
 #include "nbtheory.h"
+#include "discreteuniformgenerator.h"
 #include <math.h>
 #include <time.h>
 #include <sstream>
@@ -46,19 +47,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
+	static DiscreteUniformGenerator dug = DiscreteUniformGenerator(BigBinaryInteger::ONE);
+
 /*
-	Generates a random number between 0 and n.
+	Generates a uniform random number between 0 and n.
 	Input: BigBinaryInteger n.
 	Output: Randomly generated BigBinaryInteger between 0 and n.
 */
- static BigBinaryInteger RNG(const BigBinaryInteger& n)
+ static BigBinaryInteger generateRandomNumber(const BigBinaryInteger& n)
  {
-	// std::cout << " \n********WARNING: This code is calling an incorrect random number generator that is intended for temporary use ONLY!!!!!  This function, RNG(const BigBinaryInteger& n), is in nbtheory.cpp*********" << std::endl;
-
-	std::string rand1 = std::to_string(rand());
-	std::string rand2 = std::to_string(rand());
-	std::string randstr = rand1 + rand2;
-	return BigBinaryInteger(randstr).Mod(n);
+	dug.SetModulus(n);
+	return dug.GenerateInteger();
 }
 
 /*
@@ -97,7 +96,7 @@ static BigBinaryInteger FindGenerator(const BigBinaryInteger& q)
  	BigBinaryInteger gen;
  	while(!generatorFound) {
  		usint count = 0;
- 		gen = RNG(q-BigBinaryInteger::TWO).ModAdd(BigBinaryInteger::ONE, q);
+ 		gen = generateRandomNumber(q-BigBinaryInteger::TWO).ModAdd(BigBinaryInteger::ONE, q);
  		for(std::set<BigBinaryInteger>::iterator it = primeFactors.begin(); it != primeFactors.end(); ++it) {
  			BigBinaryInteger exponent = (q-BigBinaryInteger::ONE).DividedBy(*it);
  			if(gen.ModExp(exponent, q) == BigBinaryInteger::ONE) break;
@@ -229,7 +228,7 @@ usint GetMSB32(usint x)
  	}
  	bool composite = true;
  	for(int i=0; i<PRIMALITY_NO_OF_ITERATIONS; i++) {
- 		BigBinaryInteger a = RNG(p-BigBinaryInteger::THREE).ModAdd(BigBinaryInteger::TWO, p);
+ 		BigBinaryInteger a = generateRandomNumber(p-BigBinaryInteger::THREE).ModAdd(BigBinaryInteger::TWO, p);
  		composite = (WitnessFunction(a, d, s, p));
 		if(composite)
 			break;
@@ -246,8 +245,8 @@ usint GetMSB32(usint x)
  {
  	BigBinaryInteger divisor(BigBinaryInteger::ONE);
  	
- 	BigBinaryInteger c(RNG(n));
- 	BigBinaryInteger x(RNG(n));
+ 	BigBinaryInteger c(generateRandomNumber(n));
+ 	BigBinaryInteger x(generateRandomNumber(n));
  	BigBinaryInteger xx(x);
  	
  	//check divisibility by 2
