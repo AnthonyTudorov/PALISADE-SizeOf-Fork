@@ -195,10 +195,10 @@ namespace lbcrypto {
                 return cols;
             }
 
-            void SwitchFormat() {
+            void SetFormat(Format format) {
                 for (size_t row = 0; row < rows; ++row) {
                     for (size_t col = 0; col < cols; ++col) {
-                        data[row][col]->SwitchFormat();
+                        data[row][col]->SetFormat(format);
                     }
                 }
             }
@@ -358,9 +358,11 @@ namespace lbcrypto {
 
     /**
      *  Each element becomes a square matrix with columns of that element's
-     *  rotations.
+     *  rotations in coefficient form.
      */
-    inline ILMat<BigBinaryInteger> Rotate(ILMat<ILVector2n> const& mat) {
+    inline ILMat<BigBinaryInteger> Rotate(ILMat<ILVector2n> const& inMat) {
+		ILMat<ILVector2n> mat(inMat);
+		mat.SetFormat(COEFFICIENT);
         size_t n = mat(0,0).GetLength();
         BigBinaryInteger const& modulus = mat(0,0).GetParams().GetModulus();
         size_t rows = mat.GetRows() * n;

@@ -89,8 +89,8 @@ TEST(UTMatrix,basic_il2n_math){
     ILMat<ILVector2n> z(secureIL2nAlloc(), 2,2);
     ILMat<ILVector2n> n = ILMat<ILVector2n>(secureIL2nAlloc(), 2, 2).Ones();
     ILMat<ILVector2n> I = ILMat<ILVector2n>(secureIL2nAlloc(), 2, 2).Identity();
-    I.SwitchFormat();
-    I.SwitchFormat();
+    I.SetFormat(COEFFICIENT);
+    I.SetFormat(EVALUATION);
     EXPECT_EQ(n, I*n);
 
     n -= n;
@@ -175,6 +175,7 @@ TEST(UTMatrix, gadget_vector) {
 }
 TEST(UTMatrix, rotate) {
     ILMat<ILVector2n> n = ILMat<ILVector2n>(fastIL2nAlloc(), 1, 2).Ones();
+    n.SetFormat(COEFFICIENT);
 	n(0,0).SetValAtIndex(2, 1);
     ILMat<BigBinaryInteger> R = Rotate(n);
 	EXPECT_EQ(8, R.GetRows());
