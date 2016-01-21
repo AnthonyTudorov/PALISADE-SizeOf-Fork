@@ -204,7 +204,9 @@ TEST(method_primitive_root_of_unity, equals_m_not_equals_mbytwo_mbyfour_single_i
 
 	BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
 
-	for(int i=0; i<ITERATIONS; i++) {
+	//intentionally reducing the number of ITERATIONS so that the test can run faster
+	// for(int i=0; i<ITERATIONS; i++) {
+	for(int i=0; i<ITERATIONS/n; i++) {
 		BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(m, primeModulus);
 
 		BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
