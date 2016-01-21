@@ -5,6 +5,8 @@ using std::pair;
 
 #include "matrix.h"
 #include "../lattice/ilvector2n.h"
+#include "dgsampling.h"
+
 namespace lbcrypto {
 
 	typedef ILMat<ILVector2n> RingMat;
@@ -40,6 +42,20 @@ namespace lbcrypto {
         }
 
         return pair<RingMat, TrapdoorPair>(A, TrapdoorPair(r, e));
+    }
+
+    inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const TrapdoorPair& T, const RingMat& u, double sigma) {
+        uint32_t c(ceil(2 * sqrt(log(2*n*(1 + 1/1e-40)) / M_PI)));
+
+        ILMat<BigBinaryInteger> R = Rotate(T.m_e)
+            .VStack(Rotate(T.m_r))
+            .VStack(ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
+        ILMat<BigBinaryInteger> COV = R*R.Transpose().ScalarMult(BigBinaryInteger(c*c));
+
+        BigBinaryInteger sigmaInt(ceil(sigma));
+        ILMat<BigBinaryInteger> SigmaP = ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, COV.GetRows(), COV.GetCols()).Identity().ScalarMult(sigmaInt * sigmaInt) - COV;
+
+        return A;
     }
 }
 #endif

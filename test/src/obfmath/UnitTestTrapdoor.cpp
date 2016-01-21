@@ -212,3 +212,27 @@ TEST(UTTrapdoor,TrapDoorMultTest){
     EXPECT_EQ(g, trapMult);
 }
 
+
+TEST(UTTrapdoor,TrapDoorGaussSampTest) {
+	usint m = 16;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	float stddev = 4;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = log(val-1.0)/log(2)+1.0;
+	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	ILParams params( m, modulus, rootOfUnity);
+    auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+
+	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev);
+
+	RingMat eHat = trapPair.second.m_e;
+	RingMat rHat = trapPair.second.m_r;
+    auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
+    RingMat u(uniform_alloc, 1, k);
+
+    RingMat z = GaussSamp(m/2, k, trapPair.first, trapPair.second, u, 4.3);
+
+}
