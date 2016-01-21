@@ -57,7 +57,7 @@ class UnitTestTransform : public ::testing::Test {
 
 void printBBV(const BigBinaryVector &b);
 void printRootsOfUnity(const BigBinaryInteger &primitiveRootOfUnity, const BigBinaryInteger &primeModulus, usint n);
-void printBinMatrix(const BigBinaryMatrix &b);
+// void printBinMatrix(const BigBinaryMatrix &b);
 
 /*---------------------------------------	TESTING METHODS OF TRANSFORM	  --------------------------------------------*/
 
@@ -128,12 +128,12 @@ TEST(method_CRT_polynomial_multiplication, compares_to_brute_force_multiplicatio
 	usint n = cycloOrder / 2;
 
 	BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(cycloOrder, primeModulus);
-	std::cout <<"The primitiveRootOfUnity for modulus " << primeModulus << " is " << primitiveRootOfUnity << std::endl;
+	// std::cout <<"The primitiveRootOfUnity for modulus " << primeModulus << " is " << primitiveRootOfUnity << std::endl;
 
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(primeModulus);
 	BigBinaryVector a = distrUniGen.GenerateVector(n);
 	BigBinaryVector b = distrUniGen.GenerateVector(n);
-	std::cout << "Generated vectors: " << a << " and " << b << std::endl;
+	// std::cout << "Generated vectors: " << a << " and " << b << std::endl;
 
 	BigBinaryVector A = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(a, primitiveRootOfUnity, cycloOrder);
 	BigBinaryVector B = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(b, primitiveRootOfUnity, cycloOrder);
@@ -160,7 +160,7 @@ void printRootsOfUnity(const BigBinaryInteger &primitiveRootOfUnity, const BigBi
 	}
 }
 
-void printBinMatrix(const BigBinaryMatrix &b){
+/*void printBinMatrix(const BigBinaryMatrix &b){
 	std::cout <<  "Printing the matrix: " << std::endl;
 	for(usint i=0; i<b.GetRowSize(); i++){
 		for(usint j=0; j<b.GetColumnSize(); j++){
@@ -168,4 +168,4 @@ void printBinMatrix(const BigBinaryMatrix &b){
 		}
 		std::cout << std::endl;
 	}
-}
+}*/
