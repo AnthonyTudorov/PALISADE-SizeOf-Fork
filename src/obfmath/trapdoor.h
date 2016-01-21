@@ -14,12 +14,12 @@ namespace lbcrypto {
         RingMat m_r;
         RingMat m_e;
 
-		TrapdoorPair(const RingMat &r, const RingMat &e): m_r(r), m_e(e) {}; 
+		TrapdoorPair(const RingMat &r, const RingMat &e): m_r(r), m_e(e) {};
     };
 
     inline pair<RingMat, TrapdoorPair> TrapdoorSample(ILParams params, int stddev) {
         auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
-        auto gaussian_alloc = ILVector2n::MakeDiscreteGaussianAllocator(params, EVALUATION, stddev);
+        auto gaussian_alloc = ILVector2n::MakeDiscreteGaussianCoefficientAllocator(params, EVALUATION, stddev);
 		auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
         size_t n = params.GetCyclotomicOrder() / 2;
         //  k ~= bitlength of q
@@ -27,8 +27,8 @@ namespace lbcrypto {
 
         auto a = uniform_alloc();
 
-        RingMat r(gaussian_alloc, k, 1);
-        RingMat e(gaussian_alloc, k, 1);
+        RingMat r(gaussian_alloc, 1, k);
+        RingMat e(gaussian_alloc, 1, k);
 
         RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
 
@@ -36,7 +36,7 @@ namespace lbcrypto {
         A(0,0) = 1;
         A(0,1) = *a;
         for (size_t i = 0; i < k; ++i) {
-            A(0, i+2) = g(0, i) - (*a*r(i, 0) + e(i, 0));
+            A(0, i+2) = g(0, i) - (*a*r(0, i) + e(0, i));
         }
 
         return pair<RingMat, TrapdoorPair>(A, TrapdoorPair(r, e));

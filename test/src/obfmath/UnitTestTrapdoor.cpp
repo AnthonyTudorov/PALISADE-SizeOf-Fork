@@ -93,21 +93,21 @@ TEST(UTTrapdoor,sizes){
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	ILParams fastParams( m, modulus, rootOfUnity);
-	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(fastParams, stddev);    
+	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(fastParams, stddev);
 
-	EXPECT_EQ(1,trapPair.first.GetRows()) 
+	EXPECT_EQ(1,trapPair.first.GetRows())
 		<< "Failure testing number of rows";
-	EXPECT_EQ(k+2,trapPair.first.GetCols()) 
+	EXPECT_EQ(k+2,trapPair.first.GetCols())
 		<< "Failure testing number of colums";
 
-	EXPECT_EQ(k,trapPair.second.m_r.GetRows()) 
+	EXPECT_EQ(1,trapPair.second.m_r.GetRows())
 		<< "Failure testing number of rows";
-	EXPECT_EQ(1,trapPair.second.m_r.GetCols()) 
+	EXPECT_EQ(k,trapPair.second.m_r.GetCols())
 		<< "Failure testing number of colums";
 
-	EXPECT_EQ(k,trapPair.second.m_e.GetRows()) 
+	EXPECT_EQ(1,trapPair.second.m_e.GetRows())
 		<< "Failure testing number of rows";
-	EXPECT_EQ(1,trapPair.second.m_e.GetCols()) 
+	EXPECT_EQ(k,trapPair.second.m_e.GetCols())
 		<< "Failure testing number of colums";
 
 
@@ -126,29 +126,29 @@ TEST(UTTrapdoor,TrapDoorPairTest){
 	ILParams params( m, modulus, rootOfUnity);
         auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
-	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev);    
+	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
-        RingMat eyeKK = RingMat(zero_alloc, k, k).Identity();
+    RingMat eyeKK = RingMat(zero_alloc, k, k).Identity();
 
 	//eHat.PrintValues();
 	//rHat.PrintValues();
 	//eyeKK.PrintValues();
 
-	RingMat stackedTrap1 = eHat.HStack(rHat);//).VStack(eyeKK);
+	RingMat stackedTrap1 = eHat.VStack(rHat);
 	//stackedTrap2.PrintValues();
 
-	EXPECT_EQ(k,stackedTrap1.GetRows()) 
+	EXPECT_EQ(2,stackedTrap1.GetRows())
 		<< "Failure testing number of rows";
-	EXPECT_EQ(2,stackedTrap1.GetCols()) 
+	EXPECT_EQ(k,stackedTrap1.GetCols())
 		<< "Failure testing number of colums";
 
-	RingMat stackedTrap2 = stackedTrap1.HStack(eyeKK);//).VStack(eyeKK);
+	RingMat stackedTrap2 = stackedTrap1.VStack(eyeKK);
 
-	EXPECT_EQ(k,stackedTrap2.GetRows()) 
+	EXPECT_EQ(k+2,stackedTrap2.GetRows())
 		<< "Failure testing number of rows";
-	EXPECT_EQ(k+2,stackedTrap2.GetCols()) 
+	EXPECT_EQ(k,stackedTrap2.GetCols())
 		<< "Failure testing number of colums";
 
         //RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
@@ -169,9 +169,9 @@ TEST(UTTrapdoor,GadgetTest){
 
         RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
 
-	EXPECT_EQ(1,g.GetRows()) 
+	EXPECT_EQ(1,g.GetRows())
 		<< "Failure testing number of rows";
-	EXPECT_EQ(k,g.GetCols()) 
+	EXPECT_EQ(k,g.GetCols())
 		<< "Failure testing number of colums";
 }
 
@@ -187,28 +187,28 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	ILParams params( m, modulus, rootOfUnity);
-        auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+    auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
-	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev);    
+	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
-        RingMat eyeKK = RingMat(zero_alloc, k, k).Identity();
+    RingMat eyeKK = RingMat(zero_alloc, k, k).Identity();
 
 	//eHat.PrintValues();
 	//rHat.PrintValues();
 	//eyeKK.PrintValues();
 
-	RingMat stackedTrap1 = eHat.HStack(rHat);
-	RingMat stackedTrap2 = stackedTrap1.HStack(eyeKK);
+	RingMat stackedTrap1 = eHat.VStack(rHat);
+	RingMat stackedTrap2 = stackedTrap1.VStack(eyeKK);
 
 	RingMat trapMult = (trapPair.first)*(stackedTrap2);
-
-	EXPECT_EQ(1,trapMult.GetRows()) 
+	EXPECT_EQ(1,trapMult.GetRows())
 		<< "Failure testing number of rows";
-	EXPECT_EQ(k,trapMult.GetCols()) 
+	EXPECT_EQ(k,trapMult.GetCols())
 		<< "Failure testing number of colums";
 
-        //RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
+    RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
+    EXPECT_EQ(g, trapMult);
 }
 

@@ -84,7 +84,7 @@ namespace lbcrypto {
             m_values->SetValAtIndex(index, BigBinaryInteger(val));
         }
 
-	
+
         /**
          *  Get BigBinaryVector value at index
          */
@@ -104,10 +104,12 @@ namespace lbcrypto {
         }
 
         inline ILVector2n& operator=(usint val) {
+            SetFormat(COEFFICIENT);
             this->SetValAtIndex(0, val);
             for (size_t i = 1; i < m_values->GetLength(); ++i) {
                 this->SetValAtIndex(i, 0);
             }
+            SetFormat(EVALUATION);
             return *this;
         }
 /*
@@ -134,10 +136,12 @@ namespace lbcrypto {
             };
         }
 
-        inline static function<unique_ptr<ILVector2n>()> MakeDiscreteGaussianAllocator(ILParams params, Format format, int stddev) {
+        inline static function<unique_ptr<ILVector2n>()> MakeDiscreteGaussianCoefficientAllocator(ILParams params, Format resultFormat, int stddev) {
             return [=]() {
                 DiscreteGaussianGenerator dgg(params.GetModulus(), stddev);
-                return make_unique<ILVector2n>(dgg, params, format);
+                auto ilvec = make_unique<ILVector2n>(dgg, params, COEFFICIENT);
+                ilvec->SetFormat(resultFormat);
+                return ilvec;
             };
         }
 
@@ -462,6 +466,12 @@ namespace lbcrypto {
 		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
 		*/
 		void SwitchFormat();
+
+        /**
+         *  Ensures ring element has format `format`
+         *  Calls SwitchFormat if necessary
+         */
+        void SetFormat(Format format);
 
 		// get digit for a specific based - used for PRE scheme
 		/**

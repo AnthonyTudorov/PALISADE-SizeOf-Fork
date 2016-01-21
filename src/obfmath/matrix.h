@@ -405,7 +405,7 @@ namespace lbcrypto {
 
 	// YSP removed the ILMat class because it is not defined for all possible data types
 	// needs to be checked to make sure input matrix is used in the right places
-	// the assumption is that covariance matrix does not have large coefficients because it is formed by 
+	// the assumption is that covariance matrix does not have large coefficients because it is formed by
 	// discrete gaussians e and s; this implies int32_t can be used
 	// This algorithm can be further improved - see the Darmstadt paper section 4.4
     inline ILMat<LargeFloat> Cholesky(const ILMat<int32_t> &input) {

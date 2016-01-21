@@ -356,6 +356,12 @@ namespace lbcrypto {
 
 	}
 
+    void ILVector2n::SetFormat(Format format) {
+        if (m_format != format) {
+            SwitchFormat();
+        }
+    }
+
 	// get digit for a specific based - used for PRE scheme
 	ILVector2n ILVector2n::GetDigitAtIndexForBase(usint index, usint base) const {
 		ILVector2n tmp(*this);
