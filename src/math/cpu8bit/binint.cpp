@@ -209,7 +209,7 @@ usint BigBinaryInteger::GetMSB()const{
 usint BigBinaryInteger::ConvertToInt() const{
 	usint ans = -1;
 	if(m_MSB>32){
-		std::cout<<"Cannot convert to integer\n";
+		std::cout<<"Cannot convert " << *this << " to integer\n";
 		exit(-20);//just random error code
 	}
 	else{

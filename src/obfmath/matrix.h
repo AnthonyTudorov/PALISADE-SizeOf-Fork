@@ -312,29 +312,29 @@ namespace lbcrypto {
             }
 
             void PrintValues() const {
-		for (size_t col = 0; col < cols; ++col) {
-			for (size_t row = 0; row < rows; ++row) {
-				data[row][col]->PrintValues();
-				std::cout << " ";
-			}
-			std::cout << std::endl;
-		}
+                for (size_t col = 0; col < cols; ++col) {
+                    for (size_t row = 0; row < rows; ++row) {
+                        data[row][col]->PrintValues();
+                        std::cout << " ";
+                    }
+                    std::cout << std::endl;
+                }
             }
-/*
-            BigBinaryInteger& Norm() const {
-		BigBinaryInteger& norm = 0;
-		BigBinaryInteger& norm_t = 0;
-		for (size_t col = 0; col < cols; ++col) {
-			for (size_t row = 0; row < rows; ++row) {
-				norm_t = data[row][col]->Norm();
-				if norm_t > norm {
-					norm = norm_t;
-				}
-			}
-		}
-		return norm;
-            }
-*/
+            /*
+               BigBinaryInteger& Norm() const {
+               BigBinaryInteger& norm = 0;
+               BigBinaryInteger& norm_t = 0;
+               for (size_t col = 0; col < cols; ++col) {
+               for (size_t row = 0; row < rows; ++row) {
+               norm_t = data[row][col]->Norm();
+               if norm_t > norm {
+               norm = norm_t;
+               }
+               }
+               }
+               return norm;
+               }
+               */
 
         private:
             data_t data;
@@ -352,17 +352,17 @@ namespace lbcrypto {
             }
         };
     template<class Element>
-    inline ILMat<Element> operator*(Element const& e, ILMat<Element> const& M) {
-        return M.ScalarMult(e);
-    }
+        inline ILMat<Element> operator*(Element const& e, ILMat<Element> const& M) {
+            return M.ScalarMult(e);
+        }
 
     /**
      *  Each element becomes a square matrix with columns of that element's
      *  rotations in coefficient form.
      */
     inline ILMat<BigBinaryInteger> Rotate(ILMat<ILVector2n> const& inMat) {
-		ILMat<ILVector2n> mat(inMat);
-		mat.SetFormat(COEFFICIENT);
+        ILMat<ILVector2n> mat(inMat);
+        mat.SetFormat(COEFFICIENT);
         size_t n = mat(0,0).GetLength();
         BigBinaryInteger const& modulus = mat(0,0).GetParams().GetModulus();
         size_t rows = mat.GetRows() * n;
@@ -376,7 +376,7 @@ namespace lbcrypto {
                         elem =
                             mat(row, col).GetValues().GetValAtIndex(
                                 (rotRow - rotCol + n) % n
-                            );
+                                );
                         //  negate (mod q) upper-right triangle to account for
                         //  (mod x^n + 1)
                         if (rotRow < rotCol) {
@@ -392,69 +392,74 @@ namespace lbcrypto {
         return result;
     }
     template<class Element>
-    inline std::ostream& operator<<(std::ostream& os, const ILMat<Element>& m){
-        os << "[ ";
-        for (size_t row = 0; row < m.GetRows(); ++row) {
+        inline std::ostream& operator<<(std::ostream& os, const ILMat<Element>& m){
             os << "[ ";
-            for (size_t col = 0; col < m.GetCols(); ++col) {
-                os << *m.GetData()[row][col];
+            for (size_t row = 0; row < m.GetRows(); ++row) {
+                os << "[ ";
+                for (size_t col = 0; col < m.GetCols(); ++col) {
+                    os << *m.GetData()[row][col];
+                }
+                os << " ]\n";
             }
             os << " ]\n";
+            return os;
         }
-        os << " ]\n";
-        return os;
-    }
 
-	// YSP removed the ILMat class because it is not defined for all possible data types
-	// needs to be checked to make sure input matrix is used in the right places
-	// the assumption is that covariance matrix does not have large coefficients because it is formed by
-	// discrete gaussians e and s; this implies int32_t can be used
-	// This algorithm can be further improved - see the Darmstadt paper section 4.4
+    // YSP removed the ILMat class because it is not defined for all possible data types
+    // needs to be checked to make sure input matrix is used in the right places
+    // the assumption is that covariance matrix does not have large coefficients because it is formed by
+    // discrete gaussians e and s; this implies int32_t can be used
+    // This algorithm can be further improved - see the Darmstadt paper section 4.4
     inline ILMat<LargeFloat> Cholesky(const ILMat<int32_t> &input) {
         //  http://eprint.iacr.org/2013/297.pdf
         if (input.GetRows() != input.GetCols()) {
             throw "not square";
         }
-		size_t rows = input.GetRows();
+        size_t rows = input.GetRows();
         ILMat<LargeFloat> result([](){ return make_unique<LargeFloat>(); }, rows, rows);
 
-	for (size_t i = 0; i < rows; ++i) {
-		for (size_t j = 0; j < rows; ++j) {
-			result(i,j) = input(i,j);
-		}
-	}
+        for (size_t i = 0; i < rows; ++i) {
+            for (size_t j = 0; j < rows; ++j) {
+                result(i,j) = input(i,j);
+            }
+        }
 
         for (size_t k = 0; k < rows; ++k) {
             result(k, k) = sqrt(result(k, k));
-	    //result(k, k) = sqrt(input(k, k));
+            //result(k, k) = sqrt(input(k, k));
             for (size_t i = k+1; i < rows; ++i) {
                 //result(i, k) = input(i, k) / result(k, k);
-		result(i, k) = result(i, k) / result(k, k);
+                result(i, k) = result(i, k) / result(k, k);
                 //  zero upper-right triangle
                 result(k, i) = 0;
             }
             for (size_t j = k+1; j < rows; ++j) {
                 for (size_t i = j; i < rows; ++i) {
-			result(i, j) = result(i, j) - result(i, k) * result(j, k);
-                	//result(i, j) = input(i, j) - result(i, k) * result(j, k);
+                    result(i, j) = result(i, j) - result(i, k) * result(j, k);
+                    //result(i, j) = input(i, j) - result(i, k) * result(j, k);
                 }
             }
         }
         return result;
     }
 
-	// YSP this function is not used anymore. Was needed at a previous iteration
-	inline ILMat<uint32_t> ConvertToInt32(const ILMat<BigBinaryInteger> &input) {
-		size_t rows = input.GetRows();
-		size_t cols = input.GetCols();
-        ILMat<uint32_t> result([](){ return make_unique<uint32_t>(); }, rows, cols);
-		for (size_t i = 0; i < rows; ++i) {
-			for (size_t j = 0; j < cols; ++i) {
-				result(i,j) = input(i,j).ConvertToInt();
-			}
-		}
-		return result;
-	}
+    //  Convert from Z_q to [-q/2, q/2]
+    inline ILMat<int32_t> ConvertToInt32(const ILMat<BigBinaryInteger> &input, const BigBinaryInteger& modulus) {
+        size_t rows = input.GetRows();
+        size_t cols = input.GetCols();
+        BigBinaryInteger negativeThreshold(modulus / BigBinaryInteger::TWO);
+        ILMat<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
+        for (size_t i = 0; i < rows; ++i) {
+            for (size_t j = 0; j < cols; ++j) {
+                if (input(i,j) > negativeThreshold) {
+                    result(i,j) = (modulus - input(i,j)).ConvertToInt();
+                } else {
+                    result(i,j) = input(i,j).ConvertToInt();
+                }
+            }
+        }
+        return result;
+    }
 
 }
 #endif // LBCRYPTO_LATTICE_MATRIX_H
