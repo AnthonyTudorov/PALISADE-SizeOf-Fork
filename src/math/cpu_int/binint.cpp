@@ -116,7 +116,7 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(usint init){
 
 	for(sint i= m_nSize-1;i>= m_nSize-ceilInt;i--){
 		this->m_value[i] = (uint_type)init;
-		init>>=m_logUintBitLength;
+		init>>=m_uintBitLength;
 	}
 	this->m_MSB = msb;
 	m_state = INITIALIZED;
@@ -168,10 +168,8 @@ usint BigBinaryInteger<uint_type, BITLENGTH>::ConvertToInt() const{
 
 	usint result = 0;
 	usint num = 32 / m_uintBitLength;
-	usint exp = 1;
-	for (usint i = 0; i < num; i++){
-		result += exp*this->m_value[m_nSize - i - 1];
-		exp <<= m_uintBitLength-1;
+	for (usint i = 0; i < num && (m_nSize - i - 1) >= ceilInt; i++){
+		result += (this->m_value[m_nSize - i - 1] <<( m_uintBitLength*i));
 	}
 	return result;
 }
@@ -839,7 +837,9 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Div
 		else
 			running_dividend = runningRemainder<<m_uintBitLength;
 
-		running_dividend.m_value[ m_nSize-1] = normalised_dividend.m_value[m_nSize-i];		
+		running_dividend.m_value[ m_nSize-1] = normalised_dividend.m_value[m_nSize-i];	
+		if (running_dividend.m_MSB == 0)
+			running_dividend.m_MSB = GetMSBUint_type(normalised_dividend.m_value[m_nSize - i]);
 		i--;
 	}
 	ansCtr = m_nSize - ncharInNormalised_dividend+ncharInDivisor-1;
