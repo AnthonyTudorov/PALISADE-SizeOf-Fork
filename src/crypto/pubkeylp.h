@@ -84,8 +84,9 @@ namespace lbcrypto {
 	 * @brief Abstract Interface Class to capture common Crypto Parameters 
 	 * @tparam Element a ring element.
 	 */
+	//JSON FACILITY
 	template <class Element>
-	class LPCryptoParameters{
+	class LPCryptoParameters : public Serializable {
 	public:
 		
 		//@Get Properties
@@ -140,8 +141,9 @@ namespace lbcrypto {
 	 * @brief Abstract interface class for LP Keys
 	 * @tparam Element a ring element.
 	 */
+	//JSON FACILITY
 	template <class Element>
-	class LPKey{
+	class LPKey : public Serializable {
 		public:
 			/**
 			 * Gets a read-only reference to an LPCryptoParameters-derived class
@@ -368,7 +370,7 @@ namespace lbcrypto {
 			 * @param *evalKey the evaluation key.
 			 * @return the re-encryption key.
 			 */
-			virtual bool ProxyKeyGen(const LPPublicKey<Element> &newPublicKey, 
+			virtual bool EvalKeyGen(const LPPublicKey<Element> &newPublicKey, 
 				LPPrivateKey<Element> &origPrivateKey,
 				DiscreteGaussianGenerator &ddg, LPEvalKey<Element> *evalKey) const = 0;
 						
@@ -442,6 +444,39 @@ namespace lbcrypto {
 			virtual void Bootstrap(const Ciphertext<Element> &ciphertext,
 				Ciphertext<Element> *newCiphertext) const = 0;
 	};
+
+	/**
+	 * @brief Abstract interface class for automorphism-based SHE algorithms
+	 * @tparam Element a ring element.
+	 */
+	template <class Element>
+	class LPAutoMorphAlgorithm {
+		public:
+						
+			/**
+			 * Virtual function to define the interface for evaluating ciphertext at an index
+			 *
+			 * @param &ciphertext the input ciphertext.
+			 * @param *newCiphertext the new ciphertext.
+			 */
+			virtual void EvalAtIndex(const Ciphertext<Element> &ciphertext, const usint i, const std::vector<LPEvalKey<Element> *> &evalKeys,
+				Ciphertext<Element> *newCiphertext) const = 0;
+
+			/**
+			 * Virtual function to generate all isomorphism keys for a given private key
+			 *
+			 * @param &publicKey encryption key for the new ciphertext.
+			 * @param &origPrivateKey original private key used for decryption.
+			 * @param &ddg discrete Gaussian generator.
+			 * @param *evalKeys the evaluation keys.
+			 * @return a vector of re-encryption keys.
+			 */
+			virtual bool EvalAutomorphismKeyGen(const LPPublicKey<Element> &publicKey, 
+				const LPPrivateKey<Element> &origPrivateKey,
+				DiscreteGaussianGenerator &ddg, const usint size, LPPrivateKey<Element> *tempPrivateKey, 
+				std::vector<LPEvalKey<Element> *> *evalKeys) const = 0;
+				};
+
 
 	/**
 	 * @brief main implementation class to capture essential cryptoparameters of any LBC system

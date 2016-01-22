@@ -162,7 +162,7 @@ void EncryptionSchemeSimulation(usint count){
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(stdDev);			// Create the noise generator
+	DiscreteGaussianGenerator dgg(modulus, stdDev);			// Create the noise generator
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
@@ -301,9 +301,17 @@ void PRESimulation(usint count, usint dataset){
 	i = dataset;
 
 	ofstream fout;
-	fout.open("singlepreperformance_m_" + std::to_string(data[i].m) + "_d_" + std::to_string(data[i].depth) + 
-		"_r_" + std::to_string(data[i].relinWindow) + "_len_" + std::to_string(data[i].bitLength) + 
-		"_BBIBITLENGTH_" + std::to_string(cpu8bit::BIT_LENGTH) +  ".txt");
+
+	#if MATHBACKEND == 1
+		fout.open("singlepreperformance_m_" + std::to_string(data[i].m) + "_d_" + std::to_string(data[i].depth) + 
+			"_r_" + std::to_string(data[i].relinWindow) + "_len_" + std::to_string(data[i].bitLength) + 
+			"_BBIBITLENGTH_" + std::to_string(cpu8bit::BIT_LENGTH) +  ".txt");
+	#endif
+	#if MATHBACKEND == 2
+		fout.open("singlepreperformance_m_" + std::to_string(data[i].m) + "_d_" + std::to_string(data[i].depth) + 
+			"_r_" + std::to_string(data[i].relinWindow) + "_len_" + std::to_string(data[i].bitLength) + 
+			 ".txt");
+	#endif
 
 	//POPULATE THE PARAMETERS AND PERFORM PRE-COMPUTATIONS
 	//prepare the parameters
@@ -318,22 +326,22 @@ void PRESimulation(usint count, usint dataset){
 
 	int stdDev = 4;
 
-	//Set crypto parametes
+	// Set crypto parametes
 	LPCryptoParametersLWE<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
-	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
+	cryptoParams.SetDistributionParameter(stdDev);			 // Set the noise parameters.
+	cryptoParams.SetRelinWindow(relWindow);				     // Set the relinearization window
+	cryptoParams.SetElementParams(ilParams);			     // Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(stdDev);			// Create the noise generator
+	DiscreteGaussianGenerator dgg(modulus, stdDev);			 // Create the noise generator
 
-	//Precomputations for FTT
+	// Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
-	//Precomputations for DGG
+	// Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(dgg, ilParams);
 
-	//prepare the plaintext
+	// prepare the plaintext
 	ByteArray plaintext;
 	ifstream txt("n_sample.txt");
 	std::string all;
@@ -380,7 +388,7 @@ void PRESimulation(usint count, usint dataset){
 
 		successKeyGen = algorithm.KeyGen(*newPK, *newSK, dgg);	// This is the same core key generation operation.
 
-		algorithm.ProxyKeyGen(*newPK, *privateKeys[d], dgg, evalKey);  // This is the core re-encryption operation.
+		algorithm.EvalKeyGen(*newPK, *privateKeys[d], dgg, evalKey);  // This is the core re-encryption operation.
 
 		publicKeys.push_back(newPK);
 		privateKeys.push_back(newSK);

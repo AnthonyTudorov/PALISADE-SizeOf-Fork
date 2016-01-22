@@ -27,6 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "ilvector2n.h"
 #include <fstream>
+#include <cmath>
 
 namespace lbcrypto {
 
@@ -37,8 +38,9 @@ namespace lbcrypto {
 
 	}
 
-	ILVector2n::ILVector2n(const ElemParams &params) : m_params(static_cast<const ILParams&>(params)), m_values(NULL), m_format(EVALUATION) {
-
+	ILVector2n::ILVector2n(const ElemParams &params, Format format) : m_params(static_cast<const ILParams&>(params)), m_values(NULL), m_format(format) {
+        usint vectorSize = m_params.GetCyclotomicOrder() / 2;
+        m_values = new BigBinaryVector(vectorSize, m_params.GetModulus());
 	}
 
 	ILVector2n::ILVector2n(const ILVector2n &element) : m_params(element.m_params), m_format(element.m_format),
@@ -98,7 +100,7 @@ namespace lbcrypto {
 		{
 			//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
 			usint vectorSize = ilParams.GetCyclotomicOrder() / 2;
-			m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize, params.GetModulus()));
+			m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize));
 			(*m_values).SetModulus(params.GetModulus());
 			m_format = COEFFICIENT;
 		}
@@ -115,11 +117,39 @@ namespace lbcrypto {
 		}
 	}
 
+
+	ILVector2n::ILVector2n(DiscreteUniformGenerator &dug, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
+
+		const ILParams &ilParams = static_cast<const ILParams&>(params);
+
+		usint vectorSize = ilParams.GetCyclotomicOrder() / 2;
+		m_values = new BigBinaryVector(dug.GenerateVector(vectorSize));
+		(*m_values).SetModulus(params.GetModulus());
+
+		m_format = COEFFICIENT;
+
+		if (format == EVALUATION)
+			this->SwitchFormat();
+
+	}
+
 	ILVector2n::~ILVector2n()
 	{
 		/*if(m_values!=NULL)
 		m_values->~BigBinaryVector();*/
 		delete m_values;
+	}
+
+	/**
+		Print values
+		*/
+	void ILVector2n::PrintValues() const {
+
+	std::cout << "Printing values in ILVECTOR2N" << std::endl;
+		if (m_values != NULL) {
+			std::cout << *m_values << std::endl;
+		}
+
 	}
 
 	const BigBinaryInteger &ILVector2n::GetModulus() const {
@@ -134,11 +164,11 @@ namespace lbcrypto {
 		return m_params.GetRootOfUnity();
 	}
 
-	Format ILVector2n::GetFormat() {
+	Format ILVector2n::GetFormat() const {
 		return m_format;
 	}
 
-	const ILParams &ILVector2n::GetParams() {
+	const ILParams &ILVector2n::GetParams() const {
 		return m_params;
 	}
 
@@ -147,7 +177,7 @@ namespace lbcrypto {
 		return m_values->GetValAtIndex(i);
 	}
 
-	usint ILVector2n::GetLength() {
+	usint ILVector2n::GetLength() const {
 		return m_values->GetLength();
 	}
 
@@ -230,6 +260,12 @@ namespace lbcrypto {
 		return tmp;
 	}
 
+	ILVector2n ILVector2n::Minus(const ILVector2n &element) const {
+		ILVector2n tmp(*this);
+		*tmp.m_values = m_values->ModSub(*element.m_values);
+		return tmp;
+	}
+
 	const ILVector2n& ILVector2n::operator+=(const ILVector2n &element) {
 		*this->m_values = this->m_values->ModAdd(*element.m_values);
 		return *this;
@@ -254,6 +290,34 @@ namespace lbcrypto {
 			throw std::logic_error("ILVector2n has no inverse\n");
 
 		}
+	}
+
+	//automorphism operation
+	ILVector2n ILVector2n::AutomorphismTransform(const usint &i) const {
+
+		if (i % 2 == 0)
+			throw std::logic_error("automorphism index should be odd\n");
+		else
+		{
+			ILVector2n result(*this);
+
+			usint m = m_params.GetCyclotomicOrder();
+			//usint iInverse = ModInverse(i,m);
+			//uschar sign;
+
+			for (usint j = 1; j < m; j = j + 2)
+			{
+
+				//usint newIndex = (j*iInverse) % m;
+				usint newIndex = (j*i) % m;
+
+				result.m_values->SetValAtIndex((newIndex + 1)/2-1,this->m_values->GetValAtIndex((j+1)/2-1));
+
+			}
+
+			return result;
+		}
+
 	}
 
 	// OTHER METHODS
@@ -287,58 +351,6 @@ namespace lbcrypto {
 		return tmp;
 	}
 
-
-	//Represent the lattice in binary format
-	void ILVector2n::DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const {
-
-		//std::cout << "plaintext modulus " << modulus << std::endl;
-
-		ByteArray byteArray;
-		usint mod = modulus.ConvertToInt();
-		usint p = ceil((float)log((double)255) / log((double)mod));
-		usint resultant_char;
-
-		for (usint i = 0; i<m_values->GetLength(); i = i + p) {
-			usint exp = 1;
-			resultant_char = 0;
-			for (usint j = 0; j<p; j++) {
-				resultant_char += m_values->GetValAtIndex(i + j).ConvertToInt()*exp;
-				exp *= mod;
-			}
-			byteArray.push_back(resultant_char);
-		}
-		*text = ByteArrayPlaintextEncoding(byteArray);
-	}
-
-	//Convert binary string to lattice format; do p=2 first but document that we need to generalize it later
-	void ILVector2n::EncodeElement(const ByteArrayPlaintextEncoding &encodedPlaintext, const BigBinaryInteger &modulus) {
-
-		ByteArray encoded = encodedPlaintext.GetData();
-
-		if (m_values != NULL) {
-			delete m_values;
-		}
-
-		usint mod = modulus.ConvertToInt();
-		usint p = ceil((float)log((double)255) / log((double)mod));
-
-		m_values = new BigBinaryVector(p*encoded.size());
-		(*m_values).SetModulus(m_params.GetModulus());
-		m_format = COEFFICIENT;
-
-		for (usint i = 0; i<encoded.size(); i++) {
-			usint Num = encoded.at(i);
-			usint exp = mod, Rem = 0;
-			for (usint j = 0; j<p; j++) {
-				Rem = Num%exp;
-				m_values->SetValAtIndex(i*p + j, UintToBigBinaryInteger((Rem / (exp / mod))));
-				Num -= Rem;
-				exp *= mod;
-			}
-		}
-
-	}
-
 	//Precompute a sample of disrete gaussian polynomials
 	void ILVector2n::PreComputeDggSamples(DiscreteGaussianGenerator &dgg, const ILParams &params) {
 
@@ -346,7 +358,7 @@ namespace lbcrypto {
 		{
 			ILVector2n current(params);
 			usint vectorSize = params.GetCyclotomicOrder() / 2;
-			current.m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,params.GetModulus()));
+			current.m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize));
 			(*current.m_values).SetModulus(params.GetModulus());
 			current.m_format = COEFFICIENT;
 
@@ -376,6 +388,49 @@ namespace lbcrypto {
 		//std::cout << "random vector: " << m_dggSamples[randomIndex].GetValues() << std::endl;
 		return m_dggSamples[randomIndex];
 
+	}
+
+	// JSON FACILITY - SetIdFlag Operation
+	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ILVector2n::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+
+		//Place holder
+
+		return serializationMap;
+	}
+
+	// JSON FACILITY - Serialize Operation
+	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ILVector2n::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+
+		serializationMap = this->GetValues().Serialize(serializationMap, "");
+
+		std::unordered_map <std::string, std::string> ilVector2nMap = serializationMap["BigBinaryVector"];
+		ilVector2nMap.emplace("Format", "0");
+		serializationMap.erase("BigBinaryVector");
+		serializationMap.emplace("ILVector2n", ilVector2nMap);
+
+		return serializationMap;
+	}
+
+	// JSON FACILITY - Deserialize Operation
+	void ILVector2n::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+
+		std::unordered_map<std::string, std::string> ilVector2nMap = serializationMap["ILVector2n"];
+
+		usint vectorLength = (stoi(serializationMap["ILParams"]["Order"])) / 2;
+		BigBinaryVector vectorBBV = BigBinaryVector(vectorLength);
+
+		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> bbvSerializationMap;
+		bbvSerializationMap.emplace("BigBinaryVector", ilVector2nMap);
+		vectorBBV.Deserialize(bbvSerializationMap);
+		this->SetValues(vectorBBV, Format(stoi(ilVector2nMap["Format"])));
+		//std::cout << "Values " << this->GetValues() << std::endl;
+
+		BigBinaryInteger bbiModulus(ilVector2nMap["Modulus"]);
+		this->SetModulus(bbiModulus);
+
+		ILParams json_ilParams;
+		json_ilParams.Deserialize(serializationMap);
+		this->SetParams(json_ilParams);
 	}
 
 } // namespace lbcrypto ends

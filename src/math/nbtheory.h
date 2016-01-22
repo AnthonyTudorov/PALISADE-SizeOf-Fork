@@ -63,7 +63,7 @@ namespace lbcrypto {
 	 * 
 	 * @return a root of unity.  	  
 	 */
-	BigBinaryInteger RootOfUnity(int m, const BigBinaryInteger& modulo);
+	BigBinaryInteger RootOfUnity(usint m, const BigBinaryInteger& modulo);
 
 	/**
 	 * This method can be used to convert an unsigned int to BigBinaryInteger
@@ -152,6 +152,17 @@ namespace lbcrypto {
 	 * @return the candidate prime modulus.  
 	 */
 	BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
+
+	/**
+	 * Multiplicative inverse for primitive unsigned integer data types
+	 *
+	 * @param a the number we need the inverse of.
+	 * @param b the modulus we are working with.
+	 *
+	 * @return the multiplicative inverse  
+	 */
+	usint ModInverse(usint a, usint b);
+
 
 //private:
 //

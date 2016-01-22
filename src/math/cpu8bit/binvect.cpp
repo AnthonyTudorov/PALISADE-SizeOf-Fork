@@ -129,10 +129,11 @@ BigBinaryVector::~BigBinaryVector(){
 //ACCESSORS
 std::ostream& operator<<(std::ostream& os, const BigBinaryVector &ptr_obj){
 
-	os<<std::endl;
+    os << "< ";
 	for(usint i=0;i<ptr_obj.m_length;i++){
-		os<<*ptr_obj.m_data[i] <<std::endl;
+		os<<*ptr_obj.m_data[i] << " ";
 	}
+    os << ">";
 
 	return os;
 }
@@ -189,9 +190,10 @@ BigBinaryVector BigBinaryVector::Mod(const BigBinaryInteger& modulus) const{
 
 	if (modulus==BigBinaryInteger::TWO)
 		return this->ModByTwo();
-	else 
+	else
 	{
-		BigBinaryVector ans(this->GetLength());
+		//BigBinaryVector ans(*this);
+		BigBinaryVector ans(this->GetLength(),this->GetModulus());
 		BigBinaryInteger halfQ(this->GetModulus() >> 1);
 		for (usint i = 0; i<ans.GetLength(); i++) {
 			if (this->GetValAtIndex(i)>halfQ) {
@@ -297,9 +299,26 @@ BigBinaryVector BigBinaryVector::ModAdd(const BigBinaryVector &b) const{
 
 }
 
+BigBinaryVector BigBinaryVector::ModSub(const BigBinaryVector &b) const{
+
+	if(this->m_length!=b.m_length){
+		std::cout<<" Invalid argument \n";
+		return (BigBinaryVector)NULL;
+	}
+
+	BigBinaryVector ans(*this);
+
+	for(usint i=0;i<ans.m_length;i++){
+		*ans.m_data[i] = ans.m_data[i]->ModSub(*b.m_data[i],this->m_modulus);
+	}
+	return ans;
+
+}
+
 BigBinaryVector BigBinaryVector::ModByTwo() const {
 
-	BigBinaryVector ans(this->GetLength());
+	BigBinaryVector ans(this->GetLength(), this->GetModulus());
+
 	BigBinaryInteger halfQ(this->GetModulus() >> 1);
 	for (usint i = 0; i<ans.GetLength(); i++) {
 		if (this->GetValAtIndex(i)>halfQ) {
@@ -389,10 +408,88 @@ BigBinaryVector BigBinaryVector::ModMatrixMul(const BigBinaryMatrix &a) const{
 BigBinaryVector BigBinaryVector::GetDigitAtIndexForBase(usint index, usint base) const{
 	BigBinaryVector ans(*this);
 	for(usint i=0;i<this->m_length;i++){
-		*ans.m_data[i] = lbcrypto::UintToBigBinaryInteger(ans.m_data[i]->GetDigitAtIndexForBase(index,base));
+		*ans.m_data[i] = BigBinaryInteger(ans.m_data[i]->GetDigitAtIndexForBase(index,base));
 	}
 
 	return ans;
+}
+
+// JSON FACILITY - SetIdFlag Operation
+std::unordered_map <std::string, std::unordered_map <std::string, std::string>> BigBinaryVector::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+
+	//Place holder
+
+	return serializationMap;
+}
+
+// JSON FACILITY - Serialize Operation
+std::unordered_map <std::string, std::unordered_map <std::string, std::string>> BigBinaryVector::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+
+	std::unordered_map <std::string, std::string> bbvMap;
+
+	bbvMap.emplace("Modulus", this->GetModulus().ToString());
+
+	std::string pkBufferString;
+	BigBinaryInteger pkVectorElem;
+	usint pkVectorLength = 0;
+	std::string pkVectorElemVal;
+	pkVectorLength = GetLength();
+	for (int i = 0; i < pkVectorLength; i++) {
+		pkVectorElem = GetValAtIndex(i);
+
+		pkVectorElemVal = pkVectorElem.ToString();
+
+		pkBufferString += pkVectorElemVal;
+		if (i != (pkVectorLength - 1)) {
+			pkBufferString += "|";
+		}
+	}
+	bbvMap.emplace("VectorValues", pkBufferString);
+
+	serializationMap.emplace("BigBinaryVector", bbvMap);
+
+	return serializationMap;
+}
+
+// JSON FACILITY - Deserialize Operation
+void BigBinaryVector::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+
+	std::unordered_map<std::string, std::string> bbvMap = serializationMap["BigBinaryVector"];
+
+	BigBinaryInteger bbiModulus(bbvMap["Modulus"]);
+	this->SetModulus(bbiModulus);
+
+	std::string vectorVals = bbvMap["VectorValues"];
+	BigBinaryInteger vectorElem;
+	std::string vectorElemVal;
+	usint i = 0;
+	while (vectorVals.find("|", 0)) {
+		size_t pos = vectorVals.find("|", 0);
+		vectorElemVal = vectorVals.substr(0, pos);
+
+		std::string::size_type posTrim = vectorElemVal.find_last_not_of(' ');
+		if (posTrim != std::string::npos) {
+			if (vectorElemVal.length() != posTrim + 1) {
+				vectorElemVal.erase(posTrim + 1);
+			}
+			posTrim = vectorElemVal.find_first_not_of(' ');
+			if (posTrim != 0) {
+				vectorElemVal.erase(0, posTrim);
+			}
+		}
+		else {
+			vectorElemVal = "";
+		}
+
+		vectorElem.SetValue(vectorElemVal);
+		vectorVals.erase(0, pos + 1);
+		this->SetValAtIndex(i, vectorElem);
+		i++;
+
+		if (i == this->GetLength()) {
+			break;
+		}
+	}
 }
 
 //Private functions

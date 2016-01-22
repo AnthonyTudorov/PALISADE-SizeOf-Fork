@@ -45,7 +45,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
-//#include "il2n.h"
+//#include "ilvector2n.h"
 #include "math/distrgen.h"
 #include "crypto/lwecrypt.h"
 #include "crypto/lwecrypt.cpp"
@@ -66,7 +66,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 using namespace std;
 using namespace lbcrypto;
-
 void NTRUPRE(int input);
 double currentDateTime();
 
@@ -80,9 +79,12 @@ struct SecureParams {
 	usint relinWindow;		///< The relinearization window parameter.
 };
 
-int main(){
-	
-	
+#include <iterator>
+int main() {
+
+	//DiscreteUniformGenerator gen(BigBinaryInteger("100000"));
+	//auto v = gen.GenerateVector(10000);
+
 	std::cout << "Relinearization window : " << std::endl;
 	std::cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
 
@@ -233,7 +235,7 @@ void NTRUPRE(int input) {
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(stdDev);			// Create the noise generator
+	DiscreteGaussianGenerator dgg(modulus, stdDev);			// Create the noise generator
 
 	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
 
@@ -386,7 +388,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	algorithmPRE.ProxyKeyGen(newPK, sk, dgg , &evalKey);  // This is the core re-encryption operation.
+	algorithmPRE.EvalKeyGen(newPK, sk, dgg , &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;

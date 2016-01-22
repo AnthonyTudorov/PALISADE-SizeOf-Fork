@@ -37,7 +37,9 @@
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
-#include "../encoding/ptxtencoding.h"
+//#include "../encoding/ptxtencoding.h"
+
+#include "../utils/serializable.h"
 
 /**
 * @namespace lbcrypto
@@ -49,7 +51,8 @@ namespace lbcrypto {
 	/**
 	* @brief Interface for element params; all these methods have to be supported by any element parameters class
 	*/
-	class ElemParams
+	//JSON FACILITY
+	class ElemParams : public Serializable
 	{
 	public:
 		//each element params should give the effective modulus regardless of the representation

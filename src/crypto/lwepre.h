@@ -62,7 +62,7 @@ namespace lbcrypto {
 			 * @param &ddg discrete Gaussian generator.
 			 * @param *evalKey the evaluation key.
 			 */
-			 bool ProxyKeyGen(const LPPublicKey<Element> &newPublicKey, 
+			 bool EvalKeyGen(const LPPublicKey<Element> &newPublicKey, 
 				LPPrivateKey<Element> &origPrivateKey,
 				DiscreteGaussianGenerator &ddg, LPEvalKey<Element> *evalKey) const;
 			

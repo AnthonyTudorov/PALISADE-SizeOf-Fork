@@ -31,7 +31,7 @@ namespace lbcrypto {
 
 //Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
-bool LPAlgorithmPRELWENTRU<Element>::ProxyKeyGen(const LPPublicKey<Element> &newPublicKey, 
+bool LPAlgorithmPRELWENTRU<Element>::EvalKeyGen(const LPPublicKey<Element> &newPublicKey, 
 				LPPrivateKey<Element> &origPrivateKey,
 				DiscreteGaussianGenerator &dgg, LPEvalKey<Element> *evalKey) const
 {
@@ -43,7 +43,7 @@ bool LPAlgorithmPRELWENTRU<Element>::ProxyKeyGen(const LPPublicKey<Element> &new
 
 	std::vector<Element> *evalKeyElements = &evalKey->AccessEvalKeyElements();
 
-	usint nBits = elementParams.GetModulus().GetLengthForBase(p.ConvertToInt());
+	usint nBits = elementParams.GetModulus().GetLengthForBase(2);
 
 	usint relinWindow = cryptoParamsLWE.GetRelinWindow();
 
@@ -56,7 +56,7 @@ bool LPAlgorithmPRELWENTRU<Element>::ProxyKeyGen(const LPPublicKey<Element> &new
 		Element s(dgg,elementParams);
 		Element e(dgg,elementParams);
 
-		BigBinaryInteger pI(p.ModExp(UintToBigBinaryInteger(i*relinWindow),elementParams.GetModulus()));
+		BigBinaryInteger pI(BigBinaryInteger::TWO.ModExp(UintToBigBinaryInteger(i*relinWindow),elementParams.GetModulus()));
 		evalKeyElements->push_back( hn*s + p*e + pI*f );
 	}
 
@@ -84,7 +84,7 @@ void LPAlgorithmPRELWENTRU<Element>::ReEncrypt(const LPEvalKey<Element> &evalKey
 	//convert ciphertext to coefficient format
 	c.SwitchFormat();
 
-	int nBits = elementParams.GetModulus().GetLengthForBase(p.ConvertToInt());
+	int nBits = elementParams.GetModulus().GetLengthForBase(2);
 	usint nWindows = nBits / relinWindow;
 	if (nBits % relinWindow > 0)
 		nWindows++;

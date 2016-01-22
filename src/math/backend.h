@@ -42,6 +42,10 @@
 	#include "cpu8bit/binvect.h"
 	#include "cpu8bit/binmat.h"	
 #endif
+#if MATHBACKEND == 2
+	#include "cpu_int/binint.cpp"
+	#include "cpu_int/binvect.cpp"	
+#endif
 
 /**
  * @namespace lbcrypto
@@ -56,6 +60,15 @@ namespace lbcrypto {
 	typedef cpu8bit::BigBinaryVector BigBinaryVector;
 	/** Define the mapping for BigBinaryMatrix */
 	typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
+#endif
+
+#if MATHBACKEND == 2
+	/** Define the mapping for BigBinaryInteger */
+	typedef cpu_int::BigBinaryInteger<uint32_t,100> BigBinaryInteger;
+	/** Define the mapping for BigBinaryVector */
+	typedef cpu_int::BigBinaryVector<BigBinaryInteger> BigBinaryVector;
+	/** Define the mapping for BigBinaryMatrix */
+	//typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
 #endif
 
 } // namespace lbcrypto ends

@@ -42,7 +42,7 @@ OBJECTSDEEP := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCESDEEP:.$(SRCEXT)=.o)
 #SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 #OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 #CFLAGS := -g # -Wall
-LIB := #-pthread -lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
+LIB := -pthread #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 INC := -I include
 
 #TaskLDFLAGS = -lpthread
@@ -66,13 +66,14 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)/lattice
 	@mkdir -p $(BUILDDIR)/math
 	@mkdir -p $(BUILDDIR)/math/cpu8bit
+	@mkdir -p $(BUILDDIR)/math/cpu_int
 	@mkdir -p $(BUILDDIR)/multilinearmap
 	@mkdir -p $(BUILDDIR)/utils
 #	@echo " $@"
 #	@echo " $<"
 #	@echo " $(BUILDDIR)"
 #	@echo " $(SRCDIR)"
-	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<
+	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $< "; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<
 
 $(TARGETSMAIN): $(OBJECTSDEEP)
 	@echo " Target: $(TARGETDIR)/$@"
@@ -96,7 +97,7 @@ LIBOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(LIBSOURCES:.$(SRCEXT)=.o))
 
 TESTSOURCES := $(shell find $(TESTSRCDIR) -type f -name *.$(SRCEXT))
 TESTOBJECTS := $(patsubst $(TESTSRCDIR)/%,$(TESTBUILDDIR)/%,$(TESTSOURCES:.$(SRCEXT)=.o))
-TESTLIB := -lpthread #-pthread -lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
+TESTLIB := -pthread #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 
 TESTLIBSRCEXT := cc
 TESTLIBSRCDIR := test/include/gtest
@@ -152,7 +153,7 @@ apidocs:
 	doxygen lbcrypto-doxy-config
 
 .PHONEY: clean
-clean: cleantargets cleantests cleandocs cleanbenchmarks
+clean: cleantargets cleantests cleandocs cleangnuheaders cleanbenchmarks
 
 .PHONEY: cleantargets
 cleantargets:
@@ -167,6 +168,10 @@ cleantests:
 .PHONEY: cleandocs
 cleandocs:
 	rm -rf doc/apidocs
+
+.PHONEY: cleangnuheaders
+cleangnuheaders:
+	rm -f */**/*.h.gch
 
 #all: $(TARGETS)
 

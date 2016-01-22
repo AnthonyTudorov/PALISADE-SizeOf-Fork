@@ -35,8 +35,11 @@
 #define LBCRYPTO_LATTICE_ILVECTOR2N_H
 
 #include <vector>
+#include <functional>
+using std::function;
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
+#include "../utils/memory.h"
 #include "../math/distrgen.h"
 #include "../lattice/elemparams.h"
 #include "../lattice/ilparams.h"
@@ -44,7 +47,7 @@
 #include "../lattice/ilelement.h"
 #include "../math/nbtheory.h"
 #include "../math/transfrm.h"
-#include "../encoding/ptxtencoding.h"
+//#include "../encoding/ptxtencoding.h"
 
 /**
 * @namespace lbcrypto
@@ -57,7 +60,8 @@ namespace lbcrypto {
 								  /**
 								  * @brief Ideal lattice in vector representation or a vector in the double-CRT "matrix".  This is not fully implemented and is currently only stubs.
 								  */
-	class ILVector2n : public ILElement
+	//JSON FACILITY
+	class ILVector2n : public ILElement, public Serializable
 	{
 	public:
 
@@ -71,7 +75,65 @@ namespace lbcrypto {
 		*
 		* @param &params element parameters.
 		*/
-		ILVector2n(const ElemParams &params);
+        ILVector2n(const ElemParams &params, Format format = EVALUATION);
+
+        /**
+         *  Set BigBinaryVector value to val
+         */
+        inline void SetValAtIndex(size_t index, int val) {
+            m_values->SetValAtIndex(index, BigBinaryInteger(val));
+        }
+
+        /**
+         *  Set to the constant polynomial 1.
+         */
+        inline void SetIdentity() {
+            *this = ILVector2n(*this);
+            this->SetValAtIndex(0, 1);
+            for (size_t i = 1; i < m_values->GetLength(); ++i) {
+                this->SetValAtIndex(i, 0);
+            }
+        }
+
+        inline ILVector2n& operator=(usint val) {
+            this->SetValAtIndex(0, val);
+            for (size_t i = 1; i < m_values->GetLength(); ++i) {
+                this->SetValAtIndex(i, 0);
+            }
+            return *this;
+        }
+
+        /**
+         *  Create lambda that allocates a zeroed element with the specified
+         *  parameters and format
+         */
+        inline static function<unique_ptr<ILVector2n>()> MakeAllocator(ILParams params, Format format) {
+            return [=]() {
+                return make_unique<ILVector2n>(params, format);
+            };
+        }
+
+        inline static function<unique_ptr<ILVector2n>()> MakeDiscreteGaussianAllocator(ILParams params, Format format, int stddev) {
+            return [=]() {
+                DiscreteGaussianGenerator dgg(params.GetModulus(), stddev);
+                return make_unique<ILVector2n>(dgg, params, format);
+            };
+        }
+
+		/**
+		* Allocator for discrete uniform distribution.
+		*
+		* @param params ILParams instance that is is passed.
+		* @param format format for the polynomials generated.
+		* @return the resulting vector.
+		*/
+
+        inline static function<unique_ptr<ILVector2n>()> MakeDiscreteUniformAllocator(ILParams params, Format format) {
+            return [=]() {
+                DiscreteUniformGenerator dug(params.GetModulus());
+                return make_unique<ILVector2n>(dug, params, format);
+            };
+        }
 
 		/**
 		* Copy constructor.
@@ -97,11 +159,31 @@ namespace lbcrypto {
 
 		/**
 		* Assignment Operator.
-		*
-		* @param &&rhs the copied vector.
-		* @return the resulting vector.
-		*/
-		ILVector2n& operator=(ILVector2n &&rhs);
+        *
+        * @param &&rhs the copied vector.
+        * @return the resulting vector.
+        */
+        ILVector2n& operator=(ILVector2n &&rhs);
+
+        inline bool operator==(const lbcrypto::ILVector2n &b) const {
+            if (this->GetFormat() != b.GetFormat()) {
+                return false;
+            }
+            if (this->GetValues() != b.GetValues()) {
+                return false;
+            }
+            return true;
+        }
+
+        inline bool operator!=(const lbcrypto::ILVector2n &b) const {
+            return !(*this == b);
+        }
+
+        inline lbcrypto::ILVector2n& operator-=(const lbcrypto::ILVector2n &b) {
+            ILVector2n result = this->Minus(b);
+            *this = result;
+            return *this;
+        }
 
 		// construct using an array in either Coefficient (0) or CRT format (1)
 		//ILVector2n (const BigBinaryVector &values, Format format, const ILParams &params):m_values(new BigBinaryVector(values)),
@@ -115,6 +197,16 @@ namespace lbcrypto {
 		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVector2n(DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
+
+
+		/**
+		* Constructor based on full methods.
+		*
+		* @param &dug the input discrete Uniform Generator.
+		* @param &params the input params.
+		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVector2n(DiscreteUniformGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
 
 		/**
 		* Destructor.
@@ -149,14 +241,14 @@ namespace lbcrypto {
 		*
 		* @return the format.
 		*/
-		Format GetFormat();
+		Format GetFormat() const;
 
 		/**
 		* Get method of the parameter set.
 		*
 		* @return the parameter set.
 		*/
-		const ILParams &GetParams();
+		const ILParams &GetParams() const;
 
 		/**
 		* Get value of binaryvector at index i.
@@ -170,7 +262,7 @@ namespace lbcrypto {
 		*
 		* @return the length of the element.
 		*/
-		usint GetLength();
+		usint GetLength() const;
 
 		/**
 		* Set method of the values.
@@ -245,6 +337,11 @@ namespace lbcrypto {
 		*/
 		ILVector2n ModByTwo() const;
 
+		/**
+		Print values
+		*/
+		void PrintValues() const;
+
 		// VECTOR OPERATIONS
 
 		/**
@@ -313,7 +410,7 @@ namespace lbcrypto {
 		* @param &i is the element to perform the automorphism transform with.
 		* @return is the result of the automorphism transform.
 		*/
-		ILVector2n AutomorphismTransform(const BigBinaryInteger &i) const;
+		ILVector2n AutomorphismTransform(const usint &i) const;
 
 		// multiplicative inverse operation
 		/**
@@ -374,25 +471,6 @@ namespace lbcrypto {
 		*/
 		ILVector2n ShiftRight(unsigned int n) const;
 
-		//Represent the lattice in binary format
-		/**
-		* We assume the plaintext comes as an array of bits and this function converts those bits input a ByteArray.
-		* This method saves the result into the output parameter text.
-		*
-		* @param *text the byte array output.
-		* @param &modulus modulus to convert from.
-		*/
-		void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const;
-
-		//Convert binary string to lattice format; do p=2 first but document that we need to generalize it later
-		/**
-		* Convert binary string to lattice format.
-		*
-		* @param &encoded the byte array output.
-		* @param &modulus modulus to convert to.
-		*/
-		void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus);
-
 		/**
 		* Print the pre-computed discrete Gaussian samples.
 		*/
@@ -415,7 +493,36 @@ namespace lbcrypto {
 		*/
 		static void DestroyPreComputedSamples() {
 			m_dggSamples.clear();
+
 		}
+
+		//JSON FACILITY
+		/**
+		* Implemented by this object only for inheritance requirements of abstract class Serializable.
+		*
+		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @return map passed in.
+		*/
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+
+		//JSON FACILITY
+		/**
+		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
+		* Invokes nested serialization of BigBinaryVector.
+		*
+		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @return map updated with the attribute name value pairs required to serialize this object.
+		*/
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
+
+		//JSON FACILITY
+		/**
+		* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
+		* Invokes nested deserialization of BigBinaryVector.
+		*
+		* @param serializationMap stores this object's serialized attribute name value pairs.
+		*/
+		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
 
 	private:
 
@@ -506,6 +613,7 @@ namespace lbcrypto {
 	* @return The result of subtraction in the ring.
 	*/
 	inline lbcrypto::ILVector2n operator-(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) { return a.Minus(b); }
+
 	//PREV1
 
 	/**
@@ -528,8 +636,11 @@ namespace lbcrypto {
 	*/
 	inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) { return a.DividedBy(b); }
 
-	// ideal lattice in the double-CRT representation
 
+    inline std::ostream& operator<<(std::ostream& os, const ILVector2n& vec){
+        os << vec.GetValues();
+        return os;
+    }
 
 } // namespace lbcrypto ends
 

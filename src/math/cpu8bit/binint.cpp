@@ -1,18 +1,18 @@
 ﻿//LAYER 1 : PRIMITIVE DATA STRUCTURES AND OPERATIONS
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
-Version: 
-	v00.01 
-Last Edited: 
+Version:
+	v00.01
+Last Edited:
 	3/1/2015 4:37AM
 List of Authors:
-	TPOC: 
+	TPOC:
 		Dr. Kurt Rohloff, rohloff@njit.edu
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
 		Nishanth Pasham, np386@njit.edu
-Description:	
+Description:
 	This code provides basic arithmetic functionality.
 
 License Information:
@@ -49,6 +49,7 @@ const BigBinaryInteger BigBinaryInteger::THREE = BigBinaryInteger("3");
 const BigBinaryInteger BigBinaryInteger::FOUR = BigBinaryInteger("4");
 const BigBinaryInteger BigBinaryInteger::FIVE = BigBinaryInteger("5");
 
+
 //usshort BigBinaryInteger::m_nchar = ceilIntBy8(BIT_LENGTH)+1;
 
 //CONSTRUCTORS
@@ -66,6 +67,11 @@ BigBinaryInteger::BigBinaryInteger()
 	//m_MSB = SetMSB(m_value);
 	m_MSB = 0;
 }
+
+std::function<unique_ptr<BigBinaryInteger>()> BigBinaryInteger::Allocator = [=](){
+    return make_unique<BigBinaryInteger>();
+};
+
 
 //this constructor is used in the functions where all elements of the character array are set
 /*BigBinaryInteger::BigBinaryInteger(uschar init)
@@ -126,7 +132,7 @@ BigBinaryInteger::BigBinaryInteger(const BigBinaryInteger& bigInteger){
 }
 
 BigBinaryInteger::BigBinaryInteger(BigBinaryInteger &&bigInteger){
-	
+
 	m_MSB = bigInteger.m_MSB;
 	m_value = bigInteger.m_value;
 	bigInteger.m_value = NULL;
@@ -144,13 +150,13 @@ BigBinaryInteger&  BigBinaryInteger::operator=(const BigBinaryInteger &rhs){
 	//cout<<"Assignment operator called \n";
 	usint copyStart = this->m_MSB > rhs.m_MSB ? this->m_MSB:rhs.m_MSB;
 	copyStart = m_nchar - ceilIntBy8(copyStart);
-	
+
 	if(this!=&rhs){
 		this->m_MSB=rhs.m_MSB;
 		//this->m_nchar=rhs.m_nchar;
 		for(int i=copyStart;i<m_nchar;i++){//copy array value
 			this->m_value[i]=rhs.m_value[i];
-		}	
+		}
 	}
 	return *this;
 }
@@ -163,7 +169,7 @@ BigBinaryInteger&  BigBinaryInteger::operator=(BigBinaryInteger &&rhs){
 		m_memReserve.Deallocate(m_value);
 		this->m_value = rhs.m_value;
 		rhs.m_value = NULL;
-		
+
 	}
 
 	return *this;
@@ -171,7 +177,7 @@ BigBinaryInteger&  BigBinaryInteger::operator=(BigBinaryInteger &&rhs){
 
 //ACCESSORS
 void BigBinaryInteger::PrintValueInDec() const{
-	
+
 	sint i= m_MSB%8==0&&m_MSB!=0? m_MSB/8:(sint)m_MSB/8 +1;
 	for(i=m_nchar-i;i<m_nchar;i++)//actual
     //(i=0;i<Nchar;i++)//for debug
@@ -209,7 +215,7 @@ usint BigBinaryInteger::ConvertToInt() const{
 	else{
 		ans = 0;
 		usint exp = 1;
-		for(usint i=0;i<4;i++){			
+		for(usint i=0;i<4;i++){
 			ans += (usint)m_value[m_nchar-1-i]*exp;
 			exp <<= 8;
 		}
@@ -249,7 +255,7 @@ BigBinaryInteger BigBinaryInteger::Plus(const BigBinaryInteger& b) const{
 		result.m_value[i] = (uschar)ofl;
 		ofl>>=8;//current overflow
 	}
-	
+
 	if(ofl==1){//in the end if overflow is set it indicates MSB is one greater than the one we started with
 		//result.m_value[(sint)(m_nchar-ceilIntBy8(A->m_MSB))-1]+=1;
 		usshort x = (m_nchar-ceilInt8)-1;
@@ -281,9 +287,9 @@ const BigBinaryInteger& BigBinaryInteger::operator+=(const BigBinaryInteger &b){
 		A = this; B = &b;
 	}
 	else {A = &b; B = this;}
-	
+
 	usshort ofl=0;//overflow variable
-	
+
 	uschar ceilInt8 = ceilIntBy8(A->m_MSB);
 
 	for(sint i=m_nchar-1;i>=m_nchar-ceilInt8;i--){//NChar-ceil(MSB/8)
@@ -291,7 +297,7 @@ const BigBinaryInteger& BigBinaryInteger::operator+=(const BigBinaryInteger &b){
 		this->m_value[i] = (uschar)ofl;
 		ofl>>=8;//current overflow
 	}
-	
+
 	this->m_MSB = A->m_MSB;
 
 	if(ofl==1){//in the end if overflow is set it indicates MSB is one greater than the one we started with
@@ -320,7 +326,7 @@ BigBinaryInteger BigBinaryInteger::Minus(const BigBinaryInteger& b) const{
 
 	if(*this<b||*this==b)return std::move(BigBinaryInteger());
 	int cntr=0,current=0;
-	
+
 	BigBinaryInteger result(*this);
 
 	int endVal = m_nchar-ceilIntBy8(this->m_MSB);
@@ -338,7 +344,7 @@ BigBinaryInteger BigBinaryInteger::Minus(const BigBinaryInteger& b) const{
 				result.m_value[cntr]=255;
 				cntr++;
 			}*/
-			result.m_value[i]=result.m_value[i]- b.m_value[i]+256;			
+			result.m_value[i]=result.m_value[i]- b.m_value[i]+256;
 		}
 		else{
 			result.m_value[i]=result.m_value[i]- b.m_value[i];
@@ -378,7 +384,7 @@ const BigBinaryInteger& BigBinaryInteger::operator-=(const BigBinaryInteger &b){
 				this->m_value[cntr]=255;
 				cntr++;
 			}
-			this->m_value[i]=this->m_value[i]- b.m_value[i]+256;			
+			this->m_value[i]=this->m_value[i]- b.m_value[i]+256;
 		}
 		else{
 			this->m_value[i]=this->m_value[i]- b.m_value[i];
@@ -414,16 +420,18 @@ BigBinaryInteger BigBinaryInteger::Times(const BigBinaryInteger& b) const{
 
 BigBinaryInteger BigBinaryInteger::DividedBy(const BigBinaryInteger& b) const{
 	//std::cout<<*this<<std::endl<<b<<std::endl;
-	
+
+	//std::cout<<*this<<std::endl<<b<<std::endl;
+
 	if(b.m_MSB>this->m_MSB)
 		return std::move(BigBinaryInteger(ZERO));
 	else if(b==*this)
 		return std::move(BigBinaryInteger(ONE));
 	else if(b==ZERO)
 		throw std::logic_error("DIVISION BY ZERO");
-	
+
 	BigBinaryInteger ans;
-	
+
 	BigBinaryInteger normalised_dividend(*this - this->Mod(b));
 
 	uschar ncharInDivisor = ceilIntBy8(b.m_MSB);
@@ -436,18 +444,18 @@ BigBinaryInteger BigBinaryInteger::DividedBy(const BigBinaryInteger& b) const{
 	//BigBinaryInteger ep;
 	//Initialize the running dividend
 	for(usint i=0;i<ncharInDivisor;i++){
-		running_dividend.m_value[ m_nchar-ncharInDivisor+i] = normalised_dividend.m_value[ m_nchar-ncharInNormalised_dividend+i]; 
+		running_dividend.m_value[ m_nchar-ncharInDivisor+i] = normalised_dividend.m_value[ m_nchar-ncharInNormalised_dividend+i];
 	}
 	running_dividend.SetMSB();
-	
+
 	uschar estimate=0;
-	
+
 	for(usint i=ncharInNormalised_dividend-ncharInDivisor;i>=0;){
 		//running_dividend.PrintValueInDec();std::cout<<std::endl;
 		//memManager = runningRemainder;
 		runningRemainder = running_dividend.Mod(b);
 		//runningRemainder.PrintValueInDec();std::cout<<std::endl;
-		
+
 		expectedProd = running_dividend-runningRemainder;
 
 
@@ -457,16 +465,16 @@ BigBinaryInteger BigBinaryInteger::DividedBy(const BigBinaryInteger& b) const{
 		else if(expectedProd.m_MSB==0)
 			estimate = 0;
 		else
-			estimate = expectedProd.m_value[ m_nchar- ceilIntBy8(expectedProd.m_MSB)]/msbCharInDivisor; 
+			estimate = expectedProd.m_value[ m_nchar- ceilIntBy8(expectedProd.m_MSB)]/msbCharInDivisor;
 		if(estimate<255)
 			estimate++;
 		//ep = expectedProd;
 		while(true){
-			
+
 			if(b.MulIntegerByChar(estimate)==expectedProd){
 				break;
 			}
-			
+
 			/*std::cout<<b.MulIntegerByChar(estimate)<<std::endl;
 			std::cout<<ep<<std::endl;
 			ep = ep-b;
@@ -475,7 +483,7 @@ BigBinaryInteger BigBinaryInteger::DividedBy(const BigBinaryInteger& b) const{
 		}
 		ans = ans<<8;
 		ans.m_value[ m_nchar-1] = estimate;
-		ans.SetMSB();		
+		ans.SetMSB();
 		if(i==0)
 			break;
 		running_dividend = runningRemainder<<8;
@@ -485,7 +493,7 @@ BigBinaryInteger BigBinaryInteger::DividedBy(const BigBinaryInteger& b) const{
 		//std::cout<<std::endl;
 		i--;
 	}
-	
+
 
 	return ans;
 }
@@ -496,7 +504,7 @@ sint BigBinaryInteger::Compare(const BigBinaryInteger& a) const{
 	else if(this->m_MSB>a.m_MSB)
 		return 1;
 	if(this->m_MSB==a.m_MSB){
-		uschar ceilInt8 = ceilIntBy8(this->m_MSB); 
+		uschar ceilInt8 = ceilIntBy8(this->m_MSB);
 		sshort testChar;
 		for(usint i= m_nchar-ceilInt8;i< m_nchar;i++){
 			testChar = this->m_value[i]-a.m_value[i] ;
@@ -543,13 +551,13 @@ BigBinaryInteger BigBinaryInteger::Mod(const BigBinaryInteger& modulus) const{
 		}
 		//result = result - j;
 		result -= j;
-		
+
 		//cout<<*result<<endl;
 		initial_shift = j.m_MSB - result.m_MSB +1;
 		if(result.m_MSB-1>=modulus.m_MSB){
 			j>>=initial_shift;
 		}
-		else{ 
+		else{
 			j = modulus;
 		}
 		//cout<<j<<endl;
@@ -576,10 +584,10 @@ BigBinaryInteger BigBinaryInteger::ModBarrett(const BigBinaryInteger& modulus, c
 	q=q*mu;
 	q>>=alpha-beta;
 	z-=q*modulus;
-	
+
 	if(z>=modulus)
 		z-=modulus;
-	
+
 	return z;
 
 }
@@ -607,10 +615,10 @@ BigBinaryInteger BigBinaryInteger::ModBarrett(const BigBinaryInteger& modulus, c
 	q=q*mu;
 	q>>=alpha-beta;
 	z-=q*modulus;
-	
+
 	if(z>=modulus)
 		z-=modulus;
-	
+
 	return z;
 
 }
@@ -634,7 +642,7 @@ BigBinaryInteger BigBinaryInteger::ModBarrettKnezevic(const BigBinaryInteger& mo
 		q>>=n-1;
 
 	z-=q*modulus;
-	
+
 	if(z>=modulus)
 		z-=modulus;
 	while(z<BigBinaryInteger::ZERO)
@@ -672,7 +680,7 @@ BigBinaryInteger BigBinaryInteger::ModInverse(const BigBinaryInteger& modulus) c
 			system("pause");
 			throw std::logic_error("MOD INVERSE NOT FOUND");
 		}
-		
+
 		first = second;
 		second = mods.back();
 
@@ -763,12 +771,12 @@ BigBinaryInteger BigBinaryInteger::ModSub(const BigBinaryInteger& b, const BigBi
 	}
 
 	if(*a>=*b_op){
-		return ((*a-*b_op).Mod(modulus));		
+		return ((*a-*b_op).Mod(modulus));
 	}
 	else{
 		return ((*a + modulus) - *b_op);
 	}
-	
+
  }
 
 BigBinaryInteger BigBinaryInteger::ModBarrettSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus, const BigBinaryInteger& mu) const{
@@ -792,12 +800,12 @@ BigBinaryInteger BigBinaryInteger::ModBarrettSub(const BigBinaryInteger& b, cons
 
 	if(!(*a<*b_op)){
 		return ((*a-*b_op).ModBarrett(modulus,mu));
-		
+
 	}
 	else{
 		return ((*a + modulus) - *b_op);
 	}
-	
+
  }
 
 BigBinaryInteger BigBinaryInteger::ModBarrettSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus, const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const{
@@ -821,16 +829,16 @@ BigBinaryInteger BigBinaryInteger::ModBarrettSub(const BigBinaryInteger& b, cons
 
 	if(!(*a<*b_op)){
 		return ((*a-*b_op).ModBarrett(modulus,mu_arr));
-		
+
 	}
 	else{
 		return ((*a + modulus) - *b_op);
 	}
-	
+
  }
 
 BigBinaryInteger BigBinaryInteger::ModMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const{
-	
+
 	BigBinaryInteger a(*this);
 	BigBinaryInteger bb(b);
 
@@ -840,7 +848,7 @@ BigBinaryInteger BigBinaryInteger::ModMul(const BigBinaryInteger& b, const BigBi
 	}
 
 	//if b is greater than q reduce b to its mod value
-	if(b>modulus){ 
+	if(b>modulus){
 		bb = bb.Mod(modulus);
 	}
 
@@ -850,7 +858,7 @@ BigBinaryInteger BigBinaryInteger::ModMul(const BigBinaryInteger& b, const BigBi
 }
 
 BigBinaryInteger BigBinaryInteger::ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus, const BigBinaryInteger& mu) const{
-	
+
 	BigBinaryInteger* a  = const_cast<BigBinaryInteger*>(this);
 	BigBinaryInteger* bb = const_cast<BigBinaryInteger*>(&b);
 
@@ -872,7 +880,7 @@ BigBinaryInteger BigBinaryInteger::ModBarrettMul(const BigBinaryInteger& b, cons
 }
 
 BigBinaryInteger BigBinaryInteger::ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus, const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const{
-	
+
 	BigBinaryInteger* a  = NULL;
 	BigBinaryInteger* bb = NULL;
 
@@ -900,7 +908,7 @@ BigBinaryInteger BigBinaryInteger::ModExp(const BigBinaryInteger& b, const BigBi
 #endif
 
 	//mid is intermidiate value that calculates mid^2%q
-	BigBinaryInteger mid = this->Mod(modulus);	
+	BigBinaryInteger mid = this->Mod(modulus);
 
 #ifdef DEBUG_MODEXP
 	std::cout<<mid<<"  mid"<<std::endl;
@@ -921,7 +929,7 @@ BigBinaryInteger BigBinaryInteger::ModExp(const BigBinaryInteger& b, const BigBi
 
 	while(true){
 
-		
+
 		//product is multiplied only if bitvalue is 1
 		if(Exp.m_value[m_nchar-1]%2==1){
 			product = product*mid;
@@ -945,7 +953,7 @@ BigBinaryInteger BigBinaryInteger::ModExp(const BigBinaryInteger& b, const BigBi
 
 		//mid calculates mid^2%q
 		mid = mid*mid;
-		
+
 		mid = (mid.Mod(modulus));
 
 #ifdef DEBUG_MODEXP
@@ -959,7 +967,7 @@ BigBinaryInteger BigBinaryInteger::ModExp(const BigBinaryInteger& b, const BigBi
  }
 /*
 BigBinaryInteger  BigBinaryInteger::operator<<(usshort shift) const{
-	
+
 	BigBinaryInteger ans(*this);
 
 	//first check whether shifts are possible without overflow
@@ -982,7 +990,7 @@ BigBinaryInteger  BigBinaryInteger::operator<<(usshort shift) const{
 			temp = ans.m_value[i];
 			temp <<= remShift;
 			ans.m_value[i] = (uschar)temp + oFlow;
-			oFlow = temp>>8;		
+			oFlow = temp>>8;
 		}
 
 		if(i>-1)
@@ -995,7 +1003,7 @@ BigBinaryInteger  BigBinaryInteger::operator<<(usshort shift) const{
 	if(shiftByEight!=0){
 		usint i= m_nchar-ceilIntBy8(ans.m_MSB);
 		for(;i<m_nchar;i++){
-			ans.m_value[i-shiftByEight] = ans.m_value[i]; 
+			ans.m_value[i-shiftByEight] = ans.m_value[i];
 		}
 
 		for(usint j=0;j<shiftByEight;j++)
@@ -1004,7 +1012,7 @@ BigBinaryInteger  BigBinaryInteger::operator<<(usshort shift) const{
 	}
 
 
-	ans.m_MSB += shiftByEight*8;	
+	ans.m_MSB += shiftByEight*8;
 
 	return ans;
 
@@ -1016,7 +1024,7 @@ BigBinaryInteger  BigBinaryInteger::operator<<(usshort shift) const{
 
 	if(this->m_MSB==0)
 		return BigBinaryInteger();
-	
+
 	BigBinaryInteger ans(*this);
 
 	//first check whether shifts are possible without overflow
@@ -1039,7 +1047,7 @@ BigBinaryInteger  BigBinaryInteger::operator<<(usshort shift) const{
 			temp = ans.m_value[i];
 			temp <<= remShift;
 			ans.m_value[i] = (uschar)temp + oFlow;
-			oFlow = temp>>8;		
+			oFlow = temp>>8;
 		}
 
 		if(i>-1)
@@ -1052,7 +1060,7 @@ BigBinaryInteger  BigBinaryInteger::operator<<(usshort shift) const{
 	if(shiftByEight!=0){
 		usint i= m_nchar-ceilIntBy8(ans.m_MSB);
 		for(;i<m_nchar;i++){
-			ans.m_value[i-shiftByEight] = ans.m_value[i]; 
+			ans.m_value[i-shiftByEight] = ans.m_value[i];
 		}
 
 		for(usint i=0;i<shiftByEight;i++)
@@ -1061,7 +1069,7 @@ BigBinaryInteger  BigBinaryInteger::operator<<(usshort shift) const{
 	}
 
 
-	ans.m_MSB += shiftByEight*8;	
+	ans.m_MSB += shiftByEight*8;
 
 	return ans;
 
@@ -1093,7 +1101,7 @@ const BigBinaryInteger& BigBinaryInteger::operator<<=(usshort shift){
 			temp = this->m_value[i];
 			temp <<= remShift;
 			this->m_value[i] = (uschar)temp + oFlow;
-			oFlow = temp>>8;		
+			oFlow = temp>>8;
 		}
 
 		if(i>-1)
@@ -1106,7 +1114,7 @@ const BigBinaryInteger& BigBinaryInteger::operator<<=(usshort shift){
 	if(shiftByEight!=0){
 		usint i= m_nchar-ceilIntBy8(this->m_MSB);
 		for(;i<m_nchar;i++){
-			this->m_value[i-shiftByEight] = this->m_value[i]; 
+			this->m_value[i-shiftByEight] = this->m_value[i];
 		}
 
 		for(usint i=0;i<shiftByEight;i++)
@@ -1115,14 +1123,14 @@ const BigBinaryInteger& BigBinaryInteger::operator<<=(usshort shift){
 	}
 
 
-	this->m_MSB += shiftByEight*8;	
+	this->m_MSB += shiftByEight*8;
 
 	return *this;
 
 }
 /*
 BigBinaryInteger  BigBinaryInteger::operator<<(usshort shift) const{
-	
+
 	//ans is the APint to be returned
 	BigBinaryInteger ans(*this);
 
@@ -1172,8 +1180,8 @@ BigBinaryInteger  BigBinaryInteger::operator>>(usshort shift) const{
 
 	if(this->m_MSB==0 || this->m_MSB <= shift)
 		return BigBinaryInteger();
-	 
-	
+
+
 	BigBinaryInteger ans(*this);
 
 	//calculate the no.of 8shifts
@@ -1185,7 +1193,7 @@ BigBinaryInteger  BigBinaryInteger::operator>>(usshort shift) const{
 
 		usint endVal= m_nchar-ceilIntBy8(ans.m_MSB);
 		usint j= endVal;
-		
+
 		for(sint i= m_nchar-1-shiftByEight;i>=endVal;i--){
 			ans.m_value[i+shiftByEight] = ans.m_value[i];
 		}
@@ -1248,7 +1256,7 @@ const BigBinaryInteger& BigBinaryInteger::operator>>=(usshort shift){
 
 		usint endVal= m_nchar-ceilIntBy8(this->m_MSB);
 		usint j= endVal;
-		
+
 		for(sint i= m_nchar-1-shiftByEight;i>=endVal;i--){
 			this->m_value[i+shiftByEight] = this->m_value[i];
 		}
@@ -1264,7 +1272,7 @@ const BigBinaryInteger& BigBinaryInteger::operator>>=(usshort shift){
 		//ans.PrintValueInDec();
 	}
 
-	
+
 
 	if(remShift!=0){
 
@@ -1291,7 +1299,7 @@ const BigBinaryInteger& BigBinaryInteger::operator>>=(usshort shift){
 
 	}
 
-	return *this;	
+	return *this;
 
 }
 
@@ -1317,7 +1325,7 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger &ptr_obj){
 	for(sint i=print_obj->m_MSB;i>0;i--){
 
 		//print_VALUE = print_VALUE*2
-		double_bitVal(print_VALUE);	
+		double_bitVal(print_VALUE);
 #ifdef DEBUG_OSTREAM
 		for(sint i=0;i<NUM_DIGIT_IN_PRINTVAL;i++)
 		 std::cout<<(sint)*(print_VALUE+i);
@@ -1336,10 +1344,10 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger &ptr_obj){
 
 	//find the first occurence of non-zero value in print_VALUE
 	for(counter=0;counter<NUM_DIGIT_IN_PRINTVAL-1;counter++){
-		if((sint)print_VALUE[counter]!=0)break;							
+		if((sint)print_VALUE[counter]!=0)break;
 	}
 
-	//start inserting values into the ostream object 
+	//start inserting values into the ostream object
 	for(;counter<NUM_DIGIT_IN_PRINTVAL;counter++){
 		os<<(int)print_VALUE[counter];
 	}
@@ -1355,12 +1363,12 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger &ptr_obj){
 * This method's logic is based on the
 * std::ostream& operator<<(std::ostream& os, const BigBinaryInteger &ptr_obj)
 * method in this class.
-* 
+*
 * Added by Arnab Deb Gupta <ad479@njit.edu> on 9/21/15.
 *
 */
 const std::string BigBinaryInteger::ToString() const {
-	
+
 	//this string object will store this BigBinaryInteger's value
 	std::string bbiString;
 
@@ -1480,11 +1488,11 @@ void BigBinaryInteger::SetMSB() {
 	for(usint i=0;i<m_nchar;i++)//loops to find first nonzero number in char array
 		if((short)m_value[i]!=0){
 			//bitArr = dec2bin(m_value[i]);//assign the MSB char to bit Array
-			m_MSB = (m_nchar-i-1)*8; 
+			m_MSB = (m_nchar-i-1)*8;
 			m_MSB+= MSB_in_char(m_value[i]);
 			break;
 		}
-	
+
 }
 
 uschar BigBinaryInteger::GetBitAtIndex(usint index) const{
@@ -1533,23 +1541,23 @@ BigBinaryInteger BigBinaryInteger::MulIntegerByChar(uschar b) const{
 		temp = this->m_value[i]*b;//multiplication of two chars
 		mid = (uschar)temp + ofl;
 		ans.m_value[i] = (uschar)mid;
-		
+
 		//faster in Linux
 		//mid>>=8;
 		//faster in Windows
 		//mid=((uschar*)&mid)[1];
 		mid1 = mid>>8;
-		
+
 		//faster in Linux
 		//temp>>=8;//flush the first byte
-		//faster in Windows 
+		//faster in Windows
 		//temp=((uschar*)&temp)[1];
 		temp1 = temp>>8;
-		
+
 		ofl = (uschar)mid1+(uschar)temp1;
 	}
 
-	
+
 
 	if(endVal==0 && ofl!=0)
 		throw "OVERFLOW\n";
@@ -1575,7 +1583,7 @@ BigBinaryInteger BigBinaryInteger::MulIntegerByChar(uschar b) const{
 	usshort temp=0;
 	for(sint i= m_nchar-1;i>= m_nchar-ceilIntBy8(this->m_MSB);i--){
 		temp = this->m_value[i]*b;//multiplication of two chars
-		//mid is a two byte APint constructed to store temp  
+		//mid is a two byte APint constructed to store temp
 		mid.m_MSB = MSB_in_short(temp);//gets MSB from temp
 		//mid.m_value[m_nchar-1]= temp&255;//stores the first byte
 		mid.m_value[m_nchar-1]= (uschar)temp;
@@ -1596,12 +1604,12 @@ BigBinaryInteger BigBinaryInteger::ShiftLeft(uschar shift) const{
 
 	if(shift>4)exit(10);//checks if more than 4 shifts are asked
 	BigBinaryInteger ans(*this);////answer initiated to APint to be shifted
-    usshort temp=0;//temp stores the unshifted value and also calculates the overflow 
+    usshort temp=0;//temp stores the unshifted value and also calculates the overflow
 	usshort bitmask=65280;
 	uschar overflow=0;
 	for(sint i=m_nchar-1;i>-1;i--){
 		temp = ans.m_value[i];
-		ans.m_value[i]<<= shift; 
+		ans.m_value[i]<<= shift;
 		ans.m_value[i]+=overflow;//overflow added from previous calculation
 		temp<<= shift;
 		overflow=temp>>8;//overflow calulated by bit right shift
@@ -1616,14 +1624,14 @@ BigBinaryInteger BigBinaryInteger::ShiftLeft(uschar shift) const{
 	}
 
 	if(ans.m_MSB>=BIT_LENGTH)ans.m_MSB=BIT_LENGTH;//CHECK IF THE OVERFLOW BITS ARE CROSSING THE BIT LENGHT BOUNDARY
-	
+
 	return ans;
 
 
 }
 
 BigBinaryInteger BigBinaryInteger::ShiftRight(uschar shift) const{
-	
+
 	if(shift>4)exit(10);
 	BigBinaryInteger ans(*this);//answer initiated to APint to be shifted
 	usshort temp=0;//temporary is used to perform short shifts and calculate overflow
@@ -1643,7 +1651,7 @@ BigBinaryInteger BigBinaryInteger::ShiftRight(uschar shift) const{
 	else{
 	    ans.m_MSB-= shift;//MSB value set
 	}
-	
+
 	return ans;
 
 }
@@ -1714,7 +1722,7 @@ static void add_bitVal(uschar* a,uschar b){
 			*(a+i)=0;
 			ofl=1;
 		}
-		
+
 	}
 
 }
@@ -1734,10 +1742,10 @@ bool operator==(const BigBinaryInteger& a, const BigBinaryInteger& b){
 	if(a.m_MSB!=b.m_MSB)
 		return false;
 	else{
-		uschar ceilInt8 = BigBinaryInteger::ceilIntBy8(a.m_MSB); 
+		uschar ceilInt8 = BigBinaryInteger::ceilIntBy8(a.m_MSB);
 		for(usint i= BigBinaryInteger::m_nchar-ceilInt8;i< BigBinaryInteger::m_nchar;i++)
 			if(a.m_value[i]!=b.m_value[i])
-				return false;	
+				return false;
 	}
 	return true;
 
@@ -1751,7 +1759,7 @@ bool operator>(const BigBinaryInteger& a, const BigBinaryInteger& b){
 	else if(a.m_MSB>b.m_MSB)
 		return true;
 	else{
-		uschar ceilInt8 = BigBinaryInteger::ceilIntBy8(a.m_MSB); 
+		uschar ceilInt8 = BigBinaryInteger::ceilIntBy8(a.m_MSB);
 		for(usint i= BigBinaryInteger::m_nchar-ceilInt8;i< BigBinaryInteger::m_nchar;i++){
 			if(a.m_value[i]<b.m_value[i])
 				return false;
@@ -1772,7 +1780,7 @@ bool operator< (const BigBinaryInteger& a, const BigBinaryInteger& b){
 	else if(a.m_MSB>b.m_MSB)
 		return false;
 	else{
-		uschar ceilInt8 = BigBinaryInteger::ceilIntBy8(a.m_MSB); 
+		uschar ceilInt8 = BigBinaryInteger::ceilIntBy8(a.m_MSB);
 		for(usint i= BigBinaryInteger::m_nchar-ceilInt8;i< BigBinaryInteger::m_nchar;i++){
 			if(a.m_value[i]>b.m_value[i])
 				return false;
@@ -1804,7 +1812,7 @@ BigBinaryInteger BigBinaryInteger::intToBigBinaryInteger(usint m){
 	result.m_MSB = msb;
 
 	return result;
-	
+
 }
 
 BigBinaryInteger BigBinaryInteger::BinaryToBigBinaryInt(const std::string& bitString){

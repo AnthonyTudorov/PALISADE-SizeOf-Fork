@@ -37,7 +37,7 @@
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
-#include "../encoding/ptxtencoding.h"
+//#include "../encoding/ptxtencoding.h"
 
 /**
 * @namespace lbcrypto
@@ -60,7 +60,7 @@ namespace lbcrypto {
 		* @param *text the byte array to take as input.
 		* @param &modulus modulus to convert from.
 		*/
-		virtual void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const = 0;
+		//virtual void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const = 0;
 
 		//Convert binary string to lattice format
 		/**
@@ -69,7 +69,8 @@ namespace lbcrypto {
 		* @param &encoded the byte array to take as input.
 		* @param &modulus modulus to convert to.
 		*/
-		virtual void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus) = 0;
+		//virtual void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus) = 0;
+		virtual void PrintValues() const = 0;
 
 	};
 

@@ -37,7 +37,7 @@
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
-#include "../encoding/ptxtencoding.h"
+//#include "../encoding/ptxtencoding.h"
 
 /**
 * @namespace lbcrypto
@@ -52,6 +52,7 @@ namespace lbcrypto {
 	class ILDCRTParams : public ElemParams {
 	public:
 
+		
 		/**
 		* Constructor that initializes nothing.
 		* All of the private members will be initialised to null.
@@ -91,10 +92,9 @@ namespace lbcrypto {
 		/**
 		* Constructor for the pre-computed case without cri_values.
 		*
-		* @param &rootsOfUnity the roots of unity for the toer of moduli
 		* @param cyclotomic_order the order of the ciphertext
 		* @param &moduli is the tower of moduli
-		* @param &modulus is the input modulus
+		* @param rootsOfUnity the roots of unity for the toer of moduli
 		*/
 		ILDCRTParams(std::vector<BigBinaryInteger>& rootsOfUnity, usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli, BigBinaryInteger &modulus) {
 			m_cyclotomicOrder = cyclotomic_order;
@@ -127,12 +127,6 @@ namespace lbcrypto {
 			m_moduli = moduli;
 		}
 
-		/**
-		* Assignment operator
-		*
-		* @param &ild the input parameters
-		* @return the assigned operator
-		*/
 		ILDCRTParams& operator=(const ILDCRTParams &ild) {
 			this->m_moduli = ild.m_moduli;
 			this->m_CRIFactors = ild.m_CRIFactors;
@@ -223,14 +217,14 @@ namespace lbcrypto {
 		*
 		* @param &moduli the moduli.
 		*/
+
 		void SetModuli(const std::vector<BigBinaryInteger> &moduli) {
 			m_moduli = moduli;
 		}
-
 		/**
-		* Set the modulus.
+		* Set the moduli.
 		*
-		* @param &modulus the modulus.
+		* @param &moduli the moduli.
 		*/
 		void SetModulus(const BigBinaryInteger &modulus) {
 			m_modulus = modulus;
@@ -251,6 +245,29 @@ namespace lbcrypto {
 		*/
 		~ILDCRTParams() {}
 
+		//JSON FACILITY
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+
+			//Place holder
+
+			return serializationMap;
+		}
+
+		//JSON FACILITY
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+
+			//Place holder
+
+			return serializationMap;
+		}
+
+		//JSON FACILITY
+		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+
+			//Place holder
+
+		}
+
 	private:
 		// order of cyclotomic polynomial
 		usint m_cyclotomicOrder;
@@ -269,7 +286,6 @@ namespace lbcrypto {
 
 		//rootOfUnity of Modulus
 		BigBinaryInteger m_rootOfUnity;
-
 	};
 
 } // namespace lbcrypto ends

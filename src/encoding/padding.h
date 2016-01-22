@@ -55,28 +55,53 @@ namespace lbcrypto {
          *  Independent of block size.
          */
         static void Unpad(ByteArray *byteArray);
+        /**
+         *  @param blockSize
+         *  @param intArray
+         *  Pads `intArray` to size 0 mod `blockSize`.
+         */
+        static void Pad(const usint blockSize, std::vector<uint32_t> *intArray);
+        /**
+         *  @param intArray
+         *  Unpads `intArray` to the original contents before padding.
+         *  Independent of block size.
+         */
+        static void Unpad(std::vector<uint32_t> *intArray);
     };
 
     /**
      *  A PaddingScheme which appends a '\\x80' byte followed by enough '\\0'
      *  bytes to fill the remainder of the block.
      */
-    class OneZeroPad : public PaddingScheme {
-    public:
-        /**
-         *  @param blockSize
-         *  @param byteArray
-         *  Appends a '\\x80' byte followed by enough '\\0' bytes such that the
-         *  size of `byteArray` is 0 mod `blockSize`.
-         */
-        static void Pad(const usint blockSize, ByteArray *byteArray);
-        /**
-         *  @param byteArray
-         *  Unpada `byteArray` by removing the last '\\x80' byte and all
-         *  following '\\0' bytes.
-         */
-        static void Unpad(ByteArray *byteArray);
-    };
+    //class OneZeroPad : public PaddingScheme {
+    //public:
+    //    /**
+    //     *  @param blockSize
+    //     *  @param byteArray
+    //     *  Appends a '\\x80' byte followed by enough '\\0' bytes such that the
+    //     *  size of `byteArray` is 0 mod `blockSize`.
+    //     */
+    //    static void Pad(const usint blockSize, ByteArray *byteArray);
+    //    /**
+    //     *  @param byteArray
+    //     *  Unpada `byteArray` by removing the last '\\x80' byte and all
+    //     *  following '\\0' bytes.
+    //     */
+    //    static void Unpad(ByteArray *byteArray);
+    //    /**
+    //     *  @param blockSize
+    //     *  @param byteArray
+    //     *  Appends a '\\x80' byte followed by enough '\\0' bytes such that the
+    //     *  size of `byteArray` is 0 mod `blockSize`.
+    //     */
+    //    static void Pad(const usint blockSize, ByteArray *byteArray);
+    //    /**
+    //     *  @param byteArray
+    //     *  Unpada `byteArray` by removing the last '\\x80' byte and all
+    //     *  following '\\0' bytes.
+    //     */
+    //    static void Unpad(ByteArray *byteArray);
+    //};
 
     /**
      *  Padding for a single block, only appends 0 bytes to preserve homomorphic
@@ -96,6 +121,18 @@ namespace lbcrypto {
          *  Unpad `byteArray` by removing all ending 0 bytes.
          */
         static void Unpad(ByteArray *byteArray);
+        /**
+         *  @param blockSize
+         *  @param intArray
+         *  Append enough 0 bytes such that the *  size of `intArray` is
+         *  `blockSize`.
+         */
+        static void Pad(const usint blockSize, std::vector<uint32_t> *intArray);
+        /**
+         *  @param intArray
+         *  Unpad `intArray` by removing all ending 0 bytes.
+         */
+        static void Unpad(std::vector<uint32_t> *intArray);
 
     };
 }

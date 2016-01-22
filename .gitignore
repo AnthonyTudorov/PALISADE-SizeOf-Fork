@@ -1,5 +1,20 @@
 # Ignore everything in this directory
 *~
 *.o
+bin/
+test/build
+test/bin
+output.txt
 # Except this file
 !.gitignore
+output.txt
+bin
+test/bin
+test/build
+.idea
+*/**/*.gch
+
+
+# Ignore intellij project files/cmake files
+CMakeLists.txt
+.idea/

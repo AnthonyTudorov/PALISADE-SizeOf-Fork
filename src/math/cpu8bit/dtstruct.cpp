@@ -1,16 +1,16 @@
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
-Version: 
-	v00.01 
-Last Edited: 
+Version:
+	v00.01
+Last Edited:
 	6/1/2015 5:37AM
 List of Authors:
-	TPOC: 
+	TPOC:
 		Dr. Kurt Rohloff, rohloff@njit.edu
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
-Description:	
+Description:
 	This code provides basic queueing functionality.
 
 License Information:
@@ -32,12 +32,12 @@ namespace cpu8bit {
 		m_front = m_back = -1;
 		CircularQueue::m_size = BUFFER_SIZE/FRAGMENTATION_FACTOR - 1;
 		m_count = 0;
- 
+
 		for(int i = 0; i <= BUFFER_SIZE/FRAGMENTATION_FACTOR; i++) {
 			m_array[i] = 0;
 		}
 	}
- 
+
 	void CircularQueue::Push(uschar* item) {
 		if (m_front == 0 && m_back == m_size || m_front == m_back + 1) {
 			std::cout << "Queue is full\n";
@@ -59,7 +59,7 @@ namespace cpu8bit {
 			m_count++;
 		}
 	}
- 
+
 	void CircularQueue::Pop() {
 		if (m_front == -1 && m_back == -1) {
 			std::cout << "Queue is empty\n";
@@ -83,7 +83,7 @@ namespace cpu8bit {
 		}
 		}
 	}
- 
+
 	void CircularQueue::Show() {
 		if (m_count == 0) {
 			std::cout << "Queue is empty\n";
