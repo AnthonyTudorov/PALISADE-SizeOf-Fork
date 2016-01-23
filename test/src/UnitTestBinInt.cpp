@@ -1,18 +1,18 @@
 /*
   PRE SCHEME PROJECT, Crypto Lab, NJIT
-  Version: 
-  v00.01 
-  Last Edited: 
+  Version:
+  v00.01
+  Last Edited:
   11/15/2015
   List of Authors:
-  TPOC: 
+  TPOC:
   Dr. Kurt Rohloff, rohloff@njit.edu
   Programmers:
   Dr. Yuriy Polyakov, polyakov@njit.edu
   Gyana Sahu, grs22@njit.edu
   Nishanth Pasham, np386@njit.edu
   Dr. David Bruce Cousins, dcousins@bbn.com
-  Description:	
+  Description:
   This code exercises the math libraries of the PALISADE lattice encryption library.
 
   License Information:
@@ -74,85 +74,85 @@ TEST(UTBinInt,basic_math){
   // calculatedResult ConvertToInt converts BigBinaryInteger
   // calculatedResult to integer
 
-  BigBinaryInteger calculatedResult;  
+  BigBinaryInteger calculatedResult;
   int expectedResult;
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
     BigBinaryInteger a("203450");
     BigBinaryInteger b("2034");
-    
+
     calculatedResult = a.Plus(b);
     expectedResult = 205484;
-    
-    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt()) 
+
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing plus_a_greater_than_b";
   }
   // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
-    BigBinaryInteger a("2034");	
+    BigBinaryInteger a("2034");
     BigBinaryInteger b("203450");
 
-    
+
     calculatedResult = a.Plus(b);
     expectedResult = 205484;
-    
-    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt()) 
+
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing plus_a_less_than_b";
   }
   // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW TO THE NEXT
   // BYTE
   {
     BigBinaryInteger a("768900");
-    BigBinaryInteger b("16523408");	
-    
+    BigBinaryInteger b("16523408");
+
     calculatedResult = a.Plus(b);
     expectedResult = 17292308;
-    
-    EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt()) 
+
+    EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing overflow_to_next_byte";
   }
   // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW IN THE SAME
   // BYTE
   {
-    BigBinaryInteger a("35");	
+    BigBinaryInteger a("35");
     BigBinaryInteger b("1015");
-    
+
     calculatedResult = a.Plus(b);
     expectedResult = 1050;
-    
-    EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt()) 
+
+    EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing plus_no_overflow_to_next_byte";
   }
 
   /************************************************/
   /* TESTING OPERATOR += FOR ALL CONDITIONS       */
   /************************************************/
-  
+
   // The operator "+=(Plus Equals)" does addition of two BigBinary
   // Integers a,b Calculates a+b, and stores result in a ConvertToInt
   // converts BigBinaryInteger a to integer
-  
+
 
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
     BigBinaryInteger a("2034");
     BigBinaryInteger b("203");
-    
+
     a+=b;
     expectedResult = 2237;
-    
-    EXPECT_EQ(expectedResult, a.ConvertToInt()) 
+
+    EXPECT_EQ(expectedResult, a.ConvertToInt())
       << " Failure testing plus_equals_a_greater_than_b";
   }
   // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
-  {  
-    BigBinaryInteger a("2034");	
+  {
+    BigBinaryInteger a("2034");
     BigBinaryInteger b("203450");
-    
+
     a+=b;
     expectedResult = 205484;
 
@@ -163,45 +163,45 @@ TEST(UTBinInt,basic_math){
   // BYTE
   {
     BigBinaryInteger a("768900");
-    BigBinaryInteger b("16523408");	
-    
+    BigBinaryInteger b("16523408");
+
     a+=b;
     expectedResult = 17292308;
-    
+
     EXPECT_EQ(expectedResult,a.ConvertToInt())
       << "Falure testing plus_equals_overflow_to_next_byte";
   }
   // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW IN THE SAME
   // BYTE
   {
-    BigBinaryInteger a("35");	
+    BigBinaryInteger a("35");
     BigBinaryInteger b("1015");
-    
+
     a+=b;
     expectedResult = 1050;
-    
+
     EXPECT_EQ(expectedResult,a.ConvertToInt())
       << "Falure testing plus_equals_no_overflow_to_next_byte";
   }
   /************************************************/
   /* TESTING METHOD MINUS FOR ALL CONDITIONS      */
   /************************************************/
-  
+
   // The method "Minus" does subtraction on two BigBinary Integers a,b
   // Returns a-b, which is stored in another BigBinary Integer
   // calculatedResult When a<b, the result is 0, since there is no
   // support for negative numbers as of now ConvertToInt converts
   // BigBinaryInteger calculatedResult to integer
-  
+
   {
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
-    
+
     BigBinaryInteger a("20489");
     BigBinaryInteger b("2034455");
-    
+
     calculatedResult = a.Minus(b);
     expectedResult = 0;
-    
+
     //SINCE THERE IS NO CONCEPT OF NEGATIVE NUMEBR RESULT SHOULD BE
     //ZERO
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
@@ -211,10 +211,10 @@ TEST(UTBinInt,basic_math){
   {
     BigBinaryInteger a("2048956567");
     BigBinaryInteger b("2048956567");
-    
+
     calculatedResult = a.Minus(b);
     expectedResult = 0;
-    
+
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing minus_a_equal_to_b";
   }
@@ -222,10 +222,10 @@ TEST(UTBinInt,basic_math){
   {
     BigBinaryInteger a("2048956567");
     BigBinaryInteger b("2034455");
-    
+
     calculatedResult = a.Minus(b);
     expectedResult = 2046922112;
-    
+
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing minus_a_greater_than_b";
   }
@@ -251,13 +251,13 @@ TEST(UTBinInt,basic_math){
   // ConvertToInt converts BigBinaryInteger a to integer
   {
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
-    
+
     BigBinaryInteger a("20489");
     BigBinaryInteger b("2034455");
-    
+
     a-=b;
     expectedResult = 0;
-    
+
     //SINCE THERE IS NO CONCEPT OF NEGATIVE NUMEBR RESULT SHOULD BE
     //ZERO
     EXPECT_EQ(expectedResult, a.ConvertToInt())
@@ -267,33 +267,33 @@ TEST(UTBinInt,basic_math){
   {
     BigBinaryInteger a("2048956567");
     BigBinaryInteger b("2048956567");
-    
+
     a-=b;
     expectedResult = 0;
-    
+
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << "Failure testing minus_equals_a_equal_to_b";
   }
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
   {
-    
+
     BigBinaryInteger a("2048956567");
     BigBinaryInteger b("2034455");
-    
+
     a-=b;
     expectedResult = 2046922112;
-    
+
     EXPECT_EQ(expectedResult,a.ConvertToInt())
       << "Failure testing minus_equals_a_greater_than_b";
   }
   // TEST CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
-  {  
+  {
     BigBinaryInteger a("196737");
     BigBinaryInteger b("65406");
-    
+
     a-=b;
     expectedResult = 131331;
-    
+
     EXPECT_EQ(expectedResult,a.ConvertToInt())
       << "Failure testing minus_equals_borrow_from_next_byte";
   }
@@ -301,7 +301,7 @@ TEST(UTBinInt,basic_math){
   /************************************************/
   /* TESTING METHOD TIMES FOR ALL CONDITIONS      */
   /************************************************/
-  
+
   // The method "Times" does multiplication on two BigBinary Integers
   // a,b Returns a*b, which is stored in another BigBinary Integer
   // calculatedResult ConvertToInt converts BigBinaryInteger
@@ -320,7 +320,7 @@ TEST(UTBinInt,basic_math){
   /************************************************/
   /* TESTING METHOD DIVIDED_BY FOR ALL CONDITIONS */
   /************************************************/
-  
+
   // The method "Divided By" does division of BigBinary Integer a by
   // another BigBinary Integer b Returns a/b, which is stored in another
   // BigBinary Integer calculatedResult ConvertToInt converts
@@ -360,41 +360,41 @@ TEST(UTBinInt,basic_math){
 
     calculatedResult = a.DividedBy(b);
     expectedResult = 1007;
-	
+
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing divided_by_a_greater_than_b";
   }
 }
 TEST(UTBinInt,basic_compare){
-  
+
   /************************************************/
   /* TESTING BASIC COMPARATOR METHODS AND OPERATORS */
   /**************************************************/
-  
+
   /************************************************/
   /* TESTING METHOD COMPARE FOR ALL CONDITIONS    */
   /************************************************/
-  
+
   // The method "Comapare" comapres two BigBinary Integers a,b
   // Returns:
   //    1, when a>b
   //    0, when a=b
   //   -1, when a<b
-  //			
+  //
   // Result is stored in signed integer, and then the result is
   // typecasted to int as EXPECT_EQ takes integer
-  
+
   sint c;
   int expectedResult;
-  
+
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER
   {
     BigBinaryInteger a("112504");
     BigBinaryInteger b("46968");
-    
+
     c = a.Compare(b);
     expectedResult = 1;
-    
+
     EXPECT_EQ(expectedResult,(int)c)
       << "Failure testing compare_a_greater_than_b";
   }
@@ -402,10 +402,10 @@ TEST(UTBinInt,basic_compare){
   {
     BigBinaryInteger a("12504");
     BigBinaryInteger b("46968");
-    
+
     c = a.Compare(b);
     expectedResult = -1;
-    
+
     EXPECT_EQ(expectedResult,(int)c)
       << "Failure testing compare_a_less_than_b";
   }
@@ -413,36 +413,36 @@ TEST(UTBinInt,basic_compare){
   {
     BigBinaryInteger a("34512504");
     BigBinaryInteger b("34512504");
-    
+
     c = a.Compare(b);
     expectedResult = 0;
-    
+
     EXPECT_EQ(expectedResult,(int)c)
       << "Failure testing compare_a_equals_b";
   }
 }
 
 TEST(UTBinInt,mod_operations){
-  
+
   /************************************************/
   /* TESTING METHOD MOD FOR ALL CONDITIONS        */
   /************************************************/
-  
+
   // The method "Mod" does modulus operation on two BigBinary Integers
   // m,p Returns (m mod p), which is stored in another BigBinary Integer
   // calculatedResult ConvertToInt converts BigBinaryInteger r to
   // integer
-  
+
   BigBinaryInteger calculatedResult;
   int expectedResult;
   // TEST CASE WHEN THE NUMBER IS LESS THAN MOD
   {
     BigBinaryInteger m("27");
     BigBinaryInteger p("240");
-    
+
     calculatedResult = m.Mod(p);
     expectedResult = 27;
-    
+
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing number_less_than_modulus";
   }
@@ -450,10 +450,10 @@ TEST(UTBinInt,mod_operations){
   {
     BigBinaryInteger m("93409673");
     BigBinaryInteger p("406");
-    
+
     calculatedResult = m.Mod(p);
     expectedResult = 35;
-    
+
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing number_greater_than_modulus";
   }
@@ -461,12 +461,24 @@ TEST(UTBinInt,mod_operations){
   {
     BigBinaryInteger m("32768");
     BigBinaryInteger p("16");
-    
+
     calculatedResult = m.Mod(p);
     expectedResult = 0;
-    
+
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing number_dividible_by_modulus";
+  }
+
+  // TEST CASE WHEN THE NUMBER IS EQUAL TO MOD
+  {
+    BigBinaryInteger m("67108913");
+    BigBinaryInteger p("67108913");
+
+    calculatedResult = m.Mod(p);
+    expectedResult = 0;
+
+    EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
+      << "Failure testing number_equal_to_modulus";
   }
 
 
@@ -488,16 +500,16 @@ TEST(UTBinInt,mod_operations){
   // TEST CASE WHEN THE NUMBER IS LESS THAN MOD			//NOT GIVING PROPER OUTPUT AS OF NOW
 
   /*TEST(UTBinInt_METHOD_MOD_BARRETT,NUMBER_LESS_THAN_MOD){
-  
+
     BigBinaryInteger a("9587");
     BigBinaryInteger b("3591");
     BigBinaryInteger c("177");
-  
+
     BigBinaryInteger calculatedResult = a.ModBarrett(b,c);
     int expectedResult = 205484;
-  
+
     std::cout<<"\n"<<d.ConvertToInt()<<"\n";	//for testing purpose
-  
+
     //EXPECT_EQ(27,calculatedResult.ConvertToInt());
     }
   */
@@ -518,10 +530,10 @@ TEST(UTBinInt,mod_operations){
   {
     BigBinaryInteger m("5");
     BigBinaryInteger p("108");
-    
+
     calculatedResult = m.ModInverse(p);
     expectedResult = 65;
-    
+
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing number_less_than_modulus";
   }
@@ -529,10 +541,10 @@ TEST(UTBinInt,mod_operations){
   {
     BigBinaryInteger m("3017");
     BigBinaryInteger p("108");
-    
+
     calculatedResult = m.ModInverse(p);
     expectedResult = 77;
-    
+
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing number_greater_than_modulus";
   }
@@ -543,13 +555,13 @@ TEST(UTBinInt,mod_operations){
   /************************************************/
   // The method "Mod Add" operates on BigBinary Integers m,n,q
   //   Returns:
-  //     (m+n)mod q 
+  //     (m+n)mod q
   //      = {(m mod q) + (n mod q)}mod q
   //   ConvertToInt converts BigBinaryInteger calculatedResult to integer
-  
-  
-  
-  
+
+
+
+
   // TEST CASE WHEN THE FIRST NUMBER IS GREATER THAN MOD
   {
     BigBinaryInteger m("58059595");
@@ -579,7 +591,7 @@ TEST(UTBinInt,mod_operations){
     BigBinaryInteger m("595");
     BigBinaryInteger n("376");
     BigBinaryInteger q("4067");
-    
+
     calculatedResult = m.ModAdd(n,q);
     expectedResult = 971;
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
@@ -587,14 +599,14 @@ TEST(UTBinInt,mod_operations){
   }
   // TEST CASE WHEN THE BOTH NUMBERS ARE GREATER THAN MOD
   {
-    
+
     BigBinaryInteger m("59509095449");
     BigBinaryInteger n("37654969960");
     BigBinaryInteger q("4067");
-    
+
     calculatedResult = m.ModAdd(n,q);
     expectedResult = 2861;
-    
+
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing both_numbers_greater_than_modulus";
   }
@@ -605,11 +617,11 @@ TEST(UTBinInt,mod_operations){
 
   // The method "Mod Sub" operates on BigBinary Integers m,n,q
   //   Returns:
-  //    (m-n)mod q 
+  //    (m-n)mod q
   //    = {(m mod q) - (n mod q)}mod q	when m>n
   //    = 0 when m=n
   //    = {(m mod q)+q-(n mod q)}mod q when m<n
-	 
+
   //   ConvertToInt converts BigBinaryInteger calculatedResult to
   //   integer
 
@@ -621,12 +633,12 @@ TEST(UTBinInt,mod_operations){
     BigBinaryInteger m("595");
     BigBinaryInteger n("399");
     BigBinaryInteger q("406");
-    
+
     //std::cout << "Before : " << std::endl;
-    
+
     calculatedResult = m.ModSub(n,q);
     expectedResult = 196;
-    
+
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing first_number_greater_than_modulus";
   }
@@ -638,12 +650,12 @@ TEST(UTBinInt,mod_operations){
 
     calculatedResult = m.ModSub(n,q);
     expectedResult = 33029;
-	
+
     //[{(a mod c)+ c} - (b mod c)] since a < b
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing first_number_less_than_modulus";
   }
-  // TEST CASE WHEN THE FIRST NUMBER EQUAL TO SECOND NUMBER 
+  // TEST CASE WHEN THE FIRST NUMBER EQUAL TO SECOND NUMBER
   {
     BigBinaryInteger m("595090959");
     BigBinaryInteger n("595090959");
@@ -662,17 +674,17 @@ TEST(UTBinInt,mod_operations){
 
   // The method "Mod Mul" operates on BigBinary Integers m,n,q
   //   Returns:  (m*n)mod q
-  //              = {(m mod q)*(n mod q)} 
+  //              = {(m mod q)*(n mod q)}
   // ConvertToInt converts BigBinaryInteger calculatedResult to integer
 
   {
     BigBinaryInteger m("39960");
     BigBinaryInteger n("7959");
     BigBinaryInteger q("406756");
-  
+
     BigBinaryInteger calculatedResult = m.ModMul(n,q);
     int expectedResult = 365204;
-  
+
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing mod_mul_test";
   }
@@ -682,7 +694,7 @@ TEST(UTBinInt,mod_operations){
   /************************************************/
 
   // The method "Mod Exp" operates on BigBinary Integers m,n,q
-  // Returns:  (m^n)mod q 
+  // Returns:  (m^n)mod q
   //   = {(m mod q)^(n mod q)}mod q
   // ConvertToInt converts BigBinaryInteger calculatedResult to integer
 
@@ -718,17 +730,17 @@ TEST(UTBinInt,shift){
   //
   //        example:
   //            4<<3 => (100)<<3 => (100000) => 32
-  //           this is equivalent to: 4* (2^3) => 4*8 =32 
+  //           this is equivalent to: 4* (2^3) => 4*8 =32
   //ConvertToInt converts BigBinaryInteger calculatedResult to integer
 
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
     BigBinaryInteger a("39960");
     usshort shift = 3;
-    
+
     BigBinaryInteger calculatedResult = a<<(shift);
     int expectedResult = 319680;
-    
+
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing shift_less_than_max_shift";
   }
@@ -751,12 +763,12 @@ TEST(UTBinInt,shift){
 
   // The operator 'Left Shift Equals' operates on BigBinary Integer a,
   // and it is shifted by a number
-  // Returns: 
+  // Returns:
   // a<<(num), and the result is stored in 'a'
   // 'a' is left shifted by 'num' number of bits, and filled up by 0s
   // from right which is equivalent to a * (2^num)
   // example :4<<3 => (100)<<3 => (100000) => 32
-  // this is equivalent to: 4* (2^3) => 4*8 =32 
+  // this is equivalent to: 4* (2^3) => 4*8 =32
   // ConvertToInt converts BigBinaryInteger a to integer
 
 
@@ -766,10 +778,10 @@ TEST(UTBinInt,shift){
   {
     BigBinaryInteger a("39960");
     usshort num = 3;
-    
+
     a<<=(num);
     int expectedResult = 319680;
-    
+
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << "Failure testing shift_less_than_max_shift";
   }
@@ -777,10 +789,10 @@ TEST(UTBinInt,shift){
   {
     BigBinaryInteger a("39960");
     usshort num = 6;
-    
+
     a<<=(num);
     int expectedResult = 2557440;
-    
+
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << "Failure testing shift_greater_than_max_shift";
   }
@@ -797,15 +809,15 @@ TEST(UTBinInt,shift){
   // and filled up by 0s from left which is equivalent to a / (2^num)
 
   //  ex:4>>3 => (100000)>>3 => (000100) => 4
-					   
-  // this is equivalent to: 32*(2^3) => 32/8 = 4 
+
+  // this is equivalent to: 32*(2^3) => 32/8 = 4
   // ConvertToInt converts BigBinaryInteger calculatedResult to integer
 
 
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
     BigBinaryInteger a("39965675");
-    usshort shift = 3; 
+    usshort shift = 3;
 
     BigBinaryInteger calculatedResult = a>>(shift);
     int expectedResult = 4995709;
@@ -831,7 +843,7 @@ TEST(UTBinInt,shift){
   /***************************************************************/
 
   // The operator 'Right Shift Equals' operates on BigBinary Integer a,
-  // and it is shifted by a number 
+  // and it is shifted by a number
 
   // Returns: a>>=(num), and the result is stored in a 'a' is right
   // shifted by 'num' number of bits, and filled up by 0s from left
@@ -839,7 +851,7 @@ TEST(UTBinInt,shift){
 
   //   ex:4>>3 => (100000)>>3 => (000100) => 4
 
-  //   this is equivalent to: 32*(2^3) => 32/8 = 4 
+  //   this is equivalent to: 32*(2^3) => 32/8 = 4
   //   ConvertToInt converts BigBinaryInteger calculatedResult to integer
 
 
@@ -873,11 +885,11 @@ TEST(UTBinInt,shift){
 
 TEST(UTBinInt,method_binary_string_to_big_binary_integer){
   //TEST CASE FOR STATIC METHOD BinaryToBigBinaryInt in BigBinaryInteger
-  
+
  std:string binaryString = "1011101101110001111010111011000000011";
-  BigBinaryInteger b = 
+  BigBinaryInteger b =
     lbcrypto::BigBinaryInteger::BinaryToBigBinaryInt(binaryString);
-  
+
   BigBinaryInteger expectedResult("100633769475");
   EXPECT_EQ(expectedResult, b)
     << "Failure testing BinaryToBigBinaryInt";

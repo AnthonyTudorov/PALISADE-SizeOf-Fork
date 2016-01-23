@@ -361,11 +361,38 @@ namespace lbcrypto {
             return M.ScalarMult(e);
         }
 
+    inline ILMat<BigBinaryInteger> Rotate(ILMat<ILVector2n> const& inMat) {
+        ILMat<ILVector2n> mat(inMat);
+        mat.SetFormat(COEFFICIENT);
+        size_t n = mat(0,0).GetLength();
+        BigBinaryInteger const& modulus = mat(0,0).GetParams().GetModulus();
+        size_t rows = mat.GetRows() * n;
+        size_t cols = mat.GetCols() * n;
+        ILMat<BigBinaryInteger> result(BigBinaryInteger::Allocator, rows, cols);
+        for (size_t row = 0; row < mat.GetRows(); ++row) {
+            for (size_t col = 0; col < mat.GetCols(); ++col) {
+                for (size_t rotRow = 0; rotRow < n; ++rotRow) {
+                    for (size_t rotCol = 0; rotCol < n; ++rotCol) {
+                        result(row*n + rotRow, col*n + rotCol) =
+                            mat(row, col).GetValues().GetValAtIndex(
+                                (rotRow - rotCol + n) % n
+                                );
+                        //  negate (mod q) upper-right triangle to account for
+                        //  (mod x^n + 1)
+                        if (rotRow < rotCol) {
+                            result(row*n + rotRow, col*n + rotCol) = modulus.ModSub(result(row*n + rotRow, col*n + rotCol), modulus);
+                        }
+                    }
+                }
+            }
+        }
+        return result;
+    }
     /**
      *  Each element becomes a square matrix with columns of that element's
      *  rotations in coefficient form.
      */
-    inline ILMat<BigBinaryVector> Rotate(ILMat<ILVector2n> const& inMat) {
+    inline ILMat<BigBinaryVector> RotateVecResult(ILMat<ILVector2n> const& inMat) {
         ILMat<ILVector2n> mat(inMat);
         mat.SetFormat(COEFFICIENT);
         size_t n = mat(0,0).GetLength();

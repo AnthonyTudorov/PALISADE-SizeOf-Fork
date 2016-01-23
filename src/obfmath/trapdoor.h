@@ -47,23 +47,14 @@ namespace lbcrypto {
     inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const TrapdoorPair& T, const RingMat& u, double sigma) {
         int32_t c(ceil(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI)));
         const BigBinaryInteger& modulus = A(0,0).GetModulus();
-        auto singleElemBinVecAlloc = [=](){ return make_unique<BigBinaryVector>(1, modulus); };
 
-        ILMat<BigBinaryVector> R = Rotate(T.m_e)
+        ILMat<BigBinaryInteger> R = Rotate(T.m_e)
             .VStack(Rotate(T.m_r))
-            .VStack(ILMat<BigBinaryVector>(singleElemBinVecAlloc, n*k, n*k).Identity());
-        //  TODO: use length 1 binvec so we can subtract and have negatives mod q
-        //  Convert to int32 later inside nonspherical sample
-        BigBinaryVector const& cSquared = BigBinaryVector::Single(
-            BigBinaryInteger(c*c), modulus
-            );
-        ILMat<BigBinaryVector> COV = R*R.Transpose().ScalarMult(cSquared);
-        std::cout << COV << std::endl;
+            .VStack(ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
+        ILMat<int32_t> Rint = ConvertToInt32(R, modulus);
+        ILMat<int32_t> COV = Rint*Rint.Transpose().ScalarMult(c*c);
 
-        BigBinaryVector const& sigmaSquared = BigBinaryVector::Single(
-            BigBinaryInteger(ceil(sigma*sigma)), modulus
-            );
-        ILMat<BigBinaryVector> SigmaP = ILMat<BigBinaryVector>(singleElemBinVecAlloc, COV.GetRows(), COV.GetCols()).Identity().ScalarMult(sigmaSquared) - COV;
+        ILMat<int32_t> SigmaP = ILMat<int32_t>([](){ return make_unique<int32_t>(); }, COV.GetRows(), COV.GetCols()).Identity().ScalarMult(sigma * sigma) - COV;
 
         ILMat<int32_t> p([](){ return make_unique<int32_t>(); }, (2+k)*n, 1);
         NonSphericalSample(n, modulus, SigmaP, c, &p);

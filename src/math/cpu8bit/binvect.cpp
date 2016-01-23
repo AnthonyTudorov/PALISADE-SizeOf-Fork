@@ -88,8 +88,8 @@ BigBinaryVector& BigBinaryVector::operator=(BigBinaryVector &&rhs){
     delete []m_data;
     m_data = rhs.m_data;
     rhs.m_data = NULL;
-    rhs.m_length = 0;
     m_length = rhs.m_length;
+    rhs.m_length = 0;
     m_modulus = rhs.m_modulus;
     return *this;
 }
