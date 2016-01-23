@@ -30,8 +30,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <functional>
 #include <math.h>
+#include <stdexcept>
 
 using std::function;
+using std::invalid_argument;
 
 #include "largefloat.h"
 #include "../../src/math/backend.h"
@@ -130,7 +132,7 @@ namespace lbcrypto {
 
             inline ILMat<Element> Mult(ILMat<Element> const& other) const {
                 if (cols != other.rows) {
-                    throw "incompatible matrix multiplication";
+                    throw invalid_argument("incompatible matrix multiplication");
                 }
                 ILMat<Element> result(allocZero, rows, other.cols);
                 for (size_t row = 0; row < result.rows; ++row) {
@@ -205,7 +207,7 @@ namespace lbcrypto {
 
             inline ILMat<Element> Add(ILMat<Element> const& other) const {
                 if (rows != other.rows || cols != other.cols) {
-                    throw "Addition operands have incompatible dimensions";
+                    throw invalid_argument("Addition operands have incompatible dimensions");
                 }
                 ILMat<Element> result(*this);
                 for (size_t i = 0; i < rows; ++i) {
@@ -222,7 +224,7 @@ namespace lbcrypto {
 
             inline ILMat<Element>& operator+=(ILMat<Element> const& other) {
                 if (rows != other.rows || cols != other.cols) {
-                    throw "Addition operands have incompatible dimensions";
+                    throw invalid_argument("Addition operands have incompatible dimensions");
                 }
                 for (size_t i = 0; i < rows; ++i) {
                     for (size_t j = 0; j < cols; ++j) {
@@ -234,7 +236,7 @@ namespace lbcrypto {
 
             inline ILMat<Element> Sub(ILMat<Element> const& other) const {
                 if (rows != other.rows || cols != other.cols) {
-                    throw "Subtraction operands have incompatible dimensions";
+                    throw invalid_argument("Subtraction operands have incompatible dimensions");
                 }
                 ILMat<Element> result(allocZero, rows, other.cols);
                 for (size_t i = 0; i < rows; ++i) {
@@ -251,7 +253,7 @@ namespace lbcrypto {
 
             inline ILMat<Element>& operator-=(ILMat<Element> const& other) {
                 if (rows != other.rows || cols != other.cols) {
-                    throw "Subtraction operands have incompatible dimensions";
+                    throw invalid_argument("Subtraction operands have incompatible dimensions");
                 }
                 for (size_t i = 0; i < rows; ++i) {
                     for (size_t j = 0; j < cols; ++j) {
@@ -274,7 +276,7 @@ namespace lbcrypto {
             //  add rows to bottom of the matrix
             inline ILMat<Element>& VStack(ILMat<Element> const& other) {
                 if (cols != other.cols) {
-                    throw "VStack rows not equal size";
+                    throw invalid_argument("VStack rows not equal size");
                 }
                 for (size_t row = 0; row < other.rows; ++row) {
                     vector<unique_ptr<Element>> rowElems;
@@ -290,7 +292,7 @@ namespace lbcrypto {
             //  add cols to right of the matrix
             inline ILMat<Element>& HStack(ILMat<Element> const& other) {
                 if (rows != other.rows) {
-                    throw "HStack cols not equal size";
+                    throw invalid_argument("HStack cols not equal size");
                 }
                 for (size_t row = 0; row < rows; ++row) {
                     vector<unique_ptr<Element>> rowElems;
@@ -413,7 +415,7 @@ namespace lbcrypto {
     inline ILMat<LargeFloat> Cholesky(const ILMat<int32_t> &input) {
         //  http://eprint.iacr.org/2013/297.pdf
         if (input.GetRows() != input.GetCols()) {
-            throw "not square";
+            throw invalid_argument("not square");
         }
         size_t rows = input.GetRows();
         ILMat<LargeFloat> result([](){ return make_unique<LargeFloat>(); }, rows, rows);
