@@ -116,7 +116,7 @@ namespace lbcrypto {
 				while(dgLSB != lsb)
 				{
 					sampleInteger = dgg.GenerateInteger();
-					dgLSB = t.GetDigitAtIndexForBase(0,2);
+					dgLSB = sampleInteger.GetDigitAtIndexForBase(0,2);
 				}
 
 				(*z)(j,i) = sampleInteger;
