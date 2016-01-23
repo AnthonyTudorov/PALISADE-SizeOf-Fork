@@ -54,7 +54,7 @@ namespace lbcrypto {
         ILMat<int32_t> Rint = ConvertToInt32(R, modulus);
         ILMat<int32_t> COV = Rint*Rint.Transpose().ScalarMult(c*c);
 
-        ILMat<int32_t> SigmaP = ILMat<int32_t>([](){ return make_unique<int32_t>(); }, COV.GetRows(), COV.GetCols()).Identity().ScalarMult(sigma * sigma) - COV;
+        ILMat<int32_t> SigmaP = ILMat<int32_t>([](){ return make_unique<int32_t>(); }, COV.GetRows(), COV.GetCols()).Identity().ScalarMult(sigma * sigma*20000) - COV;
 
         ILMat<int32_t> p([](){ return make_unique<int32_t>(); }, (2+k)*n, 1);
         NonSphericalSample(n, modulus, SigmaP, c, &p);
