@@ -196,6 +196,9 @@ namespace lbcrypto {
             size_t GetCols() const {
                 return cols;
             }
+            alloc_func GetAllocator() const {
+                return allocZero;
+            }
 
             void SetFormat(Format format) {
                 for (size_t row = 0; row < rows; ++row) {
@@ -362,30 +365,29 @@ namespace lbcrypto {
      *  Each element becomes a square matrix with columns of that element's
      *  rotations in coefficient form.
      */
-    inline ILMat<BigBinaryInteger> Rotate(ILMat<ILVector2n> const& inMat) {
+    inline ILMat<BigBinaryVector> Rotate(ILMat<ILVector2n> const& inMat) {
         ILMat<ILVector2n> mat(inMat);
         mat.SetFormat(COEFFICIENT);
         size_t n = mat(0,0).GetLength();
         BigBinaryInteger const& modulus = mat(0,0).GetParams().GetModulus();
+        BigBinaryVector zero(1, modulus);
         size_t rows = mat.GetRows() * n;
         size_t cols = mat.GetCols() * n;
-        ILMat<BigBinaryInteger> result(BigBinaryInteger::Allocator, rows, cols);
+        auto singleElemBinVecAlloc = [=](){ return make_unique<BigBinaryVector>(1, modulus); };
+        ILMat<BigBinaryVector> result(singleElemBinVecAlloc, rows, cols);
         for (size_t row = 0; row < mat.GetRows(); ++row) {
             for (size_t col = 0; col < mat.GetCols(); ++col) {
                 for (size_t rotRow = 0; rotRow < n; ++rotRow) {
                     for (size_t rotCol = 0; rotCol < n; ++rotCol) {
-                        BigBinaryInteger& elem = result(row*n + rotRow, col*n + rotCol);
-                        elem =
+                        BigBinaryVector& elem = result(row*n + rotRow, col*n + rotCol);
+                        elem.SetValAtIndex(0,
                             mat(row, col).GetValues().GetValAtIndex(
                                 (rotRow - rotCol + n) % n
-                                );
+                                ));
                         //  negate (mod q) upper-right triangle to account for
                         //  (mod x^n + 1)
                         if (rotRow < rotCol) {
-                            elem =
-                                modulus.ModSub(
-                                    elem,
-                                    modulus);
+                            result(row*n + rotRow, col*n + rotCol) = zero.ModSub(elem);
                         }
                     }
                 }
@@ -399,9 +401,9 @@ namespace lbcrypto {
             for (size_t row = 0; row < m.GetRows(); ++row) {
                 os << "[ ";
                 for (size_t col = 0; col < m.GetCols(); ++col) {
-                    os << *m.GetData()[row][col];
+                    os << *m.GetData()[row][col] << " ";
                 }
-                os << " ]\n";
+                os << "]\n";
             }
             os << " ]\n";
             return os;
@@ -454,9 +456,27 @@ namespace lbcrypto {
         for (size_t i = 0; i < rows; ++i) {
             for (size_t j = 0; j < cols; ++j) {
                 if (input(i,j) > negativeThreshold) {
-                    result(i,j) = (modulus - input(i,j)).ConvertToInt();
+                    result(i,j) = -(modulus - input(i,j)).ConvertToInt();
                 } else {
                     result(i,j) = input(i,j).ConvertToInt();
+                }
+            }
+        }
+        return result;
+    }
+
+    inline ILMat<int32_t> ConvertToInt32(const ILMat<BigBinaryVector> &input, const BigBinaryInteger& modulus) {
+        size_t rows = input.GetRows();
+        size_t cols = input.GetCols();
+        BigBinaryInteger negativeThreshold(modulus / BigBinaryInteger::TWO);
+        ILMat<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
+        for (size_t i = 0; i < rows; ++i) {
+            for (size_t j = 0; j < cols; ++j) {
+                const BigBinaryInteger& elem = input(i,j).GetValAtIndex(0);
+                if (elem > negativeThreshold) {
+                    result(i,j) = -(modulus - elem).ConvertToInt();
+                } else {
+                    result(i,j) = elem.ConvertToInt();
                 }
             }
         }

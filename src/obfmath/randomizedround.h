@@ -71,7 +71,6 @@ namespace lbcrypto {
 		uniform_int_distribution<int32_t> uniform_int(floor(dbmean - dbt), ceil(dbmean + dbt));
 		boost::random::uniform_real_distribution<LargeFloat> uniform_real(0.0,1.0);
 
-		//std::uniform_real_distribution<double> uniform_real(0.0, 1.0);
 		while (true) {
 			//  pick random int
 			int32_t x = uniform_int(rd);
@@ -87,7 +86,9 @@ namespace lbcrypto {
 	inline void RandomizeRound(size_t n, const ILMat<LargeFloat> &p, const LargeFloat &sigma, ILMat<int32_t> *perturbationVector) {
 
 		for (size_t i = 0; i < p.GetRows(); i++) {
-			(*perturbationVector)(i,0) = IntegerRejectionSample(p(i,0), sigma, n);
+            const LargeFloat& decimal = p(i,0) - floor(p(i,0));
+            //  TODO: FIX CONVERSION
+			(*perturbationVector)(i,0) = (int32_t) floor(p(i,0)) + IntegerRejectionSample(decimal, sigma, n);
 		}
 
 	}

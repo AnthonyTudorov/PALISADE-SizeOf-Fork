@@ -110,12 +110,17 @@ TEST(UTMatrix,basic_int_math){
     EXPECT_EQ(n, I*n);
     n -= n;
     EXPECT_EQ(n, z);
+}
 
-    //ILMat<BigBinaryInteger> m = ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, 2, 2).Ones();
-    //m.Fill(2);
-    //n.Fill(1);
-    //n = n + n;
-    //EXPECT_EQ(n, m);
+TEST(UTMatrix,basic_intvec_math){
+	BigBinaryInteger modulus("67108913");
+    auto singleAlloc = [=](){ return make_unique<BigBinaryVector>(1, modulus); };
+    ILMat<BigBinaryVector> z(singleAlloc, 2,2);
+    ILMat<BigBinaryVector> n = ILMat<BigBinaryVector>(singleAlloc, 2, 2).Ones();
+    ILMat<BigBinaryVector> I = ILMat<BigBinaryVector>(singleAlloc, 2, 2).Identity();
+    EXPECT_EQ(n, I*n);
+    n -= n;
+    EXPECT_EQ(n, z);
 }
 
 TEST(UTMatrix, transpose){
@@ -175,18 +180,22 @@ TEST(UTMatrix, gadget_vector) {
 }
 TEST(UTMatrix, rotate) {
     ILMat<ILVector2n> n = ILMat<ILVector2n>(fastIL2nAlloc(), 1, 2).Ones();
+    const BigBinaryInteger& modulus = n(0,0).GetParams().GetModulus();
     n.SetFormat(COEFFICIENT);
 	n(0,0).SetValAtIndex(2, 1);
-    ILMat<BigBinaryInteger> R = Rotate(n);
+    ILMat<BigBinaryVector> R = Rotate(n);
 	EXPECT_EQ(8, R.GetRows());
 	EXPECT_EQ(16, R.GetCols());
-	EXPECT_EQ(BigBinaryInteger::ONE, R(0,0));
-	BigBinaryInteger negOne = n(0,0).GetParams().GetModulus() - BigBinaryInteger("1");
-	EXPECT_EQ(negOne, R(0,6));
-	EXPECT_EQ(negOne, R(1,7));
+	EXPECT_EQ(BigBinaryVector::Single(BigBinaryInteger::ONE, modulus), R(0,0));
 
-	EXPECT_EQ(BigBinaryInteger(), R(0,6 + 8));
-	EXPECT_EQ(BigBinaryInteger(), R(1,7 + 8));
+	BigBinaryInteger negOne = n(0,0).GetParams().GetModulus() - BigBinaryInteger("1");
+    BigBinaryVector negOneVec = BigBinaryVector::Single(negOne, modulus);
+	EXPECT_EQ(negOneVec, R(0,6));
+	EXPECT_EQ(negOneVec, R(1,7));
+
+    auto singleAlloc = [=](){ return make_unique<BigBinaryVector>(1, modulus); };
+	EXPECT_EQ(*singleAlloc(), R(0,6 + 8));
+	EXPECT_EQ(*singleAlloc(), R(1,7 + 8));
 
 }
 

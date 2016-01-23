@@ -44,21 +44,27 @@ namespace lbcrypto {
 	* @param stddev standard deviation.
 	* @param *perturbationVector perturbation vector (2+k)n
 	*/
-	void NonSphericalSample(size_t n, const ILMat<int32_t> &sigmaP, double stddev, ILMat<int32_t> *perturbationVector)
+	void NonSphericalSample(size_t n, const BigBinaryInteger& modulus, const ILMat<BigBinaryVector> &sigmaP, double stddev, ILMat<int32_t> *perturbationVector)
 	{
 		int32_t a(floor(stddev/2));
 
 		// YSP added the a^2*I term which was missing in the original LaTex document
-		ILMat<int32_t> sigmaA = sigmaP - (a*a)*ILMat<int32_t>([](){ return make_unique<int32_t>(); }, n, n).Identity();
+        BigBinaryVector const& aSquared = BigBinaryVector::Single(
+            BigBinaryInteger(a*a), modulus
+            );
+		ILMat<BigBinaryVector> sigmaA = sigmaP - (aSquared)*ILMat<BigBinaryVector>(sigmaP.GetAllocator(), sigmaP.GetRows(), sigmaP.GetCols()).Identity();
+        ILMat<int32_t> sigmaAInt = ConvertToInt32(sigmaA, modulus);
 
-		ILMat<LargeFloat> sigmaSqrt = Cholesky(sigmaA);
+		ILMat<LargeFloat> sigmaSqrt = Cholesky(sigmaAInt);
+        std::cout << sigmaA << std::endl;
 
-		ILMat<LargeFloat> sample([](){ return make_unique<LargeFloat>(); }, n, 1);
+		ILMat<LargeFloat> sample([](){ return make_unique<LargeFloat>(); }, sigmaSqrt.GetRows(), 1);
 
 		ContinuousGaussianGenerator(&sample);
+        //std::cout << sigmaSqrt << std::endl;
 
 		ILMat<LargeFloat> p = sigmaSqrt.Mult(sample);
-
+        //std::cout << p << std::endl;
 		RandomizeRound(n, p,a,perturbationVector);
 
 	}

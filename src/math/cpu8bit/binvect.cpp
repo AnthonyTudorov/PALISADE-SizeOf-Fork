@@ -65,54 +65,33 @@ BigBinaryVector::BigBinaryVector(const BigBinaryVector &bigBinaryVector){
 	m_data = new BigBinaryInteger*[m_length];
 	for(usint i=0;i<m_length;i++)
 		m_data[i]= new BigBinaryInteger(*bigBinaryVector.m_data[i]);
-
 }
 
 BigBinaryVector::BigBinaryVector(BigBinaryVector &&bigBinaryVector){
 	m_data = bigBinaryVector.m_data;
 	m_length = bigBinaryVector.m_length;
 	m_modulus = bigBinaryVector.m_modulus;
-	bigBinaryVector.m_data = NULL;
+    bigBinaryVector.m_data = NULL;
 }
 
 //ASSIGNMENT OPERATOR
 BigBinaryVector& BigBinaryVector::operator=(const BigBinaryVector &rhs){
-	if(this!=&rhs){
-		if(this->m_length==rhs.m_length){
-			for(usint i=0;i<m_length;i++)
-				*this->m_data[i] = *rhs.m_data[i];
-		}
-		else{
-			//throw std::logic_error("Trying to copy vectors of different size");
-			delete m_data;
-			m_length = rhs.m_length;
-			m_modulus = rhs.m_modulus;
-			m_data = new BigBinaryInteger*[m_length];
-			for(usint i=0;i<m_length;i++)
-				m_data[i] = new BigBinaryInteger(*rhs.m_data[i]);
-		}
-	}
-
-	return *this;
+    BigBinaryVector tmp(rhs);
+    *this = std::move(tmp);
+    return *this;
 }
 
 BigBinaryVector& BigBinaryVector::operator=(BigBinaryVector &&rhs){
-
-	if(this!=&rhs){
-
-		if(m_data!=NULL){
-			for(usint i=0;i<m_length;i++)
-				delete m_data[i];
-			delete []m_data;
-		}
-		m_data = rhs.m_data;
-		m_length = rhs.m_length;
-		m_modulus = rhs.m_modulus;
-		rhs.m_data = NULL;
-	}
-
-	return *this;
-
+    for (int i = 0; i < m_length; ++i) {
+        delete m_data[i];
+    }
+    delete []m_data;
+    m_data = rhs.m_data;
+    rhs.m_data = NULL;
+    rhs.m_length = 0;
+    m_length = rhs.m_length;
+    m_modulus = rhs.m_modulus;
+    return *this;
 }
 
 BigBinaryVector::~BigBinaryVector(){
@@ -347,6 +326,20 @@ const BigBinaryVector& BigBinaryVector::operator+=(const BigBinaryVector &b) {
 
 	for(usint i=0;i<this->m_length;i++){
 		*this->m_data[i] = this->m_data[i]->ModAdd(*b.m_data[i],this->m_modulus);
+	}
+	return *this;
+
+}
+
+const BigBinaryVector& BigBinaryVector::operator-=(const BigBinaryVector &b) {
+
+	if(this->m_length!=b.m_length){
+		std::cout<<" Invalid argument \n";
+		return (BigBinaryVector)NULL;
+	}
+
+	for(usint i=0;i<this->m_length;i++){
+		*this->m_data[i] = this->m_data[i]->ModSub(*b.m_data[i],this->m_modulus);
 	}
 	return *this;
 
