@@ -86,9 +86,7 @@ namespace lbcrypto {
 	inline void RandomizeRound(size_t n, const ILMat<LargeFloat> &p, const LargeFloat &sigma, ILMat<int32_t> *perturbationVector) {
 
 		for (size_t i = 0; i < p.GetRows(); i++) {
-            const LargeFloat& decimal = p(i,0) - floor(p(i,0));
-            //  TODO: FIX CONVERSION
-			(*perturbationVector)(i,0) = (int32_t) floor(p(i,0)) + IntegerRejectionSample(decimal, sigma, n);
+			(*perturbationVector)(i,0) = IntegerRejectionSample(p(i,0), sigma, n);
 		}
 
 	}

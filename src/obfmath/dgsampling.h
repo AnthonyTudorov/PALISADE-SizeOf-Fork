@@ -52,15 +52,12 @@ namespace lbcrypto {
 		ILMat<int32_t> sigmaA = sigmaP - (a*a)*ILMat<int32_t>(sigmaP.GetAllocator(), sigmaP.GetRows(), sigmaP.GetCols()).Identity();
 
 		ILMat<LargeFloat> sigmaSqrt = Cholesky(sigmaA);
-        std::cout << sigmaA << std::endl;
 
 		ILMat<LargeFloat> sample([](){ return make_unique<LargeFloat>(); }, sigmaSqrt.GetRows(), 1);
 
 		ContinuousGaussianGenerator(&sample);
-        //std::cout << sigmaSqrt << std::endl;
 
 		ILMat<LargeFloat> p = sigmaSqrt.Mult(sample);
-        //std::cout << p << std::endl;
 		RandomizeRound(n, p,a,perturbationVector);
 
 	}
