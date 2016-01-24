@@ -44,7 +44,7 @@ namespace lbcrypto {
         return pair<RingMat, TrapdoorPair>(A, TrapdoorPair(r, e));
     }
 
-    inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const TrapdoorPair& T, const RingMat& u, double sigma) {
+    inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const TrapdoorPair& T, const RingMat& u, double sigma, double s) {
         int32_t c(ceil(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI)));
         const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
@@ -54,7 +54,7 @@ namespace lbcrypto {
         ILMat<int32_t> Rint = ConvertToInt32(R, modulus);
         ILMat<int32_t> COV = Rint*Rint.Transpose().ScalarMult(c*c);
 
-        ILMat<int32_t> SigmaP = ILMat<int32_t>([](){ return make_unique<int32_t>(); }, COV.GetRows(), COV.GetCols()).Identity().ScalarMult(sigma * sigma*20000) - COV;
+        ILMat<int32_t> SigmaP = ILMat<int32_t>([](){ return make_unique<int32_t>(); }, COV.GetRows(), COV.GetCols()).Identity().ScalarMult(s*s) - COV;
 
         ILMat<int32_t> p([](){ return make_unique<int32_t>(); }, (2+k)*n, 1);
         NonSphericalSample(n, modulus, SigmaP, c, &p);
