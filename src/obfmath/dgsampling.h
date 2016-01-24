@@ -30,7 +30,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "largefloat.h"
 #include "randomizedround.h"
-#include "matrix.h"
+//#include "matrix.h"
 
 namespace lbcrypto {
 

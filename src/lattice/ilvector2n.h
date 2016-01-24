@@ -88,9 +88,9 @@ namespace lbcrypto {
         /**
          *  Get BigBinaryVector value at index
          */
-        double GetValAtIndex(size_t index) {
-            m_values->GetValAtIndex(index);
-        }
+        //double GetValAtIndex(size_t index) {
+        //    m_values->GetValAtIndex(index);
+        //}
 
         /**
          *  Set to the constant polynomial 1.

@@ -36,18 +36,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <fstream>
-#include "utils/inttypes.h"
-#include "math/backend.h"
-#include "math/nbtheory.h"
-#include "math/distrgen.h"
-#include "lattice/elemparams.h"
-#include "lattice/ilparams.h"
-#include "lattice/ildcrtparams.h"
-#include "lattice/ilelement.h"
-#include "crypto/lwecrypt.h"
+//#include "utils/inttypes.h"
+//#include "math/backend.h"
+//#include "math/nbtheory.h"
+//#include "math/distrgen.h"
+//#include "lattice/elemparams.h"
+//#include "lattice/ilparams.h"
+//#include "lattice/ildcrtparams.h"
+//#include "lattice/ilelement.h"
+//#include "crypto/lwecrypt.h"
 #include "obfuscate/lweconjunctionobfuscate.h"
 //#include "obfuscate/lweconjunctionobfuscate.cpp"
-#include "obfuscate/obfuscatelp.h"
+//#include "obfuscate/obfuscatelp.h"
 #include "time.h"
 #include <chrono>
 
