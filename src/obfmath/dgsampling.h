@@ -44,7 +44,7 @@ namespace lbcrypto {
 	* @param stddev standard deviation.
 	* @param *perturbationVector perturbation vector (2+k)n
 	*/
-	void NonSphericalSample(size_t n, const BigBinaryInteger& modulus, const ILMat<int32_t> &sigmaP, double stddev, ILMat<int32_t> *perturbationVector)
+	inline void NonSphericalSample(size_t n, const BigBinaryInteger& modulus, const ILMat<int32_t> &sigmaP, double stddev, ILMat<int32_t> *perturbationVector)
 	{
 		int32_t a(floor(stddev/2));
 
@@ -68,7 +68,7 @@ namespace lbcrypto {
 	* @param size vector length
 	* @param *vector where results are written
 	*/
-	void ContinuousGaussianGenerator(ILMat<LargeFloat> *randomVector)
+	inline void ContinuousGaussianGenerator(ILMat<LargeFloat> *randomVector)
 	{
 
 		namespace mp = boost::multiprecision;
@@ -92,7 +92,7 @@ namespace lbcrypto {
 	* @param dgg discrete Gaussian generator
 	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
 	*/
-	void GaussSampG(const ILVector2n &u, double sttdev, const ILMat<BigBinaryVector> &gadgetVector,
+	inline void GaussSampG(const ILVector2n &u, double sttdev, const ILMat<BigBinaryVector> &gadgetVector,
 		DiscreteGaussianGenerator &dgg, ILMat<BigBinaryInteger> *z)
 	{
 		for (size_t i = 0; i < u.GetLength(); i++) {
