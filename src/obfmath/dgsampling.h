@@ -103,7 +103,7 @@ namespace lbcrypto {
 			for (size_t j = 0; j < k; j++) {
 
 				//get the least significant digit of t; used for choosing the right coset to sample from 2Z or 2Z+1
-				uint32_t lsb = t.GetDigitAtIndexForBase(0,2);
+				uint32_t lsb = t.GetDigitAtIndexForBase(1,2);
 
 				//dgLSB keeps track of the least significant bit of discrete gaussian; initialized to 2 to make sure the loop is entered
 				uint32_t dgLSB = 2;
@@ -113,7 +113,7 @@ namespace lbcrypto {
 				while(dgLSB != lsb)
 				{
 					sampleInteger = dgg.GenerateInteger();
-					dgLSB = sampleInteger.GetDigitAtIndexForBase(0,2);
+					dgLSB = sampleInteger.GetDigitAtIndexForBase(1,2);
 				}
 
 				(*z)(j,i) = sampleInteger;

@@ -549,7 +549,7 @@ namespace lbcrypto {
 			
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
-		size_t rows = other.GetRows()/n;
+		size_t rows = other.GetRows();
 
         ILMat<ILVector2n> result(zero_alloc, rows, 1);
 

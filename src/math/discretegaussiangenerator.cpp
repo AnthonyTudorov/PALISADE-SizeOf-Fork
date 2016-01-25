@@ -85,7 +85,7 @@ schar * DiscreteGaussianGenerator::GenerateCharVector (usint size) const {
 	//std::uniform_real_distribution<double> distribution(0.0,1.0);
 	//generator.seed(time(NULL));
 
-	double val = 0;
+	usint val = 0;
 	double seed;
 	schar * ans = new schar[size];
 
@@ -128,7 +128,24 @@ BigBinaryVector DiscreteGaussianGenerator::DiscreteGaussianPositiveGenerator(usi
 }
 
 BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger() {
-	return std::move(*(new BigBinaryInteger()));
+
+	usint val = 0;
+	double seed;
+	BigBinaryInteger ans;
+
+	seed = ((double) std::rand() / (RAND_MAX)) - 0.5;
+	//std::cout<<seed<<std::endl;
+	//seed = distribution(generator)-0.5;
+	if (std::abs(seed) <= m_a / 2) {
+		val = 0;
+	} else if (seed > 0) {
+		val = FindInVector(m_vals, (std::abs(seed) - m_a / 2));
+	} else {
+		val = - (int) FindInVector(m_vals, (std::abs(seed) - m_a / 2));
+	}
+
+	return BigBinaryInteger(val);
+
 }
 
 BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size) {

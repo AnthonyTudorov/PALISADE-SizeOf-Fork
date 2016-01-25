@@ -87,6 +87,7 @@ namespace lbcrypto {
 			zHatPrime(row,0) = pHat(row,0) + zHat(row-2,0);
 
         return zHatPrime;
+
     }
 }
 #endif
