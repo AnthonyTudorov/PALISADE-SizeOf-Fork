@@ -60,7 +60,6 @@ BigBinaryInteger DiscreteUniformGenerator::GenerateInteger () {
 BigBinaryVector DiscreteUniformGenerator::GenerateVector(const usint size) {
 
 	BigBinaryVector v(size);
-	v.SetModulus(m_modulus);
 
 	for (usint i = 0; i < size; i++) {
 	BigBinaryInteger temp(this->GenerateInteger());

@@ -165,10 +165,6 @@ const BigBinaryInteger& BigBinaryVector::GetValAtIndex(usint index) const{
 	return *this->m_data[index];
 }
 
-const BigBinaryInteger& BigBinaryVector::operator[](usint index) const {
-	return  this->GetValAtIndex(index);
-}
-
 void BigBinaryVector::SetModulus(const BigBinaryInteger& value){
 	this->m_modulus = value;
 }

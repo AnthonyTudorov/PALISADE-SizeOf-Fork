@@ -11,7 +11,6 @@ BigBinaryInteger BinaryUniformGenerator::GenerateInteger () {
 
 BigBinaryVector BinaryUniformGenerator::GenerateVector (const usint size) {
 	BigBinaryVector v(size);
-	v.SetModulus(BigBinaryInteger::TWO);
 	for (usint i = 0; i < size; i++) {
 		v.SetValAtIndex(i, GenerateInteger());
 	}

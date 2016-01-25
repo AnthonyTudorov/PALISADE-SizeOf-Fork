@@ -163,14 +163,6 @@ public:
 	const BigBinaryInteger& GetValAtIndex(usint index) const;
 
 	/**
-	 * indexing operation.
-	 *
-	 * @param index is the index to pull.
-	 * @return is the result of the index operation.
-	 */
-	const BigBinaryInteger& operator[](usint index) const;
-
-	/**
 	 * Sets the vector modulus.
 	 *
 	 * @param value is the value to set.
