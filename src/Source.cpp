@@ -72,6 +72,7 @@ void TESTMultipleValues();
 void TestBigBinaryInteger();
 void nextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
 void multTest();
+void TestMultILVectorArray();
 /**
  * @brief Input parameters for PRE example.
  */
@@ -103,7 +104,7 @@ int main() {
 //	NTRUPRE(input);
 	//NTRUPRE(3);
 	TESTMultipleValues();
-
+//	TestMultILVectorArray();
 	// The below lines clean up the memory use.
 	//system("pause");
 
@@ -462,16 +463,16 @@ void TESTMultipleValues() {
 
 	start = currentDateTime();
 
-	usint m = 16;
+	usint m = 2048;
 
-	const ByteArray plaintext = "I";
+	const ByteArray plaintext = "I am a good boy, who are you?";
 	ByteArrayPlaintextEncoding ptxt(plaintext);
 	ptxt.Pad<ZeroPad>(m/16);
 //	ptxt.Pad<ZeroPad>(m/8);
 
 	float stdDev = 4;
 
-	usint size =2;
+	usint size = 2;
 
 	ByteArrayPlaintextEncoding ctxtd;
 
@@ -479,7 +480,7 @@ void TESTMultipleValues() {
 
 	vector<BigBinaryInteger> rootsOfUnity(size);
 
-	BigBinaryInteger q("1");
+	BigBinaryInteger q("12313321");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
@@ -533,40 +534,40 @@ void TESTMultipleValues() {
 
 	cout << ctxtd<< endl;
 
-	LPAlgorithmPRELWENTRU<ILVectorArray2n> algorithmPRE;
+	//LPAlgorithmPRELWENTRU<ILVectorArray2n> algorithmPRE;
 
-	//////////////////////////////////////////////////////////////
-	////Perform the second key generation operation.
-	//// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
-	//////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////
+	//////Perform the second key generation operation.
+	////// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
+	////////////////////////////////////////////////////////////////
 
-	LPPublicKeyLWENTRU<ILVectorArray2n> newPK(cryptoParams2);
-	LPPrivateKeyLWENTRU<ILVectorArray2n> newSK(cryptoParams2);
+	//LPPublicKeyLWENTRU<ILVectorArray2n> newPK(cryptoParams2);
+	//LPPrivateKeyLWENTRU<ILVectorArray2n> newSK(cryptoParams2);
 
-	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
+	//std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
-	algorithmPRE.KeyGen(newPK,newSK,dgg);	// This is the same core key generation operation.
+	//algorithmPRE.KeyGen(newPK,newSK,dgg);	// This is the same core key generation operation.
 
-	LPEvalKeyLWENTRU<ILVectorArray2n> evalKey(cryptoParams2);
+	//LPEvalKeyLWENTRU<ILVectorArray2n> evalKey(cryptoParams2);
 
-	algorithmPRE.EvalKeyGen(newPK, sk2, dgg , &evalKey);  // This is the core re-encryption operation.
+	//algorithmPRE.EvalKeyGen(newPK, sk2, dgg , &evalKey);  // This is the core re-encryption operation.
 
-	Ciphertext<ILVectorArray2n> newCiphertext;
+	//Ciphertext<ILVectorArray2n> newCiphertext;
 
-	
-	algorithmPRE.ReEncrypt(evalKey, cipherText2,&newCiphertext);  // This is the core re-encryption operation.
+	//
+	//algorithmPRE.ReEncrypt(evalKey, cipherText2,&newCiphertext);  // This is the core re-encryption operation.
 
-	
-	ByteArrayPlaintextEncoding plaintextNew2;
+	//
+	//ByteArrayPlaintextEncoding plaintextNew2;
 
-	std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
+	//std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
 
-	
-	DecodingResult result1 = algorithmPRE.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
-    plaintextNew2.Unpad<ZeroPad>();
+	//
+	//DecodingResult result1 = algorithmPRE.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
+ //   plaintextNew2.Unpad<ZeroPad>();
 
-	
-	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
+	//
+	//cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
 
 
 }
@@ -651,5 +652,58 @@ void multTest(){
 	results = a*b;
 	cout << results << endl;
 
+
+}
+
+void TestMultILVectorArray(){
+
+double diff, start, finish;
+
+	start = currentDateTime();
+
+	usint m = 16;
+
+	const ByteArray plaintext = "I";
+	ByteArrayPlaintextEncoding ptxt(plaintext);
+	ptxt.Pad<ZeroPad>(m/16);
+//	ptxt.Pad<ZeroPad>(m/8);
+
+	float stdDev = 4;
+
+	usint size =2;
+
+	ByteArrayPlaintextEncoding ctxtd;
+
+	vector<BigBinaryInteger> moduli(size);
+
+	vector<BigBinaryInteger> rootsOfUnity(size);
+
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+	BigBinaryInteger modulus("1");
+
+	for(int i=0; i < size;i++){
+        nextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+		moduli[i] = q;
+	//	cout << q << endl;
+		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+	//	cout << rootsOfUnity[i] << endl;
+		modulus = modulus* moduli[i];
+	
+	}
+
+		cout << modulus << endl;
+	DiscreteGaussianGenerator dgg(modulus,stdDev);
+
+	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
+
+	ILVectorArray2n il1(dgg, params);
+	il1.PrintValues();
+	ILVectorArray2n il2(dgg, params);
+	il2.PrintValues();
+	ILVectorArray2n il3(params);
+
+	il3 = il1 * il2;
+	il3.PrintValues();
 
 }
