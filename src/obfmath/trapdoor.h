@@ -44,8 +44,15 @@ namespace lbcrypto {
         return pair<RingMat, TrapdoorPair>(A, TrapdoorPair(r, e));
     }
 
-    inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const TrapdoorPair& T, const RingMat& u, double sigma, double s) {
-        int32_t c(ceil(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI)));
+    inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const TrapdoorPair& T, const ILVector2n &u, 
+		double sigma, double s, DiscreteGaussianGenerator &dgg) {
+
+		const ILParams &params = u.GetParams();
+		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+
+		//We should convert this to a static variable later
+		int32_t c(ceil(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI)));
+
         const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
         ILMat<BigBinaryInteger> R = Rotate(T.m_e)
@@ -59,7 +66,27 @@ namespace lbcrypto {
         ILMat<int32_t> p([](){ return make_unique<int32_t>(); }, (2+k)*n, 1);
         NonSphericalSample(n, modulus, SigmaP, c, &p);
 
-        return A;
+		ILMat<ILVector2n> pHat = SplitInt32IntoILVector2nElements(p,n,params);
+
+		// YSP It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
+		ILVector2n perturbedSyndrome = u - (A.Mult(pHat))(0,0);
+
+		ILMat<BigBinaryInteger> zHatBBI(zero_alloc, k, n);
+
+		GaussSampG(perturbedSyndrome,sigma,k,dgg,&zHatBBI);
+
+		// Convert zHat from a matrix of BBI to a vector of ILVector2n ring elements
+		RingMat zHat = SplitBBIIntoILVector2nElements(zHatBBI,n,params);
+
+		RingMat zHatPrime(zero_alloc, k + 2, 1);
+
+		zHatPrime(0,0) = pHat(0,0) + T.m_e.Mult(zHat)(0,0);
+		zHatPrime(1,0) = pHat(1,0) + T.m_r.Mult(zHat)(0,0);
+
+		for (size_t row = 2; row < k + 2; ++row)
+			zHatPrime(row,0) = pHat(row,0) + zHat(row-2,0);
+
+        return zHatPrime;
     }
 }
 #endif

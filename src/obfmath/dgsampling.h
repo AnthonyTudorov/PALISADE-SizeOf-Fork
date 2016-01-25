@@ -88,11 +88,11 @@ namespace lbcrypto {
 	*
 	* @param u syndrome (a polynomial)
 	* @param sttdev standard deviation
-	* @param gadgetVector gadget vector g corresponding to the gadget matrix G
+	* @param k number of components in the gadget vector
 	* @param dgg discrete Gaussian generator
 	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
 	*/
-	inline void GaussSampG(const ILVector2n &u, double sttdev, const ILMat<BigBinaryVector> &gadgetVector,
+	inline void GaussSampG(const ILVector2n &u, double sttdev, size_t k,
 		DiscreteGaussianGenerator &dgg, ILMat<BigBinaryInteger> *z)
 	{
 		for (size_t i = 0; i < u.GetLength(); i++) {
@@ -100,7 +100,7 @@ namespace lbcrypto {
 			//initial value of integer syndrome corresponding to component u_i
 			BigBinaryInteger t(u.GetValAtIndex(i));
 
-			for (size_t j = 0; j < gadgetVector.GetCols(); j++) {
+			for (size_t j = 0; j < k; j++) {
 
 				//get the least significant digit of t; used for choosing the right coset to sample from 2Z or 2Z+1
 				uint32_t lsb = t.GetDigitAtIndexForBase(0,2);

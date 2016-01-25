@@ -231,9 +231,15 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
     auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
-    RingMat u(uniform_alloc, 1, k);
+
+	//ILVector2n u(params,EVALUATION);
+
+	DiscreteGaussianGenerator dgg(modulus, 4);	
+
+    RingMat u(uniform_alloc, 1, 1);
 
     //  600 is a very rough estimate for s, refer to Durmstradt 4.2 for
     //      estimation
-    RingMat z = GaussSamp(m/2, k, trapPair.first, trapPair.second, u, 4.3, 600);
+    RingMat z = GaussSamp(m/2, k, trapPair.first, trapPair.second, u(0,0), 4, 600, dgg);
+
 }
