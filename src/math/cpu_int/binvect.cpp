@@ -180,6 +180,11 @@ const IntegerType& BigBinaryVector<IntegerType>::GetValAtIndex(usint index) cons
 }
 
 template<class IntegerType>
+const IntegerType& BigBinaryVector<IntegerType>::operator[](usint index) const{
+	return  this->GetValAtIndex(index);
+}
+
+template<class IntegerType>
 void BigBinaryVector<IntegerType>::SetModulus(const IntegerType& value){
 	this->m_modulus = value;
 }

@@ -590,3 +590,20 @@ TEST(method_modmul_vector, modmul_vector){
 
 
 }*/
+
+/*
+Unit test to test the working of operator[] in BigBinaryVector. Operator[index] behaves the same way as GetValAtIndex(index)
+*/
+
+TEST(method_big_binary_vector, test_operator_square_braces){
+
+	BigBinaryVector m(10);				// calling constructor to create a vector of length 10
+	
+	m.SetValAtIndex(0,"987968");
+	m.SetValAtIndex(1,"587679");
+	m.SetValAtIndex(2,"456454");
+
+	ASSERT_EQ(BigBinaryInteger("987968"), m[0]);
+	ASSERT_EQ(BigBinaryInteger("587679"), m[1]);
+	ASSERT_EQ(BigBinaryInteger("456454"), m[2]);
+}
