@@ -71,7 +71,7 @@ namespace lbcrypto {
 		// YSP It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
 		ILVector2n perturbedSyndrome = u - (A.Mult(pHat))(0,0);
 
-		ILMat<BigBinaryInteger> zHatBBI(zero_alloc, k, n);
+		ILMat<BigBinaryInteger> zHatBBI(BigBinaryInteger::Allocator, k, n);
 
 		GaussSampG(perturbedSyndrome,sigma,k,dgg,&zHatBBI);
 
