@@ -35,7 +35,7 @@
 #define LBCRYPTO_MATH_BACKEND_H
  
 /*! Define the library being used.  Use 1 to represent 8-bit CPU.*/
-#define MATHBACKEND 1  // 1 for 8-bit CPU; 2 for 64-bit CPU, and so on
+#define MATHBACKEND 2  // 1 for 8-bit CPU; 2 for 64-bit CPU, and so on
 
 #if MATHBACKEND == 1
 	#include "cpu8bit/binint.h"
