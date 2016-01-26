@@ -34,10 +34,8 @@ allbenchmarktargets: makebenchmarklib makebenchmarks
 BENCHMARK_LIBSRCDIR = benchmark/include/libsrc
 BENCHMARK_LIB_INCLUDES = -Ibenchmark/include -Ibenchmark/include/libsrc    
 
-
 BENCHMARK_LIBSRC =  $(wildcard $(BENCHMARK_LIBSRCDIR)/*.cc)
 BENCHMARK_LIBOBJ = $(BENCHMARK_LIBSRC:.cc=.o)
-
 
 #note the following may need to be set automatically ala cmake
 LIBBENCHMARK_FLAGS = -DHAVE_POSIX_REGEX -DHAVE_STEADY_CLOCK  -std=c++11 -Wall -Wextra -Wshadow -pedantic -pedantic-errors -Wfloat-equal -Wzero-as-null-pointer-constant -fstrict-aliasing -Wstrict-aliasing -O3 -DNDEBUG -Werror 
@@ -56,11 +54,10 @@ $(BENCHMARK_LIB): $(BENCHMARK_LIBOBJ)
 	/usr/bin/ar cr $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
 	ranlib $(BENCHMARK_LIB) 
 
-
-BENCHMARK_SRCDIR = benchmark/src
+BENCHMARK_EXAMPLESDIR = benchmark/examples
 BENCHMARK_INCLUDES = -Ibenchmark/include
 
-BENCHMARK_SRC =  $(wildcard $(BENCHMARK_SRCDIR)/*.cc)
+BENCHMARK_SRC =  $(wildcard $(BENCHMARK_EXAMPLESDIR)/*.cc)
 BENCHMARK_OBJ = $(BENCHMARK_SRC:.cc=.o)
 BENCHMARKS = $(BENCHMARK_SRC:.cc=)
 
@@ -69,7 +66,7 @@ BENCHMARK_HEADERS =	benchmark/include/benchmark/benchmark.h \
 			benchmark/include/benchmark/macros.h \
 			benchmark/include/benchmark/reporter.h 
 
-$(BENCHMARK_SRCDIR)/%.o: $(BENCHMARK_SRCDIR)/%.cc
+$(BENCHMARK_EXAMPLESDIR)/%.o: $(BENCHMARK_EXAMPLESDIR)/%.cc
 	@echo '$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@'
 	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@
 
@@ -78,7 +75,7 @@ makebenchmarks: $(BENCHMARKS)
 
 $(BENCHMARKS): $(BENCHMARK_OBJ)
 
-$(BENCHMARK_SRCDIR)/%: $(BENCHMARK_SRCDIR)/%.o
+$(BENCHMARK_EXAMPLESDIR)/%: $(BENCHMARK_EXAMPLESDIR)/%.o
 	@echo '$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $< -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread'
 	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread
 
