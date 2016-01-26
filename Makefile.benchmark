@@ -54,31 +54,63 @@ $(BENCHMARK_LIB): $(BENCHMARK_LIBOBJ)
 	/usr/bin/ar cr $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
 	ranlib $(BENCHMARK_LIB) 
 
-BENCHMARK_EXAMPLESDIR = benchmark/examples
 BENCHMARK_INCLUDES = -Ibenchmark/include
-
-BENCHMARK_SRC =  $(wildcard $(BENCHMARK_EXAMPLESDIR)/*.cc)
-BENCHMARK_OBJ = $(BENCHMARK_SRC:.cc=.o)
-BENCHMARKS = $(BENCHMARK_SRC:.cc=)
-
 BENCHMARK_HEADERS =	benchmark/include/benchmark/benchmark.h \
 			benchmark/include/benchmark/benchmark_api.h \
 			benchmark/include/benchmark/macros.h \
 			benchmark/include/benchmark/reporter.h 
 
-$(BENCHMARK_EXAMPLESDIR)/%.o: $(BENCHMARK_EXAMPLESDIR)/%.cc
+########## EXAMPLES BUILD HERE
+
+BENCHMARK_EXAMPLES_DIR = benchmark/examples
+BENCHMARK_EXAMPLES_SRC =  $(wildcard $(BENCHMARK_EXAMPLES_DIR)/*.cc) 
+BENCHMARK_EXAMPLES_OBJ = $(BENCHMARK_EXAMPLES_SRC:.cc=.o)
+BENCHMARK_EXAMPLES = $(BENCHMARK_EXAMPLES_SRC:.cc=)
+
+$(BENCHMARK_EXAMPLES_DIR)/%.o: $(BENCHMARK_EXAMPLES_DIR)/%.cc
 	@echo '$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@'
 	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@
 
-.PHONY:makebenchmarks
-makebenchmarks: $(BENCHMARKS)
 
-$(BENCHMARKS): $(BENCHMARK_OBJ)
+$(BENCHMARK_EXAMPLES): $(BENCHMARK_EXAMPLES_OBJ)
 
-$(BENCHMARK_EXAMPLESDIR)/%: $(BENCHMARK_EXAMPLESDIR)/%.o
+$(BENCHMARK_EXAMPLES_DIR)/%: $(BENCHMARK_EXAMPLES_DIR)/%.o
 	@echo '$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $< -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread'
 	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread
 
+########### PALISADE BENCHMARKS BUILD HERE
+
+
+BENCHMARK_DIR = benchmark/src
+BENCHMARK_BIN_DIR = benchmark/bin
+BENCHMARK_SRC =  $(wildcard $(BENCHMARK_DIR)/*.cpp) 
+BENCHMARK_OBJ = $(BENCHMARK_SRC:.cpp=.o)
+BENCHMARK_BIN = $(BENCHMARK_SRC:.cpp=)
+
+BENCHMARK_INC = -Isrc
+
+
+$(BENCHMARK_DIR)/%.o: $(BENCHMARK_DIR)/%.cpp
+	@echo 'benchmark inc is $(BENCHMARK_INC)'
+	ls
+	@echo '$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@'
+	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@
+
+$(BENCHMARK_BIN): $(BENCHMARK_OBJ)
+
+PALISADE_OBJ= $(wildcard $(BUILDDIR)/*/*.o) $(wildcard $(BUILDDIR)/*/*/*.o)
+$(BENCHMARK_DIR)/%: $(BENCHMARK_DIR)/%.o
+	@echo 'benchmark inc is $(BENCHMARK_INC)'
+	@echo 'benchmark LIB is $(LIB)'
+	@echo 'palisade obj is $(PALISADE_OBJ)'
+	@echo '$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread'
+	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< $(PALISADE_OBJ) -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread 
+
+.PHONY:makebenchmarks
+makebenchmarks: $(BENCHMARK_EXAMPLES) $(BENCHMARK_BIN)
+#makebenchmarks: $(BENCHMARK_EXAMPLES)
+
+
 cleanbenchmarks:
-	@echo 'removing $(BENCHMARKS) $(BENCHMARK_OBJ) $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)'
-	rm $(BENCHMARKS) $(BENCHMARK_OBJ) $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
+	@echo 'removing $(BENCHMARK_BIN) $(BENCHMARK_EXAMPLES) $(BENCHMARK_EXAMPLES_OBJ) $(BENCHMARK_OBJ) $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)'
+	rm $(BENCHMARK_BIN) $(BENCHMARK_EXAMPLES) $(BENCHMARK_EXAMPLES_OBJ) $(BENCHMARK_OBJ) $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)

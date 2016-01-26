@@ -52,10 +52,13 @@ INC := -I include
 #dbc: runtests takes very long. so should not be automatically run
 all: alltargets apidocs alltesttargets allbenchmarktargets
 
+.PHONY:targets
 targets: alltargets alltesttargets allbencmarktargets
 
+.PHONY:alltargets
 alltargets: $(TARGETSMAIN)
 
+.PHONY:alltesttargets
 alltesttargets: $(TESTTARGET)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
@@ -94,6 +97,8 @@ check: $(TESTTARGET)
 
 LIBSOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT) | xargs grep -L "main()")
 LIBOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(LIBSOURCES:.$(SRCEXT)=.o))
+
+
 
 TESTSOURCES := $(shell find $(TESTSRCDIR) -type f -name *.$(SRCEXT))
 TESTOBJECTS := $(patsubst $(TESTSRCDIR)/%,$(TESTBUILDDIR)/%,$(TESTSOURCES:.$(SRCEXT)=.o))
