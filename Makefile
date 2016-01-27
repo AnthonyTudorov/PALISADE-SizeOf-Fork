@@ -24,7 +24,9 @@
 #
 
 CC := g++ # This is the main compiler
-CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g
+#CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g
+#flags for debusing
+CPPFLAGS += -Wall -O0 -std=gnu++11 -w -g
 
 SRCDIR := src
 BUILDDIR := build
