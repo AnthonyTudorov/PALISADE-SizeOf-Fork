@@ -123,7 +123,7 @@ BENCHMARK_INC = -Isrc
 # this builds objects from sources for benchmarks
 $(BENCHMARK_BUILD_DIR)/%.o: $(BENCHMARK_SRC_DIR)/%.cpp
 	@echo '$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@'
-	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@echo
+	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@
 
 #this updates the binaries when the objects or libraries are touched
 $(BENCHMARK_BIN): $(BENCHMARK_OBJ) $(BENCHMARK_LIB)
