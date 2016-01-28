@@ -45,10 +45,10 @@
  */
 namespace cpu8bit {
 
-const usint FRAGMENTATION_FACTOR = 14;	//!< @brief ???
+const usint FRAGMENTATION_FACTOR = 130;	//!< @brief ???
 // const usint FRAGMENTATION_FACTOR = 27;
 
-const usint BUFFER_SIZE = 1024 * 512 * FRAGMENTATION_FACTOR; //!< @brief Amount of memory stored in the queue data structure.
+const usint BUFFER_SIZE = 1024 * 13960 * FRAGMENTATION_FACTOR; //!< @brief Amount of memory stored in the queue data structure.
 
 /**
  * @brief circular character array implementation of queue used for memory pools
