@@ -472,7 +472,7 @@ void TESTMultipleValues() {
 
 	float stdDev = 4;
 
-	usint size = 2;
+	usint size = 10;
 
 	ByteArrayPlaintextEncoding ctxtd;
 
