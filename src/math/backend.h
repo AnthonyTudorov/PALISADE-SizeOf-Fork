@@ -64,7 +64,7 @@ namespace lbcrypto {
 
 #if MATHBACKEND == 2
 	/** Define the mapping for BigBinaryInteger */
-	typedef cpu_int::BigBinaryInteger<uint32_t,300> BigBinaryInteger;
+	typedef cpu_int::BigBinaryInteger<uint32_t,100> BigBinaryInteger;
 	/** Define the mapping for BigBinaryVector */
 	typedef cpu_int::BigBinaryVector<BigBinaryInteger> BigBinaryVector;
 	/** Define the mapping for BigBinaryMatrix */
