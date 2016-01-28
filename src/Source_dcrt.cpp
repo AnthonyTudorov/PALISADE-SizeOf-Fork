@@ -607,7 +607,8 @@ void nextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const 
 	gcd = GreatestCommonDivisor(q - BigBinaryInteger::ONE, ringDimensions);
 
 	if(!(ringDimensions == gcd)){
-	  	nextQ(q+BigBinaryInteger::ONE, plainTextModulus, ringDimension, sigma, alpha);
+		q = q + BigBinaryInteger::ONE;
+	  	nextQ(q, plainTextModulus, ringDimension, sigma, alpha);
 	}
 
 }
