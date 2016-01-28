@@ -211,7 +211,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::Mod(const IntegerType
 		return this->ModByTwo();
 	else 
 	{
-		BigBinaryVector ans(this->GetLength());
+		BigBinaryVector ans(this->GetLength(),this->GetModulus());
 		IntegerType halfQ(this->GetModulus() >> 1);
 		for (usint i = 0; i<ans.GetLength(); i++) {
 			if (this->GetValAtIndex(i)>halfQ) {
@@ -223,6 +223,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::Mod(const IntegerType
 		}
 		return ans;
 	}
+
 }
 
 template<class IntegerType>
@@ -346,7 +347,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModSub(const BigBinar
 template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModByTwo() const {
 
-	BigBinaryVector ans(this->GetLength());
+	BigBinaryVector ans(this->GetLength(),this->GetModulus());
 	IntegerType halfQ(this->GetModulus() >> 1);
 	for (usint i = 0; i<ans.GetLength(); i++) {
 		if (this->GetValAtIndex(i)>halfQ) {
