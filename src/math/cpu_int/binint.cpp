@@ -177,7 +177,7 @@ usint BigBinaryInteger<uint_type, BITLENGTH>::ConvertToInt() const{
 }
 
 template<typename uint_type, usint BITLENGTH>
-double BigBinaryInteger::ConvertToDouble() const{
+double BigBinaryInteger<uint_type,BITLENGTH>::ConvertToDouble() const{
 	return std::stod(this->ToString());
 }
 
