@@ -304,6 +304,8 @@ namespace cpu_int{
          * @return the int representation of the value as usint.
          */
     usint ConvertToInt() const;
+    
+    double ConvertToDouble() const;
 
 //Arithemetic Operations
         /**
