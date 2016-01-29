@@ -176,6 +176,11 @@ usint BigBinaryInteger<uint_type, BITLENGTH>::ConvertToInt() const{
 	return result;
 }
 
+template<typename uint_type, usint BITLENGTH>
+double BigBinaryInteger::ConvertToDouble() const{
+	return std::stod(this->ToString());
+}
+
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator=(const BigBinaryInteger &rhs){
 
