@@ -168,8 +168,10 @@ usint BigBinaryInteger<uint_type, BITLENGTH>::ConvertToInt() const{
 
 	usint result = 0;
 	usint num = 32 / m_uintBitLength;
+
+	usint ceilInt = m_nSize - ceilIntByUInt(m_MSB);
 	for (usint i = 0; i < num && (m_nSize - i - 1) >= ceilInt; i++){
-		result += (this->m_value[m_nSize - i - 1] <<( m_uintBitLength*i));
+		result += (this->m_value[m_nSize - i - 1] << (m_uintBitLength*i));
 	}
 	return result;
 }
