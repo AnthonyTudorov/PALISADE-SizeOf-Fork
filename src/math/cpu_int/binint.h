@@ -655,6 +655,8 @@ namespace cpu_int{
          * Constant five.
          */
     static const BigBinaryInteger FIVE;
+    
+    sint Compare(const BigBinaryInteger& a) const;
         
 
     protected:
@@ -688,7 +690,6 @@ namespace cpu_int{
 		};
 		static usint GetMSBDUint_type(Duint_type x);
 		
-		sint Compare(const BigBinaryInteger& a) const;
 		State m_state;
         BigBinaryInteger MulIntegerByChar(uint_type b) const;
 
