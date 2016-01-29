@@ -130,6 +130,25 @@ namespace lbcrypto {
                 return g;
             }
 
+            inline double Norm() const {
+                double retVal = 0.0;
+		double locVal = 0.0;
+
+		//std::cout << " Norm: " << rows << "-" << cols << "-"  << locVal << "-"  << retVal << std::endl;
+
+                for (size_t row = 0; row < rows; ++row) {
+                    for (size_t col = 0; col < cols; ++col) {
+			locVal = data[row][col]->Norm();
+			//std::cout << " Norm: " << row << "-" << col << "-"  << locVal << "-"  << retVal << std::endl;
+                        if (locVal > retVal) {
+				retVal = locVal;
+			}
+                    }
+                }
+
+                return retVal;
+            }
+
             inline ILMat<Element> Mult(ILMat<Element> const& other) const {
                 if (cols != other.rows) {
                     throw invalid_argument("incompatible matrix multiplication");

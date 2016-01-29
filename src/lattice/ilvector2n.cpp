@@ -263,6 +263,18 @@ namespace lbcrypto {
 		return true;
 	}
 
+	// check if inverse exists
+	double ILVector2n::Norm() const {
+		double retVal = 0.0;
+		for (usint i = 0; i < m_values->GetLength(); i++) {
+			double locVal = (m_values->GetValAtIndex(i)).ConvertToDouble();
+			if (locVal > retVal)
+				retVal = locVal;
+		}
+		//std::cout << " Norm: " << retVal << std::endl;
+		return retVal;
+	}
+
 	// VECTOR OPERATIONS
 
 	// addition operation - PREV1

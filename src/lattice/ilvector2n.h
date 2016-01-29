@@ -389,6 +389,13 @@ namespace lbcrypto {
 		*/
 		bool InverseExists() const;
 
+		/**
+		* Returns the infinity norm, basically the largest value in the ring element.
+		*
+		* @return is the largest value in the ring element.
+		*/
+		double Norm() const;
+
 		// addition operation - PREV1
 		/**
 		* Performs an addition operation and returns the result.

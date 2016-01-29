@@ -321,8 +321,17 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 				const std::string &testString) const {
 
 	usint l = obfuscatedPattern->GetLength();
+	usint n = obfuscatedPattern->GetRingDimension();
+	BigBinaryInteger q(obfuscatedPattern->GetModulus());
 	usint m = obfuscatedPattern->GetLogModulus();
 	double constraint = obfuscatedPattern->GetConstraint();
+
+	std::cout << "" << std::endl;
+	std::cout << "Pattern length \t l : " << l << std::endl;
+	std::cout << "Ring dimension \t n : " << n << std::endl;
+	std::cout << "Modulus \t q : " << q << std::endl;
+	std::cout << "Num bits \t m : " << m << std::endl;
+	std::cout << "Constraint \t : " << constraint << std::endl;
 
 	bool retVal = true;
 	char testVal;
@@ -355,21 +364,24 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 		
 	}
 	std::cout << " S_prod: " << std::endl;
-	S_prod.PrintValues();
+	//S_prod.PrintValues();
 	std::cout << " R_prod: " << std::endl;
-	R_prod.PrintValues();
+	//R_prod.PrintValues();
 
 	ILMat<Element>* Sl = obfuscatedPattern->GetSl();
 	ILMat<Element>* Rl = obfuscatedPattern->GetRl();
 	
 	std::cout << " Sl: " << std::endl;
-	Sl->PrintValues();
+	//Sl->PrintValues();
 	std::cout << " Rl: " << std::endl;
-	Rl->PrintValues();
+	//Rl->PrintValues();
 
-
+	std::cout << " Cross Product: " << std::endl;
 	ILMat<Element> CrossProd = ((S_prod * (*Rl)) - (R_prod * (*Sl)));
-	norm = 0.0;//CrossProd.Norm();
+	CrossProd.PrintValues();
+
+	norm = CrossProd.Norm();
+	std::cout << " Norm: " << norm << std::endl;
 
 	return (norm <= constraint);
 

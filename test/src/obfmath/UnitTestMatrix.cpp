@@ -230,3 +230,10 @@ TEST(UTMatrix, hstack) {
     ILMat<ILVector2n> m = ILMat<ILVector2n>(secureIL2nAlloc(), 2, 4).Ones();
     EXPECT_EQ(m, n.HStack(n));
 }
+
+TEST(UTMatrix, norm) {
+    ILMat<ILVector2n> n = ILMat<ILVector2n>(secureIL2nAlloc(), 2, 2).Ones();
+    EXPECT_EQ(1.0, n.Norm());
+    ILMat<ILVector2n> m = ILMat<ILVector2n>(secureIL2nAlloc(), 2, 2).Identity();
+    EXPECT_EQ(1.0, m.Norm());
+}
