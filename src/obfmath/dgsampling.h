@@ -97,6 +97,7 @@ namespace lbcrypto {
 	inline void GaussSampG(const ILVector2n &u, double sttdev, size_t k,
 		DiscreteGaussianGenerator &dgg, ILMat<BigBinaryInteger> *z)
 	{
+        const BigBinaryInteger& modulus = u.GetParams().GetModulus();
 		for (size_t i = 0; i < u.GetLength(); i++) {
 
 			//initial value of integer syndrome corresponding to component u_i
@@ -121,7 +122,9 @@ namespace lbcrypto {
 				(*z)(j,i) = sampleInteger;
 
 				//division by 2
-				t = (t - (*z)(j,i))>>1;
+				// TODO: Probably incorrect, but this whole function is wrong anyways. Awaiting advice of Daniele
+                t = (t.ModSub((*z)(j,i), modulus))>>1;
+                //t = (t - (*z)(j,i))>>1;
 
 			}
 

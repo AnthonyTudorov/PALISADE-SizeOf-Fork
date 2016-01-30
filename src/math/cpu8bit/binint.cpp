@@ -323,8 +323,12 @@ const BigBinaryInteger& BigBinaryInteger::operator+=(const BigBinaryInteger &b){
 }
 
 BigBinaryInteger BigBinaryInteger::Minus(const BigBinaryInteger& b) const{
-
-	if(*this<b||*this==b)return std::move(BigBinaryInteger());
+    if (*this < b) {
+        std::cout << "subtraction underflow\n";
+    }
+	if(*this<b||*this==b) {
+        return std::move(BigBinaryInteger());
+    }
 	int cntr=0,current=0;
 
 	BigBinaryInteger result(*this);
