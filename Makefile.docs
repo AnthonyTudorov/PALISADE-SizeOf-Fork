@@ -23,35 +23,12 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
-CC := g++ # This is the main compiler
-CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g
+.PHONEY: apidocs
+apidocs:
+	doxygen lbcrypto-doxy-config
 
-SRCDIR := src
-BUILDDIR := build
-BUILDDIRMAIN := build/main
-TARGETDIR := bin
-HEADERS := src/*.h
+.PHONEY: cleandocs
+cleandocs:
+	rm -rf doc/apidocs
 
-SRCEXT := cpp
-SOURCESDEEP := $(shell find $(SRCDIR) -mindepth 2 -type f -name *.$(SRCEXT))
-SOURCESMAIN := $(shell find $(SRCDIR) -maxdepth 1 -type f -name *.$(SRCEXT))
-TARGETSMAIN := $(patsubst $(SRCDIR)/%,%,$(SOURCESMAIN:.$(SRCEXT)=))
-OBJECTSDEEP := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCESDEEP:.$(SRCEXT)=.o))
-OBJECTSMAIN := $(patsubst $(SRCDIR)/%,$(BUILDDIRMAIN)/%,$(SOURCESMAIN:.$(SRCEXT)=.o))
 
-LIB := -pthread #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
-INC := -I include
-
-all: alltargets apidocs alltesttargets allbenchmarktargets
-
-.PHONEY: clean
-clean: cleantargets cleantests cleandocs cleangnuheaders cleanbenchmarks
-
-.PHONEY: cleangnuheaders
-cleangnuheaders:
-	rm -f */**/*.h.gch
-
-include Makefile.targets
-include Makefile.docs
-include Makefile.test
-include Makefile.benchmark
