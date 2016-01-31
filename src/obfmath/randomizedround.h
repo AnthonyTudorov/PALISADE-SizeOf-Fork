@@ -59,10 +59,11 @@ namespace lbcrypto {
 
 	/**
 	 *  int32_t is used here as the components are relatively small
+	 *  this is a simple inefficient implementation as noted in DG14; will need to be improved
 	 */
 	inline int32_t IntegerRejectionSample(const LargeFloat &mean, const LargeFloat &stddev, size_t n) {
 
-		LargeFloat t = log(n)/log(2);  //fix for Visual Studio
+		LargeFloat t = log(n)/log(2)*stddev;  //fix for Visual Studio
 
 		//YSP this double conversion is necessary for uniform_int to work properly; the use of double is justified in this case
 		double dbmean = mean.convert_to<double>();

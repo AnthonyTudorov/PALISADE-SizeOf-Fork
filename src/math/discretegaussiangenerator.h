@@ -33,6 +33,11 @@
 #ifndef LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATOR_H_
 #define LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATOR_H_
 
+#define _USE_MATH_DEFINES // added for Visual Studio support
+
+#include <math.h>
+#include <random>
+
 #include "backend.h"
 #include "discretedistributiongenerator.h"
 
@@ -81,10 +86,28 @@ public:
 	schar * GenerateCharVector (usint size) const;
 
 	/**
-	* @brief  Returns a generated integer.
+	* @brief  Returns a generated integer. Uses Peikert's inversion method.
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
 	BigBinaryInteger GenerateInteger ();
+
+	/**
+	* @brief  Returns a generated integer. Uses rejection method.
+	* @param mean center of discrete Gaussian distribution.
+	* @param stddev standard deviatin of discrete Gaussian distribution.
+	* @param n used to specify the range for uniform distribution
+	* @return A random value within this Discrete Gaussian Distribution.
+	*/
+	BigBinaryInteger GenerateInteger (double mean, double stddev, size_t n, const BigBinaryInteger &modulus);
+
+	/**
+	* @brief  Returns a generated integer (int32_t). Uses rejection method.
+	* @param mean center of discrecte Gaussian distribution.
+	* @param stddev standard deviatin of discrete Gaussian distribution.
+	* @return A random value within this Discrete Gaussian Distribution.
+	*/
+	//int32_t GenerateInt32 (double mean, double stddev);
+	//will be defined later
 
 	/**
 	* @brief           Generates a vector of random values within this Discrete Gaussian Distribution.
@@ -105,6 +128,10 @@ public:
 private:
 	usint FindInVector (const std::vector<double> &S, double search) const;
 
+	static double UnnormalizedGaussianPDF(const double &mean, const double &sigma, int32_t x) {
+		return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
+	}
+
 	// Gyana to add precomputation methods and data members
 	// all parameters are set as int because it is assumed that they are used for generating "small" polynomials only
 	double m_a;
@@ -115,6 +142,10 @@ private:
 	* The standard deviation of the distribution.
 	*/
 	sint m_std;
+	
+	//Mersenne Twister engine is used
+	std::mt19937 m_gen;
+
 };
 
 }  // namespace lbcrypto
