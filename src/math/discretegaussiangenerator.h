@@ -89,7 +89,7 @@ public:
 	* @brief  Returns a generated integer. Uses Peikert's inversion method.
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	BigBinaryInteger GenerateInteger ();
+	BigBinaryInteger GenerateInteger (const BigBinaryInteger &modulus);
 
 	/**
 	* @brief  Returns a generated integer. Uses rejection method.

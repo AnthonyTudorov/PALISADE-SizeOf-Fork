@@ -115,7 +115,7 @@ namespace lbcrypto {
 				//checks if the least significant bit of t matches the least signficant bit of a discrete Gaussian sample
 				while(dgLSB != lsb)
 				{
-					sampleInteger = dgg.GenerateInteger();
+					sampleInteger = dgg.GenerateInteger(modulus);
 					dgLSB = sampleInteger.GetDigitAtIndexForBase(1,2);
 				}
 

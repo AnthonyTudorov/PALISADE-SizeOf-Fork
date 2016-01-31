@@ -139,9 +139,9 @@ BigBinaryVector DiscreteGaussianGenerator::DiscreteGaussianPositiveGenerator(usi
 	return ans;
 }
 
-BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger() {
+BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(const BigBinaryInteger &modulus) {
 
-	usint val = 0;
+	int32_t val = 0;
 	double seed;
 	BigBinaryInteger ans;
 
@@ -153,10 +153,18 @@ BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger() {
 	} else if (seed > 0) {
 		val = FindInVector(m_vals, (std::abs(seed) - m_a / 2));
 	} else {
-		val = (int) FindInVector(m_vals, (std::abs(seed) - m_a / 2));
+		val = -(int) FindInVector(m_vals, (std::abs(seed) - m_a / 2));
 	}
 
-	return BigBinaryInteger(val);
+	if (val < 0)
+	{
+		val *= -1;
+		ans = modulus - UintToBigBinaryInteger(val);
+	}
+	else
+		ans = BigBinaryInteger(val);
+
+	return ans;
 
 }
 
