@@ -55,13 +55,13 @@ void DiscreteGaussianGenerator::Initialize () {
 	double cusum = 1.0;
 
 	for (sint x = 1; x <= fin; x++) {
-		//cusum = cusum + 2 * exp(-pi * (x * x) / (variance * 2 * pi));
-		cusum = cusum + 2 * exp(- (x * x) / (variance * 2));  //simplified
+		cusum = cusum + 2 * exp(-pi * (x * x) / (variance * 2 * pi));
+		//cusum = cusum + 2 * exp(-(x * x) / (variance * 2));  //simplified
 	}
 
 	m_a = 1 / cusum;
 
-	//fin = (int)ceil(sqrt(-2 * variance * log(acc))); not needed - same as above
+	//fin = (int)ceil(sqrt(-2 * variance * log(acc))); //not needed - same as above
 	double temp;
 
 	for (sint i = 1; i <= fin; i++) {
