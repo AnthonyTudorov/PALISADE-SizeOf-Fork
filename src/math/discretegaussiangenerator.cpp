@@ -153,7 +153,7 @@ BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger() {
 	} else if (seed > 0) {
 		val = FindInVector(m_vals, (std::abs(seed) - m_a / 2));
 	} else {
-		val = - (int) FindInVector(m_vals, (std::abs(seed) - m_a / 2));
+		val = (int) FindInVector(m_vals, (std::abs(seed) - m_a / 2));
 	}
 
 	return BigBinaryInteger(val);

@@ -214,9 +214,11 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 
 TEST(UTTrapdoor,TrapDoorGaussGSampTest) {
 	usint m = 16;
+    usint n = m/2;
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
 	ILParams params( m, modulus, rootOfUnity);
+    auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 	float sigma = 4;
 
 	DiscreteGaussianGenerator dgg(modulus, sigma);
@@ -236,9 +238,8 @@ TEST(UTTrapdoor,TrapDoorGaussGSampTest) {
 		<< "Failure testing number of rows";
 	EXPECT_EQ(u.GetLength(),zHatBBI.GetCols())
 		<< "Failure testing number of colums";
-
-	//std::cout << zHatBBI << std::endl;
-
+    ILMat<ILVector2n> z = SplitBBIIntoILVector2nElements(zHatBBI, n, params);
+    EXPECT_EQ(u, (ILMat<ILVector2n>(zero_alloc, 1,  k).GadgetVector()*z)(0,0));
 }
 
 TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
@@ -288,7 +289,7 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 	RingMat rHat = trapPair.second.m_r;
     auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
 
-	DiscreteGaussianGenerator dgg(modulus, 4);	
+	DiscreteGaussianGenerator dgg(modulus, 4);
 
     RingMat u(uniform_alloc, 1, 1);
 
@@ -300,6 +301,7 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 		<< "Failure testing number of rows";
 	EXPECT_EQ(m/2,z(0,0).GetLength())
 		<< "Failure testing ring dimension for the first ring element";
+    EXPECT_EQ(u, trapPair.first * z);
 
 	//std::cout << z << std::endl;
 
