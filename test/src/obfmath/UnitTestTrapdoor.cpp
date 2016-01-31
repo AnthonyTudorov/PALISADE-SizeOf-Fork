@@ -212,7 +212,7 @@ TEST(UTTrapdoor,TrapDoorMultTest){
     EXPECT_EQ(g, trapMult);
 }
 
-TEST(UTTrapdoor,TrapDoorGaussGSampTest) {
+TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	usint m = 16;
     usint n = m/2;
 	BigBinaryInteger modulus("67108913");
@@ -232,46 +232,15 @@ TEST(UTTrapdoor,TrapDoorGaussGSampTest) {
 
 	ILMat<BigBinaryInteger> zHatBBI(BigBinaryInteger::Allocator, k, m/2);
 
-	GaussSampG(u,sigma,k,dgg,&zHatBBI);
-
-	EXPECT_EQ(k,zHatBBI.GetRows())
-		<< "Failure testing number of rows";
-	EXPECT_EQ(u.GetLength(),zHatBBI.GetCols())
-		<< "Failure testing number of colums";
-    ILMat<ILVector2n> z = SplitBBIIntoILVector2nElements(zHatBBI, n, params);
-    EXPECT_EQ(u, (ILMat<ILVector2n>(zero_alloc, 1,  k).GadgetVector()*z)(0,0));
-}
-
-TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
-	usint m = 16;
-    usint n = m/2;
-	BigBinaryInteger modulus("67108913");
-	BigBinaryInteger rootOfUnity("61564");
-	ILParams params( m, modulus, rootOfUnity);
-    auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
-	float sigma = 4;
-
-	DiscreteGaussianGenerator dgg(modulus, sigma);
-
-	ILVector2n u(dgg,params,COEFFICIENT);
-
-	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
-	double logTwo = log(val-1.0)/log(2)+1.0;
-	usint k = (usint) floor(logTwo);
-
-	ILMat<BigBinaryInteger> zHatBBI(BigBinaryInteger::Allocator, k, m/2);
-
 	GaussSampGq(u,sigma,k,modulus, dgg,&zHatBBI);
+	//GaussSampG(u,sigma,k,dgg,&zHatBBI);
 
 	EXPECT_EQ(k,zHatBBI.GetRows())
 		<< "Failure testing number of rows";
 	EXPECT_EQ(u.GetLength(),zHatBBI.GetCols())
 		<< "Failure testing number of colums";
-
     ILMat<ILVector2n> z = SplitBBIIntoILVector2nElements(zHatBBI, n, params);
     EXPECT_EQ(u, (ILMat<ILVector2n>(zero_alloc, 1,  k).GadgetVector()*z)(0,0));
-	//std::cout << zHatBBI << std::endl;
-
 }
 
 TEST(UTTrapdoor,TrapDoorGaussSampTest) {
