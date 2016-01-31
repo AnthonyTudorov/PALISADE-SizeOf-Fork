@@ -232,7 +232,7 @@ TEST(UTTrapdoor,TrapDoorGaussGSampTest) {
 
 	ILMat<BigBinaryInteger> zHatBBI(BigBinaryInteger::Allocator, k, m/2);
 
-	GaussSampG(u,sigma,k,dgg,&zHatBBI);
+	GaussSampGq(u,sigma,k,modulus,dgg,&zHatBBI);
 
 	EXPECT_EQ(k,zHatBBI.GetRows())
 		<< "Failure testing number of rows";
