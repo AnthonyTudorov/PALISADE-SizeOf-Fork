@@ -197,7 +197,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 *
 			 * @return parameters.
 			 */
-			ILParams *GetParameters() { return m_cryptoParameters;}
+			const ILParams *GetParameters() const { return m_cryptoParameters;}
 
 			/**
 			 * Gets the ring dimension
@@ -303,7 +303,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 				if (testVal == 0) {
 					S_ib = &(this->m_S0_vec->at(i));
 				} else {
-					S_ib = &(this->m_S0_vec->at(i));
+					S_ib = &(this->m_S1_vec->at(i));
 				}
 				//std::cout << " After if statement. " << std::endl;
 
@@ -322,7 +322,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 				if (testVal == 0) {
 					R_ib = &(this->m_R0_vec->at(i));
 				} else {
-					R_ib = &(this->m_R0_vec->at(i));
+					R_ib = &(this->m_R1_vec->at(i));
 				}
 				//std::cout << " After if statement. " << std::endl;
 
@@ -419,7 +419,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * @param &testString cleartext pattern to test for.
 			 * @return true if the string matches the pattern and false otherwise.
 			 */
-			bool Evaluate(const ObfuscatedLWEConjunctionPattern<Element> * obfuscatedPattern,
+			bool Evaluate(const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
 				 const std::string &testString) const;
 	};
 

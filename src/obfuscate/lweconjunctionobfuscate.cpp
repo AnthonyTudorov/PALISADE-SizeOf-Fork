@@ -106,14 +106,14 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				DiscreteGaussianGenerator &dgg,
 				DiscreteUniformGenerator &dug,
-				ObfuscatedLWEConjunctionPattern<Element> * obfuscatedPattern) const {
+				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
 
 	
 	obfuscatedPattern->SetLength(clearPattern.GetLength());
 	usint l = clearPattern.GetLength();
 	usint n = obfuscatedPattern->GetRingDimension();
 	BigBinaryInteger q(obfuscatedPattern->GetModulus());
-	usint m = obfuscatedPattern->GetLogModulus();
+	usint m = obfuscatedPattern->GetLogModulus() + 2;
 	ILParams params = *(obfuscatedPattern->GetParameters());
 	usint stddev = dgg.GetStd(); 
 
@@ -266,21 +266,21 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	size_t k = m - 2;
 	size_t n = elemS.GetParams().GetCyclotomicOrder()/2;
 	const BigBinaryInteger &modulus = elemS.GetParams().GetModulus();
-	ILParams params = elemS.GetParams();
+	const ILParams &params = elemS.GetParams();
 	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 	double s = 1000;
 
 	ILMat<Element> ej(zero_alloc, 1, m); //generate a row vector of discrete Gaussian ring elements
 	
-	for(size_t i=0; i<m-1; i++) {
+	for(size_t i=0; i<m; i++) {
 		ej(0,i).SetValues(dgg.GenerateVector(n,modulus),EVALUATION);
 	}
 
 	ILMat<Element> bj = Aj.ScalarMult(elemS) + ej;
 
-	for(size_t i=0; i<m-1; i++) {
+	for(size_t i=0; i<m; i++) {
 		ILMat<Element> gaussj = GaussSamp(n,k,Ai,Ti,bj(0,i),dgg.GetStd(), s, dgg);
-		for(size_t j=0; j<m-1; j++)
+		for(size_t j=0; j<m; j++)
 			(*encodedElem)(j,i) = gaussj(j,0);
 	}
 
@@ -316,14 +316,18 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 template <class Element>
 bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
-				const ObfuscatedLWEConjunctionPattern<Element> * obfuscatedPattern,
+				const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
 				const std::string &testString) const {
 
-	usint l = obfuscatedPattern->GetLength();
-	usint n = obfuscatedPattern->GetRingDimension();
-	BigBinaryInteger q(obfuscatedPattern->GetModulus());
-	usint m = obfuscatedPattern->GetLogModulus();
-	double constraint = obfuscatedPattern->GetConstraint();
+	usint l = obfuscatedPattern.GetLength();
+	usint n = obfuscatedPattern.GetRingDimension();
+	BigBinaryInteger q(obfuscatedPattern.GetModulus());
+	usint m = obfuscatedPattern.GetLogModulus() + 2;
+	double constraint = obfuscatedPattern.GetConstraint();
+
+	const ILParams *params = obfuscatedPattern.GetParameters();
+
+	auto zero_alloc = ILVector2n::MakeAllocator(*params, EVALUATION);
 
 	std::cout << "" << std::endl;
 	std::cout << "Pattern length \t l : " << l << std::endl;
@@ -335,10 +339,10 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	bool retVal = true;
 	char testVal;
 
-	double norm = constraint+1.0;
+	double norm = constraint;
 
-	ILMat<Element> S_prod = ILMat<Element>(secureIL2nAlloc(), m, m).Identity();
-	ILMat<Element> R_prod = ILMat<Element>(secureIL2nAlloc(), m, m).Identity();
+	ILMat<Element> S_prod = ILMat<Element>(zero_alloc, m, m).Identity();
+	ILMat<Element> R_prod = ILMat<Element>(zero_alloc, m, m).Identity();
 
 	//S_prod.PrintValues();
 	//R_prod.PrintValues();
@@ -352,8 +356,8 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 		std::cout << " Index: " << i << std::endl;
 		std::cout << " \t Input: \t" << testVal << std::endl;
 		
-		S_ib = obfuscatedPattern->GetS(i,testVal);
-		R_ib = obfuscatedPattern->GetR(i,testVal);
+		S_ib = obfuscatedPattern.GetS(i,testVal);
+		R_ib = obfuscatedPattern.GetR(i,testVal);
 
 		//S_ib->PrintValues();
 		//R_ib->PrintValues();
@@ -367,8 +371,8 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	std::cout << " R_prod: " << std::endl;
 	//R_prod.PrintValues();
 
-	ILMat<Element>* Sl = obfuscatedPattern->GetSl();
-	ILMat<Element>* Rl = obfuscatedPattern->GetRl();
+	ILMat<Element>* Sl = obfuscatedPattern.GetSl();
+	ILMat<Element>* Rl = obfuscatedPattern.GetRl();
 	
 	std::cout << " Sl: " << std::endl;
 	//Sl->PrintValues();

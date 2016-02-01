@@ -199,7 +199,7 @@ void NTRUPRE(int input) {
 
 //	obfuscatedPattern.GetSl();
 
-	result = algorithm.Evaluate(&obfuscatedPattern,inputStr1);
+	result = algorithm.Evaluate(obfuscatedPattern,inputStr1);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << " is " << result << "." <<std::endl;
 
 	//system("pause");
