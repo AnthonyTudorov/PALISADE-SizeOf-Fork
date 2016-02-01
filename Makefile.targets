@@ -47,15 +47,17 @@ $(BUILDDIRMAIN)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIRMAIN)
 	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $< "; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<
 
-$(TARGETSMAIN): $(OBJECTSDEEP) $(OBJECTSMAIN)
+$(TARGETDIR)/%: $(OBJECTSDEEP) $(OBJECTSMAIN)
 	@mkdir -p $(TARGETDIR)
-#	@echo " $^"
+#	@echo " $(SOURCESMAIN)"
+#	@echo " -- $@"
+#	@echo " -- $(@F)"
+#	@echo " -- $^"
 #	@echo " $(OBJECTSDEEP)"
 #	@echo " $(BUILDDIR)/$@.o"
-#	@echo " $(BUILDDIRMAIN)/$@.o"
+#	@echo " -- $(BUILDDIRMAIN)/$@.o"
 #	@echo " $^"
-	@echo " $(CC) $(OBJECTSDEEP) $(BUILDDIRMAIN)/$@.o -o $(TARGETDIR)/$@ $(LIB)"; $(CC) $(OBJECTSDEEP) $(BUILDDIRMAIN)/$@.o -o $(TARGETDIR)/$@ $(LIB)
-#	@echo "rm $(BUILDDIR)/$@.o"; rm $(BUILDDIR)/$@.o
+	@echo " $(CC) $(OBJECTSDEEP) $(BUILDDIRMAIN)/$(@F).o -o $@ $(LIB)"; $(CC) $(OBJECTSDEEP) $(BUILDDIRMAIN)/$(@F).o -o $@ $(LIB)
 
 #$(OBJECTSMAIN): 
 #	@echo " $@"

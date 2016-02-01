@@ -35,7 +35,7 @@ HEADERS := src/*.h
 SRCEXT := cpp
 SOURCESDEEP := $(shell find $(SRCDIR) -mindepth 2 -type f -name *.$(SRCEXT))
 SOURCESMAIN := $(shell find $(SRCDIR) -maxdepth 1 -type f -name *.$(SRCEXT))
-TARGETSMAIN := $(patsubst $(SRCDIR)/%,%,$(SOURCESMAIN:.$(SRCEXT)=))
+TARGETSMAIN := $(patsubst $(SRCDIR)/%,$(TARGETDIR)/%,$(SOURCESMAIN:.$(SRCEXT)=))
 OBJECTSDEEP := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCESDEEP:.$(SRCEXT)=.o))
 OBJECTSMAIN := $(patsubst $(SRCDIR)/%,$(BUILDDIRMAIN)/%,$(SOURCESMAIN:.$(SRCEXT)=.o))
 
