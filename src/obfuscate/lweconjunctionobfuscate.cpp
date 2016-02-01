@@ -115,7 +115,9 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	BigBinaryInteger q(obfuscatedPattern->GetModulus());
 	usint m = obfuscatedPattern->GetLogModulus();
 	ILParams params = *(obfuscatedPattern->GetParameters());
-	usint stddev = 4;  // TODO remove this.
+	usint stddev = dgg.GetStd(); 
+
+	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
 	std::cout << "" << std::endl;
 	std::cout << "Pattern length \t l : " << l << std::endl;
@@ -124,16 +126,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	std::cout << "Num bits \t m : " << m << std::endl;
 
 	char val=0;
-/*
-	ILMat<Element> z(secureIL2nAlloc(), m,m);
-	std::cout << "One " << m << "x" << m << std::endl;
-	const ILMat<Element> one = ILMat<Element>(secureIL2nAlloc(), m, m).Ones();
-	one.PrintValues();
 
-	std::cout << "Eye " << m << "x" << m << std::endl;
-	const ILMat<Element> eye = ILMat<Element>(secureIL2nAlloc(), m, m).Identity();
-	eye.PrintValues();
-*/
 	// Initialize the Pk and Ek matrices.
 	std::vector<ILMat<Element>> Pk_vector;
 	std::vector<TrapdoorPair>   Ek_vector;
@@ -183,22 +176,23 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 			s_prod = s_small_0.back();
 		} else {
 			Element s_prod_prime = s_small_0.back();
-			s_prod = s_prod_prime * s_prod;			
+			s_prod = s_prod_prime * s_prod;			//YSP what is this s_prod used for?
 		}
 	}
 
-	Element r_l1(params,EVALUATION);
-	r_l1.SetValues(dug.GenerateVector(n,q),EVALUATION);
+	//YSP I could not find any further references to r_l1. So commented out the code
+	//Element r_l1(params,EVALUATION);
+	//r_l1.SetValues(dug.GenerateVector(n,q),EVALUATION);
 
-	std::vector<ILMat<Element>> * S0_vec = new std::vector<ILMat<Element>>();
-	std::vector<ILMat<Element>> * S1_vec = new std::vector<ILMat<Element>>();
+	std::vector<ILMat<Element>> *S0_vec = new std::vector<ILMat<Element>>();
+	std::vector<ILMat<Element>> *S1_vec = new std::vector<ILMat<Element>>();
 
-	std::vector<ILMat<Element>> * R0_vec = new std::vector<ILMat<Element>>();
-	std::vector<ILMat<Element>> * R1_vec = new std::vector<ILMat<Element>>();
+	std::vector<ILMat<Element>> *R0_vec = new std::vector<ILMat<Element>>();
+	std::vector<ILMat<Element>> *R1_vec = new std::vector<ILMat<Element>>();
 
 	for(usint i=1; i<=l; i++) {
 
-		ILMat<Element> * S0_i = new ILMat<ILVector2n>(secureIL2nAlloc(), m, m);
+		ILMat<Element> *S0_i = new ILMat<ILVector2n>(zero_alloc, m, m);
 /*
 		std::cout << " Index C-A-A: " << i << std::endl;
 		RingMat Pk_0 = Pk_vector[i-1];
@@ -219,15 +213,15 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small_0[i-1]*r_small_0[i-1],dgg,S0_i);
 		S0_vec->push_back(*S0_i);
 
-		ILMat<Element> * S1_i = new ILMat<ILVector2n>(secureIL2nAlloc(), m, m);
+		ILMat<Element> *S1_i = new ILMat<ILVector2n>(zero_alloc, m, m);
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small_1[i-1]*r_small_1[i-1],dgg,S1_i);
 		S1_vec->push_back(*S1_i);
 
-		ILMat<Element> * R0_i = new ILMat<ILVector2n>(secureIL2nAlloc(), m, m);
+		ILMat<Element> *R0_i = new ILMat<ILVector2n>(zero_alloc, m, m);
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],r_small_0[i-1],dgg,R0_i);
 		R0_vec->push_back(*R0_i);
 
-		ILMat<Element> * R1_i = new ILMat<ILVector2n>(secureIL2nAlloc(), m, m);
+		ILMat<Element> *R1_i = new ILMat<ILVector2n>(zero_alloc, m, m);
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],r_small_1[i-1],dgg,R1_i);
 		R1_vec->push_back(*R1_i);
 	}
@@ -235,10 +229,10 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	Element	elemrl1(params,EVALUATION);
 	elemrl1.SetValues(dug.GenerateVector(n,q),EVALUATION);
 
-	ILMat<Element> * Sl = new ILMat<ILVector2n>(secureIL2nAlloc(), m, m);
+	ILMat<Element> *Sl = new ILMat<ILVector2n>(zero_alloc, m, m);
 	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],elemrl1*s_prod,dgg,Sl);
 
-	ILMat<Element> * Rl = new ILMat<ILVector2n>(secureIL2nAlloc(), m, m);
+	ILMat<Element> *Rl = new ILMat<ILVector2n>(zero_alloc, m, m);
 	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],elemrl1,dgg,Rl);
 
 	//Sl.PrintValues();
@@ -260,11 +254,13 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 
 	size_t m = Ai.GetCols();
 	size_t k = m - 2;
-	size_t n = elemS.GetParams().GetCyclotomicOrder();
+	size_t n = elemS.GetParams().GetCyclotomicOrder()/2;
 	const BigBinaryInteger &modulus = elemS.GetParams().GetModulus();
+	ILParams params = elemS.GetParams();
+	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 	double s = 600;
 
-	ILMat<Element> ej(secureIL2nAlloc(), 1, m); //generate a row vector of discrete Gaussian ring elements
+	ILMat<Element> ej(zero_alloc, 1, m); //generate a row vector of discrete Gaussian ring elements
 	
 	for(size_t i=0; i<m-1; i++) {
 		ej(0,i).SetValues(dgg.GenerateVector(n,modulus),EVALUATION);
