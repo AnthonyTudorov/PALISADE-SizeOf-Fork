@@ -383,6 +383,10 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	ILMat<Element> CrossProd = ((S_prod * (*Rl)) - (R_prod * (*Sl)));
 	CrossProd.PrintValues();
 
+	//the norm can be estimated after all elements are converted to coefficient representation
+	for(size_t i=0; i<m; i++)
+			CrossProd(0,i).SwitchFormat();
+
 	norm = CrossProd.Norm();
 	std::cout << " Norm: " << norm << std::endl;
 
