@@ -73,7 +73,8 @@ namespace lbcrypto {
 
 		ILMat<BigBinaryInteger> zHatBBI(BigBinaryInteger::Allocator, k, n);
 
-		GaussSampG(perturbedSyndrome,sigma,k,dgg,&zHatBBI);
+		//GaussSampG(perturbedSyndrome,sigma,k,dgg,&zHatBBI);
+		GaussSampGq(perturbedSyndrome,sigma,k,modulus,dgg,&zHatBBI);
 
 		// Convert zHat from a matrix of BBI to a vector of ILVector2n ring elements
 		RingMat zHat = SplitBBIIntoILVector2nElements(zHatBBI,n,params);

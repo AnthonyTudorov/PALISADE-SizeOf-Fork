@@ -172,12 +172,19 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 			elemr1.SetValues(dug.GenerateVector(n,q),EVALUATION);
 			r_small_1.push_back(elemr1);
 		}
+		
+		const Element *vi = NULL;
+		if ((char)clearPattern.GetIndex(i) == '1')
+			vi = &s_small_1.back();
+		else
+			vi = &s_small_0.back();
+		
 		if (i==0) {
-			s_prod = s_small_0.back();
+			s_prod = *vi;
 		} else {
-			Element s_prod_prime = s_small_0.back();
-			s_prod = s_prod_prime * s_prod;			//YSP what is this s_prod used for?
+			s_prod = (*vi) * s_prod;
 		}
+
 	}
 
 	//YSP I could not find any further references to r_l1. So commented out the code
@@ -252,13 +259,16 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				DiscreteGaussianGenerator &dgg,
 				ILMat<Element> *encodedElem) const {
 
+	//std::cout << "stubbed out" << std::endl;
+	//encodedElem->Identity();
+
 	size_t m = Ai.GetCols();
 	size_t k = m - 2;
 	size_t n = elemS.GetParams().GetCyclotomicOrder()/2;
 	const BigBinaryInteger &modulus = elemS.GetParams().GetModulus();
 	ILParams params = elemS.GetParams();
 	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
-	double s = 600;
+	double s = 1000;
 
 	ILMat<Element> ej(zero_alloc, 1, m); //generate a row vector of discrete Gaussian ring elements
 	
