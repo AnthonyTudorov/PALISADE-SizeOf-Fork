@@ -1,4 +1,4 @@
-#include "benchmark/benchmark.h"
+#include "../include/benchmark/benchmark.h"
 
 #include <assert.h>
 #include <math.h>

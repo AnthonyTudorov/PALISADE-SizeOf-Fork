@@ -25,7 +25,8 @@
 
 #this is the actual target that gets called when make is executed (part of all in Makefile)
 #it makes the library, benchmark examples and the actual palisade  benchmarks
-allbenchmarktargets: make_benchmark_lib make_benchmark_examples make_benchmarks
+allbenchmarktargets: make_benchmark_lib make_benchmarks
+#make_benchmark_examples 
 
 # this is where the benchmark library code lives
 BENCHMARK_LIBSRCDIR = benchmark/include/libsrc
@@ -46,6 +47,7 @@ BENCHMARK_LIB = $(BENCHMARK_LIBSRCDIR)/libbenchmark.a
 # this builds objects from sources for benchmark library
 $(BENCHMARK_LIBSRCDIR)/%.o: $(BENCHMARK_LIBSRCDIR)/%.cc
 	@echo '$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<'
+	@echo 'A'
 	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<
 
 
@@ -54,6 +56,7 @@ make_benchmark_lib: $(BENCHMARK_LIB)
 
 $(BENCHMARK_LIB): $(BENCHMARK_LIBOBJ)
 	@echo '	ar rcs $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)'
+	@echo 'A.5'
 	/usr/bin/ar cr $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
 	ranlib $(BENCHMARK_LIB) 
 
@@ -86,13 +89,17 @@ BENCHMARK_EXAMPLES = $(BENCHMARK_EXAMPLES_SRC:.cc=)
 BENCHMARK_INCLUDES = -Ibenchmark/include
 
 # this builds objects from sources for examples
-$(BENCHMARK_EXAMPLES_DIR)/%.o: $(BENCHMARK_EXAMPLES_DIR)/%.cc
+$(BENCHMARK_EXAMPLES_DIR)/build/%.o: $(BENCHMARK_EXAMPLES_DIR)/%.cc
 	@echo '$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@'
+	@echo 'B'
+	@mkdir -p $(BENCHMARK_EXAMPLES_DIR)/build/
 	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@
 
 # this builds executables from objects for examples
-$(BENCHMARK_EXAMPLES_DIR)/%: $(BENCHMARK_EXAMPLES_DIR)/%.o
+$(BENCHMARK_EXAMPLES_DIR)/bin/%: $(BENCHMARK_EXAMPLES_DIR)/%.o
 	@echo '$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $< -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread'
+	@echo 'C'
+	@mkdir -p $(BENCHMARK_EXAMPLES_DIR)/bin/
 	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread
 
 #this updates the binaries when the objects or libraries are touched
@@ -123,6 +130,9 @@ BENCHMARK_INC = -Isrc
 # this builds objects from sources for benchmarks
 $(BENCHMARK_BUILD_DIR)/%.o: $(BENCHMARK_SRC_DIR)/%.cpp
 	@echo '$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@'
+	@echo 'D'
+	@echo '$(BENCHMARK_BUILD_DIR)'
+	@mkdir -p $(BENCHMARK_BUILD_DIR)
 	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@
 
 #this updates the binaries when the objects or libraries are touched
@@ -135,6 +145,9 @@ PALISADE_OBJ= $(wildcard $(BUILDDIR)/*/*.o) $(wildcard $(BUILDDIR)/*/*/*.o)
 # this builds executables from objects for benchmarks
 $(BENCHMARK_BIN_DIR)/%: $(BENCHMARK_BUILD_DIR)/%.o
 	@echo '$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread'
+	@echo 'E'
+	@echo '$(BENCHMARK_BIN_DIR)'
+	@mkdir -p $(BENCHMARK_BIN_DIR)
 	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< $(PALISADE_OBJ) -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread 
 
 
@@ -170,5 +183,6 @@ docbenchmarkstrings:
 
 #this target is usesd to cleanup, it is called from the top Makefile
 cleanbenchmarks:
-	@echo 'removing $(BENCHMARK_BIN) $(BENCHMARK_EXAMPLES) $(BENCHMARK_EXAMPLES_OBJ) $(BENCHMARK_OBJ) $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)'
-	rm $(BENCHMARK_BIN) $(BENCHMARK_EXAMPLES) $(BENCHMARK_EXAMPLES_OBJ) $(BENCHMARK_OBJ) $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
+#	@echo 'removing $(BENCHMARK_BIN) $(BENCHMARK_EXAMPLES) $(BENCHMARK_EXAMPLES_OBJ) $(BENCHMARK_OBJ) $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)'
+#	rm $(BENCHMARK_BIN) $(BENCHMARK_EXAMPLES) $(BENCHMARK_EXAMPLES_OBJ) $(BENCHMARK_OBJ) $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
+	@echo " $(RM) -r $(BENCHMARK_BIN_DIR) $(BENCHMARK_BUILD_DIR) $(BENCHMARK_EXAMPLES_DIR)/build/ $(BENCHMARK_EXAMPLES_DIR)/bin/ $(BENCHMARK_LIBSRCDIR)/*.o"; $(RM) -r $(BENCHMARK_BIN_DIR) $(BENCHMARK_BUILD_DIR) $(BENCHMARK_EXAMPLES_DIR)/build/ $(BENCHMARK_EXAMPLES_DIR)/bin/ $(BENCHMARK_LIBSRCDIR)/*.o

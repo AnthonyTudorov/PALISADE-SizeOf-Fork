@@ -1,7 +1,7 @@
 
 #include <cstddef>
 
-#include "benchmark/benchmark.h"
+#include "../include/benchmark/benchmark.h"
 
 #if __cplusplus >= 201103L
 

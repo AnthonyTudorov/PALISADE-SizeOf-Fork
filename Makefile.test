@@ -37,7 +37,8 @@ TEST_TARGET := test/bin/tests
 #tests
 
 .PHONY:alltesttargets
-alltesttargets: make_tests doc_test_strings 
+alltesttargets: make_tests 
+#doc_test_strings 
 
 #.PHONY: make_tests
 make_tests:  $(TEST_TARGET)
