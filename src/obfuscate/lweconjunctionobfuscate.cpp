@@ -249,8 +249,6 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 
 };
 
-
-
 template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				const ILMat<Element> &Ai,
@@ -258,32 +256,27 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				const TrapdoorPair &Ti,
 				const Element &elemS,
 				DiscreteGaussianGenerator &dgg,
-				ILMat<Element> * encodedElem) const {
+				ILMat<Element> *encodedElem) const {
+
+	size_t m = Ai.GetCols();
+	size_t k = m - 2;
+	size_t n = elemS.GetParams().GetCyclotomicOrder();
+	const BigBinaryInteger &modulus = elemS.GetParams().GetModulus();
+	double s = 600;
+
+	ILMat<Element> ej(secureIL2nAlloc(), 1, m); //generate a row vector of discrete Gaussian ring elements
 	
-	std::cout << " Inside Encode. This Encode call does nothing except return an identity function." << std::endl;
-/*		
-	Element elemE(params,EVALUATION);
-	elemE.SetValues(dgg.GenerateVector(n,q),EVALUATION);
+	for(size_t i=0; i<m-1; i++) {
+		ej(0,i).SetValues(dgg.GenerateVector(n,modulus),EVALUATION);
+	}
 
-	Element elemB = elemS*Aj+elemE;
+	ILMat<Element> bj = Aj.ScalarMult(elemS) + ej;
 
-	ILMat<Element> encodedElem = ILMat<Element>(secureIL2nAlloc(), m, m);
-
-	this->GaussSamp(Ai,Ti,elemB,dgg,encodedElem);
-
-};
-
-template <class Element>
-void LWEConjunctionObfuscationAlgorithm<Element>::GaussSamp(
-				const ILMat<Element> &Ai,
-				const TrapdoorPair &Ti,
-				const Element &elemB,
-				DiscreteGaussianGenerator &dgg,
-				ILMat<Element> &encodedElem) const {
-	
-	std::cout << " Inside Encode. " << std::endl;
-*/	
-	encodedElem->Identity();
+	for(size_t i=0; i<m-1; i++) {
+		ILMat<Element> gaussj = GaussSamp(n,k,Ai,Ti,bj(0,i),dgg.GetStd(), s, dgg);
+		for(size_t j=0; j<m-1; j++)
+			(*encodedElem)(j,i) = gaussj(j,0);
+	}
 
 };
 

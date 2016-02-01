@@ -118,6 +118,15 @@ public:
 	BigBinaryVector GenerateVector (usint size);
 
 	/**
+	* @brief           Generates a vector of random values within this Discrete Gaussian Distribution.
+	*
+	* @param  size     The number of values to return.
+	* @param  modulus  modulus of the polynomial ring.
+	* @return          The vector of values within this Discrete Gaussian Distribution.
+	*/
+	BigBinaryVector GenerateVector (usint size, const BigBinaryInteger &modulus);
+
+	/**
 	* @brief               Generates a vector of random, positive values within this Discrete Gaussian Distribution.
 	* @param  vectorLength The number of values to return.
 	* @param  &modValue    The number of values to return.

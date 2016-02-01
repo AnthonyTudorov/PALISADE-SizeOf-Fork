@@ -405,12 +405,12 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * @param &dgg the discrete Gaussian Generator.
 			 * @param &encodedElem the encoded element.
 			 */
-			void GaussSamp(
+			/*void GaussSamp(
 				const ILMat<Element> &Ai,
 				const TrapdoorPair &Ti,
 				const Element &elemB,
 				DiscreteGaussianGenerator &dgg,
-				ILMat<Element> &encodedElem) const;
+				ILMat<Element> &encodedElem) const;*/
 
 			/**
 			 * Method for evaluating the pattern

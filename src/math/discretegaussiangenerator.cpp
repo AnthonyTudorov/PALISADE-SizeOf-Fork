@@ -192,6 +192,29 @@ BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size) {
 	return ans;
 }
 
+BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size, const BigBinaryInteger &modulus) {
+	//BigBinaryVector ans(DiscreteGaussianGenerator::DiscreteGaussianPositiveGenerator(size,this->m_modulus));
+
+	//return ans;
+	schar* result = GenerateCharVector(size);
+
+	BigBinaryVector ans(size);
+	ans.SetModulus(modulus);
+
+	for (usint i = 0; i < size; i++) {
+		if (result[i] < 0) {
+			result[i] *= -1;
+			ans.SetValAtIndex(i, modulus - UintToBigBinaryInteger(result[i]));
+		} else {
+			ans.SetValAtIndex(i, UintToBigBinaryInteger(result[i]));
+		}
+	}
+
+	delete []result;
+
+	return ans;
+}
+
 BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n, const BigBinaryInteger &modulus) {
 
 		double t = log(n)/log(2)*stddev;  //this representation of log_2 is used for Visual Studio
