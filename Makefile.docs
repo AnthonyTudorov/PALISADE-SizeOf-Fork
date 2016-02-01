@@ -23,8 +23,12 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
+INDEXFILE := doc/apidocs/html/index.html
+
 .PHONEY: apidocs
-apidocs:
+apidocs: $(INDEXFILE)
+
+$(INDEXFILE):
 	doxygen lbcrypto-doxy-config
 
 .PHONEY: cleandocs
