@@ -224,7 +224,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	DiscreteGaussianGenerator dgg(modulus, sigma);
 
 	ILVector2n u(dgg,params,COEFFICIENT);
-	u.SwitchFormat();
+	//u.SwitchFormat();
 
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
 	double logTwo = log(val-1.0)/log(2)+1.0;
@@ -240,6 +240,10 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	EXPECT_EQ(u.GetLength(),zHatBBI.GetCols())
 		<< "Failure testing number of colums";
     ILMat<ILVector2n> z = SplitBBIIntoILVector2nElements(zHatBBI, n, params);
+	z.SwitchFormat();
+	ILVector2n uEst = (ILMat<ILVector2n>(zero_alloc, 1,  k).GadgetVector()*z)(0,0);
+	uEst.SwitchFormat();
+
     EXPECT_EQ(u, (ILMat<ILVector2n>(zero_alloc, 1,  k).GadgetVector()*z)(0,0));
 }
 
