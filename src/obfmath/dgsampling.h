@@ -174,14 +174,14 @@ namespace lbcrypto {
 
 	    zk = dgg.GenerateInteger((pow(2,k) / q.ConvertToDouble())*y[k-1] - (v.ConvertToDouble() / q.ConvertToDouble()), stdk, u.GetLength(),u.GetModulus()); /* FIX: compute (2^k / q) and  v/q as doubles */;
 
-	    for (size_t j=0; j<k-1; j++) {
+	    for (size_t j=0; j<k; j++) {
 	      d[j] = UintToBigBinaryInteger(v.GetDigitAtIndexForBase(j+1,2)) + zk*UintToBigBinaryInteger(q.GetDigitAtIndexForBase(j+1,2));
 	      /* How efficient is GetDigitIndexForBase? Implement using left shifts? */
 	      (*z)(j,i) = d[j];
 	    }
 	    c[0] = d[0].ConvertToDouble() / 2.0;
 
-	    for (size_t j=0; j<k-2; j++) {
+	    for (size_t j=0; j<k-1; j++) {
 	      c[j+1] = (c[j] + d[i+1].ConvertToDouble()) / 2;
 	      zj = dgg.GenerateInteger(y[j] - c[j], std3, u.GetLength(),u.GetModulus()); /* generate discrete gaussian sample with mean y[j]-c[j] and standard deviation std3 */
 	      (*z)(j,i) += zj<<1; //multiplication by 2
