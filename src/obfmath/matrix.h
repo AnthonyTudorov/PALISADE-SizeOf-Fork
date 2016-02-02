@@ -344,21 +344,18 @@ namespace lbcrypto {
                     std::cout << std::endl;
                 }
             }
-            /*
-               BigBinaryInteger& Norm() const {
-               BigBinaryInteger& norm = 0;
-               BigBinaryInteger& norm_t = 0;
-               for (size_t col = 0; col < cols; ++col) {
-               for (size_t row = 0; row < rows; ++row) {
-               norm_t = data[row][col]->Norm();
-               if norm_t > norm {
-               norm = norm_t;
-               }
-               }
-               }
-               return norm;
-               }
-               */
+
+
+            inline void SwitchFormat() {
+
+				for (size_t row = 0; row < rows; ++row) {
+					for (size_t col = 0; col < cols; ++col) {
+						data[row][col]->SwitchFormat();
+					}
+				}
+
+            }
+
 
         private:
             data_t data;
@@ -532,7 +529,7 @@ namespace lbcrypto {
     //  split a vector of int32_t into a vector of ring elements with ring dimension n
     inline ILMat<ILVector2n> SplitInt32IntoILVector2nElements(ILMat<int32_t> const& other, size_t n, const ILParams &params) {
 			
-		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
 		size_t rows = other.GetRows()/n;
 
@@ -557,7 +554,7 @@ namespace lbcrypto {
                 tempBBV.SetValAtIndex(i,tempBBI);
             }
 
-			result(row,0).SetValues(tempBBV,EVALUATION);
+			result(row,0).SetValues(tempBBV,COEFFICIENT);
         }
 
         return result;
@@ -566,7 +563,7 @@ namespace lbcrypto {
  //  split a vector of BBI into a vector of ring elements with ring dimension n
     inline ILMat<ILVector2n> SplitBBIIntoILVector2nElements(ILMat<BigBinaryInteger> const& other, size_t n, const ILParams &params) {
 			
-		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
 		size_t rows = other.GetRows();
 

@@ -55,9 +55,20 @@ namespace lbcrypto {
 
         const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
-        ILMat<BigBinaryInteger> R = Rotate(T.m_e)
-            .VStack(Rotate(T.m_r))
+		//Computing e and r in coefficient representation
+		ILMat<ILVector2n> eCoeff = T.m_e;
+		eCoeff.SwitchFormat();
+		ILMat<ILVector2n> rCoeff = T.m_r;
+		rCoeff.SwitchFormat();
+
+        //ILMat<BigBinaryInteger> R = Rotate(T.m_e)
+        //    .VStack(Rotate(T.m_r))
+        //    .VStack(ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
+
+        ILMat<BigBinaryInteger> R = Rotate(eCoeff)
+            .VStack(Rotate(rCoeff))
             .VStack(ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
+
         ILMat<int32_t> Rint = ConvertToInt32(R, modulus);
         ILMat<int32_t> COV = Rint*Rint.Transpose().ScalarMult(c*c);
 
@@ -66,18 +77,28 @@ namespace lbcrypto {
         ILMat<int32_t> p([](){ return make_unique<int32_t>(); }, (2+k)*n, 1);
         NonSphericalSample(n, modulus, SigmaP, c, &p);
 
+		// pHat is in the coefficient representation
 		ILMat<ILVector2n> pHat = SplitInt32IntoILVector2nElements(p,n,params);
+		// Now pHat is in the evaluation representation
+		pHat.SwitchFormat();
 
 		// YSP It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
+		// perturbedSyndrome is in the evaluation representation
 		ILVector2n perturbedSyndrome = u - (A.Mult(pHat))(0,0);
 
 		ILMat<BigBinaryInteger> zHatBBI(BigBinaryInteger::Allocator, k, n);
 
-		//GaussSampG(perturbedSyndrome,sigma,k,dgg,&zHatBBI);
+		// GaussSampG(perturbedSyndrome,sigma,k,dgg,&zHatBBI);
+
+		// converting perturbed syndrome to coefficient representation
+		perturbedSyndrome.SwitchFormat();
 		GaussSampGq(perturbedSyndrome,sigma,k,modulus,dgg,&zHatBBI);
 
 		// Convert zHat from a matrix of BBI to a vector of ILVector2n ring elements
+		// zHat is in the coefficient representation
 		RingMat zHat = SplitBBIIntoILVector2nElements(zHatBBI,n,params);
+		// Now converting it to the evaluation representation before multiplication
+		zHat.SwitchFormat();
 
 		RingMat zHatPrime(zero_alloc, k + 2, 1);
 

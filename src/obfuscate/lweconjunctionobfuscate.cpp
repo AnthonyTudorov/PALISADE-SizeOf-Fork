@@ -220,6 +220,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small_0[i-1]*r_small_0[i-1],dgg,S0_i);
 		S0_vec->push_back(*S0_i);
 
+		std::cout << "encode ran" << std::endl;
+
 		ILMat<Element> *S1_i = new ILMat<ILVector2n>(zero_alloc, m, m);
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small_1[i-1]*r_small_1[i-1],dgg,S1_i);
 		S1_vec->push_back(*S1_i);
@@ -383,9 +385,11 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	ILMat<Element> CrossProd = ((S_prod * (*Rl)) - (R_prod * (*Sl)));
 	CrossProd.PrintValues();
 
+	//for(size_t i=0; i<m; i++)
+	//		CrossProd(0,i).SwitchFormat();
+
 	//the norm can be estimated after all elements are converted to coefficient representation
-	for(size_t i=0; i<m; i++)
-			CrossProd(0,i).SwitchFormat();
+	CrossProd.SwitchFormat();
 
 	norm = CrossProd.Norm();
 	std::cout << " Norm: " << norm << std::endl;
