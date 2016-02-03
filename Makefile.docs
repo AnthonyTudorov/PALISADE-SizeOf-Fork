@@ -23,35 +23,16 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
-CC := g++ # This is the main compiler
-CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g
+INDEXFILE := doc/apidocs/html/index.html
 
-SRCDIR := src
-BUILDDIR := build
-BUILDDIRMAIN := build/main
-TARGETDIR := bin
-HEADERS := src/*.h
+.PHONEY: apidocs
+apidocs: $(INDEXFILE)
 
-SRCEXT := cpp
-SOURCESDEEP := $(shell find $(SRCDIR) -mindepth 2 -type f -name *.$(SRCEXT))
-SOURCESMAIN := $(shell find $(SRCDIR) -maxdepth 1 -type f -name *.$(SRCEXT))
-TARGETSMAIN := $(patsubst $(SRCDIR)/%,$(TARGETDIR)/%,$(SOURCESMAIN:.$(SRCEXT)=))
-OBJECTSDEEP := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCESDEEP:.$(SRCEXT)=.o))
-OBJECTSMAIN := $(patsubst $(SRCDIR)/%,$(BUILDDIRMAIN)/%,$(SOURCESMAIN:.$(SRCEXT)=.o))
+$(INDEXFILE):
+	doxygen lbcrypto-doxy-config
 
-LIB := -pthread #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
-INC := -I include
+.PHONEY: cleandocs
+cleandocs:
+	rm -rf doc/apidocs
 
-all: alltargets apidocs alltesttargets allbenchmarktargets
 
-.PHONEY: clean
-clean: cleantargets cleantests cleandocs cleangnuheaders cleanbenchmarks
-
-.PHONEY: cleangnuheaders
-cleangnuheaders:
-	rm -f */**/*.h.gch
-
-include Makefile.targets
-include Makefile.docs
-include Makefile.test
-include Makefile.benchmark
