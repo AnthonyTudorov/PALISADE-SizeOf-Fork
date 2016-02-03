@@ -46,7 +46,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //#include "lattice/ilelement.h"
 //#include "crypto/lwecrypt.h"
 #include "obfuscate/lweconjunctionobfuscate.h"
-//#include "obfuscate/lweconjunctionobfuscate.cpp"
+#include "obfuscate/lweconjunctionobfuscate.cpp"
 //#include "obfuscate/obfuscatelp.h"
 #include "time.h"
 #include <chrono>

@@ -144,6 +144,11 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 
 				this->m_Sl = NULL;
 				this->m_Rl = NULL;
+
+				this->m_pk = NULL;
+				this->m_ek = NULL;
+				this->m_Sigma = NULL;
+
 			}
 
 			/**
