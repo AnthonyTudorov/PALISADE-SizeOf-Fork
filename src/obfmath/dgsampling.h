@@ -46,14 +46,9 @@ namespace lbcrypto {
 	* @param stddev standard deviation.
 	* @param *perturbationVector perturbation vector (2+k)n
 	*/
-	inline void NonSphericalSample(size_t n, const BigBinaryInteger& modulus, const ILMat<int32_t> &sigmaP, double stddev, ILMat<int32_t> *perturbationVector)
+	inline void NonSphericalSample(size_t n, const ILMat<LargeFloat> &sigmaSqrt, double stddev, ILMat<int32_t> *perturbationVector)
 	{
 		int32_t a(floor(stddev/2));
-
-		// YSP added the a^2*I term which was missing in the original LaTex document
-		ILMat<int32_t> sigmaA = sigmaP - (a*a)*ILMat<int32_t>(sigmaP.GetAllocator(), sigmaP.GetRows(), sigmaP.GetCols()).Identity();
-
-		ILMat<LargeFloat> sigmaSqrt = Cholesky(sigmaA);
 
 		ILMat<LargeFloat> sample([](){ return make_unique<LargeFloat>(); }, sigmaSqrt.GetRows(), 1);
 

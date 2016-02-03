@@ -102,6 +102,38 @@ void ObfuscatedLWEConjunctionPattern<Element>::SetModulus(BigBinaryInteger &modu
 };
 
 template <class Element>
+void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerator &dgg,
+				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
+
+		usint n = obfuscatedPattern->GetRingDimension();
+		usint k = obfuscatedPattern->GetLogModulus();
+		usint l = obfuscatedPattern->GetLength();
+		ILParams params = *(obfuscatedPattern->GetParameters());
+		usint stddev = dgg.GetStd(); 
+		double s = 1000;
+
+		// Initialize the Pk and Ek matrices.
+		std::vector<ILMat<Element>> *Pk_vector = new std::vector<ILMat<Element>>();
+		std::vector<TrapdoorPair>   *Ek_vector = new std::vector<TrapdoorPair>();
+		std::vector<ILMat<LargeFloat>> *sigma = new std::vector<ILMat<LargeFloat>>();
+
+		for(usint i=0; i<=l+1; i++) {
+			pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev); //TODO remove stddev
+
+			ILMat<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
+			PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
+
+			Pk_vector->push_back(trapPair.first);
+			Ek_vector->push_back(trapPair.second);
+			sigma->push_back(sigmaSqrt);
+		}
+
+		obfuscatedPattern->SetKeys(Pk_vector,Ek_vector,sigma);
+
+}
+
+
+template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				DiscreteGaussianGenerator &dgg,
@@ -115,7 +147,11 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	BigBinaryInteger q(obfuscatedPattern->GetModulus());
 	usint m = obfuscatedPattern->GetLogModulus() + 2;
 	ILParams params = *(obfuscatedPattern->GetParameters());
-	usint stddev = dgg.GetStd(); 
+	//usint stddev = dgg.GetStd(); 
+
+	const std::vector<ILMat<Element>> &Pk_vector = obfuscatedPattern->GetPublicKeys();
+	const std::vector<TrapdoorPair>   &Ek_vector = obfuscatedPattern->GetEncodingKeys();
+	const std::vector<ILMat<LargeFloat>>   &Sigma = obfuscatedPattern->GetSigmaKeys();
 
 	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
@@ -128,14 +164,14 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	char val=0;
 
 	// Initialize the Pk and Ek matrices.
-	std::vector<ILMat<Element>> Pk_vector;
-	std::vector<TrapdoorPair>   Ek_vector;
+	//std::vector<ILMat<Element>> Pk_vector;
+	//std::vector<TrapdoorPair>   Ek_vector;
 
-	for(usint i=0; i<=l+1; i++) {
-		pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev); //TODO remove stddev
-		Pk_vector.push_back(trapPair.first);
-		Ek_vector.push_back(trapPair.second);
-	} 
+	//for(usint i=0; i<=l+1; i++) {
+	//	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev); //TODO remove stddev
+	//	Pk_vector.push_back(trapPair.first);
+	//	Ek_vector.push_back(trapPair.second);
+	//} 
 
 	// Initialize the s and r matrices.
 	std::vector<Element> s_small_0;
@@ -217,32 +253,38 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 		r0.PrintValuesEndl();
 		std::cout << " Index C-A-F: " << i << std::endl;
 */
-		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small_0[i-1]*r_small_0[i-1],dgg,S0_i);
+		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],s_small_0[i-1]*r_small_0[i-1],dgg,S0_i);
 		S0_vec->push_back(*S0_i);
 
-		std::cout << "encode ran" << std::endl;
+		std::cout << "encode ran 1" << std::endl;
 
 		ILMat<Element> *S1_i = new ILMat<ILVector2n>(zero_alloc, m, m);
-		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small_1[i-1]*r_small_1[i-1],dgg,S1_i);
+		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],s_small_1[i-1]*r_small_1[i-1],dgg,S1_i);
 		S1_vec->push_back(*S1_i);
 
+		std::cout << "encode ran 2" << std::endl;
+
 		ILMat<Element> *R0_i = new ILMat<ILVector2n>(zero_alloc, m, m);
-		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],r_small_0[i-1],dgg,R0_i);
+		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],r_small_0[i-1],dgg,R0_i);
 		R0_vec->push_back(*R0_i);
 
+		std::cout << "encode ran 3" << std::endl;
+
 		ILMat<Element> *R1_i = new ILMat<ILVector2n>(zero_alloc, m, m);
-		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],r_small_1[i-1],dgg,R1_i);
+		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],r_small_1[i-1],dgg,R1_i);
 		R1_vec->push_back(*R1_i);
 	}
+
+	std::cout << "encode ran L" << std::endl;
 
 	Element	elemrl1(params,EVALUATION);
 	elemrl1.SetValues(dug.GenerateVector(n,q),EVALUATION);
 
 	ILMat<Element> *Sl = new ILMat<ILVector2n>(zero_alloc, m, m);
-	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],elemrl1*s_prod,dgg,Sl);
+	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],Sigma[l],elemrl1*s_prod,dgg,Sl);
 
 	ILMat<Element> *Rl = new ILMat<ILVector2n>(zero_alloc, m, m);
-	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],elemrl1,dgg,Rl);
+	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],Sigma[l],elemrl1,dgg,Rl);
 
 	//Sl.PrintValues();
 	//Rl.PrintValues();
@@ -257,6 +299,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				const ILMat<Element> &Ai,
 				const ILMat<Element> &Aj,
 				const TrapdoorPair &Ti,
+				const ILMat<LargeFloat> &sigma,
 				const Element &elemS,
 				DiscreteGaussianGenerator &dgg,
 				ILMat<Element> *encodedElem) const {
@@ -270,7 +313,6 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	const BigBinaryInteger &modulus = elemS.GetParams().GetModulus();
 	const ILParams &params = elemS.GetParams();
 	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
-	double s = 1000;
 
 	ILMat<Element> ej(zero_alloc, 1, m); //generate a row vector of discrete Gaussian ring elements
 	
@@ -281,7 +323,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	ILMat<Element> bj = Aj.ScalarMult(elemS) + ej;
 
 	for(size_t i=0; i<m; i++) {
-		ILMat<Element> gaussj = GaussSamp(n,k,Ai,Ti,bj(0,i),dgg.GetStd(), s, dgg);
+		ILMat<Element> gaussj = GaussSamp(n,k,Ai,Ti,sigma,bj(0,i),dgg.GetStd(), dgg);
 		for(size_t j=0; j<m; j++)
 			(*encodedElem)(j,i) = gaussj(j,0);
 	}

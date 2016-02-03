@@ -44,8 +44,8 @@ namespace lbcrypto {
         return pair<RingMat, TrapdoorPair>(A, TrapdoorPair(r, e));
     }
 
-    inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const TrapdoorPair& T, const ILVector2n &u, 
-		double sigma, double s, DiscreteGaussianGenerator &dgg) {
+    inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const TrapdoorPair& T, const ILMat<LargeFloat> &SigmaP, const ILVector2n &u, 
+		double sigma, DiscreteGaussianGenerator &dgg) {
 
 		const ILParams &params = u.GetParams();
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
@@ -56,26 +56,26 @@ namespace lbcrypto {
         const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
 		//Computing e and r in coefficient representation
-		ILMat<ILVector2n> eCoeff = T.m_e;
-		eCoeff.SwitchFormat();
-		ILMat<ILVector2n> rCoeff = T.m_r;
-		rCoeff.SwitchFormat();
+		//ILMat<ILVector2n> eCoeff = T.m_e;
+		//eCoeff.SwitchFormat();
+		//ILMat<ILVector2n> rCoeff = T.m_r;
+		//rCoeff.SwitchFormat();
 
         //ILMat<BigBinaryInteger> R = Rotate(T.m_e)
         //    .VStack(Rotate(T.m_r))
         //    .VStack(ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
 
-        ILMat<BigBinaryInteger> R = Rotate(eCoeff)
-            .VStack(Rotate(rCoeff))
-            .VStack(ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
+        //ILMat<BigBinaryInteger> R = Rotate(eCoeff)
+        //    .VStack(Rotate(rCoeff))
+        //    .VStack(ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
 
-        ILMat<int32_t> Rint = ConvertToInt32(R, modulus);
-        ILMat<int32_t> COV = Rint*Rint.Transpose().ScalarMult(c*c);
+        //ILMat<int32_t> Rint = ConvertToInt32(R, modulus);
+        //ILMat<int32_t> COV = Rint*Rint.Transpose().ScalarMult(c*c);
 
-        ILMat<int32_t> SigmaP = ILMat<int32_t>([](){ return make_unique<int32_t>(); }, COV.GetRows(), COV.GetCols()).Identity().ScalarMult(s*s) - COV;
+        //ILMat<int32_t> SigmaP = ILMat<int32_t>([](){ return make_unique<int32_t>(); }, COV.GetRows(), COV.GetCols()).Identity().ScalarMult(s*s) - COV;
 
         ILMat<int32_t> p([](){ return make_unique<int32_t>(); }, (2+k)*n, 1);
-        NonSphericalSample(n, modulus, SigmaP, c, &p);
+        NonSphericalSample(n, SigmaP, c, &p);
 
 		// pHat is in the coefficient representation
 		ILMat<ILVector2n> pHat = SplitInt32IntoILVector2nElements(p,n,params);
@@ -109,6 +109,43 @@ namespace lbcrypto {
 			zHatPrime(row,0) = pHat(row,0) + zHat(row-2,0);
 
         return zHatPrime;
+
+    }
+
+inline void PerturbationMatrixGen(size_t n, size_t k, const RingMat& A, const TrapdoorPair& T, double s, ILMat<LargeFloat> *sigmaSqrt) {
+
+		//We should convert this to a static variable later
+		int32_t c(ceil(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI)));
+
+        const BigBinaryInteger& modulus = A(0,0).GetModulus();
+
+		//Computing e and r in coefficient representation
+		ILMat<ILVector2n> eCoeff = T.m_e;
+		eCoeff.SwitchFormat();
+		ILMat<ILVector2n> rCoeff = T.m_r;
+		rCoeff.SwitchFormat();
+
+        //ILMat<BigBinaryInteger> R = Rotate(T.m_e)
+        //    .VStack(Rotate(T.m_r))
+        //    .VStack(ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
+
+        ILMat<BigBinaryInteger> R = Rotate(eCoeff)
+            .VStack(Rotate(rCoeff))
+            .VStack(ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
+
+        ILMat<int32_t> Rint = ConvertToInt32(R, modulus);
+        ILMat<int32_t> COV = Rint*Rint.Transpose().ScalarMult(c*c);
+
+        ILMat<int32_t> SigmaP = ILMat<int32_t>([](){ return make_unique<int32_t>(); }, COV.GetRows(), COV.GetCols()).Identity().ScalarMult(s*s) - COV;
+
+        ILMat<int32_t> p([](){ return make_unique<int32_t>(); }, (2+k)*n, 1);
+
+		int32_t a(floor(c/2));
+
+		// YSP added the a^2*I term which was missing in the original LaTex document
+		ILMat<int32_t> sigmaA = SigmaP - (a*a)*ILMat<int32_t>(SigmaP.GetAllocator(), SigmaP.GetRows(), SigmaP.GetCols()).Identity();
+
+		*sigmaSqrt = Cholesky(sigmaA);
 
     }
 }
