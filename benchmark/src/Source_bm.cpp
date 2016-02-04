@@ -109,11 +109,11 @@ static void BM_SOURCE(benchmark::State& state) {
 	while (state.KeepRunning()) {
 	  ////NTRUPRE is where the core functionality is provided.
 	  NTRUPRE(state.range_x());
-	}
 
-	//std::cin.get();
-	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	NumberTheoreticTransform::GetInstance().Destroy();
+	  //std::cin.get();
+	  ChineseRemainderTransformFTT::GetInstance().Destroy();
+	  NumberTheoreticTransform::GetInstance().Destroy();
+	}
 
 	return ;
 }
