@@ -124,7 +124,7 @@ TEST(UTTrapdoor,TrapDoorPairTest){
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	ILParams params( m, modulus, rootOfUnity);
-        auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+    auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
 	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev);
 

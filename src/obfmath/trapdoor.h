@@ -55,30 +55,14 @@ namespace lbcrypto {
 
         const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
-		//Computing e and r in coefficient representation
-		//ILMat<ILVector2n> eCoeff = T.m_e;
-		//eCoeff.SwitchFormat();
-		//ILMat<ILVector2n> rCoeff = T.m_r;
-		//rCoeff.SwitchFormat();
-
-        //ILMat<BigBinaryInteger> R = Rotate(T.m_e)
-        //    .VStack(Rotate(T.m_r))
-        //    .VStack(ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
-
-        //ILMat<BigBinaryInteger> R = Rotate(eCoeff)
-        //    .VStack(Rotate(rCoeff))
-        //    .VStack(ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
-
-        //ILMat<int32_t> Rint = ConvertToInt32(R, modulus);
-        //ILMat<int32_t> COV = Rint*Rint.Transpose().ScalarMult(c*c);
-
-        //ILMat<int32_t> SigmaP = ILMat<int32_t>([](){ return make_unique<int32_t>(); }, COV.GetRows(), COV.GetCols()).Identity().ScalarMult(s*s) - COV;
-
         ILMat<int32_t> p([](){ return make_unique<int32_t>(); }, (2+k)*n, 1);
         NonSphericalSample(n, SigmaP, c, &p);
 
+		//std::cout << "GaussSamp: Just finished running NonSphericalSample" << std::endl;
+
 		// pHat is in the coefficient representation
 		ILMat<ILVector2n> pHat = SplitInt32IntoILVector2nElements(p,n,params);
+	
 		// Now pHat is in the evaluation representation
 		pHat.SwitchFormat();
 
@@ -92,7 +76,12 @@ namespace lbcrypto {
 
 		// converting perturbed syndrome to coefficient representation
 		perturbedSyndrome.SwitchFormat();
+
+		std::cout << "GaussSamp: About to run GaussSampGq" << std::endl;
+
 		GaussSampGq(perturbedSyndrome,sigma,k,modulus,dgg,&zHatBBI);
+
+		std::cout << "GaussSamp: Just ran GaussSampGq" << std::endl;
 
 		// Convert zHat from a matrix of BBI to a vector of ILVector2n ring elements
 		// zHat is in the coefficient representation

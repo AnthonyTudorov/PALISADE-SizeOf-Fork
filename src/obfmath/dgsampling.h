@@ -139,6 +139,7 @@ namespace lbcrypto {
 	inline void GaussSampGq(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q,
 				DiscreteGaussianGenerator &dgg, ILMat<BigBinaryInteger> *z)
 	{
+
 	  std::vector<double> a(k);  /* can be precomputed, depends only on k */
 	  std::vector<double> x(k);  /* not essential, used only for clarity */
 	  std::vector<double> c(k);  /* not essential, used only for clarity */

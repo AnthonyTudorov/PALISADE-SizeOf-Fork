@@ -133,7 +133,7 @@ void NTRUPRE(int input) {
 	//BigBinaryInteger rootOfUnity("6");
 	float stdDev = 4;
 
-	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
+	double diff, start, finish;
 
 	//Prepare for parameters.
 	ILParams ilParams(m,modulus,rootOfUnity);
@@ -147,7 +147,23 @@ void NTRUPRE(int input) {
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 	BinaryUniformGenerator bug = BinaryUniformGenerator();			// Create the noise generator
 
-	double diff, start, finish;
+	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
+
+	start = currentDateTime();
+
+	//This code is run only when performing execution time measurements
+
+	//Precomputations for FTT
+	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
+
+	//Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(dgg, ilParams);
+
+	finish = currentDateTime();
+	diff = finish - start;
+
+	cout << "Precomputation time: " << "\t" << diff << " ms" << endl;
+
 	//start = currentDateTime();
 
 	////////////////////////////////////////////////////////////
@@ -198,9 +214,16 @@ void NTRUPRE(int input) {
 
 	std::cout << "Key generation started" << std::endl;
 
+	start = currentDateTime();
+
 	algorithm.KeyGen(dgg,&obfuscatedPattern);
 
+	finish = currentDateTime();
+	diff = finish - start;
+
 	std::cout << "Key generation ended" << std::endl;
+
+	std::cout << "Key generation time: " << "\t" << diff << " ms" << std::endl;
 
 	algorithm.Obfuscate(clearPattern,dgg,dug,&obfuscatedPattern);
 	std::cout << "Obfuscation Execution completed." << std::endl;
