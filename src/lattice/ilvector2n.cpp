@@ -266,8 +266,17 @@ namespace lbcrypto {
 	// check if inverse exists
 	double ILVector2n::Norm() const {
 		double retVal = 0.0;
+		double locVal = 0.0;
+		double q = m_params.GetModulus().ConvertToDouble();
+
 		for (usint i = 0; i < m_values->GetLength(); i++) {
-			double locVal = (m_values->GetValAtIndex(i)).ConvertToDouble();
+			if (m_values->GetValAtIndex(i) > (m_params.GetModulus()>>1))
+			{
+				locVal = q - (m_values->GetValAtIndex(i)).ConvertToDouble();
+			}
+			else
+				locVal = (m_values->GetValAtIndex(i)).ConvertToDouble();
+				
 			if (locVal > retVal)
 				retVal = locVal;
 		}
