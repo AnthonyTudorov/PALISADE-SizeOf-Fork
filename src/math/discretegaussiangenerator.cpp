@@ -250,4 +250,32 @@ BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(double mean, double 
 
 }
 
+int32_t DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n) {
+
+		double t = log(n)/log(2)*stddev;  //this representation of log_2 is used for Visual Studio
+
+		BigBinaryInteger result;
+
+		std::uniform_int_distribution<int32_t> uniform_int(floor(mean - t), ceil(mean + t));
+		std::uniform_real_distribution<double> uniform_real(0.0,1.0);
+
+		bool flagSuccess = false;
+		int32_t x;
+
+		while (!flagSuccess) {
+			//  pick random int
+			x = uniform_int(m_gen);
+			//  roll the uniform dice
+			double dice = uniform_real(m_gen);
+			//  check if dice land below pdf
+			if (dice <= UnnormalizedGaussianPDF(mean, stddev, x)) {
+				flagSuccess = true;
+			}
+		}
+
+		return x;
+
+}
+
+
 } // namespace lbcrypto

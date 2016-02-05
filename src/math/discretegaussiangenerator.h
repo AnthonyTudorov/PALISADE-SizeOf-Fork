@@ -95,10 +95,20 @@ public:
 	* @brief  Returns a generated integer. Uses rejection method.
 	* @param mean center of discrete Gaussian distribution.
 	* @param stddev standard deviatin of discrete Gaussian distribution.
-	* @param n used to specify the range for uniform distribution
+	* @param n is ring dimension
+	* param modulus modulus
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
 	BigBinaryInteger GenerateInteger (double mean, double stddev, size_t n, const BigBinaryInteger &modulus);
+
+	/**
+	* @brief  Returns a generated integer. Uses rejection method.
+	* @param mean center of discrete Gaussian distribution.
+	* @param stddev standard deviatin of discrete Gaussian distribution.
+	* @param n is ring dimension
+	* @return A random value within this Discrete Gaussian Distribution.
+	*/
+	int32_t GenerateInteger (double mean, double stddev, size_t n);
 
 	/**
 	* @brief  Returns a generated integer (int32_t). Uses rejection method.

@@ -70,22 +70,19 @@ namespace lbcrypto {
 		// perturbedSyndrome is in the evaluation representation
 		ILVector2n perturbedSyndrome = u - (A.Mult(pHat))(0,0);
 
-		ILMat<BigBinaryInteger> zHatBBI(BigBinaryInteger::Allocator, k, n);
+		//ILMat<BigBinaryInteger> zHatBBI(BigBinaryInteger::Allocator, k, n);
+		ILMat<int32_t> zHatBBI([](){ return make_unique<int32_t>(); },  k, n);
 
 		// GaussSampG(perturbedSyndrome,sigma,k,dgg,&zHatBBI);
 
 		// converting perturbed syndrome to coefficient representation
 		perturbedSyndrome.SwitchFormat();
 
-		std::cout << "GaussSamp: About to run GaussSampGq" << std::endl;
-
 		GaussSampGq(perturbedSyndrome,sigma,k,modulus,dgg,&zHatBBI);
-
-		std::cout << "GaussSamp: Just ran GaussSampGq" << std::endl;
 
 		// Convert zHat from a matrix of BBI to a vector of ILVector2n ring elements
 		// zHat is in the coefficient representation
-		RingMat zHat = SplitBBIIntoILVector2nElements(zHatBBI,n,params);
+		RingMat zHat = SplitInt32AltIntoILVector2nElements(zHatBBI,n,params);
 		// Now converting it to the evaluation representation before multiplication
 		zHat.SwitchFormat();
 

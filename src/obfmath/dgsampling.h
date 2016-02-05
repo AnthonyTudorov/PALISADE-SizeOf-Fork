@@ -137,13 +137,13 @@ namespace lbcrypto {
 	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
 	*/
 	inline void GaussSampGq(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q,
-				DiscreteGaussianGenerator &dgg, ILMat<BigBinaryInteger> *z)
+				DiscreteGaussianGenerator &dgg, ILMat<int32_t> *z)
 	{
 
 	  std::vector<double> a(k);  /* can be precomputed, depends only on k */
 	  std::vector<double> x(k);  /* not essential, used only for clarity */
 	  std::vector<double> c(k);  /* not essential, used only for clarity */
-	  std::vector<BigBinaryInteger> d(k);  /* not essential, used only for clarity */
+	  std::vector<int32_t> d(k);  /* not essential, used only for clarity */
 	  std::vector<double> y(k);
 
 	  double std3 = stddev/3;
@@ -158,29 +158,29 @@ namespace lbcrypto {
 	  for (size_t i = 0; i < u.GetLength(); i++) {
 
 	    BigBinaryInteger v(u.GetValAtIndex(i));
-	    BigBinaryInteger zk,zj;
+		int32_t zk, zj;
 
 	    for (size_t i=0; i<k; i++)
 	      x[i] = dggstd3(gen);
 
 	    y[0] = a[0]*x[0]/2 + x[1]/a[1];
-	    for (size_t j=1; j<k-2; j++)
-	      y[j] = y[j-1]/2 +  a[j] * x[j] /2 + x[j+1]/a[j+1];
-	    y[k-1] = y[k-2]/2 + a[k-1]*x[k-1]/2;
+	    for (size_t j=1; j<k-1; j++)
+			y[j] = y[j-1]/2 +  a[j] * x[j] /2 + x[j+1]/a[j+1];
+		y[k-1] = y[k-2]/2 + a[k-1]*x[k-1]/2;
 
-	    zk = dgg.GenerateInteger((pow(2,k) / q.ConvertToDouble())*y[k-1] - (v.ConvertToDouble() / q.ConvertToDouble()), stdk, u.GetLength(),u.GetModulus()); /* FIX: compute (2^k / q) and  v/q as doubles */;
+	    zk = dgg.GenerateInteger((pow(2,k) / q.ConvertToDouble())*y[k-1] - (v.ConvertToDouble() / q.ConvertToDouble()), stdk, u.GetLength()); /* FIX: compute (2^k / q) and  v/q as doubles */;
 
 	    for (size_t j=0; j<k; j++) {
-	      d[j] = UintToBigBinaryInteger(v.GetDigitAtIndexForBase(j+1,2)) + zk*UintToBigBinaryInteger(q.GetDigitAtIndexForBase(j+1,2));
+	      d[j] = v.GetDigitAtIndexForBase(j+1,2) + zk*q.GetDigitAtIndexForBase(j+1,2);
 	      /* How efficient is GetDigitIndexForBase? Implement using left shifts? */
-	      (*z)(j,i) = d[j];
+	      (*z)(j,i) = d[j]; 
 	    }
-	    c[0] = d[0].ConvertToDouble() / 2.0;
+	    c[0] = d[0] / 2.0;
 
 	    for (size_t j=0; j<k-1; j++) {
-	      c[j+1] = (c[j] + d[i+1].ConvertToDouble()) / 2;
-	      zj = dgg.GenerateInteger(y[j] - c[j], std3, u.GetLength(),u.GetModulus()); /* generate discrete gaussian sample with mean y[j]-c[j] and standard deviation std3 */
-	      (*z)(j,i) += zj<<1; //multiplication by 2
+	      c[j+1] = (c[j] + d[j+1]) / 2;
+	      zj = dgg.GenerateInteger(y[j] - c[j], std3, u.GetLength()); /* generate discrete gaussian sample with mean y[j]-c[j] and standard deviation std3 */
+	      (*z)(j,i) += zj*2; //multiplication by 2
 	      (*z)(j+1,i) -= zj;
 	    }
 	  }

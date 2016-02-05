@@ -309,17 +309,9 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 		ej(0,i).SwitchFormat();
 	}
 
-	//ILVector2n elem = elemS;
-	//elem.SwitchFormat();
-	//std::cout << "elemS = " << elem.GetValues() << std::endl;
-
-	//ILVector2n e = ej(0,0);
-	//e.SwitchFormat();
-	//std::cout << "ej = " << e.GetValues() << std::endl;
-
 	ILMat<Element> bj = Aj.ScalarMult(elemS) + ej;
 
-	std::cout << "Encode: Computed bj, next will do GaussSamp" << std::endl; 
+	//std::cout << "Encode: Computed bj, next will do GaussSamp" << std::endl; 
 
 	for(size_t i=0; i<m; i++) {
 		ILMat<Element> gaussj = GaussSamp(n,k,Ai,Ti,sigma,bj(0,i),dgg.GetStd(), dgg);
@@ -424,7 +416,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 	std::cout << " Cross Product: " << std::endl;
 	ILMat<Element> CrossProd = ((S_prod * (*Rl)) - (R_prod * (*Sl)));
-	CrossProd.PrintValues();
+	//CrossProd.PrintValues();
 
 	//for(size_t i=0; i<m; i++)
 	//		CrossProd(0,i).SwitchFormat();

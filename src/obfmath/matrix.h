@@ -561,7 +561,7 @@ namespace lbcrypto {
     }
 
  //  split a vector of BBI into a vector of ring elements with ring dimension n
-    inline ILMat<ILVector2n> SplitBBIIntoILVector2nElements(ILMat<BigBinaryInteger> const& other, size_t n, const ILParams &params) {
+    inline ILMat<ILVector2n> SplitInt32AltIntoILVector2nElements(ILMat<int32_t> const& other, size_t n, const ILParams &params) {
 			
 		auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
@@ -570,13 +570,28 @@ namespace lbcrypto {
         ILMat<ILVector2n> result(zero_alloc, rows, 1);
 
         for (size_t row = 0; row < rows; ++row) {
+
 			BigBinaryVector tempBBV(n,params.GetModulus());
 
             for (size_t i = 0; i < n; ++i) {
-				tempBBV.SetValAtIndex(i,other(row,i));
+
+				BigBinaryInteger tempBBI;
+				uint32_t tempInteger;
+				if (other(row,i) < 0)
+				{
+					tempInteger = -other(row,i);
+					tempBBI = params.GetModulus() - BigBinaryInteger(tempInteger);
+				}
+				else
+				{
+					tempInteger = other(row,i);
+					tempBBI = BigBinaryInteger(tempInteger);
+				}
+
+				tempBBV.SetValAtIndex(i,tempBBI);
             }
 
-			result(row,0).SetValues(tempBBV,EVALUATION);
+			result(row,0).SetValues(tempBBV,COEFFICIENT);
         }
 
         return result;
