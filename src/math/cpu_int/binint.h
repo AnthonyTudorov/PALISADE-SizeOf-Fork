@@ -43,8 +43,10 @@
 #include <limits>
 #include <fstream>
 #include <stdexcept>
-
- #include "../../utils/inttypes.h"
+#include <functional>
+#include <memory>
+#include "../../utils/inttypes.h"
+#include "../../utils/memory.h"
 
 /**
 *@namespace cpu_int
@@ -52,22 +54,37 @@
 */
 namespace cpu_int{
 
+        /*
+         *Struct to Assign Value
+         *
+         */
 	template <usint N>
 	struct log2{
 		const static usint value = 1 + log2<N/2>::value;
 	};
-
+    
+        /*
+        *Struct to assign value to 1
+        *
+        */
 	template<>
 	struct log2<2>{
 		const static usint value = 1;
 	};
-	
+    
+        /*
+        *Struct to assign value
+        *
+        */
 	template <typename U>
 	struct logdtype{
 		const static usint value = log2<8*sizeof(U)>::value;
 	};
-
-	
+    
+        /*
+         *???
+         *
+         */
 	template<typename dtype>
 	struct datatypechecker{
 		// const static bool value = false ;
@@ -76,21 +93,34 @@ namespace cpu_int{
 		static_assert(value,"Data type provided is not supported in BigBinaryInteger");
 	};
 
+        /**
+         *Structure for checking datatype
+         * @Return Returns bool true if datatype is unsigned integer 8 bit.
+         */
 	template<>
 	struct datatypechecker<uint8_t>{
 		const static bool value = true ;	
 	};
-
+        /**
+        *Structure for checking datatype
+         * @Return Returns bool true if datatype is unsigned integer 16 bit.
+         */
 	template<>
 	struct datatypechecker<uint16_t>{
 		const static bool value = true ;	
 	};
-
+        /**
+         *Structure for checking datatype
+         * @Return Returns bool true if datatype is unsigned integer 32 bit.
+         */
 	template<>
 	struct datatypechecker<uint32_t>{
 		const static bool value = true ;	
 	};
-
+        /**
+         *Structure for checking datatype
+         * @Return Returns bool true if datatype is unsigned integer 64 bit.
+         */
 	template<>
 	struct datatypechecker<uint64_t>{
 		const static bool value = true ;	
@@ -109,22 +139,34 @@ namespace cpu_int{
 		static_assert(datatypechecker<uint_type>::value,"Data type provided is not supported in BigBinaryInteger");
 		const static int value = 8*sizeof(uint_type);
 	};
-	
+        /*
+         * ???
+         */
 	template<typename utype>
 	struct doubleDataType{
 		typedef void T;
 	};
 
+        /*
+         * Datatype double template function
+         * sets T as of type unsigned integer 16 bit if initial datatype is 8bit
+         */
 	template<>
 	struct doubleDataType<uint8_t>{
 		typedef uint16_t T;
 	};
-
-	template<>
+        /*
+         * Datatype double template function
+         * sets T as of type unsigned integer 32 bit if initial datatype is 16bit
+         */
+    template<>
 	struct doubleDataType<uint16_t>{
 		typedef uint32_t T;
 	};
-
+        /*
+         * Datatype double template function
+         * sets T as of type unsigned integer 64 bit if initial datatype is 32bit
+         */
 	template<>
 	struct doubleDataType<uint32_t>{
 		typedef uint64_t T;
@@ -182,6 +224,12 @@ namespace cpu_int{
         * @return the return value.
         */
     BigBinaryInteger&  operator=(const BigBinaryInteger &rhs);
+
+    inline BigBinaryInteger& operator=(usint val) {
+        *this = intToBigBinaryInteger(val);
+        return *this;
+    }
+
         /**
          * Move copy constructor
          *
@@ -264,6 +312,16 @@ namespace cpu_int{
          * @return the int representation of the value as usint.
          */
     usint ConvertToInt() const;
+    
+    double ConvertToDouble() const;
+
+	/**
+	 * Convert a value from an int to a BigBinaryInt.
+	 *
+	 * @param m the value to convert from.
+	 * @return the int represented as a big binary int.
+	 */
+	static BigBinaryInteger intToBigBinaryInteger(usint m);
 
 //Arithemetic Operations
         /**
@@ -576,6 +634,15 @@ namespace cpu_int{
          */
     inline BigBinaryInteger operator%(const BigBinaryInteger &a) const {return this->Mod(a);}
 
+	/**
+	 * Division operation.
+	 *
+	 * @param a is the value to divide.
+	 * @param b is the value to divide by.
+	 * @return is the result of the division operation.
+	 */
+	//inline BigBinaryInteger operator/(const BigBinaryInteger &a) {return this->DividedBy(a);}
+
     template<typename uint_type_c,usint BITLENGTH_c>
 		friend std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BITLENGTH_c> &ptr_obj);
         /**
@@ -613,7 +680,15 @@ namespace cpu_int{
          * Constant five.
          */
     static const BigBinaryInteger FIVE;
-        
+    
+    sint Compare(const BigBinaryInteger& a) const;
+
+    /**
+     *  Set this int to 1.
+     */
+    inline void SetIdentity() { *this = intToBigBinaryInteger(1); };
+
+	static std::function<unique_ptr<BigBinaryInteger>()> Allocator;
 
     protected:
         /**
@@ -646,7 +721,6 @@ namespace cpu_int{
 		};
 		static usint GetMSBDUint_type(Duint_type x);
 		
-		sint Compare(const BigBinaryInteger& a) const;
 		State m_state;
         BigBinaryInteger MulIntegerByChar(uint_type b) const;
 
@@ -656,6 +730,15 @@ namespace cpu_int{
 		static void add_bitVal(uschar* a,uschar b);
 	};
 
+		/**
+	 * Division operation.
+	 *
+	 * @param a is the value to divide.
+	 * @param b is the value to divide by.
+	 * @return is the result of the division operation.
+	 */
+	template<typename uint_type,usint BITLENGTH>
+	inline BigBinaryInteger<uint_type,BITLENGTH> operator/(const BigBinaryInteger<uint_type,BITLENGTH> &a, const BigBinaryInteger<uint_type,BITLENGTH> &b) {return a.DividedBy(b);}
 
 }//namespace ends
 
