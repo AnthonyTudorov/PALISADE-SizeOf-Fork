@@ -101,8 +101,14 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger()
 	std::cout<<typeid(Duint_type).name()<<std::endl;
 	*/
 	//main code
+
+	//m_value = new uint_type[m_nSize];
+	//m_state = GARBAGE;
+
 	m_value = new uint_type[m_nSize];
-	m_state = GARBAGE;
+	this->m_value[m_nSize-1] = 0;
+	this->m_MSB = 0;
+	m_state = INITIALIZED;
 }
 
 template<typename uint_type,usint BITLENGTH>
