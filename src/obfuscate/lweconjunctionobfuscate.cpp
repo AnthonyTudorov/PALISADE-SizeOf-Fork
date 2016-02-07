@@ -243,36 +243,43 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],s_small_0[i-1]*r_small_0[i-1],dgg,S0_i);
 		S0_vec->push_back(*S0_i);
 
-		std::cout << "encode ran S0" << std::endl;
+		//std::cout << "encode ran S0" << std::endl;
 
 		ILMat<Element> *S1_i = new ILMat<ILVector2n>(zero_alloc, m, m);
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],s_small_1[i-1]*r_small_1[i-1],dgg,S1_i);
 		S1_vec->push_back(*S1_i);
 
-		std::cout << "encode ran S1" << std::endl;
+		//std::cout << "encode ran S1" << std::endl;
 
 		ILMat<Element> *R0_i = new ILMat<ILVector2n>(zero_alloc, m, m);
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],r_small_0[i-1],dgg,R0_i);
 		R0_vec->push_back(*R0_i);
 
-		std::cout << "encode ran R0" << std::endl;
+		//std::cout << "encode ran R0" << std::endl;
 
 		ILMat<Element> *R1_i = new ILMat<ILVector2n>(zero_alloc, m, m);
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],r_small_1[i-1],dgg,R1_i);
 		R1_vec->push_back(*R1_i);
 
-		std::cout << "encode ran R1" << std::endl;
+		//std::cout << "encode ran R1" << std::endl;
+
+		std::cout << "encode round " << i << " completed" << std::endl;
 	}
 
-	std::cout << "encode ran L" << std::endl;
+	//std::cout << "encode started for L" << std::endl;
 
 	Element	elemrl1(dug,params,EVALUATION);
 
 	ILMat<Element> *Sl = new ILMat<ILVector2n>(zero_alloc, m, m);
 	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],Sigma[l],elemrl1*s_prod,dgg,Sl);
 
+	//std::cout << "encode 1 for L ran" << std::endl;
+	std::cout << elemrl1.GetValues() << std::endl;
+
 	ILMat<Element> *Rl = new ILMat<ILVector2n>(zero_alloc, m, m);
 	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],Sigma[l],elemrl1,dgg,Rl);
+
+	//std::cout << "encode 2 for L ran" << std::endl;
 
 	//Sl.PrintValues();
 	//Rl.PrintValues();
