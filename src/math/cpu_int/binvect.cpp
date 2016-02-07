@@ -383,6 +383,21 @@ const BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator+=(con
 }
 
 template<class IntegerType>
+const BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator-=(const BigBinaryVector &b) {
+
+	if(this->m_length!=b.m_length){
+		std::cout<<" Invalid argument \n";
+		return (BigBinaryVector)NULL;
+	}
+
+	for(usint i=0;i<this->m_length;i++){
+		*this->m_data[i] = this->m_data[i]->ModSub(*b.m_data[i],this->m_modulus);
+	}
+	return *this;
+
+}
+
+template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const BigBinaryVector &b) const{
 
 	if(this->m_length!=b.m_length){
