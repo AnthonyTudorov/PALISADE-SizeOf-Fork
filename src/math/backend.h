@@ -43,6 +43,7 @@
 	#include "cpu8bit/binmat.h"	
 #endif
 #if MATHBACKEND == 2
+	const size_t BITLEN = 100; 
 	#include "cpu_int/binint.cpp"
 	#include "cpu_int/binvect.cpp"	
 #endif
@@ -64,7 +65,7 @@ namespace lbcrypto {
 
 #if MATHBACKEND == 2
 	/** Define the mapping for BigBinaryInteger */
-	typedef cpu_int::BigBinaryInteger<uint32_t,100> BigBinaryInteger;
+	typedef cpu_int::BigBinaryInteger<uint32_t,BITLEN> BigBinaryInteger;
 	/** Define the mapping for BigBinaryVector */
 	typedef cpu_int::BigBinaryVector<BigBinaryInteger> BigBinaryVector;
 	/** Define the mapping for BigBinaryMatrix */
