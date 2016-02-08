@@ -222,9 +222,9 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	float sigma = 4;
 
 	DiscreteGaussianGenerator dgg(modulus, sigma);
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 
-	ILVector2n u(dgg,params,COEFFICIENT);
-	//u.SwitchFormat();
+	ILVector2n u(dug,params,COEFFICIENT);
 
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
 	double logTwo = log(val-1.0)/log(2)+1.0;
@@ -263,24 +263,26 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	ILParams params( m, modulus, rootOfUnity);
-    auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+    //auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
 	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
-    auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
+    //auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
 
 	DiscreteGaussianGenerator dgg(modulus, 4);
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 
-    RingMat u(uniform_alloc, 1, 1);
+	ILVector2n u(dug,params,COEFFICIENT);
+	u.SwitchFormat();
 
 	ILMat<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
 	PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
 
     //  600 is a very rough estimate for s, refer to Durmstradt 4.2 for
     //      estimation
-	RingMat z = GaussSamp(m/2, k, trapPair.first, trapPair.second, sigmaSqrt, u(0,0), stddev, dgg);
+	RingMat z = GaussSamp(m/2, k, trapPair.first, trapPair.second, sigmaSqrt, u, stddev, dgg);
 
 	//ILMat<ILVector2n> uEst = trapPair.first * z;
 
@@ -288,7 +290,12 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 		<< "Failure testing number of rows";
 	EXPECT_EQ(m/2,z(0,0).GetLength())
 		<< "Failure testing ring dimension for the first ring element";
-    EXPECT_EQ(u, trapPair.first * z);
+	
+	ILVector2n uEst = (trapPair.first * z)(0,0);
+	uEst.SwitchFormat();
+	u.SwitchFormat();
+
+    EXPECT_EQ(u, uEst);
 
 	//std::cout << z << std::endl;
 
