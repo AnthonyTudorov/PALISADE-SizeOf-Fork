@@ -70,17 +70,17 @@ struct SecureParams {
 int main(){
 
 	int input = 0;
-	/*
+	
 	std::cout << "Relinearization window : " << std::endl;
-	std::cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
+	std::cout << "0 (n = 8), 1 (n = 16), 2 (n = 32), 3 (n = 64), 4 (n = 128), 5 (n = 256), 6 (n = 512), 7 (n = 1024): [0] ";
 
 	std::cin >> input;
 	//cleans up the buffer
 	cin.ignore();
 
-	if ((input<0) || (input>4))
+	if ((input<0) || (input>7))
 		input = 0;
-	*/
+	
 	NTRUPRE(input);
 
 	std::cin.get();
@@ -126,14 +126,30 @@ void NTRUPRE(int input) {
 
 	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
 
-	usint m = 16;
-	BigBinaryInteger modulus("67108913");
-	//BigBinaryInteger modulus("61");
-	BigBinaryInteger rootOfUnity("61564");
-	//BigBinaryInteger rootOfUnity("6");
+	//usint m = 16;
+	//BigBinaryInteger modulus("67108913");
+	//BigBinaryInteger rootOfUnity("61564");
+
+	SecureParams const SECURE_PARAMS[] = {
+		{ 16,	BigBinaryInteger("67108913"),	BigBinaryInteger("61564"),	0},
+		{ 32,	BigBinaryInteger("67108961"),	BigBinaryInteger("21324232"), 	0},
+		{ 64,	BigBinaryInteger("67109633"),	BigBinaryInteger("44127055"),	0},
+		{ 128,	BigBinaryInteger("67109633"),	BigBinaryInteger("14106214"),	0},
+		{ 256,	BigBinaryInteger("67109633"),	BigBinaryInteger("44083227"),	0},
+		{ 512,	BigBinaryInteger("67118593"),	BigBinaryInteger("15034782"),	0},
+		{ 1024,	BigBinaryInteger("67126273"),	BigBinaryInteger("43023954"),	0},
+		{ 2048,	BigBinaryInteger("67127297"),	BigBinaryInteger("19715182"),	0}
+	};
+
+	//input = 0;
+
+	usint m = SECURE_PARAMS[input].m;
+	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
+	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
+
 	float stdDev = 4;
 
-	double diff, start, finish;
+	double diff, diffKeyGen, diffObf, diffEval, start, finish;
 
 	//Prepare for parameters.
 	ILParams ilParams(m,modulus,rootOfUnity);
@@ -219,11 +235,11 @@ void NTRUPRE(int input) {
 	algorithm.KeyGen(dgg,&obfuscatedPattern);
 
 	finish = currentDateTime();
-	diff = finish - start;
+	diffKeyGen = finish - start;
 
 	std::cout << "Key generation ended" << std::endl;
 
-	std::cout << "Key generation time: " << "\t" << diff << " ms" << std::endl;
+	std::cout << "Key generation time: " << "\t" << diffKeyGen << " ms" << std::endl;
 
 	std::cout << "Obfuscation Execution started" << std::endl;
 
@@ -232,11 +248,11 @@ void NTRUPRE(int input) {
 	algorithm.Obfuscate(clearPattern,dgg,dug,&obfuscatedPattern);
 
 	finish = currentDateTime();
-	diff = finish - start;
+	diffObf = finish - start;
 
 	std::cout << "Obfuscation Execution completed." << std::endl;
 
-	std::cout << "Obfuscation execution time: " << "\t" << diff << " ms" << std::endl;
+	std::cout << "Obfuscation execution time: " << "\t" << diffObf << " ms" << std::endl;
 
 //	obfuscatedPattern.GetSl();
 
@@ -248,13 +264,16 @@ void NTRUPRE(int input) {
 	result = algorithm.Evaluate(obfuscatedPattern,inputStr1);
 
 	finish = currentDateTime();
-	diff = finish - start;
+	diffEval = finish - start;
 
 	std::cout << "Evaluation completed." << std::endl;
 
-	std::cout << "Evaluation execution time: " << "\t" << diff << " ms" << std::endl;
-
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << " is " << result << "." <<std::endl;
+
+	std::cout << "Key generation time: " << "\t" << diffKeyGen << " ms" << std::endl;
+	std::cout << "Obfuscation execution time: " << "\t" << diffObf << " ms" << std::endl;
+	std::cout << "Evaluation execution time: " << "\t" << diffEval << " ms" << std::endl;
+
 
 	//system("pause");
 
