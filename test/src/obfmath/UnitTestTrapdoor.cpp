@@ -218,7 +218,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
 	ILParams params( m, modulus, rootOfUnity);
-    auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+    auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 	float sigma = 4;
 
 	DiscreteGaussianGenerator dgg(modulus, sigma);
@@ -240,11 +240,12 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	EXPECT_EQ(u.GetLength(),zHatBBI.GetCols())
 		<< "Failure testing number of colums";
     ILMat<ILVector2n> z = SplitInt32AltIntoILVector2nElements(zHatBBI, n, params);
-	z.SwitchFormat();
+	//z.SwitchFormat();
 	ILVector2n uEst = (ILMat<ILVector2n>(zero_alloc, 1,  k).GadgetVector()*z)(0,0);
-	uEst.SwitchFormat();
+	//uEst.SwitchFormat();
 
     EXPECT_EQ(u, uEst);
+
 }
 
 TEST(UTTrapdoor,TrapDoorGaussSampTest) {
