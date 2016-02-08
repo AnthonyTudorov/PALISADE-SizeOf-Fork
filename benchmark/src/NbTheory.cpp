@@ -313,6 +313,7 @@ static BigBinaryInteger& PM_returns_higher_bit_length(void){
   BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
   return (primeModulus);
 }
+
 // saving the reference to BBI for output adds some copy overhead
 static void BM_PM2(benchmark::State& state) {
     
@@ -326,7 +327,7 @@ static void BM_PM2(benchmark::State& state) {
   state.SetLabel(ss.str());
 }
 
-BENCHMARK(BM_PM2);		// register benchmark
+//BENCHMARK(BM_PM2);		// register benchmark
 
 //Note this benchmark returns two BBIs so we return a string and suffer
 // some overhead
