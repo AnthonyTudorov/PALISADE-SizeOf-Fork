@@ -85,7 +85,6 @@ int main(){
 		NTRUPRE(input);
 	}
 
-
 	std::cin.get();
 
 	return 0;
