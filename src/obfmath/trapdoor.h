@@ -90,9 +90,6 @@ namespace lbcrypto {
 
 		RingMat zHatPrime(zero_alloc, k + 2, 1);
 
-		std::cout<<"m_e dimensions: rows, columns" << T.m_e.GetRows() <<"; " << T.m_e.GetCols() << std::endl;
-		std::cout<<"zHat dimensions: rows, columns" << zHat.GetRows() <<"; " << zHat.GetCols() << std::endl;
-
 		zHatPrime(0,0) = pHat(0,0) + T.m_e.Mult(zHat)(0,0);
 		zHatPrime(1,0) = pHat(1,0) + T.m_r.Mult(zHat)(0,0);
 

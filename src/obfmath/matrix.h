@@ -156,6 +156,7 @@ namespace lbcrypto {
                 ILMat<Element> result(allocZero, rows, other.cols);
                 for (size_t row = 0; row < result.rows; ++row) {
                     for (size_t col = 0; col < result.cols; ++col) {
+						*result.data[row][col] = 0;
                         for (size_t i = 0; i < cols; ++i) {
                             *result.data[row][col] += *data[row][i] * *other.data[i][col];
                         }
