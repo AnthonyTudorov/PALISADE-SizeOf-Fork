@@ -141,7 +141,10 @@ $(BENCHMARK_BIN): $(BENCHMARK_OBJ) $(BENCHMARK_LIB)
 
 # this assembles a list of the palisade objects (using BUILDDIR defined in the
 # calling makefile. We need this to build benchmark executables
-PALISADE_OBJ= $(wildcard $(BUILDDIR)/*/*.o) $(wildcard $(BUILDDIR)/*/*/*.o)
+PALISADE_SRC = $(wildcard $(SRCDIR)/*/*.cpp) $(wildcard $(SRCDIR)/*/*/*.cpp)
+
+#PALISADE_OBJ= $(wildcard $(BUILDDIR)/*/*.o) $(wildcard $(BUILDDIR)/*/*/*.o)
+PALISADE_OBJ =  $(PALISADE_SRC:$(SRCDIR)%.cpp=$(BUILDDIR)%.o)
 
 # this builds executables from objects for benchmarks
 $(BENCHMARK_BIN_DIR)/%: $(BENCHMARK_BUILD_DIR)/%.o
