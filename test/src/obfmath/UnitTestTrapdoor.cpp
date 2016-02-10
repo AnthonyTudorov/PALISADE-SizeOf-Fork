@@ -40,6 +40,7 @@
 
 #include "../../../src/obfmath/randomizedround.h"
 #include "../../../src/obfmath/trapdoor.h"
+#include "../../../src/obfuscate/lweconjunctionobfuscate.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -299,5 +300,130 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
     EXPECT_EQ(u, uEst);
 
 	//std::cout << z << std::endl;
+
+}
+TEST(UTTrapdoor,EncodeTest_dgg_yes) {
+
+	usint m_cyclo = 16;
+	usint n = m_cyclo/2;
+
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	float stddev = 4;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = log(val-1.0)/log(2)+1.0;
+	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	double norm = 0;
+
+	ILParams params( m_cyclo, modulus, rootOfUnity);
+    //auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+
+	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(params);
+	obfuscatedPattern.SetLength(1);
+
+	usint m = obfuscatedPattern.GetLogModulus() + 2;
+
+	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
+
+	DiscreteGaussianGenerator dgg(modulus, 4);
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(BigBinaryInteger(m));
+
+	algorithm.KeyGen(dgg,&obfuscatedPattern);
+
+	const std::vector<ILMat<ILVector2n>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
+	const std::vector<TrapdoorPair>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
+	const std::vector<ILMat<LargeFloat>>   &Sigma = obfuscatedPattern.GetSigmaKeys();
+
+	double constraint = obfuscatedPattern.GetConstraint();
+
+	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+
+	ILVector2n	s1(dgg,params,EVALUATION);
+
+	ILMat<ILVector2n> *encoded1 = new ILMat<ILVector2n>(zero_alloc, m, m);
+	algorithm.Encode(Pk_vector[0],Pk_vector[1],Ek_vector[0],Sigma[0],s1,dgg,encoded1);
+
+	ILMat<ILVector2n> *encoded2 = new ILMat<ILVector2n>(zero_alloc, m, m);
+	algorithm.Encode(Pk_vector[0],Pk_vector[1],Ek_vector[0],Sigma[0],s1,dgg,encoded2);	
+
+	ILMat<ILVector2n> CrossProd = Pk_vector[0]*(*encoded1 - *encoded2);
+
+	CrossProd.SwitchFormat();
+
+	norm = CrossProd.Norm();
+	std::cout << " Constraint: " << constraint << std::endl;
+	std::cout << " Norm 1: " << norm << std::endl;
+
+	bool result1 = (norm <= constraint);
+
+	delete encoded1;
+	delete encoded2;
+
+	EXPECT_EQ(true, result1);
+
+}
+TEST(UTTrapdoor,EncodeTest_dgg_no) {
+
+	usint m_cyclo = 16;
+	usint n = m_cyclo/2;
+
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	float stddev = 4;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = log(val-1.0)/log(2)+1.0;
+	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	double norm = 0;
+
+	ILParams params( m_cyclo, modulus, rootOfUnity);
+    //auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+
+	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(params);
+	obfuscatedPattern.SetLength(1);
+
+	usint m = obfuscatedPattern.GetLogModulus() + 2;
+
+	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
+
+	DiscreteGaussianGenerator dgg(modulus, 4);
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(BigBinaryInteger(m));
+
+	algorithm.KeyGen(dgg,&obfuscatedPattern);
+
+	const std::vector<ILMat<ILVector2n>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
+	const std::vector<TrapdoorPair>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
+	const std::vector<ILMat<LargeFloat>>   &Sigma = obfuscatedPattern.GetSigmaKeys();
+
+	double constraint = obfuscatedPattern.GetConstraint();
+
+	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+
+	ILVector2n	s1(dgg,params,EVALUATION);
+	ILVector2n	s2(dgg,params,EVALUATION);
+
+	ILMat<ILVector2n> *encoded1 = new ILMat<ILVector2n>(zero_alloc, m, m);
+	algorithm.Encode(Pk_vector[0],Pk_vector[1],Ek_vector[0],Sigma[0],s1,dgg,encoded1);
+
+	ILMat<ILVector2n> *encoded2 = new ILMat<ILVector2n>(zero_alloc, m, m);
+	algorithm.Encode(Pk_vector[0],Pk_vector[1],Ek_vector[0],Sigma[0],s2,dgg,encoded2);	
+
+	ILMat<ILVector2n> CrossProd = Pk_vector[0]*(*encoded1 - *encoded2);
+
+	CrossProd.SwitchFormat();
+
+	norm = CrossProd.Norm();
+	std::cout << " Constraint: " << constraint << std::endl;
+	std::cout << " Norm 1: " << norm << std::endl;
+
+	bool result1 = (norm <= constraint);
+
+	delete encoded1;
+	delete encoded2;
+
+	EXPECT_EQ(false, result1);
 
 }
