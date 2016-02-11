@@ -41,6 +41,7 @@
 #include "../../../src/obfmath/randomizedround.h"
 #include "../../../src/obfmath/trapdoor.h"
 #include "../../../src/obfuscate/lweconjunctionobfuscate.h"
+#include "../../../src/obfuscate/lweconjunctionobfuscate.cpp"
 
 using namespace std;
 using namespace lbcrypto;
@@ -356,12 +357,12 @@ TEST(UTTrapdoor,EncodeTest_dgg_yes) {
 	std::cout << " Constraint: " << constraint << std::endl;
 	std::cout << " Norm 1: " << norm << std::endl;
 
-	bool result1 = (norm <= constraint);
+	//bool result1 = (norm <= constraint);
 
 	delete encoded1;
 	delete encoded2;
 
-	EXPECT_EQ(true, result1);
+	EXPECT_LE(norm,constraint);
 
 }
 TEST(UTTrapdoor,EncodeTest_dgg_no) {
@@ -419,11 +420,11 @@ TEST(UTTrapdoor,EncodeTest_dgg_no) {
 	std::cout << " Constraint: " << constraint << std::endl;
 	std::cout << " Norm 1: " << norm << std::endl;
 
-	bool result1 = (norm <= constraint);
+	//bool result1 = (norm <= constraint);
 
 	delete encoded1;
 	delete encoded2;
 
-	EXPECT_EQ(false, result1);
+	EXPECT_GT(norm, constraint);
 
 }

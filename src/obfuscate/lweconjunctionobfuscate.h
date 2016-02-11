@@ -164,7 +164,9 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 	
 					delete this->m_Sl;
 					delete this->m_Rl;
+				}
 
+				if (this->m_pk != NULL) {
 					delete this->m_pk;
 					delete this->m_ek;
 					delete this->m_Sigma;
