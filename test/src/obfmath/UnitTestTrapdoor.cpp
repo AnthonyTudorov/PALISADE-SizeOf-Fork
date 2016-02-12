@@ -312,24 +312,29 @@ TEST(UTTrapdoor,EncodeTest_dgg_yes) {
 	BigBinaryInteger rootOfUnity("61564");
 	float stddev = 4;
 
+
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
 	double logTwo = log(val-1.0)/log(2)+1.0;
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	double norm = 0;
 
-	ILParams params( m_cyclo, modulus, rootOfUnity);
-    //auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+	ILParams params(m_cyclo, modulus, rootOfUnity);
+    	//auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+
+	DiscreteGaussianGenerator dgg(modulus, 4);
+
+	// Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(dgg, params);
 
 	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(params);
 	obfuscatedPattern.SetLength(1);
 
 	usint m = obfuscatedPattern.GetLogModulus() + 2;
 
-	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
-
-	DiscreteGaussianGenerator dgg(modulus, 4);
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(BigBinaryInteger(m));
+
+	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
 
 	algorithm.KeyGen(dgg,&obfuscatedPattern);
 
@@ -357,13 +362,18 @@ TEST(UTTrapdoor,EncodeTest_dgg_yes) {
 	std::cout << " Constraint: " << constraint << std::endl;
 	std::cout << " Norm 1: " << norm << std::endl;
 
+
 	//bool result1 = (norm <= constraint);
+
+	EXPECT_LE(norm,constraint);
 
 	delete encoded1;
 	delete encoded2;
 
-	EXPECT_LE(norm,constraint);
+	//cleans up precomputed samples
+	//ILVector2n::DestroyPreComputedSamples();
 
+	
 }
 TEST(UTTrapdoor,EncodeTest_dgg_no) {
 

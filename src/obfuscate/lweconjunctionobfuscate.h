@@ -182,6 +182,20 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 				this->SetParameters(cryptoParams);
 				this->m_length = 0;
 
+				this->m_S0_vec = NULL;
+				this->m_S1_vec = NULL;
+
+				this->m_R0_vec = NULL;
+				this->m_R1_vec = NULL;
+
+				this->m_Sl = NULL;
+				this->m_Rl = NULL;
+
+				this->m_pk = NULL;
+				this->m_ek = NULL;
+				this->m_Sigma = NULL;
+
+
 				//usint m = this->GetLogModulus();
 				//this->m_Sl = ILMat<ILVector2n>(secureIL2nAlloc(), m, m);
 				//this->m_Rl = ILMat<ILVector2n>(secureIL2nAlloc(), m, m);
