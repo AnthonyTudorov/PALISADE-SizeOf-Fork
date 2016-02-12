@@ -137,7 +137,7 @@ template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				DiscreteGaussianGenerator &dgg,
-				DiscreteUniformGenerator &dug,
+				BinaryUniformGenerator &dbg,
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
 
 	
@@ -174,11 +174,13 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 
 	for(usint i=0; i<=l-1; i++) {
 		//Set the elements s and r to a discrete uniform generated vector.
-		Element elems0(dug,params,EVALUATION);
+		Element elems0(dbg,params,EVALUATION);
 		s_small_0.push_back(elems0);
+		//std::cout << elems0 << std::endl;
 
-		Element	elemr0(dug,params,EVALUATION);
+		Element	elemr0(dbg,params,EVALUATION);
 		r_small_0.push_back(elemr0);
+		//std::cout << elemr0 << std::endl;
 
 		//Determine wildcard or not.  If wildcard, copy s and r.  Else, don't copy.
 		bool wildCard = ((char)clearPattern.GetIndex(i) == '?');
@@ -187,16 +189,21 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 			s_small_1.push_back(s_small_0.back());
 			r_small_1.push_back(r_small_0.back());
 		} else {
-			Element elems1(dug,params,EVALUATION);
+			//Element elems1(dug,params,EVALUATION);
+			Element elems1(dbg,params,EVALUATION);
 			s_small_1.push_back(elems1);
 
-			Element	elemr1(dug,params,EVALUATION);
+			//Element	elemr1(dug,params,EVALUATION);
+			Element	elemr1(dbg,params,EVALUATION);
 			r_small_1.push_back(elemr1);
 		}
 		
 		const Element *vi = NULL;
 		if ((char)clearPattern.GetIndex(i) == '1')
+		{
+			std::cout << "index is 1" << std::endl;
 			vi = &s_small_1.back();
+		}
 		else
 			vi = &s_small_0.back();
 		
@@ -248,7 +255,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 
 	//std::cout << "encode started for L" << std::endl;
 
-	Element	elemrl1(dug,params,EVALUATION);
+	//Element	elemrl1(dug,params,EVALUATION);
+	Element	elemrl1(dbg,params,EVALUATION);
 
 	ILMat<Element> *Sl = new ILMat<ILVector2n>(zero_alloc, m, m);
 	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],Sigma[l],elemrl1*s_prod,dgg,Sl);

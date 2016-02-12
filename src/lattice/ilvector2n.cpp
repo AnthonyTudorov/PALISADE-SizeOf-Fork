@@ -133,6 +133,21 @@ namespace lbcrypto {
 
 	}
 
+	ILVector2n::ILVector2n(BinaryUniformGenerator &dbg, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
+
+		const ILParams &ilParams = static_cast<const ILParams&>(params);
+
+		usint vectorSize = ilParams.GetCyclotomicOrder() / 2;
+		m_values = new BigBinaryVector(dbg.GenerateVector(vectorSize));
+		(*m_values).SetModulus(params.GetModulus());
+
+		m_format = COEFFICIENT;
+
+		if (format == EVALUATION)
+			this->SwitchFormat();
+
+	}
+
 	ILVector2n::~ILVector2n()
 	{
 		/*if(m_values!=NULL)

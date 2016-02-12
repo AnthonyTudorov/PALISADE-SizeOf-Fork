@@ -446,7 +446,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			void Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				DiscreteGaussianGenerator &dgg,
-				DiscreteUniformGenerator &dug,
+				BinaryUniformGenerator &dbg,
 				ObfuscatedLWEConjunctionPattern<Element> * obfuscatedPattern) const;
 
 			/**
