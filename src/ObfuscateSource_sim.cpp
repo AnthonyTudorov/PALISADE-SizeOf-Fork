@@ -229,7 +229,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	algorithm.Obfuscate(clearPattern,dgg,dug,&obfuscatedPattern);
+	algorithm.Obfuscate(clearPattern,dgg,bug,&obfuscatedPattern);
 
 	finish = currentDateTime();
 	diff = finish - start;
