@@ -68,7 +68,7 @@ struct SecureParams {
 };
 
 int main(){
-
+/*
 	int input = 0;
 	
 	std::cout << "Relinearization window : " << std::endl;
@@ -80,8 +80,11 @@ int main(){
 
 	if ((input<0) || (input>7))
 		input = 0;
-	
-	NTRUPRE(input);
+*/
+	for (int input=0; input<32; input++) {
+		NTRUPRE(input);
+	}
+
 
 	std::cin.get();
 
@@ -131,14 +134,45 @@ void NTRUPRE(int input) {
 	//BigBinaryInteger rootOfUnity("61564");
 
 	SecureParams const SECURE_PARAMS[] = {
-		{ 16,	BigBinaryInteger("67108913"),	BigBinaryInteger("61564"),	0},
-		{ 32,	BigBinaryInteger("67108961"),	BigBinaryInteger("21324232"), 	0},
-		{ 64,	BigBinaryInteger("67109633"),	BigBinaryInteger("44127055"),	0},
-		{ 128,	BigBinaryInteger("67109633"),	BigBinaryInteger("14106214"),	0},
-		{ 256,	BigBinaryInteger("67109633"),	BigBinaryInteger("44083227"),	0},
-		{ 512,	BigBinaryInteger("67118593"),	BigBinaryInteger("15034782"),	0},
-		{ 1024,	BigBinaryInteger("67126273"),	BigBinaryInteger("43023954"),	0},
-		{ 2048,	BigBinaryInteger("67127297"),	BigBinaryInteger("19715182"),	0}
+		{ 16,	BigBinaryInteger("67108913"),	BigBinaryInteger("61564"),	8},
+		{ 16,	BigBinaryInteger("67108913"),	BigBinaryInteger("61564"),	16},
+		{ 16,	BigBinaryInteger("67108913"),	BigBinaryInteger("61564"),	32},
+		{ 16,	BigBinaryInteger("67108913"),	BigBinaryInteger("61564"),	64},
+
+		{ 32,	BigBinaryInteger("67108961"),	BigBinaryInteger("21324232"), 	8},
+		{ 32,	BigBinaryInteger("67108961"),	BigBinaryInteger("21324232"), 	16},
+		{ 32,	BigBinaryInteger("67108961"),	BigBinaryInteger("21324232"), 	32},
+		{ 32,	BigBinaryInteger("67108961"),	BigBinaryInteger("21324232"), 	64},
+
+		{ 64,	BigBinaryInteger("67109633"),	BigBinaryInteger("44127055"),	8},
+		{ 64,	BigBinaryInteger("67109633"),	BigBinaryInteger("44127055"),	16},
+		{ 64,	BigBinaryInteger("67109633"),	BigBinaryInteger("44127055"),	32},
+		{ 64,	BigBinaryInteger("67109633"),	BigBinaryInteger("44127055"),	64},
+
+		{ 128,	BigBinaryInteger("67109633"),	BigBinaryInteger("14106214"),	8},
+		{ 128,	BigBinaryInteger("67109633"),	BigBinaryInteger("14106214"),	16},
+		{ 128,	BigBinaryInteger("67109633"),	BigBinaryInteger("14106214"),	32},
+		{ 128,	BigBinaryInteger("67109633"),	BigBinaryInteger("14106214"),	64},
+
+		{ 256,	BigBinaryInteger("67109633"),	BigBinaryInteger("44083227"),	8},
+		{ 256,	BigBinaryInteger("67109633"),	BigBinaryInteger("44083227"),	16},
+		{ 256,	BigBinaryInteger("67109633"),	BigBinaryInteger("44083227"),	32},
+		{ 256,	BigBinaryInteger("67109633"),	BigBinaryInteger("44083227"),	64},
+
+		{ 512,	BigBinaryInteger("67118593"),	BigBinaryInteger("15034782"),	8},
+		{ 512,	BigBinaryInteger("67118593"),	BigBinaryInteger("15034782"),	16},
+		{ 512,	BigBinaryInteger("67118593"),	BigBinaryInteger("15034782"),	32},
+		{ 512,	BigBinaryInteger("67118593"),	BigBinaryInteger("15034782"),	64},
+
+		{ 1024,	BigBinaryInteger("67126273"),	BigBinaryInteger("43023954"),	8},
+		{ 1024,	BigBinaryInteger("67126273"),	BigBinaryInteger("43023954"),	16},
+		{ 1024,	BigBinaryInteger("67126273"),	BigBinaryInteger("43023954"),	32},
+		{ 1024,	BigBinaryInteger("67126273"),	BigBinaryInteger("43023954"),	64},
+
+		{ 2048,	BigBinaryInteger("67127297"),	BigBinaryInteger("19715182"),	8},
+		{ 2048,	BigBinaryInteger("67127297"),	BigBinaryInteger("19715182"),	16},
+		{ 2048,	BigBinaryInteger("67127297"),	BigBinaryInteger("19715182"),	32},
+		{ 2048,	BigBinaryInteger("67127297"),	BigBinaryInteger("19715182"),	64}
 	};
 
 	//input = 0;
@@ -146,6 +180,13 @@ void NTRUPRE(int input) {
 	usint m = SECURE_PARAMS[input].m;
 	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
 	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
+	usint len = SECURE_PARAMS[input].relinWindow;
+
+	double val = modulus.ConvertToDouble();
+	//std::cout << "val : " << val << std::endl;
+	double logTwo = log(val-1.0)/log(2)+1.0;
+	//std::cout << "logTwo : " << logTwo << std::endl;
+	usint logModulus = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	float stdDev = 4;
 
@@ -187,6 +228,7 @@ void NTRUPRE(int input) {
 	////////////////////////////////////////////////////////////
 
 	std::string inputPattern = "10?10?10?10?10?10?10?10?10?10?10?10?10?10?10?10?10?10?10?10?10?1";
+	inputPattern.resize(len);
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 
 	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
@@ -198,6 +240,7 @@ void NTRUPRE(int input) {
 	std::cout << clearPattern.GetLength() << std::endl;
 
 	std::string inputStr1 = "1001001001001001001001001001001001001001001001001001001001001001";
+	inputStr1.resize(len);
 	bool out1 = algorithm.Evaluate(clearPattern,inputStr1);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << std::endl;
 	std::cout << out1 << std::endl;
@@ -229,6 +272,7 @@ void NTRUPRE(int input) {
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 
 	std::cout << "Key generation started" << std::endl;
+	std::cout << "+START KeyGeneration " << m/2 << " " << logModulus << " " << len << std::endl;
 
 	start = currentDateTime();
 
@@ -237,11 +281,13 @@ void NTRUPRE(int input) {
 	finish = currentDateTime();
 	diffKeyGen = finish - start;
 
+	std::cout << "+END" << std::endl;
 	std::cout << "Key generation ended" << std::endl;
 
 	std::cout << "Key generation time: " << "\t" << diffKeyGen << " ms" << std::endl;
 
 	std::cout << "Obfuscation Execution started" << std::endl;
+	std::cout << "+START Obfuscation " << m/2 << " " << logModulus << " " << len << std::endl;
 
 	start = currentDateTime();
 
@@ -250,6 +296,7 @@ void NTRUPRE(int input) {
 	finish = currentDateTime();
 	diffObf = finish - start;
 
+	std::cout << "+END" << std::endl;
 	std::cout << "Obfuscation Execution completed." << std::endl;
 
 	std::cout << "Obfuscation execution time: " << "\t" << diffObf << " ms" << std::endl;
@@ -258,6 +305,7 @@ void NTRUPRE(int input) {
 
 
 	std::cout << "Evaluation started" << std::endl;
+	std::cout << "+START Evaluation " << m/2 << " " << logModulus << " " << len << std::endl;
 
 	start = currentDateTime();
 
@@ -266,6 +314,7 @@ void NTRUPRE(int input) {
 	finish = currentDateTime();
 	diffEval = finish - start;
 
+	std::cout << "+END" << std::endl;
 	std::cout << "Evaluation completed." << std::endl;
 
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << " is " << result << "." <<std::endl;
