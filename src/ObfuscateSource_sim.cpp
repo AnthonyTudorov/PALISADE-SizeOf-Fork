@@ -334,14 +334,24 @@ void NTRUPRE(int input) {
 
 }
 
-void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha) {
+
+	NextQ(modulus, BigBinaryInteger::TWO,n,logModulusPlus2,len,C1,C2);
+
+void NextQ(BigBinaryInteger &q, 
+		const BigBinaryInteger &plainTextModulus, 
+		const usint &ringDimension, 
+		const usint &logModulusPlus2, 
+		const usint &len, 
+		const BigBinaryInteger &C1, 
+		const BigBinaryInteger &C2) {
 	BigBinaryInteger bigOne("1");
 	BigBinaryInteger bigTwo("2");
 	BigBinaryInteger bigSixteen("16");
 	BigBinaryInteger lowerBound;
 	BigBinaryInteger ringDimensions(ringDimension);
 
-	lowerBound = bigSixteen * ringDimensions * sigma  * sigma * alpha;
+	lowerBound = C2 * (C1 * sqrt(ringDimension  * logModulusPlus2)^L);
+
 	if (!(q >= lowerBound)) {
 		q = lowerBound;
 	}
