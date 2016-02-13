@@ -175,7 +175,7 @@ void NTRUPRE(int input) {
 	//Generate and test the cleartext pattern
 	////////////////////////////////////////////////////////////
 
-	std::string inputPattern = "1?";
+	std::string inputPattern = "10?";
 	//std::string inputPattern = "1";
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 
@@ -188,18 +188,18 @@ void NTRUPRE(int input) {
 	std::cout << clearPattern.GetLength() << std::endl;
 
 	//std::string inputStr1 = "1";
-	std::string inputStr1 = "10";
+	std::string inputStr1 = "100";
 	bool out1 = algorithm.Evaluate(clearPattern,inputStr1);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << std::endl;
 	std::cout << out1 << std::endl;
 
 	//std::string inputStr2 = "1";
-	std::string inputStr2 = "11";
+	std::string inputStr2 = "101";
 	bool out2 = algorithm.Evaluate(clearPattern,inputStr2);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr2 << std::endl;
 	std::cout << out2 << std::endl;
 
-	std::string inputStr3 = "01";
+	std::string inputStr3 = "010";
 	//std::string inputStr3 = "0";
 	bool out3 = algorithm.Evaluate(clearPattern,inputStr3);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr3 << std::endl;
