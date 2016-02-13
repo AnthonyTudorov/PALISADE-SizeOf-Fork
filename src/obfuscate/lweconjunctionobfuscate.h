@@ -53,6 +53,9 @@
  */
 namespace lbcrypto {
 
+//perturbation matrix parameter
+const double S = 1000;
+
 static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 	usint m = 16;
 	//BigBinaryInteger secureModulus("67108913");

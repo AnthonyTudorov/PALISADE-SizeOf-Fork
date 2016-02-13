@@ -244,6 +244,9 @@ void NTRUPRE(int input) {
 	result = algorithm.Evaluate(obfuscatedPattern,inputStr1);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << " is " << result << "." <<std::endl;
 
+	result = algorithm.Evaluate(obfuscatedPattern,inputStr2);
+	std::cout << " \nCleartext pattern evaluation of: " << inputStr2 << " is " << result << "." <<std::endl;
+
 	result = algorithm.Evaluate(obfuscatedPattern,inputStr3);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr3 << " is " << result << "." <<std::endl;
 
