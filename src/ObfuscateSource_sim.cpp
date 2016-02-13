@@ -49,6 +49,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "obfuscate/lweconjunctionobfuscate.cpp"
 //#include "obfuscate/obfuscatelp.h"
 #include "time.h"
+#include <math.h> 
 #include <chrono>
 
 using namespace std;
@@ -192,8 +193,10 @@ void NTRUPRE(int input) {
 	usint logModulusPlus2 = logModulus+2;// = this->m_cryptoParameters.GetModulus();
 
 	float stdDev = 4;
+	
+	//TODO
+	NextQ(modulus, BigBinaryInteger::TWO,n,logModulusPlus2,len,C1,C2);
 
-	NextQ(modulus, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
 	rootOfUnity = RootOfUnity(m,modulus);
 
 	double diff, diffKeyGen, diffObf, diffEval, start, finish;
@@ -334,9 +337,6 @@ void NTRUPRE(int input) {
 
 }
 
-
-	NextQ(modulus, BigBinaryInteger::TWO,n,logModulusPlus2,len,C1,C2);
-
 void NextQ(BigBinaryInteger &q, 
 		const BigBinaryInteger &plainTextModulus, 
 		const usint &ringDimension, 
@@ -350,7 +350,12 @@ void NextQ(BigBinaryInteger &q,
 	BigBinaryInteger lowerBound;
 	BigBinaryInteger ringDimensions(ringDimension);
 
-	lowerBound = C2 * (C1 * sqrt(ringDimension  * logModulusPlus2)^L);
+	//TODO
+	double prod = (double) ringDimension  * logModulusPlus2;
+	double sqrtProd =  sqrt(prod);
+	BigBinaryInteger sqrtProdBBI = BigBinaryInteger(sqrtProd);
+
+	lowerBound = C2 * (C1 * sqrt(prod)^L);
 
 	if (!(q >= lowerBound)) {
 		q = lowerBound;
