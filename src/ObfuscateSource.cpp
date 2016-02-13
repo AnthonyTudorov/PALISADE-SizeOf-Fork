@@ -127,12 +127,15 @@ void NTRUPRE(int input) {
 	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
 
 	usint m = 16;
-	//BigBinaryInteger modulus("1099511627873");
-	BigBinaryInteger modulus("67108913");
-	//BigBinaryInteger modulus("61");
-	//BigBinaryInteger rootOfUnity("108163207722");
-	BigBinaryInteger rootOfUnity("61564");
-	//BigBinaryInteger rootOfUnity("6");
+	//60 bits
+	BigBinaryInteger modulus("1152921504606847009");
+	//27 bits
+	//BigBinaryInteger modulus("67108913");
+	//60 bits
+	BigBinaryInteger rootOfUnity("405107564542978792");
+	//27 bits
+	//BigBinaryInteger rootOfUnity("61564");
+
 	float stdDev = 4;
 
 	double diff, start, finish;
@@ -172,7 +175,8 @@ void NTRUPRE(int input) {
 	//Generate and test the cleartext pattern
 	////////////////////////////////////////////////////////////
 
-	std::string inputPattern = "1";
+	std::string inputPattern = "1?";
+	//std::string inputPattern = "1";
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 
 	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
@@ -183,17 +187,20 @@ void NTRUPRE(int input) {
 	std::cout << " \nCleartext pattern length: " << std::endl;
 	std::cout << clearPattern.GetLength() << std::endl;
 
-	std::string inputStr1 = "1";
+	//std::string inputStr1 = "1";
+	std::string inputStr1 = "10";
 	bool out1 = algorithm.Evaluate(clearPattern,inputStr1);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << std::endl;
 	std::cout << out1 << std::endl;
 
-	std::string inputStr2 = "1";
+	//std::string inputStr2 = "1";
+	std::string inputStr2 = "11";
 	bool out2 = algorithm.Evaluate(clearPattern,inputStr2);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr2 << std::endl;
 	std::cout << out2 << std::endl;
 
-	std::string inputStr3 = "0";
+	std::string inputStr3 = "01";
+	//std::string inputStr3 = "0";
 	bool out3 = algorithm.Evaluate(clearPattern,inputStr3);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr3 << std::endl;
 	std::cout << out3 << std::endl;

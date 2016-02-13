@@ -110,7 +110,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 	usint l = obfuscatedPattern->GetLength();
 	ILParams params = *(obfuscatedPattern->GetParameters());
 	usint stddev = dgg.GetStd(); 
-	double s = 600;
+	double s = 1000;
+	//double s = 600;
 
 	// Initialize the Pk and Ek matrices.
 	std::vector<ILMat<Element>> *Pk_vector = new std::vector<ILMat<Element>>();
@@ -125,6 +126,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 
 		Pk_vector->push_back(trapPair.first);
 		Ek_vector->push_back(trapPair.second);
+
 		sigma->push_back(sigmaSqrt);
 	}
 
@@ -311,6 +313,10 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 		for(size_t j=0; j<m; j++)
 			(*encodedElem)(j,i) = gaussj(j,0);
 	}
+
+	//encodedElem->SwitchFormat();
+	//std::cout<<"norm = "<<encodedElem->Norm() <<std::endl;
+	//encodedElem->SwitchFormat();
 
 	//Test to make sure Ai*gaussj = bj(0,1)
 	//ILMat<Element> test(zero_alloc, m, 1); 

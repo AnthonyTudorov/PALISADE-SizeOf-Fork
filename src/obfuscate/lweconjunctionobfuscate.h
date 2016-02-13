@@ -366,8 +366,10 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 
 				ILMat<Element> *S_ib;
 
+				//std::cout << "which character" << testVal << "; " << (testVal == '0') << std::endl;
+
 				//std::cout << " Before if statement. " << std::endl;
-				if (testVal == 0) {
+				if (testVal == '0') {
 					S_ib = &(this->m_S0_vec->at(i));
 				} else {
 					S_ib = &(this->m_S1_vec->at(i));
@@ -386,7 +388,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 				ILMat<Element> *R_ib;
 
 				//std::cout << " Before if statement. " << std::endl;
-				if (testVal == 0) {
+				if (testVal == '0') {
 					R_ib = &(this->m_R0_vec->at(i));
 				} else {
 					R_ib = &(this->m_R1_vec->at(i));
