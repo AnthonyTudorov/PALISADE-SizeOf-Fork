@@ -56,15 +56,16 @@ using namespace lbcrypto;
 
 void NTRUPRE(int input);
 double currentDateTime();
+void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
 
 /**
  * @brief Input parameters for PRE example.
  */
 struct SecureParams {
-	usint m;			///< The ring parameter.
-	BigBinaryInteger modulus;	///< The modulus
-	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
-	usint relinWindow;		///< The relinearization window parameter.
+	usint n;			///< The ring parameter.
+//	BigBinaryInteger modulus;	///< The modulus
+//	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
+	usint length;		///< The relinearization window parameter.
 };
 
 int main(){
@@ -133,61 +134,66 @@ void NTRUPRE(int input) {
 	//BigBinaryInteger rootOfUnity("61564");
 
 	SecureParams const SECURE_PARAMS[] = {
-		{ 16,	BigBinaryInteger("67108913"),	BigBinaryInteger("61564"),	8},
-		{ 16,	BigBinaryInteger("67108913"),	BigBinaryInteger("61564"),	16},
-		{ 16,	BigBinaryInteger("67108913"),	BigBinaryInteger("61564"),	32},
-		{ 16,	BigBinaryInteger("67108913"),	BigBinaryInteger("61564"),	64},
+		{ 8,	8},
+		{ 8,	16},
+		{ 8,	32},
+		{ 8,	64},
 
-		{ 32,	BigBinaryInteger("67108961"),	BigBinaryInteger("21324232"), 	8},
-		{ 32,	BigBinaryInteger("67108961"),	BigBinaryInteger("21324232"), 	16},
-		{ 32,	BigBinaryInteger("67108961"),	BigBinaryInteger("21324232"), 	32},
-		{ 32,	BigBinaryInteger("67108961"),	BigBinaryInteger("21324232"), 	64},
+		{ 16,	8},
+		{ 16,	16},
+		{ 16,	32},
+		{ 16,	64},
 
-		{ 64,	BigBinaryInteger("67109633"),	BigBinaryInteger("44127055"),	8},
-		{ 64,	BigBinaryInteger("67109633"),	BigBinaryInteger("44127055"),	16},
-		{ 64,	BigBinaryInteger("67109633"),	BigBinaryInteger("44127055"),	32},
-		{ 64,	BigBinaryInteger("67109633"),	BigBinaryInteger("44127055"),	64},
+		{ 32,	8},
+		{ 32,	16},
+		{ 32,	32},
+		{ 32,	64},
 
-		{ 128,	BigBinaryInteger("67109633"),	BigBinaryInteger("14106214"),	8},
-		{ 128,	BigBinaryInteger("67109633"),	BigBinaryInteger("14106214"),	16},
-		{ 128,	BigBinaryInteger("67109633"),	BigBinaryInteger("14106214"),	32},
-		{ 128,	BigBinaryInteger("67109633"),	BigBinaryInteger("14106214"),	64},
+		{ 64,	8},
+		{ 64,	16},
+		{ 64,	32},
+		{ 64,	64},
 
-		{ 256,	BigBinaryInteger("67109633"),	BigBinaryInteger("44083227"),	8},
-		{ 256,	BigBinaryInteger("67109633"),	BigBinaryInteger("44083227"),	16},
-		{ 256,	BigBinaryInteger("67109633"),	BigBinaryInteger("44083227"),	32},
-		{ 256,	BigBinaryInteger("67109633"),	BigBinaryInteger("44083227"),	64},
+		{ 128,	8},
+		{ 128,	16},
+		{ 128,	32},
+		{ 128,	64},
 
-		{ 512,	BigBinaryInteger("67118593"),	BigBinaryInteger("15034782"),	8},
-		{ 512,	BigBinaryInteger("67118593"),	BigBinaryInteger("15034782"),	16},
-		{ 512,	BigBinaryInteger("67118593"),	BigBinaryInteger("15034782"),	32},
-		{ 512,	BigBinaryInteger("67118593"),	BigBinaryInteger("15034782"),	64},
+		{ 256,	8},
+		{ 256,	16},
+		{ 256,	32},
+		{ 256,	64},
 
-		{ 1024,	BigBinaryInteger("67126273"),	BigBinaryInteger("43023954"),	8},
-		{ 1024,	BigBinaryInteger("67126273"),	BigBinaryInteger("43023954"),	16},
-		{ 1024,	BigBinaryInteger("67126273"),	BigBinaryInteger("43023954"),	32},
-		{ 1024,	BigBinaryInteger("67126273"),	BigBinaryInteger("43023954"),	64},
+		{ 512,	8},
+		{ 512,	16},
+		{ 512,	32},
+		{ 512,	64},
 
-		{ 2048,	BigBinaryInteger("67127297"),	BigBinaryInteger("19715182"),	8},
-		{ 2048,	BigBinaryInteger("67127297"),	BigBinaryInteger("19715182"),	16},
-		{ 2048,	BigBinaryInteger("67127297"),	BigBinaryInteger("19715182"),	32},
-		{ 2048,	BigBinaryInteger("67127297"),	BigBinaryInteger("19715182"),	64}
+		{ 1024,	8},
+		{ 1024,	16},
+		{ 1024,	32},
+		{ 1024,	64},
 	};
 
 	//input = 0;
 
-	usint m = SECURE_PARAMS[input].m;
-	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
-	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
-	usint len = SECURE_PARAMS[input].relinWindow;
+	usint n = SECURE_PARAMS[input].n;
+	usint len = SECURE_PARAMS[input].length;
+
+	BigBinaryInteger modulus("12313321");
+	BigBinaryInteger rootOfUnity("1");
 
 	double val = modulus.ConvertToDouble();
 	//std::cout << "val : " << val << std::endl;
 	double logTwo = log(val-1.0)/log(2)+1.0;
 	//std::cout << "logTwo : " << logTwo << std::endl;
 	usint logModulus = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+	usint logModulusPlus2 = logModulus+2;// = this->m_cryptoParameters.GetModulus();
 
 	float stdDev = 4;
+
+	NextQ(modulus, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+	rootOfUnity = RootOfUnity(m,modulus);
 
 	double diff, diffKeyGen, diffObf, diffEval, start, finish;
 
@@ -324,6 +330,47 @@ void NTRUPRE(int input) {
 
 
 	//system("pause");
+
+}
+
+void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha) {
+	BigBinaryInteger bigOne("1");
+	BigBinaryInteger bigTwo("2");
+	BigBinaryInteger bigSixteen("16");
+	BigBinaryInteger lowerBound;
+	BigBinaryInteger ringDimensions(ringDimension);
+
+	lowerBound = bigSixteen * ringDimensions * sigma  * sigma * alpha;
+	if (!(q >= lowerBound)) {
+		q = lowerBound;
+	}
+	else {
+		q = q + bigOne;
+	}
+
+	while (q.Mod(plainTextModulus) != bigOne) {
+		q = q + bigOne;
+	}
+
+	BigBinaryInteger cyclotomicOrder = ringDimensions * bigTwo;
+
+	while (q.Mod(cyclotomicOrder) != bigOne) {
+		q = q + plainTextModulus;
+	}
+
+	BigBinaryInteger productValue = cyclotomicOrder * plainTextModulus;
+
+	while (!MillerRabinPrimalityTest(q)) {
+		q = q + productValue;
+	}
+
+	BigBinaryInteger gcd;
+	gcd = GreatestCommonDivisor(q - BigBinaryInteger::ONE, ringDimensions);
+
+	if(!(ringDimensions == gcd)){
+		q = q + BigBinaryInteger::ONE;
+	  	NextQ(q, plainTextModulus, ringDimension, sigma, alpha);
+	}
 
 }
 
