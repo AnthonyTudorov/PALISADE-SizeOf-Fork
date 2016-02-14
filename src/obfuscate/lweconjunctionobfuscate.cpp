@@ -112,6 +112,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 	usint stddev = dgg.GetStd(); 
 	//double s = 1000;
 	//double s = 600;
+	double s = 40*std::sqrt(n*(k+2));
+	std::cout << "parameter s = " << s << std::endl;
 
 	// Initialize the Pk and Ek matrices.
 	std::vector<ILMat<Element>> *Pk_vector = new std::vector<ILMat<Element>>();
@@ -122,7 +124,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 		pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev); //TODO remove stddev
 
 		ILMat<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
-		PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, S, &sigmaSqrt);
+		PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
 
 		Pk_vector->push_back(trapPair.first);
 		Ek_vector->push_back(trapPair.second);

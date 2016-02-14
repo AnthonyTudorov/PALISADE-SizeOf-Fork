@@ -35,6 +35,7 @@
 #define LBCRYPTO_OBFUSCATE_LWECONJUNCTIONOBFUSCATE_H
 
 //Includes Section
+#include <cmath>
 #include <vector>
 #include "obfuscatelp.h"
 #include "../utils/inttypes.h"
@@ -54,7 +55,7 @@
 namespace lbcrypto {
 
 //perturbation matrix parameter
-const double S = 1000;
+//const double S = 1000;
 
 static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 	usint m = 16;
