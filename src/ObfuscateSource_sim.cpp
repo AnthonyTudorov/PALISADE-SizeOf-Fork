@@ -186,7 +186,7 @@ void NTRUPRE(int input) {
 
 	BigBinaryInteger modulus("64");
 	usint logModulus = 6;
-	usint logModulusPlus2 = 8;
+	usint logModulusPlus2 = 8;//15*len+2;
 	usint logModulusPlus2Old = 8;
 
 	bool logModulusUnchanged = false;
@@ -224,6 +224,8 @@ void NTRUPRE(int input) {
 		std::cout << "base^L : " << baseBBIExp << std::endl;
 
 		modulus = frontBBI * baseBBIExp;
+
+		std::cout << "modulus estimate : " << modulus << std::endl;
 
 		double val = modulus.ConvertToDouble();
 		//std::cout << "val : " << val << std::endl;
