@@ -220,7 +220,6 @@ void NTRUPRE(int input) {
 		std::cout << "base   : " << baseBBI << std::endl;
 	
 		BigBinaryInteger baseBBIExp = baseBBI.Exp(len);
-
 		std::cout << "base^L : " << baseBBIExp << std::endl;
 
 		modulus = frontBBI * baseBBIExp;
