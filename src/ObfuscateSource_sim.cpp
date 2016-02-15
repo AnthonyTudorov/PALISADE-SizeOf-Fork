@@ -57,7 +57,7 @@ using namespace lbcrypto;
 
 void NTRUPRE(int input);
 double currentDateTime();
-void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
+void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension);
 
 /**
  * @brief Input parameters for PRE example.
@@ -156,7 +156,7 @@ void NTRUPRE(int input) {
 		{ 64,	32},
 		{ 64,	64},
 
-		{ 128,	8},
+		{ 128,	8}, 
 		{ 128,	16},
 		{ 128,	32},
 		{ 128,	64},
@@ -182,20 +182,69 @@ void NTRUPRE(int input) {
 	usint n = SECURE_PARAMS[input].n;
 	usint len = SECURE_PARAMS[input].length;
 
-	BigBinaryInteger modulus("12313321");
+	float stdDev = 4.0;
+	usint m=2*n;
+
+	BigBinaryInteger modulus("64");
+	usint logModulus = 6;
+	usint logModulusPlus2 = 8;
+	usint logModulusPlus2Old = 8;
+
+	bool logModulusUnchanged = false;
+
+	while (!logModulusUnchanged) {
+
+
+		float alpha = 3.0;
+		float B1 = alpha*stdDev;
+
+		float beta = 4.0;
+		float sqrtnm = sqrt((float)(n*logModulusPlus2));
+
+		float B2 = beta*40.0*sqrtnm;
+
+		float front = 16.0*len*B1;
+		float base = B2*sqrtnm;
+
+		usint frontInt = ceil(front);
+		usint baseInt = ceil(base);
+	
+		std::cout << "B1     : " << B1 << std::endl;
+		std::cout << "B2     : " << B2 << std::endl;
+		std::cout << "front  : " << front << std::endl;
+		std::cout << "base   : " << base << std::endl;
+
+		BigBinaryInteger frontBBI(frontInt);
+		BigBinaryInteger baseBBI(baseInt);
+
+		std::cout << "front  : " << frontBBI << std::endl;
+		std::cout << "base   : " << baseBBI << std::endl;
+	
+		BigBinaryInteger baseBBIExp = baseBBI.Exp(len);
+
+		std::cout << "base^L : " << baseBBIExp << std::endl;
+
+		modulus = frontBBI * baseBBIExp;
+
+		double val = modulus.ConvertToDouble();
+		//std::cout << "val : " << val << std::endl;
+		double logTwo = log(val-1.0)/log(2)+1.0;
+		//std::cout << "logTwo : " << logTwo << std::endl;
+		logModulus = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+		logModulusPlus2 = logModulus+2;// = this->m_cryptoParameters.GetModulus();
+		if (logModulusPlus2Old < logModulusPlus2) {
+			logModulusPlus2Old = logModulusPlus2;
+		} else {
+			logModulusUnchanged = true;
+		}
+	}
+
 	BigBinaryInteger rootOfUnity("1");
 
-	double val = modulus.ConvertToDouble();
-	//std::cout << "val : " << val << std::endl;
-	double logTwo = log(val-1.0)/log(2)+1.0;
-	//std::cout << "logTwo : " << logTwo << std::endl;
-	usint logModulus = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
-	usint logModulusPlus2 = logModulus+2;// = this->m_cryptoParameters.GetModulus();
-
-	float stdDev = 4;
 	
-	//TODO
-	NextQ(modulus, BigBinaryInteger::TWO,n,logModulusPlus2,len,C1,C2);
+	std::cout << "modulus: " << modulus << std::endl;
+	NextQ(modulus, BigBinaryInteger::TWO,n);
+	std::cout << "modulus: " << modulus << std::endl;
 
 	rootOfUnity = RootOfUnity(m,modulus);
 
@@ -337,32 +386,15 @@ void NTRUPRE(int input) {
 
 }
 
+
 void NextQ(BigBinaryInteger &q, 
 		const BigBinaryInteger &plainTextModulus, 
-		const usint &ringDimension, 
-		const usint &logModulusPlus2, 
-		const usint &len, 
-		const BigBinaryInteger &C1, 
-		const BigBinaryInteger &C2) {
+		const usint &ringDimension) {
 	BigBinaryInteger bigOne("1");
 	BigBinaryInteger bigTwo("2");
-	BigBinaryInteger bigSixteen("16");
-	BigBinaryInteger lowerBound;
 	BigBinaryInteger ringDimensions(ringDimension);
 
-	//TODO
-	double prod = (double) ringDimension  * logModulusPlus2;
-	double sqrtProd =  sqrt(prod);
-	BigBinaryInteger sqrtProdBBI = BigBinaryInteger(sqrtProd);
-
-	lowerBound = C2 * (C1 * sqrt(prod)^L);
-
-	if (!(q >= lowerBound)) {
-		q = lowerBound;
-	}
-	else {
-		q = q + bigOne;
-	}
+	q = q + bigOne;
 
 	while (q.Mod(plainTextModulus) != bigOne) {
 		q = q + bigOne;
@@ -385,7 +417,7 @@ void NextQ(BigBinaryInteger &q,
 
 	if(!(ringDimensions == gcd)){
 		q = q + BigBinaryInteger::ONE;
-	  	NextQ(q, plainTextModulus, ringDimension, sigma, alpha);
+	  	NextQ(q, plainTextModulus, ringDimension);
 	}
 
 }
