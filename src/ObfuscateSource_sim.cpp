@@ -242,6 +242,7 @@ void NTRUPRE(int input) {
 	BigBinaryInteger rootOfUnity("1");
 
 	
+	std::cout << "modulus bits: " << logModulus << std::endl;
 	std::cout << "modulus: " << modulus << std::endl;
 	NextQ(modulus, BigBinaryInteger::TWO,n);
 	std::cout << "modulus: " << modulus << std::endl;
@@ -412,6 +413,7 @@ void NextQ(BigBinaryInteger &q,
 		q = q + productValue;
 	}
 
+/*
 	BigBinaryInteger gcd;
 	gcd = GreatestCommonDivisor(q - BigBinaryInteger::ONE, ringDimensions);
 
@@ -419,6 +421,7 @@ void NextQ(BigBinaryInteger &q,
 		q = q + BigBinaryInteger::ONE;
 	  	NextQ(q, plainTextModulus, ringDimension);
 	}
+*/
 
 }
 
