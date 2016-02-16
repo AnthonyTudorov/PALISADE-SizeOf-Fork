@@ -376,6 +376,9 @@ void NTRUPRE(int input) {
 	std::cout << "+END" << std::endl;
 	std::cout << "Evaluation completed." << std::endl;
 
+	std::cout << " \nCleartext pattern: " << std::endl;
+	std::cout << clearPattern.GetPatternString() << std::endl;
+
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << " is " << result << "." <<std::endl;
 
 	std::cout << "Key generation time: " << "\t" << diffKeyGen << " ms" << std::endl;
