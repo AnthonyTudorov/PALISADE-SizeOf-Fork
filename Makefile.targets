@@ -66,6 +66,26 @@ $(TARGETDIR)/%: $(OBJECTSDEEP) $(OBJECTSMAIN)
 #	@mkdir -p $(BUILDDIR)
 #	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $(BUILDDIR)/$@.o $(SRCDIR)/$@.$(SRCEXT)"; $(CC) $(CPPFLAGS) $(INC) -c -o $(BUILDDIR)/$@.o $(SRCDIR)/$@.$(SRCEXT)
 
+
+# this target lets us see what all the strings are define as, as an aid to debugging the
+# Makefile.targets 
+# just run make doctargetstrings
+.PHONY:doctargetstrings
+doctargetstrings:
+	@echo 'the following make strings are defined'
+	@echo 'SRCDIR $(SRCDIR)' 
+	@echo 'BUILDDIR $(BUILDDIR)'
+	@echo 'BUILDDIRMAIN $(BUILDDIRMAIN)'
+	@echo 'SOURCESDEEP $(SOURCESDEEP)'
+	@echo 'SOURCESMAIN $(SOURCESMAIN)'
+	@echo 'OBJECTSDEEP $(OBJECTSDEEP)'
+	@echo 'OBJECTSMAIN $(OBJECTSMAIN)'
+	@echo 'TARGETSMAIN $(TARGETSMAIN)'
+	@echo 'INC $(INC)'
+	@echo 'LIB $(LIB)'
+
+
+
 .PHONEY: cleantargets
 cleantargets:
 	@echo " Cleaning...";
