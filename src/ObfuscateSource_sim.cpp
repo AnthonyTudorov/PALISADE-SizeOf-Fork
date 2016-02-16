@@ -200,7 +200,7 @@ void NTRUPRE(int input) {
 		float beta = 4.0;
 		float sqrtnm = sqrt((float)(n*logModulusPlus2));
 
-		float B2 = beta*40.0*sqrtnm;
+		float B2 = beta*160.0*sqrtnm;
 
 		float front = 16.0*len*B1;
 		float base = B2*sqrtnm;
