@@ -107,6 +107,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 
 	usint n = obfuscatedPattern->GetRingDimension();
 	usint k = obfuscatedPattern->GetLogModulus();
+	std::cout << "BitLength in KeyGen: " << k << std::endl;
+
 	usint l = obfuscatedPattern->GetLength();
 	ILParams params = *(obfuscatedPattern->GetParameters());
 	usint stddev = dgg.GetStd(); 
