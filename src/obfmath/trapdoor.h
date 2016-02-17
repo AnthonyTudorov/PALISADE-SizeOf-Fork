@@ -25,7 +25,13 @@ namespace lbcrypto {
 		auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
         size_t n = params.GetCyclotomicOrder() / 2;
         //  k ~= bitlength of q
-        size_t k = params.GetModulus().GetMSB();
+        // size_t k = params.GetModulus().GetMSB();
+	double val = params.GetModulus().ConvertToDouble();
+	//std::cout << "val : " << val << std::endl;
+	double logTwo = log(val-1.0)/log(2)+1.0;
+	//std::cout << "logTwo : " << logTwo << std::endl;
+	size_t k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+	std::cout << "BitLength in Trapdoor: " << k << std::endl;
 
         auto a = uniform_alloc();
 
@@ -65,6 +71,8 @@ namespace lbcrypto {
 	
 		// Now pHat is in the evaluation representation
 		pHat.SwitchFormat();
+
+		//std::cout<<"phat dimensions: rows, columns" << pHat.GetRows() << pHat.GetCols() << std::endl;
 
 		// YSP It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
 		// perturbedSyndrome is in the evaluation representation

@@ -173,7 +173,7 @@ namespace cpu_int{
 	};
 
 
-	const usint NUM_DIGIT_IN_PRINTVAL = 45;	//!< @brief The maximum number of digits in bigbinaryinteger. It is used by the cout(ostream) function for printing the bigbinarynumber.
+	const usint NUM_DIGIT_IN_PRINTVAL = 450;	//!< @brief The maximum number of digits in bigbinaryinteger. It is used by the cout(ostream) function for printing the bigbinarynumber.
     const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
     const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels used in the Barrett reductions.
 

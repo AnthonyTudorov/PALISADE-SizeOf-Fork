@@ -233,6 +233,8 @@ namespace lbcrypto {
 		*/
 		ILVector2n(DiscreteUniformGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
 
+		ILVector2n(BinaryUniformGenerator &dbg, const ElemParams &params, Format format = EVALUATION);
+
 		/**
 		* Destructor.
 		*/

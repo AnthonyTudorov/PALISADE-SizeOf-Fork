@@ -105,30 +105,36 @@ template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerator &dgg,
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
 
-		usint n = obfuscatedPattern->GetRingDimension();
-		usint k = obfuscatedPattern->GetLogModulus();
-		usint l = obfuscatedPattern->GetLength();
-		ILParams params = *(obfuscatedPattern->GetParameters());
-		usint stddev = dgg.GetStd(); 
-		double s = 600;
+	usint n = obfuscatedPattern->GetRingDimension();
+	usint k = obfuscatedPattern->GetLogModulus();
+	std::cout << "BitLength in KeyGen: " << k << std::endl;
 
-		// Initialize the Pk and Ek matrices.
-		std::vector<ILMat<Element>> *Pk_vector = new std::vector<ILMat<Element>>();
-		std::vector<TrapdoorPair>   *Ek_vector = new std::vector<TrapdoorPair>();
-		std::vector<ILMat<LargeFloat>> *sigma = new std::vector<ILMat<LargeFloat>>();
+	usint l = obfuscatedPattern->GetLength();
+	ILParams params = *(obfuscatedPattern->GetParameters());
+	usint stddev = dgg.GetStd(); 
+	//double s = 1000;
+	//double s = 600;
+	double s = 40*std::sqrt(n*(k+2));
+	std::cout << "parameter s = " << s << std::endl;
 
-		for(usint i=0; i<=l+1; i++) {
-			pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev); //TODO remove stddev
+	// Initialize the Pk and Ek matrices.
+	std::vector<ILMat<Element>> *Pk_vector = new std::vector<ILMat<Element>>();
+	std::vector<TrapdoorPair>   *Ek_vector = new std::vector<TrapdoorPair>();
+	std::vector<ILMat<LargeFloat>> *sigma = new std::vector<ILMat<LargeFloat>>();
 
-			ILMat<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
-			PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
+	for(usint i=0; i<=l+1; i++) {
+		pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev); //TODO remove stddev
 
-			Pk_vector->push_back(trapPair.first);
-			Ek_vector->push_back(trapPair.second);
-			sigma->push_back(sigmaSqrt);
-		}
+		ILMat<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
+		PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
 
-		obfuscatedPattern->SetKeys(Pk_vector,Ek_vector,sigma);
+		Pk_vector->push_back(trapPair.first);
+		Ek_vector->push_back(trapPair.second);
+
+		sigma->push_back(sigmaSqrt);
+	}
+
+	obfuscatedPattern->SetKeys(Pk_vector,Ek_vector,sigma);
 
 }
 
@@ -137,7 +143,7 @@ template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				DiscreteGaussianGenerator &dgg,
-				DiscreteUniformGenerator &dug,
+				BinaryUniformGenerator &dbg,
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
 
 	
@@ -174,11 +180,13 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 
 	for(usint i=0; i<=l-1; i++) {
 		//Set the elements s and r to a discrete uniform generated vector.
-		Element elems0(dug,params,EVALUATION);
+		Element elems0(dbg,params,EVALUATION);
 		s_small_0.push_back(elems0);
+		//std::cout << elems0 << std::endl;
 
-		Element	elemr0(dug,params,EVALUATION);
+		Element	elemr0(dbg,params,EVALUATION);
 		r_small_0.push_back(elemr0);
+		//std::cout << elemr0 << std::endl;
 
 		//Determine wildcard or not.  If wildcard, copy s and r.  Else, don't copy.
 		bool wildCard = ((char)clearPattern.GetIndex(i) == '?');
@@ -187,16 +195,21 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 			s_small_1.push_back(s_small_0.back());
 			r_small_1.push_back(r_small_0.back());
 		} else {
-			Element elems1(dug,params,EVALUATION);
+			//Element elems1(dug,params,EVALUATION);
+			Element elems1(dbg,params,EVALUATION);
 			s_small_1.push_back(elems1);
 
-			Element	elemr1(dug,params,EVALUATION);
+			//Element	elemr1(dug,params,EVALUATION);
+			Element	elemr1(dbg,params,EVALUATION);
 			r_small_1.push_back(elemr1);
 		}
 		
 		const Element *vi = NULL;
 		if ((char)clearPattern.GetIndex(i) == '1')
+		{
+			std::cout << "index is 1" << std::endl;
 			vi = &s_small_1.back();
+		}
 		else
 			vi = &s_small_0.back();
 		
@@ -210,10 +223,6 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 
 	std::cout << "Obfuscate: Generated random uniform ring elements" << std::endl;
 
-	//YSP I could not find any further references to r_l1. So commented out the code
-	//Element r_l1(params,EVALUATION);
-	//r_l1.SetValues(dug.GenerateVector(n,q),EVALUATION);
-
 	std::vector<ILMat<Element>> *S0_vec = new std::vector<ILMat<Element>>();
 	std::vector<ILMat<Element>> *S1_vec = new std::vector<ILMat<Element>>();
 
@@ -223,23 +232,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	for(usint i=1; i<=l; i++) {
 
 		ILMat<Element> *S0_i = new ILMat<ILVector2n>(zero_alloc, m, m);
-/*
-		std::cout << " Index C-A-A: " << i << std::endl;
-		RingMat Pk_0 = Pk_vector[i-1];
-		Pk_0.PrintValues();
-		std::cout << " Index C-A-B: " << i << std::endl;
-		RingMat Pk_1 = Pk_vector[i];
-		Pk_1.PrintValues();
-		std::cout << " Index C-A-C: " << i << std::endl;
-		TrapdoorPair Ek = Ek_vector[i-1];
-		std::cout << " Index C-A-D: " << i << std::endl;
-		Element s0 = s_small_0[i-1];
-		s0.PrintValuesEndl();
-		std::cout << " Index C-A-E: " << i << std::endl;
-		Element r0 = r_small_0[i-1];
-		r0.PrintValuesEndl();
-		std::cout << " Index C-A-F: " << i << std::endl;
-*/
+
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],s_small_0[i-1]*r_small_0[i-1],dgg,S0_i);
 		S0_vec->push_back(*S0_i);
 
@@ -268,13 +261,14 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 
 	//std::cout << "encode started for L" << std::endl;
 
-	Element	elemrl1(dug,params,EVALUATION);
+	//Element	elemrl1(dug,params,EVALUATION);
+	Element	elemrl1(dbg,params,EVALUATION);
 
 	ILMat<Element> *Sl = new ILMat<ILVector2n>(zero_alloc, m, m);
 	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],Sigma[l],elemrl1*s_prod,dgg,Sl);
 
 	//std::cout << "encode 1 for L ran" << std::endl;
-	std::cout << elemrl1.GetValues() << std::endl;
+	//std::cout << elemrl1.GetValues() << std::endl;
 
 	ILMat<Element> *Rl = new ILMat<ILVector2n>(zero_alloc, m, m);
 	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],Sigma[l],elemrl1,dgg,Rl);
@@ -299,9 +293,6 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				DiscreteGaussianGenerator &dgg,
 				ILMat<Element> *encodedElem) const {
 
-	//std::cout << "stubbed out" << std::endl;
-	//encodedElem->Identity();
-
 	size_t m = Ai.GetCols();
 	size_t k = m - 2;
 	size_t n = elemS.GetParams().GetCyclotomicOrder()/2;
@@ -309,8 +300,9 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	const ILParams &params = elemS.GetParams();
 	auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
-	ILMat<Element> ej(zero_alloc, 1, m); //generate a row vector of discrete Gaussian ring elements
-	
+	//generate a row vector of discrete Gaussian ring elements
+	//YSP this can be done using discrete Gaussian allocator later - after the dgg allocator is updated to use the same dgg instance
+	ILMat<Element> ej(zero_alloc, 1, m); 
 	for(size_t i=0; i<m; i++) {
 		ej(0,i).SetValues(dgg.GenerateVector(n,modulus),COEFFICIENT);
 		ej(0,i).SwitchFormat();
@@ -325,6 +317,18 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 		for(size_t j=0; j<m; j++)
 			(*encodedElem)(j,i) = gaussj(j,0);
 	}
+
+	//encodedElem->SwitchFormat();
+	//std::cout<<"norm = "<<encodedElem->Norm() <<std::endl;
+	//encodedElem->SwitchFormat();
+
+	//Test to make sure Ai*gaussj = bj(0,1)
+	//ILMat<Element> test(zero_alloc, m, 1); 
+	//for(size_t j=0; j<m; j++)
+	//	test(j,0) = (*encodedElem)(j,2);
+	//ILVector2n bEst = (Ai * test)(0,0);
+	//std::cout << "bj(0,2) = " << bj(0,2) << std::endl;
+	//std::cout << "Ai*z = " << bEst << std::endl;
 
 };
 
@@ -367,6 +371,8 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	usint m = obfuscatedPattern.GetLogModulus() + 2;
 	double constraint = obfuscatedPattern.GetConstraint();
 
+	const std::vector<ILMat<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
+
 	const ILParams *params = obfuscatedPattern.GetParameters();
 
 	auto zero_alloc = ILVector2n::MakeAllocator(*params, EVALUATION);
@@ -406,6 +412,9 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 		
 		S_prod = S_prod * (*S_ib);
 		R_prod = R_prod * (*R_ib);
+
+		//if (i==0)
+		//	std::cout << "does identity work correctly" << (S_prod == *S_ib) << std::endl;
 		
 	}
 	std::cout << " S_prod: " << std::endl;
@@ -422,7 +431,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	//Rl->PrintValues();
 
 	std::cout << " Cross Product: " << std::endl;
-	ILMat<Element> CrossProd = ((S_prod * (*Rl)) - (R_prod * (*Sl)));
+	ILMat<Element> CrossProd = Pk_vector[0]*((S_prod * (*Rl)) - (R_prod * (*Sl)));
 	//CrossProd.PrintValues();
 
 	//for(size_t i=0; i<m; i++)
@@ -430,6 +439,11 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 	//the norm can be estimated after all elements are converted to coefficient representation
 	CrossProd.SwitchFormat();
+
+	//CrossProd.PrintValues();
+
+	//std::cout << "cross product dimensions: " <<  CrossProd.GetRows() << ", " << CrossProd.GetCols() << std::endl;
+	//std::cout <<  CrossProd << std::endl;
 
 	norm = CrossProd.Norm();
 	std::cout << " Norm: " << norm << std::endl;

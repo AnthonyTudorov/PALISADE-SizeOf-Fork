@@ -40,6 +40,8 @@
 
 #include "../../../src/obfmath/randomizedround.h"
 #include "../../../src/obfmath/trapdoor.h"
+#include "../../../src/obfuscate/lweconjunctionobfuscate.h"
+#include "../../../src/obfuscate/lweconjunctionobfuscate.cpp"
 
 using namespace std;
 using namespace lbcrypto;
@@ -222,9 +224,9 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	float sigma = 4;
 
 	DiscreteGaussianGenerator dgg(modulus, sigma);
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 
-	ILVector2n u(dgg,params,COEFFICIENT);
-	//u.SwitchFormat();
+	ILVector2n u(dug,params,COEFFICIENT);
 
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
 	double logTwo = log(val-1.0)/log(2)+1.0;
@@ -241,10 +243,12 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 		<< "Failure testing number of colums";
     ILMat<ILVector2n> z = SplitInt32AltIntoILVector2nElements(zHatBBI, n, params);
 	z.SwitchFormat();
-	ILVector2n uEst = (ILMat<ILVector2n>(zero_alloc, 1,  k).GadgetVector()*z)(0,0);
+	ILVector2n uEst(params,COEFFICIENT);
+	uEst = (ILMat<ILVector2n>(zero_alloc, 1,  k).GadgetVector()*z)(0,0);
 	uEst.SwitchFormat();
 
     EXPECT_EQ(u, uEst);
+
 }
 
 TEST(UTTrapdoor,TrapDoorGaussSampTest) {
@@ -262,24 +266,26 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	ILParams params( m, modulus, rootOfUnity);
-    auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+    //auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
 	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
-    auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
+    //auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
 
 	DiscreteGaussianGenerator dgg(modulus, 4);
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 
-    RingMat u(uniform_alloc, 1, 1);
+	ILVector2n u(dug,params,COEFFICIENT);
+	u.SwitchFormat();
 
 	ILMat<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
 	PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
 
     //  600 is a very rough estimate for s, refer to Durmstradt 4.2 for
     //      estimation
-	RingMat z = GaussSamp(m/2, k, trapPair.first, trapPair.second, sigmaSqrt, u(0,0), stddev, dgg);
+	RingMat z = GaussSamp(m/2, k, trapPair.first, trapPair.second, sigmaSqrt, u, stddev, dgg);
 
 	//ILMat<ILVector2n> uEst = trapPair.first * z;
 
@@ -287,8 +293,148 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 		<< "Failure testing number of rows";
 	EXPECT_EQ(m/2,z(0,0).GetLength())
 		<< "Failure testing ring dimension for the first ring element";
-    EXPECT_EQ(u, trapPair.first * z);
+	
+	ILVector2n uEst = (trapPair.first * z)(0,0);
+	uEst.SwitchFormat();
+	u.SwitchFormat();
+
+    EXPECT_EQ(u, uEst);
 
 	//std::cout << z << std::endl;
+
+}
+TEST(UTTrapdoor,EncodeTest_dgg_yes) {
+
+	usint m_cyclo = 16;
+	usint n = m_cyclo/2;
+
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	float stddev = 4;
+
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = log(val-1.0)/log(2)+1.0;
+	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	double norm = 0;
+
+	ILParams params(m_cyclo, modulus, rootOfUnity);
+    	//auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+
+	DiscreteGaussianGenerator dgg(modulus, 4);
+
+	// Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(dgg, params);
+
+	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(params);
+	obfuscatedPattern.SetLength(1);
+
+	usint m = obfuscatedPattern.GetLogModulus() + 2;
+
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(BigBinaryInteger(m));
+
+	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
+
+	algorithm.KeyGen(dgg,&obfuscatedPattern);
+
+	const std::vector<ILMat<ILVector2n>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
+	const std::vector<TrapdoorPair>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
+	const std::vector<ILMat<LargeFloat>>   &Sigma = obfuscatedPattern.GetSigmaKeys();
+
+	double constraint = obfuscatedPattern.GetConstraint();
+
+	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+
+	ILVector2n	s1(dgg,params,EVALUATION);
+
+	ILMat<ILVector2n> *encoded1 = new ILMat<ILVector2n>(zero_alloc, m, m);
+	algorithm.Encode(Pk_vector[0],Pk_vector[1],Ek_vector[0],Sigma[0],s1,dgg,encoded1);
+
+	ILMat<ILVector2n> *encoded2 = new ILMat<ILVector2n>(zero_alloc, m, m);
+	algorithm.Encode(Pk_vector[0],Pk_vector[1],Ek_vector[0],Sigma[0],s1,dgg,encoded2);	
+
+	ILMat<ILVector2n> CrossProd = Pk_vector[0]*(*encoded1 - *encoded2);
+
+	CrossProd.SwitchFormat();
+
+	norm = CrossProd.Norm();
+	std::cout << " Constraint: " << constraint << std::endl;
+	std::cout << " Norm 1: " << norm << std::endl;
+
+
+	//bool result1 = (norm <= constraint);
+
+	EXPECT_LE(norm,constraint);
+
+	delete encoded1;
+	delete encoded2;
+
+	//cleans up precomputed samples
+	//ILVector2n::DestroyPreComputedSamples();
+
+	
+}
+TEST(UTTrapdoor,EncodeTest_dgg_no) {
+
+	usint m_cyclo = 16;
+	usint n = m_cyclo/2;
+
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	float stddev = 4;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = log(val-1.0)/log(2)+1.0;
+	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	double norm = 0;
+
+	ILParams params( m_cyclo, modulus, rootOfUnity);
+    //auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+
+	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(params);
+	obfuscatedPattern.SetLength(1);
+
+	usint m = obfuscatedPattern.GetLogModulus() + 2;
+
+	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
+
+	DiscreteGaussianGenerator dgg(modulus, 4);
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(BigBinaryInteger(m));
+
+	algorithm.KeyGen(dgg,&obfuscatedPattern);
+
+	const std::vector<ILMat<ILVector2n>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
+	const std::vector<TrapdoorPair>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
+	const std::vector<ILMat<LargeFloat>>   &Sigma = obfuscatedPattern.GetSigmaKeys();
+
+	double constraint = obfuscatedPattern.GetConstraint();
+
+	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+
+	ILVector2n	s1(dgg,params,EVALUATION);
+	ILVector2n	s2(dgg,params,EVALUATION);
+
+	ILMat<ILVector2n> *encoded1 = new ILMat<ILVector2n>(zero_alloc, m, m);
+	algorithm.Encode(Pk_vector[0],Pk_vector[1],Ek_vector[0],Sigma[0],s1,dgg,encoded1);
+
+	ILMat<ILVector2n> *encoded2 = new ILMat<ILVector2n>(zero_alloc, m, m);
+	algorithm.Encode(Pk_vector[0],Pk_vector[1],Ek_vector[0],Sigma[0],s2,dgg,encoded2);	
+
+	ILMat<ILVector2n> CrossProd = Pk_vector[0]*(*encoded1 - *encoded2);
+
+	CrossProd.SwitchFormat();
+
+	norm = CrossProd.Norm();
+	std::cout << " Constraint: " << constraint << std::endl;
+	std::cout << " Norm 1: " << norm << std::endl;
+
+	//bool result1 = (norm <= constraint);
+
+	delete encoded1;
+	delete encoded2;
+
+	EXPECT_GT(norm, constraint);
 
 }

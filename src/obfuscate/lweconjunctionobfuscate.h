@@ -35,6 +35,7 @@
 #define LBCRYPTO_OBFUSCATE_LWECONJUNCTIONOBFUSCATE_H
 
 //Includes Section
+#include <cmath>
 #include <vector>
 #include "obfuscatelp.h"
 #include "../utils/inttypes.h"
@@ -52,6 +53,9 @@
  * The namespace of lbcrypto
  */
 namespace lbcrypto {
+
+//perturbation matrix parameter
+//const double S = 1000;
 
 static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 	usint m = 16;
@@ -164,7 +168,9 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 	
 					delete this->m_Sl;
 					delete this->m_Rl;
+				}
 
+				if (this->m_pk != NULL) {
 					delete this->m_pk;
 					delete this->m_ek;
 					delete this->m_Sigma;
@@ -179,6 +185,20 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			explicit ObfuscatedLWEConjunctionPattern(ILParams &cryptoParams) {
 				this->SetParameters(cryptoParams);
 				this->m_length = 0;
+
+				this->m_S0_vec = NULL;
+				this->m_S1_vec = NULL;
+
+				this->m_R0_vec = NULL;
+				this->m_R1_vec = NULL;
+
+				this->m_Sl = NULL;
+				this->m_Rl = NULL;
+
+				this->m_pk = NULL;
+				this->m_ek = NULL;
+				this->m_Sigma = NULL;
+
 
 				//usint m = this->GetLogModulus();
 				//this->m_Sl = ILMat<ILVector2n>(secureIL2nAlloc(), m, m);
@@ -350,8 +370,10 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 
 				ILMat<Element> *S_ib;
 
+				//std::cout << "which character" << testVal << "; " << (testVal == '0') << std::endl;
+
 				//std::cout << " Before if statement. " << std::endl;
-				if (testVal == 0) {
+				if (testVal == '0') {
 					S_ib = &(this->m_S0_vec->at(i));
 				} else {
 					S_ib = &(this->m_S1_vec->at(i));
@@ -370,7 +392,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 				ILMat<Element> *R_ib;
 
 				//std::cout << " Before if statement. " << std::endl;
-				if (testVal == 0) {
+				if (testVal == '0') {
 					R_ib = &(this->m_R0_vec->at(i));
 				} else {
 					R_ib = &(this->m_R1_vec->at(i));
@@ -430,7 +452,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			void Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				DiscreteGaussianGenerator &dgg,
-				DiscreteUniformGenerator &dug,
+				BinaryUniformGenerator &dbg,
 				ObfuscatedLWEConjunctionPattern<Element> * obfuscatedPattern) const;
 
 			/**
