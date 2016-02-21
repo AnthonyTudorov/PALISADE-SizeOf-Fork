@@ -242,13 +242,13 @@ void NTRUPRE(int input) {
 //	obfuscatedPattern.GetSl();
 
 	result = algorithm.Evaluate(obfuscatedPattern,inputStr1);
-	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << " is " << result << "." <<std::endl;
+	std::cout << " \nObfuscated pattern evaluation of: " << inputStr1 << " is " << result << "." <<std::endl;
 
 	result = algorithm.Evaluate(obfuscatedPattern,inputStr2);
-	std::cout << " \nCleartext pattern evaluation of: " << inputStr2 << " is " << result << "." <<std::endl;
+	std::cout << " \nObfuscated pattern evaluation of: " << inputStr2 << " is " << result << "." <<std::endl;
 
 	result = algorithm.Evaluate(obfuscatedPattern,inputStr3);
-	std::cout << " \nCleartext pattern evaluation of: " << inputStr3 << " is " << result << "." <<std::endl;
+	std::cout << " \nObfuscated pattern evaluation of: " << inputStr3 << " is " << result << "." <<std::endl;
 
 	//system("pause");
 
