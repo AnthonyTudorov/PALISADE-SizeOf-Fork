@@ -356,6 +356,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 
 	TIC;	
 	//std::cout << "Encode: Computed bj, next will do GaussSamp" << std::endl; 
+	#pragma omp parallel for
 	for(size_t i=0; i<m; i++) {
 
 	  // the following takes approx 250 msec
@@ -457,10 +458,13 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	{
 	TIC2;
 
+	      #pragma omp parallel sections
+	      {
+		{
 		testVal = (char)testString[i];
 		std::cout << " Index: " << i << std::endl;
 		std::cout << " \t Input: \t" << testVal << std::endl;
-		
+		}
 		S_ib = obfuscatedPattern.GetS(i,testVal);
 		R_ib = obfuscatedPattern.GetR(i,testVal);
 
@@ -469,10 +473,9 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 		
 		S_prod = S_prod * (*S_ib);
 		R_prod = R_prod * (*R_ib);
-
 		//if (i==0)
 		//	std::cout << "does identity work correctly" << (S_prod == *S_ib) << std::endl;
-		
+	      }
 		DEBUG("E2: "<< i << " " <<TOC2 <<" ms");
 	}
 	TIC2;	
