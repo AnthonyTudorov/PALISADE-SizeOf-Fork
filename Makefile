@@ -24,7 +24,7 @@
 #
 
 CC := g++ # This is the main compiler
-CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g 
+CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g -fopenmp
 #CPPFLAGS += -Wall -O3 -std=gnu++11 -w  -DNDEBUG  ##undefine for speed
 
 SRCDIR := src
@@ -34,13 +34,16 @@ TARGETDIR := bin
 HEADERS := src/*.h
 
 SRCEXT := cpp
-SOURCESDEEP := $(shell find $(SRCDIR) -mindepth 2 -type f -name *.$(SRCEXT))
+HDREXT := h
+HDRDEEP := $(shell find $(SRCDIR) -mindepth 2 -type f -name *.$(HDREXT))
+SOURCESDEEP := $(shell find $(SRCDIR) -mindepth 2 -type f -name *.$(SRCEXT)) 
 SOURCESMAIN := $(shell find $(SRCDIR) -maxdepth 1 -type f -name *.$(SRCEXT))
 TARGETSMAIN := $(patsubst $(SRCDIR)/%,$(TARGETDIR)/%,$(SOURCESMAIN:.$(SRCEXT)=))
 OBJECTSDEEP := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCESDEEP:.$(SRCEXT)=.o))
 OBJECTSMAIN := $(patsubst $(SRCDIR)/%,$(BUILDDIRMAIN)/%,$(SOURCESMAIN:.$(SRCEXT)=.o))
 
-LIB := -pthread #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
+#LIB := -pthread #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
+LIB := -pthread -lgomp #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 INC := -I include
 
 all: alltargets apidocs alltesttargets allbenchmarktargets

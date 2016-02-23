@@ -72,7 +72,8 @@ TEST_SOURCES := $(shell find $(TEST_SRC_DIR) -type f -name *.$(SRCEXT))
 TEST_OBJECTS := $(patsubst $(TEST_SRC_DIR)/%,$(TEST_BUILD_DIR)/%,$(TEST_SOURCES:.$(SRCEXT)=.o))
 
 # library strings needed in linking of TEST_TARGET
-TEST_LIB := -pthread #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
+#note this could be replaced with $(LIB)
+TEST_LIB := -pthread -lgomp #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 
 #
 # the following define the componenets of the google test library
