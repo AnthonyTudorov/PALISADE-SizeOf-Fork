@@ -1,7 +1,10 @@
-License Information
-===================
+PALISADE Lattice Cryptography Library
+=====================================
 
-Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+License Information
+-------------------
+
+Copyright (c) 2016, New Jersey Institute of Technology (NJIT)
 
 All rights reserved.
 
