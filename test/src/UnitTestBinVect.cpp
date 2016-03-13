@@ -101,10 +101,11 @@ TEST(method_mod_vect,test_modulus){
 	m.SetValAtIndex(6,"79");
 	m.SetValAtIndex(7,"346346");
 	m.SetValAtIndex(8,"325328");
-	m.SetValAtIndex(9,"7698798");
-	
+	m.SetValAtIndex(9,"7698798");	
 
 	BigBinaryInteger q("233");		//calling costructor of BigBinaryInteger Class to create object for modulus
+
+	m.SetModulus(q);
 
 	BigBinaryVector calculatedResult = m.Mod(q);
 
