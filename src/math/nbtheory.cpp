@@ -194,19 +194,32 @@ usint GetMSB32(usint x)
 	Input: BigBinaryInteger's a and b.
 	Output: A BigBinaryInteger which is GCD of a and b.
 */
- BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b)
+ //BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b)
+ //{
+ //	BigBinaryInteger m_rkminus2, m_rkminus1, m_rk;
+ //	m_rkminus2 = a;
+ //	m_rkminus1 = b;
+ //	while(m_rkminus2 >= m_rkminus1) {
+ //		m_rkminus2 -= m_rkminus1;
+ //	}
+ //	m_rk = m_rkminus2;
+	//if(m_rk == BigBinaryInteger::ZERO) {
+	//	return m_rkminus1;
+	//}
+ //	return GreatestCommonDivisor(m_rkminus1, m_rk);
+ //}
+
+  BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b)
  {
- 	BigBinaryInteger m_rkminus2, m_rkminus1, m_rk;
- 	m_rkminus2 = a;
- 	m_rkminus1 = b;
- 	while(m_rkminus2 >= m_rkminus1) {
- 		m_rkminus2 -= m_rkminus1;
- 	}
- 	m_rk = m_rkminus2;
-	if(m_rk == BigBinaryInteger::ZERO) {
-		return m_rkminus1;
+ 	BigBinaryInteger m_a, m_b, m_t;
+ 	m_a = a;
+ 	m_b = b;
+	while (m_b != BigBinaryInteger::ZERO) {
+		m_t = m_b;
+		m_b = m_a.Mod(m_b);
+		m_a = m_t;
 	}
- 	return GreatestCommonDivisor(m_rkminus1, m_rk);
+	return m_a;
  }
 
 /*

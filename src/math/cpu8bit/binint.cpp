@@ -209,7 +209,7 @@ usint BigBinaryInteger::GetMSB()const{
 usint BigBinaryInteger::ConvertToInt() const{
 	usint ans = -1;
 	if(m_MSB>32){
-		std::cout<<"Cannot convert to integer\n";
+		std::cout<<"Cannot convert " << *this << " to integer\n";
 		exit(-20);//just random error code
 	}
 	else{
@@ -323,8 +323,12 @@ const BigBinaryInteger& BigBinaryInteger::operator+=(const BigBinaryInteger &b){
 }
 
 BigBinaryInteger BigBinaryInteger::Minus(const BigBinaryInteger& b) const{
-
-	if(*this<b||*this==b)return std::move(BigBinaryInteger());
+    if (*this < b) {
+        std::cout << "subtraction underflow\n";
+    }
+	if(*this<b||*this==b) {
+        return std::move(BigBinaryInteger());
+    }
 	int cntr=0,current=0;
 
 	BigBinaryInteger result(*this);

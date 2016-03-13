@@ -7,8 +7,12 @@ namespace lbcrypto {
 DiscreteGaussianGenerator::DiscreteGaussianGenerator() : DiscreteDistributionGenerator() {
 	// Set the random seed for std::rand. This is a temporary fix to facilitate the use of std::rand in this class.
 	// This will be removed when all uses of std::rand are removed.
+
 	std::random_device rd;
 	std::srand(rd());
+
+	static unsigned s = std::random_device()(); // Set seed from random_device
+	m_gen.seed(s);
 
 	SetStd(1);
 	Initialize();
@@ -17,8 +21,12 @@ DiscreteGaussianGenerator::DiscreteGaussianGenerator() : DiscreteDistributionGen
 DiscreteGaussianGenerator::DiscreteGaussianGenerator (const BigBinaryInteger & modulus, const sint std) : DiscreteDistributionGenerator (modulus) {
 	// Set the random seed for std::rand. This is a temporary fix to facilitate the use of std::rand in this class.
 	// This will be removed when all uses of std::rand are removed.
+
 	std::random_device rd;
 	std::srand(rd());
+
+	static unsigned s = std::random_device()(); // Set seed from random_device
+	m_gen.seed(s);
 
 	SetStd(std);
 	Initialize();
@@ -39,17 +47,21 @@ void DiscreteGaussianGenerator::Initialize () {
 	double acc = 0.00000001;
 	sint variance = m_std * m_std;
 
-	int fin = (int)ceil(sqrt(2 * pi) * m_std * sqrt(-1 * log(acc) / pi));
+	//int fin = (int)ceil(sqrt(2 * pi) * m_std * sqrt(-1 * log(acc) / pi));
+	int fin = (int)ceil(m_std * sqrt(-2 * log(acc))); //this value of fin (M) may be too low; 
+																		  // usually the bound of m_std * M is used where M = 20 .. 40
+																		  // see DG14 for details
 
 	double cusum = 1.0;
 
 	for (sint x = 1; x <= fin; x++) {
 		cusum = cusum + 2 * exp(-pi * (x * x) / (variance * 2 * pi));
+		//cusum = cusum + 2 * exp(-(x * x) / (variance * 2));  //simplified
 	}
 
 	m_a = 1 / cusum;
 
-	fin = (int)ceil(sqrt(-2 * variance * log(acc)));
+	//fin = (int)ceil(sqrt(-2 * variance * log(acc))); //not needed - same as above
 	double temp;
 
 	for (sint i = 1; i <= fin; i++) {
@@ -85,13 +97,13 @@ schar * DiscreteGaussianGenerator::GenerateCharVector (usint size) const {
 	//std::uniform_real_distribution<double> distribution(0.0,1.0);
 	//generator.seed(time(NULL));
 
-	double val = 0;
+	usint val = 0;
 	double seed;
 	schar * ans = new schar[size];
 
 	for (usint i = 0; i < size; i++) {
 		//generator.seed(time(NULL));
-		seed = ((double) std::rand() / (RAND_MAX)) - 0.5;
+		seed = ((double) std::rand() / (RAND_MAX)) - 0.5; //we need to use the binary uniform generator rathen than regular continuous distribution; see DG14 for details
 		//std::cout<<seed<<std::endl;
 		//seed = distribution(generator)-0.5;
 		if (std::abs(seed) <= m_a / 2) {
@@ -127,8 +139,33 @@ BigBinaryVector DiscreteGaussianGenerator::DiscreteGaussianPositiveGenerator(usi
 	return ans;
 }
 
-BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger() {
-	return std::move(*(new BigBinaryInteger()));
+BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(const BigBinaryInteger &modulus) {
+
+	int32_t val = 0;
+	double seed;
+	BigBinaryInteger ans;
+
+	seed = ((double) std::rand() / (RAND_MAX)) - 0.5;
+	//std::cout<<seed<<std::endl;
+	//seed = distribution(generator)-0.5;
+	if (std::abs(seed) <= m_a / 2) {
+		val = 0;
+	} else if (seed > 0) {
+		val = FindInVector(m_vals, (std::abs(seed) - m_a / 2));
+	} else {
+		val = -(int) FindInVector(m_vals, (std::abs(seed) - m_a / 2));
+	}
+
+	if (val < 0)
+	{
+		val *= -1;
+		ans = modulus - UintToBigBinaryInteger(val);
+	}
+	else
+		ans = BigBinaryInteger(val);
+
+	return ans;
+
 }
 
 BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size) {
@@ -154,5 +191,91 @@ BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size) {
 
 	return ans;
 }
+
+BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size, const BigBinaryInteger &modulus) {
+	//BigBinaryVector ans(DiscreteGaussianGenerator::DiscreteGaussianPositiveGenerator(size,this->m_modulus));
+
+	//return ans;
+	schar* result = GenerateCharVector(size);
+
+	BigBinaryVector ans(size);
+	ans.SetModulus(modulus);
+
+	for (usint i = 0; i < size; i++) {
+		if (result[i] < 0) {
+			result[i] *= -1;
+			ans.SetValAtIndex(i, modulus - UintToBigBinaryInteger(result[i]));
+		} else {
+			ans.SetValAtIndex(i, UintToBigBinaryInteger(result[i]));
+		}
+	}
+
+	delete []result;
+
+	return ans;
+}
+
+BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n, const BigBinaryInteger &modulus) {
+
+		double t = log(n)/log(2)*stddev;  //this representation of log_2 is used for Visual Studio
+
+		BigBinaryInteger result;
+
+		std::uniform_int_distribution<int32_t> uniform_int(floor(mean - t), ceil(mean + t));
+		std::uniform_real_distribution<double> uniform_real(0.0,1.0);
+
+		bool flagSuccess = false;
+		int32_t x;
+
+		while (!flagSuccess) {
+			//  pick random int
+			x = uniform_int(m_gen);
+			//  roll the uniform dice
+			double dice = uniform_real(m_gen);
+			//  check if dice land below pdf
+			if (dice <= UnnormalizedGaussianPDF(mean, stddev, x)) {
+				flagSuccess = true;
+			}
+		}
+
+		if (x < 0)
+		{
+			x *= -1;
+			result = modulus - UintToBigBinaryInteger(x);
+		}
+		else
+			result = BigBinaryInteger(x);
+
+		return result;
+
+}
+
+int32_t DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n) {
+
+		double t = log(n)/log(2)*stddev;  //this representation of log_2 is used for Visual Studio
+
+		BigBinaryInteger result;
+
+		std::uniform_int_distribution<int32_t> uniform_int(floor(mean - t), ceil(mean + t));
+		std::uniform_real_distribution<double> uniform_real(0.0,1.0);
+
+		bool flagSuccess = false;
+		int32_t x;
+
+		while (!flagSuccess) {
+			//  pick random int
+			x = uniform_int(m_gen);
+			//  roll the uniform dice
+			double dice = uniform_real(m_gen);
+			//  check if dice land below pdf
+			if (dice <= UnnormalizedGaussianPDF(mean, stddev, x)) {
+				flagSuccess = true;
+			}
+		}
+
+		return x;
+
+}
+
 
 } // namespace lbcrypto

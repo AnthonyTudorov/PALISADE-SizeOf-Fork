@@ -578,7 +578,7 @@ namespace lbcrypto {
 		std::vector<BigBinaryInteger> vAtIndexi(size);
 
 		for (j = 0; j < size; j++) {
-			vAtIndexi[j] = m_vectors[j].GetIndexAt(i);
+			vAtIndexi[j] = m_vectors[j].GetValAtIndex(i);
 		}
 
 		return vAtIndexi;

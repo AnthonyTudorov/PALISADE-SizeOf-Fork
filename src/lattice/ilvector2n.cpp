@@ -123,7 +123,22 @@ namespace lbcrypto {
 		const ILParams &ilParams = static_cast<const ILParams&>(params);
 
 		usint vectorSize = ilParams.GetCyclotomicOrder() / 2;
-		m_values = new BigBinaryVector(dug.GenerateVector(vectorSize));
+		m_values = new BigBinaryVector(dug.GenerateVector(vectorSize,params.GetModulus()));
+		(*m_values).SetModulus(params.GetModulus());
+
+		m_format = COEFFICIENT;
+
+		if (format == EVALUATION)
+			this->SwitchFormat();
+
+	}
+
+	ILVector2n::ILVector2n(BinaryUniformGenerator &dbg, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
+
+		const ILParams &ilParams = static_cast<const ILParams&>(params);
+
+		usint vectorSize = ilParams.GetCyclotomicOrder() / 2;
+		m_values = new BigBinaryVector(dbg.GenerateVector(vectorSize));
 		(*m_values).SetModulus(params.GetModulus());
 
 		m_format = COEFFICIENT;
@@ -140,15 +155,27 @@ namespace lbcrypto {
 		delete m_values;
 	}
 
-	/**
-		Print values
+	/*
+		Print values an flush buffer after printing with new line.
+		*/
+	void ILVector2n::PrintValuesEndl() const {
+
+	//std::cout << "Printing values in ILVECTOR2N" << std::endl;
+		this->PrintValues();
+		std::cout << std::endl;
+
+	}
+
+	/*
+		Print values and don't flush before and don't print new line.
 		*/
 	void ILVector2n::PrintValues() const {
 
-	std::cout << "Printing values in ILVECTOR2N" << std::endl;
+	//std::cout << "Printing values in ILVECTOR2N" << std::endl;
 		if (m_values != NULL) {
-			std::cout << *m_values << std::endl;
+			std::cout << *m_values;// << std::endl;
 		}
+		std::cout << " mod:" << m_values->GetModulus();
 
 	}
 
@@ -172,7 +199,7 @@ namespace lbcrypto {
 		return m_params;
 	}
 
-	const BigBinaryInteger& ILVector2n::GetIndexAt(usint i)
+	const BigBinaryInteger& ILVector2n::GetValAtIndex(usint i) const
 	{
 		return m_values->GetValAtIndex(i);
 	}
@@ -249,6 +276,27 @@ namespace lbcrypto {
 				return false;
 		}
 		return true;
+	}
+
+	// check if inverse exists
+	double ILVector2n::Norm() const {
+		double retVal = 0.0;
+		double locVal = 0.0;
+		double q = m_params.GetModulus().ConvertToDouble();
+
+		for (usint i = 0; i < m_values->GetLength(); i++) {
+			if (m_values->GetValAtIndex(i) > (m_params.GetModulus()>>1))
+			{
+				locVal = q - (m_values->GetValAtIndex(i)).ConvertToDouble();
+			}
+			else
+				locVal = (m_values->GetValAtIndex(i)).ConvertToDouble();
+				
+			if (locVal > retVal)
+				retVal = locVal;
+		}
+		//std::cout << " Norm: " << retVal << std::endl;
+		return retVal;
 	}
 
 	// VECTOR OPERATIONS
@@ -343,6 +391,12 @@ namespace lbcrypto {
 		}
 
 	}
+
+    void ILVector2n::SetFormat(Format format) {
+        if (m_format != format) {
+            SwitchFormat();
+        }
+    }
 
 	// get digit for a specific based - used for PRE scheme
 	ILVector2n ILVector2n::GetDigitAtIndexForBase(usint index, usint base) const {

@@ -62,6 +62,12 @@ public:
 	 */
 	explicit BigBinaryVector();
 
+    static inline BigBinaryVector Single(const IntegerType& val, const IntegerType& modulus) {
+        BigBinaryVector vec(1, modulus);
+        vec.SetValAtIndex(0, val);
+        return vec;
+    }
+
 	/**
 	 * Basic constructor for specifying the length of the vector.
 	 *
@@ -117,6 +123,14 @@ public:
             }
         }
         return true;
+    }
+
+    inline BigBinaryVector& operator=(usint val) {
+        *this->m_data[0] = val;
+        for (size_t i = 1; i < GetLength(); ++i) {
+            *this->m_data[i] = 0;
+        }
+        return *this;
     }
 
     inline bool operator!=(const BigBinaryVector &b) const {
@@ -264,6 +278,8 @@ public:
 	 * @return is the result of the modulus addition operation.
 	 */
 	const BigBinaryVector& operator+=(const BigBinaryVector &b);
+
+	const BigBinaryVector& operator-=(const BigBinaryVector &b);
 
 	//component-wise subtraction
 

@@ -84,6 +84,14 @@ namespace lbcrypto {
             m_values->SetValAtIndex(index, BigBinaryInteger(val));
         }
 
+
+        /**
+         *  Get BigBinaryVector value at index
+         */
+        //double GetValAtIndex(size_t index) {
+        //    m_values->GetValAtIndex(index);
+        //}
+
         /**
          *  Set to the constant polynomial 1.
          */
@@ -96,12 +104,27 @@ namespace lbcrypto {
         }
 
         inline ILVector2n& operator=(usint val) {
+            SetFormat(COEFFICIENT);
             this->SetValAtIndex(0, val);
             for (size_t i = 1; i < m_values->GetLength(); ++i) {
                 this->SetValAtIndex(i, 0);
             }
+            SetFormat(EVALUATION);
             return *this;
         }
+/*
+        BigBinaryInteger& Norm() {
+            BigBinaryInteger& norm = 0;
+	    BigBinaryInteger& norm_t;
+            for (size_t i = 0; i < m_values->GetLength(); ++i) {
+                norm_t = this->GetValAtIndex(i);
+		if (norm_t > norm) {
+			norm = norm_t;
+		}
+            }
+            return norm;
+        }
+*/
 
         /**
          *  Create lambda that allocates a zeroed element with the specified
@@ -113,10 +136,12 @@ namespace lbcrypto {
             };
         }
 
-        inline static function<unique_ptr<ILVector2n>()> MakeDiscreteGaussianAllocator(ILParams params, Format format, int stddev) {
+        inline static function<unique_ptr<ILVector2n>()> MakeDiscreteGaussianCoefficientAllocator(ILParams params, Format resultFormat, int stddev) {
             return [=]() {
                 DiscreteGaussianGenerator dgg(params.GetModulus(), stddev);
-                return make_unique<ILVector2n>(dgg, params, format);
+                auto ilvec = make_unique<ILVector2n>(dgg, params, COEFFICIENT);
+                ilvec->SetFormat(resultFormat);
+                return ilvec;
             };
         }
 
@@ -208,6 +233,8 @@ namespace lbcrypto {
 		*/
 		ILVector2n(DiscreteUniformGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
 
+		ILVector2n(BinaryUniformGenerator &dbg, const ElemParams &params, Format format = EVALUATION);
+
 		/**
 		* Destructor.
 		*/
@@ -255,7 +282,7 @@ namespace lbcrypto {
 		*
 		* @return value at index i.
 		*/
-		const BigBinaryInteger& GetIndexAt(usint i);
+		const BigBinaryInteger& GetValAtIndex(usint i) const;
 
 		/**
 		* Get method of the length of the element.
@@ -338,7 +365,12 @@ namespace lbcrypto {
 		ILVector2n ModByTwo() const;
 
 		/**
-		Print values
+		Print values an flush buffer after printing with new line.
+		*/
+		void PrintValuesEndl() const;
+
+		/**
+		Print values and don't flush before and don't print new line.
 		*/
 		void PrintValues() const;
 
@@ -358,6 +390,13 @@ namespace lbcrypto {
 		* @return is the Boolean representation of the existence of multiplicative inverse.
 		*/
 		bool InverseExists() const;
+
+		/**
+		* Returns the infinity norm, basically the largest value in the ring element.
+		*
+		* @return is the largest value in the ring element.
+		*/
+		double Norm() const;
 
 		// addition operation - PREV1
 		/**
@@ -436,6 +475,12 @@ namespace lbcrypto {
 		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
 		*/
 		void SwitchFormat();
+
+        /**
+         *  Ensures ring element has format `format`
+         *  Calls SwitchFormat if necessary
+         */
+        void SetFormat(Format format);
 
 		// get digit for a specific based - used for PRE scheme
 		/**

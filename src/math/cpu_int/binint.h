@@ -43,8 +43,10 @@
 #include <limits>
 #include <fstream>
 #include <stdexcept>
-
- #include "../../utils/inttypes.h"
+#include <functional>
+#include <memory>
+#include "../../utils/inttypes.h"
+#include "../../utils/memory.h"
 
 /**
 *@namespace cpu_int
@@ -171,7 +173,7 @@ namespace cpu_int{
 	};
 
 
-	const usint NUM_DIGIT_IN_PRINTVAL = 45;	//!< @brief The maximum number of digits in bigbinaryinteger. It is used by the cout(ostream) function for printing the bigbinarynumber.
+	const usint NUM_DIGIT_IN_PRINTVAL = 450;	//!< @brief The maximum number of digits in bigbinaryinteger. It is used by the cout(ostream) function for printing the bigbinarynumber.
     const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
     const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels used in the Barrett reductions.
 
@@ -222,6 +224,12 @@ namespace cpu_int{
         * @return the return value.
         */
     BigBinaryInteger&  operator=(const BigBinaryInteger &rhs);
+
+    inline BigBinaryInteger& operator=(usint val) {
+        *this = intToBigBinaryInteger(val);
+        return *this;
+    }
+
         /**
          * Move copy constructor
          *
@@ -306,6 +314,14 @@ namespace cpu_int{
     usint ConvertToInt() const;
     
     double ConvertToDouble() const;
+
+	/**
+	 * Convert a value from an int to a BigBinaryInt.
+	 *
+	 * @param m the value to convert from.
+	 * @return the int represented as a big binary int.
+	 */
+	static BigBinaryInteger intToBigBinaryInteger(usint m);
 
 //Arithemetic Operations
         /**
@@ -618,6 +634,15 @@ namespace cpu_int{
          */
     inline BigBinaryInteger operator%(const BigBinaryInteger &a) const {return this->Mod(a);}
 
+	/**
+	 * Division operation.
+	 *
+	 * @param a is the value to divide.
+	 * @param b is the value to divide by.
+	 * @return is the result of the division operation.
+	 */
+	//inline BigBinaryInteger operator/(const BigBinaryInteger &a) {return this->DividedBy(a);}
+
     template<typename uint_type_c,usint BITLENGTH_c>
 		friend std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BITLENGTH_c> &ptr_obj);
         /**
@@ -657,7 +682,13 @@ namespace cpu_int{
     static const BigBinaryInteger FIVE;
     
     sint Compare(const BigBinaryInteger& a) const;
-        
+
+    /**
+     *  Set this int to 1.
+     */
+    inline void SetIdentity() { *this = intToBigBinaryInteger(1); };
+
+	static std::function<unique_ptr<BigBinaryInteger>()> Allocator;
 
     protected:
         /**
@@ -699,6 +730,15 @@ namespace cpu_int{
 		static void add_bitVal(uschar* a,uschar b);
 	};
 
+		/**
+	 * Division operation.
+	 *
+	 * @param a is the value to divide.
+	 * @param b is the value to divide by.
+	 * @return is the result of the division operation.
+	 */
+	template<typename uint_type,usint BITLENGTH>
+	inline BigBinaryInteger<uint_type,BITLENGTH> operator/(const BigBinaryInteger<uint_type,BITLENGTH> &a, const BigBinaryInteger<uint_type,BITLENGTH> &b) {return a.DividedBy(b);}
 
 }//namespace ends
 
