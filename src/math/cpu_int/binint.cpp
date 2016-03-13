@@ -101,8 +101,14 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger()
 	std::cout<<typeid(Duint_type).name()<<std::endl;
 	*/
 	//main code
+
+	//m_value = new uint_type[m_nSize];
+	//m_state = GARBAGE;
+
 	m_value = new uint_type[m_nSize];
-	m_state = GARBAGE;
+	this->m_value[m_nSize-1] = 0;
+	this->m_MSB = 0;
+	m_state = INITIALIZED;
 }
 
 template<typename uint_type,usint BITLENGTH>
@@ -156,6 +162,11 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(BigBinaryInteger &&bigIn
 	m_state = bigInteger.m_state;
 	bigInteger.m_value = NULL;
 }
+
+template<typename uint_type,usint BITLENGTH>
+std::function<unique_ptr<BigBinaryInteger<uint_type,BITLENGTH>>()> BigBinaryInteger<uint_type,BITLENGTH>::Allocator = [=](){
+	return make_unique<cpu_int::BigBinaryInteger<uint32_t,1500>>();
+};
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::~BigBinaryInteger()
@@ -1568,20 +1579,50 @@ usint BigBinaryInteger<uint_type,BITLENGTH>::GetDigitAtIndexForBase(usint index,
 
 }
 
+//template<typename uint_type,usint BITLENGTH>
+//BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::BinaryToBigBinaryInt(const std::string& bitString){
+//	std::string zero = "0";
+//	BigBinaryInteger value("0");
+//	usint len = bitString.length();
+//	for (usint index = 0; index < len; index++)
+//  	{
+//  		if((zero[0] == bitString[index]))
+//  			continue;
+//  		else {
+//  			value += BigBinaryInteger<uint_type,BITLENGTH>::TWO.Exp(len - 1 - index);
+//  		}
+//  	}
+//  	return value;
+//}
+
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::BinaryToBigBinaryInt(const std::string& bitString){
-	std::string zero = "0";
-	BigBinaryInteger value("0");
+	
+	BigBinaryInteger value;
 	usint len = bitString.length();
-	for (usint index = 0; index < len; index++)
-  	{
-  		if((zero[0] == bitString[index]))
-  			continue;
-  		else {
-  			value += BigBinaryInteger<uint_type,BITLENGTH>::TWO.Exp(len - 1 - index);
-  		}
-  	}
-  	return value;
+	usint cntr = ceilIntByUInt(len);
+	std::string val;
+	Duint_type partial_value = 0;
+	for (usint i = 0; i < cntr; i++)
+	{
+
+		if (len>((i + 1)*m_uintBitLength))
+			val = bitString.substr((len - (i + 1)*m_uintBitLength), m_uintBitLength);
+		else
+			val = bitString.substr(0, len%m_uintBitLength);
+		for (usint j = 0; j < val.length(); j++){
+			partial_value += std::stoi(val.substr(j, 1));
+			partial_value <<= 1;
+		}
+		partial_value >>= 1;
+		value.m_value[m_nSize - 1 - i] = (uint_type)partial_value;
+		partial_value = 0;
+	}
+	value.m_MSB = (cntr - 1)*m_uintBitLength;
+	value.m_MSB += GetMSBUint_type(value.m_value[m_nSize - cntr]);
+	value.m_state = INITIALIZED;
+	return value;
+
 }
 
 template<typename uint_type,usint BITLENGTH>
@@ -1724,7 +1765,15 @@ uschar BigBinaryInteger<uint_type,BITLENGTH>::GetBitAtIndex(usint index) const{
 	return (uschar)result;
 }
 
+/*
+	This method can be used to convert int to BigBinaryInteger
+*/
+template<typename uint_type,usint BITLENGTH>
+BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::intToBigBinaryInteger(usint m){
 
+	return BigBinaryInteger(m);
+
+}
 
 
 } // namespace cpu_int ends

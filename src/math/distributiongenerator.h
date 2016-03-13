@@ -57,18 +57,18 @@ public:
 	*/
 	DistributionGenerator ();
 
-	/**
+	/*
 	* @brief  Generates a single random value in the distribution.
 	* @return The resulting value.
 	*/
-	virtual BigBinaryInteger GenerateInteger () = 0;
+	//virtual BigBinaryInteger GenerateInteger () = 0;
 
-	/**
+	/*
 	* @brief       Generates a vector of values in the distribution.
 	* @param  size The size of the vector to create.
 	* @return      The resulting vector of values.
 	*/
-	virtual BigBinaryVector  GenerateVector (const usint size) = 0;
+	//virtual BigBinaryVector  GenerateVector (const usint size) = 0;
 
 protected:
 	/**

@@ -53,7 +53,7 @@ public:
 	* @brief  Generates a random value within the Binary Uniform Distribution.
 	* @return A random value within this Binary Uniform Distribution.
 	*/
-	BigBinaryInteger GenerateInteger ();
+	virtual BigBinaryInteger GenerateInteger ();
 
 	/**
 	* @brief  Generates a vector of random values within the Binary Uniform Distribution.
