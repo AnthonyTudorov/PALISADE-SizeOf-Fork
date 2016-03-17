@@ -35,7 +35,7 @@ bool LPAlgorithmPRELWENTRU<Element>::EvalKeyGen(const LPPublicKey<Element> &newP
 				LPPrivateKey<Element> &origPrivateKey,
 				DiscreteGaussianGenerator &dgg, LPEvalKey<Element> *evalKey) const
 {
-	const LPCryptoParametersLWE<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLWE<Element>&>(newPublicKey.GetAbstractCryptoParameters());
+	const LPCryptoParametersLWE<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLWE<Element>&>(newPublicKey.GetCryptoParameters());
 	const ElemParams &elementParams = cryptoParamsLWE.GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();
 	const Element &f = origPrivateKey.GetPrivateElement();
@@ -69,7 +69,7 @@ void LPAlgorithmPRELWENTRU<Element>::ReEncrypt(const LPEvalKey<Element> &evalKey
 	const Ciphertext<Element> &ciphertext,
 	Ciphertext<Element> *newCiphertext) const
 {
-	const LPCryptoParametersLWE<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLWE<Element>&>(evalKey.GetAbstractCryptoParameters());
+	const LPCryptoParametersLWE<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLWE<Element>&>(evalKey.GetCryptoParameters());
 	
 	const ElemParams &elementParams = cryptoParamsLWE.GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();

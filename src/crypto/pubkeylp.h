@@ -134,7 +134,7 @@ namespace lbcrypto {
 		//virtual void EncodeElement(const ByteArray &encoded, Element *element) const = 0;
 	
 	private:
-		mutable usint m_validationLevel;
+		//mutable usint m_validationLevel;
 	};
 
 	/**
@@ -142,27 +142,27 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	//JSON FACILITY
-	template <class Element>
-	class LPKey : public Serializable {
-		public:
-			/**
-			 * Gets a read-only reference to an LPCryptoParameters-derived class
-			 * @return the crypto parameters.
-			 */
-			virtual const LPCryptoParameters<Element> &GetAbstractCryptoParameters() const = 0;
-			/**
-			 * Gets a writable reference to an LPCryptoParameters-derived class
-			 * @return the crypto parameters.
-			 */
-			virtual LPCryptoParameters<Element> &AccessAbstractCryptoParameters() = 0;
-	};
+	//template <class Element>
+	//class LPKey : public Serializable {
+	//	public:
+	//		/**
+	//		 * Gets a read-only reference to an LPCryptoParameters-derived class
+	//		 * @return the crypto parameters.
+	//		 */
+	//		virtual const LPCryptoParameters<Element> &GetAbstractCryptoParameters() const = 0;
+	//		/**
+	//		 * Gets a writable reference to an LPCryptoParameters-derived class
+	//		 * @return the crypto parameters.
+	//		 */
+	//		virtual LPCryptoParameters<Element> &AccessAbstractCryptoParameters() = 0;
+	//};
 
 	/**
 	 * @brief Abstract interface for LP public keys
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPPublicKey : public LPKey<Element>{
+	class LPPublicKey : public Serializable {
 		public:
 			
 			//@Get Properties
@@ -200,7 +200,7 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPEvalKey : public LPKey<Element>{
+	class LPEvalKey : public Serializable {
 	public:
 
 		//@Get Properties
@@ -242,7 +242,7 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPPrivateKey : public LPKey<Element>{
+	class LPPrivateKey : public Serializable {
 		public:
 
 			//@Get Properties
@@ -287,7 +287,7 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPKeySwitchHint : public LPKey<Element>{
+	class LPKeySwitchHint : public Serializable {
 		public:
 
 			//@Get Properties
@@ -485,11 +485,16 @@ namespace lbcrypto {
 	template <class Element>
 	class LPCryptoParametersImpl : public LPCryptoParameters<Element>
 	{		
+	//protected default constructor
+	private:
+		//element-specific parameters
+		ElemParams *m_params;
+		//plaintext modulus p
+		BigBinaryInteger m_plaintextModulus;
 	};
 
 //	class PKCS8PrivateKey;
 //	class X509PublicKey;
-
 
 	/**
 	 * @brief Implementation class for private and public keys
@@ -549,13 +554,13 @@ namespace lbcrypto {
 			 * Get Abstract Crypto Parameters.
 			 * @return get the parameters.
 			 */
-			const LPCryptoParameters<Element> &GetAbstractCryptoParameters() const {return this->GetCryptoParameters();}
+			//const LPCryptoParameters<Element> &GetAbstractCryptoParameters() const {return this->GetCryptoParameters();}
 			
 			/**
 			 * Access Abstract Crypto Parameters.
 			 * @return the parameters accessed.
 			 */
-			LPCryptoParameters<Element> &AccessAbstractCryptoParameters() { return this->AccessCryptoParameters(); }
+			//LPCryptoParameters<Element> &AccessAbstractCryptoParameters() { return this->AccessCryptoParameters(); }
 			
 			/**
 			 * Implementation of the Get accessor for private element.
@@ -622,13 +627,13 @@ namespace lbcrypto {
 			 * Get Abstract Crypto Parameters.
 			 * @return get the parameters.
 			 */
-			const LPCryptoParameters<Element> &GetAbstractCryptoParameters() const {return this->GetCryptoParameters();}
+			//const LPCryptoParameters<Element> &GetAbstractCryptoParameters() const {return this->GetCryptoParameters();}
 
 			/**
 			 * Access Abstract Crypto Parameters.
 			 * @return the parameters accessed.
 			 */
-			LPCryptoParameters<Element> &AccessAbstractCryptoParameters() {return this->AccessCryptoParameters();}
+			//LPCryptoParameters<Element> &AccessAbstractCryptoParameters() {return this->AccessCryptoParameters();}
 			
 			/**
 			 * Implementation of the Get accessor for public element.
@@ -744,13 +749,13 @@ namespace lbcrypto {
 		* Get Abstract Crypto Parameters.
 		* @return get the parameters.
 		*/
-		const LPCryptoParameters<Element> &GetAbstractCryptoParameters() const { return this->GetCryptoParameters(); }
+		//const LPCryptoParameters<Element> &GetAbstractCryptoParameters() const { return this->GetCryptoParameters(); }
 
 		/**
 		* Access Abstract Crypto Parameters.
 		* @return the parameters accessed.
 		*/
-		LPCryptoParameters<Element> &AccessAbstractCryptoParameters() { return this->AccessCryptoParameters(); }
+		//LPCryptoParameters<Element> &AccessAbstractCryptoParameters() { return this->AccessCryptoParameters(); }
 
 		/**
 		* Implementation of the Get accessor for eval key elements.

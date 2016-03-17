@@ -38,7 +38,7 @@ bool LPAlgorithmLWENTRU<Element>::KeyGen(LPPublicKey<Element> &publicKey,
 		LPPrivateKey<Element> &privateKey, 
 		DiscreteGaussianGenerator &dgg) const
 {
-	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetAbstractCryptoParameters();
+	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
@@ -75,7 +75,7 @@ bool LPAlgorithmLWENTRU<Element>::KeyGen(LPPublicKey<Element> &publicKey,
 	}
 
 	privateKey.SetPrivateElement(f);
-	privateKey.AccessAbstractCryptoParameters() = cryptoParams;
+	privateKey.AccessCryptoParameters() = cryptoParams;
 
 	Element g(dgg,elementParams,Format::COEFFICIENT);
 	g.SwitchFormat();
@@ -95,7 +95,7 @@ void LPAlgorithmLWENTRU<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 				Ciphertext<Element> *ciphertext) const
 {
 
-	const LPCryptoParameters<Element> &cryptoParams = publicKey.GetAbstractCryptoParameters();
+	const LPCryptoParameters<Element> &cryptoParams = publicKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
@@ -133,7 +133,7 @@ DecodingResult LPAlgorithmLWENTRU<Element>::Decrypt(const LPPrivateKey<Element> 
 				PlaintextEncodingInterface *plaintext) const
 {	
 
-	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetAbstractCryptoParameters();
+	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
@@ -240,7 +240,7 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 
 	serializationMap = this->SetIdFlag(serializationMap, fileFlag);
 
-	const LPCryptoParameters<Element> *lpCryptoParams = &this->GetAbstractCryptoParameters();
+	const LPCryptoParameters<Element> *lpCryptoParams = &this->GetCryptoParameters();
 	serializationMap = lpCryptoParams->Serialize(serializationMap, "");
 
 	serializationMap = this->GetPublicElement().Serialize(serializationMap, "");
@@ -278,7 +278,7 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 
 	serializationMap = this->SetIdFlag(serializationMap, fileFlag);
 
-	const LPCryptoParameters<Element> *lpCryptoParams = &this->GetAbstractCryptoParameters();
+	const LPCryptoParameters<Element> *lpCryptoParams = &this->GetCryptoParameters();
 	serializationMap = lpCryptoParams->Serialize(serializationMap, "");
 
 	std::vector<int>::size_type evalKeyVectorLength = this->GetEvalKeyElements().size();
@@ -346,7 +346,7 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 
 	serializationMap = this->SetIdFlag(serializationMap, fileFlag);
 
-	const LPCryptoParameters<Element> *lpCryptoParams = &this->GetAbstractCryptoParameters();
+	const LPCryptoParameters<Element> *lpCryptoParams = &this->GetCryptoParameters();
 	serializationMap = lpCryptoParams->Serialize(serializationMap, "");
 
 	serializationMap = this->GetPrivateElement().Serialize(serializationMap, "");
