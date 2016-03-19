@@ -219,7 +219,7 @@ void LPCryptoParametersLWE<Element>::Deserialize(std::unordered_map <std::string
 	//deserialization.
 	ElemParams *json_ilParams = new ILParams();
 	json_ilParams->Deserialize(serializationMap);
-	this->SetElementParams(*json_ilParams);
+	this->SetElementParams(json_ilParams);
 }
 
 // JSON FACILITY - LPPublicKeyLWENTRU SetIdFlag Operation

@@ -233,7 +233,7 @@ void NTRUPRE(int input) {
 	//cryptoParams.SetPlaintextModulus(BigBinaryInteger("4"));  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
-	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
+	cryptoParams.SetElementParams(&ilParams);			// Set the initialization parameters.
 
 	DiscreteGaussianGenerator dgg(modulus, stdDev);			// Create the noise generator
 

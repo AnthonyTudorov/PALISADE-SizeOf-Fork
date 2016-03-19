@@ -62,7 +62,7 @@ namespace lbcrypto {
 			/**
 			 * Constructor that initializes all values to 0.
 			 */
-			LPCryptoParametersLWE() {
+			LPCryptoParametersLWE() : LPCryptoParametersImpl() {
 				//m_params = new ElementParams();commented out by Gyana
 				//m_plaintextModulus = new BigBinaryInteger();commented out by Gyana 
 				m_distributionParameter = 0.0f;
@@ -83,16 +83,14 @@ namespace lbcrypto {
 			 * @param relinWindow the size of the relinearization window.
 			 * @param depth depth which is set to 1.
 			 */
-			LPCryptoParametersLWE(const ElemParams &params,
+			LPCryptoParametersLWE(ElemParams *params,
 				const BigBinaryInteger &plaintextModulus, 
 				float distributionParameter, 
 				float assuranceMeasure, 
 				float securityLevel, 
 				usint relinWindow,
-				int depth = 1)
+				int depth = 1) : LPCryptoParametersImpl(params,plaintextModulus)
 			{
-				m_params = params;
-				m_plaintextModulus = plaintextModulus;
 				m_distributionParameter = distributionParameter;
 				m_assuranceMeasure = assuranceMeasure;
 				m_securityLevel = securityLevel;
@@ -117,7 +115,7 @@ namespace lbcrypto {
 			 * @param relinWindow the size of the relinearization window.
 			 * @param depth depth which is set to 1.
 			 */
-			void Initialize(const ElemParams &params,
+			void Initialize(ElemParams *params,
 				const BigBinaryInteger &plaintextModulus,  
 				float distributionParameter, 
 				float assuranceMeasure, 
@@ -125,21 +123,14 @@ namespace lbcrypto {
 				usint relinWindow,
 				int depth = 1)
 			{
-				m_params = params;
-				m_plaintextModulus = plaintextModulus;
+				this->SetElementParams(params);
+				this->SetPlaintextModulus(plaintextModulus);
 				m_distributionParameter = distributionParameter;
 				m_assuranceMeasure = assuranceMeasure;
 				m_securityLevel = securityLevel;
 				m_relinWindow = relinWindow;
 				m_depth = depth;
 			}
-			
-			/**
-			 * Returns the value of plaintext modulus p
-			 *
-			 * @return the plaintext modulus.
-			 */
-			const BigBinaryInteger &GetPlaintextModulus() const {return  m_plaintextModulus;}
 			
 			/**
 			 * Returns the value of standard deviation r for discrete Gaussian distribution
@@ -175,20 +166,8 @@ namespace lbcrypto {
 			 * @return the computation depth supported d.
 			 */
 			int GetDepth() const {return m_depth;}
-			
-			/**
-			 * Returns the reference to IL params
-			 *
-			 * @return the ring element parameters.
-			 */
-			const ElemParams &GetElementParams() const { return *m_params; }
 
 			//@Set Properties
-			
-			/**
-			 * Sets the value of plaintext modulus p
-			 */
-			void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {m_plaintextModulus = plaintextModulus;}
 			
 			/**
 			 * Sets the value of standard deviation r for discrete Gaussian distribution
@@ -214,33 +193,6 @@ namespace lbcrypto {
 			 * Sets the value of supported computation depth d
 			 */
 			void SetDepth(int depth) {m_depth = depth;}
-			
-			/**
-			 * Sets the reference to element params
-			 */
-			void SetElementParams(ElemParams &params) { m_params = &params; }
-			
-			/**
-			 * Validates the parameters of cryptosystem up to a certain level will be implemented later
-			 */
-			bool Validate(unsigned int level);
-
-			
-			/**
-			 * Checks the correctness of selected parameters will be implemented later
-			 */
-			bool ValidateCorrectness(unsigned int level, float assuranceMeasure);
-						
-			/**
-			 * Checks whether the selected parameters satisfy the security requirement for specified security level will be implemented later
-			 */
-			bool ValidateSecurity(unsigned int level, float securityLevel);
-			
-			//Represent the lattice in binary format
-			//void DecodeElement(const Element &element, byte *text) const {element.DecodeElement(text,GetPlaintextModulus());}
-		
-			//Convert binary string to lattice format
-			//void EncodeElement(const byte *encoded, size_t byteCount, Element& element) {element.EncodeElement(encoded,byteCount,GetPlaintextModulus());}
 
 			//JSON FACILITY
 			/**
@@ -271,10 +223,6 @@ namespace lbcrypto {
 			void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
 
 		private:
-			//element-specific parameters
-			ElemParams *m_params;
-			//plaintext modulus p
-			BigBinaryInteger m_plaintextModulus;
 			//standard deviation in Discrete Gaussian Distribution
 			float m_distributionParameter;
 			//assurance measure w
@@ -292,7 +240,7 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPPublicKeyLWENTRU : public LPPublicKeyImpl<Element>{
+	class LPPublicKeyLWENTRU : public LPPublicKey<Element>{
 		public:
 
 			/**
@@ -311,15 +259,50 @@ namespace lbcrypto {
 				this->SetCryptoParameters(&cryptoParams);
 			}
 
-			//Uses the LPCryptoParametersLWE instance
-			/*void Initialize(const LPCryptoParametersLWE<Element,ElementParams> &params, 
-				const Element &generatedElement, 
-				const Element &publicElement)
-			{
-				AccessCryptoParameters() = params;
-				SetGeneratedElement(generatedElement);
-				SetPublicElement(publicElement);
-			}*/
+			/**
+			 * Get Crypto Parameters.
+			 * @return the crypto parameters.
+			 */
+			const LPCryptoParameters<Element> &GetCryptoParameters() const {return *m_cryptoParameters;}
+
+			/**
+			 * Implementation of the Get accessor for public element.
+			 * @return the private element.
+			 */
+			const Element & GetPublicElement() const {return m_h;}
+
+			/**
+			 * Implementation of the Get accessor for auxiliary polynomial used together with the public element.
+			 * @return the generated element.
+			 */
+			const Element & GetGeneratedElement() const {return m_g;}
+
+			/**
+			* Gets writable instance of cryptoparams.
+			* @return the crypto parameters.
+			*/
+			LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
+
+			/**
+			 * Sets crypto params.
+			 *
+			 * @param *cryptoParams parameters.
+			 * @return the crypto parameters.
+			 */
+			void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
+			
+			/**
+			 * Implementation of the Set accessor for public element.
+			 * @private &x the public element.
+			 */
+			void SetPublicElement(const Element &x) {m_h = x;}
+
+			/**
+			 * Implementation of the Set accessor for generated element.
+			 * @private &x the generated element.
+			 */
+			void SetGeneratedElement(const Element &x) {m_g = x;}
+
 
 			//JSON FACILITY
 			/**
@@ -348,6 +331,12 @@ namespace lbcrypto {
 			* @param serializationMap stores this object's serialized attribute name value pairs.
 			*/
 			void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+
+		private:
+			LPCryptoParameters<Element> *m_cryptoParameters;
+			//polynomials used for public key
+			Element m_g;
+			Element m_h;
 	};
 
 	/**
@@ -355,7 +344,7 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPEvalKeyLWENTRU : public LPEvalKeyImpl<Element>{
+	class LPEvalKeyLWENTRU : public LPEvalKey<Element>{
 	public:
 
 		/**
@@ -373,6 +362,56 @@ namespace lbcrypto {
 		LPEvalKeyLWENTRU(LPCryptoParameters<Element> &cryptoParams) {
 			this->SetCryptoParameters(&cryptoParams);
 		}
+
+		/**
+			* Get Crypto Parameters.
+			* @return the crypto parameters.
+			*/
+		const LPCryptoParameters<Element> &GetCryptoParameters() const {return *m_cryptoParameters;}
+
+		/**
+		* Implementation of the Get accessor for eval key elements.
+		* @return the private element.
+		*/
+		const std::vector<Element> &GetEvalKeyElements() const { return m_elements; }
+
+		/**
+		* Implementation of the Get accessor for public key.
+		* @return the public.
+		*/
+		const LPPublicKey<Element> &GetPublicKey() const { return *m_publicKey; }
+
+		/**
+		* Gets writable instance of cryptoparams.
+		* @return the crypto parameters.
+		*/
+		LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
+
+		/**
+		* Implementation of the writeable accessor for eval key elements.
+		* @return the private element.
+		*/
+		std::vector<Element> &AccessEvalKeyElements() { return m_elements; }
+
+		/**
+			* Sets crypto params.
+			*
+			* @param *cryptoParams parameters.
+			* @return the crypto parameters.
+			*/
+		void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
+
+		/**
+		* Implementation of the Set accessor for evaluation key elements.
+		* @private &x the public element.
+		*/
+		void SetEvalKeyElements(std::vector<Element> &elements) { m_elements = elements; }
+
+		/**
+		* Implementation of the Set accessor for public key.
+		* @private &publicKey the public element.
+		*/
+		void SetPublicKey(const LPPublicKey<Element> &publicKey) { m_publicKey = &publicKey; }
 
 		//JSON FACILITY
 		/**
@@ -401,14 +440,81 @@ namespace lbcrypto {
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		*/
 		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+		
+	private:
+		LPCryptoParameters<Element> *m_cryptoParameters;
+		//elements used for evaluation key
+		std::vector<Element> m_elements;
+
+		//pointer to public key
+		const LPPublicKey<Element> *m_publicKey;
+
 	};
+
+	//! Implementation class for key switch hint
+	/**
+	 * @brief Implementation class for key switch hints
+	 * @tparam Element a ring element
+	 */
+	template <class Element>
+	class LPKeySwitchHintLWENTRU: public LPKeySwitchHint<Element> {
+		public:
+
+			/**
+			* Constructor that initializes nothing.
+			*/
+			LPKeySwitchHintLWENTRU() {
+				m_sk = NULL;
+				//m_cryptoParameters;
+			}
+
+		/**
+			* Get Crypto Parameters.
+			* @return the crypto parameters.
+			*/
+		const LPCryptoParameters<Element> &GetCryptoParameters() const {return *m_cryptoParameters;}
+
+		/**
+			* Implementation of the Get accessor for private element.
+			* @return the private element.
+			*/
+		const Element & GetHintElement() const {return m_sk;}
+
+
+		/**
+		* Gets writable instance of cryptoparams.
+		* @return the crypto parameters.
+		*/
+		LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
+
+		/**
+			* Sets crypto params.
+			*
+			* @param *cryptoParams parameters.
+			* @return the crypto parameters.
+			*/
+		void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
+
+		/**
+			* Implementation of the Set accessor for private element.
+			* @private &x the private element.
+			*/
+		void SetHintElement(const Element &x) {m_sk = x;}
+
+		private:
+			LPCryptoParameters<Element> *m_cryptoParameters;
+			//private key polynomial
+			Element m_sk;
+
+	};
+
 
 	/**
 	 * @brief Private key implementation template for Ring-LWE NTRU-based schemes,
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPPrivateKeyLWENTRU : public LPPrivateKeyImpl<Element>{
+	class LPPrivateKeyLWENTRU : public LPPrivateKey<Element>{
 		public:
 
 			/**
@@ -426,14 +532,51 @@ namespace lbcrypto {
 			LPPrivateKeyLWENTRU(LPCryptoParametersLWE<Element> &cryptoParams) {
 				this->SetCryptoParameters(&cryptoParams);
 			}
+
+			/**
+			 * Get Crypto Parameters.
+			 * @return the crypto parameters.
+			 */
+			const LPCryptoParameters<Element> &GetCryptoParameters() const {return *m_cryptoParameters;}
+
+			/**
+			 * Implementation of the Get accessor for private element.
+			 * @return the private element.
+			 */
+			const Element & GetPrivateElement() const {return m_sk;}
 			
-			//Uses the LPCryptoParametersLWE instance
-			/*void Initialize(const LPCryptoParametersLWE<Element,ElementParams> &params, 
-				const Element &privateElement)
-			{
-				AccessCryptoParameters() = params;
-				SetPrivateElement(privateElement);
-			}*/
+			/**
+			 * Implementation of the Get accessor for auxiliary polynomial used along with the private element.
+			 * @return the private error element.
+			 */
+			const Element & GetPrivateErrorElement() const {return m_e;}
+
+			/**
+			* Gets writable instance of cryptoparams.
+			* @return the crypto parameters.
+			*/
+			LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
+
+			/**
+			 * Sets crypto params.
+			 *
+			 * @param *cryptoParams parameters.
+			 * @return the crypto parameters.
+			 */
+			void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
+
+			/**
+			 * Implementation of the Set accessor for private element.
+			 * @private &x the private element.
+			 */
+			void SetPrivateElement(const Element &x) {m_sk = x;}
+
+			/**
+			 * Implementation of the Set accessor for auxiliary polynomial used along with the private element.
+			 * @private &x the private error element.
+			 */
+			void SetPrivateErrorElement(const Element &x) {m_e = x;}
+
 
 			/**
 			 * Implements the procedure to compute the public key using the current private key
@@ -473,6 +616,13 @@ namespace lbcrypto {
 			* @param serializationMap stores this object's serialized attribute name value pairs.
 			*/
 			void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+
+	private:
+			LPCryptoParameters<Element> *m_cryptoParameters;
+			//private key polynomial
+			Element m_sk;
+			//error polynomial
+			Element m_e;
 	};
 
 	/**
