@@ -185,7 +185,7 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 	cryptoParamsMap.emplace("PlaintextModulus", this->GetPlaintextModulus().ToString());
 	serializationMap.emplace("LPCryptoParametersLWE", cryptoParamsMap);
 
-	const ElemParams *cpElemParams = &GetElementParams();
+	const ElemParams *cpElemParams = &this->GetElementParams();
 	serializationMap = cpElemParams->Serialize(serializationMap, "");
 
 	return serializationMap;
@@ -219,7 +219,7 @@ void LPCryptoParametersLWE<Element>::Deserialize(std::unordered_map <std::string
 	//deserialization.
 	ElemParams *json_ilParams = new ILParams();
 	json_ilParams->Deserialize(serializationMap);
-	this->SetElementParams(json_ilParams);
+	this->SetElementParams(*json_ilParams);
 }
 
 // JSON FACILITY - LPPublicKeyLWENTRU SetIdFlag Operation

@@ -62,7 +62,7 @@ namespace lbcrypto {
 			/**
 			 * Constructor that initializes all values to 0.
 			 */
-			LPCryptoParametersLWE() : LPCryptoParametersImpl() {
+			LPCryptoParametersLWE() : LPCryptoParametersImpl<Element>() {
 				//m_params = new ElementParams();commented out by Gyana
 				//m_plaintextModulus = new BigBinaryInteger();commented out by Gyana 
 				m_distributionParameter = 0.0f;
@@ -89,7 +89,7 @@ namespace lbcrypto {
 				float assuranceMeasure, 
 				float securityLevel, 
 				usint relinWindow,
-				int depth = 1) : LPCryptoParametersImpl(params,plaintextModulus)
+				int depth = 1) : LPCryptoParametersImpl<Element>(params,plaintextModulus)
 			{
 				m_distributionParameter = distributionParameter;
 				m_assuranceMeasure = assuranceMeasure;

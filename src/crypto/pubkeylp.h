@@ -493,7 +493,7 @@ namespace lbcrypto {
 		/**
 			* Sets the reference to element params
 			*/
-		void SetElementParams(ElemParams *params) { m_params = params; }
+		void SetElementParams(ElemParams &params) { m_params = &params; }
 
 	protected:
 		LPCryptoParametersImpl() : m_params(NULL), m_plaintextModulus(BigBinaryInteger::TWO) {}
