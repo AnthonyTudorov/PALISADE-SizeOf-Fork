@@ -235,12 +235,6 @@ namespace lbcrypto {
 			 */ 
 			virtual const Element & GetPrivateElement() const = 0;
 
-			/**
-			 * Gets the private key error polynomial 
-			 * @return the private key error element.
-			 */  
-			virtual const Element & GetPrivateErrorElement() const = 0;
-
 			//@Set Properties
 			
 			/**
@@ -248,19 +242,14 @@ namespace lbcrypto {
 			 * @param &x the public key element.
 			 */ 
 			virtual void SetPrivateElement(const Element &x) = 0;
-			
-			/**
-			 * Sets the private key error polynomial
-			 * @param &x the public key error polynomial.
-			 */ 
-			virtual void SetPrivateErrorElement(const Element &x) = 0;
 
 			//@Other Methods 
 			/**
 			 * Computes the public key using the parameters stored in implementations of LPPublicKey and LPPrivateKey interfaces 
+			 * @param &g a generated polynomial.
 			 * @param &pub the public key element.
 			 */ 
-			virtual void MakePublicKey(LPPublicKey<Element> &pub) const = 0;
+			virtual void MakePublicKey(const Element &g, LPPublicKey<Element> &pub) const = 0;
 	};
 
 

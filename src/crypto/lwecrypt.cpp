@@ -80,10 +80,8 @@ bool LPAlgorithmLWENTRU<Element>::KeyGen(LPPublicKey<Element> &publicKey,
 	Element g(dgg,elementParams,Format::COEFFICIENT);
 	g.SwitchFormat();
 
-	privateKey.SetPrivateErrorElement(g);
-
 	//public key is generated
-	privateKey.MakePublicKey(publicKey);
+	privateKey.MakePublicKey(g,publicKey);
 
 	return true;
 }

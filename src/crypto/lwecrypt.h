@@ -582,11 +582,12 @@ namespace lbcrypto {
 			 * Implements the procedure to compute the public key using the current private key
 			 * The formula is h = p*g*f^(-1) using standard NTRU notation
 			 *
+			 * @param g a Gaussian polynomial
 			 * @param &pub a public key.
 			 */
-			void MakePublicKey(LPPublicKey<Element> &pub) const
+			void MakePublicKey(const Element &g, LPPublicKey<Element> &pub) const
 			{
-				pub.SetPublicElement(this->GetCryptoParameters().GetPlaintextModulus()*this->GetPrivateErrorElement()*this->GetPrivateElement().MultiplicativeInverse());
+				pub.SetPublicElement(this->GetCryptoParameters().GetPlaintextModulus()*g*this->GetPrivateElement().MultiplicativeInverse());
 			}
 
 			//JSON FACILITY
