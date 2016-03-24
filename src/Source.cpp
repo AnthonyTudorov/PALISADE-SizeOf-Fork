@@ -453,4 +453,3 @@ void NTRUPRE(int input) {
 
 }
 
-

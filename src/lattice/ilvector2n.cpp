@@ -407,7 +407,8 @@ namespace lbcrypto {
 
 	//Precompute a sample of disrete gaussian polynomials
 	void ILVector2n::PreComputeDggSamples(DiscreteGaussianGenerator &dgg, const ILParams &params) {
-
+	  if (m_dggSamples.size() == 0)
+	    {
 		for (usint i = 0; i < m_sampleSize; ++i)
 		{
 			ILVector2n current(params);
@@ -428,7 +429,7 @@ namespace lbcrypto {
 
 			m_dggSamples.push_back(current);
 		}
-
+	    }
 	}
 
 	//Select a precomputed vector randomly
