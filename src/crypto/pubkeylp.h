@@ -277,6 +277,7 @@ namespace lbcrypto {
 			 */ 
 			virtual void SetHintElement(const Element &x) = 0;
 	};
+
 	/**
 	 * @brief Abstract interface for encryption algorithm
 	 * @tparam Element a ring element.
@@ -494,6 +495,115 @@ namespace lbcrypto {
 		ElemParams *m_params;
 		//plaintext modulus p
 		BigBinaryInteger m_plaintextModulus;
+	};
+
+
+	/**
+	 * @brief Abstract interface for public key encryption schemes
+	 * @tparam Element a ring element.
+	 */
+	template <class Element>
+	class LPPublicKeyEncryptionScheme : public LPEncryptionAlgorithm<Element>, public LPPREAlgorithm<Element> {
+	public:
+		
+		//to be implemented later
+		//void Disable(PKESchemeFeature feature);
+		
+		const std::bitset<FEATURESETSIZE> GetEnabledFeatures() {return m_featureMask;}
+		
+		//to be implemented later
+		//const std::string PrintEnabledFeatures();
+		
+		//needs to be moved to pubkeylp.cpp
+		bool IsEnabled(PKESchemeFeature feature) {
+			bool flag = false;
+			switch (feature)
+			  {
+				 case ENCRYPTION:
+					if (m_algorithmEncryption != NULL)
+						flag = true;
+					break;
+				 case PRE:
+					if (m_algorithmPRE!= NULL)
+						flag = true;
+					break;
+				 case EVALADD:
+					if (m_algorithmEvalAdd!= NULL)
+						flag = true;
+					break;
+				 case EVALAUTOMORPHISM:
+					if (m_algorithmEvalAutomorphism!= NULL)
+						flag = true;
+					break;
+				 case SHE:
+					if (m_algorithmSHE!= NULL)
+						flag = true;
+					break;
+				 case FHE:
+					if (m_algorithmFHE!= NULL)
+						flag = true;
+					break;
+			  }
+			return flag;
+		}
+
+		//wrapper for Encrypt method
+		void Encrypt(const LPPublicKey<Element> &publicKey, DiscreteGaussianGenerator &dg, 
+			const PlaintextEncodingInterface &plaintext, Ciphertext<Element> *ciphertext) {
+				if(this->IsEnabled(ENCRYPTION))
+					return this->m_algorithmEncryption->Encrypt(publicKey,dg,plaintext,ciphertext);
+				else {
+					throw std::logic_error("This operation is not supported");
+				}
+		}
+
+		//wrapper for Decrypt method
+		DecodingResult Decrypt(const LPPrivateKey<Element> &privateKey, const Ciphertext<Element> &ciphertext,
+				PlaintextEncodingInterface *plaintext) const {
+				if(this->IsEnabled(ENCRYPTION))
+					return this->m_algorithmEncryption->Decrypt(privateKey,ciphertext,plaintext);
+				else {
+					throw std::logic_error("This operation is not supported");
+				}
+		}
+
+		//wrapper for KeyGen method
+		bool KeyGen(LPPublicKey<Element> &publicKey, LPPrivateKey<Element> &privateKey, DiscreteGaussianGenerator &dgg){
+				if(this->IsEnabled(ENCRYPTION))
+					return this->m_algorithmEncryption->KeyGen(publicKey,privateKey,dgg);
+				else {
+					throw std::logic_error("This operation is not supported");
+				}
+		}
+
+		//wrapper for EvalKeyGen method
+		bool EvalKeyGen(const LPPublicKey<Element> &newPublicKey, LPPrivateKey<Element> &origPrivateKey,
+			DiscreteGaussianGenerator &ddg, LPEvalKey<Element> *evalKey) const{
+				if(this->IsEnabled(PRE))
+					return this->m_algorithmPRE->EvalKeyGen(newPublicKey,origPrivateKey,ddg,evalKey);
+				else {
+					throw std::logic_error("This operation is not supported");
+				}
+		}
+
+		//wrapper for ReEncrypt method
+		void ReEncrypt(const LPEvalKey<Element> &evalKey, const Ciphertext<Element> &ciphertext,
+			Ciphertext<Element> *newCiphertext) const {
+				if(this->IsEnabled(PRE))
+					return this->m_algorithmPRE->ReEncrypt(evalKey,ciphertext,newCiphertext);
+				else {
+					throw std::logic_error("This operation is not supported");
+				}
+		}
+
+	protected:
+		const LPEncryptionAlgorithm *m_algorithmEncryption;
+		const LPPREAlgorithm *m_algorithmPRE;
+		const LPAHEAlgorithm *m_algorithmEvalAdd;
+		const LPAutoMorphAlgorithm *m_algorithmEvalAutomorphism;
+		const LPSHEAlgorithm *m_algorithmSHE;
+		const LPFHEAlgorithm *m_algorithmFHE;
+		std::bitset<FEATURESETSIZE> m_featureMask;
 	};
 
 

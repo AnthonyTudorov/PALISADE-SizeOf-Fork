@@ -364,4 +364,23 @@ void LPPrivateKeyLWENTRU<Element>::Deserialize(std::unordered_map <std::string, 
 	this->SetPrivateElement(json_ilElement);
 }
 
+// Constructor for LPPublicKeyEncryptionSchemeLTV
+template <class Element>
+LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask){
+
+	if (mask[ENCRYPTION])
+		this->m_algorithmEncryption = new LPAlgorithmLWENTRU<Element>();
+	if (mask[PRE])
+		this->m_algorithmPRE = new LPAlgorithmPRELWENTRU<Element>();
+	if (mask[EVALADD])
+		this->m_algorithmEvalAdd = new LPAlgorithmAHELWENTRU<Element>();
+	if (mask[EVALAUTOMORPHISM])
+		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLWENTRU<Element>();
+	if (mask[SHE])
+		this->m_algorithmSHE = new LPAlgorithmSHELWENTRU<Element>();
+	if (mask[FHE])
+		this->m_algorithmFHE = new LPAlgorithmFHELWENTRU<Element>();
+
+}
+
 }  // namespace lbcrypto ends

@@ -673,5 +673,17 @@ namespace lbcrypto {
 
 	};
 
+	/**
+	 * @brief Main public key encryption scheme for NTRU-LTV implementation,
+	 * @tparam Element a ring element.
+	 */
+	template <class Element>
+	class LPPublicKeyEncryptionSchemeLTV : public LPPublicKeyEncryptionScheme<Element>{
+		public:
+			LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask);
+			//These functions can be implemented later
+			//Initialize(mask);
+			//Enable(Feature);
+	};
 } // namespace lbcrypto ends
 #endif
