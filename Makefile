@@ -24,7 +24,8 @@
 #
 
 CC := g++ # This is the main compiler
-CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g -fopenmp
+CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g    ## undefine for single thread debug
+#CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g -fopenmp  ##undefine for parallel operation
 #CPPFLAGS += -Wall -O3 -std=gnu++11 -w  -DNDEBUG  ##undefine for speed
 
 SRCDIR := src
