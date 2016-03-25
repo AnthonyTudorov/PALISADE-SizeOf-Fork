@@ -31,7 +31,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <functional>
 #include <math.h>
 #include <stdexcept>
-
+#include <omp.h>
 using std::function;
 using std::invalid_argument;
 
@@ -165,7 +165,10 @@ namespace lbcrypto {
                 }
 #else
                 #pragma omp parallel for
+
+
                 for (size_t row = 0; row < result.rows; ++row) {
+
 	          //if result was zero allocated the following should not be needed
 	          for (size_t col = 0; col < result.cols; ++col) { 
 	      	      *result.data[row][col] = 0;

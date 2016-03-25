@@ -51,6 +51,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "time.h"
 #include <chrono>
 #include "utils/debug.h"
+#include <omp.h> //open MP header
 
 using namespace std;
 using namespace lbcrypto;
@@ -100,7 +101,9 @@ int main(int argc, char* argv[]){
 #endif
 	  }
 	}
-	
+
+	cerr  <<"Running " << argv[0] <<" with "<< omp_get_num_procs() << " processors." << endl;
+
 	NTRUPRE(input, dbg_flag);
 
 	//std::cin.get();
@@ -317,23 +320,15 @@ void NTRUPRE(int input, bool dbg_flag) {
 	cout << "Timing Summary" << endl;
 	cout << "FFT Precomputation time: " << "\t" << timeFFTSetup << " ms" << endl;
 	cout << "DGG Precomputation time: " << "\t" << timeDGGSetup << " ms" << endl;
-	cout << "Key generation time:        " << "\t" << timeKeyGen << " ms" << endl;
+	cout << "T: Key generation time:        " << "\t" << timeKeyGen << " ms" << endl;
 	cout << "Binary Uniform generation time:        " << "\t" << timeBUGGen << " ms" << endl;
-	cout << "Obfuscation execution time: " << "\t" << timeObf << " ms" << endl;
-	cout << "Evaluation 1 execution time:  " << "\t" << timeEval1 << " ms" << endl;
+	cout << "T: Obfuscation execution time: " << "\t" << timeObf << " ms" << endl;
+	cout << "T: Evaluation 1 execution time:  " << "\t" << timeEval1 << " ms" << endl;
 	cout << "Evaluation 2 execution time:  " << "\t" << timeEval2 << " ms" << endl;
 	cout << "Evaluation 3 execution time:  " << "\t" << timeEval3 << " ms" << endl;
 
 	cout << "Total execution time:       " << "\t" << timeTotal << " ms" << endl;
 
-	cout << "\% Key generation time:        " << "\t" << timeKeyGen/timeTotal*100.0 << "\%" << endl;
-	cout << "\% Obfuscation execution time: " << "\t" << timeObf/timeTotal*100.0 << "\%" << endl;
-	cout << "\% Evaluation 1 execution time:  " << "\t" << timeEval1/timeTotal*100.0 << "\%" << endl;
-	cout << "\% Evaluation 2 execution time:  " << "\t" << timeEval2/timeTotal*100.0 << "\%" << endl;
-	cout << "\% Evaluation 3 execution time:  " << "\t" << timeEval3/timeTotal*100.0 << "\%" << endl;
-
-	cout << "total measured time  is : "<< (timeFFTSetup + timeDGGSetup + timeKeyGen + timeBUGGen +timeObf +
-						timeEval1 + timeEval2 + timeEval3 )/timeTotal *100.00<< "\%" << endl;
 	
 }
 

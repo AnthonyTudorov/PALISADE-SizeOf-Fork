@@ -198,8 +198,10 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	std::vector<Element> r_small_1;
 
 	Element s_prod;
-	DEBUG("O1: "<<TOC2 <<" ms");
-	TIC2;
+	//DBC: above setup insignificant timing.
+
+
+	//DBC: this loop insignificant timing.
 	for(usint i=0; i<=l-1; i++) {
 		//Set the elements s and r to a discrete uniform generated vector.
 		Element elems0(dbg,params,EVALUATION);
@@ -242,8 +244,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 		}
 
 	}
-	DEBUG("O2: "<<TOC2 <<" ms");
-	TIC2;
+
+	//DBC this setup insignificant timing
 
 	std::cout << "Obfuscate: Generated random uniform ring elements" << std::endl;
 
@@ -253,7 +255,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	std::vector<ILMat<Element>> *R0_vec = new std::vector<ILMat<Element>>();
 	std::vector<ILMat<Element>> *R1_vec = new std::vector<ILMat<Element>>();
 
-	DEBUG("O3: "<<TOC2 <<" ms");
+
 
 	for(usint i=1; i<=l; i++) {
 	TIC2;
@@ -328,7 +330,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 
   TimeVar tl1,tl2; // for TIC TOC
   TOTAL_TIC;
-  bool dbg_flag = 1;
+  bool dbg_flag = 0;//no debug statements
 	size_t m = Ai.GetCols();
 	size_t k = m - 2;
 	size_t n = elemS.GetParams().GetCyclotomicOrder()/2;
@@ -340,22 +342,24 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	//YSP this can be done using discrete Gaussian allocator later - after the dgg allocator is updated to use the same dgg instance
 	TIC;
 	ILMat<Element> ej(zero_alloc, 1, m); 
-	DEBUG("1 "<< TOC << " ms");
+	DEBUG("Enc1: "<< TOC << " ms");
+
 	TIC;	
 	for(size_t i=0; i<m; i++) {
 		ej(0,i).SetValues(dgg.GenerateVector(n,modulus),COEFFICIENT);
 		ej(0,i).SwitchFormat();
 	}
-	DEBUG("2 "<< TOC << " ms");
+	DEBUG("Enc2: "<< TOC << " ms");
 
 	TIC;
 	ILMat<Element> bj = Aj.ScalarMult(elemS) + ej;
-	DEBUG("3 "<< TOC << " ms");
-	DEBUG("m = " << m);
-
+	DEBUG("Enc3: "<< TOC << " ms");
 
 	TIC;	
 	//std::cout << "Encode: Computed bj, next will do GaussSamp" << std::endl; 
+
+	//DBC: this loop takes all the time in encode
+	//TODO: move gaussj generation out of the loop to enable parallelisation
 	#pragma omp parallel for
 	for(size_t i=0; i<m; i++) {
 
@@ -368,7 +372,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 		}
 
 	}
-	DEBUG("4 " << " "  << TOC << " ms");
+
+	DEBUG("Enc4: " << " "  << TOC << " ms");
 
 	//encodedElem->SwitchFormat();
 	//std::cout<<"norm = "<<encodedElem->Norm() <<std::endl;
@@ -452,13 +457,13 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	ILMat<Element> *S_ib;// = ILMat<Element>(secureIL2nAlloc(), m, m);
 	ILMat<Element> *R_ib;// = ILMat<Element>(secureIL2nAlloc(), m, m);
 
-	DEBUG("E1: "<<TOC2 <<" ms");
+	DEBUG("Eval1: "<<TOC2 <<" ms");
 
 	for (usint i=0; i<l; i++)
 	{
 	TIC2;
 
-	      #pragma omp parallel sections
+	      //pragma omp parallel sections
 	      {
 		{
 		testVal = (char)testString[i];
@@ -476,7 +481,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 		//if (i==0)
 		//	std::cout << "does identity work correctly" << (S_prod == *S_ib) << std::endl;
 	      }
-		DEBUG("E2: "<< i << " " <<TOC2 <<" ms");
+		DEBUG("Eval2:#"<< i << " " <<TOC2 <<" ms");
 	}
 	TIC2;	
 	std::cout << " S_prod: " << std::endl;
@@ -497,14 +502,14 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	//CrossProd.PrintValues();
 
 
-	DEBUG("E3: " <<TOC2 <<" ms");
+	DEBUG("Eval3: " <<TOC2 <<" ms");
 	TIC2;	
 	//for(size_t i=0; i<m; i++)
 	//		CrossProd(0,i).SwitchFormat();
 
 	//the norm can be estimated after all elements are converted to coefficient representation
 	CrossProd.SwitchFormat();
-	DEBUG("E4: " <<TOC2 <<" ms");
+	DEBUG("E4val: " <<TOC2 <<" ms");
 	TIC2;	
 	//CrossProd.PrintValues();
 
@@ -512,7 +517,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	//std::cout <<  CrossProd << std::endl;
 
 	norm = CrossProd.Norm();
-	DEBUG("E5: " <<TOC2 <<" ms");
+	DEBUG("Eval5: " <<TOC2 <<" ms");
 	std::cout << " Norm: " << norm << std::endl;
 
 	return (norm <= constraint);
