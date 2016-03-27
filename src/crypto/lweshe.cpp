@@ -56,7 +56,7 @@ bool LPAlgorithmSHELTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &n
 				usint depth,
 				LPKeySwitchHint<Element> *keySwitchHint) const
 {
-	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
+	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(origPrivateKey.GetCryptoParameters());
 	DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 
@@ -78,7 +78,7 @@ template <class Element>
 bool LPAlgorithmSHELTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &privateKey,  
 				LPKeySwitchHint<Element> *keySwitchHint) const
 {
-	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
+	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(privateKey.GetCryptoParameters());
 	DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 
