@@ -120,7 +120,7 @@ void LPAlgorithmLWENTRU<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 
 	ciphertext->SetCryptoParameters(cryptoParams);
 	ciphertext->SetPublicKey(publicKey);
-	ciphertext->SetEncryptionAlgorithm(*this);
+	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
 	ciphertext->SetElement(c);
 
 }
@@ -364,22 +364,33 @@ void LPPrivateKeyLWENTRU<Element>::Deserialize(std::unordered_map <std::string, 
 	this->SetPrivateElement(json_ilElement);
 }
 
+// Default constructor for LPPublicKeyEncryptionSchemeLTV
+template <class Element>
+LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(){
+	this->m_algorithmEncryption = NULL;
+	this->m_algorithmPRE = NULL;
+	this->m_algorithmEvalAdd = NULL;
+	this->m_algorithmEvalAutomorphism = NULL;
+	this->m_algorithmSHE = NULL;
+	this->m_algorithmFHE = NULL;
+}
+
 // Constructor for LPPublicKeyEncryptionSchemeLTV
 template <class Element>
 LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask){
 
 	if (mask[ENCRYPTION])
-		this->m_algorithmEncryption = new LPAlgorithmLWENTRU<Element>();
+		this->m_algorithmEncryption = new LPAlgorithmLWENTRU<Element>(*this);
 	if (mask[PRE])
-		this->m_algorithmPRE = new LPAlgorithmPRELWENTRU<Element>();
+		this->m_algorithmPRE = new LPAlgorithmPRELWENTRU<Element>(*this);
 	if (mask[EVALADD])
-		this->m_algorithmEvalAdd = new LPAlgorithmAHELWENTRU<Element>();
+		this->m_algorithmEvalAdd = new LPAlgorithmAHELWENTRU<Element>(*this);
 	if (mask[EVALAUTOMORPHISM])
-		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLWENTRU<Element>();
+		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLWENTRU<Element>(*this);
 	if (mask[SHE])
-		this->m_algorithmSHE = new LPAlgorithmSHELWENTRU<Element>();
+		this->m_algorithmSHE = new LPAlgorithmSHELWENTRU<Element>(*this);
 	if (mask[FHE])
-		this->m_algorithmFHE = new LPAlgorithmFHELWENTRU<Element>();
+		this->m_algorithmFHE = new LPAlgorithmFHELWENTRU<Element>(*this);
 
 }
 

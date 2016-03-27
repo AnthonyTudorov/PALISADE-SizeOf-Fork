@@ -37,7 +37,7 @@ void LPAlgorithmFHELWENTRU<Element>::Bootstrap(const Ciphertext<Element> &cipher
 {
 	Ciphertext<Element> ct();
 
-	*newCiphertext = ct;
+	//*newCiphertext = ct;
 }
 
 }  // namespace lbcrypto ends

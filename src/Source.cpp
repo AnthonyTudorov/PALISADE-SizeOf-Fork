@@ -52,7 +52,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "crypto/lwepre.h"
 #include "crypto/lwepre.cpp"
 #include "crypto/lweahe.cpp"
+#include "crypto/lweautomorph.cpp"
 #include "crypto/lweshe.cpp"
+#include "crypto/lwefhe.cpp"
 #include "lattice/ilvector2n.h"
 #include "lattice/ilvectorarray2n.h"
 #include "time.h"
@@ -267,7 +269,10 @@ void NTRUPRE(int input) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	LPAlgorithmLWENTRU<ILVector2n> algorithm;
+	//LPAlgorithmLWENTRU<ILVector2n> algorithm;
+
+	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
 
 	bool successKeyGen=false;
 
@@ -350,7 +355,7 @@ void NTRUPRE(int input) {
 
 	//system("pause");
 
-	LPAlgorithmPRELWENTRU<ILVector2n> algorithmPRE;
+	//LPAlgorithmPRELWENTRU<ILVector2n> algorithmPRE;
 
 	////////////////////////////////////////////////////////////
 	//Perform the second key generation operation.
@@ -364,7 +369,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	successKeyGen = algorithmPRE.KeyGen(newPK,newSK,dgg);	// This is the same core key generation operation.
+	successKeyGen = algorithm.KeyGen(newPK,newSK,dgg);	// This is the same core key generation operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -388,7 +393,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	algorithmPRE.EvalKeyGen(newPK, sk, dgg , &evalKey);  // This is the core re-encryption operation.
+	algorithm.EvalKeyGen(newPK, sk, dgg , &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -408,7 +413,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	algorithmPRE.ReEncrypt(evalKey, ciphertext,&newCiphertext);  // This is the core re-encryption operation.
+	algorithm.ReEncrypt(evalKey, ciphertext,&newCiphertext);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -428,7 +433,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	DecodingResult result1 = algorithmPRE.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
+	DecodingResult result1 = algorithm.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
     plaintextNew2.Unpad<ZeroPad>();
 
 	finish = currentDateTime();

@@ -51,6 +51,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "crypto/lwecrypt.cpp"
 #include "crypto/lwepre.h"
 #include "crypto/lwepre.cpp"
+#include "crypto/lweahe.cpp"
+#include "crypto/lweshe.cpp"
+#include "crypto/lwefhe.cpp"
+#include "crypto/lweautomorph.cpp"
 #include "lattice/ilvector2n.h"
 #include "lattice/ilvectorarray2n.h"
 #include "crypto/ciphertext.cpp"
@@ -355,7 +359,9 @@ void PRESimulation(usint count, usint dataset){
 	//GENERATE THE KEYS
 
 	//LWE-NTRU encryption/pre-encryption algorithm instance
-	LPAlgorithmPRELWENTRU<ILVector2n> algorithm;
+	//LPAlgorithmPRELWENTRU<ILVector2n> algorithm;
+	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
 
 	std::vector<LPPublicKeyLWENTRU<ILVector2n>*> publicKeys;
 	std::vector<LPPrivateKeyLWENTRU<ILVector2n>*> privateKeys;

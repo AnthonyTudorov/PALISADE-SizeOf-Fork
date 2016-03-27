@@ -53,13 +53,13 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPAlgorithmSHELWENTRU : public LPAlgorithmAHELWENTRU<Element>, public LPSHEAlgorithm<Element> {
+	class LPAlgorithmSHELWENTRU : public LPSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
 		public:
 
-			/**
-			* Constructor that initializes nothing.
-			*/
-			LPAlgorithmSHELWENTRU() {}
+			//inherited constructors
+			LPAlgorithmSHELWENTRU() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
+			LPAlgorithmSHELWENTRU(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+
 			/**
 			 * Function for evaluation addition on ciphertext.
 			 *

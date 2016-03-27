@@ -275,7 +275,7 @@ namespace lbcrypto {
 			 * Implementation of the Get accessor for auxiliary polynomial used together with the public element.
 			 * @return the generated element.
 			 */
-			const Element & GetGeneratedElement() const {return m_g;}
+			//const Element & GetGeneratedElement() const {return m_g;}
 
 			/**
 			* Gets writable instance of cryptoparams.
@@ -301,7 +301,7 @@ namespace lbcrypto {
 			 * Implementation of the Set accessor for generated element.
 			 * @private &x the generated element.
 			 */
-			void SetGeneratedElement(const Element &x) {m_g = x;}
+			//void SetGeneratedElement(const Element &x) {m_g = x;}
 
 
 			//JSON FACILITY
@@ -335,7 +335,7 @@ namespace lbcrypto {
 		private:
 			LPCryptoParameters<Element> *m_cryptoParameters;
 			//polynomials used for public key
-			Element m_g;
+			//Element m_g;
 			Element m_h;
 	};
 
@@ -549,7 +549,7 @@ namespace lbcrypto {
 			 * Implementation of the Get accessor for auxiliary polynomial used along with the private element.
 			 * @return the private error element.
 			 */
-			const Element & GetPrivateErrorElement() const {return m_e;}
+			//const Element & GetPrivateErrorElement() const {return m_e;}
 
 			/**
 			* Gets writable instance of cryptoparams.
@@ -575,7 +575,7 @@ namespace lbcrypto {
 			 * Implementation of the Set accessor for auxiliary polynomial used along with the private element.
 			 * @private &x the private error element.
 			 */
-			void SetPrivateErrorElement(const Element &x) {m_e = x;}
+			//void SetPrivateErrorElement(const Element &x) {m_e = x;}
 
 
 			/**
@@ -623,7 +623,7 @@ namespace lbcrypto {
 			//private key polynomial
 			Element m_sk;
 			//error polynomial
-			Element m_e;
+			//Element m_e;
 	};
 
 	/**
@@ -631,8 +631,12 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPAlgorithmLWENTRU : public LPEncryptionAlgorithm<Element>{
+	class LPAlgorithmLWENTRU : public LPEncryptionAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
 		public:
+
+			//inherited constructors
+			LPAlgorithmLWENTRU() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
+			LPAlgorithmLWENTRU(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 
 			/**
 			 * Method for encrypting plaintext using Ring-LWE NTRU
@@ -680,6 +684,7 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionSchemeLTV : public LPPublicKeyEncryptionScheme<Element>{
 		public:
+			LPPublicKeyEncryptionSchemeLTV();
 			LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask);
 			//These functions can be implemented later
 			//Initialize(mask);

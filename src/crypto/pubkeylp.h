@@ -159,7 +159,7 @@ namespace lbcrypto {
 			 * Gets the generated polynomial used in computing the public key
 			 * @return the public key element.
 			 */
-			virtual const Element &GetGeneratedElement() const = 0;
+			//virtual const Element &GetGeneratedElement() const = 0;
 
 			//@Set Properties
 
@@ -173,7 +173,7 @@ namespace lbcrypto {
 			 * Sets the generated polynomial used in computing the public key
 			 * @param &element the public key polynomial.
 			 */
-			virtual void SetGeneratedElement (const Element &element) = 0;
+			//virtual void SetGeneratedElement (const Element &element) = 0;
 
 	};
 
@@ -515,7 +515,7 @@ namespace lbcrypto {
 		//const std::string PrintEnabledFeatures();
 		
 		//needs to be moved to pubkeylp.cpp
-		bool IsEnabled(PKESchemeFeature feature) {
+		bool IsEnabled(PKESchemeFeature feature) const {
 			bool flag = false;
 			switch (feature)
 			  {
@@ -549,7 +549,7 @@ namespace lbcrypto {
 
 		//wrapper for Encrypt method
 		void Encrypt(const LPPublicKey<Element> &publicKey, DiscreteGaussianGenerator &dg, 
-			const PlaintextEncodingInterface &plaintext, Ciphertext<Element> *ciphertext) {
+			const PlaintextEncodingInterface &plaintext, Ciphertext<Element> *ciphertext) const {
 				if(this->IsEnabled(ENCRYPTION))
 					return this->m_algorithmEncryption->Encrypt(publicKey,dg,plaintext,ciphertext);
 				else {
@@ -568,7 +568,7 @@ namespace lbcrypto {
 		}
 
 		//wrapper for KeyGen method
-		bool KeyGen(LPPublicKey<Element> &publicKey, LPPrivateKey<Element> &privateKey, DiscreteGaussianGenerator &dgg){
+		bool KeyGen(LPPublicKey<Element> &publicKey, LPPrivateKey<Element> &privateKey, DiscreteGaussianGenerator &dgg) const {
 				if(this->IsEnabled(ENCRYPTION))
 					return this->m_algorithmEncryption->KeyGen(publicKey,privateKey,dgg);
 				else {
@@ -597,13 +597,42 @@ namespace lbcrypto {
 		}
 
 	protected:
-		const LPEncryptionAlgorithm *m_algorithmEncryption;
-		const LPPREAlgorithm *m_algorithmPRE;
-		const LPAHEAlgorithm *m_algorithmEvalAdd;
-		const LPAutoMorphAlgorithm *m_algorithmEvalAutomorphism;
-		const LPSHEAlgorithm *m_algorithmSHE;
-		const LPFHEAlgorithm *m_algorithmFHE;
+		const LPEncryptionAlgorithm<Element> *m_algorithmEncryption;
+		const LPPREAlgorithm<Element> *m_algorithmPRE;
+		const LPAHEAlgorithm<Element> *m_algorithmEvalAdd;
+		const LPAutoMorphAlgorithm<Element> *m_algorithmEvalAutomorphism;
+		const LPSHEAlgorithm<Element> *m_algorithmSHE;
+		const LPFHEAlgorithm<Element> *m_algorithmFHE;
 		std::bitset<FEATURESETSIZE> m_featureMask;
+	};
+
+
+	/**
+	 * @brief main implementation class for public key encryption algorithms
+	 * @tparam Element a ring element.
+	 */
+	template <class Element>
+	class LPPublicKeyEncryptionAlgorithmImpl
+	{		
+	public:
+
+		//gets reference to the scheme
+		const LPPublicKeyEncryptionScheme<Element> &GetScheme() const {return *m_scheme;}
+
+		//@Set Properties
+		/**
+			* Sets the reference to element params
+			*/
+		void SetElementParams(const LPPublicKeyEncryptionScheme<Element> &scheme) { m_scheme = &scheme; }
+
+	protected:
+		LPPublicKeyEncryptionAlgorithmImpl() : m_scheme(NULL) {}
+
+		LPPublicKeyEncryptionAlgorithmImpl(const LPPublicKeyEncryptionScheme<Element> &scheme) : m_scheme(&scheme) {}
+
+	private:
+		//pointer to the parent scheme
+		const LPPublicKeyEncryptionScheme<Element> *m_scheme;
 	};
 
 

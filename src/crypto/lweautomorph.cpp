@@ -48,7 +48,7 @@ void LPAlgorithmAutoMorphLWENTRU<Element>::EvalAtIndex(const Ciphertext<Element>
 
 	*newCiphertext = ciphertext;
 
-	this->ReEncrypt(*evalKeys[i-2], permutedCiphertext, newCiphertext);
+	this->GetScheme().ReEncrypt(*evalKeys[i-2], permutedCiphertext, newCiphertext);
 
 
 		////debugging
@@ -98,7 +98,9 @@ bool LPAlgorithmAutoMorphLWENTRU<Element>::EvalAutomorphismKeyGen(const LPPublic
 			
 			tempPrivateKey->SetPrivateElement(permutedPrivateKeyElement);
 
-			this->EvalKeyGen(publicKey, *tempPrivateKey, ddg, evalKeys->at(index));
+			//const LPPublicKeyEncryptionScheme<Element> *scheme = ciphertext.GetEncryptionAlgorithm();
+
+			this->GetScheme().EvalKeyGen(publicKey, *tempPrivateKey, ddg, evalKeys->at(index));
 
 			i = i + 2;
 

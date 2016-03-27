@@ -51,8 +51,12 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPAlgorithmPRELWENTRU : public LPAlgorithmLWENTRU<Element>, public LPPREAlgorithm<Element> {
+	class LPAlgorithmPRELWENTRU : public LPPREAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
 		public:
+
+			//inherited constructors
+			LPAlgorithmPRELWENTRU() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
+			LPAlgorithmPRELWENTRU(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 
 			/**
 			 * Function to generate 1..log(q) encryptions for each bit of the original private key

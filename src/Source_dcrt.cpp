@@ -49,10 +49,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "math/distrgen.h"
 #include "crypto/lwecrypt.h"
 #include "crypto/lwecrypt.cpp"
+#include "crypto/lweautomorph.cpp"
 #include "crypto/lwepre.h"
 #include "crypto/lwepre.cpp"
 #include "crypto/lweahe.cpp"
 #include "crypto/lweshe.cpp"
+#include "crypto/lwefhe.cpp"
 #include "lattice/ilvector2n.h"
 #include "lattice/ilvectorarray2n.h"
 #include "time.h"
@@ -173,7 +175,10 @@ void NTRU_DCRT() {
 	LPPublicKeyLWENTRU<ILVectorArray2n> pk2(cryptoParams2);
 	LPPrivateKeyLWENTRU<ILVectorArray2n> sk2(cryptoParams2);
 
-	LPAlgorithmLWENTRU<ILVectorArray2n> algorithm2;
+	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2(mask);
+
+	//LPAlgorithmLWENTRU<ILVectorArray2n> algorithm2;
 
 	algorithm2.KeyGen(pk2, sk2, dgg);
 

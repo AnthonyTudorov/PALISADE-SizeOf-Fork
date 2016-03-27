@@ -53,8 +53,12 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPAlgorithmAutoMorphLWENTRU : public LPAlgorithmAHELWENTRU<Element>, public LPAutoMorphAlgorithm<Element> {
+	class LPAlgorithmAutoMorphLWENTRU : public LPAutoMorphAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
 		public:
+
+			//inherited constructors
+			LPAlgorithmAutoMorphLWENTRU() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
+			LPAlgorithmAutoMorphLWENTRU(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 			
 			/**
 			 * Function for evaluating ciphertext at an index; works only with odd indices in the ciphertext
