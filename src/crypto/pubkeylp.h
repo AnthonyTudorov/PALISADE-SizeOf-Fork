@@ -541,6 +541,9 @@ namespace lbcrypto {
 			return flag;
 		}
 
+		//instantiated in the scheme implementation class
+		virtual void Enable(PKESchemeFeature feature) = 0;
+
 		//wrapper for Encrypt method
 		void Encrypt(const LPPublicKey<Element> &publicKey, 
 			const PlaintextEncodingInterface &plaintext, Ciphertext<Element> *ciphertext) const {

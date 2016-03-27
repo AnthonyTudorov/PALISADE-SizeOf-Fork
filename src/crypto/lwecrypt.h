@@ -709,7 +709,9 @@ namespace lbcrypto {
 			~LPPublicKeyEncryptionSchemeLTV();
 			//These functions can be implemented later
 			//Initialize(mask);
-			//Enable(Feature);
+
+			//Will be populated later
+			void Enable(PKESchemeFeature feature) {};
 	};
 } // namespace lbcrypto ends
 #endif
