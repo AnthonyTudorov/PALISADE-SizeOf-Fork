@@ -492,7 +492,7 @@ void NTRUPRE(int input) {
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	testMap1 = jsonHelper.GetSerializationMap(jsonFileName);
 	LPPublicKeyLTV<ILVector2n> pkDeserialized;
-	LPCryptoParametersLWE<ILVector2n> json_cryptoParamsPub;
+	LPCryptoParametersLTV<ILVector2n> json_cryptoParamsPub;
 	pkDeserialized.SetCryptoParameters(&json_cryptoParamsPub);
 	pkDeserialized.Deserialize(testMap1);
 	cout << "Deserialized into pkDeserialized" << endl;
@@ -503,7 +503,7 @@ void NTRUPRE(int input) {
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	testMap2 = jsonHelper.GetSerializationMap(jsonFileName);
 	LPPrivateKeyLTV<ILVector2n> skDeserialized;
-	LPCryptoParametersLWE<ILVector2n> json_cryptoParamsPriv;
+	LPCryptoParametersLTV<ILVector2n> json_cryptoParamsPriv;
 	skDeserialized.SetCryptoParameters(&json_cryptoParamsPriv);
 	skDeserialized.Deserialize(testMap2);
 	cout << "Deserialized into skDeserialized" << endl;
@@ -568,7 +568,7 @@ void NTRUPRE(int input) {
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	testMap4 = jsonHelper.GetSerializationMap(jsonFileName);
 	LPEvalKeyLTV<ILVector2n> evalKeyDeserialized;
-	LPCryptoParametersLWE<ILVector2n> json_cryptoParamsEval;
+	LPCryptoParametersLTV<ILVector2n> json_cryptoParamsEval;
 	evalKeyDeserialized.SetCryptoParameters(&json_cryptoParamsEval);
 	evalKeyDeserialized.Deserialize(testMap4);
 	cout << "Deserialized into evalKeyDeserialized" << endl;
@@ -610,7 +610,7 @@ void NTRUPRE(int input) {
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	testMap5 = jsonHelper.GetSerializationMap(jsonFileName);
 	LPPrivateKeyLTV<ILVector2n> newSKDeserialized;
-	LPCryptoParametersLWE<ILVector2n> json_cryptoParamsNewPriv;
+	LPCryptoParametersLTV<ILVector2n> json_cryptoParamsNewPriv;
 	newSKDeserialized.SetCryptoParameters(&json_cryptoParamsNewPriv);
 	newSKDeserialized.Deserialize(testMap5);
 	cout << "Deserialized into newSKDeserialized" << endl;

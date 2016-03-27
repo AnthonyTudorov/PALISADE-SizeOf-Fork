@@ -40,6 +40,7 @@
 
 //Includes Section
 #include "pubkeylp.h"
+#include "lwecrypt.h"
 
 #include "../utils/serializable.h"
 
