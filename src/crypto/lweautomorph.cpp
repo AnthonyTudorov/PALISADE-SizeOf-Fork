@@ -72,11 +72,14 @@ void LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(const Ciphertext<Element> &ci
 template <class Element>
 bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const LPPublicKey<Element> &publicKey, 
 	const LPPrivateKey<Element> &origPrivateKey,
-	DiscreteGaussianGenerator &ddg, const usint size, LPPrivateKey<Element> *tempPrivateKey, 
+	const usint size, LPPrivateKey<Element> *tempPrivateKey, 
 	std::vector<LPEvalKey<Element>*> *evalKeys) const
 {
 	const Element &privateKeyElement = origPrivateKey.GetPrivateElement();
 	usint m = privateKeyElement.GetParams().GetCyclotomicOrder();
+
+	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
+	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
 	if (size > m/2 - 1)
 		throw std::logic_error("size exceeds the ring dimensions\n");
@@ -100,7 +103,7 @@ bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const LPPublicKey<
 
 			//const LPPublicKeyEncryptionScheme<Element> *scheme = ciphertext.GetEncryptionAlgorithm();
 
-			this->GetScheme().EvalKeyGen(publicKey, *tempPrivateKey, ddg, evalKeys->at(index));
+			this->GetScheme().EvalKeyGen(publicKey, *tempPrivateKey, evalKeys->at(index));
 
 			i = i + 2;
 

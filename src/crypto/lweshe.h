@@ -82,8 +82,7 @@ namespace lbcrypto {
 			 */
 			 bool KeySwitchHintGen(const LPPrivateKey<Element> &newPrivateKey, 
 				LPPrivateKey<Element> &origPrivateKey,
-				usint depth,
-				DiscreteGaussianGenerator &dgg, 
+				usint depth, 
 				LPKeySwitchHint<Element> *keySwitchHint) const;
 
 			/**
@@ -94,7 +93,6 @@ namespace lbcrypto {
 			 * @param *keySwitchHint the key switch hint.
 			 */
 			 bool KeySwitchHintGen(const LPPrivateKey<Element> &newPrivateKey, 
-				DiscreteGaussianGenerator &dgg, 
 				LPKeySwitchHint<Element> *keySwitchHint) const;
 			
 			/**

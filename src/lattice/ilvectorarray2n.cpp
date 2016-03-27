@@ -103,7 +103,7 @@ namespace lbcrypto {
 
 
 
-	ILVectorArray2n::ILVectorArray2n(DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format) :m_params(static_cast<const ILDCRTParams&>(params))
+	ILVectorArray2n::ILVectorArray2n(const DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format) :m_params(static_cast<const ILDCRTParams&>(params))
 	{
 
 		const ILDCRTParams &m_params = static_cast<const ILDCRTParams&>(params);
@@ -125,7 +125,7 @@ namespace lbcrypto {
 
 
 	/*if(!isKey){*/
-		dgg.Initialize();
+		//dgg.Initialize();
 		schar* dggValues = dgg.GenerateCharVector(m_params.GetCyclotomicOrder()/2);
 	
 	/*	for(usint j = 0; j < m_params.GetCyclotomicOrder()/2; j++){

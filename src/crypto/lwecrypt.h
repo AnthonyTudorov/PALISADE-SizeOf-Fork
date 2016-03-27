@@ -74,6 +74,7 @@ namespace lbcrypto {
 				m_assuranceMeasure = 0.0f;
 				m_securityLevel = 0.0f;
 				m_relinWindow = 1;
+				m_dgg = DiscreteGaussianGenerator();
 				m_depth = 0;
 			}
 
@@ -94,12 +95,14 @@ namespace lbcrypto {
 				float assuranceMeasure, 
 				float securityLevel, 
 				usint relinWindow,
+				const DiscreteDistributionGenerator &dgg,
 				int depth = 1) : LPCryptoParametersImpl<Element>(params,plaintextModulus)
 			{
 				m_distributionParameter = distributionParameter;
 				m_assuranceMeasure = assuranceMeasure;
 				m_securityLevel = securityLevel;
 				m_relinWindow = relinWindow;
+				m_dgg = dgg;
 				m_depth = depth;
 			}
 
@@ -126,6 +129,7 @@ namespace lbcrypto {
 				float assuranceMeasure, 
 				float securityLevel, 
 				usint relinWindow,
+				const DiscreteGaussianGenerator &dgg,
 				int depth = 1)
 			{
 				this->SetElementParams(params);
@@ -134,6 +138,7 @@ namespace lbcrypto {
 				m_assuranceMeasure = assuranceMeasure;
 				m_securityLevel = securityLevel;
 				m_relinWindow = relinWindow;
+				m_dgg = dgg;
 				m_depth = depth;
 			}
 			
@@ -172,6 +177,13 @@ namespace lbcrypto {
 			 */
 			int GetDepth() const {return m_depth;}
 
+			/**
+			 * Returns reference to Discrete Gaussian Generator
+			 *
+			 * @return reference to Discrete Gaussian Generaror.
+			 */
+			const DiscreteGaussianGenerator &GetDiscreteGaussianGenerator() const {return m_dgg;}
+
 			//@Set Properties
 			
 			/**
@@ -198,6 +210,11 @@ namespace lbcrypto {
 			 * Sets the value of supported computation depth d
 			 */
 			void SetDepth(int depth) {m_depth = depth;}
+
+			/**
+			 * Sets the discrete Gaussian Generator
+			 */
+			void SetDiscreteGaussianGenerator(const DiscreteGaussianGenerator &dgg) {m_dgg = dgg;}
 
 			//JSON FACILITY
 			/**
@@ -230,7 +247,7 @@ namespace lbcrypto {
 		private:
 			//standard deviation in Discrete Gaussian Distribution
 			float m_distributionParameter;
-			//assurance measure w
+			//assurance measure alpha
 			float m_assuranceMeasure;
 			//root Hermite value /delta
 			float m_securityLevel;
@@ -238,6 +255,8 @@ namespace lbcrypto {
 			usint m_relinWindow;
 			//depth of computations; used for FHE
 			int m_depth;
+			//Discrete Gaussian Generator
+			DiscreteGaussianGenerator m_dgg;
 	};
 
 	/**
@@ -647,12 +666,10 @@ namespace lbcrypto {
 			 * Method for encrypting plaintext using Ring-LWE NTRU
 			 *
 			 * @param &publicKey public key used for encryption.
-			 * @param &dg discrete Gaussian generator.
 			 * @param &plaintext the plaintext input.
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
 			void Encrypt(const LPPublicKey<Element> &publicKey, 
-				DiscreteGaussianGenerator &dg, 
 				const PlaintextEncodingInterface &plaintext, 
 				Ciphertext<Element> *ciphertext) const;
 			
@@ -673,12 +690,10 @@ namespace lbcrypto {
 			 *
 			 * @param &publicKey private key used for decryption.
 			 * @param &privateKey private key used for decryption.
-			 * @param &dgg discrete Gaussian generator.
 			 * @return function ran correctly.
 			 */
 			bool KeyGen(LPPublicKey<Element> &publicKey, 
-		        	LPPrivateKey<Element> &privateKey, 
-			        DiscreteGaussianGenerator &dgg) const;
+		        	LPPrivateKey<Element> &privateKey) const;
 
 	};
 
@@ -691,6 +706,7 @@ namespace lbcrypto {
 		public:
 			LPPublicKeyEncryptionSchemeLTV();
 			LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask);
+			~LPPublicKeyEncryptionSchemeLTV();
 			//These functions can be implemented later
 			//Initialize(mask);
 			//Enable(Feature);

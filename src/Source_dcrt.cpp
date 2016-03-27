@@ -167,6 +167,7 @@ void NTRU_DCRT() {
 	cryptoParams2.SetDistributionParameter(stdDev);
 	cryptoParams2.SetRelinWindow(1);
 	cryptoParams2.SetElementParams(params);
+	cryptoParams2.SetDiscreteGaussianGenerator(dgg);
 
 	Ciphertext<ILVectorArray2n> cipherText2;
 	cipherText2.SetCryptoParameters(cryptoParams2);
@@ -180,9 +181,9 @@ void NTRU_DCRT() {
 
 	//LPAlgorithmLTV<ILVectorArray2n> algorithm2;
 
-	algorithm2.KeyGen(pk2, sk2, dgg);
+	algorithm2.KeyGen(pk2, sk2);
 
-	algorithm2.Encrypt(pk2, dgg, ptxt, &cipherText2);
+	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
 
 	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
 

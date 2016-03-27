@@ -83,7 +83,7 @@ namespace lbcrypto {
 			 */
 			virtual bool EvalAutomorphismKeyGen(const LPPublicKey<Element> &publicKey, 
 				const LPPrivateKey<Element> &origPrivateKey,
-				DiscreteGaussianGenerator &ddg, const usint size, LPPrivateKey<Element> *tempPrivateKey, 
+				const usint size, LPPrivateKey<Element> *tempPrivateKey, 
 				std::vector<LPEvalKey<Element> *> *evalKeys) const;
 
 	};

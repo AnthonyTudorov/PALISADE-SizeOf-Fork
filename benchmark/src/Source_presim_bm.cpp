@@ -170,6 +170,7 @@ void EncryptionSchemeSimulation(usint count){
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
 	DiscreteGaussianGenerator dgg(modulus, stdDev);			// Create the noise generator
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
@@ -206,7 +207,7 @@ void EncryptionSchemeSimulation(usint count){
 		LPAlgorithmLTV<ILVector2n> algorithm;
 
 		bool successKeyGen = false;
-		successKeyGen = algorithm.KeyGen(pk, sk, dgg);	// This is the core function call that generates the keys.
+		successKeyGen = algorithm.KeyGen(pk, sk);	// This is the core function call that generates the keys.
 
 		if (!successKeyGen) {
 			std::cout << "Key generation failed!" << std::endl;
@@ -216,7 +217,7 @@ void EncryptionSchemeSimulation(usint count){
 		Ciphertext<ILVector2n> ciphertext;
 		ByteArrayPlaintextEncoding ptxt(plaintext);
 
-		algorithm.Encrypt(pk, dgg, ptxt, &ciphertext);	// This is the core encryption operation.
+		algorithm.Encrypt(pk, ptxt, &ciphertext);	// This is the core encryption operation.
 
 		ByteArrayPlaintextEncoding plaintextNew;
 
@@ -341,6 +342,7 @@ void PRESimulation(usint count, usint dataset){
 	cryptoParams.SetElementParams(ilParams);			     // Set the initialization parameters.
 
 	DiscreteGaussianGenerator dgg(modulus, stdDev);			 // Create the noise generator
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	// Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
@@ -374,7 +376,7 @@ void PRESimulation(usint count, usint dataset){
 	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
 
 	bool successKeyGen = false;
-	successKeyGen = algorithm.KeyGen(pk, sk, dgg);	// This is the core function call that generates the keys.
+	successKeyGen = algorithm.KeyGen(pk, sk);	// This is the core function call that generates the keys.
 
 	if (!successKeyGen) {
 		std::cout << "Key generation failed!" << std::endl;
@@ -394,9 +396,9 @@ void PRESimulation(usint count, usint dataset){
 		newSK = new LPPrivateKeyLTV<ILVector2n>(cryptoParams);
 		evalKey = new LPEvalKeyLTV<ILVector2n>(cryptoParams);
 
-		successKeyGen = algorithm.KeyGen(*newPK, *newSK, dgg);	// This is the same core key generation operation.
+		successKeyGen = algorithm.KeyGen(*newPK, *newSK);	// This is the same core key generation operation.
 
-		algorithm.EvalKeyGen(*newPK, *privateKeys[d], dgg, evalKey);  // This is the core re-encryption operation.
+		algorithm.EvalKeyGen(*newPK, *privateKeys[d], evalKey);  // This is the core re-encryption operation.
 
 		publicKeys.push_back(newPK);
 		privateKeys.push_back(newSK);
@@ -421,7 +423,7 @@ void PRESimulation(usint count, usint dataset){
 
 		ByteArrayPlaintextEncoding ptxt(arrPlaintext[j]);
 
-		algorithm.Encrypt(pk, dgg, ptxt, &arrCiphertext[j]);	// This is the core encryption operation.
+		algorithm.Encrypt(pk, ptxt, &arrCiphertext[j]);	// This is the core encryption operation.
 
 	}
 

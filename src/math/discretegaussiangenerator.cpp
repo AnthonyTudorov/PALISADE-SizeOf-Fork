@@ -168,7 +168,7 @@ BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(const BigBinaryInteg
 
 }
 
-BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size) {
+BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size) const {
 	//BigBinaryVector ans(DiscreteGaussianGenerator::DiscreteGaussianPositiveGenerator(size,this->m_modulus));
 
 	//return ans;

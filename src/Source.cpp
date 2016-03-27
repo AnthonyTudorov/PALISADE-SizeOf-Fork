@@ -238,6 +238,7 @@ void NTRUPRE(int input) {
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
 	DiscreteGaussianGenerator dgg(modulus, stdDev);			// Create the noise generator
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
 
@@ -280,7 +281,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	successKeyGen = algorithm.KeyGen(pk,sk,dgg);	// This is the core function call that generates the keys.
+	successKeyGen = algorithm.KeyGen(pk,sk);	// This is the core function call that generates the keys.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -313,7 +314,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	algorithm.Encrypt(pk,dgg,ptxt,&ciphertext);	// This is the core encryption operation.
+	algorithm.Encrypt(pk,ptxt,&ciphertext);	// This is the core encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -369,7 +370,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	successKeyGen = algorithm.KeyGen(newPK,newSK,dgg);	// This is the same core key generation operation.
+	successKeyGen = algorithm.KeyGen(newPK,newSK);	// This is the same core key generation operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -393,7 +394,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	algorithm.EvalKeyGen(newPK, sk, dgg , &evalKey);  // This is the core re-encryption operation.
+	algorithm.EvalKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;

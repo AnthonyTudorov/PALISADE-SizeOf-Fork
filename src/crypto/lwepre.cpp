@@ -33,13 +33,15 @@ namespace lbcrypto {
 template <class Element>
 bool LPAlgorithmPRELTV<Element>::EvalKeyGen(const LPPublicKey<Element> &newPublicKey, 
 				LPPrivateKey<Element> &origPrivateKey,
-				DiscreteGaussianGenerator &dgg, LPEvalKey<Element> *evalKey) const
+				LPEvalKey<Element> *evalKey) const
 {
 	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLTV<Element>&>(newPublicKey.GetCryptoParameters());
 	const ElemParams &elementParams = cryptoParamsLWE.GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();
 	const Element &f = origPrivateKey.GetPrivateElement();
 	const Element &hn = newPublicKey.GetPublicElement();
+
+	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE.GetDiscreteGaussianGenerator();
 
 	std::vector<Element> *evalKeyElements = &evalKey->AccessEvalKeyElements();
 

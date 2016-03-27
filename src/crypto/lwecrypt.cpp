@@ -35,12 +35,14 @@ namespace lbcrypto {
 
 template <class Element>
 bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> &publicKey, 
-		LPPrivateKey<Element> &privateKey, 
-		DiscreteGaussianGenerator &dgg) const
+		LPPrivateKey<Element> &privateKey) const
 {
-	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
+	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(privateKey.GetCryptoParameters());
+	//const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+
+	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
 
@@ -52,13 +54,13 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> &publicKey,
 
 
 	//added for saving the cryptoparams
-	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLTV<Element>&>(cryptoParams);
+/*	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLTV<Element>&>(cryptoParams);
 
 	float DistributionParameter = cryptoParamsLWE.GetDistributionParameter();
 	float AssuranceMeasure = cryptoParamsLWE.GetAssuranceMeasure();
 	float SecurityLevel = cryptoParamsLWE.GetSecurityLevel();
 	usint RelinWindow = cryptoParamsLWE.GetRelinWindow(); 
-	int Depth = cryptoParamsLWE.GetDepth(); 
+	int Depth = cryptoParamsLWE.GetDepth();*/ 
 	//std::cout<<p<<DistributionParameter<<AssuranceMeasure<<SecurityLevel<<RelinWindow<<Depth<<std::endl;
 	//////
 	f.SwitchFormat();
@@ -88,14 +90,15 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> &publicKey,
 
 template <class Element>
 void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey, 
-				DiscreteGaussianGenerator &dgg, 
 				const PlaintextEncodingInterface &plaintext, 
 				Ciphertext<Element> *ciphertext) const
 {
 
-	const LPCryptoParameters<Element> &cryptoParams = publicKey.GetCryptoParameters();
+	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
+	//const LPCryptoParameters<Element> &cryptoParams = publicKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
 	Element m(elementParams);
 
@@ -392,6 +395,23 @@ LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bit
 	if (mask[FHE])
 		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
 
+}
+
+// Destructor for LPPublicKeyEncryptionSchemeLTV
+template <class Element>
+LPPublicKeyEncryptionSchemeLTV<Element>::~LPPublicKeyEncryptionSchemeLTV(){
+	if (this->m_algorithmEncryption != NULL)
+		delete this->m_algorithmEncryption;
+	if (this->m_algorithmPRE != NULL)
+		delete this->m_algorithmPRE;
+	if (this->m_algorithmEvalAdd != NULL)
+		delete this->m_algorithmEvalAdd;
+	if (this->m_algorithmEvalAutomorphism != NULL)
+		delete this->m_algorithmEvalAutomorphism;
+	if (this->m_algorithmSHE != NULL)
+		delete this->m_algorithmSHE;
+	if (this->m_algorithmFHE != NULL)
+		delete this->m_algorithmFHE;
 }
 
 }  // namespace lbcrypto ends

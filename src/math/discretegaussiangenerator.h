@@ -125,7 +125,7 @@ public:
 	* @param  size     The number of values to return.
 	* @return          The vector of values within this Discrete Gaussian Distribution.
 	*/
-	BigBinaryVector GenerateVector (usint size);
+	BigBinaryVector GenerateVector (usint size) const;
 
 	/**
 	* @brief           Generates a vector of random values within this Discrete Gaussian Distribution.
