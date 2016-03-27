@@ -243,7 +243,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	successKeyGen = algorithm.KeyGen(pk,sk);	// This is the core function call that generates the keys.
+	successKeyGen = algorithm.KeyGen(&pk,&sk);	// This is the core function call that generates the keys.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -327,7 +327,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	successKeyGen = algorithm.KeyGen(newPK,newSK);	// This is the same core key generation operation.
+	successKeyGen = algorithm.KeyGen(&newPK,&newSK);	// This is the same core key generation operation.
 
 	finish = currentDateTime();
 	diff = finish - start;

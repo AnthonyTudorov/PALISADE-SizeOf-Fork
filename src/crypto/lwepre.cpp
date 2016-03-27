@@ -32,7 +32,7 @@ namespace lbcrypto {
 //Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
 bool LPAlgorithmPRELTV<Element>::EvalKeyGen(const LPPublicKey<Element> &newPublicKey, 
-				LPPrivateKey<Element> &origPrivateKey,
+				const LPPrivateKey<Element> &origPrivateKey,
 				LPEvalKey<Element> *evalKey) const
 {
 	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLTV<Element>&>(newPublicKey.GetCryptoParameters());

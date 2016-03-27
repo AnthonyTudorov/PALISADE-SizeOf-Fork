@@ -34,10 +34,10 @@ using namespace std;
 namespace lbcrypto {
 
 template <class Element>
-bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> &publicKey, 
-		LPPrivateKey<Element> &privateKey) const
+bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
+		LPPrivateKey<Element> *privateKey) const
 {
-	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(privateKey.GetCryptoParameters());
+	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(privateKey->GetCryptoParameters());
 	//const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
@@ -76,14 +76,14 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> &publicKey,
 		f.SwitchFormat();
 	}
 
-	privateKey.SetPrivateElement(f);
-	privateKey.AccessCryptoParameters() = cryptoParams;
+	privateKey->SetPrivateElement(f);
+	privateKey->AccessCryptoParameters() = cryptoParams;
 
 	Element g(dgg,elementParams,Format::COEFFICIENT);
 	g.SwitchFormat();
 
 	//public key is generated
-	privateKey.MakePublicKey(g,publicKey);
+	privateKey->MakePublicKey(g,publicKey);
 
 	return true;
 }

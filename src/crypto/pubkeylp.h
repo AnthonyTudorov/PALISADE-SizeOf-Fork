@@ -249,7 +249,7 @@ namespace lbcrypto {
 			 * @param &g a generated polynomial.
 			 * @param &pub the public key element.
 			 */ 
-			virtual void MakePublicKey(const Element &g, LPPublicKey<Element> &pub) const = 0;
+			virtual void MakePublicKey(const Element &g, LPPublicKey<Element> *pub) const = 0;
 	};
 
 
@@ -316,8 +316,8 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			virtual bool KeyGen(LPPublicKey<Element> &publicKey, 
-				LPPrivateKey<Element> &privateKey) const = 0;
+			virtual bool KeyGen(LPPublicKey<Element> *publicKey, 
+				LPPrivateKey<Element> *privateKey) const = 0;
 
 	};
 
@@ -338,7 +338,7 @@ namespace lbcrypto {
 			 * @return the re-encryption key.
 			 */
 			virtual bool EvalKeyGen(const LPPublicKey<Element> &newPublicKey, 
-				LPPrivateKey<Element> &origPrivateKey,
+				const LPPrivateKey<Element> &origPrivateKey,
 				LPEvalKey<Element> *evalKey) const = 0;
 						
 			/**
@@ -562,7 +562,7 @@ namespace lbcrypto {
 		}
 
 		//wrapper for KeyGen method
-		bool KeyGen(LPPublicKey<Element> &publicKey, LPPrivateKey<Element> &privateKey) const {
+		bool KeyGen(LPPublicKey<Element> *publicKey, LPPrivateKey<Element> *privateKey) const {
 				if(this->IsEnabled(ENCRYPTION))
 					return this->m_algorithmEncryption->KeyGen(publicKey,privateKey);
 				else {
@@ -571,7 +571,7 @@ namespace lbcrypto {
 		}
 
 		//wrapper for EvalKeyGen method
-		bool EvalKeyGen(const LPPublicKey<Element> &newPublicKey, LPPrivateKey<Element> &origPrivateKey,
+		bool EvalKeyGen(const LPPublicKey<Element> &newPublicKey, const LPPrivateKey<Element> &origPrivateKey,
 			LPEvalKey<Element> *evalKey) const{
 				if(this->IsEnabled(PRE))
 					return this->m_algorithmPRE->EvalKeyGen(newPublicKey,origPrivateKey,evalKey);

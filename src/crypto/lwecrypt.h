@@ -609,9 +609,9 @@ namespace lbcrypto {
 			 * @param g a Gaussian polynomial
 			 * @param &pub a public key.
 			 */
-			void MakePublicKey(const Element &g, LPPublicKey<Element> &pub) const
+			void MakePublicKey(const Element &g, LPPublicKey<Element> *pub) const
 			{
-				pub.SetPublicElement(this->GetCryptoParameters().GetPlaintextModulus()*g*this->GetPrivateElement().MultiplicativeInverse());
+				pub->SetPublicElement(this->GetCryptoParameters().GetPlaintextModulus()*g*this->GetPrivateElement().MultiplicativeInverse());
 			}
 
 			//JSON FACILITY
@@ -692,8 +692,8 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			bool KeyGen(LPPublicKey<Element> &publicKey, 
-		        	LPPrivateKey<Element> &privateKey) const;
+			bool KeyGen(LPPublicKey<Element> *publicKey, 
+		        	LPPrivateKey<Element> *privateKey) const;
 
 	};
 

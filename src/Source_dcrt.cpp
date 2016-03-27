@@ -181,7 +181,7 @@ void NTRU_DCRT() {
 
 	//LPAlgorithmLTV<ILVectorArray2n> algorithm2;
 
-	algorithm2.KeyGen(pk2, sk2);
+	algorithm2.KeyGen(&pk2, &sk2);
 
 	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
 

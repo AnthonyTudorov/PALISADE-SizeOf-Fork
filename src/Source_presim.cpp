@@ -204,7 +204,7 @@ void EncryptionSchemeSimulation(usint count){
 		LPAlgorithmLTV<ILVector2n> algorithm;
 
 		bool successKeyGen = false;
-		successKeyGen = algorithm.KeyGen(pk, sk);	// This is the core function call that generates the keys.
+		successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
 
 		if (!successKeyGen) {
 			std::cout << "Key generation failed!" << std::endl;
@@ -374,7 +374,7 @@ void PRESimulation(usint count, usint dataset){
 	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
 
 	bool successKeyGen = false;
-	successKeyGen = algorithm.KeyGen(pk, sk);	// This is the core function call that generates the keys.
+	successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
 
 	if (!successKeyGen) {
 		std::cout << "Key generation failed!" << std::endl;
@@ -394,7 +394,7 @@ void PRESimulation(usint count, usint dataset){
 		newSK = new LPPrivateKeyLTV<ILVector2n>(cryptoParams);
 		evalKey = new LPEvalKeyLTV<ILVector2n>(cryptoParams);
 
-		successKeyGen = algorithm.KeyGen(*newPK, *newSK);	// This is the same core key generation operation.
+		successKeyGen = algorithm.KeyGen(newPK, newSK);	// This is the same core key generation operation.
 
 		algorithm.EvalKeyGen(*newPK, *privateKeys[d], evalKey);  // This is the core re-encryption operation.
 
