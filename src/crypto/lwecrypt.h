@@ -61,13 +61,13 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPCryptoParametersLWE : public LPCryptoParametersImpl<Element> {
+	class LPCryptoParametersLTV : public LPCryptoParametersImpl<Element> {
 		public:
 			
 			/**
 			 * Constructor that initializes all values to 0.
 			 */
-			LPCryptoParametersLWE() : LPCryptoParametersImpl<Element>() {
+			LPCryptoParametersLTV() : LPCryptoParametersImpl<Element>() {
 				//m_params = new ElementParams();commented out by Gyana
 				//m_plaintextModulus = new BigBinaryInteger();commented out by Gyana 
 				m_distributionParameter = 0.0f;
@@ -88,7 +88,7 @@ namespace lbcrypto {
 			 * @param relinWindow the size of the relinearization window.
 			 * @param depth depth which is set to 1.
 			 */
-			LPCryptoParametersLWE(ElemParams *params,
+			LPCryptoParametersLTV(ElemParams *params,
 				const BigBinaryInteger &plaintextModulus, 
 				float distributionParameter, 
 				float assuranceMeasure, 
@@ -106,7 +106,7 @@ namespace lbcrypto {
 			/**
 			* Destructor
 			*/
-			~LPCryptoParametersLWE() {
+			~LPCryptoParametersLTV() {
 			}
 			
 			/**
@@ -245,14 +245,14 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPPublicKeyLWENTRU : public LPPublicKey<Element>{
+	class LPPublicKeyLTV : public LPPublicKey<Element>{
 		public:
 
 			/**
 			* Default constructor
 			*/
 
-			LPPublicKeyLWENTRU() {}
+			LPPublicKeyLTV() {}
 
 			/**
 			* Basic constructor for setting crypto params
@@ -260,7 +260,7 @@ namespace lbcrypto {
 			* @param cryptoParams is the reference to cryptoParams
 			*/
 
-			LPPublicKeyLWENTRU(LPCryptoParameters<Element> &cryptoParams) {
+			LPPublicKeyLTV(LPCryptoParameters<Element> &cryptoParams) {
 				this->SetCryptoParameters(&cryptoParams);
 			}
 
@@ -349,14 +349,14 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPEvalKeyLWENTRU : public LPEvalKey<Element>{
+	class LPEvalKeyLTV : public LPEvalKey<Element>{
 	public:
 
 		/**
 		* Default constructor
 		*/
 
-		LPEvalKeyLWENTRU() {}
+		LPEvalKeyLTV() {}
 
 		/**
 		* Basic constructor for setting crypto params
@@ -364,7 +364,7 @@ namespace lbcrypto {
 		* @param cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyLWENTRU(LPCryptoParameters<Element> &cryptoParams) {
+		LPEvalKeyLTV(LPCryptoParameters<Element> &cryptoParams) {
 			this->SetCryptoParameters(&cryptoParams);
 		}
 
@@ -462,13 +462,13 @@ namespace lbcrypto {
 	 * @tparam Element a ring element
 	 */
 	template <class Element>
-	class LPKeySwitchHintLWENTRU: public LPKeySwitchHint<Element> {
+	class LPKeySwitchHintLTV: public LPKeySwitchHint<Element> {
 		public:
 
 			/**
 			* Constructor that initializes nothing.
 			*/
-			LPKeySwitchHintLWENTRU() {
+			LPKeySwitchHintLTV() {
 				m_sk = NULL;
 				//m_cryptoParameters;
 			}
@@ -519,14 +519,14 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPPrivateKeyLWENTRU : public LPPrivateKey<Element>{
+	class LPPrivateKeyLTV : public LPPrivateKey<Element>{
 		public:
 
 			/**
 			* Default constructor
 			*/
 
-			LPPrivateKeyLWENTRU() {}
+			LPPrivateKeyLTV() {}
 
 			/**
 			* Basic constructor for setting crypto params
@@ -534,7 +534,7 @@ namespace lbcrypto {
 			* @param cryptoParams is the reference to cryptoParams
 			*/
 
-			LPPrivateKeyLWENTRU(LPCryptoParametersLWE<Element> &cryptoParams) {
+			LPPrivateKeyLTV(LPCryptoParametersLTV<Element> &cryptoParams) {
 				this->SetCryptoParameters(&cryptoParams);
 			}
 
@@ -636,12 +636,12 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPAlgorithmLWENTRU : public LPEncryptionAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+	class LPAlgorithmLTV : public LPEncryptionAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
 		public:
 
 			//inherited constructors
-			LPAlgorithmLWENTRU() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
-			LPAlgorithmLWENTRU(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+			LPAlgorithmLTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
+			LPAlgorithmLTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 
 			/**
 			 * Method for encrypting plaintext using Ring-LWE NTRU

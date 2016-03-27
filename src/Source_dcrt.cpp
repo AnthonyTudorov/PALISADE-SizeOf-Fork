@@ -160,7 +160,7 @@ void NTRU_DCRT() {
 
 //	ILDCRTParams params(rootsOfUnity, m, moduli,modulus1*modulus2);
 
-	LPCryptoParametersLWE<ILVectorArray2n> cryptoParams2;
+	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
 //	BigBinaryInteger plaintextm("8");
 	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
 //	cryptoParams2.SetPlaintextModulus(plaintextm);
@@ -172,13 +172,13 @@ void NTRU_DCRT() {
 	cipherText2.SetCryptoParameters(cryptoParams2);
 
 
-	LPPublicKeyLWENTRU<ILVectorArray2n> pk2(cryptoParams2);
-	LPPrivateKeyLWENTRU<ILVectorArray2n> sk2(cryptoParams2);
+	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams2);
+	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams2);
 
 	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2(mask);
 
-	//LPAlgorithmLWENTRU<ILVectorArray2n> algorithm2;
+	//LPAlgorithmLTV<ILVectorArray2n> algorithm2;
 
 	algorithm2.KeyGen(pk2, sk2, dgg);
 
@@ -196,21 +196,21 @@ void NTRU_DCRT() {
 
 	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
-	//LPAlgorithmPRELWENTRU<ILVectorArray2n> algorithmPRE;
+	//LPAlgorithmPRELTV<ILVectorArray2n> algorithmPRE;
 
 	////////////////////////////////////////////////////////////////
 	//////Perform the second key generation operation.
 	////// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////////
 
-	//LPPublicKeyLWENTRU<ILVectorArray2n> newPK(cryptoParams2);
-	//LPPrivateKeyLWENTRU<ILVectorArray2n> newSK(cryptoParams2);
+	//LPPublicKeyLTV<ILVectorArray2n> newPK(cryptoParams2);
+	//LPPrivateKeyLTV<ILVectorArray2n> newSK(cryptoParams2);
 
 	//std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
 	//algorithmPRE.KeyGen(newPK,newSK,dgg);	// This is the same core key generation operation.
 
-	//LPEvalKeyLWENTRU<ILVectorArray2n> evalKey(cryptoParams2);
+	//LPEvalKeyLTV<ILVectorArray2n> evalKey(cryptoParams2);
 
 	//algorithmPRE.EvalKeyGen(newPK, sk2, dgg , &evalKey);  // This is the core re-encryption operation.
 

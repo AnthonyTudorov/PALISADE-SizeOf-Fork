@@ -128,7 +128,7 @@ namespace lbcrypto {
 			jsonInputBuffer.append(GetJsonNodeString(serializationMap["ILParams"]));
 			jsonInputBuffer.append(",");
 
-			if (ID.compare("LPEvalKeyLWENTRU") != 0) {
+			if (ID.compare("LPEvalKeyLTV") != 0) {
 				jsonInputBuffer.append("\"ILVector2n\":");
 				jsonInputBuffer.append(GetJsonNodeString(serializationMap["ILVector2n"]));
 			} else {
@@ -264,7 +264,7 @@ namespace lbcrypto {
 			serializationMap.emplace("Root", GetSerializationMapNode(doc, "Root"));
 			serializationMap.emplace("LPCryptoParametersLWE", GetSerializationMapNode(doc, "LPCryptoParametersLWE"));
 			serializationMap.emplace("ILParams", GetSerializationMapNode(doc, "ILParams"));
-			if (ID.compare("LPEvalKeyLWENTRU") != 0) {
+			if (ID.compare("LPEvalKeyLTV") != 0) {
 				serializationMap.emplace("ILVector2n", GetSerializationMapNode(doc, "ILVector2n"));
 			}
 			else {

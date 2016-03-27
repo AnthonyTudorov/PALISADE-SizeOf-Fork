@@ -196,7 +196,7 @@ void NTRUPRE(int input) {
 	ILParams ilParams(m,modulus,rootOfUnity);
 
 	//Set crypto parametes
-	LPCryptoParametersLWE<ILVector2n> cryptoParams;
+	LPCryptoParametersLTV<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
@@ -224,8 +224,8 @@ void NTRUPRE(int input) {
 	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
-	LPPublicKeyLWENTRU<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLWENTRU<ILVector2n> sk(cryptoParams);
+	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
+	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -319,8 +319,8 @@ void NTRUPRE(int input) {
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPPublicKeyLWENTRU<ILVector2n> newPK(cryptoParams);
-	LPPrivateKeyLWENTRU<ILVector2n> newSK(cryptoParams);
+	LPPublicKeyLTV<ILVector2n> newPK(cryptoParams);
+	LPPrivateKeyLTV<ILVector2n> newSK(cryptoParams);
 
 	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
@@ -341,7 +341,7 @@ void NTRUPRE(int input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyLWENTRU<ILVector2n> evalKey(cryptoParams);
+	LPEvalKeyLTV<ILVector2n> evalKey(cryptoParams);
 
 	start = currentDateTime();
 

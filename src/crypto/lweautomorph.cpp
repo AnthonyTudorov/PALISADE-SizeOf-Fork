@@ -31,7 +31,7 @@ namespace lbcrypto {
 			
 //Function for extracting a value at a certain index using automorphism operation.
 template <class Element>
-void LPAlgorithmAutoMorphLWENTRU<Element>::EvalAtIndex(const Ciphertext<Element> &ciphertext, const usint i, 
+void LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(const Ciphertext<Element> &ciphertext, const usint i, 
 				const std::vector<LPEvalKey<Element> *> &evalKeys, Ciphertext<Element> *newCiphertext) const
 
 {
@@ -70,7 +70,7 @@ void LPAlgorithmAutoMorphLWENTRU<Element>::EvalAtIndex(const Ciphertext<Element>
 }  
 
 template <class Element>
-bool LPAlgorithmAutoMorphLWENTRU<Element>::EvalAutomorphismKeyGen(const LPPublicKey<Element> &publicKey, 
+bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const LPPublicKey<Element> &publicKey, 
 	const LPPrivateKey<Element> &origPrivateKey,
 	DiscreteGaussianGenerator &ddg, const usint size, LPPrivateKey<Element> *tempPrivateKey, 
 	std::vector<LPEvalKey<Element>*> *evalKeys) const

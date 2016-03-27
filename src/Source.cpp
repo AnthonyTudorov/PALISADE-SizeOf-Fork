@@ -230,7 +230,7 @@ void NTRUPRE(int input) {
 	//ilParams.Initialize(m,bitLenght,inputFile);
 
 	//Set crypto parametes
-	LPCryptoParametersLWE<ILVector2n> cryptoParams;
+	LPCryptoParametersLTV<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
 	//cryptoParams.SetPlaintextModulus(BigBinaryInteger("4"));  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
@@ -260,8 +260,8 @@ void NTRUPRE(int input) {
 	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
-	LPPublicKeyLWENTRU<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLWENTRU<ILVector2n> sk(cryptoParams);
+	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
+	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -269,7 +269,7 @@ void NTRUPRE(int input) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	//LPAlgorithmLWENTRU<ILVector2n> algorithm;
+	//LPAlgorithmLTV<ILVector2n> algorithm;
 
 	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
@@ -355,15 +355,15 @@ void NTRUPRE(int input) {
 
 	//system("pause");
 
-	//LPAlgorithmPRELWENTRU<ILVector2n> algorithmPRE;
+	//LPAlgorithmPRELTV<ILVector2n> algorithmPRE;
 
 	////////////////////////////////////////////////////////////
 	//Perform the second key generation operation.
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPPublicKeyLWENTRU<ILVector2n> newPK(cryptoParams);
-	LPPrivateKeyLWENTRU<ILVector2n> newSK(cryptoParams);
+	LPPublicKeyLTV<ILVector2n> newPK(cryptoParams);
+	LPPrivateKeyLTV<ILVector2n> newSK(cryptoParams);
 
 	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
@@ -389,7 +389,7 @@ void NTRUPRE(int input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyLWENTRU<ILVector2n> evalKey(cryptoParams);
+	LPEvalKeyLTV<ILVector2n> evalKey(cryptoParams);
 
 	start = currentDateTime();
 
