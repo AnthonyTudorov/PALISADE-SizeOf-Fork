@@ -15,7 +15,7 @@
 * 2. Redistributions in binary form must reproduce the above copyright notice, this
 * list of conditions and the following disclaimer in the documentation and/or other
 * materials provided with the distribution.
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONT0RIBUTORS "AS IS" AND
 * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
@@ -106,7 +106,7 @@ namespace lbcrypto {
 		* @param &params the input params.
 		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArray2n(DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
+		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
 
 		/**
 		* Assignment Operator.
@@ -210,6 +210,14 @@ namespace lbcrypto {
 		*/
 		const ILVectorArray2n& operator+=(const ILVectorArray2n &element);
 
+		// automorphism operation
+		/**
+		* Performs an automorphism transform operation and returns the result.
+		*
+		* @param &i is the element to perform the automorphism transform with.
+		* @return is the result of the automorphism transform.
+		*/
+		ILVectorArray2n AutomorphismTransform(const usint &i) const {return ILVectorArray2n(*this);};
 
 
 		/**

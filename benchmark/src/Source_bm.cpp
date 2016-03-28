@@ -57,7 +57,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "crypto/lwepre.h"
 #include "crypto/lwepre.cpp"
 #include "crypto/lweahe.cpp"
+#include "crypto/lweautomorph.cpp"
 #include "crypto/lweshe.cpp"
+#include "crypto/lwefhe.cpp"
 #include "lattice/ilvector2n.h"
 #include "lattice/ilvectorarray2n.h"
 #include "time.h"
@@ -194,13 +196,14 @@ void NTRUPRE(int input) {
 	ILParams ilParams(m,modulus,rootOfUnity);
 
 	//Set crypto parametes
-	LPCryptoParametersLWE<ILVector2n> cryptoParams;
+	LPCryptoParametersLTV<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
 	DiscreteGaussianGenerator dgg(modulus, stdDev);			// Create the noise generator
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
 
@@ -222,8 +225,8 @@ void NTRUPRE(int input) {
 	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
-	LPPublicKeyLWENTRU<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLWENTRU<ILVector2n> sk(cryptoParams);
+	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
+	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -231,7 +234,8 @@ void NTRUPRE(int input) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	LPAlgorithmLWENTRU<ILVector2n> algorithm;
+	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
 
 	bool successKeyGen=false;
 
@@ -239,7 +243,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	successKeyGen = algorithm.KeyGen(pk,sk,dgg);	// This is the core function call that generates the keys.
+	successKeyGen = algorithm.KeyGen(&pk,&sk);	// This is the core function call that generates the keys.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -269,7 +273,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	algorithm.Encrypt(pk,dgg,ptxt,&ciphertext);	// This is the core encryption operation.
+	algorithm.Encrypt(pk,ptxt,&ciphertext);	// This is the core encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -311,21 +315,19 @@ void NTRUPRE(int input) {
 
 	//system("pause");
 
-	LPAlgorithmPRELWENTRU<ILVector2n> algorithmPRE;
-
 	////////////////////////////////////////////////////////////
 	//Perform the second key generation operation.
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPPublicKeyLWENTRU<ILVector2n> newPK(cryptoParams);
-	LPPrivateKeyLWENTRU<ILVector2n> newSK(cryptoParams);
+	LPPublicKeyLTV<ILVector2n> newPK(cryptoParams);
+	LPPrivateKeyLTV<ILVector2n> newSK(cryptoParams);
 
 	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
 	start = currentDateTime();
 
-	successKeyGen = algorithmPRE.KeyGen(newPK,newSK,dgg);	// This is the same core key generation operation.
+	successKeyGen = algorithm.KeyGen(&newPK,&newSK);	// This is the same core key generation operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -340,11 +342,11 @@ void NTRUPRE(int input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyLWENTRU<ILVector2n> evalKey(cryptoParams);
+	LPEvalKeyLTV<ILVector2n> evalKey(cryptoParams);
 
 	start = currentDateTime();
 
-	algorithmPRE.EvalKeyGen(newPK, sk, dgg , &evalKey);  // This is the core re-encryption operation.
+	algorithm.EvalKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -364,7 +366,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	algorithmPRE.ReEncrypt(evalKey, ciphertext,&newCiphertext);  // This is the core re-encryption operation.
+	algorithm.ReEncrypt(evalKey, ciphertext,&newCiphertext);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -383,7 +385,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	DecodingResult result1 = algorithmPRE.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
+	DecodingResult result1 = algorithm.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
     plaintextNew2.Unpad<ZeroPad>();
 
 	finish = currentDateTime();

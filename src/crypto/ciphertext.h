@@ -40,6 +40,7 @@
 
 //Includes Section
 #include "pubkeylp.h"
+#include "lwecrypt.h"
 
 #include "../utils/serializable.h"
 
@@ -113,7 +114,7 @@ namespace lbcrypto {
 		* Get a reference to the encryption algorithm.
 		* @return the encryption alorithm.
 		*/
-		const LPEncryptionAlgorithm<Element> &GetEncryptionAlgorithm() const { return *m_encryptionAlgorithm; }
+		const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *m_encryptionAlgorithm; }
 
 		/**
 		* Get current estimate of estimate norm
@@ -146,7 +147,7 @@ namespace lbcrypto {
 		*
 		* @param &encryptionAlgorithm is encryption algorithm passed by reference.
 		*/
-		void SetEncryptionAlgorithm(const LPEncryptionAlgorithm<Element> &encryptionAlgorithm) { m_encryptionAlgorithm = &encryptionAlgorithm; }
+		void SetEncryptionAlgorithm(const LPPublicKeyEncryptionScheme<Element> &encryptionAlgorithm) { m_encryptionAlgorithm = &encryptionAlgorithm; }
 
 		/**
 		* Sets ciphertext norm.
@@ -207,7 +208,7 @@ namespace lbcrypto {
 		const LPPublicKey<Element> *m_publicKey;
 
 		//pointer to algorithm
-		const LPEncryptionAlgorithm<Element> *m_encryptionAlgorithm;
+		const LPPublicKeyEncryptionScheme<Element> *m_encryptionAlgorithm;
 
 		//current value of error norm
 		BigBinaryInteger m_norm;

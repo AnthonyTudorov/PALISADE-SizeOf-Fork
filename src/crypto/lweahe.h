@@ -53,8 +53,12 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPAlgorithmAHELWENTRU : public LPAlgorithmPRELWENTRU<Element>, public LPAHEAlgorithm<Element> {
+	class LPAlgorithmAHELTV : public LPAHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
 		public:
+
+			//inherited constructors
+			LPAlgorithmAHELTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
+			LPAlgorithmAHELTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 			
 			/**
 			 * Virtual function to define the interface for evaluation addition on ciphertext.

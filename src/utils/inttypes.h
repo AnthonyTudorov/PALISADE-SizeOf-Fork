@@ -78,6 +78,19 @@ typedef uint32_t usint;
  */
 enum Format{ EVALUATION=0, COEFFICIENT=1};
 
+/**
+ * @brief Lists all features supported by public key encryption schemes
+ */
+enum PKESchemeFeature{ 
+	ENCRYPTION=0, 
+	PRE=1,
+	EVALADD=2,
+	EVALAUTOMORPHISM=3,
+	SHE=4,
+	FHE=5
+};
+
+const uint8_t FEATURESETSIZE = 6;
 
 //} // namespace lbcrypto ends
 

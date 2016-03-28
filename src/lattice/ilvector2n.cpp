@@ -82,7 +82,7 @@ namespace lbcrypto {
 		return *this;
 	}
 
-	ILVector2n::ILVector2n(DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
+	ILVector2n::ILVector2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
 		/*
 		//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
 		usint vectorSize = params.GetCyclotomicOrder()/2;
@@ -406,7 +406,7 @@ namespace lbcrypto {
 	}
 
 	//Precompute a sample of disrete gaussian polynomials
-	void ILVector2n::PreComputeDggSamples(DiscreteGaussianGenerator &dgg, const ILParams &params) {
+	void ILVector2n::PreComputeDggSamples(const DiscreteGaussianGenerator &dgg, const ILParams &params) {
 	  if (m_dggSamples.size() == 0)
 	    {
 		for (usint i = 0; i < m_sampleSize; ++i)

@@ -34,13 +34,15 @@ using namespace std;
 namespace lbcrypto {
 
 template <class Element>
-bool LPAlgorithmLWENTRU<Element>::KeyGen(LPPublicKey<Element> &publicKey, 
-		LPPrivateKey<Element> &privateKey, 
-		DiscreteGaussianGenerator &dgg) const
+bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
+		LPPrivateKey<Element> *privateKey) const
 {
-	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetAbstractCryptoParameters();
+	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(privateKey->GetCryptoParameters());
+	//const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+
+	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
 
@@ -52,13 +54,13 @@ bool LPAlgorithmLWENTRU<Element>::KeyGen(LPPublicKey<Element> &publicKey,
 
 
 	//added for saving the cryptoparams
-	const LPCryptoParametersLWE<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLWE<Element>&>(cryptoParams);
+/*	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLTV<Element>&>(cryptoParams);
 
 	float DistributionParameter = cryptoParamsLWE.GetDistributionParameter();
 	float AssuranceMeasure = cryptoParamsLWE.GetAssuranceMeasure();
 	float SecurityLevel = cryptoParamsLWE.GetSecurityLevel();
 	usint RelinWindow = cryptoParamsLWE.GetRelinWindow(); 
-	int Depth = cryptoParamsLWE.GetDepth(); 
+	int Depth = cryptoParamsLWE.GetDepth();*/ 
 	//std::cout<<p<<DistributionParameter<<AssuranceMeasure<<SecurityLevel<<RelinWindow<<Depth<<std::endl;
 	//////
 	f.SwitchFormat();
@@ -74,30 +76,29 @@ bool LPAlgorithmLWENTRU<Element>::KeyGen(LPPublicKey<Element> &publicKey,
 		f.SwitchFormat();
 	}
 
-	privateKey.SetPrivateElement(f);
-	privateKey.AccessAbstractCryptoParameters() = cryptoParams;
+	privateKey->SetPrivateElement(f);
+	privateKey->AccessCryptoParameters() = cryptoParams;
 
 	Element g(dgg,elementParams,Format::COEFFICIENT);
 	g.SwitchFormat();
 
-	privateKey.SetPrivateErrorElement(g);
-
 	//public key is generated
-	privateKey.MakePublicKey(publicKey);
+	privateKey->MakePublicKey(g,publicKey);
 
 	return true;
 }
 
 template <class Element>
-void LPAlgorithmLWENTRU<Element>::Encrypt(const LPPublicKey<Element> &publicKey, 
-				DiscreteGaussianGenerator &dgg, 
+void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey, 
 				const PlaintextEncodingInterface &plaintext, 
 				Ciphertext<Element> *ciphertext) const
 {
 
-	const LPCryptoParameters<Element> &cryptoParams = publicKey.GetAbstractCryptoParameters();
+	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
+	//const LPCryptoParameters<Element> &cryptoParams = publicKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
 	Element m(elementParams);
 
@@ -122,18 +123,18 @@ void LPAlgorithmLWENTRU<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 
 	ciphertext->SetCryptoParameters(cryptoParams);
 	ciphertext->SetPublicKey(publicKey);
-	ciphertext->SetEncryptionAlgorithm(*this);
+	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
 	ciphertext->SetElement(c);
 
 }
 
 template <class Element>
-DecodingResult LPAlgorithmLWENTRU<Element>::Decrypt(const LPPrivateKey<Element> &privateKey, 
+DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &privateKey, 
 				const Ciphertext<Element> &ciphertext,
 				PlaintextEncodingInterface *plaintext) const
 {	
 
-	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetAbstractCryptoParameters();
+	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
@@ -165,7 +166,7 @@ DecodingResult LPAlgorithmLWENTRU<Element>::Decrypt(const LPPrivateKey<Element> 
 
 // JSON FACILITY - LPCryptoParametersLWE SetIdFlag Operation
 template <class Element>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPCryptoParametersLWE<Element>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPCryptoParametersLTV<Element>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
 
 	//Place holder
 
@@ -174,7 +175,7 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 
 // JSON FACILITY - LPCryptoParametersLWE Serialize Operation
 template <class Element>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPCryptoParametersLWE<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPCryptoParametersLTV<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
 
 	std::unordered_map <std::string, std::string> cryptoParamsMap;
 	cryptoParamsMap.emplace("DistributionParameter", this->ToStr(GetDistributionParameter()));
@@ -185,7 +186,7 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 	cryptoParamsMap.emplace("PlaintextModulus", this->GetPlaintextModulus().ToString());
 	serializationMap.emplace("LPCryptoParametersLWE", cryptoParamsMap);
 
-	const ElemParams *cpElemParams = &GetElementParams();
+	const ElemParams *cpElemParams = &this->GetElementParams();
 	serializationMap = cpElemParams->Serialize(serializationMap, "");
 
 	return serializationMap;
@@ -193,7 +194,7 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 
 // JSON FACILITY - LPCryptoParametersLWE Deserialize Operation
 template <class Element>
-void LPCryptoParametersLWE<Element>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+void LPCryptoParametersLTV<Element>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
 
 	std::unordered_map<std::string, std::string> cryptoParamsMap = serializationMap["LPCryptoParametersLWE"];
 	BigBinaryInteger bbiPlaintextModulus(cryptoParamsMap["PlaintextModulus"]);
@@ -222,25 +223,25 @@ void LPCryptoParametersLWE<Element>::Deserialize(std::unordered_map <std::string
 	this->SetElementParams(*json_ilParams);
 }
 
-// JSON FACILITY - LPPublicKeyLWENTRU SetIdFlag Operation
+// JSON FACILITY - LPPublicKeyLTV SetIdFlag Operation
 template <class Element>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPPublicKeyLWENTRU<Element>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPPublicKeyLTV<Element>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
 
 	std::unordered_map <std::string, std::string> idFlagMap;
-	idFlagMap.emplace("ID", "LPPublicKeyLWENTRU");
+	idFlagMap.emplace("ID", "LPPublicKeyLTV");
 	idFlagMap.emplace("Flag", flag);
 	serializationMap.emplace("Root", idFlagMap);
 
 	return serializationMap;
 }
 
-// JSON FACILITY - LPPublicKeyLWENTRU Serialize Operation
+// JSON FACILITY - LPPublicKeyLTV Serialize Operation
 template <class Element>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPPublicKeyLWENTRU<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPPublicKeyLTV<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
 
 	serializationMap = this->SetIdFlag(serializationMap, fileFlag);
 
-	const LPCryptoParameters<Element> *lpCryptoParams = &this->GetAbstractCryptoParameters();
+	const LPCryptoParameters<Element> *lpCryptoParams = &this->GetCryptoParameters();
 	serializationMap = lpCryptoParams->Serialize(serializationMap, "");
 
 	serializationMap = this->GetPublicElement().Serialize(serializationMap, "");
@@ -248,9 +249,9 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 	return serializationMap;
 }
 
-// JSON FACILITY - LPPublicKeyLWENTRU Deserialize Operation
+// JSON FACILITY - LPPublicKeyLTV Deserialize Operation
 template <class Element>
-void LPPublicKeyLWENTRU<Element>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+void LPPublicKeyLTV<Element>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
 
 	LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
 	json_cryptoParams->Deserialize(serializationMap);
@@ -260,25 +261,25 @@ void LPPublicKeyLWENTRU<Element>::Deserialize(std::unordered_map <std::string, s
 	this->SetPublicElement(json_ilElement);
 }
 
-// JSON FACILITY - LPEvalKeyLWENTRU SetIdFlag Operation
+// JSON FACILITY - LPEvalKeyLTV SetIdFlag Operation
 template <class Element>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPEvalKeyLWENTRU<Element>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPEvalKeyLTV<Element>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
 
 	std::unordered_map <std::string, std::string> idFlagMap;
-	idFlagMap.emplace("ID", "LPEvalKeyLWENTRU");
+	idFlagMap.emplace("ID", "LPEvalKeyLTV");
 	idFlagMap.emplace("Flag", flag);
 	serializationMap.emplace("Root", idFlagMap);
 
 	return serializationMap;
 }
 
-// JSON FACILITY - LPEvalKeyLWENTRU Serialize Operation
+// JSON FACILITY - LPEvalKeyLTV Serialize Operation
 template <class Element>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPEvalKeyLWENTRU<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPEvalKeyLTV<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
 
 	serializationMap = this->SetIdFlag(serializationMap, fileFlag);
 
-	const LPCryptoParameters<Element> *lpCryptoParams = &this->GetAbstractCryptoParameters();
+	const LPCryptoParameters<Element> *lpCryptoParams = &this->GetCryptoParameters();
 	serializationMap = lpCryptoParams->Serialize(serializationMap, "");
 
 	std::vector<int>::size_type evalKeyVectorLength = this->GetEvalKeyElements().size();
@@ -301,9 +302,9 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 	return serializationMap;
 }
 
-// JSON FACILITY - LPEvalKeyLWENTRU Deserialize Operation
+// JSON FACILITY - LPEvalKeyLTV Deserialize Operation
 template <class Element>
-void LPEvalKeyLWENTRU<Element>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+void LPEvalKeyLTV<Element>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
 
 	LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
 	json_cryptoParams->Deserialize(serializationMap);
@@ -328,25 +329,25 @@ void LPEvalKeyLWENTRU<Element>::Deserialize(std::unordered_map <std::string, std
 	this->SetEvalKeyElements(evalKeyVectorBuffer);
 }
 
-// JSON FACILITY - LPPrivateKeyLWENTRU SetIdFlag Operation
+// JSON FACILITY - LPPrivateKeyLTV SetIdFlag Operation
 template <class Element>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPPrivateKeyLWENTRU<Element>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPPrivateKeyLTV<Element>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
 
 	std::unordered_map <std::string, std::string> idFlagMap;
-	idFlagMap.emplace("ID", "LPPrivateKeyLWENTRU");
+	idFlagMap.emplace("ID", "LPPrivateKeyLTV");
 	idFlagMap.emplace("Flag", flag);
 	serializationMap.emplace("Root", idFlagMap);
 
 	return serializationMap;
 }
 
-// JSON FACILITY - LPPrivateKeyLWENTRU Serialize Operation
+// JSON FACILITY - LPPrivateKeyLTV Serialize Operation
 template <class Element>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPPrivateKeyLWENTRU<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPPrivateKeyLTV<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
 
 	serializationMap = this->SetIdFlag(serializationMap, fileFlag);
 
-	const LPCryptoParameters<Element> *lpCryptoParams = &this->GetAbstractCryptoParameters();
+	const LPCryptoParameters<Element> *lpCryptoParams = &this->GetCryptoParameters();
 	serializationMap = lpCryptoParams->Serialize(serializationMap, "");
 
 	serializationMap = this->GetPrivateElement().Serialize(serializationMap, "");
@@ -354,9 +355,9 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 	return serializationMap;
 }
 
-// JSON FACILITY - LPPrivateKeyLWENTRU Deserialize Operation
+// JSON FACILITY - LPPrivateKeyLTV Deserialize Operation
 template <class Element>
-void LPPrivateKeyLWENTRU<Element>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+void LPPrivateKeyLTV<Element>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
 
 	LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
 	json_cryptoParams->Deserialize(serializationMap);
@@ -364,6 +365,53 @@ void LPPrivateKeyLWENTRU<Element>::Deserialize(std::unordered_map <std::string, 
 	Element json_ilElement;
 	json_ilElement.Deserialize(serializationMap);
 	this->SetPrivateElement(json_ilElement);
+}
+
+// Default constructor for LPPublicKeyEncryptionSchemeLTV
+template <class Element>
+LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(){
+	this->m_algorithmEncryption = NULL;
+	this->m_algorithmPRE = NULL;
+	this->m_algorithmEvalAdd = NULL;
+	this->m_algorithmEvalAutomorphism = NULL;
+	this->m_algorithmSHE = NULL;
+	this->m_algorithmFHE = NULL;
+}
+
+// Constructor for LPPublicKeyEncryptionSchemeLTV
+template <class Element>
+LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask){
+
+	if (mask[ENCRYPTION])
+		this->m_algorithmEncryption = new LPAlgorithmLTV<Element>(*this);
+	if (mask[PRE])
+		this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
+	if (mask[EVALADD])
+		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
+	if (mask[EVALAUTOMORPHISM])
+		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
+	if (mask[SHE])
+		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
+	if (mask[FHE])
+		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+
+}
+
+// Destructor for LPPublicKeyEncryptionSchemeLTV
+template <class Element>
+LPPublicKeyEncryptionSchemeLTV<Element>::~LPPublicKeyEncryptionSchemeLTV(){
+	if (this->m_algorithmEncryption != NULL)
+		delete this->m_algorithmEncryption;
+	if (this->m_algorithmPRE != NULL)
+		delete this->m_algorithmPRE;
+	if (this->m_algorithmEvalAdd != NULL)
+		delete this->m_algorithmEvalAdd;
+	if (this->m_algorithmEvalAutomorphism != NULL)
+		delete this->m_algorithmEvalAutomorphism;
+	if (this->m_algorithmSHE != NULL)
+		delete this->m_algorithmSHE;
+	if (this->m_algorithmFHE != NULL)
+		delete this->m_algorithmFHE;
 }
 
 }  // namespace lbcrypto ends

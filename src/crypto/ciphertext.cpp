@@ -123,7 +123,7 @@ namespace lbcrypto {
 	template <class Element>
 	void Ciphertext<Element>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
 
-		LPCryptoParameters<Element> *json_cryptoParams = new LPCryptoParametersLWE<Element>();
+		LPCryptoParameters<Element> *json_cryptoParams = new LPCryptoParametersLTV<Element>();
 		json_cryptoParams->Deserialize(serializationMap);
 		this->SetCryptoParameters(*json_cryptoParams);
 

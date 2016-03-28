@@ -53,13 +53,13 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPAlgorithmSHELWENTRU : public LPAlgorithmAHELWENTRU<Element>, public LPSHEAlgorithm<Element> {
+	class LPAlgorithmSHELTV : public LPSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
 		public:
 
-			/**
-			* Constructor that initializes nothing.
-			*/
-			LPAlgorithmSHELWENTRU() {}
+			//inherited constructors
+			LPAlgorithmSHELTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
+			LPAlgorithmSHELTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+
 			/**
 			 * Function for evaluation addition on ciphertext.
 			 *
@@ -82,8 +82,7 @@ namespace lbcrypto {
 			 */
 			 bool KeySwitchHintGen(const LPPrivateKey<Element> &newPrivateKey, 
 				LPPrivateKey<Element> &origPrivateKey,
-				usint depth,
-				DiscreteGaussianGenerator &dgg, 
+				usint depth, 
 				LPKeySwitchHint<Element> *keySwitchHint) const;
 
 			/**
@@ -94,7 +93,6 @@ namespace lbcrypto {
 			 * @param *keySwitchHint the key switch hint.
 			 */
 			 bool KeySwitchHintGen(const LPPrivateKey<Element> &newPrivateKey, 
-				DiscreteGaussianGenerator &dgg, 
 				LPKeySwitchHint<Element> *keySwitchHint) const;
 			
 			/**
