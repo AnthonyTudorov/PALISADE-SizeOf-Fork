@@ -544,6 +544,13 @@ namespace lbcrypto {
 		//instantiated in the scheme implementation class
 		virtual void Enable(PKESchemeFeature feature) = 0;
 
+		const LPAutoMorphAlgorithm<Element> &GetLPAutoMorphAlgorithm() {
+			if(this->IsEnabled(EVALAUTOMORPHISM))
+				return *m_algorithmEvalAutomorphism;
+			else
+				throw std::logic_error("This operation is not supported");
+		}
+
 		//wrapper for Encrypt method
 		void Encrypt(const LPPublicKey<Element> &publicKey, 
 			const PlaintextEncodingInterface &plaintext, Ciphertext<Element> *ciphertext) const {

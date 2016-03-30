@@ -414,4 +414,24 @@ LPPublicKeyEncryptionSchemeLTV<Element>::~LPPublicKeyEncryptionSchemeLTV(){
 		delete this->m_algorithmFHE;
 }
 
+// Destructor for LPPublicKeyEncryptionSchemeLTV
+template <class Element>
+void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature){
+	switch (feature)
+	{
+	case ENCRYPTION:
+		this->m_algorithmEncryption = new LPAlgorithmLTV<Element>(*this);
+	case PRE:
+		this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
+	case EVALADD:
+		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
+	case EVALAUTOMORPHISM:
+		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
+	case SHE:
+		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
+	case FHE:
+		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+	}
+}
+
 }  // namespace lbcrypto ends

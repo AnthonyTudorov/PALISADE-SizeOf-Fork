@@ -710,8 +710,7 @@ namespace lbcrypto {
 			//These functions can be implemented later
 			//Initialize(mask);
 
-			//Will be populated later
-			void Enable(PKESchemeFeature feature) {};
+			void Enable(PKESchemeFeature feature);
 	};
 } // namespace lbcrypto ends
 #endif
