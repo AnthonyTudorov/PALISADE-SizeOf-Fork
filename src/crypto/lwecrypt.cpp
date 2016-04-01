@@ -149,7 +149,7 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 	b.SwitchFormat();
 
 	//Element m(elementParams);
-	//m = b.Mod(p);
+	b=  b.Mod(p);
 
 	//Element m(b.ModByTwo());
 
