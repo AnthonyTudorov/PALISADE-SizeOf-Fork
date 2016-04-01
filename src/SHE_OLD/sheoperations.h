@@ -64,13 +64,13 @@ namespace lbcrypto {
 	class SHEOperations {
 
 		public:
-			Ciphertext<Element> KeySwitch(const LPPrivateKeyLWENTRU<Element> &newPrivateKey, 
-					LPPrivateKeyLWENTRU<Element> &origPrivateKey,
+			Ciphertext<Element> KeySwitch(const LPPrivateKey<Element> &newPrivateKey, 
+					LPPrivateKey<Element> &origPrivateKey,
 					DiscreteGaussianGenerator &dgg, 
 					Ciphertext<Element> &origCipherText) const;
 
-			Element KeySwitchHintGen(const LPPrivateKeyLWENTRU<Element> &newPrivateKey, 
-					LPPrivateKeyLWENTRU<Element> &origPrivateKey,
+			LPKeySwitchHint KeySwitchHintGen(const LPPrivateKey<Element> &newPrivateKey, 
+					LPPrivateKey<Element> &origPrivateKey,
 					DiscreteGaussianGenerator &dgg) const;
 
 			CipherTextSparseKey<Element> RingReduce(Ciphertext<Element> &origCipherText, 

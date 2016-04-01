@@ -31,8 +31,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 	template <class Element>	
-	Ciphertext<Element> SHEOperations<Element>::KeySwitch(const LPPrivateKeyLWENTRU<Element> &newPrivateKey, 
-			LPPrivateKeyLWENTRU<Element> &origPrivateKey,
+	Ciphertext<Element> SHEOperations<Element>::KeySwitch(const LPPrivateKey<Element> &newPrivateKey, 
+			LPPrivateKey<Element> &origPrivateKey,
 			DiscreteGaussianGenerator &dgg, 
 			Ciphertext<Element> &origCipherText) const {
 
@@ -56,8 +56,8 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	Element SHEOperations<Element>::KeySwitchHintGen(const LPPrivateKeyLWENTRU<Element> &newPrivateKey, 
-			LPPrivateKeyLWENTRU<Element> &origPrivateKey,
+	LPKeySwitchHint SHEOperations<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &newPrivateKey, 
+			LPPrivateKey<Element> &origPrivateKey,
 			DiscreteGaussianGenerator &dgg) const {
 	
 		const LPCryptoParameters<Element> &cryptoParamsOriginal = origPrivateKey.GetAbstractCryptoParameters();
