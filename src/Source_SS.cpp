@@ -89,7 +89,7 @@ int main() {
 	//auto v = gen.GenerateVector(10000);
 
 	std::cout << "Relinearization window : " << std::endl;
-	std::cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
+	std::cout << "0 (n = 1024, r = 1), 1 (n = 1024, r = 8), 2 (r = 2048, r = 1), 3 (n = 2048, r = 16): ";
 
 	int input = 0;
 	std::cin >> input;
@@ -194,11 +194,9 @@ void NTRUPRE(int input) {
 //=======
 		//{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("2678760785"), 1 }, //r = 8
 //>>>>>>> 98034a0563cc8cab2eb1c179288561a65ad5a7f0
-		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("8451304774"), 1, 98.4359 }, //r = 1
-		{ 2048, BigBinaryInteger("536881153"), BigBinaryInteger("267934765"), 2, 4 }, // r = 2
-		{ 2048, BigBinaryInteger("1073750017"), BigBinaryInteger("180790047"), 4, 4 },  // r = 4
-		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("2678760785"), 8, 4 }, //r = 8
-		{ 4096, BigBinaryInteger("2199023288321"), BigBinaryInteger("1858080237421"), 16, 4 }  // r= 16
+		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("8451304774"), 1, 98.4359 }, //n = 1024; r = 1; p = 2
+		{ 2048, BigBinaryInteger("137439004673"), BigBinaryInteger("7643730114"), 8, 214.9 }, // r = 2
+		{ 4096, BigBinaryInteger("17179926529"), BigBinaryInteger("1874048014"), 1, 98.4359 }  // r = 4
 		//{ 2048, CalltoModulusComputation(), CalltoRootComputation, 0 }  // r= 16
 	};
 

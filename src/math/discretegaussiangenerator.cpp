@@ -91,7 +91,7 @@ void DiscreteGaussianGenerator::Initialize () {
 	*/
 }
 
-schar * DiscreteGaussianGenerator::GenerateCharVector (usint size) const {
+sint * DiscreteGaussianGenerator::GenerateCharVector (usint size) const {
 
 	//std::default_random_engine generator;
 	//std::uniform_real_distribution<double> distribution(0.0,1.0);
@@ -99,7 +99,7 @@ schar * DiscreteGaussianGenerator::GenerateCharVector (usint size) const {
 
 	usint val = 0;
 	double seed;
-	schar * ans = new schar[size];
+	sint * ans = new sint[size];
 
 	for (usint i = 0; i < size; i++) {
 		//generator.seed(time(NULL));
@@ -172,7 +172,7 @@ BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size) cons
 	//BigBinaryVector ans(DiscreteGaussianGenerator::DiscreteGaussianPositiveGenerator(size,this->m_modulus));
 
 	//return ans;
-	schar* result = GenerateCharVector(size);
+	sint* result = GenerateCharVector(size);
 
 	BigBinaryVector ans(size);
 	ans.SetModulus(m_modulus);
@@ -196,7 +196,7 @@ BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size, cons
 	//BigBinaryVector ans(DiscreteGaussianGenerator::DiscreteGaussianPositiveGenerator(size,this->m_modulus));
 
 	//return ans;
-	schar* result = GenerateCharVector(size);
+	sint* result = GenerateCharVector(size);
 
 	BigBinaryVector ans(size);
 	ans.SetModulus(modulus);

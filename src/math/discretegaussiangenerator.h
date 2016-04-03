@@ -83,7 +83,7 @@ public:
 	* @param size The number of values to return.
 	* @return     A pointer to an array of schar values generated with the distribution.
 	*/
-	schar * GenerateCharVector (usint size) const;
+	sint * GenerateCharVector (usint size) const;
 
 	/**
 	* @brief  Returns a generated integer. Uses Peikert's inversion method.

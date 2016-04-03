@@ -126,7 +126,7 @@ namespace lbcrypto {
 
 	/*if(!isKey){*/
 		//dgg.Initialize();
-		schar* dggValues = dgg.GenerateCharVector(m_params.GetCyclotomicOrder()/2);
+		sint* dggValues = dgg.GenerateCharVector(m_params.GetCyclotomicOrder()/2);
 	
 	/*	for(usint j = 0; j < m_params.GetCyclotomicOrder()/2; j++){
 			

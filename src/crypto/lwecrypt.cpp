@@ -494,7 +494,7 @@ LPPublicKeyEncryptionSchemeSS<Element>::LPPublicKeyEncryptionSchemeSS(std::bitse
 
 }
 
-// Destructor for LPPublicKeyEncryptionSchemeSS
+// Feature enable method for LPPublicKeyEncryptionSchemeSS
 template <class Element>
 void LPPublicKeyEncryptionSchemeSS<Element>::Enable(PKESchemeFeature feature){
 	switch (feature)

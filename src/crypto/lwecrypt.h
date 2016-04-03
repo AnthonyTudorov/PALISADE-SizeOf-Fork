@@ -784,7 +784,7 @@ namespace lbcrypto {
 	};
 
 	/**
-	 * @brief Main public key encryption scheme for Stehle-Stenfeld implementation,
+	 * @brief Main public key encryption scheme for Stehle-Stenfeld scheme implementation,
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
