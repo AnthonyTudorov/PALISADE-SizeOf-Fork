@@ -89,7 +89,7 @@ int main() {
 	//auto v = gen.GenerateVector(10000);
 
 	std::cout << "Relinearization window : " << std::endl;
-	std::cout << "0 (n = 1024, r = 1), 1 (n = 1024, r = 8), 2 (r = 2048, r = 1), 3 (n = 2048, r = 16): ";
+	std::cout << "0 (n = 1024, r = 1), 1 (n = 1024, r = 8), 2 (r = 2048, r = 1): ";
 
 	int input = 0;
 	std::cin >> input;
