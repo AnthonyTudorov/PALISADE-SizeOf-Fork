@@ -230,7 +230,7 @@ void NTRUPRE(int input) {
 	//ilParams.Initialize(m,bitLenght,inputFile);
 
 	//Set crypto parametes
-	LPCryptoParametersSS<ILVector2n> cryptoParams;
+	LPCryptoParametersStehleSteinfeld<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
 	//cryptoParams.SetPlaintextModulus(BigBinaryInteger("4"));  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
@@ -240,8 +240,8 @@ void NTRUPRE(int input) {
 	DiscreteGaussianGenerator dgg(modulus, stdDev);			// Create the noise generator
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
-	DiscreteGaussianGenerator dggSS(modulus, stdDevSS);			// Create the noise generator
-	cryptoParams.SetDiscreteGaussianGeneratorSS(dggSS);
+	DiscreteGaussianGenerator dggStehleSteinfeld(modulus, stdDevSS);			// Create the noise generator
+	cryptoParams.SetDiscreteGaussianGeneratorSS(dggStehleSteinfeld);
 
 	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
 
@@ -278,7 +278,7 @@ void NTRUPRE(int input) {
 	//std::bitset<FEATURESETSIZE> mask (std::string("000011"));
 	//LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
 
-	LPPublicKeyEncryptionSchemeSS<ILVector2n> algorithm;
+	LPPublicKeyEncryptionSchemeStehleSteinfeld<ILVector2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
 

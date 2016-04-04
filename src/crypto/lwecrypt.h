@@ -264,14 +264,14 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPCryptoParametersSS : public LPCryptoParametersLTV<Element> {
+	class LPCryptoParametersStehleSteinfeld : public LPCryptoParametersLTV<Element> {
 	public:
 			/**
 			 * Default constructor that initializes all values to 0.
 			 */
-			LPCryptoParametersSS() : LPCryptoParametersLTV<Element>() {
-				m_distributionParameterSS = 0.0f;
-				m_dggSS = DiscreteGaussianGenerator();
+			LPCryptoParametersStehleSteinfeld() : LPCryptoParametersLTV<Element>() {
+				m_distributionParameterStehleSteinfeld = 0.0f;
+				m_dggStehleSteinfeld = DiscreteGaussianGenerator();
 			}
 
 			/**
@@ -279,32 +279,32 @@ namespace lbcrypto {
 			 *
 			 * @return the standard deviation r.
 			 */
-			float GetDistributionParameterSS() const {return m_distributionParameterSS;}
+			float GetdistributionParameterStehleSteinfeld() const {return m_distributionParameterStehleSteinfeld;}
 
 			/**
 			 * Returns reference to Discrete Gaussian Generator for keys
 			 *
 			 * @return reference to Discrete Gaussian Generaror.
 			 */
-			const DiscreteGaussianGenerator &GetDiscreteGaussianGeneratorSS() const {return m_dggSS;}
+			const DiscreteGaussianGenerator &GetDiscreteGaussianGeneratorSS() const {return m_dggStehleSteinfeld;}
 
 			//@Set Properties
 			
 			/**
 			 * Sets the value of standard deviation r for discrete Gaussian distribution
 			 */
-			void SetDistributionParameterSS(float distributionParameterSS) {m_distributionParameterSS = distributionParameterSS;}
+			void SetdistributionParameterStehleSteinfeld(float distributionParameterStehleSteinfeld) {m_distributionParameterStehleSteinfeld = distributionParameterStehleSteinfeld;}
 
 			/**
 			 * Sets the discrete Gaussian Generator for keys
 			 */
-			void SetDiscreteGaussianGeneratorSS(const DiscreteGaussianGenerator &dggSS) {m_dggSS = dggSS;}
+			void SetDiscreteGaussianGeneratorSS(const DiscreteGaussianGenerator &dggStehleSteinfeld) {m_dggStehleSteinfeld = dggStehleSteinfeld;}
 
 		private:
 			//standard deviation in Discrete Gaussian Distribution used for Key Generation
-			float m_distributionParameterSS;
+			float m_distributionParameterStehleSteinfeld;
 			//Discrete Gaussian Generator for Key Generation
-			DiscreteGaussianGenerator m_dggSS;
+			DiscreteGaussianGenerator m_dggStehleSteinfeld;
 	};
 
 	/**
@@ -750,12 +750,12 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPEncryptionAlgorithmSS : public LPAlgorithmLTV<Element> {
+	class LPEncryptionAlgorithmStehleSteinfeld : public LPAlgorithmLTV<Element> {
 		public:
 
 			//inherited constructors
-			LPEncryptionAlgorithmSS() : LPAlgorithmLTV<Element>(){};
-			LPEncryptionAlgorithmSS(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPAlgorithmLTV<Element>(scheme) {};
+			LPEncryptionAlgorithmStehleSteinfeld() : LPAlgorithmLTV<Element>(){};
+			LPEncryptionAlgorithmStehleSteinfeld(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPAlgorithmLTV<Element>(scheme) {};
 			/**
 			 * Function to generate public and private keys
 			 *
@@ -788,10 +788,10 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPPublicKeyEncryptionSchemeSS : public LPPublicKeyEncryptionSchemeLTV<Element>{
+	class LPPublicKeyEncryptionSchemeStehleSteinfeld : public LPPublicKeyEncryptionSchemeLTV<Element>{
 		public:
-			LPPublicKeyEncryptionSchemeSS() : LPPublicKeyEncryptionSchemeLTV<Element>() {};
-			LPPublicKeyEncryptionSchemeSS(std::bitset<FEATURESETSIZE> mask);
+			LPPublicKeyEncryptionSchemeStehleSteinfeld() : LPPublicKeyEncryptionSchemeLTV<Element>() {};
+			LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask);
 
 			void Enable(PKESchemeFeature feature);
 	};

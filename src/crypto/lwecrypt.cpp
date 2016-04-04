@@ -89,10 +89,10 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 }
 
 template <class Element>
-bool LPEncryptionAlgorithmSS<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
+bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
 		LPPrivateKey<Element> *privateKey) const
 {
-	const LPCryptoParametersSS<Element> &cryptoParams = static_cast<const LPCryptoParametersSS<Element>&>(privateKey->GetCryptoParameters());
+	const LPCryptoParametersStehleSteinfeld<Element> &cryptoParams = static_cast<const LPCryptoParametersStehleSteinfeld<Element>&>(privateKey->GetCryptoParameters());
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
@@ -476,11 +476,11 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature){
 	}
 }
 
-// Constructor for LPPublicKeyEncryptionSchemeSS
+// Constructor for LPPublicKeyEncryptionSchemeStehleSteinfeld
 template <class Element>
-LPPublicKeyEncryptionSchemeSS<Element>::LPPublicKeyEncryptionSchemeSS(std::bitset<FEATURESETSIZE> mask){
+LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>::LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask){
 	if (mask[ENCRYPTION])
-		this->m_algorithmEncryption = new LPEncryptionAlgorithmSS<Element>(*this);
+		this->m_algorithmEncryption = new LPEncryptionAlgorithmStehleSteinfeld<Element>(*this);
 	if (mask[PRE])
 		this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
 	if (mask[EVALADD])
@@ -494,13 +494,13 @@ LPPublicKeyEncryptionSchemeSS<Element>::LPPublicKeyEncryptionSchemeSS(std::bitse
 
 }
 
-// Feature enable method for LPPublicKeyEncryptionSchemeSS
+// Feature enable method for LPPublicKeyEncryptionSchemeStehleSteinfeld
 template <class Element>
-void LPPublicKeyEncryptionSchemeSS<Element>::Enable(PKESchemeFeature feature){
+void LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>::Enable(PKESchemeFeature feature){
 	switch (feature)
 	{
 	case ENCRYPTION:
-		this->m_algorithmEncryption = new LPEncryptionAlgorithmSS<Element>(*this);
+		this->m_algorithmEncryption = new LPEncryptionAlgorithmStehleSteinfeld<Element>(*this);
 	case PRE:
 		this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
 	case EVALADD:
