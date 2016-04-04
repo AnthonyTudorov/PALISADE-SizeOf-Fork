@@ -89,6 +89,48 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 }
 
 template <class Element>
+bool LPEncryptionAlgorithmSS<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
+		LPPrivateKey<Element> *privateKey) const
+{
+	const LPCryptoParametersSS<Element> &cryptoParams = static_cast<const LPCryptoParametersSS<Element>&>(privateKey->GetCryptoParameters());
+	const ElemParams &elementParams = cryptoParams.GetElementParams();
+	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+
+	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGeneratorSS();
+
+	Element f(dgg,elementParams,Format::COEFFICIENT);
+
+	f = p*f;
+
+	f = f + BigBinaryInteger::ONE;
+	
+	f.SwitchFormat();
+
+	//check if inverse does not exist
+	while (!f.InverseExists())
+	{
+		//std::cout << "inverse does not exist" << std::endl;
+		Element temp(dgg, elementParams, Format::COEFFICIENT);
+		f = temp;
+		f = p*f;
+		f = f + BigBinaryInteger::ONE;
+		f.SwitchFormat();
+	}
+
+	privateKey->SetPrivateElement(f);
+	privateKey->AccessCryptoParameters() = cryptoParams;
+
+	Element g(dgg,elementParams,Format::COEFFICIENT);
+	g.SwitchFormat();
+
+	//public key is generated
+	privateKey->MakePublicKey(g,publicKey);
+
+	return true;
+}
+
+
+template <class Element>
 void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey, 
 				const PlaintextEncodingInterface &plaintext, 
 				Ciphertext<Element> *ciphertext) const
@@ -433,5 +475,44 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature){
 		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
 	}
 }
+
+// Constructor for LPPublicKeyEncryptionSchemeSS
+template <class Element>
+LPPublicKeyEncryptionSchemeSS<Element>::LPPublicKeyEncryptionSchemeSS(std::bitset<FEATURESETSIZE> mask){
+	if (mask[ENCRYPTION])
+		this->m_algorithmEncryption = new LPEncryptionAlgorithmSS<Element>(*this);
+	if (mask[PRE])
+		this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
+	if (mask[EVALADD])
+		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
+	if (mask[EVALAUTOMORPHISM])
+		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
+	if (mask[SHE])
+		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
+	if (mask[FHE])
+		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+
+}
+
+// Feature enable method for LPPublicKeyEncryptionSchemeSS
+template <class Element>
+void LPPublicKeyEncryptionSchemeSS<Element>::Enable(PKESchemeFeature feature){
+	switch (feature)
+	{
+	case ENCRYPTION:
+		this->m_algorithmEncryption = new LPEncryptionAlgorithmSS<Element>(*this);
+	case PRE:
+		this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
+	case EVALADD:
+		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
+	case EVALAUTOMORPHISM:
+		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
+	case SHE:
+		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
+	case FHE:
+		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+	}
+}
+
 
 }  // namespace lbcrypto ends
