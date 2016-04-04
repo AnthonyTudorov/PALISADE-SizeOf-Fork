@@ -309,7 +309,7 @@ TEST(method_test_guassian_rand_generator, generate_char_vector_mean_test)
 	usint size = 10000;
   BigBinaryInteger modulus("10403");
 	DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(modulus, stdev);
-	schar* dggCharVector = dgg.GenerateCharVector(size);
+	sint* dggCharVector = dgg.GenerateCharVector(size);
 
 	double mean = 0;
 	for(usint i=0; i<size; i++) {
