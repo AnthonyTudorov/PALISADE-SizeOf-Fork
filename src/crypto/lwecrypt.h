@@ -270,8 +270,8 @@ namespace lbcrypto {
 			 * Default constructor that initializes all values to 0.
 			 */
 			LPCryptoParametersStehleSteinfeld() : LPCryptoParametersLTV<Element>() {
-				m_distributionParameterStehleSteinfeld = 0.0f;
-				m_dggStehleSteinfeld = DiscreteGaussianGenerator();
+				m_distributionParameterStSt = 0.0f;
+				m_dggStSt = DiscreteGaussianGenerator();
 			}
 
 			/**
@@ -279,32 +279,32 @@ namespace lbcrypto {
 			 *
 			 * @return the standard deviation r.
 			 */
-			float GetdistributionParameterStehleSteinfeld() const {return m_distributionParameterStehleSteinfeld;}
+			float GetDistributionParameterStSt() const {return m_distributionParameterStSt;}
 
 			/**
 			 * Returns reference to Discrete Gaussian Generator for keys
 			 *
 			 * @return reference to Discrete Gaussian Generaror.
 			 */
-			const DiscreteGaussianGenerator &GetDiscreteGaussianGeneratorStSt() const {return m_dggStehleSteinfeld;}
+			const DiscreteGaussianGenerator &GetDiscreteGaussianGeneratorStSt() const {return m_dggStSt;}
 
 			//@Set Properties
 			
 			/**
 			 * Sets the value of standard deviation r for discrete Gaussian distribution
 			 */
-			void SetdistributionParameterStehleSteinfeld(float distributionParameterStehleSteinfeld) {m_distributionParameterStehleSteinfeld = distributionParameterStehleSteinfeld;}
+			void SetDistributionParameterStSt(float distributionParameterStSt) {m_distributionParameterStSt = distributionParameterStSt;}
 
 			/**
 			 * Sets the discrete Gaussian Generator for keys
 			 */
-			void SetDiscreteGaussianGeneratorStSt(const DiscreteGaussianGenerator &dggStehleSteinfeld) {m_dggStehleSteinfeld = dggStehleSteinfeld;}
+			void SetDiscreteGaussianGeneratorStSt(const DiscreteGaussianGenerator &dggStSt) {m_dggStSt = dggStSt;}
 
 		private:
 			//standard deviation in Discrete Gaussian Distribution used for Key Generation
-			float m_distributionParameterStehleSteinfeld;
+			float m_distributionParameterStSt;
 			//Discrete Gaussian Generator for Key Generation
-			DiscreteGaussianGenerator m_dggStehleSteinfeld;
+			DiscreteGaussianGenerator m_dggStSt;
 	};
 
 	/**
