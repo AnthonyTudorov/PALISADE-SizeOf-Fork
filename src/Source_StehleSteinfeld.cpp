@@ -204,7 +204,7 @@ void NTRUPRE(int input) {
 	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
 	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
 	usint relWindow = SECURE_PARAMS[input].relinWindow;
-	float stdDevSS = SECURE_PARAMS[input].stdDev;
+	float stdDevStSt = SECURE_PARAMS[input].stdDev;
 
 	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	//ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
@@ -240,8 +240,8 @@ void NTRUPRE(int input) {
 	DiscreteGaussianGenerator dgg(modulus, stdDev);			// Create the noise generator
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
-	DiscreteGaussianGenerator dggStehleSteinfeld(modulus, stdDevSS);			// Create the noise generator
-	cryptoParams.SetDiscreteGaussianGeneratorSS(dggStehleSteinfeld);
+	DiscreteGaussianGenerator dggStehleSteinfeld(modulus, stdDevStSt);			// Create the noise generator
+	cryptoParams.SetDiscreteGaussianGeneratorStSt(dggStehleSteinfeld);
 
 	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
 

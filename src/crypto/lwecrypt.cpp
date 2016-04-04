@@ -96,7 +96,7 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
-	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGeneratorSS();
+	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGeneratorStSt();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
 

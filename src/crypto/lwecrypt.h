@@ -286,7 +286,7 @@ namespace lbcrypto {
 			 *
 			 * @return reference to Discrete Gaussian Generaror.
 			 */
-			const DiscreteGaussianGenerator &GetDiscreteGaussianGeneratorSS() const {return m_dggStehleSteinfeld;}
+			const DiscreteGaussianGenerator &GetDiscreteGaussianGeneratorStSt() const {return m_dggStehleSteinfeld;}
 
 			//@Set Properties
 			
@@ -298,7 +298,7 @@ namespace lbcrypto {
 			/**
 			 * Sets the discrete Gaussian Generator for keys
 			 */
-			void SetDiscreteGaussianGeneratorSS(const DiscreteGaussianGenerator &dggStehleSteinfeld) {m_dggStehleSteinfeld = dggStehleSteinfeld;}
+			void SetDiscreteGaussianGeneratorStSt(const DiscreteGaussianGenerator &dggStehleSteinfeld) {m_dggStehleSteinfeld = dggStehleSteinfeld;}
 
 		private:
 			//standard deviation in Discrete Gaussian Distribution used for Key Generation
