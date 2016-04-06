@@ -233,7 +233,7 @@ namespace lbcrypto {
 			* @param serializationMap stores this object's serialized attribute name value pairs.
 			* @return map updated with the attribute name value pairs required to serialize this object.
 			*/
-			std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
+			virtual std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
 
 			//JSON FACILITY
 			/**
@@ -242,7 +242,7 @@ namespace lbcrypto {
 			*
 			* @param serializationMap stores this object's serialized attribute name value pairs.
 			*/
-			void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+			virtual void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
 
 		private:
 			//standard deviation in Discrete Gaussian Distribution
@@ -299,6 +299,26 @@ namespace lbcrypto {
 			 * Sets the discrete Gaussian Generator for keys
 			 */
 			void SetDiscreteGaussianGeneratorStSt(const DiscreteGaussianGenerator &dggStSt) {m_dggStSt = dggStSt;}
+
+			//JSON FACILITY
+			/**
+			* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
+			* Invokes nested serialization of ILParams.
+			*
+			* @param serializationMap stores this object's serialized attribute name value pairs.
+			* @return map updated with the attribute name value pairs required to serialize this object.
+			*/
+			std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
+
+			//JSON FACILITY
+			/**
+			* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
+			* Invokes nested deserialization of ILParams.
+			*
+			* @param serializationMap stores this object's serialized attribute name value pairs.
+			*/
+			void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+
 
 		private:
 			//standard deviation in Discrete Gaussian Distribution used for Key Generation

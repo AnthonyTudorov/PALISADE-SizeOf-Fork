@@ -142,6 +142,95 @@ namespace lbcrypto {
 		}
 
 		/**
+		* Generates a nested JSON data string for a serialized Palisade object
+		* @param serializationMap stores the serialized Palisade object's attributes.
+		* @return string reflecting the nested JSON data structure of the serialized Palisade object.
+		*/
+		std::string SerializableHelper::GetJsonString(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap, std::string fileType) {
+
+			/*
+			for (unordered_map<string, unordered_map<string, string>>::iterator i = serializationMap.begin(); i != serializationMap.end(); i++) {
+			cout << "GetJsonString: " << i->first << endl;
+			}
+			*/
+
+			std::unordered_map <std::string, std::string> rootMap = serializationMap["Root"];
+			serializationMap.erase("Root");
+			rootMap.emplace("FileType", fileType);
+			serializationMap.emplace("Root", rootMap);
+
+			std::string jsonInputBuffer = "";
+
+			jsonInputBuffer.append("{");
+
+			std::string ID = serializationMap["Root"]["ID"];
+
+			jsonInputBuffer.append("\"Root\":");
+			jsonInputBuffer.append(GetJsonNodeString(serializationMap["Root"]));
+			jsonInputBuffer.append(",");
+
+			jsonInputBuffer.append("\"LPCryptoParametersLWE\":");
+			jsonInputBuffer.append(GetJsonNodeString(serializationMap["LPCryptoParametersLWE"]));
+			jsonInputBuffer.append(",");
+
+			jsonInputBuffer.append("\"ILParams\":");
+			jsonInputBuffer.append(GetJsonNodeString(serializationMap["ILParams"]));
+			jsonInputBuffer.append(",");
+
+			if (ID.compare("LPEvalKeyLTV") != 0) {
+				jsonInputBuffer.append("\"ILVector2n\":");
+				jsonInputBuffer.append(GetJsonNodeString(serializationMap["ILVector2n"]));
+			}
+			else {
+				jsonInputBuffer.append("\"ILVector2nVector\":");
+				jsonInputBuffer.append(GetJsonNodeVectorString(serializationMap));
+			}
+
+			jsonInputBuffer.append("}");
+
+			return jsonInputBuffer;
+		}
+
+		std::string SerializableHelper::GetSimpleJsonString(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap) {
+			/*
+			for (unordered_map<string, unordered_map<string, string>>::iterator i = serializationMap.begin(); i != serializationMap.end(); i++) {
+			cout << "GetJsonString: " << i->first << endl;
+			}
+			*/
+
+			std::string jsonInputBuffer = "";
+
+			jsonInputBuffer.append("{");
+
+			std::string ID = serializationMap["Root"]["ID"];
+
+			//jsonInputBuffer.append("\"Root\":");
+			//jsonInputBuffer.append(GetJsonNodeString(serializationMap["Root"]));
+			//jsonInputBuffer.append(",");
+
+			//jsonInputBuffer.append("\"LPCryptoParametersLWE\":");
+			//jsonInputBuffer.append(GetJsonNodeString(serializationMap["LPCryptoParametersLWE"]));
+			//jsonInputBuffer.append(",");
+
+			//jsonInputBuffer.append("\"ILParams\":");
+			//jsonInputBuffer.append(GetJsonNodeString(serializationMap["ILParams"]));
+			//jsonInputBuffer.append(",");
+
+			if (ID.compare("LPEvalKeyLTV") != 0) {
+				jsonInputBuffer.append("\"ILVector2n\":");
+				jsonInputBuffer.append(GetJsonNodeString(serializationMap["ILVector2n"]));
+			}
+			else {
+				jsonInputBuffer.append("\"ILVector2nVector\":");
+				jsonInputBuffer.append(GetJsonNodeVectorString(serializationMap));
+			}
+
+			jsonInputBuffer.append("}");
+
+			return jsonInputBuffer;
+		}
+
+		/**
 		* Determines the file name for saving a serialized Palisade object
 		* @param serializationMap stores the serialized Palisade object's attributes.
 		* @return string reflecting file name to save serialized Palisade object to.
@@ -264,6 +353,28 @@ namespace lbcrypto {
 			serializationMap.emplace("Root", GetSerializationMapNode(doc, "Root"));
 			serializationMap.emplace("LPCryptoParametersLWE", GetSerializationMapNode(doc, "LPCryptoParametersLWE"));
 			serializationMap.emplace("ILParams", GetSerializationMapNode(doc, "ILParams"));
+			if (ID.compare("LPEvalKeyLTV") != 0) {
+				serializationMap.emplace("ILVector2n", GetSerializationMapNode(doc, "ILVector2n"));
+			}
+			else {
+				serializationMap = GetSerializationMapNodeVector(doc, serializationMap, "ILVector2nVector", "ILVector2n");
+			}
+
+			return serializationMap;
+		}
+
+		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> SerializableHelper::GetSimpleSerializationMap(const char *jsonInputString, std::string ID) {
+
+			std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap;
+
+			//Retrieve elements from input Json const char*
+			rapidjson::Document doc;
+			doc.Parse(jsonInputString);
+
+			//std::string ID = doc["Root"]["ID"].GetString();
+			//serializationMap.emplace("Root", GetSerializationMapNode(doc, "Root"));
+			//serializationMap.emplace("LPCryptoParametersLWE", GetSerializationMapNode(doc, "LPCryptoParametersLWE"));
+			//serializationMap.emplace("ILParams", GetSerializationMapNode(doc, "ILParams"));
 			if (ID.compare("LPEvalKeyLTV") != 0) {
 				serializationMap.emplace("ILVector2n", GetSerializationMapNode(doc, "ILVector2n"));
 			}

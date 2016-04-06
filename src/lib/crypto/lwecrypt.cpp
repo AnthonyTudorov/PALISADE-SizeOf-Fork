@@ -217,6 +217,59 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 
 // JSON FACILITY - LPCryptoParametersLWE Serialize Operation
 template <class Element>
+std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPCryptoParametersStehleSteinfeld<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+
+	std::unordered_map <std::string, std::string> cryptoParamsMap;
+	cryptoParamsMap.emplace("DistributionParameter", this->ToStr(GetDistributionParameter()));
+	cryptoParamsMap.emplace("DistributionParameterStSt", this->ToStr(GetDistributionParameterStSt()));
+	cryptoParamsMap.emplace("AssuranceMeasure", this->ToStr(GetAssuranceMeasure()));
+	cryptoParamsMap.emplace("SecurityLevel", this->ToStr(GetSecurityLevel()));
+	cryptoParamsMap.emplace("RelinWindow", this->ToStr(GetRelinWindow()));
+	cryptoParamsMap.emplace("Depth", this->ToStr(GetDepth()));
+	cryptoParamsMap.emplace("PlaintextModulus", this->GetPlaintextModulus().ToString());
+	serializationMap.emplace("LPCryptoParametersLWE", cryptoParamsMap);
+
+	const ElemParams *cpElemParams = &this->GetElementParams();
+	serializationMap = cpElemParams->Serialize(serializationMap, "");
+
+	return serializationMap;
+}
+
+// JSON FACILITY - LPCryptoParametersLWE Deserialize Operation
+template <class Element>
+void LPCryptoParametersStehleSteinfeld<Element>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+
+	std::unordered_map<std::string, std::string> cryptoParamsMap = serializationMap["LPCryptoParametersLWE"];
+	BigBinaryInteger bbiPlaintextModulus(cryptoParamsMap["PlaintextModulus"]);
+	float distributionParameter = stof(cryptoParamsMap["DistributionParameter"]);
+	float distributionParameterStSt = stof(cryptoParamsMap["DistributionParameterStSt"]);
+	float assuranceMeasure = stof(cryptoParamsMap["AssuranceMeasure"]);
+	float securityLevel = stof(cryptoParamsMap["SecurityLevel"]);
+	usint relinWindow = stoi(cryptoParamsMap["RelinWindow"]);
+	int depth = stoi(cryptoParamsMap["Depth"]);
+
+	this->SetPlaintextModulus(bbiPlaintextModulus);
+	this->SetDistributionParameter(distributionParameter);
+	this->SetDistributionParameterStSt(distributionParameterStSt);
+	this->SetAssuranceMeasure(assuranceMeasure);
+	this->SetSecurityLevel(securityLevel);
+	this->SetRelinWindow(relinWindow);
+	this->SetDepth(depth);
+
+	//YURIY's FIX
+	//find out the type of object using the input JSON and static object id
+	//create an object of that class using the new operator (on the heap)
+	// if (classname=="ILParams")
+	//		ILParams json_ilParams = new ILParams();
+	//Rely on object factory approach to determine what class to instantiate for
+	//deserialization.
+	ElemParams *json_ilParams = new ILParams();
+	json_ilParams->Deserialize(serializationMap);
+	this->SetElementParams(*json_ilParams);
+}
+
+// JSON FACILITY - LPCryptoParametersLWE Serialize Operation
+template <class Element>
 std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPCryptoParametersLTV<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
 
 	std::unordered_map <std::string, std::string> cryptoParamsMap;
@@ -264,6 +317,7 @@ void LPCryptoParametersLTV<Element>::Deserialize(std::unordered_map <std::string
 	json_ilParams->Deserialize(serializationMap);
 	this->SetElementParams(*json_ilParams);
 }
+
 
 // JSON FACILITY - LPPublicKeyLTV SetIdFlag Operation
 template <class Element>
