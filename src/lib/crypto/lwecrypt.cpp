@@ -220,12 +220,12 @@ template <class Element>
 std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPCryptoParametersStehleSteinfeld<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
 
 	std::unordered_map <std::string, std::string> cryptoParamsMap;
-	cryptoParamsMap.emplace("DistributionParameter", this->ToStr(GetDistributionParameter()));
-	cryptoParamsMap.emplace("DistributionParameterStSt", this->ToStr(GetDistributionParameterStSt()));
-	cryptoParamsMap.emplace("AssuranceMeasure", this->ToStr(GetAssuranceMeasure()));
-	cryptoParamsMap.emplace("SecurityLevel", this->ToStr(GetSecurityLevel()));
-	cryptoParamsMap.emplace("RelinWindow", this->ToStr(GetRelinWindow()));
-	cryptoParamsMap.emplace("Depth", this->ToStr(GetDepth()));
+	cryptoParamsMap.emplace("DistributionParameter", this->ToStr(this->GetDistributionParameter()));
+	cryptoParamsMap.emplace("DistributionParameterStSt", this->ToStr(this->GetDistributionParameterStSt()));
+	cryptoParamsMap.emplace("AssuranceMeasure", this->ToStr(this->GetAssuranceMeasure()));
+	cryptoParamsMap.emplace("SecurityLevel", this->ToStr(this->GetSecurityLevel()));
+	cryptoParamsMap.emplace("RelinWindow", this->ToStr(this->GetRelinWindow()));
+	cryptoParamsMap.emplace("Depth", this->ToStr(this->GetDepth()));
 	cryptoParamsMap.emplace("PlaintextModulus", this->GetPlaintextModulus().ToString());
 	serializationMap.emplace("LPCryptoParametersLWE", cryptoParamsMap);
 
