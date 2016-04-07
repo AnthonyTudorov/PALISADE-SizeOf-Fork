@@ -73,6 +73,7 @@ namespace lbcrypto {
 			m_moduli = moduli;
 			m_rootsOfUnity = rootsOfUnity;
 			m_CRIFactors = cri_values;
+			calculateModulus();
 		}
 
 
@@ -87,6 +88,7 @@ namespace lbcrypto {
 			m_cyclotomicOrder = cyclotomic_order;
 			m_moduli = moduli;
 			m_CRIFactors = cri_values;
+			calculateModulus();
 		}
 
 		/**
@@ -114,6 +116,7 @@ namespace lbcrypto {
 			m_cyclotomicOrder = cyclotomic_order;
 			m_moduli = moduli;
 			m_rootsOfUnity = rootsOfUnity;
+			calculateModulus();
 		}
 
 		/**
@@ -125,6 +128,7 @@ namespace lbcrypto {
 		ILDCRTParams(usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli) {
 			m_cyclotomicOrder = cyclotomic_order;
 			m_moduli = moduli;
+			calculateModulus();
 		}
 
 		ILDCRTParams& operator=(const ILDCRTParams &ild) {
@@ -286,6 +290,19 @@ namespace lbcrypto {
 
 		//rootOfUnity of Modulus
 		BigBinaryInteger m_rootOfUnity;
+
+
+		void calculateModulus(){
+		
+			m_modulus = BigBinaryInteger::ONE;
+
+			for(usint i = 0; i < m_moduli.size(); i++){
+				m_modulus = m_modulus * m_moduli[i];
+			}
+
+		} 
+
+
 	};
 
 } // namespace lbcrypto ends

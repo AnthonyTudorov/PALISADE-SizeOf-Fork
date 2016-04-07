@@ -187,7 +187,7 @@ namespace lbcrypto {
 		return *m_values;
 	}
 
-	const BigBinaryInteger &ILVector2n::GetRootOfUnity() {
+	const BigBinaryInteger &ILVector2n::GetRootOfUnity() const{
 		return m_params.GetRootOfUnity();
 	}
 
@@ -219,26 +219,26 @@ namespace lbcrypto {
 	void ILVector2n::SetModulus(const BigBinaryInteger &modulus) {
 
 
-	//	if ((modulus) < m_params.GetModulus()) {
+		if(modulus<m_values->GetModulus()){
+			*m_values = m_values->Mod(modulus);
+		}
 
-			BigBinaryVector bigVector = m_values->Mod(modulus);
-
-			*m_values = bigVector;
-
-	//	}
+		m_values->SetModulus(modulus);
 
 		m_params.SetModulus(modulus);
-
-
+		
 	}
 
-	void ILVector2n::SetParams(const ILParams & params)
+	void ILVector2n::SwitchModulus(const BigBinaryInteger &modulus){
+		m_values->SwitchModulus(modulus);
+		m_params.SetModulus(modulus);
+	}
+
+	void ILVector2n::SetParams(const ElemParams & params)
 	{
-		m_params = params;
+		const ILParams &castedObj = dynamic_cast<const ILParams&>(params);
+		m_params = castedObj;
 	}
-
-
-
 
 	// addition operation - PREV1
 	ILVector2n ILVector2n::Plus(const BigBinaryInteger &element) const {
@@ -374,15 +374,8 @@ namespace lbcrypto {
 	void ILVector2n::SwitchFormat() {
 
 		if (m_format == COEFFICIENT) {
-
 			m_format = EVALUATION;
-			//std::cout << "starting CRT" << std::endl;
-			/*std::cout << *m_values << std::endl;
-			std::cout << m_params.GetRootOfUnity() << std::endl;
-			std::cout << m_params.GetCyclotomicOrder() << std::endl;*/
-
 			*m_values = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(*m_values, m_params.GetRootOfUnity(), m_params.GetCyclotomicOrder());
-
 		}
 
 		else {
@@ -392,7 +385,7 @@ namespace lbcrypto {
 
 	}
 
-    void ILVector2n::SetFormat(Format format) {
+    void ILVector2n::SetFormat(const Format format) {
         if (m_format != format) {
             SwitchFormat();
         }
@@ -424,7 +417,7 @@ namespace lbcrypto {
 			if ((i>5) && (i < 9)) {
 				auto end = std::chrono::steady_clock::now();
 				auto diff = end - start;
-				std::cout << "NTT time: " << std::chrono::duration <double, std::milli>(diff).count() << " ms" << std::endl;
+				// std::cout << "NTT time: " << std::chrono::duration <double, std::milli>(diff).count() << " ms" << std::endl;
 			}
 
 			m_dggSamples.push_back(current);
@@ -444,6 +437,68 @@ namespace lbcrypto {
 		return m_dggSamples[randomIndex];
 
 	}
+
+	void ILVector2n::ModularOne(){
+		BigBinaryInteger tempValue;
+		for(usint i = 0; i < m_params.GetCyclotomicOrder()/2; i++){
+			tempValue = m_values->GetValAtIndex(i) + BigBinaryInteger::ONE; 
+			tempValue = tempValue.Mod(m_params.GetModulus());
+			m_values->SetValAtIndex(i,tempValue);
+		}
+	
+	}
+
+
+	void ILVector2n::MakeSparse(const BigBinaryInteger &wFactor){
+		BigBinaryInteger modTemp;
+		BigBinaryInteger tempValue;
+		usint w;
+		for(usint i = 0; i < m_params.GetCyclotomicOrder()/2;i++){
+			w = wFactor.ConvertToInt();
+			if(!(i%w == 0)){
+				m_values->SetValAtIndex(i,BigBinaryInteger::ZERO);
+			}
+
+		}
+	
+	}
+
+	// ILVector2n ILVector2n::Decompose(const std::vector<BBI> rootsofunity) const
+	ILVector2n ILVector2n::Decompose(const ElemParams &decomposedParams) const {
+		Format format(this->GetFormat());
+		if(format != Format::COEFFICIENT) {
+			std::string errMsg = "ILVector2n not in COEFFICIENT format to perform Decompose.";
+			throw std::runtime_error(errMsg);
+		}
+		ILVector2n decompose(*this);
+
+		const ILParams &decomposedParamsSRT = static_cast<const ILParams&>(decomposedParams);
+		/*usint decomposedCyclotomicOrder = this->GetParams().GetCyclotomicOrder()/2;
+		BigBinaryInteger modulus(this->GetModulus());
+		BigBinaryInteger rootOfUnity(RootOfUnity(decomposedCyclotomicOrder, modulus));
+		ILParams decomposeParams(decomposedCyclotomicOrder, modulus, rootOfUnity);*/
+		decompose.SetParams(decomposedParamsSRT);
+		BigBinaryVector decomposeValues(this->GetLength()/2, this->GetModulus());
+		for(usint i = 0; i < this->GetLength();i=i+2){
+			decomposeValues.SetValAtIndex(i/2, this->GetValues().GetValAtIndex(i));
+			// std::cout << this->GetValues().GetValAtIndex(i) << std::endl;
+		}
+
+		decompose.SetValues(decomposeValues, this->GetFormat());
+		return decompose;
+	}
+
+	void ILVector2n::SetToTestValue(){
+	
+		m_values->SetValAtIndex(0,BigBinaryInteger::ONE);
+		for(usint i = 1; i < m_params.GetCyclotomicOrder()/2;i++){
+	
+			m_values->SetValAtIndex(i,BigBinaryInteger::ZERO);
+
+		}
+	
+	}
+
 
 	// JSON FACILITY - SetIdFlag Operation
 	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ILVector2n::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {

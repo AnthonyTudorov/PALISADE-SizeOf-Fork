@@ -11,6 +11,7 @@ List of Authors:
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
+		Nishanth Pasham, np386@njit.edu
 Description:	
 	This code provides the core proxy re-encryption functionality.
 
@@ -38,7 +39,6 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 		LPPrivateKey<Element> *privateKey) const
 {
 	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(privateKey->GetCryptoParameters());
-	//const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
@@ -49,20 +49,100 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	f = p*f;
 
 	f = f + BigBinaryInteger::ONE;
-	
-	//cout<<"f="<<f.GetValues()<<endl;
-
 
 	//added for saving the cryptoparams
-/*	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLTV<Element>&>(cryptoParams);
+	const LPCryptoParametersLTV<Element> &cryptoParamsLTV = static_cast<const LPCryptoParametersLTV<Element>&>(cryptoParams);
 
-	float DistributionParameter = cryptoParamsLWE.GetDistributionParameter();
-	float AssuranceMeasure = cryptoParamsLWE.GetAssuranceMeasure();
-	float SecurityLevel = cryptoParamsLWE.GetSecurityLevel();
-	usint RelinWindow = cryptoParamsLWE.GetRelinWindow(); 
-	int Depth = cryptoParamsLWE.GetDepth();*/ 
-	//std::cout<<p<<DistributionParameter<<AssuranceMeasure<<SecurityLevel<<RelinWindow<<Depth<<std::endl;
-	//////
+	float DistributionParameter = cryptoParamsLTV.GetDistributionParameter();
+	float AssuranceMeasure = cryptoParamsLTV.GetAssuranceMeasure();
+	float SecurityLevel = cryptoParamsLTV.GetSecurityLevel();
+	usint RelinWindow = cryptoParamsLTV.GetRelinWindow(); 
+	int Depth = cryptoParamsLTV.GetDepth(); 
+	
+	f.SwitchFormat();
+
+	//check if inverse does not exist
+	while (!f.InverseExists())
+	{
+		Element temp(dgg, elementParams, Format::COEFFICIENT);
+		f = temp;
+		f = p*f;
+		f = f + BigBinaryInteger::ONE;
+		f.SwitchFormat();
+	}
+
+	privateKey->SetPrivateElement(f);
+	privateKey->AccessCryptoParameters() = cryptoParams;
+
+	Element g(dgg,elementParams,Format::COEFFICIENT);
+	g.SwitchFormat();
+
+	//public key is generated
+	privateKey->MakePublicKey(g, publicKey);
+
+	return true;
+}
+
+template <class Element>
+bool LPAlgorithmLTV<Element>::SparseKeyGen(LPPublicKey<Element> &publicKey, 
+		        	LPPrivateKey<Element> &privateKey, 
+			        DiscreteGaussianGenerator &dgg) const
+{
+	LPPublicKeyLTV<Element> &publicKeyLTV = dynamic_cast< LPPublicKeyLTV<Element>& >(publicKey); 
+	LPPrivateKeyLTV<Element> &privateKeyLTV = dynamic_cast< LPPrivateKeyLTV<Element>& >(privateKey);
+	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
+	const ElemParams &elementParams = cryptoParams.GetElementParams();
+	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+
+	Element f(dgg,elementParams,Format::COEFFICIENT);
+
+	f = p*f;
+	f = f + BigBinaryInteger::ONE;
+	f.MakeSparse(BigBinaryInteger::TWO);
+
+	f.SwitchFormat();
+
+	//check if inverse does not exist
+	while (!f.InverseExists())
+	{
+		//std::cout << "inverse does not exist" << std::endl;
+		Element temp(dgg, elementParams, Format::COEFFICIENT);
+		f = temp;
+		f = p*f;
+		f = f + BigBinaryInteger::ONE;
+		f.MakeSparse(BigBinaryInteger::TWO);
+		f.SwitchFormat();
+	}
+
+	privateKeyLTV.SetPrivateElement(f);
+	privateKeyLTV.AccessCryptoParameters() = cryptoParams;
+	
+
+	Element g(dgg,elementParams,Format::COEFFICIENT);
+	g.SwitchFormat();
+
+	//public key is generated
+	privateKeyLTV.MakePublicKey(g, &publicKeyLTV);
+
+	return true;
+}
+
+template <class Element>
+bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
+		LPPrivateKey<Element> *privateKey) const
+{
+	const LPCryptoParametersStehleSteinfeld<Element> &cryptoParams = static_cast<const LPCryptoParametersStehleSteinfeld<Element>&>(privateKey->GetCryptoParameters());
+	const ElemParams &elementParams = cryptoParams.GetElementParams();
+	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+
+	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGeneratorStSt();
+
+	Element f(dgg,elementParams,Format::COEFFICIENT);
+
+	f = p*f;
+
+	f = f + BigBinaryInteger::ONE;
+	
 	f.SwitchFormat();
 
 	//check if inverse does not exist
@@ -88,6 +168,7 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	return true;
 }
 
+
 template <class Element>
 void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey, 
 				const PlaintextEncodingInterface &plaintext, 
@@ -95,28 +176,20 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 {
 
 	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
-	//const LPCryptoParameters<Element> &cryptoParams = publicKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
 	Element m(elementParams);
 
+	/*Uncomment for regular plaintext*/
 	plaintext.Encode(p,&m);
-	
-//	m.PrintValues();
-	//m.EncodeElement(plaintext,p);
-
 	m.SwitchFormat();
-
+	
 	const Element &h = publicKey.GetPublicElement();
 	
 	Element s(dgg,elementParams);
 	Element e(dgg,elementParams);
-
-	//Element a(p*e + m);
-	//a.SwitchFormat();
-
 	Element c(elementParams);
 
 	c = h*s + p*e + m;
@@ -125,7 +198,6 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	ciphertext->SetPublicKey(publicKey);
 	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
 	ciphertext->SetElement(c);
-
 }
 
 template <class Element>
@@ -139,28 +211,26 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
 	Element c(elementParams);
+	
 	c = ciphertext.GetElement();
-
+	
 	Element b(elementParams);
+
 	Element f = privateKey.GetPrivateElement(); //add const
 
-	b = f*c;
+	b = c*f;
+
+	f.SwitchFormat();
 
 	b.SwitchFormat();
 
-	//Element m(elementParams);
-	b=  b.Mod(p);
+	b = b.Mod(p);
 
-	//Element m(b.ModByTwo());
+	std::cout << "PRINTING b: " << std::endl;
+	b.PrintValues();
 
-//	Element m(b.Mod(p));
-
-	//cout<<"m ="<<m.GetValues()<<endl;
-
-	//m.DecodeElement(static_cast<ByteArrayPlaintextEncoding*>(plaintext),p);
-//	plaintext->Decode(p,m);
 	plaintext->Decode(p,b);
-
+	
 	return DecodingResult(plaintext->GetLength());
 }
 
@@ -367,6 +437,16 @@ void LPPrivateKeyLTV<Element>::Deserialize(std::unordered_map <std::string, std:
 	this->SetPrivateElement(json_ilElement);
 }
 
+
+template <class Element>
+LPPrivateKeyLTV<Element>& LPPrivateKeyLTV<Element>::operator=(LPPrivateKeyLTV &rhs){ //rhs needs to be const, however, we need a copy constructor
+				
+	this->SetCryptoParameters(&rhs.AccessCryptoParameters());
+	this->SetPrivateElement(rhs.GetPrivateElement());	
+
+	return *this;
+}
+
 // Default constructor for LPPublicKeyEncryptionSchemeLTV
 template <class Element>
 LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(){
@@ -433,5 +513,44 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature){
 		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
 	}
 }
+
+// Constructor for LPPublicKeyEncryptionSchemeStehleSteinfeld
+template <class Element>
+LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>::LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask){
+	if (mask[ENCRYPTION])
+		this->m_algorithmEncryption = new LPEncryptionAlgorithmStehleSteinfeld<Element>(*this);
+	if (mask[PRE])
+		this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
+	if (mask[EVALADD])
+		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
+	if (mask[EVALAUTOMORPHISM])
+		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
+	if (mask[SHE])
+		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
+	if (mask[FHE])
+		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+
+}
+
+// Feature enable method for LPPublicKeyEncryptionSchemeStehleSteinfeld
+template <class Element>
+void LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>::Enable(PKESchemeFeature feature){
+	switch (feature)
+	{
+	case ENCRYPTION:
+		this->m_algorithmEncryption = new LPEncryptionAlgorithmStehleSteinfeld<Element>(*this);
+	case PRE:
+		this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
+	case EVALADD:
+		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
+	case EVALAUTOMORPHISM:
+		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
+	case SHE:
+		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
+	case FHE:
+		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+	}
+}
+
 
 }  // namespace lbcrypto ends

@@ -145,7 +145,7 @@ BigBinaryInteger::~BigBinaryInteger()
 	m_memReserve.Deallocate(m_value);
 }
 
-BigBinaryInteger&  BigBinaryInteger::operator=(const BigBinaryInteger &rhs){
+BigBinaryInteger& BigBinaryInteger::operator=(const BigBinaryInteger &rhs){
 
 	//cout<<"Assignment operator called \n";
 	usint copyStart = this->m_MSB > rhs.m_MSB ? this->m_MSB:rhs.m_MSB;

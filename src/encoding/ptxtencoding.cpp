@@ -68,6 +68,8 @@ namespace lbcrypto {
 		//std::cout << "plaintext modulus " << modulus << std::endl;
 		ilVector = ilVector.Mod(modulus);
 
+//		ilVector.PrintValues();
+
 		ByteArray byteArray;
 		usint mod = modulus.ConvertToInt();
 		usint p = ceil((float)log((double)255) / log((double)mod));
@@ -87,24 +89,28 @@ namespace lbcrypto {
 	}
 
 	void ByteArrayPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVectorArray2n) const{
+	//	ilVectorArray2n->PrintValues();
 		ILVector2n temp = ilVectorArray2n->GetValues(0);
 		BigBinaryInteger modulusValue;
 		modulusValue = modulus;
 		Encode(modulusValue, &temp);
 	//	temp.PrintValues();
-		ILVectorArray2n ilvectorArrayTemp(temp, ilVectorArray2n->GetParams(),ilVectorArray2n->GetFormat());
-	//	ilvectorArrayTemp.PrintValues();
+	//	ILVectorArray2n ilvectorArrayTemp(temp, ilVectorArray2n->GetParams(),ilVectorArray2n->GetFormat());
+		ILVectorArray2n ilvectorArrayTemp(temp, ilVectorArray2n->GetParams(),Format::COEFFICIENT);
+		//	ilvectorArrayTemp.PrintValues();
 		*ilVectorArray2n = ilvectorArrayTemp;
+	//	ilvectorArrayTemp.PrintValues();
 	}
 
 	
 	void ByteArrayPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n &ilVectorArray2n){
 	 
     	ILVector2n interpolatedDecodedValue = ilVectorArray2n.InterpolateIlArrayVector2n();
-		
+	//	interpolatedDecodedValue = interpolatedDecodedValue.Mod(modulus);
 		//interpolatedDecodedValue.DecodeElement(text, modulus);
 		Decode(modulus, interpolatedDecodedValue);
-
+//		ilVectorArray2n.PrintValues();
+			
 	}
 
     std::ostream &operator<<(std::ostream &out, const ByteArrayPlaintextEncoding &ptxt)

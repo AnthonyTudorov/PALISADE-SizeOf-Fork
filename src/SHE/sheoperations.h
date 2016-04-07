@@ -56,7 +56,7 @@ namespace lbcrypto {
 
 	template <typename Element>
 	struct CipherTextSparseKey {
-		LPPrivateKeyLWENTRU<Element> sparsePrivateKey;
+		LPPrivateKeyLTV<Element> sparsePrivateKey;
 		Ciphertext<Element> reducedCipherText;
 	};
 
@@ -64,22 +64,22 @@ namespace lbcrypto {
 	class SHEOperations {
 
 		public:
-			Ciphertext<Element> KeySwitch(const LPPrivateKey<Element> &newPrivateKey, 
-					LPPrivateKey<Element> &origPrivateKey,
+			Ciphertext<Element> KeySwitch(const LPPrivateKeyLTV<Element> &newPrivateKey, 
+					LPPrivateKeyLTV<Element> &origPrivateKey,
 					DiscreteGaussianGenerator &dgg, 
 					Ciphertext<Element> &origCipherText) const;
 
-			LPKeySwitchHint KeySwitchHintGen(const LPPrivateKey<Element> &newPrivateKey, 
-					LPPrivateKey<Element> &origPrivateKey,
+			Element KeySwitchHintGen(const LPPrivateKeyLTV<Element> &newPrivateKey, 
+					LPPrivateKeyLTV<Element> &origPrivateKey,
 					DiscreteGaussianGenerator &dgg) const;
 
 			CipherTextSparseKey<Element> RingReduce(Ciphertext<Element> &origCipherText, 
-				LPPrivateKeyLWENTRU<Element> &origPrivateKey, 
+				LPPrivateKeyLTV<Element> &origPrivateKey, 
 				DiscreteGaussianGenerator &dgg) const;
 			
-			void ModReduce(Ciphertext<Element> &ciphertext, LPPrivateKeyLWENTRU<ILVectorArray2n> &sk);
+			void ModReduce(Ciphertext<Element> &ciphertext, LPPrivateKeyLTV<ILVectorArray2n> &sk);
 
-			void ModReduceHelper(Element &element, LPCryptoParametersLWE<Element> &cryptoParams);
+			void ModReduceHelper(Element &element, LPCryptoParametersLTV<Element> &cryptoParams);
 	};
 
 }

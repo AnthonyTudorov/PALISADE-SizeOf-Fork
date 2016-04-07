@@ -91,6 +91,15 @@ namespace lbcrypto {
 		* @param &levels the levels.
 		*/
 		ILVectorArray2n(const ILDCRTParams& params, std::vector<ILVector2n> &levels, Format format);
+
+		// construct using an array in either Coefficient (0) or CRT format (1)
+		/*
+		* Construct using an array in either Coefficient (0) or CRT format (1).
+		*
+		* @param params the input parameters.
+		* @param &levels the levels.
+		*/
+		ILVectorArray2n(const bool b, DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format);
 		/*
 		* Construct using an array in either Coefficient (0) or CRT format (1).
 		*
@@ -116,6 +125,7 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n& operator=(const ILVectorArray2n &rhs);
 
+
 		// DESTRUCTORS
 		/**
 		* Destructor.
@@ -126,9 +136,17 @@ namespace lbcrypto {
 		/**
 		* Get method of the vector values.
 		*
-		* @return the vector.
+		* @returns an ILVector2n.
 		*/
 		ILVector2n GetValues(usint i) const;
+
+
+		/**
+		* Get method of the vector values.
+		*
+		* @returns values.
+		*/
+		std::vector<ILVector2n> GetValues() const;
 
 		/**
 		* Get method of the format.
@@ -145,6 +163,13 @@ namespace lbcrypto {
 
 		const ILDCRTParams &GetParams() const;
 
+		/**
+		* Set method of the values.
+		*
+		* @param &params is the ILDCRTParams.
+		*/
+		void SetParams(const ElemParams &params);
+
 		// Set accessors
 
 		/**
@@ -158,6 +183,18 @@ namespace lbcrypto {
 		Print values
 		*/
 		void PrintValues() const;
+
+		/**
+		Plus One
+		*/
+		void ModularOne();
+
+
+		/**
+		Make ILVectorArray2n Sparse for SHE KeyGen operations
+		*/
+		void MakeSparse(const BigBinaryInteger &modulus);
+
 
 		// SCALAR OPERATIONS
 
@@ -250,8 +287,11 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n GetDigitAtIndexForBase(usint index, usint base) const;
 
+		ILVectorArray2n Decompose(const ElemParams &decomposedParams) const;
 
 		ILVector2n InterpolateIlArrayVector2n();
+
+		usint GetLength() const;
 
 		
 		// convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT
@@ -260,7 +300,10 @@ namespace lbcrypto {
 		*/
 		void SwitchFormat();
 
-		
+		/**
+		Set to Test value
+		*/
+		void SetToTestValue() ;
 
 		/**
 		* Determines if inverse exists

@@ -314,13 +314,21 @@ BigBinaryVector ChineseRemainderTransformFTT::ForwardTransform(const BigBinaryVe
 	
 	rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus().ToString()];
 
-	if(rootOfUnityTable->GetLength()==0){
+	if (rootOfUnityTable->GetLength() != 0){
+		/*std::cout << rootOfUnity << std::endl;
+		std::cout << rootOfUnityTable->GetValAtIndex(1) << std::endl;*/
+		if (rootOfUnityTable->GetValAtIndex(1) != rootOfUnity){
+			this->m_rootOfUnityTableByModulus.clear();
+			rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus().ToString()];
+		}	
+	}
+
+	if(rootOfUnityTable->GetLength()==0 ){
 
 		BigBinaryVector rTable(CycloOrder/2);
 		BigBinaryInteger modulus(element.GetModulus());
 
 		BigBinaryInteger x(BigBinaryInteger::ONE);
-
 
 		for (usint i = 0; i<CycloOrder / 2; i++){
 			rTable.SetValAtIndex(i, x);
@@ -365,6 +373,13 @@ BigBinaryVector ChineseRemainderTransformFTT::InverseTransform(const BigBinaryVe
 	//std::cout<<m_rootOfUnityTableByModulus[element.GetModulus().ToString()];
 	
 	rootOfUnityITable = &m_rootOfUnityInverseTableByModulus[element.GetModulus().ToString()];
+
+	if (rootOfUnityITable->GetLength() != 0){
+		if (rootOfUnityITable->GetValAtIndex(1) != rootOfUnity.ModInverse(element.GetModulus())){
+			this->m_rootOfUnityInverseTableByModulus.clear();
+			rootOfUnityITable = &m_rootOfUnityInverseTableByModulus[element.GetModulus().ToString()];
+		}
+	}
 
 	if(rootOfUnityITable->GetLength()==0){
 		

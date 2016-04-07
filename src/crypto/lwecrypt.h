@@ -1,7 +1,7 @@
 /**0
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Nishanth Pasham <np386@njit.edu>
  * @version 00_03
  *
  * @section LICENSE
@@ -260,6 +260,54 @@ namespace lbcrypto {
 	};
 
 	/**
+	 * @brief Template for Stehle-Stenfeld crypto parameters.
+	 * @tparam Element a ring element.
+	 */
+	template <class Element>
+	class LPCryptoParametersStehleSteinfeld : public LPCryptoParametersLTV<Element> {
+	public:
+			/**
+			 * Default constructor that initializes all values to 0.
+			 */
+			LPCryptoParametersStehleSteinfeld() : LPCryptoParametersLTV<Element>() {
+				m_distributionParameterStSt = 0.0f;
+				m_dggStSt = DiscreteGaussianGenerator();
+			}
+
+			/**
+			 * Returns the value of standard deviation r for discrete Gaussian distribution used in Key Generation
+			 *
+			 * @return the standard deviation r.
+			 */
+			float GetDistributionParameterStSt() const {return m_distributionParameterStSt;}
+
+			/**
+			 * Returns reference to Discrete Gaussian Generator for keys
+			 *
+			 * @return reference to Discrete Gaussian Generaror.
+			 */
+			const DiscreteGaussianGenerator &GetDiscreteGaussianGeneratorStSt() const {return m_dggStSt;}
+
+			//@Set Properties
+			
+			/**
+			 * Sets the value of standard deviation r for discrete Gaussian distribution
+			 */
+			void SetDistributionParameterStSt(float distributionParameterStSt) {m_distributionParameterStSt = distributionParameterStSt;}
+
+			/**
+			 * Sets the discrete Gaussian Generator for keys
+			 */
+			void SetDiscreteGaussianGeneratorStSt(const DiscreteGaussianGenerator &dggStSt) {m_dggStSt = dggStSt;}
+
+		private:
+			//standard deviation in Discrete Gaussian Distribution used for Key Generation
+			float m_distributionParameterStSt;
+			//Discrete Gaussian Generator for Key Generation
+			DiscreteGaussianGenerator m_dggStSt;
+	};
+
+	/**
 	 * @brief Public key implementation template for Ring-LWE NTRU-based schemes,
 	 * @tparam Element a ring element.
 	 */
@@ -278,7 +326,6 @@ namespace lbcrypto {
 			*
 			* @param cryptoParams is the reference to cryptoParams
 			*/
-
 			LPPublicKeyLTV(LPCryptoParameters<Element> &cryptoParams) {
 				this->SetCryptoParameters(&cryptoParams);
 			}
@@ -326,7 +373,6 @@ namespace lbcrypto {
 			 * @private &x the generated element.
 			 */
 			//void SetGeneratedElement(const Element &x) {m_g = x;}
-
 
 			//JSON FACILITY
 			/**
@@ -642,12 +688,23 @@ namespace lbcrypto {
 			*/
 			void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
 
+			/**
+			* Assignment Operator.
+			*
+			* @param &rhs the copied vector.
+			* @return the resulting vector.
+			*/
+			LPPrivateKeyLTV& operator=(LPPrivateKeyLTV &rhs);
+				
+
 	private:
 			LPCryptoParameters<Element> *m_cryptoParameters;
 			//private key polynomial
 			Element m_sk;
 			//error polynomial
 			//Element m_e;
+
+			
 	};
 
 	/**
@@ -692,13 +749,47 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			bool KeyGen(LPPublicKey<Element> *publicKey, 
+			virtual bool KeyGen(LPPublicKey<Element> *publicKey, 
 		        	LPPrivateKey<Element> *privateKey) const;
+
+			/**
+			 * Function to generate public and private keys
+			 *
+			 * @param &publicKey private key used for decryption.
+			 * @param &privateKey private key used for decryption.
+			 * @param &dgg discrete Gaussian generator.
+			 * @return function ran correctly.
+			 */
+			bool SparseKeyGen(LPPublicKey<Element> &publicKey, 
+		        	LPPrivateKey<Element> &privateKey, 
+			        DiscreteGaussianGenerator &dgg) const;
 
 	};
 
 	/**
-	 * @brief Main public key encryption scheme for NTRU-LTV implementation,
+	 * @brief Encryption algorithm implementation template for Stehle-Stenfeld scheme,
+	 * @tparam Element a ring element.
+	 */
+	template <class Element>
+	class LPEncryptionAlgorithmStehleSteinfeld : public LPAlgorithmLTV<Element> {
+		public:
+
+			//inherited constructors
+			LPEncryptionAlgorithmStehleSteinfeld() : LPAlgorithmLTV<Element>(){};
+			LPEncryptionAlgorithmStehleSteinfeld(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPAlgorithmLTV<Element>(scheme) {};
+			/**
+			 * Function to generate public and private keys
+			 *
+			 * @param &publicKey private key used for decryption.
+			 * @param &privateKey private key used for decryption.
+			 * @return function ran correctly.
+			 */
+			 bool KeyGen(LPPublicKey<Element> *publicKey, 
+		        	LPPrivateKey<Element> *privateKey) const;
+	};
+
+	/**
+	 * @brief Main public key encryption scheme for LTV implementation,
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
@@ -709,6 +800,19 @@ namespace lbcrypto {
 			~LPPublicKeyEncryptionSchemeLTV();
 			//These functions can be implemented later
 			//Initialize(mask);
+
+			void Enable(PKESchemeFeature feature);
+	};
+
+	/**
+	 * @brief Main public key encryption scheme for Stehle-Stenfeld scheme implementation,
+	 * @tparam Element a ring element.
+	 */
+	template <class Element>
+	class LPPublicKeyEncryptionSchemeStehleSteinfeld : public LPPublicKeyEncryptionSchemeLTV<Element>{
+		public:
+			LPPublicKeyEncryptionSchemeStehleSteinfeld() : LPPublicKeyEncryptionSchemeLTV<Element>() {};
+			LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask);
 
 			void Enable(PKESchemeFeature feature);
 	};

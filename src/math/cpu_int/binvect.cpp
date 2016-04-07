@@ -100,6 +100,7 @@ BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(const BigB
 				m_data[i] = new IntegerType(*rhs.m_data[i]);
 			}
 		}
+		this->m_modulus = rhs.m_modulus;
 	}
 
 	return *this;

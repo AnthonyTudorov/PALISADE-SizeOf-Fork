@@ -66,6 +66,17 @@ namespace lbcrypto {
 	BigBinaryInteger RootOfUnity(usint m, const BigBinaryInteger& modulo);
 
 	/**
+	 * finds roots of unity for given input.  Assumes the the input cyclotomicorder is a power of two. 
+	 * Mostly likely does not give correct results otherwise.
+	 *
+	 * @param m as number which is cyclotomic(in format of int).
+	 * @param a vector of modulus
+	 * 
+	 * @returns a vector of roots of unity corresponding to each modulus.  	  
+	 */
+	std::vector<BigBinaryInteger> RootsOfUnity(usint m, const std::vector<BigBinaryInteger> moduli);
+
+	/**
 	 * This method can be used to convert an unsigned int to BigBinaryInteger
 	 *
 	 * @param m an unsigned int
@@ -152,6 +163,8 @@ namespace lbcrypto {
 	 * @return the candidate prime modulus.  
 	 */
 	BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
+
+	void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
 
 	/**
 	 * Multiplicative inverse for primitive unsigned integer data types

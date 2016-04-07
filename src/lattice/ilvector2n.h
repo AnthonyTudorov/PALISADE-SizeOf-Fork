@@ -223,6 +223,14 @@ namespace lbcrypto {
 		*/
 		ILVector2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
 
+		/**
+		* Constructor based on full methods.
+		*
+		* @param &dgg the input discrete Gaussian Generator.
+		* @param &params the input params.
+		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVector2n(const bool t,DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION){}
 
 		/**
 		* Constructor based on full methods.
@@ -261,7 +269,7 @@ namespace lbcrypto {
 		*
 		* @return the root of unity.
 		*/
-		const BigBinaryInteger &GetRootOfUnity();
+		const BigBinaryInteger &GetRootOfUnity() const;
 
 		/**
 		* Get method of the format.
@@ -307,12 +315,25 @@ namespace lbcrypto {
 		void SetModulus(const BigBinaryInteger &modulus);
 
 		/**
+		* Switch modulus and adjust the values
+		*
+		* @param &modulus is the modulus to be set.
+		*/
+		void SwitchModulus(const BigBinaryInteger &modulus);
+
+		/**
 		* Set method of the values.
 		*
 		* @param &params is the ILParams.
 		*/
-		void SetParams(const ILParams &params);
+		void SetParams(const ElemParams &params);
 
+		/**
+		* Set method of the values.
+		*
+		* @param &params is the ILParams.
+		*/
+		void SetFormat(const Format format);
 
 		// SCALAR OPERATIONS
 
@@ -371,8 +392,30 @@ namespace lbcrypto {
 
 		/**
 		Print values and don't flush before and don't print new line.
+		Set to Test value
+		*/
+		void SetToTestValue() ;
+
+		/**
+		Print values
 		*/
 		void PrintValues() const;
+
+		/**
+		Print values
+		*/
+		void ModularOne();
+
+		/**
+		Make ILVector2n sparse for sparse key-gen, SHE
+		*/
+		void MakeSparse(const BigBinaryInteger &wFactor);
+
+		/**
+		Make ILVector2n sparse for sparse key-gen, SHE
+		*/
+		ILVector2n Decompose(const ElemParams &decomposedParams) const;
+
 
 		// VECTOR OPERATIONS
 
@@ -476,11 +519,7 @@ namespace lbcrypto {
 		*/
 		void SwitchFormat();
 
-        /**
-         *  Ensures ring element has format `format`
-         *  Calls SwitchFormat if necessary
-         */
-        void SetFormat(Format format);
+        
 
 		// get digit for a specific based - used for PRE scheme
 		/**
@@ -574,6 +613,7 @@ namespace lbcrypto {
 		// stores either coefficient or evaluation representation
 		BigBinaryVector *m_values;
 
+		//TODO-nishanth: Isn't it 1 for coefficient and 0 for evaluation ??
 		// 0 for coefficient and 1 for evaluation format
 		Format m_format;
 

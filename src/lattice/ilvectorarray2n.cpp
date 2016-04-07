@@ -88,15 +88,15 @@ namespace lbcrypto {
 			BigBinaryInteger a(m_params.GetModuli()[i]);
 			BigBinaryInteger b(m_params.GetRootsOfUnity()[i]);
 			ILParams ilParams2(m_params.GetCyclotomicOrder(), a, b);
+			
 
 			m_vectors[i] = element;
 			m_vectors[i].SetParams(ilParams2);
 			m_vectors[i].SetModulus(m_params.GetModuli()[i]);
-
+			
 
 		}
 
-	//	ChangeModuliOfIlVectorsToMatchDBLCRT();
 
 	}
 
@@ -105,58 +105,16 @@ namespace lbcrypto {
 
 	ILVectorArray2n::ILVectorArray2n(const DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format) :m_params(static_cast<const ILDCRTParams&>(params))
 	{
-
 		const ILDCRTParams &m_params = static_cast<const ILDCRTParams&>(params);
-
 
 		m_vectors.resize(m_params.GetModuli().size());
 		m_format = format;
-	//	ILDCRTParams params2 = m_params;
-	////	usint m2 = 32;
-
-	//	BigBinaryInteger bigMod;
-	//	bigMod = m_params.GetModulus();
-	//	std::cout << bigMod << std::endl;
-
-	//	BigBinaryInteger bigRoot = RootOfUnity(m_params.GetCyclotomicOrder(), bigMod);
-	//	ILParams testParams(m_params.GetCyclotomicOrder(), bigMod, bigRoot);
-	//	BigBinaryVector ilTestValues(m_params.GetCyclotomicOrder()/2, bigMod);
-	//	ILVector2n ilTestFor(testParams);
-
-
+	
 	/*if(!isKey){*/
 		//dgg.Initialize();
-		schar* dggValues = dgg.GenerateCharVector(m_params.GetCyclotomicOrder()/2);
+		sint* dggValues = dgg.GenerateCharVector(m_params.GetCyclotomicOrder()/2);
+
 	
-	/*	for(usint j = 0; j < m_params.GetCyclotomicOrder()/2; j++){
-			
-				if((int)dggValues[j] < 0){
-					int k = (int)dggValues[j];
-					k = k * (-1);
-					BigBinaryInteger temp(k);
-					temp = bigMod - temp;
-					ilTestValues.SetValAtIndex(j,temp);
-				}
-
-				else{				
-					int k = (int)dggValues[j];
-					BigBinaryInteger temp(k);
-					ilTestValues.SetValAtIndex(j,temp);
-				}
-
-			}*/
-		
-	//	ilTestFor.SetValues(ilTestValues,Format::COEFFICIENT);
-	////	ilTestFor.SwitchFormat();
-	//	ilTestFor.GetMeghdar();
-	//	std::cout << std::endl;
-
-	//	ilTestFor.SwitchFormat();
-	//	
-	//	std::cout << std::endl;
-	//	ilTestFor.GetMeghdar();
-
-
 		for(usint i = 0; i < m_vectors.size();i++){
 		
 			BigBinaryInteger modulus;
@@ -187,8 +145,128 @@ namespace lbcrypto {
 
 			}
 			ilvector.SetValues(ilDggValues, Format::COEFFICIENT);
-		//	std::cout << ilvector.GetModulus() << std::endl;
-		//	ilvector.GetMeghdar();
+			if(m_format == Format::EVALUATION){
+				ilvector.SwitchFormat();
+			}
+			m_vectors[i] = ilvector;
+
+		}
+	
+	  }
+
+	///*uncomment this constructor and comment the consturctor above to eliminate noise. Noise generated sets the first index value at each tower to one, the rest to zero.*/
+	//ILVectorArray2n::ILVectorArray2n(DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format) :m_params(static_cast<const ILDCRTParams&>(params))
+	//{
+
+	//	const ILDCRTParams &m_params = static_cast<const ILDCRTParams&>(params);
+
+
+	//	m_vectors.resize(m_params.GetModuli().size());
+	//	m_format = format;
+
+	//	dgg.Initialize();
+	//	schar* dggValues = dgg.GenerateCharVector(m_params.GetCyclotomicOrder()/2);
+	//
+	//
+
+	//	for(usint i = 0; i < m_vectors.size();i++){
+	//	
+	//		BigBinaryInteger modulus;
+	//		modulus = m_params.GetModuli()[i];
+	//		BigBinaryInteger rootOfUnity;
+	//		rootOfUnity = m_params.GetRootsOfUnity()[i];
+
+	//		ILParams ilVectorDggValuesParams(m_params.GetCyclotomicOrder(), modulus, rootOfUnity);	
+	//		ILVector2n ilvector(ilVectorDggValuesParams);
+
+	//		BigBinaryVector ilDggValues(m_params.GetCyclotomicOrder()/2,modulus);
+
+	//		ilDggValues.SetValAtIndex(0,BigBinaryInteger::ZERO);
+	//		ilDggValues.SetValAtIndex(1,BigBinaryInteger::ONE);
+
+
+	//		for(usint j = 2; j < m_params.GetCyclotomicOrder()/2; j++){
+	//		
+	//			if((int)dggValues[j] < 0){
+	//				int k = (int)dggValues[j];
+	//				k = k * (-1);
+	//				BigBinaryInteger temp(k);
+	//				temp = m_params.GetModuli()[i] - temp;
+	//			//	ilDggValues.SetValAtIndex(j,temp);
+	//				ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
+	//			}
+
+	//			else{				
+	//				int k = (int)dggValues[j];
+	//				BigBinaryInteger temp(k);
+	//			//	ilDggValues.SetValAtIndex(j,temp);
+	//				ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
+
+	//			}
+
+	//		}
+	//		ilvector.SetValues(ilDggValues, Format::COEFFICIENT);
+	//	
+	//		if(m_format == Format::EVALUATION){
+	//			ilvector.SwitchFormat();
+	//		}
+	//		m_vectors[i] = ilvector;
+
+	//}
+
+	//}
+
+		/*uncomment this constructor and comment the consturctor above to eliminate noise. Noise generated sets the first index value at each tower to one, the rest to zero.*/
+	ILVectorArray2n::ILVectorArray2n(const bool t, DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format) :m_params(static_cast<const ILDCRTParams&>(params))
+	{
+
+		const ILDCRTParams &m_params = static_cast<const ILDCRTParams&>(params);
+
+
+		m_vectors.resize(m_params.GetModuli().size());
+		m_format = format;
+
+		dgg.Initialize();
+		sint* dggValues = dgg.GenerateCharVector(m_params.GetCyclotomicOrder()/2);
+	
+	
+
+		for(usint i = 0; i < m_vectors.size();i++){
+		
+			BigBinaryInteger modulus;
+			modulus = m_params.GetModuli()[i];
+			BigBinaryInteger rootOfUnity;
+			rootOfUnity = m_params.GetRootsOfUnity()[i];
+
+			ILParams ilVectorDggValuesParams(m_params.GetCyclotomicOrder(), modulus, rootOfUnity);	
+			ILVector2n ilvector(ilVectorDggValuesParams);
+
+			BigBinaryVector ilDggValues(m_params.GetCyclotomicOrder()/2,modulus);
+
+			ilDggValues.SetValAtIndex(0,BigBinaryInteger::ONE);
+
+			for(usint j = 1; j < m_params.GetCyclotomicOrder()/2; j++){
+			
+				if((int)dggValues[j] < 0){
+					int k = (int)dggValues[j];
+					k = k * (-1);
+					BigBinaryInteger temp(k);
+					temp = m_params.GetModuli()[i] - temp;
+				//	ilDggValues.SetValAtIndex(j,temp);
+					ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
+				}
+
+				else{				
+					int k = (int)dggValues[j];
+					BigBinaryInteger temp(k);
+				//	ilDggValues.SetValAtIndex(j,temp);
+					ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
+
+				}
+
+			}
+			ilvector.SetValues(ilDggValues, Format::COEFFICIENT);
+		
 			if(m_format == Format::EVALUATION){
 				ilvector.SwitchFormat();
 			}
@@ -196,46 +274,15 @@ namespace lbcrypto {
 
 	}
 
-			/*ILVector2n interpolatedDecodedValue = this->InterpolateIlArrayVector2n();		
-			interpolatedDecodedValue.GetMeghdar();
-			interpolatedDecodedValue.SwitchFormat();
-			std::cout << std::endl;
-			interpolatedDecodedValue.GetMeghdar();*/
-
-
-
-	//else{
-	//
-
-	//	for (usint i = 0; i < m_params.GetModuli().size(); i++) {
-
-	//		BigBinaryInteger rootOfUnity(m_params.GetRootsOfUnity()[i]);
-	//		usint cyclotomicOrder = m_params.GetCyclotomicOrder();
-	//		BigBinaryInteger modulus(m_params.GetModuli()[i]);
-
-
-	//		ILParams ilParams(cyclotomicOrder, modulus, rootOfUnity);
-
-	//		ILVector2n ilvector(isKey, dgg, ilParams, m_format);
-
-	//		m_vectors[i] = ilvector;
-	//		m_vectors[i].SetParams(ilParams);
-	//	
-
-	//	}
-
-	//}
-
 	}
-
 
 
 	ILVectorArray2n & ILVectorArray2n::operator=(const ILVectorArray2n & rhs)
 	{
 		if (this != &rhs) {
-			if (m_vectors.empty()) {
+//			if (m_vectors.empty()) {
 				m_vectors.resize(rhs.GetParams().GetModuli().size());
-			}
+	//		}
 				this->m_vectors = rhs.m_vectors;			
 			    this->m_params = rhs.m_params;
 			    this->m_format = rhs.m_format;
@@ -246,13 +293,18 @@ namespace lbcrypto {
 
 	}
 
+
 	ILVectorArray2n::~ILVectorArray2n()
 	{
 		//	delete m_vectors;
 	}
-	ILVector2n lbcrypto::ILVectorArray2n::GetValues(usint i) const
+	ILVector2n ILVectorArray2n::GetValues(usint i) const
 	{
 		return m_vectors[i];
+	}
+	std::vector<ILVector2n> ILVectorArray2n::GetValues() const
+	{
+		return m_vectors;
 	}
 	Format ILVectorArray2n::GetFormat() const
 	{
@@ -264,6 +316,13 @@ namespace lbcrypto {
 		return m_params;
 	}
 
+	void ILVectorArray2n::SetParams(const ElemParams &params) {
+
+		const ILDCRTParams &castedObj = dynamic_cast<const ILDCRTParams&>(params);
+		
+		m_params = castedObj;
+
+	}
 
 	void ILVectorArray2n::SetValues(std::vector<ILVector2n>& values, Format format)
 	{
@@ -333,9 +392,10 @@ namespace lbcrypto {
 			tmp.m_vectors[i].SetValues(((m_vectors[i].GetValues()).ModMul(element.m_vectors[i].GetValues())), m_format);
 			//ILVector2n test = m_vectors[i] * element.m_vectors[i];
 			//tmp.m_vectors[i].SetValues(test.GetValues(), m_format);
-
+		//	tmp.m_vectors[i].PrintValues();
 
 		}
+
 		return tmp;
 
 		//return ILVectorArray2n();
@@ -383,6 +443,31 @@ namespace lbcrypto {
 		return tmp;
 	}
 	
+
+	void ILVectorArray2n::ModularOne(){
+
+		for(usint i = 0; i < m_vectors.size(); i++){
+			m_vectors[i].ModularOne();
+		}
+
+	}
+
+
+	void ILVectorArray2n::MakeSparse(const BigBinaryInteger &wFactor){
+
+		for(usint i = 0; i < m_vectors.size(); i++){
+			m_vectors[i].MakeSparse(wFactor);
+		}
+
+	}
+
+	void ILVectorArray2n::SetToTestValue(){
+		for(usint i = 0; i < m_vectors.size(); i++){
+			m_vectors[i].SetToTestValue();
+		}
+	}
+
+
 	void ILVectorArray2n::PrintValues() const{
 
 		std::cout<<"---START PRINT DOUBLE CRT-- WITH SIZE" <<m_vectors.size() << std::endl;
@@ -397,53 +482,7 @@ namespace lbcrypto {
 
 	}
 
-//	void ILVectorArray2n::DecodeElement(ByteArrayPlaintextEncoding * text, const BigBinaryInteger & modulus) 
-//	{
-////		std::cout << "FROM BIG NBI::" << std::endl;
-//
-//		/*for (usint i = 0; i < m_vectors.size(); i++) {
-//
-//			m_vectors[i].DecodeElement(text, modulus);
-//
-//		}*/
-////		std::cout << "END BIG::" << std::endl;
-//
-//
-//		ILVector2n interpolatedDecodedValue = this->InterpolateIlArrayVector2n();
-//		
-////		interpolatedDecodedValue.GetMeghdar();
-//
-//
-//		//interpolatedDecodedValue.ModByTwo();
-//
-//		//interpolatedDecodedValue.GetMeghdar();
-//
-//
-//	//	interpolatedDecodedValue  = interpolatedDecodedValue.ModByTwo();
-//
-//	//	interpolatedDecodedValue.GetMeghdar();
-//
-//		interpolatedDecodedValue.DecodeElement(text, modulus);
-//	//	m_vectors[0].DecodeElement(text, modulus);
-//	/*	ILVectorArray2n returnValue(interpolatedDecodedValue, m_params, m_format);
-//		*this = returnValue;*/
-//
-//
-//	}
-//	
-//	void ILVectorArray2n::EncodeElement(const ByteArrayPlaintextEncoding & encoded, const BigBinaryInteger & modulus)
-//	{
-//	//	ILVector2n interpolatedEncodedValue = this->InterpolateIlArrayVector2n();
-//	//	interpolatedEncodedValue.EncodeElement(encoded, modulus);
-//		m_vectors[0].EncodeElement(encoded,modulus);
-//		m_format = COEFFICIENT;
-//	//	ILVectorArray2n returnValue(interpolatedEncodedValue, m_params, m_format);
-//		ILVectorArray2n returnValue(m_vectors[0], m_params, m_format);
-//		*this = returnValue;
-//
-//		return;
-//	}
-//
+
 
 
 
@@ -569,6 +608,30 @@ namespace lbcrypto {
 
 		}
 
+	}
+
+	ILVectorArray2n ILVectorArray2n::Decompose(const ElemParams &decomposedParams) const {
+		Format format(this->GetFormat());
+		if(format != Format::COEFFICIENT) {
+			std::string errMsg = "ILVectorArray2n not in COEFFICIENT format to perform Decompose.";
+			throw std::runtime_error(errMsg);
+		}
+		ILVectorArray2n decomposedCopy(*this);
+		const ILDCRTParams &decomposedParamsDCRT = static_cast<const ILDCRTParams&>(decomposedParams);
+		usint cyclotomicOrder = decomposedParamsDCRT.GetCyclotomicOrder();
+		std::vector<BigBinaryInteger> moduli = decomposedParamsDCRT.GetModuli();
+		std::vector<BigBinaryInteger> rootsOfUntiy = decomposedParamsDCRT.GetRootsOfUnity(); 
+
+		for(int i=0; i < m_vectors.size(); i++) {
+			ILParams ilvectorParams(cyclotomicOrder, moduli[i], rootsOfUntiy[i]);
+			 decomposedCopy.m_vectors[i] = m_vectors[i].Decompose(ilvectorParams);
+		}
+		
+		return decomposedCopy;
+	}
+
+	usint ILVectorArray2n::GetLength() const {
+		return m_vectors.size();
 	}
 
 	std::vector<BigBinaryInteger> ILVectorArray2n::BuildChineseRemainderInterpolationVectorForRow(usint i)

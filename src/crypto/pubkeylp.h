@@ -250,6 +250,8 @@ namespace lbcrypto {
 			 * @param &pub the public key element.
 			 */ 
 			virtual void MakePublicKey(const Element &g, LPPublicKey<Element> *pub) const = 0;
+
+	
 	};
 
 
@@ -460,6 +462,18 @@ namespace lbcrypto {
 			*/
 		const BigBinaryInteger &GetPlaintextModulus() const {return  m_plaintextModulus;}
 
+			//LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; } 
+
+			///**
+			// * Sets crypto params.
+			// *
+			// * @param *cryptoParams parameters.
+			// * @return the crypto parameters.
+			// */
+			//void SetCryptoParameters( LPCryptoParameters<Element> *cryptoParams) { 
+			//	m_cryptoParameters = cryptoParams; 
+			//}
+
 		/**
 			* Returns the reference to IL params
 			*
@@ -491,7 +505,7 @@ namespace lbcrypto {
 		BigBinaryInteger m_plaintextModulus;
 	};
 
-
+	
 	/**
 	 * @brief Abstract interface for public key encryption schemes
 	 * @tparam Element a ring element.
