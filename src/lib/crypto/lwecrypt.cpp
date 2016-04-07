@@ -49,9 +49,6 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	f = p*f;
 
 	f = f + BigBinaryInteger::ONE;
-	
-	//cout<<"f="<<f.GetValues()<<endl;
-
 
 	//added for saving the cryptoparams
 /*	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLTV<Element>&>(cryptoParams);
@@ -103,7 +100,7 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 	f = p*f;
 
 	f = f + BigBinaryInteger::ONE;
-	
+
 	f.SwitchFormat();
 
 	//check if inverse does not exist

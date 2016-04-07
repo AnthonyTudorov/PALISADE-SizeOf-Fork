@@ -84,6 +84,7 @@ struct SecureParams {
 	BigBinaryInteger modulus;	///< The modulus
 	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
 	usint relinWindow;		///< The relinearization window parameter.
+	BigBinaryInteger plaintextModulus;
 	float stdDev;
 };
 
@@ -91,14 +92,14 @@ int main(){
 	
 	
 	std::cout << "Paramter set : " << std::endl;
-	std::cout << "0 (n = 1024, r = 1), 1 (n = 1024, r = 8), 2 (n = 2048, r = 1): ";
+	std::cout << "0 (n = 1024, p = 2, r = 1), 1 (n = 1024, p = 2, r = 8), 2 (n = 2048, p = 2, r = 1), 3 (n = 2048, p = 16, r = 16), 4 (n = 4096, p = 16, r = 16), 5 (n = 8192, p = 16, r = 16), 6 (n = 4096, p = 256, r = 16): ";
 
 	int input = 0;
 	std::cin >> input;
 	//cleans up the buffer
 	cin.ignore();
 
-	if ((input<0) || (input>4))
+	if ((input<0) || (input>6))
 		input = 0;
 
 	////NTRUPRE is where the core functionality is provided.
@@ -195,9 +196,13 @@ void NTRUPRE(int input) {
 	//usint relWindow = 8;
 	
 	SecureParams const SECURE_PARAMS[] = {
-		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("8451304774"), 1, 98.4359 }, //n = 1024; r = 1; p = 2
-		{ 2048, BigBinaryInteger("137439004673"), BigBinaryInteger("7643730114"), 8, 214.9 }, // r = 2
-		{ 4096, BigBinaryInteger("17179926529"), BigBinaryInteger("1874048014"), 1, 98.4359 }  // r = 4
+		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("8451304774"), 1, BigBinaryInteger("2"), 98.4359 }, //n = 1024; r = 1; p = 2
+		{ 2048, BigBinaryInteger("137439004673"), BigBinaryInteger("7643730114"), 8, BigBinaryInteger("2"),  214.9 }, // r = 2
+		{ 4096, BigBinaryInteger("17179926529"), BigBinaryInteger("1874048014"), 1, BigBinaryInteger("2"),  98.4359 },  // r = 4
+		{ 4096, BigBinaryInteger("72057594037948417"), BigBinaryInteger("12746853818308484"), 16, BigBinaryInteger("16"), 4535.5 }, // r = 2
+		{ 8192, BigBinaryInteger("144115188076060673"), BigBinaryInteger("48914894759308182"), 16, BigBinaryInteger("16"), 4535.5 }, //n = 1024; r = 1; p = 2
+		{ 16384, BigBinaryInteger("288230376151760897"), BigBinaryInteger("144972394728154060"), 16, BigBinaryInteger("16"), 4535.5  }, //n = 1024; r = 1; p = 2
+		{ 8192, BigBinaryInteger("4835703278458516698849281"), BigBinaryInteger("3227297808832732049211098"), 16, BigBinaryInteger("256"), 350230 }, // log2 q = 83
 		//{ 2048, CalltoModulusComputation(), CalltoRootComputation, 0 }  // r= 16
 	};
 
@@ -206,8 +211,9 @@ void NTRUPRE(int input) {
 	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
 	usint relWindow = SECURE_PARAMS[input].relinWindow;
 	float stdDevStSt = SECURE_PARAMS[input].stdDev;
+	BigBinaryInteger plaintextModulus(SECURE_PARAMS[input].plaintextModulus);
 
-	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	//ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 
 
@@ -232,8 +238,8 @@ void NTRUPRE(int input) {
 
 	//Set crypto parametes
 	LPCryptoParametersStehleSteinfeld<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
-	//cryptoParams.SetPlaintextModulus(BigBinaryInteger("4"));  	// Set plaintext modulus.
+	//cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
+	cryptoParams.SetPlaintextModulus(plaintextModulus);  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetDistributionParameterStSt(stdDevStSt);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
@@ -311,7 +317,7 @@ void NTRUPRE(int input) {
 
 	Ciphertext<ILVector2n> ciphertext;
 	ByteArrayPlaintextEncoding ptxt(plaintext);
-    ptxt.Pad<ZeroPad>(m/16);
+    ptxt.Pad<ZeroPad>(m/16 * (plaintextModulus.GetMSB()-1));
 	//ptxt.Pad<ZeroPad>(m/8);
 
 	std::cout << "Running encryption..." << std::endl;
@@ -455,7 +461,9 @@ void NTRUPRE(int input) {
 		exit(1);
 	}
 
-	cout << "\n" << endl;
+	cout << "Press any key to continue..." << endl;
+
+		std::cin.get();
 
 	std::cout << "----------------------START JSON FACILITY TESTING-------------------------" << endl;
 
@@ -463,7 +471,7 @@ void NTRUPRE(int input) {
 
 	ByteArray newPlaintext("1) SERIALIZE CRYPTO-OBJS TO FILE AS NESTED JSON STRUCTURES\n2) DESERIALIZE JSON FILES INTO CRYPTO-OBJS USED FOR CRYPTO-APIS");
 	ByteArrayPlaintextEncoding newPtxt(newPlaintext);
-	newPtxt.Pad<ZeroPad>(m / 16);
+	newPtxt.Pad<ZeroPad>(m / 2);
 	cout << "Original Plaintext: " << endl;
 	cout << newPlaintext << endl;
 
