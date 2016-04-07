@@ -26,32 +26,50 @@
 CC := g++ # This is the main compiler
 CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g
 
+# identify the directory where the source files are taken from.
 SRCDIR := src
+# identify the directory where the .o build files are placed.
 BUILDDIR := build
+# identify the directory where the build main files are placed.  We assume there is not a 
+# main directory in the source directory.
 BUILDDIRMAIN := build/main
+# identify the directory where the binary files are placed
 TARGETDIR := bin
+# identify the header files.
 HEADERS := src/*.h
 
+# identify the extension of the source files.
 SRCEXT := cpp
+# identify the source files which do not have mains.  We assume this is everything in child directories of the source directory.
 SOURCESDEEP := $(shell find $(SRCDIR) -mindepth 2 -type f -name *.$(SRCEXT))
+# identify the source files which have mains.  We assume this is everything in root of the source directory.
 SOURCESMAIN := $(shell find $(SRCDIR) -maxdepth 1 -type f -name *.$(SRCEXT))
+# identify the main targets.  We assume this is everything built from the source directory swapped for the target directory in the source main category.
 TARGETSMAIN := $(patsubst $(SRCDIR)/%,$(TARGETDIR)/%,$(SOURCESMAIN:.$(SRCEXT)=))
+# identify the dependency objects.  We assume this is everything built from the source directory not in the source root swapped for the target directory in the source main category.
 OBJECTSDEEP := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCESDEEP:.$(SRCEXT)=.o))
+# identify the main objects.  We assume this is everything built from the source directory in the source root swapped for the target directory in the source main category.
 OBJECTSMAIN := $(patsubst $(SRCDIR)/%,$(BUILDDIRMAIN)/%,$(SOURCESMAIN:.$(SRCEXT)=.o))
 
 LIB := -pthread #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 INC := -I include
 
+# make all builds everything - targets, docs, tests and benchmarks, respectively.
 all: alltargets apidocs alltesttargets allbenchmarktargets
 
 .PHONEY: clean
+# make clean deletes everything - targets, tests, docs, gnu headers and benchmarks, respectively.
 clean: cleantargets cleantests cleandocs cleangnuheaders cleanbenchmarks
 
 .PHONEY: cleangnuheaders
 cleangnuheaders:
 	rm -f */**/*.h.gch
 
+# Makefile.targets include the primary make targets to build the primary source files.
 include Makefile.targets
+# Makefile.targets include the make targets to build the documentation in doxygen.
 include Makefile.docs
+# Makefile.targets include the make targets to build the unit tests.
 include Makefile.test
+# Makefile.targets include the make targets to build the benchmarks.
 include Makefile.benchmark
