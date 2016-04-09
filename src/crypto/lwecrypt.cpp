@@ -169,6 +169,91 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 }
 
 
+template<class Element>
+LPKeySwitchHint<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
+				const LPPrivateKey<Element> &newPrivateKey) const {
+
+		const LPCryptoParametersLTV<Element> &cryptoParamsOriginal = dynamic_cast<const LPCryptoParametersLTV<Element> &>(originalPrivateKey.GetCryptoParameters() );
+		
+		const ElemParams &originalKeyParams = cryptoParamsOriginal.GetElementParams() ;
+
+		const Element f1 = originalPrivateKey.GetPrivateElement(); //add const
+		const Element f2 = newPrivateKey.GetPrivateElement(); //add const
+		const BigBinaryInteger &p = cryptoParamsOriginal.GetPlaintextModulus();
+
+		Element e(cryptoParamsOriginal.GetDiscreteGaussianGenerator() , originalKeyParams, Format::COEFFICIENT );
+		e.SwitchFormat();
+
+		Element m(originalKeyParams);
+		m = p * e;
+		
+		m.ModularOne();
+
+		Element newKeyInverse = f2.MultiplicativeInverse(); 
+
+		Element keySwitchHint(originalKeyParams);
+		keySwitchHint = m * f1 * newKeyInverse;
+
+		return keySwitchHint;			
+
+}
+			
+/**
+	* Method for encrypting plaintex using LBC
+	*
+	* @param &keySwitchHint Hint required to perform the ciphertext switching.
+	* @param &cipherText Original ciphertext to perform switching on.
+	*/
+template<class Element>
+Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint,const Ciphertext<Element> &cipherText) const {
+
+	Ciphertext<Element> newCipherText(cipherText);
+
+	Element newCipherTextElement = cipherText.GetElement()*keySwitchHint.GetHintElement();
+
+	newCipherText.SetElement( newCipherTextElement );
+	
+	return newCipherText ;
+}
+
+/**
+	* Method for encrypting plaintex using LBC
+	*
+	* @param &cipherText Ciphertext to perform mod reduce on.
+	* @param &privateKey Private key used to encrypt the first argument.
+	*/
+template<>
+void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(Ciphertext<ILVectorArray2n> *cipherText, LPPrivateKey<ILVectorArray2n> *privateKey) const {
+
+	cipherText->GetElement().ModReduce();
+	
+	ILVectorArray2n pvElement = privateKey->GetPrivateElement();
+	
+	pvElement.DropTower( pvElement.GetLength() - 1);
+
+	privateKey->SetPrivateElement(pvElement);
+
+}
+
+	/**
+	* Method for encrypting plaintex using LBC
+	*
+	* @param &cipherText Ciphertext to perform ring reduce on.
+	* @param &privateKey Private key used to encrypt the first argument.
+	*/
+template<class Element>
+void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const {
+
+	LPPublicKeyEncryptionSchemeLTV<Element> LTVScheme;
+	LTVScheme.Enable(PKESchemeFeature::ENCRYPTION);
+	LTVScheme.
+	
+
+}
+
+
+
+
 template <class Element>
 void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey, 
 				const PlaintextEncodingInterface &plaintext, 

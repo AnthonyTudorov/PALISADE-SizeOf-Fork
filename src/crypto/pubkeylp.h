@@ -323,6 +323,51 @@ namespace lbcrypto {
 
 	};
 
+
+	/**
+	 * @brief Abstract interface for Leveled SHE operations
+	 * @tparam Element a ring element.
+	 */
+	template <class Element>
+	class LPLeveledSHEAlgorithm {
+		public:	
+
+			/**
+			 * Method for encrypting plaintex using LBC
+			 *
+			 * @param &originalPrivateKey Original private key used for encryption.
+			 * @param &newPrivateKey New private key to generate the keyswitch hint.
+			 */
+			virtual LPKeySwitchHint<Element> KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
+				const LPPrivateKey<Element> &newPrivateKey) const = 0;
+			
+			/**
+			 * Method for encrypting plaintex using LBC
+			 *
+			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
+			 * @param &cipherText Original ciphertext to perform switching on.
+			 */
+			virtual Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const = 0;
+
+			/**
+			 * Method for encrypting plaintex using LBC
+			 *
+			 * @param &cipherText Ciphertext to perform mod reduce on.
+			 * @param &privateKey Private key used to encrypt the first argument.
+			 */
+			virtual void ModReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const = 0; 
+
+				/**
+			 * Method for encrypting plaintex using LBC
+			 *
+			 * @param &cipherText Ciphertext to perform ring reduce on.
+			 * @param &privateKey Private key used to encrypt the first argument.
+			 */
+			virtual void RingReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const = 0; 
+
+
+	};
+
 	/**
 	 * @brief Abstract interface class for LBC PRE algorithms
 	 * @tparam Element a ring element.
@@ -443,7 +488,12 @@ namespace lbcrypto {
 				const LPPrivateKey<Element> &origPrivateKey,
 				const usint size, LPPrivateKey<Element> *tempPrivateKey, 
 				std::vector<LPEvalKey<Element> *> *evalKeys) const = 0;
-				};
+	};
+
+
+
+
+	
 
 
 	/**

@@ -764,6 +764,50 @@ namespace lbcrypto {
 		        	LPPrivateKey<Element> &privateKey, 
 			        DiscreteGaussianGenerator &dgg) const;
 
+	 };
+
+	/**
+	 * @brief Concrete feature class for Leveled SHELTV operations
+	 * @tparam Element a ring element.
+	 */
+	template <class Element>
+	class LPLeveledSHEAlgorithmLTV : public LPLeveledSHEAlgorithm<Element> {
+		public:	
+
+			/**
+			 * Method for encrypting plaintex using LBC
+			 *
+			 * @param &originalPrivateKey Original private key used for encryption.
+			 * @param &newPrivateKey New private key to generate the keyswitch hint.
+			 */
+			virtual LPKeySwitchHint<Element> KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
+				const LPPrivateKey<Element> &newPrivateKey) const ;
+			
+			/**
+			 * Method for encrypting plaintex using LBC
+			 *
+			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
+			 * @param &cipherText Original ciphertext to perform switching on.
+			 */
+			virtual Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint,const  Ciphertext<Element> &cipherText) const ;
+
+			/**
+			 * Method for encrypting plaintex using LBC
+			 *
+			 * @param &cipherText Ciphertext to perform mod reduce on.
+			 * @param &privateKey Private key used to encrypt the first argument.
+			 */
+			virtual void ModReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const ; 
+
+				/**
+			 * Method for encrypting plaintex using LBC
+			 *
+			 * @param &cipherText Ciphertext to perform ring reduce on.
+			 * @param &privateKey Private key used to encrypt the first argument.
+			 */
+			virtual void RingReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const ; 
+
+
 	};
 
 	/**

@@ -123,7 +123,7 @@ int main() {
 
 	//RingReduceDoubleCRTTest();
 
-	 //ModReduceTest();
+	ModReduceTest();
 
 	std::cin.get();
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
