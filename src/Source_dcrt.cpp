@@ -154,7 +154,7 @@ void NTRU_DCRT() {
 	}
 
 		cout << "big modulus: " << modulus << endl;
-	DiscreteGaussianGenerator dgg(modulus,stdDev);
+	DiscreteGaussianGenerator dgg(stdDev);
 
 	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
 

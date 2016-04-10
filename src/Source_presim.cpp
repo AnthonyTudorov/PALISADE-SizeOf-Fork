@@ -166,7 +166,7 @@ void EncryptionSchemeSimulation(usint count){
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(modulus, stdDev);			// Create the noise generator
+	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	//Precomputations for FTT
@@ -338,7 +338,7 @@ void PRESimulation(usint count, usint dataset){
 	cryptoParams.SetRelinWindow(relWindow);				     // Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			     // Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(modulus, stdDev);			 // Create the noise generator
+	DiscreteGaussianGenerator dgg(stdDev);				 // Create the noise generator
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	// Precomputations for FTT
