@@ -1,14 +1,14 @@
 #include "discreteuniformgenerator.h"
 #include "distributiongenerator.h"
-#include "discretedistributiongenerator.h"
 #include <sstream>
+#include <bitset>
 #include "backend.h"
 
 namespace lbcrypto {
 
 DiscreteUniformGenerator::DiscreteUniformGenerator (
 	const BigBinaryInteger & modulus)
-	: DiscreteDistributionGenerator (modulus) {
+	: DistributionGenerator () {
 
 	// Set default values for properties.
 	m_remainingWidth = 0;
@@ -22,8 +22,7 @@ DiscreteUniformGenerator::DiscreteUniformGenerator (
 
 void DiscreteUniformGenerator::SetModulus (const BigBinaryInteger & modulus) {
 
-	// Call parent version of set modulus.
-	DiscreteDistributionGenerator::SetModulus(modulus);
+	m_modulus = modulus;
 
 	// Update values that depend on modulus.
 	usint modulusWidth = m_modulus.GetMSB();

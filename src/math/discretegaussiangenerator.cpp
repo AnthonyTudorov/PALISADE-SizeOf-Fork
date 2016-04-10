@@ -4,29 +4,13 @@
 
 namespace lbcrypto {
 
-DiscreteGaussianGenerator::DiscreteGaussianGenerator() : DiscreteDistributionGenerator() {
-	// Set the random seed for std::rand. This is a temporary fix to facilitate the use of std::rand in this class.
-	// This will be removed when all uses of std::rand are removed.
-
-	std::random_device rd;
-	std::srand(rd());
-
-	static unsigned s = std::random_device()(); // Set seed from random_device
-	m_gen.seed(s);
+DiscreteGaussianGenerator::DiscreteGaussianGenerator() : DistributionGenerator() {
 
 	SetStd(1);
 	Initialize();
 }
 
-DiscreteGaussianGenerator::DiscreteGaussianGenerator (const BigBinaryInteger & modulus, const sint std) : DiscreteDistributionGenerator (modulus) {
-	// Set the random seed for std::rand. This is a temporary fix to facilitate the use of std::rand in this class.
-	// This will be removed when all uses of std::rand are removed.
-
-	std::random_device rd;
-	std::srand(rd());
-
-	static unsigned s = std::random_device()(); // Set seed from random_device
-	m_gen.seed(s);
+DiscreteGaussianGenerator::DiscreteGaussianGenerator (const sint std) : DistributionGenerator () {
 
 	SetStd(std);
 	Initialize();
@@ -83,29 +67,18 @@ void DiscreteGaussianGenerator::Initialize () {
 
 	//std::cout<<m_a<<std::endl;
 
-	/*
-	for(usint i=0;i<m_vals.size();i++){
-		std::cout<<m_vals[i]<<std::endl;
-	}
-	std::cout<<std::endl<<std::endl;
-	*/
 }
 
 sint * DiscreteGaussianGenerator::GenerateCharVector (usint size) const {
 
-	//std::default_random_engine generator;
-	//std::uniform_real_distribution<double> distribution(0.0,1.0);
-	//generator.seed(time(NULL));
+	std::uniform_real_distribution<double> distribution(0.0,1.0);
 
 	usint val = 0;
 	double seed;
 	sint * ans = new sint[size];
 
 	for (usint i = 0; i < size; i++) {
-		//generator.seed(time(NULL));
-		seed = ((double) std::rand() / (RAND_MAX)) - 0.5; //we need to use the binary uniform generator rathen than regular continuous distribution; see DG14 for details
-		//std::cout<<seed<<std::endl;
-		//seed = distribution(generator)-0.5;
+		seed = distribution(GetPRNG()) - 0.5; //we need to use the binary uniform generator rathen than regular continuous distribution; see DG14 for details
 		if (std::abs(seed) <= m_a / 2) {
 			val = 0;
 		} else if (seed > 0) {
@@ -127,27 +100,15 @@ usint DiscreteGaussianGenerator::FindInVector (const std::vector<double> &S, dou
 	}
 }
 
-BigBinaryVector DiscreteGaussianGenerator::DiscreteGaussianPositiveGenerator(usint vectorLength, const BigBinaryInteger &modValue) {
-
-	BigBinaryVector ans(vectorLength);
-	ans.SetModulus(modValue);
-
-	for (usint i = 0; i < vectorLength; i++) {
-		ans.SetValAtIndex(i, UintToBigBinaryInteger(std::rand() % 8));
-	}
-
-	return ans;
-}
-
-BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(const BigBinaryInteger &modulus) {
+BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(const BigBinaryInteger &modulus) const {
 
 	int32_t val = 0;
 	double seed;
 	BigBinaryInteger ans;
+	std::uniform_real_distribution<double> distribution(0.0,1.0);
 
-	seed = ((double) std::rand() / (RAND_MAX)) - 0.5;
-	//std::cout<<seed<<std::endl;
-	//seed = distribution(generator)-0.5;
+	seed = distribution(GetPRNG())-0.5;
+
 	if (std::abs(seed) <= m_a / 2) {
 		val = 0;
 	} else if (seed > 0) {
@@ -168,32 +129,7 @@ BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(const BigBinaryInteg
 
 }
 
-BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size) const {
-	//BigBinaryVector ans(DiscreteGaussianGenerator::DiscreteGaussianPositiveGenerator(size,this->m_modulus));
-
-	//return ans;
-	sint* result = GenerateCharVector(size);
-
-	BigBinaryVector ans(size);
-	ans.SetModulus(m_modulus);
-
-	for (usint i = 0; i < size; i++) {
-		if (result[i] < 0) {
-			result[i] *= -1;
-			ans.SetValAtIndex(i, UintToBigBinaryInteger(result[i]));
-			ans.SetValAtIndex(i, m_modulus - ans.GetValAtIndex(i));
-		} else {
-			ans.SetValAtIndex(i, UintToBigBinaryInteger(result[i]));
-		}
-	}
-
-	delete []result;
-
-	return ans;
-}
-
-BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size, const BigBinaryInteger &modulus) {
-	//BigBinaryVector ans(DiscreteGaussianGenerator::DiscreteGaussianPositiveGenerator(size,this->m_modulus));
+BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size, const BigBinaryInteger &modulus) const {
 
 	//return ans;
 	sint* result = GenerateCharVector(size);
@@ -215,7 +151,7 @@ BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size, cons
 	return ans;
 }
 
-BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n, const BigBinaryInteger &modulus) {
+BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n, const BigBinaryInteger &modulus) const {
 
 		double t = log(n)/log(2)*stddev;  //this representation of log_2 is used for Visual Studio
 
@@ -229,9 +165,9 @@ BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(double mean, double 
 
 		while (!flagSuccess) {
 			//  pick random int
-			x = uniform_int(m_gen);
+			x = uniform_int(GetPRNG());
 			//  roll the uniform dice
-			double dice = uniform_real(m_gen);
+			double dice = uniform_real(GetPRNG());
 			//  check if dice land below pdf
 			if (dice <= UnnormalizedGaussianPDF(mean, stddev, x)) {
 				flagSuccess = true;
@@ -250,7 +186,7 @@ BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(double mean, double 
 
 }
 
-int32_t DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n) {
+int32_t DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n) const {
 
 		double t = log(n)/log(2)*stddev;  //this representation of log_2 is used for Visual Studio
 
@@ -264,9 +200,9 @@ int32_t DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, s
 
 		while (!flagSuccess) {
 			//  pick random int
-			x = uniform_int(m_gen);
+			x = uniform_int(GetPRNG());
 			//  roll the uniform dice
-			double dice = uniform_real(m_gen);
+			double dice = uniform_real(GetPRNG());
 			//  check if dice land below pdf
 			if (dice <= UnnormalizedGaussianPDF(mean, stddev, x)) {
 				flagSuccess = true;
