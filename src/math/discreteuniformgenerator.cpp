@@ -30,11 +30,11 @@ void DiscreteUniformGenerator::SetModulus (const BigBinaryInteger & modulus) {
 	m_remainingWidth = modulusWidth % CHUNK_WIDTH;
 }
 
-BigBinaryInteger DiscreteUniformGenerator::GenerateInteger (const BigBinaryInteger & modulus) {
+BigBinaryInteger DiscreteUniformGenerator::GenerateInteger () {
 
-	if (modulus != m_modulus) {
-		this->SetModulus(modulus);
-	}
+	//if (modulus != m_modulus) {
+	//	this->SetModulus(modulus);
+	//}
 
 	BigBinaryInteger result;
 
@@ -61,16 +61,16 @@ BigBinaryInteger DiscreteUniformGenerator::GenerateInteger (const BigBinaryInteg
 	return result;
 }
 
-BigBinaryVector DiscreteUniformGenerator::GenerateVector(const usint size, const BigBinaryInteger & modulus) {
+BigBinaryVector DiscreteUniformGenerator::GenerateVector(const usint size) {
 
-	if (modulus != m_modulus) {
-		this->SetModulus(modulus);
-	}
+	//if (modulus != m_modulus) {
+	//	this->SetModulus(modulus);
+	//}
 
-	BigBinaryVector v(size,modulus);
+	BigBinaryVector v(size,m_modulus);
 
 	for (usint i = 0; i < size; i++) {
-	BigBinaryInteger temp(this->GenerateInteger(modulus));
+	BigBinaryInteger temp(this->GenerateInteger());
 		v.SetValAtIndex(i, temp);
 	}
 

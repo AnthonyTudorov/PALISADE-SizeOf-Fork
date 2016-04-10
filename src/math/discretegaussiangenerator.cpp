@@ -69,7 +69,7 @@ void DiscreteGaussianGenerator::Initialize () {
 
 }
 
-sint * DiscreteGaussianGenerator::GenerateCharVector (usint size) const {
+sint * DiscreteGaussianGenerator::GenerateIntVector (usint size) const {
 
 	std::uniform_real_distribution<double> distribution(0.0,1.0);
 
@@ -132,7 +132,7 @@ BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(const BigBinaryInteg
 BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size, const BigBinaryInteger &modulus) const {
 
 	//return ans;
-	sint* result = GenerateCharVector(size);
+	sint* result = GenerateIntVector(size);
 
 	BigBinaryVector ans(size);
 	ans.SetModulus(modulus);
