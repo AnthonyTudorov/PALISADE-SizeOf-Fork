@@ -154,7 +154,7 @@ void NTRU_DCRT() {
 	}
 
 		cout << "big modulus: " << modulus << endl;
-	DiscreteGaussianGenerator dgg(modulus,stdDev);
+	DiscreteGaussianGenerator dgg(stdDev);
 
 	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
 
@@ -176,8 +176,9 @@ void NTRU_DCRT() {
 	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams2);
 	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams2);
 
-	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
-	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2(mask);
+	//std::bitset<FEATURESETSIZE> mask (std::string("000011"));
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2;
+	algorithm2.Enable(ENCRYPTION);
 
 	//LPAlgorithmLTV<ILVectorArray2n> algorithm2;
 
