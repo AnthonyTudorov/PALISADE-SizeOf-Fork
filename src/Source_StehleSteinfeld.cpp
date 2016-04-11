@@ -238,10 +238,10 @@ void NTRUPRE(int input) {
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(modulus, stdDev);			// Create the noise generator
+	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
-	DiscreteGaussianGenerator dggStehleSteinfeld(modulus, stdDevStSt);			// Create the noise generator
+	DiscreteGaussianGenerator dggStehleSteinfeld(stdDevStSt);			// Create the noise generator
 	cryptoParams.SetDiscreteGaussianGeneratorStSt(dggStehleSteinfeld);
 
 	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());

@@ -53,13 +53,13 @@ public:
 	* @brief  Generates a random value within the Binary Uniform Distribution.
 	* @return A random value within this Binary Uniform Distribution.
 	*/
-	virtual BigBinaryInteger GenerateInteger ();
+	virtual BigBinaryInteger GenerateInteger () const;
 
 	/**
 	* @brief  Generates a vector of random values within the Binary Uniform Distribution.
 	* @return A vector of random values within this Binary Uniform Distribution.
 	*/
-	BigBinaryVector GenerateVector  (const usint size);
+	BigBinaryVector GenerateVector  (const usint size, const BigBinaryInteger &modulus) const;
 
 private:
 	static std::bernoulli_distribution m_distribution;

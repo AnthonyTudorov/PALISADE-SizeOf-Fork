@@ -138,7 +138,7 @@ namespace lbcrypto {
 
         inline static function<unique_ptr<ILVector2n>()> MakeDiscreteGaussianCoefficientAllocator(ILParams params, Format resultFormat, int stddev) {
             return [=]() {
-                DiscreteGaussianGenerator dgg(params.GetModulus(), stddev);
+                DiscreteGaussianGenerator dgg(stddev);
                 auto ilvec = make_unique<ILVector2n>(dgg, params, COEFFICIENT);
                 ilvec->SetFormat(resultFormat);
                 return ilvec;

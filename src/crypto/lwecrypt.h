@@ -95,7 +95,7 @@ namespace lbcrypto {
 				float assuranceMeasure, 
 				float securityLevel, 
 				usint relinWindow,
-				const DiscreteDistributionGenerator &dgg,
+				const DiscreteGaussianGenerator &dgg,
 				int depth = 1) : LPCryptoParametersImpl<Element>(params,plaintextModulus)
 			{
 				m_distributionParameter = distributionParameter;

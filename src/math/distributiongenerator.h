@@ -33,9 +33,17 @@
 #ifndef LBCRYPTO_MATH_DISTRIBUTIONGENERATOR_H_
 #define LBCRYPTO_MATH_DISTRIBUTIONGENERATOR_H_
 
+//used to define a thread-safe generator
+#if defined (_MSC_VER)  // Visual studio
+    #define thread_local __declspec( thread )
+#elif defined (__GCC__) // GCC
+    #define thread_local __thread
+#endif
+
 #include <memory>
 #include <mutex>
 #include <random>
+#include <thread>
 #include "backend.h"
 
 namespace lbcrypto {
@@ -56,19 +64,6 @@ public:
 	* For now, this constructor should be blank. Classes extending this class should also extend this constructor.
 	*/
 	DistributionGenerator ();
-
-	/*
-	* @brief  Generates a single random value in the distribution.
-	* @return The resulting value.
-	*/
-	//virtual BigBinaryInteger GenerateInteger () = 0;
-
-	/*
-	* @brief       Generates a vector of values in the distribution.
-	* @param  size The size of the vector to create.
-	* @return      The resulting vector of values.
-	*/
-	//virtual BigBinaryVector  GenerateVector (const usint size) = 0;
 
 protected:
 	/**
