@@ -630,6 +630,69 @@ namespace lbcrypto {
 		return decomposedCopy;
 	}
 
+	void ILVectorArray2n::DropTower(usint index){
+		
+		if(index >= m_vectors.size()){
+			throw std::out_of_range("Index of tower being removed is larger than ILVectorArray2n tower\n");
+		}
+
+		m_vectors.erase(m_vectors.begin() + index);
+		
+		std::vector<BigBinaryInteger> temp_moduli(m_params.GetRootsOfUnity());
+		temp_moduli.erase(temp_moduli.begin() + index);
+		m_params.SetModuli(temp_moduli);
+
+		std::vector<BigBinaryInteger> temp_roots_of_unity(m_params.GetRootsOfUnity());
+		temp_roots_of_unity.erase(temp_roots_of_unity.begin() + index);
+		m_params.SetRootsOfUnity(temp_roots_of_unity);
+
+		BigBinaryInteger newBigModulus(m_params.GetModulus());
+		newBigModulus = newBigModulus.DividedBy(m_params.GetModuli()[index]);
+		m_params.SetModulus(newBigModulus);
+
+	}
+
+	void ILVectorArray2n::ModReduce() {
+
+		if(this->GetFormat() != Format::EVALUATION) {
+			throw std::logic_error("Mod Reduce function expects EVAL Formatted ILVectorArray2n. It was passed COEFF Formatted ILVectorArray2n.");
+		}
+		this->SwitchFormat();
+
+		usint length = this->GetLength();
+		usint lastTowerIndex = length - 1;
+		const std::vector<BigBinaryInteger> &moduli = m_params.GetModuli();
+
+		ILVector2n towerT(m_vectors[lastTowerIndex]);
+		ILVector2n d(towerT);
+
+		//TODO: Get the Plain text modulus properly!
+		BigBinaryInteger p(BigBinaryInteger::TWO);
+		BigBinaryInteger qt(m_params.GetModuli()[lastTowerIndex]);
+		BigBinaryInteger v(qt.ModInverse(p));
+		BigBinaryInteger a((v * qt).ModSub(BigBinaryInteger::ONE, p*qt));
+		d.SwitchModulus(p*qt);
+
+		ILVector2n delta(d.Times(a));
+		for(usint i=0; i<length; i++) {
+			ILVector2n temp(delta);
+			temp.SwitchModulus(moduli[i]);
+			m_vectors[i] += temp;
+		}
+
+		this->DropTower(lastTowerIndex);
+
+		std::vector<BigBinaryInteger> qtInverseModQi(length-1);
+		for(usint i=0; i<length-1; i++) {
+			qtInverseModQi[i] = (qt.Compare(moduli[i]) > 0) ? (qt.Mod(moduli[i])).ModInverse(moduli[i]) : qt.ModInverse(moduli[i]);
+			m_vectors[i] = qtInverseModQi[i] * m_vectors[i];
+		}
+
+		this->SwitchFormat();
+	}
+
+
+
 	usint ILVectorArray2n::GetLength() const {
 		return m_vectors.size();
 	}

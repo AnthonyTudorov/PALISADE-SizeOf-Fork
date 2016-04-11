@@ -201,8 +201,6 @@ namespace lbcrypto {
 		ILVector2n towerT(towers[lastTowerIndex]);
 		ILVector2n d(towerT);
 
-		std::cout << std::endl << std::endl << std::endl;
-
 		BigBinaryInteger p(cryptoParams.GetPlaintextModulus());
 		BigBinaryInteger qt(moduli[length-1]);
 		BigBinaryInteger v(qt.ModInverse(p));

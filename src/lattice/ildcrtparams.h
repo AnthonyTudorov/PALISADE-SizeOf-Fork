@@ -212,7 +212,7 @@ namespace lbcrypto {
 		*
 		* @param &rootsOfUnity the root of unity.
 		*/
-		void SetRootOfUnity(const std::vector<BigBinaryInteger> &rootsOfUnity) {
+		void SetRootsOfUnity(const std::vector<BigBinaryInteger> &rootsOfUnity) {
 			m_rootsOfUnity = rootsOfUnity;
 		}
 

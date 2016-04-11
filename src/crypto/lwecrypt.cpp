@@ -173,15 +173,15 @@ template<class Element>
 LPKeySwitchHint<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
 				const LPPrivateKey<Element> &newPrivateKey) const {
 
-		const LPCryptoParametersLTV<Element> &cryptoParamsOriginal = dynamic_cast<const LPCryptoParametersLTV<Element> &>(originalPrivateKey.GetCryptoParameters() );
+		const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element> &>(originalPrivateKey.GetCryptoParameters() );
 		
-		const ElemParams &originalKeyParams = cryptoParamsOriginal.GetElementParams() ;
+		const ElemParams &originalKeyParams = cryptoParams.GetElementParams() ;
 
 		const Element f1 = originalPrivateKey.GetPrivateElement(); //add const
 		const Element f2 = newPrivateKey.GetPrivateElement(); //add const
-		const BigBinaryInteger &p = cryptoParamsOriginal.GetPlaintextModulus();
+		const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
-		Element e(cryptoParamsOriginal.GetDiscreteGaussianGenerator() , originalKeyParams, Format::COEFFICIENT );
+		Element e(cryptoParams.GetDiscreteGaussianGenerator() , originalKeyParams, Format::COEFFICIENT );
 		e.SwitchFormat();
 
 		Element m(originalKeyParams);
@@ -194,7 +194,11 @@ LPKeySwitchHint<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(con
 		Element keySwitchHint(originalKeyParams);
 		keySwitchHint = m * f1 * newKeyInverse;
 
-		return keySwitchHint;			
+		LPKeySwitchHintLTV<Element> lPKeySwitchHintLTV;
+		lPKeySwitchHintLTV.SetHintElement(keySwitchHint);
+		lPKeySwitchHintLTV.SetCryptoParameters(&cryptoParams);
+
+		return lPKeySwitchHintLTV;			
 
 }
 			
@@ -225,11 +229,15 @@ Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPKeySwit
 template<>
 void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(Ciphertext<ILVectorArray2n> *cipherText, LPPrivateKey<ILVectorArray2n> *privateKey) const {
 
-	cipherText->GetElement().ModReduce();
+	ILVectorArray2n cipherTextElement(cipherText->GetElement());
+
+	cipherTextElement.ModReduce();
+
+	cipherText->SetElement(cipherTextElement);
 	
 	ILVectorArray2n pvElement = privateKey->GetPrivateElement();
 	
-	pvElement.DropTower( pvElement.GetLength() - 1);
+	pvElement.DropTower(pvElement.GetLength() - 1);
 
 	privateKey->SetPrivateElement(pvElement);
 
@@ -246,7 +254,6 @@ void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherTe
 
 	LPPublicKeyEncryptionSchemeLTV<Element> LTVScheme;
 	LTVScheme.Enable(PKESchemeFeature::ENCRYPTION);
-	LTVScheme.
 	
 
 }

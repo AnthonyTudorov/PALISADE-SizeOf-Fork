@@ -136,7 +136,7 @@ namespace lbcrypto {
 			 * @param *cryptoParams parameters.
 			 * @return the crypto parameters.
 			 */
-			virtual void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) = 0;
+			virtual void SetCryptoParameters(const LPCryptoParameters<Element> *cryptoParams) = 0;
 	};
 
 	/**

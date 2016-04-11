@@ -360,7 +360,7 @@ namespace lbcrypto {
 			 * @param *cryptoParams parameters.
 			 * @return the crypto parameters.
 			 */
-			void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
+			void SetCryptoParameters(const LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
 			
 			/**
 			 * Implementation of the Set accessor for public element.
@@ -534,7 +534,7 @@ namespace lbcrypto {
 			* Constructor that initializes nothing.
 			*/
 			LPKeySwitchHintLTV() {
-				m_sk = NULL;
+				/*m_sk = NULL;*/
 				//m_cryptoParameters;
 			}
 
@@ -563,13 +563,30 @@ namespace lbcrypto {
 			* @param *cryptoParams parameters.
 			* @return the crypto parameters.
 			*/
-		void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
+		void SetCryptoParameters(const LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
 
 		/**
 			* Implementation of the Set accessor for private element.
 			* @private &x the private element.
 			*/
 		void SetHintElement(const Element &x) {m_sk = x;}
+
+			// JSON FACILITY - SetIdFlag Operation
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+		//	std::unordered_map <std::string, std::string> serializationMap;
+			return serializationMap;
+		}
+
+		// JSON FACILITY - Serialize Operation
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+		//	std::unordered_map <std::string, std::string> serializationMap;
+			return serializationMap;
+		}
+
+		// JSON FACILITY - Deserialize Operation
+		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {	
+
+		}
 
 		private:
 			LPCryptoParameters<Element> *m_cryptoParameters;
@@ -633,7 +650,7 @@ namespace lbcrypto {
 			 * @param *cryptoParams parameters.
 			 * @return the crypto parameters.
 			 */
-			void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
+			void SetCryptoParameters(const LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
 
 			/**
 			 * Implementation of the Set accessor for private element.

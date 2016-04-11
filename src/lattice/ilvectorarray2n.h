@@ -289,6 +289,16 @@ namespace lbcrypto {
 
 		ILVectorArray2n Decompose(const ElemParams &decomposedParams) const;
 
+		/**
+		* Drops the last tower of ILVectorArray2n and adjusts parameters.
+		*/
+		void DropTower(usint index);
+
+		/**
+		* ModReduces
+		*/
+		void ModReduce();
+
 		ILVector2n InterpolateIlArrayVector2n();
 
 		usint GetLength() const;
