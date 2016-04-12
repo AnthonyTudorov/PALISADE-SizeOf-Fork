@@ -44,6 +44,7 @@
 #include "../math/distrgen.h"
 #include "../encoding/ptxtencoding.h"
 
+
 /**
  * @namespace lbcrypto
  * The namespace of lbcrypto
@@ -601,6 +602,10 @@ namespace lbcrypto {
 					if (m_algorithmFHE!= NULL)
 						flag = true;
 					break;
+				 case LEVELEDSHE:
+					if (m_algorithmLeveledSHE!= NULL)
+						flag = true;
+					break;
 			  }
 			return flag;
 		}
@@ -665,12 +670,14 @@ namespace lbcrypto {
 		}
 
 	protected:
+
 		const LPEncryptionAlgorithm<Element> *m_algorithmEncryption;
 		const LPPREAlgorithm<Element> *m_algorithmPRE;
 		const LPAHEAlgorithm<Element> *m_algorithmEvalAdd;
 		const LPAutoMorphAlgorithm<Element> *m_algorithmEvalAutomorphism;
 		const LPSHEAlgorithm<Element> *m_algorithmSHE;
 		const LPFHEAlgorithm<Element> *m_algorithmFHE;
+		const LPLeveledSHEAlgorithm<Element> *m_algorithmLeveledSHE;
 		std::bitset<FEATURESETSIZE> m_featureMask;
 	};
 

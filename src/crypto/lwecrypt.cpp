@@ -551,6 +551,7 @@ LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(){
 	this->m_algorithmEvalAutomorphism = NULL;
 	this->m_algorithmSHE = NULL;
 	this->m_algorithmFHE = NULL;
+	this->m_algorithmLeveledSHE = NULL;
 }
 
 // Constructor for LPPublicKeyEncryptionSchemeLTV
@@ -569,6 +570,8 @@ LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bit
 		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
 	if (mask[FHE])
 		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+	if (mask[LEVELEDSHE])
+		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
 
 }
 
@@ -587,6 +590,8 @@ LPPublicKeyEncryptionSchemeLTV<Element>::~LPPublicKeyEncryptionSchemeLTV(){
 		delete this->m_algorithmSHE;
 	if (this->m_algorithmFHE != NULL)
 		delete this->m_algorithmFHE;
+	if (this->m_algorithmLeveledSHE != NULL)
+		delete this->m_algorithmLeveledSHE;
 }
 
 // Destructor for LPPublicKeyEncryptionSchemeLTV
@@ -606,6 +611,9 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature){
 		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
 	case FHE:
 		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+	case LEVELEDSHE:
+		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
+	
 	}
 }
 
@@ -624,7 +632,8 @@ LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>::LPPublicKeyEncryptionScheme
 		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
 	if (mask[FHE])
 		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
-
+	if (mask[LEVELEDSHE])
+		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
 }
 
 // Feature enable method for LPPublicKeyEncryptionSchemeStehleSteinfeld
@@ -644,6 +653,8 @@ void LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>::Enable(PKESchemeFeatur
 		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
 	case FHE:
 		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+	case LEVELEDSHE:
+		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
 	}
 }
 

@@ -790,6 +790,9 @@ namespace lbcrypto {
 	template <class Element>
 	class LPLeveledSHEAlgorithmLTV : public LPLeveledSHEAlgorithm<Element> {
 		public:	
+			//inherited constructors
+			LPLeveledSHEAlgorithmLTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
+			LPLeveledSHEAlgorithmLTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 
 			/**
 			 * Method for encrypting plaintex using LBC
