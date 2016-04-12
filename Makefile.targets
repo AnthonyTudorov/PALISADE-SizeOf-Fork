@@ -27,6 +27,8 @@
 alltargets: $(TARGETSMAIN)
 	@echo "alltargets"
 
+#The following line calls the building of the source files without mains in them.
+# The first line makes sure that none of the object files with mains on them are automatically deleted.
 .PRECIOUS: $(BUILDDIR)/%.o
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)
@@ -39,19 +41,28 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)/math/cpu_int
 	@mkdir -p $(BUILDDIR)/multilinearmap
 	@mkdir -p $(BUILDDIR)/utils
+	@echo "BUILDDIR"
 #	@echo " $@"
 #	@echo " $<"
 #	@echo " $(BUILDDIR)"
 #	@echo " $(SRCDIR)"
+# The following line makes the apropriate build of the source cpp files without a main method.
 	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $< "; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<
 
+#The following line calls the building and linking of all main files that will live in the target directory.
+# Note that this building and linking operation, uses the possible linking of all files in the build directory and does not check if .h files have been updated.
+# The first line makes sure that none of the object files with mains on them are automatically deleted.
 .PRECIOUS: $(BUILDDIRMAIN)/%.o
 $(BUILDDIRMAIN)/%.o: $(OBJECTSDEEP) $(SRCDIR)/%.$(SRCEXT)
+#	@echo "BUILDDIRMAIN"
 	@mkdir -p $(BUILDDIRMAIN)
 	@mkdir -p $(TARGETDIR)
-	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $< "; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<
-	@echo " $(CC) $(OBJECTSDEEP) $(BUILDDIRMAIN)/$(@F) -o bin/$(*F) $(LIB)"; $(CC) $(OBJECTSDEEP) $(BUILDDIRMAIN)/$(@F) -o bin/$(*F) $(LIB)
+	# This first line builds each of the individual files with a main in them in the src/ directory and puts the object file in build/main/
+	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $(SRCDIR)/$(*F).$(SRCEXT) "; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $(SRCDIR)/$(*F).$(SRCEXT)
+	# This line links all of the object files to create the apprioriate main.
+	@echo " $(CC) $(OBJECTSDEEP) $(BUILDDIRMAIN)/$(@F) -o $(TARGETDIR)/$(*F) $(LIB)"; $(CC) $(OBJECTSDEEP) $(BUILDDIRMAIN)/$(@F) -o $(TARGETDIR)/$(*F) $(LIB)
 
+# The below line calls the building and linking of all main files that will live in the target directory.
 $(TARGETDIR)/%: $(OBJECTSDEEP) $(OBJECTSMAIN)
 	@mkdir -p $(TARGETDIR)
 #	@echo "main"
