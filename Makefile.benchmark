@@ -189,6 +189,7 @@ docbenchmarkstrings:
 	@echo 'PALISADE_OBJ $(PALISADE_OBJ)'
 
 #this target is usesd to cleanup, it is called from the top Makefile
+.PHONEY: cleanbenchmarks
 cleanbenchmarks:
 #	@echo 'removing $(BENCHMARK_BIN) $(BENCHMARK_EXAMPLES) $(BENCHMARK_EXAMPLES_OBJ) $(BENCHMARK_OBJ) $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)'
 #	rm $(BENCHMARK_BIN) $(BENCHMARK_EXAMPLES) $(BENCHMARK_EXAMPLES_OBJ) $(BENCHMARK_OBJ) $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
