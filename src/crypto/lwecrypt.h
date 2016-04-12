@@ -360,7 +360,7 @@ namespace lbcrypto {
 			 * @param *cryptoParams parameters.
 			 * @return the crypto parameters.
 			 */
-			void SetCryptoParameters(const LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
+			void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
 			
 			/**
 			 * Implementation of the Set accessor for public element.
@@ -563,7 +563,7 @@ namespace lbcrypto {
 			* @param *cryptoParams parameters.
 			* @return the crypto parameters.
 			*/
-		void SetCryptoParameters(const LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
+		void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
 
 		/**
 			* Implementation of the Set accessor for private element.
@@ -650,7 +650,7 @@ namespace lbcrypto {
 			 * @param *cryptoParams parameters.
 			 * @return the crypto parameters.
 			 */
-			void SetCryptoParameters(const LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
+			void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
 
 			/**
 			 * Implementation of the Set accessor for private element.
@@ -814,7 +814,8 @@ namespace lbcrypto {
 			 * @param &cipherText Ciphertext to perform mod reduce on.
 			 * @param &privateKey Private key used to encrypt the first argument.
 			 */
-			virtual void ModReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const ; 
+			
+			virtual void ModReduce(Ciphertext<ILVectorArray2n> *cipherText, LPPrivateKey<ILVectorArray2n> *privateKey) const ; 
 
 				/**
 			 * Method for encrypting plaintex using LBC

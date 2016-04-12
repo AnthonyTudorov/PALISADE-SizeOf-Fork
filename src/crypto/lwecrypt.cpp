@@ -173,7 +173,9 @@ template<class Element>
 LPKeySwitchHint<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
 				const LPPrivateKey<Element> &newPrivateKey) const {
 
-		const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element> &>(originalPrivateKey.GetCryptoParameters() );
+		const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element> &>(originalPrivateKey.GetPrivateElement() );
+
+		
 		
 		const ElemParams &originalKeyParams = cryptoParams.GetElementParams() ;
 
@@ -192,11 +194,12 @@ LPKeySwitchHint<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(con
 		Element newKeyInverse = f2.MultiplicativeInverse(); 
 
 		Element keySwitchHint(originalKeyParams);
-		keySwitchHint = m * f1 * newKeyInverse;
+
+		keySwitchHint = m * f1 * newKeyInverse ;
 
 		LPKeySwitchHintLTV<Element> lPKeySwitchHintLTV;
 		lPKeySwitchHintLTV.SetHintElement(keySwitchHint);
-		lPKeySwitchHintLTV.SetCryptoParameters(&cryptoParams);
+		lPKeySwitchHintLTV.SetCryptoParameters(new LPCryptoParametersLTV<Element>(cryptoParams));
 
 		return lPKeySwitchHintLTV;			
 
@@ -226,7 +229,7 @@ Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPKeySwit
 	* @param &cipherText Ciphertext to perform mod reduce on.
 	* @param &privateKey Private key used to encrypt the first argument.
 	*/
-template<>
+template<> inline
 void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(Ciphertext<ILVectorArray2n> *cipherText, LPPrivateKey<ILVectorArray2n> *privateKey) const {
 
 	ILVectorArray2n cipherTextElement(cipherText->GetElement());
