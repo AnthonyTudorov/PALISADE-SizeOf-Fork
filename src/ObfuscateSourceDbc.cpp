@@ -51,6 +51,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "time.h"
 #include <chrono>
 #include "utils/debug.h"
+//todo (dcousins): migrate this to utils/debug.cpp
+
 #include <omp.h> //open MP header
 
 using namespace std;

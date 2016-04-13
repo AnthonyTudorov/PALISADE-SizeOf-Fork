@@ -25,7 +25,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 #include "lweconjunctionobfuscate.h"
 
+#include "../utils/memory.h"
 #include "../utils/debug.h"
+
+//TODO (dcousins): migrate this to utils/debug.cpp
+
 typedef std::chrono::high_resolution_clock::time_point TimeVar;
 
 #define duration(a) std::chrono::duration_cast<std::chrono::milliseconds>(a).count()
@@ -123,7 +127,9 @@ void ObfuscatedLWEConjunctionPattern<Element>::SetModulus(BigBinaryInteger &modu
 template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerator &dgg,
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
-
+  TimeVar tll1,tll2; // for TIC2 TOC2
+  bool dbg_flag = 1;
+  TIC2;
 	usint n = obfuscatedPattern->GetRingDimension();
 	usint k = obfuscatedPattern->GetLogModulus();
 	std::cout << "BitLength in KeyGen: " << k << std::endl;
@@ -141,20 +147,29 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 	std::vector<TrapdoorPair>   *Ek_vector = new std::vector<TrapdoorPair>();
 	std::vector<ILMat<LargeFloat>> *sigma = new std::vector<ILMat<LargeFloat>>();
 
+	DEBUG("k1: "<<TOC2 <<" ms");
 	for(usint i=0; i<=l+1; i++) {
+	  TIC2;
 		pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev); //TODO remove stddev
-
+		DEBUG("k2.0:#"<< i << ": "<<TOC2 <<" ms");
+	  TIC2;
 		ILMat<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
+		DEBUG("k2.1:#"<< i << ": "<<TOC2 <<" ms");
+		TIC2;
+		//the following takes all the time
 		PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
-
+		DEBUG("k2.2:#"<< i << ": "<<TOC2 <<" ms");
+	  TIC2;
 		Pk_vector->push_back(trapPair.first);
 		Ek_vector->push_back(trapPair.second);
 
 		sigma->push_back(sigmaSqrt);
-	}
-
+		DEBUG("k2.3:#" << i << ": "<<TOC2 <<" ms");
+	} 
+	TIC2;
 	obfuscatedPattern->SetKeys(Pk_vector,Ek_vector,sigma);
-
+	DEBUG("k3: "<< TOC2 <<" ms");
+		
 }
 
 
@@ -256,7 +271,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	std::vector<ILMat<Element>> *R1_vec = new std::vector<ILMat<Element>>();
 
 
-
+	//this loop takes all the time
 	for(usint i=1; i<=l; i++) {
 	TIC2;
 
@@ -286,8 +301,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 		//std::cout << "encode ran R1" << std::endl;
 
 		std::cout << "encode round " << i << " completed" << std::endl;
-		DEBUG("O4: "<<TOC2 <<" ms");
-
+		DEBUG("O4:#"<< i << ": "<<TOC2 <<" ms");
 	}
 	TIC2;
 
@@ -330,7 +344,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 
   TimeVar tl1,tl2; // for TIC TOC
   TOTAL_TIC;
-  bool dbg_flag = 0;//no debug statements
+  bool dbg_flag = 1;//set to 0 for no debug statements
 	size_t m = Ai.GetCols();
 	size_t k = m - 2;
 	size_t n = elemS.GetParams().GetCyclotomicOrder()/2;
@@ -355,11 +369,12 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	ILMat<Element> bj = Aj.ScalarMult(elemS) + ej;
 	DEBUG("Enc3: "<< TOC << " ms");
 
-	TIC;	
+
 	//std::cout << "Encode: Computed bj, next will do GaussSamp" << std::endl; 
+	TIC;	
 
 	//DBC: this loop takes all the time in encode
-	//TODO: move gaussj generation out of the loop to enable parallelisation
+	//TODO (dcousins): move gaussj generation out of the loop to enable parallelisation
 	#pragma omp parallel for
 	for(size_t i=0; i<m; i++) {
 
@@ -375,17 +390,17 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 
 	DEBUG("Enc4: " << " "  << TOC << " ms");
 
-	//encodedElem->SwitchFormat();
-	//std::cout<<"norm = "<<encodedElem->Norm() <<std::endl;
-	//encodedElem->SwitchFormat();
+	// encodedElem->SwitchFormat();
+	// std::cout<<"norm = "<<encodedElem->Norm() <<std::endl;
+	// encodedElem->SwitchFormat();
 
-	//Test to make sure Ai*gaussj = bj(0,1)
-	//ILMat<Element> test(zero_alloc, m, 1); 
-	//for(size_t j=0; j<m; j++)
-	//	test(j,0) = (*encodedElem)(j,2);
-	//ILVector2n bEst = (Ai * test)(0,0);
-	//std::cout << "bj(0,2) = " << bj(0,2) << std::endl;
-	//std::cout << "Ai*z = " << bEst << std::endl;
+	// //Test to make sure Ai*gaussj = bj(0,1)
+	// ILMat<Element> test(zero_alloc, m, 1); 
+	// for(size_t j=0; j<m; j++)
+	// 	test(j,0) = (*encodedElem)(j,2);
+	// ILVector2n bEst = (Ai * test)(0,0);
+	// std::cout << "bj(0,2) = " << bj(0,2) << std::endl;
+	// std::cout << "Ai*z = " << bEst << std::endl;
 
 };
 
@@ -481,7 +496,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 		//if (i==0)
 		//	std::cout << "does identity work correctly" << (S_prod == *S_ib) << std::endl;
 	      }
-		DEBUG("Eval2:#"<< i << " " <<TOC2 <<" ms");
+		DEBUG("Eval2:#"<< i << ": " <<TOC2 <<" ms");
 	}
 	TIC2;	
 	std::cout << " S_prod: " << std::endl;

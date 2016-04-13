@@ -427,5 +427,3 @@ void NextQ(BigBinaryInteger &q,
 */
 
 }
-
-
