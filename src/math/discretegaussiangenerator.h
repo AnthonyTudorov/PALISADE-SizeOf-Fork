@@ -78,6 +78,8 @@ public:
 	*/
 	void SetStd (const sint std);
 
+	BigBinaryVector DiscreteGaussianGenerator::GenerateIdentity(usint size, const BigBinaryInteger &modulus);
+
 	/**
 	* @brief      Returns a generated char vector.
 	* @param size The number of values to return.

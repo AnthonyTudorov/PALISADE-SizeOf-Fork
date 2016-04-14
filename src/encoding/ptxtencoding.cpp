@@ -48,7 +48,12 @@ namespace lbcrypto {
 		temp.SetModulus(ilVector->GetModulus());
 		Format format = COEFFICIENT;
 
-		for (usint i = 0; i<m_data.size(); i++) {
+		temp.SetValAtIndex(0,BigBinaryInteger::ZERO);
+		temp.SetValAtIndex(1,BigBinaryInteger::ONE);
+		temp.SetValAtIndex(2,BigBinaryInteger::ZERO);
+		temp.SetValAtIndex(3,BigBinaryInteger::ONE);
+
+		/*for (usint i = 0; i<m_data.size(); i++) {
 			usint Num = m_data.at(i);
 			usint exp = mod, Rem = 0;
 			for (usint j = 0; j<p; j++) {
@@ -57,7 +62,7 @@ namespace lbcrypto {
 				Num -= Rem;
 				exp *= mod;
 			}
-		}
+		}*/
 
 		ilVector->SetValues(temp,format);
 

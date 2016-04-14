@@ -91,6 +91,18 @@ void DiscreteGaussianGenerator::Initialize () {
 	*/
 }
 
+BigBinaryVector DiscreteGaussianGenerator::GenerateIdentity(usint size, const BigBinaryInteger &modulus){
+	BigBinaryVector result(size);
+	result.SetModulus(modulus);
+
+	for (usint i = 1; i < size; i++){
+		result.SetValAtIndex(i, BigBinaryInteger::ZERO);
+	}
+	result.SetValAtIndex(0, BigBinaryInteger::ONE);
+
+	return result;
+}
+
 sint * DiscreteGaussianGenerator::GenerateCharVector (usint size) const {
 
 	//std::default_random_engine generator;

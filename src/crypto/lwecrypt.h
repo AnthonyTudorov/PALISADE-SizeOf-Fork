@@ -788,7 +788,7 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPLeveledSHEAlgorithmLTV : public LPLeveledSHEAlgorithm<Element> {
+	class LPLeveledSHEAlgorithmLTV : public LPLeveledSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
 		public:	
 			//inherited constructors
 			LPLeveledSHEAlgorithmLTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};

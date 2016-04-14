@@ -99,7 +99,7 @@ namespace lbcrypto {
 		* @param params the input parameters.
 		* @param &levels the levels.
 		*/
-		ILVectorArray2n(const bool b, DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format);
+		ILVectorArray2n(usint k, const DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format);
 		/*
 		* Construct using an array in either Coefficient (0) or CRT format (1).
 		*

@@ -44,11 +44,14 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 
 	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
-	Element f(dgg,elementParams,Format::COEFFICIENT);
+//	Element f(dgg,elementParams,Format::COEFFICIENT);
+	Element f(0, dgg,elementParams,Format::COEFFICIENT);
+
+	/*f.PrintValues();
 
 	f = p*f;
 
-	f = f + BigBinaryInteger::ONE;
+	f = f + BigBinaryInteger::ONE;*/
 
 	//added for saving the cryptoparams
 	const LPCryptoParametersLTV<Element> &cryptoParamsLTV = static_cast<const LPCryptoParametersLTV<Element>&>(cryptoParams);
@@ -58,8 +61,12 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	float SecurityLevel = cryptoParamsLTV.GetSecurityLevel();
 	usint RelinWindow = cryptoParamsLTV.GetRelinWindow(); 
 	int Depth = cryptoParamsLTV.GetDepth(); 
+
+	f.PrintValues();
 	
 	f.SwitchFormat();
+
+	f.PrintValues();
 
 	//check if inverse does not exist
 	while (!f.InverseExists())
@@ -74,8 +81,13 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	privateKey->SetPrivateElement(f);
 	privateKey->AccessCryptoParameters() = cryptoParams;
 
-	Element g(dgg,elementParams,Format::COEFFICIENT);
+	Element g(3,dgg,elementParams,Format::COEFFICIENT);
+
+	g.PrintValues();
+
 	g.SwitchFormat();
+
+	g.PrintValues();
 
 	//public key is generated
 	privateKey->MakePublicKey(g, publicKey);
@@ -159,7 +171,8 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 	privateKey->SetPrivateElement(f);
 	privateKey->AccessCryptoParameters() = cryptoParams;
 
-	Element g(dgg,elementParams,Format::COEFFICIENT);
+//	Element g(dgg,elementParams,Format::COEFFICIENT);
+	Element g(3,dgg,elementParams,Format::COEFFICIENT);
 	g.SwitchFormat();
 
 	//public key is generated
@@ -275,19 +288,51 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
-	Element m(elementParams);
+//	Element m(elementParams);
+
+	Element m(4,dgg , elementParams , Format::COEFFICIENT);
+	std::cout<<"Printint message in poly coeff"<<std::endl;
+	m.PrintValues();
+	std::cout<<std::endl;
 
 	/*Uncomment for regular plaintext*/
-	plaintext.Encode(p,&m);
+	//plaintext.Encode(p,&m);
+
+	/*BigBinaryVector mess(4);
+	mess.SetValAtIndex(0,BigBinaryInteger::ONE);
+	mess.SetValAtIndex(1,BigBinaryInteger::ZERO);
+	mess.SetValAtIndex(2,BigBinaryInteger::ONE);
+	mess.SetValAtIndex(3,BigBinaryInteger::ZERO);
+
+	std::vector<ILVector2n> valsInside(m.GetValues());
+	mess.SetModulus(valsInside[0].GetModulus());
+	valsInside[0].SetValues(mess,Format::COEFFICIENT);
+	mess.SetModulus(valsInside[1].GetModulus());
+	valsInside[1].SetValues(mess,Format::COEFFICIENT);
+
+	m.SetValues(valsInside,Format::COEFFICIENT);*/
+	
+
 	m.SwitchFormat();
 	
 	const Element &h = publicKey.GetPublicElement();
 	
-	Element s(dgg,elementParams);
-	Element e(dgg,elementParams);
+//	Element s(dgg,elementParams);
+	//Element e(dgg,elementParams);
+	Element s(2,dgg , elementParams , Format::COEFFICIENT);
+	s.SwitchFormat();
+	Element e(1,dgg,elementParams,Format::COEFFICIENT);
+	e.SwitchFormat();
 	Element c(elementParams);
 
+	
+
 	c = h*s + p*e + m;
+	std::cout << "PRINTING CIPHERTEXT AFTER ENCRYPTION IN ENCRYPT METHOD" << std::endl;
+	c.PrintValues();
+	std::cout << std::endl;
+
+//	c = m;
 
 	ciphertext->SetCryptoParameters(cryptoParams);
 	ciphertext->SetPublicKey(publicKey);
@@ -324,7 +369,7 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 	std::cout << "PRINTING b: " << std::endl;
 	b.PrintValues();
 
-	plaintext->Decode(p,b);
+	//plaintext->Decode(p,b);
 	
 	return DecodingResult(plaintext->GetLength());
 }

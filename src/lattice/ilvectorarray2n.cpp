@@ -217,7 +217,67 @@ namespace lbcrypto {
 	//}
 
 		/*uncomment this constructor and comment the consturctor above to eliminate noise. Noise generated sets the first index value at each tower to one, the rest to zero.*/
-	ILVectorArray2n::ILVectorArray2n(const bool t, DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format) :m_params(static_cast<const ILDCRTParams&>(params))
+	//ILVectorArray2n::ILVectorArray2n(const bool t, DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format) :m_params(static_cast<const ILDCRTParams&>(params))
+	//{
+
+	//	const ILDCRTParams &m_params = static_cast<const ILDCRTParams&>(params);
+
+
+	//	m_vectors.resize(m_params.GetModuli().size());
+	//	m_format = format;
+
+	//	dgg.Initialize();
+	//	sint* dggValues = dgg.GenerateCharVector(m_params.GetCyclotomicOrder()/2);
+	//
+	//
+
+	//	for(usint i = 0; i < m_vectors.size();i++){
+	//	
+	//		BigBinaryInteger modulus;
+	//		modulus = m_params.GetModuli()[i];
+	//		BigBinaryInteger rootOfUnity;
+	//		rootOfUnity = m_params.GetRootsOfUnity()[i];
+
+	//		ILParams ilVectorDggValuesParams(m_params.GetCyclotomicOrder(), modulus, rootOfUnity);	
+	//		ILVector2n ilvector(ilVectorDggValuesParams);
+
+	//		BigBinaryVector ilDggValues(m_params.GetCyclotomicOrder()/2,modulus);
+
+	//		ilDggValues.SetValAtIndex(0,BigBinaryInteger::ONE);
+
+	//		for(usint j = 1; j < m_params.GetCyclotomicOrder()/2; j++){
+	//		
+	//			if((int)dggValues[j] < 0){
+	//				int k = (int)dggValues[j];
+	//				k = k * (-1);
+	//				BigBinaryInteger temp(k);
+	//				temp = m_params.GetModuli()[i] - temp;
+	//			//	ilDggValues.SetValAtIndex(j,temp);
+	//				ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
+	//			}
+
+	//			else{				
+	//				int k = (int)dggValues[j];
+	//				BigBinaryInteger temp(k);
+	//			//	ilDggValues.SetValAtIndex(j,temp);
+	//				ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
+
+	//			}
+
+	//		}
+	//		ilvector.SetValues(ilDggValues, Format::COEFFICIENT);
+	//	
+	//		if(m_format == Format::EVALUATION){
+	//			ilvector.SwitchFormat();
+	//		}
+	//		m_vectors[i] = ilvector;
+
+	//}
+
+	//}
+
+
+	ILVectorArray2n::ILVectorArray2n(usint k, const DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format) :m_params(static_cast<const ILDCRTParams&>(params))
 	{
 
 		const ILDCRTParams &m_params = static_cast<const ILDCRTParams&>(params);
@@ -226,11 +286,11 @@ namespace lbcrypto {
 		m_vectors.resize(m_params.GetModuli().size());
 		m_format = format;
 
-		dgg.Initialize();
 		sint* dggValues = dgg.GenerateCharVector(m_params.GetCyclotomicOrder()/2);
-	
-	
 
+	
+	
+	if(k == 0){
 		for(usint i = 0; i < m_vectors.size();i++){
 		
 			BigBinaryInteger modulus;
@@ -243,39 +303,303 @@ namespace lbcrypto {
 
 			BigBinaryVector ilDggValues(m_params.GetCyclotomicOrder()/2,modulus);
 
-			ilDggValues.SetValAtIndex(0,BigBinaryInteger::ONE);
+			if(i == 0){
 
-			for(usint j = 1; j < m_params.GetCyclotomicOrder()/2; j++){
-			
-				if((int)dggValues[j] < 0){
-					int k = (int)dggValues[j];
-					k = k * (-1);
-					BigBinaryInteger temp(k);
-					temp = m_params.GetModuli()[i] - temp;
-				//	ilDggValues.SetValAtIndex(j,temp);
-					ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
-				}
-
-				else{				
-					int k = (int)dggValues[j];
-					BigBinaryInteger temp(k);
-				//	ilDggValues.SetValAtIndex(j,temp);
-					ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
-
-				}
+				ilDggValues.SetValAtIndex(0,BigBinaryInteger("17726"));
+				ilDggValues.SetValAtIndex(1,BigBinaryInteger("2"));
+				ilDggValues.SetValAtIndex(2,BigBinaryInteger("0"));			
+				ilDggValues.SetValAtIndex(3,BigBinaryInteger("0"));
 
 			}
+
+			if(i == 1){
+			
+				ilDggValues.SetValAtIndex(0,BigBinaryInteger("17758"));
+				ilDggValues.SetValAtIndex(1,BigBinaryInteger("2"));
+				ilDggValues.SetValAtIndex(2,BigBinaryInteger("0"));			
+				ilDggValues.SetValAtIndex(3,BigBinaryInteger("0"));
+			
+			}
+
+
+			//for(usint j = 1; j < m_params.GetCyclotomicOrder()/2; j++){
+			//
+			//	if((int)dggValues[j] < 0){
+			//		int k = (int)dggValues[j];
+			//		k = k * (-1);
+			//		BigBinaryInteger temp(k);
+			//		temp = m_params.GetModuli()[i] - temp;
+			//	//	ilDggValues.SetValAtIndex(j,temp);
+			//		ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
+			//	}
+
+			//	else{				
+			//		int k = (int)dggValues[j];
+			//		BigBinaryInteger temp(k);
+			//	//	ilDggValues.SetValAtIndex(j,temp);
+			//		ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
+
+			//	}
+
+			//}
 			ilvector.SetValues(ilDggValues, Format::COEFFICIENT);
 		
 			if(m_format == Format::EVALUATION){
 				ilvector.SwitchFormat();
 			}
 			m_vectors[i] = ilvector;
+			std::cout<<"root of unity" << ilvector.GetRootOfUnity() << std::endl;
+		}
+		}
+
+	else if(k == 1){
+		for(usint i = 0; i < m_vectors.size();i++){
+		
+			BigBinaryInteger modulus;
+			modulus = m_params.GetModuli()[i];
+			BigBinaryInteger rootOfUnity;
+			rootOfUnity = m_params.GetRootsOfUnity()[i];
+
+			ILParams ilVectorDggValuesParams(m_params.GetCyclotomicOrder(), modulus, rootOfUnity);	
+			ILVector2n ilvector(ilVectorDggValuesParams);
+
+			BigBinaryVector ilDggValues(m_params.GetCyclotomicOrder()/2,modulus);
+
+			if(i == 0){
+
+				ilDggValues.SetValAtIndex(0,BigBinaryInteger("2"));
+				ilDggValues.SetValAtIndex(1,BigBinaryInteger("4"));
+				ilDggValues.SetValAtIndex(2,BigBinaryInteger("17725"));			
+				ilDggValues.SetValAtIndex(3,BigBinaryInteger("3"));
+
+			}
+
+			if(i == 1){
+			
+				ilDggValues.SetValAtIndex(0,BigBinaryInteger("2"));
+				ilDggValues.SetValAtIndex(1,BigBinaryInteger("4"));
+				ilDggValues.SetValAtIndex(2,BigBinaryInteger("17757"));			
+				ilDggValues.SetValAtIndex(3,BigBinaryInteger("3"));
+			
+			}
+
+
+			//for(usint j = 1; j < m_params.GetCyclotomicOrder()/2; j++){
+			//
+			//	if((int)dggValues[j] < 0){
+			//		int k = (int)dggValues[j];
+			//		k = k * (-1);
+			//		BigBinaryInteger temp(k);
+			//		temp = m_params.GetModuli()[i] - temp;
+			//	//	ilDggValues.SetValAtIndex(j,temp);
+			//		ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
+			//	}
+
+			//	else{				
+			//		int k = (int)dggValues[j];
+			//		BigBinaryInteger temp(k);
+			//	//	ilDggValues.SetValAtIndex(j,temp);
+			//		ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
+
+			//	}
+
+			//}
+			ilvector.SetValues(ilDggValues, Format::COEFFICIENT);
+		
+			if(m_format == Format::EVALUATION){
+				ilvector.SwitchFormat();
+			}
+			m_vectors[i] = ilvector;
+			std::cout<<"root of unity" << ilvector.GetRootOfUnity() << std::endl;
+		}
+		}
+
+	else if(k == 2){
+		for(usint i = 0; i < m_vectors.size();i++){
+		
+			BigBinaryInteger modulus;
+			modulus = m_params.GetModuli()[i];
+			BigBinaryInteger rootOfUnity;
+			rootOfUnity = m_params.GetRootsOfUnity()[i];
+
+			ILParams ilVectorDggValuesParams(m_params.GetCyclotomicOrder(), modulus, rootOfUnity);	
+			ILVector2n ilvector(ilVectorDggValuesParams);
+
+			BigBinaryVector ilDggValues(m_params.GetCyclotomicOrder()/2,modulus);
+
+			if(i == 0){
+
+				ilDggValues.SetValAtIndex(0,BigBinaryInteger("3"));
+				ilDggValues.SetValAtIndex(1,BigBinaryInteger("3"));
+				ilDggValues.SetValAtIndex(2,BigBinaryInteger("17725"));			
+				ilDggValues.SetValAtIndex(3,BigBinaryInteger("2"));
+
+			}
+
+			if(i == 1){
+			
+				ilDggValues.SetValAtIndex(0,BigBinaryInteger("3"));
+				ilDggValues.SetValAtIndex(1,BigBinaryInteger("3"));
+				ilDggValues.SetValAtIndex(2,BigBinaryInteger("17757"));			
+				ilDggValues.SetValAtIndex(3,BigBinaryInteger("2"));
+			
+			}
+
+
+			//for(usint j = 1; j < m_params.GetCyclotomicOrder()/2; j++){
+			//
+			//	if((int)dggValues[j] < 0){
+			//		int k = (int)dggValues[j];
+			//		k = k * (-1);
+			//		BigBinaryInteger temp(k);
+			//		temp = m_params.GetModuli()[i] - temp;
+			//	//	ilDggValues.SetValAtIndex(j,temp);
+			//		ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
+			//	}
+
+			//	else{				
+			//		int k = (int)dggValues[j];
+			//		BigBinaryInteger temp(k);
+			//	//	ilDggValues.SetValAtIndex(j,temp);
+			//		ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
+
+			//	}
+
+			//}
+			ilvector.SetValues(ilDggValues, Format::COEFFICIENT);
+		
+			if(m_format == Format::EVALUATION){
+				ilvector.SwitchFormat();
+			}
+			m_vectors[i] = ilvector;
+			std::cout<<"root of unity" << ilvector.GetRootOfUnity() << std::endl;
+		}
+		}
+	
+	else if(k == 3){
+		for(usint i = 0; i < m_vectors.size();i++){
+		
+			BigBinaryInteger modulus;
+			modulus = m_params.GetModuli()[i];
+			BigBinaryInteger rootOfUnity;
+			rootOfUnity = m_params.GetRootsOfUnity()[i];
+
+			ILParams ilVectorDggValuesParams(m_params.GetCyclotomicOrder(), modulus, rootOfUnity);	
+			ILVector2n ilvector(ilVectorDggValuesParams);
+
+			BigBinaryVector ilDggValues(m_params.GetCyclotomicOrder()/2,modulus);
+
+			if(i == 0){
+
+				ilDggValues.SetValAtIndex(0,BigBinaryInteger("3"));
+				ilDggValues.SetValAtIndex(1,BigBinaryInteger("3"));
+				ilDggValues.SetValAtIndex(2,BigBinaryInteger("17725"));			
+				ilDggValues.SetValAtIndex(3,BigBinaryInteger("2"));
+
+			}
+
+			if(i == 1){
+			
+				ilDggValues.SetValAtIndex(0,BigBinaryInteger("3"));
+				ilDggValues.SetValAtIndex(1,BigBinaryInteger("3"));
+				ilDggValues.SetValAtIndex(2,BigBinaryInteger("17757"));			
+				ilDggValues.SetValAtIndex(3,BigBinaryInteger("2"));
+			
+			}
+
+
+			//for(usint j = 1; j < m_params.GetCyclotomicOrder()/2; j++){
+			//
+			//	if((int)dggValues[j] < 0){
+			//		int k = (int)dggValues[j];
+			//		k = k * (-1);
+			//		BigBinaryInteger temp(k);
+			//		temp = m_params.GetModuli()[i] - temp;
+			//	//	ilDggValues.SetValAtIndex(j,temp);
+			//		ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
+			//	}
+
+			//	else{				
+			//		int k = (int)dggValues[j];
+			//		BigBinaryInteger temp(k);
+			//	//	ilDggValues.SetValAtIndex(j,temp);
+			//		ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
+
+			//	}
+
+			//}
+			ilvector.SetValues(ilDggValues, Format::COEFFICIENT);
+		
+			if(m_format == Format::EVALUATION){
+				ilvector.SwitchFormat();
+			}
+			m_vectors[i] = ilvector;
+			std::cout<<"root of unity" << ilvector.GetRootOfUnity() << std::endl;
+		}
+		}
+		else if(k == 4){
+		for(usint i = 0; i < m_vectors.size();i++){
+		
+			BigBinaryInteger modulus;
+			modulus = m_params.GetModuli()[i];
+			BigBinaryInteger rootOfUnity;
+			rootOfUnity = m_params.GetRootsOfUnity()[i];
+
+			ILParams ilVectorDggValuesParams(m_params.GetCyclotomicOrder(), modulus, rootOfUnity);	
+			ILVector2n ilvector(ilVectorDggValuesParams);
+
+			BigBinaryVector ilDggValues(m_params.GetCyclotomicOrder()/2,modulus);
+
+			if(i == 0){
+
+				ilDggValues.SetValAtIndex(0,BigBinaryInteger("1"));
+				ilDggValues.SetValAtIndex(1,BigBinaryInteger("0"));
+				ilDggValues.SetValAtIndex(2,BigBinaryInteger("1"));			
+				ilDggValues.SetValAtIndex(3,BigBinaryInteger("0"));
+
+			}
+
+			if(i == 1){
+			
+				ilDggValues.SetValAtIndex(0,BigBinaryInteger("1"));
+				ilDggValues.SetValAtIndex(1,BigBinaryInteger("0"));
+				ilDggValues.SetValAtIndex(2,BigBinaryInteger("1"));			
+				ilDggValues.SetValAtIndex(3,BigBinaryInteger("0"));
+			
+			}
+
+
+			//for(usint j = 1; j < m_params.GetCyclotomicOrder()/2; j++){
+			//
+			//	if((int)dggValues[j] < 0){
+			//		int k = (int)dggValues[j];
+			//		k = k * (-1);
+			//		BigBinaryInteger temp(k);
+			//		temp = m_params.GetModuli()[i] - temp;
+			//	//	ilDggValues.SetValAtIndex(j,temp);
+			//		ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
+			//	}
+
+			//	else{				
+			//		int k = (int)dggValues[j];
+			//		BigBinaryInteger temp(k);
+			//	//	ilDggValues.SetValAtIndex(j,temp);
+			//		ilDggValues.SetValAtIndex(j,BigBinaryInteger::ZERO);
+
+			//	}
+
+			//}
+			ilvector.SetValues(ilDggValues, Format::COEFFICIENT);
+		
+			if(m_format == Format::EVALUATION){
+				ilvector.SwitchFormat();
+			}
+			m_vectors[i] = ilvector;
+			std::cout<<"root of unity" << ilvector.GetRootOfUnity() << std::endl;
+		}
+		}
 
 	}
-
-	}
-
 
 	ILVectorArray2n & ILVectorArray2n::operator=(const ILVectorArray2n & rhs)
 	{
@@ -509,7 +833,9 @@ namespace lbcrypto {
 		}
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
+			m_vectors[i].PrintValues();
 			m_vectors[i].SwitchFormat();
+			m_vectors[i].PrintValues();
 		}
 	}
 
@@ -638,17 +964,19 @@ namespace lbcrypto {
 
 		m_vectors.erase(m_vectors.begin() + index);
 		
-		std::vector<BigBinaryInteger> temp_moduli(m_params.GetRootsOfUnity());
+
+		BigBinaryInteger newBigModulus(m_params.GetModulus());
+		newBigModulus = newBigModulus.DividedBy(m_params.GetModuli()[index]);
+		m_params.SetModulus(newBigModulus);
+
+		std::vector<BigBinaryInteger> temp_moduli(m_params.GetModuli());
 		temp_moduli.erase(temp_moduli.begin() + index);
 		m_params.SetModuli(temp_moduli);
 
 		std::vector<BigBinaryInteger> temp_roots_of_unity(m_params.GetRootsOfUnity());
 		temp_roots_of_unity.erase(temp_roots_of_unity.begin() + index);
 		m_params.SetRootsOfUnity(temp_roots_of_unity);
-
-		BigBinaryInteger newBigModulus(m_params.GetModulus());
-		newBigModulus = newBigModulus.DividedBy(m_params.GetModuli()[index]);
-		m_params.SetModulus(newBigModulus);
+	
 
 	}
 
@@ -662,6 +990,7 @@ namespace lbcrypto {
 		usint length = this->GetLength();
 		usint lastTowerIndex = length - 1;
 		const std::vector<BigBinaryInteger> &moduli = m_params.GetModuli();
+		std::cout<< moduli[0] << std::endl;
 
 		ILVector2n towerT(m_vectors[lastTowerIndex]);
 		ILVector2n d(towerT);
@@ -672,6 +1001,9 @@ namespace lbcrypto {
 		BigBinaryInteger v(qt.ModInverse(p));
 		BigBinaryInteger a((v * qt).ModSub(BigBinaryInteger::ONE, p*qt));
 		d.SwitchModulus(p*qt);
+		std::cout<<std::endl;
+		d.PrintValues();
+		std::cout<<std::endl;
 
 		ILVector2n delta(d.Times(a));
 		for(usint i=0; i<length; i++) {
@@ -680,12 +1012,30 @@ namespace lbcrypto {
 			m_vectors[i] += temp;
 		}
 
+		for(usint i=0;i<m_vectors.size();i++){
+			m_vectors[i].PrintValues();
+			std::cout<<std::endl;
+		}
+
+		std::cout<< moduli[0] << std::endl;
 		this->DropTower(lastTowerIndex);
 
 		std::vector<BigBinaryInteger> qtInverseModQi(length-1);
+		std::cout<< qt << std::endl;
 		for(usint i=0; i<length-1; i++) {
-			qtInverseModQi[i] = (qt.Compare(moduli[i]) > 0) ? (qt.Mod(moduli[i])).ModInverse(moduli[i]) : qt.ModInverse(moduli[i]);
+			std::cout<< moduli[i] << std::endl;
+			qtInverseModQi[i] =  qt > moduli[i] ? qt.Mod(moduli[i]).ModInverse(moduli[i]) : qt.ModInverse(moduli[i]);
+			std::cout<<qtInverseModQi[i]<<std::endl;
+			m_vectors[i].PrintValues();
+			std::cout<<std::endl;
 			m_vectors[i] = qtInverseModQi[i] * m_vectors[i];
+			m_vectors[i].PrintValues();
+			std::cout<<std::endl;
+		}
+		
+		for(usint i=0;i<m_vectors.size();i++){
+			m_vectors[i].PrintValues();
+			std::cout<<std::endl;
 		}
 
 		this->SwitchFormat();

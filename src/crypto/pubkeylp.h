@@ -669,7 +669,7 @@ namespace lbcrypto {
 				}
 		}
 
-	protected:
+//	protected:
 
 		const LPEncryptionAlgorithm<Element> *m_algorithmEncryption;
 		const LPPREAlgorithm<Element> *m_algorithmPRE;

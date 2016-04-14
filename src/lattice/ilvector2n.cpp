@@ -376,6 +376,7 @@ namespace lbcrypto {
 		if (m_format == COEFFICIENT) {
 			m_format = EVALUATION;
 			*m_values = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(*m_values, m_params.GetRootOfUnity(), m_params.GetCyclotomicOrder());
+			std::cout<<"Printing Roots of Unity:  "<<m_params.GetRootOfUnity()<<std::endl;
 		}
 
 		else {
