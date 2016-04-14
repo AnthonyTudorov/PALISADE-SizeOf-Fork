@@ -59,17 +59,17 @@ using namespace std;
 using namespace lbcrypto;
 
 void NTRUPRE(int input, bool dbg_flag);
-double currentDateTime();
+// double currentDateTime();
 
-/**
- * @brief Input parameters for PRE example.
- */
-struct SecureParams {
-	usint m;			///< The ring parameter.
-	BigBinaryInteger modulus;	///< The modulus
-	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
-	usint relinWindow;		///< The relinearization window parameter.
-};
+// /**
+//  * @brief Input parameters for PRE example.
+//  */
+// struct SecureParams {
+// 	usint m;			///< The ring parameter.
+// 	BigBinaryInteger modulus;	///< The modulus
+// 	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
+// 	usint relinWindow;		///< The relinearization window parameter.
+// };
 
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
@@ -114,39 +114,39 @@ int main(int argc, char* argv[]){
 }
 
 
-double currentDateTime()
-{
+// double currentDateTime()
+// {
 
-	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+// 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 
-    time_t tnow = std::chrono::system_clock::to_time_t(now);
-    tm *date = localtime(&tnow);
-    date->tm_hour = 0;
-    date->tm_min = 0;
-    date->tm_sec = 0;
+//     time_t tnow = std::chrono::system_clock::to_time_t(now);
+//     tm *date = localtime(&tnow);
+//     date->tm_hour = 0;
+//     date->tm_min = 0;
+//     date->tm_sec = 0;
 
-    auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
+//     auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
 
-	return std::chrono::duration <double, std::milli>(now - midnight).count();
-}
+// 	return std::chrono::duration <double, std::milli>(now - midnight).count();
+// }
 
-typedef std::chrono::high_resolution_clock::time_point TimeVar;
+// typedef std::chrono::high_resolution_clock::time_point TimeVar;
 
-#define duration(a) std::chrono::duration_cast<std::chrono::milliseconds>(a).count()
-#define timeNow() std::chrono::high_resolution_clock::now()
+// #define duration(a) std::chrono::duration_cast<std::chrono::milliseconds>(a).count()
+// #define timeNow() std::chrono::high_resolution_clock::now()
 
-template<typename F, typename... Args>
-double funcTime(F func, Args&&... args){
-    TimeVar t1=timeNow();
-    func(std::forward<Args>(args)...);
-    return duration(timeNow()-t1);
-}
+// template<typename F, typename... Args>
+// double funcTime(F func, Args&&... args){
+//     TimeVar t1=timeNow();
+//     func(std::forward<Args>(args)...);
+//     return duration(timeNow()-t1);
+// }
 
-#define TIC t1=timeNow() 
-#define TOC duration(timeNow()-t1)
+// #define TIC t1=timeNow() 
+// #define TOC duration(timeNow()-t1)
 
-#define TOTAL_TIC t2=timeNow() 
-#define TOTAL_TOC duration(timeNow()-t2)
+// #define TOTAL_TIC t2=timeNow() 
+// #define TOTAL_TOC duration(timeNow()-t2)
 
 
 typedef std::string String;  //dbc shortcut
@@ -168,8 +168,8 @@ typedef std::string String;  //dbc shortcut
 //////////////////////////////////////////////////////////////////////
 void NTRUPRE(int input, bool dbg_flag) {
   
-	TimeVar t1,t2; //for TIC TOC and TOTAL_TIC TOTAL_TOC
-	TOTAL_TIC;
+	TimeVar t1,t_total; //for TIC TOC and TOTAL_TIC TOTAL_TOC
+	TIC(t_total);
 
 	//Set element params
 
@@ -209,15 +209,15 @@ void NTRUPRE(int input, bool dbg_flag) {
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	TIC;
+	TIC(t1);
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-	timeFFTSetup = TOC;
+	timeFFTSetup = TOC(t1);
 	DEBUG("FFT Precomputation time: " << "\t" << timeFFTSetup << " ms");
 
 	//Precomputations for DGG
-	TIC;
+	TIC(t1);
 	ILVector2n::PreComputeDggSamples(dgg, ilParams);
-	timeDGGSetup = TOC;
+	timeDGGSetup = TOC(t1);
 	DEBUG("DGG Precomputation time: " << "\t" << timeDGGSetup << " ms");
 
 	////////////////////////////////////////////////////////////
@@ -272,50 +272,50 @@ void NTRUPRE(int input, bool dbg_flag) {
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 
 	DEBUG( "Key generation started"); 
-	TIC;
+	TIC(t1);
 	algorithm.KeyGen(dgg,&obfuscatedPattern);
-	timeKeyGen = TOC;
+	timeKeyGen = TOC(t1);
 	DEBUG( "Key generation time: " << "\t" << timeKeyGen << " ms");
 
 	
 	DEBUG( "Binary Uniform Generator started"); 
-	TIC;
+	TIC(t1);
 	BinaryUniformGenerator dbg = BinaryUniformGenerator();	
-	timeBUGGen = TOC;
+	timeBUGGen = TOC(t1);
 	DEBUG( "Key generation time: " << "\t" << timeBUGGen << " ms");
 
 
 	DEBUG( "Obfuscation Execution started");
-	TIC;
+	TIC(t1);
 	algorithm.Obfuscate(clearPattern,dgg,dbg,&obfuscatedPattern);
-	timeObf = TOC;
+	timeObf = TOC(t1);
 	DEBUG("Obfuscation execution time: " << "\t" << timeObf << " ms");
 
 //	obfuscatedPattern.GetSl();
 
 	DEBUG("Evaluation 1 started");
-	TIC;
+	TIC(t1);
 	result = algorithm.Evaluate(obfuscatedPattern,inputStr1);
-	timeEval1 = TOC;
+	timeEval1 = TOC(t1);
 	DEBUG( " \nCleartext pattern evaluation of: " << inputStr1 << " is " << result << ".");
 	DEBUG( "Evaluation 1 execution time: " << "\t" << timeEval1 << " ms" );
 
 	DEBUG("Evaluation 2 started");
-	TIC;
+	TIC(t1);
 	//result = algorithm.Evaluate(obfuscatedPattern,inputStr2);
 	//DEBUG( " \nCleartext pattern evaluation of: " << inputStr2 << " is " << result << ".");
-	timeEval2 = TOC;
+	timeEval2 = TOC(t1);
 	DEBUG( "Evaluation 2 execution time: " << "\t" << timeEval2 << " ms" );
 
 	DEBUG("Evaluation 3 started");
-	TIC;
+	TIC(t1);
 	//result = algorithm.Evaluate(obfuscatedPattern,inputStr3);
 	//DEBUG( " \nCleartext pattern evaluation of: " << inputStr3 << " is " << result << ".");
-	timeEval3 = TOC;
+	timeEval3 = TOC(t1);
 	DEBUG( "Evaluation 3 execution time: " << "\t" << timeEval3 << " ms");
 
 	//get the total program run time.
-	timeTotal = TOTAL_TOC;
+	timeTotal = TOC(t_total);
 
 	//print output timing results
 

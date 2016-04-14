@@ -24,41 +24,6 @@ using namespace std;
 using namespace lbcrypto;
 //Todo(dcousins): migrate this to use utils/debug.cpp
 
-double currentDateTime()
-{
-
-	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-
-    time_t tnow = std::chrono::system_clock::to_time_t(now);
-    tm *date = localtime(&tnow);
-    date->tm_hour = 0;
-    date->tm_min = 0;
-    date->tm_sec = 0;
-
-    auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
-
-	return std::chrono::duration <double, std::milli>(now - midnight).count();
-}
-
-typedef std::chrono::high_resolution_clock::time_point TimeVar;
-
-#define duration(a) std::chrono::duration_cast<std::chrono::milliseconds>(a).count()
-#define timeNow() std::chrono::high_resolution_clock::now()
-
-template<typename F, typename... Args>
-double funcTime(F func, Args&&... args){
-    TimeVar t1=timeNow();
-    func(std::forward<Args>(args)...);
-    return duration(timeNow()-t1);
-}
-
-#define TIC t1=timeNow() 
-#define TOC duration(timeNow()-t1)
-
-#define TOTAL_TIC t2=timeNow() 
-#define TOTAL_TOC duration(timeNow()-t2)
-
-
 typedef std::string String;  //dbc shortcut
 
 //main()   need this for Kurts makefile to ignore this.
@@ -67,25 +32,32 @@ int main(int argc, char* argv[]){
   int array_size = 1000;
   float foo[array_size];
 
+  bool dbg_flag;
+
+  TimeVar t1,t_total; //for TIC TOC
+  double time1;
+  double timeTotal;
+
+  TIC(t_total);
+  TIC(t1);
   
 #pragma omp parallel for
   for (int i = 0; i < array_size; ++i) {
-
     float tmp = i;
-        sleep(.1);
+    sleep(.1);
     foo[i] = tmp;
-
-    //cout << i <<" ";
   }
+  time1 = TOC(t1);
+  DEBUG("First computation time: " << "\t" << time1 << " ms");
 
-  cout <<endl;
   for (int i = 0; i < array_size; ++i) {
     cout<< foo[i] <<" ";
   }
-
   cout<< endl;
 
-  
+
+  timeTotal = TOC(t_total);
+  DEBUG("Total time: " << "\t" << timeTotal << " ms");
   return 0;
 }
 

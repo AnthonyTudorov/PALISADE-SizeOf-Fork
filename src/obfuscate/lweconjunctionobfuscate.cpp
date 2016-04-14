@@ -30,19 +30,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 //TODO (dcousins): migrate this to utils/debug.cpp
 
-typedef std::chrono::high_resolution_clock::time_point TimeVar;
+// typedef std::chrono::high_resolution_clock::time_point TimeVar;
 
-#define duration(a) std::chrono::duration_cast<std::chrono::milliseconds>(a).count()
-#define timeNow() std::chrono::high_resolution_clock::now()
+// #define duration(a) std::chrono::duration_cast<std::chrono::milliseconds>(a).count()
+// #define timeNow() std::chrono::high_resolution_clock::now()
 
-#define TIC tl1=timeNow() 
-#define TOC duration(timeNow()-tl1)
+// #define TIC tl1=timeNow() 
+// #define TOC duration(timeNow()-tl1)
 
-#define TIC2 tll1=timeNow() 
-#define TOC2 duration(timeNow()-tll1)
+// #define TIC2 tll1=timeNow() 
+// #define TOC2 duration(timeNow()-tll1)
 
-#define TOTAL_TIC tl2=timeNow() 
-#define TOTAL_TOC duration(timeNow()-tl2)
+// #define TOTAL_TIC tl2=timeNow() 
+// #define TOTAL_TOC duration(timeNow()-tl2)
 
 
 typedef std::string String;  //dbc shortcut
@@ -127,9 +127,10 @@ void ObfuscatedLWEConjunctionPattern<Element>::SetModulus(BigBinaryInteger &modu
 template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerator &dgg,
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
-  TimeVar tll1,tll2; // for TIC2 TOC2
-  bool dbg_flag = 1;
-  TIC2;
+        TimeVar t1; // for TIC TOC
+	bool dbg_flag = 1;
+	TIC(t1);
+
 	usint n = obfuscatedPattern->GetRingDimension();
 	usint k = obfuscatedPattern->GetLogModulus();
 	std::cout << "BitLength in KeyGen: " << k << std::endl;
@@ -147,28 +148,32 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 	std::vector<TrapdoorPair>   *Ek_vector = new std::vector<TrapdoorPair>();
 	std::vector<ILMat<LargeFloat>> *sigma = new std::vector<ILMat<LargeFloat>>();
 
-	DEBUG("k1: "<<TOC2 <<" ms");
+	DEBUG("k1: "<<TOC(t1) <<" ms");
 	for(usint i=0; i<=l+1; i++) {
-	  TIC2;
+
+	        TIC(t1);
 		pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev); //TODO remove stddev
-		DEBUG("k2.0:#"<< i << ": "<<TOC2 <<" ms");
-	  TIC2;
+		DEBUG("k2.0:#"<< i << ": "<<TOC(t1) <<" ms");
+
+	        TIC(t1);
 		ILMat<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
-		DEBUG("k2.1:#"<< i << ": "<<TOC2 <<" ms");
-		TIC2;
+		DEBUG("k2.1:#"<< i << ": "<<TOC(t1) <<" ms");
+
+		TIC(t1);
 		//the following takes all the time
 		PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
-		DEBUG("k2.2:#"<< i << ": "<<TOC2 <<" ms");
-	  TIC2;
+		DEBUG("k2.2:#"<< i << ": "<<TOC(t1) <<" ms");
+
+	        TIC(t1);
 		Pk_vector->push_back(trapPair.first);
 		Ek_vector->push_back(trapPair.second);
 
 		sigma->push_back(sigmaSqrt);
-		DEBUG("k2.3:#" << i << ": "<<TOC2 <<" ms");
+		DEBUG("k2.3:#" << i << ": "<<TOC(t1) <<" ms");
 	} 
-	TIC2;
+	TIC(t1);
 	obfuscatedPattern->SetKeys(Pk_vector,Ek_vector,sigma);
-	DEBUG("k3: "<< TOC2 <<" ms");
+	DEBUG("k3: "<< TOC(t1) <<" ms");
 		
 }
 
@@ -180,9 +185,10 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 				BinaryUniformGenerator &dbg,
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
 
-  TimeVar tll1,tll2; // for TIC2 TOC2
-  bool dbg_flag = 1;
-  TIC2;
+        TimeVar t1; // for TIC TOC
+	bool dbg_flag = 1;
+
+	TIC(t1);
 	obfuscatedPattern->SetLength(clearPattern.GetLength());
 	usint l = clearPattern.GetLength();
 	usint n = obfuscatedPattern->GetRingDimension();
@@ -213,10 +219,10 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	std::vector<Element> r_small_1;
 
 	Element s_prod;
-	//DBC: above setup insignificant timing.
+	//DBC: above setup has insignificant timing.
 
 
-	//DBC: this loop insignificant timing.
+	//DBC: this loop has insignificant timing.
 	for(usint i=0; i<=l-1; i++) {
 		//Set the elements s and r to a discrete uniform generated vector.
 		Element elems0(dbg,params,EVALUATION);
@@ -260,7 +266,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 
 	}
 
-	//DBC this setup insignificant timing
+	//DBC this setup has insignificant timing
 
 	std::cout << "Obfuscate: Generated random uniform ring elements" << std::endl;
 
@@ -271,10 +277,10 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	std::vector<ILMat<Element>> *R1_vec = new std::vector<ILMat<Element>>();
 
 
-	//this loop takes all the time
+	//DBC: this loop takes all the time, so we time it with TIC TOC
 	for(usint i=1; i<=l; i++) {
-	TIC2;
 
+	        TIC(t1);
 		ILMat<Element> *S0_i = new ILMat<ILVector2n>(zero_alloc, m, m);
 
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],s_small_0[i-1]*r_small_0[i-1],dgg,S0_i);
@@ -301,9 +307,10 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 		//std::cout << "encode ran R1" << std::endl;
 
 		std::cout << "encode round " << i << " completed" << std::endl;
-		DEBUG("O4:#"<< i << ": "<<TOC2 <<" ms");
+		DEBUG("O4:#"<< i << ": "<<TOC(t1) <<" ms");
 	}
-	TIC2;
+	//the remainder of the code in this function also takes some time so time it
+	TIC(t1);
 
 	//std::cout << "encode started for L" << std::endl;
 
@@ -326,10 +333,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	obfuscatedPattern->SetMatrices(S0_vec,S1_vec,R0_vec,R1_vec,Sl,Rl);
 
 	//obfuscatedPattern->GetSl();
-	DEBUG("O5: "<<TOC2 <<" ms");
-
-
-
+	DEBUG("O5: "<<TOC(t1) <<" ms");
 };
 
 template <class Element>
@@ -342,9 +346,11 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				DiscreteGaussianGenerator &dgg,
 				ILMat<Element> *encodedElem) const {
 
-  TimeVar tl1,tl2; // for TIC TOC
-  TOTAL_TIC;
-  bool dbg_flag = 1;//set to 0 for no debug statements
+        TimeVar t1,t_total; // for TIC TOC
+	bool dbg_flag = 1;//set to 0 for no debug statements
+
+	TIC(t_total);	      // time the  overall Encode function with a timer;
+
 	size_t m = Ai.GetCols();
 	size_t k = m - 2;
 	size_t n = elemS.GetParams().GetCyclotomicOrder()/2;
@@ -354,24 +360,24 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 
 	//generate a row vector of discrete Gaussian ring elements
 	//YSP this can be done using discrete Gaussian allocator later - after the dgg allocator is updated to use the same dgg instance
-	TIC;
+	TIC(t1);
 	ILMat<Element> ej(zero_alloc, 1, m); 
-	DEBUG("Enc1: "<< TOC << " ms");
+	DEBUG("Enc1: "<< TOC(t1) << " ms");
 
-	TIC;	
+	TIC(t1);	
 	for(size_t i=0; i<m; i++) {
 		ej(0,i).SetValues(dgg.GenerateVector(n,modulus),COEFFICIENT);
 		ej(0,i).SwitchFormat();
 	}
-	DEBUG("Enc2: "<< TOC << " ms");
+	DEBUG("Enc2: "<< TOC(t1) << " ms");
 
-	TIC;
+	TIC(t1);
 	ILMat<Element> bj = Aj.ScalarMult(elemS) + ej;
-	DEBUG("Enc3: "<< TOC << " ms");
+	DEBUG("Enc3: "<< TOC(t1) << " ms");
 
 
 	//std::cout << "Encode: Computed bj, next will do GaussSamp" << std::endl; 
-	TIC;	
+	TIC(t1);	
 
 	//DBC: this loop takes all the time in encode
 	//TODO (dcousins): move gaussj generation out of the loop to enable parallelisation
@@ -388,7 +394,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 
 	}
 
-	DEBUG("Enc4: " << " "  << TOC << " ms");
+	DEBUG("Enc4: " << " "  << TOC(t1) << " ms");
 
 	// encodedElem->SwitchFormat();
 	// std::cout<<"norm = "<<encodedElem->Norm() <<std::endl;
@@ -401,6 +407,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	// ILVector2n bEst = (Ai * test)(0,0);
 	// std::cout << "bj(0,2) = " << bj(0,2) << std::endl;
 	// std::cout << "Ai*z = " << bEst << std::endl;
+	DEBUG("Total Enc: " << " "  << TOC(t_total) << " ms"); 
 
 };
 
@@ -436,9 +443,10 @@ template <class Element>
 bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 				const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
 				const std::string &testString) const {
-  TimeVar tll1,tll2; // for TIC2 TOC2
-  bool dbg_flag = 1;
-  TIC2;
+        TimeVar t1; // for TIC2 TOC2
+	bool dbg_flag = 1;
+	TIC(t1);
+
 	usint l = obfuscatedPattern.GetLength();
 	usint n = obfuscatedPattern.GetRingDimension();
 	BigBinaryInteger q(obfuscatedPattern.GetModulus());
@@ -472,11 +480,11 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	ILMat<Element> *S_ib;// = ILMat<Element>(secureIL2nAlloc(), m, m);
 	ILMat<Element> *R_ib;// = ILMat<Element>(secureIL2nAlloc(), m, m);
 
-	DEBUG("Eval1: "<<TOC2 <<" ms");
+	DEBUG("Eval1: "<<TOC(t1) <<" ms");
 
 	for (usint i=0; i<l; i++)
 	{
-	TIC2;
+	TIC(t1);
 
 	      //pragma omp parallel sections
 	      {
@@ -496,9 +504,9 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 		//if (i==0)
 		//	std::cout << "does identity work correctly" << (S_prod == *S_ib) << std::endl;
 	      }
-		DEBUG("Eval2:#"<< i << ": " <<TOC2 <<" ms");
+		DEBUG("Eval2:#"<< i << ": " <<TOC(t1) <<" ms");
 	}
-	TIC2;	
+	TIC(t1);	
 	std::cout << " S_prod: " << std::endl;
 	//S_prod.PrintValues();
 	std::cout << " R_prod: " << std::endl;
@@ -517,22 +525,23 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	//CrossProd.PrintValues();
 
 
-	DEBUG("Eval3: " <<TOC2 <<" ms");
-	TIC2;	
+	DEBUG("Eval3: " <<TOC(t1) <<" ms");
+	TIC(t1);	
 	//for(size_t i=0; i<m; i++)
 	//		CrossProd(0,i).SwitchFormat();
 
 	//the norm can be estimated after all elements are converted to coefficient representation
 	CrossProd.SwitchFormat();
-	DEBUG("E4val: " <<TOC2 <<" ms");
-	TIC2;	
+	DEBUG("E4val: " <<TOC(t1) <<" ms");
+	TIC(t1);	
 	//CrossProd.PrintValues();
 
 	//std::cout << "cross product dimensions: " <<  CrossProd.GetRows() << ", " << CrossProd.GetCols() << std::endl;
 	//std::cout <<  CrossProd << std::endl;
 
 	norm = CrossProd.Norm();
-	DEBUG("Eval5: " <<TOC2 <<" ms");
+	DEBUG("Eval5: " <<TOC(t1) <<" ms");
+
 	std::cout << " Norm: " << norm << std::endl;
 
 	return (norm <= constraint);

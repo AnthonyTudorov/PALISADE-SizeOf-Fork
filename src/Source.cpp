@@ -55,19 +55,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "crypto/lweshe.cpp"
 #include "lattice/ilvector2n.h"
 #include "lattice/ilvectorarray2n.h"
-#include "time.h"
+//#include "time.h"
 #include "crypto/ciphertext.cpp"
 //#include "vld.h"
-#include <chrono>
+//#include <chrono>
 //#include "gtest/gtest.h"
 //#include "math/cpu8bit/binint.h"
 //#include "math/cpu8bit/binvect.h"
 //#include "math/cpu8bit/binmat.h"
 
+
+#include "utils/debug.h"
 using namespace std;
 using namespace lbcrypto;
 void NTRUPRE(int input);
-double currentDateTime();
+//double currentDateTime();
 
 /**
  * @brief Input parameters for PRE example.
@@ -137,21 +139,21 @@ int main() {
 }
 
 
-double currentDateTime()
-{
+// double currentDateTime()
+// {
 
-	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+// 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 
-    time_t tnow = std::chrono::system_clock::to_time_t(now);
-    tm *date = localtime(&tnow);
-    date->tm_hour = 0;
-    date->tm_min = 0;
-    date->tm_sec = 0;
+//     time_t tnow = std::chrono::system_clock::to_time_t(now);
+//     tm *date = localtime(&tnow);
+//     date->tm_hour = 0;
+//     date->tm_min = 0;
+//     date->tm_sec = 0;
 
-    auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
+//     auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
 
-	return std::chrono::duration <double, std::milli>(now - midnight).count();
-}
+// 	return std::chrono::duration <double, std::milli>(now - midnight).count();
+// }
 
 //////////////////////////////////////////////////////////////////////
 //	NTRUPRE is where the core functionality is provided.

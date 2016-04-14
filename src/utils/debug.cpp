@@ -25,70 +25,27 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-
-#ifndef __dbg_h__
-#define __dbg_h__
-
-//include <iostream>
-//include <cstdlib.h>
-
-/* defining NDEBUG in the compile line turns everything off.  */
-#ifndef NDEBUG			
-//#define debug(M, ...)
-
-// note that for the following dbg_flag needs to be defined in some scope
-
-// debugging macro prints value of x on cerr
-#define DEBUG(x) do {					\
-    if (dbg_flag) { std::cerr << x <<std::endl; }	\
-  } while (0)
-
-// debugging macro prints typography of x and value of x on cerr
-#define DEBUGEXP(x) do {					\
-    if (dbg_flag) { std::cerr << #x << ":" << x << std::endl; }	\
-  } while (0)
+#include <iostream>
+#include <fstream>
+#include "time.h"
+#include <chrono>
+#include "debug.h"
 
 
-// debugging macro prints value of x and location in codex on cerr
-#define DEBUGWHERE(x) do {					\
-    if (dbg_flag) { std::cerr << #x << ":" << x << " at " << __FILE__ << " line "<< __LINE__ LL std::endl; }	\
-  } while (0)
+double currentDateTime()
+{
 
-#define TIC(t) t=timeNow() 
-#define TOC(t) duration(timeNow()-t)
+	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 
-#else
-//#define debug(M, ...) fprintf(stderr, "DEBUG %s:%d: " M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+    time_t tnow = std::chrono::system_clock::to_time_t(now);
+    tm *date = localtime(&tnow);
+    date->tm_hour = 0;
+    date->tm_min = 0;
+    date->tm_sec = 0;
 
-//these are turned off functions
+    auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
 
-#define DEBUG(x) 
-#define DEBUGEXP(x) 
-
-#define TIC(t)
-#define TOC(t) 
-
-#endif
-
-
-
-
-typedef std::chrono::high_resolution_clock::time_point TimeVar;
-
-
-#define duration(a) std::chrono::duration_cast<std::chrono::milliseconds>(a).count()
-#define timeNow() std::chrono::high_resolution_clock::now()
-
-
-double currentDateTime();
-
-template<typename F, typename... Args>
-double funcTime(F func, Args&&... args){
-    TimeVar t1=timeNow();
-    func(std::forward<Args>(args)...);
-    return duration(timeNow()-t1);
+	return std::chrono::duration <double, std::milli>(now - midnight).count();
 }
 
 
-
-#endif #__dbg_h__

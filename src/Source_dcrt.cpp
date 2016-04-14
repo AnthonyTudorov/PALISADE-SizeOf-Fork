@@ -59,6 +59,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "crypto/ciphertext.cpp"
 //#include "vld.h"
 #include <chrono>
+#include "utils/debug.h"a
 //#include "gtest/gtest.h"
 //#include "math/cpu8bit/binint.h"
 //#include "math/cpu8bit/binvect.h"
@@ -66,7 +67,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 using namespace std;
 using namespace lbcrypto;
-double currentDateTime();
+//double currentDateTime();
 void NTRU_DCRT();
 void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
 
@@ -96,21 +97,21 @@ int main() {
 }
 
 
-double currentDateTime()
-{
+// double currentDateTime()
+// {
 
-	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+// 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 
-    time_t tnow = std::chrono::system_clock::to_time_t(now);
-    tm *date = localtime(&tnow);
-    date->tm_hour = 0;
-    date->tm_min = 0;
-    date->tm_sec = 0;
+//     time_t tnow = std::chrono::system_clock::to_time_t(now);
+//     tm *date = localtime(&tnow);
+//     date->tm_hour = 0;
+//     date->tm_min = 0;
+//     date->tm_sec = 0;
 
-    auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
+//     auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
 
-	return std::chrono::duration <double, std::milli>(now - midnight).count();
-}
+// 	return std::chrono::duration <double, std::milli>(now - midnight).count();
+// }
 
 void NTRU_DCRT() {
 
