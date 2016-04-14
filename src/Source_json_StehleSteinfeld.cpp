@@ -196,13 +196,13 @@ void NTRUPRE(int input) {
 	//usint relWindow = 8;
 	
 	SecureParams const SECURE_PARAMS[] = {
-		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("8451304774"), 1, BigBinaryInteger("2"), 98.4359 }, //n = 1024; r = 1; p = 2
-		{ 2048, BigBinaryInteger("137439004673"), BigBinaryInteger("7643730114"), 8, BigBinaryInteger("2"),  214.9 }, // r = 2
-		{ 4096, BigBinaryInteger("17179926529"), BigBinaryInteger("1874048014"), 1, BigBinaryInteger("2"),  98.4359 },  // r = 4
-		{ 4096, BigBinaryInteger("72057594037948417"), BigBinaryInteger("12746853818308484"), 16, BigBinaryInteger("16"), 4535.5 }, // r = 2
-		{ 8192, BigBinaryInteger("144115188076060673"), BigBinaryInteger("48914894759308182"), 16, BigBinaryInteger("16"), 4535.5 }, //n = 1024; r = 1; p = 2
-		{ 16384, BigBinaryInteger("288230376151760897"), BigBinaryInteger("144972394728154060"), 16, BigBinaryInteger("16"), 4535.5  }, //n = 1024; r = 1; p = 2
-		{ 8192, BigBinaryInteger("4835703278458516698849281"), BigBinaryInteger("3227297808832732049211098"), 16, BigBinaryInteger("256"), 350230 }, // log2 q = 83
+		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("8451304774"), 1, BigBinaryInteger("2"), 32.812 }, //n = 1024; r = 1; p = 2
+		{ 2048, BigBinaryInteger("137439004673"), BigBinaryInteger("7643730114"), 8, BigBinaryInteger("2"),  71.6332 }, // r = 2
+		{ 4096, BigBinaryInteger("17179926529"), BigBinaryInteger("1874048014"), 1, BigBinaryInteger("2"),  32.812 },  // r = 4
+		{ 4096, BigBinaryInteger("72057594037948417"), BigBinaryInteger("12746853818308484"), 16, BigBinaryInteger("16"), 1511.83 }, // r = 2
+		{ 8192, BigBinaryInteger("144115188076060673"), BigBinaryInteger("48914894759308182"), 16, BigBinaryInteger("16"), 1511.83 }, //n = 1024; r = 1; p = 2
+		{ 16384, BigBinaryInteger("288230376151760897"), BigBinaryInteger("144972394728154060"), 16, BigBinaryInteger("16"), 1511.83  }, //n = 1024; r = 1; p = 2
+		{ 8192, BigBinaryInteger("75557863725914323468289"), BigBinaryInteger("36933905409054618621009"), 16, BigBinaryInteger("256"), 41411.5 }, // log2 q = 83
 		//{ 2048, CalltoModulusComputation(), CalltoRootComputation, 0 }  // r= 16
 	};
 
