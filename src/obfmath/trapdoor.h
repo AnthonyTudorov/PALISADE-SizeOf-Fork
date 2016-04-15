@@ -120,7 +120,7 @@ namespace lbcrypto {
 
 inline void PerturbationMatrixGen(size_t n, size_t k, const RingMat& A, const TrapdoorPair& T, double s, ILMat<LargeFloat> *sigmaSqrt) {
 	  TimeVar tll1,tll2; // for TIC2 TOC2
-	  bool dbg_flag = 1; //set to 1 for debug timing... 
+	  bool dbg_flag = 0; //set to 1 for debug timing... 
 		//We should convert this to a static variable later
 		int32_t c(ceil(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI)));
 
