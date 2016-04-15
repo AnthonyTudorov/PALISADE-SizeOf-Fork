@@ -223,7 +223,8 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
     auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 	float sigma = 4;
 
-	DiscreteGaussianGenerator dgg(modulus, sigma);
+	//DiscreteGaussianGenerator dgg(modulus, sigma); //TODO (dcousins delete)
+	DiscreteGaussianGenerator dgg(sigma);
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 
 	ILVector2n u(dug,params,COEFFICIENT);
@@ -274,7 +275,8 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 	RingMat rHat = trapPair.second.m_r;
     //auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
 
-	DiscreteGaussianGenerator dgg(modulus, 4);
+	//DiscreteGaussianGenerator dgg(modulus, 4);//TODO (dcousins delete)
+	DiscreteGaussianGenerator dgg(4);//TODO (dcousins delete)
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 
 	ILVector2n u(dug,params,COEFFICIENT);
@@ -322,7 +324,8 @@ TEST(UTTrapdoor,EncodeTest_dgg_yes) {
 	ILParams params(m_cyclo, modulus, rootOfUnity);
     	//auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
-	DiscreteGaussianGenerator dgg(modulus, 4);
+	//DiscreteGaussianGenerator dgg(modulus, 4); TODO (dcousins) cleanup
+	DiscreteGaussianGenerator dgg(4);
 
 	// Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(dgg, params);
@@ -400,7 +403,8 @@ TEST(UTTrapdoor,EncodeTest_dgg_no) {
 
 	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
 
-	DiscreteGaussianGenerator dgg(modulus, 4);
+	//DiscreteGaussianGenerator dgg(modulus, 4); TODO (dcousins) cleanup
+	DiscreteGaussianGenerator dgg(4);
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(BigBinaryInteger(m));
 
 	algorithm.KeyGen(dgg,&obfuscatedPattern);

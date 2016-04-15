@@ -60,7 +60,7 @@ int main()
 
 	std::cout << sample << std::endl;
 
-	std::cin.get();
+	//std::cin.get();
 
 	return 0;
 
