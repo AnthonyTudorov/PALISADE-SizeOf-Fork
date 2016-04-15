@@ -31,7 +31,7 @@ namespace lbcrypto {
 			
 //Function for extracting a value at a certain index using automorphism operation.
 template <class Element>
-void LPAlgorithmAutoMorphLWENTRU<Element>::EvalAtIndex(const Ciphertext<Element> &ciphertext, const usint i, 
+void LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(const Ciphertext<Element> &ciphertext, const usint i, 
 				const std::vector<LPEvalKey<Element> *> &evalKeys, Ciphertext<Element> *newCiphertext) const
 
 {
@@ -48,7 +48,7 @@ void LPAlgorithmAutoMorphLWENTRU<Element>::EvalAtIndex(const Ciphertext<Element>
 
 	*newCiphertext = ciphertext;
 
-	this->ReEncrypt(*evalKeys[i-2], permutedCiphertext, newCiphertext);
+	this->GetScheme().ReEncrypt(*evalKeys[i-2], permutedCiphertext, newCiphertext);
 
 
 		////debugging
@@ -70,13 +70,16 @@ void LPAlgorithmAutoMorphLWENTRU<Element>::EvalAtIndex(const Ciphertext<Element>
 }  
 
 template <class Element>
-bool LPAlgorithmAutoMorphLWENTRU<Element>::EvalAutomorphismKeyGen(const LPPublicKey<Element> &publicKey, 
+bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const LPPublicKey<Element> &publicKey, 
 	const LPPrivateKey<Element> &origPrivateKey,
-	DiscreteGaussianGenerator &ddg, const usint size, LPPrivateKey<Element> *tempPrivateKey, 
+	const usint size, LPPrivateKey<Element> *tempPrivateKey, 
 	std::vector<LPEvalKey<Element>*> *evalKeys) const
 {
 	const Element &privateKeyElement = origPrivateKey.GetPrivateElement();
 	usint m = privateKeyElement.GetParams().GetCyclotomicOrder();
+
+	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
+	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
 	if (size > m/2 - 1)
 		throw std::logic_error("size exceeds the ring dimensions\n");
@@ -98,7 +101,9 @@ bool LPAlgorithmAutoMorphLWENTRU<Element>::EvalAutomorphismKeyGen(const LPPublic
 			
 			tempPrivateKey->SetPrivateElement(permutedPrivateKeyElement);
 
-			this->EvalKeyGen(publicKey, *tempPrivateKey, ddg, evalKeys->at(index));
+			//const LPPublicKeyEncryptionScheme<Element> *scheme = ciphertext.GetEncryptionAlgorithm();
+
+			this->GetScheme().EvalKeyGen(publicKey, *tempPrivateKey, evalKeys->at(index));
 
 			i = i + 2;
 

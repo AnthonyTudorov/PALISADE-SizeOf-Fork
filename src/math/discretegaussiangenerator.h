@@ -39,14 +39,14 @@
 #include <random>
 
 #include "backend.h"
-#include "discretedistributiongenerator.h"
+#include "distributiongenerator.h"
 
 namespace lbcrypto {
 
 /**
 * @brief The class for Discrete Gaussion Distribution generator.
 */
-class DiscreteGaussianGenerator : DiscreteDistributionGenerator {
+class DiscreteGaussianGenerator : DistributionGenerator {
 
 public:
 	/**
@@ -59,7 +59,7 @@ public:
 	* @param modulus The modulus to use to generate discrete values.
 	* @param std     The standard deviation for this Gaussian Distribution.
 	*/
-	DiscreteGaussianGenerator (const BigBinaryInteger & modulus, const sint std);
+	DiscreteGaussianGenerator (const sint std);
 
 	/**
 	* @brief Initializes the generator.
@@ -83,13 +83,22 @@ public:
 	* @param size The number of values to return.
 	* @return     A pointer to an array of schar values generated with the distribution.
 	*/
-	schar * GenerateCharVector (usint size) const;
+	sint * GenerateIntVector (usint size) const;
 
 	/**
 	* @brief  Returns a generated integer. Uses Peikert's inversion method.
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	BigBinaryInteger GenerateInteger (const BigBinaryInteger &modulus);
+	BigBinaryInteger GenerateInteger (const BigBinaryInteger &modulus) const;
+
+	/**
+	* @brief           Generates a vector of random values within this Discrete Gaussian Distribution. Uses Peikert's inversion method.
+	*
+	* @param  size     The number of values to return.
+	* @param  modulus  modulus of the polynomial ring.
+	* @return          The vector of values within this Discrete Gaussian Distribution.
+	*/
+	BigBinaryVector GenerateVector (usint size, const BigBinaryInteger &modulus) const;
 
 	/**
 	* @brief  Returns a generated integer. Uses rejection method.
@@ -99,7 +108,7 @@ public:
 	* param modulus modulus
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	BigBinaryInteger GenerateInteger (double mean, double stddev, size_t n, const BigBinaryInteger &modulus);
+	BigBinaryInteger GenerateInteger (double mean, double stddev, size_t n, const BigBinaryInteger &modulus) const;
 
 	/**
 	* @brief  Returns a generated integer. Uses rejection method.
@@ -108,7 +117,7 @@ public:
 	* @param n is ring dimension
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	int32_t GenerateInteger (double mean, double stddev, size_t n);
+	int32_t GenerateInteger (double mean, double stddev, size_t n) const;
 
 	/**
 	* @brief  Returns a generated integer (int32_t). Uses rejection method.
@@ -118,31 +127,6 @@ public:
 	*/
 	//int32_t GenerateInt32 (double mean, double stddev);
 	//will be defined later
-
-	/**
-	* @brief           Generates a vector of random values within this Discrete Gaussian Distribution.
-	*
-	* @param  size     The number of values to return.
-	* @return          The vector of values within this Discrete Gaussian Distribution.
-	*/
-	BigBinaryVector GenerateVector (usint size);
-
-	/**
-	* @brief           Generates a vector of random values within this Discrete Gaussian Distribution.
-	*
-	* @param  size     The number of values to return.
-	* @param  modulus  modulus of the polynomial ring.
-	* @return          The vector of values within this Discrete Gaussian Distribution.
-	*/
-	BigBinaryVector GenerateVector (usint size, const BigBinaryInteger &modulus);
-
-	/**
-	* @brief               Generates a vector of random, positive values within this Discrete Gaussian Distribution.
-	* @param  vectorLength The number of values to return.
-	* @param  &modValue    The number of values to return.
-	* @return              The vector of positive values within this Discrete Gaussian Distribution.
-	*/
-	static BigBinaryVector DiscreteGaussianPositiveGenerator (usint vectorLength, const BigBinaryInteger &modValue);
 
 private:
 	usint FindInVector (const std::vector<double> &S, double search) const;
@@ -161,9 +145,6 @@ private:
 	* The standard deviation of the distribution.
 	*/
 	sint m_std;
-	
-	//Mersenne Twister engine is used
-	std::mt19937 m_gen;
 
 };
 

@@ -53,8 +53,12 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPAlgorithmAutoMorphLWENTRU : public LPAlgorithmAHELWENTRU<Element>, public LPAutoMorphAlgorithm<Element> {
+	class LPAlgorithmAutoMorphLTV : public LPAutoMorphAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
 		public:
+
+			//inherited constructors
+			LPAlgorithmAutoMorphLTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
+			LPAlgorithmAutoMorphLTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 			
 			/**
 			 * Function for evaluating ciphertext at an index; works only with odd indices in the ciphertext
@@ -79,7 +83,7 @@ namespace lbcrypto {
 			 */
 			virtual bool EvalAutomorphismKeyGen(const LPPublicKey<Element> &publicKey, 
 				const LPPrivateKey<Element> &origPrivateKey,
-				DiscreteGaussianGenerator &ddg, const usint size, LPPrivateKey<Element> *tempPrivateKey, 
+				const usint size, LPPrivateKey<Element> *tempPrivateKey, 
 				std::vector<LPEvalKey<Element> *> *evalKeys) const;
 
 	};

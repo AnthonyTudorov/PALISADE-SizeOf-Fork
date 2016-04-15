@@ -138,7 +138,7 @@ namespace lbcrypto {
 
         inline static function<unique_ptr<ILVector2n>()> MakeDiscreteGaussianCoefficientAllocator(ILParams params, Format resultFormat, int stddev) {
             return [=]() {
-                DiscreteGaussianGenerator dgg(params.GetModulus(), stddev);
+                DiscreteGaussianGenerator dgg(stddev);
                 auto ilvec = make_unique<ILVector2n>(dgg, params, COEFFICIENT);
                 ilvec->SetFormat(resultFormat);
                 return ilvec;
@@ -221,7 +221,7 @@ namespace lbcrypto {
 		* @param &params the input params.
 		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVector2n(DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
+		ILVector2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
 
 
 		/**
@@ -531,7 +531,7 @@ namespace lbcrypto {
 		* @param &dgg the discrete Gaussian Generator.
 		* @param &params are the relevant ring parameters.
 		*/
-		static void PreComputeDggSamples(DiscreteGaussianGenerator &dgg, const ILParams &params);
+		static void PreComputeDggSamples(const DiscreteGaussianGenerator &dgg, const ILParams &params);
 
 		/**
 		* Clear the pre-computed discrete Gaussian samples.

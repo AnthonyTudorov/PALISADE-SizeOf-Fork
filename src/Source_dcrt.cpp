@@ -49,10 +49,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "math/distrgen.h"
 #include "crypto/lwecrypt.h"
 #include "crypto/lwecrypt.cpp"
+#include "crypto/lweautomorph.cpp"
 #include "crypto/lwepre.h"
 #include "crypto/lwepre.cpp"
 #include "crypto/lweahe.cpp"
 #include "crypto/lweshe.cpp"
+#include "crypto/lwefhe.cpp"
 #include "lattice/ilvector2n.h"
 #include "lattice/ilvectorarray2n.h"
 #include "time.h"
@@ -153,32 +155,37 @@ void NTRU_DCRT() {
 	}
 
 		cout << "big modulus: " << modulus << endl;
-	DiscreteGaussianGenerator dgg(modulus,stdDev);
+	DiscreteGaussianGenerator dgg(stdDev);
 
 	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
 
 //	ILDCRTParams params(rootsOfUnity, m, moduli,modulus1*modulus2);
 
-	LPCryptoParametersLWE<ILVectorArray2n> cryptoParams2;
+	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
 //	BigBinaryInteger plaintextm("8");
 	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
 //	cryptoParams2.SetPlaintextModulus(plaintextm);
 	cryptoParams2.SetDistributionParameter(stdDev);
 	cryptoParams2.SetRelinWindow(1);
 	cryptoParams2.SetElementParams(params);
+	cryptoParams2.SetDiscreteGaussianGenerator(dgg);
 
 	Ciphertext<ILVectorArray2n> cipherText2;
 	cipherText2.SetCryptoParameters(cryptoParams2);
 
 
-	LPPublicKeyLWENTRU<ILVectorArray2n> pk2(cryptoParams2);
-	LPPrivateKeyLWENTRU<ILVectorArray2n> sk2(cryptoParams2);
+	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams2);
+	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams2);
 
-	LPAlgorithmLWENTRU<ILVectorArray2n> algorithm2;
+	//std::bitset<FEATURESETSIZE> mask (std::string("000011"));
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2;
+	algorithm2.Enable(ENCRYPTION);
 
-	algorithm2.KeyGen(pk2, sk2, dgg);
+	//LPAlgorithmLTV<ILVectorArray2n> algorithm2;
 
-	algorithm2.Encrypt(pk2, dgg, ptxt, &cipherText2);
+	algorithm2.KeyGen(&pk2, &sk2);
+
+	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
 
 	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
 
@@ -192,21 +199,21 @@ void NTRU_DCRT() {
 
 	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
-	//LPAlgorithmPRELWENTRU<ILVectorArray2n> algorithmPRE;
+	//LPAlgorithmPRELTV<ILVectorArray2n> algorithmPRE;
 
 	////////////////////////////////////////////////////////////////
 	//////Perform the second key generation operation.
 	////// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////////
 
-	//LPPublicKeyLWENTRU<ILVectorArray2n> newPK(cryptoParams2);
-	//LPPrivateKeyLWENTRU<ILVectorArray2n> newSK(cryptoParams2);
+	//LPPublicKeyLTV<ILVectorArray2n> newPK(cryptoParams2);
+	//LPPrivateKeyLTV<ILVectorArray2n> newSK(cryptoParams2);
 
 	//std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
 	//algorithmPRE.KeyGen(newPK,newSK,dgg);	// This is the same core key generation operation.
 
-	//LPEvalKeyLWENTRU<ILVectorArray2n> evalKey(cryptoParams2);
+	//LPEvalKeyLTV<ILVectorArray2n> evalKey(cryptoParams2);
 
 	//algorithmPRE.EvalKeyGen(newPK, sk2, dgg , &evalKey);  // This is the core re-encryption operation.
 

@@ -51,6 +51,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "crypto/lwecrypt.cpp"
 #include "crypto/lwepre.h"
 #include "crypto/lwepre.cpp"
+#include "crypto/lweahe.cpp"
+#include "crypto/lweshe.cpp"
+#include "crypto/lwefhe.cpp"
+#include "crypto/lweautomorph.cpp"
 #include "lattice/ilvector2n.h"
 #include "lattice/ilvectorarray2n.h"
 #include "crypto/ciphertext.cpp"
@@ -158,13 +162,14 @@ void EncryptionSchemeSimulation(usint count){
 	int stdDev = 4;
 
 	//Set crypto parametes
-	LPCryptoParametersLWE<ILVector2n> cryptoParams;
+	LPCryptoParametersLTV<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(modulus, stdDev);			// Create the noise generator
+	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
@@ -194,14 +199,14 @@ void EncryptionSchemeSimulation(usint count){
 	for (usint j = 0; j<count; j++){
 
 		// Initialize the public key containers.
-		LPPublicKeyLWENTRU<ILVector2n> pk(cryptoParams);
-		LPPrivateKeyLWENTRU<ILVector2n> sk(cryptoParams);
+		LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
+		LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
 
 		//Regular LWE-NTRU encryption algorithm
-		LPAlgorithmLWENTRU<ILVector2n> algorithm;
+		LPAlgorithmLTV<ILVector2n> algorithm;
 
 		bool successKeyGen = false;
-		successKeyGen = algorithm.KeyGen(pk, sk, dgg);	// This is the core function call that generates the keys.
+		successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
 
 		if (!successKeyGen) {
 			std::cout << "Key generation failed!" << std::endl;
@@ -211,7 +216,7 @@ void EncryptionSchemeSimulation(usint count){
 		Ciphertext<ILVector2n> ciphertext;
 		ByteArrayPlaintextEncoding ptxt(plaintext);
 
-		algorithm.Encrypt(pk, dgg, ptxt, &ciphertext);	// This is the core encryption operation.
+		algorithm.Encrypt(pk, ptxt, &ciphertext);	// This is the core encryption operation.
 
 		ByteArrayPlaintextEncoding plaintextNew;
 
@@ -329,13 +334,14 @@ void PRESimulation(usint count, usint dataset){
 	int stdDev = 4;
 
 	// Set crypto parametes
-	LPCryptoParametersLWE<ILVector2n> cryptoParams;
+	LPCryptoParametersLTV<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			 // Set the noise parameters.
 	cryptoParams.SetRelinWindow(relWindow);				     // Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			     // Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(modulus, stdDev);			 // Create the noise generator
+	DiscreteGaussianGenerator dgg(stdDev);				 // Create the noise generator
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	// Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
@@ -357,18 +363,20 @@ void PRESimulation(usint count, usint dataset){
 	//GENERATE THE KEYS
 
 	//LWE-NTRU encryption/pre-encryption algorithm instance
-	LPAlgorithmPRELWENTRU<ILVector2n> algorithm;
+	//LPAlgorithmPRELTV<ILVector2n> algorithm;
+	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
 
-	std::vector<LPPublicKeyLWENTRU<ILVector2n>*> publicKeys;
-	std::vector<LPPrivateKeyLWENTRU<ILVector2n>*> privateKeys;
-	std::vector<LPEvalKeyLWENTRU<ILVector2n>*> evalKeys;
+	std::vector<LPPublicKeyLTV<ILVector2n>*> publicKeys;
+	std::vector<LPPrivateKeyLTV<ILVector2n>*> privateKeys;
+	std::vector<LPEvalKeyLTV<ILVector2n>*> evalKeys;
 
 	// Initialize the public key containers.
-	LPPublicKeyLWENTRU<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLWENTRU<ILVector2n> sk(cryptoParams);
+	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
+	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
 
 	bool successKeyGen = false;
-	successKeyGen = algorithm.KeyGen(pk, sk, dgg);	// This is the core function call that generates the keys.
+	successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
 
 	if (!successKeyGen) {
 		std::cout << "Key generation failed!" << std::endl;
@@ -380,17 +388,17 @@ void PRESimulation(usint count, usint dataset){
 
 	for (usint d = 0; d < depth; d++){
 
-		LPPublicKeyLWENTRU<ILVector2n> *newPK;
-		LPPrivateKeyLWENTRU<ILVector2n> *newSK;
-		LPEvalKeyLWENTRU<ILVector2n> *evalKey;
+		LPPublicKeyLTV<ILVector2n> *newPK;
+		LPPrivateKeyLTV<ILVector2n> *newSK;
+		LPEvalKeyLTV<ILVector2n> *evalKey;
 
-		newPK = new LPPublicKeyLWENTRU<ILVector2n>(cryptoParams);
-		newSK = new LPPrivateKeyLWENTRU<ILVector2n>(cryptoParams);
-		evalKey = new LPEvalKeyLWENTRU<ILVector2n>(cryptoParams);
+		newPK = new LPPublicKeyLTV<ILVector2n>(cryptoParams);
+		newSK = new LPPrivateKeyLTV<ILVector2n>(cryptoParams);
+		evalKey = new LPEvalKeyLTV<ILVector2n>(cryptoParams);
 
-		successKeyGen = algorithm.KeyGen(*newPK, *newSK, dgg);	// This is the same core key generation operation.
+		successKeyGen = algorithm.KeyGen(newPK, newSK);	// This is the same core key generation operation.
 
-		algorithm.EvalKeyGen(*newPK, *privateKeys[d], dgg, evalKey);  // This is the core re-encryption operation.
+		algorithm.EvalKeyGen(*newPK, *privateKeys[d], evalKey);  // This is the core re-encryption operation.
 
 		publicKeys.push_back(newPK);
 		privateKeys.push_back(newSK);
@@ -415,7 +423,7 @@ void PRESimulation(usint count, usint dataset){
 
 		ByteArrayPlaintextEncoding ptxt(arrPlaintext[j]);
 
-		algorithm.Encrypt(pk, dgg, ptxt, &arrCiphertext[j]);	// This is the core encryption operation.
+		algorithm.Encrypt(pk, ptxt, &arrCiphertext[j]);	// This is the core encryption operation.
 
 	}
 

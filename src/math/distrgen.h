@@ -42,6 +42,5 @@
 #include "discretegaussiangenerator.h"
 #include "discreteuniformgenerator.h"
 #include "binaryuniformgenerator.h"
-#include "discretedistributiongenerator.h"
 
 #endif // LBCRYPTO_MATH_DISTRGEN_H_

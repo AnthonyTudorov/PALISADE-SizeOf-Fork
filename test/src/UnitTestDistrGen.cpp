@@ -75,7 +75,7 @@ TEST(method_generate_uniform_big_binary,with_in_small_modulus_integer_small_modu
 {
 	BigBinaryInteger modulus("10403");
 	DiscreteUniformGenerator dug = lbcrypto::DiscreteUniformGenerator(modulus);
-	BigBinaryInteger uniRandNum = dug.GenerateInteger(modulus);
+	BigBinaryInteger uniRandNum = dug.GenerateInteger();
 
 	EXPECT_LT(uniRandNum, modulus);
 }
@@ -86,7 +86,7 @@ TEST(method_generate_uniform_big_binary,with_in_large_modulus_integer_large_modu
 {
 	BigBinaryInteger modulus("10402635286389262637365363");
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
-	BigBinaryInteger uniRandNum = distrUniGen.GenerateInteger(modulus);
+	BigBinaryInteger uniRandNum = distrUniGen.GenerateInteger();
 
 	EXPECT_LT(uniRandNum, modulus);
 }
@@ -99,7 +99,7 @@ TEST(method_generate_uniform_big_binary,vector_uniform_vector_small_modulus)
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
 
 	usint size = 10;
-	BigBinaryVector uniRandVector = distrUniGen.GenerateVector(size,modulus);
+	BigBinaryVector uniRandVector = distrUniGen.GenerateVector(size);
 
 	EXPECT_EQ(uniRandVector.GetLength(), size);
 
@@ -116,7 +116,7 @@ TEST(method_generate_uniform_big_binary,vector_uniform_vector_large_modulus)
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
 
 	usint size = 100;
-	BigBinaryVector uniRandVector = distrUniGen.GenerateVector(size,modulus);
+	BigBinaryVector uniRandVector = distrUniGen.GenerateVector(size);
 
 	EXPECT_EQ(uniRandVector.GetLength(), size);
 
@@ -135,7 +135,7 @@ TEST(method_generate_uniform_big_binary, first_moment_test_convertToDouble_small
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
 
 	usint size = 500000;
-	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size,modulus);
+	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
 
 	double sum = 0;
 	BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
@@ -162,7 +162,7 @@ TEST(method_generate_uniform_big_binary, second_moment_test_convertToDouble_smal
 
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
 	usint size = 500000;
-	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size,modulus);
+	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
 
 	double sum=0, temp;
 	for(usint index=0; index<size; index++) {
@@ -191,7 +191,7 @@ TEST(method_generate_uniform_big_binary, first_moment_test_convertToDouble_big_m
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
 
 	usint size = 50000;
-	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size,modulus);
+	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
 
 	double sum=0;
 	BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
@@ -219,7 +219,7 @@ TEST(method_generate_uniform_big_binary, second_moment_test_convertToDouble_big_
 
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
 	usint size = 50000;
-	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size,modulus);
+	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
 
 	double sum=0, temp;
 	for(usint index=0; index<size; index++) {
@@ -247,7 +247,7 @@ TEST(method_generate_uniform_big_binary, recreate_overflow_issue)
 	usint eachIterationSize = 1000, noOfIterations = 100;
 	BigBinaryInteger sum, mean, N(eachIterationSize);
 	
-	BigBinaryVector uniRandVector = distrUniGen.GenerateVector(eachIterationSize * noOfIterations,modulus);
+	BigBinaryVector uniRandVector = distrUniGen.GenerateVector(eachIterationSize * noOfIterations);
 	
 	for(usint i=0; i<noOfIterations; i++) {
 		sum = BigBinaryInteger::ZERO;
@@ -281,7 +281,8 @@ TEST(method_generate_binary_uniform_big_binary_integer,mean)
 	BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
 
 	usint length = 100000;
-	BigBinaryVector randBigBinaryVector = binaryUniGen.GenerateVector(length);
+	BigBinaryInteger modulus = BigBinaryInteger("1041");
+	BigBinaryVector randBigBinaryVector = binaryUniGen.GenerateVector(length,modulus);
 
 	usint sum = 0;
 
@@ -308,8 +309,8 @@ TEST(method_test_guassian_rand_generator, generate_char_vector_mean_test)
 	sint stdev = 5;
 	usint size = 10000;
   BigBinaryInteger modulus("10403");
-	DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(modulus, stdev);
-	schar* dggCharVector = dgg.GenerateCharVector(size);
+	DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
+	sint* dggCharVector = dgg.GenerateIntVector(size);
 
 	double mean = 0;
 	for(usint i=0; i<size; i++) {
@@ -329,8 +330,8 @@ TEST(method_test_guassian_rand_generator, generate_vector_mean_test)
 	usint size = 100000;
 	BigBinaryInteger modulus("10403");
 	BigBinaryInteger modulusByTwo(modulus.DividedBy(BigBinaryInteger::TWO));
-	DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(modulus, stdev);
-	BigBinaryVector dggBigBinaryVector = dgg.GenerateVector(size);
+	DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
+	BigBinaryVector dggBigBinaryVector = dgg.GenerateVector(size,modulus);
 
 	usint countOfZero = 0;
 	double mean = 0, current = 0;

@@ -34,7 +34,7 @@
 #define LBCRYPTO_MATH_DISCRETEUNIFORMGENERATOR_H_
 
 #include "backend.h"
-#include "discretedistributiongenerator.h"
+#include "distributiongenerator.h"
 #include <random>
 
 namespace lbcrypto {
@@ -42,7 +42,7 @@ namespace lbcrypto {
 /**
 * @brief The class for Discrete Uniform Distribution generator over Zq.
 */
-class DiscreteUniformGenerator : protected DiscreteDistributionGenerator {
+class DiscreteUniformGenerator : protected DistributionGenerator {
 public:
 	/**
 	* @brief         Constructs a new DiscreteUniformGenerator with the given modulus.
@@ -55,15 +55,16 @@ public:
 	* @param modulus The new modulus.
 	*/
 	void SetModulus (const BigBinaryInteger & modulus);
-	/**
-	* @brief Required by DistributionGenerator.
-	*/
-	BigBinaryInteger GenerateInteger (const BigBinaryInteger & modulus);
 
 	/**
 	* @brief Required by DistributionGenerator.
 	*/
-	BigBinaryVector GenerateVector (const usint size, const BigBinaryInteger & modulus);
+	BigBinaryInteger GenerateInteger ();
+
+	/**
+	* @brief Required by DistributionGenerator.
+	*/
+	BigBinaryVector GenerateVector (const usint size);
 
 private:
 	static const usint CHUNK_MIN = 0;
@@ -77,6 +78,11 @@ private:
 	usint m_remainingWidth;
 	usint m_chunksPerValue;
 	std::uniform_int_distribution<usint> m_distribution;
+
+	/**
+	* The modulus value that should be used to generate discrete values.
+	*/
+	BigBinaryInteger m_modulus;
 
 };
 
