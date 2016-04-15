@@ -60,10 +60,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "crypto/lweshe.cpp"
 #include "lattice/ilvector2n.h"
 #include "lattice/ilvectorarray2n.h"
-#include "time.h"
+//#include "time.h"
 #include "crypto/ciphertext.cpp"
 //#include "vld.h"
-#include <chrono>
+//#include <chrono>
+#include "utils/debug.h"
+
 //#include "gtest/gtest.h"
 //#include "math/cpu8bit/binint.h"
 //#include "math/cpu8bit/binvect.h"
@@ -75,7 +77,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 using namespace lbcrypto;
 void NTRUPRE(int input);
-double currentDateTime();
+
 
 /**
  * @brief Input parameters for PRE example.
@@ -119,21 +121,6 @@ static void BM_SOURCE(benchmark::State& state) {
 }
 
 
-double currentDateTime()
-{
-
-	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-
-    time_t tnow = std::chrono::system_clock::to_time_t(now);
-    tm *date = localtime(&tnow);
-    date->tm_hour = 0;
-    date->tm_min = 0;
-    date->tm_sec = 0;
-
-    auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
-
-	return std::chrono::duration <double, std::milli>(now - midnight).count();
-}
 
 //////////////////////////////////////////////////////////////////////
 //	NTRUPRE is where the core functionality is provided.

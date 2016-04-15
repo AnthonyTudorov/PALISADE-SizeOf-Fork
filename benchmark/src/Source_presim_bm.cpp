@@ -56,16 +56,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "lattice/ilvector2n.h"
 #include "lattice/ilvectorarray2n.h"
 #include "crypto/ciphertext.cpp"
-#include "time.h"
+//#include "time.h"
 //#include "vld.h"
-#include <chrono>
+//#include <chrono>
+#include "utils/debug.h"
 #include <vector>
 
 
 using namespace std;
 using namespace lbcrypto;
 
-double currentDateTime();
+//double currentDateTime();
 
 const usint NUMBER_OF_RUNS = 100;
 
@@ -578,18 +579,18 @@ void PRESimulation(usint count, usint dataset){
 
 }
 
-double currentDateTime()
-{
+// double currentDateTime()
+// {
 
-	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+// 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 
-	time_t tnow = std::chrono::system_clock::to_time_t(now);
-	tm *date = localtime(&tnow);
-	date->tm_hour = 0;
-	date->tm_min = 0;
-	date->tm_sec = 0;
+// 	time_t tnow = std::chrono::system_clock::to_time_t(now);
+// 	tm *date = localtime(&tnow);
+// 	date->tm_hour = 0;
+// 	date->tm_min = 0;
+// 	date->tm_sec = 0;
 
-	auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
+// 	auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
 
-	return std::chrono::duration <double, std::milli>(now - midnight).count();
-}
+// 	return std::chrono::duration <double, std::milli>(now - midnight).count();
+// }
