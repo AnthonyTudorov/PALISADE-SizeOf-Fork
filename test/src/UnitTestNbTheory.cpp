@@ -11,6 +11,7 @@ List of Authors:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
 		Nishanth Pasham, np386@njit.edu
+		Dr. David Bruce Cousins, dcousins@bbn.com
 Description:	
 	This code exercises the math libraries of the PALISADE lattice encryption library.
 
@@ -41,19 +42,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../src/lattice/ilvectorarray2n.h"
 #include "../../src/utils/utilities.h"
 
-/*
-#include "binint.h"
-#include "binmat.h"
-#include "binvect.h"
-#include "inttypes.h"
-#include "nbtheory.h"
-#include "ideals.h"
-#include "distrgen.h"
-#include "lwecrypt.h"
-#include "lwepre.h"
-#include "il2n.h"
-#include "utilities.h"
-*/
 
 using namespace std;
 using namespace lbcrypto;
@@ -75,13 +63,8 @@ class UnitTestNbTheory : public ::testing::Test {
   }
 };
 
-/*
-EXPECT_EQ (expected, actual) verifies expected == actual.
-Compares two integer values
-*/
 
-
-/*---------------------------------------	TESTING METHODS OF NBTHEORY	  --------------------------------------------*/
+/*----------------------------	TESTING METHODS OF NBTHEORY	  --------------------------------------------*/
 
 // TEST CASE TO FIND GREATEST COMMON DIVISOR OF TWO SMALL NUMBERS
 
@@ -306,20 +289,33 @@ TEST(method_primitive_root_of_unity, exception_handling) {
 	
 	int m = 32;
 	BigBinaryInteger modulus1("67108913"), modulus2("17729"), modulus3("2097169"), modulus4("8353"), modulus5("8369");
-	BigBinaryInteger primitiveRootOfUnity1 = lbcrypto::RootOfUnity(m, modulus1);
-	BigBinaryInteger primitiveRootOfUnity2 = lbcrypto::RootOfUnity(m, modulus2);
-	// BigBinaryInteger primitiveRootOfUnity3 = lbcrypto::RootOfUnity(m, modulus3);
-	// BigBinaryInteger primitiveRootOfUnity4 = lbcrypto::RootOfUnity(m, modulus4);
-	// BigBinaryInteger primitiveRootOfUnity5 = lbcrypto::RootOfUnity(m, modulus5);
+
+	//note this example shows two ways of testing for an exception throw
+	BigBinaryInteger primitiveRootOfUnity1;
+
+	//the first way is to catch the error and expect the result. 
+	int caught_error = 0;
+	try{
+	  primitiveRootOfUnity1 = lbcrypto::RootOfUnity(m, modulus1); 
+	}
+	catch(...) {
+	  caught_error = 1;
+	}
+	EXPECT_EQ(caught_error, 1)<<"RootOfUnity did not throw an error and should have";
+	
+	// the second way is to directly expect the throw. 
+	EXPECT_ANY_THROW(	// this call should throw 
+	  primitiveRootOfUnity1 = lbcrypto::RootOfUnity(m, modulus1); 
+	)<<"RootOfUnity did not throw an error and should have";
+
+	BigBinaryInteger primitiveRootOfUnity2;
+	EXPECT_NO_THROW(	// this call should NOT throw 
+	  primitiveRootOfUnity2 = lbcrypto::RootOfUnity(m, modulus2); 
+	)<<"RootOfUnity threw an error and should not have";
+
 	std::cout << "RootOfUnity for " << modulus1 << " is " << primitiveRootOfUnity1 << std::endl;
 	std::cout << "RootOfUnity for " << modulus2 << " is " << primitiveRootOfUnity2 << std::endl;
-	// std::cout << "RootOfUnity for " << modulus3 << " is " << primitiveRootOfUnity3 << std::endl;
-	// std::cout << "RootOfUnity for " << modulus4 << " is " << primitiveRootOfUnity4 << std::endl;
-	// std::cout << "RootOfUnity for " << modulus5 << " is " << primitiveRootOfUnity5 << std::endl;
-	// BigBinaryInteger expectedRootOfUnity("57697672");
 
-	// BigBinaryInteger rootOfUnityPowerm = expectedRootOfUnity.ModExp(m, modulus);
-	// std::cout << "Exponential is: " << rootOfUnityPowerm << std::endl; 
 }
 
 // TEST(random_number_generator_small_modulus, less_than) {
