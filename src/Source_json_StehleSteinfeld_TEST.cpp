@@ -95,16 +95,16 @@ int main(){
 	std::cout << "0 (n = 1024, p = 2, r = 1), 1 (n = 1024, p = 2, r = 8), 2 (n = 2048, p = 2, r = 1), 3 (n = 2048, p = 16, r = 16), 4 (n = 4096, p = 16, r = 16), 5 (n = 8192, p = 16, r = 16), 6 (n = 4096, p = 256, r = 16): ";
 
 	int input = 0;
-	//std::cin >> input;
+	std::cin >> input;
 	//cleans up the buffer
-	//cin.ignore();
+	cin.ignore();
 
 	if ((input<0) || (input>7))
 		input = 0;
 
 	////NTRUPRE is where the core functionality is provided.
-	//NTRUPRE(input);
-	NTRUPRE(6);
+	NTRUPRE(input);
+	//NTRUPRE(6);
 
 	//BigBinaryInteger test("2098098097897987987987");
 	//BigBinaryInteger test("209809");
