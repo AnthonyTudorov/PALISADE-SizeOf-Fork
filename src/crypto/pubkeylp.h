@@ -339,8 +339,8 @@ namespace lbcrypto {
 			 * @param &originalPrivateKey Original private key used for encryption.
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
 			 */
-			virtual LPKeySwitchHint<Element> KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
-				const LPPrivateKey<Element> &newPrivateKey) const = 0;
+			virtual void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
+				const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const = 0;
 			
 			/**
 			 * Method for encrypting plaintex using LBC

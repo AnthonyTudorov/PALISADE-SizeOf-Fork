@@ -199,6 +199,10 @@ namespace lbcrypto {
 		return m_params;
 	}
 
+	ILParams& ILVector2n::AccessParams(){
+		return m_params;
+	}
+
 	const BigBinaryInteger& ILVector2n::GetValAtIndex(usint i) const
 	{
 		return m_values->GetValAtIndex(i);
@@ -376,7 +380,6 @@ namespace lbcrypto {
 		if (m_format == COEFFICIENT) {
 			m_format = EVALUATION;
 			*m_values = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(*m_values, m_params.GetRootOfUnity(), m_params.GetCyclotomicOrder());
-			std::cout<<"Printing Roots of Unity:  "<<m_params.GetRootOfUnity()<<std::endl;
 		}
 
 		else {
@@ -465,28 +468,26 @@ namespace lbcrypto {
 	}
 
 	// ILVector2n ILVector2n::Decompose(const std::vector<BBI> rootsofunity) const
-	ILVector2n ILVector2n::Decompose(const ElemParams &decomposedParams) const {
+	void ILVector2n::Decompose() {
 		Format format(this->GetFormat());
 		if(format != Format::COEFFICIENT) {
 			std::string errMsg = "ILVector2n not in COEFFICIENT format to perform Decompose.";
 			throw std::runtime_error(errMsg);
 		}
-		ILVector2n decompose(*this);
-
-		const ILParams &decomposedParamsSRT = static_cast<const ILParams&>(decomposedParams);
-		/*usint decomposedCyclotomicOrder = this->GetParams().GetCyclotomicOrder()/2;
+	
+		usint decomposedCyclotomicOrder = this->GetParams().GetCyclotomicOrder()/2;
 		BigBinaryInteger modulus(this->GetModulus());
 		BigBinaryInteger rootOfUnity(RootOfUnity(decomposedCyclotomicOrder, modulus));
-		ILParams decomposeParams(decomposedCyclotomicOrder, modulus, rootOfUnity);*/
-		decompose.SetParams(decomposedParamsSRT);
+		ILParams decomposeParams(decomposedCyclotomicOrder, modulus, rootOfUnity);
+		this->SetParams(decomposeParams);
+
 		BigBinaryVector decomposeValues(this->GetLength()/2, this->GetModulus());
 		for(usint i = 0; i < this->GetLength();i=i+2){
 			decomposeValues.SetValAtIndex(i/2, this->GetValues().GetValAtIndex(i));
 			// std::cout << this->GetValues().GetValAtIndex(i) << std::endl;
 		}
 
-		decompose.SetValues(decomposeValues, this->GetFormat());
-		return decompose;
+		this->SetValues(decomposeValues, this->GetFormat());
 	}
 
 	void ILVector2n::SetToTestValue(){

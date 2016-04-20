@@ -286,6 +286,13 @@ namespace lbcrypto {
 		const ILParams &GetParams() const;
 
 		/**
+		* Access method of the parameter set.
+		*
+		* @return the parameter set.
+		*/
+		ILParams& AccessParams();
+
+		/**
 		* Get value of binaryvector at index i.
 		*
 		* @return value at index i.
@@ -414,8 +421,7 @@ namespace lbcrypto {
 		/**
 		Make ILVector2n sparse for sparse key-gen, SHE
 		*/
-		ILVector2n Decompose(const ElemParams &decomposedParams) const;
-
+		void Decompose();
 
 		// VECTOR OPERATIONS
 

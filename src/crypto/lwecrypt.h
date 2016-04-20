@@ -538,6 +538,12 @@ namespace lbcrypto {
 				//m_cryptoParameters;
 			}
 
+			LPKeySwitchHintLTV(const LPKeySwitchHintLTV &rhs){
+				this->m_sk = rhs.m_sk;
+				*this->m_cryptoParameters = *rhs.m_cryptoParameters;
+			}
+
+
 		/**
 			* Get Crypto Parameters.
 			* @return the crypto parameters.
@@ -779,7 +785,7 @@ namespace lbcrypto {
 			 */
 			bool SparseKeyGen(LPPublicKey<Element> &publicKey, 
 		        	LPPrivateKey<Element> &privateKey, 
-			        DiscreteGaussianGenerator &dgg) const;
+			        const DiscreteGaussianGenerator &dgg) const;
 
 	 };
 
@@ -800,8 +806,8 @@ namespace lbcrypto {
 			 * @param &originalPrivateKey Original private key used for encryption.
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
 			 */
-			virtual LPKeySwitchHint<Element> KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
-				const LPPrivateKey<Element> &newPrivateKey) const ;
+			virtual void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
+				const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const ;
 			
 			/**
 			 * Method for encrypting plaintex using LBC
@@ -818,7 +824,9 @@ namespace lbcrypto {
 			 * @param &privateKey Private key used to encrypt the first argument.
 			 */
 			
-			virtual void ModReduce(Ciphertext<ILVectorArray2n> *cipherText, LPPrivateKey<ILVectorArray2n> *privateKey) const ; 
+			//virtual void ModReduce(Ciphertext<ILVectorArray2n> *cipherText, LPPrivateKey<ILVectorArray2n> *privateKey) const ; 
+
+			virtual void ModReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const ; 
 
 				/**
 			 * Method for encrypting plaintex using LBC

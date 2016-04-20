@@ -640,11 +640,36 @@ namespace lbcrypto {
 		return m_params;
 	}
 
+	ILDCRTParams& ILVectorArray2n::AccessParams(){
+		return this->m_params;
+	}
+
 	void ILVectorArray2n::SetParams(const ElemParams &params) {
 
 		const ILDCRTParams &castedObj = dynamic_cast<const ILDCRTParams&>(params);
 		
 		m_params = castedObj;
+		
+		usint tempCyclotomicOrder;
+		BigBinaryInteger tempModulus;
+		BigBinaryInteger tempRootOfUnity;
+		
+
+
+
+		for(usint i = 0; i < this->GetLength();i++){
+			
+			tempCyclotomicOrder = m_params.GetCyclotomicOrder();
+			tempModulus = m_params.GetModuli()[i];
+			tempRootOfUnity = m_params.GetRootsOfUnity()[i];
+
+			ILParams temp(tempCyclotomicOrder,tempModulus, tempRootOfUnity);
+			m_vectors[i].SetParams(temp);
+		
+		}
+
+		
+
 
 	}
 
@@ -833,9 +858,7 @@ namespace lbcrypto {
 		}
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
-			m_vectors[i].PrintValues();
 			m_vectors[i].SwitchFormat();
-			m_vectors[i].PrintValues();
 		}
 	}
 
@@ -936,24 +959,27 @@ namespace lbcrypto {
 
 	}
 
-	ILVectorArray2n ILVectorArray2n::Decompose(const ElemParams &decomposedParams) const {
+	void ILVectorArray2n::Decompose() {
 		Format format(this->GetFormat());
+		
 		if(format != Format::COEFFICIENT) {
 			std::string errMsg = "ILVectorArray2n not in COEFFICIENT format to perform Decompose.";
 			throw std::runtime_error(errMsg);
 		}
-		ILVectorArray2n decomposedCopy(*this);
-		const ILDCRTParams &decomposedParamsDCRT = static_cast<const ILDCRTParams&>(decomposedParams);
-		usint cyclotomicOrder = decomposedParamsDCRT.GetCyclotomicOrder();
-		std::vector<BigBinaryInteger> moduli = decomposedParamsDCRT.GetModuli();
-		std::vector<BigBinaryInteger> rootsOfUntiy = decomposedParamsDCRT.GetRootsOfUnity(); 
+		
+		usint cyclotomicOrder = this->m_params.GetCyclotomicOrder();
+		std::vector<BigBinaryInteger> moduli = this->m_params.GetModuli();
+		std::vector<BigBinaryInteger> rootsOfUnity = this->m_params.GetRootsOfUnity(); 
 
 		for(int i=0; i < m_vectors.size(); i++) {
-			ILParams ilvectorParams(cyclotomicOrder, moduli[i], rootsOfUntiy[i]);
-			 decomposedCopy.m_vectors[i] = m_vectors[i].Decompose(ilvectorParams);
+			ILParams ilvectorParams(cyclotomicOrder, moduli[i], rootsOfUnity[i]);
+			 m_vectors[i].Decompose();
+			 rootsOfUnity[i] = m_vectors[i].GetParams().GetRootOfUnity();
 		}
-		
-		return decomposedCopy;
+
+		this->AccessParams().SetRootsOfUnity(rootsOfUnity);
+		this->AccessParams().SetOrder(cyclotomicOrder/2);
+
 	}
 
 	void ILVectorArray2n::DropTower(usint index){
@@ -990,7 +1016,6 @@ namespace lbcrypto {
 		usint length = this->GetLength();
 		usint lastTowerIndex = length - 1;
 		const std::vector<BigBinaryInteger> &moduli = m_params.GetModuli();
-		std::cout<< moduli[0] << std::endl;
 
 		ILVector2n towerT(m_vectors[lastTowerIndex]);
 		ILVector2n d(towerT);
@@ -1001,42 +1026,28 @@ namespace lbcrypto {
 		BigBinaryInteger v(qt.ModInverse(p));
 		BigBinaryInteger a((v * qt).ModSub(BigBinaryInteger::ONE, p*qt));
 		d.SwitchModulus(p*qt);
-		std::cout<<std::endl;
-		d.PrintValues();
-		std::cout<<std::endl;
+		
 
 		ILVector2n delta(d.Times(a));
 		for(usint i=0; i<length; i++) {
 			ILVector2n temp(delta);
 			temp.SwitchModulus(moduli[i]);
 			m_vectors[i] += temp;
+			/*delta.SwitchModulus(moduli[i]);
+			m_vectors[i] += delta;*/
 		}
 
-		for(usint i=0;i<m_vectors.size();i++){
-			m_vectors[i].PrintValues();
-			std::cout<<std::endl;
-		}
+		
 
-		std::cout<< moduli[0] << std::endl;
 		this->DropTower(lastTowerIndex);
 
 		std::vector<BigBinaryInteger> qtInverseModQi(length-1);
-		std::cout<< qt << std::endl;
 		for(usint i=0; i<length-1; i++) {
-			std::cout<< moduli[i] << std::endl;
 			qtInverseModQi[i] =  qt > moduli[i] ? qt.Mod(moduli[i]).ModInverse(moduli[i]) : qt.ModInverse(moduli[i]);
-			std::cout<<qtInverseModQi[i]<<std::endl;
-			m_vectors[i].PrintValues();
-			std::cout<<std::endl;
 			m_vectors[i] = qtInverseModQi[i] * m_vectors[i];
-			m_vectors[i].PrintValues();
-			std::cout<<std::endl;
 		}
 		
-		for(usint i=0;i<m_vectors.size();i++){
-			m_vectors[i].PrintValues();
-			std::cout<<std::endl;
-		}
+	
 
 		this->SwitchFormat();
 	}

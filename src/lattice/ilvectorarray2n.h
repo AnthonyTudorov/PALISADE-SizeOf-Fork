@@ -163,6 +163,15 @@ namespace lbcrypto {
 
 		const ILDCRTParams &GetParams() const;
 
+
+		/**
+		* Get method of the parameter set.
+		*
+		* @return the parameter set.
+		*/
+
+		 ILDCRTParams& AccessParams();
+
 		/**
 		* Set method of the values.
 		*
@@ -287,7 +296,7 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n GetDigitAtIndexForBase(usint index, usint base) const;
 
-		ILVectorArray2n Decompose(const ElemParams &decomposedParams) const;
+		void Decompose();
 
 		/**
 		* Drops the last tower of ILVectorArray2n and adjusts parameters.

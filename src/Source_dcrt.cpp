@@ -62,7 +62,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "lattice/ilvectorarray2n.h"
 #include "time.h"
 #include "crypto/ciphertext.cpp"
-#include "SHE/sheoperations.cpp"
+//#include "SHE/sheoperations.cpp"
 //#include "vld.h"
 #include <chrono>
 //#include "gtest/gtest.h"
@@ -89,6 +89,9 @@ void RingReduceDoubleCRTTest();
 void RingReduceSingleCRTTest();
 void ModReduceNew();
 void ModReduceGyana();
+void KeySwitchTestNewAPI();
+void RingReduceDCRTTest();
+void RingReduceSingleCRTTest();
 
 /**
  * @brief Input parameters for PRE example.
@@ -126,9 +129,14 @@ int main() {
 
 //	ModReduceTest();
 
-	ModReduceNew();
+//	ModReduceNew();
 
-	ModReduceGyana();
+//	ModReduceGyana();
+	
+	//KeySwitchTestNewAPI(); 
+
+	RingReduceSingleCRTTest();
+	//RingReduceDCRTTest();
 
 	std::cin.get();
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
@@ -277,217 +285,217 @@ void NTRU_DCRT() {
 
 void KeySwitchTestSingleCRT(){
 
-	SHEOperations<ILVector2n> she_test;
+	//SHEOperations<ILVector2n> she_test;
 
-	usint m = 4096;
-	float stdDev = 4;
+	//usint m = 4096;
+	//float stdDev = 4;
 
-	ByteArrayPlaintextEncoding ctxtd;
+	//ByteArrayPlaintextEncoding ctxtd;
 
-	const ByteArray plaintext = "Mary had a little lamb, Its fleece was white as snow; And everywhere that Mary went The lamb was sure to go.";
-	
-	BigBinaryInteger q("1");
-	lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));	
-	BigBinaryInteger rootOfUnity;
+	//const ByteArray plaintext = "Mary had a little lamb, Its fleece was white as snow; And everywhere that Mary went The lamb was sure to go.";
+	//
+	//BigBinaryInteger q("1");
+	//lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));	
+	//BigBinaryInteger rootOfUnity;
 
-	rootOfUnity = lbcrypto::RootOfUnity(m,q);
+	//rootOfUnity = lbcrypto::RootOfUnity(m,q);
 
-	cout << "Modulus is" << q << endl;
-	cout << "RootOfUnity is" << rootOfUnity << endl;
+	//cout << "Modulus is" << q << endl;
+	//cout << "RootOfUnity is" << rootOfUnity << endl;
 
-	DiscreteGaussianGenerator dgg(q,stdDev);
-
-
-	ILParams ilParams(m,q,rootOfUnity);
+	//DiscreteGaussianGenerator dgg(q,stdDev);
 
 
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-	
-	ptxt.Pad<ZeroPad>(m/16);
+	//ILParams ilParams(m,q,rootOfUnity);
 
-	ILVector2n ilVector2n(ilParams);
 
-	LPCryptoParametersLTV<ILVector2n> cryptoParams2;
-	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
-	cryptoParams2.SetDistributionParameter(stdDev);
-	cryptoParams2.SetRelinWindow(1);
-	cryptoParams2.SetElementParams(ilParams);
+	//ByteArrayPlaintextEncoding ptxt(plaintext);
+	//
+	//ptxt.Pad<ZeroPad>(m/16);
 
-	Ciphertext<ILVector2n> cipherText2;
+	//ILVector2n ilVector2n(ilParams);
 
-	cipherText2.SetCryptoParameters(cryptoParams2);
+	//LPCryptoParametersLTV<ILVector2n> cryptoParams2;
+	//cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
+	//cryptoParams2.SetDistributionParameter(stdDev);
+	//cryptoParams2.SetRelinWindow(1);
+	//cryptoParams2.SetElementParams(ilParams);
 
-	LPPublicKeyLTV<ILVector2n> pk2(cryptoParams2);
-	LPPrivateKeyLTV<ILVector2n> sk2(cryptoParams2);
+	//Ciphertext<ILVector2n> cipherText2;
 
-	LPAlgorithmLTV<ILVector2n> algorithm2;
+	//cipherText2.SetCryptoParameters(cryptoParams2);
 
-	algorithm2.KeyGen(&pk2, &sk2);
-	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
+	//LPPublicKeyLTV<ILVector2n> pk2(cryptoParams2);
+	//LPPrivateKeyLTV<ILVector2n> sk2(cryptoParams2);
 
-	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+	//LPAlgorithmLTV<ILVector2n> algorithm2;
 
-	cout << "Decrypted value ILVector2n: \n" << endl;
-	cout << ctxtd<< "\n" << endl;
+	//algorithm2.KeyGen(&pk2, &sk2);
+	//algorithm2.Encrypt(pk2, ptxt, &cipherText2);
 
-	LPPublicKeyLTV<ILVector2n> pk3(cryptoParams2);
-	LPPrivateKeyLTV<ILVector2n> sk3(cryptoParams2);
-	algorithm2.KeyGen(&pk3, &sk3);
+	//algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
 
-	ILVector2n keySwitchHint(ilParams);
+	//cout << "Decrypted value ILVector2n: \n" << endl;
+	//cout << ctxtd<< "\n" << endl;
 
-	keySwitchHint = she_test.KeySwitchHintGen(sk3,sk2,dgg);
+	//LPPublicKeyLTV<ILVector2n> pk3(cryptoParams2);
+	//LPPrivateKeyLTV<ILVector2n> sk3(cryptoParams2);
+	//algorithm2.KeyGen(&pk3, &sk3);
 
-	ILVector2n c(ilParams);
-	
-	c = cipherText2.GetElement(); //EVAL
+	//ILVector2n keySwitchHint(ilParams);
 
-	c = c* keySwitchHint;  //EVAL
+	//keySwitchHint = she_test.KeySwitchHintGen(sk3,sk2,dgg);
 
-	cipherText2.SetElement(c);
+	//ILVector2n c(ilParams);
+	//
+	//c = cipherText2.GetElement(); //EVAL
 
-	algorithm2.Decrypt(sk3, cipherText2, &ctxtd);
+	//c = c* keySwitchHint;  //EVAL
 
-	cout << "Decrypted value ILVector2n: \n" << endl;
-	cout << ctxtd<< "\n" << endl;
+	//cipherText2.SetElement(c);
+
+	//algorithm2.Decrypt(sk3, cipherText2, &ctxtd);
+
+	//cout << "Decrypted value ILVector2n: \n" << endl;
+	//cout << ctxtd<< "\n" << endl;
 }
 
 
 void KeySwitchTest(){
 
-	SHEOperations<ILVectorArray2n> she_test;
-
-	double diff, start, finish;
-
-	start = currentDateTime();
-
-	usint m = 512;
-
-	const ByteArray plaintext = "Mary had a litte lamb.";
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-	ptxt.Pad<ZeroPad>(m/16);
-//	ptxt.Pad<ZeroPad>(m/8);
-
-	float stdDev = 2;
-
-	usint size = 8;
-
-	ByteArrayPlaintextEncoding ctxtd;
-
-	vector<BigBinaryInteger> moduli(size);
-
-	vector<BigBinaryInteger> rootsOfUnity(size);
-
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
-
-	for(int i=0; i < size;i++){
-        lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
-		moduli[i] = q;
-		rootsOfUnity[i] = lbcrypto::RootOfUnity(m,moduli[i]);
-		modulus = modulus* moduli[i];
-		
-	}
-
-//	cout << "big modulus: " << modulus << endl;
-	DiscreteGaussianGenerator dgg(modulus,stdDev);
-
-	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
-
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
-	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
-	cryptoParams2.SetDistributionParameter(stdDev);
-	cryptoParams2.SetRelinWindow(1);
-	cryptoParams2.SetElementParams(params);
-
-	Ciphertext<ILVectorArray2n> cipherText2;
-	cipherText2.SetCryptoParameters(cryptoParams2);
-
-	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams2);
-	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams2);
-
-	LPAlgorithmLTV<ILVectorArray2n> algorithm2;
-
-	algorithm2.KeyGen(&pk2, &sk2);
-
-	LPPublicKeyLTV<ILVectorArray2n> pk3(cryptoParams2);
-	LPPrivateKeyLTV<ILVectorArray2n> sk3(cryptoParams2);
-
-	algorithm2.KeyGen(&pk3, &sk3);
-
-	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
-
-	ILVectorArray2n d(params);
-
-	d = cipherText2.GetElement();
-
-//	d.PrintValues();
-
-	for(int i = 0; i < d.GetParams().GetModuli().size();i++){
-		cout << "Moduli " << i << " : " << d.GetParams().GetModuli()[i] << endl;
-	}
-	
-	for(int i = 0; i < d.GetParams().GetRootsOfUnity().size();i++){
-		cout << "Roots of Unity " << i << " : " << d.GetParams().GetRootsOfUnity()[i] << endl;
-	}
-
-
-	//algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
-
-	//cout << "Decrypted value ILVectorArray2n: \n" << endl;
-
-	//cout << ctxtd<< "\n" << endl;
-
-	ILVectorArray2n keySwitchHint(params);
-
-	keySwitchHint = she_test.KeySwitchHintGen(sk3,sk2,dgg);
-
-	cout << "Key switch hint being printed " << endl;
-
-	cout << keySwitchHint.GetParams().GetModulus() << endl;
-
-//	keySwitchHint = keySwitchHint.Mod(keySwitchHint.GetParams().GetModulus()); 
-
-//	keySwitchHint.PrintValues();
-
-	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
-
-	cout << "Decrypted value ILVectorArray2n: \n" << endl;
-	cout << ctxtd<< "\n" << endl;
-
-	ILVectorArray2n c(params);
-	
-	
-	c = cipherText2.GetElement(); 
-
-//	c.PrintValues();
-
-//	c.SwitchFormat(); //EVAL
-	
-//	c.PrintValues();
-
-	c = c* keySwitchHint;  
-
-//	c.PrintValues();
-
-//	c.SwitchFormat(); 
-
-//	c.PrintValues();
-
-	cipherText2.SetElement(c);
-
-	algorithm2.Decrypt(sk3, cipherText2, &ctxtd);
-
-	cout << "Decrypted value ILVectorArray2n: \n" << endl;
-
-	cout << ctxtd<< "\n" << endl;
+//	SHEOperations<ILVectorArray2n> she_test;
+//
+//	double diff, start, finish;
+//
+//	start = currentDateTime();
+//
+//	usint m = 512;
+//
+//	const ByteArray plaintext = "Mary had a litte lamb.";
+//	ByteArrayPlaintextEncoding ptxt(plaintext);
+//	ptxt.Pad<ZeroPad>(m/16);
+////	ptxt.Pad<ZeroPad>(m/8);
+//
+//	float stdDev = 2;
+//
+//	usint size = 8;
+//
+//	ByteArrayPlaintextEncoding ctxtd;
+//
+//	vector<BigBinaryInteger> moduli(size);
+//
+//	vector<BigBinaryInteger> rootsOfUnity(size);
+//
+//	BigBinaryInteger q("1");
+//	BigBinaryInteger temp;
+//	BigBinaryInteger modulus("1");
+//
+//	for(int i=0; i < size;i++){
+//        lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+//		moduli[i] = q;
+//		rootsOfUnity[i] = lbcrypto::RootOfUnity(m,moduli[i]);
+//		modulus = modulus* moduli[i];
+//		
+//	}
+//
+////	cout << "big modulus: " << modulus << endl;
+//	DiscreteGaussianGenerator dgg(modulus,stdDev);
+//
+//	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
+//
+//	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
+//	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
+//	cryptoParams2.SetDistributionParameter(stdDev);
+//	cryptoParams2.SetRelinWindow(1);
+//	cryptoParams2.SetElementParams(params);
+//
+//	Ciphertext<ILVectorArray2n> cipherText2;
+//	cipherText2.SetCryptoParameters(cryptoParams2);
+//
+//	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams2);
+//	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams2);
+//
+//	LPAlgorithmLTV<ILVectorArray2n> algorithm2;
+//
+//	algorithm2.KeyGen(&pk2, &sk2);
+//
+//	LPPublicKeyLTV<ILVectorArray2n> pk3(cryptoParams2);
+//	LPPrivateKeyLTV<ILVectorArray2n> sk3(cryptoParams2);
+//
+//	algorithm2.KeyGen(&pk3, &sk3);
+//
+//	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
+//
+//	ILVectorArray2n d(params);
+//
+//	d = cipherText2.GetElement();
+//
+////	d.PrintValues();
+//
+//	for(int i = 0; i < d.GetParams().GetModuli().size();i++){
+//		cout << "Moduli " << i << " : " << d.GetParams().GetModuli()[i] << endl;
+//	}
+//	
+//	for(int i = 0; i < d.GetParams().GetRootsOfUnity().size();i++){
+//		cout << "Roots of Unity " << i << " : " << d.GetParams().GetRootsOfUnity()[i] << endl;
+//	}
+//
+//
+//	//algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+//
+//	//cout << "Decrypted value ILVectorArray2n: \n" << endl;
+//
+//	//cout << ctxtd<< "\n" << endl;
+//
+//	ILVectorArray2n keySwitchHint(params);
+//
+//	keySwitchHint = she_test.KeySwitchHintGen(sk3,sk2,dgg);
+//
+//	cout << "Key switch hint being printed " << endl;
+//
+//	cout << keySwitchHint.GetParams().GetModulus() << endl;
+//
+////	keySwitchHint = keySwitchHint.Mod(keySwitchHint.GetParams().GetModulus()); 
+//
+////	keySwitchHint.PrintValues();
+//
+//	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+//
+//	cout << "Decrypted value ILVectorArray2n: \n" << endl;
+//	cout << ctxtd<< "\n" << endl;
+//
+//	ILVectorArray2n c(params);
+//	
+//	
+//	c = cipherText2.GetElement(); 
+//
+////	c.PrintValues();
+//
+////	c.SwitchFormat(); //EVAL
+//	
+////	c.PrintValues();
+//
+//	c = c* keySwitchHint;  
+//
+////	c.PrintValues();
+//
+////	c.SwitchFormat(); 
+//
+////	c.PrintValues();
+//
+//	cipherText2.SetElement(c);
+//
+//	algorithm2.Decrypt(sk3, cipherText2, &ctxtd);
+//
+//	cout << "Decrypted value ILVectorArray2n: \n" << endl;
+//
+//	cout << ctxtd<< "\n" << endl;
 
 }
 
 void SparseKeyGenTest(){
 	
-	SHEOperations<ILVector2n> she_test;
+	/*SHEOperations<ILVector2n> she_test;
 
 	usint m = 16;
 	float stdDev = 4;
@@ -536,74 +544,74 @@ void SparseKeyGenTest(){
 	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
 
 	cout << "Decrypted value ILVector2n: \n" << endl;
-	cout << ctxtd<< "\n" << endl;
+	cout << ctxtd<< "\n" << endl;*/
 
 //	sk2.GetPrivateElement().PrintValues();
 }
 
 void SparseKeyGenTestDoubleCRT(){
 	
-	SHEOperations<ILVectorArray2n> she_test;
-
-	double diff, start, finish;
-
-	start = currentDateTime();
-
-	usint m = 256;
-
-	const ByteArray plaintext = "Ma test is";
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-	ptxt.Pad<ZeroPad>(m/16);
-//	ptxt.Pad<ZeroPad>(m/8);
-
-	float stdDev = 5;
-
-	usint size = 5;
-
-	ByteArrayPlaintextEncoding ctxtd;
-
-	vector<BigBinaryInteger> moduli(size);
-
-	vector<BigBinaryInteger> rootsOfUnity(size);
-
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
-
-	for(int i=0; i < size;i++){
-        lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
-		moduli[i] = q;
-		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
-		modulus = modulus* moduli[i];
-		
-	}
-
-	DiscreteGaussianGenerator dgg(modulus,stdDev);
-
-	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
-
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
-	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
-	cryptoParams2.SetDistributionParameter(stdDev);
-	cryptoParams2.SetRelinWindow(1);
-	cryptoParams2.SetElementParams(params);
-
-	Ciphertext<ILVectorArray2n> cipherText2;
-	cipherText2.SetCryptoParameters(cryptoParams2);
-
-	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams2);
-	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams2);
-
-	LPAlgorithmLTV<ILVectorArray2n> algorithm2;
-
-	algorithm2.SparseKeyGen(pk2, sk2, dgg);
-
-	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
-
-	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
-
-	cout << "Decrypted value ILVectorArray2n: \n" << endl;
-	cout << ctxtd<< "\n" << endl;
+//	SHEOperations<ILVectorArray2n> she_test;
+//
+//	double diff, start, finish;
+//
+//	start = currentDateTime();
+//
+//	usint m = 256;
+//
+//	const ByteArray plaintext = "Ma test is";
+//	ByteArrayPlaintextEncoding ptxt(plaintext);
+//	ptxt.Pad<ZeroPad>(m/16);
+////	ptxt.Pad<ZeroPad>(m/8);
+//
+//	float stdDev = 5;
+//
+//	usint size = 5;
+//
+//	ByteArrayPlaintextEncoding ctxtd;
+//
+//	vector<BigBinaryInteger> moduli(size);
+//
+//	vector<BigBinaryInteger> rootsOfUnity(size);
+//
+//	BigBinaryInteger q("1");
+//	BigBinaryInteger temp;
+//	BigBinaryInteger modulus("1");
+//
+//	for(int i=0; i < size;i++){
+//        lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+//		moduli[i] = q;
+//		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+//		modulus = modulus* moduli[i];
+//		
+//	}
+//
+//	DiscreteGaussianGenerator dgg(modulus,stdDev);
+//
+//	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
+//
+//	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
+//	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
+//	cryptoParams2.SetDistributionParameter(stdDev);
+//	cryptoParams2.SetRelinWindow(1);
+//	cryptoParams2.SetElementParams(params);
+//
+//	Ciphertext<ILVectorArray2n> cipherText2;
+//	cipherText2.SetCryptoParameters(cryptoParams2);
+//
+//	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams2);
+//	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams2);
+//
+//	LPAlgorithmLTV<ILVectorArray2n> algorithm2;
+//
+//	algorithm2.SparseKeyGen(pk2, sk2, dgg);
+//
+//	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
+//
+//	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+//
+//	cout << "Decrypted value ILVectorArray2n: \n" << endl;
+//	cout << ctxtd<< "\n" << endl;
 
 }
 
@@ -614,7 +622,7 @@ void ringReduce(int n, int a, Ciphertext<ILVector2n> cipherText2)
 
 void KeySwitchTestSingleCRTNew(){
 
-	SHEOperations<ILVector2n> she_test;
+	/*SHEOperations<ILVector2n> she_test;
 
 	usint m = 2048;
 	float stdDev = 4;
@@ -676,103 +684,103 @@ void KeySwitchTestSingleCRTNew(){
 	algorithm2.Decrypt(sk3, cipherText2, &ctxtd);
 
 	cout << "Decrypted value ILVector2n: \n" << endl;
-	cout << ctxtd<< "\n" << endl;
+	cout << ctxtd<< "\n" << endl;*/
 }
 
 void KeySwitchTestNew(){
 
-	SHEOperations<ILVectorArray2n> she_test;
-
-	double diff, start, finish;
-
-	start = currentDateTime();
-
-	usint m = 512;
-
-	const ByteArray plaintext = "Mary had a litte lamb.";
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-	ptxt.Pad<ZeroPad>(m/16);
-//	ptxt.Pad<ZeroPad>(m/8);
-
-	float stdDev = 2;
-
-	usint size = 8;
-
-	ByteArrayPlaintextEncoding ctxtd;
-
-	vector<BigBinaryInteger> moduli(size);
-
-	vector<BigBinaryInteger> rootsOfUnity(size);
-
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
-
-	for(int i=0; i < size;i++){
-        lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
-		moduli[i] = q;
-		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
-		modulus = modulus* moduli[i];
-		
-	}
-
-//	cout << "big modulus: " << modulus << endl;
-	DiscreteGaussianGenerator dgg(modulus,stdDev);
-
-	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
-
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
-	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
-	cryptoParams2.SetDistributionParameter(stdDev);
-	cryptoParams2.SetRelinWindow(1);
-	cryptoParams2.SetElementParams(params);
-
-	Ciphertext<ILVectorArray2n> cipherText2;
-	cipherText2.SetCryptoParameters(cryptoParams2);
-
-	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams2);
-	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams2);
-
-	LPAlgorithmLTV<ILVectorArray2n> algorithm2;
-
-	algorithm2.KeyGen(&pk2, &sk2);
-
-	LPPublicKeyLTV<ILVectorArray2n> pk3(cryptoParams2);
-	LPPrivateKeyLTV<ILVectorArray2n> sk3(cryptoParams2);
-
-	algorithm2.KeyGen(&pk3, &sk3);
-
-	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
-
-	
-
-	ILVectorArray2n keySwitchHint(params);
-
-	keySwitchHint = she_test.KeySwitchHintGen(sk3,sk2,dgg);
-
-	cout << "Key switch hint being printed " << endl;
-
-	cout << keySwitchHint.GetParams().GetModulus() << endl;
-
-//	keySwitchHint = keySwitchHint.Mod(keySwitchHint.GetParams().GetModulus()); 
-
-//	keySwitchHint.PrintValues();
-
-	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
-
-	cout << "Decrypted value ILVectorArray2n: \n" << endl;
-	cout << ctxtd<< "\n" << endl;
-
-	
-	Ciphertext<ILVectorArray2n> cipherText3;
-
-	cipherText3 = she_test.KeySwitch(sk3,sk2,dgg,cipherText2);
-
-	
-
-	cout << "Decrypted value ILVectorArray2n: \n" << endl;
-
-	cout << ctxtd<< "\n" << endl;
+//	SHEOperations<ILVectorArray2n> she_test;
+//
+//	double diff, start, finish;
+//
+//	start = currentDateTime();
+//
+//	usint m = 512;
+//
+//	const ByteArray plaintext = "Mary had a litte lamb.";
+//	ByteArrayPlaintextEncoding ptxt(plaintext);
+//	ptxt.Pad<ZeroPad>(m/16);
+////	ptxt.Pad<ZeroPad>(m/8);
+//
+//	float stdDev = 2;
+//
+//	usint size = 8;
+//
+//	ByteArrayPlaintextEncoding ctxtd;
+//
+//	vector<BigBinaryInteger> moduli(size);
+//
+//	vector<BigBinaryInteger> rootsOfUnity(size);
+//
+//	BigBinaryInteger q("1");
+//	BigBinaryInteger temp;
+//	BigBinaryInteger modulus("1");
+//
+//	for(int i=0; i < size;i++){
+//        lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+//		moduli[i] = q;
+//		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+//		modulus = modulus* moduli[i];
+//		
+//	}
+//
+////	cout << "big modulus: " << modulus << endl;
+//	DiscreteGaussianGenerator dgg(modulus,stdDev);
+//
+//	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
+//
+//	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
+//	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
+//	cryptoParams2.SetDistributionParameter(stdDev);
+//	cryptoParams2.SetRelinWindow(1);
+//	cryptoParams2.SetElementParams(params);
+//
+//	Ciphertext<ILVectorArray2n> cipherText2;
+//	cipherText2.SetCryptoParameters(cryptoParams2);
+//
+//	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams2);
+//	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams2);
+//
+//	LPAlgorithmLTV<ILVectorArray2n> algorithm2;
+//
+//	algorithm2.KeyGen(&pk2, &sk2);
+//
+//	LPPublicKeyLTV<ILVectorArray2n> pk3(cryptoParams2);
+//	LPPrivateKeyLTV<ILVectorArray2n> sk3(cryptoParams2);
+//
+//	algorithm2.KeyGen(&pk3, &sk3);
+//
+//	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
+//
+//	
+//
+//	ILVectorArray2n keySwitchHint(params);
+//
+//	keySwitchHint = she_test.KeySwitchHintGen(sk3,sk2,dgg);
+//
+//	cout << "Key switch hint being printed " << endl;
+//
+//	cout << keySwitchHint.GetParams().GetModulus() << endl;
+//
+////	keySwitchHint = keySwitchHint.Mod(keySwitchHint.GetParams().GetModulus()); 
+//
+////	keySwitchHint.PrintValues();
+//
+//	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+//
+//	cout << "Decrypted value ILVectorArray2n: \n" << endl;
+//	cout << ctxtd<< "\n" << endl;
+//
+//	
+//	Ciphertext<ILVectorArray2n> cipherText3;
+//
+//	cipherText3 = she_test.KeySwitch(sk3,sk2,dgg,cipherText2);
+//
+//	
+//
+//	cout << "Decrypted value ILVectorArray2n: \n" << endl;
+//
+//	cout << ctxtd<< "\n" << endl;
 
 }
 
@@ -850,221 +858,13 @@ void DecomposeTestDoubleCRT(){
 
 }
 
-void RingReduceSingleCRTTest(){
+void RingReduceDCRTTest(){
 
-	SHEOperations<ILVector2n> she_test;
-	usint m = 32; //4096
-	float stdDev = 4;
-
-	BigBinaryInteger q("15486209");
-	//lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));	
-	BigBinaryInteger rootOfUnity(lbcrypto::RootOfUnity(m,q));
-	cout << "Modulus is " << q << endl;
-	cout << "RootOfUnity is " << rootOfUnity << endl;
-
-	ILParams ilParams(m, q, rootOfUnity);
-
-	ByteArrayPlaintextEncoding ctxtd;
-	const ByteArray plaintext = "M";
-
-	ByteArrayPlaintextEncoding ptxtd(plaintext);
-	ILVector2n ptxtdEncoding(ilParams, Format::COEFFICIENT);
-	std::cout << "PRINTING ENCODED PLAINTEXT: " << std::endl;
-	ptxtdEncoding.PrintValues();
-	ptxtd.Encode(BigBinaryInteger::TWO, &ptxtdEncoding);
-	ILVector2n ptxtdEncoding1(ptxtdEncoding.Decompose(ilParams));
-
-	cout << "Actual plaintext: " << endl;
-	cout << plaintext << endl;
-	//Mary had a little lamb, Its fleece was white as snow; And everywhere that Mary went The lamb was sure to go.
-	DiscreteGaussianGenerator dgg(q,stdDev);
-	
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-	ptxt.Pad<ZeroPad>(m/16);
-
-	LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-	cryptoParams.SetDistributionParameter(stdDev);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(ilParams);
-
-	Ciphertext<ILVector2n> cipherText, cipherText2;
-	cipherText.SetCryptoParameters(cryptoParams);
-
-	LPAlgorithmLTV<ILVector2n> algorithm;
-	
-	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
-
-	algorithm.KeyGen(&pk, &sk);
-
-	algorithm.Encrypt(pk, ptxt, &cipherText);
-	algorithm.Decrypt(sk, cipherText, &ctxtd);
-//	cout << "Step 2" << endl;
-	 cout << "Decryption before key switch: " << endl;
-	 cout << ctxtd << endl;
-	ctxtd.Unpad<ZeroPad>();
-	// EXPECT_EQ(plaintext, ctxtd.GetData());
-
-	ILVector2n c(ilParams);
-	// cout << "Before ring reduce: " << endl;
-	// c = cipherText.GetElement();
-	// cout << "Length = " << c.GetLength() << endl;
-	// c.PrintValues();
-//	cout << "Step 3" << endl;
-	lbcrypto::CipherTextSparseKey<ILVector2n> ringReduceValues(she_test.RingReduce(cipherText, sk, dgg));
-//	cout << "Step 4" << endl;
-	// cout << "After ring reduce: " << endl;
-	// c = cipherText.GetElement();
-	// cout << "Length = " << c.GetLength() << endl;
-	// c.PrintValues();
-
-	// cout << "Start: Decrypting ringreduce values" << endl;
-	
-	// algorithm.Decrypt(ringReduceValues.sparsePrivateKey, ringReduceValues.reducedCipherText, &ctxtd);
-	// cout << "Step 5" << endl;
-	// // cout << "Decrypting ringreduce values" << endl;
-	// cout << ctxtd << endl;
-
-	// ILVector2n ctxtdEncoding(ilParams, Format::COEFFICIENT);
-	// ctxtd.Encode(BigBinaryInteger::TWO, &ctxtdEncoding);
-	// cout << ctxtd << endl;
-
-	// EXPECT_EQ(ptxtdEncoding1.GetValues(), ctxtdEncoding.GetValues());
-	
-	
-	// EXPECT_EQ(plaintext, ctxtd.GetData());
-
-}
-
-void RingReduceDoubleCRTTest(){
-
-	SHEOperations<ILVectorArray2n> she_test;
-	usint m = 32; //4096
-	float stdDev = 3;
-	usint size = 3;
-
-	ByteArrayPlaintextEncoding ctxtd;
-	vector<BigBinaryInteger> moduli(size);
-	vector<BigBinaryInteger> rootsOfUnity(size);
-
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
-
-	for(int i=0; i < size;i++){
-        lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
-		moduli[i] = q;
-		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
-		modulus = modulus* moduli[i];
-		
-	}
-
-	ILDCRTParams params(rootsOfUnity, m, moduli, modulus);
-
-	const ByteArray plaintext = "M";
-	//Mary had a little lamb, Its fleece was white as snow; And everywhere that Mary went The lamb was sure to go.
-	cout << "Actual plaintext: " << endl;
-	cout << plaintext << endl;
-	DiscreteGaussianGenerator dgg(q,stdDev);
-	
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-	ptxt.Pad<ZeroPad>(m/16);
-
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-	cryptoParams.SetDistributionParameter(stdDev);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(params);
-
-	Ciphertext<ILVectorArray2n> cipherText, cipherText2;
-	cipherText.SetCryptoParameters(cryptoParams);
-
-	LPAlgorithmLTV<ILVectorArray2n> algorithm;
-	
-	LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
-
-	algorithm.KeyGen(&pk, &sk);
-	algorithm.Encrypt(pk, ptxt, &cipherText);
-	algorithm.Decrypt(sk, cipherText, &ctxtd);
-	ctxtd.Unpad<ZeroPad>();
-	cout << "Decrypting ringreduce values" << endl;
-	cout << ctxtd << endl;
-	
-	ILVectorArray2n c(params);
-	
-	lbcrypto::CipherTextSparseKey<ILVectorArray2n> ringReduceValues(she_test.RingReduce(cipherText, sk, dgg));
-
-}
-
-
-void ModReduceTest()
-{
-	SHEOperations<ILVectorArray2n> she_test;
-	
-	usint m = 64;
-	const ByteArray plaintext = "MEIS"; //€
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-	ptxt.Pad<ZeroPad>(m/16);
-	float stdDev = 4;
-	usint size = 3;
-
-	ByteArrayPlaintextEncoding ctxtd;
-	vector<BigBinaryInteger> moduli(size);
-	vector<BigBinaryInteger> rootsOfUnity(size);
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
-
-	for(int i=0; i < size;i++){
-        lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
-		moduli[i] = q;
-		rootsOfUnity[i] = lbcrypto::RootOfUnity(m,moduli[i]);
-		modulus = modulus* moduli[i];
-	}
-
-	DiscreteGaussianGenerator dgg(modulus,stdDev);
-	ILDCRTParams params(rootsOfUnity, m, moduli, modulus);
-
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-	cryptoParams.SetDistributionParameter(stdDev);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(params);
-
-	Ciphertext<ILVectorArray2n> cipherText;
-	cipherText.SetCryptoParameters(cryptoParams);
-
-	LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
-
-	LPAlgorithmLTV<ILVectorArray2n> algorithm;
-	algorithm.KeyGen(&pk, &sk);
-	algorithm.Encrypt(pk, ptxt, &cipherText);
-
-	algorithm.Decrypt(sk, cipherText, &ctxtd);
-	cout << "Decryption before Mod Reduce: " << endl;
-	cout << ctxtd << endl;
-
-	she_test.ModReduce(cipherText,sk);
-	algorithm.Decrypt(sk, cipherText, &ctxtd);
-	cout << "Decryption after Mod Reduce: " << endl;
-	cout << ctxtd << endl;
-}
-
-void ModReduceNew() {
-
-	double diff, start, finish;
-
-	start = currentDateTime();
-
-	usint m = 8;
+	usint m = 32;
 
 	const ByteArray plaintext = "M";
 	ByteArrayPlaintextEncoding ptxt(plaintext);
-	//ptxt.Pad<ZeroPad>(m/16);
-//	ptxt.Pad<ZeroPad>(m/8);
+	ptxt.Pad<ZeroPad>(m/16);
 
 	float stdDev = 4;
 
@@ -1085,12 +885,6 @@ void ModReduceNew() {
 	for(int i=0; i < size;i++){
         lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
 		moduli[i] = q;
-		if(i==0){
-			moduli[i]= BigBinaryInteger("17729");
-		}
-		else{
-			moduli[i] =  BigBinaryInteger("17761");
-		}
 		cout << moduli[i] << endl;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
 		cout << rootsOfUnity[i] << endl;
@@ -1098,8 +892,267 @@ void ModReduceNew() {
 	
 	}
 
-	rootsOfUnity[0] = BigBinaryInteger("10878");
-	rootsOfUnity[1] = BigBinaryInteger("12967");
+	cout << "big modulus: " << modulus << endl;
+	DiscreteGaussianGenerator dgg(modulus,stdDev);
+
+	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
+
+	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
+	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
+	cryptoParams2.SetDistributionParameter(stdDev);
+	cryptoParams2.SetRelinWindow(1);
+	cryptoParams2.SetElementParams(params);
+	cryptoParams2.SetDiscreteGaussianGenerator(dgg);
+
+	Ciphertext<ILVectorArray2n> cipherText2;
+	cipherText2.SetCryptoParameters(cryptoParams2);
+
+	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams2);
+	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams2);
+
+	std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2(mask);
+
+	algorithm2.KeyGen(&pk2, &sk2);
+
+	/*sk2.GetPrivateElement().PrintValues();
+	pk2.GetPublicElement().PrintValues();*/
+
+	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
+	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+
+	ctxtd.Unpad<ZeroPad>();
+
+	cout << "Decrypted value ILVectorArray2n: \n" << endl;
+	cout << ctxtd<< "\n" << endl;
+
+	algorithm2.m_algorithmLeveledSHE->RingReduce(&cipherText2, &sk2);
+	
+	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+
+	cout << "Decrypted after MOD Reduce ILVectorArray2n: \n" << endl;
+	
+	cout << ctxtd<< "\n" << endl;
+
+}
+
+void RingReduceSingleCRTTest(){
+
+	usint m = 32;
+
+	const ByteArray plaintext = "M";
+	ByteArrayPlaintextEncoding ptxt(plaintext);
+	ptxt.Pad<ZeroPad>(m/16);
+
+	float stdDev = 4;
+
+	ByteArrayPlaintextEncoding ctxtd;
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+	BigBinaryInteger modulus("17729");
+	BigBinaryInteger rootOfUnity = lbcrypto::RootOfUnity(m,modulus);
+
+	cout << "big modulus: " << modulus << endl;
+	DiscreteGaussianGenerator dgg(modulus,stdDev);
+
+	ILParams params(m, modulus, rootOfUnity);
+
+	LPCryptoParametersLTV<ILVector2n> cryptoParams2;
+	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
+	cryptoParams2.SetDistributionParameter(stdDev);
+	cryptoParams2.SetRelinWindow(1);
+	cryptoParams2.SetElementParams(params);
+	cryptoParams2.SetDiscreteGaussianGenerator(dgg);
+
+	Ciphertext<ILVector2n> cipherText2;
+	cipherText2.SetCryptoParameters(cryptoParams2);
+
+	LPPublicKeyLTV<ILVector2n> pk2(cryptoParams2);
+	LPPrivateKeyLTV<ILVector2n> sk2(cryptoParams2);
+
+	std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm2(mask);
+
+	algorithm2.KeyGen(&pk2, &sk2);
+
+	/*sk2.GetPrivateElement().PrintValues();
+	pk2.GetPublicElement().PrintValues();*/
+
+	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
+	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+
+	ctxtd.Unpad<ZeroPad>();
+
+	cout << "Decrypted value ILVectorArray2n: \n" << endl;
+	cout << ctxtd<< "\n" << endl;
+
+	algorithm2.m_algorithmLeveledSHE->RingReduce(&cipherText2, &sk2);
+	
+	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+
+	cout << "Decrypted after MOD Reduce ILVectorArray2n: \n" << endl;
+	
+	cout << ctxtd<< "\n" << endl;
+
+}
+
+void RingReduceDoubleCRTTest(){
+
+	//SHEOperations<ILVectorArray2n> she_test;
+	//usint m = 32; //4096
+	//float stdDev = 3;
+	//usint size = 3;
+
+	//ByteArrayPlaintextEncoding ctxtd;
+	//vector<BigBinaryInteger> moduli(size);
+	//vector<BigBinaryInteger> rootsOfUnity(size);
+
+	//BigBinaryInteger q("1");
+	//BigBinaryInteger temp;
+	//BigBinaryInteger modulus("1");
+
+	//for(int i=0; i < size;i++){
+ //       lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+	//	moduli[i] = q;
+	//	rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+	//	modulus = modulus* moduli[i];
+	//	
+	//}
+
+	//ILDCRTParams params(rootsOfUnity, m, moduli, modulus);
+
+	//const ByteArray plaintext = "M";
+	////Mary had a little lamb, Its fleece was white as snow; And everywhere that Mary went The lamb was sure to go.
+	//cout << "Actual plaintext: " << endl;
+	//cout << plaintext << endl;
+	//DiscreteGaussianGenerator dgg(q,stdDev);
+	//
+	//ByteArrayPlaintextEncoding ptxt(plaintext);
+	//ptxt.Pad<ZeroPad>(m/16);
+
+	//LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+	//cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+	//cryptoParams.SetDistributionParameter(stdDev);
+	//cryptoParams.SetRelinWindow(1);
+	//cryptoParams.SetElementParams(params);
+
+	//Ciphertext<ILVectorArray2n> cipherText, cipherText2;
+	//cipherText.SetCryptoParameters(cryptoParams);
+
+	//LPAlgorithmLTV<ILVectorArray2n> algorithm;
+	//
+	//LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
+	//LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
+
+	//algorithm.KeyGen(&pk, &sk);
+	//algorithm.Encrypt(pk, ptxt, &cipherText);
+	//algorithm.Decrypt(sk, cipherText, &ctxtd);
+	//ctxtd.Unpad<ZeroPad>();
+	//cout << "Decrypting ringreduce values" << endl;
+	//cout << ctxtd << endl;
+	//
+	//ILVectorArray2n c(params);
+	//
+	//lbcrypto::CipherTextSparseKey<ILVectorArray2n> ringReduceValues(she_test.RingReduce(cipherText, sk, dgg));
+
+}
+
+
+void ModReduceTest()
+{
+	//SHEOperations<ILVectorArray2n> she_test;
+	//
+	//usint m = 64;
+	//const ByteArray plaintext = "MEIS"; //€
+	//ByteArrayPlaintextEncoding ptxt(plaintext);
+	//ptxt.Pad<ZeroPad>(m/16);
+	//float stdDev = 4;
+	//usint size = 3;
+
+	//ByteArrayPlaintextEncoding ctxtd;
+	//vector<BigBinaryInteger> moduli(size);
+	//vector<BigBinaryInteger> rootsOfUnity(size);
+	//BigBinaryInteger q("1");
+	//BigBinaryInteger temp;
+	//BigBinaryInteger modulus("1");
+
+	//for(int i=0; i < size;i++){
+ //       lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+	//	moduli[i] = q;
+	//	rootsOfUnity[i] = lbcrypto::RootOfUnity(m,moduli[i]);
+	//	modulus = modulus* moduli[i];
+	//}
+
+	//DiscreteGaussianGenerator dgg(modulus,stdDev);
+	//ILDCRTParams params(rootsOfUnity, m, moduli, modulus);
+
+	//LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+	//cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+	//cryptoParams.SetDistributionParameter(stdDev);
+	//cryptoParams.SetRelinWindow(1);
+	//cryptoParams.SetElementParams(params);
+
+	//Ciphertext<ILVectorArray2n> cipherText;
+	//cipherText.SetCryptoParameters(cryptoParams);
+
+	//LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
+	//LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
+
+	//LPAlgorithmLTV<ILVectorArray2n> algorithm;
+	//algorithm.KeyGen(&pk, &sk);
+	//algorithm.Encrypt(pk, ptxt, &cipherText);
+
+	//algorithm.Decrypt(sk, cipherText, &ctxtd);
+	//cout << "Decryption before Mod Reduce: " << endl;
+	//cout << ctxtd << endl;
+
+	//she_test.ModReduce(cipherText,sk);
+	//algorithm.Decrypt(sk, cipherText, &ctxtd);
+	//cout << "Decryption after Mod Reduce: " << endl;
+	//cout << ctxtd << endl;
+}
+
+void ModReduceNew() {
+
+	double diff, start, finish;
+
+	start = currentDateTime();
+
+	usint m = 16;
+
+	const ByteArray plaintext = "M";
+	ByteArrayPlaintextEncoding ptxt(plaintext);
+	ptxt.Pad<ZeroPad>(m/16);
+//	ptxt.Pad<ZeroPad>(m/8);
+
+	float stdDev = 4;
+
+	usint size = 3;
+
+	std::cout << "tower size: " << size << std::endl;
+
+	ByteArrayPlaintextEncoding ctxtd;
+
+	vector<BigBinaryInteger> moduli(size);
+
+	vector<BigBinaryInteger> rootsOfUnity(size);
+
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+	BigBinaryInteger modulus("1");
+
+	for(int i=0; i < size;i++){
+        lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+		moduli[i] = q;
+		cout << moduli[i] << endl;
+		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+		cout << rootsOfUnity[i] << endl;
+		modulus = modulus* moduli[i];
+	
+	}
+
+	/*rootsOfUnity[0] = BigBinaryInteger("10878");
+	rootsOfUnity[1] = BigBinaryInteger("12967");*/
 
 	
 
@@ -1133,9 +1186,9 @@ void ModReduceNew() {
 
 	algorithm2.KeyGen(&pk2, &sk2);
 
-	sk2.GetPrivateElement().PrintValues();
+	/*sk2.GetPrivateElement().PrintValues();
 
-	pk2.GetPublicElement().PrintValues();
+	pk2.GetPublicElement().PrintValues();*/
 
 
 	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
@@ -1388,4 +1441,99 @@ void ModReduceGyana() {
 	auto DeltaPrime1Mess = DeltaPrimeCFCoeff.ModByTwo();
 
 	cout << DeltaPrime1Mess << endl;
+}
+
+void KeySwitchTestNewAPI() {
+
+	usint m = 16;
+
+	const ByteArray plaintext = "M";
+	ByteArrayPlaintextEncoding ptxt(plaintext);
+	ptxt.Pad<ZeroPad>(m/16);
+//	ptxt.Pad<ZeroPad>(m/8);
+
+	float stdDev = 4;
+
+	usint size = 3;
+
+	std::cout << "tower size: " << size << std::endl;
+
+	ByteArrayPlaintextEncoding ctxtd;
+
+	vector<BigBinaryInteger> moduli(size);
+
+	vector<BigBinaryInteger> rootsOfUnity(size);
+
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+	BigBinaryInteger modulus("1");
+
+	for(int i=0; i < size;i++){
+        lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+		moduli[i] = q;
+		cout << moduli[i] << endl;
+		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+		cout << rootsOfUnity[i] << endl;
+		modulus = modulus* moduli[i];
+	
+	}
+
+	/*rootsOfUnity[0] = BigBinaryInteger("10878");
+	rootsOfUnity[1] = BigBinaryInteger("12967");*/
+
+	
+
+	cout << "big modulus: " << modulus << endl;
+	DiscreteGaussianGenerator dgg(modulus,stdDev);
+
+	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
+
+//	ILDCRTParams params(rootsOfUnity, m, moduli,modulus1*modulus2);
+
+	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
+//	BigBinaryInteger plaintextm("8");
+	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
+//	cryptoParams2.SetPlaintextModulus(plaintextm);
+	cryptoParams2.SetDistributionParameter(stdDev);
+	cryptoParams2.SetRelinWindow(1);
+	cryptoParams2.SetElementParams(params);
+	cryptoParams2.SetDiscreteGaussianGenerator(dgg);
+
+	Ciphertext<ILVectorArray2n> cipherText2;
+	cipherText2.SetCryptoParameters(cryptoParams2);
+
+
+	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams2);
+	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams2);
+
+	LPPublicKeyLTV<ILVectorArray2n> pk3(cryptoParams2);
+	LPPrivateKeyLTV<ILVectorArray2n> sk3(cryptoParams2);
+
+	std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2(mask);
+
+	//LPAlgorithmLTV<ILVectorArray2n> algorithm2;
+
+	algorithm2.KeyGen(&pk2, &sk2);
+	algorithm2.KeyGen(&pk3, &sk3);
+
+	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
+
+	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+
+	
+	cout << "Decrypted value ILVectorArray2n: \n" << endl;
+	cout << ctxtd<< "\n" << endl;
+
+	LPKeySwitchHintLTV<ILVectorArray2n> keySwitchHint;
+
+	algorithm2.m_algorithmLeveledSHE->KeySwitchHintGen(sk2,sk3, &keySwitchHint);
+	Ciphertext<ILVectorArray2n> cipherText3(algorithm2.m_algorithmLeveledSHE->KeySwitch(keySwitchHint, cipherText2));
+
+	algorithm2.Decrypt(sk3, cipherText3, &ctxtd);
+
+	cout << "Decrypted after MOD Reduce ILVectorArray2n: \n" << endl;
+	
+	cout << ctxtd<< "\n" << endl;
+	
 }
