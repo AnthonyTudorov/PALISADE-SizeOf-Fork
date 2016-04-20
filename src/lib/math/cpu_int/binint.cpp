@@ -900,6 +900,7 @@ void BigBinaryInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 	//memory allocated for decimal array
 	for(sint i=0;i<arrSize;i++)//store the string to decimal array
 		DecValue[i] = (uschar) atoi(v.substr(i,1).c_str());
+		//DecValue[i] = (uschar) stoi(v.substr(i,1));
 	sshort zptr = 0;
 	//index of highest non-zero number in decimal number
 	//define  bit register array

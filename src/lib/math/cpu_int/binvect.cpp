@@ -533,6 +533,10 @@ void BigBinaryVector<IntegerType>::Deserialize(std::unordered_map <std::string, 
 	IntegerType vectorElem;
 	std::string vectorElemVal;
 	usint i = 0;
+	//while (vectorVals.find("|", 0)) {
+	//	size_t pos = vectorVals.find("|", 0);
+	//	vectorElemVal = vectorVals.substr(0, pos);
+
 	usint curpos = 0;
 	while (vectorVals.find("|", curpos)) {
 		size_t pos = vectorVals.find("|", curpos);
@@ -555,7 +559,7 @@ void BigBinaryVector<IntegerType>::Deserialize(std::unordered_map <std::string, 
 		vectorElem.SetValueFromDecimal(vectorElemVal);
 		//vectorElem.SetValue(vectorElemVal);
 		//vectorVals.erase(0, pos + 1);
-		curpos = pos + 2;
+		curpos = pos + 1;
 		this->SetValAtIndex(i, vectorElem);
 		i++;
 
