@@ -186,6 +186,32 @@ void BigBinaryVector<IntegerType>::SetModulus(const IntegerType& value){
 }
 
 template<class IntegerType>
+void BigBinaryVector<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
+	
+	IntegerType oldModulus(this->m_modulus);
+	IntegerType n;
+	IntegerType oldModulusByTwo(oldModulus>>1);
+	IntegerType diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
+	for(usint i=0; i< this->m_length; i++) {
+		n = this->GetValAtIndex(i);
+		if(oldModulus < newModulus) {
+			if(n > oldModulusByTwo) {
+				this->SetValAtIndex(i, n.ModAdd(diff, newModulus));
+			} else {
+				this->SetValAtIndex(i, n.Mod(newModulus));
+			}
+		} else {
+			if(n > oldModulusByTwo) {
+				this->SetValAtIndex(i, n.ModSub(diff, newModulus));
+			} else {
+				this->SetValAtIndex(i, n.Mod(newModulus));
+			}
+		}
+	}
+	this->SetModulus(newModulus);
+}
+
+template<class IntegerType>
 const IntegerType& BigBinaryVector<IntegerType>::GetModulus() const{
 
 	return this->m_modulus;

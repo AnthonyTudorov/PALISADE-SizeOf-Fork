@@ -187,6 +187,13 @@ public:
 	void SetModulus(const IntegerType& value);
 
 	/**
+	 * Sets the vector modulus and changes the values to match the new modulus.
+	 *
+	 * @param value is the value to set.
+	 */
+	void SwitchModulus(const IntegerType& value);
+
+	/**
 	 * Gets the vector modulus.
 	 *
 	 * @return the vector modulus.

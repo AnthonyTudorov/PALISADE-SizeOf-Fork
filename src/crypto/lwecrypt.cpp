@@ -47,8 +47,6 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	Element f(dgg,elementParams,Format::COEFFICIENT);
 //	Element f(0, dgg,elementParams,Format::COEFFICIENT);
 
-//	f.PrintValues();
-
 	f = p*f;
 
 	f = f + BigBinaryInteger::ONE;
@@ -61,12 +59,8 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	float SecurityLevel = cryptoParamsLTV.GetSecurityLevel();
 	usint RelinWindow = cryptoParamsLTV.GetRelinWindow(); 
 	int Depth = cryptoParamsLTV.GetDepth(); 
-
-//	f.PrintValues();
 	
 	f.SwitchFormat();
-
-//	f.PrintValues();
 
 	//check if inverse does not exist
 	while (!f.InverseExists())
@@ -81,14 +75,10 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	privateKey->SetPrivateElement(f);
 	privateKey->AccessCryptoParameters() = cryptoParams;
 
-//	Element g(3,dgg,elementParams,Format::COEFFICIENT);
+	//Element g(3,dgg,elementParams,Format::COEFFICIENT);
 	Element g(dgg,elementParams,Format::COEFFICIENT);
 
-//	g.PrintValues();
-
 	g.SwitchFormat();
-
-//	g.PrintValues();
 
 	//public key is generated
 	privateKey->MakePublicKey(g, publicKey);
@@ -256,6 +246,7 @@ void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(Ciphertext<ILVectorArr
 	pvElement.DropTower(pvElement.GetLength() - 1);
 
 	privateKey->SetPrivateElement(pvElement);
+
 }
 
 	/**
@@ -327,18 +318,16 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
 	Element m(elementParams);
+//	Element m(4,dgg,elementParams, Format::COEFFICIENT);
 
 	plaintext.Encode(p,&m);
-
-	std::cout<<"PRINTING ENCODED PLAINTEXT:" << std::endl;
 	m.PrintValues();
-
 	m.SwitchFormat();
 	
 	const Element &h = publicKey.GetPublicElement();
 	
 	Element s(dgg,elementParams);
-	Element e(dgg,elementParams);
+	Element e(dgg,elementParams);	
 
 	Element c(elementParams);
 
@@ -348,6 +337,7 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	ciphertext->SetPublicKey(publicKey);
 	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
 	ciphertext->SetElement(c);
+
 }
 
 template <class Element>
@@ -375,6 +365,8 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 	b.SwitchFormat();
 
 	b = b.Mod(p);
+
+	b.PrintValues();
 
 	plaintext->Decode(p,b);
 	

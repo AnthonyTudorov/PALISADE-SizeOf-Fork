@@ -65,22 +65,26 @@ namespace lbcrypto {
 
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const ILDCRTParams& params, std::vector<ILVector2n>& levels, Format format)
+	ILVectorArray2n::ILVectorArray2n(const ElemParams& params, const std::vector<ILVector2n>& levels, Format format)
 	{
+		const ILDCRTParams &castedParams = static_cast<const ILDCRTParams&>(params);
+
 		m_vectors = levels;
-		m_params = params;
+		m_params = castedParams;
 		m_format = format;
 	}
 
-	ILVectorArray2n::ILVectorArray2n(ILVector2n element, const ILDCRTParams & params, Format format)
+	ILVectorArray2n::ILVectorArray2n(const ILVector2n& element, const ElemParams & params, Format format)
 	{
-		m_params = params;
+		const ILDCRTParams &castedParams = static_cast<const ILDCRTParams&>(params);
+
+		m_params = castedParams;
 		m_format = format;
-		m_vectors.resize(params.GetModuli().size());
+		m_vectors.resize(castedParams.GetModuli().size());
 
 		usint i = 0;
 
-		usint size = params.GetModuli().size();
+		usint size = castedParams.GetModuli().size();
 
 		ILVector2n temp();
 		for (i = 0; i < size; i++) {
@@ -605,7 +609,7 @@ namespace lbcrypto {
 	{
 		if (this != &rhs) {
 //			if (m_vectors.empty()) {
-				m_vectors.resize(rhs.GetParams().GetModuli().size());
+			m_vectors.resize(rhs.m_params.GetModuli().size());
 	//		}
 				this->m_vectors = rhs.m_vectors;			
 			    this->m_params = rhs.m_params;
@@ -622,11 +626,11 @@ namespace lbcrypto {
 	{
 		//	delete m_vectors;
 	}
-	ILVector2n ILVectorArray2n::GetValues(usint i) const
+	const ILVector2n& ILVectorArray2n::GetValues(usint i) const
 	{
 		return m_vectors[i];
 	}
-	std::vector<ILVector2n> ILVectorArray2n::GetValues() const
+	const std::vector<ILVector2n>& ILVectorArray2n::GetValues() const
 	{
 		return m_vectors;
 	}
@@ -635,12 +639,12 @@ namespace lbcrypto {
 		return m_format;
 	}
 
-	const ILDCRTParams & ILVectorArray2n::GetParams() const
+	const ElemParams & ILVectorArray2n::GetParams() const
 	{
 		return m_params;
 	}
 
-	ILDCRTParams& ILVectorArray2n::AccessParams(){
+	ElemParams& ILVectorArray2n::AccessParams(){
 		return this->m_params;
 	}
 
@@ -673,7 +677,7 @@ namespace lbcrypto {
 
 	}
 
-	void ILVectorArray2n::SetValues(std::vector<ILVector2n>& values, Format format)
+	void ILVectorArray2n::SetValues(const std::vector<ILVector2n>& values, Format format)
 	{
 		m_vectors = values;
 		m_format = format;
@@ -976,9 +980,9 @@ namespace lbcrypto {
 			 m_vectors[i].Decompose();
 			 rootsOfUnity[i] = m_vectors[i].GetParams().GetRootOfUnity();
 		}
-
-		this->AccessParams().SetRootsOfUnity(rootsOfUnity);
-		this->AccessParams().SetOrder(cyclotomicOrder/2);
+		ILDCRTParams &castedParams = static_cast<ILDCRTParams&>(this->AccessParams());
+		castedParams.SetRootsOfUnity(rootsOfUnity);
+		castedParams.SetOrder(cyclotomicOrder/2);
 
 	}
 
@@ -989,7 +993,6 @@ namespace lbcrypto {
 		}
 
 		m_vectors.erase(m_vectors.begin() + index);
-		
 
 		BigBinaryInteger newBigModulus(m_params.GetModulus());
 		newBigModulus = newBigModulus.DividedBy(m_params.GetModuli()[index]);
@@ -1003,7 +1006,6 @@ namespace lbcrypto {
 		temp_roots_of_unity.erase(temp_roots_of_unity.begin() + index);
 		m_params.SetRootsOfUnity(temp_roots_of_unity);
 	
-
 	}
 
 	void ILVectorArray2n::ModReduce() {
@@ -1026,9 +1028,9 @@ namespace lbcrypto {
 		BigBinaryInteger v(qt.ModInverse(p));
 		BigBinaryInteger a((v * qt).ModSub(BigBinaryInteger::ONE, p*qt));
 		d.SwitchModulus(p*qt);
-		
 
 		ILVector2n delta(d.Times(a));
+
 		for(usint i=0; i<length; i++) {
 			ILVector2n temp(delta);
 			temp.SwitchModulus(moduli[i]);
@@ -1037,8 +1039,6 @@ namespace lbcrypto {
 			m_vectors[i] += delta;*/
 		}
 
-		
-
 		this->DropTower(lastTowerIndex);
 
 		std::vector<BigBinaryInteger> qtInverseModQi(length-1);
@@ -1046,8 +1046,6 @@ namespace lbcrypto {
 			qtInverseModQi[i] =  qt > moduli[i] ? qt.Mod(moduli[i]).ModInverse(moduli[i]) : qt.ModInverse(moduli[i]);
 			m_vectors[i] = qtInverseModQi[i] * m_vectors[i];
 		}
-		
-	
 
 		this->SwitchFormat();
 	}

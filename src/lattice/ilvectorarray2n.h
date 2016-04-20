@@ -90,7 +90,7 @@ namespace lbcrypto {
 		* @param params the input parameters.
 		* @param &levels the levels.
 		*/
-		ILVectorArray2n(const ILDCRTParams& params, std::vector<ILVector2n> &levels, Format format);
+		ILVectorArray2n(const ElemParams& params, const std::vector<ILVector2n> &levels, Format format);
 
 		// construct using an array in either Coefficient (0) or CRT format (1)
 		/*
@@ -105,7 +105,7 @@ namespace lbcrypto {
 		*
 		* @param element the input parameter to build ILVectorArray2n from one vector for double-CRT representation.
 		*/
-		ILVectorArray2n(ILVector2n element, const ILDCRTParams& params, Format format);
+		ILVectorArray2n(const ILVector2n& element, const ElemParams& params, Format format);
 
 
 		/**
@@ -138,7 +138,7 @@ namespace lbcrypto {
 		*
 		* @returns an ILVector2n.
 		*/
-		ILVector2n GetValues(usint i) const;
+		const ILVector2n& GetValues(usint i) const;
 
 
 		/**
@@ -146,7 +146,7 @@ namespace lbcrypto {
 		*
 		* @returns values.
 		*/
-		std::vector<ILVector2n> GetValues() const;
+		const std::vector<ILVector2n>& GetValues() const;
 
 		/**
 		* Get method of the format.
@@ -161,7 +161,7 @@ namespace lbcrypto {
 		* @return the parameter set.
 		*/
 
-		const ILDCRTParams &GetParams() const;
+		const ElemParams &GetParams() const;
 
 
 		/**
@@ -170,7 +170,7 @@ namespace lbcrypto {
 		* @return the parameter set.
 		*/
 
-		 ILDCRTParams& AccessParams();
+		 ElemParams& AccessParams();
 
 		/**
 		* Set method of the values.
@@ -186,7 +186,7 @@ namespace lbcrypto {
 		*
 		* @param values is the set of values of the vector.
 		*/
-		void SetValues(std::vector<ILVector2n>& values, Format format);
+		void SetValues(const std::vector<ILVector2n>& values, Format format);
 
 		/**
 		Print values
