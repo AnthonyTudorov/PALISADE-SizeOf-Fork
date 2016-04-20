@@ -505,7 +505,8 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 	for (int i = 0; i < pkVectorLength; i++) {
 		pkVectorElem = GetValAtIndex(i);
 
-		pkVectorElemVal = pkVectorElem.ToString();
+		pkVectorElemVal = pkVectorElem.ToStringDecimal();
+		//pkVectorElemVal = pkVectorElem.ToString();
 
 		pkBufferString += pkVectorElemVal;
 		if (i != (pkVectorLength - 1)) {
@@ -551,7 +552,8 @@ void BigBinaryVector<IntegerType>::Deserialize(std::unordered_map <std::string, 
 			vectorElemVal = "";
 		}
 
-		vectorElem.SetValue(vectorElemVal);
+		vectorElem.SetValueFromDecimal(vectorElemVal);
+		//vectorElem.SetValue(vectorElemVal);
 		//vectorVals.erase(0, pos + 1);
 		curpos = pos + 2;
 		this->SetValAtIndex(i, vectorElem);

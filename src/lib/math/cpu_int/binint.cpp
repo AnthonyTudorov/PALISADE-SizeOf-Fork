@@ -470,6 +470,22 @@ void BigBinaryInteger<uint_type,BITLENGTH>::PrintValueInDec() const{
 }
 
 template<typename uint_type,usint BITLENGTH>
+const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToStringDecimal() const{
+
+	std::string ans = "";
+
+	sint i= m_MSB%m_uintBitLength==0&&m_MSB!=0? m_MSB/m_uintBitLength:(sint)m_MSB/m_uintBitLength +1;
+	for(i=m_nSize-i;i<m_nSize-1;i++)//actual
+	{
+	    ans = ans + std::to_string(m_value[i])+'.';
+		//std::cout << m_value[i] << std::endl;
+	}
+	ans = ans + std::to_string(m_value[m_nSize-1]);
+
+	return ans;
+}
+
+template<typename uint_type,usint BITLENGTH>
 usshort BigBinaryInteger<uint_type,BITLENGTH>::GetMSB()const{
 	return m_MSB;
 }
@@ -960,6 +976,31 @@ template<typename uint_type, usint BITLENGTH>
 void BigBinaryInteger<uint_type, BITLENGTH>::SetValue(const std::string& str){
 	
 	AssignVal(str);
+	m_state = INITIALIZED;
+
+}
+
+template<typename uint_type, usint BITLENGTH>
+void BigBinaryInteger<uint_type, BITLENGTH>::SetValueFromDecimal(const std::string& str){
+
+	char *end;
+	sint i = m_nSize-1;
+	usint counter = 0;
+	sint curpos = str.length()-1;
+	sint pos = 0;
+	do {
+		pos = str.rfind(".", curpos);
+		m_value[i] = std::strtoul(str.substr(pos+1, curpos-pos).c_str(),&end,10);
+		counter++;
+		i--;
+		if (pos > -1)
+			curpos = pos-1;
+		else
+			break;
+	} while (str.rfind(".", curpos));
+
+	m_MSB = GetMSB32(m_value[i+1])+(counter-1)*32;
+
 	m_state = INITIALIZED;
 
 }

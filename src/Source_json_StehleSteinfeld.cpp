@@ -565,6 +565,10 @@ void NTRUPRE(int input) {
 	cout << testPlaintextRec << endl;
 	cout << "----------END LPAlgorithmLTV.Decrypt TESTING----------" << endl;
 
+	cout << "Press any key to continue..." << endl;
+
+		std::cin.get();
+
 	cout << "\n" << endl;
 
 	cout << "---BEGIN LPEvalKeyLTV SERIALIZATION---" << endl;

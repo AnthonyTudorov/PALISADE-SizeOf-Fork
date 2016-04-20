@@ -105,8 +105,16 @@ int main(){
 	////NTRUPRE is where the core functionality is provided.
 	//NTRUPRE(input);
 	NTRUPRE(6);
-	
 
+	//BigBinaryInteger test("2098098097897987987987");
+	//BigBinaryInteger test("209809");
+	//std::string str = test.ToStringDecimal();
+	//std::cout << "string = " << str << std::endl;
+	//BigBinaryInteger test1;
+	//test1.SetValueFromDecimal(str);
+	//std::cout << test << std::endl;
+	//std::cout << test1 << std::endl;
+	
 	// The below lines clean up the memory use.
 	//system("pause");
 
@@ -135,7 +143,7 @@ int main(){
 	//c2.SwitchFormat();
 
 
-	//std::cin.get();
+	std::cin.get();
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();
 
