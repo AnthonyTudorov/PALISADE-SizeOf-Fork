@@ -36,120 +36,59 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <fstream>
-//#include "utils/inttypes.h"
-//#include "math/backend.h"
-//#include "math/nbtheory.h"
-//#include "math/distrgen.h"
-//#include "lattice/elemparams.h"
-//#include "lattice/ilparams.h"
-//#include "lattice/ildcrtparams.h"
-//#include "lattice/ilelement.h"
-//#include "crypto/lwecrypt.h"
 #include "obfuscate/lweconjunctionobfuscate.h"
 #include "obfuscate/lweconjunctionobfuscate.cpp"
-//#include "obfuscate/obfuscatelp.h"
-#include "time.h"
-#include <chrono>
+
 #include "utils/debug.h"
-//todo (dcousins): migrate this to utils/debug.cpp
 
 #include <omp.h> //open MP header
 
 using namespace std;
 using namespace lbcrypto;
 
-void NTRUPRE(int input, bool dbg_flag);
-// double currentDateTime();
-
-// /**
-//  * @brief Input parameters for PRE example.
-//  */
-// struct SecureParams {
-// 	usint m;			///< The ring parameter.
-// 	BigBinaryInteger modulus;	///< The modulus
-// 	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
-// 	usint relinWindow;		///< The relinearization window parameter.
-// };
+bool NTRUPRE(bool dbg_flag, int n_evals); //defined later
 
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
+	bool errorflag = false;
 
-	int input = 0;
-
- 	if (argc < 2) { // called with no arguments
-
-	  cout << "arg 1 = Relinearization window : " << endl;
-	  cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
-	  cout << "arg 2 = debugflag 0:1 [0] " << endl;
-	  cin >> input;
-	  //cleans up the buffer
-	  cin.ignore();
-	  
-	} else {
-	  input = atoi(argv[1]);
-	}
-
-	if ((input<0) || (input>4)) {
-	  cerr << "input " << input << "outside of allowed range [0..7], set to 0" << endl;
-	  input = 0;
+	if (argc < 2) { // called with no arguments
+		cout << "arg 1 = debugflag 0:1 [0] " << endl;
+		cout << "arg 2 = num evals 1:3 [1] " << endl;
 	}
 	bool dbg_flag = false; 
 
-	if (argc > 2 ) {
-	  if (atoi(argv[2]) != 0) {
+	if (argc >= 2 ) {
+		if (atoi(argv[1]) != 0) {
 #ifndef NDEBUG
-	    dbg_flag = true;
-	    cout << "setting dbg_flag true" << endl;
+			dbg_flag = true;
+			cout << "setting dbg_flag true" << endl;
 #endif
-	  }
+		}
 	}
 
 	cerr  <<"Running " << argv[0] <<" with "<< omp_get_num_procs() << " processors." << endl;
 
-	NTRUPRE(input, dbg_flag);
+	int n_evals = 1;
+
+	if (argc >= 3 ) {
+		if (atoi(argv[2]) < 0) {
+			n_evals = 1;
+		} else if (atoi(argv[2]) >= 3) {
+			n_evals = 3;
+		} else {
+			n_evals = atoi(argv[2]);
+		}
+	}
+	cerr  <<"Running " << argv[0] <<" with "<< n_evals << " evaluations." << endl;
+
+	//	NTRUPRE(input, dbg_flag, n_evals);
+	errorflag = NTRUPRE(dbg_flag, n_evals);
 
 	//std::cin.get();
 
-	return 0;
+	return ((int)errorflag);
 }
-
-
-// double currentDateTime()
-// {
-
-// 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-
-//     time_t tnow = std::chrono::system_clock::to_time_t(now);
-//     tm *date = localtime(&tnow);
-//     date->tm_hour = 0;
-//     date->tm_min = 0;
-//     date->tm_sec = 0;
-
-//     auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
-
-// 	return std::chrono::duration <double, std::milli>(now - midnight).count();
-// }
-
-// typedef std::chrono::high_resolution_clock::time_point TimeVar;
-
-// #define duration(a) std::chrono::duration_cast<std::chrono::milliseconds>(a).count()
-// #define timeNow() std::chrono::high_resolution_clock::now()
-
-// template<typename F, typename... Args>
-// double funcTime(F func, Args&&... args){
-//     TimeVar t1=timeNow();
-//     func(std::forward<Args>(args)...);
-//     return duration(timeNow()-t1);
-// }
-
-// #define TIC t1=timeNow() 
-// #define TOC duration(timeNow()-t1)
-
-// #define TOTAL_TIC t2=timeNow() 
-// #define TOTAL_TOC duration(timeNow()-t2)
-
-
-typedef std::string String;  //dbc shortcut
 
 //////////////////////////////////////////////////////////////////////
 //	NTRUPRE is where the core functionality is provided.
@@ -166,10 +105,16 @@ typedef std::string String;  //dbc shortcut
 //	The low-security, highly efficient settings are commented out.
 //	The high-security, less efficient settings are enabled by default.
 //////////////////////////////////////////////////////////////////////
-void NTRUPRE(int input, bool dbg_flag) {
-  
-	TimeVar t1,t_total; //for TIC TOC and TOTAL_TIC TOTAL_TOC
-	TIC(t_total);
+//void NTRUPRE(int input, bool dbg_flag, int n_evals) {
+bool NTRUPRE(bool dbg_flag, int n_evals) {
+
+	//if dbg_flag == true; print debug outputs
+	// n_evals = 1,2,3 number of evaluations to perform
+	//returns
+	//  errorflag = # of bad evaluations
+
+	TimeVar t1,t_total; //for TIC TOC
+	TIC(t_total); //start timer for total time
 
 	//Set element params
 
@@ -188,19 +133,13 @@ void NTRUPRE(int input, bool dbg_flag) {
 	float stdDev = 4;
 
 	//Variables for timing
-	double timeFFTSetup, timeDGGSetup, timeKeyGen, 
-	  timeObf, timeBUGGen, timeEval1, timeEval2, timeEval3, timeTotal; 
+	double timeDGGSetup, timeKeyGen, timeObf, timeEval1, timeEval2, timeEval3, timeTotal;
 
 
 	//Prepare for parameters.
 	ILParams ilParams(m,modulus,rootOfUnity);
 
 	//Set crypto parametes
-	//LPCryptoParametersLWE<ILVector2n> cryptoParams;
-	//cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-	//cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
-
-	//	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(modulus, stdDev);			// Create the noise generator
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev);			// Create the noise generator
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 	BinaryUniformGenerator bug = BinaryUniformGenerator();			// Create the noise generator
@@ -210,10 +149,7 @@ void NTRUPRE(int input, bool dbg_flag) {
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	TIC(t1);
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-	timeFFTSetup = TOC(t1);
-	DEBUG("FFT Precomputation time: " << "\t" << timeFFTSetup << " ms");
 
 	//Precomputations for DGG
 	TIC(t1);
@@ -226,9 +162,8 @@ void NTRUPRE(int input, bool dbg_flag) {
 	////////////////////////////////////////////////////////////
 
 	std::string inputPattern = "10?";
-	//std::string inputPattern = "1";
-	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 
+	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
 
 	DEBUG(" \nCleartext pattern: ");
@@ -237,34 +172,25 @@ void NTRUPRE(int input, bool dbg_flag) {
 	DEBUG(" \nCleartext pattern length: ");
 	DEBUG(clearPattern.GetLength());
 
-	//std::string inputStr1 = "1";
 	std::string inputStr1 = "100";
 	bool out1 = algorithm.Evaluate(clearPattern,inputStr1);
-	DEBUG(" \nCleartext pattern evaluation of: " << inputStr1);
-	DEBUG(out1);
+	DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << out1);
 
-	//std::string inputStr2 = "1";
 	std::string inputStr2 = "101";
-
 	bool out2 = algorithm.Evaluate(clearPattern,inputStr2);
-	DEBUG(" \nCleartext pattern evaluation of: " << inputStr2);
-	DEBUG(out2);
+	DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << out2);
 	
 	std::string inputStr3 = "010";
-	//std::string inputStr3 = "0";
 	bool out3 = algorithm.Evaluate(clearPattern,inputStr3);
-	DEBUG(" \nCleartext pattern evaluation of: " << inputStr3);
-	DEBUG(out3);
+	DEBUG(" \nCleartext pattern evaluation of: " << inputStr3 << " is " << out3);
 
 	////////////////////////////////////////////////////////////
 	//Generate and test the obfuscated pattern
 	////////////////////////////////////////////////////////////
 
-
-//	Ciphertext<ILVector2n> ciphertext;
-//	algorithm.Encrypt(pk,dgg,ptxt,&ciphertext);	// This is the core encryption operation.
-
-	bool result;
+	bool result1 = false;
+	bool result2 = false;
+	bool result3 = false;
 
 	cout << " \nCleartext pattern: " << endl;
 	cout << clearPattern.GetPatternString() << endl;
@@ -278,42 +204,50 @@ void NTRUPRE(int input, bool dbg_flag) {
 	timeKeyGen = TOC(t1);
 	DEBUG( "Key generation time: " << "\t" << timeKeyGen << " ms");
 
-	
-	DEBUG( "Binary Uniform Generator started"); 
-	TIC(t1);
 	BinaryUniformGenerator dbg = BinaryUniformGenerator();	
-	timeBUGGen = TOC(t1);
-	DEBUG( "Key generation time: " << "\t" << timeBUGGen << " ms");
-
 
 	DEBUG( "Obfuscation Execution started");
-	TIC(t1);
 	algorithm.Obfuscate(clearPattern,dgg,dbg,&obfuscatedPattern);
-	timeObf = TOC(t1);
-	DEBUG("Obfuscation execution time: " << "\t" << timeObf << " ms");
-
-//	obfuscatedPattern.GetSl();
 
 	DEBUG("Evaluation 1 started");
 	TIC(t1);
-	result = algorithm.Evaluate(obfuscatedPattern,inputStr1);
+	result1 = algorithm.Evaluate(obfuscatedPattern,inputStr1);
 	timeEval1 = TOC(t1);
-	DEBUG( " \nCleartext pattern evaluation of: " << inputStr1 << " is " << result << ".");
+	DEBUG( " \nCleartext pattern evaluation of: " << inputStr1 << " is " << result1 << ".");
 	DEBUG( "Evaluation 1 execution time: " << "\t" << timeEval1 << " ms" );
 
-	DEBUG("Evaluation 2 started");
-	TIC(t1);
-	//result = algorithm.Evaluate(obfuscatedPattern,inputStr2);
-	//DEBUG( " \nCleartext pattern evaluation of: " << inputStr2 << " is " << result << ".");
-	timeEval2 = TOC(t1);
-	DEBUG( "Evaluation 2 execution time: " << "\t" << timeEval2 << " ms" );
+	bool errorflag = false;
+	if (result1 != out1) {
+		cout << "ERROR EVALUATING 1"<< endl;
+		errorflag != true;
+	}
 
-	DEBUG("Evaluation 3 started");
-	TIC(t1);
-	//result = algorithm.Evaluate(obfuscatedPattern,inputStr3);
-	//DEBUG( " \nCleartext pattern evaluation of: " << inputStr3 << " is " << result << ".");
-	timeEval3 = TOC(t1);
-	DEBUG( "Evaluation 3 execution time: " << "\t" << timeEval3 << " ms");
+	if (n_evals > 1)  {
+		DEBUG("Evaluation 2 started");
+		TIC(t1);
+		result2 = algorithm.Evaluate(obfuscatedPattern,inputStr2);
+		timeEval2 = TOC(t1);
+		DEBUG( " \nCleartext pattern evaluation of: " << inputStr2 << " is " << result2 << ".");
+		DEBUG( "Evaluation 2 execution time: " << "\t" << timeEval2 << " ms" );
+
+		if (result2 != out2) {
+			cout << "ERROR EVALUATING 2"<< endl;
+			errorflag != true;
+		}
+	}
+
+	if (n_evals > 2)  {
+		DEBUG("Evaluation 3 started");
+		TIC(t1);
+		result3 = algorithm.Evaluate(obfuscatedPattern,inputStr3);
+		timeEval3 = TOC(t1);
+		DEBUG( "\nCleartext pattern evaluation of: " << inputStr3 << " is " << result3 << ".");
+		DEBUG( "Evaluation 3 execution time: " << "\t" << timeEval3 << " ms");
+		if (result3 != out3) {
+			cout << "ERROR EVALUATING 3"<< endl;
+			errorflag != true;
+		}
+	}
 
 	//get the total program run time.
 	timeTotal = TOC(t_total);
@@ -321,18 +255,21 @@ void NTRUPRE(int input, bool dbg_flag) {
 	//print output timing results
 
 	cout << "Timing Summary" << endl;
-	cout << "FFT Precomputation time: " << "\t" << timeFFTSetup << " ms" << endl;
-	cout << "DGG Precomputation time: " << "\t" << timeDGGSetup << " ms" << endl;
+	cout << "T: DGG setup time:        " << "\t" << timeDGGSetup << " ms" << endl;
 	cout << "T: Key generation time:        " << "\t" << timeKeyGen << " ms" << endl;
-	cout << "Binary Uniform generation time:        " << "\t" << timeBUGGen << " ms" << endl;
 	cout << "T: Obfuscation execution time: " << "\t" << timeObf << " ms" << endl;
 	cout << "T: Evaluation 1 execution time:  " << "\t" << timeEval1 << " ms" << endl;
 	cout << "Evaluation 2 execution time:  " << "\t" << timeEval2 << " ms" << endl;
 	cout << "Evaluation 3 execution time:  " << "\t" << timeEval3 << " ms" << endl;
-
 	cout << "Total execution time:       " << "\t" << timeTotal << " ms" << endl;
 
-	
+	if (errorflag) {
+		cout << "FAIL " << endl;
+	} else {
+		cout << "SUCCESS " << endl;
+	}
+
+	return (errorflag);
 }
 
 

@@ -22,9 +22,6 @@
 
 using namespace std;
 using namespace lbcrypto;
-//Todo(dcousins): migrate this to use utils/debug.cpp
-
-typedef std::string String;  //dbc shortcut
 
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){

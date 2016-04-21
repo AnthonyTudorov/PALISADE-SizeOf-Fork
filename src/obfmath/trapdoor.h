@@ -8,17 +8,6 @@ using std::pair;
 #include "dgsampling.h"
 #include "../utils/debug.h"
 
-//todo (dcousins): migrate this to utils/debug.cpp
-
-typedef std::chrono::high_resolution_clock::time_point TimeVar;
-
-#define duration(a) std::chrono::duration_cast<std::chrono::milliseconds>(a).count()
-#define timeNow() std::chrono::high_resolution_clock::now()
-
-
-#define TIC2 tll1=timeNow() 
-#define TOC2 duration(timeNow()-tll1)
-
 namespace lbcrypto {
 
 	typedef ILMat<ILVector2n> RingMat;
@@ -119,8 +108,8 @@ namespace lbcrypto {
     }
 
 inline void PerturbationMatrixGen(size_t n, size_t k, const RingMat& A, const TrapdoorPair& T, double s, ILMat<LargeFloat> *sigmaSqrt) {
-	  TimeVar tll1,tll2; // for TIC2 TOC2
-	  bool dbg_flag = 0; //set to 1 for debug timing... 
+	  TimeVar t1; // for TIC TOC
+	  bool dbg_flag = 1; //set to 1 for debug timing...
 		//We should convert this to a static variable later
 		int32_t c(ceil(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI)));
 
@@ -135,33 +124,32 @@ inline void PerturbationMatrixGen(size_t n, size_t k, const RingMat& A, const Tr
         //ILMat<BigBinaryInteger> R = Rotate(T.m_e)
         //    .VStack(Rotate(T.m_r))
         //    .VStack(ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
-	TIC2;
-	DEBUG("P1: "<<TOC2 <<" ms");
+	TIC(t1);
         ILMat<BigBinaryInteger> R = Rotate(eCoeff)
             .VStack(Rotate(rCoeff))
             .VStack(ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
-		DEBUG("p1: "<<TOC2 <<" ms");
-		TIC2;
+		DEBUG("p1: "<<TOC(t1) <<" ms");
+		TIC(t1);
         ILMat<int32_t> Rint = ConvertToInt32(R, modulus);
-	DEBUG("P2: "<<TOC2 <<" ms");
-        TIC2;
+	DEBUG("P2: "<<TOC(t1) <<" ms");
+        TIC(t1);
         ILMat<int32_t> COV = Rint*Rint.Transpose().ScalarMult(c*c);
-	DEBUG("P3: "<<TOC2 <<" ms");
-        TIC2;
+	DEBUG("P3: "<<TOC(t1) <<" ms");
+        TIC(t1);
         ILMat<int32_t> SigmaP = ILMat<int32_t>([](){ return make_unique<int32_t>(); }, COV.GetRows(), COV.GetCols()).Identity().ScalarMult(s*s) - COV;
-	DEBUG("P4: "<<TOC2 <<" ms");
-        TIC2;
+	DEBUG("P4: "<<TOC(t1) <<" ms");
+        TIC(t1);
         ILMat<int32_t> p([](){ return make_unique<int32_t>(); }, (2+k)*n, 1);
-	DEBUG("P5: "<<TOC2 <<" ms");
-        TIC2;
+	DEBUG("P5: "<<TOC(t1) <<" ms");
+        TIC(t1);
 		int32_t a(floor(c/2));
 
 		// YSP added the a^2*I term which was missing in the original LaTex document
 		ILMat<int32_t> sigmaA = SigmaP - (a*a)*ILMat<int32_t>(SigmaP.GetAllocator(), SigmaP.GetRows(), SigmaP.GetCols()).Identity();
-	DEBUG("P6: "<<TOC2 <<" ms");
-        TIC2;
+	DEBUG("P6: "<<TOC(t1) <<" ms");
+        TIC(t1);
 		*sigmaSqrt = Cholesky(sigmaA);
-	DEBUG("P7: "<<TOC2 <<" ms");
+	DEBUG("P7: "<<TOC(t1) <<" ms");
     }
 }
 #endif
