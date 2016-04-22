@@ -82,6 +82,24 @@ int main(int argc, char* argv[]){
 	}
 	cerr  <<"Running " << argv[0] <<" with "<< n_evals << " evaluations." << endl;
 
+	int nthreads, tid;
+
+	// Fork a team of threads giving them their own copies of variables
+	//so we can see how many threads we have to work with
+    #pragma omp parallel private(nthreads, tid)
+	{
+
+		/* Obtain thread number */
+		tid = omp_get_thread_num();
+
+		/* Only master thread does this */
+		if (tid == 0)
+		{
+			nthreads = omp_get_num_threads();
+			cout << "Number of threads = " << nthreads << endl;
+		}
+	}
+
 	//	NTRUPRE(input, dbg_flag, n_evals);
 	errorflag = NTRUPRE(dbg_flag, n_evals);
 
@@ -207,7 +225,10 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	BinaryUniformGenerator dbg = BinaryUniformGenerator();	
 
 	DEBUG( "Obfuscation Execution started");
+	TIC(t1);
 	algorithm.Obfuscate(clearPattern,dgg,dbg,&obfuscatedPattern);
+	timeObf = TOC(t1);
+	DEBUG( "Obfuscation time: " << "\t" << timeObf<< " ms");
 
 	DEBUG("Evaluation 1 started");
 	TIC(t1);
@@ -219,7 +240,7 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	bool errorflag = false;
 	if (result1 != out1) {
 		cout << "ERROR EVALUATING 1"<< endl;
-		errorflag != true;
+		errorflag |= true;
 	}
 
 	if (n_evals > 1)  {
@@ -232,7 +253,7 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 
 		if (result2 != out2) {
 			cout << "ERROR EVALUATING 2"<< endl;
-			errorflag != true;
+			errorflag |= true;
 		}
 	}
 
@@ -245,7 +266,7 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 		DEBUG( "Evaluation 3 execution time: " << "\t" << timeEval3 << " ms");
 		if (result3 != out3) {
 			cout << "ERROR EVALUATING 3"<< endl;
-			errorflag != true;
+			errorflag |= true;
 		}
 	}
 
@@ -258,10 +279,10 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	cout << "T: DGG setup time:        " << "\t" << timeDGGSetup << " ms" << endl;
 	cout << "T: Key generation time:        " << "\t" << timeKeyGen << " ms" << endl;
 	cout << "T: Obfuscation execution time: " << "\t" << timeObf << " ms" << endl;
-	cout << "T: Evaluation 1 execution time:  " << "\t" << timeEval1 << " ms" << endl;
-	cout << "Evaluation 2 execution time:  " << "\t" << timeEval2 << " ms" << endl;
-	cout << "Evaluation 3 execution time:  " << "\t" << timeEval3 << " ms" << endl;
-	cout << "Total execution time:       " << "\t" << timeTotal << " ms" << endl;
+	cout << "T: Eval 1 execution time:  " << "\t" << timeEval1 << " ms" << endl;
+	cout << "T: Eval 2 execution time:  " << "\t" << timeEval2 << " ms" << endl;
+	cout << "T: Eval 3 execution time:  " << "\t" << timeEval3 << " ms" << endl;
+	cout << "T: Total execution time:       " << "\t" << timeTotal << " ms" << endl;
 
 	if (errorflag) {
 		cout << "FAIL " << endl;
