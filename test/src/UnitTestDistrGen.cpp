@@ -1,27 +1,32 @@
 /*
-PRE SCHEME PROJECT, Crypto Lab, NJIT
-Version:
-	v00.01
-Last Edited:
-	11/05/2015 4:37AM
-List of Authors:
-	TPOC:
-		Dr. Kurt Rohloff, rohloff@njit.edu
-	Programmers:
-		Dr. Yuriy Polyakov, polyakov@njit.edu
-		Gyana Sahu, grs22@njit.edu
-		Nishanth Pasham, np386@njit.edu
-Description:
-	This code exercises the math libraries of the PALISADE lattice encryption library.
+  PRE SCHEME PROJECT, Crypto Lab, NJIT
+  Version:
+  v00.01
+  Last Edited:
+  11/05/2015 4:37AM
+  List of Authors:
+  TPOC:
+  Dr. Kurt Rohloff, rohloff@njit.edu
+  Programmers:
+  Dr. Yuriy Polyakov, polyakov@njit.edu
+  Gyana Sahu, grs22@njit.edu
+  Nishanth Pasham, np386@njit.edu
+  Dr. David B. Cousins, dcousins@bbn.com
 
-License Information:
+  Description: 
+  This code exercises the random number distribution generator libraries
+  of the PALISADE lattice encryption library.
 
-Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
-All rights reserved.
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  4/22/2016 DBC: modified to new UT format. Adding validity checks for parallelization code.
+
+  License Information:
+
+  Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+  All rights reserved.
+  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+  1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "../include/gtest/gtest.h"
@@ -45,13 +50,13 @@ using namespace std;
 using namespace lbcrypto;
 
 /*
-int main(int argc, char **argv) {
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+  int main(int argc, char **argv) {
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+  }
 */
 class UnitTestDistrGen : public ::testing::Test {
- protected:
+protected:
   virtual void SetUp() {
   }
 
@@ -60,294 +65,318 @@ class UnitTestDistrGen : public ::testing::Test {
     // (right before the destructor).
   }
 };
+//////////////////////////////////////////////////////////////////
+// Testing Methods of BigBinaryInteger DiscreteUniformGenerator
+//////////////////////////////////////////////////////////////////
 
-/*
-EXPECT_EQ (expected, actual) verifies expected == actual.
-Compares two integer values
-*/
+TEST(UTDistrGen, DiscreteUniformGenerator ) {
 
+  // TEST CASE TO GENERATE A UNIFORM BIG BINARY INTEGER WITH SMALL MODULUS
+  {
+    BigBinaryInteger modulus("10403");
+    DiscreteUniformGenerator dug = lbcrypto::DiscreteUniformGenerator(modulus);
+    BigBinaryInteger uniRandNum = dug.GenerateInteger();
 
-/*---------------------------------------	TESTING METHODS OF NBTHEORY	  --------------------------------------------*/
+    EXPECT_LT(uniRandNum, modulus) << "Failure testing with_in_small_modulus_integer_small_modulus";
+  }
 
-// TEST CASE TO GENERATE A UNIFORM BIG BINARY INTEGER WITH SMALL MODULUS
+  // TEST CASE TO GENERATE A UNIFORM BIG BINARY INTEGER WITH LARGE MODULUS
+  {
+    BigBinaryInteger modulus("10402635286389262637365363");
+    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+    BigBinaryInteger uniRandNum = distrUniGen.GenerateInteger();
 
-TEST(method_generate_uniform_big_binary,with_in_small_modulus_integer_small_modulus)
-{
-	BigBinaryInteger modulus("10403");
-	DiscreteUniformGenerator dug = lbcrypto::DiscreteUniformGenerator(modulus);
-	BigBinaryInteger uniRandNum = dug.GenerateInteger();
+    EXPECT_LT(uniRandNum, modulus) << "Failure testing with_in_large_modulus_integer_large_modulus";
+  }
 
-	EXPECT_LT(uniRandNum, modulus);
-}
+  //TEST CASE TO GENERATE A UNIFORM BIG BINARY VECTOR WITH SMALL MODULUS
 
-// TEST CASE TO GENERATE A UNIFORM BIG BINARY INTEGER WITH LARGE MODULUS
+  
+  {
+    BigBinaryInteger modulus("10403");
+    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+    
+    usint size = 10;
+    BigBinaryVector uniRandVector = distrUniGen.GenerateVector(size);
+    
+    EXPECT_EQ(uniRandVector.GetLength(), size) << "Failure testing vector_uniform_vector_small_modulus wrong length";
+    
+    for(int i=0; i<size; i++) {
+      EXPECT_LT(uniRandVector.GetValAtIndex(i), modulus)
+	<< "Failure testing vector_uniform_vector_small_modulus value greater than modulus at index "<< i;
+    }
+  }
+  
+  //TEST CASE TO GENERATE A UNIFORM BIG BINARY VECTOR WITH LARGE MODULUS
+  
+  {
+    BigBinaryInteger modulus("10402635286389262637365363");
+    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
 
-TEST(method_generate_uniform_big_binary,with_in_large_modulus_integer_large_modulus)
-{
-	BigBinaryInteger modulus("10402635286389262637365363");
-	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
-	BigBinaryInteger uniRandNum = distrUniGen.GenerateInteger();
+    usint size = 100;
+    BigBinaryVector uniRandVector = distrUniGen.GenerateVector(size);
 
-	EXPECT_LT(uniRandNum, modulus);
-}
+    EXPECT_EQ(uniRandVector.GetLength(), size) << "Failure testing vector_uniform_vector_large_modulus";
 
-//TEST CASE TO GENERATE A UNIFORM BIG BINARY VECTOR WITH SMALL MODULUS
+    for(int i=0; i<size; i++) {
+      EXPECT_LT(uniRandVector.GetValAtIndex(i), modulus) 
+	<< "Failure testing vector_uniform_vector_large_modulus value greater than modulus at index "<< i;
+    }
+  }
 
-TEST(method_generate_uniform_big_binary,vector_uniform_vector_small_modulus)
-{
-	BigBinaryInteger modulus("10403");
-	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+  // TEST CASE ON FIRST MOMENT SMALL MODULUS
+  {
+    BigBinaryInteger modulus("7919");
 
-	usint size = 10;
-	BigBinaryVector uniRandVector = distrUniGen.GenerateVector(size);
+    double modulusInDouble = modulus.ConvertToDouble();
+    double expectedMeanInDouble = modulusInDouble / 2.0;
 
-	EXPECT_EQ(uniRandVector.GetLength(), size);
+    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
 
-	for(int i=0; i<size; i++) {
-		EXPECT_LT(uniRandVector.GetValAtIndex(i), modulus);
-	}
-}
+    usint size = 500000;
+    BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
 
-//TEST CASE TO GENERATE A UNIFORM BIG BINARY VECTOR WITH LARGE MODULUS
+    double sum = 0;
+    BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
 
-TEST(method_generate_uniform_big_binary,vector_uniform_vector_large_modulus)
-{
-	BigBinaryInteger modulus("10402635286389262637365363");
-	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+    for(usint index=0; index<size; index++) {
+      sum += (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble();
+    }
 
-	usint size = 100;
-	BigBinaryVector uniRandVector = distrUniGen.GenerateVector(size);
+    double computedMeanInDouble = sum/size;
+    double diffInMeans = abs(computedMeanInDouble - expectedMeanInDouble);
 
-	EXPECT_EQ(uniRandVector.GetLength(), size);
+    //within 1% of expected mean
+    EXPECT_LT(diffInMeans, 0.01*modulusInDouble) << "Failure testing first_moment_test_convertToDouble_small_modulus";
+  }
 
-	for(int i=0; i<size; i++) {
-		EXPECT_LT(uniRandVector.GetValAtIndex(i), modulus);
-	}
-}
+  // TEST CASE ON SECOND MOMENT SMALL MODULUS
+  {
+    BigBinaryInteger modulus("7919");
 
-TEST(method_generate_uniform_big_binary, first_moment_test_convertToDouble_small_modulus)
-{
-	BigBinaryInteger modulus("7919");
+    double modulusInDouble = modulus.ConvertToDouble();
+    double expectedMeanInDouble = modulusInDouble / 2.0;
+    double expectedVarianceInDouble = ((modulusInDouble - 1.0)*(modulusInDouble - 1.0))/12.0;
+    double expectedStdDevInDouble = sqrt(expectedVarianceInDouble);
 
-	double modulusInDouble = modulus.ConvertToDouble();
-	double expectedMeanInDouble = modulusInDouble / 2.0;
+    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+    usint size = 500000;
+    BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
 
-	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+    double sum=0, temp;
+    for(usint index=0; index<size; index++) {
+      temp = (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble() - expectedMeanInDouble;
+      temp *= temp;
+      sum += temp;
+    }
 
-	usint size = 500000;
-	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
+    double computedVariance = (sum/size);
+    double computedStdDev = sqrt(computedVariance);
 
-	double sum = 0;
-	BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
+    double diffInStdDev = abs(computedStdDev - expectedStdDevInDouble);
 
-	for(usint index=0; index<size; index++) {
-		sum += (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble();
-	}
+    //within 1% of expected std dev
+    EXPECT_LT(diffInStdDev, 0.01*expectedStdDevInDouble) << "Failure testing second_moment_test_convertToDouble_small_modulus";
+  }
 
-	double computedMeanInDouble = sum/size;
-	double diffInMeans = abs(computedMeanInDouble - expectedMeanInDouble);
+  // TEST CASE ON FIRST MOMENT LARGE MODULUS
+  {
+    //999999999961, 999998869, 998443, 4294991873, 100019, 10403
+    BigBinaryInteger modulus("100019");
 
-	//within 1% of expected mean
-	EXPECT_LT(diffInMeans, 0.01*modulusInDouble);
-}
+    double modulusInDouble = modulus.ConvertToDouble();
+    double expectedMeanInDouble = modulusInDouble / 2.0;
 
-TEST(method_generate_uniform_big_binary, second_moment_test_convertToDouble_small_modulus)
-{
-	BigBinaryInteger modulus("7919");
+    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
 
-	double modulusInDouble = modulus.ConvertToDouble();
-	double expectedMeanInDouble = modulusInDouble / 2.0;
-	double expectedVarianceInDouble = ((modulusInDouble - 1.0)*(modulusInDouble - 1.0))/12.0;
-	double expectedStdDevInDouble = sqrt(expectedVarianceInDouble);
+    usint size = 50000;
+    BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
 
-	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
-	usint size = 500000;
-	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
+    double sum=0;
+    BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
 
-	double sum=0, temp;
-	for(usint index=0; index<size; index++) {
-		temp = (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble() - expectedMeanInDouble;
-		temp *= temp;
-		sum += temp;
-	}
+    for(usint index=0; index<size; index++) {
+      sum += (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble();
+    }
 
-	double computedVariance = (sum/size);
-	double computedStdDev = sqrt(computedVariance);
+    double computedMeanInDouble = sum/size;
+    double diffInMeans = abs(computedMeanInDouble - expectedMeanInDouble);
 
-	double diffInStdDev = abs(computedStdDev - expectedStdDevInDouble);
+    //within 1% of expected mean
+    EXPECT_LT(diffInMeans, 0.01*modulusInDouble) << "Failure testing first_moment_test_convertToDouble_big_modulus";
+  }
 
-	//within 1% of expected std dev
-	EXPECT_LT(diffInStdDev, 0.01*expectedStdDevInDouble);
-}
+  // TEST CASE ON SECOND MOMENT LARGE MODULUS
+  {
+    //999999999961, 999998869, 998443, 4294991873, 100019, 10403
+    BigBinaryInteger modulus("100019");
 
-TEST(method_generate_uniform_big_binary, first_moment_test_convertToDouble_big_modulus)
-{
-	//999999999961, 999998869, 998443, 4294991873, 100019, 10403
-	BigBinaryInteger modulus("100019");
+    double modulusInDouble = modulus.ConvertToDouble();
+    double expectedMeanInDouble = modulusInDouble / 2.0;
+    double expectedVarianceInDouble = ((modulusInDouble - 1.0)*(modulusInDouble - 1.0))/12.0;
+    double expectedStdDevInDouble = sqrt(expectedVarianceInDouble);
 
-	double modulusInDouble = modulus.ConvertToDouble();
-	double expectedMeanInDouble = modulusInDouble / 2.0;
+    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+    usint size = 50000;
+    BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
 
-	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+    double sum=0, temp;
+    for(usint index=0; index<size; index++) {
+      temp = (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble() - expectedMeanInDouble;
+      temp *= temp;
+      sum += temp;
+    }
 
-	usint size = 50000;
-	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
+    double computedVariance = (sum/size);
+    double computedStdDev = sqrt(computedVariance);
 
-	double sum=0;
-	BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
+    double diffInStdDev = abs(computedStdDev - expectedStdDevInDouble);
 
-	for(usint index=0; index<size; index++) {
-		sum += (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble();
-	}
+    //within 1% of expected std dev
+    EXPECT_LT(diffInStdDev, 0.01*expectedStdDevInDouble) << "Failure testing second_moment_test_convertToDouble_big_modulus";
+  }
 
-	double computedMeanInDouble = sum/size;
-	double diffInMeans = abs(computedMeanInDouble - expectedMeanInDouble);
+  //TEST CASE TO RECREATE OVERFLOW ISSUE CAUSED WHEN CALCULATING MEAN OF BBI's
+  //Issue#73
 
-	//within 1% of expected mean
-	EXPECT_LT(diffInMeans, 0.01*modulusInDouble);
-}
+  {
+    int caught_error = 0;
+    try {
+      BigBinaryInteger modulus("10402635286389262637365363"); //10402635286389262637365363
+      DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
 
-TEST(method_generate_uniform_big_binary, second_moment_test_convertToDouble_big_modulus)
-{
-	//999999999961, 999998869, 998443, 4294991873, 100019, 10403
-	BigBinaryInteger modulus("100019");
-
-	double modulusInDouble = modulus.ConvertToDouble();
-	double expectedMeanInDouble = modulusInDouble / 2.0;
-	double expectedVarianceInDouble = ((modulusInDouble - 1.0)*(modulusInDouble - 1.0))/12.0;
-	double expectedStdDevInDouble = sqrt(expectedVarianceInDouble);
-
-	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
-	usint size = 50000;
-	BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
-
-	double sum=0, temp;
-	for(usint index=0; index<size; index++) {
-		temp = (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble() - expectedMeanInDouble;
-		temp *= temp;
-		sum += temp;
-	}
-
-	double computedVariance = (sum/size);
-	double computedStdDev = sqrt(computedVariance);
-
-	double diffInStdDev = abs(computedStdDev - expectedStdDevInDouble);
-
-	//within 1% of expected std dev
-	EXPECT_LT(diffInStdDev, 0.01*expectedStdDevInDouble);
-}
-
-//TEST CASE TO RECREATE OVERFLOW ISSUE CAUSED WHEN CALCULATING MEAN OF BBI's
-//Issue#73
-TEST(method_generate_uniform_big_binary, recreate_overflow_issue)
-{
-	BigBinaryInteger modulus("10402635286389262637365363"); //10402635286389262637365363
-	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
-
-	usint eachIterationSize = 1000, noOfIterations = 100;
-	BigBinaryInteger sum, mean, N(eachIterationSize);
+      usint eachIterationSize = 1000, noOfIterations = 100;
+      BigBinaryInteger sum, mean, N(eachIterationSize);
 	
-	BigBinaryVector uniRandVector = distrUniGen.GenerateVector(eachIterationSize * noOfIterations);
+      BigBinaryVector uniRandVector = distrUniGen.GenerateVector(eachIterationSize * noOfIterations);
 	
-	for(usint i=0; i<noOfIterations; i++) {
-		sum = BigBinaryInteger::ZERO;
-		mean = BigBinaryInteger::ZERO;
-		for(int j=i*eachIterationSize; j<(i+1)*eachIterationSize; j++) {
-			sum += uniRandVector.GetValAtIndex(j);
-		}
-		mean = sum.DividedBy(N);
+      for(usint i=0; i<noOfIterations; i++) {
+	sum = BigBinaryInteger::ZERO;
+	mean = BigBinaryInteger::ZERO;
+	for(int j=i*eachIterationSize; j<(i+1)*eachIterationSize; j++) {
+	  sum += uniRandVector.GetValAtIndex(j);
 	}
-}
-
-TEST(method_generate_binary_uniform_big_binary_integer,greater_than_0)
-{
-	BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
-	BigBinaryInteger binUniRandNum = binaryUniGen.GenerateInteger();
-	EXPECT_GE(binUniRandNum.ConvertToInt(), 0)
-	<< "Result is less than 0";
-}
-
-TEST(method_generate_binary_uniform_big_binary_integer,less_than_1)
-{
-	BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
-	BigBinaryInteger binUniRandNum = binaryUniGen.GenerateInteger();
-	EXPECT_LE(binUniRandNum.ConvertToInt(), 1)
-	<< "Result is greater than 1";
-}
-
-TEST(method_generate_binary_uniform_big_binary_integer,mean)
-{
-
-	BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
-
-	usint length = 100000;
-	BigBinaryInteger modulus = BigBinaryInteger("1041");
-	BigBinaryVector randBigBinaryVector = binaryUniGen.GenerateVector(length,modulus);
-
-	usint sum = 0;
-
-	for(usint index=0; index<randBigBinaryVector.GetLength(); index++) {
-		sum += randBigBinaryVector.GetValAtIndex(index).ConvertToInt();
-	}
-	//std::cout << "Observed sum is " << sum << std::endl;
-	//std::cout << "Length is " << length << std::endl;
-	float computedMean = (float)sum/(float)length;
-	//std::cout << "The computedMean is " << computedMean << std::endl;
-	float expectedMean = 0.5;
-	float dif = abs(computedMean-expectedMean);
-	//std::cout << "The difference is " << dif << std::endl;
-
-	//std::cout << "Running Test." << std::endl;
-	EXPECT_LT(dif,0.01)
-	<< "Mean is incorrect";
-}
-// a large sample. Max of them should be less than q
+	mean = sum.DividedBy(N);
+      }
+    }
+    catch (...) {
+      caught_error = 1;
+    }
+    EXPECT_EQ(caught_error, 0)<< "Failure recreate_overflow_issue threw an error";
+  } 
+} //end TEST(UTDistrGen, DiscreteUniformGenerator)
 
 
-TEST(method_test_guassian_rand_generator, generate_char_vector_mean_test)
-{
-	sint stdev = 5;
-	usint size = 10000;
-  BigBinaryInteger modulus("10403");
-	DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
-	sint* dggCharVector = dgg.GenerateIntVector(size);
+////////////////////////////////////////////////
+// Testing Methods of BigBinaryInteger BinaryUniformGenerator
+////////////////////////////////////////////////
 
-	double mean = 0;
-	for(usint i=0; i<size; i++) {
-		mean += (double) dggCharVector[i];
-		// std::cout << i << "th value is " << std::to_string(dggCharVector[i]) << std::endl;
-	}
-	mean /= size;
-	// std::cout << "The mean of the values is " << mean << std::endl;
 
-	EXPECT_LE(mean, 0.1);
-	EXPECT_GE(mean, -0.1);
-}
+TEST(UTDistrGen, BinaryUniformGenerator ) {
 
-TEST(method_test_guassian_rand_generator, generate_vector_mean_test)
-{
-	sint stdev = 5;
-	usint size = 100000;
-	BigBinaryInteger modulus("10403");
-	BigBinaryInteger modulusByTwo(modulus.DividedBy(BigBinaryInteger::TWO));
-	DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
-	BigBinaryVector dggBigBinaryVector = dgg.GenerateVector(size,modulus);
 
-	usint countOfZero = 0;
-	double mean = 0, current = 0;
+  // fail if less than 0
+  {
+    BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
+    BigBinaryInteger binUniRandNum = binaryUniGen.GenerateInteger();
+    EXPECT_GE(binUniRandNum.ConvertToInt(), 0)
+      << "Failure less than 0";
+  }
 
-	for(usint i=0; i<size; i++) {
-		current = std::stod(dggBigBinaryVector.GetValAtIndex(i).ToString());
-		if(current == 0)
-			countOfZero++;
-		mean += current;
-	}
+  // fail if gt 1
+  {
+    BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
+    BigBinaryInteger binUniRandNum = binaryUniGen.GenerateInteger();
+    EXPECT_LE(binUniRandNum.ConvertToInt(), 1)
+      << "Failure greater than 1";
+  }
 
-	mean /= (size - countOfZero);
-	// std::cout << "The mean of the values is " << mean << std::endl;
+  // mean test
+  {
 
-	double modulusByTwoInDouble = std::stod(modulusByTwo.ToString());
+    BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
 
-	double diff = abs(modulusByTwoInDouble - mean);
-	EXPECT_LT(diff, 104);
+    usint length = 100000;
+    BigBinaryInteger modulus = BigBinaryInteger("1041");
+    BigBinaryVector randBigBinaryVector = binaryUniGen.GenerateVector(length,modulus);
+
+    usint sum = 0;
+
+    for(usint index=0; index<randBigBinaryVector.GetLength(); index++) {
+      sum += randBigBinaryVector.GetValAtIndex(index).ConvertToInt();
+    }
+    //std::cout << "Observed sum is " << sum << std::endl;
+    //std::cout << "Length is " << length << std::endl;
+    float computedMean = (float)sum/(float)length;
+    //std::cout << "The computedMean is " << computedMean << std::endl;
+    float expectedMean = 0.5;
+    float dif = abs(computedMean-expectedMean);
+    //std::cout << "The difference is " << dif << std::endl;
+
+    //std::cout << "Running Test." << std::endl;
+    EXPECT_LT(dif,0.01)
+      << "Failure Mean is incorrect";
+    // a large sample. Max of them should be less than q
+
+  }
+} // end TEST(
+
+
+
+
+////////////////////////////////////////////////
+// Testing Methods of BigBinaryInteger DiscreteGaussianGenerator
+////////////////////////////////////////////////
+
+
+TEST(UTDistrGen, DiscreteGaussianGenerator) {
+  //mean test
+
+  {
+    sint stdev = 5;
+    usint size = 10000;
+    BigBinaryInteger modulus("10403");
+    DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
+    sint* dggCharVector = dgg.GenerateIntVector(size);
+
+    double mean = 0;
+    for(usint i=0; i<size; i++) {
+      mean += (double) dggCharVector[i];
+      // std::cout << i << "th value is " << std::to_string(dggCharVector[i]) << std::endl;
+    }
+    mean /= size;
+    // std::cout << "The mean of the values is " << mean << std::endl;
+
+    EXPECT_LE(mean, 0.1) << "Failure generate_char_vector_mean_test mean > 0.1";
+    EXPECT_GE(mean, -0.1) << "Failure generate_char_vector_mean_test mean < -0.1";;
+  }
+
+  // generate_vector_mean_test
+  {
+    sint stdev = 5;
+    usint size = 100000;
+    BigBinaryInteger modulus("10403");
+    BigBinaryInteger modulusByTwo(modulus.DividedBy(BigBinaryInteger::TWO));
+    DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
+    BigBinaryVector dggBigBinaryVector = dgg.GenerateVector(size,modulus);
+
+    usint countOfZero = 0;
+    double mean = 0, current = 0;
+
+    for(usint i=0; i<size; i++) {
+      current = std::stod(dggBigBinaryVector.GetValAtIndex(i).ToString());
+      if(current == 0)
+	countOfZero++;
+      mean += current;
+    }
+
+    mean /= (size - countOfZero);
+    // std::cout << "The mean of the values is " << mean << std::endl;
+
+    double modulusByTwoInDouble = std::stod(modulusByTwo.ToString());
+
+    double diff = abs(modulusByTwoInDouble - mean);
+    EXPECT_LT(diff, 104) << "Failure generate_vector_mean_test";
+  }
+
 }
