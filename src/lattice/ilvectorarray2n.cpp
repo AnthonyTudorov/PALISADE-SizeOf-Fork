@@ -906,10 +906,6 @@ namespace lbcrypto {
 	ILVector2n ILVectorArray2n::InterpolateIlArrayVector2n()
 	{
 
-//		std::vector<std::vector<BigBinaryInteger>> vectorOfvectors(m_params.GetCyclotomicOrder()/2);
-
-//		vectorOfvectors = BuildChineseRemainderInterpolationVector(vectorOfvectors);
-
 		usint sizeOfCoefficientVector = m_params.GetCyclotomicOrder() / 2;
 
 		BigBinaryVector coefficients(sizeOfCoefficientVector,m_params.GetModulus());
@@ -920,17 +916,11 @@ namespace lbcrypto {
 
 		for (usint i = 0; i < sizeOfCoefficientVector; i++) {
 				
-//			std::cout << "Start Calculating for vector" << i << std::endl;
-
 			tempVector = BuildChineseRemainderInterpolationVectorForRow(i);
-
-		//	temp = CalculateInterpolationSum2(vectorOfvectors, i);
 
 			temp = CalculateInterpolationSum(tempVector, i);
 
 			coefficients.SetValAtIndex(i, BigBinaryInteger(temp));
-
-//			std::cout << "End Calculating for vector" << i << std::endl;
 
 		}
 
@@ -941,7 +931,6 @@ namespace lbcrypto {
 		rootOfUnity = m_params.GetRootOfUnity();
 
 		ILParams ilParams(m_params.GetCyclotomicOrder(), modulus, rootOfUnity);
-		
 
 		ILVector2n polynomialReconstructed(ilParams);
 		polynomialReconstructed.SetValues(coefficients,m_format);
@@ -1070,19 +1059,7 @@ namespace lbcrypto {
 
 	}
 
-	std::vector<std::vector<BigBinaryInteger>> ILVectorArray2n::BuildChineseRemainderInterpolationVector(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors)
-	{
-
-		//		std::vector<std::vector<BigBinaryInteger>> vectorOfvectors(m_vectors.size());
-		//usint sizeOfVector = m_vectors[0].GetLength();
-		usint cyclotomicOrder = m_params.GetCyclotomicOrder() / 2;
-		for (usint i = 0; i < cyclotomicOrder; i++) {
-			vectorOfvectors[i] = BuildChineseRemainderInterpolationVectorForRow(i);
-		}
-
-		return vectorOfvectors;
-	}
-
+	
 	bool ILVectorArray2n::InverseExists() const
 	{
 	
@@ -1096,7 +1073,7 @@ namespace lbcrypto {
 	}
 
 
-	BigBinaryInteger ILVectorArray2n::CalculateInterpolationSum(std::vector<BigBinaryInteger>vectorOfBigInts, usint index)
+	BigBinaryInteger ILVectorArray2n::CalculateInterpolationSum(const std::vector<BigBinaryInteger>& vectorOfBigInts, usint index)
 	{
 		BigBinaryInteger results("0");
 
@@ -1120,45 +1097,45 @@ namespace lbcrypto {
 	}
 
 
-	BigBinaryInteger ILVectorArray2n::CalculateInterpolationSum2(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors, usint index)
-	{
+//	BigBinaryInteger ILVectorArray2n::CalculateInterpolationSum2(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors, usint index)
+//	{
+//
+//		BigBinaryInteger results("0");
+//
+//		for (usint i = 0; i < m_vectors.size(); i++) {
+//
+////			std::cout <<" Start for index " << i << std::endl;
+//
+//			BigBinaryInteger multiplyValue;
+//
+//			multiplyValue = vectorOfvectors[index][i].Times(CalculateChineseRemainderInterpolationCoefficient(i));
+//
+//	//		std::cout <<  vectorOfvectors[index][i] << std::endl;
+//
+//    //		std::cout << multiplyValue << std::endl;
+//
+//			results = (results.Plus((multiplyValue)));
+//		
+////			std::cout << results << std::endl;
+//
+////			std::cout <<" End for index " << i << std::endl;
+//
+//		}
+//
+//
+//
+//		results = results.Mod(m_params.GetModulus());
+//
+////		std::cout<< results << std::endl;
+//
+//		return results;
+//
+//	}
 
-		BigBinaryInteger results("0");
-
-		for (usint i = 0; i < m_vectors.size(); i++) {
-
-//			std::cout <<" Start for index " << i << std::endl;
-
-			BigBinaryInteger multiplyValue;
-
-			multiplyValue = vectorOfvectors[index][i].Times(CalculateChineseRemainderInterpolationCoefficient(i));
-
-	//		std::cout <<  vectorOfvectors[index][i] << std::endl;
-
-    //		std::cout << multiplyValue << std::endl;
-
-			results = (results.Plus((multiplyValue)));
-		
-//			std::cout << results << std::endl;
-
-//			std::cout <<" End for index " << i << std::endl;
-
-		}
-
-
-
-		results = results.Mod(m_params.GetModulus());
-
-//		std::cout<< results << std::endl;
-
-		return results;
-
-	}
-
-	BigBinaryInteger ILVectorArray2n::CalculatInterpolateModulu(BigBinaryInteger value, usint index)
+	/*BigBinaryInteger ILVectorArray2n::CalculatInterpolateModulu(BigBinaryInteger value, usint index)
 	{
 		return value.Mod(m_params.GetCRI()[index]);
-	}
+	}*/
 
 
 	// JSON FACILITY - SetIdFlag Operation

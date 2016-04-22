@@ -359,37 +359,6 @@ namespace lbcrypto {
 		*/
 		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
 
-		private:BigBinaryInteger CalculateInterpolationSum2(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors, usint index);
-
-		private:BigBinaryInteger CalculateInterpolationSum(std::vector<BigBinaryInteger> vectorOfBigInts, usint index);
-
-		/*
-		Helper method for chinese remainder interpolatiom
-		*/
-
-		private:std::vector<std::vector<BigBinaryInteger>> BuildChineseRemainderInterpolationVector(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors);
-
-		/*
-		Helper method for chinese remainder interpolatiom
-		*/
-
-		private:BigBinaryInteger CalculateChineseRemainderInterpolationCoefficient(usint i);
-
-	    /*
-		*This function is a helper function that applies a modulus to all IlVector2n's so they don't wrap their respective modulus
-		*/
-	
-	private:void ChangeModuliOfIlVectorsToMatchDBLCRT();
-
-	/*
-	*helper function for chinese remainder interpolation
-	*/
-	private:std::vector<BigBinaryInteger> BuildChineseRemainderInterpolationVectorForRow(usint i);
-
-			/*This function takes in a row and a vector of vector of BigBinaryIntegers and calculates the sum of each
-			row, module the value set by the CRI formula*/
-			/*This method calculates the value for CRI*/
-	private:BigBinaryInteger CalculatInterpolateModulu(BigBinaryInteger value, usint index);
 
 
 	private:
@@ -401,6 +370,30 @@ namespace lbcrypto {
 
 		// 0 for coefficient and 1 for evaluation format
 		Format m_format;
+
+		BigBinaryInteger CalculateInterpolationSum(const std::vector<BigBinaryInteger>& vectorOfBigInts, usint index);
+
+		/*
+		Helper method for chinese remainder interpolatiom
+		*/
+
+		BigBinaryInteger CalculateChineseRemainderInterpolationCoefficient(usint i);
+
+	    /*
+		*This function is a helper function that applies a modulus to all IlVector2n's so they don't wrap their respective modulus
+		*/
+	
+		void ChangeModuliOfIlVectorsToMatchDBLCRT();
+
+		/*
+		*helper function for chinese remainder interpolation
+		*/
+		std::vector<BigBinaryInteger> BuildChineseRemainderInterpolationVectorForRow(usint i);
+
+		/*This function takes in a row and a vector of vector of BigBinaryIntegers and calculates the sum of each
+		  row, module the value set by the CRI formula*/
+		/*This method calculates the value for CRI*/
+		BigBinaryInteger CalculatInterpolateModulu(BigBinaryInteger value, usint index);
 
 	};
 

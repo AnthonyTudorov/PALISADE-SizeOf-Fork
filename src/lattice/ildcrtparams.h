@@ -59,37 +59,6 @@ namespace lbcrypto {
 		*/
 		ILDCRTParams() {}
 
-		// constructor for the pre-computed case;
-		/**
-		* Constructor for the pre-computed case.
-		*
-		* @param cyclotomic_order the order of the ciphertext
-		* @param &moduli is the tower of moduli
-		* @param rootsOfUnity the roots of unity for the toer of moduli
-		* @param cri_values Chinese remainder interpolation values to calculate inverse double-crt
-		*/
-		ILDCRTParams(usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli, std::vector<BigBinaryInteger>& rootsOfUnity, std::vector<BigBinaryInteger>& cri_values) {
-			m_cyclotomicOrder = cyclotomic_order;
-			m_moduli = moduli;
-			m_rootsOfUnity = rootsOfUnity;
-			m_CRIFactors = cri_values;
-			calculateModulus();
-		}
-
-
-		/**
-		* Constructor for the pre-computed case without roots of unity. Note the order is different from other constructors.
-		*
-		* @param cyclotomic_order the order of the ciphertext
-		* @param &moduli is the tower of moduli
-		* @param cri_values Chinese remainder interpolation values to calculate inverse double-crt
-		*/
-		ILDCRTParams(usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli, std::vector<BigBinaryInteger>& cri_values) {
-			m_cyclotomicOrder = cyclotomic_order;
-			m_moduli = moduli;
-			m_CRIFactors = cri_values;
-			calculateModulus();
-		}
 
 		/**
 		* Constructor for the pre-computed case without cri_values.
@@ -133,7 +102,7 @@ namespace lbcrypto {
 
 		ILDCRTParams& operator=(const ILDCRTParams &ild) {
 			this->m_moduli = ild.m_moduli;
-			this->m_CRIFactors = ild.m_CRIFactors;
+	//		this->m_CRIFactors = ild.m_CRIFactors;
 			this->m_rootsOfUnity = ild.m_rootsOfUnity;
 			this->m_cyclotomicOrder = usint(ild.m_cyclotomicOrder);
 			this->m_modulus = ild.m_modulus;
@@ -175,9 +144,9 @@ namespace lbcrypto {
 		*
 		* @return the cri-values.
 		*/
-		std::vector<BigBinaryInteger> &GetCRI() {
+	/*	std::vector<BigBinaryInteger> &GetCRI() {
 			return m_CRIFactors;
-		}
+		}*/
 		/**
 		* Get modulus.
 		*
@@ -203,7 +172,7 @@ namespace lbcrypto {
 		* @param order the order variable.
 		*/
 
-		void SetOrder(usint order) {
+		void SetOrder(const usint order) {
 			m_cyclotomicOrder = order;
 		}
 
@@ -283,7 +252,7 @@ namespace lbcrypto {
 		std::vector<BigBinaryInteger> m_rootsOfUnity;
 
 		//Chinese Remainder Interpolation values used for Inverse CRT
-		std::vector<BigBinaryInteger> m_CRIFactors;
+//		std::vector<BigBinaryInteger> m_CRIFactors;
 
 		//Modulus that is factorized into m_moduli
 		BigBinaryInteger m_modulus;

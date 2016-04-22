@@ -129,13 +129,13 @@ int main() {
 
 	//ModReduceTest();
 
-//	ModReduceNew();
+	ModReduceNew();
 
 //	ModReduceGyana();
 	
 	//KeySwitchTestNewAPI(); 
 
-	RingReduceDCRTTest();
+//	RingReduceDCRTTest();
 //	RingReduceSingleCRTTest();
 	//RingReduceDCRTTest();
 
