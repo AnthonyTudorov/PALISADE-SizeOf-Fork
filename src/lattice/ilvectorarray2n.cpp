@@ -835,10 +835,6 @@ namespace lbcrypto {
 
 	}
 
-
-
-
-
 	ILVectorArray2n ILVectorArray2n::GetDigitAtIndexForBase(usint index, usint base) const{
 		ILVectorArray2n tmp(*this);
 		
@@ -870,35 +866,20 @@ namespace lbcrypto {
 	{
 
 		BigBinaryInteger pIndex(m_params.GetModuli()[i]);
-//		std::cout << pIndex << std::endl;
 
 		BigBinaryInteger bigModulus(m_params.GetModulus());
-
- //  	std::cout << bigModulus << std::endl;
 
 		BigBinaryInteger divideBigModulusByIndexModulus;
 
 		divideBigModulusByIndexModulus = bigModulus.DividedBy(pIndex);
 
-	//	std::cout << divideBigModulusByIndexModulus << std::endl;
-
 		BigBinaryInteger modularInverse;
-		
-		/*if(divideBigModulusByIndexModulus > pIndex){
-		
-			divideBigModulusByIndexModulus = divideBigModulusByIndexModulus.Mod(pIndex);
-
-		}*/
 
 		modularInverse = divideBigModulusByIndexModulus.Mod(pIndex).ModInverse(pIndex);
-
-	//	std::cout << modularInverse << std::endl;
 
 		BigBinaryInteger results;
 
 		results = divideBigModulusByIndexModulus.Times(modularInverse);
-
-	//	std::cout << results << std::endl;
 
 		return results;
 	}
@@ -912,15 +893,17 @@ namespace lbcrypto {
 
 		BigBinaryInteger temp(0);
 
-		std::vector<BigBinaryInteger> tempVector;
+//		std::vector<BigBinaryInteger> tempVector;
 
 		for (usint i = 0; i < sizeOfCoefficientVector; i++) {
 				
-			tempVector = BuildChineseRemainderInterpolationVectorForRow(i);
+//			tempVector = BuildChineseRemainderInterpolationVectorForRow(i);
 
-			temp = CalculateInterpolationSum(tempVector, i);
+//			temp = CalculateInterpolationSum(tempVector, i);
 
-			coefficients.SetValAtIndex(i, BigBinaryInteger(temp));
+			temp = CalculateInterpolationSum(i);
+
+			coefficients.SetValAtIndex(i, CalculateInterpolationSum(i));
 
 		}
 
@@ -939,19 +922,7 @@ namespace lbcrypto {
 	}
 
 
-	void ILVectorArray2n::ChangeModuliOfIlVectorsToMatchDBLCRT()
-	{
-		if (m_vectors.size() != m_params.GetModuli().size()) return;
-
-
-		for (usint j = 0; j < m_vectors.size(); j++) {
-
-			m_vectors[j].SetModulus(m_params.GetModuli()[j]);
-
-		}
-
-	}
-
+	
 	void ILVectorArray2n::Decompose() {
 		Format format(this->GetFormat());
 		
@@ -1045,20 +1016,25 @@ namespace lbcrypto {
 		return m_vectors.size();
 	}
 
-	std::vector<BigBinaryInteger> ILVectorArray2n::BuildChineseRemainderInterpolationVectorForRow(usint i)
-	{
-		usint j = 0;
-		usint size = m_vectors.size();
-		std::vector<BigBinaryInteger> vAtIndexi(size);
+	//std::vector<BigBinaryInteger> ILVectorArray2n::BuildChineseRemainderInterpolationVectorForRow(usint i)
+	//{
+	//	usint j = 0;
+	//	usint size = m_vectors.size();
+	//	std::vector<BigBinaryInteger> vAtIndexi(size);
 
-		for (j = 0; j < size; j++) {
-			vAtIndexi[j] = m_vectors[j].GetValAtIndex(i);
-		}
+	//	for (j = 0; j < size; j++) {
+	//		vAtIndexi[j] = m_vectors[j].GetValAtIndex(i);
+	//	}
 
-		return vAtIndexi;
+	//	return vAtIndexi;
 
+	//}
+
+	BigBinaryInteger ILVectorArray2n::BuildChineseRemainderInterpolationVectorForIndex(usint i, usint j){
+		BigBinaryInteger x;
+		x = m_vectors[j].GetValAtIndex(i);
+		return x;
 	}
-
 	
 	bool ILVectorArray2n::InverseExists() const
 	{
@@ -1073,26 +1049,50 @@ namespace lbcrypto {
 	}
 
 
-	BigBinaryInteger ILVectorArray2n::CalculateInterpolationSum(const std::vector<BigBinaryInteger>& vectorOfBigInts, usint index)
+	//BigBinaryInteger ILVectorArray2n::CalculateInterpolationSum(const std::vector<BigBinaryInteger>& vectorOfBigInts, usint index)
+	//{
+	//	BigBinaryInteger results("0");
+
+	//	for (usint i = 0; i < m_vectors.size(); i++) {
+
+	//		BigBinaryInteger multiplyValue;
+
+	//		BigBinaryInteger temp(BuildChineseRemainderInterpolationVectorForIndex(index, i));
+
+	//		multiplyValue = vectorOfBigInts[i].Times(CalculateChineseRemainderInterpolationCoefficient(i));
+
+	//		multiplyValue = BuildChineseRemainderInterpolationVectorForIndex(index, i).Times(CalculateChineseRemainderInterpolationCoefficient(i));
+
+
+	//		results = (results.Plus((multiplyValue)));
+
+	//	}
+
+	//	results = results.Mod(m_params.GetModulus());
+
+	//	return results;
+
+	//}
+
+		BigBinaryInteger ILVectorArray2n::CalculateInterpolationSum(usint index)
 	{
 		BigBinaryInteger results("0");
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 
-
 			BigBinaryInteger multiplyValue;
 
-			multiplyValue = vectorOfBigInts[i].Times(CalculateChineseRemainderInterpolationCoefficient(i));
+			BigBinaryInteger temp(BuildChineseRemainderInterpolationVectorForIndex(index, i));
+
+			multiplyValue = BuildChineseRemainderInterpolationVectorForIndex(index, i).Times(CalculateChineseRemainderInterpolationCoefficient(i));
 
 			results = (results.Plus((multiplyValue)));
-
 
 		}
 
 		results = results.Mod(m_params.GetModulus());
 
 		return results;
-
 
 	}
 
