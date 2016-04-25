@@ -140,7 +140,27 @@ namespace lbcrypto {
 		*/
 		const ILVector2n& GetValues(usint i) const;
 
+		/**
+		* Set method of the values.
+		*
+		* @param values is the set of values of the vector.
+		*/
+		void SetValues(const std::vector<ILVector2n>& values, Format format);
 
+		/**
+		* Set method of the values.
+		*
+		* @param &params is the ILDCRTParams.
+		*/
+		void SetParams(const ElemParams &params);
+
+		/**
+		* Get method of the tower length.
+		*
+		* @return the length of the tower.
+		*/
+		usint GetLength() const;
+		
 		/**
 		* Get method of the vector values.
 		*
@@ -148,12 +168,6 @@ namespace lbcrypto {
 		*/
 		const std::vector<ILVector2n>& GetValues() const;
 
-		/**
-		* Get method of the format.
-		*
-		* @return the format.
-		*/
-		Format GetFormat() const;
 
 		/**
 		* Get method of the parameter set.
@@ -163,30 +177,34 @@ namespace lbcrypto {
 
 		const ElemParams &GetParams() const;
 
+		/**
+		* Get method of the format.
+		*
+		* @return the format.
+		*/
+		Format GetFormat() const;
 
 		/**
-		* Get method of the parameter set.
-		*
-		* @return the parameter set.
+		*This function returns the interpolated vectors
 		*/
 
-		 ElemParams& AccessParams();
+		// get digit for a specific based - used for PRE scheme
+		/**
+		* Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  Used in bit decomposition/relinearization operations.
+		*
+		* @param index is the index to get.
+		* @param base is the base the result should be in.
+		* @return is the result.
+		*/
+		ILVectorArray2n GetDigitAtIndexForBase(usint index, usint base) const;
 
 		/**
-		* Set method of the values.
+		* Access method of the parameter set non-const.
 		*
-		* @param &params is the ILDCRTParams.
+		* @return the parameter set non-const.
 		*/
-		void SetParams(const ElemParams &params);
 
-		// Set accessors
-
-		/**
-		* Set method of the values.
-		*
-		* @param values is the set of values of the vector.
-		*/
-		void SetValues(const std::vector<ILVector2n>& values, Format format);
+		ElemParams& AccessParams();
 
 		/**
 		Print values
@@ -283,18 +301,8 @@ namespace lbcrypto {
 		ILVectorArray2n Mod(const BigBinaryInteger & modulus) const;
 
 		/**
-		*This function returns the interpolated vectors
+		* Interleaves values in the ILVector2n's with odd indices being all zeros.
 		*/
-
-		// get digit for a specific based - used for PRE scheme
-		/**
-		* Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  Used in bit decomposition/relinearization operations.
-		*
-		* @param index is the index to get.
-		* @param base is the base the result should be in.
-		* @return is the result.
-		*/
-		ILVectorArray2n GetDigitAtIndexForBase(usint index, usint base) const;
 
 		void Decompose();
 
@@ -304,25 +312,23 @@ namespace lbcrypto {
 		void DropTower(usint index);
 
 		/**
-		* ModReduces
+		* ModReduces reduces the ILVectorArray2n's composite modulus by dropping the last modulus from the chain of moduli.
 		*/
 		void ModReduce();
 
+		/**
+		* Interpolates the ILVectorArray2n to an ILVector2n based on the Chinese Remainder Transform Interpolation.
+		*
+		* @return the ILVector2n representation of the ILVectorArray2n.
+		*/
+
 		ILVector2n InterpolateIlArrayVector2n();
-
-		usint GetLength() const;
-
 		
 		// convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT
 		/**
 		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
 		*/
 		void SwitchFormat();
-
-		/**
-		Set to Test value
-		*/
-		void SetToTestValue() ;
 
 		/**
 		* Determines if inverse exists

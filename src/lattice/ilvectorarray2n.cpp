@@ -105,8 +105,6 @@ namespace lbcrypto {
 	}
 
 
-
-
 	ILVectorArray2n::ILVectorArray2n(const DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format) :m_params(static_cast<const ILDCRTParams&>(params))
 	{
 		const ILDCRTParams &m_params = static_cast<const ILDCRTParams&>(params);
@@ -814,11 +812,11 @@ namespace lbcrypto {
 
 	}
 
-	void ILVectorArray2n::SetToTestValue(){
-		for(usint i = 0; i < m_vectors.size(); i++){
-			m_vectors[i].SetToTestValue();
-		}
-	}
+	//void ILVectorArray2n::SetToTestValue(){
+	//	for(usint i = 0; i < m_vectors.size(); i++){
+	//		m_vectors[i].SetToTestValue();
+	//	}
+	//}
 
 
 	void ILVectorArray2n::PrintValues() const{

@@ -490,16 +490,16 @@ namespace lbcrypto {
 		this->SetValues(decomposeValues, this->GetFormat());
 	}
 
-	void ILVector2n::SetToTestValue(){
-	
-		m_values->SetValAtIndex(0,BigBinaryInteger::ONE);
-		for(usint i = 1; i < m_params.GetCyclotomicOrder()/2;i++){
-	
-			m_values->SetValAtIndex(i,BigBinaryInteger::ZERO);
+	//void ILVector2n::SetToTestValue(){
+	//
+	//	m_values->SetValAtIndex(0,BigBinaryInteger::ONE);
+	//	for(usint i = 1; i < m_params.GetCyclotomicOrder()/2;i++){
+	//
+	//		m_values->SetValAtIndex(i,BigBinaryInteger::ZERO);
 
-		}
-	
-	}
+	//	}
+	//
+	//}
 
 
 	// JSON FACILITY - SetIdFlag Operation

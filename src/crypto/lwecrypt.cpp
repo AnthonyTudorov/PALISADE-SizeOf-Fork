@@ -321,7 +321,7 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 //	Element m(4,dgg,elementParams, Format::COEFFICIENT);
 
 	plaintext.Encode(p,&m);
-	m.PrintValues();
+//	m.PrintValues();
 	m.SwitchFormat();
 	
 	const Element &h = publicKey.GetPublicElement();
@@ -366,7 +366,7 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 
 	b = b.Mod(p);
 
-	b.PrintValues();
+//	b.PrintValues();
 
 	plaintext->Decode(p,b);
 	

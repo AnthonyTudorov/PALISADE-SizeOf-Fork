@@ -107,7 +107,7 @@ struct SecureParams {
 int main() {
 
 
-//	NTRU_DCRT();
+	NTRU_DCRT();
 
 //	KeySwitchTest();
 
@@ -129,7 +129,7 @@ int main() {
 
 	//ModReduceTest();
 
-	ModReduceNew();
+//	ModReduceNew();
 
 //	ModReduceGyana();
 	
@@ -171,16 +171,16 @@ void NTRU_DCRT() {
 
 	start = currentDateTime();
 
-	usint m = 16;
+	usint m = 1024;
 
-	const ByteArray plaintext = "I";
+	const ByteArray plaintext = "I am a good boy!";
 	ByteArrayPlaintextEncoding ptxt(plaintext);
 	ptxt.Pad<ZeroPad>(m/16);
 //	ptxt.Pad<ZeroPad>(m/8);
 
 	float stdDev = 4;
 
-	usint size = 3;
+	usint size = 5;
 
 	std::cout << "tower size: " << size << std::endl;
 

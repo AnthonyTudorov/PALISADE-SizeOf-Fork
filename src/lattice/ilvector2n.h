@@ -401,7 +401,7 @@ namespace lbcrypto {
 		Print values and don't flush before and don't print new line.
 		Set to Test value
 		*/
-		void SetToTestValue() ;
+//		void SetToTestValue() ;
 
 		/**
 		Print values

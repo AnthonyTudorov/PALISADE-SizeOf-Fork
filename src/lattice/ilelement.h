@@ -74,7 +74,7 @@ namespace lbcrypto {
 
 		virtual void ModularOne() = 0;
 
-		virtual void SetToTestValue() = 0;
+//		virtual void SetToTestValue() = 0;
 	};
 
 } // namespace lbcrypto ends
