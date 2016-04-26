@@ -45,7 +45,8 @@
 #include "../../src/lattice/ilvector2n.h"
 #include "../../src/lattice/ilvectorarray2n.h"
 #include "../../src/utils/utilities.h"
-
+#include "../../src/utils/debug.h"
+#include <omp.h>
 using namespace std;
 using namespace lbcrypto;
 
@@ -68,6 +69,7 @@ protected:
 //////////////////////////////////////////////////////////////////
 // Testing Methods of BigBinaryInteger DiscreteUniformGenerator
 //////////////////////////////////////////////////////////////////
+void testDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_name);
 
 TEST(UTDistrGen, DiscreteUniformGenerator ) {
 
@@ -124,121 +126,18 @@ TEST(UTDistrGen, DiscreteUniformGenerator ) {
     }
   }
 
-  // TEST CASE ON FIRST MOMENT SMALL MODULUS
   {
-    BigBinaryInteger modulus("7919");
-
-    double modulusInDouble = modulus.ConvertToDouble();
-    double expectedMeanInDouble = modulusInDouble / 2.0;
-
-    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
-
-    usint size = 500000;
-    BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
-
-    double sum = 0;
-    BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
-
-    for(usint index=0; index<size; index++) {
-      sum += (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble();
-    }
-
-    double computedMeanInDouble = sum/size;
-    double diffInMeans = abs(computedMeanInDouble - expectedMeanInDouble);
-
-    //within 1% of expected mean
-    EXPECT_LT(diffInMeans, 0.01*modulusInDouble) << "Failure testing first_moment_test_convertToDouble_small_modulus";
+    // TEST CASE ON FIRST AND SECOND CENTRAL MOMENTS SMALL MODULUS
+    BigBinaryInteger small_modulus("7919");
+    testDiscreteUniformGenerator(small_modulus, "small_modulus");
   }
-
-  // TEST CASE ON SECOND MOMENT SMALL MODULUS
   {
-    BigBinaryInteger modulus("7919");
-
-    double modulusInDouble = modulus.ConvertToDouble();
-    double expectedMeanInDouble = modulusInDouble / 2.0;
-    double expectedVarianceInDouble = ((modulusInDouble - 1.0)*(modulusInDouble - 1.0))/12.0;
-    double expectedStdDevInDouble = sqrt(expectedVarianceInDouble);
-
-    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
-    usint size = 500000;
-    BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
-
-    double sum=0, temp;
-    for(usint index=0; index<size; index++) {
-      temp = (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble() - expectedMeanInDouble;
-      temp *= temp;
-      sum += temp;
-    }
-
-    double computedVariance = (sum/size);
-    double computedStdDev = sqrt(computedVariance);
-
-    double diffInStdDev = abs(computedStdDev - expectedStdDevInDouble);
-
-    //within 1% of expected std dev
-    EXPECT_LT(diffInStdDev, 0.01*expectedStdDevInDouble) << "Failure testing second_moment_test_convertToDouble_small_modulus";
+    // TEST CASE ON FIRST AND SECOND CENTRAL MOMENTS LARGE MODULUS
+    BigBinaryInteger large_modulus("100019");
+    testDiscreteUniformGenerator(large_modulus, "large_modulus");
   }
-
-  // TEST CASE ON FIRST MOMENT LARGE MODULUS
-  {
-    //999999999961, 999998869, 998443, 4294991873, 100019, 10403
-    BigBinaryInteger modulus("100019");
-
-    double modulusInDouble = modulus.ConvertToDouble();
-    double expectedMeanInDouble = modulusInDouble / 2.0;
-
-    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
-
-    usint size = 50000;
-    BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
-
-    double sum=0;
-    BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
-
-    for(usint index=0; index<size; index++) {
-      sum += (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble();
-    }
-
-    double computedMeanInDouble = sum/size;
-    double diffInMeans = abs(computedMeanInDouble - expectedMeanInDouble);
-
-    //within 1% of expected mean
-    EXPECT_LT(diffInMeans, 0.01*modulusInDouble) << "Failure testing first_moment_test_convertToDouble_big_modulus";
-  }
-
-  // TEST CASE ON SECOND MOMENT LARGE MODULUS
-  {
-    //999999999961, 999998869, 998443, 4294991873, 100019, 10403
-    BigBinaryInteger modulus("100019");
-
-    double modulusInDouble = modulus.ConvertToDouble();
-    double expectedMeanInDouble = modulusInDouble / 2.0;
-    double expectedVarianceInDouble = ((modulusInDouble - 1.0)*(modulusInDouble - 1.0))/12.0;
-    double expectedStdDevInDouble = sqrt(expectedVarianceInDouble);
-
-    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
-    usint size = 50000;
-    BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
-
-    double sum=0, temp;
-    for(usint index=0; index<size; index++) {
-      temp = (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble() - expectedMeanInDouble;
-      temp *= temp;
-      sum += temp;
-    }
-
-    double computedVariance = (sum/size);
-    double computedStdDev = sqrt(computedVariance);
-
-    double diffInStdDev = abs(computedStdDev - expectedStdDevInDouble);
-
-    //within 1% of expected std dev
-    EXPECT_LT(diffInStdDev, 0.01*expectedStdDevInDouble) << "Failure testing second_moment_test_convertToDouble_big_modulus";
-  }
-
   //TEST CASE TO RECREATE OVERFLOW ISSUE CAUSED WHEN CALCULATING MEAN OF BBI's
   //Issue#73
-
   {
     int caught_error = 0;
     try {
@@ -265,6 +164,136 @@ TEST(UTDistrGen, DiscreteUniformGenerator ) {
     EXPECT_EQ(caught_error, 0)<< "Failure recreate_overflow_issue threw an error";
   } 
 } //end TEST(UTDistrGen, DiscreteUniformGenerator)
+
+
+
+void testDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_name){
+  // TEST CASE ON FIRST CENTRAL MOMENT
+
+    double modulusInDouble = modulus.ConvertToDouble();
+    double expectedMeanInDouble = modulusInDouble / 2.0;
+
+    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+
+    usint size = 50000;
+    BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
+
+    double sum=0;
+    BigBinaryInteger length(std::to_string(randBigBinaryVector.GetLength()));
+
+    for(usint index=0; index<size; index++) {
+      sum += (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble();
+    }
+
+    double computedMeanInDouble = sum/size;
+    double diffInMeans = abs(computedMeanInDouble - expectedMeanInDouble);
+
+    //within 1% of expected mean
+    EXPECT_LT(diffInMeans, 0.01*modulusInDouble) << "Failure testing first_moment_test_convertToDouble " << test_name;
+
+
+    // TEST CASE ON SECOND CENTRAL MOMENT
+
+    double expectedVarianceInDouble = ((modulusInDouble - 1.0)*(modulusInDouble - 1.0))/12.0;
+    double expectedStdDevInDouble = sqrt(expectedVarianceInDouble);
+
+    sum=0;
+    double temp;
+    for(usint index=0; index<size; index++) {
+      temp = (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble() - expectedMeanInDouble;
+      temp *= temp;
+      sum += temp;
+    }
+
+    double computedVariance = (sum/size);
+    double computedStdDev = sqrt(computedVariance);
+
+    double diffInStdDev = abs(computedStdDev - expectedStdDevInDouble);
+
+
+    EXPECT_LT(diffInStdDev, 0.01*expectedStdDevInDouble) << "Failure testing second_moment_test_convertToDouble "<< test_name;
+}
+
+
+
+void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_name);
+TEST(UTDistrGen, ParallelDiscreteUniformGenerator ) {
+
+  //BUILD SEVERAL VECTORS OF BBI IN PARALLEL, CONCATENATE THEM TO ONE LARGE VECTOR AND TEST
+  //THE RESULT OF THE FIRST AND SECOND CENTRAL MOMENTS
+
+  BigBinaryInteger small_modulus("7919"); // test small modulus
+  testParallelDiscreteUniformGenerator(small_modulus, "small_modulus");
+
+  BigBinaryInteger large_modulus("100019");// test large modulus
+  testParallelDiscreteUniformGenerator(large_modulus, "large_modulus");
+
+}
+
+void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_name){
+    double modulusInDouble = modulus.ConvertToDouble();
+    // we expect the mean to be modulus/2 (the mid range of the min-max data);
+    double expectedMeanInDouble = modulusInDouble / 2.0;
+    usint size = 500000;
+    bool dbg_flag = 0;
+    vector <BigBinaryInteger> randBigBinaryVector;
+    #pragma omp parallel // this is executed in parallel
+    {
+      //private copies of our vector
+      vector <BigBinaryInteger> randBigBinaryVectorPvt;
+      DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+      // build the vectors in parallel
+      #pragma omp for nowait schedule(static)
+      for(usint i=0; i<size; i++) {
+    	  //build private copies in parallel
+	randBigBinaryVectorPvt.push_back(distrUniGen.GenerateInteger());
+      }
+
+      #pragma omp for schedule(static) ordered
+      // now stitch them back together sequentially to preserve order of i
+      for (int i=0; i<omp_get_num_threads(); i++) {
+        #pragma omp ordered
+      DEBUG("thread #" << omp_get_thread_num() << " " << "moving "
+		       << (int)randBigBinaryVectorPvt.size()  << " to starting point" 
+		       << (int)randBigBinaryVector.size() );
+	randBigBinaryVector.insert(randBigBinaryVector.end(), randBigBinaryVectorPvt.begin(), randBigBinaryVectorPvt.end());
+      }
+    }
+    // now compute the sum over the entire vector
+    double sum = 0;
+    BigBinaryInteger length(std::to_string(randBigBinaryVector.size()));
+
+    for(usint index=0; index<size; index++) {
+      sum += (randBigBinaryVector[index]).ConvertToDouble();
+    }
+    // divide by the size (i.e. take mean)
+    double computedMeanInDouble = sum/size;
+    // compute the difference between the expected and actual
+    double diffInMeans = abs(computedMeanInDouble - expectedMeanInDouble);
+
+    //within 1% of expected mean
+    EXPECT_LT(diffInMeans, 0.01*modulusInDouble) << "Failure testing parallel_first_central_moment_test " << test_name;
+
+    // TEST CASE ON SECOND CENTRAL MOMENT SMALL MODULUS
+    double expectedVarianceInDouble = ((modulusInDouble - 1.0)*(modulusInDouble - 1.0))/12.0; // var = ((b-a)^2) /12
+    double expectedStdDevInDouble = sqrt(expectedVarianceInDouble);
+
+    sum=0;
+    double temp;
+    for(usint index=0; index<size; index++) {
+      temp = (randBigBinaryVector[index]).ConvertToDouble() - expectedMeanInDouble;
+      temp *= temp;
+      sum += temp;
+    }
+
+    double computedVariance = (sum/size);
+    double computedStdDev = sqrt(computedVariance);
+
+    double diffInStdDev = abs(computedStdDev - expectedStdDevInDouble);
+
+    //within 1% of expected std dev
+    EXPECT_LT(diffInStdDev, 0.01*expectedStdDevInDouble) << "Failure testing second_central_moment_test " << test_name;
+}
 
 
 ////////////////////////////////////////////////
