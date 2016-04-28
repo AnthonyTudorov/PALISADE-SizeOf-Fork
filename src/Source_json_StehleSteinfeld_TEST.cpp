@@ -91,8 +91,8 @@ struct SecureParams {
 int main(){
 	
 	
-	std::cout << "Paramter set : " << std::endl;
-	std::cout << "0 (n = 1024, p = 2, r = 1), 1 (n = 1024, p = 2, r = 8), 2 (n = 2048, p = 2, r = 1), 3 (n = 2048, p = 16, r = 16), 4 (n = 4096, p = 16, r = 16), 5 (n = 8192, p = 16, r = 16), 6 (n = 4096, p = 256, r = 16): ";
+	std::cout << "Parameter set : " << std::endl;
+	std::cout << "0 (n = 1024, p = 2, r = 1), \n1 (n = 1024, p = 2, r = 8), \n2 (n = 2048, p = 2, r = 1), \n3 (n = 2048, p = 2, r = 16), \n4 (n = 2048, p = 16, r = 16), \n5 (n = 4096, p = 16, r = 16), \n6 (n = 8192, p = 16, r = 16), \n7 (n = 4096, p = 256, r = 16)\n: ";
 
 	int input = 0;
 	std::cin >> input;
@@ -207,6 +207,7 @@ void NTRUPRE(int input) {
 		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("8451304774"), 1, BigBinaryInteger("2"), 32.812 }, //n = 1024; r = 1; p = 2
 		{ 2048, BigBinaryInteger("137439004673"), BigBinaryInteger("7643730114"), 8, BigBinaryInteger("2"),  71.6332 }, // r = 2
 		{ 4096, BigBinaryInteger("17179926529"), BigBinaryInteger("1874048014"), 1, BigBinaryInteger("2"),  32.812 },  // r = 4
+		{ 4096, BigBinaryInteger("140737488486401"), BigBinaryInteger("65185722416667"), 16, BigBinaryInteger("2"),  354.34 },
 		{ 4096, BigBinaryInteger("72057594037948417"), BigBinaryInteger("12746853818308484"), 16, BigBinaryInteger("16"), 1511.83 }, // r = 2
 		{ 8192, BigBinaryInteger("144115188076060673"), BigBinaryInteger("48914894759308182"), 16, BigBinaryInteger("16"), 1511.83 }, //n = 1024; r = 1; p = 2
 		{ 16384, BigBinaryInteger("288230376151760897"), BigBinaryInteger("144972394728154060"), 16, BigBinaryInteger("16"), 1511.83  }, //n = 1024; r = 1; p = 2
