@@ -72,7 +72,7 @@ namespace lbcrypto {
 		//virtual void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus) = 0;
 		virtual void PrintValues() const = 0;
 
-//		virtual void AddILElementOne() = 0;
+		virtual void AddILElementOne() = 0;
 
 //		virtual void SetToTestValue() = 0;
 	};
