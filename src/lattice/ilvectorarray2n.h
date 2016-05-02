@@ -322,7 +322,7 @@ namespace lbcrypto {
 		* @return the ILVector2n representation of the ILVectorArray2n.
 		*/
 
-		ILVector2n InterpolateIlArrayVector2n();
+		ILVector2n InterpolateIlArrayVector2n() const;
 		
 		// convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT
 		/**
@@ -377,16 +377,11 @@ namespace lbcrypto {
 		// 0 for coefficient and 1 for evaluation format
 		Format m_format;
 
-		BigBinaryInteger CalculateInterpolationSum(usint index);
+		BigBinaryInteger CalculateInterpolationSum(usint index) const;
 
 		/*Helper method for chinese remainder interpolatiom*/
 
-		BigBinaryInteger CalculateChineseRemainderInterpolationCoefficient(usint i);
-
-		/*This method calculates the value for CRI*/
-		BigBinaryInteger CalculatInterpolateModulu(BigBinaryInteger value, usint index);
-
-		BigBinaryInteger BuildChineseRemainderInterpolationVectorForIndex(usint i, usint j);
+		BigBinaryInteger CalculateChineseRemainderInterpolationCoefficient(usint i) const;
 
 	};
 

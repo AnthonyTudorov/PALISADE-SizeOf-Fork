@@ -324,7 +324,7 @@ namespace lbcrypto {
 		}
 	}
 
-	BigBinaryInteger ILVectorArray2n::CalculateChineseRemainderInterpolationCoefficient(usint i)
+	BigBinaryInteger ILVectorArray2n::CalculateChineseRemainderInterpolationCoefficient(usint i) const
 	{
 		BigBinaryInteger pIndex(m_params.GetModuli()[i]);
 
@@ -345,7 +345,7 @@ namespace lbcrypto {
 		return results;
 	}
 
-	ILVector2n ILVectorArray2n::InterpolateIlArrayVector2n()
+	ILVector2n ILVectorArray2n::InterpolateIlArrayVector2n() const
 	{
 		usint sizeOfCoefficientVector = m_params.GetCyclotomicOrder() / 2;
 
@@ -460,12 +460,6 @@ namespace lbcrypto {
 		return m_vectors.size();
 	}
 
-	BigBinaryInteger ILVectorArray2n::BuildChineseRemainderInterpolationVectorForIndex(usint i, usint j){
-		BigBinaryInteger x;
-		x = m_vectors[j].GetValAtIndex(i);
-		return x;
-	}
-	
 	bool ILVectorArray2n::InverseExists() const
 	{
 		for (usint i = 0; i < m_vectors.size(); i++) {
@@ -474,7 +468,7 @@ namespace lbcrypto {
 		return true;
 	}
 
-	BigBinaryInteger ILVectorArray2n::CalculateInterpolationSum(usint index)
+	BigBinaryInteger ILVectorArray2n::CalculateInterpolationSum(usint index) const
 	{
 		BigBinaryInteger results("0");
 
@@ -482,14 +476,11 @@ namespace lbcrypto {
 
 			BigBinaryInteger multiplyValue;
 
-			BigBinaryInteger temp(BuildChineseRemainderInterpolationVectorForIndex(index, i));
-
-			multiplyValue = BuildChineseRemainderInterpolationVectorForIndex(index, i).Times(CalculateChineseRemainderInterpolationCoefficient(i));
+			multiplyValue = (m_vectors[i].GetValAtIndex(index)).Times(CalculateChineseRemainderInterpolationCoefficient(i));
 
 			results = (results.Plus((multiplyValue)));
 
 		}
-
 		results = results.Mod(m_params.GetModulus());
 
 		return results;
