@@ -214,7 +214,7 @@ namespace lbcrypto {
 		/**
 		Plus One
 		*/
-		void ModularOne();
+		void AddILElementOne();
 
 
 		/**

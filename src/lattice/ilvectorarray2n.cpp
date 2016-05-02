@@ -279,9 +279,9 @@ namespace lbcrypto {
 		return tmp;
 	}
 	
-	void ILVectorArray2n::ModularOne(){
+	void ILVectorArray2n::AddILElementOne(){
 		for(usint i = 0; i < m_vectors.size(); i++){
-			m_vectors[i].ModularOne();
+			m_vectors[i].AddILElementOne();
 		}
 	}
 
