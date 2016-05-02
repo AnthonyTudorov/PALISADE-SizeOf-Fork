@@ -377,24 +377,12 @@ namespace lbcrypto {
 		// 0 for coefficient and 1 for evaluation format
 		Format m_format;
 
-//		BigBinaryInteger CalculateInterpolationSum(const std::vector<BigBinaryInteger>& vectorOfBigInts, usint index);
-
 		BigBinaryInteger CalculateInterpolationSum(usint index);
 
-
-		/*
-		Helper method for chinese remainder interpolatiom
-		*/
+		/*Helper method for chinese remainder interpolatiom*/
 
 		BigBinaryInteger CalculateChineseRemainderInterpolationCoefficient(usint i);
 
-		/*
-		*helper function for chinese remainder interpolation
-		*/
-//		std::vector<BigBinaryInteger> BuildChineseRemainderInterpolationVectorForRow(usint i);
-
-		/*This function takes in a row and a vector of vector of BigBinaryIntegers and calculates the sum of each
-		  row, module the value set by the CRI formula*/
 		/*This method calculates the value for CRI*/
 		BigBinaryInteger CalculatInterpolateModulu(BigBinaryInteger value, usint index);
 
