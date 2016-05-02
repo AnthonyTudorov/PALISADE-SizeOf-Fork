@@ -391,9 +391,13 @@ namespace lbcrypto {
 			 m_vectors[i].Decompose();
 			 rootsOfUnity[i] = m_vectors[i].GetParams().GetRootOfUnity();
 		}
-		ILDCRTParams &castedParams = static_cast<ILDCRTParams&>(this->AccessParams());
+	/*	ILDCRTParams &castedParams = static_cast<ILDCRTParams&>(this->AccessParams());
 		castedParams.SetRootsOfUnity(rootsOfUnity);
-		castedParams.SetOrder(cyclotomicOrder/2);
+		castedParams.SetOrder(cyclotomicOrder/2);*/
+
+		m_params.SetRootsOfUnity(rootsOfUnity);
+		m_params.SetOrder(cyclotomicOrder/2);
+
 	}
 
 	void ILVectorArray2n::DropTower(usint index){
