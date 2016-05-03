@@ -69,7 +69,11 @@ protected:
 //////////////////////////////////////////////////////////////////
 // Testing Methods of BigBinaryInteger DiscreteUniformGenerator
 //////////////////////////////////////////////////////////////////
+
+// helper functions defined later
 void testDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_name);
+void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_name);
+
 
 TEST(UTDistrGen, DiscreteUniformGenerator ) {
 
@@ -92,17 +96,15 @@ TEST(UTDistrGen, DiscreteUniformGenerator ) {
   }
 
   //TEST CASE TO GENERATE A UNIFORM BIG BINARY VECTOR WITH SMALL MODULUS
-
-  
   {
     BigBinaryInteger modulus("10403");
     DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
     
     usint size = 10;
     BigBinaryVector uniRandVector = distrUniGen.GenerateVector(size);
-    
+    // test length
     EXPECT_EQ(uniRandVector.GetLength(), size) << "Failure testing vector_uniform_vector_small_modulus wrong length";
-    
+    // test content
     for(int i=0; i<size; i++) {
       EXPECT_LT(uniRandVector.GetValAtIndex(i), modulus)
 	<< "Failure testing vector_uniform_vector_small_modulus value greater than modulus at index "<< i;
@@ -117,9 +119,9 @@ TEST(UTDistrGen, DiscreteUniformGenerator ) {
 
     usint size = 100;
     BigBinaryVector uniRandVector = distrUniGen.GenerateVector(size);
-
+    // test length
     EXPECT_EQ(uniRandVector.GetLength(), size) << "Failure testing vector_uniform_vector_large_modulus";
-
+    // test content
     for(int i=0; i<size; i++) {
       EXPECT_LT(uniRandVector.GetValAtIndex(i), modulus) 
 	<< "Failure testing vector_uniform_vector_large_modulus value greater than modulus at index "<< i;
@@ -136,6 +138,12 @@ TEST(UTDistrGen, DiscreteUniformGenerator ) {
     BigBinaryInteger large_modulus("100019");
     testDiscreteUniformGenerator(large_modulus, "large_modulus");
   }
+  {
+    // TEST CASE ON FIRST AND SECOND CENTRAL MOMENTS HUGE MODULUS
+    BigBinaryInteger huge_modulus("10402635286389262637365363");
+    testDiscreteUniformGenerator(huge_modulus, "huge_modulus");
+  }
+
   //TEST CASE TO RECREATE OVERFLOW ISSUE CAUSED WHEN CALCULATING MEAN OF BBI's
   //Issue#73
   {
@@ -165,8 +173,9 @@ TEST(UTDistrGen, DiscreteUniformGenerator ) {
   } 
 } //end TEST(UTDistrGen, DiscreteUniformGenerator)
 
-
-
+//
+// helper function to test first and second central moment of discrete uniform generator
+// single thread case
 void testDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_name){
   // TEST CASE ON FIRST CENTRAL MOMENT
 
@@ -189,11 +198,11 @@ void testDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_na
     double diffInMeans = abs(computedMeanInDouble - expectedMeanInDouble);
 
     //within 1% of expected mean
-    EXPECT_LT(diffInMeans, 0.01*modulusInDouble) << "Failure testing first_moment_test_convertToDouble " << test_name;
+    EXPECT_LT(diffInMeans, 0.01*modulusInDouble) << 
+      "Failure testing first_moment_test_convertToDouble " << test_name;
 
 
     // TEST CASE ON SECOND CENTRAL MOMENT
-
     double expectedVarianceInDouble = ((modulusInDouble - 1.0)*(modulusInDouble - 1.0))/12.0;
     double expectedStdDevInDouble = sqrt(expectedVarianceInDouble);
 
@@ -207,16 +216,13 @@ void testDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_na
 
     double computedVariance = (sum/size);
     double computedStdDev = sqrt(computedVariance);
-
     double diffInStdDev = abs(computedStdDev - expectedStdDevInDouble);
 
-
-    EXPECT_LT(diffInStdDev, 0.01*expectedStdDevInDouble) << "Failure testing second_moment_test_convertToDouble "<< test_name;
+    EXPECT_LT(diffInStdDev, 0.01*expectedStdDevInDouble) << 
+      "Failure testing second_moment_test_convertToDouble "<< test_name;
 }
 
 
-
-void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_name);
 TEST(UTDistrGen, ParallelDiscreteUniformGenerator ) {
 
   //BUILD SEVERAL VECTORS OF BBI IN PARALLEL, CONCATENATE THEM TO ONE LARGE VECTOR AND TEST
@@ -228,72 +234,108 @@ TEST(UTDistrGen, ParallelDiscreteUniformGenerator ) {
   BigBinaryInteger large_modulus("100019");// test large modulus
   testParallelDiscreteUniformGenerator(large_modulus, "large_modulus");
 
+  BigBinaryInteger huge_modulus("10402635286389262637365363");
+  testParallelDiscreteUniformGenerator(large_modulus, "huge_modulus");
+
 }
 
+//
+// helper function to test first and second central moment of discrete uniform generator
+// multi thread case
 void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_name){
-    double modulusInDouble = modulus.ConvertToDouble();
-    // we expect the mean to be modulus/2 (the mid range of the min-max data);
-    double expectedMeanInDouble = modulusInDouble / 2.0;
-    usint size = 500000;
-    bool dbg_flag = 0;
-    vector <BigBinaryInteger> randBigBinaryVector;
-    #pragma omp parallel // this is executed in parallel
-    {
-      //private copies of our vector
-      vector <BigBinaryInteger> randBigBinaryVectorPvt;
-      DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
-      // build the vectors in parallel
-      #pragma omp for nowait schedule(static)
-      for(usint i=0; i<size; i++) {
-    	  //build private copies in parallel
-	randBigBinaryVectorPvt.push_back(distrUniGen.GenerateInteger());
-      }
+  double modulusInDouble = modulus.ConvertToDouble();
+  // we expect the mean to be modulus/2 (the mid range of the min-max data);
+  double expectedMeanInDouble = modulusInDouble / 2.0;
+  usint size = 500000;
+  //usint size = omp_get_max_threads() * 4;
 
-      #pragma omp for schedule(static) ordered
-      // now stitch them back together sequentially to preserve order of i
-      for (int i=0; i<omp_get_num_threads(); i++) {
-        #pragma omp ordered
+  bool dbg_flag = 0;
+  vector <BigBinaryInteger> randBigBinaryVector;
+#pragma omp parallel // this is executed in parallel
+  {
+    //private copies of our vector
+    vector <BigBinaryInteger> randBigBinaryVectorPvt;
+    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+    // build the vectors in parallel
+#pragma omp for nowait schedule(static)
+    for(usint i=0; i<size; i++) {
+      //build private copies in parallel
+      randBigBinaryVectorPvt.push_back(distrUniGen.GenerateInteger());
+    }
+    
+#pragma omp for schedule(static) ordered
+    // now stitch them back together sequentially to preserve order of i
+    for (int i=0; i<omp_get_num_threads(); i++) {
+#pragma omp ordered
       DEBUG("thread #" << omp_get_thread_num() << " " << "moving "
-		       << (int)randBigBinaryVectorPvt.size()  << " to starting point" 
-		       << (int)randBigBinaryVector.size() );
-	randBigBinaryVector.insert(randBigBinaryVector.end(), randBigBinaryVectorPvt.begin(), randBigBinaryVectorPvt.end());
-      }
-    }
-    // now compute the sum over the entire vector
-    double sum = 0;
-    BigBinaryInteger length(std::to_string(randBigBinaryVector.size()));
-
-    for(usint index=0; index<size; index++) {
-      sum += (randBigBinaryVector[index]).ConvertToDouble();
-    }
-    // divide by the size (i.e. take mean)
-    double computedMeanInDouble = sum/size;
-    // compute the difference between the expected and actual
-    double diffInMeans = abs(computedMeanInDouble - expectedMeanInDouble);
-
-    //within 1% of expected mean
-    EXPECT_LT(diffInMeans, 0.01*modulusInDouble) << "Failure testing parallel_first_central_moment_test " << test_name;
-
-    // TEST CASE ON SECOND CENTRAL MOMENT SMALL MODULUS
-    double expectedVarianceInDouble = ((modulusInDouble - 1.0)*(modulusInDouble - 1.0))/12.0; // var = ((b-a)^2) /12
-    double expectedStdDevInDouble = sqrt(expectedVarianceInDouble);
-
-    sum=0;
-    double temp;
-    for(usint index=0; index<size; index++) {
-      temp = (randBigBinaryVector[index]).ConvertToDouble() - expectedMeanInDouble;
-      temp *= temp;
-      sum += temp;
+	    << (int)randBigBinaryVectorPvt.size()  << " to starting point" 
+	    << (int)randBigBinaryVector.size() );
+      randBigBinaryVector.insert(randBigBinaryVector.end(), randBigBinaryVectorPvt.begin(), randBigBinaryVectorPvt.end());
     }
 
-    double computedVariance = (sum/size);
-    double computedStdDev = sqrt(computedVariance);
+  }
 
-    double diffInStdDev = abs(computedStdDev - expectedStdDevInDouble);
-
-    //within 1% of expected std dev
-    EXPECT_LT(diffInStdDev, 0.01*expectedStdDevInDouble) << "Failure testing second_central_moment_test " << test_name;
+  // now compute the sum over the entire vector
+  double sum = 0;
+  BigBinaryInteger length(std::to_string(randBigBinaryVector.size()));
+  
+  for(usint index=0; index<size; index++) {
+    sum += (randBigBinaryVector[index]).ConvertToDouble();
+  }
+  // divide by the size (i.e. take mean)
+  double computedMeanInDouble = sum/size;
+  // compute the difference between the expected and actual
+  double diffInMeans = abs(computedMeanInDouble - expectedMeanInDouble);
+  
+  //within 1% of expected mean
+  EXPECT_LT(diffInMeans, 0.01*modulusInDouble) << "Failure testing parallel_first_central_moment_test " << test_name;
+  
+  // TEST CASE ON SECOND CENTRAL MOMENT SMALL MODULUS
+  double expectedVarianceInDouble = ((modulusInDouble - 1.0)*(modulusInDouble - 1.0))/12.0; // var = ((b-a)^2) /12
+  double expectedStdDevInDouble = sqrt(expectedVarianceInDouble);
+  
+  sum=0;
+  double temp;
+  for(usint index=0; index<size; index++) {
+    temp = (randBigBinaryVector[index]).ConvertToDouble() - expectedMeanInDouble;
+    temp *= temp;
+    sum += temp;
+  }
+  
+  double computedVariance = (sum/size);
+  double computedStdDev = sqrt(computedVariance);
+  
+  double diffInStdDev = abs(computedStdDev - expectedStdDevInDouble);
+  
+  //within 1% of expected std dev
+  EXPECT_LT(diffInStdDev, 0.01*expectedStdDevInDouble) << "Failure testing second_central_moment_test " << test_name;
 }
+
+// TEST(UTDistrGen, DiscreteUniformGeneratorSeed ) {
+//   BigBinaryInteger modulus("7919"); // test small modulus
+//   double sum1=0;
+//   usint size = 10;
+//   {
+//     DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus, 12345);
+  
+//     BigBinaryVector randBigBinaryVector1 = distrUniGen.GenerateVector(size);
+  
+  
+//     for(usint index=0; index<size; index++) {
+//       sum1 += (randBigBinaryVector1.GetValAtIndex(index)).ConvertToDouble();
+//     }
+//   }
+//   DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus, 12345);
+//   BigBinaryVector randBigBinaryVector2 = distrUniGen.GenerateVector(size);
+//   double sum2=0;
+
+//   for(usint index=0; index<size; index++) {
+//     sum2 += (randBigBinaryVector2.GetValAtIndex(index)).ConvertToDouble();
+//   }
+  
+//   EXPECT_EQ(sum1, sum2) << "Failure, summs are different";
+  
+// }
 
 
 ////////////////////////////////////////////////
@@ -301,7 +343,7 @@ void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string
 ////////////////////////////////////////////////
 
 
-TEST(UTDistrGen, BinaryUniformGenerator ) {
+ TEST(UTDistrGen, BinaryUniformGenerator ) {
 
 
   // fail if less than 0
@@ -327,7 +369,7 @@ TEST(UTDistrGen, BinaryUniformGenerator ) {
 
     usint length = 100000;
     BigBinaryInteger modulus = BigBinaryInteger("1041");
-    BigBinaryVector randBigBinaryVector = binaryUniGen.GenerateVector(length,modulus);
+    BigBinaryVector randBigBinaryVector = binaryUniGen.GenerateVector(length, modulus);
 
     usint sum = 0;
 
@@ -394,6 +436,110 @@ TEST(UTDistrGen, DiscreteGaussianGenerator) {
 
     for(usint i=0; i<size; i++) {
       current = std::stod(dggBigBinaryVector.GetValAtIndex(i).ToString());
+      if(current == 0)
+	countOfZero++;
+      mean += current;
+    }
+
+    mean /= (size - countOfZero);
+    // std::cout << "The mean of the values is " << mean << std::endl;
+
+    double modulusByTwoInDouble = std::stod(modulusByTwo.ToString());
+
+    double diff = abs(modulusByTwoInDouble - mean);
+    EXPECT_LT(diff, 104) << "Failure generate_vector_mean_test";
+  }
+
+}
+
+
+TEST(UTDistrGen, ParallelDiscreteGaussianGenerator) {
+  //mean test
+  bool dbg_flag = false;
+
+  {
+    sint stdev = 5;
+    usint size = 10000;
+    BigBinaryInteger modulus("10403");
+
+
+    vector<sint>dggCharVector;
+    //    sint* dggCharVector = dgg.GenerateIntVector(size);
+
+#pragma omp parallel // this is executed in parallel
+  {
+    //private copies of our vector
+    vector <sint> dggCharVectorPvt;
+    DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
+
+    // build the vectors in parallel
+#pragma omp for nowait schedule(static)
+    for(usint i=0; i<size; i++) {
+      //build private copies in parallel
+      dggCharVectorPvt.push_back(dgg.GenerateInt());
+    }
+    
+#pragma omp for schedule(static) ordered
+    // now stitch them back together sequentially to preserve order of i
+    for (int i=0; i<omp_get_num_threads(); i++) {
+#pragma omp ordered
+      DEBUG("thread #" << omp_get_thread_num() << " " << "moving "
+	    << (int)dggCharVectorPvt.size()  << " to starting point" 
+	    << (int)dggCharVector.size() );
+      dggCharVector.insert(dggCharVector.end(), dggCharVectorPvt.begin(), dggCharVectorPvt.end());
+    }
+
+  }
+
+  double mean = 0;
+  for(usint i=0; i<size; i++) {
+    mean += (double) dggCharVector[i];
+    // std::cout << i << "th value is " << std::to_string(dggCharVector[i]) << std::endl;
+  }
+    mean /= size;
+    // std::cout << "The mean of the values is " << mean << std::endl;
+    
+    EXPECT_LE(mean, 0.1) << "Failure parallel generate_char_vector_mean_test mean > 0.1";
+    EXPECT_GE(mean, -0.1) << "Failure parallel generate_char_vector_mean_test mean < -0.1";;
+  }
+
+  // generate_vector_mean_test
+  {
+    sint stdev = 5;
+    usint size = 100000;
+    BigBinaryInteger modulus("10403");
+    BigBinaryInteger modulusByTwo(modulus.DividedBy(BigBinaryInteger::TWO));
+    //BigBinaryVector dggBigBinaryVector = dgg.GenerateVector(size,modulus);
+    vector<BigBinaryInteger> dggBigBinaryVector;
+#pragma omp parallel // this is executed in parallel
+  {
+    //private copies of our vector
+    vector <BigBinaryInteger> dggBigBinaryVectorPvt;
+    DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
+
+    // build the vectors in parallel
+#pragma omp for nowait schedule(static)
+    for(usint i=0; i<size; i++) {
+      //build private copies in parallel
+      dggBigBinaryVectorPvt.push_back(dgg.GenerateInteger(modulus));
+    }
+    
+#pragma omp for schedule(static) ordered
+    // now stitch them back together sequentially to preserve order of i
+    for (int i=0; i<omp_get_num_threads(); i++) {
+#pragma omp ordered
+      DEBUG("thread #" << omp_get_thread_num() << " " << "moving "
+	    << (int)dggBigBinaryVectorPvt.size()  << " to starting point" 
+	    << (int)dggBigBinaryVector.size() );
+      dggBigBinaryVector.insert(dggBigBinaryVector.end(), dggBigBinaryVectorPvt.begin(), dggBigBinaryVectorPvt.end());
+    }
+  }
+
+    usint countOfZero = 0;
+    double mean = 0, current = 0;
+
+    for(usint i=0; i<size; i++) {
+      current = std::stod(dggBigBinaryVector[i].ToString());
       if(current == 0)
 	countOfZero++;
       mean += current;

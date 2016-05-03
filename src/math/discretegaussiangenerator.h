@@ -79,6 +79,12 @@ public:
 	void SetStd (const sint std);
 
 	/**
+	* @brief      Returns a generated char.
+	* @return     an schar value generated with the distribution.
+	*/
+	sint GenerateInt () const;
+
+	/**
 	* @brief      Returns a generated char vector.
 	* @param size The number of values to return.
 	* @return     A pointer to an array of schar values generated with the distribution.

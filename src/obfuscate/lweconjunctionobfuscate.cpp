@@ -108,7 +108,7 @@ template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerator &dgg,
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
 	TimeVar t1,t2; // for TIC TOC
-	bool dbg_flag = 1;
+	bool dbg_flag = 0;
 	TIC(t1);
 
 	usint n = obfuscatedPattern->GetRingDimension();
@@ -226,7 +226,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
 
 	TimeVar t1; // for TIC TOC
-	bool dbg_flag = 1;
+	bool dbg_flag = 0;
 
 	obfuscatedPattern->SetLength(clearPattern.GetLength());
 	usint l = clearPattern.GetLength();
@@ -384,7 +384,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				ILMat<Element> *encodedElem) const {
 
         TimeVar t1,t_total; // for TIC TOC
-	bool dbg_flag = 1;//set to 0 for no debug statements
+	bool dbg_flag = 0;//set to 0 for no debug statements
 
 	TIC(t_total);	      // time the  overall Encode function with a timer;
 
@@ -477,7 +477,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 				const std::string &testString) const {
 	//Evaluation of Obfuscated Conjunction Pattern
 	TimeVar t1; // for TIC TOC
-	bool dbg_flag = 1;
+	bool dbg_flag = 0;
 	TIC(t1);
 
 	usint l = obfuscatedPattern.GetLength();

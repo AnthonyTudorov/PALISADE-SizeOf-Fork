@@ -69,6 +69,29 @@ void DiscreteGaussianGenerator::Initialize () {
 
 }
 
+sint DiscreteGaussianGenerator::GenerateInt () const {
+
+	std::uniform_real_distribution<double> distribution(0.0,1.0);
+
+	usint val = 0;
+	double seed;
+	sint ans;
+
+
+	seed = distribution(GetPRNG()) - 0.5; //we need to use the binary uniform generator rathen than regular continuous distribution; see DG14 for details
+	if (std::abs(seed) <= m_a / 2) {
+		val = 0;
+	} else if (seed > 0) {
+		val = FindInVector(m_vals, (std::abs(seed) - m_a / 2));
+	} else {
+		val = - (int) FindInVector(m_vals, (std::abs(seed) - m_a / 2));
+	}
+	ans = val;
+
+	return ans;
+}
+
+
 sint * DiscreteGaussianGenerator::GenerateIntVector (usint size) const {
 
 	std::uniform_real_distribution<double> distribution(0.0,1.0);
