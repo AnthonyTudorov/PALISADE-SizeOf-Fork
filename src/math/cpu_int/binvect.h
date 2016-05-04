@@ -229,7 +229,8 @@ public:
 	BigBinaryVector ModSub(const IntegerType &b) const;
 
 	/**
-	 * Scalar modulus multiplication.
+	 * Scalar modular multiplication. Generalized Barrett modulo reduction algorithm. 
+	 * See the comments in the cpp files for details of the implementation.
 	 *
 	 * @param &b is the scalar to multiply at all locations.
 	 * @return is the result of the modulus multiplication operation.

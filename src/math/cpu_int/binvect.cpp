@@ -247,6 +247,31 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModSub(const IntegerT
 	return ans;
 }
 
+/*
+Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
+@article{knezevicspeeding,
+  title={Speeding Up Barrett and Montgomery Modular Multiplications},
+  author={Knezevic, Miroslav and Vercauteren, Frederik and Verbauwhede, Ingrid}
+}
+We use the Generalized Barrett modular reduction algorithm described in Algorithm 2 of the Source. The algorithm was originally 
+proposed in J.-F. Dhem. Modified version of the Barrett algorithm. Technical report, 1994 and described in more detail 
+in the PhD thesis of the author published at
+http://users.belgacom.net/dhem/these/these_public.pdf (Section 2.2.4).
+We take \alpha equal to n + 3. So in our case, \mu = 2^(n + \alpha) = 2^(2*n + 3).
+Generally speaking, the value of \alpha should be \ge \gamma + 1, where \gamma + n is the number of digits in the dividend.
+We use the upper bound of dividend assuming that none of the dividends will be larger than 2^(2*n + 3).
+
+Potential improvements:
+1. When working with MATHBACKEND = 1, we tried to compute an evenly distributed array of \mu (the number is approximately equal
+to the number BARRET_LEVELS) but that did not give any performance improvement. So using one pre-computed value of 
+\mu was the most efficient option at the time.
+2. We also tried "Interleaved digit-serial modular multiplication with generalized Barrett reduction" Algorithm 3 in the Source but it 
+was slower with MATHBACKEND = 1.
+3. Our implementation makes the modulo operation essentially equivalent to two multiplications. If sparse moduli are selected, it can be replaced
+with a single multiplication. The interleaved version of modular multiplication for this case is listed in Algorithm 6 of the source. 
+This algorithm would most like give the biggest improvement but it sets constraints on moduli.
+
+*/
 template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerType &b) const{
 	BigBinaryVector ans(*this);
@@ -254,15 +279,9 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerT
 	//Precompute the Barrett mu parameter
 	IntegerType temp(IntegerType::ONE);
 
-	// std::cout << "A : " << std::endl;
-
 	temp<<=2*this->GetModulus().GetMSB()+3;
 
-	// std::cout << "B : " << std::endl;
-
 	IntegerType mu = temp.DividedBy(this->GetModulus());
-
-	// std::cout << "C : " << std::endl;
 
 	//Precompute the Barrett mu values
 	/*BigBinaryInteger temp;
@@ -278,9 +297,6 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerT
 
 	for(usint i=0;i<this->m_length;i++){
 
-		// std::cout << "D : " << std::endl;
-
-//		*ans.m_data[i] = ans.m_data[i]->ModAdd(*b.m_data[i],this->m_modulus);
 		*ans.m_data[i] = ans.m_data[i]->ModBarrettMul(b,this->m_modulus,mu);
 	}
 

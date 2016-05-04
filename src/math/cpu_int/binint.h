@@ -387,6 +387,8 @@ namespace cpu_int{
     
         /**
          * returns the Barret modulus with respect to the input modulus and the Barrett value.
+		 * Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of \mu.
+		 * See the cpp file for details of the implementation. 
          *
          * @param modulus is the modulus to perform.
          * @param mu is the Barrett value.
@@ -396,6 +398,8 @@ namespace cpu_int{
 
         /**
          * returns the Barret modulus with respect to the input modulus and the Barrett value.
+		 * Implements generalized Barrett modular reduction algorithm. Uses an array of precomputed values \mu.
+		 * See the cpp file for details of the implementation. 
          *
          * @param modulus is the modulus to perform operations with.
          * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
@@ -480,11 +484,14 @@ namespace cpu_int{
     BigBinaryInteger ModMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
 
         /**
-         * Scalar Barrett modulus multiplication.
+         * Scalar Barrett modular multiplication.
+		 * Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo). 
+		 * Uses an array of precomputed values \mu.
+		 * See the cpp file for details of the implementation. 
          *
          * @param b is the scalar to multiply.
          * @param modulus is the modulus to perform operations with.
-         * @param mu is the Barrett value.
+         * @param mu is the precomputed Barrett value.
          * @return is the result of the modulus multiplication operation.
          */
     BigBinaryInteger ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const;
