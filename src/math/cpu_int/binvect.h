@@ -140,7 +140,7 @@ public:
 	/**
 	 * Destructor.	  
 	 */
-	~BigBinaryVector();
+	virtual ~BigBinaryVector();
 
 	//ACCESSORS
 

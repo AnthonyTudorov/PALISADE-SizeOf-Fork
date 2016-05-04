@@ -121,6 +121,7 @@ usint DiscreteGaussianGenerator::FindInVector (const std::vector<double> &S, dou
 			return i;
 		}
 	}
+	throw std::runtime_error("FindInVector value not found");
 }
 
 BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(const BigBinaryInteger &modulus) const {

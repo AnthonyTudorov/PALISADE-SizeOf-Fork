@@ -66,6 +66,7 @@ protected:
 /* TESTING BASIC MATH METHODS AND OPERATORS     */
 /************************************************/
 
+#if 0 //TODO DBC FUNCTION IS UNUSED
 static function<unique_ptr<ILVector2n>()> fastIL2nAlloc() {
 	usint m = 16;
 	BigBinaryInteger modulus("67108913");
@@ -76,6 +77,7 @@ static function<unique_ptr<ILVector2n>()> fastIL2nAlloc() {
         EVALUATION
         );
 }
+#endif
 
 TEST(UTTrapdoor,randomized_round){
     //  It compiles! ...

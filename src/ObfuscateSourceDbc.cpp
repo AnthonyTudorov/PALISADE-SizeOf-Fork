@@ -151,7 +151,7 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	float stdDev = 4;
 
 	//Variables for timing
-	double timeDGGSetup, timeKeyGen, timeObf, timeEval1, timeEval2, timeEval3, timeTotal;
+	double timeDGGSetup(0.0), timeKeyGen(0.0), timeObf(0.0), timeEval1(0.0), timeEval2(0.0), timeEval3(0.0), timeTotal(0.0);
 
 
 	//Prepare for parameters.

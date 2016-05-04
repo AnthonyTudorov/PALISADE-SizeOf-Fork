@@ -60,7 +60,7 @@ public:
 	* @return A vector of random values within this Binary Uniform Distribution.
 	*/
 	BigBinaryVector GenerateVector  (const usint size, const BigBinaryInteger &modulus) const;
-
+    virtual ~BinaryUniformGenerator();
 private:
 	static std::bernoulli_distribution m_distribution;
 

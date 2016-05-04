@@ -29,7 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace cpu_int {
 
-static uschar* dec2bin(uschar a);
+//static uschar* dec2bin(uschar a); //TODO DBC UNUSED REMOVE
 static void printArray(uschar *a,int size);
 
 void printArray(uschar *a,int size){

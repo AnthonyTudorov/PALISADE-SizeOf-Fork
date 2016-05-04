@@ -19,4 +19,10 @@ BigBinaryVector BinaryUniformGenerator::GenerateVector (const usint size, const 
 	return v;
 }
 
+
+BinaryUniformGenerator::~BinaryUniformGenerator(){
+	// defied since there is a virtual member
+
+}
+
 } // namespace lbcrypto

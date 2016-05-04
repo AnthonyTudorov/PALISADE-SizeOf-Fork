@@ -238,7 +238,7 @@ namespace lbcrypto {
 		/**
 		* Destructor.
 		*/
-		~ILVector2n();
+		virtual ~ILVector2n();
 
 		//void GenerateGaussian(DiscreteGaussianGenerator &dgg);
 

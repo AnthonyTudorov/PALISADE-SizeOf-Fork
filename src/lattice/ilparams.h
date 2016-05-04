@@ -58,7 +58,7 @@ namespace lbcrypto {
 		* Constructor that initializes nothing.
 		* All of the private members will be initialised to zero.
 		*/
-		ILParams() {
+		ILParams(): m_modulus(0), m_order(0), m_rootOfUnity(0) {
 		}//no need of writing this as all of the private members will be initialised to zero
 
 		 // constructor for the pre-computed case;
@@ -102,7 +102,7 @@ namespace lbcrypto {
 		/**
 		* Destructor.
 		*/
-		~ILParams() {
+		virtual ~ILParams() {
 		}
 
 		/**
@@ -111,8 +111,9 @@ namespace lbcrypto {
 		* @param m the cyclotimic order.
 		* @param bitLength minimum bit length for ciphertext modulus.
 		*/
-		bool Initialize(usint m, usint bitLength) {
+		virtual bool Initialize(usint m, usint bitLength) {
 			//add a code that selects a modulus and computes a root of unity
+			return false;
 		}
 
 		/**
@@ -122,8 +123,9 @@ namespace lbcrypto {
 		* @param bitLength minimum bit length for ciphertext modulus.
 		* @param &inputFile the full path to the text file containing the ciphertext modulues and root of unity for a given set of m and bitLength
 		*/
-		bool Initialize(usint m, usint bitLength, const std::string &inputFile) {
+		virtual bool Initialize(usint m, usint bitLength, const std::string &inputFile) {
 			//add a code that sets all parameters using an entry in the text file with pre-computed values
+			return false;
 		}
 
 		// ACCESSORS

@@ -120,7 +120,7 @@ namespace lbcrypto {
 		/**
 		* Destructor.
 		*/
-		~ILVectorArray2n();
+		virtual ~ILVectorArray2n(); //must be virtual since member printvals() is virtual
 
 		// Get accessors
 		/**

@@ -140,6 +140,9 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * Constructor
 			 */
 			explicit ObfuscatedLWEConjunctionPattern() {
+
+				this->m_cryptoParameters = NULL;
+				this->m_length = 0;
 				this->m_S0_vec = NULL;
 				this->m_S1_vec = NULL;
 
@@ -183,6 +186,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * @param &cryptoParams the parameters being used.
 			 */
 			explicit ObfuscatedLWEConjunctionPattern(ILParams &cryptoParams) {
+				this->m_cryptoParameters = NULL; //needed to satisfy compiler warning
 				this->SetParameters(cryptoParams);
 				this->m_length = 0;
 

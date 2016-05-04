@@ -61,7 +61,7 @@ namespace lbcrypto {
 		* @return map containing the implementing object's attributes as name value pairs to save the implementing object to a JSON file.
 		*/
 		virtual std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const = 0; 
-
+		virtual ~Serializable(){};
 		/**
 		* Implemented for Palisade objects that implement and called through this class' Serialize method
 		* @param serializationMap to store the the implementing object's serialization specific attributes.

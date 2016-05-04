@@ -71,7 +71,7 @@ namespace lbcrypto {
 		*/
 		//virtual void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus) = 0;
 		virtual void PrintValues() const = 0;
-
+		virtual ~ILElement(){}; //must be virtual since member printvals() is virtual
 	};
 
 } // namespace lbcrypto ends
