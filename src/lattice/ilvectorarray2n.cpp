@@ -396,7 +396,7 @@ namespace lbcrypto {
 		castedParams.SetOrder(cyclotomicOrder/2);*/
 
 		m_params.SetRootsOfUnity(rootsOfUnity);
-		m_params.SetOrder(cyclotomicOrder/2);
+		m_params.SetCyclotomicOrder(cyclotomicOrder/2);
 
 	}
 

@@ -55,41 +55,42 @@ namespace lbcrypto {
 		
 		/**
 		* Constructor that initializes nothing.
-		* All of the private members will be initialised to null.
 		*/
 		ILDCRTParams() {}
 
-
 		/**
-		* Constructor for the pre-computed case without cri_values.
+		* Constructor with all parameters provided.
 		*
+		* @param rootsOfUnity the roots of unity for the chain of moduli
 		* @param cyclotomic_order the order of the ciphertext
 		* @param &moduli is the tower of moduli
-		* @param rootsOfUnity the roots of unity for the toer of moduli
+		* @param &modulus is the multiplication of all moduli. This value is used for interpolation.
 		*/
 		ILDCRTParams(std::vector<BigBinaryInteger>& rootsOfUnity, usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli, BigBinaryInteger &modulus) {
 			m_cyclotomicOrder = cyclotomic_order;
 			m_moduli = moduli;
 			m_rootsOfUnity = rootsOfUnity;
 			m_modulus = modulus;
+			m_rootOfUnity = RootOfUnity(cyclotomic_order, modulus);
 		}
 
 		/**
-		* Constructor for the pre-computed case without cri_values.
+		* Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated. 
 		*
+		* @param rootsOfUnity the roots of unity for the chain of moduli
 		* @param cyclotomic_order the order of the ciphertext
 		* @param &moduli is the tower of moduli
-		* @param rootsOfUnity the roots of unity for the toer of moduli
 		*/
 		ILDCRTParams(std::vector<BigBinaryInteger>& rootsOfUnity, usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli) {
 			m_cyclotomicOrder = cyclotomic_order;
 			m_moduli = moduli;
 			m_rootsOfUnity = rootsOfUnity;
 			calculateModulus();
+			m_rootOfUnity = RootOfUnity(cyclotomic_order, m_modulus);
 		}
 
 		/**
-		* Constructor for the pre-computed case without cri_values and without roots of unity.
+		* Constructor with only cylotomic order and chain of moduli. Multiplied values of the chain of moduli is automatically calculated. Root of unity of the modulus is also calculated.
 		*
 		* @param cyclotomic_order the order of the ciphertext
 		* @param &moduli is the tower of moduli
@@ -98,14 +99,21 @@ namespace lbcrypto {
 			m_cyclotomicOrder = cyclotomic_order;
 			m_moduli = moduli;
 			calculateModulus();
+			m_rootOfUnity = RootOfUnity(cyclotomic_order, m_modulus);
 		}
-
+		
+		/**
+		* Assignment Operator.
+		*
+		* @param &rhs the copied ILDCRTParams.
+		* @return the resulting ILDCRTParams.
+		*/
 		ILDCRTParams& operator=(const ILDCRTParams &ild) {
 			this->m_moduli = ild.m_moduli;
-	//		this->m_CRIFactors = ild.m_CRIFactors;
 			this->m_rootsOfUnity = ild.m_rootsOfUnity;
 			this->m_cyclotomicOrder = usint(ild.m_cyclotomicOrder);
 			this->m_modulus = ild.m_modulus;
+			this->m_rootOfUnity = ild.m_rootOfUnity;
 
 			return *this;
 		}
@@ -116,37 +124,27 @@ namespace lbcrypto {
 		/**
 		* Get method of the order.
 		*
-		* @return the order.
+		* @return the cyclotmic order.
 		*/
 		const usint GetCyclotomicOrder() const {
 			return m_cyclotomicOrder;
 		}
-
 		/**
 		* Get the moduli.
 		*
-		* @return the moduli.
+		* @return the chain moduli.
 		*/
 		const std::vector<BigBinaryInteger> &GetModuli() const {
 			return m_moduli;
 		}
-
 		/**
 		* Get the root of unity.
 		*
-		* @return the root of unity.
+		* @return the roots of unity.
 		*/
 		const std::vector<BigBinaryInteger> &GetRootsOfUnity() const{
 			return m_rootsOfUnity;
 		}
-		/**
-		* Get cri-values.
-		*
-		* @return the cri-values.
-		*/
-	/*	std::vector<BigBinaryInteger> &GetCRI() {
-			return m_CRIFactors;
-		}*/
 		/**
 		* Get modulus.
 		*
@@ -155,24 +153,20 @@ namespace lbcrypto {
 		const BigBinaryInteger &GetModulus() const {
 			return m_modulus;
 		}
-
 		/**
-		* Get rootOfUnity.
+		* Get rootOfUnity of multipled value of chain of moduli. This value is calculated in the constructor.
 		*
 		* @return the rootOfUnity.
 		*/
 		const BigBinaryInteger &GetRootOfUnity() const {
 			return m_rootOfUnity;
 		}
-
-		// Set accessors
 		/**
 		* Set method of the order.
 		*
 		* @param order the order variable.
 		*/
-
-		void SetOrder(const usint order) {
+		void SetCyclotomicOrder(const usint order) {
 			m_cyclotomicOrder = order;
 		}
 
@@ -251,15 +245,11 @@ namespace lbcrypto {
 		// primitive root unity that is used to transform from coefficient to evaluation representation and vice versa
 		std::vector<BigBinaryInteger> m_rootsOfUnity;
 
-		//Chinese Remainder Interpolation values used for Inverse CRT
-//		std::vector<BigBinaryInteger> m_CRIFactors;
-
 		//Modulus that is factorized into m_moduli
 		BigBinaryInteger m_modulus;
 
 		//rootOfUnity of Modulus
 		BigBinaryInteger m_rootOfUnity;
-
 
 		void calculateModulus(){
 		

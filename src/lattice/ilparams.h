@@ -162,7 +162,7 @@ namespace lbcrypto {
 		*
 		* @param order the order variable.
 		*/
-		void SetOrder(usint order) {
+		void SetCyclotomicOrder(usint order) {
 			m_order = order;
 		}
 

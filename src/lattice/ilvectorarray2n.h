@@ -71,60 +71,41 @@ namespace lbcrypto {
 		/**
 		* Constructor that initializes parameters.
 		*
-		* @param &params element parameters.
+		* @param &params parameter set required for ILVectorArray2n.
 		*/
 		ILVectorArray2n(const ElemParams &params);
 
 		/**
 		* Copy constructor.
 		*
-		* @param &params element parameters.
+		* @param &element ILVectorArray2n to copy from
 		*/
 
 		ILVectorArray2n(const ILVectorArray2n &element);
-
-		// construct using an array in either Coefficient (0) or CRT format (1)
 		/*
 		* Construct using an array in either Coefficient (0) or CRT format (1).
 		*
-		* @param params the input parameters.
-		* @param &levels the levels.
+		* @param &params parameter set required for ILVectorArray2n.
+		* @param &levels vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
+		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArray2n(const ElemParams& params, const std::vector<ILVector2n> &levels, Format format);
-
-		// construct using an array in either Coefficient (0) or CRT format (1)
+		ILVectorArray2n(const ElemParams &params, const std::vector<ILVector2n> &levels, Format format = EVALUATION);
 		/*
-		* Construct using an array in either Coefficient (0) or CRT format (1).
+		* Construct using a single ILVector2n in either Coefficient (0) or CRT format (1).
 		*
-		* @param params the input parameters.
-		* @param &levels the levels.
+		* @param &element ILVector2n to build other towers from.
+		* @param &params parameter set required for ILVectorArray2n.
+		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArray2n(usint k, const DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format);
-		/*
-		* Construct using an array in either Coefficient (0) or CRT format (1).
-		*
-		* @param element the input parameter to build ILVectorArray2n from one vector for double-CRT representation.
-		*/
-		ILVectorArray2n(const ILVector2n& element, const ElemParams& params, Format format);
-
-
+		ILVectorArray2n(const ILVector2n &element, const ElemParams &params, Format format = EVALUATION);
 		/**
 		* Constructor based on full methods.
 		*
 		* @param &dgg the input discrete Gaussian Generator.
-		* @param &params the input params.
-		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		* @param &params parameter set required for ILVectorArray2n.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
-
-		/**
-		* Assignment Operator.
-		*
-		* @param &rhs the copied vector.
-		* @return the resulting vector.
-		*/
-		ILVectorArray2n& operator=(const ILVectorArray2n &rhs);
-
 
 		// DESTRUCTORS
 		/**
@@ -132,18 +113,28 @@ namespace lbcrypto {
 		*/
 		~ILVectorArray2n();
 
+		/**
+		* Assignment Operator.
+		*
+		* @param &rhs the copied ILVectorArray2n.
+		* @return the resulting ILVectorArray2n.
+		*/
+		ILVectorArray2n& operator=(const ILVectorArray2n &rhs);
+
 		// Get accessors
 		/**
-		* Get method of the vector values.
+		* Get method of individual towers.
 		*
-		* @returns an ILVector2n.
+		* @params i index of tower to be returned.
+		* @returns a reference to the ILVector2n at index i.
 		*/
-		const ILVector2n& GetValues(usint i) const;
+		const ILVector2n &GetValues(usint i) const;
 
 		/**
 		* Set method of the values.
 		*
-		* @param values is the set of values of the vector.
+		* @param &levels vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
+		* @param format the input format of ILVectors. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		void SetValues(const std::vector<ILVector2n>& values, Format format);
 
@@ -162,7 +153,7 @@ namespace lbcrypto {
 		usint GetLength() const;
 		
 		/**
-		* Get method of the vector values.
+		* Get method that returns a vector of all towers.
 		*
 		* @returns values.
 		*/
@@ -174,7 +165,6 @@ namespace lbcrypto {
 		*
 		* @return the parameter set.
 		*/
-
 		const ElemParams &GetParams() const;
 
 		/**
@@ -184,11 +174,7 @@ namespace lbcrypto {
 		*/
 		Format GetFormat() const;
 
-		/**
-		*This function returns the interpolated vectors
-		*/
-
-		// get digit for a specific based - used for PRE scheme
+		
 		/**
 		* Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  Used in bit decomposition/relinearization operations.
 		*
@@ -207,20 +193,22 @@ namespace lbcrypto {
 		ElemParams& AccessParams();
 
 		/**
-		Print values
+		* Prints values of each tower
 		*/
 		void PrintValues() const;
 
 		/**
-		Plus One
+		* Adds one to every entry in every tower.
 		*/
 		void AddILElementOne();
 
 
 		/**
-		Make ILVectorArray2n Sparse for SHE KeyGen operations
+		* Make ILVectorArray2n Sparse for SHE KeyGen operations. Sets every index not equal to zero mod the wFactor to zero for every tower.
+		*
+		* @params &wFactor ratio between the original ILVectorArray2n's ring dimension and the new ring dimension.
 		*/
-		void MakeSparse(const BigBinaryInteger &modulus);
+		void MakeSparse(const BigBinaryInteger &wFactor);
 
 
 		// SCALAR OPERATIONS
@@ -301,12 +289,12 @@ namespace lbcrypto {
 		ILVectorArray2n Mod(const BigBinaryInteger & modulus) const;
 
 		/**
-		* Interleaves values in the ILVector2n's with odd indices being all zeros.
+		* Interleaves values in the in each tower with odd indices being all zeros.
 		*/
-
 		void Decompose();
 
 		/**
+		* @param index is the index of the tower to be dropped.
 		* Drops the last tower of ILVectorArray2n and adjusts parameters.
 		*/
 		void DropTower(usint index);
@@ -324,7 +312,6 @@ namespace lbcrypto {
 
 		ILVector2n InterpolateIlArrayVector2n() const;
 		
-		// convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT
 		/**
 		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
 		*/
@@ -380,7 +367,6 @@ namespace lbcrypto {
 		BigBinaryInteger CalculateInterpolationSum(usint index) const;
 
 		/*Helper method for chinese remainder interpolatiom*/
-
 		BigBinaryInteger CalculateChineseRemainderInterpolationCoefficient(usint i) const;
 
 	};
@@ -405,8 +391,7 @@ namespace lbcrypto {
 	*/
 	inline lbcrypto::ILVectorArray2n operator*(const lbcrypto::BigBinaryInteger &b, const lbcrypto::ILVectorArray2n &a) { return a.Times(b); }
 
-
-		/**
+	/**
 	* Multiplication operator overload.  Performs a multiplication in the ring.
 	*
 	* @param &a the first parameter.
@@ -425,7 +410,6 @@ namespace lbcrypto {
 	* @return The result of addition in the ring.
 	*/
 	inline lbcrypto::ILVectorArray2n operator+(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) { return a.Plus(b); }
-
 
 	/**
 	* Addition operator overload.  Performs an addition in the ring.

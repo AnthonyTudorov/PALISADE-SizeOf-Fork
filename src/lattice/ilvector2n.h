@@ -210,34 +210,20 @@ namespace lbcrypto {
             return *this;
         }
 
-		// construct using an array in either Coefficient (0) or CRT format (1)
-		//ILVector2n (const BigBinaryVector &values, Format format, const ILParams &params):m_values(new BigBinaryVector(values)),
-		//m_params(params),m_format(format){	}
-
 		/**
 		* Constructor based on full methods.
 		*
 		* @param &dgg the input discrete Gaussian Generator.
 		* @param &params the input params.
-		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVector2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
-
-		/**
-		* Constructor based on full methods.
-		*
-		* @param &dgg the input discrete Gaussian Generator.
-		* @param &params the input params.
-		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
-		*/
-		ILVector2n(usint k,const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION){}
-
 		/**
 		* Constructor based on full methods.
 		*
 		* @param &dug the input discrete Uniform Generator.
 		* @param &params the input params.
-		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVector2n(DiscreteUniformGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
 
@@ -404,22 +390,24 @@ namespace lbcrypto {
 //		void SetToTestValue() ;
 
 		/**
-		Print values
+		* Prints values of each tower
 		*/
 		void PrintValues() const;
 
 		/**
-		Print values
+		* Adds one to every entry in every tower.
 		*/
-		void ModularOne();
+		void AddILElementOne();
 
 		/**
-		Make ILVector2n sparse for sparse key-gen, SHE
+		* Make ILVectorArray2n Sparse for SHE KeyGen operations. Sets every index not equal to zero mod the wFactor to zero.
+		*
+		* @params &wFactor ratio between the original ILVectorArray2n's ring dimension and the new ring dimension.
 		*/
 		void MakeSparse(const BigBinaryInteger &wFactor);
 
 		/**
-		Make ILVector2n sparse for sparse key-gen, SHE
+		* Interleaves values in the ILVector2n with odd indices being all zeros.
 		*/
 		void Decompose();
 
