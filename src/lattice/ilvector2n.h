@@ -74,6 +74,7 @@ namespace lbcrypto {
 		* Constructor that initializes parameters.
 		*
 		* @param &params element parameters.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
         ILVector2n(const ElemParams &params, Format format = EVALUATION);
 
@@ -135,6 +136,15 @@ namespace lbcrypto {
                 return make_unique<ILVector2n>(params, format);
             };
         }
+
+		/**
+		* Allocator for discrete uniform distribution.
+		*
+		* @param params ILParams instance that is is passed.
+		* @param format resultFormat for the polynomials generated.
+		* @param stddev standard deviation for the dicrete gaussian generator.
+		* @return the resulting vector.
+		*/
 
         inline static function<unique_ptr<ILVector2n>()> MakeDiscreteGaussianCoefficientAllocator(ILParams params, Format resultFormat, int stddev) {
             return [=]() {
@@ -221,12 +231,18 @@ namespace lbcrypto {
 		/**
 		* Constructor based on full methods.
 		*
-		* @param &dug the input discrete Uniform Generator.
+		* @param &dgg the input discrete Uniform Generator.
 		* @param &params the input params.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVector2n(DiscreteUniformGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
-
+		/**
+		* Constructor based on full methods.
+		*
+		* @param &dbg the input Binary Uniform Generator.
+		* @param &params the input params.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
 		ILVector2n(BinaryUniformGenerator &dbg, const ElemParams &params, Format format = EVALUATION);
 
 		/**
@@ -322,9 +338,9 @@ namespace lbcrypto {
 		void SetParams(const ElemParams &params);
 
 		/**
-		* Set method of the values.
+		* Set method of the format.
 		*
-		* @param &params is the ILParams.
+		* @param format of ILVector2n.
 		*/
 		void SetFormat(const Format format);
 
@@ -402,7 +418,7 @@ namespace lbcrypto {
 		/**
 		* Make ILVectorArray2n Sparse for SHE KeyGen operations. Sets every index not equal to zero mod the wFactor to zero.
 		*
-		* @params &wFactor ratio between the original ILVectorArray2n's ring dimension and the new ring dimension.
+		* @param &wFactor ratio between the original ILVectorArray2n's ring dimension and the new ring dimension.
 		*/
 		void MakeSparse(const BigBinaryInteger &wFactor);
 
@@ -579,6 +595,7 @@ namespace lbcrypto {
 		* Implemented by this object only for inheritance requirements of abstract class Serializable.
 		*
 		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @param flag TODO.
 		* @return map passed in.
 		*/
 		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
@@ -589,6 +606,7 @@ namespace lbcrypto {
 		* Invokes nested serialization of BigBinaryVector.
 		*
 		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @param fileFlag TODO.
 		* @return map updated with the attribute name value pairs required to serialize this object.
 		*/
 		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;

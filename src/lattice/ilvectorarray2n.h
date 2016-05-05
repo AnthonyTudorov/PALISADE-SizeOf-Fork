@@ -82,20 +82,20 @@ namespace lbcrypto {
 		*/
 
 		ILVectorArray2n(const ILVectorArray2n &element);
-		/*
+		/**
 		* Construct using an array in either Coefficient (0) or CRT format (1).
 		*
 		* @param &params parameter set required for ILVectorArray2n.
 		* @param &levels vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
-		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVectorArray2n(const ElemParams &params, const std::vector<ILVector2n> &levels, Format format = EVALUATION);
-		/*
+		/**
 		* Construct using a single ILVector2n in either Coefficient (0) or CRT format (1).
 		*
 		* @param &element ILVector2n to build other towers from.
 		* @param &params parameter set required for ILVectorArray2n.
-		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVectorArray2n(const ILVector2n &element, const ElemParams &params, Format format = EVALUATION);
 		/**
@@ -106,6 +106,7 @@ namespace lbcrypto {
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
+
 
 		// DESTRUCTORS
 		/**
@@ -125,7 +126,7 @@ namespace lbcrypto {
 		/**
 		* Get method of individual towers.
 		*
-		* @params i index of tower to be returned.
+		* @param i index of tower to be returned.
 		* @returns a reference to the ILVector2n at index i.
 		*/
 		const ILVector2n &GetValues(usint i) const;
@@ -136,7 +137,7 @@ namespace lbcrypto {
 		* @param &levels vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
 		* @param format the input format of ILVectors. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		void SetValues(const std::vector<ILVector2n>& values, Format format);
+		void SetValues(const std::vector<ILVector2n> &levels, Format format);
 
 		/**
 		* Set method of the values.
@@ -206,7 +207,7 @@ namespace lbcrypto {
 		/**
 		* Make ILVectorArray2n Sparse for SHE KeyGen operations. Sets every index not equal to zero mod the wFactor to zero for every tower.
 		*
-		* @params &wFactor ratio between the original ILVectorArray2n's ring dimension and the new ring dimension.
+		* @param &wFactor ratio between the original ILVectorArray2n's ring dimension and the new ring dimension.
 		*/
 		void MakeSparse(const BigBinaryInteger &wFactor);
 
@@ -236,8 +237,7 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n ModByTwo() const;
 
-		// addition operation
-		/*
+		/**
 		* Performs an addition operation and returns the result.
 		*
 		* @param &element is the element to add with.
@@ -329,6 +329,7 @@ namespace lbcrypto {
 		* Implemented by this object only for inheritance requirements of abstract class Serializable.
 		*
 		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @param flag TODO.
 		* @return map passed in.
 		*/
 		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
@@ -339,6 +340,7 @@ namespace lbcrypto {
 		* Invokes nested serialization of BigBinaryVector.
 		*
 		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @param fileFlag TODO.
 		* @return map updated with the attribute name value pairs required to serialize this object.
 		*/
 		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
@@ -420,7 +422,6 @@ namespace lbcrypto {
 	* @return The result of addition in the ring.
 	*/
 	inline lbcrypto::ILVectorArray2n operator+(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) { return a.Plus(b); }
-
 } // namespace lbcrypto ends
 
 #endif

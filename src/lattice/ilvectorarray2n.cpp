@@ -193,9 +193,9 @@ namespace lbcrypto {
 		}
 	}
 
-	void ILVectorArray2n::SetValues(const std::vector<ILVector2n>& values, Format format)
+	void ILVectorArray2n::SetValues(const std::vector<ILVector2n> &levels, Format format)
 	{
-		m_vectors = values;
+		m_vectors = levels;
 		m_format = format;
 	}
 

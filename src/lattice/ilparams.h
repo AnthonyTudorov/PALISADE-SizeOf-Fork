@@ -206,6 +206,7 @@ namespace lbcrypto {
 		* Implemented by this object only for inheritance requirements of abstract class Serializable.
 		*
 		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @param flag TODO.
 		* @return map passed in.
 		*/
 		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
@@ -213,8 +214,10 @@ namespace lbcrypto {
 		//JSON FACILITY
 		/**
 		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
+		* Invokes nested serialization of BigBinaryVector.
 		*
 		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @param fileFlag TODO.
 		* @return map updated with the attribute name value pairs required to serialize this object.
 		*/
 		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
