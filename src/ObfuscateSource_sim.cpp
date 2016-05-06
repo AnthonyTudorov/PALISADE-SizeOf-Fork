@@ -48,6 +48,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "obfuscate/lweconjunctionobfuscate.h"
 #include "obfuscate/lweconjunctionobfuscate.cpp"
 //#include "obfuscate/obfuscatelp.h"
+#define _USE_MATH_DEFINES 
 #include <math.h> 
 #include "utils/debug.h"
 

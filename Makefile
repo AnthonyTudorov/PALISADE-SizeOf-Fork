@@ -38,6 +38,8 @@ BUILDDIRMAIN := build/main
 TARGETDIR := bin
 HEADERS := src/*.h
 
+BOOSTHDR := /c/boost_1_60_0
+
 SRCEXT := cpp
 HDREXT := h
 HDRDEEP := $(shell find $(SRCDIR) -mindepth 2 -type f -name *.$(HDREXT))
@@ -49,7 +51,7 @@ OBJECTSMAIN := $(patsubst $(SRCDIR)/%,$(BUILDDIRMAIN)/%,$(SOURCESMAIN:.$(SRCEXT)
 
 #LIB := -pthread #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 LIB := -pthread -lgomp #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
-INC := -I include
+INC := -I include -I $(BOOSTHDR)
 
 all: alltargets apidocs alltesttargets allbenchmarktargets
 

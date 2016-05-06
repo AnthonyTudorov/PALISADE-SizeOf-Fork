@@ -29,6 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <functional>
+#define _USE_MATH_DEFINES 
 #include <math.h>
 #include <stdexcept>
 #include <omp.h>
