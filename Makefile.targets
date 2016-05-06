@@ -104,6 +104,9 @@ doctargetstrings:
 
 librarytarget: $(OBJECTSDEEP)
 	$(AR) rv libcrypto.a $(OBJECTSDEEP)
+	g++ -shared -o libcrypto.dll $(OBJECTSDEEP)
+
+
 
 
 .PHONEY: cleantargets
