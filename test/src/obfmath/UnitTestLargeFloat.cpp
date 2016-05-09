@@ -28,7 +28,7 @@
 
 #include "../../include/gtest/gtest.h"
 #include <iostream>
-#include "../../../src/obfmath/largefloat.h"
+#include "../../../src/lib/obfmath/largefloat.h"
 
 using namespace std;
 using namespace lbcrypto;

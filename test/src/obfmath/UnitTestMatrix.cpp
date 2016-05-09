@@ -28,18 +28,18 @@
 
 #include "../../include/gtest/gtest.h"
 #include <iostream>
-#include "../../../src/obfmath/largefloat.h"
+#include "../../../src/lib/obfmath/largefloat.h"
 
-#include "../../../src/math/backend.h"
-#include "../../../src/math/nbtheory.h"
-#include "../../../src/math/distrgen.h"
-#include "../../../src/lattice/ilvector2n.h"
-#include "../../../src/crypto/lwecrypt.h"
-#include "../../../src/crypto/lwepre.h"
-#include "../../../src/utils/inttypes.h"
-#include "../../../src/utils/utilities.h"
+#include "../../../src/lib/math/backend.h"
+#include "../../../src/lib/math/nbtheory.h"
+#include "../../../src/lib/math/distrgen.h"
+#include "../../../src/lib/lattice/ilvector2n.h"
+#include "../../../src/lib/crypto/lwecrypt.h"
+#include "../../../src/lib/crypto/lwepre.h"
+#include "../../../src/lib/utils/inttypes.h"
+#include "../../../src/lib/utils/utilities.h"
 
-#include "../../../src/obfmath/matrix.h"
+#include "../../../src/lib/obfmath/matrix.h"
 
 using namespace std;
 using namespace lbcrypto;
