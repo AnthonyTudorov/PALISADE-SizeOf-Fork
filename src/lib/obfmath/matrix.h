@@ -36,15 +36,15 @@ using std::function;
 using std::invalid_argument;
 
 #include "largefloat.h"
-#include "../../src/math/backend.h"
-#include "../../src/math/nbtheory.h"
-#include "../../src/math/distrgen.h"
-#include "../../src/lattice/ilvector2n.h"
-#include "../../src/crypto/lwecrypt.h"
-#include "../../src/crypto/lwepre.h"
-#include "../../src/utils/inttypes.h"
-#include "../../src/utils/utilities.h"
-#include "../../src/utils/memory.h"
+#include "../math/backend.h"
+#include "../math/nbtheory.h"
+#include "../math/distrgen.h"
+#include "../lattice/ilvector2n.h"
+#include "../crypto/lwecrypt.h"
+#include "../crypto/lwepre.h"
+#include "../utils/inttypes.h"
+#include "../utils/utilities.h"
+#include "../utils/memory.h"
 
 namespace lbcrypto {
 

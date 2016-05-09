@@ -36,42 +36,41 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <fstream>
-#include "math/backend.h"
-//#include "math/cpu8bit/backend.h"
-#include "utils/inttypes.h"
-#include "math/nbtheory.h"  
+#include "../../lib/math/backend.h"
+//#include "../../lib/math/cpu8bit/backend.h"
+#include "../../lib/utils/inttypes.h"
+#include "../../lib/math/nbtheory.h"
 //#include <thread>
-#include "lattice/elemparams.h"
-#include "lattice/ilparams.h"
-#include "lattice/ildcrtparams.h"
-#include "lattice/ilelement.h"
-//#include "ilvector2n.h"
-#include "math/distrgen.h"
-#include "crypto/lwecrypt.h"
-#include "crypto/lwecrypt.cpp"
-#include "crypto/lwepre.h"
-#include "crypto/lwepre.cpp"
-#include "crypto/lweahe.cpp"
-#include "crypto/lweautomorph.cpp"
-#include "crypto/lweshe.cpp"
-#include "crypto/lwefhe.cpp"
-#include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
-//#include "time.h"
-#include "crypto/ciphertext.cpp"
-//#include "vld.h"
+#include "../../lib/lattice/elemparams.h"
+#include "../../lib/lattice/ilparams.h"
+#include "../../lib/lattice/ildcrtparams.h"
+#include "../../lib/lattice/ilelement.h"
+//#include "../../lib/ilvector2n.h"
+#include "../../lib/math/distrgen.h"
+#include "../../lib/crypto/lwecrypt.h"
+#include "../../lib/crypto/lwecrypt.cpp"
+#include "../../lib/crypto/lwepre.h"
+#include "../../lib/crypto/lwepre.cpp"
+#include "../../lib/crypto/lweahe.cpp"
+#include "../../lib/crypto/lweautomorph.cpp"
+#include "../../lib/crypto/lweshe.cpp"
+#include "../../lib/crypto/lwefhe.cpp"
+#include "../../lib/lattice/ilvector2n.h"
+#include "../../lib/lattice/ilvectorarray2n.h"
+//#include "../../lib/time.h"
+#include "../../lib/crypto/ciphertext.cpp"
+//#include "../../lib/vld.h"
 //#include <chrono>
-//#include "gtest/gtest.h"
-//#include "math/cpu8bit/binint.h"
-//#include "math/cpu8bit/binvect.h"
-//#include "math/cpu8bit/binmat.h"
+#include "../../lib/utils/debug.h"
+//#include "../../lib/gtest/gtest.h"
+//#include "../../lib/math/cpu8bit/binint.h"
+//#include "../../lib/math/cpu8bit/binvect.h"
+//#include "../../lib/math/cpu8bit/binmat.h"
 
-
-#include "utils/debug.h"
 using namespace std;
 using namespace lbcrypto;
 void NTRUPRE(int input);
-//double currentDateTime();
+double currentDateTime();
 
 /**
  * @brief Input parameters for PRE example.
@@ -81,6 +80,7 @@ struct SecureParams {
 	BigBinaryInteger modulus;	///< The modulus
 	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
 	usint relinWindow;		///< The relinearization window parameter.
+	float stdDev;
 };
 
 #include <iterator>
@@ -90,7 +90,7 @@ int main() {
 	//auto v = gen.GenerateVector(10000);
 
 	std::cout << "Relinearization window : " << std::endl;
-	std::cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
+	std::cout << "0 (n = 1024, r = 1), 1 (n = 1024, r = 8), 2 (n = 2048, r = 1): ";
 
 	int input = 0;
 	std::cin >> input;
@@ -195,11 +195,9 @@ void NTRUPRE(int input) {
 //=======
 		//{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("2678760785"), 1 }, //r = 8
 //>>>>>>> 98034a0563cc8cab2eb1c179288561a65ad5a7f0
-		{ 2048, BigBinaryInteger("268441601"), BigBinaryInteger("16947867"), 1 }, //r = 1
-		{ 2048, BigBinaryInteger("536881153"), BigBinaryInteger("267934765"), 2 }, // r = 2
-		{ 2048, BigBinaryInteger("1073750017"), BigBinaryInteger("180790047"), 4 },  // r = 4
-		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("2678760785"), 8 }, //r = 8
-		{ 4096, BigBinaryInteger("2199023288321"), BigBinaryInteger("1858080237421"), 16 }  // r= 16
+		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("8451304774"), 1, 98.4359 }, //n = 1024; r = 1; p = 2
+		{ 2048, BigBinaryInteger("137439004673"), BigBinaryInteger("7643730114"), 8, 214.9 }, // r = 2
+		{ 4096, BigBinaryInteger("17179926529"), BigBinaryInteger("1874048014"), 1, 98.4359 }  // r = 4
 		//{ 2048, CalltoModulusComputation(), CalltoRootComputation, 0 }  // r= 16
 	};
 
@@ -207,6 +205,7 @@ void NTRUPRE(int input) {
 	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
 	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
 	usint relWindow = SECURE_PARAMS[input].relinWindow;
+	float stdDevStSt = SECURE_PARAMS[input].stdDev;
 
 	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	//ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
@@ -232,15 +231,19 @@ void NTRUPRE(int input) {
 	//ilParams.Initialize(m,bitLenght,inputFile);
 
 	//Set crypto parametes
-	LPCryptoParametersLTV<ILVector2n> cryptoParams;
+	LPCryptoParametersStehleSteinfeld<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
 	//cryptoParams.SetPlaintextModulus(BigBinaryInteger("4"));  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
+	cryptoParams.SetDistributionParameterStSt(stdDevStSt);	
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
 	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
+
+	DiscreteGaussianGenerator dggStehleSteinfeld(stdDevStSt);			// Create the noise generator
+	cryptoParams.SetDiscreteGaussianGeneratorStSt(dggStehleSteinfeld);
 
 	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
 
@@ -277,7 +280,7 @@ void NTRUPRE(int input) {
 	//std::bitset<FEATURESETSIZE> mask (std::string("000011"));
 	//LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
 
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
+	LPPublicKeyEncryptionSchemeStehleSteinfeld<ILVector2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
 

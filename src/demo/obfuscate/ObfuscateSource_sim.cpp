@@ -36,53 +36,55 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <fstream>
-//#include "utils/inttypes.h"
-//#include "math/backend.h"
-//#include "math/nbtheory.h"
-//#include "math/distrgen.h"
-//#include "lattice/elemparams.h"
-//#include "lattice/ilparams.h"
-//#include "lattice/ildcrtparams.h"
-//#include "lattice/ilelement.h"
-//#include "crypto/lwecrypt.h"
-#include "obfuscate/lweconjunctionobfuscate.h"
-#include "obfuscate/lweconjunctionobfuscate.cpp"
-//#include "obfuscate/obfuscatelp.h"
-#include "time.h"
-#include <chrono>
-#include "utils/debug.h"
+//#include "../../lib/utils/inttypes.h"
+//#include "../../lib/math/backend.h"
+//#include "../../lib/math/nbtheory.h"
+//#include "../../lib/math/distrgen.h"
+//#include "../../lib/lattice/elemparams.h"
+//#include "../../lib/lattice/ilparams.h"
+//#include "../../lib/lattice/ildcrtparams.h"
+//#include "../../lib/lattice/ilelement.h"
+//#include "../../lib/crypto/lwecrypt.h"
+#include "../../lib/obfuscate/lweconjunctionobfuscate.h"
+#include "../../lib/obfuscate/lweconjunctionobfuscate.cpp"
+//#include "../../lib/obfuscate/obfuscatelp.h"
+#include <math.h> 
+#include "../../lib/utils/debug.h"
 
 using namespace std;
 using namespace lbcrypto;
 
 void NTRUPRE(int input);
-//double currentDateTime();
+
+void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension);
 
 /**
  * @brief Input parameters for PRE example.
  */
 struct SecureParams {
-	usint m;			///< The ring parameter.
-	BigBinaryInteger modulus;	///< The modulus
-	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
-	usint relinWindow;		///< The relinearization window parameter.
+	usint n;			///< The ring parameter.
+//	BigBinaryInteger modulus;	///< The modulus
+//	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
+	usint length;		///< The relinearization window parameter.
 };
 
 int main(){
-
+/*
 	int input = 0;
-	/*
+	
 	std::cout << "Relinearization window : " << std::endl;
-	std::cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
+	std::cout << "0 (n = 8), 1 (n = 16), 2 (n = 32), 3 (n = 64), 4 (n = 128), 5 (n = 256), 6 (n = 512), 7 (n = 1024): [0] ";
 
 	std::cin >> input;
 	//cleans up the buffer
 	cin.ignore();
 
-	if ((input<0) || (input>4))
+	if ((input<0) || (input>7))
 		input = 0;
-	*/
-	NTRUPRE(input);
+*/
+	for (int input=0; input<32; input++) {
+		NTRUPRE(input);
+	}
 
 	std::cin.get();
 
@@ -127,19 +129,126 @@ void NTRUPRE(int input) {
 
 	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
 
-	usint m = 16;
-	//60 bits
-	BigBinaryInteger modulus("1152921504606847009");
-	//27 bits
+	//usint m = 16;
 	//BigBinaryInteger modulus("67108913");
-	//60 bits
-	BigBinaryInteger rootOfUnity("405107564542978792");
-	//27 bits
 	//BigBinaryInteger rootOfUnity("61564");
 
-	float stdDev = 4;
+	SecureParams const SECURE_PARAMS[] = {
+		{ 8,	8},
+		{ 8,	16},
+		{ 8,	32},
+		{ 8,	64},
 
-	double diff, start, finish;
+		{ 16,	8},
+		{ 16,	16},
+		{ 16,	32},
+		{ 16,	64},
+
+		{ 32,	8},
+		{ 32,	16},
+		{ 32,	32},
+		{ 32,	64},
+
+		{ 64,	8},
+		{ 64,	16},
+		{ 64,	32},
+		{ 64,	64},
+
+		{ 128,	8}, 
+		{ 128,	16},
+		{ 128,	32},
+		{ 128,	64},
+
+		{ 256,	8},
+		{ 256,	16},
+		{ 256,	32},
+		{ 256,	64},
+
+		{ 512,	8},
+		{ 512,	16},
+		{ 512,	32},
+		{ 512,	64},
+
+		{ 1024,	8},
+		{ 1024,	16},
+		{ 1024,	32},
+		{ 1024,	64},
+	};
+
+	//input = 0;
+
+	usint n = SECURE_PARAMS[input].n;
+	usint len = SECURE_PARAMS[input].length;
+
+	float stdDev = 4.0;
+	usint m=2*n;
+
+	BigBinaryInteger modulus("64");
+	usint logModulus = 6;
+	usint logModulusPlus2 = 8;//15*len+2;
+	usint logModulusPlus2Old = 8;
+
+	bool logModulusUnchanged = false;
+
+	while (!logModulusUnchanged) {
+
+
+		float alpha = 3.0;
+		float B1 = alpha*stdDev;
+
+		float beta = 4.0;
+		float sqrtnm = sqrt((float)(n*logModulusPlus2));
+
+		float B2 = beta*40.0*sqrtnm;
+
+		float front = 16.0*len*B1;
+		float base = B2*sqrtnm;
+
+		usint frontInt = ceil(front);
+		usint baseInt = ceil(base);
+	
+		std::cout << "B1     : " << B1 << std::endl;
+		std::cout << "B2     : " << B2 << std::endl;
+		std::cout << "front  : " << front << std::endl;
+		std::cout << "base   : " << base << std::endl;
+
+		BigBinaryInteger frontBBI(frontInt);
+		BigBinaryInteger baseBBI(baseInt);
+
+		std::cout << "front  : " << frontBBI << std::endl;
+		std::cout << "base   : " << baseBBI << std::endl;
+	
+		BigBinaryInteger baseBBIExp = baseBBI.Exp(len);
+		std::cout << "base^L : " << baseBBIExp << std::endl;
+
+		modulus = frontBBI * baseBBIExp;
+
+		std::cout << "modulus estimate : " << modulus << std::endl;
+
+		double val = modulus.ConvertToDouble();
+		//std::cout << "val : " << val << std::endl;
+		double logTwo = log(val-1.0)/log(2)+1.0;
+		//std::cout << "logTwo : " << logTwo << std::endl;
+		logModulus = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+		logModulusPlus2 = logModulus+2;// = this->m_cryptoParameters.GetModulus();
+		if (logModulusPlus2Old < logModulusPlus2) {
+			logModulusPlus2Old = logModulusPlus2;
+		} else {
+			logModulusUnchanged = true;
+		}
+	}
+
+	BigBinaryInteger rootOfUnity("1");
+
+	
+	std::cout << "modulus bits: " << logModulus << std::endl;
+	std::cout << "modulus: " << modulus << std::endl;
+	NextQ(modulus, BigBinaryInteger::TWO,n);
+	std::cout << "modulus: " << modulus << std::endl;
+
+	rootOfUnity = RootOfUnity(m,modulus);
+
+	double diff, diffKeyGen, diffObf, diffEval, start, finish;
 
 	//Prepare for parameters.
 	ILParams ilParams(m,modulus,rootOfUnity);
@@ -150,7 +259,7 @@ void NTRUPRE(int input) {
 	//cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
 	//DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(modulus, stdDev);			// Create the noise generator
-	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev); // Create the noise generator
+	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev);			// Create the noise generator
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 	BinaryUniformGenerator bug = BinaryUniformGenerator();			// Create the noise generator
 
@@ -177,8 +286,8 @@ void NTRUPRE(int input) {
 	//Generate and test the cleartext pattern
 	////////////////////////////////////////////////////////////
 
-	std::string inputPattern = "10?";
-	//std::string inputPattern = "1";
+	std::string inputPattern = "10?10?10?10?10?10?10?10?10?10?10?10?10?10?10?10?10?10?10?10?10?1";
+	inputPattern.resize(len);
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 
 	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
@@ -189,23 +298,21 @@ void NTRUPRE(int input) {
 	std::cout << " \nCleartext pattern length: " << std::endl;
 	std::cout << clearPattern.GetLength() << std::endl;
 
-	//std::string inputStr1 = "1";
-	std::string inputStr1 = "100";
+	std::string inputStr1 = "1001001001001001001001001001001001001001001001001001001001001001";
+	inputStr1.resize(len);
 	bool out1 = algorithm.Evaluate(clearPattern,inputStr1);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << std::endl;
 	std::cout << out1 << std::endl;
 
-	//std::string inputStr2 = "1";
-	std::string inputStr2 = "101";
-	bool out2 = algorithm.Evaluate(clearPattern,inputStr2);
-	std::cout << " \nCleartext pattern evaluation of: " << inputStr2 << std::endl;
-	std::cout << out2 << std::endl;
+	//std::string inputStr2 = "101";
+	//bool out2 = algorithm.Evaluate(clearPattern,inputStr2);
+	//std::cout << " \nCleartext pattern evaluation of: " << inputStr2 << std::endl;
+	//std::cout << out2 << std::endl;
 
-	std::string inputStr3 = "010";
-	//std::string inputStr3 = "0";
-	bool out3 = algorithm.Evaluate(clearPattern,inputStr3);
-	std::cout << " \nCleartext pattern evaluation of: " << inputStr3 << std::endl;
-	std::cout << out3 << std::endl;
+	//std::string inputStr3 = "001";
+	//bool out3 = algorithm.Evaluate(clearPattern,inputStr3);
+	//std::cout << " \nCleartext pattern evaluation of: " << inputStr3 << std::endl;
+	//std::cout << out3 << std::endl;
 
 	////////////////////////////////////////////////////////////
 	//Generate and test the obfuscated pattern
@@ -224,36 +331,99 @@ void NTRUPRE(int input) {
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 
 	std::cout << "Key generation started" << std::endl;
+	std::cout << "+START KeyGeneration " << m/2 << " " << logModulus << " " << len << std::endl;
 
 	start = currentDateTime();
 
 	algorithm.KeyGen(dgg,&obfuscatedPattern);
 
 	finish = currentDateTime();
-	diff = finish - start;
+	diffKeyGen = finish - start;
 
+	std::cout << "+END" << std::endl;
 	std::cout << "Key generation ended" << std::endl;
 
-	std::cout << "Key generation time: " << "\t" << diff << " ms" << std::endl;
+	std::cout << "Key generation time: " << "\t" << diffKeyGen << " ms" << std::endl;
 
-	BinaryUniformGenerator dbg = BinaryUniformGenerator();	
+	std::cout << "Obfuscation Execution started" << std::endl;
+	std::cout << "+START Obfuscation " << m/2 << " " << logModulus << " " << len << std::endl;
 
-	algorithm.Obfuscate(clearPattern,dgg,dbg,&obfuscatedPattern);
+	start = currentDateTime();
+
+	algorithm.Obfuscate(clearPattern,dgg,bug,&obfuscatedPattern);
+
+	finish = currentDateTime();
+	diffObf = finish - start;
+
+	std::cout << "+END" << std::endl;
 	std::cout << "Obfuscation Execution completed." << std::endl;
+
+	std::cout << "Obfuscation execution time: " << "\t" << diffObf << " ms" << std::endl;
 
 //	obfuscatedPattern.GetSl();
 
+
+	std::cout << "Evaluation started" << std::endl;
+	std::cout << "+START Evaluation " << m/2 << " " << logModulus << " " << len << std::endl;
+
+	start = currentDateTime();
+
 	result = algorithm.Evaluate(obfuscatedPattern,inputStr1);
-	std::cout << " \nObfuscated pattern evaluation of: " << inputStr1 << " is " << result << "." <<std::endl;
 
-	result = algorithm.Evaluate(obfuscatedPattern,inputStr2);
-	std::cout << " \nObfuscated pattern evaluation of: " << inputStr2 << " is " << result << "." <<std::endl;
+	finish = currentDateTime();
+	diffEval = finish - start;
 
-	result = algorithm.Evaluate(obfuscatedPattern,inputStr3);
-	std::cout << " \nObfuscated pattern evaluation of: " << inputStr3 << " is " << result << "." <<std::endl;
+	std::cout << "+END" << std::endl;
+	std::cout << "Evaluation completed." << std::endl;
+
+	std::cout << " \nCleartext pattern: " << std::endl;
+	std::cout << clearPattern.GetPatternString() << std::endl;
+
+	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << " is " << result << "." <<std::endl;
+
+	std::cout << "Key generation time: " << "\t" << diffKeyGen << " ms" << std::endl;
+	std::cout << "Obfuscation execution time: " << "\t" << diffObf << " ms" << std::endl;
+	std::cout << "Evaluation execution time: " << "\t" << diffEval << " ms" << std::endl;
+
 
 	//system("pause");
 
 }
 
 
+void NextQ(BigBinaryInteger &q, 
+		const BigBinaryInteger &plainTextModulus, 
+		const usint &ringDimension) {
+	BigBinaryInteger bigOne("1");
+	BigBinaryInteger bigTwo("2");
+	BigBinaryInteger ringDimensions(ringDimension);
+
+	q = q + bigOne;
+
+	while (q.Mod(plainTextModulus) != bigOne) {
+		q = q + bigOne;
+	}
+
+	BigBinaryInteger cyclotomicOrder = ringDimensions * bigTwo;
+
+	while (q.Mod(cyclotomicOrder) != bigOne) {
+		q = q + plainTextModulus;
+	}
+
+	BigBinaryInteger productValue = cyclotomicOrder * plainTextModulus;
+
+	while (!MillerRabinPrimalityTest(q)) {
+		q = q + productValue;
+	}
+
+/*
+	BigBinaryInteger gcd;
+	gcd = GreatestCommonDivisor(q - BigBinaryInteger::ONE, ringDimensions);
+
+	if(!(ringDimensions == gcd)){
+		q = q + BigBinaryInteger::ONE;
+	  	NextQ(q, plainTextModulus, ringDimension);
+	}
+*/
+
+}

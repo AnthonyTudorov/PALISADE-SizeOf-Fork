@@ -36,10 +36,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <fstream>
-#include "obfuscate/lweconjunctionobfuscate.h"
-#include "obfuscate/lweconjunctionobfuscate.cpp"
+#include "../../lib/obfuscate/lweconjunctionobfuscate.h"
+#include "../../lib/obfuscate/lweconjunctionobfuscate.cpp"
 
-#include "utils/debug.h"
+#include "../../lib/utils/debug.h"
 
 #include <omp.h> //open MP header
 
