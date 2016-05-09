@@ -25,8 +25,7 @@ using namespace lbcrypto;
 
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
-  
-  int array_size = 1000;
+    int array_size = 1000;
   float foo[array_size];
 
   bool dbg_flag;
@@ -41,7 +40,7 @@ int main(int argc, char* argv[]){
 #pragma omp parallel for
   for (int i = 0; i < array_size; ++i) {
     float tmp = i;
-    sleep(.1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     foo[i] = tmp;
   }
   time1 = TOC(t1);
