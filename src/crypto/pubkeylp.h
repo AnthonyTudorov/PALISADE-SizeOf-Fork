@@ -338,6 +338,7 @@ namespace lbcrypto {
 			 *
 			 * @param &originalPrivateKey Original private key used for encryption.
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
+			 * @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
 			 */
 			virtual void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
 				const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const = 0;

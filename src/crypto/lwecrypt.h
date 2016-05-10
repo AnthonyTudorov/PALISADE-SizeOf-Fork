@@ -798,45 +798,44 @@ namespace lbcrypto {
 		public:	
 			//inherited constructors
 			LPLeveledSHEAlgorithmLTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
+			//TODO: What is the best way to comment this constructor?
+			/**
+			 * Constructor 
+			 *
+			 * @param &scheme is the Encryption scheme used. 
+			 */
 			LPLeveledSHEAlgorithmLTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 
 			/**
-			 * Method for encrypting plaintex using LBC
+			 * Method for generating a KeySwitchHint
 			 *
 			 * @param &originalPrivateKey Original private key used for encryption.
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
+			 * @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
 			 */
 			virtual void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
 				const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const ;
-			
 			/**
-			 * Method for encrypting plaintex using LBC
+			 * Method for KeySwitching based on a KeySwitchHint
 			 *
 			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
 			 * @param &cipherText Original ciphertext to perform switching on.
 			 */
 			virtual Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint,const  Ciphertext<Element> &cipherText) const ;
-
 			/**
-			 * Method for encrypting plaintex using LBC
+			 * Method for ModReducing CipherText and the Private Key used for encryption.
 			 *
-			 * @param &cipherText Ciphertext to perform mod reduce on.
-			 * @param &privateKey Private key used to encrypt the first argument.
+			 * @param *cipherText Ciphertext to perform and apply modreduce on.
+			 * @param *privateKey Private key to peform and apply modreduce on.
 			 */
-			
-			//virtual void ModReduce(Ciphertext<ILVectorArray2n> *cipherText, LPPrivateKey<ILVectorArray2n> *privateKey) const ; 
-
 			virtual void ModReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const ; 
-
-				/**
-			 * Method for encrypting plaintex using LBC
+			/**
+			 * Method for RingReducing CipherText and the Private Key used for encryption.
 			 *
-			 * @param &cipherText Ciphertext to perform ring reduce on.
-			 * @param &privateKey Private key used to encrypt the first argument.
+			 * @param *cipherText Ciphertext to perform and apply ringreduce on.
+			 * @param *privateKey Private key to peform and apply ringreduce on.
 			 */
 			virtual void RingReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const ; 
-
-
 	};
 
 	/**
