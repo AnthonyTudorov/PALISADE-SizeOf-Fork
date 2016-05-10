@@ -164,7 +164,7 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(BigBinaryInteger &&bigIn
 }
 
 template<typename uint_type,usint BITLENGTH>
-std::function<unique_ptr<BigBinaryInteger<uint_type,BITLENGTH>>()> BigBinaryInteger<uint_type,BITLENGTH>::Allocator = [=](){
+std::function<unique_ptr<BigBinaryInteger<uint_type,BITLENGTH>>()> BigBinaryInteger<uint_type,BITLENGTH>::Allocator = [](){
 	return make_unique<cpu_int::BigBinaryInteger<uint32_t,1500>>();
 };
 
