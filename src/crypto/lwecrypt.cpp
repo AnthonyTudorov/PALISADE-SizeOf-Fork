@@ -190,7 +190,7 @@ void LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(const LPPrivateKey<Elem
 		Element m(originalKeyParams);
 		m = p * e;
 		
-		m.ModularOne();
+		m.AddILElementOne();
 
 		Element newKeyInverse = f2.MultiplicativeInverse(); 
 

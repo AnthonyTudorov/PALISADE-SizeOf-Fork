@@ -86,7 +86,7 @@ namespace lbcrypto {
 			BigBinaryInteger bbiRootOfUnity(ilParamsMap["RootOfUnity"]);
 
 			this->SetModulus(bbiModulus);
-			this->SetOrder(order);
+			this->SetCyclotomicOrder(order);
 			this->SetRootOfUnity(bbiRootOfUnity);
 		}
 

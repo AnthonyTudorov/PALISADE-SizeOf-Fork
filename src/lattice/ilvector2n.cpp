@@ -442,7 +442,7 @@ namespace lbcrypto {
 
 	}
 
-	void ILVector2n::ModularOne(){
+	void ILVector2n::AddILElementOne(){
 		BigBinaryInteger tempValue;
 		for(usint i = 0; i < m_params.GetCyclotomicOrder()/2; i++){
 			tempValue = m_values->GetValAtIndex(i) + BigBinaryInteger::ONE; 
