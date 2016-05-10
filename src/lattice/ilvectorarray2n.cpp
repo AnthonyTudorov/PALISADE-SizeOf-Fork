@@ -372,7 +372,7 @@ namespace lbcrypto {
 			/*m_vectors[i].GetValAtIndex(index) is M (r, i) with r = index amd r = j. The helper method CalculateChineseRemainderInterpolationCoefficient 
 			calculates qt/qi *[ (qt/qi)^(-1) mod qi ] where the input parameter j is the row that the operation is performed on.*/
 			multiplyValue = (m_vectors[j].GetValAtIndex(index)).Times(CalculateChineseRemainderInterpolationCoefficient(j)); 
-			results = (results.Plus((multiplyValue)));
+			results += multiplyValue;
 		}
 
 		results = results.Mod(m_params.GetModulus());
