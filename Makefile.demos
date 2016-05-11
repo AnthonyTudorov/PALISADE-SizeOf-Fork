@@ -23,47 +23,24 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
-CC := g++ # This is the main compiler
+DEMOSOURCES := $(shell find $(DEMODIR) -name '*.$(SRCEXT)')
+DEMOOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(DEMOSOURCES)))
+DEMOBIN := $(patsubst $(SRCDIR)/%,$(BINDIR)/%,$(patsubst %.cpp,%,$(DEMOSOURCES)))
 
-#NOTE select the appropriate set of CPPFLAGS 
-# most code is checked into git with the first line active
-CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g## undefine for single thread debug operation
-#CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g -fopenmp  ##undefine for parallel debug operation
-#CPPFLAGS += -Wall -O3 -std=gnu++11 -w  -DNDEBUG  ##undefine for single thread best performance operation
-#CPPFLAGS += -Wall -O3 -std=gnu++11 -w -fopenmp  ##undefine for parallel best performance operation
+#.PHONY:alldemos
+alldemos: $(DEMOBIN)
+	@echo "alldemos"
+	@echo $(DEMOSOURCES)
+	@echo $(DEMOOBJECTS)
+	@echo $(DEMOBIN)
 
-SRCDIR := src
-BUILDDIR := build
-BINDIR := bin
-DEMODIR := src/demo
-SRCLIBDIR := src/lib
-EXTLIBDIR := lib/
+$(BINDIR)/%: $(BUILDDIR)/%.o $(LIBDIR)lib$(SOLIB)
+	@echo $@
+	@echo " mkdir -p $(@D) "; mkdir -p $(@D)
+	@echo " $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@)) $(EXTLIB) -L$(EXTLIBDIR) -l$(SOLIB)"; $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@)) $(EXTLIB) -L$(EXTLIBDIR) -l$(SOLIB)
 
-SRCEXT := cpp
-HDREXT := h
+.PHONEY: cleandemos
+cleandemos:
+	@echo " Cleaning...";
+	@echo " $(RM) -r $(DEMOBIN) $(DEMOOBJECTS)"; $(RM) -r $(DEMOBIN) $(DEMOOBJECTS)
 
-#$(wildcard $(addsuffix *.cpp,$(DEMODIRS)/))
-#objects := $(patsubst %.cpp,%.o,$(sources))
-
-$(objects) : %.o : %.cpp
-
-EXTLIB := -pthread -lgomp #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
-INC := -I include
-SOLIB := PALISADE.so
-
-all: alldemos
-# apidocs alltesttargets allbenchmarktargets
-
-.PHONEY: clean
-clean: cleandemos cleantargets 
-# cleantests cleandocs cleangnuheaders cleanbenchmarks
-
-.PHONEY: cleangnuheaders
-cleangnuheaders:
-	rm -f */**/*.h.gch
-
-include Makefile.targets
-include Makefile.demos
-#include Makefile.docs
-#include Makefile.test
-#include Makefile.benchmark

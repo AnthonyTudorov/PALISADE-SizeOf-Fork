@@ -23,89 +23,35 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
+LIBSOURCES := $(shell find $(SRCLIBDIR) -name '*.$(SRCEXT)')
+LIBOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(LIBSOURCES)))
+
 .PHONY:alltargets
-alltargets: $(TARGETSMAIN)
-	@echo "alltargets"
+alltargets: $(EXTLIBDIR)lib$(SOLIB)
+#	@echo $(SOLIB)
+#	@echo $(LIBSOURCES)
+#	@echo $(LIBOBJECTS)
+#	@echo "alltargets"
 
-#The following line calls the building of the source files without mains in them.
-# The first line makes sure that none of the object files with mains on them are automatically deleted.
-.PRECIOUS: $(BUILDDIR)/%.o
-$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
-	@mkdir -p $(BUILDDIR)
-	@mkdir -p $(BUILDDIR)/crypto
-	@mkdir -p $(BUILDDIR)/obfuscate
-	@mkdir -p $(BUILDDIR)/encoding
-	@mkdir -p $(BUILDDIR)/lattice
-	@mkdir -p $(BUILDDIR)/math
-	@mkdir -p $(BUILDDIR)/math/cpu8bit
-	@mkdir -p $(BUILDDIR)/math/cpu_int
-	@mkdir -p $(BUILDDIR)/multilinearmap
-	@mkdir -p $(BUILDDIR)/utils
-	@echo "BUILDDIR"
-#	@echo " $@"
-#	@echo " $<"
-#	@echo " $(BUILDDIR)"
-#	@echo " $(SRCDIR)"
-# The following line makes the apropriate build of the source cpp files without a main method.
-	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $< "; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<
+$(EXTLIBDIR)lib$(SOLIB): $(LIBOBJECTS)
+	@echo " +++++++++++++++++++ "
+	@echo $@
+	@echo $(LIBOBJECTS)
+	@echo " mkdir -p $(EXTLIBDIR) "; mkdir -p $(EXTLIBDIR)
+#	@echo " $(CC) -fPIC -shared -Wl,--export-dynamic  $^ $(BUILDDIR)/$@.o -L/usr/lib/x86_64-linux-gnu -lpython2.7 -lboost_python-py27 -o lib/pycrypto.so"; $(CC) -fPIC -shared -Wl,--export-dynamic  $^ $(BUILDDIR)/$@.o
+	@echo " $(CC) -fPIC -shared -Wl,--export-dynamic -o $@ $(LIBOBJECTS) $(LIB)"; $(CC) -fPIC -shared -Wl,--export-dynamic -o $@ $(LIBOBJECTS) $(LIB)
+	@echo " +++++++++++++++++++ "
 
-#The following line calls the building and linking of all main files that will live in the target directory.
-# Note that this building and linking operation, uses the possible linking of all files in the build directory and does not check if .h files have been updated.
-# The first line makes sure that none of the object files with mains on them are automatically deleted.
-.PRECIOUS: $(BUILDDIRMAIN)/%.o
-$(BUILDDIRMAIN)/%.o: $(OBJECTSDEEP) $(SRCDIR)/%.$(SRCEXT)
-#	@echo "BUILDDIRMAIN"
-	@mkdir -p $(BUILDDIRMAIN)
-	@mkdir -p $(TARGETDIR)
-	# This first line builds each of the individual files with a main in them in the src/ directory and puts the object file in build/main/
-	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $(SRCDIR)/$(*F).$(SRCEXT) "; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $(SRCDIR)/$(*F).$(SRCEXT)
-	# This line links all of the object files to create the apprioriate main.
-	@echo " $(CC) $(OBJECTSDEEP) $(BUILDDIRMAIN)/$(@F) -o $(TARGETDIR)/$(*F) $(LIB)"; $(CC) $(OBJECTSDEEP) $(BUILDDIRMAIN)/$(@F) -o $(TARGETDIR)/$(*F) $(LIB)
-
-# The below line calls the building and linking of all main files that will live in the target directory.
-$(TARGETDIR)/%: $(OBJECTSDEEP) $(OBJECTSMAIN)
-	@mkdir -p $(TARGETDIR)
-#	@echo "main"
-#	@echo " -- $@"
-#	@echo " $(SOURCESMAIN)"
-#	@echo " -- $@"
-#	@echo " -- $(@F)"
-#	@echo " -- $^"
-#	@echo " $(OBJECTSDEEP)"
-#	@echo " $(BUILDDIR)/$@.o"
-#	@echo " -- $(BUILDDIRMAIN)/$@.o"
-#	@echo " $^"
-#	@echo " $(CC) $(OBJECTSDEEP) $(BUILDDIRMAIN)/$(@F).o -o $@ $(LIB)"; $(CC) $(OBJECTSDEEP) $(BUILDDIRMAIN)/$(@F).o -o $@ $(LIB)
-
-#$(OBJECTSMAIN): 
-#	@echo " $@"
-#	@echo " $<"
-#	@echo " $^"
-#	@mkdir -p $(BUILDDIR)
-#	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $(BUILDDIR)/$@.o $(SRCDIR)/$@.$(SRCEXT)"; $(CC) $(CPPFLAGS) $(INC) -c -o $(BUILDDIR)/$@.o $(SRCDIR)/$@.$(SRCEXT)
-
-
-# this target lets us see what all the strings are define as, as an aid to debugging the
-# Makefile.targets 
-# just run make doctargetstrings
-.PHONY:doctargetstrings
-doctargetstrings:
-	@echo 'the following make strings are defined'
-	@echo 'SRCDIR $(SRCDIR)' 
-	@echo 'BUILDDIR $(BUILDDIR)'
-	@echo 'BUILDDIRMAIN $(BUILDDIRMAIN)'
-	@echo 'SOURCESDEEP $(SOURCESDEEP)'
-	@echo 'SOURCESMAIN $(SOURCESMAIN)'
-	@echo 'OBJECTSDEEP $(OBJECTSDEEP)'
-	@echo 'OBJECTSMAIN $(OBJECTSMAIN)'
-	@echo 'TARGETSMAIN $(TARGETSMAIN)'
-	@echo 'INC $(INC)'
-	@echo 'LIB $(LIB)'
-
-
+.PRECIOUS: $(BUILDDIR)/%
+$(BUILDDIR)/%:
+	@echo " ------------------- "
+	@echo $@
+	@echo " mkdir -p $(@D) "; mkdir -p $(@D)
+	@echo " $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@)) "; $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))
+	@echo " ------------------- "
 
 .PHONEY: cleantargets
 cleantargets:
 	@echo " Cleaning...";
-	@echo " $(RM) -r $(BUILDDIR) $(TARGETDIR)"; $(RM) -r $(BUILDDIR) $(TARGETDIR)
+	@echo " $(RM) -r $(LIBOBJECTS) $(EXTLIBDIR)lib$(SOLIB)"; $(RM) -r $(LIBOBJECTS) $(EXTLIBDIR)lib$(SOLIB)
 
