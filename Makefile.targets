@@ -47,7 +47,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 #	@echo " $(BUILDDIR)"
 #	@echo " $(SRCDIR)"
 # The following line makes the apropriate build of the source cpp files without a main method.
-	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $< "; $(CC) $(CPPFLAGS) $(INC) -c -o $@ $<
+	@echo " $(CC) $(CPPFLAGS) $(INC) -shared -c -o $@ $< "; $(CC) $(CPPFLAGS) $(INC) -shared -c -o $@ $<
 
 #The following line calls the building and linking of all main files that will live in the target directory.
 # Note that this building and linking operation, uses the possible linking of all files in the build directory and does not check if .h files have been updated.
@@ -104,7 +104,7 @@ doctargetstrings:
 
 librarytarget: $(OBJECTSDEEP)
 	$(AR) rv libcrypto.a $(OBJECTSDEEP)
-	g++ -shared -o libcrypto.dll $(OBJECTSDEEP)
+	g++ -shared -o libcrypto.dll -lgomp libcrypto.a #$(OBJECTSDEEP)
 
 
 
