@@ -357,9 +357,8 @@ namespace lbcrypto {
 		BigBinaryInteger modulus;
 		modulus = m_params.GetModulus();
 		BigBinaryInteger rootOfUnity;
-		rootOfUnity = m_params.GetRootOfUnity();
 
-		ILParams ilParams(m_params.GetCyclotomicOrder(), modulus, rootOfUnity);
+		ILParams ilParams(m_params.GetCyclotomicOrder(), modulus);
 
 		ILVector2n polynomialReconstructed(ilParams);
 		polynomialReconstructed.SetValues(coefficients,m_format);
