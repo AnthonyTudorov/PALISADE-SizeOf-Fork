@@ -27,13 +27,13 @@ LIBSOURCES := $(shell find $(SRCLIBDIR) -name '*.$(SRCEXT)')
 LIBOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(LIBSOURCES)))
 
 .PHONY:alltargets
-alltargets: $(EXTLIBDIR)lib$(SOLIB)
+alltargets: $(EXTLIBDIR)/lib$(SOLIB).so
 #	@echo $(SOLIB)
 #	@echo $(LIBSOURCES)
 #	@echo $(LIBOBJECTS)
 #	@echo "alltargets"
 
-$(EXTLIBDIR)lib$(SOLIB): $(LIBOBJECTS)
+$(EXTLIBDIR)/lib$(SOLIB).so: $(LIBOBJECTS)
 	@echo " +++++++++++++++++++ "
 	@echo $@
 	@echo $(LIBOBJECTS)
@@ -42,8 +42,8 @@ $(EXTLIBDIR)lib$(SOLIB): $(LIBOBJECTS)
 	@echo " $(CC) -fPIC -shared -Wl,--export-dynamic -o $@ $(LIBOBJECTS) $(LIB)"; $(CC) -fPIC -shared -Wl,--export-dynamic -o $@ $(LIBOBJECTS) $(LIB)
 	@echo " +++++++++++++++++++ "
 
-.PRECIOUS: $(BUILDDIR)/%
-$(BUILDDIR)/%:
+.PRECIOUS: $(BUILDDIR)/lib/%
+$(BUILDDIR)/lib/%:
 	@echo " ------------------- "
 	@echo $@
 	@echo " mkdir -p $(@D) "; mkdir -p $(@D)
@@ -53,5 +53,5 @@ $(BUILDDIR)/%:
 .PHONEY: cleantargets
 cleantargets:
 	@echo " Cleaning...";
-	@echo " $(RM) -r $(LIBOBJECTS) $(EXTLIBDIR)lib$(SOLIB)"; $(RM) -r $(LIBOBJECTS) $(EXTLIBDIR)lib$(SOLIB)
+	@echo " $(RM) -r $(LIBOBJECTS) $(EXTLIBDIR)lib$(SOLIB).so"; $(RM) -r $(LIBOBJECTS) $(EXTLIBDIR)lib$(SOLIB).so
 

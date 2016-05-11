@@ -37,7 +37,7 @@ BUILDDIR := build
 BINDIR := bin
 DEMODIR := src/demo
 SRCLIBDIR := src/lib
-EXTLIBDIR := lib/
+EXTLIBDIR := lib
 
 SRCEXT := cpp
 HDREXT := h
@@ -49,9 +49,9 @@ $(objects) : %.o : %.cpp
 
 EXTLIB := -pthread -lgomp #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 INC := -I include
-SOLIB := PALISADE.so
+SOLIB := PALISADE
 
-all: alldemos
+all: alldemos alltargets
 # apidocs alltesttargets allbenchmarktargets
 
 .PHONEY: clean

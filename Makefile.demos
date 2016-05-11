@@ -34,10 +34,20 @@ alldemos: $(DEMOBIN)
 	@echo $(DEMOOBJECTS)
 	@echo $(DEMOBIN)
 
-$(BINDIR)/%: $(BUILDDIR)/%.o $(LIBDIR)lib$(SOLIB)
+#.PRECIOUS: $(BINDIR)/demo/%
+$(BINDIR)/demo/%: $(EXTLIBDIR)/lib$(SOLIB).so $(BUILDDIR)/demo/%.o 
+#$(LIBDIR)lib$(SOLIB)
 	@echo $@
 	@echo " mkdir -p $(@D) "; mkdir -p $(@D)
 	@echo " $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@)) $(EXTLIB) -L$(EXTLIBDIR) -l$(SOLIB)"; $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@)) $(EXTLIB) -L$(EXTLIBDIR) -l$(SOLIB)
+
+.PRECIOUS: $(BUILDDIR)/demo/%
+$(BUILDDIR)/demo/%:
+	@echo " ------------------- "
+	@echo $@
+	@echo " mkdir -p $(@D) "; mkdir -p $(@D)
+	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@)) "; $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))
+	@echo " ------------------- "
 
 .PHONEY: cleandemos
 cleandemos:
