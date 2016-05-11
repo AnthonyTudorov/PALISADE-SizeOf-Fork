@@ -10,7 +10,7 @@ using std::pair;
 
 namespace lbcrypto {
 
-typedef ILMat<ILVector2n> RingMat;
+typedef Matrix<ILVector2n> RingMat;
 
 class TrapdoorPair {
 public:
@@ -51,7 +51,7 @@ inline pair<RingMat, TrapdoorPair> TrapdoorSample(ILParams params, int stddev) {
 	return pair<RingMat, TrapdoorPair>(A, TrapdoorPair(r, e));
 }
 
-inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const TrapdoorPair& T, const ILMat<LargeFloat> &SigmaP, const ILVector2n &u,
+inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const TrapdoorPair& T, const Matrix<LargeFloat> &SigmaP, const ILVector2n &u,
 		double sigma, DiscreteGaussianGenerator &dgg) {
 
 	const ILParams &params = u.GetParams();
@@ -62,13 +62,13 @@ inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const TrapdoorPai
 
 	const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
-	ILMat<int32_t> p([](){ return make_unique<int32_t>(); }, (2+k)*n, 1);
+	Matrix<int32_t> p([](){ return make_unique<int32_t>(); }, (2+k)*n, 1);
 	NonSphericalSample(n, SigmaP, c, &p);
 
 	//std::cout << "GaussSamp: Just finished running NonSphericalSample" << std::endl;
 
 	// pHat is in the coefficient representation
-	ILMat<ILVector2n> pHat = SplitInt32IntoILVector2nElements(p,n,params);
+	Matrix<ILVector2n> pHat = SplitInt32IntoILVector2nElements(p,n,params);
 
 	// Now pHat is in the evaluation representation
 	pHat.SwitchFormat();
@@ -79,8 +79,8 @@ inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const TrapdoorPai
 	// perturbedSyndrome is in the evaluation representation
 	ILVector2n perturbedSyndrome = u - (A.Mult(pHat))(0,0);
 
-	//ILMat<BigBinaryInteger> zHatBBI(BigBinaryInteger::Allocator, k, n);
-	ILMat<int32_t> zHatBBI([](){ return make_unique<int32_t>(); },  k, n);
+	//Matrix<BigBinaryInteger> zHatBBI(BigBinaryInteger::Allocator, k, n);
+	Matrix<int32_t> zHatBBI([](){ return make_unique<int32_t>(); },  k, n);
 
 	// GaussSampG(perturbedSyndrome,sigma,k,dgg,&zHatBBI);
 
@@ -107,7 +107,7 @@ inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const TrapdoorPai
 
 }
 
-inline void PerturbationMatrixGen(size_t n, size_t k, const RingMat& A, const TrapdoorPair& T, double s, ILMat<LargeFloat> *sigmaSqrt) {
+inline void PerturbationMatrixGen(size_t n, size_t k, const RingMat& A, const TrapdoorPair& T, double s, Matrix<LargeFloat> *sigmaSqrt) {
 	TimeVar t1; // for TIC TOC
 	bool dbg_flag = 0; //set to 1 for debug timing...
 	//We should convert this to a static variable later
@@ -116,36 +116,36 @@ inline void PerturbationMatrixGen(size_t n, size_t k, const RingMat& A, const Tr
 	const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
 	//Computing e and r in coefficient representation
-	ILMat<ILVector2n> eCoeff = T.m_e;
+	Matrix<ILVector2n> eCoeff = T.m_e;
 	eCoeff.SwitchFormat();
-	ILMat<ILVector2n> rCoeff = T.m_r;
+	Matrix<ILVector2n> rCoeff = T.m_r;
 	rCoeff.SwitchFormat();
 
-	//ILMat<BigBinaryInteger> R = Rotate(T.m_e)
+	//Matrix<BigBinaryInteger> R = Rotate(T.m_e)
 	//    .VStack(Rotate(T.m_r))
-	//    .VStack(ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
+	//    .VStack(Matrix<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
 	TIC(t1);
-	ILMat<BigBinaryInteger> R = Rotate(eCoeff)
+	Matrix<BigBinaryInteger> R = Rotate(eCoeff)
 									.VStack(Rotate(rCoeff))
-									.VStack(ILMat<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
+									.VStack(Matrix<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
 	DEBUG("p1: "<<TOC(t1) <<" ms");
 	TIC(t1);
-	ILMat<int32_t> Rint = ConvertToInt32(R, modulus);
+	Matrix<int32_t> Rint = ConvertToInt32(R, modulus);
 	DEBUG("P2: "<<TOC(t1) <<" ms");
 	TIC(t1);
-	ILMat<int32_t> COV = Rint*Rint.Transpose().ScalarMult(c*c);
+	Matrix<int32_t> COV = Rint*Rint.Transpose().ScalarMult(c*c);
 	DEBUG("P3: "<<TOC(t1) <<" ms");
 	TIC(t1);
-	ILMat<int32_t> SigmaP = ILMat<int32_t>([](){ return make_unique<int32_t>(); }, COV.GetRows(), COV.GetCols()).Identity().ScalarMult(s*s) - COV;
+	Matrix<int32_t> SigmaP = Matrix<int32_t>([](){ return make_unique<int32_t>(); }, COV.GetRows(), COV.GetCols()).Identity().ScalarMult(s*s) - COV;
 	DEBUG("P4: "<<TOC(t1) <<" ms");
 	TIC(t1);
-	ILMat<int32_t> p([](){ return make_unique<int32_t>(); }, (2+k)*n, 1);
+	Matrix<int32_t> p([](){ return make_unique<int32_t>(); }, (2+k)*n, 1);
 	DEBUG("P5: "<<TOC(t1) <<" ms");
 	TIC(t1);
 	int32_t a(floor(c/2));
 
 	// YSP added the a^2*I term which was missing in the original LaTex document
-	ILMat<int32_t> sigmaA = SigmaP - (a*a)*ILMat<int32_t>(SigmaP.GetAllocator(), SigmaP.GetRows(), SigmaP.GetCols()).Identity();
+	Matrix<int32_t> sigmaA = SigmaP - (a*a)*Matrix<int32_t>(SigmaP.GetAllocator(), SigmaP.GetRows(), SigmaP.GetCols()).Identity();
 	DEBUG("P6: "<<TOC(t1) <<" ms");
 	TIC(t1);
 	*sigmaSqrt = Cholesky(sigmaA);

@@ -234,7 +234,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	double logTwo = log(val-1.0)/log(2)+1.0;
 	usint k = (usint) floor(logTwo);
 
-	ILMat<int32_t> zHatBBI([](){ return make_unique<int32_t>(); },  k, m/2);
+	Matrix<int32_t> zHatBBI([](){ return make_unique<int32_t>(); },  k, m/2);
 
 	GaussSampGq(u,sigma,k,modulus, dgg,&zHatBBI);
 	//GaussSampG(u,sigma,k,dgg,&zHatBBI);
@@ -243,10 +243,10 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 		<< "Failure testing number of rows";
 	EXPECT_EQ(u.GetLength(),zHatBBI.GetCols())
 		<< "Failure testing number of colums";
-    ILMat<ILVector2n> z = SplitInt32AltIntoILVector2nElements(zHatBBI, n, params);
+    Matrix<ILVector2n> z = SplitInt32AltIntoILVector2nElements(zHatBBI, n, params);
 	z.SwitchFormat();
 	ILVector2n uEst(params,COEFFICIENT);
-	uEst = (ILMat<ILVector2n>(zero_alloc, 1,  k).GadgetVector()*z)(0,0);
+	uEst = (Matrix<ILVector2n>(zero_alloc, 1,  k).GadgetVector()*z)(0,0);
 	uEst.SwitchFormat();
 
     EXPECT_EQ(u, uEst);
@@ -282,14 +282,14 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 	ILVector2n u(dug,params,COEFFICIENT);
 	u.SwitchFormat();
 
-	ILMat<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
+	Matrix<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
 	PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
 
     //  600 is a very rough estimate for s, refer to Durmstradt 4.2 for
     //      estimation
 	RingMat z = GaussSamp(m/2, k, trapPair.first, trapPair.second, sigmaSqrt, u, stddev, dgg);
 
-	//ILMat<ILVector2n> uEst = trapPair.first * z;
+	//Matrix<ILVector2n> uEst = trapPair.first * z;
 
 	EXPECT_EQ(trapPair.first.GetCols(),z.GetRows())
 		<< "Failure testing number of rows";
@@ -340,9 +340,9 @@ TEST(UTTrapdoor,EncodeTest_dgg_yes) {
 
 	algorithm.KeyGen(dgg,&obfuscatedPattern);
 
-	const std::vector<ILMat<ILVector2n>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
+	const std::vector<Matrix<ILVector2n>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
 	const std::vector<TrapdoorPair>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
-	const std::vector<ILMat<LargeFloat>>   &Sigma = obfuscatedPattern.GetSigmaKeys();
+	const std::vector<Matrix<LargeFloat>>   &Sigma = obfuscatedPattern.GetSigmaKeys();
 
 	double constraint = obfuscatedPattern.GetConstraint();
 
@@ -350,13 +350,13 @@ TEST(UTTrapdoor,EncodeTest_dgg_yes) {
 
 	ILVector2n	s1(dgg,params,EVALUATION);
 
-	ILMat<ILVector2n> *encoded1 = new ILMat<ILVector2n>(zero_alloc, m, m);
+	Matrix<ILVector2n> *encoded1 = new Matrix<ILVector2n>(zero_alloc, m, m);
 	algorithm.Encode(Pk_vector[0],Pk_vector[1],Ek_vector[0],Sigma[0],s1,dgg,encoded1);
 
-	ILMat<ILVector2n> *encoded2 = new ILMat<ILVector2n>(zero_alloc, m, m);
+	Matrix<ILVector2n> *encoded2 = new Matrix<ILVector2n>(zero_alloc, m, m);
 	algorithm.Encode(Pk_vector[0],Pk_vector[1],Ek_vector[0],Sigma[0],s1,dgg,encoded2);	
 
-	ILMat<ILVector2n> CrossProd = Pk_vector[0]*(*encoded1 - *encoded2);
+	Matrix<ILVector2n> CrossProd = Pk_vector[0]*(*encoded1 - *encoded2);
 
 	CrossProd.SwitchFormat();
 
@@ -407,9 +407,9 @@ TEST(UTTrapdoor,EncodeTest_dgg_no) {
 
 	algorithm.KeyGen(dgg,&obfuscatedPattern);
 
-	const std::vector<ILMat<ILVector2n>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
+	const std::vector<Matrix<ILVector2n>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
 	const std::vector<TrapdoorPair>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
-	const std::vector<ILMat<LargeFloat>>   &Sigma = obfuscatedPattern.GetSigmaKeys();
+	const std::vector<Matrix<LargeFloat>>   &Sigma = obfuscatedPattern.GetSigmaKeys();
 
 	double constraint = obfuscatedPattern.GetConstraint();
 
@@ -418,13 +418,13 @@ TEST(UTTrapdoor,EncodeTest_dgg_no) {
 	ILVector2n	s1(dgg,params,EVALUATION);
 	ILVector2n	s2(dgg,params,EVALUATION);
 
-	ILMat<ILVector2n> *encoded1 = new ILMat<ILVector2n>(zero_alloc, m, m);
+	Matrix<ILVector2n> *encoded1 = new Matrix<ILVector2n>(zero_alloc, m, m);
 	algorithm.Encode(Pk_vector[0],Pk_vector[1],Ek_vector[0],Sigma[0],s1,dgg,encoded1);
 
-	ILMat<ILVector2n> *encoded2 = new ILMat<ILVector2n>(zero_alloc, m, m);
+	Matrix<ILVector2n> *encoded2 = new Matrix<ILVector2n>(zero_alloc, m, m);
 	algorithm.Encode(Pk_vector[0],Pk_vector[1],Ek_vector[0],Sigma[0],s2,dgg,encoded2);	
 
-	ILMat<ILVector2n> CrossProd = Pk_vector[0]*(*encoded1 - *encoded2);
+	Matrix<ILVector2n> CrossProd = Pk_vector[0]*(*encoded1 - *encoded2);
 
 	CrossProd.SwitchFormat();
 

@@ -125,9 +125,9 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 
 #if 0 //original code
 	// Initialize the Pk and Ek matrices.
-	std::vector<ILMat<Element>> *Pk_vector = new std::vector<ILMat<Element>>();
+	std::vector<Matrix<Element>> *Pk_vector = new std::vector<Matrix<Element>>();
 	std::vector<TrapdoorPair>   *Ek_vector = new std::vector<TrapdoorPair>();
-	std::vector<ILMat<LargeFloat>> *sigma = new std::vector<ILMat<LargeFloat>>();
+	std::vector<Matrix<LargeFloat>> *sigma = new std::vector<Matrix<LargeFloat>>();
 
 	DEBUG("keygen1: "<<TOC(t1) <<" ms");
 	DEBUG("l = "<<l);
@@ -140,7 +140,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 		DEBUG("keygen2.0:#"<< i << ": "<<TOC(t1) <<" ms");
 
 		TIC(t1);
-		ILMat<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
+		Matrix<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
 		DEBUG("keygen2.1:#"<< i << ": "<<TOC(t1) <<" ms");
 
 		TIC(t1);
@@ -161,9 +161,9 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 	DEBUG("keygen4: "<< TOC(t1) <<" ms");
 #else //parallelized method
 	// Initialize the Pk and Ek matrices.
-	std::vector<ILMat<Element>> *Pk_vector = new std::vector<ILMat<Element>>();
+	std::vector<Matrix<Element>> *Pk_vector = new std::vector<Matrix<Element>>();
 	std::vector<TrapdoorPair>   *Ek_vector = new std::vector<TrapdoorPair>();
-	std::vector<ILMat<LargeFloat>> *sigma = new std::vector<ILMat<LargeFloat>>();
+	std::vector<Matrix<LargeFloat>> *sigma = new std::vector<Matrix<LargeFloat>>();
 
 	DEBUG("keygen1: "<<TOC(t1) <<" ms");
 	DEBUG("l = "<<l);
@@ -173,9 +173,9 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 	{
 		TimeVar tp; // for TIC TOC
 		//private copies of our vectors
-		std::vector<ILMat<Element>> *Pk_vector_pvt = new std::vector<ILMat<Element>>();
+		std::vector<Matrix<Element>> *Pk_vector_pvt = new std::vector<Matrix<Element>>();
 		std::vector<TrapdoorPair>   *Ek_vector_pvt = new std::vector<TrapdoorPair>();
-		std::vector<ILMat<LargeFloat>> *sigma_pvt = new std::vector<ILMat<LargeFloat>>();
+		std::vector<Matrix<LargeFloat>> *sigma_pvt = new std::vector<Matrix<LargeFloat>>();
 #pragma omp for nowait schedule(static)
 		for(usint i=0; i<=l+1; i++) {
 			//build private copies in parallel
@@ -184,7 +184,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 			DEBUG("keygen2.0:#"<< i << ": "<<TOC(tp) <<" ms");
 
 			TIC(tp);
-			ILMat<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
+			Matrix<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
 			DEBUG("keygen2.1:#"<< i << ": "<<TOC(tp) <<" ms");
 
 			TIC(tp);
@@ -236,9 +236,9 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	ILParams params = *(obfuscatedPattern->GetParameters());
 	//usint stddev = dgg.GetStd(); 
 
-	const std::vector<ILMat<Element>> &Pk_vector = obfuscatedPattern->GetPublicKeys();
+	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern->GetPublicKeys();
 	const std::vector<TrapdoorPair>   &Ek_vector = obfuscatedPattern->GetEncodingKeys();
-	const std::vector<ILMat<LargeFloat>>   &Sigma = obfuscatedPattern->GetSigmaKeys();
+	const std::vector<Matrix<LargeFloat>>   &Sigma = obfuscatedPattern->GetSigmaKeys();
 
 	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
@@ -307,37 +307,37 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	//DBC this setup has insignificant timing
 	std::cout << "Obfuscate: Generated random uniform ring elements" << std::endl;
 
-	std::vector<ILMat<Element>> *S0_vec = new std::vector<ILMat<Element>>();
-	std::vector<ILMat<Element>> *S1_vec = new std::vector<ILMat<Element>>();
+	std::vector<Matrix<Element>> *S0_vec = new std::vector<Matrix<Element>>();
+	std::vector<Matrix<Element>> *S1_vec = new std::vector<Matrix<Element>>();
 
-	std::vector<ILMat<Element>> *R0_vec = new std::vector<ILMat<Element>>();
-	std::vector<ILMat<Element>> *R1_vec = new std::vector<ILMat<Element>>();
+	std::vector<Matrix<Element>> *R0_vec = new std::vector<Matrix<Element>>();
+	std::vector<Matrix<Element>> *R1_vec = new std::vector<Matrix<Element>>();
 
 
 	//DBC: this loop takes all the time, so we time it with TIC TOC
 	for(usint i=1; i<=l; i++) {
 
 		TIC(t1);
-		ILMat<Element> *S0_i = new ILMat<ILVector2n>(zero_alloc, m, m);
+		Matrix<Element> *S0_i = new Matrix<ILVector2n>(zero_alloc, m, m);
 
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],s_small_0[i-1]*r_small_0[i-1],dgg,S0_i);
 		S0_vec->push_back(*S0_i);
 
 		//std::cout << "encode ran S0" << std::endl;
 
-		ILMat<Element> *S1_i = new ILMat<ILVector2n>(zero_alloc, m, m);
+		Matrix<Element> *S1_i = new Matrix<ILVector2n>(zero_alloc, m, m);
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],s_small_1[i-1]*r_small_1[i-1],dgg,S1_i);
 		S1_vec->push_back(*S1_i);
 
 		//std::cout << "encode ran S1" << std::endl;
 
-		ILMat<Element> *R0_i = new ILMat<ILVector2n>(zero_alloc, m, m);
+		Matrix<Element> *R0_i = new Matrix<ILVector2n>(zero_alloc, m, m);
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],r_small_0[i-1],dgg,R0_i);
 		R0_vec->push_back(*R0_i);
 
 		//std::cout << "encode ran R0" << std::endl;
 
-		ILMat<Element> *R1_i = new ILMat<ILVector2n>(zero_alloc, m, m);
+		Matrix<Element> *R1_i = new Matrix<ILVector2n>(zero_alloc, m, m);
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],r_small_1[i-1],dgg,R1_i);
 		R1_vec->push_back(*R1_i);
 
@@ -354,13 +354,13 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	//Element	elemrl1(dug,params,EVALUATION);
 	Element	elemrl1(dbg,params,EVALUATION);
 
-	ILMat<Element> *Sl = new ILMat<ILVector2n>(zero_alloc, m, m);
+	Matrix<Element> *Sl = new Matrix<ILVector2n>(zero_alloc, m, m);
 	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],Sigma[l],elemrl1*s_prod,dgg,Sl);
 
 	//std::cout << "encode 1 for L ran" << std::endl;
 	//std::cout << elemrl1.GetValues() << std::endl;
 
-	ILMat<Element> *Rl = new ILMat<ILVector2n>(zero_alloc, m, m);
+	Matrix<Element> *Rl = new Matrix<ILVector2n>(zero_alloc, m, m);
 	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],Sigma[l],elemrl1,dgg,Rl);
 
 	//std::cout << "encode 2 for L ran" << std::endl;
@@ -375,13 +375,13 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 
 template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
-				const ILMat<Element> &Ai,
-				const ILMat<Element> &Aj,
+				const Matrix<Element> &Ai,
+				const Matrix<Element> &Aj,
 				const TrapdoorPair &Ti,
-				const ILMat<LargeFloat> &sigma,
+				const Matrix<LargeFloat> &sigma,
 				const Element &elemS,
 				DiscreteGaussianGenerator &dgg,
-				ILMat<Element> *encodedElem) const {
+				Matrix<Element> *encodedElem) const {
 
         TimeVar t1,t_total; // for TIC TOC
 	bool dbg_flag = 0;//set to 0 for no debug statements
@@ -398,14 +398,14 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	//generate a row vector of discrete Gaussian ring elements
 	//YSP this can be done using discrete Gaussian allocator later - after the dgg allocator is updated to use the same dgg instance
 	//DBC all the following have insignificant timing
-	ILMat<Element> ej(zero_alloc, 1, m); 
+	Matrix<Element> ej(zero_alloc, 1, m); 
 
 	for(size_t i=0; i<m; i++) {
 		ej(0,i).SetValues(dgg.GenerateVector(n,modulus),COEFFICIENT);
 		ej(0,i).SwitchFormat();
 	}
 
-	ILMat<Element> bj = Aj.ScalarMult(elemS) + ej;
+	Matrix<Element> bj = Aj.ScalarMult(elemS) + ej;
 
 	//std::cout << "Encode: Computed bj, next will do GaussSamp" << std::endl; 
 	TIC(t1);	
@@ -416,7 +416,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	for(size_t i=0; i<m; i++) {
 
 	  // the following takes approx 250 msec
-		ILMat<Element> gaussj = GaussSamp(n,k,Ai,Ti,sigma,bj(0,i),dgg.GetStd(), dgg);
+		Matrix<Element> gaussj = GaussSamp(n,k,Ai,Ti,sigma,bj(0,i),dgg.GetStd(), dgg);
 		// the following takes no time
 		for(size_t j=0; j<m; j++) {
 			(*encodedElem)(j,i) = gaussj(j,0);
@@ -432,7 +432,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	// encodedElem->SwitchFormat();
 
 	// //Test to make sure Ai*gaussj = bj(0,1)
-	// ILMat<Element> test(zero_alloc, m, 1); 
+	// Matrix<Element> test(zero_alloc, m, 1); 
 	// for(size_t j=0; j<m; j++)
 	// 	test(j,0) = (*encodedElem)(j,2);
 	// ILVector2n bEst = (Ai * test)(0,0);
@@ -486,7 +486,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	usint m = obfuscatedPattern.GetLogModulus() + 2;
 	double constraint = obfuscatedPattern.GetConstraint();
 
-	const std::vector<ILMat<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
+	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
 
 	const ILParams *params = obfuscatedPattern.GetParameters();
 
@@ -504,14 +504,14 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 	double norm = constraint;
 
-	ILMat<Element> S_prod = ILMat<Element>(zero_alloc, m, m).Identity();
-	ILMat<Element> R_prod = ILMat<Element>(zero_alloc, m, m).Identity();
+	Matrix<Element> S_prod = Matrix<Element>(zero_alloc, m, m).Identity();
+	Matrix<Element> R_prod = Matrix<Element>(zero_alloc, m, m).Identity();
 
 	//S_prod.PrintValues();
 	//R_prod.PrintValues();
 
-	ILMat<Element> *S_ib;// = ILMat<Element>(secureIL2nAlloc(), m, m);
-	ILMat<Element> *R_ib;// = ILMat<Element>(secureIL2nAlloc(), m, m);
+	Matrix<Element> *S_ib;// = Matrix<Element>(secureIL2nAlloc(), m, m);
+	Matrix<Element> *R_ib;// = Matrix<Element>(secureIL2nAlloc(), m, m);
 
 	DEBUG("Eval1: "<<TOC(t1) <<" ms");
 
@@ -544,8 +544,8 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	std::cout << " R_prod: " << std::endl;
 	//R_prod.PrintValues();
 
-	ILMat<Element>* Sl = obfuscatedPattern.GetSl();
-	ILMat<Element>* Rl = obfuscatedPattern.GetRl();
+	Matrix<Element>* Sl = obfuscatedPattern.GetSl();
+	Matrix<Element>* Rl = obfuscatedPattern.GetRl();
 	
 	std::cout << " Sl: " << std::endl;
 	//Sl->PrintValues();
@@ -553,7 +553,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	//Rl->PrintValues();
 
 	std::cout << " Cross Product: " << std::endl;
-	ILMat<Element> CrossProd = Pk_vector[0]*((S_prod * (*Rl)) - (R_prod * (*Sl)));
+	Matrix<Element> CrossProd = Pk_vector[0]*((S_prod * (*Rl)) - (R_prod * (*Sl)));
 	//CrossProd.PrintValues();
 
 

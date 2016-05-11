@@ -49,12 +49,12 @@ using std::invalid_argument;
 namespace lbcrypto {
 
     template<class Element>
-        class ILMat {
+        class Matrix {
             typedef vector<vector<unique_ptr<Element>>> data_t;
             typedef function<unique_ptr<Element>(void)> alloc_func;
         public:
             //  Zero constructor
-            ILMat(alloc_func allocZero, size_t rows, size_t cols): rows(rows), cols(cols), data(), allocZero(allocZero) {
+            Matrix(alloc_func allocZero, size_t rows, size_t cols): rows(rows), cols(cols), data(), allocZero(allocZero) {
                 data.resize(rows);
                 for (auto row = data.begin(); row != data.end(); ++row) {
                     for (size_t col = 0; col < cols; ++col) {
@@ -63,18 +63,18 @@ namespace lbcrypto {
                 }
             }
 
-            ILMat(const ILMat<Element>& other) : data(), rows(other.rows), cols(other.cols), allocZero(other.allocZero) {
+            Matrix(const Matrix<Element>& other) : data(), rows(other.rows), cols(other.cols), allocZero(other.allocZero) {
                 deepCopyData(other.data);
             }
 
-            inline ILMat<Element>& operator=(const ILMat<Element>& other) {
+            inline Matrix<Element>& operator=(const Matrix<Element>& other) {
                 rows = other.rows;
                 cols = other.cols;
                 deepCopyData(other.data);
                 return *this;
             }
 
-            inline ILMat<Element>& Ones() {
+            inline Matrix<Element>& Ones() {
                 for (size_t row = 0; row < rows; ++row) {
                     for (size_t col = 0; col < cols; ++col) {
                         *data[row][col] = 1;
@@ -85,7 +85,7 @@ namespace lbcrypto {
 
 			//YSP - Removed this definition as it conflicts with FIll(Element val) for int32_t - error is generated in VSS
 
-            //inline ILMat<Element>& Fill(int val) {
+            //inline Matrix<Element>& Fill(int val) {
             //    for (size_t row = 0; row < rows; ++row) {
             //        for (size_t col = 0; col < cols; ++col) {
             //            *data[row][col] = val;
@@ -94,7 +94,7 @@ namespace lbcrypto {
             //    return *this;
             //}
 
-            inline ILMat<Element>& Fill(Element val) {
+            inline Matrix<Element>& Fill(Element val) {
                 for (size_t row = 0; row < rows; ++row) {
                     for (size_t col = 0; col < cols; ++col) {
                         *data[row][col] = val;
@@ -103,7 +103,7 @@ namespace lbcrypto {
                 return *this;
             }
 
-            inline ILMat<Element>& Identity() {
+            inline Matrix<Element>& Identity() {
                 for (size_t row = 0; row < rows; ++row) {
                     for (size_t col = 0; col < cols; ++col) {
                         if (row == col) {
@@ -119,8 +119,8 @@ namespace lbcrypto {
             /*
              *  Sets the first row to be powers of two
              */
-            inline ILMat<Element> GadgetVector() const {
-                ILMat<Element> g(allocZero, rows, cols);
+            inline Matrix<Element> GadgetVector() const {
+                Matrix<Element> g(allocZero, rows, cols);
                 auto two = allocZero();
                 *two = 2;
                 g(0, 0) = 1;
@@ -149,11 +149,11 @@ namespace lbcrypto {
                 return retVal;
             }
 
-            inline ILMat<Element> Mult(ILMat<Element> const& other) const {
+            inline Matrix<Element> Mult(Matrix<Element> const& other) const {
                 if (cols != other.rows) {
                     throw invalid_argument("incompatible matrix multiplication");
                 }
-                ILMat<Element> result(allocZero, rows, other.cols);
+                Matrix<Element> result(allocZero, rows, other.cols);
 #if 0
                 for (size_t row = 0; row < result.rows; ++row) {
                     for (size_t col = 0; col < result.cols; ++col) {
@@ -183,12 +183,12 @@ namespace lbcrypto {
                 return result;
             }
 
-            inline ILMat<Element> operator*(ILMat<Element> const& other) const {
+            inline Matrix<Element> operator*(Matrix<Element> const& other) const {
                 return Mult(other);
             }
 
-            inline ILMat<Element> ScalarMult(Element const& other) const {
-                ILMat<Element> result(*this);
+            inline Matrix<Element> ScalarMult(Element const& other) const {
+                Matrix<Element> result(*this);
 #if 0
                 for (size_t row = 0; row < result.rows; ++row) {
                     for (size_t col = 0; col < result.cols; ++col) {
@@ -208,11 +208,11 @@ namespace lbcrypto {
                 return result;
             }
 
-            inline ILMat<Element> operator*(Element const& other) const {
+            inline Matrix<Element> operator*(Element const& other) const {
                 return ScalarMult(other);
             }
 
-            inline bool Equal(ILMat<Element> const& other) const {
+            inline bool Equal(Matrix<Element> const& other) const {
                 if (rows != other.rows || cols != other.cols) {
                     return false;
                 }
@@ -227,11 +227,11 @@ namespace lbcrypto {
                 return true;
             }
 
-            inline bool operator==(ILMat<Element> const& other) const {
+            inline bool operator==(Matrix<Element> const& other) const {
                 return Equal(other);
             }
 
-            inline bool operator!=(ILMat<Element> const& other) const {
+            inline bool operator!=(Matrix<Element> const& other) const {
                 return !Equal(other);
             }
 
@@ -257,11 +257,11 @@ namespace lbcrypto {
                 }
             }
 
-            inline ILMat<Element> Add(ILMat<Element> const& other) const {
+            inline Matrix<Element> Add(Matrix<Element> const& other) const {
                 if (rows != other.rows || cols != other.cols) {
                     throw invalid_argument("Addition operands have incompatible dimensions");
                 }
-                ILMat<Element> result(*this);
+                Matrix<Element> result(*this);
 #if 0
                 for (size_t i = 0; i < rows; ++i) {
                     for (size_t j = 0; j < cols; ++j) {
@@ -279,11 +279,11 @@ namespace lbcrypto {
                 return result;
             }
 
-            inline ILMat<Element> operator+(ILMat<Element> const& other) const {
+            inline Matrix<Element> operator+(Matrix<Element> const& other) const {
                 return this->Add(other);
             }
 
-            inline ILMat<Element>& operator+=(ILMat<Element> const& other) {
+            inline Matrix<Element>& operator+=(Matrix<Element> const& other) {
                 if (rows != other.rows || cols != other.cols) {
                     throw invalid_argument("Addition operands have incompatible dimensions");
                 }
@@ -304,11 +304,11 @@ namespace lbcrypto {
                 return *this;
             }
 
-            inline ILMat<Element> Sub(ILMat<Element> const& other) const {
+            inline Matrix<Element> Sub(Matrix<Element> const& other) const {
                 if (rows != other.rows || cols != other.cols) {
                     throw invalid_argument("Subtraction operands have incompatible dimensions");
                 }
-                ILMat<Element> result(allocZero, rows, other.cols);
+                Matrix<Element> result(allocZero, rows, other.cols);
 #if 0
                 for (size_t i = 0; i < rows; ++i) {
                     for (size_t j = 0; j < cols; ++j) {
@@ -327,11 +327,11 @@ namespace lbcrypto {
                 return result;
             }
 
-            inline ILMat<Element> operator-(ILMat<Element> const& other) const {
+            inline Matrix<Element> operator-(Matrix<Element> const& other) const {
                 return this->Sub(other);
             }
 
-            inline ILMat<Element>& operator-=(ILMat<Element> const& other) {
+            inline Matrix<Element>& operator-=(Matrix<Element> const& other) {
                 if (rows != other.rows || cols != other.cols) {
                     throw invalid_argument("Subtraction operands have incompatible dimensions");
                 }
@@ -352,8 +352,8 @@ namespace lbcrypto {
                 return *this;
             }
 
-            inline ILMat<Element> Transpose() const {
-                ILMat<Element> result(allocZero, cols, rows);
+            inline Matrix<Element> Transpose() const {
+                Matrix<Element> result(allocZero, cols, rows);
                 for (size_t row = 0; row < rows; ++row) {
                     for (size_t col = 0; col < cols; ++col) {
                         result(col, row) = (*this)(row, col);
@@ -363,7 +363,7 @@ namespace lbcrypto {
             }
 
             //  add rows to bottom of the matrix
-            inline ILMat<Element>& VStack(ILMat<Element> const& other) {
+            inline Matrix<Element>& VStack(Matrix<Element> const& other) {
                 if (cols != other.cols) {
                     throw invalid_argument("VStack rows not equal size");
                 }
@@ -379,7 +379,7 @@ namespace lbcrypto {
             }
 
             //  add cols to right of the matrix
-            inline ILMat<Element>& HStack(ILMat<Element> const& other) {
+            inline Matrix<Element>& HStack(Matrix<Element> const& other) {
                 if (rows != other.rows) {
                     throw invalid_argument("HStack cols not equal size");
                 }
@@ -440,18 +440,18 @@ namespace lbcrypto {
             }
         };
     template<class Element>
-        inline ILMat<Element> operator*(Element const& e, ILMat<Element> const& M) {
+        inline Matrix<Element> operator*(Element const& e, Matrix<Element> const& M) {
             return M.ScalarMult(e);
         }
 
-    inline ILMat<BigBinaryInteger> Rotate(ILMat<ILVector2n> const& inMat) {
-        ILMat<ILVector2n> mat(inMat);
+    inline Matrix<BigBinaryInteger> Rotate(Matrix<ILVector2n> const& inMat) {
+        Matrix<ILVector2n> mat(inMat);
         mat.SetFormat(COEFFICIENT);
         size_t n = mat(0,0).GetLength();
         BigBinaryInteger const& modulus = mat(0,0).GetParams().GetModulus();
         size_t rows = mat.GetRows() * n;
         size_t cols = mat.GetCols() * n;
-        ILMat<BigBinaryInteger> result(BigBinaryInteger::Allocator, rows, cols);
+        Matrix<BigBinaryInteger> result(BigBinaryInteger::Allocator, rows, cols);
         for (size_t row = 0; row < mat.GetRows(); ++row) {
             for (size_t col = 0; col < mat.GetCols(); ++col) {
                 for (size_t rotRow = 0; rotRow < n; ++rotRow) {
@@ -475,8 +475,8 @@ namespace lbcrypto {
      *  Each element becomes a square matrix with columns of that element's
      *  rotations in coefficient form.
      */
-    inline ILMat<BigBinaryVector> RotateVecResult(ILMat<ILVector2n> const& inMat) {
-        ILMat<ILVector2n> mat(inMat);
+    inline Matrix<BigBinaryVector> RotateVecResult(Matrix<ILVector2n> const& inMat) {
+        Matrix<ILVector2n> mat(inMat);
         mat.SetFormat(COEFFICIENT);
         size_t n = mat(0,0).GetLength();
         BigBinaryInteger const& modulus = mat(0,0).GetParams().GetModulus();
@@ -484,7 +484,7 @@ namespace lbcrypto {
         size_t rows = mat.GetRows() * n;
         size_t cols = mat.GetCols() * n;
         auto singleElemBinVecAlloc = [=](){ return make_unique<BigBinaryVector>(1, modulus); };
-        ILMat<BigBinaryVector> result(singleElemBinVecAlloc, rows, cols);
+        Matrix<BigBinaryVector> result(singleElemBinVecAlloc, rows, cols);
         for (size_t row = 0; row < mat.GetRows(); ++row) {
             for (size_t col = 0; col < mat.GetCols(); ++col) {
                 for (size_t rotRow = 0; rotRow < n; ++rotRow) {
@@ -506,7 +506,7 @@ namespace lbcrypto {
         return result;
     }
     template<class Element>
-        inline std::ostream& operator<<(std::ostream& os, const ILMat<Element>& m){
+        inline std::ostream& operator<<(std::ostream& os, const Matrix<Element>& m){
             os << "[ ";
             for (size_t row = 0; row < m.GetRows(); ++row) {
                 os << "[ ";
@@ -519,18 +519,18 @@ namespace lbcrypto {
             return os;
         }
 
-    // YSP removed the ILMat class because it is not defined for all possible data types
+    // YSP removed the Matrix class because it is not defined for all possible data types
     // needs to be checked to make sure input matrix is used in the right places
     // the assumption is that covariance matrix does not have large coefficients because it is formed by
     // discrete gaussians e and s; this implies int32_t can be used
     // This algorithm can be further improved - see the Darmstadt paper section 4.4
-    inline ILMat<LargeFloat> Cholesky(const ILMat<int32_t> &input) {
+    inline Matrix<LargeFloat> Cholesky(const Matrix<int32_t> &input) {
         //  http://eprint.iacr.org/2013/297.pdf
         if (input.GetRows() != input.GetCols()) {
             throw invalid_argument("not square");
         }
         size_t rows = input.GetRows();
-        ILMat<LargeFloat> result([](){ return make_unique<LargeFloat>(); }, rows, rows);
+        Matrix<LargeFloat> result([](){ return make_unique<LargeFloat>(); }, rows, rows);
 
         for (size_t i = 0; i < rows; ++i) {
             for (size_t j = 0; j < rows; ++j) {
@@ -558,11 +558,11 @@ namespace lbcrypto {
     }
 
     //  Convert from Z_q to [-q/2, q/2]
-    inline ILMat<int32_t> ConvertToInt32(const ILMat<BigBinaryInteger> &input, const BigBinaryInteger& modulus) {
+    inline Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryInteger> &input, const BigBinaryInteger& modulus) {
         size_t rows = input.GetRows();
         size_t cols = input.GetCols();
         BigBinaryInteger negativeThreshold(modulus / BigBinaryInteger::TWO);
-        ILMat<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
+        Matrix<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
         for (size_t i = 0; i < rows; ++i) {
             for (size_t j = 0; j < cols; ++j) {
                 if (input(i,j) > negativeThreshold) {
@@ -575,11 +575,11 @@ namespace lbcrypto {
         return result;
     }
 
-    inline ILMat<int32_t> ConvertToInt32(const ILMat<BigBinaryVector> &input, const BigBinaryInteger& modulus) {
+    inline Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryVector> &input, const BigBinaryInteger& modulus) {
         size_t rows = input.GetRows();
         size_t cols = input.GetCols();
         BigBinaryInteger negativeThreshold(modulus / BigBinaryInteger::TWO);
-        ILMat<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
+        Matrix<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
         for (size_t i = 0; i < rows; ++i) {
             for (size_t j = 0; j < cols; ++j) {
                 const BigBinaryInteger& elem = input(i,j).GetValAtIndex(0);
@@ -594,13 +594,13 @@ namespace lbcrypto {
     }
 
     //  split a vector of int32_t into a vector of ring elements with ring dimension n
-    inline ILMat<ILVector2n> SplitInt32IntoILVector2nElements(ILMat<int32_t> const& other, size_t n, const ILParams &params) {
+    inline Matrix<ILVector2n> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const ILParams &params) {
 			
 		auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
 		size_t rows = other.GetRows()/n;
 
-        ILMat<ILVector2n> result(zero_alloc, rows, 1);
+        Matrix<ILVector2n> result(zero_alloc, rows, 1);
 
         for (size_t row = 0; row < rows; ++row) {
 			BigBinaryVector tempBBV(n,params.GetModulus());
@@ -628,13 +628,13 @@ namespace lbcrypto {
     }
 
  //  split a vector of BBI into a vector of ring elements with ring dimension n
-    inline ILMat<ILVector2n> SplitInt32AltIntoILVector2nElements(ILMat<int32_t> const& other, size_t n, const ILParams &params) {
+    inline Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const ILParams &params) {
 			
 		auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
 		size_t rows = other.GetRows();
 
-        ILMat<ILVector2n> result(zero_alloc, rows, 1);
+        Matrix<ILVector2n> result(zero_alloc, rows, 1);
 
         for (size_t row = 0; row < rows; ++row) {
 

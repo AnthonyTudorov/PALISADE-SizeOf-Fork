@@ -84,7 +84,7 @@ namespace lbcrypto {
 		}
 	}
 
-	inline void RandomizeRound(size_t n, const ILMat<LargeFloat> &p, const LargeFloat &sigma, ILMat<int32_t> *perturbationVector) {
+	inline void RandomizeRound(size_t n, const Matrix<LargeFloat> &p, const LargeFloat &sigma, Matrix<int32_t> *perturbationVector) {
 
 		for (size_t i = 0; i < p.GetRows(); i++) {
 			(*perturbationVector)(i,0) = IntegerRejectionSample(p(i,0), sigma, n);

@@ -205,8 +205,8 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 
 
 				//usint m = this->GetLogModulus();
-				//this->m_Sl = ILMat<ILVector2n>(secureIL2nAlloc(), m, m);
-				//this->m_Rl = ILMat<ILVector2n>(secureIL2nAlloc(), m, m);
+				//this->m_Sl = Matrix<ILVector2n>(secureIL2nAlloc(), m, m);
+				//this->m_Rl = Matrix<ILVector2n>(secureIL2nAlloc(), m, m);
 
 			}
 
@@ -283,9 +283,9 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * @param ek - vector of encoding keys.
 			 * @param sigma - vector of perturbation matrices.
 			 */
-			void SetKeys(std::vector<ILMat<Element>> *pk,
+			void SetKeys(std::vector<Matrix<Element>> *pk,
 					std::vector<TrapdoorPair>   *ek,
-					std::vector<ILMat<LargeFloat>> *sigma) {
+					std::vector<Matrix<LargeFloat>> *sigma) {
 
 				this->m_pk = pk;
 				this->m_ek = ek;
@@ -304,12 +304,12 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * @param &Sl the Sl vector from the obfuscated pattern definition.
 			 * @param &Rl the Rl vector from the obfuscated pattern definition.
 			 */
-			void SetMatrices(vector<ILMat<Element>> * S0_vec,
-					vector<ILMat<Element>> * S1_vec,
-					vector<ILMat<Element>> * R0_vec,
-					vector<ILMat<Element>> * R1_vec,
-					ILMat<Element> * Sl,
-					ILMat<Element> * Rl) {
+			void SetMatrices(vector<Matrix<Element>> * S0_vec,
+					vector<Matrix<Element>> * S1_vec,
+					vector<Matrix<Element>> * R0_vec,
+					vector<Matrix<Element>> * R1_vec,
+					Matrix<Element> * Sl,
+					Matrix<Element> * Rl) {
 
 				this->m_S0_vec = S0_vec;
 				this->m_S1_vec = S1_vec;
@@ -329,7 +329,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * Sets the matrices that define the obfuscated pattern.
 			 * @return the S_l matrix.
 			 */
-			ILMat<Element>*  GetSl() const {
+			Matrix<Element>*  GetSl() const {
 				//this->m_Sl->PrintValues();
 				return this->m_Sl;
 			}
@@ -338,7 +338,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * Gets the collection of public keys.
 			 * @return public keys.
 			 */
-			const std::vector<ILMat<Element>> &GetPublicKeys() const {
+			const std::vector<Matrix<Element>> &GetPublicKeys() const {
 				return *(this->m_pk);
 			}
 
@@ -354,7 +354,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * Gets the collection of perturbation matrices for the private keys.
 			 * @return perturbation matrices.
 			 */
-			const std::vector<ILMat<LargeFloat>> &GetSigmaKeys() const {
+			const std::vector<Matrix<LargeFloat>> &GetSigmaKeys() const {
 				return *(this->m_Sigma);
 			}
 
@@ -362,7 +362,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * Sets the matrices that define the obfuscated pattern.
 			 * @return the R_l matrix.
 			 */
-			ILMat<Element>*  GetRl() const {
+			Matrix<Element>*  GetRl() const {
 				return this->m_Rl;
 			}
 
@@ -370,9 +370,9 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * Sets the matrices that define the obfuscated pattern.
 			 * @return the S_ib matrix.
 			 */
-			ILMat<Element>* GetS(usint i, char testVal) const {
+			Matrix<Element>* GetS(usint i, char testVal) const {
 
-				ILMat<Element> *S_ib;
+				Matrix<Element> *S_ib;
 
 				//std::cout << "which character" << testVal << "; " << (testVal == '0') << std::endl;
 
@@ -391,9 +391,9 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * Sets the matrices that define the obfuscated pattern.
 			 * @return the R_ib matrix.
 			 */
-			ILMat<Element>* GetR(usint i, char testVal) const {
+			Matrix<Element>* GetR(usint i, char testVal) const {
 
-				ILMat<Element> *R_ib;
+				Matrix<Element> *R_ib;
 
 				//std::cout << " Before if statement. " << std::endl;
 				if (testVal == '0') {
@@ -411,16 +411,16 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			usint m_length;
 			ILParams *m_cryptoParameters;
 
-			vector<ILMat<Element>> *m_S0_vec;
-			vector<ILMat<Element>> *m_S1_vec;
-			vector<ILMat<Element>> *m_R0_vec;
-			vector<ILMat<Element>> *m_R1_vec;
-			ILMat<Element> *m_Sl;
-			ILMat<Element> *m_Rl;
+			vector<Matrix<Element>> *m_S0_vec;
+			vector<Matrix<Element>> *m_S1_vec;
+			vector<Matrix<Element>> *m_R0_vec;
+			vector<Matrix<Element>> *m_R1_vec;
+			Matrix<Element> *m_Sl;
+			Matrix<Element> *m_Rl;
 
-			std::vector<ILMat<Element>> *m_pk;
+			std::vector<Matrix<Element>> *m_pk;
 			std::vector<TrapdoorPair>   *m_ek;
-			std::vector<ILMat<LargeFloat>> *m_Sigma;
+			std::vector<Matrix<LargeFloat>> *m_Sigma;
 
 	};
 
@@ -476,13 +476,13 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * @param &encodedElem the encoded element.
 			 */
 			void Encode(
-				const ILMat<Element> &Ai,
-				const ILMat<Element> &Aj,
+				const Matrix<Element> &Ai,
+				const Matrix<Element> &Aj,
 				const TrapdoorPair &Ti,
-				const ILMat<LargeFloat> &sigma,
+				const Matrix<LargeFloat> &sigma,
 				const Element &elemS,
 				DiscreteGaussianGenerator &dgg,
-				ILMat<Element> * encodedElem) const;
+				Matrix<Element> * encodedElem) const;
 
 			/**
 			 * Method to obfuscate the cleartext pattern into an obfuscated pattern.
@@ -494,11 +494,11 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * @param &encodedElem the encoded element.
 			 */
 			/*void GaussSamp(
-				const ILMat<Element> &Ai,
+				const Matrix<Element> &Ai,
 				const TrapdoorPair &Ti,
 				const Element &elemB,
 				DiscreteGaussianGenerator &dgg,
-				ILMat<Element> &encodedElem) const;*/
+				Matrix<Element> &encodedElem) const;*/
 
 			/**
 			 * Method for evaluating the pattern

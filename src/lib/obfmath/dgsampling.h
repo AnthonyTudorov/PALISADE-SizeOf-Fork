@@ -37,7 +37,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 	// forward declaration as it is defined after a call to it is made
-	void ContinuousGaussianGenerator(ILMat<LargeFloat> *randomVector);
+	void ContinuousGaussianGenerator(Matrix<LargeFloat> *randomVector);
 
 	/**
 	* Nonspherical sampling that is used to generate perturbation vectors (for spherically distributed premimages in GaussSample)
@@ -46,15 +46,15 @@ namespace lbcrypto {
 	* @param stddev standard deviation.
 	* @param *perturbationVector perturbation vector (2+k)n
 	*/
-	inline void NonSphericalSample(size_t n, const ILMat<LargeFloat> &sigmaSqrt, double stddev, ILMat<int32_t> *perturbationVector)
+	inline void NonSphericalSample(size_t n, const Matrix<LargeFloat> &sigmaSqrt, double stddev, Matrix<int32_t> *perturbationVector)
 	{
 		int32_t a(floor(stddev/2));
 
-		ILMat<LargeFloat> sample([](){ return make_unique<LargeFloat>(); }, sigmaSqrt.GetRows(), 1);
+		Matrix<LargeFloat> sample([](){ return make_unique<LargeFloat>(); }, sigmaSqrt.GetRows(), 1);
 
 		ContinuousGaussianGenerator(&sample);
 
-		ILMat<LargeFloat> p = sigmaSqrt.Mult(sample);
+		Matrix<LargeFloat> p = sigmaSqrt.Mult(sample);
 		RandomizeRound(n, p,a,perturbationVector);
 
 	}
@@ -65,7 +65,7 @@ namespace lbcrypto {
 	* @param size vector length
 	* @param *vector where results are written
 	*/
-	inline void ContinuousGaussianGenerator(ILMat<LargeFloat> *randomVector)
+	inline void ContinuousGaussianGenerator(Matrix<LargeFloat> *randomVector)
 	{
 
 		namespace mp = boost::multiprecision;
@@ -90,7 +90,7 @@ namespace lbcrypto {
 	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
 	*/
 	inline void GaussSampG(const ILVector2n &u, double sttdev, size_t k,
-		DiscreteGaussianGenerator &dgg, ILMat<BigBinaryInteger> *z)
+		DiscreteGaussianGenerator &dgg, Matrix<BigBinaryInteger> *z)
 	{
         const BigBinaryInteger& modulus = u.GetParams().GetModulus();
 		for (size_t i = 0; i < u.GetLength(); i++) {
@@ -137,7 +137,7 @@ namespace lbcrypto {
 	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
 	*/
 	inline void GaussSampGq(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q,
-				DiscreteGaussianGenerator &dgg, ILMat<int32_t> *z)
+				DiscreteGaussianGenerator &dgg, Matrix<int32_t> *z)
 	{
 
 	  std::vector<double> a(k);  /* can be precomputed, depends only on k */
