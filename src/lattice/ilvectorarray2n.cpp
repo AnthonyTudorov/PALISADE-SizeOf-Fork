@@ -78,12 +78,15 @@ namespace lbcrypto {
 		usint i = 0;
 
 		usint size = castedParams.GetModuli().size();
-
 		ILVector2n temp();
+
+		BigBinaryInteger a;
+		BigBinaryInteger b;
+
 		for (i = 0; i < size; i++) {
 
-			BigBinaryInteger a(m_params.GetModuli()[i]);
-			BigBinaryInteger b(m_params.GetRootsOfUnity()[i]);
+			 a = m_params.GetModuli()[i];
+			 b = m_params.GetRootsOfUnity()[i];
 
 			ILParams ilParams2(m_params.GetCyclotomicOrder(), a, b);
 			m_vectors[i] = element;
@@ -101,10 +104,14 @@ namespace lbcrypto {
 
 		sint* dggValues = dgg.GenerateCharVector(m_params.GetCyclotomicOrder()/2);
 	
+
+		BigBinaryInteger modulus;
+		BigBinaryInteger rootOfUnity;
+		BigBinaryInteger temp;
+
 		for(usint i = 0; i < m_vectors.size();i++){
-			BigBinaryInteger modulus;
+			
 			modulus = m_params.GetModuli()[i];
-			BigBinaryInteger rootOfUnity;
 			rootOfUnity = m_params.GetRootsOfUnity()[i];
 
 			ILParams ilVectorDggValuesParams(m_params.GetCyclotomicOrder(), modulus, rootOfUnity);	
@@ -116,13 +123,13 @@ namespace lbcrypto {
 				if((int)dggValues[j] < 0){
 					int k = (int)dggValues[j];
 					k = k * (-1);
-					BigBinaryInteger temp(k);
+					temp = k;
 					temp = m_params.GetModuli()[i] - temp;
 					ilDggValues.SetValAtIndex(j,temp);
 				}
 				else{				
 					int k = (int)dggValues[j];
-					BigBinaryInteger temp(k);
+					temp = k;
 					ilDggValues.SetValAtIndex(j,temp);
 				}
 			}
