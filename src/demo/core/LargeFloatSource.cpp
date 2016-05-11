@@ -54,7 +54,7 @@ int main()
 	//std::cout.precision(std::numeric_limits<LargeFloat>::digits10);
 	std::cout << seventh << std::endl;
 
-	ILMat<LargeFloat> sample([](){ return make_unique<LargeFloat>(); }, 10, 1);
+	Matrix<LargeFloat> sample([](){ return make_unique<LargeFloat>(); }, 10, 1);
 
 	ContinuousGaussianGenerator(&sample);
 
