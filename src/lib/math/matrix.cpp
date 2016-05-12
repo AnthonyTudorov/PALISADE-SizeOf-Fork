@@ -1,17 +1,18 @@
 /*
-PRE SCHEME PROJECT, Crypto Lab, NJIT
+PALISADE PROJECT
 Version:
 v00.01
 Last Edited:
-6/1/2015 5:37AM
+5/11/2016 5:37AM
 List of Authors:
 TPOC:
 Dr. Kurt Rohloff, rohloff@njit.edu
 Programmers:
 Dr. Yuriy Polyakov, polyakov@njit.edu
+Dr. Dave Cousins, dave@bbn.com
 Kevin King, kcking@mit.edu
 Description:
-This code provides basic lattice ideal manipulation functionality.
+This code provide a templated matrix implementation
 
 License Information:
 
