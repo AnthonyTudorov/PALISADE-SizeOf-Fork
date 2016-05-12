@@ -36,8 +36,8 @@ inline pair<RingMat, TrapdoorPair> TrapdoorSample(ILParams params, int stddev) {
 
 	auto a = uniform_alloc();
 
-	RingMat r(gaussian_alloc, 1, k);
-	RingMat e(gaussian_alloc, 1, k);
+	RingMat r(zero_alloc, 1, k, gaussian_alloc);
+	RingMat e(zero_alloc, 1, k, gaussian_alloc);
 
 	RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
 

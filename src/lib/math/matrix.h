@@ -52,7 +52,10 @@ namespace lbcrypto {
             typedef std::function<unique_ptr<Element>(void)> alloc_func;
         public:
             //  Zero constructor
-            Matrix(alloc_func allocZero, size_t rows, size_t cols); 
+            Matrix(alloc_func allocZero, size_t rows, size_t cols);
+
+            //  Distribution generator constructor
+            Matrix(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen);
 
             Matrix(const Matrix<Element>& other);
 

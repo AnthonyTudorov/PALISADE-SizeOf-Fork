@@ -40,6 +40,16 @@ Matrix<Element>::Matrix(alloc_func allocZero, size_t rows, size_t cols): rows(ro
 }
 
 template<class Element>
+Matrix<Element>::Matrix(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen): rows(rows), cols(cols), data(), allocZero(allocZero) {
+    data.resize(rows);
+    for (auto row = data.begin(); row != data.end(); ++row) {
+        for (size_t col = 0; col < cols; ++col) {
+            row->push_back(allocGen());
+        }
+    }
+}
+
+template<class Element>
 Matrix<Element>::Matrix(const Matrix<Element>& other) : data(), rows(other.rows), cols(other.cols), allocZero(other.allocZero) {
     deepCopyData(other.data);
 }
@@ -140,9 +150,9 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
     for (size_t row = 0; row < result.rows; ++row) {
 
 	//if result was zero allocated the following should not be needed
-	for (size_t col = 0; col < result.cols; ++col) { 
-	    *result.data[row][col] = 0;
-	}
+	//for (size_t col = 0; col < result.cols; ++col) { 
+	//    *result.data[row][col] = 0;
+	//}
 	for (size_t i = 0; i < cols; ++i) {
         for (size_t col = 0; col < result.cols; ++col) {
                 *result.data[row][col] += *data[row][i] * *other.data[i][col];
