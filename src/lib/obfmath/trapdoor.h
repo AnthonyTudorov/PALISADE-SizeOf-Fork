@@ -3,7 +3,7 @@
 
 using std::pair;
 
-#include "matrix.h"
+#include "../math/matrix.h"
 #include "../lattice/ilvector2n.h"
 #include "dgsampling.h"
 #include "../utils/debug.h"

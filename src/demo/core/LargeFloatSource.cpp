@@ -35,8 +35,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 
 #include <iostream>
-#include "../../lib/obfmath/largefloat.h"
-#include "../../lib/obfmath/matrix.h"
+#include "../../lib/math/largefloat.h"
+#include "../../lib/math/matrix.cpp"
 #include "../../lib/obfmath/dgsampling.h"
 //#include <limits>
 

@@ -45,7 +45,7 @@
 #include "../lattice/ilparams.h"
 #include "../lattice/ildcrtparams.h"
 #include "../lattice/ilelement.h"
-#include "../obfmath/matrix.h"
+#include "../math/matrix.cpp"
 #include "../obfmath/trapdoor.h"
 
 /**

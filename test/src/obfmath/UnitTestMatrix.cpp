@@ -28,7 +28,7 @@
 
 #include "../../include/gtest/gtest.h"
 #include <iostream>
-#include "../../../src/lib/obfmath/largefloat.h"
+#include "../../../src/lib/math/largefloat.h"
 
 #include "../../../src/lib/math/backend.h"
 #include "../../../src/lib/math/nbtheory.h"
@@ -39,7 +39,7 @@
 #include "../../../src/lib/utils/inttypes.h"
 #include "../../../src/lib/utils/utilities.h"
 
-#include "../../../src/lib/obfmath/matrix.h"
+#include "../../../src/lib/math/matrix.cpp"
 
 using namespace std;
 using namespace lbcrypto;

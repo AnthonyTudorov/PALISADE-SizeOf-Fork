@@ -39,8 +39,8 @@ using std::uniform_int_distribution;
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/multiprecision/cpp_dec_float.hpp>
 #include "../utils/inttypes.h"
-#include "largefloat.h"
-#include "matrix.h"
+#include "../math/largefloat.h"
+#include "../math/matrix.h"
 
 namespace lbcrypto {
 

@@ -30,7 +30,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef LBCRYPTO_OBFMATH_DGSAMPLING_H
 #define LBCRYPTO_OBFMATH_DGSAMPLING_H
 
-#include "largefloat.h"
+#include "../math/largefloat.h"
 #include "randomizedround.h"
 //#include "matrix.h"
 
