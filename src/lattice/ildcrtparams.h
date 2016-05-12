@@ -97,6 +97,39 @@ namespace lbcrypto {
 
 			return *this;
 		}
+		/**
+		* Equal operator compares this ILDCRTParams to the specified ILDCRTParams
+		*
+		* @param &rhs is the specified ILDCRTParams to be compared with this ILDCRTParams.
+		* @return true if this ILDCRTParams represents the same values as the specified ILDCRTParams, false otherwise
+		*/
+		inline bool operator==(ILDCRTParams const &rhs) {
+            if (m_modulus != rhs.GetModulus()) {
+                return false;
+            }
+            if (m_cyclotomicOrder != rhs.GetCyclotomicOrder()) {
+                return false;
+            }
+			 if (m_rootsOfUnity != rhs.GetRootsOfUnity()) {
+                return false;
+            }
+            if (m_moduli != rhs.GetModuli()) {
+                return false;
+            }
+
+            return true;
+        }
+
+		/**
+		* Not equal operator compares this ILDCRTParams to the specified ILDCRTParams
+		*
+		* @param &rhs is the specified ILDCRTParams to be compared with this ILDCRTParams.
+		* @return true if this ILDCRTParams represents the same values as the specified ILDCRTParams, false otherwise
+		*/
+       inline bool operator!=(ILDCRTParams const &rhs) {
+            return !(*this == rhs);
+        }
+
 
 		// ACCESSORS
 
@@ -224,9 +257,7 @@ namespace lbcrypto {
 		//Modulus that is factorized into m_moduli
 		BigBinaryInteger m_modulus;
 
-		//rootOfUnity of Modulus
-		BigBinaryInteger m_rootOfUnity;
-
+		//This method 'pre-computes' the modulus based on the multiplication of moduli
 		void calculateModulus(){
 		
 			m_modulus = BigBinaryInteger::ONE;

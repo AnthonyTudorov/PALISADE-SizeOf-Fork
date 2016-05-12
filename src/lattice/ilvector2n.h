@@ -200,6 +200,12 @@ namespace lbcrypto {
         */
         ILVector2n& operator=(ILVector2n &&rhs);
 
+		/**
+		* Equal operator compares this ILVector2n to the specified ILVector2n
+		*
+		* @param &rhs is the specified ILVector2n to be compared with this ILVector2n.
+		* @return true if this ILVector2n represents the same values as the specified ILVectorArray2n, false otherwise
+		*/
         inline bool operator==(const lbcrypto::ILVector2n &b) const {
             if (this->GetFormat() != b.GetFormat()) {
                 return false;
@@ -209,17 +215,51 @@ namespace lbcrypto {
             }
             return true;
         }
-
+		/**
+		* Not equal operator compares this ILVector2n to the specified ILVectorArray2n
+		*
+		* @param &rhs is the specified ILVector2n to be compared with this ILVectorArray2n.
+		* @return true if this ILVector2n represents the same values as the specified ILVector2n, false otherwise
+		*/
         inline bool operator!=(const lbcrypto::ILVector2n &b) const {
             return !(*this == b);
         }
 
+		/**
+		* Performs an subtracion operation and returns the result.
+		*
+		* @param &element is the element to add with.
+		* @return is the result of the addition.
+		*/
         inline lbcrypto::ILVector2n& operator-=(const lbcrypto::ILVector2n &b) {
             ILVector2n result = this->Minus(b);
             *this = result;
             return *this;
         }
 
+		/**
+		* Performs an subtracion operation and returns the result.
+		*
+		* @param &element is the element to add with.
+		* @return is the result of the addition.
+		*/
+		inline lbcrypto::ILVector2n& operator+=(const lbcrypto::BigBinaryInteger &b) {
+            ILVector2n result = this->Plus(b);
+            *this = result;
+            return *this;
+        }
+
+		/**
+		* Performs an subtracion operation and returns the result.
+		*
+		* @param &element is the element to add with.
+		* @return is the result of the addition.
+		*/
+		inline lbcrypto::ILVector2n& operator-=(const lbcrypto::BigBinaryInteger &b) {
+            ILVector2n result = this->Minus(b);
+            *this = result;
+            return *this;
+        }
 		/**
 		* Constructor based on full methods.
 		*

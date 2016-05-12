@@ -216,16 +216,6 @@ namespace lbcrypto {
 		return tmp;
 	}
 
-	ILVectorArray2n ILVectorArray2n::Plus(const BigBinaryInteger & element) const
-	{
-		ILVectorArray2n tmp(*this);
-
-		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
-			tmp.m_vectors[i] = (tmp.GetValues(i)).Plus(element).Mod(m_params.GetModuli()[i]);
-		}
-		return tmp;
-	}
-
 	ILVectorArray2n ILVectorArray2n::ModByTwo() const
 	{
 		ILVectorArray2n tmp(*this);
@@ -246,6 +236,35 @@ namespace lbcrypto {
 		return tmp;
 	}
 
+	ILVectorArray2n ILVectorArray2n::Minus(const ILVectorArray2n &element) const {
+		ILVectorArray2n tmp(*this);
+
+		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
+			tmp.m_vectors[i] -= element.GetValues(i);
+		}
+		return tmp;
+	}
+
+	ILVectorArray2n ILVectorArray2n::Plus(const BigBinaryInteger &element) const
+	{
+		ILVectorArray2n tmp(*this);
+
+		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
+			tmp.m_vectors[i] += element;
+		}
+		return tmp;
+	}
+
+	ILVectorArray2n ILVectorArray2n::Minus(const BigBinaryInteger &element) const {
+		ILVectorArray2n tmp(*this);
+
+		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
+			tmp.m_vectors[i] -= element;
+		}
+		return tmp;
+	}
+
+
 	ILVectorArray2n ILVectorArray2n::Times(const ILVectorArray2n & element) const
 	{
 		ILVectorArray2n tmp(*this);
@@ -256,14 +275,18 @@ namespace lbcrypto {
 		return tmp;
 	}
 
-	const ILVectorArray2n & ILVectorArray2n::operator+=(const ILVectorArray2n & element)
+	const ILVectorArray2n & ILVectorArray2n::operator+=(const ILVectorArray2n &rhs)
 	{
-		for (usint i = 0; i < m_vectors.size(); i++) {
-			m_vectors[i] +=  element.m_vectors[i];
-		}
-
-		return *this;
+		  ILVectorArray2n result = this->Plus(rhs);
+            *this = result;
+            return *this;
 	}
+
+	const ILVectorArray2n& ILVectorArray2n::operator-=(const lbcrypto::ILVectorArray2n &rhs) {
+            ILVectorArray2n result = this->Minus(rhs);
+            *this = result;
+            return *this;
+        }
 
 	ILVectorArray2n ILVectorArray2n::Times(const BigBinaryInteger & element) const
 	{

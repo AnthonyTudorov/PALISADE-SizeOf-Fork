@@ -251,6 +251,13 @@ namespace lbcrypto {
 		return tmp;
 	}
 
+	// subtraction operation - PREV1
+	ILVector2n ILVector2n::Minus(const BigBinaryInteger &element) const {
+		ILVector2n tmp(*this);
+		*tmp.m_values = m_values->ModSub(element);
+		return tmp;
+	}
+
 
 	// multiplication operation - PREV1
 	ILVector2n ILVector2n::Times(const BigBinaryInteger &element) const {
