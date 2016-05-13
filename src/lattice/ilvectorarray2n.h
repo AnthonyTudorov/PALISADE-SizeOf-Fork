@@ -354,8 +354,6 @@ namespace lbcrypto {
 		*/
 		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
 
-
-
 	private:
 		// array of vectors used for double-CRT presentation
 		std::vector<ILVector2n> m_vectors;

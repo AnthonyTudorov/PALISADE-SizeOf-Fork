@@ -214,7 +214,8 @@ namespace lbcrypto {
 		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
-			tmp.m_vectors[i] = (tmp.GetValues(i)).Plus(element).Mod(m_params.GetModuli()[i]);
+			// tmp.m_vectors[i] = (tmp.GetValues(i)).Plus(element).Mod(m_params.GetModuli()[i]);
+			tmp.m_vectors[i] = m_vectors[i].Plus(element);
 		}
 		return tmp;
 	}
@@ -232,9 +233,11 @@ namespace lbcrypto {
 	ILVectorArray2n ILVectorArray2n::Plus(const ILVectorArray2n & element) const
 	{
 		ILVectorArray2n tmp(*this);
+		std::vector<ILVector2n> elementILVs = element.GetValues();
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
-			tmp.m_vectors[i] = ((tmp.GetValues(i)).Plus(element.GetValues(i))).Mod(m_params.GetModuli()[i]);
+			// tmp.m_vectors[i] = ((tmp.GetValues(i)).Plus(element.GetValues(i))).Mod(m_params.GetModuli()[i]);
+			tmp.m_vectors[i] += elementILVs[i];
 		}
 		return tmp;
 	}
@@ -245,6 +248,7 @@ namespace lbcrypto {
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i].SetValues(((m_vectors[i].GetValues()).ModMul(element.m_vectors[i].GetValues())), m_format);
+			
 		}
 		return tmp;
 	}
@@ -263,7 +267,7 @@ namespace lbcrypto {
 		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
-			tmp.m_vectors[i] = ((element*tmp.m_vectors[i]).Mod(m_params.GetModuli()[i]));
+			tmp.m_vectors[i] = (element*tmp.m_vectors[i]);
 		}
 		tmp.m_params= this->m_params;
 		return tmp;
