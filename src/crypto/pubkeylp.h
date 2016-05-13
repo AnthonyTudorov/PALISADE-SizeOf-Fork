@@ -334,7 +334,7 @@ namespace lbcrypto {
 		public:	
 
 			/**
-			 * Method for encrypting plaintex using LBC
+			 * Method for KeySwitchHintGen
 			 *
 			 * @param &originalPrivateKey Original private key used for encryption.
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
@@ -344,7 +344,7 @@ namespace lbcrypto {
 				const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const = 0;
 			
 			/**
-			 * Method for encrypting plaintex using LBC
+			 * Method for KeySwitch
 			 *
 			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
 			 * @param &cipherText Original ciphertext to perform switching on.
@@ -352,7 +352,7 @@ namespace lbcrypto {
 			virtual Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const = 0;
 
 			/**
-			 * Method for encrypting plaintex using LBC
+			 * Method for ModReduce
 			 *
 			 * @param &cipherText Ciphertext to perform mod reduce on.
 			 * @param &privateKey Private key used to encrypt the first argument.
@@ -360,7 +360,7 @@ namespace lbcrypto {
 			virtual void ModReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const = 0; 
 
 				/**
-			 * Method for encrypting plaintex using LBC
+			 * Method for RingReduce
 			 *
 			 * @param &cipherText Ciphertext to perform ring reduce on.
 			 * @param &privateKey Private key used to encrypt the first argument.

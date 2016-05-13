@@ -57,23 +57,6 @@ namespace lbcrypto {
 		* Constructor that initializes nothing.
 		*/
 		ILDCRTParams() {}
-
-		/**
-		* Constructor with all parameters provided.
-		*
-		* @param rootsOfUnity the roots of unity for the chain of moduli
-		* @param cyclotomic_order the order of the ciphertext
-		* @param &moduli is the tower of moduli
-		* @param &modulus is the multiplication of all moduli. This value is used for interpolation.
-		*/
-		ILDCRTParams(std::vector<BigBinaryInteger>& rootsOfUnity, usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli, BigBinaryInteger &modulus) {
-			m_cyclotomicOrder = cyclotomic_order;
-			m_moduli = moduli;
-			m_rootsOfUnity = rootsOfUnity;
-			m_modulus = modulus;
-			m_rootOfUnity = RootOfUnity(cyclotomic_order, modulus);
-		}
-
 		/**
 		* Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated. 
 		*
@@ -81,12 +64,11 @@ namespace lbcrypto {
 		* @param cyclotomic_order the order of the ciphertext
 		* @param &moduli is the tower of moduli
 		*/
-		ILDCRTParams(std::vector<BigBinaryInteger>& rootsOfUnity, usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli) {
+		ILDCRTParams(const std::vector<BigBinaryInteger>& rootsOfUnity, const usint cyclotomic_order, const std::vector<BigBinaryInteger> &moduli) {
 			m_cyclotomicOrder = cyclotomic_order;
 			m_moduli = moduli;
 			m_rootsOfUnity = rootsOfUnity;
 			calculateModulus();
-			m_rootOfUnity = RootOfUnity(cyclotomic_order, m_modulus);
 		}
 
 		/**
@@ -95,11 +77,10 @@ namespace lbcrypto {
 		* @param cyclotomic_order the order of the ciphertext
 		* @param &moduli is the tower of moduli
 		*/
-		ILDCRTParams(usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli) {
+		ILDCRTParams(const usint cyclotomic_order, const std::vector<BigBinaryInteger> &moduli) {
 			m_cyclotomicOrder = cyclotomic_order;
 			m_moduli = moduli;
 			calculateModulus();
-			m_rootOfUnity = RootOfUnity(cyclotomic_order, m_modulus);
 		}
 		
 		/**
@@ -113,10 +94,42 @@ namespace lbcrypto {
 			this->m_rootsOfUnity = rhs.m_rootsOfUnity;
 			this->m_cyclotomicOrder = usint(rhs.m_cyclotomicOrder);
 			this->m_modulus = rhs.m_modulus;
-			this->m_rootOfUnity = rhs.m_rootOfUnity;
 
 			return *this;
 		}
+		/**
+		* Equal operator compares this ILDCRTParams to the specified ILDCRTParams
+		*
+		* @param &rhs is the specified ILDCRTParams to be compared with this ILDCRTParams.
+		* @return true if this ILDCRTParams represents the same values as the specified ILDCRTParams, false otherwise
+		*/
+		inline bool operator==(ILDCRTParams const &rhs) {
+            if (m_modulus != rhs.GetModulus()) {
+                return false;
+            }
+            if (m_cyclotomicOrder != rhs.GetCyclotomicOrder()) {
+                return false;
+            }
+			 if (m_rootsOfUnity != rhs.GetRootsOfUnity()) {
+                return false;
+            }
+            if (m_moduli != rhs.GetModuli()) {
+                return false;
+            }
+
+            return true;
+        }
+
+		/**
+		* Not equal operator compares this ILDCRTParams to the specified ILDCRTParams
+		*
+		* @param &rhs is the specified ILDCRTParams to be compared with this ILDCRTParams.
+		* @return true if this ILDCRTParams represents the same values as the specified ILDCRTParams, false otherwise
+		*/
+       inline bool operator!=(ILDCRTParams const &rhs) {
+            return !(*this == rhs);
+        }
+
 
 		// ACCESSORS
 
@@ -154,14 +167,6 @@ namespace lbcrypto {
 			return m_modulus;
 		}
 		/**
-		* Get rootOfUnity of multipled value of chain of moduli. This value is calculated in the constructor.
-		*
-		* @return the rootOfUnity.
-		*/
-		const BigBinaryInteger &GetRootOfUnity() const {
-			return m_rootOfUnity;
-		}
-		/**
 		* Set method of the order.
 		*
 		* @param order the order variable.
@@ -196,16 +201,6 @@ namespace lbcrypto {
 		void SetModulus(const BigBinaryInteger &modulus) {
 			m_modulus = modulus;
 		}
-
-		/**
-		* Set the rootOfUnity.
-		*
-		* @param &rootOfUnity the rootOfUnity.
-		*/
-		void SetRootOfUnity(const BigBinaryInteger &rootOfUnity) {
-			m_rootOfUnity = rootOfUnity;
-		}
-
 
 		/**
 		* Destructor.
@@ -262,9 +257,7 @@ namespace lbcrypto {
 		//Modulus that is factorized into m_moduli
 		BigBinaryInteger m_modulus;
 
-		//rootOfUnity of Modulus
-		BigBinaryInteger m_rootOfUnity;
-
+		//This method 'pre-computes' the modulus based on the multiplication of moduli
 		void calculateModulus(){
 		
 			m_modulus = BigBinaryInteger::ONE;

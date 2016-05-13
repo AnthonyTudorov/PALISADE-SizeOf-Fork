@@ -69,7 +69,7 @@ namespace lbcrypto {
 		 * @param &modulus the ciphertext modulus.
 		 * @param &rootOfUnity the root of unity used in the ciphertext.
 		 */
-		ILParams(usint order, BigBinaryInteger & modulus, BigBinaryInteger & rootOfUnity) {
+		ILParams(const usint order, const BigBinaryInteger & modulus, const BigBinaryInteger & rootOfUnity) {
 			m_modulus = modulus;
 			m_order = order;
 			m_rootOfUnity = rootOfUnity;
@@ -81,7 +81,7 @@ namespace lbcrypto {
 		* @param &order the order of the ciphertext.
 		* @param &modulus the ciphertext modulus.
 		*/
-		ILParams(usint order, BigBinaryInteger &modulus) {
+		ILParams(const usint order, const BigBinaryInteger &modulus) {
 			m_modulus = modulus;
 			m_order = order;
 			m_rootOfUnity = RootOfUnity(order, modulus);
@@ -184,21 +184,33 @@ namespace lbcrypto {
 			m_modulus = modulus;
 		}
 
-        inline bool operator==(ILParams const& other) {
-            if (m_modulus != other.GetModulus()) {
+		/**
+		* Equal operator compares this ILParams to the specified ILParams
+		*
+		* @param &rhs is the specified ILParams to be compared with this ILParams.
+		* @return true if this ILParams represents the same values as the specified ILParams, false otherwise
+		*/
+        inline bool operator==(ILParams const &rhs) {
+            if (m_modulus != rhs.GetModulus()) {
                 return false;
             }
-            if (m_order != other.GetCyclotomicOrder()) {
+            if (m_order != rhs.GetCyclotomicOrder()) {
                 return false;
             }
-            if (m_rootOfUnity != other.GetRootOfUnity()) {
+            if (m_rootOfUnity != rhs.GetRootOfUnity()) {
                 return false;
             }
             return true;
         }
 
-        inline bool operator!=(ILParams const& other) {
-            return !(*this == other);
+		/**
+		* Not equal operator compares this ILParams to the specified ILParams
+		*
+		* @param &rhs is the specified ILParams to be compared with this ILParams.
+		* @return true if this ILParams represents the same values as the specified ILParams, false otherwise
+		*/
+        inline bool operator!=(ILParams const &rhs) {
+            return !(*this == rhs);
         }
 
 		//JSON FACILITY

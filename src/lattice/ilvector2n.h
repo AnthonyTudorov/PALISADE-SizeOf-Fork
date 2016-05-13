@@ -93,26 +93,17 @@ namespace lbcrypto {
         //    m_values->GetValAtIndex(index);
         //}
 
-        /**
-         *  Set to the constant polynomial 1.
-         */
-        inline void SetIdentity() {
-            *this = ILVector2n(*this);
-            this->SetValAtIndex(0, 1);
-            for (size_t i = 1; i < m_values->GetLength(); ++i) {
-                this->SetValAtIndex(i, 0);
-            }
-        }
+        ///**
+        // *  Set to the constant polynomial 1.
+        // */
+        //inline void SetIdentity() {
+        //    *this = ILVector2n(*this);
+        //    this->SetValAtIndex(0, 1);
+        //    for (size_t i = 1; i < m_values->GetLength(); ++i) {
+        //        this->SetValAtIndex(i, 0);
+        //    }
+        //}
 
-        inline ILVector2n& operator=(usint val) {
-            SetFormat(COEFFICIENT);
-            this->SetValAtIndex(0, val);
-            for (size_t i = 1; i < m_values->GetLength(); ++i) {
-                this->SetValAtIndex(i, 0);
-            }
-            SetFormat(EVALUATION);
-            return *this;
-        }
 /*
         BigBinaryInteger& Norm() {
             BigBinaryInteger& norm = 0;
@@ -141,7 +132,7 @@ namespace lbcrypto {
 		* Allocator for discrete uniform distribution.
 		*
 		* @param params ILParams instance that is is passed.
-		* @param format resultFormat for the polynomials generated.
+		* @param resultFormat resultFormat for the polynomials generated.
 		* @param stddev standard deviation for the dicrete gaussian generator.
 		* @return the resulting vector.
 		*/
@@ -200,26 +191,82 @@ namespace lbcrypto {
         */
         ILVector2n& operator=(ILVector2n &&rhs);
 
-        inline bool operator==(const lbcrypto::ILVector2n &b) const {
-            if (this->GetFormat() != b.GetFormat()) {
+		/**
+		* Assignment Operator. The usint val will be set at index zero and all other indices will be set to zero.
+        *
+        * @param val is the usint to assign to index zero.
+        * @return the resulting vector.
+        */
+		inline ILVector2n& operator=(usint val) {
+            SetFormat(COEFFICIENT);
+            this->SetValAtIndex(0, val);
+            for (size_t i = 1; i < m_values->GetLength(); ++i) {
+                this->SetValAtIndex(i, 0);
+            }
+            SetFormat(EVALUATION);
+            return *this;
+        }
+
+		/**
+		* Equal operator compares this ILVector2n to the specified ILVector2n
+		*
+		* @param &rhs is the specified ILVector2n to be compared with this ILVector2n.
+		* @return true if this ILVector2n represents the same values as the specified ILVectorArray2n, false otherwise
+		*/
+        inline bool operator==(const lbcrypto::ILVector2n &rhs) const {
+            if (this->GetFormat() != rhs.GetFormat()) {
                 return false;
             }
-            if (this->GetValues() != b.GetValues()) {
+            if (this->GetValues() != rhs.GetValues()) {
                 return false;
             }
             return true;
         }
-
-        inline bool operator!=(const lbcrypto::ILVector2n &b) const {
-            return !(*this == b);
+		/**
+		* Not equal operator compares this ILVector2n to the specified ILVectorArray2n
+		*
+		* @param &element is the specified ILVector2n to be compared with this ILVectorArray2n.
+		* @return true if this ILVector2n represents the same values as the specified ILVector2n, false otherwise
+		*/
+        inline bool operator!=(const lbcrypto::ILVector2n &element) const {
+            return !(*this == element);
         }
 
-        inline lbcrypto::ILVector2n& operator-=(const lbcrypto::ILVector2n &b) {
-            ILVector2n result = this->Minus(b);
+		/**
+		* Performs an subtracion operation and returns the result.
+		*
+		* @param &element is the element to add with.
+		* @return is the result of the addition.
+		*/
+        inline lbcrypto::ILVector2n& operator-=(const lbcrypto::ILVector2n &element) {
+            ILVector2n result = this->Minus(element);
             *this = result;
             return *this;
         }
 
+		/**
+		* Performs an subtracion operation and returns the result.
+		*
+		* @param &element is the element to add with.
+		* @return is the result of the addition.
+		*/
+		inline lbcrypto::ILVector2n& operator+=(const lbcrypto::BigBinaryInteger &element) {
+            ILVector2n result = this->Plus(element);
+            *this = result;
+            return *this;
+        }
+
+		/**
+		* Performs an subtracion operation and returns the result.
+		*
+		* @param &element is the element to add with.
+		* @return is the result of the addition.
+		*/
+		inline lbcrypto::ILVector2n& operator-=(const lbcrypto::BigBinaryInteger &element) {
+            ILVector2n result = this->Minus(element);
+            *this = result;
+            return *this;
+        }
 		/**
 		* Constructor based on full methods.
 		*

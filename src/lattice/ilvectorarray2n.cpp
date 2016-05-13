@@ -1,4 +1,4 @@
-// LAYER 2 : LATTICE DATA STRUCTURES AND OPERATIONS
+﻿// LAYER 2 : LATTICE DATA STRUCTURES AND OPERATIONS
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
 Version:
@@ -36,18 +36,27 @@ namespace lbcrypto {
 	{
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const ElemParams & params) : m_params(static_cast<const ILDCRTParams&>(params)), m_format(EVALUATION)
+	ILVectorArray2n::ILVectorArray2n(const ElemParams &params) : m_params(static_cast<const ILDCRTParams&>(params)), m_format(EVALUATION)
 	{
-		m_vectors.resize(m_params.GetModuli().size());
-		for (usint i = 0; i < m_vectors.size(); i++) {
+		usint sizeOfVector = m_params.GetModuli().size(); 
+		m_vectors.reserve(sizeOfVector); 
+
+		ILParams ilParams0;
+		ILVector2n ilvector2n;
+
+		for (usint i = 0; i < sizeOfVector; i++) { 
 			usint m = m_params.GetCyclotomicOrder();
 			BigBinaryInteger modulus(m_params.GetModuli()[i]);
 			BigBinaryInteger rootOfUnity(m_params.GetRootsOfUnity()[i]);
 
-			ILParams ilParams0(m, modulus, rootOfUnity);
-			m_vectors[i].SetParams(ilParams0);
+			ilParams0.SetCyclotomicOrder(m);
+			ilParams0.SetModulus(modulus);
+			ilParams0.SetRootOfUnity(rootOfUnity);
+					
+			ilvector2n.SetParams(ilParams0);
 			BigBinaryVector tmp(m_params.GetCyclotomicOrder() / 2, m_params.GetModuli()[i]);
-			m_vectors[i].SetValues(tmp, m_format);
+			ilvector2n.SetValues(tmp, m_format);
+			m_vectors.push_back(ilvector2n);
 
 		}
 	}
@@ -58,7 +67,7 @@ namespace lbcrypto {
 		this->m_vectors = element.m_vectors;
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const ElemParams& params, const std::vector<ILVector2n>& levels, Format format)
+	ILVectorArray2n::ILVectorArray2n(const ElemParams &params, const std::vector<ILVector2n> &levels, Format format)
 	{
 		const ILDCRTParams &castedParams = static_cast<const ILDCRTParams&>(params);
 
@@ -67,28 +76,32 @@ namespace lbcrypto {
 		m_format = format;
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const ILVector2n& element, const ElemParams & params, Format format)
+	ILVectorArray2n::ILVectorArray2n(const ILVector2n &element, const ElemParams &params, Format format)
 	{
 		const ILDCRTParams &castedParams = static_cast<const ILDCRTParams&>(params);
 
 		m_params = castedParams;
 		m_format = format;
-		m_vectors.resize(castedParams.GetModuli().size());
 
 		usint i = 0;
 
 		usint size = castedParams.GetModuli().size();
+		m_vectors.reserve(size);
 
-		ILVector2n temp();
+		ILParams ilParams;
+		ILVector2n ilvector2n(element);
+
+		usint cyclotomic_order = castedParams.GetCyclotomicOrder();
+
 		for (i = 0; i < size; i++) {
+			ilParams.SetCyclotomicOrder(cyclotomic_order);
+			ilParams.SetModulus(m_params.GetModuli()[i]);
+			ilParams.SetRootOfUnity(m_params.GetRootsOfUnity()[i]);
+	
+			ilvector2n.SetParams(ilParams);
+			ilvector2n.SetModulus(m_params.GetModuli()[i]);
 
-			BigBinaryInteger a(m_params.GetModuli()[i]);
-			BigBinaryInteger b(m_params.GetRootsOfUnity()[i]);
-
-			ILParams ilParams2(m_params.GetCyclotomicOrder(), a, b);
-			m_vectors[i] = element;
-			m_vectors[i].SetParams(ilParams2);
-			m_vectors[i].SetModulus(m_params.GetModuli()[i]);	
+			m_vectors.push_back(ilvector2n);	
 		}
 	}
 
@@ -101,10 +114,14 @@ namespace lbcrypto {
 
 		sint* dggValues = dgg.GenerateCharVector(m_params.GetCyclotomicOrder()/2);
 	
+
+		BigBinaryInteger modulus;
+		BigBinaryInteger rootOfUnity;
+		BigBinaryInteger temp;
+
 		for(usint i = 0; i < m_vectors.size();i++){
-			BigBinaryInteger modulus;
+			
 			modulus = m_params.GetModuli()[i];
-			BigBinaryInteger rootOfUnity;
 			rootOfUnity = m_params.GetRootsOfUnity()[i];
 
 			ILParams ilVectorDggValuesParams(m_params.GetCyclotomicOrder(), modulus, rootOfUnity);	
@@ -116,13 +133,13 @@ namespace lbcrypto {
 				if((int)dggValues[j] < 0){
 					int k = (int)dggValues[j];
 					k = k * (-1);
-					BigBinaryInteger temp(k);
+					temp = k;
 					temp = m_params.GetModuli()[i] - temp;
 					ilDggValues.SetValAtIndex(j,temp);
 				}
 				else{				
 					int k = (int)dggValues[j];
-					BigBinaryInteger temp(k);
+					temp = k;
 					ilDggValues.SetValAtIndex(j,temp);
 				}
 			}
@@ -209,17 +226,6 @@ namespace lbcrypto {
 		return tmp;
 	}
 
-	ILVectorArray2n ILVectorArray2n::Plus(const BigBinaryInteger & element) const
-	{
-		ILVectorArray2n tmp(*this);
-
-		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
-			// tmp.m_vectors[i] = (tmp.GetValues(i)).Plus(element).Mod(m_params.GetModuli()[i]);
-			tmp.m_vectors[i] = m_vectors[i].Plus(element);
-		}
-		return tmp;
-	}
-
 	ILVectorArray2n ILVectorArray2n::ModByTwo() const
 	{
 		ILVectorArray2n tmp(*this);
@@ -233,14 +239,42 @@ namespace lbcrypto {
 	ILVectorArray2n ILVectorArray2n::Plus(const ILVectorArray2n & element) const
 	{
 		ILVectorArray2n tmp(*this);
-		std::vector<ILVector2n> elementILVs = element.GetValues();
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
-			// tmp.m_vectors[i] = ((tmp.GetValues(i)).Plus(element.GetValues(i))).Mod(m_params.GetModuli()[i]);
-			tmp.m_vectors[i] += elementILVs[i];
+			// tmp.m_vectors[i] = (tmp.GetValues(i)).Plus(element).Mod(m_params.GetModuli()[i]);
+			tmp.m_vectors[i] += element.GetValues(i);
 		}
 		return tmp;
 	}
+
+	ILVectorArray2n ILVectorArray2n::Minus(const ILVectorArray2n &element) const {
+		ILVectorArray2n tmp(*this);
+
+		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
+			tmp.m_vectors[i] -= element.GetValues(i);
+		}
+		return tmp;
+	}
+
+	ILVectorArray2n ILVectorArray2n::Plus(const BigBinaryInteger &element) const
+	{
+		ILVectorArray2n tmp(*this);
+
+		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
+			tmp.m_vectors[i] += element;
+		}
+		return tmp;
+	}
+
+	ILVectorArray2n ILVectorArray2n::Minus(const BigBinaryInteger &element) const {
+		ILVectorArray2n tmp(*this);
+
+		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
+			tmp.m_vectors[i] -= element;
+		}
+		return tmp;
+	}
+
 
 	ILVectorArray2n ILVectorArray2n::Times(const ILVectorArray2n & element) const
 	{
@@ -253,14 +287,18 @@ namespace lbcrypto {
 		return tmp;
 	}
 
-	const ILVectorArray2n & ILVectorArray2n::operator+=(const ILVectorArray2n & element)
+	const ILVectorArray2n & ILVectorArray2n::operator+=(const ILVectorArray2n &rhs)
 	{
-		for (usint i = 0; i < m_vectors.size(); i++) {
-			m_vectors[i] +=  element.m_vectors[i];
-		}
-
-		return *this;
+		  ILVectorArray2n result = this->Plus(rhs);
+            *this = result;
+            return *this;
 	}
+
+	const ILVectorArray2n& ILVectorArray2n::operator-=(const lbcrypto::ILVectorArray2n &rhs) {
+            ILVectorArray2n result = this->Minus(rhs);
+            *this = result;
+            return *this;
+        }
 
 	ILVectorArray2n ILVectorArray2n::Times(const BigBinaryInteger & element) const
 	{
@@ -346,7 +384,6 @@ namespace lbcrypto {
 		BigBinaryVector coefficients(ringDimension,m_params.GetModulus());
 
 		for (usint i = 0; i < ringDimension; i++) {
-
 			coefficients.SetValAtIndex(i, CalculateInterpolationSum(i)); // This Calculates V[j]
 		}
 
@@ -354,9 +391,8 @@ namespace lbcrypto {
 		BigBinaryInteger modulus;
 		modulus = m_params.GetModulus();
 		BigBinaryInteger rootOfUnity;
-		rootOfUnity = m_params.GetRootOfUnity();
 
-		ILParams ilParams(m_params.GetCyclotomicOrder(), modulus, rootOfUnity);
+		ILParams ilParams(m_params.GetCyclotomicOrder(), modulus);
 
 		ILVector2n polynomialReconstructed(ilParams);
 		polynomialReconstructed.SetValues(coefficients,m_format);
@@ -406,6 +442,7 @@ namespace lbcrypto {
 		return results;
 	}
 
+	// This function modifies ILVectorArray2n to keep all the even indices in the tower. It reduces the ring dimension of the tower by half.
 	void ILVectorArray2n::Decompose() {
 		Format format(this->GetFormat());
 		
@@ -415,14 +452,16 @@ namespace lbcrypto {
 		}
 		
 		usint cyclotomicOrder = this->m_params.GetCyclotomicOrder();
-		std::vector<BigBinaryInteger> moduli = this->m_params.GetModuli();
-		moduli.reserve(this->GetLength());
-		std::vector<BigBinaryInteger> rootsOfUnity = this->m_params.GetRootsOfUnity(); 
+
+		// To keep consistent roots of unity between the towers and ILVectorArray2n, we keep track of the roots of unity. As seen below, Decompose of ILVector2n is called
+		// and decompose of ILVector2n creates new roots of unity, because the cyclotomic order of the ILVector2n changes. 
+		std::vector<BigBinaryInteger> rootsOfUnity; 
+		rootsOfUnity.reserve(m_vectors.size());
 
 		for(int i=0; i < m_vectors.size(); i++) {
-			ILParams ilvectorParams(cyclotomicOrder, moduli[i], rootsOfUnity[i]);
-			 m_vectors[i].Decompose();
-			 rootsOfUnity[i] = m_vectors[i].GetParams().GetRootOfUnity();
+			ILParams ilvectorParams(cyclotomicOrder, this->m_params.GetModuli().at(i), this->m_params.GetRootsOfUnity().at(i));
+			m_vectors[i].Decompose();
+			rootsOfUnity.push_back(m_vectors[i].GetParams().GetRootOfUnity());
 		}
 
 		m_params.SetRootsOfUnity(rootsOfUnity);
@@ -451,6 +490,20 @@ namespace lbcrypto {
 	
 	}
 
+
+/**
+	* This function performs ModReduce on ciphertext element and private key element. The algorithm can be found from this paper:
+	* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
+	* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+	* 
+	* Modulus reduction reduces a ciphertext from modulus q to a smaller modulus q/qi. The qi is generally the largest. In the code below,
+	* ModReduce is written for ILVectorArray2n and it drops the last tower while updating the necessary parameters. 
+	* The steps taken here are as follows:
+	* 1. compute a short d in R such that d = c mod q
+	* 2. compute a short delta in R such that delta = (vq′−1)·d mod (pq′). E.g., all of delta’s integer coefficients can be in the range [−pq′/2, pq′/2).
+	* 3. let d′ = c + delta mod q. By construction, d′ is divisible by q′.
+	* 4. output (d′/q′) in R(q/q′).
+	*/
 	void ILVectorArray2n::ModReduce() {
 		if(this->GetFormat() != Format::EVALUATION) {
 			throw std::logic_error("Mod Reduce function expects EVAL Formatted ILVectorArray2n. It was passed COEFF Formatted ILVectorArray2n.");
@@ -461,8 +514,8 @@ namespace lbcrypto {
 		usint lastTowerIndex = length - 1;
 		const std::vector<BigBinaryInteger> &moduli = m_params.GetModuli();
 
-		ILVector2n towerT(m_vectors[lastTowerIndex]);
-		ILVector2n d(towerT);
+		ILVector2n towerT(m_vectors[lastTowerIndex]); //last tower that will be dropped
+		ILVector2n d(towerT); 
 
 		//TODO: Get the Plain text modulus properly!
 		BigBinaryInteger p(BigBinaryInteger::TWO);
@@ -471,8 +524,9 @@ namespace lbcrypto {
 		BigBinaryInteger a((v * qt).ModSub(BigBinaryInteger::ONE, p*qt));
 		d.SwitchModulus(p*qt);
 
-		ILVector2n delta(d.Times(a));
+		ILVector2n delta(d.Times(a)); 
 
+		/*Since we are using only positive values for our Discrete gaussian generator, we need to call SwitchModulus which */
 		for(usint i=0; i<length; i++) {
 			ILVector2n temp(delta);
 			temp.SwitchModulus(moduli[i]);

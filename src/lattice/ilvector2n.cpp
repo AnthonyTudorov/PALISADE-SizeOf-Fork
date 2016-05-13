@@ -160,7 +160,6 @@ namespace lbcrypto {
 		*/
 	void ILVector2n::PrintValuesEndl() const {
 
-	//std::cout << "Printing values in ILVECTOR2N" << std::endl;
 		this->PrintValues();
 		std::cout << std::endl;
 
@@ -171,9 +170,8 @@ namespace lbcrypto {
 		*/
 	void ILVector2n::PrintValues() const {
 
-	//std::cout << "Printing values in ILVECTOR2N" << std::endl;
 		if (m_values != NULL) {
-			std::cout << *m_values;// << std::endl;
+			std::cout << *m_values;
 		}
 		std::cout << " mod:" << m_values->GetModulus();
 
@@ -248,6 +246,13 @@ namespace lbcrypto {
 	ILVector2n ILVector2n::Plus(const BigBinaryInteger &element) const {
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->ModAdd(element);
+		return tmp;
+	}
+
+	// subtraction operation - PREV1
+	ILVector2n ILVector2n::Minus(const BigBinaryInteger &element) const {
+		ILVector2n tmp(*this);
+		*tmp.m_values = m_values->ModSub(element);
 		return tmp;
 	}
 
@@ -421,7 +426,6 @@ namespace lbcrypto {
 			if ((i>5) && (i < 9)) {
 				auto end = std::chrono::steady_clock::now();
 				auto diff = end - start;
-				// std::cout << "NTT time: " << std::chrono::duration <double, std::milli>(diff).count() << " ms" << std::endl;
 			}
 
 			m_dggSamples.push_back(current);
@@ -431,15 +435,8 @@ namespace lbcrypto {
 
 	//Select a precomputed vector randomly
 	const ILVector2n ILVector2n::GetPrecomputedVector(const ILParams &params) {
-
-		//std::default_random_engine generator;
-		//std::uniform_real_distribution<int> distribution(0,SAMPLE_SIZE-1);
-		//int randomIndex = distribution(generator);
 		int randomIndex = rand() % SAMPLE_SIZE;
-		//std::cout << "random index: " << randomIndex << std::endl;
-		//std::cout << "random vector: " << m_dggSamples[randomIndex].GetValues() << std::endl;
 		return m_dggSamples[randomIndex];
-
 	}
 
 	void ILVector2n::AddILElementOne(){
@@ -467,20 +464,25 @@ namespace lbcrypto {
 	
 	}
 
-	// ILVector2n ILVector2n::Decompose(const std::vector<BBI> rootsofunity) const
+	// This function modifies ILVector2n to keep all the even indices. It reduces the ring dimension by half.
 	void ILVector2n::Decompose() {
-		Format format(this->GetFormat());
+		Format format( this->GetFormat() );
+		
 		if(format != Format::COEFFICIENT) {
 			std::string errMsg = "ILVector2n not in COEFFICIENT format to perform Decompose.";
 			throw std::runtime_error(errMsg);
 		}
-	
+		
+		//Generation of new crypto parameters
 		usint decomposedCyclotomicOrder = this->GetParams().GetCyclotomicOrder()/2;
 		BigBinaryInteger modulus(this->GetModulus());
 		BigBinaryInteger rootOfUnity(RootOfUnity(decomposedCyclotomicOrder, modulus));
+
+		//ILParams obtained from the newly generated cryptoparameters
 		ILParams decomposeParams(decomposedCyclotomicOrder, modulus, rootOfUnity);
 		this->SetParams(decomposeParams);
 
+		//Interleaving operation.
 		BigBinaryVector decomposeValues(this->GetLength()/2, this->GetModulus());
 		for(usint i = 0; i < this->GetLength();i=i+2){
 			decomposeValues.SetValAtIndex(i/2, this->GetValues().GetValAtIndex(i));
@@ -489,18 +491,6 @@ namespace lbcrypto {
 
 		this->SetValues(decomposeValues, this->GetFormat());
 	}
-
-	//void ILVector2n::SetToTestValue(){
-	//
-	//	m_values->SetValAtIndex(0,BigBinaryInteger::ONE);
-	//	for(usint i = 1; i < m_params.GetCyclotomicOrder()/2;i++){
-	//
-	//		m_values->SetValAtIndex(i,BigBinaryInteger::ZERO);
-
-	//	}
-	//
-	//}
-
 
 	// JSON FACILITY - SetIdFlag Operation
 	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ILVector2n::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {

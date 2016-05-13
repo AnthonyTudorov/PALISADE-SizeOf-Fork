@@ -114,14 +114,7 @@ namespace lbcrypto {
 		*/
 		~ILVectorArray2n();
 
-		/**
-		* Assignment Operator.
-		*
-		* @param &rhs the copied ILVectorArray2n.
-		* @return the resulting ILVectorArray2n.
-		*/
-		ILVectorArray2n& operator=(const ILVectorArray2n &rhs);
-
+	
 		// Get accessors
 		/**
 		* Get method of individual towers.
@@ -160,7 +153,6 @@ namespace lbcrypto {
 		*/
 		const std::vector<ILVector2n>& GetValues() const;
 
-
 		/**
 		* Get method of the parameter set.
 		*
@@ -174,7 +166,6 @@ namespace lbcrypto {
 		* @return the format.
 		*/
 		Format GetFormat() const;
-
 		
 		/**
 		* Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  Used in bit decomposition/relinearization operations.
@@ -202,15 +193,12 @@ namespace lbcrypto {
 		* Adds one to every entry in every tower.
 		*/
 		void AddILElementOne();
-
-
 		/**
 		* Make ILVectorArray2n Sparse for SHE KeyGen operations. Sets every index not equal to zero mod the wFactor to zero for every tower.
 		*
 		* @param &wFactor ratio between the original ILVectorArray2n's ring dimension and the new ring dimension.
 		*/
 		void MakeSparse(const BigBinaryInteger &wFactor);
-
 
 		// SCALAR OPERATIONS
 
@@ -231,12 +219,119 @@ namespace lbcrypto {
 		ILVectorArray2n Plus(const BigBinaryInteger &element) const;
 
 		/**
+		* Scalar subtraction - subtract an element to all entries.
+		*
+		* @param &element is the element to subtract entry-wise.
+		* @return is the return value of the minus operation.
+		*/
+		ILVectorArray2n Minus(const BigBinaryInteger &element) const;
+
+		/**
+		* Scalar multiplication - multiply all entries.
+		*
+		* @param &element is the element to multiply entry-wise.
+		* @return is the return value of the times operation.
+		*/
+
+		ILVectorArray2n Times(const BigBinaryInteger &element) const;
+
+		/**
+		* Modulus - perform a modulus operation.
+		*
+		* @param modulus is the modulus to use.
+		* @return is the return value of the modulus.
+		*/
+		ILVectorArray2n Mod(const BigBinaryInteger &modulus) const;
+
+		/**
 		* Perform a modulus by 2 operation.  Returns the least significant bit.
 		*
 		* @return is the return value of the modulus by 2, also the least significant bit.
 		*/
 		ILVectorArray2n ModByTwo() const;
 
+		/**
+		* Performs an addition operation and returns the result.
+		*
+		* @param &element is the element to add with.
+		* @return is the result of the addition.
+		*/
+		const ILVectorArray2n& operator+=(const BigBinaryInteger &element);
+
+		/**
+		* Performs an addition operation and returns the result.
+		*
+		* @param &element is the element to add with.
+		* @return is the result of the addition.
+		*/
+		const ILVectorArray2n& operator-=(const BigBinaryInteger &element);
+
+		//VECTOR OPERATIONS
+
+		/**
+		* Assignment Operator.
+		*
+		* @param &rhs the copied ILVectorArray2n.
+		* @return the resulting ILVectorArray2n.
+		*/
+		ILVectorArray2n& operator=(const ILVectorArray2n &rhs);
+
+		/**
+		* Equal operator compares this ILVectorArray2n to the specified ILVectorArray2n
+		*
+		* @param &rhs is the specified ILVectorArray2n to be compared with this ILVectorArray2n.
+		* @return true if this ILVectorArray2n represents the same values as the specified ILVectorArray2n, false otherwise
+		*/
+		inline bool operator==(const lbcrypto::ILVectorArray2n &rhs) const {
+            if (this->GetFormat() != rhs.GetFormat()) {
+                return false;
+            }
+            if (m_vectors != rhs.GetValues()) {
+                return false;
+            }
+
+		    const ILDCRTParams &castedObj = dynamic_cast<const ILDCRTParams&>(rhs.GetParams());
+
+			if(const_cast<ILDCRTParams&>(m_params) != castedObj) { //why is it seeing m_params as const???!!
+				return false;
+			}
+            return true;
+        }
+
+		/**
+		* Not equal operator compares this ILVectorArray2n to the specified ILVectorArray2n
+		*
+		* @param &rhs is the specified ILVectorArray2n to be compared with this ILVectorArray2n.
+		* @return true if this ILVectorArray2n represents the same values as the specified ILVectorArray2n, false otherwise
+		*/
+        inline bool operator!=(const lbcrypto::ILVectorArray2n &rhs) const {
+            return !(*this == rhs);
+        }
+		/**
+		* Performs an addition operation and returns the result.
+		*
+		* @param &element is the element to add with.
+		* @return is the result of the addition.
+		*/
+		const ILVectorArray2n& operator+=(const ILVectorArray2n &element);
+
+		/**
+		* Performs an addition operation and returns the result.
+		*
+		* @param &element is the element to add with.
+		* @return is the result of the addition.
+		*/
+		const ILVectorArray2n& operator-=(const ILVectorArray2n &element);
+
+		// automorphism operation
+		/**
+		* Performs an automorphism transform operation and returns the result.
+		*
+		* @param &i is the element to perform the automorphism transform with.
+		* @return is the result of the automorphism transform.
+		*/
+		ILVectorArray2n AutomorphismTransform(const usint &i) const {return ILVectorArray2n(*this);};
+		//addition operation
 		/**
 		* Performs an addition operation and returns the result.
 		*
@@ -253,57 +348,29 @@ namespace lbcrypto {
 		* @return is the result of the multiplication.
 		*/
 		ILVectorArray2n Times(const ILVectorArray2n &element) const;
-
+		// subtraction operation
 		/**
-		* Performs an addition operation and returns the result.
+		* Performs a subtraction operation and returns the result.
 		*
-		* @param &element is the element to add with.
-		* @return is the result of the addition.
+		* @param &element is the element to subtract with.
+		* @return is the result of the subtraction.
 		*/
-		const ILVectorArray2n& operator+=(const ILVectorArray2n &element);
+		ILVectorArray2n Minus(const ILVectorArray2n &element) const;
 
-		// automorphism operation
+		// OTHER FUNCTIONS AND UTILITIES 
 		/**
-		* Performs an automorphism transform operation and returns the result.
-		*
-		* @param &i is the element to perform the automorphism transform with.
-		* @return is the result of the automorphism transform.
-		*/
-		ILVectorArray2n AutomorphismTransform(const usint &i) const {return ILVectorArray2n(*this);};
-
-
-		/**
-		* Scalar multiplication - multiply all entries.
-		*
-		* @param &element is the element to multiply entry-wise.
-		* @return is the return value of the times operation.
-		*/
-		ILVectorArray2n Times(const BigBinaryInteger &element) const;
-
-		/**
-		* Modulus - perform a modulus operation.
-		*
-		* @param modulus is the modulus to use.
-		* @return is the return value of the modulus.
-		*/
-		ILVectorArray2n Mod(const BigBinaryInteger & modulus) const;
-
-		/**
-		* Interleaves values in the in each tower with odd indices being all zeros.
+		* Interleaves values in each tower with odd indices being all zeros.
 		*/
 		void Decompose();
-
 		/**
 		* @param index is the index of the tower to be dropped.
 		* Drops the last tower of ILVectorArray2n and adjusts parameters.
 		*/
 		void DropTower(usint index);
-
 		/**
 		* ModReduces reduces the ILVectorArray2n's composite modulus by dropping the last modulus from the chain of moduli.
 		*/
 		void ModReduce();
-
 		/**
 		* Interpolates the ILVectorArray2n to an ILVector2n based on the Chinese Remainder Transform Interpolation.
 		*
