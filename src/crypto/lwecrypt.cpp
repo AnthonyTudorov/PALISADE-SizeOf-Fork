@@ -232,56 +232,71 @@ void LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Element> *cipherTex
 	
 }
 
+/**
+	* This function performs ModReduce on ciphertext element and private key element. The algorithm can be found from this paper:
+	* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
+	* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+	* 
+	* Modulus reduction reduces a ciphertext from modulus q to a smaller modulus q/qi. The qi is generally the largest. In the code below,
+	* ModReduce is written for ILVectorArray2n and it drops the last tower while updating the necessary parameters. 
+	*/
 template<> inline
 void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(Ciphertext<ILVectorArray2n> *cipherText, LPPrivateKey<ILVectorArray2n> *privateKey) const {
 
-	ILVectorArray2n cipherTextElement(cipherText->GetElement());
+	ILVectorArray2n cipherTextElement(cipherText->GetElement()); 
 
-	cipherTextElement.ModReduce();
+	cipherTextElement.ModReduce(); // this is being done at the lattice layer. The ciphertext is mod reduced.
 
 	cipherText->SetElement(cipherTextElement);
 	
 	ILVectorArray2n pvElement = privateKey->GetPrivateElement();
 	
-	pvElement.DropTower(pvElement.GetLength() - 1);
+	pvElement.DropTower(pvElement.GetLength() - 1); // The only change needed for the private key, is to drop the last tower.
 
-	privateKey->SetPrivateElement(pvElement);
+	privateKey->SetPrivateElement(pvElement); 
 
 }
 
 	/**
-	* Method for encrypting plaintex using LBC
-	*
-	* @param &cipherText Ciphertext to perform ring reduce on.
-	* @param &privateKey Private key used to encrypt the first argument.
+	* This function performs RingReduce on ciphertext element and private key element. The algorithm can be found from this paper:
+	* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
+	* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+	* The paper quoted above has an algorithm for generic RingReduce, the code here only reduces the ring by a factor of 2. By the ring, we mean the ring dimension.
+	* @Input params are cipherText and privateKey, output cipherText element is ring reduced by a factor of 2
+	* 
 	*/
 template<class Element>
 void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const {
 		
+		//lpCryptoParams created to access cryptoParameters
 		LPCryptoParametersLTV<Element> &lpCryptoParams = dynamic_cast<LPCryptoParametersLTV<Element>&>(privateKey->AccessCryptoParameters());
 
 		LPPublicKeyLTV<Element> pk(lpCryptoParams);
 
 		LPPrivateKeyLTV<Element> sparsePrivateKey(lpCryptoParams);
-		//change sparsekeygen to not have pk
+		//TODO change sparsekeygen to not have pub k
 
+		//Getting a reference to the LTV scheme, so we can generate a sparsekey. 
 		const LPAlgorithmLTV<Element> *m_algorithmEncryption2 = dynamic_cast<const LPAlgorithmLTV<Element> *> (this->GetScheme().m_algorithmEncryption);
 		m_algorithmEncryption2->SparseKeyGen(pk, sparsePrivateKey, lpCryptoParams.GetDiscreteGaussianGenerator());
 
 		LPKeySwitchHintLTV<Element> keySwitchHint;
-
+		// We need this keyswtich hint which is a hint to convert ciphertext from the original key to the sparsekey. 
 		KeySwitchHintGen(*privateKey, sparsePrivateKey, &keySwitchHint);
-
+		// Place holder for Key switched ciphertext. The element of the ciphertext is the Keyswtiched version of the ciphertext based on the KeySwitchHint of original private key to sparse private key.
 		Ciphertext<Element> *keySwitchedCipherText = new Ciphertext<Element>( this->KeySwitch( keySwitchHint, *cipherText) );
 
+		//Once the keyswitching of the ciphertext has been done, based on the algorithm in the referenced paper, the ciphertext needs to be decomposed.
+
 		Element *keySwitchedCipherTextElement =  &const_cast<Element&>( keySwitchedCipherText->GetElement() ) ;
-		//changing from EVALUATION to COEFFICIENT domain before performing Decompose operation.
+		//changing from EVALUATION to COEFFICIENT domain before performing Decompose operation. Decompose is done in coeffiecient domain.
 		(*keySwitchedCipherTextElement).SwitchFormat();
 
 		Element sparsePrivateKeyElement = sparsePrivateKey.GetPrivateElement(); //EVALUATION
 
 		sparsePrivateKeyElement.SwitchFormat(); //COEFF
-
+		/*Based on the algorithm their needs to be a decompose done on the ciphertext. The W factor in this function is 2. The decompose is done
+		on the elements of */
 		(*keySwitchedCipherTextElement).Decompose();
 		sparsePrivateKeyElement.Decompose();
 
@@ -318,10 +333,8 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
 	Element m(elementParams);
-//	Element m(4,dgg,elementParams, Format::COEFFICIENT);
 
 	plaintext.Encode(p,&m);
-//	m.PrintValues();
 	m.SwitchFormat();
 	
 	const Element &h = publicKey.GetPublicElement();
@@ -365,8 +378,6 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 	b.SwitchFormat();
 
 	b = b.Mod(p);
-
-//	b.PrintValues();
 
 	plaintext->Decode(p,b);
 	

@@ -1,4 +1,4 @@
-// LAYER 2 : LATTICE DATA STRUCTURES AND OPERATIONS
+﻿// LAYER 2 : LATTICE DATA STRUCTURES AND OPERATIONS
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
 Version:
@@ -49,12 +49,10 @@ namespace lbcrypto {
 			BigBinaryInteger modulus(m_params.GetModuli()[i]);
 			BigBinaryInteger rootOfUnity(m_params.GetRootsOfUnity()[i]);
 
-		/*	ilParams0.SetCyclotomicOrder(m);
+			ilParams0.SetCyclotomicOrder(m);
 			ilParams0.SetModulus(modulus);
 			ilParams0.SetRootOfUnity(rootOfUnity);
-		*/
-		//	ILParams ilParams0(m, modulus, rootOfUnity);
-			
+					
 			ilvector2n.SetParams(ilParams0);
 			BigBinaryVector tmp(m_params.GetCyclotomicOrder() / 2, m_params.GetModuli()[i]);
 			ilvector2n.SetValues(tmp, m_format);
@@ -453,13 +451,10 @@ namespace lbcrypto {
 		
 		usint cyclotomicOrder = this->m_params.GetCyclotomicOrder();
 
-		
-	
 		// To keep consistent roots of unity between the towers and ILVectorArray2n, we keep track of the roots of unity. As seen below, Decompose of ILVector2n is called
 		// and decompose of ILVector2n creates new roots of unity, because the cyclotomic order of the ILVector2n changes. 
 		std::vector<BigBinaryInteger> rootsOfUnity; 
 		rootsOfUnity.reserve(m_vectors.size());
-	//	rootsOfUnity = this->m_params.GetRootsOfUnity();
 
 		for(int i=0; i < m_vectors.size(); i++) {
 			ILParams ilvectorParams(cyclotomicOrder, this->m_params.GetModuli().at(i), this->m_params.GetRootsOfUnity().at(i));
@@ -493,6 +488,20 @@ namespace lbcrypto {
 	
 	}
 
+
+/**
+	* This function performs ModReduce on ciphertext element and private key element. The algorithm can be found from this paper:
+	* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
+	* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+	* 
+	* Modulus reduction reduces a ciphertext from modulus q to a smaller modulus q/qi. The qi is generally the largest. In the code below,
+	* ModReduce is written for ILVectorArray2n and it drops the last tower while updating the necessary parameters. 
+	* The steps taken here are as follows:
+	* 1. compute a short d in R such that d = c mod q
+	* 2. compute a short delta in R such that delta = (vq′−1)·d mod (pq′). E.g., all of delta’s integer coefficients can be in the range [−pq′/2, pq′/2).
+	* 3. let d′ = c + delta mod q. By construction, d′ is divisible by q′.
+	* 4. output (d′/q′) in R(q/q′).
+	*/
 	void ILVectorArray2n::ModReduce() {
 		if(this->GetFormat() != Format::EVALUATION) {
 			throw std::logic_error("Mod Reduce function expects EVAL Formatted ILVectorArray2n. It was passed COEFF Formatted ILVectorArray2n.");
@@ -503,8 +512,8 @@ namespace lbcrypto {
 		usint lastTowerIndex = length - 1;
 		const std::vector<BigBinaryInteger> &moduli = m_params.GetModuli();
 
-		ILVector2n towerT(m_vectors[lastTowerIndex]);
-		ILVector2n d(towerT);
+		ILVector2n towerT(m_vectors[lastTowerIndex]); //last tower that will be dropped
+		ILVector2n d(towerT); 
 
 		//TODO: Get the Plain text modulus properly!
 		BigBinaryInteger p(BigBinaryInteger::TWO);
@@ -513,8 +522,9 @@ namespace lbcrypto {
 		BigBinaryInteger a((v * qt).ModSub(BigBinaryInteger::ONE, p*qt));
 		d.SwitchModulus(p*qt);
 
-		ILVector2n delta(d.Times(a));
+		ILVector2n delta(d.Times(a)); 
 
+		/*Since we are using only positive values for our Discrete gaussian generator, we need to call SwitchModulus which */
 		for(usint i=0; i<length; i++) {
 			ILVector2n temp(delta);
 			temp.SwitchModulus(moduli[i]);
