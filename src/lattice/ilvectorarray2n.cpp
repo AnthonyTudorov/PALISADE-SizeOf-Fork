@@ -36,18 +36,29 @@ namespace lbcrypto {
 	{
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const ElemParams & params) : m_params(static_cast<const ILDCRTParams&>(params)), m_format(EVALUATION)
+	ILVectorArray2n::ILVectorArray2n(const ElemParams &params) : m_params(static_cast<const ILDCRTParams&>(params)), m_format(EVALUATION)
 	{
-		m_vectors.resize(m_params.GetModuli().size());
-		for (usint i = 0; i < m_vectors.size(); i++) {
+		usint sizeOfVector = m_params.GetModuli().size(); 
+		m_vectors.reserve(sizeOfVector); 
+
+		ILParams ilParams0;
+		ILVector2n ilvector2n;
+
+		for (usint i = 0; i < sizeOfVector; i++) { 
 			usint m = m_params.GetCyclotomicOrder();
 			BigBinaryInteger modulus(m_params.GetModuli()[i]);
 			BigBinaryInteger rootOfUnity(m_params.GetRootsOfUnity()[i]);
 
-			ILParams ilParams0(m, modulus, rootOfUnity);
-			m_vectors[i].SetParams(ilParams0);
+		/*	ilParams0.SetCyclotomicOrder(m);
+			ilParams0.SetModulus(modulus);
+			ilParams0.SetRootOfUnity(rootOfUnity);
+		*/
+		//	ILParams ilParams0(m, modulus, rootOfUnity);
+			
+			ilvector2n.SetParams(ilParams0);
 			BigBinaryVector tmp(m_params.GetCyclotomicOrder() / 2, m_params.GetModuli()[i]);
-			m_vectors[i].SetValues(tmp, m_format);
+			ilvector2n.SetValues(tmp, m_format);
+			m_vectors.push_back(ilvector2n);
 
 		}
 	}
@@ -58,7 +69,7 @@ namespace lbcrypto {
 		this->m_vectors = element.m_vectors;
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const ElemParams& params, const std::vector<ILVector2n>& levels, Format format)
+	ILVectorArray2n::ILVectorArray2n(const ElemParams &params, const std::vector<ILVector2n> &levels, Format format)
 	{
 		const ILDCRTParams &castedParams = static_cast<const ILDCRTParams&>(params);
 
@@ -67,31 +78,32 @@ namespace lbcrypto {
 		m_format = format;
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const ILVector2n& element, const ElemParams & params, Format format)
+	ILVectorArray2n::ILVectorArray2n(const ILVector2n &element, const ElemParams &params, Format format)
 	{
 		const ILDCRTParams &castedParams = static_cast<const ILDCRTParams&>(params);
 
 		m_params = castedParams;
 		m_format = format;
-		m_vectors.resize(castedParams.GetModuli().size());
 
 		usint i = 0;
 
 		usint size = castedParams.GetModuli().size();
-		ILVector2n temp();
+		m_vectors.reserve(size);
 
-		BigBinaryInteger a;
-		BigBinaryInteger b;
+		ILParams ilParams;
+		ILVector2n ilvector2n(element);
+
+		usint cyclotomic_order = castedParams.GetCyclotomicOrder();
 
 		for (i = 0; i < size; i++) {
+			ilParams.SetCyclotomicOrder(cyclotomic_order);
+			ilParams.SetModulus(m_params.GetModuli()[i]);
+			ilParams.SetRootOfUnity(m_params.GetRootsOfUnity()[i]);
+	
+			ilvector2n.SetParams(ilParams);
+			ilvector2n.SetModulus(m_params.GetModuli()[i]);
 
-			 a = m_params.GetModuli()[i];
-			 b = m_params.GetRootsOfUnity()[i];
-
-			ILParams ilParams2(m_params.GetCyclotomicOrder(), a, b);
-			m_vectors[i] = element;
-			m_vectors[i].SetParams(ilParams2);
-			m_vectors[i].SetModulus(m_params.GetModuli()[i]);	
+			m_vectors.push_back(ilvector2n);	
 		}
 	}
 
@@ -372,7 +384,6 @@ namespace lbcrypto {
 		BigBinaryVector coefficients(ringDimension,m_params.GetModulus());
 
 		for (usint i = 0; i < ringDimension; i++) {
-
 			coefficients.SetValAtIndex(i, CalculateInterpolationSum(i)); // This Calculates V[j]
 		}
 
@@ -431,6 +442,7 @@ namespace lbcrypto {
 		return results;
 	}
 
+	// This function modifies ILVectorArray2n to keep all the even indices in the tower. It reduces the ring dimension of the tower by half.
 	void ILVectorArray2n::Decompose() {
 		Format format(this->GetFormat());
 		
@@ -440,14 +452,19 @@ namespace lbcrypto {
 		}
 		
 		usint cyclotomicOrder = this->m_params.GetCyclotomicOrder();
-		std::vector<BigBinaryInteger> moduli = this->m_params.GetModuli();
-		moduli.reserve(this->GetLength());
-		std::vector<BigBinaryInteger> rootsOfUnity = this->m_params.GetRootsOfUnity(); 
+
+		
+	
+		// To keep consistent roots of unity between the towers and ILVectorArray2n, we keep track of the roots of unity. As seen below, Decompose of ILVector2n is called
+		// and decompose of ILVector2n creates new roots of unity, because the cyclotomic order of the ILVector2n changes. 
+		std::vector<BigBinaryInteger> rootsOfUnity; 
+		rootsOfUnity.reserve(m_vectors.size());
+	//	rootsOfUnity = this->m_params.GetRootsOfUnity();
 
 		for(int i=0; i < m_vectors.size(); i++) {
-			ILParams ilvectorParams(cyclotomicOrder, moduli[i], rootsOfUnity[i]);
-			 m_vectors[i].Decompose();
-			 rootsOfUnity[i] = m_vectors[i].GetParams().GetRootOfUnity();
+			ILParams ilvectorParams(cyclotomicOrder, this->m_params.GetModuli().at(i), this->m_params.GetRootsOfUnity().at(i));
+			m_vectors[i].Decompose();
+			rootsOfUnity.push_back(m_vectors[i].GetParams().GetRootOfUnity());
 		}
 
 		m_params.SetRootsOfUnity(rootsOfUnity);

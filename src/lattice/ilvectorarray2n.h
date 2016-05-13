@@ -193,15 +193,12 @@ namespace lbcrypto {
 		* Adds one to every entry in every tower.
 		*/
 		void AddILElementOne();
-
-
 		/**
 		* Make ILVectorArray2n Sparse for SHE KeyGen operations. Sets every index not equal to zero mod the wFactor to zero for every tower.
 		*
 		* @param &wFactor ratio between the original ILVectorArray2n's ring dimension and the new ring dimension.
 		*/
 		void MakeSparse(const BigBinaryInteger &wFactor);
-
 
 		// SCALAR OPERATIONS
 
@@ -307,8 +304,8 @@ namespace lbcrypto {
 		* @param &rhs is the specified ILVectorArray2n to be compared with this ILVectorArray2n.
 		* @return true if this ILVectorArray2n represents the same values as the specified ILVectorArray2n, false otherwise
 		*/
-        inline bool operator!=(const lbcrypto::ILVectorArray2n &b) const {
-            return !(*this == b);
+        inline bool operator!=(const lbcrypto::ILVectorArray2n &rhs) const {
+            return !(*this == rhs);
         }
 		/**
 		* Performs an addition operation and returns the result.
@@ -362,7 +359,7 @@ namespace lbcrypto {
 
 		// OTHER FUNCTIONS AND UTILITIES 
 		/**
-		* Interleaves values in the in each tower with odd indices being all zeros.
+		* Interleaves values in each tower with odd indices being all zeros.
 		*/
 		void Decompose();
 		/**
