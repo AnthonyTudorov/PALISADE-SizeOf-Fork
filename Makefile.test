@@ -93,20 +93,26 @@ GTEST_HEADERS =	test/include/gtest/gtest.h
 
 # this builds objects from sources in the test library source directory
 $(TEST_BUILD_DIR)/%.o: $(TEST_LIB_SRCDIR)/%.$(TEST_LIB_SRCEXT)
+	@echo " -- test:compiling $@"
 	@mkdir -p $(@D)
-	@echo "$(CC) $(CPPFLAGS) $(INC) $(TEST_LIB) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) $(TEST_LIB) -c -o $@ $<
-	@echo "ar -rv $(TEST_BUILD_DIR)/libgtest.a $@"; ar -rv $(TEST_BUILD_DIR)/libgtest.a $@
+	$(CC) $(CPPFLAGS) $(INC) $(TEST_LIB) -c -o $@ $<
+	@echo " -- test:archiving $@"
+	ar -rv $(TEST_BUILD_DIR)/libgtest.a $@
+	@echo 
 
 # this builds objects from sources in the test source directory
 $(TEST_BUILD_DIR)/%.o: $(TEST_SRC_DIR)/%.$(SRCEXT)
+	@echo " -- test:compiling $@"
 	@mkdir -p $(@D)
-	@echo " $(CC) $(CPPFLAGS) $(INC) $(TEST_LIB) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) $(TEST_LIB) -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(INC) $(TEST_LIB) -c -o $@ $<
+	@echo 
 
 # this links test executable  from objects in the test build directory
 $(TEST_TARGET): $(TEST_OBJECTS) $(TEST_LIB_OBJECTS) $(LIB_OBJECTS)
-	@echo 'Linking $(TEST_TARGET) ...'
+	@echo " -- test:linking $(TEST_TARGET)"
 	@mkdir -p $(TEST_TARGETDIR)
-	@echo " $(CC) $^ $(TEST_LIB) $(TEST_BUILD_DIR)/libgtest.a -o $(TEST_TARGET)"; $(CC) $^ $(TEST_LIB) $(TEST_BUILD_DIR)/libgtest.a -o $(TEST_TARGET)
+	$(CC) $^ $(TEST_LIB) $(TEST_BUILD_DIR)/libgtest.a -o $(TEST_TARGET)
+	@echo 
 
 #used to run tests from make, almost never used
 .PHONY: runtests
@@ -138,5 +144,4 @@ docteststrings:
 .PHONEY: cleantests
 cleantests:
 	@echo " Cleaning test...";
-	@echo " $(RM) -r $(TEST_BUILD_DIR) $(TEST_TARGETDIR)"; $(RM) -r $(TEST_BUILD_DIR) $(TEST_TARGETDIR)
-
+	$(RM) -rf $(TEST_BUILD_DIR) $(TEST_TARGETDIR)

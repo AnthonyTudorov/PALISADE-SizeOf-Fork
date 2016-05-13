@@ -29,11 +29,14 @@ INDEXFILE := doc/apidocs/html/index.html
 apidocs: $(INDEXFILE)
 
 $(INDEXFILE):
+	@echo "making docs"
+	@echo "warnings can be found in apidoc_warning_logfile.txt"
 	doxygen lbcrypto-doxy-config
+	@echo 
 
 .PHONEY: cleandocs
 cleandocs:
-	@echo " Cleaning docs...";
+	@echo " Cleaning docs..."
 	rm -rf doc/apidocs
 
 

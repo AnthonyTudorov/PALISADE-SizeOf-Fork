@@ -23,7 +23,7 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
-
+#TODO: currently this makefile will not build a demo executable if the .cpp is touched. 
 
 # this assembles a list of the palisade demo sources 
 # (using DEMODIR and SRCEXT
@@ -34,6 +34,8 @@ DEMOSOURCES := $(shell find $(DEMODIR) -name '*.$(SRCEXT)')
 
 # this defines the object resulting from each demo source file
 DEMOOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(DEMOSOURCES)))
+
+DEMOBUILDDIRS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(DEMOSOURCES)))
 
 #this defines the binary result for each demo source
 DEMOBIN := $(patsubst $(SRCDIR)/%,$(BINDIR)/%,$(patsubst %.cpp,%,$(DEMOSOURCES)))
@@ -48,22 +50,26 @@ alldemos: make_demos
 .PHONY:make_demos
 make_demos: $(DEMOBIN)
 
+#this updates the binaries when the objects or libraries ar touched
+#TODO this relinks all demos when any one is touched.
+$(DEMOBIN): $(DEMOOBJECTS) $(EXTLIBDIR)/lib$(SOLIB).so
 
 # this will build demos out of the demo.o and the palisade shared object library
 #.PRECIOUS: $(BINDIR)/demo/%
 $(BINDIR)/demo/%: $(EXTLIBDIR)/lib$(SOLIB).so $(BUILDDIR)/demo/%.o 
 #$(LIBDIR)lib$(SOLIB)
-	@echo $@
-	@echo " mkdir -p $(@D) "; mkdir -p $(@D)
-	@echo " $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@)) -l$(SOLIB) $(EXTLIB) -L$(EXTLIBDIR) "; $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@))  -l$(SOLIB) $(EXTLIB) -L$(EXTLIBDIR)
+	@echo " -- demo:linking $@"
+	mkdir -p $(@D)
+	 $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@))  -l$(SOLIB) $(EXTLIB) -L$(EXTLIBDIR)
+	@echo
 
 #this will build the .o for each demo
 .PRECIOUS: $(BUILDDIR)/demo/%
 $(BUILDDIR)/demo/%:
 	@echo " -- demo:compiling $@"
-	@echo " mkdir -p $(@D) "; mkdir -p $(@D)
-	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@)) "; $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))
-	@echo " ------------------- "
+	mkdir -p $(@D)
+	$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))
+	@echo
 
 # this target lets us see what all the strings are define as, 
 # as an aid to debugging Makefile.demos 
@@ -75,6 +81,8 @@ docdemostrings:
 	@echo 'DEMOSOURCES $(DEMOSOURCES)' 
 	@echo 'DEMOOBJECTS $(DEMOOBJECTS)' 
 	@echo 'DEMOBIN $(DEMOBIN)'
+
+	@echo 'BUILDDIR $(BUILDDIR)' 
 	@echo 'SOLIB $(SOLIB)' 
 	@echo 'EXTLIB $(EXTLIB)' 
 	@echo 'EXTLIBDIR $(EXTLIBDIR)' 
@@ -82,5 +90,5 @@ docdemostrings:
 .PHONEY: cleandemos
 cleandemos:
 	@echo " Cleaning demos...";
-	@echo " $(RM) -r $(DEMOBIN) $(DEMOOBJECTS)"; $(RM) -r $(DEMOBIN) $(DEMOOBJECTS)
-
+	$(RM) -r $(DEMOBIN) $(DEMOOBJECTS)
+	$(RM) -rf $(BUILDIR)/demo

@@ -52,22 +52,22 @@ alltargets: $(EXTLIBDIR)/lib$(SOLIB).so
 #	@echo $(LIBOBJECTS)
 #	@echo "alltargets"
 
-
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/lib$(SOLIB).so: $(LIBOBJECTS)
-	@echo " ++ targets:linking $@ from LIBOBJECTS"
+	@echo " -- targets:linking $@ from LIBOBJECTS"
 #	@echo $(LIBOBJECTS)
-	@echo " mkdir -p $(EXTLIBDIR) "; mkdir -p $(EXTLIBDIR)
+	mkdir -p $(EXTLIBDIR)
 #	@echo " $(CC) -fPIC -shared -Wl,--export-dynamic  $^ $(BUILDDIR)/$@.o -L/usr/lib/x86_64-linux-gnu -lpython2.7 -lboost_python-py27 -o lib/pycrypto.so"; $(CC) -fPIC -shared -Wl,--export-dynamic  $^ $(BUILDDIR)/$@.o
-	@echo " $(CC) -fPIC -shared -Wl,--export-dynamic -o $@ $(LIBOBJECTS) $(LIB)"; $(CC) -fPIC -shared -Wl,--export-dynamic -o $@ $(LIBOBJECTS) $(LIB)
+	$(CC) -fPIC -shared -Wl,--export-dynamic -o $@ $(LIBOBJECTS) $(LIB)
+	@echo
 
 #this builds the individual objects that make up the library .
 .PRECIOUS: $(BUILDDIR)/lib/%
 $(BUILDDIR)/lib/%:
 	@echo " -- targets:compiling $@"
-	@echo " mkdir -p $(@D) "; mkdir -p $(@D)
-	@echo " $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@)) "; $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))
-
+	mkdir -p $(@D)
+	$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))
+	@echo
 
 #################
 # this target lets us see what all the strings are defined as, as an
@@ -78,9 +78,13 @@ doctargetstrings:
 	@echo 'the following make strings are defined in Makefile.target'
 	@echo 'SOLIB $(SOLIB)'
 	@echo 'LIBOBJECTS $(LIBOBJECTS)'
+	@echo 'EXTLIBDIR $(EXTLIBDIR)'
 
 #this target is used to cleanup, it is called from the top Makefile
 .PHONEY: cleantargets
 cleantargets:
 	@echo " Cleaning targets...";
-	@echo " $(RM) -r $(LIBOBJECTS) $(EXTLIBDIR)lib$(SOLIB).so"; $(RM) -r $(LIBOBJECTS) $(EXTLIBDIR)lib$(SOLIB).so
+	$(RM) -r $(LIBOBJECTS) $(EXTLIBDIR)lib$(SOLIB).so
+	$(RM) -rf $(EXTLIBDIR)
+	$(RM) -rf $(BUILDDIR)/lib
+

@@ -1,0 +1,12 @@
+export OMP_NUM_THREADS=1
+echo 1 thread
+bin/obfuscate/ObfuscateSourceDbc 1 3 >& timing_4_21_16_1thread
+export OMP_NUM_THREADS=2
+echo 2 thread
+bin/obfuscate/ObfuscateSourceDbc 1 3 >& timing_4_21_16_2thread
+export OMP_NUM_THREADS=4
+echo 4 thread
+bin/obfuscate/ObfuscateSourceDbc  1 3 >& timing_4_21_16_4thread
+export OMP_NUM_THREADS=8
+echo 8 thread
+bin/obfuscate/ObfuscateSourceDbc  1 3 >& timing_4_21_16_8thread
