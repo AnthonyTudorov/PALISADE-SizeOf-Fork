@@ -35,7 +35,7 @@ namespace lbcrypto {
 		m_encryptionAlgorithm = ciphertext.m_encryptionAlgorithm;
 		m_norm = ciphertext.m_norm;
 		m_element = ciphertext.m_element;
-	}
+	} //
 
 	// move constructor
 	template <class Element>

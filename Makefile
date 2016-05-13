@@ -37,7 +37,7 @@ BUILDDIR := build
 BINDIR := bin
 DEMODIR := src/demo
 SRCLIBDIR := src/lib
-EXTLIBDIR := lib
+EXTLIBDIR := bin/lib
 
 SRCEXT := cpp
 HDREXT := h
