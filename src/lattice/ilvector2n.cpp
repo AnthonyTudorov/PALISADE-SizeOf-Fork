@@ -156,25 +156,14 @@ namespace lbcrypto {
 	}
 
 	/*
-		Print values an flush buffer after printing with new line.
-		*/
-	void ILVector2n::PrintValuesEndl() const {
-
-		this->PrintValues();
-		std::cout << std::endl;
-
-	}
-
-	/*
 		Print values and don't flush before and don't print new line.
-		*/
+	*/
 	void ILVector2n::PrintValues() const {
-
 		if (m_values != NULL) {
 			std::cout << *m_values;
 		}
 		std::cout << " mod:" << m_values->GetModulus();
-
+		std::cout << std::endl;
 	}
 
 	const BigBinaryInteger &ILVector2n::GetModulus() const {
