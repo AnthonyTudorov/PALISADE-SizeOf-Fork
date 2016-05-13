@@ -23,35 +23,33 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
-LIBSOURCES := $(shell find $(SRCLIBDIR) -name '*.$(SRCEXT)')
-LIBOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(LIBSOURCES)))
+DEMOSOURCES := $(shell find $(DEMODIR) -name '*.$(SRCEXT)')
+DEMOOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(DEMOSOURCES)))
+DEMOBIN := $(patsubst $(SRCDIR)/%,$(BINDIR)/%,$(patsubst %.cpp,%,$(DEMOSOURCES)))
 
-.PHONY:alltargets
-alltargets: $(EXTLIBDIR)/lib$(SOLIB).so
-#	@echo $(SOLIB)
-#	@echo $(LIBSOURCES)
-#	@echo $(LIBOBJECTS)
-#	@echo "alltargets"
+#.PHONY:alldemos
+alldemos: $(DEMOBIN)
+	@echo "alldemos"
+	@echo $(DEMOSOURCES)
+	@echo $(DEMOOBJECTS)
+	@echo $(DEMOBIN)
 
-$(EXTLIBDIR)/lib$(SOLIB).so: $(LIBOBJECTS)
-	@echo " +++++++++++++++++++ "
+#.PRECIOUS: $(BINDIR)/demo/%
+$(BINDIR)/demo/%: $(EXTLIBDIR)/lib$(SOLIB).so $(BUILDDIR)/demo/%.o 
+#$(LIBDIR)lib$(SOLIB)
 	@echo $@
-	@echo $(LIBOBJECTS)
-	@echo " mkdir -p $(EXTLIBDIR) "; mkdir -p $(EXTLIBDIR)
-#	@echo " $(CC) -fPIC -shared -Wl,--export-dynamic  $^ $(BUILDDIR)/$@.o -L/usr/lib/x86_64-linux-gnu -lpython2.7 -lboost_python-py27 -o lib/pycrypto.so"; $(CC) -fPIC -shared -Wl,--export-dynamic  $^ $(BUILDDIR)/$@.o
-	@echo " $(CC) -fPIC -shared -Wl,--export-dynamic -o $@ $(LIBOBJECTS) $(LIB)"; $(CC) -fPIC -shared -Wl,--export-dynamic -o $@ $(LIBOBJECTS) $(LIB)
-	@echo " +++++++++++++++++++ "
-
-.PRECIOUS: $(BUILDDIR)/lib/%
-$(BUILDDIR)/lib/%:
+	@echo " mkdir -p $(@D) "; mkdir -p $(@D)
+	@echo " $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@)) -l$(SOLIB) $(EXTLIB) -L$(EXTLIBDIR) "; $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@))  -l$(SOLIB) $(EXTLIB) -L$(EXTLIBDIR)
+.PRECIOUS: $(BUILDDIR)/demo/%
+$(BUILDDIR)/demo/%:
 	@echo " ------------------- "
 	@echo $@
 	@echo " mkdir -p $(@D) "; mkdir -p $(@D)
-	@echo " $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@)) "; $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))
+	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@)) "; $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))
 	@echo " ------------------- "
 
-.PHONEY: cleantargets
-cleantargets:
+.PHONEY: cleandemos
+cleandemos:
 	@echo " Cleaning...";
-	@echo " $(RM) -r $(LIBOBJECTS) $(EXTLIBDIR)lib$(SOLIB).so"; $(RM) -r $(LIBOBJECTS) $(EXTLIBDIR)lib$(SOLIB).so
+	@echo " $(RM) -r $(DEMOBIN) $(DEMOOBJECTS)"; $(RM) -r $(DEMOBIN) $(DEMOOBJECTS)
 

@@ -27,40 +27,43 @@ CC := g++ # This is the main compiler
 
 #NOTE select the appropriate set of CPPFLAGS 
 # most code is checked into git with the first line active
-CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g    ## undefine for single thread debug operation
+CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g## undefine for single thread debug operation
 #CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g -fopenmp  ##undefine for parallel debug operation
 #CPPFLAGS += -Wall -O3 -std=gnu++11 -w  -DNDEBUG  ##undefine for single thread best performance operation
 #CPPFLAGS += -Wall -O3 -std=gnu++11 -w -fopenmp  ##undefine for parallel best performance operation
 
 SRCDIR := src
 BUILDDIR := build
-BUILDDIRMAIN := build/main
-TARGETDIR := bin
-HEADERS := src/*.h
+BINDIR := bin
+DEMODIR := src/demo
+SRCLIBDIR := src/lib
+EXTLIBDIR := bin/lib
 
 SRCEXT := cpp
 HDREXT := h
-HDRDEEP := $(shell find $(SRCDIR) -mindepth 2 -type f -name *.$(HDREXT))
-SOURCESDEEP := $(shell find $(SRCDIR) -mindepth 2 -type f -name *.$(SRCEXT)) 
-SOURCESMAIN := $(shell find $(SRCDIR) -maxdepth 1 -type f -name *.$(SRCEXT))
-TARGETSMAIN := $(patsubst $(SRCDIR)/%,$(TARGETDIR)/%,$(SOURCESMAIN:.$(SRCEXT)=))
-OBJECTSDEEP := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCESDEEP:.$(SRCEXT)=.o))
-OBJECTSMAIN := $(patsubst $(SRCDIR)/%,$(BUILDDIRMAIN)/%,$(SOURCESMAIN:.$(SRCEXT)=.o))
 
-#LIB := -pthread #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
-LIB := -pthread -lgomp #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
+#$(wildcard $(addsuffix *.cpp,$(DEMODIRS)/))
+#objects := $(patsubst %.cpp,%.o,$(sources))
+
+$(objects) : %.o : %.cpp
+
+EXTLIB := -pthread -lgomp #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 INC := -I include
+SOLIB := PALISADE
 
-all: alltargets apidocs alltesttargets allbenchmarktargets
+all: alldemos alltargets
+# apidocs alltesttargets allbenchmarktargets
 
 .PHONEY: clean
-clean: cleantargets cleantests cleandocs cleangnuheaders cleanbenchmarks
+clean: cleandemos cleantargets 
+# cleantests cleandocs cleangnuheaders cleanbenchmarks
 
 .PHONEY: cleangnuheaders
 cleangnuheaders:
 	rm -f */**/*.h.gch
 
 include Makefile.targets
-include Makefile.docs
-include Makefile.test
-include Makefile.benchmark
+include Makefile.demos
+#include Makefile.docs
+#include Makefile.test
+#include Makefile.benchmark
