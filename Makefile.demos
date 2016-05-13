@@ -39,8 +39,7 @@ $(BINDIR)/demo/%: $(EXTLIBDIR)/lib$(SOLIB).so $(BUILDDIR)/demo/%.o
 #$(LIBDIR)lib$(SOLIB)
 	@echo $@
 	@echo " mkdir -p $(@D) "; mkdir -p $(@D)
-	@echo " $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@)) $(EXTLIB) -L$(EXTLIBDIR) -l$(SOLIB)"; $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@)) $(EXTLIB) -L$(EXTLIBDIR) -l$(SOLIB)
-
+	@echo " $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@)) -l$(SOLIB) $(EXTLIB) -L$(EXTLIBDIR) "; $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@))  -l$(SOLIB) $(EXTLIB) -L$(EXTLIBDIR)
 .PRECIOUS: $(BUILDDIR)/demo/%
 $(BUILDDIR)/demo/%:
 	@echo " ------------------- "
