@@ -139,20 +139,21 @@ $(BENCHMARK_BUILD_DIR)/%.o: $(BENCHMARK_SRC_DIR)/%.cpp
 #this updates the binaries when the objects or libraries are touched
 $(BENCHMARK_BIN): $(BENCHMARK_OBJ) $(BENCHMARK_LIB)
 
-# this assembles a list of the palisade objects (using BUILDDIR defined in the
-# calling makefile. We need this to build benchmark executables
-PALISADE_SRC = $(wildcard $(SRCDIR)/*/*.cpp) $(wildcard $(SRCDIR)/*/*/*.cpp)
-
-#PALISADE_OBJ= $(wildcard $(BUILDDIR)/*/*.o) $(wildcard $(BUILDDIR)/*/*/*.o)
+# this assembles a list of the palisade objects (using BUILDDIR defined in the \
+# calling makefile. We need this to build benchmark executables		       \
+PALISADE_SRC = $(wildcard $(SRCDIR)/*/*.cpp) $(wildcard $(SRCDIR)/*/*/*.cpp)   \
+									       \
+#PALISADE_OBJ= $(wildcard $(BUILDDIR)/*/*.o) $(wildcard $(BUILDDIR)/*/*/*.o)   \
 PALISADE_OBJ =  $(PALISADE_SRC:$(SRCDIR)%.cpp=$(BUILDDIR)%.o)
 
 # this builds executables from objects for benchmarks
 $(BENCHMARK_BIN_DIR)/%: $(BENCHMARK_BUILD_DIR)/%.o
-	@echo '$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread'
+	@echo '$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) $(EXTLIB)'
 	@echo 'E'
 	@echo '$(BENCHMARK_BIN_DIR)'
 	@mkdir -p $(BENCHMARK_BIN_DIR)
-	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< $(PALISADE_OBJ) -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread 
+#	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -l$(SOLIB) -L$(EXTLIBDIR) -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) $(EXTLIB) 
+	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -l$(SOLIB) -L$(EXTLIBDIR) -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) $(EXTLIB)
 
 
 # this is the target that makes benchmark examples
@@ -168,7 +169,7 @@ make_benchmarks: $(BENCHMARK_BIN)
 # just run make docbenchmarkstrings
 .PHONY:docbenchmarkstrings
 docbenchmarkstrings:
-	@echo 'the following make strings are defined'
+	@echo 'the following make strings are defined in Makefile.benchmark'
 	@echo 'BENCHMARK_LIB $(BENCHMARK_LIB)' 
 	@echo 'BENCHMARK_LIBOBJ  $(BENCHMARK_LIBOBJ)' 
 	@echo 'BENCHMARK_LIBSRCDIR $(BENCHMARK_LIBSRCDIR)'
@@ -186,11 +187,13 @@ docbenchmarkstrings:
 	@echo 'BENCHMARK_INC $(BENCHMARK_INC)'
 	@echo 'INC $(INC)'
 	@echo 'LIB $(LIB)'
-	@echo 'PALISADE_OBJ $(PALISADE_OBJ)'
+	@echo 'SOLIB $(SOLIB)'
+	@echo 'EXTLIB $(EXTLIB)'
 
 #this target is usesd to cleanup, it is called from the top Makefile
 .PHONEY: cleanbenchmarks
 cleanbenchmarks:
+	@echo " Cleaning Benchmarks...";
 #	@echo 'removing $(BENCHMARK_BIN) $(BENCHMARK_EXAMPLES) $(BENCHMARK_EXAMPLES_OBJ) $(BENCHMARK_OBJ) $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)'
 #	rm $(BENCHMARK_BIN) $(BENCHMARK_EXAMPLES) $(BENCHMARK_EXAMPLES_OBJ) $(BENCHMARK_OBJ) $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
 	@echo " $(RM) -r $(BENCHMARK_BIN_DIR) $(BENCHMARK_BUILD_DIR) $(BENCHMARK_EXAMPLES_BUILD_DIR) $(BENCHMARK_EXAMPLES_BIN_DIR) $(BENCHMARK_LIBSRCDIR)/*.o" $(BENCHMARK_LIB)

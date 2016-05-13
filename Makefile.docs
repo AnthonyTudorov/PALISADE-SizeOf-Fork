@@ -33,6 +33,7 @@ $(INDEXFILE):
 
 .PHONEY: cleandocs
 cleandocs:
+	@echo " Cleaning docs...";
 	rm -rf doc/apidocs
 
 

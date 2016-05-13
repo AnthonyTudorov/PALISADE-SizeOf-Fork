@@ -23,33 +23,64 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
+
+
+# this assembles a list of the palisade demo sources 
+# (using DEMODIR and SRCEXT
+# defined in the calling makefile. We need this to build 
+# the palisade demo executables \
+# (note there is a cleaner way to do this as shown in the Makefile.benchmark
 DEMOSOURCES := $(shell find $(DEMODIR) -name '*.$(SRCEXT)')
+
+# this defines the object resulting from each demo source file
 DEMOOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(DEMOSOURCES)))
+
+#this defines the binary result for each demo source
 DEMOBIN := $(patsubst $(SRCDIR)/%,$(BINDIR)/%,$(patsubst %.cpp,%,$(DEMOSOURCES)))
 
 #.PHONY:alldemos
-alldemos: $(DEMOBIN)
-	@echo "alldemos"
-	@echo $(DEMOSOURCES)
-	@echo $(DEMOOBJECTS)
-	@echo $(DEMOBIN)
+#alldemos: $(DEMOBIN)
 
+#this is the actual target that gets called when make is executed (part of all in Makefile)
+#it makes the demo executables 
+alldemos: make_demos
+
+.PHONY:make_demos
+make_demos: $(DEMOBIN)
+
+
+# this will build demos out of the demo.o and the palisade shared object library
 #.PRECIOUS: $(BINDIR)/demo/%
 $(BINDIR)/demo/%: $(EXTLIBDIR)/lib$(SOLIB).so $(BUILDDIR)/demo/%.o 
 #$(LIBDIR)lib$(SOLIB)
 	@echo $@
 	@echo " mkdir -p $(@D) "; mkdir -p $(@D)
 	@echo " $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@)) -l$(SOLIB) $(EXTLIB) -L$(EXTLIBDIR) "; $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@))  -l$(SOLIB) $(EXTLIB) -L$(EXTLIBDIR)
+
+#this will build the .o for each demo
 .PRECIOUS: $(BUILDDIR)/demo/%
 $(BUILDDIR)/demo/%:
-	@echo " ------------------- "
-	@echo $@
+	@echo " -- demo:compiling $@"
 	@echo " mkdir -p $(@D) "; mkdir -p $(@D)
 	@echo " $(CC) $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@)) "; $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))
 	@echo " ------------------- "
 
+# this target lets us see what all the strings are define as, 
+# as an aid to debugging Makefile.demos 
+# just run make docdemostrings
+.PHONY:docdemostrings
+docdemostrings:
+	@echo 'the following make strings are defined in Makefile.demos'
+	@echo 'DEMODIR $(DEMODIR)' 
+	@echo 'DEMOSOURCES $(DEMOSOURCES)' 
+	@echo 'DEMOOBJECTS $(DEMOOBJECTS)' 
+	@echo 'DEMOBIN $(DEMOBIN)'
+	@echo 'SOLIB $(SOLIB)' 
+	@echo 'EXTLIB $(EXTLIB)' 
+	@echo 'EXTLIBDIR $(EXTLIBDIR)' 
+
 .PHONEY: cleandemos
 cleandemos:
-	@echo " Cleaning...";
+	@echo " Cleaning demos...";
 	@echo " $(RM) -r $(DEMOBIN) $(DEMOOBJECTS)"; $(RM) -r $(DEMOBIN) $(DEMOOBJECTS)
 

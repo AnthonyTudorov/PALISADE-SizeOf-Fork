@@ -23,8 +23,27 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
+
+################
+# Makefile.targets contains all build instructions for making the
+# palisade library object files and the shared library.
+################
+
+
+# this assembles a list of the palisade library sources 
+# (using SRCDIR and SRCEXT
+# defined in the calling makefile. We need this to build 
+# the palisadelibrary
+# (note there is a cleaner way to do this as shown in the Makefile.benchmark
 LIBSOURCES := $(shell find $(SRCLIBDIR) -name '*.$(SRCEXT)')
+
+# this assembles a list of the palisade library objects (using
+# BUILDDIR defined in the calling makefile. We need this to build 
+# the shared library
 LIBOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(LIBSOURCES)))
+
+#this is the actual target that gets called when make is executed
+#(part of all in Makefile) it makes the palisade shared object library
 
 .PHONY:alltargets
 alltargets: $(EXTLIBDIR)/lib$(SOLIB).so
@@ -33,25 +52,35 @@ alltargets: $(EXTLIBDIR)/lib$(SOLIB).so
 #	@echo $(LIBOBJECTS)
 #	@echo "alltargets"
 
+
+#this builds the palisade library out of the objects 
 $(EXTLIBDIR)/lib$(SOLIB).so: $(LIBOBJECTS)
-	@echo " +++++++++++++++++++ "
-	@echo $@
-	@echo $(LIBOBJECTS)
+	@echo " ++ targets:linking $@ from LIBOBJECTS"
+#	@echo $(LIBOBJECTS)
 	@echo " mkdir -p $(EXTLIBDIR) "; mkdir -p $(EXTLIBDIR)
 #	@echo " $(CC) -fPIC -shared -Wl,--export-dynamic  $^ $(BUILDDIR)/$@.o -L/usr/lib/x86_64-linux-gnu -lpython2.7 -lboost_python-py27 -o lib/pycrypto.so"; $(CC) -fPIC -shared -Wl,--export-dynamic  $^ $(BUILDDIR)/$@.o
 	@echo " $(CC) -fPIC -shared -Wl,--export-dynamic -o $@ $(LIBOBJECTS) $(LIB)"; $(CC) -fPIC -shared -Wl,--export-dynamic -o $@ $(LIBOBJECTS) $(LIB)
-	@echo " +++++++++++++++++++ "
 
+#this builds the individual objects that make up the library .
 .PRECIOUS: $(BUILDDIR)/lib/%
 $(BUILDDIR)/lib/%:
-	@echo " ------------------- "
-	@echo $@
+	@echo " -- targets:compiling $@"
 	@echo " mkdir -p $(@D) "; mkdir -p $(@D)
 	@echo " $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@)) "; $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))
-	@echo " ------------------- "
 
+
+#################
+# this target lets us see what all the strings are defined as, as an
+# aid to debugging the Makefile.targets. Just run make
+# make doctargetstrings
+.PHONY: doctargetstrings
+doctargetstrings:
+	@echo 'the following make strings are defined in Makefile.target'
+	@echo 'SOLIB $(SOLIB)'
+	@echo 'LIBOBJECTS $(LIBOBJECTS)'
+
+#this target is used to cleanup, it is called from the top Makefile
 .PHONEY: cleantargets
 cleantargets:
-	@echo " Cleaning...";
+	@echo " Cleaning targets...";
 	@echo " $(RM) -r $(LIBOBJECTS) $(EXTLIBDIR)lib$(SOLIB).so"; $(RM) -r $(LIBOBJECTS) $(EXTLIBDIR)lib$(SOLIB).so
-
