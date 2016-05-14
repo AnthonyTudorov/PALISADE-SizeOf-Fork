@@ -12,6 +12,7 @@ List of Authors:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
 		Nishanth Pasham, np386@njit.edu
+		Hadi Sajjadpour, ss2959@njit.edu
 Description:	
 	This code provides the core proxy re-encryption functionality.
 

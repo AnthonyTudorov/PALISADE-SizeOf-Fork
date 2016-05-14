@@ -1,7 +1,7 @@
 /**
 * @file
 * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
-*	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+*	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>
 * @version 00_03
 *
 * @section LICENSE
@@ -253,7 +253,7 @@ namespace lbcrypto {
 		/**
 		* Performs an addition operation and returns the result.
 		*
-		* @param &element is the element to add with.
+		* @param &rhs is the element to add with.
 		* @return is the result of the addition.
 		*/
 		const ILVectorArray2n& operator+=(const BigBinaryInteger &rhs);
