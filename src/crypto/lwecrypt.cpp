@@ -171,6 +171,17 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 	return true;
 }
 
+/**
+	* Method for KeySwitching based on a KeySwitchHint
+	/**
+	* This function Calculates a  KeySwitchHint. The hint is used to convert a ciphertext encrypted with 
+	* private key A to a ciphertext that is decryptable by the public key of B. 
+	* The algorithm can be found from this paper.
+	* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
+	* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+	* 
+	* KeySwitchHint 
+	*/
 
 template<class Element>
 void LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
@@ -203,11 +214,16 @@ void LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(const LPPrivateKey<Elem
 
 }
 			
-/**
-	* Method for encrypting plaintex using LBC
+/*
+	* Method for KeySwitching based on a KeySwitchHint
 	*
-	* @param &keySwitchHint Hint required to perform the ciphertext switching.
-	* @param &cipherText Original ciphertext to perform switching on.
+	* This function performs KeySwitch based on a KeySwitchHint. 
+	* The algorithm can be found from this paper:
+	* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+	* 
+	*KeySwitch takes in a KeySwitchHint and a cipher text. Based on the two, it calculates and returns a new ciphertext. 
+	* if the KeySwitchHint is constructed for Private Key A converted to Private Key B, then the new ciphertext, originally encrypted with
+	* private key A, is now decryptable by public key B (and not A).
 	*/
 template<class Element>
 Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint,const Ciphertext<Element> &cipherText) const {
@@ -222,7 +238,7 @@ Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPKeySwit
 }
 
 /**
-	* Method for encrypting plaintex using LBC
+	* Method for ModReducing on any Element datastructure-TODO
 	*
 	* @param &cipherText Ciphertext to perform mod reduce on.
 	* @param &privateKey Private key used to encrypt the first argument.

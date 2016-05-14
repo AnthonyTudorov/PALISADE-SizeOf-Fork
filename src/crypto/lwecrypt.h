@@ -802,7 +802,7 @@ namespace lbcrypto {
 			/**
 			 * Constructor 
 			 *
-			 * @param &scheme is the Encryption scheme used. 
+			 * @param &scheme is a pointer to the instantiation of the specfic encryption scheme used. 
 			 */
 			LPLeveledSHEAlgorithmLTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 

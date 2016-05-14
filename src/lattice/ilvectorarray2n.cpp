@@ -299,7 +299,27 @@ namespace lbcrypto {
             return *this;
         }
 
-	ILVectorArray2n ILVectorArray2n::Times(const BigBinaryInteger & element) const
+	bool ILVectorArray2n::operator!=(const lbcrypto::ILVectorArray2n &rhs) const {
+            return !(*this == rhs);
+        }
+	
+	bool ILVectorArray2n::operator==(const lbcrypto::ILVectorArray2n &rhs) const {
+            if (this->GetFormat() != rhs.GetFormat()) {
+                return false;
+            }
+            if (m_vectors != rhs.GetValues()) {
+                return false;
+            }
+
+		    const ILDCRTParams &castedObj = dynamic_cast<const ILDCRTParams&>(rhs.GetParams());
+
+			if(const_cast<ILDCRTParams&>(m_params) != castedObj) { //why is it seeing m_params as const???!!
+				return false;
+			}
+            return true;
+        }
+
+	ILVectorArray2n ILVectorArray2n::Times(const BigBinaryInteger &element) const
 	{
 		ILVectorArray2n tmp(*this);
 
@@ -310,7 +330,7 @@ namespace lbcrypto {
 		return tmp;
 	}
 
-	ILVectorArray2n ILVectorArray2n::Mod(const BigBinaryInteger & modulus) const
+	ILVectorArray2n ILVectorArray2n::Mod(const BigBinaryInteger &modulus) const
 	{
 		ILVectorArray2n tmp(*this);
 
@@ -319,7 +339,19 @@ namespace lbcrypto {
 		}
 		return tmp;
 	}
+
+	const ILVectorArray2n& ILVectorArray2n::operator+=(const BigBinaryInteger &rhs){
+		 ILVectorArray2n result = this->Plus(rhs);
+            *this = result;
+            return *this;
+	}
 	
+	const ILVectorArray2n& ILVectorArray2n::operator-=(const BigBinaryInteger &rhs){
+		 ILVectorArray2n result = this->Minus(rhs);
+            *this = result;
+            return *this;
+	}
+
 	void ILVectorArray2n::AddILElementOne(){
 		for(usint i = 0; i < m_vectors.size(); i++){
 			m_vectors[i].AddILElementOne();

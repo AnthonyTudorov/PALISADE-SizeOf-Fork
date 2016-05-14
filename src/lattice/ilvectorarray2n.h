@@ -256,7 +256,7 @@ namespace lbcrypto {
 		* @param &element is the element to add with.
 		* @return is the result of the addition.
 		*/
-		const ILVectorArray2n& operator+=(const BigBinaryInteger &element);
+		const ILVectorArray2n& operator+=(const BigBinaryInteger &rhs);
 
 		/**
 		* Performs an addition operation and returns the result.
@@ -275,38 +275,20 @@ namespace lbcrypto {
 		* @return the resulting ILVectorArray2n.
 		*/
 		ILVectorArray2n& operator=(const ILVectorArray2n &rhs);
-
 		/**
 		* Equal operator compares this ILVectorArray2n to the specified ILVectorArray2n
 		*
 		* @param &rhs is the specified ILVectorArray2n to be compared with this ILVectorArray2n.
 		* @return true if this ILVectorArray2n represents the same values as the specified ILVectorArray2n, false otherwise
 		*/
-		inline bool operator==(const lbcrypto::ILVectorArray2n &rhs) const {
-            if (this->GetFormat() != rhs.GetFormat()) {
-                return false;
-            }
-            if (m_vectors != rhs.GetValues()) {
-                return false;
-            }
-
-		    const ILDCRTParams &castedObj = dynamic_cast<const ILDCRTParams&>(rhs.GetParams());
-
-			if(const_cast<ILDCRTParams&>(m_params) != castedObj) { //why is it seeing m_params as const???!!
-				return false;
-			}
-            return true;
-        }
-
+		bool operator==(const lbcrypto::ILVectorArray2n &rhs) const;
 		/**
 		* Not equal operator compares this ILVectorArray2n to the specified ILVectorArray2n
 		*
 		* @param &rhs is the specified ILVectorArray2n to be compared with this ILVectorArray2n.
 		* @return true if this ILVectorArray2n represents the same values as the specified ILVectorArray2n, false otherwise
 		*/
-        inline bool operator!=(const lbcrypto::ILVectorArray2n &rhs) const {
-            return !(*this == rhs);
-        }
+        bool operator!=(const lbcrypto::ILVectorArray2n &rhs) const;
 		/**
 		* Performs an addition operation and returns the result.
 		*
@@ -314,7 +296,6 @@ namespace lbcrypto {
 		* @return is the result of the addition.
 		*/
 		const ILVectorArray2n& operator+=(const ILVectorArray2n &element);
-
 		/**
 		* Performs an addition operation and returns the result.
 		*
@@ -322,7 +303,6 @@ namespace lbcrypto {
 		* @return is the result of the addition.
 		*/
 		const ILVectorArray2n& operator-=(const ILVectorArray2n &element);
-
 		// automorphism operation
 		/**
 		* Performs an automorphism transform operation and returns the result.
