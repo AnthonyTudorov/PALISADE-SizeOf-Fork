@@ -776,7 +776,8 @@ namespace lbcrypto {
 		        	LPPrivateKey<Element> *privateKey) const;
 
 			/**
-			 * Function to generate public and private keys
+			 * Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
+			 * and odd indices are set to zero.
 			 *
 			 * @param &publicKey private key used for decryption.
 			 * @param &privateKey private key used for decryption.
@@ -798,7 +799,6 @@ namespace lbcrypto {
 		public:	
 			//inherited constructors
 			LPLeveledSHEAlgorithmLTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
-			//TODO: What is the best way to comment this constructor?
 			/**
 			 * Constructor 
 			 *
