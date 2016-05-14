@@ -430,12 +430,6 @@ namespace lbcrypto {
 
 		// 0 for coefficient and 1 for evaluation format
 		Format m_format;
-
-		BigBinaryInteger CalculateInterpolationSum(usint index) const;
-
-		/*Helper method for chinese remainder interpolatiom*/
-		BigBinaryInteger CalculateChineseRemainderInterpolationCoefficient(usint i) const;
-
 	};
 
 	/**

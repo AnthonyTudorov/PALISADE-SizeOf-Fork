@@ -109,7 +109,8 @@ namespace lbcrypto {
 	{
 		const ILDCRTParams &m_params = static_cast<const ILDCRTParams&>(params);
 
-		m_vectors.resize(m_params.GetModuli().size());
+		m_vectors.reserve(m_params.GetModuli().size());
+
 		m_format = format;
 
 		sint* dggValues = dgg.GenerateCharVector(m_params.GetCyclotomicOrder()/2);
@@ -119,7 +120,7 @@ namespace lbcrypto {
 		BigBinaryInteger rootOfUnity;
 		BigBinaryInteger temp;
 
-		for(usint i = 0; i < m_vectors.size();i++){
+		for(usint i = 0; i < m_params.GetModuli().size();i++){
 			
 			modulus = m_params.GetModuli()[i];
 			rootOfUnity = m_params.GetRootsOfUnity()[i];
@@ -147,7 +148,7 @@ namespace lbcrypto {
 			if(m_format == Format::EVALUATION){
 				ilvector.SwitchFormat();
 			}
-			m_vectors[i] = ilvector;
+			m_vectors.push_back(ilvector);
 		}
 	  }
 
@@ -241,7 +242,6 @@ namespace lbcrypto {
 		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
-			// tmp.m_vectors[i] = (tmp.GetValues(i)).Plus(element).Mod(m_params.GetModuli()[i]);
 			tmp.m_vectors[i] += element.GetValues(i);
 		}
 		return tmp;
@@ -274,7 +274,6 @@ namespace lbcrypto {
 		}
 		return tmp;
 	}
-
 
 	ILVectorArray2n ILVectorArray2n::Times(const ILVectorArray2n & element) const
 	{
@@ -375,18 +374,54 @@ namespace lbcrypto {
 	* for every r
 	*   calculate: V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qi *[ (qt/qi)^(-1) mod qi ]}modqt 
 	*
-	* Once we have the V[j] values, we construct an ILVector2n from V[j], use qt as it's modulus and calculate a root of unity for parameter selection of the ILVector2n.
+	* Once we have the V values, we construct an ILVector2n from V, use qt as it's modulus and calculate a root of unity for parameter selection of the ILVector2n.
 	*/
 	ILVector2n ILVectorArray2n::InterpolateIlArrayVector2n() const
 	{
+		/*initializing variables for effciency*/
 		usint ringDimension = m_params.GetCyclotomicOrder() / 2;
 
-		BigBinaryVector coefficients(ringDimension,m_params.GetModulus());
+		BigBinaryInteger qi; //qi
 
+		BigBinaryInteger bigModulus(m_params.GetModulus()); //qt
+
+		BigBinaryInteger divideBigModulusByIndexModulus; //qt/qi
+
+		BigBinaryInteger modularInverse; // (qt/qi)^(-1) mod qi
+
+		BigBinaryInteger chineseRemainderMultiplier; // qt/qi * [(qt/qi)(-1) mod qi]
+
+		BigBinaryInteger multiplyValue;// M (r, i) * qt/qi * [(qt/qi)(-1) mod qi]
+
+		BigBinaryVector coefficients(ringDimension,m_params.GetModulus()); // V vector
+
+		BigBinaryInteger interpolateValue("0"); // this will finally be  V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qi *[ (qt/qi)^(-1) mod qi ]}modqt 
+
+		/*This loop calculates every coefficient of the interpolated valued.*/
 		for (usint i = 0; i < ringDimension; i++) {
-			coefficients.SetValAtIndex(i, CalculateInterpolationSum(i)); // This Calculates V[j]
-		}
+		/*This for loops to calculate V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qi *[ (qt/qi)^(-1) mod qi ]}mod qt, the loop is basically the sigma.
+		Mod qt is done outside the loop*/
+			for (usint j = 0; j < m_vectors.size(); j++) {
 
+				qi = m_params.GetModuli()[j]; //qi
+
+				divideBigModulusByIndexModulus = bigModulus.DividedBy(qi); //qt/qi
+
+				modularInverse = divideBigModulusByIndexModulus.Mod(qi).ModInverse(qi); // (qt/qi)^(-1) mod qi
+
+				chineseRemainderMultiplier = divideBigModulusByIndexModulus.Times(modularInverse); // qt/qi * [(qt/qi)(-1) mod qi]
+
+				/*m_vectors[i].GetValAtIndex(index) is M (r, i) with r = index amd r = j. The helper method CalculateChineseRemainderInterpolationCoefficient 
+				calculates qt/qi *[ (qt/qi)^(-1) mod qi ] where the input parameter j is the row that the operation is performed on.*/
+				multiplyValue = (m_vectors[j].GetValAtIndex(i)).Times(chineseRemainderMultiplier); // M (r, i) * qt/qi * [(qt/qi)(-1) mod qi]
+				interpolateValue += multiplyValue;
+			}
+
+			interpolateValue = interpolateValue.Mod(m_params.GetModulus());
+			coefficients.SetValAtIndex(i, interpolateValue); // This Calculates V[j]
+			interpolateValue = BigBinaryInteger::ZERO;
+		}
+		/*Intializing and setting the params of the resulting ILVector2n*/
 		usint m = m_params.GetCyclotomicOrder();
 		BigBinaryInteger modulus;
 		modulus = m_params.GetModulus();
@@ -398,48 +433,6 @@ namespace lbcrypto {
 		polynomialReconstructed.SetValues(coefficients,m_format);
 
 		return polynomialReconstructed;
-	}
-	/*See comments within the function. Please refer to comments of InterpolateILArracyVector2n to udnerstand what the parameters in the comments are*/
-	BigBinaryInteger ILVectorArray2n::CalculateInterpolationSum(usint index) const
-	{
-		BigBinaryInteger results("0");
-		/*This for loops to calculate V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qi *[ (qt/qi)^(-1) mod qi ]}mod qt, the loop is basically the sigma.
-		Mod qt is done outside the loop*/
-		for (usint j = 0; j < m_vectors.size(); j++) {
-
-			BigBinaryInteger multiplyValue;
-			
-			/*m_vectors[i].GetValAtIndex(index) is M (r, i) with r = index amd r = j. The helper method CalculateChineseRemainderInterpolationCoefficient 
-			calculates qt/qi *[ (qt/qi)^(-1) mod qi ] where the input parameter j is the row that the operation is performed on.*/
-			multiplyValue = (m_vectors[j].GetValAtIndex(index)).Times(CalculateChineseRemainderInterpolationCoefficient(j)); 
-			results += multiplyValue;
-		}
-
-		results = results.Mod(m_params.GetModulus());
-
-		return results;
-	}
-	/*This function calculates qt/qi *[ (qt/qi)^(-1) mod qi] , please refer to the comments in InterpolateIlArrayVector2n to understand
-	what these values are.*/
-    BigBinaryInteger ILVectorArray2n::CalculateChineseRemainderInterpolationCoefficient(usint i) const
-	{
-		BigBinaryInteger qi(m_params.GetModuli()[i]); //qi
-
-		BigBinaryInteger bigModulus(m_params.GetModulus()); //qt
-
-		BigBinaryInteger divideBigModulusByIndexModulus;
-
-		divideBigModulusByIndexModulus = bigModulus.DividedBy(qi); //qt/qi
-
-		BigBinaryInteger modularInverse;
-
-		modularInverse = divideBigModulusByIndexModulus.Mod(qi).ModInverse(qi); // (qt/qi)^(-1) mod qi
-
-		BigBinaryInteger results;
-
-		results = divideBigModulusByIndexModulus.Times(modularInverse); // qt/qi * [(qt/qi)(-1) mod qi]
-
-		return results;
 	}
 
 	// This function modifies ILVectorArray2n to keep all the even indices in the tower. It reduces the ring dimension of the tower by half.
@@ -489,7 +482,6 @@ namespace lbcrypto {
 		m_params.SetRootsOfUnity(temp_roots_of_unity);
 	
 	}
-
 
 /**
 	* This function performs ModReduce on ciphertext element and private key element. The algorithm can be found from this paper:
