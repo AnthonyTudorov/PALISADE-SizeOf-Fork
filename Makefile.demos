@@ -1,0 +1,94 @@
+#
+#Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+#All rights reserved.
+#Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+#met:
+#1. Redistributions of source code must retain the above copyright
+#notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright
+#notice, this list of conditions and the following disclaimer in the
+#documentation and/or other materials provided with the distribution.
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+#IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+#TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+#PARTICULAR PURPOSE ARE DISCLAIMED.
+#IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+#ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+#DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+#OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+#STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+#IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+
+#TODO: currently this makefile will not build a demo executable if the .cpp is touched. 
+
+# this assembles a list of the palisade demo sources 
+# (using DEMODIR and SRCEXT
+# defined in the calling makefile. We need this to build 
+# the palisade demo executables \
+# (note there is a cleaner way to do this as shown in the Makefile.benchmark
+DEMOSOURCES := $(shell find $(DEMODIR) -name '*.$(SRCEXT)')
+
+# this defines the object resulting from each demo source file
+DEMOOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(DEMOSOURCES)))
+
+DEMOBUILDDIRS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(DEMOSOURCES)))
+
+#this defines the binary result for each demo source
+DEMOBIN := $(patsubst $(SRCDIR)/%,$(BINDIR)/%,$(patsubst %.cpp,%,$(DEMOSOURCES)))
+
+#.PHONY:alldemos
+#alldemos: $(DEMOBIN)
+
+#this is the actual target that gets called when make is executed (part of all in Makefile)
+#it makes the demo executables 
+alldemos: make_demos
+
+.PHONY:make_demos
+make_demos: $(DEMOBIN)
+
+#this updates the binaries when the objects or libraries ar touched
+#TODO this relinks all demos when any one is touched.
+$(DEMOBIN): $(DEMOOBJECTS) $(EXTLIBDIR)/lib$(SOLIB).so
+
+# this will build demos out of the demo.o and the palisade shared object library
+#.PRECIOUS: $(BINDIR)/demo/%
+$(BINDIR)/demo/%: $(EXTLIBDIR)/lib$(SOLIB).so $(BUILDDIR)/demo/%.o 
+#$(LIBDIR)lib$(SOLIB)
+	@echo " -- demo:linking $@"
+	mkdir -p $(@D)
+	 $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@))  -l$(SOLIB) $(EXTLIB) -L$(EXTLIBDIR)
+	@echo
+
+#this will build the .o for each demo
+.PRECIOUS: $(BUILDDIR)/demo/%
+$(BUILDDIR)/demo/%:
+	@echo " -- demo:compiling $@"
+	mkdir -p $(@D)
+	$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))
+	@echo
+
+# this target lets us see what all the strings are define as, 
+# as an aid to debugging Makefile.demos 
+# just run make docdemostrings
+.PHONY:docdemostrings
+docdemostrings:
+	@echo 'the following make strings are defined in Makefile.demos'
+	@echo 'DEMODIR $(DEMODIR)' 
+	@echo 'DEMOSOURCES $(DEMOSOURCES)' 
+	@echo 'DEMOOBJECTS $(DEMOOBJECTS)' 
+	@echo 'DEMOBIN $(DEMOBIN)'
+
+	@echo 'BUILDDIR $(BUILDDIR)' 
+	@echo 'SOLIB $(SOLIB)' 
+	@echo 'EXTLIB $(EXTLIB)' 
+	@echo 'EXTLIBDIR $(EXTLIBDIR)' 
+
+.PHONEY: cleandemos
+cleandemos:
+	@echo " Cleaning demos...";
+	$(RM) -r $(DEMOBIN) $(DEMOOBJECTS)
+	$(RM) -rf $(BUILDIR)/demo

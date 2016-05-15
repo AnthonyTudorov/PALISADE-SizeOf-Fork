@@ -1,4 +1,4 @@
-﻿//Hi Level Execution/Demonstration with Benchmarking
+﻿//Hi Level Execution/Demonstration
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
 Version:
@@ -11,7 +11,6 @@ List of Authors:
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
-		Dr. David Bruce Cousins dcousins@bbn.com
 Description:
 	This code exercises the Proxy Re-Encryption capabilities of the NJIT Lattice crypto library.
 	In this code we:
@@ -24,7 +23,6 @@ Description:
 		- Decrypt the re-encrypted data.
 	We configured parameters (namely the ring dimension and ciphertext modulus) to provide a level of security roughly equivalent to a root hermite factor of 1.007 which is generally considered secure and conservatively comparable to AES-128 in terms of computational work factor and may be closer to AES-256.
 
-Additionally we excercise the gnu benchmark libraryh
 License Information:
 
 Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
@@ -36,51 +34,43 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#define _USE_MATH_DEFINES
-#include "benchmark/benchmark_api.h"
-
-
 #include <iostream>
 #include <fstream>
-#include "lib/math/backend.h"
-//#include "lib/math/cpu8bit/backend.h"
-#include "lib/utils/inttypes.h"
-#include "lib/math/nbtheory.h"
+#include "../../lib/math/backend.h"
+//#include "../../lib/math/cpu8bit/backend.h"
+#include "../../lib/utils/inttypes.h"
+#include "../../lib/math/nbtheory.h"
 //#include <thread>
-#include "lib/lattice/elemparams.h"
-#include "lib/lattice/ilparams.h"
-#include "lib/lattice/ildcrtparams.h"
-#include "lib/lattice/ilelement.h"
-//#include "lib/ilvector2n.h"
-#include "lib/math/distrgen.h"
-#include "lib/crypto/lwecrypt.h"
-#include "lib/crypto/lwecrypt.cpp"
-#include "lib/crypto/lwepre.h"
-#include "lib/crypto/lwepre.cpp"
-#include "lib/crypto/lweahe.cpp"
-#include "lib/crypto/lweautomorph.cpp"
-#include "lib/crypto/lweshe.cpp"
-#include "lib/crypto/lwefhe.cpp"
-#include "lib/lattice/ilvector2n.h"
-#include "lib/lattice/ilvectorarray2n.h"
-//#include "lib/time.h"
-#include "lib/crypto/ciphertext.cpp"
-//#include "lib/vld.h"
+#include "../../lib/lattice/elemparams.h"
+#include "../../lib/lattice/ilparams.h"
+#include "../../lib/lattice/ildcrtparams.h"
+#include "../../lib/lattice/ilelement.h"
+//#include "../../lib/ilvector2n.h"
+#include "../../lib/math/distrgen.h"
+#include "../../lib/crypto/lwecrypt.h"
+#include "../../lib/crypto/lwecrypt.cpp"
+#include "../../lib/crypto/lwepre.h"
+#include "../../lib/crypto/lwepre.cpp"
+#include "../../lib/crypto/lweahe.cpp"
+#include "../../lib/crypto/lweautomorph.cpp"
+#include "../../lib/crypto/lweshe.cpp"
+#include "../../lib/crypto/lwefhe.cpp"
+#include "../../lib/lattice/ilvector2n.h"
+#include "../../lib/lattice/ilvectorarray2n.h"
+//#include "../../lib/time.h"
+#include "../../lib/crypto/ciphertext.cpp"
+//#include "../../lib/vld.h"
 //#include <chrono>
-#include "lib/utils/debug.h"
-
-//#include "lib/gtest/gtest.h"
-//#include "lib/math/cpu8bit/binint.h"
-//#include "lib/math/cpu8bit/binvect.h"
-//#include "lib/math/cpu8bit/binmat.h"
-
-
-
+#include "../../lib/utils/debug.h"
+//#include "../../lib/gtest/gtest.h"
+//#include "../../lib/math/cpu8bit/binint.h"
+//#include "../../lib/math/cpu8bit/binvect.h"
+//#include "../../lib/math/cpu8bit/binmat.h"
 
 using namespace std;
 using namespace lbcrypto;
 void NTRUPRE(int input);
-
+double currentDateTime();
 
 /**
  * @brief Input parameters for PRE example.
@@ -90,40 +80,82 @@ struct SecureParams {
 	BigBinaryInteger modulus;	///< The modulus
 	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
 	usint relinWindow;		///< The relinearization window parameter.
+	float stdDev;
 };
 
 #include <iterator>
+int main() {
 
-#define BASIC_BENCHMARK_TEST(x) \
-    BENCHMARK(x)->Arg(0)->Arg(1)->Arg(4)->Arg(8)->Arg(16)
+	//DiscreteUniformGenerator gen(BigBinaryInteger("100000"));
+	//auto v = gen.GenerateVector(10000);
 
-static void BM_SOURCE(benchmark::State& state) {
-
-	// std::cout << "Relinearization window : " << std::endl;
-	// std::cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
+	std::cout << "Relinearization window : " << std::endl;
+	std::cout << "0 (n = 1024, r = 1), 1 (n = 1024, r = 8), 2 (n = 2048, r = 1): ";
 
 	int input = 0;
-	// std::cin >> input;
-	// //cleans up the buffer
-	// cin.ignore();
+	std::cin >> input;
+	//cleans up the buffer
+	cin.ignore();
 
-	// if ((input<0) || (input>4))
-	// 	input = 0;
+	if ((input<0) || (input>4))
+		input = 0;
 
-       
-	while (state.KeepRunning()) {
-	  ////NTRUPRE is where the core functionality is provided.
-	  NTRUPRE(state.range_x());
+	////NTRUPRE is where the core functionality is provided.
+	NTRUPRE(input);
+	//NTRUPRE(3);
+	
 
-	  //std::cin.get();
-	  ChineseRemainderTransformFTT::GetInstance().Destroy();
-	  NumberTheoreticTransform::GetInstance().Destroy();
-	}
+	// The below lines clean up the memory use.
+	//system("pause");
 
-	return ;
+	////Hadi's code
+	//usint m = 16;
+	//BigBinaryInteger rootOfUnity("61564");
+	//Format format = COEFFICIENT;
+
+	//BigBinaryInteger modulu1;
+ //   modulu1 = FindPrimeModulus(16, 20);
+	//cout<<modulu1<<endl;
+
+ //   BigBinaryInteger rootOfUnity1;
+	//rootOfUnity1 = RootOfUnity(m, modulu1);
+
+	//ILParams ilParams2(m, modulu1, rootOfUnity);
+
+
+	//ILVector2n c2(ilParams2);
+	//usint m2 = 16;
+	//DiscreteGaussianGenerator d2(m2/2, modulu1);
+	//BigBinaryVector x2 = d2.GenerateVector(m2/2);
+	//c2.SetValues(x2, Format::COEFFICIENT);
+
+	//c2.SwitchFormat();
+	//c2.SwitchFormat();
+
+
+	std::cin.get();
+	ChineseRemainderTransformFTT::GetInstance().Destroy();
+	NumberTheoreticTransform::GetInstance().Destroy();
+
+	return 0;
 }
 
 
+// double currentDateTime()
+// {
+
+// 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+
+//     time_t tnow = std::chrono::system_clock::to_time_t(now);
+//     tm *date = localtime(&tnow);
+//     date->tm_hour = 0;
+//     date->tm_min = 0;
+//     date->tm_sec = 0;
+
+//     auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
+
+// 	return std::chrono::duration <double, std::milli>(now - midnight).count();
+// }
 
 //////////////////////////////////////////////////////////////////////
 //	NTRUPRE is where the core functionality is provided.
@@ -159,39 +191,59 @@ void NTRUPRE(int input) {
 	//ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
 
 	SecureParams const SECURE_PARAMS[] = {
-		{ 2048, BigBinaryInteger("268441601"), BigBinaryInteger("16947867"), 1 }, //r = 1
-		{ 2048, BigBinaryInteger("536881153"), BigBinaryInteger("267934765"), 2 }, // r = 2
-		{ 2048, BigBinaryInteger("1073750017"), BigBinaryInteger("180790047"), 4 },  // r = 4
-		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("2678760785"), 8 }, //r = 8
-		{ 4096, BigBinaryInteger("2199023288321"), BigBinaryInteger("1858080237421"), 16 }  // r= 16
+//<<<<<<< HEAD
+//=======
+		//{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("2678760785"), 1 }, //r = 8
+//>>>>>>> 98034a0563cc8cab2eb1c179288561a65ad5a7f0
+		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("8451304774"), 1, 98.4359 }, //n = 1024; r = 1; p = 2
+		{ 2048, BigBinaryInteger("137439004673"), BigBinaryInteger("7643730114"), 8, 214.9 }, // r = 2
+		{ 4096, BigBinaryInteger("17179926529"), BigBinaryInteger("1874048014"), 1, 98.4359 }  // r = 4
+		//{ 2048, CalltoModulusComputation(), CalltoRootComputation, 0 }  // r= 16
 	};
 
 	usint m = SECURE_PARAMS[input].m;
 	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
 	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
 	usint relWindow = SECURE_PARAMS[input].relinWindow;
+	float stdDevStSt = SECURE_PARAMS[input].stdDev;
 
 	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	//ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+
 
 	float stdDev = 4;
 
 	ofstream fout;
 	fout.open ("output.txt");
 
+
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
 	//Prepare for parameters.
 	ILParams ilParams(m,modulus,rootOfUnity);
 
+	//std::cout << ilParams.GetRootOfUnity() << std::endl;
+
+	//Should eventually be replaced with the following code
+	//ILParams ilParams;
+	//ilParams.Initialize(m,bitLength);
+	//Or
+	//ilParams.Initialize(m,bitLenght,inputFile);
+
 	//Set crypto parametes
-	LPCryptoParametersLTV<ILVector2n> cryptoParams;
+	LPCryptoParametersStehleSteinfeld<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
+	//cryptoParams.SetPlaintextModulus(BigBinaryInteger("4"));  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
+	cryptoParams.SetDistributionParameterStSt(stdDevStSt);	
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
 	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
+
+	DiscreteGaussianGenerator dggStehleSteinfeld(stdDevStSt);			// Create the noise generator
+	cryptoParams.SetDiscreteGaussianGeneratorStSt(dggStehleSteinfeld);
 
 	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
 
@@ -200,6 +252,7 @@ void NTRUPRE(int input) {
 	start = currentDateTime();
 
 	//This code is run only when performing execution time measurements
+
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
@@ -222,8 +275,14 @@ void NTRUPRE(int input) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
+	//LPAlgorithmLTV<ILVector2n> algorithm;
+
+	//std::bitset<FEATURESETSIZE> mask (std::string("000011"));
+	//LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
+
+	LPPublicKeyEncryptionSchemeStehleSteinfeld<ILVector2n> algorithm;
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(PRE);
 
 	bool successKeyGen=false;
 
@@ -238,6 +297,9 @@ void NTRUPRE(int input) {
 
 	cout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
 	fout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
+
+	//fout<< currentDateTime()  << " pk = "<<pk.GetPublicElement().GetValues()<<endl;
+	//fout<< currentDateTime()  << " sk = "<<sk.GetPrivateElement().GetValues()<<endl;
 
 	if (!successKeyGen) {
 		std::cout<<"Key generation failed!"<<std::endl;
@@ -303,6 +365,8 @@ void NTRUPRE(int input) {
 
 	//system("pause");
 
+	//LPAlgorithmPRELTV<ILVector2n> algorithmPRE;
+
 	////////////////////////////////////////////////////////////
 	//Perform the second key generation operation.
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
@@ -322,6 +386,11 @@ void NTRUPRE(int input) {
 
 	cout << "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
 	fout << "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
+
+//	cout<<"newPK = "<<newPK.GetPublicElement().GetValues()<<endl;
+//	cout<<"newSK = "<<newSK.GetPrivateElement().GetValues()<<endl;
+//	fout<<"newPK = "<<newPK.GetPublicElement().GetValues()<<endl;
+//	fout<<"newSK = "<<newSK.GetPrivateElement().GetValues()<<endl;
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption key generation operation.
@@ -362,6 +431,7 @@ void NTRUPRE(int input) {
 	cout<< "Re-encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 	fout<< "Re-encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
+	//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -394,10 +464,7 @@ void NTRUPRE(int input) {
 
 	fout.close();
 
+	//system("pause");
 
 }
-
-BASIC_BENCHMARK_TEST(BM_SOURCE); // runs the benchmark over the range of input
-
-BENCHMARK_MAIN()
 

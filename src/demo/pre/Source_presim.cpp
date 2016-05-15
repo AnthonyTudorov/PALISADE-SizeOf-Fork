@@ -23,8 +23,6 @@ In this code we:
 - Decrypt the re-encrypted data.
 We configured parameters (namely the ring dimension and ciphertext modulus) to provide a level of security roughly equivalent to a root hermite factor of 1.007 which is generally considered secure and conservatively comparable to AES-128 in terms of computational work factor and may be closer to AES-256.
 
-Additionally we excercise the gnu benchmark library
-
 License Information:
 
 Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
@@ -36,35 +34,35 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#define _USE_MATH_DEFINES 
 #include <iostream>
 #include <fstream>
-#include "lib/math/backend.h"
-//#include "lib/math/cpu8bit/backend.h"
-#include "lib/utils/inttypes.h"
-#include "lib/math/nbtheory.h"
+#include "../../lib/math/backend.h"
+//#include "../../lib/math/cpu8bit/backend.h"
+#include "../../lib/utils/inttypes.h"
+#include "../../lib/math/nbtheory.h"
 //#include <thread>
-#include "lib/lattice/elemparams.h"
-#include "lib/lattice/ilparams.h"
-#include "lib/lattice/ildcrtparams.h"
-#include "lib/lattice/ilelement.h"
-//#include "lib/il2n.h"
-#include "lib/math/distrgen.h"
-#include "lib/crypto/lwecrypt.h"
-#include "lib/crypto/lwecrypt.cpp"
-#include "lib/crypto/lwepre.h"
-#include "lib/crypto/lwepre.cpp"
-#include "lib/crypto/lweahe.cpp"
-#include "lib/crypto/lweautomorph.cpp"
-#include "lib/crypto/lweshe.cpp"
-#include "lib/crypto/lwefhe.cpp"
-#include "lib/lattice/ilvector2n.h"
-#include "lib/lattice/ilvectorarray2n.h"
-#include "lib/crypto/ciphertext.cpp"
-//#include "lib/time.h"
-//#include "lib/vld.h"
-//#include <chrono>
-#include "lib/utils/debug.h"
+#include "../../lib/lattice/elemparams.h"
+#include "../../lib/lattice/ilparams.h"
+#include "../../lib/lattice/ildcrtparams.h"
+#include "../../lib/lattice/ilelement.h"
+//#include "../../lib/il2n.h"
+#include "../../lib/math/distrgen.h"
+#include "../../lib/crypto/lwecrypt.h"
+#include "../../lib/crypto/lwecrypt.cpp"
+#include "../../lib/crypto/lwepre.h"
+#include "../../lib/crypto/lwepre.cpp"
+#include "../../lib/crypto/lweahe.cpp"
+#include "../../lib/crypto/lweshe.cpp"
+#include "../../lib/crypto/lwefhe.cpp"
+#include "../../lib/crypto/lweautomorph.cpp"
+#include "../../lib/lattice/ilvector2n.h"
+#include "../../lib/lattice/ilvectorarray2n.h"
+#include "../../lib/crypto/ciphertext.cpp"
+//#include "../../lib/time.h"
+
+//#include "../../lib/vld.h"
+//include <chrono>
+#include "../../lib/utils/debug.h"
 #include <vector>
 
 
@@ -92,13 +90,12 @@ void EncryptionSchemeSimulation(usint count);
 void PRESimulation(usint count, usint dataset);
 
 int main() {
-        cout<<"Note we have not yet implemented the benchmark for this code."
-	    << endl;
+
 	//EncryptionSchemeSimulation(100);
 	PRESimulation(100,0);
 
-	cout << "Press any key to continue..." << endl;
-	cin.get();
+	std::cout<<"Press any key to continue..."<<std::endl;
+	std::cin.get();
 
 	return 0;
 }
@@ -366,6 +363,7 @@ void PRESimulation(usint count, usint dataset){
 	//GENERATE THE KEYS
 
 	//LWE-NTRU encryption/pre-encryption algorithm instance
+	//LPAlgorithmPRELTV<ILVector2n> algorithm;
 	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
 
