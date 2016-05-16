@@ -184,7 +184,15 @@ template<class IntegerType>
 void BigBinaryVector<IntegerType>::SetModulus(const IntegerType& value){
 	this->m_modulus = value;
 }
-
+/**Switches the integers in the vector to values corresponding to the new modulus
+*  Algorithm: Integer i, Old Modulus om, New Modulus nm, delta = abs(om-nm):
+*  Case 1: om < nm
+*  if i > i > om/2
+*  i' = i + delta
+*  Case 2: om > nm
+*  i > om/2
+*  i' = i-delta
+*/	
 template<class IntegerType>
 void BigBinaryVector<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
 	
