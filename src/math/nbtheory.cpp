@@ -362,9 +362,9 @@ void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const 
 	}
 
 	BigBinaryInteger gcd;
-	gcd = GreatestCommonDivisor(q - BigBinaryInteger::ONE, ringDimensions);
+	gcd = GreatestCommonDivisor(q - BigBinaryInteger::ONE, cyclotomicOrder);
 
-	if(!(ringDimensions == gcd)){
+	if(!(cyclotomicOrder == gcd)){
 		q = q + BigBinaryInteger::ONE;
 	  	NextQ(q, plainTextModulus, ringDimension, sigma, alpha);
 	}
