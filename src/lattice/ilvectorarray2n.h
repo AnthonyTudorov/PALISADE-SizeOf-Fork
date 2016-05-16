@@ -86,7 +86,9 @@ namespace lbcrypto {
 		*
 		* @param &towers vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
 		*/
+
 		ILVectorArray2n(const std::vector<ILVector2n> &towers);
+
 		/**
 		* Construct using a single ILVector2n. The format is derived from the passed in ILVector2n.
 		*
@@ -103,6 +105,13 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
 
+		/**
+		* Move constructor.
+		*
+		* @param &&element ILVectorArray2n to move from
+		*/
+
+		ILVectorArray2n(const ILVectorArray2n &&element);
 
 		// DESTRUCTORS
 		/**
@@ -346,6 +355,7 @@ namespace lbcrypto {
 		void DropTower(usint index);
 		/**
 		* ModReduces reduces the ILVectorArray2n's composite modulus by dropping the last modulus from the chain of moduli.
+		* 
 		*/
 		void ModReduce();
 		/**

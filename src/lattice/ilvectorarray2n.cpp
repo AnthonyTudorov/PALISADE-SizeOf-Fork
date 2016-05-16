@@ -160,6 +160,14 @@ namespace lbcrypto {
 		}
 	  }
 
+	ILVectorArray2n::ILVectorArray2n(const ILVectorArray2n &&element){
+		
+		this->m_format = element.m_format;
+		this->m_params = element.m_params;
+		this->m_vectors = std::move(element.m_vectors);
+	}
+
+
 	// DESTRUCTORS
 
 	ILVectorArray2n::~ILVectorArray2n()
