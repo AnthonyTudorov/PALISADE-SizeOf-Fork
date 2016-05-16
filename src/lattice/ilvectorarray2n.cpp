@@ -117,7 +117,7 @@ namespace lbcrypto {
 		m_vectors.reserve(m_params.GetModuli().size());
 
 		m_format = format;
-
+		//dgg generating random values
 		sint* dggValues = dgg.GenerateCharVector(m_params.GetCyclotomicOrder()/2);
 	
 
@@ -136,6 +136,7 @@ namespace lbcrypto {
 			BigBinaryVector ilDggValues(m_params.GetCyclotomicOrder()/2,modulus);
 
 			for(usint j = 0; j < m_params.GetCyclotomicOrder()/2; j++){
+				// if the random generated value is less than zero, then multiply it by (-1) and subtract the modulus of the current tower to set the coefficient
 				if((int)dggValues[j] < 0){
 					int k = (int)dggValues[j];
 					k = k * (-1);
@@ -143,14 +144,16 @@ namespace lbcrypto {
 					temp = m_params.GetModuli()[i] - temp;
 					ilDggValues.SetValAtIndex(j,temp);
 				}
+				//if greater than or equal to zero, set it the value generated
 				else{				
 					int k = (int)dggValues[j];
 					temp = k;
 					ilDggValues.SetValAtIndex(j,temp);
 				}
 			}
-			ilvector.SetValues(ilDggValues, Format::COEFFICIENT);
-			if(m_format == Format::EVALUATION){
+
+			ilvector.SetValues(ilDggValues, Format::COEFFICIENT); // the random values are set in coefficient format
+			if(m_format == Format::EVALUATION){  // if the input format is evaluation, then once random values are set in coefficient format, switch the format to achieve what the caller asked for.
 				ilvector.SwitchFormat();
 			}
 			m_vectors.push_back(ilvector);
@@ -524,20 +527,24 @@ namespace lbcrypto {
 
 		//TODO: Get the Plain text modulus properly!
 		BigBinaryInteger p(BigBinaryInteger::TWO);
+		//precomputations
 		BigBinaryInteger qt(m_params.GetModuli()[lastTowerIndex]);
 		BigBinaryInteger v(qt.ModInverse(p));
 		BigBinaryInteger a((v * qt).ModSub(BigBinaryInteger::ONE, p*qt));
-		d.SwitchModulus(p*qt);
+		//Since only positive values are being used for Discrete gaussian generator, a call to switch modulus needs to be done
+		d.SwitchModulus(p*qt); 		
 
+		//Calculating delta, step 2
 		ILVector2n delta(d.Times(a)); 
 
-		/*Since we are using only positive values for our Discrete gaussian generator, we need to call SwitchModulus*/
+		//Calculating d' = c + delta mod q (step 3)
 		for(usint i=0; i<length; i++) {
 			ILVector2n temp(delta);
 			temp.SwitchModulus(moduli[i]);
 			m_vectors[i] += temp;
 		}
 
+		//step 4
 		this->DropTower(lastTowerIndex);
 
 		std::vector<BigBinaryInteger> qtInverseModQi(length-1);
@@ -545,7 +552,6 @@ namespace lbcrypto {
 			qtInverseModQi[i] =  qt > moduli[i] ? qt.Mod(moduli[i]).ModInverse(moduli[i]) : qt.ModInverse(moduli[i]);
 			m_vectors[i] = qtInverseModQi[i] * m_vectors[i];
 		}
-
 		this->SwitchFormat();
 	}
 
