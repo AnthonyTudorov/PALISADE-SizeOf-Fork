@@ -1,4 +1,4 @@
-//LAYER 1 : PRIMITIVE DATA STRUCTURES AND OPERATIONS
+﻿//LAYER 1 : PRIMITIVE DATA STRUCTURES AND OPERATIONS
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
 Version:
@@ -1253,6 +1253,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	}
 }
 
+//Optimized Mod Substraction using ModBarrett
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrettSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const{
 
@@ -1403,6 +1404,11 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 }
 
 //Modulus Multiplication using Square and Multiply Algorithm
+//For i = k - 2 downto 0
+// C : = C2 mod n
+// If ei = 1
+// then C : = C⋅M mod n
+// Return C;
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModExp(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const{
 
