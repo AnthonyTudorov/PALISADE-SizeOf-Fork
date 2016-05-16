@@ -97,7 +97,7 @@ namespace lbcrypto {
 		Encode(modulusValue, &temp);
 	//	temp.PrintValues();
 	//	ILVectorArray2n ilvectorArrayTemp(temp, ilVectorArray2n->GetParams(),ilVectorArray2n->GetFormat());
-		ILVectorArray2n ilvectorArrayTemp(temp, ilVectorArray2n->GetParams(),Format::COEFFICIENT);
+		ILVectorArray2n ilvectorArrayTemp(temp, ilVectorArray2n->GetParams());
 		//	ilvectorArrayTemp.PrintValues();
 		*ilVectorArray2n = ilvectorArrayTemp;
 	//	ilvectorArrayTemp.PrintValues();

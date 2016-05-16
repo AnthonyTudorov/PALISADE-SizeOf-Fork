@@ -62,7 +62,6 @@ namespace lbcrypto {
 
 		// CONSTRUCTORS
 
-
 		/**
 		* Constructor that initializes nothing.
 		*/
@@ -83,21 +82,18 @@ namespace lbcrypto {
 
 		ILVectorArray2n(const ILVectorArray2n &element);
 		/**
-		* Construct using an array in either Coefficient (0) or CRT format (1).
+		* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArray2n will be derived from the towers.
 		*
-		* @param &params parameter set required for ILVectorArray2n.
-		* @param &levels vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
-		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		* @param &towers vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
 		*/
-		ILVectorArray2n(const ElemParams &params, const std::vector<ILVector2n> &levels, Format format = EVALUATION);
+		ILVectorArray2n(const std::vector<ILVector2n> &towers);
 		/**
-		* Construct using a single ILVector2n in either Coefficient (0) or CRT format (1).
+		* Construct using a single ILVector2n. The format is derived from the passed in ILVector2n.
 		*
 		* @param &element ILVector2n to build other towers from.
 		* @param &params parameter set required for ILVectorArray2n.
-		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArray2n(const ILVector2n &element, const ElemParams &params, Format format = EVALUATION);
+		ILVectorArray2n(const ILVector2n &element, const ElemParams &params);
 		/**
 		* Constructor based on full methods.
 		*
@@ -115,7 +111,7 @@ namespace lbcrypto {
 		~ILVectorArray2n();
 
 	
-		// Get accessors
+		// GET ACCESSORS
 		/**
 		* Get method of individual towers.
 		*
@@ -123,21 +119,6 @@ namespace lbcrypto {
 		* @returns a reference to the ILVector2n at index i.
 		*/
 		const ILVector2n &GetValues(usint i) const;
-
-		/**
-		* Set method of the values.
-		*
-		* @param &levels vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
-		* @param format the input format of ILVectors. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
-		*/
-		void SetValues(const std::vector<ILVector2n> &levels, Format format);
-
-		/**
-		* Set method of the values.
-		*
-		* @param &params is the ILDCRTParams.
-		*/
-		void SetParams(const ElemParams &params);
 
 		/**
 		* Get method of the tower length.
@@ -184,87 +165,20 @@ namespace lbcrypto {
 
 		ElemParams& AccessParams();
 
+		//SETTERS
 		/**
-		* Prints values of each tower
-		*/
-		void PrintValues() const;
-
-		/**
-		* Adds one to every entry in every tower.
-		*/
-		void AddILElementOne();
-		/**
-		* Make ILVectorArray2n Sparse for SHE KeyGen operations. Sets every index not equal to zero mod the wFactor to zero for every tower.
+		* Set method of the values. The params and format will be derived from the towers.
 		*
-		* @param &wFactor ratio between the original ILVectorArray2n's ring dimension and the new ring dimension.
+		* @param &towers vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
 		*/
-		void MakeSparse(const BigBinaryInteger &wFactor);
-
-		// SCALAR OPERATIONS
-
-		// multiplicative inverse operation
-		/**
-		* Performs a multiplicative inverse operation and returns the result.
-		*
-		* @return is the result of the multiplicative inverse.
-		*/
-		ILVectorArray2n MultiplicativeInverse() const;
+		void SetValues(const std::vector<ILVector2n> &towers);
 
 		/**
-		* Scalar addition - add an element to all entries.
+		* Set method of the values.
 		*
-		* @param &element is the element to add entry-wise.
-		* @return is the return of the addition operation.
+		* @param &params is the ILDCRTParams.
 		*/
-		ILVectorArray2n Plus(const BigBinaryInteger &element) const;
-
-		/**
-		* Scalar subtraction - subtract an element to all entries.
-		*
-		* @param &element is the element to subtract entry-wise.
-		* @return is the return value of the minus operation.
-		*/
-		ILVectorArray2n Minus(const BigBinaryInteger &element) const;
-
-		/**
-		* Scalar multiplication - multiply all entries.
-		*
-		* @param &element is the element to multiply entry-wise.
-		* @return is the return value of the times operation.
-		*/
-
-		ILVectorArray2n Times(const BigBinaryInteger &element) const;
-
-		/**
-		* Modulus - perform a modulus operation.
-		*
-		* @param modulus is the modulus to use.
-		* @return is the return value of the modulus.
-		*/
-		ILVectorArray2n Mod(const BigBinaryInteger &modulus) const;
-
-		/**
-		* Perform a modulus by 2 operation.  Returns the least significant bit.
-		*
-		* @return is the return value of the modulus by 2, also the least significant bit.
-		*/
-		ILVectorArray2n ModByTwo() const;
-
-		/**
-		* Performs an addition operation and returns the result.
-		*
-		* @param &rhs is the element to add with.
-		* @return is the result of the addition.
-		*/
-		const ILVectorArray2n& operator+=(const BigBinaryInteger &rhs);
-
-		/**
-		* Performs an addition operation and returns the result.
-		*
-		* @param &element is the element to add with.
-		* @return is the result of the addition.
-		*/
-		const ILVectorArray2n& operator-=(const BigBinaryInteger &element);
+		void SetParams(const ElemParams &params);
 
 		//VECTOR OPERATIONS
 
@@ -320,7 +234,7 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n Plus(const ILVectorArray2n &element) const;
 
-		// multiplication operation - 
+		// multiplication operation
 		/**
 		* Performs a multiplication operation and returns the result.
 		*
@@ -337,7 +251,90 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n Minus(const ILVectorArray2n &element) const;
 
+		//SCALAR OPERATIONS
+
+		/**
+		* Scalar addition - add an element to all entries.
+		*
+		* @param &element is the element to add entry-wise.
+		* @return is the return of the addition operation.
+		*/
+		ILVectorArray2n Plus(const BigBinaryInteger &element) const;
+
+		/**
+		* Scalar subtraction - subtract an element to all entries.
+		*
+		* @param &element is the element to subtract entry-wise.
+		* @return is the return value of the minus operation.
+		*/
+		ILVectorArray2n Minus(const BigBinaryInteger &element) const;
+
+		/**
+		* Scalar multiplication - multiply all entries.
+		*
+		* @param &element is the element to multiply entry-wise.
+		* @return is the return value of the times operation.
+		*/
+
+		ILVectorArray2n Times(const BigBinaryInteger &element) const;
+
+		/**
+		* Modulus - perform a modulus operation.
+		*
+		* @param modulus is the modulus to use.
+		* @return is the return value of the modulus.
+		*/
+		ILVectorArray2n Mod(const BigBinaryInteger &modulus) const;
+		
+		/**
+		* Performs an addition operation and returns the result.
+		*
+		* @param &rhs is the element to add with.
+		* @return is the result of the addition.
+		*/
+		const ILVectorArray2n& operator+=(const BigBinaryInteger &rhs);
+
+		/**
+		* Performs an addition operation and returns the result.
+		*
+		* @param &element is the element to add with.
+		* @return is the result of the addition.
+		*/
+		const ILVectorArray2n& operator-=(const BigBinaryInteger &element);
+
+		// multiplicative inverse operation
+		/**
+		* Performs a multiplicative inverse operation and returns the result.
+		*
+		* @return is the result of the multiplicative inverse.
+		*/
+		ILVectorArray2n MultiplicativeInverse() const;
+
+		/**
+		* Perform a modulus by 2 operation.  Returns the least significant bit.
+		*
+		* @return is the return value of the modulus by 2, also the least significant bit.
+		*/
+		ILVectorArray2n ModByTwo() const;
+
 		// OTHER FUNCTIONS AND UTILITIES 
+
+		/**
+		* Prints values of each tower
+		*/
+		void PrintValues() const;
+
+		/**
+		* Adds one to every entry in every tower.
+		*/
+		void AddILElementOne();
+		/**
+		* Make ILVectorArray2n Sparse for SHE KeyGen operations. Sets every index not equal to zero mod the wFactor to zero for every tower.
+		*
+		* @param &wFactor ratio between the original ILVectorArray2n's ring dimension and the new ring dimension.
+		*/
+		void MakeSparse(const BigBinaryInteger &wFactor);
+
 		/**
 		* Interleaves values in each tower with odd indices being all zeros.
 		*/
@@ -410,6 +407,8 @@ namespace lbcrypto {
 
 		// 0 for coefficient and 1 for evaluation format
 		Format m_format;
+
+		void SetParamsFromTowers(const std::vector<ILVector2n> &towers);
 	};
 
 	/**

@@ -192,6 +192,7 @@ namespace lbcrypto {
 
 		void SetModuli(const std::vector<BigBinaryInteger> &moduli) {
 			m_moduli = moduli;
+			calculateModulus();
 		}
 		/**
 		* Set the modulus.

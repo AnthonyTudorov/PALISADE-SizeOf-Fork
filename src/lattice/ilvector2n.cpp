@@ -438,7 +438,7 @@ namespace lbcrypto {
 	
 	}
 
-
+	
 	void ILVector2n::MakeSparse(const BigBinaryInteger &wFactor){
 		BigBinaryInteger modTemp;
 		BigBinaryInteger tempValue;
@@ -448,9 +448,7 @@ namespace lbcrypto {
 			if(!(i%w == 0)){
 				m_values->SetValAtIndex(i,BigBinaryInteger::ZERO);
 			}
-
 		}
-	
 	}
 
 	// This function modifies ILVector2n to keep all the even indices. It reduces the ring dimension by half.
