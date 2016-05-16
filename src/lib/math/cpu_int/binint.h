@@ -652,14 +652,21 @@ namespace cpu_int{
 
     template<typename uint_type_c,usint BITLENGTH_c>
 		friend std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BITLENGTH_c> &ptr_obj);
-        /**
-         * Gets the bit at the specified index.
-         *
-         * @param index is the index of the bit to get.
-         * @return is the resulting bit.
-         */
+    /**
+        * Gets the bit at the specified index.
+        *
+        * @param index is the index of the bit to get.
+        * @return is the resulting bit.
+        */
     uschar GetBitAtIndex(usint index) const;
 
+
+	/**
+	* Sets the int value at the specified index.
+	*
+	* @param index is the index of the int to set in the uint array.
+	*/
+	void SetIntAtIndex(usint idx, uint_type value);
         
         //constant definations
         
