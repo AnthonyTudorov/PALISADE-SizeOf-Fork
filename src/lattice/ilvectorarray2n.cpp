@@ -520,7 +520,7 @@ namespace lbcrypto {
 	* 3. let d′ = c + delta mod q. By construction, d′ is divisible by q′.
 	* 4. output (d′/q′) in R(q/q′).
 	*/
-	void ILVectorArray2n::ModReduce() {
+	void ILVectorArray2n::ModReduce(const BigBinaryInteger &plaintextModulus) {
 		if(this->GetFormat() != Format::EVALUATION) {
 			throw std::logic_error("Mod Reduce function expects EVAL Formatted ILVectorArray2n. It was passed COEFF Formatted ILVectorArray2n.");
 		}
@@ -533,14 +533,12 @@ namespace lbcrypto {
 		ILVector2n towerT(m_vectors[lastTowerIndex]); //last tower that will be dropped
 		ILVector2n d(towerT); 
 
-		//TODO: Get the Plain text modulus properly!
-		BigBinaryInteger p(BigBinaryInteger::TWO);
 		//precomputations
 		BigBinaryInteger qt(m_params.GetModuli()[lastTowerIndex]);
-		BigBinaryInteger v(qt.ModInverse(p));
-		BigBinaryInteger a((v * qt).ModSub(BigBinaryInteger::ONE, p*qt));
+		BigBinaryInteger v(qt.ModInverse(plaintextModulus));
+		BigBinaryInteger a((v * qt).ModSub(BigBinaryInteger::ONE, plaintextModulus*qt));
 		//Since only positive values are being used for Discrete gaussian generator, a call to switch modulus needs to be done
-		d.SwitchModulus(p*qt); 		
+		d.SwitchModulus(plaintextModulus*qt); 		
 
 		//Calculating delta, step 2
 		ILVector2n delta(d.Times(a)); 

@@ -349,15 +349,17 @@ namespace lbcrypto {
 		*/
 		void Decompose();
 		/**
-		* @param index is the index of the tower to be dropped.
 		* Drops the last tower of ILVectorArray2n and adjusts parameters.
+		*
+		* @param index is the index of the tower to be dropped.
 		*/
 		void DropTower(usint index);
 		/**
 		* ModReduces reduces the ILVectorArray2n's composite modulus by dropping the last modulus from the chain of moduli.
 		* 
+		*@param plaintextModulus is the plaintextModulus used for the ILVectorArray2n
 		*/
-		void ModReduce();
+		void ModReduce(const BigBinaryInteger &plaintextModulus);
 		/**
 		* Interpolates the ILVectorArray2n to an ILVector2n based on the Chinese Remainder Transform Interpolation.
 		*

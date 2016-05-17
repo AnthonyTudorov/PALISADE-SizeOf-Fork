@@ -262,7 +262,9 @@ void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(Ciphertext<ILVectorArr
 
 	ILVectorArray2n cipherTextElement(cipherText->GetElement()); 
 
-	cipherTextElement.ModReduce(); // this is being done at the lattice layer. The ciphertext is mod reduced.
+	BigBinaryInteger plaintext(cipherText->GetCryptoParameters().GetPlaintextModulus());
+
+	cipherTextElement.ModReduce(plaintext); // this is being done at the lattice layer. The ciphertext is mod reduced.
 
 	cipherText->SetElement(cipherTextElement);
 	
