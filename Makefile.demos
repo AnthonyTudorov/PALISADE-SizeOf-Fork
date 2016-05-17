@@ -60,7 +60,7 @@ $(BINDIR)/demo/%: $(EXTLIBDIR)/lib$(SOLIB).so $(BUILDDIR)/demo/%.o
 #$(LIBDIR)lib$(SOLIB)
 	@echo " -- demo:linking $@"
 	mkdir -p $(@D)
-	 $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@))  -l$(SOLIB) $(EXTLIB) -L$(EXTLIBDIR)
+	 $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@)) -L$(EXTLIBDIR) -l$(SOLIB) $(EXTLIB)
 	@echo
 
 #this will build the .o for each demo

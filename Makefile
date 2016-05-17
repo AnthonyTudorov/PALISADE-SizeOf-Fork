@@ -32,6 +32,8 @@
 
 CC := g++ # This is the main compiler
 
+BOOSTDIR := /boost_1_60_0
+
 # NOTE select the appropriate set of CPPFLAGS 
 # most code is checked into git with the first line active
 CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g## undefine for single thread debug operation
@@ -64,7 +66,7 @@ HDREXT := h
 $(objects) : %.o : %.cpp
 
 EXTLIB := -pthread -lgomp #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
-INC := -I include
+INC := -I include -I $(BOOSTDIR)
 
 #the name of the shared object library for palisade objects.  
 SOLIB := PALISADE
