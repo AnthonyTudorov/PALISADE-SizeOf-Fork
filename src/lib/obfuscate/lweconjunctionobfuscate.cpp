@@ -177,7 +177,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 		std::vector<TrapdoorPair>   *Ek_vector_pvt = new std::vector<TrapdoorPair>();
 		std::vector<Matrix<LargeFloat>> *sigma_pvt = new std::vector<Matrix<LargeFloat>>();
 #pragma omp for nowait schedule(static)
-		for(usint i=0; i<=l+1; i++) {
+		for(int32_t i=0; i<=l+1; i++) {
 			//build private copies in parallel
 			TIC(tp);
 			pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev); //TODO remove stddev
@@ -413,12 +413,12 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	//DBC: this loop takes all the time in encode
 	//TODO (dcousins): move gaussj generation out of the loop to enable parallelisation
 	#pragma omp parallel for
-	for(size_t i=0; i<m; i++) {
+	for(int32_t i=0; i<m; i++) {
 
 	  // the following takes approx 250 msec
 		Matrix<Element> gaussj = GaussSamp(n,k,Ai,Ti,sigma,bj(0,i),dgg.GetStd(), dgg);
 		// the following takes no time
-		for(size_t j=0; j<m; j++) {
+		for(int32_t j=0; j<m; j++) {
 			(*encodedElem)(j,i) = gaussj(j,0);
 
 		}
