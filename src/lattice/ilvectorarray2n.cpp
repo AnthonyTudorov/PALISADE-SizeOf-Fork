@@ -334,17 +334,17 @@ namespace lbcrypto {
             return *this;
 	}
 
-	const ILVectorArray2n& ILVectorArray2n::operator-=(const lbcrypto::ILVectorArray2n &rhs) {
+	const ILVectorArray2n& ILVectorArray2n::operator-=(const ILVectorArray2n &rhs) {
             ILVectorArray2n result = this->Minus(rhs);
             *this = result;
             return *this;
         }
 
-	bool ILVectorArray2n::operator!=(const lbcrypto::ILVectorArray2n &rhs) const {
+	bool ILVectorArray2n::operator!=(const ILVectorArray2n &rhs) const {
             return !(*this == rhs);
         }
 	
-	bool ILVectorArray2n::operator==(const lbcrypto::ILVectorArray2n &rhs) const {
+	bool ILVectorArray2n::operator==(const ILVectorArray2n &rhs) const {
             if (this->GetFormat() != rhs.GetFormat()) {
                 return false;
             }

@@ -204,14 +204,14 @@ namespace lbcrypto {
 		* @param &rhs is the specified ILVectorArray2n to be compared with this ILVectorArray2n.
 		* @return true if this ILVectorArray2n represents the same values as the specified ILVectorArray2n, false otherwise
 		*/
-		bool operator==(const lbcrypto::ILVectorArray2n &rhs) const;
+		bool operator==(const ILVectorArray2n &rhs) const;
 		/**
 		* Not equal operator compares this ILVectorArray2n to the specified ILVectorArray2n
 		*
 		* @param &rhs is the specified ILVectorArray2n to be compared with this ILVectorArray2n.
 		* @return true if this ILVectorArray2n represents the same values as the specified ILVectorArray2n, false otherwise
 		*/
-        bool operator!=(const lbcrypto::ILVectorArray2n &rhs) const;
+        bool operator!=(const ILVectorArray2n &rhs) const;
 		/**
 		* Performs an addition operation and returns the result.
 		*
@@ -429,7 +429,7 @@ namespace lbcrypto {
 	*
 	* @return The result of multiplication in the ring.
 	*/
-	inline lbcrypto::ILVectorArray2n operator*(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) { return a.Times(b); }
+	inline ILVectorArray2n operator*(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Times(b); }
 
 	/**
 	* Multiplication operator overload.  Performs a multiplication in the ring.
@@ -439,7 +439,7 @@ namespace lbcrypto {
 	*
 	* @return The result of multiplication in the ring.
 	*/
-	inline lbcrypto::ILVectorArray2n operator*(const lbcrypto::BigBinaryInteger &b, const lbcrypto::ILVectorArray2n &a) { return a.Times(b); }
+	inline ILVectorArray2n operator*(const BigBinaryInteger &b, const ILVectorArray2n &a) { return a.Times(b); }
 
 	/**
 	* Multiplication operator overload.  Performs a multiplication in the ring.
@@ -449,7 +449,7 @@ namespace lbcrypto {
 	*
 	* @return The result of multiplication in the ring.
 	*/
-	inline lbcrypto::ILVectorArray2n operator*(const lbcrypto::ILVectorArray2n &b,const lbcrypto::BigBinaryInteger &a) { return b.Times(a); }
+	inline ILVectorArray2n operator*(const ILVectorArray2n &b,const BigBinaryInteger &a) { return b.Times(a); }
 
 	/**
 	* Addition operator overload.  Performs an addition in the ring.
@@ -459,7 +459,7 @@ namespace lbcrypto {
 	*
 	* @return The result of addition in the ring.
 	*/
-	inline lbcrypto::ILVectorArray2n operator+(const lbcrypto::ILVectorArray2n &a, const lbcrypto::ILVectorArray2n &b) { return a.Plus(b); }
+	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Plus(b); }
 
 	/**
 	* Addition operator overload.  Performs an addition in the ring.
@@ -469,7 +469,7 @@ namespace lbcrypto {
 	*
 	* @return The result of addition in the ring.
 	*/
-	inline lbcrypto::ILVectorArray2n operator+(const lbcrypto::ILVectorArray2n &a, const lbcrypto::BigBinaryInteger &b) { return a.Plus(b); }
+	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const BigBinaryInteger &b) { return a.Plus(b); }
 } // namespace lbcrypto ends
 
 #endif
