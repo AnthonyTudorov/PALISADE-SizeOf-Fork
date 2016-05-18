@@ -63,8 +63,10 @@ namespace lbcrypto {
 #endif
 
 #if MATHBACKEND == 2
+	typedef uint32_t integral_dtype;
+	static_assert(cpu_int::datatypechecker<integral_dtype>::value,"Data type provided is not supported in BigBinaryInteger");
 	/** Define the mapping for BigBinaryInteger */
-	typedef cpu_int::BigBinaryInteger<uint32_t,1500> BigBinaryInteger;
+	typedef cpu_int::BigBinaryInteger<integral_dtype,1500> BigBinaryInteger;
 	/** Define the mapping for BigBinaryVector */
 	typedef cpu_int::BigBinaryVector<BigBinaryInteger> BigBinaryVector;
 	/** Define the mapping for BigBinaryMatrix */

@@ -505,7 +505,7 @@ Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryInteger> &input, const BigB
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < cols; ++j) {
             if (input(i,j) > negativeThreshold) {
-                result(i,j) = -(modulus - input(i,j)).ConvertToInt();
+               // result(i,j) = -(modulus - input(i,j)).ConvertToInt();
             } else {
                 result(i,j) = input(i,j).ConvertToInt();
             }
@@ -523,7 +523,7 @@ Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryVector> &input, const BigBi
         for (size_t j = 0; j < cols; ++j) {
             const BigBinaryInteger& elem = input(i,j).GetValAtIndex(0);
             if (elem > negativeThreshold) {
-                result(i,j) = -(modulus - elem).ConvertToInt();
+             //   result(i,j) = -(modulus - elem).ConvertToInt();
             } else {
                 result(i,j) = elem.ConvertToInt();
             }
