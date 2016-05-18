@@ -148,14 +148,14 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
     #pragma omp parallel for
 
 
-    for (size_t row = 0; row < result.rows; ++row) {
+    for (int32_t row = 0; row < result.rows; ++row) {
 
 	//if result was zero allocated the following should not be needed
 	//for (size_t col = 0; col < result.cols; ++col) { 
 	//    *result.data[row][col] = 0;
 	//}
-	for (size_t i = 0; i < cols; ++i) {
-        for (size_t col = 0; col < result.cols; ++col) {
+	for (int32_t i = 0; i < cols; ++i) {
+        for (int32_t col = 0; col < result.cols; ++col) {
                 *result.data[row][col] += *data[row][i] * *other.data[i][col];
             }
         }
@@ -175,8 +175,8 @@ for (size_t row = 0; row < result.rows; ++row) {
     }
 #else
 #pragma omp parallel for
-for (size_t col = 0; col < result.cols; ++col) {
-	for (size_t row = 0; row < result.rows; ++row) {
+for (int32_t col = 0; col < result.cols; ++col) {
+	for (int32_t row = 0; row < result.rows; ++row) {
 
             *result.data[row][col] = *result.data[row][col] * other;
         }
@@ -226,8 +226,8 @@ Matrix<Element> Matrix<Element>::Add(Matrix<Element> const& other) const {
     }
 #else
 #pragma omp parallel for
-for (size_t j = 0; j < cols; ++j) {
-for (size_t i = 0; i < rows; ++i) {
+for (int32_t j = 0; j < cols; ++j) {
+for (int32_t i = 0; i < rows; ++i) {
             *result.data[i][j] += *other.data[i][j];
         }
     }
@@ -271,8 +271,8 @@ Matrix<Element> Matrix<Element>::Sub(Matrix<Element> const& other) const {
     }
 #else
     #pragma omp parallel for
-for (size_t j = 0; j < cols; ++j) {
-	for (size_t i = 0; i < rows; ++i) {
+for (int32_t j = 0; j < cols; ++j) {
+	for (int32_t i = 0; i < rows; ++i) {
             *result.data[i][j] = *data[i][j] - *other.data[i][j];
         }
     }
