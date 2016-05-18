@@ -197,7 +197,7 @@ namespace lbcrypto {
 		* @param &rhs the copied ILVectorArray2n.
 		* @return the resulting ILVectorArray2n.
 		*/
-		ILVectorArray2n& operator=(const ILVectorArray2n &rhs);
+		const ILVectorArray2n& operator=(const ILVectorArray2n &rhs);
 		/**
 		* Equal operator compares this ILVectorArray2n to the specified ILVectorArray2n
 		*

@@ -181,7 +181,7 @@ namespace lbcrypto {
 		* @param &rhs the copied vector.
 		* @return the resulting vector.
 		*/
-		ILVector2n& operator=(const ILVector2n &rhs);
+		const ILVector2n& operator=(const ILVector2n &rhs);
 
 		/**
 		* Assignment Operator.
@@ -189,7 +189,7 @@ namespace lbcrypto {
         * @param &&rhs the copied vector.
         * @return the resulting vector.
         */
-        ILVector2n& operator=(ILVector2n &&rhs);
+        const ILVector2n& operator=(ILVector2n &&rhs);
 
 		/**
 		* Assignment Operator. The usint val will be set at index zero and all other indices will be set to zero.
@@ -197,7 +197,7 @@ namespace lbcrypto {
         * @param val is the usint to assign to index zero.
         * @return the resulting vector.
         */
-		inline ILVector2n& operator=(usint val) {
+		inline const ILVector2n& operator=(usint val) {
             SetFormat(COEFFICIENT);
             this->SetValAtIndex(0, val);
             for (size_t i = 1; i < m_values->GetLength(); ++i) {
@@ -238,7 +238,7 @@ namespace lbcrypto {
 		* @param &element is the element to add with.
 		* @return is the result of the addition.
 		*/
-        inline lbcrypto::ILVector2n& operator-=(const lbcrypto::ILVector2n &element) {
+        inline const ILVector2n& operator-=(const lbcrypto::ILVector2n &element) {
             ILVector2n result = this->Minus(element);
             *this = result;
             return *this;
@@ -250,7 +250,7 @@ namespace lbcrypto {
 		* @param &element is the element to add with.
 		* @return is the result of the addition.
 		*/
-		inline lbcrypto::ILVector2n& operator+=(const lbcrypto::BigBinaryInteger &element) {
+		inline const ILVector2n& operator+=(const lbcrypto::BigBinaryInteger &element) {
             ILVector2n result = this->Plus(element);
             *this = result;
             return *this;
@@ -262,7 +262,7 @@ namespace lbcrypto {
 		* @param &element is the element to add with.
 		* @return is the result of the addition.
 		*/
-		inline lbcrypto::ILVector2n& operator-=(const lbcrypto::BigBinaryInteger &element) {
+		inline const ILVector2n& operator-=(const lbcrypto::BigBinaryInteger &element) {
             ILVector2n result = this->Minus(element);
             *this = result;
             return *this;

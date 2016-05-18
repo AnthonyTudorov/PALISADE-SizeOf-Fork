@@ -53,7 +53,7 @@ namespace lbcrypto {
 		element.m_values = NULL;
 	}
 
-	ILVector2n& ILVector2n::operator=(const ILVector2n &rhs) {
+	const ILVector2n& ILVector2n::operator=(const ILVector2n &rhs) {
 
 		if (this != &rhs) {
 			if (m_values == NULL) {
@@ -69,7 +69,7 @@ namespace lbcrypto {
 		return *this;
 	}
 
-	ILVector2n& ILVector2n::operator=(ILVector2n &&rhs) {
+	const ILVector2n& ILVector2n::operator=(ILVector2n &&rhs) {
 
 		if (this != &rhs) {
 			delete m_values;

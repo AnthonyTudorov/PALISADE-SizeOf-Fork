@@ -34,9 +34,7 @@ namespace lbcrypto {
 
 	/*CONSTRUCTORS*/
 
-	ILVectorArray2n::ILVectorArray2n() : m_vectors(NULL), m_format(EVALUATION),m_params()
-	{
-	}
+	ILVectorArray2n::ILVectorArray2n() : m_format(EVALUATION),m_params(){}
 
 	ILVectorArray2n::ILVectorArray2n(const ElemParams &params) : m_params(static_cast<const ILDCRTParams&>(params)), m_format(EVALUATION)
 	{
@@ -222,7 +220,7 @@ namespace lbcrypto {
 
 	void ILVectorArray2n::SetParams(const ElemParams &params) {
 
-		const ILDCRTParams &castedObj = dynamic_cast<const ILDCRTParams&>(params);
+		const ILDCRTParams &castedObj = static_cast<const ILDCRTParams&>(params);		
 		
 		m_params = castedObj;
 		
@@ -329,16 +327,12 @@ namespace lbcrypto {
 
 	const ILVectorArray2n & ILVectorArray2n::operator+=(const ILVectorArray2n &rhs)
 	{
-		  ILVectorArray2n result = this->Plus(rhs);
-            *this = result;
-            return *this;
+            return this->Plus(rhs);
 	}
 
 	const ILVectorArray2n& ILVectorArray2n::operator-=(const ILVectorArray2n &rhs) {
-            ILVectorArray2n result = this->Minus(rhs);
-            *this = result;
-            return *this;
-        }
+		return this->Minus(rhs);
+    }
 
 	bool ILVectorArray2n::operator!=(const ILVectorArray2n &rhs) const {
             return !(*this == rhs);
@@ -352,7 +346,7 @@ namespace lbcrypto {
                 return false;
             }
 
-		    const ILDCRTParams &castedObj = dynamic_cast<const ILDCRTParams&>(rhs.GetParams());
+		    const ILDCRTParams &castedObj = static_cast<const ILDCRTParams&>(rhs.GetParams());
 
 			if(const_cast<ILDCRTParams&>(m_params) != castedObj) { //why is it seeing m_params as const???!!
 				return false;
@@ -360,7 +354,7 @@ namespace lbcrypto {
             return true;
         }
 
-	ILVectorArray2n & ILVectorArray2n::operator=(const ILVectorArray2n & rhs)
+	const ILVectorArray2n & ILVectorArray2n::operator=(const ILVectorArray2n & rhs)
 	{
 		if (this != &rhs) {
 			m_vectors.resize(rhs.m_params.GetModuli().size());
@@ -425,15 +419,11 @@ namespace lbcrypto {
 	}
 
 	const ILVectorArray2n& ILVectorArray2n::operator+=(const BigBinaryInteger &rhs){
-		 ILVectorArray2n result = this->Plus(rhs);
-            *this = result;
-            return *this;
+         return this->Plus(rhs);
 	}
 	
 	const ILVectorArray2n& ILVectorArray2n::operator-=(const BigBinaryInteger &rhs){
-		 ILVectorArray2n result = this->Minus(rhs);
-            *this = result;
-            return *this;
+          return this->Minus(rhs);
 	}
 
 	/*OTHER FUNCTIONS*/
