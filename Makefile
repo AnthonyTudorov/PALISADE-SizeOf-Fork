@@ -32,7 +32,7 @@
 
 CC := g++ # This is the main compiler
 
-BOOSTDIR := /boost_1_60_0
+BOOSTDIR := C:/boost_1_60_0
 
 # NOTE select the appropriate set of CPPFLAGS 
 # most code is checked into git with the first line active
