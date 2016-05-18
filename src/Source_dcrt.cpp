@@ -107,7 +107,7 @@ struct SecureParams {
 int main() {
 
 
-	NTRU_DCRT();
+//	NTRU_DCRT();
 
 //	KeySwitchTest();
 
@@ -129,7 +129,7 @@ int main() {
 
 	//ModReduceTest();
 
-//	ModReduceNew();
+	ModReduceNew();
 
 //	ModReduceGyana();
 	
@@ -207,7 +207,7 @@ void NTRU_DCRT() {
 	cout << "big modulus: " << modulus << endl;
 	DiscreteGaussianGenerator dgg(modulus,stdDev);
 
-	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
+	ILDCRTParams params(rootsOfUnity, m, moduli);
 
 //	ILDCRTParams params(rootsOfUnity, m, moduli,modulus1*modulus2);
 
@@ -847,7 +847,7 @@ void DecomposeTestDoubleCRT(){
 
 	DiscreteGaussianGenerator dgg(modulus,stdDev);
 
-	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
+	ILDCRTParams params(rootsOfUnity, m, moduli);
 	
 	ILVectorArray2n ilVectorArray2n(dgg, params, Format::COEFFICIENT);
 	ilVectorArray2n.PrintValues();
@@ -898,7 +898,7 @@ void RingReduceDCRTTest(){
 	cout << "big modulus: " << modulus << endl;
 	DiscreteGaussianGenerator dgg(modulus,stdDev);
 
-	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
+	ILDCRTParams params(rootsOfUnity, m, moduli);
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
 	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
@@ -1161,7 +1161,7 @@ void ModReduceNew() {
 	cout << "big modulus: " << modulus << endl;
 	DiscreteGaussianGenerator dgg(modulus,stdDev);
 
-	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
+	ILDCRTParams params(rootsOfUnity, m, moduli);
 
 //	ILDCRTParams params(rootsOfUnity, m, moduli,modulus1*modulus2);
 
@@ -1220,230 +1220,7 @@ void ModReduceNew() {
 	
 }
 
-void ModReduceGyana() {
-	usint m = 8;
-	float stdDev = 8;
 
-	const BigBinaryInteger plainTextMod("2");
-
-	const BigBinaryInteger q1("17729");
-	const BigBinaryInteger q2("17761");
-
-	DiscreteGaussianGenerator dgg1(q1, 4);
-	DiscreteGaussianGenerator dgg2(q2, 4);
-
-	auto root1 = RootOfUnity(m, q1);
-	auto root2 = RootOfUnity(m, q2);
-
-	cout<< "root1: "<<root1<<endl;
-	cout<< "root2: "<<root2<<endl;
-
-
-	BigBinaryVector f1(m / 2);
-	BigBinaryVector f2(m / 2);
-
-	f1.SetValAtIndex(0, BigBinaryInteger("17726"));
-	//f1.SetValAtIndex(1, BigBinaryInteger("2"));
-	f1.SetValAtIndex(1, BigBinaryInteger("2"));
-	f1.SetValAtIndex(2, BigBinaryInteger("0"));
-	f1.SetValAtIndex(3, BigBinaryInteger("0"));
-	f1.SetModulus(q1);
-
-	f2.SetValAtIndex(0, BigBinaryInteger("17758"));
-	f2.SetValAtIndex(1, BigBinaryInteger("2"));
-	//f2.SetValAtIndex(2, BigBinaryInteger("17757"));
-	//f2.SetValAtIndex(2, BigBinaryInteger("17757"));
-	f2.SetValAtIndex(2, BigBinaryInteger("0"));
-	f2.SetValAtIndex(3, BigBinaryInteger("0"));
-	f2.SetModulus(q2);
-
-	//f1 = dgg1.GenerateIdentity(m/2,q1);
-	//f2 = dgg2.GenerateIdentity(m/2,q2);
-	//f1.SetValAtIndex(0, BigBinaryInteger("3")); //2115
-	//f2.SetValAtIndex(0, BigBinaryInteger("3"));
-
-	std::cout << "f1:" << f1 << std::endl;
-	std::cout << "f2:" << f2 << std::endl;
-
-	auto F1 = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(f1, root1, m);
-	std::cout << "F1:" << F1 << std::endl;
-	auto F1InverseEval = F1.ModInverse();
-	std::cout << "F1InverseEval:" << F1InverseEval << std::endl;
-
-	//std::cout << F1*F1InverseEval << std::endl;
-	auto F2 = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(f2, root2, m);
-	std::cout << "F2:" << F2 << std::endl;
-	auto F2InverseEval = F2.ModInverse();
-	std::cout << "F2InverseEval:" << F2InverseEval << std::endl;
-
-	auto f1InverseCoeff = ChineseRemainderTransformFTT::GetInstance().InverseTransform(F1InverseEval, root1, m);
-	auto f2InverseCoeff = ChineseRemainderTransformFTT::GetInstance().InverseTransform(F2InverseEval, root2, m);
-
-	std::cout << "f1InverseCoeff:" << f1InverseCoeff << endl;
-	std::cout << "f2InverseCoeff:" << f2InverseCoeff << endl;
-
-	auto m1 = dgg1.GenerateIdentity(m / 2, q1);
-	m1.SetValAtIndex(2, BigBinaryInteger::ONE);
-	std::cout << "m1:" << m1 << endl;
-	auto m2 = dgg2.GenerateIdentity(m / 2, q2);
-	m2.SetValAtIndex(2, BigBinaryInteger::ONE);
-	std::cout << "m2:" << m2 << endl;
-
-	auto M1 = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(m1, root1, m);
-	std::cout << "M1:" << M1 << std::endl;
-	auto M2 = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(m2, root2, m);
-	std::cout << "M2:" << M2 << std::endl;
-
-
-	BigBinaryVector e1(m / 2);
-	BigBinaryVector e2(m / 2);
-
-	e1.SetValAtIndex(0, BigBinaryInteger("2"));
-	//e1.SetValAtIndex(1, BigBinaryInteger("2"));
-	e1.SetValAtIndex(1, BigBinaryInteger("4"));
-	e1.SetValAtIndex(2, BigBinaryInteger("17725"));
-	e1.SetValAtIndex(3, BigBinaryInteger("3"));
-	e1.SetModulus(q1);
-
-	e2.SetValAtIndex(0, BigBinaryInteger("2"));
-	e2.SetValAtIndex(1, BigBinaryInteger("4"));
-	//e2.SetValAtIndex(2, BigBinaryInteger("17757"));
-	//e2.SetValAtIndex(2, BigBinaryInteger("17757"));
-	e2.SetValAtIndex(2, BigBinaryInteger("17757"));
-	e2.SetValAtIndex(3, BigBinaryInteger("3"));
-	e2.SetModulus(q2);
-
-	auto E1 = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(e1, root1, m);
-	auto E2 = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(e2, root2, m);
-
-	BigBinaryVector s1(m / 2);
-	BigBinaryVector s2(m / 2);
-
-	s1.SetValAtIndex(0, BigBinaryInteger("3"));
-	//g1.SetValAtIndex(1, BigBinaryInteger("2"));
-	s1.SetValAtIndex(1, BigBinaryInteger("3"));
-	s1.SetValAtIndex(2, BigBinaryInteger("17725"));
-	s1.SetValAtIndex(3, BigBinaryInteger("2"));
-	s1.SetModulus(q1);
-
-	s2.SetValAtIndex(0, BigBinaryInteger("3"));
-	s2.SetValAtIndex(1, BigBinaryInteger("3"));
-	//g2.SetValAtIndex(2, BigBinaryInteger("17757"));
-	//g2.SetValAtIndex(2, BigBinaryInteger("17757"));
-	s2.SetValAtIndex(2, BigBinaryInteger("17757"));
-	s2.SetValAtIndex(3, BigBinaryInteger("2"));
-	s2.SetModulus(q2);
-
-	auto S1 = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(s1, root1, m);
-	auto S2 = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(s2, root2, m);
-
-	BigBinaryVector g1(m / 2);
-	BigBinaryVector g2(m / 2);
-
-	g1.SetValAtIndex(0, BigBinaryInteger("3"));
-	//g1.SetValAtIndex(1, BigBinaryInteger("2"));
-	g1.SetValAtIndex(1, BigBinaryInteger("3"));
-	g1.SetValAtIndex(2, BigBinaryInteger("17725"));
-	g1.SetValAtIndex(3, BigBinaryInteger("2"));
-	g1.SetModulus(q1);
-
-	g2.SetValAtIndex(0, BigBinaryInteger("3"));
-	g2.SetValAtIndex(1, BigBinaryInteger("3"));
-	//g2.SetValAtIndex(2, BigBinaryInteger("17757"));
-	//g2.SetValAtIndex(2, BigBinaryInteger("17757"));
-	g2.SetValAtIndex(2, BigBinaryInteger("17757"));
-	g2.SetValAtIndex(3, BigBinaryInteger("2"));
-	g2.SetModulus(q2);
-
-	auto G1 = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(g1, root1, m);
-	auto G2 = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(g2, root2, m);
-	std::cout << "G1:" << G1 << std::endl;
-	std::cout << "G2:" << G2 << std::endl;
-
-	auto publicKey1 = G1*F1InverseEval*plainTextMod;
-	auto publicKey2 = G2*F2InverseEval*plainTextMod;
-	std::cout << "publicKey1:" << publicKey1 << std::endl;
-	std::cout << "publicKey2:" << publicKey2 << std::endl;
-
-	E1 = E1*plainTextMod;
-	E2 = E2*plainTextMod;
-
-	auto C1 = S1*G1*F1InverseEval*plainTextMod + M1 + E1;
-	std::cout << "C1:" << C1 << std::endl;
-	auto C2 = S2*G2*F2InverseEval*plainTextMod + M2 + E2;
-	std::cout << "C2:" << C2 << std::endl;
-
-	auto c1 = ChineseRemainderTransformFTT::GetInstance().InverseTransform(C1, root1, m);
-	auto c2 = ChineseRemainderTransformFTT::GetInstance().InverseTransform(C2, root2, m);
-
-	std::cout << "cipherText, c1: " << c1 << std::endl;
-	std::cout << "cipherText, c2: " << c2 << std::endl;
-
-	auto cf1 = ChineseRemainderTransformFTT::GetInstance().InverseTransform(C1*F1, root1, m);
-	auto cf2 = ChineseRemainderTransformFTT::GetInstance().InverseTransform(C2*F2, root2, m);
-
-	std::cout << "cipherText, cf1: " << cf1 << std::endl;
-	std::cout << "cipherText, cf2: " << cf2 << std::endl;
-
-	auto mr1 = cf1.ModByTwo();
-	auto mr2 = cf2.ModByTwo();
-
-	std::cout << "cipherText, mr1: " << mr1 << std::endl;
-	std::cout << "cipherText, mr2: " << mr2 << std::endl;
-
-	auto d(c2);
-
-	d.SwitchModulus(plainTextMod*q2);
-	cout << "d after switch modulus to 2*q2:" << endl;
-	cout << d << endl;
-
-	d = d*(q2 - BigBinaryInteger::ONE);
-
-	cout << "d after multiplying with vqt-1:" << endl;
-	cout << d << endl;
-
-	auto Delta1(d);
-	auto Delta2(d);
-
-	//cout << Delta1 << endl;
-	//cout << Delta2 << endl;
-
-	Delta1.SwitchModulus(q1);
-	Delta2.SwitchModulus(q2);
-
-	cout << "delta DCRT:" << endl;
-	cout << Delta1 << endl;
-	cout << Delta2 << endl;
-
-
-	auto DeltaPrime1 = Delta1 + c1;
-	auto DeltaPrime2 = Delta2 + c2;
-
-	cout << "delta DCRT + ciphertext:" << endl;
-	std::cout << DeltaPrime1 << std::endl;
-	std::cout << DeltaPrime2 << std::endl;
-
-
-	auto qtInverse = q2.Mod(q1).ModInverse(q1);
-	cout << "q2 inverse mod q1:" << qtInverse << std::endl;
-
-	DeltaPrime1 = DeltaPrime1*qtInverse;
-	cout << "DeltaPrime1: " << DeltaPrime1 << std::endl;
-	cout<< DeltaPrime1 <<endl;
-	//DeltaPrime2 = DeltaPrime2*qtInverse;
-
-	auto DeltaPrime1Eval = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(DeltaPrime1, root1, m);
-
-	auto DeltaPrimeCFEval = DeltaPrime1Eval*F1;
-
-	auto DeltaPrimeCFCoeff = ChineseRemainderTransformFTT::GetInstance().InverseTransform(DeltaPrimeCFEval, root1, m);
-
-	cout << DeltaPrimeCFCoeff << endl;
-
-	auto DeltaPrime1Mess = DeltaPrimeCFCoeff.ModByTwo();
-
-	cout << DeltaPrime1Mess << endl;
-}
 
 void KeySwitchTestNewAPI() {
 
@@ -1488,7 +1265,7 @@ void KeySwitchTestNewAPI() {
 	cout << "big modulus: " << modulus << endl;
 	DiscreteGaussianGenerator dgg(modulus,stdDev);
 
-	ILDCRTParams params(rootsOfUnity, m, moduli,modulus);
+	ILDCRTParams params(rootsOfUnity, m, moduli);
 
 //	ILDCRTParams params(rootsOfUnity, m, moduli,modulus1*modulus2);
 
