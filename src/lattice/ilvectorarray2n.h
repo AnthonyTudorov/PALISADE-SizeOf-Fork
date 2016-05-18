@@ -28,7 +28,25 @@
 *
 * @section DESCRIPTION
 *
-* This code provides basic lattice ideal manipulation functionality.
+* On a high level, ILVectorArray2n stands for: IL = Ideal Lattice, ILVectorArray= An array of ILVector2n's, 2n = power of two cyclotomic. 
+* for more information on ideal lattices please see here: 10.1007/978-3-540-88702-7_5
+*
+* This class provides ideal lattice with power of two cyclotomic order polynomial in double-CRT (Chinese remainder transform) format. The class
+* can be viewed as a data structure that can support representing polynomials in double-CRT format. The double here means 
+* two dimensions (like a n*m matrix) versus a 1*n dimension which the single-CRT or ILVector2n is. Each column of the 
+* of the matrix is called a tower and is composed of an ILVector2n. 
+* The purpose of having an array of ILVector2n's is to gain performance. A polynomial represented in ILVector2n with a large modulus and large coefficients,
+* can be broken down into ILVector2ns with lower moduli and lower coefficients. The multiplication of the moduli must equal to the original large modulus. 
+* It is possible to go from an ILVectorArray2n representation of a polynomial to an ILVector2n representation via the Chinese Remainder Transform Interpolation. 
+* The function in this class that achieves this is the InterpolateILVectorArray2n function.
+* 
+* This class has three private members: 
+* std::vector<ILVector2n> m_vectors: This holds the towers
+* ILDCRTParams m_params; this holds information regarding the towers (roots of unity, moduli, cyclotomic order, multiplied value of the moduli).
+* Format m_format; The format of the ILVectorArray2n, which is either in coefficient or evaluation (CRT) format.
+*
+* The crypto layer code of the library is where this data structure can be utilized. 
+*
 */
 
 #ifndef LBCRYPTO_LATTICE_IL2VECTORARRAY2N_H
@@ -63,14 +81,14 @@ namespace lbcrypto {
 		// CONSTRUCTORS
 
 		/**
-		* Constructor that initializes nothing.
+		* Constructor that initialized m_format to EVALUATION and calls m_params to nothing
 		*/
 		ILVectorArray2n();
 		
 		/**
 		* Constructor that initializes parameters.
 		*
-		* @param &params parameter set required for ILVectorArray2n.
+		* @param &params parameter set required for ILVectorArray2n. ElemParams is a parent of ILDCRTParams. Every ILVectorArray2n needs an ILDCRTParams.
 		*/
 		ILVectorArray2n(const ElemParams &params);
 
@@ -99,8 +117,8 @@ namespace lbcrypto {
 		/**
 		* Constructor based on full methods.
 		*
-		* @param &dgg the input discrete Gaussian Generator.
-		* @param &params parameter set required for ILVectorArray2n.
+		* @param &dgg the input discrete Gaussian Generator. The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers.
+		* @param &params parameter set required for ILVectorArray2n. ElemParams is a parent of ILDCRTParams. Every ILVectorArray2n needs an ILDCRTParams.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
@@ -127,21 +145,21 @@ namespace lbcrypto {
 		* @param i index of tower to be returned.
 		* @returns a reference to the ILVector2n at index i.
 		*/
-		const ILVector2n &GetValues(usint i) const;
+		const ILVector2n &GetTowerAtIndex(usint i) const;
 
 		/**
 		* Get method of the tower length.
 		*
 		* @return the length of the tower.
 		*/
-		usint GetLength() const;
+		usint GetTowerLength() const;
 		
 		/**
 		* Get method that returns a vector of all towers.
 		*
 		* @returns values.
 		*/
-		const std::vector<ILVector2n>& GetValues() const;
+		const std::vector<ILVector2n>& GetAllTowers() const;
 
 		/**
 		* Get method of the parameter set.
@@ -167,7 +185,7 @@ namespace lbcrypto {
 		ILVectorArray2n GetDigitAtIndexForBase(usint index, usint base) const;
 
 		/**
-		* Access method of the parameter set non-const.
+		* Access method of the parameter returning a non-const version of the parameter set.
 		*
 		* @return the parameter set non-const.
 		*/
@@ -180,7 +198,7 @@ namespace lbcrypto {
 		*
 		* @param &towers vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
 		*/
-		void SetValues(const std::vector<ILVector2n> &towers);
+		void SetTowers(const std::vector<ILVector2n> &towers);
 
 		/**
 		* Set method of the values.
@@ -213,19 +231,19 @@ namespace lbcrypto {
 		*/
         bool operator!=(const ILVectorArray2n &rhs) const;
 		/**
-		* Performs an addition operation and returns the result.
+		* Performs an entry-wise addition over all elements of each tower with the towers of the ILVectorArray2n on the right hand side.
 		*
-		* @param &element is the element to add with.
+		* @param &rhs is the element to add with.
 		* @return is the result of the addition.
 		*/
-		const ILVectorArray2n& operator+=(const ILVectorArray2n &element);
+		const ILVectorArray2n& operator+=(const ILVectorArray2n &rhs);
 		/**
-		* Performs an addition operation and returns the result.
+		* Performs an entry-wise subtraction over all elements of each tower with the towers of the ILVectorArray2n on the right hand side.
 		*
-		* @param &element is the element to add with.
+		* @param &rhs is the element to add with.
 		* @return is the result of the addition.
 		*/
-		const ILVectorArray2n& operator-=(const ILVectorArray2n &element);
+		const ILVectorArray2n& operator-=(const ILVectorArray2n &rhs);
 		// automorphism operation
 		/**
 		* Performs an automorphism transform operation and returns the result.
@@ -263,7 +281,7 @@ namespace lbcrypto {
 		//SCALAR OPERATIONS
 
 		/**
-		* Scalar addition - add an element to all entries.
+		* Scalar addition - add an element to the first index of each tower.
 		*
 		* @param &element is the element to add entry-wise.
 		* @return is the return of the addition operation.
@@ -322,7 +340,7 @@ namespace lbcrypto {
 		/**
 		* Perform a modulus by 2 operation.  Returns the least significant bit.
 		*
-		* @return is the return value of the modulus by 2, also the least significant bit.
+		* @return is the resulting value.
 		*/
 		ILVectorArray2n ModByTwo() const;
 
@@ -338,24 +356,24 @@ namespace lbcrypto {
 		*/
 		void AddILElementOne();
 		/**
-		* Make ILVectorArray2n Sparse for SHE KeyGen operations. Sets every index not equal to zero mod the wFactor to zero for every tower.
+		* Make ILVectorArray2n Sparse. Sets every index of each tower not equal to zero mod the wFactor to zero.
 		*
-		* @param &wFactor ratio between the original ILVectorArray2n's ring dimension and the new ring dimension.
+		* @param &wFactor ratio between the sparse and none-sparse values. 
 		*/
 		void MakeSparse(const BigBinaryInteger &wFactor);
 
 		/**
-		* Interleaves values in each tower with odd indices being all zeros.
+		* Performs ILVector2n::Decompose on each tower and adjusts the ILVectorArray2n.m_parameters accordingly.
 		*/
 		void Decompose();
 		/**
-		* Drops the last tower of ILVectorArray2n and adjusts parameters.
+		* Drops the tower at the index passed to it. The resulting ILVectorArray2n will have one less tower.
 		*
 		* @param index is the index of the tower to be dropped.
 		*/
 		void DropTower(usint index);
 		/**
-		* ModReduces reduces the ILVectorArray2n's composite modulus by dropping the last modulus from the chain of moduli.
+		* ModReduces reduces the ILVectorArray2n's composite modulus by dropping the last modulus from the chain of moduli as well as dropping the last tower.
 		* 
 		*@param plaintextModulus is the plaintextModulus used for the ILVectorArray2n
 		*/
@@ -365,9 +383,7 @@ namespace lbcrypto {
 		*
 		* @return the ILVector2n representation of the ILVectorArray2n.
 		*/
-
-		ILVector2n InterpolateIlArrayVector2n() const;
-		
+		ILVector2n InterpolateIlArrayVector2n() const;	
 		/**
 		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
 		*/
@@ -417,61 +433,70 @@ namespace lbcrypto {
 		// parameters for the ideal lattice: cyclotomic order and ciphertext modulus factors
 		ILDCRTParams m_params;
 
-		// 0 for coefficient and 1 for evaluation format
+		// Either Format::EVALUATION (0) or Format::COEFFICIENT (1)
 		Format m_format;
 
 		void SetParamsFromTowers(const std::vector<ILVector2n> &towers);
 	};
-
 	/**
-	* Multiplication operator overload.  Performs a multiplication in the ring.
+	* Multiplication operator overload. 
 	*
-	* @param &a the first parameter.
-	* @param &b the first parameter.
+	* @param &a the first ILVectorArray2n.
+	* @param &b the second ILVectorArray2n.
 	*
-	* @return The result of multiplication in the ring.
+	* @return an ILVectorArray2n with the resulting value.
 	*/
 	inline ILVectorArray2n operator*(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Times(b); }
 
 	/**
-	* Multiplication operator overload.  Performs a multiplication in the ring.
+	* Scalar multiplication operator overload-multiply all entries.
 	*
-	* @param &a the first parameter.
-	* @param &b the first parameter.
+	* @param &a the BigBinaryInteger to multiply by every element of every tower of the second argument.
+	* @param &b the ILVectorArray2n to be multiplied by the first argument.
 	*
-	* @return The result of multiplication in the ring.
+	* @return an ILVectorArray2n with the resulting value.
 	*/
-	inline ILVectorArray2n operator*(const BigBinaryInteger &b, const ILVectorArray2n &a) { return a.Times(b); }
+	inline ILVectorArray2n operator*(const BigBinaryInteger &a, const ILVectorArray2n &b) { return b.Times(a); }
 
 	/**
-	* Multiplication operator overload.  Performs a multiplication in the ring.
+	* Scalar multiplication operator overload-multiply all entries.
 	*
-	* @param &a the first parameter.
-	* @param &b the first parameter.
+	* @param &a the ILVectorArray2n to multiply by the second argument.
+	* @param &b the BigBinaryInteger to multiply by the first argument.
 	*
-	* @return The result of multiplication in the ring.
+	* @return an ILVectorArray2n with the resulting value.
 	*/
-	inline ILVectorArray2n operator*(const ILVectorArray2n &b,const BigBinaryInteger &a) { return b.Times(a); }
+	inline ILVectorArray2n operator*(const ILVectorArray2n &a,const BigBinaryInteger &b) { return a.Times(b); }
 
 	/**
-	* Addition operator overload.  Performs an addition in the ring.
+	* Addition operator overload. 
 	*
-	* @param &a the first parameter.
-	* @param &b the first parameter.
+	* @param &a ILVectorArray2n to be added to the second argument.
+	* @param &b ILVectorArray2n to be added to the first argument.
 	*
-	* @return The result of addition in the ring.
+	* @return an ILVectorArray2n with the resulting value.
 	*/
 	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Plus(b); }
 
 	/**
-	* Addition operator overload.  Performs an addition in the ring.
+	* Scalar addition operator overload-add an element to the first index of each tower.
 	*
-	* @param &a the first parameter.
-	* @param &b the first parameter.
+	* @param &a ILVectorArray2n to be used for addition.
+	* @param &b BigBinaryInteger to be added to the first index of every tower of argument &a.
 	*
-	* @return The result of addition in the ring.
+	* @return an ILVectorArray2n with the resulting value.
 	*/
 	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const BigBinaryInteger &b) { return a.Plus(b); }
+
+	/**
+	* Scalar addition operator overload-add an element to the first index of each tower.
+	*
+	* @param &a BigBinaryInteger to be added to the first index of every tower of argument &b.
+	* @param &b ILVectorArray2n to be used for addition.
+	*
+	* @return an ILVectorArray2n with the resulting value.
+	*/
+	inline ILVectorArray2n operator+(const BigBinaryInteger &a, const ILVectorArray2n &b) { return b.Plus(a); }
 } // namespace lbcrypto ends
 
 #endif

@@ -395,7 +395,7 @@ namespace lbcrypto {
 
 
 		/**
-		* Scalar addition - add an element to all entries.
+		* Scalar addition - add an element to the first index only.
 		*
 		* @param &element is the element to add entry-wise.
 		* @return is the return of the addition operation.

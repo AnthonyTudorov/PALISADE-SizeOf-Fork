@@ -173,16 +173,16 @@ namespace lbcrypto {
 	}
 
 	// GET ACCESSORS
-	const ILVector2n& ILVectorArray2n::GetValues(usint i) const
+	const ILVector2n& ILVectorArray2n::GetTowerAtIndex (usint i) const
 	{
 		return m_vectors[i];
 	}
 
-	usint ILVectorArray2n::GetLength() const {
+	usint ILVectorArray2n::GetTowerLength() const {
 		return m_vectors.size();
 	}
 
-	const std::vector<ILVector2n>& ILVectorArray2n::GetValues() const
+	const std::vector<ILVector2n>& ILVectorArray2n::GetAllTowers() const
 	{
 		return m_vectors;
 	}
@@ -212,7 +212,7 @@ namespace lbcrypto {
 
 	/*SETTERS*/
 
-	void ILVectorArray2n::SetValues(const std::vector<ILVector2n> &towers)
+	void ILVectorArray2n::SetTowers(const std::vector<ILVector2n> &towers)
 	{
 		SetParamsFromTowers(towers);
 		m_vectors = towers;
@@ -228,7 +228,7 @@ namespace lbcrypto {
 		BigBinaryInteger tempModulus;
 		BigBinaryInteger tempRootOfUnity;
 		
-		for(usint i = 0; i < this->GetLength();i++){
+		for(usint i = 0; i < this->GetTowerLength();i++){
 			tempCyclotomicOrder = m_params.GetCyclotomicOrder();
 			tempModulus = m_params.GetModuli()[i];
 			tempRootOfUnity = m_params.GetRootsOfUnity()[i];
@@ -311,7 +311,7 @@ namespace lbcrypto {
 		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
-			tmp.m_vectors[i] += element.GetValues(i);
+			tmp.m_vectors[i] += element.GetTowerAtIndex (i);
 		}
 		return tmp;
 	}
@@ -320,7 +320,7 @@ namespace lbcrypto {
 		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
-			tmp.m_vectors[i] -= element.GetValues(i);
+			tmp.m_vectors[i] -= element.GetTowerAtIndex (i);
 		}
 		return tmp;
 	}
@@ -342,7 +342,7 @@ namespace lbcrypto {
             if (this->GetFormat() != rhs.GetFormat()) {
                 return false;
             }
-            if (m_vectors != rhs.GetValues()) {
+            if (m_vectors != rhs.GetAllTowers()) {
                 return false;
             }
 
@@ -516,7 +516,7 @@ namespace lbcrypto {
 		}
 		this->SwitchFormat();
 
-		usint length = this->GetLength();
+		usint length = this->GetTowerLength();
 		usint lastTowerIndex = length - 1;
 		const std::vector<BigBinaryInteger> &moduli = m_params.GetModuli();
 
