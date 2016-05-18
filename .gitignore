@@ -2,6 +2,7 @@
 *~
 *.o
 bin/
+build/
 test/build
 test/bin
 output.txt
