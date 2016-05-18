@@ -300,7 +300,6 @@ namespace cpu_int{
     * Basic set method for setting the value of a big binary integer
     *
     * @param a is the big binary integer representation of the big binary integer to be assigned.
-    * @returns nothing
     */
     void SetValue(const BigBinaryInteger& a);
 
