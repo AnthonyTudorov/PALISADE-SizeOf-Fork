@@ -107,7 +107,7 @@ namespace lbcrypto {
 			m_vectors.push_back(ilvector2n);	
 		}
 	}
-
+	/*The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers. The algorithm to populate the towers can be seen below.*/
 	ILVectorArray2n::ILVectorArray2n(const DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format) :m_params(static_cast<const ILDCRTParams&>(params))
 	{
 		const ILDCRTParams &m_params = static_cast<const ILDCRTParams&>(params);
@@ -157,14 +157,13 @@ namespace lbcrypto {
 			m_vectors.push_back(ilvector);
 		}
 	  }
-
+	/*Move constructor*/
 	ILVectorArray2n::ILVectorArray2n(const ILVectorArray2n &&element){
 		
 		this->m_format = element.m_format;
 		this->m_params = element.m_params;
 		this->m_vectors = std::move(element.m_vectors);
 	}
-
 
 	// DESTRUCTORS
 
@@ -186,7 +185,7 @@ namespace lbcrypto {
 	{
 		return m_vectors;
 	}
-
+	/*This returns const m_params. Meaning the values can be read but cannot be modified*/
 	const ElemParams & ILVectorArray2n::GetParams() const
 	{
 		return m_params;
@@ -205,7 +204,7 @@ namespace lbcrypto {
 		}
 		return tmp;
 	}
-
+	/*This returns a non-const m_params. Meaning the values can be both read and modified*/
 	ElemParams& ILVectorArray2n::AccessParams(){
 		return this->m_params;
 	}
@@ -239,6 +238,7 @@ namespace lbcrypto {
 	}
 
 	// Private Function
+	/*This function sets the params based on the a vector of integers provided. It reads the params of each tower and populates m_params with those read values.*/
 	void ILVectorArray2n:: SetParamsFromTowers(const std::vector<ILVector2n> &towers){
 		ILParams tempParams;
 		Format formatChecker; //This will be assigned the first towers format. Will check if formats are consistent.
@@ -357,10 +357,9 @@ namespace lbcrypto {
 	const ILVectorArray2n & ILVectorArray2n::operator=(const ILVectorArray2n & rhs)
 	{
 		if (this != &rhs) {
-			m_vectors.resize(rhs.m_params.GetModuli().size());
-				this->m_vectors = rhs.m_vectors;			
-			    this->m_params = rhs.m_params;
-			    this->m_format = rhs.m_format;	
+			this->m_vectors = rhs.m_vectors;			
+			this->m_params = rhs.m_params;
+			this->m_format = rhs.m_format;	
 		}
 		return *this;
 	}

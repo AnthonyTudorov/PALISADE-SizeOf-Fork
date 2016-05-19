@@ -31,7 +31,7 @@
 * On a high level, ILVectorArray2n stands for: IL = Ideal Lattice, ILVectorArray= An array of ILVector2n's, 2n = power of two cyclotomic. 
 * for more information on ideal lattices please see here: 10.1007/978-3-540-88702-7_5
 *
-* This class provides ideal lattice with power of two cyclotomic order polynomial in double-CRT (Chinese remainder transform) format. The class
+* This class provides ideal lattice for polynomials modulus a power of two cyclotomic order polynomial in double-CRT (Chinese remainder transform) format. The class
 * can be viewed as a data structure that can support representing polynomials in double-CRT format. The double here means 
 * two dimensions (like a n*m matrix) versus a 1*n dimension which the single-CRT or ILVector2n is. Each column of the 
 * of the matrix is called a tower and is composed of an ILVector2n. 
@@ -39,6 +39,8 @@
 * can be broken down into ILVector2ns with lower moduli and lower coefficients. The multiplication of the moduli must equal to the original large modulus. 
 * It is possible to go from an ILVectorArray2n representation of a polynomial to an ILVector2n representation via the Chinese Remainder Transform Interpolation. 
 * The function in this class that achieves this is the InterpolateILVectorArray2n function.
+* The term ring dimension will be used throughout this code. Ring dimension in this class would refer to the size of each tower (as in how many elements the BigBinaryVector
+* of it's corresponding ILVector2n holds). In the special case of this data structure (power of two cyclotomic order), the ring dimension is half the cyclotomic order.
 * 
 * This class has three private members: 
 * std::vector<ILVector2n> m_vectors: This holds the towers
@@ -108,16 +110,16 @@ namespace lbcrypto {
 		ILVectorArray2n(const std::vector<ILVector2n> &towers);
 
 		/**
-		* Construct using a single ILVector2n. The format is derived from the passed in ILVector2n.
+		* Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n. 
 		*
 		* @param &element ILVector2n to build other towers from.
 		* @param &params parameter set required for ILVectorArray2n.
 		*/
 		ILVectorArray2n(const ILVector2n &element, const ElemParams &params);
 		/**
-		* Constructor based on full methods.
+		* Constructor based a discrete Gaussian generator. T
 		*
-		* @param &dgg the input discrete Gaussian Generator. The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers.
+		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers.
 		* @param &params parameter set required for ILVectorArray2n. ElemParams is a parent of ILDCRTParams. Every ILVectorArray2n needs an ILDCRTParams.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
@@ -363,7 +365,7 @@ namespace lbcrypto {
 		void MakeSparse(const BigBinaryInteger &wFactor);
 
 		/**
-		* Performs ILVector2n::Decompose on each tower and adjusts the ILVectorArray2n.m_parameters accordingly.
+		* Performs ILVector2n::Decompose on each tower and adjusts the ILVectorArray2n.m_parameters accordingly. This method also reduces the ring dimension by half.
 		*/
 		void Decompose();
 		/**
