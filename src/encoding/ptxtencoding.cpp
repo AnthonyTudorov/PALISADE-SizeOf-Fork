@@ -91,7 +91,7 @@ namespace lbcrypto {
 
 	void ByteArrayPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVectorArray2n) const{
 	//	ilVectorArray2n->PrintValues();
-		ILVector2n temp = ilVectorArray2n->GetValues(0);
+		ILVector2n temp = ilVectorArray2n->GetTowerAtIndex (0);
 		BigBinaryInteger modulusValue;
 		modulusValue = modulus;
 		Encode(modulusValue, &temp);

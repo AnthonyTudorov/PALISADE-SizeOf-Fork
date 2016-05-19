@@ -107,7 +107,7 @@ struct SecureParams {
 int main() {
 
 
-//	NTRU_DCRT();
+	NTRU_DCRT();
 
 //	KeySwitchTest();
 
@@ -129,7 +129,7 @@ int main() {
 
 	//ModReduceTest();
 
-	ModReduceNew();
+//	ModReduceNew();
 
 //	ModReduceGyana();
 	
@@ -137,7 +137,7 @@ int main() {
 
 //	RingReduceDCRTTest();
 //	RingReduceSingleCRTTest();
-	//RingReduceDCRTTest();
+//	RingReduceDCRTTest();
 
 //	NextQTest();
 

@@ -270,7 +270,7 @@ void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(Ciphertext<ILVectorArr
 	
 	ILVectorArray2n pvElement = privateKey->GetPrivateElement();
 	
-	pvElement.DropTower(pvElement.GetLength() - 1); // The only change needed for the private key, is to drop the last tower.
+	pvElement.DropTower(pvElement.GetTowerLength() - 1); // The only change needed for the private key, is to drop the last tower.
 
 	privateKey->SetPrivateElement(pvElement); 
 

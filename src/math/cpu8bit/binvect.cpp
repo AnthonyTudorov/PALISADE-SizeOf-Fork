@@ -452,7 +452,6 @@ BigBinaryVector BigBinaryVector::ModMatrixMul(const BigBinaryMatrix &a) const{
 	return ans;
 
 }
-
 //Gets the ind
 BigBinaryVector BigBinaryVector::GetDigitAtIndexForBase(usint index, usint base) const{
 	BigBinaryVector ans(*this);
