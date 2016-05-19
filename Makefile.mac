@@ -1,0 +1,7 @@
+## for mac OSx
+
+BOOSTINCLUDE := -I /opt/local/include
+OMPINCLUDE := -I /opt/local/include/libomp
+CPPSTD := -std=c++0x
+
+include Makefile

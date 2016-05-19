@@ -1,0 +1,9 @@
+## for linux
+
+BOOSTINCLUDE := 
+OMPINCLUDE := 
+CPPSTD := -std=gnu++11
+
+include Makefile
+
+
