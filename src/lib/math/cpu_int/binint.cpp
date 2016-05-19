@@ -88,7 +88,7 @@ const uint_type BigBinaryInteger<uint_type,BITLENGTH>::m_uintMax = std::numeric_
 //optimized ceiling function after division by number of bits in the interal data type.
 template<typename uint_type,usint BITLENGTH>
 uint_type BigBinaryInteger<uint_type,BITLENGTH>::ceilIntByUInt(const uint_type Number){
-
+	//mask to perform bitwise AND
 	static uint_type mask = m_uintBitLength-1;
 
 	if(!Number)
@@ -104,33 +104,25 @@ uint_type BigBinaryInteger<uint_type,BITLENGTH>::ceilIntByUInt(const uint_type N
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger()
 {
-	/*
-	std::cout<<(int)m_uintBitLength<<" m_uintBitLength "<<std::endl;
-	std::cout<<(int)m_logUintBitLength<<" m_uintBitLength "<<std::endl;
-	std::cout<<(int)m_nSize<<" m_nSize "<<std::endl;
-	std::cout<<m_uintMax<<" m_uintMax "<<std::endl;
-	std::cout<<typeid(Duint_type).name()<<std::endl;
-	*/
-	//main code
-
-	//m_value = new uint_type[m_nSize];
-	//m_state = GARBAGE;
-
+	
+	//memory allocation step
 	m_value = new uint_type[m_nSize];
+	//last base-r digit set to 0
 	this->m_value[m_nSize-1] = 0;
+	//MSB set to zero since value set to ZERO
 	this->m_MSB = 0;
 	m_state = INITIALIZED;
 }
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(usint init){
-
+	//memory allocation step
 	m_value = new uint_type[m_nSize];
-
+	//setting the MSB
 	usint msb = GetMSB32(init);
 
 	uint_type ceilInt = ceilIntByUInt(msb);
-
+	//setting the values of the array
 	for(sint i= m_nSize-1;i>= m_nSize-ceilInt;i--){
 		this->m_value[i] = (uint_type)init;
 		init>>=m_uintBitLength;
@@ -144,33 +136,38 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(usint init){
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const std::string& str){
-	
+	//memory allocation step
 	m_value = new uint_type[m_nSize];
+	//setting the array values from the string
 	AssignVal(str);
+	//state set
 	m_state = INITIALIZED;
 
 }
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const BigBinaryInteger& bigInteger){
-	
+	//memory allocation step
 	m_value = new uint_type[m_nSize];
 	m_MSB=bigInteger.m_MSB; //copy MSB
 	uint_type  tempChar = ceilIntByUInt(bigInteger.m_MSB);
-	
+	//copy array values
 	for(int i=m_nSize - tempChar;i<m_nSize;i++){//copy array value
 		m_value[i]=bigInteger.m_value[i];
 	}
-
+	//set state
 	m_state = INITIALIZED;
 }
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(BigBinaryInteger &&bigInteger){
-	
+	//copy MSB
 	m_MSB = bigInteger.m_MSB;
+	//pointer assignment
 	m_value = bigInteger.m_value;
+	//set state
 	m_state = bigInteger.m_state;
+	//remove ref from bigInteger
 	bigInteger.m_value = NULL;
 }
 
@@ -182,6 +179,7 @@ std::function<unique_ptr<BigBinaryInteger<uint_type,BITLENGTH>>()> BigBinaryInte
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::~BigBinaryInteger()
 {	
+	//memory deallocation
 	delete []m_value;
 }
 
@@ -193,9 +191,11 @@ template<typename uint_type, usint BITLENGTH>
 usint BigBinaryInteger<uint_type, BITLENGTH>::ConvertToInt() const{
 
 	usint result = 0;
+	//set num to number of equisized chunks
 	usint num = 32 / m_uintBitLength;
 
 	usint ceilInt = m_nSize - ceilIntByUInt(m_MSB);
+	//copy the values by shift and add
 	for (usint i = 0; i < num && (m_nSize - i - 1) >= ceilInt; i++){
 		result += (this->m_value[m_nSize - i - 1] << (m_uintBitLength*i));
 	}
@@ -210,12 +210,13 @@ double BigBinaryInteger<uint_type,BITLENGTH>::ConvertToDouble() const{
 
 template<typename uint_type,usint BITLENGTH>
 const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator=(const BigBinaryInteger &rhs){
-
+	//set position of array to copy from
 	usint copyStart = ceilIntByUInt(rhs.m_MSB);
 	if(this!=&rhs){
         this->m_MSB=rhs.m_MSB;
 		this->m_state = rhs.m_state;
-        for(int i= m_nSize-copyStart;i<m_nSize;i++){//copy array value
+		//copy array value
+        for(int i= m_nSize-copyStart;i<m_nSize;i++){
             this->m_value[i]=rhs.m_value[i];
         }
 	}
@@ -314,7 +315,7 @@ const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENG
 	if(this->m_MSB+shift > BITLENGTH)
 		throw std::logic_error ("OVERFLOW \n");
 
-	//calculate the no.of 8shifts
+	//calculate the no.of shifts
 	usint shiftByUint = shift>>m_logUintBitLength;
 
 	uint_type remShift = (shift&(m_uintBitLength-1));

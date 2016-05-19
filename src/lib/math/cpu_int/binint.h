@@ -133,6 +133,7 @@ namespace cpu_int{
 
 	/**
     *Struct for calculating bit width from data type
+	*sets value to the bitwidth of uint_type
     */
 	template <typename uint_type>
 	struct UIntBitWidth{
@@ -227,7 +228,7 @@ namespace cpu_int{
     * Assignment operator
     *
     * @param &rhs is the big binary integer to be assigned from.
-    * @return the return value.
+    * @return assigned BigBinaryIntegr ref.
     */
     const BigBinaryInteger&  operator=(const BigBinaryInteger &rhs);
 
@@ -235,7 +236,7 @@ namespace cpu_int{
     * Assignment operator from unsigned integer
     *
     * @param val is the unsigned integer value that is assigned.
-    * @return the assigned Big Binary Integer.
+    * @return the assigned Big Binary Integer ref.
     */
     inline const BigBinaryInteger& operator=(usint val) {
         *this = intToBigBinaryInteger(val);
@@ -246,7 +247,7 @@ namespace cpu_int{
     * Move copy constructor
     *
     * @param &&rhs is the big binary integer to move.
-    * @return the object of type BigBinaryInteger.
+    * @return object of type BigBinaryInteger.
     */
     const BigBinaryInteger&  operator=(BigBinaryInteger &&rhs);
 
@@ -293,7 +294,6 @@ namespace cpu_int{
     * Basic set method for setting the value of a big binary integer
     *
     * @param str is the string representation of the big binary integer to be copied.
-    * @returns nothing
     */
 
     void SetValue(const std::string& str);
@@ -401,13 +401,13 @@ namespace cpu_int{
     * returns the modulus with respect to the input value.
     *
     * @param modulus is value of the modulus to perform. Its of type BigBinaryInteger.
-    * @returns a BigBinaryInteger that is the result of the modulus operation.
+    * @return BigBinaryInteger that is the result of the modulus operation.
     */
     BigBinaryInteger Mod(const BigBinaryInteger& modulus) const;
     
     /**
     * returns the Barret modulus with respect to the input modulus and the Barrett value.
-	* Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of \mu.
+	* Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.
 	* See the cpp file for details of the implementation. 
     *
     * @param modulus is the modulus to perform.
@@ -431,7 +431,7 @@ namespace cpu_int{
     * returns the modulus inverse with respect to the input value.
     *
     * @param modulus is the modulus to perform.
-    * @return is the result of the modulus inverse operation.
+    * @return result of the modulus inverse operation.
     */
     BigBinaryInteger ModInverse(const BigBinaryInteger& modulus) const;
 
@@ -440,7 +440,7 @@ namespace cpu_int{
     *
     * @param &b is the scalar to add.
     * @param modulus is the modulus to perform operations with.
-    * @return is the result of the modulus addition operation.
+    * @return result of the modulus addition operation.
     */
     BigBinaryInteger ModAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
 
@@ -537,11 +537,9 @@ namespace cpu_int{
     /**
     * Stores the based 10 equivalent/Decimal value of the BigBinaryInteger in a string object and returns it.
     *
-    * @return the value of this BigBinaryInteger as a string.
+    * @return value of this BigBinaryInteger in base 10 represented as a string.
     */
-    const std::string ToString() const;
-
-		
+    const std::string ToString() const;		
 
     /**
     * Tests whether the BigBinaryInteger is a power of 2.
