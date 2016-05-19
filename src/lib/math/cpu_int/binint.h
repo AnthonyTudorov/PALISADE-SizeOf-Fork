@@ -54,77 +54,80 @@
 */
 namespace cpu_int{
 
+	/**The following structs are needed for initialization of BigBinaryInteger at the preprocessing stage.
+	*The structs compute certain values using template metaprogramming approach and mostly follow recursion to calculate value(s).
+	*/
+
     /**
-    *Struct to assign log value
-    *
+    *Struct to find log value of N.
+    *Needed in the preprocessing step of BigBinaryInteger to determine bitwidth.
     */
 	template <usint N>
-	struct log2{
-		const static usint value = 1 + log2<N/2>::value;
+	struct Log2{
+		const static usint value = 1 + Log2<N/2>::value;
 	};
     
     /**
-    *Struct to assign log value
-    *
+    *Struct to find log value of N.
+	*Base case for recursion.
+    *Needed in the preprocessing step of BigBinaryInteger to determine bitwidth.
     */
 	template<>
-	struct log2<2>{
+	struct Log2<2>{
 		const static usint value = 1;
 	};
     
     /**
-    *Struct to assign log value
-    *
+    *Struct to find log value of U where U is a primitive datatype.
+    *Needed in the preprocessing step of BigBinaryInteger to determine bitwidth.
     */
 	template <typename U>
-	struct logdtype{
-		const static usint value = log2<8*sizeof(U)>::value;
+	struct LogDtype{
+		const static usint value = Log2<8*sizeof(U)>::value;
 	};
     
     /**
-    *Struct for checking datatype integrity
+    *Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}
     *
     */
-	template<typename dtype>
-	struct datatypechecker{
+	template<typename Dtype>
+	struct DataTypeChecker{
 		 const static bool value = false ;
-		//NP-TODO - This boolean check does not work in Linux. 
-		//const static bool value = true ;
 	};
 
     /**
-    *Struct for checking datatype integrity
-    * @Return Returns bool true if datatype is unsigned integer 8 bit.
+    *Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}
+    * sets value true if datatype is unsigned integer 8 bit.
     */
 	template<>
-	struct datatypechecker<uint8_t>{
+	struct DataTypeChecker<uint8_t>{
 		const static bool value = true ;
 	};
 
     /**
-    *Struct for checking datatype integrity
-    * @Return Returns bool true if datatype is unsigned integer 16 bit.
+    *Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}
+    * sets value true if datatype is unsigned integer 16 bit.
     */
 	template<>
-	struct datatypechecker<uint16_t>{
+	struct DataTypeChecker<uint16_t>{
 		const static bool value = true ;	
 	};
 
     /**
-    *Struct for checking datatype integrity
-    * @Return Returns bool true if datatype is unsigned integer 32 bit.
+    *Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}
+    * sets value true if datatype is unsigned integer 32 bit.
     */
 	template<>
-	struct datatypechecker<uint32_t>{
+	struct DataTypeChecker<uint32_t>{
 		const static bool value = true ;	
 	};
 
     /**
-    *Struct for checking datatype integrity
-    * @Return Returns bool true if datatype is unsigned integer 64 bit.
+    *Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}
+    * sets value true if datatype is unsigned integer 64 bit.
     */
 	template<>
-	struct datatypechecker<uint64_t>{
+	struct DataTypeChecker<uint64_t>{
 		const static bool value = true ;	
 	};
 
@@ -132,48 +135,47 @@ namespace cpu_int{
     *Struct for calculating bit width from data type
     */
 	template <typename uint_type>
-	struct uintBitWidth{
+	struct UIntBitWidth{
 		const static int value = 8*sizeof(uint_type);
 	};
 
     /**
-    * Datatype double template function
+    * Struct to determine a datatype that is twice as big(bitwise) as utype.
 	* sets T as of type void for default case
     */
 	template<typename utype>
-	struct doubleDataType{
+	struct DoubleDataType{
 		typedef void T;
 	};
 
     /**
-    * Datatype double template function
+    * Struct to determine a datatype that is twice as big(bitwise) as utype.
     * sets T as of type unsigned integer 16 bit if integral datatype is 8bit
     */
 	template<>
-	struct doubleDataType<uint8_t>{
+	struct DoubleDataType<uint8_t>{
 		typedef uint16_t T;
 	};
 
     /**
-    * Datatype double template function
+    * Struct to determine a datatype that is twice as big(bitwise) as utype.
     * sets T as of type unsigned integer 32 bit if integral datatype is 16bit
     */
     template<>
-	struct doubleDataType<uint16_t>{
+	struct DoubleDataType<uint16_t>{
 		typedef uint32_t T;
 	};
 
     /**
-    * Datatype double template function
+    * Struct to determine a datatype that is twice as big(bitwise) as utype.
     * sets T as of type unsigned integer 64 bit if integral datatype is 32bit
     */
 	template<>
-	struct doubleDataType<uint32_t>{
+	struct DoubleDataType<uint32_t>{
 		typedef uint64_t T;
 	};
 
 
-	const usint NUM_DIGIT_IN_PRINTVAL = 45;	//!< @brief The maximum number of digits in bigbinaryinteger. It is used by the cout(ostream) function for printing the bigbinarynumber.
     const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
     const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels used in the Barrett reductions.
 
@@ -767,18 +769,27 @@ namespace cpu_int{
     void SetMSB(usint guessIdxChar);
 
 	private:
+
 		//pointer to the array for storing the integral data type numbers.
 		uint_type *m_value;
+
 		//variable that stores the MOST SIGNIFICANT BIT position in the number.
 		usshort m_MSB;
+
 		//variable to store the bit width of the integral data type.
 		static const uschar m_uintBitLength;
+
 		//variable to store the maximum value of the integral data type.
 		static const uint_type m_uintMax;
+
 		//variable to store the log(base 2) of the number of bits in the integral data type.
 		static const uschar m_logUintBitLength;
+
 		//variable to store the size of the data array.
 		static const usint m_nSize;
+
+		//The maximum number of digits in bigbinaryinteger. It is used by the cout(ostream) function for printing the bigbinarynumber.
+		static const usint m_numDigitInPrintval;
 		/**
 		* function to return the ceiling of the number divided by the number of bits in the integral data type.
 		* @param Number is the number to be divided.
@@ -801,7 +812,7 @@ namespace cpu_int{
 		static usint GetMSBUint_type(uint_type x);
 		
 		//Duint_type is the data type that has twice as many bits in the integral data type.
-		typedef typename doubleDataType<uint_type>::T Duint_type;
+		typedef typename DoubleDataType<uint_type>::T Duint_type;
 
 		//enum defination to represent the state of the big binary integer.
 		enum State{

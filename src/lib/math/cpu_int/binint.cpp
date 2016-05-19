@@ -67,12 +67,15 @@ const BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH
 //constant static member variable initialization of m_uintBitLength which is equal to number of bits in the unit data type
 //permitted values: 8,16,32
 template<typename uint_type,usint BITLENGTH>
-const uschar BigBinaryInteger<uint_type,BITLENGTH>::m_uintBitLength = uintBitWidth<uint_type>::value;
+const uschar BigBinaryInteger<uint_type,BITLENGTH>::m_uintBitLength = UIntBitWidth<uint_type>::value;
+
+template<typename uint_type,usint BITLENGTH>
+const usint BigBinaryInteger<uint_type,BITLENGTH>::m_numDigitInPrintval = BITLENGTH/cpu_int::LOG2_10;
 
 //constant static member variable initialization of m_logUintBitLength which is equal to log of number of bits in the unit data type
 //permitted values: 3,4,5
 template<typename uint_type,usint BITLENGTH>
-const uschar BigBinaryInteger<uint_type,BITLENGTH>::m_logUintBitLength = logdtype<uint_type>::value;
+const uschar BigBinaryInteger<uint_type,BITLENGTH>::m_logUintBitLength = LogDtype<uint_type>::value;
 
 //constant static member variable initialization of m_nSize which is size of the array of unit data type
 template<typename uint_type,usint BITLENGTH>
@@ -1503,10 +1506,10 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 	//print_obj->PrintValueInDec();
 
 	//print_VALUE array stores the decimal value in the array
-	uschar *print_VALUE = new uschar[NUM_DIGIT_IN_PRINTVAL];
+	uschar *print_VALUE = new uschar[m_numDigitInPrintval];
 
 	//reset to zero
-	for(sint i=0;i<NUM_DIGIT_IN_PRINTVAL;i++)
+	for(sint i=0;i<m_numDigitInPrintval;i++)
 		*(print_VALUE+i)=0;
 
 	//starts the conversion from base 256 to decimal value
@@ -1522,12 +1525,12 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 	}
 
 	//find the first occurence of non-zero value in print_VALUE
-	for(counter=0;counter<NUM_DIGIT_IN_PRINTVAL-1;counter++){
+	for(counter=0;counter<m_numDigitInPrintval-1;counter++){
 		if((sint)print_VALUE[counter]!=0)break;							
 	}
 
 	//append this BigBinaryInteger's digits to this method's returned string object
-	for (; counter < NUM_DIGIT_IN_PRINTVAL; counter++) {
+	for (; counter < m_numDigitInPrintval; counter++) {
 		bbiString += std::to_string(print_VALUE[counter]);
 	}
 
@@ -1767,10 +1770,10 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BI
 	//print_obj->PrintValueInDec();
 
 	//print_VALUE array stores the decimal value in the array
-	uschar *print_VALUE = new uschar[NUM_DIGIT_IN_PRINTVAL];
+	uschar *print_VALUE = new uschar[ptr_obj.m_numDigitInPrintval];
 
 	//reset to zero
-	for(sint i=0;i<NUM_DIGIT_IN_PRINTVAL;i++)
+	for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 		*(print_VALUE+i)=0;
 
 	//starts the conversion from base 256 to decimal value
@@ -1779,14 +1782,14 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BI
 		//print_VALUE = print_VALUE*2
 		BigBinaryInteger<uint_type_c,BITLENGTH_c>::double_bitVal(print_VALUE);	
 #ifdef DEBUG_OSTREAM
-		for(sint i=0;i<NUM_DIGIT_IN_PRINTVAL;i++)
+		for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 		 std::cout<<(sint)*(print_VALUE+i);
 		std::cout<<endl;
 #endif
 		//adds the bit value to the print_VALUE
 		BigBinaryInteger<uint_type_c,BITLENGTH_c>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
 #ifdef DEBUG_OSTREAM
-		for(sint i=0;i<NUM_DIGIT_IN_PRINTVAL;i++)
+		for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 		 std::cout<<(sint)*(print_VALUE+i);
 		std::cout<<endl;
 #endif
@@ -1794,12 +1797,12 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BI
 	}
 
 	//find the first occurence of non-zero value in print_VALUE
-	for(counter=0;counter<NUM_DIGIT_IN_PRINTVAL-1;counter++){
+	for(counter=0;counter<ptr_obj.m_numDigitInPrintval-1;counter++){
 		if((sint)print_VALUE[counter]!=0)break;							
 	}
 
 	//start inserting values into the ostream object 
-	for(;counter<NUM_DIGIT_IN_PRINTVAL;counter++){
+	for(;counter<ptr_obj.m_numDigitInPrintval;counter++){
 		os<<(int)print_VALUE[counter];
 	}
 
@@ -1815,7 +1818,7 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BI
  void BigBinaryInteger<uint_type,BITLENGTH>::double_bitVal(uschar* a){
 	
 	uschar ofl=0;
-	for(sint i=NUM_DIGIT_IN_PRINTVAL-1;i>-1;i--){
+	for(sint i=m_numDigitInPrintval-1;i>-1;i--){
 		*(a+i)<<=1;
 		if(*(a+i)>9){
 			*(a+i)=*(a+i)-10+ofl;
@@ -1832,8 +1835,8 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BI
  template<typename uint_type,usint BITLENGTH>
  void BigBinaryInteger<uint_type,BITLENGTH>::add_bitVal(uschar* a,uschar b){
 	uschar ofl=0;
-	*(a+NUM_DIGIT_IN_PRINTVAL-1)+=b;
-	for(sint i=NUM_DIGIT_IN_PRINTVAL-1;i>-1;i--){
+	*(a+m_numDigitInPrintval-1)+=b;
+	for(sint i=m_numDigitInPrintval-1;i>-1;i--){
 		*(a+i) += ofl;
 		if(*(a+i)>9){
 			*(a+i)=0;
