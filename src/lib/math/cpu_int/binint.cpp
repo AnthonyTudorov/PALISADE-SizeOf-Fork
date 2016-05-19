@@ -366,40 +366,40 @@ const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENG
 */
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::operator>>(usshort shift) const{
-
+	//garbage check
 	if(m_state==State::GARBAGE)
 		throw std::logic_error("Value not initialized");
 
+	//trivial cases
 	if(this->m_MSB==0 || this->m_MSB <= shift)
 		return BigBinaryInteger(0);
 	 
 	
 	BigBinaryInteger ans(*this);
-
+	//no of array shifts
 	usint shiftByUint = shift>>m_logUintBitLength;
-
+	//no of bit shifts
 	uint_type remShift = (shift&(m_uintBitLength-1));
 
 	if(shiftByUint!=0){
-
+		//termination index counter
 		usint endVal= m_nSize-ceilIntByUInt(ans.m_MSB);
 		usint j= endVal;
-		
+		//array shifting operation
 		for(sint i= m_nSize-1-shiftByUint;i>=endVal;i--){
 			ans.m_value[i+shiftByUint] = ans.m_value[i];
 		}
-
+		//msb adjusted to show the shifts
 		ans.m_MSB -= shiftByUint<<m_logUintBitLength;
-
+		//nulling the removed uints from the array
 		while(shiftByUint>0){
 			ans.m_value[j] = 0;
 			shiftByUint--;
 			j++;
 		}
 
-		//ans.PrintValueInDec();
 	}
-
+	//bit shifts
 	if(remShift!=0){
 
 		uint_type overFlow = 0;
@@ -408,7 +408,8 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 		uint_type compShiftVal = m_uintBitLength- remShift;
 
 		usint startVal = m_nSize - ceilIntByUInt(ans.m_MSB);
-
+		//perform shifting by bits by calculating the overflow
+		//oveflow is added after the shifting operation
 		for( ;startVal<m_nSize;startVal++){
 
 			oldVal = ans.m_value[startVal];
@@ -438,7 +439,7 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 */
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator>>=(usshort shift){
-
+	//check for garbage
 	if(m_state==State::GARBAGE)
 		throw std::logic_error("Value not initialized");
 
@@ -449,10 +450,11 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 		return *this;
 	}
 
+	//no of array shifts
 	usint shiftByUint = shift>>m_logUintBitLength;
-
+	//no of bit shifts
 	uschar remShift = (shift&(m_uintBitLength-1));
-
+	//perform shifting in arrays
 	if(shiftByUint!=0){
 
 		usint endVal= m_nSize-ceilIntByUInt(this->m_MSB);
@@ -461,7 +463,7 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 		for(sint i= m_nSize-1-shiftByUint;i>=endVal;i--){
 			this->m_value[i+shiftByUint] = this->m_value[i];
 		}
-
+		//adjust shift to reflect left shifting 
 		this->m_MSB -= shiftByUint<<m_logUintBitLength;
 
 		while(shiftByUint>0){
@@ -474,7 +476,7 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 	}
 
 	
-
+	//perform shift by bits if any
 	if(remShift!=0){
 
 		uint_type overFlow = 0;
@@ -483,7 +485,7 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 		uint_type compShiftVal = m_uintBitLength- remShift;
 
 		usint startVal = m_nSize - ceilIntByUInt(this->m_MSB);
-
+		//shift and add the overflow from the previous position
 		for( ;startVal<m_nSize;startVal++){
 
 			oldVal = this->m_value[startVal];
@@ -525,9 +527,10 @@ usshort BigBinaryInteger<uint_type,BITLENGTH>::GetMSB()const{
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Plus(const BigBinaryInteger& b) const{
 	
-    const BigBinaryInteger* A = NULL;//two operands A and B for addition, A is the greater one, B is the smaller one
+	//two operands A and B for addition, A is the greater one, B is the smaller one
+    const BigBinaryInteger* A = NULL;
 	const BigBinaryInteger* B = NULL;
-	
+	//check for garbage initializations
 	if(this->m_state==GARBAGE){
 		if(b.m_state==GARBAGE){
 			return std::move(BigBinaryInteger(ZERO));
@@ -538,7 +541,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Plu
 	if(b.m_state==GARBAGE){
 		return std::move(BigBinaryInteger(*this));
 	}
-	
+	//Assignment of pointers, A assigned the higher value and B assigned the lower value
 	if(*this>b){
 		A = this; B = &b;
 	}
@@ -549,9 +552,11 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Plu
 
 	BigBinaryInteger result;
 	result.m_state = INITIALIZED;
-	Duint_type ofl=0;//overflow variable
-	
+	//overflow variable
+	Duint_type ofl=0;
+	//position from A to start addition
 	uint_type ceilIntA = ceilIntByUInt(A->m_MSB);
+	//position from B to start addition
 	uint_type ceilIntB = ceilIntByUInt(B->m_MSB);
 	sint i;//counter
 	for(i=m_nSize-1;i>=m_nSize-ceilIntB;i--){
@@ -592,34 +597,38 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Plu
 */
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Minus(const BigBinaryInteger& b) const{
-
+	//check for garbage initialization
 	if(this->m_state==GARBAGE){
 		return std::move(BigBinaryInteger(ZERO));		
 	}
 	if(b.m_state==GARBAGE){
 		return std::move(BigBinaryInteger(*this));
 	}
-
+	//return 0 if b is higher than *this as there is no support for negative number
 	if(!(*this>b))
 		return std::move(BigBinaryInteger(ZERO));
 
 	int cntr=0,current=0;
 	
 	BigBinaryInteger result(*this);
-
+	//array position in A to end substraction
 	int endValA = m_nSize-ceilIntByUInt(this->m_MSB);
+	//array position in B to end substraction
 	int endValB = m_nSize-ceilIntByUInt(b.m_MSB);
 	sint i;
 	for(i=m_nSize-1;i>=endValB;i--){
+		//carryover condtion
 		if(result.m_value[i]<b.m_value[i]){
 			current=i;
 			cntr = current-1;
+			//assigning carryover value
 			while(result.m_value[cntr]==0){
 				result.m_value[cntr]=m_uintMax;cntr--;
 			}
 			result.m_value[cntr]--;
 			result.m_value[i]=result.m_value[i]+m_uintMax+1- b.m_value[i];		
 		}
+		//usual substraction condition
 		else{
 			result.m_value[i]=result.m_value[i]- b.m_value[i];
 		}
@@ -629,10 +638,10 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Min
 	while(result.m_value[endValA]==0){
 		endValA++;
 	}
-
+	//reset the MSB after substraction
 	result.m_MSB = (m_nSize-endValA-1)*m_uintBitLength + GetMSBUint_type(result.m_value[endValA]);
 
-
+	//return the result
 	return std::move(result);
 
 }
