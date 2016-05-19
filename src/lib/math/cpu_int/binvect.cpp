@@ -505,7 +505,8 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 	for (int i = 0; i < pkVectorLength; i++) {
 		pkVectorElem = GetValAtIndex(i);
 
-		pkVectorElemVal = pkVectorElem.ToString();
+		pkVectorElemVal = pkVectorElem.ToStringDecimal();
+		//pkVectorElemVal = pkVectorElem.ToString();
 
 		pkBufferString += pkVectorElemVal;
 		if (i != (pkVectorLength - 1)) {
@@ -532,9 +533,14 @@ void BigBinaryVector<IntegerType>::Deserialize(std::unordered_map <std::string, 
 	IntegerType vectorElem;
 	std::string vectorElemVal;
 	usint i = 0;
-	while (vectorVals.find("|", 0)) {
-		size_t pos = vectorVals.find("|", 0);
-		vectorElemVal = vectorVals.substr(0, pos);
+	//while (vectorVals.find("|", 0)) {
+	//	size_t pos = vectorVals.find("|", 0);
+	//	vectorElemVal = vectorVals.substr(0, pos);
+
+	usint curpos = 0;
+	while (vectorVals.find("|", curpos)) {
+		size_t pos = vectorVals.find("|", curpos);
+		vectorElemVal = vectorVals.substr(curpos, pos-curpos);
 
 		std::string::size_type posTrim = vectorElemVal.find_last_not_of(' ');
 		if (posTrim != std::string::npos) {
@@ -550,8 +556,10 @@ void BigBinaryVector<IntegerType>::Deserialize(std::unordered_map <std::string, 
 			vectorElemVal = "";
 		}
 
-		vectorElem.SetValue(vectorElemVal);
-		vectorVals.erase(0, pos + 1);
+		vectorElem.SetValueFromDecimal(vectorElemVal);
+		//vectorElem.SetValue(vectorElemVal);
+		//vectorVals.erase(0, pos + 1);
+		curpos = pos + 1;
 		this->SetValAtIndex(i, vectorElem);
 		i++;
 

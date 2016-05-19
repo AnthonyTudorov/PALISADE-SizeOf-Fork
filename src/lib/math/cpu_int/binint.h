@@ -44,6 +44,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <functional>
+#include <cstdlib>
 #include <memory>
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
@@ -282,6 +283,8 @@ namespace cpu_int{
          * @returns nothing
          */
     void SetValue(const std::string& str);
+
+    void SetValueFromDecimal(const std::string& str);
         
         /**
          * Basic set method for setting the value of a big binary integer
@@ -523,6 +526,8 @@ namespace cpu_int{
          */
 
     const std::string ToString() const;
+
+    const std::string ToStringDecimal() const;
 
 		//template<typename uint_type,usint BITLENGTH>
 		//friend bool CheckPowerofTwos(const BigBinaryInteger<uint_type,BITLENGTH>& m_numToCheck);

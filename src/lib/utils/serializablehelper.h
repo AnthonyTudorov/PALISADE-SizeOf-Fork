@@ -83,6 +83,14 @@ namespace lbcrypto {
 		*/
 		std::string GetJsonString(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap) ;
 
+		/**
+		* Generates a nested JSON data string for a serialized Palisade object
+		* @param serializationMap stores the serialized Palisade object's attributes.
+		* @return string reflecting the nested JSON data structure of the serialized Palisade object.
+		*/
+		std::string GetJsonString(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap, std::string fileType);
+
+		std::string GetSimpleJsonString(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> serializationMap);
 
 		/**
 		* Determines the file name for saving a serialized Palisade object
@@ -129,6 +137,8 @@ namespace lbcrypto {
 		* @return map containing name value pairs for the attributes of the Palisade object to be deserialized.
 		*/
 		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> GetSerializationMap(const char *jsonInputString);
+
+		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> GetSimpleSerializationMap(const char *jsonInputString, std::string ID);
 
 	};
 }

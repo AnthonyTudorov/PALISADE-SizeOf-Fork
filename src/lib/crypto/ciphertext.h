@@ -52,7 +52,10 @@ namespace lbcrypto {
 
 	//JSON FACILITY - Forward declaration for temporary fix of lweautomorph.cpp Linux compilation error
 	template <class Element>
-	class LPCryptoParametersLWE;
+	class LPCryptoParametersLTV;
+
+	template <class Element>
+	class LPCryptoParametersStehleSteinfeld;
 
 	/**
 	 * @brief Main ciphertext class.
