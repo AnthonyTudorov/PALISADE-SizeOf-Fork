@@ -38,43 +38,43 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <fstream>
-#include "math/backend.h"
-//#include "math/cpu8bit/backend.h"
-#include "utils/inttypes.h"
-#include "math/nbtheory.h"
+#include "../../lib/math/backend.h"
+//#include "../../lib/math/cpu8bit/backend.h"
+#include "../../lib/utils/inttypes.h"
+#include "../../lib/math/nbtheory.h"
 //#include <thread>
-#include "lattice/elemparams.h"
-#include "lattice/ilparams.h"
-#include "lattice/ildcrtparams.h"
-#include "lattice/ilelement.h"
-//#include "il2n.h"
-#include "math/distrgen.h"
-#include "crypto/lwecrypt.h"
-#include "crypto/lwecrypt.cpp"
-#include "crypto/lweautomorph.cpp"
-#include "crypto/lwepre.h"
-#include "crypto/lwepre.cpp"
-#include "crypto/lweahe.cpp"
-#include "crypto/lweshe.cpp"
-#include "crypto/lwefhe.cpp"
-#include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
+#include "../../lib/lattice/elemparams.h"
+#include "../../lib/lattice/ilparams.h"
+#include "../../lib/lattice/ildcrtparams.h"
+#include "../../lib/lattice/ilelement.h"
+//#include "../../lib/il2n.h"
+#include "../../lib/math/distrgen.h"
+#include "../../lib/crypto/lwecrypt.h"
+#include "../../lib/crypto/lwecrypt.cpp"
+#include "../../lib/crypto/lweautomorph.cpp"
+#include "../../lib/crypto/lwepre.h"
+#include "../../lib/crypto/lwepre.cpp"
+#include "../../lib/crypto/lweahe.cpp"
+#include "../../lib/crypto/lweshe.cpp"
+#include "../../lib/crypto/lwefhe.cpp"
+#include "../../lib/lattice/ilvector2n.h"
+#include "../../lib/lattice/ilvectorarray2n.h"
 #include "time.h"
-#include "crypto/ciphertext.cpp"
-//#include "vld.h"
+#include "../../lib/crypto/ciphertext.cpp"
+//#include "../../lib/vld.h"
 #include <chrono>
-//#include "gtest/gtest.h"
-//#include "math/cpu8bit/binint.h"
-//#include "math/cpu8bit/binvect.h"
-//#include "math/cpu8bit/binmat.h"
+//#include "../../lib/gtest/gtest.h"
+//#include "../../lib/math/cpu8bit/binint.h"
+//#include "../../lib/math/cpu8bit/binvect.h"
+//#include "../../lib/math/cpu8bit/binmat.h"
 
-#include "utils/serializablehelper.h"
+#include "../../lib/utils/serializablehelper.h"
+#include "../../lib/utils/debug.h"
 
 using namespace std;
 using namespace lbcrypto;
 
 void NTRUPRE(int input);
-double currentDateTime();
 
 /**
  * @brief Input parameters for PRE example.
@@ -142,22 +142,6 @@ int main(){
 	return 0;
 }
 
-
-double currentDateTime()
-{
-
-	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-
-    time_t tnow = std::chrono::system_clock::to_time_t(now);
-    tm *date = localtime(&tnow);
-    date->tm_hour = 0;
-    date->tm_min = 0;
-    date->tm_sec = 0;
-
-    auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
-
-	return std::chrono::duration <double, std::milli>(now - midnight).count();
-}
 
 //////////////////////////////////////////////////////////////////////
 //	NTRUPRE is where the core functionality is provided.
@@ -245,10 +229,10 @@ void NTRUPRE(int input) {
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(modulus, stdDev);			// Create the noise generator
+	DiscreteGaussianGenerator dgg(stdDev);			// Create the noise generator
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
-	DiscreteGaussianGenerator dggStehleSteinfeld(modulus, stdDevStSt);			// Create the noise generator
+	DiscreteGaussianGenerator dggStehleSteinfeld(stdDevStSt);			// Create the noise generator
 	cryptoParams.SetDiscreteGaussianGeneratorStSt(dggStehleSteinfeld);
 
 	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
