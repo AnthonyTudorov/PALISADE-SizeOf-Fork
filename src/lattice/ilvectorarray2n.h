@@ -248,7 +248,8 @@ namespace lbcrypto {
 		const ILVectorArray2n& operator-=(const ILVectorArray2n &rhs);
 		// automorphism operation
 		/**
-		* Performs an automorphism transform operation and returns the result.
+		* Performs an automorphism transform operation and returns the result. An automorphism is an isomorphism from a mathematical object to itself. In other words, 
+		* it is mapping an object to itself while preserving all of its structure.
 		*
 		* @param &i is the element to perform the automorphism transform with.
 		* @return is the result of the automorphism transform.
@@ -275,7 +276,7 @@ namespace lbcrypto {
 		/**
 		* Performs a subtraction operation and returns the result.
 		*
-		* @param &element is the element to subtract with.
+		* @param &element is the element to subtract from.
 		* @return is the result of the subtraction.
 		*/
 		ILVectorArray2n Minus(const ILVectorArray2n &element) const;
@@ -286,7 +287,7 @@ namespace lbcrypto {
 		* Scalar addition - add an element to the first index of each tower.
 		*
 		* @param &element is the element to add entry-wise.
-		* @return is the return of the addition operation.
+		* @return is the result of the addition operation.
 		*/
 		ILVectorArray2n Plus(const BigBinaryInteger &element) const;
 
@@ -311,7 +312,7 @@ namespace lbcrypto {
 		* Modulus - perform a modulus operation.
 		*
 		* @param modulus is the modulus to use.
-		* @return is the return value of the modulus.
+		* @return is the result value of the modulus.
 		*/
 		ILVectorArray2n Mod(const BigBinaryInteger &modulus) const;
 		
@@ -326,8 +327,8 @@ namespace lbcrypto {
 		/**
 		* Performs an addition operation and returns the result.
 		*
-		* @param &element is the element to add with.
-		* @return is the result of the addition.
+		* @param &element is the element to subtract from.
+		* @return is the result of the subtraction.
 		*/
 		const ILVectorArray2n& operator-=(const BigBinaryInteger &element);
 
