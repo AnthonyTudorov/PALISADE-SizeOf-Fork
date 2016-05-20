@@ -47,7 +47,6 @@
 namespace cpu_int {
 	
 
-//GENERAL NOTE. YSP. I believe we should use this class for vectors only. Matrices should be defined in a separate class: BigBinaryMatrix.
 
 /**
  * @brief The class for representing vectors of big binary integers.
@@ -91,9 +90,9 @@ public:
 	explicit BigBinaryVector(const BigBinaryVector& bigBinaryVector);
 
 	/**
-	 * Basic constructor for copying a vector
+	 * Basic move constructor for moving a vector
 	 *
-	 * @param &&bigBinaryVector is the big binary vector to be copied.  	  
+	 * @param &&bigBinaryVector is the big binary vector to be moved.  	  
 	 */
 	BigBinaryVector(BigBinaryVector &&bigBinaryVector);//move copy constructor
 

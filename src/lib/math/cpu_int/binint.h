@@ -330,7 +330,7 @@ namespace cpu_int{
 	/**
     * Converts the value to an double.
     *
-    * @return the double representation of the value.
+    * @return double representation of the value.
     */
     double ConvertToDouble() const;
 
@@ -338,7 +338,7 @@ namespace cpu_int{
 	 * Convert a value from an int to a BigBinaryInt.
 	 *
 	 * @param m the value to convert from.
-	 * @return the int represented as a big binary int.
+	 * @return int represented as a big binary int.
 	 */
 	static BigBinaryInteger intToBigBinaryInteger(usint m);
 
@@ -348,7 +348,7 @@ namespace cpu_int{
     * Addition operation.
     *
     * @param b is the value to add of type Big Binary Integer.
-    * @return is the result of the addition operation of type BigBinary Integer.
+    * @return result of the addition operation of type BigBinary Integer.
     */
     BigBinaryInteger Plus(const BigBinaryInteger& b) const;
 
@@ -357,7 +357,7 @@ namespace cpu_int{
     * Addition accumulator.
     *
     * @param &b is the value to add of type Big Binary Integer.
-    * @return is the result of the addition operation of type Big Binary Integer.
+    * @return result of the addition operation of type Big Binary Integer.
     */
     const BigBinaryInteger& operator+=(const BigBinaryInteger &b);
 
@@ -366,7 +366,7 @@ namespace cpu_int{
     * Subtraction accumulator.
     *
     * @param &b is the value to subtract of type Big Binary Integer.
-    * @return is the result of the subtraction operation of type Big Binary Integer.
+    * @return result of the subtraction operation of type Big Binary Integer.
     */
     const BigBinaryInteger& operator-=(const BigBinaryInteger &b);
 
@@ -374,7 +374,7 @@ namespace cpu_int{
     * Subtraction operation.
     *
     * @param b is the value to subtract of type Big Binary Integer.
-    * @return is the result of the subtraction operation of type Big Binary Integer.
+    * @return result of the subtraction operation of type Big Binary Integer.
     */
     BigBinaryInteger Minus(const BigBinaryInteger& b) const;
 
@@ -383,7 +383,7 @@ namespace cpu_int{
     * Multiplication operation.
     *
     * @param b of type Big Binary Integer is the value to multiply with.
-    * @return is the result of the multiplication operation.
+    * @return result of the multiplication operation.
     */
     BigBinaryInteger Times(const BigBinaryInteger& b) const;
 
@@ -391,7 +391,7 @@ namespace cpu_int{
     * Division operation.
     *
     * @param b of type BigBinaryInteger is the value to divide by.
-    * @return is the result of the division operation.
+    * @return result of the division operation.
     */
     BigBinaryInteger DividedBy(const BigBinaryInteger& b) const;
 
@@ -423,7 +423,7 @@ namespace cpu_int{
     *
     * @param modulus is the modulus to perform operations with.
     * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
-    * @return is the result of the modulus operation.
+    * @return result of the modulus operation.
     */
     BigBinaryInteger ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger mu_arr[BARRETT_LEVELS+1]) const;
 
@@ -469,7 +469,7 @@ namespace cpu_int{
     *
     * @param &b is the scalar to subtract.
     * @param modulus is the modulus to perform operations with.
-    * @return is the result of the modulus subtraction operation.
+    * @return result of the modulus subtraction operation.
     */
     BigBinaryInteger ModSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
 
@@ -572,7 +572,7 @@ namespace cpu_int{
 	* @param bitString the binary num in string.
 	* @return the binary number represented as a big binary int.
 	*/
-    static BigBinaryInteger BinaryToBigBinaryInt(const std::string& bitString);
+    static BigBinaryInteger BinaryStringToBigBinaryInt(const std::string& bitString);
 
 	/**
 	* Exponentiation of a bigBinaryInteger x. Returns x^p
@@ -686,7 +686,7 @@ namespace cpu_int{
     * Gets the bit at the specified index.
     *
     * @param index is the index of the bit to get.
-    * @return is the resulting bit.
+    * @return resulting bit.
     */
     uschar GetBitAtIndex(usint index) const;
 
@@ -734,7 +734,7 @@ namespace cpu_int{
     * Compares the current BigBinaryInteger to BigBinaryInteger a.
     *
     * @param a is the BigBinaryInteger to be compared with.
-    * @return is -1 for strictly less than, 0 for equal to and 1 for greater than conditons.
+    * @return  -1 for strictly less than, 0 for equal to and 1 for strictly greater than conditons.
     */
     sint Compare(const BigBinaryInteger& a) const;
 
@@ -855,15 +855,15 @@ namespace cpu_int{
 		static void add_bitVal(uschar* a,uschar b);
 	};
 
-	/**
-	 * Division operation.
-	 *
-	 * @param a is the value to divide.
-	 * @param b is the value to divide by.
-	 * @return is the result of the division operation.
-	 */
-	template<typename uint_type,usint BITLENGTH>
-	inline BigBinaryInteger<uint_type,BITLENGTH> operator/(const BigBinaryInteger<uint_type,BITLENGTH> &a, const BigBinaryInteger<uint_type,BITLENGTH> &b) {return a.DividedBy(b);}
+	///**
+	// * Division operation.
+	// *
+	// * @param a is the value to divide.
+	// * @param b is the value to divide by.
+	// * @return is the result of the division operation.
+	// */
+	//template<typename uint_type,usint BITLENGTH>
+	//inline BigBinaryInteger<uint_type,BITLENGTH> operator/(const BigBinaryInteger<uint_type,BITLENGTH> &a, const BigBinaryInteger<uint_type,BITLENGTH> &b) {return a.DividedBy(b);}
 
 }//namespace ends
 
