@@ -12,7 +12,7 @@ List of Authors:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
 Description:
-	This code provides basic arithmetic functionality.
+	This class provides a class for big integers.
 
 License Information:
 
@@ -1037,7 +1037,7 @@ void BigBinaryInteger<uint_type, BITLENGTH>::SetValue(const std::string& str){
 	m_state = INITIALIZED;
 }
 
-//Algorithm used: Repeated substraction by a multiple of modulus
+//Algorithm used: Repeated substraction by a multiple of modulus, which will be referred to as "Classical Modulo Reduction Algorithm"
 //Complexity: O(log(*this)-log(modulus))
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod(const BigBinaryInteger& modulus) const{
@@ -1138,6 +1138,18 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 }
 
+/**
+Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
+@article{knezevicspeeding,
+  title={Speeding Up Barrett and Montgomery Modular Multiplications},
+  author={Knezevic, Miroslav and Vercauteren, Frederik and Verbauwhede, Ingrid}
+}
+We use the Generalized Barrett modular reduction algorithm described in Algorithm 2 of the Source. The algorithm was originally 
+proposed in J.-F. Dhem. Modified version of the Barrett algorithm. Technical report, 1994 and described in more detail 
+in the PhD thesis of the author published at
+http://users.belgacom.net/dhem/these/these_public.pdf (Section 2.2.4).
+We take \alpha equal to n + 3. In this case, we work with an array of precomputed \mu values.
+**/
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger mu_arr[BARRETT_LEVELS+1]) const{
 
@@ -1170,7 +1182,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 }
 
-//FISH/Extended Euclid algorithm used to find the multiplicative inverse
+//Extended Euclid algorithm used to find the multiplicative inverse
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModInverse(const BigBinaryInteger& modulus) const{
 
@@ -1438,7 +1450,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	return (*a**bb).ModBarrett(modulus,mu_arr);
 }
 
-//Modulus Multiplication using Square and Multiply Algorithm
+//Modular Multiplication using Square and Multiply Algorithm
 //reference:http://guan.cse.nsysu.edu.tw/note/expn.pdf
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModExp(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const{
@@ -1740,7 +1752,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Bin
 
 }
 
-//Logarithmic Exponentiation function
+//Recursive Exponentiation function
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Exp(usint p) const{
 	if (p == 0) return BigBinaryInteger(BigBinaryInteger::ONE);

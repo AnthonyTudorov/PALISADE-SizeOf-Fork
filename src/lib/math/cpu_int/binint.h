@@ -28,7 +28,10 @@
  *
  * @section DESCRIPTION
  *
- * This file contains the vector manipulation functionality.
+ * This file contains the main class for big integers: BigBinaryInteger. Big integers are represented
+ * as arrays of native usigned integers. The native integer type is supplied as a template parameter.
+ * Currently implementations based on uint8_t, uint16_t, and uint32_t are supported. The second template parameter
+ * is the maximum bitwidth for the big integer.
  */
 
 #ifndef LBCRYPTO_MATH_CPUINT_BININT_H
@@ -59,8 +62,10 @@ namespace cpu_int{
 	*/
 
     /**
-    *Struct to find log value of N.
+    * @brief  Struct to find log value of N.
     *Needed in the preprocessing step of BigBinaryInteger to determine bitwidth.
+	*
+	* @tparam N bitwidth.
     */
 	template <usint N>
 	struct Log2{
@@ -68,7 +73,7 @@ namespace cpu_int{
 	};
     
     /**
-    *Struct to find log value of N.
+    * @brief Struct to find log value of N.
 	*Base case for recursion.
     *Needed in the preprocessing step of BigBinaryInteger to determine bitwidth.
     */
@@ -78,8 +83,10 @@ namespace cpu_int{
 	};
     
     /**
-    *Struct to find log value of U where U is a primitive datatype.
+    * @brief Struct to find log value of U where U is a primitive datatype.
     *Needed in the preprocessing step of BigBinaryInteger to determine bitwidth.
+	*
+	* @tparam U primitive data type.
     */
 	template <typename U>
 	struct LogDtype{
@@ -87,8 +94,9 @@ namespace cpu_int{
 	};
     
     /**
-    *Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}
     *
+	* @tparam Dtype primitive datatype.
     */
 	template<typename Dtype>
 	struct DataTypeChecker{
@@ -96,7 +104,7 @@ namespace cpu_int{
 	};
 
     /**
-    *Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}. 
     * sets value true if datatype is unsigned integer 8 bit.
     */
 	template<>
@@ -105,7 +113,7 @@ namespace cpu_int{
 	};
 
     /**
-    *Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}. 
     * sets value true if datatype is unsigned integer 16 bit.
     */
 	template<>
@@ -114,7 +122,7 @@ namespace cpu_int{
 	};
 
     /**
-    *Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}.
     * sets value true if datatype is unsigned integer 32 bit.
     */
 	template<>
@@ -123,7 +131,7 @@ namespace cpu_int{
 	};
 
     /**
-    *Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}.
     * sets value true if datatype is unsigned integer 64 bit.
     */
 	template<>
@@ -132,8 +140,10 @@ namespace cpu_int{
 	};
 
 	/**
-    *Struct for calculating bit width from data type
-	*sets value to the bitwidth of uint_type
+    * @brief Struct for calculating bit width from data type. 
+	* Sets value to the bitwidth of uint_type
+	*
+	* @tparam uint_type native integer data type.
     */
 	template <typename uint_type>
 	struct UIntBitWidth{
@@ -141,8 +151,10 @@ namespace cpu_int{
 	};
 
     /**
-    * Struct to determine a datatype that is twice as big(bitwise) as utype.
+    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
 	* sets T as of type void for default case
+	* 
+	* @tparam utype primitive integer data type.
     */
 	template<typename utype>
 	struct DoubleDataType{
@@ -150,8 +162,8 @@ namespace cpu_int{
 	};
 
     /**
-    * Struct to determine a datatype that is twice as big(bitwise) as utype.
-    * sets T as of type unsigned integer 16 bit if integral datatype is 8bit
+    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
+    * Sets T as of type unsigned integer 16 bit if integral datatype is 8bit
     */
 	template<>
 	struct DoubleDataType<uint8_t>{
@@ -159,7 +171,7 @@ namespace cpu_int{
 	};
 
     /**
-    * Struct to determine a datatype that is twice as big(bitwise) as utype.
+    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
     * sets T as of type unsigned integer 32 bit if integral datatype is 16bit
     */
     template<>
@@ -168,7 +180,7 @@ namespace cpu_int{
 	};
 
     /**
-    * Struct to determine a datatype that is twice as big(bitwise) as utype.
+    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
     * sets T as of type unsigned integer 64 bit if integral datatype is 32bit
     */
 	template<>
@@ -178,8 +190,14 @@ namespace cpu_int{
 
 
     const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
-    const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels used in the Barrett reductions.
+    const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed values) used in the Barrett reductions.
 
+
+	/**
+	 * @brief Main class for big integers represented as an array of native (primitive) unsigned integers
+	 * @tparam uint_type native unsigned integer type
+	 * @tparam BITLENGTH maximum bitdwidth supported for big integers
+	 */
 	template<typename uint_type,usint BITLENGTH>
 	class BigBinaryInteger
 	{
@@ -295,7 +313,6 @@ namespace cpu_int{
     *
     * @param str is the string representation of the big binary integer to be copied.
     */
-
     void SetValue(const std::string& str);
         
     /**
@@ -398,7 +415,7 @@ namespace cpu_int{
 //modular arithmetic operations
 		
     /**
-    * returns the modulus with respect to the input value.
+    * returns the modulus with respect to the input value. Classical modular reduction algorithm is used.
     *
     * @param modulus is value of the modulus to perform. Its of type BigBinaryInteger.
     * @return BigBinaryInteger that is the result of the modulus operation.
@@ -406,7 +423,7 @@ namespace cpu_int{
     BigBinaryInteger Mod(const BigBinaryInteger& modulus) const;
     
     /**
-    * returns the Barret modulus with respect to the input modulus and the Barrett value.
+    * returns the modulus with respect to the input value.
 	* Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.
 	* See the cpp file for details of the implementation. 
     *
@@ -417,7 +434,7 @@ namespace cpu_int{
     BigBinaryInteger ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger& mu) const;
 
     /**
-    * returns the Barret modulus with respect to the input modulus and the Barrett value.
+    * returns the modulus with respect to the input value.
 	* Implements generalized Barrett modular reduction algorithm. Uses an array of precomputed values \mu.
 	* See the cpp file for details of the implementation. 
     *
@@ -436,7 +453,7 @@ namespace cpu_int{
     BigBinaryInteger ModInverse(const BigBinaryInteger& modulus) const;
 
     /**
-    * Scalar modulus addition.
+    * Scalar modular addition.
     *
     * @param &b is the scalar to add.
     * @param modulus is the modulus to perform operations with.
@@ -445,27 +462,27 @@ namespace cpu_int{
     BigBinaryInteger ModAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
 
     /**
-    * Scalar Barrett modulus addition.
+    * Modular addition where Barrett modulo reduction is used.
     *
     * @param &b is the scalar to add.
     * @param modulus is the modulus to perform operations with.
-    * @param mu is the Barrett value.
+    * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
     * @return is the result of the modulus addition operation.
     */
     BigBinaryInteger ModBarrettAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const;
 
     /**
-    * Scalar Barrett modulus addition.
+    * Modular addition where Barrett modulo reduction is used.
     *
     * @param &b is the scalar to add.
     * @param modulus is the modulus to perform operations with.
-    * @param mu is an array of the Barrett values of length BARRETT_LEVELS.
+    * @param mu is one precomputed Barrett value.
     * @return is the result of the modulus addition operation.
     */
     BigBinaryInteger ModBarrettAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const;
 
     /**
-    * Scalar modulus subtraction.
+    * Scalar modular subtraction.
     *
     * @param &b is the scalar to subtract.
     * @param modulus is the modulus to perform operations with.
@@ -474,7 +491,7 @@ namespace cpu_int{
     BigBinaryInteger ModSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
 
     /**
-    * Scalar Barrett modulus subtraction.
+    * Scalar modular subtraction where Barrett modular reduction is used.
     *
     * @param &b is the scalar to subtract.
     * @param modulus is the modulus to perform operations with.
@@ -484,11 +501,11 @@ namespace cpu_int{
     BigBinaryInteger ModBarrettSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const;
 
     /**
-    * Scalar Barrett modulus subtraction.
+    * Scalar modular subtraction where Barrett modular reduction is used.
     *
     * @param b is the scalar to subtract.
     * @param modulus is the modulus to perform operations with.
-    * @param mu is an array of the Barrett values of length BARRETT_LEVELS.
+    * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
     * @return is the result of the modulus subtraction operation.
     */
     BigBinaryInteger ModBarrettSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const;
@@ -503,9 +520,9 @@ namespace cpu_int{
     BigBinaryInteger ModMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
 
     /**
-    * Scalar Barrett modular multiplication.
+    * Scalar modular multiplication where Barrett modular reduction is used.
 	* Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo). 
-	* Uses an array of precomputed values \mu.
+	* Uses one precomputed value \mu.
 	* See the cpp file for details of the implementation. 
     *
     * @param b is the scalar to multiply.
@@ -516,17 +533,17 @@ namespace cpu_int{
     BigBinaryInteger ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const;
 
     /**
-    * Scalar Barrett modulus multiplication.
+    * Scalar modular multiplication where Barrett modular reduction is used.
     *
     * @param &b is the scalar to multiply.
     * @param modulus is the modulus to perform operations with.
-    * @param mu is an array of the Barrett values of length BARRETT_LEVELS.
+    * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
     * @return is the result of the modulus multiplication operation.
     */
     BigBinaryInteger ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const;
 
     /**
-    * Scalar modulus exponentiation.
+    * Scalar modular exponentiation. Square-and-multiply algorithm is used.
     *
     * @param &b is the scalar to exponentiate.
     * @param modulus is the modulus to perform operations with.
@@ -558,7 +575,7 @@ namespace cpu_int{
     usint GetLengthForBase(usint base) const {return GetMSB();}
 
     /**
-    * Get the number of digits using a specific base - support for arbitrary base may be needed.
+    * Get the number of digits using a specific base - only power-of-2 bases are currently supported.
     *
     * @param index is the location to return value from in the specific base.
     * @param base is the base with which to determine length in.
@@ -656,7 +673,7 @@ namespace cpu_int{
     inline BigBinaryInteger operator*(const BigBinaryInteger &a) const {return this->Times(a);}
 
     /**
-    * Modulus operation.
+    * Modulo operation. Classical modular reduction algorithm is used.
     *
     * @param a is the value to Mod.
     * @return is the result of the modulus operation.
@@ -670,7 +687,7 @@ namespace cpu_int{
 	 * @param b is the value to divide by.
 	 * @return is the result of the integral part after division operation.
 	 */
-	inline BigBinaryInteger operator/(const BigBinaryInteger &a) {return this->DividedBy(a);}
+	inline BigBinaryInteger operator/ (const BigBinaryInteger &a) const {return this->DividedBy(a);}
 
 	/**
 	 * Console output operation.
@@ -743,7 +760,9 @@ namespace cpu_int{
      */
 	inline void SetIdentity() { *this = BigBinaryInteger::ONE; };
 
-	//A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of BigBinaryInteger objects.
+	/**
+	* A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of BigBinaryInteger objects.
+	*/
 	static std::function<unique_ptr<BigBinaryInteger>()> Allocator;
 
     protected:
@@ -768,7 +787,7 @@ namespace cpu_int{
 
 	private:
 
-		//pointer to the array for storing the integral data type numbers.
+		//pointer to the array storing the native integers.
 		uint_type *m_value;
 
 		//variable that stores the MOST SIGNIFICANT BIT position in the number.
@@ -794,19 +813,23 @@ namespace cpu_int{
 		* @return the ceiling of Number/(bits in the integral data type)
 		*/
 		static uint_type ceilIntByUInt(const uint_type Number);
+
 		//currently unused array
 		static const BigBinaryInteger *m_modChain;
+		
 		/**
 		* function to return the MSB of a 32 bit number.
 		* @param x is the 32 bit integer.
 		* @return the MSB position in the 32 bit number x.
 		*/
+		
 		static uint64_t GetMSB32(uint64_t x);
 		/**
 		* function to return the MSB of number.
 		* @param x is the number.
 		* @return the MSB position in the number x.
 		*/
+		
 		static usint GetMSBUint_type(uint_type x);
 		
 		//Duint_type is the data type that has twice as many bits in the integral data type.
