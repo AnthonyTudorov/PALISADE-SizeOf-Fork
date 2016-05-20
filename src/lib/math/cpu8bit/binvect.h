@@ -52,7 +52,7 @@ namespace cpu8bit {
  * @brief The class for representing vectors of big binary integers.
  */
 	//JSON FACILITY
-	class BigBinaryVector : public lbcrypto::BigBinaryVectorInterface, public lbcrypto::Serializable
+class BigBinaryVector : public lbcrypto::BigBinaryVectorInterface, public lbcrypto::Serializable
 {
 public:
 	/**
@@ -333,7 +333,7 @@ public:
 	* @param serializationMap stores this object's serialized attribute name value pairs.
 	* @return map passed in.
 	*/
-	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+	bool SetIdFlag(lbcrypto::SerializationMap& serializationMap, std::string flag) const;
 
 	//JSON FACILITY
 	/**
@@ -342,7 +342,7 @@ public:
 	* @param serializationMap stores this object's serialized attribute name value pairs.
 	* @return map updated with the attribute name value pairs required to serialize this object.
 	*/
-	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
+	bool Serialize(lbcrypto::SerializationMap& serializationMap, std::string fileFlag) const;
 
 	//JSON FACILITY
 	/**
@@ -350,7 +350,7 @@ public:
 	*
 	* @param serializationMap stores this object's serialized attribute name value pairs.
 	*/
-	void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+	bool Deserialize(const lbcrypto::SerializationMap& serializationMap);
 
 private:
 	BigBinaryInteger **m_data;

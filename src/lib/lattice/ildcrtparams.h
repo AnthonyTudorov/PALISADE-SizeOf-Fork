@@ -246,26 +246,26 @@ namespace lbcrypto {
 		~ILDCRTParams() {}
 
 		//JSON FACILITY
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+		bool SetIdFlag(SerializationMap& serializationMap, std::string flag) const {
 
 			//Place holder
 
-			return serializationMap;
+			return true;
 		}
 
 		//JSON FACILITY
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+		bool Serialize(SerializationMap& serializationMap, std::string fileFlag) const {
 
 			//Place holder
 
-			return serializationMap;
+			return false;
 		}
 
 		//JSON FACILITY
-		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+		bool Deserialize(const SerializationMap& serializationMap) {
 
 			//Place holder
-
+			return false;
 		}
 
 	private:

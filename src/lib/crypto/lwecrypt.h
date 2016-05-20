@@ -223,7 +223,7 @@ namespace lbcrypto {
 			* @param serializationMap stores this object's serialized attribute name value pairs.
 			* @return map passed in.
 			*/
-			std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+			bool SetIdFlag(SerializationMap& serializationMap, std::string flag) const;
 
 			//JSON FACILITY
 			/**
@@ -233,7 +233,7 @@ namespace lbcrypto {
 			* @param serializationMap stores this object's serialized attribute name value pairs.
 			* @return map updated with the attribute name value pairs required to serialize this object.
 			*/
-			virtual std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
+			bool Serialize(SerializationMap& serializationMap, std::string fileFlag) const;
 
 			//JSON FACILITY
 			/**
@@ -242,7 +242,7 @@ namespace lbcrypto {
 			*
 			* @param serializationMap stores this object's serialized attribute name value pairs.
 			*/
-			virtual void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+			virtual bool Deserialize(const SerializationMap& serializationMap);
 
 		private:
 			//standard deviation in Discrete Gaussian Distribution
@@ -302,13 +302,21 @@ namespace lbcrypto {
 
 			//JSON FACILITY
 			/**
+			* Implemented by this object only for inheritance requirements of abstract class Serializable.
+			*
+			* @param serializationMap stores this object's serialized attribute name value pairs.
+			* @return map passed in.
+			*/
+			bool SetIdFlag(SerializationMap& serializationMap, std::string flag) const;
+
+			/**
 			* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
 			* Invokes nested serialization of ILParams.
 			*
 			* @param serializationMap stores this object's serialized attribute name value pairs.
 			* @return map updated with the attribute name value pairs required to serialize this object.
 			*/
-			std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
+			bool Serialize(SerializationMap& serializationMap, std::string fileFlag) const;
 
 			//JSON FACILITY
 			/**
@@ -317,7 +325,7 @@ namespace lbcrypto {
 			*
 			* @param serializationMap stores this object's serialized attribute name value pairs.
 			*/
-			void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+			bool Deserialize(const SerializationMap& serializationMap);
 
 
 		private:
@@ -403,7 +411,7 @@ namespace lbcrypto {
 			* @param serializationMap stores this object's serialized attribute name value pairs.
 			* @return map updated with ID and Flag attribute values.
 			*/
-			std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+			bool SetIdFlag(SerializationMap& serializationMap, std::string flag) const;
 
 			//JSON FACILITY
 			/**
@@ -413,7 +421,7 @@ namespace lbcrypto {
 			* @param serializationMap stores this object's serialized attribute name value pairs.
 			* @return map updated with the attribute name value pairs required to serialize this object.
 			*/
-			std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
+			bool Serialize(SerializationMap& serializationMap, std::string fileFlag) const;
 
 			//JSON FACILITY
 			/**
@@ -422,7 +430,7 @@ namespace lbcrypto {
 			*
 			* @param serializationMap stores this object's serialized attribute name value pairs.
 			*/
-			void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+			bool Deserialize(const SerializationMap& serializationMap);
 
 		private:
 			LPCryptoParameters<Element> *m_cryptoParameters;
@@ -512,7 +520,7 @@ namespace lbcrypto {
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		* @return map updated with ID and Flag attribute values.
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+		bool SetIdFlag(SerializationMap& serializationMap, std::string flag) const;
 
 		//JSON FACILITY
 		/**
@@ -522,7 +530,7 @@ namespace lbcrypto {
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		* @return map updated with the attribute name value pairs required to serialize this object.
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
+		bool Serialize(SerializationMap& serializationMap, std::string fileFlag) const;
 
 		//JSON FACILITY
 		/**
@@ -531,7 +539,7 @@ namespace lbcrypto {
 		*
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		*/
-		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+		bool Deserialize(const SerializationMap& serializationMap);
 		
 	private:
 		LPCryptoParameters<Element> *m_cryptoParameters;
@@ -689,7 +697,7 @@ namespace lbcrypto {
 			* @param serializationMap stores this object's serialized attribute name value pairs.
 			* @return map updated with ID and Flag attribute values.
 			*/
-			std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+			bool SetIdFlag(SerializationMap& serializationMap, std::string flag) const;
 
 			//JSON FACILITY
 			/**
@@ -699,7 +707,7 @@ namespace lbcrypto {
 			* @param serializationMap stores this object's serialized attribute name value pairs.
 			* @return map updated with the attribute name value pairs required to serialize this object.
 			*/
-			std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
+			bool Serialize(SerializationMap& serializationMap, std::string fileFlag) const;
 
 			//JSON FACILITY
 			/**
@@ -708,7 +716,7 @@ namespace lbcrypto {
 			*
 			* @param serializationMap stores this object's serialized attribute name value pairs.
 			*/
-			void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+			bool Deserialize(const SerializationMap& serializationMap);
 
 	private:
 			LPCryptoParameters<Element> *m_cryptoParameters;

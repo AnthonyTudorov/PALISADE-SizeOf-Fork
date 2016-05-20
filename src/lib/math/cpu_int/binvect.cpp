@@ -25,7 +25,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "binvect.h"
+#include "../cpu_int/binvect.h"
+#include "../../utils/serializable.h"
 //#include "../nbtheory.h"
 
 
@@ -482,18 +483,18 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::GetDigitAtIndexForBas
 
 // JSON FACILITY - SetIdFlag Operation
 template<class IntegerType>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> BigBinaryVector<IntegerType>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+bool BigBinaryVector<IntegerType>::SetIdFlag(lbcrypto::SerializationMap& serializationMap, std::string flag) const {
 
 	//Place holder
 
-	return serializationMap;
+	return true;
 }
 
 // JSON FACILITY - Serialize Operation
 template<class IntegerType>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> BigBinaryVector<IntegerType>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::SerializationMap& serializationMap, std::string fileFlag) const {
 
-	std::unordered_map <std::string, std::string> bbvMap;
+	lbcrypto::SerializationKV bbvMap;
 
 	bbvMap.emplace("Modulus", this->GetModulus().ToString());
 
@@ -517,14 +518,15 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 
 	serializationMap.emplace("BigBinaryVector", bbvMap);
 
-	return serializationMap;
+	return true;
 }
 
 // JSON FACILITY - Deserialize Operation
 template<class IntegerType>
-void BigBinaryVector<IntegerType>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+bool BigBinaryVector<IntegerType>::Deserialize(const lbcrypto::SerializationMap& serializationMap) {
 
-	std::unordered_map<std::string, std::string> bbvMap = serializationMap["BigBinaryVector"];
+	lbcrypto::SerializationMap::const_iterator mIter = serializationMap.find("BigBinaryVector");
+	lbcrypto::SerializationKV bbvMap = mIter->second;
 
 	IntegerType bbiModulus(bbvMap["Modulus"]);
 	this->SetModulus(bbiModulus);
@@ -567,6 +569,8 @@ void BigBinaryVector<IntegerType>::Deserialize(std::unordered_map <std::string, 
 			break;
 		}
 	}
+
+	return true;
 }
 
 //Private functions

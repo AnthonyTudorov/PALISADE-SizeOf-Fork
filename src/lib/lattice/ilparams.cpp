@@ -47,11 +47,9 @@ namespace lbcrypto {
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		* @return map passed in.
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ILParams::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+		bool ILParams::SetIdFlag(SerializationMap& serializationMap, std::string flag) const {
 
-			//Place holder
-
-			return serializationMap;
+			return true;
 		}
 
 		//JSON FACILITY
@@ -61,7 +59,14 @@ namespace lbcrypto {
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		* @return map updated with the attribute name value pairs required to serialize this object.
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ILParams::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+		bool ILParams::Serialize(SerializationMap& serializationMap, std::string fileFlag) const {
+
+			rapidjson::Value ser(kObjectType);
+			ser.AddMember("Modulus", this->GetModulus().ToString());
+			ser.AddMember("Order", this->ToStr(this->GetCyclotomicOrder()));
+			ser.AddMember("RootOfUnity", this->GetRootOfUnity().ToString());
+
+			//serializationMap.AddMember("ILParams", ser);
 
 			std::unordered_map <std::string, std::string> ilParamsMap;
 			ilParamsMap.emplace("Modulus", this->GetModulus().ToString());
@@ -69,7 +74,7 @@ namespace lbcrypto {
 			ilParamsMap.emplace("RootOfUnity", this->GetRootOfUnity().ToString());
 			serializationMap.emplace("ILParams", ilParamsMap);
 
-			return serializationMap;
+			return true;
 		}
 
 		//JSON FACILITY
@@ -78,16 +83,32 @@ namespace lbcrypto {
 		*
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		*/
-		void ILParams::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+		bool ILParams::Deserialize(const SerializationMap& serializationMap) {
 
-			std::unordered_map<std::string, std::string> ilParamsMap = serializationMap["ILParams"];
-			BigBinaryInteger bbiModulus(ilParamsMap["Modulus"]);
-			usint order = stoi(ilParamsMap["Order"]);
-			BigBinaryInteger bbiRootOfUnity(ilParamsMap["RootOfUnity"]);
+			SerializationMap::const_iterator mIter = serializationMap.find("ILParams");
+			if( mIter == serializationMap.end() )
+				return false;
+
+			SerializationKV ilParamsMap = mIter->second;
+
+			SerializationKV::iterator kf;
+
+			kf = ilParamsMap.find("Modulus");
+			if( kf == ilParamsMap.end() ) return false;
+			BigBinaryInteger bbiModulus(kf->second);
+
+			kf = ilParamsMap.find("Order");
+			if( kf == ilParamsMap.end() ) return false;
+			usint order = stoi(kf->second);
+
+			kf = ilParamsMap.find("RootOfUnity");
+			if( kf == ilParamsMap.end() ) return false;
+			BigBinaryInteger bbiRootOfUnity(kf->second);
 
 			this->SetModulus(bbiModulus);
 			this->SetOrder(order);
 			this->SetRootOfUnity(bbiRootOfUnity);
+			return true;
 		}
 
 

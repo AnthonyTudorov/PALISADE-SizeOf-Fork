@@ -446,32 +446,43 @@ namespace lbcrypto {
 	}
 
 	// JSON FACILITY - SetIdFlag Operation
-	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ILVector2n::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+	bool ILVector2n::SetIdFlag(SerializationMap& serializationMap, std::string flag) const {
 
 		//Place holder
 
-		return serializationMap;
+		return true;
 	}
 
 	// JSON FACILITY - Serialize Operation
-	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ILVector2n::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+	bool ILVector2n::Serialize(SerializationMap& serializationMap, std::string fileFlag) const {
 
-		serializationMap = this->GetValues().Serialize(serializationMap, "");
+		if( !this->GetValues().Serialize(serializationMap, "") )
+			return false;
 
-		std::unordered_map <std::string, std::string> ilVector2nMap = serializationMap["BigBinaryVector"];
+		SerializationMap::iterator vMap = serializationMap.find("BigBinaryVector");
+		if( vMap == serializationMap.end() )
+			return false;
+
+		SerializationKV ilVector2nMap = vMap->second;
 		ilVector2nMap.emplace("Format", "0");
 		serializationMap.erase("BigBinaryVector");
 		serializationMap.emplace("ILVector2n", ilVector2nMap);
 
-		return serializationMap;
+		return true;
 	}
 
 	// JSON FACILITY - Deserialize Operation
-	void ILVector2n::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+	//FIXME
+	bool ILVector2n::Deserialize(const SerializationMap& serializationMap) {
 
-		std::unordered_map<std::string, std::string> ilVector2nMap = serializationMap["ILVector2n"];
+		SerializationMap::const_iterator iMap = serializationMap.find("ILVector2n");
+		if( iMap == serializationMap.end() ) return false;
 
-		usint vectorLength = (stoi(serializationMap["ILParams"]["Order"])) / 2;
+		SerializationKV ilVector2nMap = iMap->second;
+
+		iMap = serializationMap.find("ILParams");
+		std::string ov = iMap->second.find("Order")->second;
+		usint vectorLength = (stoi(ov)) / 2;
 		BigBinaryVector vectorBBV = BigBinaryVector(vectorLength);
 
 		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> bbvSerializationMap;

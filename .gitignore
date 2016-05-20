@@ -15,6 +15,12 @@ test/build
 .idea
 */**/*.gch
 
+## for the moment
+.cproject
+.metadata/
+.project
+RemoteSystemTempFiles/
+
 
 # Ignore intellij project files/cmake files
 CMakeLists.txt

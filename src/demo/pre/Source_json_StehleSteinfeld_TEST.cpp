@@ -475,22 +475,24 @@ void NTRUPRE(int input) {
 
 	cout << "---BEGIN LPPublicKeyLTV SERIALIZATION---" << endl;
 	cout << "Serializing previously used pk object..." << endl;
-	unordered_map <string, unordered_map <string, string>> testMap1;
-	testMap1 = pk.Serialize(testMap1, "Enc");
-	jsonFileName = jsonHelper.GetJsonFileName(testMap1);
-	jsonInputBuffer = jsonHelper.GetJsonString(testMap1);
-	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
-	cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
+	SerializationMap testMap1;
+	if( pk.Serialize(testMap1, "Enc") ) {
+		jsonFileName = jsonHelper.GetJsonFileName(testMap1);
+		jsonInputBuffer = jsonHelper.GetJsonString(testMap1);
+		jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
+		cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
+	}
 	cout << "---END LPPublicKeyLTV SERIALIZATION TESTING---" << endl;
 
 	cout << "---BEGIN LPPrivateKeyLTV SERIALIZATION---" << endl;
 	cout << "Serializing previously used sk object..." << endl;
-	unordered_map <string, unordered_map <string, string>> testMap2;
-	testMap2 = sk.Serialize(testMap2, "Enc");
-	jsonFileName = jsonHelper.GetJsonFileName(testMap2);
-	jsonInputBuffer = jsonHelper.GetJsonString(testMap2);
-	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
-	cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
+	SerializationMap testMap2;
+	if( sk.Serialize(testMap2, "Enc") ) {
+		jsonFileName = jsonHelper.GetJsonFileName(testMap2);
+		jsonInputBuffer = jsonHelper.GetJsonString(testMap2);
+		jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
+		cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
+	}
 	cout << "---END LPPrivateKeyLTV SERIALIZATION---" << endl;
 
 	cout << "---BEGIN LPPublicKeyLTV DESERIALIZATION---" << endl;
@@ -556,7 +558,7 @@ void NTRUPRE(int input) {
 	unordered_map <string, unordered_map <string, string>> testMap3;
 	start = currentDateTime();
 	
-	testMap3 = testCiphertext.Serialize(testMap3, "Enc");
+	testCiphertext.Serialize(testMap3, "Enc");
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -597,7 +599,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	testMap4 = evalKey.Serialize(testMap4, "Pre");
+	evalKey.Serialize(testMap4, "Pre");
 
 	finish = currentDateTime();
 	diff = finish - start;

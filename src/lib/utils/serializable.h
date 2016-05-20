@@ -43,12 +43,19 @@
 #include <unordered_map>
 #include <sstream>
 #include <string>
+#include "../../../include/rapidjson/document.h"
+#include "../../../include/rapidjson/pointer.h"
+#include "../../../include/rapidjson/reader.h"
+#include "../../../include/rapidjson/error/en.h"
 
 /**
 * @namespace lbcrypto
 * The namespace of lbcrypto
 */
 namespace lbcrypto {
+
+	using SerializationKV = std::unordered_map <std::string, std::string>;
+	using SerializationMap = std::unordered_map <std::string, SerializationKV>;
 
 	class Serializable
 	{
@@ -58,22 +65,26 @@ namespace lbcrypto {
 		/**
 		* Implemented for Palisade objects that may need their attributes saved to disk for future use in Palisade API calls
 		* @param serializationMap to store the implementing object's attributes.
-		* @return map containing the implementing object's attributes as name value pairs to save the implementing object to a JSON file.
+		* @param fileFlag
+		* @return true if successfully serialized the implementing object's attributes in serializationMap to save the implementing object to a JSON file.
 		*/
-		virtual std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const = 0; 
+		virtual bool Serialize(SerializationMap& serializationMap, std::string fileFlag) const = 0;
 		virtual ~Serializable(){};
+
 		/**
 		* Implemented for Palisade objects that implement and called through this class' Serialize method
 		* @param serializationMap to store the the implementing object's serialization specific attributes.
-		* @return map containing name and flag values for use in saving the implementing object to a JSON file.
+		* @param flag
+		* @return true on success
 		*/
-		virtual std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const = 0; 
+		virtual bool SetIdFlag(SerializationMap& serializationMap, std::string flag) const = 0;
 
 		/**
 		* Implemented for Palisade objects that may need their attributes populated from their corresponding JSON file for use in Palisade API calls 
-		* @param serializationMap contains name value pairs for the implementing object's attributes.
+		* @param serializationMap contains name value pairs for the implementing object's attributes
+		* @return true on success
 		*/
-		virtual void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) = 0;
+		virtual bool Deserialize(const SerializationMap& serializationMap) = 0;
 
 		/**
 		* Converts the input data type into a string

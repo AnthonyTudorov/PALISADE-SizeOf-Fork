@@ -408,17 +408,17 @@ BigBinaryVector BigBinaryVector::GetDigitAtIndexForBase(usint index, usint base)
 }
 
 // JSON FACILITY - SetIdFlag Operation
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> BigBinaryVector::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+bool BigBinaryVector::SetIdFlag(lbcrypto::SerializationMap& serializationMap, std::string flag) const {
 
 	//Place holder
 
-	return serializationMap;
+	return true;
 }
 
 // JSON FACILITY - Serialize Operation
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> BigBinaryVector::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+bool BigBinaryVector::Serialize(lbcrypto::SerializationMap& serializationMap, std::string fileFlag) const {
 
-	std::unordered_map <std::string, std::string> bbvMap;
+	lbcrypto::SerializationKV bbvMap;
 
 	bbvMap.emplace("Modulus", this->GetModulus().ToString());
 
@@ -441,13 +441,15 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 
 	serializationMap.emplace("BigBinaryVector", bbvMap);
 
-	return serializationMap;
+	return true;
 }
 
 // JSON FACILITY - Deserialize Operation
-void BigBinaryVector::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+bool BigBinaryVector::Deserialize(const lbcrypto::SerializationMap& serializationMap) {
 
-	std::unordered_map<std::string, std::string> bbvMap = serializationMap["BigBinaryVector"];
+	lbcrypto::SerializationMap::const_iterator iMap = serializationMap.find("BigBinaryVector");
+	if( iMap == serializationMap.end() ) return false;
+	lbcrypto::SerializationKV bbvMap = iMap->second;
 
 	BigBinaryInteger bbiModulus(bbvMap["Modulus"]);
 	this->SetModulus(bbiModulus);

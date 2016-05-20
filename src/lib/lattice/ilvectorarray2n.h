@@ -276,7 +276,7 @@ namespace lbcrypto {
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		* @return map passed in.
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+		bool SetIdFlag(SerializationMap& serializationMap, std::string flag) const;
 
 		//JSON FACILITY
 		/**
@@ -286,7 +286,7 @@ namespace lbcrypto {
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		* @return map updated with the attribute name value pairs required to serialize this object.
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
+		bool Serialize(SerializationMap& serializationMap, std::string fileFlag) const;
 
 		//JSON FACILITY
 		/**
@@ -295,7 +295,7 @@ namespace lbcrypto {
 		*
 		* @param serializationMap stores this object's serialized attribute name value pairs.
 		*/
-		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+		bool Deserialize(const SerializationMap& serializationMap);
 
 		private:BigBinaryInteger CalculateInterpolationSum2(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors, usint index);
 
