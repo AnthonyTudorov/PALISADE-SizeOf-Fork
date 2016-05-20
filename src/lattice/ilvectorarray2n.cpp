@@ -339,20 +339,24 @@ namespace lbcrypto {
         }
 	
 	bool ILVectorArray2n::operator==(const ILVectorArray2n &rhs) const {
-            if (this->GetFormat() != rhs.GetFormat()) {
+		//check if the format's are the same
+         if (this->GetFormat() != rhs.GetFormat()) {
                 return false;
-            }
-            if (m_vectors != rhs.GetAllTowers()) {
-                return false;
-            }
+          }
 
-		    const ILDCRTParams &castedObj = static_cast<const ILDCRTParams&>(rhs.GetParams());
-
-			if(const_cast<ILDCRTParams&>(m_params) != castedObj) { //why is it seeing m_params as const???!!
-				return false;
-			}
-            return true;
+		const ILDCRTParams &castedObj = static_cast<const ILDCRTParams&>(rhs.GetParams());
+		//check if the params (m_params) are the same
+		if(const_cast<ILDCRTParams&>(m_params) != castedObj) { 
+			return false;
+		}
+		//check if the towers are the same
+        if (m_vectors != rhs.GetAllTowers()) {
+           return false;
         }
+		
+		return true;
+       
+	}
 
 	const ILVectorArray2n & ILVectorArray2n::operator=(const ILVectorArray2n & rhs)
 	{
@@ -390,6 +394,7 @@ namespace lbcrypto {
 		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
+			//ModMul multiplies and performs a mod operation on the results. The mod is the modulus of each tower.
 			tmp.m_vectors[i].SetValues(((m_vectors[i].GetValues()).ModMul(element.m_vectors[i].GetValues())), m_format);
 			
 		}
