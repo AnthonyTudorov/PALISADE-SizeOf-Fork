@@ -72,7 +72,7 @@ namespace lbcrypto {
 	typedef uint32_t integral_dtype;
 
 	/** makes sure that only supported data type is supplied **/
-	static_assert(cpu_int::datatypechecker<integral_dtype>::value,"Data type provided is not supported in BigBinaryInteger");
+	static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provided is not supported in BigBinaryInteger");
 
 	/** Define the mapping for BigBinaryInteger
 	    1500 is the maximum bitwidth supported by BigBinaryIntegers, large enough for most use cases
