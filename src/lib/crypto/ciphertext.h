@@ -178,29 +178,29 @@ namespace lbcrypto {
 		/**
 		* Sets the ID and Flag attribute values for use in serializing this object to a JSON file.
 		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @param serObj stores this object's serialized attribute name value pairs.
 		* @return map updated with ID and Flag attribute values.
 		*/
-		bool SetIdFlag(SerializationMap& serializationMap, std::string flag) const;
+		bool SetIdFlag(Serialized& serObj, std::string flag) const;
 
 		//JSON FACILITY
 		/**
 		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
 		* Invokes nested serialization of LPCryptoParametersLWE, ILParams, ILVector2n, and BigBinaryVector.
 		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @param serObj stores this object's serialized attribute name value pairs.
 		* @return map updated with the attribute name value pairs required to serialize this object.
 		*/
-		bool Serialize(SerializationMap& serializationMap, std::string fileFlag) const;
+		bool Serialize(Serialized& serObj, std::string fileFlag) const;
 
 		//JSON FACILITY
 		/**
 		* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
 		* Invokes nested deserialization of LPCryptoParametersLWE, ILParams, ILVector2n, and BigBinaryVector.
 		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @param serObj stores this object's serialized attribute name value pairs.
 		*/
-		bool Deserialize(const SerializationMap& serializationMap);
+		bool Deserialize(const Serialized& serObj);
 
 	private:
 

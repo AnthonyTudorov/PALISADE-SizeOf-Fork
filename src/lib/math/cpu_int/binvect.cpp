@@ -483,7 +483,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::GetDigitAtIndexForBas
 
 // JSON FACILITY - SetIdFlag Operation
 template<class IntegerType>
-bool BigBinaryVector<IntegerType>::SetIdFlag(lbcrypto::SerializationMap& serializationMap, std::string flag) const {
+bool BigBinaryVector<IntegerType>::SetIdFlag(lbcrypto::Serialized& serObj, std::string flag) const {
 
 	//Place holder
 
@@ -492,11 +492,11 @@ bool BigBinaryVector<IntegerType>::SetIdFlag(lbcrypto::SerializationMap& seriali
 
 // JSON FACILITY - Serialize Operation
 template<class IntegerType>
-bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::SerializationMap& serializationMap, std::string fileFlag) const {
+bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::Serialized& serObj, std::string fileFlag) const {
 
-	lbcrypto::SerializationKV bbvMap;
+	lbcrypto::SerialItem bbvMap;
 
-	bbvMap.emplace("Modulus", this->GetModulus().ToString());
+	bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj.GetAllocator());
 
 	std::string pkBufferString;
 	IntegerType pkVectorElem;
@@ -507,31 +507,39 @@ bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::SerializationMap& seriali
 		pkVectorElem = GetValAtIndex(i);
 
 		pkVectorElemVal = pkVectorElem.ToStringDecimal();
-		//pkVectorElemVal = pkVectorElem.ToString();
-
 		pkBufferString += pkVectorElemVal;
 		if (i != (pkVectorLength - 1)) {
 			pkBufferString += "|";
 		}
 	}
-	bbvMap.emplace("VectorValues", pkBufferString);
+	bbvMap.AddMember("VectorValues", pkBufferString, serObj.GetAllocator());
 
-	serializationMap.emplace("BigBinaryVector", bbvMap);
+	serObj.AddMember("BigBinaryVector", bbvMap, serObj.GetAllocator());
 
 	return true;
 }
 
 // JSON FACILITY - Deserialize Operation
 template<class IntegerType>
-bool BigBinaryVector<IntegerType>::Deserialize(const lbcrypto::SerializationMap& serializationMap) {
+bool BigBinaryVector<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj) {
 
-	lbcrypto::SerializationMap::const_iterator mIter = serializationMap.find("BigBinaryVector");
-	lbcrypto::SerializationKV bbvMap = mIter->second;
+	//lbcrypto::SerialItem::
+	lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigBinaryVector");
+	if( mIter == serObj.MemberEnd() )
+		return false;
 
-	IntegerType bbiModulus(bbvMap["Modulus"]);
+	lbcrypto::SerialItem::ConstMemberIterator vIt;
+
+	if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
+		return false;
+	IntegerType bbiModulus(vIt->value.GetString());
+
+	if( (vIt = mIter->value.FindMember("VectorValues")) == mIter->value.MemberEnd() )
+		return false;
+	std::string vectorVals = vIt->value.GetString();
+
 	this->SetModulus(bbiModulus);
 
-	std::string vectorVals = bbvMap["VectorValues"];
 	IntegerType vectorElem;
 	std::string vectorElemVal;
 	usint i = 0;

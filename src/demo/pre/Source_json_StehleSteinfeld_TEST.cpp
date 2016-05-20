@@ -475,7 +475,7 @@ void NTRUPRE(int input) {
 
 	cout << "---BEGIN LPPublicKeyLTV SERIALIZATION---" << endl;
 	cout << "Serializing previously used pk object..." << endl;
-	SerializationMap testMap1;
+	Serialized testMap1;
 	if( pk.Serialize(testMap1, "Enc") ) {
 		jsonFileName = jsonHelper.GetJsonFileName(testMap1);
 		jsonInputBuffer = jsonHelper.GetJsonString(testMap1);
@@ -486,7 +486,7 @@ void NTRUPRE(int input) {
 
 	cout << "---BEGIN LPPrivateKeyLTV SERIALIZATION---" << endl;
 	cout << "Serializing previously used sk object..." << endl;
-	SerializationMap testMap2;
+	Serialized testMap2;
 	if( sk.Serialize(testMap2, "Enc") ) {
 		jsonFileName = jsonHelper.GetJsonFileName(testMap2);
 		jsonInputBuffer = jsonHelper.GetJsonString(testMap2);

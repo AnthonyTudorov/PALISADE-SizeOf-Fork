@@ -246,7 +246,7 @@ namespace lbcrypto {
 		~ILDCRTParams() {}
 
 		//JSON FACILITY
-		bool SetIdFlag(SerializationMap& serializationMap, std::string flag) const {
+		bool SetIdFlag(Serialized& serObj, std::string flag) const {
 
 			//Place holder
 
@@ -254,7 +254,7 @@ namespace lbcrypto {
 		}
 
 		//JSON FACILITY
-		bool Serialize(SerializationMap& serializationMap, std::string fileFlag) const {
+		bool Serialize(Serialized& serObj, std::string fileFlag) const {
 
 			//Place holder
 
@@ -262,7 +262,7 @@ namespace lbcrypto {
 		}
 
 		//JSON FACILITY
-		bool Deserialize(const SerializationMap& serializationMap) {
+		bool Deserialize(const Serialized& serObj) {
 
 			//Place holder
 			return false;

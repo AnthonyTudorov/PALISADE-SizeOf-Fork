@@ -31,9 +31,14 @@
 * This code serves as a helper class for Palisade's JSON Facility.
 *
 */
+
+#define RAPIDJSON_HAS_STDSTRING 1
 #include "../../../include/rapidjson/document.h"
 #include "../../../include/rapidjson/pointer.h"
 #include "../../../include/rapidjson/reader.h"
+#include "../../../include/rapidjson/writer.h"
+#include "../../../include/rapidjson/filereadstream.h"
+#include "../../../include/rapidjson/filewritestream.h"
 #include "../../../include/rapidjson/error/en.h"
 #include "../../../include/rapidjson/prettywriter.h"
 #include "../../../include/rapidjson/stringbuffer.h"
@@ -55,96 +60,35 @@ namespace lbcrypto {
 	class SerializableHelper {
 
 	public:
-
-		SerializableHelper() {}
-
 		/**
-		* Converts the input data type into a string
-		* @tparam T a data type.
-		* @return the string equivalent.
-		*/
-		template <typename T>
-		std::string ToStr(const T& num) const;
-
-		/**
-		* Generates a JSON data string for a node of a serialized Palisade object's nested JSON structure
-		* @param nodeMap stores the serialized Palisade object's node attributes.
-		* @return string reflecting the JSON data structure of the serialized Palisade object's node.
-		*/
-		std::string GetJsonNodeString(SerializationKV nodeMap);
-
-		/**
-		* Generates a JSON data string for a node vector of a serialized Palisade object's nested JSON structure
-		* @param nodeMap stores the serialized Palisade object's node attributes.
-		* @param serializationMap is a map of attribute name value pairs to used for serializing a Palisade object.
-		* @return string reflecting the JSON data structure of the serialized Palisade object's node vector.
-		*/
-		std::string GetJsonNodeVectorString(SerializationMap serializationMap) ;
-
-		/**
-		* Generates a nested JSON data string for a serialized Palisade object
-		* @param serializationMap stores the serialized Palisade object's attributes.
+		* Generates a std::string for a serialized Palisade object (a rapidjson Document)
+		* @param serObj the serialized Palisade object
 		* @return string reflecting the nested JSON data structure of the serialized Palisade object.
 		*/
-		std::string GetJsonString(SerializationMap serializationMap) ;
-
-		/**
-		* Generates a nested JSON data string for a serialized Palisade object
-		* @param serializationMap stores the serialized Palisade object's attributes.
-		* @return string reflecting the nested JSON data structure of the serialized Palisade object.
-		*/
-		std::string GetJsonString(SerializationMap serializationMap, std::string fileType);
-
-		std::string GetSimpleJsonString(SerializationMap serializationMap);
+		static std::string GetJsonString(Serialized& serObj); // PROBABLY GOES AWAY
 
 		/**
 		* Determines the file name for saving a serialized Palisade object
-		* @param serializationMap stores the serialized Palisade object's attributes.
+		* @param serObj stores the serialized Palisade object's attributes.
 		* @return string reflecting file name to save serialized Palisade object to.
 		*/
-		std::string GetJsonFileName(SerializationMap serializationMap);
+		static std::string GetJsonFileName(Serialized& serObj); // MAYBE GOES AWAY
 
 		/**
-		* Saves a serialized Palisade object's JSON string to file as a nested JSON data structure 
-		* @param jsoninputstring is the serialized object's nested JSON data string.
+		* Saves a serialized Palisade object's JSON string to file
+		* @param serObj is the serialized object
 		* @param outputFileName is the name of the file to save JSON data string to.
+		* @return success or failure
 		*/
-		void OutputRapidJsonFile(std::string jsonInputString, std::string outputFileName);
+		static bool WriteSerializationToFile(Serialized& serObj, std::string outputFileName);
 
 		/**
-		* Generates a map of attribute name value pairs for deserializing a Palisade object's node from a JSON file
-		* @param doc is the RapidJson DOM object created for the Palisdae object's JSON file
-		* @param nodeName is the node to read in for the Palisade object's node's serialized JSON data structure.
-		* @return map containing name value pairs for the attributes of the Palisade object's node to be deserialized.
-		*/
-		SerializationKV GetSerializationMapNode(rapidjson::Document &doc, std::string nodeName);
-
-		/**
-		* Generates and adds maps of attribute name value pairs for deserializing a Palisade object's node vector from a JSON file
-		* @param doc is the RapidJson DOM object created for the Palisdae object's JSON file
-		* @param serializationMap is a map of attribute name value pairs to be used for deserializing a Palisade object
-		* @param nodeName is the node to read in for the Palisade object's node's serialized JSON data structure.
-		* @param childNodeFlag is used to label each map created for the node vector's members
-		* @return map containing maps of name value pairs for the attributes of the Palisade object's node vector to be deserialized.
-		*/
-		SerializationMap GetSerializationMapNodeVector(rapidjson::Document &doc, SerializationMap serializationMap, std::string nodeName, std::string childNodeFlag) ;
-
-		/**
-		* Generates a map of attribute name value pairs for deserializing a Palisade object from a JSON file
+		* Read a serialized Palisade object from a JSON file
 		* @param jsonFileName is the file to read in for the Palisade object's nested serialized JSON data structure.
-		* @return map containing name value pairs for the attributes of the Palisade object to be deserialized.
+		* @param map containing the serialized object read from the file
+		* @return success or failure
 		*/
-		bool GetSerializationFromFile(std::string jsonFileName, SerializationMap& map);
-
-		/**
-		* Generates a map of attribute name value pairs for deserializing a Palisade object from a const char * JSON data string
-		* @param jsonInputString is the string to process for the Palisade object's nested serialized JSON data structure.
-		* @return map containing name value pairs for the attributes of the Palisade object to be deserialized.
-		*/
-		bool GetSerializationMap(const char *jsonInputString, SerializationMap& map);
-
-		SerializationMap GetSimpleSerializationMap(const char *jsonInputString, std::string ID);
-
+		static bool ReadSerializationFromFile(std::string jsonFileName, Serialized& map);
 	};
 }
 

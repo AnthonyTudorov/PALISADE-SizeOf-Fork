@@ -408,7 +408,7 @@ BigBinaryVector BigBinaryVector::GetDigitAtIndexForBase(usint index, usint base)
 }
 
 // JSON FACILITY - SetIdFlag Operation
-bool BigBinaryVector::SetIdFlag(lbcrypto::SerializationMap& serializationMap, std::string flag) const {
+bool BigBinaryVector::SetIdFlag(lbcrypto::Serialized& serObj, std::string flag) const {
 
 	//Place holder
 
@@ -416,11 +416,11 @@ bool BigBinaryVector::SetIdFlag(lbcrypto::SerializationMap& serializationMap, st
 }
 
 // JSON FACILITY - Serialize Operation
-bool BigBinaryVector::Serialize(lbcrypto::SerializationMap& serializationMap, std::string fileFlag) const {
+bool BigBinaryVector::Serialize(lbcrypto::Serialized& serObj, std::string fileFlag) const {
 
-	lbcrypto::SerializationKV bbvMap;
+	lbcrypto::SerialItem bbvMap;
 
-	bbvMap.emplace("Modulus", this->GetModulus().ToString());
+	bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj.GetAllocator());
 
 	std::string pkBufferString;
 	BigBinaryInteger pkVectorElem;
@@ -437,24 +437,31 @@ bool BigBinaryVector::Serialize(lbcrypto::SerializationMap& serializationMap, st
 			pkBufferString += "|";
 		}
 	}
-	bbvMap.emplace("VectorValues", pkBufferString);
+	bbvMap.AddMember("VectorValues", pkBufferString, serObj.GetAllocator());
 
-	serializationMap.emplace("BigBinaryVector", bbvMap);
+	serObj.AddMember("BigBinaryVector", bbvMap, serObj.GetAllocator());
 
 	return true;
 }
 
 // JSON FACILITY - Deserialize Operation
-bool BigBinaryVector::Deserialize(const lbcrypto::SerializationMap& serializationMap) {
+bool BigBinaryVector::Deserialize(const lbcrypto::Serialized& serObj) {
 
-	lbcrypto::SerializationMap::const_iterator iMap = serializationMap.find("BigBinaryVector");
-	if( iMap == serializationMap.end() ) return false;
-	lbcrypto::SerializationKV bbvMap = iMap->second;
+	lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigBinaryVector");
+	if( mIter == serObj.MemberEnd() ) return false;
 
-	BigBinaryInteger bbiModulus(bbvMap["Modulus"]);
+	lbcrypto::SerialItem::ConstMemberIterator vIt;
+
+	if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
+		return false;
+	BigBinaryInteger bbiModulus(vIt->value.GetString());
+
+	if( (vIt = mIter->value.FindMember("VectorValues")) == mIter->value.MemberEnd() )
+		return false;
+	std::string vectorVals = vIt->value.GetString();
+
 	this->SetModulus(bbiModulus);
 
-	std::string vectorVals = bbvMap["VectorValues"];
 	BigBinaryInteger vectorElem;
 	std::string vectorElemVal;
 	usint i = 0;

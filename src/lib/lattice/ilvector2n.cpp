@@ -446,7 +446,7 @@ namespace lbcrypto {
 	}
 
 	// JSON FACILITY - SetIdFlag Operation
-	bool ILVector2n::SetIdFlag(SerializationMap& serializationMap, std::string flag) const {
+	bool ILVector2n::SetIdFlag(Serialized& serObj, std::string flag) const {
 
 		//Place holder
 
@@ -454,49 +454,52 @@ namespace lbcrypto {
 	}
 
 	// JSON FACILITY - Serialize Operation
-	bool ILVector2n::Serialize(SerializationMap& serializationMap, std::string fileFlag) const {
+	bool ILVector2n::Serialize(Serialized& serObj, std::string fileFlag) const {
 
-		if( !this->GetValues().Serialize(serializationMap, "") )
+		Serialized obj;
+		if( !this->GetValues().Serialize(obj, "") )
 			return false;
 
-		SerializationMap::iterator vMap = serializationMap.find("BigBinaryVector");
-		if( vMap == serializationMap.end() )
+		if( !this->GetParams().Serialize(obj, "") )
 			return false;
 
-		SerializationKV ilVector2nMap = vMap->second;
-		ilVector2nMap.emplace("Format", "0");
-		serializationMap.erase("BigBinaryVector");
-		serializationMap.emplace("ILVector2n", ilVector2nMap);
+		obj.AddMember("Format", "0", serObj.GetAllocator());
+		serObj.AddMember("ILVector2n", obj, serObj.GetAllocator());
 
 		return true;
 	}
 
 	// JSON FACILITY - Deserialize Operation
-	//FIXME
-	bool ILVector2n::Deserialize(const SerializationMap& serializationMap) {
+	bool ILVector2n::Deserialize(const Serialized& serObj) {
 
-		SerializationMap::const_iterator iMap = serializationMap.find("ILVector2n");
-		if( iMap == serializationMap.end() ) return false;
-
-		SerializationKV ilVector2nMap = iMap->second;
-
-		iMap = serializationMap.find("ILParams");
-		std::string ov = iMap->second.find("Order")->second;
-		usint vectorLength = (stoi(ov)) / 2;
-		BigBinaryVector vectorBBV = BigBinaryVector(vectorLength);
-
-		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> bbvSerializationMap;
-		bbvSerializationMap.emplace("BigBinaryVector", ilVector2nMap);
-		vectorBBV.Deserialize(bbvSerializationMap);
-		this->SetValues(vectorBBV, Format(stoi(ilVector2nMap["Format"])));
-		//std::cout << "Values " << this->GetValues() << std::endl;
-
-		BigBinaryInteger bbiModulus(ilVector2nMap["Modulus"]);
-		this->SetModulus(bbiModulus);
+		Serialized::ConstMemberIterator iMap = serObj.FindMember("ILVector2n");
+		if( iMap == serObj.MemberEnd() ) return false;
 
 		ILParams json_ilParams;
-		json_ilParams.Deserialize(serializationMap);
+		if( !json_ilParams.Deserialize(serObj) ) //iMap->value) )
+			return false;
 		this->SetParams(json_ilParams);
+
+		usint vectorLength = atoi(iMap->value["ILParams"]["Order"].GetString()) / 2;
+
+		BigBinaryVector vectorBBV = BigBinaryVector(vectorLength);
+
+		SerialItem::ConstMemberIterator vIt = iMap->value.FindMember("BigBinaryVector");
+		if( vIt == iMap->value.MemberEnd() ) {
+			return false;
+		}
+		if( !vectorBBV.Deserialize(serObj) ) { //vIt->value) ) {
+			return false;
+		}
+
+		if( (vIt = iMap->value.FindMember("Format")) == iMap->value.MemberEnd() ) return false;
+		this->SetValues(vectorBBV, Format(atoi(vIt->value.GetString())));
+		//std::cout << "Values " << this->GetValues() << std::endl;
+
+		BigBinaryInteger bbiModulus(iMap->value["ILParams"]["Modulus"].GetString());
+		this->SetModulus(bbiModulus);
+
+		return true;
 	}
 
 } // namespace lbcrypto ends

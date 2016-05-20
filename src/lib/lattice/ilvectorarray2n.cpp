@@ -677,25 +677,25 @@ namespace lbcrypto {
 
 
 	// JSON FACILITY - SetIdFlag Operation
-	bool ILVectorArray2n::SetIdFlag(SerializationMap& serializationMap, std::string flag) const {
+	bool ILVectorArray2n::SetIdFlag(Serialized& serObj, std::string flag) const {
 
-	//	std::unordered_map <std::string, std::string> serializationMap;
+	//	std::unordered_map <std::string, std::string> serObj;
 
 		return true;
 	}
 
 	// JSON FACILITY - Serialize Operation
-	bool ILVectorArray2n::Serialize(SerializationMap& serializationMap, std::string fileFlag) const {
+	bool ILVectorArray2n::Serialize(Serialized& serObj, std::string fileFlag) const {
 
 	
 
-	//	std::unordered_map <std::string, std::string> serializationMap;
+	//	std::unordered_map <std::string, std::string> serObj;
 
 		return false;
 	}
 
 	// JSON FACILITY - Deserialize Operation
-	bool ILVectorArray2n::Deserialize(const SerializationMap& serializationMap) {
+	bool ILVectorArray2n::Deserialize(const Serialized& serObj) {
 
 		return false;
 	

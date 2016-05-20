@@ -43,6 +43,7 @@
 #include <unordered_map>
 #include <sstream>
 #include <string>
+#define RAPIDJSON_HAS_STDSTRING 1
 #include "../../../include/rapidjson/document.h"
 #include "../../../include/rapidjson/pointer.h"
 #include "../../../include/rapidjson/reader.h"
@@ -54,8 +55,8 @@
 */
 namespace lbcrypto {
 
-	using SerializationKV = std::unordered_map <std::string, std::string>;
-	using SerializationMap = std::unordered_map <std::string, SerializationKV>;
+	using SerialItem = rapidjson::Value;
+	using Serialized = rapidjson::Document;
 
 	class Serializable
 	{
@@ -64,27 +65,27 @@ namespace lbcrypto {
 
 		/**
 		* Implemented for Palisade objects that may need their attributes saved to disk for future use in Palisade API calls
-		* @param serializationMap to store the implementing object's attributes.
+		* @param serObj to store the implementing object's attributes.
 		* @param fileFlag
-		* @return true if successfully serialized the implementing object's attributes in serializationMap to save the implementing object to a JSON file.
+		* @return true if successfully serialized the implementing object's attributes in serObj to save the implementing object to a JSON file.
 		*/
-		virtual bool Serialize(SerializationMap& serializationMap, std::string fileFlag) const = 0;
+		virtual bool Serialize(Serialized& serObj, std::string fileFlag) const = 0;
 		virtual ~Serializable(){};
 
 		/**
 		* Implemented for Palisade objects that implement and called through this class' Serialize method
-		* @param serializationMap to store the the implementing object's serialization specific attributes.
+		* @param serObj to store the the implementing object's serialization specific attributes.
 		* @param flag
 		* @return true on success
 		*/
-		virtual bool SetIdFlag(SerializationMap& serializationMap, std::string flag) const = 0;
+		virtual bool SetIdFlag(Serialized& serObj, std::string flag) const = 0;
 
 		/**
 		* Implemented for Palisade objects that may need their attributes populated from their corresponding JSON file for use in Palisade API calls 
-		* @param serializationMap contains name value pairs for the implementing object's attributes
+		* @param serObj contains name value pairs for the implementing object's attributes
 		* @return true on success
 		*/
-		virtual bool Deserialize(const SerializationMap& serializationMap) = 0;
+		virtual bool Deserialize(const Serialized& serObj) = 0;
 
 		/**
 		* Converts the input data type into a string

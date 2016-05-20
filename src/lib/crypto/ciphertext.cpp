@@ -90,53 +90,56 @@ namespace lbcrypto {
 
 	// JSON FACILITY - SetIdFlag Operation
 	template <class Element>
-	bool Ciphertext<Element>::SetIdFlag(SerializationMap& serializationMap, std::string flag) const {
+	bool Ciphertext<Element>::SetIdFlag(Serialized& serObj, std::string flag) const {
 
-		std::unordered_map <std::string, std::string> idFlagMap;
-		idFlagMap.emplace("ID", "Ciphertext");
-		idFlagMap.emplace("Flag", flag);
-		serializationMap.emplace("Root", idFlagMap);
+		SerialItem idFlagMap;
+		idFlagMap.AddMember("ID", "Ciphertext", serObj.GetAllocator());
+		idFlagMap.AddMember("Flag", flag, serObj.GetAllocator());
+
+		serObj.AddMember("Root", idFlagMap, serObj.GetAllocator());
 
 		return true;
 	}
 
 	// JSON FACILITY - Serialize Operation
 	template <class Element>
-	bool Ciphertext<Element>::Serialize(SerializationMap& serializationMap, std::string fileFlag) const {
+	bool Ciphertext<Element>::Serialize(Serialized& serObj, std::string fileFlag) const {
 
-		if( !this->SetIdFlag(serializationMap, fileFlag) )
+		if( !this->SetIdFlag(serObj, fileFlag) )
 			return false;
 
-		if( !this->GetCryptoParameters().Serialize(serializationMap, "") )
+		if( !this->GetCryptoParameters().Serialize(serObj, "") )
 			return false;
 
-		SerializationMap::iterator rIt = serializationMap.find("Root");
-		if( rIt == serializationMap.end() )
-			return false;
-		SerializationKV rootMap = rIt->second;
-		serializationMap.erase("Root");
-		rootMap.emplace("Norm", this->GetNorm().ToString());
-		serializationMap.emplace("Root", rootMap);
+		serObj["Root"]["Norm"] = this->GetNorm().ToString();
 
-		return this->GetElement().Serialize(serializationMap, "");
+		return this->GetElement().Serialize(serObj, "");
 	}
 
 	// JSON FACILITY - Deserialize Operation
 	template <class Element>
-	bool Ciphertext<Element>::Deserialize(const SerializationMap& serializationMap) {
+	bool Ciphertext<Element>::Deserialize(const Serialized& serObj) {
 
 		LPCryptoParameters<Element> *json_cryptoParams = new LPCryptoParametersStehleSteinfeld<Element>();
-		json_cryptoParams->Deserialize(serializationMap);
-		this->SetCryptoParameters(*json_cryptoParams);
+		if( !json_cryptoParams->Deserialize(serObj) )
+			return false;
 
-		SerializationMap::const_iterator mIter = serializationMap.find("Root");
-		if( mIter == serializationMap.end() ) return false;
-		SerializationKV rootMap = mIter->second;
-		BigBinaryInteger bbiNorm(rootMap["Norm"]);
-		this->SetNorm(bbiNorm);
+		Serialized::ConstMemberIterator mIter = serObj.FindMember("Root");
+		if( mIter == serObj.MemberEnd() )
+			return false;
+
+		Serialized::ConstMemberIterator normIter = mIter->value.FindMember("Norm");
+		if( normIter == mIter->value.MemberEnd() )
+			return false;
+
+		BigBinaryInteger bbiNorm(normIter->value.GetString());
 
 		Element json_ilElement;
-		json_ilElement.Deserialize(serializationMap);
+		if( !json_ilElement.Deserialize(serObj) )
+			return false;
+
+		this->SetCryptoParameters(*json_cryptoParams);
+		this->SetNorm(bbiNorm);
 		this->SetElement(json_ilElement);
 		return true;
 	}
