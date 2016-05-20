@@ -1,4 +1,4 @@
-//LAYER 1 : PRIMITIVE DATA STRUCTURES AND OPERATIONS
+﻿//LAYER 1 : PRIMITIVE DATA STRUCTURES AND OPERATIONS
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
 Version:
@@ -12,7 +12,7 @@ List of Authors:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
 Description:
-	This code provides basic arithmetic functionality.
+	This class provides a class for big integers.
 
 License Information:
 
@@ -38,43 +38,57 @@ void printArray(uschar *a,int size){
 		std::cout<<std::endl;
 	}
 
-
-//programming starts
-
+//constant static member variable initialization of 0
 template<typename uint_type,usint BITLENGTH>
 const BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ZERO = BigBinaryInteger(0);
 
+//constant static member variable initialization of 1
 template<typename uint_type,usint BITLENGTH>
 const BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ONE = BigBinaryInteger(1);
 
+//constant static member variable initialization of 2
 template<typename uint_type,usint BITLENGTH>
 const BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::TWO = BigBinaryInteger(2);
 
+//constant static member variable initialization of 3
 template<typename uint_type,usint BITLENGTH>
 const BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::THREE = BigBinaryInteger(3);
 
+//constant static member variable initialization of 4
 template<typename uint_type,usint BITLENGTH>
 const BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::FOUR = BigBinaryInteger(4);
 
+//constant static member variable initialization of 5
 template<typename uint_type,usint BITLENGTH>
 const BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::FIVE = BigBinaryInteger(5);
 
 //MOST REQUIRED STATIC CONSTANTS INITIALIZATION
+
+//constant static member variable initialization of m_uintBitLength which is equal to number of bits in the unit data type
+//permitted values: 8,16,32
 template<typename uint_type,usint BITLENGTH>
-const uschar BigBinaryInteger<uint_type,BITLENGTH>::m_uintBitLength = uintBitWidth<uint_type>::value;
+const uschar BigBinaryInteger<uint_type,BITLENGTH>::m_uintBitLength = UIntBitWidth<uint_type>::value;
 
 template<typename uint_type,usint BITLENGTH>
-const uschar BigBinaryInteger<uint_type,BITLENGTH>::m_logUintBitLength = logdtype<uint_type>::value;
+const usint BigBinaryInteger<uint_type,BITLENGTH>::m_numDigitInPrintval = BITLENGTH/cpu_int::LOG2_10;
 
+//constant static member variable initialization of m_logUintBitLength which is equal to log of number of bits in the unit data type
+//permitted values: 3,4,5
+template<typename uint_type,usint BITLENGTH>
+const uschar BigBinaryInteger<uint_type,BITLENGTH>::m_logUintBitLength = LogDtype<uint_type>::value;
+
+//constant static member variable initialization of m_nSize which is size of the array of unit data type
 template<typename uint_type,usint BITLENGTH>
 const usint BigBinaryInteger<uint_type,BITLENGTH>::m_nSize = BITLENGTH%m_uintBitLength==0 ? BITLENGTH/m_uintBitLength : BITLENGTH/m_uintBitLength + 1;
 
+//constant static member variable initialization of m_uintMax which is maximum value of unit data type
 template<typename uint_type,usint BITLENGTH>
 const uint_type BigBinaryInteger<uint_type,BITLENGTH>::m_uintMax = std::numeric_limits<uint_type>::max();
 
+//optimized ceiling function after division by number of bits in the interal data type.
 template<typename uint_type,usint BITLENGTH>
 uint_type BigBinaryInteger<uint_type,BITLENGTH>::ceilIntByUInt(const uint_type Number){
-
+	//mask to perform bitwise AND
 	static uint_type mask = m_uintBitLength-1;
 
 	if(!Number)
@@ -86,80 +100,74 @@ uint_type BigBinaryInteger<uint_type,BITLENGTH>::ceilIntByUInt(const uint_type N
 		return Number>>m_logUintBitLength;
 }
 
-
-//usshort BigBinaryInteger::m_nchar = ceilIntBy8(BIT_LENGTH)+1;
-
 //CONSTRUCTORS
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger()
 {
-	/*
-	std::cout<<(int)m_uintBitLength<<" m_uintBitLength "<<std::endl;
-	std::cout<<(int)m_logUintBitLength<<" m_uintBitLength "<<std::endl;
-	std::cout<<(int)m_nSize<<" m_nSize "<<std::endl;
-	std::cout<<m_uintMax<<" m_uintMax "<<std::endl;
-	std::cout<<typeid(Duint_type).name()<<std::endl;
-	*/
-	//main code
-
-	//m_value = new uint_type[m_nSize];
-	//m_state = GARBAGE;
-
+	
+	//memory allocation step
 	m_value = new uint_type[m_nSize];
+	//last base-r digit set to 0
 	this->m_value[m_nSize-1] = 0;
+	//MSB set to zero since value set to ZERO
 	this->m_MSB = 0;
 	m_state = INITIALIZED;
 }
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(usint init){
-
+	//memory allocation step
 	m_value = new uint_type[m_nSize];
-
+	//setting the MSB
 	usint msb = GetMSB32(init);
 
 	uint_type ceilInt = ceilIntByUInt(msb);
-
+	//setting the values of the array
 	for(sint i= m_nSize-1;i>= m_nSize-ceilInt;i--){
 		this->m_value[i] = (uint_type)init;
 		init>>=m_uintBitLength;
 	}
+
 	this->m_MSB = msb;
+
 	m_state = INITIALIZED;
-	//this->PrintValueInDec();
+
 }
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const std::string& str){
-	
+	//memory allocation step
 	m_value = new uint_type[m_nSize];
+	//setting the array values from the string
 	AssignVal(str);
+	//state set
 	m_state = INITIALIZED;
 
 }
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const BigBinaryInteger& bigInteger){
-	
+	//memory allocation step
 	m_value = new uint_type[m_nSize];
 	m_MSB=bigInteger.m_MSB; //copy MSB
 	uint_type  tempChar = ceilIntByUInt(bigInteger.m_MSB);
-	/*
-	for(usint i=0;i<m_nSize - tempChar;i++)
-		m_value[i] = 0;
-	*/
+	//copy array values
 	for(int i=m_nSize - tempChar;i<m_nSize;i++){//copy array value
 		m_value[i]=bigInteger.m_value[i];
 	}
+	//set state
 	m_state = INITIALIZED;
 }
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(BigBinaryInteger &&bigInteger){
-	
+	//copy MSB
 	m_MSB = bigInteger.m_MSB;
+	//pointer assignment
 	m_value = bigInteger.m_value;
+	//set state
 	m_state = bigInteger.m_state;
+	//remove ref from bigInteger
 	bigInteger.m_value = NULL;
 }
 
@@ -171,35 +179,44 @@ std::function<unique_ptr<BigBinaryInteger<uint_type,BITLENGTH>>()> BigBinaryInte
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::~BigBinaryInteger()
 {	
+	//memory deallocation
 	delete []m_value;
 }
 
+/**
+*Converts the BigBinaryInteger to unsigned integer or returns the first 32 bits of the BigBinaryInteger.
+*Splits the BigBinaryInteger into bit length of uint data type and then uses shift and add to form the 32 bit unsigned integer.
+*/
 template<typename uint_type, usint BITLENGTH>
 usint BigBinaryInteger<uint_type, BITLENGTH>::ConvertToInt() const{
 
 	usint result = 0;
+	//set num to number of equisized chunks
 	usint num = 32 / m_uintBitLength;
 
 	usint ceilInt = m_nSize - ceilIntByUInt(m_MSB);
+	//copy the values by shift and add
 	for (usint i = 0; i < num && (m_nSize - i - 1) >= ceilInt; i++){
 		result += (this->m_value[m_nSize - i - 1] << (m_uintBitLength*i));
 	}
 	return result;
 }
 
+//Converts the BigBinaryInteger to double using the std library functions.
 template<typename uint_type, usint BITLENGTH>
 double BigBinaryInteger<uint_type,BITLENGTH>::ConvertToDouble() const{
 	return std::stod(this->ToString());
 }
 
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator=(const BigBinaryInteger &rhs){
-
+const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator=(const BigBinaryInteger &rhs){
+	//set position of array to copy from
 	usint copyStart = ceilIntByUInt(rhs.m_MSB);
 	if(this!=&rhs){
         this->m_MSB=rhs.m_MSB;
 		this->m_state = rhs.m_state;
-        for(int i= m_nSize-copyStart;i<m_nSize;i++){//copy array value
+		//copy array value
+        for(int i= m_nSize-copyStart;i<m_nSize;i++){
             this->m_value[i]=rhs.m_value[i];
         }
 	}
@@ -207,7 +224,7 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 }
 
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator=(BigBinaryInteger &&rhs){
+const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator=(BigBinaryInteger &&rhs){
 
 	if(this!=&rhs){
         this->m_MSB = rhs.m_MSB;
@@ -220,6 +237,13 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
     return *this;
 }
 
+/**
+*	Left Shift is done by splitting the number of shifts into
+*1. Multiple of the bit length of uint data type.
+*	Shifting is done by the shifting the uint type numbers.
+*2. Shifts between 1 to bit length of uint data type.
+*   Shifting is done by using bit shift operations and carry over propagation.
+*/
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::operator<<(usshort shift) const{
 	if(m_state==State::GARBAGE)
@@ -272,8 +296,15 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 
 }
 
+/**
+*	Left Shift is done by splitting the number of shifts into
+*1. Multiple of the bit length of uint data type.
+*	Shifting is done by the shifting the uint type numbers.
+*2. Shifts between 1 to bit length of uint data type.
+*   Shifting is done by using bit shift operations and carry over propagation.
+*/
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator<<=(usshort shift){
+const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator<<=(usshort shift){
 	if(m_state==State::GARBAGE)
 		throw std::logic_error("Value not initialized");
 
@@ -284,7 +315,7 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 	if(this->m_MSB+shift > BITLENGTH)
 		throw std::logic_error ("OVERFLOW \n");
 
-	//calculate the no.of 8shifts
+	//calculate the no.of shifts
 	usint shiftByUint = shift>>m_logUintBitLength;
 
 	uint_type remShift = (shift&(m_uintBitLength-1));
@@ -327,42 +358,48 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 
 }
 
+/**Right Shift is done by splitting the number of shifts into
+*1. Multiple of the bit length of uint data type.
+*	Shifting is done by the shifting the uint type numbers in the array to the right.
+*2. Shifts between 1 to bit length of uint data type.
+*   Shifting is done by using bit shift operations and carry over propagation.
+*/
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::operator>>(usshort shift) const{
-
+	//garbage check
 	if(m_state==State::GARBAGE)
 		throw std::logic_error("Value not initialized");
 
+	//trivial cases
 	if(this->m_MSB==0 || this->m_MSB <= shift)
 		return BigBinaryInteger(0);
 	 
 	
 	BigBinaryInteger ans(*this);
-
+	//no of array shifts
 	usint shiftByUint = shift>>m_logUintBitLength;
-
+	//no of bit shifts
 	uint_type remShift = (shift&(m_uintBitLength-1));
 
 	if(shiftByUint!=0){
-
+		//termination index counter
 		usint endVal= m_nSize-ceilIntByUInt(ans.m_MSB);
 		usint j= endVal;
-		
+		//array shifting operation
 		for(sint i= m_nSize-1-shiftByUint;i>=endVal;i--){
 			ans.m_value[i+shiftByUint] = ans.m_value[i];
 		}
-
+		//msb adjusted to show the shifts
 		ans.m_MSB -= shiftByUint<<m_logUintBitLength;
-
+		//nulling the removed uints from the array
 		while(shiftByUint>0){
 			ans.m_value[j] = 0;
 			shiftByUint--;
 			j++;
 		}
 
-		//ans.PrintValueInDec();
 	}
-
+	//bit shifts
 	if(remShift!=0){
 
 		uint_type overFlow = 0;
@@ -371,7 +408,8 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 		uint_type compShiftVal = m_uintBitLength- remShift;
 
 		usint startVal = m_nSize - ceilIntByUInt(ans.m_MSB);
-
+		//perform shifting by bits by calculating the overflow
+		//oveflow is added after the shifting operation
 		for( ;startVal<m_nSize;startVal++){
 
 			oldVal = ans.m_value[startVal];
@@ -392,9 +430,16 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 
 }
 
+
+/**Right Shift is done by splitting the number of shifts into
+*1. Multiple of the bit length of uint data type.
+*	Shifting is done by the shifting the uint type numbers in the array to the right.
+*2. Shifts between 1 to bit length of uint data type.
+*   Shifting is done by using bit shift operations and carry over propagation.
+*/
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator>>=(usshort shift){
-
+	//check for garbage
 	if(m_state==State::GARBAGE)
 		throw std::logic_error("Value not initialized");
 
@@ -405,10 +450,11 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 		return *this;
 	}
 
+	//no of array shifts
 	usint shiftByUint = shift>>m_logUintBitLength;
-
+	//no of bit shifts
 	uschar remShift = (shift&(m_uintBitLength-1));
-
+	//perform shifting in arrays
 	if(shiftByUint!=0){
 
 		usint endVal= m_nSize-ceilIntByUInt(this->m_MSB);
@@ -417,7 +463,7 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 		for(sint i= m_nSize-1-shiftByUint;i>=endVal;i--){
 			this->m_value[i+shiftByUint] = this->m_value[i];
 		}
-
+		//adjust shift to reflect left shifting 
 		this->m_MSB -= shiftByUint<<m_logUintBitLength;
 
 		while(shiftByUint>0){
@@ -430,7 +476,7 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 	}
 
 	
-
+	//perform shift by bits if any
 	if(remShift!=0){
 
 		uint_type overFlow = 0;
@@ -439,7 +485,7 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 		uint_type compShiftVal = m_uintBitLength- remShift;
 
 		usint startVal = m_nSize - ceilIntByUInt(this->m_MSB);
-
+		//shift and add the overflow from the previous position
 		for( ;startVal<m_nSize;startVal++){
 
 			oldVal = this->m_value[startVal];
@@ -458,6 +504,7 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 
 }
 
+
 template<typename uint_type,usint BITLENGTH>
 void BigBinaryInteger<uint_type,BITLENGTH>::PrintValueInDec() const{
 
@@ -474,12 +521,16 @@ usshort BigBinaryInteger<uint_type,BITLENGTH>::GetMSB()const{
 	return m_MSB;
 }
 
+/** Addition operation:
+*  Algorithm used is usual school book sum and carry-over, expect for that radix is 2^m_bitLength.
+*/
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Plus(const BigBinaryInteger& b) const{
 	
-const BigBinaryInteger* A = NULL;//two operands A and B for addition, A is the greater one, B is the smaller one
+	//two operands A and B for addition, A is the greater one, B is the smaller one
+    const BigBinaryInteger* A = NULL;
 	const BigBinaryInteger* B = NULL;
-	
+	//check for garbage initializations
 	if(this->m_state==GARBAGE){
 		if(b.m_state==GARBAGE){
 			return std::move(BigBinaryInteger(ZERO));
@@ -490,7 +541,7 @@ const BigBinaryInteger* A = NULL;//two operands A and B for addition, A is the g
 	if(b.m_state==GARBAGE){
 		return std::move(BigBinaryInteger(*this));
 	}
-	
+	//Assignment of pointers, A assigned the higher value and B assigned the lower value
 	if(*this>b){
 		A = this; B = &b;
 	}
@@ -499,22 +550,24 @@ const BigBinaryInteger* A = NULL;//two operands A and B for addition, A is the g
 	if(B->m_MSB==0)
 		return BigBinaryInteger(*A);
 
-	BigBinaryInteger result;//result initiated to the greater APint
+	BigBinaryInteger result;
 	result.m_state = INITIALIZED;
-	Duint_type ofl=0;//overflow variable
-	
+	//overflow variable
+	Duint_type ofl=0;
+	//position from A to start addition
 	uint_type ceilIntA = ceilIntByUInt(A->m_MSB);
+	//position from B to start addition
 	uint_type ceilIntB = ceilIntByUInt(B->m_MSB);
 	sint i;//counter
-	for(i=m_nSize-1;i>=m_nSize-ceilIntB;i--){//NChar-ceil(MSB/8)
-		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two apint and the carry over
+	for(i=m_nSize-1;i>=m_nSize-ceilIntB;i--){
+		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two int and the carry over
 		result.m_value[i] = (uint_type)ofl;
 		ofl>>=m_uintBitLength;//current overflow
 	}
 
 	if(ofl){
 		for(;i>=m_nSize-ceilIntA;i--){
-			ofl = (Duint_type)A->m_value[i]+ofl;//sum of the two apint and the carry over
+			ofl = (Duint_type)A->m_value[i]+ofl;//sum of the two int and the carry over
 			result.m_value[i] = (uint_type)ofl;
 			ofl>>=m_uintBitLength;//current overflow
 		}
@@ -529,7 +582,7 @@ const BigBinaryInteger* A = NULL;//two operands A and B for addition, A is the g
 		}
 	}
 	else{
-		for(;i>=m_nSize-ceilIntA;i--){//NChar-ceil(MSB/8)
+		for(;i>=m_nSize-ceilIntA;i--){
 			result.m_value[i] = A->m_value[i];
 		}
 		result.m_MSB =  (m_nSize - i - 2)*m_uintBitLength;
@@ -539,36 +592,43 @@ const BigBinaryInteger* A = NULL;//two operands A and B for addition, A is the g
 	return result;
 }
 
+/** Minus operation:
+*  Algorithm used is usual school book borrow and subtract, except for that radix is 2^m_bitLength.
+*/
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Minus(const BigBinaryInteger& b) const{
-
+	//check for garbage initialization
 	if(this->m_state==GARBAGE){
 		return std::move(BigBinaryInteger(ZERO));		
 	}
 	if(b.m_state==GARBAGE){
 		return std::move(BigBinaryInteger(*this));
 	}
-
+	//return 0 if b is higher than *this as there is no support for negative number
 	if(!(*this>b))
 		return std::move(BigBinaryInteger(ZERO));
 
 	int cntr=0,current=0;
 	
 	BigBinaryInteger result(*this);
-
+	//array position in A to end substraction
 	int endValA = m_nSize-ceilIntByUInt(this->m_MSB);
+	//array position in B to end substraction
 	int endValB = m_nSize-ceilIntByUInt(b.m_MSB);
 	sint i;
 	for(i=m_nSize-1;i>=endValB;i--){
+		//carryover condtion
 		if(result.m_value[i]<b.m_value[i]){
 			current=i;
 			cntr = current-1;
+			//assigning carryover value
 			while(result.m_value[cntr]==0){
 				result.m_value[cntr]=m_uintMax;cntr--;
 			}
 			result.m_value[cntr]--;
 			result.m_value[i]=result.m_value[i]+m_uintMax+1- b.m_value[i];		
 		}
+		//usual substraction condition
 		else{
 			result.m_value[i]=result.m_value[i]- b.m_value[i];
 		}
@@ -578,30 +638,36 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Min
 	while(result.m_value[endValA]==0){
 		endValA++;
 	}
-
+	//reset the MSB after substraction
 	result.m_MSB = (m_nSize-endValA-1)*m_uintBitLength + GetMSBUint_type(result.m_value[endValA]);
 
-
+	//return the result
 	return std::move(result);
 
 }
 
+/** Times operation:
+*  Algorithm used is usual school book shift and add after multiplication, except for that radix is 2^m_bitLength.
+*/
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Times(const BigBinaryInteger& b) const{
 	
 	BigBinaryInteger ans;
-	
+	//check for garbage initialised objects
 	if(b.m_MSB==0 || b.m_state==GARBAGE ||this->m_state==GARBAGE || this->m_MSB==0){
 		ans = ZERO;
 		return ans;
 	}
+	//check for trivial condtions
 	if(b.m_MSB==1)
 		return BigBinaryInteger(*this);
 	if(this->m_MSB==1)
 		return std::move(BigBinaryInteger(b));
 	
-	//ans = ZERO;
+	//position of B in the array where the multiplication should start
 	uint_type ceilInt = ceilIntByUInt(b.m_MSB);
+	//Multiplication is done by getting a uint_type from b and multiplying it with *this
+	//after multiplication the result is shifted and added to the final answer
 	for(sint i= m_nSize-1;i>= m_nSize-ceilInt;i--){
 		ans += (this->MulIntegerByChar(b.m_value[i]))<<=( m_nSize-1-i)*m_uintBitLength;
 	}
@@ -609,11 +675,12 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Tim
 	return ans;
 }
 
+
 template<typename uint_type,usint BITLENGTH>
 const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGTH>::operator+=(const BigBinaryInteger &b){
 	const BigBinaryInteger* A = NULL;//two operands A and B for addition, A is the greater one, B is the smaller one
 	const BigBinaryInteger* B = NULL;
-
+	//check for garbage initialisation
 	if(this->m_state==GARBAGE){
 		if(b.m_state==GARBAGE){
 			*this = ZERO;
@@ -624,21 +691,24 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 			return *this;
 		}
 	}
+	//check for trivial cases
 	if(b.m_state==GARBAGE || b.m_MSB==0){
 		return *this;
 	}
-
+	//assigning pointers, A is assigned higher value and B the lower one
 	if(*this>b){
 		A = this; B = &b;
 	}
 	else {A = &b; B = this;}
-	
-	Duint_type ofl=0;//overflow variable
-	
+	//overflow variable
+	Duint_type ofl=0;
+	//position in the array of A to start addition 
 	uint_type ceilIntA = ceilIntByUInt(A->m_MSB);
+	//position in the array of B to start addition
 	uint_type ceilIntB = ceilIntByUInt(B->m_MSB);
 
-	sint i;//counter
+	//counter
+	sint i;
 	for(i=m_nSize-1;i>=m_nSize-ceilIntB;i--){
 		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two apint and the carry over
 		this->m_value[i] = (uint_type)ofl;
@@ -647,7 +717,7 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 
 	if(ofl){
 		for(;i>=m_nSize-ceilIntA;i--){
-			ofl = (Duint_type)A->m_value[i]+ofl;//sum of the two apint and the carry over
+			ofl = (Duint_type)A->m_value[i]+ofl;//sum of the two int and the carry over
 			this->m_value[i] = (uint_type)ofl;
 			ofl>>=m_uintBitLength;//current overflow
 		}
@@ -674,12 +744,7 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 
 template<typename uint_type,usint BITLENGTH>
 const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGTH>::operator-=(const BigBinaryInteger &b){
-	//this->PrintValueInDec();
-	//std::cout << std::endl;
-	//b.PrintValueInDec();
-	//std::cout << std::endl;
-	//std::cout <<*this<<" THIS"<< std::endl;
-	//std::cout << b << " bVal" << std::endl;
+	
 
 	if(this->m_state==GARBAGE){
 		*this=ZERO;
@@ -723,11 +788,12 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 
 	return *this;
 
-
-
-
 }
 
+/** Times operation:
+*  Algorithm used is usual school book multiplication.
+*  This function is used in the Multiplication of two BigBinaryInteger objects
+*/
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::MulIntegerByChar(uint_type b) const{
 	
@@ -737,9 +803,11 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mul
 		return BigBinaryInteger(ZERO);
 	
 	BigBinaryInteger ans;
-
+	//position in the array to start multiplication
 	usint endVal = m_nSize-ceilIntByUInt(m_MSB);
+	//variable to capture the overflow
 	Duint_type temp=0;
+	//overflow value
 	uint_type ofl=0;
 	sint i= m_nSize-1;
 
@@ -748,20 +816,25 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mul
 		ans.m_value[i] = (uint_type)temp;
 		ofl = temp>>m_uintBitLength;
 	}
+	//check if there is any final overflow
 	if(ofl){
 		ans.m_value[i]=ofl;
 	}
 	ans.m_MSB = (m_nSize-1-endVal)*m_uintBitLength;
+	//set the MSB after the final computation
 	ans.m_MSB += GetMSBDUint_type(temp);
 	ans.m_state = INITIALIZED;
-	//ans.PrintValueInDec();
 
 	return ans;
 }
 
+/* Division operation:
+*  Algorithm used is usual school book long division , except for that radix is 2^m_bitLength.
+*  Optimization done: Uses bit shift operation for logarithmic convergence.
+*/
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::DividedBy(const BigBinaryInteger& b) const{
-
+	//check for garbage initialization and 0 condition
 	if(b.m_state==GARBAGE || b==ZERO)
 		throw std::logic_error("DIVISION BY ZERO");
 
@@ -774,43 +847,45 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Div
 	
 	BigBinaryInteger ans;
 	
+	//normalised_dividend = result*quotient
 	BigBinaryInteger normalised_dividend( this->Minus( this->Mod(b) ) );
-
+	//Number of array elements in Divisor
 	uint_type ncharInDivisor = ceilIntByUInt(b.m_MSB);
+	//Get the uint integer that is in the MSB position of the Divisor
 	uint_type msbCharInDivisor = b.m_value[(usint)( m_nSize-ncharInDivisor)];
+	//Number of array elements in Normalised_dividend
 	uint_type ncharInNormalised_dividend = ceilIntByUInt(normalised_dividend.m_MSB);
+	////Get the uint integer that is in the MSB position of the normalised_dividend
 	uint_type msbCharInRunning_Normalised_dividend = normalised_dividend.m_value[(usint)( m_nSize-ncharInNormalised_dividend)];
+	//variable to store the running dividend
 	BigBinaryInteger running_dividend;
+	//variable to store the running remainder
 	BigBinaryInteger runningRemainder;
 	BigBinaryInteger expectedProd;
 	BigBinaryInteger estimateFinder;
-	//BigBinaryInteger ep;
+
 	//Initialize the running dividend
 	for(usint i=0;i<ncharInDivisor;i++){
 		running_dividend.m_value[ m_nSize-ncharInDivisor+i] = normalised_dividend.m_value[ m_nSize-ncharInNormalised_dividend+i]; 
 	}
 	running_dividend.m_MSB = GetMSBUint_type(running_dividend.m_value[m_nSize-ncharInDivisor]) + (ncharInDivisor-1)*m_uintBitLength;
 	running_dividend.m_state = INITIALIZED;
-	//running_dividend.PrintValueInDec();
-	//normalised_dividend.PrintValueInDec();
 	
 	uint_type estimate=0;
 	uint_type maskBit = 0;
 	uint_type shifts =0;
 	usint ansCtr = m_nSize - ncharInNormalised_dividend+ncharInDivisor-1;
+	//Long Division Computation to determine quotient
 	for(usint i=ncharInNormalised_dividend-ncharInDivisor;i>=0;){
-		//running_dividend.PrintValueInDec();std::cout<<std::endl;
-		//memManager = runningRemainder;
+		//Get the remainder from the Modulus operation
 		runningRemainder = running_dividend.Mod(b);
-		//runningRemainder.PrintValueInDec();std::cout<<std::endl;
-		
+		//Compute the expected product from the running dividend and remainder
 		expectedProd = running_dividend-runningRemainder;
 		estimateFinder = expectedProd;
-		//expectedProd.PrintValueInDec();
-		//std::cout<<expectedProd<<std::endl;
+		
 		estimate =0;
-		//std::cout<<expectedProd<<std::endl;
-		//if(ceilIntByUInt(expectedProd.m_MSB)>ncharInDivisor){
+		
+		//compute the quotient
 		if(expectedProd>b){	
 			while(estimateFinder.m_MSB > 0){
 				/*
@@ -844,11 +919,12 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Div
 			estimate = 0;
 		else
 			estimate = 1; 
-
+		//assgning the quotient in the result array
 		ans.m_value[ansCtr] = estimate;
 		ansCtr++;		
 		if(i==0)
 			break;
+		//Get the next uint element from the divisor and proceed with long division
 		if(running_dividend.m_MSB==0){
 			running_dividend.m_MSB=GetMSBUint_type(normalised_dividend.m_value[m_nSize-i]);
 		}
@@ -861,41 +937,40 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Div
 		i--;
 	}
 	ansCtr = m_nSize - ncharInNormalised_dividend+ncharInDivisor-1;
+	//Loop to the MSB position
 	while(ans.m_value[ansCtr]==0){
 		ansCtr++;
 	}
+	//Computation of MSB value 
 	ans.m_MSB = GetMSBUint_type(ans.m_value[ansCtr]) + (m_nSize-1-ansCtr)*m_uintBitLength;
 	ans.m_state = INITIALIZED;
 	return ans;
 
 }
 
+//Initializes the array of uint_array from the string equivalent of BigBinaryInteger
+//Algorithm used is repeated division by 2
+//Reference:http://pctechtips.org/convert-from-decimal-to-binary-with-recursion-in-java/
 template<typename uint_type,usint BITLENGTH>
 void BigBinaryInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 
 	uschar *DecValue;//array of decimal values
 	int arrSize=v.length();
-	//check if the array is large enough to store the decimal value, based upon max and min bit size calculation
-	//if(m_nchar*8<(int)(floor(arrSize*LOG2_10)+1)){ //floor(arrSize*LOG2_10)+1 is bmax
-	//	std::cout<<"BIT_LENGTH value chosen too small exiting application\n";
-	//	exit(-1);
-	//}
-	DecValue = new uschar[arrSize];
+	
 	//memory allocated for decimal array
+	DecValue = new uschar[arrSize];
+	
 	for(sint i=0;i<arrSize;i++)//store the string to decimal array
 		DecValue[i] = (uschar) stoi(v.substr(i,1));
 	sshort zptr = 0;
 	//index of highest non-zero number in decimal number
 	//define  bit register array
 	uschar *bitArr = new uschar[m_uintBitLength]();
-	//array to store the value of one char
-	//for(sint i=0;i<8;i++)//initiate to zero
-	//	bitArr[i]=0;
+	
 	sint bitValPtr=m_nSize-1;
 	//bitValPtr is a pointer to the Value char array, initially pointed to the last char
 	//we increment the pointer to the next char when we get the complete value of the char array
-	//for(sint i=0;i<m_nchar;i++)//initialie to zero
-	//	*(m_value+i)=0;
+	
 	sint cnt=m_uintBitLength-1;
 	//cnt8 is a pointer to the bit position in bitArr, when bitArr is compelete it is ready to be transfered to Value
 	while(zptr!=arrSize){
@@ -913,9 +988,9 @@ void BigBinaryInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 	cout<<endl;
 #endif
 	cnt--;
-	if(cnt==-1){//cnt8 = -1 indicates bitArr is ready for transfer
+	if(cnt==-1){//cnt = -1 indicates bitArr is ready for transfer
 		cnt=m_uintBitLength-1;
-		m_value[bitValPtr--]= UintInBinaryToDecimal(bitArr);//bin82dec converts bitArr to decimal and zeros the content of bitArr
+		m_value[bitValPtr--]= UintInBinaryToDecimal(bitArr);//UintInBinaryToDecimal converts bitArr to decimal and resets the content of bitArr.
 	}
 	if(DecValue[zptr]==0)zptr++;//division makes Most significant digit zero, hence we increment zptr to next value
 	if(zptr==arrSize&&DecValue[arrSize-1]==0)m_value[bitValPtr]=UintInBinaryToDecimal(bitArr);//Value assignment
@@ -941,14 +1016,14 @@ void BigBinaryInteger<uint_type,BITLENGTH>::SetMSB()
 	
 	for(usint i=0;i<m_nSize;i++)//loops to find first nonzero number in char array
 		if((Duint_type)m_value[i]!=0){
-			//bitArr = dec2bin(m_value[i]);//assign the MSB char to bit Array
+			
 			m_MSB = (m_nSize-i-1)*m_uintBitLength; 
 			m_MSB+= GetMSBUint_type(m_value[i]);
 			break;
 		}
 }
 
-//guessIdx is the actual index of array
+//guessIdx is the index of largest uint_type number in array.
 template<typename uint_type, usint BITLENGTH>
 void BigBinaryInteger<uint_type, BITLENGTH>::SetMSB(usint guessIdxChar){
 
@@ -958,44 +1033,45 @@ void BigBinaryInteger<uint_type, BITLENGTH>::SetMSB(usint guessIdxChar){
 
 template<typename uint_type, usint BITLENGTH>
 void BigBinaryInteger<uint_type, BITLENGTH>::SetValue(const std::string& str){
-	
 	AssignVal(str);
 	m_state = INITIALIZED;
-
 }
 
+//Algorithm used: Repeated substraction by a multiple of modulus, which will be referred to as "Classical Modulo Reduction Algorithm"
+//Complexity: O(log(*this)-log(modulus))
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod(const BigBinaryInteger& modulus) const{
 
+	//check for garbage initialisation
 	if(this->m_state==GARBAGE || modulus.m_state==GARBAGE)
 		throw std::logic_error("Error \n");
-	//std::cout << *this << "THIS" << std::endl;
-	//std::cout << modulus << "modulus" << std::endl;
 
-
+	//return the same value if value is less than modulus
 	if(*this<modulus){
 		return std::move(BigBinaryInteger(*this));
 	}
+	//masking operation if modulus is 2
 	if(modulus.m_MSB==2 && modulus.m_value[m_nSize-1]==2){
 		if(this->m_value[m_nSize-1]%2==0)
 			return BigBinaryInteger(ZERO);
 		else
 			return BigBinaryInteger(ONE);
 	}
+	
 	Duint_type initial_shift = 0;
+	//No of initial left shift that can be performed which will make it comparable to the current value.
 	if(this->m_MSB > modulus.m_MSB)
 		initial_shift=this->m_MSB - modulus.m_MSB -1;
 
-	//cout<<initial_shift<<endl;
-	//std::cout << " \n********Before Shift*********" << std::endl;
+	
 	BigBinaryInteger j = modulus<<initial_shift;
 
-	//std::cout << " \n********After Shift*********" << std::endl;
-	//std::cout<<"initial j value"<<j<<std::endl;
+	
 	BigBinaryInteger result(*this);
-	//cout<<"printing result "<<*result<<endl;
+
 	BigBinaryInteger temp;
 	while(true){
+		//exit criteria
 		if(result<modulus) break;
 		if (result.m_MSB > j.m_MSB) {
 			temp = j<<1;
@@ -1005,10 +1081,9 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 				}
 			}
 		}
-		//result = result - j;
+		//subtracting the running remainder by a multiple of modulus
 		result -= j;
 		
-		//std::cout<<result<<std::endl;
 		initial_shift = j.m_MSB - result.m_MSB +1;
 		if(result.m_MSB-1>=modulus.m_MSB){
 			j>>=initial_shift;
@@ -1016,13 +1091,13 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 		else{ 
 			j = modulus;
 		}
-		//std::cout<<j<<std::endl;
+
 	}
 
 	return std::move(result);
 }
 
-/*
+/**
 Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
 @article{knezevicspeeding,
   title={Speeding Up Barrett and Montgomery Modular Multiplications},
@@ -1038,7 +1113,6 @@ We use the upper bound of dividend assuming that none of the dividends will be l
 is computed by BigBinaryVector::ModMult.
 
 */
-
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger& mu) const{
 	
@@ -1064,6 +1138,18 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 }
 
+/**
+Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
+@article{knezevicspeeding,
+  title={Speeding Up Barrett and Montgomery Modular Multiplications},
+  author={Knezevic, Miroslav and Vercauteren, Frederik and Verbauwhede, Ingrid}
+}
+We use the Generalized Barrett modular reduction algorithm described in Algorithm 2 of the Source. The algorithm was originally 
+proposed in J.-F. Dhem. Modified version of the Barrett algorithm. Technical report, 1994 and described in more detail 
+in the PhD thesis of the author published at
+http://users.belgacom.net/dhem/these/these_public.pdf (Section 2.2.4).
+We take \alpha equal to n + 3. In this case, we work with an array of precomputed \mu values.
+**/
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger mu_arr[BARRETT_LEVELS+1]) const{
 
@@ -1096,6 +1182,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 }
 
+//Extended Euclid algorithm used to find the multiplicative inverse
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModInverse(const BigBinaryInteger& modulus) const{
 
@@ -1110,10 +1197,13 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	std::vector<BigBinaryInteger> mods;
 	std::vector<BigBinaryInteger> quotient;
 	mods.push_back(BigBinaryInteger(modulus));
-	mods.push_back(BigBinaryInteger(*this));
+	if (*this>modulus)
+		mods.push_back(this->Mod(modulus));
+	else
+		mods.push_back(BigBinaryInteger(*this));
 	BigBinaryInteger first(mods[0]);
 	BigBinaryInteger second(mods[1]);
-
+	//Error if modulus is ZERO
 	if(*this==ZERO){
 		std::cout<<"ZERO HAS NO INVERSE\n";
 		system("pause");
@@ -1121,7 +1211,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	}
 
 	
-
+	//NORTH ALGORITHM
 	while(true){
 		
 		//f << first << std::endl;
@@ -1148,7 +1238,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 	first = mods[0];
 	second = mods[1];
-
+	//SOUTH ALGORITHM
 	for(sint i=quotient.size()-1;i>=0;i--){
 		mods.push_back(quotient[i]*second + first);
 		first = second;
@@ -1176,6 +1266,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	return this->Plus(b).Mod(modulus);
 }
 
+//Optimized Mod Addition using ModBarrett
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrettAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const{
 	return this->Plus(b).ModBarrett(modulus,mu_arr);
@@ -1191,11 +1282,12 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	BigBinaryInteger* a = const_cast<BigBinaryInteger*>(this);
 	BigBinaryInteger* b_op = const_cast<BigBinaryInteger*>(&b);
 
+	//reduce this to a value lower than modulus
 	if(*this>modulus){
 
 		*a = std::move(this->Mod(modulus));
 	}
-
+	//reduce b to a value lower than modulus
 	if(b>modulus){
 		*b_op = std::move(b.Mod(modulus));
 	}
@@ -1208,6 +1300,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	}
 }
 
+//Optimized Mod Substraction using ModBarrett
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrettSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const{
 
@@ -1357,6 +1450,8 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	return (*a**bb).ModBarrett(modulus,mu_arr);
 }
 
+//Modular Multiplication using Square and Multiply Algorithm
+//reference:http://guan.cse.nsysu.edu.tw/note/expn.pdf
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModExp(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const{
 
@@ -1440,13 +1535,13 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 	//print_obj->PrintValueInDec();
 
 	//print_VALUE array stores the decimal value in the array
-	uschar *print_VALUE = new uschar[NUM_DIGIT_IN_PRINTVAL];
+	uschar *print_VALUE = new uschar[m_numDigitInPrintval];
 
 	//reset to zero
-	for(sint i=0;i<NUM_DIGIT_IN_PRINTVAL;i++)
+	for(sint i=0;i<m_numDigitInPrintval;i++)
 		*(print_VALUE+i)=0;
 
-	//starts the conversion from base 256 to decimal value
+	//starts the conversion from base r to decimal value
 	for(sint i=print_obj->m_MSB;i>0;i--){
 
 		//print_VALUE = print_VALUE*2
@@ -1459,12 +1554,12 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 	}
 
 	//find the first occurence of non-zero value in print_VALUE
-	for(counter=0;counter<NUM_DIGIT_IN_PRINTVAL-1;counter++){
+	for(counter=0;counter<m_numDigitInPrintval-1;counter++){
 		if((sint)print_VALUE[counter]!=0)break;							
 	}
 
 	//append this BigBinaryInteger's digits to this method's returned string object
-	for (; counter < NUM_DIGIT_IN_PRINTVAL; counter++) {
+	for (; counter < m_numDigitInPrintval; counter++) {
 		bbiString += std::to_string(print_VALUE[counter]);
 	}
 
@@ -1476,6 +1571,8 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 
 }
 
+//Compares the current object with the BigBinaryInteger a.
+//Uses MSB comparision to output requisite value.
 template<typename uint_type,usint BITLENGTH>
 sint BigBinaryInteger<uint_type,BITLENGTH>::Compare(const BigBinaryInteger& a) const
 {
@@ -1519,7 +1616,7 @@ bool BigBinaryInteger<uint_type,BITLENGTH>::operator==(const BigBinaryInteger& a
 }
 
 template<typename uint_type,usint BITLENGTH>
-bool BigBinaryInteger<uint_type,BITLENGTH>::CheckPowerofTwos(const BigBinaryInteger& m_numToCheck){
+bool BigBinaryInteger<uint_type,BITLENGTH>::CheckIfPowerOfTwo(const BigBinaryInteger& m_numToCheck){
 	usint m_MSB = m_numToCheck.m_MSB;
 	for(int i=m_MSB-1;i>0;i--){
 		if((sint)m_numToCheck.GetBitAtIndex(i)==(sint)1){
@@ -1624,24 +1721,9 @@ usint BigBinaryInteger<uint_type,BITLENGTH>::GetDigitAtIndexForBase(usint index,
 
 }
 
-//template<typename uint_type,usint BITLENGTH>
-//BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::BinaryToBigBinaryInt(const std::string& bitString){
-//	std::string zero = "0";
-//	BigBinaryInteger value("0");
-//	usint len = bitString.length();
-//	for (usint index = 0; index < len; index++)
-//  	{
-//  		if((zero[0] == bitString[index]))
-//  			continue;
-//  		else {
-//  			value += BigBinaryInteger<uint_type,BITLENGTH>::TWO.Exp(len - 1 - index);
-//  		}
-//  	}
-//  	return value;
-//}
-
+//Splits the binary string to equi sized chunks and then populates the internal array values.
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::BinaryToBigBinaryInt(const std::string& bitString){
+BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::BinaryStringToBigBinaryInt(const std::string& bitString){
 	
 	BigBinaryInteger value;
 	usint len = bitString.length();
@@ -1670,6 +1752,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Bin
 
 }
 
+//Recursive Exponentiation function
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Exp(usint p) const{
 	if (p == 0) return BigBinaryInteger(BigBinaryInteger::ONE);
@@ -1687,6 +1770,7 @@ usint BigBinaryInteger<uint_type,BITLENGTH>::GetMSBDUint_type(Duint_type x){
 	return BigBinaryInteger<uint_type,BITLENGTH>::GetMSB32(x);
 }
 
+//Algoritm used is shift and add
 template<typename uint_type,usint BITLENGTH>
  uint_type BigBinaryInteger<uint_type,BITLENGTH>::UintInBinaryToDecimal(uschar *a){
 	 uint_type Val = 0;
@@ -1700,6 +1784,8 @@ template<typename uint_type,usint BITLENGTH>
 	 return Val;
  }
 
+//Algorithm used is double and add
+//http://www.wikihow.com/Convert-from-Binary-to-Decimal
 template<typename uint_type_c,usint BITLENGTH_c>
 std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BITLENGTH_c>& ptr_obj){
 
@@ -1714,26 +1800,26 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BI
 	//print_obj->PrintValueInDec();
 
 	//print_VALUE array stores the decimal value in the array
-	uschar *print_VALUE = new uschar[NUM_DIGIT_IN_PRINTVAL];
+	uschar *print_VALUE = new uschar[ptr_obj.m_numDigitInPrintval];
 
 	//reset to zero
-	for(sint i=0;i<NUM_DIGIT_IN_PRINTVAL;i++)
+	for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 		*(print_VALUE+i)=0;
 
-	//starts the conversion from base 256 to decimal value
+	//starts the conversion from base r to decimal value
 	for(sint i=print_obj->m_MSB;i>0;i--){
 
 		//print_VALUE = print_VALUE*2
 		BigBinaryInteger<uint_type_c,BITLENGTH_c>::double_bitVal(print_VALUE);	
 #ifdef DEBUG_OSTREAM
-		for(sint i=0;i<NUM_DIGIT_IN_PRINTVAL;i++)
+		for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 		 std::cout<<(sint)*(print_VALUE+i);
 		std::cout<<endl;
 #endif
 		//adds the bit value to the print_VALUE
 		BigBinaryInteger<uint_type_c,BITLENGTH_c>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
 #ifdef DEBUG_OSTREAM
-		for(sint i=0;i<NUM_DIGIT_IN_PRINTVAL;i++)
+		for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 		 std::cout<<(sint)*(print_VALUE+i);
 		std::cout<<endl;
 #endif
@@ -1741,12 +1827,12 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BI
 	}
 
 	//find the first occurence of non-zero value in print_VALUE
-	for(counter=0;counter<NUM_DIGIT_IN_PRINTVAL-1;counter++){
+	for(counter=0;counter<ptr_obj.m_numDigitInPrintval-1;counter++){
 		if((sint)print_VALUE[counter]!=0)break;							
 	}
 
 	//start inserting values into the ostream object 
-	for(;counter<NUM_DIGIT_IN_PRINTVAL;counter++){
+	for(;counter<ptr_obj.m_numDigitInPrintval;counter++){
 		os<<(int)print_VALUE[counter];
 	}
 
@@ -1762,7 +1848,7 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BI
  void BigBinaryInteger<uint_type,BITLENGTH>::double_bitVal(uschar* a){
 	
 	uschar ofl=0;
-	for(sint i=NUM_DIGIT_IN_PRINTVAL-1;i>-1;i--){
+	for(sint i=m_numDigitInPrintval-1;i>-1;i--){
 		*(a+i)<<=1;
 		if(*(a+i)>9){
 			*(a+i)=*(a+i)-10+ofl;
@@ -1779,8 +1865,8 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BI
  template<typename uint_type,usint BITLENGTH>
  void BigBinaryInteger<uint_type,BITLENGTH>::add_bitVal(uschar* a,uschar b){
 	uschar ofl=0;
-	*(a+NUM_DIGIT_IN_PRINTVAL-1)+=b;
-	for(sint i=NUM_DIGIT_IN_PRINTVAL-1;i>-1;i--){
+	*(a+m_numDigitInPrintval-1)+=b;
+	for(sint i=m_numDigitInPrintval-1;i>-1;i--){
 		*(a+i) += ofl;
 		if(*(a+i)>9){
 			*(a+i)=0;
@@ -1789,6 +1875,7 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BI
 		
 	}
  }
+
 
 template<typename uint_type,usint BITLENGTH>
 uschar BigBinaryInteger<uint_type,BITLENGTH>::GetBitAtIndex(usint index) const{
@@ -1808,6 +1895,13 @@ uschar BigBinaryInteger<uint_type,BITLENGTH>::GetBitAtIndex(usint index) const{
 	result = temp&bmask;//finds the bit in  bit format
 	result>>=bmask_counter-1;//shifting operation gives bit either 1 or 0
 	return (uschar)result;
+}
+
+template<typename uint_type, usint BITLENGTH>
+void BigBinaryInteger<uint_type, BITLENGTH>::SetIntAtIndex(usint idx, uint_type value){
+	if (idx >= m_nSize)
+		throw std::logic_error("Index Invalid");
+	this->m_value[idx] = value;
 }
 
 /*
