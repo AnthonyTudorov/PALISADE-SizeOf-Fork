@@ -28,7 +28,25 @@
 *
 * @section DESCRIPTION
 * LAYER 2 : LATTICE DATA STRUCTURES AND OPERATIONS
-* This code provides basic lattice ideal manipulation functionality.
+* This code provides basic lattice ideal manipulation functionality. 
+* For more information on ideal lattices please see here: 10.1007/978-3-540-88702-7_5
+* ILDCRTParmas stands for : Ideal Lattive Chinese Remainder Transform Params. This class provides a placeholder for the parameter set
+* of an ILVectorArray2n. 
+*
+*  The private members of this class are:
+*
+*	 order of cyclotomic polynomial. 
+*	 usint m_cyclotomicOrder;
+*
+*	// value of moduli
+*	 std::vector<BigBinaryInteger> m_moduli;
+*
+*	// primitive root unity that is used to transform from coefficient to evaluation representation and vice versa
+*	std::vector<BigBinaryInteger> m_rootsOfUnity;
+*
+*	//Modulus that is factorized into m_moduli
+*	BigBinaryInteger m_modulus;
+*
 */
 
 #ifndef LBCRYPTO_LATTICE_ILDCRTELEMENT_H
