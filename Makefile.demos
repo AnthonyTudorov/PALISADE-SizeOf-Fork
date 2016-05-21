@@ -52,11 +52,11 @@ make_demos: $(DEMOBIN)
 
 #this updates the binaries when the objects or libraries ar touched
 #TODO this relinks all demos when any one is touched.
-$(DEMOBIN): $(DEMOOBJECTS) $(EXTLIBDIR)/lib$(SOLIB).so
+$(DEMOBIN): $(DEMOOBJECTS) $(EXTLIBDIR)/$(PALISADELIB)
 
 # this will build demos out of the demo.o and the palisade shared object library
 #.PRECIOUS: $(BINDIR)/demo/%
-$(BINDIR)/demo/%: $(EXTLIBDIR)/lib$(SOLIB).so $(BUILDDIR)/demo/%.o 
+$(BINDIR)/demo/%: $(EXTLIBDIR)/$(PALISADELIB) $(BUILDDIR)/demo/%.o 
 #$(LIBDIR)lib$(SOLIB)
 	@echo " -- demo:linking $@"
 	mkdir -p $(@D)

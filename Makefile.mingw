@@ -4,5 +4,8 @@ BOOSTINCLUDE := -I C:/boost_1_60_0
 OMPINCLUDE := 
 CPPSTD := -std=gnu++11
 
+PALISADELIB := libPALISADE.dll
+LIBCMD := -s -shared -Wl,--subsystem,windows 
+
 include Makefile
 

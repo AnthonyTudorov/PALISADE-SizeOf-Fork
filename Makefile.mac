@@ -1,7 +1,11 @@
 ## for mac OSx
 
-BOOSTINCLUDE := -I /opt/local/include
+BOOSTINCLUDE := -I /boost_1_61_0
 OMPINCLUDE := -I /opt/local/include/libomp
+#CPPSTD := -std=gnu++0x
 CPPSTD := -std=c++0x
+
+PALISADELIB := libPALISADE.dylib
+LIBCMD := -dynamiclib -undefined suppress -flat_namespace
 
 include Makefile

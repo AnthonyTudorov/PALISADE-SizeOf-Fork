@@ -438,20 +438,16 @@ bool LPEvalKeyLTV<Element>::Serialize(Serialized& serObj, std::string fileFlag) 
 
 	serObj["Root"].AddMember("VectorLength", this->ToStr(evalKeyVectorLength), serObj.GetAllocator());
 
-	SerialItem ilVector2nMap;
+	SerialItem ilVector2nMap(rapidjson::kArrayType);
 	for (unsigned i = 0; i < evalKeyVectorLength; i++) {
 		localMap.Clear();
 		if( this->GetEvalKeyElements().at(i).Serialize(localMap, "") ) {
-			// get first item
-			Serialized::ConstMemberIterator vv = localMap.MemberBegin();
-			ilVector2nMap.AddMember(this->ToStr(i), vv->value, serObj.GetAllocator());
+			ilVector2nMap.PushBack(localMap.Move(), serObj.GetAllocator());
 		}
 		else
 			return false;
-
-		serObj.AddMember("ILVector2nVector", ilVector2nMap, serObj.GetAllocator());
-
 	}
+	serObj.AddMember("ILVector2nVector", ilVector2nMap, serObj.GetAllocator());
 
 	return true;
 }
@@ -475,14 +471,16 @@ bool LPEvalKeyLTV<Element>::Deserialize(const Serialized& serObj) {
 	if( (rIt = serObj.FindMember("ILVector2nVector")) == serObj.MemberEnd() )
 		return false;
 
+	const SerialItem& arr = rIt->value;
+
+	if( !arr.IsArray() )
+		return false;
+
 	for (int i = 0; i < evalKeyVectorLength; i++) {
-		std::string indexName = this->ToStr(i);
-		SerialItem::ConstMemberIterator fi = rIt->value.FindMember(indexName.c_str());
-		if( fi == rIt->value.MemberEnd() )
-			return false;
+		const Serialized& fi = arr[i];
 
 		Element evalKeySubVector;
-		evalKeySubVector.Deserialize(rIt->value);
+		evalKeySubVector.Deserialize(fi);
 		evalKeyVectorBuffer.push_back(evalKeySubVector);
 	}
 

@@ -4,6 +4,9 @@ BOOSTINCLUDE :=
 OMPINCLUDE := 
 CPPSTD := -std=gnu++11
 
+PALISADELIB := libPALISADE.so
+LIBCMD := -fPIC -shared -Wl,--export-dynamic -Wl,--export-all-symbols
+
 include Makefile
 
 
