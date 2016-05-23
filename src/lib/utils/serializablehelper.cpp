@@ -69,7 +69,7 @@ namespace lbcrypto {
 		* @param doc is the serialized object's nested JSON data string.
 		* @param outputFileName is the name of the file to save JSON data string to.
 		*/
-		bool SerializableHelper::WriteSerializationToFile(Serialized& doc, std::string outputFileName) {
+		bool SerializableHelper::WriteSerializationToFile(const Serialized& doc, std::string outputFileName) {
 
 			FILE *fp = fopen(outputFileName.c_str(), "w");
 			if( fp == 0 ) return false;
@@ -89,7 +89,7 @@ namespace lbcrypto {
 		* @param jsonFileName is the file to read in for the Palisade object's nested serialized JSON data structure.
 		* @param serObj containing name value pairs for the attributes of the Palisade object to be deserialized.
 		*/
-		bool SerializableHelper::ReadSerializationFromFile(std::string jsonFileName, Serialized& serObj) {
+		bool SerializableHelper::ReadSerializationFromFile(const std::string jsonFileName, Serialized& serObj) {
 			
 			//Retrieve contents of input Json file
 			FILE *fp = fopen(jsonFileName.c_str(), "r");

@@ -81,7 +81,7 @@ namespace lbcrypto {
 		* @param outputFileName is the name of the file to save JSON data string to.
 		* @return success or failure
 		*/
-		static bool WriteSerializationToFile(Serialized& serObj, std::string outputFileName);
+		static bool WriteSerializationToFile(const Serialized& serObj, std::string outputFileName);
 
 		/**
 		* Read a serialized Palisade object from a JSON file
@@ -89,7 +89,7 @@ namespace lbcrypto {
 		* @param map containing the serialized object read from the file
 		* @return success or failure
 		*/
-		static bool ReadSerializationFromFile(std::string jsonFileName, Serialized& map);
+		static bool ReadSerializationFromFile(const std::string jsonFileName, Serialized& map);
 	};
 }
 

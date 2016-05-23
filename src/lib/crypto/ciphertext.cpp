@@ -131,7 +131,7 @@ std::cout << "cip 1" << std::endl;
 	bool Ciphertext<Element>::Deserialize(const Serialized& serObj) {
 
 		std::cout << "cip deser 1" << std::endl;
-		LPCryptoParameters<Element> *json_cryptoParams = new LPCryptoParametersStehleSteinfeld<Element>();
+		LPCryptoParameters<Element> *json_cryptoParams = new LPCryptoParametersLTV<Element>();
 		if( !json_cryptoParams->Deserialize(serObj) )
 			return false;
 		std::cout << "cip deser 2" << std::endl;

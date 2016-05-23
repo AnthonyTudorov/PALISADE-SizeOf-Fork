@@ -7,5 +7,7 @@ CPPSTD := -std=gnu++11
 PALISADELIB := libPALISADE.dll
 LIBCMD := -s -shared -Wl,--subsystem,windows 
 
+EXESUFFIX := .exe
+
 include Makefile
 

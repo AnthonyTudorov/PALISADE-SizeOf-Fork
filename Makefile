@@ -56,8 +56,6 @@ EXTLIBDIR := bin/lib
 SRCEXT := cpp
 HDREXT := h
 
-
-
 #$(wildcard $(addsuffix *.cpp,$(DEMODIRS)/))
 #objects := $(patsubst %.cpp,%.o,$(sources))
 

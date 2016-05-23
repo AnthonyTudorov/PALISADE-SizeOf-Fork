@@ -447,19 +447,25 @@ namespace lbcrypto {
 
 	// JSON FACILITY - Serialize Operation
 	bool ILVector2n::Serialize(Serialized& serObj, std::string fileFlag) const {
-
+std::cout << "vector ser 1" << std::endl;
 		if( !serObj.IsObject() )
 			return false;
+std::cout << "vector ser 2" << std::endl;
 
-		Serialized obj(rapidjson::kObjectType);
+		Serialized obj(rapidjson::kObjectType, &serObj.GetAllocator());
 		if( !this->GetValues().Serialize(obj, "") )
 			return false;
+std::cout << "vector ser 3" << std::endl;
 
 		if( !this->GetParams().Serialize(obj, "") )
 			return false;
+std::cout << "vector ser 4" << std::endl;
 
-		obj.AddMember("Format", "0", serObj.GetAllocator());
+		obj.AddMember("Format", this->ToStr(this->GetFormat()), obj.GetAllocator());
+std::cout << "vector ser 5" << std::endl;
+
 		serObj.AddMember("ILVector2n", obj, serObj.GetAllocator());
+std::cout << "vector ser 6" << std::endl;
 
 		return true;
 	}
@@ -469,10 +475,17 @@ namespace lbcrypto {
 std::cout << "deser il2vec 1" << std::endl;
 		Serialized::ConstMemberIterator iMap = serObj.FindMember("ILVector2n");
 		if( iMap == serObj.MemberEnd() ) return false;
+		std::cout << "deser il2vec 1a" << std::endl;
+
+		SerialItem::ConstMemberIterator pIt = iMap->value.FindMember("ILParams");
+		if( pIt == iMap->value.MemberEnd() ) return false;
+
+		Serialized parm(rapidjson::kObjectType);
+		parm.AddMember(SerialItem(pIt->name,parm.GetAllocator()), SerialItem(pIt->value,parm.GetAllocator()), parm.GetAllocator());
 
 		std::cout << "deser il2vec 2" << std::endl;
 		ILParams json_ilParams;
-		if( !json_ilParams.Deserialize(serObj) )
+		if( !json_ilParams.Deserialize(parm) )
 			return false;
 		std::cout << "deser il2vec 3" << std::endl;
 		this->SetParams(json_ilParams);

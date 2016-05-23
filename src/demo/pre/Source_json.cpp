@@ -142,12 +142,13 @@ int main(){
 	return 0;
 }
 
-extern void testJson(const LPPublicKeyLTV<ILVector2n>& pk,
-		const LPPrivateKeyLTV<ILVector2n>& sk,
-		const LPPublicKeyEncryptionSchemeLTV<ILVector2n>& algorithm,
-		const ByteArrayPlaintextEncoding& newPtxt,
-		const LPEvalKeyLTV<ILVector2n>& evalKey,
-		const LPPrivateKeyLTV<ILVector2n>& newSK);
+extern void testJson(const std::string cID,
+		const LPPublicKey<ILVector2n>& pk,
+		const LPPrivateKey<ILVector2n>& sk,
+		const LPPublicKeyEncryptionScheme<ILVector2n>& algorithm,
+		const LPEvalKey<ILVector2n>& evalKey,
+		const LPPrivateKey<ILVector2n>& newSK,
+		const ByteArrayPlaintextEncoding& newPtxt);
 
 // double currentDateTime()
 // {
@@ -458,21 +459,14 @@ void NTRUPRE(int input) {
 		exit(1);
 	}
 
-	cout << "\n" << endl;
-
-	std::cout << "----------------------START JSON FACILITY TESTING-------------------------" << endl;
-
-	cout << "\n" << endl;
-
 	ByteArray newPlaintext("1) SERIALIZE CRYPTO-OBJS TO FILE AS NESTED JSON STRUCTURES\n2) DESERIALIZE JSON FILES INTO CRYPTO-OBJS USED FOR CRYPTO-APIS");
 	ByteArrayPlaintextEncoding newPtxt(newPlaintext);
 	newPtxt.Pad<ZeroPad>(m / 16);
+
 	cout << "Original Plaintext: " << endl;
 	cout << newPlaintext << endl;
 
-	cout << "\n" << endl;
-
-	testJson(pk, sk, algorithm, newPtxt, evalKey, newSK);
+	testJson("LTV", pk, sk, algorithm, evalKey, newSK, newPtxt);
 	std::cout << "Execution completed.  Please any key to finish." << std::endl;
 
 	fout.close();

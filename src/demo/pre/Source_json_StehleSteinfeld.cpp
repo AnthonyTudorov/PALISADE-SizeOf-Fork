@@ -74,12 +74,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 using namespace lbcrypto;
 
-extern void testJson(const LPPublicKeyLTV<ILVector2n>& pk,
-		const LPPrivateKeyLTV<ILVector2n>& sk,
-		const LPPublicKeyEncryptionSchemeLTV<ILVector2n>& algorithm,
-		const ByteArrayPlaintextEncoding& newPtxt,
-		const LPEvalKeyLTV<ILVector2n>& evalKey,
-		const LPPrivateKeyLTV<ILVector2n>& newSK);
+extern void testJson(const std::string cID,
+		const LPPublicKey<ILVector2n>& pk,
+		const LPPrivateKey<ILVector2n>& sk,
+		const LPPublicKeyEncryptionScheme<ILVector2n>& algorithm,
+		const LPEvalKey<ILVector2n>& evalKey,
+		const LPPrivateKey<ILVector2n>& newSK,
+		const ByteArrayPlaintextEncoding& newPtxt);
 
 void NTRUPRE(int input);
 
@@ -468,7 +469,7 @@ void NTRUPRE(int input) {
 
 	cout << "\n" << endl;
 
-	testJson(pk, sk, algorithm, newPtxt, evalKey, newSK);
+	testJson("StSt", pk, sk, algorithm, evalKey, newSK, newPtxt);
 	std::cout << "Execution completed.  Please any key to finish." << std::endl;
 
 	fout.close();
