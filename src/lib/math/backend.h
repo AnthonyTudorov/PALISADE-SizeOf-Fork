@@ -34,13 +34,17 @@
 #ifndef LBCRYPTO_MATH_BACKEND_H
 #define LBCRYPTO_MATH_BACKEND_H
  
-/*! Define the library being used.  Use 1 to represent 8-bit CPU.*/
-#define MATHBACKEND 2  // 1 for 8-bit CPU; 2 for 64-bit CPU, and so on
+/*! Define the library being used via the MATHBACKEND macro. */
+// 1 - old implementation based on 8-bit character arrays (bytes), uses a memory pool for storing character arrays
+// 2 - main math backend supporting arbitrary bitwidths; no memory pool is used; can grow up to RAM limit
+//	   currently supports uint8_t, uint16_t, and uint32_t;
+//     uint32_t is recommended for 32- and 64-bit CPU architectures
+#define MATHBACKEND 2
 
 #if MATHBACKEND == 1
 	#include "cpu8bit/binint.h"
 	#include "cpu8bit/binvect.h"
-	#include "cpu8bit/binmat.h"	
+	//#include "cpu8bit/binmat.h"	
 #endif
 #if MATHBACKEND == 2
 	#include "cpu_int/binint.cpp"
@@ -59,16 +63,28 @@ namespace lbcrypto {
 	/** Define the mapping for BigBinaryVector */
 	typedef cpu8bit::BigBinaryVector BigBinaryVector;
 	/** Define the mapping for BigBinaryMatrix */
-	typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
+	//typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
 #endif
 
 #if MATHBACKEND == 2
-	/** Define the mapping for BigBinaryInteger */
-	typedef cpu_int::BigBinaryInteger<uint32_t,1500> BigBinaryInteger;
+	/** integral_dtype specifies the native data type used for the BigBinaryInteger implementation 
+	    should be uint32_t for most applications **/
+	typedef uint32_t integral_dtype;
+
+	/** makes sure that only supported data type is supplied **/
+	static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provided is not supported in BigBinaryInteger");
+
+	/** Define the mapping for BigBinaryInteger
+	    1500 is the maximum bitwidth supported by BigBinaryIntegers, large enough for most use cases
+		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application - to achieve smaller runtimes**/
+	typedef cpu_int::BigBinaryInteger<integral_dtype,1500> BigBinaryInteger;
+	
 	/** Define the mapping for BigBinaryVector */
 	typedef cpu_int::BigBinaryVector<BigBinaryInteger> BigBinaryVector;
+	
 	/** Define the mapping for BigBinaryMatrix */
 	//typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
+
 #endif
 
 } // namespace lbcrypto ends

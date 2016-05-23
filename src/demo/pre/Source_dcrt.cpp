@@ -61,7 +61,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/crypto/ciphertext.cpp"
 //#include "../../lib/vld.h"
 #include <chrono>
-#include "../../lib/utils/debug.h"a
+#include "../../lib/utils/debug.h"
 //#include "../../lib/gtest/gtest.h"
 //#include "../../lib/math/cpu8bit/binint.h"
 //#include "../../lib/math/cpu8bit/binvect.h"

@@ -55,7 +55,7 @@ BigBinaryInteger DiscreteUniformGenerator::GenerateInteger () {
 
 		// Convert the binary into a BBI.
 		std::string str = buffer.str();
-		result = BigBinaryInteger::BinaryToBigBinaryInt(str);
+		result = BigBinaryInteger::BinaryStringToBigBinaryInt(str);
 	} while (result > m_modulus);
 
 	return result;

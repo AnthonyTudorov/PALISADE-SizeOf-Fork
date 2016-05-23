@@ -28,7 +28,10 @@
  *
  * @section DESCRIPTION
  *
- * This file contains the vector manipulation functionality.
+ * This file contains the main class for big integers: BigBinaryInteger. Big integers are represented
+ * as arrays of native usigned integers. The native integer type is supplied as a template parameter.
+ * Currently implementations based on uint8_t, uint16_t, and uint32_t are supported. The second template parameter
+ * is the maximum bitwidth for the big integer.
  */
 
 #ifndef LBCRYPTO_MATH_CPUINT_BININT_H
@@ -54,591 +57,627 @@
 */
 namespace cpu_int{
 
-        /*
-         *Struct to Assign Value
-         *
-         */
+	/**The following structs are needed for initialization of BigBinaryInteger at the preprocessing stage.
+	*The structs compute certain values using template metaprogramming approach and mostly follow recursion to calculate value(s).
+	*/
+
+    /**
+    * @brief  Struct to find log value of N.
+    *Needed in the preprocessing step of BigBinaryInteger to determine bitwidth.
+	*
+	* @tparam N bitwidth.
+    */
 	template <usint N>
-	struct log2{
-		const static usint value = 1 + log2<N/2>::value;
+	struct Log2{
+		const static usint value = 1 + Log2<N/2>::value;
 	};
     
-        /*
-        *Struct to assign value to 1
-        *
-        */
+    /**
+    * @brief Struct to find log value of N.
+	*Base case for recursion.
+    *Needed in the preprocessing step of BigBinaryInteger to determine bitwidth.
+    */
 	template<>
-	struct log2<2>{
+	struct Log2<2>{
 		const static usint value = 1;
 	};
     
-        /*
-        *Struct to assign value
-        *
-        */
+    /**
+    * @brief Struct to find log value of U where U is a primitive datatype.
+    *Needed in the preprocessing step of BigBinaryInteger to determine bitwidth.
+	*
+	* @tparam U primitive data type.
+    */
 	template <typename U>
-	struct logdtype{
-		const static usint value = log2<8*sizeof(U)>::value;
+	struct LogDtype{
+		const static usint value = Log2<8*sizeof(U)>::value;
 	};
     
-        /*
-         *???
-         *
-         */
-	template<typename dtype>
-	struct datatypechecker{
-		// const static bool value = false ;
-		//NP-TODO - This boolean check does not work in Linux. 
+    /**
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}
+    *
+	* @tparam Dtype primitive datatype.
+    */
+	template<typename Dtype>
+	struct DataTypeChecker{
+		 const static bool value = false ;
+	};
+
+    /**
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}. 
+    * sets value true if datatype is unsigned integer 8 bit.
+    */
+	template<>
+	struct DataTypeChecker<uint8_t>{
 		const static bool value = true ;
-		static_assert(value,"Data type provided is not supported in BigBinaryInteger");
 	};
 
-        /**
-         *Structure for checking datatype
-         * @Return Returns bool true if datatype is unsigned integer 8 bit.
-         */
+    /**
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}. 
+    * sets value true if datatype is unsigned integer 16 bit.
+    */
 	template<>
-	struct datatypechecker<uint8_t>{
-		const static bool value = true ;	
-	};
-        /**
-        *Structure for checking datatype
-         * @Return Returns bool true if datatype is unsigned integer 16 bit.
-         */
-	template<>
-	struct datatypechecker<uint16_t>{
-		const static bool value = true ;	
-	};
-        /**
-         *Structure for checking datatype
-         * @Return Returns bool true if datatype is unsigned integer 32 bit.
-         */
-	template<>
-	struct datatypechecker<uint32_t>{
-		const static bool value = true ;	
-	};
-        /**
-         *Structure for checking datatype
-         * @Return Returns bool true if datatype is unsigned integer 64 bit.
-         */
-	template<>
-	struct datatypechecker<uint64_t>{
+	struct DataTypeChecker<uint16_t>{
 		const static bool value = true ;	
 	};
 
-	/*
-	BBI should have a bitlength of datatype
-	BBI should have a log of bitlength of datatype
-	BBI should have a double datatype
-	BBI should have a function that calculates the MSB in datatype
-	BBI should have a function that calculates the MSB in doubledatatype
-	*/
+    /**
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}.
+    * sets value true if datatype is unsigned integer 32 bit.
+    */
+	template<>
+	struct DataTypeChecker<uint32_t>{
+		const static bool value = true ;	
+	};
 
+    /**
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}.
+    * sets value true if datatype is unsigned integer 64 bit.
+    */
+	template<>
+	struct DataTypeChecker<uint64_t>{
+		const static bool value = true ;	
+	};
+
+	/**
+    * @brief Struct for calculating bit width from data type. 
+	* Sets value to the bitwidth of uint_type
+	*
+	* @tparam uint_type native integer data type.
+    */
 	template <typename uint_type>
-	struct uintBitWidth{
-		static_assert(datatypechecker<uint_type>::value,"Data type provided is not supported in BigBinaryInteger");
+	struct UIntBitWidth{
 		const static int value = 8*sizeof(uint_type);
 	};
-        /*
-         * ???
-         */
+
+    /**
+    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
+	* sets T as of type void for default case
+	* 
+	* @tparam utype primitive integer data type.
+    */
 	template<typename utype>
-	struct doubleDataType{
+	struct DoubleDataType{
 		typedef void T;
 	};
 
-        /*
-         * Datatype double template function
-         * sets T as of type unsigned integer 16 bit if initial datatype is 8bit
-         */
+    /**
+    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
+    * Sets T as of type unsigned integer 16 bit if integral datatype is 8bit
+    */
 	template<>
-	struct doubleDataType<uint8_t>{
+	struct DoubleDataType<uint8_t>{
 		typedef uint16_t T;
 	};
-        /*
-         * Datatype double template function
-         * sets T as of type unsigned integer 32 bit if initial datatype is 16bit
-         */
+
+    /**
+    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
+    * sets T as of type unsigned integer 32 bit if integral datatype is 16bit
+    */
     template<>
-	struct doubleDataType<uint16_t>{
+	struct DoubleDataType<uint16_t>{
 		typedef uint32_t T;
 	};
-        /*
-         * Datatype double template function
-         * sets T as of type unsigned integer 64 bit if initial datatype is 32bit
-         */
+
+    /**
+    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
+    * sets T as of type unsigned integer 64 bit if integral datatype is 32bit
+    */
 	template<>
-	struct doubleDataType<uint32_t>{
+	struct DoubleDataType<uint32_t>{
 		typedef uint64_t T;
 	};
 
 
-	const usint NUM_DIGIT_IN_PRINTVAL = 45;	//!< @brief The maximum number of digits in bigbinaryinteger. It is used by the cout(ostream) function for printing the bigbinarynumber.
     const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
-    const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels used in the Barrett reductions.
+    const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed values) used in the Barrett reductions.
 
+
+	/**
+	 * @brief Main class for big integers represented as an array of native (primitive) unsigned integers
+	 * @tparam uint_type native unsigned integer type
+	 * @tparam BITLENGTH maximum bitdwidth supported for big integers
+	 */
 	template<typename uint_type,usint BITLENGTH>
 	class BigBinaryInteger
 	{
 
 	public:
 
-        /**
-         * Basic constructor.
-         */
+    /**
+    * Default constructor.
+    */
     BigBinaryInteger();
-        /**
-        * Basic constructor for specifying the integer.
-        *
-        * @param str is the initial integer represented as a string.
-        */
+
+    /**
+    * Basic constructor for specifying the integer.
+    *
+    * @param str is the initial integer represented as a string.
+    */
     explicit BigBinaryInteger(const std::string& str);
-        /**
-        * Basic constructor for initializing big binary integer from an unsigned integer.
-        *
-        * @param init is the initial integer.
-        */
+
+    /**
+    * Basic constructor for initializing big binary integer from an unsigned integer.
+    *
+    * @param init is the initial integer.
+    */
     explicit BigBinaryInteger(usint init);
-        /**
-        * Basic constructor for copying a big binary integer
-        *
-        * @param bigInteger is the big binary integer to be copied.
-        */
+
+    /**
+    * Basic constructor for copying a big binary integer
+    *
+    * @param bigInteger is the big binary integer to be copied.
+    */
     explicit BigBinaryInteger(const BigBinaryInteger& bigInteger);
-        /**
-        * Basic constructor for move copying a big binary integer
-        *
-        * @param &&bigInteger is the big binary integer to be copied.
-        */
-    BigBinaryInteger(BigBinaryInteger &&bigInteger);//move copy constructor
+
+    /**
+    * Basic constructor for move copying a big binary integer
+    *
+    * @param &&bigInteger is the big binary integer to be moved from.
+    */
+    BigBinaryInteger(BigBinaryInteger &&bigInteger);
     
-        /**
-        * Destructor.
-        */
+    /**
+    * Destructor.
+    */
     ~BigBinaryInteger();
         
-        /**
-        * Copy constructor
-        *
-        * @param &rhs is the big binary matrix to test equality with.
-        * @return the return value.
-        */
-    BigBinaryInteger&  operator=(const BigBinaryInteger &rhs);
+    /**
+    * Assignment operator
+    *
+    * @param &rhs is the big binary integer to be assigned from.
+    * @return assigned BigBinaryIntegr ref.
+    */
+    const BigBinaryInteger&  operator=(const BigBinaryInteger &rhs);
 
-    inline BigBinaryInteger& operator=(usint val) {
+	/**
+    * Assignment operator from unsigned integer
+    *
+    * @param val is the unsigned integer value that is assigned.
+    * @return the assigned Big Binary Integer ref.
+    */
+    inline const BigBinaryInteger& operator=(usint val) {
         *this = intToBigBinaryInteger(val);
         return *this;
     }
 
-        /**
-         * Move copy constructor
-         *
-         * @param &&rhs is the big binary matrix to test equality with.
-         * @return the return value.
-         */
-    BigBinaryInteger&  operator=(BigBinaryInteger &&rhs);
+    /**
+    * Move copy constructor
+    *
+    * @param &&rhs is the big binary integer to move.
+    * @return object of type BigBinaryInteger.
+    */
+    const BigBinaryInteger&  operator=(BigBinaryInteger &&rhs);
 
 //Shift Operators
-        /**
-         * Left shift operator of big binary integer
-         * @param shift is the amount to shift of type usshort.
-         * @return the object of type BigBinaryInteger
-        **/
+   
+	/**
+    * Left shift operator of big binary integer
+    * @param shift is the amount to shift of type usshort.
+    * @return the object of type BigBinaryInteger
+    */
 	BigBinaryInteger  operator<<(usshort shift) const;
 
-        /**
-         * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
-         *
-         * @param shift is the amount to shift of type usshort.
-         * @return the object of type BigBinaryInteger
-         */
-    BigBinaryInteger&  operator<<=(usshort shift);
+    /**
+    * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
+    *
+    * @param shift is the amount to shift of type usshort.
+    * @return the object of type BigBinaryInteger
+    */
+    const BigBinaryInteger&  operator<<=(usshort shift);
         
-        /**
-         * Right shift operator of big binary integer
-         * @param shift is the amount to shift of type usshort.
-         * @return the object of type BigBinaryInteger
-         **/
+    /**
+    * Right shift operator of big binary integer
+    * @param shift is the amount to shift of type usshort.
+    * @return the object of type BigBinaryInteger
+    */
     BigBinaryInteger  operator>>(usshort shift) const;
 
-        /**
-         * Right shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
-         *
-         * @param shift is the amount to shift of type usshort.
-         * @return the object of type BigBinaryInteger
-         */
+    /**
+    * Right shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
+    *
+    * @param shift is the amount to shift of type usshort.
+    * @return the object of type BigBinaryInteger
+    */
     BigBinaryInteger&  operator>>=(usshort shift);
 
 //Auxillary Functions
-        /**
-         * Prints the value to stdout in decimal format.
-         */
+
+    /**
+    * Prints the value to console in base-r format where r is equal to 2^bitwidth of the integral datatype.
+    */
     void PrintValueInDec() const;
 
-        /**
-         * Basic set method for setting the value of a big binary integer
-         *
-         * @param str is the string representation of the big binary integer to be copied.
-         * @returns nothing
-         */
+    /**
+    * Basic set method for setting the value of a big binary integer
+    *
+    * @param str is the string representation of the big binary integer to be copied.
+    */
     void SetValue(const std::string& str);
         
-        /**
-         * Basic set method for setting the value of a big binary integer
-         *
-         * @param a is the big binary integer representation of the big binary integer to be copied.
-         * @returns nothing
-         */
+    /**
+    * Basic set method for setting the value of a big binary integer
+    *
+    * @param a is the big binary integer representation of the big binary integer to be assigned.
+    */
     void SetValue(const BigBinaryInteger& a);
 
         
-        /**
-         * Returns the MSB location of the value.
-         *
-         * @return the index of the most significant bit.
-         */
+    /**
+    * Returns the MSB location of the value.
+    *
+    * @return the index of the most significant bit.
+    */
     usshort GetMSB()const;
 
-        /**
-         * Returns the index number of the array in which MSB is located.
-         *
-         * @return the index of array of the most significant bit as usshort.
-         */
+    /**
+    * Returns the index number of the array in which MSB is located.
+    *
+    * @return the index of array of the most significant bit as usshort.
+    */
     usshort GetMSBCharNum()const;
 
-        /**
-         * Convert the value to an int.
-         *
-         * @return the int representation of the value as usint.
-         */
+    /**
+    * Converts the value to an int.
+    *
+    * @return the int representation of the value as usint.
+    */
     usint ConvertToInt() const;
     
+	/**
+    * Converts the value to an double.
+    *
+    * @return double representation of the value.
+    */
     double ConvertToDouble() const;
 
 	/**
 	 * Convert a value from an int to a BigBinaryInt.
 	 *
 	 * @param m the value to convert from.
-	 * @return the int represented as a big binary int.
+	 * @return int represented as a big binary int.
 	 */
 	static BigBinaryInteger intToBigBinaryInteger(usint m);
 
 //Arithemetic Operations
-        /**
-         * Addition operation.
-         *
-         * @param b is the value to add of type Big Binary Integer.
-         * @return is the result of the addition operation of type BigBinary Integer.
-         */
+
+    /**
+    * Addition operation.
+    *
+    * @param b is the value to add of type Big Binary Integer.
+    * @return result of the addition operation of type BigBinary Integer.
+    */
     BigBinaryInteger Plus(const BigBinaryInteger& b) const;
 
 		
-        /**
-         * Addition accumulator.
-         *
-         * @param &b is the value to add of type Big Binary Integer.
-         * @return is the result of the addition operation of type Big Binary Integer.
-         */
+    /**
+    * Addition accumulator.
+    *
+    * @param &b is the value to add of type Big Binary Integer.
+    * @return result of the addition operation of type Big Binary Integer.
+    */
     const BigBinaryInteger& operator+=(const BigBinaryInteger &b);
 
 		
-        /**
-         * Subtraction accumulator.
-         *
-         * @param &b is the value to subtract of type Big Binary Integer.
-         * @return is the result of the subtraction operation of type Big Binary Integer.
-         */
+    /**
+    * Subtraction accumulator.
+    *
+    * @param &b is the value to subtract of type Big Binary Integer.
+    * @return result of the subtraction operation of type Big Binary Integer.
+    */
     const BigBinaryInteger& operator-=(const BigBinaryInteger &b);
 
-        /**
-         * Subtraction operation.
-         *
-         * @param b is the value to subtract of type Big Binary Integer.
-         * @return is the result of the subtraction operation of type Big Binary Integer.
-         */
+    /**
+    * Subtraction operation.
+    *
+    * @param b is the value to subtract of type Big Binary Integer.
+    * @return result of the subtraction operation of type Big Binary Integer.
+    */
     BigBinaryInteger Minus(const BigBinaryInteger& b) const;
 
         
-        /**
-         * Multiplication operation.
-         *
-         * @param b of type Big Binary Integer is the value to multiply with.
-         * @return is the result of the multiplication operation.
-         */
+    /**
+    * Multiplication operation.
+    *
+    * @param b of type Big Binary Integer is the value to multiply with.
+    * @return result of the multiplication operation.
+    */
     BigBinaryInteger Times(const BigBinaryInteger& b) const;
 
-        /**
-         * Division operation.
-         *
-         * @param b of type BigBinaryInteger is the value to divide by.
-         * @return is the result of the division operation.
-         */
+    /**
+    * Division operation.
+    *
+    * @param b of type BigBinaryInteger is the value to divide by.
+    * @return result of the division operation.
+    */
     BigBinaryInteger DividedBy(const BigBinaryInteger& b) const;
 
 //modular arithmetic operations
 		
-        /**
-         * returns the modulus with respect to the input value.
-         *
-         * @param modulus is value of the modulus to perform. Its of type BigBinaryInteger.
-         * @returns a BigBinaryInteger that is the result of the modulus operation.
-         */
+    /**
+    * returns the modulus with respect to the input value. Classical modular reduction algorithm is used.
+    *
+    * @param modulus is value of the modulus to perform. Its of type BigBinaryInteger.
+    * @return BigBinaryInteger that is the result of the modulus operation.
+    */
     BigBinaryInteger Mod(const BigBinaryInteger& modulus) const;
     
-        /**
-         * returns the Barret modulus with respect to the input modulus and the Barrett value.
-		 * Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of \mu.
-		 * See the cpp file for details of the implementation. 
-         *
-         * @param modulus is the modulus to perform.
-         * @param mu is the Barrett value.
-         * @return is the result of the modulus operation.
-         */
+    /**
+    * returns the modulus with respect to the input value.
+	* Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.
+	* See the cpp file for details of the implementation. 
+    *
+    * @param modulus is the modulus to perform.
+    * @param mu is the Barrett value.
+    * @return is the result of the modulus operation.
+    */
     BigBinaryInteger ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger& mu) const;
 
-        /**
-         * returns the Barret modulus with respect to the input modulus and the Barrett value.
-		 * Implements generalized Barrett modular reduction algorithm. Uses an array of precomputed values \mu.
-		 * See the cpp file for details of the implementation. 
-         *
-         * @param modulus is the modulus to perform operations with.
-         * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
-         * @return is the result of the modulus operation.
-         */
+    /**
+    * returns the modulus with respect to the input value.
+	* Implements generalized Barrett modular reduction algorithm. Uses an array of precomputed values \mu.
+	* See the cpp file for details of the implementation. 
+    *
+    * @param modulus is the modulus to perform operations with.
+    * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
+    * @return result of the modulus operation.
+    */
     BigBinaryInteger ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger mu_arr[BARRETT_LEVELS+1]) const;
 
-        /**
-         * returns the modulus inverse with respect to the input value.
-         *
-         * @param modulus is the modulus to perform.
-         * @return is the result of the modulus inverse operation.
-         */
+    /**
+    * returns the modulus inverse with respect to the input value.
+    *
+    * @param modulus is the modulus to perform.
+    * @return result of the modulus inverse operation.
+    */
     BigBinaryInteger ModInverse(const BigBinaryInteger& modulus) const;
 
-        /**
-         * Scalar modulus addition.
-         *
-         * @param &b is the scalar to add.
-         * @param modulus is the modulus to perform operations with.
-         * @return is the result of the modulus addition operation.
-         */
+    /**
+    * Scalar modular addition.
+    *
+    * @param &b is the scalar to add.
+    * @param modulus is the modulus to perform operations with.
+    * @return result of the modulus addition operation.
+    */
     BigBinaryInteger ModAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
 
-        /**
-         * Scalar Barrett modulus addition.
-         *
-         * @param &b is the scalar to add.
-         * @param modulus is the modulus to perform operations with.
-         * @param mu is the Barrett value.
-         * @return is the result of the modulus addition operation.
-         */
+    /**
+    * Modular addition where Barrett modulo reduction is used.
+    *
+    * @param &b is the scalar to add.
+    * @param modulus is the modulus to perform operations with.
+    * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
+    * @return is the result of the modulus addition operation.
+    */
     BigBinaryInteger ModBarrettAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const;
 
-        /**
-         * Scalar Barrett modulus addition.
-         *
-         * @param &b is the scalar to add.
-         * @param modulus is the modulus to perform operations with.
-         * @param mu is an array of the Barrett values of length BARRETT_LEVELS.
-         * @return is the result of the modulus addition operation.
-         */
+    /**
+    * Modular addition where Barrett modulo reduction is used.
+    *
+    * @param &b is the scalar to add.
+    * @param modulus is the modulus to perform operations with.
+    * @param mu is one precomputed Barrett value.
+    * @return is the result of the modulus addition operation.
+    */
     BigBinaryInteger ModBarrettAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const;
 
-        /**
-         * Scalar modulus subtraction.
-         *
-         * @param &b is the scalar to subtract.
-         * @param modulus is the modulus to perform operations with.
-         * @return is the result of the modulus subtraction operation.
-         */
+    /**
+    * Scalar modular subtraction.
+    *
+    * @param &b is the scalar to subtract.
+    * @param modulus is the modulus to perform operations with.
+    * @return result of the modulus subtraction operation.
+    */
     BigBinaryInteger ModSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
 
-        /**
-         * Scalar Barrett modulus subtraction.
-         *
-         * @param &b is the scalar to subtract.
-         * @param modulus is the modulus to perform operations with.
-         * @param mu is the Barrett value.
-         * @return is the result of the modulus subtraction operation.
-         */
+    /**
+    * Scalar modular subtraction where Barrett modular reduction is used.
+    *
+    * @param &b is the scalar to subtract.
+    * @param modulus is the modulus to perform operations with.
+    * @param mu is the Barrett value.
+    * @return is the result of the modulus subtraction operation.
+    */
     BigBinaryInteger ModBarrettSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const;
 
-        /**
-         * Scalar Barrett modulus subtraction.
-         *
-         * @param b is the scalar to subtract.
-         * @param modulus is the modulus to perform operations with.
-         * @param mu is an array of the Barrett values of length BARRETT_LEVELS.
-         * @return is the result of the modulus subtraction operation.
-         */
+    /**
+    * Scalar modular subtraction where Barrett modular reduction is used.
+    *
+    * @param b is the scalar to subtract.
+    * @param modulus is the modulus to perform operations with.
+    * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
+    * @return is the result of the modulus subtraction operation.
+    */
     BigBinaryInteger ModBarrettSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const;
 
-        /**
-         * Scalar modulus multiplication.
-         *
-         * @param &b is the scalar to multiply.
-         * @param modulus is the modulus to perform operations with.
-         * @return is the result of the modulus multiplication operation.
-         */
-
+    /**
+    * Scalar modulus multiplication.
+    *
+    * @param &b is the scalar to multiply.
+    * @param modulus is the modulus to perform operations with.
+    * @return is the result of the modulus multiplication operation.
+    */
     BigBinaryInteger ModMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
 
-        /**
-         * Scalar Barrett modular multiplication.
-		 * Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo). 
-		 * Uses an array of precomputed values \mu.
-		 * See the cpp file for details of the implementation. 
-         *
-         * @param b is the scalar to multiply.
-         * @param modulus is the modulus to perform operations with.
-         * @param mu is the precomputed Barrett value.
-         * @return is the result of the modulus multiplication operation.
-         */
+    /**
+    * Scalar modular multiplication where Barrett modular reduction is used.
+	* Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo). 
+	* Uses one precomputed value \mu.
+	* See the cpp file for details of the implementation. 
+    *
+    * @param b is the scalar to multiply.
+    * @param modulus is the modulus to perform operations with.
+    * @param mu is the precomputed Barrett value.
+    * @return is the result of the modulus multiplication operation.
+    */
     BigBinaryInteger ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const;
 
-        /**
-         * Scalar Barrett modulus multiplication.
-         *
-         * @param &b is the scalar to multiply.
-         * @param modulus is the modulus to perform operations with.
-         * @param mu is an array of the Barrett values of length BARRETT_LEVELS.
-         * @return is the result of the modulus multiplication operation.
-         */
+    /**
+    * Scalar modular multiplication where Barrett modular reduction is used.
+    *
+    * @param &b is the scalar to multiply.
+    * @param modulus is the modulus to perform operations with.
+    * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
+    * @return is the result of the modulus multiplication operation.
+    */
     BigBinaryInteger ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const;
 
-        /**
-         * Scalar modulus exponentiation.
-         *
-         * @param &b is the scalar to exponentiate at all locations.
-         * @param modulus is the modulus to perform operations with.
-         * @return is the result of the modulus exponentiation operation.
-         */
+    /**
+    * Scalar modular exponentiation. Square-and-multiply algorithm is used.
+    *
+    * @param &b is the scalar to exponentiate.
+    * @param modulus is the modulus to perform operations with.
+    * @return is the result of the modulus exponentiation operation.
+    */
     BigBinaryInteger ModExp(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const;
 
-        /**
-         * Stores the value of this BigBinaryInteger in a string object and returns it.
-         * Added by Arnab Deb Gupta <ad479@njit.edu> on 9/21/15 templated bt Gyana Sahu 12/23/2015
-         *
-         * @return the value of this BigBinaryInteger as a string.
-         */
+    /**
+    * Stores the based 10 equivalent/Decimal value of the BigBinaryInteger in a string object and returns it.
+    *
+    * @return value of this BigBinaryInteger in base 10 represented as a string.
+    */
+    const std::string ToString() const;		
 
-    const std::string ToString() const;
+    /**
+    * Tests whether the BigBinaryInteger is a power of 2.
+    *
+    * @param m_numToCheck is the value to check.
+    * @return true if the input is a power of 2, false otherwise.
+    */
+    bool CheckIfPowerOfTwo(const BigBinaryInteger& m_numToCheck);
 
-		//template<typename uint_type,usint BITLENGTH>
-		//friend bool CheckPowerofTwos(const BigBinaryInteger<uint_type,BITLENGTH>& m_numToCheck);
-
-        /**
-         * Tests whether the value is a power of 2.
-         *
-         * @param m_numToCheck is the value to check.
-         * @return true if the input is a power of 2, false otherwise.
-         */
-    bool CheckPowerofTwos(const BigBinaryInteger& m_numToCheck);
-
-        /**
-         * Get the number of digits using a specific base - support for arbitrary base may be needed.
-         *
-         * @param base is the base with which to determine length in.
-         * @return the length of the representation in a specific base.
-         */
+    /**
+    * Get the number of digits using a specific base - support for arbitrary base may be needed.
+    *
+    * @param base is the base with which to determine length in.
+    * @return the length of the representation in a specific base.
+    */
     usint GetLengthForBase(usint base) const {return GetMSB();}
 
-        /**
-         * Get the number of digits using a specific base - support for arbitrary base may be needed.
-         *
-         * @param index is the location to return value from in the specific base.
-         * @param base is the base with which to determine length in.
-         * @return the length of the representation in a specific base.
-         */
+    /**
+    * Get the number of digits using a specific base - only power-of-2 bases are currently supported.
+    *
+    * @param index is the location to return value from in the specific base.
+    * @param base is the base with which to determine length in.
+    * @return the length of the representation in a specific base.
+    */
     usint GetDigitAtIndexForBase(usint index, usint base) const;
 
-		/**
-		 * Convert a string representation of a binary number to a decimal BigBinaryInt.
-		 *
-		 * @param bitString the binary num in string.
-		 * @return the binary number represented as a decimal big binary int.
-		 */
-    static BigBinaryInteger BinaryToBigBinaryInt(const std::string& bitString);
+	/**
+	* Convert a string representation of a binary number to a decimal BigBinaryInt.
+	*
+	* @param bitString the binary num in string.
+	* @return the binary number represented as a big binary int.
+	*/
+    static BigBinaryInteger BinaryStringToBigBinaryInt(const std::string& bitString);
 
-		/**
-		 * Exponentiation of a bigBinaryInteger x. Returns x^p
-		 *
-		 * @param p the exponent.
-		 * @return the big binary integer x^p.
-		 */
+	/**
+	* Exponentiation of a bigBinaryInteger x. Returns x^p
+	*
+	* @param p the exponent.
+	* @return the big binary integer x^p.
+	*/
     BigBinaryInteger Exp(usint p) const;
 
-        /**
-         * Test equality of the inputs.
-         *
-         * @param a second value to test.
-         * @return true if the inputs are equal.
-         */
+    /**
+    * Test equality of the inputs.
+    *
+    * @param a second value to test.
+    * @return true if the inputs are equal.
+    */
     bool operator==(const BigBinaryInteger& a) const;
-        /**
-         * Test inequality of the inputs.
-         *
-         * @param a second value to test.
-         * @return true if the inputs are inequal.
-         */
+
+    /**
+    * Test inequality of the inputs.
+    *
+    * @param a second value to test.
+    * @return true if the inputs are inequal.
+    */
     bool operator!=(const BigBinaryInteger& a) const;
-        /**
-         * Test if first input is great than the second input.
-         *
-         * @param a second value to test.
-         * @return true if the first inputs is greater.
-         */
+
+    /**
+    * Test if first input is great than the second input.
+    *
+    * @param a second value to test.
+    * @return true if the first inputs is greater.
+    */
     bool operator> (const BigBinaryInteger& a) const;
-        /**
-         * Test if first input is great than or equal to the second input.
-         *
-         * @param a second value to test.
-         * @return true if the first inputs is greater than or equal to the second input.
-         */
+
+    /**
+    * Test if first input is great than or equal to the second input.
+    *
+    * @param a second value to test.
+    * @return true if the first inputs is greater than or equal to the second input.
+    */
     bool operator>=(const BigBinaryInteger& a) const;
-        /**
-         * Test if first input is less than the second input.
-         *
-         * @param a second value to test.
-         * @return true if the first inputs is lesser.
-         */
+
+    /**
+    * Test if first input is less than the second input.
+    *
+    * @param a second value to test.
+    * @return true if the first inputs is lesser.
+    */
     bool operator< (const BigBinaryInteger& a) const;
-        /**
-         * Test if first input is less than or equal to the second input.
-         *
-         * @param a second value to test.
-         * @return true if the first inputs is less than or equal to the second input.
-         */
+
+    /**
+    * Test if first input is less than or equal to the second input.
+    *
+    * @param a second value to test.
+    * @return true if the first inputs is less than or equal to the second input.
+    */
     bool operator<=(const BigBinaryInteger& a) const;
 
-        //overloaded binary operators based on integer arithmetic and comparison functions
-        /**
-         * Addition operation.
-         *
-         * @param a is the value to add.
-         * @return is the result of the addition operation.
-         */
+    //overloaded binary operators based on integer arithmetic and comparison functions
+    /**
+    * Addition operation.
+    *
+    * @param a is the value to add.
+    * @return is the result of the addition operation.
+    */
     inline BigBinaryInteger operator+(const BigBinaryInteger &a) const {return this->Plus(a);}
-        /**
-         * Subtraction operation.
-         *
-         * @param a is the value to subtract.
-         * @return is the result of the subtraction operation.
-         */
+
+    /**
+    * Subtraction operation.
+    *
+    * @param a is the value to subtract.
+    * @return is the result of the subtraction operation.
+    */
     inline BigBinaryInteger operator-(const BigBinaryInteger &a) const {return this->Minus(a);}
-        /**
-         * Multiplication operation.
-         *
-         * @param a is the value to multiply with.
-         * @return is the result of the multiplication operation.
-         */
+
+    /**
+    * Multiplication operation.
+    *
+    * @param a is the value to multiply with.
+    * @return is the result of the multiplication operation.
+    */
     inline BigBinaryInteger operator*(const BigBinaryInteger &a) const {return this->Times(a);}
-        /**
-         * Division operation.
-         *
-         * @param a is the value to divide.
-         * @return is the result of the division operation.
-         */
+
+    /**
+    * Modulo operation. Classical modular reduction algorithm is used.
+    *
+    * @param a is the value to Mod.
+    * @return is the result of the modulus operation.
+    */
     inline BigBinaryInteger operator%(const BigBinaryInteger &a) const {return this->Mod(a);}
 
 	/**
@@ -646,106 +685,208 @@ namespace cpu_int{
 	 *
 	 * @param a is the value to divide.
 	 * @param b is the value to divide by.
-	 * @return is the result of the division operation.
+	 * @return is the result of the integral part after division operation.
 	 */
-	//inline BigBinaryInteger operator/(const BigBinaryInteger &a) {return this->DividedBy(a);}
+	inline BigBinaryInteger operator/ (const BigBinaryInteger &a) const {return this->DividedBy(a);}
 
+	/**
+	 * Console output operation.
+	 *
+	 * @param os is the std ostream object.
+	 * @param ptr_obj is BigBinaryInteger to be printed.
+	 * @return is the ostream object.
+	 */
     template<typename uint_type_c,usint BITLENGTH_c>
-		friend std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BITLENGTH_c> &ptr_obj);
-        /**
-         * Gets the bit at the specified index.
-         *
-         * @param index is the index of the bit to get.
-         * @return is the resulting bit.
-         */
+	friend std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BITLENGTH_c> &ptr_obj);
+    
+	/**
+    * Gets the bit at the specified index.
+    *
+    * @param index is the index of the bit to get.
+    * @return resulting bit.
+    */
     uschar GetBitAtIndex(usint index) const;
 
+
+	/**
+	* Sets the int value at the specified index.
+	*
+	* @param index is the index of the int to set in the uint array.
+	*/
+	void SetIntAtIndex(usint idx, uint_type value);
         
-        //constant definations
+    //constant definations
         
-        /**
-         * Constant zero.
-         */
+    /**
+    * Constant zero.
+    */
     static const BigBinaryInteger ZERO;
-        /**
-         * Constant one.
-         */
+
+    /**
+    * Constant one.
+    */
     static const BigBinaryInteger ONE;
-        /**
-         * Constant two.
-         */
+
+    /**
+    * Constant two.
+    */
     static const BigBinaryInteger TWO;
-        /**
-         * Constant three.
-         */
+
+    /**
+    * Constant three.
+    */
     static const BigBinaryInteger THREE;
-        /**
-         * Constant four.
-         */
+
+    /**
+    * Constant four.
+    */
     static const BigBinaryInteger FOUR;
-        /**
-         * Constant five.
-         */
+
+    /**
+    * Constant five.
+    */
     static const BigBinaryInteger FIVE;
     
+	/**
+    * Compares the current BigBinaryInteger to BigBinaryInteger a.
+    *
+    * @param a is the BigBinaryInteger to be compared with.
+    * @return  -1 for strictly less than, 0 for equal to and 1 for strictly greater than conditons.
+    */
     sint Compare(const BigBinaryInteger& a) const;
 
     /**
      *  Set this int to 1.
      */
-    inline void SetIdentity() { *this = intToBigBinaryInteger(1); };
+	inline void SetIdentity() { *this = BigBinaryInteger::ONE; };
 
+	/**
+	* A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of BigBinaryInteger objects.
+	*/
 	static std::function<unique_ptr<BigBinaryInteger>()> Allocator;
 
     protected:
-        /**
-         * Converts a string into base of 2^uint-type numbers by the algorithm that you provided me in the beginning of this project.
-         *
-         * @param v The input string
-         */
+    
+	/**
+    * Converts the string v into base-r integer where r is equal to 2^bitwidth of integral data type.
+    *
+    * @param v The input string
+    */
     void AssignVal(const std::string& v);
-        /**
-         * Sets the MSB to the correct value.  Intended as a kind of pre-computation.
-         */
+
+    /**
+    * Sets the MSB to the correct value from the BigBinaryInteger.
+    */
     void SetMSB();
 
+	/**
+    * Sets the MSB to the correct value from the BigBinaryInteger.
+	* @param guessIdxChar is the hint of the MSB position.
+    */
     void SetMSB(usint guessIdxChar);
 
 	private:
+
+		//pointer to the array storing the native integers.
 		uint_type *m_value;
+
+		//variable that stores the MOST SIGNIFICANT BIT position in the number.
 		usshort m_MSB;
+
+		//variable to store the bit width of the integral data type.
 		static const uschar m_uintBitLength;
+
+		//variable to store the maximum value of the integral data type.
 		static const uint_type m_uintMax;
+
+		//variable to store the log(base 2) of the number of bits in the integral data type.
 		static const uschar m_logUintBitLength;
+
+		//variable to store the size of the data array.
 		static const usint m_nSize;
+
+		//The maximum number of digits in bigbinaryinteger. It is used by the cout(ostream) function for printing the bigbinarynumber.
+		static const usint m_numDigitInPrintval;
+		/**
+		* function to return the ceiling of the number divided by the number of bits in the integral data type.
+		* @param Number is the number to be divided.
+		* @return the ceiling of Number/(bits in the integral data type)
+		*/
 		static uint_type ceilIntByUInt(const uint_type Number);
+
+		//currently unused array
 		static const BigBinaryInteger *m_modChain;
-		static uint64_t GetMSB32(uint64_t x); //gets MSB for an unsigned integer
+		
+		/**
+		* function to return the MSB of a 32 bit number.
+		* @param x is the 32 bit integer.
+		* @return the MSB position in the 32 bit number x.
+		*/
+		
+		static uint64_t GetMSB32(uint64_t x);
+		/**
+		* function to return the MSB of number.
+		* @param x is the number.
+		* @return the MSB position in the number x.
+		*/
+		
 		static usint GetMSBUint_type(uint_type x);
-		typedef typename doubleDataType<uint_type>::T Duint_type;
+		
+		//Duint_type is the data type that has twice as many bits in the integral data type.
+		typedef typename DoubleDataType<uint_type>::T Duint_type;
+
+		//enum defination to represent the state of the big binary integer.
 		enum State{
 			INITIALIZED,GARBAGE
 		};
+
+		/**
+		* function to return the MSB of number that is of type Duint_type.
+		* @param x is the number.
+		* @return the MSB position in the number x.
+		*/
 		static usint GetMSBDUint_type(Duint_type x);
 		
+		//enum to store the state of the 
 		State m_state;
+
+		/**
+		* function that returns the BigBinaryInteger after multiplication by b.
+		* @param b is the number to be multiplied.
+		* @return the BigBinaryInteger after the multiplication.
+		*/
         BigBinaryInteger MulIntegerByChar(uint_type b) const;
-
-
+		
+		/**
+		* function that returns the decimal value from the binary array a.
+		* @param a is a pointer to the binary array.
+		* @return the decimal value.
+		*/
 		static uint_type UintInBinaryToDecimal(uschar *a);
+
+		/**
+		* function that mutiplies by 2 to the binary array.
+		* @param a is a pointer to the binary array.
+		*/
 		static void double_bitVal(uschar *a);
+
+		/**
+		* function that adds bit b to the binary array.
+		* @param a is a pointer to the binary array.
+		* @param b is a bit value to be added.
+		*/
 		static void add_bitVal(uschar* a,uschar b);
 	};
 
-		/**
-	 * Division operation.
-	 *
-	 * @param a is the value to divide.
-	 * @param b is the value to divide by.
-	 * @return is the result of the division operation.
-	 */
-	template<typename uint_type,usint BITLENGTH>
-	inline BigBinaryInteger<uint_type,BITLENGTH> operator/(const BigBinaryInteger<uint_type,BITLENGTH> &a, const BigBinaryInteger<uint_type,BITLENGTH> &b) {return a.DividedBy(b);}
+	///**
+	// * Division operation.
+	// *
+	// * @param a is the value to divide.
+	// * @param b is the value to divide by.
+	// * @return is the result of the division operation.
+	// */
+	//template<typename uint_type,usint BITLENGTH>
+	//inline BigBinaryInteger<uint_type,BITLENGTH> operator/(const BigBinaryInteger<uint_type,BITLENGTH> &a, const BigBinaryInteger<uint_type,BITLENGTH> &b) {return a.DividedBy(b);}
 
 }//namespace ends
 
