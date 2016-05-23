@@ -2,6 +2,7 @@
 * @file
 * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
 *	Programmers: Arnab Deb Gupta <ad479@njit.edu>
+			Jerry Ryan <gwryan@njit.edu>
 * @version 00_01
 *
 * @section LICENSE
@@ -65,14 +66,14 @@ namespace lbcrypto {
 		* @param serObj the serialized Palisade object
 		* @return string reflecting the nested JSON data structure of the serialized Palisade object.
 		*/
-		static std::string GetJsonString(Serialized& serObj); // PROBABLY GOES AWAY
+		static bool SerializationToString(const Serialized& serObj, std::string& jsonString);
 
 		/**
-		* Determines the file name for saving a serialized Palisade object
+		* Generates a nested JSON data string for a serialized Palisade object
 		* @param serObj stores the serialized Palisade object's attributes.
-		* @return string reflecting file name to save serialized Palisade object to.
+		* @return string reflecting the nested JSON data structure of the serialized Palisade object.
 		*/
-		static std::string GetJsonFileName(Serialized& serObj); // MAYBE GOES AWAY
+		static bool StringToSerialization(const std::string& jsonString, Serialized& serObj);
 
 		/**
 		* Saves a serialized Palisade object's JSON string to file

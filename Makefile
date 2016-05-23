@@ -73,7 +73,7 @@ SOLIB := PALISADE
 # run make for all components. you can run any individual component separately
 #  by invoking   "make alltargets"  for example
 # each corresponding makefile will make the allxxxx target
-all: alldemos alltargets alltesttargets allbenchmarktargets apidocs 
+all: alltargets alldemos alltesttargets allbenchmarktargets apidocs 
 
 # clean up all components. you can clean any individual compoenent separately
 #  by invoking   "make cleantargets"  for example

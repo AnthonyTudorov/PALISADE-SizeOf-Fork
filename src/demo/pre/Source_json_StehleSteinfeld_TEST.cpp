@@ -469,18 +469,17 @@ void NTRUPRE(int input) {
 
 	cout << "\n" << endl;
 
-	string jsonInputBuffer = "";
 	string jsonFileName = "";
-	SerializableHelper jsonHelper;
 
 	cout << "---BEGIN LPPublicKeyLTV SERIALIZATION---" << endl;
 	cout << "Serializing previously used pk object..." << endl;
 	Serialized testMap1;
 	if( pk.Serialize(testMap1, "Enc") ) {
-		jsonFileName = jsonHelper.GetJsonFileName(testMap1);
-		jsonInputBuffer = jsonHelper.GetJsonString(testMap1);
-		jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
-		cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
+		jsonFileName = "LPPublicKeyLTV_Enc.txt";
+		cout << "Saving to " << jsonFileName;
+		if( SerializableHelper::WriteSerializationToFile(testMap1, jsonFileName) )
+			cout << " ... success!";
+		cout << endl;
 	}
 	cout << "---END LPPublicKeyLTV SERIALIZATION TESTING---" << endl;
 
@@ -488,10 +487,11 @@ void NTRUPRE(int input) {
 	cout << "Serializing previously used sk object..." << endl;
 	Serialized testMap2;
 	if( sk.Serialize(testMap2, "Enc") ) {
-		jsonFileName = jsonHelper.GetJsonFileName(testMap2);
-		jsonInputBuffer = jsonHelper.GetJsonString(testMap2);
-		jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
-		cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
+		jsonFileName = "LPPrivateKeyLTV_Enc.txt";
+		cout << "Serialization saved to " << jsonFileName;
+		if( SerializableHelper::WriteSerializationToFile(testMap2, jsonFileName) )
+			cout << " ... success!";
+		cout << endl;
 	}
 	cout << "---END LPPrivateKeyLTV SERIALIZATION---" << endl;
 
@@ -502,7 +502,7 @@ void NTRUPRE(int input) {
 
 	std::cout << "YURIY - TIMING THE DESERIALIZATION OF PUBLIC KEY..." << std::endl;
 
-	testMap1 = jsonHelper.GetSerializationMap(jsonFileName);
+	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap1);
 	LPPublicKeyLTV<ILVector2n> pkDeserialized;
 	LPCryptoParametersStehleSteinfeld<ILVector2n> json_cryptoParamsPub;
 	pkDeserialized.SetCryptoParameters(&json_cryptoParamsPub);
@@ -522,7 +522,7 @@ void NTRUPRE(int input) {
 	cout << "---BEGIN LPPrivateKeyLTV DESERIALIZATION---" << endl;
 	jsonFileName = "LPPrivateKeyLTV_Enc.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
-	testMap2 = jsonHelper.GetSerializationMap(jsonFileName);
+	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap2);
 	LPPrivateKeyLTV<ILVector2n> skDeserialized;
 	LPCryptoParametersStehleSteinfeld<ILVector2n> json_cryptoParamsPriv;
 	skDeserialized.SetCryptoParameters(&json_cryptoParamsPriv);
@@ -555,7 +555,7 @@ void NTRUPRE(int input) {
 	
 	std::cout << "YURIY - TIMING THE SERIALIZATION OF CIPHERTEXT..." << std::endl;
 
-	unordered_map <string, unordered_map <string, string>> testMap3;
+	Serialized testMap3;
 	start = currentDateTime();
 	
 	testCiphertext.Serialize(testMap3, "Enc");
@@ -563,9 +563,11 @@ void NTRUPRE(int input) {
 	finish = currentDateTime();
 	diff = finish - start;
 
-	jsonFileName = jsonHelper.GetJsonFileName(testMap3);
-	jsonInputBuffer = jsonHelper.GetJsonString(testMap3);
-	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
+	jsonFileName = "Ciphertext_Enc.txt";
+	cout << "Serialization saved to " << jsonFileName;
+	if( SerializableHelper::WriteSerializationToFile(testMap3, jsonFileName) )
+		cout << " ... success!";
+	cout << endl;
 
 	cout << "CIPHERTEXT SERIALIZATION time: "<<"\t"<<diff<<" ms"<<endl;
 
@@ -576,7 +578,7 @@ void NTRUPRE(int input) {
 	cout << "---BEGIN CIPHERTEXT DESERIALIZATION---" << endl;
 	jsonFileName = "Ciphertext_Enc.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
-	testMap3 = jsonHelper.GetSerializationMap(jsonFileName);
+	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap3);
 	Ciphertext<ILVector2n> ciphertextDeserialized;
 
 	start = currentDateTime();
@@ -595,7 +597,7 @@ void NTRUPRE(int input) {
 
 	cout << "---BEGIN LPEvalKeyLTV SERIALIZATION---" << endl;
 	cout << "Serializing previously used evalKey object..." << endl;
-	unordered_map <string, unordered_map <string, string>> testMap4;
+	Serialized testMap4;
 
 	start = currentDateTime();
 
@@ -606,16 +608,15 @@ void NTRUPRE(int input) {
 
 	cout << "EVAL SERIALIZATION time: "<<"\t"<<diff<<" ms"<<endl;
 
-	jsonFileName = jsonHelper.GetJsonFileName(testMap4);
-	jsonInputBuffer = jsonHelper.GetJsonString(testMap4);
-	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
-	cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
+	jsonFileName = "LPEvalKeyLTV_Pre.txt";
+	if( SerializableHelper::WriteSerializationToFile(testMap4, jsonFileName) )
+		cout << "Serialization saved to " << jsonFileName << endl;
 	cout << "---END LPEvalKeyLTV SERIALIZATION TESTING---" << endl;
 
 	cout << "---BEGIN LPEvalKeyLTV DESERIALIZATION---" << endl;
 	jsonFileName = "LPEvalKeyLTV_Pre.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
-	testMap4 = jsonHelper.GetSerializationMap(jsonFileName);
+	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap4);
 	LPEvalKeyLTV<ILVector2n> evalKeyDeserialized;
 	LPCryptoParametersStehleSteinfeld<ILVector2n> json_cryptoParamsEval;
 	evalKeyDeserialized.SetCryptoParameters(&json_cryptoParamsEval);

@@ -205,15 +205,6 @@ namespace lbcrypto {
 
 		//JSON FACILITY
 		/**
-		* Implemented by this object only for inheritance requirements of abstract class Serializable.
-		*
-		* @param serObj stores this object's serialized attribute name value pairs.
-		* @return map passed in.
-		*/
-        bool SetIdFlag(Serialized& serObj, std::string flag) const;
-
-		//JSON FACILITY
-		/**
 		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
 		*
 		* @param serObj stores this object's serialized attribute name value pairs.

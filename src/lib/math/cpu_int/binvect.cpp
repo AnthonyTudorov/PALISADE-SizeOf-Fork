@@ -481,20 +481,14 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::GetDigitAtIndexForBas
 	return ans;
 }
 
-// JSON FACILITY - SetIdFlag Operation
-template<class IntegerType>
-bool BigBinaryVector<IntegerType>::SetIdFlag(lbcrypto::Serialized& serObj, std::string flag) const {
-
-	//Place holder
-
-	return true;
-}
-
 // JSON FACILITY - Serialize Operation
 template<class IntegerType>
 bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::Serialized& serObj, std::string fileFlag) const {
 
-	lbcrypto::SerialItem bbvMap;
+	if( !serObj.IsObject() )
+		return false;
+
+	lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
 
 	bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj.GetAllocator());
 
@@ -523,7 +517,6 @@ bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::Serialized& serObj, std::
 template<class IntegerType>
 bool BigBinaryVector<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj) {
 
-	//lbcrypto::SerialItem::
 	lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigBinaryVector");
 	if( mIter == serObj.MemberEnd() )
 		return false;

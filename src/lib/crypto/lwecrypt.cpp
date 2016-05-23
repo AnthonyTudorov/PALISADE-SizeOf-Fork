@@ -203,18 +203,14 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 	return DecodingResult(plaintext->GetLength());
 		}
 
-// JSON FACILITY - LPCryptoParametersLWE SetIdFlag Operation
-template <class Element>
-bool LPCryptoParametersStehleSteinfeld<Element>::SetIdFlag(Serialized& serObj, std::string flag) const {
-
-	return true;
-}
-
 // JSON FACILITY - LPCryptoParametersLWE Serialize Operation
 template <class Element>
 bool LPCryptoParametersStehleSteinfeld<Element>::Serialize(Serialized& serObj, std::string fileFlag) const {
 
-	SerialItem cryptoParamsMap;
+	if( !serObj.IsObject() )
+		return false;
+
+	SerialItem cryptoParamsMap(rapidjson::kObjectType);
 	cryptoParamsMap.AddMember("DistributionParameter", this->ToStr(this->GetDistributionParameter()), serObj.GetAllocator());
 	cryptoParamsMap.AddMember("DistributionParameterStSt", this->ToStr(this->GetDistributionParameterStSt()), serObj.GetAllocator());
 	cryptoParamsMap.AddMember("AssuranceMeasure", this->ToStr(this->GetAssuranceMeasure()), serObj.GetAllocator());
@@ -289,17 +285,13 @@ bool LPCryptoParametersStehleSteinfeld<Element>::Deserialize(const Serialized& s
 	return false;
 }
 
-// JSON FACILITY - LPCryptoParametersLWE Serialize Operation
-template <class Element>
-bool LPCryptoParametersLTV<Element>::SetIdFlag(Serialized& serObj, std::string flag) const {
-
-	return true;
-}
-
 template <class Element>
 bool LPCryptoParametersLTV<Element>::Serialize(Serialized& serObj, std::string fileFlag) const {
 
-	SerialItem cryptoParamsMap;
+	if( !serObj.IsObject() )
+		return false;
+
+	SerialItem cryptoParamsMap(rapidjson::kObjectType);
 	cryptoParamsMap.AddMember("DistributionParameter", this->ToStr(GetDistributionParameter()), serObj.GetAllocator());
 	cryptoParamsMap.AddMember("AssuranceMeasure", this->ToStr(GetAssuranceMeasure()), serObj.GetAllocator());
 	cryptoParamsMap.AddMember("SecurityLevel", this->ToStr(GetSecurityLevel()), serObj.GetAllocator());
@@ -373,7 +365,7 @@ bool LPCryptoParametersLTV<Element>::Deserialize(const Serialized& serObj) {
 template <class Element>
 bool LPPublicKeyLTV<Element>::SetIdFlag(Serialized& serObj, std::string flag) const {
 
-	SerialItem idFlagMap;
+	SerialItem idFlagMap(rapidjson::kObjectType);
 	idFlagMap.AddMember("ID", "LPPublicKeyLTV", serObj.GetAllocator());
 	idFlagMap.AddMember("Flag", flag, serObj.GetAllocator());
 	serObj.AddMember("Root", idFlagMap, serObj.GetAllocator());
@@ -385,6 +377,7 @@ bool LPPublicKeyLTV<Element>::SetIdFlag(Serialized& serObj, std::string flag) co
 template <class Element>
 bool LPPublicKeyLTV<Element>::Serialize(Serialized& serObj, std::string fileFlag) const {
 
+	serObj.SetObject();
 	if( !this->SetIdFlag(serObj, fileFlag) )
 		return false;
 
@@ -397,15 +390,18 @@ bool LPPublicKeyLTV<Element>::Serialize(Serialized& serObj, std::string fileFlag
 // JSON FACILITY - LPPublicKeyLTV Deserialize Operation
 template <class Element>
 bool LPPublicKeyLTV<Element>::Deserialize(const Serialized& serObj) {
-
+cout << "deser pubkey 1" << endl;
 	if( !this->AccessCryptoParameters().Deserialize(serObj) )
 		return false;
 
+	cout << "deser pubkey 2" << endl;
 	Element json_ilElement;
 	if( json_ilElement.Deserialize(serObj) ) {
+		cout << "deser pubkey 3" << endl;
 		this->SetPublicElement(json_ilElement);
 		return true;
 	}
+	cout << "deser pubkey 4" << endl;
 
 	return false;
 }
@@ -414,7 +410,7 @@ bool LPPublicKeyLTV<Element>::Deserialize(const Serialized& serObj) {
 template <class Element>
 bool LPEvalKeyLTV<Element>::SetIdFlag(Serialized& serObj, std::string flag) const {
 
-	SerialItem idFlagMap;
+	SerialItem idFlagMap(rapidjson::kObjectType);
 	idFlagMap.AddMember("ID", "LPEvalKeyLTV", serObj.GetAllocator());
 	idFlagMap.AddMember("Flag", flag, serObj.GetAllocator());
 	serObj.AddMember("Root", idFlagMap, serObj.GetAllocator());
@@ -426,7 +422,9 @@ bool LPEvalKeyLTV<Element>::SetIdFlag(Serialized& serObj, std::string flag) cons
 template <class Element>
 bool LPEvalKeyLTV<Element>::Serialize(Serialized& serObj, std::string fileFlag) const {
 
-	Serialized localMap;
+	serObj.SetObject();
+
+	Serialized localMap(rapidjson::kObjectType);
 
 	if( !this->SetIdFlag(serObj, fileFlag) )
 		return false;
@@ -436,11 +434,10 @@ bool LPEvalKeyLTV<Element>::Serialize(Serialized& serObj, std::string fileFlag) 
 
 	std::vector<int>::size_type evalKeyVectorLength = this->GetEvalKeyElements().size();
 
-	serObj["Root"].AddMember("VectorLength", this->ToStr(evalKeyVectorLength), serObj.GetAllocator());
+	//serObj["Root"].AddMember("VectorLength", this->ToStr(evalKeyVectorLength), serObj.GetAllocator());
 
 	SerialItem ilVector2nMap(rapidjson::kArrayType);
 	for (unsigned i = 0; i < evalKeyVectorLength; i++) {
-		localMap.Clear();
 		if( this->GetEvalKeyElements().at(i).Serialize(localMap, "") ) {
 			ilVector2nMap.PushBack(localMap.Move(), serObj.GetAllocator());
 		}
@@ -466,7 +463,7 @@ bool LPEvalKeyLTV<Element>::Deserialize(const Serialized& serObj) {
 	SerialItem::ConstMemberIterator mIt = rIt->value.FindMember("VectorLength");
 	if( mIt == rIt->value.MemberEnd() ) return false;
 
-	std::vector<int>::size_type evalKeyVectorLength = atoi(mIt->value.GetString());
+	//std::vector<int>::size_type evalKeyVectorLength = atoi(mIt->value.GetString());
 
 	if( (rIt = serObj.FindMember("ILVector2nVector")) == serObj.MemberEnd() )
 		return false;
@@ -476,11 +473,18 @@ bool LPEvalKeyLTV<Element>::Deserialize(const Serialized& serObj) {
 	if( !arr.IsArray() )
 		return false;
 
+	std::vector<int>::size_type evalKeyVectorLength = arr.Size();
+
 	for (int i = 0; i < evalKeyVectorLength; i++) {
-		const Serialized& fi = arr[i];
+		const SerialItem& fi = arr[i];
+
+		Serialized oneItem;
+		SerialItem key( fi.MemberBegin()->name, oneItem.GetAllocator() );
+		SerialItem val( fi.MemberBegin()->value, oneItem.GetAllocator() );
+		oneItem.AddMember(key, val, oneItem.GetAllocator());
 
 		Element evalKeySubVector;
-		evalKeySubVector.Deserialize(fi);
+		evalKeySubVector.Deserialize(oneItem);
 		evalKeyVectorBuffer.push_back(evalKeySubVector);
 	}
 
@@ -492,7 +496,7 @@ bool LPEvalKeyLTV<Element>::Deserialize(const Serialized& serObj) {
 template <class Element>
 bool LPPrivateKeyLTV<Element>::SetIdFlag(Serialized& serObj, std::string flag) const {
 
-	SerialItem idFlagMap;
+	SerialItem idFlagMap(rapidjson::kObjectType);
 	idFlagMap.AddMember("ID", "LPPrivateKeyLTV", serObj.GetAllocator());
 	idFlagMap.AddMember("Flag", flag, serObj.GetAllocator());
 	serObj.AddMember("Root", idFlagMap, serObj.GetAllocator());
@@ -504,6 +508,7 @@ bool LPPrivateKeyLTV<Element>::SetIdFlag(Serialized& serObj, std::string flag) c
 template <class Element>
 bool LPPrivateKeyLTV<Element>::Serialize(Serialized& serObj, std::string fileFlag) const {
 
+	serObj.SetObject();
 	if( !this->SetIdFlag(serObj, fileFlag) )
 		return false;
 

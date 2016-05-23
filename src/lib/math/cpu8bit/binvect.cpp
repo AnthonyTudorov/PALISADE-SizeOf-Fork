@@ -407,18 +407,13 @@ BigBinaryVector BigBinaryVector::GetDigitAtIndexForBase(usint index, usint base)
 	return ans;
 }
 
-// JSON FACILITY - SetIdFlag Operation
-bool BigBinaryVector::SetIdFlag(lbcrypto::Serialized& serObj, std::string flag) const {
-
-	//Place holder
-
-	return true;
-}
-
 // JSON FACILITY - Serialize Operation
 bool BigBinaryVector::Serialize(lbcrypto::Serialized& serObj, std::string fileFlag) const {
 
-	lbcrypto::SerialItem bbvMap;
+	if( !serObj.IsObject() )
+		return false;
+
+	lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
 
 	bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj.GetAllocator());
 
@@ -492,6 +487,8 @@ bool BigBinaryVector::Deserialize(const lbcrypto::Serialized& serObj) {
 			break;
 		}
 	}
+
+	return true;
 }
 
 //Private functions

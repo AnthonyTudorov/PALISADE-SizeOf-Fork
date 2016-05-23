@@ -2,6 +2,7 @@
 * @file
 * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
 *	Programmers: Arnab Deb Gupta <ad479@njit.edu>
+			Jerry Ryan <gwryan@njit.edu>
 * @version 00_01
 *
 * @section LICENSE
@@ -39,27 +40,28 @@ namespace lbcrypto {
 
 		/**
 		* Generates a nested JSON data string for a serialized Palisade object
-		* @param serObj stores the serialized Palisade object's attributes.
-		* @return string reflecting the nested JSON data structure of the serialized Palisade object.
+		* @param serObj input serialization of object
+		* @param jsonString output string representation
+		* @return success or failure
 		*/
-		std::string SerializableHelper::GetJsonString(Serialized& serObj) {
+		bool SerializableHelper::SerializationToString(const Serialized& serObj, std::string& jsonString) {
 
 			rapidjson::StringBuffer buffer;
 			rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 			serObj.Accept(writer);
 
-			return buffer.GetString();
+			jsonString = buffer.GetString();
+			return writer.IsComplete();
 		}
 
 		/**
-		* Determines the file name for saving a serialized Palisade object
+		* Generates a nested JSON data string for a serialized Palisade object
 		* @param serObj stores the serialized Palisade object's attributes.
-		* @return string reflecting file name to save serialized Palisade object to.
+		* @return string reflecting the nested JSON data structure of the serialized Palisade object.
 		*/
-		std::string SerializableHelper::GetJsonFileName(Serialized& serObj) {
+		bool SerializableHelper::StringToSerialization(const std::string& jsonString, Serialized& serObj) {
 
-			std::string id = serObj["Root"]["ID"].GetString();
-			return id + "_" + serObj["Root"]["Flag"].GetString();
+			return !serObj.Parse( jsonString.c_str() ).HasParseError();
 		}
 
 		/**
@@ -69,8 +71,7 @@ namespace lbcrypto {
 		*/
 		bool SerializableHelper::WriteSerializationToFile(Serialized& doc, std::string outputFileName) {
 
-			std::string jsonFileName = outputFileName.append(".txt");
-			FILE *fp = fopen(jsonFileName.c_str(), "w");
+			FILE *fp = fopen(outputFileName.c_str(), "w");
 			if( fp == 0 ) return false;
 
 			char writeBuffer[32768];
@@ -90,8 +91,6 @@ namespace lbcrypto {
 		*/
 		bool SerializableHelper::ReadSerializationFromFile(std::string jsonFileName, Serialized& serObj) {
 			
-			serObj.Clear();
-
 			//Retrieve contents of input Json file
 			FILE *fp = fopen(jsonFileName.c_str(), "r");
 			if( fp == 0 ) return false;

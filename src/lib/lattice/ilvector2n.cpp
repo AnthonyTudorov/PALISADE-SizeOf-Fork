@@ -445,18 +445,13 @@ namespace lbcrypto {
 
 	}
 
-	// JSON FACILITY - SetIdFlag Operation
-	bool ILVector2n::SetIdFlag(Serialized& serObj, std::string flag) const {
-
-		//Place holder
-
-		return true;
-	}
-
 	// JSON FACILITY - Serialize Operation
 	bool ILVector2n::Serialize(Serialized& serObj, std::string fileFlag) const {
 
-		Serialized obj;
+		if( !serObj.IsObject() )
+			return false;
+
+		Serialized obj(rapidjson::kObjectType);
 		if( !this->GetValues().Serialize(obj, "") )
 			return false;
 
@@ -471,33 +466,44 @@ namespace lbcrypto {
 
 	// JSON FACILITY - Deserialize Operation
 	bool ILVector2n::Deserialize(const Serialized& serObj) {
-
+std::cout << "deser il2vec 1" << std::endl;
 		Serialized::ConstMemberIterator iMap = serObj.FindMember("ILVector2n");
 		if( iMap == serObj.MemberEnd() ) return false;
 
+		std::cout << "deser il2vec 2" << std::endl;
 		ILParams json_ilParams;
-		if( !json_ilParams.Deserialize(serObj) ) //iMap->value) )
+		if( !json_ilParams.Deserialize(serObj) )
 			return false;
+		std::cout << "deser il2vec 3" << std::endl;
 		this->SetParams(json_ilParams);
 
-		usint vectorLength = atoi(iMap->value["ILParams"]["Order"].GetString()) / 2;
+		std::cout << "deser il2vec 4" << std::endl;
+		usint vectorLength = this->GetParams().GetCyclotomicOrder() / 2;
 
+		std::cout << "deser il2vec 5" << std::endl;
 		BigBinaryVector vectorBBV = BigBinaryVector(vectorLength);
 
+		std::cout << "deser il2vec 6" << std::endl;
 		SerialItem::ConstMemberIterator vIt = iMap->value.FindMember("BigBinaryVector");
 		if( vIt == iMap->value.MemberEnd() ) {
 			return false;
 		}
-		if( !vectorBBV.Deserialize(serObj) ) { //vIt->value) ) {
+		std::cout << "deser il2vec 7" << std::endl;
+
+		Serialized s(rapidjson::kObjectType);
+		s.AddMember(SerialItem(vIt->name,s.GetAllocator()), SerialItem(vIt->value,s.GetAllocator()), s.GetAllocator());
+		if( !vectorBBV.Deserialize(s) ) { //vIt->value) ) {
 			return false;
 		}
+		std::cout << "deser il2vec 8" << std::endl;
 
 		if( (vIt = iMap->value.FindMember("Format")) == iMap->value.MemberEnd() ) return false;
+		std::cout << "deser il2vec 9" << std::endl;
 		this->SetValues(vectorBBV, Format(atoi(vIt->value.GetString())));
-		//std::cout << "Values " << this->GetValues() << std::endl;
 
-		BigBinaryInteger bbiModulus(iMap->value["ILParams"]["Modulus"].GetString());
+		BigBinaryInteger bbiModulus(this->GetParams().GetModulus());
 		this->SetModulus(bbiModulus);
+		std::cout << "deser il2vec a" << std::endl;
 
 		return true;
 	}

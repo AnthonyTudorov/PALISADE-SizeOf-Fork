@@ -23,8 +23,6 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
-#TODO: currently this makefile will not build a demo executable if the .cpp is touched. 
-
 # this assembles a list of the palisade demo sources 
 # (using DEMODIR and SRCEXT
 # defined in the calling makefile. We need this to build 
@@ -40,36 +38,72 @@ DEMOBUILDDIRS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(DEM
 #this defines the binary result for each demo source
 DEMOBIN := $(patsubst $(SRCDIR)/%,$(BINDIR)/%,$(patsubst %.cpp,%,$(DEMOSOURCES)))
 
-#.PHONY:alldemos
-#alldemos: $(DEMOBIN)
+-include $(DEMOOBJECTS:.o=.d)
 
 #this is the actual target that gets called when make is executed (part of all in Makefile)
 #it makes the demo executables 
 alldemos: make_demos
 
 .PHONY:make_demos
-make_demos: $(DEMOBIN)
+make_demos: $(BINDIR)/demo/core/LargeFloatSource $(BINDIR)/demo/core/ParallelSource $(BINDIR)/demo/obfuscate/ObfuscateSource $(BINDIR)/demo/obfuscate/ObfuscateSource_sim $(BINDIR)/demo/obfuscate/ObfuscateSourceDbc $(BINDIR)/demo/pre/Source $(BINDIR)/demo/pre/Source_dcrt $(BINDIR)/demo/pre/Source_json $(BINDIR)/demo/pre/Source_json_StehleSteinfeld $(BINDIR)/demo/pre/Source_json_StehleSteinfeld_TEST $(BINDIR)/demo/pre/Source_presim $(BINDIR)/demo/pre/Source_StehleSteinfeld
 
-#this updates the binaries when the objects or libraries ar touched
-#TODO this relinks all demos when any one is touched.
-$(DEMOBIN): $(DEMOOBJECTS) $(EXTLIBDIR)/$(PALISADELIB)
-
-# this will build demos out of the demo.o and the palisade shared object library
-#.PRECIOUS: $(BINDIR)/demo/%
-$(BINDIR)/demo/%: $(EXTLIBDIR)/$(PALISADELIB) $(BUILDDIR)/demo/%.o 
-#$(LIBDIR)lib$(SOLIB)
-	@echo " -- demo:linking $@"
+## builder for source files in the demo directory
+$(BUILDDIR)/demo/%.o: $(DEMODIR)/%.cpp
 	mkdir -p $(@D)
-	 $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@)) -L$(EXTLIBDIR) -l$(SOLIB) $(EXTLIB)
-	@echo
+	$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $<
+	$(CC) -MM $(CPPFLAGS) $(INC) $< > $(patsubst %.o,%.d,$@)
+	@mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)
+	@sed -e 's|.*\.o:|$@:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)
+	@rm -f $(patsubst %.o,%.d.tmp,$@)
 
-#this will build the .o for each demo
-.PRECIOUS: $(BUILDDIR)/demo/%
-$(BUILDDIR)/demo/%:
-	@echo " -- demo:compiling $@"
+$(BINDIR)/demo/core/LargeFloatSource: $(BUILDDIR)/demo/core/LargeFloatSource.o $(EXTLIBDIR)/$(PALISADELIB)
 	mkdir -p $(@D)
-	$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))
-	@echo
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/core/ParallelSource: $(BUILDDIR)/demo/core/ParallelSource.o $(EXTLIBDIR)/$(PALISADELIB)
+	mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/obfuscate/ObfuscateSource: $(BUILDDIR)/demo/obfuscate/ObfuscateSource.o $(EXTLIBDIR)/$(PALISADELIB)
+	mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/obfuscate/ObfuscateSource_sim: $(BUILDDIR)/demo/obfuscate/ObfuscateSource_sim.o $(EXTLIBDIR)/$(PALISADELIB)
+	mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/obfuscate/ObfuscateSourceDbc: $(BUILDDIR)/demo/obfuscate/ObfuscateSourceDbc.o $(EXTLIBDIR)/$(PALISADELIB)
+	mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source: $(BUILDDIR)/demo/pre/Source.o $(EXTLIBDIR)/$(PALISADELIB)
+	mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source_dcrt: $(BUILDDIR)/demo/pre/Source_dcrt.o $(EXTLIBDIR)/$(PALISADELIB)
+	mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source_json: $(BUILDDIR)/demo/pre/Source_json.o $(BUILDDIR)/demo/pre/testJson.o $(EXTLIBDIR)/$(PALISADELIB)
+	mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source_json_StehleSteinfeld: $(BUILDDIR)/demo/pre/Source_json_StehleSteinfeld.o $(BUILDDIR)/demo/pre/testJson.o $(EXTLIBDIR)/$(PALISADELIB)
+	mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source_json_StehleSteinfeld_TEST: $(BUILDDIR)/demo/pre/Source_json_StehleSteinfeld_TEST.o $(EXTLIBDIR)/$(PALISADELIB)
+	mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source_presim: $(BUILDDIR)/demo/pre/Source_presim.o $(EXTLIBDIR)/$(PALISADELIB)
+	mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source_StehleSteinfeld: $(BUILDDIR)/demo/pre/Source_StehleSteinfeld.o $(EXTLIBDIR)/$(PALISADELIB)
+	mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
 
 # this target lets us see what all the strings are define as, 
 # as an aid to debugging Makefile.demos 

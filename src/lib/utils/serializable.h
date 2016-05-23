@@ -60,29 +60,34 @@ namespace lbcrypto {
 
 	class Serializable
 	{
+		/**
+		* Version number of the serialization; defaults to 1
+		* @return version of the serialization
+		*/
+		virtual int getVersion() { return 1; }
 
 	public:
 
 		/**
-		* Implemented for Palisade objects that may need their attributes saved to disk for future use in Palisade API calls
-		* @param serObj to store the implementing object's attributes.
-		* @param fileFlag
-		* @return true if successfully serialized the implementing object's attributes in serObj to save the implementing object to a JSON file.
+		* Serialize the object into a Serialized
+		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @param fileFlag is an object-specific parameter for the serialization
+		* @return true if successfully serialized
 		*/
-		virtual bool Serialize(Serialized& serObj, std::string fileFlag) const = 0;
+		virtual bool Serialize(Serialized& serObj, std::string fileFlag = "") const = 0;
 		virtual ~Serializable(){};
 
 		/**
-		* Implemented for Palisade objects that implement and called through this class' Serialize method
+		* A serialized object that has object-specific parameters implements this to save them
 		* @param serObj to store the the implementing object's serialization specific attributes.
 		* @param flag
 		* @return true on success
 		*/
-		virtual bool SetIdFlag(Serialized& serObj, std::string flag) const = 0;
+		virtual bool SetIdFlag(Serialized& serObj, std::string flag) const { return true; }
 
 		/**
-		* Implemented for Palisade objects that may need their attributes populated from their corresponding JSON file for use in Palisade API calls 
-		* @param serObj contains name value pairs for the implementing object's attributes
+		* Populate the object from the deserialization of the Setialized
+		* @param serObj contains the serialized object
 		* @return true on success
 		*/
 		virtual bool Deserialize(const Serialized& serObj) = 0;

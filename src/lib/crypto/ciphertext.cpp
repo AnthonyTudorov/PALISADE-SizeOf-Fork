@@ -92,7 +92,7 @@ namespace lbcrypto {
 	template <class Element>
 	bool Ciphertext<Element>::SetIdFlag(Serialized& serObj, std::string flag) const {
 
-		SerialItem idFlagMap;
+		SerialItem idFlagMap(rapidjson::kObjectType);
 		idFlagMap.AddMember("ID", "Ciphertext", serObj.GetAllocator());
 		idFlagMap.AddMember("Flag", flag, serObj.GetAllocator());
 
@@ -102,16 +102,26 @@ namespace lbcrypto {
 	}
 
 	// JSON FACILITY - Serialize Operation
+	//
+	// this is an item that is saved to a file
+	// note that right now it only saves cryptoParameters, norm and element
+	// the Flag could be used to tell us what stuff is and is not saved
+	//
 	template <class Element>
 	bool Ciphertext<Element>::Serialize(Serialized& serObj, std::string fileFlag) const {
 
-		if( !this->SetIdFlag(serObj, fileFlag) )
+		serObj.SetObject();
+std::cout << "cip 1" << std::endl;
+		if( !this->SetIdFlag(serObj, "minimal") )
 			return false;
+		std::cout << "cip 2" << std::endl;
 
 		if( !this->GetCryptoParameters().Serialize(serObj, "") )
 			return false;
+		std::cout << "cip 3" << std::endl;
 
-		serObj["Root"]["Norm"] = this->GetNorm().ToString();
+		serObj.AddMember("Norm", this->GetNorm().ToString(), serObj.GetAllocator());
+		std::cout << "cip 4" << std::endl;
 
 		return this->GetElement().Serialize(serObj, "");
 	}
@@ -120,23 +130,29 @@ namespace lbcrypto {
 	template <class Element>
 	bool Ciphertext<Element>::Deserialize(const Serialized& serObj) {
 
+		std::cout << "cip deser 1" << std::endl;
 		LPCryptoParameters<Element> *json_cryptoParams = new LPCryptoParametersStehleSteinfeld<Element>();
 		if( !json_cryptoParams->Deserialize(serObj) )
 			return false;
+		std::cout << "cip deser 2" << std::endl;
 
+		// for future use, make sure you pick everything out of the serialization that is in there...
 		Serialized::ConstMemberIterator mIter = serObj.FindMember("Root");
 		if( mIter == serObj.MemberEnd() )
 			return false;
+		std::cout << "cip deser 3" << std::endl;
 
-		Serialized::ConstMemberIterator normIter = mIter->value.FindMember("Norm");
+		Serialized::ConstMemberIterator normIter = serObj.FindMember("Norm");
 		if( normIter == mIter->value.MemberEnd() )
 			return false;
+		std::cout << "cip deser 4" << std::endl;
 
 		BigBinaryInteger bbiNorm(normIter->value.GetString());
 
 		Element json_ilElement;
 		if( !json_ilElement.Deserialize(serObj) )
 			return false;
+		std::cout << "cip deser 5" << std::endl;
 
 		this->SetCryptoParameters(*json_cryptoParams);
 		this->SetNorm(bbiNorm);
