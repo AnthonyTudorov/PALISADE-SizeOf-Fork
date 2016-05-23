@@ -79,7 +79,7 @@ namespace lbcrypto {
 		try{
 			format = element.GetFormat();
 		}
-		catch(_exception e){
+		catch (const std::exception& e) {
 			throw std::logic_error("There is an issue with the format of ILVectors passed to the constructor of ILVectorArray2n");
 		}
 		m_format = format;
@@ -247,7 +247,7 @@ namespace lbcrypto {
 			formatChecker = towers.at(0).GetFormat();
 		}
 
-		catch(_exception e){
+		catch(const std::exception& e){
 			throw std::logic_error("There is an issue with the format of ILVectors");
 		}
 		/*obtaining the chain of moduli and roots of unity*/
@@ -260,7 +260,7 @@ namespace lbcrypto {
 		try{
 			 cyclotomicOrder = towers.at(0).GetParams().GetCyclotomicOrder();
 		}
-		catch(_exception e){
+		catch(const std::exception& e){
 			throw std::logic_error("There is an issue with params of ILVectors passed");
 		}
 		
@@ -273,7 +273,7 @@ namespace lbcrypto {
 				moduli.push_back(tempParams.GetModulus());
 				rootsOfUnity.push_back(tempParams.GetRootOfUnity());
 			}
-			catch(_exception e){
+			catch(const std::exception& e){
 					throw std::logic_error("There is an issue with params of ILVectors");
 			}
 		}
