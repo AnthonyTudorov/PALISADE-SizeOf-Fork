@@ -178,7 +178,7 @@ namespace lbcrypto {
 		Format GetFormat() const;
 		
 		/**
-		* Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  Used in bit decomposition/relinearization operations.
+		* Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  This function only supports power of two operations. Used in bit decomposition/relinearization operations.
 		*
 		* @param index is the index to get.
 		* @param base is the base the result should be in.
@@ -219,7 +219,7 @@ namespace lbcrypto {
 		*/
 		const ILVectorArray2n& operator=(const ILVectorArray2n &rhs);
 		/**
-		* Equal operator compares this ILVectorArray2n to the specified ILVectorArray2n
+		* Equal operator.
 		*
 		* @param &rhs is the specified ILVectorArray2n to be compared with this ILVectorArray2n.
 		* @return true if this ILVectorArray2n represents the same values as the specified ILVectorArray2n, false otherwise
@@ -248,8 +248,7 @@ namespace lbcrypto {
 		const ILVectorArray2n& operator-=(const ILVectorArray2n &rhs);
 		// automorphism operation
 		/**
-		* Performs an automorphism transform operation and returns the result. An automorphism is an isomorphism from a mathematical object to itself. In other words, 
-		* it is mapping an object to itself while preserving all of its structure.
+		* Permutes coefficients in a polynomial. Moves the ith index to the first one, it only supports odd indices. 
 		*
 		* @param &i is the element to perform the automorphism transform with.
 		* @return is the result of the automorphism transform.
@@ -355,7 +354,7 @@ namespace lbcrypto {
 		void PrintValues() const;
 
 		/**
-		* Adds one to every entry in every tower.
+		* Adds BigBinaryInteger "1" to every entry in every tower.
 		*/
 		void AddILElementOne();
 		/**
