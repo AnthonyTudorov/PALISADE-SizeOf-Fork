@@ -282,8 +282,9 @@ void NTRUPRE(int input) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(PRE);
 
 	bool successKeyGen=false;
 
