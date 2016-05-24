@@ -72,6 +72,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../../lib/utils/serializablehelper.h"
 
+#include "testJson.h"
+
 using namespace std;
 using namespace lbcrypto;
 
@@ -466,7 +468,19 @@ void NTRUPRE(int input) {
 	cout << "Original Plaintext: " << endl;
 	cout << newPlaintext << endl;
 
-	testJson("LTV", pk, sk, algorithm, evalKey, newSK, newPtxt);
+	TestJsonParms	tjp;
+	tjp.pk = &pk;
+	tjp.pkDeserialized = new LPPublicKeyLTV<ILVector2n>();
+	tjp.sk = &sk;
+	tjp.skDeserialized = new LPPrivateKeyLTV<ILVector2n>();
+	tjp.algorithm = &algorithm;
+	tjp.evalKey = &evalKey;
+	tjp.evalKeyDeserialized = new LPEvalKeyLTV<ILVector2n>();
+	tjp.newSK = &newSK;
+	tjp.newSKDeserialized = new LPPrivateKeyLTV<ILVector2n>();
+	tjp.cryptoParms = &cryptoParams;
+
+	testJson("LTV", newPtxt, &tjp);
 	std::cout << "Execution completed.  Please any key to finish." << std::endl;
 
 	fout.close();
