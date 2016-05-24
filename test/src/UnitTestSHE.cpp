@@ -44,6 +44,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 using namespace lbcrypto;
 
+//https://github.com/google/googletest/blob/master/googletest/samples/sample6_unittest.cc
+
+template <class T>
 class UnitTestSHE : public ::testing::Test {
  protected:
   virtual void SetUp() {
@@ -65,6 +68,88 @@ TEST(SHEOperations_test, keyswitch_test_single_crt){
 
 TEST(SHEOperations_test, keyswitch_test_double_crt){
 
+  usint m = 16;
+  const ByteArray plaintext = "M";
+  ByteArrayPlaintextEncoding ptxt(plaintext);
+  ptxt.Pad<ZeroPad>(m/16);
+//  ptxt.Pad<ZeroPad>(m/8);
+
+  float stdDev = 4;
+
+  usint size = 3;
+
+  std::cout << "tower size: " << size << std::endl;
+
+  ByteArrayPlaintextEncoding ctxtd;
+
+  vector<BigBinaryInteger> moduli(size);
+
+  vector<BigBinaryInteger> rootsOfUnity(size);
+
+  BigBinaryInteger q("1");
+  BigBinaryInteger temp;
+  BigBinaryInteger modulus("1");
+
+  for(int i=0; i < size;i++){
+        lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+    moduli[i] = q;
+    cout << moduli[i] << endl;
+    rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+    cout << rootsOfUnity[i] << endl;
+    modulus = modulus* moduli[i];
+  
+  }
+
+  cout << "big modulus: " << modulus << endl;
+  DiscreteGaussianGenerator dgg(modulus,stdDev);
+
+  ILDCRTParams params(rootsOfUnity, m, moduli);
+
+  // LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
+// //  BigBinaryInteger plaintextm("8");
+//   cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
+// //  cryptoParams2.SetPlaintextModulus(plaintextm);
+//   cryptoParams2.SetDistributionParameter(stdDev);
+//   cryptoParams2.SetRelinWindow(1);
+//   cryptoParams2.SetElementParams(params);
+//   cryptoParams2.SetDiscreteGaussianGenerator(dgg);
+
+//   Ciphertext<ILVectorArray2n> cipherText2;
+//   cipherText2.SetCryptoParameters(cryptoParams2);
+
+
+//   LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams2);
+//   LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams2);
+
+//   LPPublicKeyLTV<ILVectorArray2n> pk3(cryptoParams2);
+//   LPPrivateKeyLTV<ILVectorArray2n> sk3(cryptoParams2);
+
+//   std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
+//   LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2(mask);
+
+//   //LPAlgorithmLTV<ILVectorArray2n> algorithm2;
+
+//   algorithm2.KeyGen(&pk2, &sk2);
+//   algorithm2.KeyGen(&pk3, &sk3);
+
+//   algorithm2.Encrypt(pk2, ptxt, &cipherText2);
+
+//   algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+
+  
+//   cout << "Decrypted value ILVectorArray2n: \n" << endl;
+//   cout << ctxtd<< "\n" << endl;
+
+//   LPKeySwitchHintLTV<ILVectorArray2n> keySwitchHint;
+
+//   algorithm2.m_algorithmLeveledSHE->KeySwitchHintGen(sk2,sk3, &keySwitchHint);
+//   Ciphertext<ILVectorArray2n> cipherText3(algorithm2.m_algorithmLeveledSHE->KeySwitch(keySwitchHint, cipherText2));
+
+//   algorithm2.Decrypt(sk3, cipherText3, &ctxtd);
+
+//   cout << "Decrypted after MOD Reduce ILVectorArray2n: \n" << endl;
+  
+//   cout << ctxtd<< "\n" << endl;
 }
 
 TEST(SHEOperations_test, mod_reduce_test_single_crt){

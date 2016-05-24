@@ -81,8 +81,6 @@ void SparseKeyGenTest();
 void SparseKeyGenTestDoubleCRT();
 void KeySwitchTestSingleCRTNew();
 void KeySwitchTestNew();
-void DecomposeTest();
-void DecomposeTestDoubleCRT();
 void RingReduceTest();
 void ModReduceTest();
 void RingReduceDoubleCRTTest();
@@ -92,7 +90,6 @@ void ModReduceGyana();
 void KeySwitchTestNewAPI();
 void RingReduceDCRTTest();
 void RingReduceSingleCRTTest();
-void NextQTest();
 /**
  * @brief Input parameters for PRE example.
  */
@@ -787,80 +784,6 @@ void KeySwitchTestNew(){
 
 }
 
-void DecomposeTest(){
-
-	usint m = 16;
-	float stdDev = 4;
-
-	BigBinaryInteger q("1");
-	DiscreteGaussianGenerator dgg(q,stdDev);
-
-	lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));	
-	BigBinaryInteger rootOfUnity;
-
-	rootOfUnity = RootOfUnity(m,q);
-
-	cout << "Modulus is" << q << endl;
-	cout << "RootOfUnity is" << rootOfUnity << endl;
-
-//	DiscreteGaussianGenerator dgg(q,stdDev);
-
-	ILParams ilParams(m,q,rootOfUnity);
-
-	ILVector2n ilVector2n(dgg,ilParams,Format::COEFFICIENT);
-
-	ilVector2n.PrintValues();
-
-	ILVector2n ilVectorDecomposed;
-
-	// ilVectorDecomposed = ilVector2n.Decompose();
-
-	ilVectorDecomposed.PrintValues();
-
-}
-
-void DecomposeTestDoubleCRT(){
-
-	usint m = 16;
-
-	float stdDev = 2;
-
-	usint size = 2;
-
-	ByteArrayPlaintextEncoding ctxtd;
-
-	vector<BigBinaryInteger> moduli(size);
-
-	vector<BigBinaryInteger> rootsOfUnity(size);
-
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
-
-	for(int i=0; i < size;i++){
-        lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
-		moduli[i] = q;
-		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
-		modulus = modulus* moduli[i];
-		
-	}
-
-	DiscreteGaussianGenerator dgg(modulus,stdDev);
-
-	ILDCRTParams params(rootsOfUnity, m, moduli);
-	
-	ILVectorArray2n ilVectorArray2n(dgg, params, Format::COEFFICIENT);
-	ilVectorArray2n.PrintValues();
-
-	//ILVectorArray2n ilVectorArray2nDecompose;
-
-	//ilVectorArray2nDecompose = ilVectorArray2n.Decompose();
-	//ilVectorArray2nDecompose.PrintValues();
-
-	//cout << ilVectorArray2nDecompose.GetParams().GetCyclotomicOrder() << endl;
-
-}
-
 void RingReduceDCRTTest(){
 
 	usint m = 32;
@@ -1259,9 +1182,7 @@ void KeySwitchTestNewAPI() {
 
 	/*rootsOfUnity[0] = BigBinaryInteger("10878");
 	rootsOfUnity[1] = BigBinaryInteger("12967");*/
-
 	
-
 	cout << "big modulus: " << modulus << endl;
 	DiscreteGaussianGenerator dgg(modulus,stdDev);
 
@@ -1315,27 +1236,4 @@ void KeySwitchTestNewAPI() {
 	
 	cout << ctxtd<< "\n" << endl;
 	
-}
-
-void NextQTest(){
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
-
-		vector<BigBinaryInteger> moduli(10);
-
-
-	for(int i=0; i < 10;i++){
-        lbcrypto::NextQ(q, BigBinaryInteger::TWO,2048,BigBinaryInteger("4"), BigBinaryInteger("4"));
-		moduli[i] = q;
-		cout << moduli[i] << endl;
-	//	rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
-	//	cout << rootsOfUnity[i] << endl;
-		modulus = modulus* moduli[i];
-	
-	}
-
-	cout << modulus;
-
-
 }
