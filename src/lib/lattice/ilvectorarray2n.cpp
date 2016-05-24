@@ -676,14 +676,6 @@ namespace lbcrypto {
 	}
 
 
-	// JSON FACILITY - SetIdFlag Operation
-	bool ILVectorArray2n::SetIdFlag(Serialized& serObj, std::string flag) const {
-
-	//	std::unordered_map <std::string, std::string> serObj;
-
-		return true;
-	}
-
 	// JSON FACILITY - Serialize Operation
 	bool ILVectorArray2n::Serialize(Serialized& serObj, std::string fileFlag) const {
 

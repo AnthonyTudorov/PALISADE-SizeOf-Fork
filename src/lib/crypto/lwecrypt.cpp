@@ -135,7 +135,7 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 		{
 
 	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
-	//const LPCryptoParameters<Element> &cryptoParams = publicKey.GetCryptoParameters();
+	//LPCryptoParameters<Element> &cryptoParams = publicKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
@@ -161,7 +161,7 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 
 	c = h*s + p*e + m;
 
-	ciphertext->SetCryptoParameters(cryptoParams);
+	ciphertext->SetCryptoParameters(&cryptoParams);
 	ciphertext->SetPublicKey(publicKey);
 	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
 	ciphertext->SetElement(c);
@@ -216,7 +216,7 @@ bool LPCryptoParametersStehleSteinfeld<Element>::Serialize(Serialized& serObj, s
 	if( !ep.Serialize(pser, "") )
 		return false;
 
-	SerialItem cryptoParamsMap(rapidjson::kObjectType);
+	Serialized cryptoParamsMap(rapidjson::kObjectType, &serObj.GetAllocator());
 	cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj.GetAllocator());
 	cryptoParamsMap.AddMember("DistributionParameter", this->ToStr(this->GetDistributionParameter()), serObj.GetAllocator());
 	cryptoParamsMap.AddMember("DistributionParameterStSt", this->ToStr(this->GetDistributionParameterStSt()), serObj.GetAllocator());
@@ -227,6 +227,7 @@ bool LPCryptoParametersStehleSteinfeld<Element>::Serialize(Serialized& serObj, s
 	cryptoParamsMap.AddMember("PlaintextModulus", this->GetPlaintextModulus().ToString(), serObj.GetAllocator());
 
 	serObj.AddMember("LPCryptoParametersStehleSteinfeld", cryptoParamsMap, serObj.GetAllocator());
+	serObj.AddMember("LPCryptoParametersType", "LPCryptoParametersStehleSteinfeld", serObj.GetAllocator());
 
 	return true;
 }
@@ -291,21 +292,6 @@ bool LPCryptoParametersStehleSteinfeld<Element>::Deserialize(const Serialized& s
 	this->SetDepth(depth);
 
 	return true;
-
-//	//YURIY's FIX
-//	//find out the type of object using the input JSON and static object id
-//	//create an object of that class using the new operator (on the heap)
-//	// if (classname=="ILParams")
-//	//		ILParams json_ilParams = new ILParams();
-//	//Rely on object factory approach to determine what class to instantiate for
-//	//deserialization.
-//	ElemParams *json_ilParams = new ILParams();
-//	if( json_ilParams->Deserialize(serObj) ) {
-//		this->SetElementParams(*json_ilParams);
-//		return true;
-//	}
-//
-//	return false;
 }
 
 template <class Element>
@@ -329,6 +315,7 @@ bool LPCryptoParametersLTV<Element>::Serialize(Serialized& serObj, std::string f
 	cryptoParamsMap.AddMember("PlaintextModulus", this->GetPlaintextModulus().ToString(), serObj.GetAllocator());
 
 	serObj.AddMember("LPCryptoParametersLTV", cryptoParamsMap, serObj.GetAllocator());
+	serObj.AddMember("LPCryptoParametersType", "LPCryptoParametersLTV", serObj.GetAllocator());
 
 	return true;
 }
@@ -389,25 +376,9 @@ bool LPCryptoParametersLTV<Element>::Deserialize(const Serialized& serObj) {
 	this->SetDepth(depth);
 
 	return true;
-
-//	//YURIY's FIX
-//	//find out the type of object using the input JSON and static object id
-//	//create an object of that class using the new operator (on the heap)
-//	// if (classname=="ILParams")
-//	//		ILParams json_ilParams = new ILParams();
-//	//Rely on object factory approach to determine what class to instantiate for
-//	//deserialization.
-//	ElemParams *json_ilParams = new ILParams();
-//	if( json_ilParams->Deserialize(serObj) ) {
-//		this->SetElementParams(*json_ilParams);
-//		return true;
-//	}
-//
-//	return false;
 }
 
-
-// JSON FACILITY - LPPublicKeyLTV SetIdFlag Operation
+// JSON FACILITY
 template <class Element>
 bool LPPublicKeyLTV<Element>::SetIdFlag(Serialized& serObj, std::string flag) const {
 
@@ -424,18 +395,18 @@ template <class Element>
 bool LPPublicKeyLTV<Element>::Serialize(Serialized& serObj, std::string fileFlag) const {
 
 	serObj.SetObject();
-	if( !this->SetIdFlag(serObj, fileFlag) )
-		return false;
-cout << "pkser 1" << endl;
+
 	if( !this->GetCryptoParameters().Serialize(serObj, "") )
 		return false;
-cout << "pkser 2" << endl;
 
 	const Element& pe = this->GetPublicElement();
 
 	if( !pe.Serialize(serObj, "") )
 		return false;
-cout << "pkser 3" << endl;
+
+	if( !this->SetIdFlag(serObj, fileFlag) )
+		return false;
+
 	return true;
 }
 
@@ -443,7 +414,8 @@ cout << "pkser 3" << endl;
 template <class Element>
 bool LPPublicKeyLTV<Element>::Deserialize(const Serialized& serObj) {
 
-	cout << (dynamic_cast<LPCryptoParametersLTV<Element>*>(&this->AccessCryptoParameters()) == 0) << endl;
+	if( !DeserializeHelper<Element,LPPublicKeyLTV<Element>>(serObj, this) ) return false;
+
 	if( !this->AccessCryptoParameters().Deserialize(serObj) )
 		return false;
 
@@ -474,22 +446,16 @@ bool LPEvalKeyLTV<Element>::Serialize(Serialized& serObj, std::string fileFlag) 
 
 	serObj.SetObject();
 
-std::cout << "ekey ser 1" << std::endl;
 	if( !this->SetIdFlag(serObj, fileFlag) )
 		return false;
 
-	std::cout << "ekey ser 2" << std::endl;
 	if( !this->GetCryptoParameters().Serialize(serObj, "") )
 		return false;
 
 	std::vector<int>::size_type evalKeyVectorLength = this->GetEvalKeyElements().size();
 
-	std::cout << "ekey ser 3 for " << evalKeyVectorLength << std::endl;
-	//serObj["Root"].AddMember("VectorLength", this->ToStr(evalKeyVectorLength), serObj.GetAllocator());
-
 	Serialized ilVector2nMap(rapidjson::kArrayType, &serObj.GetAllocator());
 	for (unsigned i = 0; i < evalKeyVectorLength; i++) {
-		std::cout << "ekey ser 4 for " << i << std::endl;
 		Serialized localMap(rapidjson::kObjectType, &serObj.GetAllocator());
 		if( this->GetEvalKeyElements().at(i).Serialize(localMap, "") ) {
 			ilVector2nMap.PushBack(localMap, serObj.GetAllocator());
@@ -497,16 +463,17 @@ std::cout << "ekey ser 1" << std::endl;
 		else
 			return false;
 	}
-	std::cout << "ekey ser DONE" << std::endl;
-	serObj.AddMember("ILVector2nVector", ilVector2nMap, serObj.GetAllocator());
 
+	serObj.AddMember("ILVector2nVector", ilVector2nMap, serObj.GetAllocator());
 	return true;
 }
 
 // JSON FACILITY - LPEvalKeyLTV Deserialize Operation
 template <class Element>
 bool LPEvalKeyLTV<Element>::Deserialize(const Serialized& serObj) {
-std::cout << "ekey deser 1" << std::endl;
+
+	if( !DeserializeHelper<Element,LPEvalKeyLTV<Element>>(serObj, this) ) return false;
+
 	if( !this->AccessCryptoParameters().Deserialize(serObj) ) return false;
 
 	std::vector<Element> evalKeyVectorBuffer;
@@ -514,13 +481,9 @@ std::cout << "ekey deser 1" << std::endl;
 	Serialized::ConstMemberIterator rIt = serObj.FindMember("Root");
 	if( rIt == serObj.MemberEnd() ) return false;
 
-	std::cout << "ekey deser 2" << std::endl;
-	//std::vector<int>::size_type evalKeyVectorLength = atoi(mIt->value.GetString());
-
 	if( (rIt = serObj.FindMember("ILVector2nVector")) == serObj.MemberEnd() )
 		return false;
 
-	std::cout << "ekey deser 3" << std::endl;
 	const SerialItem& arr = rIt->value;
 
 	if( !arr.IsArray() )
@@ -528,10 +491,8 @@ std::cout << "ekey deser 1" << std::endl;
 
 	std::vector<int>::size_type evalKeyVectorLength = arr.Size();
 
-	std::cout << "ekey deser 4 " << evalKeyVectorLength << std::endl;
 	for (int i = 0; i < evalKeyVectorLength; i++) {
 		const SerialItem& fi = arr[i];
-std::cout << i << ":" << fi.MemberBegin()->name.GetString() << std::endl;
 		Serialized oneItem(rapidjson::kObjectType);
 		SerialItem key( fi.MemberBegin()->name, oneItem.GetAllocator() );
 		SerialItem val( fi.MemberBegin()->value, oneItem.GetAllocator() );
@@ -544,7 +505,6 @@ std::cout << i << ":" << fi.MemberBegin()->name.GetString() << std::endl;
 	}
 
 	this->SetEvalKeyElements(evalKeyVectorBuffer);
-	std::cout << "ekey deser DONE" << std::endl;
 	return true;
 }
 
@@ -577,6 +537,8 @@ bool LPPrivateKeyLTV<Element>::Serialize(Serialized& serObj, std::string fileFla
 // JSON FACILITY - LPPrivateKeyLTV Deserialize Operation
 template <class Element>
 bool LPPrivateKeyLTV<Element>::Deserialize(const Serialized& serObj) {
+
+	if( !DeserializeHelper<Element,LPPrivateKeyLTV<Element>>(serObj, this) ) return false;
 
 	if( !this->AccessCryptoParameters().Deserialize(serObj) ) return false;
 

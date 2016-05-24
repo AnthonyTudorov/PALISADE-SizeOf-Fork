@@ -78,12 +78,12 @@ namespace lbcrypto {
 		virtual ~Serializable(){};
 
 		/**
-		* A serialized object that has object-specific parameters implements this to save them
+		* Higher level info about the serialization is saved here
 		* @param serObj to store the the implementing object's serialization specific attributes.
-		* @param flag
+		* @param flag a file flag
 		* @return true on success
 		*/
-		virtual bool SetIdFlag(Serialized& serObj, std::string flag) const { return true; }
+		virtual bool SetIdFlag(Serialized& serObj, const std::string flag) const { return true; }
 
 		/**
 		* Populate the object from the deserialization of the Setialized

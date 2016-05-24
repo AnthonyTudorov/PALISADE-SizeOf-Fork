@@ -8,15 +8,12 @@
 #include <iostream>
 #include <fstream>
 #include "../../lib/math/backend.h"
-//#include "../../lib/math/cpu8bit/backend.h"
 #include "../../lib/utils/inttypes.h"
 #include "../../lib/math/nbtheory.h"
-//#include <thread>
 #include "../../lib/lattice/elemparams.h"
 #include "../../lib/lattice/ilparams.h"
 #include "../../lib/lattice/ildcrtparams.h"
 #include "../../lib/lattice/ilelement.h"
-//#include "../../lib/il2n.h"
 #include "../../lib/math/distrgen.h"
 #include "../../lib/crypto/lwecrypt.h"
 #include "../../lib/crypto/lwecrypt.cpp"
@@ -28,16 +25,10 @@
 #include "../../lib/crypto/lwefhe.cpp"
 #include "../../lib/lattice/ilvector2n.h"
 #include "../../lib/lattice/ilvectorarray2n.h"
-//#include "../../lib/time.h"
 
 #include "../../lib/utils/debug.h"
 #include "../../lib/crypto/ciphertext.cpp"
-//#include "../../lib/vld.h"
 #include <chrono>
-//#include "../../lib/gtest/gtest.h"
-//#include "../../lib/math/cpu8bit/binint.h"
-//#include "../../lib/math/cpu8bit/binvect.h"
-//#include "../../lib/math/cpu8bit/binmat.h"
 
 #include "../../lib/utils/serializablehelper.h"
 
@@ -53,6 +44,11 @@ void testJson(
 		const ByteArrayPlaintextEncoding& newPtxt,
 		TestJsonParms *tp) {
 
+	LPPublicKeyLTV<ILVector2n>				pkDeserialized;
+	LPPrivateKeyLTV<ILVector2n>				skDeserialized;
+	LPEvalKeyLTV<ILVector2n>				evalKeyDeserialized;
+	LPPrivateKeyLTV<ILVector2n>				newSKDeserialized;
+
 	std::cout << "----------------------START JSON FACILITY TESTING-------------------------" << endl;
 
 	string jsonFileName;
@@ -61,22 +57,8 @@ void testJson(
 	cout << "---BEGIN LPPublicKey" + cID + " SERIALIZATION---" << endl;
 	Serialized testMap1;
 	if (tp->pk->Serialize(testMap1, "Enc")) {
-		cout << "encoded" << endl;
-//		for( Serialized::ConstMemberIterator it = testMap1.MemberBegin() ; it != testMap1.MemberEnd(); ++it ) {
-//			cout << it->name.GetString() << endl;
-//			for( Serialized::ConstMemberIterator sit = it->value.MemberBegin() ; sit != it->value.MemberEnd(); ++sit ) {
-//				cout << " " << sit->name.GetString() <<endl;
-//				if( sit->value.IsObject() ) {
-//					for( Serialized::ConstMemberIterator thit = sit->value.MemberBegin() ; thit != sit->value.MemberEnd(); ++thit ) {
-//						cout << "    " << thit->name.GetString() <<endl;
-//					}
-//				}
-//			}
-//		}
-//		SerializableHelper::SerializationToString(testMap1, jsonRep);
-//		cout << jsonRep << endl;
 		jsonFileName = "LPPublicKey" + cID + "_Enc.txt";
-		cout << "Saving to " << jsonFileName <<endl;
+		cout << "Saving to " << jsonFileName;
 		if (SerializableHelper::WriteSerializationToFile(testMap1, jsonFileName))
 			cout << " ... success!" << endl;
 		else {
@@ -87,7 +69,7 @@ void testJson(
 		cout << "FAILED" << endl;
 		return;
 	}
-	cout << "---END LPPublicKey" + cID + " SERIALIZATION TESTING---" << endl;
+	cout << "---END LPPublicKey" + cID + " SERIALIZATION TESTING---" << endl << endl;
 
 	cout << "---BEGIN LPPrivateKey" + cID + " SERIALIZATION---" << endl;
 	Serialized testMap2;
@@ -104,51 +86,45 @@ void testJson(
 		cout << "FAILED" << endl;
 		return;
 	}
-	cout << "---END LPPrivateKey" + cID + " SERIALIZATION---" << endl;
+	cout << "---END LPPrivateKey" + cID + " SERIALIZATION---" << endl << endl;
 
 	cout << "---BEGIN LPPublicKey" + cID + " DESERIALIZATION---" << endl;
 	jsonFileName = "LPPublicKey" + cID + "_Enc.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap1);
 
-	tp->pkDeserialized->SetCryptoParameters(tp->cryptoParms);
-	if (tp->pkDeserialized->Deserialize(testMap1)) {
+	if (pkDeserialized.Deserialize(testMap1)) {
 		cout << "Deserialized into pkDeserialized" << endl;
 	} else {
 		cout << "FAILED" << endl;
 		return;
 	}
 
-	cout << "---END LPPublicKey" + cID + " DESERIALIZATION---" << endl;
+	cout << "---END LPPublicKey" + cID + " DESERIALIZATION---" << endl << endl;
 
 	cout << "---BEGIN LPPrivateKey" + cID + " DESERIALIZATION---" << endl;
 	jsonFileName = "LPPrivateKey" + cID + "_Enc.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap2);
-//	LPPrivateKeyLTV<ILVector2n> skDeserialized;
-//	LPCryptoParametersLTV<ILVector2n> json_cryptoParamsPriv;
-	tp->skDeserialized->SetCryptoParameters(tp->cryptoParms);
-	if (tp->skDeserialized->Deserialize(testMap2)) {
+	if (skDeserialized.Deserialize(testMap2)) {
 		cout << "Deserialized into skDeserialized" << endl;
 	} else {
 		cout << "FAILED" << endl;
 		return;
 	}
-	cout << "---END LPPrivateKey" + cID + " DESERIALIZATION---" << endl;
+	cout << "---END LPPrivateKey" + cID + " DESERIALIZATION---" << endl << endl;
 
-	cout << "\n" << endl;
-	cout << "----------BEGIN LPAlgorithm" + cID + ".Ecrypt TESTING----------" << endl;
+	cout << "----------BEGIN LPAlgorithm" + cID + ".Encrypt TESTING----------" << endl;
 	cout << "Calling Encrypt in LPAlgorithm" + cID + " with deserialized instance of LPPublicKey" + cID + "" << endl;
 	Ciphertext<ILVector2n> testCiphertext;
-	tp->algorithm->Encrypt(*tp->pkDeserialized, newPtxt, &testCiphertext);
-	cout << "----------END LPAlgorithmPRE" + cID + ".ReEcrypt TESTING----------" << endl;
+	tp->algorithm->Encrypt(pkDeserialized, newPtxt, &testCiphertext);
+	cout << "----------END LPAlgorithmPRE" + cID + ".Encrypt TESTING----------" << endl << endl;
 
-	cout << "\n" << endl;
 	cout << "---BEGIN CIPHERTEXT SERIALIZATION---" << endl;
 	cout << "Serializing testCiphertext object generated by Encrypt TESTING..." << endl;
 	Serialized testMap3;
 	if (testCiphertext.Serialize(testMap3, "Enc")) {
-		jsonFileName = "Ciphertext_Enc.txt";
+		jsonFileName = "Ciphertext" + cID + "_Enc.txt";
 		cout << "Serialization saved to " << jsonFileName;
 		if (SerializableHelper::WriteSerializationToFile(testMap3, jsonFileName))
 			cout << " ... success!" << endl;
@@ -160,10 +136,9 @@ void testJson(
 		cout << "FAILED" << endl;
 		return;
 	}
-	cout << "---END CIPHERTEXT SERIALIZATION---" << endl;
+	cout << "---END CIPHERTEXT SERIALIZATION---" << endl << endl;
 
 	cout << "---BEGIN CIPHERTEXT DESERIALIZATION---" << endl;
-	jsonFileName = "Ciphertext_Enc.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap3);
 	Ciphertext<ILVector2n> ciphertextDeserialized;
@@ -173,22 +148,19 @@ void testJson(
 		cout << "FAILED" << endl;
 		return;
 	}
+	cout << "---END CIPHERTEXT DESERIALIZATION---" << endl << endl;
 
-	cout << "---END CIPHERTEXT DESERIALIZATION---" << endl;
-
-	cout << "\n" << endl;
 	cout << "----------BEGIN LPAlgorithm" + cID + ".Decrypt TESTING----------" << endl;
 	cout << "Calling Decrypt in LPAlgorithm" + cID + " with deserialized instances of" << endl;
 	cout << "LPPrivateKey" + cID + " and Ciphertext." << endl;
 	ByteArrayPlaintextEncoding testPlaintextRec;
-	DecodingResult testResult = tp->algorithm->Decrypt(*tp->skDeserialized,
+	DecodingResult testResult = tp->algorithm->Decrypt(skDeserialized,
 			ciphertextDeserialized, &testPlaintextRec);
 	testPlaintextRec.Unpad<ZeroPad>();
 	cout << "Recovered plaintext from call to Decrypt: " << endl;
 	cout << testPlaintextRec << endl;
-	cout << "----------END LPAlgorithm" + cID + ".Decrypt TESTING----------" << endl;
+	cout << "----------END LPAlgorithm" + cID + ".Decrypt TESTING----------" << endl << endl;
 
-	cout << "\n" << endl;
 	cout << "---BEGIN LPEvalKey" + cID + " SERIALIZATION---" << endl;
 	Serialized testMap4;
 	if (tp->evalKey->Serialize(testMap4, "Pre")) {
@@ -204,35 +176,28 @@ void testJson(
 		cout << "FAILED" << endl;
 		return;
 	}
-	cout << "---END LPEvalKey" + cID + " SERIALIZATION TESTING---" << endl;
+	cout << "---END LPEvalKey" + cID + " SERIALIZATION TESTING---" << endl << endl;
+
 	cout << "---BEGIN LPEvalKey" + cID + " DESERIALIZATION---" << endl;
 	jsonFileName = "LPEvalKey" + cID + "_Pre.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap4);
-//	LPEvalKeyLTV<ILVector2n> evalKeyDeserialized;
-//	LPCryptoParametersLTV<ILVector2n> json_cryptoParamsEval;
-	tp->evalKeyDeserialized->SetCryptoParameters(tp->cryptoParms);
-	if( tp->evalKeyDeserialized->Deserialize(testMap4) )
+	if( evalKeyDeserialized.Deserialize(testMap4) )
 		cout << "Deserialized into evalKeyDeserialized" << endl;
 	else {
 		cout << "FAILED" << endl;
 		return;
 	}
-	cout << "---END LPEvalKey" + cID + " DESERIALIZATION---" << endl;
+	cout << "---END LPEvalKey" + cID + " DESERIALIZATION---" << endl << endl;
 
-	cout << "\n" << endl;
-	cout << "----------BEGIN LPAlgorithmPRE" + cID + ".ReEcrypt TESTING----------"
-			<< endl;
-	cout
-			<< "Calling ReEncrypt in LPAlgorithmPRE" + cID + " with deserialized instances of"
-			<< endl;
+	cout << "----------BEGIN LPAlgorithmPRE" + cID + ".ReEncrypt TESTING----------" << endl;
+	cout << "Calling ReEncrypt in LPAlgorithmPRE" + cID + " with deserialized instances of" << endl;
 	cout << "LPEvalKey" + cID + " and Ciphertext." << endl;
 	Ciphertext<ILVector2n> preCiphertext;
-	tp->algorithm->ReEncrypt(*tp->evalKeyDeserialized, ciphertextDeserialized,
+	tp->algorithm->ReEncrypt(evalKeyDeserialized, ciphertextDeserialized,
 			&preCiphertext);
-	cout << "----------END LPAlgorithmPRE" + cID + ".ReEcrypt TESTING----------" << endl;
+	cout << "----------END LPAlgorithmPRE" + cID + ".ReEncrypt TESTING----------" << endl << endl;
 
-	cout << "\n" << endl;
 	cout << "---BEGIN PRE LPPrivateKey" + cID + " SERIALIZATION---" << endl;
 	cout << "Serializing previously used newSK object..." << endl;
 	Serialized testMap5;
@@ -249,12 +214,13 @@ void testJson(
 		cout << "FAILED" << endl;
 		return;
 	}
-	cout << "---END PRE LPPrivateKey" + cID + " SERIALIZATION---" << endl;
+	cout << "---END PRE LPPrivateKey" + cID + " SERIALIZATION---" << endl << endl;
+
 	cout << "---BEGIN PRE CIPHERTEXT SERIALIZATION---" << endl;
 	cout << "Serializing preCiphertext object generated by ReEncrypt TESTING..." << endl;
 	Serialized testMap6;
 	if (preCiphertext.Serialize(testMap6, "Pre")) {
-		jsonFileName = "Ciphertext_Pre.txt";
+		jsonFileName = "Ciphertext" + cID + "_Pre.txt";
 		cout << "Saving serialization to " << jsonFileName << endl;
 		if (SerializableHelper::WriteSerializationToFile(testMap6, jsonFileName))
 			cout << " ... success!" << endl;
@@ -266,25 +232,22 @@ void testJson(
 		cout << "FAILED" << endl;
 		return;
 	}
-	cout << "---END PRE CIPHERTEXT SERIALIZATION---" << endl;
+	cout << "---END PRE CIPHERTEXT SERIALIZATION---" << endl << endl;
 
 	cout << "---BEGIN PRE LPPrivateKey" + cID + " DESERIALIZATION---" << endl;
 	jsonFileName = "LPPrivateKey" + cID + "_Pre.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap5);
-//	LPPrivateKeyLTV<ILVector2n> newSKDeserialized;
-//	LPCryptoParametersLTV<ILVector2n> json_cryptoParamsNewPriv;
-	tp->newSKDeserialized->SetCryptoParameters(tp->cryptoParms);
-	if( tp->newSKDeserialized->Deserialize(testMap5) )
+	if( newSKDeserialized.Deserialize(testMap5) )
 		cout << "Deserialized into newSKDeserialized" << endl;
 	else {
 		cout << "FAILED" << endl;
 		return;
 	}
-	cout << "---END PRE LPPrivateKey" + cID + " DESERIALIZATION---" << endl;
+	cout << "---END PRE LPPrivateKey" + cID + " DESERIALIZATION---" << endl << endl;
 
 	cout << "---BEGIN PRE CIPHERTEXT DESERIALIZATION---" << endl;
-	jsonFileName = "Ciphertext_Pre.txt";
+	jsonFileName = "Ciphertext" + cID + "_Pre.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap3);
 	Ciphertext<ILVector2n> preCiphertextDeserialized;
@@ -294,24 +257,21 @@ void testJson(
 		cout << "FAILED" << endl;
 		return;
 	}
-	cout << "---END PRE CIPHERTEXT DESERIALIZATION---" << endl;
+	cout << "---END PRE CIPHERTEXT DESERIALIZATION---" << endl << endl;
 
-	cout << "\n" << endl;
 	cout << "----------BEGIN LPAlgorithmPRE" + cID + ".Decrypt TESTING----------" << endl;
 	cout << "Calling Decrypt in LPAlgorithmPRE" + cID + " with deserialized instances of" << endl;
 	cout << "PRE LPPrivateKey" + cID + " and PRE Ciphertext." << endl;
 	ByteArrayPlaintextEncoding testPlaintextPreRec;
-	DecodingResult testResult1 = tp->algorithm->Decrypt(*tp->newSKDeserialized,
+	DecodingResult testResult1 = tp->algorithm->Decrypt(newSKDeserialized,
 			preCiphertextDeserialized, &testPlaintextPreRec);
 	testPlaintextPreRec.Unpad<ZeroPad>();
 	cout << "Recovered plaintext from call to PRE Decrypt: " << endl;
 	cout << testPlaintextPreRec << endl;
-	cout << "----------END LPAlgorithmPRE" + cID + ".Decrypt TESTING----------" << endl;
-	cout << "\n" << endl;
+	cout << "----------END LPAlgorithmPRE" + cID + ".Decrypt TESTING----------" << endl << endl;
 	std::cout
 			<< "----------------------END JSON FACILITY TESTING-------------------------"
-			<< endl;
-	cout << "\n" << endl;
+			<< endl << endl;
 }
 
 

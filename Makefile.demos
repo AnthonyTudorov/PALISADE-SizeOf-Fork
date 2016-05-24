@@ -47,7 +47,6 @@ make_demos: \
 	$(BINDIR)/demo/pre/Source_presim$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/Source_StehleSteinfeld$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/PrettyJson$(EXESUFFIX)
-	@echo DEMO BUILD DONE
 
 ## builder for source files in the demo directory
 $(BUILDDIR)/demo/%.o: $(DEMODIR)/%.cpp

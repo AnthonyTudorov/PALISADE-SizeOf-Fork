@@ -246,14 +246,6 @@ namespace lbcrypto {
 		~ILDCRTParams() {}
 
 		//JSON FACILITY
-		bool SetIdFlag(Serialized& serObj, std::string flag) const {
-
-			//Place holder
-
-			return true;
-		}
-
-		//JSON FACILITY
 		bool Serialize(Serialized& serObj, std::string fileFlag) const {
 
 			//Place holder

@@ -463,14 +463,10 @@ void NTRUPRE(int input) {
 
 	TestJsonParms	tjp;
 	tjp.pk = &pk;
-	tjp.pkDeserialized = new LPPublicKeyLTV<ILVector2n>();
 	tjp.sk = &sk;
-	tjp.skDeserialized = new LPPrivateKeyLTV<ILVector2n>();
 	tjp.algorithm = &algorithm;
 	tjp.evalKey = &evalKey;
-	tjp.evalKeyDeserialized = new LPEvalKeyLTV<ILVector2n>();
 	tjp.newSK = &newSK;
-	tjp.newSKDeserialized = new LPPrivateKeyLTV<ILVector2n>();
 	tjp.cryptoParms = &cryptoParams;
 
 

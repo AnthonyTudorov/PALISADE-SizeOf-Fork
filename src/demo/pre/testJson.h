@@ -30,14 +30,10 @@ using namespace lbcrypto;
 
 struct TestJsonParms {
 	LPPublicKey<ILVector2n>					*pk;
-	LPPublicKey<ILVector2n>					*pkDeserialized;
 	LPPrivateKey<ILVector2n>				*sk;
-	LPPrivateKey<ILVector2n>				*skDeserialized;
 	LPPublicKeyEncryptionScheme<ILVector2n>	*algorithm;
 	LPEvalKey<ILVector2n>					*evalKey;
-	LPEvalKey<ILVector2n>					*evalKeyDeserialized;
 	LPPrivateKey<ILVector2n>				*newSK;
-	LPPrivateKey<ILVector2n>				*newSKDeserialized;
 	LPCryptoParameters<ILVector2n>			*cryptoParms;
 };
 

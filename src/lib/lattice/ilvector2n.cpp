@@ -447,35 +447,27 @@ namespace lbcrypto {
 
 	// JSON FACILITY - Serialize Operation
 	bool ILVector2n::Serialize(Serialized& serObj, std::string fileFlag) const {
-std::cout << "vector ser 1" << std::endl;
 		if( !serObj.IsObject() )
 			return false;
-std::cout << "vector ser 2" << std::endl;
 
 		Serialized obj(rapidjson::kObjectType, &serObj.GetAllocator());
 		if( !this->GetValues().Serialize(obj, "") )
 			return false;
-std::cout << "vector ser 3" << std::endl;
 
 		if( !this->GetParams().Serialize(obj, "") )
 			return false;
-std::cout << "vector ser 4" << std::endl;
 
 		obj.AddMember("Format", this->ToStr(this->GetFormat()), obj.GetAllocator());
-std::cout << "vector ser 5" << std::endl;
 
 		serObj.AddMember("ILVector2n", obj, serObj.GetAllocator());
-std::cout << "vector ser 6" << std::endl;
 
 		return true;
 	}
 
 	// JSON FACILITY - Deserialize Operation
 	bool ILVector2n::Deserialize(const Serialized& serObj) {
-std::cout << "deser il2vec 1" << std::endl;
 		Serialized::ConstMemberIterator iMap = serObj.FindMember("ILVector2n");
 		if( iMap == serObj.MemberEnd() ) return false;
-		std::cout << "deser il2vec 1a" << std::endl;
 
 		SerialItem::ConstMemberIterator pIt = iMap->value.FindMember("ILParams");
 		if( pIt == iMap->value.MemberEnd() ) return false;
@@ -483,40 +475,31 @@ std::cout << "deser il2vec 1" << std::endl;
 		Serialized parm(rapidjson::kObjectType);
 		parm.AddMember(SerialItem(pIt->name,parm.GetAllocator()), SerialItem(pIt->value,parm.GetAllocator()), parm.GetAllocator());
 
-		std::cout << "deser il2vec 2" << std::endl;
 		ILParams json_ilParams;
 		if( !json_ilParams.Deserialize(parm) )
 			return false;
-		std::cout << "deser il2vec 3" << std::endl;
 		this->SetParams(json_ilParams);
 
-		std::cout << "deser il2vec 4" << std::endl;
 		usint vectorLength = this->GetParams().GetCyclotomicOrder() / 2;
 
-		std::cout << "deser il2vec 5" << std::endl;
 		BigBinaryVector vectorBBV = BigBinaryVector(vectorLength);
 
-		std::cout << "deser il2vec 6" << std::endl;
 		SerialItem::ConstMemberIterator vIt = iMap->value.FindMember("BigBinaryVector");
 		if( vIt == iMap->value.MemberEnd() ) {
 			return false;
 		}
-		std::cout << "deser il2vec 7" << std::endl;
 
 		Serialized s(rapidjson::kObjectType);
 		s.AddMember(SerialItem(vIt->name,s.GetAllocator()), SerialItem(vIt->value,s.GetAllocator()), s.GetAllocator());
 		if( !vectorBBV.Deserialize(s) ) { //vIt->value) ) {
 			return false;
 		}
-		std::cout << "deser il2vec 8" << std::endl;
 
 		if( (vIt = iMap->value.FindMember("Format")) == iMap->value.MemberEnd() ) return false;
-		std::cout << "deser il2vec 9" << std::endl;
 		this->SetValues(vectorBBV, Format(atoi(vIt->value.GetString())));
 
 		BigBinaryInteger bbiModulus(this->GetParams().GetModulus());
 		this->SetModulus(bbiModulus);
-		std::cout << "deser il2vec a" << std::endl;
 
 		return true;
 	}

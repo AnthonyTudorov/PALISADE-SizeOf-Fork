@@ -111,17 +111,13 @@ namespace lbcrypto {
 	bool Ciphertext<Element>::Serialize(Serialized& serObj, std::string fileFlag) const {
 
 		serObj.SetObject();
-std::cout << "cip 1" << std::endl;
 		if( !this->SetIdFlag(serObj, "minimal") )
 			return false;
-		std::cout << "cip 2" << std::endl;
 
 		if( !this->GetCryptoParameters().Serialize(serObj, "") )
 			return false;
-		std::cout << "cip 3" << std::endl;
 
 		serObj.AddMember("Norm", this->GetNorm().ToString(), serObj.GetAllocator());
-		std::cout << "cip 4" << std::endl;
 
 		return this->GetElement().Serialize(serObj, "");
 	}
@@ -130,31 +126,30 @@ std::cout << "cip 1" << std::endl;
 	template <class Element>
 	bool Ciphertext<Element>::Deserialize(const Serialized& serObj) {
 
-		std::cout << "cip deser 1" << std::endl;
-		LPCryptoParameters<Element> *json_cryptoParams = new LPCryptoParametersLTV<Element>();
+		if( !DeserializeHelper<Element,Ciphertext<Element>>(serObj, this) ) return false;
+
+		// yeah this could be done better...
+		LPCryptoParameters<Element>* json_cryptoParams = (LPCryptoParameters<Element>*) &this->GetCryptoParameters();
+
 		if( !json_cryptoParams->Deserialize(serObj) )
 			return false;
-		std::cout << "cip deser 2" << std::endl;
 
 		// for future use, make sure you pick everything out of the serialization that is in there...
 		Serialized::ConstMemberIterator mIter = serObj.FindMember("Root");
 		if( mIter == serObj.MemberEnd() )
 			return false;
-		std::cout << "cip deser 3" << std::endl;
 
 		Serialized::ConstMemberIterator normIter = serObj.FindMember("Norm");
 		if( normIter == mIter->value.MemberEnd() )
 			return false;
-		std::cout << "cip deser 4" << std::endl;
 
 		BigBinaryInteger bbiNorm(normIter->value.GetString());
 
 		Element json_ilElement;
 		if( !json_ilElement.Deserialize(serObj) )
 			return false;
-		std::cout << "cip deser 5" << std::endl;
 
-		this->SetCryptoParameters(*json_cryptoParams);
+		this->SetCryptoParameters(json_cryptoParams);
 		this->SetNorm(bbiNorm);
 		this->SetElement(json_ilElement);
 		return true;

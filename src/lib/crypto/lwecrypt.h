@@ -1,7 +1,7 @@
 /**0
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Jerry Ryan <gwryan@njit.edu>
  * @version 00_03
  *
  * @section LICENSE
@@ -109,7 +109,7 @@ namespace lbcrypto {
 			/**
 			* Destructor
 			*/
-			~LPCryptoParametersLTV() {
+			virtual ~LPCryptoParametersLTV() {
 			}
 			
 			/**
@@ -316,6 +316,29 @@ namespace lbcrypto {
 			//Discrete Gaussian Generator for Key Generation
 			DiscreteGaussianGenerator m_dggStSt;
 	};
+
+	/* this function is used to properly deserialize the Crypto Parameters, and to change the object's
+	 * parms based on the serialization
+	 *
+	 * the hardcoded strings should be replaced
+	 */
+	template <typename Element, typename Object>
+	inline bool DeserializeHelper(const Serialized& serObj, Object *o)
+	{
+		Serialized::ConstMemberIterator it = serObj.FindMember("LPCryptoParametersType");
+		if( it == serObj.MemberEnd() ) return false;
+		std::string type = it->value.GetString();
+
+		LPCryptoParametersImpl<Element>* parmPtr;
+		if( type == "LPCryptoParametersLTV" ) {
+			parmPtr = new LPCryptoParametersLTV<Element>();
+		} else if( type == "LPCryptoParametersStehleSteinfeld" ) {
+			parmPtr = new LPCryptoParametersStehleSteinfeld<Element>();
+		} else
+			return false;
+		o->SetCryptoParameters(parmPtr);
+		return true;
+	}
 
 	/**
 	 * @brief Public key implementation template for Ring-LWE NTRU-based schemes,
