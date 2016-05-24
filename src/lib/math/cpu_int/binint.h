@@ -561,6 +561,8 @@ namespace cpu_int{
     */
     const std::string ToString() const;		
 
+    const std::string ToStringDecimal() const;		
+
     /**
     * Tests whether the BigBinaryInteger is a power of 2.
     *

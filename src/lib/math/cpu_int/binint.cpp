@@ -1054,6 +1054,31 @@ void BigBinaryInteger<uint_type, BITLENGTH>::SetValue(const std::string& str){
 	m_state = INITIALIZED;
 }
 
+template<typename uint_type, usint BITLENGTH>
+void BigBinaryInteger<uint_type, BITLENGTH>::SetValueFromDecimal(const std::string& str){
+
+	char *end;
+	sint i = m_nSize-1;
+	usint counter = 0;
+	sint curpos = str.length()-1;
+	sint pos = 0;
+	do {
+		pos = str.rfind(".", curpos);
+		m_value[i] = std::strtoul(str.substr(pos+1, curpos-pos).c_str(),&end,10);
+		counter++;
+		i--;
+		if (pos > -1)
+			curpos = pos-1;
+		else
+			break;
+	} while (str.rfind(".", curpos));
+
+	m_MSB = GetMSB32(m_value[i+1])+(counter-1)*32;
+
+	m_state = INITIALIZED;
+
+}
+
 //Algorithm used: Repeated substraction by a multiple of modulus, which will be referred to as "Classical Modulo Reduction Algorithm"
 //Complexity: O(log(*this)-log(modulus))
 template<typename uint_type,usint BITLENGTH>
