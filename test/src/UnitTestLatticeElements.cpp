@@ -138,15 +138,15 @@ TEST(method_ILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVe
 
   ILDCRTParams ildcrtparams(rootsOfUnity, order, moduli);
 
-  ILVectorArray2n ilvectorarray2n1(ildcrtparams, ilvector2n1);
-  ILVectorArray2n ilvectorarray2n2(ildcrtparams, ilvector2n2);
+  ILVectorArray2n ilvectorarray2n1(ilvector2n1);
+  ILVectorArray2n ilvectorarray2n2(ilvector2n2);
 
   {
     ILVectorArray2n ilvectorarray2nResult = ilvectorarray2n1 + ilvectorarray2n2;
 
     for(usint i=0; i<towersize; i++) {
       for(usint j=0; j<order/2; j++) {
-        BigBinaryInteger actualResult(ilvectorarray2nResult.GetValues(i).GetValAtIndex(j));
+        BigBinaryInteger actualResult(ilvectorarray2nResult.GetTowerAtIndex(i).GetValAtIndex(j));
         BigBinaryInteger expectedResult((bbv1[i].GetValAtIndex(j) + bbv2[i].GetValAtIndex(j)).Mod(moduli[i]));
         EXPECT_EQ(actualResult, expectedResult) << "ILVectorArray2n + operation returns incorrect results.";
       }
@@ -159,7 +159,7 @@ TEST(method_ILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVe
 
     for(usint i=0; i<towersize; i++) {
       for(usint j=0; j<order/2; j++) {
-        BigBinaryInteger actualResult(ilvectorarray2nResult.GetValues(i).GetValAtIndex(j));
+        BigBinaryInteger actualResult(ilvectorarray2nResult.GetTowerAtIndex(i).GetValAtIndex(j));
         BigBinaryInteger expectedResult((bbv1[i].GetValAtIndex(j) * bbv2[i].GetValAtIndex(j)).Mod(moduli[i]));
         EXPECT_EQ(actualResult, expectedResult) << "ILVectorArray2n * operation returns incorrect results.";
       }
