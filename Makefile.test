@@ -30,7 +30,7 @@
 
 # define the test target. For some reason this needs to be defined
 # first to work
-TEST_TARGET := test/bin/tests
+TEST_TARGET := test/bin/tests$(EXESUFFIX)
 
 #this is the actual target that gets called when make is executed
 #(part of all in Makefile) it makes the test library, actual palisade
@@ -47,7 +47,7 @@ make_tests:  $(TEST_TARGET)
 TEST_SRC_DIR := test/src
 TEST_BUILD_DIR := test/build
 TEST_TARGETDIR := test/bin
-TEST_TARGET := test/bin/tests
+TEST_TARGET := test/bin/tests$(EXESUFFIX)
 
 #DBC: what is the following for?
 check: $(TEST_TARGET)   
@@ -62,7 +62,7 @@ LIB_SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT) | xargs grep -L 
 # this assembles a list of the palisade library objects (using
 # BUILDDIR defined in the calling makefile. We need this to build test
 # executables
-LIB_OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(LIB_SOURCES:.$(SRCEXT)=.o))
+LIB_OBJECTS := $(EXTLIBDIR)/$(PALISADELIB) ## $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(LIB_SOURCES:.$(SRCEXT)=.o))
 
 
 TEST_SOURCES := $(shell find $(TEST_SRC_DIR) -type f -name *.$(SRCEXT))
