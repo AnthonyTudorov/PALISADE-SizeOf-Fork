@@ -98,11 +98,85 @@ TEST(method_ILVector2n, ensures_mod_operation_during_operations_on_two_ILVector2
 
 }
 
+TEST(method_ILVector2n, decompose_test) {
+  usint order = 8; 
+  usint nBits = 7;
+  
+  BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(order, nBits);
+  BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(order, primeModulus);
+
+  ILParams ilparams(order, primeModulus, primitiveRootOfUnity);
+
+  float stdDev = 4;
+  DiscreteGaussianGenerator dgg(primeModulus, stdDev);
+
+  ILVector2n ilVector2n(dgg, ilparams, Format::COEFFICIENT);
+
+  BigBinaryVector bbv1 (ilVector2n.GetValues());
+
+  ilVector2n.Decompose();
+
+  BigBinaryVector bbv2 (ilVector2n.GetValues());
+
+  EXPECT_EQ(bbv2.GetLength(), bbv1.GetLength()/2);
+
+  for(usint i=0; i<bbv2.GetLength(); i++) {
+    EXPECT_EQ(bbv2.GetValAtIndex(i), bbv1.GetValAtIndex(2*i)) << "ILVector2n_decompose: Values do not match between original and decomposed elements.";
+  }
+
+}
+
+TEST(method_ILVectorArray2n, decompose_test) {
+  usint order = 16;
+  usint nBits = 24;
+  usint towersize = 3;
+
+  std::vector<BigBinaryInteger> moduli(towersize);
+  std::vector<BigBinaryInteger> rootsOfUnity(towersize);
+  std::vector<ILParams> ilparams(towersize);
+
+  std::vector<ILVector2n> ilvector2n1(towersize);
+  std::vector<BigBinaryVector> bbv1(towersize);
+
+  BigBinaryInteger q("1");
+  BigBinaryInteger modulus("1");
+
+  for(usint i=0; i < towersize;i++){
+      lbcrypto::NextQ(q, BigBinaryInteger::TWO, order, BigBinaryInteger("4"), BigBinaryInteger("4"));
+      moduli[i] = q;
+      rootsOfUnity[i] = RootOfUnity(order,moduli[i]);
+      modulus = modulus* moduli[i];
+  }
+
+  float stdDev = 4;
+  DiscreteGaussianGenerator dgg(modulus, stdDev);
+
+  ILDCRTParams params(rootsOfUnity, order, moduli);
+  ILVectorArray2n ilVectorArray2n(dgg, params, Format::COEFFICIENT);
+
+  ILVectorArray2n ilvectorarray2nOriginal(ilVectorArray2n);
+  ilVectorArray2n.Decompose();
+
+  EXPECT_EQ(ilvectorarray2nOriginal.GetTowerLength(), ilVectorArray2n.GetTowerLength()) << "ILVectorArray2n_decompose: Mismatch in the number of towers after decompose.";
+
+  for(usint i=0; i<ilVectorArray2n.GetTowerLength(); i++) {
+    ILVector2n ilTowerOriginal(ilvectorarray2nOriginal.GetTowerAtIndex(i));
+    ILVector2n ilTowerDecomposed(ilVectorArray2n.GetTowerAtIndex(i));
+    
+    EXPECT_EQ(ilTowerDecomposed.GetLength(), ilTowerOriginal.GetLength()/2)  << "ILVectorArray2n_decompose: ilVector2n element in ilVectorArray2n is not half the length after decompose.";
+    
+    for(usint j=0; j<ilTowerDecomposed.GetLength(); j++) {
+      EXPECT_EQ(ilTowerDecomposed.GetValAtIndex(j), ilTowerOriginal.GetValAtIndex(2*j)) << "ILVectorArray2n_decompose: Values do not match between original and decomposed elements.";
+    }
+  }
+
+}
+
 TEST(method_ILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVectorArray2ns){
 
   usint order = 16;
   usint nBits = 24;
-  usint towersize = 1;
+  usint towersize = 3;
 
   std::vector<BigBinaryInteger> moduli(towersize);
   std::vector<BigBinaryInteger> rootsOfUnity(towersize);
@@ -138,15 +212,15 @@ TEST(method_ILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVe
 
   ILDCRTParams ildcrtparams(rootsOfUnity, order, moduli);
 
-  ILVectorArray2n ilvectorarray2n1(ildcrtparams, ilvector2n1);
-  ILVectorArray2n ilvectorarray2n2(ildcrtparams, ilvector2n2);
+  ILVectorArray2n ilvectorarray2n1(ilvector2n1);
+  ILVectorArray2n ilvectorarray2n2(ilvector2n2);
 
   {
     ILVectorArray2n ilvectorarray2nResult = ilvectorarray2n1 + ilvectorarray2n2;
 
     for(usint i=0; i<towersize; i++) {
       for(usint j=0; j<order/2; j++) {
-        BigBinaryInteger actualResult(ilvectorarray2nResult.GetValues(i).GetValAtIndex(j));
+        BigBinaryInteger actualResult(ilvectorarray2nResult.GetTowerAtIndex(i).GetValAtIndex(j));
         BigBinaryInteger expectedResult((bbv1[i].GetValAtIndex(j) + bbv2[i].GetValAtIndex(j)).Mod(moduli[i]));
         EXPECT_EQ(actualResult, expectedResult) << "ILVectorArray2n + operation returns incorrect results.";
       }
@@ -159,7 +233,7 @@ TEST(method_ILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVe
 
     for(usint i=0; i<towersize; i++) {
       for(usint j=0; j<order/2; j++) {
-        BigBinaryInteger actualResult(ilvectorarray2nResult.GetValues(i).GetValAtIndex(j));
+        BigBinaryInteger actualResult(ilvectorarray2nResult.GetTowerAtIndex(i).GetValAtIndex(j));
         BigBinaryInteger expectedResult((bbv1[i].GetValAtIndex(j) * bbv2[i].GetValAtIndex(j)).Mod(moduli[i]));
         EXPECT_EQ(actualResult, expectedResult) << "ILVectorArray2n * operation returns incorrect results.";
       }

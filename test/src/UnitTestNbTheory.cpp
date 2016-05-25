@@ -340,3 +340,36 @@ TEST(method_primitive_root_of_unity, exception_handling) {
 // 	BigBinaryInteger comp("124");
 // 	std::cout << "A factor of " << comp << " is " << lbcrypto::PollardRho(comp) << std::endl;
 // }
+
+TEST(method_nextQ, test_nextQ){
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+	BigBinaryInteger modulus("1");
+	std::vector<BigBinaryInteger> moduli(10);
+
+	BigBinaryInteger expectedModulus("323644432028149589615262773332244597688750081");
+	BigBinaryVector moduliBBV(10);
+	moduliBBV.SetModulus(expectedModulus);
+	moduliBBV.SetValAtIndex(0, "2236417");
+	moduliBBV.SetValAtIndex(1, "2297857");
+	moduliBBV.SetValAtIndex(2, "2424833");
+	moduliBBV.SetValAtIndex(3, "2437121");
+	moduliBBV.SetValAtIndex(4, "2482177");
+	moduliBBV.SetValAtIndex(5, "2486273");
+	moduliBBV.SetValAtIndex(6, "2572289");
+	moduliBBV.SetValAtIndex(7, "2592769");
+	moduliBBV.SetValAtIndex(8, "2654209");
+	moduliBBV.SetValAtIndex(9, "2707457");
+
+	for(usint i=0; i<10; i++){
+        lbcrypto::NextQ(q, BigBinaryInteger::TWO, 2048, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		moduli[i] = q;
+		EXPECT_EQ(moduli[i], moduliBBV.GetValAtIndex(i));
+		// std::cout << moduli[i] << std::endl;
+		modulus = modulus* moduli[i];
+	}
+
+	EXPECT_EQ("323644432028149589615262773332244597688750081", modulus.ToString());
+	// std::cout << modulus;
+
+}

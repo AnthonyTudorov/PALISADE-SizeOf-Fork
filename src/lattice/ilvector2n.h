@@ -47,7 +47,6 @@ using std::function;
 #include "../lattice/ilelement.h"
 #include "../math/nbtheory.h"
 #include "../math/transfrm.h"
-//#include "../encoding/ptxtencoding.h"
 
 /**
 * @namespace lbcrypto
@@ -77,46 +76,6 @@ namespace lbcrypto {
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
         ILVector2n(const ElemParams &params, Format format = EVALUATION);
-
-        /**
-         *  Set BigBinaryVector value to val
-         */
-        inline void SetValAtIndex(size_t index, int val) {
-            m_values->SetValAtIndex(index, BigBinaryInteger(val));
-        }
-
-
-        /**
-         *  Get BigBinaryVector value at index
-         */
-        //double GetValAtIndex(size_t index) {
-        //    m_values->GetValAtIndex(index);
-        //}
-
-        ///**
-        // *  Set to the constant polynomial 1.
-        // */
-        //inline void SetIdentity() {
-        //    *this = ILVector2n(*this);
-        //    this->SetValAtIndex(0, 1);
-        //    for (size_t i = 1; i < m_values->GetLength(); ++i) {
-        //        this->SetValAtIndex(i, 0);
-        //    }
-        //}
-
-/*
-        BigBinaryInteger& Norm() {
-            BigBinaryInteger& norm = 0;
-	    BigBinaryInteger& norm_t;
-            for (size_t i = 0; i < m_values->GetLength(); ++i) {
-                norm_t = this->GetValAtIndex(i);
-		if (norm_t > norm) {
-			norm = norm_t;
-		}
-            }
-            return norm;
-        }
-*/
 
         /**
          *  Create lambda that allocates a zeroed element with the specified
@@ -174,6 +133,37 @@ namespace lbcrypto {
 		* @param &&element the copied element.
 		*/
 		ILVector2n(ILVector2n &&element);
+
+
+		/**
+		* Constructor based on full methods.
+		*
+		* @param &dgg the input discrete Gaussian Generator.
+		* @param &params the input params.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVector2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
+		/**
+		* Constructor based on full methods.
+		*
+		* @param &dgg the input discrete Uniform Generator.
+		* @param &params the input params.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVector2n(DiscreteUniformGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
+		/**
+		* Constructor based on full methods.
+		*
+		* @param &dbg the input Binary Uniform Generator.
+		* @param &params the input params.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVector2n(BinaryUniformGenerator &dbg, const ElemParams &params, Format format = EVALUATION);
+
+		/**
+		* Destructor.
+		*/
+		~ILVector2n();
 
 		/**
 		* Assignment Operator.
@@ -267,35 +257,6 @@ namespace lbcrypto {
             *this = result;
             return *this;
         }
-		/**
-		* Constructor based on full methods.
-		*
-		* @param &dgg the input discrete Gaussian Generator.
-		* @param &params the input params.
-		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
-		*/
-		ILVector2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
-		/**
-		* Constructor based on full methods.
-		*
-		* @param &dgg the input discrete Uniform Generator.
-		* @param &params the input params.
-		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
-		*/
-		ILVector2n(DiscreteUniformGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
-		/**
-		* Constructor based on full methods.
-		*
-		* @param &dbg the input Binary Uniform Generator.
-		* @param &params the input params.
-		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
-		*/
-		ILVector2n(BinaryUniformGenerator &dbg, const ElemParams &params, Format format = EVALUATION);
-
-		/**
-		* Destructor.
-		*/
-		~ILVector2n();
 
 		//void GenerateGaussian(DiscreteGaussianGenerator &dgg);
 
@@ -391,8 +352,14 @@ namespace lbcrypto {
 		*/
 		void SetFormat(const Format format);
 
-		// SCALAR OPERATIONS
+		/**
+         *  Set BigBinaryVector value to val
+         */
+        inline void SetValAtIndex(size_t index, int val) {
+            m_values->SetValAtIndex(index, BigBinaryInteger(val));
+        }
 
+		// SCALAR OPERATIONS
 
 		/**
 		* Scalar addition - add an element to the first index only.
@@ -572,7 +539,6 @@ namespace lbcrypto {
 		void SwitchFormat();
 
         
-
 		// get digit for a specific based - used for PRE scheme
 		/**
 		* Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  Used in bit decomposition/relinearization operations.
@@ -774,7 +740,6 @@ namespace lbcrypto {
 	* @return The result of division in the ring.
 	*/
 	inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) { return a.DividedBy(b); }
-
 
     inline std::ostream& operator<<(std::ostream& os, const ILVector2n& vec){
         os << vec.GetValues();

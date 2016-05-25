@@ -65,7 +65,6 @@
 #include "../lattice/ilvector2n.h"
 #include "../math/nbtheory.h"
 #include "../math/transfrm.h"
-//#include "../encoding/ptxtencoding.h"
 
 /**
 * @namespace lbcrypto
