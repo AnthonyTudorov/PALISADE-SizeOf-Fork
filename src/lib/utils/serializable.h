@@ -55,6 +55,7 @@
 */
 namespace lbcrypto {
 
+	// C+11 "using" is not supported in VS 2012 - so it was replaced with C+03 "typedef"
 	typedef rapidjson::Value SerialItem;
 	typedef rapidjson::Document Serialized;
 
