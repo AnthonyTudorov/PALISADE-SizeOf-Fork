@@ -178,31 +178,27 @@ namespace lbcrypto {
 	
 		//JSON FACILITY
 		/**
-		* Sets the ID and Flag attribute values for use in serializing this object to a JSON file.
-		*
-		* @param serObj stores this object's serialized attribute name value pairs.
-		* @return map updated with ID and Flag attribute values.
+		* Serialize the object into a Serialized
+		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @param fileFlag is an object-specific parameter for the serialization
+		* @return true if successfully serialized
 		*/
-		bool SetIdFlag(Serialized& serObj, std::string flag) const;
+		bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
 
-		//JSON FACILITY
 		/**
-		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
-		* Invokes nested serialization of LPCryptoParametersLWE, ILParams, ILVector2n, and BigBinaryVector.
-		*
-		* @param serObj stores this object's serialized attribute name value pairs.
-		* @return map updated with the attribute name value pairs required to serialize this object.
+		* Higher level info about the serialization is saved here
+		* @param serObj to store the the implementing object's serialization specific attributes.
+		* @param flag an object-specific parameter for the serialization
+		* @return true on success
 		*/
-		bool Serialize(Serialized& serObj, std::string fileFlag) const;
+		bool SetIdFlag(Serialized* serObj, const std::string flag) const;
 
-		//JSON FACILITY
 		/**
-		* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
-		* Invokes nested deserialization of LPCryptoParametersLWE, ILParams, ILVector2n, and BigBinaryVector.
-		*
-		* @param serObj stores this object's serialized attribute name value pairs.
+		* Populate the object from the deserialization of the Setialized
+		* @param serObj contains the serialized object
+		* @return true on success
 		*/
-		bool Deserialize(const Serialized& serObj);
+		virtual bool Deserialize(const Serialized& serObj);
 
 	private:
 

@@ -508,14 +508,14 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::GetDigitAtIndexForBas
 
 // JSON FACILITY - Serialize Operation
 template<class IntegerType>
-bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::Serialized& serObj, std::string fileFlag) const {
+bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::Serialized* serObj, const std::string fileFlag) const {
 
-	if( !serObj.IsObject() )
+	if( !serObj->IsObject() )
 		return false;
 
 	lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
 
-	bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj.GetAllocator());
+	bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
 
 	usint pkVectorLength = GetLength();
 	if( pkVectorLength > 0 ) {
@@ -524,10 +524,10 @@ bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::Serialized& serObj, std::
 			pkBufferString += "|";
 			pkBufferString += GetValAtIndex(i).Serialize();
 		}
-		bbvMap.AddMember("VectorValues", pkBufferString, serObj.GetAllocator());
+		bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
 	}
 
-	serObj.AddMember("BigBinaryVector", bbvMap, serObj.GetAllocator());
+	serObj->AddMember("BigBinaryVector", bbvMap, serObj->GetAllocator());
 
 	return true;
 }

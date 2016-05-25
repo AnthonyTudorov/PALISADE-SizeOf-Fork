@@ -544,6 +544,11 @@ static inline unsigned int base64_to_value(char b64) {
 
 /**
  * This function is only used for serialization
+ *
+ * The scheme here is to take each of the uint_types in the BigBinaryInteger
+ * and turn it into 6 ascii characters. It's basically Base64 encoding: 6 bits per character
+ * times 5 is the first 30 bits. For efficiency's sake, the last two bits are encoded as A,B,C, or D
+ * and the code is implemented as unrolled loops
  */
 template<typename uint_type,usint BITLENGTH>
 const std::string BigBinaryInteger<uint_type,BITLENGTH>::Serialize() const{

@@ -474,7 +474,7 @@ void NTRUPRE(int input) {
 	cout << "---BEGIN LPPublicKeyLTV SERIALIZATION---" << endl;
 	cout << "Serializing previously used pk object..." << endl;
 	Serialized testMap1;
-	if( pk.Serialize(testMap1, "Enc") ) {
+	if( pk.Serialize(&testMap1, "Enc") ) {
 		jsonFileName = "LPPublicKeyLTV_Enc.txt";
 		cout << "Saving to " << jsonFileName;
 		if( SerializableHelper::WriteSerializationToFile(testMap1, jsonFileName) )
@@ -486,7 +486,7 @@ void NTRUPRE(int input) {
 	cout << "---BEGIN LPPrivateKeyLTV SERIALIZATION---" << endl;
 	cout << "Serializing previously used sk object..." << endl;
 	Serialized testMap2;
-	if( sk.Serialize(testMap2, "Enc") ) {
+	if( sk.Serialize(&testMap2, "Enc") ) {
 		jsonFileName = "LPPrivateKeyLTV_Enc.txt";
 		cout << "Serialization saved to " << jsonFileName;
 		if( SerializableHelper::WriteSerializationToFile(testMap2, jsonFileName) )
@@ -558,7 +558,7 @@ void NTRUPRE(int input) {
 	Serialized testMap3;
 	start = currentDateTime();
 	
-	testCiphertext.Serialize(testMap3, "Enc");
+	testCiphertext.Serialize(&testMap3, "Enc");
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -601,7 +601,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	evalKey.Serialize(testMap4, "Pre");
+	evalKey.Serialize(&testMap4, "Pre");
 
 	finish = currentDateTime();
 	diff = finish - start;
