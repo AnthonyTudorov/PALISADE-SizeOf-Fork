@@ -517,21 +517,15 @@ bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::Serialized& serObj, std::
 
 	bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj.GetAllocator());
 
-	std::string pkBufferString;
-	IntegerType pkVectorElem;
-	usint pkVectorLength = 0;
-	std::string pkVectorElemVal;
-	pkVectorLength = GetLength();
-	for (int i = 0; i < pkVectorLength; i++) {
-		pkVectorElem = GetValAtIndex(i);
-
-		pkVectorElemVal = pkVectorElem.ToStringDecimal();
-		pkBufferString += pkVectorElemVal;
-		if (i != (pkVectorLength - 1)) {
+	usint pkVectorLength = GetLength();
+	if( pkVectorLength > 0 ) {
+		std::string pkBufferString = GetValAtIndex(0).Serialize();
+		for (int i = 1; i < pkVectorLength; i++) {
 			pkBufferString += "|";
+			pkBufferString += GetValAtIndex(i).Serialize();
 		}
+		bbvMap.AddMember("VectorValues", pkBufferString, serObj.GetAllocator());
 	}
-	bbvMap.AddMember("VectorValues", pkBufferString, serObj.GetAllocator());
 
 	serObj.AddMember("BigBinaryVector", bbvMap, serObj.GetAllocator());
 
@@ -554,46 +548,18 @@ bool BigBinaryVector<IntegerType>::Deserialize(const lbcrypto::Serialized& serOb
 
 	if( (vIt = mIter->value.FindMember("VectorValues")) == mIter->value.MemberEnd() )
 		return false;
-	std::string vectorVals = vIt->value.GetString();
 
 	this->SetModulus(bbiModulus);
 
 	IntegerType vectorElem;
-	std::string vectorElemVal;
-	usint i = 0;
-	//while (vectorVals.find("|", 0)) {
-	//	size_t pos = vectorVals.find("|", 0);
-	//	vectorElemVal = vectorVals.substr(0, pos);
+	usint ePos = 0;
+	const char *vp = vIt->value.GetString();
+	while( *vp != '\0' ) {
+		vp = vectorElem.Deserialize(vp);
+		this->SetValAtIndex(ePos++, vectorElem);
 
-	usint curpos = 0;
-	while (vectorVals.find("|", curpos)) {
-		size_t pos = vectorVals.find("|", curpos);
-		vectorElemVal = vectorVals.substr(curpos, pos-curpos);
-
-		std::string::size_type posTrim = vectorElemVal.find_last_not_of(' ');
-		if (posTrim != std::string::npos) {
-			if (vectorElemVal.length() != posTrim + 1) {
-				vectorElemVal.erase(posTrim + 1);
-			}
-			posTrim = vectorElemVal.find_first_not_of(' ');
-			if (posTrim != 0) {
-				vectorElemVal.erase(0, posTrim);
-			}
-		}
-		else {
-			vectorElemVal = "";
-		}
-
-		vectorElem.SetValueFromDecimal(vectorElemVal);
-		//vectorElem.SetValue(vectorElemVal);
-		//vectorVals.erase(0, pos + 1);
-		curpos = pos + 1;
-		this->SetValAtIndex(i, vectorElem);
-		i++;
-
-		if (i == this->GetLength()) {
-			break;
-		}
+		if( *vp == '|' )
+			vp++;
 	}
 
 	return true;

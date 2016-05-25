@@ -108,10 +108,10 @@ int main(){
 
 	//BigBinaryInteger test("2098098097897987987987");
 	//BigBinaryInteger test("209809");
-	//std::string str = test.ToStringDecimal();
+	//std::string str = test.Serialize();
 	//std::cout << "string = " << str << std::endl;
 	//BigBinaryInteger test1;
-	//test1.SetValueFromDecimal(str);
+	//test1.Deserialize(str);
 	//std::cout << test << std::endl;
 	//std::cout << test1 << std::endl;
 	

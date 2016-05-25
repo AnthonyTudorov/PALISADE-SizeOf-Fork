@@ -315,8 +315,6 @@ namespace cpu_int{
     * @param str is the string representation of the big binary integer to be copied.
     */
     void SetValue(const std::string& str);
-
-    void SetValueFromDecimal(const std::string& str);
         
     /**
     * Basic set method for setting the value of a big binary integer
@@ -561,7 +559,9 @@ namespace cpu_int{
     */
     const std::string ToString() const;		
 
-    const std::string ToStringDecimal() const;		
+    const std::string Serialize() const;
+    const char * Deserialize(const char * str);
+
 
     /**
     * Tests whether the BigBinaryInteger is a power of 2.
