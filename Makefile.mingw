@@ -9,5 +9,5 @@ LIBCMD := -s -shared -Wl,--subsystem,windows
 
 EXESUFFIX := .exe
 
-include Makefile
+include Makefile.common
 
