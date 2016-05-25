@@ -52,9 +52,25 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 using namespace lbcrypto;
 
+/*template <class T>
+ElemParams* CreateParams(usint m, BigBinaryInteger &q);
+
+template <>
+ElemParams* CreateParams<ILVector2n>(usint m, BigBinaryInteger &q) {
+
+}
+
+template <>
+ElemParams* CreateParams<ILVectorArray2n>(usint m, BigBinaryInteger &q) {
+  
+}*/
+
 template <class T>
 class UnitTestSHE : public ::testing::Test {
+
   protected:
+    // UnitTestSHE() : params(CreateParams<T>()) {}
+
     virtual void SetUp() {
     }
 
@@ -63,30 +79,117 @@ class UnitTestSHE : public ::testing::Test {
       // (right before the destructor).
     }
 
-    // LPCryptoParametersLTV<ILVectorArray2n>* const cryptoParams;
+    // virtual ~UnitTestSHE() { delete params; }
+
+    // ElemParams* const params;
+
+    usint m = 16;
+
+    /*void GenerateParams(BigBinaryInteger &q) {
+      params = CreateParams<T>(this->m, q);
+    }*/
+
 };
 
-typedef ::testing::Types<ILVectorArray2n> Implementations;
+#if GTEST_HAS_TYPED_TEST
+
+typedef ::testing::Types<ILVector2n, ILVectorArray2n> Implementations;
 
 TYPED_TEST_CASE(UnitTestSHE, Implementations);
 
 // Then use TYPED_TEST(TestCaseName, TestName) to define a typed test,
 // similar to TEST_F.
-TYPED_TEST(UnitTestSHE, keyswitch_test_double_crt) {
+
+TYPED_TEST(UnitTestSHE, keyswitch_test_single_crt){
+
+  usint m = 16; // 2048
+  float stdDev = 4;
+  ByteArrayPlaintextEncoding ctxtd;
+  const ByteArray plaintext = "M";
+  
+  BigBinaryInteger q("1");
+  lbcrypto::NextQ(q, BigBinaryInteger::TWO,this->m,BigBinaryInteger("4"), BigBinaryInteger("4")); 
+  BigBinaryInteger rootOfUnity(RootOfUnity(this->m,q));
+  // cout << "Modulus is" << q << endl;
+  // cout << "RootOfUnity is" << rootOfUnity << endl;
+  // DiscreteGaussianGenerator dgg(q,stdDev);
+  ILParams ilParams(this->m,q,rootOfUnity);
+  // this->GenerateParams(q);
+  
+  ByteArrayPlaintextEncoding ptxt(plaintext);
+  ptxt.Pad<ZeroPad>((this->m)/16);
+
+  LPCryptoParametersLTV<ILVector2n> cryptoParams;
+  cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+  cryptoParams.SetDistributionParameter(stdDev);
+  cryptoParams.SetRelinWindow(1);
+  cryptoParams.SetElementParams(ilParams);
+  // cryptoParams.SetElementParams(this->params);
+
+  Ciphertext<ILVector2n> cipherText;
+  cipherText.SetCryptoParameters(cryptoParams);
+
+  LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
+  LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+
+  std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
+  LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
+
+  algorithm.KeyGen(&pk, &sk);
+  algorithm.Encrypt(pk, ptxt, &cipherText);
+  // algorithm.Decrypt(sk, cipherText, &ctxtd);
+
+  // cout << "Decrypted value ILVector2n BEFORE KeySwitch: \n" << endl;
+  // cout << ctxtd<< "\n" << endl;
+  {
+    LPPublicKeyLTV<ILVector2n> pk2(cryptoParams);
+    LPPrivateKeyLTV<ILVector2n> sk2(cryptoParams);
+    algorithm.KeyGen(&pk2, &sk2);
+
+    LPKeySwitchHintLTV<ILVector2n> keySwitchHint;
+    algorithm.m_algorithmLeveledSHE->KeySwitchHintGen(sk, sk2, &keySwitchHint);
+    Ciphertext<ILVector2n> cipherText2;
+    cipherText2 = algorithm.m_algorithmLeveledSHE->KeySwitch(keySwitchHint, cipherText);
+    algorithm.Decrypt(sk2, cipherText2, &ctxtd);
+
+    // cout << "Decrypted value ILVector2n AFTER KeySwitch: \n" << endl;
+    // cout << ctxtd<< "\n" << endl;
+    EXPECT_EQ(ctxtd.GetData(), plaintext) << "keyswitch_test_single_crt failed.\n";
+  }
+
+  {
+    algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText, &sk);
+    algorithm.Decrypt(sk, cipherText, &ctxtd);
+
+    // cout << "Decrypted value ILVector2n AFTER KeySwitch: \n" << endl;
+    // cout << ctxtd<< "\n" << endl;
+    EXPECT_EQ(ctxtd.GetData(), plaintext) << "mod_reduce_test_single_crt failed.\n" ;
+  }
+
+  {
+    algorithm.m_algorithmLeveledSHE->RingReduce(&cipherText, &sk);
+    algorithm.Decrypt(sk, cipherText, &ctxtd);
+    cout << "Decrypted after RING Reduce ILVector2n: \n" << endl;
+    cout << ctxtd<< "\n" << endl;
+  }
+  
+}
+
+TEST(UnitTestSHE, keyswitch_test_double_crt) {
+  
   usint m = 16;
   const ByteArray plaintext = "M";
   ByteArrayPlaintextEncoding ptxt(plaintext);
   ptxt.Pad<ZeroPad>(m/16);
 
   float stdDev = 4;
-  usint size = 3;
+  usint size = 2;
   ByteArrayPlaintextEncoding ctxtd;
 
   vector<BigBinaryInteger> moduli(size);
   vector<BigBinaryInteger> rootsOfUnity(size);
 
   BigBinaryInteger q("1");
-  BigBinaryInteger temp;
   BigBinaryInteger modulus("1");
 
   for(int i=0; i < size;i++){
@@ -96,7 +199,7 @@ TYPED_TEST(UnitTestSHE, keyswitch_test_double_crt) {
     modulus = modulus* moduli[i];
   }
 
-  DiscreteGaussianGenerator dgg(modulus,stdDev);
+  // DiscreteGaussianGenerator dgg(modulus,stdDev);
   ILDCRTParams params(rootsOfUnity, m, moduli);
 
   LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
@@ -104,7 +207,7 @@ TYPED_TEST(UnitTestSHE, keyswitch_test_double_crt) {
   cryptoParams.SetDistributionParameter(stdDev);
   cryptoParams.SetRelinWindow(1);
   cryptoParams.SetElementParams(params);
-  cryptoParams.SetDiscreteGaussianGenerator(dgg);
+  // cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
   Ciphertext<ILVectorArray2n> cipherText;
   cipherText.SetCryptoParameters(cryptoParams);
@@ -117,46 +220,42 @@ TYPED_TEST(UnitTestSHE, keyswitch_test_double_crt) {
 
   algorithm.KeyGen(&pk, &sk);
   algorithm.Encrypt(pk, ptxt, &cipherText);
-  ctxtd.Unpad<ZeroPad>();
-  algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText, &sk);
   algorithm.Decrypt(sk, cipherText, &ctxtd);
+
+  cout << "Decrypted value ILVectorArray2n BEFORE KeySwitch: \n" << endl;
+  cout << ctxtd<< "\n" << endl;
+  {
+    LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams);
+    LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams);
+    algorithm.KeyGen(&pk2, &sk2);
+
+    LPKeySwitchHintLTV<ILVectorArray2n> keySwitchHint;
+    algorithm.m_algorithmLeveledSHE->KeySwitchHintGen(sk, sk2, &keySwitchHint);
+    Ciphertext<ILVectorArray2n> cipherText2;
+    cipherText2 = algorithm.m_algorithmLeveledSHE->KeySwitch(keySwitchHint, cipherText);
+    algorithm.Decrypt(sk2, cipherText2, &ctxtd);
+
+    cout << "Decrypted value ILVectorArray2n AFTER KeySwitch: \n" << endl;
+    cout << ctxtd<< "\n" << endl;
+
+    EXPECT_EQ(ctxtd.GetData(), plaintext) << "keyswitch_test_double_crt failed.\n"; 
+  }
+
+  {
+    algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText, &sk);
+    algorithm.Decrypt(sk, cipherText, &ctxtd);
+    // cout << "Decrypted after MOD Reduce ILVectorArray2n: \n" << endl;
+    // cout << ctxtd<< "\n" << endl;
+    EXPECT_EQ(ctxtd.GetData(), plaintext) << "mod_reduce_test_double_crt failed.\n" ;
+  }
+
+  {
+    algorithm.m_algorithmLeveledSHE->RingReduce(&cipherText, &sk);
+    algorithm.Decrypt(sk, cipherText, &ctxtd);
+    cout << "Decrypted after RING Reduce ILVectorArray2n: \n" << endl;
+    cout << ctxtd<< "\n" << endl;
+  }
   
-  EXPECT_EQ(plaintext, ctxtd.GetData());
 }
 
-/*--------------------------------------- TESTING METHODS OF TRANSFORM    --------------------------------------------*/
-
-// TEST CASE TO TEST POLYNOMIAL MULTIPLICATION USING CHINESE REMAINDER THEOREM
-
-/*TEST(SHEOperations_test, keyswitch_test_single_crt){
-  
-}
-
-TEST(SHEOperations_test, keyswitch_test_double_crt){
-  
-}
-
-TEST(SHEOperations_test, mod_reduce_test_single_crt){
-
-}
-
-TEST(SHEOperations_test, mod_reduce_test_double_crt){
-
-}
-
-TEST(SHEOperations_test, ring_reduce_test_single_crt){
-
-}
-
-TEST(SHEOperations_test, ring_reduce_test_double_crt){
-
-}
-
-TEST(SHEOperations_test, decompose_test_single_crt){
-
-}
-
-TEST(SHEOperations_test, decompose_test_double_crt){
-
-}*/
-
+#endif
