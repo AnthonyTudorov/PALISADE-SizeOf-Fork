@@ -73,7 +73,7 @@ namespace lbcrypto {
 		* @param serObj stores the serialized Palisade object's attributes.
 		* @return string reflecting the nested JSON data structure of the serialized Palisade object.
 		*/
-		static bool StringToSerialization(const std::string& jsonString, Serialized& serObj);
+		static bool StringToSerialization(const std::string& jsonString, Serialized* serObj);
 
 		/**
 		* Saves a serialized Palisade object's JSON string to file
@@ -89,7 +89,7 @@ namespace lbcrypto {
 		* @param map containing the serialized object read from the file
 		* @return success or failure
 		*/
-		static bool ReadSerializationFromFile(const std::string jsonFileName, Serialized& map);
+		static bool ReadSerializationFromFile(const std::string jsonFileName, Serialized* map);
 	};
 }
 

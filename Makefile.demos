@@ -46,13 +46,14 @@ make_demos: \
 	$(BINDIR)/demo/pre/Source_json_StehleSteinfeld_TEST$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/Source_presim$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/Source_StehleSteinfeld$(EXESUFFIX) \
-	$(BINDIR)/demo/pre/PrettyJson$(EXESUFFIX)
+	$(BINDIR)/demo/pre/PrettyJson$(EXESUFFIX) \
+	$(BINDIR)/demo/pre/palisade$(EXESUFFIX)
 
 ## builder for source files in the demo directory
 $(BUILDDIR)/demo/%.o: $(DEMODIR)/%.cpp
 	@mkdir -p $(@D)
-	$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $<
-	$(CC) -MM $(CPPFLAGS) $(INC) $< > $(patsubst %.o,%.d,$@)
+	$(CC) -fPIC $(CPPFLAGS) $(INC) -I src/lib -c -o $@ $<
+	$(CC) -MM $(CPPFLAGS) $(INC) -I src/lib $< > $(patsubst %.o,%.d,$@)
 	@mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)
 	@sed -e 's|.*\.o:|$@:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)
 	@rm -f $(patsubst %.o,%.d.tmp,$@)
@@ -67,6 +68,10 @@ $(BINDIR)/demo/obfuscate/%$(EXESUFFIX): $(BUILDDIR)/demo/obfuscate/%.o $(EXTLIBD
 	$(CC) -o $@ $^ $(EXTLIB)
 
 $(BINDIR)/demo/pre/%$(EXESUFFIX): $(BUILDDIR)/demo/pre/%.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/palisade$(EXESUFFIX): $(BUILDDIR)/demo/pre/palisade.o $(EXTLIBDIR)/$(PALISADELIB)
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 
