@@ -67,7 +67,35 @@ $(BINDIR)/demo/obfuscate/%$(EXESUFFIX): $(BUILDDIR)/demo/obfuscate/%.o $(EXTLIBD
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 
-$(BINDIR)/demo/pre/%$(EXESUFFIX): $(BUILDDIR)/demo/pre/%.o $(EXTLIBDIR)/$(PALISADELIB)
+$(BINDIR)/demo/pre/Source$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source_dcrt$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_dcrt.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source_json$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_json.o $(BUILDDIR)/demo/pre/testJson.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source_json_StehleSteinfeld$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_json_StehleSteinfeld.o $(BUILDDIR)/demo/pre/testJson.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source_json_StehleSteinfeld_TEST$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_json_StehleSteinfeld_TEST.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source_presim$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_presim.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source_StehleSteinfeld$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_StehleSteinfeld.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/PrettyJson$(EXESUFFIX): $(BUILDDIR)/demo/pre/PrettyJson.o $(EXTLIBDIR)/$(PALISADELIB)
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 

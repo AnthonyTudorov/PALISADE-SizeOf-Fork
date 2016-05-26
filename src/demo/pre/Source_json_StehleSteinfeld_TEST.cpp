@@ -502,7 +502,7 @@ void NTRUPRE(int input) {
 
 	std::cout << "YURIY - TIMING THE DESERIALIZATION OF PUBLIC KEY..." << std::endl;
 
-	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap1);
+	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap1);
 	LPPublicKeyLTV<ILVector2n> pkDeserialized;
 	LPCryptoParametersStehleSteinfeld<ILVector2n> json_cryptoParamsPub;
 	pkDeserialized.SetCryptoParameters(&json_cryptoParamsPub);
@@ -522,7 +522,7 @@ void NTRUPRE(int input) {
 	cout << "---BEGIN LPPrivateKeyLTV DESERIALIZATION---" << endl;
 	jsonFileName = "LPPrivateKeyLTV_Enc.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
-	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap2);
+	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap2);
 	LPPrivateKeyLTV<ILVector2n> skDeserialized;
 	LPCryptoParametersStehleSteinfeld<ILVector2n> json_cryptoParamsPriv;
 	skDeserialized.SetCryptoParameters(&json_cryptoParamsPriv);
@@ -578,7 +578,7 @@ void NTRUPRE(int input) {
 	cout << "---BEGIN CIPHERTEXT DESERIALIZATION---" << endl;
 	jsonFileName = "Ciphertext_Enc.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
-	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap3);
+	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap3);
 	Ciphertext<ILVector2n> ciphertextDeserialized;
 
 	start = currentDateTime();
@@ -616,7 +616,7 @@ void NTRUPRE(int input) {
 	cout << "---BEGIN LPEvalKeyLTV DESERIALIZATION---" << endl;
 	jsonFileName = "LPEvalKeyLTV_Pre.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
-	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap4);
+	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap4);
 	LPEvalKeyLTV<ILVector2n> evalKeyDeserialized;
 	LPCryptoParametersStehleSteinfeld<ILVector2n> json_cryptoParamsEval;
 	evalKeyDeserialized.SetCryptoParameters(&json_cryptoParamsEval);

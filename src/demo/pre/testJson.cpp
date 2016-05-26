@@ -91,7 +91,7 @@ void testJson(
 	cout << "---BEGIN LPPublicKey" + cID + " DESERIALIZATION---" << endl;
 	jsonFileName = "LPPublicKey" + cID + "_Enc.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
-	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap1);
+	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap1);
 
 	if (pkDeserialized.Deserialize(testMap1)) {
 		cout << "Deserialized into pkDeserialized" << endl;
@@ -105,7 +105,7 @@ void testJson(
 	cout << "---BEGIN LPPrivateKey" + cID + " DESERIALIZATION---" << endl;
 	jsonFileName = "LPPrivateKey" + cID + "_Enc.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
-	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap2);
+	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap2);
 	if (skDeserialized.Deserialize(testMap2)) {
 		cout << "Deserialized into skDeserialized" << endl;
 	} else {
@@ -140,7 +140,7 @@ void testJson(
 
 	cout << "---BEGIN CIPHERTEXT DESERIALIZATION---" << endl;
 	cout << "Deserializing instance from " << jsonFileName << endl;
-	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap3);
+	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap3);
 	Ciphertext<ILVector2n> ciphertextDeserialized;
 	if (ciphertextDeserialized.Deserialize(testMap3))
 		cout << "Deserialized into ciphertextDeserialized" << endl;
@@ -181,7 +181,7 @@ void testJson(
 	cout << "---BEGIN LPEvalKey" + cID + " DESERIALIZATION---" << endl;
 	jsonFileName = "LPEvalKey" + cID + "_Pre.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
-	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap4);
+	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap4);
 	if( evalKeyDeserialized.Deserialize(testMap4) )
 		cout << "Deserialized into evalKeyDeserialized" << endl;
 	else {
@@ -237,7 +237,7 @@ void testJson(
 	cout << "---BEGIN PRE LPPrivateKey" + cID + " DESERIALIZATION---" << endl;
 	jsonFileName = "LPPrivateKey" + cID + "_Pre.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
-	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap5);
+	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap5);
 	if( newSKDeserialized.Deserialize(testMap5) )
 		cout << "Deserialized into newSKDeserialized" << endl;
 	else {
@@ -249,7 +249,7 @@ void testJson(
 	cout << "---BEGIN PRE CIPHERTEXT DESERIALIZATION---" << endl;
 	jsonFileName = "Ciphertext" + cID + "_Pre.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
-	SerializableHelper::ReadSerializationFromFile(jsonFileName, testMap3);
+	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap3);
 	Ciphertext<ILVector2n> preCiphertextDeserialized;
 	if( preCiphertextDeserialized.Deserialize(testMap3) )
 		cout << "Deserialized into preCiphertextDeserialized" << endl;
