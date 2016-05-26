@@ -46,7 +46,8 @@ make_demos: \
 	$(BINDIR)/demo/pre/Source_json_StehleSteinfeld_TEST$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/Source_presim$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/Source_StehleSteinfeld$(EXESUFFIX) \
-	$(BINDIR)/demo/pre/PrettyJson$(EXESUFFIX)
+	$(BINDIR)/demo/pre/PrettyJson$(EXESUFFIX) \
+	$(BINDIR)/demo/pre/palisade$(EXESUFFIX)
 
 ## builder for source files in the demo directory
 $(BUILDDIR)/demo/%.o: $(DEMODIR)/%.cpp
@@ -106,6 +107,10 @@ $(BINDIR)/demo/pre/Source_StehleSteinfeld$(EXESUFFIX): $(BUILDDIR)/demo/pre/Sour
 	$(CC) -o $@ $^ $(EXTLIB)
 
 $(BINDIR)/demo/pre/PrettyJson$(EXESUFFIX): $(BUILDDIR)/demo/pre/PrettyJson.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/palisade$(EXESUFFIX): $(BUILDDIR)/demo/pre/palisade.o $(EXTLIBDIR)/$(PALISADELIB)
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 
