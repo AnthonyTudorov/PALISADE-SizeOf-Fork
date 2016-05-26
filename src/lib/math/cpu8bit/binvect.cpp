@@ -407,20 +407,15 @@ BigBinaryVector BigBinaryVector::GetDigitAtIndexForBase(usint index, usint base)
 	return ans;
 }
 
-// JSON FACILITY - SetIdFlag Operation
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> BigBinaryVector::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
-
-	//Place holder
-
-	return serializationMap;
-}
-
 // JSON FACILITY - Serialize Operation
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> BigBinaryVector::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+bool BigBinaryVector::Serialize(lbcrypto::Serialized* serObj, const std::string fileFlag) const {
 
-	std::unordered_map <std::string, std::string> bbvMap;
+	if( !serObj->IsObject() )
+		return false;
 
-	bbvMap.emplace("Modulus", this->GetModulus().ToString());
+	lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
+
+	bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
 
 	std::string pkBufferString;
 	BigBinaryInteger pkVectorElem;
@@ -437,22 +432,31 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 			pkBufferString += "|";
 		}
 	}
-	bbvMap.emplace("VectorValues", pkBufferString);
+	bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
 
-	serializationMap.emplace("BigBinaryVector", bbvMap);
+	serObj->AddMember("BigBinaryVector", bbvMap, serObj->GetAllocator());
 
-	return serializationMap;
+	return true;
 }
 
 // JSON FACILITY - Deserialize Operation
-void BigBinaryVector::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+bool BigBinaryVector::Deserialize(const lbcrypto::Serialized& serObj) {
 
-	std::unordered_map<std::string, std::string> bbvMap = serializationMap["BigBinaryVector"];
+	lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigBinaryVector");
+	if( mIter == serObj.MemberEnd() ) return false;
 
-	BigBinaryInteger bbiModulus(bbvMap["Modulus"]);
+	lbcrypto::SerialItem::ConstMemberIterator vIt;
+
+	if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
+		return false;
+	BigBinaryInteger bbiModulus(vIt->value.GetString());
+
+	if( (vIt = mIter->value.FindMember("VectorValues")) == mIter->value.MemberEnd() )
+		return false;
+	std::string vectorVals = vIt->value.GetString();
+
 	this->SetModulus(bbiModulus);
 
-	std::string vectorVals = bbvMap["VectorValues"];
 	BigBinaryInteger vectorElem;
 	std::string vectorElemVal;
 	usint i = 0;
@@ -483,6 +487,8 @@ void BigBinaryVector::Deserialize(std::unordered_map <std::string, std::unordere
 			break;
 		}
 	}
+
+	return true;
 }
 
 //Private functions

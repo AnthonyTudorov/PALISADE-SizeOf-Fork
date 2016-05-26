@@ -11,6 +11,7 @@ List of Authors:
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
+		Jerry Ryan, gwryan@njit.edu
 Description:	
 	This code provides the core proxy re-encryption functionality.
 
@@ -23,7 +24,7 @@ Redistribution and use in source and binary forms, with or without modification,
 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-*/
+ */
 
 #include "lwecrypt.h"
 #include <cstring>
@@ -36,7 +37,7 @@ namespace lbcrypto {
 template <class Element>
 bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
 		LPPrivateKey<Element> *privateKey) const
-{
+		{
 	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(privateKey->GetCryptoParameters());
 	//const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
@@ -49,12 +50,9 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	f = p*f;
 
 	f = f + BigBinaryInteger::ONE;
-	
-	//cout<<"f="<<f.GetValues()<<endl;
-
 
 	//added for saving the cryptoparams
-/*	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLTV<Element>&>(cryptoParams);
+	/*	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLTV<Element>&>(cryptoParams);
 
 	float DistributionParameter = cryptoParamsLWE.GetDistributionParameter();
 	float AssuranceMeasure = cryptoParamsLWE.GetAssuranceMeasure();
@@ -86,12 +84,12 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	privateKey->MakePublicKey(g,publicKey);
 
 	return true;
-}
+		}
 
 template <class Element>
 bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
 		LPPrivateKey<Element> *privateKey) const
-{
+		{
 	const LPCryptoParametersStehleSteinfeld<Element> &cryptoParams = static_cast<const LPCryptoParametersStehleSteinfeld<Element>&>(privateKey->GetCryptoParameters());
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
@@ -103,7 +101,7 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 	f = p*f;
 
 	f = f + BigBinaryInteger::ONE;
-	
+
 	f.SwitchFormat();
 
 	//check if inverse does not exist
@@ -127,17 +125,17 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 	privateKey->MakePublicKey(g,publicKey);
 
 	return true;
-}
+		}
 
 
 template <class Element>
 void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey, 
-				const PlaintextEncodingInterface &plaintext, 
-				Ciphertext<Element> *ciphertext) const
-{
+		const PlaintextEncodingInterface &plaintext,
+		Ciphertext<Element> *ciphertext) const
+		{
 
 	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
-	//const LPCryptoParameters<Element> &cryptoParams = publicKey.GetCryptoParameters();
+	//LPCryptoParameters<Element> &cryptoParams = publicKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
@@ -145,14 +143,14 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	Element m(elementParams);
 
 	plaintext.Encode(p,&m);
-	
-//	m.PrintValues();
+
+	//	m.PrintValues();
 	//m.EncodeElement(plaintext,p);
 
 	m.SwitchFormat();
 
 	const Element &h = publicKey.GetPublicElement();
-	
+
 	Element s(dgg,elementParams);
 	Element e(dgg,elementParams);
 
@@ -163,18 +161,18 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 
 	c = h*s + p*e + m;
 
-	ciphertext->SetCryptoParameters(cryptoParams);
+	ciphertext->SetCryptoParameters(&cryptoParams);
 	ciphertext->SetPublicKey(publicKey);
 	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
 	ciphertext->SetElement(c);
 
-}
+		}
 
 template <class Element>
 DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &privateKey, 
-				const Ciphertext<Element> &ciphertext,
-				PlaintextEncodingInterface *plaintext) const
-{	
+		const Ciphertext<Element> &ciphertext,
+		PlaintextEncodingInterface *plaintext) const
+		{
 
 	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
@@ -195,56 +193,180 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 
 	//Element m(b.ModByTwo());
 
-//	Element m(b.Mod(p));
+	//	Element m(b.Mod(p));
 
 	//cout<<"m ="<<m.GetValues()<<endl;
 
 	//m.DecodeElement(static_cast<ByteArrayPlaintextEncoding*>(plaintext),p);
-//	plaintext->Decode(p,m);
+	//	plaintext->Decode(p,m);
 	plaintext->Decode(p,b);
 
 	return DecodingResult(plaintext->GetLength());
-}
-
-// JSON FACILITY - LPCryptoParametersLWE SetIdFlag Operation
-template <class Element>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPCryptoParametersLTV<Element>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
-
-	//Place holder
-
-	return serializationMap;
-}
+		}
 
 // JSON FACILITY - LPCryptoParametersLWE Serialize Operation
 template <class Element>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPCryptoParametersLTV<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+bool LPCryptoParametersStehleSteinfeld<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
 
-	std::unordered_map <std::string, std::string> cryptoParamsMap;
-	cryptoParamsMap.emplace("DistributionParameter", this->ToStr(GetDistributionParameter()));
-	cryptoParamsMap.emplace("AssuranceMeasure", this->ToStr(GetAssuranceMeasure()));
-	cryptoParamsMap.emplace("SecurityLevel", this->ToStr(GetSecurityLevel()));
-	cryptoParamsMap.emplace("RelinWindow", this->ToStr(GetRelinWindow()));
-	cryptoParamsMap.emplace("Depth", this->ToStr(GetDepth()));
-	cryptoParamsMap.emplace("PlaintextModulus", this->GetPlaintextModulus().ToString());
-	serializationMap.emplace("LPCryptoParametersLWE", cryptoParamsMap);
+	if( !serObj->IsObject() )
+		return false;
 
-	const ElemParams *cpElemParams = &this->GetElementParams();
-	serializationMap = cpElemParams->Serialize(serializationMap, "");
+	Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
+	const ElemParams& ep = this->GetElementParams();
+	if( !ep.Serialize(&pser, fileFlag) )
+		return false;
 
-	return serializationMap;
+	Serialized cryptoParamsMap(rapidjson::kObjectType, &serObj->GetAllocator());
+	cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("DistributionParameter", this->ToStr(this->GetDistributionParameter()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("DistributionParameterStSt", this->ToStr(this->GetDistributionParameterStSt()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("AssuranceMeasure", this->ToStr(this->GetAssuranceMeasure()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("SecurityLevel", this->ToStr(this->GetSecurityLevel()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("RelinWindow", this->ToStr(this->GetRelinWindow()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("Depth", this->ToStr(this->GetDepth()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("PlaintextModulus", this->GetPlaintextModulus().ToString(), serObj->GetAllocator());
+
+	serObj->AddMember("LPCryptoParametersStehleSteinfeld", cryptoParamsMap, serObj->GetAllocator());
+	serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersStehleSteinfeld", serObj->GetAllocator());
+
+	return true;
 }
 
 // JSON FACILITY - LPCryptoParametersLWE Deserialize Operation
 template <class Element>
-void LPCryptoParametersLTV<Element>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+bool LPCryptoParametersStehleSteinfeld<Element>::Deserialize(const Serialized& serObj) {
 
-	std::unordered_map<std::string, std::string> cryptoParamsMap = serializationMap["LPCryptoParametersLWE"];
-	BigBinaryInteger bbiPlaintextModulus(cryptoParamsMap["PlaintextModulus"]);
-	float distributionParameter = stof(cryptoParamsMap["DistributionParameter"]);
-	float assuranceMeasure = stof(cryptoParamsMap["AssuranceMeasure"]);
-	float securityLevel = stof(cryptoParamsMap["SecurityLevel"]);
-	usint relinWindow = stoi(cryptoParamsMap["RelinWindow"]);
-	int depth = stoi(cryptoParamsMap["Depth"]);
+	Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersStehleSteinfeld");
+	if( mIter == serObj.MemberEnd() ) return false;
+
+	SerialItem::ConstMemberIterator pIt;
+
+	if( (pIt = mIter->value.FindMember("ElemParams")) == mIter->value.MemberEnd() )
+		return false;
+	Serialized oneItem(rapidjson::kObjectType);
+	SerialItem key( pIt->value.MemberBegin()->name, oneItem.GetAllocator() );
+	SerialItem val( pIt->value.MemberBegin()->value, oneItem.GetAllocator() );
+	oneItem.AddMember(key, val, oneItem.GetAllocator());
+
+	ElemParams *json_ilParams = new ILParams();
+	if( !json_ilParams->Deserialize(oneItem) ) {
+		delete json_ilParams;
+		return false;
+	}
+
+	this->SetElementParams(*json_ilParams);
+	if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
+		return false;
+	BigBinaryInteger bbiPlaintextModulus(pIt->value.GetString());
+
+	if( (pIt = mIter->value.FindMember("DistributionParameter")) == mIter->value.MemberEnd() )
+		return false;
+	float distributionParameter = atof(pIt->value.GetString());
+
+	if( (pIt = mIter->value.FindMember("DistributionParameterStSt")) == mIter->value.MemberEnd() )
+		return false;
+	float distributionParameterStSt = atof(pIt->value.GetString());
+
+	if( (pIt = mIter->value.FindMember("AssuranceMeasure")) == mIter->value.MemberEnd() )
+		return false;
+	float assuranceMeasure = atof(pIt->value.GetString());
+
+	if( (pIt = mIter->value.FindMember("SecurityLevel")) == mIter->value.MemberEnd() )
+		return false;
+	float securityLevel = atof(pIt->value.GetString());
+
+	if( (pIt = mIter->value.FindMember("RelinWindow")) == mIter->value.MemberEnd() )
+		return false;
+	usint relinWindow = atoi(pIt->value.GetString());
+
+	if( (pIt = mIter->value.FindMember("Depth")) == mIter->value.MemberEnd() )
+		return false;
+	int depth = atoi(pIt->value.GetString());
+
+	this->SetPlaintextModulus(bbiPlaintextModulus);
+	this->SetDistributionParameter(distributionParameter);
+	this->SetDistributionParameterStSt(distributionParameterStSt);
+	this->SetAssuranceMeasure(assuranceMeasure);
+	this->SetSecurityLevel(securityLevel);
+	this->SetRelinWindow(relinWindow);
+	this->SetDepth(depth);
+
+	return true;
+}
+
+template <class Element>
+bool LPCryptoParametersLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
+
+	if( !serObj->IsObject() )
+		return false;
+
+	Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
+	const ElemParams& ep = this->GetElementParams();
+	if( !ep.Serialize(&pser, fileFlag) )
+		return false;
+
+	SerialItem cryptoParamsMap(rapidjson::kObjectType);
+	cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("DistributionParameter", this->ToStr(GetDistributionParameter()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("AssuranceMeasure", this->ToStr(GetAssuranceMeasure()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("SecurityLevel", this->ToStr(GetSecurityLevel()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("RelinWindow", this->ToStr(GetRelinWindow()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("Depth", this->ToStr(GetDepth()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("PlaintextModulus", this->GetPlaintextModulus().ToString(), serObj->GetAllocator());
+
+	serObj->AddMember("LPCryptoParametersLTV", cryptoParamsMap, serObj->GetAllocator());
+	serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersLTV", serObj->GetAllocator());
+
+	return true;
+}
+
+// JSON FACILITY - LPCryptoParametersLWE Deserialize Operation
+template <class Element>
+bool LPCryptoParametersLTV<Element>::Deserialize(const Serialized& serObj) {
+
+	Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersLTV");
+	if( mIter == serObj.MemberEnd() ) return false;
+
+	SerialItem::ConstMemberIterator pIt;
+
+	if( (pIt = mIter->value.FindMember("ElemParams")) == mIter->value.MemberEnd() )
+		return false;
+	Serialized oneItem(rapidjson::kObjectType);
+	SerialItem key( pIt->value.MemberBegin()->name, oneItem.GetAllocator() );
+	SerialItem val( pIt->value.MemberBegin()->value, oneItem.GetAllocator() );
+	oneItem.AddMember(key, val, oneItem.GetAllocator());
+
+	ElemParams *json_ilParams = new ILParams();
+	if( !json_ilParams->Deserialize(oneItem) ) {
+		delete json_ilParams;
+		return false;
+	}
+
+	this->SetElementParams(*json_ilParams);
+
+	if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
+		return false;
+	BigBinaryInteger bbiPlaintextModulus(pIt->value.GetString());
+
+	if( (pIt = mIter->value.FindMember("DistributionParameter")) == mIter->value.MemberEnd() )
+		return false;
+	float distributionParameter = atof(pIt->value.GetString());
+
+	if( (pIt = mIter->value.FindMember("AssuranceMeasure")) == mIter->value.MemberEnd() )
+		return false;
+	float assuranceMeasure = atof(pIt->value.GetString());
+
+	if( (pIt = mIter->value.FindMember("SecurityLevel")) == mIter->value.MemberEnd() )
+		return false;
+	float securityLevel = atof(pIt->value.GetString());
+
+	if( (pIt = mIter->value.FindMember("RelinWindow")) == mIter->value.MemberEnd() )
+		return false;
+	usint relinWindow = atoi(pIt->value.GetString());
+
+	if( (pIt = mIter->value.FindMember("Depth")) == mIter->value.MemberEnd() )
+		return false;
+	int depth = atoi(pIt->value.GetString());
 
 	this->SetPlaintextModulus(bbiPlaintextModulus);
 	this->SetDistributionParameter(distributionParameter);
@@ -253,160 +375,178 @@ void LPCryptoParametersLTV<Element>::Deserialize(std::unordered_map <std::string
 	this->SetRelinWindow(relinWindow);
 	this->SetDepth(depth);
 
-	//YURIY's FIX
-	//find out the type of object using the input JSON and static object id
-	//create an object of that class using the new operator (on the heap)
-	// if (classname=="ILParams")
-	//		ILParams json_ilParams = new ILParams();
-	//Rely on object factory approach to determine what class to instantiate for
-	//deserialization.
-	ElemParams *json_ilParams = new ILParams();
-	json_ilParams->Deserialize(serializationMap);
-	this->SetElementParams(*json_ilParams);
+	return true;
 }
 
-// JSON FACILITY - LPPublicKeyLTV SetIdFlag Operation
+// JSON FACILITY
 template <class Element>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPPublicKeyLTV<Element>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+bool LPPublicKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string flag) const {
 
-	std::unordered_map <std::string, std::string> idFlagMap;
-	idFlagMap.emplace("ID", "LPPublicKeyLTV");
-	idFlagMap.emplace("Flag", flag);
-	serializationMap.emplace("Root", idFlagMap);
+	SerialItem idFlagMap(rapidjson::kObjectType);
+	idFlagMap.AddMember("ID", "LPPublicKeyLTV", serObj->GetAllocator());
+	idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
+	serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
 
-	return serializationMap;
+	return true;
 }
 
 // JSON FACILITY - LPPublicKeyLTV Serialize Operation
 template <class Element>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPPublicKeyLTV<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+bool LPPublicKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
 
-	serializationMap = this->SetIdFlag(serializationMap, fileFlag);
+	serObj->SetObject();
 
-	const LPCryptoParameters<Element> *lpCryptoParams = &this->GetCryptoParameters();
-	serializationMap = lpCryptoParams->Serialize(serializationMap, "");
+	if( !this->GetCryptoParameters().Serialize(serObj, "") )
+		return false;
 
-	serializationMap = this->GetPublicElement().Serialize(serializationMap, "");
+	const Element& pe = this->GetPublicElement();
 
-	return serializationMap;
+	if( !pe.Serialize(serObj, "") )
+		return false;
+
+	if( !this->SetIdFlag(serObj, fileFlag) )
+		return false;
+
+	return true;
 }
 
 // JSON FACILITY - LPPublicKeyLTV Deserialize Operation
 template <class Element>
-void LPPublicKeyLTV<Element>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+bool LPPublicKeyLTV<Element>::Deserialize(const Serialized& serObj) {
 
-	LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
-	json_cryptoParams->Deserialize(serializationMap);
+	if( !DeserializeAndSetCryptoParameters<Element,LPPublicKeyLTV<Element>>(serObj, this) ) return false;
+
+	if( !this->AccessCryptoParameters().Deserialize(serObj) )
+		return false;
 
 	Element json_ilElement;
-	json_ilElement.Deserialize(serializationMap);
-	this->SetPublicElement(json_ilElement);
+	if( json_ilElement.Deserialize(serObj) ) {
+		this->SetPublicElement(json_ilElement);
+		return true;
+	}
+
+	return false;
 }
 
 // JSON FACILITY - LPEvalKeyLTV SetIdFlag Operation
 template <class Element>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPEvalKeyLTV<Element>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+bool LPEvalKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string flag) const {
 
-	std::unordered_map <std::string, std::string> idFlagMap;
-	idFlagMap.emplace("ID", "LPEvalKeyLTV");
-	idFlagMap.emplace("Flag", flag);
-	serializationMap.emplace("Root", idFlagMap);
+	SerialItem idFlagMap(rapidjson::kObjectType);
+	idFlagMap.AddMember("ID", "LPEvalKeyLTV", serObj->GetAllocator());
+	idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
+	serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
 
-	return serializationMap;
+	return true;
 }
 
 // JSON FACILITY - LPEvalKeyLTV Serialize Operation
 template <class Element>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPEvalKeyLTV<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+bool LPEvalKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
 
-	serializationMap = this->SetIdFlag(serializationMap, fileFlag);
+	serObj->SetObject();
 
-	const LPCryptoParameters<Element> *lpCryptoParams = &this->GetCryptoParameters();
-	serializationMap = lpCryptoParams->Serialize(serializationMap, "");
+	if( !this->SetIdFlag(serObj, fileFlag) )
+		return false;
+
+	if( !this->GetCryptoParameters().Serialize(serObj, "") )
+		return false;
 
 	std::vector<int>::size_type evalKeyVectorLength = this->GetEvalKeyElements().size();
-	std::unordered_map <std::string, std::string> idFlagMap = serializationMap["Root"];
-	idFlagMap.emplace("VectorLength", this->ToStr(evalKeyVectorLength));
-	serializationMap.erase("Root");
-	serializationMap.emplace("Root", idFlagMap);
 
-	Element evalKeyElemVector;
-	std::unordered_map <std::string, std::string> ilVector2nMap;
+	Serialized ilVector2nMap(rapidjson::kArrayType, &serObj->GetAllocator());
 	for (unsigned i = 0; i < evalKeyVectorLength; i++) {
-		evalKeyElemVector = this->GetEvalKeyElements().at(i);
-		serializationMap = evalKeyElemVector.Serialize(serializationMap, "");
-		ilVector2nMap = serializationMap["ILVector2n"];
-		serializationMap.erase("ILVector2n");
-		std::string indexName = this->ToStr(i);
-		serializationMap.emplace(indexName, ilVector2nMap);
+		Serialized localMap(rapidjson::kObjectType, &serObj->GetAllocator());
+		if( this->GetEvalKeyElements().at(i).Serialize(&localMap, "") ) {
+			ilVector2nMap.PushBack(localMap, serObj->GetAllocator());
+		}
+		else
+			return false;
 	}
 
-	return serializationMap;
+	serObj->AddMember("ILVector2nVector", ilVector2nMap, serObj->GetAllocator());
+	return true;
 }
 
 // JSON FACILITY - LPEvalKeyLTV Deserialize Operation
 template <class Element>
-void LPEvalKeyLTV<Element>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+bool LPEvalKeyLTV<Element>::Deserialize(const Serialized& serObj) {
 
-	LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
-	json_cryptoParams->Deserialize(serializationMap);
+	if( !DeserializeAndSetCryptoParameters<Element,LPEvalKeyLTV<Element>>(serObj, this) ) return false;
 
-	std::vector<Element> evalKeyVectorBuffer;
-	std::vector<int>::size_type evalKeyVectorLength = stoi(serializationMap["Root"]["VectorLength"]);
-	std::unordered_map<std::string, std::string> ilVector2nMapBuffer;
-	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ilVector2nMap;
-	std::unordered_map<std::string, std::string> ilParamsMapBuffer = serializationMap["ILParams"];
-	ilVector2nMap.emplace("ILParams", ilParamsMapBuffer);
+	if( !this->AccessCryptoParameters().Deserialize(serObj) ) return false;
+
+	Serialized::ConstMemberIterator rIt = serObj.FindMember("Root");
+	if( rIt == serObj.MemberEnd() ) return false;
+
+	if( (rIt = serObj.FindMember("ILVector2nVector")) == serObj.MemberEnd() )
+		return false;
+
+	const SerialItem& arr = rIt->value;
+
+	if( !arr.IsArray() )
+		return false;
+
+	std::vector<int>::size_type evalKeyVectorLength = arr.Size();
+	std::vector<Element> evalKeyVectorBuffer; //(evalKeyVectorLength);
+
 	for (int i = 0; i < evalKeyVectorLength; i++) {
-		std::string indexName = "ILVector2n";
-		indexName.append(this->ToStr(i));
-		ilVector2nMapBuffer = serializationMap[indexName];
-		ilVector2nMap.emplace("ILVector2n", ilVector2nMapBuffer);
+		const SerialItem& fi = arr[i];
+		Serialized oneItem(rapidjson::kObjectType);
+		SerialItem key( fi.MemberBegin()->name, oneItem.GetAllocator() );
+		SerialItem val( fi.MemberBegin()->value, oneItem.GetAllocator() );
+		oneItem.AddMember(key, val, oneItem.GetAllocator());
+
 		Element evalKeySubVector;
-		evalKeySubVector.Deserialize(ilVector2nMap);
+		if( !evalKeySubVector.Deserialize(oneItem) )
+			return false;
 		evalKeyVectorBuffer.push_back(evalKeySubVector);
-		ilVector2nMap.erase("ILVector2n");
 	}
 
 	this->SetEvalKeyElements(evalKeyVectorBuffer);
+	return true;
 }
 
 // JSON FACILITY - LPPrivateKeyLTV SetIdFlag Operation
 template <class Element>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPPrivateKeyLTV<Element>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+bool LPPrivateKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string flag) const {
 
-	std::unordered_map <std::string, std::string> idFlagMap;
-	idFlagMap.emplace("ID", "LPPrivateKeyLTV");
-	idFlagMap.emplace("Flag", flag);
-	serializationMap.emplace("Root", idFlagMap);
+	SerialItem idFlagMap(rapidjson::kObjectType);
+	idFlagMap.AddMember("ID", "LPPrivateKeyLTV", serObj->GetAllocator());
+	idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
+	serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
 
-	return serializationMap;
+	return true;
 }
 
 // JSON FACILITY - LPPrivateKeyLTV Serialize Operation
 template <class Element>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> LPPrivateKeyLTV<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+bool LPPrivateKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
 
-	serializationMap = this->SetIdFlag(serializationMap, fileFlag);
+	serObj->SetObject();
+	if( !this->SetIdFlag(serObj, fileFlag) )
+		return false;
 
-	const LPCryptoParameters<Element> *lpCryptoParams = &this->GetCryptoParameters();
-	serializationMap = lpCryptoParams->Serialize(serializationMap, "");
+	if( !this->GetCryptoParameters().Serialize(serObj, "") )
+		return false;
 
-	serializationMap = this->GetPrivateElement().Serialize(serializationMap, "");
-
-	return serializationMap;
+	return this->GetPrivateElement().Serialize(serObj, "");
 }
 
 // JSON FACILITY - LPPrivateKeyLTV Deserialize Operation
 template <class Element>
-void LPPrivateKeyLTV<Element>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+bool LPPrivateKeyLTV<Element>::Deserialize(const Serialized& serObj) {
 
-	LPCryptoParameters<Element> *json_cryptoParams = &this->AccessCryptoParameters();
-	json_cryptoParams->Deserialize(serializationMap);
+	if( !DeserializeAndSetCryptoParameters<Element,LPPrivateKeyLTV<Element>>(serObj, this) ) return false;
+
+	if( !this->AccessCryptoParameters().Deserialize(serObj) ) return false;
 
 	Element json_ilElement;
-	json_ilElement.Deserialize(serializationMap);
-	this->SetPrivateElement(json_ilElement);
+	if( json_ilElement.Deserialize(serObj) ) {
+		this->SetPrivateElement(json_ilElement);
+		return true;
+	}
+	return false;
 }
 
 // Default constructor for LPPublicKeyEncryptionSchemeLTV

@@ -90,50 +90,69 @@ namespace lbcrypto {
 
 	// JSON FACILITY - SetIdFlag Operation
 	template <class Element>
-	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Ciphertext<Element>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+	bool Ciphertext<Element>::SetIdFlag(Serialized* serObj, const std::string flag) const {
 
-		std::unordered_map <std::string, std::string> idFlagMap;
-		idFlagMap.emplace("ID", "Ciphertext");
-		idFlagMap.emplace("Flag", flag);
-		serializationMap.emplace("Root", idFlagMap);
+		SerialItem idFlagMap(rapidjson::kObjectType);
+		idFlagMap.AddMember("ID", "Ciphertext", serObj->GetAllocator());
+		idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
 
-		return serializationMap;
+		serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
+
+		return true;
 	}
 
 	// JSON FACILITY - Serialize Operation
+	//
+	// this is an item that is saved to a file
+	// note that right now it only saves cryptoParameters, norm and element
+	// the Flag could be used to tell us what stuff is and is not saved
+	//
 	template <class Element>
-	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Ciphertext<Element>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+	bool Ciphertext<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
 
-		serializationMap = this->SetIdFlag(serializationMap, fileFlag);
+		serObj->SetObject();
+		if( !this->SetIdFlag(serObj, "minimal") )
+			return false;
 
-		const LPCryptoParameters<Element> *lpCryptoParams = &this->GetCryptoParameters();
-		serializationMap = lpCryptoParams->Serialize(serializationMap, "");
+		if( !this->GetCryptoParameters().Serialize(serObj, "") )
+			return false;
 
-		std::unordered_map <std::string, std::string> rootMap = serializationMap["Root"];
-		serializationMap.erase("Root");
-		rootMap.emplace("Norm", this->GetNorm().ToString());
-		serializationMap.emplace("Root", rootMap);
+		serObj->AddMember("Norm", this->GetNorm().ToString(), serObj->GetAllocator());
 
-		serializationMap = this->GetElement().Serialize(serializationMap, "");
-
-		return serializationMap;
+		return this->GetElement().Serialize(serObj, "");
 	}
 
 	// JSON FACILITY - Deserialize Operation
 	template <class Element>
-	void Ciphertext<Element>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+	bool Ciphertext<Element>::Deserialize(const Serialized& serObj) {
 
-		LPCryptoParameters<Element> *json_cryptoParams = new LPCryptoParametersLTV<Element>();
-		json_cryptoParams->Deserialize(serializationMap);
-		this->SetCryptoParameters(*json_cryptoParams);
+		if( !DeserializeAndSetCryptoParameters<Element,Ciphertext<Element>>(serObj, this) ) return false;
 
-		std::unordered_map<std::string, std::string> rootMap = serializationMap["Root"];
-		BigBinaryInteger bbiNorm(rootMap["Norm"]);
-		this->SetNorm(bbiNorm);
+		// yeah this could be done better...
+		LPCryptoParameters<Element>* json_cryptoParams = (LPCryptoParameters<Element>*) &this->GetCryptoParameters();
+
+		if( !json_cryptoParams->Deserialize(serObj) )
+			return false;
+
+		// for future use, make sure you pick everything out of the serialization that is in there...
+		Serialized::ConstMemberIterator mIter = serObj.FindMember("Root");
+		if( mIter == serObj.MemberEnd() )
+			return false;
+
+		Serialized::ConstMemberIterator normIter = serObj.FindMember("Norm");
+		if( normIter == mIter->value.MemberEnd() )
+			return false;
+
+		BigBinaryInteger bbiNorm(normIter->value.GetString());
 
 		Element json_ilElement;
-		json_ilElement.Deserialize(serializationMap);
+		if( !json_ilElement.Deserialize(serObj) )
+			return false;
+
+		this->SetCryptoParameters(json_cryptoParams);
+		this->SetNorm(bbiNorm);
 		this->SetElement(json_ilElement);
+		return true;
 	}
 
 }  // namespace lbcrypto ends

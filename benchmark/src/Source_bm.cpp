@@ -36,6 +36,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
+#define _USE_MATH_DEFINES
 #include "benchmark/benchmark_api.h"
 
 

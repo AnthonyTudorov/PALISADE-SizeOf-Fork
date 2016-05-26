@@ -171,7 +171,7 @@ void NTRU_DCRT() {
 	cryptoParams2.SetDiscreteGaussianGenerator(dgg);
 
 	Ciphertext<ILVectorArray2n> cipherText2;
-	cipherText2.SetCryptoParameters(cryptoParams2);
+	cipherText2.SetCryptoParameters(&cryptoParams2);
 
 
 	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams2);

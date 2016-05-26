@@ -91,4 +91,4 @@ double funcTime(F func, Args&&... args){
 
 
 
-#endif #__dbg_h__
+#endif //#__dbg_h__

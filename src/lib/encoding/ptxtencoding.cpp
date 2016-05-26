@@ -30,7 +30,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
-	//Impementation of ToInt32
+	//Implementation of ToInt32
 	std::vector<uint32_t> ByteArrayPlaintextEncoding::ToInt32() const {
 		std::vector<uint32_t> vectorOfInt32(m_data.size());
 		for(std::vector<int>::size_type i = 0; i != vectorOfInt32.size(); i++) {

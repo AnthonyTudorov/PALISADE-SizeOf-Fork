@@ -45,29 +45,39 @@ LIBOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(LIBSOU
 #this is the actual target that gets called when make is executed
 #(part of all in Makefile) it makes the palisade shared object library
 
+-include $(LIBOBJECTS:.o=.d)
+
 .PHONY:alltargets
-alltargets: $(EXTLIBDIR)/lib$(SOLIB).so
+alltargets: $(EXTLIBDIR)/$(PALISADELIB)
 #	@echo $(SOLIB)
 #	@echo $(LIBSOURCES)
 #	@echo $(LIBOBJECTS)
 #	@echo "alltargets"
 
 #this builds the palisade library out of the objects 
-$(EXTLIBDIR)/lib$(SOLIB).so: $(LIBOBJECTS)
+$(EXTLIBDIR)/$(PALISADELIB): $(LIBOBJECTS)
 	@echo " -- targets:linking $@ from LIBOBJECTS"
 #	@echo $(LIBOBJECTS)
 	mkdir -p $(EXTLIBDIR)
 #	@echo " $(CC) -fPIC -shared -Wl,--export-dynamic  $^ $(BUILDDIR)/$@.o -L/usr/lib/x86_64-linux-gnu -lpython2.7 -lboost_python-py27 -o lib/pycrypto.so"; $(CC) -fPIC -shared -Wl,--export-dynamic  $^ $(BUILDDIR)/$@.o
-	$(CC) -fPIC -shared -Wl,--export-dynamic -o $@ $(LIBOBJECTS) $(LIB)
+#	$(CC) -fPIC -shared -Wl,--export-dynamic -Wl,--export-all-symbols -o $@ $(LIBOBJECTS) -lgomp
+#	$(CC) -s -shared -Wl,--subsystem,windows -o $(subst .so,.dll,$@) $(LIBOBJECTS) -lgomp
+	$(CC) $(LIBCMD) -o $@ $(LIBOBJECTS) -lgomp
 	@echo
 
-#this builds the individual objects that make up the library .
+### #this builds the individual objects that make up the library .
 .PRECIOUS: $(BUILDDIR)/lib/%
 $(BUILDDIR)/lib/%:
-	@echo " -- targets:compiling $@"
-	mkdir -p $(@D)
-	$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))
-	@echo
+	@if [ "$(suffix $@)" = ".o" ] ;   \
+	then  \
+		mkdir -p $(@D)  ;\
+		echo $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
+		$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
+		$(CC) -MM $(CPPFLAGS) $(INC) $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@)) > $(patsubst %.o,%.d,$@)  ;\
+		mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)  ;\
+		sed -e 's|.*\.o:|$(BUILDDIR)/lib/$*:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)  ;\
+		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
+	fi
 
 #################
 # this target lets us see what all the strings are defined as, as an
@@ -84,7 +94,7 @@ doctargetstrings:
 .PHONEY: cleantargets
 cleantargets:
 	@echo " Cleaning targets...";
-	$(RM) -r $(LIBOBJECTS) $(EXTLIBDIR)lib$(SOLIB).so
+	$(RM) -r $(LIBOBJECTS) $(EXTLIBDIR)/$(PALISADELIB)
 	$(RM) -rf $(EXTLIBDIR)
 	$(RM) -rf $(BUILDDIR)/lib
 

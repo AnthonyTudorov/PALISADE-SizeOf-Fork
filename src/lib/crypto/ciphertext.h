@@ -52,14 +52,17 @@ namespace lbcrypto {
 
 	//JSON FACILITY - Forward declaration for temporary fix of lweautomorph.cpp Linux compilation error
 	template <class Element>
-	class LPCryptoParametersLWE;
+	class LPCryptoParametersLTV;
+
+	template <class Element>
+	class LPCryptoParametersStehleSteinfeld;
 
 	/**
 	 * @brief Main ciphertext class.
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class Ciphertext {
+	class Ciphertext : public Serializable {
 	public:
 
 		/**
@@ -132,8 +135,10 @@ namespace lbcrypto {
 		* Sets a reference to crypto parameters.
 		*
 		* @param &cryptoParameters is crypto params passed by reference.
+		*
 		*/
-		void SetCryptoParameters(const LPCryptoParameters<Element> &cryptoParameters) { m_cryptoParameters = &cryptoParameters; }
+		// FIXME: the comment above is wrong; added const cast here (gwr)
+		void SetCryptoParameters(const LPCryptoParameters<Element> *cryptoParameters) { m_cryptoParameters = cryptoParameters; }
 
 		/**
 		* Sets a reference to public key.
@@ -173,31 +178,27 @@ namespace lbcrypto {
 	
 		//JSON FACILITY
 		/**
-		* Sets the ID and Flag attribute values for use in serializing this object to a JSON file.
-		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
-		* @return map updated with ID and Flag attribute values.
+		* Serialize the object into a Serialized
+		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @param fileFlag is an object-specific parameter for the serialization
+		* @return true if successfully serialized
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+		bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
 
-		//JSON FACILITY
 		/**
-		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
-		* Invokes nested serialization of LPCryptoParametersLWE, ILParams, ILVector2n, and BigBinaryVector.
-		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
-		* @return map updated with the attribute name value pairs required to serialize this object.
+		* Higher level info about the serialization is saved here
+		* @param serObj to store the the implementing object's serialization specific attributes.
+		* @param flag an object-specific parameter for the serialization
+		* @return true on success
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
+		bool SetIdFlag(Serialized* serObj, const std::string flag) const;
 
-		//JSON FACILITY
 		/**
-		* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
-		* Invokes nested deserialization of LPCryptoParametersLWE, ILParams, ILVector2n, and BigBinaryVector.
-		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* Populate the object from the deserialization of the Setialized
+		* @param serObj contains the serialized object
+		* @return true on success
 		*/
-		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+		virtual bool Deserialize(const Serialized& serObj);
 
 	private:
 
