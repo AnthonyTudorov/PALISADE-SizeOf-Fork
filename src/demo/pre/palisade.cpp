@@ -161,8 +161,10 @@ decrypter(string cmd, int argc, char *argv[]) {
 
 	ByteArrayPlaintextEncoding plaintext;
 
-	algorithm.Decrypt(sk, ciphertext, &plaintext);
-	Serialized cipS;
+	DecodingResult rv = algorithm.Decrypt(sk, ciphertext, &plaintext);
+	cout << "Decrypted plaintext of size " << plaintext.GetLength() << ":" << rv.isValidCoding << ":" << rv.messageLength << endl;
+	plaintext.Unpad<ZeroPad>();
+	cout << "unpadded " << plaintext.GetLength() << endl;
 
 	ofstream outf(cleartextname);
 	if( !outf.is_open() ) {
@@ -170,7 +172,6 @@ decrypter(string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	plaintext.Unpad<ZeroPad>();
 
 	outf << plaintext;
 	outf.close();
@@ -199,6 +200,7 @@ encrypter(string cmd, int argc, char *argv[]) {
 	inf.close();
 
 	ByteArrayPlaintextEncoding ptxt(buffer.str());
+	ptxt.Pad<ZeroPad>(ctlCrypt.ring/16);
 
 	// Initialize the public key containers.
 	LPPublicKeyLTV<ILVector2n> pk(*ctlCrypt.cryptoParams);
@@ -349,6 +351,53 @@ struct {
 };
 
 void
+tryit()
+{
+	string plaintextname("plaintextMessage");
+	string pubkeyname("publisherPUB.txt");
+	string prikeyname("publisherPRI.txt");
+
+	// fetch the plaintext to be encrypted
+	ifstream inf(plaintextname);
+	if( !inf.is_open() ) {
+		cerr << "could not read plaintext file " << plaintextname << endl;
+		return;
+	}
+	stringstream buffer;
+	buffer << inf.rdbuf();
+	inf.close();
+
+	ByteArrayPlaintextEncoding ptxt(buffer.str());
+	ptxt.Pad<ZeroPad>(ctlCrypt.ring/16);
+
+	LPPublicKeyLTV<ILVector2n> pk(*ctlCrypt.cryptoParams);
+	if( !fetchItemFromSer(&pk, pubkeyname) ) {
+		cerr << "Could not process public key" << endl;
+		return;
+	}
+	LPPrivateKeyLTV<ILVector2n> sk(*ctlCrypt.cryptoParams);
+	if( !fetchItemFromSer(&sk, prikeyname) ) {
+		cerr << "Could not process private key" << endl;
+		return;
+	}
+
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(PRE);
+
+	Ciphertext<ILVector2n> ciphertext;
+	ByteArrayPlaintextEncoding cleartext;
+
+	algorithm.Encrypt(pk, ptxt, &ciphertext);
+
+	algorithm.Decrypt(sk, ciphertext, &cleartext);
+
+	cout << cleartext << endl;
+	return;
+
+}
+
+void
 usage(const string& cmd, const string& msg)
 {
 	if( msg.length() > 0 )
@@ -387,6 +436,8 @@ main( int argc, char *argv[] )
 
 	DiscreteGaussianGenerator dgg(ctlCrypt.stdDev);				// Create the noise generator
 	ctlCrypt.cryptoParams->SetDiscreteGaussianGenerator(dgg);
+
+	tryit();
 
 	bool	rancmd = false;
 	string userCmd(argv[1]);

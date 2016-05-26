@@ -472,12 +472,13 @@ void NTRUPRE(int input) {
 		exit(1);
 	}
 
-	ByteArray newPlaintext("1) SERIALIZE CRYPTO-OBJS TO FILE AS NESTED JSON STRUCTURES\n2) DESERIALIZE JSON FILES INTO CRYPTO-OBJS USED FOR CRYPTO-APIS");
+	ByteArray newPlaintext("1) SERIALIZE CRYPTO-OBJS TO FILE AS NESTED JSON STRUCTURES\n2) DESERIALIZE JSON FILES INTO CRYPTO-OBJS USED FOR CRYPTO-APIS\n3) Profit!!!!!");
 	ByteArrayPlaintextEncoding newPtxt(newPlaintext);
 	newPtxt.Pad<ZeroPad>(m / 16);
 
 	cout << "Original Plaintext: " << endl;
 	cout << newPlaintext << endl;
+	cout << "size: " << newPtxt.GetLength() << endl;
 
 	TestJsonParms	tjp;
 	tjp.pk = &pk;
