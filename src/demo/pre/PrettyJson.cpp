@@ -31,15 +31,18 @@ usage(const string& cmd, const string& msg) {
 int
 main( int argc, char *argv[] )
 {
-	FILE *br = stdin;
+	istream *br = &cin;
+	ifstream fil;
 
 	if( argc == 2 ) {
-		br = fopen(argv[1], "r");
-		if( br == 0 ) {
+		fil.open(argv[1]);
+		if( !fil.is_open() ) {
 			usage(argv[0], "Cannot open " + string(argv[1]));
 			return 1;
 		}
+		br = &fil;
 	}
+
 	else if( argc != 1 ){
 		usage(argv[0], "Too many file name arguments specified");
 		return 1;
@@ -47,23 +50,32 @@ main( int argc, char *argv[] )
 
 	rapidjson::Document doc;
 
-	char readBuffer[32768];
-	rapidjson::FileReadStream is(br, readBuffer, sizeof(readBuffer));
+	string inBuf;
+	char ch;
 
-	doc.ParseStream(is);
+	do {
+		inBuf = "";
+		while( (ch = br->get()) != EOF && ch != '$' )
+			inBuf += ch;
 
-	if( doc.HasParseError() ) {
-		usage( argv[0], "Parse error");
-		return 1;
-	}
+		if( ch == EOF ) break;
 
-	char writeBuffer[32768];
-	rapidjson::FileWriteStream os(stdout, writeBuffer, sizeof(writeBuffer));
+		doc.Parse(inBuf.c_str());
 
-	rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(os);
+		if( doc.HasParseError() ) {
+			usage( argv[0], "Parse error");
+			return 1;
+		}
 
-	doc.Accept(writer);
-	cout << endl;
+		char writeBuffer[32768];
+		rapidjson::FileWriteStream os(stdout, writeBuffer, sizeof(writeBuffer));
+
+		rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(os);
+
+		doc.Accept(writer);
+		cout << endl << endl;
+
+	} while( br->good() );
 
 	return 0;
 }
