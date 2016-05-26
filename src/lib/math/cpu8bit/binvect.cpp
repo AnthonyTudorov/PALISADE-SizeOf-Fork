@@ -408,14 +408,14 @@ BigBinaryVector BigBinaryVector::GetDigitAtIndexForBase(usint index, usint base)
 }
 
 // JSON FACILITY - Serialize Operation
-bool BigBinaryVector::Serialize(lbcrypto::Serialized& serObj, std::string fileFlag) const {
+bool BigBinaryVector::Serialize(lbcrypto::Serialized* serObj, const std::string fileFlag) const {
 
-	if( !serObj.IsObject() )
+	if( !serObj->IsObject() )
 		return false;
 
 	lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
 
-	bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj.GetAllocator());
+	bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
 
 	std::string pkBufferString;
 	BigBinaryInteger pkVectorElem;
@@ -432,9 +432,9 @@ bool BigBinaryVector::Serialize(lbcrypto::Serialized& serObj, std::string fileFl
 			pkBufferString += "|";
 		}
 	}
-	bbvMap.AddMember("VectorValues", pkBufferString, serObj.GetAllocator());
+	bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
 
-	serObj.AddMember("BigBinaryVector", bbvMap, serObj.GetAllocator());
+	serObj->AddMember("BigBinaryVector", bbvMap, serObj->GetAllocator());
 
 	return true;
 }

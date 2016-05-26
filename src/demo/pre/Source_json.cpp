@@ -144,14 +144,6 @@ int main(){
 	return 0;
 }
 
-extern void testJson(const std::string cID,
-		const LPPublicKey<ILVector2n>& pk,
-		const LPPrivateKey<ILVector2n>& sk,
-		const LPPublicKeyEncryptionScheme<ILVector2n>& algorithm,
-		const LPEvalKey<ILVector2n>& evalKey,
-		const LPPrivateKey<ILVector2n>& newSK,
-		const ByteArrayPlaintextEncoding& newPtxt);
-
 // double currentDateTime()
 // {
 
@@ -221,6 +213,24 @@ void NTRUPRE(int input) {
 	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	//ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 
+	// test BBI ser/deser
+//	{
+//		BigBinaryInteger foo;
+//		std::string srep;
+//		for( int m=0; m<5; m++ ) {
+//			srep = SECURE_PARAMS[m].modulus.Serialize();
+//			foo.Deserialize(srep.c_str());
+//			std::cout << SECURE_PARAMS[m].modulus << ":" << srep << ":" << foo << std::endl;
+//			if( SECURE_PARAMS[m].modulus != foo ) std::cout << "MISMATCH" << std::endl;
+//		}
+//
+//		BigBinaryInteger bar("1234567898765432123456789876543210999");
+//		srep = bar.Serialize();
+//		foo.Deserialize(srep.c_str());
+//		std::cout << bar << ":" << srep << ":" << foo << std::endl;
+//		if( bar != foo ) std::cout << "MISMATCH" << std::endl;
+//		return;
+//	}
 
 	float stdDev = 4;
 

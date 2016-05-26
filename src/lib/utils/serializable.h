@@ -71,6 +71,7 @@ namespace lbcrypto {
 		virtual int getVersion() { return 1; }
 
 	public:
+		virtual ~Serializable(){};
 
 		/**
 		* Serialize the object into a Serialized
@@ -78,16 +79,15 @@ namespace lbcrypto {
 		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		virtual bool Serialize(Serialized& serObj, std::string fileFlag = "") const = 0;
-		virtual ~Serializable(){};
+		virtual bool Serialize(Serialized* serObj, const std::string fileFlag = "") const = 0;
 
 		/**
 		* Higher level info about the serialization is saved here
 		* @param serObj to store the the implementing object's serialization specific attributes.
-		* @param flag a file flag
+		* @param flag an object-specific parameter for the serialization
 		* @return true on success
 		*/
-		virtual bool SetIdFlag(Serialized& serObj, const std::string flag) const { return true; }
+		virtual bool SetIdFlag(Serialized* serObj, const std::string flag) const { return true; }
 
 		/**
 		* Populate the object from the deserialization of the Setialized

@@ -90,13 +90,13 @@ namespace lbcrypto {
 
 	// JSON FACILITY - SetIdFlag Operation
 	template <class Element>
-	bool Ciphertext<Element>::SetIdFlag(Serialized& serObj, std::string flag) const {
+	bool Ciphertext<Element>::SetIdFlag(Serialized* serObj, const std::string flag) const {
 
 		SerialItem idFlagMap(rapidjson::kObjectType);
-		idFlagMap.AddMember("ID", "Ciphertext", serObj.GetAllocator());
-		idFlagMap.AddMember("Flag", flag, serObj.GetAllocator());
+		idFlagMap.AddMember("ID", "Ciphertext", serObj->GetAllocator());
+		idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
 
-		serObj.AddMember("Root", idFlagMap, serObj.GetAllocator());
+		serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
 
 		return true;
 	}
@@ -108,16 +108,16 @@ namespace lbcrypto {
 	// the Flag could be used to tell us what stuff is and is not saved
 	//
 	template <class Element>
-	bool Ciphertext<Element>::Serialize(Serialized& serObj, std::string fileFlag) const {
+	bool Ciphertext<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
 
-		serObj.SetObject();
+		serObj->SetObject();
 		if( !this->SetIdFlag(serObj, "minimal") )
 			return false;
 
 		if( !this->GetCryptoParameters().Serialize(serObj, "") )
 			return false;
 
-		serObj.AddMember("Norm", this->GetNorm().ToString(), serObj.GetAllocator());
+		serObj->AddMember("Norm", this->GetNorm().ToString(), serObj->GetAllocator());
 
 		return this->GetElement().Serialize(serObj, "");
 	}
@@ -126,7 +126,7 @@ namespace lbcrypto {
 	template <class Element>
 	bool Ciphertext<Element>::Deserialize(const Serialized& serObj) {
 
-		if( !DeserializeHelper<Element,Ciphertext<Element>>(serObj, this) ) return false;
+		if( !DeserializeAndSetCryptoParameters<Element,Ciphertext<Element>>(serObj, this) ) return false;
 
 		// yeah this could be done better...
 		LPCryptoParameters<Element>* json_cryptoParams = (LPCryptoParameters<Element>*) &this->GetCryptoParameters();

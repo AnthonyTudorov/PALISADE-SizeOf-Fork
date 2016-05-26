@@ -446,20 +446,20 @@ namespace lbcrypto {
 	}
 
 	// JSON FACILITY - Serialize Operation
-	bool ILVector2n::Serialize(Serialized& serObj, std::string fileFlag) const {
-		if( !serObj.IsObject() )
+	bool ILVector2n::Serialize(Serialized* serObj, const std::string fileFlag) const {
+		if( !serObj->IsObject() )
 			return false;
 
-		Serialized obj(rapidjson::kObjectType, &serObj.GetAllocator());
-		if( !this->GetValues().Serialize(obj, "") )
+		Serialized obj(rapidjson::kObjectType, &serObj->GetAllocator());
+		if( !this->GetValues().Serialize(&obj, fileFlag) )
 			return false;
 
-		if( !this->GetParams().Serialize(obj, "") )
+		if( !this->GetParams().Serialize(&obj, fileFlag) )
 			return false;
 
 		obj.AddMember("Format", this->ToStr(this->GetFormat()), obj.GetAllocator());
 
-		serObj.AddMember("ILVector2n", obj, serObj.GetAllocator());
+		serObj->AddMember("ILVector2n", obj, serObj->GetAllocator());
 
 		return true;
 	}

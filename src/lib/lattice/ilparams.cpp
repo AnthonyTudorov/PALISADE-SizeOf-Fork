@@ -47,17 +47,17 @@ namespace lbcrypto {
 		* @param serObj stores this object's serialized attribute name value pairs.
 		* @return map updated with the attribute name value pairs required to serialize this object.
 		*/
-		bool ILParams::Serialize(Serialized& serObj, std::string fileFlag) const {
+		bool ILParams::Serialize(Serialized* serObj, const std::string fileFlag) const {
 
-			if( !serObj.IsObject() )
+			if( !serObj->IsObject() )
 				return false;
 
 			SerialItem ser(rapidjson::kObjectType);
-			ser.AddMember("Modulus", this->GetModulus().ToString(), serObj.GetAllocator());
-			ser.AddMember("Order", this->ToStr(this->GetCyclotomicOrder()), serObj.GetAllocator());
-			ser.AddMember("RootOfUnity", this->GetRootOfUnity().ToString(), serObj.GetAllocator());
+			ser.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
+			ser.AddMember("Order", this->ToStr(this->GetCyclotomicOrder()), serObj->GetAllocator());
+			ser.AddMember("RootOfUnity", this->GetRootOfUnity().ToString(), serObj->GetAllocator());
 
-			serObj.AddMember("ILParams", ser, serObj.GetAllocator());
+			serObj->AddMember("ILParams", ser, serObj->GetAllocator());
 
 			return true;
 		}
