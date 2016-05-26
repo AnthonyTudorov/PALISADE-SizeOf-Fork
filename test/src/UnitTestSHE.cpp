@@ -52,24 +52,52 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 using namespace lbcrypto;
 
-/*template <class T>
-ElemParams* CreateParams(usint m, BigBinaryInteger &q);
+template <class T>
+ElemParams* CreateParams(usint m);
 
 template <>
-ElemParams* CreateParams<ILVector2n>(usint m, BigBinaryInteger &q) {
-
+ElemParams* CreateParams<ILVector2n>(usint m) {
+  BigBinaryInteger q("1");
+  lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4")); 
+  BigBinaryInteger rootOfUnity(RootOfUnity(m,q));
+  // cout << "Modulus is" << q << endl;
+  // cout << "RootOfUnity is" << rootOfUnity << endl;
+  // DiscreteGaussianGenerator dgg(q,stdDev);
+  ILParams ilParams(m,q,rootOfUnity);
+  return &ilParams;
 }
 
 template <>
-ElemParams* CreateParams<ILVectorArray2n>(usint m, BigBinaryInteger &q) {
-  
-}*/
+ElemParams* CreateParams<ILVectorArray2n>(usint m) {
+  usint size = 3;
+  // ByteArrayPlaintextEncoding ctxtd;
+
+  vector<BigBinaryInteger> moduli(size);
+  vector<BigBinaryInteger> rootsOfUnity(size);
+
+  BigBinaryInteger q("1");
+  BigBinaryInteger modulus("1");
+
+  for(int i=0; i < size;i++){
+    lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+    moduli[i] = q;
+    rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+    modulus = modulus* moduli[i];
+  }
+
+  // DiscreteGaussianGenerator dgg(modulus,stdDev);
+  ILDCRTParams ildcrtParams(rootsOfUnity, m, moduli);
+  return &ildcrtParams;
+}
 
 template <class T>
 class UnitTestSHE : public ::testing::Test {
+  
+  public:
+    const usint m = 16;
 
   protected:
-    // UnitTestSHE() : params(CreateParams<T>()) {}
+    UnitTestSHE() : params(CreateParams<T>(m)) {}
 
     virtual void SetUp() {
     }
@@ -81,26 +109,85 @@ class UnitTestSHE : public ::testing::Test {
 
     // virtual ~UnitTestSHE() { delete params; }
 
-    // ElemParams* const params;
-
-    usint m = 16;
-
-    /*void GenerateParams(BigBinaryInteger &q) {
-      params = CreateParams<T>(this->m, q);
-    }*/
+    ElemParams* params;
 
 };
 
 #if GTEST_HAS_TYPED_TEST
 
-typedef ::testing::Types<ILVector2n, ILVectorArray2n> Implementations;
+typedef ::testing::Types<ILVector2n, ILVectorArray2n> Implementations; 
 
 TYPED_TEST_CASE(UnitTestSHE, Implementations);
 
-// Then use TYPED_TEST(TestCaseName, TestName) to define a typed test,
+// Use TYPED_TEST(TestCaseName, TestName) to define a typed test,
 // similar to TEST_F.
 
-TYPED_TEST(UnitTestSHE, keyswitch_test_single_crt){
+TYPED_TEST(UnitTestSHE, keyswitch_modReduce_ringReduce_tests){
+  
+  float stdDev = 4;
+  ByteArrayPlaintextEncoding ctxtd;
+  const ByteArray plaintext = "M";
+  
+  ByteArrayPlaintextEncoding ptxt(plaintext);
+  ptxt.Pad<ZeroPad>((this->m)/16);
+
+  LPCryptoParametersLTV<TypeParam> cryptoParams;
+  cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+  cryptoParams.SetDistributionParameter(stdDev);
+  cryptoParams.SetRelinWindow(1);
+  cryptoParams.SetElementParams(*(this->params));
+
+  Ciphertext<TypeParam> cipherText;
+  cipherText.SetCryptoParameters(cryptoParams);
+
+  LPPublicKeyLTV<TypeParam> pk(cryptoParams);
+  LPPrivateKeyLTV<TypeParam> sk(cryptoParams);
+
+  std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
+  LPPublicKeyEncryptionSchemeLTV<TypeParam> algorithm(mask);
+  // TODO - Nishanth/ Yuriy: Some issue here with the way clean up happens with algorithm that it results in core dump while running this test class! Need to fix it.
+
+  algorithm.KeyGen(&pk, &sk);
+  algorithm.Encrypt(pk, ptxt, &cipherText);
+  algorithm.Decrypt(sk, cipherText, &ctxtd);
+
+  cout << "Decrypted value BEFORE any operations: \n" << endl;
+  cout << ctxtd<< "\n" << endl;
+  {
+    LPPublicKeyLTV<TypeParam> pk2(cryptoParams);
+    LPPrivateKeyLTV<TypeParam> sk2(cryptoParams);
+    algorithm.KeyGen(&pk2, &sk2);
+
+    LPKeySwitchHintLTV<TypeParam> keySwitchHint;
+    algorithm.m_algorithmLeveledSHE->KeySwitchHintGen(sk, sk2, &keySwitchHint);
+    Ciphertext<TypeParam> cipherText2;
+    cipherText2 = algorithm.m_algorithmLeveledSHE->KeySwitch(keySwitchHint, cipherText);
+    algorithm.Decrypt(sk2, cipherText2, &ctxtd);
+
+    cout << "Decrypted value AFTER KeySwitch: \n" << endl;
+    cout << ctxtd<< "\n" << endl;
+    EXPECT_EQ(ctxtd.GetData(), plaintext) << "keyswitch_test_single_crt failed.\n";
+  }
+
+  {
+    algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText, &sk);
+    algorithm.Decrypt(sk, cipherText, &ctxtd);
+
+    cout << "Decrypted value AFTER ModReduce: \n" << endl;
+    cout << ctxtd<< "\n" << endl;
+    EXPECT_EQ(ctxtd.GetData(), plaintext) << "mod_reduce_test_single_crt failed.\n" ;
+  }
+
+  {
+    algorithm.m_algorithmLeveledSHE->RingReduce(&cipherText, &sk);
+    algorithm.Decrypt(sk, cipherText, &ctxtd);
+    cout << "Decrypted value after RING Reduce: \n" << endl;
+    cout << ctxtd<< "\n" << endl;
+  }
+  
+}
+
+/*TYPED_TEST(UnitTestSHE, keyswitch_test_single_crt){
 
   usint m = 16; // 2048
   float stdDev = 4;
@@ -175,7 +262,7 @@ TYPED_TEST(UnitTestSHE, keyswitch_test_single_crt){
   
 }
 
-TEST(UnitTestSHE, keyswitch_test_double_crt) {
+TYPED_TEST(UnitTestSHE, keyswitch_test_double_crt) {
   
   usint m = 16;
   const ByteArray plaintext = "M";
@@ -256,6 +343,6 @@ TEST(UnitTestSHE, keyswitch_test_double_crt) {
     cout << ctxtd<< "\n" << endl;
   }
   
-}
+}*/
 
 #endif
