@@ -59,9 +59,9 @@ namespace lbcrypto {
 		* @param serObj stores the serialized Palisade object's attributes.
 		* @return string reflecting the nested JSON data structure of the serialized Palisade object.
 		*/
-		bool SerializableHelper::StringToSerialization(const std::string& jsonString, Serialized& serObj) {
+		bool SerializableHelper::StringToSerialization(const std::string& jsonString, Serialized* serObj) {
 
-			return !serObj.Parse( jsonString.c_str() ).HasParseError();
+			return !serObj->Parse( jsonString.c_str() ).HasParseError();
 		}
 
 		/**
@@ -89,7 +89,7 @@ namespace lbcrypto {
 		* @param jsonFileName is the file to read in for the Palisade object's nested serialized JSON data structure.
 		* @param serObj containing name value pairs for the attributes of the Palisade object to be deserialized.
 		*/
-		bool SerializableHelper::ReadSerializationFromFile(const std::string jsonFileName, Serialized& serObj) {
+		bool SerializableHelper::ReadSerializationFromFile(const std::string jsonFileName, Serialized* serObj) {
 			
 			//Retrieve contents of input Json file
 			FILE *fp = fopen(jsonFileName.c_str(), "r");
@@ -98,10 +98,10 @@ namespace lbcrypto {
 			char readBuffer[32768];
 			rapidjson::FileReadStream is(fp, readBuffer, sizeof(readBuffer));
 
-			serObj.ParseStream(is);
+			serObj->ParseStream(is);
 			fclose(fp);
 
-			return !serObj.HasParseError();
+			return !serObj->HasParseError();
 		}
 
 }

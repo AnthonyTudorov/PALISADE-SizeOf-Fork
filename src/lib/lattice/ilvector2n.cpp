@@ -424,7 +424,7 @@ namespace lbcrypto {
 			if ((i>5) && (i < 9)) {
 				auto end = std::chrono::steady_clock::now();
 				auto diff = end - start;
-				std::cout << "NTT time: " << std::chrono::duration <double, std::milli>(diff).count() << " ms" << std::endl;
+				//std::cout << "NTT time: " << std::chrono::duration <double, std::milli>(diff).count() << " ms" << std::endl;
 			}
 
 			m_dggSamples.push_back(current);
