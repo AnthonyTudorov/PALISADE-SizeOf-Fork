@@ -31,7 +31,7 @@
 * On a high level, ILVectorArray2n stands for: IL = Ideal Lattice, ILVectorArray= An array of ILVector2n's, 2n = power of two cyclotomic. 
 * for more information on ideal lattices please see here: 10.1007/978-3-540-88702-7_5
 *
-* This class provides ideal lattice for polynomials modulus a power of two cyclotomic order polynomial in double-CRT (Chinese remainder transform) format. The class
+* This class provides a data structure for polynomial rings modulus a power of two cyclotomic order polynomial in double-CRT (Chinese remainder transform) format. The class
 * can be viewed as a data structure that can support representing polynomials in double-CRT format. The double here means 
 * two dimensions (like a n*m matrix) versus a 1*n dimension which the single-CRT or ILVector2n is. Each column of the 
 * of the matrix is called a tower and is composed of an ILVector2n. 
