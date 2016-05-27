@@ -79,10 +79,6 @@ reencrypter(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
-
 	ofstream outCt(reciphertextname, ios::binary);
 	if( !outCt.is_open() ) {
 		cerr << "Could not open re-encryption file";
@@ -120,7 +116,7 @@ reencrypter(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 			break;
 		}
 
-		algorithm.ReEncrypt(evalKey, ciphertext, &newCiphertext);
+		ctx->getAlgorithm()->ReEncrypt(evalKey, ciphertext, &newCiphertext);
 
 		Serialized cipS;
 		string reSerialized;
@@ -162,10 +158,6 @@ decrypter(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
-
 	ofstream outF(cleartextname, ios::binary);
 	if( !outF.is_open() ) {
 		cerr << "Could not open cleartext file";
@@ -203,7 +195,7 @@ decrypter(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 			break;
 		}
 
-		DecodingResult rv = algorithm.Decrypt(sk, ciphertext, &plaintext);
+		DecodingResult rv = ctx->getAlgorithm()->Decrypt(sk, ciphertext, &plaintext);
 		plaintext.Unpad<ZeroPad>();
 
 		outF << plaintext << flush;
@@ -242,10 +234,6 @@ encrypter(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
-
 	// fetch the plaintext to be encrypted
 	ifstream inf(plaintextname, ios::binary);
 	if( !inf.is_open() ) {
@@ -271,7 +259,7 @@ encrypter(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 
 		Ciphertext<ILVector2n> ciphertext;
 
-		algorithm.Encrypt(pk, ptxt, &ciphertext);
+		ctx->getAlgorithm()->Encrypt(pk, ptxt, &ciphertext);
 		Serialized cipS;
 		string cipherSer;
 
@@ -322,11 +310,7 @@ rekeymaker(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 
 	LPEvalKeyLTV<ILVector2n> evalKey(*ctx->getParams());
 
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
-
-	if( algorithm.EvalKeyGen(pk, sk, &evalKey) ) {
+	if( ctx->getAlgorithm()->EvalKeyGen(pk, sk, &evalKey) ) {
 		Serialized evalK;
 
 		if( evalKey.Serialize(&evalK, rekeyname) ) {
@@ -359,11 +343,7 @@ keymaker(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
 	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
 
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
-
-	if( algorithm.KeyGen(&pk,&sk) ) {
+	if( ctx->getAlgorithm()->KeyGen(&pk,&sk) ) {
 		Serialized pubK, privK;
 
 		if( pk.Serialize(&pubK, keyname) ) {

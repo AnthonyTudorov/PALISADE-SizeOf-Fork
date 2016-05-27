@@ -53,6 +53,7 @@ private:
 	DiscreteGaussianGenerator dggStSt;
 
 	LPCryptoParametersImpl<ILVector2n>	*params;
+	LPPublicKeyEncryptionScheme<ILVector2n> *algorithm;
 	long								chunksize;
 
 	CryptoContext() {}
@@ -60,9 +61,11 @@ private:
 public:
 	~CryptoContext() {
 		delete params;
+		delete algorithm;
 	}
 
 	LPCryptoParametersImpl<ILVector2n>* getParams() { return params; }
+	LPPublicKeyEncryptionScheme<ILVector2n>* getAlgorithm() { return algorithm; }
 	long getChunksize() { return chunksize; }
 
 	usint getPadAmount() { return ringdim/16 * (ptmod.GetMSB()-1); }
@@ -95,6 +98,10 @@ public:
 		params->SetDiscreteGaussianGenerator(item->dgg);
 
 		item->chunksize = ((item->ringdim / 2) / 8) * log2(plaintextmodulus);
+
+		item->algorithm = new LPPublicKeyEncryptionSchemeLTV<ILVector2n>();
+		item->algorithm->Enable(ENCRYPTION);
+		item->algorithm->Enable(PRE);
 
 		return item;
 	}
@@ -132,6 +139,10 @@ public:
 		params->SetDiscreteGaussianGeneratorStSt(item->dggStSt);
 
 		item->chunksize = ((item->ringdim / 2) / 8) * log2(plaintextmodulus);
+
+		item->algorithm = new LPPublicKeyEncryptionSchemeStehleSteinfeld<ILVector2n>();
+		item->algorithm->Enable(ENCRYPTION);
+		item->algorithm->Enable(PRE);
 
 		return item;
 	}
