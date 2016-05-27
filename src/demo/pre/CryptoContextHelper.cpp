@@ -98,24 +98,43 @@ getNewContext(const string& parmfile, const string& parmset)
 }
 
 void
-printAllParmSets(const std::string& fn)
+printAllParmSets(ostream& out, const std::string& fn)
 {
 	Serialized sobj;
 
 	if( !getParmsFile(fn, &sobj) ) {
-		cerr << "Unable to read serialization from " << fn << endl;
+		out << "Unable to read serialization from " << fn << endl;
 		return;
 	}
 
 	for( Serialized::ConstMemberIterator it = sobj.MemberBegin(); it != sobj.MemberEnd(); it++ ) {
-		cout << "Parameter set " << it->name.GetString() << endl;
+		out << "Parameter set " << it->name.GetString() << endl;
 
 		char writeBuffer[1024];
 		rapidjson::FileWriteStream os(stdout, writeBuffer, sizeof(writeBuffer));
 		rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(os);
 
 		it->value.Accept(writer);
-		cout << endl;
+		out << endl;
 	}
+}
+
+void
+printAllParmSetNames(ostream& out, const std::string& fn)
+{
+	Serialized sobj;
+
+	if( !getParmsFile(fn, &sobj) ) {
+		out << "Unable to read serialization from " << fn << endl;
+		return;
+	}
+
+	Serialized::ConstMemberIterator it = sobj.MemberBegin();
+	out << it->name.GetString();
+
+	for( it++; it != sobj.MemberEnd(); it++ ) {
+		out << ", " << it->name.GetString();
+	}
+	out << endl;
 }
 

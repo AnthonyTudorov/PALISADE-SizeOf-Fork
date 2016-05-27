@@ -418,7 +418,7 @@ main( int argc, char *argv[] )
 	}
 
 	if( string(argv[1]) == "-list" && argc == 3) {
-		printAllParmSets(argv[2]);
+		printAllParmSets(cout, argv[2]);
 		return 0;
 	}
 
