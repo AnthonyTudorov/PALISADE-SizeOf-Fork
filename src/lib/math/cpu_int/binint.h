@@ -788,7 +788,7 @@ namespace cpu_int{
 	private:
 
 		//pointer to the array storing the native integers.
-		uint_type *m_value;
+		uint_type m_value[(BITLENGTH+8*sizeof(uint_type)-1)/(8*sizeof(uint_type))];
 
 		//variable that stores the MOST SIGNIFICANT BIT position in the number.
 		usshort m_MSB;

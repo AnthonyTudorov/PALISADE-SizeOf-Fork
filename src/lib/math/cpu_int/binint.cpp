@@ -104,9 +104,6 @@ uint_type BigBinaryInteger<uint_type,BITLENGTH>::ceilIntByUInt(const uint_type N
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger()
 {
-	
-	//memory allocation step
-	m_value = new uint_type[m_nSize];
 	//last base-r digit set to 0
 	this->m_value[m_nSize-1] = 0;
 	//MSB set to zero since value set to ZERO
@@ -116,8 +113,6 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger()
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(usint init){
-	//memory allocation step
-	m_value = new uint_type[m_nSize];
 	//setting the MSB
 	usint msb = GetMSB32(init);
 
@@ -136,8 +131,6 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(usint init){
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const std::string& str){
-	//memory allocation step
-	m_value = new uint_type[m_nSize];
 	//setting the array values from the string
 	AssignVal(str);
 	//state set
@@ -147,8 +140,6 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const std::string& str){
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const BigBinaryInteger& bigInteger){
-	//memory allocation step
-	m_value = new uint_type[m_nSize];
 	m_MSB=bigInteger.m_MSB; //copy MSB
 	uint_type  tempChar = ceilIntByUInt(bigInteger.m_MSB);
 	//copy array values
@@ -163,12 +154,12 @@ template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(BigBinaryInteger &&bigInteger){
 	//copy MSB
 	m_MSB = bigInteger.m_MSB;
-	//pointer assignment
-	m_value = bigInteger.m_value;
+	//copy value
+	for (size_t i=0; i < m_nSize; ++i) {
+		m_value[i] = bigInteger.m_value[i];
+	}
 	//set state
 	m_state = bigInteger.m_state;
-	//remove ref from bigInteger
-	bigInteger.m_value = NULL;
 }
 
 template<typename uint_type,usint BITLENGTH>
@@ -179,8 +170,6 @@ std::function<unique_ptr<BigBinaryInteger<uint_type,BITLENGTH>>()> BigBinaryInte
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::~BigBinaryInteger()
 {	
-	//memory deallocation
-	delete []m_value;
 }
 
 /**
@@ -229,9 +218,9 @@ const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENG
 	if(this!=&rhs){
         this->m_MSB = rhs.m_MSB;
 		this->m_state = rhs.m_state;
-        delete []m_value;
-        this->m_value = rhs.m_value;
-        rhs.m_value = NULL;
+		for (size_t i=0; i < m_nSize; ++i) {
+			m_value[i] = rhs.m_value[i];
+		}
     }
 
     return *this;
