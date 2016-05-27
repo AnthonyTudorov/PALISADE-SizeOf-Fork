@@ -125,9 +125,9 @@ public:
     }
 
     inline BigBinaryVector& operator=(usint val) {
-        *this->m_data[0] = val;
+        this->m_data[0] = val;
         for (size_t i = 1; i < GetLength(); ++i) {
-            *this->m_data[i] = 0;
+            this->m_data[i] = 0;
         }
         return *this;
     }
@@ -356,7 +356,7 @@ public:
 	void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
 
 private:
-	IntegerType **m_data;
+	IntegerType *m_data;
 	usint m_length;
 	IntegerType m_modulus;
 	bool IndexCheck(usint) const;
