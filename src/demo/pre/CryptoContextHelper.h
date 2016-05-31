@@ -13,6 +13,7 @@
 
 extern void printAllParmSets(ostream&out, const std::string& fn);
 extern void printAllParmSetNames(ostream&out, const std::string& fn);
-extern CryptoContext *getNewContext(const string& parmfile, const string& parmset);
+extern CryptoContext *getNewContext(const string& parmfile, const string& parmsetname);
+extern CryptoContext *getNewContext(const string& parmSetJson);
 
 #endif /* SRC_DEMO_PRE_CRYPTOCONTEXTHELPER_H_ */
