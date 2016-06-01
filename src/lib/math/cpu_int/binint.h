@@ -57,26 +57,6 @@
 */
 namespace cpu_int{
 
-    /**
-     *
-    * Structure to contain all information needed for fast multiword Barrett multiply.
-    */
-    typedef struct
-    {
-      usint w;
-      usint n;
-      usint nw;
-      usint r;
-      usint shift1;
-      usint shift2;
-      BigBinaryInteger mu;
-      BigBinaryInteger M;
-      usint fast_div1;
-      usint fast_div2;
-
-    }BarrettMWParamStruct;
-
-
 	/**The following structs are needed for initialization of BigBinaryInteger at the preprocessing stage.
 	*The structs compute certain values using template metaprogramming approach and mostly follow recursion to calculate value(s).
 	*/
@@ -727,6 +707,7 @@ namespace cpu_int{
     */
     uschar GetBitAtIndex(usint index) const;
 
+
 	/**
 	* Sets the int value at the specified index.
 	*
@@ -803,40 +784,6 @@ namespace cpu_int{
 	* @param guessIdxChar is the hint of the MSB position.
     */
     void SetMSB(usint guessIdxChar);
-
-    //Experimental methods for fast Barrett multiword multiplication
-
-
-    /**
-    * initialization function for fast multiword Barrett multiply.
-    *  @param w is the number of bits of the radix (word size)
-  	*  @param MNumBits is the number of bits that represent M
-  	*   note this is not the bitwidth of the underlying integer, but rather the size of the smallest
-    *	number of bits that represent M
-    *  @param M is our Modulus
-    * @return reference to Barrett parameter structure.
-    */
-    BarrettMWParamStruct& init_barrett_mod_mul(usint w, usint MNumBits, BigBinaryInteger M, BarrettMWParamStruct &BP);
-
-    /**
-    * perform fast multiword Barrett modulo multiprecision multiplication
-    * from:
-    * Faster Interleaved Modular Multiplication Based on Barrett and
-    * Montgomery Reduction Methods
-    * Miroslav Kne!zevi"c, Member, IEEE,
-    * Frederik Vercauteren, and
-    * Ingrid Verbauwhede, Senior Member, IEEE
-    * adapted for Palisade by  Dave Cousins BBN (c) 2016
-    *  @param a is the multiplier
-  	*  @param b is the multiplicand
-  	*  @param &BP reference to Barrett parameter structure.
-  	*
-    * @return reference to resulting value = (a*b) % BP.M
-    */
-
-    BigBinaryInteger& barrett_mod_mul(BigBinaryInteger &x, BigBinaryInteger &y, BarrettMWParamStruct &BP);
-
-
 
 	private:
 

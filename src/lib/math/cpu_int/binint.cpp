@@ -1,38 +1,29 @@
-﻿/**
- * @file  binint.cpp
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
- * @version 00_03
- *
- * @section LICENSE
- *
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
- * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or other
- * materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
- * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * @section DESCRIPTION
- *
- * This file contains the main class for big integers: BigBinaryInteger. Big integers are represented
- * as arrays of native usigned integers. The native integer type is supplied as a template parameter.
- * Currently implementations based on uint8_t, uint16_t, and uint32_t are supported. The second template parameter
- * is the maximum bitwidth for the big integer.
- */
+﻿//LAYER 1 : PRIMITIVE DATA STRUCTURES AND OPERATIONS
+/*
+PRE SCHEME PROJECT, Crypto Lab, NJIT
+Version:
+	v00.01
+Last Edited:
+	3/1/2015 4:37AM
+List of Authors:
+	TPOC:
+		Dr. Kurt Rohloff, rohloff@njit.edu
+	Programmers:
+		Dr. Yuriy Polyakov, polyakov@njit.edu
+		Gyana Sahu, grs22@njit.edu
+Description:
+	This class provides a class for big integers.
+
+License Information:
+
+Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+All rights reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+*/
 #include "binint.h"
 
 
@@ -1922,218 +1913,6 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::int
 	return BigBinaryInteger(m);
 
 }
-
-
-// Experimental code follows
-
-/**
-* initialization function for fast multiword Barrett multiply.
-*  @param w is the number of bits of the radix (word size)
-	*  @param MNumBits is the number of bits that represent M
-	*   note this is not the bitwidth of the underlying integer, but rather the size of the smallest
-*	number of bits that represent M
-*  @param M is our Modulus
-* @return reference to Barrett parameter structure.
-*/
-BarrettMWParamStruct& init_barrett_mod_mul(usint w, usint MNumBits,
-			BigBinaryInteger M, BarrettMWParamStruct &BP) {
-
-
-	  // w is the number of bits of the radix (word size)
-	  // MNumBits is the number of bits that represent M (i.e. our largest bitwidth...
-	  //   note this is not the bitwidth of the underlying integer, but rather the size of the smallest
-	  //   number of bits that represent M
-	  // M is our Modulus
-
-	  //if 0
-	  //n = MNumBits;
-	  //else
-	  usint n = floor(log2(M)+1);
-	  //end
-
-	  BP.w = w;
-	  BP.n = n;
-	  // nw is the number of words (each of radix r) needed
-	  BP.nw = ceil(n/w);
-	  // r is the radix
-	  BP.r = 2^w;
-
-	  // alpha and beta are used to compute the shifts needed
-	  sint alpha = w+3;
-	  sint beta = -2;
-
-	  std::cout << "test "<< ceil(n/w) << "should = "<< BP.nw << endl;
-
-	  BP.shift1 = n+beta;
-	  BP.fast_div1 = 2^(n+beta);
-	  BP.shift2 = alpha-beta;
-	  BP.fast_div2 =  2^(alpha-beta);
-	//if (isfi(M)
-
-	//    BigBinaryInteger tmp = fi(0,0,n+alpha+1,0);
-	//    tmp = bitset(tmp,n+alpha+1);
-
-	// if 1
-	//     %BP.mu = floor(fi((2^(n+alpha))/fi(M)));
-	//     wordLength = tmp.WordLength;
-	//     fracLength = MNumBits;
-	//     nt_scale = numerictype(signed,wordLength,fracLength);
-	//     tmp2 = nt_scale.divide(tmp,M);
-	//     tmp3 = fi(tmp2, 'WordLength', wordLength-fracLength, 'FractionLength', 0);
-	//     BP.mu = tmp3;
-	// end
-
-
-	//else
-	  BP.mu = floor((2^(n+alpha)/M));
-	//end
-
-
-	  std::cout <<"barrett constants for M  = "<< M <<"radix = "<< BP.r <<" d = 2^"<< w << "mu = "<< BP.mu <<std::endl;
-
-	  std::cout << "num bits = "<< BP.n << " num words = "<<BP.nw <<std::endl;
-	  std::cout << "r mul = "<< w <<" bits, shift 1 = "<< BP.shift1 <<" bits, shift 2 = "<< BP.shift2 <<" bits"<<std::endl;
-
-
-	  BP.M = M;
-	  return(BP);
-
-
-
-
-
-
-
-}
-
-/**
-* perform fast multiword Barrett modulo multiprecision multiplication
-* from:
-* Faster Interleaved Modular Multiplication Based on Barrett and
-* Montgomery Reduction Methods
-* Miroslav Kne!zevi"c, Member, IEEE,
-* Frederik Vercauteren, and
-* Ingrid Verbauwhede, Senior Member, IEEE
-* adapted for Palisade by  Dave Cousins BBN (c) 2016
-*
-	*  @param b is the multiplicand
-	*  @param &BP reference to Barrett parameter structure.
-	*
-* @return reference to resulting value = (a*b) % BP.M
-*/
-
-BigBinaryInteger& barrett_mod_mul(const BigBinaryInteger &y, const BarrettMWParamStruct &BP){
-
-
-
-
-	// As an example if you use hex radix. we have 4 bit digits. So r = 16 = 2^4, and w = 4;
-	// so M=1801 decimal can be represented in nw = 3 digits: 7 0 9
-
-	//global count1 count2 // for statistics
-
-	// if any inputs are fi then call the fi version of the code
-	// if isfi(x) || isfi(y) || isfi(BP.M)
-	//     z = barrett_mod_mul_fi_v03(x, y, BP);
-	//     return
-	// end
-
-	BigBinaryInteger x(*this); // x is this integer.
-	bool  dbgflag = true; // if true print debug statements
-
-	BigBinaryInteger M = BP.M;
-
-	// decompose y into digits of radix r
-	BigBinaryInteger ytmp = y;
-
-	uint64_t ydigits(BP.nw);
-	if (dbgflag) {
-		std::cout << "float****************"<< std::endl;
-		//fprintf('x in hex is: %s\n', dec2hex(x));
-		//fprintf('y in hex is: %s\n', dec2hex(y));
-		std::cout << "x = " << x;
-		std::cout << std::endl;
-	}
-		//TODO: see if we can use the internal format of BBI to avoid doing this.
-
-	if (BP.nw == 1) {
-		ydigits(0) = y; // no need to break into digits.
-	} else {
-		// for ix = 1:BP.nw
-		for (usint ix = 0; ix < BP.nw; ++ix) {
-			//ydigits(ix) = mod(ytmp,BP.r);
-			ydigits[ix] = ytmp%BP.r;
-			ytmp = ytmp - ydigits[ix];
-			ytmp = ytmp/BP.r;
-			if (dbgflag) {
-				std::cout << "digit " << ix << " is " << ydigits[ix];
-				std::cout << std::endl;
-			}
-		}
-	}
-	 // //  this is the actual reduction
-	BigBinaryInteger z(0);
-	BigBinaryInteger qprime(0);
-	BigBinaryInteger t1, t2, t3, t4, t5;
-
-	for (usint ix = BP.nw-1; ix >= 0; --ix){
-		//  *r is a shift left,
-		t1 = z.*BP.r;
-		t2 = x .* ydigits[ix];
-		t3 = t1 +t2;
-
-		z = t3;
-		if (dbgflag) {
-			std::cout << "ix " << ix << std::endl;
-
-			std::cout << "t1 " << t1 << std::endl;
-
-			std::cout << "t2 " << t2 << std::endl;
-
-			std::cout << "t3 " << t3 << std::endl;
-
-			std::cout << "z" << z << std::endl;
-		}
-		// z = z.*BP.r + x .* ydigits(ix);
-		// q = floor(z./M);
-
-		t4 = floor(z/BP.fast_div1);
-		t5 = t4.* BP.mu;
-		if (dbgflag) {
-			std::cout << "t4 " << t4 << std::endl;
-			std::cout << "t5 " << t5 << std::endl;
-		}
-
-		qprime = floor(t5/BP.fast_div2);
-		// qprime = floor((floor(z/BP.fast_div1) .* BP.mu)/BP.fast_div2);
-
-		// z = z -q.*M;
-		z = z -qprime.*M;
-		if dbgflag {
-			std::cout << "qprime " << qprime <<std::endl;
-			std::cout << "z " << z << std::endl;
-		}
-	}
-
-	// now we need to test z
-	if z>=BP.M {
-		z = z-BP.M;
-		if (dbgflag)
-			std::cout << "z-M " << z << std::endl;
-		//count1 = count1 + 1;
-	}
-
-	// not sure if this is ever used.
-	while z<0 {
-		z = z + M;
-		//    count2 = count2 + 1;
-	}
-
-
-	return(BP)
-}
-
-
 
 
 } // namespace cpu_int ends
