@@ -129,6 +129,8 @@ class TimerManager {
         done_(done),
         running_(false),
         real_time_used_(0),
+		start_cpu_time_(0), //added by dbc
+		start_real_time_(0), //added by dbc
         cpu_time_used_(0),
         num_finalized_(0),
         phase_number_(0),

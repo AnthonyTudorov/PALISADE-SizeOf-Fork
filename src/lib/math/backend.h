@@ -39,6 +39,7 @@
 // 2 - main math backend supporting arbitrary bitwidths; no memory pool is used; can grow up to RAM limit
 //	   currently supports uint8_t, uint16_t, and uint32_t;
 //     uint32_t is recommended for 32- and 64-bit CPU architectures
+
 #define MATHBACKEND 2
 
 #if MATHBACKEND == 1
@@ -49,8 +50,12 @@
 #if MATHBACKEND == 2
 	#include "cpu_int/binint.cpp"
 	#include "cpu_int/binvect.cpp"	
-#endif
+	#include "exp_int32/bint.cpp"
+//	#include "exp_int32/bintvec.cpp"
+//#include "exp_int32/mbint.cpp"
+//	#include "exp_int32/mbintvec.cpp"
 
+#endif
 /**
  * @namespace lbcrypto
  * The namespace of lbcrypto
@@ -84,6 +89,14 @@ namespace lbcrypto {
 	
 	/** Define the mapping for BigBinaryMatrix */
 	//typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
+
+	/** Define the mapping for ExpBigBinaryInteger (experimentaa)
+	    1500 is the maximum bitwidth supported by BigBinaryIntegers, large enough for most use cases
+		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application - to achieve smaller runtimes**/
+	typedef exp_int32::bint<integral_dtype,1500> BInt;
+
+	/** Define the mapping for Big Integer Vector */
+	typedef exp_int32::bintvec<exp_int32::BInt> BintVec;
 
 #endif
 
