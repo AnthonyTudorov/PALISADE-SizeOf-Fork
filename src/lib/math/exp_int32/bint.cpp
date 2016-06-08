@@ -108,7 +108,7 @@ namespace exp_int32 {
   {
 	
     //memory allocation step
-    m_value = new limb_t[m_nSize];
+    m_value = new limb_t[m_nSize]; //todo smartpointer
     //last base-r digit set to 0
     this->m_value[m_nSize-1] = 0;
     //MSB set to zero since value set to ZERO
@@ -119,7 +119,7 @@ namespace exp_int32 {
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>::bint(usint init){
     //memory allocation step
-    m_value = new limb_t[m_nSize];
+    m_value = new limb_t[m_nSize]; //todo smartpointer
     //setting the MSB
     usint msb = GetMSB32(init);
 
@@ -139,7 +139,7 @@ namespace exp_int32 {
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>::bint(const std::string& str){
     //memory allocation step
-    m_value = new limb_t[m_nSize];
+    m_value = new limb_t[m_nSize]; //todosmartpointer
     //setting the array values from the string
     AssignVal(str);
     //state set
@@ -186,12 +186,14 @@ namespace exp_int32 {
   }
 
   /**
-   *Converts the bint to unsigned integer or returns the first 32 bits of the bint.
-   *Splits the bint into bit length of uint data type and then uses shift and add to form the 32 bit unsigned integer.
+   *Converts the bint to a usint unsigned integer or returns the first
+   *32 bits of the bint.  Splits the bint into bit length of uint data
+   *type and then uses shift and add to form the 32 bit unsigned
+   *integer.
    */
   template<typename limb_t, usint BITLENGTH>
-  usint bint<limb_t, BITLENGTH>::ConvertToInt() const{
-
+  usint bint<limb_t, BITLENGTH>::ConvertToUsint() const{
+    //todo: 32 should not be hardwired here!!!!
     usint result = 0;
     //set num to number of equisized chunks
     usint num = 32 / m_uintBitLength;
@@ -204,10 +206,35 @@ namespace exp_int32 {
     return result;
   }
 
+  // the following conversions all throw 
+  //Converts the bint to uint32_t using the std library functions.
+  template<typename limb_t, usint BITLENGTH>
+  uint32_t bint<limb_t,BITLENGTH>::ConvertToUint32() const{
+    return std::stoul(this->ToString());
+  }
+
+  //Converts the bint to uint64_t using the std library functions.
+  template<typename limb_t, usint BITLENGTH>
+  uint64_t bint<limb_t,BITLENGTH>::ConvertToUint64() const{
+    return std::stoull(this->ToString());
+  }
+
+  //Converts the bint to float using the std library functions.
+  template<typename limb_t, usint BITLENGTH>
+  float bint<limb_t,BITLENGTH>::ConvertToFloat() const{
+    return std::stof(this->ToString());
+  }
+
   //Converts the bint to double using the std library functions.
   template<typename limb_t, usint BITLENGTH>
   double bint<limb_t,BITLENGTH>::ConvertToDouble() const{
     return std::stod(this->ToString());
+  }
+
+  //Converts the bint to long double using the std library functions.
+  template<typename limb_t, usint BITLENGTH>
+  long double bint<limb_t,BITLENGTH>::ConvertToLongDouble() const{
+    return std::stold(this->ToString());
   }
 
   template<typename limb_t,usint BITLENGTH>
@@ -527,7 +554,7 @@ namespace exp_int32 {
    *  Algorithm used is usual school book sum and carry-over, expect for that radix is 2^m_bitLength.
    */
   template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::Plus(const bint& b) const{
+  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::Add(const bint& b) const{
 	
     //two operands A and B for addition, A is the greater one, B is the smaller one
     const bint* A = NULL;
@@ -594,11 +621,11 @@ namespace exp_int32 {
     return result;
   }
 
-  /** Minus operation:
+  /** Sub operation:
    *  Algorithm used is usual school book borrow and subtract, except for that radix is 2^m_bitLength.
    */
   template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::Minus(const bint& b) const{
+  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::Sub(const bint& b) const{
     //check for garbage initialization
     if(this->m_state==GARBAGE){
       return std::move(bint(ZERO));		
@@ -648,11 +675,11 @@ namespace exp_int32 {
 
   }
 
-  /** Times operation:
+  /** Multiply operation:
    *  Algorithm used is usual school book shift and add after multiplication, except for that radix is 2^m_bitLength.
    */
   template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::Times(const bint& b) const{
+  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::Mul(const bint& b) const{
 	
     bint ans;
     //check for garbage initialised objects
@@ -792,7 +819,7 @@ namespace exp_int32 {
 
   }
 
-  /** Times operation:
+  /** Multiply operation:
    *  Algorithm used is usual school book multiplication.
    *  This function is used in the Multiplication of two bint objects
    */
@@ -850,7 +877,7 @@ namespace exp_int32 {
     bint ans;
 	
     //normalised_dividend = result*quotient
-    bint normalised_dividend( this->Minus( this->Mod(b) ) );
+    bint normalised_dividend( this->Sub( this->Mod(b) ) );
     //Number of array elements in Divisor
     limb_t ncharInDivisor = ceilIntByUInt(b.m_MSB);
     //Get the uint integer that is in the MSB position of the Divisor
@@ -1265,7 +1292,8 @@ namespace exp_int32 {
 
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModAdd(const bint& b, const bint& modulus) const{
-    return this->Plus(b).Mod(modulus);
+    return this->Add(b).Mod(modulus);
+    //todo what is the order of this operation?
   }
 
   //Optimized Mod Addition using ModBarrett
@@ -1278,7 +1306,7 @@ namespace exp_int32 {
 
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModBarrettAdd(const bint& b, const bint& modulus,const bint& mu) const{
-    return this->Plus(b).ModBarrett(modulus,mu);
+    return this->Add(b).ModBarrett(modulus,mu);
   }
 
   template<typename limb_t,usint BITLENGTH>
@@ -1727,7 +1755,7 @@ namespace exp_int32 {
 
   //Splits the binary string to equi sized chunks and then populates the internal array values.
   template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::BinaryStringToBInt(const std::string& bitString){
+  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::BinaryStringToBint(const std::string& bitString){
 	
     bint value;
     usint len = bitString.length();

@@ -220,7 +220,7 @@ namespace exp_int32 {
     }
 
     for(usint i=0;i<this->m_length;i++){
-      *this->m_data[i] = this->m_data[i]->ModAdd(*b.m_data[i],this->m_modulus);
+      *this->m_data[i] = this->m_data[i]->Add(*b.m_data[i]);
     }
     return *this;
 
@@ -235,7 +235,7 @@ namespace exp_int32 {
     }
 
     for(usint i=0;i<this->m_length;i++){
-      *this->m_data[i] = this->m_data[i]->ModSub(*b.m_data[i],this->m_modulus);
+      *this->m_data[i] = this->m_data[i]->Sub(*b.m_data[i]);
     }
     return *this;
 

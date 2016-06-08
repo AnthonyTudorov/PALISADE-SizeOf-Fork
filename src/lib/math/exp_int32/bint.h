@@ -340,18 +340,60 @@ namespace exp_int32{
     usshort GetMSBCharNum()const;
 
     /**
-     * Converts the value to an int.
-     *
+     * Converts the value to a usint.
+     * if the bint is larger than the max value representable
+     * it is truncated to the least significant bits that fit
      * @return the int representation of the value as usint.
      */
-    usint ConvertToInt() const;
+    usint ConvertToUsint() const;
     
     /**
+     * Converts the value to a uint32_t.
+     * if the bint is larger than the max value representable
+     * std::out_of_range is thrown
+     * @return the int representation of the value as uint32_t
+     */
+    uint32_t ConvertToUint32() const;
+    
+    /**
+     * Converts the value to a uint64_t.
+     * if the bint is larger than the max value representable
+     * std::out_of_range is thrown
+     * if conversion fails std::invalid_argment is thrown 
+     * @return the int representation of the value as uint64_t
+     */
+    uint64_t ConvertToUint64() const;
+
+    /**
+     * Converts the value to a float
+     * if the bint is larger than the max value representable
+     * std::out_of_range is thrown
+     * if conversion fails std::invalid_argment is thrown 
+     *
+     * @return float representation of the value.
+     */
+    float ConvertToFloat() const;
+
+    /**
      * Converts the value to an double.
+     * if the bint is larger than the max value representable
+     * std::out_of_range is thrown
+     * if conversion fails std::invalid_argment is thrown 
      *
      * @return double representation of the value.
      */
     double ConvertToDouble() const;
+
+
+    /**
+     * Converts the value to an long double.
+     * if the bint is larger than the max value representable
+     * std::out_of_range is thrown
+     * if conversion fails std::invalid_argment is thrown 
+     *
+     * @return long double representation of the value.
+     */
+    long double ConvertToLongDouble() const;
 
     /**
      * Convert a value from an int to a Big Int.
@@ -369,7 +411,7 @@ namespace exp_int32{
      * @param b is the value to add of type Big  Integer.
      * @return result of the addition operation of type Big Integer.
      */
-    bint Plus(const bint& b) const;
+    bint Add(const bint& b) const;
 
 		
     /**
@@ -395,7 +437,7 @@ namespace exp_int32{
      * @param b is the value to subtract of type Big  Integer.
      * @return result of the subtraction operation of type Big  Integer.
      */
-    bint Minus(const bint& b) const;
+    bint Sub(const bint& b) const;
 
         
     /**
@@ -404,7 +446,7 @@ namespace exp_int32{
      * @param b of type Big  Integer is the value to multiply with.
      * @return result of the multiplication operation.
      */
-    bint Times(const bint& b) const;
+    bint Mul(const bint& b) const;
 
     /**
      * Division operation.
@@ -591,7 +633,7 @@ namespace exp_int32{
      * @param bitString the binary num in string.
      * @return the  number represented as a big  int.
      */
-    static bint BinaryStringToBInt(const std::string& bitString);
+    static bint BinaryStringToBint(const std::string& bitString);
 
     /**
      * Exponentiation of a bigInteger x. Returns x^p
@@ -656,7 +698,7 @@ namespace exp_int32{
      * @param a is the value to add.
      * @return is the result of the addition operation.
      */
-    inline bint operator+(const bint &a) const {return this->Plus(a);}
+    inline bint operator+(const bint &a) const {return this->Add(a);}
 
     /**
      * Subtraction operation.
@@ -664,7 +706,7 @@ namespace exp_int32{
      * @param a is the value to subtract.
      * @return is the result of the subtraction operation.
      */
-    inline bint operator-(const bint &a) const {return this->Minus(a);}
+    inline bint operator-(const bint &a) const {return this->Sub(a);}
 
     /**
      * Multiplication operation.
@@ -672,7 +714,7 @@ namespace exp_int32{
      * @param a is the value to multiply with.
      * @return is the result of the multiplication operation.
      */
-    inline bint operator*(const bint &a) const {return this->Times(a);}
+    inline bint operator*(const bint &a) const {return this->Mul(a);}
 
     /**
      * Modulo operation. Classical modular reduction algorithm is used.

@@ -316,7 +316,6 @@ public:
 private:
 	bint_el_t **m_data;
 	usint m_length;
-	bint_el_t m_modulus;
 	bool IndexCheck(usint) const;
 };
 
