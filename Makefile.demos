@@ -67,7 +67,7 @@ $(BINDIR)/demo/obfuscate/%$(EXESUFFIX): $(BUILDDIR)/demo/obfuscate/%.o $(EXTLIBD
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 
-$(BINDIR)/demo/pre/Source$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source.o $(EXTLIBDIR)/$(PALISADELIB)
+$(BINDIR)/demo/pre/Source$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source.o $(BUILDDIR)/demo/pre/CryptoContextHelper.o $(EXTLIBDIR)/$(PALISADELIB)
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 
@@ -75,7 +75,7 @@ $(BINDIR)/demo/pre/Source_dcrt$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_dcrt.o $
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 
-$(BINDIR)/demo/pre/Source_json$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_json.o $(BUILDDIR)/demo/pre/testJson.o $(EXTLIBDIR)/$(PALISADELIB)
+$(BINDIR)/demo/pre/Source_json$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_json.o $(BUILDDIR)/demo/pre/testJson.o  $(BUILDDIR)/demo/pre/CryptoContextHelper.o $(EXTLIBDIR)/$(PALISADELIB)
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 
@@ -99,7 +99,7 @@ $(BINDIR)/demo/pre/PrettyJson$(EXESUFFIX): $(BUILDDIR)/demo/pre/PrettyJson.o $(E
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 
-$(BINDIR)/demo/pre/palisade$(EXESUFFIX): $(BUILDDIR)/demo/pre/palisade.o $(EXTLIBDIR)/$(PALISADELIB)
+$(BINDIR)/demo/pre/palisade$(EXESUFFIX): $(BUILDDIR)/demo/pre/palisade.o $(BUILDDIR)/demo/pre/CryptoContextHelper.o $(EXTLIBDIR)/$(PALISADELIB)
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 

@@ -33,26 +33,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 using namespace std;
 
-#include "math/backend.h"
-#include "utils/inttypes.h"
-
-#include "lattice/ilparams.h"
-
-#include "crypto/lwecrypt.h"
-#include "crypto/lwecrypt.cpp"
-#include "crypto/lwepre.h"
-#include "crypto/lwepre.cpp"
-#include "crypto/lweahe.h"
-#include "crypto/lweahe.cpp"
-#include "crypto/lweshe.h"
-#include "crypto/lweshe.cpp"
-#include "crypto/lwefhe.h"
-#include "crypto/lwefhe.cpp"
-#include "crypto/lweautomorph.h"
-#include "crypto/lweautomorph.cpp"
-
-#include "crypto/ciphertext.h"
-#include "crypto/ciphertext.cpp"
+#include "CryptoContext.h"
+#include "CryptoContextHelper.h"
 
 #include "utils/serializablehelper.h"
 
@@ -78,24 +60,10 @@ applyFunctionToChunksOfInput(istream *in )
 
 }
 
-class	PalisadeControls {
-public:
-	usint				cyclOrder;
-	BigBinaryInteger	modulus;
-	BigBinaryInteger	rootOfUnity;
-	usint				relinWindow;
-	float				stdDev;
-
-	long				chunkSize;
-
-	ILParams			ilParams;
-	LPCryptoParametersLTV<ILVector2n> *cryptoParams;
-} ctlCrypt;
-
-typedef void (*cmdparser)(string cmd, int argc, char *argv[]);
+typedef void (*cmdparser)(CryptoContext *ctx, string cmd, int argc, char *argv[]);
 
 void
-reencrypter(string cmd, int argc, char *argv[]) {
+reencrypter(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -105,15 +73,11 @@ reencrypter(string cmd, int argc, char *argv[]) {
 	string rekeyname(argv[1]);
 	string reciphertextname(argv[2]);
 
-	LPEvalKeyLTV<ILVector2n> evalKey(*ctlCrypt.cryptoParams);
+	LPEvalKeyLTV<ILVector2n> evalKey(*ctx->getParams());
 	if( !fetchItemFromSer(&evalKey, rekeyname) ) {
 		cerr << "Could not process re encryption key" << endl;
 		return;
 	}
-
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
 
 	ofstream outCt(reciphertextname, ios::binary);
 	if( !outCt.is_open() ) {
@@ -152,7 +116,7 @@ reencrypter(string cmd, int argc, char *argv[]) {
 			break;
 		}
 
-		algorithm.ReEncrypt(evalKey, ciphertext, &newCiphertext);
+		ctx->getAlgorithm()->ReEncrypt(evalKey, ciphertext, &newCiphertext);
 
 		Serialized cipS;
 		string reSerialized;
@@ -178,7 +142,7 @@ reencrypter(string cmd, int argc, char *argv[]) {
 }
 
 void
-decrypter(string cmd, int argc, char *argv[]) {
+decrypter(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -188,15 +152,11 @@ decrypter(string cmd, int argc, char *argv[]) {
 	string prikeyname(argv[1]);
 	string cleartextname(argv[2]);
 
-	LPPrivateKeyLTV<ILVector2n> sk(*ctlCrypt.cryptoParams);
+	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
 	if( !fetchItemFromSer(&sk, prikeyname) ) {
 		cerr << "Could not process private key" << endl;
 		return;
 	}
-
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
 
 	ofstream outF(cleartextname, ios::binary);
 	if( !outF.is_open() ) {
@@ -235,7 +195,7 @@ decrypter(string cmd, int argc, char *argv[]) {
 			break;
 		}
 
-		DecodingResult rv = algorithm.Decrypt(sk, ciphertext, &plaintext);
+		DecodingResult rv = ctx->getAlgorithm()->Decrypt(sk, ciphertext, &plaintext);
 		plaintext.Unpad<ZeroPad>();
 
 		outF << plaintext << flush;
@@ -249,7 +209,7 @@ decrypter(string cmd, int argc, char *argv[]) {
 }
 
 void
-encrypter(string cmd, int argc, char *argv[]) {
+encrypter(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -266,17 +226,13 @@ encrypter(string cmd, int argc, char *argv[]) {
 	}
 
 	// Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(*ctlCrypt.cryptoParams);
+	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
 
 	if( !fetchItemFromSer(&pk, pubkeyname) ) {
 		cerr << "Could not process public key" << endl;
 		ctSer.close();
 		return;
 	}
-
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
 
 	// fetch the plaintext to be encrypted
 	ifstream inf(plaintextname, ios::binary);
@@ -293,17 +249,17 @@ encrypter(string cmd, int argc, char *argv[]) {
 
 
 	while( totalBytes > 0 ) {
-		usint s = min(totalBytes, ctlCrypt.chunkSize);
+		usint s = min(totalBytes, ctx->getChunksize());
 		char *chunkb = new char[s];
 		inf.read(chunkb, s);
 
 		ByteArrayPlaintextEncoding ptxt(chunkb);
-		ptxt.Pad<ZeroPad>(ctlCrypt.cyclOrder/16);
+		ptxt.Pad<ZeroPad>(ctx->getPadAmount());
 		delete chunkb;
 
 		Ciphertext<ILVector2n> ciphertext;
 
-		algorithm.Encrypt(pk, ptxt, &ciphertext);
+		ctx->getAlgorithm()->Encrypt(pk, ptxt, &ciphertext);
 		Serialized cipS;
 		string cipherSer;
 
@@ -319,7 +275,7 @@ encrypter(string cmd, int argc, char *argv[]) {
 			break;
 		}
 
-		totalBytes -= ctlCrypt.chunkSize;
+		totalBytes -= ctx->getChunksize();
 	}
 
 	inf.close();
@@ -328,7 +284,7 @@ encrypter(string cmd, int argc, char *argv[]) {
 }
 
 void
-rekeymaker(string cmd, int argc, char *argv[]) {
+rekeymaker(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -339,8 +295,8 @@ rekeymaker(string cmd, int argc, char *argv[]) {
 	string rekeyname(argv[2]);
 
 	// Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(*ctlCrypt.cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(*ctlCrypt.cryptoParams);
+	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
+	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
 
 	if( !fetchItemFromSer(&pk, pubname) ) {
 		cerr << "Could not process public key" << endl;
@@ -352,13 +308,9 @@ rekeymaker(string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	LPEvalKeyLTV<ILVector2n> evalKey(*ctlCrypt.cryptoParams);
+	LPEvalKeyLTV<ILVector2n> evalKey(*ctx->getParams());
 
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
-
-	if( algorithm.EvalKeyGen(pk, sk, &evalKey) ) {
+	if( ctx->getAlgorithm()->EvalKeyGen(pk, sk, &evalKey) ) {
 		Serialized evalK;
 
 		if( evalKey.Serialize(&evalK, rekeyname) ) {
@@ -379,7 +331,7 @@ rekeymaker(string cmd, int argc, char *argv[]) {
 }
 
 void
-keymaker(string cmd, int argc, char *argv[]) {
+keymaker(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 1 ) {
 		usage(cmd, "missing keyname");
 		return;
@@ -388,14 +340,10 @@ keymaker(string cmd, int argc, char *argv[]) {
 	string keyname(argv[0]);
 
 	// Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(*ctlCrypt.cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(*ctlCrypt.cryptoParams);
+	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
+	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
 
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
-
-	if( algorithm.KeyGen(&pk,&sk) ) {
+	if( ctx->getAlgorithm()->KeyGen(&pk,&sk) ) {
 		Serialized pubK, privK;
 
 		if( pk.Serialize(&pubK, keyname) ) {
@@ -431,9 +379,9 @@ struct {
 	cmdparser	func;
 	string		helpline;
 } cmds[] = {
-		"makekey", keymaker, " [optional key parms] keyname\n"
+		"makekey", keymaker, " [optional parms] keyname\n"
 			"\tcreate a new keypair and save in keyfilePUB.txt and keyfilePRI.txt",
-		"makerekey", rekeymaker, " [optional key parms] pubkey_file secretkey_file rekey_file\n"
+		"makerekey", rekeymaker, " [optional parms] pubkey_file secretkey_file rekey_file\n"
 			"\tcreate a re-encryption key from the contents of pubkey_file and secretkey_file, save in rekey_file",
 		"encrypt", encrypter, " [optional parms] plaintext_file pubkey_file ciphertext_file\n"
 			"\tencrypt the contents of plaintext_file using the contents of pubkey_file, save results in ciphertext_file",
@@ -450,11 +398,15 @@ usage(const string& cmd, const string& msg)
 	if( msg.length() > 0 )
 		cerr << msg << endl;
 
-	cerr << "Usage is:" << endl;
 	for( int i=0; i<sizeof(cmds)/sizeof(cmds[0]); i++ ) {
 		if( cmd == "ALL" || cmd == cmds[i].command )
 			cerr << "palisade " << cmds[i].command << cmds[i].helpline << endl;
 	}
+
+	cerr << endl;
+	cerr << "[optional params] are:" << endl;
+	cerr << "-list filename: list all the parameter sets in the file filename, then exit" << endl;
+	cerr << "-use filename parmset: use the parameter set named parmset from the parameter file" << endl;
 }
 
 int
@@ -465,32 +417,42 @@ main( int argc, char *argv[] )
 		return 1;
 	}
 
-	ctlCrypt.cyclOrder = 2048;
-	ctlCrypt.modulus = BigBinaryInteger("268441601");
-	ctlCrypt.rootOfUnity = BigBinaryInteger("16947867");
-	ctlCrypt.relinWindow = 1;
-	ctlCrypt.stdDev = 4;
+	if( string(argv[1]) == "-list" && argc == 3) {
+		printAllParmSets(cout, argv[2]);
+		return 0;
+	}
 
-	ctlCrypt.chunkSize = (ctlCrypt.cyclOrder / 2) / 8; // bytes
+	CryptoContext *ctx = 0;
 
-	ctlCrypt.ilParams = ILParams(ctlCrypt.cyclOrder, ctlCrypt.modulus, ctlCrypt.rootOfUnity);
+	int cmdidx = 1;
+	if( string(argv[1]) == "-use" && argc >= 4) {
+		ctx = getNewContext( string(argv[2]), string(argv[3]) );
+		if( ctx == 0 ) {
+			usage("ALL", "Could not construct a crypto context");
+			return 1;
+		}
 
-	//Set crypto parametes
-	LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	ctlCrypt.cryptoParams = &cryptoParams;
-	ctlCrypt.cryptoParams->SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
-	ctlCrypt.cryptoParams->SetDistributionParameter(ctlCrypt.stdDev);			// Set the noise parameters.
-	ctlCrypt.cryptoParams->SetRelinWindow(ctlCrypt.relinWindow);				// Set the relinearization window
-	ctlCrypt.cryptoParams->SetElementParams(ctlCrypt.ilParams);			// Set the initialization parameters.
+		cmdidx += 3;
+	}
+	else {
+		ctx = CryptoContext::genCryptoContextLTV(2, 2048, "268441601", "16947867", 1, 4);
+	}
 
-	DiscreteGaussianGenerator dgg(ctlCrypt.stdDev);				// Create the noise generator
-	ctlCrypt.cryptoParams->SetDiscreteGaussianGenerator(dgg);
+	if( ctx == 0 ) {
+		usage("ALL", "Unable to create a crypto context");
+		return 1;
+	}
+
+	if( cmdidx >= argc ) {
+		usage("ALL");
+		return 1;
+	}
 
 	bool	rancmd = false;
-	string userCmd(argv[1]);
+	string userCmd(argv[cmdidx]);
 	for( int i=0; i<(sizeof(cmds)/sizeof(cmds[0])); i++ ) {
 		if( cmds[i].command == string(userCmd) ) {
-			(*cmds[i].func)(cmds[i].command, argc-2, &argv[2]);
+			(*cmds[i].func)(ctx, cmds[i].command, argc-1-cmdidx, &argv[cmdidx + 1]);
 			rancmd = true;
 			break;
 		}

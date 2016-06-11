@@ -58,8 +58,6 @@ main( int argc, char *argv[] )
 		while( (ch = br->get()) != EOF && ch != '$' )
 			inBuf += ch;
 
-		if( ch == EOF ) break;
-
 		doc.Parse(inBuf.c_str());
 
 		if( doc.HasParseError() ) {

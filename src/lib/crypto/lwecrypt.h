@@ -620,7 +620,7 @@ namespace lbcrypto {
 			* @param cryptoParams is the reference to cryptoParams
 			*/
 
-			LPPrivateKeyLTV(LPCryptoParametersLTV<Element> &cryptoParams) {
+			LPPrivateKeyLTV(LPCryptoParameters<Element> &cryptoParams) {
 				this->SetCryptoParameters(&cryptoParams);
 			}
 

@@ -1,0 +1,86 @@
+{
+
+"LTV1" : {
+"parameters" : "LTV",
+"plaintextModulus" : "2",
+"ring" :  "2048",
+"modulus" : "268441601",
+"rootOfUnity" : "16947867",
+"relinWindow" : "1",
+"stDev" : "4"
+},
+
+"LTV2" : {
+"parameters" : "LTV",
+"plaintextModulus" : "2",
+"ring" :  "2048",
+"modulus" : "536881153",
+"rootOfUnity" : "267934765",
+"relinWindow" : "2",
+"stDev" : "4"
+},
+
+"LTV3" : {
+"parameters" : "LTV",
+"plaintextModulus" : "2",
+"ring" :  "2048",
+"modulus" : "1073750017",
+"rootOfUnity" : "180790047",
+"relinWindow" : "4",
+"stDev" : "4"
+},
+
+"LTV4" : {
+"parameters" : "LTV",
+"plaintextModulus" : "2",
+"ring" :  "2048",
+"modulus" : "8589987841",
+"rootOfUnity" : "2678760785",
+"relinWindow" : "8",
+"stDev" : "4"
+},
+
+"LTV5" : {
+"parameters" : "LTV",
+"plaintextModulus" : "2",
+"ring" :  "4096",
+"modulus" : "2199023288321",
+"rootOfUnity" : "1858080237421",
+"relinWindow" : "16",
+"stDev" : "4"
+},
+
+"StSt1" : {
+"parameters" : "StehleSteinfeld",
+"plaintextModulus" : "2",
+"ring" : "2048",
+"modulus" : "8589987841",
+"rootOfUnity" : "8451304774",
+"relinWindow" : "1",
+"stDev" : "4",
+"stDevStSt" : "98.4359"
+ },
+ 
+"StSt2" : {
+"parameters" : "StehleSteinfeld",
+"plaintextModulus" : "2",
+"ring" :  "2048",
+"modulus" : "137439004673",
+"rootOfUnity" : "7643730114",
+"relinWindow" : "8",
+"stDev" : "4",
+"stDevStSt" : "214.9"
+},
+
+"StSt3" : {
+"parameters" : "StehleSteinfeld",
+"plaintextModulus" : "2",
+"ring" :  "4096",
+"modulus" : "17179926529",
+"rootOfUnity" : "1874048014",
+"relinWindow" : "1",
+"stDev" : "4",
+"stDevStSt" : "98.4359"
+}
+
+}
