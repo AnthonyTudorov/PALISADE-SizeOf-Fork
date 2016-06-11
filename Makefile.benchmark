@@ -98,7 +98,8 @@ $(BENCHMARK_EXAMPLES_BUILD_DIR)/%.o: $(BENCHMARK_EXAMPLES_SRC_DIR)/%.cc
 $(BENCHMARK_EXAMPLES_BIN_DIR)/%: $(BENCHMARK_EXAMPLES_BUILD_DIR)/%.o
 	@echo " -- benchmark:linking example $@"	
 	@mkdir -p $(BENCHMARK_EXAMPLES_SRC_DIR)/bin/
-	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread
+	#$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread
+	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ $(BENCHMARK_LIB) $(LIB) -lpthread
 	@echo
 
 #this updates the binaries when the objects or libraries are touched
@@ -140,7 +141,8 @@ $(BENCHMARK_BIN): $(BENCHMARK_OBJ) $(BENCHMARK_LIB)
 $(BENCHMARK_BIN_DIR)/%: $(BENCHMARK_BUILD_DIR)/%.o 
 	@echo " -- benchmark:linking $@"
 	@mkdir -p $(BENCHMARK_BIN_DIR)
-	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -L$(EXTLIBDIR) -l$(SOLIB)  -o $@  $(EXTLIBDIR)/$(PALISADELIB) -rdynamic $(BENCHMARK_LIB) $(LIB) $(EXTLIB)
+	#$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -L$(EXTLIBDIR) -l$(SOLIB)  -o $@  $(EXTLIBDIR)/$(PALISADELIB) -rdynamic $(BENCHMARK_LIB) $(LIB) $(EXTLIB)
+	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -L$(EXTLIBDIR) -l$(SOLIB)  -o $@  $(EXTLIBDIR)/$(PALISADELIB) $(BENCHMARK_LIB) $(LIB) $(EXTLIB)
 	@echo
 
 # this is the target that makes benchmark examples

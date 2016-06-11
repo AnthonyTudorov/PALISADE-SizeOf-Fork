@@ -38,6 +38,8 @@
 using namespace std;
 using namespace lbcrypto;
 
+namespace lbcrypto {
+
 class CryptoContext {
 private:
 	usint ringdim;
@@ -56,12 +58,20 @@ private:
 	LPPublicKeyEncryptionScheme<ILVector2n> *algorithm;
 	long								chunksize;
 
-	CryptoContext() {}
+	// these three are used by the wrapper to cache deserialized keys
+	LPPublicKeyLTV<ILVector2n>	*publicKey;
+	LPPrivateKeyLTV<ILVector2n>	*privateKey;
+	LPEvalKeyLTV<ILVector2n>	*evalKey;
+
+	CryptoContext() : publicKey(0), privateKey(0), evalKey(0) {}
 
 public:
 	~CryptoContext() {
 		delete params;
 		delete algorithm;
+		if( publicKey ) delete publicKey;
+		if( privateKey ) delete privateKey;
+		if( evalKey ) delete evalKey;
 	}
 
 	LPCryptoParametersImpl<ILVector2n>* getParams() { return params; }
@@ -70,84 +80,25 @@ public:
 
 	usint getPadAmount() { return ringdim/16 * (ptmod.GetMSB()-1); }
 
+	bool setPublicKey( const string& serializedKey );
+	LPPublicKeyLTV<ILVector2n>	*getPublicKey() { return publicKey; }
+	bool setPrivateKey( const string& serializedKey );
+	LPPrivateKeyLTV<ILVector2n>	*getPrivateKey() { return privateKey; }
+	bool setEvalKey( const string& serializedKey );
+	LPEvalKeyLTV<ILVector2n>	*getEvalKey() { return evalKey; }
+
 	static CryptoContext *genCryptoContextLTV(
 			const usint plaintextmodulus,
 			usint ringdim, const string& modulus, const string& rootOfUnity,
-			usint relinWindow, float stDev) {
-
-		CryptoContext	*item = new CryptoContext();
-
-		item->ringdim = ringdim;
-		item->ptmod = BigBinaryInteger(plaintextmodulus);
-		item->mod = BigBinaryInteger(modulus);
-		item->ru = BigBinaryInteger(rootOfUnity);
-		item->relinWindow = relinWindow;
-		item->stDev = stDev;
-
-		item->ilParams = ILParams(item->ringdim, item->mod, item->ru);
-
-		LPCryptoParametersLTV<ILVector2n>* params = new LPCryptoParametersLTV<ILVector2n>();
-		item->params = params;
-
-		params->SetPlaintextModulus(item->ptmod);
-		params->SetDistributionParameter(item->stDev);
-		params->SetRelinWindow(item->relinWindow);
-		params->SetElementParams(item->ilParams);
-
-		item->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-		params->SetDiscreteGaussianGenerator(item->dgg);
-
-		item->chunksize = ((item->ringdim / 2) / 8) * log2(plaintextmodulus);
-
-		item->algorithm = new LPPublicKeyEncryptionSchemeLTV<ILVector2n>();
-		item->algorithm->Enable(ENCRYPTION);
-		item->algorithm->Enable(PRE);
-
-		return item;
-	}
+			usint relinWindow, float stDev);
 
 	static CryptoContext *genCryptoContextStehleSteinfeld(
 			const usint plaintextmodulus,
 			usint ringdim, const string& modulus, const string& rootOfUnity,
-			usint relinWindow, float stDev, float stDevStSt) {
-
-		CryptoContext	*item = new CryptoContext();
-
-		item->ringdim = ringdim;
-		item->ptmod = BigBinaryInteger(plaintextmodulus);
-		item->mod = BigBinaryInteger(modulus);
-		item->ru = BigBinaryInteger(rootOfUnity);
-		item->relinWindow = relinWindow;
-		item->stDev = stDev;
-		item->stDevStSt = stDevStSt;
-
-		item->ilParams = ILParams(item->ringdim, item->mod, item->ru);
-
-		LPCryptoParametersStehleSteinfeld<ILVector2n>* params = new LPCryptoParametersStehleSteinfeld<ILVector2n>();
-		item->params = params;
-
-		params->SetPlaintextModulus(item->ptmod);
-		params->SetDistributionParameter(item->stDev);
-		params->SetDistributionParameterStSt(item->stDevStSt);
-		params->SetRelinWindow(item->relinWindow);
-		params->SetElementParams(item->ilParams);
-
-		item->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-		params->SetDiscreteGaussianGenerator(item->dgg);
-
-		item->dggStSt = DiscreteGaussianGenerator(stDevStSt);				// Create the noise generator
-		params->SetDiscreteGaussianGeneratorStSt(item->dggStSt);
-
-		item->chunksize = ((item->ringdim / 2) / 8) * log2(plaintextmodulus);
-
-		item->algorithm = new LPPublicKeyEncryptionSchemeStehleSteinfeld<ILVector2n>();
-		item->algorithm->Enable(ENCRYPTION);
-		item->algorithm->Enable(PRE);
-
-		return item;
-	}
+			usint relinWindow, float stDev, float stDevStSt);
 };
 
+}
 
 
 #endif /* SRC_DEMO_PRE_CRYPTOCONTEXT_H_ */
