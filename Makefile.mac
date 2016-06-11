@@ -8,4 +8,6 @@ CPPSTD := -std=c++0x
 PALISADELIB := libPALISADE.dylib
 LIBCMD := -dynamiclib -undefined suppress -flat_namespace
 
+RDYNAMIC := 
+
 include Makefile.common
