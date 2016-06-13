@@ -9,7 +9,7 @@ LIBCMD := -s -shared -Wl,--subsystem,windows
 
 EXESUFFIX := .exe
 
-RDYNAMIC := -rdynamic
+RDYNAMIC := 
 
 include Makefile.common
 
