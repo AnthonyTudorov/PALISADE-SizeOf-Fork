@@ -9,6 +9,8 @@ LIBCMD := -s -shared -Wl,--subsystem,windows
 
 EXESUFFIX := .exe
 
+MINGWREGEX := -Lc:/Mingw64/mingw64/opt/lib -lregex -lshlwapi
+
 RDYNAMIC := 
 
 include Makefile.common
