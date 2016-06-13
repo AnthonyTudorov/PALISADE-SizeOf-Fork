@@ -1,30 +1,67 @@
-/*
- * CryptoContext.cpp
- *
- *  Created on: Jun 11, 2016
- *      Author: gerardryan
- */
+/**
+* @file
+* @author	TPOC:
+				Dr. Kurt Rohloff <rohloff@njit.edu>,
+			Programmers:
+				Jerry Ryan <gwryan@njit.edu>
 
-#include "CryptoContext.h"
-#include "utils/serializablehelper.h"
+* @version 00_03
+*
+* @section LICENSE
+*
+* Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+* All rights reserved.
+* Redistribution and use in source and binary forms, with or without modification,
+* are permitted provided that the following conditions are met:
+* 1. Redistributions of source code must retain the above copyright notice, this
+* list of conditions and the following disclaimer.
+* 2. Redistributions in binary form must reproduce the above copyright notice, this
+* list of conditions and the following disclaimer in the documentation and/or other
+* materials provided with the distribution.
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+* THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+* IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*
+* @section DESCRIPTION
+*
+* This file implements the Crypto Context: all the pieces needed to use the palisade library
+*/
+
+#include "../crypto/CryptoContext.h"
+#include "../utils/serializablehelper.h"
 
 namespace lbcrypto {
 
-// these three functions are essentially identical and ought to be refactored...
-bool
-CryptoContext::setPublicKey( const string& serializedKey )
+template <typename T>
+static T* deserializeAndCreate(const string& serializedKey )
 {
 	Serialized ser;
 	if( !SerializableHelper::StringToSerialization(serializedKey, &ser) )
 		return false;
 
-	LPPublicKeyLTV<ILVector2n> *newKey = new LPPublicKeyLTV<ILVector2n>();
-	if( newKey == 0 ) return false;
+	T *newKey = new T();
+	if( newKey == 0 ) return newKey;
 
 	if( !newKey->Deserialize(ser) ) {
 		delete newKey;
-		return false;
+		return 0;
 	}
+
+	return newKey;
+}
+
+bool
+CryptoContext::setPublicKey( const string& serializedKey )
+{
+	LPPublicKeyLTV<ILVector2n> *newKey = deserializeAndCreate<LPPublicKeyLTV<ILVector2n>>(serializedKey);
+	if( newKey == 0 ) return false;
 
 	if( publicKey ) delete publicKey;
 	publicKey = newKey;
@@ -34,17 +71,8 @@ CryptoContext::setPublicKey( const string& serializedKey )
 bool
 CryptoContext::setPrivateKey( const string& serializedKey )
 {
-	Serialized ser;
-	if( !SerializableHelper::StringToSerialization(serializedKey, &ser) )
-		return false;
-
-	LPPrivateKeyLTV<ILVector2n> *newKey = new LPPrivateKeyLTV<ILVector2n>();
+	LPPrivateKeyLTV<ILVector2n> *newKey = deserializeAndCreate<LPPrivateKeyLTV<ILVector2n>>(serializedKey);
 	if( newKey == 0 ) return false;
-
-	if( !newKey->Deserialize(ser) ) {
-		delete newKey;
-		return false;
-	}
 
 	if( privateKey ) delete privateKey;
 	privateKey = newKey;
@@ -53,17 +81,8 @@ CryptoContext::setPrivateKey( const string& serializedKey )
 
 bool CryptoContext::setEvalKey( const string& serializedKey )
 {
-	Serialized ser;
-	if( !SerializableHelper::StringToSerialization(serializedKey, &ser) )
-		return false;
-
-	LPEvalKeyLTV<ILVector2n> *newKey = new LPEvalKeyLTV<ILVector2n>();
+	LPEvalKeyLTV<ILVector2n> *newKey = deserializeAndCreate<LPEvalKeyLTV<ILVector2n>>(serializedKey);
 	if( newKey == 0 ) return false;
-
-	if( !newKey->Deserialize(ser) ) {
-		delete newKey;
-		return false;
-	}
 
 	if( evalKey ) delete evalKey;
 	evalKey = newKey;

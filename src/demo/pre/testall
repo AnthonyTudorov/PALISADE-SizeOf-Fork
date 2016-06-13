@@ -1,0 +1,9 @@
+f=bin/demo/pre
+
+$f/palisade $* makekey publisher
+$f/palisade $* makekey subscriber
+$f/palisade $* makerekey subscriberPUB.txt publisherPRI.txt rekey.txt
+
+$f/palisade $* encrypt plaintextMessage publisherPUB.txt encrypted.txt
+$f/palisade $* reencrypt encrypted.txt rekey.txt reencrypted.txt
+$f/palisade $* decrypt reencrypted.txt subscriberPRI.txt cleartextOutput.txt

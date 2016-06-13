@@ -33,8 +33,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 using namespace std;
 
-#include "CryptoContext.h"
-#include "CryptoContextHelper.h"
+#include "crypto/CryptoContext.h"
+#include "utils/CryptoContextHelper.h"
 
 #include "utils/serializablehelper.h"
 
@@ -418,7 +418,7 @@ main( int argc, char *argv[] )
 	}
 
 	if( string(argv[1]) == "-list" && argc == 3) {
-		printAllParmSets(cout, argv[2]);
+		CryptoContextHelper::printAllParmSets(cout, argv[2]);
 		return 0;
 	}
 
@@ -426,7 +426,7 @@ main( int argc, char *argv[] )
 
 	int cmdidx = 1;
 	if( string(argv[1]) == "-use" && argc >= 4) {
-		ctx = getNewContext( string(argv[2]), string(argv[3]) );
+		ctx = CryptoContextHelper::getNewContext( string(argv[2]), string(argv[3]) );
 		if( ctx == 0 ) {
 			usage("ALL", "Could not construct a crypto context");
 			return 1;

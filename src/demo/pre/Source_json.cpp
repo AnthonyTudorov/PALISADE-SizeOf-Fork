@@ -39,8 +39,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <fstream>
 #include <iterator>
 
-#include "CryptoContext.h"
-#include "CryptoContextHelper.h"
+#include "../../lib/crypto/CryptoContext.h"
+#include "../../lib/utils/CryptoContextHelper.h"
 
 #include "../../lib/utils/debug.h"
 
@@ -67,12 +67,12 @@ main(int argc, char *argv[])
 	//auto v = gen.GenerateVector(10000);
 
 	std::cout << "Parameter set: ";
-	printAllParmSetNames(std::cout, filename);
+	CryptoContextHelper::printAllParmSetNames(std::cout, filename);
 
 	string input;
 	std::cin >> input;
 
-	CryptoContext *ctx = getNewContext(filename, input);
+	CryptoContext *ctx = CryptoContextHelper::getNewContext(filename, input);
 	if( ctx == 0 ) {
 		cout << "Error on " << input << endl;
 		return 0;

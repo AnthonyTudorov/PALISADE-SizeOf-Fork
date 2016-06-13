@@ -31,7 +31,7 @@ allbenchmarktargets: make_benchmark_lib make_benchmarks make_benchmark_examples
 BENCHMARK_LIBSRCDIR = benchmark/include/libsrc
 
 #these are the includes for compiling the objects that comprise the library (only)
-BENCHMARK_LIB_INCLUDES = -Ibenchmark/include -Ibenchmark/include/libsrc    
+BENCHMARK_LIB_INCLUDES = -Ibenchmark/include -Ibenchmark/include/libsrc -Ic:/Mingw64/mingw64/opt/include   
 
 #define list of source files for the library (all files with .cc in the LIBSRCDIR
 BENCHMARK_LIBSRC =  $(wildcard $(BENCHMARK_LIBSRCDIR)/*.cc)
@@ -54,7 +54,7 @@ make_benchmark_lib: $(BENCHMARK_LIB)
 
 $(BENCHMARK_LIB): $(BENCHMARK_LIBOBJ)
 	@echo " -- benchmark:linking benchmark library $<"	
-	/usr/bin/ar cr $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
+	ar cr $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
 	ranlib $(BENCHMARK_LIB) 
 	@echo
 
