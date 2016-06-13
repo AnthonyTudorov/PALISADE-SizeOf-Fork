@@ -9,6 +9,9 @@ LIBCMD := -fPIC -shared -Wl,--export-dynamic
 
 RDYNAMIC := -rdynamic
 
+JNIBUILD :=  
+JNILIB := libPalisadeCryptoWrapper.so
+
 include Makefile.common
 
 

@@ -10,4 +10,8 @@ LIBCMD := -dynamiclib -undefined suppress -flat_namespace
 
 RDYNAMIC := 
 
+JNIBUILD :=  
+JNILIB := libPalisadeCryptoWrapper.jnilib
+JNILINKPARM := -framework JavaVM
+
 include Makefile.common
