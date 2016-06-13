@@ -44,7 +44,7 @@ $(EXTLIBDIR)/$(JNILIB): $(LIBOBJECTS) build/javawrapper/PalisadeCryptoWrapper.o
 	@echo
 
 $(EXTLIBDIR)/PalisadeCrypto.jar: src/javawrapper/PalisadeCrypto/src/com/palisade/PalisadeCrypto.class src/javawrapper/PalisadeCrypto/src/com/palisade/PalisadeKeypair.class
-	( cd src/javawrapper/PalisadeCrypto/src/ ; jar cvf ../../../../bin/lib/PalisadeCrypto.jar 'com/palisade/*.class' )
+	( cd src/javawrapper/PalisadeCrypto/src/ ; jar cvf ../../../../bin/lib/PalisadeCrypto.jar com/palisade/*.class )
 
 
 src/javawrapper/PalisadeCrypto/src/com/palisade/PalisadeCrypto.class: src/javawrapper/PalisadeCrypto/src/com/palisade/PalisadeCrypto.java
