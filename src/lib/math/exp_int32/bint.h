@@ -1,41 +1,48 @@
 /**
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+ * Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu
+ * <grs22@njit.edu>
  * @version 00_03
  *
  * @section LICENSE
  * 
  * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification, 
- * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this 
- * list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this 
- * list of conditions and the following disclaimer in the documentation and/or other 
- * materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
- * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met: 1. Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer.  2. Redistributions in binary form must reproduce the
+ * above copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided
+ * with the distribution.  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
+ * HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+ * OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
  *
  * @section DESCRIPTION
  *
- * This file contains the main class for big integers: bint. Big integers are represented
- * as arrays of native usigned integers. The native integer type is supplied as a template parameter.
- * Currently implementations based on uint8_t, uint16_t, and uint32_t are supported. The second template parameter
- * is the maximum bitwidth for the big integer.
+ * This file contains the main class for big integers: bint. Big
+ * integers are represented as arrays of native usigned integers. The
+ * native integer type is supplied as a template parameter.  Currently
+ * implementations based on uint8_t, uint16_t, and uint32_t are
+ * supported. The second template parameter is the maximum bitwidth
+ * for the big integer.
  */
 
-#ifndef LBCRYPTO_MATH_CPUINT_BINT_H
-#define LBCRYPTO_MATH_CPUINT_BINT_H
+#ifndef LBCRYPTO_MATH_EXPINT32_BINT_H
+#define LBCRYPTO_MATH_EXPINT32_BINT_H
 
 #include <iostream>
 #include <string>
@@ -57,8 +64,10 @@
  */
 namespace exp_int32{
 
-  /**The following structs are needed for initialization of bint at the preprocessing stage.
-   *The structs compute certain values using template metaprogramming approach and mostly follow recursion to calculate value(s).
+  /**The following structs are needed for initialization of bint at
+   *the preprocessing stage.  The structs compute certain values using
+   *template metaprogramming approach and mostly follow recursion to
+   *calculate value(s).
    */
 
   /**
@@ -67,7 +76,6 @@ namespace exp_int32{
    *
    * @tparam N bitwidth.
    */
-#if 1 //comment out this entire section if also compiling exp_int32 directory
 
   template <usint N>
   struct Log2{
@@ -193,7 +201,6 @@ namespace exp_int32{
 
   const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
   const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed values) used in the Barrett reductions.
-#endif
 
   /**
    * @brief Main class for big integers represented as an array of native (primitive) unsigned integers
@@ -866,6 +873,9 @@ namespace exp_int32{
      * @param x is the 32 bit integer.
      * @return the MSB position in the 32 bit number x.
      */
+
+
+  public: 
 		
     static uint64_t GetMSB32(uint64_t x);
     /**
@@ -876,6 +886,14 @@ namespace exp_int32{
 		
     static usint GetMSBlimb_t(limb_t x);
 		
+		
+  static uint64_t GetMSB64(uint64_t x);
+    /**
+     * function to return the MSB of 64 bit number.
+     * @param x is the number.
+     * @return the MSB position in the number x.
+     */
+  private:
     //Dlimb_t is the data type that has twice as many bits in the integral data type.
     typedef typename DoubleDataType<limb_t>::T Dlimb_t;
 
@@ -934,4 +952,5 @@ namespace exp_int32{
 
 }//namespace ends
 
-#endif // LBCRYPTO_MATH_CPUINT_BINT_H
+#endif //LBCRYPTO_MATH_EXPINT32_BINT_H
+

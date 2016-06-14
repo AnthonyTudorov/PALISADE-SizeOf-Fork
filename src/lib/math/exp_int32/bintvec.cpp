@@ -8,23 +8,27 @@
  * 
  * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification, 
- * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this 
- * list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this 
- * list of conditions and the following disclaimer in the documentation and/or other 
- * materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
- * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met: 1. Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer.  2. Redistributions in binary form must reproduce the
+ * above copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided
+ * with the distribution.  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
+ * HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+ * OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
  *
  * @section DESCRIPTION
  *
@@ -43,38 +47,37 @@ namespace exp_int32 {
   // basic constructor
   template<class bint_el_t>
   bintvec<bint_el_t>::bintvec(){
-    this->m_length = 0;
-    m_data = NULL;
+    //this->m_length = 0;
+    //m_data = NULL;
   }
 
   // Basic constructor for specifying the length of the vector.
   template<class bint_el_t>
   bintvec<bint_el_t>::bintvec(usint length){
     //todo change to vector
-    this->m_length = length;
+    m_data.resize(length);
+    //this->m_length = length;
 
-    this->m_data = new bint_el_t*[m_length];
-    for (usint i = 0; i < m_length; i++){
-      m_data[i] = new bint_el_t();
+    //this->m_data = new bint_el_t*[m_length];
+    for (usint i = 0; i < length; i++){
+      m_data[i] = bint_el_t::ZERO;
     }
   }
 
 
   template<class bint_el_t>
   bintvec<bint_el_t>::bintvec(const bintvec &in_bintvec){
-
-    m_length = in_bintvec.m_length;
-    m_data = new bint_el_t*[m_length];
-    for(usint i=0;i<m_length;i++){
-      m_data[i]= new bint_el_t(*in_bintvec.m_data[i]);
+    
+    usint length = in_bintvec.m_data.size();
+    m_data.resize(length);
+    for(usint i=0;i < length;i++){
+      m_data[i]= *in_bintvec.m_data[i];
     }
-
   }
 
   template<class bint_el_t>
   bintvec<bint_el_t>::bintvec(bintvec &&in_bintvec){
     m_data = in_bintvec.m_data;
-    m_length = in_bintvec.m_length;
     in_bintvec.m_data = NULL;
   }
 
@@ -82,18 +85,16 @@ namespace exp_int32 {
   template<class bint_el_t>
   bintvec<bint_el_t>& bintvec<bint_el_t>::operator=(const bintvec &rhs){
     if(this!=&rhs){
-      if(this->m_length==rhs.m_length){
-	for (usint i = 0; i < m_length; i++){
+      if(this->m_data.size()==rhs.m_data.size()){
+	for (usint i = 0; i < this->m_data.size(); i++){
 	  *this->m_data[i] = *rhs.m_data[i];
 	}
       }
       else{
 	//throw std::logic_error("Trying to copy vectors of different size");
-	delete m_data;
-	m_length = rhs.m_length;
-	m_data = new bint_el_t*[m_length];
-	for (usint i = 0; i < m_length; i++){
-	  m_data[i] = new bint_el_t(*rhs.m_data[i]);
+	m_data.resize(rhs.m_data.size());
+	for (usint i = 0; i < m_data.size(); i++){
+	  m_data[i] = *rhs.m_data[i];
 	}
       }
     }
@@ -105,15 +106,8 @@ namespace exp_int32 {
   bintvec<bint_el_t>& bintvec<bint_el_t>::operator=(bintvec &&rhs){
 
     if(this!=&rhs){
-
-      if(m_data!=NULL){
-	for(usint i=0;i<m_length;i++)
-	  delete m_data[i];
-	delete []m_data;
-      }
       m_data = rhs.m_data;
-      m_length = rhs.m_length;
-      rhs.m_data = NULL;
+      rhs.m_data.clear();
     }
 
     return *this;
@@ -122,14 +116,8 @@ namespace exp_int32 {
 
   template<class bint_el_t>
   bintvec<bint_el_t>::~bintvec(){
-    //std::cout<<"destructor called for vector of size: "<<this->m_length<<"  "<<std::endl;
-    if(m_data!=NULL){
-      for(usint i=0;i<m_length;i++){
-	delete  m_data[i];
-      }
-      delete [] m_data;
-    }
-
+    //std::cout<<"destructor called for vector of size: "<<this->m_data.size()<<"  "<<std::endl;
+    m_data.clear();
   }
 
   //ACCESSORS
@@ -137,7 +125,7 @@ namespace exp_int32 {
   std::ostream& operator<<(std::ostream& os, const bintvec<bint_el_t_c> &ptr_obj){
 
     os<<std::endl;
-    for(usint i=0;i<ptr_obj.m_length;i++){
+    for(usint i=0;i<ptr_obj.m_data.size();i++){
       os<<*ptr_obj.m_data[i] <<std::endl;
     }
 
@@ -177,13 +165,13 @@ namespace exp_int32 {
 
   template<class bint_el_t>
   usint bintvec<bint_el_t>::GetLength() const{
-    return this->m_length;
+    return this->m_data.size;
   }
 
   template<class bint_el_t>
   bintvec<bint_el_t> bintvec<bint_el_t>::Mod(const bint_el_t& modulus) const{
     bintvec ans(*this);
-    for(usint i=0;i<this->m_length;i++){
+    for(usint i=0;i<this->m_data.size;i++){
       *ans.m_data[i] = ans.m_data[i]->Mod(modulus);
     }
     return ans;
@@ -195,7 +183,7 @@ namespace exp_int32 {
   template<class bint_el_t>
   bintvec<bint_el_t> bintvec<bint_el_t>::Add(const bint_el_t &b) const{
 	bintvec ans(*this);
-    for(usint i=0;i<this->m_length;i++){
+    for(usint i=0;i<this->m_data.size();i++){
       *ans.m_data[i] = ans.m_data[i]->Add(b);
     }
     return ans;
@@ -205,7 +193,7 @@ namespace exp_int32 {
   template<class bint_el_t>
   bintvec<bint_el_t> bintvec<bint_el_t>::Sub(const bint_el_t &b) const{
     bintvec ans(*this);
-    for(usint i=0;i<this->m_length;i++){
+    for(usint i=0;i<this->m_data.size();i++){
       *ans.m_data[i] = ans.m_data[i]->Sub(b);
     }
     return ans;
@@ -214,12 +202,12 @@ namespace exp_int32 {
   template<class bint_el_t>
   const bintvec<bint_el_t>& bintvec<bint_el_t>::operator+=(const bintvec &b) {
 
-    if(this->m_length!=b.m_length){
+    if(this->m_data.size()!=b.m_data.size()){
       std::cout<<" Invalid argument \n";
       return (bintvec)NULL;
     }
 
-    for(usint i=0;i<this->m_length;i++){
+    for(usint i=0;i<this->m_data.size();i++){
       *this->m_data[i] = this->m_data[i]->Add(*b.m_data[i]);
     }
     return *this;
@@ -229,12 +217,12 @@ namespace exp_int32 {
   template<class bint_el_t>
   const bintvec<bint_el_t>& bintvec<bint_el_t>::operator-=(const bintvec &b) {
 
-    if(this->m_length!=b.m_length){
+    if(this->m_data.size()!=b.m_data.size()){
       std::cout<<" Invalid argument \n";
       return (bintvec)NULL;
     }
 
-    for(usint i=0;i<this->m_length;i++){
+    for(usint i=0;i<this->m_data.size();i++){
       *this->m_data[i] = this->m_data[i]->Sub(*b.m_data[i]);
     }
     return *this;
@@ -246,7 +234,7 @@ namespace exp_int32 {
   template<class bint_el_t>
   bintvec<bint_el_t> bintvec<bint_el_t>::GetDigitAtIndexForBase(usint index, usint base) const{
     bintvec ans(*this);
-    for(usint i=0;i<this->m_length;i++){
+    for(usint i=0;i<this->m_data.size();i++){
       *ans.m_data[i] = bint_el_t(ans.m_data[i]->GetDigitAtIndexForBase(index,base));
     }
 
@@ -337,7 +325,7 @@ namespace exp_int32 {
   //Private functions
   template<class bint_el_t>
   bool bintvec<bint_el_t>::IndexCheck(usint length) const{
-    if(length>this->m_length)
+    if(length>this->m_data.size())
       return false;
     return true;
   }

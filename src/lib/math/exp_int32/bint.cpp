@@ -1,29 +1,49 @@
 ﻿//LAYER 1 : PRIMITIVE DATA STRUCTURES AND OPERATIONS
-/*
-  PRE SCHEME PROJECT, Crypto Lab, NJIT
-  Version:
-  v00.01
-  Last Edited:
-  3/1/2015 4:37AM
-  List of Authors:
-  TPOC:
-  Dr. Kurt Rohloff, rohloff@njit.edu
-  Programmers:
-  Dr. Yuriy Polyakov, polyakov@njit.edu
-  Gyana Sahu, grs22@njit.edu
-  Description:
-  This class provides a class for big integers.
+/**
+ * @file
+ * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
+ * Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu
+ * <grs22@njit.edu>
+ * @version 00_03
+ *
+ * @section LICENSE
+ * 
+ * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met: 1. Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer.  2. Redistributions in binary form must reproduce the
+ * above copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided
+ * with the distribution.  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
+ * HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+ * OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ * @section DESCRIPTION
+ *
+ *
+ * This file contains the C++ code for implementing the main class for
+ * big integers: bint. Big integers are represented as arrays of
+ * native usigned integers. The native integer type is supplied as a
+ * template parameter.  Currently implementations based on uint8_t,
+ * uint16_t, and uint32_t are supported. The second template parameter
+ * is the maximum bitwidth for the big integer.
+ */
 
-  License Information:
 
-  Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
-  All rights reserved.
-  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-  1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-*/
 #include "bint.h"
 
 
@@ -150,7 +170,7 @@ namespace exp_int32 {
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>::bint(const bint& bigInteger){
     //memory allocation step
-    m_value = new limb_t[m_nSize];
+    m_value = new limb_t[m_nSize];  //todo smartpointer
     m_MSB=bigInteger.m_MSB; //copy MSB
     limb_t  tempChar = ceilIntByUInt(bigInteger.m_MSB);
     //copy array values
@@ -987,14 +1007,14 @@ namespace exp_int32 {
     int arrSize=v.length();
 	
     //memory allocated for decimal array
-    DecValue = new uschar[arrSize];
+    DecValue = new uschar[arrSize]; //todo smartpointer
 	
     for(sint i=0;i<arrSize;i++)//store the string to decimal array
       DecValue[i] = (uschar) stoi(v.substr(i,1));
     sshort zptr = 0;
     //index of highest non-zero number in decimal number
     //define  bit register array
-    uschar *bitArr = new uschar[m_uintBitLength]();
+    uschar *bitArr = new uschar[m_uintBitLength](); //todo smartpointer
 	
     sint bitValPtr=m_nSize-1;
     //bitValPtr is a pointer to the Value char array, initially pointed to the last char
@@ -1562,12 +1582,12 @@ namespace exp_int32 {
     usint counter;
 
     //initiate to object to be printed
-    print_obj = new bint<limb_t,BITLENGTH>(*this);
+    print_obj = new bint<limb_t,BITLENGTH>(*this);  //todo smartpointer
 
     //print_obj->PrintValueInDec();
 
     //print_VALUE array stores the decimal value in the array
-    uschar *print_VALUE = new uschar[m_numDigitInPrintval];
+    uschar *print_VALUE = new uschar[m_numDigitInPrintval];  //todo smartpointer
 
     //reset to zero
     for(sint i=0;i<m_numDigitInPrintval;i++)
@@ -1738,12 +1758,23 @@ namespace exp_int32 {
   usint bint<limb_t,BITLENGTH>::GetMSBlimb_t(limb_t x){
     return bint<limb_t,BITLENGTH>::GetMSB32(x);
   }
+  
+  
+  template<typename limb_t,usint BITLENGTH>
+  uint64_t bint<limb_t,BITLENGTH>::GetMSB64(uint64_t x) {
+    uint64_t bitpos = 0;
+    while (x != 0) {
+      bitpos++; //increment the bit position
+      x = x >> 1; // shift the whole thing to the right once
+    }
+    return bitpos;
+  }
 
   template<typename limb_t,usint BITLENGTH>
   usint bint<limb_t,BITLENGTH>::GetDigitAtIndexForBase(usint index, usint base) const{
 
     usint digit = 0;
-    usint newIndex = index;
+    usint newIndex = index; 
     for (usint i = 1; i < base; i = i*2)
       {
 	digit += GetBitAtIndex(newIndex)*i;
@@ -1799,7 +1830,7 @@ namespace exp_int32 {
 
   template<typename limb_t,usint BITLENGTH>
   usint bint<limb_t,BITLENGTH>::GetMSBDlimb_t(Dlimb_t x){
-    return bint<limb_t,BITLENGTH>::GetMSB32(x);
+    return bint<limb_t,BITLENGTH>::GetMSB64(x);
   }
 
   //Algoritm used is shift and add
@@ -1827,12 +1858,12 @@ namespace exp_int32 {
     usint counter;
 
     //initiate to object to be printed
-    print_obj = new bint<limb_t_c,BITLENGTH_c>(ptr_obj);
+    print_obj = new bint<limb_t_c,BITLENGTH_c>(ptr_obj);  //todo smartpointer
 
     //print_obj->PrintValueInDec();
 
     //print_VALUE array stores the decimal value in the array
-    uschar *print_VALUE = new uschar[ptr_obj.m_numDigitInPrintval];
+    uschar *print_VALUE = new uschar[ptr_obj.m_numDigitInPrintval];  //todo smartpointer
 
     //reset to zero
     for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)

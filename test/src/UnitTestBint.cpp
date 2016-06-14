@@ -86,23 +86,26 @@ SetValue
 
 math
 
-Add
-Sub
-Mul
-
+Add x
+Sub xx
+Mul x
++= x
+-= x
+*= NOT DONE
 mod math
 
 how many of these do we actually want here
-Mod
-ModBarrett
+Mod x
+ModBarrett NOT DONE
 ModINverse
-ModAdd
-ModBarrettAdd
-ModSub
-ModBarrettSub
-ModMul
-ModBarrettMul
-ModExp
+ModAdd x
+ModBarrettAdd NOT DONE
+ModSub x
+ModBarrettSub NOT DONE
+ModMul x
+ModBarrettMul NOT DONE
+ModExp x
+
 
 ToString
 Compare 
@@ -234,9 +237,9 @@ TEST(UTbint,ctor_dtor_const){
   {
     bint a(9223372036854775807); // = 7FFFFFFF
     //todo FAILS 
-    uint64_t aint64 = 9223372036854775807;
+    uint64_t auint64 = 9223372036854775807;
 
-    EXPECT_EQ(aint64,a.ConvertToUint64())
+    EXPECT_EQ(auint64,a.ConvertToUint64())
       << "Failure testing ConvertToUint64() for big numbers";    
 
   bitset<64> abs;
@@ -253,17 +256,24 @@ TEST(UTbint,ctor_dtor_const){
 
 
 
-EXPECT_EQ(cuint64,c.ConvertToUint64())
+  EXPECT_EQ(cuint64,c.ConvertToUint64())
       << "Failure testing ConvertToUint64() for maxint64";    
 
   EXPECT_EQ(UINT64_MAX,c.ConvertToUint64())
       << "Failure testing ConvertToUint64() for UINT64_MAX";    
+
+  usint bitNum_a = bint::GetMSB32(auint64);
+  cout <<"bintnum_a 32 " << bitNum_a << endl;
+  bitNum_a = bint::GetMSB64(auint64);
+  cout <<"bintnum_a 64 "<< bitNum_a << endl;
+
   }
 
   //todo catch some failed throws for Uint32 and Usint
 
   //todo some very large digit tests.
 
+  
 }
 
 
