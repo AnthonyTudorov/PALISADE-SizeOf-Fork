@@ -5,13 +5,20 @@ PALISADE Lattice Cryptography Library
 
 [Contact Information](Contact.md)
 
-Library Description
+Document Description
 ===================
-The purpose of this document is to explain what the lattice layer of PALISADE is used for.
+This document is intended to describe the overall design, design considerations and structure of the lattice directory in the PALISADE lattice crypto library.
+
+Lattice Directory Description
+=============================
 
 OBJECTIVE
 ---------
-The objective of the lattice layer is to represent a polynomial ring. Thus far, we only support polynomial rings modulus a power of two polynomial (e.g. x^n + 1 where n is a power of 2).
+The lattice directory support the lattice layer operations in the library.  As such, it is intended to be used to represent polynomial rings and support operations over polynomial rings.
+
+This lattice layer is a middle layer in the library.  It is intended to make calls to lower layers that support, for example,...
+
+ is to represent a polynomial ring. Thus far, we only support polynomial rings modulus a power of two polynomial (e.g. x^n + 1 where n is a power of 2).
 
 The two main data structures in this layer, ILVectorArray2n and ILVector2n represent these polynomials. A polynomial ring is defined as
 Rq := R/qR = Zq[X]/(f(X)), with f(X) a mononic irreducable polynomial of degree n, and q an integer modulus. Both data structures represent a polynomial-ring.
