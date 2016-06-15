@@ -63,6 +63,8 @@
 #include "../crypto/ciphertext.h"
 #include "../crypto/ciphertext.cpp"
 
+#include "../utils/serializable.h"
+
 using namespace std;
 using namespace lbcrypto;
 
@@ -73,7 +75,7 @@ namespace lbcrypto {
  *
  * An instance of this class contains all of the parameters needed to create keys and encrypt/decrypt
  */
-class CryptoContext {
+class CryptoContext : public Serializable {
 private:
 	usint ringdim;
 	BigBinaryInteger ptmod;
