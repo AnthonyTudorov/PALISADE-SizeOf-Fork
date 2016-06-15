@@ -720,7 +720,7 @@ namespace exp_int32 {
     for(sint i= m_nSize-1;i>= m_nSize-ceilInt;i--){
       ans += (this->MulIntegerByChar(b.m_value[i]))<<=( m_nSize-1-i)*m_uintBitLength;
     }
-
+    
     return ans;
   }
 
@@ -1001,7 +1001,15 @@ namespace exp_int32 {
   //Algorithm used is repeated division by 2
   //Reference:http://pctechtips.org/convert-from-decimal-to-binary-with-recursion-in-java/
   template<typename limb_t,usint BITLENGTH>
-  void bint<limb_t,BITLENGTH>::AssignVal(const std::string& v){
+  void bint<limb_t,BITLENGTH>::AssignVal(const std::string& vin){
+    std::string v = vin;
+
+    // strip off leading zeros from the input string
+    v.erase(0, v.find_first_not_of('0'));
+    if (v.size() == 0) {
+      //caustic case of input string being all zeros
+      v = "0"; //set to one zero
+    }
 
     uschar *DecValue;//array of decimal values
     int arrSize=v.length();

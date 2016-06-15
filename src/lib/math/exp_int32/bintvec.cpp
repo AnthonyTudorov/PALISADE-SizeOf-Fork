@@ -64,24 +64,37 @@ namespace exp_int32 {
     }
   }
 
+  // constructor specifying the bintvec as a vector of strings
+  template<class bint_el_t>
+  bintvec<bint_el_t>::bintvec(std::vector<std::string> &s){
+    m_data.resize(s.size());
+    for (usint i = 0; i < s.size(); i++){
+      m_data[i] = bint_el_t(s[i]);
+    }
+  }
 
+
+
+
+
+  //copy constructor
   template<class bint_el_t>
   bintvec<bint_el_t>::bintvec(const bintvec &in_bintvec){
     
     usint length = in_bintvec.m_data.size();
     m_data.resize(length);
     for(usint i=0;i < length;i++){
-      m_data[i]= *in_bintvec.m_data[i];
+      m_data[i]= in_bintvec.m_data[i];
     }
   }
 
   template<class bint_el_t>
   bintvec<bint_el_t>::bintvec(bintvec &&in_bintvec){
     m_data = in_bintvec.m_data;
-    in_bintvec.m_data = NULL;
+    in_bintvec.m_data.clear();
   }
 
-  //ASSIGNMENT OPERATOR
+  //ASSIGNMENT OPERATOR const binvec to binvec
   template<class bint_el_t>
   bintvec<bint_el_t>& bintvec<bint_el_t>::operator=(const bintvec &rhs){
     if(this!=&rhs){
@@ -102,6 +115,7 @@ namespace exp_int32 {
     return *this;
   }
 
+  //ASSIGNMENT OPERATOR const binvec ref to binvecvec
   template<class bint_el_t>
   bintvec<bint_el_t>& bintvec<bint_el_t>::operator=(bintvec &&rhs){
 
@@ -114,6 +128,7 @@ namespace exp_int32 {
 
   }
 
+  //desctructor
   template<class bint_el_t>
   bintvec<bint_el_t>::~bintvec(){
     //std::cout<<"destructor called for vector of size: "<<this->m_data.size()<<"  "<<std::endl;
@@ -126,12 +141,14 @@ namespace exp_int32 {
 
     os<<std::endl;
     for(usint i=0;i<ptr_obj.m_data.size();i++){
-      os<<*ptr_obj.m_data[i] <<std::endl;
+      os<<ptr_obj.m_data[i] <<std::endl;
     }
 
     return os;
   }
 
+
+  // Set value at index from bint
   template<class bint_el_t>
   void bintvec<bint_el_t>::SetValAtIndex(usint index, const bint_el_t& value){
 
@@ -139,17 +156,18 @@ namespace exp_int32 {
       std::cout<<"Invalid index input \n";
     }
     else{
-      *this->m_data[index] = value;
+      this->m_data[index] = value; //todo use at since it checks bounds
     }
   }
 
+  // set value at index from string
   template<class bint_el_t>
   void bintvec<bint_el_t>::SetValAtIndex(usint index, const std::string& str){
     if(!this->IndexCheck(index)){
       std::cout<<"Invalid index input \n";
     }
     else{
-      this->m_data[index]->SetValue(str);
+      this->m_data[index].SetValue(str);
     }
   }
 
@@ -159,25 +177,25 @@ namespace exp_int32 {
       std::cout<<"Invalid index input \n";
       return (bint_el_t)NULL;
     }
-    return *this->m_data[index];
+    return this->m_data[index];
   }
 
-
+  //todo: deprecate this.
   template<class bint_el_t>
   usint bintvec<bint_el_t>::GetLength() const{
-    return this->m_data.size;
+    return this->m_data.size();
   }
 
+  //Math functions
+  // Mod
   template<class bint_el_t>
   bintvec<bint_el_t> bintvec<bint_el_t>::Mod(const bint_el_t& modulus) const{
     bintvec ans(*this);
-    for(usint i=0;i<this->m_data.size;i++){
-      *ans.m_data[i] = ans.m_data[i]->Mod(modulus);
+    for(usint i=0;i<this->m_data.size();i++){
+      ans.m_data[i] = ans.m_data[i].Mod(modulus);
     }
     return ans;
   }
-
-
 
   // method to add scalar to vector
   template<class bint_el_t>
@@ -199,6 +217,154 @@ namespace exp_int32 {
     return ans;
   }
 
+
+  // method to multiply vector by scalar
+  template<class bint_el_t>
+  bintvec<bint_el_t> bintvec<bint_el_t>::Mul(const bint_el_t &b) const{
+    bintvec ans(*this);
+    for(usint i=0;i<this->m_data.size();i++){
+      *ans.m_data[i] = ans.m_data[i]->Mul(b);
+    }
+    return ans;
+  }
+
+  // vector elementwise add
+  template<class bint_el_t>
+  bintvec<bint_el_t> bintvec<bint_el_t>::Add(const bintvec &b) const{
+    
+    bintvec ans(*this);
+    if(this->m_data.size()!=b.m_data.size()){
+      std::cout<<" Invalid argument \n"; //todo really throw something
+      ans.m_data.clear();
+      return (ans);
+    } else {
+
+      for(usint i=0;i<ans.m_data.size();i++){
+    	  ans.m_data[i] = ans.m_data[i].Add(b.m_data[i]);
+      }
+      return ans;
+    }
+  }
+
+  // vector elementwise subtract
+  template<class bint_el_t>
+  bintvec<bint_el_t> bintvec<bint_el_t>::Sub(const bintvec &b) const{
+    
+    bintvec ans(*this);
+    if(this->m_data.size()!=b.m_data.size()){
+      std::cout<<" Invalid argument \n"; //todo really throw something
+      ans.m_data.clear();
+      return (ans);
+    } else {
+
+      for(usint i=0;i<ans.m_data.size();i++){
+    	  ans.m_data[i] = ans.m_data[i].Sub(b.m_data[i]);
+      }
+      return ans;
+    }
+  }
+
+  // vector elementwise multiply
+  template<class bint_el_t>
+  bintvec<bint_el_t> bintvec<bint_el_t>::Mul(const bintvec &b) const{
+    
+    bintvec ans(*this);
+    if(this->m_data.size()!=b.m_data.size()){
+      std::cout<<" Invalid argument \n"; //todo really throw something
+      ans.m_data.clear();
+      return (ans);
+    } else {
+
+      for(usint i=0;i<ans.m_data.size();i++){
+	ans.m_data[i] = ans.m_data[i].Mul(b.m_data[i]);
+      }
+      return ans;
+    }
+  }
+
+  // vector scalar modulo addition
+  template<class bint_el_t>
+  bintvec<bint_el_t> bintvec<bint_el_t>::ModAdd(const bint_el_t &b, const bint_el_t &modulus) const{
+    bintvec ans(*this);
+    for(usint i=0;i<ans.m_data.size();i++){
+      ans.m_data[i] = ans.m_data[i].ModAdd(b, modulus);
+    }
+    
+    return ans;
+  }
+  
+  // vector scalar modulo subtraction
+  template<class bint_el_t>
+  bintvec<bint_el_t> bintvec<bint_el_t>::ModSub(const bint_el_t &b, const bint_el_t &modulus) const{
+    bintvec ans(*this);
+    for(usint i=0;i<ans.m_data.size();i++){
+      ans.m_data[i] = ans.m_data[i].ModSub(b, modulus);
+    }
+    return ans;
+  }
+
+  // vector scalar modulo multiplication
+  template<class bint_el_t>
+  bintvec<bint_el_t> bintvec<bint_el_t>::ModMul(const bint_el_t &b, const bint_el_t &modulus) const{
+    bintvec ans(*this);
+    for(usint i=0;i<ans.m_data.size();i++){
+      ans.m_data[i] = ans.m_data[i].ModMul(b, modulus);
+    }
+    return ans;
+  }
+  
+
+
+  // vector vector modulo addition
+  template<class bint_el_t>
+  bintvec<bint_el_t> bintvec<bint_el_t>::ModAdd(const bintvec<bint_el_t> &b, const bint_el_t &modulus) const{
+    bintvec ans(*this);
+    if(this->m_data.size()!=b.m_data.size()){
+      std::cout<<" Invalid argument \n"; //todo really throw something
+      ans.m_data.clear();
+      return (ans);
+    } else {
+      for(usint i=0;i<ans.m_data.size();i++){
+	ans.m_data[i] = ans.m_data[i].ModAdd(b.m_data[i], modulus);
+      }
+      return ans;
+    }
+  }
+  
+  // vector vector modulo subtraction
+  template<class bint_el_t>
+  bintvec<bint_el_t> bintvec<bint_el_t>::ModSub(const bintvec<bint_el_t> &b, const bint_el_t &modulus) const{
+    bintvec ans(*this);
+    if(this->m_data.size()!=b.m_data.size()){
+      std::cout<<" Invalid argument \n"; //todo really throw something
+      ans.m_data.clear();
+      return (ans);
+    } else {
+      for(usint i=0;i<ans.m_data.size();i++){
+	ans.m_data[i] = ans.m_data[i].ModSub(b.m_data[i], modulus);
+      }
+      return ans;
+    }
+  }
+
+  // vector vector modulo multiplication
+  template<class bint_el_t>
+  bintvec<bint_el_t> bintvec<bint_el_t>::ModMul(const bintvec<bint_el_t> &b, const bint_el_t &modulus) const{
+    bintvec ans(*this);
+    if(this->m_data.size()!=b.m_data.size()){
+      std::cout<<" Invalid argument \n"; //todo really throw something
+      ans.m_data.clear();
+      return (ans);
+    } else {
+      for(usint i=0;i<ans.m_data.size();i++){
+	ans.m_data[i] = ans.m_data[i].ModMul(b.m_data[i], modulus);
+      }
+      return ans;
+    }
+  }
+
+  // assignment operators
+
   template<class bint_el_t>
   const bintvec<bint_el_t>& bintvec<bint_el_t>::operator+=(const bintvec &b) {
 
@@ -208,7 +374,7 @@ namespace exp_int32 {
     }
 
     for(usint i=0;i<this->m_data.size();i++){
-      *this->m_data[i] = this->m_data[i]->Add(*b.m_data[i]);
+      this->m_data[i] = this->m_data[i].Add(b.m_data[i]);
     }
     return *this;
 

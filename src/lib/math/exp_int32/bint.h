@@ -47,7 +47,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <string>
 #include <type_traits>
 #include <typeinfo>
 #include <limits>
@@ -836,7 +835,8 @@ namespace exp_int32{
      */
     void SetMSB(usint guessIdxChar);
 
-  private:
+    //  private:
+  public: //todo for debug onlhy
 
     //pointer to the array storing the native integers.
     limb_t *m_value;
@@ -871,7 +871,7 @@ namespace exp_int32{
     /**
      * function to return the MSB of a 32 bit number.
      * @param x is the 32 bit integer.
-     * @return the MSB position in the 32 bit number x.
+     * @return the MSB position in the 32 bit number x. Note MSB(1) is 1 NOT zero!!!!!
      */
 
 
@@ -881,7 +881,7 @@ namespace exp_int32{
     /**
      * function to return the MSB of number.
      * @param x is the number.
-     * @return the MSB position in the number x.
+     * @return the MSB position in the number x.Note MSB(1) is 1 NOT zero!!!!!
      */
 		
     static usint GetMSBlimb_t(limb_t x);
@@ -891,9 +891,10 @@ namespace exp_int32{
     /**
      * function to return the MSB of 64 bit number.
      * @param x is the number.
-     * @return the MSB position in the number x.
+     * @return the MSB position in the number x. Note MSB(1) is 1 NOT zero!!!!!
      */
-  private:
+  //  private:
+  public:  //todo: changed only for debug
     //Dlimb_t is the data type that has twice as many bits in the integral data type.
     typedef typename DoubleDataType<limb_t>::T Dlimb_t;
 
@@ -905,12 +906,13 @@ namespace exp_int32{
     /**
      * function to return the MSB of number that is of type Dlimb_t.
      * @param x is the number.
-     * @return the MSB position in the number x.
+     * @return the MSB position in the number x. Note MSB(1) is 1 NOT zero!!!!!
      */
     static usint GetMSBDlimb_t(Dlimb_t x);
-		
+
     //enum to store the state of the 
     State m_state;
+
 
     /**
      * function that returns the bint after multiplication by b.

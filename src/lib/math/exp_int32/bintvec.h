@@ -42,7 +42,9 @@
 #ifndef LBCRYPTO_MATH_EXPINT32_BINTVEC_H
 #define LBCRYPTO_MATH_EXPINT32_BINTVEC_H
 
+
 #include <iostream>
+#include <vector>
 
 //#include "binmat.h"
 #include "../../utils/inttypes.h"
@@ -80,6 +82,15 @@ namespace exp_int32 {
        * @param length is the length of the bintvec, in terms of the number of entries.	  	  
        */
       explicit bintvec(usint length);
+
+
+      /**
+       * constructor specifying the vector from a vector of strings.
+       *
+       * @param s is the vector of strings containing text version of numbers
+       */
+
+      explicit bintvec(std::vector<std::string>& s);
 
       /**
        * Basic constructor for copying a vector
@@ -237,7 +248,7 @@ namespace exp_int32 {
        * @param &b is the vector to add at all locations.
        * @return is the result of the addition operation.
        */
-      bintvec Add(const bintvec &b) const;
+      bintvec Add(const bintvec  &b) const;
 
       /**
        * vector +=
@@ -246,15 +257,6 @@ namespace exp_int32 {
        * @return is the result of the addition operation.
        */
       const bintvec& operator+=(const bintvec &b);
-
-      /**
-       * vector -=
-       *
-       * @param &b is the vector to subtract from lhs
-       * @return is the result of the addition operation.
-       * TODO: need to define what happens when b > a!!
-       */
-      const bintvec& operator-=(const bintvec &b);
 
       //component-wise subtraction
 
@@ -267,6 +269,16 @@ namespace exp_int32 {
        */
       bintvec Sub(const bintvec &b) const;
 
+      /**
+       * vector -=
+       *
+       * @param &b is the vector to subtract from lhs
+       * @return is the result of the addition operation.
+       * TODO: need to define what happens when b > a!!
+       */
+      const bintvec& operator-=(const bintvec &b);
+
+
       //component-wise multiplication
 
       /**
@@ -278,12 +290,70 @@ namespace exp_int32 {
       bintvec Mul(const bintvec &b) const;
 
       /**
+       * Scalar modular addition.
+       *
+       * @param &b is the scalar to add to all elements of this.
+       * @param modulus is the modulus to perform operations with.
+       * @return result of the modulus addition operation.
+       */
+      bintvec ModAdd(const bint_el_t& b, const bint_el_t& modulus) const;
+
+
+      /**
+       * Scalar modular subtraction.
+       *
+       * @param &b is the scalar to subtract from all elements of this.
+       * @param modulus is the modulus to perform operations with.
+       * @return result of the modulus subtraction operation.
+       */
+      bintvec ModSub(const bint_el_t& b, const bint_el_t& modulus) const;
+
+
+      /**
+       * Scalar modular multiplication.
+       *
+       * @param &b is the scalar to multiply by all elements of this.
+       * @param modulus is the modulus to perform operations with.
+       * @return result of the modulus multiplication operation.
+       */
+      bintvec ModMul(const bint_el_t& b, const bint_el_t& modulus) const;
+
+      /**
+       * vector modulus addition.
+       *
+       * @param &b is the vector to add elementwise to all locations
+       * @param modulus is the modulus to perform operations with.
+       * @return is the result of the modulus vector addition operation.
+       */
+      bintvec ModAdd(const bintvec &b, const bint_el_t& modulus) const;
+
+      /**
+       * vector modulus subtraction
+       *
+       * @param &b is the vector to subtract elementwise from all locations
+       * @param modulus is the modulus to perform operations with.
+       * @return is the result of the modulus vector subtraction operation.
+       */
+      bintvec ModSub(const bintvec &b, const bint_el_t& modulus) const;
+
+      /**
+       * vector modulus addition.
+       *
+       * @param &b is the vector to multiply elementwise to all locations
+       * @param modulus is the modulus to perform operations with.
+       * @return is the result of the modulus vector mulitplication operation.
+       */
+      bintvec ModMul(const bintvec &b, const bint_el_t& modulus) const;
+
+      // auxiliary functions
+      /**
        * Returns a vector of digit at a specific index for all entries for a given number base.
        *
        * @param index is the index to return the digit from in all entries.
        * @param base is the base to use for the operation.
        * @return is the resulting vector.
        */
+
       bintvec GetDigitAtIndexForBase(usint index, usint base) const;
 
       //MANIPULATORS
@@ -321,7 +391,7 @@ namespace exp_int32 {
 
     private:
       //bint_el_t **m_data;
-      std::vector <bint_el_t> m_data;
+      std::vector<bint_el_t> m_data;
       //usint m_length;
       bool IndexCheck(usint) const;
     };
@@ -367,7 +437,6 @@ namespace exp_int32 {
    */
   template<class bint_el_t>
     inline bintvec<bint_el_t> operator+(const bintvec<bint_el_t> &a, const bintvec<bint_el_t> &b) {return a.Add(b);}
-
 
   /**
    *  vector subtraction.
