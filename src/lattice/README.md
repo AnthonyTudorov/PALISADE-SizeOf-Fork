@@ -1,9 +1,9 @@
 PALISADE Lattice Cryptography Library
 =====================================
 
-[License Information](../../license/License.md)
+[License Information](../../License.md)
 
-[Contact Information](../../license/Contact.md)
+[Contact Information](../../Contact.md)
 
 Library Description
 ===================
