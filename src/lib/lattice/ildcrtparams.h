@@ -246,7 +246,7 @@ namespace lbcrypto {
 		~ILDCRTParams() {}
 
 		//JSON FACILITY
-		bool Serialize(Serialized* serObj, const std::string fileFlag) const {
+		bool Serialize(Serialized* serObj, const CryptoContext* ctx=0, const std::string fileFlag = "") const {
 
 			//Place holder
 

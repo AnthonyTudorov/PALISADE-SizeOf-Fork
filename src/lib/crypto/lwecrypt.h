@@ -223,7 +223,7 @@ namespace lbcrypto {
 			* @param fileFlag is an object-specific parameter for the serialization
 			* @return true if successfully serialized
 			*/
-			bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
+			bool Serialize(Serialized* serObj, const CryptoContext* ctx=0, const std::string fileFlag = "") const;
 
 			/**
 			* Populate the object from the deserialization of the Setialized
@@ -294,7 +294,7 @@ namespace lbcrypto {
 			* @param fileFlag is an object-specific parameter for the serialization
 			* @return true if successfully serialized
 			*/
-			bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
+			bool Serialize(Serialized* serObj, const CryptoContext* ctx=0, const std::string fileFlag = "") const;
 
 			/**
 			* Populate the object from the deserialization of the Setialized
@@ -410,7 +410,7 @@ namespace lbcrypto {
 			* @param fileFlag is an object-specific parameter for the serialization
 			* @return true if successfully serialized
 			*/
-			bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
+			bool Serialize(Serialized* serObj, const CryptoContext* ctx=0, const std::string fileFlag = "") const;
 
 			/**
 			* Higher level info about the serialization is saved here
@@ -515,7 +515,7 @@ namespace lbcrypto {
 		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
+		bool Serialize(Serialized* serObj, const CryptoContext* ctx=0, const std::string fileFlag = "") const;
 
 		/**
 		* Higher level info about the serialization is saved here
@@ -688,7 +688,7 @@ namespace lbcrypto {
 			* @param fileFlag is an object-specific parameter for the serialization
 			* @return true if successfully serialized
 			*/
-			bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
+			bool Serialize(Serialized* serObj, const CryptoContext* ctx=0, const std::string fileFlag = "") const;
 
 			/**
 			* Higher level info about the serialization is saved here

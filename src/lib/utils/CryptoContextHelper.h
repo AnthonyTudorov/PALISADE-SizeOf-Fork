@@ -76,6 +76,8 @@ public:
 	 * @return newly constructed CryptoContext, or null on failure
 	 */
 	static CryptoContext *getNewContext(const string& parmSetJson);
+
+	static CryptoContext *getNewContextFromSerialization(const Serialized& ser);
 };
 
 }

@@ -97,6 +97,7 @@ CryptoContext::genCryptoContextLTV(
 
 	CryptoContext	*item = new CryptoContext();
 
+	item->parmsetName = "LPCryptoParametersLTV";
 	item->ringdim = ringdim;
 	item->ptmod = BigBinaryInteger(plaintextmodulus);
 	item->mod = BigBinaryInteger(modulus);
@@ -134,6 +135,7 @@ CryptoContext::genCryptoContextStehleSteinfeld(
 
 	CryptoContext	*item = new CryptoContext();
 
+	item->parmsetName = "LPCryptoParametersStehleSteinfeld";
 	item->ringdim = ringdim;
 	item->ptmod = BigBinaryInteger(plaintextmodulus);
 	item->mod = BigBinaryInteger(modulus);
@@ -167,6 +169,19 @@ CryptoContext::genCryptoContextStehleSteinfeld(
 
 	return item;
 }
+
+bool
+CryptoContext::Serialize(Serialized* serObj, const CryptoContext* ctx, const std::string fileFlag) const
+{
+
+}
+
+bool
+CryptoContext::Deserialize(const Serialized& serObj)
+{
+
+}
+
 
 }
 

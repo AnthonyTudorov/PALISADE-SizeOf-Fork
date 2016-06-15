@@ -107,19 +107,20 @@ namespace lbcrypto {
 	// note that right now it only saves cryptoParameters, norm and element
 	// the Flag could be used to tell us what stuff is and is not saved
 	//
+
 	template <class Element>
-	bool Ciphertext<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
+	bool Ciphertext<Element>::Serialize(Serialized* serObj, const CryptoContext* ctx, const std::string fileFlag) const {
 
 		serObj->SetObject();
-		if( !this->SetIdFlag(serObj, "minimal") )
+		if( !this->SetIdFlag(serObj, fileFlag) )
 			return false;
 
-		if( !this->GetCryptoParameters().Serialize(serObj, "") )
+		if( !this->GetCryptoParameters().Serialize(serObj) )
 			return false;
 
 		serObj->AddMember("Norm", this->GetNorm().ToString(), serObj->GetAllocator());
 
-		return this->GetElement().Serialize(serObj, "");
+		return this->GetElement().Serialize(serObj);
 	}
 
 	// JSON FACILITY - Deserialize Operation

@@ -77,6 +77,8 @@ namespace lbcrypto {
  */
 class CryptoContext : public Serializable {
 private:
+	string		parmsetName;
+
 	usint ringdim;
 	BigBinaryInteger ptmod;
 	BigBinaryInteger mod;
@@ -109,6 +111,8 @@ public:
 		if( privateKey ) delete privateKey;
 		if( evalKey ) delete evalKey;
 	}
+
+	string getParmsetName() const { return parmsetName; }
 
 	/**
 	 *
@@ -211,6 +215,16 @@ public:
 			const usint plaintextmodulus,
 			usint ringdim, const string& modulus, const string& rootOfUnity,
 			usint relinWindow, float stDev, float stDevStSt);
+
+	bool Serialize(Serialized* serObj, const CryptoContext* ctx=0, const std::string fileFlag = "") const;
+
+	/**
+	* Populate the object from the deserialization of the Setialized
+	* @param serObj contains the serialized object
+	* @return true on success
+	*/
+	virtual bool Deserialize(const Serialized& serObj);
+
 };
 
 }

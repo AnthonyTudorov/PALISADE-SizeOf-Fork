@@ -55,7 +55,7 @@
 */
 namespace lbcrypto {
 
-class CryptoContext;
+	typedef class CryptoContext CryptoContext;
 
 	// C+11 "using" is not supported in VS 2012 - so it was replaced with C+03 "typedef"
 	typedef rapidjson::Value SerialItem;
@@ -82,8 +82,7 @@ class CryptoContext;
 		* @param fileFlag is an optional tag for the serialization
 		* @return true if successfully serialized
 		*/
-		virtual bool Serialize(Serialized* serObj, const std::string fileFlag = "") const = 0;
-		virtual bool Serialize(Serialized* serObj, const CryptoContext* ctx=0, const std::string fileFlag = "") const;
+		virtual bool Serialize(Serialized* serObj, const CryptoContext* ctx=0, const std::string fileFlag = "") const = 0;
 
 		/**
 		* Higher level info about the serialization is saved here

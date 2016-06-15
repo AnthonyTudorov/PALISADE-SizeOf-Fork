@@ -41,13 +41,14 @@ namespace lbcrypto {
 
 	
 		//JSON FACILITY
+
 		/**
 		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
 		*
 		* @param serObj stores this object's serialized attribute name value pairs.
 		* @return map updated with the attribute name value pairs required to serialize this object.
 		*/
-		bool ILParams::Serialize(Serialized* serObj, const std::string fileFlag) const {
+		bool ILParams::Serialize(Serialized* serObj, const CryptoContext*, const std::string fileFlag) const {
 
 			if( !serObj->IsObject() )
 				return false;

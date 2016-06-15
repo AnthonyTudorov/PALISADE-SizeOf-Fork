@@ -321,12 +321,11 @@ NTRUPRE(CryptoContext *ctx) {
 	cout << "size: " << newPtxt.GetLength() << endl;
 
 	TestJsonParms	tjp;
+	tjp.ctx = ctx;
 	tjp.pk = &pk;
 	tjp.sk = &sk;
-	tjp.algorithm = ctx->getAlgorithm();
 	tjp.evalKey = &evalKey;
 	tjp.newSK = &newSK;
-	tjp.cryptoParms = ctx->getParams();
 
 	testJson("LTV", newPtxt, &tjp);
 	std::cout << "Execution completed.  Please any key to finish." << std::endl;

@@ -206,14 +206,14 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 
 // JSON FACILITY - LPCryptoParametersLWE Serialize Operation
 template <class Element>
-bool LPCryptoParametersStehleSteinfeld<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
+bool LPCryptoParametersStehleSteinfeld<Element>::Serialize(Serialized* serObj, const CryptoContext* ctx, const std::string fileFlag) const {
 
 	if( !serObj->IsObject() )
 		return false;
 
 	Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
 	const ElemParams& ep = this->GetElementParams();
-	if( !ep.Serialize(&pser, fileFlag) )
+	if( !ep.Serialize(&pser, ctx, fileFlag) )
 		return false;
 
 	Serialized cryptoParamsMap(rapidjson::kObjectType, &serObj->GetAllocator());
@@ -295,14 +295,14 @@ bool LPCryptoParametersStehleSteinfeld<Element>::Deserialize(const Serialized& s
 }
 
 template <class Element>
-bool LPCryptoParametersLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
+bool LPCryptoParametersLTV<Element>::Serialize(Serialized* serObj, const CryptoContext* ctx, const std::string fileFlag) const {
 
 	if( !serObj->IsObject() )
 		return false;
 
 	Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
 	const ElemParams& ep = this->GetElementParams();
-	if( !ep.Serialize(&pser, fileFlag) )
+	if( !ep.Serialize(&pser, ctx, fileFlag) )
 		return false;
 
 	SerialItem cryptoParamsMap(rapidjson::kObjectType);
@@ -392,16 +392,16 @@ bool LPPublicKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string fl
 
 // JSON FACILITY - LPPublicKeyLTV Serialize Operation
 template <class Element>
-bool LPPublicKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
+bool LPPublicKeyLTV<Element>::Serialize(Serialized* serObj, const CryptoContext* ctx, const std::string fileFlag) const {
 
 	serObj->SetObject();
 
-	if( !this->GetCryptoParameters().Serialize(serObj, "") )
+	if( !this->GetCryptoParameters().Serialize(serObj) )
 		return false;
 
 	const Element& pe = this->GetPublicElement();
 
-	if( !pe.Serialize(serObj, "") )
+	if( !pe.Serialize(serObj) )
 		return false;
 
 	if( !this->SetIdFlag(serObj, fileFlag) )
@@ -442,14 +442,14 @@ bool LPEvalKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string flag
 
 // JSON FACILITY - LPEvalKeyLTV Serialize Operation
 template <class Element>
-bool LPEvalKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
+bool LPEvalKeyLTV<Element>::Serialize(Serialized* serObj, const CryptoContext* ctx, const std::string fileFlag) const {
 
 	serObj->SetObject();
 
 	if( !this->SetIdFlag(serObj, fileFlag) )
 		return false;
 
-	if( !this->GetCryptoParameters().Serialize(serObj, "") )
+	if( !this->GetCryptoParameters().Serialize(serObj) )
 		return false;
 
 	std::vector<int>::size_type evalKeyVectorLength = this->GetEvalKeyElements().size();
@@ -457,7 +457,7 @@ bool LPEvalKeyLTV<Element>::Serialize(Serialized* serObj, const std::string file
 	Serialized ilVector2nMap(rapidjson::kArrayType, &serObj->GetAllocator());
 	for (unsigned i = 0; i < evalKeyVectorLength; i++) {
 		Serialized localMap(rapidjson::kObjectType, &serObj->GetAllocator());
-		if( this->GetEvalKeyElements().at(i).Serialize(&localMap, "") ) {
+		if( this->GetEvalKeyElements().at(i).Serialize(&localMap) ) {
 			ilVector2nMap.PushBack(localMap, serObj->GetAllocator());
 		}
 		else
@@ -521,16 +521,16 @@ bool LPPrivateKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string f
 
 // JSON FACILITY - LPPrivateKeyLTV Serialize Operation
 template <class Element>
-bool LPPrivateKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
+bool LPPrivateKeyLTV<Element>::Serialize(Serialized* serObj, const CryptoContext* ctx, const std::string fileFlag) const {
 
 	serObj->SetObject();
 	if( !this->SetIdFlag(serObj, fileFlag) )
 		return false;
 
-	if( !this->GetCryptoParameters().Serialize(serObj, "") )
+	if( !this->GetCryptoParameters().Serialize(serObj) )
 		return false;
 
-	return this->GetPrivateElement().Serialize(serObj, "");
+	return this->GetPrivateElement().Serialize(serObj);
 }
 
 // JSON FACILITY - LPPrivateKeyLTV Deserialize Operation

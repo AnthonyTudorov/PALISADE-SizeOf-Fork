@@ -39,7 +39,6 @@ make_demos: \
 	$(BINDIR)/demo/obfuscate/ObfuscateSource$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSource_sim$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSourceDbc$(EXESUFFIX) \
-	$(BINDIR)/demo/pre/Source$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/Source_dcrt$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/Source_json$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/Source_presim$(EXESUFFIX) \
@@ -61,10 +60,6 @@ $(BINDIR)/demo/core/%$(EXESUFFIX): $(BUILDDIR)/demo/core/%.o $(EXTLIBDIR)/$(PALI
 
 
 $(BINDIR)/demo/obfuscate/%$(EXESUFFIX): $(BUILDDIR)/demo/obfuscate/%.o $(EXTLIBDIR)/$(PALISADELIB)
-	@mkdir -p $(@D)
-	$(CC) -o $@ $^ $(EXTLIB)
-
-$(BINDIR)/demo/pre/Source$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source.o $(EXTLIBDIR)/$(PALISADELIB)
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 

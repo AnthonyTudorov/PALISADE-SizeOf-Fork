@@ -111,6 +111,13 @@ buildContextFromSerialized(const SerialItem& s)
 }
 
 CryptoContext *
+CryptoContextHelper::getNewContextFromSerialization(const Serialized& ser)
+{
+
+}
+
+
+CryptoContext *
 CryptoContextHelper::getNewContext(const string& parmSetJson)
 {
 	// convert string to a map

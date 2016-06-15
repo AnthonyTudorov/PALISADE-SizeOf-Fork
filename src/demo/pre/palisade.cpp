@@ -121,7 +121,7 @@ reencrypter(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 		Serialized cipS;
 		string reSerialized;
 
-		if( newCiphertext.Serialize(&cipS, "Re") ) {
+		if( newCiphertext.Serialize(&cipS, ctx, "Re") ) {
 			if( !SerializableHelper::SerializationToString(cipS, reSerialized) ) {
 				cerr << "Error creating serialization of new ciphertext" << endl;
 				return;
@@ -263,7 +263,7 @@ encrypter(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 		Serialized cipS;
 		string cipherSer;
 
-		if( ciphertext.Serialize(&cipS, "Enc") ) {
+		if( ciphertext.Serialize(&cipS, ctx, "Enc") ) {
 			if( !SerializableHelper::SerializationToString(cipS, cipherSer) ) {
 				cerr << "Error stringifying serialized ciphertext" << endl;
 				break;
@@ -313,7 +313,7 @@ rekeymaker(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 	if( ctx->getAlgorithm()->EvalKeyGen(pk, sk, &evalKey) ) {
 		Serialized evalK;
 
-		if( evalKey.Serialize(&evalK, rekeyname) ) {
+		if( evalKey.Serialize(&evalK, ctx, rekeyname) ) {
 			if( !SerializableHelper::WriteSerializationToFile(evalK, rekeyname) ) {
 				cerr << "Error writing serialization of recryption key to " + rekeyname << endl;
 				return;
@@ -346,7 +346,7 @@ keymaker(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 	if( ctx->getAlgorithm()->KeyGen(&pk,&sk) ) {
 		Serialized pubK, privK;
 
-		if( pk.Serialize(&pubK, keyname) ) {
+		if( pk.Serialize(&pubK, ctx, keyname) ) {
 			if( !SerializableHelper::WriteSerializationToFile(pubK, keyname + "PUB.txt") ) {
 				cerr << "Error writing serialization of public key to " + keyname + "PUB.txt" << endl;
 				return;
@@ -357,7 +357,7 @@ keymaker(CryptoContext *ctx, string cmd, int argc, char *argv[]) {
 			return;
 		}
 
-		if( sk.Serialize(&privK, keyname) ) {
+		if( sk.Serialize(&privK, ctx, keyname) ) {
 			if( !SerializableHelper::WriteSerializationToFile(privK, keyname + "PRI.txt") ) {
 				cerr << "Error writing serialization of private key to " + keyname + "PRI.txt" << endl;
 				return;

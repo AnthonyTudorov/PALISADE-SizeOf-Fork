@@ -39,10 +39,10 @@
 #define LBCRYPTO_CRYPTO_CIPHERTEXT_H
 
 //Includes Section
+#include "../utils/serializable.h"
 #include "pubkeylp.h"
 #include "lwecrypt.h"
 
-#include "../utils/serializable.h"
 
 /**
 * @namespace lbcrypto
@@ -183,7 +183,7 @@ namespace lbcrypto {
 		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
+		bool Serialize(Serialized* serObj, const CryptoContext* ctx=0, const std::string fileFlag = "") const;
 
 		/**
 		* Higher level info about the serialization is saved here

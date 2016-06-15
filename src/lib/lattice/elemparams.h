@@ -34,12 +34,11 @@
 #ifndef LBCRYPTO_LATTICE_ELEMPARAMS_H
 #define LBCRYPTO_LATTICE_ELEMPARAMS_H
 
+#include "../utils/serializable.h"
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
 //#include "../encoding/ptxtencoding.h"
-
-#include "../utils/serializable.h"
 
 /**
 * @namespace lbcrypto

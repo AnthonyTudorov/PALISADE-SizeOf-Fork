@@ -36,9 +36,8 @@
 
 #include <iostream>
 
-//#include "binmat.h"
-#include "../../utils/inttypes.h"
 #include "../../utils/serializable.h"
+#include "../../utils/inttypes.h"
 
 /**
  * @namespace cpu8bit
@@ -336,7 +335,7 @@ public:
 	* @param fileFlag is an object-specific parameter for the serialization
 	* @return true if successfully serialized
 	*/
-	bool Serialize(lbcrypto::Serialized* serObj, const std::string fileFlag) const;
+	bool Serialize(lbcrypto::Serialized* serObj, const lbcrypto::CryptoContext* ctx = 0, const std::string fileFlag = "") const;
 
 	/**
 	* Populate the object from the deserialization of the Setialized
