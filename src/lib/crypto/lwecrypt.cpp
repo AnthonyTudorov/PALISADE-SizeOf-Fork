@@ -26,10 +26,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
  */
 
-#include "lwecrypt.h"
+#ifndef _SRC_LIB_CRYPTO_LWECRYPT_C
+#define _SRC_LIB_CRYPTO_LWECRYPT_C
+
+#include "../crypto/CryptoContext.h"
 #include <cstring>
 #include <iostream>
-//#include "saveparams.h"
+
 using namespace std;
 
 namespace lbcrypto {
@@ -206,14 +209,14 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 
 // JSON FACILITY - LPCryptoParametersLWE Serialize Operation
 template <class Element>
-bool LPCryptoParametersStehleSteinfeld<Element>::Serialize(Serialized* serObj, const CryptoContext* ctx, const std::string fileFlag) const {
+bool LPCryptoParametersStehleSteinfeld<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
 
 	if( !serObj->IsObject() )
 		return false;
 
 	Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
 	const ElemParams& ep = this->GetElementParams();
-	if( !ep.Serialize(&pser, ctx, fileFlag) )
+	if( !ep.Serialize(&pser, fileFlag) )
 		return false;
 
 	Serialized cryptoParamsMap(rapidjson::kObjectType, &serObj->GetAllocator());
@@ -295,14 +298,14 @@ bool LPCryptoParametersStehleSteinfeld<Element>::Deserialize(const Serialized& s
 }
 
 template <class Element>
-bool LPCryptoParametersLTV<Element>::Serialize(Serialized* serObj, const CryptoContext* ctx, const std::string fileFlag) const {
+bool LPCryptoParametersLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
 
 	if( !serObj->IsObject() )
 		return false;
 
 	Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
 	const ElemParams& ep = this->GetElementParams();
-	if( !ep.Serialize(&pser, ctx, fileFlag) )
+	if( !ep.Serialize(&pser, fileFlag) )
 		return false;
 
 	SerialItem cryptoParamsMap(rapidjson::kObjectType);
@@ -392,7 +395,7 @@ bool LPPublicKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string fl
 
 // JSON FACILITY - LPPublicKeyLTV Serialize Operation
 template <class Element>
-bool LPPublicKeyLTV<Element>::Serialize(Serialized* serObj, const CryptoContext* ctx, const std::string fileFlag) const {
+bool LPPublicKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
 
 	serObj->SetObject();
 
@@ -412,12 +415,12 @@ bool LPPublicKeyLTV<Element>::Serialize(Serialized* serObj, const CryptoContext*
 
 // JSON FACILITY - LPPublicKeyLTV Deserialize Operation
 template <class Element>
-bool LPPublicKeyLTV<Element>::Deserialize(const Serialized& serObj) {
+bool LPPublicKeyLTV<Element>::Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
 
-	if( !DeserializeAndSetCryptoParameters<Element,LPPublicKeyLTV<Element>>(serObj, this) ) return false;
+	LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
+	if( cryptoParams == 0 ) return false;
 
-	if( !this->AccessCryptoParameters().Deserialize(serObj) )
-		return false;
+	this->SetCryptoParameters(cryptoParams);
 
 	Element json_ilElement;
 	if( json_ilElement.Deserialize(serObj) ) {
@@ -442,7 +445,7 @@ bool LPEvalKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string flag
 
 // JSON FACILITY - LPEvalKeyLTV Serialize Operation
 template <class Element>
-bool LPEvalKeyLTV<Element>::Serialize(Serialized* serObj, const CryptoContext* ctx, const std::string fileFlag) const {
+bool LPEvalKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
 
 	serObj->SetObject();
 
@@ -470,11 +473,12 @@ bool LPEvalKeyLTV<Element>::Serialize(Serialized* serObj, const CryptoContext* c
 
 // JSON FACILITY - LPEvalKeyLTV Deserialize Operation
 template <class Element>
-bool LPEvalKeyLTV<Element>::Deserialize(const Serialized& serObj) {
+bool LPEvalKeyLTV<Element>::Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
 
-	if( !DeserializeAndSetCryptoParameters<Element,LPEvalKeyLTV<Element>>(serObj, this) ) return false;
+	LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
+	if( cryptoParams == 0 ) return false;
 
-	if( !this->AccessCryptoParameters().Deserialize(serObj) ) return false;
+	this->SetCryptoParameters(cryptoParams);
 
 	Serialized::ConstMemberIterator rIt = serObj.FindMember("Root");
 	if( rIt == serObj.MemberEnd() ) return false;
@@ -521,7 +525,7 @@ bool LPPrivateKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string f
 
 // JSON FACILITY - LPPrivateKeyLTV Serialize Operation
 template <class Element>
-bool LPPrivateKeyLTV<Element>::Serialize(Serialized* serObj, const CryptoContext* ctx, const std::string fileFlag) const {
+bool LPPrivateKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
 
 	serObj->SetObject();
 	if( !this->SetIdFlag(serObj, fileFlag) )
@@ -535,11 +539,12 @@ bool LPPrivateKeyLTV<Element>::Serialize(Serialized* serObj, const CryptoContext
 
 // JSON FACILITY - LPPrivateKeyLTV Deserialize Operation
 template <class Element>
-bool LPPrivateKeyLTV<Element>::Deserialize(const Serialized& serObj) {
+bool LPPrivateKeyLTV<Element>::Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
 
-	if( !DeserializeAndSetCryptoParameters<Element,LPPrivateKeyLTV<Element>>(serObj, this) ) return false;
+	LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
+	if( cryptoParams == 0 ) return false;
 
-	if( !this->AccessCryptoParameters().Deserialize(serObj) ) return false;
+	this->SetCryptoParameters(cryptoParams);
 
 	Element json_ilElement;
 	if( json_ilElement.Deserialize(serObj) ) {
@@ -656,3 +661,5 @@ void LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>::Enable(PKESchemeFeatur
 
 
 }  // namespace lbcrypto ends
+
+#endif

@@ -31,7 +31,7 @@ allbenchmarktargets: make_benchmark_lib make_benchmarks make_benchmark_examples
 BENCHMARK_LIBSRCDIR = benchmark/include/libsrc
 
 #these are the includes for compiling the objects that comprise the library (only)
-BENCHMARK_LIB_INCLUDES = -Ibenchmark/include -Ibenchmark/include/libsrc -Ic:/Mingw64/mingw64/opt/include   
+BENCHMARK_LIB_INCLUDES = -Ibenchmark/include -Ibenchmark/include/libsrc -Iinclude -Ic:/Mingw64/mingw64/opt/include   
 
 #define list of source files for the library (all files with .cc in the LIBSRCDIR
 BENCHMARK_LIBSRC =  $(wildcard $(BENCHMARK_LIBSRCDIR)/*.cc)
@@ -47,7 +47,6 @@ BENCHMARK_LIB = $(BENCHMARK_LIBSRCDIR)/libbenchmark.a
 $(BENCHMARK_LIBSRCDIR)/%.o: $(BENCHMARK_LIBSRCDIR)/%.cc
 	@echo " -- benchmark:compiling benchmark library source $@"	
 	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<
-	@echo
 
 .PHONY:make_benchmark_lib
 make_benchmark_lib: $(BENCHMARK_LIB)
@@ -85,21 +84,19 @@ BENCHMARK_EXAMPLES_OBJ = $(BENCHMARK_EXAMPLES_SRC:$(BENCHMARK_EXAMPLES_SRC_DIR)%
 BENCHMARK_EXAMPLES = $(BENCHMARK_EXAMPLES_SRC:$(BENCHMARK_EXAMPLES_SRC_DIR)%.cc=$(BENCHMARK_EXAMPLES_BIN_DIR)%)
 
 # this is the include line for generating any benc2hmark object (not in the library)
-BENCHMARK_INCLUDES = -Ibenchmark/include
+BENCHMARK_INCLUDES = -Ibenchmark/include -Iinclude
 
 # this builds objects from sources for examples
 $(BENCHMARK_EXAMPLES_BUILD_DIR)/%.o: $(BENCHMARK_EXAMPLES_SRC_DIR)/%.cc
 	@echo " -- benchmark:compiling example $@"	
 	@mkdir -p $(BENCHMARK_EXAMPLES_SRC_DIR)/build/
 	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@
-	@echo
 
 # this builds executables from objects for examples
 $(BENCHMARK_EXAMPLES_BIN_DIR)/%$(EXESUFFIX): $(BENCHMARK_EXAMPLES_BUILD_DIR)/%.o
 	@echo " -- benchmark:linking example $@"	
 	@mkdir -p $(BENCHMARK_EXAMPLES_SRC_DIR)/bin/
 	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ $(RDYNAMIC) $(BENCHMARK_LIB) $(LIB) -lpthread $(MINGWREGEX) 
-	@echo
 
 #this updates the binaries when the objects or libraries are touched
 $(BENCHMARK_EXAMPLES): $(BENCHMARK_EXAMPLES_OBJ)  $(BENCHMARK_LIB)

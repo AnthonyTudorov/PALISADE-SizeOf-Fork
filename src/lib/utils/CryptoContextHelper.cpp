@@ -62,7 +62,8 @@ getValueForName(const SerialItem& allvals, const char *key, string& value)
 	return true;
 }
 
-static CryptoContext *
+template <class Element>
+static CryptoContext<Element> *
 buildContextFromSerialized(const SerialItem& s)
 {
 	string parmtype;
@@ -89,7 +90,7 @@ buildContextFromSerialized(const SerialItem& s)
 			return 0;
 		}
 
-		return CryptoContext::genCryptoContextLTV(stoul(plaintextModulus), stoul(ring),
+		return CryptoContext<Element>::genCryptoContextLTV(stoul(plaintextModulus), stoul(ring),
 				modulus, rootOfUnity, stoul(relinWindow), stof(stDev));
 	}
 	else if( parmtype == "StehleSteinfeld" ) {
@@ -103,33 +104,66 @@ buildContextFromSerialized(const SerialItem& s)
 			return 0;
 		}
 
-		return CryptoContext::genCryptoContextStehleSteinfeld(stoul(plaintextModulus), stoul(ring),
+		return CryptoContext<Element>::genCryptoContextStehleSteinfeld(stoul(plaintextModulus), stoul(ring),
 				modulus, rootOfUnity, stoul(relinWindow), stof(stDev), stof(stDevStSt));
 	}
 
 	return 0;
 }
 
-CryptoContext *
-CryptoContextHelper::getNewContextFromSerialization(const Serialized& ser)
+template <class Element>
+CryptoContext<Element> *
+CryptoContextHelper<Element>::getNewContextFromSerialization(const Serialized& ser)
 {
+	LPCryptoParameters<Element>* cParams = DeserializeCryptoParameters<Element>(ser);
 
+	if( cParams == 0 ) return 0;
+
+	CryptoContext<Element>* newCtx = 0;
+
+	const ILParams& ep = dynamic_cast<const ILParams&>(cParams->GetElementParams());
+
+	// see what kind of parms we have here...
+	LPCryptoParametersLTV<Element> *ltvp = dynamic_cast<LPCryptoParametersLTV<Element> *>(cParams);
+	LPCryptoParametersStehleSteinfeld<Element> *ststp = dynamic_cast<LPCryptoParametersStehleSteinfeld<Element> *>(cParams);
+
+	if( ltvp != 0 ) {
+		cout << "LTV" << endl;
+		newCtx = CryptoContext<Element>::genCryptoContextLTV(cParams->GetPlaintextModulus().ConvertToInt(), ep.GetCyclotomicOrder(),
+				ep.GetModulus().ToString(), ep.GetRootOfUnity().ToString(), ltvp->GetRelinWindow(), ltvp->GetDistributionParameter());
+	}
+	else if( ststp != 0 ){
+		cout << "StSt" << endl;
+		cout << cParams->GetPlaintextModulus().ConvertToInt() << endl;
+		cout << ep.GetCyclotomicOrder() << endl;
+		cout << ep.GetModulus().ToString() << endl;
+		cout << ep.GetRootOfUnity().ToString() << endl;
+		cout << ltvp->GetRelinWindow() << endl;
+		cout << ltvp->GetDistributionParameter() << endl;
+		newCtx = CryptoContext<Element>::genCryptoContextStehleSteinfeld(cParams->GetPlaintextModulus().ConvertToInt(), ep.GetCyclotomicOrder(),
+				ep.GetModulus().ToString(), ep.GetRootOfUnity().ToString(), ststp->GetRelinWindow(), ststp->GetDistributionParameter(), ststp->GetDistributionParameterStSt());
+	}
+
+	delete ltvp;
+	return newCtx;
 }
 
 
-CryptoContext *
-CryptoContextHelper::getNewContext(const string& parmSetJson)
+template <class Element>
+CryptoContext<Element> *
+CryptoContextHelper<Element>::getNewContext(const string& parmSetJson)
 {
 	// convert string to a map
 	Serialized sObj;
 	sObj.Parse( parmSetJson.c_str() );
 	if( sObj.HasParseError() )
 		return 0;
-	return buildContextFromSerialized(sObj);
+	return buildContextFromSerialized<Element>(sObj);
 }
 
-CryptoContext *
-CryptoContextHelper::getNewContext(const string& parmfile, const string& parmset)
+template <class Element>
+CryptoContext<Element> *
+CryptoContextHelper<Element>::getNewContext(const string& parmfile, const string& parmset)
 {
 	Serialized sobj;
 
@@ -150,11 +184,12 @@ CryptoContextHelper::getNewContext(const string& parmfile, const string& parmset
 		return 0;
 
 	const SerialItem& cObj = it->value;
-	return buildContextFromSerialized(cObj);
+	return buildContextFromSerialized<Element>(cObj);
 }
 
+template <class Element>
 void
-CryptoContextHelper::printAllParmSets(ostream& out, const std::string& fn)
+CryptoContextHelper<Element>::printAllParmSets(ostream& out, const std::string& fn)
 {
 	Serialized sobj;
 
@@ -175,8 +210,9 @@ CryptoContextHelper::printAllParmSets(ostream& out, const std::string& fn)
 	}
 }
 
+template <class Element>
 void
-CryptoContextHelper::printAllParmSetNames(ostream& out, const std::string& fn)
+CryptoContextHelper<Element>::printAllParmSetNames(ostream& out, const std::string& fn)
 {
 	Serialized sobj;
 

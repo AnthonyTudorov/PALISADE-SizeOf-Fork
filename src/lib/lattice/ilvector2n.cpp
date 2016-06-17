@@ -446,7 +446,7 @@ namespace lbcrypto {
 	}
 
 	// JSON FACILITY - Serialize Operation
-	bool ILVector2n::Serialize(Serialized* serObj, const CryptoContext*, const std::string) const {
+	bool ILVector2n::Serialize(Serialized* serObj, const std::string) const {
 		if( !serObj->IsObject() )
 			return false;
 

@@ -183,7 +183,7 @@ namespace lbcrypto {
 		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized* serObj, const CryptoContext* ctx=0, const std::string fileFlag = "") const;
+		bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
 
 		/**
 		* Higher level info about the serialization is saved here
@@ -198,7 +198,8 @@ namespace lbcrypto {
 		* @param serObj contains the serialized object
 		* @return true on success
 		*/
-		virtual bool Deserialize(const Serialized& serObj);
+		bool Deserialize(const Serialized& serObj) { return false; }
+		bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx);
 
 	private:
 

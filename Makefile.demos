@@ -46,13 +46,14 @@ make_demos: \
 	$(BINDIR)/demo/pre/palisade$(EXESUFFIX)
 
 ## builder for source files in the demo directory
+.PRECIOUS: $(BUILDDIR)/demo/%.o $(BUILDDIR)/demo/%.d
 $(BUILDDIR)/demo/%.o: $(DEMODIR)/%.cpp
 	@mkdir -p $(@D)
-	$(CC) -fPIC $(CPPFLAGS) $(INC) -I src/lib -c -o $@ $<
 	$(CC) -MM $(CPPFLAGS) $(INC) -I src/lib $< > $(patsubst %.o,%.d,$@)
 	@mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)
 	@sed -e 's|.*\.o:|$@:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)
 	@rm -f $(patsubst %.o,%.d.tmp,$@)
+	$(CC) -fPIC $(CPPFLAGS) $(INC) -I src/lib -c -o $@ $<
 
 $(BINDIR)/demo/core/%$(EXESUFFIX): $(BUILDDIR)/demo/core/%.o $(EXTLIBDIR)/$(PALISADELIB)
 	@mkdir -p $(@D)
@@ -101,4 +102,4 @@ docdemostrings:
 .PHONEY: cleandemos
 cleandemos:
 	@echo " Cleaning demos...";
-	$(RM) -rf $(BUILDIR)/demo $(BINDIR)/demo
+	$(RM) -rf $(BUILDDIR)/demo $(BINDIR)/demo

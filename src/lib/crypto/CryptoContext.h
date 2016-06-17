@@ -47,8 +47,6 @@
 #include "../lattice/ildcrtparams.h"
 #include "../lattice/ilelement.h"
 
-#include "../crypto/lwecrypt.h"
-#include "../crypto/lwecrypt.cpp"
 #include "../crypto/lwepre.h"
 #include "../crypto/lwepre.cpp"
 #include "../crypto/lweahe.h"
@@ -60,10 +58,9 @@
 #include "../crypto/lweautomorph.h"
 #include "../crypto/lweautomorph.cpp"
 
-#include "../crypto/ciphertext.h"
-#include "../crypto/ciphertext.cpp"
-
 #include "../utils/serializable.h"
+
+// NOTE there are some #includes at the bottom of the file as well!
 
 using namespace std;
 using namespace lbcrypto;
@@ -75,10 +72,10 @@ namespace lbcrypto {
  *
  * An instance of this class contains all of the parameters needed to create keys and encrypt/decrypt
  */
-class CryptoContext : public Serializable {
-private:
-	string		parmsetName;
 
+template <class Element>
+class CryptoContext {
+private:
 	usint ringdim;
 	BigBinaryInteger ptmod;
 	BigBinaryInteger mod;
@@ -91,14 +88,14 @@ private:
 	DiscreteGaussianGenerator dgg;
 	DiscreteGaussianGenerator dggStSt;
 
-	LPCryptoParametersImpl<ILVector2n>	*params;
-	LPPublicKeyEncryptionScheme<ILVector2n> *algorithm;
+	LPCryptoParameters<Element>	*params;
+	LPPublicKeyEncryptionScheme<Element> *algorithm;
 	long								chunksize;		// the size that this parameter set can process
 
 	// these three members are ONLY used by the Java wrapper to cache deserialized keys
-	LPPublicKeyLTV<ILVector2n>	*publicKey;
-	LPPrivateKeyLTV<ILVector2n>	*privateKey;
-	LPEvalKeyLTV<ILVector2n>	*evalKey;
+	LPPublicKeyLTV<Element>	*publicKey;
+	LPPrivateKeyLTV<Element>	*privateKey;
+	LPEvalKeyLTV<Element>	*evalKey;
 
 	CryptoContext() : publicKey(0), privateKey(0), evalKey(0),
 			params(0), algorithm(0), chunksize(0), relinWindow(0), ringdim(0), stDev(0), stDevStSt(0) {}
@@ -112,19 +109,17 @@ public:
 		if( evalKey ) delete evalKey;
 	}
 
-	string getParmsetName() const { return parmsetName; }
-
 	/**
 	 *
 	 * @return crypto parameters
 	 */
-	LPCryptoParametersImpl<ILVector2n>* getParams() { return params; }
+	LPCryptoParameters<Element>* getParams() const { return params; }
 
 	/**
 	 *
 	 * @return crypto algorithm
 	 */
-	LPPublicKeyEncryptionScheme<ILVector2n>* getAlgorithm() { return algorithm; }
+	LPPublicKeyEncryptionScheme<Element>* getAlgorithm() const { return algorithm; }
 
 	/**
 	 *
@@ -151,7 +146,7 @@ public:
 	 *
 	 * @return cached deserialized public key
 	 */
-	LPPublicKeyLTV<ILVector2n>	*getPublicKey() { return publicKey; }
+	LPPublicKeyLTV<Element>	*getPublicKey() { return publicKey; }
 
 	/**
 	 * Used by the Java wrapper
@@ -166,7 +161,7 @@ public:
 	 *
 	 * @return cached deserialized private key
 	 */
-	LPPrivateKeyLTV<ILVector2n>	*getPrivateKey() { return privateKey; }
+	LPPrivateKeyLTV<Element>	*getPrivateKey() { return privateKey; }
 
 	/**
 	 * Used by the Java wrapper
@@ -181,7 +176,7 @@ public:
 	 *
 	 * @return cached deserialized evaluation key
 	 */
-	LPEvalKeyLTV<ILVector2n>	*getEvalKey() { return evalKey; }
+	LPEvalKeyLTV<Element>	*getEvalKey() { return evalKey; }
 
 	/**
 	 * Factory method to make an LTV CryptoContext
@@ -194,7 +189,7 @@ public:
 	 * @param stDev
 	 * @return
 	 */
-	static CryptoContext *genCryptoContextLTV(
+	static CryptoContext<Element> *genCryptoContextLTV(
 			const usint plaintextmodulus,
 			usint ringdim, const string& modulus, const string& rootOfUnity,
 			usint relinWindow, float stDev);
@@ -211,23 +206,17 @@ public:
 	 * @param stDevStSt
 	 * @return
 	 */
-	static CryptoContext *genCryptoContextStehleSteinfeld(
+	static CryptoContext<Element> *genCryptoContextStehleSteinfeld(
 			const usint plaintextmodulus,
 			usint ringdim, const string& modulus, const string& rootOfUnity,
 			usint relinWindow, float stDev, float stDevStSt);
-
-	bool Serialize(Serialized* serObj, const CryptoContext* ctx=0, const std::string fileFlag = "") const;
-
-	/**
-	* Populate the object from the deserialization of the Setialized
-	* @param serObj contains the serialized object
-	* @return true on success
-	*/
-	virtual bool Deserialize(const Serialized& serObj);
-
 };
 
 }
 
+#include "../crypto/lwecrypt.h"
+#include "../crypto/lwecrypt.cpp"
+#include "../crypto/ciphertext.h"
+#include "../crypto/ciphertext.cpp"
 
 #endif /* SRC_DEMO_PRE_CRYPTOCONTEXT_H_ */

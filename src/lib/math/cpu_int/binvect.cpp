@@ -508,7 +508,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::GetDigitAtIndexForBas
 
 // JSON FACILITY - Serialize Operation
 template<class IntegerType>
-bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::Serialized* serObj, const lbcrypto::CryptoContext*, const std::string) const {
+bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::Serialized* serObj, const std::string) const {
 
 	if( !serObj->IsObject() )
 		return false;

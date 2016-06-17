@@ -41,10 +41,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../../lib/crypto/CryptoContext.h"
 #include "../../lib/utils/CryptoContextHelper.h"
+#include "../../lib/crypto/CryptoContext.cpp"
+#include "../../lib/utils/CryptoContextHelper.cpp"
 
 #include "../../lib/utils/debug.h"
 
-void NTRUPRE(CryptoContext *ctx);
+void NTRUPRE(CryptoContext<ILVector2n> *ctx);
 
 #include "../../lib/utils/serializablehelper.h"
 
@@ -52,8 +54,6 @@ void NTRUPRE(CryptoContext *ctx);
 
 using namespace std;
 using namespace lbcrypto;
-
-void NTRUPRE(int input);
 
 int
 main(int argc, char *argv[])
@@ -67,12 +67,12 @@ main(int argc, char *argv[])
 	//auto v = gen.GenerateVector(10000);
 
 	std::cout << "Parameter set: ";
-	CryptoContextHelper::printAllParmSetNames(std::cout, filename);
+	CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout, filename);
 
 	string input;
 	std::cin >> input;
 
-	CryptoContext *ctx = CryptoContextHelper::getNewContext(filename, input);
+	CryptoContext<ILVector2n> *ctx = CryptoContextHelper<ILVector2n>::getNewContext(filename, input);
 	if( ctx == 0 ) {
 		cout << "Error on " << input << endl;
 		return 0;
@@ -105,7 +105,7 @@ main(int argc, char *argv[])
 //////////////////////////////////////////////////////////////////////
 
 void
-NTRUPRE(CryptoContext *ctx) {
+NTRUPRE(CryptoContext<ILVector2n> *ctx) {
 
 	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	//ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");

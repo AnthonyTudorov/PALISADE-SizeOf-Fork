@@ -41,7 +41,6 @@ allwrappers: $(EXTLIBDIR)/$(JNILIB) $(EXTLIBDIR)/PalisadeCrypto.jar
 $(EXTLIBDIR)/$(JNILIB): $(LIBOBJECTS) build/javawrapper/PalisadeCryptoWrapper.o
 	mkdir -p $(EXTLIBDIR)
 	$(CC) $(LIBCMD) -o $@ $(LIBOBJECTS) build/javawrapper/PalisadeCryptoWrapper.o $(JNILINKPARM) -lgomp
-	@echo
 
 $(EXTLIBDIR)/PalisadeCrypto.jar: src/javawrapper/PalisadeCrypto/src/com/palisade/PalisadeCrypto.class src/javawrapper/PalisadeCrypto/src/com/palisade/PalisadeKeypair.class
 	( cd src/javawrapper/PalisadeCrypto/src/ ; jar cvf ../../../../bin/lib/PalisadeCrypto.jar com/palisade/*.class )
@@ -60,11 +59,11 @@ $(BUILDDIR)/javawrapper/%:
 	then  \
 		mkdir -p $(@D)  ;\
 		echo $(CC) -fPIC $(CPPFLAGS) $(INC) $(JNIBUILD) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
-		$(CC) -fPIC $(CPPFLAGS) $(INC) $(JNIBUILD) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 		$(CC) -MM $(CPPFLAGS) $(INC) $(JNIBUILD) $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@)) > $(patsubst %.o,%.d,$@)  ;\
 		mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)  ;\
 		sed -e 's|.*\.o:|$(BUILDDIR)/lib/$*:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)  ;\
 		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
+		$(CC) -fPIC $(CPPFLAGS) $(INC) $(JNIBUILD) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 	fi
 
 #this target is used to cleanup, it is called from the top Makefile

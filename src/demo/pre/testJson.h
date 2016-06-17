@@ -29,7 +29,7 @@ using namespace std;
 using namespace lbcrypto;
 
 struct TestJsonParms {
-	CryptoContext							*ctx;
+	CryptoContext<ILVector2n>				*ctx;
 	LPPublicKey<ILVector2n>					*pk;
 	LPPrivateKey<ILVector2n>				*sk;
 	LPEvalKey<ILVector2n>					*evalKey;

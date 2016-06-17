@@ -57,10 +57,10 @@ static T* deserializeAndCreate(const string& serializedKey )
 	return newKey;
 }
 
-bool
-CryptoContext::setPublicKey( const string& serializedKey )
+template <typename T>
+bool CryptoContext<T>::setPublicKey( const string& serializedKey )
 {
-	LPPublicKeyLTV<ILVector2n> *newKey = deserializeAndCreate<LPPublicKeyLTV<ILVector2n>>(serializedKey);
+	LPPublicKeyLTV<T> *newKey = deserializeAndCreate<LPPublicKeyLTV<T>>(serializedKey);
 	if( newKey == 0 ) return false;
 
 	if( publicKey ) delete publicKey;
@@ -68,10 +68,10 @@ CryptoContext::setPublicKey( const string& serializedKey )
 	return true;
 }
 
-bool
-CryptoContext::setPrivateKey( const string& serializedKey )
+template <typename T>
+bool CryptoContext<T>::setPrivateKey( const string& serializedKey )
 {
-	LPPrivateKeyLTV<ILVector2n> *newKey = deserializeAndCreate<LPPrivateKeyLTV<ILVector2n>>(serializedKey);
+	LPPrivateKeyLTV<T> *newKey = deserializeAndCreate<LPPrivateKeyLTV<T>>(serializedKey);
 	if( newKey == 0 ) return false;
 
 	if( privateKey ) delete privateKey;
@@ -79,9 +79,10 @@ CryptoContext::setPrivateKey( const string& serializedKey )
 	return true;
 }
 
-bool CryptoContext::setEvalKey( const string& serializedKey )
+template <typename T>
+bool CryptoContext<T>::setEvalKey( const string& serializedKey )
 {
-	LPEvalKeyLTV<ILVector2n> *newKey = deserializeAndCreate<LPEvalKeyLTV<ILVector2n>>(serializedKey);
+	LPEvalKeyLTV<T> *newKey = deserializeAndCreate<LPEvalKeyLTV<T>>(serializedKey);
 	if( newKey == 0 ) return false;
 
 	if( evalKey ) delete evalKey;
@@ -89,15 +90,14 @@ bool CryptoContext::setEvalKey( const string& serializedKey )
 	return true;
 }
 
-CryptoContext *
-CryptoContext::genCryptoContextLTV(
+template <typename T>
+CryptoContext<T> *CryptoContext<T>::genCryptoContextLTV(
 		const usint plaintextmodulus,
 		usint ringdim, const string& modulus, const string& rootOfUnity,
 		usint relinWindow, float stDev) {
 
 	CryptoContext	*item = new CryptoContext();
 
-	item->parmsetName = "LPCryptoParametersLTV";
 	item->ringdim = ringdim;
 	item->ptmod = BigBinaryInteger(plaintextmodulus);
 	item->mod = BigBinaryInteger(modulus);
@@ -107,7 +107,7 @@ CryptoContext::genCryptoContextLTV(
 
 	item->ilParams = ILParams(item->ringdim, item->mod, item->ru);
 
-	LPCryptoParametersLTV<ILVector2n>* params = new LPCryptoParametersLTV<ILVector2n>();
+	LPCryptoParametersLTV<T>* params = new LPCryptoParametersLTV<T>();
 	item->params = params;
 
 	params->SetPlaintextModulus(item->ptmod);
@@ -120,22 +120,21 @@ CryptoContext::genCryptoContextLTV(
 
 	item->chunksize = ((item->ringdim / 2) / 8) * log2(plaintextmodulus);
 
-	item->algorithm = new LPPublicKeyEncryptionSchemeLTV<ILVector2n>();
+	item->algorithm = new LPPublicKeyEncryptionSchemeLTV<T>();
 	item->algorithm->Enable(ENCRYPTION);
 	item->algorithm->Enable(PRE);
 
 	return item;
 }
 
-CryptoContext *
-CryptoContext::genCryptoContextStehleSteinfeld(
+template <typename T>
+CryptoContext<T> *CryptoContext<T>::genCryptoContextStehleSteinfeld(
 		const usint plaintextmodulus,
 		usint ringdim, const string& modulus, const string& rootOfUnity,
 		usint relinWindow, float stDev, float stDevStSt) {
 
 	CryptoContext	*item = new CryptoContext();
 
-	item->parmsetName = "LPCryptoParametersStehleSteinfeld";
 	item->ringdim = ringdim;
 	item->ptmod = BigBinaryInteger(plaintextmodulus);
 	item->mod = BigBinaryInteger(modulus);
@@ -146,7 +145,7 @@ CryptoContext::genCryptoContextStehleSteinfeld(
 
 	item->ilParams = ILParams(item->ringdim, item->mod, item->ru);
 
-	LPCryptoParametersStehleSteinfeld<ILVector2n>* params = new LPCryptoParametersStehleSteinfeld<ILVector2n>();
+	LPCryptoParametersStehleSteinfeld<T>* params = new LPCryptoParametersStehleSteinfeld<T>();
 	item->params = params;
 
 	params->SetPlaintextModulus(item->ptmod);
@@ -163,25 +162,12 @@ CryptoContext::genCryptoContextStehleSteinfeld(
 
 	item->chunksize = ((item->ringdim / 2) / 8) * log2(plaintextmodulus);
 
-	item->algorithm = new LPPublicKeyEncryptionSchemeStehleSteinfeld<ILVector2n>();
+	item->algorithm = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>();
 	item->algorithm->Enable(ENCRYPTION);
 	item->algorithm->Enable(PRE);
 
 	return item;
 }
-
-bool
-CryptoContext::Serialize(Serialized* serObj, const CryptoContext* ctx, const std::string fileFlag) const
-{
-
-}
-
-bool
-CryptoContext::Deserialize(const Serialized& serObj)
-{
-
-}
-
 
 }
 
