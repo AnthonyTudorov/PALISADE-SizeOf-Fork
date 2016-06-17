@@ -82,7 +82,7 @@ namespace exp_int32{
   };
     
   /**
-   * @brief Struct to find log value of N.
+   * @brief Struct to find log 2 value of N.
    *Base case for recursion.
    *Needed in the preprocessing step of bint to determine bitwidth.
    */
@@ -97,13 +97,14 @@ namespace exp_int32{
    *
    * @tparam U primitive data type.
    */
+#if 0 //todo delete
   template <typename U>
   struct LogDtype{
     const static usint value = Log2<8*sizeof(U)>::value;
   };
-    
+#endif
   /**
-   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}
+   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t}
    *
    * @tparam Dtype primitive datatype.
    */
@@ -113,7 +114,7 @@ namespace exp_int32{
   };
 
   /**
-   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}. 
+   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t}.
    * sets value true if datatype is unsigned integer 8 bit.
    */
   template<>
@@ -122,7 +123,7 @@ namespace exp_int32{
   };
 
   /**
-   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}. 
+   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t}.
    * sets value true if datatype is unsigned integer 16 bit.
    */
   template<>
@@ -131,7 +132,7 @@ namespace exp_int32{
   };
 
   /**
-   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}.
+   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t}.
    * sets value true if datatype is unsigned integer 32 bit.
    */
   template<>
@@ -140,7 +141,7 @@ namespace exp_int32{
   };
 
   /**
-   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}.
+   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t}.
    * sets value true if datatype is unsigned integer 64 bit.
    */
   template<>
@@ -148,6 +149,7 @@ namespace exp_int32{
     const static bool value = true ;	
   };
 
+#if 0
   /**
    * @brief Struct for calculating bit width from data type. 
    * Sets value to the bitwidth of uint_type
@@ -158,7 +160,7 @@ namespace exp_int32{
   struct UIntBitWidth{
     const static int value = 8*sizeof(uint_type);
   };
-
+#endif
   /**
    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
    * sets T as of type void for default case
@@ -172,7 +174,7 @@ namespace exp_int32{
 
   /**
    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
-   * Sets T as of type unsigned integer 16 bit if integral datatype is 8bit
+   * Sets T as of type unsigned integer 16 bit if limb datatype is 8bit
    */
   template<>
   struct DoubleDataType<uint8_t>{
@@ -181,7 +183,7 @@ namespace exp_int32{
 
   /**
    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
-   * sets T as of type unsigned integer 32 bit if integral datatype is 16bit
+   * sets T as of type unsigned integer 32 bit if limb datatype is 16bit
    */
   template<>
   struct DoubleDataType<uint16_t>{
@@ -190,7 +192,7 @@ namespace exp_int32{
 
   /**
    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
-   * sets T as of type unsigned integer 64 bit if integral datatype is 32bit
+   * sets T as of type unsigned integer 64 bit if limb datatype is 32bit
    */
   template<>
   struct DoubleDataType<uint32_t>{
@@ -199,7 +201,8 @@ namespace exp_int32{
 
 
   const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
-  const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed values) used in the Barrett reductions.
+  //todo delete
+  //const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed values) used in the Barrett reductions.
 
   /**
    * @brief Main class for big integers represented as an array of native (primitive) unsigned integers
@@ -265,7 +268,8 @@ namespace exp_int32{
      * @return the assigned Big  Integer ref.
      */
     inline const bint& operator=(usint val) {
-      *this = intTobint(val);
+    //  *this = intTobint(val);
+    	  *this = bint(val);
       return *this;
     }
 
@@ -312,9 +316,14 @@ namespace exp_int32{
     //Auxillary Functions
 
     /**
-     * Prints the value to console in base-r format where r is equal to 2^bitwidth of the integral datatype.
+     * Prints the value of the vector of limbs to console in decimal format
      */
-    void PrintValueInDec() const;
+    void PrintLimbsInDec() const;
+
+   /**
+    * Prints the value of the vector of limbs to console in hex format
+    */
+    void PrintLimbsInHex() const;
 
     /**
      * Basic set method for setting the value of a big  integer
@@ -818,7 +827,7 @@ namespace exp_int32{
   protected:
     
     /**
-     * Converts the string v into base-r integer where r is equal to 2^bitwidth of integral data type.
+     * Converts the string v into base-r integer where r is equal to 2^bitwidth of limb data type.
      *
      * @param v The input string
      */
@@ -839,19 +848,21 @@ namespace exp_int32{
   public: //todo for debug onlhy
 
     //pointer to the array storing the native integers.
-    limb_t *m_value;
+    vector<limb_t> m_value;
 
-    //variable that stores the MOST SIGNIFICANT BIT position in the number.
+    //variable that stores the MOST SIGNIFICANT BIT position in the number. Note MSB(1) = 1 NOT 0
     usshort m_MSB;
 
-    //variable to store the bit width of the integral data type.
-    static const uschar m_uintBitLength;
+    //variable to store the bitlength of the limb data type.
+    static const limb_t m_limbBitLength;
 
-    //variable to store the maximum value of the integral data type.
-    static const limb_t m_uintMax;
+    //variable to store the maximum value of the limb data type.
+    static const limb_t m_MaxLimb;
 
-    //variable to store the log(base 2) of the number of bits in the integral data type.
-    static const uschar m_logUintBitLength;
+
+
+    //variable to store the log(base 2) of the number of bits in the limb data type.
+    static const uschar m_log2LimbBitLength;
 
     //variable to store the size of the data array.
     static const usint m_nSize;
@@ -859,9 +870,9 @@ namespace exp_int32{
     //The maximum number of digits in biginteger. It is used by the cout(ostream) function for printing the bignumber.
     static const usint m_numDigitInPrintval;
     /**
-     * function to return the ceiling of the number divided by the number of bits in the integral data type.
+     * function to return the ceiling of the number divided by the number of bits in the limb data type.
      * @param Number is the number to be divided.
-     * @return the ceiling of Number/(bits in the integral data type)
+     * @return the ceiling of Number/(bits in the limb data type)
      */
     static limb_t ceilIntByUInt(const limb_t Number);
 
@@ -895,7 +906,7 @@ namespace exp_int32{
      */
   //  private:
   public:  //todo: changed only for debug
-    //Dlimb_t is the data type that has twice as many bits in the integral data type.
+    //Dlimb_t is the data type that has twice as many bits in the limb data type.
     typedef typename DoubleDataType<limb_t>::T Dlimb_t;
 
     //enum defination to represent the state of the big  integer.
