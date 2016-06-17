@@ -48,17 +48,6 @@
 
 
 namespace exp_int32 {
-#if 0
-  //static uschar* dec2bin(uschar a); //TODO DBC UNUSED REMOVE
-  static void printArray(uschar *a,int size);
-
-  void printArray(uschar *a,int size){
-    for(int i=0;i<size;i++)
-      std::cout<<(int)*(a+i)<<" ";
-    std::cout<<std::endl;
-  } 
-
-#endif
 
   //constant static member variable initialization of 0
   template<typename limb_t,usint BITLENGTH>
