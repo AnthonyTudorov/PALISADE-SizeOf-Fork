@@ -18,6 +18,25 @@ The lattice directory support the lattice layer operations in the library.  As s
 
 This lattice layer is a middle layer in the library.  It is intended to make calls to lower layers that support, for example,...
 
+File Listing
+------------
+
+* elemparams.h
+* ilelement.h
+* ilparams.h
+* ilvector2n.h
+* ilvectorarray2n.h
+* ildcrtparams.h
+* ilparams.cpp
+* ilvector2n.cpp
+* ilvectorarray2n.cpp
+* README.md
+
+
+
+Description
+-----------
+
  is to represent a polynomial ring. Thus far, we only support polynomial rings modulus a power of two polynomial (e.g. x^n + 1 where n is a power of 2).
 
 The two main data structures in this layer, ILVectorArray2n and ILVector2n represent these polynomials. A polynomial ring is defined as
