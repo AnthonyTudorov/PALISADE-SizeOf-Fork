@@ -13,6 +13,8 @@
 #include <fstream>
 #include "../lib/crypto/CryptoContext.h"
 #include "../lib/utils/CryptoContextHelper.h"
+#include "../lib/crypto/CryptoContext.cpp"
+#include "../lib/utils/CryptoContextHelper.cpp"
 
 #include "../lib/utils/serializablehelper.h"
 
@@ -53,23 +55,26 @@ JNIEXPORT jobject JNICALL Java_com_palisade_PalisadeCrypto_generatePalisadeKeyPa
 	CryptoContext<ILVector2n> *ctx = cp->ctx;
 
 	const char *idS = env->GetStringUTFChars(id, 0);
-
+std::cout << "about to try to make a keypair for " << idS << std::endl;
 	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
 	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
 	if( !ctx->getAlgorithm()->KeyGen(&pk,&sk) )
 		return 0;
-
+std::cout << "2" << std::endl;
 	Serialized pubMap, priMap;
 	string	pubStr, priStr;
 
 	if ( !pk.Serialize(&pubMap, idS) || !sk.Serialize(&priMap, idS) )
 		return 0;
+	std::cout << "3" << std::endl;
 
 	env->ReleaseStringUTFChars(id, idS);
+	std::cout << "4" << std::endl;
 
 	if( !SerializableHelper::SerializationToString(pubMap, pubStr) || !SerializableHelper::SerializationToString(priMap, priStr) )
 		return 0;
 
+	std::cout << "5" << std::endl;
 	jbyteArray pubA = env->NewByteArray(pubStr.length());
 	env->SetByteArrayRegion(pubA, 0, pubStr.length(), (jbyte *)pubStr.c_str());
 

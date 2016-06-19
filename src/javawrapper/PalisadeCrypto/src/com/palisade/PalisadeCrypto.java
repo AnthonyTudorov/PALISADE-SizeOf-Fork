@@ -60,6 +60,7 @@ public class PalisadeCrypto {
 
 		String cleartext = "Baseball breaks your heart. It is designed to break your heart. The game begins in the spring, when everything else begins again, and it blossoms in the summer, filling the afternoons and evenings, and then as soon as the chill rains come, it stops and leaves you to face the fall all alone. You count on it, rely on it to buffer the passage of time, to keep the memory of sunshine and high skies alive, and then just when the days are all twilight, when you need it most, it stops.";
 
+		System.out.println("Java Palisade Wrapper Test");
 		PalisadeCrypto ctx;
 		try {
 			ctx = new PalisadeCrypto();
@@ -67,9 +68,13 @@ public class PalisadeCrypto {
 			System.err.println("Could not create a crypto context for your parm set");
 			return;
 		}
+		
+		System.out.println("Generating some key pairs");
 
 		PalisadeKeypair kPublisher = ctx.generatePalisadeKeyPair("pub");
 		PalisadeKeypair kSubscriber = ctx.generatePalisadeKeyPair("sub");
+		
+		System.out.println("Generating Eval Key");
 
 		byte[] evk = ctx.generatePalisadeEvalKey("pubsub", kSubscriber.getPubK(), kPublisher.getPrivK());
 
