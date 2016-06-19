@@ -16,21 +16,23 @@ OBJECTIVE
 ---------
 The lattice directory support the lattice layer operations in the library.  As such, it is intended to be used to represent polynomial rings and support operations over polynomial rings.
 
-This lattice layer is a middle layer in the library.  It is intended to make calls to lower layers that support, for example,...
+This lattice layer is a middle layer in the library.
+The lattice layer supports higher-level calls for operations on ring elements necessary for lattice cryptography.
+The lattice layer is intended to make calls to lower layers that support math operations, such as modulus and ring arithmetic.  
 
 File Listing
 ------------
 
-* [elemparams.h](src/lattice/elemparams.h)
-* [ilelement.h](src/lattice/ilelement.h)
-* [ilparams.h](src/lattice/ilparams.h)
-* [ilvector2n.h](src/lattice/ilvector2n.h)
-* [ilvectorarray2n.h](src/lattice/ilvectorarray2n.h)
-* [ildcrtparams.h](src/lattice/ildcrtparams.h)
-* [ilparams.cpp](src/lattice/ilparams.cpp)
-* [ilvector2n.cpp](src/lattice/ilvector2n.cpp)
-* [ilvectorarray2n.cpp](src/lattice/ilvectorarray2n.cpp)
-* [README.md](src/lattice/README.md)
+* Parameter classes files
+- [elemparams.h](src/lattice/elemparams.h): This header file is a simple class to contain ring element parameters.
+- [ilparams.h](src/lattice/ilparams.h), [ilparams.cpp](src/lattice/ilparams.cpp)
+- [ildcrtparams.h](src/lattice/ildcrtparams.h)
+* Element classes files
+- [ilelement.h](src/lattice/ilelement.h)
+- [ilvector2n.h](src/lattice/ilvector2n.h), [ilvector2n.cpp](src/lattice/ilvector2n.cpp)
+- [ilvectorarray2n.h](src/lattice/ilvectorarray2n.h), [ilvectorarray2n.cpp](src/lattice/ilvectorarray2n.cpp)
+* Documentation files
+- [README.md](src/lattice/README.md)
 
 
 
