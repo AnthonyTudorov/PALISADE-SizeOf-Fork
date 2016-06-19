@@ -21,7 +21,7 @@ This lattice layer is a middle layer in the library.  It is intended to make cal
 File Listing
 ------------
 
-* elemparams.h
+* [elemparams.h](src/lattice/elemparams.h)
 * ilelement.h
 * ilparams.h
 * ilvector2n.h
