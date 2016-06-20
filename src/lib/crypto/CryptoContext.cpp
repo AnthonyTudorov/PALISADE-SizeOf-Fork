@@ -39,8 +39,8 @@
 
 namespace lbcrypto {
 
-template <typename T>
-static T* deserializeAndCreate(const string& serializedKey )
+template <class T, class T2>
+static T* deserializeAndCreate(const string& serializedKey, const CryptoContext<T2>* ctx )
 {
 	Serialized ser;
 	if( !SerializableHelper::StringToSerialization(serializedKey, &ser) )
@@ -49,7 +49,7 @@ static T* deserializeAndCreate(const string& serializedKey )
 	T *newKey = new T();
 	if( newKey == 0 ) return newKey;
 
-	if( !newKey->Deserialize(ser) ) {
+	if( !newKey->Deserialize(ser, ctx) ) {
 		delete newKey;
 		return 0;
 	}
@@ -60,7 +60,7 @@ static T* deserializeAndCreate(const string& serializedKey )
 template <typename T>
 bool CryptoContext<T>::setPublicKey( const string& serializedKey )
 {
-	LPPublicKeyLTV<T> *newKey = deserializeAndCreate<LPPublicKeyLTV<T>>(serializedKey);
+	LPPublicKeyLTV<T> *newKey = deserializeAndCreate<LPPublicKeyLTV<T>,T>(serializedKey, this);
 	if( newKey == 0 ) return false;
 
 	if( publicKey ) delete publicKey;
@@ -71,7 +71,7 @@ bool CryptoContext<T>::setPublicKey( const string& serializedKey )
 template <typename T>
 bool CryptoContext<T>::setPrivateKey( const string& serializedKey )
 {
-	LPPrivateKeyLTV<T> *newKey = deserializeAndCreate<LPPrivateKeyLTV<T>>(serializedKey);
+	LPPrivateKeyLTV<T> *newKey = deserializeAndCreate<LPPrivateKeyLTV<T>,T>(serializedKey, this);
 	if( newKey == 0 ) return false;
 
 	if( privateKey ) delete privateKey;
@@ -82,7 +82,7 @@ bool CryptoContext<T>::setPrivateKey( const string& serializedKey )
 template <typename T>
 bool CryptoContext<T>::setEvalKey( const string& serializedKey )
 {
-	LPEvalKeyLTV<T> *newKey = deserializeAndCreate<LPEvalKeyLTV<T>>(serializedKey);
+	LPEvalKeyLTV<T> *newKey = deserializeAndCreate<LPEvalKeyLTV<T>,T>(serializedKey, this);
 	if( newKey == 0 ) return false;
 
 	if( evalKey ) delete evalKey;

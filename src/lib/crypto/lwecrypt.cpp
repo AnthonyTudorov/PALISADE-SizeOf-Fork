@@ -210,7 +210,6 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 // JSON FACILITY - LPCryptoParametersLWE Serialize Operation
 template <class Element>
 bool LPCryptoParametersStehleSteinfeld<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
-
 	if( !serObj->IsObject() )
 		return false;
 
@@ -221,12 +220,12 @@ bool LPCryptoParametersStehleSteinfeld<Element>::Serialize(Serialized* serObj, c
 
 	Serialized cryptoParamsMap(rapidjson::kObjectType, &serObj->GetAllocator());
 	cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("DistributionParameter", this->ToStr(this->GetDistributionParameter()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("DistributionParameterStSt", this->ToStr(this->GetDistributionParameterStSt()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("AssuranceMeasure", this->ToStr(this->GetAssuranceMeasure()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("SecurityLevel", this->ToStr(this->GetSecurityLevel()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("RelinWindow", this->ToStr(this->GetRelinWindow()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("Depth", this->ToStr(this->GetDepth()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("DistributionParameter", std::to_string(this->GetDistributionParameter()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("DistributionParameterStSt", std::to_string(this->GetDistributionParameterStSt()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("AssuranceMeasure", std::to_string(this->GetAssuranceMeasure()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("SecurityLevel", std::to_string(this->GetSecurityLevel()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("RelinWindow", std::to_string(this->GetRelinWindow()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("Depth", std::to_string(this->GetDepth()), serObj->GetAllocator());
 	cryptoParamsMap.AddMember("PlaintextModulus", this->GetPlaintextModulus().ToString(), serObj->GetAllocator());
 
 	serObj->AddMember("LPCryptoParametersStehleSteinfeld", cryptoParamsMap, serObj->GetAllocator());
@@ -310,11 +309,11 @@ bool LPCryptoParametersLTV<Element>::Serialize(Serialized* serObj, const std::st
 
 	SerialItem cryptoParamsMap(rapidjson::kObjectType);
 	cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("DistributionParameter", this->ToStr(GetDistributionParameter()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("AssuranceMeasure", this->ToStr(GetAssuranceMeasure()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("SecurityLevel", this->ToStr(GetSecurityLevel()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("RelinWindow", this->ToStr(GetRelinWindow()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("Depth", this->ToStr(GetDepth()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("DistributionParameter", std::to_string(GetDistributionParameter()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("AssuranceMeasure", std::to_string(GetAssuranceMeasure()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("SecurityLevel", std::to_string(GetSecurityLevel()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("RelinWindow", std::to_string(GetRelinWindow()), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("Depth", std::to_string(GetDepth()), serObj->GetAllocator());
 	cryptoParamsMap.AddMember("PlaintextModulus", this->GetPlaintextModulus().ToString(), serObj->GetAllocator());
 
 	serObj->AddMember("LPCryptoParametersLTV", cryptoParamsMap, serObj->GetAllocator());
@@ -399,13 +398,15 @@ bool LPPublicKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fi
 
 	serObj->SetObject();
 
-	if( !this->GetCryptoParameters().Serialize(serObj) )
+	if( !this->GetCryptoParameters().Serialize(serObj, "") ) {
 		return false;
+	}
 
 	const Element& pe = this->GetPublicElement();
 
-	if( !pe.Serialize(serObj) )
+	if( !pe.Serialize(serObj, "") ) {
 		return false;
+	}
 
 	if( !this->SetIdFlag(serObj, fileFlag) )
 		return false;
