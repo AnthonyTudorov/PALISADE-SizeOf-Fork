@@ -55,6 +55,8 @@ public class PalisadeCrypto {
 	private native long openPalisadeCrypto(byte[] parmset);
 	private native void closePalisadeCrypto();
 	
+	public native byte[] getPalisadeErrorDescription();
+	
 	// demo test program
 	public static void main(String args[]) throws java.io.UnsupportedEncodingException {
 
@@ -72,36 +74,65 @@ public class PalisadeCrypto {
 		System.out.println("Generating some key pairs");
 
 		PalisadeKeypair kPublisher = ctx.generatePalisadeKeyPair("pub");
+		if( kPublisher == null ) {
+			System.out.println("could not create a publisher keypair: " + new String(ctx.getPalisadeErrorDescription()));
+			return;
+		}
+		
 		PalisadeKeypair kSubscriber = ctx.generatePalisadeKeyPair("sub");
+		if( kSubscriber == null ) {
+			System.out.println("could not create a subscriber keypair: " + new String(ctx.getPalisadeErrorDescription()));
+			return;
+		}
 		
 		System.out.println("Generating Eval Key");
 
 		byte[] evk = ctx.generatePalisadeEvalKey("pubsub", kSubscriber.getPubK(), kPublisher.getPrivK());
 
 		if( evk == null ) {
-			System.out.println("no eval key?");
+			System.out.println("could not create an eval key: " + new String(ctx.getPalisadeErrorDescription()));
 			return;
 		}
 
-		ctx.setPublicKey(kPublisher.getPubK());
-		ctx.setPrivateKey(kPublisher.getPrivK());
+		System.out.println("Setting keys");
+		if( !ctx.setPublicKey(kPublisher.getPubK()) ) {
+			System.out.println("Failed to set public key");
+			return;
+		}
+		if( !ctx.setPrivateKey(kPublisher.getPrivK()) ) {
+			System.out.println("Failed to set private key");
+			return;
+		}
 		
+		System.out.println("Encrypting...");
 		byte[] enc1 = ctx.encrypt("try", cleartext.getBytes("UTF-8"));
+		
+		if( enc1 == null ) {
+			System.out.println("Failed to encrypt: " + new String(ctx.getPalisadeErrorDescription()));
+			return;
+		}
+		
+		System.out.println("Decrypting...");
 		byte[] dec1 = ctx.decrypt("try", enc1);
+		
+		if( dec1 == null ) {
+			System.out.println("Failed to decrypt");
+			return;
+		}
 		System.out.println( new String(dec1) );
 
 		ctx.setPrivateKey(kSubscriber.getPrivK());
 		ctx.setEvalKey(evk);
 
-		System.out.println("encrypting");
+		System.out.println("Encrypting");
 		byte[] cipher = ctx.encrypt("enc", cleartext.getBytes("UTF-8"));
 		if( cipher != null ) {
 			if( Arrays.equals(enc1, cipher) ) System.out.println("matches!");
 			
-			System.out.println("re encrypting");
+			System.out.println("Re encrypting");
 			byte[] reEnc = ctx.reEncrypt("re", cipher);
 			if( reEnc != null ) {
-				System.out.println("decrypting");
+				System.out.println("Decrypting");
 				byte[] output = ctx.decrypt("de", reEnc);
 
 				if( output != null ) {	

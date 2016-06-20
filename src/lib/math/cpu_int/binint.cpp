@@ -1648,10 +1648,9 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 	for (; counter < m_numDigitInPrintval; counter++) {
 		bbiString += std::to_string(print_VALUE[counter]);
 	}
-std::cout << "bbi to string about to free print_VALUE" << std::endl;
+
 	delete [] print_VALUE;
 	//deallocate the memory since values are inserted into the ostream object
-std::cout << "bbi to string about to free print_obj" << std::endl;
 	//delete print_obj;
 
 	return bbiString;

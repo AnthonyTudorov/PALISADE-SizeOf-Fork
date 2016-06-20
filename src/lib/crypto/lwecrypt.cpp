@@ -219,21 +219,13 @@ bool LPCryptoParametersStehleSteinfeld<Element>::Serialize(Serialized* serObj, c
 		return false;
 
 	Serialized cryptoParamsMap(rapidjson::kObjectType, &serObj->GetAllocator());
-	std::cout << "serialize stst parms before ElemP" << std::endl;
 	cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
-	std::cout << "serialize stst parms before Dist" << std::endl;
 	cryptoParamsMap.AddMember("DistributionParameter", std::to_string(this->GetDistributionParameter()), serObj->GetAllocator());
-	std::cout << "serialize stst parms before Dist stst" << std::endl;
 	cryptoParamsMap.AddMember("DistributionParameterStSt", std::to_string(this->GetDistributionParameterStSt()), serObj->GetAllocator());
-	std::cout << "serialize stst parms before Assur" << std::endl;
 	cryptoParamsMap.AddMember("AssuranceMeasure", std::to_string(this->GetAssuranceMeasure()), serObj->GetAllocator());
-	std::cout << "serialize stst parms before Sec" << std::endl;
 	cryptoParamsMap.AddMember("SecurityLevel", std::to_string(this->GetSecurityLevel()), serObj->GetAllocator());
-	std::cout << "serialize stst parms before Rel" << std::endl;
 	cryptoParamsMap.AddMember("RelinWindow", std::to_string(this->GetRelinWindow()), serObj->GetAllocator());
-	std::cout << "serialize stst parms before depth" << std::endl;
 	cryptoParamsMap.AddMember("Depth", std::to_string(this->GetDepth()), serObj->GetAllocator());
-	std::cout << "serialize stst parms before modulus" << std::endl;
 	cryptoParamsMap.AddMember("PlaintextModulus", this->GetPlaintextModulus().ToString(), serObj->GetAllocator());
 
 	serObj->AddMember("LPCryptoParametersStehleSteinfeld", cryptoParamsMap, serObj->GetAllocator());
@@ -405,26 +397,19 @@ template <class Element>
 bool LPPublicKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
 
 	serObj->SetObject();
-std::cout << "serialize public 1:" << fileFlag << std::endl;
 
 	if( !this->GetCryptoParameters().Serialize(serObj, "") ) {
-		std::cout << "serialize public 1.75" << std::endl;
 		return false;
 	}
-	std::cout << "serialize public 2" << std::endl;
 
 	const Element& pe = this->GetPublicElement();
-	std::cout << "serialize public 3" << std::endl;
 
 	if( !pe.Serialize(serObj, "") ) {
-		std::cout << "fail?" << std::endl;
 		return false;
 	}
-	std::cout << "serialize public 4" << std::endl;
 
 	if( !this->SetIdFlag(serObj, fileFlag) )
 		return false;
-	std::cout << "serialize public 5" << std::endl;
 
 	return true;
 }

@@ -54,17 +54,11 @@ namespace lbcrypto {
 				return false;
 
 			SerialItem ser(rapidjson::kObjectType);
-			std::cout << "before mod in ILP" << std::endl;
 			ser.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
-			std::cout << "before ord in ILP" << std::endl;
 			ser.AddMember("Order", std::to_string(this->GetCyclotomicOrder()), serObj->GetAllocator());
-			std::cout << "before ru in ILP " << std::endl;
 			ser.AddMember("RootOfUnity", this->GetRootOfUnity().ToString(), serObj->GetAllocator());
-			std::cout << "after ru in ILP " << std::endl;
 
 			serObj->AddMember("ILParams", ser, serObj->GetAllocator());
-
-			std::cout << "after last addmember in ILP " << std::endl;
 
 			return true;
 		}

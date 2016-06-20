@@ -30,6 +30,10 @@ JNIEXPORT jboolean JNICALL Java_com_palisade_PalisadeCrypto_setPrivateKey
 JNIEXPORT jboolean JNICALL Java_com_palisade_PalisadeCrypto_setEvalKey
   (JNIEnv *, jobject thiz, jbyteArray key);
 
+JNIEXPORT jbyteArray Java_com_palisade_PalisadeCrypto_getPalisadeErrorDescription
+  (JNIEnv *, jobject thiz);
+
+
 /*
  * Class:     com_palisade_PalisadeCrypto
  * Method:    encrypt
