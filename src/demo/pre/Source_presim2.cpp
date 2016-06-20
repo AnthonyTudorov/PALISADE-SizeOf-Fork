@@ -1,4 +1,4 @@
-﻿//High-level Execution/Demonstration
+//High-level Execution/Demonstration
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
 Version:
