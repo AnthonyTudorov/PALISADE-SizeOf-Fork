@@ -98,14 +98,13 @@ namespace lbcrypto {
 		*
 		* @param &element ILVectorArray2n to copy from
 		*/
-
 		ILVectorArray2n(const ILVectorArray2n &element);
+
 		/**
 		* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArray2n will be derived from the towers.
 		*
 		* @param &towers vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
 		*/
-
 		ILVectorArray2n(const std::vector<ILVector2n> &towers);
 
 		/**
@@ -115,6 +114,7 @@ namespace lbcrypto {
 		* @param &params parameter set required for ILVectorArray2n.
 		*/
 		ILVectorArray2n(const ILVector2n &element, const ElemParams &params);
+
 		/**
 		* Constructor based a discrete Gaussian generator. T
 		*
@@ -129,7 +129,6 @@ namespace lbcrypto {
 		*
 		* @param &&element ILVectorArray2n to move from
 		*/
-
 		ILVectorArray2n(const ILVectorArray2n &&element);
 
 		// DESTRUCTORS
@@ -190,7 +189,6 @@ namespace lbcrypto {
 		*
 		* @return the parameter set non-const.
 		*/
-
 		ElemParams& AccessParams();
 
 		//SETTERS
@@ -217,6 +215,9 @@ namespace lbcrypto {
 		* @return the resulting ILVectorArray2n.
 		*/
 		const ILVectorArray2n& operator=(const ILVectorArray2n &rhs);
+
+		ILVectorArray2n& operator=(std::initializer_list<sint> rhs);
+
 		/**
 		* Equal operator.
 		*
@@ -224,6 +225,7 @@ namespace lbcrypto {
 		* @return true if this ILVectorArray2n represents the same values as the specified ILVectorArray2n, false otherwise
 		*/
 		bool operator==(const ILVectorArray2n &rhs) const;
+
 		/**
 		* Not equal operator compares this ILVectorArray2n to the specified ILVectorArray2n
 		*
@@ -231,6 +233,7 @@ namespace lbcrypto {
 		* @return true if this ILVectorArray2n represents the same values as the specified ILVectorArray2n, false otherwise
 		*/
         bool operator!=(const ILVectorArray2n &rhs) const;
+
 		/**
 		* Performs an entry-wise addition over all elements of each tower with the towers of the ILVectorArray2n on the right hand side.
 		*
@@ -238,6 +241,7 @@ namespace lbcrypto {
 		* @return is the result of the addition.
 		*/
 		const ILVectorArray2n& operator+=(const ILVectorArray2n &rhs);
+
 		/**
 		* Performs an entry-wise subtraction over all elements of each tower with the towers of the ILVectorArray2n on the right hand side.
 		*
@@ -245,6 +249,7 @@ namespace lbcrypto {
 		* @return is the result of the addition.
 		*/
 		const ILVectorArray2n& operator-=(const ILVectorArray2n &rhs);
+
 		// automorphism operation
 		/**
 		* Permutes coefficients in a polynomial. Moves the ith index to the first one, it only supports odd indices. 
@@ -253,6 +258,7 @@ namespace lbcrypto {
 		* @return is the result of the automorphism transform.
 		*/
 		ILVectorArray2n AutomorphismTransform(const usint &i) const {return ILVectorArray2n(*this);};
+
 		//addition operation
 		/**
 		* Performs an addition operation and returns the result.
@@ -270,6 +276,7 @@ namespace lbcrypto {
 		* @return is the result of the multiplication.
 		*/
 		ILVectorArray2n Times(const ILVectorArray2n &element) const;
+
 		// subtraction operation
 		/**
 		* Performs a subtraction operation and returns the result.
@@ -356,6 +363,7 @@ namespace lbcrypto {
 		* Adds BigBinaryInteger "1" to every entry in every tower.
 		*/
 		void AddILElementOne();
+
 		/**
 		* Make ILVectorArray2n Sparse. Sets every index of each tower not equal to zero mod the wFactor to zero.
 		*
@@ -367,24 +375,28 @@ namespace lbcrypto {
 		* Performs ILVector2n::Decompose on each tower and adjusts the ILVectorArray2n.m_parameters accordingly. This method also reduces the ring dimension by half.
 		*/
 		void Decompose();
+
 		/**
 		* Drops the tower at the index passed to it. The resulting ILVectorArray2n will have one less tower.
 		*
 		* @param index is the index of the tower to be dropped.
 		*/
 		void DropTower(usint index);
+
 		/**
 		* ModReduces reduces the ILVectorArray2n's composite modulus by dropping the last modulus from the chain of moduli as well as dropping the last tower.
 		* 
 		*@param plaintextModulus is the plaintextModulus used for the ILVectorArray2n
 		*/
 		void ModReduce(const BigBinaryInteger &plaintextModulus);
+
 		/**
 		* Interpolates the ILVectorArray2n to an ILVector2n based on the Chinese Remainder Transform Interpolation.
 		*
 		* @return the ILVector2n representation of the ILVectorArray2n.
 		*/
-		ILVector2n InterpolateIlArrayVector2n() const;	
+		ILVector2n InterpolateIlArrayVector2n() const;
+
 		/**
 		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
 		*/
@@ -439,6 +451,7 @@ namespace lbcrypto {
 
 		void SetParamsFromTowers(const std::vector<ILVector2n> &towers);
 	};
+
 	/**
 	* Multiplication operator overload. 
 	*
@@ -498,6 +511,7 @@ namespace lbcrypto {
 	* @return an ILVectorArray2n with the resulting value.
 	*/
 	inline ILVectorArray2n operator+(const BigBinaryInteger &a, const ILVectorArray2n &b) { return b.Plus(a); }
+
 } // namespace lbcrypto ends
 
 #endif

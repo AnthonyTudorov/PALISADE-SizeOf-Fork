@@ -368,6 +368,21 @@ namespace lbcrypto {
 		return *this;
 	}
 
+	ILVectorArray2n& ILVectorArray2n::operator=(std::initializer_list<sint> rhs){
+		usint len = rhs.size();
+		usint vectorLength = this->m_vectors[0].GetLength();
+		for(usint i=0;i<this->GetTowerLength();i++){ // this loops over each tower
+			for(usint j=0; j<vectorLength; j++) { // loops within a tower
+				if(j<len) {
+					this->m_vectors[i].SetValAtIndex(j, *(rhs.begin()+j));
+				} else {
+					this->m_vectors[i].SetValAtIndex(j,0);
+				}
+			}
+		}
+		return *this;
+	}
+
 	/*SCALAR OPERATIONS*/
 
 	ILVectorArray2n ILVectorArray2n::Plus(const BigBinaryInteger &element) const

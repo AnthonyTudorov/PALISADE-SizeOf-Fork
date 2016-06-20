@@ -299,6 +299,15 @@ namespace lbcrypto {
 			virtual void Encrypt(const LPPublicKey<Element> &publicKey, 
 				const PlaintextEncodingInterface &plaintext, 
 				Ciphertext<Element> *ciphertext) const = 0;
+
+			/**
+			 * Method for encrypting plaintex using LBC
+			 *
+			 * @param &publicKey public key used for encryption.
+			 * @param *ciphertext ciphertext which results from encryption.
+			 */
+			virtual void Encrypt(const LPPublicKey<Element> &publicKey, 
+				Ciphertext<Element> *ciphertext) const = 0;
 			
 			/**
 			 * Method for decrypting plaintext using LBC
@@ -350,6 +359,8 @@ namespace lbcrypto {
 			 * @param &cipherText Original ciphertext to perform switching on.
 			 */
 			virtual Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const = 0;
+
+			virtual void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *quadraticKeySwitchHint) const = 0;
 
 			/**
 			 * Method for ModReduce
@@ -626,6 +637,16 @@ namespace lbcrypto {
 			const PlaintextEncodingInterface &plaintext, Ciphertext<Element> *ciphertext) const {
 				if(this->IsEnabled(ENCRYPTION))
 					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext,ciphertext);
+				else {
+					throw std::logic_error("This operation is not supported");
+				}
+		}
+
+		//wrapper for Encrypt method
+		void Encrypt(const LPPublicKey<Element> &publicKey, 
+			Ciphertext<Element> *ciphertext) const {
+				if(this->IsEnabled(ENCRYPTION))
+					return this->m_algorithmEncryption->Encrypt(publicKey, ciphertext);
 				else {
 					throw std::logic_error("This operation is not supported");
 				}

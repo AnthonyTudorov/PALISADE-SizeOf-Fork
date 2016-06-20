@@ -47,6 +47,7 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
 //	Element f(0, dgg,elementParams,Format::COEFFICIENT);
+	// f = privateKey->GetPrivateElement();
 
 	f = p*f;
 
@@ -78,6 +79,7 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 
 	//Element g(3,dgg,elementParams,Format::COEFFICIENT);
 	Element g(dgg,elementParams,Format::COEFFICIENT);
+	// g = publicKey->GetPublicElement();
 
 	g.SwitchFormat();
 
@@ -173,17 +175,16 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 }
 
 /**
-	* Method for KeySwitching based on a KeySwitchHint
-	/**
-	* This function Calculates a  KeySwitchHint. The hint is used to convert a ciphertext encrypted with 
-	* private key A to a ciphertext that is decryptable by the public key of B. 
-	* The algorithm can be found from this paper.
-	* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
-	* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
-	* 
-	* KeySwitchHint 
-	*/
-
+* Method for KeySwitching based on a KeySwitchHint
+*
+* This function Calculates a  KeySwitchHint. The hint is used to convert a ciphertext encrypted with 
+* private key A to a ciphertext that is decryptable by the public key of B. 
+* The algorithm can be found from this paper.
+* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
+* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+* 
+* KeySwitchHint 
+*/
 template<class Element>
 void LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
 				const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const {  
@@ -216,16 +217,16 @@ void LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(const LPPrivateKey<Elem
 }
 			
 /*
-	* Method for KeySwitching based on a KeySwitchHint
-	*
-	* This function performs KeySwitch based on a KeySwitchHint. 
-	* The algorithm can be found from this paper:
-	* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
-	* 
-	*KeySwitch takes in a KeySwitchHint and a cipher text. Based on the two, it calculates and returns a new ciphertext. 
-	* if the KeySwitchHint is constructed for Private Key A converted to Private Key B, then the new ciphertext, originally encrypted with
-	* private key A, is now decryptable by public key B (and not A).
-	*/
+* Method for KeySwitching based on a KeySwitchHint
+*
+* This function performs KeySwitch based on a KeySwitchHint. 
+* The algorithm can be found from this paper:
+* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+* 
+*KeySwitch takes in a KeySwitchHint and a cipher text. Based on the two, it calculates and returns a new ciphertext. 
+* if the KeySwitchHint is constructed for Private Key A converted to Private Key B, then the new ciphertext, originally encrypted with
+* private key A, is now decryptable by public key B (and not A).
+*/
 template<class Element>
 Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint,const Ciphertext<Element> &cipherText) const {
 
@@ -238,52 +239,86 @@ Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPKeySwit
 	return newCipherText ;
 }
 
+template<class Element>
+void LPLeveledSHEAlgorithmLTV<Element>::QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
+	
+	const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *quadraticKeySwitchHint) const {
+
+	const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element> &>(originalPrivateKey.GetCryptoParameters() );
+
+	const ElemParams &originalKeyParams = cryptoParams.GetElementParams() ;
+
+	const Element f1 = originalPrivateKey.GetPrivateElement(); //add const
+
+	const Element f1Squared(f1*f1); //squaring the key
+	const Element f2 = newPrivateKey.GetPrivateElement(); //add const
+	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+
+	Element e(cryptoParams.GetDiscreteGaussianGenerator() , originalKeyParams, Format::COEFFICIENT );
+	e = {1,0};
+	e.SwitchFormat();
+
+	Element m(originalKeyParams);
+	m = p * e;
+	
+	m.AddILElementOne();
+
+	Element newKeyInverse = f2.MultiplicativeInverse(); 
+
+	Element keySwitchHintElement(originalKeyParams);
+
+	keySwitchHintElement = m * f1Squared * newKeyInverse ;
+	// keySwitchHintElement.PrintValues();
+	quadraticKeySwitchHint->SetHintElement(keySwitchHintElement);
+	quadraticKeySwitchHint->SetCryptoParameters(new LPCryptoParametersLTV<Element>(cryptoParams));
+}
+
 /**
-	* Method for ModReducing on any Element datastructure-TODO
-	*
-	* @param &cipherText Ciphertext to perform mod reduce on.
-	* @param &privateKey Private key used to encrypt the first argument.
-	*/
+* Method for ModReducing on any Element datastructure-TODO
+*
+* @param &cipherText Ciphertext to perform mod reduce on.
+* @param &privateKey Private key used to encrypt the first argument.
+*/
 template<class Element>
 void LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const {
 	
 }
 
 /**
-	* This function performs ModReduce on ciphertext element and private key element. The algorithm can be found from this paper:
-	* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
-	* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
-	* 
-	* Modulus reduction reduces a ciphertext from modulus q to a smaller modulus q/qi. The qi is generally the largest. In the code below,
-	* ModReduce is written for ILVectorArray2n and it drops the last tower while updating the necessary parameters. 
-	*/
+* This function performs ModReduce on ciphertext element and private key element. The algorithm can be found from this paper:
+* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
+* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+* 
+* Modulus reduction reduces a ciphertext from modulus q to a smaller modulus q/qi. The qi is generally the largest. In the code below,
+* ModReduce is written for ILVectorArray2n and it drops the last tower while updating the necessary parameters. 
+*/
 template<> inline
 void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(Ciphertext<ILVectorArray2n> *cipherText, LPPrivateKey<ILVectorArray2n> *privateKey) const {
 
 	ILVectorArray2n cipherTextElement(cipherText->GetElement()); 
 
-	BigBinaryInteger plaintext(cipherText->GetCryptoParameters().GetPlaintextModulus());
+	BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters().GetPlaintextModulus());
 
-	cipherTextElement.ModReduce(plaintext); // this is being done at the lattice layer. The ciphertext is mod reduced.
+	cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
 
 	cipherText->SetElement(cipherTextElement);
 	
-	ILVectorArray2n pvElement = privateKey->GetPrivateElement();
+	/*ILVectorArray2n pvElement = privateKey->GetPrivateElement();
 	
 	pvElement.DropTower(pvElement.GetTowerLength() - 1); // The only change needed for the private key, is to drop the last tower.
 
-	privateKey->SetPrivateElement(pvElement); 
+	privateKey->SetPrivateElement(pvElement);*/ 
 
 }
 
-	/**
-	* This function performs RingReduce on ciphertext element and private key element. The algorithm can be found from this paper:
-	* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
-	* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
-	* The paper quoted above has an algorithm for generic RingReduce, the code here only reduces the ring by a factor of 2. By the ring, we mean the ring dimension.
-	* @Input params are cipherText and privateKey, output cipherText element is ring reduced by a factor of 2
-	* 
-	*/
+/**
+* This function performs RingReduce on ciphertext element and private key element. The algorithm can be found from this paper:
+* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
+* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+* The paper quoted above has an algorithm for generic RingReduce, the code here only reduces the ring by a factor of 2. By the ring, we mean the ring dimension.
+* @Input params are cipherText and privateKey, output cipherText element is ring reduced by a factor of 2
+* 
+*/
 template<class Element>
 void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const {
 		
@@ -359,11 +394,59 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	const Element &h = publicKey.GetPublicElement();
 	
 	Element s(dgg,elementParams);
-	Element e(dgg,elementParams);	
+	Element e(dgg,elementParams);
 
 	Element c(elementParams);
 
 	c = h*s + p*e + m;
+	
+	ciphertext->SetCryptoParameters(cryptoParams);
+	ciphertext->SetPublicKey(publicKey);
+	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
+	ciphertext->SetElement(c);
+
+}
+
+template <class Element>
+void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey, 
+				Ciphertext<Element> *ciphertext) const
+{
+
+	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
+	const ElemParams &elementParams = cryptoParams.GetElementParams();
+	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
+
+	Element m(elementParams);
+//	Element m(4,dgg,elementParams, Format::COEFFICIENT);
+	
+	m = ciphertext->GetElement();
+	// m.PrintValues();
+	m.SwitchFormat();
+	
+	const Element &h = publicKey.GetPublicElement();
+	
+	Element s(dgg,elementParams);
+	Element e(dgg,elementParams);
+
+	/*e.SwitchFormat();
+	std::cout << "Printing e values: " << std::endl;
+	e.PrintValues();
+	std::cout << "End Printing e values: " << std::endl;
+	e.SwitchFormat();
+
+	s.SwitchFormat();
+	std::cout << "Printing s values: " << std::endl;
+	std::cout << s.GetFormat() << std::endl;
+	s.PrintValues();
+	std::cout << "End Printing s values: " << std::endl;
+	s.SwitchFormat();*/
+
+	Element c(elementParams);
+
+	c = h*s + p*e + m;
+
+	//c = m;
 	
 	ciphertext->SetCryptoParameters(cryptoParams);
 	ciphertext->SetPublicKey(publicKey);
@@ -396,9 +479,14 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 
 	b.SwitchFormat();
 
+	// std::cout << "Printing before b.Mod p: " << std::endl;
+	// b.PrintValues();
 	b = b.Mod(p);
 
-	plaintext->Decode(p,b);
+	std::cout << "Printing Decrypted values: " << std::endl;
+	b.PrintValues();
+
+	// plaintext->Decode(p,b);
 	
 	return DecodingResult(plaintext->GetLength());
 }

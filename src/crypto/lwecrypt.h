@@ -752,6 +752,15 @@ namespace lbcrypto {
 			void Encrypt(const LPPublicKey<Element> &publicKey, 
 				const PlaintextEncodingInterface &plaintext, 
 				Ciphertext<Element> *ciphertext) const;
+
+			/**
+			 * Method for encrypting numeric values using Ring-LWE NTRU
+			 *
+			 * @param &publicKey public key used for encryption.
+			 * @param *ciphertext ciphertext which results from encryption.
+			 */
+			void Encrypt(const LPPublicKey<Element> &publicKey, 
+				Ciphertext<Element> *ciphertext) const;
 			
 			/**
 			 * Method for decrypting plaintext using Ring-LWE NTRU
@@ -821,14 +830,17 @@ namespace lbcrypto {
 			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
 			 * @param &cipherText Original ciphertext to perform switching on.
 			 */
-			virtual Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint,const  Ciphertext<Element> &cipherText) const ;
+			virtual Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint,const  Ciphertext<Element> &cipherText) const;
+
+			virtual void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *quadraticKeySwitchHint) const;
+			
 			/**
 			 * Method for ModReducing CipherText and the Private Key used for encryption.
 			 *
 			 * @param *cipherText Ciphertext to perform and apply modreduce on.
 			 * @param *privateKey Private key to peform and apply modreduce on.
 			 */
-			virtual void ModReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const ; 
+			virtual void ModReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const; 
 			/**
 			 * Method for RingReducing CipherText and the Private Key used for encryption.
 			 *
