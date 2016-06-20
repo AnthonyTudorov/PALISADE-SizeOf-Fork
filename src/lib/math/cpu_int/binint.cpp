@@ -85,6 +85,12 @@ const usint BigBinaryInteger<uint_type,BITLENGTH>::m_nSize = BITLENGTH%m_uintBit
 template<typename uint_type,usint BITLENGTH>
 const uint_type BigBinaryInteger<uint_type,BITLENGTH>::m_uintMax = std::numeric_limits<uint_type>::max();
 
+// DTS:
+// this seems to be the traditional "round up to the next power of two" function, except that ceilIntByUInt(0) == 1
+//
+// ((number+(1<<m_uintBitLength)-1)>>m_uintBitLength);
+// where m_uintBitLength = 8*sizeof(uint_type)
+//
 //optimized ceiling function after division by number of bits in the interal data type.
 template<typename uint_type,usint BITLENGTH>
 uint_type BigBinaryInteger<uint_type,BITLENGTH>::ceilIntByUInt(const uint_type Number){
@@ -93,7 +99,6 @@ uint_type BigBinaryInteger<uint_type,BITLENGTH>::ceilIntByUInt(const uint_type N
 
 	if(!Number)
 		return 1;
-
 	if((Number&mask)!=0)
 		return (Number>>m_logUintBitLength)+1;
 	else
@@ -154,7 +159,7 @@ template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(BigBinaryInteger &&bigInteger){
 	//copy MSB
 	m_MSB = bigInteger.m_MSB;
-	//copy value
+	//copy array values
 	for (size_t i=0; i < m_nSize; ++i) {
 		m_value[i] = bigInteger.m_value[i];
 	}
@@ -254,7 +259,8 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 		uint_type oFlow = 0;
 		Duint_type temp = 0;
 		sint i;
-		for(i=m_nSize-1;i>=endVal;i--){
+		// DTS- BUG FIX!!!!! (signed < unsigned(0) is always true)
+		for(i=m_nSize-1;i>=static_cast<sint>(endVal);i--){
 			temp = ans.m_value[i];
 			temp <<=remShift;
 			ans.m_value[i] = (uint_type)temp + oFlow;
@@ -315,7 +321,8 @@ const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENG
 		uint_type oFlow = 0;
 		Duint_type temp = 0;
 		sint i ;
-		for(i= m_nSize-1; i>= endVal ; i-- ){
+		// DTS- BUG FIX!!!!! (endVal may be computed <0)
+		for(i=m_nSize-1; i>= static_cast<sint>(endVal); i--){
 			temp = this->m_value[i];
 			temp <<= remShift;
 			this->m_value[i] = (uint_type)temp + oFlow;
@@ -375,7 +382,7 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 		usint endVal= m_nSize-ceilIntByUInt(ans.m_MSB);
 		usint j= endVal;
 		//array shifting operation
-		for(sint i= m_nSize-1-shiftByUint;i>=endVal;i--){
+		for(sint i= m_nSize-1-shiftByUint;i>=static_cast<sint>(endVal);i--){
 			ans.m_value[i+shiftByUint] = ans.m_value[i];
 		}
 		//msb adjusted to show the shifts
@@ -449,7 +456,8 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 		usint endVal= m_nSize-ceilIntByUInt(this->m_MSB);
 		usint j= endVal;
 		
-		for(sint i= m_nSize-1-shiftByUint;i>=endVal;i--){
+                // DTS: watch sign/unsign compare!!!!
+		for(sint i= m_nSize-1-shiftByUint;i>=static_cast<sint>(endVal);i--){
 			this->m_value[i+shiftByUint] = this->m_value[i];
 		}
 		//adjust shift to reflect left shifting 
@@ -548,6 +556,12 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Plu
 	//position from B to start addition
 	uint_type ceilIntB = ceilIntByUInt(B->m_MSB);
 	sint i;//counter
+        // DTS: TODO: verify that the sign/unsigned compare is valid here. it seems to have the same form as the bugs fixed above, but i did not observe any crashes in this function (perhaps it was never exercised)
+        // a safer alternative would be something like what follows (the loops i fixed above could use the same structure; note all variables become unsigned and all loop indices start from zero):
+        // for (usint j = 0; j < m_nSize - CeilIntB /*&& j < m_nSize*/; ++j) {
+        //    usint i = m_nSize - 1 -j ;
+        //    ...
+        // }
 	for(i=m_nSize-1;i>=m_nSize-ceilIntB;i--){
 		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two int and the carry over
 		result.m_value[i] = (uint_type)ofl;
@@ -597,8 +611,10 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Min
 	if(!(*this>b))
 		return std::move(BigBinaryInteger(ZERO));
 
+        // DTS: note: these variables are confusing. if you look close you will find (a) they are only inside the inner if block (cntr=0 is superfluous); (b) current simply equals i (neither changes after the current=i assignment); and (c) the while loop needs to check cntr >= 0 (when m_value[] == 0...)
 	int cntr=0,current=0;
 	
+        // DTS: (see Plus(), above) this function uses [signed] int for endValA and endValB, unlike all the similar loops in the previous functions. (why does this combine int and sint? sure, all the values should be small, )
 	BigBinaryInteger result(*this);
 	//array position in A to end substraction
 	int endValA = m_nSize-ceilIntByUInt(this->m_MSB);
@@ -611,9 +627,11 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Min
 			current=i;
 			cntr = current-1;
 			//assigning carryover value
-			while(result.m_value[cntr]==0){
+			// DTS: added check against cntr being < 0 (I think)
+			while(cntr>=0 && result.m_value[cntr]==0){
 				result.m_value[cntr]=m_uintMax;cntr--;
 			}
+			// DTS: probably need to check cntr >= 0 here, too
 			result.m_value[cntr]--;
 			result.m_value[i]=result.m_value[i]+m_uintMax+1- b.m_value[i];		
 		}
@@ -698,6 +716,7 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 
 	//counter
 	sint i;
+        // DTS: watch sign/unsign compare!!!!
 	for(i=m_nSize-1;i>=m_nSize-ceilIntB;i--){
 		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two apint and the carry over
 		this->m_value[i] = (uint_type)ofl;
@@ -705,7 +724,8 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 	}
 
 	if(ofl){
-		for(;i>=m_nSize-ceilIntA;i--){
+		// DTS: watch sign/unsign compare!!!!
+		for(;i>=static_cast<sint>(m_nSize-ceilIntA);i--){
 			ofl = (Duint_type)A->m_value[i]+ofl;//sum of the two int and the carry over
 			this->m_value[i] = (uint_type)ofl;
 			ofl>>=m_uintBitLength;//current overflow
@@ -721,7 +741,8 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 		}
 	}
 	else{
-		for(;i>=m_nSize-ceilIntA;i--){//NChar-ceil(MSB/8)
+		// DTS: watch sign/unsign compare!!!!
+		for(;i>=static_cast<sint>(m_nSize-ceilIntA);i--){//NChar-ceil(MSB/8)
 			this->m_value[i] = A->m_value[i];
 		}
 		this->m_MSB = (m_nSize-i-2)*m_uintBitLength;
@@ -757,7 +778,8 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 		if(this->m_value[i]<b.m_value[i]){
 			current=i;
 			cntr = current-1;
-			while(this->m_value[cntr]==0){
+			// DTS: added cntr >= 0 (see above; probably also need check cntr>=0 before "this->m_value[cntr]--")
+			while(cntr>=0 && this->m_value[cntr]==0){
 				this->m_value[cntr]=m_uintMax;cntr--;
 			}
 			this->m_value[cntr]--;
