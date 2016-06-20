@@ -561,7 +561,6 @@ namespace lbcrypto {
 
 		//step 4
 		this->DropTower(lastTowerIndex);
-
 		std::vector<BigBinaryInteger> qtInverseModQi(length-1);
 		for(usint i=0; i<length-1; i++) {
 			qtInverseModQi[i] =  qt > moduli[i] ? qt.Mod(moduli[i]).ModInverse(moduli[i]) : qt.ModInverse(moduli[i]);
