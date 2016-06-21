@@ -975,7 +975,7 @@ void BigBinaryInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 	//cnt8 is a pointer to the bit position in bitArr, when bitArr is compelete it is ready to be transfered to Value
 	while(zptr!=arrSize){
 		bitArr[cnt]=DecValue[arrSize-1]%2;
-	    //start divide by 2 in the DecValue array
+		//start divide by 2 in the DecValue array
 		for(sint i=zptr;i<arrSize-1;i++){
 			DecValue[i+1]= (DecValue[i]%2)*10 + DecValue[i+1];
 			DecValue[i]>>=1;
@@ -983,17 +983,17 @@ void BigBinaryInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 		DecValue[arrSize-1]>>=1;
 		//division ends here
 #ifdef DEBUG
-	for(int i=zptr;i<arrSize;i++)
-		cout<<(short)DecValue[i];//for debug purpose
-	cout<<endl;
+		for(int i=zptr;i<arrSize;i++)
+			cout<<(short)DecValue[i];//for debug purpose
+		cout<<endl;
 #endif
-	cnt--;
-	if(cnt==-1){//cnt = -1 indicates bitArr is ready for transfer
-		cnt=m_uintBitLength-1;
-		m_value[bitValPtr--]= UintInBinaryToDecimal(bitArr);//UintInBinaryToDecimal converts bitArr to decimal and resets the content of bitArr.
-	}
-	if(DecValue[zptr]==0)zptr++;//division makes Most significant digit zero, hence we increment zptr to next value
-	if(zptr==arrSize&&DecValue[arrSize-1]==0)m_value[bitValPtr]=UintInBinaryToDecimal(bitArr);//Value assignment
+		cnt--;
+		if(cnt==-1){//cnt = -1 indicates bitArr is ready for transfer
+			cnt=m_uintBitLength-1;
+			m_value[bitValPtr--]= UintInBinaryToDecimal(bitArr);//UintInBinaryToDecimal converts bitArr to decimal and resets the content of bitArr.
+		}
+		if(DecValue[zptr]==0)zptr++;//division makes Most significant digit zero, hence we increment zptr to next value
+		if(zptr==arrSize&&DecValue[arrSize-1]==0)m_value[bitValPtr]=UintInBinaryToDecimal(bitArr);//Value assignment
 	}
 	SetMSB(bitValPtr);
 	delete []bitArr;

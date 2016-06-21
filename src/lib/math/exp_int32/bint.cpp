@@ -46,130 +46,166 @@
 
 #include "bint.h"
 
+#include <iostream>
+#include <fstream>
+#include "time.h"
+#include <chrono>
+
+#include "../../utils/debug.h"//todo: should be in debug.h
 
 namespace exp_int32 {
 
-  //constant static member variable initialization of 0
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ZERO = bint(0);
+//constant static member variable initialization of 0
+template<typename limb_t,usint BITLENGTH>
+const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ZERO = bint(0);
 
-  //constant static member variable initialization of 1
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ONE = bint(1);
+//constant static member variable initialization of 1
+template<typename limb_t,usint BITLENGTH>
+const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ONE = bint(1);
 
-  //constant static member variable initialization of 2
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::TWO = bint(2);
+//constant static member variable initialization of 2
+template<typename limb_t,usint BITLENGTH>
+const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::TWO = bint(2);
 
-  //constant static member variable initialization of 3
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::THREE = bint(3);
+//constant static member variable initialization of 3
+template<typename limb_t,usint BITLENGTH>
+const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::THREE = bint(3);
 
-  //constant static member variable initialization of 4
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::FOUR = bint(4);
+//constant static member variable initialization of 4
+template<typename limb_t,usint BITLENGTH>
+const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::FOUR = bint(4);
 
-  //constant static member variable initialization of 5
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::FIVE = bint(5);
+//constant static member variable initialization of 5
+template<typename limb_t,usint BITLENGTH>
+const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::FIVE = bint(5);
 
-  //MOST REQUIRED STATIC CONSTANTS INITIALIZATION
+//MOST REQUIRED STATIC CONSTANTS INITIALIZATION
 
-  //constant static member variable initialization of m_uintBitLength which is equal to number of bits in the unit data type
-  //permitted values: 8,16,32
-  template<typename limb_t,usint BITLENGTH>
-  //const uschar bint<limb_t,BITLENGTH>::m_uintBitLength = UIntBitWidth<limb_t>::value;
-  const uschar bint<limb_t,BITLENGTH>::m_limbBitLength = sizeof(limb_t)*8;
+//constant static member variable initialization of m_uintBitLength which is equal to number of bits in the unit data type
+//permitted values: 8,16,32
+template<typename limb_t,usint BITLENGTH>
+//const uschar bint<limb_t,BITLENGTH>::m_uintBitLength = UIntBitWidth<limb_t>::value;
+const usint bint<limb_t,BITLENGTH>::m_limbBitLength = sizeof(limb_t)*8;
 
-  template<typename limb_t,usint BITLENGTH>
-  const usint bint<limb_t,BITLENGTH>::m_numDigitInPrintval = BITLENGTH/exp_int32::LOG2_10;
+template<typename limb_t,usint BITLENGTH>
+const usint bint<limb_t,BITLENGTH>::m_numDigitInPrintval = BITLENGTH/exp_int32::LOG2_10;
 
-  //constant static member variable initialization of m_logUintBitLength which is equal to log of number of bits in the unit data type
-  //permitted values: 3,4,5
-  template<typename limb_t,usint BITLENGTH>
-  //const uschar bint<limb_t,BITLENGTH>::m_log2LimbBitLength = LogDtype<limb_t>::value;
-  const uschar bint<limb_t,BITLENGTH>::m_log2LimbBitLength = Log2<m_limbBitLength>::value;
+//constant static member variable initialization of m_logUintBitLength which is equal to log of number of bits in the unit data type
+//permitted values: 3,4,5
+template<typename limb_t,usint BITLENGTH>
+//const uschar bint<limb_t,BITLENGTH>::m_log2LimbBitLength = LogDtype<limb_t>::value;
+const usint bint<limb_t,BITLENGTH>::m_log2LimbBitLength = Log2<m_limbBitLength>::value;
 
-  //constant static member variable initialization of m_nSize which is size of the array of unit data type
-  //template<typename limb_t,usint BITLENGTH>
-  //const usint bint<limb_t,BITLENGTH>::m_nSize = BITLENGTH%m_limbBitLength==0 ? BITLENGTH/m_limbBitLength : BITLENGTH/m_limbBitLength + 1;
+//constant static member variable initialization of m_nSize which is size of the array of unit data type
+//template<typename limb_t,usint BITLENGTH>
+//const usint bint<limb_t,BITLENGTH>::m_nSize = BITLENGTH%m_limbBitLength==0 ? BITLENGTH/m_limbBitLength : BITLENGTH/m_limbBitLength + 1;
 
-  //constant static member variable initialization of m_uintMax which is maximum value of unit data type
-  template<typename limb_t,usint BITLENGTH>
-  const limb_t bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max();
-
+//constant static member variable initialization of m_uintMax which is maximum value of unit data type
+template<typename limb_t,usint BITLENGTH>
+const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max();
+  
   //optimized ceiling function after division by number of bits in the limb data type.
   template<typename limb_t,usint BITLENGTH>
-  limb_t bint<limb_t,BITLENGTH>::ceilIntByUInt(const limb_t Number){
+  usint bint<limb_t,BITLENGTH>::ceilIntByUInt(const limb_t Number){
     //mask to perform bitwise AND
     static limb_t mask = m_limbBitLength-1;
-
+    
     if(!Number)
       return 1;
-
+    
     if((Number&mask)!=0)
       return (Number>>m_log2LimbBitLength)+1;
     else
       return Number>>m_log2LimbBitLength;
   }
-
+  
   //CONSTRUCTORS
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>::bint()
   {
-	  //last first limb set to 0
+	bool dbg_flag = 1;		// if true then print dbg output
+
+    DEBUG("ctor()");
+    DEBUG( "maxlimb "<<m_MaxLimb);
+
+    DEBUG( "initial size "<< m_value.size());
+    //last first limb set to 0
+    this->m_value.reserve(1);
     this->m_value[0] = 0;
     //MSB set to zero since value set to ZERO
     this->m_MSB = 0;
     m_state = INITIALIZED;
+    DEBUG("size now "<<m_value.size());
+    DEBUG("final msb ="<<this->m_MSB);
   }
-
+  
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>::bint(usint init){
+	    bool dbg_flag = 1;		// if true then print dbg output
 
-	  //setting the MSB
-	  usint msb = GetMSB32(init);
+    //setting the MSB
+    usint msb = 0;
+    
+    msb = GetMSB32(init);
+    DEBUG("ctor("<<init<<")");
+    DEBUG( "msb " <<msb);
+    DEBUG( "maxlimb "<<m_MaxLimb);
 
-	  if (init <= m_MaxLimb) {
-		  //init fits in first limb entry
-		  m_value[0] = (limb_t)init;
-	  } else {
-		  limb_t ceilInt = ceilIntByUInt(msb);
-		  //setting the values of the array
-		  for(usint i= 0;i<ceilInt;++i){
-			  this->m_value[i] = (limb_t)init;
-			  init>>=m_limbBitLength;
-		  }
-		  std::cout << "in ctor("init<<") ceilIntByUInt ="<<ceilInt<<std::endl;
-	  }
-	  this->m_MSB = msb;
-	  m_state = INITIALIZED;
+    DEBUG( "initial size "<< m_value.size());
+    
+    if (init <= m_MaxLimb) {
+      //init fits in first limb entry
+      m_value.push_back((limb_t)init);
+      DEBUG("single limb size now "<<m_value.size());
+    } else {
+      usint ceilInt = ceilIntByUInt(msb);
+      //setting the values of the array
+      this->m_value.reserve(ceilInt);
+      for(usint i= 0;i<ceilInt;++i){
+	this->m_value[i] = (limb_t)init;
+	init>>=m_limbBitLength;
+      }
+      DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
+    }
+    this->m_MSB = msb;
+    m_state = INITIALIZED;
+    
+    DEBUG("final msb ="<<msb);
   }
-
+  
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>::bint(const std::string& str){
+	    bool dbg_flag = 1;		// if true then print dbg output
+
+    DEBUG("ctor(str "<<str<<")");
     //memory allocation step
     //m_value = new limb_t[m_nSize]; //todosmartpointer
     //setting the array values from the string
+
     AssignVal(str);
     //state set
     m_state = INITIALIZED;
-
+  	DEBUG("final msb ="<<this->m_MSB);
   }
-
+  
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>::bint(const bint& rhs){
+	  bool dbg_flag = 1;		// if true then print dbg output
+
+	  DEBUG("ctor(bint)");
+
     //memory allocation step
     //m_value = new limb_t[m_nSize];  //todo smartpointer
-    m_MSB=rhs.m_MSB; //copy MSB
+    this->m_MSB=rhs.m_MSB; //copy MSB
     limb_t  tempChar = ceilIntByUInt(rhs.m_MSB);
     //copy array values
-
-    for(int i=0;i<tempChar;i++){//copy array value
-      m_value[i]=rhs.m_value[i];
-    }
+    this->m_value = rhs.m_value;
+    //for(int i=0;i<tempChar;i++){//copy array value
+    //  m_value[i]=rhs.m_value[i];
+    //}
     //set state
     m_state = INITIALIZED;
+  	DEBUG("final msb ="<<this->m_MSB);
   }
 
   template<typename limb_t,usint BITLENGTH>
@@ -192,7 +228,7 @@ namespace exp_int32 {
   bint<limb_t,BITLENGTH>::~bint()
   {	
     //memory deallocation
-	  vector<limb_t>().swap(m_value); //clear with reallocation
+    vector<limb_t>().swap(m_value); //clear with reallocation
   }
 
   /**
@@ -203,22 +239,22 @@ namespace exp_int32 {
    */
   template<typename limb_t, usint BITLENGTH>
   usint bint<limb_t, BITLENGTH>::ConvertToUsint() const{
-	  usint result;
-	  if (sizeof(limb_t)>=sizeof(usint)){
-		  result = m_value[0];
-		  return result;
-	  } else {
-		  //Case where limb_t is less bits than usint
-		  //set num to number of equisized chunks
-		  //usint num = (8*sizeof(usint)) / m_limbBitLength;
+    usint result;
+    if (sizeof(limb_t)>=sizeof(usint)){
+      result = m_value[0];
+      return result;
+    } else {
+      //Case where limb_t is less bits than usint
+      //set num to number of equisized chunks
+      //usint num = (8*sizeof(usint)) / m_limbBitLength;
 
-		  usint ceilInt = ceilIntByUInt(m_MSB);
-		  //copy the values by shift and add
-		  for (usint i = 0; i < ceilInt; i++){
-			  result += (this->m_value[i] << (m_limbBitLength*i));
-		  }
-		  return result;
-	  }
+      usint ceilInt = ceilIntByUInt(m_MSB);
+      //copy the values by shift and add
+      for (usint i = 0; i < ceilInt; i++){
+	result += (this->m_value[i] << (m_limbBitLength*i));
+      }
+      return result;
+    }
   }
   // the following conversions all throw 
   //Converts the bint to uint32_t using the std library functions.
@@ -253,7 +289,7 @@ namespace exp_int32 {
 
   template<typename limb_t,usint BITLENGTH>
   const bint<limb_t,BITLENGTH>&  bint<limb_t,BITLENGTH>::operator=(const bint &rhs){
-	if(this!=&rhs){
+    if(this!=&rhs){
       this->m_MSB=rhs.m_MSB;
       this->m_state = rhs.m_state;
       //copy vector
@@ -269,7 +305,7 @@ namespace exp_int32 {
       this->m_MSB = rhs.m_MSB;
       this->m_state = rhs.m_state;
       this->m_value = rhs.m_value;
-	  vector<limb_t>().swap(rhs.m_value); //clear with reallocation
+      vector<limb_t>().swap(rhs.m_value); //clear with reallocation
     }
     return *this;
   }
@@ -283,55 +319,57 @@ namespace exp_int32 {
    */
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>  bint<limb_t,BITLENGTH>::operator<<(usshort shift) const{
-	  if(m_state==State::GARBAGE)
-		  throw std::logic_error("Value not initialized");
-	  if(this->m_MSB==0)
-		  return bint(ZERO);
+    if(m_state==State::GARBAGE)
+      throw std::logic_error("Value not initialized");
+    if(this->m_MSB==0)
+      return bint(ZERO);
 
-	  bint ans(*this);
-	  //check for OVERFLOW
-	  if((ans.m_MSB+shift) > BITLENGTH )
-		  throw std::logic_error("OVERFLOW \n");
+    bint ans(*this);
+    //check for OVERFLOW
+    if((ans.m_MSB+shift) > BITLENGTH )
+      throw std::logic_error("OVERFLOW \n");
 
-	  //compute the number of whole limb shifts
-	  usint shiftByLimb = shift>>m_log2LimbBitLength;
-	  //compute the remaining number of bits to shift
-	  usshort remainingShift = (shift&(m_limbBitLength-1));
+    //compute the number of whole limb shifts
+    usint shiftByLimb = shift>>m_log2LimbBitLength;
+    //compute the remaining number of bits to shift
+    usshort remainingShift = (shift&(m_limbBitLength-1));
 
-	  //first shift by the # remainingShift bits
-	  if(remainingShift!=0){
-		  limb_t oFlow = 0;
-		  Dlimb_t temp = 0;
-		  sint i;
+    //first shift by the # remainingShift bits
+    if(remainingShift!=0){
+      limb_t oFlow = 0;
+      Dlimb_t temp = 0;
+      sint i;
 
-		  for(i=0; i<ceilIntByUInt(m_MSB); ++i){
-			  temp = ans.m_value[i];
-			  temp <<=remainingShift;
-			  ans.m_value[i] = (limb_t)temp + oFlow;
-			  oFlow = temp >> m_limbBitLength;
-		  }
+      for(i=0; i<ceilIntByUInt(m_MSB); ++i){
+	temp = ans.m_value[i];
+	temp <<=remainingShift;
+	ans.m_value[i] = (limb_t)temp + oFlow;
+	oFlow = temp >> m_limbBitLength;
+      }
 
-		  if(i>-1)
-			  ans.m_value[i] = oFlow;
+      if(i>-1)
+	ans.m_value[i] = oFlow;
 
-		  ans.m_MSB += remainingShift;
+      ans.m_MSB += remainingShift;
 
-	  }
+    }
 
-	  if(shiftByLimb!=0){
-		  //todo could be ceilIntbyUint
-          for(vector<limb_t>::reverse_iterator i =  ans.m_value.rbegin(); i!= ans.m_value.rend(); ++i){
-			  ans.m_value[i+shiftByLimb] = ans.m_value[i];
-		  }
-		  //zero out lower "shifted in" limbs
-		  usint j;
-		  for(vector<limb_t>::reverse_iterator j = shiftByLimb; j!= ans.m_value.rend(); ++j){
-			  ans.m_value[j] = 0;
-		  }
-	  }
+    if(shiftByLimb!=0){
+      //todo could be ceilIntbyUint
+      for(auto  iter =  ans.m_value.rbegin(); iter!= ans.m_value.rend(); ++iter){
+	//ans.m_value[iter+shiftByLimb] = ans.m_value[iter];
+	*(iter+shiftByLimb) = *iter;
+      }
 
-	  ans.m_MSB += shiftByLimb*m_limbBitLength;
-	  return ans;
+      //zero out lower "shifted in" limbs
+      //usint j;
+      for(auto iter = ans.m_value.rbegin()+shiftByLimb; iter!= ans.m_value.rend(); ++iter){
+	*iter = 0;
+      }
+    }
+
+    ans.m_MSB += shiftByLimb*m_limbBitLength;
+    return ans;
 
   }
 
@@ -364,64 +402,66 @@ namespace exp_int32 {
    */
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>  bint<limb_t,BITLENGTH>::operator>>(usshort shift) const{
-	  //garbage check
-	  if(m_state==State::GARBAGE)
-		  throw std::logic_error("Value not initialized");
+    //garbage check
+    if(m_state==State::GARBAGE)
+      throw std::logic_error("Value not initialized");
 
-	  //trivial cases
-	  if(this->m_MSB==0 || this->m_MSB <= shift)
-		  return bint(0);
+    //trivial cases
+    if(this->m_MSB==0 || this->m_MSB <= shift)
+      return bint(0);
 
 
-	  bint ans(*this);
-	  //no of array shifts
-	  usint shiftByLimb = shift>>m_log2LimbBitLength;
-	  //no of bit shifts
-	  limb_t remainingShift = (shift&(m_limbBitLength-1));
+    bint ans(*this);
+    //no of array shifts
+    usint shiftByLimb = shift>>m_log2LimbBitLength;
+    //no of bit shifts
+    limb_t remainingShift = (shift&(m_limbBitLength-1));
 
-	  //first shift by the number of whole limb shifts
-	  if(shiftByLimb!=0){
-		  //todo could be ceilIntbyUint
-		  for(vector<limb_t>::iterator i =  shiftByLimb; i  != ans.m_value.end();++i){
-			  ans.m_value[i-shiftByLimb] = ans.m_value[i];
-		  }
-		  //zero out upper  "shifted in" limbs
-		  usint j;
-		  for(vector<limb_t>::iterator j = ans.m_value.end() - shiftByLimb; j!= ans.m_value.end(); ++j){
-			  ans.m_value[j] = 0;	//todo should this instead just be deleted?
-		  }
+    //first shift by the number of whole limb shifts
+    if(shiftByLimb!=0){
+      //todo could be ceilIntbyUint
+      for(auto i =  ans.m_value.begin()+shiftByLimb; i  != ans.m_value.end();++i){
+	//ans.m_value[i-shiftByLimb] = ans.m_value[i];
+	*(i-shiftByLimb) = *i;
+      }
+      //zero out upper  "shifted in" limbs
+      usint j;
+      for(auto j = ans.m_value.end() - shiftByLimb; j!= ans.m_value.end(); ++j){
+	//ans.m_value[j] = 0;	//todo should this instead just be deleted?
+	*j = 0;
+      }
 
-		  //msb adjusted to show the shifts
-		  ans.m_MSB -= shiftByLimb<<m_log2LimbBitLength;
+      //msb adjusted to show the shifts
+      ans.m_MSB -= shiftByLimb<<m_log2LimbBitLength;
 
-	  }
+    }
 
-	  //remainderShift bit shifts
-	  if(remainingShift!=0){
+    //remainderShift bit shifts
+    if(remainingShift!=0){
 
-		  limb_t overFlow = 0;
-		  limb_t oldVal;
-		  limb_t maskVal = (1<<(remainingShift))-1;
-		  limb_t compShiftVal = m_limbBitLength- remainingShift;
+      limb_t overFlow = 0;
+      limb_t oldVal;
+      limb_t maskVal = (1<<(remainingShift))-1;
+      limb_t compShiftVal = m_limbBitLength- remainingShift;
 
-		  usint startVal = ceilIntByUInt(ans.m_MSB);
-		  //perform shifting by bits by calculating the overflow
-		  //oveflow is added after the shifting operation
-		  for( ;startVal>=0;startVal--){
+      usint startVal = ceilIntByUInt(ans.m_MSB);
+      //perform shifting by bits by calculating the overflow
+      //oveflow is added after the shifting operation
+      for( ;startVal>=0;startVal--){
 
-			  oldVal = ans.m_value[startVal];
+	oldVal = ans.m_value[startVal];
 
-			  ans.m_value[startVal] = (ans.m_value[startVal]>>remainingShift) + overFlow;
+	ans.m_value[startVal] = (ans.m_value[startVal]>>remainingShift) + overFlow;
 
-			  overFlow = (oldVal &  maskVal);
-			  overFlow <<= compShiftVal ;
-		  }
+	overFlow = (oldVal &  maskVal);
+	overFlow <<= compShiftVal ;
+      }
 
-		  ans.m_MSB -= remainingShift;
+      ans.m_MSB -= remainingShift;
 
-	  }
-	  return ans;
-x  }
+    }
+    return ans;
+  }
 
 
   /**Right Shift is done by splitting the number of shifts into
@@ -442,9 +482,9 @@ x  }
       *this = ZERO;
       return *this;
     } else {
-    	bint ans(*this);
-    	*this - ans >> shift;
-    	return *this;
+      bint ans(*this);
+      *this - ans >> shift;
+      return *this;
 
     }
 
@@ -452,13 +492,22 @@ x  }
 
 
   template<typename limb_t,usint BITLENGTH>
-  void bint<limb_t,BITLENGTH>::PrintLimbsInDec() const{
-	  std::cout<<std::dec<<m_value <<std::endl;
+  void bint<limb_t,BITLENGTH>::PrintValueInDec() const{
+    //DEBUG(std::dec<< m_value <<std::endl;
+    usint upperlim =  m_MSB%m_limbBitLength;
+    if (upperlim == 0) {
+      upperlim = 1;
+    }
+    for (usint i = 0; i < upperlim; i++){
+      std::cout<< i << ":"<< m_value[i];
+      std::cout <<std::endl;
+    }
+    std::cout<<std::endl;
   }
 
   template<typename limb_t,usint BITLENGTH>
   void bint<limb_t,BITLENGTH>::PrintLimbsInHex() const{
-      std::cout<<std::hex<<m_value <<std::dec<<std::endl;
+    std::cout<<std::hex<< m_value <<std::dec<<std::endl;
   }
 
   template<typename limb_t,usint BITLENGTH>
@@ -502,43 +551,39 @@ x  }
     //overflow variable
     Dlimb_t ofl=0;
 
-    //position from A to start addition
+    //position from A to end addition
     limb_t ceilIntA = ceilIntByUInt(A->m_MSB);
-    //position from B to start addition
+    //position from B to end addition
     limb_t ceilIntB = ceilIntByUInt(B->m_MSB);
 
-    usint i;//counter
-    for(i=0; i<ceilIntB; ++i){ //loop over limbs low to high
+    usint i;//
+    for(i=0; i<ceilIntB; ++i){ //loop over limbs low to high till you reach the end of the smaller one
       ofl =(Dlimb_t)A->m_value[i]+ (Dlimb_t)B->m_value[i]+ofl;//sum of the two int and the carry over
       result.m_value[i] = (limb_t)ofl;
       ofl>>=m_limbBitLength;//current overflow
     }
 
     // we have an overflow at the end
-
-
     if(ofl){
-    	for(; i<=ceilIntA; ++i){
-    		ofl = (Dlimb_t)A->m_value[i]+ofl;//sum of the two int and the carry over
-    		result.m_value[i] = (limb_t)ofl;
-    		ofl>>=m_limbBitLength;//current overflow
-    	}
-stopped here this is messy, there must be a reason why we cant clean this up
-    	if(ofl){//in the end if overflow is set it indicates MSB is one greater than the one we started with
-    		result.m_value[ceilIntA] = 1;
-    		WTF does this mean?
-    		result.m_MSB = A->m_MSB + 1;
-    	} else{
-    		result.m_MSB = (m_nSize - i - 2)*m_limbBitLength;
-    		result.m_MSB += GetMSBlimb_t(result.m_value[++i]);
-    	}
-    }
-    else{
-    	for(;i>=m_nSize-ceilIntA;i--){
-    		result.m_value[i] = A->m_value[i];
-    	}
-    	result.m_MSB =  (m_nSize - i - 2)*m_limbBitLength;
-    	result.m_MSB += GetMSBlimb_t(result.m_value[++i]);
+      for(; i<=ceilIntA; ++i){ //keep looping over the remainder of the larger value
+	ofl = (Dlimb_t)A->m_value[i]+ofl;//sum of the two int and the carry over
+	result.m_value[i] = (limb_t)ofl;
+	ofl>>=m_limbBitLength;//current overflow
+      }
+
+      if(ofl){//in the end if overflow is set it indicates MSB is one greater than the one we started with
+	result.m_value[ceilIntA] = 1; 
+	result.m_MSB = A->m_MSB + 1;
+      } else{ //compute the resulting value. 
+	result.m_MSB = (i - 2)*m_limbBitLength;
+	result.m_MSB += GetMSBlimb_t(result.m_value[++i]); //todo: probably broken
+      }
+    } else { //there is no overflow at the end
+      for(;i<= ceilIntA;++i){
+	result.m_value[i] = A->m_value[i];
+      }
+      result.m_MSB = (i - 2)*m_limbBitLength;
+      result.m_MSB += GetMSBlimb_t(result.m_value[++i]); //todo: probably broken
     }
 
     return result;
@@ -558,17 +603,17 @@ stopped here this is messy, there must be a reason why we cant clean this up
     }
     //return 0 if b is higher than *this as there is no support for negative number
     if(!(*this>b))
-      return std::move(bint(ZERO));
+      return std::move(bint(ZERO)); //todo: should we throw an exception ?
 
     int cntr=0,current=0;
 	
     bint result(*this);
     //array position in A to end substraction
-    int endValA = m_nSize-ceilIntByUInt(this->m_MSB);
+    int endValA = m_value.size()-ceilIntByUInt(this->m_MSB);
     //array position in B to end substraction
-    int endValB = m_nSize-ceilIntByUInt(b.m_MSB);
+    int endValB = m_value.size()-ceilIntByUInt(b.m_MSB);
     sint i;
-    for(i=m_nSize-1;i>=endValB;i--){
+    for(i=m_value.size()-1;i>=endValB;i--){
       //carryover condtion
       if(result.m_value[i]<b.m_value[i]){
 	current=i;
@@ -591,7 +636,7 @@ stopped here this is messy, there must be a reason why we cant clean this up
       endValA++;
     }
     //reset the MSB after substraction
-    result.m_MSB = (m_nSize-endValA-1)*m_limbBitLength + GetMSBlimb_t(result.m_value[endValA]);
+    result.m_MSB = (m_value.size()-endValA-1)*m_limbBitLength + GetMSBlimb_t(result.m_value[endValA]);
 
     //return the result
     return std::move(result);
@@ -613,6 +658,7 @@ stopped here this is messy, there must be a reason why we cant clean this up
     //check for trivial condtions
     if(b.m_MSB==1)
       return bint(*this);
+
     if(this->m_MSB==1)
       return std::move(bint(b));
 	
@@ -620,8 +666,10 @@ stopped here this is messy, there must be a reason why we cant clean this up
     limb_t ceilInt = ceilIntByUInt(b.m_MSB);
     //Multiplication is done by getting a limb_t from b and multiplying it with *this
     //after multiplication the result is shifted and added to the final answer
-    for(sint i= m_nSize-1;i>= m_nSize-ceilInt;i--){
-      ans += (this->MulIntegerByChar(b.m_value[i]))<<=( m_nSize-1-i)*m_limbBitLength;
+
+    usint nSize = this->m_value.size();
+    for(sint i= nSize-1;i>= nSize-ceilInt;i--){
+      ans += (this->MulIntegerByChar(b.m_value[i]))<<=( nSize-1-i)*m_limbBitLength;
     }
     
     return ans;
@@ -630,6 +678,8 @@ stopped here this is messy, there must be a reason why we cant clean this up
 
   template<typename limb_t,usint BITLENGTH>
   const bint<limb_t,BITLENGTH>& bint<limb_t,BITLENGTH>::operator+=(const bint &b){
+
+#if 0
     const bint* A = NULL;//two operands A and B for addition, A is the greater one, B is the smaller one
     const bint* B = NULL;
     //check for garbage initialisation
@@ -690,14 +740,16 @@ stopped here this is messy, there must be a reason why we cant clean this up
       this->m_MSB = (m_nSize-i-2)*m_limbBitLength;
       this->m_MSB += GetMSBlimb_t(this->m_value[++i]);
     }	
-
+#else
+    *this = *this+b;
+#endif
     return *this;
   }
 
   template<typename limb_t,usint BITLENGTH>
   const bint<limb_t,BITLENGTH>& bint<limb_t,BITLENGTH>::operator-=(const bint &b){
 	
-
+#if 0
     if(this->m_state==GARBAGE){
       *this=ZERO;
       return *this;		
@@ -713,8 +765,9 @@ stopped here this is messy, there must be a reason why we cant clean this up
 
     int cntr=0,current=0;
 
-    int endValA = m_nSize-ceilIntByUInt(this->m_MSB);
-    int endValB = m_nSize-ceilIntByUInt(b.m_MSB);
+    usint nSize = m_value.size();
+    int endValA = nSize-ceilIntByUInt(this->m_MSB);
+    int endValB = nSize-ceilIntByUInt(b.m_MSB);
     sint i;
     for(i=m_nSize-1;i>=endValB;i--){
       if(this->m_value[i]<b.m_value[i]){
@@ -739,8 +792,12 @@ stopped here this is messy, there must be a reason why we cant clean this up
 
 
     return *this;
-
+#else
+    *this = *this-b;
+#endif
+    return *this;
   }
+
 
   /** Multiply operation:
    *  Algorithm used is usual school book multiplication.
@@ -756,12 +813,12 @@ stopped here this is messy, there must be a reason why we cant clean this up
 	
     bint ans;
     //position in the array to start multiplication
-    usint endVal = m_nSize-ceilIntByUInt(m_MSB);
+    usint endVal = this->m_value.size()-ceilIntByUInt(m_MSB);
     //variable to capture the overflow
     Dlimb_t temp=0;
     //overflow value
     limb_t ofl=0;
-    sint i= m_nSize-1;
+    sint i= m_value.size()-1;
 
     for(;i>=endVal ;i--){
       temp = ((Dlimb_t)m_value[i]*(Dlimb_t)b) + ofl;
@@ -772,7 +829,8 @@ stopped here this is messy, there must be a reason why we cant clean this up
     if(ofl){
       ans.m_value[i]=ofl;
     }
-    ans.m_MSB = (m_nSize-1-endVal)*m_limbBitLength;
+    usint nSize = m_value.size();
+    ans.m_MSB = (nSize-1-endVal)*m_limbBitLength;
     //set the MSB after the final computation
     ans.m_MSB += GetMSBDlimb_t(temp);
     ans.m_state = INITIALIZED;
@@ -795,10 +853,10 @@ stopped here this is messy, there must be a reason why we cant clean this up
     else if(b==*this)
       return std::move(bint(ONE));
 	
-		
 	
     bint ans;
-	
+#if 0
+
     //normalised_dividend = result*quotient
     bint normalised_dividend( this->Sub( this->Mod(b) ) );
     //Number of array elements in Divisor
@@ -818,7 +876,7 @@ stopped here this is messy, there must be a reason why we cant clean this up
 
     //Initialize the running dividend
     for(usint i=0;i<ncharInDivisor;i++){
-      running_dividend.m_value[ m_nSize-ncharInDivisor+i] = normalised_dividend.m_value[ m_nSize-ncharInNormalised_dividend+i]; 
+      running_dividend.m_value[ m_nSize-ncharInDivisor+i] = normalised_dividend.m_value[ m_nSize-ncharInNormalised_dividend+i];
     }
     running_dividend.m_MSB = GetMSBlimb_t(running_dividend.m_value[m_nSize-ncharInDivisor]) + (ncharInDivisor-1)*m_limbBitLength;
     running_dividend.m_state = INITIALIZED;
@@ -883,7 +941,7 @@ stopped here this is messy, there must be a reason why we cant clean this up
       else
 	running_dividend = runningRemainder<<m_limbBitLength;
 
-      running_dividend.m_value[ m_nSize-1] = normalised_dividend.m_value[m_nSize-i];	
+      running_dividend.m_value[ m_nSize-1] = normalised_dividend.m_value[m_nSize-i];
       if (running_dividend.m_MSB == 0)
 	running_dividend.m_MSB = GetMSBlimb_t(normalised_dividend.m_value[m_nSize - i]);
       i--;
@@ -896,6 +954,10 @@ stopped here this is messy, there must be a reason why we cant clean this up
     //Computation of MSB value 
     ans.m_MSB = GetMSBlimb_t(ans.m_value[ansCtr]) + (m_nSize-1-ansCtr)*m_limbBitLength;
     ans.m_state = INITIALIZED;
+#else
+    ans = 0;
+    std::cout <<"DividedBy function not built yet"<<std::endl;
+#endif
     return ans;
 
   }
@@ -905,61 +967,89 @@ stopped here this is messy, there must be a reason why we cant clean this up
   //Reference:http://pctechtips.org/convert-from-decimal-to-binary-with-recursion-in-java/
   template<typename limb_t,usint BITLENGTH>
   void bint<limb_t,BITLENGTH>::AssignVal(const std::string& vin){
-    std::string v = vin;
+	  bool dbg_flag = 1;		// if true then print dbg output
+	  DEBUG("vin: "<< vin);
 
-    // strip off leading zeros from the input string
-    v.erase(0, v.find_first_not_of('0'));
-    if (v.size() == 0) {
-      //caustic case of input string being all zeros
-      v = "0"; //set to one zero
-    }
 
-    uschar *DecValue;//array of decimal values
-    int arrSize=v.length();
-	
-    //memory allocated for decimal array
-    DecValue = new uschar[arrSize]; //todo smartpointer
-	
-    for(sint i=0;i<arrSize;i++)//store the string to decimal array
-      DecValue[i] = (uschar) stoi(v.substr(i,1));
-    sshort zptr = 0;
-    //index of highest non-zero number in decimal number
-    //define  bit register array
-    uschar *bitArr = new uschar[m_limbBitLength](); //todo smartpointer
-	
-    sint bitValPtr=m_nSize-1;
-    //bitValPtr is a pointer to the Value char array, initially pointed to the last char
-    //we increment the pointer to the next char when we get the complete value of the char array
-	
-    sint cnt=m_limbBitLength-1;
-    //cnt8 is a pointer to the bit position in bitArr, when bitArr is compelete it is ready to be transfered to Value
-    while(zptr!=arrSize){
-      bitArr[cnt]=DecValue[arrSize-1]%2;
-      //start divide by 2 in the DecValue array
-      for(sint i=zptr;i<arrSize-1;i++){
-	DecValue[i+1]= (DecValue[i]%2)*10 + DecValue[i+1];
-	DecValue[i]>>=1;
-      }
-      DecValue[arrSize-1]>>=1;
-      //division ends here
-#ifdef DEBUG
-      for(int i=zptr;i<arrSize;i++)
-	cout<<(short)DecValue[i];//for debug purpose
-      cout<<endl;
-#endif
-      cnt--;
-      if(cnt==-1){//cnt = -1 indicates bitArr is ready for transfer
-	cnt=m_limbBitLength-1;
-	m_value[bitValPtr--]= UintInBinaryToDecimal(bitArr);//UintInBinaryToDecimal converts bitArr to decimal and resets the content of bitArr.
-      }
-      if(DecValue[zptr]==0)zptr++;//division makes Most significant digit zero, hence we increment zptr to next value
-      if(zptr==arrSize&&DecValue[arrSize-1]==0)m_value[bitValPtr]=UintInBinaryToDecimal(bitArr);//Value assignment
-    }
-    SetMSB(bitValPtr);
-    delete []bitArr;
-    delete[] DecValue;//deallocate memory
+	  std::string v = vin;
+	  DEBUG("v1: "<< v);
+	  // strip off leading zeros from the input string
+	  v.erase(0, v.find_first_not_of('0'));
+	  if (v.size() == 0) {
+		  //caustic case of input string being all zeros
+		  v = "0"; //set to one zero
+	  }
+	  DEBUG("v2: "<< v);
+	  uschar *DecValue;//array of decimal values
+	  int arrSize=v.length();
 
-  }
+	  //memory allocated for decimal array
+	  DecValue = new uschar[arrSize]; //todo smartpointer
+
+	  for(sint i=0;i<arrSize;i++)//store the string to decimal array
+		  DecValue[i] = (uschar) stoi(v.substr(i,1));
+
+	  if (dbg_flag) {
+		  std::cout << "decval1 ";
+		  for(int i=0;i<arrSize;i++)
+			  std::cout <<(usint)DecValue[i] << " ";//for debug purpose
+		  std::cout << std::endl;
+	  }
+THIS IS A MESS IT WILL NEVER TERMINATE.
+	  sshort zptr = 0;
+	  //index of highest non-zero number in decimal number
+	  //define  bit register array
+	  uschar *bitArr = new uschar[m_limbBitLength](); //todo smartpointer
+
+	  sint bitValPtr=0;
+	  //bitValPtr is a pointer to the Value char array, initially pointed to the last char
+	  //we increment the pointer to the next char when we get the complete value of the char array
+
+	  sint cnt=m_limbBitLength-1;
+	  //cnt is a pointer to the bit position in bitArr, when bitArr is compelete it is ready to be transfered to Value
+	  while(zptr!=arrSize){
+		  bitArr[cnt]=DecValue[arrSize-1]%2;
+		  //start divide by 2 in the DecValue array
+		  for(sint i=zptr;i<arrSize-1;i++){
+			  DecValue[i+1]= (DecValue[i]%2)*10 + DecValue[i+1];
+			  DecValue[i]>>=1;
+		  }
+		  DecValue[arrSize-1]>>=1;
+
+
+		  //division ends here
+
+	  }
+	  if (dbg_flag) {
+		  std::cout << "decval2 ";
+		  for(int i=0;i<arrSize;i++)
+			  std::cout <<(usint)DecValue[i] << " ";//for debug purpose
+		  std::cout << std::endl;
+	  }
+
+	  cnt--;
+	  if(cnt==-1){//cnt = -1 indicates bitArr is ready for transfer
+		  cnt=m_limbBitLength-1;
+
+		  m_value.push_back(UintInBinaryToDecimal(bitArr));//UintInBinaryToDecimal converts bitArr to decimal and resets the content of bitArr.
+		  bitValPtr++;
+	  }
+	  if(DecValue[zptr]==0)
+		  zptr++;//division makes Most significant digit zero, hence we increment zptr to next value
+	  if(zptr==arrSize&&DecValue[arrSize-1]==0)
+		  m_value.push_back(UintInBinaryToDecimal(bitArr));//Value assignment
+
+	  SetMSB(bitValPtr);
+  delete []bitArr;
+  delete[] DecValue;//deallocate memory
+
+  std::cout << "m_value ";
+  for(int i=0;i<m_value.size();i++)
+	  std::cout <<m_value[i] << " ";//for debug purpose
+  std::cout << std::endl;
+
+  DEBUG("msb now "<< m_MSB );
+}
 
   template<typename limb_t,usint BITLENGTH>
   void bint<limb_t,BITLENGTH>::SetMSB()
@@ -967,17 +1057,16 @@ stopped here this is messy, there must be a reason why we cant clean this up
 
     m_MSB = 0;
     if(this->m_state==GARBAGE){
-      for(usint i=0;i<m_nSize;i++){
-	m_value[i] = 0;
-      }
+      m_value.clear();
+      m_value[0] = 0;
       m_state = INITIALIZED;
       return;
     }
-	
-    for(usint i=0;i<m_nSize;i++)//loops to find first nonzero number in char array
+
+    for(usint i=0;i<m_value.size();i++)//loops to find first nonzero number in char array
       if((Dlimb_t)m_value[i]!=0){
-			
-	m_MSB = (m_nSize-i-1)*m_limbBitLength; 
+
+	m_MSB = i*m_limbBitLength;
 	m_MSB+= GetMSBlimb_t(m_value[i]);
 	break;
       }
@@ -987,13 +1076,13 @@ stopped here this is messy, there must be a reason why we cant clean this up
   template<typename limb_t, usint BITLENGTH>
   void bint<limb_t, BITLENGTH>::SetMSB(usint guessIdxChar){
 
-    m_MSB = (m_nSize - guessIdxChar - 1)*m_limbBitLength;
+    m_MSB = (m_value.size() - guessIdxChar - 1)*m_limbBitLength;
     m_MSB += GetMSBlimb_t(m_value[guessIdxChar]);
   }
 
   template<typename limb_t, usint BITLENGTH>
   void bint<limb_t, BITLENGTH>::SetValue(const std::string& str){
-    AssignVal(str);
+    bint::AssignVal(str);
     m_state = INITIALIZED;
   }
 
@@ -1011,8 +1100,8 @@ stopped here this is messy, there must be a reason why we cant clean this up
       return std::move(bint(*this));
     }
     //masking operation if modulus is 2
-    if(modulus.m_MSB==2 && modulus.m_value[m_nSize-1]==2){
-      if(this->m_value[m_nSize-1]%2==0)
+    if(modulus.m_MSB==2 && modulus.m_value[m_value.size()-1]==2){
+      if(this->m_value[m_value.size()-1]%2==0)
 	return bint(ZERO);
       else
 	return bint(ONE);
@@ -1228,11 +1317,11 @@ stopped here this is messy, there must be a reason why we cant clean this up
   }
 
   //Optimized Mod Addition using ModBarrett
-//  template<typename limb_t,usint BITLENGTH>
-//  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModBarrettAdd(const bint& b, const bint& modulus,const bint mu_arr[BARRETT_LEVELS]) const{
-//    return this->Plus(b).ModBarrett(modulus,mu_arr);
-//  }
-//
+  //  template<typename limb_t,usint BITLENGTH>
+  //  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModBarrettAdd(const bint& b, const bint& modulus,const bint mu_arr[BARRETT_LEVELS]) const{
+  //    return this->Plus(b).ModBarrett(modulus,mu_arr);
+  //  }
+  //
 
 
   template<typename limb_t,usint BITLENGTH>
@@ -1294,35 +1383,35 @@ stopped here this is messy, there must be a reason why we cant clean this up
   }
 
 
-//  template<typename limb_t,usint BITLENGTH>
-//  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModBarrettSub(const bint& b, const bint& modulus,const bint mu_arr[BARRETT_LEVELS]) const{
-//
-//    bint* a = NULL;
-//    bint* b_op = NULL;
-//
-//    if(*this>modulus){
-//      *a = std::move(this->ModBarrett(modulus,mu_arr));
-//    }
-//    else{
-//      a = const_cast<bint*>(this);
-//    }
-//
-//    if(b>modulus){
-//      *b_op = std::move(b.ModBarrett(modulus,mu_arr));
-//    }
-//    else{
-//      b_op = const_cast<bint*>(&b);
-//    }
-//
-//    if(!(*a<*b_op)){
-//      return ((*a-*b_op).ModBarrett(modulus,mu_arr));
-//
-//    }
-//    else{
-//      return ((*a + modulus) - *b_op);
-//    }
-//
-//  }
+  //  template<typename limb_t,usint BITLENGTH>
+  //  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModBarrettSub(const bint& b, const bint& modulus,const bint mu_arr[BARRETT_LEVELS]) const{
+  //
+  //    bint* a = NULL;
+  //    bint* b_op = NULL;
+  //
+  //    if(*this>modulus){
+  //      *a = std::move(this->ModBarrett(modulus,mu_arr));
+  //    }
+  //    else{
+  //      a = const_cast<bint*>(this);
+  //    }
+  //
+  //    if(b>modulus){
+  //      *b_op = std::move(b.ModBarrett(modulus,mu_arr));
+  //    }
+  //    else{
+  //      b_op = const_cast<bint*>(&b);
+  //    }
+  //
+  //    if(!(*a<*b_op)){
+  //      return ((*a-*b_op).ModBarrett(modulus,mu_arr));
+  //
+  //    }
+  //    else{
+  //      return ((*a + modulus) - *b_op);
+  //    }
+  //
+  //  }
 
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModMul(const bint& b, const bint& modulus) const{
@@ -1391,27 +1480,27 @@ stopped here this is messy, there must be a reason why we cant clean this up
 
   }
 
-//  template<typename limb_t,usint BITLENGTH>
-//  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModBarrettMul(const bint& b, const bint& modulus,const bint mu_arr[BARRETT_LEVELS]) const{
-//    bint* a  = NULL;
-//    bint* bb = NULL;
-//
-//    //if a is greater than q reduce a to its mod value
-//    if(*this>modulus)
-//      *a = std::move(this->ModBarrett(modulus,mu_arr));
-//    else
-//      a = const_cast<bint*>(this);
-//
-//    //if b is greater than q reduce b to its mod value
-//    if(b>modulus)
-//      *bb = std::move(b.ModBarrett(modulus,mu_arr));
-//    else
-//      bb = const_cast<bint*>(&b);
-//
-//    //return a*b%q
-//
-//    return (*a**bb).ModBarrett(modulus,mu_arr);
-//  }
+  //  template<typename limb_t,usint BITLENGTH>
+  //  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModBarrettMul(const bint& b, const bint& modulus,const bint mu_arr[BARRETT_LEVELS]) const{
+  //    bint* a  = NULL;
+  //    bint* bb = NULL;
+  //
+  //    //if a is greater than q reduce a to its mod value
+  //    if(*this>modulus)
+  //      *a = std::move(this->ModBarrett(modulus,mu_arr));
+  //    else
+  //      a = const_cast<bint*>(this);
+  //
+  //    //if b is greater than q reduce b to its mod value
+  //    if(b>modulus)
+  //      *bb = std::move(b.ModBarrett(modulus,mu_arr));
+  //    else
+  //      bb = const_cast<bint*>(&b);
+  //
+  //    //return a*b%q
+  //
+  //    return (*a**bb).ModBarrett(modulus,mu_arr);
+  //  }
 
   //Modular Multiplication using Square and Multiply Algorithm
   //reference:http://guan.cse.nsysu.edu.tw/note/expn.pdf
@@ -1446,7 +1535,7 @@ stopped here this is messy, there must be a reason why we cant clean this up
 
 		
       //product is multiplied only if bitvalue is 1
-      if(Exp.m_value[m_nSize-1]%2==1){
+      if(Exp.m_value[m_value.size()-1]%2==1){
 	product = product*mid;
       }
 
@@ -1550,7 +1639,7 @@ stopped here this is messy, there must be a reason why we cant clean this up
     if(this->m_MSB==a.m_MSB){
       uschar ceilInt = ceilIntByUInt(this->m_MSB); 
       sshort testChar;
-      for(usint i=m_nSize-ceilInt;i< m_nSize;i++){
+      for(usint i=m_value.size()-ceilInt;i< m_value.size();i++){
 	testChar = this->m_value[i]-a.m_value[i] ;
 	if(testChar<0)return -1;
 	else if(testChar>0)return 1;
@@ -1570,7 +1659,7 @@ stopped here this is messy, there must be a reason why we cant clean this up
       return false;
     else{
       uschar ceilInt = ceilIntByUInt(a.m_MSB); 
-      for(usint i= m_nSize-ceilInt;i< m_nSize;i++)
+      for(usint i= m_value.size()-ceilInt;i< m_value.size();i++)
 	if(this->m_value[i]!=a.m_value[i])
 	  return false;	
     }
@@ -1606,7 +1695,7 @@ stopped here this is messy, there must be a reason why we cant clean this up
       return true;
     else{
       uschar ceilInt = ceilIntByUInt(this->m_MSB); 
-      for(usint i=m_nSize-ceilInt;i< m_nSize;i++){
+      for(usint i=m_value.size()-ceilInt;i< m_value.size();i++){
 	if(this->m_value[i]<a.m_value[i])
 	  return false;
 	else if(this->m_value[i]>a.m_value[i])
@@ -1634,7 +1723,8 @@ stopped here this is messy, there must be a reason why we cant clean this up
       return false;
     else{
       uschar ceilInt = ceilIntByUInt(this->m_MSB); 
-      for(usint i= m_nSize-ceilInt;i< m_nSize;i++){
+      usint vsize = this->m_value.size();
+      for(usint i= vsize-ceilInt;i< vsize;i++){
 	if(this->m_value[i]>a.m_value[i])
 	  return false;
 	else if(this->m_value[i]<a.m_value[i])
@@ -1698,29 +1788,28 @@ stopped here this is messy, there must be a reason why we cant clean this up
   //Splits the binary string to equi sized chunks and then populates the internal array values.
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::BinaryStringToBint(const std::string& bitString){
-	
+
     bint value;
     usint len = bitString.length();
     usint cntr = ceilIntByUInt(len);
     std::string val;
     Dlimb_t partial_value = 0;
-    for (usint i = 0; i < cntr; i++)
-      {
+    for (usint i = 0; i < cntr; i++) 	  {
 
-	if (len>((i + 1)*m_limbBitLength))
-	  val = bitString.substr((len - (i + 1)*m_limbBitLength), m_limbBitLength);
-	else
-	  val = bitString.substr(0, len%m_limbBitLength);
-	for (usint j = 0; j < val.length(); j++){
-	  partial_value += std::stoi(val.substr(j, 1));
-	  partial_value <<= 1;
-	}
-	partial_value >>= 1;
-	value.m_value[m_nSize - 1 - i] = (limb_t)partial_value;
-	partial_value = 0;
+      if (len>((i + 1)*m_limbBitLength))
+	val = bitString.substr((len - (i + 1)*m_limbBitLength), m_limbBitLength);
+      else
+	val = bitString.substr(0, len%m_limbBitLength);
+      for (usint j = 0; j < val.length(); j++){
+	partial_value += std::stoi(val.substr(j, 1));
+	partial_value <<= 1;
       }
+      partial_value >>= 1;
+      value.m_value[i] = (limb_t)partial_value;
+      partial_value = 0;
+    }
     value.m_MSB = (cntr - 1)*m_limbBitLength;
-    value.m_MSB += GetMSBlimb_t(value.m_value[m_nSize - cntr]);
+    value.m_MSB += GetMSBlimb_t(value.m_value.back());
     value.m_state = INITIALIZED;
     return value;
 
@@ -1860,7 +1949,7 @@ stopped here this is messy, there must be a reason why we cant clean this up
     else if (index > m_MSB)
       return 0;
     limb_t result;
-    sint idx = m_nSize - ceilIntByUInt(index);//idx is the index of the character array
+    sint idx = m_value.size() - ceilIntByUInt(index);//idx is the index of the character array
     limb_t temp = this->m_value[idx];
     limb_t bmask_counter = index%m_limbBitLength==0? m_limbBitLength:index%m_limbBitLength;//bmask is the bit number in the 8 bit array
     limb_t bmask = 1;
@@ -1873,7 +1962,7 @@ stopped here this is messy, there must be a reason why we cant clean this up
 
   template<typename limb_t, usint BITLENGTH>
   void bint<limb_t, BITLENGTH>::SetIntAtIndex(usint idx, limb_t value){
-    if (idx >= m_nSize)
+    if (idx >= m_value.size())
       throw std::logic_error("Index Invalid");
     this->m_value[idx] = value;
   }

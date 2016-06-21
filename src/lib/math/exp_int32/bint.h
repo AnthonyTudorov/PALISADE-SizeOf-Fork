@@ -848,21 +848,22 @@ namespace exp_int32{
   public: //todo for debug onlhy
 
     //pointer to the array storing the native integers.
+    //vector<limb_t> m_value {(limb_t)0};
     vector<limb_t> m_value;
 
     //variable that stores the MOST SIGNIFICANT BIT position in the number. Note MSB(1) = 1 NOT 0
     usshort m_MSB;
 
     //variable to store the bitlength of the limb data type.
-    static const limb_t m_limbBitLength;
+    static const usint m_limbBitLength;
 
     //variable to store the maximum value of the limb data type.
-    static const limb_t m_MaxLimb;
+    static const usint m_MaxLimb;
 
 
 
     //variable to store the log(base 2) of the number of bits in the limb data type.
-    static const uschar m_log2LimbBitLength;
+    static const usint m_log2LimbBitLength;
 
     //variable to store the size of the data array.
     static const usint m_nSize;
@@ -874,7 +875,7 @@ namespace exp_int32{
      * @param Number is the number to be divided.
      * @return the ceiling of Number/(bits in the limb data type)
      */
-    static limb_t ceilIntByUInt(const limb_t Number);
+    static usint ceilIntByUInt(const limb_t Number);
 
     //currently unused array
     static const bint *m_modChain;
@@ -930,7 +931,7 @@ namespace exp_int32{
      * @param b is the number to be multiplied.
      * @return the bint after the multiplication.
      */
-    bint MulIntegerByChar(limb_t b) const;
+    bint MulIntegerByLimb(limb_t b) const;
 		
     /**
      * function that returns the decimal value from the binary array a.
