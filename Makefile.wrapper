@@ -33,36 +33,36 @@ LIBSOURCES := $(shell find $(SRCLIBDIR) -name '*.$(SRCEXT)')
 
 LIBOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(LIBSOURCES)))
 
--include build/javawrapper/PalisadeCryptoWrapper.d
+-include build/wrappers/java/PalisadeCryptoWrapper.d
 
 .PHONY:allwrappers
 allwrappers: $(EXTLIBDIR)/$(JNILIB) $(EXTLIBDIR)/PalisadeCrypto.jar
 
 #this builds the palisade JNI wrapper library
-$(EXTLIBDIR)/$(JNILIB): $(LIBOBJECTS) build/javawrapper/PalisadeCryptoWrapper.o
+$(EXTLIBDIR)/$(JNILIB): $(LIBOBJECTS) build/wrappers/java/PalisadeCryptoWrapper.o
 	mkdir -p $(EXTLIBDIR)
-	$(CC) $(LIBCMD) -o $@ $(LIBOBJECTS) build/javawrapper/PalisadeCryptoWrapper.o $(JNILINKPARM) -lgomp
+	$(CC) $(LIBCMD) -o $@ $(LIBOBJECTS) build/wrappers/java/PalisadeCryptoWrapper.o $(JNILINKPARM) -lgomp
 
-$(EXTLIBDIR)/PalisadeCrypto.jar: src/javawrapper/PalisadeCrypto/src/com/palisade/PalisadeCrypto.class src/javawrapper/PalisadeCrypto/src/com/palisade/PalisadeKeypair.class
-	( cd src/javawrapper/PalisadeCrypto/src/ ; jar cvf ../../../../bin/lib/PalisadeCrypto.jar com/palisade/*.class )
+$(EXTLIBDIR)/PalisadeCrypto.jar: src/wrappers/java/PalisadeCrypto/src/com/palisade/PalisadeCrypto.class src/wrappers/java/PalisadeCrypto/src/com/palisade/PalisadeKeypair.class
+	( cd src/wrappers/java/PalisadeCrypto/src/ ; jar cvf ../../../../../bin/lib/PalisadeCrypto.jar com/palisade/*.class )
 
 
-src/javawrapper/PalisadeCrypto/src/com/palisade/PalisadeCrypto.class: src/javawrapper/PalisadeCrypto/src/com/palisade/PalisadeCrypto.java
-	javac -cp src/javawrapper/PalisadeCrypto/src $<
+src/wrappers/java/PalisadeCrypto/src/com/palisade/PalisadeCrypto.class: src/wrappers/java/PalisadeCrypto/src/com/palisade/PalisadeCrypto.java
+	javac -cp src/wrappers/java/PalisadeCrypto/src $<
 
-src/javawrapper/PalisadeCrypto/src/com/palisade/PalisadeKeypair.class: src/javawrapper/PalisadeCrypto/src/com/palisade/PalisadeKeypair.java
-	javac -cp src/javawrapper/PalisadeCrypto/src $<
+src/wrappers/java/PalisadeCrypto/src/com/palisade/PalisadeKeypair.class: src/wrappers/java/PalisadeCrypto/src/com/palisade/PalisadeKeypair.java
+	javac -cp src/wrappers/java/PalisadeCrypto/src $<
 
 ### #this builds the individual objects that make up the library .
-.PRECIOUS: $(BUILDDIR)/javawrapper/%
-$(BUILDDIR)/javawrapper/%:
+.PRECIOUS: $(BUILDDIR)/wrappers/java/%
+$(BUILDDIR)/wrappers/java/%:
 	@if [ "$(suffix $@)" = ".o" ] ;   \
 	then  \
 		mkdir -p $(@D)  ;\
 		echo $(CC) -fPIC $(CPPFLAGS) $(INC) $(JNIBUILD) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 		$(CC) -MM $(CPPFLAGS) $(INC) $(JNIBUILD) $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@)) > $(patsubst %.o,%.d,$@)  ;\
 		mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)  ;\
-		sed -e 's|.*\.o:|$(BUILDDIR)/javawrapper/$*:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)  ;\
+		sed -e 's|.*\.o:|$(BUILDDIR)/wrappers/java/$*:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)  ;\
 		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
 		$(CC) -fPIC $(CPPFLAGS) $(INC) $(JNIBUILD) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 	fi
@@ -71,8 +71,8 @@ $(BUILDDIR)/javawrapper/%:
 .PHONEY: cleanwrappers
 cleanwrappers:
 	@echo " Cleaning targets...";
-	$(RM) -r  build/javawrapper/PalisadeCryptoWrapper.o
-	$(RM) -r src/javawrapper/PalisadeCrypto/src/com/palisade/*.class
+	$(RM) -r  build/wrappers/java/PalisadeCryptoWrapper.o
+	$(RM) -r src/wrappers/java/PalisadeCrypto/src/com/palisade/*.class
 	$(RM) -r $(EXTLIBDIR)/$(JNILIB) $(EXTLIBDIR)/PalisadeCrypto.jar
 
 

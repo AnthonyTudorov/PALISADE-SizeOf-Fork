@@ -34,8 +34,8 @@
 * This file implements a helper class for managing and manipulating Crypto Contexts
 */
 
-#include "../crypto/CryptoContext.h"
-#include "../utils/CryptoContextHelper.h"
+#include "../crypto/cryptocontext.h"
+#include "../utils/cryptocontexthelper.h"
 #include "rapidjson/filewritestream.h"
 
 using namespace std;

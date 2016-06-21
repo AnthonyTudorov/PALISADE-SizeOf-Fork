@@ -43,10 +43,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../../lib/lattice/ilvector2n.h"
 #include "../../lib/lattice/ilvectorarray2n.h"
-#include "../../lib/crypto/CryptoContext.h"
-#include "../../lib/crypto/CryptoContext.cpp"
-#include "../../lib/utils/CryptoContextHelper.h"
-#include "../../lib/utils/CryptoContextHelper.cpp"
+#include "../../lib/crypto/cryptocontext.h"
+#include "../../lib/crypto/cryptocontext.cpp"
+#include "../../lib/utils/cryptocontexthelper.h"
+#include "../../lib/utils/cryptocontexthelper.cpp"
 
 #include "../../lib/utils/debug.h"
 #include <vector>

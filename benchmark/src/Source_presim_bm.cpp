@@ -39,10 +39,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define _USE_MATH_DEFINES 
 #include <iostream>
 #include <fstream>
-#include "lib/crypto/CryptoContext.h"
-#include "lib/utils/CryptoContextHelper.h"
-#include "lib/crypto/CryptoContext.cpp"
-#include "lib/utils/CryptoContextHelper.cpp"
+#include "lib/crypto/cryptocontext.h"
+#include "lib/utils/cryptocontexthelper.h"
+#include "lib/crypto/cryptocontext.cpp"
+#include "lib/utils/cryptocontexthelper.cpp"
 
 #include "lib/math/nbtheory.h"
 

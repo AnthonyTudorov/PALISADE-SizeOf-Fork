@@ -42,7 +42,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../../lib/lattice/ilvector2n.h"
 #include "../../lib/lattice/ilvectorarray2n.h"
-#include "../../lib/crypto/CryptoContext.h"
+#include "../../lib/crypto/cryptocontext.h"
 #include "time.h"
 
 #include <chrono>

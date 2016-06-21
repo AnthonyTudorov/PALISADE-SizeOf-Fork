@@ -33,10 +33,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 using namespace std;
 
-#include "crypto/CryptoContext.h"
-#include "utils/CryptoContextHelper.h"
-#include "crypto/CryptoContext.cpp"
-#include "utils/CryptoContextHelper.cpp"
+#include "crypto/cryptocontext.h"
+#include "utils/cryptocontexthelper.h"
+#include "crypto/cryptocontext.cpp"
+#include "utils/cryptocontexthelper.cpp"
 
 #include "utils/serializablehelper.h"
 
@@ -248,7 +248,7 @@ encrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 		char *chunkb = new char[s];
 		inf.read(chunkb, s);
 
-		ByteArrayPlaintextEncoding ptxt(chunkb);
+		ByteArrayPlaintextEncoding ptxt( ByteArray(chunkb, s) );
 		ptxt.Pad<ZeroPad>(ctx->getPadAmount());
 		delete chunkb;
 

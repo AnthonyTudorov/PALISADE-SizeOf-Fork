@@ -31,7 +31,7 @@
 *
 * @section DESCRIPTION
 *
-* This file defines the Crypto Context: all the pieces needed to use the palisade library
+* This file defines the Crypto Context: all the pieces needed to initialize and use the palisade library
 */
 
 #ifndef SRC_DEMO_PRE_CRYPTOCONTEXT_H_
@@ -71,31 +71,36 @@ namespace lbcrypto {
  * @brief CryptoContext Class.
  *
  * An instance of this class contains all of the parameters needed to create keys and encrypt/decrypt
+ * Note this will want to be refactored for other schemes in the future
  */
 
 template <class Element>
 class CryptoContext {
 private:
-	usint ringdim;
-	BigBinaryInteger ptmod;
-	BigBinaryInteger mod;
-	BigBinaryInteger ru;
-	usint relinWindow;
-	float stDev;
-	float stDevStSt;
+	/* these variables are used to initialize the CryptoContext */
+	usint				ringdim;		/*!< ring dimension */
+	BigBinaryInteger	ptmod;			/*!< plaintext modulus */
+	BigBinaryInteger	mod;			/*!< modulus */
+	BigBinaryInteger	ru;				/*!< root of unity */
+	usint				relinWindow;	/*!< relin window */
+	float				stDev;			/*!< stamdard deviation */
+	float				stDevStSt;		/*!< standard deviation for StSt uses */
 
-	ILParams ilParams;
-	DiscreteGaussianGenerator dgg;
-	DiscreteGaussianGenerator dggStSt;
+	/* these three parameters get initialized when an instance is constructed; they are used by the context
+	 */
+	ILParams					ilParams;
+	DiscreteGaussianGenerator	dgg;
+	DiscreteGaussianGenerator	dggStSt;	// unused unless we use StSt scheme
 
-	LPCryptoParameters<Element>	*params;
-	LPPublicKeyEncryptionScheme<Element> *algorithm;
-	long								chunksize;		// the size that this parameter set can process
+	LPCryptoParameters<Element>				*params;	/*!< crypto parameters used for this context */
+	LPPublicKeyEncryptionScheme<Element>	*algorithm;	/*!< algorithm used; points to keygen and encrypt/decrypt methods */
+
+	long								chunksize;		/*!< the maximum plaintext size that this parameter set can process */
 
 	// these three members are ONLY used by the Java wrapper to cache deserialized keys
-	LPPublicKeyLTV<Element>	*publicKey;
+	LPPublicKeyLTV<Element>		*publicKey;
 	LPPrivateKeyLTV<Element>	*privateKey;
-	LPEvalKeyLTV<Element>	*evalKey;
+	LPEvalKeyLTV<Element>		*evalKey;
 
 	CryptoContext() : publicKey(0), privateKey(0), evalKey(0),
 			params(0), algorithm(0), chunksize(0), relinWindow(0), ringdim(0), stDev(0), stDevStSt(0) {}
@@ -125,13 +130,13 @@ public:
 	 *
 	 * @return max size that this set of parameters can encrypt
 	 */
-	long getChunksize() { return chunksize; }
+	long getChunksize() const { return chunksize; }
 
 	/**
 	 *
 	 * @return amount of padding that must be added
 	 */
-	usint getPadAmount() { return ringdim/16 * (ptmod.GetMSB()-1); }
+	usint getPadAmount() const { return ringdim/16 * (ptmod.GetMSB()-1); }
 
 	/**
 	 * Used by the Java wrapper
@@ -146,7 +151,7 @@ public:
 	 *
 	 * @return cached deserialized public key
 	 */
-	LPPublicKeyLTV<Element>	*getPublicKey() { return publicKey; }
+	LPPublicKeyLTV<Element>	*getPublicKey() const { return publicKey; }
 
 	/**
 	 * Used by the Java wrapper
@@ -161,7 +166,7 @@ public:
 	 *
 	 * @return cached deserialized private key
 	 */
-	LPPrivateKeyLTV<Element>	*getPrivateKey() { return privateKey; }
+	LPPrivateKeyLTV<Element>	*getPrivateKey() const { return privateKey; }
 
 	/**
 	 * Used by the Java wrapper
@@ -176,7 +181,7 @@ public:
 	 *
 	 * @return cached deserialized evaluation key
 	 */
-	LPEvalKeyLTV<Element>	*getEvalKey() { return evalKey; }
+	LPEvalKeyLTV<Element>	*getEvalKey() const { return evalKey; }
 
 	/**
 	 * Factory method to make an LTV CryptoContext
