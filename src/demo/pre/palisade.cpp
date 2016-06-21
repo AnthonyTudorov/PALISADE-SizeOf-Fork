@@ -33,12 +33,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 using namespace std;
 
-#include "crypto/cryptocontext.h"
-#include "utils/cryptocontexthelper.h"
-#include "crypto/cryptocontext.cpp"
-#include "utils/cryptocontexthelper.cpp"
+#include "../../lib/crypto/cryptocontext.h"
+#include "../../lib/utils/cryptocontexthelper.h"
+#include "../../lib/crypto/cryptocontext.cpp"
+#include "../../lib/utils/cryptocontexthelper.cpp"
 
-#include "utils/serializablehelper.h"
+#include "../../lib/utils/serializablehelper.h"
 
 using namespace lbcrypto;
 
