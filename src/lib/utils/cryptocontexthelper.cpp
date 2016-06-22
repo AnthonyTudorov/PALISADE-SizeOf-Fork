@@ -36,7 +36,7 @@
 
 #include "../crypto/cryptocontext.h"
 #include "../utils/cryptocontexthelper.h"
-#include "rapidjson/filewritestream.h"
+#include "../../../include/rapidjson/filewritestream.h"
 
 using namespace std;
 using namespace lbcrypto;

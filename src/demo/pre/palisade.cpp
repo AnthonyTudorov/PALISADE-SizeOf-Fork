@@ -403,6 +403,8 @@ usage(const string& cmd, const string& msg)
 	cerr << "-list filename: list all the parameter sets in the file filename, then exit" << endl;
 	cerr << "-use filename parmset: use the parameter set named parmset from the parameter file" << endl;
 	cerr << "-from filename: use the deserialization of filename to set the crypto context" << endl;
+
+	std::cin.get();
 }
 
 int
