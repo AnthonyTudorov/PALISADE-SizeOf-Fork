@@ -46,7 +46,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../../lib/utils/debug.h"
 
-void NTRUPRE(CryptoContext<ILVector2n> *ctx);
+void NTRUPRE(CryptoContext<ILVector2n> *ctx, bool);
 
 #include "../../lib/utils/serializablehelper.h"
 
@@ -55,18 +55,41 @@ void NTRUPRE(CryptoContext<ILVector2n> *ctx);
 using namespace std;
 using namespace lbcrypto;
 
+void usage()
+{
+	cout << "args are:" << endl;
+	cout << "-dojson : includes the json tests" << endl;
+	cout << "an arg not beginning with a - is taken as a filename of parameters" << endl;
+}
+
 int
 main(int argc, char *argv[])
 {
+	bool	doJson = false;
+
 	string filename = "src/demo/pre/PalisadeCryptoContext.parms";
 
-	if( argc == 2 )
-		filename = string(argv[1]);
+	while( argc-- > 1 ) {
+		string arg(*++argv);
+
+		if( arg == "-dojson" )
+			doJson = true;
+		else if( arg == "-help" || arg == "-?" ) {
+			usage();
+			return 0;
+		}
+		else if( arg[0] == '-' ) {
+			usage();
+			return(0);
+		}
+
+		else filename = arg;
+	}
 
 	//DiscreteUniformGenerator gen(BigBinaryInteger("100000"));
 	//auto v = gen.GenerateVector(10000);
 
-	std::cout << "Parameter set: ";
+	std::cout << "Choose parameter set: ";
 	CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout, filename);
 
 	string input;
@@ -78,7 +101,7 @@ main(int argc, char *argv[])
 		return 0;
 	}
 
-	NTRUPRE(ctx);
+	NTRUPRE(ctx, doJson);
 
 	delete ctx;
 
@@ -105,7 +128,7 @@ main(int argc, char *argv[])
 //////////////////////////////////////////////////////////////////////
 
 void
-NTRUPRE(CryptoContext<ILVector2n> *ctx) {
+NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 
 	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	//ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
@@ -320,15 +343,16 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx) {
 	cout << newPlaintext << endl;
 	cout << "size: " << newPtxt.GetLength() << endl;
 
-	TestJsonParms	tjp;
-	tjp.ctx = ctx;
-	tjp.pk = &pk;
-	tjp.sk = &sk;
-	tjp.evalKey = &evalKey;
-	tjp.newSK = &newSK;
+	if( doJson ) {
+		TestJsonParms	tjp;
+		tjp.ctx = ctx;
+		tjp.pk = &pk;
+		tjp.sk = &sk;
+		tjp.evalKey = &evalKey;
+		tjp.newSK = &newSK;
 
-	testJson("LTV", newPtxt, &tjp);
-	std::cout << "Execution completed.  Please any key to finish." << std::endl;
+		testJson("LTV", newPtxt, &tjp);
+	}
 
 	fout.close();
 }
