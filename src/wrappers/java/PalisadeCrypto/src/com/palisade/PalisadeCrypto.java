@@ -4,8 +4,9 @@ import java.util.Arrays;
 import com.palisade.PalisadeKeypair;
 
 public class PalisadeCrypto {
-	private static final String DEFAULTPARMS = "{ \"parameters\" : \"StehleSteinfeld\", \"plaintextModulus\" : \"2\", \"ring\" :  \"4096\", \"modulus\" : \"17179926529\", \"rootOfUnity\" : \"1874048014\", \"relinWindow\" : \"1\", \"stDev\" : \"4\", \"stDevStSt\" : \"98.4359\" }";
-
+	private static final String DEFAULTPARMS = "{ \"parameters\" : \"StehleSteinfeld\", \"plaintextModulus\" : \"256\", " +
+			"\"ring\" : \"8192\", \"modulus\" : \"75557863725914323468289\", \"rootOfUnity\" : \"36933905409054618621009\", " +
+			"\"relinWindow\" : \"16\", \"stDev\" : \"4\", \"stDevStSt\" : \"41411.5\"  }";
 	static {
 		System.loadLibrary("PalisadeCryptoWrapper");
 	}
