@@ -147,7 +147,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_getPalisadeErrorDe
 	}
 
 	int byteCount = errorMessage.length();
-	const jbyte *pNativeMsg = reinterpret_cast<const jbyte *>(errorMessage.c_str());
+	jbyte *pNativeMsg = const_cast<jbyte *>( reinterpret_cast<const jbyte *>(errorMessage.c_str()) );
 	jbyteArray bytes = env->NewByteArray(byteCount);
 	env->SetByteArrayRegion(bytes, 0, byteCount, pNativeMsg);
 

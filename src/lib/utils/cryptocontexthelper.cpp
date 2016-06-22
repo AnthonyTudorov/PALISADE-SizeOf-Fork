@@ -127,21 +127,13 @@ CryptoContextHelper<Element>::getNewContextFromSerialization(const Serialized& s
 	LPCryptoParametersLTV<Element> *ltvp = dynamic_cast<LPCryptoParametersLTV<Element> *>(cParams);
 	LPCryptoParametersStehleSteinfeld<Element> *ststp = dynamic_cast<LPCryptoParametersStehleSteinfeld<Element> *>(cParams);
 
-	if( ltvp != 0 ) {
-		cout << "LTV" << endl;
-		newCtx = CryptoContext<Element>::genCryptoContextLTV(cParams->GetPlaintextModulus().ConvertToInt(), ep.GetCyclotomicOrder(),
-				ep.GetModulus().ToString(), ep.GetRootOfUnity().ToString(), ltvp->GetRelinWindow(), ltvp->GetDistributionParameter());
-	}
-	else if( ststp != 0 ){
-		cout << "StSt" << endl;
-		cout << cParams->GetPlaintextModulus().ConvertToInt() << endl;
-		cout << ep.GetCyclotomicOrder() << endl;
-		cout << ep.GetModulus().ToString() << endl;
-		cout << ep.GetRootOfUnity().ToString() << endl;
-		cout << ltvp->GetRelinWindow() << endl;
-		cout << ltvp->GetDistributionParameter() << endl;
+	if( ststp != 0 ){
 		newCtx = CryptoContext<Element>::genCryptoContextStehleSteinfeld(cParams->GetPlaintextModulus().ConvertToInt(), ep.GetCyclotomicOrder(),
 				ep.GetModulus().ToString(), ep.GetRootOfUnity().ToString(), ststp->GetRelinWindow(), ststp->GetDistributionParameter(), ststp->GetDistributionParameterStSt());
+	}
+	else if( ltvp != 0 ) {
+		newCtx = CryptoContext<Element>::genCryptoContextLTV(cParams->GetPlaintextModulus().ConvertToInt(), ep.GetCyclotomicOrder(),
+				ep.GetModulus().ToString(), ep.GetRootOfUnity().ToString(), ltvp->GetRelinWindow(), ltvp->GetDistributionParameter());
 	}
 
 	delete ltvp;

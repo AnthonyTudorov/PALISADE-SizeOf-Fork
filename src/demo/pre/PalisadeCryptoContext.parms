@@ -83,4 +83,38 @@
 "stDevStSt" : "98.4359"
 }
 
+"StSt4" : {
+"Note" : "FGCS1",
+"parameters" : "StehleSteinfeld",
+"plaintextModulus" : "2",
+"ring" : "4096",
+"modulus" : "140737488486401",
+"rootOfUnity" : "65185722416667",
+"relinWindow" : "16",
+"stDev" : "4",
+"stDevStSt" : "354.34"
+}
+
+"StSt5" : {
+"Note" : "FGCS2",
+"parameters" : "StehleSteinfeld",
+"plaintextModulus" : "16",
+"ring" : "4096",
+"modulus" : "72057594037948417",
+"rootOfUnity" : "12746853818308484",
+"relinWindow" : "16",
+"stDev" : "4",
+"stDevStSt" : "1511.83"
+}
+
+"StSt6" : {
+"Note" : "FGCS Final",
+"parameters" : "StehleSteinfeld",
+"plaintextModulus" : "256",
+"ring" : "8192",
+"modulus" : "75557863725914323468289",
+"rootOfUnity" : "36933905409054618621009",
+"relinWindow" : "16",
+"stDev" : "4",
+"stDevStSt" : "41411.5"
 }
