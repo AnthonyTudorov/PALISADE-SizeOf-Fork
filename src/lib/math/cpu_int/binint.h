@@ -47,6 +47,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <functional>
+#include <cstdlib>
 #include <memory>
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
@@ -557,6 +558,10 @@ namespace cpu_int{
     * @return value of this BigBinaryInteger in base 10 represented as a string.
     */
     const std::string ToString() const;		
+
+    const std::string Serialize() const;
+    const char * Deserialize(const char * str);
+
 
     /**
     * Tests whether the BigBinaryInteger is a power of 2.

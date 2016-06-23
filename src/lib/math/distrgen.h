@@ -34,6 +34,7 @@
 #ifndef LBCRYPTO_MATH_DISTRGEN_H_
 #define LBCRYPTO_MATH_DISTRGEN_H_
 
+#define _USE_MATH_DEFINES 
 #include <math.h>
 #include <random>
 #include <bitset>

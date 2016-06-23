@@ -68,7 +68,7 @@ BigBinaryInteger::BigBinaryInteger()
 	m_MSB = 0;
 }
 
-std::function<unique_ptr<BigBinaryInteger>()> BigBinaryInteger::Allocator = [=](){
+std::function<unique_ptr<BigBinaryInteger>()> BigBinaryInteger::Allocator = [](){
     return make_unique<BigBinaryInteger>();
 };
 

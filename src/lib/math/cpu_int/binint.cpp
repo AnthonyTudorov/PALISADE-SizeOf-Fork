@@ -168,7 +168,7 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(BigBinaryInteger &&bigIn
 }
 
 template<typename uint_type,usint BITLENGTH>
-std::function<unique_ptr<BigBinaryInteger<uint_type,BITLENGTH>>()> BigBinaryInteger<uint_type,BITLENGTH>::Allocator = [=](){
+std::function<unique_ptr<BigBinaryInteger<uint_type,BITLENGTH>>()> BigBinaryInteger<uint_type,BITLENGTH>::Allocator = [](){
 	return make_unique<cpu_int::BigBinaryInteger<uint32_t,1500>>();
 };
 
@@ -512,6 +512,91 @@ void BigBinaryInteger<uint_type,BITLENGTH>::PrintValueInDec() const{
 
     std::cout<<std::endl;
 }
+
+// the array and the next two functions convert a BigBinaryInteger in and out of a string of characters
+// the encoding is Base64-like: the first 5 6-bit groupings are Base64 encoded, and the last 2 bits are A-D
+
+// Note this is, sadly, hardcoded for 32 bit integers and needs Some Work to handle arbitrary sizes
+
+// precomputed shift amounts for each 6 bit chunk
+static const usint b64_shifts[] = { 0, 6, 12, 18, 24, 30 };
+static const usint B64MASK = 0x3F;
+
+// this for encoding...
+static char to_base64_char[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+// and this for decoding...
+static inline unsigned int base64_to_value(char b64) {
+	if( isupper(b64) )
+		return b64 - 'A';
+	else if( islower(b64) )
+		return b64 - 'a' + 26;
+	else if( isdigit(b64) )
+		return b64 - '0' + 52;
+	else if( b64 == '+' )
+		return 62;
+	else
+		return 63;
+}
+
+/**
+ * This function is only used for serialization
+ *
+ * The scheme here is to take each of the uint_types in the BigBinaryInteger
+ * and turn it into 6 ascii characters. It's basically Base64 encoding: 6 bits per character
+ * times 5 is the first 30 bits. For efficiency's sake, the last two bits are encoded as A,B,C, or D
+ * and the code is implemented as unrolled loops
+ */
+template<typename uint_type,usint BITLENGTH>
+const std::string BigBinaryInteger<uint_type,BITLENGTH>::Serialize() const{
+
+	std::string ans = "";
+	uint_type *fromP;
+
+	sint siz = (m_MSB%m_uintBitLength==0&&m_MSB!=0) ? (m_MSB/m_uintBitLength) : ((sint)m_MSB/m_uintBitLength +1);
+	int i;
+	for(i=m_nSize-1, fromP=m_value+i ; i>=m_nSize-siz ; i--,fromP--) {
+		ans += to_base64_char[((*fromP) >> b64_shifts[0]) & B64MASK];
+		ans += to_base64_char[((*fromP) >> b64_shifts[1]) & B64MASK];
+		ans += to_base64_char[((*fromP) >> b64_shifts[2]) & B64MASK];
+		ans += to_base64_char[((*fromP) >> b64_shifts[3]) & B64MASK];
+		ans += to_base64_char[((*fromP) >> b64_shifts[4]) & B64MASK];
+		ans += (((*fromP) >> b64_shifts[5])&0x3) + 'A';
+	}
+
+	return ans;
+}
+
+/**
+ * This function is only used for deserialization
+ */
+template<typename uint_type, usint BITLENGTH>
+const char *BigBinaryInteger<uint_type, BITLENGTH>::Deserialize(const char *cp){
+
+	sint i = m_nSize-1;
+	uint_type *msbInt = &m_value[i];
+
+	usint counter = 0;
+
+	while( *cp != '\0' && *cp != '|' ) {
+		uint_type converted =  base64_to_value(*cp++) << b64_shifts[0];
+		converted |= base64_to_value(*cp++) << b64_shifts[1];
+		converted |= base64_to_value(*cp++) << b64_shifts[2];
+		converted |= base64_to_value(*cp++) << b64_shifts[3];
+		converted |= base64_to_value(*cp++) << b64_shifts[4];
+		converted |= ((*cp++ - 'A')&0x3) << b64_shifts[5];
+		m_value[i] = converted;
+		counter++;
+		i--;
+	}
+
+	m_MSB = GetMSB32(m_value[i+1])+(counter-1)*32; // 32 should be something better: (sizeof(uint_type)*8 ??
+
+	m_state = INITIALIZED;
+
+	return cp;
+}
+
 
 template<typename uint_type,usint BITLENGTH>
 usshort BigBinaryInteger<uint_type,BITLENGTH>::GetMSB()const{
@@ -972,7 +1057,8 @@ void BigBinaryInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 	DecValue = new uschar[arrSize];
 	
 	for(sint i=0;i<arrSize;i++)//store the string to decimal array
-		DecValue[i] = (uschar) stoi(v.substr(i,1));
+		DecValue[i] = (uschar) atoi(v.substr(i,1).c_str());
+		//DecValue[i] = (uschar) stoi(v.substr(i,1));
 	sshort zptr = 0;
 	//index of highest non-zero number in decimal number
 	//define  bit register array
@@ -1536,12 +1622,12 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 	std::string bbiString;
 
 	//create reference for the object to be printed
-	BigBinaryInteger<uint_type,BITLENGTH> *print_obj;
+	//BigBinaryInteger<uint_type,BITLENGTH> *print_obj;
 
 	usint counter;
 
 	//initiate to object to be printed
-	print_obj = new BigBinaryInteger<uint_type,BITLENGTH>(*this);
+	//print_obj = new BigBinaryInteger<uint_type,BITLENGTH>(*this);
 
 	//print_obj->PrintValueInDec();
 
@@ -1553,13 +1639,13 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 		*(print_VALUE+i)=0;
 
 	//starts the conversion from base r to decimal value
-	for(sint i=print_obj->m_MSB;i>0;i--){
+	for(sint i=this->m_MSB;i>0;i--){
 
 		//print_VALUE = print_VALUE*2
 		BigBinaryInteger<uint_type,BITLENGTH>::double_bitVal(print_VALUE);	
 
 		//adds the bit value to the print_VALUE
-		BigBinaryInteger<uint_type,BITLENGTH>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
+		BigBinaryInteger<uint_type,BITLENGTH>::add_bitVal(print_VALUE,this->GetBitAtIndex(i));
 
 
 	}
@@ -1576,7 +1662,7 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 
 	delete [] print_VALUE;
 	//deallocate the memory since values are inserted into the ostream object
-	delete print_obj;
+	//delete print_obj;
 
 	return bbiString;
 

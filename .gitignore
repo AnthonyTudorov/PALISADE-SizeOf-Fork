@@ -2,6 +2,7 @@
 *~
 *.o
 bin/
+build/
 test/build
 test/bin
 output.txt
@@ -13,6 +14,13 @@ test/bin
 test/build
 .idea
 */**/*.gch
+*.a
+
+## for the moment
+.cproject
+.metadata/
+.project
+RemoteSystemTempFiles/
 
 
 # Ignore intellij project files/cmake files

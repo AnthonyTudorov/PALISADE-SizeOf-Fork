@@ -186,7 +186,15 @@ namespace lbcrypto {
 			m_modulus = modulus;
 		}
 
-        inline bool operator==(ILParams const& other) {
+        bool operator==(const ElemParams* other) const {
+        	const ILParams *ip = dynamic_cast<const ILParams *>(other);
+
+        	if( ip == 0 ) return false;
+
+        	return *this == *ip;
+        }
+
+        inline bool operator==(ILParams const& other) const {
             if (m_modulus != other.GetModulus()) {
                 return false;
             }
@@ -199,35 +207,25 @@ namespace lbcrypto {
             return true;
         }
 
-        inline bool operator!=(ILParams const& other) {
+        inline bool operator!=(ILParams const& other) const {
             return !(*this == other);
         }
 
 		//JSON FACILITY
 		/**
-		* Implemented by this object only for inheritance requirements of abstract class Serializable.
-		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
-		* @return map passed in.
+		* Serialize the object into a Serialized
+		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @param fileFlag is an object-specific parameter for the serialization
+		* @return true if successfully serialized
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+    	bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
 
-		//JSON FACILITY
 		/**
-		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
-		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
-		* @return map updated with the attribute name value pairs required to serialize this object.
+		* Populate the object from the deserialization of the Setialized
+		* @param serObj contains the serialized object
+		* @return true on success
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
-
-		//JSON FACILITY
-		/**
-		* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
-		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
-		*/
-		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+		bool Deserialize(const Serialized& serObj);
 
 	private:
 		// order of cyclotomic polynomial

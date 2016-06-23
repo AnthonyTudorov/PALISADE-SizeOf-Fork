@@ -36,6 +36,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <fstream>
+#define _USE_MATH_DEFINES 
 //#include "../../lib/utils/inttypes.h"
 //#include "../../lib/math/backend.h"
 //#include "../../lib/math/nbtheory.h"

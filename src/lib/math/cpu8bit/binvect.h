@@ -34,10 +34,9 @@
 #ifndef LBCRYPTO_MATH_CPU8BIT_BINVECT_H
 #define LBCRYPTO_MATH_CPU8BIT_BINVECT_H
 
-
+#include "../../utils/serializable.h"
 #include "binint.h"
 #include "binmat.h"
-#include "../../utils/serializable.h"
 
 /**
  * @namespace cpu8bit
@@ -52,7 +51,7 @@ namespace cpu8bit {
  * @brief The class for representing vectors of big binary integers.
  */
 	//JSON FACILITY
-	class BigBinaryVector : public lbcrypto::BigBinaryVectorInterface, public lbcrypto::Serializable
+class BigBinaryVector : public lbcrypto::BigBinaryVectorInterface, public lbcrypto::Serializable
 {
 public:
 	/**
@@ -328,29 +327,19 @@ public:
 
 	//JSON FACILITY
 	/**
-	* Implemented by this object only for inheritance requirements of abstract class Serializable.
-	*
-	* @param serializationMap stores this object's serialized attribute name value pairs.
-	* @return map passed in.
+	* Serialize the object into a Serialized
+	* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+	* @param fileFlag is an object-specific parameter for the serialization
+	* @return true if successfully serialized
 	*/
-	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+	bool Serialize(lbcrypto::Serialized* serObj, const std::string fileFlag = "") const;
 
-	//JSON FACILITY
 	/**
-	* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
-	*
-	* @param serializationMap stores this object's serialized attribute name value pairs.
-	* @return map updated with the attribute name value pairs required to serialize this object.
+	* Populate the object from the deserialization of the Setialized
+	* @param serObj contains the serialized object
+	* @return true on success
 	*/
-	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
-
-	//JSON FACILITY
-	/**
-	* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
-	*
-	* @param serializationMap stores this object's serialized attribute name value pairs.
-	*/
-	void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+	virtual bool Deserialize(const lbcrypto::Serialized& serObj);
 
 private:
 	BigBinaryInteger **m_data;

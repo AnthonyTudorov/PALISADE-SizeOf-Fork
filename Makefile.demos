@@ -23,53 +23,77 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
-#TODO: currently this makefile will not build a demo executable if the .cpp is touched. 
-
-# this assembles a list of the palisade demo sources 
-# (using DEMODIR and SRCEXT
-# defined in the calling makefile. We need this to build 
-# the palisade demo executables \
-# (note there is a cleaner way to do this as shown in the Makefile.benchmark
-DEMOSOURCES := $(shell find $(DEMODIR) -name '*.$(SRCEXT)')
-
 # this defines the object resulting from each demo source file
+DEMOSOURCES := $(SRCDIR)/demo/*/*.cpp
 DEMOOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(DEMOSOURCES)))
 
-DEMOBUILDDIRS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(DEMOSOURCES)))
-
-#this defines the binary result for each demo source
-DEMOBIN := $(patsubst $(SRCDIR)/%,$(BINDIR)/%,$(patsubst %.cpp,%,$(DEMOSOURCES)))
-
-#.PHONY:alldemos
-#alldemos: $(DEMOBIN)
+-include $(DEMOOBJECTS:.o=.d)
 
 #this is the actual target that gets called when make is executed (part of all in Makefile)
 #it makes the demo executables 
 alldemos: make_demos
 
-.PHONY:make_demos
-make_demos: $(DEMOBIN)
+make_demos: \
+	$(BINDIR)/demo/core/LargeFloatSource$(EXESUFFIX) \
+	$(BINDIR)/demo/core/ParallelSource$(EXESUFFIX) \
+	$(BINDIR)/demo/obfuscate/ObfuscateSource$(EXESUFFIX) \
+	$(BINDIR)/demo/obfuscate/ObfuscateSource_sim$(EXESUFFIX) \
+	$(BINDIR)/demo/obfuscate/ObfuscateSourceDbc$(EXESUFFIX) \
+	$(BINDIR)/demo/pre/Source_dcrt$(EXESUFFIX) \
+	$(BINDIR)/demo/pre/Source_json$(EXESUFFIX) \
+	$(BINDIR)/demo/pre/leaktester$(EXESUFFIX) \
+	$(BINDIR)/demo/pre/Source_presim$(EXESUFFIX) \
+	$(BINDIR)/demo/pre/Source$(EXESUFFIX) \
+	$(BINDIR)/demo/pre/PrettyJson$(EXESUFFIX) \
+	$(BINDIR)/demo/pre/palisade$(EXESUFFIX)
 
-#this updates the binaries when the objects or libraries ar touched
-#TODO this relinks all demos when any one is touched.
-$(DEMOBIN): $(DEMOOBJECTS) $(EXTLIBDIR)/lib$(SOLIB).so
+## builder for source files in the demo directory
+.PRECIOUS: $(BUILDDIR)/demo/%.o $(BUILDDIR)/demo/%.d
+$(BUILDDIR)/demo/%.o: $(DEMODIR)/%.cpp
+	@mkdir -p $(@D)
+	$(CC) -MM $(CPPFLAGS) $(INC) -I src/lib $< > $(patsubst %.o,%.d,$@)
+	@mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)
+	@sed -e 's|.*\.o:|$@:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)
+	@rm -f $(patsubst %.o,%.d.tmp,$@)
+	$(CC) -fPIC $(CPPFLAGS) $(INC) -I src/lib -c -o $@ $<
 
-# this will build demos out of the demo.o and the palisade shared object library
-#.PRECIOUS: $(BINDIR)/demo/%
-$(BINDIR)/demo/%: $(EXTLIBDIR)/lib$(SOLIB).so $(BUILDDIR)/demo/%.o 
-#$(LIBDIR)lib$(SOLIB)
-	@echo " -- demo:linking $@"
-	mkdir -p $(@D)
-	 $(CC) -o $@ $(patsubst $(BINDIR)/%,$(BUILDDIR)/%,$(patsubst %,%.o,$@))  -l$(SOLIB) $(EXTLIB) -L$(EXTLIBDIR)
-	@echo
+$(BINDIR)/demo/core/%$(EXESUFFIX): $(BUILDDIR)/demo/core/%.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
 
-#this will build the .o for each demo
-.PRECIOUS: $(BUILDDIR)/demo/%
-$(BUILDDIR)/demo/%:
-	@echo " -- demo:compiling $@"
-	mkdir -p $(@D)
-	$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))
-	@echo
+
+$(BINDIR)/demo/obfuscate/%$(EXESUFFIX): $(BUILDDIR)/demo/obfuscate/%.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source_dcrt$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_dcrt.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source_json$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_json.o $(BUILDDIR)/demo/pre/testJson.o  $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/leaktester$(EXESUFFIX): $(BUILDDIR)/demo/pre/leaktester.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -static-libgcc -static-libstdc++ -ggdb -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source_presim$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_presim.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/PrettyJson$(EXESUFFIX): $(BUILDDIR)/demo/pre/PrettyJson.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/palisade$(EXESUFFIX): $(BUILDDIR)/demo/pre/palisade.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
 
 # this target lets us see what all the strings are define as, 
 # as an aid to debugging Makefile.demos 
@@ -80,15 +104,12 @@ docdemostrings:
 	@echo 'DEMODIR $(DEMODIR)' 
 	@echo 'DEMOSOURCES $(DEMOSOURCES)' 
 	@echo 'DEMOOBJECTS $(DEMOOBJECTS)' 
-	@echo 'DEMOBIN $(DEMOBIN)'
 
 	@echo 'BUILDDIR $(BUILDDIR)' 
-	@echo 'SOLIB $(SOLIB)' 
 	@echo 'EXTLIB $(EXTLIB)' 
 	@echo 'EXTLIBDIR $(EXTLIBDIR)' 
 
 .PHONEY: cleandemos
 cleandemos:
 	@echo " Cleaning demos...";
-	$(RM) -r $(DEMOBIN) $(DEMOOBJECTS)
-	$(RM) -rf $(BUILDIR)/demo
+	$(RM) -rf $(BUILDDIR)/demo $(BINDIR)/demo

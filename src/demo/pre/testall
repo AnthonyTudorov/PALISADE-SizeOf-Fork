@@ -1,0 +1,36 @@
+f=bin/demo/pre
+p=src/demo/pre/PalisadeCryptoContext.parms
+in=src/demo/pre/plaintextMessage
+h=LTV3
+g="-use $p $h"
+
+echo try $h
+$f/palisade $g makekey publisher$h
+$f/palisade $g makekey subscriber$h
+$f/palisade $g makerekey subscriber${h}PUB.txt publisher${h}PRI.txt rekey${h}.txt
+
+$f/palisade $g encrypt $in publisher${h}PUB.txt encrypted${h}.txt
+$f/palisade $g reencrypt encrypted${h}.txt rekey${h}.txt reencrypted${h}.txt
+$f/palisade $g decrypt reencrypted${h}.txt subscriber${h}PRI.txt cleartextOutput${h}.txt
+
+h=StSt6
+g="-use $p $h"
+
+echo try $h
+$f/palisade $g makekey publisher$h
+$f/palisade $g makekey subscriber$h
+$f/palisade $g makerekey subscriber${h}PUB.txt publisher${h}PRI.txt rekey${h}.txt
+
+$f/palisade $g encrypt $in publisher${h}PUB.txt encrypted${h}.txt
+$f/palisade $g reencrypt encrypted${h}.txt rekey${h}.txt reencrypted${h}.txt
+$f/palisade $g decrypt reencrypted${h}.txt subscriber${h}PRI.txt cleartextOutput${h}.txt
+
+echo now try with -from option
+h=StSt6-2
+$f/palisade $g makekey publisher$h
+$f/palisade $g makekey subscriber$h
+$f/palisade -from publisher${h}PUB.txt makerekey subscriber${h}PUB.txt publisher${h}PRI.txt rekey${h}.txt
+
+$f/palisade -from publisher${h}PUB.txt encrypt $in publisher${h}PUB.txt encrypted${h}.txt
+$f/palisade -from publisher${h}PUB.txt reencrypt encrypted${h}.txt rekey${h}.txt reencrypted${h}.txt
+$f/palisade -from publisher${h}PUB.txt decrypt reencrypted${h}.txt subscriber${h}PRI.txt cleartextOutput${h}.txt

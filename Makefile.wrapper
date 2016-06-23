@@ -1,0 +1,78 @@
+#
+#Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+#All rights reserved.
+#Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+#met:
+#1. Redistributions of source code must retain the above copyright
+#notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright
+#notice, this list of conditions and the following disclaimer in the
+#documentation and/or other materials provided with the distribution.
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+#IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+#TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+#PARTICULAR PURPOSE ARE DISCLAIMED.
+#IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+#ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+#DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+#OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+#STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+#IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+
+
+################
+# Makefile.wrapper contains all build instructions for making the
+# JNI wrapper for the palisade library object files and the shared library.
+################
+
+LIBSOURCES := $(shell find $(SRCLIBDIR) -name '*.$(SRCEXT)')
+
+LIBOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(LIBSOURCES)))
+
+-include build/wrappers/java/PalisadeCryptoWrapper.d
+
+.PHONY:allwrappers
+allwrappers: $(EXTLIBDIR)/$(JNILIB) $(EXTLIBDIR)/PalisadeCrypto.jar
+
+#this builds the palisade JNI wrapper library
+$(EXTLIBDIR)/$(JNILIB): $(LIBOBJECTS) build/wrappers/java/PalisadeCryptoWrapper.o
+	mkdir -p $(EXTLIBDIR)
+	$(CC) $(LIBCMD) -o $@ $(LIBOBJECTS) build/wrappers/java/PalisadeCryptoWrapper.o $(JNILINKPARM) -lgomp
+
+$(EXTLIBDIR)/PalisadeCrypto.jar: src/wrappers/java/PalisadeCrypto/src/com/palisade/PalisadeCrypto.class src/wrappers/java/PalisadeCrypto/src/com/palisade/PalisadeKeypair.class
+	( cd src/wrappers/java/PalisadeCrypto/src/ ; jar cvf ../../../../../bin/lib/PalisadeCrypto.jar com/palisade/*.class )
+
+
+src/wrappers/java/PalisadeCrypto/src/com/palisade/PalisadeCrypto.class: src/wrappers/java/PalisadeCrypto/src/com/palisade/PalisadeCrypto.java
+	javac -cp src/wrappers/java/PalisadeCrypto/src $<
+
+src/wrappers/java/PalisadeCrypto/src/com/palisade/PalisadeKeypair.class: src/wrappers/java/PalisadeCrypto/src/com/palisade/PalisadeKeypair.java
+	javac -cp src/wrappers/java/PalisadeCrypto/src $<
+
+### #this builds the individual objects that make up the library .
+.PRECIOUS: $(BUILDDIR)/wrappers/java/%
+$(BUILDDIR)/wrappers/java/%:
+	@if [ "$(suffix $@)" = ".o" ] ;   \
+	then  \
+		mkdir -p $(@D)  ;\
+		echo $(CC) -fPIC $(CPPFLAGS) $(INC) $(JNIBUILD) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
+		$(CC) -MM $(CPPFLAGS) $(INC) $(JNIBUILD) $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@)) > $(patsubst %.o,%.d,$@)  ;\
+		mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)  ;\
+		sed -e 's|.*\.o:|$(BUILDDIR)/wrappers/java/$*:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)  ;\
+		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
+		$(CC) -fPIC $(CPPFLAGS) $(INC) $(JNIBUILD) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
+	fi
+
+#this target is used to cleanup, it is called from the top Makefile
+.PHONEY: cleanwrappers
+cleanwrappers:
+	@echo " Cleaning targets...";
+	$(RM) -r  build/wrappers/java/PalisadeCryptoWrapper.o
+	$(RM) -r src/wrappers/java/PalisadeCrypto/src/com/palisade/*.class
+	$(RM) -r $(EXTLIBDIR)/$(JNILIB) $(EXTLIBDIR)/PalisadeCrypto.jar
+
+
