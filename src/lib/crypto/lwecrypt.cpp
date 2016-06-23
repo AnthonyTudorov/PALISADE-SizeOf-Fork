@@ -602,23 +602,36 @@ LPPublicKeyEncryptionSchemeLTV<Element>::~LPPublicKeyEncryptionSchemeLTV(){
 		delete this->m_algorithmFHE;
 }
 
-// Destructor for LPPublicKeyEncryptionSchemeLTV
+// FIXME: the Enable code below should delete the old one before assigning to the new one...
+// Enable for LPPublicKeyEncryptionSchemeLTV
 template <class Element>
 void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature){
 	switch (feature)
 	{
 	case ENCRYPTION:
-		this->m_algorithmEncryption = new LPAlgorithmLTV<Element>(*this);
+		if( this->m_algorithmEncryption == NULL )
+			this->m_algorithmEncryption = new LPAlgorithmLTV<Element>(*this);
+		break;
 	case PRE:
-		this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
+		if (this->m_algorithmPRE == NULL)
+			this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
+		break;
 	case EVALADD:
-		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
+		if (this->m_algorithmEvalAdd == NULL)
+			this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
+		break;
 	case EVALAUTOMORPHISM:
-		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
+		if (this->m_algorithmEvalAutomorphism == NULL)
+			this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
+		break;
 	case SHE:
-		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
+		if (this->m_algorithmSHE == NULL)
+			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
+		break;
 	case FHE:
-		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+		if (this->m_algorithmFHE == NULL)
+			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+		break;
 	}
 }
 
@@ -646,17 +659,29 @@ void LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>::Enable(PKESchemeFeatur
 	switch (feature)
 	{
 	case ENCRYPTION:
-		this->m_algorithmEncryption = new LPEncryptionAlgorithmStehleSteinfeld<Element>(*this);
+		if( this->m_algorithmEncryption == NULL )
+			this->m_algorithmEncryption = new LPEncryptionAlgorithmStehleSteinfeld<Element>(*this);
+		break;
 	case PRE:
-		this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
+		if (this->m_algorithmPRE == NULL)
+			this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
+		break;
 	case EVALADD:
-		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
+		if (this->m_algorithmEvalAdd == NULL)
+			this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
+		break;
 	case EVALAUTOMORPHISM:
-		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
+		if (this->m_algorithmEvalAutomorphism == NULL)
+			this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
+		break;
 	case SHE:
-		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
+		if (this->m_algorithmSHE == NULL)
+			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
+		break;
 	case FHE:
-		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+		if (this->m_algorithmFHE == NULL)
+			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+		break;
 	}
 }
 
