@@ -48,6 +48,7 @@ using namespace lbcrypto;
 
 bool NTRUPRE(bool dbg_flag, int n_evals); //defined later
 
+
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
 	bool errorflag = false;
