@@ -109,8 +109,7 @@ namespace lbcrypto {
 			/**
 			* Destructor
 			*/
-			virtual ~LPCryptoParametersLTV() {
-			}
+			virtual ~LPCryptoParametersLTV() {}
 			
 			/**
 			 * Initialization methods.
@@ -847,7 +846,8 @@ namespace lbcrypto {
 		public:
 			LPPublicKeyEncryptionSchemeLTV();
 			LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask);
-			~LPPublicKeyEncryptionSchemeLTV();
+
+			virtual ~LPPublicKeyEncryptionSchemeLTV();
 			//These functions can be implemented later
 			//Initialize(mask);
 

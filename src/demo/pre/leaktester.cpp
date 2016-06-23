@@ -50,6 +50,8 @@ main(int argc, char *argv[])
 
 	delete ctx;
 
+	ILVector2n::DestroyPreComputedSamples();
+
 	//	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	//	NumberTheoreticTransform::GetInstance().Destroy();
 
