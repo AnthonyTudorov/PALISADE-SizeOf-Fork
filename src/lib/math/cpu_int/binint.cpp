@@ -1611,12 +1611,12 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 	std::string bbiString;
 
 	//create reference for the object to be printed
-	BigBinaryInteger<uint_type,BITLENGTH> *print_obj;
+	//BigBinaryInteger<uint_type,BITLENGTH> *print_obj;
 
 	usint counter;
 
 	//initiate to object to be printed
-	print_obj = new BigBinaryInteger<uint_type,BITLENGTH>(*this);
+	//print_obj = new BigBinaryInteger<uint_type,BITLENGTH>(*this);
 
 	//print_obj->PrintValueInDec();
 
@@ -1628,13 +1628,13 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 		*(print_VALUE+i)=0;
 
 	//starts the conversion from base r to decimal value
-	for(sint i=print_obj->m_MSB;i>0;i--){
+	for(sint i=this->m_MSB;i>0;i--){
 
 		//print_VALUE = print_VALUE*2
 		BigBinaryInteger<uint_type,BITLENGTH>::double_bitVal(print_VALUE);	
 
 		//adds the bit value to the print_VALUE
-		BigBinaryInteger<uint_type,BITLENGTH>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
+		BigBinaryInteger<uint_type,BITLENGTH>::add_bitVal(print_VALUE,this->GetBitAtIndex(i));
 
 
 	}
@@ -1651,7 +1651,7 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 
 	delete [] print_VALUE;
 	//deallocate the memory since values are inserted into the ostream object
-	delete print_obj;
+	//delete print_obj;
 
 	return bbiString;
 

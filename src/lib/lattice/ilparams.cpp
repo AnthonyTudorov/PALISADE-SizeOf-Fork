@@ -41,6 +41,7 @@ namespace lbcrypto {
 
 	
 		//JSON FACILITY
+
 		/**
 		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
 		*
@@ -54,7 +55,7 @@ namespace lbcrypto {
 
 			SerialItem ser(rapidjson::kObjectType);
 			ser.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
-			ser.AddMember("Order", this->ToStr(this->GetCyclotomicOrder()), serObj->GetAllocator());
+			ser.AddMember("Order", std::to_string(this->GetCyclotomicOrder()), serObj->GetAllocator());
 			ser.AddMember("RootOfUnity", this->GetRootOfUnity().ToString(), serObj->GetAllocator());
 
 			serObj->AddMember("ILParams", ser, serObj->GetAllocator());

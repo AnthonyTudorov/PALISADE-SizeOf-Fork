@@ -39,10 +39,10 @@
 #define LBCRYPTO_CRYPTO_CIPHERTEXT_H
 
 //Includes Section
+#include "../utils/serializable.h"
 #include "pubkeylp.h"
 #include "lwecrypt.h"
 
-#include "../utils/serializable.h"
 
 /**
 * @namespace lbcrypto
@@ -198,7 +198,8 @@ namespace lbcrypto {
 		* @param serObj contains the serialized object
 		* @return true on success
 		*/
-		virtual bool Deserialize(const Serialized& serObj);
+		bool Deserialize(const Serialized& serObj) { return false; }
+		bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx);
 
 	private:
 

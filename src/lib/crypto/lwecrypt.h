@@ -230,7 +230,20 @@ namespace lbcrypto {
 			* @param serObj contains the serialized object
 			* @return true on success
 			*/
-			virtual bool Deserialize(const Serialized& serObj);
+			bool Deserialize(const Serialized& serObj);
+
+			bool operator==(const LPCryptoParameters<Element>* cmp) const {
+				const LPCryptoParametersLTV<Element> *el = dynamic_cast<const LPCryptoParametersLTV<Element> *>(cmp);
+
+				if( cmp == 0 ) return false;
+
+				return  this->GetPlaintextModulus() == cmp->GetPlaintextModulus() &&
+						this->GetElementParams() == &cmp->GetElementParams() &&
+						m_distributionParameter == el->GetDistributionParameter() &&
+						m_assuranceMeasure == el->GetAssuranceMeasure() &&
+						m_securityLevel == el->GetSecurityLevel() &&
+						m_relinWindow == el->GetRelinWindow();
+			}
 
 		private:
 			//standard deviation in Discrete Gaussian Distribution
@@ -301,8 +314,22 @@ namespace lbcrypto {
 			* @param serObj contains the serialized object
 			* @return true on success
 			*/
-			virtual bool Deserialize(const Serialized& serObj);
+			bool Deserialize(const Serialized& serObj);
 
+
+			bool operator==(const LPCryptoParameters<Element>* cmp) const {
+				const LPCryptoParametersStehleSteinfeld<Element> *el = dynamic_cast<const LPCryptoParametersStehleSteinfeld<Element> *>(cmp);
+
+				if( cmp == 0 ) return false;
+
+				return  this->GetPlaintextModulus() == cmp->GetPlaintextModulus() &&
+						this->GetElementParams() == &cmp->GetElementParams() &&
+						this->GetDistributionParameter() == el->GetDistributionParameter() &&
+						this->GetAssuranceMeasure() == el->GetAssuranceMeasure() &&
+						this->GetSecurityLevel() == el->GetSecurityLevel() &&
+						this->GetRelinWindow() == el->GetRelinWindow() &&
+						m_distributionParameterStSt == el->GetDistributionParameterStSt();
+			}
 
 		private:
 			//standard deviation in Discrete Gaussian Distribution used for Key Generation
@@ -311,28 +338,54 @@ namespace lbcrypto {
 			DiscreteGaussianGenerator m_dggStSt;
 	};
 
-	/* this function is used to properly deserialize the Crypto Parameters, and to change the object's
-	 * parms based on the serialization
+	/* this function is used to deserialize the Crypto Parameters
 	 *
-	 * the hardcoded strings should be replaced
+	 * @return the parameters or null on failure
 	 */
-	template <typename Element, typename Object>
-	inline bool DeserializeAndSetCryptoParameters(const Serialized& serObj, Object *o)
+	template <typename Element>
+	inline LPCryptoParameters<Element>* DeserializeCryptoParameters(const Serialized& serObj)
 	{
+		LPCryptoParameters<Element>* parmPtr = 0;
+
 		Serialized::ConstMemberIterator it = serObj.FindMember("LPCryptoParametersType");
-		if( it == serObj.MemberEnd() ) return false;
+		if( it == serObj.MemberEnd() ) return 0;
 		std::string type = it->value.GetString();
 
-		LPCryptoParametersImpl<Element>* parmPtr;
 		if( type == "LPCryptoParametersLTV" ) {
 			parmPtr = new LPCryptoParametersLTV<Element>();
 		} else if( type == "LPCryptoParametersStehleSteinfeld" ) {
 			parmPtr = new LPCryptoParametersStehleSteinfeld<Element>();
 		} else
-			return false;
-		o->SetCryptoParameters(parmPtr);
-		return true;
+			return 0;
+
+		if( !parmPtr->Deserialize(serObj) ) {
+			delete parmPtr;
+			return 0;
+		}
+
+		return parmPtr;
 	}
+
+	/* this function is used to deserialize the Crypto Parameters, to compare them to the existing parameters,
+	 * and to fail if they do not match
+	 *
+	 * @return the parameters or null on failure
+	 */
+	template <typename Element>
+	inline LPCryptoParameters<Element>* DeserializeAndValidateCryptoParameters(const Serialized& serObj, const LPCryptoParameters<Element>& curP)
+	{
+		LPCryptoParameters<Element>* parmPtr = DeserializeCryptoParameters<Element>(serObj);
+
+		if( parmPtr == 0 ) return 0;
+
+		// make sure the deserialized parms match the ones in the current context
+		if( *parmPtr == &curP )
+			return parmPtr;
+
+		delete parmPtr;
+		return 0;
+	}
+
 
 	/**
 	 * @brief Public key implementation template for Ring-LWE NTRU-based schemes,
@@ -425,7 +478,8 @@ namespace lbcrypto {
 			* @param serObj contains the serialized object
 			* @return true on success
 			*/
-			virtual bool Deserialize(const Serialized& serObj);
+			bool Deserialize(const Serialized& serObj) { return false; }
+			bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx);
 
 		private:
 			LPCryptoParameters<Element> *m_cryptoParameters;
@@ -530,7 +584,8 @@ namespace lbcrypto {
 		* @param serObj contains the serialized object
 		* @return true on success
 		*/
-		virtual bool Deserialize(const Serialized& serObj);
+		bool Deserialize(const Serialized& serObj) { return false; }
+		bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx);
 		
 	private:
 		LPCryptoParameters<Element> *m_cryptoParameters;
@@ -620,7 +675,7 @@ namespace lbcrypto {
 			* @param cryptoParams is the reference to cryptoParams
 			*/
 
-			LPPrivateKeyLTV(LPCryptoParametersLTV<Element> &cryptoParams) {
+			LPPrivateKeyLTV(LPCryptoParameters<Element> &cryptoParams) {
 				this->SetCryptoParameters(&cryptoParams);
 			}
 
@@ -703,7 +758,8 @@ namespace lbcrypto {
 			* @param serObj contains the serialized object
 			* @return true on success
 			*/
-			virtual bool Deserialize(const Serialized& serObj);
+			bool Deserialize(const Serialized& serObj) { return false; }
+			bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx);
 
 	private:
 			LPCryptoParameters<Element> *m_cryptoParameters;

@@ -246,7 +246,7 @@ namespace lbcrypto {
 		~ILDCRTParams() {}
 
 		//JSON FACILITY
-		bool Serialize(Serialized* serObj, const std::string fileFlag) const {
+		bool Serialize(Serialized* serObj, const std::string fileFlag = "") const {
 
 			//Place holder
 
@@ -259,6 +259,9 @@ namespace lbcrypto {
 			//Place holder
 			return false;
 		}
+
+		// FIXME
+		bool operator==(const ElemParams* other) const { return false; }
 
 	private:
 		// order of cyclotomic polynomial

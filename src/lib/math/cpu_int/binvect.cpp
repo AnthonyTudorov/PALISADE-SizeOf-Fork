@@ -25,8 +25,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "../cpu_int/binvect.h"
 #include "../../utils/serializable.h"
+#include "../cpu_int/binvect.h"
 //#include "../nbtheory.h"
 
 
@@ -508,7 +508,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::GetDigitAtIndexForBas
 
 // JSON FACILITY - Serialize Operation
 template<class IntegerType>
-bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::Serialized* serObj, const std::string fileFlag) const {
+bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::Serialized* serObj, const std::string) const {
 
 	if( !serObj->IsObject() )
 		return false;

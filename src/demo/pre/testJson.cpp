@@ -7,32 +7,15 @@
 
 #include <iostream>
 #include <fstream>
-#include "../../lib/math/backend.h"
-#include "../../lib/utils/inttypes.h"
-#include "../../lib/math/nbtheory.h"
-#include "../../lib/lattice/elemparams.h"
-#include "../../lib/lattice/ilparams.h"
-#include "../../lib/lattice/ildcrtparams.h"
-#include "../../lib/lattice/ilelement.h"
-#include "../../lib/math/distrgen.h"
-#include "../../lib/crypto/lwecrypt.h"
-#include "../../lib/crypto/lwecrypt.cpp"
-#include "../../lib/crypto/lweautomorph.cpp"
-#include "../../lib/crypto/lwepre.h"
-#include "../../lib/crypto/lwepre.cpp"
-#include "../../lib/crypto/lweahe.cpp"
-#include "../../lib/crypto/lweshe.cpp"
-#include "../../lib/crypto/lwefhe.cpp"
-#include "../../lib/lattice/ilvector2n.h"
-#include "../../lib/lattice/ilvectorarray2n.h"
+#include "../../lib/crypto/cryptocontext.h"
+#include "../../lib/utils/cryptocontexthelper.h"
+#include "../../lib/utils/cryptocontexthelper.cpp"
 
 #include "../../lib/utils/debug.h"
-#include "../../lib/crypto/ciphertext.cpp"
+
 #include <chrono>
 
 #include "../../lib/utils/serializablehelper.h"
-
-#include "../../lib/encoding/ptxtencoding.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -93,7 +76,7 @@ void testJson(
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap1);
 
-	if (pkDeserialized.Deserialize(testMap1)) {
+	if (pkDeserialized.Deserialize(testMap1, tp->ctx)) {
 		cout << "Deserialized into pkDeserialized" << endl;
 	} else {
 		cout << "FAILED" << endl;
@@ -106,7 +89,7 @@ void testJson(
 	jsonFileName = "LPPrivateKey" + cID + "_Enc.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap2);
-	if (skDeserialized.Deserialize(testMap2)) {
+	if (skDeserialized.Deserialize(testMap2, tp->ctx)) {
 		cout << "Deserialized into skDeserialized" << endl;
 	} else {
 		cout << "FAILED" << endl;
@@ -117,7 +100,7 @@ void testJson(
 	cout << "----------BEGIN LPAlgorithm" + cID + ".Encrypt TESTING----------" << endl;
 	cout << "Calling Encrypt in LPAlgorithm" + cID + " with deserialized instance of LPPublicKey" + cID + "" << endl;
 	Ciphertext<ILVector2n> testCiphertext;
-	tp->algorithm->Encrypt(pkDeserialized, newPtxt, &testCiphertext);
+	tp->ctx->getAlgorithm()->Encrypt(pkDeserialized, newPtxt, &testCiphertext);
 	cout << "----------END LPAlgorithmPRE" + cID + ".Encrypt TESTING----------" << endl << endl;
 
 	cout << "---BEGIN CIPHERTEXT SERIALIZATION---" << endl;
@@ -142,7 +125,7 @@ void testJson(
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap3);
 	Ciphertext<ILVector2n> ciphertextDeserialized;
-	if (ciphertextDeserialized.Deserialize(testMap3))
+	if (ciphertextDeserialized.Deserialize(testMap3, tp->ctx))
 		cout << "Deserialized into ciphertextDeserialized" << endl;
 	else {
 		cout << "FAILED" << endl;
@@ -154,7 +137,7 @@ void testJson(
 	cout << "Calling Decrypt in LPAlgorithm" + cID + " with deserialized instances of" << endl;
 	cout << "LPPrivateKey" + cID + " and Ciphertext." << endl;
 	ByteArrayPlaintextEncoding testPlaintextRec;
-	DecodingResult testResult = tp->algorithm->Decrypt(skDeserialized,
+	DecodingResult testResult = tp->ctx->getAlgorithm()->Decrypt(skDeserialized,
 			ciphertextDeserialized, &testPlaintextRec);
 	testPlaintextRec.Unpad<ZeroPad>();
 	cout << "Recovered plaintext from call to Decrypt: " << endl;
@@ -182,7 +165,7 @@ void testJson(
 	jsonFileName = "LPEvalKey" + cID + "_Pre.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap4);
-	if( evalKeyDeserialized.Deserialize(testMap4) )
+	if( evalKeyDeserialized.Deserialize(testMap4, tp->ctx) )
 		cout << "Deserialized into evalKeyDeserialized" << endl;
 	else {
 		cout << "FAILED" << endl;
@@ -194,7 +177,7 @@ void testJson(
 	cout << "Calling ReEncrypt in LPAlgorithmPRE" + cID + " with deserialized instances of" << endl;
 	cout << "LPEvalKey" + cID + " and Ciphertext." << endl;
 	Ciphertext<ILVector2n> preCiphertext;
-	tp->algorithm->ReEncrypt(evalKeyDeserialized, ciphertextDeserialized,
+	tp->ctx->getAlgorithm()->ReEncrypt(evalKeyDeserialized, ciphertextDeserialized,
 			&preCiphertext);
 	cout << "----------END LPAlgorithmPRE" + cID + ".ReEncrypt TESTING----------" << endl << endl;
 
@@ -238,7 +221,7 @@ void testJson(
 	jsonFileName = "LPPrivateKey" + cID + "_Pre.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap5);
-	if( newSKDeserialized.Deserialize(testMap5) )
+	if( newSKDeserialized.Deserialize(testMap5, tp->ctx) )
 		cout << "Deserialized into newSKDeserialized" << endl;
 	else {
 		cout << "FAILED" << endl;
@@ -251,7 +234,7 @@ void testJson(
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap3);
 	Ciphertext<ILVector2n> preCiphertextDeserialized;
-	if( preCiphertextDeserialized.Deserialize(testMap3) )
+	if( preCiphertextDeserialized.Deserialize(testMap3, tp->ctx) )
 		cout << "Deserialized into preCiphertextDeserialized" << endl;
 	else {
 		cout << "FAILED" << endl;
@@ -263,7 +246,7 @@ void testJson(
 	cout << "Calling Decrypt in LPAlgorithmPRE" + cID + " with deserialized instances of" << endl;
 	cout << "PRE LPPrivateKey" + cID + " and PRE Ciphertext." << endl;
 	ByteArrayPlaintextEncoding testPlaintextPreRec;
-	DecodingResult testResult1 = tp->algorithm->Decrypt(newSKDeserialized,
+	DecodingResult testResult1 = tp->ctx->getAlgorithm()->Decrypt(newSKDeserialized,
 			preCiphertextDeserialized, &testPlaintextPreRec);
 	testPlaintextPreRec.Unpad<ZeroPad>();
 	cout << "Recovered plaintext from call to PRE Decrypt: " << endl;

@@ -109,6 +109,8 @@ namespace lbcrypto {
 		 */
 		virtual const ElemParams &GetElementParams() const = 0;
 		
+		virtual bool operator==(const LPCryptoParameters<Element>*) const = 0;
+
 	};
 
 	/**
@@ -479,6 +481,10 @@ namespace lbcrypto {
 			*/
 		void SetElementParams(ElemParams &params) { m_params = &params; }
 
+		bool operator==(const LPCryptoParameters<Element>* cmp) const {
+			return m_plaintextModulus == cmp->GetPlaintextModulus() && cmp->GetElementParams() == m_params;
+		}
+
 	protected:
 		LPCryptoParametersImpl() : m_params(NULL), m_plaintextModulus(BigBinaryInteger::TWO) {}
 
@@ -555,7 +561,7 @@ namespace lbcrypto {
 		void Encrypt(const LPPublicKey<Element> &publicKey, 
 			const PlaintextEncodingInterface &plaintext, Ciphertext<Element> *ciphertext) const {
 				if(this->IsEnabled(ENCRYPTION))
-					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext,ciphertext);
+					this->m_algorithmEncryption->Encrypt(publicKey,plaintext,ciphertext);
 				else {
 					throw std::logic_error("This operation is not supported");
 				}
@@ -594,7 +600,7 @@ namespace lbcrypto {
 		void ReEncrypt(const LPEvalKey<Element> &evalKey, const Ciphertext<Element> &ciphertext,
 			Ciphertext<Element> *newCiphertext) const {
 				if(this->IsEnabled(PRE))
-					return this->m_algorithmPRE->ReEncrypt(evalKey,ciphertext,newCiphertext);
+					this->m_algorithmPRE->ReEncrypt(evalKey,ciphertext,newCiphertext);
 				else {
 					throw std::logic_error("This operation is not supported");
 				}

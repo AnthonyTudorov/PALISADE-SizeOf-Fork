@@ -29,12 +29,11 @@ using namespace std;
 using namespace lbcrypto;
 
 struct TestJsonParms {
+	CryptoContext<ILVector2n>				*ctx;
 	LPPublicKey<ILVector2n>					*pk;
 	LPPrivateKey<ILVector2n>				*sk;
-	LPPublicKeyEncryptionScheme<ILVector2n>	*algorithm;
 	LPEvalKey<ILVector2n>					*evalKey;
 	LPPrivateKey<ILVector2n>				*newSK;
-	LPCryptoParameters<ILVector2n>			*cryptoParms;
 };
 
 extern void testJson(const std::string cID, const ByteArrayPlaintextEncoding& newPtxt, TestJsonParms *p);

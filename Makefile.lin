@@ -1,11 +1,16 @@
 ## for linux
 
-BOOSTINCLUDE := 
+BOOSTINCLUDE := -I /afs/cad/linux/boost-1.60-sl6/include/
 OMPINCLUDE := 
 CPPSTD := -std=gnu++11
 
 PALISADELIB := libPALISADE.so
 LIBCMD := -fPIC -shared -Wl,--export-dynamic
+
+RDYNAMIC := -rdynamic
+
+JNIBUILD :=  
+JNILIB := libPalisadeCryptoWrapper.so
 
 include Makefile.common
 

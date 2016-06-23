@@ -33,61 +33,33 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 using namespace std;
 
-#include "math/backend.h"
-#include "utils/inttypes.h"
+#include "../../lib/crypto/cryptocontext.h"
+#include "../../lib/utils/cryptocontexthelper.h"
+#include "../../lib/crypto/cryptocontext.cpp"
+#include "../../lib/utils/cryptocontexthelper.cpp"
 
-#include "lattice/ilparams.h"
-
-#include "crypto/lwecrypt.h"
-#include "crypto/lwecrypt.cpp"
-#include "crypto/lwepre.h"
-#include "crypto/lwepre.cpp"
-#include "crypto/lweahe.h"
-#include "crypto/lweahe.cpp"
-#include "crypto/lweshe.h"
-#include "crypto/lweshe.cpp"
-#include "crypto/lwefhe.h"
-#include "crypto/lwefhe.cpp"
-#include "crypto/lweautomorph.h"
-#include "crypto/lweautomorph.cpp"
-
-#include "crypto/ciphertext.h"
-#include "crypto/ciphertext.cpp"
-
-#include "utils/serializablehelper.h"
+#include "../../lib/utils/serializablehelper.h"
 
 using namespace lbcrypto;
 
 void usage(const string& cmd, const string& msg = "");
 
 template<typename T>
-bool fetchItemFromSer(T* key, const string& filename)
+bool fetchItemFromSer(T* key, const string& filename, const CryptoContext<ILVector2n>* ctx)
 {
 	Serialized	kser;
 	if( SerializableHelper::ReadSerializationFromFile(filename, &kser) ) {
-		return key->Deserialize(kser);
+		return key->Deserialize(kser, ctx);
 	} else {
 		cerr << "Error reading from file " << filename << endl;
 	}
 	return false;
 }
 
-class	PalisadeControls {
-public:
-	usint				ring;
-	BigBinaryInteger	modulus;
-	BigBinaryInteger	rootOfUnity;
-	usint				relinWindow;
-	float				stdDev;
-
-	ILParams			ilParams;
-	LPCryptoParametersLTV<ILVector2n> *cryptoParams;
-} ctlCrypt;
-
-typedef void (*cmdparser)(string cmd, int argc, char *argv[]);
+typedef void (*cmdparser)(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]);
 
 void
-reencrypter(string cmd, int argc, char *argv[]) {
+reencrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -97,43 +69,76 @@ reencrypter(string cmd, int argc, char *argv[]) {
 	string rekeyname(argv[1]);
 	string reciphertextname(argv[2]);
 
-	Ciphertext<ILVector2n> ciphertext;
-	if( !fetchItemFromSer(&ciphertext, ciphertextname) ) {
-		cerr << "Could not process ciphertext" << endl;
-		return;
-	}
-
-	LPEvalKeyLTV<ILVector2n> evalKey(*ctlCrypt.cryptoParams);
-	if( !fetchItemFromSer(&evalKey, rekeyname) ) {
+	LPEvalKeyLTV<ILVector2n> evalKey(*ctx->getParams());
+	if( !fetchItemFromSer(&evalKey, rekeyname, ctx) ) {
 		cerr << "Could not process re encryption key" << endl;
 		return;
 	}
 
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
-
-	Ciphertext<ILVector2n> newCiphertext;
-
-	algorithm.ReEncrypt(evalKey, ciphertext, &newCiphertext);
-	Serialized cipS;
-
-	if( newCiphertext.Serialize(&cipS, "Enc") ) {
-		if( !SerializableHelper::WriteSerializationToFile(cipS, reciphertextname) ) {
-			cerr << "Error writing serialization of new ciphertext to " + reciphertextname << endl;
-			return;
-		}
-	}
-	else {
-		cerr << "Error reserializing ciphertext" << endl;
+	ofstream outCt(reciphertextname, ios::binary);
+	if( !outCt.is_open() ) {
+		cerr << "Could not open re-encryption file";
 		return;
 	}
 
+	Ciphertext<ILVector2n> ciphertext;
+	Ciphertext<ILVector2n> newCiphertext;
+
+	ifstream inCt(ciphertextname, ios::binary);
+	if( !inCt.is_open() ) {
+		cerr << "Could not process ciphertext" << endl;
+		outCt.close();
+		return;
+	}
+
+	string inBuf;
+	char ch;
+
+	do {
+		inBuf = "";
+		while( (ch = inCt.get()) != EOF && ch != '$' )
+			inBuf += ch;
+
+		if( ch == EOF ) break;
+
+		Serialized ser;
+		if( !SerializableHelper::StringToSerialization(inBuf, &ser) ) {
+			cerr << "Error deserializing ciphertext" << endl;
+			break;
+		}
+
+		if( !ciphertext.Deserialize(ser, ctx) ) {
+			cerr << "Error deserializing ciphertext" << endl;
+			break;
+		}
+
+		ctx->getAlgorithm()->ReEncrypt(evalKey, ciphertext, &newCiphertext);
+
+		Serialized cipS;
+		string reSerialized;
+
+		if( newCiphertext.Serialize(&cipS, "Re") ) {
+			if( !SerializableHelper::SerializationToString(cipS, reSerialized) ) {
+				cerr << "Error creating serialization of new ciphertext" << endl;
+				return;
+			}
+
+			outCt << reSerialized << '$' << flush;
+		}
+		else {
+			cerr << "Error reserializing ciphertext" << endl;
+			break;
+		}
+
+	} while( inCt.good() );
+
+	inCt.close();
+	outCt.close();
 	return;
 }
 
 void
-decrypter(string cmd, int argc, char *argv[]) {
+decrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -143,42 +148,64 @@ decrypter(string cmd, int argc, char *argv[]) {
 	string prikeyname(argv[1]);
 	string cleartextname(argv[2]);
 
-	Ciphertext<ILVector2n> ciphertext;
-	if( !fetchItemFromSer(&ciphertext, ciphertextname) ) {
-		cerr << "Could not process ciphertext" << endl;
-		return;
-	}
-
-	LPPrivateKeyLTV<ILVector2n> sk(*ctlCrypt.cryptoParams);
-	if( !fetchItemFromSer(&sk, prikeyname) ) {
+	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
+	if( !fetchItemFromSer(&sk, prikeyname, ctx) ) {
 		cerr << "Could not process private key" << endl;
 		return;
 	}
 
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
-
-	ByteArrayPlaintextEncoding plaintext;
-
-	algorithm.Decrypt(sk, ciphertext, &plaintext);
-	Serialized cipS;
-
-	ofstream outf(cleartextname);
-	if( !outf.is_open() ) {
-		cerr << "Error saving plaintext" << endl;
+	ofstream outF(cleartextname, ios::binary);
+	if( !outF.is_open() ) {
+		cerr << "Could not open cleartext file";
 		return;
 	}
 
-	plaintext.Unpad<ZeroPad>();
+	ifstream inCt(ciphertextname, ios::binary);
+	if( !inCt.is_open() ) {
+		cerr << "Could not process ciphertext" << endl;
+		outF.close();
+		return;
+	}
 
-	outf << plaintext;
-	outf.close();
+	Ciphertext<ILVector2n> ciphertext;
+	ByteArrayPlaintextEncoding plaintext;
+
+	string inBuf;
+	char ch;
+
+	do {
+		inBuf = "";
+		while( (ch = inCt.get()) != EOF && ch != '$' )
+			inBuf += ch;
+
+		if( ch == EOF ) break;
+
+		Serialized ser;
+		if( !SerializableHelper::StringToSerialization(inBuf, &ser) ) {
+			cerr << "Error deserializing ciphertext" << endl;
+			break;
+		}
+
+		if( !ciphertext.Deserialize(ser, ctx) ) {
+			cerr << "Error deserializing ciphertext" << endl;
+			break;
+		}
+
+		DecodingResult rv = ctx->getAlgorithm()->Decrypt(sk, ciphertext, &plaintext);
+		plaintext.Unpad<ZeroPad>();
+
+		outF << plaintext << flush;
+
+	} while( inCt.good() );
+
+	inCt.close();
+	outF.close();
+
 	return;
 }
 
 void
-encrypter(string cmd, int argc, char *argv[]) {
+encrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -188,51 +215,71 @@ encrypter(string cmd, int argc, char *argv[]) {
 	string pubkeyname(argv[1]);
 	string ciphertextname(argv[2]);
 
-	// fetch the plaintext to be encrypted
-	ifstream inf(plaintextname);
-	if( !inf.is_open() ) {
-		cerr << "could not read plaintext file " << plaintextname << endl;
+	ofstream ctSer(ciphertextname, ios::binary);
+	if( !ctSer.is_open() ) {
+		cerr << "could not open output file " << ciphertextname << endl;
 		return;
 	}
-	stringstream buffer;
-	buffer << inf.rdbuf();
-	inf.close();
-
-	ByteArrayPlaintextEncoding ptxt(buffer.str());
 
 	// Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(*ctlCrypt.cryptoParams);
+	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
 
-	if( !fetchItemFromSer(&pk, pubkeyname) ) {
+	if( !fetchItemFromSer(&pk, pubkeyname, ctx) ) {
 		cerr << "Could not process public key" << endl;
+		ctSer.close();
 		return;
 	}
 
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
+	// fetch the plaintext to be encrypted
+	ifstream inf(plaintextname, ios::binary);
+	if( !inf.is_open() ) {
+		cerr << "could not read plaintext file " << plaintextname << endl;
+		ctSer.close();
+		return;
+	}
 
-	Ciphertext<ILVector2n> ciphertext;
+	inf.seekg(0, ios::end);
+	long totalBytes = inf.tellg();
+	inf.clear();
+	inf.seekg(0);
 
-	algorithm.Encrypt(pk, ptxt, &ciphertext);
-	Serialized cipS;
+	while( totalBytes > 0 ) {
+		usint s = min(totalBytes, ctx->getChunksize());
+		char *chunkb = new char[s];
+		inf.read(chunkb, s);
 
-	if( ciphertext.Serialize(&cipS, "Enc") ) {
-		if( !SerializableHelper::WriteSerializationToFile(cipS, ciphertextname) ) {
-			cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
-			return;
+		ByteArrayPlaintextEncoding ptxt( ByteArray(chunkb, s) );
+		ptxt.Pad<ZeroPad>(ctx->getPadAmount());
+		delete chunkb;
+
+		Ciphertext<ILVector2n> ciphertext;
+
+		ctx->getAlgorithm()->Encrypt(pk, ptxt, &ciphertext);
+		Serialized cipS;
+		string cipherSer;
+
+		if( ciphertext.Serialize(&cipS, "Enc") ) {
+			if( !SerializableHelper::SerializationToString(cipS, cipherSer) ) {
+				cerr << "Error stringifying serialized ciphertext" << endl;
+				break;
+			}
+
+			ctSer << cipherSer << "$" << flush;
+		} else {
+			cerr << "Error serializing ciphertext" << endl;
+			break;
 		}
-	}
-	else {
-		cerr << "Error serializing ciphertext" << endl;
-		return;
+
+		totalBytes -= ctx->getChunksize();
 	}
 
+	inf.close();
+	ctSer.close();
 	return;
 }
 
 void
-rekeymaker(string cmd, int argc, char *argv[]) {
+rekeymaker(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -243,26 +290,22 @@ rekeymaker(string cmd, int argc, char *argv[]) {
 	string rekeyname(argv[2]);
 
 	// Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(*ctlCrypt.cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(*ctlCrypt.cryptoParams);
+	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
+	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
 
-	if( !fetchItemFromSer(&pk, pubname) ) {
+	if( !fetchItemFromSer(&pk, pubname, ctx) ) {
 		cerr << "Could not process public key" << endl;
 		return;
 	}
 
-	if( !fetchItemFromSer(&sk, privname) ) {
+	if( !fetchItemFromSer(&sk, privname, ctx) ) {
 		cerr << "Could not process private key" << endl;
 		return;
 	}
 
-	LPEvalKeyLTV<ILVector2n> evalKey(*ctlCrypt.cryptoParams);
+	LPEvalKeyLTV<ILVector2n> evalKey(*ctx->getParams());
 
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
-
-	if( algorithm.EvalKeyGen(pk, sk, &evalKey) ) {
+	if( ctx->getAlgorithm()->EvalKeyGen(pk, sk, &evalKey) ) {
 		Serialized evalK;
 
 		if( evalKey.Serialize(&evalK, rekeyname) ) {
@@ -283,7 +326,7 @@ rekeymaker(string cmd, int argc, char *argv[]) {
 }
 
 void
-keymaker(string cmd, int argc, char *argv[]) {
+keymaker(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 1 ) {
 		usage(cmd, "missing keyname");
 		return;
@@ -292,14 +335,10 @@ keymaker(string cmd, int argc, char *argv[]) {
 	string keyname(argv[0]);
 
 	// Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(*ctlCrypt.cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(*ctlCrypt.cryptoParams);
+	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
+	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
 
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
-
-	if( algorithm.KeyGen(&pk,&sk) ) {
+	if( ctx->getAlgorithm()->KeyGen(&pk,&sk) ) {
 		Serialized pubK, privK;
 
 		if( pk.Serialize(&pubK, keyname) ) {
@@ -335,9 +374,9 @@ struct {
 	cmdparser	func;
 	string		helpline;
 } cmds[] = {
-		"makekey", keymaker, " [optional key parms] keyname\n"
+		"makekey", keymaker, " [optional parms] keyname\n"
 			"\tcreate a new keypair and save in keyfilePUB.txt and keyfilePRI.txt",
-		"makerekey", rekeymaker, " [optional key parms] pubkey_file secretkey_file rekey_file\n"
+		"makerekey", rekeymaker, " [optional parms] pubkey_file secretkey_file rekey_file\n"
 			"\tcreate a re-encryption key from the contents of pubkey_file and secretkey_file, save in rekey_file",
 		"encrypt", encrypter, " [optional parms] plaintext_file pubkey_file ciphertext_file\n"
 			"\tencrypt the contents of plaintext_file using the contents of pubkey_file, save results in ciphertext_file",
@@ -354,11 +393,18 @@ usage(const string& cmd, const string& msg)
 	if( msg.length() > 0 )
 		cerr << msg << endl;
 
-	cerr << "Usage is:" << endl;
 	for( int i=0; i<sizeof(cmds)/sizeof(cmds[0]); i++ ) {
 		if( cmd == "ALL" || cmd == cmds[i].command )
 			cerr << "palisade " << cmds[i].command << cmds[i].helpline << endl;
 	}
+
+	cerr << endl;
+	cerr << "[optional params] are:" << endl;
+	cerr << "-list filename: list all the parameter sets in the file filename, then exit" << endl;
+	cerr << "-use filename parmset: use the parameter set named parmset from the parameter file" << endl;
+	cerr << "-from filename: use the deserialization of filename to set the crypto context" << endl;
+
+	std::cin.get();
 }
 
 int
@@ -369,30 +415,50 @@ main( int argc, char *argv[] )
 		return 1;
 	}
 
-	ctlCrypt.ring = 2048;
-	ctlCrypt.modulus = BigBinaryInteger("268441601");
-	ctlCrypt.rootOfUnity = BigBinaryInteger("16947867");
-	ctlCrypt.relinWindow = 1;
-	ctlCrypt.stdDev = 4;
+	if( string(argv[1]) == "-list" && argc == 3) {
+		CryptoContextHelper<ILVector2n>::printAllParmSets(cout, argv[2]);
+		return 0;
+	}
 
-	ctlCrypt.ilParams = ILParams(ctlCrypt.ring, ctlCrypt.modulus, ctlCrypt.rootOfUnity);
+	CryptoContext<ILVector2n> *ctx = 0;
 
-	//Set crypto parametes
-	LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	ctlCrypt.cryptoParams = &cryptoParams;
-	ctlCrypt.cryptoParams->SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
-	ctlCrypt.cryptoParams->SetDistributionParameter(ctlCrypt.stdDev);			// Set the noise parameters.
-	ctlCrypt.cryptoParams->SetRelinWindow(ctlCrypt.relinWindow);				// Set the relinearization window
-	ctlCrypt.cryptoParams->SetElementParams(ctlCrypt.ilParams);			// Set the initialization parameters.
+	int cmdidx = 1;
+	if( string(argv[1]) == "-use" && argc >= 4) {
+		ctx = CryptoContextHelper<ILVector2n>::getNewContext( string(argv[2]), string(argv[3]) );
+		if( ctx == 0 ) {
+			usage("ALL", "Could not construct a crypto context");
+			return 1;
+		}
 
-	DiscreteGaussianGenerator dgg(ctlCrypt.stdDev);				// Create the noise generator
-	ctlCrypt.cryptoParams->SetDiscreteGaussianGenerator(dgg);
+		cmdidx += 3;
+	}
+	else if( string(argv[1]) == "-from" && argc >= 3 ) {
+		Serialized	kser;
+		if( SerializableHelper::ReadSerializationFromFile(string(argv[2]), &kser) ) {
+			ctx = CryptoContextHelper<ILVector2n>::getNewContextFromSerialization(kser);
+		}
+
+		cmdidx += 2;
+	}
+	else {
+		ctx = CryptoContext<ILVector2n>::genCryptoContextLTV(2, 2048, "268441601", "16947867", 1, 4);
+	}
+
+	if( ctx == 0 ) {
+		usage("ALL", "Unable to create a crypto context");
+		return 1;
+	}
+
+	if( cmdidx >= argc ) {
+		usage("ALL");
+		return 1;
+	}
 
 	bool	rancmd = false;
-	string userCmd(argv[1]);
+	string userCmd(argv[cmdidx]);
 	for( int i=0; i<(sizeof(cmds)/sizeof(cmds[0])); i++ ) {
 		if( cmds[i].command == string(userCmd) ) {
-			(*cmds[i].func)(cmds[i].command, argc-2, &argv[2]);
+			(*cmds[i].func)(ctx, cmds[i].command, argc-1-cmdidx, &argv[cmdidx + 1]);
 			rancmd = true;
 			break;
 		}

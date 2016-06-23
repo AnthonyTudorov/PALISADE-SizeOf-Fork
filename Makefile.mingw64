@@ -9,5 +9,12 @@ LIBCMD := -s -shared -Wl,--subsystem,windows
 
 EXESUFFIX := .exe
 
+MINGWREGEX := -Lc:/Mingw64/mingw64/opt/lib -lregex -lshlwapi
+
+RDYNAMIC := 
+
+JNIBUILD :=  -I "C:/Program Files/java/jdk1.8.0_66/include" -I "C:/Program Files/java/jdk1.8.0_66/include/win32"
+JNILIB := PalisadeCryptoWrapper.dll
+
 include Makefile.common
 

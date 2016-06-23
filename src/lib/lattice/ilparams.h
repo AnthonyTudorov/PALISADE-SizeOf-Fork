@@ -186,7 +186,15 @@ namespace lbcrypto {
 			m_modulus = modulus;
 		}
 
-        inline bool operator==(ILParams const& other) {
+        bool operator==(const ElemParams* other) const {
+        	const ILParams *ip = dynamic_cast<const ILParams *>(other);
+
+        	if( ip == 0 ) return false;
+
+        	return *this == *ip;
+        }
+
+        inline bool operator==(ILParams const& other) const {
             if (m_modulus != other.GetModulus()) {
                 return false;
             }
@@ -199,7 +207,7 @@ namespace lbcrypto {
             return true;
         }
 
-        inline bool operator!=(ILParams const& other) {
+        inline bool operator!=(ILParams const& other) const {
             return !(*this == other);
         }
 
@@ -210,7 +218,7 @@ namespace lbcrypto {
 		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized* serObj, const std::string fileFlag) const;
+    	bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
 
 		/**
 		* Populate the object from the deserialization of the Setialized

@@ -39,6 +39,16 @@ namespace lbcrypto {
 		return vectorOfInt32;
 	}
 
+	bool ByteArrayPlaintextEncoding::operator==(const ByteArrayPlaintextEncoding& that) const {
+		if( m_data.size() != that.m_data.size() ) return false;
+
+		for(int i=0; i<m_data.size(); i++ )
+			if( m_data[i] != that.m_data[i] )
+				return false;
+
+		return true;
+	}
+
 	void ByteArrayPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector) const {
 
 		usint mod = modulus.ConvertToInt();

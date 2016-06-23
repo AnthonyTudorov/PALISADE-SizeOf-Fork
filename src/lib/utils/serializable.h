@@ -34,7 +34,7 @@
 * Virtual methods are implemented in Ciphertext, LPCryptoParametersLWE, LPPublicKeyLTV,
 * LPEvalKeyLTV, LPPrivateKeyLTV, ILParams, ILDCRTParams, ILVector2n, BigBinaryVector.
 *
-* TODO:  Complete implementation in LPEvalKeyLTV, ILDCRTParams.
+* TODO:  Complete implementation in ILDCRTParams.
 * TODO:  Setup inheritance through ILElement for ILVector2n once Double CRT is working.
 */
 #ifndef LBCRYPTO_SERIALIZABLE_H
@@ -54,6 +54,9 @@
 * The namespace of lbcrypto
 */
 namespace lbcrypto {
+
+	template <class Element>
+	class CryptoContext;
 
 	// C+11 "using" is not supported in VS 2012 - so it was replaced with C+03 "typedef"
 	typedef rapidjson::Value SerialItem;
@@ -76,7 +79,8 @@ namespace lbcrypto {
 		/**
 		* Serialize the object into a Serialized
 		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param fileFlag is an object-specific parameter for the serialization
+		* @param cryptoCtx is required for top-level objects
+		* @param fileFlag is an optional tag for the serialization
 		* @return true if successfully serialized
 		*/
 		virtual bool Serialize(Serialized* serObj, const std::string fileFlag = "") const = 0;
@@ -90,11 +94,19 @@ namespace lbcrypto {
 		virtual bool SetIdFlag(Serialized* serObj, const std::string flag) const { return true; }
 
 		/**
-		* Populate the object from the deserialization of the Setialized
+		* Populate the object from the deserialization of the Serialized
 		* @param serObj contains the serialized object
 		* @return true on success
 		*/
 		virtual bool Deserialize(const Serialized& serObj) = 0;
+
+		/**
+		* Populate the object from the deserialization of the Serialized
+		* @param serObj contains the serialized object
+		* @param ctx is the CryptoContext that the object must match up with
+		* @return true on success
+		*/
+		template <class Element> bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx);
 
 		/**
 		* Converts the input data type into a string

@@ -1,7 +1,10 @@
 /**
 * @file
-* @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
-*	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>
+* @author	TPOC:
+				Dr. Kurt Rohloff <rohloff@njit.edu>,
+			Programmers:
+				Jerry Ryan <gwryan@njit.edu>
+
 * @version 00_03
 *
 * @section LICENSE
@@ -27,49 +30,57 @@
 * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 * @section DESCRIPTION
-* LAYER 2 : LATTICE DATA STRUCTURES AND OPERATIONS
-* This code provides basic lattice ideal manipulation functionality.
+*
+* This file defines a helper class for managing and manipulating Crypto Contexts
 */
 
-#ifndef LBCRYPTO_LATTICE_ELEMPARAMS_H
-#define LBCRYPTO_LATTICE_ELEMPARAMS_H
+#ifndef SRC_DEMO_PRE_CRYPTOCONTEXTHELPER_H_
+#define SRC_DEMO_PRE_CRYPTOCONTEXTHELPER_H_
 
-#include "../utils/serializable.h"
-#include "../math/backend.h"
-#include "../utils/inttypes.h"
-#include "../math/nbtheory.h"
-//#include "../encoding/ptxtencoding.h"
+#include <string>
+#include <iostream>
+using namespace std;
 
-/**
-* @namespace lbcrypto
-* The namespace of lbcrypto
-*/
+#include "../utils/serializablehelper.h"
+
 namespace lbcrypto {
 
-	// Interface for element params; all these methods have to be supported by any element parameters class
+template <class Element>
+class CryptoContextHelper {
+public:
+
 	/**
-	* @brief Interface for element params; all these methods have to be supported by any element parameters class
-	*/
-	//JSON FACILITY
-	class ElemParams : public Serializable
-	{
-	public:
-		//each element params should give the effective modulus regardless of the representation
-		/**
-		* Each element params should give the effective modulus regardless of the representation
-		*/
-		virtual const BigBinaryInteger &GetModulus() const = 0;
+	 *
+	 * @param out stream to write to
+	 * @param fn name of file containing parameter sets in JSON
+	 */
+	static void printAllParmSets(ostream& out, const std::string& fn);
 
-		/**
-		* Get method of the order.
-		*
-		* @return the order.
-		*/
-		virtual const usint GetCyclotomicOrder() const = 0;
+	/**
+	 *
+	 * @param out stream to write to
+	 * @param fn name of file containing parameter sets in JSON
+	 */
+	static void printAllParmSetNames(ostream& out, const std::string& fn);
 
-		virtual bool operator==(const ElemParams *other) const = 0;
-	};
+	/**
+	 *
+	 * @param parmfile file containing parameter sets in JSON
+	 * @param parmsetname name of parameter set to use
+	 * @return newly constructed CryptoContext, or null on failure
+	 */
+	static CryptoContext<Element> *getNewContext(const string& parmfile, const string& parmsetname);
 
-} // namespace lbcrypto ends
+	/**
+	 *
+	 * @param parmSetJson JSON string with a parameter set
+	 * @return newly constructed CryptoContext, or null on failure
+	 */
+	static CryptoContext<Element> *getNewContext(const string& parmSetJson);
 
-#endif
+	static CryptoContext<Element> *getNewContextFromSerialization(const Serialized& ser);
+};
+
+}
+
+#endif /* SRC_DEMO_PRE_CRYPTOCONTEXTHELPER_H_ */

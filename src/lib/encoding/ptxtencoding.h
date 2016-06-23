@@ -165,6 +165,9 @@ namespace lbcrypto {
 			return *this;
 		}
 
+		bool operator==(const ByteArrayPlaintextEncoding& that) const;
+		bool operator!=(const ByteArrayPlaintextEncoding& that) const { return !( (*this) == that ); }
+
 		/*
 		* Implementation of the method of PlaintextEncodingInterface.
 		*

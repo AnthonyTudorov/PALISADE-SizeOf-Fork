@@ -34,10 +34,9 @@
 #ifndef LBCRYPTO_MATH_CPU8BIT_BINVECT_H
 #define LBCRYPTO_MATH_CPU8BIT_BINVECT_H
 
-
+#include "../../utils/serializable.h"
 #include "binint.h"
 #include "binmat.h"
-#include "../../utils/serializable.h"
 
 /**
  * @namespace cpu8bit
@@ -333,7 +332,7 @@ public:
 	* @param fileFlag is an object-specific parameter for the serialization
 	* @return true if successfully serialized
 	*/
-	bool Serialize(lbcrypto::Serialized* serObj, const std::string fileFlag) const;
+	bool Serialize(lbcrypto::Serialized* serObj, const std::string fileFlag = "") const;
 
 	/**
 	* Populate the object from the deserialization of the Setialized

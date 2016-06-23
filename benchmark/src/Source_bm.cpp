@@ -42,40 +42,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <fstream>
-#include "lib/math/backend.h"
-//#include "lib/math/cpu8bit/backend.h"
-#include "lib/utils/inttypes.h"
+#include "lib/crypto/cryptocontext.h"
+#include "lib/utils/cryptocontexthelper.h"
+#include "lib/crypto/cryptocontext.cpp"
+#include "lib/utils/cryptocontexthelper.cpp"
+
 #include "lib/math/nbtheory.h"
-//#include <thread>
-#include "lib/lattice/elemparams.h"
-#include "lib/lattice/ilparams.h"
-#include "lib/lattice/ildcrtparams.h"
-#include "lib/lattice/ilelement.h"
-//#include "lib/ilvector2n.h"
+
 #include "lib/math/distrgen.h"
-#include "lib/crypto/lwecrypt.h"
-#include "lib/crypto/lwecrypt.cpp"
-#include "lib/crypto/lwepre.h"
-#include "lib/crypto/lwepre.cpp"
-#include "lib/crypto/lweahe.cpp"
-#include "lib/crypto/lweautomorph.cpp"
-#include "lib/crypto/lweshe.cpp"
-#include "lib/crypto/lwefhe.cpp"
+
 #include "lib/lattice/ilvector2n.h"
 #include "lib/lattice/ilvectorarray2n.h"
-//#include "lib/time.h"
-#include "lib/crypto/ciphertext.cpp"
-//#include "lib/vld.h"
-//#include <chrono>
+
 #include "lib/utils/debug.h"
-
-//#include "lib/gtest/gtest.h"
-//#include "lib/math/cpu8bit/binint.h"
-//#include "lib/math/cpu8bit/binvect.h"
-//#include "lib/math/cpu8bit/binmat.h"
-
-
-
 
 using namespace std;
 using namespace lbcrypto;

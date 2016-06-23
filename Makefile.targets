@@ -49,21 +49,12 @@ LIBOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(LIBSOU
 
 .PHONY:alltargets
 alltargets: $(EXTLIBDIR)/$(PALISADELIB)
-#	@echo $(SOLIB)
-#	@echo $(LIBSOURCES)
-#	@echo $(LIBOBJECTS)
-#	@echo "alltargets"
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADELIB): $(LIBOBJECTS)
 	@echo " -- targets:linking $@ from LIBOBJECTS"
-#	@echo $(LIBOBJECTS)
 	mkdir -p $(EXTLIBDIR)
-#	@echo " $(CC) -fPIC -shared -Wl,--export-dynamic  $^ $(BUILDDIR)/$@.o -L/usr/lib/x86_64-linux-gnu -lpython2.7 -lboost_python-py27 -o lib/pycrypto.so"; $(CC) -fPIC -shared -Wl,--export-dynamic  $^ $(BUILDDIR)/$@.o
-#	$(CC) -fPIC -shared -Wl,--export-dynamic -Wl,--export-all-symbols -o $@ $(LIBOBJECTS) -lgomp
-#	$(CC) -s -shared -Wl,--subsystem,windows -o $(subst .so,.dll,$@) $(LIBOBJECTS) -lgomp
 	$(CC) $(LIBCMD) -o $@ $(LIBOBJECTS) -lgomp
-	@echo
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(BUILDDIR)/lib/%
@@ -72,11 +63,11 @@ $(BUILDDIR)/lib/%:
 	then  \
 		mkdir -p $(@D)  ;\
 		echo $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
-		$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
-		$(CC) -MM $(CPPFLAGS) $(INC) $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@)) > $(patsubst %.o,%.d,$@)  ;\
+		$(CC) -MM $(CPPFLAGS) $(INC) $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@)) > $(patsubst %.o,%.d,$@) ;\
 		mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)  ;\
 		sed -e 's|.*\.o:|$(BUILDDIR)/lib/$*:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)  ;\
 		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
+		$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(BUILDDIR)/%,$(SRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 	fi
 
 #################

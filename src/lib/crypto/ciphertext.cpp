@@ -23,7 +23,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "ciphertext.h"
+#ifndef _SRC_LIB_CRYPTO_CRYPTOCONTEXT_C
+#define _SRC_LIB_CRYPTO_CRYPTOCONTEXT_C
+
+#include "../crypto/cryptocontext.h"
 
 namespace lbcrypto {
 
@@ -107,32 +110,28 @@ namespace lbcrypto {
 	// note that right now it only saves cryptoParameters, norm and element
 	// the Flag could be used to tell us what stuff is and is not saved
 	//
+
 	template <class Element>
 	bool Ciphertext<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
 
 		serObj->SetObject();
-		if( !this->SetIdFlag(serObj, "minimal") )
+		if( !this->SetIdFlag(serObj, fileFlag) )
 			return false;
 
-		if( !this->GetCryptoParameters().Serialize(serObj, "") )
+		if( !this->GetCryptoParameters().Serialize(serObj) )
 			return false;
 
 		serObj->AddMember("Norm", this->GetNorm().ToString(), serObj->GetAllocator());
 
-		return this->GetElement().Serialize(serObj, "");
+		return this->GetElement().Serialize(serObj);
 	}
 
 	// JSON FACILITY - Deserialize Operation
 	template <class Element>
-	bool Ciphertext<Element>::Deserialize(const Serialized& serObj) {
+	bool Ciphertext<Element>::Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
 
-		if( !DeserializeAndSetCryptoParameters<Element,Ciphertext<Element>>(serObj, this) ) return false;
-
-		// yeah this could be done better...
-		LPCryptoParameters<Element>* json_cryptoParams = (LPCryptoParameters<Element>*) &this->GetCryptoParameters();
-
-		if( !json_cryptoParams->Deserialize(serObj) )
-			return false;
+		LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
+		if( cryptoParams == 0 ) return false;
 
 		// for future use, make sure you pick everything out of the serialization that is in there...
 		Serialized::ConstMemberIterator mIter = serObj.FindMember("Root");
@@ -149,10 +148,12 @@ namespace lbcrypto {
 		if( !json_ilElement.Deserialize(serObj) )
 			return false;
 
-		this->SetCryptoParameters(json_cryptoParams);
+		this->SetCryptoParameters(cryptoParams);
 		this->SetNorm(bbiNorm);
 		this->SetElement(json_ilElement);
 		return true;
 	}
 
 }  // namespace lbcrypto ends
+
+#endif
