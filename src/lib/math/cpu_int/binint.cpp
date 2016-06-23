@@ -548,10 +548,10 @@ static inline unsigned int base64_to_value(char b64) {
  * and the code is implemented as unrolled loops
  */
 template<typename uint_type,usint BITLENGTH>
-const std::string BigBinaryInteger<uint_type,BITLENGTH>::Serialize() const{
+const std::string BigBinaryInteger<uint_type,BITLENGTH>::Serialize() const {
 
 	std::string ans = "";
-	uint_type *fromP;
+	const uint_type *fromP;
 
 	sint siz = (m_MSB%m_uintBitLength==0&&m_MSB!=0) ? (m_MSB/m_uintBitLength) : ((sint)m_MSB/m_uintBitLength +1);
 	int i;
