@@ -88,6 +88,7 @@ namespace lbcrypto {
 	template <class Element>
 	class LPCryptoParameters : public Serializable {
 	public:
+		virtual ~LPCryptoParameters() {}
 		
 		//@Get Properties
 	

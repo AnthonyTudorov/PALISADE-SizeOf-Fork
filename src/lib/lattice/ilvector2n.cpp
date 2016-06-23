@@ -32,7 +32,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 	//need to be added because m_dggSamples is static and not initialized
-	std::vector<ILVector2n> ILVector2n::m_dggSamples;
+	std::vector<ILVector2n*> ILVector2n::m_dggSamples;
 
 	ILVector2n::ILVector2n() :m_values(NULL), m_format(EVALUATION) {
 
@@ -110,8 +110,8 @@ namespace lbcrypto {
 			{
 				PreComputeDggSamples(dgg, ilParams);
 			}
-			ILVector2n randomElement = GetPrecomputedVector(ilParams);
-			m_values = new BigBinaryVector(*randomElement.m_values);
+			const ILVector2n *randomElement = GetPrecomputedVector(ilParams);
+			m_values = new BigBinaryVector(*randomElement->m_values);
 			(*m_values).SetModulus(params.GetModulus());
 			m_format = EVALUATION;
 		}
@@ -374,15 +374,8 @@ namespace lbcrypto {
 	void ILVector2n::SwitchFormat() {
 
 		if (m_format == COEFFICIENT) {
-
 			m_format = EVALUATION;
-			//std::cout << "starting CRT" << std::endl;
-			/*std::cout << *m_values << std::endl;
-			std::cout << m_params.GetRootOfUnity() << std::endl;
-			std::cout << m_params.GetCyclotomicOrder() << std::endl;*/
-
 			*m_values = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(*m_values, m_params.GetRootOfUnity(), m_params.GetCyclotomicOrder());
-
 		}
 
 		else {
@@ -405,35 +398,27 @@ namespace lbcrypto {
 		return tmp;
 	}
 
-	//Precompute a sample of disrete gaussian polynomials
+	//Precompute a sample of discrete gaussian polynomials
 	void ILVector2n::PreComputeDggSamples(const DiscreteGaussianGenerator &dgg, const ILParams &params) {
-	  if (m_dggSamples.size() == 0)
-	    {
-		for (usint i = 0; i < m_sampleSize; ++i)
+		if (m_dggSamples.size() == 0)
 		{
-			ILVector2n current(params);
-			usint vectorSize = params.GetCyclotomicOrder() / 2;
-			current.m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,params.GetModulus()));
-			(*current.m_values).SetModulus(params.GetModulus());
-			current.m_format = COEFFICIENT;
+			for (usint i = 0; i < m_sampleSize; ++i)
+			{
+				ILVector2n *current = new ILVector2n(params);
+				usint vectorSize = params.GetCyclotomicOrder() / 2;
+				current->m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,params.GetModulus()));
+				current->m_values->SetModulus(params.GetModulus());
+				current->m_format = COEFFICIENT;
 
-			auto start = std::chrono::steady_clock::now();
+				current->SwitchFormat();
 
-			current.SwitchFormat();
-
-			if ((i>5) && (i < 9)) {
-				auto end = std::chrono::steady_clock::now();
-				auto diff = end - start;
-				//std::cout << "NTT time: " << std::chrono::duration <double, std::milli>(diff).count() << " ms" << std::endl;
+				m_dggSamples.push_back(current);
 			}
-
-			m_dggSamples.push_back(current);
 		}
-	    }
 	}
 
 	//Select a precomputed vector randomly
-	const ILVector2n ILVector2n::GetPrecomputedVector(const ILParams &params) {
+	const ILVector2n* ILVector2n::GetPrecomputedVector(const ILParams &params) {
 
 		//std::default_random_engine generator;
 		//std::uniform_real_distribution<int> distribution(0,SAMPLE_SIZE-1);

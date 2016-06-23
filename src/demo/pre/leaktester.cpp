@@ -30,11 +30,11 @@ main(int argc, char *argv[])
 	//DiscreteUniformGenerator gen(BigBinaryInteger("100000"));
 	//auto v = gen.GenerateVector(10000);
 
-	std::cout << "Choose parameter set: ";
-	CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout, filename);
+	//std::cout << "Choose parameter set: ";
+	//CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout, filename);
 
-	string input;
-	std::cin >> input;
+	string input = "StSt6";
+	//std::cin >> input;
 
 	CryptoContext<ILVector2n> *ctx = CryptoContextHelper<ILVector2n>::getNewContext(filename, input);
 	if( ctx == 0 ) {
@@ -49,6 +49,8 @@ main(int argc, char *argv[])
 	cout << endl;
 
 	delete ctx;
+
+	ILVector2n::DestroyPreComputedSamples();
 
 	//	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	//	NumberTheoreticTransform::GetInstance().Destroy();
