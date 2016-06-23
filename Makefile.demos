@@ -43,6 +43,7 @@ make_demos: \
 	$(BINDIR)/demo/pre/Source_json$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/leaktester$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/Source_presim$(EXESUFFIX) \
+	$(BINDIR)/demo/pre/Source$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/PrettyJson$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/palisade$(EXESUFFIX)
 
@@ -78,6 +79,10 @@ $(BINDIR)/demo/pre/leaktester$(EXESUFFIX): $(BUILDDIR)/demo/pre/leaktester.o $(E
 	$(CC) -static-libgcc -static-libstdc++ -ggdb -o $@ $^ $(EXTLIB)
 
 $(BINDIR)/demo/pre/Source_presim$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_presim.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/Source$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source.o $(EXTLIBDIR)/$(PALISADELIB)
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 
