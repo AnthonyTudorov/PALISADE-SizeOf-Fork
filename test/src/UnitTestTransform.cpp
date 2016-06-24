@@ -27,19 +27,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../include/gtest/gtest.h"
 #include <iostream>
 
-#include "../../src/math/backend.h"
-#include "../../src/utils/inttypes.h"
-#include "../../src/math/nbtheory.h"
-#include "../../src/lattice/elemparams.h"
-#include "../../src/lattice/ilparams.h"
-#include "../../src/lattice/ildcrtparams.h"
-#include "../../src/lattice/ilelement.h"
-#include "../../src/math/distrgen.h"
-#include "../../src/crypto/lwecrypt.h"
-#include "../../src/crypto/lwepre.h"
-#include "../../src/lattice/ilvector2n.h"
-#include "../../src/lattice/ilvectorarray2n.h"
-#include "../../src/utils/utilities.h"
+#include "../../src/lib/math/backend.h"
+#include "../../src/lib/utils/inttypes.h"
+#include "../../src/lib/math/nbtheory.h"
+#include "../../src/lib/lattice/elemparams.h"
+#include "../../src/lib/lattice/ilparams.h"
+#include "../../src/lib/lattice/ildcrtparams.h"
+#include "../../src/lib/lattice/ilelement.h"
+#include "../../src/lib/math/distrgen.h"
+#include "../../src/lib/crypto/lwecrypt.h"
+#include "../../src/lib/crypto/lwepre.h"
+#include "../../src/lib/lattice/ilvector2n.h"
+#include "../../src/lib/lattice/ilvectorarray2n.h"
+#include "../../src/lib/utils/utilities.h"
 
 /*
 #include "binint.h"
@@ -83,8 +83,8 @@ TEST(method_CRT_polynomial_multiplication, compares_to_brute_force_multiplicatio
 	std::cout <<"The primitiveRootOfUnity for modulus " << primeModulus << " is " << primitiveRootOfUnity << std::endl;
 
 	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(primeModulus);
-	BigBinaryVector a = distrUniGen.GenerateVector(n,primeModulus);
-	BigBinaryVector b = distrUniGen.GenerateVector(n,primeModulus);
+	BigBinaryVector a = distrUniGen.GenerateVector(n);
+	BigBinaryVector b = distrUniGen.GenerateVector(n);
 	std::cout << "Generated vectors: " << a << " and " << b << std::endl;
 
 	BigBinaryVector A = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(a, primitiveRootOfUnity, cycloOrder);

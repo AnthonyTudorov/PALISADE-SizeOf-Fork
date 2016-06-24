@@ -25,6 +25,7 @@
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#define _USE_MATH_DEFINES
 #include "benchmark/benchmark_api.h"
 
 /* this is an example of very basic google benchmarks
@@ -50,19 +51,19 @@
 
 #include <iostream>
 
-#include "../../src/math/backend.h"
-#include "../../src/utils/inttypes.h"
-#include "../../src/math/nbtheory.h"
-#include "../../src/lattice/elemparams.h"
-#include "../../src/lattice/ilparams.h"
-#include "../../src/lattice/ildcrtparams.h"
-#include "../../src/lattice/ilelement.h"
-#include "../../src/math/distrgen.h"
-#include "../../src/crypto/lwecrypt.h"
-#include "../../src/crypto/lwepre.h"
-#include "../../src/lattice/ilvector2n.h"
-#include "../../src/lattice/ilvectorarray2n.h"
-#include "../../src/utils/utilities.h"
+#include "../../src/lib/math/backend.h"
+#include "../../src/lib/utils/inttypes.h"
+#include "../../src/lib/math/nbtheory.h"
+#include "../../src/lib/lattice/elemparams.h"
+#include "../../src/lib/lattice/ilparams.h"
+#include "../../src/lib/lattice/ildcrtparams.h"
+#include "../../src/lib/lattice/ilelement.h"
+#include "../../src/lib/math/distrgen.h"
+#include "../../src/lib/crypto/lwecrypt.h"
+#include "../../src/lib/crypto/lwepre.h"
+#include "../../src/lib/lattice/ilvector2n.h"
+#include "../../src/lib/lattice/ilvectorarray2n.h"
+#include "../../src/lib/utils/utilities.h"
 
 
 using namespace std;

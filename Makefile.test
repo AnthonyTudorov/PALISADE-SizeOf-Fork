@@ -30,7 +30,7 @@
 
 # define the test target. For some reason this needs to be defined
 # first to work
-TEST_TARGET := test/bin/tests
+TEST_TARGET := test/bin/tests$(EXESUFFIX)
 
 #this is the actual target that gets called when make is executed
 #(part of all in Makefile) it makes the test library, actual palisade
@@ -47,7 +47,7 @@ make_tests:  $(TEST_TARGET)
 TEST_SRC_DIR := test/src
 TEST_BUILD_DIR := test/build
 TEST_TARGETDIR := test/bin
-TEST_TARGET := test/bin/tests
+TEST_TARGET := test/bin/tests$(EXESUFFIX)
 
 #DBC: what is the following for?
 check: $(TEST_TARGET)   
@@ -62,7 +62,7 @@ LIB_SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT) | xargs grep -L 
 # this assembles a list of the palisade library objects (using
 # BUILDDIR defined in the calling makefile. We need this to build test
 # executables
-LIB_OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(LIB_SOURCES:.$(SRCEXT)=.o))
+LIB_OBJECTS := $(EXTLIBDIR)/$(PALISADELIB) ## $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(LIB_SOURCES:.$(SRCEXT)=.o))
 
 
 TEST_SOURCES := $(shell find $(TEST_SRC_DIR) -type f -name *.$(SRCEXT))
@@ -72,7 +72,8 @@ TEST_SOURCES := $(shell find $(TEST_SRC_DIR) -type f -name *.$(SRCEXT))
 TEST_OBJECTS := $(patsubst $(TEST_SRC_DIR)/%,$(TEST_BUILD_DIR)/%,$(TEST_SOURCES:.$(SRCEXT)=.o))
 
 # library strings needed in linking of TEST_TARGET
-TEST_LIB := -pthread #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
+#note this could be replaced with $(LIB)
+TEST_LIB := -pthread -lgomp #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 
 #
 # the following define the componenets of the google test library
@@ -92,20 +93,26 @@ GTEST_HEADERS =	test/include/gtest/gtest.h
 
 # this builds objects from sources in the test library source directory
 $(TEST_BUILD_DIR)/%.o: $(TEST_LIB_SRCDIR)/%.$(TEST_LIB_SRCEXT)
+	@echo " -- test:compiling $@"
 	@mkdir -p $(@D)
-	@echo "$(CC) $(CPPFLAGS) $(INC) $(TEST_LIB) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) $(TEST_LIB) -c -o $@ $<
-	@echo "ar -rv $(TEST_BUILD_DIR)/libgtest.a $@"; ar -rv $(TEST_BUILD_DIR)/libgtest.a $@
+	$(CC) $(CPPFLAGS) $(INC) $(TEST_LIB) -c -o $@ $<
+	@echo " -- test:archiving $@"
+	ar -rv $(TEST_BUILD_DIR)/libgtest.a $@
+	@echo 
 
 # this builds objects from sources in the test source directory
 $(TEST_BUILD_DIR)/%.o: $(TEST_SRC_DIR)/%.$(SRCEXT)
+	@echo " -- test:compiling $@"
 	@mkdir -p $(@D)
-	@echo " $(CC) $(CPPFLAGS) $(INC) $(TEST_LIB) -c -o $@ $<"; $(CC) $(CPPFLAGS) $(INC) $(TEST_LIB) -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(INC) $(TEST_LIB) -c -o $@ $<
+	@echo 
 
 # this links test executable  from objects in the test build directory
 $(TEST_TARGET): $(TEST_OBJECTS) $(TEST_LIB_OBJECTS) $(LIB_OBJECTS)
-	@echo 'Linking $(TEST_TARGET) ...'
+	@echo " -- test:linking $(TEST_TARGET)"
 	@mkdir -p $(TEST_TARGETDIR)
-	@echo " $(CC) $^ $(TEST_LIB) $(TEST_BUILD_DIR)/libgtest.a -o $(TEST_TARGET)"; $(CC) $^ $(TEST_LIB) $(TEST_BUILD_DIR)/libgtest.a -o $(TEST_TARGET)
+	$(CC) $^ $(TEST_LIB) $(TEST_BUILD_DIR)/libgtest.a -o $(TEST_TARGET)
+	@echo 
 
 #used to run tests from make, almost never used
 .PHONY: runtests
@@ -115,10 +122,10 @@ runtests: $(TEST_TARGET)
 #################
 # this target lets us see what all the strings are defined as, as an
 # aid to debugging the Makefile.test. Just run make
-# doc_test_strings
-.PHONY: doc_test_strings
-doc_test_strings:
-	@echo 'the following make strings are defined'
+# docteststrings
+.PHONY: docteststrings
+docteststrings:
+	@echo 'the following make strings are defined in Makefile.test'
 	@echo 'TEST_TARGET $(TEST_TARGET)'
 	@echo 'TEST_OBJECTS $(TEST_OBJECTS)'
 	@echo 'TEST_SOURCES $(TEST_SOURCES)'
@@ -136,6 +143,5 @@ doc_test_strings:
 #this target is used to cleanup, it is called from the top Makefile
 .PHONEY: cleantests
 cleantests:
-	@echo " Cleaning...";
-	@echo " $(RM) -r $(TEST_BUILD_DIR) $(TEST_TARGETDIR)"; $(RM) -r $(TEST_BUILD_DIR) $(TEST_TARGETDIR)
-
+	@echo " Cleaning test...";
+	$(RM) -rf $(TEST_BUILD_DIR) $(TEST_TARGETDIR)

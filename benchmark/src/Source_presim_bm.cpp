@@ -36,40 +36,29 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
+#define _USE_MATH_DEFINES 
 #include <iostream>
 #include <fstream>
-#include "math/backend.h"
-//#include "math/cpu8bit/backend.h"
-#include "utils/inttypes.h"
-#include "math/nbtheory.h"
-//#include <thread>
-#include "lattice/elemparams.h"
-#include "lattice/ilparams.h"
-#include "lattice/ildcrtparams.h"
-#include "lattice/ilelement.h"
-//#include "il2n.h"
-#include "math/distrgen.h"
-#include "crypto/lwecrypt.h"
-#include "crypto/lwecrypt.cpp"
-#include "crypto/lwepre.h"
-#include "crypto/lwepre.cpp"
-#include "crypto/lweahe.cpp"
-#include "crypto/lweautomorph.cpp"
-#include "crypto/lweshe.cpp"
-#include "crypto/lwefhe.cpp"
-#include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
-#include "crypto/ciphertext.cpp"
-#include "time.h"
-//#include "vld.h"
-#include <chrono>
+#include "lib/crypto/cryptocontext.h"
+#include "lib/utils/cryptocontexthelper.h"
+#include "lib/crypto/cryptocontext.cpp"
+#include "lib/utils/cryptocontexthelper.cpp"
+
+#include "lib/math/nbtheory.h"
+
+#include "lib/math/distrgen.h"
+
+#include "lib/lattice/ilvector2n.h"
+#include "lib/lattice/ilvectorarray2n.h"
+
+#include "lib/utils/debug.h"
 #include <vector>
 
 
 using namespace std;
 using namespace lbcrypto;
 
-double currentDateTime();
+//double currentDateTime();
 
 const usint NUMBER_OF_RUNS = 100;
 
@@ -169,7 +158,7 @@ void EncryptionSchemeSimulation(usint count){
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(modulus, stdDev);			// Create the noise generator
+	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	//Precomputations for FTT
@@ -341,7 +330,7 @@ void PRESimulation(usint count, usint dataset){
 	cryptoParams.SetRelinWindow(relWindow);				     // Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			     // Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(modulus, stdDev);			 // Create the noise generator
+	DiscreteGaussianGenerator dgg(stdDev);				 // Create the noise generator
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	// Precomputations for FTT
@@ -585,18 +574,18 @@ void PRESimulation(usint count, usint dataset){
 
 }
 
-double currentDateTime()
-{
+// double currentDateTime()
+// {
 
-	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+// 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 
-	time_t tnow = std::chrono::system_clock::to_time_t(now);
-	tm *date = localtime(&tnow);
-	date->tm_hour = 0;
-	date->tm_min = 0;
-	date->tm_sec = 0;
+// 	time_t tnow = std::chrono::system_clock::to_time_t(now);
+// 	tm *date = localtime(&tnow);
+// 	date->tm_hour = 0;
+// 	date->tm_min = 0;
+// 	date->tm_sec = 0;
 
-	auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
+// 	auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
 
-	return std::chrono::duration <double, std::milli>(now - midnight).count();
-}
+// 	return std::chrono::duration <double, std::milli>(now - midnight).count();
+// }

@@ -28,19 +28,19 @@
 #include "../include/gtest/gtest.h"
 #include <iostream>
 
-#include "../../src/math/backend.h"
-#include "../../src/math/nbtheory.h"
-#include "../../src/math/distrgen.h"
-#include "../../src/lattice/elemparams.h"
-#include "../../src/lattice/ilparams.h"
-#include "../../src/lattice/ildcrtparams.h"
-#include "../../src/lattice/ilelement.h"
-#include "../../src/lattice/ilvector2n.h"
-#include "../../src/lattice/ilvectorarray2n.h"
-#include "../../src/crypto/lwecrypt.h"
-#include "../../src/crypto/lwepre.h"
-#include "../../src/utils/inttypes.h"
-#include "../../src/utils/utilities.h"
+#include "../../src/lib/math/backend.h"
+#include "../../src/lib/math/nbtheory.h"
+#include "../../src/lib/math/distrgen.h"
+#include "../../src/lib/lattice/elemparams.h"
+#include "../../src/lib/lattice/ilparams.h"
+#include "../../src/lib/lattice/ildcrtparams.h"
+#include "../../src/lib/lattice/ilelement.h"
+#include "../../src/lib/lattice/ilvector2n.h"
+#include "../../src/lib/lattice/ilvectorarray2n.h"
+#include "../../src/lib/crypto/lwecrypt.h"
+#include "../../src/lib/crypto/lwepre.h"
+#include "../../src/lib/utils/inttypes.h"
+#include "../../src/lib/utils/utilities.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -888,7 +888,7 @@ TEST(UTBinInt,method_binary_string_to_big_binary_integer){
 
  std:string binaryString = "1011101101110001111010111011000000011";
   BigBinaryInteger b =
-    lbcrypto::BigBinaryInteger::BinaryToBigBinaryInt(binaryString);
+    lbcrypto::BigBinaryInteger::BinaryStringToBigBinaryInt(binaryString);
 
   BigBinaryInteger expectedResult("100633769475");
   EXPECT_EQ(expectedResult, b)
