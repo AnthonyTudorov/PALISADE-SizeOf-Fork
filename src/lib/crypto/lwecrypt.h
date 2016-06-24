@@ -864,6 +864,8 @@ namespace lbcrypto {
 			LPPublicKeyEncryptionSchemeStehleSteinfeld() : LPPublicKeyEncryptionSchemeLTV<Element>() {};
 			LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask);
 
+			virtual ~LPPublicKeyEncryptionSchemeStehleSteinfeld();
+
 			void Enable(PKESchemeFeature feature);
 	};
 } // namespace lbcrypto ends
