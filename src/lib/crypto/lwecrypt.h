@@ -847,7 +847,6 @@ namespace lbcrypto {
 			LPPublicKeyEncryptionSchemeLTV();
 			LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask);
 
-			virtual ~LPPublicKeyEncryptionSchemeLTV();
 			//These functions can be implemented later
 			//Initialize(mask);
 
@@ -863,8 +862,6 @@ namespace lbcrypto {
 		public:
 			LPPublicKeyEncryptionSchemeStehleSteinfeld() : LPPublicKeyEncryptionSchemeLTV<Element>() {};
 			LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask);
-
-			virtual ~LPPublicKeyEncryptionSchemeStehleSteinfeld();
 
 			void Enable(PKESchemeFeature feature);
 	};
