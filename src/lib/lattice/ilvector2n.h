@@ -521,7 +521,7 @@ namespace lbcrypto {
 		*/
 		static void PrintPreComputedSamples() {
 			for (usint i = 0; i < SAMPLE_SIZE; i++)
-				std::cout << m_dggSamples[i]->GetValues() << std::endl;
+				std::cout << m_dggSamples[i].GetValues() << std::endl;
 		}
 
 		// computes the samples
@@ -537,10 +537,7 @@ namespace lbcrypto {
 		* Clear the pre-computed discrete Gaussian samples.
 		*/
 		static void DestroyPreComputedSamples() {
-			while( !m_dggSamples.empty() ) {
-				delete m_dggSamples.back();
-				m_dggSamples.pop_back();
-			}
+			m_dggSamples.clear();
 		}
 
 		//JSON FACILITY
@@ -574,13 +571,13 @@ namespace lbcrypto {
 		ILParams m_params;
 
 		// static variable to store pre-computed samples
-		static std::vector<ILVector2n *> m_dggSamples;
+		static std::vector<ILVector2n> m_dggSamples;
 
 		// static variable to store the sample size for each set of ILParams
 		static const usint m_sampleSize = SAMPLE_SIZE;
 
 		// gets a random discrete Gaussian polynomial
-		const ILVector2n *GetPrecomputedVector(const ILParams &params);
+		static const ILVector2n GetPrecomputedVector(const ILParams &params);
 
 	};
 

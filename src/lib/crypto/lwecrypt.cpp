@@ -585,24 +585,6 @@ LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bit
 
 }
 
-// Destructor for LPPublicKeyEncryptionSchemeLTV
-template <class Element>
-LPPublicKeyEncryptionSchemeLTV<Element>::~LPPublicKeyEncryptionSchemeLTV(){
-	if (this->m_algorithmEncryption != NULL)
-		delete this->m_algorithmEncryption;
-	if (this->m_algorithmPRE != NULL)
-		delete this->m_algorithmPRE;
-	if (this->m_algorithmEvalAdd != NULL)
-		delete this->m_algorithmEvalAdd;
-	if (this->m_algorithmEvalAutomorphism != NULL)
-		delete this->m_algorithmEvalAutomorphism;
-	if (this->m_algorithmSHE != NULL)
-		delete this->m_algorithmSHE;
-	if (this->m_algorithmFHE != NULL)
-		delete this->m_algorithmFHE;
-}
-
-// FIXME: the Enable code below should delete the old one before assigning to the new one...
 // Enable for LPPublicKeyEncryptionSchemeLTV
 template <class Element>
 void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature){

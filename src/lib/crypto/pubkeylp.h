@@ -506,11 +506,26 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionScheme : public LPEncryptionAlgorithm<Element>, public LPPREAlgorithm<Element> {
 	public:
+		~LPPublicKeyEncryptionScheme(){
+			if (this->m_algorithmEncryption != NULL)
+				delete this->m_algorithmEncryption;
+			if (this->m_algorithmPRE != NULL)
+				delete this->m_algorithmPRE;
+			if (this->m_algorithmEvalAdd != NULL)
+				delete this->m_algorithmEvalAdd;
+			if (this->m_algorithmEvalAutomorphism != NULL)
+				delete this->m_algorithmEvalAutomorphism;
+			if (this->m_algorithmSHE != NULL)
+				delete this->m_algorithmSHE;
+			if (this->m_algorithmFHE != NULL)
+				delete this->m_algorithmFHE;
+		}
+
 		
 		//to be implemented later
 		//void Disable(PKESchemeFeature feature);
 		
-		const std::bitset<FEATURESETSIZE> GetEnabledFeatures() {return m_featureMask;}
+		//const std::bitset<FEATURESETSIZE> GetEnabledFeatures() {return m_featureMask;}
 		
 		//to be implemented later
 		//const std::string PrintEnabledFeatures();
@@ -614,7 +629,7 @@ namespace lbcrypto {
 		const LPAutoMorphAlgorithm<Element> *m_algorithmEvalAutomorphism;
 		const LPSHEAlgorithm<Element> *m_algorithmSHE;
 		const LPFHEAlgorithm<Element> *m_algorithmFHE;
-		std::bitset<FEATURESETSIZE> m_featureMask;
+		//std::bitset<FEATURESETSIZE> m_featureMask;
 	};
 
 

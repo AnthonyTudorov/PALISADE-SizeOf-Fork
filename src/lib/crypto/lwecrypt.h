@@ -847,7 +847,6 @@ namespace lbcrypto {
 			LPPublicKeyEncryptionSchemeLTV();
 			LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask);
 
-			virtual ~LPPublicKeyEncryptionSchemeLTV();
 			//These functions can be implemented later
 			//Initialize(mask);
 

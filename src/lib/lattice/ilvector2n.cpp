@@ -32,7 +32,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 	//need to be added because m_dggSamples is static and not initialized
-	std::vector<ILVector2n*> ILVector2n::m_dggSamples;
+	std::vector<ILVector2n> ILVector2n::m_dggSamples;
 
 	ILVector2n::ILVector2n() :m_values(NULL), m_format(EVALUATION) {
 
@@ -110,8 +110,8 @@ namespace lbcrypto {
 			{
 				PreComputeDggSamples(dgg, ilParams);
 			}
-			const ILVector2n *randomElement = GetPrecomputedVector(ilParams);
-			m_values = new BigBinaryVector(*randomElement->m_values);
+			const ILVector2n randomElement = GetPrecomputedVector(ilParams);
+			m_values = new BigBinaryVector(*randomElement.m_values);
 			(*m_values).SetModulus(params.GetModulus());
 			m_format = EVALUATION;
 		}
@@ -404,13 +404,14 @@ namespace lbcrypto {
 		{
 			for (usint i = 0; i < m_sampleSize; ++i)
 			{
-				ILVector2n *current = new ILVector2n(params);
+				ILVector2n current;
+				current.SetParams(params);
 				usint vectorSize = params.GetCyclotomicOrder() / 2;
-				current->m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,params.GetModulus()));
-				current->m_values->SetModulus(params.GetModulus());
-				current->m_format = COEFFICIENT;
+				current.m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,params.GetModulus()));
+				current.m_values->SetModulus(params.GetModulus());
+				current.m_format = COEFFICIENT;
 
-				current->SwitchFormat();
+				current.SwitchFormat();
 
 				m_dggSamples.push_back(current);
 			}
@@ -418,7 +419,7 @@ namespace lbcrypto {
 	}
 
 	//Select a precomputed vector randomly
-	const ILVector2n* ILVector2n::GetPrecomputedVector(const ILParams &params) {
+	const ILVector2n ILVector2n::GetPrecomputedVector(const ILParams &params) {
 
 		//std::default_random_engine generator;
 		//std::uniform_real_distribution<int> distribution(0,SAMPLE_SIZE-1);
