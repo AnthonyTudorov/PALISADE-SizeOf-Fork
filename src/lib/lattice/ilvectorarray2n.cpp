@@ -36,29 +36,9 @@ namespace lbcrypto {
 
 	ILVectorArray2n::ILVectorArray2n() : m_format(EVALUATION),m_params(){}
 
-	ILVectorArray2n::ILVectorArray2n(const ElemParams &params) : m_params(static_cast<const ILDCRTParams&>(params)), m_format(EVALUATION)
+	ILVectorArray2n::ILVectorArray2n(const std::vector<ILParams> &ilparams) : m_format(EVALUATION)
 	{
-		usint sizeOfVector = m_params.GetModuli().size(); 
-		m_vectors.reserve(sizeOfVector); 
-
-		ILParams ilParams0;
-		ILVector2n ilvector2n;
-
-		for (usint i = 0; i < sizeOfVector; i++) { 
-			usint m = m_params.GetCyclotomicOrder();
-			BigBinaryInteger modulus(m_params.GetModuli()[i]);
-			BigBinaryInteger rootOfUnity(m_params.GetRootsOfUnity()[i]);
-
-			ilParams0.SetCyclotomicOrder(m);
-			ilParams0.SetModulus(modulus);
-			ilParams0.SetRootOfUnity(rootOfUnity);
-					
-			ilvector2n.SetParams(ilParams0);
-			BigBinaryVector tmp(m_params.GetCyclotomicOrder() / 2, m_params.GetModuli()[i]);
-			ilvector2n.SetValues(tmp, m_format);
-			m_vectors.push_back(ilvector2n);
-
-		}
+		
 	}
 
 	ILVectorArray2n::ILVectorArray2n(const ILVectorArray2n &element)  {
@@ -73,95 +53,30 @@ namespace lbcrypto {
 		m_vectors = towers; // once all the params are correct, set ILVectorArray2n's towers to the passed value
 	}
 	/* Construct using a single ILVector2n. The format is derived from the passed in ILVector2n.*/
-	ILVectorArray2n::ILVectorArray2n(const ILVector2n &element, const ElemParams &params)
+	ILVectorArray2n::ILVectorArray2n(const ILVector2n &element, const std::vector<ILParams> &ilparams)
 	{
-		Format format;
-		try{
-			format = element.GetFormat();
-		}
-		catch (const std::exception& e) {
-			throw std::logic_error("There is an issue with the format of ILVectors passed to the constructor of ILVectorArray2n");
-		}
-		m_format = format;
-		const ILDCRTParams &castedParams = static_cast<const ILDCRTParams&>(params);
-
-		m_params = castedParams;
-
-		usint i = 0;
-
-		usint size = castedParams.GetModuli().size();
-		m_vectors.reserve(size);
-
-		ILParams ilParams;
-		ILVector2n ilvector2n(element);
-
-		usint cyclotomic_order = castedParams.GetCyclotomicOrder();
-
-		for (i = 0; i < size; i++) {
-			ilParams.SetCyclotomicOrder(cyclotomic_order);
-			ilParams.SetModulus(m_params.GetModuli()[i]);
-			ilParams.SetRootOfUnity(m_params.GetRootsOfUnity()[i]);
-	
-			ilvector2n.SetParams(ilParams);
-			ilvector2n.SetModulus(m_params.GetModuli()[i]);
-			m_vectors.push_back(ilvector2n);	
-		}
+		
 	}
+
 	/*The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers. The algorithm to populate the towers can be seen below.*/
-	ILVectorArray2n::ILVectorArray2n(const DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format) :m_params(static_cast<const ILDCRTParams&>(params))
+	ILVectorArray2n::ILVectorArray2n(const DiscreteGaussianGenerator & dgg, const std::vector<ILParams> &ilparams, Format format = EVALUATION)
 	{
-		const ILDCRTParams &m_params = static_cast<const ILDCRTParams&>(params);
+		
+	}
 
-		m_vectors.reserve(m_params.GetModuli().size());
-
-		m_format = format;
-
-		sint* dggValues = dgg.GenerateIntVector(m_params.GetCyclotomicOrder()/2);
-
-		BigBinaryInteger modulus;
-		BigBinaryInteger rootOfUnity;
-		BigBinaryInteger temp;
-
-		for(usint i = 0; i < m_params.GetModuli().size();i++){
-			
-			modulus = m_params.GetModuli()[i];
-			rootOfUnity = m_params.GetRootsOfUnity()[i];
-
-			ILParams ilVectorDggValuesParams(m_params.GetCyclotomicOrder(), modulus, rootOfUnity);	
-			ILVector2n ilvector(ilVectorDggValuesParams);
-
-			BigBinaryVector ilDggValues(m_params.GetCyclotomicOrder()/2,modulus);
-
-			for(usint j = 0; j < m_params.GetCyclotomicOrder()/2; j++){
-				// if the random generated value is less than zero, then multiply it by (-1) and subtract the modulus of the current tower to set the coefficient
-				if((int)dggValues[j] < 0){
-					int k = (int)dggValues[j];
-					k = k * (-1);
-					temp = k;
-					temp = m_params.GetModuli()[i] - temp;
-					ilDggValues.SetValAtIndex(j,temp);
-				}
-				//if greater than or equal to zero, set it the value generated
-				else{				
-					int k = (int)dggValues[j];
-					temp = k;
-					ilDggValues.SetValAtIndex(j,temp);
-				}
-			}
-
-			ilvector.SetValues(ilDggValues, Format::COEFFICIENT); // the random values are set in coefficient format
-			if(m_format == Format::EVALUATION){  // if the input format is evaluation, then once random values are set in coefficient format, switch the format to achieve what the caller asked for.
-				ilvector.SwitchFormat();
-			}
-			m_vectors.push_back(ilvector);
-		}
-	  }
 	/*Move constructor*/
 	ILVectorArray2n::ILVectorArray2n(const ILVectorArray2n &&element){
 		
 		this->m_format = element.m_format;
-		this->m_params = element.m_params;
 		this->m_vectors = std::move(element.m_vectors);
+	}
+
+	ILVectorArray2n ILVectorArray2n::CloneWithParams() {
+		return *this;
+	}
+
+	ILVectorArray2n ILVectorArray2n::CloneWithNoise(const DiscreteGaussianGenerator &dgg) {
+		return *this;
 	}
 
 	// DESTRUCTORS
@@ -184,11 +99,6 @@ namespace lbcrypto {
 	{
 		return m_vectors;
 	}
-	/*This returns const m_params. Meaning the values can be read but cannot be modified*/
-	const ElemParams & ILVectorArray2n::GetParams() const
-	{
-		return m_params;
-	}
 
 	Format ILVectorArray2n::GetFormat() const
 	{
@@ -202,85 +112,6 @@ namespace lbcrypto {
 			tmp.m_vectors[i] = m_vectors[i].GetDigitAtIndexForBase(index,base);
 		}
 		return tmp;
-	}
-	/*This returns a non-const m_params. Meaning the values can be both read and modified*/
-	ElemParams& ILVectorArray2n::AccessParams(){
-		return this->m_params;
-	}
-
-	/*SETTERS*/
-
-	void ILVectorArray2n::SetTowers(const std::vector<ILVector2n> &towers)
-	{
-		SetParamsFromTowers(towers);
-		m_vectors = towers;
-	}
-
-	void ILVectorArray2n::SetParams(const ElemParams &params) {
-
-		const ILDCRTParams &castedObj = static_cast<const ILDCRTParams&>(params);		
-		
-		m_params = castedObj;
-		
-		usint tempCyclotomicOrder;
-		BigBinaryInteger tempModulus;
-		BigBinaryInteger tempRootOfUnity;
-		
-		for(usint i = 0; i < this->GetTowerLength();i++){
-			tempCyclotomicOrder = m_params.GetCyclotomicOrder();
-			tempModulus = m_params.GetModuli()[i];
-			tempRootOfUnity = m_params.GetRootsOfUnity()[i];
-
-			ILParams temp(tempCyclotomicOrder,tempModulus, tempRootOfUnity);
-			m_vectors[i].SetParams(temp);
-		}
-	}
-
-	// Private Function
-	/*This function sets the params based on the a vector of integers provided. It reads the params of each tower and populates m_params with those read values.*/
-	void ILVectorArray2n:: SetParamsFromTowers(const std::vector<ILVector2n> &towers){
-		ILParams tempParams;
-		Format formatChecker; //This will be assigned the first towers format. Will check if formats are consistent.
-		usint cyclotomicOrder; 
-		try{
-			formatChecker = towers.at(0).GetFormat();
-		}
-
-		catch(const std::exception& e){
-			throw std::logic_error("There is an issue with the format of ILVectors");
-		}
-		/*obtaining the chain of moduli and roots of unity*/
-		std::vector<BigBinaryInteger> moduli;
-		moduli.reserve(towers.size());
-
-		std::vector<BigBinaryInteger> rootsOfUnity;
-		rootsOfUnity.reserve(towers.size());
-		
-		try{
-			 cyclotomicOrder = towers.at(0).GetParams().GetCyclotomicOrder();
-		}
-		catch(const std::exception& e){
-			throw std::logic_error("There is an issue with params of ILVectors passed");
-		}
-		
-		for(usint i=0;i < towers.size();i++){
-			try{
-				tempParams = towers.at(i).GetParams();
-				if(towers.at(i).GetFormat() != formatChecker){
-				     throw std::logic_error("The format of the ILVector2ns' are not consistent");
-				}
-				moduli.push_back(tempParams.GetModulus());
-				rootsOfUnity.push_back(tempParams.GetRootOfUnity());
-			}
-			catch(const std::exception& e){
-					throw std::logic_error("There is an issue with params of ILVectors");
-			}
-		}
-	
-		m_params.SetModuli(moduli);
-		m_params.SetRootsOfUnity(rootsOfUnity);
-		m_params.SetCyclotomicOrder(cyclotomicOrder);
-		m_format = formatChecker;
 	}
 
 	/*VECTOR OPERATIONS*/
@@ -422,7 +253,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = (element*tmp.m_vectors[i]);
 		}
-		tmp.m_params= this->m_params;
+		// tmp.m_params= this->m_params;
 		return tmp;
 	}
 
@@ -478,41 +309,18 @@ namespace lbcrypto {
 		
 		usint cyclotomicOrder = this->m_params.GetCyclotomicOrder();
 
-		// To keep consistent roots of unity between the towers and ILVectorArray2n, we keep track of the roots of unity. As seen below, Decompose of ILVector2n is called
-		// and decompose of ILVector2n creates new roots of unity, because the cyclotomic order of the ILVector2n changes. 
-		std::vector<BigBinaryInteger> rootsOfUnity; 
-		rootsOfUnity.reserve(m_vectors.size());
-
-		for(int i=0; i < m_vectors.size(); i++) {
-			ILParams ilvectorParams(cyclotomicOrder, this->m_params.GetModuli().at(i), this->m_params.GetRootsOfUnity().at(i));
+		for(int i=0; i < m_numberOfTowers; i++) {
 			m_vectors[i].Decompose();
-			rootsOfUnity.push_back(m_vectors[i].GetParams().GetRootOfUnity());
 		}
-
-		m_params.SetRootsOfUnity(rootsOfUnity);
-		m_params.SetCyclotomicOrder(cyclotomicOrder/2);
-
 	}
 
 	void ILVectorArray2n::DropTower(usint index){
-		if(index >= m_vectors.size()){
+		if(index >= m_numberOfTowers){
 			throw std::out_of_range("Index of tower being removed is larger than ILVectorArray2n tower\n");
 		}
-
+		m_modulus = m_modulus /(m_vectors[index].GetModulus());
 		m_vectors.erase(m_vectors.begin() + index);
-
-		BigBinaryInteger newBigModulus(m_params.GetModulus());
-		newBigModulus = newBigModulus.DividedBy(m_params.GetModuli()[index]);
-		m_params.SetModulus(newBigModulus);
-
-		std::vector<BigBinaryInteger> temp_moduli(m_params.GetModuli());
-		temp_moduli.erase(temp_moduli.begin() + index);
-		m_params.SetModuli(temp_moduli);
-
-		std::vector<BigBinaryInteger> temp_roots_of_unity(m_params.GetRootsOfUnity());
-		temp_roots_of_unity.erase(temp_roots_of_unity.begin() + index);
-		m_params.SetRootsOfUnity(temp_roots_of_unity);
-	
+		m_numberOfTowers -= 1;
 	}
 
 	/**

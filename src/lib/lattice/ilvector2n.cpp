@@ -148,6 +148,14 @@ namespace lbcrypto {
 
 	}
 
+	ILVector2n ILVector2n::CloneWithParams() {
+		return *this;
+	}
+
+	ILVector2n ILVector2n::CloneWithNoise(const DiscreteGaussianGenerator &dgg) {
+		return *this;
+	}
+
 	ILVector2n::~ILVector2n()
 	{
 		/*if(m_values!=NULL)
@@ -180,14 +188,6 @@ namespace lbcrypto {
 
 	Format ILVector2n::GetFormat() const {
 		return m_format;
-	}
-
-	const ILParams &ILVector2n::GetParams() const {
-		return m_params;
-	}
-
-	ILParams& ILVector2n::AccessParams(){
-		return m_params;
 	}
 
 	const BigBinaryInteger& ILVector2n::GetValAtIndex(usint i) const
@@ -223,12 +223,6 @@ namespace lbcrypto {
 	void ILVector2n::SwitchModulus(const BigBinaryInteger &modulus){
 		m_values->SwitchModulus(modulus);
 		m_params.SetModulus(modulus);
-	}
-
-	void ILVector2n::SetParams(const ElemParams & params)
-	{
-		const ILParams &castedObj = dynamic_cast<const ILParams&>(params);
-		m_params = castedObj;
 	}
 
 	// addition operation - PREV1
@@ -330,9 +324,7 @@ namespace lbcrypto {
 		if (tmp.InverseExists()) {
 			*tmp.m_values = m_values->ModInverse();
 			return tmp;
-		}
-
-		else {
+		} else {
 			throw std::logic_error("ILVector2n has no inverse\n");
 
 		}
@@ -346,19 +338,13 @@ namespace lbcrypto {
 		else
 		{
 			ILVector2n result(*this);
-
 			usint m = m_params.GetCyclotomicOrder();
-			//usint iInverse = ModInverse(i,m);
-			//uschar sign;
 
 			for (usint j = 1; j < m; j = j + 2)
 			{
-
 				//usint newIndex = (j*iInverse) % m;
 				usint newIndex = (j*i) % m;
-
 				result.m_values->SetValAtIndex((newIndex + 1)/2-1,this->m_values->GetValAtIndex((j+1)/2-1));
-
 			}
 
 			return result;
@@ -374,9 +360,7 @@ namespace lbcrypto {
 		if (m_format == COEFFICIENT) {
 			m_format = EVALUATION;
 			*m_values = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(*m_values, m_params.GetRootOfUnity(), m_params.GetCyclotomicOrder());
-		}
-
-		else {
+		} else {
 			m_format = COEFFICIENT;
 			*m_values = ChineseRemainderTransformFTT::GetInstance().InverseTransform(*m_values, m_params.GetRootOfUnity(), m_params.GetCyclotomicOrder());
 		}

@@ -95,7 +95,6 @@ namespace lbcrypto {
 		* @param stddev standard deviation for the dicrete gaussian generator.
 		* @return the resulting vector.
 		*/
-
         inline static function<unique_ptr<ILVector2n>()> MakeDiscreteGaussianCoefficientAllocator(ILParams params, Format resultFormat, int stddev) {
             return [=]() {
                 DiscreteGaussianGenerator dgg(stddev);
@@ -169,12 +168,29 @@ namespace lbcrypto {
 		const ILVector2n& operator=(const ILVector2n &rhs);
 
 		/**
-		* Assignment Operator.
+		* Move Operator.
         *
         * @param &&rhs the copied vector.
         * @return the resulting vector.
         */
         const ILVector2n& operator=(ILVector2n &&rhs);
+
+        //CLONE OPERATIONS
+		/**
+		* Clone
+		*
+		* Creates a new ILVector2n and clones only the params. The tower values are empty. The tower values can be filled by another process/function or initializer list.
+		*/
+		ILVector2n CloneWithParams();
+
+		/**
+		* Clone with noise
+		*
+		* Creates a new ILVector2n and clones the params. The tower values will be filled up with noise based on the discrete gaussian.
+		*
+		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVector2n with random numbers.
+		*/
+		ILVector2n CloneWithNoise(const DiscreteGaussianGenerator &dgg);
 
 		/**
 		* Assignment Operator. The usint val will be set at index zero and all other indices will be set to zero.
@@ -183,12 +199,12 @@ namespace lbcrypto {
         * @return the resulting vector.
         */
 		inline const ILVector2n& operator=(usint val) {
-            SetFormat(COEFFICIENT);
+            m_format = COEFFICIENT;
             this->SetValAtIndex(0, val);
             for (size_t i = 1; i < m_values->GetLength(); ++i) {
                 this->SetValAtIndex(i, 0);
             }
-            SetFormat(EVALUATION);
+            m_format = EVALUATION;
             return *this;
         }
 
@@ -286,20 +302,6 @@ namespace lbcrypto {
 		Format GetFormat() const;
 
 		/**
-		* Get method of the parameter set.
-		*
-		* @return the parameter set.
-		*/
-		const ILParams &GetParams() const;
-
-		/**
-		* Access method of the parameter set.
-		*
-		* @return the parameter set.
-		*/
-		ILParams& AccessParams();
-
-		/**
 		* Get value of binaryvector at index i.
 		*
 		* @return value at index i.
@@ -335,18 +337,6 @@ namespace lbcrypto {
 		*/
 		void SwitchModulus(const BigBinaryInteger &modulus);
 
-		/**
-		* Set method of the values.
-		*
-		* @param &params is the ILParams.
-		*/
-		void SetParams(const ElemParams &params);
-
-		/**
-		* Set method of the format.
-		*
-		* @param format of ILVector2n.
-		*/
 		void SetFormat(const Format format);
 
 		/**

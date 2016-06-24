@@ -44,7 +44,6 @@
 * 
 * This class has three private members: 
 * std::vector<ILVector2n> m_vectors: This holds the towers
-* ILDCRTParams m_params; this holds information regarding the towers (roots of unity, moduli, cyclotomic order, multiplied value of the moduli).
 * Format m_format; The format of the ILVectorArray2n, which is either in coefficient or evaluation (CRT) format.
 *
 * The crypto layer code of the library is where this data structure can be utilized. 
@@ -89,9 +88,9 @@ namespace lbcrypto {
 		/**
 		* Constructor that initializes parameters.
 		*
-		* @param &params parameter set required for ILVectorArray2n. ElemParams is a parent of ILDCRTParams. Every ILVectorArray2n needs an ILDCRTParams.
+		*@param &ilparams parameter set required for ILVectorArray2n.
 		*/
-		ILVectorArray2n(const ElemParams &params);
+		ILVectorArray2n(const std::vector<ILParams> &ilparams);
 
 		/**
 		* Copy constructor.
@@ -111,18 +110,18 @@ namespace lbcrypto {
 		* Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n. 
 		*
 		* @param &element ILVector2n to build other towers from.
-		* @param &params parameter set required for ILVectorArray2n.
+		* @param &ilparams parameter set required for ILVectorArray2n.
 		*/
-		ILVectorArray2n(const ILVector2n &element, const ElemParams &params);
+		ILVectorArray2n(const ILVector2n &element, const std::vector<ILParams> &ilparams);
 
 		/**
 		* Constructor based a discrete Gaussian generator. T
 		*
 		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers.
-		* @param &params parameter set required for ILVectorArray2n. ElemParams is a parent of ILDCRTParams. Every ILVectorArray2n needs an ILDCRTParams.
+		* @param &ilparams parameter set required for ILVectorArray2n. 
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
+		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const std::vector<ILParams> &ilparams, Format format = EVALUATION);
 
 		/**
 		* Move constructor.
@@ -130,6 +129,23 @@ namespace lbcrypto {
 		* @param &&element ILVectorArray2n to move from
 		*/
 		ILVectorArray2n(const ILVectorArray2n &&element);
+
+		//CLONE OPERATIONS
+		/**
+		* Clone
+		*
+		* Creates a new ILVectorArray2n and clones only the params. The tower values are empty. The tower values can be filled by another process/function or initializer list.
+		*/
+		ILVectorArray2n CloneWithParams();
+
+		/**
+		* Clone with noise
+		*
+		* Creates a new ILVectorArray2n and clones the params. The tower values will be filled up with noise based on the discrete gaussian.
+		*
+		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers.
+		*/
+		ILVectorArray2n CloneWithNoise(const DiscreteGaussianGenerator &dgg);
 
 		// DESTRUCTORS
 		/**
@@ -162,13 +178,6 @@ namespace lbcrypto {
 		const std::vector<ILVector2n>& GetAllTowers() const;
 
 		/**
-		* Get method of the parameter set.
-		*
-		* @return the parameter set.
-		*/
-		const ElemParams &GetParams() const;
-
-		/**
 		* Get method of the format.
 		*
 		* @return the format.
@@ -184,28 +193,6 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n GetDigitAtIndexForBase(usint index, usint base) const;
 
-		/**
-		* Access method of the parameter returning a non-const version of the parameter set.
-		*
-		* @return the parameter set non-const.
-		*/
-		ElemParams& AccessParams();
-
-		//SETTERS
-		/**
-		* Set method of the values. The params and format will be derived from the towers.
-		*
-		* @param &towers vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
-		*/
-		void SetTowers(const std::vector<ILVector2n> &towers);
-
-		/**
-		* Set method of the values.
-		*
-		* @param &params is the ILDCRTParams.
-		*/
-		void SetParams(const ElemParams &params);
-
 		//VECTOR OPERATIONS
 
 		/**
@@ -216,6 +203,7 @@ namespace lbcrypto {
 		*/
 		const ILVectorArray2n& operator=(const ILVectorArray2n &rhs);
 
+		//TODO- ADD DOXYGEN COMMENTS
 		ILVectorArray2n& operator=(std::initializer_list<sint> rhs);
 
 		/**
@@ -431,13 +419,16 @@ namespace lbcrypto {
 		// array of vectors used for double-CRT presentation
 		std::vector<ILVector2n> m_vectors;
 
-		// parameters for the ideal lattice: cyclotomic order and ciphertext modulus factors
-		ILDCRTParams m_params;
-
 		// Either Format::EVALUATION (0) or Format::COEFFICIENT (1)
 		Format m_format;
 
-		void SetParamsFromTowers(const std::vector<ILVector2n> &towers);
+		//Big Modulus, multiplied value of all tower moduli
+		BigBinaryInteger m_modulus;
+
+		usint m_cyclotomicOrder;
+
+		//Number of towers
+		usint m_numberOfTowers;
 	};
 
 	/**
