@@ -97,7 +97,7 @@ TEST(UTTrapdoor,sizes){
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	ILParams fastParams( m, modulus, rootOfUnity);
-	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(fastParams, stddev);
+	pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(fastParams, stddev);
 
 	EXPECT_EQ(1,trapPair.first.GetRows())
 		<< "Failure testing number of rows";
@@ -130,7 +130,7 @@ TEST(UTTrapdoor,TrapDoorPairTest){
 	ILParams params( m, modulus, rootOfUnity);
     auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
-	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev);
+	pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -193,7 +193,7 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 	ILParams params( m, modulus, rootOfUnity);
     auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
-	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev);
+	pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -270,7 +270,7 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 	ILParams params( m, modulus, rootOfUnity);
     //auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
-	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev);
+	pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -283,11 +283,11 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 	u.SwitchFormat();
 
 	Matrix<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
-	PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
+	RLWETrapdoorUtility::PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
 
     //  600 is a very rough estimate for s, refer to Durmstradt 4.2 for
     //      estimation
-	RingMat z = GaussSamp(m/2, k, trapPair.first, trapPair.second, sigmaSqrt, u, stddev, dgg);
+	RingMat z = RLWETrapdoorUtility::GaussSamp(m/2, k, trapPair.first, trapPair.second, sigmaSqrt, u, stddev, dgg);
 
 	//Matrix<ILVector2n> uEst = trapPair.first * z;
 
@@ -341,7 +341,7 @@ TEST(UTTrapdoor,EncodeTest_dgg_yes) {
 	algorithm.KeyGen(dgg,&obfuscatedPattern);
 
 	const std::vector<Matrix<ILVector2n>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
-	const std::vector<TrapdoorPair>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
+	const std::vector<RLWETrapdoorPair>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
 	const std::vector<Matrix<LargeFloat>>   &Sigma = obfuscatedPattern.GetSigmaKeys();
 
 	double constraint = obfuscatedPattern.GetConstraint();
@@ -408,7 +408,7 @@ TEST(UTTrapdoor,EncodeTest_dgg_no) {
 	algorithm.KeyGen(dgg,&obfuscatedPattern);
 
 	const std::vector<Matrix<ILVector2n>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
-	const std::vector<TrapdoorPair>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
+	const std::vector<RLWETrapdoorPair>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
 	const std::vector<Matrix<LargeFloat>>   &Sigma = obfuscatedPattern.GetSigmaKeys();
 
 	double constraint = obfuscatedPattern.GetConstraint();

@@ -36,21 +36,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <fstream>
-//#include "../../lib/utils/inttypes.h"
-//#include "../../lib/math/backend.h"
-//#include "../../lib/math/nbtheory.h"
-//#include "../../lib/math/distrgen.h"
-//#include "../../lib/lattice/elemparams.h"
-//#include "../../lib/lattice/ilparams.h"
-//#include "../../lib/lattice/ildcrtparams.h"
-//#include "../../lib/lattice/ilelement.h"
-//#include "../../lib/crypto/lwecrypt.h"
+
 #include "../../lib/obfuscate/lweconjunctionobfuscate.h"
 #include "../../lib/obfuscate/lweconjunctionobfuscate.cpp"
 //#include "../../lib/obfuscate/obfuscatelp.h"
 #include "time.h"
 #include <chrono>
-#include "../../lib/utils/debug.h"
+#include "../../lib/utils/debug.h"s
 
 using namespace std;
 using namespace lbcrypto;
@@ -71,17 +63,7 @@ struct SecureParams {
 int main(){
 
 	int input = 0;
-	/*
-	std::cout << "Relinearization window : " << std::endl;
-	std::cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
 
-	std::cin >> input;
-	//cleans up the buffer
-	cin.ignore();
-
-	if ((input<0) || (input>4))
-		input = 0;
-	*/
 	NTRUPRE(input);
 
 	std::cin.get();
@@ -89,22 +71,6 @@ int main(){
 	return 0;
 }
 
-
-// double currentDateTime()
-// {
-
-// 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-
-//     time_t tnow = std::chrono::system_clock::to_time_t(now);
-//     tm *date = localtime(&tnow);
-//     date->tm_hour = 0;
-//     date->tm_min = 0;
-//     date->tm_sec = 0;
-
-//     auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
-
-// 	return std::chrono::duration <double, std::milli>(now - midnight).count();
-// }
 
 //////////////////////////////////////////////////////////////////////
 //	NTRUPRE is where the core functionality is provided.
@@ -143,11 +109,6 @@ void NTRUPRE(int input) {
 
 	//Prepare for parameters.
 	ILParams ilParams(m,modulus,rootOfUnity);
-
-	//Set crypto parametes
-	//LPCryptoParametersLWE<ILVector2n> cryptoParams;
-	//cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-	//cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
 	//DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(modulus, stdDev);			// Create the noise generator
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev); // Create the noise generator

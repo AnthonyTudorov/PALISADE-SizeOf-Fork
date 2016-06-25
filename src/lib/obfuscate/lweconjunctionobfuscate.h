@@ -1,7 +1,7 @@
 /**0
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>
  * @version 00_05
  *
  * @section LICENSE
@@ -46,7 +46,8 @@
 #include "../lattice/ildcrtparams.h"
 #include "../lattice/ilelement.h"
 #include "../math/matrix.cpp"
-#include "../obfmath/trapdoor.h"
+#include "../obfmath/trapdoor.h"'
+#include "../obfmath/trapdoor.cpp"
 
 /**
  * @namespace lbcrypto
@@ -54,9 +55,9 @@
  */
 namespace lbcrypto {
 
-//perturbation matrix parameter
-//const double S = 1000;
-
+/**
+* brief function to generat a test set of parameters 
+*/
 static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 	usint m = 16;
 	//BigBinaryInteger secureModulus("67108913");
@@ -119,6 +120,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 */
 			usint GetLength() const;
 		private:
+			// stores the local instance of the pattern string
 			std::string m_patternString;
 	};
 
@@ -128,9 +130,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 	 */
 	// Yuriy: We need to add four methods: GetS, GetR, GetS1, GetR1 + private members for those + possible setters/constructors
 	// dimension of S1 and R1 - matrices of ring elements
-	// dmension of S and R - matrices of matrices of ring elements
-	// clean up the hierarchy - both obfuscatedpattern and conjunction pattern inherit from the same abstract class - can be confusing if methods are
-	// in the abstract class  - multiple inheritance issue
+	// dimension of S and R - matrices of matrices of ring elements
 
 	template <class Element>
 	class ObfuscatedLWEConjunctionPattern : public ObfuscatedPattern<Element>, public ConjunctionPattern<Element>{
@@ -284,7 +284,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * @param sigma - vector of perturbation matrices.
 			 */
 			void SetKeys(std::vector<Matrix<Element>> *pk,
-					std::vector<TrapdoorPair>   *ek,
+					std::vector<RLWETrapdoorPair>   *ek,
 					std::vector<Matrix<LargeFloat>> *sigma) {
 
 				this->m_pk = pk;
@@ -346,7 +346,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * Gets the collection of private keys.
 			 * @return private keys.
 			 */
-			const std::vector<TrapdoorPair> &GetEncodingKeys() const {
+			const std::vector<RLWETrapdoorPair> &GetEncodingKeys() const {
 				return *(this->m_ek);
 			}
 
@@ -419,7 +419,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			Matrix<Element> *m_Rl;
 
 			std::vector<Matrix<Element>> *m_pk;
-			std::vector<TrapdoorPair>   *m_ek;
+			std::vector<RLWETrapdoorPair>   *m_ek;
 			std::vector<Matrix<LargeFloat>> *m_Sigma;
 
 	};
@@ -478,7 +478,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			void Encode(
 				const Matrix<Element> &Ai,
 				const Matrix<Element> &Aj,
-				const TrapdoorPair &Ti,
+				const RLWETrapdoorPair &Ti,
 				const Matrix<LargeFloat> &sigma,
 				const Element &elemS,
 				DiscreteGaussianGenerator &dgg,
@@ -495,7 +495,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 */
 			/*void GaussSamp(
 				const Matrix<Element> &Ai,
-				const TrapdoorPair &Ti,
+				const RLWETrapdoorPair &Ti,
 				const Element &elemB,
 				DiscreteGaussianGenerator &dgg,
 				Matrix<Element> &encodedElem) const;*/
