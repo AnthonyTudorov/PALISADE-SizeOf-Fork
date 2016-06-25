@@ -56,7 +56,7 @@ int main()
 
 	Matrix<LargeFloat> sample([](){ return make_unique<LargeFloat>(); }, 10, 1);
 
-	ContinuousGaussianGenerator(&sample);
+	LatticeGaussSampUtility::ContinuousGaussianGenerator(&sample);
 
 	std::cout << sample << std::endl;
 
