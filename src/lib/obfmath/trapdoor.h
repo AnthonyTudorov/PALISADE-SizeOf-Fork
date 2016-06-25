@@ -47,7 +47,7 @@ namespace lbcrypto {
 typedef Matrix<ILVector2n> RingMat;
 
 /**
-* @brief Class to store a lattice trapdoor labeled as construction 1 in section 3.2 of https://eprint.iacr.org/2013/297.pdf
+* @brief Class to store a lattice trapdoor pair generated using construction 1 in section 3.2 of https://eprint.iacr.org/2013/297.pdf
 * This construction is based on the hardness of Ring-LWE problem 
 */
 class RLWETrapdoorPair {
@@ -63,14 +63,14 @@ public:
 /**
 * @brief Static class implementing lattice trapdoor construction 1 in section 3.2 of https://eprint.iacr.org/2013/297.pdf
 */
-static class RLWETrapdoorUtility
+class RLWETrapdoorUtility
 {
 public:
 	/**
 	* Trapdoor generation method as described in section 3.2 of https://eprint.iacr.org/2013/297.pdf
 	*
-	* @param &params ring element parameters
-	* @param @sttdev distribution parameter used in sampling noise polynomials of the trapdoor
+	* @param params ring element parameters
+	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
 	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 	*/
 	static inline std::pair<RingMat, RLWETrapdoorPair> TrapdoorGen(ILParams params, int stddev);
@@ -79,15 +79,14 @@ public:
 	* Gaussian sampling introduced in https://eprint.iacr.org/2011/501.pdf and described 
 	* in a simple manner in https://eprint.iacr.org/2013/297.pdf
 	*
-	* @param &n ring dimension
-	* @param &k matrix sample dimension; k = logq + 2
+	* @param n ring dimension
+	* @param k matrix sample dimension; k = logq + 2
 	* @param &A public key of the trapdoor pair
 	* @param &T trapdoor itself
 	* @param &SigmaP Cholesky decomposition matrix for the trapdoor
 	* @param &u syndrome vector where gaussian that Gaussian sampling is centered around
-	* @param &sigma noise distriubution parameter
+	* @param sigma noise distriubution parameter
 	* @param &dgg discrete Gaussian generator for integers
-	* @param @sttdev distribution parameter used in sampling noise polynomials of the trapdoor
 	* @return the sampled vector (matrix)
 	*/
 	static inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const RLWETrapdoorPair& T, 
@@ -98,12 +97,12 @@ public:
 	* Generation of perturbation matrix based on Cholesky decomposition 
 	* see Section 3.2 of https://eprint.iacr.org/2013/297.pdf for details
 	*
-	* @param &n ring dimension
-	* @param &k matrix sample dimension; k = logq + 2
+	* @param n ring dimension
+	* @param k matrix sample dimension; k = logq + 2
 	* @param &A public key of the trapdoor pair
 	* @param &T trapdoor itself
-	* @param &s parameter s needed for Cholesky decomposition to succeed; see https://eprint.iacr.org/2011/501.pdf for more details
-	* @param &sigmaSqrt Choleskry decomposition matrix - output of the function
+	* @param s parameter s needed for Cholesky decomposition to succeed; see https://eprint.iacr.org/2011/501.pdf for more details
+	* @param *sigmaSqrt Choleskry decomposition matrix - output of the function
 	*/
 	static inline void PerturbationMatrixGen(size_t n, size_t k, const RingMat& A, 
 			const RLWETrapdoorPair& T, double s, Matrix<LargeFloat> *sigmaSqrt); 

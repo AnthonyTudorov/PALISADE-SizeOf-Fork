@@ -42,7 +42,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //#include "../../lib/obfuscate/obfuscatelp.h"
 #include "time.h"
 #include <chrono>
-#include "../../lib/utils/debug.h"s
+#include "../../lib/utils/debug.h"
 
 using namespace std;
 using namespace lbcrypto;
