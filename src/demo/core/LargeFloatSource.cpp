@@ -38,6 +38,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/math/largefloat.h"
 #include "../../lib/math/matrix.cpp"
 #include "../../lib/obfmath/dgsampling.h"
+#include "../../lib/obfmath/dgsampling.cpp"
 //#include <limits>
 
 //using namespace std;
