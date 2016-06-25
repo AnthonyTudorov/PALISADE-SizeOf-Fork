@@ -38,7 +38,6 @@
 #include "../../../src/lib/utils/inttypes.h"
 #include "../../../src/lib/utils/utilities.h"
 
-#include "../../../src/lib/obfmath/randomizedround.h"
 #include "../../../src/lib/obfmath/trapdoor.h"
 #include "../../../src/lib/obfuscate/lweconjunctionobfuscate.h"
 #include "../../../src/lib/obfuscate/lweconjunctionobfuscate.cpp"
@@ -236,7 +235,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 
 	Matrix<int32_t> zHatBBI([](){ return make_unique<int32_t>(); },  k, m/2);
 
-	GaussSampGq(u,sigma,k,modulus, dgg,&zHatBBI);
+	LatticeGaussSampUtility::GaussSampGq(u,sigma,k,modulus, dgg,&zHatBBI);
 	//GaussSampG(u,sigma,k,dgg,&zHatBBI);
 
 	EXPECT_EQ(k,zHatBBI.GetRows())

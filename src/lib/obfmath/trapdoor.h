@@ -40,6 +40,7 @@
 #include "../math/matrix.h"
 #include "../lattice/ilvector2n.h"
 #include "dgsampling.h"
+#include "dgsampling.cpp"
 #include "../utils/debug.h"
 
 namespace lbcrypto {

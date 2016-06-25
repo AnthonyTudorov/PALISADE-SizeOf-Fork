@@ -87,7 +87,7 @@ namespace lbcrypto {
 		const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
 		Matrix<int32_t> p([](){ return make_unique<int32_t>(); }, (2+k)*n, 1);
-		NonSphericalSample(n, SigmaP, c, &p);
+		LatticeGaussSampUtility::NonSphericalSample(n, SigmaP, c, &p);
 
 		//std::cout << "GaussSamp: Just finished running NonSphericalSample" << std::endl;
 
@@ -111,7 +111,7 @@ namespace lbcrypto {
 		// converting perturbed syndrome to coefficient representation
 		perturbedSyndrome.SwitchFormat();
 
-		GaussSampGq(perturbedSyndrome,sigma,k,modulus,dgg,&zHatBBI);
+		LatticeGaussSampUtility::GaussSampGq(perturbedSyndrome,sigma,k,modulus,dgg,&zHatBBI);
 
 		// Convert zHat from a matrix of BBI to a vector of ILVector2n ring elements
 		// zHat is in the coefficient representation
