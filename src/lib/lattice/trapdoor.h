@@ -38,7 +38,7 @@
 #define LBCRYPTO_LATTICE_TRAPDOOR_H
 
 #include "../math/matrix.h"
-#include "../lattice/ilvector2n.h"
+#include "ilvector2n.h"
 #include "dgsampling.h"
 #include "dgsampling.cpp"
 #include "../utils/debug.h"
