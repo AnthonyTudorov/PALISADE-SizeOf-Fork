@@ -36,6 +36,7 @@
 
 //Includes Section
 #include "lweconjunctionobfuscate.h"
+#include "lweconjunctionobfuscate.cpp"
 
 /**
  * @namespace lbcrypto
@@ -69,6 +70,13 @@ namespace lbcrypto {
 			explicit ObfuscatedLWEConjunctionPatternV2(ElemParams &elemParams); 
 
 			/**
+			 * Constructor with element params and chunk size
+			 *
+			 * @param &elemParams the parameters being used.
+			 */
+			explicit ObfuscatedLWEConjunctionPatternV2(ElemParams &elemParams, usint chunkSize); 
+
+			/**
 			 * Sets elements params.
 			 *
 			 * @param *elemParams parameters.
@@ -95,10 +103,22 @@ namespace lbcrypto {
 			usint GetLength() const {return m_length;}
 
 			/**
+			 * Gets the number of bits encoded by one encoding matrix
+			 * @return the number of bits
+			 */
+			usint GetChunkSize() const {return m_chunkSize;}
+
+			/**
 			 * Sets the pattern length
 			 * @param length the length;
 			 */
 			void SetLength(usint length);
+
+			/**
+			 * Sets the number of bits encoded using conjunction obfuscator
+			 * @param bits number of bits;
+			 */
+			void SetChunkSize(usint bits) {m_chunkSize = bits};
 
 			/**
 			 * Gets the modulus
@@ -149,12 +169,12 @@ namespace lbcrypto {
 			 * @param &Sl the Sl vector from the obfuscated pattern definition.
 			 * @param &Rl the Rl vector from the obfuscated pattern definition.
 			 */
-			void SetMatrices(vector<Matrix<Element>> * S0_vec, vector<Matrix<Element>> * S1_vec,
-					vector<Matrix<Element>> * R0_vec, vector<Matrix<Element>> * R1_vec,
-					Matrix<Element> * Sl, Matrix<Element> * Rl); 
+			void SetMatrices(vector<vector<Matrix<Element>>> *S_vec,
+					vector<vector<Matrix<Element>>> *R0_vec,
+					Matrix<Element> *Sl, Matrix<Element> *Rl); 
 
 			/**
-			 * Sets the matrices that define the obfuscated pattern.
+			 * Gets the S_l matrix used to "close" the conjunction obfuscator.
 			 * @return the S_l matrix.
 			 */
 			Matrix<Element>*  GetSl() const {
@@ -187,7 +207,7 @@ namespace lbcrypto {
 			}
 
 			/**
-			 * Gets the matrices that define the obfuscated pattern.
+			 * Gets the R_l matrix used to "close" the conjunction obfuscator.
 			 * @return the R_l matrix.
 			 */
 			Matrix<Element>*  GetRl() const {
@@ -198,23 +218,27 @@ namespace lbcrypto {
 			 * Gets the S matrix that defines the obfuscated pattern.
 			 * @return the S_ib matrix.
 			 */
-			Matrix<Element>* GetS(usint i, char testVal) const; 
+			Matrix<Element>* GetS(usint i, const std::string &testVal) const; 
 
 			/**
 			 * Gets the matrices that define the obfuscated pattern.
 			 * @return the R_ib matrix.
 			 */
-			Matrix<Element>* GetR(usint i, char testVal) const; 
+			Matrix<Element>* GetR(usint i, const std::string &testVal) const; 
 
 		private:
 
+			//length of the pattern
 			usint m_length;
 			ElemParams *m_elemParams;
 
-			vector<Matrix<Element>> *m_S0_vec;
-			vector<Matrix<Element>> *m_S1_vec;
-			vector<Matrix<Element>> *m_R0_vec;
-			vector<Matrix<Element>> *m_R1_vec;
+			//number of bits encoded by one matrix
+			usint m_chunkSize;
+
+			vector< vector<Matrix<Element>> > *m_S_vec;
+			//vector<Matrix<Element>> *m_S1_vec;
+			vector< vector<Matrix<Element>> > *m_R_vec;
+			//vector<Matrix<Element>> *m_R1_vec;
 			Matrix<Element> *m_Sl;
 			Matrix<Element> *m_Rl;
 
