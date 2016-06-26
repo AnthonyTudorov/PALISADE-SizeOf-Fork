@@ -37,9 +37,15 @@
 
 #include <math.h>
 #include <random>
+#include <boost/multiprecision/random.hpp>
+#include <boost/random.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
+#include <boost/multiprecision/cpp_dec_float.hpp>
 
 #include "backend.h"
 #include "distributiongenerator.h"
+#include "largefloat.h"
 
 namespace lbcrypto {
 
@@ -126,6 +132,15 @@ public:
 	int32_t GenerateInteger (double mean, double stddev, size_t n) const;
 
 	/**
+	* @brief  Returns a generated integer. Uses rejection method. Works with large floating numbers.
+	* @param mean center of discrete Gaussian distribution.
+	* @param stddev standard deviatin of discrete Gaussian distribution.
+	* @param n is ring dimension
+	* @return A random value within this Discrete Gaussian Distribution.
+	*/
+	static int32_t GenerateInteger (const LargeFloat &mean, const LargeFloat &stddev, size_t n);
+
+	/**
 	* @brief  Returns a generated integer (int32_t). Uses rejection method.
 	* @param mean center of discrecte Gaussian distribution.
 	* @param stddev standard deviatin of discrete Gaussian distribution.
@@ -138,6 +153,10 @@ private:
 	usint FindInVector (const std::vector<double> &S, double search) const;
 
 	static double UnnormalizedGaussianPDF(const double &mean, const double &sigma, int32_t x) {
+		return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
+	}
+
+	static inline LargeFloat UnnormalizedGaussianPDF(const LargeFloat &mean, const LargeFloat &sigma, int32_t x) {
 		return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
 	}
 
