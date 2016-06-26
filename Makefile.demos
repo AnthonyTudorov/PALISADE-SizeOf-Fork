@@ -74,9 +74,10 @@ $(BINDIR)/demo/pre/Source_json$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_json.o $
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 
-$(BINDIR)/demo/pre/leaktester$(EXESUFFIX): $(BUILDDIR)/demo/pre/leaktester.o $(BUILDDIR)/lib/*/*.o
+$(BINDIR)/demo/pre/leaktester$(EXESUFFIX): $(BUILDDIR)/demo/pre/leaktester.o $(EXTLIBDIR)/$(PALISADELIB)
 	@mkdir -p $(@D)
-	$(CC) -static-libgcc -static-libstdc++ -ggdb -o $@ $^ -pthread -lgomp
+	$(CC) -o $@ $^ $(EXTLIB)
+	#$(CC) -static-libstdc++ -ggdb -o $@ $^ -pthread -lgomp $(EXTLIB)
 
 $(BINDIR)/demo/pre/Source_presim$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_presim.o $(EXTLIBDIR)/$(PALISADELIB)
 	@mkdir -p $(@D)
