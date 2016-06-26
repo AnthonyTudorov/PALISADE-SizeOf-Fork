@@ -142,7 +142,7 @@ namespace lbcrypto {
         inline static function<unique_ptr<ILVector2n>()> MakeAllocator(const ElemParams *params, Format format) {
             return [=]() {
                 //return MakeAllocator(*(static_cast<const ILParams*>(params)),format);
-				return make_unique<ILVector2n>(*(static_cast<const ILParams*>(params)), format);
+				return make_unique<ILVector2n>(*(dynamic_cast<const ILParams*>(params)), format);
             };
         }
 

@@ -32,7 +32,7 @@ namespace lbcrypto {
 template <class Element>
 ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern() {
 
-	this->m_cryptoParameters = NULL;
+	this->m_elemParams = NULL;
 	this->m_length = 0;
 	this->m_S0_vec = NULL;
 	this->m_S1_vec = NULL;
@@ -70,9 +70,9 @@ ObfuscatedLWEConjunctionPattern<Element>::~ObfuscatedLWEConjunctionPattern() {
 }
 
 template <class Element>
-ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern(ElemParams &cryptoParams) {
-	this->m_cryptoParameters = NULL; //needed to satisfy compiler warning
-	this->SetParameters(cryptoParams);
+ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern(ElemParams &elemParams) {
+	this->m_elemParams = NULL; //needed to satisfy compiler warning
+	this->SetParameters(elemParams);
 	this->m_length = 0;
 
 	this->m_S0_vec = NULL;
@@ -118,29 +118,29 @@ void ObfuscatedLWEConjunctionPattern<Element>::SetLength(usint length) {
 
 template <class Element>
 const BigBinaryInteger ObfuscatedLWEConjunctionPattern<Element>::GetModulus() const{
-	BigBinaryInteger q(m_cryptoParameters->GetModulus());
+	BigBinaryInteger q(m_elemParams->GetModulus());
 	return q;
 };
 
 template <class Element>
 usint ObfuscatedLWEConjunctionPattern<Element>::GetRingDimension() const{
-	return (this->m_cryptoParameters->GetCyclotomicOrder())/2;
+	return (this->m_elemParams->GetCyclotomicOrder())/2;
 };
 
 // Gets the log of the modulus
 template <class Element>
 usint ObfuscatedLWEConjunctionPattern<Element>::GetLogModulus() const{
-	double val = this->m_cryptoParameters->GetModulus().ConvertToDouble();
+	double val = this->m_elemParams->GetModulus().ConvertToDouble();
 	//std::cout << "val : " << val << std::endl;
 	double logTwo = log(val-1.0)/log(2)+1.0;
 	//std::cout << "logTwo : " << logTwo << std::endl;
-	usint logModulus = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+	usint logModulus = (usint) floor(logTwo);// = this->m_elemParams.GetModulus();
 	return logModulus;
 };
 
 template <class Element>
 void ObfuscatedLWEConjunctionPattern<Element>::SetModulus(BigBinaryInteger &modulus) {
-	this->m_cryptoParameters.SetModulus(modulus);
+	this->m_elemParams.SetModulus(modulus);
 };
 
 // Sets the matrices that define the obfuscated pattern.
@@ -230,7 +230,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 	for(usint i=0; i<=l+1; i++) {
 
 		TIC(t1);
-		pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(*params, stddev); //TODO remove stddev
+		pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev); //TODO remove stddev
 		DEBUG("keygen2.0:#"<< i << ": "<<TOC(t1) <<" ms");
 
 		TIC(t1);
@@ -674,6 +674,4 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 };
 
-//template class ClearLWEConjunctionPattern<ILVector2n>;
-//template class LWEConjunctionObfuscationAlgorithm<ILVector2n>;
 }

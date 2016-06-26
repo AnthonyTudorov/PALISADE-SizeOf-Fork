@@ -56,22 +56,6 @@
 namespace lbcrypto {
 
 	/**
-	* brief function to generate a test set of parameters 
-	*/
-	static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
-		usint m = 16;
-		//BigBinaryInteger secureModulus("67108913");
-		//BigBinaryInteger secureRootOfUnity("61564");
-		BigBinaryInteger secureModulus("61");
-		BigBinaryInteger secureRootOfUnity("6");
-		return ILVector2n::MakeAllocator(
-        		ILParams(
-				m, secureModulus, secureRootOfUnity),
-				EVALUATION
-			);
-	};
-
-	/**
 	 * @brief Class for cleartext patterns
 	 * @tparam Element a ring element.
 	 */
@@ -136,31 +120,23 @@ namespace lbcrypto {
 			/**
 			 * Method to define conjunction pattern.
 			 *
-			 * @param &cryptoParams the parameters being used.
+			 * @param &elemParams the parameters being used.
 			 */
-			explicit ObfuscatedLWEConjunctionPattern(ElemParams &cryptoParams); 
+			explicit ObfuscatedLWEConjunctionPattern(ElemParams &elemParams); 
 
 			/**
-			 * Gets the ring at a specific location
-			 * @param row the row of the ring element.
-			 * @param column the column of the ring element.
-			 * @param *ring the ring value to get.
-			 */
-			void GetIndex(usint row, usint column, Element *ring);
-
-			/**
-			 * Sets crypto params.
+			 * Sets elements params.
 			 *
-			 * @param *cryptoParams parameters.
+			 * @param *elemParams parameters.
 			 */
-			void SetParameters(ElemParams &cryptoParams) { m_cryptoParameters = &cryptoParams;}
+			void SetParameters(ElemParams &elemParams) { m_elemParams = &elemParams;}
 
 			/**
-			 * Gets crypto params.
+			 * Gets element params.
 			 *
 			 * @return parameters.
 			 */
-			const ElemParams *GetParameters() const { return m_cryptoParameters;}
+			const ElemParams *GetParameters() const { return m_elemParams;}
 
 			/**
 			 * Gets the ring dimension
@@ -289,7 +265,7 @@ namespace lbcrypto {
 		private:
 
 			usint m_length;
-			ElemParams *m_cryptoParameters;
+			ElemParams *m_elemParams;
 
 			vector<Matrix<Element>> *m_S0_vec;
 			vector<Matrix<Element>> *m_S1_vec;

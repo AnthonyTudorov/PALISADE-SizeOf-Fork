@@ -77,7 +77,7 @@ public:
 	static inline std::pair<RingMat, RLWETrapdoorPair> TrapdoorGen(ILParams params, int stddev);
 
 	/**
-	* Wrapper for TrapdoorGen(ILParams params, int stddev) - will need to be rewritten in the future
+	* Wrapper for TrapdoorGen(ILParams params, int stddev) - currently supports only ILVector2n, support for other rings will be added later
 	*
 	* @param params ring element parameters
 	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
@@ -85,7 +85,7 @@ public:
 	*/
 	static inline std::pair<RingMat, RLWETrapdoorPair> TrapdoorGen(const ElemParams *params, int stddev)
 	{
-		return TrapdoorGen(*(static_cast<const ILParams*>(params)), stddev);
+		return TrapdoorGen(*(dynamic_cast<const ILParams*>(params)), stddev);
 	}
 
 	/**
