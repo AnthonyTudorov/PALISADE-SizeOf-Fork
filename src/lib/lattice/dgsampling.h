@@ -43,7 +43,7 @@
 namespace lbcrypto {
 
 /**
-* @brief Utility class containing operations needed lattice sampling; Sources: https://eprint.iacr.org/2013/297.pdf & https://eprint.iacr.org/2011/501.pdf
+* @brief Utility class containing operations needed for lattice sampling; Sources: https://eprint.iacr.org/2013/297.pdf & https://eprint.iacr.org/2011/501.pdf
 * This construction is based on the hardness of Ring-LWE problem 
 */
 class LatticeGaussSampUtility

@@ -30,6 +30,66 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 template <class Element>
+ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern() {
+
+	this->m_cryptoParameters = NULL;
+	this->m_length = 0;
+	this->m_S0_vec = NULL;
+	this->m_S1_vec = NULL;
+
+	this->m_R0_vec = NULL;
+	this->m_R1_vec = NULL;
+
+	this->m_Sl = NULL;
+	this->m_Rl = NULL;
+
+	this->m_pk = NULL;
+	this->m_ek = NULL;
+	this->m_Sigma = NULL;
+
+}
+
+template <class Element>
+ObfuscatedLWEConjunctionPattern<Element>::~ObfuscatedLWEConjunctionPattern() {
+	if (this->m_S0_vec != NULL){
+		delete this->m_S0_vec;
+		delete this->m_S1_vec;
+	
+		delete this->m_R0_vec;
+		delete this->m_R1_vec;
+	
+		delete this->m_Sl;
+		delete this->m_Rl;
+	}
+
+	if (this->m_pk != NULL) {
+		delete this->m_pk;
+		delete this->m_ek;
+		delete this->m_Sigma;
+	}
+}
+
+template <class Element>
+ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern(ElemParams &cryptoParams) {
+	this->m_cryptoParameters = NULL; //needed to satisfy compiler warning
+	this->SetParameters(cryptoParams);
+	this->m_length = 0;
+
+	this->m_S0_vec = NULL;
+	this->m_S1_vec = NULL;
+
+	this->m_R0_vec = NULL;
+	this->m_R1_vec = NULL;
+
+	this->m_Sl = NULL;
+	this->m_Rl = NULL;
+
+	this->m_pk = NULL;
+	this->m_ek = NULL;
+	this->m_Sigma = NULL;
+}
+
+template <class Element>
 ClearLWEConjunctionPattern<Element>::ClearLWEConjunctionPattern(const std::string patternString) {
 	m_patternString = patternString;
 };
@@ -39,6 +99,7 @@ std::string ClearLWEConjunctionPattern<Element>::GetPatternString() const {
 	return m_patternString;
 };
 
+// Gets the ring at a specific location
 template <class Element>
 char ClearLWEConjunctionPattern<Element>::GetIndex(usint loc) const {
 	return (char)m_patternString[loc];
@@ -49,26 +110,6 @@ usint ClearLWEConjunctionPattern<Element>::GetLength() const {
 	return m_patternString.length();
 };
 
-/*
-template <class Element>
-ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern(usint length) {
-
-	this->m_length=length;
-
-	// Create 2D array of pointers:
-	ringArray = new Element**[this->m_length];
-	for (usint i = 0; i < 2*this->m_length; ++i) {
-		ringArray[i] = new Element*[2];
-		}
-
-	// Null out the pointers contained in the array:
-	for (usint i = 0; i < this->m_length; ++i) {
-		for (usint j = 0; j < 2; ++j) {
-			ringArray[i][j] = NULL;
-			}
-		}
-};
-*/
 
 template <class Element>
 void ObfuscatedLWEConjunctionPattern<Element>::SetLength(usint length) {
@@ -86,6 +127,7 @@ usint ObfuscatedLWEConjunctionPattern<Element>::GetRingDimension() const{
 	return (this->m_cryptoParameters->GetCyclotomicOrder())/2;
 };
 
+// Gets the log of the modulus
 template <class Element>
 usint ObfuscatedLWEConjunctionPattern<Element>::GetLogModulus() const{
 	double val = this->m_cryptoParameters->GetModulus().ConvertToDouble();
@@ -101,6 +143,61 @@ void ObfuscatedLWEConjunctionPattern<Element>::SetModulus(BigBinaryInteger &modu
 	this->m_cryptoParameters.SetModulus(modulus);
 };
 
+// Sets the matrices that define the obfuscated pattern.
+template <class Element>
+void ObfuscatedLWEConjunctionPattern<Element>::SetMatrices(vector<Matrix<Element>> * S0_vec,
+		vector<Matrix<Element>> * S1_vec,
+		vector<Matrix<Element>> * R0_vec,
+		vector<Matrix<Element>> * R1_vec,
+		Matrix<Element> * Sl,
+		Matrix<Element> * Rl) {
+
+	this->m_S0_vec = S0_vec;
+	this->m_S1_vec = S1_vec;
+
+	this->m_R0_vec = R0_vec;
+	this->m_R1_vec = R1_vec;
+
+	this->m_Sl = Sl;
+	this->m_Rl = Rl;
+
+}
+
+template <class Element>
+Matrix<Element>*  ObfuscatedLWEConjunctionPattern<Element>::GetR(usint i, char testVal) const {
+
+	Matrix<Element> *R_ib;
+
+	//std::cout << " Before if statement. " << std::endl;
+	if (testVal == '0') {
+		R_ib = &(this->m_R0_vec->at(i));
+	} else {
+		R_ib = &(this->m_R1_vec->at(i));
+	}
+	//std::cout << " After if statement. " << std::endl;
+
+	return R_ib;
+}
+
+
+template <class Element>
+Matrix<Element>*  ObfuscatedLWEConjunctionPattern<Element>::GetS(usint i, char testVal) const {
+
+	Matrix<Element> *S_ib;
+
+	//std::cout << "which character" << testVal << "; " << (testVal == '0') << std::endl;
+
+	//std::cout << " Before if statement. " << std::endl;
+	if (testVal == '0') {
+		S_ib = &(this->m_S0_vec->at(i));
+	} else {
+		S_ib = &(this->m_S1_vec->at(i));
+	}
+	//std::cout << " After if statement. " << std::endl;
+
+	return S_ib;
+}
+
 template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerator &dgg,
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
@@ -113,7 +210,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 	std::cout << "BitLength in KeyGen: " << k << std::endl;
 
 	usint l = obfuscatedPattern->GetLength();
-	ILParams params = *(obfuscatedPattern->GetParameters());
+	const ElemParams *params = obfuscatedPattern->GetParameters();
 	usint stddev = dgg.GetStd(); 
 	//double s = 1000;
 	//double s = 600;
@@ -133,7 +230,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 	for(usint i=0; i<=l+1; i++) {
 
 		TIC(t1);
-		pair<RingMat, RLWETrapdoorPair> trapPair = TrapdoorSample(params, stddev); //TODO remove stddev
+		pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(*params, stddev); //TODO remove stddev
 		DEBUG("keygen2.0:#"<< i << ": "<<TOC(t1) <<" ms");
 
 		TIC(t1);
@@ -230,14 +327,14 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	usint n = obfuscatedPattern->GetRingDimension();
 	BigBinaryInteger q(obfuscatedPattern->GetModulus());
 	usint m = obfuscatedPattern->GetLogModulus() + 2;
-	ILParams params = *(obfuscatedPattern->GetParameters());
+	const ElemParams *params = obfuscatedPattern->GetParameters();
 	//usint stddev = dgg.GetStd(); 
 
 	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern->GetPublicKeys();
 	const std::vector<RLWETrapdoorPair>   &Ek_vector = obfuscatedPattern->GetEncodingKeys();
 	const std::vector<Matrix<LargeFloat>>   &Sigma = obfuscatedPattern->GetSigmaKeys();
 
-	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
 
 	std::cout << "" << std::endl;
 	std::cout << "Pattern length \t l : " << l << std::endl;
@@ -260,11 +357,11 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	//DBC: this loop has insignificant timing.
 	for(usint i=0; i<=l-1; i++) {
 		//Set the elements s and r to a discrete uniform generated vector.
-		Element elems0(dbg,params,EVALUATION);
+		Element elems0(dbg,*params,EVALUATION);
 		s_small_0.push_back(elems0);
 		//std::cout << elems0 << std::endl;
 
-		Element	elemr0(dbg,params,EVALUATION);
+		Element	elemr0(dbg,*params,EVALUATION);
 		r_small_0.push_back(elemr0);
 		//std::cout << elemr0 << std::endl;
 
@@ -276,11 +373,11 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 			r_small_1.push_back(r_small_0.back());
 		} else {
 			//Element elems1(dug,params,EVALUATION);
-			Element elems1(dbg,params,EVALUATION);
+			Element elems1(dbg,*params,EVALUATION);
 			s_small_1.push_back(elems1);
 
 			//Element	elemr1(dug,params,EVALUATION);
-			Element	elemr1(dbg,params,EVALUATION);
+			Element	elemr1(dbg,*params,EVALUATION);
 			r_small_1.push_back(elemr1);
 		}
 		
@@ -315,26 +412,26 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	for(usint i=1; i<=l; i++) {
 
 		TIC(t1);
-		Matrix<Element> *S0_i = new Matrix<ILVector2n>(zero_alloc, m, m);
+		Matrix<Element> *S0_i = new Matrix<Element>(zero_alloc, m, m);
 
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],s_small_0[i-1]*r_small_0[i-1],dgg,S0_i);
 		S0_vec->push_back(*S0_i);
 
 		//std::cout << "encode ran S0" << std::endl;
 
-		Matrix<Element> *S1_i = new Matrix<ILVector2n>(zero_alloc, m, m);
+		Matrix<Element> *S1_i = new Matrix<Element>(zero_alloc, m, m);
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],s_small_1[i-1]*r_small_1[i-1],dgg,S1_i);
 		S1_vec->push_back(*S1_i);
 
 		//std::cout << "encode ran S1" << std::endl;
 
-		Matrix<Element> *R0_i = new Matrix<ILVector2n>(zero_alloc, m, m);
+		Matrix<Element> *R0_i = new Matrix<Element>(zero_alloc, m, m);
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],r_small_0[i-1],dgg,R0_i);
 		R0_vec->push_back(*R0_i);
 
 		//std::cout << "encode ran R0" << std::endl;
 
-		Matrix<Element> *R1_i = new Matrix<ILVector2n>(zero_alloc, m, m);
+		Matrix<Element> *R1_i = new Matrix<Element>(zero_alloc, m, m);
 		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],r_small_1[i-1],dgg,R1_i);
 		R1_vec->push_back(*R1_i);
 
@@ -349,15 +446,15 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	//std::cout << "encode started for L" << std::endl;
 
 	//Element	elemrl1(dug,params,EVALUATION);
-	Element	elemrl1(dbg,params,EVALUATION);
+	Element	elemrl1(dbg,*params,EVALUATION);
 
-	Matrix<Element> *Sl = new Matrix<ILVector2n>(zero_alloc, m, m);
+	Matrix<Element> *Sl = new Matrix<Element>(zero_alloc, m, m);
 	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],Sigma[l],elemrl1*s_prod,dgg,Sl);
 
 	//std::cout << "encode 1 for L ran" << std::endl;
 	//std::cout << elemrl1.GetValues() << std::endl;
 
-	Matrix<Element> *Rl = new Matrix<ILVector2n>(zero_alloc, m, m);
+	Matrix<Element> *Rl = new Matrix<Element>(zero_alloc, m, m);
 	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],Sigma[l],elemrl1,dgg,Rl);
 
 	//std::cout << "encode 2 for L ran" << std::endl;
@@ -389,8 +486,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	size_t k = m - 2;
 	size_t n = elemS.GetParams().GetCyclotomicOrder()/2;
 	const BigBinaryInteger &modulus = elemS.GetParams().GetModulus();
-	const ILParams &params = elemS.GetParams();
-	auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+	const ElemParams &params = elemS.GetParams();
+	auto zero_alloc = Element::MakeAllocator(&params, COEFFICIENT);
 
 	//generate a row vector of discrete Gaussian ring elements
 	//YSP this can be done using discrete Gaussian allocator later - after the dgg allocator is updated to use the same dgg instance
@@ -485,9 +582,9 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
 
-	const ILParams *params = obfuscatedPattern.GetParameters();
+	const ElemParams *params = obfuscatedPattern.GetParameters();
 
-	auto zero_alloc = ILVector2n::MakeAllocator(*params, EVALUATION);
+	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
 
 	std::cout << "" << std::endl;
 	std::cout << "Pattern length \t l : " << l << std::endl;
@@ -577,6 +674,6 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 };
 
-template class ClearLWEConjunctionPattern<ILVector2n>;
-template class LWEConjunctionObfuscationAlgorithm<ILVector2n>;
+//template class ClearLWEConjunctionPattern<ILVector2n>;
+//template class LWEConjunctionObfuscationAlgorithm<ILVector2n>;
 }

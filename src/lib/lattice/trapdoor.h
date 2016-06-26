@@ -77,6 +77,18 @@ public:
 	static inline std::pair<RingMat, RLWETrapdoorPair> TrapdoorGen(ILParams params, int stddev);
 
 	/**
+	* Wrapper for TrapdoorGen(ILParams params, int stddev) - will need to be rewritten in the future
+	*
+	* @param params ring element parameters
+	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
+	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
+	*/
+	static inline std::pair<RingMat, RLWETrapdoorPair> TrapdoorGen(const ElemParams *params, int stddev)
+	{
+		return TrapdoorGen(*(static_cast<const ILParams*>(params)), stddev);
+	}
+
+	/**
 	* Gaussian sampling introduced in https://eprint.iacr.org/2011/501.pdf and described 
 	* in a simple manner in https://eprint.iacr.org/2013/297.pdf
 	*

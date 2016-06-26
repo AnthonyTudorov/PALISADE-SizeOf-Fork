@@ -55,30 +55,21 @@
  */
 namespace lbcrypto {
 
-/**
-* brief function to generat a test set of parameters 
-*/
-static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
-	usint m = 16;
-	//BigBinaryInteger secureModulus("67108913");
-	//BigBinaryInteger secureRootOfUnity("61564");
-	BigBinaryInteger secureModulus("61");
-	BigBinaryInteger secureRootOfUnity("6");
-	return ILVector2n::MakeAllocator(
-        	ILParams(
-	        m, secureModulus, secureRootOfUnity),
-	        EVALUATION
-        );
-/*
-    BigBinaryInteger secureModulus("8590983169");
-    BigBinaryInteger secureRootOfUnity("4810681236");
-    return ILVector2n::MakeAllocator(
-        ILParams(
-        2048, secureModulus, secureRootOfUnity),
-        EVALUATION
-        );
-*/
-};
+	/**
+	* brief function to generate a test set of parameters 
+	*/
+	static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
+		usint m = 16;
+		//BigBinaryInteger secureModulus("67108913");
+		//BigBinaryInteger secureRootOfUnity("61564");
+		BigBinaryInteger secureModulus("61");
+		BigBinaryInteger secureRootOfUnity("6");
+		return ILVector2n::MakeAllocator(
+        		ILParams(
+				m, secureModulus, secureRootOfUnity),
+				EVALUATION
+			);
+	};
 
 	/**
 	 * @brief Class for cleartext patterns
@@ -128,10 +119,6 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 	 * @brief Class for obfuscated patterns
 	 * @tparam Element a ring element.
 	 */
-	// Yuriy: We need to add four methods: GetS, GetR, GetS1, GetR1 + private members for those + possible setters/constructors
-	// dimension of S1 and R1 - matrices of ring elements
-	// dimension of S and R - matrices of matrices of ring elements
-
 	template <class Element>
 	class ObfuscatedLWEConjunctionPattern : public ObfuscatedPattern<Element>, public ConjunctionPattern<Element>{
 		public:
@@ -139,76 +126,19 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			/**
 			 * Constructor
 			 */
-			explicit ObfuscatedLWEConjunctionPattern() {
-
-				this->m_cryptoParameters = NULL;
-				this->m_length = 0;
-				this->m_S0_vec = NULL;
-				this->m_S1_vec = NULL;
-
-				this->m_R0_vec = NULL;
-				this->m_R1_vec = NULL;
-
-				this->m_Sl = NULL;
-				this->m_Rl = NULL;
-
-				this->m_pk = NULL;
-				this->m_ek = NULL;
-				this->m_Sigma = NULL;
-
-			}
+			explicit ObfuscatedLWEConjunctionPattern(); 
 
 			/**
 			 * Destructor
 			 */
-			~ObfuscatedLWEConjunctionPattern() {
-				if (this->m_S0_vec != NULL){
-					delete this->m_S0_vec;
-					delete this->m_S1_vec;
-	
-					delete this->m_R0_vec;
-					delete this->m_R1_vec;
-	
-					delete this->m_Sl;
-					delete this->m_Rl;
-				}
-
-				if (this->m_pk != NULL) {
-					delete this->m_pk;
-					delete this->m_ek;
-					delete this->m_Sigma;
-				}
-			}
+			~ObfuscatedLWEConjunctionPattern(); 
 
 			/**
 			 * Method to define conjunction pattern.
 			 *
 			 * @param &cryptoParams the parameters being used.
 			 */
-			explicit ObfuscatedLWEConjunctionPattern(ILParams &cryptoParams) {
-				this->m_cryptoParameters = NULL; //needed to satisfy compiler warning
-				this->SetParameters(cryptoParams);
-				this->m_length = 0;
-
-				this->m_S0_vec = NULL;
-				this->m_S1_vec = NULL;
-
-				this->m_R0_vec = NULL;
-				this->m_R1_vec = NULL;
-
-				this->m_Sl = NULL;
-				this->m_Rl = NULL;
-
-				this->m_pk = NULL;
-				this->m_ek = NULL;
-				this->m_Sigma = NULL;
-
-
-				//usint m = this->GetLogModulus();
-				//this->m_Sl = Matrix<ILVector2n>(secureIL2nAlloc(), m, m);
-				//this->m_Rl = Matrix<ILVector2n>(secureIL2nAlloc(), m, m);
-
-			}
+			explicit ObfuscatedLWEConjunctionPattern(ElemParams &cryptoParams); 
 
 			/**
 			 * Gets the ring at a specific location
@@ -223,14 +153,14 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 *
 			 * @param *cryptoParams parameters.
 			 */
-			void SetParameters(ILParams &cryptoParams) { m_cryptoParameters = &cryptoParams;}
+			void SetParameters(ElemParams &cryptoParams) { m_cryptoParameters = &cryptoParams;}
 
 			/**
 			 * Gets crypto params.
 			 *
 			 * @return parameters.
 			 */
-			const ILParams *GetParameters() const { return m_cryptoParameters;}
+			const ElemParams *GetParameters() const { return m_cryptoParameters;}
 
 			/**
 			 * Gets the ring dimension
@@ -278,20 +208,15 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			usint GetLogModulus() const;
 
 			/**
-			 * Sets the matrices that define the obfuscated pattern.
+			 * Sets the key matrices that are used for the obfuscated pattern.
 			 * @param pk - vector of public keys.
 			 * @param ek - vector of encoding keys.
 			 * @param sigma - vector of perturbation matrices.
 			 */
-			void SetKeys(std::vector<Matrix<Element>> *pk,
-					std::vector<RLWETrapdoorPair>   *ek,
-					std::vector<Matrix<LargeFloat>> *sigma) {
-
+			void SetKeys(std::vector<Matrix<Element>> *pk, std::vector<RLWETrapdoorPair>   *ek, std::vector<Matrix<LargeFloat>> *sigma) {
 				this->m_pk = pk;
 				this->m_ek = ek;
-
 				this->m_Sigma = sigma;
-
 			}
 
 
@@ -304,26 +229,9 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			 * @param &Sl the Sl vector from the obfuscated pattern definition.
 			 * @param &Rl the Rl vector from the obfuscated pattern definition.
 			 */
-			void SetMatrices(vector<Matrix<Element>> * S0_vec,
-					vector<Matrix<Element>> * S1_vec,
-					vector<Matrix<Element>> * R0_vec,
-					vector<Matrix<Element>> * R1_vec,
-					Matrix<Element> * Sl,
-					Matrix<Element> * Rl) {
-
-				this->m_S0_vec = S0_vec;
-				this->m_S1_vec = S1_vec;
-
-				this->m_R0_vec = R0_vec;
-				this->m_R1_vec = R1_vec;
-
-				this->m_Sl = Sl;
-				this->m_Rl = Rl;
-
-				//Sl.PrintValues();
-				//this->m_Sl->PrintValues();
-			}
-
+			void SetMatrices(vector<Matrix<Element>> * S0_vec, vector<Matrix<Element>> * S1_vec,
+					vector<Matrix<Element>> * R0_vec, vector<Matrix<Element>> * R1_vec,
+					Matrix<Element> * Sl, Matrix<Element> * Rl); 
 
 			/**
 			 * Sets the matrices that define the obfuscated pattern.
@@ -359,7 +267,7 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			}
 
 			/**
-			 * Sets the matrices that define the obfuscated pattern.
+			 * Gets the matrices that define the obfuscated pattern.
 			 * @return the R_l matrix.
 			 */
 			Matrix<Element>*  GetRl() const {
@@ -367,49 +275,21 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 			}
 
 			/**
-			 * Sets the matrices that define the obfuscated pattern.
+			 * Gets the S matrix that defines the obfuscated pattern.
 			 * @return the S_ib matrix.
 			 */
-			Matrix<Element>* GetS(usint i, char testVal) const {
-
-				Matrix<Element> *S_ib;
-
-				//std::cout << "which character" << testVal << "; " << (testVal == '0') << std::endl;
-
-				//std::cout << " Before if statement. " << std::endl;
-				if (testVal == '0') {
-					S_ib = &(this->m_S0_vec->at(i));
-				} else {
-					S_ib = &(this->m_S1_vec->at(i));
-				}
-				//std::cout << " After if statement. " << std::endl;
-
-				return S_ib;
-			}
+			Matrix<Element>* GetS(usint i, char testVal) const; 
 
 			/**
-			 * Sets the matrices that define the obfuscated pattern.
+			 * Gets the matrices that define the obfuscated pattern.
 			 * @return the R_ib matrix.
 			 */
-			Matrix<Element>* GetR(usint i, char testVal) const {
-
-				Matrix<Element> *R_ib;
-
-				//std::cout << " Before if statement. " << std::endl;
-				if (testVal == '0') {
-					R_ib = &(this->m_R0_vec->at(i));
-				} else {
-					R_ib = &(this->m_R1_vec->at(i));
-				}
-				//std::cout << " After if statement. " << std::endl;
-
-				return R_ib;
-			}
+			Matrix<Element>* GetR(usint i, char testVal) const; 
 
 		private:
 
 			usint m_length;
-			ILParams *m_cryptoParameters;
+			ElemParams *m_cryptoParameters;
 
 			vector<Matrix<Element>> *m_S0_vec;
 			vector<Matrix<Element>> *m_S1_vec;
@@ -429,7 +309,6 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 	 * @brief Encryption algorithm implementation template for Ring-LWE NTRU-based schemes,
 	 * @tparam Element a ring element.
 	 */
-	// Yuriy: Add the Encode method; see the Latex file for the interface
 	template <class Element>
 	class LWEConjunctionObfuscationAlgorithm { // : public ObfuscationAlgorithm<Element>{
 		public:
@@ -484,21 +363,6 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
 				DiscreteGaussianGenerator &dgg,
 				Matrix<Element> * encodedElem) const;
 
-			/**
-			 * Method to obfuscate the cleartext pattern into an obfuscated pattern.
-			 *
-			 * @param &Ai starting key.
-			 * @param &Ti Trapdoor.
-			 * @param &elemB a ring element.
-			 * @param &dgg the discrete Gaussian Generator.
-			 * @param &encodedElem the encoded element.
-			 */
-			/*void GaussSamp(
-				const Matrix<Element> &Ai,
-				const RLWETrapdoorPair &Ti,
-				const Element &elemB,
-				DiscreteGaussianGenerator &dgg,
-				Matrix<Element> &encodedElem) const;*/
 
 			/**
 			 * Method for evaluating the pattern
