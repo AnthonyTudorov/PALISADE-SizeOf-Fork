@@ -99,18 +99,25 @@ namespace lbcrypto {
 
 	}
 
-	void ByteArrayPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVectorArray2n) const{
-	//	ilVectorArray2n->PrintValues();
-		ILVector2n temp = ilVectorArray2n->GetTowerAtIndex (0);
-		BigBinaryInteger modulusValue;
-		modulusValue = modulus;
-		Encode(modulusValue, &temp);
-	//	temp.PrintValues();
-	//	ILVectorArray2n ilvectorArrayTemp(temp, ilVectorArray2n->GetParams(),ilVectorArray2n->GetFormat());
-		ILVectorArray2n ilvectorArrayTemp(temp, ilVectorArray2n->GetParams());
-		//	ilvectorArrayTemp.PrintValues();
-		*ilVectorArray2n = ilvectorArrayTemp;
-	//	ilvectorArrayTemp.PrintValues();
+	void ByteArrayPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *element) const{
+	   //TODO - OPTIMIZE CODE
+		ILVector2n temp = element->GetTowerAtIndex (0);
+		
+		BigBinaryInteger symbol(modulus);
+		Encode(symbol, &temp);
+
+		std::vector<ILVector2n> symbolVals;
+				
+		for(usint i=0;i<element->GetTowerLength();i++){
+			ILParams ilparams(element->GetTowerAtIndex(i).GetCyclotomicOrder(), element->GetTowerAtIndex(i).GetModulus(), element->GetTowerAtIndex(i).GetRootOfUnity());
+			ILVector2n ilVector(ilparams);
+			ilVector.SetValues(temp.GetValues(),temp.GetFormat());
+			symbolVals.push_back(ilVector);
+		}
+
+		ILVectorArray2n elementNew(symbolVals);
+		*element = elementNew;
+		
 	}
 
 	
@@ -155,7 +162,7 @@ namespace lbcrypto {
 
 	void IntArrayPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector) const {
 
-		BigBinaryVector temp(ilVector->GetParams().GetCyclotomicOrder()/2,ilVector->GetModulus());
+		BigBinaryVector temp(ilVector->GetCyclotomicOrder()/2,ilVector->GetModulus());
 
 		Format format = COEFFICIENT;
 

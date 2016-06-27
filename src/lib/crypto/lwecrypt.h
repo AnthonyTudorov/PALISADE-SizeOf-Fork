@@ -656,21 +656,24 @@ namespace lbcrypto {
 		}
 
 		// JSON FACILITY - Serialize Operation
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
-		//	std::unordered_map <std::string, std::string> serializationMap;
-			return serializationMap;
+		// TODO - GERARD RYAN
+		bool  Serialize(Serialized* serObj, const std::string fileFlag = "") const {
+			
+			return true;
 		}
 
 		// JSON FACILITY - Deserialize Operation
-		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {	
-
+		// TODO - GERARD RYAN
+		bool Deserialize(const Serialized& serObj) {	
+			return false;
 		}
+
+		
 
 		private:
 			LPCryptoParameters<Element> *m_cryptoParameters;
 			//private key polynomial
 			Element m_sk;
-
 	};
 
 
@@ -916,7 +919,7 @@ namespace lbcrypto {
 			 * @param *cipherText Ciphertext to perform and apply ringreduce on.
 			 * @param *privateKey Private key to peform and apply ringreduce on.
 			 */
-			virtual void RingReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const ; 
+			virtual void RingReduce(Ciphertext<Element> *cipherText, const LPKeySwitchHint<Element> &keySwitchHint) const ; 
 	};
 
 	/**

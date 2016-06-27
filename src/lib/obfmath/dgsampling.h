@@ -92,7 +92,7 @@ namespace lbcrypto {
 	inline void GaussSampG(const ILVector2n &u, double sttdev, size_t k,
 		DiscreteGaussianGenerator &dgg, Matrix<BigBinaryInteger> *z)
 	{
-        const BigBinaryInteger& modulus = u.GetParams().GetModulus();
+        const BigBinaryInteger& modulus = u.GetModulus();
 		for (size_t i = 0; i < u.GetLength(); i++) {
 
 			//initial value of integer syndrome corresponding to component u_i

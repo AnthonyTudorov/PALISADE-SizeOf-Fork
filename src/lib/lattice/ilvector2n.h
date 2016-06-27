@@ -77,6 +77,8 @@ namespace lbcrypto {
 		*/
         ILVector2n(const ElemParams &params, Format format = EVALUATION);
 
+		void GenerateNoise(DiscreteGaussianGenerator &dgg, Format format);
+
         /**
          *  Create lambda that allocates a zeroed element with the specified
          *  parameters and format
@@ -141,7 +143,7 @@ namespace lbcrypto {
 		* @param &params the input params.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVector2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
+		ILVector2n(const DiscreteGaussianGenerator &dgg, const ILParams &params, Format format = EVALUATION);
 		/**
 		* Constructor based on full methods.
 		*
@@ -149,7 +151,7 @@ namespace lbcrypto {
 		* @param &params the input params.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVector2n(DiscreteUniformGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
+		ILVector2n(DiscreteUniformGenerator &dgg, const ILParams &params, Format format = EVALUATION);
 		/**
 		* Constructor based on full methods.
 		*
@@ -157,7 +159,7 @@ namespace lbcrypto {
 		* @param &params the input params.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVector2n(BinaryUniformGenerator &dbg, const ElemParams &params, Format format = EVALUATION);
+		ILVector2n(BinaryUniformGenerator &dbg, const ILParams &params, Format format = EVALUATION);
 
 		/**
 		* Assignment Operator.
@@ -181,7 +183,7 @@ namespace lbcrypto {
 		*
 		* Creates a new ILVector2n and clones only the params. The tower values are empty. The tower values can be filled by another process/function or initializer list.
 		*/
-		ILVector2n CloneWithParams();
+		ILVector2n CloneWithParams() const ;
 
 		/**
 		* Clone with noise
@@ -190,7 +192,7 @@ namespace lbcrypto {
 		*
 		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVector2n with random numbers.
 		*/
-		ILVector2n CloneWithNoise(const DiscreteGaussianGenerator &dgg);
+		ILVector2n CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format) const;
 
 		/**
 		* Assignment Operator. The usint val will be set at index zero and all other indices will be set to zero.
@@ -281,6 +283,13 @@ namespace lbcrypto {
 		const BigBinaryInteger &GetModulus() const;
 
 		/**
+		* Get method for cyclotomic order.
+		*
+		* @return the cyclotomic order.
+		*/
+		const usint &GetCyclotomicOrder() const;
+
+		/**
 		* Get method of the vector.
 		*
 		* @return the vector.
@@ -335,7 +344,7 @@ namespace lbcrypto {
 		*
 		* @param &modulus is the modulus to be set.
 		*/
-		void SwitchModulus(const BigBinaryInteger &modulus);
+		void SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity);
 
 		void SetFormat(const Format format);
 

@@ -160,8 +160,8 @@ void NTRU_DCRT() {
 	Ciphertext<ILVectorArray2n> cipherText;
 	cipherText.SetCryptoParameters(cryptoParams);
 =======*/
-	Ciphertext<ILVectorArray2n> cipherText2;
-	cipherText2.SetCryptoParameters(&cryptoParams2);
+	Ciphertext<ILVectorArray2n> cipherText;
+	cipherText.SetCryptoParameters(&cryptoParams);
 // >>>>>>> master:src/demo/pre/Source_dcrt.cpp
 
 
@@ -174,11 +174,11 @@ void NTRU_DCRT() {
 
 	//LPAlgorithmLTV<ILVectorArray2n> algorithm;
 
-	algorithm.KeyGen(&pk, &sk);
+	algorithm2.KeyGen(&pk, &sk);
 
-	algorithm.Encrypt(pk, ptxt, &cipherText);
+	algorithm2.Encrypt(pk, ptxt, &cipherText);
 
-	algorithm.Decrypt(sk, cipherText, &ctxtd);
+	algorithm2.Decrypt(sk, cipherText, &ctxtd);
 
 	finish = currentDateTime();
 
@@ -375,7 +375,7 @@ void LevelCircuitEvaluation(){
 		cout << rootsOfUnity[i] << endl;
 	}
 
-	DiscreteGaussianGenerator dgg(modulus,stdDev);
+	DiscreteGaussianGenerator dgg(stdDev);
 	ILDCRTParams ildcrtParams(rootsOfUnity, m, moduli);
 
 	ILParams ilParams0(m, moduli[0], rootsOfUnity[0]);
@@ -518,11 +518,11 @@ void LevelCircuitEvaluation(){
 	cout << "End Printing pk values in COEFFICIENT. " << endl;*/
 
 	Ciphertext<ILVectorArray2n> cipherText;
-	cipherText.SetCryptoParameters(cryptoParams);
+	cipherText.SetCryptoParameters(&cryptoParams);
 	cipherText.SetElement(cipherTextElement);
 
 	Ciphertext<ILVectorArray2n> cipherText1;
-	cipherText1.SetCryptoParameters(cryptoParams);
+	cipherText1.SetCryptoParameters(&cryptoParams);
 	cipherText1.SetElement(cipherText1Element);
 
 	algorithm.Encrypt(pk, &cipherText);
@@ -585,7 +585,7 @@ void LevelCircuitEvaluation1(){
 	moduli1.pop_back();
 	rootsOfUnity1.pop_back();
 	
-	DiscreteGaussianGenerator dgg(modulus, stdDev);
+	DiscreteGaussianGenerator dgg(stdDev);
 	ILDCRTParams ildcrtParams(rootsOfUnity, m, moduli);
 	ILDCRTParams ildcrtParams1(rootsOfUnity1, m, moduli1);
 
@@ -617,14 +617,14 @@ void LevelCircuitEvaluation1(){
 	algorithm.KeyGen(&pk1, &sk1);
 
 	Ciphertext<ILVectorArray2n> cipherText1;
-	cipherText1.SetCryptoParameters(cryptoParams);
+	cipherText1.SetCryptoParameters(&cryptoParams);
 	ILVectorArray2n element1(ildcrtParams);
 	element1.SwitchFormat();
 	element1 = {2};
 	cipherText1.SetElement(element1);
 
 	Ciphertext<ILVectorArray2n> cipherText2;
-	cipherText2.SetCryptoParameters(cryptoParams);
+	cipherText2.SetCryptoParameters(&cryptoParams);
 	ILVectorArray2n element2(ildcrtParams);
 	element2.SwitchFormat();
 	element2 = {2};
@@ -693,7 +693,7 @@ void LevelCircuitEvaluation2(){
 	moduli1.pop_back();
 	rootsOfUnity1.pop_back();
 	
-	DiscreteGaussianGenerator dgg(modulus,stdDev);
+	DiscreteGaussianGenerator dgg(stdDev);
 	ILDCRTParams params(rootsOfUnity, m, moduli);
 	ILDCRTParams params1(rootsOfUnity1, m, moduli1);
 
@@ -712,7 +712,7 @@ void LevelCircuitEvaluation2(){
 	cryptoParams1.SetDiscreteGaussianGenerator(dgg);
 
 	Ciphertext<ILVectorArray2n> cipherText1;
-	cipherText1.SetCryptoParameters(cryptoParams);
+	cipherText1.SetCryptoParameters(&cryptoParams);
 	ILVectorArray2n element1(params);
 	element1.SwitchFormat();
 	element1 = {2};
@@ -720,14 +720,14 @@ void LevelCircuitEvaluation2(){
 	cipherText1.SetElement(element1);
 
 	Ciphertext<ILVectorArray2n> cipherText2;
-	cipherText2.SetCryptoParameters(cryptoParams);
+	cipherText2.SetCryptoParameters(&cryptoParams);
 	ILVectorArray2n element2(params);
 	element2.SwitchFormat();
 	element2 = {3};
 	cipherText2.SetElement(element2);
 
 	Ciphertext<ILVectorArray2n> cipherText3;
-	cipherText3.SetCryptoParameters(cryptoParams);
+	cipherText3.SetCryptoParameters(&cryptoParams);
 	ILVectorArray2n element3(params);
 	element3.SwitchFormat();
 	element3 = {1};

@@ -88,9 +88,9 @@ namespace lbcrypto {
 		/**
 		* Constructor that initializes parameters.
 		*
-		*@param &ilparams parameter set required for ILVectorArray2n.
+		*@param &params parameter set required for ILVectorArray2n.
 		*/
-		ILVectorArray2n(const std::vector<ILParams> &ilparams);
+		ILVectorArray2n(const ElemParams &params, Format format = EVALUATION);
 
 		/**
 		* Copy constructor.
@@ -100,20 +100,21 @@ namespace lbcrypto {
 		ILVectorArray2n(const ILVectorArray2n &element);
 
 		/**
+		* Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n. 
+		*
+		* @param &element ILVector2n to build other towers from.
+		* @param &params parameter set required for ILVectorArray2n.
+		*/
+		ILVectorArray2n(const ILVector2n &element, const ILDCRTParams &params);
+
+		/**
 		* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArray2n will be derived from the towers.
 		*
 		* @param &towers vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
 		*/
 		ILVectorArray2n(const std::vector<ILVector2n> &towers);
 
-		/**
-		* Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n. 
-		*
-		* @param &element ILVector2n to build other towers from.
-		* @param &ilparams parameter set required for ILVectorArray2n.
-		*/
-		ILVectorArray2n(const ILVector2n &element, const std::vector<ILParams> &ilparams);
-
+		usint GetCyclotomicOrder() const ;
 		/**
 		* Constructor based a discrete Gaussian generator. T
 		*
@@ -121,7 +122,7 @@ namespace lbcrypto {
 		* @param &ilparams parameter set required for ILVectorArray2n. 
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const std::vector<ILParams> &ilparams, Format format = EVALUATION);
+		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
 
 		/**
 		* Move constructor.
@@ -136,7 +137,7 @@ namespace lbcrypto {
 		*
 		* Creates a new ILVectorArray2n and clones only the params. The tower values are empty. The tower values can be filled by another process/function or initializer list.
 		*/
-		ILVectorArray2n CloneWithParams();
+		ILVectorArray2n CloneWithParams() const;
 
 		/**
 		* Clone with noise
@@ -145,7 +146,7 @@ namespace lbcrypto {
 		*
 		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers.
 		*/
-		ILVectorArray2n CloneWithNoise(const DiscreteGaussianGenerator &dgg);
+		ILVectorArray2n CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format = EVALUATION) const;
 
 		// DESTRUCTORS
 		/**

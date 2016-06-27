@@ -49,6 +49,7 @@
 #if MATHBACKEND == 2
 	#include "cpu_int/binint.cpp"
 	#include "cpu_int/binvect.cpp"
+    #include <initializer_list>
 #endif
 
 /**

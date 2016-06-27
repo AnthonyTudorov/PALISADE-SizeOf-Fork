@@ -385,7 +385,7 @@ inline Matrix<BigBinaryInteger> Rotate(Matrix<ILVector2n> const& inMat) {
     Matrix<ILVector2n> mat(inMat);
     mat.SetFormat(COEFFICIENT);
     size_t n = mat(0,0).GetLength();
-    BigBinaryInteger const& modulus = mat(0,0).GetParams().GetModulus();
+    BigBinaryInteger const& modulus = mat(0,0).GetModulus();
     size_t rows = mat.GetRows() * n;
     size_t cols = mat.GetCols() * n;
     Matrix<BigBinaryInteger> result(BigBinaryInteger::Allocator, rows, cols);
@@ -417,7 +417,7 @@ Matrix<BigBinaryVector> RotateVecResult(Matrix<ILVector2n> const& inMat) {
     Matrix<ILVector2n> mat(inMat);
     mat.SetFormat(COEFFICIENT);
     size_t n = mat(0,0).GetLength();
-    BigBinaryInteger const& modulus = mat(0,0).GetParams().GetModulus();
+    BigBinaryInteger const& modulus = mat(0,0).GetModulus();
     BigBinaryVector zero(1, modulus);
     size_t rows = mat.GetRows() * n;
     size_t cols = mat.GetCols() * n;
