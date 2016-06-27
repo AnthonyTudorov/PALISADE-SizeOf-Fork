@@ -2,6 +2,12 @@
 #include "nbtheory.h"
 #include "backend.h"
 
+#include <boost/multiprecision/random.hpp>
+#include <boost/random.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
+#include <boost/multiprecision/cpp_dec_float.hpp>
+
 namespace lbcrypto {
 
 DiscreteGaussianGenerator::DiscreteGaussianGenerator() : DistributionGenerator() {

@@ -37,11 +37,6 @@
 
 #include <math.h>
 #include <random>
-#include <boost/multiprecision/random.hpp>
-#include <boost/random.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
-#include <boost/multiprecision/cpp_int.hpp>
-#include <boost/multiprecision/cpp_dec_float.hpp>
 
 #include "backend.h"
 #include "distributiongenerator.h"
