@@ -118,7 +118,7 @@ namespace lbcrypto {
 			 * Sets the number of bits encoded using conjunction obfuscator
 			 * @param bits number of bits;
 			 */
-			void SetChunkSize(usint bits) {m_chunkSize = bits};
+			void SetChunkSize(usint bits) {m_chunkSize = bits;}
 
 			/**
 			 * Gets the modulus

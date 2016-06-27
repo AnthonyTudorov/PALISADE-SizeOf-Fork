@@ -37,8 +37,10 @@ make_demos: \
 	$(BINDIR)/demo/core/LargeFloatSource$(EXESUFFIX) \
 	$(BINDIR)/demo/core/ParallelSource$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSource$(EXESUFFIX) \
+	$(BINDIR)/demo/obfuscate/ObfuscateSourceV2$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSource_sim$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSourceDbc$(EXESUFFIX) \
+	$(BINDIR)/demo/obfuscate/ObfuscateSourceDbcV2$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/Source_dcrt$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/Source_json$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/leaktester$(EXESUFFIX) \
