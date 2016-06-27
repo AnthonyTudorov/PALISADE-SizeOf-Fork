@@ -138,6 +138,7 @@ Matrix<Element>*  ObfuscatedLWEConjunctionPatternV2<Element>::GetR(usint i, cons
 
 	Matrix<Element> *R_ib;
 
+	//extract the string corresponding to chunk size
 	int value = std::stoi(testVal,nullptr,2);
 
 	R_ib = &(this->m_R_vec->at(i).at(value));
@@ -151,6 +152,7 @@ Matrix<Element>*  ObfuscatedLWEConjunctionPatternV2<Element>::GetS(usint i, cons
 
 	Matrix<Element> *S_ib;
 
+	//extract the string corresponding to chunk size
 	int value = std::stoi(testVal,nullptr,2);
 
 	vector<Matrix<Element>> temp =  this->m_R_vec->at(i);
@@ -173,6 +175,8 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::KeyGen(DiscreteGaussianGener
 
 	usint l = obfuscatedPattern->GetLength();
 	const ElemParams *params = obfuscatedPattern->GetParameters();
+	usint chunkSize = obfuscatedPattern->GetChunkSize();
+	usint adjustedLength = l/chunkSize;
 	usint stddev = dgg.GetStd(); 
 	//double s = 1000;
 	//double s = 600;
@@ -189,7 +193,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::KeyGen(DiscreteGaussianGener
 	DEBUG("l = "<<l);
 
 	TIC(t2);
-	for(usint i=0; i<=l+1; i++) {
+	for(usint i=0; i<=adjustedLength+1; i++) {
 
 		TIC(t1);
 		pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev); //TODO remove stddev
@@ -233,7 +237,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::KeyGen(DiscreteGaussianGener
 		std::vector<RLWETrapdoorPair>   *Ek_vector_pvt = new std::vector<RLWETrapdoorPair>();
 		std::vector<Matrix<LargeFloat>> *sigma_pvt = new std::vector<Matrix<LargeFloat>>();
 #pragma omp for nowait schedule(static)
-		for(int32_t i=0; i<=l+1; i++) {
+		for(int32_t i=0; i<=adjustedLength+1; i++) {
 			//build private copies in parallel
 			TIC(tp);
 			std::pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev); //TODO remove stddev
@@ -358,6 +362,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 	BigBinaryInteger q(obfuscatedPattern->GetModulus());
 	usint m = obfuscatedPattern->GetLogModulus() + 2;
 	usint chunkSize = obfuscatedPattern->GetChunkSize();
+	usint adjustedLength = l/chunkSize;
 	usint chunkExponent = 1 << chunkSize;
 	const ElemParams *params = obfuscatedPattern->GetParameters();
 
@@ -389,7 +394,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 	//DBC: above setup has insignificant timing.
 
 	//DBC: this loop has insignificant timing.
-	for(usint i=0; i<=l-1; i++) {
+	for(usint i=0; i<=adjustedLength-1; i++) {
 
 		//current chunk of cleartext pattern
 		std::string chunk = patternString.substr(i*chunkSize,chunkSize);
@@ -432,6 +437,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 
 		if (chunk != wildcardChunk) {
 			int value = std::stoi(chunk,nullptr,2);
+			std::cout << "chunk is " << chunk << std::endl;
 			std::cout << "index is " << value << std::endl;
 			vi = &sVector[value];
 		}
@@ -456,7 +462,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 	std::vector<std::vector<Matrix<Element>>> *R_vec = new std::vector<std::vector<Matrix<Element>>>();
 
 	//DBC: this loop takes all the time, so we time it with TIC TOC
-	for(usint i=1; i<=l; i++) {
+	for(usint i=1; i<=adjustedLength; i++) {
 
 		TIC(t1);
 
@@ -489,13 +495,13 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 	Element	elemrl1(dbg,*params,EVALUATION);
 
 	Matrix<Element> *Sl = new Matrix<Element>(zero_alloc, m, m);
-	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],Sigma[l],elemrl1*s_prod,dgg,Sl);
+	this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],Sigma[adjustedLength],elemrl1*s_prod,dgg,Sl);
 
 	//std::cout << "encode 1 for L ran" << std::endl;
 	//std::cout << elemrl1.GetValues() << std::endl;
 
 	Matrix<Element> *Rl = new Matrix<Element>(zero_alloc, m, m);
-	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],Sigma[l],elemrl1,dgg,Rl);
+	this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],Sigma[adjustedLength],elemrl1,dgg,Rl);
 
 	//std::cout << "encode 2 for L ran" << std::endl;
 
@@ -551,6 +557,7 @@ bool LWEConjunctionObfuscationAlgorithmV2<Element>::Evaluate(
 	BigBinaryInteger q(obfuscatedPattern.GetModulus());
 	usint m = obfuscatedPattern.GetLogModulus() + 2;
 	usint chunkSize = obfuscatedPattern.GetChunkSize();
+	usint adjustedLength = l/chunkSize;
 	double constraint = obfuscatedPattern.GetConstraint();
 
 	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
@@ -582,7 +589,7 @@ bool LWEConjunctionObfuscationAlgorithmV2<Element>::Evaluate(
 
 	DEBUG("Eval1: "<<TOC(t1) <<" ms");
 
-	for (usint i=0; i<l; i++) 	{
+	for (usint i=0; i<adjustedLength; i++) 	{
 		TIC(t1);
 
 		//pragma omp parallel sections
