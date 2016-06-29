@@ -388,61 +388,74 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 	vector<vector<Element>> s_small;
 	vector<vector<Element>> r_small;
 
-	std::string wildcardChunk = std::string(chunkSize,'?');
-
 	Element s_prod;
 	//DBC: above setup has insignificant timing.
 
 	//DBC: this loop has insignificant timing.
 	for(usint i=0; i<=adjustedLength-1; i++) {
 
-		//current chunk of cleartext pattern
+		// current chunk of cleartext pattern
 		std::string chunk = patternString.substr(i*chunkSize,chunkSize);
 
-		//Set the elements s and r to a discrete uniform generated vector.
+		// build a chunk mask that maps "10??" to "0011" - ones correspond to wildcard character 
+		std::string chunkTemp = replaceChar(chunk,'1','0');
+		chunkTemp = replaceChar(chunkTemp,'?','1');
+
+		// store the mask as integer for bitwise operations
+		int chunkMask = std::stoi(chunkTemp,nullptr,2);
+
+		//std::cout << "mask = " << chunkMask << endl;
+
+		// build a an inverse chunk mask that maps "10??" to "1100" - ones correspond to wildcard character 
+		chunkTemp = replaceChar(chunk,'0','1');
+		chunkTemp = replaceChar(chunkTemp,'?','0');
+		// store the mask as integer for bitwise operations
+		int inverseChunkMask = std::stoi(chunkTemp,nullptr,2);
+
+		//std::cout << "inverse mask = " << inverseChunkMask << endl;
+
 		vector<Element> sVector;
-		Element elems0(dbg,*params,EVALUATION);
-		sVector.push_back(elems0);
-
 		vector<Element> rVector;
-		Element	elemr0(dbg,*params,EVALUATION);
-		rVector.push_back(elemr0);
 
-		//Determine wildcard or not.  If wildcard, copy s and r.  Else, don't copy.
-		bool wildCard = (chunk == wildcardChunk);
-		if (wildCard) {
-			val = 1;
-			for (usint k=0; k < chunkExponent; k++) {
+		//cout << "before entering the loop " << endl;
 
-				sVector.push_back(elems0);
-				rVector.push_back(elemr0);
+		for (usint k=0; k < chunkExponent; k++) {
 
-			}
-		} else {
-			for (usint k=0; k < chunkExponent; k++) {
+			//cout << "entered the loop " << endl;
 
-				//Element elems1(dug,params,EVALUATION);
+			//cout << "k: " << k << "flag : " << (k & chunkMask) << endl;
+
+			// if all wildcard bits are set to 0, then a new random element "s" needs to be created
+			// otherwise use an existing one that has already been created
+			if ((k & chunkMask)==0) {
+				//cout << "entered the non-mask condition " << endl;
 				Element elems1(dbg,*params,EVALUATION);
 				sVector.push_back(elems1);
-
-				//Element	elemr1(dug,params,EVALUATION);
-				Element	elemr1(dbg,*params,EVALUATION);
-				rVector.push_back(elemr1);
-
 			}
+			else
+			{
+				//cout << "entered the mask condition " << endl;
+				Element elems1 = sVector[k & inverseChunkMask];
+				sVector.push_back(elems1);
+			}
+			
+			Element elemr1(dbg,*params,EVALUATION);
+			rVector.push_back(elemr1);
+
 		}
+
+		//cout << "done with the loop " << endl;
 		
 		const Element *vi = NULL;
 
+		// get current value for s vector replacing each "?" with 0
+		chunkTemp = replaceChar(chunk,'?','0');
+		// store the mask as integer for bitwise operations
+		int chunkValue = std::stoi(chunkTemp,nullptr,2);
 
-		if (chunk != wildcardChunk) {
-			int value = std::stoi(chunk,nullptr,2);
-			std::cout << "chunk is " << chunk << std::endl;
-			std::cout << "index is " << value << std::endl;
-			vi = &sVector[value];
-		}
-		else
-			vi = &sVector[0];
+		//std::cout << "value = " << chunkValue << endl;
+
+		vi = &sVector[chunkValue];
 		
 		if (i==0) {
 			s_prod = *vi;
