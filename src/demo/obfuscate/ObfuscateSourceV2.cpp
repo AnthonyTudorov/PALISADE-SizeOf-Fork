@@ -37,8 +37,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <fstream>
 
-#include "../../lib/obfuscate/lweconjunctionobfuscate.h"
-#include "../../lib/obfuscate/lweconjunctionobfuscate.cpp"
+#include "../../lib/obfuscate/lweconjunctionobfuscatev2.h"
+#include "../../lib/obfuscate/lweconjunctionobfuscatev2.cpp"
 //#include "../../lib/obfuscate/obfuscatelp.h"
 #include "time.h"
 #include <chrono>
@@ -102,6 +102,7 @@ void NTRUPRE(int input) {
 	BigBinaryInteger rootOfUnity("405107564542978792");
 	//27 bits
 	//BigBinaryInteger rootOfUnity("61564");
+	usint chunkSize = 2;
 
 	float stdDev = 4;
 
@@ -138,11 +139,11 @@ void NTRUPRE(int input) {
 	//Generate and test the cleartext pattern
 	////////////////////////////////////////////////////////////
 
-	std::string inputPattern = "10?";
+	std::string inputPattern = "1100??";
 	//std::string inputPattern = "1";
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 
-	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
+	LWEConjunctionObfuscationAlgorithmV2<ILVector2n> algorithm;
 
 	std::cout << " \nCleartext pattern: " << std::endl;
 	std::cout << clearPattern.GetPatternString() << std::endl;
@@ -151,18 +152,18 @@ void NTRUPRE(int input) {
 	std::cout << clearPattern.GetLength() << std::endl;
 
 	//std::string inputStr1 = "1";
-	std::string inputStr1 = "100";
+	std::string inputStr1 = "110000";
 	bool out1 = algorithm.Evaluate(clearPattern,inputStr1);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << std::endl;
 	std::cout << out1 << std::endl;
 
 	//std::string inputStr2 = "1";
-	std::string inputStr2 = "101";
+	std::string inputStr2 = "110011";
 	bool out2 = algorithm.Evaluate(clearPattern,inputStr2);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr2 << std::endl;
 	std::cout << out2 << std::endl;
 
-	std::string inputStr3 = "010";
+	std::string inputStr3 = "101100";
 	//std::string inputStr3 = "0";
 	bool out3 = algorithm.Evaluate(clearPattern,inputStr3);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr3 << std::endl;
@@ -181,7 +182,7 @@ void NTRUPRE(int input) {
 	std::cout << " \nCleartext pattern: " << std::endl;
 	std::cout << clearPattern.GetPatternString() << std::endl;
 
-	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(ilParams);
+	ObfuscatedLWEConjunctionPatternV2<ILVector2n> obfuscatedPattern(ilParams,chunkSize);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 
 	std::cout << "Key generation started" << std::endl;

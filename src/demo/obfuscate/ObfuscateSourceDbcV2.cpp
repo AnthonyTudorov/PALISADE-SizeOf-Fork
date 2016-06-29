@@ -36,8 +36,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <fstream>
-#include "../../lib/obfuscate/lweconjunctionobfuscate.h"
-#include "../../lib/obfuscate/lweconjunctionobfuscate.cpp"
+#include "../../lib/obfuscate/lweconjunctionobfuscatev2.h"
+#include "../../lib/obfuscate/lweconjunctionobfuscatev2.cpp"
 
 #include "../../lib/utils/debug.h"
 
@@ -149,6 +149,8 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	//27 bits
 	//BigBinaryInteger rootOfUnity("61564");
 
+	usint chunkSize = 2;
+
 	float stdDev = 4;
 
 	//Variables for timing
@@ -180,10 +182,10 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	//Generate and test the cleartext pattern
 	////////////////////////////////////////////////////////////
 
-	std::string inputPattern = "10?";
+	std::string inputPattern = "1100??";
 
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
-	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
+	LWEConjunctionObfuscationAlgorithmV2<ILVector2n> algorithm;
 
 	DEBUG(" \nCleartext pattern: ");
 	DEBUG(clearPattern.GetPatternString());
@@ -191,15 +193,15 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	DEBUG(" \nCleartext pattern length: ");
 	DEBUG(clearPattern.GetLength());
 
-	std::string inputStr1 = "100";
+	std::string inputStr1 = "110000";
 	bool out1 = algorithm.Evaluate(clearPattern,inputStr1);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << out1);
 
-	std::string inputStr2 = "101";
+	std::string inputStr2 = "110011";
 	bool out2 = algorithm.Evaluate(clearPattern,inputStr2);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << out2);
 	
-	std::string inputStr3 = "010";
+	std::string inputStr3 = "001100";
 	bool out3 = algorithm.Evaluate(clearPattern,inputStr3);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr3 << " is " << out3);
 
@@ -214,7 +216,7 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	cout << " \nCleartext pattern: " << endl;
 	cout << clearPattern.GetPatternString() << endl;
 
-	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(ilParams);
+	ObfuscatedLWEConjunctionPatternV2<ILVector2n> obfuscatedPattern(ilParams,chunkSize);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 
 	DEBUG( "Key generation started"); 
