@@ -38,6 +38,7 @@
 
 #include "../../utils/serializable.h"
 #include "../../utils/inttypes.h"
+ #include <initializer_list>
 
 /**
  * @namespace cpu8bit
@@ -110,6 +111,8 @@ public:
 	 * @return the return value.	  
 	 */
 	BigBinaryVector&  operator=(BigBinaryVector &&rhs);
+
+	BigBinaryVector& operator=(std::initializer_list<sint> rhs);
 
 	inline bool operator==(const BigBinaryVector &b) const {
         if (this->GetLength() != b.GetLength()) {

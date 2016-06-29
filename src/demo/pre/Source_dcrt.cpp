@@ -59,6 +59,7 @@ void SparseKeyGenTestDoubleCRT();
 void LevelCircuitEvaluation();
 void LevelCircuitEvaluation1();
 void LevelCircuitEvaluation2();
+void MultTest();
 
 /**
  * @brief Input parameters for PRE example.
@@ -74,10 +75,10 @@ struct SecureParams {
 int main() {
 
 
-
+	MultTest();
 	 //NTRU_DCRT();
-	LevelCircuitEvaluation();
-	// LevelCircuitEvaluation1();
+	//LevelCircuitEvaluation();
+	LevelCircuitEvaluation1();
 	//LevelCircuitEvaluation2();
 
 	std::cin.get();
@@ -229,6 +230,24 @@ void NTRU_DCRT() {
 	//
 	//cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
 
+
+}
+
+void MultTest(){
+
+	BigBinaryInteger a("8589988480");
+	const BigBinaryInteger modulus("42949942405");
+
+	BigBinaryVector bbv(4);
+	bbv.SetModulus(modulus);
+	bbv.SetValAtIndex(0,"295979831");
+	bbv.SetValAtIndex(1,"1430148772");
+	bbv.SetValAtIndex(2,"39566279604");
+	bbv.SetValAtIndex(3,"824376828");
+
+	auto result = bbv*a;
+
+	std::cout<< result <<std::endl;
 
 }
 
@@ -573,7 +592,8 @@ void LevelCircuitEvaluation1(){
 	BigBinaryInteger q("1");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
-	moduli[0] = BigBinaryInteger("2199023288321");
+	//moduli[0] = BigBinaryInteger("2199023288321");
+	 moduli[0] = BigBinaryInteger("8589987841");
 	// moduli[1] = BigBinaryInteger("2199023288321");
 	q = moduli[0];
 	lbcrypto::NextQ(q, plainTextModulus, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
@@ -628,6 +648,7 @@ void LevelCircuitEvaluation1(){
 	ILVectorArray2n element1(ildcrtParams);
 	element1.SwitchFormat();
 	element1 = {2};
+	element1.PrintValues();
 	cipherText1.SetElement(element1);
 
 	Ciphertext<ILVectorArray2n> cipherText2;
@@ -635,10 +656,14 @@ void LevelCircuitEvaluation1(){
 	ILVectorArray2n element2(ildcrtParams);
 	element2.SwitchFormat();
 	element2 = {2};
+	element2.PrintValues();
 	cipherText2.SetElement(element2);
 
 	algorithm.Encrypt(pk, &cipherText1);
 	algorithm.Encrypt(pk, &cipherText2);
+
+	algorithm.Decrypt(sk, cipherText1, &ctxtd);
+	algorithm.Decrypt(sk, cipherText2, &ctxtd);
 
 	LPKeySwitchHintLTV<ILVectorArray2n> linearKeySwitchHint1, linearKeySwitchHint2, quadraticKeySwitchHint1, quadraticKeySwitchHint2;
 
@@ -650,6 +675,8 @@ void LevelCircuitEvaluation1(){
 	cipherText3.SetElement(cipherText1.GetElement() * cipherText2.GetElement());
 
 	cipherText3 = algorithm.m_algorithmLeveledSHE->KeySwitch(quadraticKeySwitchHint1, cipherText3);
+
+	algorithm.Decrypt(sk1, cipherText3, &ctxtd);
 
 	ILVectorArray2n pvElement1 = sk1.GetPrivateElement();
 	sk1.SetCryptoParameters(&cryptoParams1);
@@ -666,7 +693,10 @@ void LevelCircuitEvaluation1(){
 	
 	cout << ctxtd << "\n" << endl;
 
+
 }
+
+
 
 
 void LevelCircuitEvaluation2(){

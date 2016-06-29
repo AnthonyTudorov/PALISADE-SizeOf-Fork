@@ -329,15 +329,26 @@ namespace lbcrypto {
 
 	ILVectorArray2n& ILVectorArray2n::operator=(std::initializer_list<sint> rhs){
 		usint len = rhs.size();
-		usint vectorLength = this->m_vectors[0].GetLength();
-		for(usint i=0;i<this->GetTowerLength();i++){ // this loops over each tower
-			for(usint j=0; j<vectorLength; j++) { // loops within a tower
-				if(j<len) {
-					this->m_vectors[i].SetValAtIndex(j, *(rhs.begin()+j));
-				} else {
-					this->m_vectors[i].SetValAtIndex(j,0);
+		if(!IsEmpty()){
+			usint vectorLength = this->m_vectors[0].GetLength();
+			for(usint i=0;i<this->GetTowerLength();i++){ // this loops over each tower
+				for(usint j=0; j<vectorLength; j++) { // loops within a tower
+					if(j<len) {
+						this->m_vectors[i].SetValAtIndex(j, *(rhs.begin()+j));
+					} else {
+						this->m_vectors[i].SetValAtIndex(j,0);
+					}
 				}
 			}
+		}
+		else{
+			for(usint i=0;i<m_numberOfTowers;i++){
+				BigBinaryVector temp(m_cyclotomicOrder/2);
+				temp.SetModulus(m_vectors.at(i).GetModulus());
+				temp = rhs;
+				m_vectors.at(i).SetValues(std::move(temp),m_format);
+			}
+			
 		}
 		return *this;
 	}
@@ -440,6 +451,14 @@ namespace lbcrypto {
 		}
 	}
 
+	bool ILVectorArray2n::IsEmpty() const{
+		for(usint i=0;i<m_numberOfTowers;i++){
+			if(!m_vectors.at(i).IsEmpty())
+				return false;
+		}
+		return true;
+	}
+
 	void ILVectorArray2n::DropTower(usint index){
 		if(index >= m_numberOfTowers){
 			throw std::out_of_range("Index of tower being removed is larger than ILVectorArray2n tower\n");
@@ -468,6 +487,7 @@ namespace lbcrypto {
 		}
 		this->SwitchFormat();
 
+		this->PrintValues();
 		
 		usint lastTowerIndex = m_numberOfTowers - 1;
 
@@ -476,20 +496,29 @@ namespace lbcrypto {
 
 		//precomputations
 		BigBinaryInteger qt(m_vectors[lastTowerIndex].GetModulus());
+		std::cout<<"qt:	"<<qt<<std::endl;
 		BigBinaryInteger v(qt.ModInverse(plaintextModulus));
+		std::cout<<"v:	"<<v<<std::endl;
 		BigBinaryInteger a((v * qt).ModSub(BigBinaryInteger::ONE, plaintextModulus*qt));
+		std::cout<<"a:	"<<a<<std::endl;
+
 		//Since only positive values are being used for Discrete gaussian generator, a call to switch modulus needs to be done
 		d.SwitchModulus(plaintextModulus*qt, d.GetRootOfUnity()); // NOT CHANGING ROOT OF UNITY-TODO: What to do with SwitchModulus and is it necessary to pass rootOfUnity		
+		d.PrintValues();
 
 		//Calculating delta, step 2
 		ILVector2n delta(d.Times(a)); 
+		delta.PrintValues();
 
+		this->PrintValues();
 		//Calculating d' = c + delta mod q (step 3)
 		for(usint i=0; i<m_numberOfTowers; i++) {
 			ILVector2n temp(delta);
 			temp.SwitchModulus(m_vectors[i].GetModulus(), m_vectors[i].GetRootOfUnity());
 			m_vectors[i] += temp;
 		}
+
+		this->PrintValues();
 
 		//step 4
 		this->DropTower(lastTowerIndex);

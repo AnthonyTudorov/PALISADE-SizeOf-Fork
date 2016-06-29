@@ -100,6 +100,20 @@ BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(const BigB
 }
 
 template<class IntegerType>
+BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(std::initializer_list<sint> rhs){
+	usint len = rhs.size();
+	for(usint i=0;i<m_length;i++){ // this loops over each tower
+		if(i<len) {
+			m_data[i] =  IntegerType(*(rhs.begin()+i));  
+		} else {
+			m_data[i] = IntegerType::ZERO;
+		}
+	}
+
+	return *this;
+}
+
+template<class IntegerType>
 BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(BigBinaryVector &&rhs){
 
 	if(this!=&rhs){
@@ -292,6 +306,8 @@ This algorithm would most like give the biggest improvement but it sets constrai
 */
 template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerType &b) const{
+	std::cout<< "Printing Modulus: "<< m_modulus<< std::endl;
+
 	BigBinaryVector ans(*this);
 
 	//Precompute the Barrett mu parameter
@@ -299,7 +315,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerT
 
 	temp<<=2*this->GetModulus().GetMSB()+3;
 
-	IntegerType mu = temp.DividedBy(this->GetModulus());
+	IntegerType mu = temp.DividedBy(m_modulus);
 
 	//Precompute the Barrett mu values
 	/*BigBinaryInteger temp;
@@ -314,8 +330,9 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerT
 	}*/
 
 	for(usint i=0;i<this->m_length;i++){
-
+		std::cout<< "before data: "<< ans.m_data[i]<< std::endl;
 		ans.m_data[i] = ans.m_data[i].ModBarrettMul(b,this->m_modulus,mu);
+		std::cout<< "after data: "<< ans.m_data[i]<< std::endl;
 	}
 
 	return ans;

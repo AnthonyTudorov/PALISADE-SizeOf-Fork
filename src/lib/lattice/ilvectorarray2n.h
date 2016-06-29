@@ -366,6 +366,11 @@ namespace lbcrypto {
 		void Decompose();
 
 		/**
+		* Returns true if ALL the tower(s) are empty.  
+		*/
+		bool IsEmpty() const;
+
+		/**
 		* Drops the tower at the index passed to it. The resulting ILVectorArray2n will have one less tower.
 		*
 		* @param index is the index of the tower to be dropped.

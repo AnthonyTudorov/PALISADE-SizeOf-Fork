@@ -436,6 +436,10 @@ namespace lbcrypto {
 		*/
 		void Decompose();
 
+		/**
+		* Returns true if the vector is empty/ m_values==NULL  
+		*/
+		bool IsEmpty() const;
 		// VECTOR OPERATIONS
 
 		/**
@@ -636,6 +640,8 @@ namespace lbcrypto {
 
 		// static variable to store the sample size for each set of ILParams
 		static const usint m_sampleSize = SAMPLE_SIZE;
+
+		bool m_empty;
 
 		// gets a random discrete Gaussian polynomial
 		const ILVector2n *GetPrecomputedVector(const ILParams &params);

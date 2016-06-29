@@ -87,6 +87,8 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	//public key is generated
 	privateKey->MakePublicKey(g,publicKey);
 
+	//publicKey->GetPublicElement().PrintValues();
+
 	return true;
 }
 
@@ -167,6 +169,7 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 	privateKey->AccessCryptoParameters() = cryptoParams;
 
 	Element g(dgg,elementParams,Format::COEFFICIENT);
+
 	g.SwitchFormat();
 
 	//public key is generated
@@ -424,11 +427,16 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	m.SwitchFormat();
 	
 	const Element &h = publicKey.GetPublicElement();
+
+	h.PrintValues();
 	
 	Element s(dgg,elementParams,Format::EVALUATION);
+
 	Element e(dgg,elementParams,Format::EVALUATION);
 
 	Element c(h*s + p*e + m);
+
+	c.PrintValues();
 
 	//c = h*s + p*e + m;
 	
@@ -460,7 +468,8 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 	/*Element m(elementParams);
 	m = b.Mod(p);*/
 
-	b = std::move(b.ModByTwo());
+	//b = std::move(b.ModByTwo());
+	b = std::move(b.Mod(p));
 
 	b.PrintValues();
 	//	Element m(b.Mod(p));
