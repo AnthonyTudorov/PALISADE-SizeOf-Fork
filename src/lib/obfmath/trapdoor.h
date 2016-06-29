@@ -1,6 +1,7 @@
 #ifndef LBCRYPTO_LATTICE_TRAPDOOR_H
 #define LBCRYPTO_LATTICE_TRAPDOOR_H
 
+
 using std::pair;
 
 #include "../math/matrix.h"

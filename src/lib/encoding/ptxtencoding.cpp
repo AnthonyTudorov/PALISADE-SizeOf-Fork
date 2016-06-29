@@ -111,6 +111,7 @@ namespace lbcrypto {
 		for(usint i=0;i<element->GetTowerLength();i++){
 			ILParams ilparams(element->GetTowerAtIndex(i).GetCyclotomicOrder(), element->GetTowerAtIndex(i).GetModulus(), element->GetTowerAtIndex(i).GetRootOfUnity());
 			ILVector2n ilVector(ilparams);
+			temp.SetModulus(ilparams.GetModulus());
 			ilVector.SetValues(temp.GetValues(),temp.GetFormat());
 			symbolVals.push_back(ilVector);
 		}

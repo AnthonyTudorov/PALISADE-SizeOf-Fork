@@ -47,9 +47,14 @@ namespace lbcrypto {
 
 
 
-	ILVector2n::ILVector2n(const ILVector2n &element) : m_params(element.m_params), m_format(element.m_format),
-		m_values(new BigBinaryVector(*element.m_values)) {
-
+	ILVector2n::ILVector2n(const ILVector2n &element) : m_params(element.m_params), m_format(element.m_format)
+	{
+			if(element.m_values==NULL){
+				m_values = NULL;
+			}
+			else{
+				m_values = new BigBinaryVector(*element.m_values);
+			}
 	}
 
 	ILVector2n::ILVector2n(ILVector2n &&element) : m_params(element.m_params), m_format(element.m_format),
@@ -86,9 +91,9 @@ namespace lbcrypto {
 		return *this;
 	}
 
-	ILVector2n::ILVector2n(const DiscreteGaussianGenerator &dgg, const ILParams &params, Format format) :m_params(params) {
+	ILVector2n::ILVector2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format) {
 	
-		
+		m_params = dynamic_cast<const ILParams&>(params);
 
 		if (format == COEFFICIENT)
 		{
@@ -102,9 +107,9 @@ namespace lbcrypto {
 		{
 			if (m_dggSamples.size() == 0)
 			{
-				PreComputeDggSamples(dgg, params);
+				PreComputeDggSamples(dgg, m_params);
 			}
-			const ILVector2n *randomElement = GetPrecomputedVector(params);
+			const ILVector2n *randomElement = GetPrecomputedVector(m_params);
 			m_values = new BigBinaryVector(*randomElement->m_values);
 			(*m_values).SetModulus(params.GetModulus());
 			m_format = EVALUATION;
@@ -112,10 +117,11 @@ namespace lbcrypto {
 	}
 
 
-	ILVector2n::ILVector2n(DiscreteUniformGenerator &dug, const ILParams &params, Format format) :m_params(params) {
+	ILVector2n::ILVector2n(DiscreteUniformGenerator &dug, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
 
+		const ILParams &ilParams = static_cast<const ILParams&>(params);
 
-		usint vectorSize = params.GetCyclotomicOrder() / 2;
+		usint vectorSize = ilParams.GetCyclotomicOrder() / 2;
 		m_values = new BigBinaryVector(dug.GenerateVector(vectorSize));
 		(*m_values).SetModulus(params.GetModulus());
 

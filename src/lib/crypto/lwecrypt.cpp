@@ -51,7 +51,6 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
-	//Element f = 
 
 	f = p*f;
 
@@ -83,8 +82,7 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	privateKey->SetPrivateElement(f);
 	privateKey->AccessCryptoParameters() = cryptoParams;
 
-	Element g(dgg,elementParams,Format::COEFFICIENT);
-	g.SwitchFormat();
+	Element g(dgg,elementParams);
 
 	//public key is generated
 	privateKey->MakePublicKey(g,publicKey);
@@ -200,8 +198,8 @@ void LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(const LPPrivateKey<Elem
 		const Element f2 = newPrivateKey.GetPrivateElement(); //add const
 		const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
-	//	Element e(cryptoParams.GetDiscreteGaussianGenerator() , originalKeyParams, Format::COEFFICIENT );
-		Element e(f1.CloneWithNoise(cryptoParams.GetDiscreteGaussianGenerator(), Format::COEFFICIENT));
+		Element e(cryptoParams.GetDiscreteGaussianGenerator() , originalKeyParams, Format::COEFFICIENT );
+		
 		e.SwitchFormat();
 
 		Element m(p*e);
@@ -215,6 +213,7 @@ void LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(const LPPrivateKey<Elem
 		/*keySwitchHintElement = m * f1 * newKeyInverse ;*/
 
 		keySwitchHint->SetHintElement(keySwitchHintElement);
+
 		keySwitchHint->SetCryptoParameters(new LPCryptoParametersLTV<Element>(cryptoParams));	
 
 }
@@ -257,12 +256,12 @@ void LPLeveledSHEAlgorithmLTV<Element>::QuadraticKeySwitchHintGen(const LPPrivat
 	const Element f2 = newPrivateKey.GetPrivateElement(); //add const
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
-	//Element e(cryptoParams.GetDiscreteGaussianGenerator() , originalKeyParams, Format::COEFFICIENT );
-	Element	e(f1.CloneWithNoise(cryptoParams.GetDiscreteGaussianGenerator(), Format::COEFFICIENT));
-
+	Element e(cryptoParams.GetDiscreteGaussianGenerator() , originalKeyParams, Format::COEFFICIENT );
+	
 	e.SwitchFormat();
 
 	Element m(p*e);
+
 	m = p * e;
 	
 	m.AddILElementOne();
@@ -271,9 +270,8 @@ void LPLeveledSHEAlgorithmLTV<Element>::QuadraticKeySwitchHintGen(const LPPrivat
 
 	Element keySwitchHintElement(m * f1Squared * newKeyInverse);
 
-	//keySwitchHintElement = m * f1Squared * newKeyInverse ;
-	// keySwitchHintElement.PrintValues();
 	quadraticKeySwitchHint->SetHintElement(keySwitchHintElement);
+
 	quadraticKeySwitchHint->SetCryptoParameters(new LPCryptoParametersLTV<Element>(cryptoParams));
 }
 
@@ -386,28 +384,24 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
-	Element m = publicKey.GetPublicElement().CloneWithParams();
+	Element m(elementParams, Format::COEFFICIENT);
 
 	plaintext.Encode(p,&m);
 
-	//	m.PrintValues();
+	//m.PrintValues();
 	//m.EncodeElement(plaintext,p);
 
 	m.SwitchFormat();
 
 	const Element &h = publicKey.GetPublicElement();
 
-	/*Element s(dgg,elementParams);
-	Element e(dgg,elementParams);*/
-	Element s = h.CloneWithNoise(dgg,Format::EVALUATION);
-	Element e = h.CloneWithNoise(dgg,Format::EVALUATION);
+	Element s(dgg,elementParams);
 
-	//Element a(p*e + m);
-	//a.SwitchFormat();
+	Element e(dgg,elementParams);
 
 	Element c(h*s + p*e + m);
 
-	c = h*s + p*e + m;
+	//c = h*s + p*e + m;
 
 	ciphertext->SetCryptoParameters(&cryptoParams);
 	ciphertext->SetPublicKey(publicKey);
@@ -426,18 +420,15 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
 	Element m(ciphertext->GetElement());
-//	Element m(4,dgg,elementParams, Format::COEFFICIENT);
-	
-	//m = ciphertext->GetElement();
-	// m.PrintValues();
+
 	m.SwitchFormat();
 	
 	const Element &h = publicKey.GetPublicElement();
 	
-	Element s = m.CloneWithNoise(dgg,Format::EVALUATION);
-	Element e = m.CloneWithNoise(dgg,Format::EVALUATION);
+	Element s(dgg,elementParams,Format::EVALUATION);
+	Element e(dgg,elementParams,Format::EVALUATION);
 
-	Element c = h*s + p*e + m;
+	Element c(h*s + p*e + m);
 
 	//c = h*s + p*e + m;
 	
@@ -457,8 +448,8 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
-	Element c = privateKey.GetPrivateElement().CloneWithParams();
-	//c = ciphertext.GetElement();
+	//Element c(privateKey.GetPrivateElement());
+	Element c( ciphertext.GetElement() );
 
 	Element f = privateKey.GetPrivateElement(); //add const
 
@@ -466,11 +457,12 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 
 	b.SwitchFormat();
 
-	//Element m(elementParams);
-	//m = b.Mod(p);
+	/*Element m(elementParams);
+	m = b.Mod(p);*/
 
-	//Element m(b.ModByTwo());
+	b = std::move(b.ModByTwo());
 
+	b.PrintValues();
 	//	Element m(b.Mod(p));
 
 	//cout<<"m ="<<m.GetValues()<<endl;

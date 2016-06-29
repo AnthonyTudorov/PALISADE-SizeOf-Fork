@@ -199,6 +199,10 @@ namespace lbcrypto {
 		return std::move(res);
 	}
 
+	usint ILVectorArray2n::GetCyclotomicOrder() const {
+		return m_cyclotomicOrder;
+	}
+
 	// DESTRUCTORS
 
 	ILVectorArray2n::~ILVectorArray2n()

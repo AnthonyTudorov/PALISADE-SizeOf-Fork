@@ -73,9 +73,12 @@ struct SecureParams {
 #include <iterator>
 int main() {
 
-	// NTRU_DCRT();
+
+
+	 //NTRU_DCRT();
+	LevelCircuitEvaluation();
 	// LevelCircuitEvaluation1();
-	LevelCircuitEvaluation2();
+	//LevelCircuitEvaluation2();
 
 	std::cin.get();
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
@@ -110,6 +113,7 @@ void NTRU_DCRT() {
 	usint m = 1024;
 
 	const ByteArray plaintext = "I am a good boy!";
+	//const ByteArray plaintext = "I";
 	ByteArrayPlaintextEncoding ptxt(plaintext);
 	ptxt.Pad<ZeroPad>(m/16);
 //	ptxt.Pad<ZeroPad>(m/8);
@@ -364,8 +368,8 @@ void LevelCircuitEvaluation(){
 	BigBinaryInteger q("1");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
-	moduli[0] = BigBinaryInteger("2199023288321");
-	moduli[1] = BigBinaryInteger("8589987841");
+	moduli[1] = BigBinaryInteger("2199023288321");
+	moduli[0] = BigBinaryInteger("8589987841");
 
 	for(int i=0; i < size; i++){
         // lbcrypto::NextQ(q, plainTextModulus,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
@@ -464,6 +468,8 @@ void LevelCircuitEvaluation(){
 
 	ILVectorArray2n cipherTextElement(levelsCipherTextElement);
 
+	cipherTextElement.PrintValues();
+
 	// -------------------------- end Set cipherText Element ----------------------//
 
 	// ------------------ Set cipherText1 Element ----------------------//
@@ -490,6 +496,7 @@ void LevelCircuitEvaluation(){
 	levelsCipherText1Element[1] = level1CipherText1Element;
 
 	ILVectorArray2n cipherText1Element(levelsCipherText1Element);
+	cipherText1Element.PrintValues();
 
 	// -------------------------- end Set cipherText1 Element ----------------------//
 
