@@ -102,7 +102,6 @@ void NTRUPRE(int input) {
 	BigBinaryInteger rootOfUnity("405107564542978792");
 	//27 bits
 	//BigBinaryInteger rootOfUnity("61564");
-	usint chunkSize = 2;
 
 	float stdDev = 4;
 
@@ -139,7 +138,9 @@ void NTRUPRE(int input) {
 	//Generate and test the cleartext pattern
 	////////////////////////////////////////////////////////////
 
-	std::string inputPattern = "1100??";
+	usint chunkSize = 2;
+	std::string inputPattern = "1?10?1";
+	//	std::string inputPattern = "1?1";
 	//std::string inputPattern = "1";
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 
@@ -152,18 +153,21 @@ void NTRUPRE(int input) {
 	std::cout << clearPattern.GetLength() << std::endl;
 
 	//std::string inputStr1 = "1";
-	std::string inputStr1 = "110000";
+	std::string inputStr1 = "111001";
+	//std::string inputStr1 = "101";
 	bool out1 = algorithm.Evaluate(clearPattern,inputStr1);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr1 << std::endl;
 	std::cout << out1 << std::endl;
 
 	//std::string inputStr2 = "1";
 	std::string inputStr2 = "110011";
+	//std::string inputStr2 = "100";
 	bool out2 = algorithm.Evaluate(clearPattern,inputStr2);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr2 << std::endl;
 	std::cout << out2 << std::endl;
 
-	std::string inputStr3 = "101100";
+	//std::string inputStr3 = "101100";
+	std::string inputStr3 = "101011";
 	//std::string inputStr3 = "0";
 	bool out3 = algorithm.Evaluate(clearPattern,inputStr3);
 	std::cout << " \nCleartext pattern evaluation of: " << inputStr3 << std::endl;
