@@ -346,7 +346,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	DecodingResult result = algorithm.Decrypt(sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
+	DecryptResult result = algorithm.Decrypt(sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
     plaintextNew.Unpad<ZeroPad>();
 
 	finish = currentDateTime();
@@ -360,7 +360,7 @@ void NTRUPRE(int input) {
 
 	//cout << "ciphertext at" << ciphertext.GetIndexAt(2);
 
-	if (!result.isValidCoding) {
+	if (!result.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}
@@ -446,7 +446,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	DecodingResult result1 = algorithm.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
+	DecryptResult result1 = algorithm.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
     plaintextNew2.Unpad<ZeroPad>();
 
 	finish = currentDateTime();
@@ -458,7 +458,7 @@ void NTRUPRE(int input) {
 	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
 	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
 
-	if (!result1.isValidCoding) {
+	if (!result1.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}

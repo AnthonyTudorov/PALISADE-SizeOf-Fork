@@ -191,7 +191,7 @@ decrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 			break;
 		}
 
-		DecodingResult rv = ctx->getAlgorithm()->Decrypt(sk, ciphertext, &plaintext);
+		DecryptResult rv = ctx->getAlgorithm()->Decrypt(sk, ciphertext, &plaintext);
 		plaintext.Unpad<ZeroPad>();
 
 		outF << plaintext << flush;

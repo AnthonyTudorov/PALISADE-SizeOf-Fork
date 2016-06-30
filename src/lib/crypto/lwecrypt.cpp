@@ -41,12 +41,19 @@ template <class Element>
 bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
 		LPPrivateKey<Element> *privateKey) const
 		{
-	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(privateKey->GetCryptoParameters());
-	//const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
-	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+	if( publicKey == 0 || privateKey == 0 )
+		return false;
 
-	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
+	const LPCryptoParametersLTV<Element> *cryptoParams =
+			dynamic_cast<const LPCryptoParametersLTV<Element>*>(&privateKey->GetCryptoParameters());
+
+	if( cryptoParams == 0 )
+		return false;
+
+	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
 
@@ -54,16 +61,6 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 
 	f = f + BigBinaryInteger::ONE;
 
-	//added for saving the cryptoparams
-	/*	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLTV<Element>&>(cryptoParams);
-
-	float DistributionParameter = cryptoParamsLWE.GetDistributionParameter();
-	float AssuranceMeasure = cryptoParamsLWE.GetAssuranceMeasure();
-	float SecurityLevel = cryptoParamsLWE.GetSecurityLevel();
-	usint RelinWindow = cryptoParamsLWE.GetRelinWindow(); 
-	int Depth = cryptoParamsLWE.GetDepth();*/ 
-	//std::cout<<p<<DistributionParameter<<AssuranceMeasure<<SecurityLevel<<RelinWindow<<Depth<<std::endl;
-	//////
 	f.SwitchFormat();
 
 	//check if inverse does not exist
@@ -78,7 +75,7 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	}
 
 	privateKey->SetPrivateElement(f);
-	privateKey->AccessCryptoParameters() = cryptoParams;
+	privateKey->AccessCryptoParameters() = *cryptoParams;
 
 	Element g(dgg,elementParams,Format::COEFFICIENT);
 	g.SwitchFormat();
@@ -93,11 +90,19 @@ template <class Element>
 bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
 		LPPrivateKey<Element> *privateKey) const
 		{
-	const LPCryptoParametersStehleSteinfeld<Element> &cryptoParams = static_cast<const LPCryptoParametersStehleSteinfeld<Element>&>(privateKey->GetCryptoParameters());
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
-	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+	if( publicKey == 0 || privateKey == 0 )
+		return false;
 
-	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGeneratorStSt();
+	const LPCryptoParametersStehleSteinfeld<Element> *cryptoParams =
+			dynamic_cast<const LPCryptoParametersStehleSteinfeld<Element>*>(&privateKey->GetCryptoParameters());
+
+	if( cryptoParams == 0 )
+		return false;
+
+	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGeneratorStSt();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
 
@@ -119,7 +124,7 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 	}
 
 	privateKey->SetPrivateElement(f);
-	privateKey->AccessCryptoParameters() = cryptoParams;
+	privateKey->AccessCryptoParameters() = *cryptoParams;
 
 	Element g(dgg,elementParams,Format::COEFFICIENT);
 	g.SwitchFormat();
@@ -132,47 +137,47 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 
 
 template <class Element>
-void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey, 
-		const PlaintextEncodingInterface &plaintext,
+EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
+		const Element &plaintext,
 		Ciphertext<Element> *ciphertext) const
 		{
 
-	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
-	//LPCryptoParameters<Element> &cryptoParams = publicKey.GetCryptoParameters();
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
-	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
-	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
+	const LPCryptoParametersLTV<Element> *cryptoParams =
+			dynamic_cast<const LPCryptoParametersLTV<Element>*>(&publicKey.GetCryptoParameters());
 
-	Element m(elementParams);
+	if( cryptoParams == 0 ) return EncryptResult();
 
-	plaintext.Encode(p,&m);
+	if( ciphertext == 0 ) return EncryptResult();
 
-	//	m.PrintValues();
-	//m.EncodeElement(plaintext,p);
+	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
-	m.SwitchFormat();
+//	Element m(elementParams);
+//
+//	plaintext.Encode(p,&m);
+//
+//	m.SwitchFormat();
 
 	const Element &h = publicKey.GetPublicElement();
 
 	Element s(dgg,elementParams);
 	Element e(dgg,elementParams);
 
-	//Element a(p*e + m);
-	//a.SwitchFormat();
-
 	Element c(elementParams);
 
-	c = h*s + p*e + m;
+	c = h*s + p*e + plaintext;
 
-	ciphertext->SetCryptoParameters(&cryptoParams);
+	ciphertext->SetCryptoParameters(cryptoParams);
 	ciphertext->SetPublicKey(publicKey);
 	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
 	ciphertext->SetElement(c);
 
+	return EncryptResult(0);
 		}
 
 template <class Element>
-DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &privateKey, 
+DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &privateKey, 
 		const Ciphertext<Element> &ciphertext,
 		PlaintextEncodingInterface *plaintext) const
 		{
@@ -204,7 +209,7 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 	//	plaintext->Decode(p,m);
 	plaintext->Decode(p,b);
 
-	return DecodingResult(plaintext->GetLength());
+	return DecryptResult(plaintext->GetLength());
 		}
 
 // JSON FACILITY - LPCryptoParametersLWE Serialize Operation
@@ -555,20 +560,10 @@ bool LPPrivateKeyLTV<Element>::Deserialize(const Serialized& serObj, const Crypt
 	return false;
 }
 
-// Default constructor for LPPublicKeyEncryptionSchemeLTV
-template <class Element>
-LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(){
-	this->m_algorithmEncryption = NULL;
-	this->m_algorithmPRE = NULL;
-	this->m_algorithmEvalAdd = NULL;
-	this->m_algorithmEvalAutomorphism = NULL;
-	this->m_algorithmSHE = NULL;
-	this->m_algorithmFHE = NULL;
-}
-
 // Constructor for LPPublicKeyEncryptionSchemeLTV
 template <class Element>
-LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask){
+LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask, size_t chunksize)
+: LPPublicKeyEncryptionScheme<Element>(chunksize) {
 
 	if (mask[ENCRYPTION])
 		this->m_algorithmEncryption = new LPAlgorithmLTV<Element>(*this);
@@ -619,7 +614,8 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature){
 
 // Constructor for LPPublicKeyEncryptionSchemeStehleSteinfeld
 template <class Element>
-LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>::LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask){
+LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>::LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask, size_t chunksize)
+	: LPPublicKeyEncryptionSchemeLTV<Element>(chunksize) {
 	if (mask[ENCRYPTION])
 		this->m_algorithmEncryption = new LPEncryptionAlgorithmStehleSteinfeld<Element>(*this);
 	if (mask[PRE])

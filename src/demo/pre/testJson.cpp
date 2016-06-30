@@ -137,7 +137,7 @@ void testJson(
 	cout << "Calling Decrypt in LPAlgorithm" + cID + " with deserialized instances of" << endl;
 	cout << "LPPrivateKey" + cID + " and Ciphertext." << endl;
 	ByteArrayPlaintextEncoding testPlaintextRec;
-	DecodingResult testResult = tp->ctx->getAlgorithm()->Decrypt(skDeserialized,
+	DecryptResult testResult = tp->ctx->getAlgorithm()->Decrypt(skDeserialized,
 			ciphertextDeserialized, &testPlaintextRec);
 	testPlaintextRec.Unpad<ZeroPad>();
 	cout << "Recovered plaintext from call to Decrypt: " << endl;
@@ -246,7 +246,7 @@ void testJson(
 	cout << "Calling Decrypt in LPAlgorithmPRE" + cID + " with deserialized instances of" << endl;
 	cout << "PRE LPPrivateKey" + cID + " and PRE Ciphertext." << endl;
 	ByteArrayPlaintextEncoding testPlaintextPreRec;
-	DecodingResult testResult1 = tp->ctx->getAlgorithm()->Decrypt(newSKDeserialized,
+	DecryptResult testResult1 = tp->ctx->getAlgorithm()->Decrypt(newSKDeserialized,
 			preCiphertextDeserialized, &testPlaintextPreRec);
 	testPlaintextPreRec.Unpad<ZeroPad>();
 	cout << "Recovered plaintext from call to PRE Decrypt: " << endl;

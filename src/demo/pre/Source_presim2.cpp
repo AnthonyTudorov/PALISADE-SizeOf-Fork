@@ -226,9 +226,9 @@ void EncryptionSchemeSimulation(usint count){
 
 		ByteArrayPlaintextEncoding plaintextNew;
 
-		DecodingResult result = algorithm.Decrypt(sk, ciphertext, &plaintextNew);  // This is the core decryption operation.
+		DecryptResult result = algorithm.Decrypt(sk, ciphertext, &plaintextNew);  // This is the core decryption operation.
 
-		if (!result.isValidCoding) {
+		if (!result.isValid) {
 			std::cout << "Decryption failed!" << std::endl;
 			exit(1);
 		}
@@ -468,7 +468,7 @@ void PRESimulation(usint count, usint dataset)
 
 	for (usint j = 0; j < count; j++){
 
-            /*DecodingResult result = */algorithm.Decrypt(sk,arrCiphertext[j],&plaintextNew[j]);  // This is the core decryption operation.
+            /*DecryptResult result = */algorithm.Decrypt(sk,arrCiphertext[j],&plaintextNew[j]);  // This is the core decryption operation.
 
 	}
 
@@ -523,7 +523,7 @@ void PRESimulation(usint count, usint dataset)
 
 	for (usint j = 0; j < count; j++){
 
-            /*DecodingResult result = */algorithm.Decrypt(*privateKeys.back(),arrCiphertextNew[j],&plaintextNew[j]);  // This is the core decryption operation.
+            /*DecryptResult result = */algorithm.Decrypt(*privateKeys.back(),arrCiphertextNew[j],&plaintextNew[j]);  // This is the core decryption operation.
 
 	}
 
@@ -587,7 +587,7 @@ void PRESimulation(usint count, usint dataset)
 
 	//for (usint j = 0; j < count; j++){
 
-	//	DecodingResult result = algorithm.Decrypt(sk,arrCiphertext1[j],&plaintextNew[j]);  // This is the core decryption operation.
+	//	DecryptResult result = algorithm.Decrypt(sk,arrCiphertext1[j],&plaintextNew[j]);  // This is the core decryption operation.
 
 	//}
 

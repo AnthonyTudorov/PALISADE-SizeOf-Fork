@@ -209,7 +209,7 @@ void NTRU_DCRT() {
 	//std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
 
 	//
-	//DecodingResult result1 = algorithmPRE.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
+	//DecryptResult result1 = algorithmPRE.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
  //   plaintextNew2.Unpad<ZeroPad>();
 
 	//

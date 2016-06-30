@@ -224,7 +224,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 
 	start = currentDateTime();
 
-	DecodingResult result = ctx->getAlgorithm()->Decrypt(sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
+	DecryptResult result = ctx->getAlgorithm()->Decrypt(sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
 	plaintextNew.Unpad<ZeroPad>();
 
 	finish = currentDateTime();
@@ -238,7 +238,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 
 	//cout << "ciphertext at" << ciphertext.GetIndexAt(2);
 
-	if (!result.isValidCoding) {
+	if (!result.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}
@@ -316,7 +316,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 
 	start = currentDateTime();
 
-	DecodingResult result1 = ctx->getAlgorithm()->Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
+	DecryptResult result1 = ctx->getAlgorithm()->Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
 	plaintextNew2.Unpad<ZeroPad>();
 
 	finish = currentDateTime();
@@ -328,7 +328,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
 	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
 
-	if (!result1.isValidCoding) {
+	if (!result1.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}
