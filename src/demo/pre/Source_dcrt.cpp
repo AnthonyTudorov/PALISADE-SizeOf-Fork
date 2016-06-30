@@ -60,6 +60,7 @@ void LevelCircuitEvaluation();
 void LevelCircuitEvaluation1();
 void LevelCircuitEvaluation2();
 void MultTest();
+void RingReduceTest();
 
 /**
  * @brief Input parameters for PRE example.
@@ -868,5 +869,143 @@ void LevelCircuitEvaluation2(){
 	cout << "Final Decrypted value :\n" << endl;
 	
 	cout << ctxtd << "\n" << endl;
+
+}
+
+void RingReduceDCRTTest(){
+
+	usint m = 32;
+
+	const ByteArray plaintext = "M";
+	ByteArrayPlaintextEncoding ptxt(plaintext);
+	ptxt.Pad<ZeroPad>(m/16);
+
+	float stdDev = 4;
+
+	usint size = 2;
+
+	std::cout << "tower size: " << size << std::endl;
+
+	ByteArrayPlaintextEncoding ctxtd;
+
+	vector<BigBinaryInteger> moduli(size);
+
+	vector<BigBinaryInteger> rootsOfUnity(size);
+
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+	BigBinaryInteger modulus("1");
+
+	for(int i=0; i < size;i++){
+        lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+		moduli[i] = q;
+		cout << moduli[i] << endl;
+		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+		cout << rootsOfUnity[i] << endl;
+		modulus = modulus* moduli[i];
+	
+	}
+
+	cout << "big modulus: " << modulus << endl;
+	DiscreteGaussianGenerator dgg(stdDev);
+
+	ILDCRTParams params(rootsOfUnity, m, moduli);
+
+	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
+	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
+	cryptoParams2.SetDistributionParameter(stdDev);
+	cryptoParams2.SetRelinWindow(1);
+	cryptoParams2.SetElementParams(params);
+	cryptoParams2.SetDiscreteGaussianGenerator(dgg);
+
+	Ciphertext<ILVectorArray2n> cipherText2;
+	cipherText2.SetCryptoParameters(&cryptoParams2);
+
+	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams2);
+	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams2);
+
+	std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2(mask);
+
+	algorithm2.KeyGen(&pk2, &sk2);
+
+	/*sk2.GetPrivateElement().PrintValues();
+	pk2.GetPublicElement().PrintValues();*/
+
+	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
+	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+
+	ctxtd.Unpad<ZeroPad>();
+
+	cout << "Decrypted value ILVectorArray2n: \n" << endl;
+	cout << ctxtd<< "\n" << endl;
+
+	algorithm2.m_algorithmLeveledSHE->RingReduce(&cipherText2, &sk2);
+	
+	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+
+	cout << "Decrypted after MOD Reduce ILVectorArray2n: \n" << endl;
+	
+	cout << ctxtd<< "\n" << endl;
+
+}
+
+void RingReduceSingleCRTTest(){
+
+	usint m = 32;
+
+	const ByteArray plaintext = "M";
+	ByteArrayPlaintextEncoding ptxt(plaintext);
+	ptxt.Pad<ZeroPad>(m/16);
+
+	float stdDev = 4;
+
+	ByteArrayPlaintextEncoding ctxtd;
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+	BigBinaryInteger modulus("17729");
+	BigBinaryInteger rootOfUnity = lbcrypto::RootOfUnity(m,modulus);
+
+	cout << "big modulus: " << modulus << endl;
+	DiscreteGaussianGenerator dgg(modulus,stdDev);
+
+	ILParams params(m, modulus, rootOfUnity);
+
+	LPCryptoParametersLTV<ILVector2n> cryptoParams2;
+	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
+	cryptoParams2.SetDistributionParameter(stdDev);
+	cryptoParams2.SetRelinWindow(1);
+	cryptoParams2.SetElementParams(params);
+	cryptoParams2.SetDiscreteGaussianGenerator(dgg);
+
+	Ciphertext<ILVector2n> cipherText2;
+	cipherText2.SetCryptoParameters(cryptoParams2);
+
+	LPPublicKeyLTV<ILVector2n> pk2(cryptoParams2);
+	LPPrivateKeyLTV<ILVector2n> sk2(cryptoParams2);
+
+	std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm2(mask);
+
+	algorithm2.KeyGen(&pk2, &sk2);
+
+	/*sk2.GetPrivateElement().PrintValues();
+	pk2.GetPublicElement().PrintValues();*/
+
+	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
+	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+
+	ctxtd.Unpad<ZeroPad>();
+
+	cout << "Decrypted value ILVectorArray2n: \n" << endl;
+	cout << ctxtd<< "\n" << endl;
+
+	algorithm2.m_algorithmLeveledSHE->RingReduce(&cipherText2, &sk2);
+	
+	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+
+	cout << "Decrypted after MOD Reduce ILVectorArray2n: \n" << endl;
+	
+	cout << ctxtd<< "\n" << endl;
 
 }
