@@ -247,7 +247,7 @@ void MultTest(){
 
 	auto result = bbv*a;
 
-	std::cout<< result <<std::endl;
+	std::cout<< result << std::endl ;
 
 }
 
