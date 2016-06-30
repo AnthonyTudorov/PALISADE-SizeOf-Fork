@@ -37,6 +37,7 @@
 
 #include "inttypes.h"
 #include <vector>
+#include <initializer_list>
 #include <iostream>
 
 /**
