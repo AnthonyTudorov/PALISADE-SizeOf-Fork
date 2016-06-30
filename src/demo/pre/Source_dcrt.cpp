@@ -76,10 +76,11 @@ int main() {
 
 
 	//MultTest();
-	 //NTRU_DCRT();
+	 
+	NTRU_DCRT();
 	//LevelCircuitEvaluation();
 	//LevelCircuitEvaluation1();
-	LevelCircuitEvaluation2();
+//	LevelCircuitEvaluation2();
 
 	std::cin.get();
 	ChineseRemainderTransformFTT::GetInstance().Destroy();

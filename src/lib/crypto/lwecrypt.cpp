@@ -56,24 +56,11 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 
 	f = f + BigBinaryInteger::ONE;
 
-	f.PrintValues();
-
-	//added for saving the cryptoparams
-	/*	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLTV<Element>&>(cryptoParams);
-
-	float DistributionParameter = cryptoParamsLWE.GetDistributionParameter();
-	float AssuranceMeasure = cryptoParamsLWE.GetAssuranceMeasure();
-	float SecurityLevel = cryptoParamsLWE.GetSecurityLevel();
-	usint RelinWindow = cryptoParamsLWE.GetRelinWindow(); 
-	int Depth = cryptoParamsLWE.GetDepth();*/ 
-	//std::cout<<p<<DistributionParameter<<AssuranceMeasure<<SecurityLevel<<RelinWindow<<Depth<<std::endl;
-	//////
 	f.SwitchFormat();
 
 	//check if inverse does not exist
 	while (!f.InverseExists())
 	{
-		//std::cout << "inverse does not exist" << std::endl;
 		Element temp(dgg, elementParams, Format::COEFFICIENT);
 		f = temp;
 		f = p*f;
@@ -90,8 +77,6 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 
 	//public key is generated
 	privateKey->MakePublicKey(g,publicKey);
-
-	//publicKey->GetPublicElement().PrintValues();
 
 	return true;
 }
@@ -312,12 +297,6 @@ void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(Ciphertext<ILVectorArr
 
 	cipherText->SetElement(cipherTextElement);
 	
-	/*ILVectorArray2n pvElement = privateKey->GetPrivateElement();
-	
-	pvElement.DropTower(pvElement.GetTowerLength() - 1); // The only change needed for the private key, is to drop the last tower.
-
-	privateKey->SetPrivateElement(pvElement);*/ 
-
 }
 
 /**
@@ -395,9 +374,6 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 
 	plaintext.Encode(p,&m);
 
-	//m.PrintValues();
-	//m.EncodeElement(plaintext,p);
-
 	m.SwitchFormat();
 
 	const Element &h = publicKey.GetPublicElement();
@@ -407,8 +383,6 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	Element e(dgg,elementParams);
 
 	Element c(h*s + p*e + m);
-
-	//c = h*s + p*e + m;
 
 	ciphertext->SetCryptoParameters(&cryptoParams);
 	ciphertext->SetPublicKey(publicKey);
@@ -432,19 +406,12 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	
 	const Element &h = publicKey.GetPublicElement();
 
-	h.PrintValues();
-	
-	/*Element s(dgg,elementParams,Format::EVALUATION);
-
-	Element e(dgg,elementParams,Format::EVALUATION);*/
 	Element s(dgg, elementParams);
 	Element e(dgg, elementParams);
 
 	Element c(h*s + p*e + m);
 
-	c.PrintValues();
-
-	//c = h*s + p*e + m;
+//	c.PrintValues();
 	
 	ciphertext->SetCryptoParameters(&cryptoParams);
 	ciphertext->SetPublicKey(publicKey);
@@ -462,7 +429,6 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
-	//Element c(privateKey.GetPrivateElement());
 	Element c( ciphertext.GetElement() );
 
 	Element f = privateKey.GetPrivateElement(); //add const
@@ -471,19 +437,10 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 
 	b.SwitchFormat();
 
-	/*Element m(elementParams);
-	m = b.Mod(p);*/
-
-	//b = std::move(b.ModByTwo());
 	b = std::move(b.Mod(p));
 
 	b.PrintValues();
-	//	Element m(b.Mod(p));
 
-	//cout<<"m ="<<m.GetValues()<<endl;
-
-	//m.DecodeElement(static_cast<ByteArrayPlaintextEncoding*>(plaintext),p);
-	//	plaintext->Decode(p,m);
 	plaintext->Decode(p,b);
 
 	return DecodingResult(plaintext->GetLength());
