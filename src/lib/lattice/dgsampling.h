@@ -92,6 +92,19 @@ public:
 				DiscreteGaussianGenerator &dgg, Matrix<int32_t> *z);
 
 	/**
+	* Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm
+	*
+	* @param u syndrome (a polynomial)
+	* @param sttdev standard deviation
+	* @param k number of components in the gadget vector
+	* @param q integer modulus
+	* @param dgg discrete Gaussian generator
+	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
+	*/
+	static inline void GaussSampGqV2(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q,
+				DiscreteGaussianGenerator &dgg, Matrix<int32_t> *z, int32_t base);
+
+	/**
 	* Randomized rounding according to Section 4.3 of https://eprint.iacr.org/2013/297.pdf and 
 	* Section 4.1 of https://web.eecs.umich.edu/~cpeikert/pubs/pargauss.pdf
 	*
@@ -105,6 +118,12 @@ public:
 			(*perturbationVector)(i,0) = DiscreteGaussianGenerator::GenerateInteger(p(i,0), sigma, n);
 		}
 	}
+
+private:
+	
+	static inline void Perturb(double sigma, Matrix<int32_t> *p);
+
+	static inline void SampleC(Matrix<int32_t> a, const Matrix<int32_t> &c, double sigma, Matrix<int32_t> z);
 
 };
 

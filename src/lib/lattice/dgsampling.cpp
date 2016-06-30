@@ -162,5 +162,34 @@ namespace lbcrypto {
 
 	}
 
+	// Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm
+
+	void LatticeGaussSampUtility::GaussSampGqV2(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q,
+				DiscreteGaussianGenerator &dgg, Matrix<int32_t> *z, int32_t base)
+	{
+		const BigBinaryInteger& modulus = u.GetParams().GetModulus();
+		double sigma = stddev/(base + 1);
+
+		// main diagonal of matrix L
+		std::vector<double> l(k);
+		//upper diagonal of matrix L
+		std::vector<double> h(k-1);
+
+		//  set the values of matrix L
+		l[0] = sqrt(base*(1+1/k)+1);
+		for (size_t i = 1; i < k; i++)
+			l[i] = sqrt(base*(1+1/(k-i)));
+
+		for (size_t i = 0; i < k-1; i++)
+			h[i] = sqrt(base*(1-1/(k-i)));
+
+		for (size_t i = 0; i < u.GetLength(); i++) {
+
+
+
+		}
+
+	}
+
 
 }
