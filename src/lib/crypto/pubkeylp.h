@@ -371,7 +371,7 @@ namespace lbcrypto {
 			 * @param &cipherText Ciphertext to perform mod reduce on.
 			 * @param &privateKey Private key used to encrypt the first argument.
 			 */
-			virtual void ModReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const = 0; 
+			virtual void ModReduce(Ciphertext<Element> *cipherText) const = 0; 
 
 				/**
 			 * Method for RingReduce

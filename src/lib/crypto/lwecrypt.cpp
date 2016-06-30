@@ -56,6 +56,8 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 
 	f = f + BigBinaryInteger::ONE;
 
+	f.PrintValues();
+
 	//added for saving the cryptoparams
 	/*	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLTV<Element>&>(cryptoParams);
 
@@ -82,7 +84,9 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	privateKey->SetPrivateElement(f);
 	privateKey->AccessCryptoParameters() = cryptoParams;
 
-	Element g(dgg,elementParams);
+	Element g(dgg,elementParams,Format::COEFFICIENT);
+
+	g.SwitchFormat();
 
 	//public key is generated
 	privateKey->MakePublicKey(g,publicKey);
@@ -260,7 +264,7 @@ void LPLeveledSHEAlgorithmLTV<Element>::QuadraticKeySwitchHintGen(const LPPrivat
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
 	Element e(cryptoParams.GetDiscreteGaussianGenerator() , originalKeyParams, Format::COEFFICIENT );
-	
+
 	e.SwitchFormat();
 
 	Element m(p*e);
@@ -285,7 +289,7 @@ void LPLeveledSHEAlgorithmLTV<Element>::QuadraticKeySwitchHintGen(const LPPrivat
 * @param &privateKey Private key used to encrypt the first argument.
 */
 template<class Element>
-void LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const {
+void LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Element> *cipherText) const {
 	
 }
 
@@ -298,7 +302,7 @@ void LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Element> *cipherTex
 * ModReduce is written for ILVectorArray2n and it drops the last tower while updating the necessary parameters. 
 */
 template<> inline
-void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(Ciphertext<ILVectorArray2n> *cipherText, LPPrivateKey<ILVectorArray2n> *privateKey) const {
+void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(Ciphertext<ILVectorArray2n> *cipherText) const {
 
 	ILVectorArray2n cipherTextElement(cipherText->GetElement()); 
 
@@ -430,9 +434,11 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 
 	h.PrintValues();
 	
-	Element s(dgg,elementParams,Format::EVALUATION);
+	/*Element s(dgg,elementParams,Format::EVALUATION);
 
-	Element e(dgg,elementParams,Format::EVALUATION);
+	Element e(dgg,elementParams,Format::EVALUATION);*/
+	Element s(dgg, elementParams);
+	Element e(dgg, elementParams);
 
 	Element c(h*s + p*e + m);
 

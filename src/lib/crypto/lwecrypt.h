@@ -912,7 +912,7 @@ namespace lbcrypto {
 			 * @param *cipherText Ciphertext to perform and apply modreduce on.
 			 * @param *privateKey Private key to peform and apply modreduce on.
 			 */
-			virtual void ModReduce(Ciphertext<Element> *cipherText, LPPrivateKey<Element> *privateKey) const; 
+			virtual void ModReduce(Ciphertext<Element> *cipherText) const; 
 			/**
 			 * Method for RingReducing CipherText and the Private Key used for encryption.
 			 *

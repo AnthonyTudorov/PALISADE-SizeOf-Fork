@@ -251,9 +251,9 @@ namespace lbcrypto {
 
 	// multiplication operation - PREV1
 	ILVector2n ILVector2n::Times(const BigBinaryInteger &element) const {
-		std::cout<< "element: "<<element<< std::endl;
+		//std::cout<< "element: "<<element<< std::endl;
 		ILVector2n tmp(*this);
-		tmp.PrintValues();
+		//tmp.PrintValues();
 		*tmp.m_values = m_values->ModMul(element);
 		return tmp;
 	}

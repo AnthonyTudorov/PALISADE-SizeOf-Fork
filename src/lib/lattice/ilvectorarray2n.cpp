@@ -486,8 +486,6 @@ namespace lbcrypto {
 			throw std::logic_error("Mod Reduce function expects EVAL Formatted ILVectorArray2n. It was passed COEFF Formatted ILVectorArray2n.");
 		}
 		this->SwitchFormat();
-
-		this->PrintValues();
 		
 		usint lastTowerIndex = m_numberOfTowers - 1;
 
@@ -496,21 +494,20 @@ namespace lbcrypto {
 
 		//precomputations
 		BigBinaryInteger qt(m_vectors[lastTowerIndex].GetModulus());
-		std::cout<<"qt:	"<<qt<<std::endl;
+		//std::cout<<"qt:	"<<qt<<std::endl;
 		BigBinaryInteger v(qt.ModInverse(plaintextModulus));
-		std::cout<<"v:	"<<v<<std::endl;
+		//std::cout<<"v:	"<<v<<std::endl;
 		BigBinaryInteger a((v * qt).ModSub(BigBinaryInteger::ONE, plaintextModulus*qt));
-		std::cout<<"a:	"<<a<<std::endl;
+		//std::cout<<"a:	"<<a<<std::endl;
 
 		//Since only positive values are being used for Discrete gaussian generator, a call to switch modulus needs to be done
 		d.SwitchModulus(plaintextModulus*qt, d.GetRootOfUnity()); // NOT CHANGING ROOT OF UNITY-TODO: What to do with SwitchModulus and is it necessary to pass rootOfUnity		
-		d.PrintValues();
+		//d.PrintValues();
 
 		//Calculating delta, step 2
 		ILVector2n delta(d.Times(a)); 
-		delta.PrintValues();
+		//delta.PrintValues();
 
-		this->PrintValues();
 		//Calculating d' = c + delta mod q (step 3)
 		for(usint i=0; i<m_numberOfTowers; i++) {
 			ILVector2n temp(delta);
@@ -518,16 +515,15 @@ namespace lbcrypto {
 			m_vectors[i] += temp;
 		}
 
-		this->PrintValues();
-
 		//step 4
-		this->DropTower(lastTowerIndex);
-		std::vector<BigBinaryInteger> qtInverseModQi(m_numberOfTowers-1);
-		for(usint i=0; i<m_numberOfTowers-1; i++) {
-			qtInverseModQi[i] =  qt > m_vectors[i].GetModulus() ? qt.Mod(m_vectors[i].GetModulus()).ModInverse(m_vectors[i].GetModulus()) : qt.ModInverse(m_vectors[i].GetModulus());
+		DropTower(lastTowerIndex);
+		std::vector<BigBinaryInteger> qtInverseModQi(m_numberOfTowers);
+		for(usint i=0; i<m_numberOfTowers; i++) {
+			qtInverseModQi[i] = qt.ModInverse(m_vectors[i].GetModulus());
 			m_vectors[i] = qtInverseModQi[i] * m_vectors[i];
 		}
-		this->SwitchFormat();
+		
+		SwitchFormat();
 	}
 
 	/*This method applies the Chinese Remainder Interpolation on an ILVectoArray2n and produces an ILVector2n. The ILVector2n is the ILVectorArray2n's represantation

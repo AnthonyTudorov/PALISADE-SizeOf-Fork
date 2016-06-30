@@ -75,11 +75,11 @@ struct SecureParams {
 int main() {
 
 
-	MultTest();
+	//MultTest();
 	 //NTRU_DCRT();
 	//LevelCircuitEvaluation();
-	LevelCircuitEvaluation1();
-	//LevelCircuitEvaluation2();
+	//LevelCircuitEvaluation1();
+	LevelCircuitEvaluation2();
 
 	std::cin.get();
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
@@ -683,7 +683,7 @@ void LevelCircuitEvaluation1(){
 	pvElement1.DropTower(pvElement1.GetTowerLength() - 1);
 	sk1.SetPrivateElement(pvElement1);
 
-	algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText3, &sk1);
+	algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText3);
 
 	///////////////////----------- End LEVEL 1 Computation ---------------------/////////////////
 
@@ -713,9 +713,9 @@ void LevelCircuitEvaluation2(){
 	BigBinaryInteger modulus("1");
 	moduli[0] = BigBinaryInteger("2199023288321");
 	q = moduli[0];
-	lbcrypto::NextQ(moduli[1], plainTextModulus, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+	lbcrypto::NextQ(q, plainTextModulus, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 	moduli[1] = q;
-	lbcrypto::NextQ(moduli[1], plainTextModulus, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+	lbcrypto::NextQ(q, plainTextModulus, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 	moduli[2] = q;
 	
 	for(int i=0; i < size; i++){
@@ -832,11 +832,11 @@ void LevelCircuitEvaluation2(){
 	cipherText6 = algorithm.m_algorithmLeveledSHE->KeySwitch(quadraticKeySwitchHint1, cipherText6);
 	// cipherText6.GetElement().PrintValues();
 	cout << "STEP 1" << endl;
-	algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText4, &sk);
+	algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText4);
 	cout << "STEP 2" << endl;
-	algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText5, &sk);
+	algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText5);
 	cout << "STEP 3" << endl;
-	algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText6, &sk);
+	algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText6);
 
 	cout << "Level1 Finished" << endl;
 	///////////////////----------- End LEVEL 1 Computation ---------------------/////////////////
@@ -849,8 +849,8 @@ void LevelCircuitEvaluation2(){
 	Ciphertext<ILVectorArray2n> cipherText8(cipherText6);
 	cipherText8 = algorithm.m_algorithmLeveledSHE->KeySwitch(linearKeySwitchHint2, cipherText8);
 
-	algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText7, &sk1);
-	algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText8, &sk1);
+	algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText7);
+	algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText8);
 
 	cout << "Level2 Finished" << endl;
 	///////////////////----------- End LEVEL 2 Computation ---------------------/////////////////
