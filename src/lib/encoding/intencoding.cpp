@@ -25,9 +25,60 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "ptxtencoding.h"
+#include "intencoding.h"
 #include <string>
 
 namespace lbcrypto {
 
+	//Impementation of ToInt32
+	std::vector<uint32_t> IntArrayPlaintextEncoding::ToInt32() const {
+		std::vector<uint32_t> vectorOfInt32(m_data.size());
+		for(std::vector<int>::size_type i = 0; i != vectorOfInt32.size(); i++) {
+			vectorOfInt32[i] = m_data[i];
+		}
+		return vectorOfInt32;
+	}
+
+	void IntArrayPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVectorArray2n) const{
+		throw std::logic_error("Operation not implemented");
+	}
+
+	
+	void IntArrayPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n &ilVectorArray2n){
+		throw std::logic_error("Operation not implemented");
+	}
+
+
+	void IntArrayPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector) const {
+
+		BigBinaryVector temp(ilVector->GetParams().GetCyclotomicOrder()/2,ilVector->GetModulus());
+
+		Format format = COEFFICIENT;
+
+		for (usint i = 0; i<m_data.size(); i++) {
+			temp.SetValAtIndex(i, BigBinaryInteger(m_data[i]));
+		}
+
+		ilVector->SetValues(temp,format);
+	}
+
+	void IntArrayPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector) {
+
+		ilVector = ilVector.Mod(modulus);
+		std::vector<uint32_t> intArray(ilVector.GetValues().GetLength());
+		for (usint i = 0; i<ilVector.GetValues().GetLength(); i++) {
+			intArray[i] = ilVector.GetValues().GetValAtIndex(i).ConvertToInt();
+		}
+
+		this->m_data = intArray;
+
+	}
+
+	
+    std::ostream &operator<<(std::ostream &out, const IntArrayPlaintextEncoding &ptxt)
+    {
+        const std::vector<uint32_t> &intArray = ptxt.GetData();
+        out << intArray;
+        return out ;
+    }
 }  // namespace lbcrypto ends

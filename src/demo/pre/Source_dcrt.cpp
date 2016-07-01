@@ -47,6 +47,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <chrono>
 #include "../../lib/utils/debug.h"
+#include "../../lib/encoding/byteencoding.h"
 
 using namespace std;
 using namespace lbcrypto;

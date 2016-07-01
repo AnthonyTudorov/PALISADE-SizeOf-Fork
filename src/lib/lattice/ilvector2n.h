@@ -47,7 +47,6 @@ using std::function;
 #include "../lattice/ilelement.h"
 #include "../math/nbtheory.h"
 #include "../math/transfrm.h"
-//#include "../encoding/ptxtencoding.h"
 
 /**
 * @namespace lbcrypto
