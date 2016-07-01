@@ -463,6 +463,8 @@ namespace exp_int32{
      */
     bint Mul(const bint& b) const;
 
+    int divmnu_vect(vector<limb_t>& q, vector<limb_t>& r, const vector<limb_t>& u, const vector<limb_t>& v);
+
     /**
      * Division operation.
      *
@@ -905,6 +907,7 @@ namespace exp_int32{
      * @param x is the number.
      * @return the MSB position in the number x. Note MSB(1) is 1 NOT zero!!!!!
      */
+
   //  private:
   public:  //todo: changed only for debug
     //Dlimb_t is the data type that has twice as many bits in the limb data type.

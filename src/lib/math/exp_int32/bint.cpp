@@ -855,6 +855,139 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 	  return ans;
   }
 
+/* q[0], r[0], u[0], and v[0] contain the LEAST significant words.
+(The sequence is in little-endian order).
+
+This is a fairly precise implementation of Knuth's Algorithm D, for a
+binary computer with base b = 2**32. The caller supplies:
+   1. Space q for the quotient, m - n + 1 words (at least one).
+   2. Space r for the remainder (optional), n words.
+   3. The dividend u, m words, m >= 1.
+   4. The divisor v, n words, n >= 2.
+The most significant digit of the divisor, v[n-1], must be nonzero.  The
+dividend u may have leading zeros; this just makes the algorithm take
+longer and makes the quotient contain more leading zeros.  A value of
+NULL may be given for the address of the remainder to signify that the
+caller does not want the remainder.
+   The program does not alter the input parameters u and v.
+   The quotient and remainder returned may have leading zeros.  The
+function itself returns a value of 0 for success and 1 for invalid
+parameters (e.g., division by 0).
+   For now, we must have m >= n.  Knuth's Algorithm D also requires
+that the dividend be at least as long as the divisor.  (In his terms,
+m >= 0 (unstated).  Therefore m+n >= n.) */
+int nlz(usint x) {
+   int n;
+
+   if (x == 0) return(32);
+   n = 0;
+   if (x <= 0x0000FFFF) {n = n +16; x = x <<16;}
+   if (x <= 0x00FFFFFF) {n = n + 8; x = x << 8;}
+   if (x <= 0x0FFFFFFF) {n = n + 4; x = x << 4;}
+   if (x <= 0x3FFFFFFF) {n = n + 2; x = x << 2;}
+   if (x <= 0x7FFFFFFF) {n = n + 1;}
+   return n;
+}
+
+//#define max(x, y) ((x) > (y) ? (x) : (y))
+
+template<typename limb_t,usint BITLENGTH>
+int bint<limb_t,BITLENGTH>::divmnu_vect(vector <limb_t>& q, vector <limb_t>& r, const vector<limb_t>& u, const vector <limb_t>& v) {
+
+
+
+  int m = u.size();
+  int n = v.size();
+
+  q.resize(m-n+1);
+  r.resize(n);
+
+   const uint64_t b = 4294967296LL; // Number base (2**32).
+   //const uint64_t b = ((uint64_t) m_MaxLimb) +1LL; // Number base (2**32).
+//   limb_t *un, *vn;                  // Normalized form of u, v.
+   uint64_t qhat;                   // Estimated quotient digit.
+   uint64_t rhat;                   // A remainder.
+   uint64_t p;                      // Product of two digits.
+   int64_t t, k;
+   int s, i, j;
+
+   if (m < n || n <= 0 || v[n-1] == 0)
+      return 1;                         // Return if invalid param.
+
+   if (n == 1) {                        // Take care of
+      k = 0;                            // the case of a
+      for (j = m - 1; j >= 0; j--) {    // single-digit
+         q[j] = (k*b + u[j])/v[0];      // divisor here.
+         k = (k*b + u[j]) - q[j]*v[0];
+      }
+      if (r.size() != 0) r[0]=k;
+      return 0;
+   }
+
+   /* Normalize by shifting v left just enough so that its high-order
+   bit is on, and shift u left the same amount. We may have to append a
+   high-order digit on the dividend; we do that unconditionally. */
+
+   s = nlz(v[n-1]);             // 0 <= s <= 31.
+  // vn = (limb_t *)alloca(4*n);
+   vector<limb_t> vn(n);
+   for (i = n - 1; i > 0; i--)
+      vn[i] = (v[i] << s) | ((uint64_t)v[i-1] >> (32-s));
+   vn[0] = v[0] << s;
+
+   //un = (limb_t *)alloca(4*(m + 1));
+   vector<limb_t> un(m+1);
+
+   un[m] = (uint64_t)u[m-1] >> (32-s);
+   for (i = m - 1; i > 0; i--)
+      un[i] = (u[i] << s) | ((uint64_t)u[i-1] >> (32-s));
+   un[0] = u[0] << s;
+
+   for (j = m - n; j >= 0; j--) {       // Main loop.
+      // Compute estimate qhat of q[j].
+      qhat = (un[j+n]*b + un[j+n-1])/vn[n-1];
+      rhat = (un[j+n]*b + un[j+n-1]) - qhat*vn[n-1];
+again:
+      if (qhat >= b || qhat*vn[n-2] > b*rhat + un[j+n-2])
+      { qhat = qhat - 1;
+        rhat = rhat + vn[n-1];
+        if (rhat < b) goto again;
+      }
+
+      // Multiply and subtract.
+      k = 0;
+      for (i = 0; i < n; i++) {
+         p = qhat*vn[i];
+         t = un[i+j] - k - (p & 0xFFFFFFFFLL);
+         un[i+j] = t;
+         k = (p >> 32) - (t >> 32);
+      }
+      t = un[j+n] - k;
+      un[j+n] = t;
+
+      q[j] = qhat;              // Store quotient digit.
+      if (t < 0) {              // If we subtracted too
+         q[j] = q[j] - 1;       // much, add back.
+         k = 0;
+         for (i = 0; i < n; i++) {
+            t = (uint64_t)un[i+j] + vn[i] + k;
+            un[i+j] = t;
+            k = t >> 32;
+         }
+         un[j+n] = un[j+n] + k;
+      }
+   } // End j.
+   // If the caller wants the remainder, unnormalize
+   // it and pass it back.
+   if (r.size() != 0) {
+     r.resize(n);
+     for (i = 0; i < n-1; i++)
+       r[i] = (un[i] >> s) | ((uint64_t)un[i+1] << (32-s));
+     r[n-1] = un[n-1] >> s;
+   }
+   return 0;
+}
+
   /* Division operation:
    *  Algorithm used is usual school book long division , except for that radix is 2^m_bitLength.
    *  Optimization done: Uses bit shift operation for logarithmic convergence.
@@ -862,54 +995,73 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::DividedBy(const bint& b) const{
     //check for garbage initialization and 0 condition
-    if(b.m_state==GARBAGE || b==ZERO)
-      throw std::logic_error("DIVISION BY ZERO");
+    if(b.m_state==GARBAGE)
+      throw std::logic_error("DividedBy() Divisor uninitialised");
 
-    if(b.m_MSB>this->m_MSB || this->m_state==GARBAGE)
-      return std::move(bint(ZERO));
+    if(b==ZERO)
+        throw std::logic_error("DividedBy() Divisor is zero");
+
+    if(b.m_MSB>this->m_MSB)
+      throw std::logic_error("DividedBy() Divisor cannot be larger than dividend");
+
+    if(this->m_state==GARBAGE)
+      throw std::logic_error("DividedBy() Dividend uninitialised");
+
     else if(b==*this)
       return std::move(bint(ONE));
 
-
     bint ans;
-#if 1
-do this.
+    bint rv;
 
+    //bint uv(*this); //todo get rid of these copies
+
+
+    int f = bint::divmnu_vect((ans.m_value), (rv.m_value),  (this->m_value),  (b.m_value));
+    if (f!= 0)
+      throw std::logic_error("DividedBy() error");
+
+    ans.SetMSB();
+    ans.m_state = INITIALIZED;
+
+
+#if 0
     //normalised_dividend = result*quotient
     bint normalised_dividend( this->Sub( this->Mod(b) ) );
 
     //Number of array elements in Divisor
-    limb_t nLimbInDivisor = ceilIntByUInt(b.m_MSB);
+    limb_t ncharInDivisor = ceilIntByUInt(b.m_MSB);
 
-    //Get the uint integer that is in the MSB position of the Divisor
-    limb_t msbLimbInDivisor = b.m_value[(usint)( m_nSize-nLimbInDivisor)];
+    //Get the limb that is in the MSB position of the Divisor
+    limb_t msbCharInDivisor = b.m_value[(usint)( m_nSize-ncharInDivisor)];
 
     //Number of array elements in Normalised_dividend
-    limb_t nLimbInNormalisedDividend = ceilIntByUInt(normalised_dividend.m_MSB);
+    limb_t ncharInNormalised_dividend = ceilIntByUInt(normalised_dividend.m_MSB);
 
     ////Get the uint integer that is in the MSB position of the normalised_dividend
-    limb_t msbCharInRunning_Normalised_dividend = normalised_dividend.m_value[(usint)( m_nSize-nLimbInNormalisedDividend)];
+    limb_t msbCharInRunning_Normalised_dividend = normalised_dividend.m_value[(usint)( m_nSize-ncharInNormalised_dividend)];
 
     //variable to store the running dividend
     bint running_dividend;
+
     //variable to store the running remainder
     bint runningRemainder;
-    bint expectedProd;
-    bint estimateFinder;
+
+    bint expectedProd;  //?
+    bint estimateFinder; //?
 
     //Initialize the running dividend
-    for(usint i=0;i<nLimbInDivisor;i++){
-      running_dividend.m_value[ m_nSize-nLimbInDivisor+i] = normalised_dividend.m_value[ m_nSize-nLimbInNormalisedDividend+i];
+    for(usint i=0;i<ncharInDivisor;i++){
+      running_dividend.m_value[ m_nSize-ncharInDivisor+i] = normalised_dividend.m_value[ m_nSize-ncharInNormalised_dividend+i]; 
     }
-    running_dividend.m_MSB = GetMSBlimb_t(running_dividend.m_value[m_nSize-nLimbInDivisor]) + (nLimbInDivisor-1)*m_limbBitLength;
+    running_dividend.m_MSB = GetMSBlimb_t(running_dividend.m_value[m_nSize-ncharInDivisor]) + (ncharInDivisor-1)*m_limbBitLength;
     running_dividend.m_state = INITIALIZED;
 
     limb_t estimate=0;
     limb_t maskBit = 0;
     limb_t shifts =0;
-    usint ansCtr = m_nSize - nLimbInNormalisedDividend+nLimbInDivisor-1;
+    usint ansCtr = m_nSize - ncharInNormalised_dividend+ncharInDivisor-1;
     //Long Division Computation to determine quotient
-    for(usint i=nLimbInNormalisedDividend-nLimbInDivisor;i>=0;){
+    for(usint i=ncharInNormalised_dividend-ncharInDivisor;i>=0;){
       //Get the remainder from the Modulus operation
       runningRemainder = running_dividend.Mod(b);
       //Compute the expected product from the running dividend and remainder
@@ -922,11 +1074,11 @@ do this.
       if(expectedProd>b){	
         while(estimateFinder.m_MSB > 0){
           /*
-	    if(expectedProd.m_MSB-b.m_MSB==m_uintBitLength){
-	    maskBit= 1<<(m_uintBitLength-1);
-	    }
-	    else
-	    maskBit= 1<<(expectedProd.m_MSB-b.m_MSB);
+	          if(expectedProd.m_MSB-b.m_MSB==m_uintBitLength){
+	            maskBit= 1<<(m_uintBitLength-1);
+	          } else {
+	            maskBit= 1<<(expectedProd.m_MSB-b.m_MSB);
+	          }
            */
           shifts = estimateFinder.m_MSB-b.m_MSB;
           if(shifts==m_limbBitLength){
@@ -969,7 +1121,7 @@ do this.
         running_dividend.m_MSB = GetMSBlimb_t(normalised_dividend.m_value[m_nSize - i]);
       i--;
     }
-    ansCtr = m_nSize - nLimbInNormalisedDividend+nLimbInDivisor-1;
+    ansCtr = m_nSize - ncharInNormalised_dividend+ncharInDivisor-1;
     //Loop to the MSB position
     while(ans.m_value[ansCtr]==0){
       ansCtr++;
@@ -977,10 +1129,10 @@ do this.
     //Computation of MSB value 
     ans.m_MSB = GetMSBlimb_t(ans.m_value[ansCtr]) + (m_nSize-1-ansCtr)*m_limbBitLength;
     ans.m_state = INITIALIZED;
-#else
-    ans = 0;
-    std::cout <<"DividedBy function not built yet"<<std::endl;
 #endif
+
+
+
     return ans;
 
   }
