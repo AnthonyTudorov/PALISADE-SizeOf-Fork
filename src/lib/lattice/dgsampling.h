@@ -101,8 +101,8 @@ public:
 	* @param dgg discrete Gaussian generator
 	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
 	*/
-	static inline void GaussSampGqV2(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q,
-				DiscreteGaussianGenerator &dgg, Matrix<int32_t> *z, int32_t base);
+	static inline void GaussSampGqV2(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q, int32_t base, 
+				DiscreteGaussianGenerator &dgg, Matrix<int32_t> *z);
 
 	/**
 	* Randomized rounding according to Section 4.3 of https://eprint.iacr.org/2013/297.pdf and 
@@ -121,9 +121,11 @@ public:
 
 private:
 	
-	static inline void Perturb(double sigma, Matrix<int32_t> *p);
+	static inline void Perturb(double sigma,  size_t k, size_t n, 
+		const vector<double> &l, const vector<double> &h, int32_t base, DiscreteGaussianGenerator &dgg, vector<int32_t> *p);
 
-	static inline void SampleC(Matrix<int32_t> a, const Matrix<int32_t> &c, double sigma, Matrix<int32_t> z);
+	static inline void SampleC(const Matrix<double> &c, size_t k, size_t n, 
+		double sigma, DiscreteGaussianGenerator &dgg, Matrix<double> *a, vector<int32_t> *z);
 
 };
 

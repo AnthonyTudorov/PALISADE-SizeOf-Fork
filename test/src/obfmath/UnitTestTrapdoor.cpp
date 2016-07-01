@@ -215,6 +215,44 @@ TEST(UTTrapdoor,TrapDoorMultTest){
     EXPECT_EQ(g, trapMult);
 }
 
+TEST(UTTrapdoor,TrapDoorGaussGqV2SampTest) {
+	usint m = 16;
+    usint n = m/2;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	ILParams params( m, modulus, rootOfUnity);
+    auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+	float sigma = 4;
+
+	DiscreteGaussianGenerator dgg(sigma);
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
+
+	ILVector2n u(dug,params,COEFFICIENT);
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = log(val-1.0)/log(2)+1.0;
+	usint k = (usint) floor(logTwo);
+
+	Matrix<int32_t> zHatBBI([](){ return make_unique<int32_t>(); },  k, m/2);
+
+	LatticeGaussSampUtility::GaussSampGqV2(u,sigma,k,modulus, 2,dgg,&zHatBBI);
+	//GaussSampG(u,sigma,k,dgg,&zHatBBI);
+
+	EXPECT_EQ(k,zHatBBI.GetRows())
+		<< "Failure testing number of rows";
+	EXPECT_EQ(u.GetLength(),zHatBBI.GetCols())
+		<< "Failure testing number of colums";
+    Matrix<ILVector2n> z = SplitInt32AltIntoILVector2nElements(zHatBBI, n, params);
+	z.SwitchFormat();
+	ILVector2n uEst(params,COEFFICIENT);
+	uEst = (Matrix<ILVector2n>(zero_alloc, 1,  k).GadgetVector()*z)(0,0);
+	uEst.SwitchFormat();
+
+    EXPECT_EQ(u, uEst);
+
+}
+
+
 TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	usint m = 16;
     usint n = m/2;
@@ -251,6 +289,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
     EXPECT_EQ(u, uEst);
 
 }
+
 
 TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 
