@@ -43,6 +43,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/lattice/ilvector2n.h"
 #include "../../lib/lattice/ilvectorarray2n.h"
 #include "../../lib/crypto/cryptocontext.h"
+
+#include "../../lib/encoding/cryptoutility.h"
 #include "time.h"
 
 #include <chrono>
@@ -159,14 +161,17 @@ void NTRU_DCRT() {
 	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams2);
 
 	//std::bitset<FEATURESETSIZE> mask (std::string("000011"));
-	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2;
+	size_t chunksize = ((m / 2) / 8);
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2(chunksize);
 	algorithm2.Enable(ENCRYPTION);
 
 	//LPAlgorithmLTV<ILVectorArray2n> algorithm2;
 
 	algorithm2.KeyGen(&pk2, &sk2);
 
-	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
+	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm2, pk2, ptxt, &cipherText2);
+
+	//algorithm2.Encrypt(pk2, element, &cipherText2);
 
 	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
 

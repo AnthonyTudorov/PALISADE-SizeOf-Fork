@@ -307,7 +307,7 @@ namespace lbcrypto {
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
 			virtual EncryptResult Encrypt(const LPPublicKey<Element> &publicKey,
-				const PlaintextEncodingInterface &plaintext,
+				const Element &plaintext,
 				Ciphertext<Element> *ciphertext) const = 0;
 			
 			/**
@@ -515,6 +515,7 @@ namespace lbcrypto {
 	 */
 	template <class Element>
 	class LPPublicKeyEncryptionScheme : public LPEncryptionAlgorithm<Element>, public LPPREAlgorithm<Element> {
+
 	public:
 		LPPublicKeyEncryptionScheme(size_t chunksize) : chunksize(chunksize), m_algorithmEncryption(0),
 			m_algorithmPRE(0), m_algorithmEvalAdd(0), m_algorithmEvalAutomorphism(0),
@@ -589,12 +590,9 @@ namespace lbcrypto {
 
 		//wrapper for Encrypt method
 		EncryptResult Encrypt(const LPPublicKey<Element> &publicKey,
-			const PlaintextEncodingInterface &plaintext, Ciphertext<Element> *ciphertext) const {
+			const Element &plaintext, Ciphertext<Element> *ciphertext) const {
 				if(this->IsEnabled(ENCRYPTION)) {
-					Element pt(publicKey.GetCryptoParameters().GetElementParams());
-					plaintext.Encode(publicKey.GetCryptoParameters().GetPlaintextModulus(), &pt);
-					pt.SwitchFormat();
-					return this->m_algorithmEncryption->Encrypt(publicKey,pt,ciphertext);
+					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext,ciphertext);
 				}
 				else {
 					throw std::logic_error("This operation is not supported");
@@ -641,6 +639,8 @@ namespace lbcrypto {
 		}
 
 		const size_t getChunkSize() const { return chunksize; }
+
+		const LPEncryptionAlgorithm<Element>& getAlgorithm() const { return *m_algorithmEncryption; }
 
 	protected:
 		const size_t		chunksize;

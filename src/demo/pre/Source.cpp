@@ -280,10 +280,9 @@ void NTRUPRE(int input) {
 
 	//LPAlgorithmLTV<ILVector2n> algorithm;
 
-	//std::bitset<FEATURESETSIZE> mask (std::string("000011"));
-	//LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
 
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
+	size_t chunksize = ((m / 2) / 8);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
 
