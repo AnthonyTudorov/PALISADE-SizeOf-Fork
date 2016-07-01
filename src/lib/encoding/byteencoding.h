@@ -91,19 +91,6 @@ namespace lbcrypto {
 		bool operator==(const ByteArrayPlaintextEncoding& that) const;
 		bool operator!=(const ByteArrayPlaintextEncoding& that) const { return !( (*this) == that ); }
 
-		/*
-		* Implementation of the method of PlaintextEncodingInterface.
-		*
-		* @param  *ambPtxt encoded plaintext - output argument.
-		*/
-		//long Encode(AmbientPlaintext *ambPtxt) const { return 0; };
-		/*
-		* Implementation of the method of PlaintextEncodingInterface.
-		*
-		* @param &ambPtxt encoded plaintext.
-		*/
-		//long Decode(const AmbientPlaintext &ambPtxt) { return 0; };
-
 		/** Method for the operation of converting from current plaintext encoding to ILVector2n.
 		*
 		* @param  modulus - used for encoding.
@@ -155,33 +142,33 @@ namespace lbcrypto {
 		 */
 		std::vector<uint32_t> ToInt32() const;
 
-	/**
-	 * @brief Abstract Interface Class to capture Padding operation
-	 * @tparam Padding the passing used.
-	 */
-        template <typename Padding>
-        void Pad(const usint blockSize) {
-            static_assert(std::is_base_of<PaddingScheme, Padding>::value,
-                "Padding must derive from PaddingScheme");
-            Padding::Pad(blockSize, &m_data);
-        }
+		/**
+		 * @brief Abstract Interface Class to capture Padding operation
+		 * @tparam Padding the passing used.
+		 */
+		template <typename Padding>
+		void Pad(const usint blockSize) {
+		    static_assert(std::is_base_of<PaddingScheme, Padding>::value,
+			"Padding must derive from PaddingScheme");
+		    Padding::Pad(blockSize, &m_data);
+		}
 
-	/**
-	 * @brief Abstract Interface Class to capture Unpadding operation
-	 * @tparam Padding the passing used.
-	 */
-        template <typename Padding>
-        void Unpad() {
-            static_assert(std::is_base_of<PaddingScheme, Padding>::value,
-                "Padding must derive from PaddingScheme");
-            Padding::Unpad(&m_data);
-        }
+		/**
+		 * @brief Abstract Interface Class to capture Unpadding operation
+		 * @tparam Padding the passing used.
+		 */
+		template <typename Padding>
+		void Unpad() {
+		    static_assert(std::is_base_of<PaddingScheme, Padding>::value,
+			"Padding must derive from PaddingScheme");
+		    Padding::Unpad(&m_data);
+		}
 
 	private:
 		ByteArray m_data;
 	};
 
-    std::ostream &operator<<(std::ostream &out, const ByteArrayPlaintextEncoding &ptxt);
+	std::ostream &operator<<(std::ostream &out, const ByteArrayPlaintextEncoding &ptxt);
 
 
 } // namespace lbcrypto ends
