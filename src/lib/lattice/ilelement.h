@@ -37,7 +37,6 @@
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
-//#include "../encoding/ptxtencoding.h"
 
 /**
 * @namespace lbcrypto
