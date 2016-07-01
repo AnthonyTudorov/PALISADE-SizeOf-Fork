@@ -11,6 +11,7 @@
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
+#include "../../lib/encoding/byteencoding.h"
 #include "../../lib/utils/debug.h"
 
 #include <chrono>

@@ -62,6 +62,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //#include "vld.h"
 #include <chrono>
 #include <vector>
+#include "../../lib/encoding/byteencoding.h"
 
 
 using namespace std;

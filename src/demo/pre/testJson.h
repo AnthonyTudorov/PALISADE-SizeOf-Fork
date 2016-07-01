@@ -23,6 +23,7 @@
 #include "../../lib/lattice/ilvector2n.h"
 #include "../../lib/lattice/ilvectorarray2n.h"
 
+#include "../../lib/encoding/byteencoding.h"
 #include "../../lib/utils/debug.h"
 
 using namespace std;

@@ -14,6 +14,7 @@
 void runOneRound(CryptoContext<ILVector2n> *ctx);
 
 #include "../../lib/utils/serializablehelper.h"
+#include "../../lib/encoding/byteencoding.h"
 
 using namespace std;
 using namespace lbcrypto;

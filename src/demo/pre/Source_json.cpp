@@ -45,6 +45,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
 #include "../../lib/utils/debug.h"
+#include "../../lib/encoding/byteencoding.h"
 
 void NTRUPRE(CryptoContext<ILVector2n> *ctx, bool);
 
