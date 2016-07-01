@@ -334,6 +334,10 @@ namespace lbcrypto {
 			virtual bool KeyGen(LPPublicKey<Element> *publicKey, 
 				LPPrivateKey<Element> *privateKey) const = 0;
 
+			virtual bool SparseKeyGen(LPPublicKey<Element> &publicKey, 
+		        	LPPrivateKey<Element> &privateKey, 
+			        const DiscreteGaussianGenerator &dgg) const = 0;
+
 	};
 
 

@@ -61,6 +61,7 @@ void LevelCircuitEvaluation1();
 void LevelCircuitEvaluation2();
 void MultTest();
 void RingReduceTest();
+void RingReduceDCRTTest();
 
 /**
  * @brief Input parameters for PRE example.
@@ -77,7 +78,8 @@ int main() {
 
 
 	//MultTest();
-	 
+	RingReduceDCRTTest();
+
 	NTRU_DCRT();
 	//LevelCircuitEvaluation();
 	//LevelCircuitEvaluation1();
@@ -892,6 +894,8 @@ void RingReduceDCRTTest(){
 
 	vector<BigBinaryInteger> rootsOfUnity(size);
 
+	vector<BigBinaryInteger> sparseRootsOfUnity(size);
+
 	BigBinaryInteger q("1");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
@@ -901,48 +905,64 @@ void RingReduceDCRTTest(){
 		moduli[i] = q;
 		cout << moduli[i] << endl;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+		sparseRootsOfUnity[i] = RootOfUnity(m/2,moduli[i]);
 		cout << rootsOfUnity[i] << endl;
-		modulus = modulus* moduli[i];
-	
+		cout << sparseRootsOfUnity[i] << endl;
+		modulus = modulus* moduli[i];	
 	}
 
 	cout << "big modulus: " << modulus << endl;
+
 	DiscreteGaussianGenerator dgg(stdDev);
-
 	ILDCRTParams params(rootsOfUnity, m, moduli);
+	ILDCRTParams sparseParams(sparseRootsOfUnity, m/2, moduli);
 
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
-	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
-	cryptoParams2.SetDistributionParameter(stdDev);
-	cryptoParams2.SetRelinWindow(1);
-	cryptoParams2.SetElementParams(params);
-	cryptoParams2.SetDiscreteGaussianGenerator(dgg);
 
-	Ciphertext<ILVectorArray2n> cipherText2;
-	cipherText2.SetCryptoParameters(&cryptoParams2);
+	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+	cryptoParams.SetDistributionParameter(stdDev);
+	cryptoParams.SetRelinWindow(1);
+	cryptoParams.SetElementParams(params);
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
-	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams2);
-	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams2);
+	LPCryptoParametersLTV<ILVectorArray2n> sparseCryptoParams;
+	sparseCryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+	sparseCryptoParams.SetDistributionParameter(stdDev);
+	sparseCryptoParams.SetRelinWindow(1);
+	sparseCryptoParams.SetElementParams(sparseParams);
+	sparseCryptoParams.SetDiscreteGaussianGenerator(dgg);
+
+	Ciphertext<ILVectorArray2n> cipherText;
+	cipherText.SetCryptoParameters(&cryptoParams);
+
+	LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
+	LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
+
+	LPPublicKeyLTV<ILVectorArray2n> sparsePk(sparseCryptoParams);
+	LPPrivateKeyLTV<ILVectorArray2n> sparseSk(sparseCryptoParams);
 
 	std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2(mask);
 
-	algorithm2.KeyGen(&pk2, &sk2);
+	algorithm2.KeyGen(&pk, &sk);
+	//algorithm2
 
 	/*sk2.GetPrivateElement().PrintValues();
 	pk2.GetPublicElement().PrintValues();*/
 
-	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
-	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+	algorithm2.Encrypt(pk, ptxt, &cipherText);
+	algorithm2.Decrypt(sk, cipherText, &ctxtd);
 
-	ctxtd.Unpad<ZeroPad>();
+	/*ctxtd.Unpad<ZeroPad>();
 
 	cout << "Decrypted value ILVectorArray2n: \n" << endl;
-	cout << ctxtd<< "\n" << endl;
+	cout << ctxtd<< "\n" << endl;*/
 
-	algorithm2.m_algorithmLeveledSHE->RingReduce(&cipherText2, &sk2);
+
+
+	//algorithm2.m_algorithmLeveledSHE->RingReduce(&cipherText, &sk);
 	
-	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+	algorithm2.Decrypt(sk, cipherText, &ctxtd);
 
 	cout << "Decrypted after MOD Reduce ILVectorArray2n: \n" << endl;
 	
@@ -950,62 +970,62 @@ void RingReduceDCRTTest(){
 
 }
 
-void RingReduceSingleCRTTest(){
-
-	usint m = 32;
-
-	const ByteArray plaintext = "M";
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-	ptxt.Pad<ZeroPad>(m/16);
-
-	float stdDev = 4;
-
-	ByteArrayPlaintextEncoding ctxtd;
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-	BigBinaryInteger modulus("17729");
-	BigBinaryInteger rootOfUnity = lbcrypto::RootOfUnity(m,modulus);
-
-	cout << "big modulus: " << modulus << endl;
-	DiscreteGaussianGenerator dgg(modulus,stdDev);
-
-	ILParams params(m, modulus, rootOfUnity);
-
-	LPCryptoParametersLTV<ILVector2n> cryptoParams2;
-	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
-	cryptoParams2.SetDistributionParameter(stdDev);
-	cryptoParams2.SetRelinWindow(1);
-	cryptoParams2.SetElementParams(params);
-	cryptoParams2.SetDiscreteGaussianGenerator(dgg);
-
-	Ciphertext<ILVector2n> cipherText2;
-	cipherText2.SetCryptoParameters(cryptoParams2);
-
-	LPPublicKeyLTV<ILVector2n> pk2(cryptoParams2);
-	LPPrivateKeyLTV<ILVector2n> sk2(cryptoParams2);
-
-	std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm2(mask);
-
-	algorithm2.KeyGen(&pk2, &sk2);
-
-	/*sk2.GetPrivateElement().PrintValues();
-	pk2.GetPublicElement().PrintValues();*/
-
-	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
-	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
-
-	ctxtd.Unpad<ZeroPad>();
-
-	cout << "Decrypted value ILVectorArray2n: \n" << endl;
-	cout << ctxtd<< "\n" << endl;
-
-	algorithm2.m_algorithmLeveledSHE->RingReduce(&cipherText2, &sk2);
-	
-	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
-
-	cout << "Decrypted after MOD Reduce ILVectorArray2n: \n" << endl;
-	
-	cout << ctxtd<< "\n" << endl;
-
-}
+//void RingReduceSingleCRTTest(){
+//
+//	usint m = 32;
+//
+//	const ByteArray plaintext = "M";
+//	ByteArrayPlaintextEncoding ptxt(plaintext);
+//	ptxt.Pad<ZeroPad>(m/16);
+//
+//	float stdDev = 4;
+//
+//	ByteArrayPlaintextEncoding ctxtd;
+//	BigBinaryInteger q("1");
+//	BigBinaryInteger temp;
+//	BigBinaryInteger modulus("17729");
+//	BigBinaryInteger rootOfUnity = lbcrypto::RootOfUnity(m,modulus);
+//
+//	cout << "big modulus: " << modulus << endl;
+//	DiscreteGaussianGenerator dgg(modulus,stdDev);
+//
+//	ILParams params(m, modulus, rootOfUnity);
+//
+//	LPCryptoParametersLTV<ILVector2n> cryptoParams2;
+//	cryptoParams2.SetPlaintextModulus(BigBinaryInteger::TWO);
+//	cryptoParams2.SetDistributionParameter(stdDev);
+//	cryptoParams2.SetRelinWindow(1);
+//	cryptoParams2.SetElementParams(params);
+//	cryptoParams2.SetDiscreteGaussianGenerator(dgg);
+//
+//	Ciphertext<ILVector2n> cipherText2;
+//	cipherText2.SetCryptoParameters(cryptoParams2);
+//
+//	LPPublicKeyLTV<ILVector2n> pk2(cryptoParams2);
+//	LPPrivateKeyLTV<ILVector2n> sk2(cryptoParams2);
+//
+//	std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
+//	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm2(mask);
+//
+//	algorithm2.KeyGen(&pk2, &sk2);
+//
+//	/*sk2.GetPrivateElement().PrintValues();
+//	pk2.GetPublicElement().PrintValues();*/
+//
+//	algorithm2.Encrypt(pk2, ptxt, &cipherText2);
+//	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+//
+//	ctxtd.Unpad<ZeroPad>();
+//
+//	cout << "Decrypted value ILVectorArray2n: \n" << endl;
+//	cout << ctxtd<< "\n" << endl;
+//
+//	algorithm2.m_algorithmLeveledSHE->RingReduce(&cipherText2, &sk2);
+//	
+//	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+//
+//	cout << "Decrypted after MOD Reduce ILVectorArray2n: \n" << endl;
+//	
+//	cout << ctxtd<< "\n" << endl;
+//
+//}

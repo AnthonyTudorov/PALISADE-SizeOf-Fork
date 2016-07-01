@@ -865,7 +865,7 @@ namespace lbcrypto {
 			 * @param &dgg discrete Gaussian generator.
 			 * @return function ran correctly.
 			 */
-			bool SparseKeyGen(LPPublicKey<Element> &publicKey, 
+			virtual bool SparseKeyGen(LPPublicKey<Element> &publicKey, 
 		        	LPPrivateKey<Element> &privateKey, 
 			        const DiscreteGaussianGenerator &dgg) const;
 
