@@ -463,7 +463,7 @@ namespace exp_int32{
      */
     bint Mul(const bint& b) const;
 
-    int divmnu_vect(vector<limb_t>& q, vector<limb_t>& r, const vector<limb_t>& u, const vector<limb_t>& v);
+    int divmnu_vect(bint& q, bint& r, const bint& u, const bint& v) const;
 
     /**
      * Division operation.

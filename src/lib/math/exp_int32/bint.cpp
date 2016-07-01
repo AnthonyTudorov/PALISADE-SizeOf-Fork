@@ -217,7 +217,8 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     //set state
     m_state = bigInteger.m_state;
     //remove ref from bigInteger
-    vector<limb_t>().swap(bigInteger.m_value); //clears value with reallocation.
+    bigInteger.m_value.clear(); //clears value
+    bigInteger.m_value.shrink_to_fit(); //clears value with reallocation.
   }
 
   template<typename limb_t,usint BITLENGTH>
@@ -228,7 +229,8 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
   bint<limb_t,BITLENGTH>::~bint()
   {	
     //memory deallocation
-	  vector<limb_t>().swap(m_value); //clear with reallocation
+	  m_value.clear(); //clears value
+	  m_value.shrink_to_fit(); //clear with reallocation
   }
 
   /**
@@ -892,9 +894,12 @@ int nlz(usint x) {
 //#define max(x, y) ((x) > (y) ? (x) : (y))
 
 template<typename limb_t,usint BITLENGTH>
-int bint<limb_t,BITLENGTH>::divmnu_vect(vector <limb_t>& q, vector <limb_t>& r, const vector<limb_t>& u, const vector <limb_t>& v) {
+int bint<limb_t,BITLENGTH>::divmnu_vect(bint& qbint, bint& rbint, const bint& ubint, const bint& vbint) const{
 
-
+  vector<limb_t>&q = (qbint.m_value);
+  vector<limb_t>&r = (rbint.m_value);
+  const vector<limb_t>&u = (ubint.m_value);
+  const vector<limb_t>&v = (vbint.m_value);
 
   int m = u.size();
   int n = v.size();
@@ -1002,7 +1007,7 @@ again:
         throw std::logic_error("DividedBy() Divisor is zero");
 
     if(b.m_MSB>this->m_MSB)
-      throw std::logic_error("DividedBy() Divisor cannot be larger than dividend");
+      return std::move(bint(ZERO)); // Kurt and Yuriy want this.
 
     if(this->m_state==GARBAGE)
       throw std::logic_error("DividedBy() Dividend uninitialised");
@@ -1015,8 +1020,8 @@ again:
 
     //bint uv(*this); //todo get rid of these copies
 
-
-    int f = bint::divmnu_vect((ans.m_value), (rv.m_value),  (this->m_value),  (b.m_value));
+      int f;
+    f = divmnu_vect((ans), (rv),  (*this),  (b));
     if (f!= 0)
       throw std::logic_error("DividedBy() error");
 
@@ -1283,7 +1288,22 @@ again:
 		  else
 			  return bint(ONE);
 	  }
+#if 1
+		  // return the remainder of the divided by operation
+    bint qv;
+    bint ans(0);
 
+      int f;
+    f = divmnu_vect(qv, ans,  *this,  modulus);
+    if (f!= 0)
+      throw std::logic_error("Mod() error");
+
+    ans.SetMSB();
+    ans.m_state = INITIALIZED;
+
+    return(ans);
+
+#else
 	  Dlimb_t initial_shift = 0;
 	  //No of initial left shift that can be performed which will make it comparable to the current value.
 	  if(this->m_MSB > modulus.m_MSB)
@@ -1327,7 +1347,8 @@ again:
 	  }
 
 	  return std::move(result);
-  }
+#endif
+	  }
 
   /**
      Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
@@ -1471,12 +1492,20 @@ again:
     first = mods[0];
     second = mods[1];
     //SOUTH ALGORITHM
+#if 0
     for(sint i=quotient.size()-1;i>=0;i--){
       mods.push_back(quotient[i]*second + first);
       first = second;
       second = mods.back();
     }
+#else
+    for(sint i=0; i<quotient.size();++i){
+      mods.push_back(quotient[i]*second + first);
+      first = second;
+      second = mods.back();
+    }
 
+    #endif
     bint result;
     if(quotient.size()%2==1){
       result = (modulus - mods.back());

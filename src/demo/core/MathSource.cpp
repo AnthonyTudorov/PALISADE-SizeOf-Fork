@@ -37,9 +37,9 @@ int divmain(void);
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
 
-  divmain();
-  return 0;
-  //test_BigBinaryInt();
+//  divmain();
+//  return 0;
+//  //test_BigBinaryInt();
   //test_BigBinaryVector();
   test_bint();
   test_bintvec();
@@ -356,9 +356,204 @@ void test_bint () {
       DEBUG("x.ConvertToDouble "<< x.ConvertToDouble());
       iftest (xInDouble != x.ConvertToDouble()	," convert to double");
     }
+
+
+    /****************************/
+    /* TESTING SHIFT OPERATORS  */
+    /****************************/
+
+    /*******************************************************/
+    /* TESTING OPERATOR LEFT SHIFT (<<) FOR ALL CONDITIONS */
+    /*******************************************************/
+
+    // The operator 'Left Shift' operates on BigBinary Integer a, and it
+    // is shifted by a number
+
+    // Returns: a<<(num), and the result is stored in BigBinaryInterger
+    // calculatedResult 'a' is left shifted by 'num' number of bits, and
+    // filled up by 0s from right which is equivalent to a * (2^num)
+    //
+    //        example:
+    //            4<<3 => (100)<<3 => (100000) => 32
+    //           this is equivalent to: 4* (2^3) => 4*8 =32
+    //ConvertToUsint converts bint calculatedResult to integer
+
+    // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
+    {
+      bint a("39960");
+      usshort shift = 3;
+
+      bint calculatedResult = a<<(shift);
+      int expectedResult = 319680;
+
+      iftest (expectedResult != calculatedResult.ConvertToUsint()
+	,"testing left shift_less_than_max_shift");
+    }
+    // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
+    {
+      bint a("39960");
+      usshort shift = 6;
+
+      bint calculatedResult = a<<(shift);
+      int expectedResult = 2557440;
+
+      iftest (expectedResult != calculatedResult.ConvertToUsint(),"testing left shift_greater_than_max_shift");
+    }
+    // TEST CASE WHEN SHIFT IS multilimn
+    {
+      bint a("138712237895312");
+      usshort shift = 8;
+
+      bint calculatedResult = a<<(shift);
+      int expectedResult = 35510332901199872;
+
+      iftest (expectedResult != calculatedResult.ConvertToUsint(),"testing left shift_multi limb");
+    }
+
+
+
+    /************************************************/
+    /* TESTING OPERATOR LEFT SHIFT EQUALS (<<=) FOR ALL CONDITIONS -*/
+    /************************************************/
+
+    // The operator 'Left Shift Equals' operates on BigBinary Integer a,
+    // and it is shifted by a number
+    // Returns:
+    // a<<(num), and the result is stored in 'a'
+    // 'a' is left shifted by 'num' number of bits, and filled up by 0s
+    // from right which is equivalent to a * (2^num)
+    // example :4<<3 => (100)<<3 => (100000) => 32
+    // this is equivalent to: 4* (2^3) => 4*8 =32
+    // ConvertToInt converts bint a to integer
+
+
+
+
+    // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
+    {
+      bint a("39960");
+      usshort num = 3;
+
+      a<<=(num);
+      int expectedResult = 319680;
+
+      iftest (expectedResult != a.ConvertToUsint()
+	,"testing left shift_equals less_than_max_shift");
+    }
+    // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
+    {
+      bint a("39960");
+      usshort num = 6;
+
+      a<<=(num);
+      int expectedResult = 2557440;
+
+      iftest (expectedResult != a.ConvertToUsint(), "testing left shift equals _greater_than_max_shift");
+    }
+   {
+
+    bint a("1024");
+    usshort shift = 48;
+
+        a<<=(shift);
+    int expectedResult = 288230376151711744;
+
+    iftest (expectedResult != a.ConvertToUsint(), "testing left shift equals greater_than_limb size");
+  }
+
+
+    /********************************************************/
+    /* TESTING OPERATOR RIGHT SHIFT (>>) FOR ALL CONDITIONS */
+    /********************************************************/
+    // The operator 'Right Shift' operates on BigBinary Integer a, and it
+    // is shifted by a number
+
+    // Returns: a>>(num), and the result is stored in BigBinary Integer
+    // calculated. Result 'a' is right shifted by 'num' number of bits,
+    // and filled up by 0s from left which is equivalent to a / (2^num)
+
+    //  ex:4>>3 => (100000)>>3 => (000100) => 4
+
+    // this is equivalent to: 32*(2^3) => 32/8 = 4
+    // ConvertToUsint converts bint calculatedResult to integer
+
+
+    // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
+    {
+      bint a("39965675");
+      usshort shift = 3;
+
+      bint calculatedResult = a>>(shift);
+      int expectedResult = 4995709;
+
+      iftest (expectedResult != calculatedResult.ConvertToUsint()
+	,"testing right shift_less_than_max_shift");
+    }
+    // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
+    {
+      bint a("39965675");
+      usshort shift = 6;
+
+      bint calculatedResult = a>>(shift);
+      int expectedResult = 624463;
+
+      iftest (expectedResult != calculatedResult.ConvertToUsint()
+	,"testing right shift_greater_than_max_shift");
+    }
+
+
+    /***************************************************************/
+    /* TESTING OPERATOR RIGHT SHIFT EQUALS(>>=) FOR ALL CONDITIONS */
+    /***************************************************************/
+
+    // The operator 'Right Shift Equals' operates on BigBinary Integer a,
+    // and it is shifted by a number
+
+    // Returns: a>>=(num), and the result is stored in a 'a' is right
+    // shifted by 'num' number of bits, and filled up by 0s from left
+    // which is equivalent to a / (2^num)
+
+    //   ex:4>>3 => (100000)>>3 => (000100) => 4
+
+    //   this is equivalent to: 32*(2^3) => 32/8 = 4
+    //   ConvertToUsint converts bint calculatedResult to integer
+
+
+    // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
+    {
+      bint a("39965675");
+      usshort shift = 3;
+
+      a>>=(shift);
+      int expectedResult = 4995709;
+
+      iftest (expectedResult != a.ConvertToUsint(), "testing right shift_less_than_max_shift");
+    }
+    // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
+    {
+      bint a("39965675");
+      usshort shift = 6;
+
+      a>>=(shift);
+      int expectedResult = 624463;
+
+      iftest (expectedResult != a.ConvertToUsint(), "testing shift_right greater_than_max shift");
+    }
+    {
+
+    bint a(" 288230376151711744");
+    usshort shift = 48;
+
+        a>>=(shift);
+    int expectedResult = 1024;
+
+    iftest (expectedResult != a.ConvertToUsint(), "testing shift_right greater_than_limb size");
+  }
+
+
   {
     bint calculatedResult;
-    int expectedResult;
+    uint64_t expectedResult;
     // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
     // HAS NO OVERFLOW
     {
@@ -386,6 +581,7 @@ void test_bint () {
     }
     // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW TO THE NEXT
     // BYTE
+    //todo: redo this to test overflow to next limb!!
     {
       bint a("768900");
       bint b("16523408");
@@ -394,10 +590,11 @@ void test_bint () {
       expectedResult = 17292308;
 
       iftest (expectedResult !=calculatedResult.ConvertToUsint(),
-    		  "testing overflow_to_next_byte");
+    		  "testing plus overflow_to_next_byte");
     }
     // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW IN THE SAME
     // BYTE
+    //todo change for limb
     {
       bint a("35");
       bint b("1015");
@@ -407,6 +604,17 @@ void test_bint () {
 
       iftest (expectedResult !=calculatedResult.ConvertToUsint(),
     		  "testing plus_no_overflow_to_next_byte");
+    }
+    // TEST CASE WHEN both are multi limb numbers
+    {
+      bint a("98879665709163");
+      bint b("39832572186149");
+
+        calculatedResult = a.Add(b);
+        expectedResult = 138712237895312;
+
+      iftest (expectedResult !=calculatedResult.ConvertToUsint(),
+          "testing plus_multi_limb");
     }
 
     /************************************************/
@@ -443,6 +651,7 @@ void test_bint () {
     // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW TO THE NEXT
     // BYTE
     {
+      //todo change for limb
       bint a("768900");
       bint b("16523408");
 
@@ -453,6 +662,7 @@ void test_bint () {
     }
     // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW IN THE SAME
     // BYTE
+    //change for limb
     {
       bint a("35");
       bint b("1015");
@@ -507,6 +717,7 @@ void test_bint () {
     }
     // TEST CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
     {
+      // change for limb
       bint a("196737");
       bint b("65406");
 
@@ -515,7 +726,17 @@ void test_bint () {
 
       iftest (expectedResult !=calculatedResult.ConvertToUsint(),"testing minus_borrow_from_next_byte");
     }
+        // TEST CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
+    {
+      // change for limb
+      bint a("98879665709163");
+      bint b("39832572186149");
 
+      calculatedResult = a.Sub(b);
+      expectedResult = 59047093523014;
+
+      iftest (expectedResult !=calculatedResult.ConvertToUsint(),"testing minus_multi_limb");
+    }
     /************************************************/
     /* TESTING OPERATOR -= FOR ALL CONDITIONS       */
     /************************************************/
@@ -560,6 +781,7 @@ void test_bint () {
     }
     // TEST CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
     {
+      //change for limb
       bint a("196737");
       bint b("65406");
 
@@ -586,6 +808,24 @@ void test_bint () {
       expectedResult = 1286418;
 
       iftest (expectedResult !=calculatedResult.ConvertToUsint(),"testing times_test");
+    }
+       /************************************************/
+    /* TESTING METHOD TIMES FOR ALL CONDITIONS      */
+    /************************************************/
+
+    // The method "Times" does multiplication on two BigBinary Integers
+    // a,b Returns a*b, which is stored in another BigBinary Integer
+    // calculatedResult ConvertToUsint converts bint
+    // calculatedResult to integer
+    {
+      //ask about the branching if (b.m_MSB==0 or 1)
+      bint a("98879665709163");
+      bint b("39832572186149");
+
+      calculatedResult = a.Mul(b);
+      expectedResult = 3938631422102517149330983287;
+
+      iftest (expectedResult !=calculatedResult.ConvertToUsint(),"testing times_test multi limb");
     }
     /************************************************/
     /* TESTING METHOD DIVIDED_BY FOR ALL CONDITIONS */
@@ -703,7 +943,7 @@ void test_bint () {
       calculatedResult = m.Mod(p);
       expectedResult = 27;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUsint()	,"testing number_less_than_modulus");
+      iftest (expectedResult !=calculatedResult.ConvertToUsint()	,"testing mod number_less_than_modulus");
     }
     // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
     {
@@ -713,7 +953,7 @@ void test_bint () {
       calculatedResult = m.Mod(p);
       expectedResult = 35;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUsint()	,"testing number_greater_than_modulus");
+      iftest (expectedResult !=calculatedResult.ConvertToUsint()	,"testing mod number_greater_than_modulus");
     }
     // TEST CASE WHEN THE NUMBER IS DIVISIBLE BY MOD
     {
@@ -723,7 +963,7 @@ void test_bint () {
       calculatedResult = m.Mod(p);
       expectedResult = 0;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUsint()	,"testing number_dividible_by_modulus");
+      iftest (expectedResult !=calculatedResult.ConvertToUsint()	,"testing mod number_dividible_by_modulus");
     }
 
     // TEST CASE WHEN THE NUMBER IS EQUAL TO MOD
@@ -734,7 +974,7 @@ void test_bint () {
       calculatedResult = m.Mod(p);
       expectedResult = 0;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUsint()	,"testing number_equal_to_modulus");
+      iftest (expectedResult !=calculatedResult.ConvertToUsint()	,"testing mod number_equal_to_modulus");
     }
 
 
@@ -782,7 +1022,7 @@ void test_bint () {
     // ConvertToUsint converts bint calculatedResult to integer
 
 
-    // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
+    // TEST CASE WHEN THE NUMBER IS LESS  THAN MOD
     {
     	bint m("5");
     	bint p("108");
@@ -796,7 +1036,7 @@ void test_bint () {
 
     	expectedResult = 65;
 
-    	iftest (expectedResult !=calculatedResult.ConvertToUsint()	,"testing number_less_than_modulus");
+    	iftest (expectedResult !=calculatedResult.ConvertToUsint()	,"testing mod inverse number_less_than_modulus");
     }
     // TEST CASE WHEN THE NUMBER AND MOD ARE NOT CO-PRIME
     {
@@ -813,7 +1053,7 @@ void test_bint () {
 
     	expectedResult = 77;
 
-    	iftest (expectedResult !=calculatedResult.ConvertToUsint()	,"testing number_greater_than_modulus");
+    	iftest (expectedResult !=calculatedResult.ConvertToUsint()	,"testing mod inverse non coprimes");
     }
 
 
@@ -838,7 +1078,7 @@ void test_bint () {
       calculatedResult = m.ModAdd(n,q);
       expectedResult = 2871;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUsint()	,"testing first_number_greater_than_modulus");
+      iftest (expectedResult !=calculatedResult.ConvertToUsint()	,"testing modadd first_number_greater_than_modulus");
     }
     // TEST CASE WHEN THE SECOND NUMBER IS GREATER THAN MOD
     {
@@ -849,7 +1089,7 @@ void test_bint () {
       calculatedResult = m.ModAdd(n,q);
       expectedResult = 3419;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUsint(),"testing second_number_greater_than_modulus");
+      iftest (expectedResult !=calculatedResult.ConvertToUsint(),"testing smodadd econd_number_greater_than_modulus");
     }
     // TEST CASE WHEN THE BOTH NUMBERS ARE LESS THAN MOD
     {
@@ -859,7 +1099,7 @@ void test_bint () {
 
       calculatedResult = m.ModAdd(n,q);
       expectedResult = 971;
-      iftest (expectedResult != calculatedResult.ConvertToUsint()	,"testing both_numbers_less_than_modulus");
+      iftest (expectedResult != calculatedResult.ConvertToUsint()	,"testing modadd both_numbers_less_than_modulus");
     }
     // TEST CASE WHEN THE BOTH NUMBERS ARE GREATER THAN MOD
     {
@@ -871,7 +1111,7 @@ void test_bint () {
       calculatedResult = m.ModAdd(n,q);
       expectedResult = 2861;
 
-      iftest (expectedResult != calculatedResult.ConvertToUsint()	,"testing both_numbers_greater_than_modulus");
+      iftest (expectedResult != calculatedResult.ConvertToUsint()	,"testing mod add both_numbers_greater_than_modulus");
     }
 
     /************************************************/
@@ -902,7 +1142,7 @@ void test_bint () {
       calculatedResult = m.ModSub(n,q);
       expectedResult = 196;
 
-      iftest (expectedResult != calculatedResult.ConvertToUsint()	,"testing first_number_greater_than_modulus");
+      iftest (expectedResult != calculatedResult.ConvertToUsint()	,"testing modsub first_number_greater_than_modulus");
     }
     // TEST CASE WHEN THE FIRST NUMBER LESS THAN SECOND NUMBER AND MOD
     {
@@ -915,7 +1155,7 @@ void test_bint () {
 
       //[{(a mod c)+ c} - (b mod c)] since a < b
       iftest (expectedResult !=calculatedResult.ConvertToUsint()
-	,"testing first_number_less_than_modulus");
+	,"testing modsub first_number_less_than_modulus");
     }
     // TEST CASE WHEN THE FIRST NUMBER EQUAL TO SECOND NUMBER
     {
@@ -927,7 +1167,7 @@ void test_bint () {
       expectedResult = 0;
 
       iftest (expectedResult != calculatedResult.ConvertToUsint()
-	,"testing first_number_equals_second_number");
+	,"testing modsub first_number_equals_second_number");
     }
 
     /************************************************/
@@ -971,172 +1211,7 @@ void test_bint () {
       iftest (expectedResult != calculatedResult.ConvertToUsint()
 	,"testing mod_exp_test");
     }
-
-    /****************************/
-    /* TESTING SHIFT OPERATORS  */
-    /****************************/
-
-    /*******************************************************/
-    /* TESTING OPERATOR LEFT SHIFT (<<) FOR ALL CONDITIONS */
-    /*******************************************************/
-
-    // The operator 'Left Shift' operates on BigBinary Integer a, and it
-    // is shifted by a number
-
-    // Returns: a<<(num), and the result is stored in BigBinaryInterger
-    // calculatedResult 'a' is left shifted by 'num' number of bits, and
-    // filled up by 0s from right which is equivalent to a * (2^num)
-    //
-    //        example:
-    //            4<<3 => (100)<<3 => (100000) => 32
-    //           this is equivalent to: 4* (2^3) => 4*8 =32
-    //ConvertToUsint converts bint calculatedResult to integer
-
-    // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
-    {
-      bint a("39960");
-      usshort shift = 3;
-
-      bint calculatedResult = a<<(shift);
-      int expectedResult = 319680;
-
-      iftest (expectedResult != calculatedResult.ConvertToUsint()
-	,"testing shift_less_than_max_shift");
-    }
-    // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
-    {
-      bint a("39960");
-      usshort shift = 6;
-
-      bint calculatedResult = a<<(shift);
-      int expectedResult = 2557440;
-
-      iftest (expectedResult != calculatedResult.ConvertToUsint(),"testing shift_greater_than_max_shift");
-    }
-
-
-    /************************************************/
-    /* TESTING OPERATOR LEFT SHIFT EQUALS (<<=) FOR ALL CONDITIONS -*/
-    /************************************************/
-
-    // The operator 'Left Shift Equals' operates on BigBinary Integer a,
-    // and it is shifted by a number
-    // Returns:
-    // a<<(num), and the result is stored in 'a'
-    // 'a' is left shifted by 'num' number of bits, and filled up by 0s
-    // from right which is equivalent to a * (2^num)
-    // example :4<<3 => (100)<<3 => (100000) => 32
-    // this is equivalent to: 4* (2^3) => 4*8 =32
-    // ConvertToInt converts bint a to integer
-
-
-
-
-    // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
-    {
-      bint a("39960");
-      usshort num = 3;
-
-      a<<=(num);
-      int expectedResult = 319680;
-
-      iftest (expectedResult != a.ConvertToUsint()
-	,"testing shift_less_than_max_shift");
-    }
-    // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
-    {
-      bint a("39960");
-      usshort num = 6;
-
-      a<<=(num);
-      int expectedResult = 2557440;
-
-      iftest (expectedResult != a.ConvertToUsint()
-	,"testing shift_greater_than_max_shift");
-    }
-
-
-    /********************************************************/
-    /* TESTING OPERATOR RIGHT SHIFT (>>) FOR ALL CONDITIONS */
-    /********************************************************/
-    // The operator 'Right Shift' operates on BigBinary Integer a, and it
-    // is shifted by a number
-
-    // Returns: a>>(num), and the result is stored in BigBinary Integer
-    // calculated. Result 'a' is right shifted by 'num' number of bits,
-    // and filled up by 0s from left which is equivalent to a / (2^num)
-
-    //  ex:4>>3 => (100000)>>3 => (000100) => 4
-
-    // this is equivalent to: 32*(2^3) => 32/8 = 4
-    // ConvertToUsint converts bint calculatedResult to integer
-
-
-    // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
-    {
-      bint a("39965675");
-      usshort shift = 3;
-
-      bint calculatedResult = a>>(shift);
-      int expectedResult = 4995709;
-
-      iftest (expectedResult != calculatedResult.ConvertToUsint()
-	,"testing shift_less_than_max_shift");
-    }
-    // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
-    {
-      bint a("39965675");
-      usshort shift = 6;
-
-      bint calculatedResult = a>>(shift);
-      int expectedResult = 624463;
-
-      iftest (expectedResult != calculatedResult.ConvertToUsint()
-	,"testing shift_greater_than_max_shift");
-    }
-
-
-    /***************************************************************/
-    /* TESTING OPERATOR RIGHT SHIFT EQUALS(>>=) FOR ALL CONDITIONS */
-    /***************************************************************/
-
-    // The operator 'Right Shift Equals' operates on BigBinary Integer a,
-    // and it is shifted by a number
-
-    // Returns: a>>=(num), and the result is stored in a 'a' is right
-    // shifted by 'num' number of bits, and filled up by 0s from left
-    // which is equivalent to a / (2^num)
-
-    //   ex:4>>3 => (100000)>>3 => (000100) => 4
-
-    //   this is equivalent to: 32*(2^3) => 32/8 = 4
-    //   ConvertToUsint converts bint calculatedResult to integer
-
-
-    // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
-    {
-      bint a("39965675");
-      usshort shift = 3;
-
-      a>>=(shift);
-      int expectedResult = 4995709;
-
-      iftest (expectedResult != a.ConvertToUsint(), "testing shift_less_than_max_shift");
-    }
-    // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
-    {
-      bint a("39965675");
-      usshort shift = 6;
-
-      a>>=(shift);
-      int expectedResult = 624463;
-
-      iftest (expectedResult != a.ConvertToUsint()
-	,"testing shift_greater_than_max_shift");
-    }
-
-
-    /****************************************/
+  /****************************************/
     /* TESTING METHOD  BinaryToBigBinaryInt */
     /****************************************/
 
