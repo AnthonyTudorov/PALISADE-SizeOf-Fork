@@ -320,19 +320,20 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>  bint<limb_t,BITLENGTH>::operator<<(usshort shift) const{
 	  if(m_state==State::GARBAGE)
-		  throw std::logic_error("Value not initialized");
+		  throw std::logic_error("<< on uninitialized bint");
 	  if(this->m_MSB==0)
 		  return bint(ZERO);
 
 	  bint ans(*this);
 	  //check for OVERFLOW
-	  if((ans.m_MSB+shift) > BITLENGTH )
-		  throw std::logic_error("OVERFLOW \n");
+	  //if((ans.m_MSB+shift) > BITLENGTH )
+		//  throw std::logic_error("OVERFLOW \n"); //TODO this never happens any more
 
 	  //compute the number of whole limb shifts
 	  usint shiftByLimb = shift>>m_log2LimbBitLength;
 	  //compute the remaining number of bits to shift
 	  usshort remainingShift = (shift&(m_limbBitLength-1));
+
 
 	  //first shift by the # remainingShift bits
 	  if(remainingShift!=0){
@@ -347,25 +348,29 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 			  oFlow = temp >> m_limbBitLength;
 		  }
 
-		  if(i>-1)
-			  ans.m_value[i] = oFlow;
-
+		  if(oFlow) {//there is an overflow set of bits.
+		    if (i<ans.m_value.size()){
+		      ans.m_value[i] = oFlow;
+		    } else {
+		      ans.m_value.push_back(oFlow);
+		    }
+		  }
 		  ans.m_MSB += remainingShift;
 
 	  }
 
 	  if(shiftByLimb!=0){
-		  //todo could be ceilIntbyUint
-      for(auto  iter =  ans.m_value.rbegin(); iter!= ans.m_value.rend(); ++iter){
-	//ans.m_value[iter+shiftByLimb] = ans.m_value[iter];
-	*(iter+shiftByLimb) = *iter;
-		  }
+	    //todo could be ceilIntbyUint
+	    for(auto  iter =  ans.m_value.rbegin(); iter!= ans.m_value.rend(); ++iter){
+	      //ans.m_value[iter+shiftByLimb] = ans.m_value[iter];
+	      *(iter+shiftByLimb) = *iter;
+	    }
 
-		  //zero out lower "shifted in" limbs
-      //usint j;
-      for(auto iter = ans.m_value.rbegin()+shiftByLimb; iter!= ans.m_value.rend(); ++iter){
-	*iter = 0;
-		  }
+	    //zero out lower "shifted in" limbs
+	    //usint j;
+	    for(auto iter = ans.m_value.rbegin()-shiftByLimb; iter!= ans.m_value.rend(); ++iter){
+	      *iter = 0;
+	    }
 	  }
 
 	  ans.m_MSB += shiftByLimb*m_limbBitLength;
@@ -529,8 +534,11 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     const bint* A = NULL;
     const bint* B = NULL;
     //check for garbage initializations
-    if((this->m_state==GARBAGE)||(b.m_state==GARBAGE)){
-    	throw std::logic_error("Add() of uninitialized bint");
+    if(this->m_state==GARBAGE){
+    	throw std::logic_error("Add() to uninitialized bint");
+    }
+    if(b.m_state==GARBAGE){
+    	throw std::logic_error("Add() from uninitialized bint");
     }
 
     //Assignment of pointers, A assigned the higher value and B assigned the lower value
@@ -586,51 +594,69 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
    */
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::Sub(const bint& b) const{
+    bool dbg_flag = 0;
     //check for garbage initialization
     if(this->m_state==GARBAGE){
-      return std::move(bint(ZERO));		
+      throw std::logic_error("Sub() to uninitialized bint");
     }
     if(b.m_state==GARBAGE){
-      return std::move(bint(*this));
+      throw std::logic_error("Sub() to uninitialized bint");
     }
     //return 0 if b is higher than *this as there is no support for negative number
-    if(!(*this>b))
+    if(!(*this>b)){
+      DEBUG("in Sub, b > a return zero");
       return std::move(bint(ZERO)); //todo: should we throw an exception ?
-
+    }
     int cntr=0,current=0;
-	
+
     bint result(*this);
-    //array position in A to end substraction
-    int endValA = m_value.size()-ceilIntByUInt(this->m_MSB);
+
+    DEBUG ("result starts out");
+    if (dbg_flag){
+      result.PrintLimbsInDec();
+    }
+    //array position in A to end substraction (a is always larger than b now)
+    int endValA = ceilIntByUInt(this->m_MSB);
     //array position in B to end substraction
-    int endValB = m_value.size()-ceilIntByUInt(b.m_MSB);
-    sint i;
-    for(i=m_value.size()-1;i>=endValB;i--){
-      //carryover condtion
-      if(result.m_value[i]<b.m_value[i]){
-	current=i;
-	cntr = current-1;
-	//assigning carryover value
-	while(result.m_value[cntr]==0){
-	  result.m_value[cntr]=m_MaxLimb;cntr--;
-	}
-	result.m_value[cntr]--;
-	result.m_value[i]=result.m_value[i]+m_MaxLimb+1- b.m_value[i];
+    int endValB = ceilIntByUInt(b.m_MSB);
+      DEBUG("endValA" <<endValA);
+      DEBUG("endValB" <<endValB);
+
+
+
+    for(sint i=0; i<endValB; ++i){
+      DEBUG ("digit "<<i);
+      if(result.m_value[i]<b.m_value[i]){ //carryover condtion need to borrow from higher limbs.
+        DEBUG ("borrow at "<<i);
+        current=i;
+        cntr = current+1;
+        //find the first nonzero limb
+        while(result.m_value[cntr]==0){
+          DEBUG("FF at cntr" <<cntr);
+          result.m_value[cntr]=m_MaxLimb; //set all the zero limbs to all FFs (propagate the 1)
+          cntr++;
+        }
+        DEBUG("decrement at " << cntr);
+        result.m_value[cntr]--; // and eventually borrow 1 from the first nonzero limb we find
+        DEBUG("sub with borrow at " <<i);
+        result.m_value[i]=result.m_value[i]+(m_MaxLimb - b.m_value[i]) +1; // and add the it to the current limb
+      } else {       //usual subtraction condition
+        DEBUG("sub no borrow at " <<i);
+        result.m_value[i]=result.m_value[i]- b.m_value[i];
       }
-      //usual substraction condition
-      else{
-	result.m_value[i]=result.m_value[i]- b.m_value[i];
-      }
-      cntr=0;
+
     }
 
-    while(result.m_value[endValA]==0){
-      endValA++;
-    }
+//    while(result.m_value[endValA]==0){
+//      endValA++;
+//    }
     //reset the MSB after substraction
-    result.m_MSB = (m_value.size()-endValA-1)*m_limbBitLength + GetMSBlimb_t(result.m_value[endValA]);
+    //result.m_MSB = (m_value.size()-endValA-1)*m_limbBitLength + GetMSBlimb_t(result.m_value[endValA]);
 
+    result.SetMSB();
+    DEBUG("result msb now "<<result.m_MSB);
     //return the result
+    DEBUG ("Returning");
     return std::move(result);
 
   }
@@ -660,8 +686,8 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     //after multiplication the result is shifted and added to the final answer
 
     usint nSize = this->m_value.size();
-    for(sint i= nSize-1;i>= nSize-ceilInt;i--){
-      ans += (this->MulIntegerByLimb(b.m_value[i]))<<=( nSize-1-i)*m_limbBitLength;
+    for(sint i= 0;i<= ceilInt;++i){
+      ans += (this->MulIntegerByLimb(b.m_value[i]))<<=(i)*m_limbBitLength;
     }
     
     return ans;
@@ -797,37 +823,36 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
    */
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::MulIntegerByLimb(limb_t b) const{
-	
-    if(this->m_state==GARBAGE)
-      throw std::logic_error("ERROR \n");
-    if(b==0 || this->m_MSB==0)
-      return bint(ZERO);
-	
-    bint ans;
-    //position in the array to start multiplication
-    usint endVal = this->m_value.size()-ceilIntByUInt(m_MSB);
-    //variable to capture the overflow
-    Dlimb_t temp=0;
-    //overflow value
-    limb_t ofl=0;
-    sint i= m_value.size()-1;
 
-    for(;i>=endVal ;i--){
-      temp = ((Dlimb_t)m_value[i]*(Dlimb_t)b) + ofl;
-      ans.m_value[i] = (limb_t)temp;
-      ofl = temp>>m_limbBitLength;
-    }
-    //check if there is any final overflow
-    if(ofl){
-      ans.m_value[i]=ofl;
-    }
-    usint nSize = m_value.size();
-    ans.m_MSB = (nSize-1-endVal)*m_limbBitLength;
-    //set the MSB after the final computation
-    ans.m_MSB += GetMSBDlimb_t(temp);
-    ans.m_state = INITIALIZED;
+	  if(this->m_state==GARBAGE)
+		  throw std::logic_error("Mul() of uninitialized bint");
+	  if(b==0 || this->m_MSB==0)
+		  return bint(ZERO);
 
-    return ans;
+	  bint ans;
+	  //position in the array to start multiplication
+	  usint endVal = ceilIntByUInt(m_MSB); // not sure this is right
+	  //variable to capture the overflow
+	  Dlimb_t temp=0;
+	  //overflow value
+	  limb_t ofl=0;
+	  sint i= 0;
+
+	  for(;i<endVal ;++i){
+		  temp = ((Dlimb_t)m_value[i]*(Dlimb_t)b) + ofl;
+		  ans.m_value.push_back((limb_t)temp);
+		  ofl = temp>>m_limbBitLength;
+	  }
+	  //check if there is any final overflow
+	  if(ofl){
+		  ans.m_value.push_back(ofl);
+	  }
+	  //usint nSize = m_value.size();
+	  ans.m_state = INITIALIZED;
+	  ans.SetMSB();
+
+
+	  return ans;
   }
 
   /* Division operation:
@@ -844,21 +869,27 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
       return std::move(bint(ZERO));
     else if(b==*this)
       return std::move(bint(ONE));
-	
-		
+
+
     bint ans;
-#if 0
-	
+#if 1
+do this.
+
     //normalised_dividend = result*quotient
     bint normalised_dividend( this->Sub( this->Mod(b) ) );
+
     //Number of array elements in Divisor
-    limb_t ncharInDivisor = ceilIntByUInt(b.m_MSB);
+    limb_t nLimbInDivisor = ceilIntByUInt(b.m_MSB);
+
     //Get the uint integer that is in the MSB position of the Divisor
-    limb_t msbCharInDivisor = b.m_value[(usint)( m_nSize-ncharInDivisor)];
+    limb_t msbLimbInDivisor = b.m_value[(usint)( m_nSize-nLimbInDivisor)];
+
     //Number of array elements in Normalised_dividend
-    limb_t ncharInNormalised_dividend = ceilIntByUInt(normalised_dividend.m_MSB);
+    limb_t nLimbInNormalisedDividend = ceilIntByUInt(normalised_dividend.m_MSB);
+
     ////Get the uint integer that is in the MSB position of the normalised_dividend
-    limb_t msbCharInRunning_Normalised_dividend = normalised_dividend.m_value[(usint)( m_nSize-ncharInNormalised_dividend)];
+    limb_t msbCharInRunning_Normalised_dividend = normalised_dividend.m_value[(usint)( m_nSize-nLimbInNormalisedDividend)];
+
     //variable to store the running dividend
     bint running_dividend;
     //variable to store the running remainder
@@ -867,78 +898,78 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     bint estimateFinder;
 
     //Initialize the running dividend
-    for(usint i=0;i<ncharInDivisor;i++){
-      running_dividend.m_value[ m_nSize-ncharInDivisor+i] = normalised_dividend.m_value[ m_nSize-ncharInNormalised_dividend+i]; 
+    for(usint i=0;i<nLimbInDivisor;i++){
+      running_dividend.m_value[ m_nSize-nLimbInDivisor+i] = normalised_dividend.m_value[ m_nSize-nLimbInNormalisedDividend+i];
     }
-    running_dividend.m_MSB = GetMSBlimb_t(running_dividend.m_value[m_nSize-ncharInDivisor]) + (ncharInDivisor-1)*m_limbBitLength;
+    running_dividend.m_MSB = GetMSBlimb_t(running_dividend.m_value[m_nSize-nLimbInDivisor]) + (nLimbInDivisor-1)*m_limbBitLength;
     running_dividend.m_state = INITIALIZED;
-	
+
     limb_t estimate=0;
     limb_t maskBit = 0;
     limb_t shifts =0;
-    usint ansCtr = m_nSize - ncharInNormalised_dividend+ncharInDivisor-1;
+    usint ansCtr = m_nSize - nLimbInNormalisedDividend+nLimbInDivisor-1;
     //Long Division Computation to determine quotient
-    for(usint i=ncharInNormalised_dividend-ncharInDivisor;i>=0;){
+    for(usint i=nLimbInNormalisedDividend-nLimbInDivisor;i>=0;){
       //Get the remainder from the Modulus operation
       runningRemainder = running_dividend.Mod(b);
       //Compute the expected product from the running dividend and remainder
       expectedProd = running_dividend-runningRemainder;
       estimateFinder = expectedProd;
-		
+
       estimate =0;
-		
+
       //compute the quotient
       if(expectedProd>b){	
-	while(estimateFinder.m_MSB > 0){
-	  /*
+        while(estimateFinder.m_MSB > 0){
+          /*
 	    if(expectedProd.m_MSB-b.m_MSB==m_uintBitLength){
 	    maskBit= 1<<(m_uintBitLength-1);
 	    }
 	    else
 	    maskBit= 1<<(expectedProd.m_MSB-b.m_MSB);
-	  */
-	  shifts = estimateFinder.m_MSB-b.m_MSB;
-	  if(shifts==m_limbBitLength){
-	    maskBit= 1<<(m_limbBitLength-1);
-	  }
-	  else
-	    maskBit= 1<<(shifts);
-				
-	  if((b.MulIntegerByLimb(maskBit))>estimateFinder){
-	    maskBit>>=1;
-	    estimateFinder-= b<<(shifts-1);
-	  }
-	  else if(shifts==m_limbBitLength)
-	    estimateFinder-= b<<(shifts-1);
-	  else
-	    estimateFinder-= b<<shifts;
-				
-	  estimate |= maskBit;
-	}
-			
+           */
+          shifts = estimateFinder.m_MSB-b.m_MSB;
+          if(shifts==m_limbBitLength){
+            maskBit= 1<<(m_limbBitLength-1);
+          }
+          else
+            maskBit= 1<<(shifts);
+
+          if((b.MulIntegerByLimb(maskBit))>estimateFinder){
+            maskBit>>=1;
+            estimateFinder-= b<<(shifts-1);
+          }
+          else if(shifts==m_limbBitLength)
+            estimateFinder-= b<<(shifts-1);
+          else
+            estimateFinder-= b<<shifts;
+
+          estimate |= maskBit;
+        }
+
       }
       else if(expectedProd.m_MSB==0)
-	estimate = 0;
+        estimate = 0;
       else
-	estimate = 1; 
+        estimate = 1;
       //assgning the quotient in the result array
       ans.m_value[ansCtr] = estimate;
       ansCtr++;		
       if(i==0)
-	break;
+        break;
       //Get the next uint element from the divisor and proceed with long division
       if(running_dividend.m_MSB==0){
-	running_dividend.m_MSB=GetMSBlimb_t(normalised_dividend.m_value[m_nSize-i]);
+        running_dividend.m_MSB=GetMSBlimb_t(normalised_dividend.m_value[m_nSize-i]);
       }
       else
-	running_dividend = runningRemainder<<m_limbBitLength;
+        running_dividend = runningRemainder<<m_limbBitLength;
 
       running_dividend.m_value[ m_nSize-1] = normalised_dividend.m_value[m_nSize-i];	
       if (running_dividend.m_MSB == 0)
-	running_dividend.m_MSB = GetMSBlimb_t(normalised_dividend.m_value[m_nSize - i]);
+        running_dividend.m_MSB = GetMSBlimb_t(normalised_dividend.m_value[m_nSize - i]);
       i--;
     }
-    ansCtr = m_nSize - ncharInNormalised_dividend+ncharInDivisor-1;
+    ansCtr = m_nSize - nLimbInNormalisedDividend+nLimbInDivisor-1;
     //Loop to the MSB position
     while(ans.m_value[ansCtr]==0){
       ansCtr++;
@@ -1078,64 +1109,72 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 
   }
 
-  //Algorithm used: Repeated substraction by a multiple of modulus, which will be referred to as "Classical Modulo Reduction Algorithm"
+  //Algorithm used: Repeated subtraction by a multiple of modulus, which will be referred to as "Classical Modulo Reduction Algorithm"
   //Complexity: O(log(*this)-log(modulus))
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::Mod(const bint& modulus) const{
 
-    //check for garbage initialisation
-    if(this->m_state==GARBAGE || modulus.m_state==GARBAGE)
-      throw std::logic_error("Error \n");
+	  //check for garbage initialisation
+	  if(this->m_state==GARBAGE)
+		  throw std::logic_error("Mod() of uninitialized bint");
+	  if(modulus.m_state==GARBAGE)
+		  throw std::logic_error("Mod() using uninitialized bint as modulus");
 
-    //return the same value if value is less than modulus
-    if(*this<modulus){
-      return std::move(bint(*this));
-    }
-    //masking operation if modulus is 2
-    if(modulus.m_MSB==2 && modulus.m_value[m_value.size()-1]==2){
-      if(this->m_value[m_value.size()-1]%2==0)
-	return bint(ZERO);
-      else
-	return bint(ONE);
-    }
-	
-    Dlimb_t initial_shift = 0;
-    //No of initial left shift that can be performed which will make it comparable to the current value.
-    if(this->m_MSB > modulus.m_MSB)
-      initial_shift=this->m_MSB - modulus.m_MSB -1;
-
-	
-    bint j = modulus<<initial_shift;
-
-	
-    bint result(*this);
-
-    bint temp;
-    while(true){
-      //exit criteria
-      if(result<modulus) break;
-      if (result.m_MSB > j.m_MSB) {
-	temp = j<<1;
-	if (result.m_MSB == j.m_MSB + 1) {
-	  if(result>temp){
-	    j=temp;
+	  //return the same value if value is less than modulus
+	  if(*this<modulus){
+		  return std::move(bint(*this));
 	  }
-	}
-      }
-      //subtracting the running remainder by a multiple of modulus
-      result -= j;
-		
-      initial_shift = j.m_MSB - result.m_MSB +1;
-      if(result.m_MSB-1>=modulus.m_MSB){
-	j>>=initial_shift;
-      }
-      else{ 
-	j = modulus;
-      }
+	  //masking operation if modulus is 2
+	  if(modulus.m_MSB==2 && modulus.m_value[0]==2){
+		  if(this->m_value[0]%2==0)
+			  return bint(ZERO);
+		  else
+			  return bint(ONE);
+	  }
 
-    }
+	  Dlimb_t initial_shift = 0;
+	  //No of initial left shift that can be performed which will make it comparable to the current value.
+	  if(this->m_MSB > modulus.m_MSB)
+		  initial_shift=this->m_MSB - modulus.m_MSB -1;
 
-    return std::move(result);
+
+	  bint j = modulus<<initial_shift;
+
+
+	  bint result(*this);
+
+	  bint temp;
+	  usint count = 0;
+	  while(true){
+		  //exit criteria
+		  if(result<modulus) break;
+		  if (result.m_MSB > j.m_MSB) {
+			  temp = j<<1;
+			  if (result.m_MSB == j.m_MSB + 1) {
+				  if(result>temp){
+					  j=temp;
+				  }
+			  }
+			  count ++;
+			  if (count>1000){
+			    std::cout<<"ERROR IN MOD NOT BOTTOMING OUT "<<std::endl;
+			    break;
+			  }
+		  }
+		  //subtracting the running remainder by a multiple of modulus
+		  result -= j;
+
+		  initial_shift = j.m_MSB - result.m_MSB +1;
+		  if(result.m_MSB-1>=modulus.m_MSB){
+			  j>>=initial_shift;
+		  }
+		  else{
+			  j = modulus;
+		  }
+
+	  }
+
+	  return std::move(result);
   }
 
   /**
