@@ -110,15 +110,6 @@ namespace lbcrypto {
 		 * @return the length of the plaintext in terms of the number of bits.
 		 */
 		virtual size_t GetLength() const = 0;
-
-		/**
-		 * Get method to return a vector of 32-bit integers
-		 *
-		 * @return the data as a vector of integers.
-		 */
-		//virtual std::vector<uint32_t> ToInt32() const = 0;
-
 	};
-
 } // namespace lbcrypto ends
 #endif

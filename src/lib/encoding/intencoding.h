@@ -88,19 +88,6 @@ namespace lbcrypto {
 			return *this;
 		}
 
-		/*
-		* Implementation of the method of PlaintextEncodingInterface.
-		*
-		* @param  *ambPtxt encoded plaintext - output argument.
-		*/
-		//long Encode(AmbientPlaintext *ambPtxt) const { return 0; };
-		/*
-		* Implementation of the method of PlaintextEncodingInterface.
-		*
-		* @param &ambPtxt encoded plaintext.
-		*/
-		//long Decode(const AmbientPlaintext &ambPtxt) { return 0; };
-
 
 		/** Method for the operation of converting from current plaintext encoding to ILVector2n.
 		*
@@ -156,30 +143,29 @@ namespace lbcrypto {
 		 * @brief Abstract Interface Class to capture Padding operation
 		 * @tparam Padding the passing used.
 		 */
-			template <typename Padding>
-			void Pad(const usint blockSize) {
-				static_assert(std::is_base_of<PaddingScheme, Padding>::value,
-					"Padding must derive from PaddingScheme");
-				Padding::Pad(blockSize, &m_data);
-			}
+		template <typename Padding>
+		void Pad(const usint blockSize) {
+			static_assert(std::is_base_of<PaddingScheme, Padding>::value,
+				"Padding must derive from PaddingScheme");
+			Padding::Pad(blockSize, &m_data);
+		}
 
 		/**
 		 * @brief Abstract Interface Class to capture Unpadding operation
 		 * @tparam Padding the passing used.
 		 */
-			template <typename Padding>
-			void Unpad() {
-				static_assert(std::is_base_of<PaddingScheme, Padding>::value,
-					"Padding must derive from PaddingScheme");
-				Padding::Unpad(&m_data);
-			}
+		template <typename Padding>
+		void Unpad() {
+			static_assert(std::is_base_of<PaddingScheme, Padding>::value,
+				"Padding must derive from PaddingScheme");
+			Padding::Unpad(&m_data);
+		}
 
 
 	private:
 		std::vector<uint32_t> m_data;
 	};
 
-	template <typename Integer>
 	std::ostream &operator<<(std::ostream &out, const IntArrayPlaintextEncoding &ptxt);
 
 } // namespace lbcrypto ends
