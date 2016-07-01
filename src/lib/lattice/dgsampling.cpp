@@ -198,13 +198,13 @@ namespace lbcrypto {
 		{
 			BigBinaryInteger v(u.GetValAtIndex(j));
 			
-			a(0,0) = (v.GetDigitAtIndexForBase(1,2)-p[0])/base;
-			c(0,0) = modulus.GetDigitAtIndexForBase(1,2)/base;
+			a(0,0) = (v.GetDigitAtIndexForBase(1,base)-p[0])/base;
+			c(0,0) = modulus.GetDigitAtIndexForBase(1,base)/base;
 
 			for(size_t i = 1; i < k; i++)
 			{
-				a(i,0) = (a(i-1,0) + v.GetDigitAtIndexForBase(i+1,2)-p[i])/base;
-				c(i,0) = (c(i-1,0) + modulus.GetDigitAtIndexForBase(i+1,2))/base;
+				a(i,0) = (a(i-1,0) + v.GetDigitAtIndexForBase(i+1,base)-p[i])/base;
+				c(i,0) = (c(i-1,0) + modulus.GetDigitAtIndexForBase(i+1,base))/base;
 				//std::cout << "c(" << i << ")=" << c(i,0) << std::endl;
 			}
 
@@ -212,12 +212,12 @@ namespace lbcrypto {
 
 			LatticeGaussSampUtility::SampleC(c, k, u.GetLength(), sigma, dgg, &a, &zj);
 
-			(*z)(0,j) = base*zj[0] + modulus.GetDigitAtIndexForBase(1,2)*zj[k-1]+v.GetDigitAtIndexForBase(1,2);
+			(*z)(0,j) = base*zj[0] + modulus.GetDigitAtIndexForBase(1,base)*zj[k-1]+v.GetDigitAtIndexForBase(1,base);
 			for(size_t i = 1; i < k-1; i++)
 			{
-				(*z)(i,j) = base*zj[i] - zj[i-1] + modulus.GetDigitAtIndexForBase(i+1,2)*zj[k-1]+v.GetDigitAtIndexForBase(i+1,2);
+				(*z)(i,j) = base*zj[i] - zj[i-1] + modulus.GetDigitAtIndexForBase(i+1,base)*zj[k-1]+v.GetDigitAtIndexForBase(i+1,base);
 			}
-			(*z)(k-1,j) = modulus.GetDigitAtIndexForBase(k,2)*zj[k-1] - zj[k-2] + v.GetDigitAtIndexForBase(k,2);
+			(*z)(k-1,j) = modulus.GetDigitAtIndexForBase(k,base)*zj[k-1] - zj[k-2] + v.GetDigitAtIndexForBase(k,base);
 
 		}
 
