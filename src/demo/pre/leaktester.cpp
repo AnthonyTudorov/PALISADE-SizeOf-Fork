@@ -15,6 +15,7 @@ void runOneRound(CryptoContext<ILVector2n> *ctx);
 
 #include "../../lib/utils/serializablehelper.h"
 #include "../../lib/encoding/byteencoding.h"
+#include "../../lib/encoding/cryptoutility.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -42,8 +43,6 @@ main(int argc, char *argv[])
 		cout << "Error on " << input << endl;
 		return 0;
 	}
-
-	cout << "This thing's chunk size is " << ctx->getChunksize() << endl;
 
 	for( int i = 1; i <= 1; i++ ) {
 		runOneRound(ctx);
@@ -150,27 +149,25 @@ runOneRound(CryptoContext<ILVector2n> *ctx)
 	}
 
 	//Encryption
+	vector<Ciphertext<ILVector2n>> ciphertext;
+	EncryptResult eResult = CryptoUtility<ILVector2n>::Encrypt(*ctx->getAlgorithm(), pk, plaintext, &ciphertext);
 
-	Ciphertext<ILVector2n> ciphertext;
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-	ptxt.Pad<ZeroPad>(ctx->getPadAmount());
+	if (!eResult.isValid) {
+		cout << "Encryption failed!" << endl;
+		exit(1);
+	}
 
-	ctx->getAlgorithm()->Encrypt(pk,ptxt,&ciphertext);
 
 	//Decryption
+	ByteArray plaintextNew;
+	DecryptResult dResult = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(), sk, ciphertext, &plaintextNew);
 
-	ByteArrayPlaintextEncoding plaintextNew;
-
-	DecryptResult result = ctx->getAlgorithm()->Decrypt(sk,ciphertext,&plaintextNew);
-	plaintextNew.Unpad<ZeroPad>();
-
-	if (!result.isValid) {
+	if (!dResult.isValid) {
 		cout << "Decryption failed!" << endl;
 		exit(1);
 	}
 
-	ptxt.Unpad<ZeroPad>();
-	if( ptxt != plaintextNew ) {
+	if( plaintext != plaintextNew ) {
 		cout << "Decryption mismatch!" << endl;
 		exit(1);
 	}
@@ -193,23 +190,23 @@ runOneRound(CryptoContext<ILVector2n> *ctx)
 
 	//Perform the proxy re-encryption operation.
 
-	Ciphertext<ILVector2n> newCiphertext;
+	vector<Ciphertext<ILVector2n>> newCiphertext;
 
-	ctx->getAlgorithm()->ReEncrypt(evalKey, ciphertext, &newCiphertext);
+	CryptoUtility<ILVector2n>::ReEncrypt(*ctx->getAlgorithm(), evalKey, ciphertext, &newCiphertext);
 
 	//Decryption
 
-	ByteArrayPlaintextEncoding plaintextNew2;
+	ByteArray plaintextNew2;
 
-	DecryptResult result1 = ctx->getAlgorithm()->Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
-	plaintextNew2.Unpad<ZeroPad>();
+	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(), newSK, newCiphertext, &plaintextNew2);
+
 
 	if (!result1.isValid) {
 		cout << "Second decryption failed!" << endl;
 		exit(1);
 	}
 
-	if( ptxt != plaintextNew2 ) {
+	if( plaintext != plaintextNew2 ) {
 		cout << "Re-encryption mismatch!" << endl;
 		exit(1);
 	}

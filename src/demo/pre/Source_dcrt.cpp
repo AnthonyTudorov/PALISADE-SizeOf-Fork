@@ -108,9 +108,6 @@ void NTRU_DCRT() {
 	usint m = 2048;
 
 	const ByteArray plaintext = "I am a good boy, who are you?";
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-	ptxt.Pad<ZeroPad>(m/16);
-//	ptxt.Pad<ZeroPad>(m/8);
 
 	float stdDev = 4;
 
@@ -118,7 +115,7 @@ void NTRU_DCRT() {
 
 	std::cout << "tower size: " << size << std::endl;
 
-	ByteArrayPlaintextEncoding ctxtd;
+	ByteArray ctxtd;
 
 	vector<BigBinaryInteger> moduli(size);
 
@@ -154,9 +151,8 @@ void NTRU_DCRT() {
 	cryptoParams2.SetElementParams(params);
 	cryptoParams2.SetDiscreteGaussianGenerator(dgg);
 
-	Ciphertext<ILVectorArray2n> cipherText2;
-	cipherText2.SetCryptoParameters(&cryptoParams2);
-
+	vector<Ciphertext<ILVectorArray2n>> cipherText2;
+	//cipherText2.SetCryptoParameters(&cryptoParams2);
 
 	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams2);
 	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams2);
@@ -166,20 +162,17 @@ void NTRU_DCRT() {
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2(chunksize);
 	algorithm2.Enable(ENCRYPTION);
 
-	//LPAlgorithmLTV<ILVectorArray2n> algorithm2;
-
 	algorithm2.KeyGen(&pk2, &sk2);
 
-	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm2, pk2, ptxt, &cipherText2);
+	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm2, pk2, plaintext, &cipherText2);
 
 	//algorithm2.Encrypt(pk2, element, &cipherText2);
 
-	algorithm2.Decrypt(sk2, cipherText2, &ctxtd);
+	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm2, sk2, cipherText2, &ctxtd);
 
 	finish = currentDateTime();
 
 	diff = finish - start;
-	ctxtd.Unpad<ZeroPad>();
 
 	cout << "Decrypted value ILVectorArray2n: \n" << endl;
 	cout << ctxtd<< "\n" << endl;

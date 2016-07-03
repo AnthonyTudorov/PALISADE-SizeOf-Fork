@@ -49,35 +49,46 @@ public:
      *  @brief Standard string constructor.
      */
     ByteArray(const std::string& str);
+
     /**
      *  @brief C-string string constructor.
      */
     ByteArray(const char* cstr);
+
     /**
      *  @brief Explicit constructor for C-strings that do not end at the first null
      *  byte.
      */
     ByteArray(const char* cstr, usint len);
+
+    ByteArray(std::vector<uint8_t>::const_iterator sIter, std::vector<uint8_t>::const_iterator eIter) : std::vector<uint8_t>(sIter, eIter) {}
+
     /**
      *  @brief Explicit constructor for vectors
      *  byte.
      */
-	ByteArray(const std::vector<uint8_t> &rhs) : std::vector<uint8_t>(rhs) {};
+	ByteArray(const std::vector<uint8_t> &rhs) : std::vector<uint8_t>(rhs) {}
+
     /**
      *  @brief Array constructor, i.e. `ByteArray({1,2,3})`.
      */
     template<size_t N>
-	ByteArray(std::array<uint8_t, N> arr) : vector(arr.begin(), arr.end()) {};
+	ByteArray(std::array<uint8_t, N> arr) : vector(arr.begin(), arr.end()) {}
+
     ByteArray();
+
     /**
      *  @brief C-string assignment.
      */
     ByteArray& operator=(const char* cstr);
+
     /**
      *  @brief string assignment.
      */
     ByteArray& operator= (const std::string& s);
-private:
+
+    using std::vector<uint8_t>::begin;
+    using std::vector<uint8_t>::end;
 };
 
 #endif

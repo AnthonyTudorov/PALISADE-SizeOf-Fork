@@ -179,7 +179,7 @@ EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publi
 template <class Element>
 DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &privateKey, 
 		const Ciphertext<Element> &ciphertext,
-		PlaintextEncodingInterface *plaintext) const
+		Element *plaintext) const
 		{
 
 	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
@@ -196,6 +196,8 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &priv
 
 	b.SwitchFormat();
 
+	*plaintext = b;
+
 	//Element m(elementParams);
 	//m = b.Mod(p);
 
@@ -207,7 +209,7 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &priv
 
 	//m.DecodeElement(static_cast<ByteArrayPlaintextEncoding*>(plaintext),p);
 	//	plaintext->Decode(p,m);
-	plaintext->Decode(p,b);
+	//plaintext->Decode(p,b);
 
 	return DecryptResult(plaintext->GetLength());
 		}

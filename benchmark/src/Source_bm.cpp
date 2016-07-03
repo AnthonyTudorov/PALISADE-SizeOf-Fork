@@ -55,6 +55,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "lib/lattice/ilvectorarray2n.h"
 
 #include "lib/encoding/byteencoding.h"
+#include "lib/encoding/cryptoutility.h"
 
 #include "lib/utils/debug.h"
 
@@ -234,16 +235,13 @@ void NTRUPRE(int input) {
 	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
-	Ciphertext<ILVector2n> ciphertext;
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-    ptxt.Pad<ZeroPad>(m/16);
-	//ptxt.Pad<ZeroPad>(m/8);
+	vector<Ciphertext<ILVector2n>> ciphertext;
 
 	std::cout << "Running encryption..." << std::endl;
 
 	start = currentDateTime();
 
-	algorithm.Encrypt(pk,ptxt,&ciphertext);	// This is the core encryption operation.
+	CryptoUtility<ILVector2n>::Encrypt(algorithm,pk,plaintext,&ciphertext);	// This is the core encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -257,14 +255,13 @@ void NTRUPRE(int input) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArrayPlaintextEncoding plaintextNew;
+	ByteArray plaintextNew;
 
 	std::cout <<"\n"<< "Running decryption..." << std::endl;
 
 	start = currentDateTime();
 
-	DecryptResult result = algorithm.Decrypt(sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
-    plaintextNew.Unpad<ZeroPad>();
+	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm,sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -330,13 +327,13 @@ void NTRUPRE(int input) {
 	////////////////////////////////////////////////////////////
 
 
-	Ciphertext<ILVector2n> newCiphertext;
+	vector<Ciphertext<ILVector2n>> newCiphertext;
 
 	std::cout <<"\n"<< "Running re-encryption..." << std::endl;
 
 	start = currentDateTime();
 
-	algorithm.ReEncrypt(evalKey, ciphertext,&newCiphertext);  // This is the core re-encryption operation.
+	CryptoUtility<ILVector2n>::ReEncrypt(algorithm, evalKey, ciphertext, &newCiphertext);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -349,14 +346,13 @@ void NTRUPRE(int input) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArrayPlaintextEncoding plaintextNew2;
+	ByteArray plaintextNew2;
 
 	std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
 
 	start = currentDateTime();
 
-	DecryptResult result1 = algorithm.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
-    plaintextNew2.Unpad<ZeroPad>();
+	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(algorithm,newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;

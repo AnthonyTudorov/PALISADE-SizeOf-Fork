@@ -801,7 +801,7 @@ namespace lbcrypto {
 			 */			
 			DecryptResult Decrypt(const LPPrivateKey<Element> &privateKey, 
 				const Ciphertext<Element> &ciphertext,
-				PlaintextEncodingInterface *plaintext) const;
+				Element *plaintext) const;
 			
 			/**
 			 * Function to generate public and private keys

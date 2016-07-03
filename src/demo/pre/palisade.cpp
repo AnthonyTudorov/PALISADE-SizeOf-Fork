@@ -40,6 +40,7 @@ using namespace std;
 
 #include "../../lib/utils/serializablehelper.h"
 #include "../../lib/encoding/byteencoding.h"
+#include "../../lib/encoding/cryptoutility.h"
 
 using namespace lbcrypto;
 
@@ -168,8 +169,10 @@ decrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	Ciphertext<ILVector2n> ciphertext;
-	ByteArrayPlaintextEncoding plaintext;
+	Ciphertext<ILVector2n> oneCiphertext;
+	vector<Ciphertext<ILVector2n>> ciphertext;
+
+	ByteArray plaintext;
 
 	string inBuf;
 	char ch;
@@ -187,13 +190,14 @@ decrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 			break;
 		}
 
-		if( !ciphertext.Deserialize(ser, ctx) ) {
+		if( !oneCiphertext.Deserialize(ser, ctx) ) {
 			cerr << "Error deserializing ciphertext" << endl;
 			break;
 		}
 
-		DecryptResult rv = ctx->getAlgorithm()->Decrypt(sk, ciphertext, &plaintext);
-		plaintext.Unpad<ZeroPad>();
+		ciphertext.push_back(oneCiphertext);
+		DecryptResult rv = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(), sk, ciphertext, &plaintext);
+		ciphertext.clear();
 
 		outF << plaintext << flush;
 
@@ -249,26 +253,28 @@ encrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 		char *chunkb = new char[s];
 		inf.read(chunkb, s);
 
-		ByteArrayPlaintextEncoding ptxt( ByteArray(chunkb, s) );
-		ptxt.Pad<ZeroPad>(ctx->getPadAmount());
+		ByteArray ptxt(chunkb, s);
+
 		delete chunkb;
 
-		Ciphertext<ILVector2n> ciphertext;
+		vector<Ciphertext<ILVector2n>> ciphertext;
 
-		ctx->getAlgorithm()->Encrypt(pk, ptxt, &ciphertext);
+		CryptoUtility<ILVector2n>::Encrypt(*ctx->getAlgorithm(), pk, ptxt, &ciphertext);
 		Serialized cipS;
 		string cipherSer;
 
-		if( ciphertext.Serialize(&cipS, "Enc") ) {
-			if( !SerializableHelper::SerializationToString(cipS, cipherSer) ) {
-				cerr << "Error stringifying serialized ciphertext" << endl;
+		for( int j=0; j<ciphertext.size(); j++ ) {
+			if( ciphertext[j].Serialize(&cipS, "Enc") ) {
+				if( !SerializableHelper::SerializationToString(cipS, cipherSer) ) {
+					cerr << "Error stringifying serialized ciphertext" << endl;
+					break;
+				}
+
+				ctSer << cipherSer << "$" << flush;
+			} else {
+				cerr << "Error serializing ciphertext" << endl;
 				break;
 			}
-
-			ctSer << cipherSer << "$" << flush;
-		} else {
-			cerr << "Error serializing ciphertext" << endl;
-			break;
 		}
 
 		totalBytes -= ctx->getChunksize();
@@ -376,15 +382,15 @@ struct {
 	string		helpline;
 } cmds[] = {
 		"makekey", keymaker, " [optional parms] keyname\n"
-			"\tcreate a new keypair and save in keyfilePUB.txt and keyfilePRI.txt",
+		"\tcreate a new keypair and save in keyfilePUB.txt and keyfilePRI.txt",
 		"makerekey", rekeymaker, " [optional parms] pubkey_file secretkey_file rekey_file\n"
-			"\tcreate a re-encryption key from the contents of pubkey_file and secretkey_file, save in rekey_file",
+		"\tcreate a re-encryption key from the contents of pubkey_file and secretkey_file, save in rekey_file",
 		"encrypt", encrypter, " [optional parms] plaintext_file pubkey_file ciphertext_file\n"
-			"\tencrypt the contents of plaintext_file using the contents of pubkey_file, save results in ciphertext_file",
+		"\tencrypt the contents of plaintext_file using the contents of pubkey_file, save results in ciphertext_file",
 		"reencrypt", reencrypter, " [optional parms] encrypted_file rekey_file reencrypted_file\n"
-			"\treencrypt the contents of encrypted_file using the contents of rekey_file, save results in reencrypted_file",
+		"\treencrypt the contents of encrypted_file using the contents of rekey_file, save results in reencrypted_file",
 		"decrypt", decrypter,  " [optional parms] ciphertext_file prikey_file cleartext_file\n"
-			"\tdecrypt the contents of ciphertext_file using the contents of prikey_file, save results in cleartext_file",
+		"\tdecrypt the contents of ciphertext_file using the contents of prikey_file, save results in cleartext_file",
 
 };
 

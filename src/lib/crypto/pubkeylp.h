@@ -320,7 +320,7 @@ namespace lbcrypto {
 			 */
 			virtual DecryptResult Decrypt(const LPPrivateKey<Element> &privateKey, 
 				const Ciphertext<Element> &ciphertext,
-				PlaintextEncodingInterface *plaintext) const = 0;
+				Element *plaintext) const = 0;
 
 			/**
 			 * Function to generate public and private keys
@@ -601,7 +601,7 @@ namespace lbcrypto {
 
 		//wrapper for Decrypt method
 		DecryptResult Decrypt(const LPPrivateKey<Element> &privateKey, const Ciphertext<Element> &ciphertext,
-				PlaintextEncodingInterface *plaintext) const {
+				Element *plaintext) const {
 				if(this->IsEnabled(ENCRYPTION))
 					return this->m_algorithmEncryption->Decrypt(privateKey,ciphertext,plaintext);
 				else {
@@ -638,6 +638,10 @@ namespace lbcrypto {
 				}
 		}
 
+		/**
+		 *
+		 * @return the size of plaintext that this scheme can process in one low-level call
+		 */
 		const size_t getChunkSize() const { return chunksize; }
 
 		const LPEncryptionAlgorithm<Element>& getAlgorithm() const { return *m_algorithmEncryption; }

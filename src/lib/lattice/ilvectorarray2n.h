@@ -107,6 +107,15 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
 
+		usint GetLength() const {
+			usint tot = 0;
+			for( auto vec : m_vectors ) {
+				tot += vec.GetLength();
+			}
+			return tot;
+		}
+
+
 		/**
 		* Assignment Operator.
 		*

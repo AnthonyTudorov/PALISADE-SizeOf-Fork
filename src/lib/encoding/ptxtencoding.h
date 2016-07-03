@@ -61,7 +61,7 @@ namespace lbcrypto {
 	class PlaintextEncodingInterface
 	{
 	public:
-
+		virtual ~PlaintextEncodingInterface() {}
 
 		/** Interface for the operation of converting from current plaintext encoding to ilVectorArray2n.
 		*
