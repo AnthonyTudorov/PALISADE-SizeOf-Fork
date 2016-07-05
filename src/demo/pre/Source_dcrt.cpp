@@ -78,7 +78,7 @@ int main() {
 
 
 	//MultTest();
-	RingReduceDCRTTest();
+//	RingReduceDCRTTest();
 
 	NTRU_DCRT();
 	//LevelCircuitEvaluation();
