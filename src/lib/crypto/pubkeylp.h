@@ -682,6 +682,17 @@ namespace lbcrypto {
 				}
 		}
 
+		bool SparseKeyGen(LPPublicKey<Element> &publicKey, 
+		        	LPPrivateKey<Element> &privateKey, 
+			        const DiscreteGaussianGenerator &dgg) const {
+				if(this->IsEnabled(ENCRYPTION))
+					return this->m_algorithmEncryption->SparseKeyGen(publicKey, privateKey, dgg);
+				else {
+					throw std::logic_error("This operation is not supported");
+				}
+				
+		}
+
 		//wrapper for EvalKeyGen method
 		bool EvalKeyGen(const LPPublicKey<Element> &newPublicKey, const LPPrivateKey<Element> &origPrivateKey,
 			LPEvalKey<Element> *evalKey) const{

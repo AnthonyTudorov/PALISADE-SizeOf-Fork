@@ -96,7 +96,9 @@ bool LPAlgorithmLTV<Element>::SparseKeyGen(LPPublicKey<Element> &publicKey,
 
 	f = p*f;
 	f = f + BigBinaryInteger::ONE;
+	f.PrintValues();
 	f.MakeSparse(BigBinaryInteger::TWO);
+	f.PrintValues();
 
 	f.SwitchFormat();
 
@@ -330,19 +332,20 @@ void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherTe
 
 		//Once the keyswitching of the ciphertext has been done, based on the algorithm in the referenced paper, the ciphertext needs to be decomposed.
 
-		Element *keySwitchedCipherTextElement =  &const_cast<Element&>( keySwitchedCipherText->GetElement() ) ;
+		Element keySwitchedCipherTextElement( keySwitchedCipherText->GetElement() );
+		
 		//changing from EVALUATION to COEFFICIENT domain before performing Decompose operation. Decompose is done in coeffiecient domain.
-		(*keySwitchedCipherTextElement).SwitchFormat();
+		keySwitchedCipherTextElement.SwitchFormat();
 
 		//Element sparsePrivateKeyElement = sparsePrivateKey.GetPrivateElement(); //EVALUATION
 
 		//sparsePrivateKeyElement.SwitchFormat(); //COEFF
 		/*Based on the algorithm their needs to be a decompose done on the ciphertext. The W factor in this function is 2. The decompose is done
 		on the elements of */
-		(*keySwitchedCipherTextElement).Decompose();
+		keySwitchedCipherTextElement.Decompose();
 		//sparsePrivateKeyElement.Decompose();
 
-		keySwitchedCipherTextElement->SwitchFormat();
+		keySwitchedCipherTextElement.SwitchFormat();
 		
 		//making sure the keySwitchedCipherTextElement and sparsePrivateKeyElement have the same params, especially the same rootsOfUnity
 		//sparsePrivateKeyElement.SetParams(keySwitchedCipherTextElement->GetParams());
@@ -352,7 +355,7 @@ void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherTe
 
 		//lpCryptoParams.SetElementParams(keySwitchedCipherTextElement->AccessParams());
 
-		cipherText->SetElement(*keySwitchedCipherTextElement);
+		cipherText->SetElement(keySwitchedCipherTextElement);
 		//privateKey->SetPrivateElement(sparsePrivateKeyElement);
 		//cipherText->SetCryptoParameters(lpCryptoParams);
 		//privateKey->SetCryptoParameters(&lpCryptoParams);

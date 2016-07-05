@@ -944,14 +944,26 @@ void RingReduceDCRTTest(){
 	std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2(mask);
 
+	//KeyGens
 	algorithm2.KeyGen(&pk, &sk);
-	//algorithm2
+	algorithm2.SparseKeyGen(sparsePk,sparseSk,dgg);
+
 
 	/*sk2.GetPrivateElement().PrintValues();
 	pk2.GetPublicElement().PrintValues();*/
 
 	algorithm2.Encrypt(pk, ptxt, &cipherText);
-	algorithm2.Decrypt(sk, cipherText, &ctxtd);
+
+	LPKeySwitchHintLTV<ILVectorArray2n> linearKeySwitchHint;
+
+	algorithm2.m_algorithmLeveledSHE->KeySwitchHintGen(sk,sparseSk, &linearKeySwitchHint);
+
+
+	algorithm2.m_algorithmLeveledSHE->RingReduce(&cipherText,linearKeySwitchHint);
+
+	//generate keyswicth hint, sk -> sparseSk
+
+	algorithm2.Decrypt(sparseSk, cipherText, &ctxtd);
 
 	/*ctxtd.Unpad<ZeroPad>();
 
