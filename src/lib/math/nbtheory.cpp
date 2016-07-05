@@ -333,7 +333,6 @@ BigBinaryInteger FindPrimeModulus(usint m, usint nBits)
 }
 
 void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha) {
-	
 	BigBinaryInteger bigSixteen("16");
 	BigBinaryInteger lowerBound;
 	BigBinaryInteger ringDimensions(ringDimension);
@@ -369,7 +368,7 @@ void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const 
 		q = q + BigBinaryInteger::ONE;
 	  	NextQ(q, plainTextModulus, ringDimension, sigma, alpha);
 	}
-
+		
 }
 
 

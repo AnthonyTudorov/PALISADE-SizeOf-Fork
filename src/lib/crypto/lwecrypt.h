@@ -231,6 +231,70 @@ namespace lbcrypto {
 			*/
 			bool Deserialize(const Serialized& serObj);
 
+			/**
+			* Populate the vector with moduli for secure encryption/decryption and ComposedEvalMult. The function takes into account the depth of computation
+			* , distribution parameter, security level, assurance measure
+			* @param *moduli contains the serialized object
+			* @return true on success
+			*/
+		   void ParameterSelection(int& n, vector<BigBinaryInteger> &moduli) {
+			  int t = m_depth + 1;
+			  int d = m_depth;
+
+			  BigBinaryInteger pBigBinaryInteger(GetPlaintextModulus());
+			  int p = pBigBinaryInteger.ConvertToInt();
+			  double w = m_assuranceMeasure;
+			  double r = m_distributionParameter;
+			  double rootHermitFactor = m_securityLevel;
+
+			  double sqrtn = sqrt(n);
+			  double q1 = 4 * p * r * sqrtn * w;
+			  double q2 = 4 * pow(p, 2) * pow(r, 5) * pow(sqrtn, 3) * pow(w, 5);
+
+			  BigBinaryInteger plaintextModulus(p);
+
+			  double* q = new double[t];
+			  q[0] = q1;
+			  for(int i=1; i<t; i++) 
+			    	q[i] = q2;
+
+			  double sum = 0.0;
+			  for(int i=0; i<t; i++) {
+				  sum += log(q[i]);
+			  }
+
+			  int next = ceil(sum/ (4 * log(rootHermitFactor)));
+			  int nprime = pow(2, ceil(log(next)/log(2))); 
+			  char c = '.';
+
+			  if(n == nprime) {
+				sum = 0.0;
+				for(int i=0; i<t; i++) {
+					moduli[i] = BigBinaryInteger(split(std::to_string(q[i]), c));
+					if(i == 0 || i == 1){
+						NextQ(moduli[i], pBigBinaryInteger, n, BigBinaryInteger("4"), BigBinaryInteger("4")); 
+					}
+					else{
+						moduli[i] = moduli[i-1];
+						NextQ(moduli[i], pBigBinaryInteger, n, BigBinaryInteger("4"), BigBinaryInteger("4")); 
+					}
+					q[i] = moduli[i].ConvertToDouble();
+					sum += log(q[i]);
+				}
+
+					int nprimeCalcFactor = ceil(sum/ (4 * log(rootHermitFactor)));
+					if(nprime < nprimeCalcFactor){
+						n *= 2;
+						ParameterSelection(n, moduli);
+					} 
+				} else {
+					n *= 2;
+					ParameterSelection(n, moduli);
+					}
+
+				delete q;
+			}
+
 			bool operator==(const LPCryptoParameters<Element>* cmp) const {
 				const LPCryptoParametersLTV<Element> *el = dynamic_cast<const LPCryptoParametersLTV<Element> *>(cmp);
 
@@ -257,6 +321,16 @@ namespace lbcrypto {
 			int m_depth;
 			//Discrete Gaussian Generator
 			DiscreteGaussianGenerator m_dgg;
+			//helper function for ParameterSelection. Splits the string 's' by the delimeter 'c'.
+			std::string split(const std::string s, char c){
+				std::string result;
+				const char *str = s.c_str();
+				const char *begin = str;
+				while(*str != c && *str)
+				str++;
+				result = std::string(begin, str);
+				return result;
+			}
 	};
 
 	/**

@@ -62,6 +62,7 @@ void LevelCircuitEvaluation2();
 void MultTest();
 void RingReduceTest();
 void RingReduceDCRTTest();
+void TestParameterSelection();
 
 /**
  * @brief Input parameters for PRE example.
@@ -80,10 +81,12 @@ int main() {
 	//MultTest();
 //	RingReduceDCRTTest();
 
-	NTRU_DCRT();
+//	NTRU_DCRT();
 	//LevelCircuitEvaluation();
 	//LevelCircuitEvaluation1();
 //	LevelCircuitEvaluation2();
+
+	TestParameterSelection();
 
 	std::cin.get();
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
@@ -376,8 +379,6 @@ void SparseKeyGenTestDoubleCRT(){
 //	cout << ctxtd<< "\n" << endl;
 
 }
-
-
 
 void LevelCircuitEvaluation(){
 	usint m = 8;
@@ -699,9 +700,6 @@ void LevelCircuitEvaluation1(){
 
 
 }
-
-
-
 
 void LevelCircuitEvaluation2(){
 
@@ -1041,3 +1039,62 @@ void RingReduceDCRTTest(){
 //	cout << ctxtd<< "\n" << endl;
 //
 //}
+
+void TestParameterSelection(){
+
+double diff, start, finish;
+
+	start = currentDateTime();
+
+	usint m = 16;
+
+	float stdDev = 4;
+
+	usint size = 11;
+
+	std::cout << "tower size: " << size << std::endl;
+
+	ByteArrayPlaintextEncoding ctxtd;
+
+	vector<BigBinaryInteger> moduli(size);
+
+	vector<BigBinaryInteger> rootsOfUnity(size);
+
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+	BigBinaryInteger modulus("1");
+
+	for(int i=0; i < size;i++){
+        lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+		moduli[i] = q;
+		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+		modulus = modulus* moduli[i];
+	
+	}
+
+	cout << "big modulus: " << modulus << endl;
+	DiscreteGaussianGenerator dgg(stdDev);
+
+	ILDCRTParams params(rootsOfUnity, m, moduli);
+
+	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+	cryptoParams.SetDistributionParameter(stdDev);
+	cryptoParams.SetRelinWindow(1);
+	cryptoParams.SetElementParams(params);
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);
+	cryptoParams.SetAssuranceMeasure(6);
+	cryptoParams.SetDepth(size-1);
+	cryptoParams.SetSecurityLevel(1.006);
+
+	int n = 16;
+
+	std::vector<BigBinaryInteger> moduliV(size);
+
+	cryptoParams.ParameterSelection(n,moduliV);
+
+	cout << "Ring Dimension is" << n << endl;
+	for(int i = 0; i < size; i++){
+		cout << moduliV.at(i) << endl;
+	}
+}
