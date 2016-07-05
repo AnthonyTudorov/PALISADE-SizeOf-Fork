@@ -539,6 +539,8 @@ namespace lbcrypto {
 	*/
 	ILVector2n ILVectorArray2n::InterpolateIlArrayVector2n() const
 	{
+		if(m_numberOfTowers == 1) return m_vectors.at(0);
+
 		/*initializing variables for effciency*/
 		usint ringDimension = m_cyclotomicOrder / 2;
 
