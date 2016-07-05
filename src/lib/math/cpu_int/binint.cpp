@@ -169,7 +169,7 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(BigBinaryInteger &&bigIn
 
 template<typename uint_type,usint BITLENGTH>
 std::function<unique_ptr<BigBinaryInteger<uint_type,BITLENGTH>>()> BigBinaryInteger<uint_type,BITLENGTH>::Allocator = [](){
-	return lbcrypto::make_unique<cpu_int::BigBinaryInteger<uint32_t,1500>>();
+	return make_unique<cpu_int::BigBinaryInteger<uint_type,BITLENGTH>>();
 };
 
 template<typename uint_type,usint BITLENGTH>
