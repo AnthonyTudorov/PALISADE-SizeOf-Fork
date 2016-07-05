@@ -96,9 +96,7 @@ bool LPAlgorithmLTV<Element>::SparseKeyGen(LPPublicKey<Element> &publicKey,
 
 	f = p*f;
 	f = f + BigBinaryInteger::ONE;
-	f.PrintValues();
 	f.MakeSparse(BigBinaryInteger::TWO);
-	f.PrintValues();
 
 	f.SwitchFormat();
 
@@ -441,8 +439,6 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 	b.SwitchFormat();
 
 	b = std::move(b.Mod(p));
-
-	b.PrintValues();
 
 	plaintext->Decode(p,b);
 
