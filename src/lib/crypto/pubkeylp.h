@@ -377,7 +377,7 @@ namespace lbcrypto {
 			 */
 			virtual void ModReduce(Ciphertext<Element> *cipherText) const = 0; 
 
-				/**
+			/**
 			 * Method for RingReduce
 			 *
 			 * @param &cipherText Ciphertext to perform ring reduce on.
@@ -385,6 +385,21 @@ namespace lbcrypto {
 			 */
 			virtual void RingReduce(Ciphertext<Element> *cipherText, const LPKeySwitchHint<Element> &keySwitchHint) const = 0; 
 
+			/**
+			 * Method for Composed EvalMult
+			 *
+			 * @param &cipherText Ciphertext1, Ciphertext2 to perform multiplication on.
+			 * @param &quadKeySwitchHint is the quadratic key switch hint.
+			 */
+			virtual void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPKeySwitchHint<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const = 0;
+
+			/**
+			 * Method for Level Reduction from sk -> sk1.
+			 *
+			 * @param &cipherText Ciphertext1, Ciphertext2 to perform multiplication on.
+			 * @param &linearKeySwitchHint is the linear key switch hint.
+			 */
+			virtual void LevelReduce(const Ciphertext<Element> &cipherText1, const LPKeySwitchHint<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const = 0;
 
 	};
 
@@ -459,6 +474,11 @@ namespace lbcrypto {
 			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
 				Ciphertext<Element> *newCiphertext) const = 0;
+
+			virtual void EvalAdd(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const = 0;
+
 	};
 
 	/**

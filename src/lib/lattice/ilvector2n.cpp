@@ -443,7 +443,8 @@ namespace lbcrypto {
 
 	// This function modifies ILVector2n to keep all the even indices. It reduces the ring dimension by half.
 	void ILVector2n::Decompose() {
-		Format format( this->GetFormat() );
+		
+		Format format( m_format );
 		
 		if(format != Format::COEFFICIENT) {
 			std::string errMsg = "ILVector2n not in COEFFICIENT format to perform Decompose.";
@@ -451,18 +452,17 @@ namespace lbcrypto {
 		}
 		
 		//Generation of new crypto parameters
-		usint decomposedCyclotomicOrder = this->m_params.GetCyclotomicOrder()/2;
+		usint decomposedCyclotomicOrder = m_params.GetCyclotomicOrder()/2;
 		m_params.SetRootOfUnity(RootOfUnity(decomposedCyclotomicOrder, GetModulus()));
 		m_params.SetCyclotomicOrder(decomposedCyclotomicOrder);
 
 		//Interleaving operation.
-		BigBinaryVector decomposeValues(this->GetLength()/2, this->GetModulus());
-		for(usint i = 0; i < this->GetLength();i=i+2){
-			decomposeValues.SetValAtIndex(i/2, this->GetValues().GetValAtIndex(i));
-			// std::cout << this->GetValues().GetValAtIndex(i) << std::endl;
+		BigBinaryVector decomposeValues(GetLength()/2, GetModulus());
+		for(usint i = 0; i < GetLength();i=i+2){
+			decomposeValues.SetValAtIndex(i/2, GetValues().GetValAtIndex(i));
 		}
 
-		this->SetValues(decomposeValues, this->GetFormat());
+		SetValues(decomposeValues, m_format);
 	}
 
 	bool ILVector2n::IsEmpty() const{

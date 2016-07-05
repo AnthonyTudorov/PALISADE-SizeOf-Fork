@@ -309,54 +309,54 @@ void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(Ciphertext<ILVectorArr
 */
 template<class Element>
 void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherText, const LPKeySwitchHint<Element> &keySwitchHint) const {
-		
-		////lpCryptoParams created to access cryptoParameters
-		//LPCryptoParametersLTV<Element> &lpCryptoParams = dynamic_cast<LPCryptoParametersLTV<Element>&>(privateKey->AccessCryptoParameters());
 
-		//LPPublicKeyLTV<Element> pk(lpCryptoParams);
-
-		//LPPrivateKeyLTV<Element> sparsePrivateKey(lpCryptoParams);
-		////TODO change sparsekeygen to not have pub k
-
-		////Getting a reference to the LTV scheme, so we can generate a sparsekey. 
-		//const LPAlgorithmLTV<Element> *m_algorithmEncryption2 = dynamic_cast<const LPAlgorithmLTV<Element> *> (this->GetScheme().m_algorithmEncryption);
-		//m_algorithmEncryption2->SparseKeyGen(pk, sparsePrivateKey, lpCryptoParams.GetDiscreteGaussianGenerator());
-
-		//LPKeySwitchHintLTV<Element> keySwitchHint;
-		//// We need this keyswtich hint which is a hint to convert ciphertext from the original key to the sparsekey. 
-		//KeySwitchHintGen(*privateKey, sparsePrivateKey, &keySwitchHint);
-		// Place holder for Key switched ciphertext. The element of the ciphertext is the Keyswtiched version of the ciphertext based on the KeySwitchHint of original private key to sparse private key.
-		Ciphertext<Element> *keySwitchedCipherText = new Ciphertext<Element>( this->KeySwitch( keySwitchHint, *cipherText) );
+		//KeySwitching to a cipherText that can be decrypted by a sparse key. 
+		*cipherText = this->KeySwitch( keySwitchHint, *cipherText) ;
 
 		//Once the keyswitching of the ciphertext has been done, based on the algorithm in the referenced paper, the ciphertext needs to be decomposed.
-
-		Element keySwitchedCipherTextElement( keySwitchedCipherText->GetElement() );
+		Element keySwitchedCipherTextElement(cipherText->GetElement());
 		
 		//changing from EVALUATION to COEFFICIENT domain before performing Decompose operation. Decompose is done in coeffiecient domain.
 		keySwitchedCipherTextElement.SwitchFormat();
 
-		//Element sparsePrivateKeyElement = sparsePrivateKey.GetPrivateElement(); //EVALUATION
-
-		//sparsePrivateKeyElement.SwitchFormat(); //COEFF
 		/*Based on the algorithm their needs to be a decompose done on the ciphertext. The W factor in this function is 2. The decompose is done
-		on the elements of */
-		keySwitchedCipherTextElement.Decompose();
-		//sparsePrivateKeyElement.Decompose();
+		on the elements of keySwitchedCipherTextElement*/
+		keySwitchedCipherTextElement.Decompose();		
 
+		//Converting back to EVALUATION representation.
 		keySwitchedCipherTextElement.SwitchFormat();
-		
-		//making sure the keySwitchedCipherTextElement and sparsePrivateKeyElement have the same params, especially the same rootsOfUnity
-		//sparsePrivateKeyElement.SetParams(keySwitchedCipherTextElement->GetParams());
 
-		//Switch Format on sparsePrivateKeyElement SHOULD be done after the rootsOfUnity in it are the same as keySwitchedCipherTextElement
-		//sparsePrivateKeyElement.SwitchFormat();
-
-		//lpCryptoParams.SetElementParams(keySwitchedCipherTextElement->AccessParams());
-
+		//setting the decomposed element into ciphertext.
 		cipherText->SetElement(keySwitchedCipherTextElement);
-		//privateKey->SetPrivateElement(sparsePrivateKeyElement);
-		//cipherText->SetCryptoParameters(lpCryptoParams);
-		//privateKey->SetCryptoParameters(&lpCryptoParams);
+
+		//Modifying the cipherText crypto parameters to account for changes in cipherText Element.
+		//const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element>&>(cipherText->GetCryptoParameters());
+		//ElemParams elementParams(cryptoParams.GetElementParams());
+		
+}
+
+template<class Element>
+void LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPKeySwitchHint<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+
+	const LPPublicKeyEncryptionSchemeLTV<Element> &scheme = dynamic_cast< const LPPublicKeyEncryptionSchemeLTV<Element> &>( this->GetScheme() );
+
+	scheme.m_algorithmSHE->EvalMult(cipherText1,cipherText2, cipherTextResult);
+
+	*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(quadKeySwitchHint,*cipherTextResult);
+
+	scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
+	
+}
+
+template<class Element>
+void LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const Ciphertext<Element> &cipherText1, const LPKeySwitchHint<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+
+	const LPPublicKeyEncryptionSchemeLTV<Element> &scheme = dynamic_cast< const LPPublicKeyEncryptionSchemeLTV<Element> &>( this->GetScheme() );
+
+	*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(linearKeySwitchHint,cipherText1);
+
+	scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
+
 }
 
 template <class Element>
@@ -365,7 +365,7 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 		Ciphertext<Element> *ciphertext) const
 		{
 
-	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
+	const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
 	//LPCryptoParameters<Element> &cryptoParams = publicKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
@@ -374,6 +374,8 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	Element m(elementParams, Format::COEFFICIENT);
 
 	plaintext.Encode(p,&m);
+
+	m.PrintValues();
 
 	m.SwitchFormat();
 

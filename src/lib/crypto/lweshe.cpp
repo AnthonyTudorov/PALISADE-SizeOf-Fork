@@ -40,11 +40,32 @@ void LPAlgorithmSHELTV<Element>::EvalMult(
 				const Ciphertext<Element> &ciphertext2, 
 				Ciphertext<Element> *newCiphertext) const
 {
-	Ciphertext<Element> ctOut(ciphertext1);
+	
+	Element c1(ciphertext1.GetElement());
 
-//	ctOut.Mult(ciphertext2);
+	Element c2(ciphertext2.GetElement());
 
-	*newCiphertext = ctOut;
+	Element cResult = c1*c2;
+
+	newCiphertext->SetElement(cResult);
+
+}  
+
+
+template <class Element>
+void LPAlgorithmSHELTV<Element>::EvalAdd(
+				const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2, 
+				Ciphertext<Element> *newCiphertext) const
+{
+	
+	Element c1(ciphertext1.GetElement());
+
+	Element c2(ciphertext2.GetElement());
+
+	Element cResult = c1+c2;
+
+	newCiphertext->SetElement(cResult);
 
 }  
 

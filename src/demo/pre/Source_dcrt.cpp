@@ -874,7 +874,7 @@ void LevelCircuitEvaluation2(){
 
 void RingReduceDCRTTest(){
 
-	usint m = 32;
+	usint m = 16;
 
 	const ByteArray plaintext = "M";
 	ByteArrayPlaintextEncoding ptxt(plaintext);
@@ -901,11 +901,11 @@ void RingReduceDCRTTest(){
 	for(int i=0; i < size;i++){
         lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
 		moduli[i] = q;
-		cout << moduli[i] << endl;
+		cout << "moduli:	"<< i << moduli[i] << endl;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
 		sparseRootsOfUnity[i] = RootOfUnity(m/2,moduli[i]);
-		cout << rootsOfUnity[i] << endl;
-		cout << sparseRootsOfUnity[i] << endl;
+		cout << "rootsOfUnity:	"<< i << rootsOfUnity[i] << endl;
+		cout << "sparseRootsOfUnity:	"<<sparseRootsOfUnity[i] << endl;
 		modulus = modulus* moduli[i];	
 	}
 
@@ -936,14 +936,18 @@ void RingReduceDCRTTest(){
 	LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
 	LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
 
-	LPPublicKeyLTV<ILVectorArray2n> sparsePk(sparseCryptoParams);
-	LPPrivateKeyLTV<ILVectorArray2n> sparseSk(sparseCryptoParams);
+	LPPublicKeyLTV<ILVectorArray2n> sparsePk(cryptoParams);
+	LPPrivateKeyLTV<ILVectorArray2n> sparseSk(cryptoParams);
 
-	std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
+	LPPublicKeyLTV<ILVectorArray2n> sparsePkDecomposed(sparseCryptoParams);
+	LPPrivateKeyLTV<ILVectorArray2n> sparseSkDecomposed(sparseCryptoParams);
+
+	std::bitset<FEATURESETSIZE> mask ( std::string("1000011") );
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2(mask);
 
 	//KeyGens
 	algorithm2.KeyGen(&pk, &sk);
+
 	algorithm2.SparseKeyGen(sparsePk,sparseSk,dgg);
 
 
@@ -956,10 +960,20 @@ void RingReduceDCRTTest(){
 
 	algorithm2.m_algorithmLeveledSHE->KeySwitchHintGen(sk,sparseSk, &linearKeySwitchHint);
 
+	//below 2 lines are to check whether sparse key switch works, sanity check
+	//cipherText = algorithm2.m_algorithmLeveledSHE->KeySwitch(linearKeySwitchHint,cipherText);
+
+	//algorithm2.Decrypt(sparseSk, cipherText, &ctxtd);
 
 	algorithm2.m_algorithmLeveledSHE->RingReduce(&cipherText,linearKeySwitchHint);
 
-	//generate keyswicth hint, sk -> sparseSk
+	//decompose the sparseSK
+	auto sparseSKElement = sparseSk.GetPrivateElement();
+
+	sparseSKElement.Decompose();
+
+	//sparseSKElement.SetRootOfUnity(cipherText.GetElement().GetRootsOfUnity());
+
 
 	algorithm2.Decrypt(sparseSk, cipherText, &ctxtd);
 
