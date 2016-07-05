@@ -774,6 +774,21 @@ namespace lbcrypto {
 		const LPPublicKeyEncryptionScheme<Element> *m_scheme;
 	};
 
+	template <class Element>
+	class LPLeveledSHEKeyStructure : public Serializable
+	{
+	private:
+		std::vector<LPKeySwitchHint<Element>> m_qksh;
+		std::vector<LPKeySwitchHint<Element>> m_lksh;
+		usint m_levels;
+
+	public:
+		explicit LPLeveledSHEKeyStructure(usint levels) : m_levels(levels) { m_qksh.reserve(levels); m_lksh.reserve(levels);};
+		LPKeySwitchHint<Element> GetLinearKeySwitchHintForLevel(usint level) { if(level>m_levels-1) {throw std::runtime_error("Level out of range");} else {return m_lksh[level];} };
+		LPKeySwitchHint<Element> GetQuadraticKeySwitchHintForLevel(usint level) { if(level>m_levels-1) {throw std::runtime_error("Level out of range");} else {return m_qksh[level];} };
+		void SetLinearKeySwitchHintForLevel(LPKeySwitchHint<Element> lksh, usint level) { if(level>m_levels-1) {throw std::runtime_error("Level out of range");} else { m_lksh[level] = lksh;} };
+		void SetQuadraticKeySwitchHintForLevel(LPKeySwitchHint<Element> qksh, usint level) { if(level>m_levels-1) {throw std::runtime_error("Level out of range");} else { m_qksh[level] = qksh;} };
+	};
 
 } // namespace lbcrypto ends
 #endif
