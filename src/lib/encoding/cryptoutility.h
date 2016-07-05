@@ -78,8 +78,10 @@ public:
 			vector<Ciphertext<Element>> cipherResults;
 
 			EncryptResult res = Encrypt(*ctx->getAlgorithm(), publicKey, pt, &cipherResults);
-			if( res.isValid == false )
+			if( res.isValid == false ) {
+				delete ptxt;
 				return res;
+			}
 
 			totBytes += res.numBytesEncrypted;
 
@@ -90,9 +92,11 @@ public:
 
 				if( oneCt.Serialize(&cS, "ct") ) {
 					if( !SerializableHelper::SerializationToStream(cS, outstream) ) {
+						delete ptxt;
 						return EncryptResult();
 					}
 				} else {
+					delete ptxt;
 					return EncryptResult();
 				}
 			}
@@ -100,6 +104,7 @@ public:
 			cipherResults.clear();
 		}
 
+		delete ptxt;
 		return EncryptResult(totBytes);
 	}
 
