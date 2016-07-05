@@ -503,15 +503,6 @@ TEST(UTDistrGen, ParallelDiscreteGaussianGenerator) {
     EXPECT_GE(mean, -0.1) << "Failure parallel generate_char_vector_mean_test mean < -0.1";;
   }
 
-<<<<<<< HEAD
-TEST(method_test_guassian_rand_generator, generate_char_vector_mean_test)
-{
-	sint stdev = 5;
-	usint size = 10000;
-  BigBinaryInteger modulus("10403");
-	DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(modulus, stdev);
-	sint* dggCharVector = dgg.GenerateCharVector(size);
-=======
   // generate_vector_mean_test
   {
     sint stdev = 5;
@@ -543,7 +534,6 @@ TEST(method_test_guassian_rand_generator, generate_char_vector_mean_test)
       dggBigBinaryVector.insert(dggBigBinaryVector.end(), dggBigBinaryVectorPvt.begin(), dggBigBinaryVectorPvt.end());
     }
   }
->>>>>>> master
 
     usint countOfZero = 0;
     double mean = 0, current = 0;

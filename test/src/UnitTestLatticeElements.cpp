@@ -28,19 +28,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <vector>
 
-#include "../../src/math/backend.h"
-#include "../../src/utils/inttypes.h"
-#include "../../src/math/nbtheory.h"
-#include "../../src/lattice/elemparams.h"
-#include "../../src/lattice/ilparams.h"
-#include "../../src/lattice/ildcrtparams.h"
-#include "../../src/lattice/ilelement.h"
-#include "../../src/math/distrgen.h"
-#include "../../src/crypto/lwecrypt.h"
-#include "../../src/crypto/lwepre.h"
-#include "../../src/lattice/ilvector2n.h"
-#include "../../src/lattice/ilvectorarray2n.h"
-#include "../../src/utils/utilities.h"
+#include "../../src/lib/math/backend.h"
+#include "../../src/lib/utils/inttypes.h"
+#include "../../src/lib/math/nbtheory.h"
+#include "../../src/lib/lattice/elemparams.h"
+#include "../../src/lib/lattice/ilparams.h"
+#include "../../src/lib/lattice/ildcrtparams.h"
+#include "../../src/lib/lattice/ilelement.h"
+#include "../../src/lib/math/distrgen.h"
+#include "../../src/lib/crypto/lwecrypt.h"
+#include "../../src/lib/crypto/lwepre.h"
+#include "../../src/lib/lattice/ilvector2n.h"
+#include "../../src/lib/lattice/ilvectorarray2n.h"
+#include "../../src/lib/utils/utilities.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -54,61 +54,309 @@ class UnitTestLatticeElements : public ::testing::Test {
     // Code here will be called immediately after each test
     // (right before the destructor).
   }
+
+ public:
+  static const usint test = 1;
 };
 
-/*--------------------------------------- TESTING METHODS OF TRANSFORM    --------------------------------------------*/
+/*--------------------------------------- TESTING METHODS OF LATTICE ELEMENTS    --------------------------------------------*/
 
-// TEST CASE TO TEST POLYNOMIAL MULTIPLICATION USING CHINESE REMAINDER THEOREM
+TEST(method_ILVector2n, operators_tests) {
+  usint m = 8;
 
-TEST(method_ILVector2n, ensures_mod_operation_during_operations_on_two_ILVector2ns){
+  BigBinaryInteger primeModulus("73");
+  BigBinaryInteger primitiveRootOfUnity("22");
 
-  usint order = 8; 
-  usint nBits = 7;
-  
-  BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(order, nBits);
-  BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(order, primeModulus);
+  ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
 
-  ILParams ilparams(order, primeModulus, primitiveRootOfUnity);
+  ILVector2n ilvector2n1(ilparams);
+  BigBinaryVector bbv1(m/2, primeModulus);
+  bbv1.SetValAtIndex(0, "1");
+  bbv1.SetValAtIndex(1, "2");
+  bbv1.SetValAtIndex(2, "0");
+  bbv1.SetValAtIndex(3, "1");
+  ilvector2n1.SetValues(bbv1, ilvector2n1.GetFormat());
 
-  DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(primeModulus);
-  
-  ILVector2n ilv1(distrUniGen, ilparams);
-  BigBinaryVector bbv1 (ilv1.GetValues());
+  ILVector2n ilvector2n2(ilparams);
+  BigBinaryVector bbv2(m/2, primeModulus);
+  bbv2.SetValAtIndex(0, "1");
+  bbv2.SetValAtIndex(1, "2");
+  bbv2.SetValAtIndex(2, "0");
+  bbv2.SetValAtIndex(3, "1");
+  ilvector2n2.SetValues(bbv2, ilvector2n2.GetFormat());
 
-  ILVector2n ilv2(distrUniGen, ilparams);
-  BigBinaryVector bbv2(ilv2.GetValues());
-  
   {
-    ILVector2n ilvResult = ilv1 + ilv2;
-    BigBinaryVector bbvResult(ilvResult.GetValues());
+    ILVector2n ilv1(ilvector2n1);
+    EXPECT_EQ(ilvector2n1.GetFormat(), ilv1.GetFormat()) << "ILVector2n_copy_constructor: copy_constructor operation is incorrect.\n";
+    EXPECT_EQ(ilvector2n1.GetValues(), ilv1.GetValues()) << "ILVector2n_operator=: copy_constructor operation is incorrect.\n";
+  }
 
-    for (usint i=0; i<order/2; i++) {
-      EXPECT_EQ(bbvResult.GetValAtIndex(i), (bbv1.GetValAtIndex(i) + bbv2.GetValAtIndex(i)).Mod(primeModulus)) << "ILVector2n + operation returns incorrect results.";
+  {
+    ILVector2n ilv1 = ilvector2n1;
+    EXPECT_EQ(ilvector2n1.GetFormat(), ilv1.GetFormat()) << "ILVector2n_operator=: Operator= is incorrect in Format comparision.\n";
+    EXPECT_EQ(ilvector2n1.GetValues(), ilv1.GetValues()) << "ILVector2n_operator=: Operator= is incorrect in comparing values.\n";
+  }
+
+  {
+    EXPECT_EQ(ilvector2n1, ilvector2n2) << "ILVector2n_operator==: Operator== is incorrect.\n";
+  }
+
+  {
+    ILVector2n ilv1 = ilvector2n1;
+    ilv1.SetModulus(BigBinaryInteger("123467"));
+    EXPECT_NE(ilvector2n1, ilv1) << "ILVector2n_operator!=: Operator!= is incorrect. It did not compare modulus properly.\n";
+
+    ILVector2n ilv2 = ilvector2n1;
+    ilv2.SetValAtIndex(2, 2);
+    EXPECT_NE(ilvector2n1, ilv2) << "ILVector2n_operator!=: Operator!= is incorrect. It did not compare values properly.\n";
+  }
+
+  {
+    ILVector2n ilv1 = ilvector2n1;
+    ilv1 -= ilvector2n1;
+    for (usint i = 0; i < m/2; ++i) {
+      EXPECT_EQ(BigBinaryInteger::ZERO, ilv1.GetValAtIndex(i)) << "ILVector2n_operator-=: Operator-= is incorrect.\n";
     }
   }
 
   {
-    ILVector2n ilvResult = ilv1 * ilv2;
-    BigBinaryVector bbvResult(ilvResult.GetValues());
+     ILVector2n ilv1 = ilvector2n1;
+     ilv1 += ilvector2n1;
+     for (usint i = 0; i < m/2; ++i)
+     {
+        EXPECT_EQ(BigBinaryInteger::TWO * ilvector2n1.GetValAtIndex(i), ilv1.GetValAtIndex(i)) << "ILVector2n_operator+=: Operator+= is incorrect.\n";
+     }
+  }
 
-    for (usint i=0; i<order/2; i++) {
-      EXPECT_EQ(bbvResult.GetValAtIndex(i), (bbv1.GetValAtIndex(i) * bbv2.GetValAtIndex(i)).Mod(primeModulus)) << "ILVector2n * operation returns incorrect results.";
+}
+
+TEST(method_ILVector2n, getters_tests) {
+  usint m = 8; 
+  
+  BigBinaryInteger primeModulus("73");
+  BigBinaryInteger primitiveRootOfUnity("22");
+
+  ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
+
+  ILVector2n ilvector2n(ilparams);
+  std::cout << "GetCyclotomicOrder = " << ilvector2n.GetCyclotomicOrder() << std::endl;
+  BigBinaryVector bbv(m/2, primeModulus);
+  bbv.SetValAtIndex(0, "1");
+  bbv.SetValAtIndex(1, "2");
+  bbv.SetValAtIndex(2, "0");
+  bbv.SetValAtIndex(3, "1");
+  ilvector2n.SetValues(bbv, ilvector2n.GetFormat());
+
+  {
+    EXPECT_EQ(primeModulus, ilvector2n.GetModulus()) << "ILVector2n.GetModulus is incorrect.\n";
+  }
+
+  {
+    EXPECT_EQ(m, ilvector2n.GetCyclotomicOrder()) << "ILVector2n.GetCyclotomicOrder is incorrect.\n";
+  }
+
+  {
+    EXPECT_EQ(primitiveRootOfUnity, ilvector2n.GetRootOfUnity()) << "ILVector2n.GetRootOfUnity is incorrect.\n";
+  }
+
+  {
+    EXPECT_EQ(bbv, ilvector2n.GetValues()) << "ILVector2n.GetRootOfUnity is incorrect.\n";
+  }
+
+  {
+    EXPECT_EQ(Format::EVALUATION, ilvector2n.GetFormat()) << "ILVector2n.GetFormat is incorrect.\n";
+  }
+
+  {
+    EXPECT_EQ(m/2, ilvector2n.GetLength()) << "ILVector2n.GetLength is incorrect.\n";
+  }
+
+  {
+    for (usint i = 0; i < m/2; ++i) {
+      EXPECT_EQ(bbv.GetValAtIndex(i), ilvector2n.GetValAtIndex(i)) << "ILVector2n.GetValAtIndex is incorrect.\n";
     }
   }
 
 }
 
+TEST(method_ILVector2n, binary_operations) {
+  usint m = 8; 
+  
+  BigBinaryInteger primeModulus("73");
+  BigBinaryInteger primitiveRootOfUnity("22");
+
+  ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
+
+  ILVector2n ilvector2n1(ilparams);
+  BigBinaryVector bbv1(m/2, primeModulus);
+  bbv1.SetValAtIndex(0, "2");
+  bbv1.SetValAtIndex(1, "1");
+  bbv1.SetValAtIndex(2, "1");
+  bbv1.SetValAtIndex(3, "1");
+  ilvector2n1.SetValues(bbv1, ilvector2n1.GetFormat());
+
+  ILVector2n ilvector2n2(ilparams);
+  BigBinaryVector bbv2(m/2, primeModulus);
+  bbv2.SetValAtIndex(0, "1");
+  bbv2.SetValAtIndex(1, "0");
+  bbv2.SetValAtIndex(2, "1");
+  bbv2.SetValAtIndex(3, "1");
+  ilvector2n2.SetValues(bbv2, ilvector2n2.GetFormat());
+
+  {
+    ILVector2n ilv1(ilvector2n1);
+    ILVector2n ilv2 = ilv1.Plus(ilvector2n2);
+
+    EXPECT_EQ(BigBinaryInteger::THREE, ilv2.GetValAtIndex(0)) << "ILVector2n.Plus is incorrect.\n";
+    EXPECT_EQ(BigBinaryInteger::ONE, ilv2.GetValAtIndex(1)) << "ILVector2n.Plus is incorrect.\n";
+    EXPECT_EQ(BigBinaryInteger::TWO, ilv2.GetValAtIndex(2)) << "ILVector2n.Plus is incorrect.\n";
+    EXPECT_EQ(BigBinaryInteger::TWO, ilv2.GetValAtIndex(3)) << "ILVector2n.Plus is incorrect.\n";
+  }
+
+  {
+    ILVector2n ilv1(ilvector2n1);
+    ILVector2n ilv2 = ilv1.Minus(ilvector2n2);
+
+    EXPECT_EQ(BigBinaryInteger::ONE, ilv2.GetValAtIndex(0)) << "ILVector2n.Minus is incorrect.\n";
+    EXPECT_EQ(BigBinaryInteger::ONE, ilv2.GetValAtIndex(1)) << "ILVector2n.Minus is incorrect.\n";
+    EXPECT_EQ(BigBinaryInteger::ZERO, ilv2.GetValAtIndex(2)) << "ILVector2n.Minus is incorrect.\n";
+    EXPECT_EQ(BigBinaryInteger::ZERO, ilv2.GetValAtIndex(3)) << "ILVector2n.Minus is incorrect.\n";
+  }
+
+  {
+    ILVector2n ilv1(ilvector2n1);
+    ILVector2n ilv2 = ilv1.Times(ilvector2n2);
+
+    EXPECT_EQ(BigBinaryInteger::TWO, ilv2.GetValAtIndex(0)) << "ILVector2n.Times is incorrect.\n";
+    EXPECT_EQ(BigBinaryInteger::ZERO, ilv2.GetValAtIndex(1)) << "ILVector2n.Times is incorrect.\n";
+    EXPECT_EQ(BigBinaryInteger::ONE, ilv2.GetValAtIndex(2)) << "ILVector2n.Times is incorrect.\n";
+    EXPECT_EQ(BigBinaryInteger::ONE, ilv2.GetValAtIndex(3)) << "ILVector2n.Times is incorrect.\n";
+  }
+
+}
+
+TEST(method_ILVector2n, clone_operations) {
+  usint m = 8;
+  BigBinaryInteger primeModulus("73");
+  BigBinaryInteger primitiveRootOfUnity("22");
+
+  ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
+
+  ILVector2n ilv(ilparams);
+  BigBinaryVector bbv(m/2, primeModulus);
+  bbv.SetValAtIndex(0, "2");
+  bbv.SetValAtIndex(1, "1");
+  bbv.SetValAtIndex(2, "1");
+  bbv.SetValAtIndex(3, "1");
+  ilv.SetValues(bbv, ilv.GetFormat());
+
+  {
+    ILVector2n ilvClone = ilv.CloneWithParams();
+
+    EXPECT_EQ(ilv.GetCyclotomicOrder(), ilvClone.GetCyclotomicOrder());
+    EXPECT_EQ(ilv.GetModulus(), ilvClone.GetModulus());
+    EXPECT_EQ(ilv.GetRootOfUnity(), ilvClone.GetRootOfUnity());
+    EXPECT_EQ(ilv.GetFormat(), ilvClone.GetFormat());
+  }
+
+  {
+    float stdDev = 4;
+    DiscreteGaussianGenerator dgg(stdDev);
+    ILVector2n ilvClone = ilv.CloneWithNoise(dgg, ilv.GetFormat());
+
+    EXPECT_EQ(ilv.GetCyclotomicOrder(), ilvClone.GetCyclotomicOrder());
+    EXPECT_EQ(ilv.GetModulus(), ilvClone.GetModulus());
+    EXPECT_EQ(ilv.GetRootOfUnity(), ilvClone.GetRootOfUnity());
+    EXPECT_EQ(ilv.GetFormat(), ilvClone.GetFormat());
+  }
+
+}
+
+TEST(method_ILVector2n, arithmetic_operations_element) {
+  usint m = 8;
+  BigBinaryInteger primeModulus("73");
+  BigBinaryInteger primitiveRootOfUnity("22");
+
+  ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
+
+  ILVector2n ilv(ilparams);
+  BigBinaryVector bbv(m/2, primeModulus);
+  bbv.SetValAtIndex(0, "2");
+  bbv.SetValAtIndex(1, "1");
+  bbv.SetValAtIndex(2, "4");
+  bbv.SetValAtIndex(3, "1");
+  ilv.SetValues(bbv, ilv.GetFormat());
+
+  BigBinaryInteger element("1");
+
+  {
+    ILVector2n ilvector2n = ilv.Plus(element);
+
+    EXPECT_EQ(BigBinaryInteger::THREE, ilvector2n.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger::ONE, ilvector2n.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger::FOUR, ilvector2n.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger::ONE, ilvector2n.GetValAtIndex(3));
+  }
+
+  {
+    ILVector2n ilvector2n(ilv);
+    ilvector2n += element;
+
+    EXPECT_EQ(BigBinaryInteger::THREE, ilvector2n.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger::ONE, ilvector2n.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger::FOUR, ilvector2n.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger::ONE, ilvector2n.GetValAtIndex(3));
+  }
+
+  {
+    ILVector2n ilvector2n = ilv.Minus(element);
+
+    EXPECT_EQ(BigBinaryInteger::ONE, ilvector2n.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger::ZERO, ilvector2n.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger::THREE, ilvector2n.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger::ZERO, ilvector2n.GetValAtIndex(3));
+  }
+
+  {
+    ILVector2n ilvector2n(ilv);
+    ilvector2n -= element;
+
+    EXPECT_EQ(BigBinaryInteger::ONE, ilvector2n.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger::ZERO, ilvector2n.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger::THREE, ilvector2n.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger::ZERO, ilvector2n.GetValAtIndex(3));
+  }
+
+}
+
+
+TEST(method_ILVector2n, arithmetic_operators_tests_between_ilvector2ns) {
+  usint m = 8;
+  BigBinaryInteger primeModulus("73");
+  BigBinaryInteger primitiveRootOfUnity("22");
+
+  ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
+
+  ILVector2n ilvector2n1(ilparams);
+  BigBinaryVector bbv1(m/2, primeModulus);
+  bbv1.SetValAtIndex(0, "2");
+  bbv1.SetValAtIndex(1, "1");
+  bbv1.SetValAtIndex(2, "1");
+  bbv1.SetValAtIndex(3, "1");
+  ilvector2n1.SetValues(bbv1, ilvector2n1.GetFormat());
+
+}
+
 TEST(method_ILVector2n, decompose_test) {
   usint order = 8; 
-  usint nBits = 7;
   
-  BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(order, nBits);
-  BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(order, primeModulus);
+  BigBinaryInteger primeModulus("73");
+  BigBinaryInteger primitiveRootOfUnity("22");
 
   ILParams ilparams(order, primeModulus, primitiveRootOfUnity);
 
   float stdDev = 4;
-  DiscreteGaussianGenerator dgg(primeModulus, stdDev);
+  DiscreteGaussianGenerator dgg(stdDev);
 
   ILVector2n ilVector2n(dgg, ilparams, Format::COEFFICIENT);
 
@@ -149,7 +397,7 @@ TEST(method_ILVectorArray2n, decompose_test) {
   }
 
   float stdDev = 4;
-  DiscreteGaussianGenerator dgg(modulus, stdDev);
+  DiscreteGaussianGenerator dgg(stdDev);
 
   ILDCRTParams params(rootsOfUnity, order, moduli);
   ILVectorArray2n ilVectorArray2n(dgg, params, Format::COEFFICIENT);
@@ -167,6 +415,44 @@ TEST(method_ILVectorArray2n, decompose_test) {
     
     for(usint j=0; j<ilTowerDecomposed.GetLength(); j++) {
       EXPECT_EQ(ilTowerDecomposed.GetValAtIndex(j), ilTowerOriginal.GetValAtIndex(2*j)) << "ILVectorArray2n_decompose: Values do not match between original and decomposed elements.";
+    }
+  }
+
+}
+
+TEST(method_ILVector2n, ensures_mod_operation_during_operations_on_two_ILVector2ns){
+
+  usint order = 8; 
+  usint nBits = 7;
+  
+  BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(order, nBits);
+  BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(order, primeModulus);
+
+  ILParams ilparams(order, primeModulus, primitiveRootOfUnity);
+
+  DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(primeModulus);
+  
+  ILVector2n ilv1(distrUniGen, ilparams);
+  BigBinaryVector bbv1 (ilv1.GetValues());
+
+  ILVector2n ilv2(distrUniGen, ilparams);
+  BigBinaryVector bbv2(ilv2.GetValues());
+  
+  {
+    ILVector2n ilvResult = ilv1 + ilv2;
+    BigBinaryVector bbvResult(ilvResult.GetValues());
+
+    for (usint i=0; i<order/2; i++) {
+      EXPECT_EQ(bbvResult.GetValAtIndex(i), (bbv1.GetValAtIndex(i) + bbv2.GetValAtIndex(i)).Mod(primeModulus)) << "ILVector2n + operation returns incorrect results.";
+    }
+  }
+
+  {
+    ILVector2n ilvResult = ilv1 * ilv2;
+    BigBinaryVector bbvResult(ilvResult.GetValues());
+
+    for (usint i=0; i<order/2; i++) {
+      EXPECT_EQ(bbvResult.GetValAtIndex(i), (bbv1.GetValAtIndex(i) * bbv2.GetValAtIndex(i)).Mod(primeModulus)) << "ILVector2n * operation returns incorrect results.";
     }
   }
 
