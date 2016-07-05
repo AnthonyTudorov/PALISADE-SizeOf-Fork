@@ -93,46 +93,7 @@ reencrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) 
 		return;
 	}
 
-	string inBuf;
-	char ch;
-
-	do {
-		inBuf = "";
-		while( (ch = inCt.get()) != EOF && ch != '$' )
-			inBuf += ch;
-
-		if( ch == EOF ) break;
-
-		Serialized ser;
-		if( !SerializableHelper::StringToSerialization(inBuf, &ser) ) {
-			cerr << "Error deserializing ciphertext" << endl;
-			break;
-		}
-
-		if( !ciphertext.Deserialize(ser, ctx) ) {
-			cerr << "Error deserializing ciphertext" << endl;
-			break;
-		}
-
-		ctx->getAlgorithm()->ReEncrypt(evalKey, ciphertext, &newCiphertext);
-
-		Serialized cipS;
-		string reSerialized;
-
-		if( newCiphertext.Serialize(&cipS, "Re") ) {
-			if( !SerializableHelper::SerializationToString(cipS, reSerialized) ) {
-				cerr << "Error creating serialization of new ciphertext" << endl;
-				return;
-			}
-
-			outCt << reSerialized << '$' << flush;
-		}
-		else {
-			cerr << "Error reserializing ciphertext" << endl;
-			break;
-		}
-
-	} while( inCt.good() );
+	CryptoUtility<ILVector2n>::ReEncrypt(ctx, evalKey, inCt, outCt);
 
 	inCt.close();
 	outCt.close();
@@ -169,39 +130,7 @@ decrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	Ciphertext<ILVector2n> oneCiphertext;
-	vector<Ciphertext<ILVector2n>> ciphertext;
-
-	ByteArray plaintext;
-
-	string inBuf;
-	char ch;
-
-	do {
-		inBuf = "";
-		while( (ch = inCt.get()) != EOF && ch != '$' )
-			inBuf += ch;
-
-		if( ch == EOF ) break;
-
-		Serialized ser;
-		if( !SerializableHelper::StringToSerialization(inBuf, &ser) ) {
-			cerr << "Error deserializing ciphertext" << endl;
-			break;
-		}
-
-		if( !oneCiphertext.Deserialize(ser, ctx) ) {
-			cerr << "Error deserializing ciphertext" << endl;
-			break;
-		}
-
-		ciphertext.push_back(oneCiphertext);
-		DecryptResult rv = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(), sk, ciphertext, &plaintext);
-		ciphertext.clear();
-
-		outF << plaintext << flush;
-
-	} while( inCt.good() );
+	CryptoUtility<ILVector2n>::Decrypt(ctx, sk, inCt, outF);
 
 	inCt.close();
 	outF.close();
@@ -243,41 +172,10 @@ encrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	inf.seekg(0, ios::end);
-	long totalBytes = inf.tellg();
-	inf.clear();
-	inf.seekg(0);
+	EncryptResult er = CryptoUtility<ILVector2n>::Encrypt(ctx, pk, inf, ctSer);
 
-	while( totalBytes > 0 ) {
-		usint s = min(totalBytes, ctx->getChunksize());
-		char *chunkb = new char[s];
-		inf.read(chunkb, s);
-
-		ByteArray ptxt(chunkb, s);
-
-		delete chunkb;
-
-		vector<Ciphertext<ILVector2n>> ciphertext;
-
-		CryptoUtility<ILVector2n>::Encrypt(*ctx->getAlgorithm(), pk, ptxt, &ciphertext);
-		Serialized cipS;
-		string cipherSer;
-
-		for( int j=0; j<ciphertext.size(); j++ ) {
-			if( ciphertext[j].Serialize(&cipS, "Enc") ) {
-				if( !SerializableHelper::SerializationToString(cipS, cipherSer) ) {
-					cerr << "Error stringifying serialized ciphertext" << endl;
-					break;
-				}
-
-				ctSer << cipherSer << "$" << flush;
-			} else {
-				cerr << "Error serializing ciphertext" << endl;
-				break;
-			}
-		}
-
-		totalBytes -= ctx->getChunksize();
+	if( !er.isValid ) {
+		cerr << "failed to encrypt" << endl;
 	}
 
 	inf.close();

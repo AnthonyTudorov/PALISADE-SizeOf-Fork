@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "byteencoding.h"
+#include "../utils/serializablehelper.h"
 
 namespace lbcrypto {
 
@@ -47,18 +48,60 @@ public:
 		return EncryptResult(ptSize);
 	}
 
+	/**
+	 * Perform an encryption by reading plaintext from a stream, serializing each piece of ciphertext,
+	 * and writing the serializations to an output stream
+	 * @param scheme - a reference to the encryption scheme in use
+	 * @param publicKey - the encryption key in use
+	 * @param instream - where to read the input from
+	 * @param ostream - where to write the serialization to
+	 * @return
+	 */
 	static EncryptResult Encrypt(
-			const LPPublicKeyEncryptionScheme<Element>& scheme,
+			const CryptoContext<Element> *ctx,
 			const LPPublicKey<Element>& publicKey,
 			istream& instream,
-			ostream& ostream)
+			ostream& outstream)
 	{
-		size_t chunkSize = scheme.getChunkSize();
-		//size_t ptSize = plaintext.size();
+		size_t chunkSize = ctx->getAlgorithm()->getChunkSize();
+		char *ptxt = new char[chunkSize];
+		size_t totBytes = 0;
 
-		return EncryptResult();
+		while( instream.good() ) {
+			instream.read(ptxt, chunkSize);
+			size_t nRead = instream.gcount();
+
+			if( nRead <= 0 )
+				break;
+
+			ByteArray pt(ptxt, nRead);
+			vector<Ciphertext<Element>> cipherResults;
+
+			EncryptResult res = Encrypt(*ctx->getAlgorithm(), publicKey, pt, &cipherResults);
+			if( res.isValid == false )
+				return res;
+
+			totBytes += res.numBytesEncrypted;
+
+			for( int i=0; i<cipherResults.size(); i++ ) {
+				Ciphertext<Element> oneCt(cipherResults.at(i));
+
+				Serialized cS;
+
+				if( oneCt.Serialize(&cS, "ct") ) {
+					if( !SerializableHelper::SerializationToStream(cS, outstream) ) {
+						return EncryptResult();
+					}
+				} else {
+					return EncryptResult();
+				}
+			}
+
+			cipherResults.clear();
+		}
+
+		return EncryptResult(totBytes);
 	}
-
 
 	static DecryptResult Decrypt(
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
@@ -83,18 +126,79 @@ public:
 		return DecryptResult(plaintext->size());
 	}
 
+	static DecryptResult Decrypt(
+			const CryptoContext<Element> *ctx,
+			const LPPrivateKey<Element>& privateKey,
+			istream& instream,
+			ostream& outstream)
+	{
+		Serialized serObj;
+		size_t tot = 0;
+
+		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
+			Ciphertext<Element> ct;
+			if( ct.Deserialize(serObj, ctx) ) {
+				Element decrypted;
+				DecryptResult res = ctx->getAlgorithm()->Decrypt(privateKey, ct, &decrypted);
+				if( !res.isValid )
+					return DecryptResult();
+				tot += res.messageLength;
+
+				ByteArrayPlaintextEncoding pte;
+				pte.Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), decrypted);
+				pte.Unpad<ZeroPad>();
+
+				outstream << pte.GetData();
+			}
+			else
+				return DecryptResult();
+		}
+
+		return DecryptResult(tot);
+	}
+
+
 	static void ReEncrypt(
-		const LPPublicKeyEncryptionScheme<Element>& scheme,
-		const LPEvalKey<Element> &evalKey,
-		const vector<Ciphertext<Element>>& ciphertext,
-		vector<Ciphertext<Element>> *newCiphertext)
-		{
-			for( int i=0; i < ciphertext.size(); i++ ) {
-				Ciphertext<Element> nCipher;
-				scheme.ReEncrypt(evalKey, ciphertext[i], &nCipher);
-				newCiphertext->push_back(nCipher);
+			const LPPublicKeyEncryptionScheme<Element>& scheme,
+			const LPEvalKey<Element> &evalKey,
+			const vector<Ciphertext<Element>>& ciphertext,
+			vector<Ciphertext<Element>> *newCiphertext)
+	{
+		for( int i=0; i < ciphertext.size(); i++ ) {
+			Ciphertext<Element> nCipher;
+			scheme.ReEncrypt(evalKey, ciphertext[i], &nCipher);
+			newCiphertext->push_back(nCipher);
+		}
+	}
+
+	static void ReEncrypt(
+			const CryptoContext<Element> *ctx,
+			const LPEvalKey<Element> &evalKey,
+			istream& instream,
+			ostream& outstream)
+	{
+		Serialized serObj;
+
+		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
+			Ciphertext<Element> ct;
+			if( ct.Deserialize(serObj, ctx) ) {
+				Ciphertext<Element> reCt;
+				ctx->getAlgorithm()->ReEncrypt(evalKey, ct, &reCt);
+
+				Serialized serReObj;
+				if( reCt.Serialize(&serReObj, "re") ) {
+					SerializableHelper::SerializationToStream(serReObj, outstream);
+				}
+				else {
+					return; // error
+				}
+			}
+			else {
+				return;
 			}
 		}
+	}
+
 
 };
 

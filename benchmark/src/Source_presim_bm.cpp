@@ -467,8 +467,14 @@ void PRESimulation(usint count, usint dataset){
 
 		for (usint j = 0; j < count; j++){
 
-			algorithm.ReEncrypt(*evalKeys[d], arrCiphertext[j],&arrCiphertextNew[j]); 
+			vector<Ciphertext<ILVector2n>> ct;
+			vector<Ciphertext<ILVector2n>> ctRe;
 
+			ct.push_back(arrCiphertext[j]);
+			CryptoUtility<ILVector2n>::ReEncrypt(algorithm, *evalKeys[d], ct, &ctRe);
+			arrCiphertextNew[j] = ctRe[0];
+			ct.clear();
+			ctRe.clear();
 		}
 
 		finish = currentDateTime();

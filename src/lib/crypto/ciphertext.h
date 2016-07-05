@@ -198,7 +198,7 @@ namespace lbcrypto {
 		* @param serObj contains the serialized object
 		* @return true on success
 		*/
-		bool Deserialize(const Serialized& serObj) { return false; }
+		bool Deserialize(const Serialized& serObj) { throw std::logic_error("must provide context"); return false; }
 		bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx);
 
 	private:

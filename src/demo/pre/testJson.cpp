@@ -181,9 +181,14 @@ void testJson(
 	cout << "----------BEGIN LPAlgorithmPRE" + cID + ".ReEncrypt TESTING----------" << endl;
 	cout << "Calling ReEncrypt in LPAlgorithmPRE" + cID + " with deserialized instances of" << endl;
 	cout << "LPEvalKey" + cID + " and Ciphertext." << endl;
+
+	vector<Ciphertext<ILVector2n>> ct;
+	vector<Ciphertext<ILVector2n>> ctRe;
+	ct.push_back(ciphertextDeserialized);
+
 	Ciphertext<ILVector2n> preCiphertext;
-	tp->ctx->getAlgorithm()->ReEncrypt(evalKeyDeserialized, ciphertextDeserialized,
-			&preCiphertext);
+	CryptoUtility<ILVector2n>::ReEncrypt(*tp->ctx->getAlgorithm(), evalKeyDeserialized, ct, &ctRe);
+	preCiphertext = ctRe[0];
 	cout << "----------END LPAlgorithmPRE" + cID + ".ReEncrypt TESTING----------" << endl << endl;
 
 	cout << "---BEGIN PRE LPPrivateKey" + cID + " SERIALIZATION---" << endl;

@@ -21,11 +21,13 @@ using namespace std;
 #include "../../../include/rapidjson/error/en.h"
 #include "../../../include/rapidjson/prettywriter.h"
 #include "../../../include/rapidjson/stringbuffer.h"
+#include "../../../src/lib/utils/serializablehelper.h"
 
 void
 usage(const string& cmd, const string& msg) {
 	cout << msg << endl;
-	cout << "Usage is: " << cmd << " [filename]" << endl;
+	cout << "Usage is: " << cmd << " filename1 filename2 ..." << endl;
+	cout << "to read from standard input, do not specify any filenames" << endl;
 }
 
 int
@@ -34,46 +36,43 @@ main( int argc, char *argv[] )
 	istream *br = &cin;
 	ifstream fil;
 
-	if( argc == 2 ) {
-		fil.open(argv[1]);
-		if( !fil.is_open() ) {
-			usage(argv[0], "Cannot open " + string(argv[1]));
-			return 1;
-		}
-		br = &fil;
+	if( argc > 1 && string(argv[1]) == "-help" ) {
+		usage(argv[0], "");
+		return 0;
 	}
 
-	else if( argc != 1 ){
-		usage(argv[0], "Too many file name arguments specified");
-		return 1;
-	}
+	for( int i = 1; i <= argc; i++ ) {
+		if( argc > 1 ) {
+			fil.open(argv[i]);
+			if( !fil.is_open() ) {
+				cout << "File '" << argv[i] << "' could not be opened, skipping" << endl;
+				continue;
+			}
 
-	rapidjson::Document doc;
-
-	string inBuf;
-	char ch;
-
-	do {
-		inBuf = "";
-		while( (ch = br->get()) != EOF && ch != '$' )
-			inBuf += ch;
-
-		doc.Parse(inBuf.c_str());
-
-		if( doc.HasParseError() ) {
-			usage( argv[0], "Parse error");
-			return 1;
+			br = &fil;
 		}
 
-		char writeBuffer[32768];
-		rapidjson::FileWriteStream os(stdout, writeBuffer, sizeof(writeBuffer));
+		// set up to read from br and write to stdout
 
-		rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(os);
+		lbcrypto::IStreamWrapper is(*br);
 
-		doc.Accept(writer);
-		cout << endl << endl;
+		rapidjson::Document doc;
 
-	} while( br->good() );
+		while( br->good() ) {
+			lbcrypto::OStreamWrapper oo(cout);
+			rapidjson::PrettyWriter<lbcrypto::OStreamWrapper> ww(oo);
+
+			doc.ParseStream<rapidjson::kParseStopWhenDoneFlag>(is);
+			if( doc.HasParseError() && doc.GetParseError() != rapidjson::kParseErrorDocumentEmpty ) {
+				cout << "Parse error " << doc.GetParseError() << " at " << doc.GetErrorOffset() << endl;
+				break;
+			}
+
+			doc.Accept(ww);
+			cout << endl;
+		}
+
+	}
 
 	return 0;
 }
