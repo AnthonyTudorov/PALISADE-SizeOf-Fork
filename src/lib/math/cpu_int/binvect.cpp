@@ -259,13 +259,22 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::Mod(const IntegerType
 }
 
 template<class IntegerType>
+BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModAddAtIndex(usint i, const IntegerType &b) const{
+	if(i > this->GetLength()-1) {
+		std::string errMsg = "binvect::ModAddAtIndex. Index is out of range. i = " + i;
+		throw std::runtime_error(errMsg);
+	}
+	BigBinaryVector ans(*this);
+	ans.m_data[i] = ans.m_data[i].ModAdd(b, this->m_modulus);
+	return ans;
+}
+
+template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModAdd(const IntegerType &b) const{
 	BigBinaryVector ans(*this);
-//	for(usint i=0;i<this->m_length;i++){
-//		ans.m_data[0] = ans.m_data[0].ModAdd(b,this->m_modulus);
-//		ans.m_data[i] = ans.m_data[i].ModAdd(b, this->m_modulus);
-//	}
-	ans.m_data[0] = ans.m_data[0].ModAdd(b, this->m_modulus);
+	for(usint i=0;i<this->m_length;i++){
+		ans.m_data[i] = ans.m_data[i].ModAdd(b, this->m_modulus);
+	}
 	return ans;
 }
 

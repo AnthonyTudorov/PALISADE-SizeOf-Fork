@@ -115,9 +115,10 @@ public:
 	BigBinaryVector& operator=(std::initializer_list<sint> rhs);
 
 	inline bool operator==(const BigBinaryVector &b) const {
-        if (this->GetLength() != b.GetLength()) {
+        if (this->GetLength() != b.GetLength())
             return false;
-        }
+        if (this->GetModulus() != b.GetModulus())
+        	return false;
         for (size_t i = 0; i < this->GetLength(); ++i) {
             if (this->GetValAtIndex(i) != b.GetValAtIndex(i)) {
                 return false;
@@ -223,10 +224,18 @@ public:
 	/**
 	 * Scalar modulus addition.
 	 *
+	 * @param &b is the scalar to the first location.
+	 * @return is the result of the modulus addition operation.
+	 */
+	BigBinaryVector ModAddAtIndex(usint i, const IntegerType &b) const;
+
+	/**
+	 * Scalar modulus addition.
+	 *
 	 * @param &b is the scalar to add at all locations.
 	 * @return is the result of the modulus addition operation.
 	 */
-	BigBinaryVector ModAdd(const IntegerType &b) const;
+	BigBinaryVector ModAdd(const IntegerType &b) const;	
 
 	/**
 	 * Scalar modulus subtraction.
