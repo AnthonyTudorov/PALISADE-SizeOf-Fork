@@ -1,5 +1,6 @@
 package com.palisade;
 
+import java.io.OutputStream;
 import java.util.Arrays;
 import com.palisade.PalisadeKeypair;
 
@@ -98,6 +99,8 @@ public class PalisadeCrypto {
 	 */
 	public native byte[] decrypt(String id, byte[] ciphertext);
 	
+	public native void writeBytes(byte[] bytes, OutputStream outstream);
+	
 	/**
 	 * Finish with this PalisadeCrypto instance
 	 */
@@ -142,6 +145,10 @@ public class PalisadeCrypto {
 			System.err.println("Could not create a crypto context for your parm set");
 			return;
 		}
+		
+		System.out.println("Try this write thing");
+		String message = "hello";
+		ctx.writeBytes(message.getBytes(), System.out);
 		
 		System.out.println("Generating some key pairs");
 

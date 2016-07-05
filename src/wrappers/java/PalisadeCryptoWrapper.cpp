@@ -18,6 +18,7 @@
 
 #include "../../lib/utils/serializablehelper.h"
 #include "../../lib/encoding/byteencoding.h"
+#include "../../lib/encoding/cryptoutility.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -29,6 +30,67 @@ public:
 
 	JavaPalisadeCrypto(CryptoContext<ILVector2n> *ctx) : ctx(ctx), errorMessage("") {}
 };
+
+// writing to a java.io.OutputStream means making a call to the write(byte[], off, len) method
+class javastreambuf : public streambuf {
+	char buf[2048];
+	jmethodID writer;
+
+public:
+	javastreambuf(JNIEnv *env, jobject outstream) {
+		// find the getObject method
+		jclass ostr = env->FindClass("java/io/OutputStream");
+		if( ostr == 0 ) {
+			throw std::logic_error("no class");
+		}
+
+		writer = env->GetMethodID(ostr, "write", "([BII)I");
+		if( writer == 0 ) {
+			throw std::logic_error("no method");
+		}
+
+		setp(buf, buf + sizeof(buf));
+	}
+
+	int sync() {
+		streamsize n = pptr() - pbase();
+		cout.write(pbase(), n);
+		pbump(-n);
+		return 0;
+	}
+
+	int overflow(int c) {
+		streamsize n = pptr() - pbase();
+
+		if( n && sync() ) return EOF;
+		if( c != EOF ) {
+			sputc( c );
+		}
+
+		return 0;
+	}
+
+private:
+	doWrite(char *d, int n) {
+		jvalue args[3];
+		args[0].l = 0;
+		args[1].i = 0;
+		args[1].i = n;
+	}
+};
+
+JNIEXPORT void JNICALL Java_com_palisade_PalisadeCrypto_writeBytes
+  (JNIEnv *env, jobject thiz, jbyteArray bytes, jobject outstream)
+{
+	cout << "Before" << std::endl;
+	javastreambuf jbuf(env, outstream);
+	ostream jout(&jbuf);
+	jout << "Well, ";
+	jout << "Hello" << flush;
+	jout << " There ";
+	jout << "Sir!" << std::endl;
+	cout << "After" << std::endl;
+}
 
 static JavaPalisadeCrypto* getCrypto(JNIEnv *env, jobject thiz)
 {
@@ -288,18 +350,24 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_encrypt
 	while( totalBytes > 0 ) {
 		usint s = min(totalBytes, ctx->getChunksize());
 
-		ByteArrayPlaintextEncoding ptxt( ByteArray(bufp, s) );
-		ptxt.Pad<ZeroPad>(ctx->getPadAmount());
+		ByteArray ptxt( bufp, s );
 
-		Ciphertext<ILVector2n> ciphertext;
-		ctx->getAlgorithm()->Encrypt(*encryptionKey, ptxt, &ciphertext);
+		vector<Ciphertext<ILVector2n>> ciphertext;
+		//ctx->getAlgorithm()->Encrypt(*encryptionKey, ptxt, &ciphertext);
+
+		 EncryptResult er = CryptoUtility<ILVector2n>::Encrypt(
+					*ctx->getAlgorithm(),
+					*encryptionKey,
+					ptxt,
+					&ciphertext);
 
 		Serialized txtS;
 		string	txtSer;
 
-		if ( !ciphertext.Serialize(&txtS, idS) )
+		if ( !ciphertext[0].Serialize(&txtS, idS) )
 			break;
 
+		ciphertext.clear();
 
 		if( !SerializableHelper::SerializationToString(txtS, txtSer) )
 			break;
@@ -424,7 +492,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_decrypt
 	if( decryptionKey == 0 ) return 0;
 
 	Ciphertext<ILVector2n> ciphertext;
-	ByteArrayPlaintextEncoding plaintext;
+	ByteArray plaintext;
 
 	string chunkStr;
 	string result = "";
@@ -445,11 +513,16 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_decrypt
 		if( !ciphertext.Deserialize(kD, ctx) )
 			break;
 
-		DecryptResult result1 = ctx->getAlgorithm()->Decrypt(*decryptionKey, ciphertext, &plaintext);
-		plaintext.Unpad<ZeroPad>();
+		vector<Ciphertext<ILVector2n>> ctv;
+		ctv.push_back(ciphertext);
+		DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(
+				*ctx->getAlgorithm(),
+				*decryptionKey,
+				ctv,
+				&plaintext);
+		ctv.clear();
 
-		const ByteArray& byteArray = plaintext.GetData();
-		string ptStr(byteArray.begin(), byteArray.end());
+		string ptStr(plaintext.begin(), plaintext.end());
 		result += ptStr;
 	} while( encBytes > 0 );
 
