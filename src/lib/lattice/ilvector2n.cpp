@@ -39,13 +39,9 @@ namespace lbcrypto {
 	}
 
 	ILVector2n::ILVector2n(const ElemParams &params, Format format) : m_values(NULL), m_format(format), m_empty(true) {
-        /*usint vectorSize = m_params.GetCyclotomicOrder() / 2;
-        m_values = new BigBinaryVector(vectorSize, m_params.GetModulus());*/
-		const ILParams &dcrtParam = dynamic_cast<const ILParams&>(params);
-		m_params = dcrtParam;	
+		const ILParams &ilParam = dynamic_cast<const ILParams&>(params);
+		m_params = ilParam;	
 	}
-
-
 
 	ILVector2n::ILVector2n(const ILVector2n &element) : m_params(element.m_params), m_format(element.m_format)
 	{
@@ -237,7 +233,7 @@ namespace lbcrypto {
 	// addition operation - PREV1
 	ILVector2n ILVector2n::Plus(const BigBinaryInteger &element) const {
 		ILVector2n tmp(*this);
-		*tmp.m_values = m_values->ModAdd(element);
+		*tmp.m_values = m_values->ModAddAtIndex(0, element);
 		return tmp;
 	}
 

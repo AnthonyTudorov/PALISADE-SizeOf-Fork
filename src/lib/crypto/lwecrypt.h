@@ -241,7 +241,7 @@ namespace lbcrypto {
 			  int t = m_depth + 1;
 			  int d = m_depth;
 
-			  BigBinaryInteger pBigBinaryInteger(GetPlaintextModulus());
+			  BigBinaryInteger pBigBinaryInteger(this->GetPlaintextModulus());
 			  int p = pBigBinaryInteger.ConvertToInt();
 			  double w = m_assuranceMeasure;
 			  double r = m_distributionParameter;

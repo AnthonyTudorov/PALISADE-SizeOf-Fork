@@ -413,8 +413,6 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	Element e(dgg, elementParams);
 
 	Element c(h*s + p*e + m);
-
-//	c.PrintValues();
 	
 	ciphertext->SetCryptoParameters(&cryptoParams);
 	ciphertext->SetPublicKey(publicKey);

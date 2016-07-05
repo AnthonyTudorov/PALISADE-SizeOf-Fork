@@ -70,8 +70,8 @@ namespace lbcrypto {
 		 * @param &rootOfUnity the root of unity used in the ciphertext.
 		 */
 		ILParams(const usint order, const BigBinaryInteger & modulus, const BigBinaryInteger & rootOfUnity) {
-			m_modulus = modulus;
 			m_order = order;
+			m_modulus = modulus;
 			m_rootOfUnity = rootOfUnity;
 		}
 
@@ -82,8 +82,8 @@ namespace lbcrypto {
 		* @param &modulus the ciphertext modulus.
 		*/
 		ILParams(const usint order, const BigBinaryInteger &modulus) {
-			m_modulus = modulus;
 			m_order = order;
+			m_modulus = modulus;
 			m_rootOfUnity = RootOfUnity(order, modulus);
 		}
 
@@ -94,8 +94,8 @@ namespace lbcrypto {
 		* @param &rhs the input set of parameters which is copied.
 		*/
 		ILParams(const ILParams &rhs) {
-			m_modulus = rhs.m_modulus;
 			m_order = rhs.m_order;
+			m_modulus = rhs.m_modulus;
 			m_rootOfUnity = rhs.m_rootOfUnity;
 		}
 
