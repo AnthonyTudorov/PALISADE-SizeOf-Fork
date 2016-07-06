@@ -34,17 +34,22 @@ public:
 // writing to a java.io.OutputStream means making a call to the write(byte[], off, len) method
 class javastreambuf : public streambuf {
 	char buf[2048];
+	JNIEnv		*env;
+	jobject		obj;
 	jmethodID writer;
 
 public:
 	javastreambuf(JNIEnv *env, jobject outstream) {
+		this->env = env;
+		obj = outstream;
+
 		// find the getObject method
 		jclass ostr = env->FindClass("java/io/OutputStream");
 		if( ostr == 0 ) {
 			throw std::logic_error("no class");
 		}
 
-		writer = env->GetMethodID(ostr, "write", "([BII)I");
+		writer = env->GetMethodID(ostr, "write", "([BII)V");
 		if( writer == 0 ) {
 			throw std::logic_error("no method");
 		}
@@ -54,7 +59,8 @@ public:
 
 	int sync() {
 		streamsize n = pptr() - pbase();
-		cout.write(pbase(), n);
+		//cout.write(pbase(), n);
+		doWrite(pbase(), n);
 		pbump(-n);
 		return 0;
 	}
@@ -71,24 +77,40 @@ public:
 	}
 
 private:
-	doWrite(char *d, int n) {
+	void doWrite(const char *d, int n) {
+		cout << "calls doWrite " << d << ":" << n << endl;
 		jvalue args[3];
-		args[0].l = 0;
+
+		jbyteArray arr = env->NewByteArray(n);
+		env->SetByteArrayRegion(arr, 0, n, (const jbyte *)d);
+		args[0].l = arr;
 		args[1].i = 0;
 		args[1].i = n;
+
+		env->CallVoidMethod(obj, writer, args);
+
+		env->DeleteLocalRef(arr);
 	}
 };
 
 JNIEXPORT void JNICALL Java_com_palisade_PalisadeCrypto_writeBytes
-  (JNIEnv *env, jobject thiz, jbyteArray bytes, jobject outstream)
+(JNIEnv *env, jobject thiz, jbyteArray bytes, jobject outstream)
 {
 	cout << "Before" << std::endl;
-	javastreambuf jbuf(env, outstream);
-	ostream jout(&jbuf);
-	jout << "Well, ";
-	jout << "Hello" << flush;
-	jout << " There ";
-	jout << "Sir!" << std::endl;
+	try {
+		javastreambuf jbuf(env, outstream);
+		ostream jout(&jbuf);
+		jout << "Well, ";
+		cout << "1" << endl;
+		jout << "Hello" << flush;
+		cout << "2" << endl;
+		jout << " There ";
+		cout << "3" << endl;
+		jout << "Sir!" << std::endl;
+		cout << "4" << endl;
+	} catch(const std::logic_error& e ) {
+		cout << "got an exception " << e.what() << endl;
+	}
 	cout << "After" << std::endl;
 }
 
@@ -355,11 +377,11 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_encrypt
 		vector<Ciphertext<ILVector2n>> ciphertext;
 		//ctx->getAlgorithm()->Encrypt(*encryptionKey, ptxt, &ciphertext);
 
-		 EncryptResult er = CryptoUtility<ILVector2n>::Encrypt(
-					*ctx->getAlgorithm(),
-					*encryptionKey,
-					ptxt,
-					&ciphertext);
+		EncryptResult er = CryptoUtility<ILVector2n>::Encrypt(
+				*ctx->getAlgorithm(),
+				*encryptionKey,
+				ptxt,
+				&ciphertext);
 
 		Serialized txtS;
 		string	txtSer;

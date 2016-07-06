@@ -148,7 +148,12 @@ public class PalisadeCrypto {
 		
 		System.out.println("Try this write thing");
 		String message = "hello";
-		ctx.writeBytes(message.getBytes(), System.out);
+		try {
+			ctx.writeBytes(message.getBytes(), System.err);
+			System.out.println("Back from writing");
+		} catch( Exception e ) {
+			e.printStackTrace();
+		}
 		
 		System.out.println("Generating some key pairs");
 
