@@ -880,11 +880,11 @@ TEST(UTBinInt,shift){
 }
 
 /****************************************/
-/* TESTING METHOD  BinaryToBigBinaryInt */
+/* TESTING METHOD  BinaryStringToBigBinaryInt */
 /****************************************/
 
 TEST(UTBinInt,method_binary_string_to_big_binary_integer){
-  //TEST CASE FOR STATIC METHOD BinaryToBigBinaryInt in BigBinaryInteger
+  //TEST CASE FOR STATIC METHOD BinaryStringToBigBinaryInt in BigBinaryInteger
 
  std:string binaryString = "1011101101110001111010111011000000011";
   BigBinaryInteger b =
@@ -892,7 +892,7 @@ TEST(UTBinInt,method_binary_string_to_big_binary_integer){
 
   BigBinaryInteger expectedResult("100633769475");
   EXPECT_EQ(expectedResult, b)
-    << "Failure testing BinaryToBigBinaryInt";
+    << "Failure testing BinaryStringToBigBinaryInt";
 }
 
 /****************************************/

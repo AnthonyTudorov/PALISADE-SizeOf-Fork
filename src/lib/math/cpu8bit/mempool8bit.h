@@ -36,7 +36,7 @@
 
 #include <iostream>
 #include "../../utils/inttypes.h"
-#include "dtstruct.h"
+#include "dtstruct8bit.h"
 
 /**
  * @namespace cpu8bit

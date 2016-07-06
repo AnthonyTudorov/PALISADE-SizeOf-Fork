@@ -26,7 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "binint.h"
+#include "binint8bit.h"
 #include "../nbtheory.h"
 
 namespace cpu8bit {
@@ -1819,7 +1819,7 @@ BigBinaryInteger BigBinaryInteger::intToBigBinaryInteger(usint m){
 
 }
 
-BigBinaryInteger BigBinaryInteger::BinaryToBigBinaryInt(const std::string& bitString){
+BigBinaryInteger BigBinaryInteger::BinaryStringToBigBinaryInt(const std::string& bitString){
 	std::string zero = "0";
 	BigBinaryInteger value("0");
 	usint len = bitString.length();
