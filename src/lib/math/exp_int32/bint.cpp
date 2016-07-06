@@ -123,36 +123,31 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>::bint()
   {
-	bool dbg_flag = 0;		// if true then print dbg output
+    // builds an uninitialized bint
+    // mostly used internal to the class
+    bool dbg_flag = false;		// if true then print dbg output
 
     DEBUG("ctor()");
     DEBUG( "maxlimb "<<m_MaxLimb);
 
     DEBUG( "initial size "<< m_value.size());
-    //last first limb set to 0
-    this->m_value.reserve(1);
-    this->m_value[0] = 0;
-    //MSB set to zero since value set to ZERO
-    this->m_MSB = 0;
-    m_state = INITIALIZED;
-    DEBUG("size now "<<m_value.size());
-    DEBUG("final msb ="<<this->m_MSB);
+    m_state = GARBAGE;
   }
   
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>::bint(usint init){
-	    bool dbg_flag = 0;		// if true then print dbg output
+    bool dbg_flag = false;		// if true then print dbg output
 
     //setting the MSB
     usint msb = 0;
-    
-    msb = GetMSB32(init);
+
+    msb = GetMSB32(init); //todo: this really should be renamed to GetMSBusint or something.
     DEBUG("ctor("<<init<<")");
     DEBUG( "msb " <<msb);
     DEBUG( "maxlimb "<<m_MaxLimb);
 
     DEBUG( "initial size "<< m_value.size());
-    
+
     if (init <= m_MaxLimb) {
       //init fits in first limb entry
       m_value.push_back((limb_t)init);
@@ -162,20 +157,20 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
       //setting the values of the array
       this->m_value.reserve(ceilInt);
       for(usint i= 0;i<ceilInt;++i){
-	this->m_value[i] = (limb_t)init;
-	init>>=m_limbBitLength;
+        this->m_value.at(i) = (limb_t)init;
+        init>>=m_limbBitLength;
       }
       DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
     }
     this->m_MSB = msb;
     m_state = INITIALIZED;
-    
+
     DEBUG("final msb ="<<msb);
   }
-  
+  // ctor(string)
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>::bint(const std::string& str){
-	    bool dbg_flag = 0;		// if true then print dbg output
+	    bool dbg_flag = false;		// if true then print dbg output
 
     DEBUG("ctor(str "<<str<<")");
     //memory allocation step
@@ -187,40 +182,47 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     m_state = INITIALIZED;
   	DEBUG("final msb ="<<this->m_MSB);
   }
-  
+#if 1
+
+  //copy constructor
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>::bint(const bint& rhs){
-	  bool dbg_flag = 0;		// if true then print dbg output
+    bool dbg_flag = false;		// if true then print dbg output
 
-	  DEBUG("ctor(bint)");
+    DEBUG("copy ctor(&bint)");
 
     //memory allocation step
-    //m_value = new limb_t[m_nSize];  //todo smartpointer
     this->m_MSB=rhs.m_MSB; //copy MSB
-    limb_t  tempChar = ceilIntByUInt(rhs.m_MSB);
-    //copy array values
+
+    //copy values
     this->m_value = rhs.m_value;
-    //for(int i=0;i<tempChar;i++){//copy array value
-    //  m_value[i]=rhs.m_value[i];
-    //}
     //set state
-    m_state = INITIALIZED;
-  	DEBUG("final msb ="<<this->m_MSB);
+    m_state = rhs.m_state;
+    DEBUG("final msb ="<<this->m_MSB);
   }
 
+    //move copy cconstructor
   template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH>::bint(bint &&bigInteger){
-    //copy MSB
-    m_MSB = bigInteger.m_MSB;
-    //copy assignment
-    m_value = bigInteger.m_value;
-    //set state
-    m_state = bigInteger.m_state;
-    //remove ref from bigInteger
-    bigInteger.m_value.clear(); //clears value
-    bigInteger.m_value.shrink_to_fit(); //clears value with reallocation.
-  }
+  bint<limb_t,BITLENGTH>::bint(bint &&rhs){
+      bool dbg_flag = false;		// if true then print dbg output
 
+    DEBUG("move copy ctor(&bint)");
+
+    //copy MSB
+    m_MSB = rhs.m_MSB;
+
+    //swap (move) assignment
+    m_value.swap(rhs.m_value);
+
+    //set state
+    m_state = rhs.m_state;
+
+    //remove ref from bigInteger
+    if (rhs.m_value.size()>0)
+      rhs.m_value.clear(); //clears value
+    //rhs.m_value.shrink_to_fit(); //clears value with reallocation.
+  }
+#endif
   template<typename limb_t,usint BITLENGTH>
   std::function<unique_ptr<bint<limb_t,BITLENGTH>>()> bint<limb_t,BITLENGTH>::Allocator = [=](){
     return make_unique<exp_int32::bint<uint32_t,1500>>();
@@ -228,9 +230,16 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>::~bint()
   {	
+    bool dbg_flag = false;		// if true then print dbg output
+
+    DEBUG("dtor() m_value.size is "<<m_value.size());
+
+
     //memory deallocation
-	  m_value.clear(); //clears value
-	  m_value.shrink_to_fit(); //clear with reallocation
+	  if (m_value.size()>0)
+	    m_value.clear(); //clears value
+	  //m_value.shrink_to_fit(); //clear with reallocation
+    DEBUG("leaving dtor");
   }
 
   /**
@@ -243,7 +252,7 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
   usint bint<limb_t, BITLENGTH>::ConvertToUsint() const{
 	  usint result;
 	  if (sizeof(limb_t)>=sizeof(usint)){
-		  result = m_value[0];
+		  result = m_value.at(0);
 		  return result;
 	  } else {
 		  //Case where limb_t is less bits than usint
@@ -253,7 +262,7 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 		  usint ceilInt = ceilIntByUInt(m_MSB);
 		  //copy the values by shift and add
 		  for (usint i = 0; i < ceilInt; i++){
-			  result += (this->m_value[i] << (m_limbBitLength*i));
+			  result += (this->m_value.at(i) << (m_limbBitLength*i));
 		  }
 		  return result;
 	  }
@@ -289,6 +298,7 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     return std::stold(this->ToString());
   }
 
+  //copy allocator
   template<typename limb_t,usint BITLENGTH>
   const bint<limb_t,BITLENGTH>&  bint<limb_t,BITLENGTH>::operator=(const bint &rhs){
 	if(this!=&rhs){
@@ -299,15 +309,18 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     }
     return *this;
   }
-
+  // move copy allocator
   template<typename limb_t,usint BITLENGTH>
   const bint<limb_t,BITLENGTH>&  bint<limb_t,BITLENGTH>::operator=(bint &&rhs){
 
     if(this!=&rhs){
       this->m_MSB = rhs.m_MSB;
       this->m_state = rhs.m_state;
-      this->m_value = rhs.m_value;
-	  vector<limb_t>().swap(rhs.m_value); //clear with reallocation
+      this->m_value.swap(rhs.m_value);
+      //remove ref from bigInteger
+      if (rhs.m_value.size()>0)
+        rhs.m_value.clear();  //clears value
+      //rhs.m_value.shrink_to_fit(); //clears value with reallocation.
     }
     return *this;
   }
@@ -321,21 +334,28 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
    */
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>  bint<limb_t,BITLENGTH>::operator<<(usshort shift) const{
+    bool dbg_flag = false;
+    //garbage check
 	  if(m_state==State::GARBAGE)
 		  throw std::logic_error("<< on uninitialized bint");
+	  //trivial case
 	  if(this->m_MSB==0)
 		  return bint(ZERO);
 
 	  bint ans(*this);
-	  //check for OVERFLOW
-	  //if((ans.m_MSB+shift) > BITLENGTH )
-		//  throw std::logic_error("OVERFLOW \n"); //TODO this never happens any more
 
 	  //compute the number of whole limb shifts
 	  usint shiftByLimb = shift>>m_log2LimbBitLength;
-	  //compute the remaining number of bits to shift
-	  usshort remainingShift = (shift&(m_limbBitLength-1));
 
+
+	  //compute the remaining number of bits to shift
+	  limb_t remainingShift = (shift&(m_limbBitLength-1));
+
+	  DEBUG("l2lbl "<< m_log2LimbBitLength);
+	  DEBUG("totalshift "<< shift);
+	  DEBUG("shiftByLimb "<<shiftByLimb);
+	  DEBUG("remainingShift "<<remainingShift);
+	  DEBUG("size "<<m_value.size());
 
 	  //first shift by the # remainingShift bits
 	  if(remainingShift!=0){
@@ -343,16 +363,21 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 		  Dlimb_t temp = 0;
 		  sint i;
 
+		  DEBUG("m_MSB "<<m_MSB);
+		  DEBUG("ilimit "<<ceilIntByUInt(m_MSB));
+
+
 		  for(i=0; i<ceilIntByUInt(m_MSB); ++i){
-			  temp = ans.m_value[i];
+	  	  DEBUG("bit shift ");
+		    temp = ans.m_value.at(i);
 			  temp <<=remainingShift;
-			  ans.m_value[i] = (limb_t)temp + oFlow;
+			  ans.m_value.at(i) = (limb_t)temp + oFlow;
 			  oFlow = temp >> m_limbBitLength;
 		  }
 
 		  if(oFlow) {//there is an overflow set of bits.
 		    if (i<ans.m_value.size()){
-		      ans.m_value[i] = oFlow;
+		      ans.m_value.at(i) = oFlow;
 		    } else {
 		      ans.m_value.push_back(oFlow);
 		    }
@@ -362,20 +387,27 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 	  }
 
 	  if(shiftByLimb!=0){
-	    //todo could be ceilIntbyUint
-	    for(auto  iter =  ans.m_value.rbegin(); iter!= ans.m_value.rend(); ++iter){
-	      //ans.m_value[iter+shiftByLimb] = ans.m_value[iter];
-	      *(iter+shiftByLimb) = *iter;
+	    usint currentSize = ans.m_value.size();
+	    DEBUG("CURRENT SIZE "<<currentSize);
+	    ans.m_value.resize(currentSize+shiftByLimb); // allocate more storage
+	          DEBUG("resize is  "<<ans.m_value.size());
+	    for (sint i = currentSize-1; i>=0; i-- ) {  //shift limbs required # of indicies
+	      DEBUG("to : "<<i+shiftByLimb<< "from "<<i );
+	      ans.m_value.at(i+shiftByLimb) = ans.m_value.at(i);
 	    }
+	    //zero out the 'shifted in' limbs
+	    for (sint i = shiftByLimb -1 ; i>=0; i-- ) {
+	      DEBUG("clear : "<<i);
+	      ans.m_value.at(i) = 0;
+	    }
+	    DEBUG("new size is  "<<ans.m_value.size());
 
-	    //zero out lower "shifted in" limbs
-	    //usint j;
-	    for(auto iter = ans.m_value.rbegin()-shiftByLimb; iter!= ans.m_value.rend(); ++iter){
-	      *iter = 0;
-	    }
 	  }
 
 	  ans.m_MSB += shiftByLimb*m_limbBitLength;
+	  DEBUG("final MSB "<<ans.m_MSB);
+	  //ans.SetMSB();
+	  //DEBUG("final MSB check "<<ans.m_MSB);
 	  return ans;
 
   }
@@ -395,8 +427,7 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     if(this->m_MSB==0) {
       return *this;
     } else {
-      bint ans(*this);
-      *this = ans << shift;
+      *this = *this << shift;
       return *this;
     }
   }
@@ -409,6 +440,7 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
    */
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH>  bint<limb_t,BITLENGTH>::operator>>(usshort shift) const{
+    bool dbg_flag = false;
 	  //garbage check
 	  if(m_state==State::GARBAGE)
 		  throw std::logic_error("Value not initialized");
@@ -419,27 +451,40 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 
 
 	  bint ans(*this);
-	  //no of array shifts
+	  //compute the number of whole limb shifts
 	  usint shiftByLimb = shift>>m_log2LimbBitLength;
-	  //no of bit shifts
+
+	  //compute the remaining number of bits to shift
 	  limb_t remainingShift = (shift&(m_limbBitLength-1));
+
+
+	  DEBUG("l2lbl "<< m_log2LimbBitLength);
+	  DEBUG("totalshift "<< shift);
+	  DEBUG("shiftByLimb "<<shiftByLimb);
+	  DEBUG("remainingShift "<<remainingShift);
+	  DEBUG("size "<<m_value.size());
 
 	  //first shift by the number of whole limb shifts
 	  if(shiftByLimb!=0){
-		  //todo could be ceilIntbyUint
-      for(auto i =  ans.m_value.begin()+shiftByLimb; i  != ans.m_value.end();++i){
-	//ans.m_value[i-shiftByLimb] = ans.m_value[i];
-	*(i-shiftByLimb) = *i;
-		  }
-		  //zero out upper  "shifted in" limbs
-		  usint j;
-      for(auto j = ans.m_value.end() - shiftByLimb; j!= ans.m_value.end(); ++j){
-	//ans.m_value[j] = 0;	//todo should this instead just be deleted?
-	*j = 0;
-		  }
 
-		  //msb adjusted to show the shifts
-		  ans.m_MSB -= shiftByLimb<<m_log2LimbBitLength;
+	    if (shiftByLimb >ans.m_value.size())
+	      DEBUG("LOGIC ERROR size is " <<ans.m_value.size());
+	    //todo could be ceilIntbyUint
+
+	    for(auto i =  shiftByLimb; i < ans.m_value.size(); ++i){
+	      //ans.m_value[i-shiftByLimb] = ans.m_value.at(i);
+	      DEBUG("limb shift ");
+	      ans.m_value.at(i-shiftByLimb) = ans.m_value.at(i);
+	    }
+	    //zero out upper  "shifted in" limbs
+	    for(usint i = 0; i< shiftByLimb; ++i){
+	      //ans.m_value[iter] = 0;	//todo should this instead just be deleted?
+	      DEBUG("limb zereo");
+	      ans.m_value.pop_back();
+	    }
+
+	    //msb adjusted to show the shifts
+	    ans.m_MSB -= shiftByLimb<<m_log2LimbBitLength;
 
 	  }
 
@@ -454,11 +499,15 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 		  usint startVal = ceilIntByUInt(ans.m_MSB);
 		  //perform shifting by bits by calculating the overflow
 		  //oveflow is added after the shifting operation
-		  for( ;startVal>=0;startVal--){
 
-			  oldVal = ans.m_value[startVal];
+		  DEBUG("maskVal "<< maskVal);
+		  DEBUG("startVal "<< startVal);
+		  DEBUG("compShiftVal " << compShiftVal);
 
-			  ans.m_value[startVal] = (ans.m_value[startVal]>>remainingShift) + overFlow;
+		  for(sint i = startVal -1 ; i>=0;i--){
+	  	  DEBUG("bit shift "<<i);
+			  oldVal = ans.m_value.at(i);
+			  ans.m_value.at(i) = (ans.m_value.at(i)>>remainingShift) + overFlow;
 
 			  overFlow = (oldVal &  maskVal);
 			  overFlow <<= compShiftVal ;
@@ -467,6 +516,9 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 		  ans.m_MSB -= remainingShift;
 
 	  }
+	  DEBUG("final MSB "<<ans.m_MSB);
+	  ans.SetMSB();
+	  DEBUG("final MSB check "<<ans.m_MSB);
 	  return ans;
   }
 
@@ -489,18 +541,15 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
       *this = ZERO;
       return *this;
     } else {
-    	bint ans(*this);
-    	*this - ans >> shift;
+    	*this = *this >> shift;
     	return *this;
-
     }
-
   }
 
 
   template<typename limb_t,usint BITLENGTH>
   void bint<limb_t,BITLENGTH>::PrintLimbsInDec() const{
-	bool dbg_flag = 0;		// if true then print dbg output
+	bool dbg_flag = false;		// if true then print dbg output
 	DEBUG("PrintLimbsInDec m_MSB    "<< m_MSB);
 	DEBUG("PrintLimbsInDec m_limbBitLength "<< m_limbBitLength);
     usint upperlim =  m_MSB/m_limbBitLength +1;
@@ -510,7 +559,7 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     }
     DEBUG("PrintLimbsInDec size "<< m_value.size());
     for (usint i = 0; i < upperlim; i++){
-      std::cout<< i << ":"<< m_value[i];
+      std::cout<< i << ":"<< m_value.at(i);
       std::cout <<std::endl;
     }
     std::cout<<std::endl;
@@ -531,8 +580,9 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
    */
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::Add(const bint& b) const{
-	
+	bool dbg_flag = false;		// if true then print dbg output
     //two operands A and B for addition, A is the greater one, B is the smaller one
+	  DEBUG("Add");
     const bint* A = NULL;
     const bint* B = NULL;
     //check for garbage initializations
@@ -555,6 +605,7 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     bint result;
     result.m_state = INITIALIZED;
 
+    DEBUG("result initial size "<<result.m_value.size());
     //overflow variable
     Dlimb_t ofl=0;
 
@@ -564,29 +615,52 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     limb_t ceilIntB = ceilIntByUInt(B->m_MSB);
 
     usint i;//
+
+    DEBUG("ceilIntA "<<ceilIntA);
+    DEBUG("ceilIntB "<<ceilIntB);
+
+    DEBUG("size a "<< A->m_value.size());
+    DEBUG("size b "<< A->m_value.size());
+
+
+
     for(i=0; i<ceilIntB; ++i){ //loop over limbs low to high till you reach the end of the smaller one
-      ofl =(Dlimb_t)A->m_value[i]+ (Dlimb_t)B->m_value[i]+ofl;//sum of the two int and the carry over
+      DEBUG("i "<<i);
+      DEBUG("ofl "<<ofl);
+      DEBUG("Alimb "<<A->m_value.at(i));
+      DEBUG("Blimb "<<B->m_value.at(i));
+
+      ofl =(Dlimb_t)A->m_value.at(i)+ (Dlimb_t)B->m_value.at(i)+ofl;//sum of the two int and the carry over
+      DEBUG("newofl "<<ofl);
       result.m_value.push_back((limb_t)ofl);
       ofl>>=m_limbBitLength;//current overflow
+      DEBUG("shiftofl "<<ofl);
     }
 
     // we have an overflow at the end
     if(ofl){
-    	for(; i<=ceilIntA; ++i){ //keep looping over the remainder of the larger value
-    		ofl = (Dlimb_t)A->m_value[i]+ofl;//sum of the two int and the carry over
+    	for(; i<ceilIntA; ++i){ //keep looping over the remainder of the larger value
+    	  DEBUG("oi "<<i);
+    	  ofl = (Dlimb_t)A->m_value.at(i)+ofl;//sum of the two int and the carry over
+
     		result.m_value.push_back((limb_t)ofl);
     		ofl>>=m_limbBitLength;//current overflow
     	}
 
     	if(ofl){//in the end if overflow is set it indicates MSB is one greater than the one we started with
-    		result.m_value.push_back(1);
+    	  DEBUG("push(1)");
+    	  result.m_value.push_back(1);
     	}
     } else { //there is no overflow at the end
-    	for(; i<=ceilIntA; ++i){
-    		result.m_value.push_back(A->m_value[i]);
+    	for(; i<ceilIntA; ++i){
+    		DEBUG("push "<<i);
+    	  result.m_value.push_back(A->m_value.at(i));
     	}
     }
     result.SetMSB();//Set the MSB.
+
+
+	  DEBUG("final MSB "<<result.m_MSB);
 
     return result;
   }
@@ -596,7 +670,8 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
    */
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::Sub(const bint& b) const{
-    bool dbg_flag = 0;
+    bool dbg_flag = false;
+    DEBUG("Sub");
     //check for garbage initialization
     if(this->m_state==GARBAGE){
       throw std::logic_error("Sub() to uninitialized bint");
@@ -628,23 +703,23 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 
     for(sint i=0; i<endValB; ++i){
       DEBUG ("digit "<<i);
-      if(result.m_value[i]<b.m_value[i]){ //carryover condtion need to borrow from higher limbs.
+      if(result.m_value.at(i)<b.m_value.at(i)){ //carryover condt<ion need to borrow from higher limbs.
         DEBUG ("borrow at "<<i);
         current=i;
         cntr = current+1;
         //find the first nonzero limb
-        while(result.m_value[cntr]==0){
+        while(result.m_value.at(cntr)==0){
           DEBUG("FF at cntr" <<cntr);
-          result.m_value[cntr]=m_MaxLimb; //set all the zero limbs to all FFs (propagate the 1)
+          result.m_value.at(cntr)=m_MaxLimb; //set all the zero limbs to all FFs (propagate the 1)
           cntr++;
         }
         DEBUG("decrement at " << cntr);
-        result.m_value[cntr]--; // and eventually borrow 1 from the first nonzero limb we find
+        result.m_value.at(cntr)--; // and eventually borrow 1 from the first nonzero limb we find
         DEBUG("sub with borrow at " <<i);
-        result.m_value[i]=result.m_value[i]+(m_MaxLimb - b.m_value[i]) +1; // and add the it to the current limb
+        result.m_value.at(i)=result.m_value.at(i)+(m_MaxLimb - b.m_value.at(i)) +1; // and add the it to the current limb
       } else {       //usual subtraction condition
         DEBUG("sub no borrow at " <<i);
-        result.m_value[i]=result.m_value[i]- b.m_value[i];
+        result.m_value.at(i)=result.m_value.at(i)- b.m_value.at(i);
       }
 
     }
@@ -668,11 +743,12 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
    */
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::Mul(const bint& b) const{
+    bool dbg_flag = true;
+    DEBUG("Mul");
 	
-    bint ans;
+    bint ans(ZERO);
     //check for garbage initialised objects
     if(b.m_MSB==0 || b.m_state==GARBAGE ||this->m_state==GARBAGE || this->m_MSB==0){
-      ans = ZERO;
       return ans;
     }
     //check for trivial condtions
@@ -680,16 +756,18 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
       return bint(*this);
 
     if(this->m_MSB==1)
-      return std::move(bint(b));
+      return std::move(bint(b)); //todo check this? don't think standard move is what we want.
 	
     //position of B in the array where the multiplication should start
-    limb_t ceilInt = ceilIntByUInt(b.m_MSB);
+    limb_t ceilLimb = b.m_value.size();
     //Multiplication is done by getting a limb_t from b and multiplying it with *this
     //after multiplication the result is shifted and added to the final answer
 
+
     usint nSize = this->m_value.size();
-    for(sint i= 0;i<= ceilInt;++i){
-      ans += (this->MulIntegerByLimb(b.m_value[i]))<<=(i)*m_limbBitLength;
+    for(sint i= 0;i< ceilLimb;++i){
+      DEBUG("i "<<i);
+      ans += (this->MulIntegerByLimb(b.m_value.at(i)))<<=(i)*m_limbBitLength;
     }
     
     return ans;
@@ -732,15 +810,15 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     //counter
     sint i;
     for(i=m_nSize-1;i>=m_nSize-ceilIntB;i--){
-      ofl =(Dlimb_t)A->m_value[i]+ (Dlimb_t)B->m_value[i]+ofl;//sum of the two apint and the carry over
-      this->m_value[i] = (limb_t)ofl;
+      ofl =(Dlimb_t)A->m_value.at(i)+ (Dlimb_t)B->m_value.at(i)+ofl;//sum of the two apint and the carry over
+      this->m_value.at(i) = (limb_t)ofl;
       ofl>>=m_limbBitLength;//current overflow
     }
 
     if(ofl){
       for(;i>=m_nSize-ceilIntA;i--){
-	ofl = (Dlimb_t)A->m_value[i]+ofl;//sum of the two int and the carry over
-	this->m_value[i] = (limb_t)ofl;
+	ofl = (Dlimb_t)A->m_value.at(i)+ofl;//sum of the two int and the carry over
+	this->m_value.at(i) = (limb_t)ofl;
 	ofl>>=m_limbBitLength;//current overflow
       }
 
@@ -755,7 +833,7 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     }
     else{
       for(;i>=m_nSize-ceilIntA;i--){//NChar-ceil(MSB/8)
-	this->m_value[i] = A->m_value[i];
+	this->m_value.at(i) = A->m_value.at(i);
       }
       this->m_MSB = (m_nSize-i-2)*m_limbBitLength;
       this->m_MSB += GetMSBlimb_t(this->m_value[++i]);
@@ -790,17 +868,17 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     int endValB = nSize-ceilIntByUInt(b.m_MSB);
     sint i;
     for(i=m_nSize-1;i>=endValB;i--){
-      if(this->m_value[i]<b.m_value[i]){
+      if(this->m_value.at(i)<b.m_value.at(i)){
 	current=i;
 	cntr = current-1;
 	while(this->m_value[cntr]==0){
 	  this->m_value[cntr]=m_MaxLimb;cntr--;
 	}
 	this->m_value[cntr]--;
-	this->m_value[i]=this->m_value[i]+m_MaxLimb+1- b.m_value[i];
+	this->m_value.at(i)=this->m_value.at(i)+m_MaxLimb+1- b.m_value.at(i);
       }
       else{
-	this->m_value[i]=this->m_value[i]- b.m_value[i];
+	this->m_value.at(i)=this->m_value.at(i)- b.m_value.at(i);
       }
     }
 
@@ -825,15 +903,18 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
    */
   template<typename limb_t,usint BITLENGTH>
   bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::MulIntegerByLimb(limb_t b) const{
-
+    bool dbg_flag = true;
+    DEBUG("MulIntegerByLimb");
 	  if(this->m_state==GARBAGE)
-		  throw std::logic_error("Mul() of uninitialized bint");
+		  throw std::logic_error("MulIntegerByLimb() of uninitialized bint");
 	  if(b==0 || this->m_MSB==0)
 		  return bint(ZERO);
 
 	  bint ans;
 	  //position in the array to start multiplication
-	  usint endVal = ceilIntByUInt(m_MSB); // not sure this is right
+	  //
+	  usint endVal = this->m_value.size();
+	  DEBUG("endVal"<<endVal);
 	  //variable to capture the overflow
 	  Dlimb_t temp=0;
 	  //overflow value
@@ -841,12 +922,16 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 	  sint i= 0;
 
 	  for(;i<endVal ;++i){
-		  temp = ((Dlimb_t)m_value[i]*(Dlimb_t)b) + ofl;
+	    DEBUG("mullimb i"<<i);
+		  temp = ((Dlimb_t)m_value.at(i)*(Dlimb_t)b) + ofl;
+		  DEBUG("temp "<<temp);
+
 		  ans.m_value.push_back((limb_t)temp);
 		  ofl = temp>>m_limbBitLength;
 	  }
 	  //check if there is any final overflow
 	  if(ofl){
+	    DEBUG("mullimb ofl"<<ofl);
 		  ans.m_value.push_back(ofl);
 	  }
 	  //usint nSize = m_value.size();
@@ -878,7 +963,7 @@ parameters (e.g., division by 0).
    For now, we must have m >= n.  Knuth's Algorithm D also requires
 that the dividend be at least as long as the divisor.  (In his terms,
 m >= 0 (unstated).  Therefore m+n >= n.) */
-int nlz(usint x) {
+inline const int nlz(usint x) {
    int n;
 
    if (x == 0) return(32);
@@ -1142,12 +1227,13 @@ again:
 
   }
 
-  //Initializes the array of uint_array from the string equivalent of bint
+  //Initializes the vector of limbs from the string equivalent of bint
+  // also sets MSB
   //Algorithm used is repeated division by 2
   //Reference:http://pctechtips.org/convert-from-decimal-to-binary-with-recursion-in-java/
   template<typename limb_t,usint BITLENGTH>
   void bint<limb_t,BITLENGTH>::AssignVal(const std::string& vin){
-	  bool dbg_flag = 0;		// if true then print dbg output
+	  bool dbg_flag = false;		// if true then print dbg output
 	  DEBUG("vin: "<< vin);
 
 
@@ -1155,6 +1241,8 @@ again:
 	  DEBUG("v1: "<< v);
 	  // strip off leading zeros from the input string
 	  v.erase(0, v.find_first_not_of('0'));
+	  // strip off leading spaces from the input string
+	  v.erase(0, v.find_first_not_of(' '));
 	  if (v.size() == 0) {
 		  //caustic case of input string being all zeros
 		  v = "0"; //set to one zero
@@ -1216,6 +1304,7 @@ again:
 		  }
 	  }
 	  //std::reverse (m_value.begin(), m_value.end()); //kludge, above is old code that writes the vector bigendian
+	  m_state = INITIALIZED;
 	  SetMSB(); //sets the MSB correctly
 	  delete []bitArr;
 	  delete[] DecValue;//deallocate memory
@@ -1223,16 +1312,16 @@ again:
 	  if (dbg_flag) {
 		  std::cout << "in AssignVal m_value ";
 		  for(int i=0;i<m_value.size();i++)
-			  std::cout <<m_value[i] << " ";//for debug purpose
+			  std::cout <<m_value.at(i) << " ";//for debug purpose
 		  std::cout << std::endl;
 		  std::cout << "in AssignVal m_value hex ";
 		  for(int i=0;i<m_value.size();i++)
-			  std::cout << std::hex <<m_value[i] <<  " ";//for debug purpose
+			  std::cout << std::hex <<m_value.at(i) <<  " ";//for debug purpose
 		  std::cout <<std::dec << std::endl;
 
 		  std::cout << "in AssignVal m_value hex ";
 		  for(int i=0;i<m_value.size();i++)
-			  std::cout << std::hex <<m_value[i] <<  " ";//for debug purpose
+			  std::cout << std::hex <<m_value.at(i) <<  " ";//for debug purpose
 		  std::cout <<std::dec << std::endl;
 	  }
 	  DEBUG("in AssignVal msb now "<< m_MSB );
@@ -1257,7 +1346,7 @@ again:
   void bint<limb_t, BITLENGTH>::SetMSB(usint guessIdxChar){
 
     m_MSB = (m_value.size() - guessIdxChar - 1)*m_limbBitLength;
-    m_MSB += GetMSBlimb_t(m_value[guessIdxChar]);
+    m_MSB += GetMSBlimb_t(m_value.at(guessIdxChar));
   }
 
   template<typename limb_t, usint BITLENGTH>
@@ -1282,8 +1371,8 @@ again:
 		  return std::move(bint(*this));
 	  }
 	  //masking operation if modulus is 2
-	  if(modulus.m_MSB==2 && modulus.m_value[0]==2){
-		  if(this->m_value[0]%2==0)
+	  if(modulus.m_MSB==2 && modulus.m_value.at(0)==2){
+		  if(this->m_value.at(0)%2==0)
 			  return bint(ZERO);
 		  else
 			  return bint(ONE);
@@ -1494,13 +1583,13 @@ again:
     //SOUTH ALGORITHM
 #if 0
     for(sint i=quotient.size()-1;i>=0;i--){
-      mods.push_back(quotient[i]*second + first);
+      mods.push_back(quotient.at(i)*second + first);
       first = second;
       second = mods.back();
     }
 #else
     for(sint i=0; i<quotient.size();++i){
-      mods.push_back(quotient[i]*second + first);
+      mods.push_back(quotient.at(i)*second + first);
       first = second;
       second = mods.back();
     }
@@ -1747,7 +1836,7 @@ again:
 
 		
       //product is multiplied only if bitvalue is 1
-      if(Exp.m_value[m_value.size()-1]%2==1){
+      if(Exp.m_value.at(m_value.size()-1)%2==1){
 	product = product*mid;
       }
 
@@ -1852,9 +1941,9 @@ again:
       uschar ceilInt = ceilIntByUInt(this->m_MSB); 
       sshort testChar;
       for(usint i=m_value.size()-ceilInt;i< m_value.size();i++){
-	testChar = this->m_value[i]-a.m_value[i] ;
-	if(testChar<0)return -1;
-	else if(testChar>0)return 1;
+        testChar = this->m_value.at(i)-a.m_value.at(i) ;
+        if(testChar<0)return -1;
+        else if(testChar>0)return 1;
       }
     }
 
@@ -1872,8 +1961,8 @@ again:
     else{
       uschar ceilInt = ceilIntByUInt(a.m_MSB); 
       for(usint i= m_value.size()-ceilInt;i< m_value.size();i++)
-	if(this->m_value[i]!=a.m_value[i])
-	  return false;	
+        if(this->m_value.at(i)!=a.m_value.at(i))
+          return false;
     }
     return true;
 
@@ -1897,7 +1986,7 @@ again:
 
   template<typename limb_t,usint BITLENGTH>
   bool bint<limb_t,BITLENGTH>::operator>(const bint& a)const{
-	
+
     if(this->m_state==GARBAGE || a.m_state==GARBAGE)
       throw std::logic_error("ERROR \n");
 
@@ -1908,10 +1997,10 @@ again:
     else{
       uschar ceilInt = ceilIntByUInt(this->m_MSB); 
       for(usint i=m_value.size()-ceilInt;i< m_value.size();i++){
-	if(this->m_value[i]<a.m_value[i])
-	  return false;
-	else if(this->m_value[i]>a.m_value[i])
-	  return true;
+        if(this->m_value.at(i)<a.m_value.at(i))
+          return false;
+        else if(this->m_value.at(i)>a.m_value.at(i))
+          return true;
       }
 
     }
@@ -1937,10 +2026,10 @@ again:
       uschar ceilInt = ceilIntByUInt(this->m_MSB); 
       usint vsize = this->m_value.size();
       for(usint i= vsize-ceilInt;i< vsize;i++){
-	if(this->m_value[i]>a.m_value[i])
-	  return false;
-	else if(this->m_value[i]<a.m_value[i])
-	  return true;
+        if(this->m_value.at(i)>a.m_value.at(i))
+          return false;
+        else if(this->m_value.at(i)<a.m_value.at(i))
+          return true;
       }
 
     }
@@ -2017,7 +2106,7 @@ again:
 	  partial_value <<= 1;
 	}
 	partial_value >>= 1;
-      value.m_value[i] = (limb_t)partial_value;
+      value.m_value.at(i) = (limb_t)partial_value;
       partial_value = 0;
     }
     value.m_MSB = (cntr - 1)*m_limbBitLength;
@@ -2161,7 +2250,7 @@ again:
       return 0;
     limb_t result;
     sint idx =ceilIntByUInt(index)-1;//idx is the index of the character array
-    limb_t temp = this->m_value[idx];
+    limb_t temp = this->m_value.at(idx);
     limb_t bmask_counter = index%m_limbBitLength==0? m_limbBitLength:index%m_limbBitLength;//bmask is the bit number in the 8 bit array
     limb_t bmask = 1;
     for(sint i=1;i<bmask_counter;i++)
@@ -2175,7 +2264,7 @@ again:
   void bint<limb_t, BITLENGTH>::SetIntAtIndex(usint idx, limb_t value){
     if (idx >= m_value.size())
       throw std::logic_error("Index Invalid");
-    this->m_value[idx] = value;
+    this->m_value.at(idx) = value;
   }
 
   /*

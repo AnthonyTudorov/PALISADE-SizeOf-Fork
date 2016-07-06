@@ -34,7 +34,8 @@ CC := g++ # This is the main compiler
 
 # NOTE select the appropriate set of CPPFLAGS 
 # most code is checked into git with the first line active
-CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g## undefine for single thread debug operation
+CPPFLAGS += -Wall -std=gnu++11 -w -g## undefine for single thread debug NO OPTIMISATION operation
+#CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g## undefine for single thread debug operation
 #CPPFLAGS += -Wall -O3 -std=gnu++11 -w -g -fopenmp  ##undefine for parallel debug operation
 #CPPFLAGS += -Wall -O3 -std=gnu++11 -w  -DNDEBUG  ##undefine for single thread best performance operation
 #CPPFLAGS += -Wall -O3 -std=gnu++11 -w -fopenmp  ##undefine for parallel best performance operation
