@@ -299,16 +299,7 @@ namespace lbcrypto {
 		* @param &element is the element to multiply entry-wise.
 		* @return is the return value of the times operation.
 		*/
-
 		ILVectorArray2n Times(const BigBinaryInteger &element) const;
-
-		/**
-		* Modulus - perform a modulus operation.
-		*
-		* @param modulus is the modulus to use.
-		* @return is the result value of the modulus.
-		*/
-		ILVectorArray2n Mod(const BigBinaryInteger &modulus) const;
 		
 		/**
 		* Performs an addition operation and returns the result.

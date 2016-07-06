@@ -438,7 +438,8 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 
 	b.SwitchFormat();
 
-	b = std::move(b.Mod(p));
+	// Here we are intentionally hard coding the root of unity to BigBinaryInteger::ONE as we are not going to use the root of unity going forward
+	b.SwitchModulus(p, BigBinaryInteger::ONE);
 
 	plaintext->Decode(p,b);
 

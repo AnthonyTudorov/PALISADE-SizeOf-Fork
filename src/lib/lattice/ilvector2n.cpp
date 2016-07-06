@@ -260,11 +260,11 @@ namespace lbcrypto {
 	}
 
 	// modulo operation - PREV1
-	ILVector2n ILVector2n::Mod(const BigBinaryInteger & modulus) const {
+	/*ILVector2n ILVector2n::Mod(const BigBinaryInteger & modulus) const {
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->Mod(modulus);
 		return tmp;
-	}
+	}*/
 
 	// modulo by two
 	ILVector2n ILVector2n::ModByTwo() const {

@@ -301,7 +301,6 @@ namespace lbcrypto {
 			if (this != &rhs) {
 				this->m_data = rhs.m_data;
 			}
-
 			return *this;
 		}
 
@@ -347,6 +346,7 @@ namespace lbcrypto {
 		* @param  ilVector encoded plaintext - input argument.
 		*/
 		void Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector);
+
 		/**
 		 * Get method to return the byte array
 		 * @return the byte array of data.
@@ -373,23 +373,23 @@ namespace lbcrypto {
 		 * @brief Abstract Interface Class to capture Padding operation
 		 * @tparam Padding the passing used.
 		 */
-			template <typename Padding>
-			void Pad(const usint blockSize) {
-				static_assert(std::is_base_of<PaddingScheme, Padding>::value,
-					"Padding must derive from PaddingScheme");
-				Padding::Pad(blockSize, &m_data);
-			}
+		template <typename Padding>
+		void Pad(const usint blockSize) {
+			static_assert(std::is_base_of<PaddingScheme, Padding>::value,
+				"Padding must derive from PaddingScheme");
+			Padding::Pad(blockSize, &m_data);
+		}
 
 		/**
 		 * @brief Abstract Interface Class to capture Unpadding operation
 		 * @tparam Padding the passing used.
 		 */
-			template <typename Padding>
-			void Unpad() {
-				static_assert(std::is_base_of<PaddingScheme, Padding>::value,
-					"Padding must derive from PaddingScheme");
-				Padding::Unpad(&m_data);
-			}
+		template <typename Padding>
+		void Unpad() {
+			static_assert(std::is_base_of<PaddingScheme, Padding>::value,
+				"Padding must derive from PaddingScheme");
+			Padding::Unpad(&m_data);
+		}
 
 
 	private:

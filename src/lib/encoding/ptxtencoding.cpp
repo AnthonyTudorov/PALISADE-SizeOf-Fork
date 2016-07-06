@@ -76,10 +76,7 @@ namespace lbcrypto {
 
 	void ByteArrayPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector) {
 
-		//std::cout << "plaintext modulus " << modulus << std::endl;
-		ilVector = ilVector.Mod(modulus);
-
-//		ilVector.PrintValues();
+		// ilVector = ilVector.Mod(modulus);
 
 		ByteArray byteArray;
 		usint mod = modulus.ConvertToInt();
@@ -128,7 +125,6 @@ namespace lbcrypto {
 	//	interpolatedDecodedValue = interpolatedDecodedValue.Mod(modulus);
 		//interpolatedDecodedValue.DecodeElement(text, modulus);
 		Decode(modulus, interpolatedDecodedValue);
-//		ilVectorArray2n.PrintValues();
 			
 	}
 
@@ -175,13 +171,12 @@ namespace lbcrypto {
 	}
 
 	void IntArrayPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector) {
-
-		ilVector = ilVector.Mod(modulus);
+		
+		// ilVector = ilVector.Mod(modulus);
 		std::vector<uint32_t> intArray(ilVector.GetValues().GetLength());
 		for (usint i = 0; i<ilVector.GetValues().GetLength(); i++) {
 			intArray[i] = ilVector.GetValues().GetValAtIndex(i).ConvertToInt();
 		}
-
 		this->m_data = intArray;
 
 	}

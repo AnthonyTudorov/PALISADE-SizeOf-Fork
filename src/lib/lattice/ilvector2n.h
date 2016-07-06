@@ -393,7 +393,7 @@ namespace lbcrypto {
 		* @param modulus is the modulus to use.
 		* @return is the return value of the modulus.
 		*/
-		ILVector2n Mod(const BigBinaryInteger & modulus) const;
+		// ILVector2n Mod(const BigBinaryInteger & modulus) const;
 
 		/**
 		* Perform a modulus by 2 operation.  Returns the least significant bit.

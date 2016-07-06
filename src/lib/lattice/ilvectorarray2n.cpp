@@ -397,7 +397,7 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Mod(const BigBinaryInteger &modulus) const
+	/*ILVectorArray2n ILVectorArray2n::Mod(const BigBinaryInteger &modulus) const
 	{
 		ILVectorArray2n tmp(*this);
 
@@ -405,7 +405,7 @@ namespace lbcrypto {
 			tmp.m_vectors[i] = m_vectors[i].Mod(modulus);
 		}
 		return std::move(tmp);
-	}
+	}*/
 
 	const ILVectorArray2n& ILVectorArray2n::operator+=(const BigBinaryInteger &rhs){
          return this->Plus(rhs); //TODO-OPTIMIZE
