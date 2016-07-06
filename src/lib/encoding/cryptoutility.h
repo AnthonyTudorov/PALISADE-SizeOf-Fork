@@ -11,6 +11,23 @@ template<typename Element>
 class CryptoUtility {
 public:
 
+	static bool KeyGen(
+			const LPPublicKeyEncryptionScheme<Element>& scheme,
+			LPPublicKey<Element> *publicKey,
+			LPPrivateKey<Element> *privateKey)
+	{
+		return scheme.KeyGen(publicKey, privateKey);
+	}
+
+	static bool EvalKeyGen(
+			const LPPublicKeyEncryptionScheme<Element>& scheme,
+			const LPPublicKey<Element> &newPublicKey,
+					const LPPrivateKey<Element> &origPrivateKey,
+					LPEvalKey<Element> *evalKey)
+	{
+		return scheme.EvalKeyGen(newPublicKey, origPrivateKey, evalKey);
+	}
+
 	/**
 	 * Perform an encryption of a plaintext
 	 * @param scheme - a reference to the encryption scheme in use

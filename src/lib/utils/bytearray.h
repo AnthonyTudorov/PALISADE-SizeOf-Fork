@@ -73,7 +73,7 @@ public:
     /**
      *  @brief Array constructor, i.e. `ByteArray({1,2,3})`.
      */
-	ByteArray(std::initializer_list<uint8_t> arr) : std::vector<uint8_t>(arr) {}
+    ByteArray(std::initializer_list<uint8_t> arr) : std::vector<uint8_t>(arr) {}
 
     ByteArray() {}
 

@@ -152,7 +152,7 @@ runOneRound(CryptoContext<ILVector2n> *ctx)
 
 	//Perform the key generation operation.
 
-	if( ! ctx->getAlgorithm()->KeyGen(&pk,&sk) ) {
+	if( ! CryptoUtility<ILVector2n>::KeyGen(*ctx->getAlgorithm(), &pk, &sk) ) {
 		cout << "First key generation failed" << endl;
 		exit(1);
 	}
@@ -186,7 +186,7 @@ runOneRound(CryptoContext<ILVector2n> *ctx)
 	LPPublicKeyLTV<ILVector2n> newPK(*ctx->getParams());
 	LPPrivateKeyLTV<ILVector2n> newSK(*ctx->getParams());
 
-	if( ! ctx->getAlgorithm()->KeyGen(&newPK,&newSK) ) {
+	if( ! CryptoUtility<ILVector2n>::KeyGen(*ctx->getAlgorithm(), &newPK, &newSK) ) {
 		cout << "Second keygen failed!" << endl;
 		exit(1);
 	}
@@ -195,7 +195,7 @@ runOneRound(CryptoContext<ILVector2n> *ctx)
 
 	LPEvalKeyLTV<ILVector2n> evalKey(*ctx->getParams());
 
-	ctx->getAlgorithm()->EvalKeyGen(newPK, sk, &evalKey);
+	CryptoUtility<ILVector2n>::EvalKeyGen(*ctx->getAlgorithm(), newPK, sk, &evalKey);
 
 	//Perform the proxy re-encryption operation.
 
