@@ -42,7 +42,7 @@
 #include "../../../src/lib/obfuscate/lweconjunctionobfuscate.h"
 #include "../../../src/lib/obfuscate/lweconjunctionobfuscate.cpp"
 
-using namespace std;
+//using namespace std;
 using namespace lbcrypto;
 
 
@@ -96,7 +96,7 @@ TEST(UTTrapdoor,sizes){
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	ILParams fastParams( m, modulus, rootOfUnity);
-	pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(fastParams, stddev);
+	std::pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(fastParams, stddev);
 
 	EXPECT_EQ(1,trapPair.first.GetRows())
 		<< "Failure testing number of rows";
@@ -129,7 +129,7 @@ TEST(UTTrapdoor,TrapDoorPairTest){
 	ILParams params( m, modulus, rootOfUnity);
     auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
-	pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+	std::pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -192,7 +192,7 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 	ILParams params( m, modulus, rootOfUnity);
     auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
-	pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+	std::pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -269,7 +269,7 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 	ILParams params( m, modulus, rootOfUnity);
     //auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
-	pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+	std::pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;

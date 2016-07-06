@@ -37,7 +37,8 @@
 
 #include "inttypes.h"
 #include <vector>
-#include <array>
+#include <initializer_list>
+#include <iostream>
 
 /**
  * @brief Type used for representing string ByteArray types.
@@ -49,35 +50,40 @@ public:
      *  @brief Standard string constructor.
      */
     ByteArray(const std::string& str);
+
     /**
      *  @brief C-string string constructor.
      */
     ByteArray(const char* cstr);
+
     /**
      *  @brief Explicit constructor for C-strings that do not end at the first null
      *  byte.
      */
     ByteArray(const char* cstr, usint len);
+
     /**
      *  @brief Explicit constructor for vectors
      *  byte.
      */
-	ByteArray(const std::vector<uint8_t> &rhs) : std::vector<uint8_t>(rhs) {};
+	ByteArray(const std::vector<uint8_t> &rhs) : std::vector<uint8_t>(rhs) {}
+
     /**
      *  @brief Array constructor, i.e. `ByteArray({1,2,3})`.
      */
-    template<size_t N>
-	ByteArray(std::array<uint8_t, N> arr) : vector(arr.begin(), arr.end()) {};
-    ByteArray();
+	ByteArray(std::initializer_list<uint8_t> arr) : std::vector<uint8_t>(arr) {}
+
+    ByteArray() {}
+
     /**
      *  @brief C-string assignment.
      */
     ByteArray& operator=(const char* cstr);
+
     /**
      *  @brief string assignment.
      */
     ByteArray& operator= (const std::string& s);
-private:
 };
 
 #endif

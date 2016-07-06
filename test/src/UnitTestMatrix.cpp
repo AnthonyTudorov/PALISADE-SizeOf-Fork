@@ -41,7 +41,7 @@
 
 #include "../../src/lib/math/matrix.cpp"
 
-using namespace std;
+//using namespace std;
 using namespace lbcrypto;
 
 
