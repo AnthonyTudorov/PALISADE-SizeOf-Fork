@@ -37,24 +37,25 @@
 
 using namespace std;
 
-ByteArray::ByteArray(const std::string& str) : vector(str.begin(), str.end()) {};
+ByteArray::ByteArray(const std::string& str) : vector(str.begin(), str.end()) {}
+
 ByteArray::ByteArray(const char* cstr) {
     string s(cstr);
     *this = s;
-};
+}
+
 ByteArray::ByteArray(const char* cstr, usint len) {
     string s(cstr, len);
     *this = s;
-};
-ByteArray::ByteArray(){};
-//template<size_t N>
-//ByteArray::ByteArray(array<uint8_t, N> arr) : vector(arr.begin(), arr.end()){ };
+}
+
 ByteArray& ByteArray::operator=(const string& s) {
     vector::operator=(vector(s.begin(), s.end()));
     return *this;
-};
+}
+
 ByteArray& ByteArray::operator=(const char* cstr) {
     string s(cstr);
     operator=(s);
     return *this;
-};
+}
