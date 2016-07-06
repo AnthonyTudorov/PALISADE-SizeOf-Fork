@@ -30,17 +30,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../../src/lib/math/backend.h"
 #include "../../src/lib/utils/inttypes.h"
-#include "../../src/lib/math/nbtheory.h"
-#include "../../src/lib/lattice/elemparams.h"
 #include "../../src/lib/lattice/ilparams.h"
 #include "../../src/lib/lattice/ildcrtparams.h"
-#include "../../src/lib/lattice/ilelement.h"
 #include "../../src/lib/math/distrgen.h"
-#include "../../src/lib/crypto/lwecrypt.h"
-#include "../../src/lib/crypto/lwepre.h"
 #include "../../src/lib/lattice/ilvector2n.h"
 #include "../../src/lib/lattice/ilvectorarray2n.h"
-#include "../../src/lib/utils/utilities.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -103,7 +97,7 @@ TEST(method_ILVector2n, operators_tests) {
 
   {
     ILVector2n ilv1 = ilvector2n1;
-    ilv1.SetModulus(BigBinaryInteger("123467"));
+    ilv1.SwitchModulus(BigBinaryInteger("123467"), BigBinaryInteger("1234"));
     EXPECT_NE(ilvector2n1, ilv1) << "ILVector2n_operator!=: Operator!= is incorrect. It did not compare modulus properly.\n";
 
     ILVector2n ilv2 = ilvector2n1;
@@ -139,7 +133,7 @@ TEST(method_ILVector2n, getters_tests) {
   ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
 
   ILVector2n ilvector2n(ilparams);
-  std::cout << "GetCyclotomicOrder = " << ilvector2n.GetCyclotomicOrder() << std::endl;
+  // std::cout << "GetCyclotomicOrder = " << ilvector2n.GetCyclotomicOrder() << std::endl;
   BigBinaryVector bbv(m/2, primeModulus);
   bbv.SetValAtIndex(0, "1");
   bbv.SetValAtIndex(1, "2");
@@ -160,7 +154,7 @@ TEST(method_ILVector2n, getters_tests) {
   }
 
   {
-    EXPECT_EQ(bbv, ilvector2n.GetValues()) << "ILVector2n.GetRootOfUnity is incorrect.\n";
+    EXPECT_EQ(bbv, ilvector2n.GetValues()) << "ILVector2n.GetValues is incorrect.\n";
   }
 
   {
@@ -175,6 +169,44 @@ TEST(method_ILVector2n, getters_tests) {
     for (usint i = 0; i < m/2; ++i) {
       EXPECT_EQ(bbv.GetValAtIndex(i), ilvector2n.GetValAtIndex(i)) << "ILVector2n.GetValAtIndex is incorrect.\n";
     }
+  }
+
+}
+
+TEST(method_ILVector2n, setters_tests) {
+  usint m = 8; 
+  
+  BigBinaryInteger primeModulus("73");
+  BigBinaryInteger primitiveRootOfUnity("22");
+
+  ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
+
+  ILVector2n ilvector2n(ilparams);
+  // std::cout << "GetCyclotomicOrder = " << ilvector2n.GetCyclotomicOrder() << std::endl;
+  BigBinaryVector bbv(m/2, primeModulus);
+  bbv.SetValAtIndex(0, "3");
+  bbv.SetValAtIndex(1, "0");
+  bbv.SetValAtIndex(2, "0");
+  bbv.SetValAtIndex(3, "0");
+  ilvector2n.SetValues(bbv, Format::COEFFICIENT);
+
+  ILVector2n ilvector2nInEval(ilparams);
+  // std::cout << "GetCyclotomicOrder = " << ilvector2n.GetCyclotomicOrder() << std::endl;
+  BigBinaryVector bbvEval(m/2, primeModulus);
+  bbvEval.SetValAtIndex(0, "3");
+  bbvEval.SetValAtIndex(1, "3");
+  bbvEval.SetValAtIndex(2, "3");
+  bbvEval.SetValAtIndex(3, "3");
+  ilvector2nInEval.SetValues(bbvEval, Format::EVALUATION);
+
+  {
+    ILVector2n ilv(ilvector2n);
+    
+    ilv.SetFormat(Format::COEFFICIENT);
+    EXPECT_EQ(ilvector2n, ilv) << "ILVector2n.SetFormat is incorrect. Setting the format to COEFFICIENT is incorrect.\n";
+    
+    ilv.SetFormat(Format::EVALUATION);
+    EXPECT_EQ(ilvector2nInEval, ilv) << "ILVector2n.SetFormat is incorrect. Setting the format to EVALUATION is incorrect.\n";
   }
 
 }
@@ -299,6 +331,45 @@ TEST(method_ILVector2n, arithmetic_operations_element) {
   }
 
   {
+    ILVector2n ilvector2n = ilv.Minus(element);
+
+    EXPECT_EQ(BigBinaryInteger::ONE, ilvector2n.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger::ZERO, ilvector2n.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger::THREE, ilvector2n.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger::ZERO, ilvector2n.GetValAtIndex(3));
+  }
+
+  //TODO-Nishanth: Uncomment when DividedBy is implemented for ILVector2n
+  /*{
+    ILVector2n ilv1(ilparams);
+    BigBinaryVector bbv1(m/2, primeModulus);
+    bbv1.SetValAtIndex(0, "2");
+    bbv1.SetValAtIndex(1, "8");
+    bbv1.SetValAtIndex(2, "4");
+    bbv1.SetValAtIndex(3, "6");
+    ilv1.SetValues(bbv1, Format::COEFFICIENT);
+
+    BigBinaryInteger ele("2");
+
+    ILVector2n ilvector2n = ilv1.DividedBy(ele);
+
+    EXPECT_EQ(BigBinaryInteger::ONE, ilvector2n.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger::FOUR, ilvector2n.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger::TWO, ilvector2n.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger::THREE, ilvector2n.GetValAtIndex(3));
+  }*/
+
+  {
+    ILVector2n ilvector2n = ilv.Times(element);
+    BigBinaryInteger ele("2");
+
+    EXPECT_EQ(BigBinaryInteger::FOUR, ilvector2n.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger::TWO, ilvector2n.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger("8"), ilvector2n.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger::TWO, ilvector2n.GetValAtIndex(3));
+  }
+
+  {
     ILVector2n ilvector2n(ilv);
     ilvector2n += element;
 
@@ -348,7 +419,7 @@ TEST(method_ILVector2n, arithmetic_operators_tests_between_ilvector2ns) {
 }
 
 TEST(method_ILVector2n, decompose_test) {
-  usint order = 8; 
+  usint order = 8;
   
   BigBinaryInteger primeModulus("73");
   BigBinaryInteger primitiveRootOfUnity("22");
