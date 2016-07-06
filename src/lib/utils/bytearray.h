@@ -37,7 +37,8 @@
 
 #include "inttypes.h"
 #include <vector>
-#include <array>
+#include <initializer_list>
+#include <iostream>
 
 /**
  * @brief Type used for representing string ByteArray types.
@@ -72,10 +73,9 @@ public:
     /**
      *  @brief Array constructor, i.e. `ByteArray({1,2,3})`.
      */
-    template<size_t N>
-	ByteArray(std::array<uint8_t, N> arr) : vector(arr.begin(), arr.end()) {}
+    ByteArray(std::initializer_list<uint8_t> arr) : std::vector<uint8_t>(arr) {}
 
-    ByteArray();
+    ByteArray() {}
 
     /**
      *  @brief C-string assignment.
