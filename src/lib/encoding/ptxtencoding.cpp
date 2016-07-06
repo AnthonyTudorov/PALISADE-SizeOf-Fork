@@ -100,7 +100,7 @@ namespace lbcrypto {
 	}
 
 	void ByteArrayPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *element) const{
-	   //TODO - OPTIMIZE CODE
+	   //TODO - OPTIMIZE CODE. Please take a look at line 114 temp.SetModulus
 		ILVector2n temp = element->GetTowerAtIndex (0);
 		
 		BigBinaryInteger symbol(modulus);
@@ -111,7 +111,7 @@ namespace lbcrypto {
 		for(usint i=0;i<element->GetTowerLength();i++){
 			ILParams ilparams(element->GetTowerAtIndex(i).GetCyclotomicOrder(), element->GetTowerAtIndex(i).GetModulus(), element->GetTowerAtIndex(i).GetRootOfUnity());
 			ILVector2n ilVector(ilparams);
-			temp.SetModulus(ilparams.GetModulus());
+			// temp.SetModulus(ilparams.GetModulus());
 			ilVector.SetValues(temp.GetValues(),temp.GetFormat());
 			symbolVals.push_back(ilVector);
 		}

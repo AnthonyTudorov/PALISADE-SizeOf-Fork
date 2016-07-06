@@ -77,7 +77,6 @@ namespace lbcrypto {
 		*/
         ILVector2n(const ElemParams &params, Format format = EVALUATION);
 
-
 		void GenerateNoise(DiscreteGaussianGenerator &dgg, Format format = EVALUATION) ;
 
         /**
@@ -153,7 +152,7 @@ namespace lbcrypto {
 		* @param &params the input params.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVector2n(BinaryUniformGenerator &dbg, const ILParams &params, Format format = EVALUATION);
+		ILVector2n(BinaryUniformGenerator &bug, const ElemParams &params, Format format = EVALUATION);
 
 
 		/**
@@ -204,15 +203,7 @@ namespace lbcrypto {
         * @param val is the usint to assign to index zero.
         * @return the resulting vector.
         */
-		inline const ILVector2n& operator=(usint val) {
-            m_format = COEFFICIENT;
-            this->SetValAtIndex(0, val);
-            for (size_t i = 1; i < m_values->GetLength(); ++i) {
-                this->SetValAtIndex(i, 0);
-            }
-            m_format = EVALUATION;
-            return *this;
-        }
+		const ILVector2n& operator=(usint val);
 
 		/**
 		* Equal operator compares this ILVector2n to the specified ILVector2n
@@ -224,6 +215,8 @@ namespace lbcrypto {
             if (this->GetFormat() != rhs.GetFormat()) {
                 return false;
             }
+            if(m_params.GetRootOfUnity() != rhs.GetRootOfUnity())
+            	return false;
             if (this->GetValues() != rhs.GetValues()) {
                 return false;
             }
@@ -246,8 +239,9 @@ namespace lbcrypto {
 		* @return is the result of the addition.
 		*/
         inline const ILVector2n& operator-=(const lbcrypto::ILVector2n &element) {
-            ILVector2n result = this->Minus(element);
-            *this = result;
+            // ILVector2n result = this->Minus(element);
+            // *this = result;
+            *this = this->Minus(element);
             return *this;
         }
 
@@ -341,7 +335,7 @@ namespace lbcrypto {
 		*
 		* @param &modulus is the modulus to be set.
 		*/
-		void SetModulus(const BigBinaryInteger &modulus);
+		// void SetModulus(const BigBinaryInteger &modulus);
 
 		/**
 		* Switch modulus and adjust the values
