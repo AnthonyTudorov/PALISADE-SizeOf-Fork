@@ -41,20 +41,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../src/lib/lattice/ilvectorarray2n.h"
 #include "../../src/lib/utils/utilities.h"
 
-/*
-#include "binint.h"
-#include "binmat.h"
-#include "binvect.h"
-#include "inttypes.h"
-#include "nbtheory.h"
-#include "ideals.h"
-#include "distrgen.h"
-#include "lwecrypt.h"
-#include "lwepre.h"
-#include "il2n.h"
-#include "utilities.h"
-*/
-
 using namespace std;
 using namespace lbcrypto;
 
