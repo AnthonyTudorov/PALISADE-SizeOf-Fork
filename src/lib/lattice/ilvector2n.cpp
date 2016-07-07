@@ -251,13 +251,6 @@ namespace lbcrypto {
 		return tmp;
 	}
 
-	// modulo operation - PREV1
-	/*ILVector2n ILVector2n::Mod(const BigBinaryInteger & modulus) const {
-		ILVector2n tmp(*this);
-		*tmp.m_values = m_values->Mod(modulus);
-		return tmp;
-	}*/
-
 	// modulo by two
 	ILVector2n ILVector2n::ModByTwo() const {
 		ILVector2n tmp(*this);
@@ -412,13 +405,14 @@ namespace lbcrypto {
 	}
 
 	void ILVector2n::AddILElementOne(){
+		if(m_format != Format::EVALUATION)
+			throw std::runtime_error("ILVector2n::AddILElementOne cannot be called on a ILVector2n in COEFFICIENT format.");
 		BigBinaryInteger tempValue;
 		for(usint i = 0; i < m_params.GetCyclotomicOrder()/2; i++){
 			tempValue = m_values->GetValAtIndex(i) + BigBinaryInteger::ONE; 
 			tempValue = tempValue.Mod(m_params.GetModulus());
 			m_values->SetValAtIndex(i,tempValue);
 		}
-	
 	}
 
 	

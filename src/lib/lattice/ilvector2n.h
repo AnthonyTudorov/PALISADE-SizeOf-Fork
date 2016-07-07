@@ -383,14 +383,6 @@ namespace lbcrypto {
 		ILVector2n DividedBy(const BigBinaryInteger &element) const;
 
 		/**
-		* Modulus - perform a modulus operation.
-		*
-		* @param modulus is the modulus to use.
-		* @return is the return value of the modulus.
-		*/
-		// ILVector2n Mod(const BigBinaryInteger & modulus) const;
-
-		/**
 		* Perform a modulus by 2 operation.  Returns the least significant bit.
 		*
 		* @return is the return value of the modulus by 2, also the least significant bit.
@@ -398,18 +390,12 @@ namespace lbcrypto {
 		ILVector2n ModByTwo() const;
 
 		/**
-		Print values and don't flush before and don't print new line.
-		Set to Test value
-		*/
-//		void SetToTestValue() ;
-
-		/**
 		* Prints values of each tower
 		*/
 		void PrintValues() const;
 
 		/**
-		* Adds one to every entry in every tower.
+		* Adds one to every entry of the ILVector2n.
 		*/
 		void AddILElementOne();
 

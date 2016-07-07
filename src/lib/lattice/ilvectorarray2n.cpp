@@ -416,7 +416,9 @@ namespace lbcrypto {
 		 std::cout<<"---END PRINT DOUBLE CRT--" << std::endl;
 	}
 
-	void ILVectorArray2n::AddILElementOne(){
+	void ILVectorArray2n::AddILElementOne() {
+		if(m_format != Format::EVALUATION)
+			throw std::runtime_error("ILVectorArray2n::AddILElementOne cannot be called on a ILVectorArray2n in COEFFICIENT format.");
 		for(usint i = 0; i < m_vectors.size(); i++){
 			m_vectors[i].AddILElementOne();
 		}
