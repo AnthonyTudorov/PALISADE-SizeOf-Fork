@@ -109,7 +109,8 @@ namespace lbcrypto {
 			/**
 			* Destructor
 			*/
-			virtual ~LPCryptoParametersLTV() {}
+			virtual ~LPCryptoParametersLTV() {
+			}
 			
 			/**
 			 * Initialization methods.
@@ -230,14 +231,80 @@ namespace lbcrypto {
 			* @return true on success
 			*/
 			bool Deserialize(const Serialized& serObj);
-
 			/**
-			* Populate the vector with moduli for secure encryption/decryption and ComposedEvalMult. The function takes into account the depth of computation
-			* , distribution parameter, security level, assurance measure
-			* @param *moduli contains the serialized object
-			* @return true on success
+			* Creates a new set of parameters for LPCryptoParametersLTV amid a new ILDCRTParams. The new ILDCRTParams will allow for 
+			* SHE operations of the existing depth. Note that the cyclotomic order also changes.
+			* @param *cryptoParams is where the resulting new LPCryptoParametersLTV will be placed in.
 			*/
-		   void ParameterSelection(int& n, vector<BigBinaryInteger> &moduli) {
+			template <class ILVectorArray2n>
+			void ParameterSelection(LPCryptoParametersLTV<ILVectorArray2n> *cryptoParams) {
+			 
+				//defining moduli outside of recursive call for efficiency
+				std::vector<BigBinaryInteger> moduli(m_depth+1); 
+				moduli.reserve(m_depth+1);
+
+				usint n = this->GetElementParams().GetCyclotomicOrder()/2;
+				// set the values for n (ring dimension) and chain of moduli
+				this->ParameterSelection(n, moduli);
+				
+				cryptoParams->SetAssuranceMeasure(m_assuranceMeasure);
+				cryptoParams->SetDepth(m_depth);
+				cryptoParams->SetSecurityLevel(m_securityLevel);
+				cryptoParams->SetDistributionParameter(m_distributionParameter);
+				cryptoParams->SetDiscreteGaussianGenerator(m_dgg);
+
+				std::vector<BigBinaryInteger> rootsOfUnity;
+				rootsOfUnity.reserve(m_depth+1);
+				usint m = n*2; //cyclotomic order
+				BigBinaryInteger rootOfUnity;
+
+				for(usint i = 0; i < m_depth+1; i++){
+					rootOfUnity = RootOfUnity(m, moduli.at(i));
+					rootsOfUnity.push_back(rootOfUnity);
+				}
+
+				ILDCRTParams *newCryptoParams = new ILDCRTParams(rootsOfUnity, m, moduli);
+				cryptoParams->SetElementParams(*newCryptoParams);
+			}
+		   
+			bool operator==(const LPCryptoParameters<Element>* cmp) const {
+				const LPCryptoParametersLTV<Element> *el = dynamic_cast<const LPCryptoParametersLTV<Element> *>(cmp);
+
+				if( cmp == 0 ) return false;
+
+				return  this->GetPlaintextModulus() == cmp->GetPlaintextModulus() &&
+						this->GetElementParams() == &cmp->GetElementParams() &&
+						m_distributionParameter == el->GetDistributionParameter() &&
+						m_assuranceMeasure == el->GetAssuranceMeasure() &&
+						m_securityLevel == el->GetSecurityLevel() &&
+						m_relinWindow == el->GetRelinWindow();
+			}
+
+		private:
+			//standard deviation in Discrete Gaussian Distribution
+			float m_distributionParameter;
+			//assurance measure alpha
+			float m_assuranceMeasure;
+			//root Hermite value /delta
+			float m_securityLevel;
+			//relinearization window
+			usint m_relinWindow;
+			//depth of computations; used for FHE
+			int m_depth;
+			//Discrete Gaussian Generator
+			DiscreteGaussianGenerator m_dgg;
+			//helper function for ParameterSelection. Splits the string 's' by the delimeter 'c'.
+			std::string split(const std::string s, char c){
+				std::string result;
+				const char *str = s.c_str();
+				const char *begin = str;
+				while(*str != c && *str)
+				str++;
+				result = std::string(begin, str);
+				return result;
+			}
+			//function for parameter selection. The public ParameterSelection function is a wrapper around this function.
+			void ParameterSelection(usint& n, vector<BigBinaryInteger> &moduli) {
 			  int t = m_depth + 1;
 			  int d = m_depth;
 
@@ -295,42 +362,6 @@ namespace lbcrypto {
 				delete q;
 			}
 
-			bool operator==(const LPCryptoParameters<Element>* cmp) const {
-				const LPCryptoParametersLTV<Element> *el = dynamic_cast<const LPCryptoParametersLTV<Element> *>(cmp);
-
-				if( cmp == 0 ) return false;
-
-				return  this->GetPlaintextModulus() == cmp->GetPlaintextModulus() &&
-						this->GetElementParams() == &cmp->GetElementParams() &&
-						m_distributionParameter == el->GetDistributionParameter() &&
-						m_assuranceMeasure == el->GetAssuranceMeasure() &&
-						m_securityLevel == el->GetSecurityLevel() &&
-						m_relinWindow == el->GetRelinWindow();
-			}
-
-		private:
-			//standard deviation in Discrete Gaussian Distribution
-			float m_distributionParameter;
-			//assurance measure alpha
-			float m_assuranceMeasure;
-			//root Hermite value /delta
-			float m_securityLevel;
-			//relinearization window
-			usint m_relinWindow;
-			//depth of computations; used for FHE
-			int m_depth;
-			//Discrete Gaussian Generator
-			DiscreteGaussianGenerator m_dgg;
-			//helper function for ParameterSelection. Splits the string 's' by the delimeter 'c'.
-			std::string split(const std::string s, char c){
-				std::string result;
-				const char *str = s.c_str();
-				const char *begin = str;
-				while(*str != c && *str)
-				str++;
-				result = std::string(begin, str);
-				return result;
-			}
 	};
 
 	/**

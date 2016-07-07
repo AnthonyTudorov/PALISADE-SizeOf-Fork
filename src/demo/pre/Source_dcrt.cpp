@@ -1101,14 +1101,22 @@ double diff, start, finish;
 	cryptoParams.SetDepth(size-1);
 	cryptoParams.SetSecurityLevel(1.006);
 
-	int n = 16;
+	usint n = 16;
 
 	std::vector<BigBinaryInteger> moduliV(size);
+	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
 
-	cryptoParams.ParameterSelection(n,moduliV);
+	cryptoParams.ParameterSelection(&cryptoParams2);
+	//cryptoParams.ParameterSelection(n, moduliV);
 
-	cout << "Ring Dimension is" << n << endl;
-	for(int i = 0; i < size; i++){
-		cout << moduliV.at(i) << endl;
+	cout << "parameter selection test" << endl;
+	cout << cryptoParams2.GetAssuranceMeasure() << endl;
+
+	const ILDCRTParams &dcrtParams = static_cast< const ILDCRTParams& >(cryptoParams2.GetElementParams());
+	std::vector<BigBinaryInteger> moduli2 = dcrtParams.GetModuli();
+
+	for(usint i =0; i < moduliV.size();i++){
+		 cout<< moduli2[i] << endl; 
 	}
-}
+
+ }
