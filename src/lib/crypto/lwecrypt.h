@@ -501,7 +501,6 @@ namespace lbcrypto {
 			/**
 			* Default constructor
 			*/
-
 			LPPublicKeyLTV() {}
 
 			/**
@@ -512,6 +511,19 @@ namespace lbcrypto {
 			LPPublicKeyLTV(LPCryptoParameters<Element> &cryptoParams) {
 				this->SetCryptoParameters(&cryptoParams);
 			}
+
+			/**
+			* Copy constructor
+			*/
+			explicit LPPublicKeyLTV(const LPPublicKey<Element> &rhs);
+
+			/**
+			* Assignment Operator.
+			*
+			* @param &rhs the copied vector.
+			* @return the resulting vector.
+			*/
+			LPPublicKeyLTV<Element>& operator=(const LPPublicKeyLTV<Element> &rhs);
 
 			/**
 			 * Get Crypto Parameters.
@@ -805,6 +817,19 @@ namespace lbcrypto {
 			LPPrivateKeyLTV(LPCryptoParameters<Element> &cryptoParams) {
 				this->SetCryptoParameters(&cryptoParams);
 			}
+
+			/**
+			* Copy constructor
+			*/
+			explicit LPPrivateKeyLTV(const LPPrivateKeyLTV<Element> &rhs);
+
+			/**
+			* Assignment Operator.
+			*
+			* @param &rhs the copied vector.
+			* @return the resulting vector.
+			*/
+			LPPrivateKeyLTV<Element>& operator=(const LPPrivateKeyLTV<Element> &rhs);
 
 			/**
 			 * Get Crypto Parameters.

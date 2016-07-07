@@ -619,6 +619,24 @@ bool LPCryptoParametersLTV<Element>::Deserialize(const Serialized& serObj) {
 	return true;
 }
 
+template <class Element>
+LPPublicKeyLTV<Element>::LPPublicKeyLTV (const LPPublicKey<Element> &rhs) {
+	if(this != rhs) {
+		m_cryptoParameters = rhs.m_cryptoParameters;
+		m_h = rhs.m_h;
+	}
+}
+
+template <class Element>
+LPPublicKeyLTV<Element>& LPPublicKeyLTV<Element>::operator=(const LPPublicKeyLTV<Element> &rhs) {
+	if(this != rhs) {
+		m_cryptoParameters = rhs.m_cryptoParameters;
+		m_h = rhs.m_h;
+	}
+
+	return *this;
+}
+
 // JSON FACILITY
 template <class Element>
 bool LPPublicKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string flag) const {
@@ -749,6 +767,24 @@ bool LPEvalKeyLTV<Element>::Deserialize(const Serialized& serObj, const CryptoCo
 
 	this->SetEvalKeyElements(evalKeyVectorBuffer);
 	return true;
+}
+
+template <class Element>
+LPPrivateKeyLTV<Element>::LPPrivateKeyLTV (const LPPrivateKeyLTV<Element> &rhs) {
+	if(this != rhs) {
+		m_cryptoParameters = rhs.m_cryptoParameters;
+		m_sk = rhs.m_sk;
+	}
+}
+
+template <class Element>
+LPPrivateKeyLTV<Element>& LPPrivateKeyLTV<Element>::operator=(const LPPrivateKeyLTV<Element> &rhs) {
+	if(this != rhs) {
+		m_cryptoParameters = rhs.m_cryptoParameters;
+		m_sk = rhs.m_sk;
+	}
+
+	return *this;
 }
 
 // JSON FACILITY - LPPrivateKeyLTV SetIdFlag Operation
