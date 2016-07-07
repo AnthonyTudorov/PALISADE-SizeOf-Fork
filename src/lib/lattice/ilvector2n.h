@@ -418,14 +418,6 @@ namespace lbcrypto {
 		// VECTOR OPERATIONS
 
 		/**
-		* Determines if two vectors are equal.
-		*
-		* @param &element is the element to test equality with.
-		* @return is the Boolean representation of equality.
-		*/
-		bool Equal(const ILVector2n &element) const;
-
-		/**
 		* Determines if inverse exists
 		*
 		* @return is the Boolean representation of the existence of multiplicative inverse.
@@ -474,15 +466,6 @@ namespace lbcrypto {
 		*/
 		ILVector2n Times(const ILVector2n &element) const;
 
-		// division operation
-		/**
-		* Performs a division operation and returns the result.
-		*
-		* @param &element is the element to divide with.
-		* @return is the result of the division.
-		*/
-		ILVector2n DividedBy(const ILVector2n &element) const;
-
 		// automorphism operation
 		/**
 		* Performs an automorphism transform operation and returns the result.
@@ -527,14 +510,6 @@ namespace lbcrypto {
 		* @return is the result.
 		*/
 		ILVector2n GetDigitAtIndexForBase(usint index, usint base) const;
-
-		// does the vector have any coefficients
-		/**
-		* Returns whether the vector is all zero.
-		*
-		* @return returns whether the vector is all zero.
-		*/
-		bool IsZero() const;
 
 		/**
 		* Shift entries in the vector left a specific number of entries.
@@ -665,7 +640,7 @@ namespace lbcrypto {
 	*
 	* @return The result of division in the ring.
 	*/
-	inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) { return a.DividedBy(b); }
+	// inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) { return a.DividedBy(b); }
 	//PREV1
 
 	/**
@@ -708,7 +683,7 @@ namespace lbcrypto {
 	*
 	* @return The result of division in the ring.
 	*/
-	inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) { return a.DividedBy(b); }
+	// inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) { return a.DividedBy(b); }
 
     inline std::ostream& operator<<(std::ostream& os, const ILVector2n& vec){
         os << vec.GetValues();

@@ -214,6 +214,8 @@ namespace lbcrypto {
 	}
 
 	void ILVector2n::SetValues(const BigBinaryVector& values, Format format) {
+		if(m_params.GetRootOfUnity() == BigBinaryInteger::ZERO || m_params.GetCyclotomicOrder()/2 != values.GetLength() || m_params.GetModulus() != values.GetModulus())
+			throw std::logic_error("Exisiting m_params do not match with the input parameter BigBinaryVector& values.\n");
 		if (m_values != NULL) {
 			delete m_values;
 		}
@@ -422,8 +424,8 @@ namespace lbcrypto {
 		usint w;
 		for(usint i = 0; i < m_params.GetCyclotomicOrder()/2;i++){
 			w = wFactor.ConvertToInt();
-			if(!(i%w == 0)){
-				m_values->SetValAtIndex(i,BigBinaryInteger::ZERO);
+			if(i%w != 0){
+				m_values->SetValAtIndex(i, BigBinaryInteger::ZERO);
 			}
 		}
 	}
