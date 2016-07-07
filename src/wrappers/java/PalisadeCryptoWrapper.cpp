@@ -37,6 +37,7 @@ class javastreambuf : public streambuf {
 	JNIEnv		*env;
 	jobject		obj;
 	jmethodID writer;
+	jmethodID flusher;
 
 public:
 	javastreambuf(JNIEnv *env, jobject outstream) {
@@ -51,7 +52,12 @@ public:
 
 		writer = env->GetMethodID(ostr, "write", "([BII)V");
 		if( writer == 0 ) {
-			throw std::logic_error("no method");
+			throw std::logic_error("no write method");
+		}
+
+		flusher = env->GetMethodID(ostr, "flush", "()V");
+		if( writer == 0 ) {
+			throw std::logic_error("no flush method");
 		}
 
 		setp(buf, buf + sizeof(buf));
@@ -78,16 +84,17 @@ public:
 
 private:
 	void doWrite(const char *d, int n) {
-		cout << "calls doWrite " << d << ":" << n << endl;
+		cout << "calls doWrite:" << d << ":" << n << endl;
 		jvalue args[3];
 
 		jbyteArray arr = env->NewByteArray(n);
-		env->SetByteArrayRegion(arr, 0, n, (const jbyte *)d);
+		env->SetByteArrayRegion(arr, 0, n, (jbyte *)d);
 		args[0].l = arr;
 		args[1].i = 0;
-		args[1].i = n;
+		args[2].i = n;
 
 		env->CallVoidMethod(obj, writer, args);
+		env->CallVoidMethod(obj, flusher);
 
 		env->DeleteLocalRef(arr);
 	}

@@ -153,6 +153,7 @@ public class PalisadeCrypto {
 			System.out.println("Back from writing");
 		} catch( Exception e ) {
 			e.printStackTrace();
+			System.out.println( e.getMessage() );
 		}
 		
 		System.out.println("Generating some key pairs");
