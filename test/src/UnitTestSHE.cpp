@@ -51,7 +51,7 @@ template <class T>
 ElemParams* CreateParams(usint m);
 
 template <class T>
-LPCryptoParametersLTV<T>* CreateCryptoParams();
+Ciphertext<T>* CreateCiphertext(usint m, float stdDev);
 
 template <>
 ElemParams* CreateParams<ILVector2n>(usint m) {
@@ -84,23 +84,54 @@ ElemParams* CreateParams<ILVectorArray2n>(usint m) {
   return &ildcrtParams;
 }
 
-template <class T>
-LPCryptoParametersLTV<T>* CreateCryptoParams<ILVector2n>(){
+template <>
+Ciphertext<ILVector2n>* CreateCiphertext<ILVector2n>(usint m, float stdDev){
 	BigBinaryInteger q("1");
 	lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4")); 
 	BigBinaryInteger rootOfUnity(RootOfUnity(m,q));
-	ILParams ilParams(m,q,rootOfUnity);
-	return null;
+	
+	ElemParams *elemParams = CreateParams<ILVector2n>(16);
+	
+	LPCryptoParametersLTV<ILVector2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+	cryptoParams.SetDistributionParameter(stdDev);
+	cryptoParams.SetRelinWindow(1);
+	cryptoParams.SetElementParams(*elemParams);
+
+	Ciphertext<ILVector2n> ciphertext;
+	ciphertext.SetCryptoParameters(&cryptoParams);
+
+	return &ciphertext;
 }
+
+template <>
+Ciphertext<ILVectorArray2n>* CreateCiphertext<ILVectorArray2n>(usint m, float stdDev){
+	usint size = 3;
+
+	 ElemParams *elemParams = CreateParams<ILVectorArray2n>(16);
+
+	 LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+	 cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+	 cryptoParams.SetDistributionParameter(stdDev);
+	 cryptoParams.SetRelinWindow(1);
+	 cryptoParams.SetElementParams(*elemParams);
+
+	 Ciphertext<ILVectorArray2n> ciphertext;
+	 ciphertext.SetCryptoParameters(&cryptoParams);
+
+	 return &ciphertext;
+}
+
 
 template <class T>
 class UnitTestSHE : public ::testing::Test {
   
   public:
 static const usint m = 16;
+//static const float stdDev = 4.0;
 
   protected:
-	  UnitTestSHE() : params(CreateParams<T>(UnitTestSHE::m)) {}
+	  UnitTestSHE() : params(CreateParams<T>(UnitTestSHE::m)), ciphertext(CreateCiphertext<T>(UnitTestSHE::m,4)){}
 
     virtual void SetUp() {
     }
@@ -113,7 +144,7 @@ static const usint m = 16;
     // virtual ~UnitTestSHE() { delete params; }
 
     ElemParams* params;
-	LPCryptoParametersLTV<T>* cryptoParams;
+	Ciphertext<T>* ciphertext;
 
 };
 
@@ -127,7 +158,10 @@ TYPED_TEST_CASE(UnitTestSHE, Implementations);
 // similar to TEST_F.
 
 TYPED_TEST(UnitTestSHE, eval_add_correction_test){
-	  EXPECT_EQ(1, 1); 
+	Ciphertext<TypeParam> cipher1(*(this->ciphertext));
+	Ciphertext<TypeParam> cipher2(*(this->ciphertext));
+
+//	EXPECT_EQ(cipher1.GetCryptoParameters().GetPlaintextModulus(), cipher2.GetCryptoParameters().GetPlaintextModulus()) << "keyswitch_test_single_crt failed.\n";
 }
 
 TYPED_TEST(UnitTestSHE, keyswitch_modReduce_ringReduce_tests){
