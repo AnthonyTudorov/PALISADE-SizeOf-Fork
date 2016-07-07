@@ -38,12 +38,6 @@ using namespace std;
 
 namespace lbcrypto {
 
-		/**
-		* Generates a nested JSON data string for a serialized Palisade object
-		* @param serObj input serialization of object
-		* @param jsonString output string representation
-		* @return success or failure
-		*/
 		bool SerializableHelper::SerializationToString(const Serialized& serObj, std::string& jsonString) {
 
 			rapidjson::StringBuffer buffer;
@@ -54,15 +48,23 @@ namespace lbcrypto {
 			return writer.IsComplete();
 		}
 
-		/**
-		* Generates a nested JSON data string for a serialized Palisade object
-		* @param serObj stores the serialized Palisade object's attributes.
-		* @return string reflecting the nested JSON data structure of the serialized Palisade object.
-		*/
+		bool SerializableHelper::SerializationToStream(const Serialized& serObj, std::ostream& out) {
+			OStreamWrapper oo(out);
+			rapidjson::Writer<OStreamWrapper> ww(oo);
+			serObj.Accept(ww);
+			return ww.IsComplete();
+		}
+
 		bool SerializableHelper::StringToSerialization(const std::string& jsonString, Serialized* serObj) {
 
 			return !serObj->Parse( jsonString.c_str() ).HasParseError();
 		}
+
+		bool SerializableHelper::StreamToSerialization(std::istream& in, Serialized* serObj) {
+			lbcrypto::IStreamWrapper is(in);
+			return !serObj->ParseStream<rapidjson::kParseStopWhenDoneFlag>(is).HasParseError();
+		}
+
 
 		/**
 		* Saves a serialized Palisade object's JSON string to file as a nested JSON data structure 

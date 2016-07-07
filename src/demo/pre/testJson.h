@@ -37,7 +37,7 @@ struct TestJsonParms {
 	LPPrivateKey<ILVector2n>				*newSK;
 };
 
-extern void testJson(const std::string cID, const ByteArrayPlaintextEncoding& newPtxt, TestJsonParms *p);
+extern void testJson(const std::string cID, const ByteArray& newPtxt, TestJsonParms *p);
 
 
 

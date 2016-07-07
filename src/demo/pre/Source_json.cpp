@@ -46,6 +46,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../../lib/utils/debug.h"
 #include "../../lib/encoding/byteencoding.h"
+#include "../../lib/encoding/cryptoutility.h"
 
 void NTRUPRE(CryptoContext<ILVector2n> *ctx, bool);
 
@@ -86,9 +87,6 @@ main(int argc, char *argv[])
 
 		else filename = arg;
 	}
-
-	//DiscreteUniformGenerator gen(BigBinaryInteger("100000"));
-	//auto v = gen.GenerateVector(10000);
 
 	std::cout << "Choose parameter set: ";
 	CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout, filename);
@@ -199,15 +197,13 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
-	Ciphertext<ILVector2n> ciphertext;
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-	ptxt.Pad<ZeroPad>(ctx->getPadAmount());
+	vector<Ciphertext<ILVector2n>> ciphertext;
 
 	std::cout << "Running encryption..." << std::endl;
 
 	start = currentDateTime();
 
-	ctx->getAlgorithm()->Encrypt(pk,ptxt,&ciphertext);	// This is the core encryption operation.
+	CryptoUtility<ILVector2n>::Encrypt(*ctx->getAlgorithm(),pk,plaintext,&ciphertext);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -219,14 +215,13 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArrayPlaintextEncoding plaintextNew;
+	ByteArray plaintextNew;
 
 	std::cout <<"\n"<< "Running decryption..." << std::endl;
 
 	start = currentDateTime();
 
-	DecodingResult result = ctx->getAlgorithm()->Decrypt(sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
-	plaintextNew.Unpad<ZeroPad>();
+	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(),sk,ciphertext,&plaintextNew);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -239,7 +234,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 
 	//cout << "ciphertext at" << ciphertext.GetIndexAt(2);
 
-	if (!result.isValidCoding) {
+	if (!result.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}
@@ -291,13 +286,13 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	////////////////////////////////////////////////////////////
 
 
-	Ciphertext<ILVector2n> newCiphertext;
+	vector<Ciphertext<ILVector2n>> newCiphertext;
 
 	std::cout <<"\n"<< "Running re-encryption..." << std::endl;
 
 	start = currentDateTime();
 
-	ctx->getAlgorithm()->ReEncrypt(evalKey, ciphertext,&newCiphertext);  // This is the core re-encryption operation.
+	CryptoUtility<ILVector2n>::ReEncrypt(*ctx->getAlgorithm(), evalKey, ciphertext, &newCiphertext);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -311,14 +306,13 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArrayPlaintextEncoding plaintextNew2;
+	ByteArray plaintextNew2;
 
 	std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
 
 	start = currentDateTime();
 
-	DecodingResult result1 = ctx->getAlgorithm()->Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
-	plaintextNew2.Unpad<ZeroPad>();
+	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(),newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -329,7 +323,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
 	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
 
-	if (!result1.isValidCoding) {
+	if (!result1.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}
@@ -337,12 +331,9 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	std::cout << "Execution completed." << std::endl;
 
 	ByteArray newPlaintext("1) SERIALIZE CRYPTO-OBJS TO FILE AS NESTED JSON STRUCTURES\n2) DESERIALIZE JSON FILES INTO CRYPTO-OBJS USED FOR CRYPTO-APIS\n3) Profit!!!!!");
-	ByteArrayPlaintextEncoding newPtxt(newPlaintext);
-	newPtxt.Pad<ZeroPad>(ctx->getPadAmount());
 
 	cout << "Original Plaintext: " << endl;
 	cout << newPlaintext << endl;
-	cout << "size: " << newPtxt.GetLength() << endl;
 
 	if( doJson ) {
 		TestJsonParms	tjp;
@@ -352,7 +343,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 		tjp.evalKey = &evalKey;
 		tjp.newSK = &newSK;
 
-		testJson("LTV", newPtxt, &tjp);
+		testJson("LTV", newPlaintext, &tjp);
 	}
 
 	fout.close();

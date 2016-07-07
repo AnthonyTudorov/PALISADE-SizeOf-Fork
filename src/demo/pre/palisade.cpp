@@ -40,6 +40,7 @@ using namespace std;
 
 #include "../../lib/utils/serializablehelper.h"
 #include "../../lib/encoding/byteencoding.h"
+#include "../../lib/encoding/cryptoutility.h"
 
 using namespace lbcrypto;
 
@@ -92,46 +93,7 @@ reencrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) 
 		return;
 	}
 
-	string inBuf;
-	char ch;
-
-	do {
-		inBuf = "";
-		while( (ch = inCt.get()) != EOF && ch != '$' )
-			inBuf += ch;
-
-		if( ch == EOF ) break;
-
-		Serialized ser;
-		if( !SerializableHelper::StringToSerialization(inBuf, &ser) ) {
-			cerr << "Error deserializing ciphertext" << endl;
-			break;
-		}
-
-		if( !ciphertext.Deserialize(ser, ctx) ) {
-			cerr << "Error deserializing ciphertext" << endl;
-			break;
-		}
-
-		ctx->getAlgorithm()->ReEncrypt(evalKey, ciphertext, &newCiphertext);
-
-		Serialized cipS;
-		string reSerialized;
-
-		if( newCiphertext.Serialize(&cipS, "Re") ) {
-			if( !SerializableHelper::SerializationToString(cipS, reSerialized) ) {
-				cerr << "Error creating serialization of new ciphertext" << endl;
-				return;
-			}
-
-			outCt << reSerialized << '$' << flush;
-		}
-		else {
-			cerr << "Error reserializing ciphertext" << endl;
-			break;
-		}
-
-	} while( inCt.good() );
+	CryptoUtility<ILVector2n>::ReEncrypt(ctx, evalKey, inCt, outCt);
 
 	inCt.close();
 	outCt.close();
@@ -168,36 +130,7 @@ decrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	Ciphertext<ILVector2n> ciphertext;
-	ByteArrayPlaintextEncoding plaintext;
-
-	string inBuf;
-	char ch;
-
-	do {
-		inBuf = "";
-		while( (ch = inCt.get()) != EOF && ch != '$' )
-			inBuf += ch;
-
-		if( ch == EOF ) break;
-
-		Serialized ser;
-		if( !SerializableHelper::StringToSerialization(inBuf, &ser) ) {
-			cerr << "Error deserializing ciphertext" << endl;
-			break;
-		}
-
-		if( !ciphertext.Deserialize(ser, ctx) ) {
-			cerr << "Error deserializing ciphertext" << endl;
-			break;
-		}
-
-		DecodingResult rv = ctx->getAlgorithm()->Decrypt(sk, ciphertext, &plaintext);
-		plaintext.Unpad<ZeroPad>();
-
-		outF << plaintext << flush;
-
-	} while( inCt.good() );
+	CryptoUtility<ILVector2n>::Decrypt(ctx, sk, inCt, outF);
 
 	inCt.close();
 	outF.close();
@@ -239,39 +172,10 @@ encrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	inf.seekg(0, ios::end);
-	long totalBytes = inf.tellg();
-	inf.clear();
-	inf.seekg(0);
+	EncryptResult er = CryptoUtility<ILVector2n>::Encrypt(ctx, pk, inf, ctSer);
 
-	while( totalBytes > 0 ) {
-		usint s = min(totalBytes, ctx->getChunksize());
-		char *chunkb = new char[s];
-		inf.read(chunkb, s);
-
-		ByteArrayPlaintextEncoding ptxt( ByteArray(chunkb, s) );
-		ptxt.Pad<ZeroPad>(ctx->getPadAmount());
-		delete chunkb;
-
-		Ciphertext<ILVector2n> ciphertext;
-
-		ctx->getAlgorithm()->Encrypt(pk, ptxt, &ciphertext);
-		Serialized cipS;
-		string cipherSer;
-
-		if( ciphertext.Serialize(&cipS, "Enc") ) {
-			if( !SerializableHelper::SerializationToString(cipS, cipherSer) ) {
-				cerr << "Error stringifying serialized ciphertext" << endl;
-				break;
-			}
-
-			ctSer << cipherSer << "$" << flush;
-		} else {
-			cerr << "Error serializing ciphertext" << endl;
-			break;
-		}
-
-		totalBytes -= ctx->getChunksize();
+	if( !er.isValid ) {
+		cerr << "failed to encrypt" << endl;
 	}
 
 	inf.close();
@@ -376,15 +280,15 @@ struct {
 	string		helpline;
 } cmds[] = {
 		"makekey", keymaker, " [optional parms] keyname\n"
-			"\tcreate a new keypair and save in keyfilePUB.txt and keyfilePRI.txt",
+		"\tcreate a new keypair and save in keyfilePUB.txt and keyfilePRI.txt",
 		"makerekey", rekeymaker, " [optional parms] pubkey_file secretkey_file rekey_file\n"
-			"\tcreate a re-encryption key from the contents of pubkey_file and secretkey_file, save in rekey_file",
+		"\tcreate a re-encryption key from the contents of pubkey_file and secretkey_file, save in rekey_file",
 		"encrypt", encrypter, " [optional parms] plaintext_file pubkey_file ciphertext_file\n"
-			"\tencrypt the contents of plaintext_file using the contents of pubkey_file, save results in ciphertext_file",
+		"\tencrypt the contents of plaintext_file using the contents of pubkey_file, save results in ciphertext_file",
 		"reencrypt", reencrypter, " [optional parms] encrypted_file rekey_file reencrypted_file\n"
-			"\treencrypt the contents of encrypted_file using the contents of rekey_file, save results in reencrypted_file",
+		"\treencrypt the contents of encrypted_file using the contents of rekey_file, save results in reencrypted_file",
 		"decrypt", decrypter,  " [optional parms] ciphertext_file prikey_file cleartext_file\n"
-			"\tdecrypt the contents of ciphertext_file using the contents of prikey_file, save results in cleartext_file",
+		"\tdecrypt the contents of ciphertext_file using the contents of prikey_file, save results in cleartext_file",
 
 };
 

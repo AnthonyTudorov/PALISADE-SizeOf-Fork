@@ -62,6 +62,8 @@ public:
      */
     ByteArray(const char* cstr, usint len);
 
+    ByteArray(std::vector<uint8_t>::const_iterator sIter, std::vector<uint8_t>::const_iterator eIter) : std::vector<uint8_t>(sIter, eIter) {}
+
     /**
      *  @brief Explicit constructor for vectors
      *  byte.
@@ -71,7 +73,7 @@ public:
     /**
      *  @brief Array constructor, i.e. `ByteArray({1,2,3})`.
      */
-	ByteArray(std::initializer_list<uint8_t> arr) : std::vector<uint8_t>(arr) {}
+    ByteArray(std::initializer_list<uint8_t> arr) : std::vector<uint8_t>(arr) {}
 
     ByteArray() {}
 
@@ -84,6 +86,9 @@ public:
      *  @brief string assignment.
      */
     ByteArray& operator= (const std::string& s);
+
+    using std::vector<uint8_t>::begin;
+    using std::vector<uint8_t>::end;
 };
 
 #endif

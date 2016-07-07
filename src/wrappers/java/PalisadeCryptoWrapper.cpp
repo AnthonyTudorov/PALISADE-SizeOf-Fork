@@ -445,7 +445,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_decrypt
 		if( !ciphertext.Deserialize(kD, ctx) )
 			break;
 
-		DecodingResult result1 = ctx->getAlgorithm()->Decrypt(*decryptionKey, ciphertext, &plaintext);
+		DecryptResult result1 = ctx->getAlgorithm()->Decrypt(*decryptionKey, ciphertext, &plaintext);
 		plaintext.Unpad<ZeroPad>();
 
 		const ByteArray& byteArray = plaintext.GetData();

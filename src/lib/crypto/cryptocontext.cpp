@@ -120,7 +120,7 @@ CryptoContext<T> *CryptoContext<T>::genCryptoContextLTV(
 
 	item->chunksize = ((item->ringdim / 2) / 8) * log(plaintextmodulus)/log(2);
 
-	item->algorithm = new LPPublicKeyEncryptionSchemeLTV<T>();
+	item->algorithm = new LPPublicKeyEncryptionSchemeLTV<T>(item->chunksize);
 	item->algorithm->Enable(ENCRYPTION);
 	item->algorithm->Enable(PRE);
 
@@ -162,7 +162,7 @@ CryptoContext<T> *CryptoContext<T>::genCryptoContextStehleSteinfeld(
 
 	item->chunksize = ((item->ringdim / 2) / 8) * log(plaintextmodulus)/log(2);
 
-	item->algorithm = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>();
+	item->algorithm = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>(item->chunksize);
 	item->algorithm->Enable(ENCRYPTION);
 	item->algorithm->Enable(PRE);
 

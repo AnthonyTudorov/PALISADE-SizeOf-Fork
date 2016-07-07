@@ -52,17 +52,24 @@ namespace lbcrypto {
 		/**
 		* Default constructore
 		*/
-		ByteArrayPlaintextEncoding():m_data() {
-		}
+		ByteArrayPlaintextEncoding() : m_data() {}
 
 		/**
-		* Constructor that loads a byte array
+		* Constructor that loads an entire byte array
 		*
 		* @param &byteArray input byte array
 		*/
-		ByteArrayPlaintextEncoding(const ByteArray &byteArray):
-            m_data(byteArray) {
-		}
+		ByteArrayPlaintextEncoding(const ByteArray &byteArray): m_data(byteArray) {}
+
+		/**
+		 * Constructor that loads a portion of a byte array
+		 *
+		 * @param byteArray
+		 * @param start
+		 * @param end
+		 */
+		ByteArrayPlaintextEncoding(const ByteArray &byteArray, const size_t start, const size_t end)
+			: m_data( byteArray.begin() + start, min(byteArray.begin() + start + end,byteArray.end()) ) {}
 
 		/**
 		* Copy Constructor
