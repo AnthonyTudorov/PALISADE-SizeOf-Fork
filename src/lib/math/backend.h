@@ -42,9 +42,8 @@
 #define MATHBACKEND 2
 
 #if MATHBACKEND == 1
-	#include "cpu8bit/binint.h"
-	#include "cpu8bit/binvect.h"
-	//#include "cpu8bit/binmat.h"	
+	#include "cpu8bit/binint8bit.h"
+	#include "cpu8bit/binvect8bit.h"
 #endif
 #if MATHBACKEND == 2
 	#include "cpu_int/binint.cpp"

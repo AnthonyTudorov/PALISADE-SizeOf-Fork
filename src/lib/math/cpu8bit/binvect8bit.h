@@ -35,8 +35,7 @@
 #define LBCRYPTO_MATH_CPU8BIT_BINVECT_H
 
 #include "../../utils/serializable.h"
-#include "binint.h"
-#include "binmat.h"
+#include "binint8bit.h"
 
 /**
  * @namespace cpu8bit
@@ -300,14 +299,6 @@ public:
 	//matrix operations
 
 	//matrix product - used in FFT and IFFT; new_vector = A*this_vector
-
-	/**
-	 * Matrix by Vector modulus multiplication.  If this vector is x and the matrix is A, this method returns A*x.
-	 *
-	 * @param &a is the matrix to left-multiply with.
-	 * @return is the result of the modulus multiplication operation.
-	 */
-	BigBinaryVector ModMatrixMul(const BigBinaryMatrix &a) const;
 
 	/**
 	 * Returns a vector of digit at a specific index for all entries for a given number base.
