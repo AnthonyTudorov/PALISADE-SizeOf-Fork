@@ -252,6 +252,7 @@ namespace lbcrypto {
 				cryptoParams->SetSecurityLevel(m_securityLevel);
 				cryptoParams->SetDistributionParameter(m_distributionParameter);
 				cryptoParams->SetDiscreteGaussianGenerator(m_dgg);
+				cryptoParams->SetPlaintextModulus(this->GetPlaintextModulus());
 
 				std::vector<BigBinaryInteger> rootsOfUnity;
 				rootsOfUnity.reserve(m_depth+1);
