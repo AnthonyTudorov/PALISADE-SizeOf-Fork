@@ -331,16 +331,11 @@ namespace lbcrypto {
 		void SetValues(const BigBinaryVector& values, Format format);
 
 		/**
-		* Set method of the values.
-		*
-		* @param &modulus is the modulus to be set.
-		*/
-		// void SetModulus(const BigBinaryInteger &modulus);
-
-		/**
 		* Switch modulus and adjust the values
 		*
 		* @param &modulus is the modulus to be set.
+		* @param &rootOfUnity is the corresponding root of unity for the modulus
+		* ASSUMPTION: This method assumes that the caller provides the correct rootOfUnity for the modulus.
 		*/
 		void SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity);
 

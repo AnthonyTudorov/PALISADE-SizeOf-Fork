@@ -54,6 +54,8 @@
 #define LBCRYPTO_LATTICE_IL2VECTORARRAY2N_H
 
 #include <vector>
+#include <string>
+
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/distrgen.h"
@@ -386,6 +388,25 @@ namespace lbcrypto {
 		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
 		*/
 		void SwitchFormat();
+
+		/**
+		* Switch modulus and adjust the values
+		*
+		* @param &modulus is the modulus to be set
+		* @param &rootOfUnity is the corresponding root of unity for the modulus
+		* ASSUMPTION: This method assumes that the caller provides the correct rootOfUnity for the modulus
+		*/
+		void SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity);
+
+		/**
+		* Switch modulus at tower i and adjust the values
+		*
+		* @param index is the index for the tower
+		* @param &modulus is the modulus to be set
+		* @param &rootOfUnity is the corresponding root of unity for the modulus
+		* ASSUMPTION: This method assumes that the caller provides the correct rootOfUnity for the modulus
+		*/
+		void SwitchModulusAtTowerIndex(usint index, const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity);
 
 		/**
 		* Determines if inverse exists

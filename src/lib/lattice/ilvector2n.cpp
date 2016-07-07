@@ -221,14 +221,6 @@ namespace lbcrypto {
 		m_format = format;
 	}
 
-	/*void ILVector2n::SetModulus(const BigBinaryInteger &modulus) {
-		if(modulus<m_values->GetModulus()){
-			*m_values = m_values->Mod(modulus);
-		}
-		m_values->SetModulus(modulus);
-		m_params.SetModulus(modulus);
-	}*/
-
 	void ILVector2n::SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity){
 		m_values->SwitchModulus(modulus);
 		m_params.SetModulus(modulus);

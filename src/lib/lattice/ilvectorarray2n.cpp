@@ -397,16 +397,6 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	/*ILVectorArray2n ILVectorArray2n::Mod(const BigBinaryInteger &modulus) const
-	{
-		ILVectorArray2n tmp(*this);
-
-		for (usint i = 0; i < m_vectors.size(); i++) {
-			tmp.m_vectors[i] = m_vectors[i].Mod(modulus);
-		}
-		return std::move(tmp);
-	}*/
-
 	const ILVectorArray2n& ILVectorArray2n::operator+=(const BigBinaryInteger &rhs){
          return this->Plus(rhs); //TODO-OPTIMIZE
 	}
@@ -611,6 +601,26 @@ namespace lbcrypto {
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			m_vectors[i].SwitchFormat();
 		}
+	}
+
+	void ILVectorArray2n::SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity) {
+		m_modulus = BigBinaryInteger::ONE;
+		for (usint i = 0; i < m_numberOfTowers; ++i)
+		{
+			m_vectors[i].SwitchModulus(modulus, rootOfUnity);
+			m_modulus = m_modulus * modulus;
+		}
+	}
+
+	void ILVectorArray2n::SwitchModulusAtTowerIndex(usint index, const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity) {
+		if(index > m_numberOfTowers-1) {
+			std::string errMsg;
+			errMsg = "ILVectorArray2n is of size = " + std::to_string(m_numberOfTowers) + " but SwitchModulus for tower at index " + std::to_string(index) + "is called.";
+			throw std::runtime_error(errMsg);
+		}
+		m_modulus = m_modulus/(m_vectors[index].GetModulus());
+		m_modulus = m_modulus * modulus;
+		m_vectors[index].SwitchModulus(modulus, rootOfUnity);
 	}
 
 	bool ILVectorArray2n::InverseExists() const
