@@ -50,6 +50,9 @@ using namespace lbcrypto;
 template <class T>
 ElemParams* CreateParams(usint m);
 
+template <class T>
+LPCryptoParametersLTV<T>* CreateCryptoParams();
+
 template <>
 ElemParams* CreateParams<ILVector2n>(usint m) {
   BigBinaryInteger q("1");
@@ -76,20 +79,28 @@ ElemParams* CreateParams<ILVectorArray2n>(usint m) {
     rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
     modulus = modulus* moduli[i];
   }
-
   // DiscreteGaussianGenerator dgg(modulus,stdDev);
   ILDCRTParams ildcrtParams(rootsOfUnity, m, moduli);
   return &ildcrtParams;
 }
 
 template <class T>
+LPCryptoParametersLTV<T>* CreateCryptoParams<ILVector2n>(){
+	BigBinaryInteger q("1");
+	lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4")); 
+	BigBinaryInteger rootOfUnity(RootOfUnity(m,q));
+	ILParams ilParams(m,q,rootOfUnity);
+	return null;
+}
+
+template <class T>
 class UnitTestSHE : public ::testing::Test {
   
   public:
-    const usint m = 16;
+static const usint m = 16;
 
   protected:
-    UnitTestSHE() : params(CreateParams<T>(m)) {}
+	  UnitTestSHE() : params(CreateParams<T>(UnitTestSHE::m)) {}
 
     virtual void SetUp() {
     }
@@ -102,6 +113,7 @@ class UnitTestSHE : public ::testing::Test {
     // virtual ~UnitTestSHE() { delete params; }
 
     ElemParams* params;
+	LPCryptoParametersLTV<T>* cryptoParams;
 
 };
 
@@ -114,6 +126,10 @@ TYPED_TEST_CASE(UnitTestSHE, Implementations);
 // Use TYPED_TEST(TestCaseName, TestName) to define a typed test,
 // similar to TEST_F.
 
+TYPED_TEST(UnitTestSHE, eval_add_correction_test){
+	  EXPECT_EQ(1, 1); 
+}
+
 TYPED_TEST(UnitTestSHE, keyswitch_modReduce_ringReduce_tests){
   
   float stdDev = 4;
@@ -121,7 +137,7 @@ TYPED_TEST(UnitTestSHE, keyswitch_modReduce_ringReduce_tests){
   const ByteArray plaintext = "M";
   
   ByteArrayPlaintextEncoding ptxt(plaintext);
-  ptxt.Pad<ZeroPad>((this->m)/16);
+  ptxt.Pad<ZeroPad>((UnitTestSHE::m)/16);
 
   LPCryptoParametersLTV<TypeParam> cryptoParams;
   cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
