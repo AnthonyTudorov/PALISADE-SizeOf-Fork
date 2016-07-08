@@ -178,10 +178,8 @@ namespace lbcrypto {
 		//upper diagonal of matrix L
 		std::vector<double> h(k);
 
-		//std::vector<int32_t> a(k);
 		Matrix<double> a([](){ return make_unique<double>(); }, k, 1);
 		Matrix<double> c([](){ return make_unique<double>(); }, k, 1);
-		//std::vector<int32_t> c(k);
 
 		//  set the values of matrix L
 		l[0] = sqrt(base*(1+1/k)+1);
@@ -192,6 +190,14 @@ namespace lbcrypto {
 		for (size_t i = 1; i < k; i++)
 			h[i] = sqrt(base*(1-1/(k-(i-1))));
 
+		// c can be pre-computed as it only depends on the modulus
+		c(0, 0) = modulus.GetDigitAtIndexForBase(1, base) / base;
+
+		for (size_t i = 1; i < k; i++)
+		{
+			c(i, 0) = (c(i - 1, 0) + modulus.GetDigitAtIndexForBase(i + 1, base)) / base;
+		}
+
 		vector<int32_t> p(k);
 		
 		LatticeGaussSampUtility::Perturb(stddev,  k, u.GetLength(), l, h, base, dgg, &p);
@@ -200,29 +206,23 @@ namespace lbcrypto {
 		{
 			BigBinaryInteger v(u.GetValAtIndex(j));
 			
-			a(0,0) = (v.GetDigitAtIndexForBase(1,base)-p[0])/base;
-			c(0,0) = modulus.GetDigitAtIndexForBase(1,base)/base;
+			// int32_t cast is needed here as GetDigitAtIndexForBase returns an unsigned int
+			// when the result is negative, a(0,0) gets values close to 2^32 if the cast is not used
+			a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / base;
 
 			for(size_t i = 1; i < k; i++)
-			{
-				a(i,0) = (a(i-1,0) + v.GetDigitAtIndexForBase(i+1,base)-p[i])/base;
-				c(i,0) = (c(i-1,0) + modulus.GetDigitAtIndexForBase(i+1,base))/base;
-				//std::cout << "c(" << i << ")=" << c(i,0) << std::endl;
-			}
+				a(i, 0) = (a(i - 1, 0) + (int32_t)(v.GetDigitAtIndexForBase(i + 1, base)) - p[i]) / base;
 
 			vector<int32_t> zj(k);
 
 			LatticeGaussSampUtility::SampleC(c, k, u.GetLength(), sigma, dgg, &a, &zj);
 
 			(*z)(0,j) = base*zj[0] + modulus.GetDigitAtIndexForBase(1,base)*zj[k-1]+v.GetDigitAtIndexForBase(1,base);
-			std::cout << "z(0,j) " << (*z)(0, j)  << std::endl;
+
 			for(size_t i = 1; i < k-1; i++)
-			{
 				(*z)(i,j) = base*zj[i] - zj[i-1] + modulus.GetDigitAtIndexForBase(i+1,base)*zj[k-1]+v.GetDigitAtIndexForBase(i+1,base);
-				std::cout << "z(i,j) " << (*z)(i, j) << std::endl;
-			}
+
 			(*z)(k-1,j) = modulus.GetDigitAtIndexForBase(k,base)*zj[k-1] - zj[k-2] + v.GetDigitAtIndexForBase(k,base);
-			std::cout << "z(k,j) " << (*z)(k - 1, j) << std::endl;
 
 		}
 
@@ -244,10 +244,8 @@ namespace lbcrypto {
 		}
 
 		(*p)[0] = (2*base + 1)*z[0] + base*z[1];
-
-		for (size_t i = 1; i < k-1; i++) 
-			(*p)[i] = base*(z[i-1] + 2*z[i] + z[i+1]);
-		
+		for (size_t i = 1; i < k - 1; i++)
+			(*p)[i] = base*(z[i - 1] + 2 * z[i] + z[i + 1]);
 		(*p)[k-1] = base*(z[k-2] + 2*z[k-1]);
 
 	}
@@ -259,15 +257,11 @@ namespace lbcrypto {
 		double sigma, DiscreteGaussianGenerator &dgg, Matrix<double> *a, vector<int32_t> *z)
 	{
 		
-		/*std::cout << " -(*a)(k-1,0) = " << -(*a)(k-1,0) << std::endl;
-		std::cout << " c(k-1,0) = " << c(k-1,0) << std::endl;
-		std::cout << " (*z)[k-1] = " << (*z)[k-1] << std::endl;*/
-
 		(*z)[k-1] = dgg.GenerateInteger(-(*a)(k-1,0)/c(k-1,0),sigma/c(k-1,0),n);
 		*a = *a - ((double)((*z)[k-1]))*c;
 
-		for (size_t i = 0; i < k-1; i++)
-			(*z)[i] = dgg.GenerateInteger(-(*a)(i,0),sigma,n);
+		for (size_t i = 0; i < k - 1; i++)
+			(*z)[i] = dgg.GenerateInteger(-(*a)(i, 0), sigma, n);
 
 	}
 

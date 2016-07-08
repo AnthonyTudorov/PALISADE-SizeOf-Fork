@@ -218,10 +218,12 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 TEST(UTTrapdoor,TrapDoorGaussGqV2SampTest) {
 	usint m = 16;
     usint n = m/2;
-	//BigBinaryInteger modulus("67108913");
-	//BigBinaryInteger rootOfUnity("61564");
-	BigBinaryInteger modulus("134218081");
-	BigBinaryInteger rootOfUnity("19091337");
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	//BigBinaryInteger modulus("134218081");
+	//BigBinaryInteger rootOfUnity("19091337");
+	//BigBinaryInteger modulus("1048609");
+	//BigBinaryInteger rootOfUnity("389832");
 	ILParams params( m, modulus, rootOfUnity);
     auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 	float sigma = 4;
@@ -239,7 +241,6 @@ TEST(UTTrapdoor,TrapDoorGaussGqV2SampTest) {
 	Matrix<int32_t> zHatBBI([](){ return make_unique<int32_t>(); },  k, m/2);
 
 	LatticeGaussSampUtility::GaussSampGqV2(u,sigma,k,modulus, 2,dgg,&zHatBBI);
-	//GaussSampG(u,sigma,k,dgg,&zHatBBI);
 
 	EXPECT_EQ(k,zHatBBI.GetRows())
 		<< "Failure testing number of rows";
@@ -247,13 +248,10 @@ TEST(UTTrapdoor,TrapDoorGaussGqV2SampTest) {
 		<< "Failure testing number of colums";
     Matrix<ILVector2n> z = SplitInt32AltIntoILVector2nElements(zHatBBI, n, params);
 	z.SwitchFormat();
-	//ILVector2n uEst(params,COEFFICIENT);
+
 	ILVector2n uEst;
 	uEst = (Matrix<ILVector2n>(zero_alloc, 1,  k).GadgetVector()*z)(0,0);
 	uEst.SwitchFormat();
-
-	std::cout << u << std::endl;
-	std::cout << uEst << std::endl;
 
     EXPECT_EQ(u, uEst);
 
