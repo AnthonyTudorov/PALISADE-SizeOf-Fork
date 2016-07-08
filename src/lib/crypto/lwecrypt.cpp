@@ -33,8 +33,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <cstring>
 #include <iostream>
 
-using namespace std;
-
 namespace lbcrypto {
 
 template <class Element>

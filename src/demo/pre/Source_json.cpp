@@ -48,6 +48,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/encoding/byteencoding.h"
 #include "../../lib/encoding/cryptoutility.h"
 
+using namespace lbcrypto;
+
 void NTRUPRE(CryptoContext<ILVector2n> *ctx, bool);
 
 #include "../../lib/utils/serializablehelper.h"

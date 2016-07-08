@@ -11,6 +11,8 @@
 
 #include "../../lib/utils/debug.h"
 
+using namespace lbcrypto;
+
 void runOneRound(CryptoContext<ILVector2n> *ctx);
 
 #include "../../lib/utils/serializablehelper.h"

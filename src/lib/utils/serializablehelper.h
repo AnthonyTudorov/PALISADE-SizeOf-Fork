@@ -150,7 +150,7 @@ public:
 
 	Ch Peek() const { assert(false); return '\0'; }
 	Ch Take() { assert(false); return '\0'; }
-	size_t Tell() const {  }
+	size_t Tell() const { return 0; }
 
 	Ch* PutBegin() { assert(false); return 0; }
 	void Put(Ch c) { os_.put(c); }                  // 1

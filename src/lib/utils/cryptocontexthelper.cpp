@@ -38,23 +38,20 @@
 #include "../utils/cryptocontexthelper.h"
 #include "../../../include/rapidjson/filewritestream.h"
 
-using namespace std;
-using namespace lbcrypto;
-
 namespace lbcrypto {
 
 static bool
-getParmsFile(const string& fn, Serialized* obj)
+getParmsFile(const std::string& fn, Serialized* obj)
 {
 	return SerializableHelper::ReadSerializationFromFile(fn, obj);
 }
 
 static bool
-getValueForName(const SerialItem& allvals, const char *key, string& value)
+getValueForName(const SerialItem& allvals, const char *key, std::string& value)
 {
 	Serialized::ConstMemberIterator it;
 	if( (it = allvals.FindMember(key)) == allvals.MemberEnd() ) {
-		cerr << key << " element is missing" << endl;
+		std::cerr << key << " element is missing" << std::endl;
 		return false;
 	}
 
@@ -66,17 +63,17 @@ template <class Element>
 static CryptoContext<Element> *
 buildContextFromSerialized(const SerialItem& s)
 {
-	string parmtype;
-	string plaintextModulus;
-	string ring;
-	string modulus;
-	string rootOfUnity;
-	string relinWindow;
-	string stDev;
-	string stDevStSt;
+	std::string parmtype;
+	std::string plaintextModulus;
+	std::string ring;
+	std::string modulus;
+	std::string rootOfUnity;
+	std::string relinWindow;
+	std::string stDev;
+	std::string stDevStSt;
 
 	if( !getValueForName(s, "parameters", parmtype) ) {
-		cerr << "parameters element is missing" << endl;
+		std::cerr << "parameters element is missing" << std::endl;
 		return 0;
 	}
 
@@ -143,7 +140,7 @@ CryptoContextHelper<Element>::getNewContextFromSerialization(const Serialized& s
 
 template <class Element>
 CryptoContext<Element> *
-CryptoContextHelper<Element>::getNewContext(const string& parmSetJson)
+CryptoContextHelper<Element>::getNewContext(const std::string& parmSetJson)
 {
 	// convert string to a map
 	Serialized sObj;
@@ -155,12 +152,12 @@ CryptoContextHelper<Element>::getNewContext(const string& parmSetJson)
 
 template <class Element>
 CryptoContext<Element> *
-CryptoContextHelper<Element>::getNewContext(const string& parmfile, const string& parmset)
+CryptoContextHelper<Element>::getNewContext(const std::string& parmfile, const std::string& parmset)
 {
 	Serialized sobj;
 
 	if( !getParmsFile(parmfile, &sobj) ) {
-		cerr << "Unable to read serialization from " << parmfile << endl;
+		std::cerr << "Unable to read serialization from " << parmfile << std::endl;
 		return 0;
 	}
 
@@ -181,35 +178,35 @@ CryptoContextHelper<Element>::getNewContext(const string& parmfile, const string
 
 template <class Element>
 void
-CryptoContextHelper<Element>::printAllParmSets(ostream& out, const std::string& fn)
+CryptoContextHelper<Element>::printAllParmSets(std::ostream& out, const std::string& fn)
 {
 	Serialized sobj;
 
 	if( !getParmsFile(fn, &sobj) ) {
-		out << "Unable to read serialization from " << fn << endl;
+		out << "Unable to read serialization from " << fn << std::endl;
 		return;
 	}
 
 	for( Serialized::ConstMemberIterator it = sobj.MemberBegin(); it != sobj.MemberEnd(); it++ ) {
-		out << "Parameter set " << it->name.GetString() << endl;
+		out << "Parameter set " << it->name.GetString() << std::endl;
 
 		char writeBuffer[1024];
 		rapidjson::FileWriteStream os(stdout, writeBuffer, sizeof(writeBuffer));
 		rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(os);
 
 		it->value.Accept(writer);
-		out << endl;
+		out << std::endl;
 	}
 }
 
 template <class Element>
 void
-CryptoContextHelper<Element>::printAllParmSetNames(ostream& out, const std::string& fn)
+CryptoContextHelper<Element>::printAllParmSetNames(std::ostream& out, const std::string& fn)
 {
 	Serialized sobj;
 
 	if( !getParmsFile(fn, &sobj) ) {
-		out << "Unable to read serialization from " << fn << endl;
+		out << "Unable to read serialization from " << fn << std::endl;
 		return;
 	}
 
@@ -219,7 +216,7 @@ CryptoContextHelper<Element>::printAllParmSetNames(ostream& out, const std::stri
 	for( it++; it != sobj.MemberEnd(); it++ ) {
 		out << ", " << it->name.GetString();
 	}
-	out << endl;
+	out << std::endl;
 }
 
 }
