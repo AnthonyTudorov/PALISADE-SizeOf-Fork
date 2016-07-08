@@ -110,6 +110,7 @@ namespace lbcrypto {
 	}
 
 	// Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q
+	// Algorithm was provided in a personal communication by Daniele Micciancio
 
 	void LatticeGaussSampUtility::GaussSampGq(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q,
 				DiscreteGaussianGenerator &dgg, Matrix<int32_t> *z)
@@ -162,5 +163,106 @@ namespace lbcrypto {
 
 	}
 
+	// Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm
+	// Algorithm was provided in a personal communication by Daniele Micciancio
+
+	void LatticeGaussSampUtility::GaussSampGqV2(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q, int32_t base,
+				DiscreteGaussianGenerator &dgg, Matrix<int32_t> *z)
+	{
+		const BigBinaryInteger& modulus = u.GetParams().GetModulus();
+		//std::cout << "modulus = " << modulus << std::endl; 
+		double sigma = stddev/(base + 1);
+
+		// main diagonal of matrix L
+		std::vector<double> l(k);
+		//upper diagonal of matrix L
+		std::vector<double> h(k);
+
+		Matrix<double> a([](){ return make_unique<double>(); }, k, 1);
+		Matrix<double> c([](){ return make_unique<double>(); }, k, 1);
+
+		//  set the values of matrix L
+		l[0] = sqrt(base*(1+1/k)+1);
+		for (size_t i = 1; i < k; i++)
+			l[i] = sqrt(base*(1+1/(k-i)));
+
+		h[0] = 0;
+		for (size_t i = 1; i < k; i++)
+			h[i] = sqrt(base*(1-1/(k-(i-1))));
+
+		// c can be pre-computed as it only depends on the modulus
+		c(0, 0) = modulus.GetDigitAtIndexForBase(1, base) / base;
+
+		for (size_t i = 1; i < k; i++)
+		{
+			c(i, 0) = (c(i - 1, 0) + modulus.GetDigitAtIndexForBase(i + 1, base)) / base;
+		}
+
+		vector<int32_t> p(k);
+		
+		LatticeGaussSampUtility::Perturb(stddev,  k, u.GetLength(), l, h, base, dgg, &p);
+
+		for (size_t j = 0; j < u.GetLength(); j++) 
+		{
+			BigBinaryInteger v(u.GetValAtIndex(j));
+			
+			// int32_t cast is needed here as GetDigitAtIndexForBase returns an unsigned int
+			// when the result is negative, a(0,0) gets values close to 2^32 if the cast is not used
+			a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / base;
+
+			for(size_t i = 1; i < k; i++)
+				a(i, 0) = (a(i - 1, 0) + (int32_t)(v.GetDigitAtIndexForBase(i + 1, base)) - p[i]) / base;
+
+			vector<int32_t> zj(k);
+
+			LatticeGaussSampUtility::SampleC(c, k, u.GetLength(), sigma, dgg, &a, &zj);
+
+			(*z)(0,j) = base*zj[0] + modulus.GetDigitAtIndexForBase(1,base)*zj[k-1]+v.GetDigitAtIndexForBase(1,base);
+
+			for(size_t i = 1; i < k-1; i++)
+				(*z)(i,j) = base*zj[i] - zj[i-1] + modulus.GetDigitAtIndexForBase(i+1,base)*zj[k-1]+v.GetDigitAtIndexForBase(i+1,base);
+
+			(*z)(k-1,j) = modulus.GetDigitAtIndexForBase(k,base)*zj[k-1] - zj[k-2] + v.GetDigitAtIndexForBase(k,base);
+
+		}
+
+	}
+
+	// subroutine used by GaussSampGqV2
+	// Algorithm was provided in a personal communication by Daniele Micciancio
+
+	void LatticeGaussSampUtility::Perturb(double sigma,  size_t k, size_t n, 
+		const vector<double> &l, const vector<double> &h, int32_t base, DiscreteGaussianGenerator &dgg, vector<int32_t> *p) {
+
+		std::vector<int32_t> z(k);
+		double d = 0;
+
+		for (size_t i = 0; i < k; i++) 
+		{
+			z[i] = dgg.GenerateInteger(d/l[i],sigma/l[i],n);
+			d = -z[i]*h[i];
+		}
+
+		(*p)[0] = (2*base + 1)*z[0] + base*z[1];
+		for (size_t i = 1; i < k - 1; i++)
+			(*p)[i] = base*(z[i - 1] + 2 * z[i] + z[i + 1]);
+		(*p)[k-1] = base*(z[k-2] + 2*z[k-1]);
+
+	}
+
+	// subroutine used by GaussSampGqV2
+	// Algorithm was provided in a personal communication by Daniele Micciancio
+
+	void LatticeGaussSampUtility::SampleC(const Matrix<double> &c, size_t k, size_t n, 
+		double sigma, DiscreteGaussianGenerator &dgg, Matrix<double> *a, vector<int32_t> *z)
+	{
+		
+		(*z)[k-1] = dgg.GenerateInteger(-(*a)(k-1,0)/c(k-1,0),sigma/c(k-1,0),n);
+		*a = *a - ((double)((*z)[k-1]))*c;
+
+		for (size_t i = 0; i < k - 1; i++)
+			(*z)[i] = dgg.GenerateInteger(-(*a)(i, 0), sigma, n);
+
+	}
 
 }

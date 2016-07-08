@@ -80,6 +80,7 @@ public:
 
 	/**
 	* Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q
+	* Algorithm was provided in a personal communication by Daniele Micciancio
 	*
 	* @param u syndrome (a polynomial)
 	* @param sttdev standard deviation
@@ -89,6 +90,20 @@ public:
 	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
 	*/
 	static inline void GaussSampGq(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q,
+				DiscreteGaussianGenerator &dgg, Matrix<int32_t> *z);
+
+	/**
+	* Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm
+	* Algorithm was provided in a personal communication by Daniele Micciancio
+	*
+	* @param u syndrome (a polynomial)
+	* @param sttdev standard deviation
+	* @param k number of components in the gadget vector
+	* @param q integer modulus
+	* @param dgg discrete Gaussian generator
+	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
+	*/
+	static inline void GaussSampGqV2(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q, int32_t base, 
 				DiscreteGaussianGenerator &dgg, Matrix<int32_t> *z);
 
 	/**
@@ -105,6 +120,18 @@ public:
 			(*perturbationVector)(i,0) = DiscreteGaussianGenerator::GenerateInteger(p(i,0), sigma, n);
 		}
 	}
+
+private:
+	
+	// subroutine used by GaussSampGqV2
+	// Algorithm was provided in a personal communication by Daniele Micciancio
+	static inline void Perturb(double sigma,  size_t k, size_t n, 
+		const vector<double> &l, const vector<double> &h, int32_t base, DiscreteGaussianGenerator &dgg, vector<int32_t> *p);
+
+	// subroutine used by GaussSampGqV2
+	// Algorithm was provided in a personal communication by Daniele Micciancio
+	static inline void SampleC(const Matrix<double> &c, size_t k, size_t n, 
+		double sigma, DiscreteGaussianGenerator &dgg, Matrix<double> *a, vector<int32_t> *z);
 
 };
 
