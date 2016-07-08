@@ -43,7 +43,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <omp.h> //open MP header
 
-//using namespace std;
+using namespace std;
 using namespace lbcrypto;
 
 bool NTRUPRE(bool dbg_flag, int n_evals); //defined later
