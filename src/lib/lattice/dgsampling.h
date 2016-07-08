@@ -80,6 +80,7 @@ public:
 
 	/**
 	* Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q
+	* Algorithm was provided in a personal communication by Daniele Micciancio
 	*
 	* @param u syndrome (a polynomial)
 	* @param sttdev standard deviation
@@ -93,6 +94,7 @@ public:
 
 	/**
 	* Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm
+	* Algorithm was provided in a personal communication by Daniele Micciancio
 	*
 	* @param u syndrome (a polynomial)
 	* @param sttdev standard deviation
@@ -121,9 +123,13 @@ public:
 
 private:
 	
+	// subroutine used by GaussSampGqV2
+	// Algorithm was provided in a personal communication by Daniele Micciancio
 	static inline void Perturb(double sigma,  size_t k, size_t n, 
 		const vector<double> &l, const vector<double> &h, int32_t base, DiscreteGaussianGenerator &dgg, vector<int32_t> *p);
 
+	// subroutine used by GaussSampGqV2
+	// Algorithm was provided in a personal communication by Daniele Micciancio
 	static inline void SampleC(const Matrix<double> &c, size_t k, size_t n, 
 		double sigma, DiscreteGaussianGenerator &dgg, Matrix<double> *a, vector<int32_t> *z);
 

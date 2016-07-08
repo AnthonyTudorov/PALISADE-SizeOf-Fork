@@ -110,6 +110,7 @@ namespace lbcrypto {
 	}
 
 	// Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q
+	// Algorithm was provided in a personal communication by Daniele Micciancio
 
 	void LatticeGaussSampUtility::GaussSampGq(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q,
 				DiscreteGaussianGenerator &dgg, Matrix<int32_t> *z)
@@ -163,6 +164,7 @@ namespace lbcrypto {
 	}
 
 	// Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm
+	// Algorithm was provided in a personal communication by Daniele Micciancio
 
 	void LatticeGaussSampUtility::GaussSampGqV2(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q, int32_t base,
 				DiscreteGaussianGenerator &dgg, Matrix<int32_t> *z)
@@ -213,15 +215,21 @@ namespace lbcrypto {
 			LatticeGaussSampUtility::SampleC(c, k, u.GetLength(), sigma, dgg, &a, &zj);
 
 			(*z)(0,j) = base*zj[0] + modulus.GetDigitAtIndexForBase(1,base)*zj[k-1]+v.GetDigitAtIndexForBase(1,base);
+			std::cout << "z(0,j) " << (*z)(0, j)  << std::endl;
 			for(size_t i = 1; i < k-1; i++)
 			{
 				(*z)(i,j) = base*zj[i] - zj[i-1] + modulus.GetDigitAtIndexForBase(i+1,base)*zj[k-1]+v.GetDigitAtIndexForBase(i+1,base);
+				std::cout << "z(i,j) " << (*z)(i, j) << std::endl;
 			}
 			(*z)(k-1,j) = modulus.GetDigitAtIndexForBase(k,base)*zj[k-1] - zj[k-2] + v.GetDigitAtIndexForBase(k,base);
+			std::cout << "z(k,j) " << (*z)(k - 1, j) << std::endl;
 
 		}
 
 	}
+
+	// subroutine used by GaussSampGqV2
+	// Algorithm was provided in a personal communication by Daniele Micciancio
 
 	void LatticeGaussSampUtility::Perturb(double sigma,  size_t k, size_t n, 
 		const vector<double> &l, const vector<double> &h, int32_t base, DiscreteGaussianGenerator &dgg, vector<int32_t> *p) {
@@ -243,6 +251,9 @@ namespace lbcrypto {
 		(*p)[k-1] = base*(z[k-2] + 2*z[k-1]);
 
 	}
+
+	// subroutine used by GaussSampGqV2
+	// Algorithm was provided in a personal communication by Daniele Micciancio
 
 	void LatticeGaussSampUtility::SampleC(const Matrix<double> &c, size_t k, size_t n, 
 		double sigma, DiscreteGaussianGenerator &dgg, Matrix<double> *a, vector<int32_t> *z)
