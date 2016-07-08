@@ -20,7 +20,7 @@
 #include "../../lib/utils/debug.h"
 #include <omp.h> //open MP header
 
-using namespace std;
+//using namespace std;
 using namespace lbcrypto;
 
 const uint32_t ARRAY_SIZE = 1000;
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]){
   double time1;
   double timeTotal;
 
-  cout << "Parallel computation using "<< omp_get_num_procs() << " processors." <<endl;
+  std::cout << "Parallel computation using "<< omp_get_num_procs() << " processors." <<std::endl;
   int nthreads, tid;
   #pragma omp parallel private(nthreads, tid)
   {
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]){
     if (tid == 0)
       {
 	nthreads = omp_get_num_threads();
-	cout << "Number of threads = " << nthreads << endl;
+	std::cout << "Number of threads = " << nthreads << std::endl;
       }
   }
 
@@ -79,13 +79,13 @@ int main(int argc, char* argv[]){
     }
   }
   if ( goodflag) {
-      cout << "success" << endl;
+      std::cout << "success" << std::endl;
   } else {
-    cout<< "fail" << endl;
+    std::cout<< "fail" << std::endl;
     for (int i = 0; i < ARRAY_SIZE; ++i) {
-      cout << foo[i] << " ";
+      std::cout << foo[i] << " ";
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
 

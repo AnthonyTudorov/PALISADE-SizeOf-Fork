@@ -43,7 +43,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <omp.h> //open MP header
 
-using namespace std;
+//using namespace std;
 using namespace lbcrypto;
 
 bool NTRUPRE(bool dbg_flag, int n_evals); //defined later
@@ -54,8 +54,8 @@ int main(int argc, char* argv[]){
 	bool errorflag = false;
 
 	if (argc < 2) { // called with no arguments
-		cout << "arg 1 = debugflag 0:1 [0] " << endl;
-		cout << "arg 2 = num evals 1:3 [1] " << endl;
+		std::cout << "arg 1 = debugflag 0:1 [0] " << std::endl;
+		std::cout << "arg 2 = num evals 1:3 [1] " << std::endl;
 	}
 	bool dbg_flag = false; 
 
@@ -63,12 +63,12 @@ int main(int argc, char* argv[]){
 		if (atoi(argv[1]) != 0) {
 #ifndef NDEBUG
 			dbg_flag = true;
-			cout << "setting dbg_flag true" << endl;
+			cout << "setting dbg_flag true" << std::endl;
 #endif
 		}
 	}
 
-	cerr  <<"Running " << argv[0] <<" with "<< omp_get_num_procs() << " processors." << endl;
+	std::cerr  <<"Running " << argv[0] <<" with "<< omp_get_num_procs() << " processors." << std::endl;
 
 	int n_evals = 1;
 
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]){
 			n_evals = atoi(argv[2]);
 		}
 	}
-	cerr  <<"Running " << argv[0] <<" with "<< n_evals << " evaluations." << endl;
+	std::cerr  <<"Running " << argv[0] <<" with "<< n_evals << " evaluations." << std::endl;
 
 	int nthreads, tid;
 
@@ -97,7 +97,7 @@ int main(int argc, char* argv[]){
 		if (tid == 0)
 		{
 			nthreads = omp_get_num_threads();
-			cout << "Number of threads = " << nthreads << endl;
+			std::cout << "Number of threads = " << nthreads << std::endl;
 		}
 	}
 
@@ -211,8 +211,8 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	bool result2 = false;
 	bool result3 = false;
 
-	cout << " \nCleartext pattern: " << endl;
-	cout << clearPattern.GetPatternString() << endl;
+	std::cout << " \nCleartext pattern: " << std::endl;
+	std::cout << clearPattern.GetPatternString() << std::endl;
 
 	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(ilParams);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
@@ -240,7 +240,7 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 
 	bool errorflag = false;
 	if (result1 != out1) {
-		cout << "ERROR EVALUATING 1"<< endl;
+		std::cout << "ERROR EVALUATING 1"<< std::endl;
 		errorflag |= true;
 	}
 
@@ -253,7 +253,7 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 		DEBUG( "Evaluation 2 execution time: " << "\t" << timeEval2 << " ms" );
 
 		if (result2 != out2) {
-			cout << "ERROR EVALUATING 2"<< endl;
+			std::cout << "ERROR EVALUATING 2"<< std::endl;
 			errorflag |= true;
 		}
 	}
@@ -266,7 +266,7 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 		DEBUG( "\nCleartext pattern evaluation of: " << inputStr3 << " is " << result3 << ".");
 		DEBUG( "Evaluation 3 execution time: " << "\t" << timeEval3 << " ms");
 		if (result3 != out3) {
-			cout << "ERROR EVALUATING 3"<< endl;
+			std::cout << "ERROR EVALUATING 3"<< std::endl;
 			errorflag |= true;
 		}
 	}
@@ -276,19 +276,19 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 
 	//print output timing results
 
-	cout << "Timing Summary" << endl;
-	cout << "T: DGG setup time:        " << "\t" << timeDGGSetup << " ms" << endl;
-	cout << "T: Key generation time:        " << "\t" << timeKeyGen << " ms" << endl;
-	cout << "T: Obfuscation execution time: " << "\t" << timeObf << " ms" << endl;
-	cout << "T: Eval 1 execution time:  " << "\t" << timeEval1 << " ms" << endl;
-	cout << "T: Eval 2 execution time:  " << "\t" << timeEval2 << " ms" << endl;
-	cout << "T: Eval 3 execution time:  " << "\t" << timeEval3 << " ms" << endl;
-	cout << "T: Total execution time:       " << "\t" << timeTotal << " ms" << endl;
+	std::cout << "Timing Summary" << std::endl;
+	std::cout << "T: DGG setup time:        " << "\t" << timeDGGSetup << " ms" << std::endl;
+	std::cout << "T: Key generation time:        " << "\t" << timeKeyGen << " ms" << std::endl;
+	std::cout << "T: Obfuscation execution time: " << "\t" << timeObf << " ms" << std::endl;
+	std::cout << "T: Eval 1 execution time:  " << "\t" << timeEval1 << " ms" << std::endl;
+	std::cout << "T: Eval 2 execution time:  " << "\t" << timeEval2 << " ms" << std::endl;
+	std::cout << "T: Eval 3 execution time:  " << "\t" << timeEval3 << " ms" << std::endl;
+	std::cout << "T: Total execution time:       " << "\t" << timeTotal << " ms" << std::endl;
 
 	if (errorflag) {
-		cout << "FAIL " << endl;
+		std::cout << "FAIL " << std::endl;
 	} else {
-		cout << "SUCCESS " << endl;
+		std::cout << "SUCCESS " << std::endl;
 	}
 
 	return (errorflag);
