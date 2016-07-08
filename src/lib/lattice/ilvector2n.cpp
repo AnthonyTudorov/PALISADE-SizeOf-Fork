@@ -443,7 +443,7 @@ namespace lbcrypto {
 		if( !this->GetParams().Serialize(&obj) )
 			return false;
 
-		obj.AddMember("Format", this->ToStr(this->GetFormat()), obj.GetAllocator());
+		obj.AddMember("Format", std::to_string(this->GetFormat()), obj.GetAllocator());
 
 		serObj->AddMember("ILVector2n", obj, serObj->GetAllocator());
 

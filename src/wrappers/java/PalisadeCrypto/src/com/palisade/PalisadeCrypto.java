@@ -1,5 +1,6 @@
 package com.palisade;
 
+import java.io.OutputStream;
 import java.util.Arrays;
 import com.palisade.PalisadeKeypair;
 
@@ -98,6 +99,11 @@ public class PalisadeCrypto {
 	 */
 	public native byte[] decrypt(String id, byte[] ciphertext);
 	
+	// the method below is a piece of test code that does not work. Using it crashes the world.
+	// So you should not use it :)
+	// this was a first pass at implementing connecting Java streams to C++ streams
+	public native void writeBytes(byte[] bytes, OutputStream outstream);
+	
 	/**
 	 * Finish with this PalisadeCrypto instance
 	 */
@@ -142,6 +148,16 @@ public class PalisadeCrypto {
 			System.err.println("Could not create a crypto context for your parm set");
 			return;
 		}
+		
+//		System.out.println("Try this write thing");
+//		String message = "hello";
+//		try {
+//			ctx.writeBytes(message.getBytes(), System.err);
+//			System.out.println("Back from writing");
+//		} catch( Exception e ) {
+//			System.out.println("Exception in write");
+//			e.printStackTrace();
+//		}
 		
 		System.out.println("Generating some key pairs");
 

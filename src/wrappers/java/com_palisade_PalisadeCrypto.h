@@ -7,6 +7,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+//FIXME: Test
+JNIEXPORT void JNICALL Java_com_palisade_PalisadeCrypto_writeBytes
+  (JNIEnv *, jobject thiz, jbyteArray bytes, jobject outstream);
+
 /*
  * Class:     com_palisade_PalisadeCrypto
  * Method:    getPalisadeKeyPair

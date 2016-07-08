@@ -46,15 +46,6 @@ main(int argc, char *argv[])
 		return 0;
 	}
 
-	// Yuriy test
-	ILVector2n elem = ILVector2n();
-	std::cout << "items!" << std::endl;
-	ByteArray byteArray = {0};
-	ByteArray byteArray2 = {1};
-	ByteArray byteArray3({1,2,3});
-
-	std::cout << byteArray.size() << ":" << byteArray2.size() << ":" << byteArray3.size() << std::endl;
-
 	for( int i = 1; i <= 1; i++ ) {
 		runOneRound(ctx);
 		if( i%10 == 0 ) cout << i << "... " << flush;
