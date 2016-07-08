@@ -202,7 +202,7 @@ namespace exp_int32 {
   bintvec<bint_el_t> bintvec<bint_el_t>::Add(const bint_el_t &b) const{
 	bintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
-      *ans.m_data[i] = ans.m_data[i]->Add(b);
+      ans.m_data[i] = ans.m_data[i]->Add(b);
     }
     return ans;
   }
@@ -212,7 +212,7 @@ namespace exp_int32 {
   bintvec<bint_el_t> bintvec<bint_el_t>::Sub(const bint_el_t &b) const{
     bintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
-      *ans.m_data[i] = ans.m_data[i]->Sub(b);
+      ans.m_data[i] = ans.m_data[i]->Sub(b);
     }
     return ans;
   }
@@ -223,7 +223,7 @@ namespace exp_int32 {
   bintvec<bint_el_t> bintvec<bint_el_t>::Mul(const bint_el_t &b) const{
     bintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
-      *ans.m_data[i] = ans.m_data[i]->Mul(b);
+      ans.m_data[i] = ans.m_data[i]->Mul(b);
     }
     return ans;
   }

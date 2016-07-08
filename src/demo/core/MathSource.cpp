@@ -319,7 +319,7 @@ void iftest (bool t, string v) {
   if (t) {
     cout <<"Fail ";
     cout<<v<<endl;
-    exit(-1);
+    //exit(-1);
   }else {
     cout <<"Succeed ";
     cout<<v<<endl;
@@ -346,7 +346,6 @@ void test_bint () {
     usint msb = q2.GetMSB();
     //DEBUG("q2 msb "<<msb);
     iftest (msb != 52 ,"msb test ");
-
   }
 
   //TEST(method_to_test_convert_to_double, ConvertToDouble)
@@ -357,9 +356,8 @@ void test_bint () {
     //DEBUG("x.tostring "<< x.ToString());
     //DEBUG("xInDouble "<< xInDouble);
     //DEBUG("x.ConvertToDouble "<< x.ConvertToDouble());
-    iftest (xInDouble != x.ConvertToDouble()	," convert to double");
+    iftest (xInDouble != x.ConvertToDouble()	," testing convert to double");
   }
-
 
   /****************************/
   /* TESTING SHIFT OPERATORS  */
@@ -379,9 +377,9 @@ void test_bint () {
   //        example:
   //            4<<3 => (100)<<3 => (100000) => 32
   //           this is equivalent to: 4* (2^3) => 4*8 =32
-  //ConvertToUsint converts bint calculatedResult to integer
 
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
+  //todo change for new limb.
   {
     bint a("39960");
     usshort shift = 3;
@@ -390,8 +388,9 @@ void test_bint () {
     int expectedResult = 319680;
 
     iftest (expectedResult != calculatedResult.ConvertToUsint()
-        ,"testing left shift_less_than_max_shift");
+        ,"testing << less than max shift");
   }
+
   // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
   {
     bint a("39960");
@@ -400,7 +399,7 @@ void test_bint () {
     bint calculatedResult = a<<(shift);
     int expectedResult = 2557440;
 
-    iftest (expectedResult != calculatedResult.ConvertToUsint(),"testing left shift_greater_than_max_shift");
+    iftest (expectedResult != calculatedResult.ConvertToUsint(),"testing <<  greater_than max shift");
   }
   // TEST CASE WHEN SHIFT IS multi limb
   {
@@ -414,7 +413,7 @@ void test_bint () {
     uint64_t expectedResult = 35510332901199872;
     //DEBUG("expectedResult 35510332901199872 ="<<expectedResult);
 
-    iftest (expectedResult != calculatedResult.ConvertToUint64(),"testing left shift multi limb");
+    iftest (expectedResult != calculatedResult.ConvertToUint64(),"testing << multi limb");
   }
 
   {
@@ -431,7 +430,7 @@ void test_bint () {
 //    cout<<std::hex<< result<<endl;
 //    cout<<std::dec<<endl;
 //
-    iftest (expectedResult != calculatedResult.ConvertToUint64(), "testing left shift greater_than_limb size");
+    iftest (expectedResult != calculatedResult.ConvertToUint64(), "testing << greater than limb size");
 
   }
 
@@ -447,11 +446,7 @@ void test_bint () {
   // from right which is equivalent to a * (2^num)
   // example :4<<3 => (100)<<3 => (100000) => 32
   // this is equivalent to: 4* (2^3) => 4*8 =32
-  // ConvertToInt converts bint a to integer
-
-
-
-
+  //
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
     bint a("39960");
@@ -461,7 +456,7 @@ void test_bint () {
     int expectedResult = 319680;
 
     iftest (expectedResult != a.ConvertToUsint()
-        ,"testing left shift_equals less_than_max_shift");
+        ,"testing <<= shift equals less than max shift");
   }
   // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
   {
@@ -471,7 +466,7 @@ void test_bint () {
     a<<=(num);
     usint expectedResult = 2557440;
 
-    iftest (expectedResult != a.ConvertToUsint(), "testing left shift equals greater_than_max_shift");
+    iftest (expectedResult != a.ConvertToUsint(), "testing <<=left shift equals greater than max shift");
   }
   {
 
@@ -481,9 +476,8 @@ void test_bint () {
     a<<=(shift);
     usint expectedResult = 288230376151711744;
     usint Result = a.ConvertToUsint();
-    iftest (expectedResult != Result, "testing left shift equals greater_than_limb size");
+    iftest (expectedResult != Result, "testing <<= greater than limb size");
   }
-
 
   /********************************************************/
   /* TESTING OPERATOR RIGHT SHIFT (>>) FOR ALL CONDITIONS */
@@ -498,7 +492,6 @@ void test_bint () {
   //  ex:4>>3 => (100000)>>3 => (000100) => 4
 
   // this is equivalent to: 32*(2^3) => 32/8 = 4
-  // ConvertToUsint converts bint calculatedResult to integer
 
 
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
@@ -510,7 +503,7 @@ void test_bint () {
     usint expectedResult = 4995709;
 
     iftest (expectedResult != calculatedResult.ConvertToUsint()
-        ,"testing right shift less than max shift");
+        ,"testing >> less than max shift");
   }
   // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
   {
@@ -521,7 +514,7 @@ void test_bint () {
     usint expectedResult = 624463;
 
     iftest (expectedResult != calculatedResult.ConvertToUsint()
-        ,"testing right shift_greater_than_max_shift");
+        ,"testing >> greater than max shift");
   }
 
 
@@ -550,7 +543,7 @@ void test_bint () {
     a>>=(shift);
     usint expectedResult = 4995709;
 
-    iftest (expectedResult != a.ConvertToUsint(), "testing right shift equals less_than_max_shift");
+    iftest (expectedResult != a.ConvertToUsint(), "testing >>= less than max shift");
   }
   // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
   {
@@ -560,7 +553,7 @@ void test_bint () {
     a>>=(shift);
     usint expectedResult = 624463;
 
-    iftest (expectedResult != a.ConvertToUsint(), "testing right shift equals greater than max shift");
+    iftest (expectedResult != a.ConvertToUsint(), "testing >>= greater than max shift");
   }
   {
 
@@ -570,19 +563,19 @@ void test_bint () {
     a>>=(shift);
     usint expectedResult = 1024;
 
-    iftest (expectedResult != a.ConvertToUsint(), "testing right shift equals greater_than_limb size");
+    iftest (expectedResult != a.ConvertToUsint(), "testing >>= greater than limb size");
   }
 
   DEBUG("math operations");
   {
     bint calculatedResult;
     uint64_t expectedResult;
+    string expectedResultStr; //for when bint is > 64 bits.
     // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
     // HAS NO OVERFLOW
     {
       bint a("203450");
       bint b("2034");
-      DEBUG("add");
 
       calculatedResult = a.Add(b);
       expectedResult = 205484;
@@ -591,7 +584,7 @@ void test_bint () {
 
       //DEBUG("result "<<result);
       //DEBUG("expect "<<expectedResult);
-      iftest (expectedResult!= result,"testing plus_a_greater_than_b");
+      iftest (expectedResult!= result,"testing + a greater than b");
     }
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER AND MSB
     // HAS NO OVERFLOW
@@ -604,20 +597,20 @@ void test_bint () {
       expectedResult = 205484;
 
       iftest (expectedResult != calculatedResult.ConvertToUint64()
-          ,"testing plus_a_less_than_b");
+          ,"testing + a less than b");
     }
     // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW TO THE NEXT
-    // BYTE
+    // LIMB
     //todo: redo this to test overflow to next limb!!
     {
-      bint a("768900");
-      bint b("16523408");
+      bint a("4294967295");
+      bint b("1");
 
       calculatedResult = a.Add(b);
-      expectedResult = 17292308;
+      expectedResult = 4294967296;
 
       iftest (expectedResult !=calculatedResult.ConvertToUint64(),
-          "testing plus overflow_to_next_byte");
+          "testing + overflow to next limb");
     }
     // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW IN THE SAME
     // BYTE
@@ -630,7 +623,7 @@ void test_bint () {
       expectedResult = 1050;
 
       iftest (expectedResult !=calculatedResult.ConvertToUint64(),
-          "testing plus_no_overflow_to_next_byte");
+          "testing + no overflow to next byte");
     }
     // TEST CASE WHEN both are multi limb numbers
     {
@@ -641,7 +634,7 @@ void test_bint () {
       expectedResult = 138712237895312;
 
       iftest (expectedResult !=calculatedResult.ConvertToUint64(),
-          "testing plus_multi_limb");
+          "testing + multi limb");
     }
 
     /************************************************/
@@ -662,7 +655,7 @@ void test_bint () {
       a+=b;
       expectedResult = 2237;
 
-      iftest (expectedResult != a.ConvertToUint64(),"testing plus_equals_a_greater_than_b");
+      iftest (expectedResult != a.ConvertToUint64(),"testing += a greater than b");
     }
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER AND MSB
     // HAS NO OVERFLOW
@@ -673,7 +666,7 @@ void test_bint () {
       a+=b;
       expectedResult = 205484;
 
-      iftest (expectedResult != a.ConvertToUint64(), "testing plus_equals_a_less_than_b");
+      iftest (expectedResult != a.ConvertToUint64(), "testing += a less than b");
     }
     // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW TO THE NEXT
     // BYTE
@@ -685,7 +678,7 @@ void test_bint () {
       a+=b;
       expectedResult = 17292308;
 
-      iftest (expectedResult !=a.ConvertToUint64(),"testing plus_equals_overflow_to_next_byte");
+      iftest (expectedResult !=a.ConvertToUint64(),"testing += overflow to next byte");
     }
     // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW IN THE SAME
     // BYTE
@@ -697,7 +690,7 @@ void test_bint () {
       a+=b;
       expectedResult = 1050;
 
-      iftest (expectedResult !=a.ConvertToUint64(),"testing plus_equals_no_overflow_to_next_byte");
+      iftest (expectedResult !=a.ConvertToUint64(),"testing += no overflow to next byte");
     }
     /************************************************/
     /* TESTING METHOD MINUS FOR ALL CONDITIONS      */
@@ -720,7 +713,7 @@ void test_bint () {
 
       //SINCE THERE IS NO CONCEPT OF NEGATIVE NUMEBR RESULT SHOULD BE
       //ZERO
-      iftest (expectedResult != calculatedResult.ConvertToUint64(), "testing minus_a_less_than_b");
+      iftest (expectedResult != calculatedResult.ConvertToUint64(), "testing minus a less than b");
     }
     // TEST CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
     {
@@ -730,7 +723,7 @@ void test_bint () {
       calculatedResult = a.Sub(b);
       expectedResult = 0;
 
-      iftest (expectedResult != calculatedResult.ConvertToUint64(),"testing minus_a_equal_to_b");
+      iftest (expectedResult != calculatedResult.ConvertToUint64(),"testing minus a equal to b");
     }
     // TEST CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
     {
@@ -740,18 +733,18 @@ void test_bint () {
       calculatedResult = a.Sub(b);
       expectedResult = 2046922112;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUint64(), "testing minus_a_greater_than_b");
+      iftest (expectedResult !=calculatedResult.ConvertToUint64(), "testing minus a greater than b");
     }
     // TEST CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
     {
-      // change for limb
+      //todo: change for limb
       bint a("196737");
       bint b("65406");
 
       calculatedResult = a.Sub(b);
       expectedResult = 131331;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUint64(),"testing minus_borrow_from_next_byte");
+      iftest (expectedResult !=calculatedResult.ConvertToUint64(),"testing minus borrow from next byte");
     }
     // TEST CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
     {
@@ -762,7 +755,7 @@ void test_bint () {
       calculatedResult = a.Sub(b);
       expectedResult = 59047093523014;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUint64(),"testing minus_multi_limb");
+      iftest (expectedResult !=calculatedResult.ConvertToUint64(),"testing minus multi limb");
     }
     /************************************************/
     /* TESTING OPERATOR -= FOR ALL CONDITIONS       */
@@ -783,7 +776,7 @@ void test_bint () {
 
       //SINCE THERE IS NO CONCEPT OF NEGATIVE NUMEBR RESULT SHOULD BE
       //ZERO
-      iftest (expectedResult != a.ConvertToUint64(), "testing minus_equals_a_less_than_b");
+      iftest (expectedResult != a.ConvertToUint64(), "testing -= a less than b");
     }
     // TEST CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
     {
@@ -793,7 +786,7 @@ void test_bint () {
       a-=b;
       expectedResult = 0;
 
-      iftest (expectedResult != a.ConvertToUint64(), "testing minus_equals_a_equal_to_b");
+      iftest (expectedResult != a.ConvertToUint64(), "testing -= a equal to b");
     }
     // TEST CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
     {
@@ -804,7 +797,7 @@ void test_bint () {
       a-=b;
       expectedResult = 2046922112;
 
-      iftest (expectedResult !=a.ConvertToUint64(), "testing minus_equals_a_greater_than_b");
+      iftest (expectedResult !=a.ConvertToUint64(), "testing -= a greater than b");
     }
     // TEST CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
     {
@@ -815,7 +808,7 @@ void test_bint () {
       a-=b;
       expectedResult = 131331;
 
-      iftest (expectedResult !=a.ConvertToUint64(), "testing minus_equals_borrow_from_next_byte");
+      iftest (expectedResult !=a.ConvertToUint64(), "testing -= borrow from next byte");
     }
 
     /************************************************/
@@ -834,7 +827,7 @@ void test_bint () {
       calculatedResult = a.Mul(b);
       expectedResult = 1286418;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUint64(),"testing times_test");
+      iftest (expectedResult !=calculatedResult.ConvertToUint64(),"testing times single limb");
     }
     /************************************************/
     /* TESTING METHOD TIMES FOR ALL CONDITIONS      */
@@ -848,12 +841,10 @@ void test_bint () {
       //ask about the branching if (b.m_MSB==0 or 1)
       bint a("98879665709163");
       bint b("39832572186149");
-      DEBUG("testing Mul");
 
       calculatedResult = a.Mul(b);
-      expectedResult = 3938631422102517149330983287;
-
-      iftest (expectedResult !=calculatedResult.ConvertToUint64(),"testing times_test multi limb");
+      expectedResultStr = "3938631422102517149330983287";
+      iftest (expectedResultStr !=calculatedResult.ToString(),"testing times multi limb");
     }
     /************************************************/
     /* TESTING METHOD DIVIDED_BY FOR ALL CONDITIONS */
@@ -876,7 +867,7 @@ void test_bint () {
       expectedResult = 0;
 
       //RESULT SHOULD BE ZERO
-      iftest (expectedResult != calculatedResult.ConvertToUint64(),"testing divided_by_a_less_than_b");
+      iftest (expectedResult != calculatedResult.ConvertToUint64(),"testing divided by a less than b");
     }
     // TEST CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
     {
@@ -887,7 +878,7 @@ void test_bint () {
       calculatedResult = a.DividedBy(b);
       expectedResult = 1;
 
-      iftest (expectedResult != calculatedResult.ConvertToUint64(),"testing divided_by_a_equals_b");
+      iftest (expectedResult != calculatedResult.ConvertToUint64(),"testing divided by a equals b");
     }
     // TEST CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
     {
@@ -897,7 +888,20 @@ void test_bint () {
       calculatedResult = a.DividedBy(b);
       expectedResult = 1007;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUint64(),"testing divided_by_a_greater_than_b");
+      iftest (expectedResult !=calculatedResult.ConvertToUint64(),"testing divided by a greater than b");
+    }
+
+     // TEST CASE for MULTI LIMB
+
+    {
+      bint a("3938631422102517149330983287");
+      bint b("98879665709163");
+
+
+      calculatedResult = a.DividedBy(b);
+      expectedResult = 39832572186149;
+
+      iftest (expectedResult !=calculatedResult.ConvertToUint64(),"testing divided by multi limb");
     }
   }
   /************************************************/
@@ -928,7 +932,7 @@ void test_bint () {
       c = a.Compare(b);
       expectedResult = 1;
 
-      iftest (expectedResult !=(int)c,"testing compare_a_greater_than_b");
+      iftest (expectedResult !=(int)c,"testing compare a greater than b");
     }
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER
     {
@@ -938,7 +942,7 @@ void test_bint () {
       c = a.Compare(b);
       expectedResult = -1;
 
-      iftest (expectedResult !=(int)c	,"testing compare_a_less_than_b");
+      iftest (expectedResult !=(int)c	,"testing compare a less than b");
     }
     // TEST CASE WHEN FIRST NUMBER IS EQUAL TO SECOND NUMBER
     {
@@ -948,7 +952,7 @@ void test_bint () {
       c = a.Compare(b);
       expectedResult = 0;
 
-      iftest (expectedResult !=(int)c	,"testing compare_a_equals_b");
+      iftest (expectedResult !=(int)c	,"testing compare a equals b");
     }
 
   }
@@ -971,7 +975,7 @@ void test_bint () {
       calculatedResult = m.Mod(p);
       expectedResult = 27;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUint64()	,"testing mod number_less_than_modulus");
+      iftest (expectedResult !=calculatedResult.ConvertToUint64()	,"testing mod number less than modulus");
     }
     // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
     {
@@ -981,7 +985,7 @@ void test_bint () {
       calculatedResult = m.Mod(p);
       expectedResult = 35;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUint64()	,"testing mod number_greater_than_modulus");
+      iftest (expectedResult !=calculatedResult.ConvertToUint64()	,"testing mod number greater than modulus");
     }
     // TEST CASE WHEN THE NUMBER IS DIVISIBLE BY MOD
     {
@@ -991,7 +995,7 @@ void test_bint () {
       calculatedResult = m.Mod(p);
       expectedResult = 0;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUint64()	,"testing mod number_dividible_by_modulus");
+      iftest (expectedResult !=calculatedResult.ConvertToUint64()	,"testing mod number dividible by modulus");
     }
 
     // TEST CASE WHEN THE NUMBER IS EQUAL TO MOD
@@ -1002,7 +1006,7 @@ void test_bint () {
       calculatedResult = m.Mod(p);
       expectedResult = 0;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUint64()	,"testing mod number_equal_to_modulus");
+      iftest (expectedResult !=calculatedResult.ConvertToUint64()	,"testing mod number equal to modulus");
     }
 
 
@@ -1064,7 +1068,7 @@ void test_bint () {
 
       expectedResult = 65;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUint64()	,"testing mod inverse number_less_than_modulus");
+      iftest (expectedResult !=calculatedResult.ConvertToUint64()	,"testing mod inverse number less than modulus");
     }
     // TEST CASE WHEN THE NUMBER AND MOD ARE NOT CO-PRIME
     {
@@ -1106,7 +1110,7 @@ void test_bint () {
       calculatedResult = m.ModAdd(n,q);
       expectedResult = 2871;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUint64()	,"testing modadd first_number_greater_than_modulus");
+      iftest (expectedResult !=calculatedResult.ConvertToUint64()	,"testing modadd first number greater than modulus");
     }
     // TEST CASE WHEN THE SECOND NUMBER IS GREATER THAN MOD
     {
@@ -1117,7 +1121,7 @@ void test_bint () {
       calculatedResult = m.ModAdd(n,q);
       expectedResult = 3419;
 
-      iftest (expectedResult !=calculatedResult.ConvertToUint64(),"testing smodadd econd_number_greater_than_modulus");
+      iftest (expectedResult !=calculatedResult.ConvertToUint64(),"testing smodadd econd number greater than modulus");
     }
     // TEST CASE WHEN THE BOTH NUMBERS ARE LESS THAN MOD
     {
@@ -1127,7 +1131,7 @@ void test_bint () {
 
       calculatedResult = m.ModAdd(n,q);
       expectedResult = 971;
-      iftest (expectedResult != calculatedResult.ConvertToUint64()	,"testing modadd both_numbers_less_than_modulus");
+      iftest (expectedResult != calculatedResult.ConvertToUint64()	,"testing modadd both numbers less than modulus");
     }
     // TEST CASE WHEN THE BOTH NUMBERS ARE GREATER THAN MOD
     {
@@ -1139,7 +1143,7 @@ void test_bint () {
       calculatedResult = m.ModAdd(n,q);
       expectedResult = 2861;
 
-      iftest (expectedResult != calculatedResult.ConvertToUint64()	,"testing mod add both_numbers_greater_than_modulus");
+      iftest (expectedResult != calculatedResult.ConvertToUint64()	,"testing mod add both numbers greater than modulus");
     }
 
     /************************************************/
@@ -1170,7 +1174,7 @@ void test_bint () {
       calculatedResult = m.ModSub(n,q);
       expectedResult = 196;
 
-      iftest (expectedResult != calculatedResult.ConvertToUint64()	,"testing modsub first_number_greater_than_modulus");
+      iftest (expectedResult != calculatedResult.ConvertToUint64()	,"testing modsub first number greater than modulus");
     }
     // TEST CASE WHEN THE FIRST NUMBER LESS THAN SECOND NUMBER AND MOD
     {
@@ -1183,7 +1187,7 @@ void test_bint () {
 
       //[{(a mod c)+ c} - (b mod c)] since a < b
       iftest (expectedResult !=calculatedResult.ConvertToUint64()
-          ,"testing modsub first_number_less_than_modulus");
+          ,"testing modsub first number less than modulus");
     }
     // TEST CASE WHEN THE FIRST NUMBER EQUAL TO SECOND NUMBER
     {
@@ -1195,7 +1199,7 @@ void test_bint () {
       expectedResult = 0;
 
       iftest (expectedResult != calculatedResult.ConvertToUint64()
-          ,"testing modsub first_number_equals_second_number");
+          ,"testing modsub first number equals second number");
     }
 
     /************************************************/
@@ -1213,10 +1217,10 @@ void test_bint () {
       bint q("406756");
 
       bint calculatedResult = m.ModMul(n,q);
-      int expectedResult = 365204;
+      expectedResult = 365204;
 
       iftest (expectedResult != calculatedResult.ConvertToUint64()
-          ,"testing mod_mul_test");
+          ,"testing mod mul test");
     }
 
     /************************************************/
@@ -1230,14 +1234,14 @@ void test_bint () {
 
     {
       bint m("39960");
-      bint n("9");
+      bint n("10");
       bint q("406756");
 
       bint calculatedResult = m.ModExp(n,q);
-      int expectedResult = 96776;
+      expectedResult = 139668;
 
       iftest (expectedResult != calculatedResult.ConvertToUint64()
-          ,"testing mod_exp_test");
+          ,"testing mod exp test");
     }
     /****************************************/
     /* TESTING METHOD  BinaryToBigBinaryInt */
@@ -1272,7 +1276,7 @@ void test_bint () {
 
 void test_bintvec() {
 
-  int nloop = 10000; //number of times to run each test for timing.
+  int nloop = 100; //number of times to run each test for timing.
 
   bool dbg_flag = 1;		// if true then print dbg output
 
@@ -1286,8 +1290,8 @@ void test_bintvec() {
   //there are two test cases, 1) small modulus 2)approx 48 bits.
   // q1 modulus 1:
   bint q1("00000000000000163841");
-  cout << "q1 contents"<<endl;
-  q1.PrintLimbsInDec();
+  //cout << "q1 contents"<<endl;
+  //q1.PrintLimbsInDec();
   // a1:
   std::vector<std::string>  a1sv = {"00000000000000127753", "00000000000000077706", "00000000000000017133", "00000000000000022582", "00000000000000112132", "00000000000000027625", "00000000000000126773", "00000000000000008924", "00000000000000125972", "00000000000000002551", "00000000000000113837", "00000000000000112045", "00000000000000100953", "00000000000000077352", "00000000000000132013", "00000000000000057029", };
   bintvec a1(a1sv);
@@ -1457,8 +1461,8 @@ void test_bintvec() {
   // q2:
 
   bint q2("00004057816419532801");
-  cout << "q2 contents"<<endl;
-  q2.PrintLimbsInDec();
+  //cout << "q2 contents"<<endl;
+  //q2.PrintLimbsInDec();
 
   // a2:
   std::vector<std::string>  a2sv = {"00000185225172798255", "00000098879665709163", "00003497410031351258", "00004012431933509255", "00001543020758028581", "00000135094568432141", "00003976954337141739", "00004030348521557120", "00000175940803531155", "00000435236277692967", "00003304652649070144", "00002032520019613814", "00000375749152798379", "00003933203511673255", "00002293434116159938", "00001201413067178193", };

@@ -285,33 +285,33 @@ namespace exp_int32{
    
     /**
      * Left shift operator of big  integer
-     * @param shift is the amount to shift of type usshort.
+     * @param shift is the amount to shift of type usint.
      * @return the object of type bint
      */
-    bint  operator<<(usshort shift) const;
+    bint  operator<<(usint shift) const;
 
     /**
      * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
      *
-     * @param shift is the amount to shift of type usshort.
+     * @param shift is the amount to shift of type usint.
      * @return the object of type bint
      */
-    const bint&  operator<<=(usshort shift);
+    const bint&  operator<<=(usint shift);
         
     /**
      * Right shift operator of big  integer
-     * @param shift is the amount to shift of type usshort.
+     * @param shift is the amount to shift of type usint.
      * @return the object of type bint
      */
-    bint  operator>>(usshort shift) const;
+    bint  operator>>(usint shift) const;
 
     /**
      * Right shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
      *
-     * @param shift is the amount to shift of type usshort.
+     * @param shift is the amount to shift of type usint.
      * @return the object of type bint
      */
-    bint&  operator>>=(usshort shift);
+    bint&  operator>>=(usint shift);
 
     //Auxillary Functions
 
@@ -345,14 +345,14 @@ namespace exp_int32{
      *
      * @return the index of the most significant bit.
      */
-    usshort GetMSB()const;
+    usint GetMSB()const;
 
     /**
      * Returns the index number of the array in which MSB is located.
      *
-     * @return the index of array of the most significant bit as usshort.
+     * @return the index of array of the most significant bit as usint.
      */
-    usshort GetMSBCharNum()const;
+    usint GetMSBCharNum()const;
 
     /**
      * Converts the value to a usint.
@@ -854,7 +854,7 @@ namespace exp_int32{
     vector<limb_t> m_value;
 
     //variable that stores the MOST SIGNIFICANT BIT position in the number. Note MSB(1) = 1 NOT 0
-    usshort m_MSB;
+    usint m_MSB;
 
     //variable to store the bitlength of the limb data type.
     static const usint m_limbBitLength;
