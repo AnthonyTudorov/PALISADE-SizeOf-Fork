@@ -111,7 +111,9 @@ namespace lbcrypto {
 		// converting perturbed syndrome to coefficient representation
 		perturbedSyndrome.SwitchFormat();
 
-		LatticeGaussSampUtility::GaussSampGq(perturbedSyndrome,sigma,k,modulus,dgg,&zHatBBI);
+		//LatticeGaussSampUtility::GaussSampGq(perturbedSyndrome,sigma,k,modulus,dgg,&zHatBBI);
+		LatticeGaussSampUtility::GaussSampGqV2(perturbedSyndrome, sigma, k, modulus, 2, dgg, &zHatBBI);
+
 
 		// Convert zHat from a matrix of BBI to a vector of ILVector2n ring elements
 		// zHat is in the coefficient representation
