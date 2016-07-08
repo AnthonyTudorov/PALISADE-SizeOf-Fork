@@ -400,47 +400,276 @@ TEST(method_ILVector2n, arithmetic_operations_element) {
 
 }
 
-
-TEST(method_ILVector2n, arithmetic_operators_tests_between_ilvector2ns) {
+TEST(method_ILVector2n, other_methods) {
   usint m = 8;
   BigBinaryInteger primeModulus("73");
   BigBinaryInteger primitiveRootOfUnity("22");
 
+  float stdDev = 4.0;
+    DiscreteGaussianGenerator dgg(stdDev);
+    BinaryUniformGenerator bug;
+    DiscreteUniformGenerator dug(primeModulus);
+
   ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
 
-  ILVector2n ilvector2n1(ilparams);
+  ILVector2n ilvector2n(ilparams);
   BigBinaryVector bbv1(m/2, primeModulus);
   bbv1.SetValAtIndex(0, "2");
   bbv1.SetValAtIndex(1, "1");
-  bbv1.SetValAtIndex(2, "1");
-  bbv1.SetValAtIndex(3, "1");
-  ilvector2n1.SetValues(bbv1, ilvector2n1.GetFormat());
+  bbv1.SetValAtIndex(2, "3");
+  bbv1.SetValAtIndex(3, "2");
+  ilvector2n.SetValues(bbv1, Format::EVALUATION);
 
-}
+  {
+    ILVector2n ilv(ilvector2n);
 
-TEST(method_ILVector2n, decompose_test) {
-  usint order = 8;
-  
-  BigBinaryInteger primeModulus("73");
-  BigBinaryInteger primitiveRootOfUnity("22");
+    ilv.AddILElementOne();
 
-  ILParams ilparams(order, primeModulus, primitiveRootOfUnity);
+    EXPECT_EQ(BigBinaryInteger::THREE, ilv.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger::FOUR, ilv.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger::THREE, ilv.GetValAtIndex(3));
+  }
 
-  float stdDev = 4;
-  DiscreteGaussianGenerator dgg(stdDev);
+  {
+    ILVector2n ilv(ilvector2n);
+    ilv = ilv.ModByTwo();
 
-  ILVector2n ilVector2n(dgg, ilparams, Format::COEFFICIENT);
+    EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger::ONE, ilv.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger::ONE, ilv.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(3));
+  }
 
-  BigBinaryVector bbv1 (ilVector2n.GetValues());
+  {
+    ILVector2n ilv(ilvector2n);
+    ilv.MakeSparse(BigBinaryInteger::TWO);
 
-  ilVector2n.Decompose();
+    EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger::THREE, ilv.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(3));
 
-  BigBinaryVector bbv2 (ilVector2n.GetValues());
+    ILVector2n ilv1(ilvector2n);
+    ilv1.MakeSparse(BigBinaryInteger::THREE);
 
-  EXPECT_EQ(bbv2.GetLength(), bbv1.GetLength()/2);
+    EXPECT_EQ(BigBinaryInteger::TWO, ilv1.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger::ZERO, ilv1.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger::ZERO, ilv1.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger::TWO, ilv1.GetValAtIndex(3));
+  }
 
-  for(usint i=0; i<bbv2.GetLength(); i++) {
-    EXPECT_EQ(bbv2.GetValAtIndex(i), bbv1.GetValAtIndex(2*i)) << "ILVector2n_decompose: Values do not match between original and decomposed elements.";
+  {
+    ILVector2n ilv(ilparams);
+    BigBinaryVector bbv(m/2, primeModulus);
+    bbv.SetValAtIndex(0, "2");
+    bbv.SetValAtIndex(1, "1");
+    bbv.SetValAtIndex(2, "3");
+    bbv.SetValAtIndex(3, "2");
+    ilv.SetValues(bbv, Format::COEFFICIENT);
+
+    ilv.Decompose();
+
+    EXPECT_EQ(2, ilv.GetLength());
+
+    EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(0)) << "ILVector2n_decompose: Values do not match between original and decomposed elements.";
+    EXPECT_EQ(BigBinaryInteger::THREE, ilv.GetValAtIndex(1)) << "ILVector2n_decompose: Values do not match between original and decomposed elements.";
+  }
+
+  {
+    ILVector2n ilv(ilparams);
+    BigBinaryVector bbv(m/2, primeModulus);
+    bbv.SetValAtIndex(0, "2");
+    bbv.SetValAtIndex(1, "1");
+    bbv.SetValAtIndex(2, "3");
+    bbv.SetValAtIndex(3, "2");
+    ilv.SetValues(bbv, Format::COEFFICIENT);
+
+    ilv.SwitchFormat();
+
+    EXPECT_EQ(primeModulus, ilv.GetModulus());
+    EXPECT_EQ(primitiveRootOfUnity, ilv.GetRootOfUnity());
+    EXPECT_EQ(Format::EVALUATION, ilv.GetFormat());
+    EXPECT_EQ(BigBinaryInteger("69"), ilv.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger("44"), ilv.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger("65"), ilv.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger("49"), ilv.GetValAtIndex(3));
+
+
+    ILVector2n ilv1(ilparams);
+    BigBinaryVector bbv1(m/2, primeModulus);
+    bbv1.SetValAtIndex(0, "2");
+    bbv1.SetValAtIndex(1, "1");
+    bbv1.SetValAtIndex(2, "3");
+    bbv1.SetValAtIndex(3, "2");
+    ilv1.SetValues(bbv1, Format::EVALUATION);
+
+    ilv1.SwitchFormat();
+
+    EXPECT_EQ(primeModulus, ilv1.GetModulus());
+    EXPECT_EQ(primitiveRootOfUnity, ilv1.GetRootOfUnity());
+    EXPECT_EQ(Format::COEFFICIENT, ilv1.GetFormat());
+    EXPECT_EQ(BigBinaryInteger::TWO, ilv1.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger::THREE, ilv1.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger("50"), ilv1.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger::THREE, ilv1.GetValAtIndex(3));
+  }
+
+  {
+    ILVector2n ilv(ilparams);
+    BigBinaryVector bbv(m/2, primeModulus);
+    bbv.SetValAtIndex(0, "2");
+    bbv.SetValAtIndex(1, "1");
+    bbv.SetValAtIndex(2, "3");
+    bbv.SetValAtIndex(3, "2");
+    ilv.SetValues(bbv, Format::COEFFICIENT);
+
+    ILVector2n ilvector2n1(ilparams);
+    ILVector2n ilvector2n2(ilparams);
+    ILVector2n ilvector2n3(ilv);
+    ILVector2n ilvector2n4(dgg, ilparams);
+    ILVector2n ilvector2n5(bug, ilparams);
+    ILVector2n ilvector2n6(dug, ilparams);
+
+    EXPECT_EQ(true, ilvector2n1.IsEmpty());
+    EXPECT_EQ(true, ilvector2n2.IsEmpty());
+    EXPECT_EQ(false, ilvector2n3.IsEmpty());
+    EXPECT_EQ(false, ilvector2n4.IsEmpty());
+    EXPECT_EQ(false, ilvector2n5.IsEmpty());
+    EXPECT_EQ(false, ilvector2n6.IsEmpty());
+  }
+
+  {
+    ILVector2n ilv(ilparams);
+    BigBinaryVector bbv(m/2, primeModulus);
+    bbv.SetValAtIndex(0, "56");
+    bbv.SetValAtIndex(1, "1");
+    bbv.SetValAtIndex(2, "37");
+    bbv.SetValAtIndex(3, "2");
+    ilv.SetValues(bbv, Format::COEFFICIENT);
+
+    BigBinaryInteger modulus("17");
+    BigBinaryInteger rootOfUnity("15");
+
+    ilv.SwitchModulus(modulus, rootOfUnity);
+
+    EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger::ONE, ilv.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger("15"), ilv.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3));
+
+    ILVector2n ilv1(ilparams);
+    BigBinaryVector bbv1(m/2, primeModulus);
+    bbv1.SetValAtIndex(0, "56");
+    bbv1.SetValAtIndex(1, "43");
+    bbv1.SetValAtIndex(2, "35");
+    bbv1.SetValAtIndex(3, "28");
+    ilv1.SetValues(bbv1, Format::COEFFICIENT);
+
+    BigBinaryInteger modulus1("193");
+    BigBinaryInteger rootOfUnity1("150");
+
+    ilv1.SwitchModulus(modulus1, rootOfUnity1);
+
+    EXPECT_EQ(BigBinaryInteger("176"), ilv1.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger("163"), ilv1.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger("35"), ilv1.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger("28"), ilv1.GetValAtIndex(3));
+  }
+
+  {
+    ILVector2n ilv(ilparams);
+    BigBinaryVector bbv(m/2, primeModulus);
+    bbv.SetValAtIndex(0, "2");
+    bbv.SetValAtIndex(1, "4");
+    bbv.SetValAtIndex(2, "3");
+    bbv.SetValAtIndex(3, "2");
+    ilv.SetValues(bbv, Format::COEFFICIENT);
+
+    ILVector2n ilv1(ilparams);
+    BigBinaryVector bbv1(m/2, primeModulus);
+    bbv1.SetValAtIndex(0, "2");
+    bbv1.SetValAtIndex(1, "0");
+    bbv1.SetValAtIndex(2, "3");
+    bbv1.SetValAtIndex(3, "2");
+    ilv1.SetValues(bbv1, Format::COEFFICIENT);
+
+    ILVector2n ilv2(ilparams);
+    BigBinaryVector bbv2(m/2, primeModulus);
+    bbv2.SetValAtIndex(0, "2");
+    bbv2.SetValAtIndex(1, "1");
+    bbv2.SetValAtIndex(2, "3");
+    bbv2.SetValAtIndex(3, "2");
+    ilv2.SetValues(bbv2, Format::COEFFICIENT);
+
+    EXPECT_EQ(true, ilv.InverseExists());
+    EXPECT_EQ(false, ilv1.InverseExists());
+    EXPECT_EQ(false, ilv1.InverseExists());
+  }
+
+   {
+    ILVector2n ilv(ilparams);
+    BigBinaryVector bbv(m/2, primeModulus);
+    bbv.SetValAtIndex(0, "2");
+    bbv.SetValAtIndex(1, "4");
+    bbv.SetValAtIndex(2, "3");
+    bbv.SetValAtIndex(3, "2");
+    ilv.SetValues(bbv, Format::COEFFICIENT);
+
+    ILVector2n ilvInverse = ilv.MultiplicativeInverse();
+    ILVector2n ilvProduct = ilv * ilvInverse;
+
+    for (usint i = 0; i < m/2; ++i)
+    {
+      EXPECT_EQ(BigBinaryInteger::ONE, ilvProduct.GetValAtIndex(i));
+    }
+
+    ILVector2n ilv1(ilparams);
+    BigBinaryVector bbv1(m/2, primeModulus);
+    bbv1.SetValAtIndex(0, "2");
+    bbv1.SetValAtIndex(1, "4");
+    bbv1.SetValAtIndex(2, "3");
+    bbv1.SetValAtIndex(3, "2");
+    ilv1.SetValues(bbv1, Format::EVALUATION);
+
+    ILVector2n ilvInverse1 = ilv1.MultiplicativeInverse();
+    ILVector2n ilvProduct1 = ilv1 * ilvInverse1;
+
+    for (usint i = 0; i < m/2; ++i)
+    {
+      EXPECT_EQ(BigBinaryInteger::ONE, ilvProduct1.GetValAtIndex(i));
+    }
+
+  }
+
+  {
+    ILVector2n ilv(ilparams);
+    BigBinaryVector bbv(m/2, primeModulus);
+    bbv.SetValAtIndex(0, "56");
+    bbv.SetValAtIndex(1, "1");
+    bbv.SetValAtIndex(2, "37");
+    bbv.SetValAtIndex(3, "2");
+    ilv.SetValues(bbv, Format::COEFFICIENT);
+
+    EXPECT_EQ(36, ilv.Norm());
+  }
+
+  {
+    ILVector2n ilv(ilparams);
+    BigBinaryVector bbv(m/2, primeModulus);
+    bbv.SetValAtIndex(0, "56");
+    bbv.SetValAtIndex(1, "1");
+    bbv.SetValAtIndex(2, "37");
+    bbv.SetValAtIndex(3, "2");
+    ilv.SetValues(bbv, Format::COEFFICIENT);
+
+    usint index = 3;
+    ILVector2n ilvAuto(ilv.AutomorphismTransform(index));
+    
+    EXPECT_EQ(BigBinaryInteger::ONE, ilvAuto.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger("56"), ilvAuto.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger::TWO, ilvAuto.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger("37"), ilvAuto.GetValAtIndex(3));
   }
 
 }
