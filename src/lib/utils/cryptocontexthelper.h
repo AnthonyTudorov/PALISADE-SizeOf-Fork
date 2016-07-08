@@ -39,7 +39,6 @@
 
 #include <string>
 #include <iostream>
-using namespace std;
 
 #include "../utils/serializablehelper.h"
 
@@ -54,14 +53,14 @@ public:
 	 * @param out stream to write to
 	 * @param fn name of file containing parameter sets in JSON
 	 */
-	static void printAllParmSets(ostream& out, const std::string& fn);
+	static void printAllParmSets(std::ostream& out, const std::string& fn);
 
 	/**
 	 *
 	 * @param out stream to write to
 	 * @param fn name of file containing parameter sets in JSON
 	 */
-	static void printAllParmSetNames(ostream& out, const std::string& fn);
+	static void printAllParmSetNames(std::ostream& out, const std::string& fn);
 
 	/**
 	 *
@@ -69,14 +68,14 @@ public:
 	 * @param parmsetname name of parameter set to use
 	 * @return newly constructed CryptoContext, or null on failure
 	 */
-	static CryptoContext<Element> *getNewContext(const string& parmfile, const string& parmsetname);
+	static CryptoContext<Element> *getNewContext(const std::string& parmfile, const std::string& parmsetname);
 
 	/**
 	 *
 	 * @param parmSetJson JSON string with a parameter set
 	 * @return newly constructed CryptoContext, or null on failure
 	 */
-	static CryptoContext<Element> *getNewContext(const string& parmSetJson);
+	static CryptoContext<Element> *getNewContext(const std::string& parmSetJson);
 
 	static CryptoContext<Element> *getNewContextFromSerialization(const Serialized& ser);
 };

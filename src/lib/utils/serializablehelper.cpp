@@ -34,8 +34,6 @@
 */
 #include "serializablehelper.h"
 
-using namespace std;
-
 namespace lbcrypto {
 
 		bool SerializableHelper::SerializationToString(const Serialized& serObj, std::string& jsonString) {

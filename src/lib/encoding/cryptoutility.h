@@ -77,8 +77,8 @@ public:
 	static EncryptResult Encrypt(
 			const CryptoContext<Element> *ctx,
 			const LPPublicKey<Element>& publicKey,
-			istream& instream,
-			ostream& outstream)
+			std::istream& instream,
+			std::ostream& outstream)
 	{
 		size_t chunkSize = ctx->getAlgorithm()->getChunkSize();
 		char *ptxt = new char[chunkSize];
@@ -151,8 +151,8 @@ public:
 	static DecryptResult Decrypt(
 			const CryptoContext<Element> *ctx,
 			const LPPrivateKey<Element>& privateKey,
-			istream& instream,
-			ostream& outstream)
+			std::istream& instream,
+			std::ostream& outstream)
 	{
 		Serialized serObj;
 		size_t tot = 0;
@@ -196,8 +196,8 @@ public:
 	static void ReEncrypt(
 			const CryptoContext<Element> *ctx,
 			const LPEvalKey<Element> &evalKey,
-			istream& instream,
-			ostream& outstream)
+			std::istream& instream,
+			std::ostream& outstream)
 	{
 		Serialized serObj;
 
