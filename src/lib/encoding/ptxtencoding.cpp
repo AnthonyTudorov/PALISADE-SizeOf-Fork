@@ -105,7 +105,7 @@ namespace lbcrypto {
 
 		std::vector<ILVector2n> symbolVals;
 				
-		for(usint i=0;i<element->GetTowerLength();i++){
+		for(usint i=0;i<element->GetNumOfTowers();i++){
 			ILParams ilparams(element->GetTowerAtIndex(i).GetCyclotomicOrder(), element->GetTowerAtIndex(i).GetModulus(), element->GetTowerAtIndex(i).GetRootOfUnity());
 			ILVector2n ilVector(ilparams);
 			// temp.SetModulus(ilparams.GetModulus());

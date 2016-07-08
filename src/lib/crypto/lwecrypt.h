@@ -264,7 +264,7 @@ namespace lbcrypto {
 					rootsOfUnity.push_back(rootOfUnity);
 				}
 
-				ILDCRTParams *newCryptoParams = new ILDCRTParams(rootsOfUnity, m, moduli);
+				ILDCRTParams *newCryptoParams = new ILDCRTParams(m, moduli, rootsOfUnity);
 				cryptoParams->SetElementParams(*newCryptoParams);
 			}
 		   

@@ -203,6 +203,10 @@ namespace lbcrypto {
 		return m_cyclotomicOrder;
 	}
 
+	const BigBinaryInteger &ILVectorArray2n::GetModulus() const {
+		return m_modulus;
+	}
+
 	// DESTRUCTORS
 
 	ILVectorArray2n::~ILVectorArray2n()
@@ -213,10 +217,14 @@ namespace lbcrypto {
 	// GET ACCESSORS
 	const ILVector2n& ILVectorArray2n::GetTowerAtIndex (usint i) const
 	{
+		if(m_vectors.empty())
+			throw std::logic_error("ILVectorArray2n's towers are not initialized. Throwing error now.");
+		if(i > m_vectors.size()-1)
+			throw std::logic_error("Index: " + std::to_string(i) + " is out of range.");
 		return m_vectors[i];
 	}
 
-	usint ILVectorArray2n::GetTowerLength() const {
+	usint ILVectorArray2n::GetNumOfTowers() const {
 		return m_numberOfTowers;
 	}
 
@@ -331,8 +339,8 @@ namespace lbcrypto {
 		usint len = rhs.size();
 		if(!IsEmpty()){
 			usint vectorLength = this->m_vectors[0].GetLength();
-			for(usint i=0;i<this->GetTowerLength();i++){ // this loops over each tower
-				for(usint j=0; j<vectorLength; j++) { // loops within a tower
+			for(usint i = 0;i < m_numberOfTowers; ++i){ // this loops over each tower
+				for(usint j = 0; j < vectorLength; ++j) { // loops within a tower
 					if(j<len) {
 						this->m_vectors[i].SetValAtIndex(j, *(rhs.begin()+j));
 					} else {

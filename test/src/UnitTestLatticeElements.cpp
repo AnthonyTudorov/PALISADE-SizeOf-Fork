@@ -674,6 +674,119 @@ TEST(method_ILVector2n, other_methods) {
 
 }
 
+TEST(method_ILVectorArray2n, constructors_test) {
+  usint m = 8; //16
+  usint towersize = 3;
+
+  std::vector<BigBinaryInteger> moduli(towersize);
+  moduli = {BigBinaryInteger("8353"), BigBinaryInteger("8369"), BigBinaryInteger("8513")};
+  std::vector<BigBinaryInteger> rootsOfUnity(towersize);
+  rootsOfUnity = {BigBinaryInteger("8163"), BigBinaryInteger("6677"), BigBinaryInteger("156")};
+
+  BigBinaryInteger modulus(BigBinaryInteger::ONE);
+  for (usint i = 0; i < towersize; ++i)
+  {
+    modulus = modulus * moduli[i];
+  }
+
+  ILParams ilparams0(m, moduli[0], rootsOfUnity[0]);
+  ILParams ilparams1(m, moduli[1], rootsOfUnity[1]);
+  ILParams ilparams2(m, moduli[2], rootsOfUnity[2]);
+
+  ILVector2n ilv0(ilparams0);
+  BigBinaryVector bbv0(m/2, moduli[0]);
+  bbv0.SetValAtIndex(0, "2");
+  bbv0.SetValAtIndex(1, "4");
+  bbv0.SetValAtIndex(2, "3");
+  bbv0.SetValAtIndex(3, "2");
+  ilv0.SetValues(bbv0, Format::EVALUATION);
+
+  ILVector2n ilv1(ilv0);
+  ilv1.SwitchModulus(moduli[1], rootsOfUnity[1]);
+  
+  ILVector2n ilv2(ilv0);
+  ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
+
+  ILDCRTParams ildcrtparams(m, moduli, rootsOfUnity);
+    
+  std::vector<ILVector2n> ilvector2nVector(towersize);
+  // ilvector2nVector = {ilv0, ilv1, ilv2};
+  ilvector2nVector[0] = ilv0;
+  ilvector2nVector[1] = ilv1;
+  ilvector2nVector[2] = ilv2;
+
+  {
+    ILVectorArray2n ilva(ildcrtparams);
+
+    EXPECT_EQ(Format::EVALUATION, ilva.GetFormat());
+    EXPECT_EQ(modulus, ilva.GetModulus());
+    EXPECT_EQ(m, ilva.GetCyclotomicOrder());
+    EXPECT_EQ(towersize, ilva.GetNumOfTowers());
+  }
+
+  {
+    ILVectorArray2n ilva(ilvector2nVector);
+  }
+
+  {
+    ILVectorArray2n ilva(ilv0, ildcrtparams);
+
+    EXPECT_EQ(Format::EVALUATION, ilva.GetFormat());
+    EXPECT_EQ(modulus, ilva.GetModulus());
+    EXPECT_EQ(m, ilva.GetCyclotomicOrder());
+    EXPECT_EQ(towersize, ilva.GetNumOfTowers());
+    for (usint i = 0; i < towersize; ++i)
+    {
+      EXPECT_EQ(ilvector2nVector[i], ilva.GetTowerAtIndex(i));
+    }
+  }
+
+  {
+    ILVectorArray2n ilva0;
+    ILVectorArray2n ilva1(ildcrtparams);
+    ILVectorArray2n ilva2(ilv0, ildcrtparams);
+    ILVectorArray2n ilva3(ilvector2nVector);
+
+    std::vector<ILVectorArray2n> ilvaVector(4);
+    // ilvaVector = {ilva0, ilva1, ilva2, ilva3};
+    ilvaVector[0] = ilva0;
+    ilvaVector[1] = ilva1;
+    ilvaVector[2] = ilva2;
+    ilvaVector[3] = ilva3;
+
+    //copy constructor
+    ILVectorArray2n ilva0Copy(ilva0);
+    ILVectorArray2n ilva1Copy(ilva1);
+    ILVectorArray2n ilva2Copy(ilva2);
+    ILVectorArray2n ilva3Copy(ilva3);
+
+    std::vector<ILVectorArray2n> ilvaCopyVector(4);
+    // ilvaCopyVector = {ilvaCopy0, ilvaCopy1, ilvaCopy2, ilvaCopy3};
+    ilvaCopyVector[0] = ilva0Copy;
+    ilvaCopyVector[1] = ilva1Copy;
+    ilvaCopyVector[2] = ilva2Copy;
+    ilvaCopyVector[3] = ilva3Copy;
+
+    for (usint i = 0; i < 4; ++i)
+    {
+      EXPECT_EQ(ilvaVector[i].GetFormat(), ilvaCopyVector[i].GetFormat());
+      EXPECT_EQ(ilvaVector[i].GetModulus(), ilvaCopyVector[i].GetModulus());
+      EXPECT_EQ(ilvaVector[i].GetCyclotomicOrder(), ilvaCopyVector[i].GetCyclotomicOrder());
+      EXPECT_EQ(ilvaVector[i].GetNumOfTowers(), ilvaCopyVector[i].GetNumOfTowers());
+      // for (usint j = 0; j < towersize; ++j)
+      // {
+        // std::cout << "i = " << i << ", j = " << j << std::endl;
+        // EXPECT_EQ(ilvaVector[i].GetTowerAtIndex(j), ilvaCopyVector[i].GetTowerAtIndex(j));
+      ILVector2n expectedResult(ilvaVector[0].GetTowerAtIndex(1));
+      ILVector2n actualResult(ilvaCopyVector[0].GetTowerAtIndex(1));
+      std::cout << "just before EQ." << std::endl;
+      EXPECT_EQ(expectedResult, actualResult);
+      // }
+    }
+  }
+
+}
+
 TEST(method_ILVectorArray2n, decompose_test) {
   usint order = 16;
   usint nBits = 24;
@@ -699,15 +812,15 @@ TEST(method_ILVectorArray2n, decompose_test) {
   float stdDev = 4;
   DiscreteGaussianGenerator dgg(stdDev);
 
-  ILDCRTParams params(rootsOfUnity, order, moduli);
+  ILDCRTParams params(order, moduli, rootsOfUnity);
   ILVectorArray2n ilVectorArray2n(dgg, params, Format::COEFFICIENT);
 
   ILVectorArray2n ilvectorarray2nOriginal(ilVectorArray2n);
   ilVectorArray2n.Decompose();
 
-  EXPECT_EQ(ilvectorarray2nOriginal.GetTowerLength(), ilVectorArray2n.GetTowerLength()) << "ILVectorArray2n_decompose: Mismatch in the number of towers after decompose.";
+  EXPECT_EQ(ilvectorarray2nOriginal.GetNumOfTowers(), ilVectorArray2n.GetNumOfTowers()) << "ILVectorArray2n_decompose: Mismatch in the number of towers after decompose.";
 
-  for(usint i=0; i<ilVectorArray2n.GetTowerLength(); i++) {
+  for(usint i=0; i<ilVectorArray2n.GetNumOfTowers(); i++) {
     ILVector2n ilTowerOriginal(ilvectorarray2nOriginal.GetTowerAtIndex(i));
     ILVector2n ilTowerDecomposed(ilVectorArray2n.GetTowerAtIndex(i));
     
@@ -796,7 +909,7 @@ TEST(method_ILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVe
       bbv2[i] = (ilv2.GetValues());
   }
 
-  ILDCRTParams ildcrtparams(rootsOfUnity, order, moduli);
+  ILDCRTParams ildcrtparams(order, moduli, rootsOfUnity);
 
   ILVectorArray2n ilvectorarray2n1(ilvector2n1);
   ILVectorArray2n ilvectorarray2n2(ilvector2n2);

@@ -80,7 +80,7 @@ ElemParams& CreateParams<ILVectorArray2n>(usint m) {
     modulus = modulus* moduli[i];
   }
   // DiscreteGaussianGenerator dgg(modulus,stdDev);
-  ILDCRTParams ildcrtParams(rootsOfUnity, m, moduli);
+  ILDCRTParams ildcrtParams(m, moduli, rootsOfUnity);
   return ildcrtParams;
 }
 
@@ -135,7 +135,7 @@ Ciphertext<ILVectorArray2n> CreateCiphertext<ILVectorArray2n>(usint m, float std
 		modulus = modulus* moduli[i];
 	}
 
-    ILDCRTParams ildcrtParams(rootsOfUnity, m, moduli);
+    ILDCRTParams ildcrtParams(m, moduli, rootsOfUnity);
 	
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
@@ -191,7 +191,7 @@ template <class T>
 class UnitTestSHE : public ::testing::Test {
   
   public:
-static const usint m = 16;
+    static const usint m = 16;
 //static const float stdDev = 4.0;
 
   protected:
@@ -210,6 +210,7 @@ static const usint m = 16;
   //  ElemParams* params;
 	Ciphertext<T> ciphertext;
 
+
 };
 
 #if GTEST_HAS_TYPED_TEST
@@ -221,7 +222,7 @@ TYPED_TEST_CASE(UnitTestSHE, Implementations);
 // Use TYPED_TEST(TestCaseName, TestName) to define a typed test,
 // similar to TEST_F.
 
-TYPED_TEST(UnitTestSHE, eval_add_correction_test){
+TYPED_TEST(UnitTestSHE, eval_add_correction_test) {
 	Ciphertext<TypeParam> cipher1(this->ciphertext);
 	Ciphertext<TypeParam> cipher2(this->ciphertext);
 

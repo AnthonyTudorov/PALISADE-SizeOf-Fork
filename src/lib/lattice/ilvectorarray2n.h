@@ -117,6 +117,14 @@ namespace lbcrypto {
 		ILVectorArray2n(const std::vector<ILVector2n> &towers);
 
 		usint GetCyclotomicOrder() const ;
+
+		/**
+		* Get method of the modulus.
+		*
+		* @return the modulus.
+		*/
+		const BigBinaryInteger &GetModulus() const;
+		
 		/**
 		* Constructor based a discrete Gaussian generator. T
 		*
@@ -171,7 +179,7 @@ namespace lbcrypto {
 		*
 		* @return the length of the tower.
 		*/
-		usint GetTowerLength() const;
+		usint GetNumOfTowers() const;
 		
 		/**
 		* Get method that returns a vector of all towers.

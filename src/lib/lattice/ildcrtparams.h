@@ -82,7 +82,7 @@ namespace lbcrypto {
 		* @param cyclotomic_order the order of the ciphertext
 		* @param &moduli is the tower of moduli
 		*/
-		ILDCRTParams(const std::vector<BigBinaryInteger>& rootsOfUnity, const usint cyclotomic_order, const std::vector<BigBinaryInteger> &moduli) {
+		ILDCRTParams(const usint cyclotomic_order, const std::vector<BigBinaryInteger> &moduli, const std::vector<BigBinaryInteger>& rootsOfUnity) {
 			m_cyclotomicOrder = cyclotomic_order;
 			m_moduli = moduli;
 			m_rootsOfUnity = rootsOfUnity;
