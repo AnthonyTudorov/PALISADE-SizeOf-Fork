@@ -107,18 +107,6 @@ namespace lbcrypto {
 		* @return true on success
 		*/
 		template <class Element> bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx);
-
-		/**
-		* Converts the input data type into a string
-		* @tparam T a data type.
-		* @return the string equivalent.
-		*/
-		template <typename T> 
-		std::string ToStr(const T& num) const {
-			std::ostringstream buffer;
-			buffer << num;
-			return buffer.str();
-		}
 	};
 
 }

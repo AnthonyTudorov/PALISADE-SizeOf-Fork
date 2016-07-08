@@ -151,13 +151,15 @@ JNIEXPORT jobject JNICALL Java_com_palisade_PalisadeCrypto_generatePalisadeKeyPa
 	const char *idS = env->GetStringUTFChars(id, 0);
 	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
 	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
-	if( !ctx->getAlgorithm()->KeyGen(&pk,&sk) )
+
+	if( ! CryptoUtility<ILVector2n>::KeyGen(*ctx->getAlgorithm(), &pk, &sk ) )
 		return 0;
 	Serialized pubMap, priMap;
 	string	pubStr, priStr;
 
-	if ( !pk.Serialize(&pubMap, idS) || !sk.Serialize(&priMap, idS) )
+	if ( !pk.Serialize(&pubMap, idS) || !sk.Serialize(&priMap, idS) ) {
 		return 0;
+	}
 
 	env->ReleaseStringUTFChars(id, idS);
 
