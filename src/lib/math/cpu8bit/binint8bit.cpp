@@ -69,7 +69,7 @@ BigBinaryInteger::BigBinaryInteger()
 }
 
 std::function<unique_ptr<BigBinaryInteger>()> BigBinaryInteger::Allocator = [](){
-    return make_unique<BigBinaryInteger>();
+    return lbcrypto::make_unique<BigBinaryInteger>();
 };
 
 
