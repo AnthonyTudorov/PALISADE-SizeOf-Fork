@@ -198,13 +198,13 @@ namespace lbcrypto {
 			c(i, 0) = (c(i - 1, 0) + modulus.GetDigitAtIndexForBase(i + 1, base)) / base;
 		}
 
-		vector<int32_t> p(k);
-		
-		LatticeGaussSampUtility::Perturb(stddev,  k, u.GetLength(), l, h, base, dgg, &p);
-
 		for (size_t j = 0; j < u.GetLength(); j++) 
 		{
 			BigBinaryInteger v(u.GetValAtIndex(j));
+
+			vector<int32_t> p(k);
+
+			LatticeGaussSampUtility::Perturb(stddev, k, u.GetLength(), l, h, base, dgg, &p);
 			
 			// int32_t cast is needed here as GetDigitAtIndexForBase returns an unsigned int
 			// when the result is negative, a(0,0) gets values close to 2^32 if the cast is not used
