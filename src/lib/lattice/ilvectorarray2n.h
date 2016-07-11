@@ -114,7 +114,7 @@ namespace lbcrypto {
 		*
 		* @param &towers vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
 		*/
-		ILVectorArray2n(const std::vector<ILVector2n> &towers);
+		ILVectorArray2n(const std::vector<ILVector2n> &elements);
 
 		usint GetCyclotomicOrder() const ;
 
@@ -172,21 +172,21 @@ namespace lbcrypto {
 		* @param i index of tower to be returned.
 		* @returns a reference to the ILVector2n at index i.
 		*/
-		const ILVector2n &GetTowerAtIndex(usint i) const;
+		const ILVector2n &GetElementAtIndex(usint i) const;
 
 		/**
 		* Get method of the tower length.
 		*
 		* @return the length of the tower.
 		*/
-		usint GetNumOfTowers() const;
+		usint GetNumOfElements() const;
 		
 		/**
 		* Get method that returns a vector of all towers.
 		*
 		* @returns values.
 		*/
-		const std::vector<ILVector2n>& GetAllTowers() const;
+		const std::vector<ILVector2n>& GetAllElements() const;
 
 		/**
 		* Get method of the format.
@@ -376,7 +376,7 @@ namespace lbcrypto {
 		*
 		* @param index is the index of the tower to be dropped.
 		*/
-		void DropTower(usint index);
+		void DropElementAtIndex(usint index);
 
 		/**
 		* ModReduces reduces the ILVectorArray2n's composite modulus by dropping the last modulus from the chain of moduli as well as dropping the last tower.
@@ -414,7 +414,7 @@ namespace lbcrypto {
 		* @param &rootOfUnity is the corresponding root of unity for the modulus
 		* ASSUMPTION: This method assumes that the caller provides the correct rootOfUnity for the modulus
 		*/
-		void SwitchModulusAtTowerIndex(usint index, const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity);
+		void SwitchModulusAtIndex(usint index, const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity);
 
 		/**
 		* Determines if inverse exists
@@ -453,8 +453,8 @@ namespace lbcrypto {
 
 		usint m_cyclotomicOrder;
 
-		//Number of towers
-		usint m_numberOfTowers;
+		//Number of ILVector Elements
+		usint m_numberOfElements;
 	};
 
 	/**
