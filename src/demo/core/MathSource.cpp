@@ -34,14 +34,14 @@ void test_bintvec(void);	 // test new vector version
 
 int divmain(void);
 
-//main()   need this for Kurts makefile to ignore this.
+//main()   need this for Kurts' makefile to ignore this.
 int main(int argc, char* argv[]){
 
   //  divmain();
   //  return 0;
   //  //test_BigBinaryInt();
-  //test_BigBinaryVector();
-  test_bint();
+  test_BigBinaryVector();
+  //test_bint();
   test_bintvec();
 
   return 0;
@@ -66,7 +66,7 @@ BigBinaryVector BBVfromStrvec( std::vector<std::string> &s) {
 
 //main BigBinaryVector test suite. tests math
 void test_BigBinaryVector () {
-  int nloop = 10000; //number of times to run each test for timing.
+  int nloop = 1000; //number of times to run each test for timing.
 
   bool dbg_flag = 1;		// if true then print dbg output
 
@@ -164,7 +164,7 @@ void test_BigBinaryVector () {
 
   //load correct values of math functions of a and b
   //modadd:
-  std::vector<std::string>  sum1strvec =
+  std::vector<std::string>  modsum1strvec =
   {"00000000000000030685", "00000000000000147278",
       "00000000000000159267", "00000000000000163697",
       "00000000000000071473", "00000000000000019606",
@@ -173,10 +173,10 @@ void test_BigBinaryVector () {
       "00000000000000038630", "00000000000000047611",
       "00000000000000154600", "00000000000000025200",
       "00000000000000160515", "00000000000000083430", };
-  BigBinaryVector sum1 = BBVfromStrvec(sum1strvec);
-  sum1.SetModulus(q1);
+  BigBinaryVector modsum1 = BBVfromStrvec(modsum1strvec);
+  modsum1.SetModulus(q1);
 
-  std::vector<std::string> sum2strvec =
+  std::vector<std::string> modsum2strvec =
   {"00000884123387923218", "00000138712237895312",
       "00001275066812033239", "00000996162984426422",
       "00002619173177932324", "00000568683443309337",
@@ -185,11 +185,11 @@ void test_BigBinaryVector () {
       "00001348899997572826", "00002152306408779744",
       "00000294585635895621", "00003114137516337132",
       "00001214359951880933", "00003326240528363988", };
-  BigBinaryVector sum2 = BBVfromStrvec(sum2strvec);
-  sum2.SetModulus(q2);
+  BigBinaryVector modsum2 = BBVfromStrvec(modsum2strvec);
+  modsum2.SetModulus(q2);
 
   // modsub:
-  std::vector<std::string>  diff1strvec =
+  std::vector<std::string>  moddiff1strvec =
   {"00000000000000060980", "00000000000000008134",
       "00000000000000038840", "00000000000000045308",
       "00000000000000152791", "00000000000000035644",
@@ -198,10 +198,10 @@ void test_BigBinaryVector () {
       "00000000000000025203", "00000000000000012638",
       "00000000000000047306", "00000000000000129504",
       "00000000000000103511", "00000000000000030628", };
-  BigBinaryVector diff1 = BBVfromStrvec(diff1strvec);
-  diff1.SetModulus(q1);
+  BigBinaryVector moddiff1 = BBVfromStrvec(moddiff1strvec);
+  moddiff1.SetModulus(q1);
 
-  std::vector<std::string>  diff2strvec =
+  std::vector<std::string>  moddiff2strvec =
   {"00003544143377206093", "00000059047093523014",
       "00001661936831136476", "00002970884463059287",
       "00000466868338124838", "00003759322113087746",
@@ -210,12 +210,12 @@ void test_BigBinaryVector () {
       "00001202588881034661", "00001912733630447884",
       "00000456912669701137", "00000694453087476577",
       "00003372508280438943", "00003134402025525199", };
-  BigBinaryVector diff2 = BBVfromStrvec(diff2strvec);
-  diff2.SetModulus(q2);
+  BigBinaryVector moddiff2 = BBVfromStrvec(moddiff2strvec);
+  moddiff2.SetModulus(q2);
 
   //modmul:
 
-  std::vector<std::string> mul1strvec ={
+  std::vector<std::string> modmul1strvec ={
       "00000000000000069404",
       "00000000000000064196", "00000000000000013039",
       "00000000000000115321", "00000000000000028519",
@@ -226,10 +226,10 @@ void test_BigBinaryVector () {
       "00000000000000031598", "00000000000000025961",
       "00000000000000087680", };
 
-  BigBinaryVector mul1 = BBVfromStrvec(mul1strvec);
-  mul1.SetModulus(q2);
+  BigBinaryVector modmul1 = BBVfromStrvec(modmul1strvec);
+  modmul1.SetModulus(q2);
 
-  std::vector<std::string> mul2strvec ={
+  std::vector<std::string> modmul2strvec ={
       "00000585473140075497",
       "00003637571624495703", "00001216097920193708",
       "00001363577444007558", "00000694070384788800",
@@ -240,8 +240,8 @@ void test_BigBinaryVector () {
       "00002334258943108700", "00002573793300043944",
       "00001273980645866111", };
 
-  BigBinaryVector mul2 = BBVfromStrvec(mul2strvec);
-  mul2.SetModulus(q2);
+  BigBinaryVector modmul2 = BBVfromStrvec(modmul2strvec);
+  modmul2.SetModulus(q2);
 
   BigBinaryVector c1,c2;	// result vectors
 
@@ -257,7 +257,7 @@ void test_BigBinaryVector () {
   }
   time1 = TOC(t1);
   DEBUG("t1:  "<<nloop<<" loops c1 = a1.ModAdd(b1) computation time: " << "\t" << time1 << " us");
-  if (c1 != sum1)
+  if (c1 != modsum1)
     cout << "bad add! "<<endl;
 
   // test mod sub for both cases
@@ -267,17 +267,17 @@ void test_BigBinaryVector () {
   }
   time1 = TOC(t1);
   DEBUG("t1:  "<<nloop<<" loops c1 = a1.ModSub(b1) computation time: " << "\t" << time1 << " us");
-  if(c1 !=diff1)
+  if(c1 !=moddiff1)
     cout << "bad sub! "<<endl;
 
-  //test mod multiply for both cases
+  //test mod modmultiply for both cases
   TIC(t1);
   for (usint j = 0; j< nloop; j++){
     c1 = a1.ModMul(b1);
   }
   time1 = TOC(t1);
   DEBUG("t1:  "<<nloop<<" loops c1 = a1.ModMul(b1) computation time: " << "\t" << time1 << " us");
-  if (c1 != mul1)
+  if (c1 != modmul1)
     cout << "bad multiply! "<<endl;
 
 
@@ -288,7 +288,7 @@ void test_BigBinaryVector () {
   }
   time2 = TOC(t2);
   DEBUG("t2:  "<<nloop<<" loops c2 = a2.ModAdd(b2) computation time: " << "\t" << time2 << " us");
-  if (c2 != sum2)
+  if (c2 != modsum2)
     cout << "bad modadd! "<<endl;
 
   TIC(t2);
@@ -297,7 +297,7 @@ void test_BigBinaryVector () {
   }
   time2 = TOC(t2);
   DEBUG("t2:  "<<nloop<<" loops c2 = a2.ModSub(b2) computation time: " << "\t" << time2 << " us");
-  if (c2 != diff2)
+  if (c2 != moddiff2)
     cout << "bad modsub! "<<endl;
 
   TIC(t2);
@@ -306,7 +306,7 @@ void test_BigBinaryVector () {
   }
   time2 = TOC(t2);
   DEBUG("t2:  "<<nloop<<" loops c2 = a2.ModMul(b2) computation time: " << "\t" << time2 << " us");
-  if (c2 != mul2)
+  if (c2 != modmul2)
     cout << "bad modmultiply! "<<endl;
 
   timeTotal = TOC(t_total);
@@ -565,6 +565,88 @@ void test_bint () {
 
     iftest (expectedResult != a.ConvertToUsint(), "testing >>= greater than limb size");
   }
+ /************************************************/
+  /* TESTING BASIC COMPARATOR METHODS AND OPERATORS */
+  /**************************************************/
+
+  /************************************************/
+  /* TESTING METHOD COMPARE and gt, lt, eq, neq FOR ALL CONDITIONS    */
+  /************************************************/
+
+  // The method "Comapare" comapres two BigBinary Integers a,b
+  // Returns:
+  //    1, when a>b
+  //    0, when a=b
+  //   -1, when a<b
+  //
+  // Result is stored in signed integer, and then the result is
+  // typecasted to int as  if  takes integer
+  {
+    sint c;
+    sint expectedResult;
+    bool cbool;
+
+    // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER
+    {
+      bint a("2124827461185795");
+      bint b("1201413067178193");
+
+      c = a.Compare(b);
+      expectedResult = 1;
+      iftest (expectedResult !=c,"testing compare a greater than b");
+      cbool= a>b;
+      iftest (cbool != true,"testing > a > b");
+      cbool= a<b;
+      iftest (cbool != false,"testing < a > b");
+      cbool= a==b;
+      iftest (cbool != false,"testing == a > b");
+      cbool= a!=b;
+      iftest (cbool != true,"testing != a > b");
+
+    }
+    // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER
+    {
+      bint a("1201413067178193");
+      bint b("2124827461185795");
+
+
+      c = a.Compare(b);
+      expectedResult = -1;
+
+      iftest (expectedResult !=(int)c	,"testing compare a less than b");
+      cbool= a>b;
+      iftest (cbool != false,"testing > a > b");
+      cbool= a<b;
+      iftest (cbool != true,"testing < a > b");
+      cbool= a==b;
+      iftest (cbool != false,"testing == a > b");
+      cbool= a!=b;
+      iftest (cbool != true,"testing != a > b");
+    }
+    // TEST CASE WHEN FIRST NUMBER IS EQUAL TO SECOND NUMBER
+    {
+      bint a("2124827461185795");
+      bint b("2124827461185795");
+
+      c = a.Compare(b);
+      expectedResult = 0;
+
+      iftest (expectedResult !=(int)c	,"testing compare a equals b");
+      cbool= a>b;
+      iftest (cbool != false,"testing > a > b");
+      cbool= a<b;
+      iftest (cbool != false,"testing < a > b");
+      cbool= a==b;
+      iftest (cbool != true,"testing == a > b");
+      cbool= a!=b;
+      iftest (cbool != false,"testing != a > b");
+    }
+
+  }
+  /****************************/
+  /* TESTING MATH OPERATORS  */
+  /****************************/
+
 
   DEBUG("math operations");
   {
@@ -904,59 +986,7 @@ void test_bint () {
       iftest (expectedResult !=calculatedResult.ConvertToUint64(),"testing divided by multi limb");
     }
   }
-  /************************************************/
-  /* TESTING BASIC COMPARATOR METHODS AND OPERATORS */
-  /**************************************************/
-
-  /************************************************/
-  /* TESTING METHOD COMPARE FOR ALL CONDITIONS    */
-  /************************************************/
-
-  // The method "Comapare" comapres two BigBinary Integers a,b
-  // Returns:
-  //    1, when a>b
-  //    0, when a=b
-  //   -1, when a<b
-  //
-  // Result is stored in signed integer, and then the result is
-  // typecasted to int as  if  takes integer
-  {
-    sint c;
-    int expectedResult;
-
-    // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER
-    {
-      bint a("112504");
-      bint b("46968");
-
-      c = a.Compare(b);
-      expectedResult = 1;
-
-      iftest (expectedResult !=(int)c,"testing compare a greater than b");
-    }
-    // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER
-    {
-      bint a("12504");
-      bint b("46968");
-
-      c = a.Compare(b);
-      expectedResult = -1;
-
-      iftest (expectedResult !=(int)c	,"testing compare a less than b");
-    }
-    // TEST CASE WHEN FIRST NUMBER IS EQUAL TO SECOND NUMBER
-    {
-      bint a("34512504");
-      bint b("34512504");
-
-      c = a.Compare(b);
-      expectedResult = 0;
-
-      iftest (expectedResult !=(int)c	,"testing compare a equals b");
-    }
-
-  }
-  /************************************************/
+   /************************************************/
   /* TESTING METHOD MOD FOR ALL CONDITIONS        */
   /************************************************/
 
@@ -1276,7 +1306,7 @@ void test_bint () {
 
 void test_bintvec() {
 
-  int nloop = 100; //number of times to run each test for timing.
+  int nloop = 1000; //number of times to run each test for timing.
 
   bool dbg_flag = 1;		// if true then print dbg output
 
@@ -1341,9 +1371,11 @@ void test_bintvec() {
 
 
   TIC(t1);
+
   for (usint j = 0; j< nloop; j++){
     c1 = a1 - b1;
   }
+
   time1 = TOC(t1);
   DEBUG("t1:  "<<nloop<<" loops c1 = a1 - b1 computation time: " << "\t" << time1 << " us");
   if (c1 != sub1) {
@@ -1517,7 +1549,9 @@ void test_bintvec() {
   for (usint j = 0; j< nloop; j++){
     c2 = a2 - b2;
   }
-  time2 = TOC(t2);
+//        c2.SetValAtIndex(14 , a2.GetValAtIndex(14) - b2.GetValAtIndex(14)); //OMG
+
+time2 = TOC(t2);
   DEBUG("t2:  "<<nloop<<" loops c2 = a2 - b2 computation time: " << "\t" << time2 << " us");
 
   if (c2 != sub2) {

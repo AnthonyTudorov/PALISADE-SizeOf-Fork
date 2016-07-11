@@ -53,6 +53,7 @@
 
 #include "../../utils/debug.h"//todo: should be in debug.h
 
+
 namespace exp_int32 {
 
   //constant static member variable initialization of 0
@@ -565,7 +566,16 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 
   template<typename limb_t,usint BITLENGTH>
   void bint<limb_t,BITLENGTH>::PrintLimbsInHex() const{
-    std::cout<<std::hex<<m_value <<std::dec<<std::endl;
+    bool dbg_flag = false;   // if true then print dbg output
+     if (m_state == GARBAGE) {
+       std::cout <<"bint uninitialised"<<std::endl;
+     } else {
+       DEBUG("PrintLimbsInHex size "<< m_value.size());
+       for (auto i = 0; i < m_value.size(); i++){
+         std::cout<< i << ": 0x"<< std::hex << m_value.at(i) << std::dec <<std::endl;
+       }
+       std::cout<<"MSB: "<<m_MSB << std::endl;
+     }
   }
 
   template<typename limb_t,usint BITLENGTH>
@@ -694,18 +704,27 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     int endValA = ceilIntByUInt(this->m_MSB);
     //array position in B to end substraction
     int endValB = ceilIntByUInt(b.m_MSB);
-      DEBUG("endValA" <<endValA);
-      DEBUG("endValB" <<endValB);
 
-
+    if (dbg_flag){
+      std::cout<<"a "<<std::endl;
+      this->PrintLimbsInHex();
+      std::cout<<"b "<<std::endl;
+      b.PrintLimbsInHex();
+    }
 
     for(sint i=0; i<endValB; ++i){
-      DEBUG ("digit "<<i);
+      DEBUG ("limb  "<<i);
+      DEBUG ("a limb "<<this->m_value.at(i));
+      DEBUG ("res limb "<<result.m_value.at(i));
+      DEBUG ("b limb "<<b.m_value.at(i));
       if(result.m_value.at(i)<b.m_value.at(i)){ //carryover condition need to borrow from higher limbs.
         DEBUG ("borrow at "<<i);
         current=i;
         cntr = current+1;
         //find the first nonzero limb
+        if (cntr>result.m_value.size()){
+          std::cout<<"error seek past end of result "<<std::endl;
+        }
         while(result.m_value.at(cntr)==0){
           DEBUG("FF at cntr" <<cntr);
           result.m_value.at(cntr)=m_MaxLimb; //set all the zero limbs to all FFs (propagate the 1)
@@ -719,6 +738,7 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
         DEBUG("sub no borrow at " <<i);
         result.m_value.at(i)=result.m_value.at(i)- b.m_value.at(i);
       }
+      DEBUG ("res limb "<<i<<" finally "<<result.m_value.at(i));
 
     }
 
@@ -1814,47 +1834,70 @@ again:
   }
 
   //Compares the current object with the bint a.
-  //Uses MSB comparision to output requisite value.
-  template<typename limb_t,usint BITLENGTH>
+    template<typename limb_t,usint BITLENGTH>
   sint bint<limb_t,BITLENGTH>::Compare(const bint& a) const
   {
 
     if(this->m_state==GARBAGE || a.m_state==GARBAGE)
-      throw std::logic_error("Error \n");
+      throw std::logic_error("ERROR Compare() against uninitialized bint\n");
 
+    //check MSBs to get quick answer
     if(this->m_MSB<a.m_MSB)
       return -1;
     else if(this->m_MSB>a.m_MSB)
       return 1;
     if(this->m_MSB==a.m_MSB){
-      uschar ceilInt = ceilIntByUInt(this->m_MSB); 
-      sshort testChar;
-      for(usint i=m_value.size()-ceilInt;i< m_value.size();i++){
+      //check each limb in descending order
+      sint testChar;
+      for(sint i=m_value.size()-1 ;i>=0; i--){
         testChar = this->m_value.at(i)-a.m_value.at(i) ;
         if(testChar<0)return -1;
         else if(testChar>0)return 1;
       }
     }
+    return 0; //bottom out? then the same
+  }
+  // == operator
+  template<typename limb_t,usint BITLENGTH>
+  bool bint<limb_t,BITLENGTH>::operator==(const bint& a) const{
+    if(this->m_state==GARBAGE || a.m_state==GARBAGE)
+            throw std::logic_error("ERROR == against uninitialized bint\n");
+    return(this->Compare(a)==0);
+  }
 
-    return 0;
+
+  template<typename limb_t,usint BITLENGTH>
+  bool bint<limb_t,BITLENGTH>::operator!=(const bint& a)const{
+    return !(*this==a);
+  }
+
+  //greater than operator
+  template<typename limb_t,usint BITLENGTH>
+  bool bint<limb_t,BITLENGTH>::operator>(const bint& a)const{
+    if(this->m_state==GARBAGE || a.m_state==GARBAGE)
+      throw std::logic_error("ERROR > against uninitialized bint\n");
+    return(this->Compare(a)>0);
 
   }
 
+  //greater than or equals operator
   template<typename limb_t,usint BITLENGTH>
-  bool bint<limb_t,BITLENGTH>::operator==(const bint& a) const{
+  bool bint<limb_t,BITLENGTH>::operator>=(const bint& a) const{
+    return (*this>a || *this==a);
+  }
 
+   //less than operator
+  template<typename limb_t,usint BITLENGTH>
+  bool bint<limb_t,BITLENGTH>::operator<(const bint& a) const{
     if(this->m_state==GARBAGE || a.m_state==GARBAGE)
-      throw std::logic_error("ERROR \n");
-    if(this->m_MSB!=a.m_MSB)
-      return false;
-    else{
-      uschar ceilInt = ceilIntByUInt(a.m_MSB); 
-      for(usint i= m_value.size()-ceilInt;i< m_value.size();i++)
-        if(this->m_value.at(i)!=a.m_value.at(i))
-          return false;
-    }
-    return true;
+      throw std::logic_error("ERROR > against uninitialized bint\n");
+    return(this->Compare(a)<0);
 
+  }
+//less than or equal operation
+  template<typename limb_t,usint BITLENGTH>
+  bool bint<limb_t,BITLENGTH>::operator<=(const bint& a) const{
+    return (*this<a || *this==a);
   }
 
   template<typename limb_t,usint BITLENGTH>
@@ -1866,69 +1909,6 @@ again:
       }
     }
     return true;
-  }
-
-  template<typename limb_t,usint BITLENGTH>
-  bool bint<limb_t,BITLENGTH>::operator!=(const bint& a)const{
-    return !(*this==a);
-  }
-
-  template<typename limb_t,usint BITLENGTH>
-  bool bint<limb_t,BITLENGTH>::operator>(const bint& a)const{
-
-    if(this->m_state==GARBAGE || a.m_state==GARBAGE)
-      throw std::logic_error("ERROR \n");
-
-    if(this->m_MSB<a.m_MSB)
-      return false;
-    else if(this->m_MSB>a.m_MSB)
-      return true;
-    else{
-      uschar ceilInt = ceilIntByUInt(this->m_MSB); 
-      for(usint i=m_value.size()-ceilInt;i< m_value.size();i++){
-        if(this->m_value.at(i)<a.m_value.at(i))
-          return false;
-        else if(this->m_value.at(i)>a.m_value.at(i))
-          return true;
-      }
-
-    }
-    return false;
-  }
-
-  template<typename limb_t,usint BITLENGTH>
-  bool bint<limb_t,BITLENGTH>::operator>=(const bint& a) const{
-    return (*this>a || *this==a);
-  }
-
-  template<typename limb_t,usint BITLENGTH>
-  bool bint<limb_t,BITLENGTH>::operator<(const bint& a) const{
-
-    if(this->m_state==GARBAGE || a.m_state==GARBAGE)
-      throw std::logic_error("ERROR \n");
-
-    if(this->m_MSB<a.m_MSB)
-      return true;
-    else if(this->m_MSB>a.m_MSB)
-      return false;
-    else{
-      uschar ceilInt = ceilIntByUInt(this->m_MSB); 
-      usint vsize = this->m_value.size();
-      for(usint i= vsize-ceilInt;i< vsize;i++){
-        if(this->m_value.at(i)>a.m_value.at(i))
-          return false;
-        else if(this->m_value.at(i)<a.m_value.at(i))
-          return true;
-      }
-
-    }
-    return false;
-
-  }
-
-  template<typename limb_t,usint BITLENGTH>
-  bool bint<limb_t,BITLENGTH>::operator<=(const bint& a) const{
-    return (*this<a || *this==a);
   }
 
   template<typename limb_t,usint BITLENGTH>

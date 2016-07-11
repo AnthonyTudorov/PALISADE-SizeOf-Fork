@@ -135,6 +135,7 @@ namespace exp_int32 {
       }
 
       inline bintvec& operator=(usint val) {
+        //todo change this.
         *this->m_data[0] = val;
         for (size_t i = 1; i < GetLength(); ++i) {
 	  *this->m_data[i] = 0;
