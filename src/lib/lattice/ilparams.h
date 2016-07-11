@@ -186,12 +186,10 @@ namespace lbcrypto {
 			m_modulus = modulus;
 		}
 
-        bool operator==(const ElemParams* rhs) const {
-        	const ILParams *ip = dynamic_cast<const ILParams *>(rhs);
+        bool operator==(const ElemParams& rhs) const {
+        	const ILParams &ip = dynamic_cast<const ILParams &>(rhs);
 
-        	if( ip == 0 ) return false;
-
-        	return *this == *ip;
+        	return *this == ip;
         }
 
         inline bool operator==(ILParams const& rhs) const {

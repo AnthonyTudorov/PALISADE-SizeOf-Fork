@@ -242,7 +242,11 @@ namespace lbcrypto {
 		}
 
 		// FIXME
-		bool operator==(const ElemParams* other) const { return false; }
+		bool operator==(const ElemParams& other) const { 
+			
+			return false; 
+		
+		}
 
 	private:
 		// order of cyclotomic polynomial

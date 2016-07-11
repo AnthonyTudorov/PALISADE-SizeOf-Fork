@@ -338,6 +338,11 @@ void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherTe
 template<class Element>
 void LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPKeySwitchHint<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
 
+	if(!(cipherText1.GetCryptoParameters() == cipherText2.GetCryptoParameters()) || !(cipherTextResult->GetCryptoParameters() == cipherText2.GetCryptoParameters())){
+		std::string errMsg = "ComposedEvalMult crypto parameters are not the same";
+		throw std::runtime_error(errMsg);
+	}
+
 	const LPPublicKeyEncryptionSchemeLTV<Element> &scheme = dynamic_cast< const LPPublicKeyEncryptionSchemeLTV<Element> &>( this->GetScheme() );
 
 	scheme.m_algorithmSHE->EvalMult(cipherText1,cipherText2, cipherTextResult);
@@ -351,6 +356,11 @@ void LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(const Ciphertext<Elemen
 template<class Element>
 void LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const Ciphertext<Element> &cipherText1, const LPKeySwitchHint<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
 
+	if(!(cipherText1.GetCryptoParameters() == cipherTextResult->GetCryptoParameters())){
+		std::string errMsg = "LevelReduce crypto parameters are not the same";
+		throw std::runtime_error(errMsg);
+	}
+	
 	const LPPublicKeyEncryptionSchemeLTV<Element> &scheme = dynamic_cast< const LPPublicKeyEncryptionSchemeLTV<Element> &>( this->GetScheme() );
 
 	*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(linearKeySwitchHint,cipherText1);

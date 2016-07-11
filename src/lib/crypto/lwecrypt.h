@@ -268,17 +268,17 @@ namespace lbcrypto {
 				cryptoParams->SetElementParams(*newCryptoParams);
 			}
 		   
-			bool operator==(const LPCryptoParameters<Element>* cmp) const {
-				const LPCryptoParametersLTV<Element> *el = dynamic_cast<const LPCryptoParametersLTV<Element> *>(cmp);
+			bool operator==(const LPCryptoParameters<Element>& rhs) const {
+				const LPCryptoParametersLTV<Element> &el = dynamic_cast<const LPCryptoParametersLTV<Element> &>(rhs);
 
-				if( cmp == 0 ) return false;
+				//if( rhs == 0 ) return false;
 
-				return  this->GetPlaintextModulus() == cmp->GetPlaintextModulus() &&
-						this->GetElementParams() == &cmp->GetElementParams() &&
-						m_distributionParameter == el->GetDistributionParameter() &&
-						m_assuranceMeasure == el->GetAssuranceMeasure() &&
-						m_securityLevel == el->GetSecurityLevel() &&
-						m_relinWindow == el->GetRelinWindow();
+				return  this->GetPlaintextModulus() == el.GetPlaintextModulus() &&
+						this->GetElementParams() == el.GetElementParams() &&
+						m_distributionParameter == el.GetDistributionParameter() &&
+						m_assuranceMeasure == el.GetAssuranceMeasure() &&
+						m_securityLevel == el.GetSecurityLevel() &&
+						m_relinWindow == el.GetRelinWindow();
 			}
 
 		private:
