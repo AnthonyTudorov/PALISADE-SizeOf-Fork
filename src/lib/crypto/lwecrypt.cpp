@@ -34,6 +34,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../crypto/cryptocontext.h"
 #include <cstring>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 

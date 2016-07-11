@@ -98,16 +98,18 @@ namespace lbcrypto {
 
 	void ByteArrayPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *element) const{
 	   //TODO - OPTIMIZE CODE. Please take a look at line 114 temp.SetModulus
-		ILVector2n temp = element->GetTowerAtIndex (0);
+		ILVector2n temp = element->GetElementAtIndex (0);
 		
 		BigBinaryInteger symbol(modulus);
 		Encode(symbol, &temp);
 
 		std::vector<ILVector2n> symbolVals;
 				
-		for(usint i=0;i<element->GetNumOfTowers();i++){
-			ILParams ilparams(element->GetTowerAtIndex(i).GetCyclotomicOrder(), element->GetTowerAtIndex(i).GetModulus(), element->GetTowerAtIndex(i).GetRootOfUnity());
+		for(usint i=0;i<element->GetNumOfElements();i++){
+			ILParams ilparams(element->GetElementAtIndex(i).GetCyclotomicOrder(), element->GetElementAtIndex(i).GetModulus(), element->GetElementAtIndex(i).GetRootOfUnity());
 			ILVector2n ilVector(ilparams);
+			temp.SwitchModulus( ilparams.GetModulus(), ilparams.GetRootOfUnity() );
+			
 			// temp.SetModulus(ilparams.GetModulus());
 			ilVector.SetValues(temp.GetValues(),temp.GetFormat());
 			symbolVals.push_back(ilVector);

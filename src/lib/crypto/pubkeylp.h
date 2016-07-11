@@ -55,6 +55,9 @@ namespace lbcrypto {
 	template <class Element>
 	class Ciphertext;
 
+	template <class Element>
+	class LPKeySwitchHintLTV;
+
 	/** 
 	 * @brief Decoding output.  This represents whether the decoding/decryption of a cipheretext was performed correctly.
 	 *
@@ -574,8 +577,8 @@ namespace lbcrypto {
 		//@Set Properties
 			
 		/**
-			* Sets the value of plaintext modulus p
-			*/
+		* Sets the value of plaintext modulus p
+		*/
 		void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {m_plaintextModulus = plaintextModulus;}
 			
 		/**
@@ -584,9 +587,6 @@ namespace lbcrypto {
 		void SetElementParams(ElemParams &params) { m_params = &params; }
 
 		virtual bool operator==(const LPCryptoParameters<Element>& cmp) const = 0;
-			//{
-		//turn m_plaintextModulus == cmp.GetPlaintextModulus() && cmp.GetElementParams() == m_params;
-		//}
 
 	protected:
 		LPCryptoParametersImpl() : m_params(NULL), m_plaintextModulus(BigBinaryInteger::TWO) {}
@@ -773,22 +773,6 @@ namespace lbcrypto {
 	private:
 		//pointer to the parent scheme
 		const LPPublicKeyEncryptionScheme<Element> *m_scheme;
-	};
-
-	template <class Element>
-	class LPLeveledSHEKeyStructure : public Serializable
-	{
-	private:
-		std::vector<LPKeySwitchHint<Element>> m_qksh;
-		std::vector<LPKeySwitchHint<Element>> m_lksh;
-		usint m_levels;
-
-	public:
-		explicit LPLeveledSHEKeyStructure(usint levels) : m_levels(levels) { m_qksh.reserve(levels); m_lksh.reserve(levels);};
-		LPKeySwitchHint<Element> GetLinearKeySwitchHintForLevel(usint level) { if(level>m_levels-1) {throw std::runtime_error("Level out of range");} else {return m_lksh[level];} };
-		LPKeySwitchHint<Element> GetQuadraticKeySwitchHintForLevel(usint level) { if(level>m_levels-1) {throw std::runtime_error("Level out of range");} else {return m_qksh[level];} };
-		void SetLinearKeySwitchHintForLevel(LPKeySwitchHint<Element> lksh, usint level) { if(level>m_levels-1) {throw std::runtime_error("Level out of range");} else { m_lksh[level] = lksh;} };
-		void SetQuadraticKeySwitchHintForLevel(LPKeySwitchHint<Element> qksh, usint level) { if(level>m_levels-1) {throw std::runtime_error("Level out of range");} else { m_qksh[level] = qksh;} };
 	};
 
 } // namespace lbcrypto ends

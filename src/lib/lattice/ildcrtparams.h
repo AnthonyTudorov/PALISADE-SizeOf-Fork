@@ -221,6 +221,13 @@ namespace lbcrypto {
 			m_modulus = modulus;
 		}
 
+		//drops the last root of unity and modulus
+		void PopLastParam(){
+			m_modulus = m_modulus / m_moduli.back();
+			m_moduli.pop_back();
+			m_rootsOfUnity.pop_back();
+		}
+
 		/**
 		* Destructor.
 		*/
@@ -242,11 +249,7 @@ namespace lbcrypto {
 		}
 
 		// FIXME
-		bool operator==(const ElemParams& other) const { 
-			
-			return false; 
-		
-		}
+		bool operator==(const ElemParams& other) const {  return false; }
 
 	private:
 		// order of cyclotomic polynomial

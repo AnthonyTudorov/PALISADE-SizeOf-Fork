@@ -78,6 +78,16 @@ namespace lbcrypto {
 				m_depth = 0;
 			}
 
+			LPCryptoParametersLTV(const LPCryptoParametersLTV &rhs) : LPCryptoParametersImpl<Element>(NULL, rhs.GetPlaintextModulus()) {
+
+				m_distributionParameter = rhs.m_distributionParameter;
+				m_assuranceMeasure = rhs.m_assuranceMeasure;
+				m_securityLevel = rhs.m_securityLevel;
+				m_relinWindow = rhs.m_relinWindow;
+				m_dgg = rhs.m_dgg;
+				m_depth = rhs.m_depth;
+			}
+
 			/**
 			 * Constructor that initializes values.
 			 *
@@ -270,8 +280,6 @@ namespace lbcrypto {
 		   
 			bool operator==(const LPCryptoParameters<Element>& rhs) const {
 				const LPCryptoParametersLTV<Element> &el = dynamic_cast<const LPCryptoParametersLTV<Element> &>(rhs);
-
-				//if( rhs == 0 ) return false;
 
 				return  this->GetPlaintextModulus() == el.GetPlaintextModulus() &&
 						this->GetElementParams() == el.GetElementParams() &&
@@ -920,7 +928,12 @@ namespace lbcrypto {
 			* @param &rhs the copied vector.
 			* @return the resulting vector.
 			*/
-			LPPrivateKeyLTV& operator=(LPPrivateKeyLTV &rhs);
+			LPPrivateKeyLTV& operator=(LPPrivateKeyLTV &rhs){
+				*m_cryptoParameters = *rhs.m_cryptoParameters;
+				m_sk = rhs.m_sk;
+
+				return *this;
+			}
 				
 
 	private:
@@ -1109,6 +1122,54 @@ namespace lbcrypto {
 			LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask);
 
 			void Enable(PKESchemeFeature feature);
+	};
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	template <class Element>
+	class LPLeveledSHEKeyStructure //: TODO: NISHANT to implement serializable public Serializable
+	{
+	private:
+		std::vector< LPKeySwitchHintLTV<Element> > m_qksh;
+		std::vector< LPKeySwitchHintLTV<Element> > m_lksh;
+		usint m_levels;
+
+	public:
+		explicit LPLeveledSHEKeyStructure(usint levels) : m_levels(levels) { m_qksh.reserve(levels); m_lksh.reserve(levels);};
+		const LPKeySwitchHintLTV<Element>& GetLinearKeySwitchHintForLevel(usint level) const {
+			if(level>m_levels-1) {
+				throw std::runtime_error("Level out of range");
+			} 
+			else {
+				return m_lksh[level];
+			} 
+		};
+		const LPKeySwitchHintLTV<Element>& GetQuadraticKeySwitchHintForLevel(usint level) const {
+			if(level>m_levels-1) {
+				throw std::runtime_error("Level out of range");
+			} 
+			else {
+				return m_qksh[level];
+			} 
+		}
+
+		void PushBackLinearKey(const LPKeySwitchHintLTV<Element> &lksh){
+			m_lksh.push_back(std::move(lksh));
+		}
+
+		void PushBackQuadraticKey(const LPKeySwitchHintLTV<Element> &quad){
+			m_qksh.push_back(std::move(quad));
+		}
+
+		void SetLinearKeySwitchHintForLevel(const LPKeySwitchHintLTV<Element> &lksh, usint level) {
+			if(level>m_levels-1) {
+				throw std::runtime_error("Level out of range");
+			} 
+			else { 
+				m_lksh[level] = lksh;
+			}
+
+		}
+		void SetQuadraticKeySwitchHintForLevel(const LPKeySwitchHintLTV<Element> &qksh, usint level) { if(level>m_levels-1) {throw std::runtime_error("Level out of range");} else { m_qksh[level] = qksh;} };
 	};
 } // namespace lbcrypto ends
 #endif
