@@ -40,7 +40,7 @@ namespace lbcrypto {
 
 	ILVector2n::ILVector2n(const ElemParams &params, Format format) : m_values(NULL), m_format(format), m_empty(true) {
 		const ILParams &ilParam = dynamic_cast<const ILParams&>(params);
-		m_params = ilParam;	
+		m_params = ilParam;
 	}
 
 	ILVector2n::ILVector2n(const ILVector2n &element) : m_params(element.m_params), m_format(element.m_format)
