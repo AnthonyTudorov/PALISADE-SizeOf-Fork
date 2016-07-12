@@ -59,6 +59,8 @@
 
 using namespace std;
 using namespace lbcrypto;
+/* NOTE THIS FILE WILL BE COMPLETELY REDONE SOON */
+
 
 /*
   int main(int argc, char **argv) {
@@ -68,15 +70,15 @@ using namespace lbcrypto;
 */
 
 /************************************************/
-/*	TESTING BASIC METHODS OF bintvec CLASS        */
+/*	TESTING BASIC METHODS OF ubintvec CLASS        */
 /************************************************/
 //constructors
-//bintvec()
-//bintvec(usint)
-//bintvec(bintvec)
+//ubintvec()
+//ubintvec(usint)
+//ubintvec(ubintvec)
 //need memory test for destructor
 /************************************************/
-/*	TESTING BASIC operators OF bintvec CLASS        */
+/*	TESTING BASIC operators OF ubintvec CLASS        */
 /************************************************/
 //=(binvect)
 //=(bintvect&&)
@@ -85,7 +87,7 @@ using namespace lbcrypto;
 
 
 /************************************************/
-/*	TESTING SCALAR MATH OF bintvec CLASS        */
+/*	TESTING SCALAR MATH OF ubintvec CLASS        */
 /************************************************/
 
 
@@ -108,9 +110,9 @@ using namespace lbcrypto;
   	Returns:  m mod q, and the result is stored in BigBinary Vector calculatedResult.
 */
 
-TEST(UTbintvec,mod_operations){
+TEST(UTubintvec,mod_operations){
 
-  bintvec m(10);				// calling constructor to create a vector of length 10
+  ubintvec m(10);				// calling constructor to create a vector of length 10
 
   int i;
   usint j;
@@ -127,8 +129,8 @@ TEST(UTbintvec,mod_operations){
   m.SetValAtIndex(8,"325328");
   m.SetValAtIndex(9,"7698798");	
 
-  bint q("233");		//calling costructor of bint Class to create object for modulus
-  bintvec calculatedResult = m.Mod(q);
+  ubint q("233");		//calling costructor of ubint Class to create object for modulus
+  ubintvec calculatedResult = m.Mod(q);
   int expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};	// the expected values are stored as one dimensional integer array
 
   for (i=0,j=0;i<10;i++,j++)
@@ -163,10 +165,10 @@ TEST(UTbintvec,mod_operations){
   	Returns:  (m+n)mod q, and the result is stored in BigBinary Vector a.
 */
 
-TEST(UTbintvec,basic_math){
-  bint q("657");	
-  bintvec m(5); // calling constructor to create a vector of length 5
-  bintvec n(5);
+TEST(UTubintvec,basic_math){
+  ubint q("657");
+  ubintvec m(5); // calling constructor to create a vector of length 5
+  ubintvec n(5);
 	
   int i;
   usint j;

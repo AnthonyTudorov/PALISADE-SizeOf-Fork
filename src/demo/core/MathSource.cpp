@@ -29,8 +29,8 @@ using namespace lbcrypto;
 //define the main sections of the test
 void test_BigBinaryInt(void); 	// test old version of big int
 void test_BigBinaryVector(void); // test old version of big int vector
-void test_bint(void);		 // test new version of bint
-void test_bintvec(void);	 // test new vector version
+void test_ubint(void);		 // test new version of ubint
+void test_ubintvec(void);	 // test new vector version
 
 int divmain(void);
 
@@ -41,8 +41,8 @@ int main(int argc, char* argv[]){
   //  return 0;
   //  //test_BigBinaryInt();
   test_BigBinaryVector();
-  //test_bint();
-  test_bintvec();
+  //test_ubint();
+  test_ubintvec();
 
   return 0;
 }
@@ -308,18 +308,19 @@ void iftest (bool t, string v) {
 }
 
 /////////////////////////////////////////////////////////////
-void test_bint () {
+void test_ubint () {
   bool dbg_flag = 1;
   cout<<"testing bint"<<endl;
 
 
-  { //crate a small bint
+  { //crate a small ubint
+    cout<<"todo test divided by and /  and math for very big ints"<<endl;
 
-    bint q1("00000000000000163841");
+    ubint q1("00000000000000163841");
     //cout << "q1 contents"<<endl;
     //q1.PrintLimbsInDec();
     //create a large bing
-    bint q2("00004057816419532801");
+    ubint q2("00004057816419532801");
     //cout << "q2 contents"<<endl;
     //q2.PrintLimbsInDec();
     usint msb = q2.GetMSB();
@@ -329,7 +330,7 @@ void test_bint () {
 
   //TEST(method_to_test_convert_to_double, ConvertToDouble)
   {
-    bint x("104037585658683683");
+    ubint x("104037585658683683");
     double xInDouble = 104037585658683683;
 
     //DEBUG("x.tostring "<< x.ToString());
@@ -360,10 +361,10 @@ void test_bint () {
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   //todo change for new limb.
   {
-    bint a("39960");
+    ubint a("39960");
     usshort shift = 3;
 
-    bint calculatedResult = a<<(shift);
+    ubint calculatedResult = a<<(shift);
     int expectedResult = 319680;
 
     iftest (expectedResult != calculatedResult.ConvertToUsint()
@@ -372,23 +373,23 @@ void test_bint () {
 
   // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
   {
-    bint a("39960");
+    ubint a("39960");
     usshort shift = 6;
 
-    bint calculatedResult = a<<(shift);
+    ubint calculatedResult = a<<(shift);
     int expectedResult = 2557440;
 
     iftest (expectedResult != calculatedResult.ConvertToUsint(),"testing <<  greater_than max shift");
   }
   // TEST CASE WHEN SHIFT IS multi limb
   {
-    bint a("138712237895312");
+    ubint a("138712237895312");
     usshort shift = 8;
 
     usint msb = a.GetMSB();
     //DEBUG("a.msb " <<msb);
 
-    bint calculatedResult = a<<(shift);
+    ubint calculatedResult = a<<(shift);
     uint64_t expectedResult = 35510332901199872;
     //DEBUG("expectedResult 35510332901199872 ="<<expectedResult);
 
@@ -397,10 +398,10 @@ void test_bint () {
 
   {
 
-    bint a("1024");
+    ubint a("1024");
     usshort shift = 48;
 
-    bint calculatedResult = a<<(shift);
+    ubint calculatedResult = a<<(shift);
     uint64_t expectedResult = 288230376151711744;
     uint64_t result =calculatedResult.ConvertToUint64();
     //
@@ -428,7 +429,7 @@ void test_bint () {
   //
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
-    bint a("39960");
+    ubint a("39960");
     usshort num = 3;
 
     a<<=(num);
@@ -439,7 +440,7 @@ void test_bint () {
   }
   // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
   {
-    bint a("39960");
+    ubint a("39960");
     usshort num = 6;
 
     a<<=(num);
@@ -449,7 +450,7 @@ void test_bint () {
   }
   {
 
-    bint a("1024");
+    ubint a("1024");
     usshort shift = 48;
 
     a<<=(shift);
@@ -475,10 +476,10 @@ void test_bint () {
 
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
-    bint a("39965675");
+    ubint a("39965675");
     usshort shift = 3;
 
-    bint calculatedResult = a>>(shift);
+    ubint calculatedResult = a>>(shift);
     usint expectedResult = 4995709;
 
     iftest (expectedResult != calculatedResult.ConvertToUsint()
@@ -486,10 +487,10 @@ void test_bint () {
   }
   // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
   {
-    bint a("39965675");
+    ubint a("39965675");
     usshort shift = 6;
 
-    bint calculatedResult = a>>(shift);
+    ubint calculatedResult = a>>(shift);
     usint expectedResult = 624463;
 
     iftest (expectedResult != calculatedResult.ConvertToUsint()
@@ -511,12 +512,12 @@ void test_bint () {
   //   ex:4>>3 => (100000)>>3 => (000100) => 4
 
   //   this is equivalent to: 32*(2^3) => 32/8 = 4
-  //   ConvertToUsint converts bint calculatedResult to integer
+  //   ConvertToUsint converts ubint calculatedResult to integer
 
 
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
-    bint a("39965675");
+    ubint a("39965675");
     usshort shift = 3;
 
     a>>=(shift);
@@ -526,7 +527,7 @@ void test_bint () {
   }
   // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
   {
-    bint a("39965675");
+    ubint a("39965675");
     usshort shift = 6;
 
     a>>=(shift);
@@ -536,7 +537,7 @@ void test_bint () {
   }
   {
 
-    bint a(" 288230376151711744");
+    ubint a(" 288230376151711744");
     usshort shift = 48;
 
     a>>=(shift);
@@ -567,8 +568,8 @@ void test_bint () {
 
     // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER
     {
-      bint a("2124827461185795");
-      bint b("1201413067178193");
+      ubint a("2124827461185795");
+      ubint b("1201413067178193");
 
       c = a.Compare(b);
       expectedResult = 1;
@@ -585,8 +586,8 @@ void test_bint () {
     }
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER
     {
-      bint a("1201413067178193");
-      bint b("2124827461185795");
+      ubint a("1201413067178193");
+      ubint b("2124827461185795");
 
 
       c = a.Compare(b);
@@ -604,8 +605,8 @@ void test_bint () {
     }
     // TEST CASE WHEN FIRST NUMBER IS EQUAL TO SECOND NUMBER
     {
-      bint a("2124827461185795");
-      bint b("2124827461185795");
+      ubint a("2124827461185795");
+      ubint b("2124827461185795");
 
       c = a.Compare(b);
       expectedResult = 0;
@@ -629,14 +630,14 @@ void test_bint () {
 
   DEBUG("math operations");
   {
-    bint calculatedResult;
+    ubint calculatedResult;
     uint64_t expectedResult;
-    string expectedResultStr; //for when bint is > 64 bits.
+    string expectedResultStr; //for when ubint is > 64 bits.
     // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
     // HAS NO OVERFLOW
     {
-      bint a("203450");
-      bint b("2034");
+      ubint a("203450");
+      ubint b("2034");
 
       calculatedResult = a.Add(b);
       expectedResult = 205484;
@@ -650,8 +651,8 @@ void test_bint () {
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER AND MSB
     // HAS NO OVERFLOW
     {
-      bint a("2034");
-      bint b("203450");
+      ubint a("2034");
+      ubint b("203450");
 
 
       calculatedResult = a.Add(b);
@@ -664,8 +665,8 @@ void test_bint () {
     // LIMB
     //todo: redo this to test overflow to next limb!!
     {
-      bint a("4294967295");
-      bint b("1");
+      ubint a("4294967295");
+      ubint b("1");
 
       calculatedResult = a.Add(b);
       expectedResult = 4294967296;
@@ -677,8 +678,8 @@ void test_bint () {
     // BYTE
     //todo change for limb
     {
-      bint a("35");
-      bint b("1015");
+      ubint a("35");
+      ubint b("1015");
 
       calculatedResult = a.Add(b);
       expectedResult = 1050;
@@ -688,8 +689,8 @@ void test_bint () {
     }
     // TEST CASE WHEN both are multi limb numbers
     {
-      bint a("98879665709163");
-      bint b("39832572186149");
+      ubint a("98879665709163");
+      ubint b("39832572186149");
 
       calculatedResult = a.Add(b);
       expectedResult = 138712237895312;
@@ -710,8 +711,8 @@ void test_bint () {
     // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
     // HAS NO OVERFLOW
     {
-      bint a("2034");
-      bint b("203");
+      ubint a("2034");
+      ubint b("203");
 
       a+=b;
       expectedResult = 2237;
@@ -721,8 +722,8 @@ void test_bint () {
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER AND MSB
     // HAS NO OVERFLOW
     {
-      bint a("2034");
-      bint b("203450");
+      ubint a("2034");
+      ubint b("203450");
 
       a+=b;
       expectedResult = 205484;
@@ -733,8 +734,8 @@ void test_bint () {
     // BYTE
     {
       //todo change for limb
-      bint a("768900");
-      bint b("16523408");
+      ubint a("768900");
+      ubint b("16523408");
 
       a+=b;
       expectedResult = 17292308;
@@ -745,8 +746,8 @@ void test_bint () {
     // BYTE
     //change for limb
     {
-      bint a("35");
-      bint b("1015");
+      ubint a("35");
+      ubint b("1015");
 
       a+=b;
       expectedResult = 1050;
@@ -761,13 +762,13 @@ void test_bint () {
     // Returns a-b, which is stored in another BigBinary Integer
     // calculatedResult When a<b, the result is 0, since there is no
     // support for negative numbers as of now ConvertToUint64 converts
-    // bint calculatedResult to integer
+    // uubint calculatedResult to integer
 
     {
       // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
 
-      bint a("20489");
-      bint b("2034455");
+      ubint a("20489");
+      ubint b("2034455");
 
       calculatedResult = a.Sub(b);
       expectedResult = 0;
@@ -778,8 +779,8 @@ void test_bint () {
     }
     // TEST CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
     {
-      bint a("2048956567");
-      bint b("2048956567");
+      ubint a("2048956567");
+      ubint b("2048956567");
 
       calculatedResult = a.Sub(b);
       expectedResult = 0;
@@ -788,8 +789,8 @@ void test_bint () {
     }
     // TEST CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
     {
-      bint a("2048956567");
-      bint b("2034455");
+      ubint a("2048956567");
+      ubint b("2034455");
 
       calculatedResult = a.Sub(b);
       expectedResult = 2046922112;
@@ -799,8 +800,8 @@ void test_bint () {
     // TEST CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
     {
       //todo: change for limb
-      bint a("196737");
-      bint b("65406");
+      ubint a("196737");
+      ubint b("65406");
 
       calculatedResult = a.Sub(b);
       expectedResult = 131331;
@@ -810,8 +811,8 @@ void test_bint () {
     // TEST CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
     {
       // change for limb
-      bint a("98879665709163");
-      bint b("39832572186149");
+      ubint a("98879665709163");
+      ubint b("39832572186149");
 
       calculatedResult = a.Sub(b);
       expectedResult = 59047093523014;
@@ -825,12 +826,12 @@ void test_bint () {
     // The operator "-=(Minus Equals)" does subtractionn of two BigBinary
     // Integers a,b Calculates a-b, and stores result in a Results to 0,
     // when a<b, since there is no concept of negative number as of now
-    // ConvertToUint64 converts bint a to integer
+    // ConvertToUint64 converts ubint a to integer
     {
       // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
 
-      bint a("20489");
-      bint b("2034455");
+      ubint a("20489");
+      ubint b("2034455");
 
       a-=b;
       expectedResult = 0;
@@ -841,8 +842,8 @@ void test_bint () {
     }
     // TEST CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
     {
-      bint a("2048956567");
-      bint b("2048956567");
+      ubint a("2048956567");
+      ubint b("2048956567");
 
       a-=b;
       expectedResult = 0;
@@ -852,8 +853,8 @@ void test_bint () {
     // TEST CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
     {
 
-      bint a("2048956567");
-      bint b("2034455");
+      ubint a("2048956567");
+      ubint b("2034455");
 
       a-=b;
       expectedResult = 2046922112;
@@ -863,8 +864,8 @@ void test_bint () {
     // TEST CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
     {
       //change for limb
-      bint a("196737");
-      bint b("65406");
+      ubint a("196737");
+      ubint b("65406");
 
       a-=b;
       expectedResult = 131331;
@@ -878,12 +879,12 @@ void test_bint () {
 
     // The method "Times" does multiplication on two BigBinary Integers
     // a,b Returns a*b, which is stored in another BigBinary Integer
-    // calculatedResult ConvertToUint64 converts bint
+    // calculatedResult ConvertToUint64 converts ubint
     // calculatedResult to integer
     {
       //ask about the branching if (b.m_MSB==0 or 1)
-      bint a("1967");
-      bint b("654");
+      ubint a("1967");
+      ubint b("654");
 
       calculatedResult = a.Mul(b);
       expectedResult = 1286418;
@@ -896,12 +897,12 @@ void test_bint () {
 
     // The method "Times" does multiplication on two BigBinary Integers
     // a,b Returns a*b, which is stored in another BigBinary Integer
-    // calculatedResult ConvertToUint64 converts bint
+    // calculatedResult ConvertToUint64 converts ubint
     // calculatedResult to integer
     {
       //ask about the branching if (b.m_MSB==0 or 1)
-      bint a("98879665709163");
-      bint b("39832572186149");
+      ubint a("98879665709163");
+      ubint b("39832572186149");
 
       calculatedResult = a.Mul(b);
       expectedResultStr = "3938631422102517149330983287";
@@ -914,15 +915,15 @@ void test_bint () {
     // The method "Divided By" does division of BigBinary Integer a by
     // another BigBinary Integer b Returns a/b, which is stored in another
     // BigBinary Integer calculatedResult ConvertToUint64 converts
-    // bint calculatedResult to integer When b=0, throws
+    // ubint calculatedResult to integer When b=0, throws
     // error, since division by Zero is not allowed When a<b, returns 0,
     // since decimal value is not returned
 
 
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
     {
-      bint a("2048");
-      bint b("2034455");
+      ubint a("2048");
+      ubint b("2034455");
 
       calculatedResult = a.DividedBy(b);
       expectedResult = 0;
@@ -933,8 +934,8 @@ void test_bint () {
     // TEST CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
     {
 
-      bint a("2048956567");
-      bint b("2048956567");
+      ubint a("2048956567");
+      ubint b("2048956567");
 
       calculatedResult = a.DividedBy(b);
       expectedResult = 1;
@@ -943,8 +944,8 @@ void test_bint () {
     }
     // TEST CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
     {
-      bint a("2048956567");
-      bint b("2034455");
+      ubint a("2048956567");
+      ubint b("2034455");
 
       calculatedResult = a.DividedBy(b);
       expectedResult = 1007;
@@ -955,8 +956,8 @@ void test_bint () {
     // TEST CASE for MULTI LIMB
 
     {
-      bint a("3938631422102517149330983287");
-      bint b("98879665709163");
+      ubint a("3938631422102517149330983287");
+      ubint b("98879665709163");
 
 
       calculatedResult = a.DividedBy(b);
@@ -971,15 +972,15 @@ void test_bint () {
 
   // The method "Mod" does modulus operation on two BigBinary Integers
   // m,p Returns (m mod p), which is stored in another BigBinary Integer
-  // calculatedResult ConvertToUint64 converts bint r to
+  // calculatedResult ConvertToUint64 converts ubint r to
   // integer
   {
-    bint calculatedResult;
+    ubint calculatedResult;
     int expectedResult;
     // TEST CASE WHEN THE NUMBER IS LESS THAN MOD
     {
-      bint m("27");
-      bint p("240");
+      ubint m("27");
+      ubint p("240");
 
       calculatedResult = m.Mod(p);
       expectedResult = 27;
@@ -988,8 +989,8 @@ void test_bint () {
     }
     // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
     {
-      bint m("93409673");
-      bint p("406");
+      ubint m("93409673");
+      ubint p("406");
 
       calculatedResult = m.Mod(p);
       expectedResult = 35;
@@ -998,8 +999,8 @@ void test_bint () {
     }
     // TEST CASE WHEN THE NUMBER IS DIVISIBLE BY MOD
     {
-      bint m("32768");
-      bint p("16");
+      ubint m("32768");
+      ubint p("16");
 
       calculatedResult = m.Mod(p);
       expectedResult = 0;
@@ -1009,8 +1010,8 @@ void test_bint () {
 
     // TEST CASE WHEN THE NUMBER IS EQUAL TO MOD
     {
-      bint m("67108913");
-      bint p("67108913");
+      ubint m("67108913");
+      ubint p("67108913");
 
       calculatedResult = m.Mod(p);
       expectedResult = 0;
@@ -1027,7 +1028,7 @@ void test_bint () {
     /* 	The method "Divided By" does division of BigBinary Integer m by another BigBinary Integer p
 	Function takes b as argument and operates on a
   	Returns a/b, which is stored in another BigBinary Integer calculatedResult
-	ConvertToUint64 converts bint calculatedResult to integer
+	ConvertToUint64 converts ubint calculatedResult to integer
 	When b=0, throws error, since division by Zero is not allowed
 	When a<b, returns 0, since decimal value is not returned
     */
@@ -1038,11 +1039,11 @@ void test_bint () {
 
     /*TEST(UTBinInt_METHOD_MOD_BARRETT,NUMBER_LESS_THAN_MOD){
 
-      bint a("9587");
-      bint b("3591");
-      bint c("177");
+      ubint a("9587");
+      ubint b("3591");
+      ubint c("177");
 
-      bint calculatedResult = a.ModBarrett(b,c);
+      ubint calculatedResult = a.ModBarrett(b,c);
       int expectedResult = 205484;
 
       std::coutcout <<"\n"<<d.ConvertToUint64()<<"\n";	//for testing purpose
@@ -1060,13 +1061,13 @@ void test_bint () {
     //    uses extended Euclidean algorithm m and p are co-primes (i,e GCD
     //    of m and p is 1)
     // If m and p are not co-prime, the method throws an error
-    // ConvertToUint64 converts bint calculatedResult to integer
+    // ConvertToUint64 converts ubint calculatedResult to integer
 
 
     // TEST CASE WHEN THE NUMBER IS LESS  THAN MOD
     {
-      bint m("5");
-      bint p("108");
+      ubint m("5");
+      ubint p("108");
 
       try {
         calculatedResult = m.ModInverse(p);
@@ -1081,8 +1082,8 @@ void test_bint () {
     }
     // TEST CASE WHEN THE NUMBER AND MOD ARE NOT CO-PRIME
     {
-      bint m("3017");
-      bint p("108");
+      ubint m("3017");
+      ubint p("108");
 
       try {
         //    		calculatedResult = m.ModInverse(p);
@@ -1105,16 +1106,16 @@ void test_bint () {
     //   Returns:
     //     (m+n)mod q
     //      = {(m mod q) + (n mod q)}mod q
-    //   ConvertToUint64 converts bint calculatedResult to integer
+    //   ConvertToUint64 converts ubint calculatedResult to integer
 
 
 
 
     // TEST CASE WHEN THE FIRST NUMBER IS GREATER THAN MOD
     {
-      bint m("58059595");
-      bint n("3768");
-      bint q("4067");
+      ubint m("58059595");
+      ubint n("3768");
+      ubint q("4067");
 
       calculatedResult = m.ModAdd(n,q);
       expectedResult = 2871;
@@ -1123,9 +1124,9 @@ void test_bint () {
     }
     // TEST CASE WHEN THE SECOND NUMBER IS GREATER THAN MOD
     {
-      bint m("595");
-      bint n("376988");
-      bint q("4067");
+      ubint m("595");
+      ubint n("376988");
+      ubint q("4067");
 
       calculatedResult = m.ModAdd(n,q);
       expectedResult = 3419;
@@ -1134,9 +1135,9 @@ void test_bint () {
     }
     // TEST CASE WHEN THE BOTH NUMBERS ARE LESS THAN MOD
     {
-      bint m("595");
-      bint n("376");
-      bint q("4067");
+      ubint m("595");
+      ubint n("376");
+      ubint q("4067");
 
       calculatedResult = m.ModAdd(n,q);
       expectedResult = 971;
@@ -1145,9 +1146,9 @@ void test_bint () {
     // TEST CASE WHEN THE BOTH NUMBERS ARE GREATER THAN MOD
     {
 
-      bint m("59509095449");
-      bint n("37654969960");
-      bint q("4067");
+      ubint m("59509095449");
+      ubint n("37654969960");
+      ubint q("4067");
 
       calculatedResult = m.ModAdd(n,q);
       expectedResult = 2861;
@@ -1166,7 +1167,7 @@ void test_bint () {
     //    = 0 when m=n
     //    = {(m mod q)+q-(n mod q)}mod q when m<n
 
-    //   ConvertToUint64 converts bint calculatedResult to
+    //   ConvertToUint64 converts ubint calculatedResult to
     //   integer
 
     //MEMORY ALLOCATION ERROR IN MODSUB METHOD (due to copying value to null pointer)
@@ -1174,9 +1175,9 @@ void test_bint () {
 
     // TEST CASE WHEN THE FIRST NUMBER IS GREATER THAN MOD
     {
-      bint m("595");
-      bint n("399");
-      bint q("406");
+      ubint m("595");
+      ubint n("399");
+      ubint q("406");
 
       //std::cout << "Before : " << std::endl;
 
@@ -1187,9 +1188,9 @@ void test_bint () {
     }
     // TEST CASE WHEN THE FIRST NUMBER LESS THAN SECOND NUMBER AND MOD
     {
-      bint m("39960");
-      bint n("595090959");
-      bint q("406756");
+      ubint m("39960");
+      ubint n("595090959");
+      ubint q("406756");
 
       calculatedResult = m.ModSub(n,q);
       expectedResult = 33029;
@@ -1200,9 +1201,9 @@ void test_bint () {
     }
     // TEST CASE WHEN THE FIRST NUMBER EQUAL TO SECOND NUMBER
     {
-      bint m("595090959");
-      bint n("595090959");
-      bint q("406756");
+      ubint m("595090959");
+      ubint n("595090959");
+      ubint q("406756");
 
       calculatedResult = m.ModSub(n,q);
       expectedResult = 0;
@@ -1218,14 +1219,14 @@ void test_bint () {
     // The method "Mod Mul" operates on BigBinary Integers m,n,q
     //   Returns:  (m*n)mod q
     //              = {(m mod q)*(n mod q)}
-    // ConvertToUint64 converts bint calculatedResult to integer
+    // ConvertToUint64 converts ubint calculatedResult to integer
 
     {
-      bint m("39960");
-      bint n("7959");
-      bint q("406756");
+      ubint m("39960");
+      ubint n("7959");
+      ubint q("406756");
 
-      bint calculatedResult = m.ModMul(n,q);
+      ubint calculatedResult = m.ModMul(n,q);
       expectedResult = 365204;
 
       iftest (expectedResult != calculatedResult.ConvertToUint64()
@@ -1239,14 +1240,14 @@ void test_bint () {
     // The method "Mod Exp" operates on BigBinary Integers m,n,q
     // Returns:  (m^n)mod q
     //   = {(m mod q)^(n mod q)}mod q
-    // ConvertToUint64 converts bint calculatedResult to integer
+    // ConvertToUint64 converts ubint calculatedResult to integer
 
     {
-      bint m("39960");
-      bint n("10");
-      bint q("406756");
+      ubint m("39960");
+      ubint n("10");
+      ubint q("406756");
 
-      bint calculatedResult = m.ModExp(n,q);
+      ubint calculatedResult = m.ModExp(n,q);
       expectedResult = 139668;
 
       iftest (expectedResult != calculatedResult.ConvertToUint64()
@@ -1258,10 +1259,10 @@ void test_bint () {
 
     {
     std:string binaryString = "1011101101110001111010111011000000011";
-      bint b =
-	lbcrypto::bint::BinaryStringToBint(binaryString);
+      ubint b =
+	lbcrypto::ubint::BinaryStringToUbint(binaryString);
 
-      bint expectedResult("100633769475");
+      ubint expectedResult("100633769475");
       iftest (expectedResult != b	,"testing BinaryToBigBinaryInt");
     }
 
@@ -1269,10 +1270,10 @@ void test_bint () {
     /* TESTING METHOD  EXP                  */
     /****************************************/
     {
-      bint x("56");
-      bint result = x.Exp(10);
+      ubint x("56");
+      ubint result = x.Exp(10);
 
-      bint expectedResult("303305489096114176");
+      ubint expectedResult("303305489096114176");
       iftest (expectedResult != result 	,"testing exp");
     }
 
@@ -1284,7 +1285,7 @@ void test_bint () {
 }
 
 //function to compare two bintvecs and print differing indicies
-void vec_diff(bintvec &a, bintvec &b) {
+void vec_diff(ubintvec &a, ubintvec &b) {
     for (usint i= 0; i < a.GetLength(); ++i){  //todo change to size()
       if (a.GetValAtIndex(i) != b.GetValAtIndex(i)) {  //todo: add [] indexing to class
         cout << "i: "<< i << endl;
@@ -1303,7 +1304,7 @@ void vec_diff(bintvec &a, bintvec &b) {
     }
 
 }
-void test_bintvec() {
+void test_ubintvec() {
 
   int nloop = 1000; //number of times to run each test for timing.
 
@@ -1315,10 +1316,11 @@ void test_bintvec() {
   double time3;
   double timeTotal;		// overal time
 
-  cout<<"testing bintvec"<<endl;
+  cout<<"testing ubintvec"<<endl;
+cout<<"todo test assignment, < >operators etc. not just math "<<endl;
   //there are two test cases, 1) small modulus 2)approx 48 bits.
   // q1 modulus 1:
-  bint q1("00000000000000163841");
+  ubint q1("00000000000000163841");
   //cout << "q1 contents"<<endl;
   //q1.PrintLimbsInDec();
   // a1:
@@ -1333,7 +1335,7 @@ void test_bintvec() {
       "00000000000000100953", "00000000000000077352",
       "00000000000000132013", "00000000000000057029", };
 
-  bintvec a1(a1sv);
+  ubintvec a1(a1sv);
 
   // b1:
   std::vector<std::string>  b1sv = 
@@ -1346,7 +1348,7 @@ void test_bintvec() {
      "00000000000000053647", "00000000000000111689",
      "00000000000000028502", "00000000000000026401", };
 
-  bintvec b1(b1sv);
+  ubintvec b1(b1sv);
 
   // add1:
   std::vector<std::string>  add1sv = 
@@ -1359,7 +1361,7 @@ void test_bintvec() {
      "00000000000000154600", "00000000000000189041",
      "00000000000000160515", "00000000000000083430", };
 
-  bintvec add1(add1sv);
+  ubintvec add1(add1sv);
 
   // sub1:
 #if 0 //set to 1 if we allow b>a in subtraction
@@ -1385,7 +1387,7 @@ void test_bintvec() {
      "00000000000000047306", "00000000000000000000",
      "00000000000000103511", "00000000000000030628", };
 #endif
-  bintvec sub1(sub1sv);
+  ubintvec sub1(sub1sv);
 
   // mul1:
   std::vector<std::string>  mul1sv = 
@@ -1405,7 +1407,7 @@ void test_bintvec() {
      "000000000000000000000000000008639367528",
      "000000000000000000000000000003762634526",
      "000000000000000000000000000001505622629", };
-  bintvec mul1(mul1sv);
+  ubintvec mul1(mul1sv);
 
   // modadd1:
   std::vector<std::string>  modadd1sv = 
@@ -1417,7 +1419,7 @@ void test_bintvec() {
      "00000000000000038630", "00000000000000047611",
      "00000000000000154600", "00000000000000025200",
      "00000000000000160515", "00000000000000083430", };
-  bintvec modadd1(modadd1sv);
+  ubintvec modadd1(modadd1sv);
 
   // modsub1:
   std::vector<std::string>  modsub1sv = 
@@ -1429,7 +1431,7 @@ void test_bintvec() {
      "00000000000000025203", "00000000000000012638",
      "00000000000000047306", "00000000000000129504",
      "00000000000000103511", "00000000000000030628", };
-  bintvec modsub1(modsub1sv);
+  ubintvec modsub1(modsub1sv);
 
   // modmul1:
   std::vector<std::string>  modmul1sv = 
@@ -1441,9 +1443,9 @@ void test_bintvec() {
      "00000000000000008355", "00000000000000146135",
      "00000000000000061336", "00000000000000031598",
      "00000000000000025961", "00000000000000087680", };
-  bintvec modmul1(modmul1sv);
+  ubintvec modmul1(modmul1sv);
 
-  bintvec c1;
+  ubintvec c1;
   // test math for case 1
   TIC(t1);
   for (usint j = 0; j< nloop; j++){
@@ -1516,7 +1518,7 @@ void test_bintvec() {
 
   // q2:
 
-  bint q2("00004057816419532801");
+  ubint q2("00004057816419532801");
   //cout << "q2 contents"<<endl;
   //q2.PrintLimbsInDec();
 
@@ -1530,7 +1532,7 @@ void test_bintvec() {
      "00003304652649070144", "00002032520019613814",
      "00000375749152798379", "00003933203511673255",
      "00002293434116159938", "00001201413067178193", };
-  bintvec a2(a2sv);
+  ubintvec a2(a2sv);
 
 
   // b2:
@@ -1544,7 +1546,7 @@ void test_bintvec() {
      "00003976652902630043", "00003238750424196678",
      "00002978742255253796", "00002124827461185795", };
 
-  bintvec b2(b2sv);
+  ubintvec b2(b2sv);
   // add2:
   std::vector<std::string>  add2sv = 
     {"00000884123387923218", "00000138712237895312",
@@ -1555,7 +1557,7 @@ void test_bintvec() {
      "00005406716417105627", "00002152306408779744",
      "00004352402055428422", "00007171953935869933",
      "00005272176371413734", "00003326240528363988", };
-  bintvec add2(add2sv);
+  ubintvec add2(add2sv);
   // sub2:
 #if 0 //set to 1 if we allow b>a in subtraction
   std::vector<std::string>  sub2sv = 
@@ -1580,7 +1582,7 @@ void test_bintvec() {
      "00000000000000000000", "00000000000000000000", };
 
 #endif
-  bintvec sub2(sub2sv);
+  ubintvec sub2(sub2sv);
 
   // mul2:
   std::vector<std::string>  mul2sv = 
@@ -1600,7 +1602,7 @@ void test_bintvec() {
      "000000012738664541883618180978992446890",
      "000000006831549111446250063725117624648",
      "000000002552795477367678807574345368435", };
-  bintvec mul2(mul2sv);
+  ubintvec mul2(mul2sv);
 
   // modadd2:
   std::vector<std::string>  modadd2sv = 
@@ -1612,7 +1614,7 @@ void test_bintvec() {
      "00001348899997572826", "00002152306408779744",
      "00000294585635895621", "00003114137516337132",
      "00001214359951880933", "00003326240528363988", };
-  bintvec modadd2(modadd2sv);
+  ubintvec modadd2(modadd2sv);
 
   // modsub2:
   std::vector<std::string>  modsub2sv = 
@@ -1624,7 +1626,7 @@ void test_bintvec() {
      "00001202588881034661", "00001912733630447884",
      "00000456912669701137", "00000694453087476577",
      "00003372508280438943", "00003134402025525199", };
-  bintvec modsub2(modsub2sv);
+  ubintvec modsub2(modsub2sv);
 
   // modmul2:
   std::vector<std::string>  modmul2sv = 
@@ -1636,9 +1638,9 @@ void test_bintvec() {
      "00001715852907773825", "00002521152917532260",
      "00000781959737898673", "00002334258943108700",
      "00002573793300043944", "00001273980645866111", };
-  bintvec modmul2(modmul2sv);
+  ubintvec modmul2(modmul2sv);
 
-  bintvec c2;
+  ubintvec c2;
   // test math for case 2
   TIC(t2);
   for (usint j = 0; j< nloop; j++){

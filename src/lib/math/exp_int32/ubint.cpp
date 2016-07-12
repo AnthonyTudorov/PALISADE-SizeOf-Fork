@@ -36,15 +36,15 @@
  *
  *
  * This file contains the C++ code for implementing the main class for
- * big integers: bint. Big integers are represented as arrays of
+ * big integers: ubint. Big integers are represented as arrays of
  * native usigned integers. The native integer type is supplied as a
- * template parameter.  Currently implementations based on uint8_t,
- * uint16_t, and uint32_t are supported. The second template parameter
- * is the maximum bitwidth for the big integer.
- */
+ * template parameter.  Currently implementation based on uint32_t is
+ * supported. One needs a native integer 2x the size of the chosen type for
+ * certain math operations.
+  */
 
 
-#include "bint.h"
+#include "ubint.h"
 
 #include <iostream>
 #include <fstream>
@@ -57,57 +57,54 @@
 namespace exp_int32 {
 
   //constant static member variable initialization of 0
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ZERO = bint(0);
+  template<typename limb_t>
+  const ubint<limb_t> ubint<limb_t>::ZERO = ubint(0);
 
   //constant static member variable initialization of 1
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ONE = bint(1);
+  template<typename limb_t>
+  const ubint<limb_t> ubint<limb_t>::ONE = ubint(1);
 
   //constant static member variable initialization of 2
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::TWO = bint(2);
+  template<typename limb_t>
+  const ubint<limb_t> ubint<limb_t>::TWO = ubint(2);
 
   //constant static member variable initialization of 3
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::THREE = bint(3);
+  template<typename limb_t>
+  const ubint<limb_t> ubint<limb_t>::THREE = ubint(3);
 
   //constant static member variable initialization of 4
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::FOUR = bint(4);
+  template<typename limb_t>
+  const ubint<limb_t> ubint<limb_t>::FOUR = ubint(4);
 
   //constant static member variable initialization of 5
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::FIVE = bint(5);
+  template<typename limb_t>
+  const ubint<limb_t> ubint<limb_t>::FIVE = ubint(5);
 
   //MOST REQUIRED STATIC CONSTANTS INITIALIZATION
 
   //constant static member variable initialization of m_uintBitLength which is equal to number of bits in the unit data type
   //permitted values: 8,16,32
-  template<typename limb_t,usint BITLENGTH>
-  //const uschar bint<limb_t,BITLENGTH>::m_uintBitLength = UIntBitWidth<limb_t>::value;
-const usint bint<limb_t,BITLENGTH>::m_limbBitLength = sizeof(limb_t)*8;
-
-  template<typename limb_t,usint BITLENGTH>
-  const usint bint<limb_t,BITLENGTH>::m_numDigitInPrintval = BITLENGTH/exp_int32::LOG2_10;
+  template<typename limb_t>
+  //const uschar ubint<limb_t>::m_uintBitLength = UIntBitWidth<limb_t>::value;
+const usint ubint<limb_t>::m_limbBitLength = sizeof(limb_t)*8;
 
   //constant static member variable initialization of m_logUintBitLength which is equal to log of number of bits in the unit data type
   //permitted values: 3,4,5
-  template<typename limb_t,usint BITLENGTH>
-  //const uschar bint<limb_t,BITLENGTH>::m_log2LimbBitLength = LogDtype<limb_t>::value;
-const usint bint<limb_t,BITLENGTH>::m_log2LimbBitLength = Log2<m_limbBitLength>::value;
+  template<typename limb_t>
+  //const uschar ubint<limb_t>::m_log2LimbBitLength = LogDtype<limb_t>::value;
+const usint ubint<limb_t>::m_log2LimbBitLength = Log2<m_limbBitLength>::value;
 
   //constant static member variable initialization of m_nSize which is size of the array of unit data type
-  //template<typename limb_t,usint BITLENGTH>
-  //const usint bint<limb_t,BITLENGTH>::m_nSize = BITLENGTH%m_limbBitLength==0 ? BITLENGTH/m_limbBitLength : BITLENGTH/m_limbBitLength + 1;
+  //template<typename limb_t>
+  //const usint ubint<limb_t>::m_nSize = BITLENGTH%m_limbBitLength==0 ? BITLENGTH/m_limbBitLength : BITLENGTH/m_limbBitLength + 1;
 
   //constant static member variable initialization of m_uintMax which is maximum value of unit data type
-  template<typename limb_t,usint BITLENGTH>
-const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max();
+  template<typename limb_t>
+const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 
   //optimized ceiling function after division by number of bits in the limb data type.
-  template<typename limb_t,usint BITLENGTH>
-  usint bint<limb_t,BITLENGTH>::ceilIntByUInt(const limb_t Number){
+  template<typename limb_t>
+  usint ubint<limb_t>::ceilIntByUInt(const limb_t Number){
     //mask to perform bitwise AND
     static limb_t mask = m_limbBitLength-1;
 
@@ -121,12 +118,13 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
   }
 
   //CONSTRUCTORS
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH>::bint()
+  template<typename limb_t>
+  ubint<limb_t>::ubint()
   {
-    // builds an uninitialized bint
+    // builds an uninitialized ubint
     // mostly used internal to the class
     bool dbg_flag = false;		// if true then print dbg output
+    m_MSB=0;// initialize
 
     DEBUG("ctor()");
     DEBUG( "maxlimb "<<m_MaxLimb);
@@ -136,8 +134,8 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     m_state = GARBAGE;
   }
   
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH>::bint(usint init){
+  template<typename limb_t>
+  ubint<limb_t>::ubint(usint init){
     bool dbg_flag = false;		// if true then print dbg output
 
     //setting the MSB
@@ -170,8 +168,8 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     DEBUG("final msb ="<<msb);
   }
   // ctor(string)
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH>::bint(const std::string& str){
+  template<typename limb_t>
+  ubint<limb_t>::ubint(const std::string& str){
 	    bool dbg_flag = false;		// if true then print dbg output
 
     DEBUG("ctor(str "<<str<<")");
@@ -187,8 +185,8 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 #if 1
 
   //copy constructor
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH>::bint(const bint& rhs){
+  template<typename limb_t>
+  ubint<limb_t>::ubint(const ubint& rhs){
     bool dbg_flag = false;		// if true then print dbg output
 
     DEBUG("copy ctor(&bint)");
@@ -204,8 +202,8 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
   }
 
     //move copy cconstructor
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH>::bint(bint &&rhs){
+  template<typename limb_t>
+  ubint<limb_t>::ubint(ubint &&rhs){
       bool dbg_flag = false;		// if true then print dbg output
 
     DEBUG("move copy ctor(&bint)");
@@ -225,12 +223,14 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     //rhs.m_value.shrink_to_fit(); //clears value with reallocation.
   }
 #endif
-  template<typename limb_t,usint BITLENGTH>
-  std::function<unique_ptr<bint<limb_t,BITLENGTH>>()> bint<limb_t,BITLENGTH>::Allocator = [=](){
-    return make_unique<exp_int32::bint<uint32_t,1500>>();
+  //TODO what is this for
+  template<typename limb_t>
+  std::function<unique_ptr<ubint<limb_t>>()> ubint<limb_t>::Allocator = [=](){
+    return make_unique<exp_int32::ubint<limb_t>>();
   };
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH>::~bint()
+
+  template<typename limb_t>
+  ubint<limb_t>::~ubint()
   {	
     bool dbg_flag = false;		// if true then print dbg output
 
@@ -245,13 +245,13 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
   }
 
   /**
-   *Converts the bint to a usint unsigned integer or returns the first
-   *m_limbBitLength bits of the bint.  Splits the bint into bit length of uint data
+   *Converts the ubint to a usint unsigned integer or returns the first
+   *m_limbBitLength bits of the ubint.  Splits the ubint into bit length of uint data
    *type and then uses shift and add to form the  unsigned
    *integer.
    */
-  template<typename limb_t, usint BITLENGTH>
-  usint bint<limb_t, BITLENGTH>::ConvertToUsint() const{
+  template<typename limb_t>
+  usint ubint<limb_t>::ConvertToUsint() const{
 	  usint result;
 	  if (sizeof(limb_t)>=sizeof(usint)){
 		  result = m_value.at(0);
@@ -270,45 +270,45 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 	  }
   }
 
-  template<typename limb_t, usint BITLENGTH>
-  usint bint<limb_t, BITLENGTH>::ConvertToInt() const{  //todo: deprecate this to Usint
+  template<typename limb_t>
+  usint ubint<limb_t>::ConvertToInt() const{  //todo: deprecate this to Usint
    return this->ConvertToUsint();
   }
 
   // the following conversions all throw 
-  //Converts the bint to uint32_t using the std library functions.
-  template<typename limb_t, usint BITLENGTH>
-  uint32_t bint<limb_t,BITLENGTH>::ConvertToUint32() const{
+  //Converts the ubint to uint32_t using the std library functions.
+  template<typename limb_t>
+  uint32_t ubint<limb_t>::ConvertToUint32() const{
     return std::stoul(this->ToString());
   }
 
-    //Converts the bint to uint64_t using the std library functions.
-  template<typename limb_t, usint BITLENGTH>
-  uint64_t bint<limb_t,BITLENGTH>::ConvertToUint64() const{
+    //Converts the ubint to uint64_t using the std library functions.
+  template<typename limb_t>
+  uint64_t ubint<limb_t>::ConvertToUint64() const{
     return std::stoull(this->ToString());
   }
 
-  //Converts the bint to float using the std library functions.
-  template<typename limb_t, usint BITLENGTH>
-  float bint<limb_t,BITLENGTH>::ConvertToFloat() const{
+  //Converts the ubint to float using the std library functions.
+  template<typename limb_t>
+  float ubint<limb_t>::ConvertToFloat() const{
     return std::stof(this->ToString());
   }
 
-  //Converts the bint to double using the std library functions.
-  template<typename limb_t, usint BITLENGTH>
-  double bint<limb_t,BITLENGTH>::ConvertToDouble() const{
+  //Converts the ubint to double using the std library functions.
+  template<typename limb_t>
+  double ubint<limb_t>::ConvertToDouble() const{
     return std::stod(this->ToString());
   }
 
-  //Converts the bint to long double using the std library functions.
-  template<typename limb_t, usint BITLENGTH>
-  long double bint<limb_t,BITLENGTH>::ConvertToLongDouble() const{
+  //Converts the ubint to long double using the std library functions.
+  template<typename limb_t>
+  long double ubint<limb_t>::ConvertToLongDouble() const{
     return std::stold(this->ToString());
   }
 
   //copy allocator
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH>&  bint<limb_t,BITLENGTH>::operator=(const bint &rhs){
+  template<typename limb_t>
+  const ubint<limb_t>&  ubint<limb_t>::operator=(const ubint &rhs){
 	if(this!=&rhs){
       this->m_MSB=rhs.m_MSB;
       this->m_state = rhs.m_state;
@@ -318,8 +318,8 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     return *this;
   }
   // move copy allocator
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH>&  bint<limb_t,BITLENGTH>::operator=(bint &&rhs){
+  template<typename limb_t>
+  const ubint<limb_t>&  ubint<limb_t>::operator=(ubint &&rhs){
 
     if(this!=&rhs){
       this->m_MSB = rhs.m_MSB;
@@ -340,17 +340,17 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
    *2. Shifts between 1 to bit length of limb data type.
    *   Shifting is done by using bit shift operations and carry over propagation.
    */
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH>  bint<limb_t,BITLENGTH>::operator<<(usint shift) const{
+  template<typename limb_t>
+  ubint<limb_t>  ubint<limb_t>::operator<<(usint shift) const{
     bool dbg_flag = false;
     //garbage check
 	  if(m_state==State::GARBAGE)
 		  throw std::logic_error("<< on uninitialized bint");
 	  //trivial case
 	  if(this->m_MSB==0)
-		  return bint(ZERO);
+		  return ubint(ZERO);
 
-	  bint ans(*this);
+	  ubint ans(*this);
 
 	  //compute the number of whole limb shifts
 	  usint shiftByLimb = shift>>m_log2LimbBitLength;
@@ -427,8 +427,8 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
    *2. Shifts between 1 to bit length of limb data type.
    *   Shifting is done by using bit shift operations and carry over propagation.
    */
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH>&  bint<limb_t,BITLENGTH>::operator<<=(usint shift){
+  template<typename limb_t>
+  const ubint<limb_t>&  ubint<limb_t>::operator<<=(usint shift){
     if(m_state==State::GARBAGE)
       throw std::logic_error("Value not initialized");
 
@@ -446,8 +446,8 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
    *2. Shifts between 1 to bit length of limb data type.
    *   Shifting is done by using bit shift operations and carry over propagation.
    */
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH>  bint<limb_t,BITLENGTH>::operator>>(usint shift) const{
+  template<typename limb_t>
+  ubint<limb_t>  ubint<limb_t>::operator>>(usint shift) const{
     bool dbg_flag = false;
 	  //garbage check
 	  if(m_state==State::GARBAGE)
@@ -455,10 +455,10 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 
 	  //trivial cases
 	  if(this->m_MSB==0 || this->m_MSB <= shift)
-		  return bint(0);
+		  return ubint(0);
 
 
-	  bint ans(*this);
+	  ubint ans(*this);
 	  //compute the number of whole limb shifts
 	  usint shiftByLimb = shift>>m_log2LimbBitLength;
 
@@ -537,8 +537,8 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
    *2. Shifts between 1 to bit length of limb data type.
    *   Shifting is done by using bit shift operations and carry over propagation.
    */
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH>&  bint<limb_t,BITLENGTH>::operator>>=(usint shift){
+  template<typename limb_t>
+  ubint<limb_t>&  ubint<limb_t>::operator>>=(usint shift){
     //check for garbage
     if(m_state==State::GARBAGE)
       throw std::logic_error("Value not initialized");
@@ -555,8 +555,8 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
   }
 
 
-  template<typename limb_t,usint BITLENGTH>
-  void bint<limb_t,BITLENGTH>::PrintLimbsInDec() const{
+  template<typename limb_t>
+  void ubint<limb_t>::PrintLimbsInDec() const{
     bool dbg_flag = false;		// if true then print dbg output
     if (m_state == GARBAGE) {
       std::cout <<"bint uninitialised"<<std::endl;
@@ -570,8 +570,8 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     }
   }
 
-  template<typename limb_t,usint BITLENGTH>
-  void bint<limb_t,BITLENGTH>::PrintLimbsInHex() const{
+  template<typename limb_t>
+  void ubint<limb_t>::PrintLimbsInHex() const{
     bool dbg_flag = false;   // if true then print dbg output
      if (m_state == GARBAGE) {
        std::cout <<"bint uninitialised"<<std::endl;
@@ -584,21 +584,21 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
      }
   }
 
-  template<typename limb_t,usint BITLENGTH>
-  usint bint<limb_t,BITLENGTH>::GetMSB()const{
+  template<typename limb_t>
+  usint ubint<limb_t>::GetMSB()const{
     return m_MSB;
   }
 
   /** Addition operation:
    *  Algorithm used is usual school book sum and carry-over, expect for that radix is 2^m_bitLength.
    */
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::Add(const bint& b) const{
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::Add(const ubint& b) const{
 	bool dbg_flag = false;		// if true then print dbg output
     //two operands A and B for addition, A is the greater one, B is the smaller one
 	  DEBUG("Add");
-    const bint* A = NULL;
-    const bint* B = NULL;
+    const ubint* A = NULL;
+    const ubint* B = NULL;
     //check for garbage initializations
     if(this->m_state==GARBAGE){
     	throw std::logic_error("Add() to uninitialized bint");
@@ -614,9 +614,9 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     else {A = &b; B = this;}
 
     if(B->m_MSB==0)
-      return bint(*A);
+      return ubint(*A);
 
-    bint result;
+    ubint result;
     result.m_state = INITIALIZED;
 
     DEBUG("result initial size "<<result.m_value.size());
@@ -682,8 +682,8 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
   /** Sub operation:
    *  Algorithm used is usual school book borrow and subtract, except for that radix is 2^m_bitLength.
    */
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::Sub(const bint& b) const{
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::Sub(const ubint& b) const{
     bool dbg_flag = false;
     DEBUG("Sub");
     //check for garbage initialization
@@ -696,11 +696,11 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     //return 0 if b is higher than *this as there is no support for negative number
     if(!(*this>b)){
       DEBUG("in Sub, b > a return zero");
-      return std::move(bint(ZERO)); //todo: should we throw an exception ?
+      return std::move(ubint(ZERO)); //todo: should we throw an exception ?
     }
     int cntr=0,current=0;
 
-    bint result(*this);
+    ubint result(*this);
 
     DEBUG ("result starts out");
     if (dbg_flag){
@@ -765,22 +765,22 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
   /** Multiply operation:
    *  Algorithm used is usual school book shift and add after multiplication, except for that radix is 2^m_bitLength.
    */
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::Mul(const bint& b) const{
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::Mul(const ubint& b) const{
     bool dbg_flag = false;
     DEBUG("Mul");
 	
-    bint ans(ZERO);
+    ubint ans(ZERO);
     //check for garbage initialized objects
     if(b.m_MSB==0 || b.m_state==GARBAGE ||this->m_state==GARBAGE || this->m_MSB==0){
       return ans;
     }
     //check for trivial condtions
     if(b.m_MSB==1)
-      return bint(*this);
+      return ubint(*this);
 
     if(this->m_MSB==1)
-      return std::move(bint(b)); //todo check this? don't think standard move is what we want.
+      return std::move(ubint(b)); //todo check this? don't think standard move is what we want.
 	
     //position of B in the array where the multiplication should start
     limb_t ceilLimb = b.m_value.size();
@@ -791,7 +791,7 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     usint nSize = this->m_value.size();
     for(sint i= 0;i< ceilLimb;++i){
       DEBUG("i "<<i);
-      bint tmp2;
+      ubint tmp2;
 
       //ans += (this->MulIntegerByLimb(b.m_value.at(i)))<<=(i)*m_limbBitLength;
       usint tmp1 = (i)*m_limbBitLength;
@@ -807,14 +807,14 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
   }
 
 
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH>& bint<limb_t,BITLENGTH>::operator+=(const bint &b){
+  template<typename limb_t>
+  const ubint<limb_t>& ubint<limb_t>::operator+=(const ubint &b){
     *this = *this+b;
     return *this;
   }
 
-  template<typename limb_t,usint BITLENGTH>
-  const bint<limb_t,BITLENGTH>& bint<limb_t,BITLENGTH>::operator-=(const bint &b){
+  template<typename limb_t>
+  const ubint<limb_t>& ubint<limb_t>::operator-=(const ubint &b){
     *this = *this-b;
     return *this;
   }
@@ -822,18 +822,18 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 
   /** Multiply operation:
    *  Algorithm used is usual school book multiplication.
-   *  This function is used in the Multiplication of two bint objects
+   *  This function is used in the Multiplication of two ubint objects
    */
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::MulIntegerByLimb(limb_t b) const{
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::MulIntegerByLimb(limb_t b) const{
     bool dbg_flag = false;
     DEBUG("MulIntegerByLimb");
     if(this->m_state==GARBAGE)
       throw std::logic_error("MulIntegerByLimb() of uninitialized bint");
     if(b==0 || this->m_MSB==0)
-      return bint(ZERO);
+      return ubint(ZERO);
 
-    bint ans;
+    ubint ans;
     //position in the array to start multiplication
     //
     usint endVal = this->m_value.size();
@@ -913,13 +913,13 @@ inline const int nlz(usint x) {
 
 //#define max(x, y) ((x) > (y) ? (x) : (y))
 
-template<typename limb_t,usint BITLENGTH>
-int bint<limb_t,BITLENGTH>::divmnu_vect(bint& qbint, bint& rbint, const bint& ubint, const bint& vbint) const{
+template<typename limb_t>
+int ubint<limb_t>::divmnu_vect(ubint& qin, ubint& rin, const ubint& uin, const ubint& vin) const{
 
-  vector<limb_t>&q = (qbint.m_value);
-  vector<limb_t>&r = (rbint.m_value);
-  const vector<limb_t>&u = (ubint.m_value);
-  const vector<limb_t>&v = (vbint.m_value);
+  vector<limb_t>&q = (qin.m_value);
+  vector<limb_t>&r = (rin.m_value);
+  const vector<limb_t>&u = (uin.m_value);
+  const vector<limb_t>&v = (vin.m_value);
 
   int m = u.size();
   int n = v.size();
@@ -1017,8 +1017,8 @@ again:
    *  Algorithm used is usual school book long division , except for that radix is 2^m_bitLength.
    *  Optimization done: Uses bit shift operation for logarithmic convergence.
    */
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::DividedBy(const bint& b) const{
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::DividedBy(const ubint& b) const{
     //check for garbage initialization and 0 condition
     if(b.m_state==GARBAGE)
       throw std::logic_error("DividedBy() Divisor uninitialised");
@@ -1027,18 +1027,18 @@ again:
         throw std::logic_error("DividedBy() Divisor is zero");
 
     if(b.m_MSB>this->m_MSB)
-      return std::move(bint(ZERO)); // Kurt and Yuriy want this.
+      return std::move(ubint(ZERO)); // Kurt and Yuriy want this.
 
     if(this->m_state==GARBAGE)
       throw std::logic_error("DividedBy() Dividend uninitialised");
 
     else if(b==*this)
-      return std::move(bint(ONE));
+      return std::move(ubint(ONE));
 
-    bint ans;
-    bint rv;
+    ubint ans;
+    ubint rv;
 
-    //bint uv(*this); //todo get rid of these copies
+    //ubint uv(*this); //todo get rid of these copies
 
       int f;
     f = divmnu_vect((ans), (rv),  (*this),  (b));
@@ -1051,7 +1051,7 @@ again:
 
 #if 0
     //normalised_dividend = result*quotient
-    bint normalised_dividend( this->Sub( this->Mod(b) ) );
+    ubint normalised_dividend( this->Sub( this->Mod(b) ) );
 
     //Number of array elements in Divisor
     limb_t ncharInDivisor = ceilIntByUInt(b.m_MSB);
@@ -1066,13 +1066,13 @@ again:
     limb_t msbCharInRunning_Normalised_dividend = normalised_dividend.m_value[(usint)( m_nSize-ncharInNormalised_dividend)];
 
     //variable to store the running dividend
-    bint running_dividend;
+    ubint running_dividend;
 
     //variable to store the running remainder
-    bint runningRemainder;
+    ubint runningRemainder;
 
-    bint expectedProd;  //?
-    bint estimateFinder; //?
+    ubint expectedProd;  //?
+    ubint estimateFinder; //?
 
     //Initialize the running dividend
     for(usint i=0;i<ncharInDivisor;i++){
@@ -1162,12 +1162,12 @@ again:
 
   }
 
-  //Initializes the vector of limbs from the string equivalent of bint
+  //Initializes the vector of limbs from the string equivalent of ubint
   // also sets MSB
   //Algorithm used is repeated division by 2
   //Reference:http://pctechtips.org/convert-from-decimal-to-binary-with-recursion-in-java/
-  template<typename limb_t,usint BITLENGTH>
-  void bint<limb_t,BITLENGTH>::AssignVal(const std::string& vin){
+  template<typename limb_t>
+  void ubint<limb_t>::AssignVal(const std::string& vin){
 	  bool dbg_flag = false;		// if true then print dbg output
 	  DEBUG("AssignVal ");
 	  DEBUG("vin: "<< vin);
@@ -1265,8 +1265,8 @@ again:
 
   }
 
-  template<typename limb_t,usint BITLENGTH>
-  void bint<limb_t,BITLENGTH>::SetMSB()
+  template<typename limb_t>
+  void ubint<limb_t>::SetMSB()
   {
     m_MSB = 0;
     if(this->m_state==GARBAGE){//todo: should fail.
@@ -1278,23 +1278,23 @@ again:
   }
 
   //guessIdx is the index of largest limb_t number in array.
-  template<typename limb_t, usint BITLENGTH>
-  void bint<limb_t, BITLENGTH>::SetMSB(usint guessIdxChar){
+  template<typename limb_t>
+  void ubint<limb_t>::SetMSB(usint guessIdxChar){
 
     m_MSB = (m_value.size() - guessIdxChar - 1)*m_limbBitLength;
     m_MSB += GetMSBlimb_t(m_value.at(guessIdxChar));
   }
 
-  template<typename limb_t, usint BITLENGTH>
-  void bint<limb_t, BITLENGTH>::SetValue(const std::string& str){
-    bint::AssignVal(str);
+  template<typename limb_t>
+  void ubint<limb_t>::SetValue(const std::string& str){
+    ubint::AssignVal(str);
 
   }
 
   //Algorithm used: Repeated subtraction by a multiple of modulus, which will be referred to as "Classical Modulo Reduction Algorithm"
   //Complexity: O(log(*this)-log(modulus))
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::Mod(const bint& modulus) const{
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::Mod(const ubint& modulus) const{
 
 	  //check for garbage initialisation
 	  if(this->m_state==GARBAGE)
@@ -1304,19 +1304,19 @@ again:
 
 	  //return the same value if value is less than modulus
 	  if(*this<modulus){
-		  return std::move(bint(*this));
+		  return std::move(ubint(*this));
 	  }
 	  //masking operation if modulus is 2
 	  if(modulus.m_MSB==2 && modulus.m_value.at(0)==2){
 		  if(this->m_value.at(0)%2==0)
-			  return bint(ZERO);
+			  return ubint(ZERO);
 		  else
-			  return bint(ONE);
+			  return ubint(ONE);
 	  }
 #if 1
 		  // return the remainder of the divided by operation
-    bint qv;
-    bint ans(0);
+    ubint qv;
+    ubint ans(0);
 
       int f;
     f = divmnu_vect(qv, ans,  *this,  modulus);
@@ -1335,12 +1335,12 @@ again:
 		  initial_shift=this->m_MSB - modulus.m_MSB -1;
 
 
-	  bint j = modulus<<initial_shift;
+	  ubint j = modulus<<initial_shift;
 
 
-	  bint result(*this);
+	  ubint result(*this);
 
-	  bint temp;
+	  ubint temp;
 	  usint count = 0;
 	  while(true){
 		  //exit criteria
@@ -1391,14 +1391,14 @@ again:
      is computed by BigBinaryVector::ModMult.
 
   */
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModBarrett(const bint& modulus, const bint& mu) const{
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::ModBarrett(const ubint& modulus, const ubint& mu) const{
 	
     if(*this<modulus){
-      return std::move(bint(*this));
+      return std::move(ubint(*this));
     }
-    bint z(*this);
-    bint q(*this);
+    ubint z(*this);
+    ubint q(*this);
 
     usint n = modulus.m_MSB;
     usint alpha = n + 3;
@@ -1428,15 +1428,15 @@ again:
      http://users.belgacom.net/dhem/these/these_public.pdf (Section 2.2.4).
      We take \alpha equal to n + 3. In this case, we work with an array of precomputed \mu values.
   **/
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModBarrett(const bint& modulus, const bint mu_arr[BARRETT_LEVELS+1]) const{
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::ModBarrett(const ubint& modulus, const ubint mu_arr[BARRETT_LEVELS+1]) const{
 
     if(*this<modulus){
-      bint z(*this);
+      ubint z(*this);
       return z;
     }
-    bint z(*this);
-    bint q(*this);
+    ubint z(*this);
+    ubint q(*this);
 
     uschar n = modulus.m_MSB;
     //level is set to the index between 0 and BARRET_LEVELS - 1
@@ -1446,7 +1446,7 @@ again:
     uschar alpha = gamma + 3;
     schar beta = -2;
 
-    const bint& mu = mu_arr[level];
+    const ubint& mu = mu_arr[level];
 
     q>>=n + beta;
     q=q*mu;
@@ -1461,8 +1461,8 @@ again:
   }
 #endif
   //Extended Euclid algorithm used to find the multiplicative inverse
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModInverse(const bint& modulus) const{
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::ModInverse(const ubint& modulus) const{
 
     if(m_state==GARBAGE || modulus.m_state==GARBAGE)
       throw std::logic_error("ModInverse of uninitialized bint");
@@ -1472,15 +1472,15 @@ again:
     //f << *this <<" THIS VALUE "<< std::endl;
     //f << modulus << " Modulus value " << std::endl;
 
-    std::vector<bint> mods;
-    std::vector<bint> quotient;
-    mods.push_back(bint(modulus));
+    std::vector<ubint> mods;
+    std::vector<ubint> quotient;
+    mods.push_back(ubint(modulus));
     if (*this>modulus)
       mods.push_back(this->Mod(modulus));
     else
-      mods.push_back(bint(*this));
-    bint first(mods[0]);
-    bint second(mods[1]);
+      mods.push_back(ubint(*this));
+    ubint first(mods[0]);
+    ubint second(mods[1]);
     //Error if modulus is ZERO
     if(*this==ZERO){
       std::cout<<"ZERO HAS NO INVERSE\n";
@@ -1511,8 +1511,8 @@ again:
     }
 
     mods.clear();
-    mods.push_back(bint(ZERO));
-    mods.push_back(bint(ONE));
+    mods.push_back(ubint(ZERO));
+    mods.push_back(ubint(ONE));
 
     first = mods[0];
     second = mods[1];
@@ -1531,12 +1531,12 @@ again:
     }
 
     #endif
-    bint result;
+    ubint result;
     if(quotient.size()%2==1){
       result = (modulus - mods.back());
     }
     else{
-      result = bint(mods.back());
+      result = ubint(mods.back());
     }
 
     mods.clear();
@@ -1547,29 +1547,29 @@ again:
 
   }
 
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModAdd(const bint& b, const bint& modulus) const{
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::ModAdd(const ubint& b, const ubint& modulus) const{
     return this->Add(b).Mod(modulus);
     //todo what is the order of this operation?
   }
 
   //Optimized Mod Addition using ModBarrett
-//  template<typename limb_t,usint BITLENGTH>
-//  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModBarrettAdd(const bint& b, const bint& modulus,const bint mu_arr[BARRETT_LEVELS]) const{
+//  template<typename limb_t>
+//  ubint<limb_t> ubint<limb_t>::ModBarrettAdd(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const{
 //    return this->Plus(b).ModBarrett(modulus,mu_arr);
 //  }
 //
 
 
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModBarrettAdd(const bint& b, const bint& modulus,const bint& mu) const{
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::ModBarrettAdd(const ubint& b, const ubint& modulus,const ubint& mu) const{
     return this->Add(b).ModBarrett(modulus,mu);
   }
 
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModSub(const bint& b, const bint& modulus) const{
-    bint* a = const_cast<bint*>(this);
-    bint* b_op = const_cast<bint*>(&b);
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::ModSub(const ubint& b, const ubint& modulus) const{
+    ubint* a = const_cast<ubint*>(this);
+    ubint* b_op = const_cast<ubint*>(&b);
 
     //reduce this to a value lower than modulus
     if(*this>modulus){
@@ -1590,24 +1590,24 @@ again:
   }
 
   //Optimized Mod Substraction using ModBarrett
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModBarrettSub(const bint& b, const bint& modulus,const bint& mu) const{
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::ModBarrettSub(const ubint& b, const ubint& modulus,const ubint& mu) const{
 
-    bint* a = NULL;
-    bint* b_op = NULL;
+    ubint* a = NULL;
+    ubint* b_op = NULL;
 
     if(*this>modulus){
       *a = std::move(this->ModBarrett(modulus,mu));
     }
     else{
-      a = const_cast<bint*>(this);
+      a = const_cast<ubint*>(this);
     }
 
     if(b>modulus){
       *b_op = std::move(b.ModBarrett(modulus,mu));
     }
     else{
-      b_op = const_cast<bint*>(&b);
+      b_op = const_cast<ubint*>(&b);
     }
 
     if(!(*a<*b_op)){
@@ -1620,24 +1620,24 @@ again:
   }
 
 
-//  template<typename limb_t,usint BITLENGTH>
-//  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModBarrettSub(const bint& b, const bint& modulus,const bint mu_arr[BARRETT_LEVELS]) const{
+//  template<typename limb_t>
+//  ubint<limb_t> ubint<limb_t>::ModBarrettSub(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const{
 //
-//    bint* a = NULL;
-//    bint* b_op = NULL;
+//    ubint* a = NULL;
+//    ubint* b_op = NULL;
 //
 //    if(*this>modulus){
 //      *a = std::move(this->ModBarrett(modulus,mu_arr));
 //    }
 //    else{
-//      a = const_cast<bint*>(this);
+//      a = const_cast<ubint*>(this);
 //    }
 //
 //    if(b>modulus){
 //      *b_op = std::move(b.ModBarrett(modulus,mu_arr));
 //    }
 //    else{
-//      b_op = const_cast<bint*>(&b);
+//      b_op = const_cast<ubint*>(&b);
 //    }
 //
 //    if(!(*a<*b_op)){
@@ -1650,10 +1650,10 @@ again:
 //
 //  }
 
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModMul(const bint& b, const bint& modulus) const{
-    bint a(*this);
-    bint bb(b);
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::ModMul(const ubint& b, const ubint& modulus) const{
+    ubint a(*this);
+    ubint bb(b);
 
     //if a is greater than q reduce a to its mod value
     if(a>modulus){
@@ -1698,11 +1698,11 @@ again:
 
   */
 
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModBarrettMul(const bint& b, const bint& modulus,const bint& mu) const{
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::ModBarrettMul(const ubint& b, const ubint& modulus,const ubint& mu) const{
 
-    bint* a  = const_cast<bint*>(this);
-    bint* bb = const_cast<bint*>(&b);
+    ubint* a  = const_cast<ubint*>(this);
+    ubint* bb = const_cast<ubint*>(&b);
 
     //if a is greater than q reduce a to its mod value
     if(*this>modulus)
@@ -1717,22 +1717,22 @@ again:
 
   }
 
-//  template<typename limb_t,usint BITLENGTH>
-//  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModBarrettMul(const bint& b, const bint& modulus,const bint mu_arr[BARRETT_LEVELS]) const{
-//    bint* a  = NULL;
-//    bint* bb = NULL;
+//  template<typename limb_t>
+//  ubint<limb_t> ubint<limb_t>::ModBarrettMul(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const{
+//    ubint* a  = NULL;
+//    ubint* bb = NULL;
 //
 //    //if a is greater than q reduce a to its mod value
 //    if(*this>modulus)
 //      *a = std::move(this->ModBarrett(modulus,mu_arr));
 //    else
-//      a = const_cast<bint*>(this);
+//      a = const_cast<ubint*>(this);
 //
 //    //if b is greater than q reduce b to its mod value
 //    if(b>modulus)
 //      *bb = std::move(b.ModBarrett(modulus,mu_arr));
 //    else
-//      bb = const_cast<bint*>(&b);
+//      bb = const_cast<ubint*>(&b);
 //
 //    //return a*b%q
 //
@@ -1741,8 +1741,8 @@ again:
 
   //Modular Multiplication using Square and Multiply Algorithm
   //reference:http://guan.cse.nsysu.edu.tw/note/expn.pdf
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::ModExp(const bint& b, const bint& modulus) const{
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::ModExp(const ubint& b, const ubint& modulus) const{
     bool dbg_flag = false;
     DEBUG("ModExp");
 
@@ -1751,14 +1751,14 @@ again:
     DEBUG("mod: "<<modulus.ToString());
 
     //mid is intermidiate value that calculates mid^2%q
-    bint mid = this->Mod(modulus);	
+    ubint mid = this->Mod(modulus);	
     DEBUG("mid: "<<mid.ToString());
 
     //product calculates the running product of mod values
-    bint product(ONE);
+    ubint product(ONE);
 
     //Exp is used for spliting b to bit values/ bit extraction
-    bint Exp(b);
+    ubint Exp(b);
 
     while(true){
       //product is multiplied only if lsb bitvalue is 1
@@ -1786,19 +1786,19 @@ again:
     return product;
   }
 
-  template<typename limb_t,usint BITLENGTH>
-  const std::string bint<limb_t,BITLENGTH>::ToString() const{
+  template<typename limb_t>
+  const std::string ubint<limb_t>::ToString() const{
 
-    //this string object will store this bint's value
+    //this string object will store this ubint's value
     std::string bbiString;
 
     //create reference for the object to be printed
-    bint<limb_t,BITLENGTH> *print_obj;
+    ubint<limb_t> *print_obj;
 
     usint counter;
 
     //initiate to object to be printed
-    print_obj = new bint<limb_t,BITLENGTH>(*this);  //todo smartpointer
+    print_obj = new ubint<limb_t>(*this);  //todo smartpointer
 
     //print_obj->PrintValueInDec();
 
@@ -1813,10 +1813,10 @@ again:
     for(sint i=print_obj->m_MSB;i>0;i--){
 
       //print_VALUE = print_VALUE*2
-      bint<limb_t,BITLENGTH>::double_bitVal(print_VALUE);	
+      ubint<limb_t>::double_bitVal(print_VALUE);
 
       //adds the bit value to the print_VALUE
-      bint<limb_t,BITLENGTH>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
+      ubint<limb_t>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
 
 
     }
@@ -1826,7 +1826,7 @@ again:
       if((sint)print_VALUE[counter]!=0)break;							
     }
 
-    //append this bint's digits to this method's returned string object
+    //append this ubint's digits to this method's returned string object
     for (; counter < m_numDigitInPrintval; counter++) {
       bbiString += std::to_string(print_VALUE[counter]);
     }
@@ -1839,9 +1839,9 @@ again:
 
   }
 
-  //Compares the current object with the bint a.
-    template<typename limb_t,usint BITLENGTH>
-  sint bint<limb_t,BITLENGTH>::Compare(const bint& a) const
+  //Compares the current object with the ubint a.
+    template<typename limb_t>
+  sint ubint<limb_t>::Compare(const ubint& a) const
   {
 
     if(this->m_state==GARBAGE || a.m_state==GARBAGE)
@@ -1864,22 +1864,22 @@ again:
     return 0; //bottom out? then the same
   }
   // == operator
-  template<typename limb_t,usint BITLENGTH>
-  bool bint<limb_t,BITLENGTH>::operator==(const bint& a) const{
+  template<typename limb_t>
+  bool ubint<limb_t>::operator==(const ubint& a) const{
     if(this->m_state==GARBAGE || a.m_state==GARBAGE)
             throw std::logic_error("ERROR == against uninitialized bint\n");
     return(this->Compare(a)==0);
   }
 
 
-  template<typename limb_t,usint BITLENGTH>
-  bool bint<limb_t,BITLENGTH>::operator!=(const bint& a)const{
+  template<typename limb_t>
+  bool ubint<limb_t>::operator!=(const ubint& a)const{
     return !(*this==a);
   }
 
   //greater than operator
-  template<typename limb_t,usint BITLENGTH>
-  bool bint<limb_t,BITLENGTH>::operator>(const bint& a)const{
+  template<typename limb_t>
+  bool ubint<limb_t>::operator>(const ubint& a)const{
     if(this->m_state==GARBAGE || a.m_state==GARBAGE)
       throw std::logic_error("ERROR > against uninitialized bint\n");
     return(this->Compare(a)>0);
@@ -1887,27 +1887,27 @@ again:
   }
 
   //greater than or equals operator
-  template<typename limb_t,usint BITLENGTH>
-  bool bint<limb_t,BITLENGTH>::operator>=(const bint& a) const{
+  template<typename limb_t>
+  bool ubint<limb_t>::operator>=(const ubint& a) const{
     return (*this>a || *this==a);
   }
 
    //less than operator
-  template<typename limb_t,usint BITLENGTH>
-  bool bint<limb_t,BITLENGTH>::operator<(const bint& a) const{
+  template<typename limb_t>
+  bool ubint<limb_t>::operator<(const ubint& a) const{
     if(this->m_state==GARBAGE || a.m_state==GARBAGE)
       throw std::logic_error("ERROR > against uninitialized bint\n");
     return(this->Compare(a)<0);
 
   }
 //less than or equal operation
-  template<typename limb_t,usint BITLENGTH>
-  bool bint<limb_t,BITLENGTH>::operator<=(const bint& a) const{
+  template<typename limb_t>
+  bool ubint<limb_t>::operator<=(const ubint& a) const{
     return (*this<a || *this==a);
   }
 
-  template<typename limb_t,usint BITLENGTH>
-  bool bint<limb_t,BITLENGTH>::CheckIfPowerOfTwo(const bint& m_numToCheck){
+  template<typename limb_t>
+  bool ubint<limb_t>::CheckIfPowerOfTwo(const ubint& m_numToCheck){
     usint m_MSB = m_numToCheck.m_MSB;
     for(int i=m_MSB-1;i>0;i--){
       if((sint)m_numToCheck.GetBitAtIndex(i)==(sint)1){
@@ -1917,8 +1917,8 @@ again:
     return true;
   }
 
-  template<typename limb_t,usint BITLENGTH>
-  uint64_t bint<limb_t,BITLENGTH>::GetMSB32(uint64_t x)
+  template<typename limb_t>
+  uint64_t ubint<limb_t>::GetMSB32(uint64_t x)
   {
     static const usint bval[] =
       {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
@@ -1931,14 +1931,14 @@ again:
     return r + bval[x];
   }
 
-  template<typename limb_t,usint BITLENGTH>
-  usint bint<limb_t,BITLENGTH>::GetMSBlimb_t(limb_t x){
-    return bint<limb_t,BITLENGTH>::GetMSB32(x);
+  template<typename limb_t>
+  usint ubint<limb_t>::GetMSBlimb_t(limb_t x){
+    return ubint<limb_t>::GetMSB32(x);
   }
   
   
-  template<typename limb_t,usint BITLENGTH>
-  uint64_t bint<limb_t,BITLENGTH>::GetMSB64(uint64_t x) {
+  template<typename limb_t>
+  uint64_t ubint<limb_t>::GetMSB64(uint64_t x) {
     uint64_t bitpos = 0;
     while (x != 0) {
       bitpos++; //increment the bit position
@@ -1947,8 +1947,8 @@ again:
     return bitpos;
   }
 
-  template<typename limb_t,usint BITLENGTH>
-  usint bint<limb_t,BITLENGTH>::GetDigitAtIndexForBase(usint index, usint base) const{
+  template<typename limb_t>
+  usint ubint<limb_t>::GetDigitAtIndexForBase(usint index, usint base) const{
 
     usint digit = 0;
     usint newIndex = index; 
@@ -1962,8 +1962,8 @@ again:
   }
 
   //Splits the binary string to equi sized chunks and then populates the internal array values.
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::BinaryStringToBint(const std::string& vin){
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::BinaryStringToUbint(const std::string& vin){
     bool dbg_flag = false;		// if true then print dbg output
 	  DEBUG("AssignVal ");
 	  std::string v = vin;
@@ -1977,7 +1977,7 @@ again:
 		  v = "0"; //set to one zero
 	  }
 
-    bint value;
+    ubint value;
     usint len = v.length();
     usint cntr = ceilIntByUInt(len);
     std::string val;
@@ -2007,26 +2007,26 @@ again:
   }
 
   //Recursive Exponentiation function
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::Exp(usint p) const{
-    if (p == 0) return bint(bint::ONE);
-    bint x(*this);
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::Exp(usint p) const{
+    if (p == 0) return ubint(ubint::ONE);
+    ubint x(*this);
     if (p == 1) return x;
 
-    bint tmp = x.Exp(p/2);
+    ubint tmp = x.Exp(p/2);
     if (p%2 == 0) return tmp * tmp;
     else return tmp * tmp * x;
   }
 
 
-  template<typename limb_t,usint BITLENGTH>
-  usint bint<limb_t,BITLENGTH>::GetMSBDlimb_t(Dlimb_t x){
-    return bint<limb_t,BITLENGTH>::GetMSB64(x);
+  template<typename limb_t>
+  usint ubint<limb_t>::GetMSBDlimb_t(Dlimb_t x){
+    return ubint<limb_t>::GetMSB64(x);
   }
 
   //Algoritm used is shift and add
-  template<typename limb_t,usint BITLENGTH>
-  limb_t bint<limb_t,BITLENGTH>::UintInBinaryToDecimal(uschar *a){
+  template<typename limb_t>
+  limb_t ubint<limb_t>::UintInBinaryToDecimal(uschar *a){
     limb_t Val = 0;
     limb_t one =1;
     for(sint i=m_limbBitLength-1;i>=0;i--){
@@ -2040,16 +2040,16 @@ again:
 
   //Algorithm used is double and add
   //http://www.wikihow.com/Convert-from-Binary-to-Decimal
-  template<typename limb_t_c,usint BITLENGTH_c>
-  std::ostream& operator<<(std::ostream& os, const bint<limb_t_c,BITLENGTH_c>& ptr_obj){
+  template<typename limb_t_c_c>
+  std::ostream& operator<<(std::ostream& os, const ubint<limb_t_c_c>& ptr_obj){
 
     //create reference for the object to be printed
-    bint<limb_t_c,BITLENGTH_c> *print_obj;
+    ubint<limb_t_c_c> *print_obj;
 
     usint counter;
 
     //initiate to object to be printed
-    print_obj = new bint<limb_t_c,BITLENGTH_c>(ptr_obj);  //todo smartpointer
+    print_obj = new ubint<limb_t_c_c>(ptr_obj);  //todo smartpointer
 
     //print_obj->PrintValueInDec();
 
@@ -2064,14 +2064,14 @@ again:
     for(sint i=print_obj->m_MSB;i>0;i--){
 
       //print_VALUE = print_VALUE*2
-      bint<limb_t_c,BITLENGTH_c>::double_bitVal(print_VALUE);	
+      ubint<limb_t_c_c>::double_bitVal(print_VALUE);
 #ifdef DEBUG_OSTREAM
       for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 	std::cout<<(sint)*(print_VALUE+i);
       std::cout<<endl;
 #endif
       //adds the bit value to the print_VALUE
-      bint<limb_t_c,BITLENGTH_c>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
+      ubint<limb_t_c_c>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
 #ifdef DEBUG_OSTREAM
       for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 	std::cout<<(sint)*(print_VALUE+i);
@@ -2098,8 +2098,8 @@ again:
   }
 
  
-  template<typename limb_t,usint BITLENGTH>
-  void bint<limb_t,BITLENGTH>::double_bitVal(uschar* a){
+  template<typename limb_t>
+  void ubint<limb_t>::double_bitVal(uschar* a){
 	
     uschar ofl=0;
     for(sint i=m_numDigitInPrintval-1;i>-1;i--){
@@ -2115,8 +2115,8 @@ again:
     }
   }
 
-  template<typename limb_t,usint BITLENGTH>
-  void bint<limb_t,BITLENGTH>::add_bitVal(uschar* a,uschar b){
+  template<typename limb_t>
+  void ubint<limb_t>::add_bitVal(uschar* a,uschar b){
     uschar ofl=0;
     *(a+m_numDigitInPrintval-1)+=b;
     for(sint i=m_numDigitInPrintval-1;i>-1;i--){
@@ -2130,8 +2130,8 @@ again:
   }
 
 
-  template<typename limb_t,usint BITLENGTH>
-  uschar bint<limb_t,BITLENGTH>::GetBitAtIndex(usint index) const{
+  template<typename limb_t>
+  uschar ubint<limb_t>::GetBitAtIndex(usint index) const{
     if(index<=0){
       std::cout<<"Invalid index \n";
       return 0;
@@ -2150,20 +2150,20 @@ again:
     return (uschar)result;
   }
 
-  template<typename limb_t, usint BITLENGTH>
-  void bint<limb_t, BITLENGTH>::SetIntAtIndex(usint idx, limb_t value){
+  template<typename limb_t>
+  void ubint<limb_t>::SetIntAtIndex(usint idx, limb_t value){
     if (idx >= m_value.size())
       throw std::logic_error("Index Invalid");
     this->m_value.at(idx) = value;
   }
 
   /*
-    This method can be used to convert int to bint
+    This method can be used to convert int to ubint
   */
-  template<typename limb_t,usint BITLENGTH>
-  bint<limb_t,BITLENGTH> bint<limb_t,BITLENGTH>::intTobint(usint m){
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::intTobint(usint m){
 
-    return bint(m);
+    return ubint(m);
 
   }
 

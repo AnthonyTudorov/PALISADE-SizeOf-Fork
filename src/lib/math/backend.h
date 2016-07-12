@@ -55,8 +55,8 @@
 #if MATHBACKEND == 2
 	#include "cpu_int/binint.cpp"
 	#include "cpu_int/binvect.cpp"	
-#include "exp_int32/bint.cpp" //experimental dbc big integers
-#include "exp_int32/bintvec.cpp" //vectors of experimental
+#include "exp_int32/ubint.cpp" //experimental dbc big integers
+#include "exp_int32/ubintvec.cpp" //vectors of experimental
 //#include "exp_int32/mbint.cpp"
 //	#include "exp_int32/mbintvec.cpp"
 
@@ -85,7 +85,7 @@ namespace lbcrypto {
 	static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provided is not supported in BigBinaryInteger");
 
 	/** Define the mapping for BigBinaryInteger
-	    1500 is the maximum bitwidth supported by BigBinaryIntegers, large enough for most use cases
+	    1500 is the maximum bit width supported by BigBinaryIntegers, large enough for most use cases
 		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application - to achieve smaller runtimes**/
 	typedef cpu_int::BigBinaryInteger<integral_dtype,1500> BigBinaryInteger;
 	
@@ -95,13 +95,11 @@ namespace lbcrypto {
 	/** Define the mapping for BigBinaryMatrix */
 	//typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
 
-	/** Define the mapping for ExpBigBinaryInteger (experimentaa)
-	    1500 is the maximum bitwidth supported by BigBinaryIntegers, large enough for most use cases
-		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application - to achieve smaller runtimes**/
-	typedef exp_int32::bint<integral_dtype,1500> bint;
+	/** Define the mapping for ExpBigBinaryInteger (experimental) */
+	typedef exp_int32::ubint<integral_dtype> ubint;
 
 	/** Define the mapping for Big Integer Vector */
-	typedef exp_int32::bintvec<bint> bintvec;
+	typedef exp_int32::ubintvec<ubint> ubintvec;
 
 #endif
 

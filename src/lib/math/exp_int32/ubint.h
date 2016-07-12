@@ -1,5 +1,5 @@
 /**
- * @file
+* @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
  * Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu
  * <grs22@njit.edu>
@@ -33,16 +33,15 @@
  *
  * @section DESCRIPTION
  *
- * This file contains the main class for big integers: bint. Big
- * integers are represented as arrays of native usigned integers. The
+ * This file contains the main class for unsigned big integers: ubint. Big
+ * integers are represented as arrays of machine native unsigned integers. The
  * native integer type is supplied as a template parameter.  Currently
- * implementations based on uint8_t, uint16_t, and uint32_t are
- * supported. The second template parameter is the maximum bitwidth
- * for the big integer.
- */
+ * implementation based on uint32_t is
+ * supported. a native double the base integer size is also needed.
+  */
 
-#ifndef LBCRYPTO_MATH_EXPINT32_BINT_H
-#define LBCRYPTO_MATH_EXPINT32_BINT_H
+#ifndef LBCRYPTO_MATH_EXPINT32_UBINT_H
+#define LBCRYPTO_MATH_EXPINT32_UBINT_H
 
 #include <iostream>
 #include <string>
@@ -63,7 +62,7 @@
  */
 namespace exp_int32{
 
-  /**The following structs are needed for initialization of bint at
+  /**The following structs are needed for initialization of ubint at
    *the preprocessing stage.  The structs compute certain values using
    *template metaprogramming approach and mostly follow recursion to
    *calculate value(s).
@@ -71,7 +70,7 @@ namespace exp_int32{
 
   /**
    * @brief  Struct to find log value of N.
-   *Needed in the preprocessing step of bint to determine bitwidth.
+   *Needed in the preprocessing step of ubint to determine bitwidth.
    *
    * @tparam N bitwidth.
    */
@@ -84,7 +83,7 @@ namespace exp_int32{
   /**
    * @brief Struct to find log 2 value of N.
    *Base case for recursion.
-   *Needed in the preprocessing step of bint to determine bitwidth.
+   *Needed in the preprocessing step of ubint to determine bitwidth.
    */
   template<>
   struct Log2<2>{
@@ -93,7 +92,7 @@ namespace exp_int32{
     
   /**
    * @brief Struct to find log value of U where U is a primitive datatype.
-   *Needed in the preprocessing step of bint to determine bitwidth.
+   *Needed in the preprocessing step of ubint to determine bitwidth.
    *
    * @tparam U primitive data type.
    */
@@ -207,10 +206,9 @@ namespace exp_int32{
   /**
    * @brief Main class for big integers represented as an array of native (primitive) unsigned integers
    * @tparam limb_t native unsigned integer type
-   * @tparam BITLENGTH maximum bitdwidth supported for big integers
    */
-  template<typename limb_t,usint BITLENGTH>
-  class bint
+  template<typename limb_t>
+  class ubint
   {
       
   public:
@@ -218,100 +216,100 @@ namespace exp_int32{
     /**
      * Default constructor.
      */
-    bint();
+    ubint();
 
     /**
-     * Basic constructor for specifying the integer.
+     * Basic constructor for specifying the ubint.
      *
      * @param str is the initial integer represented as a string.
      */
-    explicit bint(const std::string& str);
+    explicit ubint(const std::string& str);
 
     /**
      * Basic constructor for initializing big integer from an unsigned integer.
      *
-     * @param init is the initial integer.
+     * @param init is the initial unsigned integer.
      */
-    explicit bint(usint init);
+    explicit ubint(usint init);
 
     /**
-     * Basic constructor for copying a big integer
+     * Basic constructor for copying a ubint
      *
-     * @param bigInteger is the big integer to be copied.
+     * @param rhs is the ubint to be copied.
      */
-    explicit bint(const bint& bigInteger);
+    explicit ubint(const ubint& rhs);
 
     /**
-     * Basic constructor for move copying a big  integer
+     * Basic constructor for move copying a ubint
      *
-     * @param &&bigInteger is the big  integer to be moved from.
+     * @param &&rhs is the ubint to be moved from.
      */
-    bint(bint &&bigInteger);
+    ubint(ubint&& rhs);
     
     /**
      * Destructor.
      */
-    ~bint();
+    ~ubint();
         
     /**
-     * Assignment operator
+     * Assignment operator (move copy)
      *
-     * @param &rhs is the big integer to be assigned from.
-     * @return assigned bint ref.
+     * @param &rhs is the ubint to be assigned from.
+     * @return assigned ubint ref.
      */
-    const bint&  operator=(const bint &rhs);
+    const ubint&  operator=(const ubint &rhs);
 
     /**
      * Assignment operator from unsigned integer
      *
      * @param val is the unsigned integer value that is assigned.
-     * @return the assigned Big  Integer ref.
+     * @return the assigned ubint ref.
      */
-    inline const bint& operator=(usint val) {
+    inline const ubint& operator=(usint val) {
     //  *this = intTobint(val);
-    	  *this = bint(val);
+    	  *this = ubint(val);
       return *this;
     }
 
     /**
      * Move copy constructor
      *
-     * @param &&rhs is the big  integer to move.
-     * @return object of type bint.
+     * @param &&rhs is the ubint to move.
+     * @return object of type ubint.
      */
-    const bint&  operator=(bint &&rhs);
+    const ubint&  operator=(ubint &&rhs);
 
     //Shift Operators
    
     /**
-     * Left shift operator of big  integer
+     * Left shift operator of ubint
      * @param shift is the amount to shift of type usint.
-     * @return the object of type bint
+     * @return the object of type ubint
      */
-    bint  operator<<(usint shift) const;
+    ubint  operator<<(usint shift) const;
 
     /**
      * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
      *
      * @param shift is the amount to shift of type usint.
-     * @return the object of type bint
+     * @return the object of type ubint
      */
-    const bint&  operator<<=(usint shift);
+    const ubint&  operator<<=(usint shift);
         
     /**
-     * Right shift operator of big  integer
+     * Right shift operator of ubint
      * @param shift is the amount to shift of type usint.
-     * @return the object of type bint
+     * @return the object of type ubint
      */
-    bint  operator>>(usint shift) const;
+    ubint  operator>>(usint shift) const;
 
     /**
      * Right shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
      *
      * @param shift is the amount to shift of type usint.
-     * @return the object of type bint
+     * @return the object of type ubint
      */
-    bint&  operator>>=(usint shift);
+    ubint&  operator>>=(usint shift);
 
     //Auxillary Functions
 
@@ -326,18 +324,18 @@ namespace exp_int32{
     void PrintLimbsInHex() const;
 
     /**
-     * Basic set method for setting the value of a big  integer
+     * Basic set method for setting the value of a ubint
      *
-     * @param str is the string representation of the big  integer to be copied.
+     * @param str is the string representation of the ubint to be copied.
      */
     void SetValue(const std::string& str);
         
     /**
-     * Basic set method for setting the value of a big  integer
+     * Basic set method for setting the value of a ubint
      *
-     * @param a is the big  integer representation of the big  integer to be assigned.
+     * @param a is the ubint representation of the ubint to be assigned.
      */
-    void SetValue(const bint& a);
+    void SetValue(const ubint& a);
 
         
     /**
@@ -356,7 +354,7 @@ namespace exp_int32{
 
     /**
      * Converts the value to a usint.
-     * if the bint is larger than the max value representable
+     * if the ubint is larger than the max value representable
      * it is truncated to the least significant bits that fit
      * @return the int representation of the value as usint.
      */
@@ -364,7 +362,7 @@ namespace exp_int32{
     
     /**
      * Converts the value to a usint. Soon to be DEPRECATED, because Int is not usint
-     * if the bint is larger than the max value representable
+     * if the ubint is larger than the max value representable
      * it is truncated to the least significant bits that fit
      * @return the int representation of the value as usint.
      */
@@ -372,7 +370,7 @@ namespace exp_int32{
 
     /**
      * Converts the value to a uint32_t.
-     * if the bint is larger than the max value representable
+     * if the ubint is larger than the max value representable
      * std::out_of_range is thrown
      * @return the int representation of the value as uint32_t
      */
@@ -380,7 +378,7 @@ namespace exp_int32{
     
     /**
      * Converts the value to a uint64_t.
-     * if the bint is larger than the max value representable
+     * if the ubint is larger than the max value representable
      * std::out_of_range is thrown
      * if conversion fails std::invalid_argment is thrown 
      * @return the int representation of the value as uint64_t
@@ -389,7 +387,7 @@ namespace exp_int32{
 
     /**
      * Converts the value to a float
-     * if the bint is larger than the max value representable
+     * if the ubint is larger than the max value representable
      * std::out_of_range is thrown
      * if conversion fails std::invalid_argment is thrown 
      *
@@ -399,7 +397,7 @@ namespace exp_int32{
 
     /**
      * Converts the value to an double.
-     * if the bint is larger than the max value representable
+     * if the ubint is larger than the max value representable
      * std::out_of_range is thrown
      * if conversion fails std::invalid_argment is thrown 
      *
@@ -410,7 +408,7 @@ namespace exp_int32{
 
     /**
      * Converts the value to an long double.
-     * if the bint is larger than the max value representable
+     * if the ubint is larger than the max value representable
      * std::out_of_range is thrown
      * if conversion fails std::invalid_argment is thrown 
      *
@@ -419,77 +417,77 @@ namespace exp_int32{
     long double ConvertToLongDouble() const;
 
     /**
-     * Convert a value from an int to a Big Int.
+     * Convert a value from an unsigned int to a ubint.
      *
      * @param m the value to convert from.
-     * @return int represented as a big  int.
+     * @return int represented as a ubint.
      */
-    static bint intTobint(usint m);
+    static ubint intTobint(usint m);
 
     //Arithemetic Operations
 
     /**
      * Addition operation.
      *
-     * @param b is the value to add of type Big  Integer.
-     * @return result of the addition operation of type Big Integer.
+     * @param b is the value to add of type ubint.
+     * @return result of the addition operation of type ubint.
      */
-    bint Add(const bint& b) const;
+    ubint Add(const ubint& b) const;
 
 		
     /**
      * Addition accumulator.
      *
-     * @param &b is the value to add of type Big  Integer.
-     * @return result of the addition operation of type Big  Integer.
+     * @param &b is the value to add of type ubint.
+     * @return result of the addition operation of type ubint.
      */
-    const bint& operator+=(const bint &b);
+    const ubint& operator+=(const ubint &b);
 
 		
     /**
      * Subtraction accumulator.
      *
-     * @param &b is the value to subtract of type Big  Integer.
-     * @return result of the subtraction operation of type Big  Integer.
+     * @param &b is the value to subtract of type ubint.
+     * @return result of the subtraction operation of type ubint.
      */
-    const bint& operator-=(const bint &b);
+    const ubint& operator-=(const ubint &b);
 
     /**
      * Subtraction operation.
      *
-     * @param b is the value to subtract of type Big  Integer.
-     * @return result of the subtraction operation of type Big  Integer.
+     * @param b is the value to subtract of type ubint.
+     * @return result of the subtraction operation of type ubint.
      */
-    bint Sub(const bint& b) const;
+    ubint Sub(const ubint& b) const;
 
         
     /**
      * Multiplication operation.
      *
-     * @param b of type Big  Integer is the value to multiply with.
+     * @param b of type ubint is the value to multiply with.
      * @return result of the multiplication operation.
      */
-    bint Mul(const bint& b) const;
+    ubint Mul(const ubint& b) const;
 
-    int divmnu_vect(bint& q, bint& r, const bint& u, const bint& v) const;
+    int divmnu_vect(ubint& q, ubint& r, const ubint& u, const ubint& v) const;
 
     /**
      * Division operation.
      *
-     * @param b of type bint is the value to divide by.
+     * @param b of type ubint is the value to divide by.
      * @return result of the division operation.
      */
-    bint DividedBy(const bint& b) const;
+    ubint DividedBy(const ubint& b) const;
 
     //modular arithmetic operations
 		
     /**
      * returns the modulus with respect to the input value. Classical modular reduction algorithm is used.
      *
-     * @param modulus is value of the modulus to perform. Its of type bint.
-     * @return bint that is the result of the modulus operation.
+     * @param modulus is value of the modulus to perform. Its of type ubint.
+     * @return ubint that is the result of the modulus operation.
      */
-    bint Mod(const bint& modulus) const;
+    ubint Mod(const ubint& modulus) const;
     
     /**
      * returns the modulus with respect to the input value.
@@ -500,7 +498,7 @@ namespace exp_int32{
      * @param mu is the Barrett value.
      * @return is the result of the modulus operation.
      */
-    bint ModBarrett(const bint& modulus, const bint& mu) const;
+    ubint ModBarrett(const ubint& modulus, const ubint& mu) const;
 
     /**
      * returns the modulus with respect to the input value.
@@ -511,7 +509,7 @@ namespace exp_int32{
      * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
      * @return result of the modulus operation.
      */
-    //bint ModBarrett(const bint& modulus, const bint mu_arr[BARRETT_LEVELS+1]) const;
+    //ubint ModBarrett(const ubint& modulus, const ubint mu_arr[BARRETT_LEVELS+1]) const;
 
     /**
      * returns the modulus inverse with respect to the input value.
@@ -519,7 +517,7 @@ namespace exp_int32{
      * @param modulus is the modulus to perform.
      * @return result of the modulus inverse operation.
      */
-    bint ModInverse(const bint& modulus) const;
+    ubint ModInverse(const ubint& modulus) const;
 
     /**
      * Scalar modular addition.
@@ -528,7 +526,7 @@ namespace exp_int32{
      * @param modulus is the modulus to perform operations with.
      * @return result of the modulus addition operation.
      */
-    bint ModAdd(const bint& b, const bint& modulus) const;
+    ubint ModAdd(const ubint& b, const ubint& modulus) const;
 
     /**
      * Modular addition where Barrett modulo reduction is used.
@@ -538,7 +536,7 @@ namespace exp_int32{
      * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
      * @return is the result of the modulus addition operation.
      */
-    //bint ModBarrettAdd(const bint& b, const bint& modulus,const bint mu_arr[BARRETT_LEVELS]) const;
+    //ubint ModBarrettAdd(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const;
 
     /**
      * Modular addition where Barrett modulo reduction is used.
@@ -548,7 +546,7 @@ namespace exp_int32{
      * @param mu is one precomputed Barrett value.
      * @return is the result of the modulus addition operation.
      */
-    bint ModBarrettAdd(const bint& b, const bint& modulus,const bint& mu) const;
+    ubint ModBarrettAdd(const ubint& b, const ubint& modulus,const ubint& mu) const;
 
     /**
      * Scalar modular subtraction.
@@ -557,7 +555,7 @@ namespace exp_int32{
      * @param modulus is the modulus to perform operations with.
      * @return result of the modulus subtraction operation.
      */
-    bint ModSub(const bint& b, const bint& modulus) const;
+    ubint ModSub(const ubint& b, const ubint& modulus) const;
 
     /**
      * Scalar modular subtraction where Barrett modular reduction is used.
@@ -567,7 +565,7 @@ namespace exp_int32{
      * @param mu is the Barrett value.
      * @return is the result of the modulus subtraction operation.
      */
-    bint ModBarrettSub(const bint& b, const bint& modulus,const bint& mu) const;
+    ubint ModBarrettSub(const ubint& b, const ubint& modulus,const ubint& mu) const;
 
     /**
      * Scalar modular subtraction where Barrett modular reduction is used.
@@ -577,7 +575,7 @@ namespace exp_int32{
      * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
      * @return is the result of the modulus subtraction operation.
      */
-    //bint ModBarrettSub(const bint& b, const bint& modulus,const bint mu_arr[BARRETT_LEVELS]) const;
+    //ubint ModBarrettSub(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const;
 
     /**
      * Scalar modulus multiplication.
@@ -586,7 +584,7 @@ namespace exp_int32{
      * @param modulus is the modulus to perform operations with.
      * @return is the result of the modulus multiplication operation.
      */
-    bint ModMul(const bint& b, const bint& modulus) const;
+    ubint ModMul(const ubint& b, const ubint& modulus) const;
 
     /**
      * Scalar modular multiplication where Barrett modular reduction is used.
@@ -599,7 +597,7 @@ namespace exp_int32{
      * @param mu is the precomputed Barrett value.
      * @return is the result of the modulus multiplication operation.
      */
-    bint ModBarrettMul(const bint& b, const bint& modulus,const bint& mu) const;
+    ubint ModBarrettMul(const ubint& b, const ubint& modulus,const ubint& mu) const;
 
     /**
      * Scalar modular multiplication where Barrett modular reduction is used.
@@ -609,7 +607,7 @@ namespace exp_int32{
      * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
      * @return is the result of the modulus multiplication operation.
      */
-    //bint ModBarrettMul(const bint& b, const bint& modulus,const bint mu_arr[BARRETT_LEVELS]) const;
+    //ubint ModBarrettMul(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const;
 
     /**
      * Scalar modular exponentiation. Square-and-multiply algorithm is used.
@@ -618,22 +616,22 @@ namespace exp_int32{
      * @param modulus is the modulus to perform operations with.
      * @return is the result of the modulus exponentiation operation.
      */
-    bint ModExp(const bint& b, const bint& modulus) const;
+    ubint ModExp(const ubint& b, const ubint& modulus) const;
 
     /**
-     * Stores the based 10 equivalent/Decimal value of the bint in a string object and returns it.
+     * Stores the based 10 equivalent/Decimal value of the ubint in a string object and returns it.
      *
-     * @return value of this bint in base 10 represented as a string.
+     * @return value of this ubint in base 10 represented as a string.
      */
     const std::string ToString() const;		
 
     /**
-     * Tests whether the bint is a power of 2.
+     * Tests whether the ubint is a power of 2.
      *
      * @param m_numToCheck is the value to check.
      * @return true if the input is a power of 2, false otherwise.
      */
-    bool CheckIfPowerOfTwo(const bint& m_numToCheck);
+    bool CheckIfPowerOfTwo(const ubint& m_numToCheck);
 
     /**
      * Get the number of digits using a specific base - support for arbitrary base may be needed.
@@ -653,20 +651,20 @@ namespace exp_int32{
     usint GetDigitAtIndexForBase(usint index, usint base) const;
 
     /**
-     * Convert a string representation of a binary number to a Big Int.
+     * Convert a string representation of a binary number to a ubint.
      *
      * @param bitString the binary num in string.
-     * @return the  number represented as a big  int.
+     * @return the  number represented as a ubint.
      */
-    static bint BinaryStringToBint(const std::string& bitString);
+    static ubint BinaryStringToUbint(const std::string& bitString);
 
     /**
      * Exponentiation of a bigInteger x. Returns x^p
      *
      * @param p the exponent.
-     * @return the big  integer x^p.
+     * @return the ubint x^p.
      */
-    bint Exp(usint p) const;
+    ubint Exp(usint p) const;
 
     /**
      * Test equality of the inputs.
@@ -674,7 +672,7 @@ namespace exp_int32{
      * @param a second value to test.
      * @return true if the inputs are equal.
      */
-    bool operator==(const bint& a) const;
+    bool operator==(const ubint& a) const;
 
     /**
      * Test inequality of the inputs.
@@ -682,7 +680,7 @@ namespace exp_int32{
      * @param a second value to test.
      * @return true if the inputs are inequal.
      */
-    bool operator!=(const bint& a) const;
+    bool operator!=(const ubint& a) const;
 
     /**
      * Test if first input is great than the second input.
@@ -690,7 +688,7 @@ namespace exp_int32{
      * @param a second value to test.
      * @return true if the first inputs is greater.
      */
-    bool operator> (const bint& a) const;
+    bool operator> (const ubint& a) const;
 
     /**
      * Test if first input is great than or equal to the second input.
@@ -698,7 +696,7 @@ namespace exp_int32{
      * @param a second value to test.
      * @return true if the first inputs is greater than or equal to the second input.
      */
-    bool operator>=(const bint& a) const;
+    bool operator>=(const ubint& a) const;
 
     /**
      * Test if first input is less than the second input.
@@ -706,7 +704,7 @@ namespace exp_int32{
      * @param a second value to test.
      * @return true if the first inputs is lesser.
      */
-    bool operator< (const bint& a) const;
+    bool operator< (const ubint& a) const;
 
     /**
      * Test if first input is less than or equal to the second input.
@@ -714,7 +712,7 @@ namespace exp_int32{
      * @param a second value to test.
      * @return true if the first inputs is less than or equal to the second input.
      */
-    bool operator<=(const bint& a) const;
+    bool operator<=(const ubint& a) const;
 
     //overloaded binary operators based on integer arithmetic and comparison functions
     /**
@@ -723,7 +721,7 @@ namespace exp_int32{
      * @param a is the value to add.
      * @return is the result of the addition operation.
      */
-    inline bint operator+(const bint &a) const {return this->Add(a);}
+    inline ubint operator+(const ubint &a) const {return this->Add(a);}
 
     /**
      * Subtraction operation.
@@ -731,7 +729,7 @@ namespace exp_int32{
      * @param a is the value to subtract.
      * @return is the result of the subtraction operation.
      */
-    inline bint operator-(const bint &a) const {return this->Sub(a);}
+    inline ubint operator-(const ubint &a) const {return this->Sub(a);}
 
     /**
      * Multiplication operation.
@@ -739,7 +737,7 @@ namespace exp_int32{
      * @param a is the value to multiply with.
      * @return is the result of the multiplication operation.
      */
-    inline bint operator*(const bint &a) const {return this->Mul(a);}
+    inline ubint operator*(const ubint &a) const {return this->Mul(a);}
 
     /**
      * Modulo operation. Classical modular reduction algorithm is used.
@@ -747,7 +745,7 @@ namespace exp_int32{
      * @param a is the value to Mod.
      * @return is the result of the modulus operation.
      */
-    inline bint operator%(const bint &a) const {return this->Mod(a);}
+    inline ubint operator%(const ubint &a) const {return this->Mod(a);}
 
     /**
      * Division operation.
@@ -756,17 +754,17 @@ namespace exp_int32{
      * @param b is the value to divide by.
      * @return is the result of the integral part after division operation.
      */
-    inline bint operator/ (const bint &a) const {return this->DividedBy(a);}
+    inline ubint operator/ (const ubint &a) const {return this->DividedBy(a);}
 
     /**
      * Console output operation.
      *
      * @param os is the std ostream object.
-     * @param ptr_obj is bint to be printed.
+     * @param ptr_obj is ubint to be printed.
      * @return is the ostream object.
      */
-    template<typename limb_t_c,usint BITLENGTH_c>
-    friend std::ostream& operator<<(std::ostream& os, const bint<limb_t_c,BITLENGTH_c> &ptr_obj);
+    template<typename limb_t_c>
+    friend std::ostream& operator<<(std::ostream& os, const ubint<limb_t_c> &ptr_obj);
     
     /**
      * Gets the bit at the specified index.
@@ -789,50 +787,50 @@ namespace exp_int32{
     /**
      * Constant zero.
      */
-    static const bint ZERO;
+    static const ubint ZERO;
 
     /**
      * Constant one.
      */
-    static const bint ONE;
+    static const ubint ONE;
 
     /**
      * Constant two.
      */
-    static const bint TWO;
+    static const ubint TWO;
 
     /**
      * Constant three.
      */
-    static const bint THREE;
+    static const ubint THREE;
 
     /**
      * Constant four.
      */
-    static const bint FOUR;
+    static const ubint FOUR;
 
     /**
      * Constant five.
      */
-    static const bint FIVE;
+    static const ubint FIVE;
     
     /**
-     * Compares the current bint to bint a.
+     * Compares the current ubint to ubint a.
      *
-     * @param a is the bint to be compared with.
+     * @param a is the ubint to be compared with.
      * @return  -1 for strictly less than, 0 for equal to and 1 for strictly greater than conditons.
      */
-    sint Compare(const bint& a) const;
+    sint Compare(const ubint& a) const;
 
     /**
      *  Set this int to 1.
      */
-    inline void SetIdentity() { *this = bint::ONE; };
+    inline void SetIdentity() { *this = ubint::ONE; };
 
     /**
-     * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of bint objects.
+     * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of ubint objects.
      */
-    static std::function<unique_ptr<bint>()> Allocator;
+    static std::function<unique_ptr<ubint>()> Allocator;
 
   protected:
     
@@ -844,12 +842,12 @@ namespace exp_int32{
     void AssignVal(const std::string& v);
 
     /**
-     * Sets the MSB to the correct value from the bint.
+     * Sets the MSB to the correct value from the ubint.
      */
     void SetMSB();
 
     /**
-     * Sets the MSB to the correct value from the bint.
+     * Sets the MSB to the correct value from the ubint.
      * @param guessIdxChar is the hint of the MSB position.
      */
     void SetMSB(usint guessIdxChar);
@@ -870,8 +868,6 @@ namespace exp_int32{
     //variable to store the maximum value of the limb data type.
     static const usint m_MaxLimb;
 
-
-
     //variable to store the log(base 2) of the number of bits in the limb data type.
     static const usint m_log2LimbBitLength;
 
@@ -879,7 +875,7 @@ namespace exp_int32{
     static const usint m_nSize;
 
     //The maximum number of digits in biginteger. It is used by the cout(ostream) function for printing the bignumber.
-    static const usint m_numDigitInPrintval;
+    static const usint m_numDigitInPrintval=1500;
     /**
      * function to return the ceiling of the number divided by the number of bits in the limb data type.
      * @param Number is the number to be divided.
@@ -888,7 +884,7 @@ namespace exp_int32{
     static usint ceilIntByUInt(const limb_t Number);
 
     //currently unused array
-    static const bint *m_modChain;
+    static const ubint *m_modChain;
 		
     /**
      * function to return the MSB of a 32 bit number.
@@ -921,7 +917,7 @@ namespace exp_int32{
     //Dlimb_t is the data type that has twice as many bits in the limb data type.
     typedef typename DoubleDataType<limb_t>::T Dlimb_t;
 
-    //enum defination to represent the state of the big  integer.
+    //enum defination to represent the state of the ubint.
     enum State{
       INITIALIZED,GARBAGE
     };
@@ -938,11 +934,11 @@ namespace exp_int32{
 
 
     /**
-     * function that returns the bint after multiplication by b.
+     * function that returns the ubint after multiplication by b.
      * @param b is the number to be multiplied.
-     * @return the bint after the multiplication.
+     * @return the ubint after the multiplication.
      */
-    bint MulIntegerByLimb(limb_t b) const;
+    ubint MulIntegerByLimb(limb_t b) const;
 		
     /**
      * function that returns the decimal value from the binary array a.
@@ -972,10 +968,10 @@ namespace exp_int32{
   // * @param b is the value to divide by.
   // * @return is the result of the division operation.
   // */
-  //template<typename limb_t,usint BITLENGTH>
-  //inline bint<limb_t,BITLENGTH> operator/(const bint<limb_t,BITLENGTH> &a, const bint<limb_t,BITLENGTH> &b) {return a.DividedBy(b);}
+  template<typename limb_t>
+  inline ubint<limb_t> operator/(const ubint<limb_t> &a, const ubint<limb_t> &b) {return a.DividedBy(b);}
 
 }//namespace ends
 
-#endif //LBCRYPTO_MATH_EXPINT32_BINT_H
+#endif //LBCRYPTO_MATH_EXPINT32_UBINT_H
 
