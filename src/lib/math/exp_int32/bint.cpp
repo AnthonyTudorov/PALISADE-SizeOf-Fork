@@ -269,6 +269,12 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
 		  return result;
 	  }
   }
+
+  template<typename limb_t, usint BITLENGTH>
+  usint bint<limb_t, BITLENGTH>::ConvertToInt() const{  //todo: deprecate this to Usint
+   return this->ConvertToUsint();
+  }
+
   // the following conversions all throw 
   //Converts the bint to uint32_t using the std library functions.
   template<typename limb_t, usint BITLENGTH>
@@ -276,7 +282,7 @@ const usint bint<limb_t,BITLENGTH>::m_MaxLimb = std::numeric_limits<limb_t>::max
     return std::stoul(this->ToString());
   }
 
-  //Converts the bint to uint64_t using the std library functions.
+    //Converts the bint to uint64_t using the std library functions.
   template<typename limb_t, usint BITLENGTH>
   uint64_t bint<limb_t,BITLENGTH>::ConvertToUint64() const{
     return std::stoull(this->ToString());

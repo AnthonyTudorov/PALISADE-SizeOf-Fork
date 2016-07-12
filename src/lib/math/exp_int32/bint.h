@@ -363,6 +363,14 @@ namespace exp_int32{
     usint ConvertToUsint() const;
     
     /**
+     * Converts the value to a usint. Soon to be DEPRECATED, because Int is not usint
+     * if the bint is larger than the max value representable
+     * it is truncated to the least significant bits that fit
+     * @return the int representation of the value as usint.
+     */
+    usint ConvertToInt() const;
+
+    /**
      * Converts the value to a uint32_t.
      * if the bint is larger than the max value representable
      * std::out_of_range is thrown
