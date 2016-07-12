@@ -182,7 +182,7 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	//Generate and test the cleartext pattern
 	////////////////////////////////////////////////////////////
 
-	std::string inputPattern = "1100??";
+	std::string inputPattern = "1?10?1";
 
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 	LWEConjunctionObfuscationAlgorithmV2<ILVector2n> algorithm;
@@ -193,7 +193,7 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	DEBUG(" \nCleartext pattern length: ");
 	DEBUG(clearPattern.GetLength());
 
-	std::string inputStr1 = "110000";
+	std::string inputStr1 = "111001";
 	bool out1 = algorithm.Evaluate(clearPattern,inputStr1);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << out1);
 
@@ -201,7 +201,7 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	bool out2 = algorithm.Evaluate(clearPattern,inputStr2);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << out2);
 	
-	std::string inputStr3 = "001100";
+	std::string inputStr3 = "101011";
 	bool out3 = algorithm.Evaluate(clearPattern,inputStr3);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr3 << " is " << out3);
 
