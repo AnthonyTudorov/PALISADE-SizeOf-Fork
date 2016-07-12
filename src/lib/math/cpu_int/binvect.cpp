@@ -76,7 +76,7 @@ BigBinaryVector<IntegerType>::BigBinaryVector(BigBinaryVector &&bigBinaryVector)
 
 //ASSIGNMENT OPERATOR
 template<class IntegerType>
-BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(const BigBinaryVector &rhs){
+const BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(const BigBinaryVector &rhs){
 	if(this!=&rhs){
 		if(this->m_length==rhs.m_length){
 			for (usint i = 0; i < m_length; i++){
@@ -100,7 +100,7 @@ BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(const BigB
 }
 
 template<class IntegerType>
-BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(std::initializer_list<sint> rhs){
+const BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(std::initializer_list<sint> rhs){
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each tower
 		if(i<len) {
