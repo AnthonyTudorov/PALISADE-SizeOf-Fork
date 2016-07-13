@@ -24,7 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "mempool.h"
+#include "mempool8bit.h"
 
 namespace cpu8bit {
 

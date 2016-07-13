@@ -22,7 +22,7 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
-#include "lweconjunctionobfuscate.h"
+#include "lweconjunctionobfuscatev2.h"
 
 #include "../utils/memory.h"
 #include "../utils/debug.h"
@@ -30,15 +30,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 template <class Element>
-ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern() {
+ObfuscatedLWEConjunctionPatternV2<Element>::ObfuscatedLWEConjunctionPatternV2() {
 
 	this->m_elemParams = NULL;
 	this->m_length = 0;
-	this->m_S0_vec = NULL;
-	this->m_S1_vec = NULL;
+	this->m_chunkSize = 1;
+	this->m_S_vec = NULL;
 
-	this->m_R0_vec = NULL;
-	this->m_R1_vec = NULL;
+	this->m_R_vec = NULL;
 
 	this->m_Sl = NULL;
 	this->m_Rl = NULL;
@@ -50,13 +49,10 @@ ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern() {
 }
 
 template <class Element>
-ObfuscatedLWEConjunctionPattern<Element>::~ObfuscatedLWEConjunctionPattern() {
-	if (this->m_S0_vec != NULL){
-		delete this->m_S0_vec;
-		delete this->m_S1_vec;
-	
-		delete this->m_R0_vec;
-		delete this->m_R1_vec;
+ObfuscatedLWEConjunctionPatternV2<Element>::~ObfuscatedLWEConjunctionPatternV2() {
+	if (this->m_S_vec != NULL){
+		delete this->m_S_vec;
+		delete this->m_R_vec;
 	
 		delete this->m_Sl;
 		delete this->m_Rl;
@@ -70,16 +66,16 @@ ObfuscatedLWEConjunctionPattern<Element>::~ObfuscatedLWEConjunctionPattern() {
 }
 
 template <class Element>
-ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern(ElemParams &elemParams) {
-	this->m_elemParams = NULL; //needed to satisfy compiler warning
-	this->SetParameters(elemParams);
+ObfuscatedLWEConjunctionPatternV2<Element>::ObfuscatedLWEConjunctionPatternV2(ElemParams &elemParams, usint chunkSize) {
+
+	this->m_elemParams = &elemParams;
+
 	this->m_length = 0;
+	this->m_chunkSize = chunkSize;
 
-	this->m_S0_vec = NULL;
-	this->m_S1_vec = NULL;
+	this->m_S_vec = NULL;
 
-	this->m_R0_vec = NULL;
-	this->m_R1_vec = NULL;
+	this->m_R_vec = NULL;
 
 	this->m_Sl = NULL;
 	this->m_Rl = NULL;
@@ -90,46 +86,28 @@ ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern(ElemPa
 }
 
 template <class Element>
-ClearLWEConjunctionPattern<Element>::ClearLWEConjunctionPattern(const std::string patternString) {
-	m_patternString = patternString;
-};
+ObfuscatedLWEConjunctionPatternV2<Element>::ObfuscatedLWEConjunctionPatternV2(ElemParams &elemParams) : 
+	ObfuscatedLWEConjunctionPatternV2(elemParams,1) {};
 
 template <class Element>
-std::string ClearLWEConjunctionPattern<Element>::GetPatternString() const {
-	return m_patternString;
-};
-
-// Gets the ring at a specific location
-template <class Element>
-char ClearLWEConjunctionPattern<Element>::GetIndex(usint loc) const {
-	return (char)m_patternString[loc];
-};
-
-template <class Element>
-usint ClearLWEConjunctionPattern<Element>::GetLength() const {
-	return m_patternString.length();
-};
-
-
-template <class Element>
-void ObfuscatedLWEConjunctionPattern<Element>::SetLength(usint length) {
+void ObfuscatedLWEConjunctionPatternV2<Element>::SetLength(usint length) {
 	m_length = length;
 };
 
 template <class Element>
-const BigBinaryInteger ObfuscatedLWEConjunctionPattern<Element>::GetModulus() const{
+const BigBinaryInteger ObfuscatedLWEConjunctionPatternV2<Element>::GetModulus() const{
 	BigBinaryInteger q(m_elemParams->GetModulus());
 	return q;
 };
 
 template <class Element>
-usint ObfuscatedLWEConjunctionPattern<Element>::GetRingDimension() const{
+usint ObfuscatedLWEConjunctionPatternV2<Element>::GetRingDimension() const{
 	return (this->m_elemParams->GetCyclotomicOrder())/2;
 };
 
 // Gets the log of the modulus
 template <class Element>
-usint ObfuscatedLWEConjunctionPattern<Element>::GetLogModulus() const{
+usint ObfuscatedLWEConjunctionPatternV2<Element>::GetLogModulus() const{
 	double val = this->m_elemParams->GetModulus().ConvertToDouble();
 	//std::cout << "val : " << val << std::endl;
 	double logTwo = log(val-1.0)/log(2)+1.0;
@@ -139,68 +117,54 @@ usint ObfuscatedLWEConjunctionPattern<Element>::GetLogModulus() const{
 };
 
 template <class Element>
-void ObfuscatedLWEConjunctionPattern<Element>::SetModulus(BigBinaryInteger &modulus) {
+void ObfuscatedLWEConjunctionPatternV2<Element>::SetModulus(BigBinaryInteger &modulus) {
 	this->m_elemParams.SetModulus(modulus);
 };
 
 // Sets the matrices that define the obfuscated pattern.
 template <class Element>
-void ObfuscatedLWEConjunctionPattern<Element>::SetMatrices(vector<Matrix<Element>> * S0_vec,
-		vector<Matrix<Element>> * S1_vec,
-		vector<Matrix<Element>> * R0_vec,
-		vector<Matrix<Element>> * R1_vec,
-		Matrix<Element> * Sl,
-		Matrix<Element> * Rl) {
+void ObfuscatedLWEConjunctionPatternV2<Element>::SetMatrices(vector<vector<Matrix<Element>>> *S_vec,
+		vector<vector<Matrix<Element>>> * R_vec, Matrix<Element> * Sl, Matrix<Element> * Rl) {
 
-	this->m_S0_vec = S0_vec;
-	this->m_S1_vec = S1_vec;
-
-	this->m_R0_vec = R0_vec;
-	this->m_R1_vec = R1_vec;
-
+	this->m_S_vec = S_vec;
+	this->m_R_vec = R_vec;
 	this->m_Sl = Sl;
 	this->m_Rl = Rl;
 
 }
 
 template <class Element>
-Matrix<Element>*  ObfuscatedLWEConjunctionPattern<Element>::GetR(usint i, char testVal) const {
+Matrix<Element>*  ObfuscatedLWEConjunctionPatternV2<Element>::GetR(usint i, const std::string &testVal) const {
 
 	Matrix<Element> *R_ib;
 
-	//std::cout << " Before if statement. " << std::endl;
-	if (testVal == '0') {
-		R_ib = &(this->m_R0_vec->at(i));
-	} else {
-		R_ib = &(this->m_R1_vec->at(i));
-	}
-	//std::cout << " After if statement. " << std::endl;
+	//extract the string corresponding to chunk size
+	int value = std::stoi(testVal,nullptr,2);
+
+	R_ib = &(this->m_R_vec->at(i).at(value));
 
 	return R_ib;
 }
 
 
 template <class Element>
-Matrix<Element>*  ObfuscatedLWEConjunctionPattern<Element>::GetS(usint i, char testVal) const {
+Matrix<Element>*  ObfuscatedLWEConjunctionPatternV2<Element>::GetS(usint i, const std::string &testVal) const {
 
 	Matrix<Element> *S_ib;
 
-	//std::cout << "which character" << testVal << "; " << (testVal == '0') << std::endl;
+	//extract the string corresponding to chunk size
+	int value = std::stoi(testVal,nullptr,2);
 
-	//std::cout << " Before if statement. " << std::endl;
-	if (testVal == '0') {
-		S_ib = &(this->m_S0_vec->at(i));
-	} else {
-		S_ib = &(this->m_S1_vec->at(i));
-	}
-	//std::cout << " After if statement. " << std::endl;
+	vector<Matrix<Element>> temp =  this->m_R_vec->at(i);
+
+	S_ib = &(this->m_S_vec->at(i).at(value));
 
 	return S_ib;
 }
 
 template <class Element>
-void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerator &dgg,
-				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
+void LWEConjunctionObfuscationAlgorithmV2<Element>::KeyGen(DiscreteGaussianGenerator &dgg,
+				ObfuscatedLWEConjunctionPatternV2<Element> *obfuscatedPattern) const {
 	TimeVar t1,t2; // for TIC TOC
 	bool dbg_flag = 0;
 	TIC(t1);
@@ -211,6 +175,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 
 	usint l = obfuscatedPattern->GetLength();
 	const ElemParams *params = obfuscatedPattern->GetParameters();
+	usint chunkSize = obfuscatedPattern->GetChunkSize();
+	usint adjustedLength = l/chunkSize;
 	usint stddev = dgg.GetStd(); 
 	//double s = 1000;
 	//double s = 600;
@@ -227,7 +193,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 	DEBUG("l = "<<l);
 
 	TIC(t2);
-	for(usint i=0; i<=l+1; i++) {
+	for(usint i=0; i<=adjustedLength+1; i++) {
 
 		TIC(t1);
 		pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev); //TODO remove stddev
@@ -271,7 +237,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 		std::vector<RLWETrapdoorPair>   *Ek_vector_pvt = new std::vector<RLWETrapdoorPair>();
 		std::vector<Matrix<LargeFloat>> *sigma_pvt = new std::vector<Matrix<LargeFloat>>();
 #pragma omp for nowait schedule(static)
-		for(int32_t i=0; i<=l+1; i++) {
+		for(int32_t i=0; i<=adjustedLength+1; i++) {
 			//build private copies in parallel
 			TIC(tp);
 			std::pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev); //TODO remove stddev
@@ -311,164 +277,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 #endif
 }
 
-
 template <class Element>
-void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
-				const ClearLWEConjunctionPattern<Element> &clearPattern,
-				DiscreteGaussianGenerator &dgg,
-				BinaryUniformGenerator &dbg,
-				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
-
-	TimeVar t1; // for TIC TOC
-	bool dbg_flag = 0;
-
-	obfuscatedPattern->SetLength(clearPattern.GetLength());
-	usint l = clearPattern.GetLength();
-	usint n = obfuscatedPattern->GetRingDimension();
-	BigBinaryInteger q(obfuscatedPattern->GetModulus());
-	usint m = obfuscatedPattern->GetLogModulus() + 2;
-	const ElemParams *params = obfuscatedPattern->GetParameters();
-	//usint stddev = dgg.GetStd(); 
-
-	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern->GetPublicKeys();
-	const std::vector<RLWETrapdoorPair>   &Ek_vector = obfuscatedPattern->GetEncodingKeys();
-	const std::vector<Matrix<LargeFloat>>   &Sigma = obfuscatedPattern->GetSigmaKeys();
-
-	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
-
-	std::cout << "" << std::endl;
-	std::cout << "Pattern length \t l : " << l << std::endl;
-	std::cout << "Ring dimension \t n : " << n << std::endl;
-	std::cout << "Modulus \t q : " << q << std::endl;
-	std::cout << "Num bits + 2 \t m : " << m << std::endl;
-
-	char val=0;
-
-	// Initialize the s and r matrices.
-	std::vector<Element> s_small_0;
-	std::vector<Element> s_small_1;
-
-	std::vector<Element> r_small_0;
-	std::vector<Element> r_small_1;
-
-	Element s_prod;
-	//DBC: above setup has insignificant timing.
-
-	//DBC: this loop has insignificant timing.
-	for(usint i=0; i<=l-1; i++) {
-		//Set the elements s and r to a discrete uniform generated vector.
-		Element elems0(dbg,*params,EVALUATION);
-		s_small_0.push_back(elems0);
-		//std::cout << elems0 << std::endl;
-
-		Element	elemr0(dbg,*params,EVALUATION);
-		r_small_0.push_back(elemr0);
-		//std::cout << elemr0 << std::endl;
-
-		//Determine wildcard or not.  If wildcard, copy s and r.  Else, don't copy.
-		bool wildCard = ((char)clearPattern.GetIndex(i) == '?');
-		if (wildCard) {
-			val = 1;
-			s_small_1.push_back(s_small_0.back());
-			r_small_1.push_back(r_small_0.back());
-		} else {
-			//Element elems1(dug,params,EVALUATION);
-			Element elems1(dbg,*params,EVALUATION);
-			s_small_1.push_back(elems1);
-
-			//Element	elemr1(dug,params,EVALUATION);
-			Element	elemr1(dbg,*params,EVALUATION);
-			r_small_1.push_back(elemr1);
-		}
-		
-		const Element *vi = NULL;
-		if ((char)clearPattern.GetIndex(i) == '1')
-		{
-			std::cout << "index is 1" << std::endl;
-			vi = &s_small_1.back();
-		}
-		else
-			vi = &s_small_0.back();
-		
-		if (i==0) {
-			s_prod = *vi;
-		} else {
-			s_prod = (*vi) * s_prod;
-		}
-
-	}
-
-	//DBC this setup has insignificant timing
-	std::cout << "Obfuscate: Generated random uniform ring elements" << std::endl;
-
-	std::vector<Matrix<Element>> *S0_vec = new std::vector<Matrix<Element>>();
-	std::vector<Matrix<Element>> *S1_vec = new std::vector<Matrix<Element>>();
-
-	std::vector<Matrix<Element>> *R0_vec = new std::vector<Matrix<Element>>();
-	std::vector<Matrix<Element>> *R1_vec = new std::vector<Matrix<Element>>();
-
-
-	//DBC: this loop takes all the time, so we time it with TIC TOC
-	for(usint i=1; i<=l; i++) {
-
-		TIC(t1);
-		Matrix<Element> *S0_i = new Matrix<Element>(zero_alloc, m, m);
-
-		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],s_small_0[i-1]*r_small_0[i-1],dgg,S0_i);
-		S0_vec->push_back(*S0_i);
-
-		//std::cout << "encode ran S0" << std::endl;
-
-		Matrix<Element> *S1_i = new Matrix<Element>(zero_alloc, m, m);
-		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],s_small_1[i-1]*r_small_1[i-1],dgg,S1_i);
-		S1_vec->push_back(*S1_i);
-
-		//std::cout << "encode ran S1" << std::endl;
-
-		Matrix<Element> *R0_i = new Matrix<Element>(zero_alloc, m, m);
-		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],r_small_0[i-1],dgg,R0_i);
-		R0_vec->push_back(*R0_i);
-
-		//std::cout << "encode ran R0" << std::endl;
-
-		Matrix<Element> *R1_i = new Matrix<Element>(zero_alloc, m, m);
-		this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],r_small_1[i-1],dgg,R1_i);
-		R1_vec->push_back(*R1_i);
-
-		//std::cout << "encode ran R1" << std::endl;
-
-		std::cout << "encode round " << i << " completed" << std::endl;
-		DEBUG("Obf1:#"<< i << ": "<<TOC(t1) <<" ms");
-	}
-	//the remainder of the code in this function also takes some time so time it
-	TIC(t1);
-
-	//std::cout << "encode started for L" << std::endl;
-
-	//Element	elemrl1(dug,params,EVALUATION);
-	Element	elemrl1(dbg,*params,EVALUATION);
-
-	Matrix<Element> *Sl = new Matrix<Element>(zero_alloc, m, m);
-	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],Sigma[l],elemrl1*s_prod,dgg,Sl);
-
-	//std::cout << "encode 1 for L ran" << std::endl;
-	//std::cout << elemrl1.GetValues() << std::endl;
-
-	Matrix<Element> *Rl = new Matrix<Element>(zero_alloc, m, m);
-	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],Sigma[l],elemrl1,dgg,Rl);
-
-	//std::cout << "encode 2 for L ran" << std::endl;
-
-	//Sl.PrintValues();
-	//Rl.PrintValues();
-	obfuscatedPattern->SetMatrices(S0_vec,S1_vec,R0_vec,R1_vec,Sl,Rl);
-
-	//obfuscatedPattern->GetSl();
-	DEBUG("Obf2: "<<TOC(t1) <<" ms");
-};
-
-template <class Element>
-void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
+void LWEConjunctionObfuscationAlgorithmV2<Element>::Encode(
 				const Matrix<Element> &Ai,
 				const Matrix<Element> &Aj,
 				const RLWETrapdoorPair &Ti,
@@ -537,7 +347,188 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 };
 
 template <class Element>
-bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
+void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
+				const ClearLWEConjunctionPattern<Element> &clearPattern,
+				DiscreteGaussianGenerator &dgg,
+				BinaryUniformGenerator &dbg,
+				ObfuscatedLWEConjunctionPatternV2<Element> *obfuscatedPattern) const {
+
+	TimeVar t1; // for TIC TOC
+	bool dbg_flag = 0;
+
+	obfuscatedPattern->SetLength(clearPattern.GetLength());
+	usint l = clearPattern.GetLength();
+	usint n = obfuscatedPattern->GetRingDimension();
+	BigBinaryInteger q(obfuscatedPattern->GetModulus());
+	usint m = obfuscatedPattern->GetLogModulus() + 2;
+	usint chunkSize = obfuscatedPattern->GetChunkSize();
+	usint adjustedLength = l/chunkSize;
+	usint chunkExponent = 1 << chunkSize;
+	const ElemParams *params = obfuscatedPattern->GetParameters();
+
+	const std::string patternString = clearPattern.GetPatternString();
+
+	//usint stddev = dgg.GetStd(); 
+
+	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern->GetPublicKeys();
+	const std::vector<RLWETrapdoorPair>   &Ek_vector = obfuscatedPattern->GetEncodingKeys();
+	const std::vector<Matrix<LargeFloat>>   &Sigma = obfuscatedPattern->GetSigmaKeys();
+
+	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+
+	std::cout << "" << std::endl;
+	std::cout << "Pattern length \t l : " << l << std::endl;
+	std::cout << "Ring dimension \t n : " << n << std::endl;
+	std::cout << "Modulus \t q : " << q << std::endl;
+	std::cout << "Num bits + 2 \t m : " << m << std::endl;
+
+	char val=0;
+
+	// Initialize the s and r matrices.
+	vector<vector<Element>> s_small;
+	vector<vector<Element>> r_small;
+
+	Element s_prod;
+	//DBC: above setup has insignificant timing.
+
+	//DBC: this loop has insignificant timing.
+	for(usint i=0; i<=adjustedLength-1; i++) {
+
+		// current chunk of cleartext pattern
+		std::string chunk = patternString.substr(i*chunkSize,chunkSize);
+
+		// build a chunk mask that maps "10??" to "0011" - ones correspond to wildcard character 
+		std::string chunkTemp = replaceChar(chunk,'1','0');
+		chunkTemp = replaceChar(chunkTemp,'?','1');
+
+		// store the mask as integer for bitwise operations
+		int chunkMask = std::stoi(chunkTemp,nullptr,2);
+
+		//std::cout << "mask = " << chunkMask << endl;
+
+		// build a an inverse chunk mask that maps "10??" to "1100" - ones correspond to wildcard character 
+		chunkTemp = replaceChar(chunk,'0','1');
+		chunkTemp = replaceChar(chunkTemp,'?','0');
+		// store the mask as integer for bitwise operations
+		int inverseChunkMask = std::stoi(chunkTemp,nullptr,2);
+
+		//std::cout << "inverse mask = " << inverseChunkMask << endl;
+
+		vector<Element> sVector;
+		vector<Element> rVector;
+
+		//cout << "before entering the loop " << endl;
+
+		for (usint k=0; k < chunkExponent; k++) {
+
+			//cout << "entered the loop " << endl;
+
+			//cout << "k: " << k << "flag : " << (k & chunkMask) << endl;
+
+			// if all wildcard bits are set to 0, then a new random element "s" needs to be created
+			// otherwise use an existing one that has already been created
+			if ((k & chunkMask)==0) {
+				//cout << "entered the non-mask condition " << endl;
+				Element elems1(dbg,*params,EVALUATION);
+				sVector.push_back(elems1);
+			}
+			else
+			{
+				//cout << "entered the mask condition " << endl;
+				Element elems1 = sVector[k & inverseChunkMask];
+				sVector.push_back(elems1);
+			}
+			
+			Element elemr1(dbg,*params,EVALUATION);
+			rVector.push_back(elemr1);
+
+		}
+
+		//cout << "done with the loop " << endl;
+		
+		const Element *vi = NULL;
+
+		// get current value for s vector replacing each "?" with 0
+		chunkTemp = replaceChar(chunk,'?','0');
+		// store the mask as integer for bitwise operations
+		int chunkValue = std::stoi(chunkTemp,nullptr,2);
+
+		//std::cout << "value = " << chunkValue << endl;
+
+		vi = &sVector[chunkValue];
+		
+		if (i==0) {
+			s_prod = *vi;
+		} else {
+			s_prod = (*vi) * s_prod;
+		}
+
+		s_small.push_back(sVector);
+		r_small.push_back(rVector);
+
+	}
+
+	//DBC this setup has insignificant timing
+	std::cout << "Obfuscate: Generated random uniform ring elements" << std::endl;
+
+	std::vector<std::vector<Matrix<Element>>> *S_vec = new std::vector<std::vector<Matrix<Element>>>();
+	std::vector<std::vector<Matrix<Element>>> *R_vec = new std::vector<std::vector<Matrix<Element>>>();
+
+	//DBC: this loop takes all the time, so we time it with TIC TOC
+	for(usint i=1; i<=adjustedLength; i++) {
+
+		TIC(t1);
+
+		std::vector<Matrix<Element>> SVector;
+		std::vector<Matrix<Element>> RVector;
+
+		for(usint k=0; k<chunkExponent; k++) {
+
+			Matrix<Element> *S_i = new Matrix<Element>(zero_alloc, m, m);
+			this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],s_small[i-1][k]*r_small[i-1][k],dgg,S_i);
+			SVector.push_back(*S_i);
+
+			Matrix<Element> *R_i = new Matrix<Element>(zero_alloc, m, m);
+			this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],Sigma[i-1],r_small[i-1][k],dgg,R_i);
+			RVector.push_back(*R_i);
+
+		}
+
+		S_vec->push_back(SVector);
+		R_vec->push_back(RVector);
+
+		std::cout << "encode round " << i << " completed" << std::endl;
+		DEBUG("Obf1:#"<< i << ": "<<TOC(t1) <<" ms");
+	}
+	//the remainder of the code in this function also takes some time so time it
+	TIC(t1);
+
+	//std::cout << "encode started for L" << std::endl;
+
+	Element	elemrl1(dbg,*params,EVALUATION);
+
+	Matrix<Element> *Sl = new Matrix<Element>(zero_alloc, m, m);
+	this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],Sigma[adjustedLength],elemrl1*s_prod,dgg,Sl);
+
+	//std::cout << "encode 1 for L ran" << std::endl;
+	//std::cout << elemrl1.GetValues() << std::endl;
+
+	Matrix<Element> *Rl = new Matrix<Element>(zero_alloc, m, m);
+	this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],Sigma[adjustedLength],elemrl1,dgg,Rl);
+
+	//std::cout << "encode 2 for L ran" << std::endl;
+
+	//Sl.PrintValues();
+	//Rl.PrintValues();
+	obfuscatedPattern->SetMatrices(S_vec,R_vec,Sl,Rl);
+
+	//obfuscatedPattern->GetSl();
+	DEBUG("Obf2: "<<TOC(t1) <<" ms");
+};
+
+
+template <class Element>
+bool LWEConjunctionObfuscationAlgorithmV2<Element>::Evaluate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				const std::string &testString) const {
 	//Evaluation of Clear Conjunction Pattern
@@ -566,8 +557,8 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 };
 
 template <class Element>
-bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
-				const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
+bool LWEConjunctionObfuscationAlgorithmV2<Element>::Evaluate(
+				const ObfuscatedLWEConjunctionPatternV2<Element> &obfuscatedPattern,
 				const std::string &testString) const {
 	//Evaluation of Obfuscated Conjunction Pattern
 	TimeVar t1; // for TIC TOC
@@ -578,6 +569,8 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	usint n = obfuscatedPattern.GetRingDimension();
 	BigBinaryInteger q(obfuscatedPattern.GetModulus());
 	usint m = obfuscatedPattern.GetLogModulus() + 2;
+	usint chunkSize = obfuscatedPattern.GetChunkSize();
+	usint adjustedLength = l/chunkSize;
 	double constraint = obfuscatedPattern.GetConstraint();
 
 	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
@@ -594,7 +587,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	std::cout << "Constraint \t : " << constraint << std::endl;
 
 	bool retVal = true;
-	char testVal;
+	std::string testVal;
 
 	double norm = constraint;
 
@@ -604,18 +597,18 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	//S_prod.PrintValues();
 	//R_prod.PrintValues();
 
-	Matrix<Element> *S_ib;// = Matrix<Element>(secureIL2nAlloc(), m, m);
-	Matrix<Element> *R_ib;// = Matrix<Element>(secureIL2nAlloc(), m, m);
+	Matrix<Element> *S_ib;
+	Matrix<Element> *R_ib;
 
 	DEBUG("Eval1: "<<TOC(t1) <<" ms");
 
-	for (usint i=0; i<l; i++) 	{
+	for (usint i=0; i<adjustedLength; i++) 	{
 		TIC(t1);
 
 		//pragma omp parallel sections
 		{
 			{
-				testVal = (char)testString[i];
+				testVal = testString.substr(i*chunkSize,chunkSize);
 				std::cout << " Index: " << i << std::endl;
 				std::cout << " \t Input: \t" << testVal << std::endl;
 			}

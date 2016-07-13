@@ -965,8 +965,8 @@ namespace lbcrypto {
 			 * @param &plaintext the plaintext input.
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			void Encrypt(const LPPublicKey<Element> &publicKey, 
-				const PlaintextEncodingInterface &plaintext, 
+			EncryptResult Encrypt(const LPPublicKey<Element> &publicKey,
+				const Element &plaintext,
 				Ciphertext<Element> *ciphertext) const;
 
 			/**
@@ -986,9 +986,9 @@ namespace lbcrypto {
 			 * @param *plaintext the plaintext output.
 			 * @return the decrypted plaintext returned.
 			 */			
-			DecodingResult Decrypt(const LPPrivateKey<Element> &privateKey, 
+			DecryptResult Decrypt(const LPPrivateKey<Element> &privateKey, 
 				const Ciphertext<Element> &ciphertext,
-				PlaintextEncodingInterface *plaintext) const;
+				Element *plaintext) const;
 			
 			/**
 			 * Function to generate public and private keys
@@ -1101,10 +1101,9 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionSchemeLTV : public LPPublicKeyEncryptionScheme<Element>{
 		public:
-			LPPublicKeyEncryptionSchemeLTV();
-			LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask);
+			LPPublicKeyEncryptionSchemeLTV(size_t chunksize) : LPPublicKeyEncryptionScheme<Element>(chunksize) {}
+			LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask, size_t chunksize);
 
-			virtual ~LPPublicKeyEncryptionSchemeLTV();
 			//These functions can be implemented later
 			//Initialize(mask);
 
@@ -1118,8 +1117,8 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionSchemeStehleSteinfeld : public LPPublicKeyEncryptionSchemeLTV<Element>{
 		public:
-			LPPublicKeyEncryptionSchemeStehleSteinfeld() : LPPublicKeyEncryptionSchemeLTV<Element>() {};
-			LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask);
+			LPPublicKeyEncryptionSchemeStehleSteinfeld(size_t chunksize) : LPPublicKeyEncryptionSchemeLTV<Element>(chunksize) {}
+			LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask, size_t chunksize);
 
 			void Enable(PKESchemeFeature feature);
 	};

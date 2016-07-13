@@ -65,7 +65,7 @@ public:
 	*/
 	DistributionGenerator ();
 
-protected:
+//protected:
 	/**
 	* @brief  Returns the singleton PRNG. This should be used to generate all random numbers in implementing classes.
 	* @return The singleton PRNG.

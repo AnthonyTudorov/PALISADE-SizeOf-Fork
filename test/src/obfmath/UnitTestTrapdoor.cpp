@@ -38,12 +38,11 @@
 #include "../../../src/lib/utils/inttypes.h"
 #include "../../../src/lib/utils/utilities.h"
 
-#include "../../../src/lib/obfmath/randomizedround.h"
-#include "../../../src/lib/obfmath/trapdoor.h"
+#include "../../../src/lib/lattice/trapdoor.h"
 #include "../../../src/lib/obfuscate/lweconjunctionobfuscate.h"
 #include "../../../src/lib/obfuscate/lweconjunctionobfuscate.cpp"
 
-using namespace std;
+//using namespace std;
 using namespace lbcrypto;
 
 
@@ -97,7 +96,7 @@ TEST(UTTrapdoor,sizes){
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	ILParams fastParams( m, modulus, rootOfUnity);
-	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(fastParams, stddev);
+	std::pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(fastParams, stddev);
 
 	EXPECT_EQ(1,trapPair.first.GetRows())
 		<< "Failure testing number of rows";
@@ -130,7 +129,7 @@ TEST(UTTrapdoor,TrapDoorPairTest){
 	ILParams params( m, modulus, rootOfUnity);
     auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
-	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev);
+	std::pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -193,7 +192,7 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 	ILParams params( m, modulus, rootOfUnity);
     auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
-	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev);
+	std::pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -216,6 +215,49 @@ TEST(UTTrapdoor,TrapDoorMultTest){
     EXPECT_EQ(g, trapMult);
 }
 
+TEST(UTTrapdoor,TrapDoorGaussGqV2SampTest) {
+	usint m = 16;
+    usint n = m/2;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	//BigBinaryInteger modulus("134218081");
+	//BigBinaryInteger rootOfUnity("19091337");
+	//BigBinaryInteger modulus("1048609");
+	//BigBinaryInteger rootOfUnity("389832");
+	ILParams params( m, modulus, rootOfUnity);
+    auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+	float sigma = 4;
+
+	DiscreteGaussianGenerator dgg(sigma);
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
+
+	ILVector2n u(dug,params,COEFFICIENT);
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	//YSP check logTwo computation
+	double logTwo = log(val-1.0)/log(2)+1.0;
+	usint k = (usint) floor(logTwo);
+
+	Matrix<int32_t> zHatBBI([](){ return make_unique<int32_t>(); },  k, m/2);
+
+	LatticeGaussSampUtility::GaussSampGqV2(u,sigma,k,modulus, 2,dgg,&zHatBBI);
+
+	EXPECT_EQ(k,zHatBBI.GetRows())
+		<< "Failure testing number of rows";
+	EXPECT_EQ(u.GetLength(),zHatBBI.GetCols())
+		<< "Failure testing number of colums";
+    Matrix<ILVector2n> z = SplitInt32AltIntoILVector2nElements(zHatBBI, n, params);
+	z.SwitchFormat();
+
+	ILVector2n uEst;
+	uEst = (Matrix<ILVector2n>(zero_alloc, 1,  k).GadgetVector()*z)(0,0);
+	uEst.SwitchFormat();
+
+    EXPECT_EQ(u, uEst);
+
+}
+
+
 TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	usint m = 16;
     usint n = m/2;
@@ -236,7 +278,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 
 	Matrix<int32_t> zHatBBI([](){ return make_unique<int32_t>(); },  k, m/2);
 
-	GaussSampGq(u,sigma,k,modulus, dgg,&zHatBBI);
+	LatticeGaussSampUtility::GaussSampGq(u,sigma,k,modulus, dgg,&zHatBBI);
 	//GaussSampG(u,sigma,k,dgg,&zHatBBI);
 
 	EXPECT_EQ(k,zHatBBI.GetRows())
@@ -247,11 +289,13 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	z.SwitchFormat();
 	ILVector2n uEst(params,COEFFICIENT);
 	uEst = (Matrix<ILVector2n>(zero_alloc, 1,  k).GadgetVector()*z)(0,0);
+
 	uEst.SwitchFormat();
 
     EXPECT_EQ(u, uEst);
 
 }
+
 
 TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 
@@ -270,7 +314,7 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 	ILParams params( m, modulus, rootOfUnity);
     //auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
-	pair<RingMat, TrapdoorPair> trapPair = TrapdoorSample(params, stddev);
+	std::pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -283,11 +327,11 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 	u.SwitchFormat();
 
 	Matrix<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
-	PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
+	RLWETrapdoorUtility::PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
 
     //  600 is a very rough estimate for s, refer to Durmstradt 4.2 for
     //      estimation
-	RingMat z = GaussSamp(m/2, k, trapPair.first, trapPair.second, sigmaSqrt, u, stddev, dgg);
+	RingMat z = RLWETrapdoorUtility::GaussSamp(m/2, k, trapPair.first, trapPair.second, sigmaSqrt, u, stddev, dgg);
 
 	//Matrix<ILVector2n> uEst = trapPair.first * z;
 
@@ -341,7 +385,7 @@ TEST(UTTrapdoor,EncodeTest_dgg_yes) {
 	algorithm.KeyGen(dgg,&obfuscatedPattern);
 
 	const std::vector<Matrix<ILVector2n>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
-	const std::vector<TrapdoorPair>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
+	const std::vector<RLWETrapdoorPair>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
 	const std::vector<Matrix<LargeFloat>>   &Sigma = obfuscatedPattern.GetSigmaKeys();
 
 	double constraint = obfuscatedPattern.GetConstraint();
@@ -408,7 +452,7 @@ TEST(UTTrapdoor,EncodeTest_dgg_no) {
 	algorithm.KeyGen(dgg,&obfuscatedPattern);
 
 	const std::vector<Matrix<ILVector2n>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
-	const std::vector<TrapdoorPair>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
+	const std::vector<RLWETrapdoorPair>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
 	const std::vector<Matrix<LargeFloat>>   &Sigma = obfuscatedPattern.GetSigmaKeys();
 
 	double constraint = obfuscatedPattern.GetConstraint();

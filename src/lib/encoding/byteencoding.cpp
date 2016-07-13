@@ -25,12 +25,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "ptxtencoding.h"
+#include "byteencoding.h"
 #include <string>
 
 namespace lbcrypto {
 
-<<<<<<< HEAD
 	//Implementation of ToInt32
 	std::vector<uint32_t> ByteArrayPlaintextEncoding::ToInt32() const {
 		std::vector<uint32_t> vectorOfInt32(m_data.size());
@@ -59,7 +58,6 @@ namespace lbcrypto {
 		temp.SetModulus(ilVector->GetModulus());
 		Format format = COEFFICIENT;
 
-		
 		for (usint i = 0; i<m_data.size(); i++) {
 			usint Num = m_data.at(i);
 			usint exp = mod, Rem = 0;
@@ -77,7 +75,8 @@ namespace lbcrypto {
 
 	void ByteArrayPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector) {
 
-		// ilVector = ilVector.Mod(modulus);
+		//std::cout << "plaintext modulus " << modulus << std::endl;
+		ilVector = ilVector.Mod(modulus);
 
 		ByteArray byteArray;
 		usint mod = modulus.ConvertToInt();
@@ -97,38 +96,25 @@ namespace lbcrypto {
 
 	}
 
-	void ByteArrayPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *element) const{
-	   //TODO - OPTIMIZE CODE. Please take a look at line 114 temp.SetModulus
-		ILVector2n temp = element->GetElementAtIndex (0);
-		
-		BigBinaryInteger symbol(modulus);
-		Encode(symbol, &temp);
-
-		std::vector<ILVector2n> symbolVals;
-				
-		for(usint i=0;i<element->GetNumOfElements();i++){
-			ILParams ilparams(element->GetElementAtIndex(i).GetCyclotomicOrder(), element->GetElementAtIndex(i).GetModulus(), element->GetElementAtIndex(i).GetRootOfUnity());
-			ILVector2n ilVector(ilparams);
-			temp.SwitchModulus( ilparams.GetModulus(), ilparams.GetRootOfUnity() );
-			
-			// temp.SetModulus(ilparams.GetModulus());
-			ilVector.SetValues(temp.GetValues(),temp.GetFormat());
-			symbolVals.push_back(ilVector);
-		}
-
-		ILVectorArray2n elementNew(symbolVals);
-		*element = elementNew;
-		
+	void ByteArrayPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVectorArray2n) const{
+		ILVector2n temp = ilVectorArray2n->GetValues(0);
+		BigBinaryInteger modulusValue;
+		modulusValue = modulus;
+		Encode(modulusValue, &temp);
+	//	temp.PrintValues();
+		ILVectorArray2n ilvectorArrayTemp(temp, ilVectorArray2n->GetParams(),ilVectorArray2n->GetFormat());
+	//	ilvectorArrayTemp.PrintValues();
+		*ilVectorArray2n = ilvectorArrayTemp;
 	}
 
 	
 	void ByteArrayPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n &ilVectorArray2n){
 	 
     	ILVector2n interpolatedDecodedValue = ilVectorArray2n.InterpolateIlArrayVector2n();
-	//	interpolatedDecodedValue = interpolatedDecodedValue.Mod(modulus);
+		
 		//interpolatedDecodedValue.DecodeElement(text, modulus);
 		Decode(modulus, interpolatedDecodedValue);
-			
+
 	}
 
     std::ostream &operator<<(std::ostream &out, const ByteArrayPlaintextEncoding &ptxt)
@@ -139,58 +125,4 @@ namespace lbcrypto {
         return out ;
     }
 
-	//Impementation of ToInt32
-	std::vector<uint32_t> IntArrayPlaintextEncoding::ToInt32() const {
-		std::vector<uint32_t> vectorOfInt32(m_data.size());
-		for(std::vector<int>::size_type i = 0; i != vectorOfInt32.size(); i++) {
-			vectorOfInt32[i] = m_data[i];
-		}
-		return vectorOfInt32;
-	}
-
-	void IntArrayPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVectorArray2n) const{
-	
-	}
-
-	
-	void IntArrayPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n &ilVectorArray2n){
-	
-
-	}
-
-
-
-	void IntArrayPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector) const {
-
-		BigBinaryVector temp(ilVector->GetCyclotomicOrder()/2,ilVector->GetModulus());
-
-		Format format = COEFFICIENT;
-
-		for (usint i = 0; i<m_data.size(); i++) {
-			temp.SetValAtIndex(i, BigBinaryInteger(m_data[i]));
-		}
-
-		ilVector->SetValues(temp,format);
-	}
-
-	void IntArrayPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector) {
-		
-		// ilVector = ilVector.Mod(modulus);
-		std::vector<uint32_t> intArray(ilVector.GetValues().GetLength());
-		for (usint i = 0; i<ilVector.GetValues().GetLength(); i++) {
-			intArray[i] = ilVector.GetValues().GetValAtIndex(i).ConvertToInt();
-		}
-		this->m_data = intArray;
-
-	}
-
-	
-    std::ostream &operator<<(std::ostream &out, const IntArrayPlaintextEncoding &ptxt)
-    {
-        const std::vector<uint32_t> &intArray = ptxt.GetData();
-        out << intArray;
-        return out ;
-    }
-=======
->>>>>>> master
 }  // namespace lbcrypto ends

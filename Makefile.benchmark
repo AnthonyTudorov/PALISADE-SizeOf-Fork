@@ -84,7 +84,7 @@ BENCHMARK_EXAMPLES_OBJ = $(BENCHMARK_EXAMPLES_SRC:$(BENCHMARK_EXAMPLES_SRC_DIR)%
 BENCHMARK_EXAMPLES = $(BENCHMARK_EXAMPLES_SRC:$(BENCHMARK_EXAMPLES_SRC_DIR)%.cc=$(BENCHMARK_EXAMPLES_BIN_DIR)%)
 
 # this is the include line for generating any benc2hmark object (not in the library)
-BENCHMARK_INCLUDES = -Ibenchmark/include -Iinclude
+BENCHMARK_INCLUDES = -Ibenchmark/include -Iinclude $(BOOSTINCLUDE)
 
 # this builds objects from sources for examples
 $(BENCHMARK_EXAMPLES_BUILD_DIR)/%.o: $(BENCHMARK_EXAMPLES_SRC_DIR)/%.cc

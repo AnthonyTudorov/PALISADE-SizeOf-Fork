@@ -43,10 +43,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/lattice/ilvector2n.h"
 #include "../../lib/lattice/ilvectorarray2n.h"
 #include "../../lib/crypto/cryptocontext.h"
+
+#include "../../lib/encoding/cryptoutility.h"
 #include "time.h"
 
 #include <chrono>
 #include "../../lib/utils/debug.h"
+#include "../../lib/encoding/byteencoding.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -139,7 +142,7 @@ void NTRU_DCRT() {
 
 	std::cout << "tower size: " << size << std::endl;
 
-	ByteArrayPlaintextEncoding ctxtd;
+	ByteArray ctxtd;
 
 	vector<BigBinaryInteger> moduli(size);
 
@@ -186,7 +189,8 @@ void NTRU_DCRT() {
 	LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
 
 	//std::bitset<FEATURESETSIZE> mask (std::string("000011"));
-	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2;
+	size_t chunksize = ((m / 2) / 8);
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm2(chunksize);
 	algorithm2.Enable(ENCRYPTION);
 
 	//LPAlgorithmLTV<ILVectorArray2n> algorithm;
@@ -197,10 +201,10 @@ void NTRU_DCRT() {
 
 	algorithm2.Decrypt(sk, cipherText, &ctxtd);
 
+
 	finish = currentDateTime();
 
 	diff = finish - start;
-	ctxtd.Unpad<ZeroPad>();
 
 	cout << "Decrypted value ILVectorArray2n: \n" << endl;
 	cout << ctxtd<< "\n" << endl;
@@ -236,7 +240,7 @@ void NTRU_DCRT() {
 	//std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
 
 	//
-	//DecodingResult result1 = algorithmPRE.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
+	//DecryptResult result1 = algorithmPRE.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
  //   plaintextNew2.Unpad<ZeroPad>();
 
 	//

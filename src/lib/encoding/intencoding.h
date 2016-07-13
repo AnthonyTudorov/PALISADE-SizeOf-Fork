@@ -31,89 +31,17 @@
  * This code provides the core proxy re-encryption functionality.
  */
 
-#ifndef LBCRYPTO_ENCODING_PTXTENCODING_H
-#define LBCRYPTO_ENCODING_PTXTENCODING_H
+#ifndef LBCRYPTO_ENCODING_INTENCODING_H
+#define LBCRYPTO_ENCODING_INTENCODING_H
 
 //Includes Section
-#include <vector>
-#include "../utils/bytearray.h"
-#include "../utils/inttypes.h"
-#include "../math/backend.h"
-#include "../lattice/ilvector2n.h"
-#include "../lattice/ilvectorarray2n.h"
-#include "padding.h"
+#include "ptxtencoding.h"
 
 /**
  * @namespace lbcrypto
  * The namespace of lbcrypto
  */
 namespace lbcrypto {
-
-	/**
-	* @brief Class describing the ambient (normalized) plaintext space that cryptosystems will predominantly work with in future. To be implemented in future releases.
-	*/
-	class AmbientPlaintext {
-	};
-
-	/**
-	* @brief General encoding abstract class that supports basic operations with AmbientPlainext
-	*/
-	class PlaintextEncodingInterface
-	{
-	public:
-		virtual ~PlaintextEncodingInterface() {}
-
-		/** Interface for the operation of converting from current plaintext encoding to ilVectorArray2n.
-		*
-		* @param  modulus - used for encoding.
-		* @param  *ilVectorArray2n encoded plaintext - output argument.
-		*/
-		virtual void Encode(const BigBinaryInteger &modulus, ILVectorArray2n *iLVectorArray2n) const = 0;
-
-		/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
-		*
-		* @param  modulus - used for encoding.
-		* @param  ilVectorArray2n encoded plaintext - input argument.
-		*/
-		virtual void Decode(const BigBinaryInteger &modulus,  ILVectorArray2n &iLVectorArray2n) = 0;
-
-		/** Interface for the operation of converting from current plaintext encoding to ILVector2n.
-		*
-		* @param  modulus - used for encoding.
-		* @param  *ilVector encoded plaintext - output argument.
-		*/
-		virtual void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector) const = 0;
-
-		/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
-		*
-		* @param  modulus - used for encoding.
-		* @param  ilVector encoded plaintext - input argument.
-		*/
-		virtual void Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector) = 0;
-
-		//
-		//* Interface for the operation of converting from current plaintext encoding to AmbientPlaintext.
-		//*
-		//* @param  *ambPtxt encoded plaintext - output argument.
-		//
-		////virtual long Encode(AmbientPlaintext *ambPtxt) const = 0;
-		//
-		//* Interface for the operation of converting from AmbientPlaintext to original plaintext encoding.
-		//*
-		//* @param &ambPtxt encoded plaintext.
-		//
-		////virtual long Decode(const AmbientPlaintext &ambPtxt) const = 0;
-
-		/**
-		 * Get method to return the length of plaintext
-		 *
-		 * @return the length of the plaintext in terms of the number of bits.
-		 */
-		virtual size_t GetLength() const = 0;
-	};
-<<<<<<< HEAD
-
-    std::ostream &operator<<(std::ostream &out, const ByteArrayPlaintextEncoding &ptxt);
 
 	/**
 	 * @brief integer array encoding
@@ -156,21 +84,9 @@ namespace lbcrypto {
 			if (this != &rhs) {
 				this->m_data = rhs.m_data;
 			}
+
 			return *this;
 		}
-
-		/*
-		* Implementation of the method of PlaintextEncodingInterface.
-		*
-		* @param  *ambPtxt encoded plaintext - output argument.
-		*/
-		//long Encode(AmbientPlaintext *ambPtxt) const { return 0; };
-		/*
-		* Implementation of the method of PlaintextEncodingInterface.
-		*
-		* @param &ambPtxt encoded plaintext.
-		*/
-		//long Decode(const AmbientPlaintext &ambPtxt) { return 0; };
 
 
 		/** Method for the operation of converting from current plaintext encoding to ILVector2n.
@@ -201,7 +117,6 @@ namespace lbcrypto {
 		* @param  ilVector encoded plaintext - input argument.
 		*/
 		void Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector);
-
 		/**
 		 * Get method to return the byte array
 		 * @return the byte array of data.
@@ -251,10 +166,7 @@ namespace lbcrypto {
 		std::vector<uint32_t> m_data;
 	};
 
-	template <typename Integer>
-    std::ostream &operator<<(std::ostream &out, const IntArrayPlaintextEncoding &ptxt);
+	std::ostream &operator<<(std::ostream &out, const IntArrayPlaintextEncoding &ptxt);
 
-=======
->>>>>>> master
 } // namespace lbcrypto ends
 #endif

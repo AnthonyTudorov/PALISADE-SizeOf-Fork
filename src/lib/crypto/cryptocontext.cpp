@@ -40,7 +40,7 @@
 namespace lbcrypto {
 
 template <class T, class T2>
-static T* deserializeAndCreate(const string& serializedKey, const CryptoContext<T2>* ctx )
+static T* deserializeAndCreate(const std::string& serializedKey, const CryptoContext<T2>* ctx )
 {
 	Serialized ser;
 	if( !SerializableHelper::StringToSerialization(serializedKey, &ser) )
@@ -58,7 +58,7 @@ static T* deserializeAndCreate(const string& serializedKey, const CryptoContext<
 }
 
 template <typename T>
-bool CryptoContext<T>::setPublicKey( const string& serializedKey )
+bool CryptoContext<T>::setPublicKey( const std::string& serializedKey )
 {
 	LPPublicKeyLTV<T> *newKey = deserializeAndCreate<LPPublicKeyLTV<T>,T>(serializedKey, this);
 	if( newKey == 0 ) return false;
@@ -69,7 +69,7 @@ bool CryptoContext<T>::setPublicKey( const string& serializedKey )
 }
 
 template <typename T>
-bool CryptoContext<T>::setPrivateKey( const string& serializedKey )
+bool CryptoContext<T>::setPrivateKey( const std::string& serializedKey )
 {
 	LPPrivateKeyLTV<T> *newKey = deserializeAndCreate<LPPrivateKeyLTV<T>,T>(serializedKey, this);
 	if( newKey == 0 ) return false;
@@ -80,7 +80,7 @@ bool CryptoContext<T>::setPrivateKey( const string& serializedKey )
 }
 
 template <typename T>
-bool CryptoContext<T>::setEvalKey( const string& serializedKey )
+bool CryptoContext<T>::setEvalKey( const std::string& serializedKey )
 {
 	LPEvalKeyLTV<T> *newKey = deserializeAndCreate<LPEvalKeyLTV<T>,T>(serializedKey, this);
 	if( newKey == 0 ) return false;
@@ -93,7 +93,7 @@ bool CryptoContext<T>::setEvalKey( const string& serializedKey )
 template <typename T>
 CryptoContext<T> *CryptoContext<T>::genCryptoContextLTV(
 		const usint plaintextmodulus,
-		usint ringdim, const string& modulus, const string& rootOfUnity,
+		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev) {
 
 	CryptoContext	*item = new CryptoContext();
@@ -120,7 +120,7 @@ CryptoContext<T> *CryptoContext<T>::genCryptoContextLTV(
 
 	item->chunksize = ((item->ringdim / 2) / 8) * log(plaintextmodulus)/log(2);
 
-	item->algorithm = new LPPublicKeyEncryptionSchemeLTV<T>();
+	item->algorithm = new LPPublicKeyEncryptionSchemeLTV<T>(item->chunksize);
 	item->algorithm->Enable(ENCRYPTION);
 	item->algorithm->Enable(PRE);
 
@@ -130,7 +130,7 @@ CryptoContext<T> *CryptoContext<T>::genCryptoContextLTV(
 template <typename T>
 CryptoContext<T> *CryptoContext<T>::genCryptoContextStehleSteinfeld(
 		const usint plaintextmodulus,
-		usint ringdim, const string& modulus, const string& rootOfUnity,
+		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev, float stDevStSt) {
 
 	CryptoContext	*item = new CryptoContext();
@@ -162,7 +162,7 @@ CryptoContext<T> *CryptoContext<T>::genCryptoContextStehleSteinfeld(
 
 	item->chunksize = ((item->ringdim / 2) / 8) * log(plaintextmodulus)/log(2);
 
-	item->algorithm = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>();
+	item->algorithm = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>(item->chunksize);
 	item->algorithm->Enable(ENCRYPTION);
 	item->algorithm->Enable(PRE);
 
