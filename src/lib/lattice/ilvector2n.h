@@ -274,6 +274,16 @@ namespace lbcrypto {
 		//void GenerateGaussian(DiscreteGaussianGenerator &dgg);
 
 		/**
+		* Get method to get ILParams for the current vector.
+		*
+		* @return the ring element params.
+		*/
+		const ILParams &GetParams() const
+		{
+			return m_params;
+		}
+
+		/**
 		* Get method of the modulus.
 		*
 		* @return the modulus.
