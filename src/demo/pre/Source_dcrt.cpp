@@ -173,7 +173,7 @@ void NTRU_DCRT() {
 	LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
 
 	size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm(chunksize);
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
 
@@ -189,7 +189,7 @@ void NTRU_DCRT() {
 	diff = finish - start;
 
 	cout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
+	//fout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
 
 	//fout<< currentDateTime()  << " pk = "<<pk.GetPublicElement().GetValues()<<endl;
 	//fout<< currentDateTime()  << " sk = "<<sk.GetPrivateElement().GetValues()<<endl;
@@ -205,21 +205,21 @@ void NTRU_DCRT() {
 
 	// Begin the initial encryption operation.
 	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
-	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
+	//fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
-	vector<Ciphertext<ILVector2n>> ciphertext;
+	vector<Ciphertext<ILVectorArray2n>> ciphertext;
 
 	std::cout << "Running encryption..." << std::endl;
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::Encrypt(algorithm,pk,plaintext,&ciphertext);	// This is the core encryption operation.
+	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm,pk,plaintext,&ciphertext);	// This is the core encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
 
 	cout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+	//fout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -231,16 +231,16 @@ void NTRU_DCRT() {
 
 	start = currentDateTime();
 
-	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm,sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
+	DecryptResult result = CryptoUtility<ILVectorArray2n>::Decrypt(algorithm,sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
 
 	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+	//fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
 	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
+	//fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
 
 	if (!result.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;
@@ -1121,7 +1121,8 @@ void NTRUPRE(usint input) {
 	//std::bitset<FEATURESETSIZE> mask (std::string("000011"));
 	//LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
 
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
+	size_t chunksize = ((m / 2) / 8);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
 
@@ -1155,7 +1156,7 @@ void NTRUPRE(usint input) {
 	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
-	Ciphertext<ILVector2n> ciphertext;
+	std::vector< Ciphertext<ILVector2n> > ciphertext;
 	ByteArrayPlaintextEncoding ptxt(plaintext);
     ptxt.Pad<ZeroPad>(m/16);
 	//ptxt.Pad<ZeroPad>(m/8);
@@ -1164,7 +1165,9 @@ void NTRUPRE(usint input) {
 
 	start = currentDateTime();
 
-	algorithm.Encrypt(pk,ptxt,&ciphertext);	// This is the core encryption operation.
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);
+
+	//algorithm.Encrypt(pk,ptxt,&ciphertext);	// This is the core encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -1184,7 +1187,12 @@ void NTRUPRE(usint input) {
 
 	start = currentDateTime();
 
-	DecodingResult result = algorithm.Decrypt(sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
+	ByteArray ctxtd;
+
+	//DecodingResult result = algorithm.Decrypt(sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
+
+	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &ctxtd);
+
     plaintextNew.Unpad<ZeroPad>();
 
 	finish = currentDateTime();
@@ -1198,7 +1206,7 @@ void NTRUPRE(usint input) {
 
 	//cout << "ciphertext at" << ciphertext.GetIndexAt(2);
 
-	if (!result.isValidCoding) {
+	if (!result.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}
@@ -1258,13 +1266,14 @@ void NTRUPRE(usint input) {
 	////////////////////////////////////////////////////////////
 
 
-	Ciphertext<ILVector2n> newCiphertext;
+	vector<Ciphertext<ILVector2n>> newCiphertext;
+
 
 	std::cout <<"\n"<< "Running re-encryption..." << std::endl;
 
 	start = currentDateTime();
 
-	algorithm.ReEncrypt(evalKey, ciphertext,&newCiphertext);  // This is the core re-encryption operation.
+	CryptoUtility<ILVector2n>::ReEncrypt(algorithm, evalKey, ciphertext, &newCiphertext); // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -1278,14 +1287,13 @@ void NTRUPRE(usint input) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArrayPlaintextEncoding plaintextNew2;
+	ByteArray plaintextNew2;
 
 	std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
 
 	start = currentDateTime();
 
-	DecodingResult result1 = algorithm.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
-    plaintextNew2.Unpad<ZeroPad>();
+	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(algorithm,newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.   
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -1296,7 +1304,7 @@ void NTRUPRE(usint input) {
 	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
 	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
 
-	if (!result1.isValidCoding) {
+	if (!result1.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}
