@@ -53,7 +53,7 @@
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
 
-#indlude "ubint.h"
+#include "ubint.h"
 /**
  *@namespace exp_int32
  * The namespace of this code
@@ -61,9 +61,63 @@
 namespace exp_int32{
 
   /**
-   * @brief Main class for big integers represented as an array of native (primitive) unsigned integers
+   * @brief Main class for modulus, implemented as a uint<limb_t>
    * @tparam limb_t native unsigned integer type
    */
+
+  template<typename limb_t>
+    class modulus: ubint<limb_t>
+    {
+    public:
+      modulus(); //note always fails.
+
+    /**
+     * Basic constructor for specifying the modulus from a string of decimal digits.
+     *
+     * @param str is the initial integer represented as a string.
+     */
+      explicit modulus(const std::string& str);
+
+    /**
+     * Basic constructor for initializing modulus from an unsigned integer.
+     *
+     * @param init is the initial unsigned integer.
+     */
+    explicit modulus(usint init);
+    /**
+     * Basic constructor for initializing big modulus from a ubint refernce.
+     *
+     * @param init is the initial ubint.
+     */
+    explicit modulus(ubint& init);
+
+    /**
+     * Basic constructor for copying a modulus
+     *
+     * @param rhs is the modulus to be copied.
+     */
+    explicit modulus(const modulus& rhs);
+
+    /**
+     * Basic constructor for move copying a modulus
+     *
+     * @param &&rhs is the modulus to be moved from.
+     */
+    modulus(modulus&& rhs);
+
+    /**
+     * Destructor.
+     */
+    ~modulus();
+
+    private:
+
+
+    };
+
+
+
+
   template<typename limb_t>
     class mubint: ubint<limb_t>
   {
@@ -95,6 +149,13 @@ namespace exp_int32{
      * @param rhs is the mubint to be copied.
      */
     explicit mubint(const mubint& rhs);
+
+    /**
+     * Basic constructor for copying a mubint
+     *
+     * @param rhs is the mubint to be copied.
+     */
+    explicit mubint(const ubint& rhs, modulus &m);
 
     /**
      * Basic constructor for move copying a mubint
@@ -375,7 +436,6 @@ namespace exp_int32{
     bool operator!=(const mubint& a) const;
 
 
-not sure what to do here
     /**
      * Test if first input is great than the second input.
      *
