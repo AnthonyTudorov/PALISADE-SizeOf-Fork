@@ -173,26 +173,26 @@ namespace exp_int32{
     /**
      * Prints the value of the vector of limbs to console in decimal format
      */
-    void PrintLimbsInDec() const;
+    void PrintModulusLimbsInDec() const;
 
    /**
     * Prints the value of the vector of limbs to console in hex format
     */
-    void PrintLimbsInHex() const;
+    void PrintModulusLimbsInHex() const;
 
     /**
      * Basic set method for setting the value of a mubint
      *
      * @param str is the string representation of the mubint to be copied.
      */
-    void SetValue(const std::string& str);
+    void SetModulusValue(const std::string& str);
         
     /**
      * Basic set method for setting the value of a mubint
      *
      * @param a is the mubint representation of the mubint to be assigned.
      */
-    void SetValue(const mubint& a);
+    void SetModulusValue(const mubint& a);
 
         
     /**
@@ -200,7 +200,7 @@ namespace exp_int32{
      *
      * @return the index of the most significant bit.
      */
-    usint GetMSB()const;
+    usint GetModulusMSB()const;
 
     /**
      * Returns the index number of the array in which MSB is located.
@@ -215,7 +215,7 @@ namespace exp_int32{
      * it is truncated to the least significant bits that fit
      * @return the int representation of the value as usint.
      */
-    usint ConvertToUsint() const;
+    usint ConvertModulusToUsint() const;
     
     /**
      * Converts the value to a usint. Soon to be DEPRECATED, because Int is not usint
@@ -223,7 +223,7 @@ namespace exp_int32{
      * it is truncated to the least significant bits that fit
      * @return the int representation of the value as usint.
      */
-    usint ConvertToInt() const;
+    usint ConvertModulusToInt() const;
 
     /**
      * Converts the value to a uint32_t.
@@ -231,7 +231,7 @@ namespace exp_int32{
      * std::out_of_range is thrown
      * @return the int representation of the value as uint32_t
      */
-    uint32_t ConvertToUint32() const;
+    uint32_t ConvertModulusToUint32() const;
     
     /**
      * Converts the value to a uint64_t.
@@ -240,7 +240,7 @@ namespace exp_int32{
      * if conversion fails std::invalid_argment is thrown 
      * @return the int representation of the value as uint64_t
      */
-    uint64_t ConvertToUint64() const;
+    uint64_t ConvertModulusToUint64() const;
 
     /**
      * Converts the value to a float
@@ -250,7 +250,7 @@ namespace exp_int32{
      *
      * @return float representation of the value.
      */
-    float ConvertToFloat() const;
+    float ConvertModulusToFloat() const;
 
     /**
      * Converts the value to an double.
@@ -260,7 +260,7 @@ namespace exp_int32{
      *
      * @return double representation of the value.
      */
-    double ConvertToDouble() const;
+    double ConvertModulusToDouble() const;
 
 
     /**
@@ -271,7 +271,7 @@ namespace exp_int32{
      *
      * @return long double representation of the value.
      */
-    long double ConvertToLongDouble() const;
+    long double ConvertModulusToLongDouble() const;
 
     /**
      * Convert a value from an unsigned int to a mubint.
@@ -279,7 +279,7 @@ namespace exp_int32{
      * @param m the value to convert from.
      * @return int represented as a mubint.
      */
-    static mubint intTobint(usint m);
+    static mubint intTomubint(usint m);
 
     //Arithemetic Operations
 
@@ -326,8 +326,6 @@ namespace exp_int32{
      */
     mubint Mul(const mubint& b) const;
 
-    int divmnu_vect(mubint& q, mubint& r, const mubint& u, const mubint& v) const;
-
     /**
      * Division operation.
      *
@@ -336,145 +334,6 @@ namespace exp_int32{
      */
     mubint DividedBy(const mubint& b) const;
 
-    //modular arithmetic operations
-		
-    /**
-     * returns the modulus with respect to the input value. Classical modular reduction algorithm is used.
-     *
-     * @param modulus is value of the modulus to perform. Its of type mubint.
-     * @return mubint that is the result of the modulus operation.
-     */
-    mubint Mod(const mubint& modulus) const;
-    
-    /**
-     * returns the modulus with respect to the input value.
-     * Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.
-     * See the cpp file for details of the implementation. 
-     *
-     * @param modulus is the modulus to perform.
-     * @param mu is the Barrett value.
-     * @return is the result of the modulus operation.
-     */
-    mubint ModBarrett(const mubint& modulus, const mubint& mu) const;
-
-    /**
-     * returns the modulus with respect to the input value.
-     * Implements generalized Barrett modular reduction algorithm. Uses an array of precomputed values \mu.
-     * See the cpp file for details of the implementation. 
-     *
-     * @param modulus is the modulus to perform operations with.
-     * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
-     * @return result of the modulus operation.
-     */
-    //mubint ModBarrett(const mubint& modulus, const mubint mu_arr[BARRETT_LEVELS+1]) const;
-
-    /**
-     * returns the modulus inverse with respect to the input value.
-     *
-     * @param modulus is the modulus to perform.
-     * @return result of the modulus inverse operation.
-     */
-    mubint ModInverse(const mubint& modulus) const;
-
-    /**
-     * Scalar modular addition.
-     *
-     * @param &b is the scalar to add.
-     * @param modulus is the modulus to perform operations with.
-     * @return result of the modulus addition operation.
-     */
-    mubint ModAdd(const mubint& b, const mubint& modulus) const;
-
-    /**
-     * Modular addition where Barrett modulo reduction is used.
-     *
-     * @param &b is the scalar to add.
-     * @param modulus is the modulus to perform operations with.
-     * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
-     * @return is the result of the modulus addition operation.
-     */
-    //mubint ModBarrettAdd(const mubint& b, const mubint& modulus,const mubint mu_arr[BARRETT_LEVELS]) const;
-
-    /**
-     * Modular addition where Barrett modulo reduction is used.
-     *
-     * @param &b is the scalar to add.
-     * @param modulus is the modulus to perform operations with.
-     * @param mu is one precomputed Barrett value.
-     * @return is the result of the modulus addition operation.
-     */
-    mubint ModBarrettAdd(const mubint& b, const mubint& modulus,const mubint& mu) const;
-
-    /**
-     * Scalar modular subtraction.
-     *
-     * @param &b is the scalar to subtract.
-     * @param modulus is the modulus to perform operations with.
-     * @return result of the modulus subtraction operation.
-     */
-    mubint ModSub(const mubint& b, const mubint& modulus) const;
-
-    /**
-     * Scalar modular subtraction where Barrett modular reduction is used.
-     *
-     * @param &b is the scalar to subtract.
-     * @param modulus is the modulus to perform operations with.
-     * @param mu is the Barrett value.
-     * @return is the result of the modulus subtraction operation.
-     */
-    mubint ModBarrettSub(const mubint& b, const mubint& modulus,const mubint& mu) const;
-
-    /**
-     * Scalar modular subtraction where Barrett modular reduction is used.
-     *
-     * @param b is the scalar to subtract.
-     * @param modulus is the modulus to perform operations with.
-     * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
-     * @return is the result of the modulus subtraction operation.
-     */
-    //mubint ModBarrettSub(const mubint& b, const mubint& modulus,const mubint mu_arr[BARRETT_LEVELS]) const;
-
-    /**
-     * Scalar modulus multiplication.
-     *
-     * @param &b is the scalar to multiply.
-     * @param modulus is the modulus to perform operations with.
-     * @return is the result of the modulus multiplication operation.
-     */
-    mubint ModMul(const mubint& b, const mubint& modulus) const;
-
-    /**
-     * Scalar modular multiplication where Barrett modular reduction is used.
-     * Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo). 
-     * Uses one precomputed value \mu.
-     * See the cpp file for details of the implementation. 
-     *
-     * @param b is the scalar to multiply.
-     * @param modulus is the modulus to perform operations with.
-     * @param mu is the precomputed Barrett value.
-     * @return is the result of the modulus multiplication operation.
-     */
-    mubint ModBarrettMul(const mubint& b, const mubint& modulus,const mubint& mu) const;
-
-    /**
-     * Scalar modular multiplication where Barrett modular reduction is used.
-     *
-     * @param &b is the scalar to multiply.
-     * @param modulus is the modulus to perform operations with.
-     * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
-     * @return is the result of the modulus multiplication operation.
-     */
-    //mubint ModBarrettMul(const mubint& b, const mubint& modulus,const mubint mu_arr[BARRETT_LEVELS]) const;
-
-    /**
-     * Scalar modular exponentiation. Square-and-multiply algorithm is used.
-     *
-     * @param &b is the scalar to exponentiate.
-     * @param modulus is the modulus to perform operations with.
-     * @return is the result of the modulus exponentiation operation.
-     */
-    mubint ModExp(const mubint& b, const mubint& modulus) const;
-
     /**
      * Stores the based 10 equivalent/Decimal value of the mubint in a string object and returns it.
      *
@@ -482,30 +341,6 @@ namespace exp_int32{
      */
     const std::string ToString() const;		
 
-    /**
-     * Tests whether the mubint is a power of 2.
-     *
-     * @param m_numToCheck is the value to check.
-     * @return true if the input is a power of 2, false otherwise.
-     */
-    bool CheckIfPowerOfTwo(const mubint& m_numToCheck);
-
-    /**
-     * Get the number of digits using a specific base - support for arbitrary base may be needed.
-     *
-     * @param base is the base with which to determine length in.
-     * @return the length of the representation in a specific base.
-     */
-    usint GetLengthForBase(usint base) const {return GetMSB();}
-
-    /**
-     * Get the number of digits using a specific base - only power-of-2 bases are currently supported.
-     *
-     * @param index is the location to return value from in the specific base.
-     * @param base is the base with which to determine length in.
-     * @return the length of the representation in a specific base.
-     */
-    usint GetDigitAtIndexForBase(usint index, usint base) const;
 
     /**
      * Convert a string representation of a binary number to a mubint.
@@ -539,6 +374,8 @@ namespace exp_int32{
      */
     bool operator!=(const mubint& a) const;
 
+
+not sure what to do here
     /**
      * Test if first input is great than the second input.
      *
@@ -623,53 +460,6 @@ namespace exp_int32{
     template<typename limb_t_c>
     friend std::ostream& operator<<(std::ostream& os, const mubint<limb_t_c> &ptr_obj);
     
-    /**
-     * Gets the bit at the specified index.
-     *
-     * @param index is the index of the bit to get.
-     * @return resulting bit.
-     */
-    uschar GetBitAtIndex(usint index) const;
-
-
-    /**
-     * Sets the int value at the specified index.
-     *
-     * @param index is the index of the int to set in the uint array.
-     */
-    void SetIntAtIndex(usint idx, limb_t value);
-        
-    //constant definations
-        
-    /**
-     * Constant zero.
-     */
-    static const mubint ZERO;
-
-    /**
-     * Constant one.
-     */
-    static const mubint ONE;
-
-    /**
-     * Constant two.
-     */
-    static const mubint TWO;
-
-    /**
-     * Constant three.
-     */
-    static const mubint THREE;
-
-    /**
-     * Constant four.
-     */
-    static const mubint FOUR;
-
-    /**
-     * Constant five.
-     */
-    static const mubint FIVE;
     
     /**
      * Compares the current mubint to mubint a.
@@ -680,28 +470,22 @@ namespace exp_int32{
     sint Compare(const mubint& a) const;
 
     /**
-     *  Set this int to 1.
-     */
-    inline void SetIdentity() { *this = mubint::ONE; };
-
-    /**
      * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of mubint objects.
      */
     static std::function<unique_ptr<mubint>()> Allocator;
 
   protected:
-    
     /**
      * Converts the string v into base-r integer where r is equal to 2^bitwidth of limb data type.
      *
      * @param v The input string
      */
-    void AssignVal(const std::string& v);
+    void AssignModulusVal(const std::string& v);
 
     /**
      * Sets the MSB to the correct value from the mubint.
      */
-    void SetMSB();
+    void SetModulusMSB();
 
     /**
      * Sets the MSB to the correct value from the mubint.
@@ -712,111 +496,20 @@ namespace exp_int32{
     //  private:
   public: //todo for debug onlhy
 
-    //pointer to the array storing the native integers.
-    //vector<limb_t> m_value {(limb_t)0};
-    vector<limb_t> m_value;
-
-    //variable that stores the MOST SIGNIFICANT BIT position in the number. Note MSB(1) = 1 NOT 0
-    usint m_MSB;
-
-    //variable to store the bitlength of the limb data type.
-    static const usint m_limbBitLength;
-
-    //variable to store the maximum value of the limb data type.
-    static const usint m_MaxLimb;
-
-    //variable to store the log(base 2) of the number of bits in the limb data type.
-    static const usint m_log2LimbBitLength;
-
-    //variable to store the size of the data array.
-    static const usint m_nSize;
-
-    //The maximum number of digits in biginteger. It is used by the cout(ostream) function for printing the bignumber.
-    static const usint m_numDigitInPrintval=1500;
-    /**
-     * function to return the ceiling of the number divided by the number of bits in the limb data type.
-     * @param Number is the number to be divided.
-     * @return the ceiling of Number/(bits in the limb data type)
-     */
-    static usint ceilIntByUInt(const limb_t Number);
-
-    //currently unused array
-    static const mubint *m_modChain;
-		
-    /**
-     * function to return the MSB of a 32 bit number.
-     * @param x is the 32 bit integer.
-     * @return the MSB position in the 32 bit number x. Note MSB(1) is 1 NOT zero!!!!!
-     */
-
+    //pointer to the array storing the modulus
+    ubint modulus;
 
   public: 
-		
-    static uint64_t GetMSB32(uint64_t x);
-    /**
-     * function to return the MSB of number.
-     * @param x is the number.
-     * @return the MSB position in the number x.Note MSB(1) is 1 NOT zero!!!!!
-     */
-		
-    static usint GetMSBlimb_t(limb_t x);
-		
-		
-  static uint64_t GetMSB64(uint64_t x);
-    /**
-     * function to return the MSB of 64 bit number.
-     * @param x is the number.
-     * @return the MSB position in the number x. Note MSB(1) is 1 NOT zero!!!!!
-     */
 
   //  private:
   public:  //todo: changed only for debug
-    //Dlimb_t is the data type that has twice as many bits in the limb data type.
-    typedef typename DoubleDataType<limb_t>::T Dlimb_t;
 
     //enum defination to represent the state of the mubint.
     enum State{
       INITIALIZED,GARBAGE
     };
-
-    /**
-     * function to return the MSB of number that is of type Dlimb_t.
-     * @param x is the number.
-     * @return the MSB position in the number x. Note MSB(1) is 1 NOT zero!!!!!
-     */
-    static usint GetMSBDlimb_t(Dlimb_t x);
-
     //enum to store the state of the 
     State m_state;
-
-
-    /**
-     * function that returns the mubint after multiplication by b.
-     * @param b is the number to be multiplied.
-     * @return the mubint after the multiplication.
-     */
-    mubint MulIntegerByLimb(limb_t b) const;
-		
-    /**
-     * function that returns the decimal value from the binary array a.
-     * @param a is a pointer to the binary array.
-     * @return the decimal value.
-     */
-    static limb_t UintInBinaryToDecimal(uschar *a);
-
-    /**
-     * function that mutiplies by 2 to the binary array.
-     * @param a is a pointer to the binary array.
-     */
-    static void double_bitVal(uschar *a);
-
-    /**
-     * function that adds bit b to the binary array.
-     * @param a is a pointer to the binary array.
-     * @param b is a bit value to be added.
-     */
-    static void add_bitVal(uschar* a,uschar b);
-  };
 
   ///**
   // * Division operation.
