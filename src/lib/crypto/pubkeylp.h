@@ -774,7 +774,7 @@ namespace lbcrypto {
 		const LPEncryptionAlgorithm<Element>& getAlgorithm() const { return *m_algorithmEncryption; }
 
 	protected:
-		const size_t		chunksize;
+		const size_t chunksize;
 		const LPEncryptionAlgorithm<Element> *m_algorithmEncryption;
 		const LPPREAlgorithm<Element> *m_algorithmPRE;
 		const LPAHEAlgorithm<Element> *m_algorithmEvalAdd;

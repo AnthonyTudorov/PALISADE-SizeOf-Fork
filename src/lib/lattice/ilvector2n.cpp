@@ -110,7 +110,7 @@ namespace lbcrypto {
 				PreComputeDggSamples(dgg, m_params);
 			}
 
-			const ILVector2n randomElement = GetPrecomputedVector(ilParams);
+			const ILVector2n randomElement = GetPrecomputedVector(m_params);
 			m_values = new BigBinaryVector(*randomElement.m_values);
 
 			(*m_values).SetModulus(params.GetModulus());
@@ -389,8 +389,7 @@ namespace lbcrypto {
 		{
 			for (usint i = 0; i < m_sampleSize; ++i)
 			{
-				ILVector2n current;
-				current.SetParams(params);
+				ILVector2n current(params);
 				usint vectorSize = params.GetCyclotomicOrder() / 2;
 				current.m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,params.GetModulus()));
 				current.m_values->SetModulus(params.GetModulus());

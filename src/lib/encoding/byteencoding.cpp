@@ -74,9 +74,8 @@ namespace lbcrypto {
 	}
 
 	void ByteArrayPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector) {
-
-		//std::cout << "plaintext modulus " << modulus << std::endl;
-		ilVector = ilVector.Mod(modulus);
+		//TODO-Nishanth: Hard-coding rootofUnity for now. Need to find a way to figure out how to set the correct rootOfUnity.
+		ilVector.SwitchModulus(modulus, BigBinaryInteger::ONE);
 
 		ByteArray byteArray;
 		usint mod = modulus.ConvertToInt();
@@ -96,15 +95,28 @@ namespace lbcrypto {
 
 	}
 
-	void ByteArrayPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVectorArray2n) const{
-		ILVector2n temp = ilVectorArray2n->GetValues(0);
-		BigBinaryInteger modulusValue;
-		modulusValue = modulus;
-		Encode(modulusValue, &temp);
-	//	temp.PrintValues();
-		ILVectorArray2n ilvectorArrayTemp(temp, ilVectorArray2n->GetParams(),ilVectorArray2n->GetFormat());
-	//	ilvectorArrayTemp.PrintValues();
-		*ilVectorArray2n = ilvectorArrayTemp;
+	void ByteArrayPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *element) const{
+	   //TODO - OPTIMIZE CODE. Please take a look at line 114 temp.SetModulus
+		ILVector2n temp = element->GetElementAtIndex (0);
+		
+		BigBinaryInteger symbol(modulus);
+		Encode(symbol, &temp);
+
+		std::vector<ILVector2n> symbolVals;
+				
+		for(usint i=0;i<element->GetNumOfElements();i++){
+			ILParams ilparams(element->GetElementAtIndex(i).GetCyclotomicOrder(), element->GetElementAtIndex(i).GetModulus(), element->GetElementAtIndex(i).GetRootOfUnity());
+			ILVector2n ilVector(ilparams);
+			temp.SwitchModulus( ilparams.GetModulus(), ilparams.GetRootOfUnity() );
+			
+			// temp.SetModulus(ilparams.GetModulus());
+			ilVector.SetValues(temp.GetValues(),temp.GetFormat());
+			symbolVals.push_back(ilVector);
+		}
+
+		ILVectorArray2n elementNew(symbolVals);
+		*element = elementNew;
+		
 	}
 
 	

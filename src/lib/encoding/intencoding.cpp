@@ -63,8 +63,8 @@ namespace lbcrypto {
 	}
 
 	void IntArrayPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector) {
-
-		ilVector = ilVector.Mod(modulus);
+		//TODO-Nishanth: Hard-coding rootofUnity for now. Need to find a way to figure out how to set the correct rootOfUnity.
+		ilVector.SwitchModulus(modulus, BigBinaryInteger::ONE);
 		std::vector<uint32_t> intArray(ilVector.GetValues().GetLength());
 		for (usint i = 0; i<ilVector.GetValues().GetLength(); i++) {
 			intArray[i] = ilVector.GetValues().GetValAtIndex(i).ConvertToInt();
