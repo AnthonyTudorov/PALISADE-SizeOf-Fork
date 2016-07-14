@@ -693,16 +693,6 @@ namespace lbcrypto {
 	*/
 	inline lbcrypto::ILVector2n operator*(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) { return a.Times(b); }
 
-	/**
-	* Division operator overload.  Performs an division in the ring.
-	*
-	* @param &a the first parameter.
-	* @param &b the first parameter.
-	*
-	* @return The result of division in the ring.
-	*/
-	// inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) { return a.DividedBy(b); }
-
     inline std::ostream& operator<<(std::ostream& os, const ILVector2n& vec){
         os << vec.GetValues();
         return os;

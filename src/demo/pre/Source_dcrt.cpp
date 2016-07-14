@@ -818,7 +818,6 @@ void TestParameterSelection(){
 
 void FinalLeveledComputation(){
 	/*
-	//Hadi stupid code
 	usint init_m = 16;
 
 	float init_stdDev = 4;

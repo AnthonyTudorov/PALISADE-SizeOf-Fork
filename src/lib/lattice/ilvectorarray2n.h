@@ -236,7 +236,12 @@ namespace lbcrypto {
 		*/
 		const ILVectorArray2n& operator=(const ILVectorArray2n &rhs);
 
-		//TODO- ADD DOXYGEN COMMENTS
+		/**
+		* Initalizer list
+		*
+		* @param &rhs the list to initalized the ILVectorArray2n
+		* @return the resulting ILVectorArray2n.
+		*/
 		ILVectorArray2n& operator=(std::initializer_list<sint> rhs);
 
 		/**

@@ -220,7 +220,10 @@ namespace lbcrypto {
 			m_modulus = modulus;
 		}
 
-		//drops the last root of unity and modulus
+		/**
+		* Removes the last parameter for each vector of the ILDCRTParams (modulus, rootofunity) and adjusts the multiplied moduli.
+		*
+		*/		
 		void PopLastParam(){
 			m_modulus = m_modulus / m_moduli.back();
 			m_moduli.pop_back();
@@ -247,8 +250,18 @@ namespace lbcrypto {
 			return false;
 		}
 
-		// FIXME
-		bool operator==(const ElemParams& other) const {  return false; }
+		/**
+		* == Operator checks if the ElemParams are the same.
+		*
+		* @param &other ElemParams to compare against.
+		* @return the equality check results.
+		*/
+		bool operator==(const ElemParams &other) const { 
+
+			const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(other);
+
+		 	return *this == dcrtParams; 
+		}
 
 	private:
 		// order of cyclotomic polynomial

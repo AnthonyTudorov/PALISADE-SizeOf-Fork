@@ -55,22 +55,22 @@ namespace lbcrypto {
 	const usint PRIMALITY_NO_OF_ITERATIONS = 100;  //!< @brief Number of iterations used for primality testing.
 
 	/**
-	 * finds roots of unity for given input.  Assumes the the input is a power of two. 
+	 * Finds roots of unity for given input.  Assumes the the input is a power of two. 
 	 * Mostly likely does not give correct results otherwise.
 	 *
 	 * @param m as number which is cyclotomic(in format of int).
-	 * @param modulo which is used to find generator.
+	 * @param &modulo which is used to find generator.
 	 * 
 	 * @return a root of unity.  	  
 	 */
-	BigBinaryInteger RootOfUnity(usint m, const BigBinaryInteger& modulo);
+	BigBinaryInteger RootOfUnity(usint m, const BigBinaryInteger &modulo);
 
 	/**
-	 * finds roots of unity for given input.  Assumes the the input cyclotomicorder is a power of two. 
+	 * Finds roots of unity for given input.  Assumes the the input cyclotomicorder is a power of two. 
 	 * Mostly likely does not give correct results otherwise.
 	 *
 	 * @param m as number which is cyclotomic(in format of int).
-	 * @param a vector of modulus
+	 * @param moduli vector of modulus
 	 * 
 	 * @returns a vector of roots of unity corresponding to each modulus.  	  
 	 */
@@ -163,6 +163,18 @@ namespace lbcrypto {
 	 * @return the candidate prime modulus.  
 	 */
 	BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
+
+	/**
+	 * Finds the next number that is a prime number matching the methods criteria. Sigma and alpha are required to calculate a minimum bound. The prime number generated will equal to one modulus the cyclotomic order and the plaintext modulus.
+	 *
+	 * @param &q is the place holder for the new prime. The original value of q will be set a minimum unless it is less than the minimum bound which is dependant on sigma and alpha.
+	 * @param &plainTextModulus is the plaintext modulus the prime number will be used on.
+	 * @param &ringDimension is the plaintext ringDimension the prime number will be used on.
+	 * @param &sigma is parameter used for setting the minimum bound.
+	 * @param &alpha is parameter used for setting the minimum bound.
+	 *
+	 * @return the next prime modulus.  
+	 */
 
 	void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
 

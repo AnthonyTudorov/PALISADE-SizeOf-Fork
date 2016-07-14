@@ -78,6 +78,10 @@ namespace lbcrypto {
 				m_depth = 0;
 			}
 
+			/**
+			 * Copy constructor.
+			 *
+			 */
 			LPCryptoParametersLTV(const LPCryptoParametersLTV &rhs) : LPCryptoParametersImpl<Element>(NULL, rhs.GetPlaintextModulus()) {
 
 				m_distributionParameter = rhs.m_distributionParameter;
@@ -279,7 +283,12 @@ namespace lbcrypto {
 				cryptoParams->SetElementParams(*newCryptoParams);
 			}
 		   
-			bool operator==(const LPCryptoParameters<Element>& rhs) const {
+			/**
+			* == operator to compare to this instance of LPCryptoParametersLTV object. 
+			*
+			* @param &rhs LPCryptoParameters to check equality against.
+			*/
+			bool operator==(const LPCryptoParameters<Element> &rhs) const {
 				const LPCryptoParametersLTV<Element> &el = dynamic_cast<const LPCryptoParametersLTV<Element> &>(rhs);
 
 				return  this->GetPlaintextModulus() == el.GetPlaintextModulus() &&
@@ -737,6 +746,11 @@ namespace lbcrypto {
 				//m_cryptoParameters;
 			}
 
+			/**
+			* Copy constructor
+			*
+			*@param &LPKeySwitchHintLTV object to copy from.
+			*/
 			LPKeySwitchHintLTV(const LPKeySwitchHintLTV &rhs){
 				this->m_sk = rhs.m_sk;
 				*this->m_cryptoParameters = *rhs.m_cryptoParameters;
@@ -1039,8 +1053,7 @@ namespace lbcrypto {
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
 			 * @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
 			 */
-			virtual void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
-				const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const ;
+			virtual void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const ;
 			/**
 			 * Method for KeySwitching based on a KeySwitchHint
 			 *

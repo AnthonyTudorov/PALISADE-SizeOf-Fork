@@ -897,14 +897,18 @@ namespace lbcrypto {
 	class LPPublicKeyEncryptionAlgorithmImpl
 	{		
 	public:
-
-		//gets reference to the scheme
+		//@Get Properties
+		/**
+		* Getter method for a refernce to the scheme
+		*
+		*@return the refernce to the scheme.
+		*/
 		const LPPublicKeyEncryptionScheme<Element> &GetScheme() const {return *m_scheme;}
 
 		//@Set Properties
 		/**
-			* Sets the reference to element params
-			*/
+		* Sets the reference to element params
+		*/
 		void SetScheme(const LPPublicKeyEncryptionScheme<Element> &scheme) { m_scheme = &scheme; }
 
 	protected:
