@@ -493,7 +493,7 @@ namespace lbcrypto {
 		if( parmPtr == 0 ) return 0;
 
 		// make sure the deserialized parms match the ones in the current context
-		if( *parmPtr == &curP )
+		if( *parmPtr == curP )
 			return parmPtr;
 
 		delete parmPtr;
