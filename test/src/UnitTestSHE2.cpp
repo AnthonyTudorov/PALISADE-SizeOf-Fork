@@ -200,7 +200,7 @@ public:
 
 //}
 
-TEST(UnitTestSHE2, test_eval_add){
+/*TEST(UnitTestSHE2, test_eval_add){
 
 	usint m = 16;
 	Ciphertext<ILVector2n> cipher1_single_crt;
@@ -546,4 +546,4 @@ TEST(UnitTestSHE2, test_eval_mult){
 	EXPECT_EQ(resultsILVector2n.GetElement(),resultsIlv);
 	EXPECT_EQ(resultsILVector2n.GetElement().GetFormat(),Format::EVALUATION);
 
-}
+}*/
