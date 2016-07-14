@@ -2,6 +2,12 @@
 #include "nbtheory.h"
 #include "backend.h"
 
+#include <boost/multiprecision/random.hpp>
+#include <boost/random.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
+#include <boost/multiprecision/cpp_dec_float.hpp>
+
 namespace lbcrypto {
 
 DiscreteGaussianGenerator::DiscreteGaussianGenerator() : DistributionGenerator() {
@@ -234,6 +240,33 @@ int32_t DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, s
 
 		return x;
 
+}
+
+/**
+	*  int32_t is used here as the components are relatively small
+	*  this is a simple inefficient implementation as noted in DG14; will need to be improved
+	*/
+int32_t DiscreteGaussianGenerator::GenerateInteger(const LargeFloat &mean, const LargeFloat &stddev, size_t n) {
+
+		LargeFloat t = log(n)/log(2)*stddev;  //fix for Visual Studio
+
+		//YSP this double conversion is necessary for uniform_int to work properly; the use of double is justified in this case
+		double dbmean = mean.convert_to<double>();
+		double dbt = t.convert_to<double>();
+
+		std::uniform_int_distribution<int32_t> uniform_int(floor(dbmean - dbt), ceil(dbmean + dbt));
+		boost::random::uniform_real_distribution<LargeFloat> uniform_real(0.0,1.0);
+
+		while (true) {
+			//  pick random int
+			int32_t x = uniform_int(GetPRNG());
+			//  roll the uniform dice
+			LargeFloat dice = uniform_real(GetPRNG());
+			//  check if dice land below pdf
+			if (dice <= UnnormalizedGaussianPDF(mean, stddev, x)) {
+				return x;
+			}
+		}
 }
 
 

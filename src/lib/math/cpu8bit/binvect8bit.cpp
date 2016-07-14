@@ -25,7 +25,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "binvect.h"
+#include "binvect8bit.h"
+
 #include "../nbtheory.h"
 
 
@@ -434,24 +435,6 @@ BigBinaryVector BigBinaryVector::ModMul(const BigBinaryVector &b) const{
 	return ans;
 }
 
-BigBinaryVector BigBinaryVector::ModMatrixMul(const BigBinaryMatrix &a) const{
-	if(a.GetColumnSize()!=this->m_length){
-		std::cout<<" Invalid arguements \n";
-		return (BigBinaryVector)NULL;
-	}
-	BigBinaryVector ans(a.GetRowSize());
-	BigBinaryInteger mid_ans("0");
-	for(usint i=0;i<a.GetRowSize();i++){
-		mid_ans.SetValue("0");
-		for(usint j=0;j<this->m_length;j++){
-			mid_ans = mid_ans + a.GetValAtIndex(i,j)**this->m_data[j];
-		}
-		*ans.m_data[i] = mid_ans.Mod(m_modulus);
-	}
-
-	return ans;
-
-}
 //Gets the ind
 BigBinaryVector BigBinaryVector::GetDigitAtIndexForBase(usint index, usint base) const{
 	BigBinaryVector ans(*this);

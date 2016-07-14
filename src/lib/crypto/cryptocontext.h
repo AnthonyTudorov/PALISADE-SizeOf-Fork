@@ -62,9 +62,6 @@
 
 // NOTE there are some #includes at the bottom of the file as well!
 
-using namespace std;
-using namespace lbcrypto;
-
 namespace lbcrypto {
 
 /**
@@ -144,7 +141,7 @@ public:
 	 * @param serializedKey
 	 * @return true on success
 	 */
-	bool setPublicKey( const string& serializedKey );
+	bool setPublicKey( const std::string& serializedKey );
 
 	/**
 	 * Used by the Java wrapper
@@ -159,7 +156,7 @@ public:
 	 * @param serializedKey
 	 * @return true on success
 	 */
-	bool setPrivateKey( const string& serializedKey );
+	bool setPrivateKey( const std::string& serializedKey );
 
 	/**
 	 * Used by the Java wrapper
@@ -174,7 +171,7 @@ public:
 	 * @param serializedKey
 	 * @return true on success
 	 */
-	bool setEvalKey( const string& serializedKey );
+	bool setEvalKey( const std::string& serializedKey );
 
 	/**
 	 * Used by the Java wrapper
@@ -196,7 +193,7 @@ public:
 	 */
 	static CryptoContext<Element> *genCryptoContextLTV(
 			const usint plaintextmodulus,
-			usint ringdim, const string& modulus, const string& rootOfUnity,
+			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev);
 
 	/**
@@ -213,7 +210,7 @@ public:
 	 */
 	static CryptoContext<Element> *genCryptoContextStehleSteinfeld(
 			const usint plaintextmodulus,
-			usint ringdim, const string& modulus, const string& rootOfUnity,
+			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev, float stDevStSt);
 };
 

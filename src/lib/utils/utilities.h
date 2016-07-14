@@ -73,6 +73,17 @@ BigBinaryVector ZeroPadInverse(const BigBinaryVector &InputPoly, usint target_or
  */
 bool IsPowerOfTwo(usint Input);
 
+/**
+ * Auxiliary function to replace a specific character "in" with another character "out"
+ *
+ * @param str string where in which characters are replaced
+ * @param in character being replaced
+ * @param out character to be replaced with
+ * @return the modified string.	  	  
+ */
+// auxiliary function to replace a specific character "in" with another character "out"
+std::string replaceChar(std::string str, char in, char out); 
+
 } // namespace lbcrypto ends
 
 #endif

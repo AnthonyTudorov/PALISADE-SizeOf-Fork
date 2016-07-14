@@ -28,7 +28,7 @@
  *
  * @section DESCRIPTION
  *
- * This file contains the core public key interface functionality.
+ * This file contains abstract classes for program obfuscators.
  */
 
 #ifndef LBCRYPTO_OBFUSCATE_OBFUSCATELP_H
@@ -52,7 +52,7 @@ namespace lbcrypto {
 
 
 	/**
-	 * @brief Abstract interface class for patterns
+	 * @brief Abstract interface class for patterns (common for cleartext and conjunction patterns)
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
@@ -61,7 +61,7 @@ namespace lbcrypto {
 
 
 	/**
-	 * @brief Abstract interface class for patterns
+	 * @brief Abstract interface class for conjunction patterns (common for cleartext and conjunction patterns)
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
@@ -76,19 +76,19 @@ namespace lbcrypto {
 	}; 
 
 	/**
-	 * @brief Class for cleartext patterns
+	 * @brief Class for cleartext patterns; includes methods specific to clear patterns
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class ClearPattern : public Pattern<Element>{
+	class ClearPattern {
 	};
 
 	/**
-	 * @brief Class for obfuscated patterns
+	 * @brief Class for obfuscated patterns; includes methods specific to obfuscated patterns
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class ObfuscatedPattern : public Pattern<Element>{
+	class ObfuscatedPattern {
 	};
 
 

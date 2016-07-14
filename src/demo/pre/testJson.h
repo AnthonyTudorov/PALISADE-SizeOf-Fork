@@ -23,6 +23,7 @@
 #include "../../lib/lattice/ilvector2n.h"
 #include "../../lib/lattice/ilvectorarray2n.h"
 
+#include "../../lib/encoding/byteencoding.h"
 #include "../../lib/utils/debug.h"
 
 using namespace std;
@@ -36,7 +37,7 @@ struct TestJsonParms {
 	LPPrivateKey<ILVector2n>				*newSK;
 };
 
-extern void testJson(const std::string cID, const ByteArrayPlaintextEncoding& newPtxt, TestJsonParms *p);
+extern void testJson(const std::string cID, const ByteArray& newPtxt, TestJsonParms *p);
 
 
 

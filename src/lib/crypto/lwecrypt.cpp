@@ -36,20 +36,26 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <fstream>
 
-using namespace std;
-
 namespace lbcrypto {
 
 template <class Element>
 bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
 		LPPrivateKey<Element> *privateKey) const
-		{
-	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(privateKey->GetCryptoParameters());
-	
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
-	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+{
 
-	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
+	if( publicKey == 0 || privateKey == 0 )
+		return false;
+
+	const LPCryptoParametersLTV<Element> *cryptoParams =
+			dynamic_cast<const LPCryptoParametersLTV<Element>*>(&privateKey->GetCryptoParameters());
+
+	if( cryptoParams == 0 )
+		return false;
+
+	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
 
@@ -70,7 +76,7 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	}
 
 	privateKey->SetPrivateElement(f);
-	privateKey->AccessCryptoParameters() = cryptoParams;
+	privateKey->AccessCryptoParameters() = *cryptoParams;
 
 	Element g(dgg,elementParams,Format::COEFFICIENT);
 
@@ -130,11 +136,19 @@ template <class Element>
 bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
 		LPPrivateKey<Element> *privateKey) const
 		{
-	const LPCryptoParametersStehleSteinfeld<Element> &cryptoParams = static_cast<const LPCryptoParametersStehleSteinfeld<Element>&>(privateKey->GetCryptoParameters());
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
-	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+	if( publicKey == 0 || privateKey == 0 )
+		return false;
 
-	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGeneratorStSt();
+	const LPCryptoParametersStehleSteinfeld<Element> *cryptoParams =
+			dynamic_cast<const LPCryptoParametersStehleSteinfeld<Element>*>(&privateKey->GetCryptoParameters());
+
+	if( cryptoParams == 0 )
+		return false;
+
+	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGeneratorStSt();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
 
@@ -156,7 +170,7 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 	}
 
 	privateKey->SetPrivateElement(f);
-	privateKey->AccessCryptoParameters() = cryptoParams;
+	privateKey->AccessCryptoParameters() = *cryptoParams;
 
 	Element g(dgg,elementParams,Format::COEFFICIENT);
 
@@ -346,11 +360,14 @@ void LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(const Ciphertext<Elemen
 
 	const LPPublicKeyEncryptionSchemeLTV<Element> &scheme = dynamic_cast< const LPPublicKeyEncryptionSchemeLTV<Element> &>( this->GetScheme() );
 
-	scheme.m_algorithmSHE->EvalMult(cipherText1,cipherText2, cipherTextResult);
+	//scheme.m_algorithmSHE->EvalMult(cipherText1,cipherText2, cipherTextResult);
+	scheme.EvalMult(cipherText1,cipherText2, cipherTextResult);
 
-	*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(quadKeySwitchHint,*cipherTextResult);
+	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(quadKeySwitchHint,*cipherTextResult);
+	*cipherTextResult = scheme.KeySwitch(quadKeySwitchHint,*cipherTextResult);
 
-	scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
+	//scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
+	scheme.ModReduce(cipherTextResult);
 	
 }
 
@@ -364,31 +381,30 @@ void LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const Ciphertext<Element> &c
 	
 	const LPPublicKeyEncryptionSchemeLTV<Element> &scheme = dynamic_cast< const LPPublicKeyEncryptionSchemeLTV<Element> &>( this->GetScheme() );
 
-	*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(linearKeySwitchHint,cipherText1);
+	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(linearKeySwitchHint,cipherText1);
+	*cipherTextResult = scheme.KeySwitch(linearKeySwitchHint,cipherText1);
 
-	scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
+
+	scheme.ModReduce(cipherTextResult);
 
 }
 
 template <class Element>
-void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey, 
-		const PlaintextEncodingInterface &plaintext,
+EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
+		const Element &plaintext,
 		Ciphertext<Element> *ciphertext) const
-		{
+{
 
-	const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
-	//LPCryptoParameters<Element> &cryptoParams = publicKey.GetCryptoParameters();
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
-	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
-	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
+	const LPCryptoParametersLTV<Element> *cryptoParams =
+			dynamic_cast<const LPCryptoParametersLTV<Element>*>(&publicKey.GetCryptoParameters());
 
-	Element m(elementParams, Format::COEFFICIENT);
+	if( cryptoParams == 0 ) return EncryptResult();
 
-	plaintext.Encode(p,&m);
+	if( ciphertext == 0 ) return EncryptResult();
 
-	m.PrintValues();
-
-	m.SwitchFormat();
+	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 	const Element &h = publicKey.GetPublicElement();
 
@@ -396,12 +412,16 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 
 	Element e(dgg,elementParams);
 
-	Element c(h*s + p*e + m);
+	Element c(elementParams);
 
-	ciphertext->SetCryptoParameters(&cryptoParams);
+	c = h*s + p*e + plaintext;
+
+	ciphertext->SetCryptoParameters(cryptoParams);
 	ciphertext->SetPublicKey(publicKey);
 	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
 	ciphertext->SetElement(c);
+
+	return EncryptResult(0);
 }
 
 template <class Element>
@@ -432,9 +452,9 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 }
 
 template <class Element>
-DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &privateKey, 
+DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &privateKey, 
 		const Ciphertext<Element> &ciphertext,
-		PlaintextEncodingInterface *plaintext) const
+		Element *plaintext) const
 		{
 
 	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
@@ -450,11 +470,28 @@ DecodingResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &pri
 	b.SwitchFormat();
 
 	// Here we are intentionally hard coding the root of unity to BigBinaryInteger::ONE as we are not going to use the root of unity going forward
-	b.SwitchModulus(p, BigBinaryInteger::ONE);
+	/*b.SwitchModulus(p, BigBinaryInteger::ONE);
 
 	plaintext->Decode(p,b);
 
 	return DecodingResult(plaintext->GetLength());
+}*/
+	// *plaintext = b;
+
+	//Element m(elementParams);
+	//m = b.Mod(p);
+
+	//Element m(b.ModByTwo());
+
+	//	Element m(b.Mod(p));
+
+	//cout<<"m ="<<m.GetValues()<<endl;
+
+	//m.DecodeElement(static_cast<ByteArrayPlaintextEncoding*>(plaintext),p);
+	//	plaintext->Decode(p,m);
+	//plaintext->Decode(p,b);
+
+	return DecryptResult(plaintext->GetLength());
 }
 
 // JSON FACILITY - LPCryptoParametersLWE Serialize Operation
@@ -782,7 +819,7 @@ bool LPEvalKeyLTV<Element>::Deserialize(const Serialized& serObj, const CryptoCo
 
 template <class Element>
 LPPrivateKeyLTV<Element>::LPPrivateKeyLTV (const LPPrivateKeyLTV<Element> &rhs) {
-	if(this != rhs) {
+	if(this != &rhs) {
 		m_cryptoParameters = rhs.m_cryptoParameters;
 		m_sk = rhs.m_sk;
 	}
@@ -790,7 +827,7 @@ LPPrivateKeyLTV<Element>::LPPrivateKeyLTV (const LPPrivateKeyLTV<Element> &rhs) 
 
 template <class Element>
 LPPrivateKeyLTV<Element>& LPPrivateKeyLTV<Element>::operator=(const LPPrivateKeyLTV<Element> &rhs) {
-	if(this != rhs) {
+	if(this != &rhs) {
 		m_cryptoParameters = rhs.m_cryptoParameters;
 		m_sk = rhs.m_sk;
 	}
@@ -842,7 +879,7 @@ bool LPPrivateKeyLTV<Element>::Deserialize(const Serialized& serObj, const Crypt
 }
 
 // Default constructor for LPPublicKeyEncryptionSchemeLTV
-template <class Element>
+/*template <class Element>
 LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(){
 	this->m_algorithmEncryption = NULL;
 	this->m_algorithmPRE = NULL;
@@ -852,10 +889,12 @@ LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(){
 	this->m_algorithmFHE = NULL;
 	this->m_algorithmLeveledSHE = NULL;
 }
+*/
 
 // Constructor for LPPublicKeyEncryptionSchemeLTV
 template <class Element>
-LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask){
+LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask, size_t chunksize)
+: LPPublicKeyEncryptionScheme<Element>(chunksize) {
 
 	if (mask[ENCRYPTION])
 		this->m_algorithmEncryption = new LPAlgorithmLTV<Element>(*this);
@@ -874,26 +913,6 @@ LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bit
 
 }
 
-// Destructor for LPPublicKeyEncryptionSchemeLTV
-template <class Element>
-LPPublicKeyEncryptionSchemeLTV<Element>::~LPPublicKeyEncryptionSchemeLTV(){
-	if (this->m_algorithmEncryption != NULL)
-		delete this->m_algorithmEncryption;
-	if (this->m_algorithmPRE != NULL)
-		delete this->m_algorithmPRE;
-	if (this->m_algorithmEvalAdd != NULL)
-		delete this->m_algorithmEvalAdd;
-	if (this->m_algorithmEvalAutomorphism != NULL)
-		delete this->m_algorithmEvalAutomorphism;
-	if (this->m_algorithmSHE != NULL)
-		delete this->m_algorithmSHE;
-	if (this->m_algorithmFHE != NULL)
-		delete this->m_algorithmFHE;
-	if (this->m_algorithmLeveledSHE != NULL)
-		delete this->m_algorithmLeveledSHE;
-}
-
-// FIXME: the Enable code below should delete the old one before assigning to the new one...
 // Enable for LPPublicKeyEncryptionSchemeLTV
 template <class Element>
 void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature){
@@ -932,7 +951,8 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature){
 
 // Constructor for LPPublicKeyEncryptionSchemeStehleSteinfeld
 template <class Element>
-LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>::LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask){
+LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>::LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask, size_t chunksize)
+	: LPPublicKeyEncryptionSchemeLTV<Element>(chunksize) {
 	if (mask[ENCRYPTION])
 		this->m_algorithmEncryption = new LPEncryptionAlgorithmStehleSteinfeld<Element>(*this);
 	if (mask[PRE])

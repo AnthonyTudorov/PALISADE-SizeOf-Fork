@@ -51,6 +51,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "lib/lattice/ilvector2n.h"
 #include "lib/lattice/ilvectorarray2n.h"
 
+#include "lib/encoding/byteencoding.h"
+#include "lib/encoding/cryptoutility.h"
 #include "lib/utils/debug.h"
 #include <vector>
 
@@ -203,21 +205,20 @@ void EncryptionSchemeSimulation(usint count){
 			exit(1);
 		}
 
-		Ciphertext<ILVector2n> ciphertext;
-		ByteArrayPlaintextEncoding ptxt(plaintext);
+		vector<Ciphertext<ILVector2n>> ciphertext;
 
-		algorithm.Encrypt(pk, ptxt, &ciphertext);	// This is the core encryption operation.
+		CryptoUtility<ILVector2n>::Encrypt(algorithm.GetScheme(), pk, plaintext, &ciphertext);	// This is the core encryption operation.
 
-		ByteArrayPlaintextEncoding plaintextNew;
+		ByteArray plaintextNew;
 
-		DecodingResult result = algorithm.Decrypt(sk, ciphertext, &plaintextNew);  // This is the core decryption operation.
+		DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm.GetScheme(), sk, ciphertext, &plaintextNew);  // This is the core decryption operation.
 
-		if (!result.isValidCoding) {
+		if (!result.isValid) {
 			std::cout << "Decryption failed!" << std::endl;
 			exit(1);
 		}
 
-		if (plaintext != plaintextNew.GetData())
+		if (plaintext != plaintextNew)
 			errorCount++;
 
 		//cout << plaintextNew.GetData() << endl;
@@ -354,7 +355,8 @@ void PRESimulation(usint count, usint dataset){
 
 	//LWE-NTRU encryption/pre-encryption algorithm instance
 	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
+	size_t chunksize = ((m / 2) / 8);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask, chunksize);
 
 	std::vector<LPPublicKeyLTV<ILVector2n>*> publicKeys;
 	std::vector<LPPrivateKeyLTV<ILVector2n>*> privateKeys;
@@ -410,9 +412,9 @@ void PRESimulation(usint count, usint dataset){
 
 	for (usint j = 0; j < count; j++){
 
-		ByteArrayPlaintextEncoding ptxt(arrPlaintext[j]);
-
-		algorithm.Encrypt(pk, ptxt, &arrCiphertext[j]);	// This is the core encryption operation.
+		vector<Ciphertext<ILVector2n>> ct;
+		CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, arrPlaintext[j], &ct);
+		arrCiphertext[j] = ct[0];
 
 	}
 
@@ -424,7 +426,7 @@ void PRESimulation(usint count, usint dataset){
 
 	usint errorcounter = 0;
 
-	ByteArrayPlaintextEncoding plaintextNew[NUMBER_OF_RUNS];
+	ByteArray plaintextNew[NUMBER_OF_RUNS];
 
 	//decryption loop
 
@@ -432,8 +434,10 @@ void PRESimulation(usint count, usint dataset){
 
 	for (usint j = 0; j < count; j++){
 
-		DecodingResult result = algorithm.Decrypt(sk,arrCiphertext[j],&plaintextNew[j]);  // This is the core decryption operation.
-
+		vector<Ciphertext<ILVector2n>> ct;
+		ct.push_back(arrCiphertext[j]);
+		DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ct, &plaintextNew[j]);
+		ct.clear();
 	}
 
 	finish = currentDateTime();
@@ -446,7 +450,7 @@ void PRESimulation(usint count, usint dataset){
 
 	for (usint j = 0; j < count; j++){
 
-		if (plaintextNew[j].GetData() != arrPlaintext[j])
+		if (plaintextNew[j] != arrPlaintext[j])
 			errorcounter++;
 	}
 
@@ -463,8 +467,14 @@ void PRESimulation(usint count, usint dataset){
 
 		for (usint j = 0; j < count; j++){
 
-			algorithm.ReEncrypt(*evalKeys[d], arrCiphertext[j],&arrCiphertextNew[j]); 
+			vector<Ciphertext<ILVector2n>> ct;
+			vector<Ciphertext<ILVector2n>> ctRe;
 
+			ct.push_back(arrCiphertext[j]);
+			CryptoUtility<ILVector2n>::ReEncrypt(algorithm, *evalKeys[d], ct, &ctRe);
+			arrCiphertextNew[j] = ctRe[0];
+			ct.clear();
+			ctRe.clear();
 		}
 
 		finish = currentDateTime();
@@ -487,8 +497,10 @@ void PRESimulation(usint count, usint dataset){
 
 	for (usint j = 0; j < count; j++){
 
-		DecodingResult result = algorithm.Decrypt(*privateKeys.back(),arrCiphertextNew[j],&plaintextNew[j]);  // This is the core decryption operation.
-
+		vector<Ciphertext<ILVector2n>> ct;
+		ct.push_back(arrCiphertextNew[j]);
+		DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm,*privateKeys.back(),ct,&plaintextNew[j]);
+		ct.clear();
 	}
 
 	finish = currentDateTime();
@@ -503,7 +515,7 @@ void PRESimulation(usint count, usint dataset){
 
 	for (usint j = 0; j < count; j++){
 
-		if (plaintextNew[j].GetData() != arrPlaintext[j])
+		if (plaintextNew[j] != arrPlaintext[j])
 			errorcounter++;
 	}
 
@@ -537,7 +549,7 @@ void PRESimulation(usint count, usint dataset){
 
 	//for (usint j = 0; j < count; j++){
 
-	//	DecodingResult result = algorithm.Decrypt(sk,arrCiphertext1[j],&plaintextNew[j]);  // This is the core decryption operation.
+	//	DecryptResult result = algorithm.Decrypt(sk,arrCiphertext1[j],&plaintextNew[j]);  // This is the core decryption operation.
 
 	//}
 

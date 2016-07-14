@@ -58,30 +58,40 @@ namespace lbcrypto {
 	template <class Element>
 	class LPKeySwitchHintLTV;
 
+	struct EncryptResult {
+
+		explicit EncryptResult() : isValid(false), numBytesEncrypted(0) {}
+
+		explicit EncryptResult(size_t len) : isValid(true), numBytesEncrypted(len) {}
+
+		bool isValid;				/**< whether the encryption was successful */
+		usint	numBytesEncrypted;	/**< count of the number of plaintext bytes that were encrypted */
+	};
+
 	/** 
-	 * @brief Decoding output.  This represents whether the decoding/decryption of a cipheretext was performed correctly.
+	 * @brief Decryption result.  This represents whether the decryption of a cipheretext was performed correctly.
 	 *
-         * This is intended to eventually incorporate information about the amount of padding in a decoded ciphertext, to ensure that the correct amount of padding is stripped away.
+     * This is intended to eventually incorporate information about the amount of padding in a decoded ciphertext,
+     * to ensure that the correct amount of padding is stripped away.
 	 * It is intended to provided a very simple kind of checksum eventually.
 	 * This notion of a decoding output is inherited from the crypto++ library.
 	 * It is also intended to be used in a recover and restart robust functionality if not all ciphertext is recieved over a lossy channel, so that if all information is eventually recieved, decoding/decryption can be performed eventually.
-	 * This is intended to be returned with the output of a decoding/decryption operation.
+	 * This is intended to be returned with the output of a decryption operation.
 	 */
-	struct DecodingResult
-	{
+	struct DecryptResult {
 		/**
 		 * Constructor that initializes all message lengths to 0.
 		 */
-		explicit DecodingResult() : isValidCoding(false), messageLength(0) {}
+		explicit DecryptResult() : isValid(false), messageLength(0) {}
 
 		/**
 		 * Constructor that initializes all message lengths.
 		 * @param len the new length.
 		 */
-		explicit DecodingResult(size_t len) : isValidCoding(true), messageLength(len) {}
+		explicit DecryptResult(size_t len) : isValid(true), messageLength(len) {}
 
-		bool isValidCoding; /**< whether the input is a valid encoding */
-		usint messageLength; /**< Message length */
+		bool isValid;			/**< whether the decryption was successful */
+		usint messageLength;	/**< the length of the decrypted plaintext message */
 	};
 
 	/**
@@ -302,8 +312,8 @@ namespace lbcrypto {
 			 * @param &plaintext the plaintext input.
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			virtual void Encrypt(const LPPublicKey<Element> &publicKey, 
-				const PlaintextEncodingInterface &plaintext, 
+			virtual EncryptResult Encrypt(const LPPublicKey<Element> &publicKey,
+				const Element &plaintext,
 				Ciphertext<Element> *ciphertext) const = 0;
 
 			/**
@@ -323,9 +333,9 @@ namespace lbcrypto {
 			 * @param *plaintext the plaintext output.
 			 * @return the decoding result.
 			 */
-			virtual DecodingResult Decrypt(const LPPrivateKey<Element> &privateKey, 
+			virtual DecryptResult Decrypt(const LPPrivateKey<Element> &privateKey, 
 				const Ciphertext<Element> &ciphertext,
-				PlaintextEncodingInterface *plaintext) const = 0;
+				Element *plaintext) const = 0;
 
 			/**
 			 * Function to generate public and private keys
@@ -606,13 +616,33 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPPublicKeyEncryptionScheme : public LPEncryptionAlgorithm<Element>, public LPPREAlgorithm<Element> {
+	class LPPublicKeyEncryptionScheme : public LPEncryptionAlgorithm<Element>, public LPPREAlgorithm<Element>, public LPLeveledSHEAlgorithm<Element>, public LPSHEAlgorithm<Element> {
+
 	public:
+		LPPublicKeyEncryptionScheme(size_t chunksize) : chunksize(chunksize), m_algorithmEncryption(0),
+			m_algorithmPRE(0), m_algorithmEvalAdd(0), m_algorithmEvalAutomorphism(0),
+			m_algorithmSHE(0), m_algorithmFHE(0) {}
+
+		~LPPublicKeyEncryptionScheme() {
+			if (this->m_algorithmEncryption != NULL)
+				delete this->m_algorithmEncryption;
+			if (this->m_algorithmPRE != NULL)
+				delete this->m_algorithmPRE;
+			if (this->m_algorithmEvalAdd != NULL)
+				delete this->m_algorithmEvalAdd;
+			if (this->m_algorithmEvalAutomorphism != NULL)
+				delete this->m_algorithmEvalAutomorphism;
+			if (this->m_algorithmSHE != NULL)
+				delete this->m_algorithmSHE;
+			if (this->m_algorithmFHE != NULL)
+				delete this->m_algorithmFHE;
+		}
+
 		
 		//to be implemented later
 		//void Disable(PKESchemeFeature feature);
 		
-		const std::bitset<FEATURESETSIZE> GetEnabledFeatures() {return m_featureMask;}
+		//const std::bitset<FEATURESETSIZE> GetEnabledFeatures() {return m_featureMask;}
 		
 		//to be implemented later
 		//const std::string PrintEnabledFeatures();
@@ -665,10 +695,11 @@ namespace lbcrypto {
 		}
 
 		//wrapper for Encrypt method
-		void Encrypt(const LPPublicKey<Element> &publicKey, 
-			const PlaintextEncodingInterface &plaintext, Ciphertext<Element> *ciphertext) const {
-				if(this->IsEnabled(ENCRYPTION))
-					this->m_algorithmEncryption->Encrypt(publicKey,plaintext,ciphertext);
+		EncryptResult Encrypt(const LPPublicKey<Element> &publicKey,
+			const Element &plaintext, Ciphertext<Element> *ciphertext) const {
+				if(this->IsEnabled(ENCRYPTION)) {
+					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext,ciphertext);
+				}
 				else {
 					throw std::logic_error("This operation is not supported");
 				}
@@ -685,8 +716,8 @@ namespace lbcrypto {
 		}
 
 		//wrapper for Decrypt method
-		DecodingResult Decrypt(const LPPrivateKey<Element> &privateKey, const Ciphertext<Element> &ciphertext,
-				PlaintextEncodingInterface *plaintext) const {
+		DecryptResult Decrypt(const LPPrivateKey<Element> &privateKey, const Ciphertext<Element> &ciphertext,
+				Element *plaintext) const {
 				if(this->IsEnabled(ENCRYPTION))
 					return this->m_algorithmEncryption->Decrypt(privateKey,ciphertext,plaintext);
 				else {
@@ -734,8 +765,114 @@ namespace lbcrypto {
 				}
 		}
 
-//	protected:
 
+		//wrapper for EvalAdd method
+		void EvalAdd(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const {
+
+					if(this->IsEnabled(SHE))
+						this->m_algorithmSHE->EvalAdd(ciphertext1,ciphertext2,newCiphertext);
+					else{
+						throw std::logic_error("This operation is not supported");
+					}
+		}
+
+		//wrapper for EvalMult method
+		void EvalMult(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const {
+					
+					if(this->IsEnabled(SHE))
+						this->m_algorithmSHE->EvalMult(ciphertext1,ciphertext2,newCiphertext);
+					else{
+						throw std::logic_error("This operation is not supported");
+					}
+
+		}
+
+		//wrapper for KeySwitchHintGen
+		void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
+				const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const {
+					if(this->IsEnabled(LEVELEDSHE))
+						this->m_algorithmLeveledSHE->KeySwitchHintGen(originalPrivateKey, newPrivateKey,keySwitchHint);
+					else{
+						throw std::logic_error("This operation is not supported");
+					}
+		}
+
+		//wrapper for KeySwitch
+		Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->KeySwitch(keySwitchHint,cipherText);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+		//wrapper for QuadraticKeySwitchHintGen
+		void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *quadraticKeySwitchHint) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->QuadraticKeySwitchHintGen(originalPrivateKey,newPrivateKey,quadraticKeySwitchHint);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+		//wrapper for ModReduce
+		void ModReduce(Ciphertext<Element> *cipherText) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->ModReduce(cipherText);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+		//wrapper for RingReduce
+		void RingReduce(Ciphertext<Element> *cipherText, const LPKeySwitchHint<Element> &keySwitchHint) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->RingReduce(cipherText,keySwitchHint);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+		//wrapper for ComposedEvalMult
+		void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPKeySwitchHint<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->ComposedEvalMult(cipherText1,cipherText2,quadKeySwitchHint,cipherTextResult);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+
+		//wrapper for LevelReduce
+		void LevelReduce(const Ciphertext<Element> &cipherText1, const LPKeySwitchHint<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->LevelReduce(cipherText1,linearKeySwitchHint,cipherTextResult);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+
+		/**
+		 *
+		 * @return the size of plaintext that this scheme can process in one low-level call
+		 */
+		const size_t getChunkSize() const { return chunksize; }
+
+		const LPEncryptionAlgorithm<Element>& getAlgorithm() const { return *m_algorithmEncryption; }
+
+	protected:
+		const size_t chunksize;
 		const LPEncryptionAlgorithm<Element> *m_algorithmEncryption;
 		const LPPREAlgorithm<Element> *m_algorithmPRE;
 		const LPAHEAlgorithm<Element> *m_algorithmEvalAdd;
@@ -743,7 +880,7 @@ namespace lbcrypto {
 		const LPSHEAlgorithm<Element> *m_algorithmSHE;
 		const LPFHEAlgorithm<Element> *m_algorithmFHE;
 		const LPLeveledSHEAlgorithm<Element> *m_algorithmLeveledSHE;
-		std::bitset<FEATURESETSIZE> m_featureMask;
+		//std::bitset<FEATURESETSIZE> m_featureMask;
 	};
 
 

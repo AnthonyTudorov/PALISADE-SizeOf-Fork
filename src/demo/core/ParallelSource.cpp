@@ -20,14 +20,18 @@
 #include "../../lib/utils/debug.h"
 #include <omp.h> //open MP header
 
-using namespace std;
+//using namespace std;
 using namespace lbcrypto;
+
+const uint32_t ARRAY_SIZE = 1000;
 
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
   
-  int array_size = 1000;
-  float foo[array_size];
+  //int array_size = 1000;
+  //non-const array is size is not supported in MVC; only in GCC; this is why the const was introduced
+  //float foo[array_size];
+  float foo[ARRAY_SIZE];
 
   bool dbg_flag;
 
@@ -35,7 +39,7 @@ int main(int argc, char* argv[]){
   double time1;
   double timeTotal;
 
-  cout << "Parallel computation using "<< omp_get_num_procs() << " processors." <<endl;
+  std::cout << "Parallel computation using "<< omp_get_num_procs() << " processors." <<std::endl;
   int nthreads, tid;
   #pragma omp parallel private(nthreads, tid)
   {
@@ -47,7 +51,7 @@ int main(int argc, char* argv[]){
     if (tid == 0)
       {
 	nthreads = omp_get_num_threads();
-	cout << "Number of threads = " << nthreads << endl;
+	std::cout << "Number of threads = " << nthreads << std::endl;
       }
   }
 
@@ -56,7 +60,7 @@ int main(int argc, char* argv[]){
   TIC(t1);
   
 #pragma omp parallel for
-  for (int i = 0; i < array_size; ++i) {
+  for (int i = 0; i < ARRAY_SIZE; ++i) {
     float tmp = i;
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -69,19 +73,19 @@ int main(int argc, char* argv[]){
   DEBUG("Total time: " << "\t" << timeTotal << " ms");
 
   bool goodflag = true;
-  for (int i = 1; i < array_size; ++i) {
+  for (int i = 1; i < ARRAY_SIZE; ++i) {
     if ((foo[i]-foo[i-1])!= 1) {
       goodflag = goodflag & false;
     }
   }
   if ( goodflag) {
-      cout << "success" << endl;
+      std::cout << "success" << std::endl;
   } else {
-    cout<< "fail" << endl;
-    for (int i = 0; i < array_size; ++i) {
-      cout << foo[i] << " ";
+    std::cout<< "fail" << std::endl;
+    for (int i = 0; i < ARRAY_SIZE; ++i) {
+      std::cout << foo[i] << " ";
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
 

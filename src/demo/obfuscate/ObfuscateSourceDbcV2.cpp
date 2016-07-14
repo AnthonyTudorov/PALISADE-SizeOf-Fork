@@ -36,14 +36,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <fstream>
-#include "../../lib/obfuscate/lweconjunctionobfuscate.h"
-#include "../../lib/obfuscate/lweconjunctionobfuscate.cpp"
+#include "../../lib/obfuscate/lweconjunctionobfuscatev2.h"
+#include "../../lib/obfuscate/lweconjunctionobfuscatev2.cpp"
 
 #include "../../lib/utils/debug.h"
 
 #include <omp.h> //open MP header
 
-using namespace std;
+//using namespace std;
 using namespace lbcrypto;
 
 bool NTRUPRE(bool dbg_flag, int n_evals); //defined later
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]){
 		if (atoi(argv[1]) != 0) {
 #ifndef NDEBUG
 			dbg_flag = true;
-			cout << "setting dbg_flag true" << std::endl;
+			std::cout << "setting dbg_flag true" << std::endl;
 #endif
 		}
 	}
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]){
 			n_evals = atoi(argv[2]);
 		}
 	}
-	std::cerr  <<"Running " << argv[0] <<" with "<< n_evals << " evaluations." << std::endl;
+	std::cerr << "Running " << argv[0] << " with " << n_evals << " evaluations." << std::endl;
 
 	int nthreads, tid;
 
@@ -149,6 +149,8 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	//27 bits
 	//BigBinaryInteger rootOfUnity("61564");
 
+	usint chunkSize = 2;
+
 	float stdDev = 4;
 
 	//Variables for timing
@@ -180,10 +182,10 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	//Generate and test the cleartext pattern
 	////////////////////////////////////////////////////////////
 
-	std::string inputPattern = "10?";
+	std::string inputPattern = "1?10?1";
 
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
-	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
+	LWEConjunctionObfuscationAlgorithmV2<ILVector2n> algorithm;
 
 	DEBUG(" \nCleartext pattern: ");
 	DEBUG(clearPattern.GetPatternString());
@@ -191,15 +193,15 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	DEBUG(" \nCleartext pattern length: ");
 	DEBUG(clearPattern.GetLength());
 
-	std::string inputStr1 = "100";
+	std::string inputStr1 = "111001";
 	bool out1 = algorithm.Evaluate(clearPattern,inputStr1);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << out1);
 
-	std::string inputStr2 = "101";
+	std::string inputStr2 = "110011";
 	bool out2 = algorithm.Evaluate(clearPattern,inputStr2);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << out2);
 	
-	std::string inputStr3 = "010";
+	std::string inputStr3 = "101011";
 	bool out3 = algorithm.Evaluate(clearPattern,inputStr3);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr3 << " is " << out3);
 
@@ -214,7 +216,7 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	std::cout << " \nCleartext pattern: " << std::endl;
 	std::cout << clearPattern.GetPatternString() << std::endl;
 
-	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(ilParams);
+	ObfuscatedLWEConjunctionPatternV2<ILVector2n> obfuscatedPattern(ilParams,chunkSize);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 
 	DEBUG( "Key generation started"); 

@@ -25,7 +25,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-
 #ifndef __dbg_h__
 #define __dbg_h__
 
@@ -65,8 +64,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define DEBUG(x) 
 #define DEBUGEXP(x) 
 
-#define TIC(t)
-#define TOC(t) 
+#define TIC(t) 0
+#define TOC(t) 0
 
 #endif
 
