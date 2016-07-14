@@ -380,18 +380,25 @@ namespace lbcrypto {
 			 */
 			virtual Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const = 0;
 
+			/**
+			 * Method for generating a keyswitchhint from originalPrivateKey square to newPrivateKey
+			 *
+			 * @param &originalPrivateKey that is (in method) squared for the keyswitchhint.
+			 * @param &newPrivateKey new private for generating a keyswitchhint to.
+			 * @param *quadraticKeySwitchHint the generated keyswitchhint.
+			 */
+
 			virtual void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *quadraticKeySwitchHint) const = 0;
 
 			/**
-			 * Method for ModReduce
+			 * Method for Modulus Reduction.
 			 *
 			 * @param &cipherText Ciphertext to perform mod reduce on.
-			 * @param &privateKey Private key used to encrypt the first argument.
 			 */
 			virtual void ModReduce(Ciphertext<Element> *cipherText) const = 0; 
 
 			/**
-			 * Method for RingReduce
+			 * Method for Ring Reduction.
 			 *
 			 * @param &cipherText Ciphertext to perform ring reduce on.
 			 * @param &privateKey Private key used to encrypt the first argument.
@@ -401,16 +408,19 @@ namespace lbcrypto {
 			/**
 			 * Method for Composed EvalMult
 			 *
-			 * @param &cipherText Ciphertext1, Ciphertext2 to perform multiplication on.
-			 * @param &quadKeySwitchHint is the quadratic key switch hint.
+			 * @param &cipherText1 ciphertext1, first input ciphertext to perform multiplication on.
+			 * @param &cipherText2 cipherText2, second input ciphertext to perform multiplication on.
+			 * @param &quadKeySwitchHint is for resultant quadratic secret key after multiplication to the secret key of the particular level.
+			 * @param &cipherTextResult is the resulting ciphertext that can be decrypted with the secret key of the particular level.
 			 */
 			virtual void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPKeySwitchHint<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const = 0;
 
 			/**
-			 * Method for Level Reduction from sk -> sk1.
+			 * Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
 			 *
-			 * @param &cipherText Ciphertext1, Ciphertext2 to perform multiplication on.
-			 * @param &linearKeySwitchHint is the linear key switch hint.
+			 * @param &cipherText1 is the original ciphertext to be key switched and mod reduced.
+			 * @param &linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
+			 * @param &cipherTextResult is the resulting ciphertext.
 			 */
 			virtual void LevelReduce(const Ciphertext<Element> &cipherText1, const LPKeySwitchHint<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const = 0;
 
@@ -542,11 +552,6 @@ namespace lbcrypto {
 				const usint size, LPPrivateKey<Element> *tempPrivateKey, 
 				std::vector<LPEvalKey<Element> *> *evalKeys) const = 0;
 	};
-
-
-
-
-	
 
 
 	/**
@@ -841,7 +846,7 @@ namespace lbcrypto {
 			}
 		}
 
-		//wrapper for ComposedEvalMult
+
 		void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPKeySwitchHint<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
 			if(this->IsEnabled(LEVELEDSHE)){
 				this->m_algorithmLeveledSHE->ComposedEvalMult(cipherText1,cipherText2,quadKeySwitchHint,cipherTextResult);

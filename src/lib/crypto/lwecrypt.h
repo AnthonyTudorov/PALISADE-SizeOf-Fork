@@ -244,6 +244,7 @@ namespace lbcrypto {
 			/**
 			* Creates a new set of parameters for LPCryptoParametersLTV amid a new ILDCRTParams. The new ILDCRTParams will allow for 
 			* SHE operations of the existing depth. Note that the cyclotomic order also changes.
+			*
 			* @param *cryptoParams is where the resulting new LPCryptoParametersLTV will be placed in.
 			*/
 			template <class ILVectorArray2n>

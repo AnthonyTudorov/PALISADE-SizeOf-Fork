@@ -248,6 +248,8 @@ Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPKeySwit
 	return newCipherText ;
 }
 
+
+/*Generates a keyswitchhint from originalPrivateKey^(2) to newPrivateKey */
 template<class Element>
 void LPLeveledSHEAlgorithmLTV<Element>::QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
 	
@@ -284,9 +286,6 @@ void LPLeveledSHEAlgorithmLTV<Element>::QuadraticKeySwitchHintGen(const LPPrivat
 
 /**
 * Method for ModReducing on any Element datastructure-TODO
-*
-* @param &cipherText Ciphertext to perform mod reduce on.
-* @param &privateKey Private key used to encrypt the first argument.
 */
 template<class Element>
 void LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Element> *cipherText) const {
@@ -383,7 +382,6 @@ void LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const Ciphertext<Element> &c
 
 	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(linearKeySwitchHint,cipherText1);
 	*cipherTextResult = scheme.KeySwitch(linearKeySwitchHint,cipherText1);
-
 
 	scheme.ModReduce(cipherTextResult);
 

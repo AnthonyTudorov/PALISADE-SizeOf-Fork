@@ -91,6 +91,7 @@ namespace lbcrypto {
 		* Constructor that initializes parameters.
 		*
 		*@param &params parameter set required for ILVectorArray2n.
+		*@param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVectorArray2n(const ElemParams &params, Format format = EVALUATION);
 
@@ -116,6 +117,21 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n(const std::vector<ILVector2n> &elements);
 
+		/**
+		* Constructor based on discrete Gaussian generator.
+		*
+		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers.
+		* @param &params parameter set required for ILVectorArray2n. 
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
+
+		/**
+		* Get method of the cyclotomic order
+		*
+		* @return the cyclotomic order.
+		*/
+
 		usint GetCyclotomicOrder() const ;
 
 		/**
@@ -126,14 +142,10 @@ namespace lbcrypto {
 		const BigBinaryInteger &GetModulus() const;
 		
 		/**
-		* Constructor based a discrete Gaussian generator. T
+		* Get method for the number of towers of the ILVectorArray2n.
 		*
-		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers.
-		* @param &ilparams parameter set required for ILVectorArray2n. 
-		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		* @return the number of towers.
 		*/
-		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
-
 		usint GetLength() const {
 			usint tot = 0;
 			for( auto vec : m_vectors ) {
@@ -164,6 +176,7 @@ namespace lbcrypto {
 		* Creates a new ILVectorArray2n and clones the params. The tower values will be filled up with noise based on the discrete gaussian.
 		*
 		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVectorArray2n CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format = EVALUATION) const;
 
