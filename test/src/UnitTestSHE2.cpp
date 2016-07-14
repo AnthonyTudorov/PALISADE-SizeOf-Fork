@@ -480,6 +480,7 @@ TEST(UnitTestSHE2, test_eval_mult){
 	bbv4.SetValAtIndex(7, "1232");
 	ilv_dcrt4.SetValues(bbv4, Format::EVALUATION);
 
+
 	ilvectors_dcrt_vector_2.reserve(2);
 	ilvectors_dcrt_vector_2.push_back(ilv_dcrt3);
 	ilvectors_dcrt_vector_2.push_back(ilv_dcrt4);
