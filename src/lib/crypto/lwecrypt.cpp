@@ -360,11 +360,14 @@ void LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(const Ciphertext<Elemen
 
 	const LPPublicKeyEncryptionSchemeLTV<Element> &scheme = dynamic_cast< const LPPublicKeyEncryptionSchemeLTV<Element> &>( this->GetScheme() );
 
-	scheme.m_algorithmSHE->EvalMult(cipherText1,cipherText2, cipherTextResult);
+	//scheme.m_algorithmSHE->EvalMult(cipherText1,cipherText2, cipherTextResult);
+	scheme.EvalMult(cipherText1,cipherText2, cipherTextResult);
 
-	*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(quadKeySwitchHint,*cipherTextResult);
+	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(quadKeySwitchHint,*cipherTextResult);
+	*cipherTextResult = scheme.KeySwitch(quadKeySwitchHint,*cipherTextResult);
 
-	scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
+	//scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
+	scheme.ModReduce(cipherTextResult);
 	
 }
 
@@ -378,9 +381,11 @@ void LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const Ciphertext<Element> &c
 	
 	const LPPublicKeyEncryptionSchemeLTV<Element> &scheme = dynamic_cast< const LPPublicKeyEncryptionSchemeLTV<Element> &>( this->GetScheme() );
 
-	*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(linearKeySwitchHint,cipherText1);
+	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(linearKeySwitchHint,cipherText1);
+	*cipherTextResult = scheme.KeySwitch(linearKeySwitchHint,cipherText1);
 
-	scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
+
+	scheme.ModReduce(cipherTextResult);
 
 }
 

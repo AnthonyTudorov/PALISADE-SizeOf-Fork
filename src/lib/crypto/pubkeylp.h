@@ -616,7 +616,7 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPPublicKeyEncryptionScheme : public LPEncryptionAlgorithm<Element>, public LPPREAlgorithm<Element> {
+	class LPPublicKeyEncryptionScheme : public LPEncryptionAlgorithm<Element>, public LPPREAlgorithm<Element>, public LPLeveledSHEAlgorithm<Element>, public LPSHEAlgorithm<Element> {
 
 	public:
 		LPPublicKeyEncryptionScheme(size_t chunksize) : chunksize(chunksize), m_algorithmEncryption(0),
@@ -764,6 +764,104 @@ namespace lbcrypto {
 					throw std::logic_error("This operation is not supported");
 				}
 		}
+
+
+		//wrapper for EvalAdd method
+		void EvalAdd(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const {
+
+					if(this->IsEnabled(SHE))
+						this->m_algorithmSHE->EvalAdd(ciphertext1,ciphertext2,newCiphertext);
+					else{
+						throw std::logic_error("This operation is not supported");
+					}
+		}
+
+		//wrapper for EvalMult method
+		void EvalMult(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const {
+					
+					if(this->IsEnabled(SHE))
+						this->m_algorithmSHE->EvalMult(ciphertext1,ciphertext2,newCiphertext);
+					else{
+						throw std::logic_error("This operation is not supported");
+					}
+
+		}
+
+		//wrapper for KeySwitchHintGen
+		void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
+				const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const {
+					if(this->IsEnabled(LEVELEDSHE))
+						this->m_algorithmLeveledSHE->KeySwitchHintGen(originalPrivateKey, newPrivateKey,keySwitchHint);
+					else{
+						throw std::logic_error("This operation is not supported");
+					}
+		}
+
+		//wrapper for KeySwitch
+		Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->KeySwitch(keySwitchHint,cipherText);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+		//wrapper for QuadraticKeySwitchHintGen
+		void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *quadraticKeySwitchHint) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->QuadraticKeySwitchHintGen(originalPrivateKey,newPrivateKey,quadraticKeySwitchHint);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+		//wrapper for ModReduce
+		void ModReduce(Ciphertext<Element> *cipherText) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->ModReduce(cipherText);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+		//wrapper for RingReduce
+		void RingReduce(Ciphertext<Element> *cipherText, const LPKeySwitchHint<Element> &keySwitchHint) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->RingReduce(cipherText,keySwitchHint);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+		//wrapper for ComposedEvalMult
+		void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPKeySwitchHint<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->ComposedEvalMult(cipherText1,cipherText2,quadKeySwitchHint,cipherTextResult);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+
+		//wrapper for LevelReduce
+		void LevelReduce(const Ciphertext<Element> &cipherText1, const LPKeySwitchHint<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->LevelReduce(cipherText1,linearKeySwitchHint,cipherTextResult);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
 
 		/**
 		 *
