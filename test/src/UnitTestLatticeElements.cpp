@@ -146,7 +146,7 @@ TEST(method_ILVector2n, getters_tests) {
   }
 
   {
-    // EXPECT_EQ(m, ilvector2n.GetCyclotomicOrder()) << "ILVector2n.GetCyclotomicOrder is incorrect.\n";
+    EXPECT_EQ(m, ilvector2n.GetCyclotomicOrder()) << "ILVector2n.GetCyclotomicOrder is incorrect.\n";
   }
 
   {
@@ -677,9 +677,10 @@ TEST(method_ILVector2n, other_methods) {
 TEST(method_ILVector2n, cyclotomicOrder_test) {
   usint m = 8;
   ILParams ilparams0(m, BigBinaryInteger("17661"), BigBinaryInteger("8765"));
-  std::cout << "ilparams0.GetCyclotomicOrder()  = " << ilparams0.GetCyclotomicOrder() << std::endl;
+  // std::cout << "ilparams0.GetCyclotomicOrder()  = " << ilparams0.GetCyclotomicOrder() << std::endl;
   ILVector2n ilv0(ilparams0);
-  std::cout << "ilv0.GetCyclotomicOrder()  = " << ilv0.GetCyclotomicOrder() << std::endl;
+  // std::cout << "ilv0.GetCyclotomicOrder()  = " << ilv0.GetCyclotomicOrder() << std::endl;
+  EXPECT_EQ(ilparams0.GetCyclotomicOrder(), ilv0.GetCyclotomicOrder());
 }
 
 TEST(method_ILVectorArray2n, constructors_test) {
@@ -740,7 +741,7 @@ TEST(method_ILVectorArray2n, constructors_test) {
     EXPECT_EQ(Format::EVALUATION, ilva.GetFormat());
     EXPECT_EQ(modulus, ilva.GetModulus());
     //TODO-Nishanth: Uncomment once method_ILVector2n.cyclotomicOrder_test passes.
-    // EXPECT_EQ(m, ilva.GetCyclotomicOrder());
+    EXPECT_EQ(m, ilva.GetCyclotomicOrder());
     EXPECT_EQ(towersize, ilva.GetNumOfElements());
   }
 

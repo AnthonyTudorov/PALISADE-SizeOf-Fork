@@ -84,12 +84,12 @@ int main() {
 
 //	RingReduceDCRTTest();
 	//NTRUPRE(0);
-	//NTRU_DCRT();
+	NTRU_DCRT();
 	//LevelCircuitEvaluation();
 	//LevelCircuitEvaluation1();
 	//LevelCircuitEvaluation2();
 	
-	FinalLeveledComputation();
+	// FinalLeveledComputation();
 
 	//TestParameterSelection();
 	//LevelCircuitEvaluation2WithCEM();

@@ -306,7 +306,7 @@ namespace lbcrypto {
 		*
 		* @return the cyclotomic order.
 		*/
-		const usint &GetCyclotomicOrder() const;
+		const usint GetCyclotomicOrder() const;
 
 		/**
 		* Get method of the vector.

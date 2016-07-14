@@ -474,7 +474,7 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &priv
 
 	return DecodingResult(plaintext->GetLength());
 }*/
-	// *plaintext = b;
+	*plaintext = b;
 
 	//Element m(elementParams);
 	//m = b.Mod(p);

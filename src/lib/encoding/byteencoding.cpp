@@ -118,7 +118,6 @@ namespace lbcrypto {
 		*element = elementNew;
 		
 	}
-
 	
 	void ByteArrayPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n &ilVectorArray2n){
 	 
