@@ -62,7 +62,7 @@ namespace lbcrypto {
 	}
 
 	const ILVector2n& ILVector2n::operator=(const ILVector2n &rhs) {
-
+		
 		if (this != &rhs) {
 			if (m_values == NULL && rhs.m_values!=NULL) {
 					m_values = new BigBinaryVector(*rhs.m_values);
@@ -159,8 +159,11 @@ namespace lbcrypto {
 		return std::move(result);
 	}
 
+	//If this is in EVALUATION then just set all the values = val
 	const ILVector2n& ILVector2n::operator=(usint val) {
         m_format = COEFFICIENT;
+		if (m_values == NULL)
+			m_values = new BigBinaryVector(m_params.GetCyclotomicOrder()/2, m_params.GetModulus());
         this->SetValAtIndex(0, val);
         for (size_t i = 1; i < m_values->GetLength(); ++i) {
             this->SetValAtIndex(i, 0);
@@ -308,6 +311,8 @@ namespace lbcrypto {
 	}
 
 	const ILVector2n& ILVector2n::operator+=(const ILVector2n &element) {
+		if (m_values == NULL)
+			m_values = new BigBinaryVector(m_params.GetCyclotomicOrder() / 2, m_params.GetModulus());
 		*this->m_values = this->m_values->ModAdd(*element.m_values);
 		return *this;
 	}
