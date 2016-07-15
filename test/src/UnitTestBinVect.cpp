@@ -134,8 +134,7 @@ TEST(method_modadd_vect,modadd_result_smaller_than_modulus){
 	BigBinaryVector m(5,q);		// calling constructor to create a vector of length 5 and passing value of q
 	BigBinaryInteger n("3");
 
-	int i;
-	usint j;
+	usint i;
 
 	//setting value of the value at different index locations
 	m.SetValAtIndex(0,"9868");
@@ -147,11 +146,11 @@ TEST(method_modadd_vect,modadd_result_smaller_than_modulus){
 	
 	BigBinaryVector calculatedResult = m.ModAdd(n);
 
-	int expectedResult[5] = {9871,5879,4554,2343,9789};
+	int expectedResult[5] = {9871, 5882,4557,2346,9792};
 
-	for (i=0,j=0;i<5;i++,j++)
-	{
-		EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(j)).ConvertToInt());
+	for (i=0;i<5;i++)
+	{	
+		EXPECT_EQ (expectedResult[i], calculatedResult.GetValAtIndex(i).ConvertToInt());
 	}
 
 }
@@ -178,7 +177,7 @@ TEST(method_modadd_vect,modadd_result_greater_than_modulus){
 	BigBinaryVector calculatedResult = m.ModAdd(n);
 
 
-	int expectedResult[5] = {1825,5879,4554,2343,9789};
+	int expectedResult[5] = {1825,1370,45,1368,1746};
 
 	for (i=0,j=0;i<5;i++,j++)
 	{
