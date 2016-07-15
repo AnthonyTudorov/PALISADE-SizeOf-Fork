@@ -248,8 +248,20 @@ namespace exp_int32 {
     return ans;
   }
 
-  // method to modadd scalar to vector
+  // %=
+  // method to vector with scalar
   template<class bint_el_t>
+  const mubintvec<bint_el_t>& mubintvec<bint_el_t>::operator%=(const bint_el_t& modulus) {
+
+    *this = *this.Mod(modulus);
+    return *this;
+
+  }
+
+
+
+
+    template<class bint_el_t>
   mubintvec<bint_el_t> mubintvec<bint_el_t>::ModAdd(const bint_el_t &b) const{
     mubintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){

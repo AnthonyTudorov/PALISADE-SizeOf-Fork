@@ -235,6 +235,14 @@ public:
    */
   mubintvec Mod(const bint_el_t& modulus) const;
 
+    /**
+   * vector scalar %=
+   *
+   * @param &modulus is the new modulus value
+   * @return is the result of the mod operation.
+   */
+  const mubintvec& operator%=(const bint_el_t& modulus);
+
   //scalar operations
 
   /**
@@ -372,31 +380,44 @@ private:
 };
 
 //BINARY OPERATORS
+  /**
+   *   scalar modulo
+   *
+   * @param &a is the input vector to modulo.
+   * @param &modulus is the input bint modulus
+   * @return is the result of the modulo operation.
+   */
+  template<class bint_el_t>
+  inline mubintvec<bint_el_t> operator%(const mubintvec<bint_el_t> &a,
+      const bint_el_t &modulo) {
+    return a.Mod(modulo);
+  }
+
 
 /**
  *   scalar modulo addition.
  *
  * @param &a is the input vector to add.
- * @param &i is the input integer to add.
+ * @param &b is the input bint to add.
  * @return is the result of the modulo addition operation.
  */
 template<class bint_el_t>
 inline mubintvec<bint_el_t> operator+(const mubintvec<bint_el_t> &a,
-    const bint_el_t &i) {
-  return a.ModAdd(i);
+    const bint_el_t &b) {
+  return a.ModAdd(b);
 }
 
 /**
  *   scalar modulo subtraction
  *
  * @param &a is the input vector to subtract.
- * @param &i is the input integer to subtract.
+ * @param &b is the input bint to subtract.
  * @return is the result of the modulo subtraction operation.
  */
 template<class bint_el_t>
 inline mubintvec<bint_el_t> operator-(const mubintvec<bint_el_t> &a,
-    const bint_el_t &i) {
-  return a.ModSub(i);
+    const bint_el_t &b) {
+  return a.ModSub(b);
 }
 
 /**

@@ -47,18 +47,13 @@ namespace exp_int32 {
   // basic constructor
   template<class bint_el_t>
   ubintvec<bint_el_t>::ubintvec(){
-    //this->m_length = 0;
-    //m_data = NULL;
   }
 
   // Basic constructor for specifying the length of the vector.
   template<class bint_el_t>
   ubintvec<bint_el_t>::ubintvec(usint length){
-    //todo change to vector
     m_data.resize(length);
-    //this->m_length = length;
 
-    //this->m_data = new bint_el_t*[m_length];
     for (usint i = 0; i < length; i++){
       m_data[i] = bint_el_t::ZERO;
     }
@@ -179,9 +174,18 @@ namespace exp_int32 {
     return this->m_data[index];
   }
 
+
+
+
   //todo: deprecate this.
   template<class bint_el_t>
   usint ubintvec<bint_el_t>::GetLength() const{
+    return this->m_data.size();
+  }
+
+  //todo: deprecate this.
+  template<class bint_el_t>
+  usint ubintvec<bint_el_t>::size() const{
     return this->m_data.size();
   }
 
@@ -195,6 +199,18 @@ namespace exp_int32 {
     }
     return ans;
   }
+
+    // %=
+  // method to vector with scalar
+  template<class bint_el_t>
+  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator%=(const bint_el_t& modulus) {
+
+    *this = *this.Mod(modulus);
+    return *this;
+
+  }
+
+
 
   // method to add scalar to vector
   template<class bint_el_t>

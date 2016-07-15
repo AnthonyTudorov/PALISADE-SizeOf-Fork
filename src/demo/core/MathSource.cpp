@@ -1287,38 +1287,38 @@ void test_ubint () {
 
 //function to compare two bintvecs and print differing indicies
 void vec_diff(ubintvec &a, ubintvec &b) {
-    for (usint i= 0; i < a.GetLength(); ++i){  //todo change to size()
-      if (a.GetValAtIndex(i) != b.GetValAtIndex(i)) {  //todo: add [] indexing to class
+    for (usint i= 0; i < a.size(); ++i){  //todo change to size()
+      if (a[i] != b[i]) {  //todo: add [] indexing to class
         cout << "i: "<< i << endl;
 	cout << "first vector " <<endl;
-        cout << a.GetValAtIndex(i);
+        cout <<a[i];
         cout << endl;
-        cout << "state " << a.GetValAtIndex(i).m_state << endl;;
-        cout << "msb: " << a.GetValAtIndex(i).m_MSB << endl;;
+        cout << "state " << a[i].m_state << endl;;
+        cout << "msb: " << a[i].m_MSB << endl;;
 	cout << "second vector " <<endl;
-        cout << b.GetValAtIndex(i);
+        cout << b[i];
         cout << endl;
-        cout << "state " << b.GetValAtIndex(i).m_state << endl;;
-        cout << "msb: " << b.GetValAtIndex(i).m_MSB << endl;;
+        cout << "state " << b[i].m_state << endl;;
+        cout << "msb: " << b[i].m_MSB << endl;;
         cout << endl;
       }
     }
 
 }
 void vec_diff(mubintvec &a, ubintvec &b) {
-    for (usint i= 0; i < a.ubintvec::GetLength(); ++i){  //todo change to size()
-      if (a.ubintvec::GetValAtIndex(i) != b.GetValAtIndex(i)) {  //todo: add [] indexing to class
+    for (usint i= 0; i < a.size(); ++i){  //todo change to size()
+      if (a[i] != b[i]) {  //todo: add [] indexing to class
         cout << "i: "<< i << endl;
 	cout << "first vector " <<endl;
-        cout << a.ubintvec::GetValAtIndex(i);
+        cout << a[i];
         cout << endl;
-        cout << "state " << a.ubintvec::GetValAtIndex(i).m_state << endl;;
-        cout << "msb: " << a.ubintvec::GetValAtIndex(i).m_MSB << endl;;
+        cout << "state " << a[i].m_state << endl;;
+        cout << "msb: " << a[i].m_MSB << endl;;
 	cout << "second vector " <<endl;
-        cout << b.GetValAtIndex(i);
+        cout << b[i];
         cout << endl;
-        cout << "state " << b.GetValAtIndex(i).m_state << endl;;
-        cout << "msb: " << b.GetValAtIndex(i).m_MSB << endl;;
+        cout << "state " << b[i].m_state << endl;;
+        cout << "msb: " << b[i].m_MSB << endl;;
         cout << endl;
       }
     }

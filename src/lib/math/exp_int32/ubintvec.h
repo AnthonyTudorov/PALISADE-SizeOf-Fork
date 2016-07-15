@@ -177,7 +177,7 @@ namespace exp_int32 {
 
       /**
        * Sets a value at an index.
-       *
+       * NOTE DEPRECATED BY []
        * @param index is the index to set a value at.
        * @param value is the value to set at the index.
        */
@@ -185,7 +185,7 @@ namespace exp_int32 {
 
       /**
        * Sets a value at an index.
-       *
+       * NOTE DEPRECATED BY []
        * @param index is the index to set a value at.
        * @param str is the string representation of the value to set at the index.
        */
@@ -193,18 +193,34 @@ namespace exp_int32 {
 
       /**
        * Gets a value at an index.
-       *
+       * NOTE DEPRECATED BY []
        * @param index is the index to get a value at.
        * @return is the value at the index. return NULL if invalid index.
        */
       const bint_el_t& GetValAtIndex(usint index) const;
 
+
+      /**
+       * operators to get a value at an index.
+       * @param idx is the index to get a value at.
+       * @return is the value at the index. return NULL if invalid index.
+       */
+      inline bint_el_t& operator[](std::size_t idx) {return (this->m_data[idx]);}
+      //ubintvec<bint_el_t>& operator[](std::size_t idx);
+      inline const bint_el_t& operator[](std::size_t idx) const {return (this->m_data[idx]);}
+      //const ubintvec<bint_el_t>& operator[](std::size_t idx) const;
+
+      //inline ubintvec<bint_el_t>& operator[](usint idx) {return &(this->m_data[idx]);}
+      //inline const ubintvec<bint_el_t>& operator[](usint idx) const {return &(this->m_data[idx]);}
+
+
       /**
        * Gets the vector length.
-       *
+       * NOTE DEPRECATED BY size()
        * @return the vector length.
        */
       usint GetLength() const;
+      usint size() const;
 	
       //METHODS
 
@@ -215,7 +231,17 @@ namespace exp_int32 {
        * @return is the result of the modulus operation.
        */
       ubintvec Mod(const bint_el_t& modulus) const;
-	
+
+       /**
+        * vector scalar %=
+        *
+        * @param modulus is the  modulus value
+        * @return is the result of the mod operation.
+        */
+      const ubintvec& operator%=(const bint_el_t& modulus);
+
+
+
       //scalar operations
 
       /**
@@ -406,6 +432,18 @@ namespace exp_int32 {
     };
 
   //BINARY OPERATORS
+  /**
+   *   scalar modulo operator %
+   *
+   * @param &a is the input vector to modulo.
+   * @param &modulus is the input bint modulus
+   * @return is the result of the modulo operation.
+   */
+  template<class bint_el_t>
+  inline ubintvec<bint_el_t> operator%(const ubintvec<bint_el_t> &a,
+      const bint_el_t &modulo) {
+    return a.Mod(modulo);
+  }
 
   /**
    *   scalar addition.
@@ -466,6 +504,14 @@ namespace exp_int32 {
    */
   template<class bint_el_t>
     inline ubintvec<bint_el_t> operator*(const ubintvec<bint_el_t> &a, const ubintvec<bint_el_t> &b) {return a.Mul(b);}
+
+  /**
+   *  vector index
+   *
+   * @param &i is the index into the ubintvec
+   * @return is the result of the index operation.
+   */
+
 
 } // namespace lbcrypto ends
 
