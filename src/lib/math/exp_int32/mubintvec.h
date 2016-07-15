@@ -8,403 +8,449 @@
  * 
  * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification, 
- * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this 
- * list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this 
- * list of conditions and the following disclaimer in the documentation and/or other 
- * materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
- * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met: 1. Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer.  2. Redistributions in binary form must reproduce the
+ * above copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided
+ * with the distribution.  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
+ * HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+ * OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
  *
  * @section DESCRIPTION
  *
- * This file contains the vector manipulation functionality.
+ * This file contains ubintvec, a <vector> of ubint, with associated
+ * math operators.  
+ * NOTE: this has been refactored so that implied modulo (ring)
+ * aritmetic is in mbintvec
+ *
  */
 
-#ifndef LBCRYPTO_MATH_CPUINT_BINTVEC_H
-#define LBCRYPTO_MATH_CPUINT_BINTVEC_H
+#ifndef LBCRYPTO_MATH_EXPINT32_MUBINTVEC_H
+#define LBCRYPTO_MATH_EXPINT32_MUBINTVEC_H
 
 #include <iostream>
+#include <vector>
 
 //#include "binmat.h"
 #include "../../utils/inttypes.h"
 #include "../../utils/serializable.h"
+#include "ubintvec.h"
 
 /**
- * @namespace cpu8bit
- * The namespace of cpu8bit
+ * @namespace exp_int32
+ * The namespace of exp_int32
  */
-namespace cpu_int {
-	
-
-
+namespace exp_int32 {
 /**
- * @brief The class for representing vectors of big binary integers.
+ * @brief The class for representing vectors of ubint with associated math
  */
-	//JSON FACILITY
-	template <class IntegerType>
-	class BigBinaryVector : public lbcrypto::Serializable
+//JSON FACILITY
+template<class bint_el_t>
+class mubintvec: public lbcrypto::Serializable, public ubintvec<bint_el_t>
+//    class mubintvec : public lbcrypto::Serializable
 {
 public:
-	/**
-	 * Basic constructor.	  	  
-	 */
-	explicit BigBinaryVector();
+  /**
+   * Basic constructor.
+   */
+  explicit mubintvec();
 
-    static inline BigBinaryVector Single(const IntegerType& val, const IntegerType& modulus) {
-        BigBinaryVector vec(1, modulus);
-        vec.SetValAtIndex(0, val);
-        return vec;
+  //	static inline mubintvec Single(const bint_el_t& val) { //not sure this is needed
+  //mubintvec vec(1, modulus);
+  //vec.SetValAtIndex(0, val);
+  //return vec;
+  //}
+
+  /**
+   * Basic constructor for specifying the length of the vector.
+   *
+   * @param length is the length of the mubintvec, in terms of the number of entries.
+   */
+  explicit mubintvec(usint length);
+
+  /**
+   * Basic constructor for specifying the length of the vector.
+   *
+   * @param length is the length of the mubintvec, in terms of the number of entries.
+   * @param modulus is the modulus of the entries in the vector.
+   */
+  explicit mubintvec(const usint length, const usint &modulus);
+  /**
+   * Basic constructor for specifying the length of the vector.
+   *
+   * @param length is the length of the mubintvec, in terms of the number of entries.
+   * @param modulus is the modulus of the entries in the vector.  	         */
+  explicit mubintvec(const usint length, const bint_el_t & modulus);
+
+  /**
+   * Basic constructor for specifying the length of the vector.
+   *
+   * @param length is the length of the mubintvec, in terms of the number of entries.
+   * @param modulus is the modulus of the entries in the vector.  	         */
+  explicit mubintvec(const usint length, const std::string& modulus);
+
+  // constructor specifying the mubintvec as a vector of strings and modulus
+  explicit mubintvec(const std::vector<std::string> &s, const bint_el_t &modulus);
+
+  // constructor specifying the mubintvec as a vector of strings and modulus
+  explicit mubintvec(const std::vector<std::string> &s, const std::string &modulus);
+
+  /**
+   * Basic constructor for copying a vector
+   *
+   * @param rhs is the mubintvec to be copied.
+   */
+  explicit mubintvec(const mubintvec& rhs);
+
+  /**
+   * Basic move constructor for moving a vector
+   *
+   * @param &&rhs is the mubintvec to be moved.
+   */
+  mubintvec(mubintvec &&rhs);      //move copy constructor
+
+  /**
+   * Assignment operator
+   *
+   * @param &rhs is the mubintvec to be assigned from.
+   * @return assigned mubintvec ref.
+   */
+  const mubintvec& operator=(const mubintvec &rhs);
+
+  /**
+   * move copy contructor
+   *
+   * @param &rhs is the mubintvec to move
+   * @return the return value.
+   */
+  const mubintvec& operator=(mubintvec &&rhs);
+
+  /**
+   * ???
+   *
+   * @param &&rhs is the mubintvec to test equality with.
+   * @return the return value.
+   */
+
+  inline bool operator==(const mubintvec &b) const {
+    if (this->ubintvec<bint_el_t>::GetLength() != b.GetLength()) {
+      return false;
+    }      //todo replace with vector equality check.
+    if (this->m_modulus != b.m_modulus)
+      return false;
+    for (size_t i = 0; i < this->GetLength(); ++i) {
+      if (this->GetValAtIndex(i) != b.GetValAtIndex(i)) {
+        return false;
+      }
     }
+    return true;
+  }
 
-	/**
-	 * Basic constructor for specifying the length of the vector.
-	 *
-	 * @param length is the length of the big binary vector, in terms of the number of entries.	  	  
-	 */
-	explicit BigBinaryVector(usint length);
-
-	/**
-	 * Basic constructor for specifying the length of the vector and the modulus.
-	 *
-	 * @param length is the length of the big binary vector, in terms of the number of entries.	
-	 * @param modulus is the modulus of the entries in the vector.  	  
-	 */
-	explicit BigBinaryVector(usint length, const IntegerType& modulus);
-
-	/**
-	 * Basic constructor for copying a vector
-	 *
-	 * @param bigBinaryVector is the big binary vector to be copied.  	  
-	 */
-	explicit BigBinaryVector(const BigBinaryVector& bigBinaryVector);
-
-	/**
-	 * Basic move constructor for moving a vector
-	 *
-	 * @param &&bigBinaryVector is the big binary vector to be moved.  	  
-	 */
-	BigBinaryVector(BigBinaryVector &&bigBinaryVector);//move copy constructor
-
-	/**
-	 * ???
-	 *
-	 * @param &rhs is the big binary vector to test equality with.  
-	 * @return the return value.	  
-	 */
-	BigBinaryVector&  operator=(const BigBinaryVector &rhs);
-
-	/**
-	 * ???
-	 *
-	 * @param &&rhs is the big binary vector to test equality with.  
-	 * @return the return value.	  
-	 */
-	BigBinaryVector&  operator=(BigBinaryVector &&rhs);
-
-	inline bool operator==(const BigBinaryVector &b) const {
-        if (this->GetLength() != b.GetLength()) {
-            return false;
-        }
-        for (size_t i = 0; i < this->GetLength(); ++i) {
-            if (this->GetValAtIndex(i) != b.GetValAtIndex(i)) {
-                return false;
-            }
-        }
-        return true;
+  //assignment from usint
+  inline const mubintvec& operator=(usint val) {
+    //todo change this. it
+    *this->m_data.at(0) = val;
+    for (size_t i = 1; i < *this->ubintvec<bint_el_t>::GetLength(); ++i) {
+      *this->m_data[i] = 0;
     }
+    m_modulus();
+    m_modulus_state = GARBAGE;
 
-    inline BigBinaryVector& operator=(usint val) {
-        *this->m_data[0] = val;
-        for (size_t i = 1; i < GetLength(); ++i) {
-            *this->m_data[i] = 0;
-        }
-        return *this;
-    }
+    return *this;
+  }
 
-    inline bool operator!=(const BigBinaryVector &b) const {
-        return !(*this == b);
-    }
+  inline bool operator!=(const mubintvec &b) const {
+    return !(*this == b);
+  }
 
-	/**
-	 * Destructor.	  
-	 */
-	virtual ~BigBinaryVector();
+  /**
+   * Destructor.
+   */
+  virtual ~mubintvec();
 
-	//ACCESSORS
+  //ACCESSORS
 
-	//change to ostream?
-	/**
-	 * ???
-	 *
-	 * @param os ???.
-	 * @param &ptr_obj ???.
-	 * @return the return value.	  
-	 */
-	template<class IntegerType_c>
-	friend std::ostream& operator<<(std::ostream& os, const BigBinaryVector<IntegerType_c> &ptr_obj);
+  //change to ostream?
+  /**
+   * ???
+   *
+   * @param os ???.
+   * @param &ptr_obj ???.
+   * @return the return value.
+   */
+  template<class bint_el_t_c>
+  friend std::ostream& operator<<(std::ostream& os,
+      const mubintvec<bint_el_t_c> &ptr_obj);
 
-	/**
-	 * Sets a value at an index.
-	 *
-	 * @param index is the index to set a value at.
-	 * @param value is the value to set at the index.
-	 */
-	void SetValAtIndex(usint index, const IntegerType& value);
+  /**
+   * Sets the vector modulus.
+   *
+   * @param value is the value to set.
+   */
+  void SetModulus(const uint& value);
 
-	/**
-	 * Sets a value at an index.
-	 *
-	 * @param index is the index to set a value at.
-	 * @param str is the string representation of the value to set at the index.
-	 */
-	void SetValAtIndex(usint index, const std::string& str);
+  /**
+   * Sets the vector modulus.
+   *
+   * @param value is the value to set.
+   */
+  void SetModulus(const bint_el_t& value);
 
-	/**
-	 * Gets a value at an index.
-	 *
-	 * @param index is the index to set a value at.
-	 * @return is the value at the index.
-	 */
-	const IntegerType& GetValAtIndex(usint index) const;
+  /**
+   * Sets the vector modulus.
+   *
+   * @param value is the value to set.
+   */
+  void SetModulus(const std::string& value);
 
-	/**
-	 * Sets the vector modulus.
-	 *
-	 * @param value is the value to set.
-	 */
-	void SetModulus(const IntegerType& value);
+  /**
+   * Gets the vector modulus.
+   *
+   * @return the vector modulus.
+   */
+  const bint_el_t& GetModulus() const;
 
-	/**
-	 * Gets the vector modulus.
-	 *
-	 * @return the vector modulus.
-	 */
-	const IntegerType& GetModulus() const;
+  //METHODS
 
-	/**
-	 * Gets the vector length.
-	 *
-	 * @return the vector length.
-	 */
-	usint GetLength() const;
-	
-	//METHODS
+  /**
+   * returns the vector modulus with respect to the input value.
+   *
+   * @param modulus is the modulus to perform.
+   * @return is the result of the modulus operation.
+   * side effect it resets the vector modulus to modulus
+   */
+  mubintvec Mod(const bint_el_t& modulus) const;
 
-	/**
-	 * returns the vector modulus with respect to the input value.
-	 *
-	 * @param modulus is the modulus to perform.
-	 * @return is the result of the modulus operation.
-	 */
-	BigBinaryVector Mod(const IntegerType& modulus) const;
-	
-	//scalar operations
+  //scalar operations
 
-	/**
-	 * Scalar modulus addition.
-	 *
-	 * @param &b is the scalar to add at all locations.
-	 * @return is the result of the modulus addition operation.
-	 */
-	BigBinaryVector ModAdd(const IntegerType &b) const;
+  /**
+   * Scalar addition.
+   *
+   * @param &b is the scalar to modulo add at all locations.
+   * @return is the result of the addition operation.
+   */
+  mubintvec ModAdd(const bint_el_t &b) const;
 
-	/**
-	 * Scalar modulus subtraction.
-	 *
-	 * @param &b is the scalar to subtract from all locations.
-	 * @return is the result of the modulus subtraction operation.
-	 */
-	BigBinaryVector ModSub(const IntegerType &b) const;
+  /**
+   * Scalar subtraction.
+   *
+   * @param &b is the scalar to modulo subtract from all locations.
+   * @return is the result of the subtraction operation.
+   */
+  mubintvec ModSub(const bint_el_t &b) const;
 
-	/**
-	 * Scalar modular multiplication. Generalized Barrett modulo reduction algorithm. 
-	 * See the comments in the cpp files for details of the implementation.
-	 *
-	 * @param &b is the scalar to multiply at all locations.
-	 * @return is the result of the modulus multiplication operation.
-	 */
-	BigBinaryVector ModMul(const IntegerType &b) const;
+  /**
+   * Scalar multiplication.
+   *
+   * @param &b is the scalar to modulo multiply at all locations.
+   * @return is the result of the multiplication operation.
+   */
+  mubintvec ModMul(const bint_el_t &b) const;
 
-	/**
-	 * Scalar modulus exponentiation.
-	 *
-	 * @param &b is the scalar to exponentiate at all locations.
-	 * @return is the result of the modulus exponentiation operation.
-	 */
-	BigBinaryVector ModExp(const IntegerType &b) const;
-	//BigBinaryVector& ScalarExp(const BigBinaryInteger &a) const;
-	
+  /**
+   * Scalar exponentiation.
+   *
+   * @param &b is the scalar to modulo exponentiate at all locations.
+   * @return is the result of the exponentiation operation.
+   */
+  mubintvec ModExp(const bint_el_t &b) const;
 
-	/**
-	 * Modulus inverse.
-	 *
-	 * @return is the result of the modulus inverse operation.
-	 */
-	BigBinaryVector ModInverse() const;
+  //vector operations
 
-	//vector operations
+  //component-wise addition
+  /**
+   * vector addition.
+   *
+   * @param &b is the vector to add at all locations.
+   * @return is the result of the addition operation.
+   */
+  mubintvec ModAdd(const mubintvec &b) const;
 
-	//component-wise addition
-	/**
-	 * vector modulus addition.
-	 *
-	 * @param &b is the vector to add at all locations.
-	 * @return is the result of the modulus addition operation.
-	 */
-	BigBinaryVector ModAdd(const BigBinaryVector &b) const;
+  /**
+   * vector +=
+   *
+   * @param &b is the vector to modadd to lhs
+   * @return is the result of the addition operation.
+   */
+  const mubintvec& operator+=(const mubintvec &b);
 
-	/**
-	* Perform a modulus by 2 operation.  Returns the least significant bit.
-	*
-	* @return is the return value of the modulus by 2, also the least significant bit.
-	*/
-	BigBinaryVector ModByTwo() const;
+  //component-wise subtraction
 
-	/**
-	 * vector modulus addition.
-	 *
-	 * @param &b is the vector to add at all locations.
-	 * @return is the result of the modulus addition operation.
-	 */
-	const BigBinaryVector& operator+=(const BigBinaryVector &b);
+  /**
+   * Vector subtraction.
+   *
+   * @param &b is the vector to subtract from lhs
+   * @return is the result of the subtraction operation.
+   * TODO: need to define what happens when b > a!
+   */
+  mubintvec ModSub(const mubintvec &b) const;
 
-	const BigBinaryVector& operator-=(const BigBinaryVector &b);
+  /**
+   * vector -=
+   *
+   * @param &b is the vector to mod subtract from lhs
+   * @return is the result of the addition operation.
+   * TODO: need to define what happens when b > a!!
+   */
+  const mubintvec& operator-=(const mubintvec &b);
 
-	//component-wise subtraction
+  //component-wise multiplication
 
-	/**
-	 * Vector modulus subtraction.
-	 *
-	 * @param &b is the vector to subtract.
-	 * @return is the result of the modulus subtraction operation.
-	 */
-	BigBinaryVector ModSub(const BigBinaryVector &b) const;
+  /**
+   * Vector multiplication.
+   *
+   * @param &b is the vector to multiply.
+   * @return is the result of the multiplication operation.
+   */
+  mubintvec ModMul(const mubintvec &b) const;
 
-	//component-wise multiplication
+  // auxiliary functions
 
-	/**
-	 * Vector modulus multiplication.
-	 *
-	 * @param &b is the vector to multiply.
-	 * @return is the result of the modulus multiplication operation.
-	 */
-	BigBinaryVector ModMul(const BigBinaryVector &b) const;
+  //MANIPULATORS
+  //useful for storing the results in the current instance of the class
+  //they can also be added for scalar operations and modulo operation
+  // mubintvec&  operator+=(const mubintvec& t) {*this = *this+t; return *this;}
+  //mubintvec&  operator*=(const mubintvec& t) {return *this = *this*t;}
+  //Gyana to add -= operator
 
-	//matrix operations
-	
-	//matrix product - used in FFT and IFFT; new_vector = A*this_vector
+  //JSON FACILITY
+  /**
+   * Implemented by this object only for inheritance requirements of abstract class Serializable.
+   *
+   * @param serializationMap stores this object's serialized attribute name value pairs.
+   * @return map passed in.
+   */
+  std::unordered_map<std::string, std::unordered_map<std::string, std::string>> SetIdFlag(
+      std::unordered_map<std::string,
+          std::unordered_map<std::string, std::string>> serializationMap,
+      std::string flag) const;
 
-	/**
-	 * Matrix by Vector modulus multiplication.  If this vector is x and the matrix is A, this method returns A*x.
-	 *
-	 * @param &a is the matrix to left-multiply with.
-	 * @return is the result of the modulus multiplication operation.
-	 */
-	//BigBinaryVector ModMatrixMul(const BigBinaryMatrix &a) const;
+  //JSON FACILITY
+  /**
+   * Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
+   *
+   * @param serializationMap stores this object's serialized attribute name value pairs.
+   * @return map updated with the attribute name value pairs required to serialize this object.
+   */
+  std::unordered_map<std::string, std::unordered_map<std::string, std::string>> Serialize(
+      std::unordered_map<std::string,
+          std::unordered_map<std::string, std::string>> serializationMap,
+      std::string fileFlag) const;
 
-	/**
-	 * Returns a vector of digit at a specific index for all entries for a given number base.
-	 *
-	 * @param index is the index to return the digit from in all entries.
-	 * @param base is the base to use for the operation.
-	 * @return is the resulting vector.
-	 */
-	BigBinaryVector GetDigitAtIndexForBase(usint index, usint base) const;
-
-	//MANIPULATORS
-	//useful for storing the results in the current instance of the class
-	//they can also be added for scalar operations and modulo operation
-   // BigBinaryVector&  operator+=(const BigBinaryVector& t) {*this = *this+t; return *this;}
-	//BigBinaryVector&  operator*=(const BigBinaryVector& t) {return *this = *this*t;}
-	//Gyana to add -= operator
-
-	//JSON FACILITY
-	/**
-	* Implemented by this object only for inheritance requirements of abstract class Serializable.
-	*
-	* @param serializationMap stores this object's serialized attribute name value pairs.
-	* @return map passed in.
-	*/
-	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
-
-	//JSON FACILITY
-	/**
-	* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
-	*
-	* @param serializationMap stores this object's serialized attribute name value pairs.
-	* @return map updated with the attribute name value pairs required to serialize this object.
-	*/
-	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
-
-	//JSON FACILITY
-	/**
-	* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
-	*
-	* @param serializationMap stores this object's serialized attribute name value pairs.
-	*/
-	void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+  //JSON FACILITY
+  /**
+   * Sets this object's attribute name value pairs to deserialize this object from a JSON file.
+   *
+   * @param serializationMap stores this object's serialized attribute name value pairs.
+   */
+  void Deserialize(
+      std::unordered_map<std::string,
+          std::unordered_map<std::string, std::string>> serializationMap);
 
 private:
-	IntegerType **m_data;
-	usint m_length;
-	IntegerType m_modulus;
-	bool IndexCheck(usint) const;
+  bint_el_t m_modulus;
+  enum State {
+    INITIALIZED, GARBAGE
+  };
+  //enum to store the state of the
+  State m_modulus_state;
+
 };
 
 //BINARY OPERATORS
 
 /**
- * Modulus scalar addition.
+ *   scalar modulo addition.
  *
  * @param &a is the input vector to add.
  * @param &i is the input integer to add.
- * @return is the result of the modulus addition operation.
+ * @return is the result of the modulo addition operation.
  */
-template<class IntegerType>
-inline BigBinaryVector<IntegerType> operator+(const BigBinaryVector<IntegerType> &a, const IntegerType &i) {return a.ModAdd(i);}
+template<class bint_el_t>
+inline mubintvec<bint_el_t> operator+(const mubintvec<bint_el_t> &a,
+    const bint_el_t &i) {
+  return a.ModAdd(i);
+}
 
 /**
- * Modulus scalar multiplication.
+ *   scalar modulo subtraction
+ *
+ * @param &a is the input vector to subtract.
+ * @param &i is the input integer to subtract.
+ * @return is the result of the modulo subtraction operation.
+ */
+template<class bint_el_t>
+inline mubintvec<bint_el_t> operator-(const mubintvec<bint_el_t> &a,
+    const bint_el_t &i) {
+  return a.ModSub(i);
+}
+
+/**
+ *  scalar modulo multiplication.
  *
  * @param &a is the input vector to multiply.
  * @param &i is the input integer to multiply.
- * @return is the result of the modulus multiplication operation.
+ * @return is the result of the modulo multiplication operation.
  */
-template<class IntegerType>
-inline BigBinaryVector<IntegerType> operator*(const BigBinaryVector<IntegerType> &a, const IntegerType &i) {return a.ModMul(i);}
+template<class bint_el_t>
+inline mubintvec<bint_el_t> operator*(const mubintvec<bint_el_t> &a,
+    const bint_el_t &i) {
+  return a.ModMul(i);
+}
 
 /**
- * Modulus vector addition.
+ *  vector modulo addition.
  *
  * @param &a is the first input vector to add.
  * @param &b is the second input vector to add.
- * @return is the result of the modulus addition operation.
+ * @return is the result of the modulo addition operation.
  */
-template<class IntegerType>
-inline BigBinaryVector<IntegerType> operator+(const BigBinaryVector<IntegerType> &a, const BigBinaryVector<IntegerType> &b) {return a.ModAdd(b);}
+template<class bint_el_t>
+inline mubintvec<bint_el_t> operator+(const mubintvec<bint_el_t> &a,
+    const mubintvec<bint_el_t> &b) {
+  return a.ModAdd(b);
+}
 
 /**
- * Modulus vector multiplication.
+ *  vector subtraction.
+ *
+ * @param &a is the first input vector to subtract.
+ * @param &b is the second input vector to subtract.
+ * @return is the result of the subtraction operation.
+ */
+template<class bint_el_t>
+inline mubintvec<bint_el_t> operator-(const mubintvec<bint_el_t> &a,
+    const mubintvec<bint_el_t> &b) {
+  return a.ModSub(b);
+}
+
+/**
+ *  vector multiplication.
  *
  * @param &a is the first input vector to multiply.
  * @param &b is the second input vector to multiply.
- * @return is the result of the modulus multiplication operation.
+ * @return is the result of the multiplication operation.
  */
-template<class IntegerType>
-inline BigBinaryVector<IntegerType> operator*(const BigBinaryVector<IntegerType> &a, const BigBinaryVector<IntegerType> &b) {return a.ModMul(b);}
-//Gyana to add both minus operators
+template<class bint_el_t>
+inline mubintvec<bint_el_t> operator*(const mubintvec<bint_el_t> &a,
+    const mubintvec<bint_el_t> &b) {
+  return a.ModMul(b);
+}
 
 } // namespace lbcrypto ends
 
-#endif // LBCRYPTO_MATH_CPUINT_BINTVEC_H
+#endif // LBCRYPTO_MATH_EXPINT32_MUBINTVEC_H

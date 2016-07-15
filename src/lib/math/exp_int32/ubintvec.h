@@ -49,6 +49,7 @@
 //#include "binmat.h"
 #include "../../utils/inttypes.h"
 #include "../../utils/serializable.h"
+#include "ubint.h"
 
 /**
  * @namespace exp_int32
@@ -399,7 +400,7 @@ namespace exp_int32 {
        */
       void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
 
-    private:
+    protected:
       std::vector<bint_el_t> m_data;
       bool IndexCheck(usint) const;
     };

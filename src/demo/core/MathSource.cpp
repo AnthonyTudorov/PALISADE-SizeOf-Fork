@@ -19,6 +19,7 @@
 #endif
 #include "time.h"
 #include <chrono>
+
 #include "../../lib/utils/debug.h"
 #include <omp.h> //open MP header
 
@@ -1304,6 +1305,27 @@ void vec_diff(ubintvec &a, ubintvec &b) {
     }
 
 }
+void vec_diff(mubintvec &a, ubintvec &b) {
+    for (usint i= 0; i < a.ubintvec::GetLength(); ++i){  //todo change to size()
+      if (a.ubintvec::GetValAtIndex(i) != b.GetValAtIndex(i)) {  //todo: add [] indexing to class
+        cout << "i: "<< i << endl;
+	cout << "first vector " <<endl;
+        cout << a.ubintvec::GetValAtIndex(i);
+        cout << endl;
+        cout << "state " << a.ubintvec::GetValAtIndex(i).m_state << endl;;
+        cout << "msb: " << a.ubintvec::GetValAtIndex(i).m_MSB << endl;;
+	cout << "second vector " <<endl;
+        cout << b.GetValAtIndex(i);
+        cout << endl;
+        cout << "state " << b.GetValAtIndex(i).m_state << endl;;
+        cout << "msb: " << b.GetValAtIndex(i).m_MSB << endl;;
+        cout << endl;
+      }
+    }
+
+
+}
+
 void test_ubintvec() {
 
   int nloop = 1000; //number of times to run each test for timing.
@@ -1336,6 +1358,7 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
       "00000000000000132013", "00000000000000057029", };
 
   ubintvec a1(a1sv);
+  mubintvec ma1(a1sv,q1);
 
   // b1:
   std::vector<std::string>  b1sv = 
@@ -1349,6 +1372,7 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
      "00000000000000028502", "00000000000000026401", };
 
   ubintvec b1(b1sv);
+  mubintvec mb1(b1sv,q1);
 
   // add1:
   std::vector<std::string>  add1sv = 
@@ -1446,6 +1470,7 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
   ubintvec modmul1(modmul1sv);
 
   ubintvec c1;
+  mubintvec mc1;
   // test math for case 1
   TIC(t1);
   for (usint j = 0; j< nloop; j++){
@@ -1486,6 +1511,7 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
   TIC(t1);
   for (usint j = 0; j< nloop; j++){
     c1 = a1.ModAdd(b1,q1);
+    
   }
   time1 = TOC(t1);
   DEBUG("t1:  "<<nloop<<" loops c1 = a1.ModAdd(b1,q1) computation time: " << "\t" << time1 << " us");
@@ -1493,6 +1519,19 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
     cout << "bad modadd" <<endl;
     vec_diff(c1, modadd1);
   }
+
+  //now Mod operations
+  TIC(t1);
+  for (usint j = 0; j< nloop; j++){
+    mc1 = ma1+mb1;
+  }
+  time1 = TOC(t1);
+  DEBUG("t1:  "<<nloop<<" loops mc1 = ma1+mb1 computation time: " << "\t" << time1 << " us");
+  if (ubintvec(mc1) != modadd1){
+    cout << "bad modadd" <<endl;
+    vec_diff(mc1, modadd1);
+  }
+
   TIC(t1);
   for (usint j = 0; j< nloop; j++){
     c1 = a1.ModSub(b1,q1);
@@ -1504,6 +1543,16 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
     cout << "bad modsub" <<endl;
     vec_diff(c1, modsub1);
   }
+  TIC(t1);
+  for (usint j = 0; j< nloop; j++){
+    mc1 = ma1 - mb1;
+  }
+  time1 = TOC(t1);
+  DEBUG("t1:  "<<nloop<<" loops mc1 = ma1 - mb1 computation time: " << "\t" << time1 << " us");
+  if (ubintvec(mc1) != modsub1){
+    cout << "bad modsub" <<endl;
+    vec_diff(mc1, modsub1);
+  }
 
   TIC(t1);
   for (usint j = 0; j< nloop; j++){
@@ -1514,6 +1563,17 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
   if (c1 != modmul1) {
     cout << "bad mul" <<endl;
     vec_diff(c1, modmul1);
+  }
+
+  TIC(t1);
+  for (usint j = 0; j< nloop; j++){
+    mc1 = ma1*mb1;
+  }
+  time1 = TOC(t1);
+  DEBUG("t1:  "<<nloop<<" loops mc1 = ma1*mb1 computation time: " << "\t" << time1 << " us");
+  if (ubintvec(mc1) != modmul1){
+    cout << "bad modmul" <<endl;
+    vec_diff(mc1, modmul1);
   }
 
   // q2:
@@ -1533,6 +1593,7 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
      "00000375749152798379", "00003933203511673255",
      "00002293434116159938", "00001201413067178193", };
   ubintvec a2(a2sv);
+  mubintvec ma2(a2sv,q2);
 
 
   // b2:
@@ -1547,6 +1608,7 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
      "00002978742255253796", "00002124827461185795", };
 
   ubintvec b2(b2sv);
+  mubintvec mb2(b2sv,q2);
   // add2:
   std::vector<std::string>  add2sv = 
     {"00000884123387923218", "00000138712237895312",
@@ -1641,6 +1703,7 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
   ubintvec modmul2(modmul2sv);
 
   ubintvec c2;
+  mubintvec mc2;
   // test math for case 2
   TIC(t2);
   for (usint j = 0; j< nloop; j++){
@@ -1688,6 +1751,17 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
   }
   TIC(t2);
   for (usint j = 0; j< nloop; j++){
+    mc2 = ma2 + mb2;
+  }
+  time2 = TOC(t2);
+  DEBUG("t2:  "<<nloop<<" loops mc2 = ma2 + mb2 computation time: " << "\t" << time2 << " us");
+  if (ubintvec(mc2) != modadd2) {
+    vec_diff(mc2, modadd2);
+  }
+
+
+  TIC(t2);
+  for (usint j = 0; j< nloop; j++){
     c2 = a2.ModSub(b2,q2);
   }
   time2 = TOC(t2);
@@ -1695,6 +1769,16 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
   if (c2 != modsub2) {
     cout << "bad modsub" <<endl;
     vec_diff(c2, modsub2);   
+  }
+
+  TIC(t2);
+  for (usint j = 0; j< nloop; j++){
+    mc2 = ma2 - mb2;
+  }
+  time2 = TOC(t2);
+  DEBUG("t2:  "<<nloop<<" loops mc2 = ma2 - mb2 computation time: " << "\t" << time2 << " us");
+  if (ubintvec(mc2) != modsub2) {
+    vec_diff(mc2, modsub2);
   }
 
   TIC(t2);
@@ -1707,6 +1791,16 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
     cout << "bad modmul" <<endl;
     vec_diff(c2, modmul2);   
   }
+  TIC(t2);
+  for (usint j = 0; j< nloop; j++){
+    mc2 = ma2 * mb2;
+  }
+  time2 = TOC(t2);
+  DEBUG("t2:  "<<nloop<<" loops mc2 = ma2 * mb2 computation time: " << "\t" << time2 << " us");
+  if (ubintvec(mc2) != modmul2) {
+    vec_diff(mc2, modmul2);
+  }
+
 
   return ;
 }

@@ -48,17 +48,17 @@
 #define MATHBACKEND 2
 
 #if MATHBACKEND == 1
-	#include "cpu8bit/binint.h"
-	#include "cpu8bit/binvect.h"
-	//#include "cpu8bit/binmat.h"	
+#include "cpu8bit/binint.h"
+#include "cpu8bit/binvect.h"
+//#include "cpu8bit/binmat.h"	
 #endif
+
 #if MATHBACKEND == 2
-	#include "cpu_int/binint.cpp"
-	#include "cpu_int/binvect.cpp"	
-#include "exp_int32/ubint.cpp" //experimental dbc big integers
-#include "exp_int32/ubintvec.cpp" //vectors of experimental
-//#include "exp_int32/mbint.cpp"
-//	#include "exp_int32/mbintvec.cpp"
+#include "cpu_int/binint.cpp"
+#include "cpu_int/binvect.cpp"
+#include "exp_int32/ubint.cpp" //experimental dbc unsigned big integers or ubints
+#include "exp_int32/ubintvec.cpp" //vectors of experimental ubints
+#include "exp_int32/mubintvec.cpp" //rings of ubints
 
 #endif
 /**
@@ -100,6 +100,9 @@ namespace lbcrypto {
 
 	/** Define the mapping for Big Integer Vector */
 	typedef exp_int32::ubintvec<ubint> ubintvec;
+
+	/** Define the mapping for modulo Big Integer Vector */
+	typedef exp_int32::mubintvec<ubint> mubintvec;
 
 #endif
 
