@@ -343,7 +343,7 @@ TEST(method_nextQ, test_nextQ){
 	BigBinaryInteger modulus("1");
 	std::vector<BigBinaryInteger> moduli(10);
 
-	BigBinaryInteger expectedModulus("323644432028149589615262773332244597688750081");
+	BigBinaryInteger expectedModulus("8982485833671537308323644432028149589615262773332244597688750081");
 	BigBinaryVector moduliBBV(10);
 	moduliBBV.SetModulus(expectedModulus);
 	moduliBBV.SetValAtIndex(0, "2236417");
@@ -365,7 +365,7 @@ TEST(method_nextQ, test_nextQ){
 		modulus = modulus* moduli[i];
 	}
 
-	EXPECT_EQ("323644432028149589615262773332244597688750081", modulus.ToString());
+	EXPECT_EQ("8982485833671537308323644432028149589615262773332244597688750081", modulus.ToString());
 	// std::cout << modulus;
 
 }
