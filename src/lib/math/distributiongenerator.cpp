@@ -5,7 +5,7 @@
 namespace lbcrypto {
 
 std::once_flag DistributionGenerator::m_flag;
-thread_local std::shared_ptr<std::mt19937> DistributionGenerator::m_prng = nullptr;
+std::shared_ptr<std::mt19937> DistributionGenerator::m_prng = nullptr;
 
 DistributionGenerator::DistributionGenerator () {
 	// Currently does nothing, but here for forward compatibility.

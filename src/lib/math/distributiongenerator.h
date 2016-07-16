@@ -76,7 +76,7 @@ private:
 	/**
 	* A shared pointer to the singleton prng.
 	*/
-	static thread_local std::shared_ptr<std::mt19937> m_prng;
+	static std::shared_ptr<std::mt19937> m_prng;
 
 	/**
 	* The flag that is used to ensure the prng is only constructed once.
