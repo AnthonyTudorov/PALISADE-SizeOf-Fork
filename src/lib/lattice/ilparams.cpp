@@ -91,7 +91,7 @@ namespace lbcrypto {
 			BigBinaryInteger bbiRootOfUnity(oIt->value.GetString());
 
 			this->SetModulus(bbiModulus);
-			this->SetOrder(order);
+			this->SetCyclotomicOrder(order);
 			this->SetRootOfUnity(bbiRootOfUnity);
 			return true;
 		}

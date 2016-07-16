@@ -68,9 +68,9 @@ namespace lbcrypto {
 		 * @param &modulus the ciphertext modulus.
 		 * @param &rootOfUnity the root of unity used in the ciphertext.
 		 */
-		ILParams(usint order, BigBinaryInteger & modulus, BigBinaryInteger & rootOfUnity) {
-			m_modulus = modulus;
+		ILParams(const usint order, const BigBinaryInteger & modulus, const BigBinaryInteger & rootOfUnity) {
 			m_order = order;
+			m_modulus = modulus;
 			m_rootOfUnity = rootOfUnity;
 		}
 
@@ -80,9 +80,9 @@ namespace lbcrypto {
 		* @param &order the order of the ciphertext.
 		* @param &modulus the ciphertext modulus.
 		*/
-		ILParams(usint order, BigBinaryInteger &modulus) {
-			m_modulus = modulus;
+		ILParams(const usint order, const BigBinaryInteger &modulus) {
 			m_order = order;
+			m_modulus = modulus;
 			m_rootOfUnity = RootOfUnity(order, modulus);
 		}
 
@@ -93,8 +93,8 @@ namespace lbcrypto {
 		* @param &rhs the input set of parameters which is copied.
 		*/
 		ILParams(const ILParams &rhs) {
-			m_modulus = rhs.m_modulus;
 			m_order = rhs.m_order;
+			m_modulus = rhs.m_modulus;
 			m_rootOfUnity = rhs.m_rootOfUnity;
 		}
 
@@ -163,7 +163,7 @@ namespace lbcrypto {
 		*
 		* @param order the order variable.
 		*/
-		void SetOrder(usint order) {
+		void SetCyclotomicOrder(usint order) {
 			m_order = order;
 		}
 
@@ -185,29 +185,33 @@ namespace lbcrypto {
 			m_modulus = modulus;
 		}
 
-        bool operator==(const ElemParams* other) const {
-        	const ILParams *ip = dynamic_cast<const ILParams *>(other);
+        bool operator==(const ElemParams& rhs) const {
+        	const ILParams &ip = dynamic_cast<const ILParams &>(rhs);
 
-        	if( ip == 0 ) return false;
-
-        	return *this == *ip;
+        	return *this == ip;
         }
 
-        inline bool operator==(ILParams const& other) const {
-            if (m_modulus != other.GetModulus()) {
+        inline bool operator==(ILParams const& rhs) const {
+            if (m_modulus != rhs.GetModulus()) {
                 return false;
             }
-            if (m_order != other.GetCyclotomicOrder()) {
+            if (m_order != rhs.GetCyclotomicOrder()) {
                 return false;
             }
-            if (m_rootOfUnity != other.GetRootOfUnity()) {
+            if (m_rootOfUnity != rhs.GetRootOfUnity()) {
                 return false;
             }
             return true;
         }
 
-        inline bool operator!=(ILParams const& other) const {
-            return !(*this == other);
+		/**
+		* Not equal operator compares this ILParams to the specified ILParams
+		*
+		* @param &rhs is the specified ILParams to be compared with this ILParams.
+		* @return true if this ILParams represents the same values as the specified ILParams, false otherwise
+		*/
+        inline bool operator!=(ILParams const &rhs) {
+            return !(*this == rhs);
         }
 
 		//JSON FACILITY

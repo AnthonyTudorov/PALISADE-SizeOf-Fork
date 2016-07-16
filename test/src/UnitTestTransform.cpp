@@ -66,18 +66,19 @@ TEST(method_CRT_polynomial_multiplication, compares_to_brute_force_multiplicatio
 	usint n = cycloOrder / 2;
 
 	BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(cycloOrder, primeModulus);
-	std::cout <<"The primitiveRootOfUnity for modulus " << primeModulus << " is " << primitiveRootOfUnity << std::endl;
+	// std::cout <<"The primitiveRootOfUnity for modulus " << primeModulus << " is " << primitiveRootOfUnity << std::endl;
 
-	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(primeModulus);
-	BigBinaryVector a = distrUniGen.GenerateVector(n);
-	BigBinaryVector b = distrUniGen.GenerateVector(n);
-	std::cout << "Generated vectors: " << a << " and " << b << std::endl;
+	BigBinaryVector a(2, primeModulus);
+	a.SetValAtIndex(0, "1");
+	a.SetValAtIndex(1, "1");
+	BigBinaryVector b(a);
 
 	BigBinaryVector A = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(a, primitiveRootOfUnity, cycloOrder);
 	BigBinaryVector B = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(b, primitiveRootOfUnity, cycloOrder);
 
 	BigBinaryVector AB = A.ModMul(B);
 	BigBinaryVector ab = a.ModMul(b);
+	// std::cout << "AB = " << AB << " and ab = " << ab << std::endl;
 
 	BigBinaryVector InverseFFTAB = ChineseRemainderTransform::GetInstance().InverseTransform(AB, primitiveRootOfUnity, cycloOrder);
 

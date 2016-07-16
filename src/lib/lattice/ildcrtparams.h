@@ -28,7 +28,25 @@
 *
 * @section DESCRIPTION
 * LAYER 2 : LATTICE DATA STRUCTURES AND OPERATIONS
-* This code provides basic lattice ideal manipulation functionality.
+* This code provides basic lattice ideal manipulation functionality. 
+* For more information on ideal lattices please see here: 10.1007/978-3-540-88702-7_5
+* ILDCRTParmas stands for : Ideal Lattive Chinese Remainder Transform Params. This class provides a placeholder for the parameter set
+* of an ILVectorArray2n. 
+*
+*  The private members of this class are:
+*
+*	 order of cyclotomic polynomial. 
+*	 usint m_cyclotomicOrder;
+*
+*	// value of moduli
+*	 std::vector<BigBinaryInteger> m_moduli;
+*
+*	// primitive root unity that is used to transform from coefficient to evaluation representation and vice versa
+*	std::vector<BigBinaryInteger> m_rootsOfUnity;
+*
+*	//Modulus that is factorized into m_moduli
+*	BigBinaryInteger m_modulus;
+*
 */
 
 #ifndef LBCRYPTO_LATTICE_ILDCRTELEMENT_H
@@ -54,87 +72,81 @@ namespace lbcrypto {
 		
 		/**
 		* Constructor that initializes nothing.
-		* All of the private members will be initialised to null.
 		*/
 		ILDCRTParams() {}
-
-		// constructor for the pre-computed case;
 		/**
-		* Constructor for the pre-computed case.
+		* Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated. 
 		*
+		* @param rootsOfUnity the roots of unity for the chain of moduli
 		* @param cyclotomic_order the order of the ciphertext
 		* @param &moduli is the tower of moduli
-		* @param rootsOfUnity the roots of unity for the toer of moduli
-		* @param cri_values Chinese remainder interpolation values to calculate inverse double-crt
 		*/
-		ILDCRTParams(usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli, std::vector<BigBinaryInteger>& rootsOfUnity, std::vector<BigBinaryInteger>& cri_values) {
+		ILDCRTParams(const usint cyclotomic_order, const std::vector<BigBinaryInteger> &moduli, const std::vector<BigBinaryInteger>& rootsOfUnity) {
 			m_cyclotomicOrder = cyclotomic_order;
 			m_moduli = moduli;
 			m_rootsOfUnity = rootsOfUnity;
-			m_CRIFactors = cri_values;
-		}
-
-
-		/**
-		* Constructor for the pre-computed case without roots of unity. Note the order is different from other constructors.
-		*
-		* @param cyclotomic_order the order of the ciphertext
-		* @param &moduli is the tower of moduli
-		* @param cri_values Chinese remainder interpolation values to calculate inverse double-crt
-		*/
-		ILDCRTParams(usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli, std::vector<BigBinaryInteger>& cri_values) {
-			m_cyclotomicOrder = cyclotomic_order;
-			m_moduli = moduli;
-			m_CRIFactors = cri_values;
+			calculateModulus();
 		}
 
 		/**
-		* Constructor for the pre-computed case without cri_values.
-		*
-		* @param cyclotomic_order the order of the ciphertext
-		* @param &moduli is the tower of moduli
-		* @param rootsOfUnity the roots of unity for the toer of moduli
-		*/
-		ILDCRTParams(std::vector<BigBinaryInteger>& rootsOfUnity, usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli, BigBinaryInteger &modulus) {
-			m_cyclotomicOrder = cyclotomic_order;
-			m_moduli = moduli;
-			m_rootsOfUnity = rootsOfUnity;
-			m_modulus = modulus;
-		}
-
-		/**
-		* Constructor for the pre-computed case without cri_values.
-		*
-		* @param cyclotomic_order the order of the ciphertext
-		* @param &moduli is the tower of moduli
-		* @param rootsOfUnity the roots of unity for the toer of moduli
-		*/
-		ILDCRTParams(std::vector<BigBinaryInteger>& rootsOfUnity, usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli) {
-			m_cyclotomicOrder = cyclotomic_order;
-			m_moduli = moduli;
-			m_rootsOfUnity = rootsOfUnity;
-		}
-
-		/**
-		* Constructor for the pre-computed case without cri_values and without roots of unity.
+		* Constructor with only cylotomic order and chain of moduli. Multiplied values of the chain of moduli is automatically calculated. Root of unity of the modulus is also calculated.
 		*
 		* @param cyclotomic_order the order of the ciphertext
 		* @param &moduli is the tower of moduli
 		*/
-		ILDCRTParams(usint cyclotomic_order, std::vector<BigBinaryInteger> &moduli) {
+		ILDCRTParams(const usint cyclotomic_order, const std::vector<BigBinaryInteger> &moduli) {
 			m_cyclotomicOrder = cyclotomic_order;
 			m_moduli = moduli;
+			calculateModulus();
 		}
-
-		ILDCRTParams& operator=(const ILDCRTParams &ild) {
-			this->m_moduli = ild.m_moduli;
-			this->m_CRIFactors = ild.m_CRIFactors;
-			this->m_rootsOfUnity = ild.m_rootsOfUnity;
-			this->m_cyclotomicOrder = usint(ild.m_cyclotomicOrder);
-			this->m_modulus = ild.m_modulus;
+		
+		/**
+		* Assignment Operator.
+		*
+		* @param &rhs the copied ILDCRTParams.
+		* @return the resulting ILDCRTParams.
+		*/
+		ILDCRTParams& operator=(const ILDCRTParams &rhs) {
+			this->m_moduli = rhs.m_moduli;
+			this->m_rootsOfUnity = rhs.m_rootsOfUnity;
+			this->m_cyclotomicOrder = usint(rhs.m_cyclotomicOrder);
+			this->m_modulus = rhs.m_modulus;
 
 			return *this;
 		}
+		/**
+		* Equal operator compares this ILDCRTParams to the specified ILDCRTParams
+		*
+		* @param &rhs is the specified ILDCRTParams to be compared with this ILDCRTParams.
+		* @return true if this ILDCRTParams represents the same values as the specified ILDCRTParams, false otherwise
+		*/
+		inline bool operator==(ILDCRTParams const &rhs) {
+            if (m_modulus != rhs.GetModulus()) {
+                return false;
+            }
+            if (m_cyclotomicOrder != rhs.GetCyclotomicOrder()) {
+                return false;
+            }
+			 if (m_rootsOfUnity != rhs.GetRootsOfUnity()) {
+                return false;
+            }
+            if (m_moduli != rhs.GetModuli()) {
+                return false;
+            }
+
+            return true;
+        }
+
+		/**
+		* Not equal operator compares this ILDCRTParams to the specified ILDCRTParams
+		*
+		* @param &rhs is the specified ILDCRTParams to be compared with this ILDCRTParams.
+		* @return true if this ILDCRTParams represents the same values as the specified ILDCRTParams, false otherwise
+		*/
+       inline bool operator!=(ILDCRTParams const &rhs) {
+            return !(*this == rhs);
+        }
+
 
 		// ACCESSORS
 
@@ -142,36 +154,26 @@ namespace lbcrypto {
 		/**
 		* Get method of the order.
 		*
-		* @return the order.
+		* @return the cyclotmic order.
 		*/
 		const usint GetCyclotomicOrder() const {
 			return m_cyclotomicOrder;
 		}
-
 		/**
 		* Get the moduli.
 		*
-		* @return the moduli.
+		* @return the chain moduli.
 		*/
 		const std::vector<BigBinaryInteger> &GetModuli() const {
 			return m_moduli;
 		}
-
 		/**
 		* Get the root of unity.
 		*
-		* @return the root of unity.
+		* @return the roots of unity.
 		*/
 		const std::vector<BigBinaryInteger> &GetRootsOfUnity() const{
 			return m_rootsOfUnity;
-		}
-		/**
-		* Get cri-values.
-		*
-		* @return the cri-values.
-		*/
-		std::vector<BigBinaryInteger> &GetCRI() {
-			return m_CRIFactors;
 		}
 		/**
 		* Get modulus.
@@ -181,24 +183,12 @@ namespace lbcrypto {
 		const BigBinaryInteger &GetModulus() const {
 			return m_modulus;
 		}
-
-		/**
-		* Get rootOfUnity.
-		*
-		* @return the rootOfUnity.
-		*/
-		const BigBinaryInteger &GetRootOfUnity() const {
-			return m_rootOfUnity;
-		}
-
-		// Set accessors
 		/**
 		* Set method of the order.
 		*
 		* @param order the order variable.
 		*/
-
-		void SetOrder(usint order) {
+		void SetCyclotomicOrder(const usint order) {
 			m_cyclotomicOrder = order;
 		}
 
@@ -207,7 +197,7 @@ namespace lbcrypto {
 		*
 		* @param &rootsOfUnity the root of unity.
 		*/
-		void SetRootOfUnity(const std::vector<BigBinaryInteger> &rootsOfUnity) {
+		void SetRootsOfUnity(const std::vector<BigBinaryInteger> &rootsOfUnity) {
 			m_rootsOfUnity = rootsOfUnity;
 		}
 
@@ -219,25 +209,26 @@ namespace lbcrypto {
 
 		void SetModuli(const std::vector<BigBinaryInteger> &moduli) {
 			m_moduli = moduli;
+			calculateModulus();
 		}
 		/**
-		* Set the moduli.
+		* Set the modulus.
 		*
-		* @param &moduli the moduli.
+		* @param &modulus modulus value of the multiplied value of the chain of moduli.
 		*/
 		void SetModulus(const BigBinaryInteger &modulus) {
 			m_modulus = modulus;
 		}
 
 		/**
-		* Set the rootOfUnity.
+		* Removes the last parameter for each vector of the ILDCRTParams (modulus, rootofunity) and adjusts the multiplied moduli.
 		*
-		* @param &rootOfUnity the rootOfUnity.
-		*/
-		void SetRootOfUnity(const BigBinaryInteger &rootOfUnity) {
-			m_rootOfUnity = rootOfUnity;
+		*/		
+		void PopLastParam(){
+			m_modulus = m_modulus / m_moduli.back();
+			m_moduli.pop_back();
+			m_rootsOfUnity.pop_back();
 		}
-
 
 		/**
 		* Destructor.
@@ -259,8 +250,18 @@ namespace lbcrypto {
 			return false;
 		}
 
-		// FIXME
-		bool operator==(const ElemParams* other) const { return false; }
+		/**
+		* == Operator checks if the ElemParams are the same.
+		*
+		* @param &other ElemParams to compare against.
+		* @return the equality check results.
+		*/
+		bool operator==(const ElemParams &other) const { 
+
+			const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(other);
+
+		 	return *this == dcrtParams; 
+		}
 
 	private:
 		// order of cyclotomic polynomial
@@ -272,14 +273,21 @@ namespace lbcrypto {
 		// primitive root unity that is used to transform from coefficient to evaluation representation and vice versa
 		std::vector<BigBinaryInteger> m_rootsOfUnity;
 
-		//Chinese Remainder Interpolation values used for Inverse CRT
-		std::vector<BigBinaryInteger> m_CRIFactors;
-
 		//Modulus that is factorized into m_moduli
 		BigBinaryInteger m_modulus;
 
-		//rootOfUnity of Modulus
-		BigBinaryInteger m_rootOfUnity;
+		//This method 'pre-computes' the modulus based on the multiplication of moduli
+		void calculateModulus(){
+		
+			m_modulus = BigBinaryInteger::ONE;
+
+			for(usint i = 0; i < m_moduli.size(); i++){
+				m_modulus = m_modulus * m_moduli[i];
+			}
+
+		} 
+
+
 	};
 
 } // namespace lbcrypto ends

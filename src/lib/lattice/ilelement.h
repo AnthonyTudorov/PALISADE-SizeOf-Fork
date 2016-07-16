@@ -51,26 +51,21 @@ namespace lbcrypto {
 	class ILElement
 	{
 	public:
-
-		//Represent the lattice in binary format
+		
 		/**
-		* Convert the lattice to be represented internally in binary format.
-		*
-		* @param *text the byte array to take as input.
-		* @param &modulus modulus to convert from.
-		*/
-		//virtual void DecodeElement(ByteArrayPlaintextEncoding *text, const BigBinaryInteger &modulus) const = 0;
-
-		//Convert binary string to lattice format
-		/**
-		* Convert binary string to lattice format.
-		*
-		* @param &encoded the byte array to take as input.
-		* @param &modulus modulus to convert to.
-		*/
-		//virtual void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus) = 0;
+		*Prints all values in either coefficient or evaluation format.
+		*/		
 		virtual void PrintValues() const = 0;
+		
+		/**
+		*Adds one to every entry on the ILElement.
+		*/
+		virtual void AddILElementOne() = 0;
+
+		//virtual void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus) = 0;
+		
 		virtual ~ILElement(){}; //must be virtual since member printvals() is virtual
+
 	};
 
 } // namespace lbcrypto ends

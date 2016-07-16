@@ -84,10 +84,12 @@ namespace lbcrypto {
 	template <class Element>
 	Ciphertext<Element> Ciphertext<Element>::EvalAdd(const Ciphertext<Element> &ciphertext) const
 	{
+		if(this->m_cryptoParameters != ciphertext.m_cryptoParameters){
+			std::string errMsg = "EvalAdd: CryptoParameters of added the ciphertexts are the not the same.";
+			throw std::runtime_error(errMsg);
+		}
 		Ciphertext<Element> sum(*this);
-
 		sum.m_element = this->m_element + ciphertext.m_element;
-
 		return sum;
 	}
 

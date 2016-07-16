@@ -44,6 +44,7 @@
 #include "../math/distrgen.h"
 #include "../encoding/ptxtencoding.h"
 
+
 /**
  * @namespace lbcrypto
  * The namespace of lbcrypto
@@ -53,6 +54,9 @@ namespace lbcrypto {
 	//forward declaration of Ciphertext class; used to resolve circular header dependency
 	template <class Element>
 	class Ciphertext;
+
+	template <class Element>
+	class LPKeySwitchHintLTV;
 
 	struct EncryptResult {
 
@@ -120,7 +124,7 @@ namespace lbcrypto {
 		 */
 		virtual const ElemParams &GetElementParams() const = 0;
 		
-		virtual bool operator==(const LPCryptoParameters<Element>*) const = 0;
+		virtual bool operator==(const LPCryptoParameters<Element> &rhs) const = 0;
 
 	};
 
@@ -263,6 +267,8 @@ namespace lbcrypto {
 			 * @param &pub the public key element.
 			 */ 
 			virtual void MakePublicKey(const Element &g, LPPublicKey<Element> *pub) const = 0;
+
+	
 	};
 
 
@@ -309,6 +315,15 @@ namespace lbcrypto {
 			virtual EncryptResult Encrypt(const LPPublicKey<Element> &publicKey,
 				const Element &plaintext,
 				Ciphertext<Element> *ciphertext) const = 0;
+
+			/**
+			 * Method for encrypting plaintex using LBC
+			 *
+			 * @param &publicKey public key used for encryption.
+			 * @param *ciphertext ciphertext which results from encryption.
+			 */
+			virtual void Encrypt(const LPPublicKey<Element> &publicKey, 
+				Ciphertext<Element> *ciphertext) const = 0;
 			
 			/**
 			 * Method for decrypting plaintext using LBC
@@ -331,6 +346,83 @@ namespace lbcrypto {
 			 */
 			virtual bool KeyGen(LPPublicKey<Element> *publicKey, 
 				LPPrivateKey<Element> *privateKey) const = 0;
+
+			virtual bool SparseKeyGen(LPPublicKey<Element> &publicKey, 
+		        	LPPrivateKey<Element> &privateKey, 
+			        const DiscreteGaussianGenerator &dgg) const = 0;
+
+	};
+
+
+	/**
+	 * @brief Abstract interface for Leveled SHE operations
+	 * @tparam Element a ring element.
+	 */
+	template <class Element>
+	class LPLeveledSHEAlgorithm {
+		public:	
+
+			/**
+			 * Method for KeySwitchHintGen
+			 *
+			 * @param &originalPrivateKey Original private key used for encryption.
+			 * @param &newPrivateKey New private key to generate the keyswitch hint.
+			 * @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
+			 */
+			virtual void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
+				const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const = 0;
+			
+			/**
+			 * Method for KeySwitch
+			 *
+			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
+			 * @param &cipherText Original ciphertext to perform switching on.
+			 */
+			virtual Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const = 0;
+
+			/**
+			 * Method for generating a keyswitchhint from originalPrivateKey square to newPrivateKey
+			 *
+			 * @param &originalPrivateKey that is (in method) squared for the keyswitchhint.
+			 * @param &newPrivateKey new private for generating a keyswitchhint to.
+			 * @param *quadraticKeySwitchHint the generated keyswitchhint.
+			 */
+
+			virtual void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *quadraticKeySwitchHint) const = 0;
+
+			/**
+			 * Method for Modulus Reduction.
+			 *
+			 * @param &cipherText Ciphertext to perform mod reduce on.
+			 */
+			virtual void ModReduce(Ciphertext<Element> *cipherText) const = 0; 
+
+			/**
+			 * Method for Ring Reduction.
+			 *
+			 * @param &cipherText Ciphertext to perform ring reduce on.
+			 * @param &privateKey Private key used to encrypt the first argument.
+			 */
+			virtual void RingReduce(Ciphertext<Element> *cipherText, const LPKeySwitchHint<Element> &keySwitchHint) const = 0; 
+
+			/**
+			 * Method for Composed EvalMult
+			 *
+			 * @param &cipherText1 ciphertext1, first input ciphertext to perform multiplication on.
+			 * @param &cipherText2 cipherText2, second input ciphertext to perform multiplication on.
+			 * @param &quadKeySwitchHint is for resultant quadratic secret key after multiplication to the secret key of the particular level.
+			 * @param &cipherTextResult is the resulting ciphertext that can be decrypted with the secret key of the particular level.
+			 */
+			virtual void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPKeySwitchHint<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const = 0;
+
+			/**
+			 * Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
+			 *
+			 * @param &cipherText1 is the original ciphertext to be key switched and mod reduced.
+			 * @param &linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
+			 * @param &cipherTextResult is the resulting ciphertext.
+			 */
+			virtual void LevelReduce(const Ciphertext<Element> &cipherText1, const LPKeySwitchHint<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const = 0;
 
 	};
 
@@ -405,6 +497,11 @@ namespace lbcrypto {
 			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
 				Ciphertext<Element> *newCiphertext) const = 0;
+
+			virtual void EvalAdd(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const = 0;
+
 	};
 
 	/**
@@ -454,7 +551,7 @@ namespace lbcrypto {
 				const LPPrivateKey<Element> &origPrivateKey,
 				const usint size, LPPrivateKey<Element> *tempPrivateKey, 
 				std::vector<LPEvalKey<Element> *> *evalKeys) const = 0;
-				};
+	};
 
 
 	/**
@@ -473,6 +570,18 @@ namespace lbcrypto {
 			*/
 		const BigBinaryInteger &GetPlaintextModulus() const {return  m_plaintextModulus;}
 
+			//LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; } 
+
+			///**
+			// * Sets crypto params.
+			// *
+			// * @param *cryptoParams parameters.
+			// * @return the crypto parameters.
+			// */
+			//void SetCryptoParameters( LPCryptoParameters<Element> *cryptoParams) { 
+			//	m_cryptoParameters = cryptoParams; 
+			//}
+
 		/**
 			* Returns the reference to IL params
 			*
@@ -483,8 +592,8 @@ namespace lbcrypto {
 		//@Set Properties
 			
 		/**
-			* Sets the value of plaintext modulus p
-			*/
+		* Sets the value of plaintext modulus p
+		*/
 		void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {m_plaintextModulus = plaintextModulus;}
 			
 		/**
@@ -492,9 +601,7 @@ namespace lbcrypto {
 			*/
 		void SetElementParams(ElemParams &params) { m_params = &params; }
 
-		bool operator==(const LPCryptoParameters<Element>* cmp) const {
-			return m_plaintextModulus == cmp->GetPlaintextModulus() && cmp->GetElementParams() == m_params;
-		}
+		virtual bool operator==(const LPCryptoParameters<Element>& cmp) const = 0;
 
 	protected:
 		LPCryptoParametersImpl() : m_params(NULL), m_plaintextModulus(BigBinaryInteger::TWO) {}
@@ -508,13 +615,13 @@ namespace lbcrypto {
 		BigBinaryInteger m_plaintextModulus;
 	};
 
-
+	
 	/**
 	 * @brief Abstract interface for public key encryption schemes
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPPublicKeyEncryptionScheme : public LPEncryptionAlgorithm<Element>, public LPPREAlgorithm<Element> {
+	class LPPublicKeyEncryptionScheme : public LPEncryptionAlgorithm<Element>, public LPPREAlgorithm<Element>, public LPLeveledSHEAlgorithm<Element>, public LPSHEAlgorithm<Element> {
 
 	public:
 		LPPublicKeyEncryptionScheme(size_t chunksize) : chunksize(chunksize), m_algorithmEncryption(0),
@@ -574,6 +681,10 @@ namespace lbcrypto {
 					if (m_algorithmFHE!= NULL)
 						flag = true;
 					break;
+				 case LEVELEDSHE:
+					if (m_algorithmLeveledSHE!= NULL)
+						flag = true;
+					break;
 			  }
 			return flag;
 		}
@@ -599,6 +710,16 @@ namespace lbcrypto {
 				}
 		}
 
+		//wrapper for Encrypt method
+		void Encrypt(const LPPublicKey<Element> &publicKey, 
+			Ciphertext<Element> *ciphertext) const {
+				if(this->IsEnabled(ENCRYPTION))
+					return this->m_algorithmEncryption->Encrypt(publicKey, ciphertext);
+				else {
+					throw std::logic_error("This operation is not supported");
+				}
+		}
+
 		//wrapper for Decrypt method
 		DecryptResult Decrypt(const LPPrivateKey<Element> &privateKey, const Ciphertext<Element> &ciphertext,
 				Element *plaintext) const {
@@ -616,6 +737,17 @@ namespace lbcrypto {
 				else {
 					throw std::logic_error("This operation is not supported");
 				}
+		}
+
+		bool SparseKeyGen(LPPublicKey<Element> &publicKey, 
+		        	LPPrivateKey<Element> &privateKey, 
+			        const DiscreteGaussianGenerator &dgg) const {
+				if(this->IsEnabled(ENCRYPTION))
+					return this->m_algorithmEncryption->SparseKeyGen(publicKey, privateKey, dgg);
+				else {
+					throw std::logic_error("This operation is not supported");
+				}
+				
 		}
 
 		//wrapper for EvalKeyGen method
@@ -638,6 +770,104 @@ namespace lbcrypto {
 				}
 		}
 
+
+		//wrapper for EvalAdd method
+		void EvalAdd(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const {
+
+					if(this->IsEnabled(SHE))
+						this->m_algorithmSHE->EvalAdd(ciphertext1,ciphertext2,newCiphertext);
+					else{
+						throw std::logic_error("This operation is not supported");
+					}
+		}
+
+		//wrapper for EvalMult method
+		void EvalMult(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const {
+					
+					if(this->IsEnabled(SHE))
+						this->m_algorithmSHE->EvalMult(ciphertext1,ciphertext2,newCiphertext);
+					else{
+						throw std::logic_error("This operation is not supported");
+					}
+
+		}
+
+		//wrapper for KeySwitchHintGen
+		void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
+				const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const {
+					if(this->IsEnabled(LEVELEDSHE))
+						this->m_algorithmLeveledSHE->KeySwitchHintGen(originalPrivateKey, newPrivateKey,keySwitchHint);
+					else{
+						throw std::logic_error("This operation is not supported");
+					}
+		}
+
+		//wrapper for KeySwitch
+		Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->KeySwitch(keySwitchHint,cipherText);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+		//wrapper for QuadraticKeySwitchHintGen
+		void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *quadraticKeySwitchHint) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->QuadraticKeySwitchHintGen(originalPrivateKey,newPrivateKey,quadraticKeySwitchHint);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+		//wrapper for ModReduce
+		void ModReduce(Ciphertext<Element> *cipherText) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->ModReduce(cipherText);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+		//wrapper for RingReduce
+		void RingReduce(Ciphertext<Element> *cipherText, const LPKeySwitchHint<Element> &keySwitchHint) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->RingReduce(cipherText,keySwitchHint);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+
+		void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPKeySwitchHint<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->ComposedEvalMult(cipherText1,cipherText2,quadKeySwitchHint,cipherTextResult);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+
+		//wrapper for LevelReduce
+		void LevelReduce(const Ciphertext<Element> &cipherText1, const LPKeySwitchHint<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+			if(this->IsEnabled(LEVELEDSHE)){
+				this->m_algorithmLeveledSHE->LevelReduce(cipherText1,linearKeySwitchHint,cipherTextResult);
+			}
+			else{
+				throw std::logic_error("This operation is not supported");
+			}
+		}
+
+
 		/**
 		 *
 		 * @return the size of plaintext that this scheme can process in one low-level call
@@ -647,13 +877,14 @@ namespace lbcrypto {
 		const LPEncryptionAlgorithm<Element>& getAlgorithm() const { return *m_algorithmEncryption; }
 
 	protected:
-		const size_t		chunksize;
+		const size_t chunksize;
 		const LPEncryptionAlgorithm<Element> *m_algorithmEncryption;
 		const LPPREAlgorithm<Element> *m_algorithmPRE;
 		const LPAHEAlgorithm<Element> *m_algorithmEvalAdd;
 		const LPAutoMorphAlgorithm<Element> *m_algorithmEvalAutomorphism;
 		const LPSHEAlgorithm<Element> *m_algorithmSHE;
 		const LPFHEAlgorithm<Element> *m_algorithmFHE;
+		const LPLeveledSHEAlgorithm<Element> *m_algorithmLeveledSHE;
 		//std::bitset<FEATURESETSIZE> m_featureMask;
 	};
 
@@ -666,14 +897,18 @@ namespace lbcrypto {
 	class LPPublicKeyEncryptionAlgorithmImpl
 	{		
 	public:
-
-		//gets reference to the scheme
+		//@Get Properties
+		/**
+		* Getter method for a refernce to the scheme
+		*
+		*@return the refernce to the scheme.
+		*/
 		const LPPublicKeyEncryptionScheme<Element> &GetScheme() const {return *m_scheme;}
 
 		//@Set Properties
 		/**
-			* Sets the reference to element params
-			*/
+		* Sets the reference to element params
+		*/
 		void SetScheme(const LPPublicKeyEncryptionScheme<Element> &scheme) { m_scheme = &scheme; }
 
 	protected:
@@ -685,7 +920,6 @@ namespace lbcrypto {
 		//pointer to the parent scheme
 		const LPPublicKeyEncryptionScheme<Element> *m_scheme;
 	};
-
 
 } // namespace lbcrypto ends
 #endif

@@ -87,10 +87,11 @@ enum PKESchemeFeature{
 	EVALADD=2,
 	EVALAUTOMORPHISM=3,
 	SHE=4,
-	FHE=5
+	FHE=5,
+	LEVELEDSHE=6
 };
 
-const uint8_t FEATURESETSIZE = 6;
+const uint8_t FEATURESETSIZE = 7;
 
 //} // namespace lbcrypto ends
 

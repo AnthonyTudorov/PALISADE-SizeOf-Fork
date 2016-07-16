@@ -29,5 +29,4 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <string>
 
 namespace lbcrypto {
-
 }  // namespace lbcrypto ends

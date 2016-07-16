@@ -79,6 +79,8 @@ public:
 	*/
 	void SetStd (const sint std);
 
+	//BigBinaryVector DiscreteGaussianGenerator::GenerateIdentity(usint size, const BigBinaryInteger &modulus);
+
 	/**
 	* @brief      Returns a generated char.
 	* @return     an schar value generated with the distribution.

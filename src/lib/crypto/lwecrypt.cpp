@@ -11,6 +11,8 @@ List of Authors:
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
+		Nishanth Pasham, np386@njit.edu
+		Hadi Sajjadpour, ss2959@njit.edu
 		Jerry Ryan, gwryan@njit.edu
 Description:	
 	This code provides the core proxy re-encryption functionality.
@@ -32,13 +34,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../crypto/cryptocontext.h"
 #include <cstring>
 #include <iostream>
+#include <fstream>
 
 namespace lbcrypto {
 
 template <class Element>
 bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
 		LPPrivateKey<Element> *privateKey) const
-		{
+{
+
 	if( publicKey == 0 || privateKey == 0 )
 		return false;
 
@@ -64,7 +68,6 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	//check if inverse does not exist
 	while (!f.InverseExists())
 	{
-		//std::cout << "inverse does not exist" << std::endl;
 		Element temp(dgg, elementParams, Format::COEFFICIENT);
 		f = temp;
 		f = p*f;
@@ -76,13 +79,58 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	privateKey->AccessCryptoParameters() = *cryptoParams;
 
 	Element g(dgg,elementParams,Format::COEFFICIENT);
+
 	g.SwitchFormat();
 
 	//public key is generated
 	privateKey->MakePublicKey(g,publicKey);
 
 	return true;
-		}
+}
+
+template <class Element>
+bool LPAlgorithmLTV<Element>::SparseKeyGen(LPPublicKey<Element> &publicKey, 
+		        	LPPrivateKey<Element> &privateKey, 
+			        const DiscreteGaussianGenerator &dgg) const
+{
+	LPPublicKeyLTV<Element> &publicKeyLTV = dynamic_cast< LPPublicKeyLTV<Element>& >(publicKey); 
+	LPPrivateKeyLTV<Element> &privateKeyLTV = dynamic_cast< LPPrivateKeyLTV<Element>& >(privateKey);
+	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
+	const ElemParams &elementParams = cryptoParams.GetElementParams();
+	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+
+	Element f(dgg,elementParams,Format::COEFFICIENT);
+
+	f = p*f;
+	f = f + BigBinaryInteger::ONE;
+	f.MakeSparse(BigBinaryInteger::TWO);
+
+	f.SwitchFormat();
+
+	//check if inverse does not exist
+	while (!f.InverseExists())
+	{
+		//std::cout << "inverse does not exist" << std::endl;
+		Element temp(dgg, elementParams, Format::COEFFICIENT);
+		f = temp;
+		f = p*f;
+		f = f + BigBinaryInteger::ONE;
+		f.MakeSparse(BigBinaryInteger::TWO);
+		f.SwitchFormat();
+	}
+
+	privateKeyLTV.SetPrivateElement(f);
+	privateKeyLTV.AccessCryptoParameters() = cryptoParams;
+	
+
+	Element g(dgg,elementParams,Format::COEFFICIENT);
+	g.SwitchFormat();
+
+	//public key is generated
+	privateKeyLTV.MakePublicKey(g, &publicKeyLTV);
+
+	return true;
+}
 
 template <class Element>
 bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
@@ -125,20 +173,225 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 	privateKey->AccessCryptoParameters() = *cryptoParams;
 
 	Element g(dgg,elementParams,Format::COEFFICIENT);
+
 	g.SwitchFormat();
 
 	//public key is generated
 	privateKey->MakePublicKey(g,publicKey);
 
 	return true;
-		}
+}
 
+/**
+* Method for KeySwitching based on a KeySwitchHint
+*
+* This function Calculates a  KeySwitchHint. The hint is used to convert a ciphertext encrypted with 
+* private key A to a ciphertext that is decryptable by the public key of B. 
+* The algorithm can be found from this paper.
+* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
+* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+* 
+* KeySwitchHint 
+*/
+template<class Element>
+void LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
+				const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const {  
+
+		const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element> &>(originalPrivateKey.GetCryptoParameters() );
+
+		const ElemParams &originalKeyParams = cryptoParams.GetElementParams() ;
+
+		const Element f1 = originalPrivateKey.GetPrivateElement(); //add const
+		const Element f2 = newPrivateKey.GetPrivateElement(); //add const
+		const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+
+		Element e(cryptoParams.GetDiscreteGaussianGenerator() , originalKeyParams, Format::COEFFICIENT );
+		
+		e.SwitchFormat();
+
+		Element m(p*e);
+		
+		m.AddILElementOne();
+
+		Element newKeyInverse = f2.MultiplicativeInverse(); 
+
+		Element keySwitchHintElement(m * f1 * newKeyInverse);
+
+		/*keySwitchHintElement = m * f1 * newKeyInverse ;*/
+
+		keySwitchHint->SetHintElement(keySwitchHintElement);
+
+		keySwitchHint->SetCryptoParameters(new LPCryptoParametersLTV<Element>(cryptoParams));	
+
+}
+			
+/*
+* Method for KeySwitching based on a KeySwitchHint
+*
+* This function performs KeySwitch based on a KeySwitchHint. 
+* The algorithm can be found from this paper:
+* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+* 
+*KeySwitch takes in a KeySwitchHint and a cipher text. Based on the two, it calculates and returns a new ciphertext. 
+* if the KeySwitchHint is constructed for Private Key A converted to Private Key B, then the new ciphertext, originally encrypted with
+* private key A, is now decryptable by public key B (and not A).
+*/
+template<class Element>
+Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint,const Ciphertext<Element> &cipherText) const {
+
+	Ciphertext<Element> newCipherText(cipherText);
+
+	Element newCipherTextElement = cipherText.GetElement()*keySwitchHint.GetHintElement();
+
+	newCipherText.SetElement( newCipherTextElement );
+	
+	return newCipherText ;
+}
+
+
+/*Generates a keyswitchhint from originalPrivateKey^(2) to newPrivateKey */
+template<class Element>
+void LPLeveledSHEAlgorithmLTV<Element>::QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
+	
+	const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *quadraticKeySwitchHint) const {
+
+	const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element> &>(originalPrivateKey.GetCryptoParameters() );
+
+	const ElemParams &originalKeyParams = cryptoParams.GetElementParams() ;
+
+	const Element f1 = originalPrivateKey.GetPrivateElement(); //add const
+
+	const Element f1Squared(f1*f1); //squaring the key
+	const Element f2 = newPrivateKey.GetPrivateElement(); //add const
+	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+
+	Element e(cryptoParams.GetDiscreteGaussianGenerator() , originalKeyParams, Format::COEFFICIENT );
+
+	e.SwitchFormat();
+
+	Element m(p*e);
+
+	m = p * e;
+	
+	m.AddILElementOne();
+
+	Element newKeyInverse = f2.MultiplicativeInverse(); 
+
+	Element keySwitchHintElement(m * f1Squared * newKeyInverse);
+
+	quadraticKeySwitchHint->SetHintElement(keySwitchHintElement);
+
+	quadraticKeySwitchHint->SetCryptoParameters(new LPCryptoParametersLTV<Element>(cryptoParams));
+}
+
+/**
+* Method for ModReducing on any Element datastructure-TODO
+*/
+template<class Element>
+void LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Element> *cipherText) const {
+	
+}
+
+/**
+* This function performs ModReduce on ciphertext element and private key element. The algorithm can be found from this paper:
+* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
+* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+* 
+* Modulus reduction reduces a ciphertext from modulus q to a smaller modulus q/qi. The qi is generally the largest. In the code below,
+* ModReduce is written for ILVectorArray2n and it drops the last tower while updating the necessary parameters. 
+*/
+template<> inline
+void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(Ciphertext<ILVectorArray2n> *cipherText) const {
+
+	ILVectorArray2n cipherTextElement(cipherText->GetElement()); 
+
+	BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters().GetPlaintextModulus());
+
+	cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
+
+	cipherText->SetElement(cipherTextElement);
+	
+}
+
+/**
+* This function performs RingReduce on ciphertext element and private key element. The algorithm can be found from this paper:
+* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
+* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+* The paper quoted above has an algorithm for generic RingReduce, the code here only reduces the ring by a factor of 2. By the ring, we mean the ring dimension.
+* @Input params are cipherText and privateKey, output cipherText element is ring reduced by a factor of 2
+* 
+*/
+template<class Element>
+void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherText, const LPKeySwitchHint<Element> &keySwitchHint) const {
+
+		//KeySwitching to a cipherText that can be decrypted by a sparse key. 
+		*cipherText = this->KeySwitch( keySwitchHint, *cipherText) ;
+
+		//Once the keyswitching of the ciphertext has been done, based on the algorithm in the referenced paper, the ciphertext needs to be decomposed.
+		Element keySwitchedCipherTextElement(cipherText->GetElement());
+		
+		//changing from EVALUATION to COEFFICIENT domain before performing Decompose operation. Decompose is done in coeffiecient domain.
+		keySwitchedCipherTextElement.SwitchFormat();
+
+		/*Based on the algorithm their needs to be a decompose done on the ciphertext. The W factor in this function is 2. The decompose is done
+		on the elements of keySwitchedCipherTextElement*/
+		keySwitchedCipherTextElement.Decompose();		
+
+		//Converting back to EVALUATION representation.
+		keySwitchedCipherTextElement.SwitchFormat();
+
+		//setting the decomposed element into ciphertext.
+		cipherText->SetElement(keySwitchedCipherTextElement);
+
+		//Modifying the cipherText crypto parameters to account for changes in cipherText Element.
+		//const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element>&>(cipherText->GetCryptoParameters());
+		//ElemParams elementParams(cryptoParams.GetElementParams());
+		
+}
+
+template<class Element>
+void LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPKeySwitchHint<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+
+	if(!(cipherText1.GetCryptoParameters() == cipherText2.GetCryptoParameters()) || !(cipherTextResult->GetCryptoParameters() == cipherText2.GetCryptoParameters())){
+		std::string errMsg = "ComposedEvalMult crypto parameters are not the same";
+		throw std::runtime_error(errMsg);
+	}
+
+	const LPPublicKeyEncryptionSchemeLTV<Element> &scheme = dynamic_cast< const LPPublicKeyEncryptionSchemeLTV<Element> &>( this->GetScheme() );
+
+	//scheme.m_algorithmSHE->EvalMult(cipherText1,cipherText2, cipherTextResult);
+	scheme.EvalMult(cipherText1,cipherText2, cipherTextResult);
+
+	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(quadKeySwitchHint,*cipherTextResult);
+	*cipherTextResult = scheme.KeySwitch(quadKeySwitchHint,*cipherTextResult);
+
+	//scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
+	scheme.ModReduce(cipherTextResult);
+	
+}
+
+template<class Element>
+void LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const Ciphertext<Element> &cipherText1, const LPKeySwitchHint<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+
+	if(!(cipherText1.GetCryptoParameters() == cipherTextResult->GetCryptoParameters())){
+		std::string errMsg = "LevelReduce crypto parameters are not the same";
+		throw std::runtime_error(errMsg);
+	}
+	
+	const LPPublicKeyEncryptionSchemeLTV<Element> &scheme = dynamic_cast< const LPPublicKeyEncryptionSchemeLTV<Element> &>( this->GetScheme() );
+
+	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(linearKeySwitchHint,cipherText1);
+	*cipherTextResult = scheme.KeySwitch(linearKeySwitchHint,cipherText1);
+
+	scheme.ModReduce(cipherTextResult);
+
+}
 
 template <class Element>
 EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 		const Element &plaintext,
 		Ciphertext<Element> *ciphertext) const
-		{
+{
 
 	const LPCryptoParametersLTV<Element> *cryptoParams =
 			dynamic_cast<const LPCryptoParametersLTV<Element>*>(&publicKey.GetCryptoParameters());
@@ -151,15 +404,10 @@ EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publi
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
-//	Element m(elementParams);
-//
-//	plaintext.Encode(p,&m);
-//
-//	m.SwitchFormat();
-
 	const Element &h = publicKey.GetPublicElement();
 
 	Element s(dgg,elementParams);
+
 	Element e(dgg,elementParams);
 
 	Element c(elementParams);
@@ -172,7 +420,34 @@ EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publi
 	ciphertext->SetElement(c);
 
 	return EncryptResult(0);
-		}
+}
+
+template <class Element>
+void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey, 
+				Ciphertext<Element> *ciphertext) const
+{
+
+	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
+	const ElemParams &elementParams = cryptoParams.GetElementParams();
+	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
+
+	Element m(ciphertext->GetElement());
+
+	m.SwitchFormat();
+	
+	const Element &h = publicKey.GetPublicElement();
+
+	Element s(dgg, elementParams);
+	Element e(dgg, elementParams);
+
+	Element c(h*s + p*e + m);
+	
+	ciphertext->SetCryptoParameters(&cryptoParams);
+	ciphertext->SetPublicKey(publicKey);
+	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
+	ciphertext->SetElement(c);
+}
 
 template <class Element>
 DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &privateKey, 
@@ -184,16 +459,21 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &priv
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
-	Element c(elementParams);
-	c = ciphertext.GetElement();
+	Element c( ciphertext.GetElement() );
 
-	Element b(elementParams);
 	Element f = privateKey.GetPrivateElement(); //add const
 
-	b = f*c;
+	Element b = f*c;
 
 	b.SwitchFormat();
 
+	// Here we are intentionally hard coding the root of unity to BigBinaryInteger::ONE as we are not going to use the root of unity going forward
+	/*b.SwitchModulus(p, BigBinaryInteger::ONE);
+
+	plaintext->Decode(p,b);
+
+	return DecodingResult(plaintext->GetLength());
+}*/
 	*plaintext = b;
 
 	//Element m(elementParams);
@@ -210,7 +490,7 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &priv
 	//plaintext->Decode(p,b);
 
 	return DecryptResult(plaintext->GetLength());
-		}
+}
 
 // JSON FACILITY - LPCryptoParametersLWE Serialize Operation
 template <class Element>
@@ -385,6 +665,24 @@ bool LPCryptoParametersLTV<Element>::Deserialize(const Serialized& serObj) {
 	return true;
 }
 
+template <class Element>
+LPPublicKeyLTV<Element>::LPPublicKeyLTV (const LPPublicKey<Element> &rhs) {
+	if(this != rhs) {
+		m_cryptoParameters = rhs.m_cryptoParameters;
+		m_h = rhs.m_h;
+	}
+}
+
+template <class Element>
+LPPublicKeyLTV<Element>& LPPublicKeyLTV<Element>::operator=(const LPPublicKeyLTV<Element> &rhs) {
+	if(this != rhs) {
+		m_cryptoParameters = rhs.m_cryptoParameters;
+		m_h = rhs.m_h;
+	}
+
+	return *this;
+}
+
 // JSON FACILITY
 template <class Element>
 bool LPPublicKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string flag) const {
@@ -517,6 +815,24 @@ bool LPEvalKeyLTV<Element>::Deserialize(const Serialized& serObj, const CryptoCo
 	return true;
 }
 
+template <class Element>
+LPPrivateKeyLTV<Element>::LPPrivateKeyLTV (const LPPrivateKeyLTV<Element> &rhs) {
+	if(this != &rhs) {
+		m_cryptoParameters = rhs.m_cryptoParameters;
+		m_sk = rhs.m_sk;
+	}
+}
+
+template <class Element>
+LPPrivateKeyLTV<Element>& LPPrivateKeyLTV<Element>::operator=(const LPPrivateKeyLTV<Element> &rhs) {
+	if(this != &rhs) {
+		m_cryptoParameters = rhs.m_cryptoParameters;
+		m_sk = rhs.m_sk;
+	}
+
+	return *this;
+}
+
 // JSON FACILITY - LPPrivateKeyLTV SetIdFlag Operation
 template <class Element>
 bool LPPrivateKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string flag) const {
@@ -560,6 +876,19 @@ bool LPPrivateKeyLTV<Element>::Deserialize(const Serialized& serObj, const Crypt
 	return false;
 }
 
+// Default constructor for LPPublicKeyEncryptionSchemeLTV
+/*template <class Element>
+LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(){
+	this->m_algorithmEncryption = NULL;
+	this->m_algorithmPRE = NULL;
+	this->m_algorithmEvalAdd = NULL;
+	this->m_algorithmEvalAutomorphism = NULL;
+	this->m_algorithmSHE = NULL;
+	this->m_algorithmFHE = NULL;
+	this->m_algorithmLeveledSHE = NULL;
+}
+*/
+
 // Constructor for LPPublicKeyEncryptionSchemeLTV
 template <class Element>
 LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask, size_t chunksize)
@@ -577,6 +906,8 @@ LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bit
 		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
 	if (mask[FHE])
 		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+	if (mask[LEVELEDSHE])
+		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
 
 }
 
@@ -609,6 +940,10 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature){
 		if (this->m_algorithmFHE == NULL)
 			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
 		break;
+	case LEVELEDSHE:
+	if (this->m_algorithmLeveledSHE == NULL)
+			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
+		break;
 	}
 }
 
@@ -628,7 +963,8 @@ LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>::LPPublicKeyEncryptionScheme
 		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
 	if (mask[FHE])
 		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
-
+	if (mask[LEVELEDSHE])
+		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
 }
 
 // Feature enable method for LPPublicKeyEncryptionSchemeStehleSteinfeld
@@ -659,6 +995,10 @@ void LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>::Enable(PKESchemeFeatur
 	case FHE:
 		if (this->m_algorithmFHE == NULL)
 			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+		break;
+	case LEVELEDSHE:
+		if (this->m_algorithmLeveledSHE == NULL)
+			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
 		break;
 	}
 }

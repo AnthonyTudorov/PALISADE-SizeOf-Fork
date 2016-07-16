@@ -1285,7 +1285,8 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 	if(m_state==GARBAGE || modulus.m_state==GARBAGE)
 		throw std::logic_error("GARBAGE ERROR");
-
+	
+	BigBinaryInteger result;
 	//std::ofstream f("grs_Modinverse");
 
 	//f << *this <<" THIS VALUE "<< std::endl;
@@ -1298,8 +1299,14 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 		mods.push_back(this->Mod(modulus));
 	else
 		mods.push_back(BigBinaryInteger(*this));
+
 	BigBinaryInteger first(mods[0]);
 	BigBinaryInteger second(mods[1]);
+	if(mods[1]==ONE){
+		result = ONE;
+		return result;
+	}
+
 	//Error if modulus is ZERO
 	if(*this==ZERO){
 		std::cout<<"ZERO HAS NO INVERSE\n";
@@ -1342,7 +1349,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 		second = mods.back();
 	}
 
-	BigBinaryInteger result;
+	
 	if(quotient.size()%2==1){
 		result = (modulus - mods.back());
 	}

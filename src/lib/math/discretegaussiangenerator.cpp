@@ -97,7 +97,6 @@ sint DiscreteGaussianGenerator::GenerateInt () const {
 	return ans;
 }
 
-
 sint * DiscreteGaussianGenerator::GenerateIntVector (usint size) const {
 
 	std::uniform_real_distribution<double> distribution(0.0,1.0);

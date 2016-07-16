@@ -58,18 +58,31 @@ namespace lbcrypto {
 
 			//inherited constructors
 			LPAlgorithmSHELTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
+
 			LPAlgorithmSHELTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 
 			/**
-			 * Function for evaluation addition on ciphertext.
+			 * Function for evaluation multiplication on ciphertext.
 			 *
-			 * @param &ciphertext1 the input ciphertext.
-			 * @param &ciphertext2 the input ciphertext.
-			 * @param *newCiphertext the new ciphertext.
+			 * @param &ciphertext1 first input ciphertext.
+			 * @param &ciphertext2 second input ciphertext.
+			 * @param *newCiphertext the new resulting ciphertext.
 			 */
 			void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2, 
 				Ciphertext<Element> *newCiphertext) const;
+
+			/**
+			 * Function for evaluation addition on ciphertext.
+			 *
+			 * @param &ciphertext1 first input ciphertext.
+			 * @param &ciphertext2 second input ciphertext.
+			 * @param *newCiphertext the new resulting ciphertext.
+			 */
+
+			void EvalAdd(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const ;
 
 			/**
 			 * Function to generate key switch hint on a ciphertext.
@@ -77,7 +90,6 @@ namespace lbcrypto {
 			 * @param &newPrivateKey private key for the new ciphertext.
 			 * @param &origPrivateKey original private key used for decryption.
 			 * @param depth used for decryption.
-			 * @param &dgg discrete Gaussian generator.
 			 * @param *keySwitchHint the key switch hint.
 			 */
 			 bool KeySwitchHintGen(const LPPrivateKey<Element> &newPrivateKey, 
@@ -89,7 +101,6 @@ namespace lbcrypto {
 			 * Function to generate key switch hint on a ciphertext for depth 2.
 			 *
 			 * @param &newPrivateKey private key for the new ciphertext.
-			 * @param &dgg discrete Gaussian generator.
 			 * @param *keySwitchHint the key switch hint.
 			 */
 			 bool KeySwitchHintGen(const LPPrivateKey<Element> &newPrivateKey, 

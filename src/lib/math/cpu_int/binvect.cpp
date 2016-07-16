@@ -76,7 +76,7 @@ BigBinaryVector<IntegerType>::BigBinaryVector(BigBinaryVector &&bigBinaryVector)
 
 //ASSIGNMENT OPERATOR
 template<class IntegerType>
-BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(const BigBinaryVector &rhs){
+const BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(const BigBinaryVector &rhs){
 	if(this!=&rhs){
 		if(this->m_length==rhs.m_length){
 			for (usint i = 0; i < m_length; i++){
@@ -92,6 +92,21 @@ BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(const BigB
 			for (usint i = 0; i < m_length; i++){
 				m_data[i] = rhs.m_data[i];
 			}
+		}
+		this->m_modulus = rhs.m_modulus;
+	}
+
+	return *this;
+}
+
+template<class IntegerType>
+const BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(std::initializer_list<sint> rhs){
+	usint len = rhs.size();
+	for(usint i=0;i<m_length;i++){ // this loops over each tower
+		if(i<len) {
+			m_data[i] =  IntegerType(*(rhs.begin()+i));  
+		} else {
+			m_data[i] = IntegerType::ZERO;
 		}
 	}
 
@@ -166,6 +181,40 @@ template<class IntegerType>
 void BigBinaryVector<IntegerType>::SetModulus(const IntegerType& value){
 	this->m_modulus = value;
 }
+/**Switches the integers in the vector to values corresponding to the new modulus
+*  Algorithm: Integer i, Old Modulus om, New Modulus nm, delta = abs(om-nm):
+*  Case 1: om < nm
+*  if i > i > om/2
+*  i' = i + delta
+*  Case 2: om > nm
+*  i > om/2
+*  i' = i-delta
+*/	
+template<class IntegerType>
+void BigBinaryVector<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
+	
+	IntegerType oldModulus(this->m_modulus);
+	IntegerType n;
+	IntegerType oldModulusByTwo(oldModulus>>1);
+	IntegerType diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
+	for(usint i=0; i< this->m_length; i++) {
+		n = this->GetValAtIndex(i);
+		if(oldModulus < newModulus) {
+			if(n > oldModulusByTwo) {
+				this->SetValAtIndex(i, n.ModAdd(diff, newModulus));
+			} else {
+				this->SetValAtIndex(i, n.Mod(newModulus));
+			}
+		} else {
+			if(n > oldModulusByTwo) {
+				this->SetValAtIndex(i, n.ModSub(diff, newModulus));
+			} else {
+				this->SetValAtIndex(i, n.Mod(newModulus));
+			}
+		}
+	}
+	this->SetModulus(newModulus);
+}
 
 template<class IntegerType>
 const IntegerType& BigBinaryVector<IntegerType>::GetModulus() const{
@@ -210,13 +259,22 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::Mod(const IntegerType
 }
 
 template<class IntegerType>
+BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModAddAtIndex(usint i, const IntegerType &b) const{
+	if(i > this->GetLength()-1) {
+		std::string errMsg = "binvect::ModAddAtIndex. Index is out of range. i = " + i;
+		throw std::runtime_error(errMsg);
+	}
+	BigBinaryVector ans(*this);
+	ans.m_data[i] = ans.m_data[i].ModAdd(b, this->m_modulus);
+	return ans;
+}
+
+template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModAdd(const IntegerType &b) const{
 	BigBinaryVector ans(*this);
-//	for(usint i=0;i<this->m_length;i++){
-//		ans.m_data[0] = ans.m_data[0].ModAdd(b,this->m_modulus);
-//		ans.m_data[i] = ans.m_data[i].ModAdd(b, this->m_modulus);
-//	}
-	ans.m_data[0] = ans.m_data[0].ModAdd(b, this->m_modulus);
+	for(usint i=0;i<this->m_length;i++){
+		ans.m_data[i] = ans.m_data[i].ModAdd(b, this->m_modulus);
+	}
 	return ans;
 }
 
@@ -257,6 +315,8 @@ This algorithm would most like give the biggest improvement but it sets constrai
 */
 template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerType &b) const{
+	//std::cout<< "Printing Modulus: "<< m_modulus<< std::endl;
+
 	BigBinaryVector ans(*this);
 
 	//Precompute the Barrett mu parameter
@@ -264,7 +324,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerT
 
 	temp<<=2*this->GetModulus().GetMSB()+3;
 
-	IntegerType mu = temp.DividedBy(this->GetModulus());
+	IntegerType mu = temp.DividedBy(m_modulus);
 
 	//Precompute the Barrett mu values
 	/*BigBinaryInteger temp;
@@ -279,8 +339,9 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerT
 	}*/
 
 	for(usint i=0;i<this->m_length;i++){
-
+		//std::cout<< "before data: "<< ans.m_data[i]<< std::endl;
 		ans.m_data[i] = ans.m_data[i].ModBarrettMul(b,this->m_modulus,mu);
+		//std::cout<< "after data: "<< ans.m_data[i]<< std::endl;
 	}
 
 	return ans;

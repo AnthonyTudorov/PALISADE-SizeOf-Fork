@@ -38,6 +38,7 @@
 
 #include "../../utils/serializable.h"
 #include "../../utils/inttypes.h"
+ #include <initializer_list>
 
 /**
  * @namespace cpu8bit
@@ -50,7 +51,7 @@ namespace cpu_int {
 /**
  * @brief The class for representing vectors of big binary integers.
  */
-	//JSON FACILITY
+	//JSON FACILITY INHERITANCE
 	template <class IntegerType>
 	class BigBinaryVector : public lbcrypto::Serializable
 {
@@ -96,25 +97,40 @@ public:
 	BigBinaryVector(BigBinaryVector &&bigBinaryVector);//move copy constructor
 
 	/**
-	 * ???
-	 *
-	 * @param &rhs is the big binary vector to test equality with.  
-	 * @return the return value.	  
-	 */
-	BigBinaryVector&  operator=(const BigBinaryVector &rhs);
+	* Assignment operator to assign value from rhs
+	*
+	* @param &rhs is the big binary vector to be assigned from.
+	* @return Assigned BigBinaryVector.	  
+	*/
+	const BigBinaryVector& operator=(const BigBinaryVector &rhs);
 
 	/**
-	 * ???
-	 *
-	 * @param &&rhs is the big binary vector to test equality with.  
-	 * @return the return value.	  
-	 */
+	* Move assignment operator
+	*
+	* @param &&rhs is the big binary vector to be moved.
+	* @return moved BigBinaryVector object  
+	*/
 	BigBinaryVector&  operator=(BigBinaryVector &&rhs);
 
+	/**
+	* Initializer list for BigBinaryVector.
+	*
+	* @param &&rhs is the list of integers to be assigned to the BBV.
+	* @return BigBinaryVector object 
+	*/
+	const BigBinaryVector& operator=(std::initializer_list<sint> rhs);
+
+	/**
+	* Equals to operator, checks if two BigBinaryVector obj are equal or not.
+	*
+	* @param b is vector to be compared.
+	* @return true if equal and false otherwise.
+	*/
 	inline bool operator==(const BigBinaryVector &b) const {
-        if (this->GetLength() != b.GetLength()) {
+        if (this->GetLength() != b.GetLength())
             return false;
-        }
+        if (this->GetModulus() != b.GetModulus())
+        	return false;
         for (size_t i = 0; i < this->GetLength(); ++i) {
             if (this->GetValAtIndex(i) != b.GetValAtIndex(i)) {
                 return false;
@@ -123,7 +139,13 @@ public:
         return true;
     }
 
-    inline BigBinaryVector& operator=(usint val) {
+    /**
+	* Assignment operator to assign value val to first entry, 0 for the rest of entries.
+	*
+	* @param val is the value to be assigned at the first entry.
+	* @return Assigned BigBinaryVector.
+	*/
+    inline const BigBinaryVector& operator=(usint val) {
         this->m_data[0] = val;
         for (size_t i = 1; i < GetLength(); ++i) {
             this->m_data[i] = 0;
@@ -131,25 +153,30 @@ public:
         return *this;
     }
 
+    /**
+	* Inequality operator, checks if two BigBinaryVector obj are equal or not.
+	*
+	* @param b is vector to be compared.
+	* @return false  if not equal and false otherwise.
+	*/
     inline bool operator!=(const BigBinaryVector &b) const {
         return !(*this == b);
     }
 
 	/**
-	 * Destructor.	  
-	 */
+	* Destructor.	  
+	*/
 	virtual ~BigBinaryVector();
 
 	//ACCESSORS
 
-	//change to ostream?
 	/**
-	 * ???
-	 *
-	 * @param os ???.
-	 * @param &ptr_obj ???.
-	 * @return the return value.	  
-	 */
+	* ostream operator to output vector values to console
+	*
+	* @param os is the std ostream object.
+	* @param &ptr_obj is the BigBinaryVector object to be printed.
+	* @return std ostream object which captures the vector values.
+	*/
 	template<class IntegerType_c>
 	friend std::ostream& operator<<(std::ostream& os, const BigBinaryVector<IntegerType_c> &ptr_obj);
 
@@ -157,7 +184,7 @@ public:
 	 * Sets a value at an index.
 	 *
 	 * @param index is the index to set a value at.
-	 * @param value is the value to set at the index.
+	 * @param value is the int value to set at the index.
 	 */
 	void SetValAtIndex(usint index, const IntegerType& value);
 
@@ -170,10 +197,10 @@ public:
 	void SetValAtIndex(usint index, const std::string& str);
 
 	/**
-	 * Gets a value at an index.
+	 * Gets a value stored at an index.
 	 *
-	 * @param index is the index to set a value at.
-	 * @return is the value at the index.
+	 * @param index is the index from the vector entries.
+	 * @return value at the index.
 	 */
 	const IntegerType& GetValAtIndex(usint index) const;
 
@@ -181,8 +208,16 @@ public:
 	 * Sets the vector modulus.
 	 *
 	 * @param value is the value to set.
+	 * @param value is the modulus value to set.
 	 */
 	void SetModulus(const IntegerType& value);
+
+	/**
+	 * Sets the vector modulus and changes the values to match the new modulus.
+	 *
+	 * @param value is the value to set.
+	 */
+	void SwitchModulus(const IntegerType& value);
 
 	/**
 	 * Gets the vector modulus.
@@ -194,35 +229,44 @@ public:
 	/**
 	 * Gets the vector length.
 	 *
-	 * @return the vector length.
+	 * @return vector length.
 	 */
 	usint GetLength() const;
 	
 	//METHODS
 
 	/**
-	 * returns the vector modulus with respect to the input value.
+	 * Vector Modulus operator.
 	 *
-	 * @param modulus is the modulus to perform.
-	 * @return is the result of the modulus operation.
+	 * @param modulus is the modulus to perform on the current vector entries.
+	 * @return a new vector after the modulus operation on current vector.
 	 */
 	BigBinaryVector Mod(const IntegerType& modulus) const;
 	
 	//scalar operations
 
 	/**
-	 * Scalar modulus addition.
+	 * Scalar modulus addition at a particular index.
 	 *
-	 * @param &b is the scalar to add at all locations.
+	 * @param &b is the scalar to add.
+	 * @param i is the index of the entry to add.
 	 * @return is the result of the modulus addition operation.
 	 */
-	BigBinaryVector ModAdd(const IntegerType &b) const;
+	BigBinaryVector ModAddAtIndex(usint i, const IntegerType &b) const;
+
+	/**
+	 * Scalar modulus addition.
+	 *
+	 * After addition modulus operation is performed with the current vector modulus.
+	 * @return a new vector which is the result of the modulus addition operation.
+	 */
+	BigBinaryVector ModAdd(const IntegerType &b) const;	
 
 	/**
 	 * Scalar modulus subtraction.
-	 *
+	 * After substraction modulus operation is performed with the current vector modulus.
 	 * @param &b is the scalar to subtract from all locations.
-	 * @return is the result of the modulus subtraction operation.
+	 * @return a new vector which is the result of the modulus substraction operation.
 	 */
 	BigBinaryVector ModSub(const IntegerType &b) const;
 
@@ -239,7 +283,7 @@ public:
 	 * Scalar modulus exponentiation.
 	 *
 	 * @param &b is the scalar to exponentiate at all locations.
-	 * @return is the result of the modulus exponentiation operation.
+	 * @return a new vector which is the result of the modulus exponentiation operation.
 	 */
 	BigBinaryVector ModExp(const IntegerType &b) const;
 	//BigBinaryVector& ScalarExp(const BigBinaryInteger &a) const;
@@ -248,45 +292,52 @@ public:
 	/**
 	 * Modulus inverse.
 	 *
-	 * @return is the result of the modulus inverse operation.
+	 * @return a new vector which is the result of the modulus inverse operation.
 	 */
 	BigBinaryVector ModInverse() const;
 
-	//vector operations
+	//Vector Operations
 
 	//component-wise addition
 	/**
 	 * vector modulus addition.
 	 *
 	 * @param &b is the vector to add at all locations.
-	 * @return is the result of the modulus addition operation.
+	 * @return a new vector which is the result of the modulus addition operation.
 	 */
 	BigBinaryVector ModAdd(const BigBinaryVector &b) const;
 
 	/**
 	* Perform a modulus by 2 operation.  Returns the least significant bit.
 	*
-	* @return is the return value of the modulus by 2, also the least significant bit.
+	* @return a new vector which is the return value of the modulus by 2, also the least significant bit.
 	*/
 	BigBinaryVector ModByTwo() const;
 
 	/**
-	 * vector modulus addition.
+	 * Vector Self Modulus Addition.
 	 *
-	 * @param &b is the vector to add at all locations.
-	 * @return is the result of the modulus addition operation.
+	 * @param &b is the vector to add.
+	 * @return a reference to the result of the modulus addition operation.
 	 */
 	const BigBinaryVector& operator+=(const BigBinaryVector &b);
 
+
+	/**
+ 	 * Vector Self Modulus Substraction.
+ 	 *
+	 * @param &b is the vector to substract.
+	 * @return a reference to the result of the modulus substraction operation.
+	 */
 	const BigBinaryVector& operator-=(const BigBinaryVector &b);
 
 	//component-wise subtraction
 
 	/**
-	 * Vector modulus subtraction.
+	 * Vector Modulus subtraction.
 	 *
 	 * @param &b is the vector to subtract.
-	 * @return is the result of the modulus subtraction operation.
+	 * @return a new vector which is the result of the modulus subtraction operation.
 	 */
 	BigBinaryVector ModSub(const BigBinaryVector &b) const;
 
@@ -321,12 +372,6 @@ public:
 	 */
 	BigBinaryVector GetDigitAtIndexForBase(usint index, usint base) const;
 
-	//MANIPULATORS
-	//useful for storing the results in the current instance of the class
-	//they can also be added for scalar operations and modulo operation
-   // BigBinaryVector&  operator+=(const BigBinaryVector& t) {*this = *this+t; return *this;}
-	//BigBinaryVector&  operator*=(const BigBinaryVector& t) {return *this = *this*t;}
-	//Gyana to add -= operator
 
 	//JSON FACILITY
 	/**
@@ -345,9 +390,13 @@ public:
 	bool Deserialize(const lbcrypto::Serialized& serObj);
 
 private:
+	//m_data is a pointer to the vector
 	IntegerType *m_data;
+	//m_length stores the length of the vector
 	usint m_length;
+	//m_modulus stores the internal modulus of the vector.
 	IntegerType m_modulus;
+	//function to check if the index is a valid index.
 	bool IndexCheck(usint) const;
 };
 
@@ -357,18 +406,28 @@ private:
  * Modulus scalar addition.
  *
  * @param &a is the input vector to add.
- * @param &i is the input integer to add.
- * @return is the result of the modulus addition operation.
+ * @param &i is the input integer to add at all entries.
+ * @return a new vector which is the result of the modulus addition operation.
  */
 template<class IntegerType>
 inline BigBinaryVector<IntegerType> operator+(const BigBinaryVector<IntegerType> &a, const IntegerType &i) {return a.ModAdd(i);}
 
 /**
+* Modulus scalar substraction.
+*
+* @param &a is the input vector to substract from.
+* @param &i is the input integer to substract at all entries.
+* @return a new vector which is the result of the modulus substraction operation.
+*/
+template<class IntegerType>
+inline BigBinaryVector<IntegerType> operator-(const BigBinaryVector<IntegerType> &a, const IntegerType &i) {return a.ModSub(i);}
+
+/**
  * Modulus scalar multiplication.
  *
  * @param &a is the input vector to multiply.
- * @param &i is the input integer to multiply.
- * @return is the result of the modulus multiplication operation.
+ * @param &i is the input integer to multiply at all entries.
+ * @return a new vector which is the result of the modulus multiplication operation.
  */
 template<class IntegerType>
 inline BigBinaryVector<IntegerType> operator*(const BigBinaryVector<IntegerType> &a, const IntegerType &i) {return a.ModMul(i);}
@@ -383,16 +442,25 @@ inline BigBinaryVector<IntegerType> operator*(const BigBinaryVector<IntegerType>
 template<class IntegerType>
 inline BigBinaryVector<IntegerType> operator+(const BigBinaryVector<IntegerType> &a, const BigBinaryVector<IntegerType> &b) {return a.ModAdd(b);}
 
+
 /**
- * Modulus vector multiplication.
+ * Modulus vector substraction.
  *
- * @param &a is the first input vector to multiply.
- * @param &b is the second input vector to multiply.
- * @return is the result of the modulus multiplication operation.
+ * @param &a is the first input vector.
+ * @param &b is the second input vector.
+ * @return is the result of the modulus substraction operation.
  */
-template<class IntegerType>
-inline BigBinaryVector<IntegerType> operator*(const BigBinaryVector<IntegerType> &a, const BigBinaryVector<IntegerType> &b) {return a.ModMul(b);}
-//Gyana to add both minus operators
+ template<class IntegerType>
+ inline BigBinaryVector<IntegerType> operator-(const BigBinaryVector<IntegerType> &a, const BigBinaryVector<IntegerType> &b) {return a.ModSub(b);}
+ 
+ /**
+  * Modulus vector multiplication.
+  *
+  * @param &a is the first input vector to multiply.
+  */
+ template<class IntegerType>
+ inline BigBinaryVector<IntegerType> operator*(const BigBinaryVector<IntegerType> &a, const BigBinaryVector<IntegerType> &b) {return a.ModMul(b);}
+
 
 } // namespace lbcrypto ends
 
