@@ -61,16 +61,16 @@ class UnitTestTransform : public ::testing::Test {
 
 TEST(method_CRT_polynomial_multiplication, compares_to_brute_force_multiplication){
 
-	/*BigBinaryInteger primeModulus("101"); //65537
+	BigBinaryInteger primeModulus("101"); //65537
 	usint cycloOrder = 4;
 	usint n = cycloOrder / 2;
 
 	BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(cycloOrder, primeModulus);
 	// std::cout <<"The primitiveRootOfUnity for modulus " << primeModulus << " is " << primitiveRootOfUnity << std::endl;
 
-	BigBinaryVector a(2);
+	BigBinaryVector a(2, primeModulus);
 	a.SetValAtIndex(0, "1");
-	a.SetValAtIndex(1, "0");
+	a.SetValAtIndex(1, "1");
 	BigBinaryVector b(a);
 
 	BigBinaryVector A = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(a, primitiveRootOfUnity, cycloOrder);
@@ -82,6 +82,6 @@ TEST(method_CRT_polynomial_multiplication, compares_to_brute_force_multiplicatio
 
 	BigBinaryVector InverseFFTAB = ChineseRemainderTransform::GetInstance().InverseTransform(AB, primitiveRootOfUnity, cycloOrder);
 
-	EXPECT_EQ(ab, InverseFFTAB);*/
+	// EXPECT_EQ(ab, InverseFFTAB);
 
 }
