@@ -75,7 +75,9 @@ namespace lbcrypto {
 		* @param &params element parameters.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-        ILVector2n(const ElemParams &params, Format format = EVALUATION);
+        // ILVector2n(const ElemParams &params, Format format = EVALUATION);
+
+        ILVector2n(const ElemParams &params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 		void GenerateNoise(DiscreteGaussianGenerator &dgg, Format format = EVALUATION) ;
 
@@ -85,7 +87,7 @@ namespace lbcrypto {
          */
         inline static function<unique_ptr<ILVector2n>()> MakeAllocator(ILParams params, Format format) {
             return [=]() {
-                return make_unique<ILVector2n>(params, format);
+                return make_unique<ILVector2n>(params, format, true);
             };
         }
 
@@ -95,7 +97,7 @@ namespace lbcrypto {
         inline static function<unique_ptr<ILVector2n>()> MakeAllocator(const ElemParams *params, Format format) {
             return [=]() {
                 //return MakeAllocator(*(static_cast<const ILParams*>(params)),format);
-				return make_unique<ILVector2n>(*(dynamic_cast<const ILParams*>(params)), format);
+				return make_unique<ILVector2n>(*(dynamic_cast<const ILParams*>(params)), format, true);
             };
         }
 
@@ -350,6 +352,8 @@ namespace lbcrypto {
 		* @param format is the format.
 		*/
 		void SetValues(const BigBinaryVector& values, Format format);
+
+		void SetValuesToZero();
 
 		/**
 		* Switch modulus and adjust the values

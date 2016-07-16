@@ -95,7 +95,7 @@ TEST(UTTrapdoor,sizes){
 	double logTwo = log(val-1.0)/log(2)+1.0;
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
-	ILParams fastParams( m, modulus, rootOfUnity);
+	ILParams fastParams(m, modulus, rootOfUnity);
 	std::pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(fastParams, stddev);
 
 	EXPECT_EQ(1,trapPair.first.GetRows())

@@ -47,23 +47,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 using namespace lbcrypto;
 
-template <class T>
-ElemParams& CreateParams(usint m);
-
-template <class T>
-Ciphertext<T> CreateCiphertext(usint m, float stdDev);
+/*template <class T>
+ElemParams* CreateParams(usint m);
 
 template <>
-ElemParams& CreateParams<ILVector2n>(usint m) {
+ElemParams* CreateParams<ILVector2n>(usint m) {
   BigBinaryInteger q("1");
   lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4")); 
   BigBinaryInteger rootOfUnity(RootOfUnity(m,q));
   ILParams ilParams(m,q,rootOfUnity);
-  return ilParams;
+  return &ilParams;
 }
 
 template <>
-ElemParams& CreateParams<ILVectorArray2n>(usint m) {
+ElemParams* CreateParams<ILVectorArray2n>(usint m) {
   usint size = 3;
   // ByteArrayPlaintextEncoding ctxtd;
 
@@ -79,138 +76,34 @@ ElemParams& CreateParams<ILVectorArray2n>(usint m) {
     rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
     modulus = modulus* moduli[i];
   }
+
   // DiscreteGaussianGenerator dgg(modulus,stdDev);
   ILDCRTParams ildcrtParams(m, moduli, rootsOfUnity);
-  return ildcrtParams;
-}
-
-template <>
-Ciphertext<ILVector2n> CreateCiphertext<ILVector2n>(usint m, float stdDev){
-	
-	BigBinaryInteger q("1");
-    lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4")); 
-    BigBinaryInteger rootOfUnity(RootOfUnity(m,q));
-    ILParams ilParams(m,q,rootOfUnity);
-	
-	LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-	cryptoParams.SetDistributionParameter(stdDev);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(ilParams);
-
-	Ciphertext<ILVector2n> ciphertext;
-	ciphertext.SetCryptoParameters(&cryptoParams);
-	
-	ILVector2n ilv(ilParams);
-	BigBinaryVector bbv(m/2, ilParams.GetModulus());
-    bbv.SetValAtIndex(0, "2");
-    bbv.SetValAtIndex(1, "1");
-    bbv.SetValAtIndex(2, "2");
-    bbv.SetValAtIndex(3, "1");
-	bbv.SetValAtIndex(4, "0");
-    bbv.SetValAtIndex(5, "0");
-	bbv.SetValAtIndex(6, "1");
-	bbv.SetValAtIndex(7, "2");
-	ilv.SetValues(bbv, Format::COEFFICIENT);
-
-	ciphertext.SetElement(ilv);
-
-	return ciphertext;
-}
-
-template <>
-Ciphertext<ILVectorArray2n> CreateCiphertext<ILVectorArray2n>(usint m, float stdDev){
-	usint size = 2;
-
-	vector<BigBinaryInteger> moduli(size);
-	vector<BigBinaryInteger> rootsOfUnity(size);
-
-	BigBinaryInteger q("1");
-	BigBinaryInteger modulus("1");
-
-	for(int i=0; i < size;i++){
-		lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
-		moduli[i] = q;
-		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
-		modulus = modulus* moduli[i];
-	}
-
-    ILDCRTParams ildcrtParams(m, moduli, rootsOfUnity);
-	
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-	cryptoParams.SetDistributionParameter(stdDev);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(ildcrtParams);
-
-	Ciphertext<ILVectorArray2n> ciphertext2;
-	ciphertext2.SetCryptoParameters(&cryptoParams);
-	std::cout << "STEP 1" << endl;
-	std::cout << ciphertext2.GetCryptoParameters().GetPlaintextModulus() << std::endl;
-
-	/*ILParams ilparams1(m, moduli[0], rootsOfUnity[0]);
-	ILParams ilparams2(m, moduli[1], rootsOfUnity[1]);
-
-	ILVector2n ilv1(ilparams1);
-	BigBinaryVector bbv1(m/2, ilparams1.GetModulus());
-    bbv1.SetValAtIndex(0, "2");
-    bbv1.SetValAtIndex(1, "1");
-    bbv1.SetValAtIndex(2, "2");
-    bbv1.SetValAtIndex(3, "1");
-	bbv1.SetValAtIndex(4, "0");
-    bbv1.SetValAtIndex(5, "0");
-	bbv1.SetValAtIndex(6, "1");
-	bbv1.SetValAtIndex(7, "2");
-	ilv1.SetValues(bbv1, Format::COEFFICIENT);
-
-	ILVector2n ilv2(ilparams2);
-	BigBinaryVector bbv2(m/2, ilparams2.GetModulus());
-    bbv2.SetValAtIndex(0, "0");
-    bbv2.SetValAtIndex(1, "1");
-    bbv2.SetValAtIndex(2, "0");
-    bbv2.SetValAtIndex(3, "2");
-	bbv2.SetValAtIndex(4, "1");
-    bbv2.SetValAtIndex(5, "1");
-	bbv2.SetValAtIndex(6, "0");
-	bbv2.SetValAtIndex(7, "1");
-	ilv2.SetValues(bbv2, Format::COEFFICIENT);
-
-	std::vector<ILVector2n> towers;
-	towers.reserve(2);
-	towers.push_back(ilv1);
-	towers.push_back(ilv2);
-
-	ILVectorArray2n element(towers);
-	ciphertext.SetElement(element);
-*/
-    return ciphertext2;
-}
-
+  return &ildcrtParams;
+}*/
 
 template <class T>
 class UnitTestSHE : public ::testing::Test {
   
   public:
-    static const usint m = 16;
-//static const float stdDev = 4.0;
+    const usint m = 16;
 
   protected:
-	  UnitTestSHE() : /*params(CreateParams<T>(UnitTestSHE::m)),*/ ciphertext(CreateCiphertext<T>(UnitTestSHE::m,4)){}
+	  UnitTestSHE() {}
 
     virtual void SetUp() {
+      // params = CreateParams<T>(m);
     }
 
     virtual void TearDown() {
+      // delete params;
       // Code here will be called immediately after each test
       // (right before the destructor).
     }
 
-    // virtual ~UnitTestSHE() { delete params; }
+    virtual ~UnitTestSHE() {  }
 
-  //  ElemParams* params;
-	Ciphertext<T> ciphertext;
-
-
+    // ElemParams *params;
 };
 
 #if GTEST_HAS_TYPED_TEST
@@ -221,13 +114,6 @@ TYPED_TEST_CASE(UnitTestSHE, Implementations);
 
 // Use TYPED_TEST(TestCaseName, TestName) to define a typed test,
 // similar to TEST_F.
-
-TYPED_TEST(UnitTestSHE, eval_add_correction_test) {
-	Ciphertext<TypeParam> cipher1(this->ciphertext);
-	Ciphertext<TypeParam> cipher2(this->ciphertext);
-
-	EXPECT_EQ(cipher1.GetCryptoParameters().GetPlaintextModulus(), cipher2.GetCryptoParameters().GetPlaintextModulus()) << "keyswitch_test_single_crt failed.\n";
-}
 
 TYPED_TEST(UnitTestSHE, keyswitch_modReduce_ringReduce_tests){
   

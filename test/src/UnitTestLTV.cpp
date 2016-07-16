@@ -60,7 +60,7 @@ public:
 };
 
 
-TEST(method_ILVectorArray2n, Encrypt_Decrypt) {
+/*TEST(method_ILVectorArray2n, Encrypt_Decrypt) {
 
 	usint m = 2048;
 
@@ -171,7 +171,7 @@ TEST(method_ILVector2n, Encrypt_Decrypt) {
 
 	EXPECT_EQ(plaintextNew, plaintext);
 }
-
+*/
 
 
 

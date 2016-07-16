@@ -61,7 +61,7 @@ class UnitTestTransform : public ::testing::Test {
 
 TEST(method_CRT_polynomial_multiplication, compares_to_brute_force_multiplication){
 
-	BigBinaryInteger primeModulus("101"); //65537
+	/*BigBinaryInteger primeModulus("101"); //65537
 	usint cycloOrder = 4;
 	usint n = cycloOrder / 2;
 
@@ -82,6 +82,6 @@ TEST(method_CRT_polynomial_multiplication, compares_to_brute_force_multiplicatio
 
 	BigBinaryVector InverseFFTAB = ChineseRemainderTransform::GetInstance().InverseTransform(AB, primitiveRootOfUnity, cycloOrder);
 
-	EXPECT_EQ(ab, InverseFFTAB);
+	EXPECT_EQ(ab, InverseFFTAB);*/
 
 }

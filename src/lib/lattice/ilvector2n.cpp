@@ -38,9 +38,18 @@ namespace lbcrypto {
 
 	}
 
-	ILVector2n::ILVector2n(const ElemParams &params, Format format) : m_values(NULL), m_format(format), m_empty(true) {
+	/*ILVector2n::ILVector2n(const ElemParams &params, Format format) : m_values(NULL), m_format(format), m_empty(true) {
 		const ILParams &ilParam = dynamic_cast<const ILParams&>(params);
 		m_params = ilParam;
+	}*/
+
+	ILVector2n::ILVector2n(const ElemParams &params, Format format, bool initializeElementToZero) : m_values(NULL), m_format(format), m_empty(true) {
+		const ILParams &ilParam = dynamic_cast<const ILParams&>(params);
+		m_params = ilParam;
+		if(initializeElementToZero) {
+			this->SetValuesToZero();
+			m_empty = false;
+		}
 	}
 
 	ILVector2n::ILVector2n(const ILVector2n &element) : m_params(element.m_params), m_format(element.m_format)
@@ -226,6 +235,13 @@ namespace lbcrypto {
 		}
 		m_values = new BigBinaryVector(values);
 		m_format = format;
+	}
+
+	void ILVector2n::SetValuesToZero() {
+		if (m_values != NULL) {
+			delete m_values;
+		}
+		m_values = new BigBinaryVector(m_params.GetCyclotomicOrder()/2, m_params.GetModulus());
 	}
 
 	void ILVector2n::SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity){
