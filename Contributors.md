@@ -9,43 +9,43 @@ We list contributors to the design, architecture, math and implementation of the
 
 NJIT
 ----
-Yuriy Polyakov
-Gerard Ryan
-Hadi Sajjadpour
-Nishanth Pasham
-Gyana Sahu
-Kamil Doruk Gur
-Cassie Lebauer
-Arnab 'Bobby' Deb Gupta
-Dan O'Boyle
-Matthew Cifelli
-Cristian Borcea
-Ryan McGuigan
-Mayur Agarkar
-Suchanda Mukherjee
+* Yuriy Polyakov
+* Gerard Ryan
+* Hadi Sajjadpour
+* Nishanth Pasham
+* Gyana Sahu
+* Kamil Doruk Gur
+* Cassie Lebauer
+* Arnab 'Bobby' Deb Gupta
+* Dan O'Boyle
+* Matthew Cifelli
+* Cristian Borcea
+* Ryan McGuigan
+* Mayur Agarkar
+* Suchanda Mukherjee
 
 
 Raytheon BBN Technologies
 -------------------------
-David Bruce Cousins
+* David Bruce Cousins
 
 Applied Communication Sciences / Vencore Labs
 ---------------------------------------------
-Lisa Bahler
-Giovanni Di Crescenzo
-Brian Coan
+* Lisa Bahler
+* Giovanni Di Crescenzo
+* Brian Coan
 
 MIT
 ---
-Kevin King
-Vinod Vaikuntanathan
-Shafi Goldwasser
+* Kevin King
+* Vinod Vaikuntanathan
+* Shafi Goldwasser
 
 UCSD
 ----
-Daniele Micciancio
-Nicholas Genise
+* Daniele Micciancio
+* Nicholas Genise
 
 LGS Innovations
 ---------------
-David Stott
+* David Stott
