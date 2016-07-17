@@ -6,6 +6,7 @@ Technical POC
 Kurt Rohloff, rohloff@njit.edu
 
 We list contributors to the design, architecture, math and implementation of the library by their home organization at the time of contribution:
+---------------------
 
 NJIT
 ----
