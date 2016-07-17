@@ -5,6 +5,8 @@ PALISADE Lattice Cryptography Library
 
 [Contact Information](Contact.md)
 
+[Library Contributors](Contributors.md)
+
 Document Description
 ===================
 This document is intended to describe the overall design, design considerations and structure of the lattice directory in the PALISADE lattice crypto library.
