@@ -11,6 +11,7 @@ List of Authors:
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
+		Jerry Ryan, gwryan@njit.edu
 Description:
 	This code exercises the Proxy Re-Encryption capabilities of the NJIT Lattice crypto library.
 	In this code we:
@@ -32,132 +33,84 @@ Redistribution and use in source and binary forms, with or without modification,
 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-*/
-
-//GIT TEST
+ */
 
 #include <iostream>
 #include <fstream>
-#include "../../lib/math/backend.h"
-//#include "../../lib/math/cpu8bit/backend.h"
-#include "../../lib/utils/inttypes.h"
-#include "../../lib/math/nbtheory.h"
-//#include <thread>
-#include "../../lib/lattice/elemparams.h"
-#include "../../lib/lattice/ilparams.h"
-#include "../../lib/lattice/ildcrtparams.h"
-#include "../../lib/lattice/ilelement.h"
-//#include "../../lib/il2n.h"
-#include "../../lib/math/distrgen.h"
-#include "../../lib/crypto/lwecrypt.h"
-#include "../../lib/crypto/lwecrypt.cpp"
-#include "../../lib/crypto/lweautomorph.cpp"
-#include "../../lib/crypto/lwepre.h"
-#include "../../lib/crypto/lwepre.cpp"
-#include "../../lib/crypto/lweahe.cpp"
-#include "../../lib/crypto/lweshe.cpp"
-#include "../../lib/crypto/lwefhe.cpp"
-#include "../../lib/lattice/ilvector2n.h"
-#include "../../lib/lattice/ilvectorarray2n.h"
-//#include "../../lib/time.h"
+#include <iterator>
+
+#include "../../lib/crypto/cryptocontext.h"
+#include "../../lib/utils/cryptocontexthelper.h"
+#include "../../lib/crypto/cryptocontext.cpp"
+#include "../../lib/utils/cryptocontexthelper.cpp"
 
 #include "../../lib/utils/debug.h"
-#include "../../lib/crypto/ciphertext.cpp"
-//#include "../../lib/vld.h"
-#include <chrono>
-//#include "../../lib/gtest/gtest.h"
-//#include "../../lib/math/cpu8bit/binint.h"
-//#include "../../lib/math/cpu8bit/binvect.h"
-//#include "../../lib/math/cpu8bit/binmat.h"
+#include "../../lib/encoding/byteencoding.h"
+#include "../../lib/encoding/cryptoutility.h"
+
+using namespace lbcrypto;
+
+void NTRUPRE(CryptoContext<ILVector2n> *ctx, bool);
 
 #include "../../lib/utils/serializablehelper.h"
+
+#include "testJson.h"
 
 using namespace std;
 using namespace lbcrypto;
 
-void NTRUPRE(int input);
-//double currentDateTime();
+void usage()
+{
+	cout << "args are:" << endl;
+	cout << "-dojson : includes the json tests" << endl;
+	cout << "an arg not beginning with a - is taken as a filename of parameters" << endl;
+}
 
-/**
- * @brief Input parameters for PRE example.
- */
-struct SecureParams {
-	usint m;			///< The ring parameter.
-	BigBinaryInteger modulus;	///< The modulus
-	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
-	usint relinWindow;		///< The relinearization window parameter.
-};
+int
+main(int argc, char *argv[])
+{
+	bool	doJson = false;
 
-int main(){
-	
-	
-	std::cout << "Relinearization window : " << std::endl;
-	std::cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
+	string filename = "src/demo/pre/PalisadeCryptoContext.parms";
 
-	int input = 0;
+	while( argc-- > 1 ) {
+		string arg(*++argv);
+
+		if( arg == "-dojson" )
+			doJson = true;
+		else if( arg == "-help" || arg == "-?" ) {
+			usage();
+			return 0;
+		}
+		else if( arg[0] == '-' ) {
+			usage();
+			return(0);
+		}
+
+		else filename = arg;
+	}
+
+	std::cout << "Choose parameter set: ";
+	CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout, filename);
+
+	string input;
 	std::cin >> input;
-	//cleans up the buffer
-	cin.ignore();
 
-	if ((input<0) || (input>4))
-		input = 0;
+	CryptoContext<ILVector2n> *ctx = CryptoContextHelper<ILVector2n>::getNewContext(filename, input);
+	if( ctx == 0 ) {
+		cout << "Error on " << input << endl;
+		return 0;
+	}
 
-	////NTRUPRE is where the core functionality is provided.
-	NTRUPRE(input);
-	//NTRUPRE(3);
-	
+	NTRUPRE(ctx, doJson);
 
-	// The below lines clean up the memory use.
-	//system("pause");
+	delete ctx;
 
-	////Hadi's code
-	//usint m = 16;
-	//BigBinaryInteger rootOfUnity("61564");
-	//Format format = COEFFICIENT;
-
-	//BigBinaryInteger modulu1;
- //   modulu1 = FindPrimeModulus(16, 20);
-	//cout<<modulu1<<endl;
-
- //   BigBinaryInteger rootOfUnity1;
-	//rootOfUnity1 = RootOfUnity(m, modulu1);
-
-	//ILParams ilParams2(m, modulu1, rootOfUnity);
-
-
-	//ILVector2n c2(ilParams2);
-	//usint m2 = 16;
-	//DiscreteGaussianGenerator d2(m2/2, modulu1);
-	//BigBinaryVector x2 = d2.GenerateVector(m2/2);
-	//c2.SetValues(x2, Format::COEFFICIENT);
-
-	//c2.SwitchFormat();
-	//c2.SwitchFormat();
-
-
-	std::cin.get();
-	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	NumberTheoreticTransform::GetInstance().Destroy();
+	//	ChineseRemainderTransformFTT::GetInstance().Destroy();
+	//	NumberTheoreticTransform::GetInstance().Destroy();
 
 	return 0;
 }
-
-
-// double currentDateTime()
-// {
-
-// 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-
-//     time_t tnow = std::chrono::system_clock::to_time_t(now);
-//     tm *date = localtime(&tnow);
-//     date->tm_hour = 0;
-//     date->tm_min = 0;
-//     date->tm_sec = 0;
-
-//     auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
-
-// 	return std::chrono::duration <double, std::milli>(now - midnight).count();
-// }
 
 //////////////////////////////////////////////////////////////////////
 //	NTRUPRE is where the core functionality is provided.
@@ -174,46 +127,13 @@ int main(){
 //	The low-security, highly efficient settings are commented out.
 //	The high-security, less efficient settings are enabled by default.
 //////////////////////////////////////////////////////////////////////
-void NTRUPRE(int input) {
 
-	//Set element params
-
-	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
-	
-	/*
-	usint m = 16;
-	BigBinaryInteger modulus("67108913");
-	BigBinaryInteger rootOfUnity("61564");
-	ByteArray plaintext = "N";
-	usint relWindow = 8;
-	*/
-
-	// The comments below provide a high-security parameterization for prototype use.  If this code were verified/certified for high-security applications, we would say that the following parameters would be appropriate for "production" use.
-	//usint m = 2048;
-	//BigBinaryInteger modulus("8590983169");
-	//BigBinaryInteger rootOfUnity("4810681236");
-	//ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
-	//usint relWindow = 8;
-	
-	SecureParams const SECURE_PARAMS[] = {
-		{ 2048, BigBinaryInteger("268441601"), BigBinaryInteger("16947867"), 1 }, //r = 1
-		{ 2048, BigBinaryInteger("536881153"), BigBinaryInteger("267934765"), 2 }, // r = 2
-		{ 2048, BigBinaryInteger("1073750017"), BigBinaryInteger("180790047"), 4 },  // r = 4
-		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("2678760785"), 8 }, //r = 8
-		{ 4096, BigBinaryInteger("2199023288321"), BigBinaryInteger("1858080237421"), 16 }  // r= 16
-		//{ 2048, CalltoModulusComputation(), CalltoRootComputation, 0 }  // r= 16
-	};
-
-	usint m = SECURE_PARAMS[input].m;
-	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
-	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
-	usint relWindow = SECURE_PARAMS[input].relinWindow;
+void
+NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 
 	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	//ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 
-
-	float stdDev = 4;
 
 	ofstream fout;
 	fout.open ("output.txt");
@@ -221,41 +141,17 @@ void NTRUPRE(int input) {
 
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
-	//Prepare for parameters.
-	ILParams ilParams(m,modulus,rootOfUnity);
-
-	//std::cout << ilParams.GetRootOfUnity() << std::endl;
-
-	//Should eventually be replaced with the following code
-	//ILParams ilParams;
-	//ilParams.Initialize(m,bitLength);
-	//Or
-	//ilParams.Initialize(m,bitLenght,inputFile);
-
-	//Set crypto parametes
-	LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
-	//cryptoParams.SetPlaintextModulus(BigBinaryInteger("4"));  	// Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
-	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
-
-	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
-
-	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
-
 	double diff, start, finish;
 
 	start = currentDateTime();
 
 	//This code is run only when performing execution time measurements
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(dgg, ilParams);
+	//	//Precomputations for FTT
+	//	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	//
+	//	//Precomputations for DGG
+	//	ILVector2n::PreComputeDggSamples(dgg, ilParams);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -264,8 +160,8 @@ void NTRUPRE(int input) {
 	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
+	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -273,16 +169,13 @@ void NTRUPRE(int input) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
-
 	bool successKeyGen=false;
 
 	std::cout <<"\n" <<  "Running key generation..." << std::endl;
 
 	start = currentDateTime();
 
-	successKeyGen = algorithm.KeyGen(&pk,&sk);	// This is the core function call that generates the keys.
+	successKeyGen = ctx->getAlgorithm()->KeyGen(&pk,&sk);	// This is the core function call that generates the keys.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -306,16 +199,13 @@ void NTRUPRE(int input) {
 	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
-	Ciphertext<ILVector2n> ciphertext;
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-    ptxt.Pad<ZeroPad>(m/16);
-	//ptxt.Pad<ZeroPad>(m/8);
+	vector<Ciphertext<ILVector2n>> ciphertext;
 
 	std::cout << "Running encryption..." << std::endl;
 
 	start = currentDateTime();
 
-	algorithm.Encrypt(pk,ptxt,&ciphertext);	// This is the core encryption operation.
+	CryptoUtility<ILVector2n>::Encrypt(*ctx->getAlgorithm(),pk,plaintext,&ciphertext);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -323,20 +213,17 @@ void NTRUPRE(int input) {
 	cout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 	fout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
-	//cout<<"ciphertext: "<<ciphertext.GetValues()<<endl;
-
 	////////////////////////////////////////////////////////////
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArrayPlaintextEncoding plaintextNew;
+	ByteArray plaintextNew;
 
 	std::cout <<"\n"<< "Running decryption..." << std::endl;
 
 	start = currentDateTime();
 
-	DecodingResult result = algorithm.Decrypt(sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
-    plaintextNew.Unpad<ZeroPad>();
+	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(),sk,ciphertext,&plaintextNew);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -349,40 +236,32 @@ void NTRUPRE(int input) {
 
 	//cout << "ciphertext at" << ciphertext.GetIndexAt(2);
 
-	if (!result.isValidCoding) {
+	if (!result.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}
+
 	//PRE SCHEME
-
-	//system("pause");
-
-	//LPAlgorithmPRELTV<ILVector2n> algorithmPRE;
 
 	////////////////////////////////////////////////////////////
 	//Perform the second key generation operation.
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPPublicKeyLTV<ILVector2n> newPK(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> newSK(cryptoParams);
+	LPPublicKeyLTV<ILVector2n> newPK(*ctx->getParams());
+	LPPrivateKeyLTV<ILVector2n> newSK(*ctx->getParams());
 
 	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
 	start = currentDateTime();
 
-	successKeyGen = algorithm.KeyGen(&newPK,&newSK);	// This is the same core key generation operation.
+	successKeyGen = ctx->getAlgorithm()->KeyGen(&newPK,&newSK);	// This is the same core key generation operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
 
 	cout << "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
 	fout << "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-//	cout<<"newPK = "<<newPK.GetPublicElement().GetValues()<<endl;
-//	cout<<"newSK = "<<newSK.GetPrivateElement().GetValues()<<endl;
-//	fout<<"newPK = "<<newPK.GetPublicElement().GetValues()<<endl;
-//	fout<<"newSK = "<<newSK.GetPrivateElement().GetValues()<<endl;
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption key generation operation.
@@ -391,11 +270,11 @@ void NTRUPRE(int input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyLTV<ILVector2n> evalKey(cryptoParams);
+	LPEvalKeyLTV<ILVector2n> evalKey(*ctx->getParams());
 
 	start = currentDateTime();
 
-	algorithm.EvalKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	ctx->getAlgorithm()->EvalKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -409,13 +288,13 @@ void NTRUPRE(int input) {
 	////////////////////////////////////////////////////////////
 
 
-	Ciphertext<ILVector2n> newCiphertext;
+	vector<Ciphertext<ILVector2n>> newCiphertext;
 
 	std::cout <<"\n"<< "Running re-encryption..." << std::endl;
 
 	start = currentDateTime();
 
-	algorithm.ReEncrypt(evalKey, ciphertext, &newCiphertext);  // This is the core re-encryption operation.
+	CryptoUtility<ILVector2n>::ReEncrypt(*ctx->getAlgorithm(), evalKey, ciphertext, &newCiphertext);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -429,14 +308,13 @@ void NTRUPRE(int input) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArrayPlaintextEncoding plaintextNew2;
+	ByteArray plaintextNew2;
 
 	std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
 
 	start = currentDateTime();
 
-	DecodingResult result1 = algorithm.Decrypt(newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
-    plaintextNew2.Unpad<ZeroPad>();
+	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(),newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -447,235 +325,30 @@ void NTRUPRE(int input) {
 	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
 	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
 
-	if (!result1.isValidCoding) {
+	if (!result1.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}
 
-	cout << "\n" << endl;
+	std::cout << "Execution completed." << std::endl;
 
-	std::cout << "----------------------START JSON FACILITY TESTING-------------------------" << endl;
+	ByteArray newPlaintext("1) SERIALIZE CRYPTO-OBJS TO FILE AS NESTED JSON STRUCTURES\n2) DESERIALIZE JSON FILES INTO CRYPTO-OBJS USED FOR CRYPTO-APIS\n3) Profit!!!!!");
 
-	cout << "\n" << endl;
-
-	ByteArray newPlaintext("1) SERIALIZE CRYPTO-OBJS TO FILE AS NESTED JSON STRUCTURES\n2) DESERIALIZE JSON FILES INTO CRYPTO-OBJS USED FOR CRYPTO-APIS");
-	ByteArrayPlaintextEncoding newPtxt(newPlaintext);
-	newPtxt.Pad<ZeroPad>(m / 16);
 	cout << "Original Plaintext: " << endl;
 	cout << newPlaintext << endl;
 
-	cout << "\n" << endl;
+	if( doJson ) {
+		TestJsonParms	tjp;
+		tjp.ctx = ctx;
+		tjp.pk = &pk;
+		tjp.sk = &sk;
+		tjp.evalKey = &evalKey;
+		tjp.newSK = &newSK;
 
-	string jsonInputBuffer = "";
-	string jsonFileName = "";
-	SerializableHelper jsonHelper;
-
-	cout << "---BEGIN LPPublicKeyLTV SERIALIZATION---" << endl;
-	cout << "Serializing previously used pk object..." << endl;
-	unordered_map <string, unordered_map <string, string>> testMap1;
-	testMap1 = pk.Serialize(testMap1, "Enc");
-	jsonFileName = jsonHelper.GetJsonFileName(testMap1);
-	jsonInputBuffer = jsonHelper.GetJsonString(testMap1);
-	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
-	cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
-	cout << "---END LPPublicKeyLTV SERIALIZATION TESTING---" << endl;
-
-	cout << "---BEGIN LPPrivateKeyLTV SERIALIZATION---" << endl;
-	cout << "Serializing previously used sk object..." << endl;
-	unordered_map <string, unordered_map <string, string>> testMap2;
-	testMap2 = sk.Serialize(testMap2, "Enc");
-	jsonFileName = jsonHelper.GetJsonFileName(testMap2);
-	jsonInputBuffer = jsonHelper.GetJsonString(testMap2);
-	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
-	cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
-	cout << "---END LPPrivateKeyLTV SERIALIZATION---" << endl;
-
-	cout << "---BEGIN LPPublicKeyLTV DESERIALIZATION---" << endl;
-	jsonFileName = "LPPublicKeyLTV_Enc.txt";
-	cout << "Deserializing instance from " << jsonFileName << endl;
-	testMap1 = jsonHelper.GetSerializationMap(jsonFileName);
-	LPPublicKeyLTV<ILVector2n> pkDeserialized;
-	LPCryptoParametersLTV<ILVector2n> json_cryptoParamsPub;
-	pkDeserialized.SetCryptoParameters(&json_cryptoParamsPub);
-	pkDeserialized.Deserialize(testMap1);
-	cout << "Deserialized into pkDeserialized" << endl;
-	cout << "---END LPPublicKeyLTV DESERIALIZATION---" << endl;
-
-	cout << "---BEGIN LPPrivateKeyLTV DESERIALIZATION---" << endl;
-	jsonFileName = "LPPrivateKeyLTV_Enc.txt";
-	cout << "Deserializing instance from " << jsonFileName << endl;
-	testMap2 = jsonHelper.GetSerializationMap(jsonFileName);
-	LPPrivateKeyLTV<ILVector2n> skDeserialized;
-	LPCryptoParametersLTV<ILVector2n> json_cryptoParamsPriv;
-	skDeserialized.SetCryptoParameters(&json_cryptoParamsPriv);
-	skDeserialized.Deserialize(testMap2);
-	cout << "Deserialized into skDeserialized" << endl;
-	cout << "---END LPPrivateKeyLTV DESERIALIZATION---" << endl;
-
-	cout << "\n" << endl;
-
-	cout << "----------BEGIN LPAlgorithmLTV.Ecrypt TESTING----------" << endl;
-	cout << "Calling Encrypt in LPAlgorithmLTV with deserialized instance of" << endl;
-	cout << "LPPublicKeyLTV." << endl;
-	Ciphertext<ILVector2n> testCiphertext;
-	algorithm.Encrypt(pkDeserialized, newPtxt, &testCiphertext);
-	cout << "----------END LPAlgorithmPRELTV.ReEcrypt TESTING----------" << endl;
-
-	cout << "\n" << endl;
-
-	cout << "---BEGIN CIPHERTEXT SERIALIZATION---" << endl;
-	cout << "Serializing testCiphertext object generated by Encrypt TESTING..." << endl;
-	unordered_map <string, unordered_map <string, string>> testMap3;
-	testMap3 = testCiphertext.Serialize(testMap3, "Enc");
-	jsonFileName = jsonHelper.GetJsonFileName(testMap3);
-	jsonInputBuffer = jsonHelper.GetJsonString(testMap3);
-	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
-	cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
-	cout << "---END CIPHERTEXT SERIALIZATION---" << endl;
-
-	cout << "---BEGIN CIPHERTEXT DESERIALIZATION---" << endl;
-	jsonFileName = "Ciphertext_Enc.txt";
-	cout << "Deserializing instance from " << jsonFileName << endl;
-	testMap3 = jsonHelper.GetSerializationMap(jsonFileName);
-	Ciphertext<ILVector2n> ciphertextDeserialized;
-	ciphertextDeserialized.Deserialize(testMap3);
-	cout << "Deserialized into ciphertextDeserialized" << endl;
-	cout << "---END CIPHERTEXT DESERIALIZATION---" << endl;
-
-	cout << "\n" << endl;
-
-	cout << "----------BEGIN LPAlgorithmLTV.Decrypt TESTING----------" << endl;
-	cout << "Calling Decrypt in LPAlgorithmLTV with deserialized instances of" << endl;
-	cout << "LPPrivateKeyLTV and Ciphertext." << endl;
-	ByteArrayPlaintextEncoding testPlaintextRec;
-	DecodingResult testResult = algorithm.Decrypt(skDeserialized, ciphertextDeserialized, &testPlaintextRec);
-	testPlaintextRec.Unpad<ZeroPad>();
-	cout << "Recovered plaintext from call to Decrypt: " << endl;
-	cout << testPlaintextRec << endl;
-	cout << "----------END LPAlgorithmLTV.Decrypt TESTING----------" << endl;
-
-	cout << "\n" << endl;
-
-	cout << "---BEGIN LPEvalKeyLTV SERIALIZATION---" << endl;
-	cout << "Serializing previously used evalKey object..." << endl;
-	unordered_map <string, unordered_map <string, string>> testMap4;
-	testMap4 = evalKey.Serialize(testMap4, "Pre");
-	jsonFileName = jsonHelper.GetJsonFileName(testMap4);
-	jsonInputBuffer = jsonHelper.GetJsonString(testMap4);
-	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
-	cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
-	cout << "---END LPEvalKeyLTV SERIALIZATION TESTING---" << endl;
-
-	cout << "---BEGIN LPEvalKeyLTV DESERIALIZATION---" << endl;
-	jsonFileName = "LPEvalKeyLTV_Pre.txt";
-	cout << "Deserializing instance from " << jsonFileName << endl;
-	testMap4 = jsonHelper.GetSerializationMap(jsonFileName);
-	LPEvalKeyLTV<ILVector2n> evalKeyDeserialized;
-	LPCryptoParametersLTV<ILVector2n> json_cryptoParamsEval;
-	evalKeyDeserialized.SetCryptoParameters(&json_cryptoParamsEval);
-	evalKeyDeserialized.Deserialize(testMap4);
-	cout << "Deserialized into evalKeyDeserialized" << endl;
-	cout << "---END LPEvalKeyLTV DESERIALIZATION---" << endl;
-
-	cout << "\n" << endl;
-
-	cout << "----------BEGIN LPAlgorithmPRELTV.ReEcrypt TESTING----------" << endl;
-	cout << "Calling ReEncrypt in LPAlgorithmPRELTV with deserialized instances of" << endl;
-	cout << "LPEvalKeyLTV and Ciphertext." << endl;
-	Ciphertext<ILVector2n> preCiphertext;
-	algorithm.ReEncrypt(evalKeyDeserialized, ciphertextDeserialized, &preCiphertext);
-	cout << "----------END LPAlgorithmPRELTV.ReEcrypt TESTING----------" << endl;
-
-	cout << "\n" << endl;
-
-	cout << "---BEGIN PRE LPPrivateKeyLTV SERIALIZATION---" << endl;
-	cout << "Serializing previously used newSK object..." << endl;
-	unordered_map <string, unordered_map <string, string>> testMap5;
-	testMap5 = newSK.Serialize(testMap5, "Pre");
-	jsonFileName = jsonHelper.GetJsonFileName(testMap5);
-	jsonInputBuffer = jsonHelper.GetJsonString(testMap5);
-	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
-	cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
-	cout << "---END PRE LPPrivateKeyLTV SERIALIZATION---" << endl;
-
-	cout << "---BEGIN PRE CIPHERTEXT SERIALIZATION---" << endl;
-	cout << "Serializing preCiphertext object generated by ReEncrypt TESTING..." << endl;
-	unordered_map <string, unordered_map <string, string>> testMap6;
-	testMap6 = preCiphertext.Serialize(testMap6, "Pre");
-	jsonFileName = jsonHelper.GetJsonFileName(testMap6);
-	jsonInputBuffer = jsonHelper.GetJsonString(testMap6);
-	jsonHelper.OutputRapidJsonFile(jsonInputBuffer, jsonFileName);
-	cout << "Serialization saved to " << jsonFileName + ".txt" << endl;
-	cout << "---END PRE CIPHERTEXT SERIALIZATION---" << endl;
-
-	cout << "---BEGIN PRE LPPrivateKeyLTV DESERIALIZATION---" << endl;
-	jsonFileName = "LPPrivateKeyLTV_Pre.txt";
-	cout << "Deserializing instance from " << jsonFileName << endl;
-	testMap5 = jsonHelper.GetSerializationMap(jsonFileName);
-	LPPrivateKeyLTV<ILVector2n> newSKDeserialized;
-	LPCryptoParametersLTV<ILVector2n> json_cryptoParamsNewPriv;
-	newSKDeserialized.SetCryptoParameters(&json_cryptoParamsNewPriv);
-	newSKDeserialized.Deserialize(testMap5);
-	cout << "Deserialized into newSKDeserialized" << endl;
-	cout << "---END PRE LPPrivateKeyLTV DESERIALIZATION---" << endl;
-
-	cout << "---BEGIN PRE CIPHERTEXT DESERIALIZATION---" << endl;
-	jsonFileName = "Ciphertext_Pre.txt";
-	cout << "Deserializing instance from " << jsonFileName << endl;
-	testMap3 = jsonHelper.GetSerializationMap(jsonFileName);
-	Ciphertext<ILVector2n> preCiphertextDeserialized;
-	preCiphertextDeserialized.Deserialize(testMap3);
-	cout << "Deserialized into preCiphertextDeserialized" << endl;
-	cout << "---END PRE CIPHERTEXT DESERIALIZATION---" << endl;
-
-	cout << "\n" << endl;
-
-	cout << "----------BEGIN LPAlgorithmPRELTV.Decrypt TESTING----------" << endl;
-	cout << "Calling Decrypt in LPAlgorithmPRELTV with deserialized instances of" << endl;
-	cout << "PRE LPPrivateKeyLTV and PRE Ciphertext." << endl;
-	ByteArrayPlaintextEncoding testPlaintextPreRec;
-	DecodingResult testResult1 = algorithm.Decrypt(newSKDeserialized, preCiphertextDeserialized, &testPlaintextPreRec);
-	testPlaintextPreRec.Unpad<ZeroPad>();
-	cout << "Recovered plaintext from call to PRE Decrypt: " << endl;
-	cout << testPlaintextPreRec << endl;
-	cout << "----------END LPAlgorithmPRELTV.Decrypt TESTING----------" << endl;
-
-	cout << "\n" << endl;
-
-	std::cout << "----------------------END JSON FACILITY TESTING-------------------------" << endl;
-
-	std::cout << "------------START STRING DESERIALIZATION TESTING---------------" << endl;
-
-	cout << "\n" << endl;
-
-	string jsonInStringTestBuff;
-
-	unordered_map <string, unordered_map <string, string>> testMap7;
-	testMap7 = testCiphertext.Serialize(testMap7, "Enc");
-	jsonInStringTestBuff = jsonHelper.GetJsonString(testMap7);
-	cout << "jsonInputBuffer: " << endl;
-	cout << jsonInStringTestBuff << endl;
-	
-	cout << "\n" << endl;
-
-	unordered_map <string, unordered_map <string, string>> testMap8;
-	testMap8 = jsonHelper.GetSerializationMap(jsonInputBuffer.c_str());
-	jsonInStringTestBuff = jsonHelper.GetJsonString(testMap8);
-	cout << "Recovered jsonInputBuffer: " << endl;
-	cout << jsonInStringTestBuff << endl;
-
-	cout << "\n" << endl;
-
-	std::cout << "------------END STRING DESERIALIZATION TESTING---------------" << endl;
-
-	cout << "\n" << endl;
-
-	std::cout << "Execution completed.  Please any key to finish." << std::endl;
+		testJson("LTV", newPlaintext, &tjp);
+	}
 
 	fout.close();
-
-	//system("pause");
-
 }
 
 

@@ -36,6 +36,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 
 #include "nbtheory.h"
+#define _USE_MATH_DEFINES 
 #include <math.h>
 #include <time.h>
 #include <sstream>
@@ -129,6 +130,14 @@ BigBinaryInteger RootOfUnity(usint m, const BigBinaryInteger& modulo)
 		return RootOfUnity(m, modulo);
 	}
 	return result;
+}
+
+std::vector<BigBinaryInteger> RootsOfUnity(usint m, const std::vector<BigBinaryInteger> moduli) {
+	std::vector<BigBinaryInteger> rootsOfUnity(moduli.size());
+	for(usint i=0; i<moduli.size(); i++) {
+		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
+	}
+	return rootsOfUnity;
 }
 
 
@@ -322,6 +331,46 @@ BigBinaryInteger FindPrimeModulus(usint m, usint nBits)
 	}
 	return q;
 }
+
+void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha) {
+	BigBinaryInteger bigSixteen("16");
+	BigBinaryInteger lowerBound;
+	BigBinaryInteger ringDimensions(ringDimension);
+
+	lowerBound = bigSixteen * ringDimensions * sigma  * sigma * alpha;
+	if (!(q >= lowerBound)) {
+		q = lowerBound;
+	}
+	else {
+		q = q + BigBinaryInteger::ONE;
+	}
+
+	while (q.Mod(plainTextModulus) != BigBinaryInteger::ONE) {
+		q = q + BigBinaryInteger::ONE;
+	}
+
+	BigBinaryInteger cyclotomicOrder = ringDimensions * BigBinaryInteger::TWO;
+
+	while (q.Mod(cyclotomicOrder) != BigBinaryInteger::ONE) {
+		q = q + plainTextModulus;
+	}
+
+	BigBinaryInteger productValue = cyclotomicOrder * plainTextModulus;
+
+	while (!MillerRabinPrimalityTest(q)) {
+		q = q + productValue;
+	}
+
+	BigBinaryInteger gcd;
+	gcd = GreatestCommonDivisor(q - BigBinaryInteger::ONE, cyclotomicOrder);
+
+	if(!(cyclotomicOrder == gcd)){
+		q = q + BigBinaryInteger::ONE;
+	  	NextQ(q, plainTextModulus, ringDimension, sigma, alpha);
+	}
+		
+}
+
 
 /*
 	Finds multiplicative inverse using the Extended Euclid Algorithms

@@ -385,7 +385,7 @@ inline Matrix<BigBinaryInteger> Rotate(Matrix<ILVector2n> const& inMat) {
     Matrix<ILVector2n> mat(inMat);
     mat.SetFormat(COEFFICIENT);
     size_t n = mat(0,0).GetLength();
-    BigBinaryInteger const& modulus = mat(0,0).GetParams().GetModulus();
+    BigBinaryInteger const& modulus = mat(0,0).GetModulus();
     size_t rows = mat.GetRows() * n;
     size_t cols = mat.GetCols() * n;
     Matrix<BigBinaryInteger> result(BigBinaryInteger::Allocator, rows, cols);
@@ -417,7 +417,7 @@ Matrix<BigBinaryVector> RotateVecResult(Matrix<ILVector2n> const& inMat) {
     Matrix<ILVector2n> mat(inMat);
     mat.SetFormat(COEFFICIENT);
     size_t n = mat(0,0).GetLength();
-    BigBinaryInteger const& modulus = mat(0,0).GetParams().GetModulus();
+    BigBinaryInteger const& modulus = mat(0,0).GetModulus();
     BigBinaryVector zero(1, modulus);
     size_t rows = mat.GetRows() * n;
     size_t cols = mat.GetCols() * n;
@@ -505,7 +505,7 @@ Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryInteger> &input, const BigB
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < cols; ++j) {
             if (input(i,j) > negativeThreshold) {
-                result(i,j) = -(modulus - input(i,j)).ConvertToInt();
+                result(i,j) = -1 *(modulus - input(i,j)).ConvertToInt();
             } else {
                 result(i,j) = input(i,j).ConvertToInt();
             }
@@ -523,7 +523,7 @@ Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryVector> &input, const BigBi
         for (size_t j = 0; j < cols; ++j) {
             const BigBinaryInteger& elem = input(i,j).GetValAtIndex(0);
             if (elem > negativeThreshold) {
-                result(i,j) = -(modulus - elem).ConvertToInt();
+                result(i,j) = -1*(modulus - elem).ConvertToInt();
             } else {
                 result(i,j) = elem.ConvertToInt();
             }

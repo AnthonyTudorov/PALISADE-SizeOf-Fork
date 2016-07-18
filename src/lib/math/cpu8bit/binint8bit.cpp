@@ -26,7 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "binint.h"
+#include "binint8bit.h"
 #include "../nbtheory.h"
 
 namespace cpu8bit {
@@ -68,8 +68,8 @@ BigBinaryInteger::BigBinaryInteger()
 	m_MSB = 0;
 }
 
-std::function<unique_ptr<BigBinaryInteger>()> BigBinaryInteger::Allocator = [=](){
-    return make_unique<BigBinaryInteger>();
+std::function<unique_ptr<BigBinaryInteger>()> BigBinaryInteger::Allocator = [](){
+    return lbcrypto::make_unique<BigBinaryInteger>();
 };
 
 
@@ -145,7 +145,7 @@ BigBinaryInteger::~BigBinaryInteger()
 	m_memReserve.Deallocate(m_value);
 }
 
-BigBinaryInteger&  BigBinaryInteger::operator=(const BigBinaryInteger &rhs){
+BigBinaryInteger& BigBinaryInteger::operator=(const BigBinaryInteger &rhs){
 
 	//cout<<"Assignment operator called \n";
 	usint copyStart = this->m_MSB > rhs.m_MSB ? this->m_MSB:rhs.m_MSB;
@@ -1819,7 +1819,7 @@ BigBinaryInteger BigBinaryInteger::intToBigBinaryInteger(usint m){
 
 }
 
-BigBinaryInteger BigBinaryInteger::BinaryToBigBinaryInt(const std::string& bitString){
+BigBinaryInteger BigBinaryInteger::BinaryStringToBigBinaryInt(const std::string& bitString){
 	std::string zero = "0";
 	BigBinaryInteger value("0");
 	usint len = bitString.length();

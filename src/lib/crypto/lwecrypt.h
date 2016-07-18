@@ -1,7 +1,7 @@
 /**0
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Nishanth Pasham <np386@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>, Jerry Ryan <gwryan@njit.edu>
  * @version 00_03
  *
  * @section LICENSE
@@ -79,6 +79,20 @@ namespace lbcrypto {
 			}
 
 			/**
+			 * Copy constructor.
+			 *
+			 */
+			LPCryptoParametersLTV(const LPCryptoParametersLTV &rhs) : LPCryptoParametersImpl<Element>(NULL, rhs.GetPlaintextModulus()) {
+
+				m_distributionParameter = rhs.m_distributionParameter;
+				m_assuranceMeasure = rhs.m_assuranceMeasure;
+				m_securityLevel = rhs.m_securityLevel;
+				m_relinWindow = rhs.m_relinWindow;
+				m_dgg = rhs.m_dgg;
+				m_depth = rhs.m_depth;
+			}
+
+			/**
 			 * Constructor that initializes values.
 			 *
 			 * @param &params element parameters.
@@ -109,7 +123,7 @@ namespace lbcrypto {
 			/**
 			* Destructor
 			*/
-			~LPCryptoParametersLTV() {
+			virtual ~LPCryptoParametersLTV() {
 			}
 			
 			/**
@@ -218,31 +232,72 @@ namespace lbcrypto {
 
 			//JSON FACILITY
 			/**
-			* Implemented by this object only for inheritance requirements of abstract class Serializable.
-			*
-			* @param serializationMap stores this object's serialized attribute name value pairs.
-			* @return map passed in.
+			* Serialize the object into a Serialized
+			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+			* @param fileFlag is an object-specific parameter for the serialization
+			* @return true if successfully serialized
 			*/
-			std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+			bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
 
-			//JSON FACILITY
 			/**
-			* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
-			* Invokes nested serialization of ILParams.
-			*
-			* @param serializationMap stores this object's serialized attribute name value pairs.
-			* @return map updated with the attribute name value pairs required to serialize this object.
+			* Populate the object from the deserialization of the Setialized
+			* @param serObj contains the serialized object
+			* @return true on success
 			*/
-			std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
+			bool Deserialize(const Serialized& serObj);
+			/**
+			* Creates a new set of parameters for LPCryptoParametersLTV amid a new ILDCRTParams. The new ILDCRTParams will allow for 
+			* SHE operations of the existing depth. Note that the cyclotomic order also changes.
+			*
+			* @param *cryptoParams is where the resulting new LPCryptoParametersLTV will be placed in.
+			*/
+			template <class ILVectorArray2n>
+			void ParameterSelection(LPCryptoParametersLTV<ILVectorArray2n> *cryptoParams) {
+			 
+				//defining moduli outside of recursive call for efficiency
+				std::vector<BigBinaryInteger> moduli(m_depth+1); 
+				moduli.reserve(m_depth+1);
 
-			//JSON FACILITY
+				usint n = this->GetElementParams().GetCyclotomicOrder()/2;
+				// set the values for n (ring dimension) and chain of moduli
+				this->ParameterSelection(n, moduli);
+				
+				cryptoParams->SetAssuranceMeasure(m_assuranceMeasure);
+				cryptoParams->SetDepth(m_depth);
+				cryptoParams->SetSecurityLevel(m_securityLevel);
+				cryptoParams->SetDistributionParameter(m_distributionParameter);
+				cryptoParams->SetDiscreteGaussianGenerator(m_dgg);
+				cryptoParams->SetPlaintextModulus(this->GetPlaintextModulus());
+
+				std::vector<BigBinaryInteger> rootsOfUnity;
+				rootsOfUnity.reserve(m_depth+1);
+				usint m = n*2; //cyclotomic order
+				BigBinaryInteger rootOfUnity;
+
+				for(usint i = 0; i < m_depth+1; i++){
+					rootOfUnity = RootOfUnity(m, moduli.at(i));
+					rootsOfUnity.push_back(rootOfUnity);
+				}
+
+				ILDCRTParams *newCryptoParams = new ILDCRTParams(m, moduli, rootsOfUnity);
+				cryptoParams->SetElementParams(*newCryptoParams);
+			}
+		   
 			/**
-			* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
-			* Invokes nested deserialization of ILParams.
+			* == operator to compare to this instance of LPCryptoParametersLTV object. 
 			*
-			* @param serializationMap stores this object's serialized attribute name value pairs.
+			* @param &rhs LPCryptoParameters to check equality against.
 			*/
-			void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+			bool operator==(const LPCryptoParameters<Element> &rhs) const {
+				const LPCryptoParametersLTV<Element> &el = dynamic_cast<const LPCryptoParametersLTV<Element> &>(rhs);
+
+				return  this->GetPlaintextModulus() == el.GetPlaintextModulus() &&
+						this->GetElementParams() == el.GetElementParams() &&
+						m_distributionParameter == el.GetDistributionParameter() &&
+						m_assuranceMeasure == el.GetAssuranceMeasure() &&
+						m_securityLevel == el.GetSecurityLevel() &&
+						m_relinWindow == el.GetRelinWindow();
+			}
 
 		private:
 			//standard deviation in Discrete Gaussian Distribution
@@ -257,6 +312,75 @@ namespace lbcrypto {
 			int m_depth;
 			//Discrete Gaussian Generator
 			DiscreteGaussianGenerator m_dgg;
+			//helper function for ParameterSelection. Splits the string 's' by the delimeter 'c'.
+			std::string split(const std::string s, char c){
+				std::string result;
+				const char *str = s.c_str();
+				const char *begin = str;
+				while(*str != c && *str)
+				str++;
+				result = std::string(begin, str);
+				return result;
+			}
+			//function for parameter selection. The public ParameterSelection function is a wrapper around this function.
+			void ParameterSelection(usint& n, vector<BigBinaryInteger> &moduli) {
+			  int t = m_depth + 1;
+			  int d = m_depth;
+
+			  BigBinaryInteger pBigBinaryInteger(this->GetPlaintextModulus());
+			  int p = pBigBinaryInteger.ConvertToInt();
+			  double w = m_assuranceMeasure;
+			  double r = m_distributionParameter;
+			  double rootHermitFactor = m_securityLevel;
+
+			  double sqrtn = sqrt(n);
+			  double q1 = 4 * p * r * sqrtn * w;
+			  double q2 = 4 * pow(p, 2) * pow(r, 5) * pow(sqrtn, 3) * pow(w, 5);
+
+			  BigBinaryInteger plaintextModulus(p);
+
+			  double* q = new double[t];
+			  q[0] = q1;
+			  for(int i=1; i<t; i++) 
+			    	q[i] = q2;
+
+			  double sum = 0.0;
+			  for(int i=0; i<t; i++) {
+				  sum += log(q[i]);
+			  }
+
+			  int next = ceil(sum/ (4 * log(rootHermitFactor)));
+			  int nprime = pow(2, ceil(log(next)/log(2))); 
+			  char c = '.';
+
+			  if(n == nprime) {
+				sum = 0.0;
+				for(int i=0; i<t; i++) {
+					moduli[i] = BigBinaryInteger(split(std::to_string(q[i]), c));
+					if(i == 0 || i == 1){
+						NextQ(moduli[i], pBigBinaryInteger, n, BigBinaryInteger("4"), BigBinaryInteger("4")); 
+					}
+					else{
+						moduli[i] = moduli[i-1];
+						NextQ(moduli[i], pBigBinaryInteger, n, BigBinaryInteger("4"), BigBinaryInteger("4")); 
+					}
+					q[i] = moduli[i].ConvertToDouble();
+					sum += log(q[i]);
+				}
+
+					int nprimeCalcFactor = ceil(sum/ (4 * log(rootHermitFactor)));
+					if(nprime < nprimeCalcFactor){
+						n *= 2;
+						ParameterSelection(n, moduli);
+					} 
+				} else {
+					n *= 2;
+					ParameterSelection(n, moduli);
+					}
+
+				delete q;
+			}
+
 	};
 
 	/**
@@ -300,12 +424,90 @@ namespace lbcrypto {
 			 */
 			void SetDiscreteGaussianGeneratorStSt(const DiscreteGaussianGenerator &dggStSt) {m_dggStSt = dggStSt;}
 
+			/**
+			* Serialize the object into a Serialized
+			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+			* @param fileFlag is an object-specific parameter for the serialization
+			* @return true if successfully serialized
+			*/
+			bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
+
+			/**
+			* Populate the object from the deserialization of the Setialized
+			* @param serObj contains the serialized object
+			* @return true on success
+			*/
+			bool Deserialize(const Serialized& serObj);
+
+
+			bool operator==(const LPCryptoParameters<Element>* cmp) const {
+				const LPCryptoParametersStehleSteinfeld<Element> *el = dynamic_cast<const LPCryptoParametersStehleSteinfeld<Element> *>(cmp);
+
+				if( cmp == 0 ) return false;
+
+				return  this->GetPlaintextModulus() == cmp->GetPlaintextModulus() &&
+						this->GetElementParams() == &cmp->GetElementParams() &&
+						this->GetDistributionParameter() == el->GetDistributionParameter() &&
+						this->GetAssuranceMeasure() == el->GetAssuranceMeasure() &&
+						this->GetSecurityLevel() == el->GetSecurityLevel() &&
+						this->GetRelinWindow() == el->GetRelinWindow() &&
+						m_distributionParameterStSt == el->GetDistributionParameterStSt();
+			}
+
 		private:
 			//standard deviation in Discrete Gaussian Distribution used for Key Generation
 			float m_distributionParameterStSt;
 			//Discrete Gaussian Generator for Key Generation
 			DiscreteGaussianGenerator m_dggStSt;
 	};
+
+	/* this function is used to deserialize the Crypto Parameters
+	 *
+	 * @return the parameters or null on failure
+	 */
+	template <typename Element>
+	inline LPCryptoParameters<Element>* DeserializeCryptoParameters(const Serialized& serObj)
+	{
+		LPCryptoParameters<Element>* parmPtr = 0;
+
+		Serialized::ConstMemberIterator it = serObj.FindMember("LPCryptoParametersType");
+		if( it == serObj.MemberEnd() ) return 0;
+		std::string type = it->value.GetString();
+
+		if( type == "LPCryptoParametersLTV" ) {
+			parmPtr = new LPCryptoParametersLTV<Element>();
+		} else if( type == "LPCryptoParametersStehleSteinfeld" ) {
+			parmPtr = new LPCryptoParametersStehleSteinfeld<Element>();
+		} else
+			return 0;
+
+		if( !parmPtr->Deserialize(serObj) ) {
+			delete parmPtr;
+			return 0;
+		}
+
+		return parmPtr;
+	}
+
+	/* this function is used to deserialize the Crypto Parameters, to compare them to the existing parameters,
+	 * and to fail if they do not match
+	 *
+	 * @return the parameters or null on failure
+	 */
+	template <typename Element>
+	inline LPCryptoParameters<Element>* DeserializeAndValidateCryptoParameters(const Serialized& serObj, const LPCryptoParameters<Element>& curP)
+	{
+		LPCryptoParameters<Element>* parmPtr = DeserializeCryptoParameters<Element>(serObj);
+
+		if( parmPtr == 0 ) return 0;
+
+		// make sure the deserialized parms match the ones in the current context
+		if( *parmPtr == curP )
+			return parmPtr;
+
+		delete parmPtr;
+		return 0;
+	}
 
 	/**
 	 * @brief Public key implementation template for Ring-LWE NTRU-based schemes,
@@ -318,7 +520,6 @@ namespace lbcrypto {
 			/**
 			* Default constructor
 			*/
-
 			LPPublicKeyLTV() {}
 
 			/**
@@ -326,10 +527,22 @@ namespace lbcrypto {
 			*
 			* @param cryptoParams is the reference to cryptoParams
 			*/
-
 			LPPublicKeyLTV(LPCryptoParameters<Element> &cryptoParams) {
 				this->SetCryptoParameters(&cryptoParams);
 			}
+
+			/**
+			* Copy constructor
+			*/
+			explicit LPPublicKeyLTV(const LPPublicKey<Element> &rhs);
+
+			/**
+			* Assignment Operator.
+			*
+			* @param &rhs the copied vector.
+			* @return the resulting vector.
+			*/
+			LPPublicKeyLTV<Element>& operator=(const LPPublicKeyLTV<Element> &rhs);
 
 			/**
 			 * Get Crypto Parameters.
@@ -375,34 +588,30 @@ namespace lbcrypto {
 			 */
 			//void SetGeneratedElement(const Element &x) {m_g = x;}
 
-
 			//JSON FACILITY
 			/**
-			* Sets the ID and Flag attribute values for use in serializing this object to a JSON file.
-			*
-			* @param serializationMap stores this object's serialized attribute name value pairs.
-			* @return map updated with ID and Flag attribute values.
+			* Serialize the object into a Serialized
+			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+			* @param fileFlag is an object-specific parameter for the serialization
+			* @return true if successfully serialized
 			*/
-			std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+			bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
 
-			//JSON FACILITY
 			/**
-			* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
-			* Invokes nested serialization of LPCryptoParametersLWE, ILParams, ILVector2n, and BigBinaryVector.
-			*
-			* @param serializationMap stores this object's serialized attribute name value pairs.
-			* @return map updated with the attribute name value pairs required to serialize this object.
+			* Higher level info about the serialization is saved here
+			* @param serObj to store the the implementing object's serialization specific attributes.
+			* @param flag an object-specific parameter for the serialization
+			* @return true on success
 			*/
-			std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
+			bool SetIdFlag(Serialized* serObj, const std::string flag) const;
 
-			//JSON FACILITY
 			/**
-			* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
-			* Invokes nested deserialization of LPCryptoParametersLWE, ILParams, ILVector2n, and BigBinaryVector.
-			*
-			* @param serializationMap stores this object's serialized attribute name value pairs.
+			* Populate the object from the deserialization of the Setialized
+			* @param serObj contains the serialized object
+			* @return true on success
 			*/
-			void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+			bool Deserialize(const Serialized& serObj) { return false; }
+			bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx);
 
 		private:
 			LPCryptoParameters<Element> *m_cryptoParameters;
@@ -487,31 +696,28 @@ namespace lbcrypto {
 
 		//JSON FACILITY
 		/**
-		* Sets the ID and Flag attribute values for use in serializing this object to a JSON file.
-		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
-		* @return map updated with ID and Flag attribute values.
+		* Serialize the object into a Serialized
+		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @param fileFlag is an object-specific parameter for the serialization
+		* @return true if successfully serialized
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+		bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
 
-		//JSON FACILITY
 		/**
-		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
-		* Invokes nested serialization of LPCryptoParametersLWE, ILParams, ILVector2n, and BigBinaryVector.
-		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
-		* @return map updated with the attribute name value pairs required to serialize this object.
+		* Higher level info about the serialization is saved here
+		* @param serObj to store the the implementing object's serialization specific attributes.
+		* @param flag an object-specific parameter for the serialization
+		* @return true on success
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
+		bool SetIdFlag(Serialized* serObj, const std::string flag) const;
 
-		//JSON FACILITY
 		/**
-		* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
-		* Invokes nested deserialization of LPCryptoParametersLWE, ILParams, ILVector2n, and BigBinaryVector.
-		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* Populate the object from the deserialization of the Setialized
+		* @param serObj contains the serialized object
+		* @return true on success
 		*/
-		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+		bool Deserialize(const Serialized& serObj) { return false; }
+		bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx);
 		
 	private:
 		LPCryptoParameters<Element> *m_cryptoParameters;
@@ -536,9 +742,20 @@ namespace lbcrypto {
 			* Constructor that initializes nothing.
 			*/
 			LPKeySwitchHintLTV() {
-				m_sk = NULL;
+				/*m_sk = NULL;*/
 				//m_cryptoParameters;
 			}
+
+			/**
+			* Copy constructor
+			*
+			*@param &LPKeySwitchHintLTV object to copy from.
+			*/
+			LPKeySwitchHintLTV(const LPKeySwitchHintLTV &rhs){
+				this->m_sk = rhs.m_sk;
+				*this->m_cryptoParameters = *rhs.m_cryptoParameters;
+			}
+
 
 		/**
 			* Get Crypto Parameters.
@@ -573,11 +790,31 @@ namespace lbcrypto {
 			*/
 		void SetHintElement(const Element &x) {m_sk = x;}
 
+			// JSON FACILITY - SetIdFlag Operation
+		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
+		//	std::unordered_map <std::string, std::string> serializationMap;
+			return serializationMap;
+		}
+
+		// JSON FACILITY - Serialize Operation
+		// TODO - GERARD RYAN
+		bool  Serialize(Serialized* serObj, const std::string fileFlag = "") const {
+			
+			return true;
+		}
+
+		// JSON FACILITY - Deserialize Operation
+		// TODO - GERARD RYAN
+		bool Deserialize(const Serialized& serObj) {	
+			return false;
+		}
+
+		
+
 		private:
 			LPCryptoParameters<Element> *m_cryptoParameters;
 			//private key polynomial
 			Element m_sk;
-
 	};
 
 
@@ -601,9 +838,22 @@ namespace lbcrypto {
 			* @param cryptoParams is the reference to cryptoParams
 			*/
 
-			LPPrivateKeyLTV(LPCryptoParametersLTV<Element> &cryptoParams) {
+			LPPrivateKeyLTV(LPCryptoParameters<Element> &cryptoParams) {
 				this->SetCryptoParameters(&cryptoParams);
 			}
+
+			/**
+			* Copy constructor
+			*/
+			explicit LPPrivateKeyLTV(const LPPrivateKeyLTV<Element> &rhs);
+
+			/**
+			* Assignment Operator.
+			*
+			* @param &rhs the copied vector.
+			* @return the resulting vector.
+			*/
+			LPPrivateKeyLTV<Element>& operator=(const LPPrivateKeyLTV<Element> &rhs);
 
 			/**
 			 * Get Crypto Parameters.
@@ -664,31 +914,42 @@ namespace lbcrypto {
 
 			//JSON FACILITY
 			/**
-			* Sets the ID and Flag attribute values for use in serializing this object to a JSON file.
-			*
-			* @param serializationMap stores this object's serialized attribute name value pairs.
-			* @return map updated with ID and Flag attribute values.
+			* Serialize the object into a Serialized
+			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+			* @param fileFlag is an object-specific parameter for the serialization
+			* @return true if successfully serialized
 			*/
-			std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+			bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
 
-			//JSON FACILITY
 			/**
-			* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
-			* Invokes nested serialization of LPCryptoParametersLWE, ILParams, ILVector2n, and BigBinaryVector.
-			*
-			* @param serializationMap stores this object's serialized attribute name value pairs.
-			* @return map updated with the attribute name value pairs required to serialize this object.
+			* Higher level info about the serialization is saved here
+			* @param serObj to store the the implementing object's serialization specific attributes.
+			* @param flag an object-specific parameter for the serialization
+			* @return true on success
 			*/
-			std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
+			bool SetIdFlag(Serialized* serObj, const std::string flag) const;
 
-			//JSON FACILITY
 			/**
-			* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
-			* Invokes nested deserialization of LPCryptoParametersLWE, ILParams, ILVector2n, and BigBinaryVector.
-			*
-			* @param serializationMap stores this object's serialized attribute name value pairs.
+			* Populate the object from the deserialization of the Setialized
+			* @param serObj contains the serialized object
+			* @return true on success
 			*/
-			void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+			bool Deserialize(const Serialized& serObj) { return false; }
+			bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx);
+
+			/**
+			* Assignment Operator.
+			*
+			* @param &rhs the copied vector.
+			* @return the resulting vector.
+			*/
+			LPPrivateKeyLTV& operator=(LPPrivateKeyLTV &rhs){
+				*m_cryptoParameters = *rhs.m_cryptoParameters;
+				m_sk = rhs.m_sk;
+
+				return *this;
+			}
+				
 
 	private:
 			LPCryptoParameters<Element> *m_cryptoParameters;
@@ -696,6 +957,8 @@ namespace lbcrypto {
 			Element m_sk;
 			//error polynomial
 			//Element m_e;
+
+			
 	};
 
 	/**
@@ -717,8 +980,17 @@ namespace lbcrypto {
 			 * @param &plaintext the plaintext input.
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
+			EncryptResult Encrypt(const LPPublicKey<Element> &publicKey,
+				const Element &plaintext,
+				Ciphertext<Element> *ciphertext) const;
+
+			/**
+			 * Method for encrypting numeric values using Ring-LWE NTRU
+			 *
+			 * @param &publicKey public key used for encryption.
+			 * @param *ciphertext ciphertext which results from encryption.
+			 */
 			void Encrypt(const LPPublicKey<Element> &publicKey, 
-				const PlaintextEncodingInterface &plaintext, 
 				Ciphertext<Element> *ciphertext) const;
 			
 			/**
@@ -729,9 +1001,9 @@ namespace lbcrypto {
 			 * @param *plaintext the plaintext output.
 			 * @return the decrypted plaintext returned.
 			 */			
-			DecodingResult Decrypt(const LPPrivateKey<Element> &privateKey, 
+			DecryptResult Decrypt(const LPPrivateKey<Element> &privateKey, 
 				const Ciphertext<Element> &ciphertext,
-				PlaintextEncodingInterface *plaintext) const;
+				Element *plaintext) const;
 			
 			/**
 			 * Function to generate public and private keys
@@ -743,6 +1015,75 @@ namespace lbcrypto {
 			virtual bool KeyGen(LPPublicKey<Element> *publicKey, 
 		        	LPPrivateKey<Element> *privateKey) const;
 
+			/**
+			 * Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
+			 * and odd indices are set to zero.
+			 *
+			 * @param &publicKey private key used for decryption.
+			 * @param &privateKey private key used for decryption.
+			 * @param &dgg discrete Gaussian generator.
+			 * @return function ran correctly.
+			 */
+			virtual bool SparseKeyGen(LPPublicKey<Element> &publicKey, 
+		        	LPPrivateKey<Element> &privateKey, 
+			        const DiscreteGaussianGenerator &dgg) const;
+
+	 };
+
+	/**
+	 * @brief Concrete feature class for Leveled SHELTV operations
+	 * @tparam Element a ring element.
+	 */
+	template <class Element>
+	class LPLeveledSHEAlgorithmLTV : public LPLeveledSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+		public:	
+			//inherited constructors
+			LPLeveledSHEAlgorithmLTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
+			/**
+			 * Constructor 
+			 *
+			 * @param &scheme is a pointer to the instantiation of the specfic encryption scheme used. 
+			 */
+			LPLeveledSHEAlgorithmLTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+
+			/**
+			 * Method for generating a KeySwitchHint
+			 *
+			 * @param &originalPrivateKey Original private key used for encryption.
+			 * @param &newPrivateKey New private key to generate the keyswitch hint.
+			 * @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
+			 */
+			virtual void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const ;
+			/**
+			 * Method for KeySwitching based on a KeySwitchHint
+			 *
+			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
+			 * @param &cipherText Original ciphertext to perform switching on.
+			 */
+			virtual Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint,const  Ciphertext<Element> &cipherText) const;
+
+			virtual void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *quadraticKeySwitchHint) const;
+			
+			/**
+			 * Method for ModReducing CipherText and the Private Key used for encryption.
+			 *
+			 * @param *cipherText Ciphertext to perform and apply modreduce on.
+			 * @param *privateKey Private key to peform and apply modreduce on.
+			 */
+			virtual void ModReduce(Ciphertext<Element> *cipherText) const; 
+			/**
+			 * Method for RingReducing CipherText and the Private Key used for encryption.
+			 *
+			 * @param *cipherText Ciphertext to perform and apply ringreduce on.
+			 * @param *privateKey Private key to peform and apply ringreduce on.
+			 */
+			virtual void RingReduce(Ciphertext<Element> *cipherText, const LPKeySwitchHint<Element> &keySwitchHint) const ; 
+
+
+			virtual void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPKeySwitchHint<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const ;
+
+
+			virtual void LevelReduce(const Ciphertext<Element> &cipherText1, const LPKeySwitchHint<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const ;
 	};
 
 	/**
@@ -774,9 +1115,9 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionSchemeLTV : public LPPublicKeyEncryptionScheme<Element>{
 		public:
-			LPPublicKeyEncryptionSchemeLTV();
-			LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask);
-			~LPPublicKeyEncryptionSchemeLTV();
+			LPPublicKeyEncryptionSchemeLTV(size_t chunksize) : LPPublicKeyEncryptionScheme<Element>(chunksize) {}
+			LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask, size_t chunksize);
+
 			//These functions can be implemented later
 			//Initialize(mask);
 
@@ -790,10 +1131,58 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionSchemeStehleSteinfeld : public LPPublicKeyEncryptionSchemeLTV<Element>{
 		public:
-			LPPublicKeyEncryptionSchemeStehleSteinfeld() : LPPublicKeyEncryptionSchemeLTV<Element>() {};
-			LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask);
+			LPPublicKeyEncryptionSchemeStehleSteinfeld(size_t chunksize) : LPPublicKeyEncryptionSchemeLTV<Element>(chunksize) {}
+			LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask, size_t chunksize);
 
 			void Enable(PKESchemeFeature feature);
+	};
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	template <class Element>
+	class LPLeveledSHEKeyStructure //: TODO: NISHANT to implement serializable public Serializable
+	{
+	private:
+		std::vector< LPKeySwitchHintLTV<Element> > m_qksh;
+		std::vector< LPKeySwitchHintLTV<Element> > m_lksh;
+		usint m_levels;
+
+	public:
+		explicit LPLeveledSHEKeyStructure(usint levels) : m_levels(levels) { m_qksh.reserve(levels); m_lksh.reserve(levels);};
+		const LPKeySwitchHintLTV<Element>& GetLinearKeySwitchHintForLevel(usint level) const {
+			if(level>m_levels-1) {
+				throw std::runtime_error("Level out of range");
+			} 
+			else {
+				return m_lksh[level];
+			} 
+		};
+		const LPKeySwitchHintLTV<Element>& GetQuadraticKeySwitchHintForLevel(usint level) const {
+			if(level>m_levels-1) {
+				throw std::runtime_error("Level out of range");
+			} 
+			else {
+				return m_qksh[level];
+			} 
+		}
+
+		void PushBackLinearKey(const LPKeySwitchHintLTV<Element> &lksh){
+			m_lksh.push_back(std::move(lksh));
+		}
+
+		void PushBackQuadraticKey(const LPKeySwitchHintLTV<Element> &quad){
+			m_qksh.push_back(std::move(quad));
+		}
+
+		void SetLinearKeySwitchHintForLevel(const LPKeySwitchHintLTV<Element> &lksh, usint level) {
+			if(level>m_levels-1) {
+				throw std::runtime_error("Level out of range");
+			} 
+			else { 
+				m_lksh[level] = lksh;
+			}
+
+		}
+		void SetQuadraticKeySwitchHintForLevel(const LPKeySwitchHintLTV<Element> &qksh, usint level) { if(level>m_levels-1) {throw std::runtime_error("Level out of range");} else { m_qksh[level] = qksh;} };
 	};
 } // namespace lbcrypto ends
 #endif

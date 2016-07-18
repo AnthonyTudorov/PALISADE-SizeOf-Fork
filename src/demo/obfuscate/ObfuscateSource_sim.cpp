@@ -36,6 +36,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <fstream>
+#define _USE_MATH_DEFINES 
 //#include "../../lib/utils/inttypes.h"
 //#include "../../lib/math/backend.h"
 //#include "../../lib/math/nbtheory.h"
@@ -51,7 +52,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <math.h> 
 #include "../../lib/utils/debug.h"
 
-using namespace std;
+//using namespace std;
 using namespace lbcrypto;
 
 void NTRUPRE(int input);
@@ -278,7 +279,7 @@ void NTRUPRE(int input) {
 	finish = currentDateTime();
 	diff = finish - start;
 
-	cout << "Precomputation time: " << "\t" << diff << " ms" << endl;
+	std::cout << "Precomputation time: " << "\t" << diff << " ms" << std::endl;
 
 	//start = currentDateTime();
 

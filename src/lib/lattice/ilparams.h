@@ -38,7 +38,6 @@
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
-//#include "../encoding/ptxtencoding.h"
 
 /**
 * @namespace lbcrypto
@@ -69,9 +68,9 @@ namespace lbcrypto {
 		 * @param &modulus the ciphertext modulus.
 		 * @param &rootOfUnity the root of unity used in the ciphertext.
 		 */
-		ILParams(usint order, BigBinaryInteger & modulus, BigBinaryInteger & rootOfUnity) {
-			m_modulus = modulus;
+		ILParams(const usint order, const BigBinaryInteger & modulus, const BigBinaryInteger & rootOfUnity) {
 			m_order = order;
+			m_modulus = modulus;
 			m_rootOfUnity = rootOfUnity;
 		}
 
@@ -81,9 +80,9 @@ namespace lbcrypto {
 		* @param &order the order of the ciphertext.
 		* @param &modulus the ciphertext modulus.
 		*/
-		ILParams(usint order, BigBinaryInteger &modulus) {
-			m_modulus = modulus;
+		ILParams(const usint order, const BigBinaryInteger &modulus) {
 			m_order = order;
+			m_modulus = modulus;
 			m_rootOfUnity = RootOfUnity(order, modulus);
 		}
 
@@ -94,8 +93,8 @@ namespace lbcrypto {
 		* @param &rhs the input set of parameters which is copied.
 		*/
 		ILParams(const ILParams &rhs) {
-			m_modulus = rhs.m_modulus;
 			m_order = rhs.m_order;
+			m_modulus = rhs.m_modulus;
 			m_rootOfUnity = rhs.m_rootOfUnity;
 		}
 
@@ -164,7 +163,7 @@ namespace lbcrypto {
 		*
 		* @param order the order variable.
 		*/
-		void SetOrder(usint order) {
+		void SetCyclotomicOrder(usint order) {
 			m_order = order;
 		}
 
@@ -186,48 +185,50 @@ namespace lbcrypto {
 			m_modulus = modulus;
 		}
 
-        inline bool operator==(ILParams const& other) {
-            if (m_modulus != other.GetModulus()) {
+        bool operator==(const ElemParams& rhs) const {
+        	const ILParams &ip = dynamic_cast<const ILParams &>(rhs);
+
+        	return *this == ip;
+        }
+
+        inline bool operator==(ILParams const& rhs) const {
+            if (m_modulus != rhs.GetModulus()) {
                 return false;
             }
-            if (m_order != other.GetCyclotomicOrder()) {
+            if (m_order != rhs.GetCyclotomicOrder()) {
                 return false;
             }
-            if (m_rootOfUnity != other.GetRootOfUnity()) {
+            if (m_rootOfUnity != rhs.GetRootOfUnity()) {
                 return false;
             }
             return true;
         }
 
-        inline bool operator!=(ILParams const& other) {
-            return !(*this == other);
+		/**
+		* Not equal operator compares this ILParams to the specified ILParams
+		*
+		* @param &rhs is the specified ILParams to be compared with this ILParams.
+		* @return true if this ILParams represents the same values as the specified ILParams, false otherwise
+		*/
+        inline bool operator!=(ILParams const &rhs) {
+            return !(*this == rhs);
         }
 
 		//JSON FACILITY
 		/**
-		* Implemented by this object only for inheritance requirements of abstract class Serializable.
-		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
-		* @return map passed in.
+		* Serialize the object into a Serialized
+		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @param fileFlag is an object-specific parameter for the serialization
+		* @return true if successfully serialized
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+    	bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
 
-		//JSON FACILITY
 		/**
-		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
-		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
-		* @return map updated with the attribute name value pairs required to serialize this object.
+		* Populate the object from the deserialization of the Setialized
+		* @param serObj contains the serialized object
+		* @return true on success
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
-
-		//JSON FACILITY
-		/**
-		* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
-		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
-		*/
-		void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+		bool Deserialize(const Serialized& serObj);
 
 	private:
 		// order of cyclotomic polynomial

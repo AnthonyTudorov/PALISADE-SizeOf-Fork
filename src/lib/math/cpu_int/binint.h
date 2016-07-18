@@ -47,6 +47,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <functional>
+#include <cstdlib>
 #include <memory>
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
@@ -558,6 +559,10 @@ namespace cpu_int{
     */
     const std::string ToString() const;		
 
+    const std::string Serialize() const;
+    const char * Deserialize(const char * str);
+
+
     /**
     * Tests whether the BigBinaryInteger is a power of 2.
     *
@@ -787,8 +792,9 @@ namespace cpu_int{
 
 	private:
 
-		//pointer to the array storing the native integers.
-		uint_type *m_value;
+		//array storing the native integers.
+		// array size is the ceiling of BITLENGTH/(bits in the integral data type)
+		uint_type m_value[(BITLENGTH+8*sizeof(uint_type)-1)/(8*sizeof(uint_type))];
 
 		//variable that stores the MOST SIGNIFICANT BIT position in the number.
 		usshort m_MSB;

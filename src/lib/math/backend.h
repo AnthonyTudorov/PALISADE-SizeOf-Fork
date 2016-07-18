@@ -48,14 +48,18 @@
 #define MATHBACKEND 2
 
 #if MATHBACKEND == 1
-#include "cpu8bit/binint.h"
-#include "cpu8bit/binvect.h"
+#include "cpu8bit/binint8bit.h"
+#include "cpu8bit/binvect8bit.h"
 //#include "cpu8bit/binmat.h"	
+
 #endif
 
 #if MATHBACKEND == 2
+
 #include "cpu_int/binint.cpp"
 #include "cpu_int/binvect.cpp"
+#include <initializer_list>
+
 #include "exp_int32/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int32/ubintvec.cpp" //vectors of experimental ubints
 #include "exp_int32/mubintvec.cpp" //rings of ubints

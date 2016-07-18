@@ -31,7 +31,7 @@ allbenchmarktargets: make_benchmark_lib make_benchmarks make_benchmark_examples
 BENCHMARK_LIBSRCDIR = benchmark/include/libsrc
 
 #these are the includes for compiling the objects that comprise the library (only)
-BENCHMARK_LIB_INCLUDES = -Ibenchmark/include -Ibenchmark/include/libsrc    
+BENCHMARK_LIB_INCLUDES = -Ibenchmark/include -Ibenchmark/include/libsrc -Iinclude -Ic:/Mingw64/mingw64/opt/include   
 
 #define list of source files for the library (all files with .cc in the LIBSRCDIR
 BENCHMARK_LIBSRC =  $(wildcard $(BENCHMARK_LIBSRCDIR)/*.cc)
@@ -47,14 +47,13 @@ BENCHMARK_LIB = $(BENCHMARK_LIBSRCDIR)/libbenchmark.a
 $(BENCHMARK_LIBSRCDIR)/%.o: $(BENCHMARK_LIBSRCDIR)/%.cc
 	@echo " -- benchmark:compiling benchmark library source $@"	
 	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<
-	@echo
 
 .PHONY:make_benchmark_lib
 make_benchmark_lib: $(BENCHMARK_LIB)
 
 $(BENCHMARK_LIB): $(BENCHMARK_LIBOBJ)
 	@echo " -- benchmark:linking benchmark library $<"	
-	/usr/bin/ar cr $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
+	ar cr $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
 	ranlib $(BENCHMARK_LIB) 
 	@echo
 
@@ -85,21 +84,19 @@ BENCHMARK_EXAMPLES_OBJ = $(BENCHMARK_EXAMPLES_SRC:$(BENCHMARK_EXAMPLES_SRC_DIR)%
 BENCHMARK_EXAMPLES = $(BENCHMARK_EXAMPLES_SRC:$(BENCHMARK_EXAMPLES_SRC_DIR)%.cc=$(BENCHMARK_EXAMPLES_BIN_DIR)%)
 
 # this is the include line for generating any benc2hmark object (not in the library)
-BENCHMARK_INCLUDES = -Ibenchmark/include
+BENCHMARK_INCLUDES = -Ibenchmark/include -Iinclude $(BOOSTINCLUDE)
 
 # this builds objects from sources for examples
 $(BENCHMARK_EXAMPLES_BUILD_DIR)/%.o: $(BENCHMARK_EXAMPLES_SRC_DIR)/%.cc
 	@echo " -- benchmark:compiling example $@"	
 	@mkdir -p $(BENCHMARK_EXAMPLES_SRC_DIR)/build/
 	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@
-	@echo
 
 # this builds executables from objects for examples
-$(BENCHMARK_EXAMPLES_BIN_DIR)/%: $(BENCHMARK_EXAMPLES_BUILD_DIR)/%.o
+$(BENCHMARK_EXAMPLES_BIN_DIR)/%$(EXESUFFIX): $(BENCHMARK_EXAMPLES_BUILD_DIR)/%.o
 	@echo " -- benchmark:linking example $@"	
 	@mkdir -p $(BENCHMARK_EXAMPLES_SRC_DIR)/bin/
-	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) -lpthread
-	@echo
+	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ $(RDYNAMIC) $(BENCHMARK_LIB) $(LIB) -lpthread $(MINGWREGEX) 
 
 #this updates the binaries when the objects or libraries are touched
 $(BENCHMARK_EXAMPLES): $(BENCHMARK_EXAMPLES_OBJ)  $(BENCHMARK_LIB)
@@ -118,6 +115,8 @@ BENCHMARK_SRC =  $(wildcard $(BENCHMARK_SRC_DIR)/*.cpp)
 #and puts objects in _BUILD_DIR
 BENCHMARK_OBJ =  $(BENCHMARK_SRC:$(BENCHMARK_SRC_DIR)%.cpp=$(BENCHMARK_BUILD_DIR)%.o)
 
+-include $(BENCHMARK_OBJ:.o=.d)
+
 #define list of executables (1:1 substituion of .cc --> no extention in all .cc files)
 #and puts executables in _BIN_DIR
 BENCHMARK_BIN =  $(BENCHMARK_SRC:$(BENCHMARK_SRC_DIR)%.cpp=$(BENCHMARK_BIN_DIR)%)
@@ -128,19 +127,21 @@ BENCHMARK_INC = -Isrc
 
 # this builds objects from sources for benchmarks
 $(BENCHMARK_BUILD_DIR)/%.o: $(BENCHMARK_SRC_DIR)/%.cpp
-	@echo " -- benchmark:compiling $@"
 	@mkdir -p $(BENCHMARK_BUILD_DIR)
 	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@
-	@echo
+	$(CC) -MM $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) $< > $(patsubst %.o,%.d,$@)
+	@mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)
+	@sed -e 's|.*\.o:|$@:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)
+	@rm -f $(patsubst %.o,%.d.tmp,$@)
 
 #this updates the binaries when the objects or libraries are touched
 $(BENCHMARK_BIN): $(BENCHMARK_OBJ) $(BENCHMARK_LIB)
 
 # this builds executables from objects for benchmarks
-$(BENCHMARK_BIN_DIR)/%: $(BENCHMARK_BUILD_DIR)/%.o
+$(BENCHMARK_BIN_DIR)/%$(EXESUFFIX): $(BENCHMARK_BUILD_DIR)/%.o 
 	@echo " -- benchmark:linking $@"
 	@mkdir -p $(BENCHMARK_BIN_DIR)
-	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -l$(SOLIB) -L$(EXTLIBDIR) -o $@ -rdynamic $(BENCHMARK_LIB) $(LIB) $(EXTLIB)
+	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -L$(EXTLIBDIR) -l$(SOLIB)  -o $@  $(EXTLIBDIR)/$(PALISADELIB) $(RDYNAMIC) $(BENCHMARK_LIB) $(LIB) $(EXTLIB)  $(MINGWREGEX)
 	@echo
 
 # this is the target that makes benchmark examples
@@ -176,6 +177,8 @@ docbenchmarkstrings:
 	@echo 'LIB $(LIB)'
 	@echo 'SOLIB $(SOLIB)'
 	@echo 'EXTLIB $(EXTLIB)'
+	@echo 'EXTLIBDIR $(EXTLIBDIR)'
+	@echo 'PALISADELIB $(PALISADELIB)'
 
 #this target is usesd to cleanup, it is called from the top Makefile
 .PHONEY: cleanbenchmarks

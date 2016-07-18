@@ -42,7 +42,7 @@
 #include "../../utils/memory.h"
 #include <functional>
 #include "../interface.h"
-#include "mempool.h"
+#include "mempool8bit.h"
 
 /**
  * @namespace cpu8bit
@@ -458,7 +458,7 @@ public:
 	 * @param bitString the binary num in string.
 	 * @return the binary number represented as a decimal big binary int.
 	 */
-	static BigBinaryInteger BinaryToBigBinaryInt(const std::string& bitString);
+	static BigBinaryInteger BinaryStringToBigBinaryInt(const std::string& bitString);
 
 	/**
 	 * Exponentiation of a bigBinaryInteger x. Returns x^p

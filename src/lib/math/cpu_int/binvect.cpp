@@ -25,7 +25,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "binvect.h"
+#include "../../utils/serializable.h"
+#include "../cpu_int/binvect.h"
 //#include "../nbtheory.h"
 
 
@@ -42,23 +43,15 @@ BigBinaryVector<IntegerType>::BigBinaryVector(){
 template<class IntegerType>
 BigBinaryVector<IntegerType>::BigBinaryVector(usint length){
 	this->m_length = length;
-	this->m_modulus;
-	this->m_data = new IntegerType*[m_length];
-	for (usint i = 0; i < m_length; i++){
-		m_data[i] = new IntegerType();
-	}
-
+	//this->m_modulus;
+	this->m_data = new IntegerType[m_length] ();
 }
 
 template<class IntegerType>
 BigBinaryVector<IntegerType>::BigBinaryVector(usint length, const IntegerType& modulus){
 	this->m_length = length;
 	this->m_modulus = modulus;
-	this->m_data = new IntegerType*[m_length];
-	for (usint i = 0; i < m_length; i++){
-		m_data[i] = new IntegerType();
-	}
-
+	this->m_data = new IntegerType[m_length] ();
 }
 
 template<class IntegerType>
@@ -66,9 +59,9 @@ BigBinaryVector<IntegerType>::BigBinaryVector(const BigBinaryVector &bigBinaryVe
 
 	m_length = bigBinaryVector.m_length;
 	m_modulus = bigBinaryVector.m_modulus;
-	m_data = new IntegerType*[m_length];
+	m_data = new IntegerType[m_length];
 	for(usint i=0;i<m_length;i++){
-		m_data[i]= new IntegerType(*bigBinaryVector.m_data[i]);
+		m_data[i] = bigBinaryVector.m_data[i];
 	}
 
 }
@@ -83,22 +76,37 @@ BigBinaryVector<IntegerType>::BigBinaryVector(BigBinaryVector &&bigBinaryVector)
 
 //ASSIGNMENT OPERATOR
 template<class IntegerType>
-BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(const BigBinaryVector &rhs){
+const BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(const BigBinaryVector &rhs){
 	if(this!=&rhs){
 		if(this->m_length==rhs.m_length){
 			for (usint i = 0; i < m_length; i++){
-				*this->m_data[i] = *rhs.m_data[i];
+				this->m_data[i] = rhs.m_data[i];
 			}
 		}
 		else{
 			//throw std::logic_error("Trying to copy vectors of different size");
-			delete m_data;
+			delete [] m_data;
 			m_length = rhs.m_length;
 			m_modulus = rhs.m_modulus;
-			m_data = new IntegerType*[m_length];
+			m_data = new IntegerType[m_length];
 			for (usint i = 0; i < m_length; i++){
-				m_data[i] = new IntegerType(*rhs.m_data[i]);
+				m_data[i] = rhs.m_data[i];
 			}
+		}
+		this->m_modulus = rhs.m_modulus;
+	}
+
+	return *this;
+}
+
+template<class IntegerType>
+const BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(std::initializer_list<sint> rhs){
+	usint len = rhs.size();
+	for(usint i=0;i<m_length;i++){ // this loops over each tower
+		if(i<len) {
+			m_data[i] =  IntegerType(*(rhs.begin()+i));  
+		} else {
+			m_data[i] = IntegerType::ZERO;
 		}
 	}
 
@@ -110,11 +118,7 @@ BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(BigBinaryV
 
 	if(this!=&rhs){
 
-		if(m_data!=NULL){
-			for(usint i=0;i<m_length;i++)
-				delete m_data[i];
-			delete []m_data;
-		}
+		delete [] m_data;
 		m_data = rhs.m_data;
 		m_length = rhs.m_length;
 		m_modulus = rhs.m_modulus;
@@ -128,13 +132,7 @@ BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator=(BigBinaryV
 template<class IntegerType>
 BigBinaryVector<IntegerType>::~BigBinaryVector(){
 	//std::cout<<"destructor called for vector of size: "<<this->m_length<<"  "<<std::endl;
-	if(m_data!=NULL){
-		for(usint i=0;i<m_length;i++){
-			delete  m_data[i];
-		}
-		delete [] m_data;
-	}
-
+	delete [] m_data;
 }
 
 //ACCESSORS
@@ -143,7 +141,7 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryVector<IntegerType_c> 
 
 	os<<std::endl;
 	for(usint i=0;i<ptr_obj.m_length;i++){
-		os<<*ptr_obj.m_data[i] <<std::endl;
+		os<< ptr_obj.m_data[i] <<std::endl;
 	}
 
 	return os;
@@ -156,7 +154,7 @@ void BigBinaryVector<IntegerType>::SetValAtIndex(usint index, const IntegerType&
 			std::cout<<"Invalid index input \n";
 	}
 	else{
-		*this->m_data[index] = value;
+		this->m_data[index] = value;
 	}
 }
 
@@ -166,7 +164,7 @@ void BigBinaryVector<IntegerType>::SetValAtIndex(usint index, const std::string&
 		std::cout<<"Invalid index input \n";
 	}
 	else{
-		this->m_data[index]->SetValue(str);
+		this->m_data[index].SetValue(str);
 	}
 }
 
@@ -176,12 +174,46 @@ const IntegerType& BigBinaryVector<IntegerType>::GetValAtIndex(usint index) cons
 		std::cout<<"Invalid index input \n";
 		return (IntegerType)NULL;
 	}
-	return *this->m_data[index];
+	return this->m_data[index];
 }
 
 template<class IntegerType>
 void BigBinaryVector<IntegerType>::SetModulus(const IntegerType& value){
 	this->m_modulus = value;
+}
+/**Switches the integers in the vector to values corresponding to the new modulus
+*  Algorithm: Integer i, Old Modulus om, New Modulus nm, delta = abs(om-nm):
+*  Case 1: om < nm
+*  if i > i > om/2
+*  i' = i + delta
+*  Case 2: om > nm
+*  i > om/2
+*  i' = i-delta
+*/	
+template<class IntegerType>
+void BigBinaryVector<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
+	
+	IntegerType oldModulus(this->m_modulus);
+	IntegerType n;
+	IntegerType oldModulusByTwo(oldModulus>>1);
+	IntegerType diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
+	for(usint i=0; i< this->m_length; i++) {
+		n = this->GetValAtIndex(i);
+		if(oldModulus < newModulus) {
+			if(n > oldModulusByTwo) {
+				this->SetValAtIndex(i, n.ModAdd(diff, newModulus));
+			} else {
+				this->SetValAtIndex(i, n.Mod(newModulus));
+			}
+		} else {
+			if(n > oldModulusByTwo) {
+				this->SetValAtIndex(i, n.ModSub(diff, newModulus));
+			} else {
+				this->SetValAtIndex(i, n.Mod(newModulus));
+			}
+		}
+	}
+	this->SetModulus(newModulus);
 }
 
 template<class IntegerType>
@@ -203,7 +235,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::Mod(const IntegerType
 	//BigBinaryVector ans(*this);
 
 	//for(usint i=0;i<this->m_length;i++){
-	//	*ans.m_data[i] = ans.m_data[i]->Mod(modulus);
+	//	ans.m_data[i] = ans.m_data[i].Mod(modulus);
 	//}
 	//return ans;
 
@@ -227,13 +259,22 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::Mod(const IntegerType
 }
 
 template<class IntegerType>
+BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModAddAtIndex(usint i, const IntegerType &b) const{
+	if(i > this->GetLength()-1) {
+		std::string errMsg = "binvect::ModAddAtIndex. Index is out of range. i = " + i;
+		throw std::runtime_error(errMsg);
+	}
+	BigBinaryVector ans(*this);
+	ans.m_data[i] = ans.m_data[i].ModAdd(b, this->m_modulus);
+	return ans;
+}
+
+template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModAdd(const IntegerType &b) const{
 	BigBinaryVector ans(*this);
-//	for(usint i=0;i<this->m_length;i++){
-//		*ans.m_data[0] = ans.m_data[0]->ModAdd(b,this->m_modulus);
-//		*ans.m_data[i] = ans.m_data[i]->ModAdd(b, this->m_modulus);
-//	}
-	*ans.m_data[0] = ans.m_data[0]->ModAdd(b, this->m_modulus);
+	for(usint i=0;i<this->m_length;i++){
+		ans.m_data[i] = ans.m_data[i].ModAdd(b, this->m_modulus);
+	}
 	return ans;
 }
 
@@ -242,7 +283,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModSub(const IntegerT
 	BigBinaryVector ans(*this);
 
 	for(usint i=0;i<this->m_length;i++){
-		*ans.m_data[i] = ans.m_data[i]->ModSub(b,this->m_modulus);
+		ans.m_data[i] = ans.m_data[i].ModSub(b,this->m_modulus);
 	}
 	return ans;
 }
@@ -274,6 +315,8 @@ This algorithm would most like give the biggest improvement but it sets constrai
 */
 template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerType &b) const{
+	//std::cout<< "Printing Modulus: "<< m_modulus<< std::endl;
+
 	BigBinaryVector ans(*this);
 
 	//Precompute the Barrett mu parameter
@@ -281,7 +324,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerT
 
 	temp<<=2*this->GetModulus().GetMSB()+3;
 
-	IntegerType mu = temp.DividedBy(this->GetModulus());
+	IntegerType mu = temp.DividedBy(m_modulus);
 
 	//Precompute the Barrett mu values
 	/*BigBinaryInteger temp;
@@ -296,8 +339,9 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerT
 	}*/
 
 	for(usint i=0;i<this->m_length;i++){
-
-		*ans.m_data[i] = ans.m_data[i]->ModBarrettMul(b,this->m_modulus,mu);
+		//std::cout<< "before data: "<< ans.m_data[i]<< std::endl;
+		ans.m_data[i] = ans.m_data[i].ModBarrettMul(b,this->m_modulus,mu);
+		//std::cout<< "after data: "<< ans.m_data[i]<< std::endl;
 	}
 
 	return ans;
@@ -307,7 +351,7 @@ template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModExp(const IntegerType &b) const{
 	BigBinaryVector ans(*this);
 	for(usint i=0;i<this->m_length;i++){
-		*ans.m_data[i] = ans.m_data[i]->ModExp(b,this->m_modulus);
+		ans.m_data[i] = ans.m_data[i].ModExp(b,this->m_modulus);
 	}
 	return ans;
 }
@@ -318,9 +362,9 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModInverse() const{
 	BigBinaryVector ans(*this);
 	//std::cout << ans << std::endl;
 	for(usint i=0;i<this->m_length;i++){
-		//std::cout << *ans.m_data[i] << std::endl;
-		//ans.m_data[i]->PrintValueInDec();
-		*ans.m_data[i] = ans.m_data[i]->ModInverse(this->m_modulus);
+		//std::cout << ans.m_data[i] << std::endl;
+		//ans.m_data[i].PrintValueInDec();
+		ans.m_data[i] = ans.m_data[i].ModInverse(this->m_modulus);
 	}
 	return ans;
 
@@ -337,7 +381,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModAdd(const BigBinar
 	BigBinaryVector ans(*this);
 
 	for(usint i=0;i<ans.m_length;i++){
-		*ans.m_data[i] = ans.m_data[i]->ModAdd(*b.m_data[i],this->m_modulus);
+		ans.m_data[i] = ans.m_data[i].ModAdd(b.m_data[i],this->m_modulus);
 	}
 	return ans;
 
@@ -354,7 +398,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModSub(const BigBinar
 	BigBinaryVector ans(*this);
 
 	for(usint i=0;i<ans.m_length;i++){
-		*ans.m_data[i] = ans.m_data[i]->ModSub(*b.m_data[i],this->m_modulus);
+		ans.m_data[i] = ans.m_data[i].ModSub(b.m_data[i],this->m_modulus);
 	}
 	return ans;
 
@@ -392,7 +436,7 @@ const BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator+=(con
 	}
 
 	for(usint i=0;i<this->m_length;i++){
-		*this->m_data[i] = this->m_data[i]->ModAdd(*b.m_data[i],this->m_modulus);
+		this->m_data[i] = this->m_data[i].ModAdd(b.m_data[i],this->m_modulus);
 	}
 	return *this;
 
@@ -407,7 +451,7 @@ const BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator-=(con
 	}
 
 	for(usint i=0;i<this->m_length;i++){
-		*this->m_data[i] = this->m_data[i]->ModSub(*b.m_data[i],this->m_modulus);
+		this->m_data[i] = this->m_data[i].ModSub(b.m_data[i],this->m_modulus);
 	}
 	return *this;
 
@@ -466,8 +510,8 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const BigBinar
 	}*/
 
 	for(usint i=0;i<ans.m_length;i++){
-		//*ans.m_data[i] = ans.m_data[i]->ModMul(*b.m_data[i],this->m_modulus);
-		*ans.m_data[i] = ans.m_data[i]->ModBarrettMul(*b.m_data[i],this->m_modulus,mu);
+		//ans.m_data[i] = ans.m_data[i].ModMul(b.m_data[i],this->m_modulus);
+		ans.m_data[i] = ans.m_data[i].ModBarrettMul(b.m_data[i],this->m_modulus,mu);
 	}
 	return ans;
 }
@@ -484,9 +528,9 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMatrixMul(const Bi
 	for(usint i=0;i<a.GetRowSize();i++){
 		mid_ans.SetValue("0");
 		for(usint j=0;j<this->m_length;j++){
-			mid_ans = mid_ans + a.GetValAtIndex(i,j)**this->m_data[j];
+			mid_ans = mid_ans + a.GetValAtIndex(i,j)* this->m_data[j];
 		}
-		*ans.m_data[i] = mid_ans.Mod(m_modulus);
+		ans.m_data[i] = mid_ans.Mod(m_modulus);
 	}
 
 	return ans;
@@ -499,91 +543,69 @@ template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::GetDigitAtIndexForBase(usint index, usint base) const{
 	BigBinaryVector ans(*this);
 	for(usint i=0;i<this->m_length;i++){
-		*ans.m_data[i] = IntegerType(ans.m_data[i]->GetDigitAtIndexForBase(index,base));
+		ans.m_data[i] = IntegerType(ans.m_data[i].GetDigitAtIndexForBase(index,base));
 	}
 
 	return ans;
 }
 
-// JSON FACILITY - SetIdFlag Operation
-template<class IntegerType>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> BigBinaryVector<IntegerType>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
-
-	//Place holder
-
-	return serializationMap;
-}
-
 // JSON FACILITY - Serialize Operation
 template<class IntegerType>
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> BigBinaryVector<IntegerType>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::Serialized* serObj, const std::string) const {
 
-	std::unordered_map <std::string, std::string> bbvMap;
+	if( !serObj->IsObject() )
+		return false;
 
-	bbvMap.emplace("Modulus", this->GetModulus().ToString());
+	lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
 
-	std::string pkBufferString;
-	IntegerType pkVectorElem;
-	usint pkVectorLength = 0;
-	std::string pkVectorElemVal;
-	pkVectorLength = GetLength();
-	for (int i = 0; i < pkVectorLength; i++) {
-		pkVectorElem = GetValAtIndex(i);
+	bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
 
-		pkVectorElemVal = pkVectorElem.ToString();
-
-		pkBufferString += pkVectorElemVal;
-		if (i != (pkVectorLength - 1)) {
+	usint pkVectorLength = GetLength();
+	if( pkVectorLength > 0 ) {
+		std::string pkBufferString = GetValAtIndex(0).Serialize();
+		for (int i = 1; i < pkVectorLength; i++) {
 			pkBufferString += "|";
+			pkBufferString += GetValAtIndex(i).Serialize();
 		}
+		bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
 	}
-	bbvMap.emplace("VectorValues", pkBufferString);
 
-	serializationMap.emplace("BigBinaryVector", bbvMap);
+	serObj->AddMember("BigBinaryVector", bbvMap, serObj->GetAllocator());
 
-	return serializationMap;
+	return true;
 }
 
 // JSON FACILITY - Deserialize Operation
 template<class IntegerType>
-void BigBinaryVector<IntegerType>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+bool BigBinaryVector<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj) {
 
-	std::unordered_map<std::string, std::string> bbvMap = serializationMap["BigBinaryVector"];
+	lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigBinaryVector");
+	if( mIter == serObj.MemberEnd() )
+		return false;
 
-	IntegerType bbiModulus(bbvMap["Modulus"]);
+	lbcrypto::SerialItem::ConstMemberIterator vIt;
+
+	if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
+		return false;
+	IntegerType bbiModulus(vIt->value.GetString());
+
+	if( (vIt = mIter->value.FindMember("VectorValues")) == mIter->value.MemberEnd() )
+		return false;
+
 	this->SetModulus(bbiModulus);
 
-	std::string vectorVals = bbvMap["VectorValues"];
 	IntegerType vectorElem;
-	std::string vectorElemVal;
-	usint i = 0;
-	while (vectorVals.find("|", 0)) {
-		size_t pos = vectorVals.find("|", 0);
-		vectorElemVal = vectorVals.substr(0, pos);
+	usint ePos = 0;
+	const char *vp = vIt->value.GetString();
+	while( *vp != '\0' ) {
+		vp = vectorElem.Deserialize(vp);
+		this->SetValAtIndex(ePos++, vectorElem);
 
-		std::string::size_type posTrim = vectorElemVal.find_last_not_of(' ');
-		if (posTrim != std::string::npos) {
-			if (vectorElemVal.length() != posTrim + 1) {
-				vectorElemVal.erase(posTrim + 1);
-			}
-			posTrim = vectorElemVal.find_first_not_of(' ');
-			if (posTrim != 0) {
-				vectorElemVal.erase(0, posTrim);
-			}
-		}
-		else {
-			vectorElemVal = "";
-		}
-
-		vectorElem.SetValue(vectorElemVal);
-		vectorVals.erase(0, pos + 1);
-		this->SetValAtIndex(i, vectorElem);
-		i++;
-
-		if (i == this->GetLength()) {
-			break;
-		}
+		if( *vp == '|' )
+			vp++;
 	}
+
+	return true;
 }
 
 //Private functions

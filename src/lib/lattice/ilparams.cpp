@@ -41,53 +41,59 @@ namespace lbcrypto {
 
 	
 		//JSON FACILITY
-		/**
-		* Implemented by this object only for inheritance requirements of abstract class Serializable.
-		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
-		* @return map passed in.
-		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ILParams::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
 
-			//Place holder
-
-			return serializationMap;
-		}
-
-		//JSON FACILITY
 		/**
 		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
 		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @param serObj stores this object's serialized attribute name value pairs.
 		* @return map updated with the attribute name value pairs required to serialize this object.
 		*/
-		std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ILParams::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+		bool ILParams::Serialize(Serialized* serObj, const std::string fileFlag) const {
 
-			std::unordered_map <std::string, std::string> ilParamsMap;
-			ilParamsMap.emplace("Modulus", this->GetModulus().ToString());
-			ilParamsMap.emplace("Order", this->ToStr(this->GetCyclotomicOrder()));
-			ilParamsMap.emplace("RootOfUnity", this->GetRootOfUnity().ToString());
-			serializationMap.emplace("ILParams", ilParamsMap);
+			if( !serObj->IsObject() )
+				return false;
 
-			return serializationMap;
+			SerialItem ser(rapidjson::kObjectType);
+			ser.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
+			ser.AddMember("Order", std::to_string(this->GetCyclotomicOrder()), serObj->GetAllocator());
+			ser.AddMember("RootOfUnity", this->GetRootOfUnity().ToString(), serObj->GetAllocator());
+
+			serObj->AddMember("ILParams", ser, serObj->GetAllocator());
+
+			return true;
 		}
 
 		//JSON FACILITY
 		/**
 		* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
 		*
-		* @param serializationMap stores this object's serialized attribute name value pairs.
+		* @param serObj stores this object's serialized attribute name value pairs.
 		*/
-		void ILParams::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+		bool ILParams::Deserialize(const Serialized& serObj) {
 
-			std::unordered_map<std::string, std::string> ilParamsMap = serializationMap["ILParams"];
-			BigBinaryInteger bbiModulus(ilParamsMap["Modulus"]);
-			usint order = stoi(ilParamsMap["Order"]);
-			BigBinaryInteger bbiRootOfUnity(ilParamsMap["RootOfUnity"]);
+			Serialized::ConstMemberIterator mIter = serObj.FindMember("ILParams");
+			if( mIter == serObj.MemberEnd() ) {
+				return false;
+			}
+
+			SerialItem::ConstMemberIterator oIt;
+
+			if( (oIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
+				return false;
+			BigBinaryInteger bbiModulus(oIt->value.GetString());
+
+			if( (oIt = mIter->value.FindMember("Order")) == mIter->value.MemberEnd() )
+				return false;
+			usint order = atoi(oIt->value.GetString());
+
+			if( (oIt = mIter->value.FindMember("RootOfUnity")) == mIter->value.MemberEnd() )
+				return false;
+			BigBinaryInteger bbiRootOfUnity(oIt->value.GetString());
 
 			this->SetModulus(bbiModulus);
-			this->SetOrder(order);
+			this->SetCyclotomicOrder(order);
 			this->SetRootOfUnity(bbiRootOfUnity);
+			return true;
 		}
 
 

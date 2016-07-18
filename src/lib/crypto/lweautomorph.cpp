@@ -37,7 +37,7 @@ void LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(const Ciphertext<Element> &ci
 {
 	
 	usint autoIndex = 2*i - 1;
-	usint m = ciphertext.GetElement().GetParams().GetCyclotomicOrder();
+	usint m = ciphertext.GetElement().GetCyclotomicOrder();
 
 	//usint iInverse = ModInverse(autoIndex,m);
 
@@ -76,7 +76,7 @@ bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const LPPublicKey<
 	std::vector<LPEvalKey<Element>*> *evalKeys) const
 {
 	const Element &privateKeyElement = origPrivateKey.GetPrivateElement();
-	usint m = privateKeyElement.GetParams().GetCyclotomicOrder();
+	usint m = privateKeyElement.GetCyclotomicOrder();
 
 	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
 	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();

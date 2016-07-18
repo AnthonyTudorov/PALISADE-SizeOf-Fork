@@ -1,4 +1,4 @@
-// LAYER 2 : LATTICE DATA STRUCTURES AND OPERATIONS
+﻿// LAYER 2 : LATTICE DATA STRUCTURES AND OPERATIONS
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
 Version:
@@ -11,6 +11,8 @@ Dr. Kurt Rohloff, rohloff@njit.edu
 Programmers:
 Dr. Yuriy Polyakov, polyakov@njit.edu
 Gyana Sahu, grs22@njit.edu
+Nishant Pasham, np386@njit.edu
+Hadi Sajjadpour, ss2959@njit.edu
 Description:
 This code provides basic lattice ideal manipulation functionality.
 
@@ -30,271 +32,231 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
-	ILVectorArray2n::ILVectorArray2n() : m_vectors(NULL), m_format(EVALUATION),m_params()
-	{
+	/*CONSTRUCTORS*/
+
+	ILVectorArray2n::ILVectorArray2n() : m_format(EVALUATION), m_numberOfElements(0), m_cyclotomicOrder(0), m_modulus(1){
 	}
 
-
-	ILVectorArray2n::ILVectorArray2n(const ElemParams & params) : m_params(static_cast<const ILDCRTParams&>(params)), m_format(EVALUATION)
+	ILVectorArray2n::ILVectorArray2n(const ElemParams &params, Format format) : m_format(format)
 	{
-		m_vectors.resize(m_params.GetModuli().size());
-		for (usint i = 0; i < m_vectors.size(); i++) {
-			usint m = m_params.GetCyclotomicOrder();
-			BigBinaryInteger modulus(m_params.GetModuli()[i]);
-			BigBinaryInteger rootOfUnity(m_params.GetRootsOfUnity()[i]);
+		const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(params);
+		m_numberOfElements = dcrtParams.GetModuli().size(); //TODO- ADD Integrety checks for ILDCRTParams IN ILDCRTParams 
+		m_cyclotomicOrder = params.GetCyclotomicOrder();
+		m_format = format;
+		m_modulus = params.GetModulus();
 
-			ILParams ilParams0(m, modulus, rootOfUnity);
-			
-			m_vectors[i].SetParams(ilParams0);
-			
-			BigBinaryVector tmp(m_params.GetCyclotomicOrder() / 2, m_params.GetModuli()[i]);
-		//	std::cout << "value of cyclotomic order is : " << m_params.GetCyclotomicOrder() << std::endl;
-
-			m_vectors[i].SetValues(tmp, m_format);
-		//	std::cout << "size of bigbinaryvector is : " << m_vectors[i].GetValues().GetLength() << std::endl;
-
-		}
+		m_vectors.reserve(m_numberOfElements);
 		
+		ILParams ilParamsTemp;
 
+		for (usint i = 0; i < m_numberOfElements; i++) { 
+
+			BigBinaryInteger modulus(dcrtParams.GetModuli()[i]);
+			BigBinaryInteger rootOfUnity(dcrtParams.GetRootsOfUnity()[i]);
+
+			ilParamsTemp.SetCyclotomicOrder(m_cyclotomicOrder);
+			ilParamsTemp.SetModulus(modulus);
+			ilParamsTemp.SetRootOfUnity(rootOfUnity);					
+			m_vectors.push_back(std::move(ILVector2n(ilParamsTemp,format)));
+		}
 	}
 
 	ILVectorArray2n::ILVectorArray2n(const ILVectorArray2n &element)  {
-		this->m_params = element.m_params;
-		this->m_format = element.m_format;
-		this->m_vectors = element.m_vectors;
-
+		m_format = element.m_format;
+		m_vectors = element.m_vectors;
+		m_modulus = element.m_modulus;
+		m_numberOfElements = element.m_numberOfElements;
+		m_cyclotomicOrder = element.m_cyclotomicOrder;
 	}
-
-	ILVectorArray2n::ILVectorArray2n(const ILDCRTParams& params, std::vector<ILVector2n>& levels, Format format)
+	
+	/* Construct using a single ILVector2n. The format is derived from the passed in ILVector2n.*/
+	ILVectorArray2n::ILVectorArray2n(const ILVector2n &element, const ILDCRTParams &params)
 	{
-		m_vectors = levels;
-		m_params = params;
-		m_format = format;
-	}
-
-	ILVectorArray2n::ILVectorArray2n(ILVector2n element, const ILDCRTParams & params, Format format)
-	{
-		m_params = params;
-		m_format = format;
-		m_vectors.resize(params.GetModuli().size());
-
-		usint i = 0;
-
-		usint size = params.GetModuli().size();
-
-		ILVector2n temp();
-		for (i = 0; i < size; i++) {
-
-			BigBinaryInteger a(m_params.GetModuli()[i]);
-			BigBinaryInteger b(m_params.GetRootsOfUnity()[i]);
-			ILParams ilParams2(m_params.GetCyclotomicOrder(), a, b);
-
-			m_vectors[i] = element;
-			m_vectors[i].SetParams(ilParams2);
-			m_vectors[i].SetModulus(m_params.GetModuli()[i]);
-
-
+		Format format;
+		try{
+			format = element.GetFormat();
+		}
+		catch (const std::exception& e) {
+			throw std::logic_error("There is an issue with the format of ILVectors passed to the constructor of ILVectorArray2n");
 		}
 
-	//	ChangeModuliOfIlVectorsToMatchDBLCRT();
+		m_numberOfElements = params.GetModuli().size();
+		m_format = format;
+		m_modulus = params.GetModulus();
+		m_cyclotomicOrder = params.GetCyclotomicOrder();
 
+		m_vectors.reserve(m_numberOfElements);
+
+		ILVector2n ilvector2n(element);
+
+		for (usint i = 0; i < m_numberOfElements; i++) {
+			ILVector2n ilvector2nSwitchModulus(ilvector2n);
+			ilvector2nSwitchModulus.SwitchModulus(params.GetModuli()[i], params.GetRootsOfUnity()[i]);
+			m_vectors.push_back(std::move(ilvector2nSwitchModulus));
+		}
 	}
 
-
-
-
-	ILVectorArray2n::ILVectorArray2n(const DiscreteGaussianGenerator & dgg, const ElemParams & params, Format format) :m_params(static_cast<const ILDCRTParams&>(params))
+	/* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArray2n will be derived from the towers.*/
+	ILVectorArray2n::ILVectorArray2n(const std::vector<ILVector2n> &towers)
 	{
+		m_vectors = towers; // once all the params are correct, set ILVectorArray2n's towers to the passed value
+		m_format = m_vectors[0].GetFormat();
+		m_cyclotomicOrder = m_vectors[0].GetCyclotomicOrder();
+		m_numberOfElements = towers.size();
+		m_modulus = 1;
+		//TODO: Add a integrity check to acertain if the cyclotomicorder are the same:
+		for(usint i=0; i<m_numberOfElements;i++)
+			m_modulus = m_modulus*m_vectors.at(i).GetModulus();
+	}
 
-		const ILDCRTParams &m_params = static_cast<const ILDCRTParams&>(params);
+	/*The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers. The algorithm to populate the towers can be seen below.*/
+	ILVectorArray2n::ILVectorArray2n(const DiscreteGaussianGenerator & dgg, const ElemParams &params, Format format)
+	{
+		const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(params);
 
-
-		m_vectors.resize(m_params.GetModuli().size());
+		m_numberOfElements = dcrtParams.GetModuli().size();
+		m_modulus = dcrtParams.GetModulus();
+		m_cyclotomicOrder= dcrtParams.GetCyclotomicOrder();
 		m_format = format;
-	//	ILDCRTParams params2 = m_params;
-	////	usint m2 = 32;
 
-	//	BigBinaryInteger bigMod;
-	//	bigMod = m_params.GetModulus();
-	//	std::cout << bigMod << std::endl;
+		m_vectors.reserve(m_numberOfElements);
 
-	//	BigBinaryInteger bigRoot = RootOfUnity(m_params.GetCyclotomicOrder(), bigMod);
-	//	ILParams testParams(m_params.GetCyclotomicOrder(), bigMod, bigRoot);
-	//	BigBinaryVector ilTestValues(m_params.GetCyclotomicOrder()/2, bigMod);
-	//	ILVector2n ilTestFor(testParams);
+		//dgg generating random values
+		
+		sint* dggValues = dgg.GenerateIntVector(params.GetCyclotomicOrder()/2);
 
+		BigBinaryInteger modulus;
+		BigBinaryInteger rootOfUnity;
+		BigBinaryInteger temp;
 
-	/*if(!isKey){*/
-		//dgg.Initialize();
-		sint* dggValues = dgg.GenerateIntVector(m_params.GetCyclotomicOrder()/2);
-	
-	/*	for(usint j = 0; j < m_params.GetCyclotomicOrder()/2; j++){
+		for(usint i = 0; i < dcrtParams.GetModuli().size();i++){
 			
-				if((int)dggValues[j] < 0){
-					int k = (int)dggValues[j];
-					k = k * (-1);
-					BigBinaryInteger temp(k);
-					temp = bigMod - temp;
-					ilTestValues.SetValAtIndex(j,temp);
-				}
+			modulus = dcrtParams.GetModuli()[i];
+			rootOfUnity = dcrtParams.GetRootsOfUnity()[i];
 
-				else{				
-					int k = (int)dggValues[j];
-					BigBinaryInteger temp(k);
-					ilTestValues.SetValAtIndex(j,temp);
-				}
-
-			}*/
-		
-	//	ilTestFor.SetValues(ilTestValues,Format::COEFFICIENT);
-	////	ilTestFor.SwitchFormat();
-	//	ilTestFor.GetMeghdar();
-	//	std::cout << std::endl;
-
-	//	ilTestFor.SwitchFormat();
-	//	
-	//	std::cout << std::endl;
-	//	ilTestFor.GetMeghdar();
-
-
-		for(usint i = 0; i < m_vectors.size();i++){
-		
-			BigBinaryInteger modulus;
-			modulus = m_params.GetModuli()[i];
-			BigBinaryInteger rootOfUnity;
-			rootOfUnity = m_params.GetRootsOfUnity()[i];
-
-			ILParams ilVectorDggValuesParams(m_params.GetCyclotomicOrder(), modulus, rootOfUnity);	
+			ILParams ilVectorDggValuesParams(params.GetCyclotomicOrder(), modulus, rootOfUnity);	
 			ILVector2n ilvector(ilVectorDggValuesParams);
 
-			BigBinaryVector ilDggValues(m_params.GetCyclotomicOrder()/2,modulus);
+			BigBinaryVector ilDggValues(params.GetCyclotomicOrder()/2,modulus);
 
-			for(usint j = 0; j < m_params.GetCyclotomicOrder()/2; j++){
-			
+			for(usint j = 0; j < params.GetCyclotomicOrder()/2; j++){
+				// if the random generated value is less than zero, then multiply it by (-1) and subtract the modulus of the current tower to set the coefficient
 				if((int)dggValues[j] < 0){
 					int k = (int)dggValues[j];
 					k = k * (-1);
-					BigBinaryInteger temp(k);
-					temp = m_params.GetModuli()[i] - temp;
+					temp = k;
+					temp = dcrtParams.GetModuli()[i] - temp;
 					ilDggValues.SetValAtIndex(j,temp);
 				}
-
+				//if greater than or equal to zero, set it the value generated
 				else{				
 					int k = (int)dggValues[j];
-					BigBinaryInteger temp(k);
+					temp = k;
 					ilDggValues.SetValAtIndex(j,temp);
 				}
-
 			}
-			ilvector.SetValues(ilDggValues, Format::COEFFICIENT);
-		//	std::cout << ilvector.GetModulus() << std::endl;
-		//	ilvector.GetMeghdar();
-			if(m_format == Format::EVALUATION){
+
+			ilvector.SetValues(ilDggValues, Format::COEFFICIENT); // the random values are set in coefficient format
+			if(m_format == Format::EVALUATION){  // if the input format is evaluation, then once random values are set in coefficient format, switch the format to achieve what the caller asked for.
 				ilvector.SwitchFormat();
 			}
-			m_vectors[i] = ilvector;
-
+			m_vectors.push_back(ilvector);
+		}
 	}
 
-			/*ILVector2n interpolatedDecodedValue = this->InterpolateIlArrayVector2n();		
-			interpolatedDecodedValue.GetMeghdar();
-			interpolatedDecodedValue.SwitchFormat();
-			std::cout << std::endl;
-			interpolatedDecodedValue.GetMeghdar();*/
-
-
-
-	//else{
-	//
-
-	//	for (usint i = 0; i < m_params.GetModuli().size(); i++) {
-
-	//		BigBinaryInteger rootOfUnity(m_params.GetRootsOfUnity()[i]);
-	//		usint cyclotomicOrder = m_params.GetCyclotomicOrder();
-	//		BigBinaryInteger modulus(m_params.GetModuli()[i]);
-
-
-	//		ILParams ilParams(cyclotomicOrder, modulus, rootOfUnity);
-
-	//		ILVector2n ilvector(isKey, dgg, ilParams, m_format);
-
-	//		m_vectors[i] = ilvector;
-	//		m_vectors[i].SetParams(ilParams);
-	//	
-
-	//	}
-
-	//}
-
+	/*Move constructor*/
+	ILVectorArray2n::ILVectorArray2n(const ILVectorArray2n &&element){
+		m_format = element.m_format;
+		m_modulus = std::move(element.m_modulus);
+		m_cyclotomicOrder = element.m_cyclotomicOrder;
+		m_numberOfElements = element.m_numberOfElements;
+		m_vectors = std::move(element.m_vectors);
 	}
 
-
-
-	ILVectorArray2n & ILVectorArray2n::operator=(const ILVectorArray2n & rhs)
-	{
-		if (this != &rhs) {
-			if (m_vectors.empty()) {
-				m_vectors.resize(rhs.GetParams().GetModuli().size());
-			}
-				this->m_vectors = rhs.m_vectors;			
-			    this->m_params = rhs.m_params;
-			    this->m_format = rhs.m_format;
-				
+	ILVectorArray2n ILVectorArray2n::CloneWithParams() const{
+		
+		std::vector<ILVector2n> result;
+		result.reserve(m_numberOfElements);
+		
+		for(usint i=0;i<m_numberOfElements;i++){
+			result.push_back(std::move(m_vectors.at(i).CloneWithParams()));
 		}
 
-		return *this;
+		ILVectorArray2n res(result);
 
+		return std::move(res);
 	}
+
+	ILVectorArray2n ILVectorArray2n::CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format) const{
+		std::vector<ILVector2n> result;
+		result.reserve(m_numberOfElements);
+		
+		for(usint i=0;i<m_numberOfElements;i++){
+			result.push_back(std::move(m_vectors.at(i).CloneWithNoise(dgg, format)));
+		}
+
+		ILVectorArray2n res(result);
+		return std::move(res);
+	}
+
+	usint ILVectorArray2n::GetCyclotomicOrder() const {
+		return m_cyclotomicOrder;
+	}
+
+	const BigBinaryInteger &ILVectorArray2n::GetModulus() const {
+		return m_modulus;
+	}
+
+	// DESTRUCTORS
 
 	ILVectorArray2n::~ILVectorArray2n()
 	{
-		//	delete m_vectors;
+
 	}
-	ILVector2n lbcrypto::ILVectorArray2n::GetValues(usint i) const
+
+	// GET ACCESSORS
+	const ILVector2n& ILVectorArray2n::GetElementAtIndex (usint i) const
 	{
+		if(m_vectors.empty())
+			throw std::logic_error("ILVectorArray2n's towers are not initialized. Throwing error now.");
+		if(i > m_vectors.size()-1)
+			throw std::logic_error("Index: " + std::to_string(i) + " is out of range.");
 		return m_vectors[i];
 	}
+
+	usint ILVectorArray2n::GetNumOfElements() const {
+		return m_numberOfElements;
+	}
+
+	const std::vector<ILVector2n>& ILVectorArray2n::GetAllElements() const
+	{
+		return m_vectors;
+	}
+
 	Format ILVectorArray2n::GetFormat() const
 	{
 		return m_format;
 	}
 
-	const ILDCRTParams & ILVectorArray2n::GetParams() const
-	{
-		return m_params;
-	}
-
-
-	void ILVectorArray2n::SetValues(std::vector<ILVector2n>& values, Format format)
-	{
-		m_vectors = values;
-		m_format = format;
-	}
-	ILVectorArray2n ILVectorArray2n::MultiplicativeInverse() const
-	{
-
+	ILVectorArray2n ILVectorArray2n::GetDigitAtIndexForBase(usint index, usint base) const{
 		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
-
-			tmp.m_vectors[i] = tmp.m_vectors[i].MultiplicativeInverse();
-
+			tmp.m_vectors[i] = m_vectors[i].GetDigitAtIndexForBase(index,base);
 		}
-
 		return tmp;
 	}
 
-	ILVectorArray2n ILVectorArray2n::Plus(const BigBinaryInteger & element) const
+	/*VECTOR OPERATIONS*/
+
+	ILVectorArray2n ILVectorArray2n::MultiplicativeInverse() const
 	{
 		ILVectorArray2n tmp(*this);
 
-		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
-
-			tmp.m_vectors[i] = (tmp.GetValues(i)).Plus(element).Mod(m_params.GetModuli()[i]);
-
+		for (usint i = 0; i < m_vectors.size(); i++) {
+			tmp.m_vectors[i] = tmp.m_vectors[i].MultiplicativeInverse();
 		}
-
-		return tmp;
+		return std::move(tmp);
 	}
 
 	ILVectorArray2n ILVectorArray2n::ModByTwo() const
@@ -302,165 +264,342 @@ namespace lbcrypto {
 		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
-
 			tmp.m_vectors[i] = m_vectors[i].ModByTwo();
-
 		   }
-
-		return tmp;
+		return std::move(tmp);
 	}
 
-
-
-	ILVectorArray2n ILVectorArray2n::Plus(const ILVectorArray2n & element) const
+	ILVectorArray2n ILVectorArray2n::Plus(const ILVectorArray2n &element) const
 	{
 		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
-
-			tmp.m_vectors[i] = ((tmp.GetValues(i)).Plus(element.GetValues(i))).Mod(m_params.GetModuli()[i]);
-
+			tmp.m_vectors[i] += element.GetElementAtIndex (i);
 		}
-		return tmp;
+		return std::move(tmp);
+	}
+
+	ILVectorArray2n ILVectorArray2n::Minus(const ILVectorArray2n &element) const {
+		ILVectorArray2n tmp(*this);
+
+		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
+			tmp.m_vectors[i] -= element.GetElementAtIndex (i);
+		}
+		return std::move(tmp);
+	}
+
+	const ILVectorArray2n & ILVectorArray2n::operator+=(const ILVectorArray2n &rhs)
+	{
+            return this->Plus(rhs); // TODO-OPTIMIZE
+	}
+
+	const ILVectorArray2n& ILVectorArray2n::operator-=(const ILVectorArray2n &rhs) {
+		return this->Minus(rhs);  // TODO-OPTIMIZE
+    }
+
+	bool ILVectorArray2n::operator!=(const ILVectorArray2n &rhs) const {
+            return !(*this == rhs); 
+        }
+	
+	bool ILVectorArray2n::operator==(const ILVectorArray2n &rhs) const {
+		//check if the format's are the same
+		if (m_format != rhs.m_format) {
+                return false;
+          }
+
+		if (m_modulus != rhs.m_modulus) {
+                return false;
+          }
+	
+		if (m_cyclotomicOrder != rhs.m_cyclotomicOrder) {
+                return false;
+          }
+
+		if (m_numberOfElements != rhs.m_numberOfElements) {
+                return false;
+          }
+
+		//check if the towers are the same
+		else return (m_vectors != rhs.GetAllElements());
+	}
+
+	const ILVectorArray2n & ILVectorArray2n::operator=(const ILVectorArray2n & rhs)
+	{
+		if (this != &rhs) {
+			m_vectors = rhs.m_vectors;			
+			m_format = rhs.m_format;	
+			m_modulus = rhs.m_modulus;
+			m_cyclotomicOrder = rhs.m_cyclotomicOrder;
+			m_numberOfElements = rhs.m_numberOfElements;
+		}
+		return *this;
+	}
+
+	ILVectorArray2n& ILVectorArray2n::operator=(std::initializer_list<sint> rhs){
+		usint len = rhs.size();
+		if(!IsEmpty()){
+			usint vectorLength = this->m_vectors[0].GetLength();
+			for(usint i = 0;i < m_numberOfElements; ++i){ // this loops over each tower
+				for(usint j = 0; j < vectorLength; ++j) { // loops within a tower
+					if(j<len) {
+						this->m_vectors[i].SetValAtIndex(j, *(rhs.begin()+j));
+					} else {
+						this->m_vectors[i].SetValAtIndex(j,0);
+					}
+				}
+			}
+		}
+		else{
+			for(usint i=0;i<m_numberOfElements;i++){
+				BigBinaryVector temp(m_cyclotomicOrder/2);
+				temp.SetModulus(m_vectors.at(i).GetModulus());
+				temp = rhs;
+				m_vectors.at(i).SetValues(std::move(temp),m_format);
+			}
+			
+		}
+		return *this;
+	}
+
+	/*SCALAR OPERATIONS*/
+
+	ILVectorArray2n ILVectorArray2n::Plus(const BigBinaryInteger &element) const
+	{
+		ILVectorArray2n tmp(*this);
+
+		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
+			tmp.m_vectors[i] += element;
+		}
+		return std::move(tmp);
+	}
+
+	ILVectorArray2n ILVectorArray2n::Minus(const BigBinaryInteger &element) const {
+		ILVectorArray2n tmp(*this);
+
+		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
+			tmp.m_vectors[i] -= element;
+		}
+		return std::move(tmp);
 	}
 
 	ILVectorArray2n ILVectorArray2n::Times(const ILVectorArray2n & element) const
 	{
-
 		ILVectorArray2n tmp(*this);
-		for (usint i = 0; i < m_vectors.size(); i++) {
 
+		for (usint i = 0; i < m_vectors.size(); i++) {
+			//ModMul multiplies and performs a mod operation on the results. The mod is the modulus of each tower.
 			tmp.m_vectors[i].SetValues(((m_vectors[i].GetValues()).ModMul(element.m_vectors[i].GetValues())), m_format);
-			//ILVector2n test = m_vectors[i] * element.m_vectors[i];
-			//tmp.m_vectors[i].SetValues(test.GetValues(), m_format);
-
-
+			
 		}
-		return tmp;
-
-		//return ILVectorArray2n();
+		return std::move(tmp);
 	}
 
-	const ILVectorArray2n & ILVectorArray2n::operator+=(const ILVectorArray2n & element)
-	{
-		
-		for (usint i = 0; i < m_vectors.size(); i++) {
-			m_vectors[i] +=  element.m_vectors[i];
-		}
-
-		return *this;
-	}
-
-	ILVectorArray2n ILVectorArray2n::Times(const BigBinaryInteger & element) const
-	{
-
-		ILVectorArray2n tmp(*this);
-//	std::cout<< "1.Printing internals ...  " <<m_params.GetModuli()[0] << std::endl;
-
-
-		for (usint i = 0; i < m_vectors.size(); i++) {
-
-			tmp.m_vectors[i] = ((element*tmp.m_vectors[i]).Mod(m_params.GetModuli()[i]));
-			/*std::cout << "in times" << std::endl;
-			tmp.m_vectors[i].SetModulus(m_params.GetModuli()[i]);
-			std::cout<< tmp.m_vectors[i].GetModulus() << std::cout;			
-			std::cout << "in times" << std::endl;*/
-
-		}
-
-		tmp.m_params= this->m_params;
-	//	std::cout<< "2.Printing internals ... " << tmp.m_params.GetModuli()[0] << std::endl;
-		return tmp;
-	}
-
-	ILVectorArray2n ILVectorArray2n::Mod(const BigBinaryInteger & modulus) const
+	ILVectorArray2n ILVectorArray2n::Times(const BigBinaryInteger &element) const
 	{
 		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
-			tmp.m_vectors[i] = m_vectors[i].Mod(modulus);
+			tmp.m_vectors[i] = (element*tmp.m_vectors[i]);
 		}
-		return tmp;
+		// tmp.m_params= this->m_params;
+		return std::move(tmp);
+	}
+
+	const ILVectorArray2n& ILVectorArray2n::operator+=(const BigBinaryInteger &rhs){
+         return this->Plus(rhs); //TODO-OPTIMIZE
 	}
 	
-	void ILVectorArray2n::PrintValues() const{
+	const ILVectorArray2n& ILVectorArray2n::operator-=(const BigBinaryInteger &rhs){
+          return this->Minus(rhs); //TODO-OPTIMIZE
+	}
 
+	/*OTHER FUNCTIONS*/
+	
+	void ILVectorArray2n::PrintValues() const{
 		std::cout<<"---START PRINT DOUBLE CRT-- WITH SIZE" <<m_vectors.size() << std::endl;
-//		std:: cout << "Printing values in ILVECTORARRAY2N" << std::endl;
 		 for(usint i = 0; i < m_vectors.size();i++){
 			std::cout<<"VECTOR " << i << std::endl;
-
 			m_vectors[i].PrintValues();
 		 }
-
 		 std::cout<<"---END PRINT DOUBLE CRT--" << std::endl;
-
 	}
 
-//	void ILVectorArray2n::DecodeElement(ByteArrayPlaintextEncoding * text, const BigBinaryInteger & modulus) 
-//	{
-////		std::cout << "FROM BIG NBI::" << std::endl;
-//
-//		/*for (usint i = 0; i < m_vectors.size(); i++) {
-//
-//			m_vectors[i].DecodeElement(text, modulus);
-//
-//		}*/
-////		std::cout << "END BIG::" << std::endl;
-//
-//
-//		ILVector2n interpolatedDecodedValue = this->InterpolateIlArrayVector2n();
-//		
-////		interpolatedDecodedValue.GetMeghdar();
-//
-//
-//		//interpolatedDecodedValue.ModByTwo();
-//
-//		//interpolatedDecodedValue.GetMeghdar();
-//
-//
-//	//	interpolatedDecodedValue  = interpolatedDecodedValue.ModByTwo();
-//
-//	//	interpolatedDecodedValue.GetMeghdar();
-//
-//		interpolatedDecodedValue.DecodeElement(text, modulus);
-//	//	m_vectors[0].DecodeElement(text, modulus);
-//	/*	ILVectorArray2n returnValue(interpolatedDecodedValue, m_params, m_format);
-//		*this = returnValue;*/
-//
-//
-//	}
-//	
-//	void ILVectorArray2n::EncodeElement(const ByteArrayPlaintextEncoding & encoded, const BigBinaryInteger & modulus)
-//	{
-//	//	ILVector2n interpolatedEncodedValue = this->InterpolateIlArrayVector2n();
-//	//	interpolatedEncodedValue.EncodeElement(encoded, modulus);
-//		m_vectors[0].EncodeElement(encoded,modulus);
-//		m_format = COEFFICIENT;
-//	//	ILVectorArray2n returnValue(interpolatedEncodedValue, m_params, m_format);
-//		ILVectorArray2n returnValue(m_vectors[0], m_params, m_format);
-//		*this = returnValue;
-//
-//		return;
-//	}
-//
+	void ILVectorArray2n::AddILElementOne() {
+		if(m_format != Format::EVALUATION)
+			throw std::runtime_error("ILVectorArray2n::AddILElementOne cannot be called on a ILVectorArray2n in COEFFICIENT format.");
+		for(usint i = 0; i < m_vectors.size(); i++){
+			m_vectors[i].AddILElementOne();
+		}
+	}
 
+	void ILVectorArray2n::MakeSparse(const BigBinaryInteger &wFactor){
+		for(usint i = 0; i < m_vectors.size(); i++){
+			m_vectors[i].MakeSparse(wFactor);
+		}
+	}
 
-
-	ILVectorArray2n ILVectorArray2n::GetDigitAtIndexForBase(usint index, usint base) const{
-		ILVectorArray2n tmp(*this);
+	// This function modifies ILVectorArray2n to keep all the even indices in the tower. It reduces the ring dimension of the tower by half.
+	void ILVectorArray2n::Decompose() {
 		
-		for (usint i = 0; i < m_vectors.size(); i++) {
-			tmp.m_vectors[i] = m_vectors[i].GetDigitAtIndexForBase(index,base);
+		if(m_format != Format::COEFFICIENT) {
+			std::string errMsg = "ILVectorArray2n not in COEFFICIENT format to perform Decompose.";
+			throw std::runtime_error(errMsg);
+		}
+		
+		for(int i=0; i < m_numberOfElements; i++) {
+			m_vectors[i].Decompose();
+		}
+	}
+
+	bool ILVectorArray2n::IsEmpty() const{
+		for(usint i=0;i<m_numberOfElements;i++){
+			if(!m_vectors.at(i).IsEmpty())
+				return false;
+		}
+		return true;
+	}
+
+	void ILVectorArray2n::DropElementAtIndex(usint index){
+		if(index >= m_numberOfElements){
+			throw std::out_of_range("Index of tower being removed is larger than ILVectorArray2n tower\n");
+		}
+		m_modulus = m_modulus /(m_vectors[index].GetModulus());
+		m_vectors.erase(m_vectors.begin() + index);
+		m_numberOfElements -= 1;
+	}
+
+	/**
+	* This function performs ModReduce on ciphertext element and private key element. The algorithm can be found from this paper:
+	* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
+	* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+	* 
+	* Modulus reduction reduces a ciphertext from modulus q to a smaller modulus q/qi. The qi is generally the largest. In the code below,
+	* ModReduce is written for ILVectorArray2n and it drops the last tower while updating the necessary parameters. 
+	* The steps taken here are as follows:
+	* 1. compute a short d in R such that d = c mod q
+	* 2. compute a short delta in R such that delta = (vq′−1)·d mod (pq′). E.g., all of delta’s integer coefficients can be in the range [−pq′/2, pq′/2).
+	* 3. let d′ = c + delta mod q. By construction, d′ is divisible by q′.
+	* 4. output (d′/q′) in R(q/q′).
+	*/
+	void ILVectorArray2n::ModReduce(const BigBinaryInteger &plaintextModulus) {
+		if(m_format != Format::EVALUATION) {
+			throw std::logic_error("Mod Reduce function expects EVAL Formatted ILVectorArray2n. It was passed COEFF Formatted ILVectorArray2n.");
+		}
+		this->SwitchFormat();
+		
+		usint lastTowerIndex = m_numberOfElements - 1;
+
+		ILVector2n towerT(m_vectors[lastTowerIndex]); //last tower that will be dropped
+		ILVector2n d(towerT); 
+
+		//precomputations
+		BigBinaryInteger qt(m_vectors[lastTowerIndex].GetModulus());
+		//std::cout<<"qt:	"<<qt<<std::endl;
+		BigBinaryInteger v(qt.ModInverse(plaintextModulus));
+		//std::cout<<"v:	"<<v<<std::endl;
+		BigBinaryInteger a((v * qt).ModSub(BigBinaryInteger::ONE, plaintextModulus*qt));
+		//std::cout<<"a:	"<<a<<std::endl;
+
+		//Since only positive values are being used for Discrete gaussian generator, a call to switch modulus needs to be done
+		d.SwitchModulus(plaintextModulus*qt, d.GetRootOfUnity()); // NOT CHANGING ROOT OF UNITY-TODO: What to do with SwitchModulus and is it necessary to pass rootOfUnity		
+		//d.PrintValues();
+
+		//Calculating delta, step 2
+		ILVector2n delta(d.Times(a)); 
+		//delta.PrintValues();
+
+		//Calculating d' = c + delta mod q (step 3)
+		for(usint i=0; i<m_numberOfElements; i++) {
+			ILVector2n temp(delta);
+			temp.SwitchModulus(m_vectors[i].GetModulus(), m_vectors[i].GetRootOfUnity());
+			m_vectors[i] += temp;
 		}
 
-		return tmp;
+		//step 4
+		DropElementAtIndex(lastTowerIndex);
+		std::vector<BigBinaryInteger> qtInverseModQi(m_numberOfElements);
+		for(usint i=0; i<m_numberOfElements; i++) {
+			qtInverseModQi[i] = qt.ModInverse(m_vectors[i].GetModulus());
+			m_vectors[i] = qtInverseModQi[i] * m_vectors[i];
+		}
 		
+		SwitchFormat();
 	}
 
-	/*Switch format simply calls IlVector2n's switchformat*/
-	void ILVectorArray2n::SwitchFormat() {
+	/*This method applies the Chinese Remainder Interpolation on an ILVectoArray2n and produces an ILVector2n. The ILVector2n is the ILVectorArray2n's represantation
+	* with one single coefficient vector.
+	* How the Algorithm works:
+	* Consider the ILVectorArray2n as a 2-dimensional matrix, denoted as M, with dimension ringDimension * Number of Towers. For breviety , lets say this is r * t
+	* Let qt denote the bigModulus (all the towers' moduli multiplied together) and qi denote the modulus of a particular tower. 
+	* Let V be a BigBinaryVector of size tower (tower size). Each coefficient of V is calculated as follows:
+	* for every r
+	*   calculate: V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qi *[ (qt/qi)^(-1) mod qi ]}modqt 
+	*
+	* Once we have the V values, we construct an ILVector2n from V, use qt as it's modulus and calculate a root of unity for parameter selection of the ILVector2n.
+	*/
+	ILVector2n ILVectorArray2n::InterpolateIlArrayVector2n() const
+	{
+		if(m_numberOfElements == 1) return m_vectors.at(0);
 
+		/*initializing variables for effciency*/
+		usint ringDimension = m_cyclotomicOrder / 2;
+
+		BigBinaryInteger qi; //qi
+
+		BigBinaryInteger bigModulus(m_modulus); //qt
+
+		BigBinaryInteger divideBigModulusByIndexModulus; //qt/qi
+
+		BigBinaryInteger modularInverse; // (qt/qi)^(-1) mod qi
+
+		BigBinaryInteger chineseRemainderMultiplier; // qt/qi * [(qt/qi)(-1) mod qi]
+
+		BigBinaryInteger multiplyValue;// M (r, i) * qt/qi * [(qt/qi)(-1) mod qi]
+
+		BigBinaryVector coefficients(ringDimension,m_modulus); // V vector
+
+		BigBinaryInteger interpolateValue("0"); // this will finally be  V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qi *[ (qt/qi)^(-1) mod qi ]}modqt 
+
+		/*This loop calculates every coefficient of the interpolated valued.*/
+		for (usint i = 0; i < ringDimension; i++) {
+		/*This for loops to calculate V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qi *[ (qt/qi)^(-1) mod qi ]}mod qt, the loop is basically the sigma.
+		Mod qt is done outside the loop*/
+			for (usint j = 0; j < m_vectors.size(); j++) {
+
+				qi = m_vectors[j].GetModulus(); //qi
+
+				divideBigModulusByIndexModulus = bigModulus.DividedBy(qi); //qt/qi
+
+				modularInverse = divideBigModulusByIndexModulus.Mod(qi).ModInverse(qi); // (qt/qi)^(-1) mod qi
+
+				chineseRemainderMultiplier = divideBigModulusByIndexModulus.Times(modularInverse); // qt/qi * [(qt/qi)(-1) mod qi]
+
+				/*m_vectors[i].GetValAtIndex(index) is M (r, i) with r = index amd r = j. The helper method CalculateChineseRemainderInterpolationCoefficient 
+				calculates qt/qi *[ (qt/qi)^(-1) mod qi ] where the input parameter j is the row that the operation is performed on.*/
+				multiplyValue = (m_vectors[j].GetValAtIndex(i)).Times(chineseRemainderMultiplier); // M (r, i) * qt/qi * [(qt/qi)(-1) mod qi]
+				interpolateValue += multiplyValue;
+			}
+
+			interpolateValue = interpolateValue.Mod(m_modulus);
+			coefficients.SetValAtIndex(i, interpolateValue); // This Calculates V[j]
+			interpolateValue = BigBinaryInteger::ZERO;
+		}
+		/*Intializing and setting the params of the resulting ILVector2n*/
+		usint m = m_cyclotomicOrder;
+		BigBinaryInteger modulus;
+		modulus = m_modulus;
+		BigBinaryInteger rootOfUnity;
+
+		ILParams ilParams(m_cyclotomicOrder, modulus);
+
+		ILVector2n polynomialReconstructed(ilParams);
+		polynomialReconstructed.SetValues(coefficients,m_format);
+
+		return polynomialReconstructed;
+	}
+
+	/*Switch format calls IlVector2n's switchformat*/
+	void ILVectorArray2n::SwitchFormat() {
 		if (m_format == COEFFICIENT) {
 
 			m_format = EVALUATION;
@@ -474,231 +613,43 @@ namespace lbcrypto {
 		}
 	}
 
-	BigBinaryInteger ILVectorArray2n::CalculateChineseRemainderInterpolationCoefficient(usint i)
-	{
-
-		BigBinaryInteger pIndex(m_params.GetModuli()[i]);
-//		std::cout << pIndex << std::endl;
-
-		BigBinaryInteger bigModulus(m_params.GetModulus());
-
- //  	std::cout << bigModulus << std::endl;
-
-		BigBinaryInteger divideBigModulusByIndexModulus;
-
-		divideBigModulusByIndexModulus = bigModulus.DividedBy(pIndex);
-
-	//	std::cout << divideBigModulusByIndexModulus << std::endl;
-
-		BigBinaryInteger modularInverse;
-		
-		/*if(divideBigModulusByIndexModulus > pIndex){
-		
-			divideBigModulusByIndexModulus = divideBigModulusByIndexModulus.Mod(pIndex);
-
-		}*/
-
-		modularInverse = divideBigModulusByIndexModulus.Mod(pIndex).ModInverse(pIndex);
-
-	//	std::cout << modularInverse << std::endl;
-
-		BigBinaryInteger results;
-
-		results = divideBigModulusByIndexModulus.Times(modularInverse);
-
-	//	std::cout << results << std::endl;
-
-		return results;
+	void ILVectorArray2n::SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity) {
+		m_modulus = BigBinaryInteger::ONE;
+		for (usint i = 0; i < m_numberOfElements; ++i)
+		{
+			m_vectors[i].SwitchModulus(modulus, rootOfUnity);
+			m_modulus = m_modulus * modulus;
+		}
 	}
 
-	ILVector2n ILVectorArray2n::InterpolateIlArrayVector2n()
-	{
-
-//		std::vector<std::vector<BigBinaryInteger>> vectorOfvectors(m_params.GetCyclotomicOrder()/2);
-
-//		vectorOfvectors = BuildChineseRemainderInterpolationVector(vectorOfvectors);
-
-		usint sizeOfCoefficientVector = m_params.GetCyclotomicOrder() / 2;
-
-		BigBinaryVector coefficients(sizeOfCoefficientVector,m_params.GetModulus());
-
-		BigBinaryInteger temp(0);
-
-		std::vector<BigBinaryInteger> tempVector;
-
-		for (usint i = 0; i < sizeOfCoefficientVector; i++) {
-				
-//			std::cout << "Start Calculating for vector" << i << std::endl;
-
-			tempVector = BuildChineseRemainderInterpolationVectorForRow(i);
-
-		//	temp = CalculateInterpolationSum2(vectorOfvectors, i);
-
-			temp = CalculateInterpolationSum(tempVector, i);
-
-			coefficients.SetValAtIndex(i, BigBinaryInteger(temp));
-
-//			std::cout << "End Calculating for vector" << i << std::endl;
-
+	void ILVectorArray2n::SwitchModulusAtIndex(usint index, const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity) {
+		if(index > m_numberOfElements-1) {
+			std::string errMsg;
+			errMsg = "ILVectorArray2n is of size = " + std::to_string(m_numberOfElements) + " but SwitchModulus for tower at index " + std::to_string(index) + "is called.";
+			throw std::runtime_error(errMsg);
 		}
-
-		usint m = m_params.GetCyclotomicOrder();
-		BigBinaryInteger modulus;
-		modulus = m_params.GetModulus();
-		BigBinaryInteger rootOfUnity;
-		rootOfUnity = m_params.GetRootOfUnity();
-
-		ILParams ilParams(m_params.GetCyclotomicOrder(), modulus, rootOfUnity);
-		
-
-		ILVector2n polynomialReconstructed(ilParams);
-		polynomialReconstructed.SetValues(coefficients,m_format);
-
-		return polynomialReconstructed;
-	}
-
-
-	void ILVectorArray2n::ChangeModuliOfIlVectorsToMatchDBLCRT()
-	{
-		if (m_vectors.size() != m_params.GetModuli().size()) return;
-
-
-		for (usint j = 0; j < m_vectors.size(); j++) {
-
-			m_vectors[j].SetModulus(m_params.GetModuli()[j]);
-
-		}
-
-	}
-
-	std::vector<BigBinaryInteger> ILVectorArray2n::BuildChineseRemainderInterpolationVectorForRow(usint i)
-	{
-		usint j = 0;
-		usint size = m_vectors.size();
-		std::vector<BigBinaryInteger> vAtIndexi(size);
-
-		for (j = 0; j < size; j++) {
-			vAtIndexi[j] = m_vectors[j].GetValAtIndex(i);
-		}
-
-		return vAtIndexi;
-
-	}
-
-	std::vector<std::vector<BigBinaryInteger>> ILVectorArray2n::BuildChineseRemainderInterpolationVector(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors)
-	{
-
-		//		std::vector<std::vector<BigBinaryInteger>> vectorOfvectors(m_vectors.size());
-		//usint sizeOfVector = m_vectors[0].GetLength();
-		usint cyclotomicOrder = m_params.GetCyclotomicOrder() / 2;
-		for (usint i = 0; i < cyclotomicOrder; i++) {
-			vectorOfvectors[i] = BuildChineseRemainderInterpolationVectorForRow(i);
-		}
-
-		return vectorOfvectors;
+		m_modulus = m_modulus/(m_vectors[index].GetModulus());
+		m_modulus = m_modulus * modulus;
+		m_vectors[index].SwitchModulus(modulus, rootOfUnity);
 	}
 
 	bool ILVectorArray2n::InverseExists() const
 	{
-	
-
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			if (!m_vectors[i].InverseExists()) return false;
 		}
-
-
 		return true;
 	}
-
-
-	BigBinaryInteger ILVectorArray2n::CalculateInterpolationSum(std::vector<BigBinaryInteger>vectorOfBigInts, usint index)
-	{
-		BigBinaryInteger results("0");
-
-		for (usint i = 0; i < m_vectors.size(); i++) {
-
-
-			BigBinaryInteger multiplyValue;
-
-			multiplyValue = vectorOfBigInts[i].Times(CalculateChineseRemainderInterpolationCoefficient(i));
-
-			results = (results.Plus((multiplyValue)));
-
-
-		}
-
-		results = results.Mod(m_params.GetModulus());
-
-		return results;
-
-
-	}
-
-
-	BigBinaryInteger ILVectorArray2n::CalculateInterpolationSum2(std::vector<std::vector<BigBinaryInteger>> vectorOfvectors, usint index)
-	{
-
-		BigBinaryInteger results("0");
-
-		for (usint i = 0; i < m_vectors.size(); i++) {
-
-//			std::cout <<" Start for index " << i << std::endl;
-
-			BigBinaryInteger multiplyValue;
-
-			multiplyValue = vectorOfvectors[index][i].Times(CalculateChineseRemainderInterpolationCoefficient(i));
-
-	//		std::cout <<  vectorOfvectors[index][i] << std::endl;
-
-    //		std::cout << multiplyValue << std::endl;
-
-			results = (results.Plus((multiplyValue)));
-		
-//			std::cout << results << std::endl;
-
-//			std::cout <<" End for index " << i << std::endl;
-
-		}
-
-
-
-		results = results.Mod(m_params.GetModulus());
-
-//		std::cout<< results << std::endl;
-
-		return results;
-
-	}
-
-	BigBinaryInteger ILVectorArray2n::CalculatInterpolateModulu(BigBinaryInteger value, usint index)
-	{
-		return value.Mod(m_params.GetCRI()[index]);
-	}
-
-
-	// JSON FACILITY - SetIdFlag Operation
-	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ILVectorArray2n::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
-
-	//	std::unordered_map <std::string, std::string> serializationMap;
-
-		return serializationMap;
-	}
+	//JSON FACILITY
 
 	// JSON FACILITY - Serialize Operation
-	std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ILVectorArray2n::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
-
-	
-
-	//	std::unordered_map <std::string, std::string> serializationMap;
-
-		return serializationMap;
+	bool ILVectorArray2n::Serialize(Serialized* serObj, const std::string fileFlag) const {
+		return false;
 	}
 
 	// JSON FACILITY - Deserialize Operation
-	void ILVectorArray2n::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
-
-		
-	
+	bool ILVectorArray2n::Deserialize(const Serialized& serObj) {
+		return false;
 	}
 
 } // namespace lbcrypto ends

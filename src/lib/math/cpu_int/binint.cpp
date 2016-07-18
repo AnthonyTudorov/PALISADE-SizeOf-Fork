@@ -85,6 +85,12 @@ const usint BigBinaryInteger<uint_type,BITLENGTH>::m_nSize = BITLENGTH%m_uintBit
 template<typename uint_type,usint BITLENGTH>
 const uint_type BigBinaryInteger<uint_type,BITLENGTH>::m_uintMax = std::numeric_limits<uint_type>::max();
 
+// DTS:
+// this seems to be the traditional "round up to the next power of two" function, except that ceilIntByUInt(0) == 1
+//
+// ((number+(1<<m_uintBitLength)-1)>>m_uintBitLength);
+// where m_uintBitLength = 8*sizeof(uint_type)
+//
 //optimized ceiling function after division by number of bits in the interal data type.
 template<typename uint_type,usint BITLENGTH>
 uint_type BigBinaryInteger<uint_type,BITLENGTH>::ceilIntByUInt(const uint_type Number){
@@ -93,7 +99,6 @@ uint_type BigBinaryInteger<uint_type,BITLENGTH>::ceilIntByUInt(const uint_type N
 
 	if(!Number)
 		return 1;
-
 	if((Number&mask)!=0)
 		return (Number>>m_logUintBitLength)+1;
 	else
@@ -104,9 +109,6 @@ uint_type BigBinaryInteger<uint_type,BITLENGTH>::ceilIntByUInt(const uint_type N
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger()
 {
-	
-	//memory allocation step
-	m_value = new uint_type[m_nSize];
 	//last base-r digit set to 0
 	this->m_value[m_nSize-1] = 0;
 	//MSB set to zero since value set to ZERO
@@ -116,8 +118,6 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger()
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(usint init){
-	//memory allocation step
-	m_value = new uint_type[m_nSize];
 	//setting the MSB
 	usint msb = GetMSB32(init);
 
@@ -136,8 +136,6 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(usint init){
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const std::string& str){
-	//memory allocation step
-	m_value = new uint_type[m_nSize];
 	//setting the array values from the string
 	AssignVal(str);
 	//state set
@@ -147,8 +145,6 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const std::string& str){
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const BigBinaryInteger& bigInteger){
-	//memory allocation step
-	m_value = new uint_type[m_nSize];
 	m_MSB=bigInteger.m_MSB; //copy MSB
 	uint_type  tempChar = ceilIntByUInt(bigInteger.m_MSB);
 	//copy array values
@@ -163,24 +159,22 @@ template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(BigBinaryInteger &&bigInteger){
 	//copy MSB
 	m_MSB = bigInteger.m_MSB;
-	//pointer assignment
-	m_value = bigInteger.m_value;
+	//copy array values
+	for (size_t i=0; i < m_nSize; ++i) {
+		m_value[i] = bigInteger.m_value[i];
+	}
 	//set state
 	m_state = bigInteger.m_state;
-	//remove ref from bigInteger
-	bigInteger.m_value = NULL;
 }
 
 template<typename uint_type,usint BITLENGTH>
-std::function<unique_ptr<BigBinaryInteger<uint_type,BITLENGTH>>()> BigBinaryInteger<uint_type,BITLENGTH>::Allocator = [=](){
-	return make_unique<cpu_int::BigBinaryInteger<uint32_t,1500>>();
+std::function<unique_ptr<BigBinaryInteger<uint_type,BITLENGTH>>()> BigBinaryInteger<uint_type,BITLENGTH>::Allocator = [](){
+	return lbcrypto::make_unique<cpu_int::BigBinaryInteger<uint_type,BITLENGTH>>();
 };
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::~BigBinaryInteger()
 {	
-	//memory deallocation
-	delete []m_value;
 }
 
 /**
@@ -229,9 +223,9 @@ const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENG
 	if(this!=&rhs){
         this->m_MSB = rhs.m_MSB;
 		this->m_state = rhs.m_state;
-        delete []m_value;
-        this->m_value = rhs.m_value;
-        rhs.m_value = NULL;
+		for (size_t i=0; i < m_nSize; ++i) {
+			m_value[i] = rhs.m_value[i];
+		}
     }
 
     return *this;
@@ -265,7 +259,8 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 		uint_type oFlow = 0;
 		Duint_type temp = 0;
 		sint i;
-		for(i=m_nSize-1;i>=endVal;i--){
+		// DTS- BUG FIX!!!!! (signed < unsigned(0) is always true)
+		for(i=m_nSize-1;i>=static_cast<sint>(endVal);i--){
 			temp = ans.m_value[i];
 			temp <<=remShift;
 			ans.m_value[i] = (uint_type)temp + oFlow;
@@ -326,7 +321,8 @@ const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENG
 		uint_type oFlow = 0;
 		Duint_type temp = 0;
 		sint i ;
-		for(i= m_nSize-1; i>= endVal ; i-- ){
+		// DTS- BUG FIX!!!!! (endVal may be computed <0)
+		for(i=m_nSize-1; i>= static_cast<sint>(endVal); i--){
 			temp = this->m_value[i];
 			temp <<= remShift;
 			this->m_value[i] = (uint_type)temp + oFlow;
@@ -386,7 +382,7 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 		usint endVal= m_nSize-ceilIntByUInt(ans.m_MSB);
 		usint j= endVal;
 		//array shifting operation
-		for(sint i= m_nSize-1-shiftByUint;i>=endVal;i--){
+		for(sint i= m_nSize-1-shiftByUint;i>=static_cast<sint>(endVal);i--){
 			ans.m_value[i+shiftByUint] = ans.m_value[i];
 		}
 		//msb adjusted to show the shifts
@@ -460,7 +456,8 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 		usint endVal= m_nSize-ceilIntByUInt(this->m_MSB);
 		usint j= endVal;
 		
-		for(sint i= m_nSize-1-shiftByUint;i>=endVal;i--){
+                // DTS: watch sign/unsign compare!!!!
+		for(sint i= m_nSize-1-shiftByUint;i>=static_cast<sint>(endVal);i--){
 			this->m_value[i+shiftByUint] = this->m_value[i];
 		}
 		//adjust shift to reflect left shifting 
@@ -516,6 +513,91 @@ void BigBinaryInteger<uint_type,BITLENGTH>::PrintValueInDec() const{
     std::cout<<std::endl;
 }
 
+// the array and the next two functions convert a BigBinaryInteger in and out of a string of characters
+// the encoding is Base64-like: the first 5 6-bit groupings are Base64 encoded, and the last 2 bits are A-D
+
+// Note this is, sadly, hardcoded for 32 bit integers and needs Some Work to handle arbitrary sizes
+
+// precomputed shift amounts for each 6 bit chunk
+static const usint b64_shifts[] = { 0, 6, 12, 18, 24, 30 };
+static const usint B64MASK = 0x3F;
+
+// this for encoding...
+static char to_base64_char[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+// and this for decoding...
+static inline unsigned int base64_to_value(char b64) {
+	if( isupper(b64) )
+		return b64 - 'A';
+	else if( islower(b64) )
+		return b64 - 'a' + 26;
+	else if( isdigit(b64) )
+		return b64 - '0' + 52;
+	else if( b64 == '+' )
+		return 62;
+	else
+		return 63;
+}
+
+/**
+ * This function is only used for serialization
+ *
+ * The scheme here is to take each of the uint_types in the BigBinaryInteger
+ * and turn it into 6 ascii characters. It's basically Base64 encoding: 6 bits per character
+ * times 5 is the first 30 bits. For efficiency's sake, the last two bits are encoded as A,B,C, or D
+ * and the code is implemented as unrolled loops
+ */
+template<typename uint_type,usint BITLENGTH>
+const std::string BigBinaryInteger<uint_type,BITLENGTH>::Serialize() const {
+
+	std::string ans = "";
+	const uint_type *fromP;
+
+	sint siz = (m_MSB%m_uintBitLength==0&&m_MSB!=0) ? (m_MSB/m_uintBitLength) : ((sint)m_MSB/m_uintBitLength +1);
+	int i;
+	for(i=m_nSize-1, fromP=m_value+i ; i>=m_nSize-siz ; i--,fromP--) {
+		ans += to_base64_char[((*fromP) >> b64_shifts[0]) & B64MASK];
+		ans += to_base64_char[((*fromP) >> b64_shifts[1]) & B64MASK];
+		ans += to_base64_char[((*fromP) >> b64_shifts[2]) & B64MASK];
+		ans += to_base64_char[((*fromP) >> b64_shifts[3]) & B64MASK];
+		ans += to_base64_char[((*fromP) >> b64_shifts[4]) & B64MASK];
+		ans += (((*fromP) >> b64_shifts[5])&0x3) + 'A';
+	}
+
+	return ans;
+}
+
+/**
+ * This function is only used for deserialization
+ */
+template<typename uint_type, usint BITLENGTH>
+const char *BigBinaryInteger<uint_type, BITLENGTH>::Deserialize(const char *cp){
+
+	sint i = m_nSize-1;
+	uint_type *msbInt = &m_value[i];
+
+	usint counter = 0;
+
+	while( *cp != '\0' && *cp != '|' ) {
+		uint_type converted =  base64_to_value(*cp++) << b64_shifts[0];
+		converted |= base64_to_value(*cp++) << b64_shifts[1];
+		converted |= base64_to_value(*cp++) << b64_shifts[2];
+		converted |= base64_to_value(*cp++) << b64_shifts[3];
+		converted |= base64_to_value(*cp++) << b64_shifts[4];
+		converted |= ((*cp++ - 'A')&0x3) << b64_shifts[5];
+		m_value[i] = converted;
+		counter++;
+		i--;
+	}
+
+	m_MSB = GetMSB32(m_value[i+1])+(counter-1)*32; // 32 should be something better: (sizeof(uint_type)*8 ??
+
+	m_state = INITIALIZED;
+
+	return cp;
+}
+
+
 template<typename uint_type,usint BITLENGTH>
 usshort BigBinaryInteger<uint_type,BITLENGTH>::GetMSB()const{
 	return m_MSB;
@@ -559,6 +641,12 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Plu
 	//position from B to start addition
 	uint_type ceilIntB = ceilIntByUInt(B->m_MSB);
 	sint i;//counter
+        // DTS: TODO: verify that the sign/unsigned compare is valid here. it seems to have the same form as the bugs fixed above, but i did not observe any crashes in this function (perhaps it was never exercised)
+        // a safer alternative would be something like what follows (the loops i fixed above could use the same structure; note all variables become unsigned and all loop indices start from zero):
+        // for (usint j = 0; j < m_nSize - CeilIntB /*&& j < m_nSize*/; ++j) {
+        //    usint i = m_nSize - 1 -j ;
+        //    ...
+        // }
 	for(i=m_nSize-1;i>=m_nSize-ceilIntB;i--){
 		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two int and the carry over
 		result.m_value[i] = (uint_type)ofl;
@@ -608,8 +696,10 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Min
 	if(!(*this>b))
 		return std::move(BigBinaryInteger(ZERO));
 
+        // DTS: note: these variables are confusing. if you look close you will find (a) they are only inside the inner if block (cntr=0 is superfluous); (b) current simply equals i (neither changes after the current=i assignment); and (c) the while loop needs to check cntr >= 0 (when m_value[] == 0...)
 	int cntr=0,current=0;
 	
+        // DTS: (see Plus(), above) this function uses [signed] int for endValA and endValB, unlike all the similar loops in the previous functions. (why does this combine int and sint? sure, all the values should be small, )
 	BigBinaryInteger result(*this);
 	//array position in A to end substraction
 	int endValA = m_nSize-ceilIntByUInt(this->m_MSB);
@@ -622,9 +712,11 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Min
 			current=i;
 			cntr = current-1;
 			//assigning carryover value
-			while(result.m_value[cntr]==0){
+			// DTS: added check against cntr being < 0 (I think)
+			while(cntr>=0 && result.m_value[cntr]==0){
 				result.m_value[cntr]=m_uintMax;cntr--;
 			}
+			// DTS: probably need to check cntr >= 0 here, too
 			result.m_value[cntr]--;
 			result.m_value[i]=result.m_value[i]+m_uintMax+1- b.m_value[i];		
 		}
@@ -709,6 +801,7 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 
 	//counter
 	sint i;
+        // DTS: watch sign/unsign compare!!!!
 	for(i=m_nSize-1;i>=m_nSize-ceilIntB;i--){
 		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two apint and the carry over
 		this->m_value[i] = (uint_type)ofl;
@@ -716,7 +809,8 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 	}
 
 	if(ofl){
-		for(;i>=m_nSize-ceilIntA;i--){
+		// DTS: watch sign/unsign compare!!!!
+		for(;i>=static_cast<sint>(m_nSize-ceilIntA);i--){
 			ofl = (Duint_type)A->m_value[i]+ofl;//sum of the two int and the carry over
 			this->m_value[i] = (uint_type)ofl;
 			ofl>>=m_uintBitLength;//current overflow
@@ -732,7 +826,8 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 		}
 	}
 	else{
-		for(;i>=m_nSize-ceilIntA;i--){//NChar-ceil(MSB/8)
+		// DTS: watch sign/unsign compare!!!!
+		for(;i>=static_cast<sint>(m_nSize-ceilIntA);i--){//NChar-ceil(MSB/8)
 			this->m_value[i] = A->m_value[i];
 		}
 		this->m_MSB = (m_nSize-i-2)*m_uintBitLength;
@@ -768,7 +863,8 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 		if(this->m_value[i]<b.m_value[i]){
 			current=i;
 			cntr = current-1;
-			while(this->m_value[cntr]==0){
+			// DTS: added cntr >= 0 (see above; probably also need check cntr>=0 before "this->m_value[cntr]--")
+			while(cntr>=0 && this->m_value[cntr]==0){
 				this->m_value[cntr]=m_uintMax;cntr--;
 			}
 			this->m_value[cntr]--;
@@ -961,7 +1057,8 @@ void BigBinaryInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 	DecValue = new uschar[arrSize];
 	
 	for(sint i=0;i<arrSize;i++)//store the string to decimal array
-		DecValue[i] = (uschar) stoi(v.substr(i,1));
+		DecValue[i] = (uschar) atoi(v.substr(i,1).c_str());
+		//DecValue[i] = (uschar) stoi(v.substr(i,1));
 	sshort zptr = 0;
 	//index of highest non-zero number in decimal number
 	//define  bit register array
@@ -1188,7 +1285,8 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 	if(m_state==GARBAGE || modulus.m_state==GARBAGE)
 		throw std::logic_error("GARBAGE ERROR");
-
+	
+	BigBinaryInteger result;
 	//std::ofstream f("grs_Modinverse");
 
 	//f << *this <<" THIS VALUE "<< std::endl;
@@ -1201,8 +1299,14 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 		mods.push_back(this->Mod(modulus));
 	else
 		mods.push_back(BigBinaryInteger(*this));
+
 	BigBinaryInteger first(mods[0]);
 	BigBinaryInteger second(mods[1]);
+	if(mods[1]==ONE){
+		result = ONE;
+		return result;
+	}
+
 	//Error if modulus is ZERO
 	if(*this==ZERO){
 		std::cout<<"ZERO HAS NO INVERSE\n";
@@ -1245,7 +1349,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 		second = mods.back();
 	}
 
-	BigBinaryInteger result;
+	
 	if(quotient.size()%2==1){
 		result = (modulus - mods.back());
 	}
@@ -1525,12 +1629,12 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 	std::string bbiString;
 
 	//create reference for the object to be printed
-	BigBinaryInteger<uint_type,BITLENGTH> *print_obj;
+	//BigBinaryInteger<uint_type,BITLENGTH> *print_obj;
 
 	usint counter;
 
 	//initiate to object to be printed
-	print_obj = new BigBinaryInteger<uint_type,BITLENGTH>(*this);
+	//print_obj = new BigBinaryInteger<uint_type,BITLENGTH>(*this);
 
 	//print_obj->PrintValueInDec();
 
@@ -1542,13 +1646,13 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 		*(print_VALUE+i)=0;
 
 	//starts the conversion from base r to decimal value
-	for(sint i=print_obj->m_MSB;i>0;i--){
+	for(sint i=this->m_MSB;i>0;i--){
 
 		//print_VALUE = print_VALUE*2
 		BigBinaryInteger<uint_type,BITLENGTH>::double_bitVal(print_VALUE);	
 
 		//adds the bit value to the print_VALUE
-		BigBinaryInteger<uint_type,BITLENGTH>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
+		BigBinaryInteger<uint_type,BITLENGTH>::add_bitVal(print_VALUE,this->GetBitAtIndex(i));
 
 
 	}
@@ -1565,7 +1669,7 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 
 	delete [] print_VALUE;
 	//deallocate the memory since values are inserted into the ostream object
-	delete print_obj;
+	//delete print_obj;
 
 	return bbiString;
 

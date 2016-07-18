@@ -25,7 +25,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "binvect.h"
+#include "binvect8bit.h"
+
 #include "../nbtheory.h"
 
 
@@ -76,9 +77,26 @@ BigBinaryVector::BigBinaryVector(BigBinaryVector &&bigBinaryVector){
 
 //ASSIGNMENT OPERATOR
 BigBinaryVector& BigBinaryVector::operator=(const BigBinaryVector &rhs){
-    BigBinaryVector tmp(rhs);
-    *this = std::move(tmp);
-    return *this;
+
+	if(this!=&rhs){
+		if(this->m_length==rhs.m_length){
+			for(usint i=0;i<m_length;i++)
+				*this->m_data[i] = *rhs.m_data[i];
+		}
+		else{
+			//throw std::logic_error("Trying to copy vectors of different size");
+			delete m_data;
+			m_length = rhs.m_length;
+			m_modulus = rhs.m_modulus;
+			m_data = new BigBinaryInteger*[m_length];
+			for(usint i=0;i<m_length;i++)
+				m_data[i] = new BigBinaryInteger(*rhs.m_data[i]);
+		}
+		this->m_modulus = rhs.m_modulus;
+	}
+
+	return *this;
+
 }
 
 BigBinaryVector& BigBinaryVector::operator=(BigBinaryVector &&rhs){
@@ -146,6 +164,40 @@ const BigBinaryInteger& BigBinaryVector::GetValAtIndex(usint index) const{
 
 void BigBinaryVector::SetModulus(const BigBinaryInteger& value){
 	this->m_modulus = value;
+}
+
+/**Switches the integers in the vector to values corresponding to the new modulus
+*  Algorithm: Integer i, Old Modulus om, New Modulus nm, delta = abs(om-nm):
+*  Case 1: om < nm
+*  if i > i > om/2
+*  i' = i + delta
+*  Case 2: om > nm
+*  i > om/2
+*  i' = i-delta
+*/	
+void BigBinaryVector::SwitchModulus(const BigBinaryInteger& newModulus) {
+	
+	BigBinaryInteger oldModulus(this->m_modulus);
+	BigBinaryInteger n;
+	BigBinaryInteger oldModulusByTwo(oldModulus>>1);
+	BigBinaryInteger diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
+	for(usint i=0; i< this->m_length; i++) {
+		n = this->GetValAtIndex(i);
+		if(oldModulus < newModulus) {
+			if(n > oldModulusByTwo) {
+				this->SetValAtIndex(i, n.ModAdd(diff, newModulus));
+			} else {
+				this->SetValAtIndex(i, n.Mod(newModulus));
+			}
+		} else {
+			if(n > oldModulusByTwo) {
+				this->SetValAtIndex(i, n.ModSub(diff, newModulus));
+			} else {
+				this->SetValAtIndex(i, n.Mod(newModulus));
+			}
+		}
+	}
+	this->SetModulus(newModulus);
 }
 
 const BigBinaryInteger& BigBinaryVector::GetModulus() const{
@@ -296,10 +348,12 @@ BigBinaryVector BigBinaryVector::ModSub(const BigBinaryVector &b) const{
 
 BigBinaryVector BigBinaryVector::ModByTwo() const {
 
+	//std::cout << "Modulus of BBV in ModByTwo: " << this->GetModulus() << std::endl;
 	BigBinaryVector ans(this->GetLength(), this->GetModulus());
 
 	BigBinaryInteger halfQ(this->GetModulus() >> 1);
 	for (usint i = 0; i<ans.GetLength(); i++) {
+		//std::cout << "BBV Values: " << this->GetValAtIndex(i) << std::endl;
 		if (this->GetValAtIndex(i)>halfQ) {
 			if (this->GetValAtIndex(i).Mod(BigBinaryInteger::TWO) == BigBinaryInteger::ONE)
 				ans.SetValAtIndex(i, BigBinaryInteger::ZERO);
@@ -346,6 +400,9 @@ const BigBinaryVector& BigBinaryVector::operator-=(const BigBinaryVector &b) {
 }
 
 BigBinaryVector BigBinaryVector::ModMul(const BigBinaryVector &b) const{
+	if(this->m_modulus != b.m_modulus){
+		throw std::logic_error("fucked up");
+	}
 
 	if(this->m_length!=b.m_length){
 		std::cout<<" Invalid argument \n";
@@ -378,25 +435,6 @@ BigBinaryVector BigBinaryVector::ModMul(const BigBinaryVector &b) const{
 	return ans;
 }
 
-BigBinaryVector BigBinaryVector::ModMatrixMul(const BigBinaryMatrix &a) const{
-	if(a.GetColumnSize()!=this->m_length){
-		std::cout<<" Invalid arguements \n";
-		return (BigBinaryVector)NULL;
-	}
-	BigBinaryVector ans(a.GetRowSize());
-	BigBinaryInteger mid_ans("0");
-	for(usint i=0;i<a.GetRowSize();i++){
-		mid_ans.SetValue("0");
-		for(usint j=0;j<this->m_length;j++){
-			mid_ans = mid_ans + a.GetValAtIndex(i,j)**this->m_data[j];
-		}
-		*ans.m_data[i] = mid_ans.Mod(m_modulus);
-	}
-
-	return ans;
-
-}
-
 //Gets the ind
 BigBinaryVector BigBinaryVector::GetDigitAtIndexForBase(usint index, usint base) const{
 	BigBinaryVector ans(*this);
@@ -407,20 +445,15 @@ BigBinaryVector BigBinaryVector::GetDigitAtIndexForBase(usint index, usint base)
 	return ans;
 }
 
-// JSON FACILITY - SetIdFlag Operation
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> BigBinaryVector::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
-
-	//Place holder
-
-	return serializationMap;
-}
-
 // JSON FACILITY - Serialize Operation
-std::unordered_map <std::string, std::unordered_map <std::string, std::string>> BigBinaryVector::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+bool BigBinaryVector::Serialize(lbcrypto::Serialized* serObj, const std::string) const {
 
-	std::unordered_map <std::string, std::string> bbvMap;
+	if( !serObj->IsObject() )
+		return false;
 
-	bbvMap.emplace("Modulus", this->GetModulus().ToString());
+	lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
+
+	bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
 
 	std::string pkBufferString;
 	BigBinaryInteger pkVectorElem;
@@ -437,22 +470,31 @@ std::unordered_map <std::string, std::unordered_map <std::string, std::string>> 
 			pkBufferString += "|";
 		}
 	}
-	bbvMap.emplace("VectorValues", pkBufferString);
+	bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
 
-	serializationMap.emplace("BigBinaryVector", bbvMap);
+	serObj->AddMember("BigBinaryVector", bbvMap, serObj->GetAllocator());
 
-	return serializationMap;
+	return true;
 }
 
 // JSON FACILITY - Deserialize Operation
-void BigBinaryVector::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+bool BigBinaryVector::Deserialize(const lbcrypto::Serialized& serObj) {
 
-	std::unordered_map<std::string, std::string> bbvMap = serializationMap["BigBinaryVector"];
+	lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigBinaryVector");
+	if( mIter == serObj.MemberEnd() ) return false;
 
-	BigBinaryInteger bbiModulus(bbvMap["Modulus"]);
+	lbcrypto::SerialItem::ConstMemberIterator vIt;
+
+	if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
+		return false;
+	BigBinaryInteger bbiModulus(vIt->value.GetString());
+
+	if( (vIt = mIter->value.FindMember("VectorValues")) == mIter->value.MemberEnd() )
+		return false;
+	std::string vectorVals = vIt->value.GetString();
+
 	this->SetModulus(bbiModulus);
 
-	std::string vectorVals = bbvMap["VectorValues"];
 	BigBinaryInteger vectorElem;
 	std::string vectorElemVal;
 	usint i = 0;
@@ -483,6 +525,8 @@ void BigBinaryVector::Deserialize(std::unordered_map <std::string, std::unordere
 			break;
 		}
 	}
+
+	return true;
 }
 
 //Private functions

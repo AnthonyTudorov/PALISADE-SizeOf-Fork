@@ -41,7 +41,7 @@
 
 #include "../../src/lib/math/matrix.cpp"
 
-using namespace std;
+//using namespace std;
 using namespace lbcrypto;
 
 
@@ -181,7 +181,7 @@ TEST(UTMatrix, gadget_vector) {
 
 TEST(UTMatrix, rotate_vec_result) {
     Matrix<ILVector2n> n = Matrix<ILVector2n>(fastIL2nAlloc(), 1, 2).Ones();
-    const BigBinaryInteger& modulus = n(0,0).GetParams().GetModulus();
+    const BigBinaryInteger& modulus = n(0,0).GetModulus();
     n.SetFormat(COEFFICIENT);
 	n(0,0).SetValAtIndex(2, 1);
     Matrix<BigBinaryVector> R = RotateVecResult(n);
@@ -189,7 +189,7 @@ TEST(UTMatrix, rotate_vec_result) {
 	EXPECT_EQ(16, R.GetCols());
 	EXPECT_EQ(BigBinaryVector::Single(BigBinaryInteger::ONE, modulus), R(0,0));
 
-	BigBinaryInteger negOne = n(0,0).GetParams().GetModulus() - BigBinaryInteger("1");
+	BigBinaryInteger negOne = n(0,0).GetModulus() - BigBinaryInteger("1");
     BigBinaryVector negOneVec = BigBinaryVector::Single(negOne, modulus);
 	EXPECT_EQ(negOneVec, R(0,6));
 	EXPECT_EQ(negOneVec, R(1,7));
@@ -202,7 +202,7 @@ TEST(UTMatrix, rotate_vec_result) {
 
 TEST(UTMatrix, rotate) {
     Matrix<ILVector2n> n = Matrix<ILVector2n>(fastIL2nAlloc(), 1, 2).Ones();
-    const BigBinaryInteger& modulus = n(0,0).GetParams().GetModulus();
+    const BigBinaryInteger& modulus = n(0,0).GetModulus();
     n.SetFormat(COEFFICIENT);
 	n(0,0).SetValAtIndex(2, 1);
     Matrix<BigBinaryInteger> R = Rotate(n);
@@ -210,7 +210,7 @@ TEST(UTMatrix, rotate) {
 	EXPECT_EQ(16, R.GetCols());
 	EXPECT_EQ(BigBinaryInteger::ONE, R(0,0));
 
-	BigBinaryInteger negOne = n(0,0).GetParams().GetModulus() - BigBinaryInteger("1");
+	BigBinaryInteger negOne = n(0,0).GetModulus() - BigBinaryInteger("1");
 	EXPECT_EQ(negOne, R(0,6));
 	EXPECT_EQ(negOne, R(1,7));
 

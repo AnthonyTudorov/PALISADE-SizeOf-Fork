@@ -40,11 +40,45 @@ void LPAlgorithmSHELTV<Element>::EvalMult(
 				const Ciphertext<Element> &ciphertext2, 
 				Ciphertext<Element> *newCiphertext) const
 {
-	Ciphertext<Element> ctOut(ciphertext1);
+	
+	if(ciphertext1.GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2.GetElement().GetFormat() == Format::COEFFICIENT){
+		throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
+	}
 
-//	ctOut.Mult(ciphertext2);
+	if(!(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters())){
+		std::string errMsg = "EvalMult crypto parameters are not the same";
+		throw std::runtime_error(errMsg);
+	}
 
-	*newCiphertext = ctOut;
+	Element c1(ciphertext1.GetElement());
+
+	Element c2(ciphertext2.GetElement());
+
+	Element cResult = c1*c2;
+
+	newCiphertext->SetElement(cResult);
+
+}  
+
+
+template <class Element>
+void LPAlgorithmSHELTV<Element>::EvalAdd(
+				const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2, 
+				Ciphertext<Element> *newCiphertext) const
+{
+	if(!(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters())){
+		std::string errMsg = "EvalAdd crypto parameters are not the same";
+		throw std::runtime_error(errMsg);
+	}
+
+	Element c1(ciphertext1.GetElement());
+
+	Element c2(ciphertext2.GetElement());
+
+	Element cResult = c1+c2;
+
+	newCiphertext->SetElement(cResult);
 
 }  
 
@@ -87,8 +121,6 @@ bool LPAlgorithmSHELTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &p
 
 	keySwitchHint->SetHintElement((privateKey.Times(privateKey)).Times(modularInverseOfNewPrivateKey));// frogot to add modulu
 
-	std::cout << *(keySwitchHint).GetValues() << std::endl;
-
 	return true;
 
 }
@@ -99,11 +131,6 @@ void LPAlgorithmSHELTV<Element>::KeySwitch(const LPKeySwitchHint<Element> &keySw
 				Ciphertext<Element> *newCiphertext) const
 {
 	Ciphertext<Element> ctOut();
-
-/*
-	ctOut = keySwitchHint * ciphertext;
-*/
-
 	*newCiphertext = ctOut;
 }  
 

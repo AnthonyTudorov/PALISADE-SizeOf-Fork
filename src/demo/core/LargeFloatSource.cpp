@@ -37,7 +37,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include "../../lib/math/largefloat.h"
 #include "../../lib/math/matrix.cpp"
-#include "../../lib/obfmath/dgsampling.h"
+#include "../../lib/lattice/dgsampling.h"
+#include "../../lib/lattice/dgsampling.cpp"
 //#include <limits>
 
 //using namespace std;
@@ -56,7 +57,7 @@ int main()
 
 	Matrix<LargeFloat> sample([](){ return make_unique<LargeFloat>(); }, 10, 1);
 
-	ContinuousGaussianGenerator(&sample);
+	LatticeGaussSampUtility::ContinuousGaussianGenerator(&sample);
 
 	std::cout << sample << std::endl;
 

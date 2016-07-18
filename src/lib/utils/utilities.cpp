@@ -94,4 +94,18 @@ bool IsPowerOfTwo(usint Input){
 	return ans;
 }
 
+// auxiliary function to replace a specific character "in" with another character "out"
+std::string replaceChar(std::string str, char in, char out) {
+
+  // set our locator equal to the first appearance of any character in replace
+  size_t found = str.find_first_of(in);
+
+  while (found != std::string::npos) { // While our position in the sting is in range.
+    str[found] = out; // Change the character at position.
+    found = str.find_first_of(in, found+1); // Relocate again.
+  }
+
+  return str; // return our new string.
+}
+
 }//namespace ends here

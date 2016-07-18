@@ -1,10 +1,6 @@
 #include <iostream>
 
-//#include "UnitTestBinInt.cpp"
-//#include "UnitTestBinVect.cpp"
-//#include "UnitTestBinMat.cpp"
 #include "../include/gtest/gtest.h"
-//#include "gtest/gtest-all.cc"
 
 
 #include "../../src/lib/math/backend.h"
@@ -20,20 +16,6 @@
 #include "../../src/lib/lattice/ilvector2n.h"
 #include "../../src/lib/lattice/ilvectorarray2n.h"
 #include "../../src/lib/utils/utilities.h"
-
-/*
-#include "binint.h"
-#include "binmat.h"
-#include "binvect.h"
-#include "inttypes.h"
-#include "nbtheory.h"
-#include "ideals.h"
-#include "distrgen.h"
-#include "lwecrypt.h"
-#include "lwepre.h"
-#include "il2n.h"
-#include "utilities.h"
-*/
 
 using namespace std;
 using namespace lbcrypto;

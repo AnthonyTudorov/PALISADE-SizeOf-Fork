@@ -34,12 +34,10 @@
 #ifndef LBCRYPTO_LATTICE_ELEMPARAMS_H
 #define LBCRYPTO_LATTICE_ELEMPARAMS_H
 
+#include "../utils/serializable.h"
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
-//#include "../encoding/ptxtencoding.h"
-
-#include "../utils/serializable.h"
 
 /**
 * @namespace lbcrypto
@@ -67,6 +65,8 @@ namespace lbcrypto {
 		* @return the order.
 		*/
 		virtual const usint GetCyclotomicOrder() const = 0;
+
+		virtual bool operator==(const ElemParams &other) const = 0;
 	};
 
 } // namespace lbcrypto ends
