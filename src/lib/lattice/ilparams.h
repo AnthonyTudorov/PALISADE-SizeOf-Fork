@@ -99,6 +99,25 @@ namespace lbcrypto {
 		}
 
 		/**
+		* Assignment Operator.
+		*
+		* @param &rhs the ILParams to be copied.
+		* @return the resulting ILParams.
+		*/
+		ILParams& operator=(const ILParams &) = default;
+
+		/**
+		* Move constructor.
+		*
+		* @param &rhs the input set of parameters which is copied.
+		*/
+		ILParams(const ILParams &&rhs) {
+			m_order = rhs.m_order;
+			m_modulus = std::move(rhs.m_modulus);
+			m_rootOfUnity = std::move(rhs.m_rootOfUnity);
+		}
+
+		/**
 		* Destructor.
 		*/
 		virtual ~ILParams() {
@@ -187,7 +206,6 @@ namespace lbcrypto {
 
         bool operator==(const ElemParams& rhs) const {
         	const ILParams &ip = dynamic_cast<const ILParams &>(rhs);
-
         	return *this == ip;
         }
 
