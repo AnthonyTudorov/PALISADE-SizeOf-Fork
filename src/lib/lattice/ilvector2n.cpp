@@ -327,6 +327,8 @@ namespace lbcrypto {
 	}
 
 	const ILVector2n& ILVector2n::operator+=(const ILVector2n &element) {
+		if(!(this->m_params == element.m_params))
+        	throw std::logic_error("operator-= called on ILVector2n's with different params.");
 		if (m_values == NULL)
 			m_values = new BigBinaryVector(m_params.GetCyclotomicOrder() / 2, m_params.GetModulus());
 		*this->m_values = this->m_values->ModAdd(*element.m_values);
@@ -348,7 +350,6 @@ namespace lbcrypto {
 			return tmp;
 		} else {
 			throw std::logic_error("ILVector2n has no inverse\n");
-
 		}
 	}
 

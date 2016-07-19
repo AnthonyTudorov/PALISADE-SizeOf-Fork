@@ -252,8 +252,8 @@ namespace lbcrypto {
 		* @return is the result of the addition.
 		*/
         inline const ILVector2n& operator-=(const lbcrypto::ILVector2n &element) {
-            // ILVector2n result = this->Minus(element);
-            // *this = result;
+        	if(!(this->m_params == element.m_params))
+        		throw std::logic_error("operator-= called on ILVector2n's with different params.");
             *this = this->Minus(element);
             return *this;
         }

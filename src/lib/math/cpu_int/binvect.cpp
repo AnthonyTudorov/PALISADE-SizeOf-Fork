@@ -373,8 +373,8 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModInverse() const{
 template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModAdd(const BigBinaryVector &b) const{
 
-	if(this->m_length!=b.m_length){
-		std::cout<<" Invalid argument in BigBinaryVector::ModAdd \n";
+	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
+        std::cout<<"ModAdd called on BigBinaryVector's with different parameters."<<std::endl;
 		return (BigBinaryVector)NULL;
 	}
 
@@ -390,9 +390,8 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModAdd(const BigBinar
 template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModSub(const BigBinaryVector &b) const{
 
-	if(this->m_length!=b.m_length){
-		std::cout<<" Invalid argument in BigBinaryVector::ModSub  \n";
-		return (BigBinaryVector)NULL;
+	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
+        std::cout<<"ModSub called on BigBinaryVector's with different parameters."<<std::endl;
 	}
 
 	BigBinaryVector ans(*this);
@@ -430,8 +429,8 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModByTwo() const {
 template<class IntegerType>
 const BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator+=(const BigBinaryVector &b) {
 
-	if(this->m_length!=b.m_length){
-		std::cout<<" Invalid argument in in BigBinaryVector::+= \n";
+	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
+        std::cout<<"operator+= called on BigBinaryVector's with different parameters."<<std::endl;
 		return (BigBinaryVector)NULL;
 	}
 
@@ -445,8 +444,8 @@ const BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator+=(con
 template<class IntegerType>
 const BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator-=(const BigBinaryVector &b) {
 
-	if(this->m_length!=b.m_length){
-		std::cout<<" Invalid argument in BigBinaryVector::-= \n";
+	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
+        std::cout<<"operator-= called on BigBinaryVector's with different parameters."<<std::endl;
 		return (BigBinaryVector)NULL;
 	}
 
@@ -485,8 +484,8 @@ This algorithm would most like give the biggest improvement but it sets constrai
 template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const BigBinaryVector &b) const{
 
-	if(this->m_length!=b.m_length){
-		std::cout<<" Invalid argument in BigBinaryVector::ModMul \n";
+	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
+        std::cout<<"ModMul called on BigBinaryVector's with different parameters."<<std::endl;
 		return (BigBinaryVector)NULL;
 	}
 
