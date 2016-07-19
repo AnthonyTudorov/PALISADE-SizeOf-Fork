@@ -66,7 +66,6 @@ TEST(method_CRT_polynomial_multiplication, compares_to_brute_force_multiplicatio
 	usint n = cycloOrder / 2;
 
 	BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(cycloOrder, primeModulus);
-	// std::cout <<"The primitiveRootOfUnity for modulus " << primeModulus << " is " << primitiveRootOfUnity << std::endl;
 
 	BigBinaryVector a(4, primeModulus);
 	a.SetValAtIndex(0, "1");
@@ -80,12 +79,12 @@ TEST(method_CRT_polynomial_multiplication, compares_to_brute_force_multiplicatio
 
 	BigBinaryVector AB = A*B;
 
-	BigBinaryVector InverseFFTAB = ChineseRemainderTransform::GetInstance().InverseTransform(AB, primitiveRootOfUnity, cycloOrder);
+	BigBinaryVector InverseFFTAB = ChineseRemainderTransformFTT::GetInstance().InverseTransform(AB, primitiveRootOfUnity, cycloOrder);
 
 	BigBinaryVector expectedResult(4, primeModulus);
 	expectedResult.SetValAtIndex(0, "94");
-	expectedResult.SetValAtIndex(1, "53");
-	expectedResult.SetValAtIndex(2, "52");
+	expectedResult.SetValAtIndex(1, "109");
+	expectedResult.SetValAtIndex(2, "11");
 	expectedResult.SetValAtIndex(3, "18");
 
 	EXPECT_EQ(expectedResult, InverseFFTAB);
