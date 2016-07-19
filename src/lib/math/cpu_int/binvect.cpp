@@ -374,7 +374,7 @@ template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModAdd(const BigBinaryVector &b) const{
 
 	if(this->m_length!=b.m_length){
-		std::cout<<" Invalid argument \n";
+		std::cout<<" Invalid argument in BigBinaryVector::ModAdd \n";
 		return (BigBinaryVector)NULL;
 	}
 
@@ -391,7 +391,7 @@ template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModSub(const BigBinaryVector &b) const{
 
 	if(this->m_length!=b.m_length){
-		std::cout<<" Invalid argument \n";
+		std::cout<<" Invalid argument in BigBinaryVector::ModSub  \n";
 		return (BigBinaryVector)NULL;
 	}
 
@@ -431,7 +431,7 @@ template<class IntegerType>
 const BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator+=(const BigBinaryVector &b) {
 
 	if(this->m_length!=b.m_length){
-		std::cout<<" Invalid argument \n";
+		std::cout<<" Invalid argument in in BigBinaryVector::+= \n";
 		return (BigBinaryVector)NULL;
 	}
 
@@ -446,7 +446,7 @@ template<class IntegerType>
 const BigBinaryVector<IntegerType>& BigBinaryVector<IntegerType>::operator-=(const BigBinaryVector &b) {
 
 	if(this->m_length!=b.m_length){
-		std::cout<<" Invalid argument \n";
+		std::cout<<" Invalid argument in BigBinaryVector::-= \n";
 		return (BigBinaryVector)NULL;
 	}
 
@@ -486,7 +486,7 @@ template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const BigBinaryVector &b) const{
 
 	if(this->m_length!=b.m_length){
-		std::cout<<" Invalid argument \n";
+		std::cout<<" Invalid argument in BigBinaryVector::ModMul \n";
 		return (BigBinaryVector)NULL;
 	}
 
