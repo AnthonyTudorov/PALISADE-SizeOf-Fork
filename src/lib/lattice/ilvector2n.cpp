@@ -284,7 +284,7 @@ namespace lbcrypto {
 	// check if inverse exists
 	bool ILVector2n::InverseExists() const {
 		for (usint i = 0; i < m_values->GetLength(); i++) {
-			if ((m_values->GetValAtIndex(i) == BigBinaryInteger::ZERO) || (m_values->GetValAtIndex(i) == BigBinaryInteger::ONE))
+			if(m_values->GetValAtIndex(i) == BigBinaryInteger::ZERO)
 				return false;
 		}
 		return true;
