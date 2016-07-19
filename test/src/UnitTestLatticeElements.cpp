@@ -322,10 +322,18 @@ TEST(method_ILVector2n, arithmetic_operations_element) {
   BigBinaryInteger element("1");
 
   {
-    ILVector2n ilvector2n = ilv.Plus(element);
+    ILVector2n ilvector2n(ilparams);
+    BigBinaryVector bbv1(m/2, primeModulus);
+    bbv1.SetValAtIndex(0, "1");
+    bbv1.SetValAtIndex(1, "3");
+    bbv1.SetValAtIndex(2, "4");
+    bbv1.SetValAtIndex(3, "1");
+    ilvector2n.SetValues(bbv1, Format::COEFFICIENT);
 
-    EXPECT_EQ(BigBinaryInteger::THREE, ilvector2n.GetValAtIndex(0));
-    EXPECT_EQ(BigBinaryInteger::ONE, ilvector2n.GetValAtIndex(1));
+    ilvector2n = ilvector2n.Plus(element);
+
+    EXPECT_EQ(BigBinaryInteger::TWO, ilvector2n.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger::THREE, ilvector2n.GetValAtIndex(1));
     EXPECT_EQ(BigBinaryInteger::FOUR, ilvector2n.GetValAtIndex(2));
     EXPECT_EQ(BigBinaryInteger::ONE, ilvector2n.GetValAtIndex(3));
   }
@@ -339,26 +347,6 @@ TEST(method_ILVector2n, arithmetic_operations_element) {
     EXPECT_EQ(BigBinaryInteger::ZERO, ilvector2n.GetValAtIndex(3));
   }
 
-  //TODO-Nishanth: Uncomment when DividedBy is implemented for ILVector2n
-  /*{
-    ILVector2n ilv1(ilparams);
-    BigBinaryVector bbv1(m/2, primeModulus);
-    bbv1.SetValAtIndex(0, "2");
-    bbv1.SetValAtIndex(1, "8");
-    bbv1.SetValAtIndex(2, "4");
-    bbv1.SetValAtIndex(3, "6");
-    ilv1.SetValues(bbv1, Format::COEFFICIENT);
-
-    BigBinaryInteger ele("2");
-
-    ILVector2n ilvector2n = ilv1.DividedBy(ele);
-
-    EXPECT_EQ(BigBinaryInteger::ONE, ilvector2n.GetValAtIndex(0));
-    EXPECT_EQ(BigBinaryInteger::FOUR, ilvector2n.GetValAtIndex(1));
-    EXPECT_EQ(BigBinaryInteger::TWO, ilvector2n.GetValAtIndex(2));
-    EXPECT_EQ(BigBinaryInteger::THREE, ilvector2n.GetValAtIndex(3));
-  }*/
-
   {
     BigBinaryInteger ele("2");
     ILVector2n ilvector2n = ilv.Times(ele);
@@ -370,11 +358,18 @@ TEST(method_ILVector2n, arithmetic_operations_element) {
   }
 
   {
-    ILVector2n ilvector2n(ilv);
+    ILVector2n ilvector2n(ilparams);
+    BigBinaryVector bbv1(m/2, primeModulus);
+    bbv1.SetValAtIndex(0, "1");
+    bbv1.SetValAtIndex(1, "3");
+    bbv1.SetValAtIndex(2, "4");
+    bbv1.SetValAtIndex(3, "1");
+    ilvector2n.SetValues(bbv1, Format::COEFFICIENT);
+
     ilvector2n += element;
 
-    EXPECT_EQ(BigBinaryInteger::THREE, ilvector2n.GetValAtIndex(0));
-    EXPECT_EQ(BigBinaryInteger::ONE, ilvector2n.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger::TWO, ilvector2n.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger::THREE, ilvector2n.GetValAtIndex(1));
     EXPECT_EQ(BigBinaryInteger::FOUR, ilvector2n.GetValAtIndex(2));
     EXPECT_EQ(BigBinaryInteger::ONE, ilvector2n.GetValAtIndex(3));
   }
