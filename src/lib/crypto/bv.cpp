@@ -46,7 +46,7 @@ template <class Element>
 void LPPrivateKeyBV<Element>::MakePublicKey(const Element &a, LPPublicKey<Element> *pub) const
 {
 	const LPCryptoParametersRLWE<Element> *cryptoParams =
-		dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&privateKey->GetCryptoParameters());
+		dynamic_cast<const LPCryptoParametersRLWE<Element>*>(this->GetCryptoParameters());
 
 	const ElemParams &elementParams = cryptoParams->GetElementParams();
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
