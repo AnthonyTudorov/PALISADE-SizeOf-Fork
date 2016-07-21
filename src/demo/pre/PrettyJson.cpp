@@ -63,6 +63,10 @@ main( int argc, char *argv[] )
 			rapidjson::PrettyWriter<lbcrypto::OStreamWrapper> ww(oo);
 
 			doc.ParseStream<rapidjson::kParseStopWhenDoneFlag>(is);
+
+			if( !br->good() )
+				break;
+
 			if( doc.HasParseError() && doc.GetParseError() != rapidjson::kParseErrorDocumentEmpty ) {
 				cout << "Parse error " << doc.GetParseError() << " at " << doc.GetErrorOffset() << endl;
 				break;
