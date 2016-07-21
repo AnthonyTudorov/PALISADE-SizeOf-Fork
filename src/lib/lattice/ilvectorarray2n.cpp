@@ -320,7 +320,7 @@ namespace lbcrypto {
           }
 
 		//check if the towers are the same
-		else return (m_vectors != rhs.GetAllElements());
+		else return (m_vectors == rhs.GetAllElements());
 	}
 
 	const ILVectorArray2n & ILVectorArray2n::operator=(const ILVectorArray2n & rhs)

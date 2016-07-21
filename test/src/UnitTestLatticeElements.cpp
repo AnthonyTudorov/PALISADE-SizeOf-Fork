@@ -301,7 +301,7 @@ TEST(method_ILVector2n, clone_operations) {
     EXPECT_EQ(ilv.GetRootOfUnity(), ilvClone.GetRootOfUnity());
     EXPECT_EQ(ilv.GetFormat(), ilvClone.GetFormat());
   }
-
+  ILVector2n::DestroyPreComputedSamples();
 }
 
 TEST(method_ILVector2n, arithmetic_operations_element) {
@@ -525,6 +525,8 @@ TEST(method_ILVector2n, other_methods) {
     ILVector2n ilvector2n4(dgg, ilparams);
     ILVector2n ilvector2n5(bug, ilparams);
     ILVector2n ilvector2n6(dug, ilparams);
+	ILVector2n::DestroyPreComputedSamples();
+
 
     EXPECT_EQ(true, ilvector2n1.IsEmpty());
     EXPECT_EQ(true, ilvector2n2.IsEmpty());
