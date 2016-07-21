@@ -115,29 +115,6 @@ namespace lbcrypto {
 			return *this;
 		}
 		/**
-		* Equal operator compares this ILDCRTParams to the specified ILDCRTParams
-		*
-		* @param &rhs is the specified ILDCRTParams to be compared with this ILDCRTParams.
-		* @return true if this ILDCRTParams represents the same values as the specified ILDCRTParams, false otherwise
-		*/
-		inline bool operator==(ILDCRTParams const &rhs) {
-            if (m_modulus != rhs.GetModulus()) {
-                return false;
-            }
-            if (m_cyclotomicOrder != rhs.GetCyclotomicOrder()) {
-                return false;
-            }
-			 if (m_rootsOfUnity != rhs.GetRootsOfUnity()) {
-                return false;
-            }
-            if (m_moduli != rhs.GetModuli()) {
-                return false;
-            }
-
-            return true;
-        }
-
-		/**
 		* Not equal operator compares this ILDCRTParams to the specified ILDCRTParams
 		*
 		* @param &rhs is the specified ILDCRTParams to be compared with this ILDCRTParams.
@@ -146,8 +123,6 @@ namespace lbcrypto {
        inline bool operator!=(ILDCRTParams const &rhs) {
             return !(*this == rhs);
         }
-
-
 		// ACCESSORS
 
 		// Get accessors
@@ -260,7 +235,20 @@ namespace lbcrypto {
 
 			const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(other);
 
-		 	return *this == dcrtParams; 
+			if (m_modulus != dcrtParams.GetModulus()) {
+				return false;
+			}
+			if (m_cyclotomicOrder != dcrtParams.GetCyclotomicOrder()) {
+				return false;
+			}
+			if (m_rootsOfUnity != dcrtParams.GetRootsOfUnity()) {
+				return false;
+			}
+			if (m_moduli != dcrtParams.GetModuli()) {
+				return false;
+			}
+
+			return true;
 		}
 
 	private:
