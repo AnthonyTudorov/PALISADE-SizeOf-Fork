@@ -87,8 +87,15 @@ namespace exp_int32 {
 
 
 
+
+
+
+
+
   //ASSIGNMENT copy allocator const binvec to binvec
-  //will resize target vector
+  //if two vectors are different sized, then it will resize target vector
+  //unlike BigBinaryVector which just throws.
+
   template<class bint_el_t>
   const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator=(const ubintvec &rhs){
     if(this!=&rhs){
@@ -107,6 +114,26 @@ namespace exp_int32 {
 
     return *this;
   }
+
+  //Assignment with initializer list of ubints
+  //TODO:untested
+
+  template<class bint_el_t>
+  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator=(std::initializer_list<bint_el_t> rhs){
+    usint len = rhs.size();
+    m_data.clear();
+    for(usint i=0;i<len;i++){ // this loops over each entry
+      if(i<len) {
+	m_data.push_back( bint_el_t(*(rhs.begin()+i)));
+      } else {
+	m_data.push_back(bint_el_t::ZERO);
+      }
+    }
+
+    return *this;
+  }
+
+  //todo: initializer list with strings and with usint
 
   // move copy allocator
   template<class bint_el_t>
@@ -183,7 +210,7 @@ namespace exp_int32 {
     return this->m_data.size();
   }
 
-  //todo: deprecate this.
+  //replacement for GetLength()
   template<class bint_el_t>
   usint ubintvec<bint_el_t>::size() const{
     return this->m_data.size();
@@ -239,6 +266,15 @@ namespace exp_int32 {
     ubintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
       ans.m_data[i] = ans.m_data[i]->Mul(b);
+    }
+    return ans;
+  }
+
+template<class bint_el_t>
+  ubintvec<bint_el_t> ubintvec<bint_el_t>::Exp(const bint_el_t &b) const{
+    ubintvec ans(*this);
+    for(usint i=0;i<this->m_data.size();i++){
+      ans.m_data[i] = ans.m_data[i]->Exp(b);
     }
     return ans;
   }
@@ -406,86 +442,73 @@ namespace exp_int32 {
     return ans;
   }
 
-  // JSON FACILITY - SetIdFlag Operation
-  template<class bint_el_t>
-  std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ubintvec<bint_el_t>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
-
-    //Place holder
-
-    return serializationMap;
-  }
+  //new serialize and deserialise operations
+  //todo: not tested just added to satisfy compilier
+  //currently using the same map as bigBinaryVector, execpt without modulus. 
+  //mubintvec.cpp will have attached modulus.
 
   // JSON FACILITY - Serialize Operation
-  template<class bint_el_t>
-  std::unordered_map <std::string, std::unordered_map <std::string, std::string>> ubintvec<bint_el_t>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+  template<class bin_el_t>
+  bool ubintvec<bin_el_t>::Serialize(lbcrypto::Serialized* serObj, const std::string) const {
 
-    std::unordered_map <std::string, std::string> bbvMap;
+    if( !serObj->IsObject() )
+      return false;
 
-    //bbvMap.emplace("Modulus", this->GetModulus().ToString());
+    lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
+    // ubintvec has no modulus, mubintvec does.
+    // bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator()); 
 
-    std::string pkBufferString;
-    bint_el_t pkVectorElem;
-    usint pkVectorLength = 0;
-    std::string pkVectorElemVal;
-    pkVectorLength = GetLength();
-    for (int i = 0; i < pkVectorLength; i++) {
-      pkVectorElem = GetValAtIndex(i);
-
-      pkVectorElemVal = pkVectorElem.ToString();
-
-      pkBufferString += pkVectorElemVal;
-      if (i != (pkVectorLength - 1)) {
+    usint pkVectorLength = GetLength();
+    if( pkVectorLength > 0 ) {
+      std::string pkBufferString = GetValAtIndex(0).Serialize();
+      for (int i = 1; i < pkVectorLength; i++) {
 	pkBufferString += "|";
+	pkBufferString += GetValAtIndex(i).Serialize();
       }
+      bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
     }
-    bbvMap.emplace("VectorValues", pkBufferString);
 
-    serializationMap.emplace("bintvec", bbvMap);
+    serObj->AddMember("ubintvec", bbvMap, serObj->GetAllocator());
 
-    return serializationMap;
+    return true;
   }
 
   // JSON FACILITY - Deserialize Operation
   template<class bint_el_t>
-  void ubintvec<bint_el_t>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+  bool ubintvec<bint_el_t>::Deserialize(const lbcrypto::Serialized& serObj) {
 
-    std::unordered_map<std::string, std::string> bbvMap = serializationMap["bintvec"];
+    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("ubintvec");
+    if( mIter == serObj.MemberEnd() )
+      return false;
 
-    //bint_el_t bbiModulus(bbvMap["Modulus"]);
-    //this->SetModulus(bbiModulus);
+    lbcrypto::SerialItem::ConstMemberIterator vIt;
+    // ubintvec has no modulus, mubintvec does.
+    //  if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
+    //  return false;
+    //limb_t bbiModulus(vIt->value.GetString());
 
-    std::string vectorVals = bbvMap["VectorValues"];
+    if( (vIt = mIter->value.FindMember("VectorValues")) == mIter->value.MemberEnd() )
+      return false;
+
+    // this->SetModulus(bbiModulus);
+
+    this->m_data.clear();
+
     bint_el_t vectorElem;
-    std::string vectorElemVal;
-    usint i = 0;
-    while (vectorVals.find("|", 0)) {
-      size_t pos = vectorVals.find("|", 0);
-      vectorElemVal = vectorVals.substr(0, pos);
-
-      std::string::size_type posTrim = vectorElemVal.find_last_not_of(' ');
-      if (posTrim != std::string::npos) {
-	if (vectorElemVal.length() != posTrim + 1) {
-	  vectorElemVal.erase(posTrim + 1);
-	}
-	posTrim = vectorElemVal.find_first_not_of(' ');
-	if (posTrim != 0) {
-	  vectorElemVal.erase(0, posTrim);
-	}
-      }
-      else {
-	vectorElemVal = "";
-      }
-
-      vectorElem.SetValue(vectorElemVal);
-      vectorVals.erase(0, pos + 1);
-      this->SetValAtIndex(i, vectorElem);
-      i++;
-
-      if (i == this->GetLength()) {
-	break;
-      }
+    //usint ePos = 0;
+    const char *vp = vIt->value.GetString();
+    while( *vp != '\0' ) {
+      vp = vectorElem.Deserialize(vp);
+      //this->SetValAtIndex(ePos++, vectorElem);
+      this->m_data.push_back(vectorElem);
+      if( *vp == '|' )
+	vp++;
     }
+
+    return true;
   }
+
+
 
   //Private functions
   template<class bint_el_t>

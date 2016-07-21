@@ -224,9 +224,10 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
   }
 #endif
   //TODO what is this for
+
   template<typename limb_t>
   std::function<unique_ptr<ubint<limb_t>>()> ubint<limb_t>::Allocator = [=](){
-    return make_unique<exp_int32::ubint<limb_t>>();
+    return lbcrypto::make_unique<ubint<limb_t>>();
   };
 
   template<typename limb_t>
@@ -1900,12 +1901,101 @@ again:
     return(this->Compare(a)<0);
 
   }
-//less than or equal operation
+
+  //less than or equal operation
   template<typename limb_t>
   bool ubint<limb_t>::operator<=(const ubint& a) const{
     return (*this<a || *this==a);
   }
+  
+  //the following code is new serialize/deserialize code from
+  // binint.cpp 
+  // TODO: it has not been tested 
+  // the array and the next
+  // two functions convert a ubint in and out of a string of
+  // characters the encoding is Base64-like: the first 5 6-bit
+  // groupings are Base64 encoded, and the last 2 bits are A-D
+  
+  // Note this is, sadly, hardcoded for 32 bit integers and needs Some
+  // Work to handle arbitrary sizes
 
+  // precomputed shift amounts for each 6 bit chunk
+  static const usint b64_shifts[] = { 0, 6, 12, 18, 24, 30 };
+  static const usint B64MASK = 0x3F;
+
+  // this for encoding...
+  static char to_base64_char[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+  // and this for decoding...
+  static inline unsigned int base64_to_value(char b64) {
+    if( isupper(b64) )
+      return b64 - 'A';
+    else if( islower(b64) )
+      return b64 - 'a' + 26;
+    else if( isdigit(b64) )
+      return b64 - '0' + 52;
+    else if( b64 == '+' )
+      return 62;
+    else
+      return 63;
+  }
+
+  /**
+   * This function is only used for serialization
+   *
+   * The scheme here is to take each of the uint_types in the
+   * BigBinaryInteger and turn it into 6 ascii characters. It's
+   * basically Base64 encoding: 6 bits per character times 5 is the
+   * first 30 bits. For efficiency's sake, the last two bits are encoded
+   * as A,B,C, or D and the code is implemented as unrolled loops
+   */
+  template<typename limb_t>
+  const std::string ubint<limb_t>::Serialize() const {
+
+    std::string ans = "";
+    //const uint_type *fromP;
+
+    //	sint siz = (m_MSB%m_uintBitLength==0&&m_MSB!=0) ? (m_MSB/m_uintBitLength) : ((sint)m_MSB/m_uintBitLength +1);
+    int i;
+    //note limbs are now stored little endian in ubint
+    //for(i=m_nSize-1, fromP=m_value+i ; i>=m_nSize-siz ; i--,fromP--) {
+    for (auto fromP = m_value.begin(); fromP!=m_value.end(); fromP++){
+      ans += to_base64_char[((*fromP) >> b64_shifts[0]) & B64MASK];
+      ans += to_base64_char[((*fromP) >> b64_shifts[1]) & B64MASK];
+      ans += to_base64_char[((*fromP) >> b64_shifts[2]) & B64MASK];
+      ans += to_base64_char[((*fromP) >> b64_shifts[3]) & B64MASK];
+      ans += to_base64_char[((*fromP) >> b64_shifts[4]) & B64MASK];
+      ans += (((*fromP) >> b64_shifts[5])&0x3) + 'A';
+    }
+
+    return ans;
+  }
+
+  /**
+   * This function is only used for deserialization
+   */
+  template<typename limb_t>
+  const char * ubint<limb_t>::Deserialize(const char *cp){
+
+    m_value.clear();
+
+    while( *cp != '\0' && *cp != '|' ) {
+      limb_t converted =  base64_to_value(*cp++) << b64_shifts[0];
+      converted |= base64_to_value(*cp++) << b64_shifts[1];
+      converted |= base64_to_value(*cp++) << b64_shifts[2];
+      converted |= base64_to_value(*cp++) << b64_shifts[3];
+      converted |= base64_to_value(*cp++) << b64_shifts[4];
+      converted |= ((*cp++ - 'A')&0x3) << b64_shifts[5];
+      m_value.push_back(converted);
+    }
+
+    SetMSB();
+    m_state = INITIALIZED;
+
+    return cp;
+  }
+
+  //helper functions
   template<typename limb_t>
   bool ubint<limb_t>::CheckIfPowerOfTwo(const ubint& m_numToCheck){
     usint m_MSB = m_numToCheck.m_MSB;

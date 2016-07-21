@@ -67,7 +67,7 @@ protected:
 };
 
 /************************************************/
-/*	TESTING METHODS OF BININT CLASS		*/
+/*	TESTING METHODS OF UBINT CLASS		*/
 /************************************************/
 /* here are all the methods that need to be tested (or have been
    tested but not removed from this list

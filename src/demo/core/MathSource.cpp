@@ -65,6 +65,23 @@ BigBinaryVector BBVfromStrvec( std::vector<std::string> &s) {
   return a;
 }
 
+//function to compare two BigBinaryVectors and print differing indicies
+void vec_diff(BigBinaryVector &a, BigBinaryVector &b) {
+    for (usint i= 0; i < a.GetLength(); ++i){  
+      if (a.GetValAtIndex(i) != b.GetValAtIndex(i)) {
+        cout << "i: "<< i << endl;
+	cout << "first vector " <<endl;
+        cout << a.GetValAtIndex(i);
+        cout << endl;
+	cout << "second vector " <<endl;
+        cout << b.GetValAtIndex(i);
+        cout << endl;
+
+      }
+    }
+
+}
+
 //main BigBinaryVector test suite. tests math
 void test_BigBinaryVector () {
   int nloop = 1000; //number of times to run each test for timing.
@@ -208,7 +225,7 @@ void test_BigBinaryVector () {
   
   
   BigBinaryVector modmul1 = BBVfromStrvec(modmul1strvec);
-  modmul1.SetModulus(q2);
+  modmul1.SetModulus(q1);
 
   std::vector<std::string> modmul2strvec =
     { "00000585473140075497", "00003637571624495703",
@@ -257,9 +274,10 @@ void test_BigBinaryVector () {
   }
   time1 = TOC(t1);
   DEBUG("t1:  "<<nloop<<" loops c1 = a1.ModMul(b1) computation time: " << "\t" << time1 << " us");
-  if (c1 != modmul1)
+  if (c1 != modmul1){
     cout << "bad multiply! "<<endl;
-
+    vec_diff(c1, modmul1);
+  }
 
   // test case two
   TIC(t2);
@@ -1305,6 +1323,7 @@ void vec_diff(ubintvec &a, ubintvec &b) {
     }
 
 }
+
 void vec_diff(mubintvec &a, ubintvec &b) {
     for (usint i= 0; i < a.size(); ++i){  //todo change to size()
       if (a[i] != b[i]) {  //todo: add [] indexing to class

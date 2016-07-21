@@ -625,6 +625,12 @@ namespace exp_int32{
      */
     const std::string ToString() const;		
 
+
+    const std::string Serialize() const;
+    const char * Deserialize(const char * str);
+
+
+
     /**
      * Tests whether the ubint is a power of 2.
      *

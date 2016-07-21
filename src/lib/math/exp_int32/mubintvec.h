@@ -69,38 +69,42 @@ public:
    */
   explicit mubintvec();
 
-  //	static inline mubintvec Single(const bint_el_t& val) { //not sure this is needed
-  //mubintvec vec(1, modulus);
-  //vec.SetValAtIndex(0, val);
-  //return vec;
-  //}
+  static inline mubintvec Single(const bint_el_t& val, const bint_el_t&modulus) {
+    mubintvec vec(1);
+    vec.m_data.at(0)=val;
+    vec.SetModulus(modulus);
+    return vec;
+  }
 
   /**
    * Basic constructor for specifying the length of the vector.
    *
-   * @param length is the length of the mubintvec, in terms of the number of entries.
+   * @param length initial size in terms of the number of entries.
    */
   explicit mubintvec(usint length);
 
   /**
-   * Basic constructor for specifying the length of the vector.
+   * Basic constructor for specifying the length and modulus of the vector.
    *
-   * @param length is the length of the mubintvec, in terms of the number of entries.
-   * @param modulus is the modulus of the entries in the vector.
+   * @param length initial size in terms of the number of entries.
+   * @param modulus usint associated with entries in the vector.
    */
   explicit mubintvec(const usint length, const usint &modulus);
-  /**
-   * Basic constructor for specifying the length of the vector.
-   *
-   * @param length is the length of the mubintvec, in terms of the number of entries.
-   * @param modulus is the modulus of the entries in the vector.  	         */
-  explicit mubintvec(const usint length, const bint_el_t & modulus);
 
   /**
    * Basic constructor for specifying the length of the vector.
    *
-   * @param length is the length of the mubintvec, in terms of the number of entries.
-   * @param modulus is the modulus of the entries in the vector.  	         */
+   * @param length initial size in terms of the number of entries.
+   * @param modulus ubint associated with entries in the vector.
+   */
+  explicit mubintvec(const usint length, const bint_el_t & modulus);
+
+  /**
+   * Basic constructor for specifying the length and modulus of the vector.
+   *
+   * @param length initial size in terms of the number of entries.
+   * @param modulus string associated with entries in the vector.
+   */
   explicit mubintvec(const usint length, const std::string& modulus);
 
   // constructor specifying the mubintvec as a vector of strings and modulus
@@ -328,46 +332,28 @@ public:
 
   // auxiliary functions
 
-  //MANIPULATORS
-  //useful for storing the results in the current instance of the class
-  //they can also be added for scalar operations and modulo operation
-  // mubintvec&  operator+=(const mubintvec& t) {*this = *this+t; return *this;}
-  //mubintvec&  operator*=(const mubintvec& t) {return *this = *this*t;}
-  //Gyana to add -= operator
+
 
   //JSON FACILITY
   /**
-   * Implemented by this object only for inheritance requirements of abstract class Serializable.
+   * Serialize the object into a Serialized 
    *
-   * @param serializationMap stores this object's serialized attribute name value pairs.
-   * @return map passed in.
+   * @param serObj is used to store the serialized result. It MUST
+   * be a rapidjson Object (SetObject());
+   *
+   * @param fileFlag is an object-specific parameter for the
+   * serialization 
+   *
+   * @return true if successfully serialized
    */
-  std::unordered_map<std::string, std::unordered_map<std::string, std::string>> SetIdFlag(
-      std::unordered_map<std::string,
-          std::unordered_map<std::string, std::string>> serializationMap,
-      std::string flag) const;
+  bool Serialize(lbcrypto::Serialized* serObj, const std::string fileFlag = "") const;
 
-  //JSON FACILITY
   /**
-   * Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
-   *
-   * @param serializationMap stores this object's serialized attribute name value pairs.
-   * @return map updated with the attribute name value pairs required to serialize this object.
+   * Populate the object from the deserialization of the Setialized
+   * @param serObj contains the serialized object
+   * @return true on success
    */
-  std::unordered_map<std::string, std::unordered_map<std::string, std::string>> Serialize(
-      std::unordered_map<std::string,
-          std::unordered_map<std::string, std::string>> serializationMap,
-      std::string fileFlag) const;
-
-  //JSON FACILITY
-  /**
-   * Sets this object's attribute name value pairs to deserialize this object from a JSON file.
-   *
-   * @param serializationMap stores this object's serialized attribute name value pairs.
-   */
-  void Deserialize(
-      std::unordered_map<std::string,
-          std::unordered_map<std::string, std::string>> serializationMap);
+  bool Deserialize(const lbcrypto::Serialized& serObj);
 
 private:
   bint_el_t m_modulus;

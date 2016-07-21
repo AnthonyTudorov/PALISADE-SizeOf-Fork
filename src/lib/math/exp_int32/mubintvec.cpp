@@ -232,7 +232,7 @@ namespace exp_int32 {
     if (m_modulus_state != INITIALIZED)
       throw std::logic_error("GetModulus() on uninitialized mubintvec");
 
-    return(&m_modulus);
+    return(m_modulus);
   }
   
   //Math functions
@@ -368,85 +368,66 @@ namespace exp_int32 {
     return *this;
   }
 
-  // JSON FACILITY - SetIdFlag Operation
-  template<class bint_el_t>
-  std::unordered_map <std::string, std::unordered_map <std::string, std::string>> mubintvec<bint_el_t>::SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
 
-    //Place holder
-
-    return serializationMap;
-  }
+  //new serialize and deserialise operations
+  //todo: not tested just added to satisfy compilier
+  //currently using the same map as bigBinaryVector, with modulus. 
 
   // JSON FACILITY - Serialize Operation
-  template<class bint_el_t>
-  std::unordered_map <std::string, std::unordered_map <std::string, std::string>> mubintvec<bint_el_t>::Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const {
+  template<class bin_el_t>
+  bool mubintvec<bin_el_t>::Serialize(lbcrypto::Serialized* serObj, const std::string) const {
 
-    std::unordered_map <std::string, std::string> bbvMap;
+    if( !serObj->IsObject() )
+      return false;
 
-    //bbvMap.emplace("Modulus", this->GetModulus().ToString());
+    lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
+    bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator()); 
 
-    std::string pkBufferString;
-    bint_el_t pkVectorElem;
-    usint pkVectorLength = 0;
-    std::string pkVectorElemVal;
-    pkVectorLength = this->GetLength();
-    for (int i = 0; i < pkVectorLength; i++) {
-      pkVectorElem = this->GetValAtIndex(i);
-
-      pkVectorElemVal = pkVectorElem.ToString();
-
-      pkBufferString += pkVectorElemVal;
-      if (i != (pkVectorLength - 1)) {
+    usint pkVectorLength = this->m_data.size();
+    if( pkVectorLength > 0 ) {
+      std::string pkBufferString = this->m_data.at(0).Serialize();
+      for (int i = 1; i < pkVectorLength; i++) {
 	pkBufferString += "|";
+	pkBufferString += this->m_data.at(i).Serialize();
       }
+      bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
     }
-    bbvMap.emplace("VectorValues", pkBufferString);
-
-    serializationMap.emplace("bintvec", bbvMap);
-
-    return serializationMap;
+    serObj->AddMember("mubintvec", bbvMap, serObj->GetAllocator());
+    return true;
   }
 
   // JSON FACILITY - Deserialize Operation
   template<class bint_el_t>
-  void mubintvec<bint_el_t>::Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap) {
+  bool mubintvec<bint_el_t>::Deserialize(const lbcrypto::Serialized& serObj) {
 
-    std::unordered_map<std::string, std::string> bbvMap = serializationMap["bintvec"];
+    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("mubintvec");
+    if( mIter == serObj.MemberEnd() )
+      return false;
 
-    //bint_el_t bbiModulus(bbvMap["Modulus"]);
-    //this->SetModulus(bbiModulus);
+    lbcrypto::SerialItem::ConstMemberIterator vIt;
+    if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
+    return false;
+    bint_el_t bbiModulus(vIt->value.GetString());
 
-    std::string vectorVals = bbvMap["VectorValues"];
+    if( (vIt = mIter->value.FindMember("VectorValues")) == mIter->value.MemberEnd() )
+      return false;
+
+    this->SetModulus(bbiModulus);
+
+    this->m_data.clear();
+
     bint_el_t vectorElem;
-    std::string vectorElemVal;
-    usint i = 0;
-    while (vectorVals.find("|", 0)) {
-      size_t pos = vectorVals.find("|", 0);
-      vectorElemVal = vectorVals.substr(0, pos);
-
-      std::string::size_type posTrim = vectorElemVal.find_last_not_of(' ');
-      if (posTrim != std::string::npos) {
-	if (vectorElemVal.length() != posTrim + 1) {
-	  vectorElemVal.erase(posTrim + 1);
-	}
-	posTrim = vectorElemVal.find_first_not_of(' ');
-	if (posTrim != 0) {
-	  vectorElemVal.erase(0, posTrim);
-	}
-      }
-      else {
-	vectorElemVal = "";
-      }
-
-      vectorElem.SetValue(vectorElemVal);
-      vectorVals.erase(0, pos + 1);
-      this->SetValAtIndex(i, vectorElem);
-      i++;
-
-      if (i == this->GetLength()) {
-	break;
-      }
+    //usint ePos = 0;
+    const char *vp = vIt->value.GetString();
+    while( *vp != '\0' ) {
+      vp = vectorElem.Deserialize(vp);
+      //this->SetValAtIndex(ePos++, vectorElem);
+      this->m_data.push_back(vectorElem);
+      if( *vp == '|' )
+	vp++;
     }
+
+    return true;
   }
 
 

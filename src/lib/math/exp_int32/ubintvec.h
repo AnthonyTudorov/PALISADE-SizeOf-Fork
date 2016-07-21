@@ -49,6 +49,7 @@
 //#include "binmat.h"
 #include "../../utils/inttypes.h"
 #include "../../utils/serializable.h"
+#include <initializer_list>
 #include "ubint.h"
 
 /**
@@ -69,11 +70,12 @@ namespace exp_int32 {
        */
       explicit ubintvec();
 
-      //	static inline ubintvec Single(const bint_el_t& val) { //not sure this is needed
-      //ubintvec vec(1, modulus);
-      //vec.SetValAtIndex(0, val);
-      //return vec;
-      //}
+      //TODO: needs testing
+      static inline ubintvec Single(const bint_el_t& val) { 
+	ubintvec vec(1);
+	vec.m_data.at(0)=val;
+	return vec;
+      }
 
       /**
        * Basic constructor for specifying the length of the vector.
@@ -116,18 +118,39 @@ namespace exp_int32 {
 
 
       /**
-       * move copy contructor
+       * move assignment  contructor
        *
        * @param &rhs is the ubintvec to move
-       * @return the return value.	  
+       * @return moved object.	  
        */
       const ubintvec&  operator=(ubintvec &&rhs);
+
+      /**
+       * Initializer list for ubintvec.
+       *
+       * @param &&rhs is the list of ubints to be assigned to the ubintvec.
+       * @return ubintvec object 
+       */
+      //todo untested
+       const ubintvec& operator=(std::initializer_list<bint_el_t> rhs);
+
+      /**
+       * Initializer list for ubintvec.
+       *
+       * @param &&rhs is the list of unsigned integers to be assigned to the ubintvec.
+       * @return ubintvec object 
+       */
+       //todo not implemented
+      //const ubintvec& operator=(std::initializer_list<usint> rhs);
+      //const ubintvec& operator=(std::initializer_list<string> rhs);
+
+
       
       /**
-       * ???
+       * Equals operator checks if to ubintvec objs are equal
        *
-       * @param &&rhs is the ubintvec to test equality with.
-       * @return the return value.	  
+       * @param &&rhs is the ubintvec to compare  with.
+       * @return true if equal, false otherwise.	  
        */      
 
       inline bool operator==(const ubintvec &b) const {
@@ -384,7 +407,8 @@ namespace exp_int32 {
 
       // auxiliary functions
       /**
-       * Returns a vector of digit at a specific index for all entries for a given number base.
+       * Returns a vector of digit at a specific index for all entries
+       * for a given number base.
        *
        * @param index is the index to return the digit from in all entries.
        * @param base is the base to use for the operation.
@@ -393,45 +417,35 @@ namespace exp_int32 {
 
       ubintvec GetDigitAtIndexForBase(usint index, usint base) const;
 
-      //MANIPULATORS
-      //useful for storing the results in the current instance of the class
-      //they can also be added for scalar operations and modulo operation
-      // ubintvec&  operator+=(const ubintvec& t) {*this = *this+t; return *this;}
-      //ubintvec&  operator*=(const ubintvec& t) {return *this = *this*t;}
-      //Gyana to add -= operator
+
 
       //JSON FACILITY
       /**
-       * Implemented by this object only for inheritance requirements of abstract class Serializable.
+       * Serialize the object into a Serialized 
        *
-       * @param serializationMap stores this object's serialized attribute name value pairs.
-       * @return map passed in.
+       * @param serObj is used to store the serialized result. It MUST
+       * be a rapidjson Object (SetObject());
+       *
+       * @param fileFlag is an object-specific parameter for the
+       * serialization 
+       *
+       * @return true if successfully serialized
        */
-      std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const;
+      bool Serialize(lbcrypto::Serialized* serObj, const std::string fileFlag = "") const;
 
-      //JSON FACILITY
       /**
-       * Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
-       *
-       * @param serializationMap stores this object's serialized attribute name value pairs.
-       * @return map updated with the attribute name value pairs required to serialize this object.
+       * Populate the object from the deserialization of the Setialized
+       * @param serObj contains the serialized object
+       * @return true on success
        */
-      std::unordered_map <std::string, std::unordered_map <std::string, std::string>> Serialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string fileFlag) const;
-
-      //JSON FACILITY
-      /**
-       * Sets this object's attribute name value pairs to deserialize this object from a JSON file.
-       *
-       * @param serializationMap stores this object's serialized attribute name value pairs.
-       */
-      void Deserialize(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap);
+      bool Deserialize(const lbcrypto::Serialized& serObj);
 
     protected:
       std::vector<bint_el_t> m_data;
       bool IndexCheck(usint) const;
     };
 
-  //BINARY OPERATORS
+  //BINARY OPERATOR Templates
   /**
    *   scalar modulo operator %
    *
