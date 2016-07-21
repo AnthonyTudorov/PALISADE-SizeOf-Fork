@@ -22,8 +22,8 @@ public:
 	static bool EvalKeyGen(
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPPublicKey<Element> &newPublicKey,
-					const LPPrivateKey<Element> &origPrivateKey,
-					LPEvalKey<Element> *evalKey)
+			const LPPrivateKey<Element> &origPrivateKey,
+			LPEvalKey<Element> *evalKey)
 	{
 		return scheme.EvalKeyGen(newPublicKey, origPrivateKey, evalKey);
 	}
@@ -42,13 +42,17 @@ public:
 			const ByteArray& plaintext,
 			vector<Ciphertext<Element>> *cipherResults)
 	{
+		bool	didPadding = false;
 		size_t chunkSize = scheme.getChunkSize();
 		size_t ptSize = plaintext.size();
 
-		for( int bytes=0; bytes < ptSize; bytes += chunkSize ) {
+		for( int bytes=0; bytes < ptSize || didPadding == false; bytes += chunkSize ) {
 
-			ByteArrayPlaintextEncoding px(plaintext, bytes, chunkSize);
-			px.Pad<ZeroPad>(chunkSize);
+			ByteArrayPlaintextEncoding px(plaintext, bytes < ptSize ? bytes : 0, bytes < ptSize ? chunkSize : 0);
+			if( px.GetLength() < chunkSize ) {
+				didPadding = true;
+				px.Pad<OneZeroPad>(chunkSize);
+			}
 
 			Element pt(publicKey.GetCryptoParameters().GetElementParams());
 			px.Encode(publicKey.GetCryptoParameters().GetPlaintextModulus(), &pt);
@@ -75,12 +79,13 @@ public:
 	 * @return
 	 */
 	static EncryptResult Encrypt(
-			const CryptoContext<Element> *ctx,
+			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPPublicKey<Element>& publicKey,
 			std::istream& instream,
 			std::ostream& outstream)
 	{
-		size_t chunkSize = ctx->getAlgorithm()->getChunkSize();
+		bool didPadding = false;
+		size_t chunkSize = scheme.getChunkSize();
 		char *ptxt = new char[chunkSize];
 		size_t totBytes = 0;
 
@@ -88,37 +93,39 @@ public:
 			instream.read(ptxt, chunkSize);
 			size_t nRead = instream.gcount();
 
-			if( nRead <= 0 )
+			if( nRead <= 0 && didPadding )
 				break;
 
-			ByteArray pt(ptxt, nRead);
-			vector<Ciphertext<Element>> cipherResults;
+			ByteArrayPlaintextEncoding px(ptxt, 0, nRead); //bytes < ptSize ? bytes : 0, bytes < ptSize ? chunkSize : 0);
+			if( nRead < chunkSize ) {
+				didPadding = true;
+				px.Pad<OneZeroPad>(chunkSize);
+			}
 
-			EncryptResult res = Encrypt(*ctx->getAlgorithm(), publicKey, pt, &cipherResults);
+			Element pt(publicKey.GetCryptoParameters().GetElementParams());
+			px.Encode(publicKey.GetCryptoParameters().GetPlaintextModulus(), &pt);
+			pt.SwitchFormat();
+
+			Ciphertext<Element> ciphertext;
+			EncryptResult res = scheme.Encrypt(publicKey, pt, &ciphertext);
 			if( res.isValid == false ) {
 				delete ptxt;
-				return res;
+				return EncryptResult();
 			}
 
 			totBytes += res.numBytesEncrypted;
 
-			for( int i=0; i<cipherResults.size(); i++ ) {
-				Ciphertext<Element> oneCt(cipherResults.at(i));
+			Serialized cS;
 
-				Serialized cS;
-
-				if( oneCt.Serialize(&cS, "ct") ) {
-					if( !SerializableHelper::SerializationToStream(cS, outstream) ) {
-						delete ptxt;
-						return EncryptResult();
-					}
-				} else {
+			if( ciphertext.Serialize(&cS, "ct") ) {
+				if( !SerializableHelper::SerializationToStream(cS, outstream) ) {
 					delete ptxt;
 					return EncryptResult();
 				}
+			} else {
+				delete ptxt;
+				return EncryptResult();
 			}
-
-			cipherResults.clear();
 		}
 
 		delete ptxt;
@@ -131,6 +138,7 @@ public:
 			const vector<Ciphertext<Element>>& ciphertext,
 			ByteArray *plaintext)
 	{
+		int lastone = ciphertext.size() - 1;
 		for( int ch = 0; ch < ciphertext.size(); ch++ ) {
 			Element decrypted;
 			DecryptResult result = scheme.Decrypt(privateKey, ciphertext[ch], &decrypted);
@@ -140,7 +148,12 @@ public:
 			ByteArrayPlaintextEncoding pte;
 
 			pte.Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), decrypted);
-			pte.Unpad<ZeroPad>();
+
+			if( ch == lastone ) {
+				pte.Unpad<OneZeroPad>();
+				if( pte.GetLength() == 0 )
+					continue;
+			}
 
 			plaintext->insert( plaintext->end(), pte.GetData().begin(), pte.GetData().end() );
 		}
@@ -149,13 +162,17 @@ public:
 	}
 
 	static DecryptResult Decrypt(
-			const CryptoContext<Element> *ctx,
+			CryptoContext<Element> *ctx,
 			const LPPrivateKey<Element>& privateKey,
 			std::istream& instream,
 			std::ostream& outstream)
 	{
 		Serialized serObj;
 		size_t tot = 0;
+
+		bool firstTime = true;
+		ByteArrayPlaintextEncoding pte[2];
+		bool whichArray = false;
 
 		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
 			Ciphertext<Element> ct;
@@ -166,15 +183,20 @@ public:
 					return DecryptResult();
 				tot += res.messageLength;
 
-				ByteArrayPlaintextEncoding pte;
-				pte.Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), decrypted);
-				pte.Unpad<ZeroPad>();
+				pte[whichArray].Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), decrypted);
 
-				outstream << pte.GetData();
+				if( !firstTime )
+					outstream << pte[!whichArray].GetData();
+				firstTime = false;
+				whichArray = !whichArray;
 			}
 			else
 				return DecryptResult();
 		}
+
+		// unpad and write the last one
+		pte[!whichArray].Unpad<OneZeroPad>();
+		outstream << pte[!whichArray].GetData();
 
 		return DecryptResult(tot);
 	}
