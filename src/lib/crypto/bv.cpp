@@ -32,8 +32,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
  */
 
-#ifndef LBCRYPTO_CRYPTO_LWECRYPT_C
-#define LBCRYPTO_CRYPTO_LWECRYPT_C
+#ifndef LBCRYPTO_CRYPTO_BV_C
+#define LBCRYPTO_CRYPTO_BV_C
 
 #include "../crypto/cryptocontext.h"
 #include <cstring>
@@ -55,7 +55,8 @@ void LPPrivateKeyBV<Element>::MakePublicKey(const Element &a, LPPublicKey<Elemen
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-	Element e(dgg, elementParams, Format::EVALUATION);
+	Element e(dgg, elementParams, Format::COEFFICIENT);
+	e.SwitchFormat();
 
 	Element b = a*m_sk + p*e;
 
@@ -86,7 +87,8 @@ bool LPAlgorithmBV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	Element a(dug, elementParams, Format::EVALUATION);
 
 	//Generate the secret key
-	Element s(dgg, elementParams, Format::EVALUATION);
+	Element s(dgg, elementParams, Format::COEFFICIENT);
+	s.SwitchFormat();
 
 	privateKey->SetPrivateElement(s);
 	privateKey->AccessCryptoParameters() = *cryptoParams;
