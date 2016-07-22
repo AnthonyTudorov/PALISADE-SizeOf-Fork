@@ -76,7 +76,6 @@ JNIEXPORT void JNICALL Java_com_palisade_PalisadeCrypto_writeBytes
 
 	ostr = env->FindClass("java/io/OutputStream");
 	if( ostr == 0 ) {
-<<<<<<< dd14c9552af487cb8e6bc8b142122c7ec2a84203
 		throw std::logic_error("no output class");
 	}
 
@@ -103,16 +102,10 @@ JNIEXPORT void JNICALL Java_com_palisade_PalisadeCrypto_writeBytes
 
 	javaRstreambuf ib(env, inputstream, reader);
 	istream rStream(&ib);
-		throw std::logic_error("no class");
-	}
 
-	writer = env->GetMethodID(ostr, "write", "(I)V");
-	if( writer == 0 ) {
-		throw std::logic_error("no write method");
-	}
-
-	javastreambuf ob(env, outstream, writer);
-	ostream tryStream(&ob);
+	jboolean isCopy;
+	jbyte *jnibytes = env->GetByteArrayElements(bytes, &isCopy);
+	jint len = env->GetArrayLength(bytes);
 	string str((char *)jnibytes,len);
 	wStream << str;
 	wStream.flush();
