@@ -59,12 +59,12 @@ public:
 	/**
 	* @brief Required by DistributionGenerator.
 	*/
-	BigBinaryInteger GenerateInteger ();
+	BigBinaryInteger GenerateInteger () const;
 
 	/**
 	* @brief Required by DistributionGenerator.
 	*/
-	BigBinaryVector GenerateVector (const usint size);
+	BigBinaryVector GenerateVector (const usint size) const;
 
 private:
 	static const usint CHUNK_MIN = 0;

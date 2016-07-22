@@ -46,20 +46,128 @@ template <class Element>
 void LPPrivateKeyBV<Element>::MakePublicKey(const Element &a, LPPublicKey<Element> *pub) const
 {
 	const LPCryptoParametersRLWE<Element> *cryptoParams =
-		dynamic_cast<const LPCryptoParametersRLWE<Element>*>(this->GetCryptoParameters());
+		dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&this->GetCryptoParameters());
+
+	LPPublicKeyBV<Element> *publicKey =
+		dynamic_cast<LPPublicKeyBV<Element>*>(pub);
 
 	const ElemParams &elementParams = cryptoParams->GetElementParams();
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	Element e(dgg, elementParams, Format::EVALUATION);
 
 	Element b = a*m_sk + p*e;
 
-	pub->SetPublicElements({ a,b });
+	publicKey->SetPublicElements({ a,b });
 }
 
-// Constructor for LPPublicKeyEncryptionSchemeLTV
+template <class Element>
+bool LPAlgorithmBV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
+	LPPrivateKey<Element> *privateKey) const
+{
+
+	if (publicKey == 0 || privateKey == 0)
+		return false;
+
+	const LPCryptoParametersRLWE<Element> *cryptoParams =
+		dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&privateKey->GetCryptoParameters());
+
+	if (cryptoParams == 0)
+		return false;
+
+	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	const DiscreteUniformGenerator dug(elementParams.GetModulus());
+
+	//Generate the element "a" of the public key
+	Element a(dug, elementParams, Format::EVALUATION);
+
+	//Generate the secret key
+	Element s(dgg, elementParams, Format::EVALUATION);
+
+	privateKey->SetPrivateElement(s);
+	privateKey->AccessCryptoParameters() = *cryptoParams;
+
+	//public key is generated and set
+	privateKey->MakePublicKey(a, publicKey);
+
+	return true;
+
+}
+
+template <class Element>
+EncryptResult LPAlgorithmBV<Element>::Encrypt(const LPPublicKey<Element> &pubKey,
+	const Element &plaintext,
+	Ciphertext<Element> *ciphertext) const
+{
+
+	const LPCryptoParametersRLWE<Element> *cryptoParams =
+		dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&pubKey.GetCryptoParameters());
+
+	const LPPublicKeyBV<Element> *publicKey =
+		dynamic_cast<const LPPublicKeyBV<Element>*>(&pubKey);
+
+	if (cryptoParams == 0) return EncryptResult();
+
+	if (ciphertext == 0) return EncryptResult();
+
+	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+
+	const Element &a = publicKey->GetPublicElement();
+	const Element &b = publicKey->GetGeneratedPublicElement();
+
+	Element v(dgg, elementParams, Format::EVALUATION);
+	Element e0(dgg, elementParams, Format::EVALUATION);
+	Element e1(dgg, elementParams, Format::EVALUATION);
+
+	Element c1(elementParams);
+	Element c2(elementParams);
+
+	//c1 = b v + p e_0 + m
+	c1 = b*v + p*e0 + plaintext;
+
+	//c2 = a v + p e_1
+	c2 = a*v + p*e1;
+
+	ciphertext->SetCryptoParameters(cryptoParams);
+	ciphertext->SetPublicKey(pubKey);
+	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
+	ciphertext->SetElements({ c1,c2 });
+
+	return EncryptResult(0);
+}
+
+template <class Element>
+DecryptResult LPAlgorithmBV<Element>::Decrypt(const LPPrivateKey<Element> &privateKey,
+	const Ciphertext<Element> &ciphertext,
+	Element *plaintext) const
+{
+
+	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
+	const ElemParams &elementParams = cryptoParams.GetElementParams();
+	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+
+	const std::vector<Element> &c = ciphertext.GetElements();
+
+	const Element &s = privateKey.GetPrivateElement();
+
+	Element b = c[0] - s*c[1];
+
+	b.SwitchFormat();
+	
+	*plaintext = b;
+
+	return DecryptResult(plaintext->GetLength());
+
+}
+
+
+// Constructor for LPPublicKeyEncryptionSchemeBV
 template <class Element>
 LPPublicKeyEncryptionSchemeBV<Element>::LPPublicKeyEncryptionSchemeBV(std::bitset<FEATURESETSIZE> mask, size_t chunksize)
 	: LPPublicKeyEncryptionScheme<Element>(chunksize) {

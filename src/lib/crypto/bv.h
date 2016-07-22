@@ -234,14 +234,14 @@ namespace lbcrypto {
 			* @param fileFlag is an object-specific parameter for the serialization
 			* @return true if successfully serialized
 			*/
-			bool Serialize(Serialized* serObj, const std::string fileFlag = "") const {};
+			bool Serialize(Serialized* serObj, const std::string fileFlag = "") const { return true;  };
 
 			/**
 			* Populate the object from the deserialization of the Setialized
 			* @param serObj contains the serialized object
 			* @return true on success
 			*/
-			bool Deserialize(const Serialized& serObj) {};
+			bool Deserialize(const Serialized& serObj) { return true;  };
 			
 			
 			/**
@@ -329,12 +329,6 @@ namespace lbcrypto {
 		const Element & GetGeneratedPublicElement() const { return m_b; }
 
 		/**
-		* Implementation of the Get accessor for generated public element b = a s + p e.
-		* @return the public elements.
-		*/
-		const std::vector<Element> & GetPublicElements() const { return { m_a, m_b }; }
-
-		/**
 		* Gets writable instance of cryptoparams.
 		* @return the crypto parameters.
 		*/
@@ -376,7 +370,7 @@ namespace lbcrypto {
 		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized* serObj, const std::string fileFlag = "") const {};
+		bool Serialize(Serialized* serObj, const std::string fileFlag = "") const { return true;  };
 
 		/**
 		* Higher level info about the serialization is saved here
@@ -384,7 +378,7 @@ namespace lbcrypto {
 		* @param flag an object-specific parameter for the serialization
 		* @return true on success
 		*/
-		bool SetIdFlag(Serialized* serObj, const std::string flag) const {};
+		bool SetIdFlag(Serialized* serObj, const std::string flag) const { return true;  };
 
 		/**
 		* Populate the object from the deserialization of the Setialized
@@ -494,7 +488,7 @@ namespace lbcrypto {
 		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized* serObj, const std::string fileFlag = "") const {};
+		bool Serialize(Serialized* serObj, const std::string fileFlag = "") const { return true;  };
 
 		/**
 		* Higher level info about the serialization is saved here
@@ -502,7 +496,7 @@ namespace lbcrypto {
 		* @param flag an object-specific parameter for the serialization
 		* @return true on success
 		*/
-		bool SetIdFlag(Serialized* serObj, const std::string flag) const {};
+		bool SetIdFlag(Serialized* serObj, const std::string flag) const { return true;  };
 
 		/**
 		* Populate the object from the deserialization of the Setialized
@@ -577,6 +571,32 @@ namespace lbcrypto {
 		*/
 		virtual bool KeyGen(LPPublicKey<Element> *publicKey,
 			LPPrivateKey<Element> *privateKey) const;
+
+		/**
+		* YSP This should be removed from LPEncryptionAlgorithm
+		* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
+		* and odd indices are set to zero.
+		*
+		* @param &publicKey private key used for decryption.
+		* @param &privateKey private key used for decryption.
+		* @param &dgg discrete Gaussian generator.
+		* @return function ran correctly.
+		*/
+		bool SparseKeyGen(LPPublicKey<Element> &publicKey,
+			LPPrivateKey<Element> &privateKey,
+			const DiscreteGaussianGenerator &dgg) const {
+			return true;
+		};
+
+		/**
+		* This needs to be removed
+		*
+		* @param &publicKey public key used for encryption.
+		* @param *ciphertext ciphertext which results from encryption.
+		*/
+		void Encrypt(const LPPublicKey<Element> &publicKey,
+			Ciphertext<Element> *ciphertext) const {};
+
 	};
 
 	/**

@@ -57,6 +57,9 @@ namespace lbcrypto {
 	template <class Element>
 	class LPCryptoParametersStehleSteinfeld;
 
+	template <class Element>
+	class LPCryptoParametersRLWE;
+
 	/**
 	 * @brief Main ciphertext class.
 	 * @tparam Element a ring element.

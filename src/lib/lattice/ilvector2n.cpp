@@ -79,7 +79,7 @@ namespace lbcrypto {
 	}
 
 
-	ILVector2n::ILVector2n(DiscreteUniformGenerator &dug, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
+	ILVector2n::ILVector2n(const DiscreteUniformGenerator &dug, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
 
 		const ILParams &ilParams = static_cast<const ILParams&>(params);
 
@@ -94,7 +94,7 @@ namespace lbcrypto {
 
 	}
 
-	ILVector2n::ILVector2n(BinaryUniformGenerator &bug, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
+	ILVector2n::ILVector2n(const BinaryUniformGenerator &bug, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
 
 		const ILParams &ilParams = static_cast<const ILParams&>(params);
 

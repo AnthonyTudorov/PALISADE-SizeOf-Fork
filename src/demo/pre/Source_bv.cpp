@@ -46,6 +46,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/encoding/cryptoutility.h"
 
 #include "../../lib/utils/debug.h"
+
 using namespace std;
 using namespace lbcrypto;
 void NTRUPRE(int input);
@@ -62,10 +63,8 @@ struct SecureParams {
 };
 
 #include <iterator>
-int main() {
 
-	//DiscreteUniformGenerator gen(BigBinaryInteger("100000"));
-	//auto v = gen.GenerateVector(10000);
+int main() {
 
 	std::cout << "Relinearization window : " << std::endl;
 	std::cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
@@ -82,35 +81,6 @@ int main() {
 	NTRUPRE(input);
 	//NTRUPRE(3);
 	
-
-	// The below lines clean up the memory use.
-	//system("pause");
-
-	////Hadi's code
-	//usint m = 16;
-	//BigBinaryInteger rootOfUnity("61564");
-	//Format format = COEFFICIENT;
-
-	//BigBinaryInteger modulu1;
- //   modulu1 = FindPrimeModulus(16, 20);
-	//cout<<modulu1<<endl;
-
- //   BigBinaryInteger rootOfUnity1;
-	//rootOfUnity1 = RootOfUnity(m, modulu1);
-
-	//ILParams ilParams2(m, modulu1, rootOfUnity);
-
-
-	//ILVector2n c2(ilParams2);
-	//usint m2 = 16;
-	//DiscreteGaussianGenerator d2(m2/2, modulu1);
-	//BigBinaryVector x2 = d2.GenerateVector(m2/2);
-	//c2.SetValues(x2, Format::COEFFICIENT);
-
-	//c2.SwitchFormat();
-	//c2.SwitchFormat();
-
-
 	std::cin.get();
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();
@@ -118,22 +88,6 @@ int main() {
 	return 0;
 }
 
-
-// double currentDateTime()
-// {
-
-// 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-
-//     time_t tnow = std::chrono::system_clock::to_time_t(now);
-//     tm *date = localtime(&tnow);
-//     date->tm_hour = 0;
-//     date->tm_min = 0;
-//     date->tm_sec = 0;
-
-//     auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
-
-// 	return std::chrono::duration <double, std::milli>(now - midnight).count();
-// }
 
 //////////////////////////////////////////////////////////////////////
 //	NTRUPRE is where the core functionality is provided.
@@ -169,10 +123,6 @@ void NTRUPRE(int input) {
 	//ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
 
 	SecureParams const SECURE_PARAMS[] = {
-//<<<<<<< HEAD
-//=======
-		//{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("2678760785"), 1 }, //r = 8
-//>>>>>>> 98034a0563cc8cab2eb1c179288561a65ad5a7f0
 		{ 2048, BigBinaryInteger("268441601"), BigBinaryInteger("16947867"), 1 }, //r = 1
 		{ 2048, BigBinaryInteger("536881153"), BigBinaryInteger("267934765"), 2 }, // r = 2
 		{ 2048, BigBinaryInteger("1073750017"), BigBinaryInteger("180790047"), 4 },  // r = 4
@@ -201,16 +151,8 @@ void NTRUPRE(int input) {
 	//Prepare for parameters.
 	ILParams ilParams(m,modulus,rootOfUnity);
 
-	//std::cout << ilParams.GetRootOfUnity() << std::endl;
-
-	//Should eventually be replaced with the following code
-	//ILParams ilParams;
-	//ilParams.Initialize(m,bitLength);
-	//Or
-	//ilParams.Initialize(m,bitLenght,inputFile);
-
 	//Set crypto parametes
-	LPCryptoParametersLTV<ILVector2n> cryptoParams;
+	LPCryptoParametersRLWE<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
 	//cryptoParams.SetPlaintextModulus(BigBinaryInteger("4"));  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
@@ -241,8 +183,8 @@ void NTRUPRE(int input) {
 	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+	LPPublicKeyBV<ILVector2n> pk(cryptoParams);
+	LPPrivateKeyBV<ILVector2n> sk(cryptoParams);
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -254,9 +196,9 @@ void NTRUPRE(int input) {
 
 
 	size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeBV<ILVector2n> algorithm(chunksize);
 	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
+	//algorithm.Enable(PRE);
 
 	bool successKeyGen=false;
 
@@ -327,6 +269,8 @@ void NTRUPRE(int input) {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}
+
+	/*
 
 	//PRE SCHEME
 
@@ -418,6 +362,8 @@ void NTRUPRE(int input) {
 	}
 
 	std::cout << "Execution completed." << std::endl;
+
+	*/
 
 	fout.close();
 }
