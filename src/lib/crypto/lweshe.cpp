@@ -45,7 +45,7 @@ void LPAlgorithmSHELTV<Element>::EvalMult(
 		throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 	}
 
-	if(!(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters())){
+	if(!(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters()) || !(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters())){
 		std::string errMsg = "EvalMult crypto parameters are not the same";
 		throw std::runtime_error(errMsg);
 	}
@@ -67,7 +67,7 @@ void LPAlgorithmSHELTV<Element>::EvalAdd(
 				const Ciphertext<Element> &ciphertext2, 
 				Ciphertext<Element> *newCiphertext) const
 {
-	if(!(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters())){
+	if(!(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters()) || !(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters())){
 		std::string errMsg = "EvalAdd crypto parameters are not the same";
 		throw std::runtime_error(errMsg);
 	}

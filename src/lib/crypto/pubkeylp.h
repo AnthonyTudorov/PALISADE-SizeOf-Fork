@@ -809,7 +809,7 @@ namespace lbcrypto {
 		//wrapper for KeySwitch
 		Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const {
 			if(this->IsEnabled(LEVELEDSHE)){
-				this->m_algorithmLeveledSHE->KeySwitch(keySwitchHint,cipherText);
+				return this->m_algorithmLeveledSHE->KeySwitch(keySwitchHint,cipherText);
 			}
 			else{
 				throw std::logic_error("This operation is not supported");
