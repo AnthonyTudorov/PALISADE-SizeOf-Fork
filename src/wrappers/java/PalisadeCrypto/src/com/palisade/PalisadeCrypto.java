@@ -149,15 +149,17 @@ public class PalisadeCrypto {
 			return;
 		}
 		
-//		System.out.println("Try this write thing");
-//		String message = "hello";
-//		try {
-//			ctx.writeBytes(message.getBytes(), System.err);
-//			System.out.println("Back from writing");
-//		} catch( Exception e ) {
-//			System.out.println("Exception in write");
-//			e.printStackTrace();
-//		}
+		System.out.println("Testing stream stuff...");
+		String message = "hello. is it me you're looking for?\n";
+		try {
+			ctx.writeBytes(message.getBytes(), System.err);
+		} catch( Exception e ) {
+			System.out.println("Exception in write");
+			e.printStackTrace();
+		}
+		System.err.println("to error");
+		ctx.writeBytes("here I go... I just don't know".getBytes(), System.err);
+		System.out.println("...stream test done");
 		
 		System.out.println("Generating some key pairs");
 

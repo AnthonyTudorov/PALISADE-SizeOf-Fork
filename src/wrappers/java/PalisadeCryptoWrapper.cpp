@@ -30,55 +30,26 @@ public:
 	JavaPalisadeCrypto(CryptoContext<ILVector2n> *ctx) : ctx(ctx), errorMessage("") {}
 };
 
-// writing to a java.io.OutputStream means making a call to the write(byte[], off, len) method
+// this class is used to convert writing to a std::ostream into writing to a java.io.OutputStream
+// create an ostream, use *this* as the streambuf, and write to the stream to your heart's content!
 class javastreambuf : public streambuf {
-	char buf[2048];
 	JNIEnv		*env;
 	jobject		obj;
 	jmethodID writer;
-	jmethodID flusher;
 
 public:
-	javastreambuf(JNIEnv *env, jobject outstream) {
-		this->env = env;
-		obj = outstream;
+	javastreambuf(JNIEnv *env, jobject outstream, jmethodID writer) : env(env), obj(outstream), writer(writer) {}
 
-		// find the getObject method
-		jclass ostr = env->FindClass("java/io/OutputStream");
-		if( ostr == 0 ) {
-			throw std::logic_error("no class");
-		}
-
-		writer = env->GetMethodID(ostr, "write", "([BII)V");
-		if( writer == 0 ) {
-			throw std::logic_error("no write method");
-		}
-
-		flusher = env->GetMethodID(ostr, "flush", "()V");
-		if( writer == 0 ) {
-			throw std::logic_error("no flush method");
-		}
-
-		setp(buf, buf + sizeof(buf));
-	}
-
-	int sync() {
-		streamsize n = pptr() - pbase();
-		//cout.write(pbase(), n);
-		doWrite(pbase(), n);
-		pbump(-n);
-		return 0;
-	}
-
+protected:
 	int overflow(int c) {
-		streamsize n = pptr() - pbase();
-
-		if( n && sync() ) return EOF;
 		if( c != EOF ) {
-			sputc( c );
+			env->CallVoidMethod(obj, writer, c);
+
+//			if( putchar( c ) == EOF )
+//				return EOF;
 		}
 
-		return 0;
+		return c;
 	}
 
 private:
@@ -93,7 +64,7 @@ private:
 		args[2].i = n;
 
 		env->CallVoidMethod(obj, writer, args);
-		env->CallVoidMethod(obj, flusher);
+		//env->CallVoidMethod(obj, flusher);
 
 		env->DeleteLocalRef(arr);
 	}
@@ -103,20 +74,29 @@ JNIEXPORT void JNICALL Java_com_palisade_PalisadeCrypto_writeBytes
 (JNIEnv *env, jobject thiz, jbyteArray bytes, jobject outstream)
 {
 	cout << "Before" << std::endl;
-	try {
-		javastreambuf jbuf(env, outstream);
-		ostream jout(&jbuf);
-		jout << "Well, ";
-		cout << "1" << endl;
-		jout << "Hello" << flush;
-		cout << "2" << endl;
-		jout << " There ";
-		cout << "3" << endl;
-		jout << "Sir!" << std::endl;
-		cout << "4" << endl;
-	} catch(const std::logic_error& e ) {
-		cout << "got an exception " << e.what() << endl;
+
+	jclass		ostr;
+	jmethodID writer;
+
+	ostr = env->FindClass("java/io/OutputStream");
+	if( ostr == 0 ) {
+		throw std::logic_error("no class");
 	}
+
+	writer = env->GetMethodID(ostr, "write", "(I)V");
+	if( writer == 0 ) {
+		throw std::logic_error("no write method");
+	}
+
+	javastreambuf ob(env, outstream, writer);
+	ostream tryStream(&ob);
+
+	jboolean isCopy;
+	jbyte *jnibytes = env->GetByteArrayElements(bytes, &isCopy);
+	jint len = env->GetArrayLength(bytes);
+	tryStream << len << ":" << string((char *)jnibytes,len) << flush;
+	if( isCopy ) env->ReleaseByteArrayElements(bytes, jnibytes, JNI_ABORT);
+
 	cout << "After" << std::endl;
 }
 
