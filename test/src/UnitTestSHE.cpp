@@ -47,7 +47,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 using namespace lbcrypto;
 
-/*template <class T>
+template <class T>
 ElemParams* CreateParams(usint m);
 
 template <>
@@ -62,7 +62,6 @@ ElemParams* CreateParams<ILVector2n>(usint m) {
 template <>
 ElemParams* CreateParams<ILVectorArray2n>(usint m) {
   usint size = 3;
-  // ByteArrayPlaintextEncoding ctxtd;
 
   vector<BigBinaryInteger> moduli(size);
   vector<BigBinaryInteger> rootsOfUnity(size);
@@ -77,10 +76,9 @@ ElemParams* CreateParams<ILVectorArray2n>(usint m) {
     modulus = modulus* moduli[i];
   }
 
-  // DiscreteGaussianGenerator dgg(modulus,stdDev);
   ILDCRTParams ildcrtParams(m, moduli, rootsOfUnity);
   return &ildcrtParams;
-}*/
+}
 
 template <class T>
 class UnitTestSHE : public ::testing::Test {
@@ -92,7 +90,7 @@ class UnitTestSHE : public ::testing::Test {
 	  UnitTestSHE() {}
 
     virtual void SetUp() {
-      // params = CreateParams<T>(m);
+      params = CreateParams<T>(m);
     }
 
     virtual void TearDown() {
@@ -103,7 +101,7 @@ class UnitTestSHE : public ::testing::Test {
 
     virtual ~UnitTestSHE() {  }
 
-    // ElemParams *params;
+    ElemParams *params;
 };
 
 #if GTEST_HAS_TYPED_TEST
@@ -117,59 +115,86 @@ TYPED_TEST_CASE(UnitTestSHE, Implementations);
 
 TYPED_TEST(UnitTestSHE, keyswitch_modReduce_ringReduce_tests){
   
-  //float stdDev = 4;
-  //ByteArrayPlaintextEncoding ctxtd;
-  //const ByteArray plaintext = "M";
-  //
-  //ByteArrayPlaintextEncoding ptxt(plaintext);
-  //ptxt.Pad<ZeroPad>((UnitTestSHE::m)/16);
+  /*float stdDev = 4;
+  ByteArrayPlaintextEncoding ctxtd;
+  const ByteArray plaintext = "M";
+  
+  // ByteArrayPlaintextEncoding ptxt(plaintext);
+  // ptxt.Pad<ZeroPad>((UnitTestSHE::m)/16);
 
-  //LPCryptoParametersLTV<TypeParam> cryptoParams;
-  //cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-  //cryptoParams.SetDistributionParameter(stdDev);
-  //cryptoParams.SetRelinWindow(1);
-  //cryptoParams.SetElementParams(*(this->params));
+  LPCryptoParametersLTV<TypeParam> cryptoParams;
+  cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+  cryptoParams.SetDistributionParameter(stdDev);
+  cryptoParams.SetRelinWindow(1);
+  cryptoParams.SetElementParams(*(this->params));
 
-  //Ciphertext<TypeParam> cipherText;
-  //cipherText.SetCryptoParameters(&cryptoParams);
+  Ciphertext<TypeParam> cipherText;
+  cipherText.SetCryptoParameters(&cryptoParams);
 
-  //LPPublicKeyLTV<TypeParam> pk(cryptoParams);
-  //LPPrivateKeyLTV<TypeParam> sk(cryptoParams);
+  LPPublicKeyLTV<TypeParam> pk(cryptoParams);
+  LPPrivateKeyLTV<TypeParam> sk(cryptoParams);
 
-  //std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
-  //LPPublicKeyEncryptionSchemeLTV<TypeParam> algorithm(mask);
-  //// TODO - Nishanth/ Yuriy: Some issue here with the way clean up happens with algorithm that it results in core dump while running this test class! Need to fix it.
+  size_t chunksize = ((m / 2) / 8);
+  LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm(chunksize);
+  algorithm.Enable(ENCRYPTION);
+  algorithm.Enable(SHE);
+  // algorithm.Enable(PRE);
 
-  //algorithm.KeyGen(&pk, &sk);
-  //algorithm.Encrypt(pk, ptxt, &cipherText);
-  //algorithm.Decrypt(sk, cipherText, &ctxtd);
+  bool successKeyGen=false;
 
-  //cout << "Decrypted value BEFORE any operations: \n" << endl;
-  //cout << ctxtd<< "\n" << endl;
-  //{
-  //  LPPublicKeyLTV<TypeParam> pk2(cryptoParams);
-  //  LPPrivateKeyLTV<TypeParam> sk2(cryptoParams);
-  //  algorithm.KeyGen(&pk2, &sk2);
+  std::cout <<"\n" <<  "Running key generation..." << std::endl;
 
-  //  LPKeySwitchHintLTV<TypeParam> keySwitchHint;
-  //  algorithm.m_algorithmLeveledSHE->KeySwitchHintGen(sk, sk2, &keySwitchHint);
-  //  Ciphertext<TypeParam> cipherText2;
-  //  cipherText2 = algorithm.m_algorithmLeveledSHE->KeySwitch(keySwitchHint, cipherText);
-  //  algorithm.Decrypt(sk2, cipherText2, &ctxtd);
+  start = currentDateTime();
 
-  //  cout << "Decrypted value AFTER KeySwitch: \n" << endl;
-  //  cout << ctxtd<< "\n" << endl;
-  //  EXPECT_EQ(ctxtd.GetData(), plaintext) << "keyswitch_test_single_crt failed.\n";
-  //}
+  successKeyGen = algorithm.KeyGen(&pk,&sk);
 
-  //{
-  //  algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText);
-  //  algorithm.Decrypt(sk, cipherText, &ctxtd);
+  if (!successKeyGen) {
+    std::cout<<"Key generation failed!"<<std::endl;
+    exit(1);
+  }
 
-  //  cout << "Decrypted value AFTER ModReduce: \n" << endl;
-  //  cout << ctxtd<< "\n" << endl;
-  //  EXPECT_EQ(ctxtd.GetData(), plaintext) << "mod_reduce_test_single_crt failed.\n" ;
-  //}
+  CryptoUtility<ILVectorArray2n>::Encrypt(algorithm,pk,plaintext,&ciphertext);
+
+  ByteArray plaintextNew;
+  
+  DecryptResult result = CryptoUtility<ILVectorArray2n>::Decrypt(algorithm,sk,ciphertext,&plaintextNew); 
+
+  // algorithm.Encrypt(pk, ptxt, &cipherText);
+  // algorithm.Decrypt(sk, cipherText, &ctxtd);
+  if (!result.isValid) {
+    std::cout<<"Decryption failed!"<<std::endl;
+    exit(1);
+  }
+
+  cout << "Decrypted value BEFORE any operations: \n" << endl;
+  cout << ctxtd<< "\n" << endl;
+  {
+   LPPublicKeyLTV<TypeParam> pk2(cryptoParams);
+   LPPrivateKeyLTV<TypeParam> sk2(cryptoParams);
+
+   successKeyGen=false;
+
+   successKeyGen = algorithm.KeyGen(&pk2, &sk2);
+
+   LPKeySwitchHintLTV<TypeParam> keySwitchHint;
+   algorithm.m_algorithmLeveledSHE->KeySwitchHintGen(sk, sk2, &keySwitchHint);
+   Ciphertext<TypeParam> cipherText2;
+   cipherText2 = algorithm.m_algorithmLeveledSHE->KeySwitch(keySwitchHint, cipherText);
+   algorithm.Decrypt(sk2, cipherText2, &ctxtd);
+
+   cout << "Decrypted value AFTER KeySwitch: \n" << endl;
+   cout << ctxtd<< "\n" << endl;
+   EXPECT_EQ(ctxtd.GetData(), plaintext) << "keyswitch_test_single_crt failed.\n";
+  }
+
+  {
+   algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText);
+   algorithm.Decrypt(sk, cipherText, &ctxtd);
+
+   cout << "Decrypted value AFTER ModReduce: \n" << endl;
+   cout << ctxtd<< "\n" << endl;
+   EXPECT_EQ(ctxtd.GetData(), plaintext) << "mod_reduce_test_single_crt failed.\n" ;
+  }*/
 
   /*{
     algorithm.m_algorithmLeveledSHE->RingReduce(&cipherText, &sk);

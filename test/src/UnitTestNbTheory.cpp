@@ -318,25 +318,6 @@ TEST(method_primitive_root_of_unity, exception_handling) {
 
 }
 
-// TEST(random_number_generator_small_modulus, less_than) {
-// 	BigBinaryInteger prime("101");
-// 	const int ITERATIONS = 101;
-// 	for(int i=0; i<ITERATIONS; i++)
-// 		ASSERT_LT(lbcrypto::RNG(prime), prime);
-// }
-
-// TEST(method_witness_function, is_composite){
-// 	BigBinaryInteger prime("101");
-// 	const BigBinaryInteger a = lbcrypto::RNG(prime);
-// 	BigBinaryInteger d("25");
-// 	std::cout << " witnessFunction result for " << prime << " is " << lbcrypto::witnessFunction(a, d, 2, prime) << std::endl;
-// }
-
-// TEST(method_pollard_rho_factorization, factors){
-// 	BigBinaryInteger comp("124");
-// 	std::cout << "A factor of " << comp << " is " << lbcrypto::PollardRho(comp) << std::endl;
-// }
-
 TEST(method_nextQ, test_nextQ){
 	BigBinaryInteger q("1");
 	BigBinaryInteger temp;
@@ -364,8 +345,5 @@ TEST(method_nextQ, test_nextQ){
 		// std::cout << moduli[i] << std::endl;
 		modulus = modulus* moduli[i];
 	}
-
 	EXPECT_EQ("8982485833671537308323644432028149589615262773332244597688750081", modulus.ToString());
-	// std::cout << modulus;
-
 }
