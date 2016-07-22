@@ -1,5 +1,9 @@
 package com.palisade;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import com.palisade.PalisadeKeypair;
@@ -102,7 +106,7 @@ public class PalisadeCrypto {
 	// the method below is a piece of test code that does not work. Using it crashes the world.
 	// So you should not use it :)
 	// this was a first pass at implementing connecting Java streams to C++ streams
-	public native void writeBytes(byte[] bytes, OutputStream outstream);
+	public native void writeBytes(byte[] bytes, InputStream instream, OutputStream outstream);
 	
 	/**
 	 * Finish with this PalisadeCrypto instance
@@ -150,15 +154,24 @@ public class PalisadeCrypto {
 		}
 		
 		System.out.println("Testing stream stuff...");
-		String message = "hello. is it me you're looking for?\n";
+		
+		FileInputStream fr;
 		try {
-			ctx.writeBytes(message.getBytes(), System.err);
+			fr = new FileInputStream(args[0]);
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return;
+		}
+		String message = "HI:::";
+		try {
+			ctx.writeBytes(message.getBytes(), fr, System.err);
 		} catch( Exception e ) {
 			System.out.println("Exception in write");
 			e.printStackTrace();
 		}
-		System.err.println("to error");
-		ctx.writeBytes("here I go... I just don't know".getBytes(), System.err);
+
+		System.err.flush();
 		System.out.println("...stream test done");
 		
 		System.out.println("Generating some key pairs");

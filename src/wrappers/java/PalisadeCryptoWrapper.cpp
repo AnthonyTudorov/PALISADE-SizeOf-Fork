@@ -32,46 +32,42 @@ public:
 
 // this class is used to convert writing to a std::ostream into writing to a java.io.OutputStream
 // create an ostream, use *this* as the streambuf, and write to the stream to your heart's content!
-class javastreambuf : public streambuf {
+class javaWstreambuf : public streambuf {
 	JNIEnv		*env;
 	jobject		obj;
 	jmethodID writer;
 
 public:
-	javastreambuf(JNIEnv *env, jobject outstream, jmethodID writer) : env(env), obj(outstream), writer(writer) {}
+	javaWstreambuf(JNIEnv *env, jobject outstream, jmethodID writer) : env(env), obj(outstream), writer(writer) {}
 
 protected:
 	int overflow(int c) {
 		if( c != EOF ) {
 			env->CallVoidMethod(obj, writer, c);
-
-//			if( putchar( c ) == EOF )
-//				return EOF;
 		}
 
 		return c;
 	}
+};
 
-private:
-	void doWrite(const char *d, int n) {
-		cout << "calls doWrite:" << d << ":" << n << endl;
-		jvalue args[3];
+class javaRstreambuf : public streambuf {
+	JNIEnv		*env;
+	jobject		obj;
+	jmethodID reader;
 
-		jbyteArray arr = env->NewByteArray(n);
-		env->SetByteArrayRegion(arr, 0, n, (jbyte *)d);
-		args[0].l = arr;
-		args[1].i = 0;
-		args[2].i = n;
+public:
+	javaRstreambuf(JNIEnv *env, jobject outstream, jmethodID reader) : env(env), obj(outstream), reader(reader) {}
 
-		env->CallVoidMethod(obj, writer, args);
-		//env->CallVoidMethod(obj, flusher);
+protected:
+	int underflow() {
+		jint ch = env->CallIntMethod(obj, reader);
 
-		env->DeleteLocalRef(arr);
+		return ch;
 	}
 };
 
 JNIEXPORT void JNICALL Java_com_palisade_PalisadeCrypto_writeBytes
-(JNIEnv *env, jobject thiz, jbyteArray bytes, jobject outstream)
+(JNIEnv *env, jobject thiz, jbyteArray bytes, jobject inputstream, jobject outstream)
 {
 	cout << "Before" << std::endl;
 
@@ -80,7 +76,7 @@ JNIEXPORT void JNICALL Java_com_palisade_PalisadeCrypto_writeBytes
 
 	ostr = env->FindClass("java/io/OutputStream");
 	if( ostr == 0 ) {
-		throw std::logic_error("no class");
+		throw std::logic_error("no output class");
 	}
 
 	writer = env->GetMethodID(ostr, "write", "(I)V");
@@ -88,14 +84,36 @@ JNIEXPORT void JNICALL Java_com_palisade_PalisadeCrypto_writeBytes
 		throw std::logic_error("no write method");
 	}
 
-	javastreambuf ob(env, outstream, writer);
-	ostream tryStream(&ob);
+	javaWstreambuf ob(env, outstream, writer);
+	ostream wStream(&ob);
+
+	jclass	istr;
+	jmethodID reader;
+
+	istr = env->FindClass("java/io/InputStream");
+	if( istr == 0 ) {
+		throw std::logic_error("no input class");
+	}
+
+	reader = env->GetMethodID(istr, "read", "()I");
+	if( reader == 0 ) {
+		throw std::logic_error("no read method");
+	}
+
+	javaRstreambuf ib(env, inputstream, reader);
+	istream rStream(&ib);
 
 	jboolean isCopy;
 	jbyte *jnibytes = env->GetByteArrayElements(bytes, &isCopy);
 	jint len = env->GetArrayLength(bytes);
-	tryStream << len << ":" << string((char *)jnibytes,len) << flush;
+	string str((char *)jnibytes,len);
+	wStream << str;
+	wStream.flush();
 	if( isCopy ) env->ReleaseByteArrayElements(bytes, jnibytes, JNI_ABORT);
+
+	char ch;
+	while( (ch = rStream.get()) != EOF )
+		wStream << ch;
 
 	cout << "After" << std::endl;
 }

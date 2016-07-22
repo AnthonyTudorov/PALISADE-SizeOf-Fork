@@ -10,7 +10,7 @@ extern "C" {
 
 //FIXME: Test
 JNIEXPORT void JNICALL Java_com_palisade_PalisadeCrypto_writeBytes
-  (JNIEnv *, jobject thiz, jbyteArray bytes, jobject outstream);
+  (JNIEnv *, jobject thiz, jbyteArray bytes, jobject inputstream, jobject outstream);
 
 /*
  * Class:     com_palisade_PalisadeCrypto
