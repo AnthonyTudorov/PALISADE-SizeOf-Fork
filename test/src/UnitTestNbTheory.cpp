@@ -133,7 +133,6 @@ TEST(method_factorize, returns_factors){
 }
 
 //TEST CASE TO FIND PRIME MODULUS
-
 TEST(method_prime_modulus, foundPrimeModulus){
 	usint m = 2048;
 	usint nBits = 30;
@@ -144,16 +143,15 @@ TEST(method_prime_modulus, foundPrimeModulus){
 }
 
 // TEST CASE TO FIND PRIME MODULUS FOR A HIGHER BIT LENGTH 
-
-//TEST(method_prime_modulus, returns_higher_bit_length){
+TEST(method_prime_modulus, returns_higher_bit_length){
 	
-//	usint m=4096; 
-//	usint nBits=49;
+	usint m=4096; 
+	usint nBits=49;
 	
-//	BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
-//	BigBinaryInteger expectedResult("281474976768001");
-//	EXPECT_EQ(expectedResult, primeModulus);
-//}
+	BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
+	BigBinaryInteger expectedResult("281474976768001");
+	EXPECT_EQ(expectedResult, primeModulus);
+}
 
 //TEST CASE TO ENSURE THE ROOT OF UNITY THAT IS FOUND IS A PRIMITIVE ROOT OF UNTIY
 
