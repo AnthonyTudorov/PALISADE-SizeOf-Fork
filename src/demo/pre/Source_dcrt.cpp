@@ -68,6 +68,7 @@ void TestParameterSelection();
 void FinalLeveledComputation();
 void NTRUPRE(usint input);
 void LevelCircuitEvaluation2WithCEM();
+void ComposedEvalMultTest();
 
 /**
  * @brief Input parameters for PRE example.
@@ -88,8 +89,8 @@ int main() {
 	//LevelCircuitEvaluation();
 	//LevelCircuitEvaluation1();
 	//LevelCircuitEvaluation2();
-	
-	// FinalLeveledComputation();
+//	ComposedEvalMultTest();
+//	 FinalLeveledComputation();
 
 	//TestParameterSelection();
 	//LevelCircuitEvaluation2WithCEM();
@@ -817,7 +818,7 @@ void TestParameterSelection(){
 }
 
 void FinalLeveledComputation(){
-	/*
+	
 	usint init_m = 16;
 
 	float init_stdDev = 4;
@@ -878,10 +879,11 @@ void FinalLeveledComputation(){
 	rootsOfUnity = dcrtParams.GetRootsOfUnity();
 
 	//scheme initialization: LTV Scheme
-	std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
-	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm(mask);
+	size_t chunksize = ((m / 2) / 8);
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm(chunksize);
 	algorithm.Enable(SHE);
-
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(LEVELEDSHE);
 
 	//Generate the secret key for the initial ciphertext:
 	LPPublicKeyLTV<ILVectorArray2n> pk(finalParams);
@@ -932,17 +934,17 @@ void FinalLeveledComputation(){
 	LPLeveledSHEKeyStructure<ILVectorArray2n> keyStruc(finalParams.GetDepth());
 	LPKeySwitchHintLTV<ILVectorArray2n> linearKeySwitchHint1, linearKeySwitchHint2, quadraticKeySwitchHint1, quadraticKeySwitchHint2;
 	
-	algorithm.m_algorithmLeveledSHE->KeySwitchHintGen(sk, levelSk[0], &linearKeySwitchHint1);	
-	algorithm.m_algorithmLeveledSHE->QuadraticKeySwitchHintGen(sk, levelSk[0], &quadraticKeySwitchHint1);
+	algorithm.KeySwitchHintGen(sk, levelSk[0], &linearKeySwitchHint1);	
+	algorithm.QuadraticKeySwitchHintGen(sk, levelSk[0], &quadraticKeySwitchHint1);
 	auto e = levelSk[0].GetPrivateElement();
-	e.DropTower(e.GetTowerLength()-1);
+	e.DropElementAtIndex(e.GetNumOfElements()-1);
 	levelSk[0].SetPrivateElement(e);
 	levelSk[0].SetCryptoParameters(&leveledCryptoParams[1]);
 
-	algorithm.m_algorithmLeveledSHE->KeySwitchHintGen(levelSk[0], levelSk[1], &linearKeySwitchHint2);
-	algorithm.m_algorithmLeveledSHE->QuadraticKeySwitchHintGen(levelSk[0], levelSk[1], &quadraticKeySwitchHint2);
+	algorithm.KeySwitchHintGen(levelSk[0], levelSk[1], &linearKeySwitchHint2);
+	algorithm.QuadraticKeySwitchHintGen(levelSk[0], levelSk[1], &quadraticKeySwitchHint2);
 	e = levelSk[1].GetPrivateElement();
-	e.DropTower(e.GetTowerLength()-1);
+	e.DropElementAtIndex(e.GetNumOfElements()-1);
 	levelSk[1].SetPrivateElement(e);
 	levelSk[1].SetCryptoParameters(&leveledCryptoParams[2]);
 
@@ -998,20 +1000,24 @@ void FinalLeveledComputation(){
 	algorithm.Encrypt(pk,&cipherText5);
 	//Computation: C = (C1*C2 + C3*C4)*C5
 	Ciphertext<ILVectorArray2n> cipherText6(cipherText1);
-	algorithm.m_algorithmLeveledSHE->ComposedEvalMult(cipherText1,cipherText2,keyStruc.GetQuadraticKeySwitchHintForLevel(0),&cipherText6);
+	algorithm.ComposedEvalMult(cipherText1,cipherText2,keyStruc.GetQuadraticKeySwitchHintForLevel(0),&cipherText6);
 
 	Ciphertext<ILVectorArray2n> cipherText7(cipherText1);
-	algorithm.m_algorithmLeveledSHE->ComposedEvalMult(cipherText3,cipherText4,keyStruc.GetQuadraticKeySwitchHintForLevel(0),&cipherText7);
-	algorithm.m_algorithmLeveledSHE->LevelReduce(cipherText5,keyStruc.GetLinearKeySwitchHintForLevel(0),&cipherText5);
+	algorithm.ComposedEvalMult(cipherText3,cipherText4,keyStruc.GetQuadraticKeySwitchHintForLevel(0),&cipherText7);
+	algorithm.LevelReduce(cipherText5,keyStruc.GetLinearKeySwitchHintForLevel(0),&cipherText5);
 
 	Ciphertext<ILVectorArray2n> cipherText8(cipherText7);
-	algorithm.m_algorithmSHE->EvalAdd(cipherText6,cipherText7,&cipherText8);
+	algorithm.EvalAdd(cipherText6,cipherText7,&cipherText8);
 
 
 	Ciphertext<ILVectorArray2n> cipherText9(cipherText8);
-	algorithm.m_algorithmLeveledSHE->ComposedEvalMult(cipherText8,cipherText5,keyStruc.GetQuadraticKeySwitchHintForLevel(1),&cipherText9);
+	algorithm.ComposedEvalMult(cipherText8,cipherText5,keyStruc.GetQuadraticKeySwitchHintForLevel(1),&cipherText9);
 
-	algorithm.Decrypt(levelSk[1],cipherText9, &ByteArrayPlaintextEncoding());*/
+
+	//ByteArray plaintextNew;
+	//CryptoUtility<ILVector2n>::Decrypt(algorithm, levelSk[1], cipherText9, &plaintextNew);
+
+	//algorithm.Decrypt(levelSk[1],cipherText9, &plaintextNew);
 
 }
 
@@ -1313,5 +1319,99 @@ void NTRUPRE(usint input) {
 	fout.close();
 
 	//system("pause");
+
+}
+
+void ComposedEvalMultTest(){
+	usint init_m = 16;
+
+	float init_stdDev = 4;
+
+	usint init_size = 3;
+
+	vector<BigBinaryInteger> init_moduli(init_size);
+
+	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
+
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+	BigBinaryInteger modulus("1");
+
+	for (int i = 0; i < init_size; i++) {
+		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, init_m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		init_moduli[i] = q;
+		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
+		modulus = modulus* init_moduli[i];
+
+	}
+
+	DiscreteGaussianGenerator dgg(init_stdDev);
+
+	ILDCRTParams params(init_m, init_moduli, init_rootsOfUnity);
+
+	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE);
+	cryptoParams.SetDistributionParameter(init_stdDev);
+	cryptoParams.SetRelinWindow(1);
+	cryptoParams.SetElementParams(params);
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);
+	cryptoParams.SetAssuranceMeasure(6);
+	cryptoParams.SetDepth(init_size - 1);
+	cryptoParams.SetSecurityLevel(1.006);
+
+	usint n = 16;
+
+	LPCryptoParametersLTV<ILVectorArray2n> finalParamsThreeTowers;
+
+	cryptoParams.ParameterSelection(&finalParamsThreeTowers);
+
+	const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(finalParamsThreeTowers.GetElementParams());
+
+	usint m = dcrtParams.GetCyclotomicOrder();
+	usint size = finalParamsThreeTowers.GetDepth() + 1;
+	const BigBinaryInteger &plainTextModulus = finalParamsThreeTowers.GetPlaintextModulus();
+
+
+	//scheme initialization: LTV Scheme
+	size_t chunksize = ((m / 2) / 8);
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm(chunksize);
+	algorithm.Enable(SHE);
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(LEVELEDSHE);
+
+	//Generate the secret key for the initial ciphertext:
+	LPPublicKeyLTV<ILVectorArray2n> pk(finalParamsThreeTowers);
+	LPPrivateKeyLTV<ILVectorArray2n> sk(finalParamsThreeTowers);
+	algorithm.KeyGen(&pk, &sk);
+
+	//Generate the switch cipher text
+	LPPublicKeyLTV<ILVectorArray2n> pkNew(finalParamsThreeTowers);
+	LPPrivateKeyLTV<ILVectorArray2n> skNew(finalParamsThreeTowers);
+	algorithm.KeyGen(&pkNew, &skNew);
+
+	//Generating original ciphertext to perform ComposedEvalMult on
+	Ciphertext<ILVectorArray2n> c1;
+	c1.SetCryptoParameters(&finalParamsThreeTowers);
+
+	Ciphertext<ILVectorArray2n> c2;
+	c2.SetCryptoParameters(&finalParamsThreeTowers);
+
+	//Generating new cryptoparameters for when modulus reduction is done.
+	LPCryptoParametersLTV<ILVectorArray2n> finalParamsTwoTowers(finalParamsThreeTowers);
+
+	const ILDCRTParams &dcrtParams2 = dynamic_cast<const ILDCRTParams&>(finalParamsThreeTowers.GetElementParams());
+	ILDCRTParams finalDcrtParamsTwoTowers(dcrtParams2);
+	finalDcrtParamsTwoTowers.PopLastParam();
+	finalParamsTwoTowers.SetElementParams(finalDcrtParamsTwoTowers);
+
+	//Generating Quaraditic KeySwitchHint from sk^2 to skNew
+	LPKeySwitchHintLTV<ILVectorArray2n> quadraticKeySwitchHint;
+	algorithm.QuadraticKeySwitchHintGen(sk, skNew, &quadraticKeySwitchHint);
+
+	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
+	skNew.SetCryptoParameters(&finalParamsTwoTowers);
+	ILVectorArray2n skNewOldElement(skNew.GetPrivateElement());
+	skNewOldElement.DropElementAtIndex(skNewOldElement.GetNumOfElements() - 1);
+	skNew.SetPrivateElement(skNewOldElement);
 
 }
