@@ -57,6 +57,9 @@ namespace lbcrypto {
 	template <class Element>
 	class LPCryptoParametersStehleSteinfeld;
 
+	template <class Element>
+	class LPCryptoParametersRLWE;
+
 	/**
 	 * @brief Main ciphertext class.
 	 * @tparam Element a ring element.
@@ -126,10 +129,24 @@ namespace lbcrypto {
 		const BigBinaryInteger &GetNorm() const { return m_norm; }
 
 		/**
-		* Get the element
+		* Get the first element
 		* @return the ring element.
 		*/
-		const Element &GetElement() const { return m_element; }
+		const Element &GetElement() const { 
+			if (m_elements.size() > 0)
+				return m_elements[0]; 
+			else
+			{
+				std::string errMsg = "No elements are current stored in the ciphertext";
+				throw std::runtime_error(errMsg);
+			}
+		}
+
+		/**
+		* Get all elements in the ciphertext
+		* @return the ring element.
+		*/
+		const std::vector<Element> &GetElements() const { return m_elements; }
 
 		/**
 		* Sets a reference to crypto parameters.
@@ -162,11 +179,23 @@ namespace lbcrypto {
 		void SetNorm(const BigBinaryInteger &norm) {  m_norm = norm; }
 
 		/**
+		* Sets the first data element.
+		*
+		* @param &element is a polynomial ring element.
+		*/
+		void SetElement(const Element &element) { 
+			if (m_elements.size() > 0)
+				m_elements[0] = element;
+			else
+				m_elements.push_back(element);
+		}
+
+		/**
 		* Sets the data element.
 		*
 		* @param &element is a polynomial ring element.
 		*/
-		void SetElement(const Element &element) { m_element = element; }
+		void SetElements(const std::vector<Element> &elements) { m_elements = elements; }
 
 		/**
 		* Performs EvalAdd operation.
@@ -216,7 +245,7 @@ namespace lbcrypto {
 		BigBinaryInteger m_norm;
 
 		//data element
-		Element m_element;
+		std::vector<Element> m_elements;
 
 	};
 

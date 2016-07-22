@@ -37,7 +37,7 @@ namespace lbcrypto {
 		m_publicKey = ciphertext.m_publicKey;
 		m_encryptionAlgorithm = ciphertext.m_encryptionAlgorithm;
 		m_norm = ciphertext.m_norm;
-		m_element = ciphertext.m_element;
+		m_elements = ciphertext.m_elements;
 	} //
 
 	// move constructor
@@ -47,7 +47,7 @@ namespace lbcrypto {
 		m_publicKey = ciphertext.m_publicKey;
 		m_encryptionAlgorithm = ciphertext.m_encryptionAlgorithm;
 		m_norm = ciphertext.m_norm;
-		m_element = ciphertext.m_element;
+		m_elements = ciphertext.m_elements;
 	}
 
 	// assignment operator
@@ -59,7 +59,7 @@ namespace lbcrypto {
 			this->m_publicKey = rhs.m_publicKey;
 			this->m_encryptionAlgorithm = rhs.m_encryptionAlgorithm;
 			this->m_norm = rhs.m_norm;
-			this->m_element = rhs.m_element;
+			this->m_elements = rhs.m_elements;
 		}
 
 		return *this;
@@ -74,7 +74,7 @@ namespace lbcrypto {
 			this->m_publicKey = rhs.m_publicKey;
 			this->m_encryptionAlgorithm = rhs.m_encryptionAlgorithm;
 			this->m_norm = rhs.m_norm;
-			this->m_element = rhs.m_element;
+			this->m_elements = rhs.m_elements;
 		}
 
 		return *this;
@@ -88,8 +88,14 @@ namespace lbcrypto {
 			std::string errMsg = "EvalAdd: CryptoParameters of added the ciphertexts are the not the same.";
 			throw std::runtime_error(errMsg);
 		}
+
 		Ciphertext<Element> sum(*this);
-		sum.m_element = this->m_element + ciphertext.m_element;
+
+		//YSP this should be optimized to use the in-place += operator
+		for (int i = 0; i < this->m_elements.size(); i++)
+		{
+			sum.m_elements[i] = this->m_elements[i] + ciphertext.m_elements[i];
+		}
 		return sum;
 	}
 
