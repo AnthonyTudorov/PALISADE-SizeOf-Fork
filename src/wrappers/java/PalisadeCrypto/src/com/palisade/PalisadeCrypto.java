@@ -170,8 +170,8 @@ public class PalisadeCrypto {
 			System.out.println("Exception in write");
 			e.printStackTrace();
 		}
-
-		System.err.flush();
+		System.err.println("to error");
+		ctx.writeBytes("here I go... I just don't know".getBytes(), System.err);
 		System.out.println("...stream test done");
 		
 		System.out.println("Generating some key pairs");
