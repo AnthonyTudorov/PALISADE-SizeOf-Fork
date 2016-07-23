@@ -55,7 +55,7 @@ class UnitTestLatticeElements : public ::testing::Test {
 
 /*--------------------------------------- TESTING METHODS OF LATTICE ELEMENTS    --------------------------------------------*/
 
-TEST(method_ILVector2n, operators_tests) {
+TEST(UTILVector2n, operators_tests) {
   usint m = 8;
 
   BigBinaryInteger primeModulus("73");
@@ -124,7 +124,7 @@ TEST(method_ILVector2n, operators_tests) {
 
 }
 
-TEST(method_ILVector2n, getters_tests) {
+TEST(UTILVector2n, getters_tests) {
   usint m = 8; 
   
   BigBinaryInteger primeModulus("73");
@@ -173,7 +173,7 @@ TEST(method_ILVector2n, getters_tests) {
 
 }
 
-TEST(method_ILVector2n, setters_tests) {
+TEST(UTILVector2n, setters_tests) {
   usint m = 8; 
   
   BigBinaryInteger primeModulus("73");
@@ -211,7 +211,7 @@ TEST(method_ILVector2n, setters_tests) {
 
 }
 
-TEST(method_ILVector2n, binary_operations) {
+TEST(UTILVector2n, binary_operations) {
   usint m = 8; 
   
   BigBinaryInteger primeModulus("73");
@@ -267,7 +267,7 @@ TEST(method_ILVector2n, binary_operations) {
 
 }
 
-TEST(method_ILVector2n, clone_operations) {
+TEST(UTILVector2n, clone_operations) {
   usint m = 8;
   BigBinaryInteger primeModulus("73");
   BigBinaryInteger primitiveRootOfUnity("22");
@@ -304,7 +304,7 @@ TEST(method_ILVector2n, clone_operations) {
   ILVector2n::DestroyPreComputedSamples();
 }
 
-TEST(method_ILVector2n, arithmetic_operations_element) {
+TEST(UTILVector2n, arithmetic_operations_element) {
   usint m = 8;
   BigBinaryInteger primeModulus("73");
   BigBinaryInteger primitiveRootOfUnity("22");
@@ -395,7 +395,7 @@ TEST(method_ILVector2n, arithmetic_operations_element) {
 
 }
 
-TEST(method_ILVector2n, other_methods) {
+TEST(UTILVector2n, other_methods) {
   usint m = 8;
   BigBinaryInteger primeModulus("73");
   BigBinaryInteger primitiveRootOfUnity("22");
@@ -671,7 +671,7 @@ TEST(method_ILVector2n, other_methods) {
 
 }
 
-TEST(method_ILVector2n, cyclotomicOrder_test) {
+TEST(UTILVector2n, cyclotomicOrder_test) {
   usint m = 8;
   ILParams ilparams0(m, BigBinaryInteger("17661"), BigBinaryInteger("8765"));
   // std::cout << "ilparams0.GetCyclotomicOrder()  = " << ilparams0.GetCyclotomicOrder() << std::endl;
@@ -680,8 +680,8 @@ TEST(method_ILVector2n, cyclotomicOrder_test) {
   EXPECT_EQ(ilparams0.GetCyclotomicOrder(), ilv0.GetCyclotomicOrder());
 }
 
-TEST(method_ILVectorArray2n, constructors_test) {
-  usint m = 8; //16
+TEST(UTILVectorArray2n, constructors_test) {
+  usint m = 8;
   usint towersize = 3;
 
   std::vector<BigBinaryInteger> moduli(towersize);
@@ -737,7 +737,7 @@ TEST(method_ILVectorArray2n, constructors_test) {
     
     EXPECT_EQ(Format::EVALUATION, ilva.GetFormat());
     EXPECT_EQ(modulus, ilva.GetModulus());
-    //TODO-Nishanth: Uncomment once method_ILVector2n.cyclotomicOrder_test passes.
+    //TODO-Nishanth: Uncomment once UTILVector2n.cyclotomicOrder_test passes.
     EXPECT_EQ(m, ilva.GetCyclotomicOrder());
     EXPECT_EQ(towersize, ilva.GetNumOfElements());
   }
@@ -817,7 +817,7 @@ TEST(method_ILVectorArray2n, constructors_test) {
 
 }
 
-TEST(method_ILVectorArray2n, getters_tests) {
+TEST(UTILVectorArray2n, getters_tests) {
   usint m = 8; //16
   usint towersize = 3;
 
@@ -867,20 +867,369 @@ TEST(method_ILVectorArray2n, getters_tests) {
     EXPECT_EQ(towersize, ilva.GetNumOfElements());
   }
 
-  {
-    ILVectorArray2n ilva(ildcrtparams);
+}
 
-    EXPECT_EQ(Format::EVALUATION, ilva.GetFormat());
-    EXPECT_EQ(modulus, ilva.GetModulus());
-    EXPECT_EQ(m, ilva.GetCyclotomicOrder());
-    EXPECT_EQ(towersize, ilva.GetNumOfElements());
+TEST(UTILVectorArray2n, operator_test) {
+  usint m = 8;
+  usint towersize = 3;
+
+  std::vector<BigBinaryInteger> moduli(towersize);
+  moduli = {BigBinaryInteger("8353"), BigBinaryInteger("8369"), BigBinaryInteger("8513")};
+  std::vector<BigBinaryInteger> rootsOfUnity(towersize);
+  rootsOfUnity = {BigBinaryInteger("8163"), BigBinaryInteger("6677"), BigBinaryInteger("156")};
+
+  BigBinaryInteger modulus(BigBinaryInteger::ONE);
+  for (usint i = 0; i < towersize; ++i)
+  {
+    modulus = modulus * moduli[i];
   }
 
+  ILParams ilparams0(m, moduli[0], rootsOfUnity[0]);
+  ILParams ilparams1(m, moduli[1], rootsOfUnity[1]);
+  ILParams ilparams2(m, moduli[2], rootsOfUnity[2]);
+  
+  ILVector2n ilv0(ilparams0);
+  BigBinaryVector bbv0(m/2, moduli[0]);
+  bbv0.SetValAtIndex(0, "2");
+  bbv0.SetValAtIndex(1, "4");
+  bbv0.SetValAtIndex(2, "3");
+  bbv0.SetValAtIndex(3, "2");
+  ilv0.SetValues(bbv0, Format::EVALUATION);
 
+  ILVector2n ilv1(ilv0);
+  ilv1.SwitchModulus(moduli[1], rootsOfUnity[1]);
+  
+  ILVector2n ilv2(ilv0);
+  ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
+
+  ILDCRTParams ildcrtparams(m, moduli, rootsOfUnity);
+    
+  std::vector<ILVector2n> ilvector2nVector(towersize);
+  ilvector2nVector[0] = ilv0;
+  ilvector2nVector[1] = ilv1;
+  ilvector2nVector[2] = ilv2;
+
+  ILVectorArray2n ilva(ilvector2nVector);
+
+  {
+    ILVectorArray2n ilva1(ilva);
+    EXPECT_TRUE(ilva == ilva1);
+  }
+
+  {
+    ILVectorArray2n ilva1 = ilva;
+    EXPECT_EQ(ilva, ilva1);
+  }
+
+  {
+    ILVectorArray2n ilva1(ildcrtparams);
+    ilva1 = {2, 4, 3, 2};
+    EXPECT_EQ(ilva, ilva1);
+  }
+
+  {
+    ILVector2n ilvect0(ilparams0);
+    BigBinaryVector bbv1(m/2, moduli[0]);
+    bbv1.SetValAtIndex(0, "2");
+    bbv1.SetValAtIndex(1, "1");
+    bbv1.SetValAtIndex(2, "3");
+    bbv1.SetValAtIndex(3, "2");
+    ilvect0.SetValues(bbv1, Format::EVALUATION);
+
+    ILVector2n ilvect1(ilvect0);
+    ilvect1.SwitchModulus(moduli[1], rootsOfUnity[1]);
+    
+    ILVector2n ilvect2(ilvect0);
+    ilvect2.SwitchModulus(moduli[2], rootsOfUnity[2]);
+      
+    std::vector<ILVector2n> ilvector2nVector1(towersize);
+    ilvector2nVector1[0] = ilvect0;
+    ilvector2nVector1[1] = ilvect1;
+    ilvector2nVector1[2] = ilvect2;
+
+    ILVectorArray2n ilva1(ilvector2nVector1);
+
+    EXPECT_TRUE(ilva!=ilva1);
+  }
 
 }
 
-TEST(method_ILVectorArray2n, decompose_test) {
+TEST(UTILVectorArray2n, arithmetic_operations_element) {
+  usint m = 8;
+  usint towersize = 3;
+
+  std::vector<BigBinaryInteger> moduli(towersize);
+  moduli = {BigBinaryInteger("8353"), BigBinaryInteger("8369"), BigBinaryInteger("8513")};
+  std::vector<BigBinaryInteger> rootsOfUnity(towersize);
+  rootsOfUnity = {BigBinaryInteger("8163"), BigBinaryInteger("6677"), BigBinaryInteger("156")};
+
+  BigBinaryInteger modulus(BigBinaryInteger::ONE);
+  for (usint i = 0; i < towersize; ++i)
+  {
+    modulus = modulus * moduli[i];
+  }
+
+  ILParams ilparams0(m, moduli[0], rootsOfUnity[0]);
+  ILParams ilparams1(m, moduli[1], rootsOfUnity[1]);
+  ILParams ilparams2(m, moduli[2], rootsOfUnity[2]);
+  
+  ILVector2n ilv0(ilparams0);
+  BigBinaryVector bbv0(m/2, moduli[0]);
+  bbv0.SetValAtIndex(0, "2");
+  bbv0.SetValAtIndex(1, "4");
+  bbv0.SetValAtIndex(2, "3");
+  bbv0.SetValAtIndex(3, "2");
+  ilv0.SetValues(bbv0, Format::EVALUATION);
+
+  ILVector2n ilv1(ilv0);
+  ilv1.SwitchModulus(moduli[1], rootsOfUnity[1]);
+  
+  ILVector2n ilv2(ilv0);
+  ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
+    
+  std::vector<ILVector2n> ilvector2nVector(towersize);
+  ilvector2nVector[0] = ilv0;
+  ilvector2nVector[1] = ilv1;
+  ilvector2nVector[2] = ilv2;
+
+  ILVectorArray2n ilva(ilvector2nVector);
+
+  ILVector2n ilvect0(ilparams0);
+  BigBinaryVector bbv1(m/2, moduli[0]);
+  bbv1.SetValAtIndex(0, "2");
+  bbv1.SetValAtIndex(1, "1");
+  bbv1.SetValAtIndex(2, "2");
+  bbv1.SetValAtIndex(3, "0");
+  ilvect0.SetValues(bbv1, Format::EVALUATION);
+
+  ILVector2n ilvect1(ilvect0);
+  ilvect1.SwitchModulus(moduli[1], rootsOfUnity[1]);
+  
+  ILVector2n ilvect2(ilvect0);
+  ilvect2.SwitchModulus(moduli[2], rootsOfUnity[2]);
+    
+  std::vector<ILVector2n> ilvector2nVector1(towersize);
+  ilvector2nVector1[0] = ilvect0;
+  ilvector2nVector1[1] = ilvect1;
+  ilvector2nVector1[2] = ilvect2;
+
+  ILVectorArray2n ilva1(ilvector2nVector1);
+
+  {
+    ILVectorArray2n ilvaCopy(ilva.Plus(ilva1));
+    // ilvaCopy = ilvaCopy + ilva1;
+
+    for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
+    {
+      ILVector2n ilv = ilvaCopy.GetElementAtIndex(i);
+
+      EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(0));
+      EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(1));
+      EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(2));
+      EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3));
+    }
+  }
+
+  {
+    ILVectorArray2n ilvaCopy(ilva);
+    ilvaCopy += ilva1;
+
+    for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
+    {
+      ILVector2n ilv = ilvaCopy.GetElementAtIndex(i);
+
+      // EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(0));
+      // EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(1));
+      // EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(2));
+      // EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3));
+    }
+  }
+
+  {
+    ILVectorArray2n ilvaCopy(ilva.Minus(ilva1));
+
+    for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
+    {
+      ILVector2n ilv = ilvaCopy.GetElementAtIndex(i);
+
+      EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(0));
+      EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(1));
+      EXPECT_EQ(BigBinaryInteger::ONE, ilv.GetValAtIndex(2));
+      EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3));
+    }
+  }
+
+  {
+    ILVectorArray2n ilvaResult(ilva);
+    ilvaResult -= ilva1;
+
+    for (usint i = 0; i < ilvaResult.GetNumOfElements(); ++i)
+    {
+      ILVector2n ilv = ilvaResult.GetElementAtIndex(i);
+
+      // EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(0));
+      // EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(1));
+      // EXPECT_EQ(BigBinaryInteger::ONE, ilv.GetValAtIndex(2));
+      // EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3));
+    }
+  }
+
+  {
+    ILVectorArray2n ilvaResult(ilva.Times(ilva1));
+
+    for (usint i = 0; i < ilvaResult.GetNumOfElements(); ++i)
+    {
+      ILVector2n ilv = ilvaResult.GetElementAtIndex(i);
+
+      EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(0));
+      EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(1));
+      EXPECT_EQ(BigBinaryInteger("6"), ilv.GetValAtIndex(2));
+      EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(3));
+    }
+  }
+
+  {
+    ILVectorArray2n ilvaCopy(ilva);
+    ilvaCopy.AddILElementOne();
+
+    for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
+    {
+      ILVector2n ilv = ilvaCopy.GetElementAtIndex(i);
+
+      EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(0));
+      EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(1));
+      EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(2));
+      EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(3));
+    }
+  }
+
+  {
+    ILVectorArray2n ilvaInv(ilva.MultiplicativeInverse());
+
+    ILVector2n ilvectInv0 = ilvaInv.GetElementAtIndex(0);
+    ILVector2n ilvectInv1 = ilvaInv.GetElementAtIndex(1);
+    ILVector2n ilvectInv2 = ilvaInv.GetElementAtIndex(2);
+
+    EXPECT_EQ(BigBinaryInteger("4177"), ilvectInv0.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger("6265"), ilvectInv0.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger("5569"), ilvectInv0.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger("4177"), ilvectInv0.GetValAtIndex(3));
+    EXPECT_EQ(BigBinaryInteger("8353"), ilvectInv0.GetModulus());
+    EXPECT_EQ(BigBinaryInteger("8163"), ilvectInv0.GetRootOfUnity());
+
+    EXPECT_EQ(BigBinaryInteger("4185"), ilvectInv1.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger("6277"), ilvectInv1.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger("2790"), ilvectInv1.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger("4185"), ilvectInv1.GetValAtIndex(3));
+    EXPECT_EQ(BigBinaryInteger("8369"), ilvectInv1.GetModulus());
+    EXPECT_EQ(BigBinaryInteger("6677"), ilvectInv1.GetRootOfUnity());
+
+    EXPECT_EQ(BigBinaryInteger("4257"), ilvectInv2.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger("6385"), ilvectInv2.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger("2838"), ilvectInv2.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger("4257"), ilvectInv2.GetValAtIndex(3));
+    EXPECT_EQ(BigBinaryInteger("8513"), ilvectInv2.GetModulus());
+    EXPECT_EQ(BigBinaryInteger("156"), ilvectInv2.GetRootOfUnity());
+
+    EXPECT_THROW(ilva1.MultiplicativeInverse(), std::logic_error);
+  }
+
+  {
+    ILVectorArray2n ilvaCopy(ilva);
+
+    ilvaCopy.MakeSparse(BigBinaryInteger::TWO);
+
+    for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
+    {
+      ILVector2n ilv = ilvaCopy.GetElementAtIndex(i);
+
+      EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(1));
+      EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(3));
+    }
+  }
+
+  {
+    EXPECT_TRUE(ilva.InverseExists());
+    EXPECT_FALSE(ilva1.InverseExists());
+  }
+
+  {
+    ILVector2n ilvS0(ilparams0);
+    BigBinaryVector bbvS0(m/2, moduli[0]);
+    bbvS0.SetValAtIndex(0, "23462");
+    bbvS0.SetValAtIndex(1, "467986");
+    bbvS0.SetValAtIndex(2, "33863");
+    bbvS0.SetValAtIndex(3, "2113");
+    ilvS0.SetValues(bbvS0, Format::EVALUATION);
+
+    ILVector2n ilvS1(ilvS0);
+    ilvS1.SwitchModulus(moduli[1], rootsOfUnity[1]);
+    
+    ILVector2n ilvS2(ilvS0);
+    ilvS2.SwitchModulus(moduli[2], rootsOfUnity[2]);
+      
+    std::vector<ILVector2n> ilvector2nVectorS(towersize);
+    ilvector2nVectorS[0] = ilvS0;
+    ilvector2nVectorS[1] = ilvS1;
+    ilvector2nVectorS[2] = ilvS2;
+
+    ILVectorArray2n ilvaS(ilvector2nVectorS);
+    BigBinaryInteger modulus2("113");
+    BigBinaryInteger rootOfUnity2(lbcrypto::RootOfUnity(m, modulus2));
+
+    ilvaS.SwitchModulus(modulus2, rootOfUnity2);
+
+    ILVector2n ilvectS0 = ilvaS.GetElementAtIndex(0);
+    ILVector2n ilvectS1 = ilvaS.GetElementAtIndex(1);
+    ILVector2n ilvectS2 = ilvaS.GetElementAtIndex(2);
+
+    EXPECT_EQ(BigBinaryInteger("80"), ilvectS0.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger("62"), ilvectS0.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger("85"), ilvectS0.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger("79"), ilvectS0.GetValAtIndex(3));
+    EXPECT_EQ(BigBinaryInteger("113"), ilvectS0.GetModulus());
+    EXPECT_EQ(rootOfUnity2, ilvectS0.GetRootOfUnity());
+
+    EXPECT_EQ(BigBinaryInteger("66"), ilvectS1.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger("16"), ilvectS1.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger("64"), ilvectS1.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger("79"), ilvectS1.GetValAtIndex(3));
+    EXPECT_EQ(BigBinaryInteger("113"), ilvectS1.GetModulus());
+    EXPECT_EQ(rootOfUnity2, ilvectS1.GetRootOfUnity());
+
+    EXPECT_EQ(BigBinaryInteger("4"), ilvectS2.GetValAtIndex(0));
+    EXPECT_EQ(BigBinaryInteger("44"), ilvectS2.GetValAtIndex(1));
+    EXPECT_EQ(BigBinaryInteger("84"), ilvectS2.GetValAtIndex(2));
+    EXPECT_EQ(BigBinaryInteger("79"), ilvectS2.GetValAtIndex(3));
+    EXPECT_EQ(BigBinaryInteger("113"), ilvectS2.GetModulus());
+    EXPECT_EQ(rootOfUnity2, ilvectS2.GetRootOfUnity());
+  }
+
+  {
+    ILVectorArray2n ilvaCopy(ilva);
+    BigBinaryInteger modulus2("113");
+    BigBinaryInteger rootOfUnity2(lbcrypto::RootOfUnity(m, modulus2));
+    ilvaCopy.SwitchModulusAtIndex(0, modulus2, rootOfUnity2);
+
+    for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
+    {
+      ILVector2n ilv = ilvaCopy.GetElementAtIndex(i);
+
+      EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(0));
+      EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(1));
+      EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(2));
+      EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3));
+
+      if(i==0){
+        EXPECT_EQ(modulus2, ilv.GetModulus());
+        EXPECT_EQ(rootOfUnity2, ilv.GetRootOfUnity());
+      }
+    }
+  }
+
+}
+
+TEST(UTILVectorArray2n, decompose_test) {
   usint order = 16;
   usint nBits = 24;
   usint towersize = 3;
@@ -926,7 +1275,7 @@ TEST(method_ILVectorArray2n, decompose_test) {
 
 }
 
-TEST(method_ILVector2n, ensures_mod_operation_during_operations_on_two_ILVector2ns){
+TEST(UTILVector2n, ensures_mod_operation_during_operations_on_two_ILVector2ns){
 
   usint order = 8; 
   usint nBits = 7;
@@ -964,7 +1313,7 @@ TEST(method_ILVector2n, ensures_mod_operation_during_operations_on_two_ILVector2
 
 }
 
-TEST(method_ILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVectorArray2ns){
+TEST(UTILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVectorArray2ns){
 
   usint order = 16;
   usint nBits = 24;
