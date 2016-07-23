@@ -172,7 +172,7 @@ encrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	EncryptResult er = CryptoUtility<ILVector2n>::Encrypt(ctx, pk, inf, ctSer);
+	EncryptResult er = CryptoUtility<ILVector2n>::Encrypt(*ctx->getAlgorithm(), pk, inf, ctSer);
 
 	if( !er.isValid ) {
 		cerr << "failed to encrypt" << endl;

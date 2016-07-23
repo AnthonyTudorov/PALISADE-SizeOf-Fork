@@ -34,17 +34,19 @@ main(int argc, char *argv[])
 	//DiscreteUniformGenerator gen(BigBinaryInteger("100000"));
 	//auto v = gen.GenerateVector(10000);
 
-	//std::cout << "Choose parameter set: ";
-	//CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout, filename);
+	std::cout << "Choose parameter set: ";
+	CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout, filename);
 
-	string input = "StSt6";
-	//std::cin >> input;
+	string input; // = "StSt6";
+	std::cin >> input;
 
 	CryptoContext<ILVector2n> *ctx = CryptoContextHelper<ILVector2n>::getNewContext(filename, input);
 	if( ctx == 0 ) {
 		cout << "Error on " << input << endl;
 		return 0;
 	}
+
+	cout << "Chunk size is: " << ctx->getChunksize() << endl;
 
 	for( int i = 1; i <= 1; i++ ) {
 		runOneRound(ctx);
@@ -76,7 +78,7 @@ void
 runOneRound(CryptoContext<ILVector2n> *ctx)
 {
 	ByteArray Oplaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-	ByteArray plaintext(
+	ByteArray Nplaintext(
 	"1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
 	"1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
 	"1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
@@ -139,6 +141,9 @@ runOneRound(CryptoContext<ILVector2n> *ctx)
 	"1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
 	);
 
+	ByteArray plaintext; // = { 9,0,8,0 };
+	plaintext.resize(ctx->getChunksize(),0); // make sure this comes out in 2 chunks
+
 	// Initialize the public key containers.
 	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
 	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
@@ -159,6 +164,7 @@ runOneRound(CryptoContext<ILVector2n> *ctx)
 		exit(1);
 	}
 
+	cout << "I encrypted " << plaintext.size() << " bytes, chunksize " << ctx->getChunksize() << " into " << ciphertext.size() << " parts" << endl;
 
 	//Decryption
 	ByteArray plaintextNew;
