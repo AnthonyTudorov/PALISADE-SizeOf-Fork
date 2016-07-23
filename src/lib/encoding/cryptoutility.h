@@ -34,17 +34,23 @@ public:
 	 * @param publicKey - the encryption key in use
 	 * @param plaintext - array of bytes to be encrypted
 	 * @param ciphertext - resulting vector of ciphertext, one per chunk
+	 * @param doPadding - if false, padding is not used; plaintext MUST be an integral multiple of chunksize or an exception is thrown
 	 * @return
 	 */
 	static EncryptResult Encrypt(
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPPublicKey<Element>& publicKey,
 			const ByteArray& plaintext,
-			vector<Ciphertext<Element>> *cipherResults)
+			vector<Ciphertext<Element>> *cipherResults,
+			bool doPadding = true)
 	{
-		bool	didPadding = false;
+		bool	didPadding = !doPadding; // if not supposed to do padding, behave as if it's done
 		size_t chunkSize = scheme.getChunkSize();
 		size_t ptSize = plaintext.size();
+
+		if( doPadding == false && ptSize%chunkSize != 0 ) {
+			throw std::logic_error("Cannot Encrypt without padding with this plaintext size");
+		}
 
 		for( int bytes=0; bytes < ptSize || didPadding == false; bytes += chunkSize ) {
 
@@ -132,11 +138,21 @@ public:
 		return EncryptResult(totBytes);
 	}
 
+	/**
+	 * perform a decryption of a vector of ciphertext
+	 * @param scheme - a reference to the encryption scheme in use
+	 * @param privateKey - reference to the decryption key
+	 * @param ciphertext - reference to a vector of ciphertext to be decrypted
+	 * @param plaintext - destination for the decrypted ciphertext
+	 * @param doPadding - if false, the encryptor did NOT use padding, so do not unpad; default is to use padding
+	 * @return
+	 */
 	static DecryptResult Decrypt(
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPPrivateKey<Element>& privateKey,
 			const vector<Ciphertext<Element>>& ciphertext,
-			ByteArray *plaintext)
+			ByteArray *plaintext,
+			bool doPadding = true)
 	{
 		int lastone = ciphertext.size() - 1;
 		for( int ch = 0; ch < ciphertext.size(); ch++ ) {
@@ -149,7 +165,7 @@ public:
 
 			pte.Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), decrypted);
 
-			if( ch == lastone ) {
+			if( ch == lastone && doPadding ) {
 				pte.Unpad<OneZeroPad>();
 				if( pte.GetLength() == 0 )
 					continue;
@@ -161,6 +177,14 @@ public:
 		return DecryptResult(plaintext->size());
 	}
 
+	/**
+	 * read a stream for a sequence of serialized ciphertext; deserialize it, decrypt it, and write it to another stream
+	 * @param ctx - a pointer to the crypto context used in this session
+	 * @param privateKey - reference to the decryption key
+	 * @param instream - input stream with sequence of serialized ciphertexts
+	 * @param outstream - output stream for plaintext
+	 * @return
+	 */
 	static DecryptResult Decrypt(
 			CryptoContext<Element> *ctx,
 			const LPPrivateKey<Element>& privateKey,
@@ -201,7 +225,13 @@ public:
 		return DecryptResult(tot);
 	}
 
-
+	/**
+	 * perform re-encryption on a vector of ciphertext
+	 * @param scheme - a reference to the encryption scheme in use
+	 * @param evalKey - reference to the re-encryption key
+	 * @param ciphertext - vector of ciphertext
+	 * @param newCiphertext - contains a vector of re-encrypted ciphertext
+	 */
 	static void ReEncrypt(
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPEvalKey<Element> &evalKey,
@@ -215,6 +245,13 @@ public:
 		}
 	}
 
+	/**
+	 * perform re-encryption using streams
+	 * @param ctx - a pointer to the crypto context used in this session
+	 * @param evalKey - reference to the re-encryption key
+	 * @param instream - input stream with sequence of serialized ciphertext
+	 * @param outstream - output stream with sequence of serialized re-encrypted ciphertext
+	 */
 	static void ReEncrypt(
 			const CryptoContext<Element> *ctx,
 			const LPEvalKey<Element> &evalKey,
