@@ -437,12 +437,12 @@ namespace lbcrypto {
 			/**
 			 * Virtual function to generate 1..log(q) encryptions for each bit of the original private key
 			 *
-			 * @param &newPublicKey encryption key for the new ciphertext.
+			 * @param &newKey new key (private or public depending on the scheme) for the new ciphertext.
 			 * @param &origPrivateKey original private key used for decryption.
 			 * @param *evalKey the evaluation key.
 			 * @return the re-encryption key.
 			 */
-			virtual bool EvalKeyGen(const LPPublicKey<Element> &newPublicKey, 
+			virtual bool EvalKeyGen(const LPKey<Element> &newKey, 
 				const LPPrivateKey<Element> &origPrivateKey,
 				LPEvalKey<Element> *evalKey) const = 0;
 						
@@ -751,10 +751,10 @@ namespace lbcrypto {
 		}
 
 		//wrapper for EvalKeyGen method
-		bool EvalKeyGen(const LPPublicKey<Element> &newPublicKey, const LPPrivateKey<Element> &origPrivateKey,
+		bool EvalKeyGen(const LPKey<Element> &newKey, const LPPrivateKey<Element> &origPrivateKey,
 			LPEvalKey<Element> *evalKey) const{
 				if(this->IsEnabled(PRE))
-					return this->m_algorithmPRE->EvalKeyGen(newPublicKey,origPrivateKey,evalKey);
+					return this->m_algorithmPRE->EvalKeyGen(newKey,origPrivateKey,evalKey);
 				else {
 					throw std::logic_error("This operation is not supported");
 				}
