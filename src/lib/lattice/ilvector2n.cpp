@@ -461,6 +461,55 @@ namespace lbcrypto {
 		return tmp;
 	}
 
+	// Write vector x(current value of the ILVector2n object) as \sum\limits{ i = 0 }^{\lfloor{ \log q / base } \rfloor} {(base^i u_i)} and
+	// return the vector of{ u_0, u_1,...,u_{ \lfloor{ \log q / base } \rfloor } } \in R_base^{ \lceil{ \log q / base } \rceil };
+	// used as a subroutine in the relinearization procedure
+	// baseBits is the number of bits in the base, i.e., base = 2^baseBits
+
+	void ILVector2n::BaseDecompose(usint baseBits, std::vector<ILVector2n> *result) const {
+		
+		usint nBits = m_params.GetModulus().GetLengthForBase(2);
+
+		usint nWindows = nBits / baseBits;
+		if (nBits % baseBits > 0)
+			nWindows++;
+
+		ILVector2n xDigit(m_params);
+
+		// convert the polynomial to coefficient representation
+		ILVector2n x(*this);
+		x.SwitchFormat();
+
+		for (usint i = 0; i < nWindows; ++i)
+		{
+			xDigit = x.GetDigitAtIndexForBase(i*baseBits + 1, 1 << baseBits);
+			// convert the polynomial back to evaluation representation
+			xDigit.SwitchFormat();
+			result->push_back(xDigit);
+		}
+
+	}
+
+	// Generate a vector of ILVector2n's as {x, base*x, base^2*x, ..., base^{\lfloor {\log q/base} \rfloor}*x, where x is the current ILVector2n object;
+	// used as a subroutine in the relinearization procedure to get powers of a certain "base" for the secret key element
+	// baseBits is the number of bits in the base, i.e., base = 2^baseBits
+
+	void ILVector2n::PowersOfBase(usint baseBits, std::vector<ILVector2n> *result) const {
+
+		usint nBits = m_params.GetModulus().GetLengthForBase(2);
+
+		usint nWindows = nBits / baseBits;
+		if (nBits % baseBits > 0)
+			nWindows++;
+
+		for (usint i = 0; i < nWindows; ++i)
+		{
+			BigBinaryInteger pI(BigBinaryInteger::TWO.ModExp(UintToBigBinaryInteger(i*baseBits), m_params.GetModulus()));
+			result->push_back(pI*(*this));
+		}
+
+	}
+
 	void ILVector2n::PreComputeDggSamples(const DiscreteGaussianGenerator &dgg, const ILParams &params) {
 		if (m_dggSamples.size() == 0)
 		{
