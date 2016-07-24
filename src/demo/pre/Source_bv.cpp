@@ -236,7 +236,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::Encrypt(algorithm,pk,plaintext,&ciphertext);	// This is the core encryption operation.
+	CryptoUtility<ILVector2n>::Encrypt(algorithm,pk,plaintext,&ciphertext,false);	// This is the core encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -254,7 +254,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm,sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
+	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm,sk,ciphertext,&plaintextNew,false);  // This is the core decryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -345,7 +345,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(algorithm,newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
+	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(algorithm,newSK,newCiphertext,&plaintextNew2,false);  // This is the core decryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
