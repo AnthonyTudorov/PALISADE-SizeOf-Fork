@@ -540,6 +540,25 @@ namespace lbcrypto {
 		ILVector2n GetDigitAtIndexForBase(usint index, usint base) const;
 
 		/**
+		* Write vector x (current value of the ILVector2n object) as \sum\limits{i=0}^{\lfloor {\log q/base} \rfloor} {(base^i u_i)} and 
+		* return the vector of {u_0, u_1,...,u_{\lfloor {\log q/base} \rfloor}} \in R_base^{\lceil {\log q/base} \rceil};
+		* used as a subroutine in the relinearization procedure
+		*
+		* @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
+		* @result is the pointer where the base decomposition vector is stored
+		*/
+		void BaseDecompose(usint baseBits, std::vector<ILVector2n> *result) const;
+
+		/**
+		* Generate a vector of ILVector2n's as {x, base*x, base^2*x, ..., base^{\lfloor {\log q/base} \rfloor}*x, where x is the current ILVector2n object;
+		* used as a subroutine in the relinearization procedure to get powers of a certain "base" for the secret key element
+		*
+		* @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
+		* @result is the pointer where the base decomposition vector is stored
+		*/
+		void PowersOfBase(usint baseBits, std::vector<ILVector2n> *result) const;
+
+		/**
 		* Shift entries in the vector left a specific number of entries.
 		*
 		* @param n the number of entries to shift left.

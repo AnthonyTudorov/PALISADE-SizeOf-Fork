@@ -198,7 +198,7 @@ void NTRUPRE(int input) {
 	size_t chunksize = ((m / 2) / 8);
 	LPPublicKeyEncryptionSchemeBV<ILVector2n> algorithm(chunksize);
 	algorithm.Enable(ENCRYPTION);
-	//algorithm.Enable(PRE);
+	algorithm.Enable(PRE);
 
 	bool successKeyGen=false;
 
@@ -270,7 +270,7 @@ void NTRUPRE(int input) {
 		exit(1);
 	}
 
-	/*
+	
 
 	//PRE SCHEME
 
@@ -279,8 +279,8 @@ void NTRUPRE(int input) {
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPPublicKeyLTV<ILVector2n> newPK(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> newSK(cryptoParams);
+	LPPublicKeyBV<ILVector2n> newPK(cryptoParams);
+	LPPrivateKeyBV<ILVector2n> newSK(cryptoParams);
 
 	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
@@ -301,11 +301,11 @@ void NTRUPRE(int input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyLTV<ILVector2n> evalKey(cryptoParams);
+	LPEvalKeyBV<ILVector2n> evalKey(cryptoParams);
 
 	start = currentDateTime();
 
-	algorithm.EvalKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	algorithm.EvalKeyGen(newSK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -362,8 +362,6 @@ void NTRUPRE(int input) {
 	}
 
 	std::cout << "Execution completed." << std::endl;
-
-	*/
 
 	fout.close();
 }
