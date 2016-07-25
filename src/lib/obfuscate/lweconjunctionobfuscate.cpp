@@ -220,7 +220,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 #if 0 //original code
 	// Initialize the Pk and Ek matrices.
 	std::vector<Matrix<Element>> *Pk_vector = new std::vector<Matrix<Element>>();
-	std::vector<RLWETrapdoorPair>   *Ek_vector = new std::vector<RLWETrapdoorPair>();
+	std::vector<RLWETrapdoorPair<ILVector2n>>   *Ek_vector = new std::vector<RLWETrapdoorPair<ILVector2n>>();
 	std::vector<Matrix<LargeFloat>> *sigma = new std::vector<Matrix<LargeFloat>>();
 
 	DEBUG("keygen1: "<<TOC(t1) <<" ms");
@@ -230,7 +230,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 	for(usint i=0; i<=l+1; i++) {
 
 		TIC(t1);
-		pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev); //TODO remove stddev
+		pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev); //TODO remove stddev
 		DEBUG("keygen2.0:#"<< i << ": "<<TOC(t1) <<" ms");
 
 		TIC(t1);
@@ -256,7 +256,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 #else //parallelized method
 	// Initialize the Pk and Ek matrices.
 	std::vector<Matrix<Element>> *Pk_vector = new std::vector<Matrix<Element>>();
-	std::vector<RLWETrapdoorPair>   *Ek_vector = new std::vector<RLWETrapdoorPair>();
+	std::vector<RLWETrapdoorPair<ILVector2n>>   *Ek_vector = new std::vector<RLWETrapdoorPair>();
 	std::vector<Matrix<LargeFloat>> *sigma = new std::vector<Matrix<LargeFloat>>();
 
 	DEBUG("keygen1: "<<TOC(t1) <<" ms");
@@ -268,13 +268,13 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 		TimeVar tp; // for TIC TOC
 		//private copies of our vectors
 		std::vector<Matrix<Element>> *Pk_vector_pvt = new std::vector<Matrix<Element>>();
-		std::vector<RLWETrapdoorPair>   *Ek_vector_pvt = new std::vector<RLWETrapdoorPair>();
+		std::vector<RLWETrapdoorPair<ILVector2n>>   *Ek_vector_pvt = new std::vector<RLWETrapdoorPair<ILVector2n>>();
 		std::vector<Matrix<LargeFloat>> *sigma_pvt = new std::vector<Matrix<LargeFloat>>();
 #pragma omp for nowait schedule(static)
 		for(int32_t i=0; i<=l+1; i++) {
 			//build private copies in parallel
 			TIC(tp);
-			std::pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev); //TODO remove stddev
+			std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev); //TODO remove stddev
 			DEBUG("keygen2.0:#"<< i << ": "<<TOC(tp) <<" ms");
 
 			TIC(tp);
@@ -331,7 +331,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	//usint stddev = dgg.GetStd(); 
 
 	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern->GetPublicKeys();
-	const std::vector<RLWETrapdoorPair>   &Ek_vector = obfuscatedPattern->GetEncodingKeys();
+	const std::vector<RLWETrapdoorPair<ILVector2n>>   &Ek_vector = obfuscatedPattern->GetEncodingKeys();
 	const std::vector<Matrix<LargeFloat>>   &Sigma = obfuscatedPattern->GetSigmaKeys();
 
 	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
@@ -471,7 +471,7 @@ template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				const Matrix<Element> &Ai,
 				const Matrix<Element> &Aj,
-				const RLWETrapdoorPair &Ti,
+				const RLWETrapdoorPair<ILVector2n> &Ti,
 				const Matrix<LargeFloat> &sigma,
 				const Element &elemS,
 				DiscreteGaussianGenerator &dgg,

@@ -153,7 +153,7 @@ namespace lbcrypto {
 			 * @param ek - vector of encoding keys.
 			 * @param sigma - vector of perturbation matrices.
 			 */
-			void SetKeys(std::vector<Matrix<Element>> *pk, std::vector<RLWETrapdoorPair>   *ek, std::vector<Matrix<LargeFloat>> *sigma) {
+			void SetKeys(std::vector<Matrix<Element>> *pk, std::vector<RLWETrapdoorPair<ILVector2n>>   *ek, std::vector<Matrix<LargeFloat>> *sigma) {
 				this->m_pk = pk;
 				this->m_ek = ek;
 				this->m_Sigma = sigma;
@@ -194,7 +194,7 @@ namespace lbcrypto {
 			 * Gets the collection of private keys.
 			 * @return private keys.
 			 */
-			const std::vector<RLWETrapdoorPair> &GetEncodingKeys() const {
+			const std::vector<RLWETrapdoorPair<ILVector2n>> &GetEncodingKeys() const {
 				return *(this->m_ek);
 			}
 
@@ -243,7 +243,7 @@ namespace lbcrypto {
 			Matrix<Element> *m_Rl;
 
 			std::vector<Matrix<Element>> *m_pk;
-			std::vector<RLWETrapdoorPair>   *m_ek;
+			std::vector<RLWETrapdoorPair<ILVector2n>>   *m_ek;
 			std::vector<Matrix<LargeFloat>> *m_Sigma;
 
 	};
@@ -301,7 +301,7 @@ namespace lbcrypto {
 			void Encode(
 				const Matrix<Element> &Ai,
 				const Matrix<Element> &Aj,
-				const RLWETrapdoorPair &Ti,
+				const RLWETrapdoorPair<ILVector2n> &Ti,
 				const Matrix<LargeFloat> &sigma,
 				const Element &elemS,
 				DiscreteGaussianGenerator &dgg,
