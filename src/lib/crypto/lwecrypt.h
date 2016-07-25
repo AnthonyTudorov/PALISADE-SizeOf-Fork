@@ -312,6 +312,7 @@ namespace lbcrypto {
 			int m_depth;
 			//Discrete Gaussian Generator
 			DiscreteGaussianGenerator m_dgg;
+
 			//helper function for ParameterSelection. Splits the string 's' by the delimeter 'c'.
 			std::string split(const std::string s, char c){
 				std::string result;

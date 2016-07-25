@@ -58,13 +58,13 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPCryptoParametersRLWE : public LPCryptoParametersImpl<Element> {
+	class LPCryptoParametersBV : public LPCryptoParametersImpl<Element> {
 		public:
 			
 			/**
 			 * Constructor that initializes all values to 0.
 			 */
-			LPCryptoParametersRLWE() : LPCryptoParametersImpl<Element>() {
+			LPCryptoParametersBV() : LPCryptoParametersImpl<Element>() {
 				//m_params = new ElementParams();commented out by Gyana
 				//m_plaintextModulus = new BigBinaryInteger();commented out by Gyana 
 				m_distributionParameter = 0.0f;
@@ -79,7 +79,7 @@ namespace lbcrypto {
 			 * Copy constructor.
 			 *
 			 */
-			LPCryptoParametersRLWE(const LPCryptoParametersRLWE &rhs) : LPCryptoParametersImpl<Element>(NULL, rhs.GetPlaintextModulus()) {
+			LPCryptoParametersBV(const LPCryptoParametersBV &rhs) : LPCryptoParametersImpl<Element>(NULL, rhs.GetPlaintextModulus()) {
 
 				m_distributionParameter = rhs.m_distributionParameter;
 				m_assuranceMeasure = rhs.m_assuranceMeasure;
@@ -100,7 +100,7 @@ namespace lbcrypto {
 			 * @param relinWindow the size of the relinearization window.
 			 * @param depth depth which is set to 1.
 			 */
-			LPCryptoParametersRLWE(ElemParams *params,
+			LPCryptoParametersBV(ElemParams *params,
 				const BigBinaryInteger &plaintextModulus, 
 				float distributionParameter, 
 				float assuranceMeasure, 
@@ -120,7 +120,7 @@ namespace lbcrypto {
 			/**
 			* Destructor
 			*/
-			virtual ~LPCryptoParametersRLWE() {
+			virtual ~LPCryptoParametersBV() {
 			}
 			
 			/**
@@ -250,7 +250,7 @@ namespace lbcrypto {
 			* @param &rhs LPCryptoParameters to check equality against.
 			*/
 			bool operator==(const LPCryptoParameters<Element> &rhs) const {
-				const LPCryptoParametersRLWE<Element> &el = dynamic_cast<const LPCryptoParametersRLWE<Element> &>(rhs);
+				const LPCryptoParametersBV<Element> &el = dynamic_cast<const LPCryptoParametersBV<Element> &>(rhs);
 
 				return  this->GetPlaintextModulus() == el.GetPlaintextModulus() &&
 						this->GetElementParams() == el.GetElementParams() &&
