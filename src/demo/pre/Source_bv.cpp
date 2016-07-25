@@ -152,7 +152,7 @@ void NTRUPRE(int input) {
 	ILParams ilParams(m,modulus,rootOfUnity);
 
 	//Set crypto parametes
-	LPCryptoParametersRLWE<ILVector2n> cryptoParams;
+	LPCryptoParametersBV<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
 	//cryptoParams.SetPlaintextModulus(BigBinaryInteger("4"));  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.

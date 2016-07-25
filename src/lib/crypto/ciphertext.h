@@ -58,7 +58,7 @@ namespace lbcrypto {
 	class LPCryptoParametersStehleSteinfeld;
 
 	template <class Element>
-	class LPCryptoParametersRLWE;
+	class LPCryptoParametersBV;
 
 	/**
 	 * @brief Main ciphertext class.

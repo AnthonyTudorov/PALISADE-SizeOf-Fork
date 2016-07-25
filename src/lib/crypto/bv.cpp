@@ -45,8 +45,8 @@ namespace lbcrypto {
 template <class Element>
 void LPPrivateKeyBV<Element>::MakePublicKey(const Element &a, LPPublicKey<Element> *pub) const
 {
-	const LPCryptoParametersRLWE<Element> *cryptoParams =
-		dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&this->GetCryptoParameters());
+	const LPCryptoParametersBV<Element> *cryptoParams =
+		dynamic_cast<const LPCryptoParametersBV<Element>*>(&this->GetCryptoParameters());
 
 	LPPublicKeyBV<Element> *publicKey =
 		dynamic_cast<LPPublicKeyBV<Element>*>(pub);
@@ -71,8 +71,8 @@ bool LPAlgorithmBV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	if (publicKey == 0 || privateKey == 0)
 		return false;
 
-	const LPCryptoParametersRLWE<Element> *cryptoParams =
-		dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&privateKey->GetCryptoParameters());
+	const LPCryptoParametersBV<Element> *cryptoParams =
+		dynamic_cast<const LPCryptoParametersBV<Element>*>(&privateKey->GetCryptoParameters());
 
 	if (cryptoParams == 0)
 		return false;
@@ -106,8 +106,8 @@ EncryptResult LPAlgorithmBV<Element>::Encrypt(const LPPublicKey<Element> &pubKey
 	Ciphertext<Element> *ciphertext) const
 {
 
-	const LPCryptoParametersRLWE<Element> *cryptoParams =
-		dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&pubKey.GetCryptoParameters());
+	const LPCryptoParametersBV<Element> *cryptoParams =
+		dynamic_cast<const LPCryptoParametersBV<Element>*>(&pubKey.GetCryptoParameters());
 
 	const LPPublicKeyBV<Element> *publicKey =
 		dynamic_cast<const LPPublicKeyBV<Element>*>(&pubKey);
@@ -172,7 +172,7 @@ bool LPAlgorithmPREBV<Element>::EvalKeyGen(const LPKey<Element> &newSK,
 	const LPPrivateKey<Element> &origPrivateKey,
 	LPEvalKey<Element> *EK) const
 {
-	const LPCryptoParametersRLWE<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersRLWE<Element>&>(newSK.GetCryptoParameters());
+	const LPCryptoParametersBV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersBV<Element>&>(newSK.GetCryptoParameters());
 	const ElemParams &elementParams = cryptoParamsLWE.GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();
 	const Element &s = origPrivateKey.GetPrivateElement();
@@ -218,7 +218,7 @@ void LPAlgorithmPREBV<Element>::ReEncrypt(const LPEvalKey<Element> &EK,
 	const Ciphertext<Element> &ciphertext,
 	Ciphertext<Element> *newCiphertext) const
 {
-	const LPCryptoParametersRLWE<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&EK.GetCryptoParameters());
+	const LPCryptoParametersBV<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersBV<Element>*>(&EK.GetCryptoParameters());
 
 	const ElemParams &elementParams = cryptoParamsLWE->GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
