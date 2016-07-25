@@ -1,6 +1,7 @@
 #include "../../lib/crypto/signature/lwesign.h"
 #include "../../lib/crypto/signature/lwesign.cpp"
 #include "../../lib/encoding/byteencoding.h"
+#include <vld.h>
 
 using namespace lbcrypto;
 
@@ -210,6 +211,11 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Verifying 4 signature-text combinations : " << "\t" << finish - start << " ms" << std::endl;
 	*/
+	
+	
 	std::cout << "Execution completed" << std::endl;
+	ChineseRemainderTransformFTT::GetInstance().Destroy();
+	NumberTheoreticTransform::GetInstance().Destroy();
+	
 	return 0;
 }
