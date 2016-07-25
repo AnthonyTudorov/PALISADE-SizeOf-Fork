@@ -35,7 +35,6 @@ namespace lbcrypto {
 	std::vector<ILVector2n> ILVector2n::m_dggSamples;
 
 	ILVector2n::ILVector2n() :m_values(NULL), m_format(EVALUATION),m_empty(true) {
-
 	}
 
 	/*ILVector2n::ILVector2n(const ElemParams &params, Format format) : m_values(NULL), m_format(format), m_empty(true) {
@@ -50,6 +49,63 @@ namespace lbcrypto {
 			this->SetValuesToZero();
 			m_empty = false;
 		}
+	}
+
+	ILVector2n::ILVector2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format) {
+	
+		m_params = dynamic_cast<const ILParams&>(params);
+
+		if (format == COEFFICIENT)
+		{
+			//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
+			usint vectorSize = params.GetCyclotomicOrder() / 2;
+			m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,params.GetModulus()));
+			(*m_values).SetModulus(params.GetModulus());
+			m_format = COEFFICIENT;
+		}
+		else
+		{
+			if (m_dggSamples.size() == 0)
+			{
+				PreComputeDggSamples(dgg, m_params);
+			}
+
+			const ILVector2n randomElement = GetPrecomputedVector(m_params);
+			m_values = new BigBinaryVector(*randomElement.m_values);
+
+			(*m_values).SetModulus(params.GetModulus());
+			m_format = EVALUATION;
+		}
+	}
+
+
+	ILVector2n::ILVector2n(const DiscreteUniformGenerator &dug, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
+
+		const ILParams &ilParams = static_cast<const ILParams&>(params);
+
+		usint vectorSize = ilParams.GetCyclotomicOrder() / 2;
+		m_values = new BigBinaryVector(dug.GenerateVector(vectorSize));
+		(*m_values).SetModulus(params.GetModulus());
+
+		m_format = COEFFICIENT;
+
+		if (format == EVALUATION)
+			this->SwitchFormat();
+
+	}
+
+	ILVector2n::ILVector2n(const BinaryUniformGenerator &bug, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
+
+		const ILParams &ilParams = static_cast<const ILParams&>(params);
+
+		usint vectorSize = ilParams.GetCyclotomicOrder() / 2;
+		m_values = new BigBinaryVector(bug.GenerateVector(vectorSize,ilParams.GetModulus()));
+		//(*m_values).SetModulus(ilParams.GetModulus());
+
+		m_format = COEFFICIENT;
+
+		if (format == EVALUATION)
+			this->SwitchFormat();
 	}
 
 	ILVector2n::ILVector2n(const ILVector2n &element) : m_params(element.m_params), m_format(element.m_format)
@@ -100,63 +156,7 @@ namespace lbcrypto {
 		return *this;
 	}
 
-	ILVector2n::ILVector2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format) {
 	
-		m_params = dynamic_cast<const ILParams&>(params);
-
-		if (format == COEFFICIENT)
-		{
-			//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
-			usint vectorSize = params.GetCyclotomicOrder() / 2;
-			m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,params.GetModulus()));
-			(*m_values).SetModulus(params.GetModulus());
-			m_format = COEFFICIENT;
-		}
-		else
-		{
-			if (m_dggSamples.size() == 0)
-			{
-				PreComputeDggSamples(dgg, m_params);
-			}
-
-			const ILVector2n randomElement = GetPrecomputedVector(m_params);
-			m_values = new BigBinaryVector(*randomElement.m_values);
-
-			(*m_values).SetModulus(params.GetModulus());
-			m_format = EVALUATION;
-		}
-	}
-
-
-	ILVector2n::ILVector2n(DiscreteUniformGenerator &dug, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
-
-		const ILParams &ilParams = static_cast<const ILParams&>(params);
-
-		usint vectorSize = ilParams.GetCyclotomicOrder() / 2;
-		m_values = new BigBinaryVector(dug.GenerateVector(vectorSize));
-		(*m_values).SetModulus(params.GetModulus());
-
-		m_format = COEFFICIENT;
-
-		if (format == EVALUATION)
-			this->SwitchFormat();
-
-	}
-
-	ILVector2n::ILVector2n(BinaryUniformGenerator &bug, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
-
-		const ILParams &ilParams = static_cast<const ILParams&>(params);
-
-		usint vectorSize = ilParams.GetCyclotomicOrder() / 2;
-		m_values = new BigBinaryVector(bug.GenerateVector(vectorSize,ilParams.GetModulus()));
-		//(*m_values).SetModulus(ilParams.GetModulus());
-
-		m_format = COEFFICIENT;
-
-		if (format == EVALUATION)
-			this->SwitchFormat();
-
-	}
 
 	ILVector2n ILVector2n::CloneWithParams() const {
 		ILVector2n result(this->m_params,this->m_format);
@@ -184,18 +184,6 @@ namespace lbcrypto {
 	ILVector2n::~ILVector2n()
 	{
 		delete m_values;
-	}
-
-	/*
-		Print values and don't flush before and don't print new line.
-	*/
-	void ILVector2n::PrintValues() const {
-		if (m_values != NULL) {
-			std::cout << *m_values;
-		}
-		std::cout << " mod:" << m_values->GetModulus() <<std::endl;
-		std::cout << " rootOfUnity: " << this->GetRootOfUnity()<<std::endl;
-		std::cout << std::endl;
 	}
 
 	const BigBinaryInteger &ILVector2n::GetModulus() const {
@@ -244,53 +232,210 @@ namespace lbcrypto {
 		m_values = new BigBinaryVector(m_params.GetCyclotomicOrder()/2, m_params.GetModulus());
 	}
 
-	void ILVector2n::SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity){
-		m_values->SwitchModulus(modulus);
-		m_params.SetModulus(modulus);
-		m_params.SetRootOfUnity(rootOfUnity);
-	}
+	void ILVector2n::SetFormat(const Format format) {
+        if (m_format != format) {
+            this->SwitchFormat();
+        }
+    }
 
-	// addition operation - PREV1
 	ILVector2n ILVector2n::Plus(const BigBinaryInteger &element) const {
+		if(m_format != Format::COEFFICIENT)
+			throw std::logic_error("ILVector2n::Plus can only be called in COEFFICIENT format.\n");
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->ModAddAtIndex(0, element);
 		return tmp;
 	}
 
-	// subtraction operation - PREV1
 	ILVector2n ILVector2n::Minus(const BigBinaryInteger &element) const {
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->ModSub(element);
 		return tmp;
 	}
 
-
-	// multiplication operation - PREV1
 	ILVector2n ILVector2n::Times(const BigBinaryInteger &element) const {
-		//std::cout<< "element: "<<element<< std::endl;
 		ILVector2n tmp(*this);
-		//tmp.PrintValues();
 		*tmp.m_values = m_values->ModMul(element);
 		return tmp;
 	}
 
-	// modulo by two
+	// VECTOR OPERATIONS
+
+	ILVector2n ILVector2n::Plus(const ILVector2n &element) const {
+		ILVector2n tmp(*this);
+		*tmp.m_values = m_values->ModAdd(*element.m_values);
+		return tmp;
+	}
+
+	ILVector2n ILVector2n::Minus(const ILVector2n &element) const {
+		ILVector2n tmp(*this);
+		*tmp.m_values = m_values->ModSub(*element.m_values);
+		return tmp;
+	}
+
+	ILVector2n ILVector2n::Times(const ILVector2n &element) const {
+		ILVector2n tmp(*this);
+		*tmp.m_values = m_values->ModMul(*element.m_values);
+		return tmp;
+	}
+
+	const ILVector2n& ILVector2n::operator+=(const ILVector2n &element) {
+		if(!(this->m_params == element.m_params))
+        	throw std::logic_error("operator+= called on ILVector2n's with different params.");
+		
+		if (m_values == NULL)
+			m_values = new BigBinaryVector(*element.m_values);
+		else 
+			*this->m_values = this->m_values->ModAdd(*element.m_values);
+		return *this;
+	}
+
+	const ILVector2n& ILVector2n::operator-=(const ILVector2n &element) {
+    	if(!(this->m_params == element.m_params))
+    		throw std::logic_error("operator-= called on ILVector2n's with different params.");
+    	if (m_values == NULL)
+			m_values = new BigBinaryVector(m_params.GetCyclotomicOrder() / 2, m_params.GetModulus());
+        *this->m_values = this->m_values->ModSub(*element.m_values);
+        return *this;
+    }
+
+    const ILVector2n& ILVector2n::operator*=(const ILVector2n &element) {
+    	
+    	if(m_format != Format::EVALUATION || element.m_format != Format::EVALUATION)
+    		throw std::logic_error("operator*= for ILVector2n is supported only in EVALUATION format.\n");
+    	
+    	if(!(this->m_params == element.m_params))
+    		throw std::logic_error("operator*= called on ILVector2n's with different params.");
+    	
+    	if (m_values == NULL)
+			m_values = new BigBinaryVector(m_params.GetCyclotomicOrder() / 2, m_params.GetModulus());
+		else
+        	*this->m_values = this->m_values->ModMul(*element.m_values);
+
+        return *this;
+    }
+
+    void ILVector2n::AddILElementOne(){
+		if(m_format != Format::EVALUATION)
+			throw std::runtime_error("ILVector2n::AddILElementOne cannot be called on a ILVector2n in COEFFICIENT format.");
+		BigBinaryInteger tempValue;
+		for(usint i = 0; i < m_params.GetCyclotomicOrder()/2; i++){
+			tempValue = m_values->GetValAtIndex(i) + BigBinaryInteger::ONE; 
+			tempValue = tempValue.Mod(m_params.GetModulus());
+			m_values->SetValAtIndex(i,tempValue);
+		}
+	}
+
+	ILVector2n ILVector2n::AutomorphismTransform(const usint &i) const {
+		if (i % 2 == 0)
+			throw std::logic_error("automorphism index should be odd\n");
+		else
+		{
+			ILVector2n result(*this);
+			usint m = m_params.GetCyclotomicOrder();
+
+			for (usint j = 1; j < m; j = j + 2)
+			{
+				//usint newIndex = (j*iInverse) % m;
+				usint newIndex = (j*i) % m;
+				result.m_values->SetValAtIndex((newIndex + 1)/2-1,this->m_values->GetValAtIndex((j+1)/2-1));
+			}
+			return result;
+		}
+	}
+
+	ILVector2n ILVector2n::MultiplicativeInverse() const {
+		ILVector2n tmp(*this);
+		if (tmp.InverseExists()) {
+			*tmp.m_values = m_values->ModInverse();
+			return tmp;
+		} else {
+			throw std::logic_error("ILVector2n has no inverse\n");
+		}
+	}
+
 	ILVector2n ILVector2n::ModByTwo() const {
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->ModByTwo();
 		return tmp;
 	}
 
-	// check if inverse exists
+	void ILVector2n::SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity){
+		m_values->SwitchModulus(modulus);
+		m_params.SetModulus(modulus);
+		m_params.SetRootOfUnity(rootOfUnity);
+	}
+
+	void ILVector2n::SwitchFormat() {
+		if (m_format == COEFFICIENT) {
+			m_format = EVALUATION;
+			if(m_values!=NULL)
+				*m_values = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(*m_values, m_params.GetRootOfUnity(), m_params.GetCyclotomicOrder());
+		} else {
+			m_format = COEFFICIENT;
+			if(m_values!=NULL)
+				*m_values = ChineseRemainderTransformFTT::GetInstance().InverseTransform(*m_values, m_params.GetRootOfUnity(), m_params.GetCyclotomicOrder());
+		}
+	}
+
+	void ILVector2n::PrintValues() const {
+		if (m_values != NULL) {
+			std::cout << *m_values;
+		}
+		std::cout << " mod:" << m_values->GetModulus() << std::endl;
+		std::cout << " rootOfUnity: " << this->GetRootOfUnity()<< std::endl;
+		std::cout << std::endl;
+	}
+
+	void ILVector2n::MakeSparse(const BigBinaryInteger &wFactor){
+		BigBinaryInteger modTemp;
+		BigBinaryInteger tempValue;
+		usint w;
+		for(usint i = 0; i < m_params.GetCyclotomicOrder()/2;i++){
+			w = wFactor.ConvertToInt();
+			if(i%w != 0){
+				m_values->SetValAtIndex(i, BigBinaryInteger::ZERO);
+			}
+		}
+	}
+
+	// This function modifies ILVector2n to keep all the even indices. It reduces the ring dimension by half.
+	void ILVector2n::Decompose() {
+		
+		Format format( m_format );
+		
+		if(format != Format::COEFFICIENT) {
+			std::string errMsg = "ILVector2n not in COEFFICIENT format to perform Decompose.";
+			throw std::runtime_error(errMsg);
+		}
+		
+		usint decomposedCyclotomicOrder = m_params.GetCyclotomicOrder()/2;
+		m_params.SetRootOfUnity(RootOfUnity(decomposedCyclotomicOrder, GetModulus()));
+		m_params.SetCyclotomicOrder(decomposedCyclotomicOrder);
+
+		//Interleaving operation.
+		BigBinaryVector decomposeValues(GetLength()/2, GetModulus());
+		for(usint i = 0; i < GetLength();i=i+2){
+			decomposeValues.SetValAtIndex(i/2, GetValues().GetValAtIndex(i));
+		}
+
+		SetValues(decomposeValues, m_format);
+	}
+
+	bool ILVector2n::IsEmpty() const{
+		if(m_values==NULL)
+			return true;
+
+		return false;
+	}
+
 	bool ILVector2n::InverseExists() const {
 		for (usint i = 0; i < m_values->GetLength(); i++) {
-			if ((m_values->GetValAtIndex(i) == BigBinaryInteger::ZERO) || (m_values->GetValAtIndex(i) == BigBinaryInteger::ONE))
+			if(m_values->GetValAtIndex(i) == BigBinaryInteger::ZERO)
 				return false;
 		}
 		return true;
 	}
 
-	// check if inverse exists
 	double ILVector2n::Norm() const {
 		double retVal = 0.0;
 		double locVal = 0.0;
@@ -307,104 +452,64 @@ namespace lbcrypto {
 			if (locVal > retVal)
 				retVal = locVal;
 		}
-		//std::cout << " Norm: " << retVal << std::endl;
 		return retVal;
 	}
 
-	// VECTOR OPERATIONS
-
-	// addition operation - PREV1
-	ILVector2n ILVector2n::Plus(const ILVector2n &element) const {
-		ILVector2n tmp(*this);
-		*tmp.m_values = m_values->ModAdd(*element.m_values);
-		return tmp;
-	}
-
-	ILVector2n ILVector2n::Minus(const ILVector2n &element) const {
-		ILVector2n tmp(*this);
-		*tmp.m_values = m_values->ModSub(*element.m_values);
-		return tmp;
-	}
-
-	const ILVector2n& ILVector2n::operator+=(const ILVector2n &element) {
-		if (m_values == NULL)
-			m_values = new BigBinaryVector(m_params.GetCyclotomicOrder() / 2, m_params.GetModulus());
-		*this->m_values = this->m_values->ModAdd(*element.m_values);
-		return *this;
-	}
-
-	// multiplication operation - PREV1
-	ILVector2n ILVector2n::Times(const ILVector2n &element) const {
-		ILVector2n tmp(*this);
-		*tmp.m_values = m_values->ModMul(*element.m_values);
-		return tmp;
-	}
-
-	// multiplicative inverse operation
-	ILVector2n ILVector2n::MultiplicativeInverse() const {
-		ILVector2n tmp(*this);
-		if (tmp.InverseExists()) {
-			*tmp.m_values = m_values->ModInverse();
-			return tmp;
-		} else {
-			throw std::logic_error("ILVector2n has no inverse\n");
-
-		}
-	}
-
-	//automorphism operation
-	ILVector2n ILVector2n::AutomorphismTransform(const usint &i) const {
-
-		if (i % 2 == 0)
-			throw std::logic_error("automorphism index should be odd\n");
-		else
-		{
-			ILVector2n result(*this);
-			usint m = m_params.GetCyclotomicOrder();
-
-			for (usint j = 1; j < m; j = j + 2)
-			{
-				//usint newIndex = (j*iInverse) % m;
-				usint newIndex = (j*i) % m;
-				result.m_values->SetValAtIndex((newIndex + 1)/2-1,this->m_values->GetValAtIndex((j+1)/2-1));
-			}
-
-			return result;
-		}
-
-	}
-
-	// OTHER METHODS
-
-	// convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT
-	void ILVector2n::SwitchFormat() {
-
-		if (m_format == COEFFICIENT) {
-			m_format = EVALUATION;
-			if(m_values!=NULL)
-				*m_values = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(*m_values, m_params.GetRootOfUnity(), m_params.GetCyclotomicOrder());
-		} else {
-			m_format = COEFFICIENT;
-			if(m_values!=NULL)
-				*m_values = ChineseRemainderTransformFTT::GetInstance().InverseTransform(*m_values, m_params.GetRootOfUnity(), m_params.GetCyclotomicOrder());
-		}
-
-	}
-
-    void ILVector2n::SetFormat(const Format format) {
-        if (m_format != format) {
-            this->SwitchFormat();
-        }
-    }
-
-	// get digit for a specific based - used for PRE scheme
 	ILVector2n ILVector2n::GetDigitAtIndexForBase(usint index, usint base) const {
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->GetDigitAtIndexForBase(index, base);
 		return tmp;
 	}
 
-	//Precompute a sample of discrete gaussian polynomials
+	// Write vector x(current value of the ILVector2n object) as \sum\limits{ i = 0 }^{\lfloor{ \log q / base } \rfloor} {(base^i u_i)} and
+	// return the vector of{ u_0, u_1,...,u_{ \lfloor{ \log q / base } \rfloor } } \in R_base^{ \lceil{ \log q / base } \rceil };
+	// used as a subroutine in the relinearization procedure
+	// baseBits is the number of bits in the base, i.e., base = 2^baseBits
+
+	void ILVector2n::BaseDecompose(usint baseBits, std::vector<ILVector2n> *result) const {
+		
+		usint nBits = m_params.GetModulus().GetLengthForBase(2);
+
+		usint nWindows = nBits / baseBits;
+		if (nBits % baseBits > 0)
+			nWindows++;
+
+		ILVector2n xDigit(m_params);
+
+		// convert the polynomial to coefficient representation
+		ILVector2n x(*this);
+		x.SwitchFormat();
+
+		for (usint i = 0; i < nWindows; ++i)
+		{
+			xDigit = x.GetDigitAtIndexForBase(i*baseBits + 1, 1 << baseBits);
+			// convert the polynomial back to evaluation representation
+			xDigit.SwitchFormat();
+			result->push_back(xDigit);
+		}
+
+	}
+
+	// Generate a vector of ILVector2n's as {x, base*x, base^2*x, ..., base^{\lfloor {\log q/base} \rfloor}*x, where x is the current ILVector2n object;
+	// used as a subroutine in the relinearization procedure to get powers of a certain "base" for the secret key element
+	// baseBits is the number of bits in the base, i.e., base = 2^baseBits
+
+	void ILVector2n::PowersOfBase(usint baseBits, std::vector<ILVector2n> *result) const {
+
+		usint nBits = m_params.GetModulus().GetLengthForBase(2);
+
+		usint nWindows = nBits / baseBits;
+		if (nBits % baseBits > 0)
+			nWindows++;
+
+		for (usint i = 0; i < nWindows; ++i)
+		{
+			BigBinaryInteger pI(BigBinaryInteger::TWO.ModExp(UintToBigBinaryInteger(i*baseBits), m_params.GetModulus()));
+			result->push_back(pI*(*this));
+		}
+
+	}
+
 	void ILVector2n::PreComputeDggSamples(const DiscreteGaussianGenerator &dgg, const ILParams &params) {
 		if (m_dggSamples.size() == 0)
 		{
@@ -432,61 +537,6 @@ namespace lbcrypto {
 
 		int randomIndex = rand() % SAMPLE_SIZE;
 		return m_dggSamples[randomIndex];
-	}
-
-	void ILVector2n::AddILElementOne(){
-		if(m_format != Format::EVALUATION)
-			throw std::runtime_error("ILVector2n::AddILElementOne cannot be called on a ILVector2n in COEFFICIENT format.");
-		BigBinaryInteger tempValue;
-		for(usint i = 0; i < m_params.GetCyclotomicOrder()/2; i++){
-			tempValue = m_values->GetValAtIndex(i) + BigBinaryInteger::ONE; 
-			tempValue = tempValue.Mod(m_params.GetModulus());
-			m_values->SetValAtIndex(i,tempValue);
-		}
-	}
-
-	
-	void ILVector2n::MakeSparse(const BigBinaryInteger &wFactor){
-		BigBinaryInteger modTemp;
-		BigBinaryInteger tempValue;
-		usint w;
-		for(usint i = 0; i < m_params.GetCyclotomicOrder()/2;i++){
-			w = wFactor.ConvertToInt();
-			if(i%w != 0){
-				m_values->SetValAtIndex(i, BigBinaryInteger::ZERO);
-			}
-		}
-	}
-
-	// This function modifies ILVector2n to keep all the even indices. It reduces the ring dimension by half.
-	void ILVector2n::Decompose() {
-		
-		Format format( m_format );
-		
-		if(format != Format::COEFFICIENT) {
-			std::string errMsg = "ILVector2n not in COEFFICIENT format to perform Decompose.";
-			throw std::runtime_error(errMsg);
-		}
-		
-		//Generation of new crypto parameters
-		usint decomposedCyclotomicOrder = m_params.GetCyclotomicOrder()/2;
-		m_params.SetRootOfUnity(RootOfUnity(decomposedCyclotomicOrder, GetModulus()));
-		m_params.SetCyclotomicOrder(decomposedCyclotomicOrder);
-
-		//Interleaving operation.
-		BigBinaryVector decomposeValues(GetLength()/2, GetModulus());
-		for(usint i = 0; i < GetLength();i=i+2){
-			decomposeValues.SetValAtIndex(i/2, GetValues().GetValAtIndex(i));
-		}
-
-		SetValues(decomposeValues, m_format);
-	}
-
-	bool ILVector2n::IsEmpty() const{
-		if(m_values==NULL)
-			return true;
-
-		return false;
 	}
 
 	// JSON FACILITY - Serialize Operation
@@ -541,9 +591,6 @@ namespace lbcrypto {
 
 		if( (vIt = iMap->value.FindMember("Format")) == iMap->value.MemberEnd() ) return false;
 		this->SetValues(vectorBBV, Format(atoi(vIt->value.GetString())));
-
-		/*BigBinaryInteger bbiModulus(m_params.GetModulus());
-		this->SetModulus(bbiModulus);*/
 
 		return true;
 	}

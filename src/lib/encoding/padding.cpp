@@ -34,24 +34,25 @@
 #include "padding.h"
 
 namespace lbcrypto {
-    //void OneZeroPad::Pad(const usint blockSize, ByteArray *byteArray) {
-    //    usint nPadding = blockSize - (byteArray->size() % blockSize);
-    //    byteArray->reserve(byteArray->size() + nPadding);
-    //    byteArray->push_back(0x80);
-    //    for (usint i = 0; i < nPadding - 1; ++i) {
-    //        byteArray->push_back(0x0);
-    //    }
-    //}
-    //void OneZeroPad::Unpad(ByteArray *byteArray) {
-    //    usint nPadding = 0;
-    //    for (sint i = byteArray->size() - 1; i >= 0; --i) {
-    //        nPadding++;
-    //        if (byteArray->at(i) == 0x80) {
-    //            break;
-    //        }
-    //    }
-    //    byteArray->resize(byteArray->size() - nPadding, 0x0);
-    //}
+    void OneZeroPad::Pad(const usint blockSize, ByteArray *byteArray) {
+    	if( blockSize > byteArray->size() ) {
+    		usint slotForOne = byteArray->size();
+    		byteArray->resize(blockSize, 0);
+    		byteArray->at(slotForOne) = 0x80;
+    	}
+    }
+
+    void OneZeroPad::Unpad(ByteArray *byteArray) {
+        usint nPadding = 0;
+        for (sint i = byteArray->size() - 1; i >= 0; --i) {
+            nPadding++;
+            if (byteArray->at(i) == 0x80) {
+                break;
+            }
+        }
+        byteArray->resize(byteArray->size() - nPadding, 0);
+    }
+
     /**
      *  @param blockSize
      *  @param byteArray

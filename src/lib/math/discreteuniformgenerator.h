@@ -59,12 +59,12 @@ public:
 	/**
 	* @brief Required by DistributionGenerator.
 	*/
-	BigBinaryInteger GenerateInteger ();
+	BigBinaryInteger GenerateInteger () const;
 
 	/**
 	* @brief Required by DistributionGenerator.
 	*/
-	BigBinaryVector GenerateVector (const usint size);
+	BigBinaryVector GenerateVector (const usint size) const;
 
 private:
 	static const usint CHUNK_MIN = 0;
@@ -77,7 +77,8 @@ private:
 
 	usint m_remainingWidth;
 	usint m_chunksPerValue;
-	std::uniform_int_distribution<usint> m_distribution;
+	
+	//std::uniform_int_distribution<usint> m_distribution;
 
 	/**
 	* The modulus value that should be used to generate discrete values.

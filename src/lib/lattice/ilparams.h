@@ -99,6 +99,25 @@ namespace lbcrypto {
 		}
 
 		/**
+		* Assignment Operator.
+		*
+		* @param &rhs the ILParams to be copied.
+		* @return the resulting ILParams.
+		*/
+		ILParams& operator=(const ILParams &) = default;
+
+		/**
+		* Move constructor.
+		*
+		* @param &rhs the input set of parameters which is copied.
+		*/
+		ILParams(const ILParams &&rhs) {
+			m_order = rhs.m_order;
+			m_modulus = std::move(rhs.m_modulus);
+			m_rootOfUnity = std::move(rhs.m_rootOfUnity);
+		}
+
+		/**
 		* Destructor.
 		*/
 		virtual ~ILParams() {
@@ -184,24 +203,25 @@ namespace lbcrypto {
 		void SetModulus(const BigBinaryInteger &modulus) {
 			m_modulus = modulus;
 		}
-
+		/**
+		* Equal operator compares this ILVector2n to the specified ElemParams (which will be dynamic casted)
+		*
+		* @param &rhs is the specified ILVector2n to be compared with this ILVector2n.
+		* @return true if this ILVector2n represents the same values as the specified ILVectorArray2n, false otherwise
+		*/
         bool operator==(const ElemParams& rhs) const {
         	const ILParams &ip = dynamic_cast<const ILParams &>(rhs);
-
-        	return *this == ip;
-        }
-
-        inline bool operator==(ILParams const& rhs) const {
-            if (m_modulus != rhs.GetModulus()) {
-                return false;
-            }
-            if (m_order != rhs.GetCyclotomicOrder()) {
-                return false;
-            }
-            if (m_rootOfUnity != rhs.GetRootOfUnity()) {
-                return false;
-            }
-            return true;
+			
+			if (m_modulus != ip.GetModulus()) {
+				return false;
+			}
+			if (m_order != ip.GetCyclotomicOrder()) {
+				return false;
+			}
+			if (m_rootOfUnity != ip.GetRootOfUnity()) {
+				return false;
+			}
+			return true;
         }
 
 		/**

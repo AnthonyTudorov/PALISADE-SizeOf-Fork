@@ -58,6 +58,9 @@
 #include "../crypto/lweautomorph.h"
 #include "../crypto/lweautomorph.cpp"
 
+#include "../crypto/bv.h"
+#include "../crypto/bv.cpp"
+
 #include "../utils/serializable.h"
 
 // NOTE there are some #includes at the bottom of the file as well!

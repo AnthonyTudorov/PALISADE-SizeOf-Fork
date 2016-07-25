@@ -59,8 +59,12 @@ protected:
 public:
 };
 
-
-/*TEST(method_ILVectorArray2n, Encrypt_Decrypt) {
+/*Simple Encrypt-Decrypt check for ILVectorArray2n. The assumption is this test case is that everything with respect to lattice and math
+* layers and cryptoparameters work. This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
+* plaintext
+* The cyclotomic order is set 2048
+*tower size is set to 3*/
+TEST(method_ILVectorArray2n, Encrypt_Decrypt) {
 
 	usint m = 2048;
 
@@ -122,30 +126,102 @@ public:
 	EXPECT_EQ(plaintextNew, plaintext);
 }
 
+/*Simple Encrypt-Decrypt check for ILVector2n. The assumption is this test case is that everything with respect to lattice and math
+* layers and cryptoparameters work. This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
+* plaintext
+* The cyclotomic order is set 2048
+*/
 TEST(method_ILVector2n, Encrypt_Decrypt) {
 
 	usint m = 2048;
 
 	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-
 	float stdDev = 4;
 
 	ByteArray ctxtd;
 	BigBinaryInteger q("1");
 	BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
 	
 	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 		
 	DiscreteGaussianGenerator dgg(stdDev);
-
+	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 	ILParams params(m, q, RootOfUnity(m,q));
 
+	//This code is run only when performing execution time measurements
+
+	//Precomputations for FTT
+	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
+
+	//Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(dgg, params);
+
 	LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-	cryptoParams.SetDistributionParameter(stdDev);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(params);
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
+	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
+	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
+	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
+
+	Ciphertext<ILVector2n> cipherText;
+	cipherText.SetCryptoParameters(&cryptoParams);
+
+	// Initialize the public key containers.
+	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
+	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+
+	size_t chunksize = ((m / 2) / 8);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(PRE);
+
+	algorithm.KeyGen(&pk, &sk); // This is the core function call that generates the keys.
+
+	vector<Ciphertext<ILVector2n>> ciphertext;
+
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);	
+
+	ByteArray plaintextNew;
+
+	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &plaintextNew);  
+
+	EXPECT_EQ(plaintextNew, plaintext);
+	ILVector2n::DestroyPreComputedSamples();
+}
+
+/*Simple Proxy re-encryption test for ILVector2n. The assumption is this test case is that everything with respect to the lattice
+* layer and cryptoparameters work. This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
+* plaintext
+* The cyclotomic order is set 2048
+* The relinwindow is set to 1 and the modulus and root of unity are precomputed values that satisfy PRE conditions
+*/
+TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
+
+	usint m = 2048;
+	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	float stdDev = 4;
+
+	ByteArray ctxtd;
+
+	BigBinaryInteger q("268441601");
+	BigBinaryInteger rootOfUnity("16947867");
+
+	DiscreteGaussianGenerator dgg(stdDev);
+	ILParams params(m, q, RootOfUnity(m, q));
+
+	//This code is run only when performing execution time measurements
+
+	//Precomputations for FTT
+	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
+
+	//Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(dgg, params);
+
+	LPCryptoParametersLTV<ILVector2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
+	cryptoParams.SetDistributionParameter(stdDev); // Set the noise parameters.
+	cryptoParams.SetRelinWindow(1);				    // Set the relinearization window
+	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	Ciphertext<ILVector2n> cipherText;
@@ -159,86 +235,43 @@ TEST(method_ILVector2n, Encrypt_Decrypt) {
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
 
-	algorithm.KeyGen(&pk, &sk);
+	algorithm.KeyGen(&pk, &sk);    // This is the core function call that generates the keys.
 
 	vector<Ciphertext<ILVector2n>> ciphertext;
-
-	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);	
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);
 
 	ByteArray plaintextNew;
-
-	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &plaintextNew);  
+	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &plaintextNew);
 
 	EXPECT_EQ(plaintextNew, plaintext);
+	//PRE SCHEME
+
+	////////////////////////////////////////////////////////////
+	//Perform the second key generation operation.
+	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
+	////////////////////////////////////////////////////////////
+
+	LPPublicKeyLTV<ILVector2n> newPK(cryptoParams);
+	LPPrivateKeyLTV<ILVector2n> newSK(cryptoParams);
+	
+	algorithm.KeyGen(&newPK, &newSK);	// This is the same core key generation operation.
+
+	LPEvalKeyLTV<ILVector2n> evalKey(cryptoParams);
+
+	algorithm.EvalKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
+
+	vector<Ciphertext<ILVector2n>> newCiphertext;
+
+	CryptoUtility<ILVector2n>::ReEncrypt(algorithm, evalKey, ciphertext, &newCiphertext);  // This is the core re-encryption operation.
+
+	ByteArray plaintextNew2;
+
+	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(algorithm, newSK, newCiphertext, &plaintextNew2);  // This is the core decryption operation.
+
+	EXPECT_EQ(plaintextNew2, plaintext);
+	ILVector2n::DestroyPreComputedSamples();
+
 }
-*/
 
 
 
-TEST(method_ILVector2n, PRE) {
-
-	//usint m = 2048;
-	//BigBinaryInteger modulus("268441601");
-	//BigBinaryInteger rootOfUnity("16947867");
-	//usint relWindow = 1;
-
-	//ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-
-	//cout << plaintext << endl;
-	//float stdDev = 4;
-
-	//ByteArray ctxtd;
-
-	//DiscreteGaussianGenerator dgg(stdDev);
-
-	//ILParams params(m, modulus,rootOfUnity);
-
-	//LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	//cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-	//cryptoParams.SetDistributionParameter(stdDev);
-	//cryptoParams.SetRelinWindow(1);
-	//cryptoParams.SetElementParams(params);
-	//cryptoParams.SetDiscreteGaussianGenerator(dgg);
-
-	//Ciphertext<ILVector2n> cipherText;
-	//cipherText.SetCryptoParameters(&cryptoParams);
-
-	//LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-	//LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
-
-	//size_t chunksize = ((m / 2) / 8);
-	//LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
-	//algorithm.Enable(ENCRYPTION);
-	//algorithm.Enable(PRE);
-
-	//algorithm.KeyGen(&pk, &sk);
-
-	//vector<Ciphertext<ILVector2n>> ciphertext;
-
-	//CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);
-
-	//ByteArray plaintextNew;
-
-	//CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &plaintextNew);
-
-	//cout << plaintextNew << endl;
-
-	//LPPublicKeyLTV<ILVector2n> newPK(cryptoParams);
-	//LPPrivateKeyLTV<ILVector2n> newSK(cryptoParams);
-	//
-	//algorithm.KeyGen(&newPK, &newSK);	
-
-	//LPEvalKeyLTV<ILVector2n> evalKey(cryptoParams);
-
-	//algorithm.EvalKeyGen(newPK, sk, &evalKey);  
-
-	//vector<Ciphertext<ILVector2n>> newCiphertext;
-
-	//CryptoUtility<ILVector2n>::ReEncrypt(algorithm, evalKey, ciphertext, &newCiphertext); 
-
-	//ByteArray plaintextNew2;
-
-	//DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(algorithm, newSK, newCiphertext, &plaintextNew2);  
-
-	//EXPECT_EQ(plaintextNew, plaintextNew2);
-}

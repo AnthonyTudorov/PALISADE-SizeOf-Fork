@@ -35,7 +35,7 @@
 
 //used to define a thread-safe generator
 #if defined (_MSC_VER)  // Visual studio
-    #define thread_local __declspec( thread )
+    //#define thread_local __declspec( thread )
 #elif defined (__GCC__) // GCC
     #define thread_local __thread
 #endif

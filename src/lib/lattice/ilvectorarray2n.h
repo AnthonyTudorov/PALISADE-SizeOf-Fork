@@ -96,11 +96,13 @@ namespace lbcrypto {
 		ILVectorArray2n(const ElemParams &params, Format format = EVALUATION);
 
 		/**
-		* Copy constructor.
+		* Constructor based on discrete Gaussian generator.
 		*
-		* @param &element ILVectorArray2n to copy from
+		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers.
+		* @param &params parameter set required for ILVectorArray2n. 
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArray2n(const ILVectorArray2n &element);
+		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
 
 		/**
 		* Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n. 
@@ -118,42 +120,11 @@ namespace lbcrypto {
 		ILVectorArray2n(const std::vector<ILVector2n> &elements);
 
 		/**
-		* Constructor based on discrete Gaussian generator.
+		* Copy constructor.
 		*
-		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers.
-		* @param &params parameter set required for ILVectorArray2n. 
-		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		* @param &element ILVectorArray2n to copy from
 		*/
-		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
-
-		/**
-		* Get method of the cyclotomic order
-		*
-		* @return the cyclotomic order.
-		*/
-
-		usint GetCyclotomicOrder() const ;
-
-		/**
-		* Get method of the modulus.
-		*
-		* @return the modulus.
-		*/
-		const BigBinaryInteger &GetModulus() const;
-		
-		/**
-		* Get method for the number of towers of the ILVectorArray2n.
-		*
-		* @return the number of towers.
-		*/
-		usint GetLength() const {
-			usint tot = 0;
-			for( auto vec : m_vectors ) {
-				tot += vec.GetLength();
-			}
-			return tot;
-		}
-
+		ILVectorArray2n(const ILVectorArray2n &element);
 
 		/**
 		* Move constructor.
@@ -180,14 +151,40 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format = EVALUATION) const;
 
-		// DESTRUCTORS
 		/**
 		* Destructor.
 		*/
 		virtual ~ILVectorArray2n(); //must be virtual since member printvals() is virtual
 
-	
-		// GET ACCESSORS
+		//GETTERS
+
+		/**
+		* Get method of the cyclotomic order
+		*
+		* @return the cyclotomic order.
+		*/
+		usint GetCyclotomicOrder() const ;
+
+		/**
+		* Get method of the modulus.
+		*
+		* @return the modulus.
+		*/
+		const BigBinaryInteger &GetModulus() const;
+		
+		/**
+		* Get method for the number of towers of the ILVectorArray2n.
+		*
+		* @return the number of towers.
+		*/
+		usint GetLength() const {
+			usint tot = 0;
+			for( auto vec : m_vectors ) {
+				tot += vec.GetLength();
+			}
+			return tot;
+		}
+
 		/**
 		* Get method of individual towers.
 		*
@@ -225,6 +222,27 @@ namespace lbcrypto {
 		* @return is the result.
 		*/
 		ILVectorArray2n GetDigitAtIndexForBase(usint index, usint base) const;
+
+		/**
+		* Write vector x (current value of the ILVector2n object) as \sum\limits{i=0}^{\lfloor {\log q/base} \rfloor} {(base^i u_i)} and
+		* return the vector of {u_0, u_1,...,u_{\lfloor {\log q/base} \rfloor}} \in R_base^{\lceil {\log q/base} \rceil};
+		* used as a subroutine in the relinearization procedure
+		*
+		* @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
+		* @result is the pointer where the base decomposition vector is stored
+		*/
+		void BaseDecompose(usint baseBits, std::vector<ILVectorArray2n> *result) const { };
+
+		/**
+		* Generate a vector of ILVector2n's as {x, base*x, base^2*x, ..., base^{\lfloor {\log q/base} \rfloor}*x, where x is the current ILVector2n object;
+		* used as a subroutine in the relinearization procedure to get powers of a certain "base" for the secret key element
+		*
+		* @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
+		* @result is the pointer where the base decomposition vector is stored
+		* @return true if operation is successful
+		*/
+		void PowersOfBase(usint baseBits, std::vector<ILVectorArray2n> *result) const { };
+
 
 		//VECTOR OPERATIONS
 
@@ -276,7 +294,6 @@ namespace lbcrypto {
 		*/
 		const ILVectorArray2n& operator-=(const ILVectorArray2n &rhs);
 
-		// automorphism operation
 		/**
 		* Permutes coefficients in a polynomial. Moves the ith index to the first one, it only supports odd indices. 
 		*
@@ -285,7 +302,6 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n AutomorphismTransform(const usint &i) const {return ILVectorArray2n(*this);};
 
-		//addition operation
 		/**
 		* Performs an addition operation and returns the result.
 		*
@@ -294,7 +310,6 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n Plus(const ILVectorArray2n &element) const;
 
-		// multiplication operation
 		/**
 		* Performs a multiplication operation and returns the result.
 		*
@@ -303,7 +318,6 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n Times(const ILVectorArray2n &element) const;
 
-		// subtraction operation
 		/**
 		* Performs a subtraction operation and returns the result.
 		*

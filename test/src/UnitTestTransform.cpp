@@ -61,27 +61,32 @@ class UnitTestTransform : public ::testing::Test {
 
 TEST(method_CRT_polynomial_multiplication, compares_to_brute_force_multiplication){
 
-	BigBinaryInteger primeModulus("101"); //65537
-	usint cycloOrder = 4;
+	BigBinaryInteger primeModulus("113"); //65537
+	usint cycloOrder = 8;
 	usint n = cycloOrder / 2;
 
 	BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(cycloOrder, primeModulus);
-	// std::cout <<"The primitiveRootOfUnity for modulus " << primeModulus << " is " << primitiveRootOfUnity << std::endl;
 
-	BigBinaryVector a(2, primeModulus);
+	BigBinaryVector a(4, primeModulus);
 	a.SetValAtIndex(0, "1");
-	a.SetValAtIndex(1, "1");
+	a.SetValAtIndex(1, "2");
+	a.SetValAtIndex(2, "4");
+	a.SetValAtIndex(3, "1");
 	BigBinaryVector b(a);
 
 	BigBinaryVector A = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(a, primitiveRootOfUnity, cycloOrder);
 	BigBinaryVector B = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(b, primitiveRootOfUnity, cycloOrder);
 
-	BigBinaryVector AB = A.ModMul(B);
-	BigBinaryVector ab = a.ModMul(b);
-	// std::cout << "AB = " << AB << " and ab = " << ab << std::endl;
+	BigBinaryVector AB = A*B;
 
-	BigBinaryVector InverseFFTAB = ChineseRemainderTransform::GetInstance().InverseTransform(AB, primitiveRootOfUnity, cycloOrder);
+	BigBinaryVector InverseFFTAB = ChineseRemainderTransformFTT::GetInstance().InverseTransform(AB, primitiveRootOfUnity, cycloOrder);
 
-	// EXPECT_EQ(ab, InverseFFTAB);
+	BigBinaryVector expectedResult(4, primeModulus);
+	expectedResult.SetValAtIndex(0, "94");
+	expectedResult.SetValAtIndex(1, "109");
+	expectedResult.SetValAtIndex(2, "11");
+	expectedResult.SetValAtIndex(3, "18");
+
+	EXPECT_EQ(expectedResult, InverseFFTAB);
 
 }

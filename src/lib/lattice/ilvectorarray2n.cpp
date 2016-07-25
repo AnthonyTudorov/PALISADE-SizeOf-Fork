@@ -288,9 +288,9 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	const ILVectorArray2n & ILVectorArray2n::operator+=(const ILVectorArray2n &rhs)
+	const ILVectorArray2n& ILVectorArray2n::operator+=(const ILVectorArray2n &rhs)
 	{
-            return this->Plus(rhs); // TODO-OPTIMIZE
+        return this->Plus(rhs); // TODO-OPTIMIZE
 	}
 
 	const ILVectorArray2n& ILVectorArray2n::operator-=(const ILVectorArray2n &rhs) {
@@ -298,8 +298,8 @@ namespace lbcrypto {
     }
 
 	bool ILVectorArray2n::operator!=(const ILVectorArray2n &rhs) const {
-            return !(*this == rhs); 
-        }
+        return !(*this == rhs); 
+    }
 	
 	bool ILVectorArray2n::operator==(const ILVectorArray2n &rhs) const {
 		//check if the format's are the same
@@ -320,7 +320,7 @@ namespace lbcrypto {
           }
 
 		//check if the towers are the same
-		else return (m_vectors != rhs.GetAllElements());
+		else return (m_vectors == rhs.GetAllElements());
 	}
 
 	const ILVectorArray2n & ILVectorArray2n::operator=(const ILVectorArray2n & rhs)

@@ -79,7 +79,34 @@ namespace lbcrypto {
 
         ILVector2n(const ElemParams &params, Format format = EVALUATION, bool initializeElementToZero = false);
 
-		void GenerateNoise(DiscreteGaussianGenerator &dgg, Format format = EVALUATION) ;
+		// void GenerateNoise(DiscreteGaussianGenerator &dgg, Format format = EVALUATION) ;
+
+		/**
+		* Constructor based on full methods.
+		*
+		* @param &dgg the input discrete Gaussian Generator.
+		* @param &params the input params.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVector2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
+		
+		/**
+		* Constructor based on full methods.
+		*
+		* @param &dbg the input Binary Uniform Generator.
+		* @param &params the input params.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVector2n(const BinaryUniformGenerator &bug, const ElemParams &params, Format format = EVALUATION);
+
+		/**
+		* Constructor based on full methods.
+		*
+		* @param &dug the input discrete Uniform Generator.
+		* @param &params the input params.
+		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVector2n(const DiscreteUniformGenerator &dug, const ElemParams &params, Format format = EVALUATION);
 
         /**
          *  Create lambda that allocates a zeroed element with the specified
@@ -109,7 +136,6 @@ namespace lbcrypto {
 		* @param stddev standard deviation for the dicrete gaussian generator.
 		* @return the resulting vector.
 		*/
-
         inline static function<unique_ptr<ILVector2n>()> MakeDiscreteGaussianCoefficientAllocator(ILParams params, Format resultFormat, int stddev) {
             return [=]() {
                 DiscreteGaussianGenerator dgg(stddev);
@@ -126,7 +152,6 @@ namespace lbcrypto {
 		* @param format format for the polynomials generated.
 		* @return the resulting vector.
 		*/
-
         inline static function<unique_ptr<ILVector2n>()> MakeDiscreteUniformAllocator(ILParams params, Format format) {
             return [=]() {
                 DiscreteUniformGenerator dug(params.GetModulus());
@@ -142,54 +167,25 @@ namespace lbcrypto {
 		ILVector2n(const ILVector2n &element);
 
 		/**
-		* Copy constructor.
+		* Move constructor.
 		*
 		* @param &&element the copied element.
 		*/
 		ILVector2n(ILVector2n &&element);
 
-
-		/**
-		* Constructor based on full methods.
-		*
-		* @param &dgg the input discrete Gaussian Generator.
-		* @param &params the input params.
-		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
-		*/
-		ILVector2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
-		
-		/**
-		* Constructor based on full methods.
-		*
-		* @param &dbg the input Binary Uniform Generator.
-		* @param &params the input params.
-		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
-		*/
-		ILVector2n(BinaryUniformGenerator &bug, const ElemParams &params, Format format = EVALUATION);
-
-
-		/**
-		* Constructor based on full methods.
-		*
-		* @param &dug the input discrete Uniform Generator.
-		* @param &params the input params.
-		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
-		*/
-		ILVector2n(DiscreteUniformGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
-
 		/**
 		* Assignment Operator.
 		*
-		* @param &rhs the copied vector.
-		* @return the resulting vector.
+		* @param &rhs the ILVector2n to be copied.
+		* @return the resulting ILVector2n.
 		*/
 		const ILVector2n& operator=(const ILVector2n &rhs);
 
 		/**
 		* Move Operator.
         *
-        * @param &&rhs the copied vector.
-        * @return the resulting vector.
+		* @param &rhs the ILVector2n to be copied.
+		* @return the resulting ILVector2n.
         */
         const ILVector2n& operator=(ILVector2n &&rhs);
 
@@ -218,13 +214,15 @@ namespace lbcrypto {
         */
 		const ILVector2n& operator=(usint val);
 
+		virtual ~ILVector2n();
+
 		/**
 		* Equal operator compares this ILVector2n to the specified ILVector2n
 		*
 		* @param &rhs is the specified ILVector2n to be compared with this ILVector2n.
 		* @return true if this ILVector2n represents the same values as the specified ILVectorArray2n, false otherwise
 		*/
-        inline bool operator==(const lbcrypto::ILVector2n &rhs) const {
+        inline bool operator==(const ILVector2n &rhs) const {
             if (this->GetFormat() != rhs.GetFormat()) {
                 return false;
             }
@@ -241,60 +239,17 @@ namespace lbcrypto {
 		* @param &element is the specified ILVector2n to be compared with this ILVectorArray2n.
 		* @return true if this ILVector2n represents the same values as the specified ILVector2n, false otherwise
 		*/
-        inline bool operator!=(const lbcrypto::ILVector2n &element) const {
+        inline bool operator!=(const ILVector2n &element) const {
             return !(*this == element);
         }
 
-		/**
-		* Performs an subtracion operation and returns the result.
-		*
-		* @param &element is the element to add with.
-		* @return is the result of the addition.
-		*/
-        inline const ILVector2n& operator-=(const lbcrypto::ILVector2n &element) {
-            // ILVector2n result = this->Minus(element);
-            // *this = result;
-            *this = this->Minus(element);
-            return *this;
-        }
-
-		/**
-		* Performs an subtracion operation and returns the result.
-		*
-		* @param &element is the element to add with.
-		* @return is the result of the addition.
-		*/
-		inline const ILVector2n& operator+=(const lbcrypto::BigBinaryInteger &element) {
-            ILVector2n result = this->Plus(element);
-            *this = result;
-            return *this;
-        }
-
-		/**
-		* Performs an subtracion operation and returns the result.
-		*
-		* @param &element is the element to add with.
-		* @return is the result of the addition.
-		*/
-		inline const ILVector2n& operator-=(const lbcrypto::BigBinaryInteger &element) {
-            ILVector2n result = this->Minus(element);
-            *this = result;
-            return *this;
-        }
-
-		virtual ~ILVector2n();
-
-		//void GenerateGaussian(DiscreteGaussianGenerator &dgg);
-
+        //GETTERS
 		/**
 		* Get method to get ILParams for the current vector.
 		*
 		* @return the ring element params.
 		*/
-		const ILParams &GetParams() const
-		{
-			return m_params;
-		}
+		inline const ILParams &GetParams() const { return m_params; }
 
 		/**
 		* Get method of the modulus.
@@ -345,6 +300,7 @@ namespace lbcrypto {
 		*/
 		usint GetLength() const;
 
+		//SETTERS
 		/**
 		* Set method of the values.
 		*
@@ -353,30 +309,68 @@ namespace lbcrypto {
 		*/
 		void SetValues(const BigBinaryVector& values, Format format);
 
+		/**
+		* Sets all values to zero.
+		*/
 		void SetValuesToZero();
 
 		/**
-		* Switch modulus and adjust the values
+		* Sets the format.
 		*
-		* @param &modulus is the modulus to be set.
-		* @param &rootOfUnity is the corresponding root of unity for the modulus
-		* ASSUMPTION: This method assumes that the caller provides the correct rootOfUnity for the modulus.
+		* @param format is the Format to be set.
 		*/
-		void SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity);
-
 		void SetFormat(const Format format);
 
 		/**
-         *  Set BigBinaryVector value to val
-         */
+        *  Set BigBinaryVector value to val
+        *
+        * @param index is the index at which the value is to be set.
+		* @param val is the value to be set.
+        */
         inline void SetValAtIndex(size_t index, int val) {
             m_values->SetValAtIndex(index, BigBinaryInteger(val));
         }
 
 		// SCALAR OPERATIONS
+        /**
+		* Performs an subtracion operation and returns the result.
+		*
+		* @param &element is the element to add with.
+		* @return is the result of the addition.
+		*/
+		inline const ILVector2n& operator+=(const BigBinaryInteger &element) {
+            ILVector2n result = this->Plus(element);
+            *this = result;
+            return *this;
+        }
 
 		/**
-		* Scalar addition - add an element to the first index only.
+		* Performs an subtracion operation and returns the result.
+		*
+		* @param &element is the element to add with.
+		* @return is the result of the addition.
+		*/
+		inline const ILVector2n& operator-=(const BigBinaryInteger &element) {
+            ILVector2n result = this->Minus(element);
+            *this = result;
+            return *this;
+        }
+
+        /**
+		* Performs an multiplication operation and returns the result.
+		*
+		* @param &element is the element to multiply with.
+		* @return is the result of the multiplication.
+		*/
+		inline const ILVector2n& operator*=(const BigBinaryInteger &element) {
+            ILVector2n result = this->Times(element);
+            *this = result;
+            return *this;
+        }
+
+		/**
+		* Scalar addition - add an element to the first index only. 
+		* This operation is only allowed in COEFFICIENT format.
 		*
 		* @param &element is the element to add entry-wise.
 		* @return is the return of the addition operation.
@@ -399,13 +393,76 @@ namespace lbcrypto {
 		*/
 		ILVector2n Times(const BigBinaryInteger &element) const;
 
+		// VECTOR OPERATIONS
 		/**
-		* Scalar division - divide an element to all entries.
+		* Performs an addition operation and returns the result.
 		*
-		* @param &element is the element to divide entry-wise.
-		* @return is the return value of the division operation.
+		* @param &element is the element to add with.
+		* @return is the result of the addition.
 		*/
-		ILVector2n DividedBy(const BigBinaryInteger &element) const;
+		ILVector2n Plus(const ILVector2n &element) const;
+
+		/**
+		* Performs a subtraction operation and returns the result.
+		*
+		* @param &element is the element to subtract with.
+		* @return is the result of the subtraction.
+		*/
+		ILVector2n Minus(const ILVector2n &element) const;
+
+		/**
+		* Performs a multiplication operation and returns the result.
+		*
+		* @param &element is the element to multiply with.
+		* @return is the result of the multiplication.
+		*/
+		ILVector2n Times(const ILVector2n &element) const;
+
+		/**
+		* Performs an addition operation and returns the result.
+		*
+		* @param &element is the element to add with.
+		* @return is the result of the addition.
+		*/
+		const ILVector2n& operator+=(const ILVector2n &element);
+
+		/**
+		* Performs an subtracion operation and returns the result.
+		*
+		* @param &element is the element to add with.
+		* @return is the result of the addition.
+		*/
+        const ILVector2n& operator-=(const ILVector2n &element);
+
+		/**
+		* Performs an multiplication operation and returns the result.
+		*
+		* @param &element is the element to multiply with.
+		* @return is the result of the multiplication.
+		*/
+		const ILVector2n& operator*=(const ILVector2n &element);
+
+		// OTHER METHODS
+
+		/**
+		* Adds one to every entry of the ILVector2n.
+		*/
+		void AddILElementOne();
+
+		/**
+		* Performs an automorphism transform operation and returns the result.
+		*
+		* @param &i is the element to perform the automorphism transform with.
+		* @return is the result of the automorphism transform.
+		*/
+		ILVector2n AutomorphismTransform(const usint &i) const;
+
+		/**
+		* Performs a multiplicative inverse operation and returns the result.
+		*
+		* @return is the result of the multiplicative inverse.
+		*/
+		ILVector2n MultiplicativeInverse() const;
 
 		/**
 		* Perform a modulus by 2 operation.  Returns the least significant bit.
@@ -415,14 +472,23 @@ namespace lbcrypto {
 		ILVector2n ModByTwo() const;
 
 		/**
-		* Prints values of each tower
+		* Switch modulus and adjust the values
+		*
+		* @param &modulus is the modulus to be set.
+		* @param &rootOfUnity is the corresponding root of unity for the modulus
+		* ASSUMPTION: This method assumes that the caller provides the correct rootOfUnity for the modulus.
 		*/
-		void PrintValues() const;
+		void SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity);
 
 		/**
-		* Adds one to every entry of the ILVector2n.
+		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
 		*/
-		void AddILElementOne();
+		void SwitchFormat();
+
+		/**
+		* Prints values of the ILVector2n.
+		*/
+		void PrintValues() const;
 
 		/**
 		* Make ILVectorArray2n Sparse for SHE KeyGen operations. Sets every index not equal to zero mod the wFactor to zero.
@@ -440,8 +506,7 @@ namespace lbcrypto {
 		* Returns true if the vector is empty/ m_values==NULL  
 		*/
 		bool IsEmpty() const;
-		// VECTOR OPERATIONS
-
+		
 		/**
 		* Determines if inverse exists
 		*
@@ -456,61 +521,6 @@ namespace lbcrypto {
 		*/
 		double Norm() const;
 
-		// addition operation - PREV1
-		/**
-		* Performs an addition operation and returns the result.
-		*
-		* @param &element is the element to add with.
-		* @return is the result of the addition.
-		*/
-		ILVector2n Plus(const ILVector2n &element) const;
-
-		/**
-		* Performs an addition operation and returns the result.
-		*
-		* @param &element is the element to add with.
-		* @return is the result of the addition.
-		*/
-		const ILVector2n& operator+=(const ILVector2n &element);
-
-		// subtraction operation
-		/**
-		* Performs a subtraction operation and returns the result.
-		*
-		* @param &element is the element to subtract with.
-		* @return is the result of the subtraction.
-		*/
-		ILVector2n Minus(const ILVector2n &element) const;
-
-		// multiplication operation - PREV1
-		/**
-		* Performs a multiplication operation and returns the result.
-		*
-		* @param &element is the element to multiply with.
-		* @return is the result of the multiplication.
-		*/
-		ILVector2n Times(const ILVector2n &element) const;
-
-		// automorphism operation
-		/**
-		* Performs an automorphism transform operation and returns the result.
-		*
-		* @param &i is the element to perform the automorphism transform with.
-		* @return is the result of the automorphism transform.
-		*/
-		ILVector2n AutomorphismTransform(const usint &i) const;
-
-		// multiplicative inverse operation
-		/**
-		* Performs a multiplicative inverse operation and returns the result.
-		*
-		* @return is the result of the multiplicative inverse.
-		*/
-		ILVector2n MultiplicativeInverse() const;
-
-		// OTHER METHODS
-
-		// rounds polynomial to a certain integer x
 		/**
 		* Rounds the polynomial to an input integer.
 		*
@@ -519,13 +529,6 @@ namespace lbcrypto {
 		*/
 		ILVector2n Round(const BigBinaryInteger& x) const;
 
-		// convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT
-		/**
-		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
-		*/
-		void SwitchFormat();
-
-        
 		// get digit for a specific based - used for PRE scheme
 		/**
 		* Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  Used in bit decomposition/relinearization operations.
@@ -535,6 +538,25 @@ namespace lbcrypto {
 		* @return is the result.
 		*/
 		ILVector2n GetDigitAtIndexForBase(usint index, usint base) const;
+
+		/**
+		* Write vector x (current value of the ILVector2n object) as \sum\limits{i=0}^{\lfloor {\log q/base} \rfloor} {(base^i u_i)} and 
+		* return the vector of {u_0, u_1,...,u_{\lfloor {\log q/base} \rfloor}} \in R_base^{\lceil {\log q/base} \rceil};
+		* used as a subroutine in the relinearization procedure
+		*
+		* @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
+		* @result is the pointer where the base decomposition vector is stored
+		*/
+		void BaseDecompose(usint baseBits, std::vector<ILVector2n> *result) const;
+
+		/**
+		* Generate a vector of ILVector2n's as {x, base*x, base^2*x, ..., base^{\lfloor {\log q/base} \rfloor}*x, where x is the current ILVector2n object;
+		* used as a subroutine in the relinearization procedure to get powers of a certain "base" for the secret key element
+		*
+		* @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
+		* @result is the pointer where the base decomposition vector is stored
+		*/
+		void PowersOfBase(usint baseBits, std::vector<ILVector2n> *result) const;
 
 		/**
 		* Shift entries in the vector left a specific number of entries.
@@ -560,7 +582,6 @@ namespace lbcrypto {
 				std::cout << m_dggSamples[i].GetValues() << std::endl;
 		}
 
-		// computes the samples
 		/**
 		* Pre computes the Dgg samples.
 		*
@@ -597,8 +618,7 @@ namespace lbcrypto {
 		// stores either coefficient or evaluation representation
 		BigBinaryVector *m_values;
 
-		//TODO-nishanth: Isn't it 1 for coefficient and 0 for evaluation ??
-		// 0 for coefficient and 1 for evaluation format
+		// 1 for coefficient and 0 for evaluation format
 		Format m_format;
 
 		// noise norm associated with this vector - to be defined later
@@ -617,11 +637,9 @@ namespace lbcrypto {
 
 		// gets a random discrete Gaussian polynomial
 		static const ILVector2n GetPrecomputedVector(const ILParams &params);
-
 	};
 
 	// overloaded operators for ILVector2n
-	//PREV1
 
 	/**
 	* Addition operator overload.  Performs an addition in the ring.
@@ -631,7 +649,7 @@ namespace lbcrypto {
 	*
 	* @return The result of addition in the ring.
 	*/
-	inline lbcrypto::ILVector2n operator+(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) { return a.Plus(b); }
+	inline ILVector2n operator+(const ILVector2n &a, const BigBinaryInteger &b) { return a.Plus(b); }
 
 	/**
 	* Subtraction operator overload.  Performs a subtraction in the ring.
@@ -641,7 +659,7 @@ namespace lbcrypto {
 	*
 	* @return The result of subtraction in the ring.
 	*/
-	inline lbcrypto::ILVector2n operator-(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) { return a.Minus(b); }
+	inline ILVector2n operator-(const ILVector2n &a, const BigBinaryInteger &b) { return a.Minus(b); }
 	//PREV1
 
 	/**
@@ -652,18 +670,7 @@ namespace lbcrypto {
 	*
 	* @return The result of multiplication in the ring.
 	*/
-	inline lbcrypto::ILVector2n operator*(const lbcrypto::BigBinaryInteger &b, const lbcrypto::ILVector2n &a) { return a.Times(b); }
-
-	/**
-	* Division operator overload.  Performs an division in the ring.
-	*
-	* @param &a the first parameter.
-	* @param &b the first parameter.
-	*
-	* @return The result of division in the ring.
-	*/
-	// inline lbcrypto::ILVector2n operator/(const lbcrypto::ILVector2n &a, const lbcrypto::BigBinaryInteger &b) { return a.DividedBy(b); }
-	//PREV1
+	inline ILVector2n operator*(const BigBinaryInteger &b, const ILVector2n &a) { return a.Times(b); }
 
 	/**
 	* Addition operator overload.  Performs an addition in the ring.
@@ -673,7 +680,7 @@ namespace lbcrypto {
 	*
 	* @return The result of addition in the ring.
 	*/
-	inline lbcrypto::ILVector2n operator+(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) { return a.Plus(b); }
+	inline ILVector2n operator+(const ILVector2n &a, const ILVector2n &b) { return a.Plus(b); }
 
 	/**
 	* Subtraction operator overload.  Performs a subtraction in the ring.
@@ -683,7 +690,7 @@ namespace lbcrypto {
 	*
 	* @return The result of subtraction in the ring.
 	*/
-	inline lbcrypto::ILVector2n operator-(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) { return a.Minus(b); }
+	inline ILVector2n operator-(const ILVector2n &a, const ILVector2n &b) { return a.Minus(b); }
 
 	//PREV1
 
@@ -695,7 +702,7 @@ namespace lbcrypto {
 	*
 	* @return The result of multiplication in the ring.
 	*/
-	inline lbcrypto::ILVector2n operator*(const lbcrypto::ILVector2n &a, const lbcrypto::ILVector2n &b) { return a.Times(b); }
+	inline ILVector2n operator*(const ILVector2n &a, const ILVector2n &b) { return a.Times(b); }
 
     inline std::ostream& operator<<(std::ostream& os, const ILVector2n& vec){
         os << vec.GetValues();
