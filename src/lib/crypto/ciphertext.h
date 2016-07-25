@@ -71,7 +71,7 @@ namespace lbcrypto {
 		/**
 		 * Default constructor
 		 */
-		Ciphertext() : m_cryptoParameters(NULL), m_publicKey(NULL), m_encryptionAlgorithm(NULL), m_norm(BigBinaryInteger::ZERO) {}
+		Ciphertext() : m_cryptoParameters(NULL), m_encryptionAlgorithm(NULL), m_norm(BigBinaryInteger::ZERO) {}
 
 		/**
 		* Copy constructor
@@ -109,12 +109,6 @@ namespace lbcrypto {
 		* @return the crypto parameters.
 		*/
 		const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
-
-		/**
-		* Get a reference to public key.
-		* @return the public key.
-		*/
-		const LPPublicKey<Element> &GetPublicKey() const { return *m_publicKey; }
 
 		/**
 		* Get a reference to the encryption algorithm.
@@ -156,13 +150,6 @@ namespace lbcrypto {
 		*/
 		// FIXME: the comment above is wrong; added const cast here (gwr)
 		void SetCryptoParameters(const LPCryptoParameters<Element> *cryptoParameters) { m_cryptoParameters = cryptoParameters; }
-
-		/**
-		* Sets a reference to public key.
-		*
-		* @param &publicKey is public key passed by reference.
-		*/
-		void SetPublicKey(const LPPublicKey<Element> &publicKey) { m_publicKey = &publicKey; }
 
 		/**
 		* Sets a reference to algorithm.
@@ -234,9 +221,6 @@ namespace lbcrypto {
 
 		//pointer to crypto parameters
 		const LPCryptoParameters<Element> *m_cryptoParameters;
-
-		//pointer to public key
-		const LPPublicKey<Element> *m_publicKey;
 
 		//pointer to algorithm
 		const LPPublicKeyEncryptionScheme<Element> *m_encryptionAlgorithm;

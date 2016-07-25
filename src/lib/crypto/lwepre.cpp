@@ -132,7 +132,6 @@ void LPAlgorithmPRELTV<Element>::ReEncrypt(const LPEvalKey<Element> &evalKey,
 
 	*newCiphertext = ciphertext;
 	newCiphertext->SetElement(ct);
-	newCiphertext->SetPublicKey(evalKey.GetPublicKey());
 
 }
 

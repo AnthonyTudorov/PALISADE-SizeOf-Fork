@@ -34,7 +34,6 @@ namespace lbcrypto {
 	template <class Element>
 	Ciphertext<Element>::Ciphertext(const Ciphertext<Element> &ciphertext) {
 		m_cryptoParameters = ciphertext.m_cryptoParameters;
-		m_publicKey = ciphertext.m_publicKey;
 		m_encryptionAlgorithm = ciphertext.m_encryptionAlgorithm;
 		m_norm = ciphertext.m_norm;
 		m_elements = ciphertext.m_elements;
@@ -44,7 +43,6 @@ namespace lbcrypto {
 	template <class Element>
 	Ciphertext<Element>::Ciphertext(Ciphertext<Element> &&ciphertext) {
 		m_cryptoParameters = ciphertext.m_cryptoParameters;
-		m_publicKey = ciphertext.m_publicKey;
 		m_encryptionAlgorithm = ciphertext.m_encryptionAlgorithm;
 		m_norm = ciphertext.m_norm;
 		m_elements = ciphertext.m_elements;
@@ -56,7 +54,6 @@ namespace lbcrypto {
 	{
 		if (this != &rhs) {
 			this->m_cryptoParameters = rhs.m_cryptoParameters;
-			this->m_publicKey = rhs.m_publicKey;
 			this->m_encryptionAlgorithm = rhs.m_encryptionAlgorithm;
 			this->m_norm = rhs.m_norm;
 			this->m_elements = rhs.m_elements;
@@ -71,7 +68,6 @@ namespace lbcrypto {
 	{
 		if (this != &rhs) {
 			this->m_cryptoParameters = rhs.m_cryptoParameters;
-			this->m_publicKey = rhs.m_publicKey;
 			this->m_encryptionAlgorithm = rhs.m_encryptionAlgorithm;
 			this->m_norm = rhs.m_norm;
 			this->m_elements = rhs.m_elements;
