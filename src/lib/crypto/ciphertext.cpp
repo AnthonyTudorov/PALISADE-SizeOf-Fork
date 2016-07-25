@@ -178,26 +178,24 @@ namespace lbcrypto {
 		if( elVec == serObj.MemberEnd() )
 			return false;
 
-//		SerialItem::ConstMemberIterator pIt = iMap->value.FindMember("ILParams");
-//		if( pIt == iMap->value.MemberEnd() ) return false;
-//
-//		Serialized parm(rapidjson::kObjectType);
-//		parm.AddMember(SerialItem(pIt->name,parm.GetAllocator()), SerialItem(pIt->value,parm.GetAllocator()), parm.GetAllocator());
-//
-//		ILParams json_ilParams;
-
 		for( int i=0; i<nElements; i++ ) {
 			SerialItem::ConstMemberIterator elIter = elVec->value.FindMember( std::to_string(i) );
-			if( elIter == elVec->value.MemberEnd() )
+			if( elIter == elVec->value.MemberEnd() ) {
 				return false;
+			}
+
+			Serialized::ConstMemberIterator findEl = elIter->value.FindMember( "ILVector2n" );
+			if( findEl == elIter->value.MemberEnd() ) {
+				return false;
+			}
 
 			Serialized el(rapidjson::kObjectType);
-			el.AddMember(SerialItem(elIter->name,el.GetAllocator()), SerialItem(elIter->value,el.GetAllocator()), el.GetAllocator());
+			el.AddMember("ILVector2n", SerialItem(findEl->value,el.GetAllocator()), el.GetAllocator());
 			Element json_ilElement;
 			if( !json_ilElement.Deserialize( el ) )
 				return false;
 
-			elements.push_back(json_ilElement);
+			elements[i] = json_ilElement;
 		}
 
 		this->SetCryptoParameters(cryptoParams);
