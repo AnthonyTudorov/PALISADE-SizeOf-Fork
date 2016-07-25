@@ -64,10 +64,10 @@ using namespace std;
 using namespace lbcrypto;
 
 // A new one of these is created for each test
-class UnitTestSHE2 : public testing::Test
+class UnitTestSHEAdvanced : public testing::Test
 {
 public:
-	UnitTestSHE2() {}
+	UnitTestSHEAdvanced() {}
 	/*Ciphertext<ILVector2n> cipher1_single_crt;
 	Ciphertext<ILVector2n> cipher2_single_crt;
 
@@ -202,13 +202,10 @@ public:
 	}
 };
 
-
-
-
 /*Testing EvalAdd for both ILVector2n and ILVectorArray2n
 * EvalAdd is tested in both coefficient and evaluation domains
 */
-TEST(UnitTestSHE2, test_eval_add) {
+TEST_F(UnitTestSHEAdvanced, test_eval_add) {
 	//parameter setup
 	usint m = 16;
 	Ciphertext<ILVector2n> cipher1_single_crt;
@@ -412,9 +409,22 @@ TEST(UnitTestSHE2, test_eval_add) {
 	algorithm_dcrt.EvalAdd(cipher1_dcrt, cipher2_dcrt, &cipher_dcrt_results);
 
 	EXPECT_EQ(cipher_dcrt_results.GetElement(), ilv_dcrt_expectedResults);
+
+	//This should throw an error for the parameters not being the same for one the multiplied parties
+	LPCryptoParametersLTV<ILVector2n> badCryptoParams(cryptoParams);
+	badCryptoParams.SetElementParams(ilParams2);
+	cipher1_single_crt.SetCryptoParameters(&badCryptoParams);
+	EXPECT_ANY_THROW(algorithm.EvalAdd(cipher1_single_crt, cipher2_single_crt, &resultsILVector2n));
+
+	//This test case should fail because the ciphertext results has different parameters
+	cipher1_single_crt.SetCryptoParameters(&cryptoParams);
+	resultsILVector2n.SetCryptoParameters(&badCryptoParams);
+	EXPECT_ANY_THROW(algorithm.EvalAdd(cipher1_single_crt, cipher2_single_crt, &resultsILVector2n));
+
+	
 }
 
-TEST(UnitTestSHE2, test_eval_mult) {
+TEST_F(UnitTestSHEAdvanced, test_eval_mult) {
 	//parameter setup
 	usint m = 16;
 	Ciphertext<ILVector2n> cipher1_single_crt;
@@ -451,7 +461,7 @@ TEST(UnitTestSHE2, test_eval_mult) {
 	bbv1.SetValAtIndex(5, "1");
 	bbv1.SetValAtIndex(6, "0");
 	bbv1.SetValAtIndex(7, "6");
-	ilv_single_crt1_dcrt1.SetValues(bbv1, Format::COEFFICIENT);
+	ilv_single_crt1_dcrt1.SetValues(bbv1, Format::EVALUATION);
 
 	ILVector2n ilv_single_crt2(ilParams1);
 	BigBinaryVector bbv2(m / 2, ilParams1.GetModulus());
@@ -463,11 +473,11 @@ TEST(UnitTestSHE2, test_eval_mult) {
 	bbv2.SetValAtIndex(5, "32");
 	bbv2.SetValAtIndex(6, "1");
 	bbv2.SetValAtIndex(7, "0");
-	ilv_single_crt2.SetValues(bbv2, Format::COEFFICIENT);
+	ilv_single_crt2.SetValues(bbv2, Format::EVALUATION);
 
 	ILVector2n ilv_dcrt2(ilParams2);
 	bbv2.SetModulus(ilParams2.GetModulus());
-	ilv_dcrt2.SetValues(bbv2, Format::COEFFICIENT);
+	ilv_dcrt2.SetValues(bbv2, Format::EVALUATION);
 	ilvectors_dcrt_vector_1.reserve(2);
 	ilvectors_dcrt_vector_1.push_back(ilv_single_crt1_dcrt1);
 	ilvectors_dcrt_vector_1.push_back(ilv_dcrt2);
@@ -486,7 +496,7 @@ TEST(UnitTestSHE2, test_eval_mult) {
 	bbv3.SetValAtIndex(5, "100");
 	bbv3.SetValAtIndex(6, "0");
 	bbv3.SetValAtIndex(7, "1");
-	ilv_dcrt3.SetValues(bbv3, Format::COEFFICIENT);
+	ilv_dcrt3.SetValues(bbv3, Format::EVALUATION);
 
 	ILVector2n ilv_dcrt4(ilParams2);
 	BigBinaryVector bbv4(m / 2, ilParams2.GetModulus());
@@ -498,7 +508,7 @@ TEST(UnitTestSHE2, test_eval_mult) {
 	bbv4.SetValAtIndex(5, "17729");
 	bbv4.SetValAtIndex(6, "3");
 	bbv4.SetValAtIndex(7, "0");
-	ilv_dcrt4.SetValues(bbv4, Format::COEFFICIENT);
+	ilv_dcrt4.SetValues(bbv4, Format::EVALUATION);
 
 	ilvectors_dcrt_vector_2.reserve(2);
 	ilvectors_dcrt_vector_2.push_back(ilv_dcrt3);
@@ -552,7 +562,7 @@ TEST(UnitTestSHE2, test_eval_mult) {
 	size_t chunksize = ((m / 2) / 8);
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
 	algorithm.Enable(SHE);
-	algorithm.EvalAdd(cipher1_single_crt, cipher2_single_crt, &resultsILVector2n);
+	algorithm.EvalMult(cipher1_single_crt, cipher2_single_crt, &resultsILVector2n);
 
 	ILVector2n resultsIlv(cipher1_single_crt.GetElement());
 	BigBinaryVector bbvResults(m / 2, cipher1_single_crt.GetElement().GetModulus());
@@ -564,46 +574,35 @@ TEST(UnitTestSHE2, test_eval_mult) {
 	bbvResults.SetValAtIndex(5, "32");
 	bbvResults.SetValAtIndex(6, "0");
 	bbvResults.SetValAtIndex(7, "0");
-	resultsIlv.SetValues(bbvResults, Format::COEFFICIENT);
+	resultsIlv.SetValues(bbvResults, Format::EVALUATION);
 
-	EXPECT_EQ(resultsILVector2n.GetElement(), resultsIlv);
-	EXPECT_EQ(resultsILVector2n.GetElement().GetFormat(), Format::COEFFICIENT);
-
-	//Testing eval_add in Evaluation format for ILVector2n
-	ilvectors_single_crt_vector[0].SwitchFormat();
-	cipher1_single_crt.SetElement(ilvectors_single_crt_vector[0]);
-	ilvectors_single_crt_vector[1].SwitchFormat();
-	cipher2_single_crt.SetElement(ilvectors_single_crt_vector[1]);
-	resultsIlv.SwitchFormat();
-
-	algorithm.EvalAdd(cipher1_single_crt, cipher2_single_crt, &resultsILVector2n);
 	EXPECT_EQ(resultsILVector2n.GetElement(), resultsIlv);
 	EXPECT_EQ(resultsILVector2n.GetElement().GetFormat(), Format::EVALUATION);
 
 	//Creating ILVectorArray2n Ciphertext with expected results for EvalAdd
 	ILVector2n ilv_dcrt_results_1(ilParams1); // Used for both single and double crt
 	BigBinaryVector bbv_dcrt_results_1(m / 2, ilParams1.GetModulus());
-	bbv_dcrt_results_1.SetValAtIndex(0, "5");
-	bbv_dcrt_results_1.SetValAtIndex(1, "3594");
-	bbv_dcrt_results_1.SetValAtIndex(2, "11");
+	bbv_dcrt_results_1.SetValAtIndex(0, "4");
+	bbv_dcrt_results_1.SetValAtIndex(1, "0");
+	bbv_dcrt_results_1.SetValAtIndex(2, "18");
 	bbv_dcrt_results_1.SetValAtIndex(3, "0");
-	bbv_dcrt_results_1.SetValAtIndex(4, "6876");
-	bbv_dcrt_results_1.SetValAtIndex(5, "101");
+	bbv_dcrt_results_1.SetValAtIndex(4, "16760");
+	bbv_dcrt_results_1.SetValAtIndex(5, "100");
 	bbv_dcrt_results_1.SetValAtIndex(6, "0");
-	bbv_dcrt_results_1.SetValAtIndex(7, "7");
-	ilv_dcrt_results_1.SetValues(bbv_dcrt_results_1, Format::COEFFICIENT);
+	bbv_dcrt_results_1.SetValAtIndex(7, "6");
+	ilv_dcrt_results_1.SetValues(bbv_dcrt_results_1, Format::EVALUATION);
 
 	ILVector2n ilv_dcrt_results_2(ilParams2);
 	BigBinaryVector bbv_dcrt_results_2(m / 2, ilParams2.GetModulus());
-	bbv_dcrt_results_2.SetValAtIndex(0, "1");
-	bbv_dcrt_results_2.SetValAtIndex(1, "4");
+	bbv_dcrt_results_2.SetValAtIndex(0, "0");
+	bbv_dcrt_results_2.SetValAtIndex(1, "3");
 	bbv_dcrt_results_2.SetValAtIndex(2, "4");
 	bbv_dcrt_results_2.SetValAtIndex(3, "0");
-	bbv_dcrt_results_2.SetValAtIndex(4, "17731");
-	bbv_dcrt_results_2.SetValAtIndex(5, "0");
-	bbv_dcrt_results_2.SetValAtIndex(6, "4");
+	bbv_dcrt_results_2.SetValAtIndex(4, "17730");
+	bbv_dcrt_results_2.SetValAtIndex(5, "16737");
+	bbv_dcrt_results_2.SetValAtIndex(6, "3");
 	bbv_dcrt_results_2.SetValAtIndex(7, "0");
-	ilv_dcrt_results_2.SetValues(bbv_dcrt_results_2, Format::COEFFICIENT);
+	ilv_dcrt_results_2.SetValues(bbv_dcrt_results_2, Format::EVALUATION);
 
 	vector<ILVector2n> ilv_dcrt_results_vector;
 	ilv_dcrt_results_vector.reserve(2);
@@ -615,16 +614,37 @@ TEST(UnitTestSHE2, test_eval_mult) {
 
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm_dcrt(chunksize);
 	algorithm_dcrt.Enable(SHE);
-	algorithm_dcrt.EvalAdd(cipher1_dcrt, cipher2_dcrt, &cipher_dcrt_results);
+	algorithm_dcrt.EvalMult(cipher1_dcrt, cipher2_dcrt, &cipher_dcrt_results);
 
 	EXPECT_EQ(cipher_dcrt_results.GetElement(), ilv_dcrt_expectedResults);
+
+	//NEGATIVE TEST CASES
+
+	//This should throw an error for the parameters not being the same for one the multiplied parties
+	LPCryptoParametersLTV<ILVector2n> badCryptoParams(cryptoParams);
+	badCryptoParams.SetElementParams(ilParams2);
+	cipher1_single_crt.SetCryptoParameters(&badCryptoParams);
+	EXPECT_ANY_THROW(algorithm.EvalMult(cipher1_single_crt, cipher2_single_crt, &resultsILVector2n));
+
+	//This test case should fail because the ciphertext results has different parameters
+	cipher1_single_crt.SetCryptoParameters(&cryptoParams);
+	resultsILVector2n.SetCryptoParameters(&badCryptoParams);
+	EXPECT_ANY_THROW(algorithm.EvalMult(cipher1_single_crt, cipher2_single_crt, &resultsILVector2n));
+
+	//This should throw an error since the format is not in Coefficient
+	resultsILVector2n.SetCryptoParameters(&cryptoParams);
+	ilv_single_crt1_dcrt1.SwitchFormat();
+	ilv_dcrt3.SwitchFormat();
+	cipher1_single_crt.SetElement(ilv_single_crt1_dcrt1);
+	cipher2_single_crt.SetElement(ilv_dcrt3);
+	EXPECT_ANY_THROW(algorithm.EvalMult(cipher1_single_crt, cipher2_single_crt, &resultsILVector2n));
 }
 
 
 /*Testing EvalAdd for both ILVector2n and ILVectorArray2n
 * EvalAdd is tested in both coefficient and evaluation domains
 */
-TEST(UnitTestSHE2, test_composed_eval_mult) {
+TEST_F(UnitTestSHEAdvanced, test_composed_eval_mult) {
 	//usint init_m = 16;
 
 	//float init_stdDev = 4;
