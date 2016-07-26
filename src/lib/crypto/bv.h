@@ -47,6 +47,8 @@
 #include "../lattice/ilparams.h"
 #include "../lattice/ilelement.h"
 
+#include "rlwe.h"
+
 /**
  * @namespace lbcrypto
  * The namespace of lbcrypto
@@ -58,36 +60,19 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPCryptoParametersBV : public LPCryptoParametersImpl<Element> {
+	class LPCryptoParametersBV : public LPCryptoParametersRLWE<Element> {
 		public:
 			
 			/**
 			 * Constructor that initializes all values to 0.
 			 */
-			LPCryptoParametersBV() : LPCryptoParametersImpl<Element>() {
-				//m_params = new ElementParams();commented out by Gyana
-				//m_plaintextModulus = new BigBinaryInteger();commented out by Gyana 
-				m_distributionParameter = 0.0f;
-				m_assuranceMeasure = 0.0f;
-				m_securityLevel = 0.0f;
-				m_relinWindow = 1;
-				m_dgg = DiscreteGaussianGenerator();
-				m_depth = 0;
-			}
+			LPCryptoParametersBV() : LPCryptoParametersRLWE<Element>() {}
 
 			/**
 			 * Copy constructor.
 			 *
 			 */
-			LPCryptoParametersBV(const LPCryptoParametersBV &rhs) : LPCryptoParametersImpl<Element>(NULL, rhs.GetPlaintextModulus()) {
-
-				m_distributionParameter = rhs.m_distributionParameter;
-				m_assuranceMeasure = rhs.m_assuranceMeasure;
-				m_securityLevel = rhs.m_securityLevel;
-				m_relinWindow = rhs.m_relinWindow;
-				m_dgg = rhs.m_dgg;
-				m_depth = rhs.m_depth;
-			}
+			LPCryptoParametersBV(const LPCryptoParametersBV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {}
 
 			/**
 			 * Constructor that initializes values.
@@ -107,126 +92,21 @@ namespace lbcrypto {
 				float securityLevel, 
 				usint relinWindow,
 				const DiscreteGaussianGenerator &dgg,
-				int depth = 1) : LPCryptoParametersImpl<Element>(params,plaintextModulus)
-			{
-				m_distributionParameter = distributionParameter;
-				m_assuranceMeasure = assuranceMeasure;
-				m_securityLevel = securityLevel;
-				m_relinWindow = relinWindow;
-				m_dgg = dgg;
-				m_depth = depth;
-			}
+				int depth = 1)
+					: LPCryptoParametersRLWE<Element>(params,
+						plaintextModulus,
+						distributionParameter,
+						assuranceMeasure,
+						securityLevel,
+						relinWindow,
+						dgg,
+						depth) {}
 
 			/**
 			* Destructor
 			*/
-			virtual ~LPCryptoParametersBV() {
-			}
+			virtual ~LPCryptoParametersBV() {}
 			
-			/**
-			 * Initialization methods.
-			 *
-			 * @param &params element parameters.
-			 * @param &plaintextModulus plaintext modulus.
-			 * @param distributionParameter noise distribution parameter.
-			 * @param assuranceMeasure assurance level.
-			 * @param securityLevel security level.
-			 * @param relinWindow the size of the relinearization window.
-			 * @param depth depth which is set to 1.
-			 */
-			void Initialize(ElemParams *params,
-				const BigBinaryInteger &plaintextModulus,  
-				float distributionParameter, 
-				float assuranceMeasure, 
-				float securityLevel, 
-				usint relinWindow,
-				const DiscreteGaussianGenerator &dgg,
-				int depth = 1)
-			{
-				this->SetElementParams(params);
-				this->SetPlaintextModulus(plaintextModulus);
-				m_distributionParameter = distributionParameter;
-				m_assuranceMeasure = assuranceMeasure;
-				m_securityLevel = securityLevel;
-				m_relinWindow = relinWindow;
-				m_dgg = dgg;
-				m_depth = depth;
-			}
-			
-			/**
-			 * Returns the value of standard deviation r for discrete Gaussian distribution
-			 *
-			 * @return the standard deviation r.
-			 */
-			float GetDistributionParameter() const {return m_distributionParameter;}
-			
-			/**
-			 * Returns the values of assurance measure alpha
-			 *
-			 * @return the assurance measure.
-			 */
-			float GetAssuranceMeasure() const {return m_assuranceMeasure;}
-			
-			/**
-			 * Returns the value of root Hermite factor security level /delta.
-			 *
-			 * @return the root Hermite factor /delta.
-			 */
-			float GetSecurityLevel() const {return m_securityLevel;}
-
-			/**
-			* Returns the value of relinearization window.
-			*
-			* @return the relinearization window.
-			*/
-			usint GetRelinWindow() const { return m_relinWindow; }
-			
-			/**
-			 * Returns the value of computation depth d
-			 *
-			 * @return the computation depth supported d.
-			 */
-			int GetDepth() const {return m_depth;}
-
-			/**
-			 * Returns reference to Discrete Gaussian Generator
-			 *
-			 * @return reference to Discrete Gaussian Generaror.
-			 */
-			const DiscreteGaussianGenerator &GetDiscreteGaussianGenerator() const {return m_dgg;}
-
-			//@Set Properties
-			
-			/**
-			 * Sets the value of standard deviation r for discrete Gaussian distribution
-			 */
-			void SetDistributionParameter(float distributionParameter) {m_distributionParameter = distributionParameter;}
-			
-			/**
-			 * Sets the values of assurance measure alpha
-			 */
-			void SetAssuranceMeasure(float assuranceMeasure) {m_assuranceMeasure = assuranceMeasure;}
-			
-			/**
-			 * Sets the value of security level /delta
-			 */
-			void SetSecurityLevel(float securityLevel) {m_securityLevel = securityLevel;}
-
-			/**
-			* Sets the value of relinearization window
-			*/
-			void SetRelinWindow(usint relinWindow) { m_relinWindow = relinWindow; }
-			
-			/**
-			 * Sets the value of supported computation depth d
-			 */
-			void SetDepth(int depth) {m_depth = depth;}
-
-			/**
-			 * Sets the discrete Gaussian Generator
-			 */
-			void SetDiscreteGaussianGenerator(const DiscreteGaussianGenerator &dgg) {m_dgg = dgg;}
-
 			//JSON FACILITY
 			/**
 			* Serialize the object into a Serialized
@@ -234,15 +114,32 @@ namespace lbcrypto {
 			* @param fileFlag is an object-specific parameter for the serialization
 			* @return true if successfully serialized
 			*/
-			bool Serialize(Serialized* serObj, const std::string fileFlag = "") const { return true;  };
+			bool Serialize(Serialized* serObj, const std::string fileFlag = "") const {
+				if( !serObj->IsObject() )
+					return false;
+
+				SerialItem cryptoParamsMap(rapidjson::kObjectType);
+				if( this->SerializeRLWE(serObj, cryptoParamsMap, fileFlag) == false )
+					return false;
+
+				serObj->AddMember("LPCryptoParametersBV", cryptoParamsMap, serObj->GetAllocator());
+				serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBV", serObj->GetAllocator());
+
+				return true;
+			}
 
 			/**
 			* Populate the object from the deserialization of the Setialized
 			* @param serObj contains the serialized object
 			* @return true on success
 			*/
-			bool Deserialize(const Serialized& serObj) { return true;  };
-			
+			bool Deserialize(const Serialized& serObj) {
+				Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersBV");
+				if( mIter == serObj.MemberEnd() ) return false;
+
+				return this->DeserializeRLWE(mIter);
+			}
+
 			
 			/**
 			* == operator to compare to this instance of LPCryptoParametersLTV object. 
@@ -250,29 +147,12 @@ namespace lbcrypto {
 			* @param &rhs LPCryptoParameters to check equality against.
 			*/
 			bool operator==(const LPCryptoParameters<Element> &rhs) const {
-				const LPCryptoParametersBV<Element> &el = dynamic_cast<const LPCryptoParametersBV<Element> &>(rhs);
+				const LPCryptoParametersBV<Element> *el = dynamic_cast<const LPCryptoParametersBV<Element> *>(&rhs);
 
-				return  this->GetPlaintextModulus() == el.GetPlaintextModulus() &&
-						this->GetElementParams() == el.GetElementParams() &&
-						m_distributionParameter == el.GetDistributionParameter() &&
-						m_assuranceMeasure == el.GetAssuranceMeasure() &&
-						m_securityLevel == el.GetSecurityLevel() &&
-						m_relinWindow == el.GetRelinWindow();
+				if( el == 0 ) return false;
+
+				return  LPCryptoParametersRLWE<Element>::operator==(rhs);
 			}
-
-		private:
-			//standard deviation in Discrete Gaussian Distribution
-			float m_distributionParameter;
-			//assurance measure alpha
-			float m_assuranceMeasure;
-			//root Hermite value /delta
-			float m_securityLevel;
-			//relinearization window
-			usint m_relinWindow;
-			//depth of computations; used for FHE
-			int m_depth;
-			//Discrete Gaussian Generator
-			DiscreteGaussianGenerator m_dgg;
 	};
 
 	/**
