@@ -472,6 +472,14 @@ namespace lbcrypto {
 		ILVector2n ModByTwo() const;
 
 		/**
+		* Modulus - perform a modulus operation. Does proper mapping of [-modulus/2, modulus/2) to [0, modulus)
+		*
+		* @param modulus is the modulus to use.
+		* @return is the return value of the modulus.
+		*/
+		ILVector2n SignedMod(const BigBinaryInteger &modulus) const;
+
+		/**
 		* Switch modulus and adjust the values
 		*
 		* @param &modulus is the modulus to be set.

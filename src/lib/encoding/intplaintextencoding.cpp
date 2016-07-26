@@ -36,13 +36,53 @@
 
 namespace lbcrypto {
 
-void IntPlaintextEncoding::Encode(const BigBinaryInteger&, ILVectorArray2n*, size_t, size_t) const{
-	throw std::logic_error("Operation not implemented");
+void IntPlaintextEncoding::Encode(const BigBinaryInteger& modulus, ILVectorArray2n *element, size_t startFrom, size_t length) const{
+	//TODO - OPTIMIZE CODE. Please take a look at line 114 temp.SetModulus
+	ILVector2n encodedSingleCrt = element->GetElementAtIndex(0);
+
+	Encode(modulus, &encodedSingleCrt, startFrom, length);
+	BigBinaryVector tempBBV(encodedSingleCrt.GetValues());
+
+	std::vector<ILVector2n> encodeValues;
+	encodeValues.reserve(element->GetNumOfElements());
+
+	for (usint i = 0; i<element->GetNumOfElements(); i++) {
+		ILParams ilparams(element->GetElementAtIndex(i).GetCyclotomicOrder(), element->GetElementAtIndex(i).GetModulus(), element->GetElementAtIndex(i).GetRootOfUnity());
+		ILVector2n temp(ilparams);
+		tempBBV = encodedSingleCrt.GetValues();
+		tempBBV.SetModulus(ilparams.GetModulus());
+		temp.SetValues(tempBBV, encodedSingleCrt.GetFormat());
+		temp.SignedMod(ilparams.GetModulus());
+		encodeValues.push_back(temp);
+	}
+
+	ILVectorArray2n elementNew(encodeValues);
+	*element = elementNew;
+
 }
 
 
-void IntPlaintextEncoding::Decode(const BigBinaryInteger&, ILVectorArray2n&){
-	throw std::logic_error("Operation not implemented");
+void IntPlaintextEncoding::Decode(const BigBinaryInteger& modulus, ILVectorArray2n &ilVectorArray2n){
+	ILVector2n interpolatedDecodedValue = ilVectorArray2n.InterpolateIlArrayVector2n();
+	Decode(modulus, interpolatedDecodedValue);
+	BigBinaryVector tempBBV(interpolatedDecodedValue.GetValues());
+
+
+	std::vector<ILVector2n> encodeValues;
+	encodeValues.reserve(ilVectorArray2n.GetNumOfElements());
+
+	for (usint i = 0; i<ilVectorArray2n.GetNumOfElements(); i++) {
+		ILParams ilparams(ilVectorArray2n.GetElementAtIndex(i).GetCyclotomicOrder(), ilVectorArray2n.GetElementAtIndex(i).GetModulus(), ilVectorArray2n.GetElementAtIndex(i).GetRootOfUnity());
+		ILVector2n temp(ilparams);
+		tempBBV = interpolatedDecodedValue.GetValues();
+		tempBBV.SetModulus(ilparams.GetModulus());
+		temp.SetValues(tempBBV, interpolatedDecodedValue.GetFormat());
+		temp.SignedMod(ilparams.GetModulus());
+		encodeValues.push_back(temp);
+	}
+
+	ILVectorArray2n elementNew(encodeValues);
+	ilVectorArray2n = elementNew;
 }
 
 
@@ -62,8 +102,7 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *i
 }
 
 void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector) {
-	//TODO-Nishanth: Hard-coding rootofUnity for now. Need to find a way to figure out how to set the correct rootOfUnity.
-	ilVector.SwitchModulus(modulus, BigBinaryInteger::ONE);
+	ilVector = ilVector.SignedMod(modulus);
 	std::vector<uint32_t> intArray(ilVector.GetValues().GetLength());
 	for (usint i = 0; i<ilVector.GetValues().GetLength(); i++) {
 		this->push_back( ilVector.GetValues().GetValAtIndex(i).ConvertToInt() );

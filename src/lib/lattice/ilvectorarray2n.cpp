@@ -99,13 +99,19 @@ namespace lbcrypto {
 	/* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArray2n will be derived from the towers.*/
 	ILVectorArray2n::ILVectorArray2n(const std::vector<ILVector2n> &towers)
 	{
+		usint ringDimension = towers.at(0).GetCyclotomicOrder() / 2;
+		for (usint i = 0; i < towers.size(); i++) {
+			if (!(towers.at(i).GetCyclotomicOrder() / 2 == ringDimension)) {
+				throw std::logic_error("ILVectors provided to ILVectorArray2n do not have the same parameters. Throwing error.");
+			}
+		}
 		m_vectors = towers; // once all the params are correct, set ILVectorArray2n's towers to the passed value
 		m_format = m_vectors[0].GetFormat();
 		m_cyclotomicOrder = m_vectors[0].GetCyclotomicOrder();
 		m_numberOfElements = towers.size();
 		m_modulus = 1;
 		//TODO: Add a integrity check to acertain if the cyclotomicorder are the same:
-		for(usint i=0; i<m_numberOfElements;i++)
+		for (usint i = 0; i<m_numberOfElements; i++)
 			m_modulus = m_modulus*m_vectors.at(i).GetModulus();
 	}
 
@@ -269,6 +275,16 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
+	ILVectorArray2n ILVectorArray2n::SignedMod(const BigBinaryInteger & modulus) const
+	{
+		ILVectorArray2n tmp(*this);
+
+		for (usint i = 0; i < m_vectors.size(); i++) {
+			tmp.m_vectors[i] = m_vectors[i].SignedMod(modulus);
+		}
+		return std::move(tmp);
+	}
+
 	ILVectorArray2n ILVectorArray2n::Plus(const ILVectorArray2n &element) const
 	{
 		ILVectorArray2n tmp(*this);
@@ -290,12 +306,18 @@ namespace lbcrypto {
 
 	const ILVectorArray2n& ILVectorArray2n::operator+=(const ILVectorArray2n &rhs)
 	{
-        return this->Plus(rhs); // TODO-OPTIMIZE
+		for (usint i = 0; i < this->GetNumOfElements(); i++) {
+			this->m_vectors.at(i) += rhs.GetElementAtIndex(i);
+		}
+		return std::move(*this);
 	}
 
 	const ILVectorArray2n& ILVectorArray2n::operator-=(const ILVectorArray2n &rhs) {
-		return this->Minus(rhs);  // TODO-OPTIMIZE
-    }
+		for (usint i = 0; i < this->GetNumOfElements(); i++) {
+			this->m_vectors.at(i) -= rhs.GetElementAtIndex(i);
+		}
+		return std::move(*this);
+	}
 
 	bool ILVectorArray2n::operator!=(const ILVectorArray2n &rhs) const {
         return !(*this == rhs); 
