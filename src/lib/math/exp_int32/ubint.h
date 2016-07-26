@@ -453,6 +453,30 @@ namespace exp_int32{
     const ubint& operator-=(const ubint &b);
 
     /**
+     * Multiplication accumulator.
+     *
+     * @param &b is the value to multiply by of type ubint.
+     * @return result of the multiplication operation of type ubint.
+     */
+    const ubint& operator*=(const ubint &b);
+
+    /**
+     * Division accumulator.
+     *
+     * @param &b is the value to divide by of type ubint.
+     * @return result of the division operation of type ubint.
+     */
+    const ubint& operator/=(const ubint &b);
+
+    /**
+     * Modulus accumulator.
+     *
+     * @param &b is the value to modulo by of type ubint.
+     * @return result of the modulo operation of type ubint.
+     */
+    const ubint& operator%=(const ubint &b);
+
+    /**
      * Subtraction operation.
      *
      * @param b is the value to subtract of type ubint.
@@ -479,6 +503,14 @@ namespace exp_int32{
      */
     ubint DividedBy(const ubint& b) const;
 
+    /**
+     * Exponentiation of a bigInteger x. Returns x^p
+     *
+     * @param p the exponent.
+     * @return the ubint x^p.
+     */
+    ubint Exp(usint p) const;
+    
     //modular arithmetic operations
 		
     /**
@@ -625,11 +657,12 @@ namespace exp_int32{
      */
     const std::string ToString() const;		
 
+    //Serialization functions
 
     const std::string Serialize() const;
     const char * Deserialize(const char * str);
 
-
+    // helper functions
 
     /**
      * Tests whether the ubint is a power of 2.
@@ -664,14 +697,7 @@ namespace exp_int32{
      */
     static ubint BinaryStringToUbint(const std::string& bitString);
 
-    /**
-     * Exponentiation of a bigInteger x. Returns x^p
-     *
-     * @param p the exponent.
-     * @return the ubint x^p.
-     */
-    ubint Exp(usint p) const;
-
+  
     /**
      * Test equality of the inputs.
      *
@@ -859,7 +885,7 @@ namespace exp_int32{
     void SetMSB(usint guessIdxChar);
 
     //  private:
-  public: //todo for debug onlhy
+  public: //todo for debug only
 
     //pointer to the array storing the native integers.
     //vector<limb_t> m_value {(limb_t)0};
@@ -881,7 +907,9 @@ namespace exp_int32{
     static const usint m_nSize;
 
     //The maximum number of digits in biginteger. It is used by the cout(ostream) function for printing the bignumber.
+    //Todo remove this limitation
     static const usint m_numDigitInPrintval=1500;
+
     /**
      * function to return the ceiling of the number divided by the number of bits in the limb data type.
      * @param Number is the number to be divided.
@@ -892,15 +920,13 @@ namespace exp_int32{
     //currently unused array
     static const ubint *m_modChain;
 		
+
+  public: 
     /**
      * function to return the MSB of a 32 bit number.
      * @param x is the 32 bit integer.
      * @return the MSB position in the 32 bit number x. Note MSB(1) is 1 NOT zero!!!!!
      */
-
-
-  public: 
-		
     static uint64_t GetMSB32(uint64_t x);
     /**
      * function to return the MSB of number.
@@ -911,12 +937,12 @@ namespace exp_int32{
     static usint GetMSBlimb_t(limb_t x);
 		
 		
-  static uint64_t GetMSB64(uint64_t x);
     /**
      * function to return the MSB of 64 bit number.
      * @param x is the number.
      * @return the MSB position in the number x. Note MSB(1) is 1 NOT zero!!!!!
      */
+    static uint64_t GetMSB64(uint64_t x);
 
   //  private:
   public:  //todo: changed only for debug
@@ -967,16 +993,18 @@ namespace exp_int32{
     static void add_bitVal(uschar* a,uschar b);
   };
 
-  ///**
-  // * Division operation.
-  // *
-  // * @param a is the value to divide.
-  // * @param b is the value to divide by.
-  // * @return is the result of the division operation.
-  // */
-  template<typename limb_t>
-  inline ubint<limb_t> operator/(const ubint<limb_t> &a, const ubint<limb_t> &b) {return a.DividedBy(b);}
 
+  /**
+   * Division operation.
+   *
+   * @param a is the value to divide.
+   * @param b is the value to divide by.
+   * @return is the result of the division operation.
+   */
+  //todo: move up near operator*
+  template<typename limb_t>
+    inline ubint<limb_t> operator/(const ubint<limb_t> &a, const ubint<limb_t> &b) {return a.DividedBy(b);}
+  
 }//namespace ends
 
 #endif //LBCRYPTO_MATH_EXPINT32_UBINT_H

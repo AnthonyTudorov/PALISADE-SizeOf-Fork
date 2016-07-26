@@ -254,6 +254,8 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
   template<typename limb_t>
   usint ubint<limb_t>::ConvertToUsint() const{
 	  usint result;
+	  if (m_value.size()==0)
+	    throw std::logic_error("ConvertToUsint() on uninitialized bint");		       
 	  if (sizeof(limb_t)>=sizeof(usint)){
 		  result = m_value.at(0);
 		  return result;
@@ -808,6 +810,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
   }
 
 
+
   template<typename limb_t>
   const ubint<limb_t>& ubint<limb_t>::operator+=(const ubint &b){
     *this = *this+b;
@@ -820,8 +823,26 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     return *this;
   }
 
+  template<typename limb_t>
+  const ubint<limb_t>& ubint<limb_t>::operator*=(const ubint &b){
+    *this = *this*b;
+    return *this;
+  }
 
-  /** Multiply operation:
+  template<typename limb_t>
+  const ubint<limb_t>& ubint<limb_t>::operator/=(const ubint &b){
+    *this = *this/b;
+    return *this;
+  }
+
+  template<typename limb_t>
+  const ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
+    *this = *this%b;
+    return *this;
+  }
+
+
+  /** Multiply operation helper function:
    *  Algorithm used is usual school book multiplication.
    *  This function is used in the Multiplication of two ubint objects
    */
@@ -1484,8 +1505,8 @@ again:
     ubint second(mods[1]);
     //Error if modulus is ZERO
     if(*this==ZERO){
-      std::cout<<"ZERO HAS NO INVERSE\n";
-      system("pause");
+      //std::cout<<"ZERO HAS NO INVERSE\n";
+      //system("pause");
       throw std::logic_error("MOD INVERSE NOT FOUND");
     }
 
@@ -1789,6 +1810,8 @@ again:
 
   template<typename limb_t>
   const std::string ubint<limb_t>::ToString() const{
+    if (m_value.size()==0)
+     throw std::logic_error("ToString() on uninitialized bint");		
 
     //this string object will store this ubint's value
     std::string bbiString;
