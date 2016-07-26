@@ -137,7 +137,6 @@ EncryptResult LPAlgorithmBV<Element>::Encrypt(const LPPublicKey<Element> &pubKey
 	c2 = a*v + p*e1;
 
 	ciphertext->SetCryptoParameters(cryptoParams);
-	ciphertext->SetPublicKey(pubKey);
 	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
 	ciphertext->SetElements({ c1,c2 });
 
@@ -250,7 +249,6 @@ void LPAlgorithmPREBV<Element>::ReEncrypt(const LPEvalKey<Element> &EK,
 
 	*newCiphertext = ciphertext;
 	newCiphertext->SetElements({ct0, ct1});
-	newCiphertext->SetPublicKey(evalKey->GetPublicKey());
 
 }
 

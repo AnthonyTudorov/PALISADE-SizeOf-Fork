@@ -415,7 +415,6 @@ EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publi
 	c = h*s + p*e + plaintext;
 
 	ciphertext->SetCryptoParameters(cryptoParams);
-	ciphertext->SetPublicKey(publicKey);
 	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
 	ciphertext->SetElement(c);
 
@@ -444,7 +443,6 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 	Element c(h*s + p*e + m);
 	
 	ciphertext->SetCryptoParameters(&cryptoParams);
-	ciphertext->SetPublicKey(publicKey);
 	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
 	ciphertext->SetElement(c);
 }
