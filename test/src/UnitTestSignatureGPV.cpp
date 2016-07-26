@@ -23,10 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../include/gtest/gtest.h"
 #include "../../src/lib/crypto/signature/lwesign.h"
-<<<<<<< HEAD
-=======
 #include "../../src/lib/crypto/signature/lwesign.cpp"
->>>>>>> de799cb08ada2cf63b65a0a4deaff4e693b61c5e
 #include "../../src/lib/encoding/byteencoding.h"
 
 using namespace lbcrypto;
@@ -56,19 +53,10 @@ TEST(simple_sign_verify, compares_to_expected_result) {
 	LPSignatureParameters signParams(silParams, dgg);
 	LPSignKeyGPV<ILVector2n> s_k(signParams);
 	LPVerificationKeyGPV<ILVector2n> v_k(signParams);
-<<<<<<< HEAD
-	LPSignatureSchemeGPV scheme;
-	scheme.KeyGen(&s_k, &v_k);
-
-	Signature<Matrix<ILVector2n>> signature;
-	ByteArrayPlaintextEncoding text(ByteArray("1 Signature"));
-=======
 	LPSignatureSchemeGPV<ILVector2n> scheme;
 	scheme.KeyGen(&s_k, &v_k);
-
 	Signature<Matrix<ILVector2n>> signature;
-	ByteArrayPlaintextEncoding text(ByteArray("1 Sig"));
->>>>>>> de799cb08ada2cf63b65a0a4deaff4e693b61c5e
+	ByteArrayPlaintextEncoding text(ByteArray("1Sig"));
 
 
 	scheme.Sign(s_k, text, &signature);
@@ -89,21 +77,13 @@ TEST(sign_verify_multiple_texts, compares_to_expected_results) {
 	LPSignatureParameters signParams(silParams, dgg);
 	LPSignKeyGPV<ILVector2n> s_k(signParams);
 	LPVerificationKeyGPV<ILVector2n> v_k(signParams);
-<<<<<<< HEAD
-	LPSignatureSchemeGPV scheme;
-	scheme.KeyGen(&s_k, &v_k);
-
-	Signature<Matrix<ILVector2n>> signature, signature2;
-	ByteArrayPlaintextEncoding text(ByteArray("1 Signature"));
-	ByteArrayPlaintextEncoding text2(ByteArray("2 Signature"));
-=======
+	
 	LPSignatureSchemeGPV<ILVector2n> scheme;
 	scheme.KeyGen(&s_k, &v_k);
 
 	Signature<Matrix<ILVector2n>> signature, signature2;
-	ByteArrayPlaintextEncoding text(ByteArray("1 Sig"));
-	ByteArrayPlaintextEncoding text2(ByteArray("2 Sig"));
->>>>>>> de799cb08ada2cf63b65a0a4deaff4e693b61c5e
+	ByteArrayPlaintextEncoding text(ByteArray("1Sig"));
+	ByteArrayPlaintextEncoding text2(ByteArray("2Sig"));
 
 
 
@@ -133,20 +113,13 @@ TEST(sign_verify_multiple_keys, compares_to_expected_results) {
 	LPSignatureParameters signParams(silParams, dgg);
 	LPSignKeyGPV<ILVector2n> s_k(signParams),s_k2(signParams);
 	LPVerificationKeyGPV<ILVector2n> v_k(signParams),v_k2(signParams);
-<<<<<<< HEAD
-	LPSignatureSchemeGPV scheme;
-=======
+
 	LPSignatureSchemeGPV<ILVector2n> scheme;
->>>>>>> de799cb08ada2cf63b65a0a4deaff4e693b61c5e
 	scheme.KeyGen(&s_k, &v_k);
 	scheme.KeyGen(&s_k2, &v_k2);
 
 	Signature<Matrix<ILVector2n>> signature, signature2;
-<<<<<<< HEAD
-	ByteArrayPlaintextEncoding text(ByteArray("1 Signature"));
-=======
-	ByteArrayPlaintextEncoding text(ByteArray("1 Sig"));
->>>>>>> de799cb08ada2cf63b65a0a4deaff4e693b61c5e
+	ByteArrayPlaintextEncoding text(ByteArray("1Sig"));
 
 	scheme.Sign(s_k, text, &signature);
 	scheme.Sign(s_k2, text, &signature2);
