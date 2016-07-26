@@ -310,6 +310,7 @@ namespace lbcrypto {
 			this->m_vectors.at(i) += rhs.GetElementAtIndex(i);
 		}
 		return std::move(*this);
+
 	}
 
 	const ILVectorArray2n& ILVectorArray2n::operator-=(const ILVectorArray2n &rhs) {
