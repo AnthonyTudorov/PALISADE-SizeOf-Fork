@@ -23,7 +23,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 #include "lweconjunctionobfuscate.h"
-
 #include "../utils/memory.h"
 #include "../utils/debug.h"
 
@@ -256,7 +255,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 #else //parallelized method
 	// Initialize the Pk and Ek matrices.
 	std::vector<Matrix<Element>> *Pk_vector = new std::vector<Matrix<Element>>();
-	std::vector<RLWETrapdoorPair<ILVector2n>>   *Ek_vector = new std::vector<RLWETrapdoorPair>();
+	std::vector<RLWETrapdoorPair<ILVector2n>>   *Ek_vector = new std::vector<RLWETrapdoorPair<ILVector2n>>();
 	std::vector<Matrix<LargeFloat>> *sigma = new std::vector<Matrix<LargeFloat>>();
 
 	DEBUG("keygen1: "<<TOC(t1) <<" ms");
