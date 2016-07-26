@@ -131,7 +131,22 @@ namespace lbcrypto {
 
 		serObj->AddMember("Norm", this->GetNorm().ToString(), serObj->GetAllocator());
 
-		return this->GetElement().Serialize(serObj);
+		Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
+
+		int vecsize = this->GetElements().size();
+		serObj->AddMember("VectorSize", std::to_string(vecsize), serObj->GetAllocator());
+
+		for( int i=0; i<vecsize; i++ ) {
+			Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
+			this->GetElements().at(i).Serialize(&oneEl);
+
+			SerialItem key( std::to_string(i), serObj->GetAllocator() );
+			serElements.AddMember(key, oneEl.Move(), serObj->GetAllocator());
+		}
+
+		serObj->AddMember("Elements", serElements.Move(), serObj->GetAllocator());
+
+		return true;
 	}
 
 	// JSON FACILITY - Deserialize Operation
@@ -147,18 +162,45 @@ namespace lbcrypto {
 			return false;
 
 		Serialized::ConstMemberIterator normIter = serObj.FindMember("Norm");
-		if( normIter == mIter->value.MemberEnd() )
+		if( normIter == serObj.MemberEnd() )
 			return false;
 
 		BigBinaryInteger bbiNorm(normIter->value.GetString());
 
-		Element json_ilElement;
-		if( !json_ilElement.Deserialize(serObj) )
+		Serialized::ConstMemberIterator sizeIter = serObj.FindMember("VectorSize");
+		if( sizeIter == serObj.MemberEnd() )
 			return false;
+
+		int nElements = std::stoi(sizeIter->value.GetString());
+		std::vector<Element> elements(nElements);
+
+		Serialized::ConstMemberIterator elVec = serObj.FindMember("Elements");
+		if( elVec == serObj.MemberEnd() )
+			return false;
+
+		for( int i=0; i<nElements; i++ ) {
+			SerialItem::ConstMemberIterator elIter = elVec->value.FindMember( std::to_string(i) );
+			if( elIter == elVec->value.MemberEnd() ) {
+				return false;
+			}
+
+			Serialized::ConstMemberIterator findEl = elIter->value.FindMember( "ILVector2n" );
+			if( findEl == elIter->value.MemberEnd() ) {
+				return false;
+			}
+
+			Serialized el(rapidjson::kObjectType);
+			el.AddMember("ILVector2n", SerialItem(findEl->value,el.GetAllocator()), el.GetAllocator());
+			Element json_ilElement;
+			if( !json_ilElement.Deserialize( el ) )
+				return false;
+
+			elements[i] = json_ilElement;
+		}
 
 		this->SetCryptoParameters(cryptoParams);
 		this->SetNorm(bbiNorm);
-		this->SetElement(json_ilElement);
+		this->SetElements(elements);
 		return true;
 	}
 
