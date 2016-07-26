@@ -53,6 +53,8 @@ class UnitTestLatticeElements : public ::testing::Test {
   static const usint test = 1;
 };
 
+void testILVectorArray2nConstructorNegative(std::vector<ILVector2n> &towers);
+
 /*--------------------------------------- TESTING METHODS OF LATTICE ELEMENTS    --------------------------------------------*/
 
 TEST(UTILVector2n, operators_tests) {
@@ -740,6 +742,15 @@ TEST(UTILVectorArray2n, constructors_test) {
     //TODO-Nishanth: Uncomment once UTILVector2n.cyclotomicOrder_test passes.
     EXPECT_EQ(m, ilva.GetCyclotomicOrder());
     EXPECT_EQ(towersize, ilva.GetNumOfElements());
+
+	std::vector<ILVector2n> ilvector2nVectorInconsistent(towersize);
+	ILParams ilparamsNegativeTestCase(128, BigBinaryInteger("1231"), BigBinaryInteger("213"));
+	ILVector2n ilvNegative(ilparamsNegativeTestCase);
+	ilvector2nVectorInconsistent[0] = ilvNegative;
+	ilvector2nVectorInconsistent[1] = ilv1;
+	ilvector2nVectorInconsistent[2] = ilv2;
+
+	EXPECT_THROW(testILVectorArray2nConstructorNegative(ilvector2nVectorInconsistent), std::logic_error);
   }
 
   {
@@ -1038,10 +1049,10 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     {
       ILVector2n ilv = ilvaCopy.GetElementAtIndex(i);
 
-      // EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(0));
-      // EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(1));
-      // EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(2));
-      // EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3));
+       EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(0));
+       EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(1));
+       EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(2));
+       EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3));
     }
   }
 
@@ -1067,10 +1078,10 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     {
       ILVector2n ilv = ilvaResult.GetElementAtIndex(i);
 
-      // EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(0));
-      // EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(1));
-      // EXPECT_EQ(BigBinaryInteger::ONE, ilv.GetValAtIndex(2));
-      // EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3));
+       EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(0));
+       EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(1));
+       EXPECT_EQ(BigBinaryInteger::ONE, ilv.GetValAtIndex(2));
+       EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3));
     }
   }
 
@@ -1384,3 +1395,6 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVectorA
 
 }
 
+void testILVectorArray2nConstructorNegative(std::vector<ILVector2n> &towers) {
+	ILVectorArray2n expectException(towers);
+}
