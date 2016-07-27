@@ -102,7 +102,11 @@ void testJson(
 	cout << "----------BEGIN LPAlgorithm" + cID + ".Encrypt TESTING----------" << endl;
 	cout << "Calling Encrypt in LPAlgorithm" + cID + " with deserialized instance of LPPublicKey" + cID + "" << endl;
 	vector<Ciphertext<ILVector2n>> testCiphertext;
-	CryptoUtility<ILVector2n>::Encrypt(*tp->ctx->getAlgorithm(), pkDeserialized, newPtxt, &testCiphertext);
+	EncryptResult er = CryptoUtility<ILVector2n>::Encrypt(*tp->ctx->getAlgorithm(), pkDeserialized, newPtxt, &testCiphertext);
+	if( er.isValid == false ) {
+		cout << "FAILED" << endl;
+		return;
+	}
 	cout << "----------END LPAlgorithmPRE" + cID + ".Encrypt TESTING----------" << endl << endl;
 
 	cout << "---BEGIN CIPHERTEXT SERIALIZATION---" << endl;
@@ -143,6 +147,10 @@ void testJson(
 	ctDeser.push_back(ciphertextDeserialized);
 	DecryptResult testResult = CryptoUtility<ILVector2n>::Decrypt(*tp->ctx->getAlgorithm(), skDeserialized,
 			ctDeser, &testPlaintextRec);
+	if( testResult.isValid == false ) {
+		cout << "FAILED" << endl;
+		return;
+	}
 	ctDeser.clear();
 
 	cout << "Recovered plaintext from call to Decrypt: " << endl;
