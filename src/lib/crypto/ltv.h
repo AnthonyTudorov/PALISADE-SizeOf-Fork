@@ -105,7 +105,7 @@ public:
 		if( this->SerializeRLWE(serObj, cryptoParamsMap, fileFlag) == false )
 			return false;
 
-		serObj->AddMember("LPCryptoParametersLTV", cryptoParamsMap, serObj->GetAllocator());
+		serObj->AddMember("LPCryptoParametersLTV", cryptoParamsMap.Move(), serObj->GetAllocator());
 		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersLTV", serObj->GetAllocator());
 
 		return true;

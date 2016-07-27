@@ -422,32 +422,6 @@ EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publi
 }
 
 template <class Element>
-void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey, 
-				Ciphertext<Element> *ciphertext) const
-{
-
-	const LPCryptoParametersRLWE<Element> &cryptoParams = static_cast<const LPCryptoParametersRLWE<Element>&>(publicKey.GetCryptoParameters());
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
-	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
-	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
-
-	Element m(ciphertext->GetElement());
-
-	m.SwitchFormat();
-	
-	const Element &h = publicKey.GetPublicElement();
-
-	Element s(dgg, elementParams);
-	Element e(dgg, elementParams);
-
-	Element c(h*s + p*e + m);
-	
-	ciphertext->SetCryptoParameters(&cryptoParams);
-	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
-	ciphertext->SetElement(c);
-}
-
-template <class Element>
 DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &privateKey, 
 		const Ciphertext<Element> &ciphertext,
 		Element *plaintext) const

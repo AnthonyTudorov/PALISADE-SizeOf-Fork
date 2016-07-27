@@ -584,15 +584,6 @@ namespace lbcrypto {
 				Ciphertext<Element> *ciphertext) const;
 
 			/**
-			 * Method for encrypting numeric values using Ring-LWE NTRU
-			 *
-			 * @param &publicKey public key used for encryption.
-			 * @param *ciphertext ciphertext which results from encryption.
-			 */
-			void Encrypt(const LPPublicKey<Element> &publicKey, 
-				Ciphertext<Element> *ciphertext) const;
-			
-			/**
 			 * Method for decrypting plaintext using Ring-LWE NTRU
 			 *
 			 * @param &privateKey private key used for decryption.

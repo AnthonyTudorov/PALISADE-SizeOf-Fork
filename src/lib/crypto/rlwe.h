@@ -252,7 +252,7 @@ protected:
 
 	bool SerializeRLWE(Serialized* serObj, SerialItem& cryptoParamsMap, const std::string fileFlag) const {
 
-		Serialized pser(rapidjson::kObjectType);
+		Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
 		const ElemParams& ep = this->GetElementParams();
 		if( !ep.Serialize(&pser, fileFlag) )
 			return false;

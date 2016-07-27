@@ -34,7 +34,13 @@ void testJson(
 	LPEvalKeyLTV<ILVector2n>				evalKeyDeserialized;
 	LPPrivateKeyLTV<ILVector2n>				newSKDeserialized;
 
-	std::cout << "----------------------START JSON FACILITY TESTING-------------------------" << endl;
+	cout << "----------------------START JSON FACILITY TESTING-------------------------" << endl;
+
+	if( newPtxt.size() > tp->ctx->getChunksize() ) {
+		cout << "This test code won't work when the plaintext size (" << newPtxt.size()
+				<< ") is bigger than the chunksize (" << tp->ctx->getChunksize() << ")" << endl;
+		return;
+	}
 
 	string jsonFileName;
 	string jsonRep;
@@ -107,6 +113,12 @@ void testJson(
 		cout << "FAILED" << endl;
 		return;
 	}
+
+//	//gwr
+//	ByteArray pt1;
+//	DecryptResult dr = CryptoUtility<ILVector2n>::Decrypt(*tp->ctx->getAlgorithm(), skDeserialized,
+//			testCiphertext, &pt1);
+//	cout << pt1 << endl;
 	cout << "----------END LPAlgorithmPRE" + cID + ".Encrypt TESTING----------" << endl << endl;
 
 	cout << "---BEGIN CIPHERTEXT SERIALIZATION---" << endl;

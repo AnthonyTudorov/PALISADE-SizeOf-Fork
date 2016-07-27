@@ -122,7 +122,7 @@ namespace lbcrypto {
 				if( this->SerializeRLWE(serObj, cryptoParamsMap, fileFlag) == false )
 					return false;
 
-				serObj->AddMember("LPCryptoParametersBV", cryptoParamsMap, serObj->GetAllocator());
+				serObj->AddMember("LPCryptoParametersBV", cryptoParamsMap.Move(), serObj->GetAllocator());
 				serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBV", serObj->GetAllocator());
 
 				return true;
@@ -605,15 +605,6 @@ namespace lbcrypto {
 			const DiscreteGaussianGenerator &dgg) const {
 			return true;
 		};
-
-		/**
-		* This needs to be removed
-		*
-		* @param &publicKey public key used for encryption.
-		* @param *ciphertext ciphertext which results from encryption.
-		*/
-		void Encrypt(const LPPublicKey<Element> &publicKey,
-			Ciphertext<Element> *ciphertext) const {};
 
 	};
 
