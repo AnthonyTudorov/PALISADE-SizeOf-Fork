@@ -321,7 +321,7 @@ void iftest (bool t, string v) {
   return;
 }
 
-
+//todo figure out how to share code between these vec_diffs
 
 //function to compare two bintvecs and print differing indicies
 void vec_diff(ubintvec &a, ubintvec &b) {
@@ -331,13 +331,13 @@ void vec_diff(ubintvec &a, ubintvec &b) {
 	cout << "first vector " <<endl;
         cout <<a[i];
         cout << endl;
-        cout << "state " << a[i].m_state << endl;;
-        cout << "msb: " << a[i].m_MSB << endl;;
+        cout << "state " << a[i].GetState() << endl;;
+        cout << "msb: " << a[i].GetMSB() << endl;;
 	cout << "second vector " <<endl;
         cout << b[i];
         cout << endl;
-        cout << "state " << b[i].m_state << endl;;
-        cout << "msb: " << b[i].m_MSB << endl;;
+        cout << "state " << b[i].GetState() << endl;;
+        cout << "msb: " << b[i].GetMSB() << endl;;
         cout << endl;
       }
     }
@@ -351,13 +351,13 @@ void vec_diff(mubintvec &a, ubintvec &b) {
 	cout << "first vector " <<endl;
         cout << a[i];
         cout << endl;
-        cout << "state " << a[i].m_state << endl;;
-        cout << "msb: " << a[i].m_MSB << endl;;
+        cout << "state " << a[i].GetState() << endl;;
+        cout << "msb: " << a[i].GetMSB() << endl;;
 	cout << "second vector " <<endl;
         cout << b[i];
         cout << endl;
-        cout << "state " << b[i].m_state << endl;;
-        cout << "msb: " << b[i].m_MSB << endl;;
+        cout << "state " << b[i].GetState() << endl;;
+        cout << "msb: " << b[i].GetMSB() << endl;;
         cout << endl;
       }
     }

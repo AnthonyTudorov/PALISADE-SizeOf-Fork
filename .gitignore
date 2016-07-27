@@ -6,6 +6,7 @@ build/
 test/build
 test/bin
 output.txt
+apidoc_warning_logfile.txt
 # Except this file
 !.gitignore
 output.txt
@@ -20,6 +21,7 @@ test/build
 .cproject
 .metadata/
 .project
+.settings/
 RemoteSystemTempFiles/
 
 .DS_Store

@@ -134,6 +134,8 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     m_state = GARBAGE;
   }
   
+  //todo: figure out how to share code between the following three ctors
+  // https://isocpp.org/wiki/faq/templates#template-specialization
   template<typename limb_t>
   ubint<limb_t>::ubint(usint init){
     bool dbg_flag = false;		// if true then print dbg output
@@ -167,6 +169,123 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 
     DEBUG("final msb ="<<msb);
   }
+
+  template<typename limb_t>
+  ubint<limb_t>::ubint(sint sinit){
+    bool dbg_flag = false;		// if true then print dbg output
+
+    if (sinit<0)
+      throw std::logic_error("ubint() initialized iwth signed number");		
+
+    usint init = (usint) sinit;
+
+    //setting the MSB
+    usint msb = 0;
+
+    msb = GetMSB32(init); //todo: this really should be renamed to GetMSBusint or something.
+    DEBUG("ctor("<<init<<")");
+    DEBUG( "msb " <<msb);
+    DEBUG( "maxlimb "<<m_MaxLimb);
+
+    DEBUG( "initial size "<< m_value.size());
+
+    if (init <= m_MaxLimb) {
+      //init fits in first limb entry
+      m_value.push_back((limb_t)init);
+      DEBUG("single limb size now "<<m_value.size());
+    } else {
+      usint ceilInt = ceilIntByUInt(msb);
+      //setting the values of the array
+      this->m_value.reserve(ceilInt);
+      for(usint i= 0;i<ceilInt;++i){
+        this->m_value.at(i) = (limb_t)init;
+        init>>=m_limbBitLength;
+      }
+      DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
+    }
+    this->m_MSB = msb;
+    m_state = INITIALIZED;
+
+    DEBUG("final msb ="<<msb);
+  }
+
+  template<typename limb_t>
+  ubint<limb_t>::ubint(uint64_t init){
+    bool dbg_flag = false;		// if true then print dbg output
+
+    //setting the MSB
+    usint msb = 0;
+
+    msb = GetMSB64(init);
+    DEBUG("ctor(uint64_t:"<<init<<")");
+    DEBUG( "msb " <<msb);
+    DEBUG( "maxlimb "<<m_MaxLimb);
+
+    DEBUG( "initial size "<< m_value.size());
+
+    if (init <= m_MaxLimb) {
+      //init fits in first limb entry
+      m_value.push_back((limb_t)init);
+      DEBUG("single limb size now "<<m_value.size());
+    } else {
+      usint ceilInt = ceilIntByUInt(msb);
+      DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
+      //setting the values of the array
+      this->m_value.reserve(ceilInt);
+      for(usint i= 0;i<ceilInt;++i){
+	DEBUG("i " << i);
+	m_value.push_back((limb_t)init);
+	//DEBUG("value  " << this->m_value.at(i));
+        init>>=m_limbBitLength;
+	DEBUG("init now  " << init);
+      }
+
+    }
+    this->m_MSB = msb;
+    m_state = INITIALIZED;
+
+    DEBUG("final msb ="<<msb);
+  
+  }
+
+  template<typename limb_t>
+  ubint<limb_t>::ubint(int64_t sinit){
+    bool dbg_flag = false;		// if true then print dbg output
+    if (sinit<0)
+      throw std::logic_error("ubint() initialized with negative number");	
+
+    uint64_t init = (uint64_t)sinit;
+
+    //setting the MSB
+    usint msb = 0;
+
+    msb = GetMSB64(init);
+    DEBUG("ctor(uunt64_t:"<<init<<")");
+    DEBUG( "msb " <<msb);
+    DEBUG( "maxlimb "<<m_MaxLimb);
+
+    DEBUG( "initial size "<< m_value.size());
+
+    if (init <= m_MaxLimb) {
+      //init fits in first limb entry
+      m_value.push_back((limb_t)init);
+      DEBUG("single limb size now "<<m_value.size());
+    } else {
+      usint ceilInt = ceilIntByUInt(msb);
+      //setting the values of the array
+      this->m_value.reserve(ceilInt);
+      for(usint i= 0;i<ceilInt;++i){
+        this->m_value.at(i) = (limb_t)init;
+        init>>=m_limbBitLength;
+      }
+      DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
+    }
+    this->m_MSB = msb;
+    m_state = INITIALIZED;
+
+    DEBUG("final msb ="<<msb);
+  
+}
   // ctor(string)
   template<typename limb_t>
   ubint<limb_t>::ubint(const std::string& str){
@@ -588,8 +707,23 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
   }
 
   template<typename limb_t>
-  usint ubint<limb_t>::GetMSB()const{
+  usint ubint<limb_t>::GetMSB() {
     return m_MSB;
+  }
+
+  template<typename limb_t>
+  const std::string ubint<limb_t>::GetState()const{
+
+    switch(m_state) {
+    case INITIALIZED:
+      return "INITIALIZED";
+      break;
+    case GARBAGE:
+      return "GARBAGE";
+      break;
+    default:
+      throw std::logic_error("GetState() on uninitialized bint"); //shouldn't happen
+    }
   }
 
   /** Addition operation:
@@ -1040,19 +1174,19 @@ again:
    *  Optimization done: Uses bit shift operation for logarithmic convergence.
    */
   template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::DividedBy(const ubint& b) const{
+  ubint<limb_t> ubint<limb_t>::Div(const ubint& b) const{
     //check for garbage initialization and 0 condition
     if(b.m_state==GARBAGE)
-      throw std::logic_error("DividedBy() Divisor uninitialised");
+      throw std::logic_error("Div() Divisor uninitialised");
 
     if(b==ZERO)
-        throw std::logic_error("DividedBy() Divisor is zero");
+        throw std::logic_error("Div() Divisor is zero");
 
     if(b.m_MSB>this->m_MSB)
       return std::move(ubint(ZERO)); // Kurt and Yuriy want this.
 
     if(this->m_state==GARBAGE)
-      throw std::logic_error("DividedBy() Dividend uninitialised");
+      throw std::logic_error("Div() Dividend uninitialised");
 
     else if(b==*this)
       return std::move(ubint(ONE));
@@ -1065,7 +1199,7 @@ again:
       int f;
     f = divmnu_vect((ans), (rv),  (*this),  (b));
     if (f!= 0)
-      throw std::logic_error("DividedBy() error");
+      throw std::logic_error("Div() error");
     ans.m_state = INITIALIZED;
     ans.SetMSB();
 
@@ -1519,7 +1653,7 @@ again:
 
       mods.push_back(first.Mod(second));
       //f << "Mod step passed" << std::endl;
-      quotient.push_back(first.DividedBy(second));
+      quotient.push_back(first.Div(second));
       //f << "Division step passed" << std::endl;
       if(mods.back()==ONE)
 	break;
@@ -2020,7 +2154,7 @@ again:
 
   //helper functions
   template<typename limb_t>
-  bool ubint<limb_t>::CheckIfPowerOfTwo(const ubint& m_numToCheck){
+  bool ubint<limb_t>::isPowerOfTwo(const ubint& m_numToCheck){
     usint m_MSB = m_numToCheck.m_MSB;
     for(int i=m_MSB-1;i>0;i--){
       if((sint)m_numToCheck.GetBitAtIndex(i)==(sint)1){
@@ -2274,7 +2408,7 @@ again:
     This method can be used to convert int to ubint
   */
   template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::intTobint(usint m){
+  ubint<limb_t> ubint<limb_t>::UsintToUbint(usint m){
 
     return ubint(m);
 

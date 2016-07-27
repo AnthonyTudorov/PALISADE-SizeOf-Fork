@@ -233,6 +233,29 @@ namespace exp_int32{
     explicit ubint(usint init);
 
     /**
+     * Basic constructor for initializing big integer from an signed integer.
+     * because the compiler needs to know how to promote it in statements
+     * like  ubint a(0);  it promotes 0 to int but then what?
+     *
+     * @param init is the initial signed integer.
+     */
+    explicit ubint(sint init);
+
+    /**
+     * Basic constructor for initializing big integer from a uint64_t.
+     *
+     * @param init is the initial 64 bit unsigned integer.
+     */
+    explicit ubint(uint64_t init);
+
+    /**
+     * Basic constructor for initializing big integer from an int64_t.
+     *
+     * @param init is the initial 64 bit signed integer.
+     */
+    explicit ubint(int64_t init);
+
+    /**
      * Basic constructor for copying a ubint
      *
      * @param rhs is the ubint to be copied.
@@ -337,7 +360,6 @@ namespace exp_int32{
      */
     void SetValue(const ubint& a);
 
-        
     /**
      * Returns the MSB location of the value.
      *
@@ -349,8 +371,9 @@ namespace exp_int32{
      * Returns the index number of the array in which MSB is located.
      *
      * @return the index of array of the most significant bit as usint.
+     * deprecated
      */
-    usint GetMSBCharNum()const;
+    //  usint GetMSBCharNum()const;
 
     /**
      * Converts the value to a usint.
@@ -422,7 +445,7 @@ namespace exp_int32{
      * @param m the value to convert from.
      * @return int represented as a ubint.
      */
-    static ubint intTobint(usint m);
+    static ubint UsintToUbint(usint m);
 
     //Arithemetic Operations
 
@@ -493,15 +516,14 @@ namespace exp_int32{
      */
     ubint Mul(const ubint& b) const;
 
-    int divmnu_vect(ubint& q, ubint& r, const ubint& u, const ubint& v) const;
-
     /**
      * Division operation.
      *
      * @param b of type ubint is the value to divide by.
      * @return result of the division operation.
+     *
      */
-    ubint DividedBy(const ubint& b) const;
+    ubint Div(const ubint& b) const;
 
     /**
      * Exponentiation of a bigInteger x. Returns x^p
@@ -670,7 +692,7 @@ namespace exp_int32{
      * @param m_numToCheck is the value to check.
      * @return true if the input is a power of 2, false otherwise.
      */
-    bool CheckIfPowerOfTwo(const ubint& m_numToCheck);
+    bool isPowerOfTwo(const ubint& m_numToCheck);
 
     /**
      * Get the number of digits using a specific base - support for arbitrary base may be needed.
@@ -771,6 +793,8 @@ namespace exp_int32{
      */
     inline ubint operator*(const ubint &a) const {return this->Mul(a);}
 
+
+
     /**
      * Modulo operation. Classical modular reduction algorithm is used.
      *
@@ -786,7 +810,7 @@ namespace exp_int32{
      * @param b is the value to divide by.
      * @return is the result of the integral part after division operation.
      */
-    inline ubint operator/ (const ubint &a) const {return this->DividedBy(a);}
+    inline ubint operator/ (const ubint &a) const {return this->Div(a);}
 
     /**
      * Console output operation.
@@ -798,22 +822,6 @@ namespace exp_int32{
     template<typename limb_t_c>
     friend std::ostream& operator<<(std::ostream& os, const ubint<limb_t_c> &ptr_obj);
     
-    /**
-     * Gets the bit at the specified index.
-     *
-     * @param index is the index of the bit to get.
-     * @return resulting bit.
-     */
-    uschar GetBitAtIndex(usint index) const;
-
-
-    /**
-     * Sets the int value at the specified index.
-     *
-     * @param index is the index of the int to set in the uint array.
-     */
-    void SetIntAtIndex(usint idx, limb_t value);
-        
     //constant definations
         
     /**
@@ -864,6 +872,16 @@ namespace exp_int32{
      */
     static std::function<unique_ptr<ubint>()> Allocator;
 
+    /**
+     * Gets the MSB of the ubint from the internal value.
+     */
+    usint GetMSB();
+
+    /**
+     * Gets the state of the ubint from the internal value.
+     */
+    const std::string GetState()const;
+
   protected:
     
     /**
@@ -874,7 +892,7 @@ namespace exp_int32{
     void AssignVal(const std::string& v);
 
     /**
-     * Sets the MSB to the correct value from the ubint.
+     * Sets the MSB to the correct value as computed from the internal value.
      */
     void SetMSB();
 
@@ -884,14 +902,37 @@ namespace exp_int32{
      */
     void SetMSB(usint guessIdxChar);
 
-    //  private:
-  public: //todo for debug only
+  private:
+    /**
+     * Gets the bit at the specified index.
+     *
+     * @param index is the index of the bit to get.
+     * @return resulting bit.
+     */
+    uschar GetBitAtIndex(usint index) const;
 
-    //pointer to the array storing the native integers.
-    //vector<limb_t> m_value {(limb_t)0};
+
+    /**
+     * Sets the int value at the specified index.
+     *
+     * @param index is the index of the int to set in the uint array.
+     */
+    void SetIntAtIndex(usint idx, limb_t value);
+        
+
+    /**
+     * helper function for Div
+     * @param defined in ubint.cpp
+     */
+    
+    int divmnu_vect(ubint& q, ubint& r, const ubint& u, const ubint& v) const;
+
+
+    //vector storing the native integers. stored little endian
     vector<limb_t> m_value;
 
-    //variable that stores the MOST SIGNIFICANT BIT position in the number. Note MSB(1) = 1 NOT 0
+    //variable that stores the MOST SIGNIFICANT BIT position in the
+    //number. Note MSB(1) = 1 NOT 0
     usint m_MSB;
 
     //variable to store the bitlength of the limb data type.
@@ -921,7 +962,8 @@ namespace exp_int32{
     static const ubint *m_modChain;
 		
 
-  public: 
+    //public: 
+  private: 
     /**
      * function to return the MSB of a 32 bit number.
      * @param x is the 32 bit integer.
@@ -944,8 +986,6 @@ namespace exp_int32{
      */
     static uint64_t GetMSB64(uint64_t x);
 
-  //  private:
-  public:  //todo: changed only for debug
     //Dlimb_t is the data type that has twice as many bits in the limb data type.
     typedef typename DoubleDataType<limb_t>::T Dlimb_t;
 
@@ -1001,9 +1041,9 @@ namespace exp_int32{
    * @param b is the value to divide by.
    * @return is the result of the division operation.
    */
-  //todo: move up near operator*
+  //todo: does this go here?
   template<typename limb_t>
-    inline ubint<limb_t> operator/(const ubint<limb_t> &a, const ubint<limb_t> &b) {return a.DividedBy(b);}
+    inline ubint<limb_t> operator/(const ubint<limb_t> &a, const ubint<limb_t> &b) {return a.Div(b);}
   
 }//namespace ends
 

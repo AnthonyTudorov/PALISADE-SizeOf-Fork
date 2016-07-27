@@ -86,53 +86,25 @@ printLimbsInHex
 SetValue(str)
 SetValue(&ubint)
 
-GetMSBCharNum()
-
 intTobint() //todo change name to IntToBint()
 
 modulo math
 
 how many of these do we actually want here
-Mod
-
-
-ModAdd
-ModSub
-ModMul
-ModExp
-
 ModBarrett NOT DONE
 ModBarrettAdd NOT DONE
 ModBarrettSub NOT DONE
 ModBarrettMul NOT DONE
 
-ToString()
+
 Serialize()
 Deserialize()
 
-CheckIfPowerOfTwo()
+isIfPowerOfTwo()
 GetLengthForBase()
 GetDigitAtIndexForBase()
 BinaryStringToUbint()
-
-<<ostream operator (check for leaks)
-
-GetBitAtIndex()
-SetIntAtIndex()
-
 SetIdentity()
-
-
-CeilIntByUInt()
-GetMSB32()
-GetMSBlimb_t(limb_t)
-GetMSBlimb_t(Dlimb_t)
-GetMSB64()
-
-MulIntegerByLimb(limb_t)
-UintInBinaryToDecimal(uschar *)
-double_bitVal(uschar *)
-add_bitVal(uschar*,uschar)
 
  */
 /*************************************************
@@ -163,11 +135,13 @@ TEST(UTubint,string_conversions_msb){
   //create a large ubint with two limbs
   ubint q2("00004057816419532801");
   //to big for usint or for float so we expect that to fail
-  EXPECT_NE(4057816419532801, q2.ConvertToUsint()) 
+  EXPECT_NE(4057816419532801UL, q2.ConvertToUsint()) 
     <<"Failure Convert 2 limb to usint";
-  EXPECT_NE(4057816419532801, q2.ConvertToUint32())
+  EXPECT_NE(4057816419532801UL, q2.ConvertToUint32())
     <<"Failure Convert 2 limb to uint32";
-  EXPECT_EQ(4057816419532801, q2.ConvertToUint64())
+  EXPECT_EQ(4057816419532801UL, q2.ConvertToUint64())
+    <<"Failure Convert 2 limb to uint64";
+  EXPECT_EQ(4057816419532801L, q2.ConvertToUint64())
     <<"Failure Convert 2 limb to uint64";
   EXPECT_NE(4057816419532801.0, q2.ConvertToFloat())
     <<"Failure Convert 2 limb to float";    
@@ -181,32 +155,39 @@ TEST(UTubint,string_conversions_msb){
   //DEBUG("q2 msb "<<msb);
   EXPECT_EQ(msb, 52)<<  "Failure testing 2 limb msb test ";
 
+  bool thrown;
+  thrown = false;
+  try {
+    //test the ctor()
+
+    ubint b;
+    usint bout = b.ConvertToUsint(); //should thrown since b is not initialised.
+  } catch (...) {
+    thrown = true;
+  }
+  EXPECT_TRUE(thrown) 
+    << "Failure testing ConvertToUsint() on uninitialed ubint";
+
 }
 TEST(UTubint,ctor){    
-  //test the ctor()
-  ubint b;
-  EXPECT_EQ(0, b.ConvertToUsint())<< "Failure testing ctor()";
-    
+
   //test the ctor(usint)
   ubint c1(123456789);
   EXPECT_EQ(123456789, c1.ConvertToUsint())<< "Failure testing ctor(usint)";
-    
   //test the ctor(string)
   ubint c2("123456789");
   EXPECT_EQ(123456789, c2.ConvertToUsint())<< "Failure testing ctor(string)";
-    
   //test the ctor(ubint)
   ubint d(c1);
   EXPECT_EQ(d.ConvertToUsint(), c1.ConvertToUsint())
     << "Failure testing ctor(ubint)";
-    
   //test the ctor(ubint&)
   ubint &e = d;
   ubint f(e);
   EXPECT_EQ(e.ConvertToUsint(), f.ConvertToUsint()) 
     << "Failure testing ctor(ubint&)";
-
 } 
+
 TEST(UTubint,ctor32){       
   // TEST CASE FOR 32bit VALUES
   ubint a(UINT32_MAX);
@@ -231,13 +212,11 @@ TEST(UTubint,ctor32){
 
 TEST(UTubint,ctor64){    
   // TEST CASE FOR 64bit VALUES
-  ubint a(9223372036854775807L); // = 7FFFFFFF
-  //todo FAILS 
-  uint64_t auint64 = 9223372036854775807L;
 
+  ubint a(9223372036854775807UL); // = 7FFFFFFF
+  uint64_t auint64 = 9223372036854775807UL;
   EXPECT_EQ(auint64,a.ConvertToUint64())
     << "Failure testing ConvertToUint64() for big numbers";    
-
   bitset<64> abs;
   for (usint i = 0; i < 64; i++) {
     abs[i] = 1;
@@ -245,27 +224,14 @@ TEST(UTubint,ctor64){
   uint64_t cuint64 = abs.to_ullong(); //biggest 64 bit int all FFs
   ubint c(cuint64);
 
-
-  //todo convert these to expects.
-  cout << "c " << c <<endl;
-  cout << "cuint64 " << cuint64 <<endl;
-  cout << "c.ToString " << c.ToString() <<endl;
-  cout << "c.ConvertToUint64 " << c.ConvertToUint64() <<endl;
-
   EXPECT_EQ(cuint64,c.ConvertToUint64())
     << "Failure testing ConvertToUint64() for maxint64";    
 
   EXPECT_EQ(UINT64_MAX,c.ConvertToUint64())
-    << "Failure testing ConvertToUint64() for UINT64_MAX";    
+    << "Failure testing ConvertToUint64() for UINT64_MAX"; 
 
-  usint bitNum_a = ubint::GetMSB32(auint64);
-  cout <<"bintnum_a 32 " << bitNum_a << endl;
-  bitNum_a = ubint::GetMSB64(auint64);
-  cout <<"bintnum_a 64 "<< bitNum_a << endl;
-
-
-
-  //todo catch some failed throws for Uint32 and Usint
+  EXPECT_EQ("18446744073709551615", c.ToString())
+    << "Failure testing ToString() for UINT64_MAX"; 
 
   //todo some very large digit tests.
 }
@@ -561,6 +527,7 @@ TEST(UTubint,basic_math){
       <<"Failure testing += : a > b";
 
   }
+
   // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
@@ -581,6 +548,7 @@ TEST(UTubint,basic_math){
     EXPECT_EQ(expectedResult, a.ConvertToUint64())
       <<"Failure testing += : a < b";
   }
+
   // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW TO THE NEXT
   // LIMB
   {
@@ -605,6 +573,7 @@ TEST(UTubint,basic_math){
   // TEST CASE WHEN MSB OF THE RESULT HAS NO BIT-OVERFLOW IN THE SAME
   // LIMB
   //todo change for limb
+
   {
     ubint a("35");
     ubint b("1015");
@@ -623,6 +592,7 @@ TEST(UTubint,basic_math){
     EXPECT_EQ(expectedResult, a.ConvertToUint64())
       <<"Failure testing += :no overflow in same limb";
   }
+
   // TEST CASE WHEN both are multi limb numbers
   {
     ubint a("98879665709163");
@@ -642,6 +612,7 @@ TEST(UTubint,basic_math){
     EXPECT_EQ(expectedResult, a.ConvertToUint64())
       <<"Failure testing += : multi limb";
   }
+
   //TESTING - and -=
     
   // note that when a<b, the result is 0, since there is no support
@@ -747,7 +718,6 @@ TEST(UTubint,basic_math){
       <<"Failure testing -= : multi limb";
   }
 
-
   // TESTING METHOD MUL FOR ALL CONDITIONS 
   // The method "Mul" does multiplication on two ubints
   // a,b Returns a*b, which is stored in another ubint for * or in a for *=
@@ -775,14 +745,16 @@ TEST(UTubint,basic_math){
 
     calculatedResult = a.Mul(b);
     expectedResultStr = "3938631422102517149330983287";
+    // note the expected result is bigger than uint64 so we cannot use
+    // that to compare. Instead we uses string values.
 
     EXPECT_EQ(expectedResultStr,calculatedResult.ToString())
       <<"testing Mul() : multi limb";
     calculatedResult = a * b;
-    EXPECT_EQ(expectedResult,calculatedResult.ConvertToUint64())
+    EXPECT_EQ(expectedResultStr,calculatedResult.ToString())
       <<"Failure testing * : multi limb";
     a *= b;
-    EXPECT_EQ(expectedResult,a.ConvertToUint64())
+    EXPECT_EQ(expectedResultStr,a.ToString())
       <<"Failure testing *= : multi limb";
 
   }
@@ -801,12 +773,12 @@ TEST(UTubint,basic_math){
     ubint a("2048");
     ubint b("2034455");
 
-    calculatedResult = a.DividedBy(b);
+    calculatedResult = a.Div(b);
     expectedResult = 0;
 
     //RESULT SHOULD BE ZERO
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
-      <<"Failure testing DividedBy() : a < b";
+      <<"Failure testing Div() : a < b";
 
     calculatedResult = a/b;      
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -823,11 +795,11 @@ TEST(UTubint,basic_math){
     ubint a("2048956567");
     ubint b("2048956567");
 
-    calculatedResult = a.DividedBy(b);
+    calculatedResult = a.Div(b);
     expectedResult = 1;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
-      <<"Failure testing DividedBy() : a == b";
+      <<"Failure testing Div() : a == b";
 
     calculatedResult = a/b;
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -842,11 +814,11 @@ TEST(UTubint,basic_math){
     ubint a("2048956567");
     ubint b("2034455");
 
-    calculatedResult = a.DividedBy(b);
+    calculatedResult = a.Div(b);
     expectedResult = 1007;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
-      <<"testing DividedBy() a greater than b";
+      <<"testing Div() a greater than b";
 
     calculatedResult = a/b;
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -863,7 +835,7 @@ TEST(UTubint,basic_math){
     ubint b("98879665709163");
 
 
-    calculatedResult = a.DividedBy(b);
+    calculatedResult = a.Div(b);
     expectedResult = 39832572186149;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -886,12 +858,12 @@ TEST(UTubint,basic_math){
     bool thrown = false;
 
     try {
-      calculatedResult = a.DividedBy(b);
+      calculatedResult = a.Div(b);
     }
     catch (...){
       thrown = true;
     }
-    EXPECT_TRUE(thrown)<<"Failure testing DividedBy() zero";
+    EXPECT_TRUE(thrown)<<"Failure testing Div() zero";
     thrown = false;
 
     try {
