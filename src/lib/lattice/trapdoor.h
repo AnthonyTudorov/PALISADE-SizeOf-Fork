@@ -38,6 +38,7 @@
 #define LBCRYPTO_LATTICE_TRAPDOOR_H
 
 #include "../math/matrix.h"
+#include "../math/matrix.cpp"
 #include "ilvector2n.h"
 #include "dgsampling.h"
 #include "dgsampling.cpp"
@@ -51,14 +52,16 @@ typedef Matrix<ILVector2n> RingMat;
 * @brief Class to store a lattice trapdoor pair generated using construction 1 in section 3.2 of https://eprint.iacr.org/2013/297.pdf
 * This construction is based on the hardness of Ring-LWE problem 
 */
+template <class Element>
 class RLWETrapdoorPair {
 public:
 	// matrix of noise polynomials
-	RingMat m_r;
+	Matrix<Element> m_r;
 	// matirx 
-	RingMat m_e;
+	Matrix<Element> m_e;
 
-	RLWETrapdoorPair(const RingMat &r, const RingMat &e): m_r(r), m_e(e) {};
+	RLWETrapdoorPair();
+	RLWETrapdoorPair(const Matrix<Element> &r, const Matrix<Element> &e): m_r(r), m_e(e) {};
 };
 
 /**
@@ -74,7 +77,7 @@ public:
 	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
 	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 	*/
-	static inline std::pair<RingMat, RLWETrapdoorPair> TrapdoorGen(ILParams params, int stddev);
+	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(ILParams params, int stddev);
 
 	/**
 	* Wrapper for TrapdoorGen(ILParams params, int stddev) - currently supports only ILVector2n, support for other rings will be added later
@@ -83,7 +86,7 @@ public:
 	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
 	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 	*/
-	static inline std::pair<RingMat, RLWETrapdoorPair> TrapdoorGen(const ElemParams *params, int stddev)
+	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(const ElemParams *params, int stddev)
 	{
 		return TrapdoorGen(*(dynamic_cast<const ILParams*>(params)), stddev);
 	}
@@ -102,7 +105,8 @@ public:
 	* @param &dgg discrete Gaussian generator for integers
 	* @return the sampled vector (matrix)
 	*/
-	static inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const RLWETrapdoorPair& T, 
+	static inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const RLWETrapdoorPair<ILVector2n>& T, 
+
 			const Matrix<LargeFloat> &SigmaP, const ILVector2n &u,
 			double sigma, DiscreteGaussianGenerator &dgg); 
 
@@ -118,7 +122,8 @@ public:
 	* @param *sigmaSqrt Choleskry decomposition matrix - output of the function
 	*/
 	static inline void PerturbationMatrixGen(size_t n, size_t k, const RingMat& A, 
-			const RLWETrapdoorPair& T, double s, Matrix<LargeFloat> *sigmaSqrt); 
+			const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt); 
+
 };
 
 } //end namespace crypto
