@@ -393,8 +393,8 @@ EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publi
 		Ciphertext<Element> *ciphertext) const
 {
 
-	const LPCryptoParametersLTV<Element> *cryptoParams =
-			dynamic_cast<const LPCryptoParametersLTV<Element>*>(&publicKey.GetCryptoParameters());
+	const LPCryptoParametersRLWE<Element> *cryptoParams =
+			dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&publicKey.GetCryptoParameters());
 
 	if( cryptoParams == 0 ) return EncryptResult();
 
@@ -426,7 +426,7 @@ void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 				Ciphertext<Element> *ciphertext) const
 {
 
-	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
+	const LPCryptoParametersRLWE<Element> &cryptoParams = static_cast<const LPCryptoParametersRLWE<Element>&>(publicKey.GetCryptoParameters());
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
