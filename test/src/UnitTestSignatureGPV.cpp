@@ -64,6 +64,8 @@ TEST(simple_sign_verify, compares_to_expected_result) {
 	EXPECT_EQ(true, scheme.Verify(v_k, signature, text))
 		<<"Failed verification";
 
+	ILVector2n::DestroyPreComputedSamples();
+
 }
 //TEST FOR SIGNING AND VERIFYING SIGNATURES GENERATED FROM MULTIPLE TEXTS. ONLY SIGNATURES CORRESPONDING TO THEIR RESPECTIVE TEXT SHOULD VERIFY
 TEST(sign_verify_multiple_texts, compares_to_expected_results) {
@@ -99,6 +101,8 @@ TEST(sign_verify_multiple_texts, compares_to_expected_results) {
 	EXPECT_EQ(false, scheme.Verify(v_k, signature, text2))
 			<< "Failed signature 1 - text 2 verification";
 
+	ILVector2n::DestroyPreComputedSamples();
+
 }
 
 //TEST FOR SIGNING AND VERIFYING SIGNATURES GENERATED FROM MULTIPLE KEYS. ONLY SIGNATURES CORRESPONDING TO THEIR RESPECTIVE SPECIFIC KEY SHOULD VERIFY
@@ -132,6 +136,8 @@ TEST(sign_verify_multiple_keys, compares_to_expected_results) {
 		<< "Failed signature 2 - key 1 verification";
 	EXPECT_EQ(false, scheme.Verify(v_k2, signature, text))
 		<< "Failed signature 1 - key 2 verification";
+
+	ILVector2n::DestroyPreComputedSamples();
 
 }
 
