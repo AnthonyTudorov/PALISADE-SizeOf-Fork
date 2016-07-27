@@ -135,10 +135,10 @@ TEST(sign_verify_multiple_keys, compares_to_expected_results) {
 
 }
 
-int main(int argc, char **argv) {
-	::testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
-
-}
+//int main(int argc, char **argv) {
+//	::testing::InitGoogleTest(&argc, argv);
+//	return RUN_ALL_TESTS();
+//
+//}
 
 

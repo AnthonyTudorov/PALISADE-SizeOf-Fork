@@ -46,6 +46,7 @@
 #include "../lattice/ildcrtparams.h"
 #include "../lattice/ilelement.h"
 #include "../lattice/trapdoor.h"
+#include "../lattice/trapdoor.cpp"
 
 /**
  * @namespace lbcrypto

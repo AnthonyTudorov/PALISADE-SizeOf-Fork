@@ -39,7 +39,7 @@
 #include "../../../src/lib/utils/utilities.h"
 
 #include "../../../src/lib/lattice/trapdoor.h"
-#include "../../../src/lib/lattice/trapdoor.cpp"
+//#include "../../../src/lib/lattice/trapdoor.cpp"
 #include "../../../src/lib/obfuscate/lweconjunctionobfuscate.h"
 #include "../../../src/lib/obfuscate/lweconjunctionobfuscate.cpp"
 
@@ -485,8 +485,8 @@ TEST(UTTrapdoor,EncodeTest_dgg_no) {
 	EXPECT_GT(norm, constraint);
 
 }
-int main(int argc, char **argv) {
-	::testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
-
-}
+//int main(int argc, char **argv) {
+//	::testing::InitGoogleTest(&argc, argv);
+//	return RUN_ALL_TESTS();
+//
+//}
