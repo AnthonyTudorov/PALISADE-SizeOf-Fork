@@ -233,23 +233,50 @@ namespace lbcrypto {
 		*/
 		bool operator==(const ElemParams &other) const { 
 
-			const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(other);
+			const ILDCRTParams *dcrtParams = dynamic_cast<const ILDCRTParams*>(&other);
 
-			if (m_modulus != dcrtParams.GetModulus()) {
+			if( dcrtParams == 0 ) return 0;
+
+			if (m_modulus != dcrtParams->GetModulus()) {
 				return false;
 			}
-			if (m_cyclotomicOrder != dcrtParams.GetCyclotomicOrder()) {
+			if (m_cyclotomicOrder != dcrtParams->GetCyclotomicOrder()) {
 				return false;
 			}
-			if (m_rootsOfUnity != dcrtParams.GetRootsOfUnity()) {
+
+			if (m_rootsOfUnity.size() != dcrtParams->GetRootsOfUnity().size() )
+				return false;
+
+			for( int i=0; i < m_rootsOfUnity.size(); i++ ) {
+				if( m_rootsOfUnity[i] != dcrtParams->GetRootsOfUnity()[i] )
+					return false;
+			}
+
+			if (m_moduli.size() != dcrtParams->GetModuli().size()) {
 				return false;
 			}
-			if (m_moduli != dcrtParams.GetModuli()) {
-				return false;
+
+			for( int i=0; i < m_moduli.size(); i++ ) {
+				if( m_moduli[i] != dcrtParams->GetModuli()[i] )
+					return false;
 			}
 
 			return true;
 		}
+
+       friend std::ostream& operator<<(std::ostream& out, const ILDCRTParams &item) {
+            out << "ILParams: mod " << item.GetModulus() << " order " << item.GetCyclotomicOrder() << std::endl;
+            out << "Moduli:" << std::endl;
+			for( int i=0; i < item.GetModuli().size(); i++ ) {
+				out << "   " << i << ": " << item.GetModuli()[i] << std::endl;
+			}
+			out << "Roots of unity:" << std::endl;
+			for( int i=0; i < item.GetRootsOfUnity().size(); i++ ) {
+				out << "   " << i << ": " << item.GetRootsOfUnity()[i] << std::endl;
+			}
+        	return out;
+        }
+
 
 	private:
 		// order of cyclotomic polynomial

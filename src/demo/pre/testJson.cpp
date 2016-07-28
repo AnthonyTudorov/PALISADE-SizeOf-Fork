@@ -36,6 +36,9 @@ void testJson(
 
 	std::cout << "----------------------START JSON FACILITY TESTING-------------------------" << endl;
 
+	LPCryptoParameters<ILVector2n> *temp = tp->ctx->getParams();
+	cout << *(dynamic_cast<LPCryptoParametersRLWE<ILVector2n> *>(temp)) << endl;
+
 	string jsonFileName;
 	string jsonRep;
 
