@@ -210,15 +210,18 @@ namespace lbcrypto {
 		* @return true if this ILVector2n represents the same values as the specified ILVectorArray2n, false otherwise
 		*/
         bool operator==(const ElemParams& rhs) const {
-        	const ILParams &ip = dynamic_cast<const ILParams &>(rhs);
+        	const ILParams *ip = dynamic_cast<const ILParams *>(&rhs);
 			
-			if (m_modulus != ip.GetModulus()) {
+        	if( ip == 0 )
+        		return false;
+
+			if (m_modulus != ip->GetModulus()) {
 				return false;
 			}
-			if (m_order != ip.GetCyclotomicOrder()) {
+			if (m_order != ip->GetCyclotomicOrder()) {
 				return false;
 			}
-			if (m_rootOfUnity != ip.GetRootOfUnity()) {
+			if (m_rootOfUnity != ip->GetRootOfUnity()) {
 				return false;
 			}
 			return true;
@@ -232,6 +235,11 @@ namespace lbcrypto {
 		*/
         inline bool operator!=(ILParams const &rhs) {
             return !(*this == rhs);
+        }
+
+        friend std::ostream& operator<<(std::ostream& out, const ILParams &item) {
+            out << "ILParams: mod " << item.GetModulus() << " order " << item.GetCyclotomicOrder() << " root of unity " << item.GetRootOfUnity() << std::endl;
+        	return out;
         }
 
 		//JSON FACILITY

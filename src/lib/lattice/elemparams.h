@@ -38,6 +38,7 @@
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
+#include <iostream>
 
 /**
 * @namespace lbcrypto

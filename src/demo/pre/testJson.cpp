@@ -42,6 +42,9 @@ void testJson(
 		return;
 	}
 
+	LPCryptoParameters<ILVector2n> *temp = tp->ctx->getParams();
+	cout << *(dynamic_cast<LPCryptoParametersRLWE<ILVector2n> *>(temp)) << endl;
+
 	string jsonFileName;
 	string jsonRep;
 
@@ -113,12 +116,6 @@ void testJson(
 		cout << "FAILED" << endl;
 		return;
 	}
-
-//	//gwr
-//	ByteArray pt1;
-//	DecryptResult dr = CryptoUtility<ILVector2n>::Decrypt(*tp->ctx->getAlgorithm(), skDeserialized,
-//			testCiphertext, &pt1);
-//	cout << pt1 << endl;
 	cout << "----------END LPAlgorithmPRE" + cID + ".Encrypt TESTING----------" << endl << endl;
 
 	cout << "---BEGIN CIPHERTEXT SERIALIZATION---" << endl;
