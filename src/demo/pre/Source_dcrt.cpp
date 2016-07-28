@@ -167,6 +167,8 @@ void NTRU_DCRT() {
 	cryptoParams.SetElementParams(params);
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
+	cout << cryptoParams;
+
 	Ciphertext<ILVectorArray2n> cipherText;
 	cipherText.SetCryptoParameters(&cryptoParams);
 

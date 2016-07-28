@@ -67,6 +67,8 @@ namespace lbcrypto {
 		*/
 		virtual const usint GetCyclotomicOrder() const = 0;
 
+	    virtual std::ostream& operator<<(std::ostream& out, const ElemParams &item) = 0;
+
 		virtual bool operator==(const ElemParams &other) const = 0;
 	};
 

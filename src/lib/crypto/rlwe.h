@@ -238,7 +238,8 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& os, const LPCryptoParametersRLWE<Element>& item) {
 		os << "Plaintext modulus " << item.GetPlaintextModulus() << std::endl;
-		os << dynamic_cast<const ILParams&>(item.GetElementParams());
+		//os << dynamic_cast<const ILParams&>(item.GetElementParams());
+		os << item.GetElementParams();
 
 		os << "Distrib parm " << item.GetDistributionParameter() <<
 				", Assurance measure " << item.GetAssuranceMeasure() <<

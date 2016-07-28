@@ -264,15 +264,21 @@ namespace lbcrypto {
 			return true;
 		}
 
-       friend std::ostream& operator<<(std::ostream& out, const ILDCRTParams &item) {
-            out << "ILParams: mod " << item.GetModulus() << " order " << item.GetCyclotomicOrder() << std::endl;
+       std::ostream& operator<<(std::ostream& out, const ElemParams &item) {
+			const ILDCRTParams *dcrtParams = dynamic_cast<const ILDCRTParams*>(&item);
+
+			if( dcrtParams == 0 ) {
+				out << "*** arg not ILDCRTParams" << std::endl;
+			} else {
+			out << "ILDCRTParams: mod " << dcrtParams->GetModulus() << " order " << dcrtParams->GetCyclotomicOrder() << std::endl;
             out << "Moduli:" << std::endl;
-			for( int i=0; i < item.GetModuli().size(); i++ ) {
-				out << "   " << i << ": " << item.GetModuli()[i] << std::endl;
+			for( int i=0; i < dcrtParams->GetModuli().size(); i++ ) {
+				out << "   " << i << ": " << dcrtParams->GetModuli()[i] << std::endl;
 			}
 			out << "Roots of unity:" << std::endl;
-			for( int i=0; i < item.GetRootsOfUnity().size(); i++ ) {
-				out << "   " << i << ": " << item.GetRootsOfUnity()[i] << std::endl;
+			for( int i=0; i < dcrtParams->GetRootsOfUnity().size(); i++ ) {
+				out << "   " << i << ": " << dcrtParams->GetRootsOfUnity()[i] << std::endl;
+			}
 			}
         	return out;
         }
