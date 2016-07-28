@@ -237,18 +237,13 @@ public:
 		return !(*this == rhs);
 	}
 
-	std::ostream& operator<<(std::ostream& out, const ElemParams &item) {
-		const ILParams *ip = dynamic_cast<const ILParams *>(&item);
-
-		if( ip == 0 ) {
-			out << "*** arg not ILParams" << std::endl;
-		} else {
-			out << "ILParams: mod " << ip->GetModulus() << " order " << ip->GetCyclotomicOrder() << " root of unity " << ip->GetRootOfUnity() << std::endl;
-		}
+private:
+	std::ostream& doprint(std::ostream& out) const {
+		out << "ILParams: mod " << GetModulus() << " order " << GetCyclotomicOrder() << " root of unity " << GetRootOfUnity() << std::endl;
 		return out;
 	}
 
-	//JSON FACILITY
+public:
 	/**
 	 * Serialize the object into a Serialized
 	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());

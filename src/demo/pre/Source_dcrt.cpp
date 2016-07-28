@@ -92,7 +92,7 @@ int main() {
 //	ComposedEvalMultTest();
 //	 FinalLeveledComputation();
 
-	//TestParameterSelection();
+	TestParameterSelection();
 	//LevelCircuitEvaluation2WithCEM();
 
 	std::cin.get();
@@ -802,11 +802,15 @@ void TestParameterSelection(){
 
 	usint n = 16;
 
+	cout << "cryptoParams::: " << cryptoParams << "=====" << endl;
+
 	std::vector<BigBinaryInteger> moduliV(size);
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
 
 	cryptoParams.ParameterSelection(&cryptoParams2);
 	//cryptoParams.ParameterSelection(n, moduliV);
+	cout << "cryptoParams after::: " << cryptoParams << "=====" << endl;
+	cout << "cryptoParams2 after::: " << cryptoParams2 << "=====" << endl;
 
 	cout << "parameter selection test" << endl;
 	cout << cryptoParams2.GetAssuranceMeasure() << endl;
