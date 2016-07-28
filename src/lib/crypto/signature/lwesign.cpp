@@ -59,15 +59,13 @@ namespace lbcrypto {
 		verificationKey->SetPublicElement(keyPair.first);
 		
 		//Calculate perturbation matrix once so multiple signatures won't be slowed down by this step. Refer to the paper for clarification on the usage of this matrix.
-		std::cout << "Perturbation started" << std::endl;
 		const BigBinaryInteger & q = verificationKey->GetSignatureParameters().GetILParams().GetModulus();
 		size_t n = verificationKey->GetSignatureParameters().GetILParams().GetCyclotomicOrder() / 2;
 		double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
 		size_t k = (usint)floor(logTwo);
-		double s = 40 * std::sqrt(n*(k + 2));
-		Matrix<LargeFloat> sigmaSqrt([]() { return make_unique<LargeFloat>(); }, n*(k + 2), n*(k + 2));
-		RLWETrapdoorUtility::PerturbationMatrixGen(n, k, keyPair.first, keyPair.second, s, &sigmaSqrt);
-		std::cout << "Perturbation ended" << std::endl;
+		double s = 40 * std::sqrt(n*2);
+		Matrix<LargeFloat> sigmaSqrt([]() { return make_unique<LargeFloat>(); }, n*2, n*2);
+		RLWETrapdoorUtility::PerturbationMatrixGen(n,k, keyPair.first, keyPair.second, s, &sigmaSqrt);
 		//Signing key will contain perturbation matrix, public key matrix of the trapdoor and the trapdoor matrices
 		signKey->SetPrivateElement(std::pair<Matrix<LargeFloat>, std::pair<Matrix<ILVector2n>, RLWETrapdoorPair<ILVector2n>>>(sigmaSqrt,keyPair));
 	}

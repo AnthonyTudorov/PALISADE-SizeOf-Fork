@@ -178,5 +178,25 @@ namespace lbcrypto {
 		DEBUG("P7: "<<TOC(t1) <<" ms");
 	}
 
+	void RLWETrapdoorUtility::PerturbationMatrixGenAlt(size_t n,size_t k,const RingMat& A,
+		const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt) {
+
+		int32_t r(ceil(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI)));
+		int32_t a(floor(r / 2));
+		const BigBinaryInteger& modulus = A(0, 0).GetModulus();
+		
+		Matrix<ILVector2n> eCoeff = T.m_e;
+		eCoeff.SwitchFormat();
+		Matrix<ILVector2n> rCoeff = T.m_r;
+		rCoeff.SwitchFormat();
+		Matrix<BigBinaryInteger> R = Rotate(eCoeff).VStack(Rotate(rCoeff));
+
+
+		Matrix<int32_t> Rint = ConvertToInt32(R, modulus);
+		int32_t b = s*s - 5 *a *a;
+		Matrix<int32_t> Snk = ((int32_t)(s*s - a*a))*(Matrix<int32_t>(Rint.GetAllocator(), n * 2, n * 2))- Rint*Rint.Transpose().ScalarMult(double(r*r + 1 / b));
+		*sigmaSqrt = Cholesky(Snk); 
+	}
+
 
 } //end namespace crypto

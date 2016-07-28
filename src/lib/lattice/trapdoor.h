@@ -124,6 +124,9 @@ public:
 	static inline void PerturbationMatrixGen(size_t n, size_t k, const RingMat& A, 
 			const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt); 
 
+	static inline void PerturbationMatrixGenAlt(size_t n,size_t k, const RingMat& A,
+		const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt);
+
 };
 
 } //end namespace crypto

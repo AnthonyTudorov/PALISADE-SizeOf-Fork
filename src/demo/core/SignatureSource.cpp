@@ -63,7 +63,7 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
-
+	
 	signParams.SetDiscreteGaussianGenerator(dgg);
 	signParams.SetElemParams(silParams);
 
@@ -88,7 +88,8 @@ int main() {
 	std::cout << "Signature 1-Text 2 verification:" << scheme.Verify(v_k, signature, text2) << std::endl;
 	finish = currentDateTime();
 	std::cout << "Verifying 4 signature-text combinations : " << "\t" << finish - start << " ms" << std::endl;
-
+	
+	
 	sm = 512;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("49884309");
@@ -216,6 +217,9 @@ int main() {
 	std::cout << "Execution completed" << std::endl;
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();
+
+	std::cin.ignore();
+	std::cin.get();
 	
 	return 0;
 }
