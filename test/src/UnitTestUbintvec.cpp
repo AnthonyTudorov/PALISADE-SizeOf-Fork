@@ -37,15 +37,16 @@
  *  vector library of the PALISADE lattice encryption library.
  *
  **/
+
 //todo reduce the number of required includes
-
-
 #include "../include/gtest/gtest.h"
 #include <iostream>
+#include <fstream>
 
 #include "../../src/lib/math/backend.h"
 #include "../../src/lib/utils/inttypes.h"
 #include "../../src/lib/math/nbtheory.h"
+
 #include "../../src/lib/lattice/elemparams.h"
 #include "../../src/lib/lattice/ilparams.h"
 #include "../../src/lib/lattice/ildcrtparams.h"
@@ -59,8 +60,6 @@
 
 using namespace std;
 using namespace lbcrypto;
-/* NOTE THIS FILE WILL BE COMPLETELY REDONE SOON */
-
 
 /*
   int main(int argc, char **argv) {
@@ -69,22 +68,217 @@ using namespace lbcrypto;
   }
 */
 
+ //helper function to compare two bintvecs and print differing indicies
+ void vec_diff(ubintvec &a, ubintvec &b) {
+   for (usint i= 0; i < a.size(); ++i){  //todo change to size()
+     if (a[i] != b[i]) {  //todo: add [] indexing to class
+       cout << "i: "<< i << endl;
+       cout << "first vector " <<endl;
+       cout <<a[i];
+       cout << endl;
+       cout << "state " << a[i].GetState() << endl;;
+       cout << "msb: " << a[i].GetMSB() << endl;;
+       cout << "second vector " <<endl;
+       cout << b[i];
+       cout << endl;
+       cout << "state " << b[i].GetState() << endl;;
+       cout << "msb: " << b[i].GetMSB() << endl;;
+       cout << endl;
+     }
+   }
+ }
+
+class UnitTestubintvec : public ::testing::Test {
+protected:
+  virtual void SetUp() {
+    // Code here will be called before each test
+    // (right before the constructor).
+
+  }
+
+  virtual void TearDown() {
+    // Code here will be called immediately after each test
+    // (right before the destructor).
+  }
+};
+
+/* list of tests left to run
+//ctors
+   ubintvec();
+   Single(const bint_el_t& val) { 
+   ubintvec(usint length);
+   ubintvec(std::vector<std::string>& s);
+   ubintvec(const ubintvec& rhs);
+   ubintvec(ubintvec &&rhs);//move copy constructor
+
+   ~ubintvec();
+
+//= operators   
+   operator=(const ubintvec &rhs);
+   operator=(ubintvec &&rhs);
+   operator=(std::initializer_list<bint_el_t> rhs);
+   //const ubintvec& operator=(std::initializer_list<usint> rhs);
+   //const ubintvec& operator=(std::initializer_list<string> rhs);
+   operator=(usint val)
+
+//comparison operators
+   inline bool operator!=(const ubintvec &b)
+   inline bool operator==(const ubintvec &b)
+
+   //ACCESSORS
+
+   operator<<()
+   
+   SetValAtIndex(usint index, const bint_el_t& value);
+   SetValAtIndex(usint index, const std::string& str);
+   GetValAtIndex(usint index) 
+   
+   operator[](std::size_t idx) lhs
+   operator[](std::size_t idx) rhs
+   
+   //inline ubintvec<bint_el_t>& operator[](usint idx)
+   //inline const ubintvec<bint_el_t>& operator[](usint idx)
+   GetLength()
+   size()
+   
+   //METHODS
+   
+   Add(const bint_el_t &b)
+   Sub(const bint_el_t &b)
+   Mul(const bint_el_t &b)
+   
+   //todo write Div and +=,-= *= /= scalar
+   
+   Exp(const bint_el_t &b)
+
+
+   //todo write Div and +=,-= *= /= vector
+   
+   Modulus methods   
+   Mod(const bint_el_t& modulus)
+   operator%=(const bint_el_t& modulus);
+
+   ModAdd(const bint_el_t& b, const bint_el_t& modulus)
+   ModSub(const bint_el_t& b, const bint_el_t& modulus)
+   ModMul(const bint_el_t& b, const bint_el_t& modulus)
+   
+   GetDigitAtIndexForBase(usint index, usint base) const;
+   
+   //JSON FACILITY
+   Serialize()
+   Deserialize()
+   
+   //BINARY OPERATOR Templates
+   
+   ubintvec<bint_el_t> operator%(const ubintvec<bint_el_t>& ,const bint_el_t)
+   ubintvec<bint_el_t> operator+(const ubintvec<bint_el_t> &,const bint_el_t) 
+   ubintvec<bint_el_t> operator-(const ubintvec<bint_el_t> &a, const bint_el_t 
+   ubintvec<bint_el_t> operator*(const ubintvec<bint_el_t> &a, const bint_el_t
+   
+
 /************************************************/
 /*	TESTING BASIC METHODS OF ubintvec CLASS        */
 /************************************************/
-//constructors
-//ubintvec()
-//ubintvec(usint)
-//ubintvec(ubintvec)
-//need memory test for destructor
+TEST(UTubintvec,ctor){
+
+  ubintvec m(5); // calling constructor to create a vector of length 5
+                 //note all values are zero.
+  ubintvec n(5);
+  ubintvec o();
+  int i;
+  usint j;
+
+  EXPECT_EQ(5,m.size())<< "Failure in size()";
+  EXPECT_EQ(5,n.size())<< "Failure in size()";
+
+  //setting value of the value at different index locations
+  //this fails.
+  m.SetValAtIndex(0,"9868"); 
+  m.SetValAtIndex(1,"5879");
+  m.SetValAtIndex(2,"4554");
+  m.SetValAtIndex(3,"2343");
+  m.SetValAtIndex(4,"4624");
+
+  EXPECT_EQ(9868U,m.GetValAtIndex(0).ConvertToUsint())<< "Failure in SetValAtIndex(str)";
+  EXPECT_EQ(5879U,m.GetValAtIndex(1).ConvertToUsint())<< "Failure in SetValAtIndex(str)";
+  EXPECT_EQ(4554U,m.GetValAtIndex(2).ConvertToUsint())<< "Failure in SetValAtIndex(str)";
+  EXPECT_EQ(2343U,m.GetValAtIndex(3).ConvertToUsint())<< "Failure in SetValAtIndex(str)";
+  EXPECT_EQ(4624U,m.GetValAtIndex(4).ConvertToUsint())<< "Failure in SetValAtIndex(str)";
+
+//   m.SetValAtIndex(0,9868)); does not compile, must be added.
+//   m.SetValAtIndex(1,5879));
+//   m.SetValAtIndex(2,4554));
+//   m.SetValAtIndex(3,2343));
+//   m.SetValAtIndex(4,4624));
+
+//   cout << m.GetValAtIndex(0).ConvertToUsint()<< endl;
+//   cout << m.GetValAtIndex(1).ConvertToUsint()<< endl;
+//   cout << m.GetValAtIndex(2).ConvertToUsint()<< endl;
+//   cout << m.GetValAtIndex(3).ConvertToUsint()<< endl;
+//   cout << m.GetValAtIndex(4).ConvertToUsint()<< endl;
+  
+// EXPECT_EQ(9868U,m.GetValAtIndex(0).ConvertToUsint()) << "Failure in SetValAtIndex(int)";
+//   EXPECT_EQ(5878U,m.GetValAtIndex(1).ConvertToUsint()) << "Failure in SetValAtIndex(int)";
+//   EXPECT_EQ(4554U,m.GetValAtIndex(2).ConvertToUsint()) << "Failure in SetValAtIndex(int)";
+//   EXPECT_EQ(2343U,m.GetValAtIndex(3).ConvertToUsint()) << "Failure in SetValAtIndex(int)";
+//   EXPECT_EQ(4624U,m.GetValAtIndex(4).ConvertToUsint()) << "Failure in SetValAtIndex(int)";
+
+  m.SetValAtIndex(0,ubint("9868"));
+  m.SetValAtIndex(1,ubint("5879"));
+  m.SetValAtIndex(2,ubint("4554"));
+  m.SetValAtIndex(3,ubint("2343"));
+  m.SetValAtIndex(4,ubint("4624"));
+  
+  EXPECT_EQ(9868U,m.GetValAtIndex(0).ConvertToUsint())<< "Failure in SetValAtIndex(ubint)";
+  EXPECT_EQ(5879U,m.GetValAtIndex(1).ConvertToUsint())<< "Failure in SetValAtIndex(ubint)";
+  EXPECT_EQ(4554U,m.GetValAtIndex(2).ConvertToUsint())<< "Failure in SetValAtIndex(ubint)";
+  EXPECT_EQ(2343U,m.GetValAtIndex(3).ConvertToUsint())<< "Failure in SetValAtIndex(ubint)";
+  EXPECT_EQ(4624U,m.GetValAtIndex(4).ConvertToUsint())<< "Failure in SetValAtIndex(ubint)";
+
+  EXPECT_EQ(ubint(9868U),m.GetValAtIndex(0))<< "Failure in SetValAtIndex()";
+  EXPECT_EQ(ubint(5879U),m.GetValAtIndex(1))<< "Failure in SetValAtIndex()";
+  EXPECT_EQ(ubint(4554U),m.GetValAtIndex(2))<< "Failure in SetValAtIndex()";
+  EXPECT_EQ(ubint(2343U),m.GetValAtIndex(3))<< "Failure in SetValAtIndex()";
+  EXPECT_EQ(ubint(4624U),m.GetValAtIndex(4))<< "Failure in SetValAtIndex()";
+
+  //setting value of the value at different index locations
+  //n[0]="4"; //string not there yet
+  n[0]=4;
+  n[1]=9;   //int (implied)
+  n[2]=ubint("66"); //ubint
+  n[3] = 33L;  //long
+  n[4] = 7UL;  //unsigned long
+
+
+  EXPECT_EQ(ubint(4),n[0])<< "Failure in []";
+  EXPECT_EQ(ubint(9),n[1])<< "Failure in []";
+  EXPECT_EQ(ubint(66),n[2])<< "Failure in []";
+  EXPECT_EQ(ubint(33),n[3])<< "Failure in []";
+  EXPECT_EQ(ubint(7),n[4])<< "Failure in []";
+
+  m+=n;
+
+  //ubintvec expectedvecint = {9872,5888,4620,2376,4631}; does not work
+
+  // ubintvec expectedvecint = {9872U,5888U,4620U,2376U,4631U};
+  // ubintvec expectedvecint = {ubint(9872U),ubint(5888U),ubint(4620U),ubint(2376U),ubint(4631U)};
+
+  //ubintvec expectedvecstr = {"9872","5888","4620","2376","4631"}; does not work
+  usint expectedResult[5] = {9872,5888,4620,2376,4631};
+
+  for (i=0,j=0;j<5;i++,j++) {
+    EXPECT_EQ (expectedResult[i], (m.GetValAtIndex(j)).ConvertToUsint())
+      << "Failure testing method_plus_equals";
+
+
+    //      EXPECT_EQ (expectedResultint[i], m[j])
+    //<< "Failure testing method_plus_equals";
+  }
+
+}
 /************************************************/
 /*	TESTING BASIC operators OF ubintvec CLASS        */
 /************************************************/
-//=(binvect)
-//=(bintvect&&)
-//=usint
-
-
 
 /************************************************/
 /*	TESTING SCALAR MATH OF ubintvec CLASS        */
@@ -165,36 +359,397 @@ TEST(UTubintvec,mod_operations){
   	Returns:  (m+n)mod q, and the result is stored in BigBinary Vector a.
 */
 
-TEST(UTubintvec,basic_math){
-  ubint q("657");
-  ubintvec m(5); // calling constructor to create a vector of length 5
-  ubintvec n(5);
-	
-  int i;
-  usint j;
 
-  //setting value of the value at different index locations
-  m.SetValAtIndex(0,"9868");
-  m.SetValAtIndex(1,"5879");
-  m.SetValAtIndex(2,"4554");
-  m.SetValAtIndex(3,"2343");
-  m.SetValAtIndex(4,"4624");
+TEST(UTubintvec,basic_math_1_limb){
+  //basic vector math with 1 limb entries
+  // a1:
+  std::vector<std::string>  a1sv =
+    { "127753", "077706",
+      "017133", "022582",
+      "112132", "027625",
+      "126773", "008924",
+      "125972", "002551",
+      "113837", "112045",
+      "100953", "077352",
+      "132013", "057029", };
+
+  ubintvec a1(a1sv);
+
+  // b1:
+  std::vector<std::string>  b1sv = 
+    {"066773", "069572",
+     "142134", "141115",
+     "123182", "155822",
+     "128147", "094818",
+     "135782", "030844",
+     "088634", "099407",
+     "053647", "111689",
+     "028502", "026401", };
+
+  ubintvec b1(b1sv);
+
+  // add1:
+  std::vector<std::string>  add1sv = 
+    {"194526", "147278",
+     "159267", "163697",
+     "235314", "183447",
+     "254920", "103742",
+     "261754", "033395",
+     "202471", "211452",
+     "154600", "189041",
+     "160515", "083430", };
+
+  ubintvec add1(add1sv);
+  // sub1:
+#if 0 //set to 1 if we allow b>a in subtraction
+  std::vector<std::string>  sub1sv = 
+    {"060980", "008134",
+     "18446744073709426615", "18446744073709433083",
+     "18446744073709540566", "18446744073709423419",
+     "18446744073709550242", "18446744073709465722",
+     "18446744073709541806", "18446744073709523323",
+     "025203", "012638",
+     "047306", "18446744073709517279",
+     "103511", "030628", };
+
+#else
+  std::vector<std::string> sub1sv = 
+
+    {"060980", "008134",
+     "000000", "000000",
+     "000000", "000000",
+     "000000", "000000",
+     "000000", "000000",
+     "025203", "012638",
+     "047306", "000000",
+     "103511", "030628", };
+#endif
+  ubintvec sub1(sub1sv);
+
+  // mul1:
+  std::vector<std::string>  mul1sv = 
+    {"08530451069",
+     "05406161832",
+     "02435181822",
+     "03186658930",
+     "13812644024",
+     "04304582750",
+     "16245579631",
+     "00846155832",
+     "17104730104",
+     "00078683044",
+     "10089828658",
+     "11138057315",
+     "05415825591",
+     "08639367528",
+     "03762634526",
+     "01505622629", };
+  ubintvec mul1(mul1sv);
+
+  ubintvec c1;
+  ubintvec d1;
+  mubintvec mc1;
+  // test math for case 1
+  c1 = a1.Add(b1);
+  EXPECT_EQ (c1, add1) << "Failure 1 limb vector vector Add()";
+  c1 = a1 + b1;
+  EXPECT_EQ (c1, add1) << "Failure 1 limb vector vector +";
+  d1 = a1;
+  d1+=b1;
+  EXPECT_EQ (d1, add1) << "Failure 1 limb vector vector +=";
 
 
-  //setting value of the value at different index locations
-  n.SetValAtIndex(0,"4");
-  n.SetValAtIndex(1,"9");
-  n.SetValAtIndex(2,"66");
-  n.SetValAtIndex(3,"33");
-  n.SetValAtIndex(4,"7");
-  m+=n;
-  int expectedResult[5] = {9872,5888,4620,2376,4631};
+  c1 = a1.Sub(b1);
+  EXPECT_EQ (c1, sub1) << "Failure 1 limb vector vector Sub()";
+  c1 = a1 - b1;
+  EXPECT_EQ (c1, sub1) << "Failure 1 limb vector vector -";
+  d1 = a1;
+  d1 -= a1;
+  EXPECT_EQ (d1, sub1) << "Failure 1 limb vector vector -=";
 
-  for (i=0,j=0;j<5;i++,j++)
-    {
-      EXPECT_EQ (expectedResult[i], (m.GetValAtIndex(j)).ConvertToUsint())
-	<< "Failure testing method_plus_equals";
-    }
+  c1 = a1.Mul(b1);
+  EXPECT_EQ (c1, mul1) << "Failure 1 limb vector vector Mul()";
+  c1 = a1 * b1;
+  EXPECT_EQ (c1, mul1) << "Failure 1 limb vector vector *";
+  d1 = a1;
+  d1 *= a1;
+  EXPECT_EQ (d1, mul1) << "Failure 1 limb vector vector *=";
+
+}
+
+TEST(UTubintvec,basic_mod_math_1_limb){
+
+  // q1 modulus 1:
+  ubint q1("163841");
+
+  // a1:
+  std::vector<std::string>  a1sv =
+    { "127753", "077706",
+      "017133", "022582",
+      "112132", "027625",
+      "126773", "008924",
+      "125972", "002551",
+      "113837", "112045",
+      "100953", "077352",
+      "132013", "057029", };
+
+  ubintvec a1(a1sv);
+
+  // b1:
+  std::vector<std::string>  b1sv = 
+    {"066773", "069572",
+     "142134", "141115",
+     "123182", "155822",
+     "128147", "094818",
+     "135782", "030844",
+     "088634", "099407",
+     "053647", "111689",
+     "028502", "026401", };
+
+  ubintvec b1(b1sv);
+ 
+  // modadd1:
+  std::vector<std::string>  modadd1sv = 
+    {"030685", "147278",
+     "159267", "163697",
+     "071473", "019606",
+     "091079", "103742",
+     "097913", "033395",
+     "038630", "047611",
+     "154600", "025200",
+     "160515", "083430", };
+  ubintvec modadd1(modadd1sv);
+
+  // modsub1:
+  std::vector<std::string>  modsub1sv = 
+    {"060980", "008134",
+     "038840", "045308",
+     "152791", "035644",
+     "162467", "077947",
+     "154031", "135548",
+     "025203", "012638",
+     "047306", "129504",
+     "103511", "030628", };
+  ubintvec modsub1(modsub1sv);
+
+  // modmul1:
+  std::vector<std::string>  modmul1sv = 
+    {"069404", "064196",
+     "013039", "115321",
+     "028519", "151998",
+     "089117", "080908",
+     "057386", "039364",
+     "008355", "146135",
+     "061336", "031598",
+     "025961", "087680", };
+  ubintvec modmul1(modmul1sv);
+
+  ubintvec c1;
+ //now Mod operations
+  c1 = a1.ModAdd(b1,q1);
+  EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector vector ModAdd()";    
+
+  c1 = a1.ModSub(b1,q1);
+  EXPECT_EQ (c1, modsub1) << "Failure 1 limb vector vector ModSub()";   
+
+  c1 = a1.ModMul(b1,q1);
+  EXPECT_EQ (c1, modmul1) << "Failure 1 limb vector vector ModMul()";   
+
+
+}
+TEST(UTubintvec,basic_math_2_limb){
+
+  // a2:
+  std::vector<std::string>  a2sv = 
+    {"0185225172798255", "0098879665709163",
+     "3497410031351258", "4012431933509255",
+     "1543020758028581", "0135094568432141",
+     "3976954337141739", "4030348521557120",
+     "0175940803531155", "0435236277692967",
+     "3304652649070144", "2032520019613814",
+     "0375749152798379", "3933203511673255",
+     "2293434116159938", "1201413067178193", };
+  ubintvec a2(a2sv);
+
+  // b2:
+  std::vector<std::string>  b2sv = 
+    {"0698898215124963", "0039832572186149",
+     "1835473200214782", "1041547470449968",
+     "1076152419903743", "0433588874877196",
+     "2336100673132075", "2990190360138614",
+     "0754647536064726", "0702097990733190",
+     "2102063768035483", "0119786389165930",
+     "3976652902630043", "3238750424196678",
+     "2978742255253796", "2124827461185795", };
+
+  ubintvec b2(b2sv);
+
+  // add2:
+  std::vector<std::string>  add2sv = 
+    {"0884123387923218", "0138712237895312",
+     "5332883231566040", "5053979403959223",
+     "2619173177932324", "0568683443309337",
+     "6313055010273814", "7020538881695734",
+     "0930588339595881", "1137334268426157",
+     "5406716417105627", "2152306408779744",
+     "4352402055428422", "7171953935869933",
+     "5272176371413734", "3326240528363988", };
+  ubintvec add2(add2sv);
+  // sub2:
+#if 0 //set to 1 if we allow b>a in subtraction
+  std::vector<std::string>  sub2sv = 
+    {"18446230400667224908", "0059047093523014",
+     "1661936831136476", "2970884463059287",
+     "0466868338124838", "18446445579403106561",
+     "1640853664009664", "1040158161418506",
+     "18446165366977018045", "18446477211996511393",
+     "1202588881034661", "1912733630447884",
+     "18443143169959719952", "0694453087476577",
+     "18446058765570457758", "18445820659315544014", };
+
+#else
+  std::vector<std::string>  sub2sv = 
+    {"0000000000000000", "0059047093523014",
+     "1661936831136476", "2970884463059287",
+     "0466868338124838", "0000000000000000",
+     "1640853664009664", "1040158161418506",
+     "0000000000000000", "0000000000000000",
+     "1202588881034661", "1912733630447884",
+     "0000000000000000", "0694453087476577",
+     "0000000000000000", "0000000000000000", };
+
+#endif
+  ubintvec sub2(sub2sv);
+
+  // mul2:
+  std::vector<std::string>  mul2sv = 
+    {"00129453542664913267883213339565",
+     "00003938631422102517149330983287",
+     "06419402382707574566639285895756",
+     "04179138330699238739092142453840",
+     "01660525522714165323210462878683",
+     "00058575501928512376649634356636",
+     "09290565704012341618368342178425",
+     "12051509297159015143330318631680",
+     "00132773293878034164433437538530",
+     "00305578516062424854278036474730",
+     "06946590599552827582889547919552",
+     "00243468234057004000432166157020",
+     "01494223959136453394722407100297",
+     "12738664541883618180978992446890",
+     "06831549111446250063725117624648",
+     "02552795477367678807574345368435", };
+  ubintvec mul2(mul2sv);
+
+
+  ubintvec c2;
+
+
+  // test math for case 
+
+  c2 = a2.Add(b2);
+  EXPECT_EQ (c2, add2) << "Failure 2 limb vector vector Add()";
+  c2 = a2 + b2;
+  EXPECT_EQ (c2, add2) << "Failure 2 limb vector vector +";
+  d2 = a2;
+  d2+=b2;
+  EXPECT_EQ (d2, add2) << "Failure 2 limb vector vector +=";
+
+
+  c2 = a2.Sub(b2);
+  EXPECT_EQ (c2, sub2) << "Failure 2 limb vector vector Sub()";
+  c2 = a2 - b2;
+  EXPECT_EQ (c2, sub2) << "Failure 2 limb vector vector -";
+  d2 = a2;
+  d2 -= a2;
+  EXPECT_EQ (d2, sub2) << "Failure 2 limb vector vector -=";
+
+  c2 = a2.Mul(b2);
+  EXPECT_EQ (c2, mul2) << "Failure 2 limb vector vector Mul()";
+  c2 = a2 * b2;
+  EXPECT_EQ (c2, mul2) << "Failure 2 limb vector vector *";
+  d2 = a2;
+  d2 *= a2;
+  EXPECT_EQ (d2, mul2) << "Failure 2 limb vector vector *=";
+
 }
 
 
+TEST(UTubintvec,basic_math_2_limb){
+
+  // q2:
+  ubint q2("4057816419532801");
+  // a2:
+  std::vector<std::string>  a2sv = 
+    {"0185225172798255", "0098879665709163",
+     "3497410031351258", "4012431933509255",
+     "1543020758028581", "0135094568432141",
+     "3976954337141739", "4030348521557120",
+     "0175940803531155", "0435236277692967",
+     "3304652649070144", "2032520019613814",
+     "0375749152798379", "3933203511673255",
+     "2293434116159938", "1201413067178193", };
+  ubintvec a2(a2sv);
+
+  // b2:
+  std::vector<std::string>  b2sv = 
+    {"0698898215124963", "0039832572186149",
+     "1835473200214782", "1041547470449968",
+     "1076152419903743", "0433588874877196",
+     "2336100673132075", "2990190360138614",
+     "0754647536064726", "0702097990733190",
+     "2102063768035483", "0119786389165930",
+     "3976652902630043", "3238750424196678",
+     "2978742255253796", "2124827461185795", };
+
+  ubintvec b2(b2sv);
+
+  // modadd2:
+  std::vector<std::string>  modadd2sv = 
+    {"0884123387923218", "0138712237895312",
+     "1275066812033239", "0996162984426422",
+     "2619173177932324", "0568683443309337",
+     "2255238590741013", "2962722462162933",
+     "0930588339595881", "1137334268426157",
+     "1348899997572826", "2152306408779744",
+     "0294585635895621", "3114137516337132",
+     "1214359951880933", "3326240528363988", };
+  ubintvec modadd2(modadd2sv);
+
+  // modsub2:
+  std::vector<std::string>  modsub2sv = 
+    {"3544143377206093", "0059047093523014",
+     "1661936831136476", "2970884463059287",
+     "0466868338124838", "3759322113087746",
+     "1640853664009664", "1040158161418506",
+     "3479109686999230", "3790954706492578",
+     "1202588881034661", "1912733630447884",
+     "0456912669701137", "0694453087476577",
+     "3372508280438943", "3134402025525199", };
+  ubintvec modsub2(modsub2sv);
+
+  // modmul2:
+  std::vector<std::string>  modmul2sv = 
+    {"0585473140075497", "3637571624495703",
+     "1216097920193708", "1363577444007558",
+     "0694070384788800", "2378590980295187",
+     "0903406520872185", "0559510929662332",
+     "0322863634303789", "1685429502680940",
+     "1715852907773825", "2521152917532260",
+     "0781959737898673", "2334258943108700",
+     "2573793300043944", "1273980645866111", };
+  ubintvec modmul2(modmul2sv);
+
+  ubintvec c2;
+
+  //now Mod operations
+  c2 = a2.ModAdd(b2,q2);
+  EXPECT_EQ (c2, modadd2) << "Failure 2 limb vector vector ModAdd()";    
+  
+  c2 = a2.ModSub(b2,q2);
+  EXPECT_EQ (c2, modsub2) << "Failure 2 limb vector vector ModSub()";   
+  
+  c2 = a2.ModMul(b2,q2);
+  EXPECT_EQ (c2, modmul2) << "Failure 2 limb vector vector ModMul()";   
+  
+}

@@ -152,6 +152,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 
     if (init <= m_MaxLimb) {
       //init fits in first limb entry
+      m_value.clear(); // make sure it is empty to start
       m_value.push_back((limb_t)init);
       DEBUG("single limb size now "<<m_value.size());
     } else {
@@ -191,6 +192,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 
     if (init <= m_MaxLimb) {
       //init fits in first limb entry
+      m_value.clear(); // make sure it is empty to start
       m_value.push_back((limb_t)init);
       DEBUG("single limb size now "<<m_value.size());
     } else {
@@ -225,6 +227,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 
     if (init <= m_MaxLimb) {
       //init fits in first limb entry
+      m_value.clear(); // make sure it is empty to start
       m_value.push_back((limb_t)init);
       DEBUG("single limb size now "<<m_value.size());
     } else {
@@ -268,6 +271,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 
     if (init <= m_MaxLimb) {
       //init fits in first limb entry
+      m_value.clear(); // make sure it is empty to start
       m_value.push_back((limb_t)init);
       DEBUG("single limb size now "<<m_value.size());
     } else {
@@ -1324,7 +1328,7 @@ again:
   //Reference:http://pctechtips.org/convert-from-decimal-to-binary-with-recursion-in-java/
   template<typename limb_t>
   void ubint<limb_t>::AssignVal(const std::string& vin){
-	  bool dbg_flag = false;		// if true then print dbg output
+	  bool dbg_flag = false;	// if true then print dbg output
 	  DEBUG("AssignVal ");
 	  DEBUG("vin: "<< vin);
 
@@ -1358,6 +1362,9 @@ again:
 		  std::cout << std::endl;
 	  }
 
+	  //clear the current value of m_value;
+	  m_value.clear();
+
 	  sshort zptr = 0;
 	  //index of highest non-zero number in decimal number
 	  //define  bit register array
@@ -1387,6 +1394,7 @@ again:
 		  if(cnt==-1){//cnt = -1 indicates bitArr is ready for transfer
 			  cnt=m_limbBitLength-1;
 			  //m_value[bitValPtr--]= UintInBinaryToDecimal(bitArr);//UintInBinaryToDecimal converts bitArr to decimal and resets the content of bitArr.
+			  DEBUG("push back " <<  UintInBinaryToDecimal(bitArr));
 			  m_value.push_back( UintInBinaryToDecimal(bitArr));
 		  }
 		  if(DecValue[zptr]==0)zptr++;//division makes Most significant digit zero, hence we increment zptr to next value
@@ -2212,7 +2220,7 @@ again:
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::BinaryStringToUbint(const std::string& vin){
     bool dbg_flag = false;		// if true then print dbg output
-	  DEBUG("AssignVal ");
+	  DEBUG("BinaryStringToUbint ");
 	  std::string v = vin;
 	  // strip off leading spaces from the input string
 	  v.erase(0, v.find_first_not_of(' '));
