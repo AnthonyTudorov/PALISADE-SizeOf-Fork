@@ -35,8 +35,6 @@
 
 #include "bytearray.h"
 
-ByteArray::ByteArray(const std::string& str) : std::vector<uint8_t>(str.begin(), str.end()) {}
-
 ByteArray::ByteArray(const char* cstr) {
     std::string s(cstr);
     *this = s;
@@ -48,7 +46,8 @@ ByteArray::ByteArray(const char* cstr, usint len) {
 }
 
 ByteArray& ByteArray::operator=(const std::string& s) {
-    std::vector<uint8_t>::operator=(std::vector<uint8_t>(s.begin(), s.end()));
+	ByteArray rhs(s);
+    operator=(rhs);
     return *this;
 }
 

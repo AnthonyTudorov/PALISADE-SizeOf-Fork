@@ -32,7 +32,7 @@ namespace lbcrypto {
 
 	//Impementation of ToInt32
 	std::vector<uint32_t> IntArrayPlaintextEncoding::ToInt32() const {
-		std::vector<uint32_t> vectorOfInt32(m_data.size());
+		std::vector<uint32_t> vectorOfInt32(GetLength());
 		for(std::vector<int>::size_type i = 0; i != vectorOfInt32.size(); i++) {
 			vectorOfInt32[i] = m_data[i];
 		}
@@ -55,7 +55,7 @@ namespace lbcrypto {
 
 		Format format = COEFFICIENT;
 
-		for (usint i = 0; i<m_data.size(); i++) {
+		for (usint i = 0; i < GetLength(); i++) {
 			temp.SetValAtIndex(i, BigBinaryInteger(m_data[i]));
 		}
 

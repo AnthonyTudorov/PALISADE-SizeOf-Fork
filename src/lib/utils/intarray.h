@@ -29,7 +29,7 @@
  *
  * @section DESCRIPTION
  *
- * This code provides a byte array abstraction.
+ * This code provides a int array abstraction.
  *
  */
 #ifndef LBCRYPTO_UTILS_BYTEARRAY_H
@@ -41,46 +41,19 @@
 #include "plaintext.h"
 
 /**
- * @brief Type used for representing string ByteArray types.
- * Provides conversion functions to vector<uint8_t> from standard string types.
+ * @brief Type used for representing IntArray types.
+ * Provides conversion functions to vector<uint32_t>
  */
-class ByteArray : public Plaintext<uint8_t> {
+class IntArray : public Plaintext<uint32_t> {
 public:
-    /**
-     *  @brief Standard string constructor.
-     */
-    ByteArray(const std::string& str)
-		: Plaintext<uint8_t>(vector<uint8_t>(str.begin(), str.end())) {}
+    IntArray(std::vector<uint32_t>::const_iterator sIter, std::vector<uint32_t>::const_iterator eIter)
+    	: Plaintext<uint32_t>(vector<uint32_t>(sIter, eIter)) {}
 
-    /**
-     *  @brief C-string string constructor.
-     */
-    ByteArray(const char* cstr);
+	IntArray(const std::vector<uint32_t> &rhs) : Plaintext<uint32_t>(rhs) {}
 
-    /**
-     *  @brief Explicit constructor for C-strings that do not end at the first null
-     *  byte.
-     */
-    ByteArray(const char* cstr, usint len);
+    IntArray(std::initializer_list<uint32_t> arr) : Plaintext<uint32_t>(arr) {}
 
-    ByteArray(std::vector<uint8_t>::const_iterator sIter, std::vector<uint8_t>::const_iterator eIter)
-    	: Plaintext<uint8_t>(vector<uint8_t>(sIter, eIter)) {}
-
-	ByteArray(const std::vector<uint8_t> &rhs) : Plaintext<uint8_t>(rhs) {}
-
-    ByteArray(std::initializer_list<uint8_t> arr) : Plaintext<uint8_t>(arr) {}
-
-    ByteArray() : Plaintext<uint8_t>() {}
-
-    /**
-     *  @brief C-string assignment.
-     */
-    ByteArray& operator=(const char* cstr);
-
-    /**
-     *  @brief string assignment.
-     */
-    ByteArray& operator= (const std::string& s);
+    IntArray() : Plaintext<uint32_t>() {}
 };
 
 #endif

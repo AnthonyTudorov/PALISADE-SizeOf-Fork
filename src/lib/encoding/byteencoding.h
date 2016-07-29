@@ -36,6 +36,7 @@
 
 //Includes Section
 #include "ptxtencoding.h"
+#include "../utils/bytearray.h"
 
 /**
  * @namespace lbcrypto

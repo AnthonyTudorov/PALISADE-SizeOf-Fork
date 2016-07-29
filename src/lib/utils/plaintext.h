@@ -1,8 +1,7 @@
 /**
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>,
- *	Kevin King <4kevinking@gmail.com>
+ *	Programmers: Jerry Ryan <gwryan@njit.edu
  * @version 00_03
  *
  * @section LICENSE
@@ -29,58 +28,30 @@
  *
  * @section DESCRIPTION
  *
- * This code provides a byte array abstraction.
+ * This code provides the abstraction for plaintext in palisade
  *
  */
-#ifndef LBCRYPTO_UTILS_BYTEARRAY_H
-#define LBCRYPTO_UTILS_BYTEARRAY_H
+#ifndef LBCRYPTO_UTILS_PLAINTEXT_H
+#define LBCRYPTO_UTILS_PLAINTEXT_H
 
-#include "inttypes.h"
 #include <vector>
 #include <initializer_list>
-#include "plaintext.h"
+#include <iostream>
 
-/**
- * @brief Type used for representing string ByteArray types.
- * Provides conversion functions to vector<uint8_t> from standard string types.
- */
-class ByteArray : public Plaintext<uint8_t> {
+// note that since the old ByteArray is outside of the lbcrypto namespace, so it this
+// we could add it easily enough
+
+template<typename Size>
+class Plaintext : public std::vector<Size> {
 public:
-    /**
-     *  @brief Standard string constructor.
-     */
-    ByteArray(const std::string& str)
-		: Plaintext<uint8_t>(vector<uint8_t>(str.begin(), str.end())) {}
+    Plaintext(const std::vector<Size> &rhs) : std::vector<Size>(rhs) {}
 
-    /**
-     *  @brief C-string string constructor.
-     */
-    ByteArray(const char* cstr);
+    Plaintext(std::initializer_list<Size> arr) : std::vector<Size>(arr) {}
 
-    /**
-     *  @brief Explicit constructor for C-strings that do not end at the first null
-     *  byte.
-     */
-    ByteArray(const char* cstr, usint len);
+    Plaintext() {}
 
-    ByteArray(std::vector<uint8_t>::const_iterator sIter, std::vector<uint8_t>::const_iterator eIter)
-    	: Plaintext<uint8_t>(vector<uint8_t>(sIter, eIter)) {}
-
-	ByteArray(const std::vector<uint8_t> &rhs) : Plaintext<uint8_t>(rhs) {}
-
-    ByteArray(std::initializer_list<uint8_t> arr) : Plaintext<uint8_t>(arr) {}
-
-    ByteArray() : Plaintext<uint8_t>() {}
-
-    /**
-     *  @brief C-string assignment.
-     */
-    ByteArray& operator=(const char* cstr);
-
-    /**
-     *  @brief string assignment.
-     */
-    ByteArray& operator= (const std::string& s);
+	using std::vector<Size>::begin;
+	using std::vector<Size>::end;
 };
 
 #endif

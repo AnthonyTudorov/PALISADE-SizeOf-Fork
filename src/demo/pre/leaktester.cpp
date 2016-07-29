@@ -117,6 +117,13 @@ main(int argc, char *argv[])
 	ByteArray plaintext4;
 	plaintext4.resize(ctx->getChunksize(),0); // make sure this comes out in 2 chunks
 
+	if( true ) {
+		ByteArray ptz = "hello";
+		runOneRound(ctx, ptz);
+		return 0;
+	}
+
+
 	bool tryPad = true;
 	for( int i=0; i<2; i++ ) {
 		cout << "Try padding value: " << tryPad << endl;

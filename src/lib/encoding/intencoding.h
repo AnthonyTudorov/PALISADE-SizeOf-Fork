@@ -36,6 +36,7 @@
 
 //Includes Section
 #include "ptxtencoding.h"
+#include "../utils/intarray.h"
 
 /**
  * @namespace lbcrypto
@@ -60,7 +61,7 @@ namespace lbcrypto {
 		*
 		* @param &byteArray input byte array
 		*/
-		IntArrayPlaintextEncoding(const std::vector<uint32_t> &intArray):
+		IntArrayPlaintextEncoding(const IntArray &intArray):
             m_data(intArray) {
 		}
 
@@ -163,7 +164,7 @@ namespace lbcrypto {
 
 
 	private:
-		std::vector<uint32_t> m_data;
+		IntArray m_data;
 	};
 
 	std::ostream &operator<<(std::ostream &out, const IntArrayPlaintextEncoding &ptxt);

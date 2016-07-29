@@ -36,7 +36,6 @@
 
 //Includes Section
 #include <vector>
-#include "../utils/bytearray.h"
 #include "../utils/inttypes.h"
 #include "../math/backend.h"
 #include "../lattice/ilvector2n.h"
@@ -110,6 +109,15 @@ namespace lbcrypto {
 		 * @return the length of the plaintext in terms of the number of bits.
 		 */
 		virtual size_t GetLength() const = 0;
+
+//		std::vector<uint32_t> ToInt32() const {
+//			std::vector<uint32_t> vectorOfInt32(GetLength());
+//			for(std::vector<uint32_t>::size_type i = 0; i != vectorOfInt32.size(); i++) {
+//				vectorOfInt32[i] = m_data[i];
+//			}
+//			return vectorOfInt32;
+//		}
+
 	};
 } // namespace lbcrypto ends
 #endif
