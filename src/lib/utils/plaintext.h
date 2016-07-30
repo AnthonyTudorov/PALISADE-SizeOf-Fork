@@ -37,21 +37,63 @@
 #include <vector>
 #include <initializer_list>
 #include <iostream>
+#include "../utils/inttypes.h"
+#include "../math/backend.h"
+#include "../lattice/ilvector2n.h"
+#include "../lattice/ilvectorarray2n.h"
 
-// note that since the old ByteArray is outside of the lbcrypto namespace, so it this
-// we could add it easily enough
+namespace lbcrypto {
 
-template<typename Size>
-class Plaintext : public std::vector<Size> {
+class Plaintext {
 public:
-    Plaintext(const std::vector<Size> &rhs) : std::vector<Size>(rhs) {}
+	virtual ~Plaintext() {}
 
-    Plaintext(std::initializer_list<Size> arr) : std::vector<Size>(arr) {}
+	/** Interface for the operation of converting from current plaintext encoding to ilVectorArray2n.
+	 *
+	 * @param  modulus - used for encoding.
+	 * @param  *ilVectorArray2n encoded plaintext - output argument.
+	 */
+	virtual void Encode(const BigBinaryInteger &modulus, ILVectorArray2n *iLVectorArray2n, size_t start_from=0, size_t length=0) const = 0;
 
-    Plaintext() {}
+	/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
+	 *
+	 * @param  modulus - used for encoding.
+	 * @param  ilVectorArray2n encoded plaintext - input argument.
+	 */
+	virtual void Decode(const BigBinaryInteger &modulus, ILVectorArray2n &iLVectorArray2n) = 0;
 
-	using std::vector<Size>::begin;
-	using std::vector<Size>::end;
+	/** Interface for the operation of converting from current plaintext encoding to ILVector2n.
+	 *
+	 * @param  modulus - used for encoding.
+	 * @param  *ilVector encoded plaintext - output argument.
+	 */
+	virtual void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from=0, size_t length=0) const = 0;
+
+	/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
+	 *
+	 * @param  modulus - used for encoding.
+	 * @param  ilVector encoded plaintext - input argument.
+	 */
+	virtual void Decode(const BigBinaryInteger &modulus, ILVector2n &ilVector) = 0;
+
+	virtual void Unpad() = 0;
+
+	/**
+	 * Get method to return the length of plaintext
+	 *
+	 * @return the length of the plaintext in terms of the number of bits.
+	 */
+	virtual size_t GetLength() const = 0;
+	virtual bool CompareTo(const Plaintext& other) const = 0;
+
+	bool operator==(const Plaintext& other) const {
+		if( typeid(this) != typeid(&other) )
+			return false;
+
+		return CompareTo(other);
+	}
 };
+
+}
 
 #endif

@@ -117,9 +117,31 @@ main(int argc, char *argv[])
 	ByteArray plaintext4;
 	plaintext4.resize(ctx->getChunksize(),0); // make sure this comes out in 2 chunks
 
-	if( true ) {
+	if( false ) {
 		ByteArray ptz = "hello";
 		runOneRound(ctx, ptz);
+		try {
+			runOneRound(ctx, ptz, false);
+		} catch (std::logic_error& e) {
+			cout << "Exception thrown" << endl;
+		}
+
+		ptz.resize(ctx->getChunksize(), 'x');
+		runOneRound(ctx, ptz);
+		try {
+			runOneRound(ctx, ptz, false);
+		} catch (std::logic_error& e) {
+			cout << "Exception thrown" << endl;
+		}
+
+		ptz.resize(ctx->getChunksize()+1, 'x');
+		runOneRound(ctx, ptz);
+		try {
+			runOneRound(ctx, ptz, false);
+		} catch (std::logic_error& e) {
+			cout << "Exception thrown" << endl;
+		}
+
 		return 0;
 	}
 

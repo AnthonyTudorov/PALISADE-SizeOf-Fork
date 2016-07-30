@@ -40,17 +40,19 @@
 #include <initializer_list>
 #include "plaintext.h"
 
+namespace lbcrypto {
+
 /**
  * @brief Type used for representing string ByteArray types.
  * Provides conversion functions to vector<uint8_t> from standard string types.
  */
-class ByteArray : public Plaintext<uint8_t> {
+class ByteArray : public Plaintext, public std::vector<uint8_t> {
 public:
     /**
      *  @brief Standard string constructor.
      */
     ByteArray(const std::string& str)
-		: Plaintext<uint8_t>(vector<uint8_t>(str.begin(), str.end())) {}
+		: std::vector<uint8_t>(std::vector<uint8_t>(str.begin(), str.end())) {}
 
     /**
      *  @brief C-string string constructor.
@@ -64,13 +66,13 @@ public:
     ByteArray(const char* cstr, usint len);
 
     ByteArray(std::vector<uint8_t>::const_iterator sIter, std::vector<uint8_t>::const_iterator eIter)
-    	: Plaintext<uint8_t>(vector<uint8_t>(sIter, eIter)) {}
+    	: std::vector<uint8_t>(vector<uint8_t>(sIter, eIter)) {}
 
-	ByteArray(const std::vector<uint8_t> &rhs) : Plaintext<uint8_t>(rhs) {}
+	ByteArray(const std::vector<uint8_t> &rhs) : std::vector<uint8_t>(rhs) {}
 
-    ByteArray(std::initializer_list<uint8_t> arr) : Plaintext<uint8_t>(arr) {}
+    ByteArray(std::initializer_list<uint8_t> arr) : std::vector<uint8_t>(arr) {}
 
-    ByteArray() : Plaintext<uint8_t>() {}
+    ByteArray() : std::vector<uint8_t>() {}
 
     /**
      *  @brief C-string assignment.
@@ -81,6 +83,47 @@ public:
      *  @brief string assignment.
      */
     ByteArray& operator= (const std::string& s);
+
+	/** Interface for the operation of converting from current plaintext encoding to ilVectorArray2n.
+	*
+	* @param  modulus - used for encoding.
+	* @param  *ilVectorArray2n encoded plaintext - output argument.
+	*/
+	void Encode(const BigBinaryInteger &modulus, ILVectorArray2n *iLVectorArray2n, size_t start_from=0, size_t length=0) const;
+
+	/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
+	*
+	* @param  modulus - used for encoding.
+	* @param  ilVectorArray2n encoded plaintext - input argument.
+	*/
+	void Decode(const BigBinaryInteger &modulus, ILVectorArray2n &iLVectorArray2n);
+
+	/** Interface for the operation of converting from current plaintext encoding to ILVector2n.
+	*
+	* @param  modulus - used for encoding.
+	* @param  *ilVector encoded plaintext - output argument.
+	*/
+	void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from=0, size_t length=0) const;
+
+	/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
+	*
+	* @param  modulus - used for encoding.
+	* @param  ilVector encoded plaintext - input argument.
+	*/
+	void Decode(const BigBinaryInteger &modulus, ILVector2n &ilVector);
+
+	void Unpad();
+
+	size_t GetLength() const { return this->size(); }
+
+	bool CompareTo(const Plaintext& other) const {
+		const std::vector<uint8_t>& lv = dynamic_cast<const std::vector<uint8_t>&>(*this);
+		const std::vector<uint8_t>& rv = dynamic_cast<const std::vector<uint8_t>&>(other);
+		return lv == rv;
+	}
+
 };
+
+}
 
 #endif

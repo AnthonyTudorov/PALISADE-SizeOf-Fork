@@ -78,7 +78,12 @@ namespace lbcrypto {
     std::ostream &operator<<(std::ostream &out, const IntArrayPlaintextEncoding &ptxt)
     {
         const std::vector<uint32_t> &intArray = ptxt.GetData();
-        out << intArray;
+        if( intArray.size() > 0 ) {
+        	out << "(" << intArray[0];
+        	for( int i=1; i<intArray.size(); i++ )
+        		out << "," << intArray[i];
+        	out << ")";
+        }
         return out ;
     }
 }  // namespace lbcrypto ends

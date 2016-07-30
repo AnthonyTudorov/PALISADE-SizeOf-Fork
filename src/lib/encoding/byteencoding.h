@@ -31,8 +31,8 @@
  * This code provides the core proxy re-encryption functionality.
  */
 
-#ifndef LBCRYPTO_ENCODING_BYTEENGODING_H
-#define LBCRYPTO_ENCODING_BYTEENGODING_H
+#ifndef LBCRYPTO_ENCODING_BYTEENCODING_H
+#define LBCRYPTO_ENCODING_BYTEENCODING_H
 
 //Includes Section
 #include "ptxtencoding.h"

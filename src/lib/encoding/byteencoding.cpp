@@ -58,17 +58,11 @@ namespace lbcrypto {
 		temp.SetModulus(ilVector->GetModulus());
 		Format format = COEFFICIENT;
 
-		std::cout << "order = " << ilVector->GetParams().GetCyclotomicOrder() << std::endl;
-		std::cout << "modulus " << mod << ", p " << p << ", siz " << temp.GetLength() << std::endl;
-
 		for (usint i = 0; i<m_data.size(); i++) {
 			usint Num = m_data.at(i);
 			usint exp = mod, Rem = 0;
 			for (usint j = 0; j<p; j++) {
 				Rem = Num%exp;
-				if( i <= 6 ) {
-					std::cout << i << "," << m_data.at(i) << "," << j << "," << (Rem / (exp / mod)) << std::endl;
-				}
 				temp.SetValAtIndex(i*p + j, UintToBigBinaryInteger((Rem / (exp / mod))));
 				Num -= Rem;
 				exp *= mod;
