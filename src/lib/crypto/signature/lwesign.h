@@ -260,7 +260,7 @@ namespace lbcrypto {
 		*@param plainText encoding of the text to be signed
 		*@param signatureText signature generated after the signing process - output of the function
 		*/
-		void Sign(LPSignKeyGPV<Element> &signKey,const PlaintextEncodingInterface &plainText,
+		void Sign(LPSignKeyGPV<Element> &signKey,const Plaintext &plainText,
 			Signature<Matrix<Element>>*signatureText);
 		
 		/**
@@ -272,7 +272,7 @@ namespace lbcrypto {
 		*/
 		bool Verify(LPVerificationKeyGPV<Element> &verificationKey,
 			const Signature<Matrix<Element>> &signatureText,
-			const PlaintextEncodingInterface & plainText);
+			const Plaintext & plainText);
 		
 		/**
 		*Method for generating signing and verification keys

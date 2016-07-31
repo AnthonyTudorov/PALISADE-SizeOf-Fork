@@ -767,7 +767,7 @@ void TestParameterSelection(){
 
 	std::cout << "tower size: " << size << std::endl;
 
-	ByteArrayPlaintextEncoding ctxtd;
+	// ByteArray ctxtd;
 
 	vector<BigBinaryInteger> moduli(size);
 
@@ -833,7 +833,7 @@ void FinalLeveledComputation(){
 
 	std::cout << "tower size: " << init_size << std::endl;
 
-	ByteArrayPlaintextEncoding ctxtd;
+	ByteArray ctxtd;
 
 	vector<BigBinaryInteger> init_moduli(init_size);
 
@@ -1164,8 +1164,8 @@ void NTRUPRE(usint input) {
 	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
 	std::vector< Ciphertext<ILVector2n> > ciphertext;
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-    ptxt.Pad<ZeroPad>(m/16);
+	//ByteArray ptxt(plaintext);
+    //ptxt.Pad<ZeroPad>(m/16);
 	//ptxt.Pad<ZeroPad>(m/8);
 
 	std::cout << "Running encryption..." << std::endl;
@@ -1188,7 +1188,7 @@ void NTRUPRE(usint input) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArrayPlaintextEncoding plaintextNew;
+	ByteArray plaintextNew;
 
 	std::cout <<"\n"<< "Running decryption..." << std::endl;
 
@@ -1199,8 +1199,6 @@ void NTRUPRE(usint input) {
 	//DecodingResult result = algorithm.Decrypt(sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
 
 	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &ctxtd);
-
-    plaintextNew.Unpad<ZeroPad>();
 
 	finish = currentDateTime();
 	diff = finish - start;

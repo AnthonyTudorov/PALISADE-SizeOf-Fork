@@ -61,8 +61,6 @@ namespace lbcrypto {
 		*Adds one to every entry on the ILElement.
 		*/
 		virtual void AddILElementOne() = 0;
-
-		//virtual void EncodeElement(const ByteArrayPlaintextEncoding &encoded, const BigBinaryInteger &modulus) = 0;
 		
 		virtual ~ILElement(){}; //must be virtual since member printvals() is virtual
 

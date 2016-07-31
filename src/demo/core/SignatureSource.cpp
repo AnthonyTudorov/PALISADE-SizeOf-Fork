@@ -30,8 +30,8 @@ int main() {
 	std::cout << "Key generation for signature: " << "\t" << finish - start << " ms" << std::endl;
 
 	Signature<Matrix<ILVector2n>> signature, signature2;
-	ByteArrayPlaintextEncoding text(ByteArray("1Sig"));
-	ByteArrayPlaintextEncoding text2(ByteArray("2Sig"));
+	ByteArray text("1Sig");
+	ByteArray text2("2Sig");
 
 	start = currentDateTime();
 	scheme.Sign(s_k, text, &signature);
