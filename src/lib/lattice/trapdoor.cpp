@@ -194,7 +194,7 @@ namespace lbcrypto {
 
 		Matrix<int32_t> Rint = ConvertToInt32(R, modulus);
 		int32_t b = s*s - 5 *a *a;
-		Matrix<int32_t> Snk = ((int32_t)(s*s - a*a))*(Matrix<int32_t>(Rint.GetAllocator(), n * 2, n * 2))- Rint*Rint.Transpose().ScalarMult(double(r*r + 1 / b));
+		Matrix<int32_t> Snk = ((int32_t)(s*s - a*a))*(Matrix<int32_t>(Rint.GetAllocator(), n * 2, n * 2).Identity())- Rint*Rint.Transpose().ScalarMult(double(r*r + 1 / b));
 		*sigmaSqrt = Cholesky(Snk); 
 	}
 

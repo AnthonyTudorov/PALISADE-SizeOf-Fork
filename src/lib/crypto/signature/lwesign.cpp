@@ -63,9 +63,9 @@ namespace lbcrypto {
 		size_t n = verificationKey->GetSignatureParameters().GetILParams().GetCyclotomicOrder() / 2;
 		double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
 		size_t k = (usint)floor(logTwo);
-		double s = 40 * std::sqrt(n*2);
+		double s = 40 * std::sqrt(n*(2+k));
 		Matrix<LargeFloat> sigmaSqrt([]() { return make_unique<LargeFloat>(); }, n*2, n*2);
-		RLWETrapdoorUtility::PerturbationMatrixGen(n,k, keyPair.first, keyPair.second, s, &sigmaSqrt);
+		RLWETrapdoorUtility::PerturbationMatrixGenAlt(n,k, keyPair.first, keyPair.second, s, &sigmaSqrt);
 		//Signing key will contain perturbation matrix, public key matrix of the trapdoor and the trapdoor matrices
 		signKey->SetPrivateElement(std::pair<Matrix<LargeFloat>, std::pair<Matrix<ILVector2n>, RLWETrapdoorPair<ILVector2n>>>(sigmaSqrt,keyPair));
 	}

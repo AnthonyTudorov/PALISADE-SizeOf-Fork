@@ -1,4 +1,4 @@
-ALISADE Lattice Cryptography Library
+PALISADE Lattice Cryptography Library
 =====================================
 
 [License Information](License.md)
