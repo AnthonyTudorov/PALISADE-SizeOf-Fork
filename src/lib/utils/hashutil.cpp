@@ -32,7 +32,7 @@ const uint64_t HashUtil::k_512[80] = { 0x428a2f98d728ae22, 0x7137449123ef65cd, 0
 	0x431d67c49c100d4c, 0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817 };
 
 
-lbcrypto::ByteArray HashUtil::SHA256(lbcrypto::ByteArray message) {
+lbcrypto::BytePlaintextEncoding HashUtil::SHA256(lbcrypto::BytePlaintextEncoding message) {
 	
 	uint32_t h_256[8] = { 0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19 };
 	
@@ -109,7 +109,7 @@ lbcrypto::ByteArray HashUtil::SHA256(lbcrypto::ByteArray message) {
 
 	
 
-	lbcrypto::ByteArray digest;
+	lbcrypto::BytePlaintextEncoding digest;
 	for (int i = 0; i < 8; i++) {
 		digest.push_back((uint8_t)((h_256[i] & 0xff000000) >> 24));
 		digest.push_back((uint8_t)((h_256[i] & 0x00ff0000) >> 16));
@@ -120,7 +120,7 @@ lbcrypto::ByteArray HashUtil::SHA256(lbcrypto::ByteArray message) {
 	return digest;
 }
 
-lbcrypto::ByteArray HashUtil::SHA512(lbcrypto::ByteArray message) {
+lbcrypto::BytePlaintextEncoding HashUtil::SHA512(lbcrypto::BytePlaintextEncoding message) {
 	
 	uint64_t h_512[8] = { 0x6a09e667f3bcc908, 0xbb67ae8584caa73b, 0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1,
 		0x510e527fade682d1, 0x9b05688c2b3e6c1f, 0x1f83d9abfb41bd6b, 0x5be0cd19137e2179 };
@@ -211,7 +211,7 @@ lbcrypto::ByteArray HashUtil::SHA512(lbcrypto::ByteArray message) {
 	std::cout << h_512[0] << std::endl;
 
 
-	lbcrypto::ByteArray digest;
+	lbcrypto::BytePlaintextEncoding digest;
 	for (int i = 0; i < 8; i++) {
 		digest.push_back((uint8_t)((h_512[i] & 0xff00000000000000) >> 56));
 		digest.push_back((uint8_t)((h_512[i] & 0x00ff000000000000) >> 48));

@@ -11,16 +11,15 @@
 
 #include "../../lib/utils/debug.h"
 
-using namespace lbcrypto;
-
-void runOneRound(CryptoContext<ILVector2n> *ctx, const ByteArray& plaintext, bool doPadding = true);
-
 #include "../../lib/utils/serializablehelper.h"
-#include "../../lib/encoding/byteencoding.h"
-#include "../../lib/encoding/cryptoutility.h"
+#include "../../lib/encoding/byteplaintextencoding.h"
+#include "../../lib/utils/cryptoutility.h"
 
 using namespace std;
 using namespace lbcrypto;
+
+void runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plaintext, bool doPadding = true);
+
 
 int
 main(int argc, char *argv[])
@@ -48,8 +47,8 @@ main(int argc, char *argv[])
 
 	cout << "Chunk size is: " << ctx->getChunksize() << endl;
 
-	ByteArray plaintext1("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-	ByteArray plaintext2(
+	BytePlaintextEncoding plaintext1("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	BytePlaintextEncoding plaintext2(
 			"1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
 			"1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
 			"1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
@@ -112,13 +111,13 @@ main(int argc, char *argv[])
 			"1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
 	);
 
-	ByteArray plaintext3 = { 9,0,8,0 };
+	BytePlaintextEncoding plaintext3 = { 9,0,8,0 };
 
-	ByteArray plaintext4;
+	BytePlaintextEncoding plaintext4;
 	plaintext4.resize(ctx->getChunksize(),0); // make sure this comes out in 2 chunks
 
 	if( false ) {
-		ByteArray ptz = "hello";
+		BytePlaintextEncoding ptz = "hello";
 		runOneRound(ctx, ptz);
 		try {
 			runOneRound(ctx, ptz, false);
@@ -201,7 +200,7 @@ main(int argc, char *argv[])
 //		- Decrypt the re-encrypted data.
 
 void
-runOneRound(CryptoContext<ILVector2n> *ctx, const ByteArray& plaintext, bool doPadding)
+runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plaintext, bool doPadding)
 {
 	// Initialize the public key containers.
 	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
@@ -226,7 +225,7 @@ runOneRound(CryptoContext<ILVector2n> *ctx, const ByteArray& plaintext, bool doP
 	cout << "I encrypted " << plaintext.size() << " bytes, chunksize " << ctx->getChunksize() << " into " << ciphertext.size() << " parts" << endl;
 
 	//Decryption
-	ByteArray plaintextNew;
+	BytePlaintextEncoding plaintextNew;
 	DecryptResult dResult = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(), sk, ciphertext, &plaintextNew, doPadding);
 
 	if (!dResult.isValid) {
@@ -263,7 +262,7 @@ runOneRound(CryptoContext<ILVector2n> *ctx, const ByteArray& plaintext, bool doP
 
 	//Decryption
 
-	ByteArray plaintextNew2;
+	BytePlaintextEncoding plaintextNew2;
 
 	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(), newSK, newCiphertext, &plaintextNew2, doPadding);
 

@@ -32,21 +32,21 @@
  *
  */
 
-#include "intarray.h"
+#include "intplaintextencoding.h"
 
 namespace lbcrypto {
 
-void IntArray::Encode(const BigBinaryInteger&, ILVectorArray2n*, size_t, size_t) const{
+void IntPlaintextEncoding::Encode(const BigBinaryInteger&, ILVectorArray2n*, size_t, size_t) const{
 	throw std::logic_error("Operation not implemented");
 }
 
 
-void IntArray::Decode(const BigBinaryInteger&, ILVectorArray2n&){
+void IntPlaintextEncoding::Decode(const BigBinaryInteger&, ILVectorArray2n&){
 	throw std::logic_error("Operation not implemented");
 }
 
 
-void IntArray::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from, size_t length) const {
+void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from, size_t length) const {
 
 	if( length == 0 ) length = this->size();
 
@@ -61,7 +61,7 @@ void IntArray::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, siz
 	ilVector->SetValues(temp,format);
 }
 
-void IntArray::Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector) {
+void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector) {
 	//TODO-Nishanth: Hard-coding rootofUnity for now. Need to find a way to figure out how to set the correct rootOfUnity.
 	ilVector.SwitchModulus(modulus, BigBinaryInteger::ONE);
 	std::vector<uint32_t> intArray(ilVector.GetValues().GetLength());
@@ -71,7 +71,7 @@ void IntArray::Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector) {
 }
 
 void
-IntArray::Unpad()
+IntPlaintextEncoding::Unpad()
 {
 	usint nPadding = 0;
 	for (auto it = this->rbegin(); it != this->rend(); ++it) {

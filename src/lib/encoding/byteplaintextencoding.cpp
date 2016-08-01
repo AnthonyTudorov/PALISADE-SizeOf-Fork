@@ -33,34 +33,34 @@
  *
  */
 
-#include "bytearray.h"
+#include "byteplaintextencoding.h"
 
 namespace lbcrypto {
 
-ByteArray::ByteArray(const char* cstr) {
+BytePlaintextEncoding::BytePlaintextEncoding(const char* cstr) {
 	std::string s(cstr);
 	*this = s;
 }
 
-ByteArray::ByteArray(const char* cstr, usint len) {
+BytePlaintextEncoding::BytePlaintextEncoding(const char* cstr, usint len) {
 	std::string s(cstr, len);
 	*this = s;
 }
 
-ByteArray& ByteArray::operator=(const std::string& s) {
-	ByteArray rhs(s);
+BytePlaintextEncoding& BytePlaintextEncoding::operator=(const std::string& s) {
+	BytePlaintextEncoding rhs(s);
 	operator=(rhs);
 	return *this;
 }
 
-ByteArray& ByteArray::operator=(const char* cstr) {
+BytePlaintextEncoding& BytePlaintextEncoding::operator=(const char* cstr) {
 	std::string s(cstr);
 	operator=(s);
 	return *this;
 }
 
 void
-ByteArray::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t startFrom, size_t length) const
+BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t startFrom, size_t length) const
 {
 	int		padlen = 0;
 
@@ -110,7 +110,7 @@ ByteArray::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t 
 }
 
 void
-ByteArray::Decode(const BigBinaryInteger &modulus, ILVector2n &ilVector)
+BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n &ilVector)
 {
 	//TODO-Nishanth: Hard-coding rootofUnity for now. Need to find a way to figure out how to set the correct rootOfUnity.
 	ilVector.SwitchModulus(modulus, BigBinaryInteger::ONE);
@@ -131,7 +131,7 @@ ByteArray::Decode(const BigBinaryInteger &modulus, ILVector2n &ilVector)
 }
 
 void
-ByteArray::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *element, size_t startFrom, size_t length) const
+BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *element, size_t startFrom, size_t length) const
 {
 	//TODO - OPTIMIZE CODE. Please take a look at line 114 temp.SetModulus
 	ILVector2n temp = element->GetElementAtIndex (0);
@@ -157,7 +157,7 @@ ByteArray::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *element, siz
 }
 
 void
-ByteArray::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n &ilVectorArray2n){
+BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n &ilVectorArray2n){
 
 	ILVector2n interpolatedDecodedValue = ilVectorArray2n.InterpolateIlArrayVector2n();
 
@@ -166,7 +166,7 @@ ByteArray::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n &ilVectorArr
 }
 
 void
-ByteArray::Unpad()
+BytePlaintextEncoding::Unpad()
 {
 	usint nPadding = 0;
 	for (sint i = this->size() - 1; i >= 0; --i) {

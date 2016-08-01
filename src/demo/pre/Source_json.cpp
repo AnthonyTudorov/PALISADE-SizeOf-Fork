@@ -45,8 +45,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
 #include "../../lib/utils/debug.h"
-#include "../../lib/encoding/byteencoding.h"
-#include "../../lib/encoding/cryptoutility.h"
+#include "../../lib/encoding/byteplaintextencoding.h"
+#include "../../lib/utils/cryptoutility.h"
 
 using namespace lbcrypto;
 
@@ -131,8 +131,8 @@ main(int argc, char *argv[])
 void
 NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 
-	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-	//ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	//BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 
 
 	ofstream fout;
@@ -217,7 +217,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArray plaintextNew;
+	BytePlaintextEncoding plaintextNew;
 
 	std::cout <<"\n"<< "Running decryption..." << std::endl;
 
@@ -308,7 +308,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArray plaintextNew2;
+	BytePlaintextEncoding plaintextNew2;
 
 	std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
 
@@ -332,7 +332,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 
 	std::cout << "Execution completed." << std::endl;
 
-	ByteArray newPlaintext("1) SERIALIZE CRYPTO-OBJS TO FILE AS NESTED JSON STRUCTURES\n2) DESERIALIZE JSON FILES INTO CRYPTO-OBJS USED FOR CRYPTO-APIS\n3) Profit!!!!!");
+	BytePlaintextEncoding newPlaintext("1) SERIALIZE CRYPTO-OBJS TO FILE AS NESTED JSON STRUCTURES\n2) DESERIALIZE JSON FILES INTO CRYPTO-OBJS USED FOR CRYPTO-APIS\n3) Profit!!!!!");
 
 	cout << "Original Plaintext: " << endl;
 	cout << newPlaintext << endl;

@@ -42,8 +42,6 @@
 #include "../lattice/ilelement.h"
 #include "../utils/inttypes.h"
 #include "../math/distrgen.h"
-#include "../encoding/ptxtencoding.h"
-
 
 /**
  * @namespace lbcrypto

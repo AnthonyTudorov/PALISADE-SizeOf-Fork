@@ -42,8 +42,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../src/lib/crypto/cryptocontext.cpp"
 #include "../../src/lib/utils/cryptocontexthelper.cpp"
 
-#include "../../src/lib/encoding/byteencoding.h"
-#include "../../src/lib/encoding/cryptoutility.h"
+#include "../../src/lib/encoding/byteplaintextencoding.h"
+#include "../../src/lib/utils/cryptoutility.h"
 
 #include "../../src/lib/utils/debug.h"
 
@@ -68,13 +68,13 @@ TEST(method_ILVectorArray2n, Encrypt_Decrypt) {
 
 	usint m = 2048;
 
-	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 
 	float stdDev = 4;
 
 	usint size = 3;
 
-	ByteArray ctxtd;
+	BytePlaintextEncoding ctxtd;
 
 	vector<BigBinaryInteger> moduli(size);
 
@@ -119,7 +119,7 @@ TEST(method_ILVectorArray2n, Encrypt_Decrypt) {
 
 	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);
 
-	ByteArray plaintextNew;
+	BytePlaintextEncoding plaintextNew;
 
 	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk, ciphertext, &plaintextNew);
 
@@ -135,10 +135,10 @@ TEST(method_ILVector2n, Encrypt_Decrypt) {
 
 	usint m = 2048;
 
-	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	float stdDev = 4;
 
-	ByteArray ctxtd;
+	BytePlaintextEncoding ctxtd;
 	BigBinaryInteger q("1");
 	BigBinaryInteger temp;
 	
@@ -181,7 +181,7 @@ TEST(method_ILVector2n, Encrypt_Decrypt) {
 
 	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);	
 
-	ByteArray plaintextNew;
+	BytePlaintextEncoding plaintextNew;
 
 	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &plaintextNew);  
 
@@ -198,10 +198,10 @@ TEST(method_ILVector2n, Encrypt_Decrypt) {
 TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
 
 	usint m = 2048;
-	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	float stdDev = 4;
 
-	ByteArray ctxtd;
+	BytePlaintextEncoding ctxtd;
 
 	BigBinaryInteger q("268441601");
 	BigBinaryInteger rootOfUnity("16947867");
@@ -240,7 +240,7 @@ TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
 	vector<Ciphertext<ILVector2n>> ciphertext;
 	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);
 
-	ByteArray plaintextNew;
+	BytePlaintextEncoding plaintextNew;
 	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &plaintextNew);
 
 	EXPECT_EQ(plaintextNew, plaintext);
@@ -264,7 +264,7 @@ TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
 
 	CryptoUtility<ILVector2n>::ReEncrypt(algorithm, evalKey, ciphertext, &newCiphertext);  // This is the core re-encryption operation.
 
-	ByteArray plaintextNew2;
+	BytePlaintextEncoding plaintextNew2;
 
 	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(algorithm, newSK, newCiphertext, &plaintextNew2);  // This is the core decryption operation.
 

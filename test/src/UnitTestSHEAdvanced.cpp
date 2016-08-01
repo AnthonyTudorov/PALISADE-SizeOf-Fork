@@ -55,8 +55,8 @@ ModReduce, RingReduce and KeySwitch Hint will be in UnitTestSHE.cpp
 #include "../../src/lib/crypto/ciphertext.cpp"
 
 
-#include "../../src/lib/encoding/byteencoding.h"
-#include "../../src/lib/encoding/cryptoutility.h"
+#include "../../src/lib/encoding/byteplaintextencoding.h"
+#include "../../src/lib/utils/cryptoutility.h"
 
 #include "../../src/lib/utils/debug.h"
  

@@ -11,8 +11,8 @@
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
-#include "../../lib/encoding/byteencoding.h"
-#include "../../lib/encoding/cryptoutility.h"
+#include "../../lib/encoding/byteplaintextencoding.h"
+#include "../../lib/utils/cryptoutility.h"
 #include "../../lib/utils/debug.h"
 
 #include <chrono>
@@ -26,7 +26,7 @@ using namespace lbcrypto;
 
 void testJson(
 		const std::string cID,
-		const ByteArray& newPtxt,
+		const BytePlaintextEncoding& newPtxt,
 		TestJsonParms *tp) {
 
 	LPPublicKeyLTV<ILVector2n>				pkDeserialized;
@@ -151,7 +151,7 @@ void testJson(
 	cout << "----------BEGIN LPAlgorithm" + cID + ".Decrypt TESTING----------" << endl;
 	cout << "Calling Decrypt in LPAlgorithm" + cID + " with deserialized instances of" << endl;
 	cout << "LPPrivateKey" + cID + " and Ciphertext." << endl;
-	ByteArray testPlaintextRec;
+	BytePlaintextEncoding testPlaintextRec;
 	vector<Ciphertext<ILVector2n>> ctDeser;
 	ctDeser.push_back(ciphertextDeserialized);
 	DecryptResult testResult = CryptoUtility<ILVector2n>::Decrypt(*tp->ctx->getAlgorithm(), skDeserialized,
@@ -272,7 +272,7 @@ void testJson(
 	cout << "----------BEGIN LPAlgorithmPRE" + cID + ".Decrypt TESTING----------" << endl;
 	cout << "Calling Decrypt in LPAlgorithmPRE" + cID + " with deserialized instances of" << endl;
 	cout << "PRE LPPrivateKey" + cID + " and PRE Ciphertext." << endl;
-	ByteArray testPlaintextPreRec;
+	BytePlaintextEncoding testPlaintextPreRec;
 	vector<Ciphertext<ILVector2n>> preCtVec;
 	preCtVec.push_back(preCiphertextDeserialized);
 	DecryptResult testResult1 = CryptoUtility<ILVector2n>::Decrypt(*tp->ctx->getAlgorithm(), newSKDeserialized,

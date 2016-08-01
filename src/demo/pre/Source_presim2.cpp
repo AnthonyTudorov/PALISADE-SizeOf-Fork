@@ -41,8 +41,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
-#include "../../lib/encoding/byteencoding.h"
-#include "../../lib/encoding/cryptoutility.h"
+#include "../../lib/encoding/byteplaintextencoding.h"
+#include "../../lib/utils/cryptoutility.h"
 
 
 using namespace std;
@@ -165,7 +165,7 @@ void EncryptionSchemeSimulation(usint count){
 	ILVector2n::PreComputeDggSamples(dgg, ilParams);
 
 	//prepare the plaintext
-	ByteArray plaintext;
+	BytePlaintextEncoding plaintext;
 	ifstream txt("n_sample.txt");
 	std::string all;
 	txt >> all;
@@ -204,7 +204,7 @@ void EncryptionSchemeSimulation(usint count){
 
 		CryptoUtility<ILVector2n>::Encrypt( algorithm.GetScheme(), pk, plaintext, &ciphertext);	// This is the core encryption operation.
 
-		ByteArray plaintextNew;
+		BytePlaintextEncoding plaintextNew;
 
 		DecryptResult result = CryptoUtility<ILVector2n>::Decrypt( algorithm.GetScheme(), sk, ciphertext, &plaintextNew);  // This is the core decryption operation.
 
@@ -345,7 +345,7 @@ void PRESimulation(usint count, usint dataset)
 	ILVector2n::PreComputeDggSamples(dgg, ilParams);
 
 	// prepare the plaintext
-	ByteArray plaintext;
+	BytePlaintextEncoding plaintext;
 	ifstream txt("n_sample.txt");
 	std::string all;
 	txt >> all;
@@ -416,7 +416,7 @@ void PRESimulation(usint count, usint dataset)
 
 	//all expensive operations are moved outside the loop
 
-	ByteArray arrPlaintext[NUMBER_OF_RUNS];
+	BytePlaintextEncoding arrPlaintext[NUMBER_OF_RUNS];
 	Ciphertext<ILVector2n> arrCiphertext[NUMBER_OF_RUNS];
 
 	for (usint j = 0; j < count; j++){
@@ -440,7 +440,7 @@ void PRESimulation(usint count, usint dataset)
 
 	usint errorcounter = 0;
 
-	ByteArray plaintextNew[NUMBER_OF_RUNS];
+	BytePlaintextEncoding plaintextNew[NUMBER_OF_RUNS];
 
 	//decryption loop
 

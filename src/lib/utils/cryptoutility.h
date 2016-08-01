@@ -2,7 +2,8 @@
 #define LIB_ENCODING_CRYPTOUTILITY
 
 #include <iostream>
-#include "byteencoding.h"
+#include "../encoding/plaintext.h"
+#include "../encoding/byteplaintextencoding.h"
 #include "../utils/serializablehelper.h"
 
 namespace lbcrypto {
@@ -41,7 +42,7 @@ public:
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPPublicKey<Element>& publicKey,
 			const Plaintext& plaintext,
-			vector<Ciphertext<Element>> *cipherResults,
+			std::vector<Ciphertext<Element>> *cipherResults,
 			bool doPadding = true)
 	{
 		size_t chunkSize = scheme.getChunkSize();
@@ -100,7 +101,7 @@ public:
 			if( nRead <= 0 && padded )
 				break;
 
-			ByteArray px(ptxt, nRead);
+			BytePlaintextEncoding px(ptxt, nRead);
 
 			if( nRead < chunkSize ) {
 				padded = true;
@@ -148,7 +149,7 @@ public:
 	static DecryptResult Decrypt(
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPPrivateKey<Element>& privateKey,
-			const vector<Ciphertext<Element>>& ciphertext,
+			const std::vector<Ciphertext<Element>>& ciphertext,
 			Plaintext *plaintext,
 			bool doPadding = true)
 	{
@@ -187,7 +188,7 @@ public:
 		size_t tot = 0;
 
 		bool firstTime = true;
-		ByteArray pte[2];
+		BytePlaintextEncoding pte[2];
 		bool whichArray = false;
 
 		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
@@ -201,8 +202,10 @@ public:
 
 				pte[whichArray].Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), decrypted);
 
-				if( !firstTime )
+				if( !firstTime ) {
 					outstream << pte[!whichArray];
+					pte[!whichArray].clear();
+				}
 				firstTime = false;
 				whichArray = !whichArray;
 			}
@@ -227,8 +230,8 @@ public:
 	static void ReEncrypt(
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPEvalKey<Element> &evalKey,
-			const vector<Ciphertext<Element>>& ciphertext,
-			vector<Ciphertext<Element>> *newCiphertext)
+			const std::vector<Ciphertext<Element>>& ciphertext,
+			std::vector<Ciphertext<Element>> *newCiphertext)
 	{
 		for( int i=0; i < ciphertext.size(); i++ ) {
 			Ciphertext<Element> nCipher;

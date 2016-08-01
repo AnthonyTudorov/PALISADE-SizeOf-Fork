@@ -1,6 +1,6 @@
 #include "../../lib/crypto/signature/lwesign.h"
 #include "../../lib/crypto/signature/lwesign.cpp"
-#include "../../lib/encoding/byteencoding.h"
+#include "../../lib/encoding/byteplaintextencoding.h"
 #include <vld.h>
 
 using namespace lbcrypto;
@@ -30,8 +30,8 @@ int main() {
 	std::cout << "Key generation for signature: " << "\t" << finish - start << " ms" << std::endl;
 
 	Signature<Matrix<ILVector2n>> signature, signature2;
-	ByteArray text("1Sig");
-	ByteArray text2("2Sig");
+	BytePlaintextEncoding text("1Sig");
+	BytePlaintextEncoding text2("2Sig");
 
 	start = currentDateTime();
 	scheme.Sign(s_k, text, &signature);

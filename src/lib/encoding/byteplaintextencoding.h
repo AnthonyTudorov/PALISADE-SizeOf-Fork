@@ -29,33 +29,61 @@
  *
  * @section DESCRIPTION
  *
- * This code provides a int array abstraction.
+ * This code provides a byte array abstraction.
  *
  */
-#ifndef LBCRYPTO_UTILS_INTARRAY_H
-#define LBCRYPTO_UTILS_INTARRAY_H
+#ifndef LBCRYPTO_UTILS_BYTEPLAINTEXTENCODING_H
+#define LBCRYPTO_UTILS_BYTEPLAINTEXTENCODING_H
 
 #include "inttypes.h"
 #include <vector>
 #include <initializer_list>
-#include "plaintext.h"
+
+#include "../encoding/plaintext.h"
 
 namespace lbcrypto {
 
 /**
- * @brief Type used for representing IntArray types.
- * Provides conversion functions to vector<uint32_t>
+ * @brief Type used for representing string BytePlaintextEncoding types.
+ * Provides conversion functions to vector<uint8_t> from standard string types.
  */
-class IntArray : public Plaintext, public std::vector<uint32_t> {
+class BytePlaintextEncoding : public Plaintext, public std::vector<uint8_t> {
 public:
-    IntArray(std::vector<uint32_t>::const_iterator sIter, std::vector<uint32_t>::const_iterator eIter)
-    	: std::vector<uint32_t>(std::vector<uint32_t>(sIter, eIter)) {}
+    /**
+     *  @brief Standard string constructor.
+     */
+    BytePlaintextEncoding(const std::string& str)
+		: std::vector<uint8_t>(std::vector<uint8_t>(str.begin(), str.end())) {}
 
-	IntArray(const std::vector<uint32_t> &rhs) : std::vector<uint32_t>(rhs) {}
+    /**
+     *  @brief C-string string constructor.
+     */
+    BytePlaintextEncoding(const char* cstr);
 
-    IntArray(std::initializer_list<uint32_t> arr) : std::vector<uint32_t>(arr) {}
+    /**
+     *  @brief Explicit constructor for C-strings that do not end at the first null
+     *  byte.
+     */
+    BytePlaintextEncoding(const char* cstr, usint len);
 
-    IntArray() : std::vector<uint32_t>() {}
+    BytePlaintextEncoding(std::vector<uint8_t>::const_iterator sIter, std::vector<uint8_t>::const_iterator eIter)
+    	: std::vector<uint8_t>(vector<uint8_t>(sIter, eIter)) {}
+
+	BytePlaintextEncoding(const std::vector<uint8_t> &rhs) : std::vector<uint8_t>(rhs) {}
+
+    BytePlaintextEncoding(std::initializer_list<uint8_t> arr) : std::vector<uint8_t>(arr) {}
+
+    BytePlaintextEncoding() : std::vector<uint8_t>() {}
+
+    /**
+     *  @brief C-string assignment.
+     */
+    BytePlaintextEncoding& operator=(const char* cstr);
+
+    /**
+     *  @brief string assignment.
+     */
+    BytePlaintextEncoding& operator= (const std::string& s);
 
 	/** Interface for the operation of converting from current plaintext encoding to ilVectorArray2n.
 	*
@@ -69,7 +97,7 @@ public:
 	* @param  modulus - used for encoding.
 	* @param  ilVectorArray2n encoded plaintext - input argument.
 	*/
-	void Decode(const BigBinaryInteger &modulus,  ILVectorArray2n &iLVectorArray2n);
+	void Decode(const BigBinaryInteger &modulus, ILVectorArray2n &iLVectorArray2n);
 
 	/** Interface for the operation of converting from current plaintext encoding to ILVector2n.
 	*
@@ -83,16 +111,22 @@ public:
 	* @param  modulus - used for encoding.
 	* @param  ilVector encoded plaintext - input argument.
 	*/
-	void Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector);
+	void Decode(const BigBinaryInteger &modulus, ILVector2n &ilVector);
 
 	void Unpad();
 
 	size_t GetLength() const { return this->size(); }
 
 	bool CompareTo(const Plaintext& other) const {
-		const std::vector<uint32_t>& lv = dynamic_cast<const std::vector<uint32_t>&>(*this);
-		const std::vector<uint32_t>& rv = dynamic_cast<const std::vector<uint32_t>&>(other);
+		const std::vector<uint8_t>& lv = dynamic_cast<const std::vector<uint8_t>&>(*this);
+		const std::vector<uint8_t>& rv = dynamic_cast<const std::vector<uint8_t>&>(other);
 		return lv == rv;
+	}
+
+	friend std::ostream& operator<<(std::ostream& out, const BytePlaintextEncoding& item) {
+		for( int i=0; i<item.size(); i++ )
+			out << item.at(i);
+		return out;
 	}
 };
 

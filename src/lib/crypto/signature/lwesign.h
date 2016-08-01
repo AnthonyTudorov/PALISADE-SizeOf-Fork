@@ -36,6 +36,8 @@
 #define _SRC_LIB_CRYPTO_SIGNATURE_LWESIGN_H
 #include "../../lattice/trapdoor.h"
 #include "../../lattice/trapdoor.cpp"
+#include "../../encoding/plaintext.h"
+
 namespace lbcrypto {
 	
 /*
