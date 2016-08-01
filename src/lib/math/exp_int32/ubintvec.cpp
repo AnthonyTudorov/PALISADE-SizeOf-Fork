@@ -37,6 +37,7 @@
  *
  */
 
+#include "../../utils/serializable.h"
 #include "ubintvec.h"
 //#include "../nbtheory.h"
 
@@ -101,13 +102,13 @@ namespace exp_int32 {
     if(this!=&rhs){
       if(this->m_data.size()==rhs.m_data.size()){
         for (usint i = 0; i < this->m_data.size(); i++){
-          *this->m_data[i] = *rhs.m_data[i];
+          this->m_data[i] = rhs.m_data[i];
         }
       }
       else{
         m_data.resize(rhs.m_data.size());
         for (usint i = 0; i < m_data.size(); i++){
-          m_data[i] = *rhs.m_data[i];
+          m_data[i] = rhs.m_data[i];
         }
       }
     }
@@ -232,7 +233,7 @@ namespace exp_int32 {
   template<class bint_el_t>
   const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator%=(const bint_el_t& modulus) {
 
-    *this = *this.Mod(modulus);
+    *this = this->Mod(modulus);
     return *this;
 
   }
@@ -424,12 +425,26 @@ template<class bint_el_t>
     }
 
     for(usint i=0;i<this->m_data.size();i++){
-      *this->m_data[i] = this->m_data[i]->Sub(*b.m_data[i]);
+      this->m_data[i] = this->m_data[i].Sub(b.m_data[i]);
     }
     return *this;
 
   }
 
+
+  template<class bint_el_t>
+  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator*=(const ubintvec &b) {
+
+    if(this->m_data.size()!=b.m_data.size()){
+      throw std::logic_error("ubintvec *= vectors of different lengths");
+    }
+
+    for(usint i=0;i<this->m_data.size();i++){
+      this->m_data[i] = this->m_data[i].Mul(b.m_data[i]);
+    }
+    return *this;
+
+  }
 
   //Gets the ind
   template<class bint_el_t>

@@ -295,6 +295,18 @@ namespace exp_int32{
     }
 
     /**
+     * Assignment operator from string
+     *
+     * @param val is the string value that is assigned.
+     * @return the assigned ubint ref.
+     */
+    inline const ubint& operator=(std::string val) {
+      *this = ubint(val);
+      return *this;
+    }
+
+
+    /**
      * Move copy constructor
      *
      * @param &&rhs is the ubint to move.

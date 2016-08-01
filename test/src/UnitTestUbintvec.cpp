@@ -111,36 +111,13 @@ protected:
    ubintvec(const ubintvec& rhs);
    ubintvec(ubintvec &&rhs);//move copy constructor
 
-   ~ubintvec();
-
 //= operators   
-   operator=(const ubintvec &rhs);
+
    operator=(ubintvec &&rhs);
    operator=(std::initializer_list<bint_el_t> rhs);
    //const ubintvec& operator=(std::initializer_list<usint> rhs);
    //const ubintvec& operator=(std::initializer_list<string> rhs);
-   operator=(usint val)
 
-//comparison operators
-   inline bool operator!=(const ubintvec &b)
-   inline bool operator==(const ubintvec &b)
-
-   //ACCESSORS
-
-   operator<<()
-   
-   SetValAtIndex(usint index, const bint_el_t& value);
-   SetValAtIndex(usint index, const std::string& str);
-   GetValAtIndex(usint index) 
-   
-   operator[](std::size_t idx) lhs
-   operator[](std::size_t idx) rhs
-   
-   //inline ubintvec<bint_el_t>& operator[](usint idx)
-   //inline const ubintvec<bint_el_t>& operator[](usint idx)
-   GetLength()
-   size()
-   
    //METHODS
    
    Add(const bint_el_t &b)
@@ -151,12 +128,7 @@ protected:
    
    Exp(const bint_el_t &b)
 
-
-   //todo write Div and +=,-= *= /= vector
-   
-   Modulus methods   
-   Mod(const bint_el_t& modulus)
-   operator%=(const bint_el_t& modulus);
+   //todo write Div and /= vector
 
    ModAdd(const bint_el_t& b, const bint_el_t& modulus)
    ModSub(const bint_el_t& b, const bint_el_t& modulus)
@@ -169,8 +141,6 @@ protected:
    Deserialize()
    
    //BINARY OPERATOR Templates
-   
-   ubintvec<bint_el_t> operator%(const ubintvec<bint_el_t>& ,const bint_el_t)
    ubintvec<bint_el_t> operator+(const ubintvec<bint_el_t> &,const bint_el_t) 
    ubintvec<bint_el_t> operator-(const ubintvec<bint_el_t> &a, const bint_el_t 
    ubintvec<bint_el_t> operator*(const ubintvec<bint_el_t> &a, const bint_el_t
@@ -179,7 +149,7 @@ protected:
 /************************************************/
 /*	TESTING BASIC METHODS OF ubintvec CLASS        */
 /************************************************/
-TEST(UTubintvec,ctor){
+TEST(UTubintvec,ctor_access_eq_neq){
 
   ubintvec m(5); // calling constructor to create a vector of length 5
                  //note all values are zero.
@@ -192,8 +162,8 @@ TEST(UTubintvec,ctor){
   EXPECT_EQ(5,n.size())<< "Failure in size()";
 
   //setting value of the value at different index locations
-  //this fails.
-  m.SetValAtIndex(0,"9868"); 
+
+  m.SetValAtIndex(0,"9868");  //SetValAtIndex(str)
   m.SetValAtIndex(1,"5879");
   m.SetValAtIndex(2,"4554");
   m.SetValAtIndex(3,"2343");
@@ -205,36 +175,6 @@ TEST(UTubintvec,ctor){
   EXPECT_EQ(2343U,m.GetValAtIndex(3).ConvertToUsint())<< "Failure in SetValAtIndex(str)";
   EXPECT_EQ(4624U,m.GetValAtIndex(4).ConvertToUsint())<< "Failure in SetValAtIndex(str)";
 
-//   m.SetValAtIndex(0,9868)); does not compile, must be added.
-//   m.SetValAtIndex(1,5879));
-//   m.SetValAtIndex(2,4554));
-//   m.SetValAtIndex(3,2343));
-//   m.SetValAtIndex(4,4624));
-
-//   cout << m.GetValAtIndex(0).ConvertToUsint()<< endl;
-//   cout << m.GetValAtIndex(1).ConvertToUsint()<< endl;
-//   cout << m.GetValAtIndex(2).ConvertToUsint()<< endl;
-//   cout << m.GetValAtIndex(3).ConvertToUsint()<< endl;
-//   cout << m.GetValAtIndex(4).ConvertToUsint()<< endl;
-  
-// EXPECT_EQ(9868U,m.GetValAtIndex(0).ConvertToUsint()) << "Failure in SetValAtIndex(int)";
-//   EXPECT_EQ(5878U,m.GetValAtIndex(1).ConvertToUsint()) << "Failure in SetValAtIndex(int)";
-//   EXPECT_EQ(4554U,m.GetValAtIndex(2).ConvertToUsint()) << "Failure in SetValAtIndex(int)";
-//   EXPECT_EQ(2343U,m.GetValAtIndex(3).ConvertToUsint()) << "Failure in SetValAtIndex(int)";
-//   EXPECT_EQ(4624U,m.GetValAtIndex(4).ConvertToUsint()) << "Failure in SetValAtIndex(int)";
-
-  m.SetValAtIndex(0,ubint("9868"));
-  m.SetValAtIndex(1,ubint("5879"));
-  m.SetValAtIndex(2,ubint("4554"));
-  m.SetValAtIndex(3,ubint("2343"));
-  m.SetValAtIndex(4,ubint("4624"));
-  
-  EXPECT_EQ(9868U,m.GetValAtIndex(0).ConvertToUsint())<< "Failure in SetValAtIndex(ubint)";
-  EXPECT_EQ(5879U,m.GetValAtIndex(1).ConvertToUsint())<< "Failure in SetValAtIndex(ubint)";
-  EXPECT_EQ(4554U,m.GetValAtIndex(2).ConvertToUsint())<< "Failure in SetValAtIndex(ubint)";
-  EXPECT_EQ(2343U,m.GetValAtIndex(3).ConvertToUsint())<< "Failure in SetValAtIndex(ubint)";
-  EXPECT_EQ(4624U,m.GetValAtIndex(4).ConvertToUsint())<< "Failure in SetValAtIndex(ubint)";
-
   EXPECT_EQ(ubint(9868U),m.GetValAtIndex(0))<< "Failure in SetValAtIndex()";
   EXPECT_EQ(ubint(5879U),m.GetValAtIndex(1))<< "Failure in SetValAtIndex()";
   EXPECT_EQ(ubint(4554U),m.GetValAtIndex(2))<< "Failure in SetValAtIndex()";
@@ -242,8 +182,8 @@ TEST(UTubintvec,ctor){
   EXPECT_EQ(ubint(4624U),m.GetValAtIndex(4))<< "Failure in SetValAtIndex()";
 
   //setting value of the value at different index locations
-  //n[0]="4"; //string not there yet
-  n[0]=4;
+
+  n[0]="4";
   n[1]=9;   //int (implied)
   n[2]=ubint("66"); //ubint
   n[3] = 33L;  //long
@@ -255,6 +195,19 @@ TEST(UTubintvec,ctor){
   EXPECT_EQ(ubint(66),n[2])<< "Failure in []";
   EXPECT_EQ(ubint(33),n[3])<< "Failure in []";
   EXPECT_EQ(ubint(7),n[4])<< "Failure in []";
+
+  n.SetValAtIndex(0,ubint("4")); //test SetValAtIndex(ubint)
+  n.SetValAtIndex(1,ubint("9"));
+  n.SetValAtIndex(2,ubint("66"));
+  n.SetValAtIndex(3,ubint("33"));
+  n.SetValAtIndex(4,ubint("7"));
+
+
+  EXPECT_EQ(ubint(4),n[0])<< "Failure in SetValAtIndex(ubint)";
+  EXPECT_EQ(ubint(9),n[1])<< "Failure in SetValAtIndex(ubint)";
+  EXPECT_EQ(ubint(66),n[2])<< "Failure in SetValAtIndex(ubint)";
+  EXPECT_EQ(ubint(33),n[3])<< "Failure in SetValAtIndex(ubint)";
+  EXPECT_EQ(ubint(7),n[4])<< "Failure in SetValAtIndex(ubint)";
 
   m+=n;
 
@@ -274,6 +227,26 @@ TEST(UTubintvec,ctor){
     //      EXPECT_EQ (expectedResultint[i], m[j])
     //<< "Failure testing method_plus_equals";
   }
+
+
+  m = n;
+  bool test1 = m==n;
+  bool test2 = m!=n;
+  EXPECT_TRUE(test1)<<"Failure ==";
+  EXPECT_FALSE(test2)<<"Failure !=";
+
+  m = n+n;
+  test1 = m==n;
+  test2 = m!=n;
+  EXPECT_FALSE(test1)<<"Failure ==";
+  EXPECT_TRUE(test2)<<"Failure !=";
+
+  for (auto i = 0; i < m.size(); i++) {
+    m[i] = n[i]; //test both lhs and rhs []
+  }
+  test1 = m==n;
+  EXPECT_TRUE(test1)<<"Failure [] lhs rhs";
+
 
 }
 /************************************************/
@@ -332,32 +305,6 @@ TEST(UTubintvec,mod_operations){
       EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(j)).ConvertToUsint());
     }
 }
-
-
-
-
-//-------------------END OF TESTING INTEGER OPERATIONS ON VECTOR---------------------------//
-
-
-
-
-//---------------TESTING VECTOR OPERATIONS ON VECTOR----------------------------------------//
-
-
-/*--------------TESTING METHOD MODADD FOR ALL CONDITIONS---------------------------*/
-
-/* 	The method "Mod Add" operates on BigBinary Vectors m,n BigBinary Integer q
-  	Returns:  (m+n)mod q, and the result is stored in BigBinary Vector calculatedResult.
-*/
-
-
-
-
-/*--------------TESTING METHOD PLUS EQUALS FOR ALL CONDITIONS---------------------------*/
-
-/* 	The operator "Plus Equals" operates on BigBinary Vectors m,n BigBinary Integer q
-  	Returns:  (m+n)mod q, and the result is stored in BigBinary Vector a.
-*/
 
 
 TEST(UTubintvec,basic_math_1_limb){
@@ -454,6 +401,7 @@ TEST(UTubintvec,basic_math_1_limb){
   EXPECT_EQ (c1, add1) << "Failure 1 limb vector vector Add()";
   c1 = a1 + b1;
   EXPECT_EQ (c1, add1) << "Failure 1 limb vector vector +";
+
   d1 = a1;
   d1+=b1;
   EXPECT_EQ (d1, add1) << "Failure 1 limb vector vector +=";
@@ -464,7 +412,7 @@ TEST(UTubintvec,basic_math_1_limb){
   c1 = a1 - b1;
   EXPECT_EQ (c1, sub1) << "Failure 1 limb vector vector -";
   d1 = a1;
-  d1 -= a1;
+  d1 -= b1;
   EXPECT_EQ (d1, sub1) << "Failure 1 limb vector vector -=";
 
   c1 = a1.Mul(b1);
@@ -472,7 +420,7 @@ TEST(UTubintvec,basic_math_1_limb){
   c1 = a1 * b1;
   EXPECT_EQ (c1, mul1) << "Failure 1 limb vector vector *";
   d1 = a1;
-  d1 *= a1;
+  d1 *= b1;
   EXPECT_EQ (d1, mul1) << "Failure 1 limb vector vector *=";
 
 }
@@ -554,6 +502,10 @@ TEST(UTubintvec,basic_mod_math_1_limb){
 
   c1 = a1.ModMul(b1,q1);
   EXPECT_EQ (c1, modmul1) << "Failure 1 limb vector vector ModMul()";   
+
+  c1 = a1.Add(b1);
+  c1  %= q1;
+  EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector scalar %";   
 
 
 }
@@ -643,7 +595,7 @@ TEST(UTubintvec,basic_math_2_limb){
 
 
   ubintvec c2;
-
+  ubintvec d2;
 
   // test math for case 
 
@@ -661,7 +613,7 @@ TEST(UTubintvec,basic_math_2_limb){
   c2 = a2 - b2;
   EXPECT_EQ (c2, sub2) << "Failure 2 limb vector vector -";
   d2 = a2;
-  d2 -= a2;
+  d2 -= b2;
   EXPECT_EQ (d2, sub2) << "Failure 2 limb vector vector -=";
 
   c2 = a2.Mul(b2);
@@ -669,13 +621,13 @@ TEST(UTubintvec,basic_math_2_limb){
   c2 = a2 * b2;
   EXPECT_EQ (c2, mul2) << "Failure 2 limb vector vector *";
   d2 = a2;
-  d2 *= a2;
+  d2 *= b2;
   EXPECT_EQ (d2, mul2) << "Failure 2 limb vector vector *=";
 
 }
 
 
-TEST(UTubintvec,basic_math_2_limb){
+TEST(UTubintvec,basic_mod_math_2_limb){
 
   // q2:
   ubint q2("4057816419532801");
@@ -751,5 +703,10 @@ TEST(UTubintvec,basic_math_2_limb){
   
   c2 = a2.ModMul(b2,q2);
   EXPECT_EQ (c2, modmul2) << "Failure 2 limb vector vector ModMul()";   
+
+  c2 = a2.Add(b2);
+  c2 %= q2;
+  EXPECT_EQ (c2, modadd2) << "Failure 2 limb vector scalar %";   
+
   
 }

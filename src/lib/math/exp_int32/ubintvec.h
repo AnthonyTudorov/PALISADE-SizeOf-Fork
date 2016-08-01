@@ -349,6 +349,15 @@ namespace exp_int32 {
        */
       ubintvec Mul(const ubintvec &b) const;
 
+
+      /**
+       * vector *=
+       *
+       * @param &b is the vector to add to lhs
+       * @return is the result of the addition operation.
+       */
+      const ubintvec& operator*=(const ubintvec &b);
+
       /**
        * Scalar modular addition.
        *
@@ -425,7 +434,7 @@ namespace exp_int32 {
        *
        * @param serObj is used to store the serialized result. It MUST
        * be a rapidjson Object (SetObject());
-       *
+      *
        * @param fileFlag is an object-specific parameter for the
        * serialization 
        *
