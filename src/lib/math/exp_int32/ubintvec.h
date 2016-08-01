@@ -72,9 +72,9 @@ namespace exp_int32 {
 
       //TODO: needs testing
       static inline ubintvec Single(const bint_el_t& val) { 
-	ubintvec vec(1);
-	vec.m_data.at(0)=val;
-	return vec;
+        ubintvec vec(1);
+        vec.m_data.at(0)=val;
+        return vec;
       }
 
       /**
@@ -131,7 +131,7 @@ namespace exp_int32 {
        * @param &&rhs is the list of ubints to be assigned to the ubintvec.
        * @return ubintvec object 
        */
-      //todo untested
+
        const ubintvec& operator=(std::initializer_list<bint_el_t> rhs);
 
       /**
@@ -140,9 +140,17 @@ namespace exp_int32 {
        * @param &&rhs is the list of unsigned integers to be assigned to the ubintvec.
        * @return ubintvec object 
        */
-       //todo not implemented
-      //const ubintvec& operator=(std::initializer_list<usint> rhs);
-      //const ubintvec& operator=(std::initializer_list<string> rhs);
+
+      const ubintvec& operator=(std::initializer_list<usint> rhs);
+
+      /**
+       * Initializer list for ubintvec.
+       *
+       * @param &&rhs is the list of strings to be assigned to the ubintvec.
+       * @return ubintvec object 
+       */
+
+       const ubintvec& operator=(std::initializer_list<std::string> rhs);
 
 
       
@@ -164,17 +172,44 @@ namespace exp_int32 {
         }
         return true;
       }
-
-      //assignment from usint
+      //currently screwing around with these
+//      //assignment from usint Note this is not the standard mathematical approach
+//      /**
+//       * @param &&rhs is the usint value to assign to the zeroth entry
+//       * @return resulting ubintvec
+//       */
+//
       inline const ubintvec& operator=(usint val) {
-        //todo change this. it
-        *this->m_data.at(0) = val;
+        //todo this is the way that yuri and kurt want it?
+        this->m_data.at(0) = val;
         for (size_t i = 1; i < GetLength(); ++i) {
-          *this->m_data[i] = 0;
+          this->m_data[i] = 0;
         }
         return *this;
       }
 
+
+      //assignment from usint Note this is not the standard mathematical approach
+      /**
+       * @param &&rhs is the ubint value to assign to the zeroth entry
+       * @return resulting ubintvec
+       */
+
+      const ubintvec& operator=(const bint_el_t &val) {
+        //todo this is the way that yuri and kurt want it?
+        this->m_data.at(0) = val;
+        for (size_t i = 1; i < GetLength(); ++i) {
+          this->m_data[i] = 0;
+        }
+        return *this;
+      }
+
+      /**
+       * NotEquals operator checks if to ubintvec objs are Notequal
+       *
+       * @param &&rhs is the ubintvec to compare  with.
+       * @return true if not equal, false otherwise.
+       */
 
       inline bool operator!=(const ubintvec &b) const {
         return !(*this == b);
@@ -347,7 +382,6 @@ namespace exp_int32 {
        *
        * @param &b is the vector to subtract from lhs
        * @return is the result of the subtraction operation.
-       * TODO: need to define what happens when b > a!
        */
       ubintvec Sub(const ubintvec &b) const;
 
@@ -356,7 +390,6 @@ namespace exp_int32 {
        *
        * @param &b is the vector to subtract from lhs
        * @return is the result of the addition operation.
-       * TODO: need to define what happens when b > a!!
        */
       const ubintvec& operator-=(const ubintvec &b);
 

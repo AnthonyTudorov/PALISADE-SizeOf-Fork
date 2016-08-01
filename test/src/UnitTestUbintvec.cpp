@@ -103,19 +103,6 @@ protected:
 };
 
 /* list of tests left to run
-//ctors
-
-   Single(const bint_el_t& val) { 
-
-   ubintvec(const ubintvec& rhs);
-   ubintvec(ubintvec &&rhs);//move copy constructor
-
-//= operators   
-
-   operator=(ubintvec &&rhs);
-   operator=(std::initializer_list<bint_el_t> rhs);
-   //const ubintvec& operator=(std::initializer_list<usint> rhs);
-   //const ubintvec& operator=(std::initializer_list<string> rhs);
 
    //METHODS
    //todo write Div and /= vector scalar and vector vector
@@ -194,24 +181,56 @@ TEST(UTubintvec,ctor_access_eq_neq){
 
   m+=n;
 
-  //ubintvec expectedvecint = {9872,5888,4620,2376,4631}; does not work
-
-  // ubintvec expectedvecint = {9872U,5888U,4620U,2376U,4631U};
-  // ubintvec expectedvecint = {ubint(9872U),ubint(5888U),ubint(4620U),ubint(2376U),ubint(4631U)};
-
-  //ubintvec expectedvecstr = {"9872","5888","4620","2376","4631"}; does not work
   usint expectedResult[5] = {9872,5888,4620,2376,4631};
 
   for (i=0,j=0;j<5;i++,j++) {
     EXPECT_EQ (expectedResult[i], (m.GetValAtIndex(j)).ConvertToUsint())
       << "Failure testing method_plus_equals";
+  }
+  //test initializer list
+  ubintvec expectedvecstr(5);
+  expectedvecstr = {"9872","5888","4620","2376","4631"}; 
+  EXPECT_EQ (expectedvecstr, m)<< "Failure string initializer list";
+  
+  ubintvec expectedvecint(5);
+  expectedvecint = {ubint(9872U),ubint(5888U),ubint(4620U),ubint(2376U),ubint(4631U)};
+  EXPECT_EQ (expectedvecint, m)<< "Failure ubint initializer list";
 
+  expectedvecint = {9872U,5888u,4620u,2376u,4631u};
+  EXPECT_EQ (expectedvecint, m)<< "Failure usint initializer list";
 
-    //      EXPECT_EQ (expectedResultint[i], m[j])
-    //<< "Failure testing method_plus_equals";
+  expectedvecint = {9872,5888,4620,2376,4631}; //fails
+  EXPECT_EQ (expectedvecint, m)<< "Failure int initializer list";
+
+  //test Single
+  ubintvec s = ubintvec::Single(ubint("3"));
+		      
+  EXPECT_EQ(1, s.size()) <<"Failure Single.size()";
+  EXPECT_EQ(ubint(3), s[0]) <<"Failure Single() value";
+
+  // test assignment of single ubit (puts it in the 0 the position)
+  ubintvec eqtest(10);
+  EXPECT_EQ ( 10, eqtest.size()) << "Failure create ubintvec of 10 zeros";
+
+  for (i = 0; i< eqtest.size(); i++) {
+    EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure create ubintvec of zeros";
   }
 
+  // test assignment of single ubint
+  eqtest = ubint(1);
+  EXPECT_EQ (ubint(1),  eqtest[0]) << "Failure assign single ubint 0 index";
+  for (i = 1; i< eqtest.size(); i++) {
+    EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure assign single ubint nonzero index";
+  }
 
+  // test assignment of single usint
+  eqtest = 5U;
+  EXPECT_EQ (ubint(5U),  eqtest[0]) << "Failure assign single ubint 0 index";
+  for (i = 1; i< eqtest.size(); i++) {
+    EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure assign single ubint nonzero index";
+  }
+
+  //test == and !=
   m = n;
   bool test1 = m==n;
   bool test2 = m!=n;

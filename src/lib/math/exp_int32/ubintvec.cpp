@@ -117,8 +117,7 @@ namespace exp_int32 {
   }
 
   //Assignment with initializer list of ubints
-  //TODO:untested
-
+  // note, resizes the vector to the length of the initializer list
   template<class bint_el_t>
   const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator=(std::initializer_list<bint_el_t> rhs){
     usint len = rhs.size();
@@ -133,8 +132,36 @@ namespace exp_int32 {
 
     return *this;
   }
+  //Assignment with initializer list of usints
+  template<class bint_el_t>
+  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator=(std::initializer_list<usint> rhs){
+    usint len = rhs.size();
+    m_data.clear();
+    for(usint i=0;i<len;i++){ // this loops over each entry
+      if(i<len) {
+	m_data.push_back( bint_el_t(*(rhs.begin()+i)));
+      } else {
+	m_data.push_back(bint_el_t::ZERO);
+      }
+    }
+    return *this;
+  }
 
-  //todo: initializer list with strings and with usint
+  //Assignment with initializer list of strings
+  template<class bint_el_t>
+  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator=(std::initializer_list<std::string> rhs){
+    usint len = rhs.size();
+    m_data.clear();
+    for(usint i=0;i<len;i++){ // this loops over each entry
+      if(i<len) {
+	m_data.push_back( bint_el_t(*(rhs.begin()+i)));
+      } else {
+	m_data.push_back(bint_el_t::ZERO);
+      }
+    }
+    return *this;
+  }
+
 
   // move copy allocator
   template<class bint_el_t>
@@ -179,7 +206,7 @@ namespace exp_int32 {
       throw std::logic_error("ubintvec index out of range");
     }
     else{
-      this->m_data.at(index) = value; //todo use at since it checks bounds
+      this->m_data.at(index) = value;
     }
   }
 
@@ -486,7 +513,7 @@ template<class bint_el_t>
   }
 
   //new serialize and deserialise operations
-  //todo: not tested just added to satisfy compilier
+  //todo: not tested
   //currently using the same map as bigBinaryVector, execpt without modulus. 
   //mubintvec.cpp will have attached modulus.
 

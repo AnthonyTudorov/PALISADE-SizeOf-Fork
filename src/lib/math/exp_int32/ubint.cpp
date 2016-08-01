@@ -51,7 +51,7 @@
 #include "time.h"
 #include <chrono>
 
-#include "../../utils/debug.h"//todo: should be in debug.h
+#include "../../utils/debug.h"
 
 
 namespace exp_int32 {
@@ -143,7 +143,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     //setting the MSB
     usint msb = 0;
 
-    msb = GetMSB32(init); //todo: this really should be renamed to GetMSBusint or something.
+    msb = GetMSB32(init); //todo: this really should be renamed to GetMSBUsint or something.
     DEBUG("ctor("<<init<<")");
     DEBUG( "msb " <<msb);
     DEBUG( "maxlimb "<<m_MaxLimb);
@@ -305,7 +305,6 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     m_state = INITIALIZED;
   	DEBUG("final msb ="<<this->m_MSB);
   }
-#if 1
 
   //copy constructor
   template<typename limb_t>
@@ -345,9 +344,8 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
       rhs.m_value.clear(); //clears value
     //rhs.m_value.shrink_to_fit(); //clears value with reallocation.
   }
-#endif
-  //TODO what is this for
 
+  //TODO figure out what this is for
   template<typename limb_t>
   std::function<unique_ptr<ubint<limb_t>>()> ubint<limb_t>::Allocator = [=](){
     return lbcrypto::make_unique<ubint<limb_t>>();
@@ -360,11 +358,9 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 
     DEBUG("dtor() m_value.size is "<<m_value.size());
 
-
     //memory deallocation
 	  if (m_value.size()>0)
 	    m_value.clear(); //clears value
-	  //m_value.shrink_to_fit(); //clear with reallocation
     DEBUG("leaving dtor");
   }
 
@@ -603,16 +599,14 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 
 	    if (shiftByLimb >ans.m_value.size())
 	      DEBUG("LOGIC ERROR size is " <<ans.m_value.size());
-	    //todo could be ceilIntbyUint
+
 
 	    for(auto i =  shiftByLimb; i < ans.m_value.size(); ++i){
-	      //ans.m_value[i-shiftByLimb] = ans.m_value.at(i);
 	      DEBUG("limb shift ");
 	      ans.m_value.at(i-shiftByLimb) = ans.m_value.at(i);
 	    }
 	    //zero out upper  "shifted in" limbs
 	    for(usint i = 0; i< shiftByLimb; ++i){
-	      //ans.m_value[iter] = 0;	//todo should this instead just be deleted?
 	      DEBUG("limb zereo");
 	      ans.m_value.pop_back();
 	    }
@@ -837,7 +831,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     //return 0 if b is higher than *this as there is no support for negative number
     if(!(*this>b)){
       DEBUG("in Sub, b > a return zero");
-      return std::move(ubint(ZERO)); //todo: should we throw an exception ?
+      return std::move(ubint(ZERO));
     }
     int cntr=0,current=0;
 
@@ -1198,124 +1192,12 @@ again:
     ubint ans;
     ubint rv;
 
-    //ubint uv(*this); //todo get rid of these copies
-
-      int f;
+    int f;
     f = divmnu_vect((ans), (rv),  (*this),  (b));
     if (f!= 0)
       throw std::logic_error("Div() error");
     ans.m_state = INITIALIZED;
     ans.SetMSB();
-
-
-
-#if 0
-    //normalised_dividend = result*quotient
-    ubint normalised_dividend( this->Sub( this->Mod(b) ) );
-
-    //Number of array elements in Divisor
-    limb_t ncharInDivisor = ceilIntByUInt(b.m_MSB);
-
-    //Get the limb that is in the MSB position of the Divisor
-    limb_t msbCharInDivisor = b.m_value[(usint)( m_nSize-ncharInDivisor)];
-
-    //Number of array elements in Normalised_dividend
-    limb_t ncharInNormalised_dividend = ceilIntByUInt(normalised_dividend.m_MSB);
-
-    ////Get the uint integer that is in the MSB position of the normalised_dividend
-    limb_t msbCharInRunning_Normalised_dividend = normalised_dividend.m_value[(usint)( m_nSize-ncharInNormalised_dividend)];
-
-    //variable to store the running dividend
-    ubint running_dividend;
-
-    //variable to store the running remainder
-    ubint runningRemainder;
-
-    ubint expectedProd;  //?
-    ubint estimateFinder; //?
-
-    //Initialize the running dividend
-    for(usint i=0;i<ncharInDivisor;i++){
-      running_dividend.m_value[ m_nSize-ncharInDivisor+i] = normalised_dividend.m_value[ m_nSize-ncharInNormalised_dividend+i]; 
-    }
-    running_dividend.m_MSB = GetMSBlimb_t(running_dividend.m_value[m_nSize-ncharInDivisor]) + (ncharInDivisor-1)*m_limbBitLength;
-    running_dividend.m_state = INITIALIZED;
-
-    limb_t estimate=0;
-    limb_t maskBit = 0;
-    limb_t shifts =0;
-    usint ansCtr = m_nSize - ncharInNormalised_dividend+ncharInDivisor-1;
-    //Long Division Computation to determine quotient
-    for(usint i=ncharInNormalised_dividend-ncharInDivisor;i>=0;){
-      //Get the remainder from the Modulus operation
-      runningRemainder = running_dividend.Mod(b);
-      //Compute the expected product from the running dividend and remainder
-      expectedProd = running_dividend-runningRemainder;
-      estimateFinder = expectedProd;
-
-      estimate =0;
-
-      //compute the quotient
-      if(expectedProd>b){	
-        while(estimateFinder.m_MSB > 0){
-          /*
-	          if(expectedProd.m_MSB-b.m_MSB==m_uintBitLength){
-	            maskBit= 1<<(m_uintBitLength-1);
-	          } else {
-	            maskBit= 1<<(expectedProd.m_MSB-b.m_MSB);
-	          }
-           */
-          shifts = estimateFinder.m_MSB-b.m_MSB;
-          if(shifts==m_limbBitLength){
-            maskBit= 1<<(m_limbBitLength-1);
-          }
-          else
-            maskBit= 1<<(shifts);
-
-          if((b.MulIntegerByLimb(maskBit))>estimateFinder){
-            maskBit>>=1;
-            estimateFinder-= b<<(shifts-1);
-          }
-          else if(shifts==m_limbBitLength)
-            estimateFinder-= b<<(shifts-1);
-          else
-            estimateFinder-= b<<shifts;
-
-          estimate |= maskBit;
-        }
-
-      }
-      else if(expectedProd.m_MSB==0)
-        estimate = 0;
-      else
-        estimate = 1;
-      //assgning the quotient in the result array
-      ans.m_value[ansCtr] = estimate;
-      ansCtr++;		
-      if(i==0)
-        break;
-      //Get the next uint element from the divisor and proceed with long division
-      if(running_dividend.m_MSB==0){
-        running_dividend.m_MSB=GetMSBlimb_t(normalised_dividend.m_value[m_nSize-i]);
-      }
-      else
-        running_dividend = runningRemainder<<m_limbBitLength;
-
-      running_dividend.m_value[ m_nSize-1] = normalised_dividend.m_value[m_nSize-i];	
-      if (running_dividend.m_MSB == 0)
-        running_dividend.m_MSB = GetMSBlimb_t(normalised_dividend.m_value[m_nSize - i]);
-      i--;
-    }
-    ansCtr = m_nSize - ncharInNormalised_dividend+ncharInDivisor-1;
-    //Loop to the MSB position
-    while(ans.m_value[ansCtr]==0){
-      ansCtr++;
-    }
-    //Computation of MSB value 
-    ans.m_MSB = GetMSBlimb_t(ans.m_value[ansCtr]) + (m_nSize-1-ansCtr)*m_limbBitLength;
-    ans.m_state = INITIALIZED;
-#endif
-
 
 
     return ans;
@@ -1328,6 +1210,8 @@ again:
   //Reference:http://pctechtips.org/convert-from-decimal-to-binary-with-recursion-in-java/
   template<typename limb_t>
   void ubint<limb_t>::AssignVal(const std::string& vin){
+    //Todo: eliminate m_limbBitLength, make dynamic instead
+
 	  bool dbg_flag = false;	// if true then print dbg output
 	  DEBUG("AssignVal ");
 	  DEBUG("vin: "<< vin);
@@ -1370,12 +1254,8 @@ again:
 	  //define  bit register array
 	  uschar *bitArr = new uschar[m_limbBitLength](); //todo smartpointer
 
-	  //sint bitValPtr=m_nSize-1;
-	  //bitValPtr is a pointer to the Value char array, initially pointed to the last char
-	  //we increment the pointer to the next char when we get the complete value of the char array
-
 	  sint cnt=m_limbBitLength-1;
-	  //cnt8 is a pointer to the bit position in bitArr, when bitArr is compelete it is ready to be transfered to Value
+	  //cnt is a pointer to the bit position in bitArr, when bitArr is compelete it is ready to be transfered to Value
 	  while(zptr!=arrSize){
 		  bitArr[cnt]=DecValue[arrSize-1]%2;
 		  //start divide by 2 in the DecValue array
@@ -1393,17 +1273,15 @@ again:
 		  cnt--;
 		  if(cnt==-1){//cnt = -1 indicates bitArr is ready for transfer
 			  cnt=m_limbBitLength-1;
-			  //m_value[bitValPtr--]= UintInBinaryToDecimal(bitArr);//UintInBinaryToDecimal converts bitArr to decimal and resets the content of bitArr.
 			  DEBUG("push back " <<  UintInBinaryToDecimal(bitArr));
 			  m_value.push_back( UintInBinaryToDecimal(bitArr));
 		  }
 		  if(DecValue[zptr]==0)zptr++;//division makes Most significant digit zero, hence we increment zptr to next value
 		  if(zptr==arrSize&&DecValue[arrSize-1]==0){
-			  	  //m_value[bitValPtr]=UintInBinaryToDecimal(bitArr);//Value assignment
-			  m_value.push_back(UintInBinaryToDecimal(bitArr));//Value assignment
+		    m_value.push_back(UintInBinaryToDecimal(bitArr));//Value assignment
 		  }
 	  }
-	  //std::reverse (m_value.begin(), m_value.end()); //kludge, above is old code that writes the vector bigendian
+
 	  m_state = INITIALIZED;
 	  SetMSB(); //sets the MSB correctly
 	  delete []bitArr;
@@ -1433,7 +1311,7 @@ again:
   void ubint<limb_t>::SetMSB()
   {
     m_MSB = 0;
-    if(this->m_state==GARBAGE){//todo: should fail.
+    if(this->m_state==GARBAGE){
     	throw std::logic_error("SetMSB() of uninitialized bint");
     }
 
@@ -1716,7 +1594,7 @@ again:
     return this->Add(b).Mod(modulus);
     //todo what is the order of this operation?
   }
-
+  // Note none of the Barrett functions are active yet.
   //Optimized Mod Addition using ModBarrett
 //  template<typename limb_t>
 //  ubint<limb_t> ubint<limb_t>::ModBarrettAdd(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const{
@@ -1952,6 +1830,7 @@ again:
 
   template<typename limb_t>
   const std::string ubint<limb_t>::ToString() const{
+      //todo get rid of m_numDigitInPrintval make dynamic
     if (m_value.size()==0)
      throw std::logic_error("ToString() on uninitialized bint");		
 
@@ -2297,7 +2176,7 @@ again:
   //http://www.wikihow.com/Convert-from-Binary-to-Decimal
   template<typename limb_t_c_c>
   std::ostream& operator<<(std::ostream& os, const ubint<limb_t_c_c>& ptr_obj){
-
+    //todo: get rid of m_numDigitInPrintval and make dynamic
     //create reference for the object to be printed
     ubint<limb_t_c_c> *print_obj;
 

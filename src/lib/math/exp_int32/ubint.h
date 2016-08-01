@@ -89,19 +89,7 @@ namespace exp_int32{
   struct Log2<2>{
     const static usint value = 1;
   };
-    
-  /**
-   * @brief Struct to find log value of U where U is a primitive datatype.
-   *Needed in the preprocessing step of ubint to determine bitwidth.
-   *
-   * @tparam U primitive data type.
-   */
-#if 0 //todo delete
-  template <typename U>
-  struct LogDtype{
-    const static usint value = Log2<8*sizeof(U)>::value;
-  };
-#endif
+
   /**
    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t}
    *
@@ -200,13 +188,10 @@ namespace exp_int32{
 
 
   const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
-  //todo delete
-  //const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed values) used in the Barrett reductions.
 
-  /**
-   * @brief Main class for big integers represented as an array of native (primitive) unsigned integers
-   * @tparam limb_t native unsigned integer type
-   */
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+  // Definition starts here
+  //////////////////////////////////////////////////////////////////////////////////////////////////
   template<typename limb_t>
   class ubint
   {
