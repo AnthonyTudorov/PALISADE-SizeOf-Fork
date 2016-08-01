@@ -229,12 +229,7 @@ namespace exp_int32 {
        * @return is the value at the index. return NULL if invalid index.
        */
       inline bint_el_t& operator[](std::size_t idx) {return (this->m_data[idx]);}
-      //ubintvec<bint_el_t>& operator[](std::size_t idx);
       inline const bint_el_t& operator[](std::size_t idx) const {return (this->m_data[idx]);}
-      //const ubintvec<bint_el_t>& operator[](std::size_t idx) const;
-
-      //inline ubintvec<bint_el_t>& operator[](usint idx) {return &(this->m_data[idx]);}
-      //inline const ubintvec<bint_el_t>& operator[](usint idx) const {return &(this->m_data[idx]);}
 
 
       /**
@@ -275,6 +270,16 @@ namespace exp_int32 {
        */
       ubintvec Add(const bint_el_t &b) const;
 
+
+      /**
+       * scalar +=
+       *
+       * @param &b is the ubint scalar  to add to lhs
+       * @return is the result of the addition operation.
+       */
+      const ubintvec& operator+=(const bint_el_t &b);
+
+
       /**
        * Scalar subtraction.
        *
@@ -284,12 +289,29 @@ namespace exp_int32 {
       ubintvec Sub(const bint_el_t &b) const;
 
       /**
+       * scalar +=
+       *
+       * @param &b is the ubint scalar  to subtract from lhs
+       * @return is the result of the subtraction operation.
+       */
+      const ubintvec& operator-=(const bint_el_t &b);
+
+
+      /**
        * Scalar multiplication.
        *
        * @param &b is the scalar to multiply at all locations.
        * @return is the result of the multiplication operation.
        */
       ubintvec Mul(const bint_el_t &b) const;
+
+      /**
+       * scalar *=
+       *
+       * @param &b is the ubint scalar to multiply by lhs
+       * @return is the result of the multiplication operation.
+       */
+      const ubintvec& operator*=(const bint_el_t &b);
 
       /**
        * Scalar exponentiation.

@@ -104,10 +104,9 @@ protected:
 
 /* list of tests left to run
 //ctors
-   ubintvec();
+
    Single(const bint_el_t& val) { 
-   ubintvec(usint length);
-   ubintvec(std::vector<std::string>& s);
+
    ubintvec(const ubintvec& rhs);
    ubintvec(ubintvec &&rhs);//move copy constructor
 
@@ -119,31 +118,15 @@ protected:
    //const ubintvec& operator=(std::initializer_list<string> rhs);
 
    //METHODS
-   
-   Add(const bint_el_t &b)
-   Sub(const bint_el_t &b)
-   Mul(const bint_el_t &b)
-   
-   //todo write Div and +=,-= *= /= scalar
+   //todo write Div and /= vector scalar and vector vector
    
    Exp(const bint_el_t &b)
 
-   //todo write Div and /= vector
-
-   ModAdd(const bint_el_t& b, const bint_el_t& modulus)
-   ModSub(const bint_el_t& b, const bint_el_t& modulus)
-   ModMul(const bint_el_t& b, const bint_el_t& modulus)
-   
    GetDigitAtIndexForBase(usint index, usint base) const;
    
    //JSON FACILITY
    Serialize()
    Deserialize()
-   
-   //BINARY OPERATOR Templates
-   ubintvec<bint_el_t> operator+(const ubintvec<bint_el_t> &,const bint_el_t) 
-   ubintvec<bint_el_t> operator-(const ubintvec<bint_el_t> &a, const bint_el_t 
-   ubintvec<bint_el_t> operator*(const ubintvec<bint_el_t> &a, const bint_el_t
    
 
 /************************************************/
@@ -154,7 +137,7 @@ TEST(UTubintvec,ctor_access_eq_neq){
   ubintvec m(5); // calling constructor to create a vector of length 5
                  //note all values are zero.
   ubintvec n(5);
-  ubintvec o();
+
   int i;
   usint j;
 
@@ -277,8 +260,8 @@ TEST(UTubintvec,ctor_access_eq_neq){
   	Returns:  m mod q, and the result is stored in BigBinary Vector calculatedResult.
 */
 
-TEST(UTubintvec,mod_operations){
-
+TEST(UTubintvec,mod){
+  //note this is the 'old code'
   ubintvec m(10);				// calling constructor to create a vector of length 10
 
   int i;
@@ -298,7 +281,7 @@ TEST(UTubintvec,mod_operations){
 
   ubint q("233");		//calling costructor of ubint Class to create object for modulus
   ubintvec calculatedResult = m.Mod(q);
-  int expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};	// the expected values are stored as one dimensional integer array
+  usint expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};	// the expected values are stored as one dimensional integer array
 
   for (i=0,j=0;i<10;i++,j++)
     {
@@ -307,7 +290,75 @@ TEST(UTubintvec,mod_operations){
 }
 
 
-TEST(UTubintvec,basic_math_1_limb){
+TEST(UTubintvec,basic_vector_scalar_math_1_limb){
+  //basic vector math with 1 limb entries
+  // a1:
+  std::vector<std::string>  a1sv =
+    { "127753", "077706",
+      "017133", "022582",
+      "112132", "027625",
+      "126773", "008924",
+      "125972", "002551",
+      "113837", "112045",
+      "100953", "077352",
+      "132013", "057029", };
+  
+  ubintvec a1(a1sv);
+  ubintvec a1op1(a1.size());
+  ubintvec a1op1test(a1.size());
+  
+  ubint myone(ubint::ONE);
+
+  // test all scalar operations with ONE as the operator term
+
+  // add
+  for (usint i = 0; i < a1.size();i ++){ //build test vector
+    a1op1[i] = a1[i]+myone;
+  }
+
+  a1op1test = a1.Add(myone);
+  EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar Add()"; 
+
+  a1op1test = a1 + myone;
+  EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar +";   
+
+  a1op1test = a1;
+  a1op1test += myone;
+  EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar +=";   
+
+  // sub
+  for (usint i = 0; i < a1.size();i ++){
+    a1op1[i] = a1[i]-myone;
+  }
+  a1op1test = a1.Sub(myone);
+  EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar Sub()"; 
+
+  a1op1test = a1 - myone;
+  EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar -";   
+
+  a1op1test = a1;
+  a1op1test -= myone;
+  EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar -=";   
+
+  // multiply
+  for (usint i = 0; i < a1.size();i ++){
+    a1op1[i] = a1[i]*myone;
+  }
+  a1op1test = a1.Mul(myone);
+  EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar Mul()"; 
+
+  a1op1test = a1 * myone;
+  EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar *";   
+
+  a1op1test = a1;
+  a1op1test *= myone;
+  EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar *=";   
+
+}
+
+
+
+TEST(UTubintvec,basic_vector_vector_math_1_limb){
   //basic vector math with 1 limb entries
   // a1:
   std::vector<std::string>  a1sv =
@@ -425,7 +476,56 @@ TEST(UTubintvec,basic_math_1_limb){
 
 }
 
-TEST(UTubintvec,basic_mod_math_1_limb){
+
+TEST(UTubintvec,basic_vector_scalar_mod_math_1_limb){
+  //basic vector scalar mod math
+  //todo this is very simple, should probably add sub mul by bigger numbers.
+
+  // q1 modulus 1:
+  ubint q1("163841");
+
+  // a1:
+  std::vector<std::string>  a1sv =
+    { "127753", "077706",
+      "017133", "022582",
+      "112132", "027625",
+      "126773", "008924",
+      "125972", "002551",
+      "113837", "112045",
+      "100953", "077352",
+      "132013", "057029", };
+  
+  ubintvec a1(a1sv);
+  ubintvec a1op1(a1.size());
+  ubintvec a1op1test(a1.size());
+  
+  ubint myone(ubint::ONE);
+  
+  for (usint i = 0; i < a1.size();i ++){
+    a1op1[i] = a1[i]+myone;
+    a1op1[i] %= q1;
+  }
+  a1op1test = a1.ModAdd(myone, q1);
+  EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar Add()"; 
+
+  for (usint i = 0; i < a1.size();i ++){
+    a1op1[i] = a1[i]-myone;
+    a1op1[i] %= q1;
+  }
+  a1op1test = a1.ModSub(myone, q1);
+  EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar Sub()"; 
+
+  for (usint i = 0; i < a1.size();i ++){
+    a1op1[i] = a1[i]*myone;
+    a1op1[i] %= q1;
+  }
+  a1op1test = a1.ModMul(myone, q1);
+  EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar Mul()"; 
+
+}
+
+
+TEST(UTubintvec,basic_vector_vector_mod_math_1_limb){
 
   // q1 modulus 1:
   ubint q1("163841");
@@ -507,9 +607,58 @@ TEST(UTubintvec,basic_mod_math_1_limb){
   c1  %= q1;
   EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector scalar %";   
 
+}
+
+TEST(UTubintvec,basic_vector_scalar_math_2_limb){
+  //basic vector math with 2 limb entries
+  // a2:
+  std::vector<std::string>  a2sv = 
+    {"0185225172798255", "0098879665709163",
+     "3497410031351258", "4012431933509255",
+     "1543020758028581", "0135094568432141",
+     "3976954337141739", "4030348521557120",
+     "0175940803531155", "0435236277692967",
+     "3304652649070144", "2032520019613814",
+     "0375749152798379", "3933203511673255",
+     "2293434116159938", "1201413067178193", };
+
+  
+  ubintvec a2(a2sv);
+  ubintvec a2op1(a2.size());
+  ubintvec a2op1test(a2.size());
+  
+  ubint myone(ubint::ONE);
+  
+  for (usint i = 0; i < a2.size();i ++){
+    a2op1[i] = a2[i]+myone;
+  }
+  a2op1test = a2.Add(myone);
+  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Add()"; 
+
+  a2op1test = a2 + myone;
+  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar +";   
+
+  for (usint i = 0; i < a2.size();i ++){
+    a2op1[i] = a2[i]-myone;
+  }
+  a2op1test = a2.Sub(myone);
+  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Sub()"; 
+
+  a2op1test = a2 - myone;
+  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar -";   
+
+  for (usint i = 0; i < a2.size();i ++){
+    a2op1[i] = a2[i]*myone;
+  }
+  a2op1test = a2.Mul(myone);
+  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Mul()"; 
+
+  a2op1test = a2 * myone;
+  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar *";   
 
 }
-TEST(UTubintvec,basic_math_2_limb){
+
+TEST(UTubintvec,basic_vector_vector_math_2_limb){
 
   // a2:
   std::vector<std::string>  a2sv = 
@@ -627,7 +776,54 @@ TEST(UTubintvec,basic_math_2_limb){
 }
 
 
-TEST(UTubintvec,basic_mod_math_2_limb){
+TEST(UTubintvec,basic_vector_scalar_mod_math_2_limb){
+  //basic vector scalar mod math
+  //todo this is very simple, should probably add sub mul by bigger numbers.
+
+  // q2:
+  ubint q2("4057816419532801");
+  // a2:
+  std::vector<std::string>  a2sv = 
+    {"0185225172798255", "0098879665709163",
+     "3497410031351258", "4012431933509255",
+     "1543020758028581", "0135094568432141",
+     "3976954337141739", "4030348521557120",
+     "0175940803531155", "0435236277692967",
+     "3304652649070144", "2032520019613814",
+     "0375749152798379", "3933203511673255",
+     "2293434116159938", "1201413067178193", };
+  
+  ubintvec a2(a2sv);
+  ubintvec a2op1(a2.size());
+  ubintvec a2op1test(a2.size());
+  
+  ubint myone(ubint::ONE);
+  
+  for (usint i = 0; i < a2.size();i ++){
+    a2op1[i] = a2[i]+myone;
+    a2op1[i] %= q2;
+  }
+  a2op1test = a2.ModAdd(myone, q2);
+  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Add()"; 
+
+  for (usint i = 0; i < a2.size();i ++){
+    a2op1[i] = a2[i]-myone;
+    a2op1[i] %= q2;
+  }
+  a2op1test = a2.ModSub(myone, q2);
+  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Sub()"; 
+
+  for (usint i = 0; i < a2.size();i ++){
+    a2op1[i] = a2[i]*myone;
+    a2op1[i] %= q2;
+  }
+  a2op1test = a2.ModMul(myone, q2);
+  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Mul()"; 
+
+}
+
+
+TEST(UTubintvec,basic_vector_vector_mod_math_2_limb){
 
   // q2:
   ubint q2("4057816419532801");

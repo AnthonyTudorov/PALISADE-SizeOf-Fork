@@ -245,37 +245,65 @@ namespace exp_int32 {
   ubintvec<bint_el_t> ubintvec<bint_el_t>::Add(const bint_el_t &b) const{
 	ubintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
-      ans.m_data[i] = ans.m_data[i]->Add(b);
+      ans.m_data[i] = ans.m_data[i].Add(b);
     }
     return ans;
   }
+
+
+  // +=  operator to add scalar to vector
+  template<class bint_el_t>
+  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator+=(const bint_el_t& b) {
+
+    *this = this->Add(b);
+    return *this;
+
+  }
+
 
   // method to subtract scalar from vector
   template<class bint_el_t>
   ubintvec<bint_el_t> ubintvec<bint_el_t>::Sub(const bint_el_t &b) const{
     ubintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
-      ans.m_data[i] = ans.m_data[i]->Sub(b);
+      ans.m_data[i] = ans.m_data[i].Sub(b);
     }
     return ans;
   }
 
+  // -=  operator to subtract scalar from vector
+  template<class bint_el_t>
+  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator-=(const bint_el_t& b) {
+
+    *this = this->Sub(b);
+    return *this;
+
+  }
 
   // method to multiply vector by scalar
   template<class bint_el_t>
   ubintvec<bint_el_t> ubintvec<bint_el_t>::Mul(const bint_el_t &b) const{
     ubintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
-      ans.m_data[i] = ans.m_data[i]->Mul(b);
+      ans.m_data[i] = ans.m_data[i].Mul(b);
     }
     return ans;
+  }
+
+  // *=  operator to multiply  scalar from vector
+  template<class bint_el_t>
+  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator*=(const bint_el_t& b) {
+
+    *this = this->Mul(b);
+    return *this;
+
   }
 
 template<class bint_el_t>
   ubintvec<bint_el_t> ubintvec<bint_el_t>::Exp(const bint_el_t &b) const{
     ubintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
-      ans.m_data[i] = ans.m_data[i]->Exp(b);
+      ans.m_data[i] = ans.m_data[i].Exp(b);
     }
     return ans;
   }
