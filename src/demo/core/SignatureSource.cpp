@@ -130,6 +130,7 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Verifying 4 signature-text combinations : " << "\t" << finish - start << " ms" << std::endl;
 
+	
 	sm = 1024;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("122451504");

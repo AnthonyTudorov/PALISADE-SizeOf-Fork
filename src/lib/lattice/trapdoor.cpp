@@ -177,7 +177,10 @@ namespace lbcrypto {
 		*sigmaSqrt = Cholesky(sigmaA);
 		DEBUG("P7: "<<TOC(t1) <<" ms");
 	}
-
+	
+	
+	//Alternate method for generation of perturbation matrix based on Cholesky decomposition
+	// see Section 3.2 of https ://eprint.iacr.org/2013/297.pdf for base implementation, Section 4.4 for improvements
 	void RLWETrapdoorUtility::PerturbationMatrixGenAlt(size_t n,size_t k,const RingMat& A,
 		const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt) {
 
