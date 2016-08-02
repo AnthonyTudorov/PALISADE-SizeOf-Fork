@@ -143,18 +143,17 @@ namespace lbcrypto {
 		const std::vector<Element> &GetElements() const { return m_elements; }
 
 		/**
-		* Sets a reference to crypto parameters.
+		* Set crypto parameters for this ciphertext.
 		*
-		* @param &cryptoParameters is crypto params passed by reference.
+		* @param cryptoParameters
 		*
 		*/
-		// FIXME: the comment above is wrong; added const cast here (gwr)
 		void SetCryptoParameters(const LPCryptoParameters<Element> *cryptoParameters) { m_cryptoParameters = cryptoParameters; }
 
 		/**
-		* Sets a reference to algorithm.
+		* Set algorithm for this ciphertext.
 		*
-		* @param &encryptionAlgorithm is encryption algorithm passed by reference.
+		* @param encryptionAlgorithm
 		*/
 		void SetEncryptionAlgorithm(const LPPublicKeyEncryptionScheme<Element> &encryptionAlgorithm) { m_encryptionAlgorithm = &encryptionAlgorithm; }
 
@@ -178,7 +177,7 @@ namespace lbcrypto {
 		}
 
 		/**
-		* Sets the data element.
+		* Sets the data elements.
 		*
 		* @param &element is a polynomial ring element.
 		*/

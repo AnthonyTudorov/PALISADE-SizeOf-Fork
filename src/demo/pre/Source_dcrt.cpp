@@ -32,7 +32,7 @@ Redistribution and use in source and binary forms, with or without modification,
 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-*/
+ */
 
 #include <iostream>
 #include <fstream>
@@ -44,6 +44,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/lattice/ilvectorarray2n.h"
 #include "../../lib/crypto/cryptocontext.h"
 
+#include "../../lib/crypto/cryptocontext.h"
+#include "../../lib/utils/cryptocontexthelper.h"
+#include "../../lib/crypto/cryptocontext.cpp"
+#include "../../lib/utils/cryptocontexthelper.cpp"
+
 #include "../../lib/utils/cryptoutility.h"
 #include "time.h"
 
@@ -52,6 +57,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/encoding/byteplaintextencoding.h"
 #include "../../lib/encoding/intplaintextencoding.h"
 
+
+#include "testJson.h"
+#include "testJson.cpp"
 
 using namespace std;
 using namespace lbcrypto;
@@ -98,8 +106,8 @@ int main() {
 	//LevelCircuitEvaluation();
 	//LevelCircuitEvaluation1();
 	//LevelCircuitEvaluation2();
-//	ComposedEvalMultTest();
-//	 FinalLeveledComputation();
+	//	ComposedEvalMultTest();
+	//	 FinalLeveledComputation();
 
 //	TestParameterSelection();
 	//LevelCircuitEvaluation2WithCEM();
@@ -226,6 +234,7 @@ void NTRU_DCRT() {
 	start = currentDateTime();
 
 	usint m = 16;
+	m = 4096;
 
 	const BytePlaintextEncoding plaintext = "I";
 
@@ -246,13 +255,13 @@ void NTRU_DCRT() {
 	BigBinaryInteger modulus("1");
 
 	for(int i=0; i < size;i++){
-        lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
 		moduli[i] = q;
 		cout << q << endl;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
 	//	cout << rootsOfUnity[i] << endl;
 		modulus = modulus* moduli[i];
-	
+
 	}
 
 	cout << "big modulus: " << modulus << endl;
@@ -267,7 +276,7 @@ void NTRU_DCRT() {
 	cryptoParams.SetElementParams(params);
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
-	cout << cryptoParams;
+	CryptoContext<ILVectorArray2n> *ctx = CryptoContext<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
 
 	Ciphertext<ILVectorArray2n> cipherText;
 	cipherText.SetCryptoParameters(&cryptoParams);
@@ -278,6 +287,7 @@ void NTRU_DCRT() {
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
+	cout << chunksize << endl;
 
 	bool successKeyGen=false;
 
@@ -349,6 +359,63 @@ void NTRU_DCRT() {
 		exit(1);
 	}
 
+	bool doReEncrypt = false;
+
+	LPPublicKeyLTV<ILVectorArray2n> newPK(*ctx->getParams());
+	LPPrivateKeyLTV<ILVectorArray2n> newSK(*ctx->getParams());
+
+	successKeyGen = CryptoUtility<ILVectorArray2n>::KeyGen(algorithm, &newPK, &newSK);
+
+	////////////////////////////////////////////////////////////
+	//Perform the proxy re-encryption key generation operation.
+	// This generates the keys which are used to perform the key switching.
+	////////////////////////////////////////////////////////////
+
+	LPEvalKeyLTV<ILVectorArray2n> evalKey(*ctx->getParams());
+
+	CryptoUtility<ILVectorArray2n>::EvalKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
+
+	////////////////////////////////////////////////////////////
+	//Perform the proxy re-encryption operation.
+	// This switches the keys which are used to perform the key switching.
+	////////////////////////////////////////////////////////////
+
+	if( doReEncrypt ) {
+		vector<Ciphertext<ILVectorArray2n>> newCiphertext;
+
+		CryptoUtility<ILVectorArray2n>::ReEncrypt(algorithm, evalKey, ciphertext, &newCiphertext);
+
+		//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
+
+		////////////////////////////////////////////////////////////
+		//Decryption
+		////////////////////////////////////////////////////////////
+
+		BytePlaintextEncoding plaintextNew2;
+
+		DecryptResult result1 = CryptoUtility<ILVectorArray2n>::Decrypt(algorithm,newSK,newCiphertext,&plaintextNew2);
+
+		if (!result1.isValid) {
+			std::cout<<"Decryption failed!"<<std::endl;
+			exit(1);
+		}
+	}
+
+	std::cout << "Execution completed." << std::endl;
+
+
+	cout << "Running serialization testing:" << endl;
+
+	TestJsonParms<ILVectorArray2n> tjp;
+	BytePlaintextEncoding newPlaintext("1) SERIALIZE CRYPTO-OBJS TO FILE AS NESTED JSON STRUCTURES\n2) DESERIALIZE JSON FILES INTO CRYPTO-OBJS USED FOR CRYPTO-APIS\n3) Profit!!!!!");
+
+	tjp.ctx = ctx;
+	tjp.pk = &pk;
+	tjp.sk = &sk;
+	tjp.evalKey = &evalKey;
+	tjp.newSK = &newSK;
+
+	testJson<ILVectorArray2n>("DCRT", newPlaintext, &tjp, doReEncrypt);
 }
 
 void LevelCircuitEvaluation(){
@@ -556,7 +623,7 @@ void LevelCircuitEvaluation(){
 }
 
 void LevelCircuitEvaluation1(){
-/*
+	/*
 	usint m = 8;
 	float stdDev = 4;
 	usint size = 2;
@@ -587,7 +654,7 @@ void LevelCircuitEvaluation1(){
 	vector<BigBinaryInteger> rootsOfUnity1(rootsOfUnity);
 	moduli1.pop_back();
 	rootsOfUnity1.pop_back();
-	
+
 	DiscreteGaussianGenerator dgg(stdDev);
 	ILDCRTParams ildcrtParams(m, moduli, rootsOfUnity);
 	ILDCRTParams ildcrtParams1(m, moduli1, rootsOfUnity1);
@@ -615,7 +682,7 @@ void LevelCircuitEvaluation1(){
 
 	std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm(mask);
-	
+
 	algorithm.KeyGen(&pk, &sk);
 	algorithm.KeyGen(&pk1, &sk1);
 
@@ -666,14 +733,14 @@ void LevelCircuitEvaluation1(){
 	algorithm.Decrypt(sk1, cipherText3, &ctxtd);
 
 	cout << "Final Decrypted value :\n" << endl;
-	
+
 	cout << ctxtd << "\n" << endl;
-*/
+	 */
 
 }
 
 void LevelCircuitEvaluation2WithCEM(){
-/*
+	/*
 	usint m = 8192;
 	float stdDev = 4;
 	usint size = 3;
@@ -690,19 +757,19 @@ void LevelCircuitEvaluation2WithCEM(){
 	moduli[1] = q;
 	lbcrypto::NextQ(q, plainTextModulus, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 	moduli[2] = q;
-	
+
 	for(int i=0; i < size; i++){
         // lbcrypto::NextQ(q, plainTextModulus,m,BigBinaryInteger("4"));
 		modulus = modulus * moduli[i];
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
 		cout << moduli[i] << endl;
 	}
-	
+
 	vector<BigBinaryInteger> moduli1(moduli);
 	vector<BigBinaryInteger> rootsOfUnity1(rootsOfUnity);
 	moduli1.pop_back();
 	rootsOfUnity1.pop_back();
-	
+
 	DiscreteGaussianGenerator dgg(stdDev);
 	ILDCRTParams params(m, moduli, rootsOfUnity);
 	ILDCRTParams params1(m, moduli1, rootsOfUnity1);
@@ -756,12 +823,12 @@ void LevelCircuitEvaluation2WithCEM(){
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm(mask);
 	algorithm.Enable(SHE);
 	algorithm.Enable(LEVELEDSHE);
-	
+
 	algorithm.KeyGen(&pk, &sk);
 	algorithm.KeyGen(&pk1, &sk1);
 	algorithm.KeyGen(&pk2, &sk2);
 	cout << "KeyGen Finished" << endl;
-	
+
 	// cout << "Printing sk values: " << endl;
 	// sk.GetPrivateElement().PrintValues();
 
@@ -841,14 +908,14 @@ void LevelCircuitEvaluation2WithCEM(){
 	ILVectorArray2n pvElement2 = sk2.GetPrivateElement();
 	pvElement2.DropTower(pvElement2.GetTowerLength() - 1);
 	sk2.SetPrivateElement(pvElement2);
-	
+
 	ByteArrayPlaintextEncoding ctxtd;
 	algorithm.Decrypt(sk2, cipherText8, &ctxtd);
 
 	cout << "Final Decrypted value :\n" << endl;
-	
+
 	cout << ctxtd << "\n" << endl;
-*/
+	 */
 
 }
 
@@ -877,11 +944,11 @@ void TestParameterSelection(){
 	BigBinaryInteger modulus("1");
 
 	for(int i=0; i < size;i++){
-        lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
 		modulus = modulus* moduli[i];
-	
+
 	}
 
 	cout << "big modulus: " << modulus << endl;
@@ -901,15 +968,11 @@ void TestParameterSelection(){
 
 	usint n = 16;
 
-	cout << "cryptoParams::: " << cryptoParams << "=====" << endl;
-
 	std::vector<BigBinaryInteger> moduliV(size);
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
 
 	cryptoParams.ParameterSelection(&cryptoParams2);
 	//cryptoParams.ParameterSelection(n, moduliV);
-	cout << "cryptoParams after::: " << cryptoParams << "=====" << endl;
-	cout << "cryptoParams2 after::: " << cryptoParams2 << "=====" << endl;
 
 	cout << "parameter selection test" << endl;
 	cout << cryptoParams2.GetAssuranceMeasure() << endl;
@@ -918,12 +981,12 @@ void TestParameterSelection(){
 	std::vector<BigBinaryInteger> moduli2 = dcrtParams.GetModuli();
 
 	for(usint i =0; i < moduliV.size();i++){
-		 cout<< moduli2[i] << endl; 
+		cout<< moduli2[i] << endl;
 	}
 }
 
 void FinalLeveledComputation(){
-	
+
 	usint init_m = 16;
 
 	float init_stdDev = 4;
@@ -947,7 +1010,7 @@ void FinalLeveledComputation(){
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m,init_moduli[i]);
 		modulus = modulus* init_moduli[i];
-	
+
 	}
 
 	cout << "big modulus: " << modulus << endl;
@@ -977,7 +1040,7 @@ void FinalLeveledComputation(){
 	usint m = dcrtParams.GetCyclotomicOrder();
 	usint size = finalParams.GetDepth()+1;
 	const BigBinaryInteger &plainTextModulus = finalParams.GetPlaintextModulus();
-	
+
 	vector<BigBinaryInteger> moduli(size);
 	moduli = dcrtParams.GetModuli();
 	vector<BigBinaryInteger> rootsOfUnity(size);
@@ -1052,7 +1115,7 @@ void FinalLeveledComputation(){
 	levelSk[1].SetPrivateElement(e);
 	levelSk[1].SetCryptoParameters(&leveledCryptoParams[2]);
 
-		
+
 	//keyStruc.SetLinearKeySwitchHintForLevel(linearKeySwitchHint1,0);
 	//keyStruc.SetQuadraticKeySwitchHintForLevel(quadraticKeySwitchHint1,0);
 	keyStruc.PushBackLinearKey(linearKeySwitchHint1);
@@ -1135,7 +1198,7 @@ void NTRUPRE(usint input) {
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
 	BytePlaintextEncoding plaintext = "N";
-	*/
+	 */
 
 	// The comments below provide a high-security parameterization for prototype use.  If this code were verified/certified for high-security applications, we would say that the following parameters would be appropriate for "production" use.
 	//usint m = 2048;
@@ -1264,7 +1327,7 @@ void NTRUPRE(usint input) {
 
 	std::vector< Ciphertext<ILVector2n> > ciphertext;
 	//BytePlaintextEncoding ptxt(plaintext);
-    //ptxt.Pad<ZeroPad>(m/16);
+	//ptxt.Pad<ZeroPad>(m/16);
 	//ptxt.Pad<ZeroPad>(m/8);
 
 	std::cout << "Running encryption..." << std::endl;
@@ -1340,10 +1403,10 @@ void NTRUPRE(usint input) {
 	cout << "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
 	fout << "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
 
-//	cout<<"newPK = "<<newPK.GetPublicElement().GetValues()<<endl;
-//	cout<<"newSK = "<<newSK.GetPrivateElement().GetValues()<<endl;
-//	fout<<"newPK = "<<newPK.GetPublicElement().GetValues()<<endl;
-//	fout<<"newSK = "<<newSK.GetPrivateElement().GetValues()<<endl;
+	//	cout<<"newPK = "<<newPK.GetPublicElement().GetValues()<<endl;
+	//	cout<<"newSK = "<<newSK.GetPrivateElement().GetValues()<<endl;
+	//	fout<<"newPK = "<<newPK.GetPublicElement().GetValues()<<endl;
+	//	fout<<"newSK = "<<newSK.GetPrivateElement().GetValues()<<endl;
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption key generation operation.

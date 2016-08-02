@@ -597,7 +597,7 @@ namespace lbcrypto {
 
 		obj.AddMember("Format", std::to_string(this->GetFormat()), obj.GetAllocator());
 
-		serObj->AddMember("ILVector2n", obj, serObj->GetAllocator());
+		serObj->AddMember("ILVector2n", obj.Move(), serObj->GetAllocator());
 
 		return true;
 	}

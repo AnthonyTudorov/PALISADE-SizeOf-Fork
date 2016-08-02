@@ -73,7 +73,7 @@ $(BINDIR)/demo/pre/Source_dcrt$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_dcrt.o $
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 
-$(BINDIR)/demo/pre/Source_json$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_json.o $(BUILDDIR)/demo/pre/testJson.o  $(EXTLIBDIR)/$(PALISADELIB)
+$(BINDIR)/demo/pre/Source_json$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_json.o $(EXTLIBDIR)/$(PALISADELIB)
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 
