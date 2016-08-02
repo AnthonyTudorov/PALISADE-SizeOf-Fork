@@ -200,7 +200,7 @@ public:
 					return DecryptResult();
 				tot += res.messageLength;
 
-				pte[whichArray].Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), decrypted);
+				pte[whichArray].Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), &decrypted);
 
 				if( !firstTime ) {
 					outstream << pte[!whichArray];
