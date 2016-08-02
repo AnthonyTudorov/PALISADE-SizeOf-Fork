@@ -67,9 +67,9 @@ public:
 	/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
 	*
 	* @param  modulus - used for encoding.
-	* @param  ilVectorArray2n encoded plaintext - input argument.
+	* @param  *ilVectorArray2n encoded plaintext - input argument.
 	*/
-	void Decode(const BigBinaryInteger &modulus,  ILVectorArray2n &iLVectorArray2n);
+	void Decode(const BigBinaryInteger &modulus,  ILVectorArray2n *iLVectorArray2n);
 
 	/** Interface for the operation of converting from current plaintext encoding to ILVector2n.
 	*
@@ -81,9 +81,9 @@ public:
 	/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
 	*
 	* @param  modulus - used for encoding.
-	* @param  ilVector encoded plaintext - input argument.
+	* @param  *ilVector encoded plaintext - input argument.
 	*/
-	void Decode(const BigBinaryInteger &modulus,  ILVector2n &ilVector);
+	void Decode(const BigBinaryInteger &modulus,  ILVector2n *ilVector);
 
 	void Unpad();
 

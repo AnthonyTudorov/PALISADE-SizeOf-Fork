@@ -160,7 +160,7 @@ public:
 
 			if( result.isValid == false ) return result;
 
-			plaintext->Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), decrypted);
+			plaintext->Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), &decrypted);
 
 			if( ch == lastone && doPadding ) {
 				plaintext->Unpad();

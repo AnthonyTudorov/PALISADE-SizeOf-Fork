@@ -110,19 +110,19 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 }
 
 void
-BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n &ilVector)
+BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector)
 {
-	ilVector = ilVector.SignedMod(modulus);
+	*ilVector = ilVector->SignedMod(modulus);
 
 	usint mod = modulus.ConvertToInt();
 	usint p = ceil((float)log((double)255) / log((double)mod));
 	usint resultant_char;
 
-	for (usint i = 0; i<ilVector.GetValues().GetLength(); i = i + p) {
+	for (usint i = 0; i<ilVector->GetValues().GetLength(); i = i + p) {
 		usint exp = 1;
 		resultant_char = 0;
 		for (usint j = 0; j<p; j++) {
-			resultant_char += ilVector.GetValues().GetValAtIndex(i + j).ConvertToInt()*exp;
+			resultant_char += ilVector->GetValues().GetValAtIndex(i + j).ConvertToInt()*exp;
 			exp *= mod;
 		}
 		this->push_back(resultant_char);
@@ -157,18 +157,18 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *
 }
 
 void
-BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n &ilVectorArray2n){
+BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n *ilVectorArray2n){
 
-	ILVector2n interpolatedDecodedValue = ilVectorArray2n.InterpolateIlArrayVector2n();
-		Decode(modulus, interpolatedDecodedValue);
+	ILVector2n interpolatedDecodedValue = ilVectorArray2n->InterpolateIlArrayVector2n();
+		Decode(modulus, &interpolatedDecodedValue);
 		BigBinaryVector tempBBV(interpolatedDecodedValue.GetValues());
 
 
 		std::vector<ILVector2n> encodeValues;
-		encodeValues.reserve(ilVectorArray2n.GetNumOfElements());
+		encodeValues.reserve(ilVectorArray2n->GetNumOfElements());
 
-		for (usint i = 0; i<ilVectorArray2n.GetNumOfElements(); i++) {
-			ILParams ilparams(ilVectorArray2n.GetElementAtIndex(i).GetCyclotomicOrder(), ilVectorArray2n.GetElementAtIndex(i).GetModulus(), ilVectorArray2n.GetElementAtIndex(i).GetRootOfUnity());
+		for (usint i = 0; i<ilVectorArray2n->GetNumOfElements(); i++) {
+			ILParams ilparams(ilVectorArray2n->GetElementAtIndex(i).GetCyclotomicOrder(), ilVectorArray2n->GetElementAtIndex(i).GetModulus(), ilVectorArray2n->GetElementAtIndex(i).GetRootOfUnity());
 			ILVector2n temp(ilparams);
 			tempBBV = interpolatedDecodedValue.GetValues();
 			tempBBV.SetModulus(ilparams.GetModulus());
@@ -178,7 +178,7 @@ BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n 
 		}
 
 		ILVectorArray2n elementNew(encodeValues);
-		ilVectorArray2n = elementNew;
+		*ilVectorArray2n = elementNew;
 }
 
 void
