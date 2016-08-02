@@ -317,15 +317,6 @@ namespace lbcrypto {
 				Ciphertext<Element> *ciphertext) const = 0;
 
 			/**
-			 * Method for encrypting plaintex using LBC
-			 *
-			 * @param &publicKey public key used for encryption.
-			 * @param *ciphertext ciphertext which results from encryption.
-			 */
-			virtual void Encrypt(const LPPublicKey<Element> &publicKey, 
-				Ciphertext<Element> *ciphertext) const = 0;
-			
-			/**
 			 * Method for decrypting plaintext using LBC
 			 *
 			 * @param &privateKey private key used for decryption.
@@ -705,16 +696,6 @@ namespace lbcrypto {
 				if(this->IsEnabled(ENCRYPTION)) {
 					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext,ciphertext);
 				}
-				else {
-					throw std::logic_error("This operation is not supported");
-				}
-		}
-
-		//wrapper for Encrypt method
-		void Encrypt(const LPPublicKey<Element> &publicKey, 
-			Ciphertext<Element> *ciphertext) const {
-				if(this->IsEnabled(ENCRYPTION))
-					return this->m_algorithmEncryption->Encrypt(publicKey, ciphertext);
 				else {
 					throw std::logic_error("This operation is not supported");
 				}

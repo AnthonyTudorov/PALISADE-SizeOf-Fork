@@ -92,7 +92,7 @@ int main() {
 //	ComposedEvalMultTest();
 //	 FinalLeveledComputation();
 
-	//TestParameterSelection();
+	TestParameterSelection();
 	//LevelCircuitEvaluation2WithCEM();
 
 	std::cin.get();
@@ -166,6 +166,8 @@ void NTRU_DCRT() {
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
+
+	cout << cryptoParams;
 
 	Ciphertext<ILVectorArray2n> cipherText;
 	cipherText.SetCryptoParameters(&cryptoParams);
@@ -800,11 +802,15 @@ void TestParameterSelection(){
 
 	usint n = 16;
 
+	cout << "cryptoParams::: " << cryptoParams << "=====" << endl;
+
 	std::vector<BigBinaryInteger> moduliV(size);
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
 
 	cryptoParams.ParameterSelection(&cryptoParams2);
 	//cryptoParams.ParameterSelection(n, moduliV);
+	cout << "cryptoParams after::: " << cryptoParams << "=====" << endl;
+	cout << "cryptoParams2 after::: " << cryptoParams2 << "=====" << endl;
 
 	cout << "parameter selection test" << endl;
 	cout << cryptoParams2.GetAssuranceMeasure() << endl;
@@ -963,8 +969,7 @@ void FinalLeveledComputation(){
 	ILVectorArray2n element1(dcrtParams);
 	element1.SwitchFormat();
 	element1 = {1};
-	cipherText1.SetElement(element1);
-	algorithm.Encrypt(pk,&cipherText1);
+	algorithm.Encrypt(pk,element1,&cipherText1);
 
 
 	Ciphertext<ILVectorArray2n> cipherText2;
@@ -972,32 +977,29 @@ void FinalLeveledComputation(){
 	ILVectorArray2n element2(dcrtParams);
 	element2.SwitchFormat();
 	element2 = {2};
-	cipherText2.SetElement(element2);
-	algorithm.Encrypt(pk,&cipherText2);
+	algorithm.Encrypt(pk,element2,&cipherText2);
 
 	Ciphertext<ILVectorArray2n> cipherText3;
 	cipherText3.SetCryptoParameters(&finalParams);
 	ILVectorArray2n element3(dcrtParams);
 	element3.SwitchFormat();
 	element3 = {3};
-	cipherText3.SetElement(element3);
-	algorithm.Encrypt(pk,&cipherText3);
+	algorithm.Encrypt(pk,element3,&cipherText3);
 
 	Ciphertext<ILVectorArray2n> cipherText4;
 	cipherText4.SetCryptoParameters(&finalParams);
 	ILVectorArray2n element4(dcrtParams);
 	element4.SwitchFormat();
 	element4 = {4};
-	cipherText4.SetElement(element4);
-	algorithm.Encrypt(pk,&cipherText4);
+	algorithm.Encrypt(pk,element4,&cipherText4);
 
 	Ciphertext<ILVectorArray2n> cipherText5;
 	cipherText5.SetCryptoParameters(&finalParams);
 	ILVectorArray2n element5(dcrtParams);
 	element5.SwitchFormat();
 	element5 = {5};
-	cipherText5.SetElement(element5);
-	algorithm.Encrypt(pk,&cipherText5);
+	algorithm.Encrypt(pk,element5,&cipherText5);
+
 	//Computation: C = (C1*C2 + C3*C4)*C5
 	Ciphertext<ILVectorArray2n> cipherText6(cipherText1);
 	algorithm.ComposedEvalMult(cipherText1,cipherText2,keyStruc.GetQuadraticKeySwitchHintForLevel(0),&cipherText6);
