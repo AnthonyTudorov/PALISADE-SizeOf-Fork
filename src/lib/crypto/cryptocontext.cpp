@@ -128,6 +128,41 @@ CryptoContext<T> *CryptoContext<T>::genCryptoContextLTV(
 }
 
 template <typename T>
+CryptoContext<T> *CryptoContext<T>::getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* params)
+		{
+	CryptoContext	*item = new CryptoContext();
+
+//	item->ringdim = ringdim;
+//	item->ptmod = BigBinaryInteger(plaintextmodulus);
+//	item->mod = BigBinaryInteger(modulus);
+//	item->ru = BigBinaryInteger(rootOfUnity);
+//	item->relinWindow = relinWindow;
+//	item->stDev = stDev;
+//
+//	item->ilParams = ILParams(item->ringdim, item->mod, item->ru);
+//
+//	LPCryptoParametersLTV<T>* params = new LPCryptoParametersLTV<T>();
+	item->params = params;
+
+//	params->SetPlaintextModulus(item->ptmod);
+//	params->SetDistributionParameter(item->stDev);
+//	params->SetRelinWindow(item->relinWindow);
+//	params->SetElementParams(item->ilParams);
+//
+//	item->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
+//	params->SetDiscreteGaussianGenerator(item->dgg);
+
+	item->chunksize = ((params->GetElementParams().GetCyclotomicOrder() / 2) / 8) * log(params->GetPlaintextModulus().ConvertToDouble())/log(2);
+
+	item->algorithm = new LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n>(item->chunksize);
+	item->algorithm->Enable(ENCRYPTION);
+	item->algorithm->Enable(PRE);
+
+	return item;
+		}
+
+
+template <typename T>
 CryptoContext<T> *CryptoContext<T>::genCryptoContextStehleSteinfeld(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,

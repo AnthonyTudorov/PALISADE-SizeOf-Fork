@@ -7,9 +7,6 @@
 
 #include <iostream>
 #include <fstream>
-#include "../../lib/crypto/cryptocontext.h"
-#include "../../lib/utils/cryptocontexthelper.h"
-#include "../../lib/utils/cryptocontexthelper.cpp"
 
 #include "../../lib/encoding/byteplaintextencoding.h"
 #include "../../lib/utils/cryptoutility.h"
@@ -24,15 +21,17 @@ using namespace lbcrypto;
 
 #include "testJson.h"
 
+template<typename Element>
 void testJson(
 		const std::string cID,
 		const BytePlaintextEncoding& newPtxt,
-		TestJsonParms *tp) {
+		TestJsonParms<Element> *tp,
+		bool skipReEncrypt) {
 
-	LPPublicKeyLTV<ILVector2n>				pkDeserialized;
-	LPPrivateKeyLTV<ILVector2n>				skDeserialized;
-	LPEvalKeyLTV<ILVector2n>				evalKeyDeserialized;
-	LPPrivateKeyLTV<ILVector2n>				newSKDeserialized;
+	LPPublicKeyLTV<Element>				pkDeserialized;
+	LPPrivateKeyLTV<Element>				skDeserialized;
+	LPEvalKeyLTV<Element>				evalKeyDeserialized;
+	LPPrivateKeyLTV<Element>				newSKDeserialized;
 
 	cout << "----------------------START JSON FACILITY TESTING-------------------------" << endl;
 
@@ -42,8 +41,8 @@ void testJson(
 		return;
 	}
 
-	LPCryptoParameters<ILVector2n> *temp = tp->ctx->getParams();
-	cout << *(dynamic_cast<LPCryptoParametersRLWE<ILVector2n> *>(temp)) << endl;
+	LPCryptoParameters<Element> *temp = tp->ctx->getParams();
+	cout << *(dynamic_cast<LPCryptoParametersRLWE<Element> *>(temp)) << endl;
 
 	string jsonFileName;
 	string jsonRep;
@@ -110,8 +109,8 @@ void testJson(
 
 	cout << "----------BEGIN LPAlgorithm" + cID + ".Encrypt TESTING----------" << endl;
 	cout << "Calling Encrypt in LPAlgorithm" + cID + " with deserialized instance of LPPublicKey" + cID + "" << endl;
-	vector<Ciphertext<ILVector2n>> testCiphertext;
-	EncryptResult er = CryptoUtility<ILVector2n>::Encrypt(*tp->ctx->getAlgorithm(), pkDeserialized, newPtxt, &testCiphertext);
+	vector<Ciphertext<Element>> testCiphertext;
+	EncryptResult er = CryptoUtility<Element>::Encrypt(*tp->ctx->getAlgorithm(), pkDeserialized, newPtxt, &testCiphertext);
 	if( er.isValid == false ) {
 		cout << "FAILED" << endl;
 		return;
@@ -139,7 +138,7 @@ void testJson(
 	cout << "---BEGIN CIPHERTEXT DESERIALIZATION---" << endl;
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap3);
-	Ciphertext<ILVector2n> ciphertextDeserialized;
+	Ciphertext<Element> ciphertextDeserialized;
 	if (ciphertextDeserialized.Deserialize(testMap3, tp->ctx))
 		cout << "Deserialized into ciphertextDeserialized" << endl;
 	else {
@@ -152,9 +151,9 @@ void testJson(
 	cout << "Calling Decrypt in LPAlgorithm" + cID + " with deserialized instances of" << endl;
 	cout << "LPPrivateKey" + cID + " and Ciphertext." << endl;
 	BytePlaintextEncoding testPlaintextRec;
-	vector<Ciphertext<ILVector2n>> ctDeser;
+	vector<Ciphertext<Element>> ctDeser;
 	ctDeser.push_back(ciphertextDeserialized);
-	DecryptResult testResult = CryptoUtility<ILVector2n>::Decrypt(*tp->ctx->getAlgorithm(), skDeserialized,
+	DecryptResult testResult = CryptoUtility<Element>::Decrypt(*tp->ctx->getAlgorithm(), skDeserialized,
 			ctDeser, &testPlaintextRec);
 	if( testResult.isValid == false ) {
 		cout << "FAILED" << endl;
@@ -165,6 +164,9 @@ void testJson(
 	cout << "Recovered plaintext from call to Decrypt: " << endl;
 	cout << testPlaintextRec << endl;
 	cout << "----------END LPAlgorithm" + cID + ".Decrypt TESTING----------" << endl << endl;
+
+	if( skipReEncrypt )
+		return;
 
 	cout << "---BEGIN LPEvalKey" + cID + " SERIALIZATION---" << endl;
 	Serialized testMap4;
@@ -199,12 +201,12 @@ void testJson(
 	cout << "Calling ReEncrypt in LPAlgorithmPRE" + cID + " with deserialized instances of" << endl;
 	cout << "LPEvalKey" + cID + " and Ciphertext." << endl;
 
-	vector<Ciphertext<ILVector2n>> ct;
-	vector<Ciphertext<ILVector2n>> ctRe;
+	vector<Ciphertext<Element>> ct;
+	vector<Ciphertext<Element>> ctRe;
 	ct.push_back(ciphertextDeserialized);
 
-	Ciphertext<ILVector2n> preCiphertext;
-	CryptoUtility<ILVector2n>::ReEncrypt(*tp->ctx->getAlgorithm(), evalKeyDeserialized, ct, &ctRe);
+	Ciphertext<Element> preCiphertext;
+	CryptoUtility<Element>::ReEncrypt(*tp->ctx->getAlgorithm(), evalKeyDeserialized, ct, &ctRe);
 	preCiphertext = ctRe[0];
 	cout << "----------END LPAlgorithmPRE" + cID + ".ReEncrypt TESTING----------" << endl << endl;
 
@@ -260,7 +262,7 @@ void testJson(
 	jsonFileName = "Ciphertext" + cID + "_Pre.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap3);
-	Ciphertext<ILVector2n> preCiphertextDeserialized;
+	Ciphertext<Element> preCiphertextDeserialized;
 	if( preCiphertextDeserialized.Deserialize(testMap3, tp->ctx) )
 		cout << "Deserialized into preCiphertextDeserialized" << endl;
 	else {
@@ -273,9 +275,9 @@ void testJson(
 	cout << "Calling Decrypt in LPAlgorithmPRE" + cID + " with deserialized instances of" << endl;
 	cout << "PRE LPPrivateKey" + cID + " and PRE Ciphertext." << endl;
 	BytePlaintextEncoding testPlaintextPreRec;
-	vector<Ciphertext<ILVector2n>> preCtVec;
+	vector<Ciphertext<Element>> preCtVec;
 	preCtVec.push_back(preCiphertextDeserialized);
-	DecryptResult testResult1 = CryptoUtility<ILVector2n>::Decrypt(*tp->ctx->getAlgorithm(), newSKDeserialized,
+	DecryptResult testResult1 = CryptoUtility<Element>::Decrypt(*tp->ctx->getAlgorithm(), newSKDeserialized,
 			preCtVec, &testPlaintextPreRec);
 	preCtVec.clear();
 
