@@ -55,6 +55,7 @@ void NTRUPRE(CryptoContext<ILVector2n> *ctx, bool);
 #include "../../lib/utils/serializablehelper.h"
 
 #include "testJson.h"
+#include "testJson.cpp"
 
 using namespace std;
 using namespace lbcrypto;
@@ -175,7 +176,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 
 	start = currentDateTime();
 
-	successKeyGen = ctx->getAlgorithm()->KeyGen(&pk,&sk);	// This is the core function call that generates the keys.
+	successKeyGen = CryptoUtility<ILVector2n>::KeyGen(*ctx->getAlgorithm(),&pk,&sk);	// This is the core function call that generates the keys.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -255,7 +256,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 
 	start = currentDateTime();
 
-	successKeyGen = ctx->getAlgorithm()->KeyGen(&newPK,&newSK);	// This is the same core key generation operation.
+	successKeyGen = CryptoUtility<ILVector2n>::KeyGen(*ctx->getAlgorithm(),&newPK,&newSK);	// This is the same core key generation operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -274,7 +275,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 
 	start = currentDateTime();
 
-	ctx->getAlgorithm()->EvalKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	CryptoUtility<ILVector2n>::EvalKeyGen(*ctx->getAlgorithm(), newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -338,14 +339,14 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	cout << newPlaintext << endl;
 
 	if( doJson ) {
-		TestJsonParms	tjp;
+		TestJsonParms<ILVector2n>	tjp;
 		tjp.ctx = ctx;
 		tjp.pk = &pk;
 		tjp.sk = &sk;
 		tjp.evalKey = &evalKey;
 		tjp.newSK = &newSK;
 
-		testJson("LTV", newPlaintext, &tjp);
+		testJson<ILVector2n>("LTV", newPlaintext, &tjp);
 	}
 
 	fout.close();

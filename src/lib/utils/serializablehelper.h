@@ -50,6 +50,7 @@
 #include <unordered_map>
 
 #include "serializable.h"
+#include "../math/backend.h"
 
 #define RAPIDJSON_NO_SIZETYPEDEFINE
 
@@ -109,6 +110,32 @@ public:
 	 */
 	static bool ReadSerializationFromFile(const std::string jsonFileName, Serialized* map);
 };
+
+template<typename T>
+bool SerializeVector(const std::string& vectorName, const std::string& typeName, const std::vector<T> inVector, Serialized* serObj) {
+	SerialItem ser(rapidjson::kObjectType);
+	ser.AddMember("Typename", typeName, serObj->GetAllocator());
+	ser.AddMember("Length", std::to_string(inVector.size()), serObj->GetAllocator());
+
+	Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
+	for( int i=0; i<inVector.size(); i++ ) {
+		Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
+		inVector[i].Serialize(&oneEl);
+
+		SerialItem key( std::to_string(i), serObj->GetAllocator() );
+		serElements.AddMember(key, oneEl.Move(), serObj->GetAllocator());
+	}
+
+	ser.AddMember("Members", serElements.Move(), serObj->GetAllocator());
+
+	serObj->AddMember(SerialItem(vectorName, serObj->GetAllocator()), ser.Move(), serObj->GetAllocator());
+	return true;
+}
+
+template<typename T>
+bool DeserializeVector(const std::string& vectorName, const std::string& typeName, const Serialized& serObj, std::vector<T>* outVector) {
+	return false;
+}
 
 class IStreamWrapper {
 public:
