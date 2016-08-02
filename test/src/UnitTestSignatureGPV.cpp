@@ -24,7 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../include/gtest/gtest.h"
 #include "../../src/lib/crypto/signature/lwesign.h"
 #include "../../src/lib/crypto/signature/lwesign.cpp"
-#include "../../src/lib/encoding/byteencoding.h"
+#include "../../src/lib/encoding/byteplaintextencoding.h"
 
 using namespace lbcrypto;
 
@@ -56,7 +56,7 @@ TEST(simple_sign_verify, compares_to_expected_result) {
 	LPSignatureSchemeGPV<ILVector2n> scheme;
 	scheme.KeyGen(&s_k, &v_k);
 	Signature<Matrix<ILVector2n>> signature;
-	ByteArrayPlaintextEncoding text(ByteArray("1Sig"));
+	BytePlaintextEncoding text("1Sig");
 
 
 	scheme.Sign(s_k, text, &signature);
@@ -84,8 +84,8 @@ TEST(sign_verify_multiple_texts, compares_to_expected_results) {
 	scheme.KeyGen(&s_k, &v_k);
 
 	Signature<Matrix<ILVector2n>> signature, signature2;
-	ByteArrayPlaintextEncoding text(ByteArray("1Sig"));
-	ByteArrayPlaintextEncoding text2(ByteArray("2Sig"));
+	BytePlaintextEncoding text("1Sig");
+	BytePlaintextEncoding text2("2Sig");
 
 
 
@@ -123,7 +123,7 @@ TEST(sign_verify_multiple_keys, compares_to_expected_results) {
 	scheme.KeyGen(&s_k2, &v_k2);
 
 	Signature<Matrix<ILVector2n>> signature, signature2;
-	ByteArrayPlaintextEncoding text(ByteArray("1Sig"));
+	BytePlaintextEncoding text("1Sig");
 
 	scheme.Sign(s_k, text, &signature);
 	scheme.Sign(s_k2, text, &signature2);

@@ -2,7 +2,8 @@
 #define LIB_ENCODING_CRYPTOUTILITY
 
 #include <iostream>
-#include "byteencoding.h"
+#include "../encoding/plaintext.h"
+#include "../encoding/byteplaintextencoding.h"
 #include "../utils/serializablehelper.h"
 
 namespace lbcrypto {
@@ -40,28 +41,26 @@ public:
 	static EncryptResult Encrypt(
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPPublicKey<Element>& publicKey,
-			const ByteArray& plaintext,
-			vector<Ciphertext<Element>> *cipherResults,
+			const Plaintext& plaintext,
+			std::vector<Ciphertext<Element>> *cipherResults,
 			bool doPadding = true)
 	{
-		bool	didPadding = !doPadding; // if not supposed to do padding, behave as if it's done
 		size_t chunkSize = scheme.getChunkSize();
-		size_t ptSize = plaintext.size();
+		size_t ptSize = plaintext.GetLength();
+		size_t rounds = ptSize/chunkSize;
 
 		if( doPadding == false && ptSize%chunkSize != 0 ) {
 			throw std::logic_error("Cannot Encrypt without padding with this plaintext size");
 		}
 
-		for( int bytes=0; bytes < ptSize || didPadding == false; bytes += chunkSize ) {
+		// if there is a partial chunk OR if there isn't but we need to pad
+		if( ptSize%chunkSize != 0 || doPadding == true )
+			rounds += 1;
 
-			ByteArrayPlaintextEncoding px(plaintext, bytes < ptSize ? bytes : 0, bytes < ptSize ? chunkSize : 0);
-			if( px.GetLength() < chunkSize ) {
-				didPadding = true;
-				px.Pad<OneZeroPad>(chunkSize);
-			}
+		for( int bytes=0, i=0; i < rounds ; bytes += chunkSize,i++ ) {
 
 			Element pt(publicKey.GetCryptoParameters().GetElementParams());
-			px.Encode(publicKey.GetCryptoParameters().GetPlaintextModulus(), &pt);
+			plaintext.Encode(publicKey.GetCryptoParameters().GetPlaintextModulus(), &pt, bytes, chunkSize);
 			pt.SwitchFormat();
 
 			Ciphertext<Element> ciphertext;
@@ -90,7 +89,7 @@ public:
 			std::istream& instream,
 			std::ostream& outstream)
 	{
-		bool didPadding = false;
+		bool padded = false;
 		size_t chunkSize = scheme.getChunkSize();
 		char *ptxt = new char[chunkSize];
 		size_t totBytes = 0;
@@ -99,17 +98,17 @@ public:
 			instream.read(ptxt, chunkSize);
 			size_t nRead = instream.gcount();
 
-			if( nRead <= 0 && didPadding )
+			if( nRead <= 0 && padded )
 				break;
 
-			ByteArrayPlaintextEncoding px(ptxt, 0, nRead); //bytes < ptSize ? bytes : 0, bytes < ptSize ? chunkSize : 0);
+			BytePlaintextEncoding px(ptxt, nRead);
+
 			if( nRead < chunkSize ) {
-				didPadding = true;
-				px.Pad<OneZeroPad>(chunkSize);
+				padded = true;
 			}
 
 			Element pt(publicKey.GetCryptoParameters().GetElementParams());
-			px.Encode(publicKey.GetCryptoParameters().GetPlaintextModulus(), &pt);
+			px.Encode(publicKey.GetCryptoParameters().GetPlaintextModulus(), &pt, 0, chunkSize);
 			pt.SwitchFormat();
 
 			Ciphertext<Element> ciphertext;
@@ -150,8 +149,8 @@ public:
 	static DecryptResult Decrypt(
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPPrivateKey<Element>& privateKey,
-			const vector<Ciphertext<Element>>& ciphertext,
-			ByteArray *plaintext,
+			const std::vector<Ciphertext<Element>>& ciphertext,
+			Plaintext *plaintext,
 			bool doPadding = true)
 	{
 		int lastone = ciphertext.size() - 1;
@@ -161,20 +160,14 @@ public:
 
 			if( result.isValid == false ) return result;
 
-			ByteArrayPlaintextEncoding pte;
-
-			pte.Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), decrypted);
+			plaintext->Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), decrypted);
 
 			if( ch == lastone && doPadding ) {
-				pte.Unpad<OneZeroPad>();
-				if( pte.GetLength() == 0 )
-					continue;
+				plaintext->Unpad();
 			}
-
-			plaintext->insert( plaintext->end(), pte.GetData().begin(), pte.GetData().end() );
 		}
 
-		return DecryptResult(plaintext->size());
+		return DecryptResult(plaintext->GetLength());
 	}
 
 	/**
@@ -195,7 +188,7 @@ public:
 		size_t tot = 0;
 
 		bool firstTime = true;
-		ByteArrayPlaintextEncoding pte[2];
+		BytePlaintextEncoding pte[2];
 		bool whichArray = false;
 
 		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
@@ -209,8 +202,10 @@ public:
 
 				pte[whichArray].Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), decrypted);
 
-				if( !firstTime )
-					outstream << pte[!whichArray].GetData();
+				if( !firstTime ) {
+					outstream << pte[!whichArray];
+					pte[!whichArray].clear();
+				}
 				firstTime = false;
 				whichArray = !whichArray;
 			}
@@ -219,8 +214,8 @@ public:
 		}
 
 		// unpad and write the last one
-		pte[!whichArray].Unpad<OneZeroPad>();
-		outstream << pte[!whichArray].GetData();
+		pte[!whichArray].Unpad();
+		outstream << pte[!whichArray];
 
 		return DecryptResult(tot);
 	}
@@ -235,8 +230,8 @@ public:
 	static void ReEncrypt(
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPEvalKey<Element> &evalKey,
-			const vector<Ciphertext<Element>>& ciphertext,
-			vector<Ciphertext<Element>> *newCiphertext)
+			const std::vector<Ciphertext<Element>>& ciphertext,
+			std::vector<Ciphertext<Element>> *newCiphertext)
 	{
 		for( int i=0; i < ciphertext.size(); i++ ) {
 			Ciphertext<Element> nCipher;

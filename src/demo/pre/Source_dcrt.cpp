@@ -44,12 +44,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/lattice/ilvectorarray2n.h"
 #include "../../lib/crypto/cryptocontext.h"
 
-#include "../../lib/encoding/cryptoutility.h"
+#include "../../lib/utils/cryptoutility.h"
 #include "time.h"
 
 #include <chrono>
 #include "../../lib/utils/debug.h"
-#include "../../lib/encoding/byteencoding.h"
+#include "../../lib/encoding/byteplaintextencoding.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -127,7 +127,7 @@ void NTRU_DCRT() {
 
 	usint m = 16;
 
-	const ByteArray plaintext = "I";
+	const BytePlaintextEncoding plaintext = "I";
 
 	float stdDev = 4;
 
@@ -135,7 +135,7 @@ void NTRU_DCRT() {
 
 	std::cout << "tower size: " << size << std::endl;
 
-	ByteArray ctxtd;
+	BytePlaintextEncoding ctxtd;
 
 	vector<BigBinaryInteger> moduli(size);
 
@@ -228,7 +228,7 @@ void NTRU_DCRT() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArray plaintextNew;
+	BytePlaintextEncoding plaintextNew;
 
 	std::cout <<"\n"<< "Running decryption..." << std::endl;
 
@@ -767,7 +767,7 @@ void TestParameterSelection(){
 
 	std::cout << "tower size: " << size << std::endl;
 
-	ByteArrayPlaintextEncoding ctxtd;
+	// BytePlaintextEncoding ctxtd;
 
 	vector<BigBinaryInteger> moduli(size);
 
@@ -833,7 +833,7 @@ void FinalLeveledComputation(){
 
 	std::cout << "tower size: " << init_size << std::endl;
 
-	ByteArrayPlaintextEncoding ctxtd;
+	BytePlaintextEncoding ctxtd;
 
 	vector<BigBinaryInteger> init_moduli(init_size);
 
@@ -1016,7 +1016,7 @@ void FinalLeveledComputation(){
 	algorithm.ComposedEvalMult(cipherText8,cipherText5,keyStruc.GetQuadraticKeySwitchHintForLevel(1),&cipherText9);
 
 
-	//ByteArray plaintextNew;
+	//BytePlaintextEncoding plaintextNew;
 	//CryptoUtility<ILVector2n>::Decrypt(algorithm, levelSk[1], cipherText9, &plaintextNew);
 
 	//algorithm.Decrypt(levelSk[1],cipherText9, &plaintextNew);
@@ -1032,14 +1032,14 @@ void NTRUPRE(usint input) {
 	usint m = 16;
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
-	ByteArray plaintext = "N";
+	BytePlaintextEncoding plaintext = "N";
 	*/
 
 	// The comments below provide a high-security parameterization for prototype use.  If this code were verified/certified for high-security applications, we would say that the following parameters would be appropriate for "production" use.
 	//usint m = 2048;
 	//BigBinaryInteger modulus("8590983169");
 	//BigBinaryInteger rootOfUnity("4810681236");
-	//ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
+	//BytePlaintextEncoding plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
 
 	SecureParams const SECURE_PARAMS[] = {
 //<<<<<<< HEAD
@@ -1059,8 +1059,8 @@ void NTRUPRE(usint input) {
 	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
 	usint relWindow = SECURE_PARAMS[input].relinWindow;
 
-	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-	//ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	//BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 
 
 	float stdDev = 4;
@@ -1164,8 +1164,8 @@ void NTRUPRE(usint input) {
 	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
 	std::vector< Ciphertext<ILVector2n> > ciphertext;
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-    ptxt.Pad<ZeroPad>(m/16);
+	//BytePlaintextEncoding ptxt(plaintext);
+    //ptxt.Pad<ZeroPad>(m/16);
 	//ptxt.Pad<ZeroPad>(m/8);
 
 	std::cout << "Running encryption..." << std::endl;
@@ -1188,19 +1188,17 @@ void NTRUPRE(usint input) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArrayPlaintextEncoding plaintextNew;
+	BytePlaintextEncoding plaintextNew;
 
 	std::cout <<"\n"<< "Running decryption..." << std::endl;
 
 	start = currentDateTime();
 
-	ByteArray ctxtd;
+	BytePlaintextEncoding ctxtd;
 
 	//DecodingResult result = algorithm.Decrypt(sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
 
 	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &ctxtd);
-
-    plaintextNew.Unpad<ZeroPad>();
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -1294,7 +1292,7 @@ void NTRUPRE(usint input) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArray plaintextNew2;
+	BytePlaintextEncoding plaintextNew2;
 
 	std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
 

@@ -117,7 +117,7 @@ TYPED_TEST(UnitTestSHE, keyswitch_modReduce_ringReduce_tests){
   
   /*float stdDev = 4;
   ByteArrayPlaintextEncoding ctxtd;
-  const ByteArray plaintext = "M";
+  const BytePlaintextEncoding plaintext = "M";
   
   // ByteArrayPlaintextEncoding ptxt(plaintext);
   // ptxt.Pad<ZeroPad>((UnitTestSHE::m)/16);
@@ -155,7 +155,7 @@ TYPED_TEST(UnitTestSHE, keyswitch_modReduce_ringReduce_tests){
 
   CryptoUtility<ILVectorArray2n>::Encrypt(algorithm,pk,plaintext,&ciphertext);
 
-  ByteArray plaintextNew;
+  BytePlaintextEncoding plaintextNew;
   
   DecryptResult result = CryptoUtility<ILVectorArray2n>::Decrypt(algorithm,sk,ciphertext,&plaintextNew); 
 

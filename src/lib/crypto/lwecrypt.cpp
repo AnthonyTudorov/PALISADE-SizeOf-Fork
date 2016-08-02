@@ -439,27 +439,7 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &priv
 
 	b.SwitchFormat();
 
-	// Here we are intentionally hard coding the root of unity to BigBinaryInteger::ONE as we are not going to use the root of unity going forward
-	/*b.SwitchModulus(p, BigBinaryInteger::ONE);
-
-	plaintext->Decode(p,b);
-
-	return DecodingResult(plaintext->GetLength());
-}*/
 	*plaintext = b;
-
-	//Element m(elementParams);
-	//m = b.Mod(p);
-
-	//Element m(b.ModByTwo());
-
-	//	Element m(b.Mod(p));
-
-	//cout<<"m ="<<m.GetValues()<<endl;
-
-	//m.DecodeElement(static_cast<ByteArrayPlaintextEncoding*>(plaintext),p);
-	//	plaintext->Decode(p,m);
-	//plaintext->Decode(p,b);
 
 	return DecryptResult(plaintext->GetLength());
 }

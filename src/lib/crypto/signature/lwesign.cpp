@@ -74,7 +74,7 @@ namespace lbcrypto {
 	
 	//Method for signing given object
 	template <class Element>
-	void LPSignatureSchemeGPV<Element>::Sign(LPSignKeyGPV<Element> &signKey, const PlaintextEncodingInterface &plainText,
+	void LPSignatureSchemeGPV<Element>::Sign(LPSignKeyGPV<Element> &signKey, const Plaintext &plainText,
 		Signature<Matrix<Element>> *signatureText) {
 		
 		//Getting parameters for calculations
@@ -105,7 +105,7 @@ namespace lbcrypto {
 	template <class Element>
 	bool LPSignatureSchemeGPV<Element>::Verify(LPVerificationKeyGPV<Element> &verificationKey,
 		const Signature<Matrix<Element>> &signatureText,
-		const PlaintextEncodingInterface & plainText) {
+		const Plaintext & plainText) {
 		const BigBinaryInteger & q = verificationKey.GetSignatureParameters().GetILParams().GetModulus();
 		
 		//Encode the text into a vector so it can be used in verification process. TODO: Adding some kind of digestion algorithm
