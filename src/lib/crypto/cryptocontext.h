@@ -198,6 +198,9 @@ public:
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev);
 
+	// FIXME: this is temporary until we better incorporate DCRT
+	static CryptoContext<Element> *getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams);
+
 	/**
 	 * Factory method to make an StSt CryptoContext
 	 *

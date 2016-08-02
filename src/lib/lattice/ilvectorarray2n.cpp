@@ -29,6 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "ilvectorarray2n.h"
 #include <fstream>
+#include "../utils/serializablehelper.h"
 
 namespace lbcrypto {
 
@@ -667,7 +668,19 @@ namespace lbcrypto {
 
 	// JSON FACILITY - Serialize Operation
 	bool ILVectorArray2n::Serialize(Serialized* serObj, const std::string fileFlag) const {
-		return false;
+		if( !serObj->IsObject() )
+			return false;
+
+		Serialized obj(rapidjson::kObjectType, &serObj->GetAllocator());
+		obj.AddMember("Format", std::to_string(this->GetFormat()), serObj->GetAllocator());
+		obj.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
+		obj.AddMember("CyclotomicOrder", std::to_string(this->GetCyclotomicOrder()), serObj->GetAllocator());
+
+		SerializeVector("Vectors", "ILVector2n", this->GetAllElements(), &obj);
+
+		serObj->AddMember("ILVectorArray2n", obj.Move(), serObj->GetAllocator());
+
+		return true;
 	}
 
 	// JSON FACILITY - Deserialize Operation

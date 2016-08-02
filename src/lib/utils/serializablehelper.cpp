@@ -103,5 +103,4 @@ namespace lbcrypto {
 
 			return !serObj->HasParseError();
 		}
-
 }
