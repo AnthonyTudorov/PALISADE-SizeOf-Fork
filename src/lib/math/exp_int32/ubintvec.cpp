@@ -39,7 +39,6 @@
 
 #include "../../utils/serializable.h"
 #include "ubintvec.h"
-//#include "../nbtheory.h"
 
 
 namespace exp_int32 {
@@ -85,12 +84,6 @@ namespace exp_int32 {
     m_data = in_bintvec.m_data;
     in_bintvec.m_data.clear();
   }
-
-
-
-
-
-
 
 
   //ASSIGNMENT copy allocator const binvec to binvec

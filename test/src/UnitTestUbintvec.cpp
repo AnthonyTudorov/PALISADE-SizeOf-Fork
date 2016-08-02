@@ -68,26 +68,6 @@ using namespace lbcrypto;
   }
 */
 
- //helper function to compare two bintvecs and print differing indicies
- void vec_diff(ubintvec &a, ubintvec &b) {
-   for (usint i= 0; i < a.size(); ++i){  //todo change to size()
-     if (a[i] != b[i]) {  //todo: add [] indexing to class
-       cout << "i: "<< i << endl;
-       cout << "first vector " <<endl;
-       cout <<a[i];
-       cout << endl;
-       cout << "state " << a[i].GetState() << endl;;
-       cout << "msb: " << a[i].GetMSB() << endl;;
-       cout << "second vector " <<endl;
-       cout << b[i];
-       cout << endl;
-       cout << "state " << b[i].GetState() << endl;;
-       cout << "msb: " << b[i].GetMSB() << endl;;
-       cout << endl;
-     }
-   }
- }
-
 class UnitTestubintvec : public ::testing::Test {
 protected:
   virtual void SetUp() {
@@ -445,7 +425,7 @@ TEST(UTubintvec,basic_vector_vector_math_1_limb){
 
   ubintvec c1;
   ubintvec d1;
-  mubintvec mc1;
+
   // test math for case 1
   c1 = a1.Add(b1);
   EXPECT_EQ (c1, add1) << "Failure 1 limb vector vector Add()";

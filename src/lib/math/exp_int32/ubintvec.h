@@ -173,12 +173,12 @@ namespace exp_int32 {
         return true;
       }
       //currently screwing around with these
-//      //assignment from usint Note this is not the standard mathematical approach
-//      /**
-//       * @param &&rhs is the usint value to assign to the zeroth entry
-//       * @return resulting ubintvec
-//       */
-//
+      //assignment from usint Note this is not the standard mathematical approach
+      /**
+       * @param &&rhs is the usint value to assign to the zeroth entry
+       * @return resulting ubintvec
+       */
+
       inline const ubintvec& operator=(usint val) {
         //todo this is the way that yuri and kurt want it?
         this->m_data.at(0) = val;
@@ -324,7 +324,7 @@ namespace exp_int32 {
       ubintvec Sub(const bint_el_t &b) const;
 
       /**
-       * scalar +=
+       * scalar -=
        *
        * @param &b is the ubint scalar  to subtract from lhs
        * @return is the result of the subtraction operation.
@@ -409,7 +409,7 @@ namespace exp_int32 {
        * vector *=
        *
        * @param &b is the vector to add to lhs
-       * @return is the result of the addition operation.
+       * @return is the result of the mulitplication operation.
        */
       const ubintvec& operator*=(const ubintvec &b);
 
@@ -514,7 +514,7 @@ namespace exp_int32 {
    *   scalar modulo operator %
    *
    * @param &a is the input vector to modulo.
-   * @param &modulus is the input bint modulus
+   * @param &modulus is the input ubint modulus
    * @return is the result of the modulo operation.
    */
   template<class bint_el_t>
@@ -527,7 +527,7 @@ namespace exp_int32 {
    *   scalar addition.
    *
    * @param &a is the input vector to add.
-   * @param &i is the input integer to add.
+   * @param &i is the input ubint to add.
    * @return is the result of the addition operation.
    */
   template<class bint_el_t>
@@ -537,7 +537,7 @@ namespace exp_int32 {
    *   scalar subtraction
    *
    * @param &a is the input vector to subtract.
-   * @param &i is the input integer to subtract.
+   * @param &i is the input ubint to subtract.
    * @return is the result of the subtraction operation.
    */
   template<class bint_el_t>
@@ -547,7 +547,7 @@ namespace exp_int32 {
    *  scalar multiplication.
    *
    * @param &a is the input vector to multiply.
-   * @param &i is the input integer to multiply.
+   * @param &i is the input ubint to multiply.
    * @return is the result of the multiplication operation.
    */
   template<class bint_el_t>
@@ -582,14 +582,6 @@ namespace exp_int32 {
    */
   template<class bint_el_t>
     inline ubintvec<bint_el_t> operator*(const ubintvec<bint_el_t> &a, const ubintvec<bint_el_t> &b) {return a.Mul(b);}
-
-  /**
-   *  vector index
-   *
-   * @param &i is the index into the ubintvec
-   * @return is the result of the index operation.
-   */
-
 
 } // namespace lbcrypto ends
 

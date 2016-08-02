@@ -48,6 +48,7 @@
 //#include "binmat.h"
 #include "../../utils/inttypes.h"
 #include "../../utils/serializable.h"
+#include <initializer_list>
 #include "ubintvec.h"
 
 /**
@@ -136,7 +137,7 @@ public:
   const mubintvec& operator=(const mubintvec &rhs);
 
   /**
-   * move copy contructor
+       * move assignment  contructor
    *
    * @param &rhs is the mubintvec to move
    * @return the return value.
@@ -144,12 +145,46 @@ public:
   const mubintvec& operator=(mubintvec &&rhs);
 
   /**
-   * ???
+   * Initializer list for mubintvec.
    *
-   * @param &&rhs is the mubintvec to test equality with.
-   * @return the return value.
+   * @param &&rhs is the list of ubints to be assigned to the mubintvec.
+   * @return mubintvec object 
+   * note if  modulus is set then mod(input) is stored
+   * note modulus remains unchanged.
    */
 
+  const mubintvec& operator=(std::initializer_list<bint_el_t> rhs);
+
+  /**
+   * Initializer list for mubintvec.
+   *
+   * @param &&rhs is the list of usints to be assigned to the mubintvec.
+   * @return mubintvec object 
+   * note if  modulus is set then mod(input) is stored
+   * note modulus remains unchanged.
+   */
+
+  const mubintvec& operator=(std::initializer_list<usint> rhs);
+
+  /**
+   * Initializer list for mubintvec.
+   *
+   * @param &&rhs is the list of strings to be assigned to the mubintvec.
+   * @return mubintvec object 
+   * note if  modulus is set then mod(input) is stored
+   * note modulus remains unchanged.
+   */
+
+  const mubintvec& operator=(std::initializer_list<std::string> rhs);
+
+  /**
+   * Equality test == for mubintvec.
+   *
+   * @param &b is the mubintvec to test equality with 
+   * @return true if == false otherwise
+   * note moduli must also be ==
+   */
+  
   inline bool operator==(const mubintvec &b) const {
     if (this->ubintvec<bint_el_t>::GetLength() != b.GetLength()) {
       return false;
@@ -163,19 +198,52 @@ public:
     }
     return true;
   }
+      //currently screwing around with these
+      //assignment from usint Note this is not the standard mathematical approach
+      /**
+       * @param &&rhs is the usint value to assign to the zeroth entry
+       * @return resulting ubintvec
+       */
 
   //assignment from usint
   inline const mubintvec& operator=(usint val) {
-    //todo change this. it
-    *this->m_data.at(0) = val;
-    for (size_t i = 1; i < *this->ubintvec<bint_el_t>::GetLength(); ++i) {
-      *this->m_data[i] = 0;
+    //todo this is the way kurt and yuri want it
+    this->m_data.at(0) = val;
+    for (size_t i = 1; i < this->ubintvec<bint_el_t>::GetLength(); ++i) {
+      this->m_data[i] = 0;
     }
-    m_modulus();
+    m_modulus=0;
     m_modulus_state = GARBAGE;
 
     return *this;
   }
+  
+  
+      //assignment from usint Note this is not the standard mathematical approach
+      /**
+       * @param &&rhs is the ubint value to assign to the zeroth entry
+       * @return resulting ubintvec
+       */
+
+      const mubintvec& operator=(const bint_el_t &val) {
+        //todo this is the way that yuri and kurt want it?
+        this->m_data.at(0) = val;
+        for (size_t i = 1; i < this->m_data.size(); ++i) {
+          this->m_data[i] = 0;
+        }
+        m_modulus=0;
+        m_modulus_state = GARBAGE;
+        return *this;
+      }
+
+      /**
+       * NotEquals operator checks if to ubintvec objs are Notequal
+       *
+       * @param &&rhs is the ubintvec to compare  with.
+       * @return true if not equal, false otherwise.
+       */
+
+
 
   inline bool operator!=(const mubintvec &b) const {
     return !(*this == b);
@@ -222,6 +290,13 @@ public:
   void SetModulus(const std::string& value);
 
   /**
+   * Sets the vector modulus to the same as another mubintvec
+   *
+   * @param value is the vector whose modulus to use.
+   */
+  void SetModulus(const mubintvec& value);
+
+  /**
    * Gets the vector modulus.
    *
    * @return the vector modulus.
@@ -255,7 +330,16 @@ public:
    * @param &b is the scalar to modulo add at all locations.
    * @return is the result of the addition operation.
    */
-  mubintvec ModAdd(const bint_el_t &b) const;
+  mubintvec Add(const bint_el_t &b) const;  
+  mubintvec ModAdd(const bint_el_t &b) const;		//Add() is the same as ModAdd()
+
+      /**
+       * scalar +=
+       *
+       * @param &b is the ubint scalar  to add to lhs
+       * @return is the result of the addition operation.
+       */
+      const mubintvec& operator+=(const bint_el_t &b);
 
   /**
    * Scalar subtraction.
@@ -263,7 +347,15 @@ public:
    * @param &b is the scalar to modulo subtract from all locations.
    * @return is the result of the subtraction operation.
    */
-  mubintvec ModSub(const bint_el_t &b) const;
+  mubintvec Sub(const bint_el_t &b) const;
+  mubintvec ModSub(const bint_el_t &b) const;  //Sub() is the same as ModSub()
+      /**
+       * scalar -=
+       *
+       * @param &b is the ubint scalar  to subtract from lhs
+       * @return is the result of the subtraction operation.
+       */
+      const mubintvec& operator-=(const bint_el_t &b);
 
   /**
    * Scalar multiplication.
@@ -271,7 +363,17 @@ public:
    * @param &b is the scalar to modulo multiply at all locations.
    * @return is the result of the multiplication operation.
    */
-  mubintvec ModMul(const bint_el_t &b) const;
+  mubintvec Mul(const bint_el_t &b) const;
+  mubintvec ModMul(const bint_el_t &b) const;//Mul() is the same as ModMul()
+
+      /**
+       * scalar *=
+       *
+       * @param &b is the ubint scalar to multiply by lhs
+       * @return is the result of the multiplication operation.
+       */
+      const mubintvec& operator*=(const bint_el_t &b);
+
 
   /**
    * Scalar exponentiation.
@@ -279,6 +381,7 @@ public:
    * @param &b is the scalar to modulo exponentiate at all locations.
    * @return is the result of the exponentiation operation.
    */
+  mubintvec Exp(const bint_el_t &b) const;
   mubintvec ModExp(const bint_el_t &b) const;
 
   //vector operations
@@ -290,6 +393,7 @@ public:
    * @param &b is the vector to add at all locations.
    * @return is the result of the addition operation.
    */
+  mubintvec Add(const mubintvec  &b) const;
   mubintvec ModAdd(const mubintvec &b) const;
 
   /**
@@ -307,8 +411,8 @@ public:
    *
    * @param &b is the vector to subtract from lhs
    * @return is the result of the subtraction operation.
-   * TODO: need to define what happens when b > a!
    */
+  mubintvec Sub(const mubintvec &b) const;
   mubintvec ModSub(const mubintvec &b) const;
 
   /**
@@ -316,7 +420,6 @@ public:
    *
    * @param &b is the vector to mod subtract from lhs
    * @return is the result of the addition operation.
-   * TODO: need to define what happens when b > a!!
    */
   const mubintvec& operator-=(const mubintvec &b);
 
@@ -328,8 +431,21 @@ public:
    * @param &b is the vector to multiply.
    * @return is the result of the multiplication operation.
    */
+  mubintvec Mul(const mubintvec &b) const;
   mubintvec ModMul(const mubintvec &b) const;
 
+
+      /**
+       * vector *=
+       *
+       * @param &b is the vector to add to lhs
+       * @return is the result of the multiplication operation.
+       */
+      const mubintvec& operator*=(const mubintvec &b);
+
+    
+
+ 
   // auxiliary functions
 
 
@@ -372,6 +488,7 @@ private:
    * @param &a is the input vector to modulo.
    * @param &modulus is the input bint modulus
    * @return is the result of the modulo operation.
+   * as a side effect, sets the modulus of the mubintvec to modulo
    */
   template<class bint_el_t>
   inline mubintvec<bint_el_t> operator%(const mubintvec<bint_el_t> &a,
@@ -399,7 +516,7 @@ inline mubintvec<bint_el_t> operator+(const mubintvec<bint_el_t> &a,
  * @param &a is the input vector to subtract.
  * @param &b is the input bint to subtract.
  * @return is the result of the modulo subtraction operation.
- */
+  */
 template<class bint_el_t>
 inline mubintvec<bint_el_t> operator-(const mubintvec<bint_el_t> &a,
     const bint_el_t &b) {
@@ -415,8 +532,8 @@ inline mubintvec<bint_el_t> operator-(const mubintvec<bint_el_t> &a,
  */
 template<class bint_el_t>
 inline mubintvec<bint_el_t> operator*(const mubintvec<bint_el_t> &a,
-    const bint_el_t &i) {
-  return a.ModMul(i);
+    const bint_el_t &b) {
+  return a.ModMul(b);
 }
 
 /**
@@ -425,6 +542,7 @@ inline mubintvec<bint_el_t> operator*(const mubintvec<bint_el_t> &a,
  * @param &a is the first input vector to add.
  * @param &b is the second input vector to add.
  * @return is the result of the modulo addition operation.
+ 
  */
 template<class bint_el_t>
 inline mubintvec<bint_el_t> operator+(const mubintvec<bint_el_t> &a,
