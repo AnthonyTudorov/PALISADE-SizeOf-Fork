@@ -563,7 +563,7 @@ bool LPEvalKeyLTV<Element>::Deserialize(const Serialized& serObj, const CryptoCo
 
 	this->SetCryptoParameters(cryptoParams);
 
-	Serialized::ConstMemberIterator rIt = serObj.FindMember("Root");git
+	Serialized::ConstMemberIterator rIt = serObj.FindMember("Root");
 	if( rIt == serObj.MemberEnd() ) return false;
 
 	if( (rIt = serObj.FindMember("ILVector2nVector")) == serObj.MemberEnd() )
