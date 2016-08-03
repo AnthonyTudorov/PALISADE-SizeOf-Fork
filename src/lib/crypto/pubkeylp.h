@@ -615,7 +615,7 @@ namespace lbcrypto {
 	public:
 		LPPublicKeyEncryptionScheme(size_t chunksize) : chunksize(chunksize), m_algorithmEncryption(0),
 			m_algorithmPRE(0), m_algorithmEvalAdd(0), m_algorithmEvalAutomorphism(0),
-			m_algorithmSHE(0), m_algorithmFHE(0) {}
+			m_algorithmSHE(0), m_algorithmFHE(0), m_algorithmLeveledSHE(0){}
 
 		~LPPublicKeyEncryptionScheme() {
 			if (this->m_algorithmEncryption != NULL)
@@ -630,6 +630,8 @@ namespace lbcrypto {
 				delete this->m_algorithmSHE;
 			if (this->m_algorithmFHE != NULL)
 				delete this->m_algorithmFHE;
+			if (this->m_algorithmLeveledSHE != NULL)
+				delete this->m_algorithmLeveledSHE;
 		}
 
 		
