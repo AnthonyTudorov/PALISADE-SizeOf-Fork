@@ -88,6 +88,7 @@ void vec_diff(BigBinaryVector &a, BigBinaryVector &b) {
 
 //main BigBinaryVector test suite. tests math
 void test_BigBinaryVector () {
+  cout<<"testing BigBinaryVector"<<endl;
   int nloop = 1000; //number of times to run each test for timing.
 
   bool dbg_flag = 1;		// if true then print dbg output
@@ -183,40 +184,6 @@ void test_BigBinaryVector () {
 
   // compute results for each function and compare.
 
-  TIC(t_total);
-  bool good = true;
-
-  // test mod add for both cases
-  TIC(t1);
-  for (usint j = 0; j< nloop; j++){
-    c1 = a1.ModAdd(b1);
-  }
-  time1 = TOC(t1);
-  DEBUG("t1:  "<<nloop<<" loops c1 = a1.ModAdd(b1) computation time: " << "\t" << time1 << " us");
-  if (c1 != modsum1)
-    cout << "bad add! "<<endl;
-
-  // test mod sub for both cases
-  TIC(t1);
-  for (usint j = 0; j< nloop; j++){
-    c1 = a1.ModSub(b1);
-  }
-  time1 = TOC(t1);
-  DEBUG("t1:  "<<nloop<<" loops c1 = a1.ModSub(b1) computation time: " << "\t" << time1 << " us");
-  if(c1 !=moddiff1)
-    cout << "bad sub! "<<endl;
-
-  //test mod modmultiply for both cases
-  TIC(t1);
-  for (usint j = 0; j< nloop; j++){
-    c1 = a1.ModMul(b1);
-  }
-  time1 = TOC(t1);
-  DEBUG("t1:  "<<nloop<<" loops c1 = a1.ModMul(b1) computation time: " << "\t" << time1 << " us");
-  if (c1 != modmul1){
-    cout << "bad multiply! "<<endl;
-    vec_diff(c1, modmul1);
-  }
 
   TESTIT(t1, c1, a1 + b1, modsum1, nloop);
   TESTIT(t1, c1, a1.ModAdd(b1), modsum1, nloop);

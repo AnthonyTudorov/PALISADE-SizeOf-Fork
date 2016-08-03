@@ -45,32 +45,32 @@ namespace exp_int32 {
 
   //CTORS
   // basic constructor
-  template<class bint_el_t>
-  ubintvec<bint_el_t>::ubintvec(){
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t>::ubintvec(){
   }
 
   // Basic constructor for specifying the length of the vector.
-  template<class bint_el_t>
-  ubintvec<bint_el_t>::ubintvec(usint length){
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t>::ubintvec(usint length){
     m_data.resize(length);
 
     for (usint i = 0; i < length; i++){
-      m_data[i] = bint_el_t::ZERO;
+      m_data[i] = ubint_el_t::ZERO;
     }
   }
 
   // constructor specifying the ubintvec as a vector of strings
-  template<class bint_el_t>
-  ubintvec<bint_el_t>::ubintvec(std::vector<std::string> &s){
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t>::ubintvec(std::vector<std::string> &s){
     m_data.resize(s.size());
     for (usint i = 0; i < s.size(); i++){
-      m_data[i] = bint_el_t(s[i]);
+      m_data[i] = ubint_el_t(s[i]);
     }
   }
 
   //copy constructor
-  template<class bint_el_t>
-  ubintvec<bint_el_t>::ubintvec(const ubintvec &in_bintvec){
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t>::ubintvec(const ubintvec &in_bintvec){
     //todo: redo
     usint length = in_bintvec.m_data.size();
     m_data.resize(length);
@@ -79,8 +79,8 @@ namespace exp_int32 {
     }
   }
 
-  template<class bint_el_t>
-  ubintvec<bint_el_t>::ubintvec(ubintvec &&in_bintvec){
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t>::ubintvec(ubintvec &&in_bintvec){
     m_data = in_bintvec.m_data;
     in_bintvec.m_data.clear();
   }
@@ -90,8 +90,8 @@ namespace exp_int32 {
   //if two vectors are different sized, then it will resize target vector
   //unlike BigBinaryVector which just throws.
 
-  template<class bint_el_t>
-  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator=(const ubintvec &rhs){
+  template<class ubint_el_t>
+  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator=(const ubintvec &rhs){
     if(this!=&rhs){
       if(this->m_data.size()==rhs.m_data.size()){
         for (usint i = 0; i < this->m_data.size(); i++){
@@ -111,45 +111,45 @@ namespace exp_int32 {
 
   //Assignment with initializer list of ubints
   // note, resizes the vector to the length of the initializer list
-  template<class bint_el_t>
-  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator=(std::initializer_list<bint_el_t> rhs){
+  template<class ubint_el_t>
+  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator=(std::initializer_list<ubint_el_t> rhs){
     usint len = rhs.size();
     m_data.clear();
     for(usint i=0;i<len;i++){ // this loops over each entry
       if(i<len) {
-	m_data.push_back( bint_el_t(*(rhs.begin()+i)));
+	m_data.push_back( ubint_el_t(*(rhs.begin()+i)));
       } else {
-	m_data.push_back(bint_el_t::ZERO);
+	m_data.push_back(ubint_el_t::ZERO);
       }
     }
 
     return *this;
   }
   //Assignment with initializer list of usints
-  template<class bint_el_t>
-  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator=(std::initializer_list<usint> rhs){
+  template<class ubint_el_t>
+  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator=(std::initializer_list<usint> rhs){
     usint len = rhs.size();
     m_data.clear();
     for(usint i=0;i<len;i++){ // this loops over each entry
       if(i<len) {
-	m_data.push_back( bint_el_t(*(rhs.begin()+i)));
+	m_data.push_back( ubint_el_t(*(rhs.begin()+i)));
       } else {
-	m_data.push_back(bint_el_t::ZERO);
+	m_data.push_back(ubint_el_t::ZERO);
       }
     }
     return *this;
   }
 
   //Assignment with initializer list of strings
-  template<class bint_el_t>
-  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator=(std::initializer_list<std::string> rhs){
+  template<class ubint_el_t>
+  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator=(std::initializer_list<std::string> rhs){
     usint len = rhs.size();
     m_data.clear();
     for(usint i=0;i<len;i++){ // this loops over each entry
       if(i<len) {
-	m_data.push_back( bint_el_t(*(rhs.begin()+i)));
+	m_data.push_back( ubint_el_t(*(rhs.begin()+i)));
       } else {
-	m_data.push_back(bint_el_t::ZERO);
+	m_data.push_back(ubint_el_t::ZERO);
       }
     }
     return *this;
@@ -157,8 +157,8 @@ namespace exp_int32 {
 
 
   // move copy allocator
-  template<class bint_el_t>
-  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator=(ubintvec &&rhs){
+  template<class ubint_el_t>
+  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator=(ubintvec &&rhs){
 
     if(this!=&rhs){
      this->m_data.swap(rhs.m_data); //swap the two vector contents,
@@ -171,16 +171,16 @@ namespace exp_int32 {
   }
 
   //desctructor
-  template<class bint_el_t>
-  ubintvec<bint_el_t>::~ubintvec(){
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t>::~ubintvec(){
     //std::cout<<"destructor called for vector of size: "<<this->m_data.size()<<"  "<<std::endl;
     m_data.clear();
   }
 
   //ACCESSORS
   //stream <<
-  template<class bint_el_t_c>
-  std::ostream& operator<<(std::ostream& os, const ubintvec<bint_el_t_c> &ptr_obj){
+  template<class ubint_el_t_c>
+  std::ostream& operator<<(std::ostream& os, const ubintvec<ubint_el_t_c> &ptr_obj){
 
     os<<std::endl;
     for(usint i=0;i<ptr_obj.m_data.size();i++){
@@ -192,8 +192,8 @@ namespace exp_int32 {
 
 
   // Set value at index from ubint
-  template<class bint_el_t>
-  void ubintvec<bint_el_t>::SetValAtIndex(usint index, const bint_el_t& value){
+  template<class ubint_el_t>
+  void ubintvec<ubint_el_t>::SetValAtIndex(usint index, const ubint_el_t& value){
 
     if(!this->IndexCheck(index)){
       throw std::logic_error("ubintvec index out of range");
@@ -204,8 +204,8 @@ namespace exp_int32 {
   }
 
   // set value at index from string
-  template<class bint_el_t>
-  void ubintvec<bint_el_t>::SetValAtIndex(usint index, const std::string& str){
+  template<class ubint_el_t>
+  void ubintvec<ubint_el_t>::SetValAtIndex(usint index, const std::string& str){
     if(!this->IndexCheck(index)){
       throw std::logic_error("ubintvec index out of range");
     }
@@ -214,8 +214,8 @@ namespace exp_int32 {
     }
   }
 
-  template<class bint_el_t>
-  const bint_el_t& ubintvec<bint_el_t>::GetValAtIndex(usint index) const{
+  template<class ubint_el_t>
+  const ubint_el_t& ubintvec<ubint_el_t>::GetValAtIndex(usint index) const{
     if(!this->IndexCheck(index)){
       throw std::logic_error("ubintvec index out of range");
     }
@@ -226,21 +226,21 @@ namespace exp_int32 {
 
 
   //todo: deprecate this.
-  template<class bint_el_t>
-  usint ubintvec<bint_el_t>::GetLength() const{
+  template<class ubint_el_t>
+  usint ubintvec<ubint_el_t>::GetLength() const{
     return this->m_data.size();
   }
 
   //replacement for GetLength()
-  template<class bint_el_t>
-  usint ubintvec<bint_el_t>::size() const{
+  template<class ubint_el_t>
+  usint ubintvec<ubint_el_t>::size() const{
     return this->m_data.size();
   }
 
   //Math functions
   // Mod
-  template<class bint_el_t>
-  ubintvec<bint_el_t> ubintvec<bint_el_t>::Mod(const bint_el_t& modulus) const{
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Mod(const ubint_el_t& modulus) const{
     ubintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].Mod(modulus);
@@ -250,8 +250,8 @@ namespace exp_int32 {
 
     // %=
   // method to vector with scalar
-  template<class bint_el_t>
-  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator%=(const bint_el_t& modulus) {
+  template<class ubint_el_t>
+  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator%=(const ubint_el_t& modulus) {
 
     *this = this->Mod(modulus);
     return *this;
@@ -261,8 +261,8 @@ namespace exp_int32 {
 
 
   // method to add scalar to vector
-  template<class bint_el_t>
-  ubintvec<bint_el_t> ubintvec<bint_el_t>::Add(const bint_el_t &b) const{
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Add(const ubint_el_t &b) const{
 	ubintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].Add(b);
@@ -272,8 +272,8 @@ namespace exp_int32 {
 
 
   // +=  operator to add scalar to vector
-  template<class bint_el_t>
-  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator+=(const bint_el_t& b) {
+  template<class ubint_el_t>
+  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator+=(const ubint_el_t& b) {
 
     *this = this->Add(b);
     return *this;
@@ -282,8 +282,8 @@ namespace exp_int32 {
 
 
   // method to subtract scalar from vector
-  template<class bint_el_t>
-  ubintvec<bint_el_t> ubintvec<bint_el_t>::Sub(const bint_el_t &b) const{
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Sub(const ubint_el_t &b) const{
     ubintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].Sub(b);
@@ -292,8 +292,8 @@ namespace exp_int32 {
   }
 
   // -=  operator to subtract scalar from vector
-  template<class bint_el_t>
-  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator-=(const bint_el_t& b) {
+  template<class ubint_el_t>
+  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator-=(const ubint_el_t& b) {
 
     *this = this->Sub(b);
     return *this;
@@ -301,8 +301,8 @@ namespace exp_int32 {
   }
 
   // method to multiply vector by scalar
-  template<class bint_el_t>
-  ubintvec<bint_el_t> ubintvec<bint_el_t>::Mul(const bint_el_t &b) const{
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Mul(const ubint_el_t &b) const{
     ubintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].Mul(b);
@@ -311,16 +311,16 @@ namespace exp_int32 {
   }
 
   // *=  operator to multiply  scalar from vector
-  template<class bint_el_t>
-  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator*=(const bint_el_t& b) {
+  template<class ubint_el_t>
+  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator*=(const ubint_el_t& b) {
 
     *this = this->Mul(b);
     return *this;
 
   }
 
-template<class bint_el_t>
-  ubintvec<bint_el_t> ubintvec<bint_el_t>::Exp(const bint_el_t &b) const{
+template<class ubint_el_t>
+  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Exp(const ubint_el_t &b) const{
     ubintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].Exp(b);
@@ -329,8 +329,8 @@ template<class bint_el_t>
   }
 
   // vector elementwise add
-  template<class bint_el_t>
-  ubintvec<bint_el_t> ubintvec<bint_el_t>::Add(const ubintvec &b) const{
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Add(const ubintvec &b) const{
     
     ubintvec ans(*this);
     if(this->m_data.size()!=b.m_data.size()){
@@ -344,8 +344,8 @@ template<class bint_el_t>
   }
 
   // vector elementwise subtract
-  template<class bint_el_t>
-  ubintvec<bint_el_t> ubintvec<bint_el_t>::Sub(const ubintvec &b) const{
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Sub(const ubintvec &b) const{
     
     ubintvec ans(*this);
     if(this->m_data.size()!=b.m_data.size()){
@@ -360,8 +360,8 @@ template<class bint_el_t>
   }
 
   // vector elementwise multiply
-  template<class bint_el_t>
-  ubintvec<bint_el_t> ubintvec<bint_el_t>::Mul(const ubintvec &b) const{
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Mul(const ubintvec &b) const{
     
     ubintvec ans(*this);
     if(this->m_data.size()!=b.m_data.size()){
@@ -375,8 +375,8 @@ template<class bint_el_t>
   }
 
   // vector scalar modulo addition
-  template<class bint_el_t>
-  ubintvec<bint_el_t> ubintvec<bint_el_t>::ModAdd(const bint_el_t &b, const bint_el_t &modulus) const{
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::ModAdd(const ubint_el_t &b, const ubint_el_t &modulus) const{
     ubintvec ans(*this);
     for(usint i=0;i<ans.m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].ModAdd(b, modulus);
@@ -386,8 +386,8 @@ template<class bint_el_t>
   }
   
   // vector scalar modulo subtraction
-  template<class bint_el_t>
-  ubintvec<bint_el_t> ubintvec<bint_el_t>::ModSub(const bint_el_t &b, const bint_el_t &modulus) const{
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::ModSub(const ubint_el_t &b, const ubint_el_t &modulus) const{
     ubintvec ans(*this);
     for(usint i=0;i<ans.m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].ModSub(b, modulus);
@@ -396,8 +396,8 @@ template<class bint_el_t>
   }
 
   // vector scalar modulo multiplication
-  template<class bint_el_t>
-  ubintvec<bint_el_t> ubintvec<bint_el_t>::ModMul(const bint_el_t &b, const bint_el_t &modulus) const{
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::ModMul(const ubint_el_t &b, const ubint_el_t &modulus) const{
     ubintvec ans(*this);
     for(usint i=0;i<ans.m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].ModMul(b, modulus);
@@ -408,8 +408,8 @@ template<class bint_el_t>
 
 
   // vector vector modulo addition
-  template<class bint_el_t>
-  ubintvec<bint_el_t> ubintvec<bint_el_t>::ModAdd(const ubintvec<bint_el_t> &b, const bint_el_t &modulus) const{
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::ModAdd(const ubintvec<ubint_el_t> &b, const ubint_el_t &modulus) const{
     ubintvec ans(*this);
     if(this->m_data.size()!=b.m_data.size()){
       throw std::logic_error("ubintvec ModAdd vectors of different lengths");
@@ -422,8 +422,8 @@ template<class bint_el_t>
   }
   
   // vector vector modulo subtraction
-  template<class bint_el_t>
-  ubintvec<bint_el_t> ubintvec<bint_el_t>::ModSub(const ubintvec<bint_el_t> &b, const bint_el_t &modulus) const{
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::ModSub(const ubintvec<ubint_el_t> &b, const ubint_el_t &modulus) const{
     ubintvec ans(*this);
     if(this->m_data.size()!=b.m_data.size()){
       throw std::logic_error("ubintvec ModSub vectors of different lengths");
@@ -436,8 +436,8 @@ template<class bint_el_t>
   }
 
   // vector vector modulo multiplication
-  template<class bint_el_t>
-  ubintvec<bint_el_t> ubintvec<bint_el_t>::ModMul(const ubintvec<bint_el_t> &b, const bint_el_t &modulus) const{
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::ModMul(const ubintvec<ubint_el_t> &b, const ubint_el_t &modulus) const{
     ubintvec ans(*this);
     if(this->m_data.size()!=b.m_data.size()){
         throw std::logic_error("ubintvec ModMul vectors of different lengths");
@@ -451,8 +451,8 @@ template<class bint_el_t>
 
   // assignment operators
 
-  template<class bint_el_t>
-  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator+=(const ubintvec &b) {
+  template<class ubint_el_t>
+  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator+=(const ubintvec &b) {
 
     if(this->m_data.size()!=b.m_data.size()){
       throw std::logic_error("ubintvec += vectors of different lengths");
@@ -465,8 +465,8 @@ template<class bint_el_t>
 
   }
 
-  template<class bint_el_t>
-  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator-=(const ubintvec &b) {
+  template<class ubint_el_t>
+  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator-=(const ubintvec &b) {
 
     if(this->m_data.size()!=b.m_data.size()){
       throw std::logic_error("ubintvec -= vectors of different lengths");
@@ -480,8 +480,8 @@ template<class bint_el_t>
   }
 
 
-  template<class bint_el_t>
-  const ubintvec<bint_el_t>& ubintvec<bint_el_t>::operator*=(const ubintvec &b) {
+  template<class ubint_el_t>
+  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator*=(const ubintvec &b) {
 
     if(this->m_data.size()!=b.m_data.size()){
       throw std::logic_error("ubintvec *= vectors of different lengths");
@@ -495,11 +495,11 @@ template<class bint_el_t>
   }
 
   //Gets the ind
-  template<class bint_el_t>
-  ubintvec<bint_el_t> ubintvec<bint_el_t>::GetDigitAtIndexForBase(usint index, usint base) const{
+  template<class ubint_el_t>
+  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::GetDigitAtIndexForBase(usint index, usint base) const{
     ubintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
-      *ans.m_data[i] = bint_el_t(ans.m_data[i]->GetDigitAtIndexForBase(index,base));
+      *ans.m_data[i] = ubint_el_t(ans.m_data[i]->GetDigitAtIndexForBase(index,base));
     }
 
     return ans;
@@ -537,8 +537,8 @@ template<class bint_el_t>
   }
 
   // JSON FACILITY - Deserialize Operation
-  template<class bint_el_t>
-  bool ubintvec<bint_el_t>::Deserialize(const lbcrypto::Serialized& serObj) {
+  template<class ubint_el_t>
+  bool ubintvec<ubint_el_t>::Deserialize(const lbcrypto::Serialized& serObj) {
 
     lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("ubintvec");
     if( mIter == serObj.MemberEnd() )
@@ -557,7 +557,7 @@ template<class bint_el_t>
 
     this->m_data.clear();
 
-    bint_el_t vectorElem;
+    ubint_el_t vectorElem;
     //usint ePos = 0;
     const char *vp = vIt->value.GetString();
     while( *vp != '\0' ) {
@@ -574,8 +574,8 @@ template<class bint_el_t>
 
 
   //Private functions
-  template<class bint_el_t>
-  bool ubintvec<bint_el_t>::IndexCheck(usint length) const{
+  template<class ubint_el_t>
+  bool ubintvec<ubint_el_t>::IndexCheck(usint length) const{
     if(length>this->m_data.size())
       return false;
     return true;

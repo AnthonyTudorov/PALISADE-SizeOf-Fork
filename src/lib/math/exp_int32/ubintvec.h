@@ -61,7 +61,7 @@ namespace exp_int32 {
    * @brief The class for representing vectors of ubint with associated math
    */
   //JSON FACILITY
-  template <class bint_el_t>
+  template <class ubint_el_t>
     class ubintvec : public lbcrypto::Serializable
     {
     public:
@@ -71,7 +71,7 @@ namespace exp_int32 {
       explicit ubintvec();
 
       //TODO: needs testing
-      static inline ubintvec Single(const bint_el_t& val) { 
+      static inline ubintvec Single(const ubint_el_t& val) { 
         ubintvec vec(1);
         vec.m_data.at(0)=val;
         return vec;
@@ -132,7 +132,7 @@ namespace exp_int32 {
        * @return ubintvec object 
        */
 
-       const ubintvec& operator=(std::initializer_list<bint_el_t> rhs);
+       const ubintvec& operator=(std::initializer_list<ubint_el_t> rhs);
 
       /**
        * Initializer list for ubintvec.
@@ -195,7 +195,7 @@ namespace exp_int32 {
        * @return resulting ubintvec
        */
 
-      const ubintvec& operator=(const bint_el_t &val) {
+      const ubintvec& operator=(const ubint_el_t &val) {
         //todo this is the way that yuri and kurt want it?
         this->m_data.at(0) = val;
         for (size_t i = 1; i < GetLength(); ++i) {
@@ -230,8 +230,8 @@ namespace exp_int32 {
        * @param &ptr_obj ???.
        * @return the return value.	  
        */
-      template<class bint_el_t_c>
-	friend std::ostream& operator<<(std::ostream& os, const ubintvec<bint_el_t_c> &ptr_obj);
+      template<class ubint_el_t_c>
+	friend std::ostream& operator<<(std::ostream& os, const ubintvec<ubint_el_t_c> &ptr_obj);
 
       /**
        * Sets a value at an index.
@@ -239,7 +239,7 @@ namespace exp_int32 {
        * @param index is the index to set a value at.
        * @param value is the value to set at the index.
        */
-      void SetValAtIndex(usint index, const bint_el_t& value);
+      void SetValAtIndex(usint index, const ubint_el_t& value);
 
       /**
        * Sets a value at an index.
@@ -255,7 +255,7 @@ namespace exp_int32 {
        * @param index is the index to get a value at.
        * @return is the value at the index. return NULL if invalid index.
        */
-      const bint_el_t& GetValAtIndex(usint index) const;
+      const ubint_el_t& GetValAtIndex(usint index) const;
 
 
       /**
@@ -263,8 +263,8 @@ namespace exp_int32 {
        * @param idx is the index to get a value at.
        * @return is the value at the index. return NULL if invalid index.
        */
-      inline bint_el_t& operator[](std::size_t idx) {return (this->m_data[idx]);}
-      inline const bint_el_t& operator[](std::size_t idx) const {return (this->m_data[idx]);}
+      inline ubint_el_t& operator[](std::size_t idx) {return (this->m_data[idx]);}
+      inline const ubint_el_t& operator[](std::size_t idx) const {return (this->m_data[idx]);}
 
 
       /**
@@ -283,7 +283,7 @@ namespace exp_int32 {
        * @param modulus is the modulus to perform.
        * @return is the result of the modulus operation.
        */
-      ubintvec Mod(const bint_el_t& modulus) const;
+      ubintvec Mod(const ubint_el_t& modulus) const;
 
        /**
         * vector scalar %=
@@ -291,7 +291,7 @@ namespace exp_int32 {
         * @param modulus is the  modulus value
         * @return is the result of the mod operation.
         */
-      const ubintvec& operator%=(const bint_el_t& modulus);
+      const ubintvec& operator%=(const ubint_el_t& modulus);
 
 
 
@@ -303,7 +303,7 @@ namespace exp_int32 {
        * @param &b is the scalar to add at all locations.
        * @return is the result of the addition operation.
        */
-      ubintvec Add(const bint_el_t &b) const;
+      ubintvec Add(const ubint_el_t &b) const;
 
 
       /**
@@ -312,7 +312,7 @@ namespace exp_int32 {
        * @param &b is the ubint scalar  to add to lhs
        * @return is the result of the addition operation.
        */
-      const ubintvec& operator+=(const bint_el_t &b);
+      const ubintvec& operator+=(const ubint_el_t &b);
 
 
       /**
@@ -321,7 +321,7 @@ namespace exp_int32 {
        * @param &b is the scalar to subtract from all locations.
        * @return is the result of the subtraction operation.
        */
-      ubintvec Sub(const bint_el_t &b) const;
+      ubintvec Sub(const ubint_el_t &b) const;
 
       /**
        * scalar -=
@@ -329,7 +329,7 @@ namespace exp_int32 {
        * @param &b is the ubint scalar  to subtract from lhs
        * @return is the result of the subtraction operation.
        */
-      const ubintvec& operator-=(const bint_el_t &b);
+      const ubintvec& operator-=(const ubint_el_t &b);
 
 
       /**
@@ -338,7 +338,7 @@ namespace exp_int32 {
        * @param &b is the scalar to multiply at all locations.
        * @return is the result of the multiplication operation.
        */
-      ubintvec Mul(const bint_el_t &b) const;
+      ubintvec Mul(const ubint_el_t &b) const;
 
       /**
        * scalar *=
@@ -346,7 +346,7 @@ namespace exp_int32 {
        * @param &b is the ubint scalar to multiply by lhs
        * @return is the result of the multiplication operation.
        */
-      const ubintvec& operator*=(const bint_el_t &b);
+      const ubintvec& operator*=(const ubint_el_t &b);
 
       /**
        * Scalar exponentiation.
@@ -354,7 +354,7 @@ namespace exp_int32 {
        * @param &b is the scalar to exponentiate at all locations.
        * @return is the result of the exponentiation operation.
        */
-      ubintvec Exp(const bint_el_t &b) const;
+      ubintvec Exp(const ubint_el_t &b) const;
 
       //vector operations
 
@@ -420,7 +420,7 @@ namespace exp_int32 {
        * @param modulus is the modulus to perform operations with.
        * @return result of the modulus addition operation.
        */
-      ubintvec ModAdd(const bint_el_t& b, const bint_el_t& modulus) const;
+      ubintvec ModAdd(const ubint_el_t& b, const ubint_el_t& modulus) const;
 
 
       /**
@@ -430,7 +430,7 @@ namespace exp_int32 {
        * @param modulus is the modulus to perform operations with.
        * @return result of the modulus subtraction operation.
        */
-      ubintvec ModSub(const bint_el_t& b, const bint_el_t& modulus) const;
+      ubintvec ModSub(const ubint_el_t& b, const ubint_el_t& modulus) const;
 
 
       /**
@@ -440,7 +440,7 @@ namespace exp_int32 {
        * @param modulus is the modulus to perform operations with.
        * @return result of the modulus multiplication operation.
        */
-      ubintvec ModMul(const bint_el_t& b, const bint_el_t& modulus) const;
+      ubintvec ModMul(const ubint_el_t& b, const ubint_el_t& modulus) const;
 
       /**
        * vector modulus addition.
@@ -449,7 +449,7 @@ namespace exp_int32 {
        * @param modulus is the modulus to perform operations with.
        * @return is the result of the modulus vector addition operation.
        */
-      ubintvec ModAdd(const ubintvec &b, const bint_el_t& modulus) const;
+      ubintvec ModAdd(const ubintvec &b, const ubint_el_t& modulus) const;
 
       /**
        * vector modulus subtraction
@@ -458,7 +458,7 @@ namespace exp_int32 {
        * @param modulus is the modulus to perform operations with.
        * @return is the result of the modulus vector subtraction operation.
        */
-      ubintvec ModSub(const ubintvec &b, const bint_el_t& modulus) const;
+      ubintvec ModSub(const ubintvec &b, const ubint_el_t& modulus) const;
 
       /**
        * vector modulus addition.
@@ -467,7 +467,7 @@ namespace exp_int32 {
        * @param modulus is the modulus to perform operations with.
        * @return is the result of the modulus vector mulitplication operation.
        */
-      ubintvec ModMul(const ubintvec &b, const bint_el_t& modulus) const;
+      ubintvec ModMul(const ubintvec &b, const ubint_el_t& modulus) const;
 
       // auxiliary functions
       /**
@@ -505,7 +505,7 @@ namespace exp_int32 {
       bool Deserialize(const lbcrypto::Serialized& serObj);
 
     protected:
-      std::vector<bint_el_t> m_data;
+      std::vector<ubint_el_t> m_data;
       bool IndexCheck(usint) const;
     };
 
@@ -517,9 +517,9 @@ namespace exp_int32 {
    * @param &modulus is the input ubint modulus
    * @return is the result of the modulo operation.
    */
-  template<class bint_el_t>
-  inline ubintvec<bint_el_t> operator%(const ubintvec<bint_el_t> &a,
-      const bint_el_t &modulo) {
+  template<class ubint_el_t>
+  inline ubintvec<ubint_el_t> operator%(const ubintvec<ubint_el_t> &a,
+      const ubint_el_t &modulo) {
     return a.Mod(modulo);
   }
 
@@ -530,8 +530,8 @@ namespace exp_int32 {
    * @param &i is the input ubint to add.
    * @return is the result of the addition operation.
    */
-  template<class bint_el_t>
-    inline ubintvec<bint_el_t> operator+(const ubintvec<bint_el_t> &a, const bint_el_t &i) {return a.Add(i);}
+  template<class ubint_el_t>
+    inline ubintvec<ubint_el_t> operator+(const ubintvec<ubint_el_t> &a, const ubint_el_t &i) {return a.Add(i);}
 
   /**
    *   scalar subtraction
@@ -540,8 +540,8 @@ namespace exp_int32 {
    * @param &i is the input ubint to subtract.
    * @return is the result of the subtraction operation.
    */
-  template<class bint_el_t>
-    inline ubintvec<bint_el_t> operator-(const ubintvec<bint_el_t> &a, const bint_el_t &i) {return a.Sub(i);}
+  template<class ubint_el_t>
+    inline ubintvec<ubint_el_t> operator-(const ubintvec<ubint_el_t> &a, const ubint_el_t &i) {return a.Sub(i);}
 
   /**
    *  scalar multiplication.
@@ -550,8 +550,8 @@ namespace exp_int32 {
    * @param &i is the input ubint to multiply.
    * @return is the result of the multiplication operation.
    */
-  template<class bint_el_t>
-    inline ubintvec<bint_el_t> operator*(const ubintvec<bint_el_t> &a, const bint_el_t &i) {return a.Mul(i);}
+  template<class ubint_el_t>
+    inline ubintvec<ubint_el_t> operator*(const ubintvec<ubint_el_t> &a, const ubint_el_t &i) {return a.Mul(i);}
 
   /**
    *  vector addition.
@@ -560,8 +560,8 @@ namespace exp_int32 {
    * @param &b is the second input vector to add.
    * @return is the result of the addition operation.
    */
-  template<class bint_el_t>
-    inline ubintvec<bint_el_t> operator+(const ubintvec<bint_el_t> &a, const ubintvec<bint_el_t> &b) {return a.Add(b);}
+  template<class ubint_el_t>
+    inline ubintvec<ubint_el_t> operator+(const ubintvec<ubint_el_t> &a, const ubintvec<ubint_el_t> &b) {return a.Add(b);}
 
   /**
    *  vector subtraction.
@@ -570,8 +570,8 @@ namespace exp_int32 {
    * @param &b is the second input vector to subtract.
    * @return is the result of the subtraction operation.
    */
-  template<class bint_el_t>
-    inline ubintvec<bint_el_t> operator-(const ubintvec<bint_el_t> &a, const ubintvec<bint_el_t> &b) {return a.Sub(b);}
+  template<class ubint_el_t>
+    inline ubintvec<ubint_el_t> operator-(const ubintvec<ubint_el_t> &a, const ubintvec<ubint_el_t> &b) {return a.Sub(b);}
 
   /**
    *  vector multiplication.
@@ -580,8 +580,8 @@ namespace exp_int32 {
    * @param &b is the second input vector to multiply.
    * @return is the result of the multiplication operation.
    */
-  template<class bint_el_t>
-    inline ubintvec<bint_el_t> operator*(const ubintvec<bint_el_t> &a, const ubintvec<bint_el_t> &b) {return a.Mul(b);}
+  template<class ubint_el_t>
+    inline ubintvec<ubint_el_t> operator*(const ubintvec<ubint_el_t> &a, const ubintvec<ubint_el_t> &b) {return a.Mul(b);}
 
 } // namespace lbcrypto ends
 
