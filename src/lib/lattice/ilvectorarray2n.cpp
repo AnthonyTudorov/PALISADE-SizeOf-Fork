@@ -655,7 +655,7 @@ namespace lbcrypto {
 
 		SerializeVector("Vectors", "ILVector2n", this->GetAllElements(), &obj);
 
-		serObj->AddMember("ILVectorArray2n", obj.Move(), serObj->GetAllocator());
+		serObj->AddMember("ILVectorArray2n", obj, serObj->GetAllocator());
 
 		return true;
 	}
