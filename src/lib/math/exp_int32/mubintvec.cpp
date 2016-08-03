@@ -125,6 +125,70 @@ namespace exp_int32 {
     this->Mod(modulus);
   }
 
+  //
+  // constructor specifying the mubintvec as an ubintvec and no modulus
+  template<class ubint_el_t>
+  mubintvec<ubint_el_t>::mubintvec(const ubintvec<ubint_el_t> &b) {
+    this->m_data.resize(b.size());
+    //this->m_data = b.m_data; for some reason this did not work, even though
+    //we inheret from ubintvec and it is protected... 
+    for(auto i = 0; i< b.size(); i++){
+      this->m_data[i] = b.GetValAtIndex(i);
+    }
+
+    m_modulus = ubint_el_t(0);
+    m_modulus_state = GARBAGE;
+  }
+
+  //
+  // constructor specifying the mubintvec as an ubintvec and usint modulus
+  template<class ubint_el_t>
+  mubintvec<ubint_el_t>::mubintvec(const ubintvec<ubint_el_t> &b, const usint &modulus) {
+    this->m_data.resize(b.size());
+    //this->m_data = b.m_data; for some reason this did not work, even though
+    //we inheret from ubintvec
+    for(auto i = 0; i< b.size(); i++){
+      this->m_data[i] = b.GetValAtIndex(i);
+    }
+
+
+    m_modulus = ubint_el_t(modulus);
+    m_modulus_state = INITIALIZED;
+    this->Mod(m_modulus);
+  }
+
+ //constructor specifying the mubintvec as an ubintvec with string modulus
+  template<class ubint_el_t>
+  mubintvec<ubint_el_t>::mubintvec(const ubintvec<ubint_el_t> &b, const std::string &modulus) {
+    this->m_data.resize(b.size());
+    //this->m_data = b.m_data; for some reason this did not work, even though
+    //we inheret from ubintvec
+    for(auto i = 0; i< b.size(); i++){
+      this->m_data[i] = b.GetValAtIndex(i);
+
+    }
+
+
+    m_modulus = ubint_el_t(modulus);
+    m_modulus_state = INITIALIZED;
+    this->Mod(m_modulus);
+  }
+
+
+ //constructor specifying the mubintvec as an ubintvec with ubint modulus
+  template<class ubint_el_t>
+  mubintvec<ubint_el_t>::mubintvec(const ubintvec<ubint_el_t> &b, const ubint_el_t &modulus) {
+    this->m_data.resize(b.size());
+    //this->m_data = b.m_data; for some reason this did not work, even though
+    //we inheret from ubintvec
+    for(auto i = 0; i< b.size(); i++){
+      this->m_data[i] = b.GetValAtIndex(i);
+    }
+
+    m_modulus = modulus;
+    m_modulus_state = INITIALIZED;
+    this->Mod(m_modulus);
+  }
 
   //copy constructor
   template<class ubint_el_t>

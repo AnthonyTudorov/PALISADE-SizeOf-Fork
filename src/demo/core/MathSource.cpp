@@ -32,24 +32,33 @@ void test_BigBinaryInt(void); 	// test old version of big int
 void test_BigBinaryVector(void); // test old version of big int vector
 void test_ubintvec(void);	 // test new vector version
 
-int divmain(void);
-
 //main()   need this for Kurts' makefile to ignore this.
 int main(int argc, char* argv[]){
 
-  //  divmain();
   test_BigBinaryVector();
   test_ubintvec();
+  //  test_mubintvec();
 
   return 0;
 }
-////////////////////////////////////////////////////////////////////
-void test_BigBinaryInt () {
-  cout<<"testing BigBinaryInt"<<endl;
-  //Todo: add some timing tests
 
-  return;
-}
+//Testing macro runs the desired code 
+// res = fn
+// an a loop nloop times, timed with timer t with res compared to testval
+
+#define TESTIT(t, res, fn, testval, nloop) do {	\
+  TIC(t); \
+  for (usint j = 0; j< nloop; j++){\
+    res = (fn);			   \
+  }\
+  time2 = TOC(t);\
+  DEBUG(#t << ": " << nloop << " loops " << #res << " = " << #fn << " computation time: " << "\t" << time2 << " us"); \
+  if (res != testval){\
+    cout << "Bad " << #res << " = " << #fn << endl;\
+    vec_diff(res, testval);\
+  }\
+ } while (0);
+
 
 //helper function that bulds BigBinaryVector from a vector of strings
 BigBinaryVector BBVfromStrvec( std::vector<std::string> &s) {
@@ -83,19 +92,17 @@ void test_BigBinaryVector () {
 
   bool dbg_flag = 1;		// if true then print dbg output
 
-
   TimeVar t1,t2,t3,t_total; // timers for TIC() TOC()
   double time1;		    // captures the time in usec.
   double time2;
   double time3;
   double timeTotal;		// overal time
 
-
-  //there are two test cases, 1) small modulus 2)approx 48 bits.
+  //there are three test cases, 1) small modulus 2)approx 48 bits. 3)
+  //very big numbers
 
   //note this fails BigBinaryInteger q1 = {"00000000000000163841"};
   BigBinaryInteger q1 ("00000000000000163841");
-  BigBinaryInteger q2 ("00004057816419532801");
 
   // for each vector, define a, b inputs as vectors of strings
   std::vector<std::string> a1strvec = {
@@ -113,19 +120,6 @@ void test_BigBinaryVector () {
   BigBinaryVector a1 = BBVfromStrvec(a1strvec);
   a1.SetModulus(q1);
 
-  std::vector<std::string> a2strvec = {
-    "00000185225172798255", "00000098879665709163",
-    "00003497410031351258", "00004012431933509255",
-    "00001543020758028581", "00000135094568432141",
-    "00003976954337141739", "00004030348521557120",
-    "00000175940803531155", "00000435236277692967",
-    "00003304652649070144", "00002032520019613814",
-    "00000375749152798379", "00003933203511673255",
-    "00002293434116159938", "00001201413067178193", };
-
-  BigBinaryVector a2 = BBVfromStrvec(a2strvec);
-  a2.SetModulus(q2);
-
   //b:
   std::vector<std::string> b1strvec = 
     { "00000000000000066773", "00000000000000069572",
@@ -140,19 +134,6 @@ void test_BigBinaryVector () {
   BigBinaryVector b1  = BBVfromStrvec(b1strvec);
   b1.SetModulus(q1);
   
-  std::vector<std::string> b2strvec = 
-    { "00000698898215124963", "00000039832572186149",
-      "00001835473200214782", "00001041547470449968",
-      "00001076152419903743", "00000433588874877196",
-      "00002336100673132075", "00002990190360138614",
-      "00000754647536064726", "00000702097990733190",
-      "00002102063768035483", "00000119786389165930",
-      "00003976652902630043", "00003238750424196678",
-      "00002978742255253796", "00002124827461185795", };
-
-  BigBinaryVector b2 = BBVfromStrvec(b2strvec);
-  b2.SetModulus(q2);
-
   //now test all mod functions Note BigBinaryVector implies modulus ALWAYS
 
   //load correct values of math functions of a and b
@@ -169,17 +150,6 @@ void test_BigBinaryVector () {
   BigBinaryVector modsum1 = BBVfromStrvec(modsum1strvec);
   modsum1.SetModulus(q1);
   
-  std::vector<std::string> modsum2strvec =
-    {"00000884123387923218", "00000138712237895312",
-     "00001275066812033239", "00000996162984426422",
-     "00002619173177932324", "00000568683443309337",
-     "00002255238590741013", "00002962722462162933",
-     "00000930588339595881", "00001137334268426157",
-     "00001348899997572826", "00002152306408779744",
-     "00000294585635895621", "00003114137516337132",
-     "00001214359951880933", "00003326240528363988", };
-  BigBinaryVector modsum2 = BBVfromStrvec(modsum2strvec);
-  modsum2.SetModulus(q2);
   
   // modsub:
   std::vector<std::string>  moddiff1strvec =
@@ -193,19 +163,6 @@ void test_BigBinaryVector () {
 	"00000000000000103511", "00000000000000030628", };
   BigBinaryVector moddiff1 = BBVfromStrvec(moddiff1strvec);
   moddiff1.SetModulus(q1);
-  
-  std::vector<std::string>  moddiff2strvec =
-    {   "00003544143377206093", "00000059047093523014",
-	"00001661936831136476", "00002970884463059287",
-	"00000466868338124838", "00003759322113087746",
-	"00001640853664009664", "00001040158161418506",
-	"00003479109686999230", "00003790954706492578",
-	"00001202588881034661", "00001912733630447884",
-	"00000456912669701137", "00000694453087476577",
-	"00003372508280438943", "00003134402025525199", };
-  BigBinaryVector moddiff2 = BBVfromStrvec(moddiff2strvec);
-  moddiff2.SetModulus(q2);
-  
   //modmul:
   
   std::vector<std::string> modmul1strvec =
@@ -221,19 +178,6 @@ void test_BigBinaryVector () {
   
   BigBinaryVector modmul1 = BBVfromStrvec(modmul1strvec);
   modmul1.SetModulus(q1);
-
-  std::vector<std::string> modmul2strvec =
-    { "00000585473140075497", "00003637571624495703",
-      "00001216097920193708", "00001363577444007558",
-      "00000694070384788800", "00002378590980295187",
-      "00000903406520872185", "00000559510929662332",
-      "00000322863634303789", "00001685429502680940",
-      "00001715852907773825", "00002521152917532260",
-      "00000781959737898673", "00002334258943108700",
-      "00002573793300043944", "00001273980645866111", };
-
-  BigBinaryVector modmul2 = BBVfromStrvec(modmul2strvec);
-  modmul2.SetModulus(q2);
 
   BigBinaryVector c1,c2;	// result vectors
 
@@ -274,53 +218,89 @@ void test_BigBinaryVector () {
     vec_diff(c1, modmul1);
   }
 
-  // test case two
-  TIC(t2);
-  for (usint j = 0; j< nloop; j++){
-    c2 = a2.ModAdd(b2);
-  }
-  time2 = TOC(t2);
-  DEBUG("t2:  "<<nloop<<" loops c2 = a2.ModAdd(b2) computation time: " << "\t" << time2 << " us");
-  if (c2 != modsum2)
-    cout << "bad modadd! "<<endl;
+  TESTIT(t1, c1, a1 + b1, modsum1, nloop);
+  TESTIT(t1, c1, a1.ModAdd(b1), modsum1, nloop);
+  TESTIT(t1, c1, a1 - b1, moddiff1, nloop);
+  TESTIT(t1, c1, a1.ModSub(b1), moddiff1, nloop);
+  TESTIT(t1, c1, a1 * b1, modmul1, nloop);
+  TESTIT(t1, c1, a1.ModMul(b1), modmul1, nloop);
 
-  TIC(t2);
-  for (usint j = 0; j< nloop; j++){
-    c2 = a2.ModSub(b2);
-  }
-  time2 = TOC(t2);
-  DEBUG("t2:  "<<nloop<<" loops c2 = a2.ModSub(b2) computation time: " << "\t" << time2 << " us");
-  if (c2 != moddiff2)
-    cout << "bad modsub! "<<endl;
+  //test case 2
+  BigBinaryInteger q2 ("00004057816419532801");
 
-  TIC(t2);
-  for (usint j = 0; j< nloop; j++){
-    c2 = a2.ModMul(b2);
-  }
-  time2 = TOC(t2);
-  DEBUG("t2:  "<<nloop<<" loops c2 = a2.ModMul(b2) computation time: " << "\t" << time2 << " us");
-  if (c2 != modmul2)
-    cout << "bad modmultiply! "<<endl;
+  std::vector<std::string> a2strvec = {
+    "00000185225172798255", "00000098879665709163",
+    "00003497410031351258", "00004012431933509255",
+    "00001543020758028581", "00000135094568432141",
+    "00003976954337141739", "00004030348521557120",
+    "00000175940803531155", "00000435236277692967",
+    "00003304652649070144", "00002032520019613814",
+    "00000375749152798379", "00003933203511673255",
+    "00002293434116159938", "00001201413067178193", };
 
-  timeTotal = TOC(t_total);
-  DEBUG("Total time: " << "\t" << timeTotal << " us");
+  BigBinaryVector a2 = BBVfromStrvec(a2strvec);
+  a2.SetModulus(q2);
+
+  std::vector<std::string> b2strvec = 
+    { "00000698898215124963", "00000039832572186149",
+      "00001835473200214782", "00001041547470449968",
+      "00001076152419903743", "00000433588874877196",
+      "00002336100673132075", "00002990190360138614",
+      "00000754647536064726", "00000702097990733190",
+      "00002102063768035483", "00000119786389165930",
+      "00003976652902630043", "00003238750424196678",
+      "00002978742255253796", "00002124827461185795", };
+
+  BigBinaryVector b2 = BBVfromStrvec(b2strvec);
+  b2.SetModulus(q2);
+
+  std::vector<std::string> modsum2strvec =
+    {"00000884123387923218", "00000138712237895312",
+     "00001275066812033239", "00000996162984426422",
+     "00002619173177932324", "00000568683443309337",
+     "00002255238590741013", "00002962722462162933",
+     "00000930588339595881", "00001137334268426157",
+     "00001348899997572826", "00002152306408779744",
+     "00000294585635895621", "00003114137516337132",
+     "00001214359951880933", "00003326240528363988", };
+  BigBinaryVector modsum2 = BBVfromStrvec(modsum2strvec);
+  modsum2.SetModulus(q2);
+  
+  std::vector<std::string>  moddiff2strvec =
+    {   "00003544143377206093", "00000059047093523014",
+	"00001661936831136476", "00002970884463059287",
+	"00000466868338124838", "00003759322113087746",
+	"00001640853664009664", "00001040158161418506",
+	"00003479109686999230", "00003790954706492578",
+	"00001202588881034661", "00001912733630447884",
+	"00000456912669701137", "00000694453087476577",
+	"00003372508280438943", "00003134402025525199", };
+  BigBinaryVector moddiff2 = BBVfromStrvec(moddiff2strvec);
+  moddiff2.SetModulus(q2);
+  
+  std::vector<std::string> modmul2strvec =
+    { "00000585473140075497", "00003637571624495703",
+      "00001216097920193708", "00001363577444007558",
+      "00000694070384788800", "00002378590980295187",
+      "00000903406520872185", "00000559510929662332",
+      "00000322863634303789", "00001685429502680940",
+      "00001715852907773825", "00002521152917532260",
+      "00000781959737898673", "00002334258943108700",
+      "00002573793300043944", "00001273980645866111", };
+
+  BigBinaryVector modmul2 = BBVfromStrvec(modmul2strvec);
+  modmul2.SetModulus(q2);
+
+
+  TESTIT(t2, c2, a2.ModAdd(b2), modsum2, nloop);
+  TESTIT(t2, c2, a2.ModSub(b2), moddiff2, nloop);
+  TESTIT(t2, c2, a2.ModMul(b2), modmul2, nloop);
 
   return;
 }
 
-void iftest (bool t, string v) {
-  if (t) {
-    cout <<"Fail ";
-    cout<<v<<endl;
-    //exit(-1);
-  }else {
-    cout <<"Succeed ";
-    cout<<v<<endl;
-  }
 
-  return;
-}
-
+//////////////////// helper functions fofr test_ubintvec()
 //todo figure out how to share code between these vec_diffs
 
 //function to compare two bintvecs and print differing indicies
@@ -343,7 +323,7 @@ void vec_diff(ubintvec &a, ubintvec &b) {
     }
 
 }
-
+//function to compare mubintvec with  bintvecs and print differing indicies
 void vec_diff(mubintvec &a, ubintvec &b) {
     for (usint i= 0; i < a.size(); ++i){  //todo change to size()
       if (a[i] != b[i]) {  //todo: add [] indexing to class
@@ -364,14 +344,35 @@ void vec_diff(mubintvec &a, ubintvec &b) {
 
 
 }
+//function to compare mubintvec with  bintvecs and print differing indicies
+void vec_diff(mubintvec &a, mubintvec &b) {
+    for (usint i= 0; i < a.size(); ++i){  //todo change to size()
+      if (a[i] != b[i]) {  //todo: add [] indexing to class
+        cout << "i: "<< i << endl;
+	cout << "first vector " <<endl;
+        cout << a[i];
+        cout << endl;
+        cout << "state " << a[i].GetState() << endl;;
+        cout << "msb: " << a[i].GetMSB() << endl;;
+	cout << "second vector " <<endl;
+        cout << b[i];
+        cout << endl;
+        cout << "state " << b[i].GetState() << endl;;
+        cout << "msb: " << b[i].GetMSB() << endl;;
+        cout << endl;
+      }
+    }
 
+
+}
+// Code to test ubintvec at three different numbers of limbs.
 void test_ubintvec() {
 
   int nloop = 1000; //number of times to run each test for timing.
 
   bool dbg_flag = 1;		// if true then print dbg output
-
-  TimeVar t1,t2,t3,t_total; // timers for TIC() TOC()
+ 
+  TimeVar t1,t2, t3,t_total; // timers for TIC() TOC()
   double time1;		    // captures the time in usec.
   double time2;
   double time3;
@@ -379,11 +380,14 @@ void test_ubintvec() {
 
   cout<<"testing ubintvec"<<endl;
 cout<<"todo test assignment, < >operators etc. not just math "<<endl;
-  //there are two test cases, 1) small modulus 2)approx 48 bits.
+  TIC(t_total);
+  //there are three test cases, 1) small modulus 2) approx 48 bits. 3)
+  //large numbers
+
+
   // q1 modulus 1:
   ubint q1("00000000000000163841");
-  //cout << "q1 contents"<<endl;
-  //q1.PrintLimbsInDec();
+
   // a1:
   std::vector<std::string>  a1sv =
 
@@ -511,111 +515,17 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
   ubintvec c1;
   mubintvec mc1;
   // test math for case 1
-  TIC(t1);
-  for (usint j = 0; j< nloop; j++){
-    c1 = a1 + b1;
-  }
-  time1 = TOC(t1);
-  DEBUG("t1:  "<<nloop<<" loops c1 = a1 + b1) computation time: " << "\t" << time1 << " us");
-  if (c1 != add1) {
-    cout << "bad add" <<endl;
-    vec_diff(c1, add1);
-  }
+  TESTIT(t1, c1, a1 + b1, add1, nloop);
+  TESTIT(t1, c1, a1 - b1, sub1, nloop);
+  TESTIT(t1, c1, a1 * b1, mul1, nloop);
+  TESTIT(t1, c1, a1.ModAdd(b1,q1), modadd1, nloop);
+  TESTIT(t1, mc1, ma1 + mb1,  modadd1, nloop);
+  TESTIT(t1, c1, a1.ModSub(b1,q1), modsub1, nloop);
+  TESTIT(t1, mc1, ma1 - mb1,  modsub1, nloop);
+  TESTIT(t1, c1, a1.ModMul(b1,q1), modmul1, nloop);
+  TESTIT(t1, mc1, ma1 * mb1,  modmul1, nloop);
 
-  TIC(t1);
-
-  for (usint j = 0; j< nloop; j++){
-    c1 = a1 - b1;
-  }
-
-  time1 = TOC(t1);
-  DEBUG("t1:  "<<nloop<<" loops c1 = a1 - b1 computation time: " << "\t" << time1 << " us");
-  if (c1 != sub1) {
-    cout << "bad sub" <<endl;
-    vec_diff(c1, sub1);
-  }
-
-  TIC(t1);
-  for (usint j = 0; j< nloop; j++){
-    c1 = a1 * b1;
-  }
-  time1 = TOC(t1);
-  DEBUG("t1:  "<<nloop<<" loops c1 = a1 * b1 computation time: " << "\t" << time1 << " us");
-  if (c1 != mul1) {
-    cout << "bad mul" <<endl;
-    vec_diff(c1, mul1);
-  }
-
-  //now Mod operations
-  TIC(t1);
-  for (usint j = 0; j< nloop; j++){
-    c1 = a1.ModAdd(b1,q1);
-    
-  }
-  time1 = TOC(t1);
-  DEBUG("t1:  "<<nloop<<" loops c1 = a1.ModAdd(b1,q1) computation time: " << "\t" << time1 << " us");
-  if (c1 != modadd1){
-    cout << "bad modadd" <<endl;
-    vec_diff(c1, modadd1);
-  }
-
-  //now Mod operations
-  TIC(t1);
-  for (usint j = 0; j< nloop; j++){
-    mc1 = ma1+mb1;
-  }
-  time1 = TOC(t1);
-  DEBUG("t1:  "<<nloop<<" loops mc1 = ma1+mb1 computation time: " << "\t" << time1 << " us");
-  if (ubintvec(mc1) != modadd1){
-    cout << "bad modadd" <<endl;
-    vec_diff(mc1, modadd1);
-  }
-
-  TIC(t1);
-  for (usint j = 0; j< nloop; j++){
-    c1 = a1.ModSub(b1,q1);
-  }
-  time1 = TOC(t1);
-  DEBUG("t1:  "<<nloop<<" loops c1 = a1.ModSub(b1,q1) computation time: " << "\t" << time1 << " us");
-
-  if (c1 != modsub1) {
-    cout << "bad modsub" <<endl;
-    vec_diff(c1, modsub1);
-  }
-  TIC(t1);
-  for (usint j = 0; j< nloop; j++){
-    mc1 = ma1 - mb1;
-  }
-  time1 = TOC(t1);
-  DEBUG("t1:  "<<nloop<<" loops mc1 = ma1 - mb1 computation time: " << "\t" << time1 << " us");
-  if (ubintvec(mc1) != modsub1){
-    cout << "bad modsub" <<endl;
-    vec_diff(mc1, modsub1);
-  }
-
-  TIC(t1);
-  for (usint j = 0; j< nloop; j++){
-    c1 = a1.ModMul(b1,q1);
-  }
-  time1 = TOC(t1);
-  DEBUG("t1:  "<<nloop<<" loops c1 = a1.ModMul(b1,q1)  computation time: " << "\t" << time1 << " us");
-  if (c1 != modmul1) {
-    cout << "bad mul" <<endl;
-    vec_diff(c1, modmul1);
-  }
-
-  TIC(t1);
-  for (usint j = 0; j< nloop; j++){
-    mc1 = ma1*mb1;
-  }
-  time1 = TOC(t1);
-  DEBUG("t1:  "<<nloop<<" loops mc1 = ma1*mb1 computation time: " << "\t" << time1 << " us");
-  if (ubintvec(mc1) != modmul1){
-    cout << "bad modmul" <<endl;
-    vec_diff(mc1, modmul1);
-  }
-
-  // q2:
+  // q2: larger numbers
 
   ubint q2("00004057816419532801");
   //cout << "q2 contents"<<endl;
@@ -744,514 +654,18 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
   ubintvec c2;
   mubintvec mc2;
   // test math for case 2
-  TIC(t2);
-  for (usint j = 0; j< nloop; j++){
-    c2 = a2 + b2;
-  }
-  time2 = TOC(t2);
-  DEBUG("t2:  "<<nloop<<" loops c2 = a2 + b2) computation time: " << "\t" << time2 << " us");
+  TESTIT(t2, c2, a2 + b2, add2, nloop);
+  TESTIT(t2, c2, a2 - b2, sub2, nloop);
+  TESTIT(t2, c2, a2 * b2, mul2, nloop);
+  TESTIT(t2, c2, a2.ModAdd(b2,q2), modadd2, nloop);
+  TESTIT(t2, mc2, ma2 + mb2, modadd2, nloop); 
+  TESTIT(t2, c2, a2.ModSub(b2,q2), modsub2, nloop);
+  TESTIT(t2, mc2, ma2 - mb2, modsub2, nloop);
+  TESTIT(t2, c2, a2.ModMul(b2,q2), modmul2, nloop);
+  TESTIT(t2, mc2, ma2 * mb2,  modmul2, nloop);
 
-  if (c2 != add2){
-    cout << "bad add" <<endl;
-    vec_diff(c2, add2);
-  }
-  TIC(t2);
-  for (usint j = 0; j< nloop; j++){
-    c2 = a2 - b2;
-  }
-  //        c2.SetValAtIndex(14 , a2.GetValAtIndex(14) - b2.GetValAtIndex(14)); //OMG
-
-  time2 = TOC(t2);
-  DEBUG("t2:  "<<nloop<<" loops c2 = a2 - b2 computation time: " << "\t" << time2 << " us");
-
-  if (c2 != sub2) {
-    cout << "bad sub" <<endl;
-      vec_diff(c2, sub2);
-  }
-  TIC(t2);
-  for (usint j = 0; j< nloop; j++){
-    c2 = a2 * b2;
-  }
-  time2 = TOC(t2);
-  DEBUG("t2:  "<<nloop<<" loops c2 = a2 * b2 computation time: " << "\t" << time2 << " us");
-  if (c2 != mul2) {
-    cout << "bad mul" <<endl;
-    vec_diff(c2, mul2);
-  }
-  //now Mod operations
-  TIC(t2);
-  for (usint j = 0; j< nloop; j++){
-    c2 = a2.ModAdd(b2,q2);
-  }
-  time2 = TOC(t2);
-  DEBUG("t2:  "<<nloop<<" loops c2 = a2.ModAdd(b2,q2) computation time: " << "\t" << time2 << " us");
-  if (c2 != modadd2) {
-    vec_diff(c2, modadd2);
-  }
-  TIC(t2);
-  for (usint j = 0; j< nloop; j++){
-    mc2 = ma2 + mb2;
-  }
-  time2 = TOC(t2);
-  DEBUG("t2:  "<<nloop<<" loops mc2 = ma2 + mb2 computation time: " << "\t" << time2 << " us");
-  if (ubintvec(mc2) != modadd2) {
-    vec_diff(mc2, modadd2);
-  }
-
-
-  TIC(t2);
-  for (usint j = 0; j< nloop; j++){
-    c2 = a2.ModSub(b2,q2);
-  }
-  time2 = TOC(t2);
-  DEBUG("t2:  "<<nloop<<" loops c2 = a2.ModSub(b2,q2) computation time: " << "\t" << time2 << " us");
-  if (c2 != modsub2) {
-    cout << "bad modsub" <<endl;
-    vec_diff(c2, modsub2);   
-  }
-
-  TIC(t2);
-  for (usint j = 0; j< nloop; j++){
-    mc2 = ma2 - mb2;
-  }
-  time2 = TOC(t2);
-  DEBUG("t2:  "<<nloop<<" loops mc2 = ma2 - mb2 computation time: " << "\t" << time2 << " us");
-  if (ubintvec(mc2) != modsub2) {
-    vec_diff(mc2, modsub2);
-  }
-
-  TIC(t2);
-  for (usint j = 0; j< nloop; j++){
-    c2 = a2.ModMul(b2,q2);
-  }
-  time2 = TOC(t2);
-  DEBUG("t2:  "<<nloop<<" loops c2 = a2.ModMul(b2,q2)  computation time: " << "\t" << time2 << " us");
-  if (c2 != modmul2) {
-    cout << "bad modmul" <<endl;
-    vec_diff(c2, modmul2);   
-  }
-  TIC(t2);
-  for (usint j = 0; j< nloop; j++){
-    mc2 = ma2 * mb2;
-  }
-  time2 = TOC(t2);
-  DEBUG("t2:  "<<nloop<<" loops mc2 = ma2 * mb2 computation time: " << "\t" << time2 << " us");
-  if (ubintvec(mc2) != modmul2) {
-    vec_diff(mc2, modmul2);
-  }
-
+  //q3: very large numbers.
 
   return ;
 }
 
-//the following code comes from http://www.hackersdelight.org/hdcodetxt/divmnu64.c.txt
-//full rights to use are granted by the author
-
-/* This divides an n-word dividend by an m-word divisor, giving an
-   n-m+1-word quotient and m-word remainder. The bignums are in arrays of
-   words. Here a "word" is 32 bits. This routine is designed for a 64-bit
-   machine which has a 64/64 division instruction. */
-
-#define max(x, y) ((x) > (y) ? (x) : (y))
-
-int mynlz(usint x) {
-  int n;
-
-  if (x == 0) return(32);
-  n = 0;
-  if (x <= 0x0000FFFF) {n = n +16; x = x <<16;}
-  if (x <= 0x00FFFFFF) {n = n + 8; x = x << 8;}
-  if (x <= 0x0FFFFFFF) {n = n + 4; x = x << 4;}
-  if (x <= 0x3FFFFFFF) {n = n + 2; x = x << 2;}
-  if (x <= 0x7FFFFFFF) {n = n + 1;}
-  return n;
-}
-
-void dumpit(char *msg, int n, usint v[]) {
-  int i;
-  printf(msg);
-  for (i = n-1; i >= 0; i--) printf(" %08x", v[i]);
-  printf("\n");
-}
-
-void dumpit_vect(char *msg, vector<usint> v) {
-  int i;
-  printf(msg);
-  for (i = v.size()-1; i >= 0; i--) printf(" %08x", v[i]);
-  printf("\n");
-}
-
-/* q[0], r[0], u[0], and v[0] contain the LEAST significant words.
-   (The sequence is in little-endian order).
-
-   This is a fairly precise implementation of Knuth's Algorithm D, for a
-   binary computer with base b = 2**32. The caller supplies:
-   1. Space q for the quotient, m - n + 1 words (at least one).
-   2. Space r for the remainder (optional), n words.
-   3. The dividend u, m words, m >= 1.
-   4. The divisor v, n words, n >= 2.
-   The most significant digit of the divisor, v[n-1], must be nonzero.  The
-   dividend u may have leading zeros; this just makes the algorithm take
-   longer and makes the quotient contain more leading zeros.  A value of
-   NULL may be given for the address of the remainder to signify that the
-   caller does not want the remainder.
-   The program does not alter the input parameters u and v.
-   The quotient and remainder returned may have leading zeros.  The
-   function itself returns a value of 0 for success and 1 for invalid
-   parameters (e.g., division by 0).
-   For now, we must have m >= n.  Knuth's Algorithm D also requires
-   that the dividend be at least as long as the divisor.  (In his terms,
-   m >= 0 (unstated).  Therefore m+n >= n.) */
-
-int divmnu(usint q[], usint r[],
-	   const usint u[], const usint v[],
-	   int m, int n) {
-
-  const uint64_t b = 4294967296LL; // Number base (2**32).
-  usint *un, *vn;                  // Normalized form of u, v.
-  uint64_t qhat;                   // Estimated quotient digit.
-  uint64_t rhat;                   // A remainder.
-  uint64_t p;                      // Product of two digits.
-  int64_t t, k;
-  int s, i, j;
-
-  if (m < n || n <= 0 || v[n-1] == 0)
-    return 1;                         // Return if invalid param.
-
-  if (n == 1) {                        // Take care of
-    k = 0;                            // the case of a
-    for (j = m - 1; j >= 0; j--) {    // single-digit
-      q[j] = (k*b + u[j])/v[0];      // divisor here.
-      k = (k*b + u[j]) - q[j]*v[0];
-    }
-    if (r != NULL) r[0] = k;
-    return 0;
-  }
-
-  /* Normalize by shifting v left just enough so that its high-order
-     bit is on, and shift u left the same amount. We may have to append a
-     high-order digit on the dividend; we do that unconditionally. */
-
-  s = mynlz(v[n-1]);             // 0 <= s <= 31.
-  vn = (usint *)alloca(4*n);
-  for (i = n - 1; i > 0; i--)
-    vn[i] = (v[i] << s) | ((uint64_t)v[i-1] >> (32-s));
-  vn[0] = v[0] << s;
-
-  un = (usint *)alloca(4*(m + 1));
-  un[m] = (uint64_t)u[m-1] >> (32-s);
-  for (i = m - 1; i > 0; i--)
-    un[i] = (u[i] << s) | ((uint64_t)u[i-1] >> (32-s));
-  un[0] = u[0] << s;
-
-  for (j = m - n; j >= 0; j--) {       // Main loop.
-    // Compute estimate qhat of q[j].
-    qhat = (un[j+n]*b + un[j+n-1])/vn[n-1];
-    rhat = (un[j+n]*b + un[j+n-1]) - qhat*vn[n-1];
-  again:
-    if (qhat >= b || qhat*vn[n-2] > b*rhat + un[j+n-2])
-      { qhat = qhat - 1;
-	rhat = rhat + vn[n-1];
-	if (rhat < b) goto again;
-      }
-
-    // Multiply and subtract.
-    k = 0;
-    for (i = 0; i < n; i++) {
-      p = qhat*vn[i];
-      t = un[i+j] - k - (p & 0xFFFFFFFFLL);
-      un[i+j] = t;
-      k = (p >> 32) - (t >> 32);
-    }
-    t = un[j+n] - k;
-    un[j+n] = t;
-
-    q[j] = qhat;              // Store quotient digit.
-    if (t < 0) {              // If we subtracted too
-      q[j] = q[j] - 1;       // much, add back.
-      k = 0;
-      for (i = 0; i < n; i++) {
-        t = (uint64_t)un[i+j] + vn[i] + k;
-        un[i+j] = t;
-        k = t >> 32;
-      }
-      un[j+n] = un[j+n] + k;
-    }
-  } // End j.
-  // If the caller wants the remainder, unnormalize
-  // it and pass it back.
-  if (r != NULL) {
-    for (i = 0; i < n-1; i++)
-      r[i] = (un[i] >> s) | ((uint64_t)un[i+1] << (32-s));
-    r[n-1] = un[n-1] >> s;
-  }
-  return 0;
-}
-
-/* q[0], r[0], u[0], and v[0] contain the LEAST significant words.
-   (The sequence is in little-endian order).
-
-   This is a fairly precise implementation of Knuth's Algorithm D, for a
-   binary computer with base b = 2**32. The caller supplies:
-   1. Space q for the quotient, m - n + 1 words (at least one).
-   2. Space r for the remainder (optional), n words.
-   3. The dividend u, m words, m >= 1.
-   4. The divisor v, n words, n >= 2.
-   The most significant digit of the divisor, v[n-1], must be nonzero.  The
-   dividend u may have leading zeros; this just makes the algorithm take
-   longer and makes the quotient contain more leading zeros.  A value of
-   NULL may be given for the address of the remainder to signify that the
-   caller does not want the remainder.
-   The program does not alter the input parameters u and v.
-   The quotient and remainder returned may have leading zeros.  The
-   function itself returns a value of 0 for success and 1 for invalid
-   parameters (e.g., division by 0).
-   For now, we must have m >= n.  Knuth's Algorithm D also requires
-   that the dividend be at least as long as the divisor.  (In his terms,
-   m >= 0 (unstated).  Therefore m+n >= n.) */
-
-int divmnu_vect(vector <usint>& q, vector <usint>& r, const vector<usint>& u, const vector <usint>& v) {
-  int m = u.size();
-  int n = v.size();
-
-  q.resize(m-n+1);
-  r.resize(n);
-
-  //const uint64_t b = 4294967296LL; // Number base (2**32).
-  const uint64_t b = ULONG_MAX+1LL; // Number base (2**32).
-  //   usint *un, *vn;                  // Normalized form of u, v.
-  uint64_t qhat;                   // Estimated quotient digit.
-  uint64_t rhat;                   // A remainder.
-  uint64_t p;                      // Product of two digits.
-  int64_t t, k;
-  int s, i, j;
-
-  if (m < n || n <= 0 || v[n-1] == 0)
-    return 1;                         // Return if invalid param.
-
-  if (n == 1) {                        // Take care of
-    k = 0;                            // the case of a
-    for (j = m - 1; j >= 0; j--) {    // single-digit
-      q[j] = (k*b + u[j])/v[0];      // divisor here.
-      k = (k*b + u[j]) - q[j]*v[0];
-    }
-    if (r.size() != 0) r[0]=k;
-    return 0;
-  }
-
-  /* Normalize by shifting v left just enough so that its high-order
-     bit is on, and shift u left the same amount. We may have to append a
-     high-order digit on the dividend; we do that unconditionally. */
-
-  s = mynlz(v[n-1]);             // 0 <= s <= 31.
-  // vn = (usint *)alloca(4*n);
-  vector<usint> vn(n);
-  for (i = n - 1; i > 0; i--)
-    vn[i] = (v[i] << s) | ((uint64_t)v[i-1] >> (32-s));
-  vn[0] = v[0] << s;
-
-  //un = (usint *)alloca(4*(m + 1));
-  vector<usint> un(m+1);
-
-  un[m] = (uint64_t)u[m-1] >> (32-s);
-  for (i = m - 1; i > 0; i--)
-    un[i] = (u[i] << s) | ((uint64_t)u[i-1] >> (32-s));
-  un[0] = u[0] << s;
-
-  for (j = m - n; j >= 0; j--) {       // Main loop.
-    // Compute estimate qhat of q[j].
-    qhat = (un[j+n]*b + un[j+n-1])/vn[n-1];
-    rhat = (un[j+n]*b + un[j+n-1]) - qhat*vn[n-1];
-  again:
-    if (qhat >= b || qhat*vn[n-2] > b*rhat + un[j+n-2])
-      { qhat = qhat - 1;
-	rhat = rhat + vn[n-1];
-	if (rhat < b) goto again;
-      }
-
-    // Multiply and subtract.
-    k = 0;
-    for (i = 0; i < n; i++) {
-      p = qhat*vn[i];
-      t = un[i+j] - k - (p & 0xFFFFFFFFLL);
-      un[i+j] = t;
-      k = (p >> 32) - (t >> 32);
-    }
-    t = un[j+n] - k;
-    un[j+n] = t;
-
-    q[j] = qhat;              // Store quotient digit.
-    if (t < 0) {              // If we subtracted too
-      q[j] = q[j] - 1;       // much, add back.
-      k = 0;
-      for (i = 0; i < n; i++) {
-        t = (uint64_t)un[i+j] + vn[i] + k;
-        un[i+j] = t;
-        k = t >> 32;
-      }
-      un[j+n] = un[j+n] + k;
-    }
-  } // End j.
-  // If the caller wants the remainder, unnormalize
-  // it and pass it back.
-  if (r.size() != 0) {
-    r.resize(n);
-    for (i = 0; i < n-1; i++)
-      r[i] = (un[i] >> s) | ((uint64_t)un[i+1] << (32-s));
-    r[n-1] = un[n-1] >> s;
-  }
-  return 0;
-}
-
-int errors;
-
-void check(usint q[], usint r[],
-	   usint u[], usint v[],
-	   int m, int n,
-	   usint cq[], usint cr[]) {
-  int i, szq;
-
-  szq = max(m - n + 1, 1);
-  for (i = 0; i < szq; i++) {
-    if (q[i] != cq[i]) {
-      errors = errors + 1;
-      dumpit("Error, dividend u =", m, u);
-      dumpit("       divisor  v =", n, v);
-      dumpit("For quotient,  got:", m-n+1, q);
-      dumpit("        Should get:", m-n+1, cq);
-      return;
-    }
-  }
-  for (i = 0; i < n; i++) {
-    if (r[i] != cr[i]) {
-      errors = errors + 1;
-      dumpit("Error, dividend u =", m, u);
-      dumpit("       divisor  v =", n, v);
-      dumpit("For remainder, got:", n, r);
-      dumpit("        Should get:", n, cr);
-      return;
-    }
-  }
-  return;
-}
-void check_vect(vector<usint> q, vector<usint> r,
-		vector<usint> u, vector<usint> v,
-		usint cq[], usint cr[]) {
-  int m = u.size();
-  int n = v.size();
-
-  int i, szq;
-
-  szq = max(m - n + 1, 1);
-  for (i = 0; i < szq; i++) {
-    if (q[i] != cq[i]) {
-      errors = errors + 1;
-      dumpit_vect("Error, dividend u =", u);
-      dumpit_vect("       divisor  v =", v);
-      dumpit_vect("For quotient,  got:",  q);
-      dumpit("        Should get:", m-n+1, cq);
-      return;
-    }
-  }
-  for (i = 0; i < n; i++) {
-    if (r[i] != cr[i]) {
-      errors = errors + 1;
-      dumpit_vect("Error, dividend u =", u);
-      dumpit_vect("       divisor  v =", v);
-      dumpit_vect("For remainder, got:", r);
-      dumpit("        Should get:", n, cr);
-      return;
-    }
-  }
-  return;
-}
-
-int divmain() {
-  static usint test[] = {
-    // m, n, u...,          v...,          cq...,  cr....
-    1, 1, 3,             0,             1,      1,            // Error, divide by 0.
-    1, 2, 7,             1,3,           0,      7,0,          // Error, n > m.
-    2, 2, 0,0,           1,0,           0,      0,0,          // Error, incorrect remainder cr.
-    1, 1, 3,             2,             1,      1,
-    1, 1, 3,             3,             1,      0,
-    1, 1, 3,             4,             0,      3,
-    1, 1, 0,             0xffffffff,    0,      0,
-    1, 1, 0xffffffff,    1,             0xffffffff, 0,
-    1, 1, 0xffffffff,    0xffffffff,    1,      0,
-    1, 1, 0xffffffff,    3,             0x55555555, 0,
-    2, 1, 0xffffffff,0xffffffff, 1,     0xffffffff,0xffffffff, 0,
-    2, 1, 0xffffffff,0xffffffff, 0xffffffff,        1,1,    0,
-    2, 1, 0xffffffff,0xfffffffe, 0xffffffff,        0xffffffff,0, 0xfffffffe,
-    2, 1, 0x00005678,0x00001234, 0x00009abc,        0x1e1dba76,0, 0x6bd0,
-    2, 2, 0,0,           0,1,           0,      0,0,
-    2, 2, 0,7,           0,3,           2,      0,1,
-    2, 2, 5,7,           0,3,           2,      5,1,
-    2, 2, 0,6,           0,2,           3,      0,0,
-    1, 1, 0x80000000,  0x40000001, 0x00000001, 0x3fffffff,
-    2, 1, 0x00000000,0x80000000, 0x40000001, 0xfffffff8,0x00000001, 0x00000008,
-    2, 2, 0x00000000,0x80000000, 0x00000001,0x40000000, 0x00000001, 0xffffffff,0x3fffffff,
-    2, 2, 0x0000789a,0x0000bcde, 0x0000789a,0x0000bcde,          1,          0,0,
-    2, 2, 0x0000789b,0x0000bcde, 0x0000789a,0x0000bcde,          1,          1,0,
-    2, 2, 0x00007899,0x0000bcde, 0x0000789a,0x0000bcde,          0, 0x00007899,0x0000bcde,
-    2, 2, 0x0000ffff,0x0000ffff, 0x0000ffff,0x0000ffff,          1,          0,0,
-    2, 2, 0x0000ffff,0x0000ffff, 0x00000000,0x00000001, 0x0000ffff, 0x0000ffff,0,
-    3, 2, 0x000089ab,0x00004567,0x00000123, 0x00000000,0x00000001,   0x00004567,0x00000123, 0x000089ab,0,
-    3, 2, 0x00000000,0x0000fffe,0x00008000, 0x0000ffff,0x00008000,   0xffffffff,0x00000000, 0x0000ffff,0x00007fff, // Shows that first qhat can = b + 1.
-    3, 3, 0x00000003,0x00000000,0x80000000, 0x00000001,0x00000000,0x20000000,   0x00000003, 0,0,0x20000000, // Adding back step req'd.
-    3, 3, 0x00000003,0x00000000,0x00008000, 0x00000001,0x00000000,0x00002000,   0x00000003, 0,0,0x00002000, // Adding back step req'd.
-    4, 3, 0,0,0x00008000,0x00007fff, 1,0,0x00008000,   0xfffe0000,0, 0x00020000,0xffffffff,0x00007fff,  // Add back req'd.
-    4, 3, 0,0x0000fffe,0,0x00008000, 0x0000ffff,0,0x00008000, 0xffffffff,0, 0x0000ffff,0xffffffff,0x00007fff,  // Shows that mult-sub quantity cannot be treated as signed.
-    4, 3, 0,0xfffffffe,0,0x80000000, 0x0000ffff,0,0x80000000, 0x00000000,1, 0x00000000,0xfffeffff,0x00000000,  // Shows that mult-sub quantity cannot be treated as signed.
-    4, 3, 0,0xfffffffe,0,0x80000000, 0xffffffff,0,0x80000000, 0xffffffff,0, 0xffffffff,0xffffffff,0x7fffffff,  // Shows that mult-sub quantity cannot be treated as signed.
-  };
-  int i, n, m, ncases, f;
-  usint q[10], r[10];
-  usint *u, *v, *cq, *cr;
-
-  printf("divmnu:\n");
-  i = 0;
-  ncases = 0;
-  while (i < sizeof(test)/4) {
-    m = test[i];
-    n = test[i+1];
-    u = &test[i+2];
-    v = &test[i+2+m];
-    cq = &test[i+2+m+n];
-    cr = &test[i+2+m+n+max(m-n+1, 1)];
-
-    vector <usint> uv(0);
-    for (usint j=0; j <m;j++){
-      uv.push_back(u[j]);
-    }
-
-    vector <usint> vv(0);
-    for (usint j=0; j <n;j++){
-      vv.push_back(v[j]);
-    }
-
-    vector <usint> qv(0);
-    vector <usint> rv(1);
-    f = divmnu(q, r, u, v, m, n);
-    if (f) {
-      dumpit("Error return code for dividend  u =", m, u);
-      dumpit("                      divisor   v =", n, v);
-      errors = errors + 1;
-    }
-    else
-      check(q, r, u, v, m, n, cq, cr);
-
-    f = divmnu_vect(qv, rv, uv, vv);
-    if (f) {
-      dumpit_vect("Error return code for dividend uu =", uv);
-      dumpit_vect("                      divisor  vv =", vv);
-      errors = errors + 1;
-    }
-
-
-    i = i + 2 + m + n + max(m-n+1, 1) + n;
-    ncases = ncases + 1;
-  }
-
-  printf("%d errors out of %d cases; there should be 3.\n", errors, ncases);
-  return 0;
-}

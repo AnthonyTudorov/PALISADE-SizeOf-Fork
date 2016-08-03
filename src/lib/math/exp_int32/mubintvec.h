@@ -32,10 +32,8 @@
  *
  * @section DESCRIPTION
  *
- * This file contains ubintvec, a <vector> of ubint, with associated
- * math operators.  
- * NOTE: this has been refactored so that implied modulo (ring)
- * aritmetic is in mbintvec
+ * This file contains mubintvec, a <vector> of ubint, with associated
+ * modulus and modulo math operators.  
  *
  */
 
@@ -51,14 +49,17 @@
 #include <initializer_list>
 #include "ubintvec.h"
 
+
 /**
  * @namespace exp_int32
  * The namespace of exp_int32
  */
 namespace exp_int32 {
 /**
- * @brief The class for representing vectors of ubint with associated math
+ * @brief The class for representing vectors of ubint with associated modulo math
  */
+//note this inherits from ubintvec
+
 //JSON FACILITY
 template<class bint_el_t>
 class mubintvec: public lbcrypto::Serializable, public ubintvec<bint_el_t>
@@ -113,6 +114,22 @@ public:
 
   // constructor specifying the mubintvec as a vector of strings and modulus
   explicit mubintvec(const std::vector<std::string> &s, const std::string &modulus);
+
+  // constructor specifying the mubintvec as an ubintvec and undefined modulus
+ explicit mubintvec(const ubintvec<bint_el_t> &b);
+
+#if 1
+
+
+  // constructor specifying the mubintvec as an ubintvec and usint modulus
+ explicit mubintvec(const ubintvec<bint_el_t> &b, const usint &modulus);
+
+  // constructor specifying the mubintvec as an ubintvec and string modulus
+ explicit mubintvec(const ubintvec<bint_el_t> &b, const std::string &modulus);
+  
+  // constructor specifying the mubintvec as an ubintvec and modulus
+ explicit mubintvec(const ubintvec<bint_el_t> &s, const bint_el_t &modulus);
+#endif
 
   /**
    * Basic constructor for copying a vector
@@ -198,6 +215,55 @@ public:
     }
     return true;
   }
+  /**
+   * NotEquals operator checks if to ubintvec objs are Notequal
+   *
+   * @param &&rhs is the ubintvec to compare  with.
+   * @return true if not equal, false otherwise.
+   */
+  
+  
+  
+  inline bool operator!=(const mubintvec &b) const {
+    return !(*this == b);
+  }
+  
+
+//&&&
+ 
+  /**
+   * Equality test == for mubintvec and ubintvec
+   *
+   * @param &b is the ubintvec to test equality with 
+   * @return true if == false otherwise
+   */
+  
+  inline bool operator==(const ubintvec<bint_el_t> &b) const {
+    if (this->ubintvec<bint_el_t>::GetLength() != b.GetLength()) {
+      return false;
+    }      //todo replace with vector equality check.
+    for (size_t i = 0; i < this->GetLength(); ++i) {
+      if (this->GetValAtIndex(i) != b.GetValAtIndex(i)) {
+        return false;
+      }
+    }
+    return true;
+  }
+      /**
+       * NotEquals operator checks if mubintvec ubintvec objs are Notequal
+       *
+       * @param &&rhs is the ubintvec to compare  with.
+       * @return true if not equal, false otherwise.
+       */
+
+
+
+  inline bool operator!=(const ubintvec<bint_el_t> &b) const {
+    return !(*this == b);
+  }
+
+  //&&&&
+
       //currently screwing around with these
       //assignment from usint Note this is not the standard mathematical approach
       /**
@@ -236,18 +302,6 @@ public:
         return *this;
       }
 
-      /**
-       * NotEquals operator checks if to ubintvec objs are Notequal
-       *
-       * @param &&rhs is the ubintvec to compare  with.
-       * @return true if not equal, false otherwise.
-       */
-
-
-
-  inline bool operator!=(const mubintvec &b) const {
-    return !(*this == b);
-  }
 
   /**
    * Destructor.

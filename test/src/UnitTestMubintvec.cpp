@@ -81,7 +81,8 @@ protected:
   }
 };
 
-/* list of tests left to run
+/* list of tests left to run 
+   //todo update this. 
 
   explicit mubintvec(const usint length, const bint_el_t & modulus);
   explicit mubintvec(const usint length, const std::string& modulus);
@@ -265,6 +266,26 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   test1 = m==n;
   EXPECT_TRUE(test1)<<"Failure [] lhs rhs";
 
+  //test more ctors
+
+  ubintvec u(5);
+  u = {"9872","5888","4620","2376","4631"}; //strings
+
+  mubintvec u2(u);
+  u2.SetModulus(q);
+  mubintvec u3(u,q);
+  mubintvec u4(u,"1234567"); 
+  mubintvec u5(u,1234567U); 
+
+  EXPECT_TRUE(u2 == u3) << "Failure ctor (ubintvec,ubint)";
+  EXPECT_TRUE(u2 == u4) << "Failure ctor (ubintvec,string)";
+  EXPECT_TRUE(u2 == u5) << "Failure ctor (ubintvec,usint)";
+
+  //test comparison between ubintvec and mubintvec
+  EXPECT_TRUE(u == u2) << "Failure mubintvec == ubintvec";
+  EXPECT_FALSE(u != u2) << "Failure mubintvec == ubintvec";
+  EXPECT_TRUE(u2 == u) << "Failure ubintvec == uubintvec";
+  EXPECT_FALSE(u2 != u) << "Failure ubintvec == mubintvec";
 
 }
 
