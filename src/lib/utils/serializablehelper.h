@@ -112,7 +112,7 @@ public:
 };
 
 template<typename T>
-bool SerializeVector(const std::string& vectorName, const std::string& typeName, const std::vector<T> inVector, Serialized* serObj) {
+void SerializeVector(const std::string& vectorName, const std::string& typeName, const std::vector<T> inVector, Serialized* serObj) {
 
 	Serialized ser(rapidjson::kObjectType, &serObj->GetAllocator());
 	ser.AddMember("Typename", typeName, serObj->GetAllocator());
@@ -130,12 +130,39 @@ bool SerializeVector(const std::string& vectorName, const std::string& typeName,
 	ser.AddMember("Members", serElements, serObj->GetAllocator());
 
 	serObj->AddMember(SerialItem(vectorName, serObj->GetAllocator()), ser, serObj->GetAllocator());
-	return true;
 }
 
 template<typename T>
-bool DeserializeVector(const std::string& vectorName, const std::string& typeName, const Serialized& serObj, std::vector<T>* outVector) {
-	return false;
+bool DeserializeVector(const std::string& vectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& serObj, std::vector<T>* outVector) {
+	SerialItem::ConstMemberIterator it = serObj->value.FindMember(vectorName);
+
+	if( it == serObj->value.MemberEnd() )
+		return false;
+
+	SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
+	if( mIt == it->value.MemberEnd() ) return false;
+	if( mIt->value.GetString() != typeName ) return false;
+
+	mIt = it->value.FindMember("Length");
+	if( mIt == it->value.MemberEnd() ) return false;
+
+	outVector->clear();
+	outVector->resize( std::stoi(mIt->value.GetString()) );
+
+	mIt = it->value.FindMember("Members");
+	if( mIt == it->value.MemberEnd() ) return false;
+
+	for( int i=0; i<outVector->size(); i++ ) {
+		Serialized::ConstMemberIterator eIt = mIt->value.FindMember( std::to_string(i) );
+		if( eIt == mIt->value.MemberEnd() ) return false;
+
+		T vectorElem;
+		const Serialized& s = eIt->value;
+		vectorElem.Deserialize(s);
+		outVector->at(i) = vectorElem;
+	}
+
+	return true;
 }
 
 class IStreamWrapper {

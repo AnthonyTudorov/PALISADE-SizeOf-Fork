@@ -3,7 +3,7 @@
 namespace lbcrypto {
 
 // utility to serialize and deserialize vectors of BBIs
-static bool
+static void
 SerializeBBIVector(const std::string& vectorName, const std::vector<BigBinaryInteger>& inVector, Serialized* serObj)
 {
 	Serialized ser(rapidjson::kObjectType, &serObj->GetAllocator());
@@ -20,11 +20,10 @@ SerializeBBIVector(const std::string& vectorName, const std::vector<BigBinaryInt
 	ser.AddMember("Members", serElements, serObj->GetAllocator());
 
 	serObj->AddMember(SerialItem(vectorName, serObj->GetAllocator()), ser, serObj->GetAllocator());
-	return true;
 }
 
 static bool
-DeSerializeBBIVector(const std::string& vectorName, const Serialized& serObj, std::vector<BigBinaryInteger>* inVector)
+DeSerializeBBIVector(const std::string& vectorName, const SerialItem& serObj, std::vector<BigBinaryInteger>* inVector)
 {
 	Serialized::ConstMemberIterator rIt = serObj.FindMember(vectorName);
 	if( rIt == serObj.MemberEnd() ) return false;
@@ -77,12 +76,22 @@ ILDCRTParams::Serialize(Serialized* serObj, const std::string fileFlag) const
 bool
 ILDCRTParams::Deserialize(const Serialized& serObj)
 {
-	//Place holder
-	return false;
+	Serialized::ConstMemberIterator rIt = serObj.FindMember("ILDCRTParams");
+	if( rIt == serObj.MemberEnd() ) return false;
 
-	DeSerializeBBIVector("Moduli", serObj, &this->m_moduli);
-	DeSerializeBBIVector("RootsOfUnity", serObj, &gitthis->m_rootsOfUnity);
+	const SerialItem& arr = rIt->value;
 
+	Serialized::ConstMemberIterator it = arr.FindMember("Modulus");
+	if( it == arr.MemberEnd() ) return false;
+	BigBinaryInteger modulus( it->value.GetString() );
+	this->SetModulus( modulus );
+
+	it = arr.FindMember("Order");
+	if( it == arr.MemberEnd() ) return false;
+	this->SetCyclotomicOrder( std::stoi(it->value.GetString()) );
+
+	return DeSerializeBBIVector("Moduli", arr, &this->m_moduli) &&
+			DeSerializeBBIVector("RootsOfUnity", arr, &this->m_rootsOfUnity);
 }
 
 
