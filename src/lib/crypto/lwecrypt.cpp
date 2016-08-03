@@ -489,11 +489,10 @@ template <class Element>
 bool LPPublicKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
 
 	serObj->SetObject();
-std::cout << "1" << std::endl;
+
 	if( !this->GetCryptoParameters().Serialize(serObj, "") ) {
 		return false;
 	}
-	std::cout << "2" << std::endl;
 
 	const Element& pe = this->GetPublicElement();
 
@@ -501,10 +500,8 @@ std::cout << "1" << std::endl;
 		return false;
 	}
 
-	std::cout << "3" << std::endl;
 	if( !this->SetIdFlag(serObj, fileFlag) )
 		return false;
-	std::cout << "4" << std::endl;
 
 	return true;
 }
