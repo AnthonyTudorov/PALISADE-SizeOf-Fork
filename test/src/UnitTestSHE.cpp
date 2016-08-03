@@ -142,9 +142,6 @@ TEST(UnitTestSHE, keyswitch_SingleCRT){
 
     CryptoUtility<ILVector2n>::Decrypt(algorithm, sk2, newCiphertext, &plaintextNew);
 
-	cout << plaintextNew << endl;
-	cout << plaintext << endl;
-
     EXPECT_EQ(plaintext, plaintextNew);
   
   //{
