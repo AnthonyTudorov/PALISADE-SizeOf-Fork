@@ -113,7 +113,8 @@ public:
 
 template<typename T>
 bool SerializeVector(const std::string& vectorName, const std::string& typeName, const std::vector<T> inVector, Serialized* serObj) {
-	SerialItem ser(rapidjson::kObjectType);
+
+	Serialized ser(rapidjson::kObjectType, &serObj->GetAllocator());
 	ser.AddMember("Typename", typeName, serObj->GetAllocator());
 	ser.AddMember("Length", std::to_string(inVector.size()), serObj->GetAllocator());
 
@@ -123,12 +124,12 @@ bool SerializeVector(const std::string& vectorName, const std::string& typeName,
 		inVector[i].Serialize(&oneEl);
 
 		SerialItem key( std::to_string(i), serObj->GetAllocator() );
-		serElements.AddMember(key, oneEl.Move(), serObj->GetAllocator());
+		serElements.AddMember(key, oneEl, serObj->GetAllocator());
 	}
 
-	ser.AddMember("Members", serElements.Move(), serObj->GetAllocator());
+	ser.AddMember("Members", serElements, serObj->GetAllocator());
 
-	serObj->AddMember(SerialItem(vectorName, serObj->GetAllocator()), ser.Move(), serObj->GetAllocator());
+	serObj->AddMember(SerialItem(vectorName, serObj->GetAllocator()), ser, serObj->GetAllocator());
 	return true;
 }
 
