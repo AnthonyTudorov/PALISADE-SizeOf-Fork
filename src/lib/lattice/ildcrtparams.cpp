@@ -81,7 +81,7 @@ ILDCRTParams::Deserialize(const Serialized& serObj)
 	return false;
 
 	DeSerializeBBIVector("Moduli", serObj, &this->m_moduli);
-	DeSerializeBBIVector("RootsOfUnity", serObj, &this->m_rootsOfUnity);
+	DeSerializeBBIVector("RootsOfUnity", serObj, &gitthis->m_rootsOfUnity);
 
 }
 
