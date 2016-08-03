@@ -686,7 +686,24 @@ namespace lbcrypto {
 
 	// JSON FACILITY - Deserialize Operation
 	bool ILVectorArray2n::Deserialize(const Serialized& serObj) {
-		return false;
+		SerialItem::ConstMemberIterator it = serObj.FindMember("ILVectorArray2n");
+
+		if( it == serObj.MemberEnd() )
+			return false;
+
+		SerialItem::ConstMemberIterator mIt = it->value.FindMember("Format");
+		if( mIt == it->value.MemberEnd() ) return false;
+		this->m_format = static_cast<Format>(std::stoi(mIt->value.GetString()));
+
+		mIt = it->value.FindMember("Modulus");
+		if( mIt == it->value.MemberEnd() ) return false;
+		this->m_modulus = BigBinaryInteger( mIt->value.GetString() );
+
+		mIt = it->value.FindMember("CyclotomicOrder");
+		if( mIt == it->value.MemberEnd() ) return false;
+		this->m_cyclotomicOrder = std::stoi(mIt->value.GetString());
+
+		return DeserializeVector("Vectors", "ILVector2n", it, &this->m_vectors);
 	}
 
 } // namespace lbcrypto ends
