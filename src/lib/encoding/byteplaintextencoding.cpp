@@ -110,20 +110,19 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 }
 
 void
-BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n &ilVector)
+BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector)
 {
-	//TODO-Nishanth: Hard-coding rootofUnity for now. Need to find a way to figure out how to set the correct rootOfUnity.
-	ilVector.SwitchModulus(modulus, BigBinaryInteger::ONE);
+	*ilVector = ilVector->SignedMod(modulus);
 
 	usint mod = modulus.ConvertToInt();
 	usint p = ceil((float)log((double)255) / log((double)mod));
 	usint resultant_char;
 
-	for (usint i = 0; i<ilVector.GetValues().GetLength(); i = i + p) {
+	for (usint i = 0; i<ilVector->GetValues().GetLength(); i = i + p) {
 		usint exp = 1;
 		resultant_char = 0;
 		for (usint j = 0; j<p; j++) {
-			resultant_char += ilVector.GetValues().GetValAtIndex(i + j).ConvertToInt()*exp;
+			resultant_char += ilVector->GetValues().GetValAtIndex(i + j).ConvertToInt()*exp;
 			exp *= mod;
 		}
 		this->push_back(resultant_char);
@@ -134,35 +133,52 @@ void
 BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *element, size_t startFrom, size_t length) const
 {
 	//TODO - OPTIMIZE CODE. Please take a look at line 114 temp.SetModulus
-	ILVector2n temp = element->GetElementAtIndex (0);
+	ILVector2n encodedSingleCrt = element->GetElementAtIndex(0);
 
-	BigBinaryInteger symbol(modulus);
-	Encode(symbol, &temp, startFrom, length);
+	Encode(modulus, &encodedSingleCrt, startFrom, length);
+	BigBinaryVector tempBBV(encodedSingleCrt.GetValues());
 
-	std::vector<ILVector2n> symbolVals;
+	std::vector<ILVector2n> encodeValues;
+	encodeValues.reserve(element->GetNumOfElements());
 
-	for(usint i=0;i<element->GetNumOfElements();i++){
+	for (usint i = 0; i<element->GetNumOfElements(); i++) {
 		ILParams ilparams(element->GetElementAtIndex(i).GetCyclotomicOrder(), element->GetElementAtIndex(i).GetModulus(), element->GetElementAtIndex(i).GetRootOfUnity());
-		ILVector2n ilVector(ilparams);
-		temp.SwitchModulus( ilparams.GetModulus(), ilparams.GetRootOfUnity() );
-
-		// temp.SetModulus(ilparams.GetModulus());
-		ilVector.SetValues(temp.GetValues(),temp.GetFormat());
-		symbolVals.push_back(ilVector);
+		ILVector2n temp(ilparams);
+		tempBBV = encodedSingleCrt.GetValues();
+		tempBBV.SetModulus(ilparams.GetModulus());
+		temp.SetValues(tempBBV, encodedSingleCrt.GetFormat());
+		temp.SignedMod(ilparams.GetModulus());
+		encodeValues.push_back(temp);
 	}
 
-	ILVectorArray2n elementNew(symbolVals);
+	ILVectorArray2n elementNew(encodeValues);
 	*element = elementNew;
 
 }
 
 void
-BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n &ilVectorArray2n){
+BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n *ilVectorArray2n){
 
-	ILVector2n interpolatedDecodedValue = ilVectorArray2n.InterpolateIlArrayVector2n();
+	ILVector2n interpolatedDecodedValue = ilVectorArray2n->InterpolateIlArrayVector2n();
+		Decode(modulus, &interpolatedDecodedValue);
+		BigBinaryVector tempBBV(interpolatedDecodedValue.GetValues());
 
-	//interpolatedDecodedValue.DecodeElement(text, modulus);
-	Decode(modulus, interpolatedDecodedValue);
+
+		std::vector<ILVector2n> encodeValues;
+		encodeValues.reserve(ilVectorArray2n->GetNumOfElements());
+
+		for (usint i = 0; i<ilVectorArray2n->GetNumOfElements(); i++) {
+			ILParams ilparams(ilVectorArray2n->GetElementAtIndex(i).GetCyclotomicOrder(), ilVectorArray2n->GetElementAtIndex(i).GetModulus(), ilVectorArray2n->GetElementAtIndex(i).GetRootOfUnity());
+			ILVector2n temp(ilparams);
+			tempBBV = interpolatedDecodedValue.GetValues();
+			tempBBV.SetModulus(ilparams.GetModulus());
+			temp.SetValues(tempBBV, interpolatedDecodedValue.GetFormat());
+			temp.SignedMod(ilparams.GetModulus());
+			encodeValues.push_back(temp);
+		}
+
+		ILVectorArray2n elementNew(encodeValues);
+		*ilVectorArray2n = elementNew;
 }
 
 void

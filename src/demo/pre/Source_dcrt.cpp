@@ -150,7 +150,7 @@ void NTRU_DCRT() {
 		moduli[i] = q;
 		cout << q << endl;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
-		cout << rootsOfUnity[i] << endl;
+	//	cout << rootsOfUnity[i] << endl;
 		modulus = modulus* moduli[i];
 	
 	}
@@ -857,7 +857,7 @@ void FinalLeveledComputation(){
 	ILDCRTParams params(init_m, init_moduli, init_rootsOfUnity);
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE);
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::THREE);
 	cryptoParams.SetDistributionParameter(init_stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
@@ -972,6 +972,7 @@ void FinalLeveledComputation(){
 	algorithm.Encrypt(pk,element1,&cipherText1);
 
 
+
 	Ciphertext<ILVectorArray2n> cipherText2;
 	cipherText2.SetCryptoParameters(&finalParams);
 	ILVectorArray2n element2(dcrtParams);
@@ -1016,11 +1017,14 @@ void FinalLeveledComputation(){
 	algorithm.ComposedEvalMult(cipherText8,cipherText5,keyStruc.GetQuadraticKeySwitchHintForLevel(1),&cipherText9);
 
 
+
 	//BytePlaintextEncoding plaintextNew;
 	//CryptoUtility<ILVector2n>::Decrypt(algorithm, levelSk[1], cipherText9, &plaintextNew);
+	ILVectorArray2n plaintextNew;
 
-	//algorithm.Decrypt(levelSk[1],cipherText9, &plaintextNew);
+	algorithm.Decrypt(levelSk[1], cipherText9, &plaintextNew);
 
+	cout << plaintextNew.GetElementAtIndex(0).GetValAtIndex(0) << endl;
 }
 
 void NTRUPRE(usint input) {
@@ -1042,10 +1046,8 @@ void NTRUPRE(usint input) {
 	//BytePlaintextEncoding plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
 
 	SecureParams const SECURE_PARAMS[] = {
-//<<<<<<< HEAD
-//=======
+
 		//{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("2678760785"), 1 }, //r = 8
-//>>>>>>> 98034a0563cc8cab2eb1c179288561a65ad5a7f0
 		{ 2048, BigBinaryInteger("268441601"), BigBinaryInteger("16947867"), 1 }, //r = 1
 		{ 2048, BigBinaryInteger("536881153"), BigBinaryInteger("267934765"), 2 }, // r = 2
 		{ 2048, BigBinaryInteger("1073750017"), BigBinaryInteger("180790047"), 4 },  // r = 4

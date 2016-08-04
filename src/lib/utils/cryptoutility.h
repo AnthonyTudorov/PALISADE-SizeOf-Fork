@@ -160,7 +160,7 @@ public:
 
 			if( result.isValid == false ) return result;
 
-			plaintext->Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), decrypted);
+			plaintext->Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), &decrypted);
 
 			if( ch == lastone && doPadding ) {
 				plaintext->Unpad();
@@ -200,7 +200,7 @@ public:
 					return DecryptResult();
 				tot += res.messageLength;
 
-				pte[whichArray].Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), decrypted);
+				pte[whichArray].Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), &decrypted);
 
 				if( !firstTime ) {
 					outstream << pte[!whichArray];
@@ -275,7 +275,57 @@ public:
 		}
 	}
 
+	//KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint,const Ciphertext<Element> &cipherText)
+	/**
+	* perform KeySwitch on a vector of ciphertext
+	* @param scheme - a reference to the encryption scheme in use
+	* @param keySwitchHint - reference to KeySwitchHint
+	* @param ciphertext - vector of ciphertext
+	* @param newCiphertext - contains a vector of KeySwitched ciphertext
+	*/
+	static void KeySwitch(
+		const LPPublicKeyEncryptionScheme<Element>& scheme,
+		const LPKeySwitchHint<Element> &keySwitchHint,
+		const vector<Ciphertext<Element>>& ciphertext,
+		vector<Ciphertext<Element>> *newCiphertext)
+	{
+		for (int i = 0; i < ciphertext.size(); i++) {
+			Ciphertext<Element> nCipher;
+			nCipher = scheme.KeySwitch(keySwitchHint, ciphertext.at(i));
+			newCiphertext->push_back(std::move(nCipher));
+		}
+	}
 
+	/**
+	* perform ModReduce on a vector of ciphertext
+	* @param scheme - a reference to the encryption scheme in use
+	* @param ciphertext - vector of ciphertext
+	*/
+	static void ModReduce(
+		const LPPublicKeyEncryptionScheme<Element>& scheme,
+		vector<Ciphertext<Element>> *ciphertext)
+	{
+		for (int i = 0; i < ciphertext->size(); i++) {
+			scheme.ModReduce(&ciphertext->at(i));
+		}
+	}
+
+	/**
+	* perform RingReduce on a vector of ciphertext
+	* @param scheme - a reference to the encryption scheme in use
+	* @param ciphertext - vector of ciphertext
+	*/
+	//void RingReduce(Ciphertext<Element> *cipherText, const LPKeySwitchHint<Element> &keySwitchHint) const
+	static void RingReduce(
+		const LPPublicKeyEncryptionScheme<Element>& scheme,
+		vector<Ciphertext<Element>> *ciphertext,
+		const LPKeySwitchHint<Element> &keySwitchHint)
+
+	{
+		for (int i = 0; i < ciphertext->size(); i++) {
+			scheme.RingReduce(&ciphertext->at(i), keySwitchHint);
+		}
+	}
 };
 
 }
