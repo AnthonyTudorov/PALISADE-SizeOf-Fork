@@ -648,7 +648,8 @@ namespace exp_int32{
      * @param mu is the precomputed Barrett value.
      * @return is the result of the modulus multiplication operation.
      */
-    ubint ModBarrettMul(const ubint& b, const ubint& modulus,const ubint& mu) const;
+    ubint BModMul(const ubint& b, const ubint& modulus,const ubint& mu) const;
+    ubint DBCModMul(const ubint& b, const ubint& modulus,const ubint& mu) const;
 
     /**
      * Scalar modular multiplication where Barrett modular reduction is used.

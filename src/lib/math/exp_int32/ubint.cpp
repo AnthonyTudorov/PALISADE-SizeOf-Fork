@@ -158,6 +158,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     } else {
       usint ceilInt = ceilIntByUInt(msb);
       //setting the values of the array
+      m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
       for(usint i= 0;i<ceilInt;++i){
         this->m_value.at(i) = (limb_t)init;
@@ -198,6 +199,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     } else {
       usint ceilInt = ceilIntByUInt(msb);
       //setting the values of the array
+      m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
       for(usint i= 0;i<ceilInt;++i){
         this->m_value.at(i) = (limb_t)init;
@@ -234,6 +236,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
       usint ceilInt = ceilIntByUInt(msb);
       DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
       //setting the values of the array
+      this->m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
       for(usint i= 0;i<ceilInt;++i){
 	DEBUG("i " << i);
@@ -277,6 +280,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     } else {
       usint ceilInt = ceilIntByUInt(msb);
       //setting the values of the array
+      this->m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
       for(usint i= 0;i<ceilInt;++i){
         this->m_value.at(i) = (limb_t)init;
@@ -644,6 +648,16 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 		  ans.m_MSB -= remainingShift;
 
 	  }
+
+	  //go through the mslimbs and pop off any zero limbs we missed
+	  for (usint i = ans.m_value.size()-1; i >= 0; i--){
+	    if (!ans.m_value.at(i)) {
+	      ans.m_value.pop_back();
+	      //std::cout<<"popped "<<std::endl;
+	    } else {
+	      break;
+	    }
+	  }
 	  DEBUG("final MSB "<<ans.m_MSB);
 	  ans.SetMSB();
 	  DEBUG("final MSB check "<<ans.m_MSB);
@@ -889,6 +903,16 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     //reset the MSB after subtraction
     //result.m_MSB = (m_value.size()-endValA-1)*m_limbBitLength + GetMSBlimb_t(result.m_value[endValA]);
 
+    //go through the mslimbs and pop off any zero limbs
+    for (usint i = result.m_value.size()-1; i >= 0; i--){
+      if (!result.m_value.at(i)) {
+	result.m_value.pop_back();
+	//std::cout<<"popped "<<std::endl;
+      } else {
+	break;
+      }
+    }
+    
     result.SetMSB();
     DEBUG("result msb now "<<result.m_MSB);
     //return the result
@@ -1196,6 +1220,17 @@ again:
     f = divmnu_vect((ans), (rv),  (*this),  (b));
     if (f!= 0)
       throw std::logic_error("Div() error");
+
+    //go through the mslimbs and pop off any zero limbs
+    for (usint i = ans.m_value.size()-1; i >= 0; i--){
+     if (!ans.m_value.at(i)) {
+	ans.m_value.pop_back();
+	//std::cout<<"popped "<<std::endl;
+      } else {
+	break;
+      }
+    }
+
     ans.m_state = INITIALIZED;
     ans.SetMSB();
 
@@ -1435,7 +1470,7 @@ again:
   */
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModBarrett(const ubint& modulus, const ubint& mu) const{
-	
+    bool dbg_flag = false;
     if(*this<modulus){
       return std::move(ubint(*this));
     }
@@ -1447,10 +1482,20 @@ again:
     sint beta = -2;
 
     q>>=n + beta;
+    DEBUG("q"); if (dbg_flag) q.PrintLimbsInDec();
+
     q=q*mu;
+    DEBUG("q"); if (dbg_flag) q.PrintLimbsInDec();
     q>>=alpha-beta;
+    DEBUG("q"); if (dbg_flag) q.PrintLimbsInDec();
     z-=q*modulus;
-	
+
+    if (dbg_flag) {
+      DEBUG("z");
+      z.PrintLimbsInDec();
+      DEBUG("modulus");
+      modulus.PrintLimbsInDec();
+    }
     if(z>=modulus)
       z-=modulus;
 	
@@ -1741,13 +1786,37 @@ again:
   */
 
   template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::ModBarrettMul(const ubint& b, const ubint& modulus,const ubint& mu) const{
+  ubint<limb_t> ubint<limb_t>::BModMul(const ubint& b, const ubint& modulus,const ubint& mu) const{
+    bool dbg_flag = false;
 
     ubint* a  = const_cast<ubint*>(this);
     ubint* bb = const_cast<ubint*>(&b);
+    DEBUG("ubint bmodmul b"); if (dbg_flag) b.PrintLimbsInDec();
+    DEBUG("ubint bmodmul modulus"); if (dbg_flag) modulus.PrintLimbsInDec();
+    DEBUG("ubint bmodmul mu"); if (dbg_flag) mu.PrintLimbsInDec();
+    //if a is greater than q reduce a to its mod value    if(*this>modulus)
+      *a = std::move(this->ModBarrett(modulus,mu));
 
-    //if a is greater than q reduce a to its mod value
-    if(*this>modulus)
+
+    //if b is greater than q reduce b to its mod value
+    if(b>modulus)
+      *bb = std::move(b.ModBarrett(modulus,mu));
+
+    return (*a**bb).ModBarrett(modulus,mu);
+
+  }
+
+  //DBC version from Proceed
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::DBCModMul(const ubint& b, const ubint& modulus,const ubint& mu) const{
+    bool dbg_flag = false;
+
+    ubint* a  = const_cast<ubint*>(this);
+    ubint* bb = const_cast<ubint*>(&b);
+    DEBUG("ubint bmodmul b"); if (dbg_flag) b.PrintLimbsInDec();
+    DEBUG("ubint bmodmul modulus"); if (dbg_flag) modulus.PrintLimbsInDec();
+    DEBUG("ubint bmodmul mu"); if (dbg_flag) mu.PrintLimbsInDec();
+    //if a is greater than q reduce a to its mod value    if(*this>modulus)
       *a = std::move(this->ModBarrett(modulus,mu));
 
 

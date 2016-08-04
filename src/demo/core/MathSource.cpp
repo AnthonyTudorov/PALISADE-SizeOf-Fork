@@ -573,6 +573,7 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
   TESTIT(t1, mc1, ma1 - mb1,  modsub1, nloop);
   TESTIT(t1, c1, a1.ModMul(b1,q1), modmul1, nloop);
   TESTIT(t1, mc1, ma1 * mb1,  modmul1, nloop);
+  TESTIT(t1, mc1, ma1.BModMul(mb1),  modmul1, nloop);
 
   // q2: larger numbers
 
@@ -712,7 +713,7 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
   TESTIT(t2, mc2, ma2 - mb2, modsub2, nloop);
   TESTIT(t2, c2, a2.ModMul(b2,q2), modmul2, nloop);
   TESTIT(t2, mc2, ma2 * mb2,  modmul2, nloop);
-
+  TESTIT(t2, mc2, ma2.BModMul(mb2),  modmul2, nloop);
 
 
 
@@ -847,6 +848,7 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
   TESTIT(t3, mc3, ma3 - mb3, modsub3, nloop);
   TESTIT(t3, c3, a3.ModMul(b3,q3), modmul3, nloop);
   TESTIT(t3, mc3, ma3 * mb3,  modmul3, nloop);
+  TESTIT(t3, mc3, ma3.BModMul(mb3),  modmul3, nloop);
 
 
 
