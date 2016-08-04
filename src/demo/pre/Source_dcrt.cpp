@@ -55,6 +55,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <chrono>
 #include "../../lib/utils/debug.h"
 #include "../../lib/encoding/byteplaintextencoding.h"
+#include "../../lib/encoding/intplaintextencoding.h"
 
 #include "testJson.h"
 #include "testJson.cpp"
@@ -259,6 +260,24 @@ void NTRU_DCRT() {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}
+
+//	IntPlaintextEncoding intIn = { 2,4,6,8,10 };
+//	IntPlaintextEncoding intOut;
+//	vector<Ciphertext<ILVectorArray2n>> intCiphertext;
+//	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm,pk,intIn,&intCiphertext);
+//	result = CryptoUtility<ILVectorArray2n>::Decrypt(algorithm,sk,intCiphertext,&intOut);
+//
+//	for( int i = 0; i < intIn.GetLength() ; i++ ) {
+//		cout << intIn.at(i) << " ";
+//	}
+//	cout << endl << "::::::::::::" << endl;
+//
+//	for( int i = 0; i < intOut.GetLength() ; i++ ) {
+//		cout << intOut.at(i) << " ";
+//	}
+//	cout << endl;
+//
+//	if(true) return;
 
 	bool doReEncrypt = false;
 
