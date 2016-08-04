@@ -60,12 +60,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "testJson.h"
 #include "testJson.cpp"
 
-#include "testJson.h"
-#include "testJson.cpp"
-
-#include "testJson.h"
-#include "testJson.cpp"
-
 using namespace std;
 using namespace lbcrypto;
 
