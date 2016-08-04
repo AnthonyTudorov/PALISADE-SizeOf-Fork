@@ -58,7 +58,14 @@
 #include "../crypto/lweautomorph.h"
 #include "../crypto/lweautomorph.cpp"
 
+#include "../crypto/ltv.h"
+#include "../crypto/stst.h"
+
+#include "../lattice/ilvector2n.h"
+#include "../lattice/ilvectorarray2n.h"
+
 #include "../crypto/bv.h"
+
 #include "../crypto/bv.cpp"
 
 #include "../utils/serializable.h"

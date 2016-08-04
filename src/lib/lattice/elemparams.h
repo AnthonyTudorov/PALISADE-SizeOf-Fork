@@ -38,6 +38,7 @@
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
+#include <iostream>
 
 /**
 * @namespace lbcrypto
@@ -66,7 +67,14 @@ namespace lbcrypto {
 		*/
 		virtual const usint GetCyclotomicOrder() const = 0;
 
+	    friend std::ostream& operator<<(std::ostream& out, const ElemParams &item) {
+	    	return item.doprint(out);
+	    }
+
 		virtual bool operator==(const ElemParams &other) const = 0;
+
+	private:
+		virtual std::ostream& doprint(std::ostream& out) const = 0;
 	};
 
 } // namespace lbcrypto ends

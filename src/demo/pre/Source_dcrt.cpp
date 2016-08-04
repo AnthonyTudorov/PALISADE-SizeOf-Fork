@@ -44,12 +44,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/lattice/ilvectorarray2n.h"
 #include "../../lib/crypto/cryptocontext.h"
 
-#include "../../lib/encoding/cryptoutility.h"
+#include "../../lib/utils/cryptoutility.h"
 #include "time.h"
 
 #include <chrono>
 #include "../../lib/utils/debug.h"
-#include "../../lib/encoding/byteencoding.h"
+#include "../../lib/encoding/byteplaintextencoding.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -92,7 +92,7 @@ int main() {
 //	ComposedEvalMultTest();
 //	 FinalLeveledComputation();
 
-	//TestParameterSelection();
+	TestParameterSelection();
 	//LevelCircuitEvaluation2WithCEM();
 
 	std::cin.get();
@@ -127,7 +127,7 @@ void NTRU_DCRT() {
 
 	usint m = 16;
 
-	const ByteArray plaintext = "I";
+	const BytePlaintextEncoding plaintext = "I";
 
 	float stdDev = 4;
 
@@ -135,7 +135,7 @@ void NTRU_DCRT() {
 
 	std::cout << "tower size: " << size << std::endl;
 
-	ByteArray ctxtd;
+	BytePlaintextEncoding ctxtd;
 
 	vector<BigBinaryInteger> moduli(size);
 
@@ -150,7 +150,7 @@ void NTRU_DCRT() {
 		moduli[i] = q;
 		cout << q << endl;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
-		cout << rootsOfUnity[i] << endl;
+	//	cout << rootsOfUnity[i] << endl;
 		modulus = modulus* moduli[i];
 	
 	}
@@ -166,6 +166,8 @@ void NTRU_DCRT() {
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
+
+	cout << cryptoParams;
 
 	Ciphertext<ILVectorArray2n> cipherText;
 	cipherText.SetCryptoParameters(&cryptoParams);
@@ -226,7 +228,7 @@ void NTRU_DCRT() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArray plaintextNew;
+	BytePlaintextEncoding plaintextNew;
 
 	std::cout <<"\n"<< "Running decryption..." << std::endl;
 
@@ -765,7 +767,7 @@ void TestParameterSelection(){
 
 	std::cout << "tower size: " << size << std::endl;
 
-	ByteArrayPlaintextEncoding ctxtd;
+	// BytePlaintextEncoding ctxtd;
 
 	vector<BigBinaryInteger> moduli(size);
 
@@ -800,11 +802,15 @@ void TestParameterSelection(){
 
 	usint n = 16;
 
+	cout << "cryptoParams::: " << cryptoParams << "=====" << endl;
+
 	std::vector<BigBinaryInteger> moduliV(size);
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
 
 	cryptoParams.ParameterSelection(&cryptoParams2);
 	//cryptoParams.ParameterSelection(n, moduliV);
+	cout << "cryptoParams after::: " << cryptoParams << "=====" << endl;
+	cout << "cryptoParams2 after::: " << cryptoParams2 << "=====" << endl;
 
 	cout << "parameter selection test" << endl;
 	cout << cryptoParams2.GetAssuranceMeasure() << endl;
@@ -827,7 +833,7 @@ void FinalLeveledComputation(){
 
 	std::cout << "tower size: " << init_size << std::endl;
 
-	ByteArrayPlaintextEncoding ctxtd;
+	BytePlaintextEncoding ctxtd;
 
 	vector<BigBinaryInteger> init_moduli(init_size);
 
@@ -851,7 +857,7 @@ void FinalLeveledComputation(){
 	ILDCRTParams params(init_m, init_moduli, init_rootsOfUnity);
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE);
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::THREE);
 	cryptoParams.SetDistributionParameter(init_stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
@@ -963,8 +969,8 @@ void FinalLeveledComputation(){
 	ILVectorArray2n element1(dcrtParams);
 	element1.SwitchFormat();
 	element1 = {1};
-	cipherText1.SetElement(element1);
-	algorithm.Encrypt(pk,&cipherText1);
+	algorithm.Encrypt(pk,element1,&cipherText1);
+
 
 
 	Ciphertext<ILVectorArray2n> cipherText2;
@@ -972,32 +978,29 @@ void FinalLeveledComputation(){
 	ILVectorArray2n element2(dcrtParams);
 	element2.SwitchFormat();
 	element2 = {2};
-	cipherText2.SetElement(element2);
-	algorithm.Encrypt(pk,&cipherText2);
+	algorithm.Encrypt(pk,element2,&cipherText2);
 
 	Ciphertext<ILVectorArray2n> cipherText3;
 	cipherText3.SetCryptoParameters(&finalParams);
 	ILVectorArray2n element3(dcrtParams);
 	element3.SwitchFormat();
 	element3 = {3};
-	cipherText3.SetElement(element3);
-	algorithm.Encrypt(pk,&cipherText3);
+	algorithm.Encrypt(pk,element3,&cipherText3);
 
 	Ciphertext<ILVectorArray2n> cipherText4;
 	cipherText4.SetCryptoParameters(&finalParams);
 	ILVectorArray2n element4(dcrtParams);
 	element4.SwitchFormat();
 	element4 = {4};
-	cipherText4.SetElement(element4);
-	algorithm.Encrypt(pk,&cipherText4);
+	algorithm.Encrypt(pk,element4,&cipherText4);
 
 	Ciphertext<ILVectorArray2n> cipherText5;
 	cipherText5.SetCryptoParameters(&finalParams);
 	ILVectorArray2n element5(dcrtParams);
 	element5.SwitchFormat();
 	element5 = {5};
-	cipherText5.SetElement(element5);
-	algorithm.Encrypt(pk,&cipherText5);
+	algorithm.Encrypt(pk,element5,&cipherText5);
+
 	//Computation: C = (C1*C2 + C3*C4)*C5
 	Ciphertext<ILVectorArray2n> cipherText6(cipherText1);
 	algorithm.ComposedEvalMult(cipherText1,cipherText2,keyStruc.GetQuadraticKeySwitchHintForLevel(0),&cipherText6);
@@ -1014,11 +1017,14 @@ void FinalLeveledComputation(){
 	algorithm.ComposedEvalMult(cipherText8,cipherText5,keyStruc.GetQuadraticKeySwitchHintForLevel(1),&cipherText9);
 
 
-	//ByteArray plaintextNew;
+
+	//BytePlaintextEncoding plaintextNew;
 	//CryptoUtility<ILVector2n>::Decrypt(algorithm, levelSk[1], cipherText9, &plaintextNew);
+	ILVectorArray2n plaintextNew;
 
-	//algorithm.Decrypt(levelSk[1],cipherText9, &plaintextNew);
+	algorithm.Decrypt(levelSk[1], cipherText9, &plaintextNew);
 
+	cout << plaintextNew.GetElementAtIndex(0).GetValAtIndex(0) << endl;
 }
 
 void NTRUPRE(usint input) {
@@ -1030,20 +1036,18 @@ void NTRUPRE(usint input) {
 	usint m = 16;
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
-	ByteArray plaintext = "N";
+	BytePlaintextEncoding plaintext = "N";
 	*/
 
 	// The comments below provide a high-security parameterization for prototype use.  If this code were verified/certified for high-security applications, we would say that the following parameters would be appropriate for "production" use.
 	//usint m = 2048;
 	//BigBinaryInteger modulus("8590983169");
 	//BigBinaryInteger rootOfUnity("4810681236");
-	//ByteArray plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
+	//BytePlaintextEncoding plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
 
 	SecureParams const SECURE_PARAMS[] = {
-//<<<<<<< HEAD
-//=======
+
 		//{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("2678760785"), 1 }, //r = 8
-//>>>>>>> 98034a0563cc8cab2eb1c179288561a65ad5a7f0
 		{ 2048, BigBinaryInteger("268441601"), BigBinaryInteger("16947867"), 1 }, //r = 1
 		{ 2048, BigBinaryInteger("536881153"), BigBinaryInteger("267934765"), 2 }, // r = 2
 		{ 2048, BigBinaryInteger("1073750017"), BigBinaryInteger("180790047"), 4 },  // r = 4
@@ -1057,8 +1061,8 @@ void NTRUPRE(usint input) {
 	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
 	usint relWindow = SECURE_PARAMS[input].relinWindow;
 
-	ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-	//ByteArray plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	//BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 
 
 	float stdDev = 4;
@@ -1162,8 +1166,8 @@ void NTRUPRE(usint input) {
 	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
 	std::vector< Ciphertext<ILVector2n> > ciphertext;
-	ByteArrayPlaintextEncoding ptxt(plaintext);
-    ptxt.Pad<ZeroPad>(m/16);
+	//BytePlaintextEncoding ptxt(plaintext);
+    //ptxt.Pad<ZeroPad>(m/16);
 	//ptxt.Pad<ZeroPad>(m/8);
 
 	std::cout << "Running encryption..." << std::endl;
@@ -1186,19 +1190,17 @@ void NTRUPRE(usint input) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArrayPlaintextEncoding plaintextNew;
+	BytePlaintextEncoding plaintextNew;
 
 	std::cout <<"\n"<< "Running decryption..." << std::endl;
 
 	start = currentDateTime();
 
-	ByteArray ctxtd;
+	BytePlaintextEncoding ctxtd;
 
 	//DecodingResult result = algorithm.Decrypt(sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
 
 	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &ctxtd);
-
-    plaintextNew.Unpad<ZeroPad>();
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -1292,7 +1294,7 @@ void NTRUPRE(usint input) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	ByteArray plaintextNew2;
+	BytePlaintextEncoding plaintextNew2;
 
 	std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
 

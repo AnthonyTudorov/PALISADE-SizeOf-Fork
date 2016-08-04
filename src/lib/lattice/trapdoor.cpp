@@ -38,8 +38,7 @@
 namespace lbcrypto {
 
 	//Trapdoor generation method as described in section 3.2 of https://eprint.iacr.org/2013/297.pdf (Construction 1)
-
-	std::pair<RingMat, RLWETrapdoorPair> RLWETrapdoorUtility::TrapdoorGen(ILParams params, int stddev) 
+	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> RLWETrapdoorUtility::TrapdoorGen(ILParams params, int stddev) 
 	{
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 		auto gaussian_alloc = ILVector2n::MakeDiscreteGaussianCoefficientAllocator(params, EVALUATION, stddev);
@@ -68,14 +67,14 @@ namespace lbcrypto {
 			A(0, i+2) = g(0, i) - (*a*r(0, i) + e(0, i));
 		}
 
-		return std::pair<RingMat, RLWETrapdoorPair>(A, RLWETrapdoorPair(r, e));
+		return std::pair<RingMat, RLWETrapdoorPair<ILVector2n>>(A, RLWETrapdoorPair<ILVector2n>(r, e));
 
 	}
 
 	// Gaussian sampling introduced in https://eprint.iacr.org/2011/501.pdf and described 
 	// in a simple manner in https://eprint.iacr.org/2013/297.pdf
 
-	RingMat RLWETrapdoorUtility::GaussSamp(size_t n, size_t k, const RingMat& A, const RLWETrapdoorPair& T, const Matrix<LargeFloat> &SigmaP, const ILVector2n &u,
+	RingMat RLWETrapdoorUtility::GaussSamp(size_t n, size_t k, const RingMat& A, const RLWETrapdoorPair<ILVector2n>& T, const Matrix<LargeFloat> &SigmaP, const ILVector2n &u,
 			double sigma, DiscreteGaussianGenerator &dgg) {
 
 		const ILParams &params = u.GetParams();
@@ -137,7 +136,7 @@ namespace lbcrypto {
 	// see Section 3.2 of https://eprint.iacr.org/2013/297.pdf for details
 
 	void RLWETrapdoorUtility::PerturbationMatrixGen(size_t n, size_t k, const RingMat& A, 
-		const RLWETrapdoorPair& T, double s, Matrix<LargeFloat> *sigmaSqrt) {
+		const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt) {
 		TimeVar t1; // for TIC TOC
 		bool dbg_flag = 0; //set to 1 for debug timing...
 		//We should convert this to a static variable later
@@ -157,7 +156,7 @@ namespace lbcrypto {
 										.VStack(Matrix<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
 		DEBUG("p1: "<<TOC(t1) <<" ms");
 		TIC(t1);
-		Matrix<int32_t> Rint = ConvertToInt32(R, modulus);
+	Matrix<int32_t> Rint = ConvertToInt32(R, modulus);
 		DEBUG("P2: "<<TOC(t1) <<" ms");
 		TIC(t1);
 		Matrix<int32_t> COV = Rint*Rint.Transpose().ScalarMult(c*c);

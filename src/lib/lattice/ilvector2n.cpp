@@ -359,6 +359,12 @@ namespace lbcrypto {
 		return tmp;
 	}
 
+	ILVector2n ILVector2n::SignedMod(const BigBinaryInteger & modulus) const {
+		ILVector2n tmp(*this);
+		*tmp.m_values = m_values->Mod(modulus);
+		return tmp;
+	}
+
 	void ILVector2n::SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity){
 		m_values->SwitchModulus(modulus);
 		m_params.SetModulus(modulus);

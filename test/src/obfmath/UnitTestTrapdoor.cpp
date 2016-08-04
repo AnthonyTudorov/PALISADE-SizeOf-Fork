@@ -39,6 +39,7 @@
 #include "../../../src/lib/utils/utilities.h"
 
 #include "../../../src/lib/lattice/trapdoor.h"
+//#include "../../../src/lib/lattice/trapdoor.cpp"
 #include "../../../src/lib/obfuscate/lweconjunctionobfuscate.h"
 #include "../../../src/lib/obfuscate/lweconjunctionobfuscate.cpp"
 
@@ -96,7 +97,7 @@ TEST(UTTrapdoor,sizes){
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	ILParams fastParams(m, modulus, rootOfUnity);
-	std::pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(fastParams, stddev);
+	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(fastParams, stddev);
 
 	EXPECT_EQ(1,trapPair.first.GetRows())
 		<< "Failure testing number of rows";
@@ -129,7 +130,7 @@ TEST(UTTrapdoor,TrapDoorPairTest){
 	ILParams params( m, modulus, rootOfUnity);
     auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
-	std::pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -192,7 +193,7 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 	ILParams params( m, modulus, rootOfUnity);
     auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
-	std::pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -314,7 +315,7 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 	ILParams params( m, modulus, rootOfUnity);
     //auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
-	std::pair<RingMat, RLWETrapdoorPair> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -385,7 +386,7 @@ TEST(UTTrapdoor,EncodeTest_dgg_yes) {
 	algorithm.KeyGen(dgg,&obfuscatedPattern);
 
 	const std::vector<Matrix<ILVector2n>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
-	const std::vector<RLWETrapdoorPair>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
+	const std::vector<RLWETrapdoorPair<ILVector2n>>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
 	const std::vector<Matrix<LargeFloat>>   &Sigma = obfuscatedPattern.GetSigmaKeys();
 
 	double constraint = obfuscatedPattern.GetConstraint();
@@ -452,7 +453,7 @@ TEST(UTTrapdoor,EncodeTest_dgg_no) {
 	algorithm.KeyGen(dgg,&obfuscatedPattern);
 
 	const std::vector<Matrix<ILVector2n>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
-	const std::vector<RLWETrapdoorPair>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
+	const std::vector<RLWETrapdoorPair<ILVector2n>>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
 	const std::vector<Matrix<LargeFloat>>   &Sigma = obfuscatedPattern.GetSigmaKeys();
 
 	double constraint = obfuscatedPattern.GetConstraint();
@@ -484,3 +485,8 @@ TEST(UTTrapdoor,EncodeTest_dgg_no) {
 	EXPECT_GT(norm, constraint);
 
 }
+//int main(int argc, char **argv) {
+//	::testing::InitGoogleTest(&argc, argv);
+//	return RUN_ALL_TESTS();
+//
+//}

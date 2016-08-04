@@ -42,8 +42,6 @@
 #include "../lattice/ilelement.h"
 #include "../utils/inttypes.h"
 #include "../math/distrgen.h"
-#include "../encoding/ptxtencoding.h"
-
 
 /**
  * @namespace lbcrypto
@@ -316,15 +314,6 @@ namespace lbcrypto {
 				const Element &plaintext,
 				Ciphertext<Element> *ciphertext) const = 0;
 
-			/**
-			 * Method for encrypting plaintex using LBC
-			 *
-			 * @param &publicKey public key used for encryption.
-			 * @param *ciphertext ciphertext which results from encryption.
-			 */
-			virtual void Encrypt(const LPPublicKey<Element> &publicKey, 
-				Ciphertext<Element> *ciphertext) const = 0;
-			
 			/**
 			 * Method for decrypting plaintext using LBC
 			 *
@@ -626,7 +615,7 @@ namespace lbcrypto {
 	public:
 		LPPublicKeyEncryptionScheme(size_t chunksize) : chunksize(chunksize), m_algorithmEncryption(0),
 			m_algorithmPRE(0), m_algorithmEvalAdd(0), m_algorithmEvalAutomorphism(0),
-			m_algorithmSHE(0), m_algorithmFHE(0) {}
+			m_algorithmSHE(0), m_algorithmFHE(0), m_algorithmLeveledSHE(0){}
 
 		~LPPublicKeyEncryptionScheme() {
 			if (this->m_algorithmEncryption != NULL)
@@ -641,6 +630,8 @@ namespace lbcrypto {
 				delete this->m_algorithmSHE;
 			if (this->m_algorithmFHE != NULL)
 				delete this->m_algorithmFHE;
+			if (this->m_algorithmLeveledSHE != NULL)
+				delete this->m_algorithmLeveledSHE;
 		}
 
 		
@@ -705,16 +696,6 @@ namespace lbcrypto {
 				if(this->IsEnabled(ENCRYPTION)) {
 					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext,ciphertext);
 				}
-				else {
-					throw std::logic_error("This operation is not supported");
-				}
-		}
-
-		//wrapper for Encrypt method
-		void Encrypt(const LPPublicKey<Element> &publicKey, 
-			Ciphertext<Element> *ciphertext) const {
-				if(this->IsEnabled(ENCRYPTION))
-					return this->m_algorithmEncryption->Encrypt(publicKey, ciphertext);
 				else {
 					throw std::logic_error("This operation is not supported");
 				}

@@ -17,8 +17,8 @@
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
 #include "../../lib/utils/serializablehelper.h"
-#include "../../lib/encoding/byteencoding.h"
-#include "../../lib/encoding/cryptoutility.h"
+#include "../../lib/encoding/byteplaintextencoding.h"
+#include "../../lib/utils/cryptoutility.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -381,7 +381,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_encrypt
 	while( totalBytes > 0 ) {
 		usint s = min(totalBytes, ctx->getChunksize());
 
-		ByteArray ptxt( bufp, s );
+		BytePlaintextEncoding ptxt( bufp, s );
 
 		vector<Ciphertext<ILVector2n>> ciphertext;
 		//ctx->getAlgorithm()->Encrypt(*encryptionKey, ptxt, &ciphertext);
@@ -523,7 +523,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_decrypt
 	if( decryptionKey == 0 ) return 0;
 
 	Ciphertext<ILVector2n> ciphertext;
-	ByteArray plaintext;
+	BytePlaintextEncoding plaintext;
 
 	string chunkStr;
 	string result = "";

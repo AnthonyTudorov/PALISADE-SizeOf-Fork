@@ -11,8 +11,8 @@
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
-#include "../../lib/encoding/byteencoding.h"
-#include "../../lib/encoding/cryptoutility.h"
+#include "../../lib/encoding/byteplaintextencoding.h"
+#include "../../lib/utils/cryptoutility.h"
 #include "../../lib/utils/debug.h"
 
 #include <chrono>
@@ -26,7 +26,7 @@ using namespace lbcrypto;
 
 void testJson(
 		const std::string cID,
-		const ByteArray& newPtxt,
+		const BytePlaintextEncoding& newPtxt,
 		TestJsonParms *tp) {
 
 	LPPublicKeyLTV<ILVector2n>				pkDeserialized;
@@ -34,7 +34,16 @@ void testJson(
 	LPEvalKeyLTV<ILVector2n>				evalKeyDeserialized;
 	LPPrivateKeyLTV<ILVector2n>				newSKDeserialized;
 
-	std::cout << "----------------------START JSON FACILITY TESTING-------------------------" << endl;
+	cout << "----------------------START JSON FACILITY TESTING-------------------------" << endl;
+
+	if( newPtxt.size() > tp->ctx->getChunksize() ) {
+		cout << "This test code won't work when the plaintext size (" << newPtxt.size()
+				<< ") is bigger than the chunksize (" << tp->ctx->getChunksize() << ")" << endl;
+		return;
+	}
+
+	LPCryptoParameters<ILVector2n> *temp = tp->ctx->getParams();
+	cout << *(dynamic_cast<LPCryptoParametersRLWE<ILVector2n> *>(temp)) << endl;
 
 	string jsonFileName;
 	string jsonRep;
@@ -102,7 +111,11 @@ void testJson(
 	cout << "----------BEGIN LPAlgorithm" + cID + ".Encrypt TESTING----------" << endl;
 	cout << "Calling Encrypt in LPAlgorithm" + cID + " with deserialized instance of LPPublicKey" + cID + "" << endl;
 	vector<Ciphertext<ILVector2n>> testCiphertext;
-	CryptoUtility<ILVector2n>::Encrypt(*tp->ctx->getAlgorithm(), pkDeserialized, newPtxt, &testCiphertext);
+	EncryptResult er = CryptoUtility<ILVector2n>::Encrypt(*tp->ctx->getAlgorithm(), pkDeserialized, newPtxt, &testCiphertext);
+	if( er.isValid == false ) {
+		cout << "FAILED" << endl;
+		return;
+	}
 	cout << "----------END LPAlgorithmPRE" + cID + ".Encrypt TESTING----------" << endl << endl;
 
 	cout << "---BEGIN CIPHERTEXT SERIALIZATION---" << endl;
@@ -138,11 +151,15 @@ void testJson(
 	cout << "----------BEGIN LPAlgorithm" + cID + ".Decrypt TESTING----------" << endl;
 	cout << "Calling Decrypt in LPAlgorithm" + cID + " with deserialized instances of" << endl;
 	cout << "LPPrivateKey" + cID + " and Ciphertext." << endl;
-	ByteArray testPlaintextRec;
+	BytePlaintextEncoding testPlaintextRec;
 	vector<Ciphertext<ILVector2n>> ctDeser;
 	ctDeser.push_back(ciphertextDeserialized);
 	DecryptResult testResult = CryptoUtility<ILVector2n>::Decrypt(*tp->ctx->getAlgorithm(), skDeserialized,
 			ctDeser, &testPlaintextRec);
+	if( testResult.isValid == false ) {
+		cout << "FAILED" << endl;
+		return;
+	}
 	ctDeser.clear();
 
 	cout << "Recovered plaintext from call to Decrypt: " << endl;
@@ -255,7 +272,7 @@ void testJson(
 	cout << "----------BEGIN LPAlgorithmPRE" + cID + ".Decrypt TESTING----------" << endl;
 	cout << "Calling Decrypt in LPAlgorithmPRE" + cID + " with deserialized instances of" << endl;
 	cout << "PRE LPPrivateKey" + cID + " and PRE Ciphertext." << endl;
-	ByteArray testPlaintextPreRec;
+	BytePlaintextEncoding testPlaintextPreRec;
 	vector<Ciphertext<ILVector2n>> preCtVec;
 	preCtVec.push_back(preCiphertextDeserialized);
 	DecryptResult testResult1 = CryptoUtility<ILVector2n>::Decrypt(*tp->ctx->getAlgorithm(), newSKDeserialized,

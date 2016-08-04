@@ -393,8 +393,8 @@ EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publi
 		Ciphertext<Element> *ciphertext) const
 {
 
-	const LPCryptoParametersLTV<Element> *cryptoParams =
-			dynamic_cast<const LPCryptoParametersLTV<Element>*>(&publicKey.GetCryptoParameters());
+	const LPCryptoParametersRLWE<Element> *cryptoParams =
+			dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&publicKey.GetCryptoParameters());
 
 	if( cryptoParams == 0 ) return EncryptResult();
 
@@ -415,38 +415,10 @@ EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publi
 	c = h*s + p*e + plaintext;
 
 	ciphertext->SetCryptoParameters(cryptoParams);
-	ciphertext->SetPublicKey(publicKey);
 	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
 	ciphertext->SetElement(c);
 
 	return EncryptResult(0);
-}
-
-template <class Element>
-void LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey, 
-				Ciphertext<Element> *ciphertext) const
-{
-
-	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
-	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
-	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
-
-	Element m(ciphertext->GetElement());
-
-	m.SwitchFormat();
-	
-	const Element &h = publicKey.GetPublicElement();
-
-	Element s(dgg, elementParams);
-	Element e(dgg, elementParams);
-
-	Element c(h*s + p*e + m);
-	
-	ciphertext->SetCryptoParameters(&cryptoParams);
-	ciphertext->SetPublicKey(publicKey);
-	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
-	ciphertext->SetElement(c);
 }
 
 template <class Element>
@@ -467,202 +439,9 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &priv
 
 	b.SwitchFormat();
 
-	// Here we are intentionally hard coding the root of unity to BigBinaryInteger::ONE as we are not going to use the root of unity going forward
-	/*b.SwitchModulus(p, BigBinaryInteger::ONE);
-
-	plaintext->Decode(p,b);
-
-	return DecodingResult(plaintext->GetLength());
-}*/
 	*plaintext = b;
 
-	//Element m(elementParams);
-	//m = b.Mod(p);
-
-	//Element m(b.ModByTwo());
-
-	//	Element m(b.Mod(p));
-
-	//cout<<"m ="<<m.GetValues()<<endl;
-
-	//m.DecodeElement(static_cast<ByteArrayPlaintextEncoding*>(plaintext),p);
-	//	plaintext->Decode(p,m);
-	//plaintext->Decode(p,b);
-
 	return DecryptResult(plaintext->GetLength());
-}
-
-// JSON FACILITY - LPCryptoParametersLWE Serialize Operation
-template <class Element>
-bool LPCryptoParametersStehleSteinfeld<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
-	if( !serObj->IsObject() )
-		return false;
-
-	Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
-	const ElemParams& ep = this->GetElementParams();
-	if( !ep.Serialize(&pser, fileFlag) )
-		return false;
-
-	Serialized cryptoParamsMap(rapidjson::kObjectType, &serObj->GetAllocator());
-	cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("DistributionParameter", std::to_string(this->GetDistributionParameter()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("DistributionParameterStSt", std::to_string(this->GetDistributionParameterStSt()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("AssuranceMeasure", std::to_string(this->GetAssuranceMeasure()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("SecurityLevel", std::to_string(this->GetSecurityLevel()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("RelinWindow", std::to_string(this->GetRelinWindow()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("Depth", std::to_string(this->GetDepth()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("PlaintextModulus", this->GetPlaintextModulus().ToString(), serObj->GetAllocator());
-
-	serObj->AddMember("LPCryptoParametersStehleSteinfeld", cryptoParamsMap, serObj->GetAllocator());
-	serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersStehleSteinfeld", serObj->GetAllocator());
-
-	return true;
-}
-
-// JSON FACILITY - LPCryptoParametersLWE Deserialize Operation
-template <class Element>
-bool LPCryptoParametersStehleSteinfeld<Element>::Deserialize(const Serialized& serObj) {
-
-	Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersStehleSteinfeld");
-	if( mIter == serObj.MemberEnd() ) return false;
-
-	SerialItem::ConstMemberIterator pIt;
-
-	if( (pIt = mIter->value.FindMember("ElemParams")) == mIter->value.MemberEnd() )
-		return false;
-	Serialized oneItem(rapidjson::kObjectType);
-	SerialItem key( pIt->value.MemberBegin()->name, oneItem.GetAllocator() );
-	SerialItem val( pIt->value.MemberBegin()->value, oneItem.GetAllocator() );
-	oneItem.AddMember(key, val, oneItem.GetAllocator());
-
-	ElemParams *json_ilParams = new ILParams();
-	if( !json_ilParams->Deserialize(oneItem) ) {
-		delete json_ilParams;
-		return false;
-	}
-
-	this->SetElementParams(*json_ilParams);
-	if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
-		return false;
-	BigBinaryInteger bbiPlaintextModulus(pIt->value.GetString());
-
-	if( (pIt = mIter->value.FindMember("DistributionParameter")) == mIter->value.MemberEnd() )
-		return false;
-	float distributionParameter = atof(pIt->value.GetString());
-
-	if( (pIt = mIter->value.FindMember("DistributionParameterStSt")) == mIter->value.MemberEnd() )
-		return false;
-	float distributionParameterStSt = atof(pIt->value.GetString());
-
-	if( (pIt = mIter->value.FindMember("AssuranceMeasure")) == mIter->value.MemberEnd() )
-		return false;
-	float assuranceMeasure = atof(pIt->value.GetString());
-
-	if( (pIt = mIter->value.FindMember("SecurityLevel")) == mIter->value.MemberEnd() )
-		return false;
-	float securityLevel = atof(pIt->value.GetString());
-
-	if( (pIt = mIter->value.FindMember("RelinWindow")) == mIter->value.MemberEnd() )
-		return false;
-	usint relinWindow = atoi(pIt->value.GetString());
-
-	if( (pIt = mIter->value.FindMember("Depth")) == mIter->value.MemberEnd() )
-		return false;
-	int depth = atoi(pIt->value.GetString());
-
-	this->SetPlaintextModulus(bbiPlaintextModulus);
-	this->SetDistributionParameter(distributionParameter);
-	this->SetDistributionParameterStSt(distributionParameterStSt);
-	this->SetAssuranceMeasure(assuranceMeasure);
-	this->SetSecurityLevel(securityLevel);
-	this->SetRelinWindow(relinWindow);
-	this->SetDepth(depth);
-
-	return true;
-}
-
-template <class Element>
-bool LPCryptoParametersLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
-
-	if( !serObj->IsObject() )
-		return false;
-
-	Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
-	const ElemParams& ep = this->GetElementParams();
-	if( !ep.Serialize(&pser, fileFlag) )
-		return false;
-
-	SerialItem cryptoParamsMap(rapidjson::kObjectType);
-	cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("DistributionParameter", std::to_string(GetDistributionParameter()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("AssuranceMeasure", std::to_string(GetAssuranceMeasure()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("SecurityLevel", std::to_string(GetSecurityLevel()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("RelinWindow", std::to_string(GetRelinWindow()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("Depth", std::to_string(GetDepth()), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("PlaintextModulus", this->GetPlaintextModulus().ToString(), serObj->GetAllocator());
-
-	serObj->AddMember("LPCryptoParametersLTV", cryptoParamsMap, serObj->GetAllocator());
-	serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersLTV", serObj->GetAllocator());
-
-	return true;
-}
-
-// JSON FACILITY - LPCryptoParametersLWE Deserialize Operation
-template <class Element>
-bool LPCryptoParametersLTV<Element>::Deserialize(const Serialized& serObj) {
-
-	Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersLTV");
-	if( mIter == serObj.MemberEnd() ) return false;
-
-	SerialItem::ConstMemberIterator pIt;
-
-	if( (pIt = mIter->value.FindMember("ElemParams")) == mIter->value.MemberEnd() )
-		return false;
-	Serialized oneItem(rapidjson::kObjectType);
-	SerialItem key( pIt->value.MemberBegin()->name, oneItem.GetAllocator() );
-	SerialItem val( pIt->value.MemberBegin()->value, oneItem.GetAllocator() );
-	oneItem.AddMember(key, val, oneItem.GetAllocator());
-
-	ElemParams *json_ilParams = new ILParams();
-	if( !json_ilParams->Deserialize(oneItem) ) {
-		delete json_ilParams;
-		return false;
-	}
-
-	this->SetElementParams(*json_ilParams);
-
-	if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
-		return false;
-	BigBinaryInteger bbiPlaintextModulus(pIt->value.GetString());
-
-	if( (pIt = mIter->value.FindMember("DistributionParameter")) == mIter->value.MemberEnd() )
-		return false;
-	float distributionParameter = atof(pIt->value.GetString());
-
-	if( (pIt = mIter->value.FindMember("AssuranceMeasure")) == mIter->value.MemberEnd() )
-		return false;
-	float assuranceMeasure = atof(pIt->value.GetString());
-
-	if( (pIt = mIter->value.FindMember("SecurityLevel")) == mIter->value.MemberEnd() )
-		return false;
-	float securityLevel = atof(pIt->value.GetString());
-
-	if( (pIt = mIter->value.FindMember("RelinWindow")) == mIter->value.MemberEnd() )
-		return false;
-	usint relinWindow = atoi(pIt->value.GetString());
-
-	if( (pIt = mIter->value.FindMember("Depth")) == mIter->value.MemberEnd() )
-		return false;
-	int depth = atoi(pIt->value.GetString());
-
-	this->SetPlaintextModulus(bbiPlaintextModulus);
-	this->SetDistributionParameter(distributionParameter);
-	this->SetAssuranceMeasure(assuranceMeasure);
-	this->SetSecurityLevel(securityLevel);
-	this->SetRelinWindow(relinWindow);
-	this->SetDepth(depth);
-
-	return true;
 }
 
 template <class Element>

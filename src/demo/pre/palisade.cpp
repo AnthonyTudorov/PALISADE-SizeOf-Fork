@@ -39,8 +39,8 @@ using namespace std;
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
 #include "../../lib/utils/serializablehelper.h"
-#include "../../lib/encoding/byteencoding.h"
-#include "../../lib/encoding/cryptoutility.h"
+#include "../../lib/encoding/byteplaintextencoding.h"
+#include "../../lib/utils/cryptoutility.h"
 
 using namespace lbcrypto;
 
