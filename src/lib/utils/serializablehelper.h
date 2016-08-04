@@ -152,12 +152,16 @@ bool DeserializeVector(const std::string& vectorName, const std::string& typeNam
 	mIt = it->value.FindMember("Members");
 	if( mIt == it->value.MemberEnd() ) return false;
 
+	const SerialItem& members = mIt->value;
+
 	for( int i=0; i<outVector->size(); i++ ) {
-		Serialized::ConstMemberIterator eIt = mIt->value.FindMember( std::to_string(i) );
-		if( eIt == mIt->value.MemberEnd() ) return false;
+		Serialized::ConstMemberIterator eIt = members.FindMember( std::to_string(i) );
+		if( eIt == members.MemberEnd() ) return false;
 
 		T vectorElem;
-		const Serialized& s = eIt->value;
+		const Serialized s = eIt->value;
+//		Serialized svec(rapidjson::kObjectType);
+//		svec.AddMember( SerialItem(typeName, svec.GetAllocator()), &s, svec.GetAllocator());
 		vectorElem.Deserialize(s);
 		outVector->at(i) = vectorElem;
 	}
