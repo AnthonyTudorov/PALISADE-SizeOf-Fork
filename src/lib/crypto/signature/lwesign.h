@@ -36,7 +36,7 @@
 #define _SRC_LIB_CRYPTO_SIGNATURE_LWESIGN_H
 #include "../../lattice/trapdoor.h"
 #include "../../lattice/trapdoor.cpp"
-#include "../../encoding/plaintext.h"
+#include "../../encoding/byteplaintextencoding.h"
 
 namespace lbcrypto {
 	
@@ -262,7 +262,7 @@ namespace lbcrypto {
 		*@param plainText encoding of the text to be signed
 		*@param signatureText signature generated after the signing process - output of the function
 		*/
-		void Sign(LPSignKeyGPV<Element> &signKey,const Plaintext &plainText,
+		void Sign(LPSignKeyGPV<Element> &signKey,const BytePlaintextEncoding &plainText,
 			Signature<Matrix<Element>>*signatureText);
 		
 		/**
@@ -274,7 +274,7 @@ namespace lbcrypto {
 		*/
 		bool Verify(LPVerificationKeyGPV<Element> &verificationKey,
 			const Signature<Matrix<Element>> &signatureText,
-			const Plaintext & plainText);
+			const BytePlaintextEncoding & plainText);
 		
 		/**
 		*Method for generating signing and verification keys

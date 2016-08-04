@@ -1,14 +1,12 @@
 #include "../../lib/crypto/signature/lwesign.h"
 #include "../../lib/crypto/signature/lwesign.cpp"
 #include "../../lib/encoding/byteplaintextencoding.h"
-#include <vld.h>
 
 using namespace lbcrypto;
 
 int main() {
 	double start, finish;
 	DiscreteGaussianGenerator dgg(4);
-	
 	usint sm = 16;
 	BigBinaryInteger smodulus("1152921504606847009");
 	BigBinaryInteger srootOfUnity("405107564542978792");
@@ -29,9 +27,10 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Key generation for signature: " << "\t" << finish - start << " ms" << std::endl;
 
+	std::cout << "Test" << std::endl;
 	Signature<Matrix<ILVector2n>> signature, signature2;
-	BytePlaintextEncoding text("1Sig");
-	BytePlaintextEncoding text2("2Sig");
+	BytePlaintextEncoding text("Let's spice things up");
+	BytePlaintextEncoding text2("With longer texts");
 
 	start = currentDateTime();
 	scheme.Sign(s_k, text, &signature);
@@ -48,7 +47,7 @@ int main() {
 	std::cout << "Verifying 4 signature-text combinations : " << "\t" << finish - start << " ms" << std::endl;
 	
 	
-	/* Not included for performance reasons
+	
 	sm = 256;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("102389487");
@@ -172,7 +171,7 @@ int main() {
 	std::cout << "Verifying 4 signature-text combinations : " << "\t" << finish - start << " ms" << std::endl;
 
 	
-
+	/* Not included for performance reasons
 	sm = 2048;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("34044212");

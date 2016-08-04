@@ -60,7 +60,6 @@ lbcrypto::BytePlaintextEncoding HashUtil::SHA256(lbcrypto::BytePlaintextEncoding
 		short counter = 0;
 		for (int m = 64 * n;m < (64 * (n + 1));m += 4) {
 			w[counter] = ((uint32_t)message.at(m) << 24) ^ ((uint32_t)message.at(m + 1) << 16) ^ ((uint32_t)message.at(m + 2) << 8) ^ ((uint32_t)message.at(m + 3));
-			std::cout << "w[" << counter << "]: " << w[counter] << std::endl;
 			counter++;
 		}
 		for (int i = 16;i < 64;i++) {
@@ -159,10 +158,8 @@ lbcrypto::BytePlaintextEncoding HashUtil::SHA512(lbcrypto::BytePlaintextEncoding
 	for (int n = 0;n < (message.size() * 8) / 1024; n++) {
 		uint64_t w[80];
 		short counter = 0;
-		std::cout << ((uint64_t)message.at(0)) << std::endl;
 		for (int m = 128 * n;m < (128 * (n + 1));m += 8) {
 			w[counter] = ((uint64_t)message.at(m) << 56) ^ ((uint64_t)message.at(m+1) << 48) ^ ((uint64_t)message.at(m+2) << 40) ^ ((uint64_t)message.at(m+3) << 32) ^ ((uint64_t)message.at(m+4) << 24) ^ ((uint64_t)message.at(m + 5) << 16) ^ ((uint64_t)message.at(m + 6) << 8) ^ ((uint64_t)message.at(m + 7));
-			std::cout << "w[" << counter << "]: " << w[counter] << std::endl;
 			counter++;
 		}
 		for (int i = 16;i < 80;i++) {
@@ -208,7 +205,6 @@ lbcrypto::BytePlaintextEncoding HashUtil::SHA512(lbcrypto::BytePlaintextEncoding
 		h_512[6] += g;
 		h_512[7] += h;
 	}
-	std::cout << h_512[0] << std::endl;
 
 
 	lbcrypto::BytePlaintextEncoding digest;

@@ -35,6 +35,7 @@
 #define _SRC_LIB_CRYPTO_SIGNATURE_LWESIGN_CPP
 #include "lwesign.h"
 #include "../../lattice/trapdoor.h"
+#include "../../utils/hashutil.h"
 
 namespace lbcrypto {
 	
@@ -72,18 +73,30 @@ namespace lbcrypto {
 	
 	//Method for signing given object
 	template <class Element>
-	void LPSignatureSchemeGPV<Element>::Sign(LPSignKeyGPV<Element> &signKey, const Plaintext &plainText,
+	void LPSignatureSchemeGPV<Element>::Sign(LPSignKeyGPV<Element> &signKey, const BytePlaintextEncoding &plainText,
 		Signature<Matrix<Element>> *signatureText) {
 		
 		//Getting parameters for calculations
 		const BigBinaryInteger & q = signKey.GetSignatureParameters().GetILParams().GetModulus();
 		size_t n = signKey.GetSignatureParameters().GetILParams().GetCyclotomicOrder() / 2;
+		usint p = ceil((float)log((double)255) / log((double)q.ConvertToInt()));
 		double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
 		size_t k = (usint)floor(logTwo);
 		
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
+		HashUtil util;
+		BytePlaintextEncoding hashedText = util.Hash(plainText,SHA_256);
 		ILVector2n u(signKey.GetSignatureParameters().GetILParams(),EVALUATION,false);
-		plainText.Encode(q, &u);
+		if (hashedText.size() > n / p) {
+			hashedText.Encode(q, &u, 0, n / p);
+		}
+		else{
+			usint remaining = n / p - hashedText.size();
+			for (int i = 0;i < remaining;i++) {
+				hashedText.push_back(0);
+			}
+			hashedText.Encode(q, &u);
+		}
 		u.SwitchFormat();
 
 		
@@ -103,14 +116,27 @@ namespace lbcrypto {
 	template <class Element>
 	bool LPSignatureSchemeGPV<Element>::Verify(LPVerificationKeyGPV<Element> &verificationKey,
 		const Signature<Matrix<Element>> &signatureText,
-		const Plaintext & plainText) {
+		const BytePlaintextEncoding & plainText) {
+		size_t n = verificationKey.GetSignatureParameters().GetILParams().GetCyclotomicOrder() / 2;
 		const BigBinaryInteger & q = verificationKey.GetSignatureParameters().GetILParams().GetModulus();
+		usint p = ceil((float)log((double)255) / log((double)q.ConvertToInt()));
 		
 		//Encode the text into a vector so it can be used in verification process. TODO: Adding some kind of digestion algorithm
+		HashUtil util;
+		BytePlaintextEncoding hashedText = util.Hash(plainText,SHA_256);
 		ILVector2n u(verificationKey.GetSignatureParameters().GetILParams());
-		plainText.Encode(q, &u);
+		if (hashedText.size() > n / p) {
+			hashedText.Encode(q, &u, 0, n / p);
+		}
+		else {
+			usint remaining = n / p - hashedText.size();
+			for (int i = 0;i < remaining;i++) {
+				hashedText.push_back(0);
+			}
+			hashedText.Encode(q, &u);
+		}
 		u.SwitchFormat();
-		
+
 		//Multiply signature with the verification key
 		RingMat A = verificationKey.GetPublicElement();
 		RingMat z = signatureText.GetElement();
