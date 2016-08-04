@@ -57,10 +57,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/encoding/byteplaintextencoding.h"
 #include "../../lib/encoding/intplaintextencoding.h"
 
-
-#include "testJson.h"
-#include "testJson.cpp"
-
 #include "testJson.h"
 #include "testJson.cpp"
 
