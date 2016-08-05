@@ -13,6 +13,7 @@
 
 #include "../../lib/utils/serializablehelper.h"
 #include "../../lib/encoding/byteplaintextencoding.h"
+#include "../../lib/encoding/intplaintextencoding.h"
 #include "../../lib/utils/cryptoutility.h"
 
 using namespace std;
@@ -236,6 +237,26 @@ runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plainte
 	if( plaintext != plaintextNew ) {
 		cout << "Decryption mismatch!" << endl;
 		exit(1);
+	}
+
+	if( false ) {
+		cout << "Trying int encoding" << endl;
+		IntPlaintextEncoding inInt = { 2,4,6,8,10 };
+
+		vector<Ciphertext<ILVector2n>> intCiphertext;
+		IntPlaintextEncoding outInt;
+		eResult = CryptoUtility<ILVector2n>::Encrypt(*ctx->getAlgorithm(), pk, inInt, &intCiphertext, doPadding);
+		dResult = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(), sk, intCiphertext, &outInt, doPadding);
+		if( inInt.size() != outInt.size() ) {
+			cout << "eResult " << eResult.isValid << ":" << eResult.numBytesEncrypted << ", " << intCiphertext.size() << endl;
+			cout << "dResult " << dResult.isValid << ":" << dResult.messageLength << endl;
+			cout << "Output is size " << outInt.GetLength() << endl;
+			for( int i = 0; i < outInt.GetLength(); i++ )
+				cout << outInt.at(i) << " ";
+			cout << endl;
+		}
+
+		return;
 	}
 
 	//PRE SCHEME

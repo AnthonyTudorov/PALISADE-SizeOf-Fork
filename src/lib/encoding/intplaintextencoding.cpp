@@ -46,16 +46,32 @@ void IntPlaintextEncoding::Decode(const BigBinaryInteger&, ILVectorArray2n&){
 }
 
 
-void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from, size_t length) const {
+void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t startFrom, size_t length) const
+{
+	int padlen = 0;
 
 	if( length == 0 ) length = this->size();
+
+	// length is usually chunk size; if start + length would go past the end of the item, add padding
+	if( (startFrom + length) > this->size() ) {
+		padlen = (startFrom + length) - this->size();
+		length = length - padlen;
+	}
 
 	BigBinaryVector temp(ilVector->GetParams().GetCyclotomicOrder()/2,ilVector->GetModulus());
 
 	Format format = COEFFICIENT;
 
-	for (usint i = start_from; i < length; i++) {
-		temp.SetValAtIndex(i, BigBinaryInteger(this->at(i)));
+
+	for (usint i = 0; i < length; i++) {
+		BigBinaryInteger Val = BigBinaryInteger( this->at(i + startFrom) );
+		temp.SetValAtIndex(i, Val);
+	}
+
+	BigBinaryInteger padVal(0x80);
+	for (usint i = 0; i < padlen; i++ ) {
+		temp.SetValAtIndex(i+length, padVal);
+		padVal = 0;
 	}
 
 	ilVector->SetValues(temp,format);
@@ -75,9 +91,8 @@ IntPlaintextEncoding::Unpad()
 {
 	usint nPadding = 0;
 	for (auto it = this->rbegin(); it != this->rend(); ++it) {
-		if (*it == 0) {
-			++nPadding;
-		} else {
+		nPadding++;
+		if (*it == 0x80) {
 			break;
 		}
 	}
