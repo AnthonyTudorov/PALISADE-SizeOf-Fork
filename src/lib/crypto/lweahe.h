@@ -56,8 +56,16 @@ namespace lbcrypto {
 	class LPAlgorithmAHELTV : public LPAHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
 		public:
 
-			//inherited constructors
+			/**
+			* Default constructor
+			*/
 			LPAlgorithmAHELTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
+
+			/**
+			* Constructor that initliazes the scheme
+			*
+			* @param &scheme is a reference to scheme
+			*/
 			LPAlgorithmAHELTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 			
 			/**
