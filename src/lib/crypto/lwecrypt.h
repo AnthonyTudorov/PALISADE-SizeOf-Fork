@@ -56,7 +56,6 @@
  * The namespace of lbcrypto
  */
 namespace lbcrypto {
-
 	/**
 	 * @brief Encryption algorithm implementation template for Ring-LWE NTRU-based schemes,
 	 * @tparam Element a ring element.
@@ -70,6 +69,7 @@ namespace lbcrypto {
 			*/
 			LPAlgorithmLTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
 			/**
+
 			* Constructor that initliazes the scheme
 			*
 			*@param &scheme 
@@ -238,6 +238,7 @@ namespace lbcrypto {
 			//These functions can be implemented later
 			//Initialize(mask);
 
+
 			void Enable(PKESchemeFeature feature);
 	};
 
@@ -250,6 +251,7 @@ namespace lbcrypto {
 		public:
 			LPPublicKeyEncryptionSchemeStehleSteinfeld() : LPPublicKeyEncryptionSchemeLTV<Element>() {}
 			LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask);
+
 
 			void Enable(PKESchemeFeature feature);
 	};
@@ -289,7 +291,7 @@ namespace lbcrypto {
 				return m_lksh[level];
 			} 
 		};
-		/**
+=		/**
 		*Get method for QuadraticKeySwitchHint for a particular level
 		*
 		*@return the QuadraticKeySwitchHint for the level
