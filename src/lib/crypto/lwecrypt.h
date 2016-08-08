@@ -56,6 +56,7 @@
  * The namespace of lbcrypto
  */
 namespace lbcrypto {
+
 	/**
 	 * @brief Encryption algorithm implementation template for Ring-LWE NTRU-based schemes,
 	 * @tparam Element a ring element.
@@ -69,7 +70,6 @@ namespace lbcrypto {
 			*/
 			LPAlgorithmLTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
 			/**
-
 			* Constructor that initliazes the scheme
 			*
 			*@param &scheme 
@@ -291,7 +291,8 @@ namespace lbcrypto {
 				return m_lksh[level];
 			} 
 		};
-=		/**
+
+		/**
 		*Get method for QuadraticKeySwitchHint for a particular level
 		*
 		*@return the QuadraticKeySwitchHint for the level
