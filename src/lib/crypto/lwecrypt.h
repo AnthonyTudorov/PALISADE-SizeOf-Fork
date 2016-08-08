@@ -58,7 +58,7 @@
 namespace lbcrypto {
 
 
-	/* this function is used to deserialize the Crypto Parameters
+	/** This function is used to deserialize the Crypto Parameters
 	 *
 	 * @param &serObj object to be serialized
 	 *
@@ -90,7 +90,7 @@ namespace lbcrypto {
 		return parmPtr;
 	}
 
-	/* this function is used to deserialize the Crypto Parameters, to compare them to the existing parameters,
+	/** This function is used to deserialize the Crypto Parameters, to compare them to the existing parameters,
 	 * and to fail if they do not match
 	 *
 	 * @param &serObj object to be desrialized
@@ -422,10 +422,9 @@ namespace lbcrypto {
 		/**
 		* Populate the object from the deserialization of the Serialized
 		* @param &serObj contains the serialized object
-		* @param *ctx
 		* @return true on success
 		*/
-		bool Deserialize(const Serialized& serObj) {	
+		bool Deserialize(const Serialized &serObj) {	
 			return false;
 		}
 
@@ -581,9 +580,11 @@ namespace lbcrypto {
 	class LPAlgorithmLTV : public LPEncryptionAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
 		public:
 
-			//inherited constructors
+			/**
+			* Default Constructor
+			*/
 			LPAlgorithmLTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
-			/*
+			/**
 			* Constructor that initliazes the scheme
 			*
 			*@param &scheme 
@@ -662,7 +663,7 @@ namespace lbcrypto {
 			 *
 			 * @param &originalPrivateKey Original private key used for encryption.
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
-			 * @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
+			 * @param *keySwitchHint is where the resulting keySwitchHint will be placed.
 			 */
 			virtual void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const ;
 			/**
@@ -686,14 +687,13 @@ namespace lbcrypto {
 			 * Method for ModReducing CipherText and the Private Key used for encryption.
 			 *
 			 * @param *cipherText Ciphertext to perform and apply modreduce on.
-			 * @param *privateKey Private key to peform and apply modreduce on.
 			 */
 			virtual void ModReduce(Ciphertext<Element> *cipherText) const; 
 			/**
 			 * Method for RingReducing CipherText and the Private Key used for encryption.
 			 *
 			 * @param *cipherText Ciphertext to perform and apply ringreduce on.
-			 * @param *privateKey Private key to peform and apply ringreduce on.
+			 * @param *keySwitchHint is the keyswitchhint from the ciphertext's private key to a sparse key
 			 */
 			virtual void RingReduce(Ciphertext<Element> *cipherText, const LPKeySwitchHint<Element> &keySwitchHint) const ; 
 			
@@ -817,14 +817,14 @@ namespace lbcrypto {
 		usint m_levels;
 
 	public:
-		/*
+		/**
 		*Constructor that initliazes the number of computation levels
 		*
 		* @param levels number of levels
 		*/
 		explicit LPLeveledSHEKeyStructure(usint levels) : m_levels(levels) { m_qksh.reserve(levels); m_lksh.reserve(levels);};
 		
-		/*
+		/**
 		*Get method for LinearKeySwitchHint for a particular level
 		*
 		*@return the LinearKeySwitchHint for the level
@@ -837,7 +837,7 @@ namespace lbcrypto {
 				return m_lksh[level];
 			} 
 		};
-		/*
+		/**
 		*Get method for QuadraticKeySwitchHint for a particular level
 		*
 		*@return the QuadraticKeySwitchHint for the level
@@ -850,15 +850,15 @@ namespace lbcrypto {
 				return m_qksh[level];
 			} 
 		}
-		/*
+		/**
 		* Method to add a LinearKeySwitchHint. The added key will be the key for the last level
 		*
-		*@param &lkhs LinearKeySwitchHintLTV to be added.
+		*@param &lksh LinearKeySwitchHintLTV to be added.
 		*/
 		void PushBackLinearKey(const LPKeySwitchHintLTV<Element> &lksh){
 			m_lksh.push_back(std::move(lksh));
 		}
-		/*
+		/**
 		* Method to add a QuadraticKeySwitchHint. The added key will be the key for the last level
 		*
 		*@param &quad QuadraticKeySwitchHintLTV to be added.
@@ -866,10 +866,10 @@ namespace lbcrypto {
 		void PushBackQuadraticKey(const LPKeySwitchHintLTV<Element> &quad){
 			m_qksh.push_back(std::move(quad));
 		}
-		/*
+		/**
 		* Method to set LinearKeySwitchHint for a particular level of computation.
 		*
-		*@param &lkhs LinearKeySwitchHintLTV to be set.
+		*@param &lksh LinearKeySwitchHintLTV to be set.
 		*@param level is the level to set the key to.
 		*/
 		void SetLinearKeySwitchHintForLevel(const LPKeySwitchHintLTV<Element> &lksh, usint level) {
@@ -879,13 +879,13 @@ namespace lbcrypto {
 			else { 
 				m_lksh[level] = lksh;
 			}
-		/*
+		}
+		/**
 		* Method to set QuadraticKeySwitchHint for a particular level of computation.
 		*
 		*@param &qksh QuadraticKeySwitchHint to be set.
 		*@param level is the level to set the key to.
 		*/
-		}
 		void SetQuadraticKeySwitchHintForLevel(const LPKeySwitchHintLTV<Element> &qksh, usint level) { if(level>m_levels-1) {throw std::runtime_error("Level out of range");} else { m_qksh[level] = qksh;} };
 	};
 } // namespace lbcrypto ends
