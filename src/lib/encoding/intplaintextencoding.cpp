@@ -108,10 +108,9 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *i
 		temp.SetValAtIndex(i, Val);
 	}
 
-	BigBinaryInteger padVal(0x80);
+	BigBinaryInteger padVal(padlen);
 	for (usint i = 0; i < padlen; i++ ) {
 		temp.SetValAtIndex(i+length, padVal);
-		padVal = 0;
 	}
 
 	ilVector->SetValues(temp,format);
@@ -128,15 +127,14 @@ void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n *
 void
 IntPlaintextEncoding::Unpad()
 {
-	usint nPadding = 0;
-	for (auto it = this->rbegin(); it != this->rend(); ++it) {
-		nPadding++;
-		if (*it == 0x80) {
-			break;
-		}
-	}
+	usint nPadding = this->back();
 	this->resize(this->size() - nPadding, 0);
 }
 
+size_t
+IntPlaintextEncoding::GetChunksize(const usint cyc, const BigBinaryInteger&) const
+{
+	return cyc/2;
+}
 
 }

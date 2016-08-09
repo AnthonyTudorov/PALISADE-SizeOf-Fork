@@ -747,24 +747,12 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionSchemeLTV : public LPPublicKeyEncryptionScheme<Element>{
 		public:
-			/**
-			* Constructor that initliazes the chunk of data to be encrypted in bits
-			*
-			* @param &chunksize is chunk of data to be encrypted in bits
-			*/
-			LPPublicKeyEncryptionSchemeLTV(size_t chunksize) : LPPublicKeyEncryptionScheme<Element>(chunksize) {}
-			/**
-			* Constructor that initliazes the chunk of data to be encrypted in bits and the feature set
-			*
-			* @param &chunksize is chunk of data to be encrypted in bits
-			* @param mask is the feature mask
-			*/
-			LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask, size_t chunksize); 
-			/**
-			* Constructor that initliazes the chunk of data to be encrypted in bits
-			*
-			* @param &feature to enable a feature
-			*/
+			LPPublicKeyEncryptionSchemeLTV() : LPPublicKeyEncryptionScheme<Element>() {}
+			LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask);
+
+			//These functions can be implemented later
+			//Initialize(mask);
+
 			void Enable(PKESchemeFeature feature);
 	};
 
@@ -775,24 +763,9 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionSchemeStehleSteinfeld : public LPPublicKeyEncryptionSchemeLTV<Element>{
 		public:
-			/**
-			* Constructor that initliazes the chunk of data to be encrypted in bits
-			*
-			* @param &chunksize is chunk of data to be encrypted in bits
-			*/
-			LPPublicKeyEncryptionSchemeStehleSteinfeld(size_t chunksize) : LPPublicKeyEncryptionSchemeLTV<Element>(chunksize) {}
-			/**
-			* Constructor that initliazes the chunk of data to be encrypted in bits and the feature set
-			*
-			* @param &chunksize is chunk of data to be encrypted in bits
-			* @param mask is the feature mask
-			*/
-			LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask, size_t chunksize);
-			/**
-			* Constructor that initliazes the chunk of data to be encrypted in bits
-			*
-			* @param &feature to enable a feature
-			*/
+			LPPublicKeyEncryptionSchemeStehleSteinfeld() : LPPublicKeyEncryptionSchemeLTV<Element>() {}
+			LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask);
+
 			void Enable(PKESchemeFeature feature);
 	};
 

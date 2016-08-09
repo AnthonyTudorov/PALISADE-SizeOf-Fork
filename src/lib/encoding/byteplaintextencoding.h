@@ -115,6 +115,8 @@ public:
 
 	void Unpad();
 
+	size_t GetChunksize(const usint cyc, const BigBinaryInteger& ptm) const;
+
 	size_t GetLength() const { return this->size(); }
 
 	bool CompareTo(const Plaintext& other) const {
