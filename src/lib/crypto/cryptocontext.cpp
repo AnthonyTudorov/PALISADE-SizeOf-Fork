@@ -118,9 +118,7 @@ CryptoContext<T> *CryptoContext<T>::genCryptoContextLTV(
 	item->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
 	params->SetDiscreteGaussianGenerator(item->dgg);
 
-	item->chunksize = ((item->ringdim / 2) / 8) * log(plaintextmodulus)/log(2);
-
-	item->algorithm = new LPPublicKeyEncryptionSchemeLTV<T>(item->chunksize);
+	item->algorithm = new LPPublicKeyEncryptionSchemeLTV<T>();
 	item->algorithm->Enable(ENCRYPTION);
 	item->algorithm->Enable(PRE);
 
@@ -160,9 +158,7 @@ CryptoContext<T> *CryptoContext<T>::genCryptoContextStehleSteinfeld(
 	item->dggStSt = DiscreteGaussianGenerator(stDevStSt);				// Create the noise generator
 	params->SetDiscreteGaussianGeneratorStSt(item->dggStSt);
 
-	item->chunksize = ((item->ringdim / 2) / 8) * log(plaintextmodulus)/log(2);
-
-	item->algorithm = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>(item->chunksize);
+	item->algorithm = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>();
 	item->algorithm->Enable(ENCRYPTION);
 	item->algorithm->Enable(PRE);
 

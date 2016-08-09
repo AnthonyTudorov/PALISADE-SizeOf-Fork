@@ -670,8 +670,8 @@ LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(){
 
 // Constructor for LPPublicKeyEncryptionSchemeLTV
 template <class Element>
-LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask, size_t chunksize)
-: LPPublicKeyEncryptionScheme<Element>(chunksize) {
+LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask)
+: LPPublicKeyEncryptionScheme<Element>() {
 
 	if (mask[ENCRYPTION])
 		this->m_algorithmEncryption = new LPAlgorithmLTV<Element>(*this);
@@ -728,8 +728,8 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature){
 
 // Constructor for LPPublicKeyEncryptionSchemeStehleSteinfeld
 template <class Element>
-LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>::LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask, size_t chunksize)
-	: LPPublicKeyEncryptionSchemeLTV<Element>(chunksize) {
+LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>::LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask)
+	: LPPublicKeyEncryptionSchemeLTV<Element>() {
 	if (mask[ENCRYPTION])
 		this->m_algorithmEncryption = new LPEncryptionAlgorithmStehleSteinfeld<Element>(*this);
 	if (mask[PRE])

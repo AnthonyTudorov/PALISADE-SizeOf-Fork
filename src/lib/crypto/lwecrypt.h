@@ -705,8 +705,8 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionSchemeLTV : public LPPublicKeyEncryptionScheme<Element>{
 		public:
-			LPPublicKeyEncryptionSchemeLTV(size_t chunksize) : LPPublicKeyEncryptionScheme<Element>(chunksize) {}
-			LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask, size_t chunksize);
+			LPPublicKeyEncryptionSchemeLTV() : LPPublicKeyEncryptionScheme<Element>() {}
+			LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask);
 
 			//These functions can be implemented later
 			//Initialize(mask);
@@ -721,8 +721,8 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionSchemeStehleSteinfeld : public LPPublicKeyEncryptionSchemeLTV<Element>{
 		public:
-			LPPublicKeyEncryptionSchemeStehleSteinfeld(size_t chunksize) : LPPublicKeyEncryptionSchemeLTV<Element>(chunksize) {}
-			LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask, size_t chunksize);
+			LPPublicKeyEncryptionSchemeStehleSteinfeld() : LPPublicKeyEncryptionSchemeLTV<Element>() {}
+			LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask);
 
 			void Enable(PKESchemeFeature feature);
 	};

@@ -178,4 +178,11 @@ BytePlaintextEncoding::Unpad()
 	this->resize(this->size() - nPadding, 0);
 }
 
+size_t
+BytePlaintextEncoding::GetChunksize(const usint cyc, const BigBinaryInteger& ptm) const
+{
+	return ((cyc / 2) / 8) * log2(ptm.ConvertToInt());
+}
+
+
 }
