@@ -155,7 +155,10 @@ TEST(UnitTestSHE, keyswitch_SingleCRT){
 }
 
 TEST(UnitTestSHE, sparsekeygen_single_crt) {
+<<<<<<< f7750f5f6cd647d91d2b9f733bf9385965efe765
 	//ILVector2n::DestroyPreComputedSamples();
+=======
+>>>>>>> Setting the stage for testing RingReduce
 
 	usint m = 512;
 
@@ -193,7 +196,12 @@ TEST(UnitTestSHE, sparsekeygen_single_crt) {
 	LPPublicKey<ILVector2n> pk(cryptoParams);
 	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
+<<<<<<< f7750f5f6cd647d91d2b9f733bf9385965efe765
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
+=======
+	size_t chunksize = ((m / 2) / 8);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+>>>>>>> Setting the stage for testing RingReduce
 	algorithm.Enable(LEVELEDSHE);
 	algorithm.Enable(ENCRYPTION);
 
@@ -321,8 +329,11 @@ TEST(UnitTestSHE, keyswitch_ModReduce_RingReduce_DCRT) {
 
 TEST(UnitTestSHE, ringreduce_single_crt) {
 
+<<<<<<< f7750f5f6cd647d91d2b9f733bf9385965efe765
 	//ILVector2n::DestroyPreComputedSamples();
 
+=======
+>>>>>>> Setting the stage for testing RingReduce
 	usint m = 16;
 
 	float stdDev = 4;
@@ -358,7 +369,12 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	std::vector<usint> vectorOfInts = { 1,0,1,0,1,0,1,1 };
 	IntPlaintextEncoding intArray(vectorOfInts);
 
+<<<<<<< f7750f5f6cd647d91d2b9f733bf9385965efe765
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
+=======
+	size_t chunksize = ((m / 2) / 8);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+>>>>>>> Setting the stage for testing RingReduce
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(LEVELEDSHE);
 
@@ -368,10 +384,17 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	//ciphertext.reserve(8);
 
 	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray, &ciphertext);
+<<<<<<< f7750f5f6cd647d91d2b9f733bf9385965efe765
 //	vectorOfInts.pop_back();
 
 //	IntPlaintextEncoding intArrayNew(vectorOfInts);
 	IntPlaintextEncoding intArrayNew;
+=======
+	vectorOfInts.pop_back();
+
+	IntPlaintextEncoding intArrayNew(vectorOfInts);
+	//	IntPlaintextEncoding intArrayNew;
+>>>>>>> Setting the stage for testing RingReduce
 
 	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &intArrayNew);
 
@@ -387,6 +410,7 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 
 	CryptoUtility<ILVector2n>::RingReduce(algorithm, &ciphertext, toSparseKeySwitchHint);
 
+<<<<<<< f7750f5f6cd647d91d2b9f733bf9385965efe765
 	ILVector2n skSparseElement(skSparse.GetPrivateElement());
 	skSparseElement.SwitchFormat();
 	skSparseElement.Decompose();
@@ -410,6 +434,8 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	cout << ciphertext.at(0).GetElement().GetParams().GetCyclotomicOrder() << endl;*/
 
 
+=======
+>>>>>>> Setting the stage for testing RingReduce
 	ILVector2n::DestroyPreComputedSamples();
 }
 
