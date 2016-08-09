@@ -624,20 +624,6 @@ namespace lbcrypto {
 			 */
 			virtual bool KeyGen(LPPublicKey<Element> *publicKey, 
 		        	LPPrivateKey<Element> *privateKey) const;
-
-			/**
-			 * Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
-			 * and odd indices are set to zero.
-			 *
-			 * @param &publicKey private key used for decryption.
-			 * @param &privateKey private key used for decryption.
-			 * @param &dgg discrete Gaussian generator.
-			 * @return function ran correctly.
-			 */
-			virtual bool SparseKeyGen(LPPublicKey<Element> &publicKey, 
-		        	LPPrivateKey<Element> &privateKey, 
-			        const DiscreteGaussianGenerator &dgg) const;
-
 	 };
 
 	/**
@@ -715,6 +701,14 @@ namespace lbcrypto {
 			* @param &cipherTextResult is the resulting ciphertext.
 			*/
 			virtual void LevelReduce(const Ciphertext<Element> &cipherText1, const LPKeySwitchHint<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const ;
+			/**
+			* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
+			* and odd indices are set to zero.
+			*
+			* @param *publicKey is the public key to be generated.
+			* @param *privateKey is the private key to be generated.
+			*/
+			virtual bool SparseKeyGen(LPPublicKey<Element> *publicKey, LPPrivateKey<Element> *privateKey) const;
 	};
 
 	/**
