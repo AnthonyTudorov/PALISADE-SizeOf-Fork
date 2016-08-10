@@ -464,6 +464,14 @@ namespace exp_int32 {
     return ans;
   }
 
+ // method to multiply vector by scalar
+  template<class ubint_el_t>
+  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Mul(const ubint_el_t &b) const{ //overload of ModMul()
+    mubintvec ans(*this);
+    ans = ans.ModMul(b);
+    return ans;
+  }
+
 
   // method to multiply vector by scalar
   template<class ubint_el_t>
@@ -482,6 +490,7 @@ namespace exp_int32 {
     }
     return ans;
   }
+#if 0
 
   // method to multiply vector by scalar //DBC method
   template<class ubint_el_t>
@@ -500,14 +509,7 @@ namespace exp_int32 {
     }
     return ans;
   }
-  
- // method to multiply scalar by vector
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Mul(const ubint_el_t &b) const{ //overload of ModMul()
-    mubintvec ans(*this);
-    ans = ans.ModMul(b);
-    return ans;
-  }
+#endif  
 
   // *=  operator to multiply  scalar from vector
   template<class ubint_el_t>
@@ -636,8 +638,7 @@ template<class ubint_el_t>
       return ans;
     }
   }
-
-
+#if 0
   // vector elementwise multiply experimental Barrett 
   template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::DBCModMul(const mubintvec &b) const{
@@ -651,26 +652,29 @@ template<class ubint_el_t>
     }else if(this->m_data.size()!=b.m_data.size()){
       throw std::logic_error("mubintvec multiplying vectors of different lengths");
     } else {
-      //this is the original code from binvect.cpp
-      ubint_el_t temp(ubint_el_t::ONE);
-      
-      //temp <<= 2*this->GetModulus().GetMSB()+3;
+
+
       ubint_el_t modulus(this->m_modulus);
-      temp <<= 2*modulus.GetMSB()+3;
 
-      ubint_el_t mu = temp.Div(m_modulus);
-
+      BarrettMWParamStruct BP;
+      usint w = sizeof(ubint_el_t::limb_t);
+      usint MNumBits = w*(modulus.getMSB()-1 );
+          
+      BP = 
+	init_barrett_mod_mul(usint w, usint MNumBits, b.m_modulus, BarretMWParamStruct &BP);
+      
       for(usint i=0;i<ans.m_data.size();i++){
 	DEBUG("i "<<i); if (dbg_flag) b.m_data[i].PrintLimbsInDec();
 	DEBUG("b.m_data "); if (dbg_flag) b.m_data[i].PrintLimbsInDec();
-	DEBUG("mu"); if (dbg_flag) mu.PrintLimbsInDec();
+	//	DEBUG("mu"); if (dbg_flag) mu.PrintLimbsInDec();
 	DEBUG("ans.mod"); if (dbg_flag) ans.m_modulus.PrintLimbsInDec();
 
-        ans.m_data[i] = ans.m_data[i].DBCModMul(b.m_data[i],ans.m_modulus, mu);
+        ans.m_data[i] = ans.m_data[i].DBCModMul(b.m_data[i],ans.m_modulus, &BP);
       }
       return ans;
     }
   }
+#endif
 
   template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Mul(const mubintvec &b) const{ //overload of ModMul
@@ -678,7 +682,6 @@ template<class ubint_el_t>
     ans = ans.ModMul(b);
     return ans;
   }
-
 
   // assignment operators
 

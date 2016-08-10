@@ -724,6 +724,11 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
   }
 
   template<typename limb_t>
+  usint ubint<limb_t>::GetNumberOfLimbs() const {
+    return m_value.size();
+  }
+
+  template<typename limb_t>
   const std::string ubint<limb_t>::GetState()const{
 
     switch(m_state) {
@@ -946,9 +951,8 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     //Multiplication is done by getting a limb_t from b and multiplying it with *this
     //after multiplication the result is shifted and added to the final answer
 
-
     usint nSize = this->m_value.size();
-    for(sint i= 0;i< ceilLimb;++i){
+    for(sint i= 0;i< b.m_value.size();++i){
       DEBUG("i "<<i);
       ubint tmp2;
 
@@ -1805,6 +1809,85 @@ again:
     return (*a**bb).ModBarrett(modulus,mu);
 
   }
+#if 0
+
+typedef struct 
+{
+  usint w;  
+  usint n;
+  usint nw;
+  usint r;
+  usint shift1;
+  usint shift2;
+  ubint mu;
+  ubint M;
+
+}BarrettMWParamStruct;
+
+
+  BarrettMWParamStruct& = init_barrett_mod_mul(usint w, usint MNumBits, ubint M, BarrettMWParamStruct &BP) {
+
+    // w is the number of bits of the radix (word size)
+    // MNumBits is the number of bits that represent M (i.e. our largest bitwidth... 
+    //   note this is not the bitwidth of the underlying integer, but rather the size of the smallest
+    //   number of bits that represent M 
+    // M is our Modulus
+  
+    //if 0
+    //n = MNumBits;
+    //else
+    n = floor(log2(M)+1);
+    //end
+
+    BP.w = w;
+    BP.n = n;
+    // nw is the number of words (each of radix r) needed
+    BP.nw = ceil(n/w);
+    // r is the radix
+    BP.r = 2^w;
+
+    // alpha and beta are used to compute the shifts needed
+    sint alpha = w+3;
+    sint beta = -2;
+
+    cout << "test "<< ceil(n/w) << "should = "<< nw << endl;
+
+    BP.shift1 = n+beta;
+    //BP.fast_div1 = 2^(n+beta);
+    BP.shift2 = alpha-beta;
+    //BP.fast_div2 =  2^(alpha-beta);
+    if isfi(M)
+    
+    signed = false;
+    
+    tmp = fi(0,0,n+alpha+1,0);
+    tmp = bitset(tmp,n+alpha+1);
+    
+    // if 1
+    //     %BP.mu = floor(fi((2^(n+alpha))/fi(M)));
+    //     wordLength = tmp.WordLength;
+    //     fracLength = MNumBits;
+    //     nt_scale = numerictype(signed,wordLength,fracLength);
+    //     tmp2 = nt_scale.divide(tmp,M);
+    //     tmp3 = fi(tmp2, 'WordLength', wordLength-fracLength, 'FractionLength', 0);
+    //     BP.mu = tmp3;
+    // end
+    
+
+    //else
+    BP.mu = floor((2^(n+alpha)/M));
+    //end
+    
+    cout <<"barrett constants for M  = "<< M <<"radix = "<< BP.r <<" d = 2^"<< w << "mu = "<< BP.mu <<endl;
+  
+    cout << "num bits = "<< BP.n << " num words = "<<BP.nw <<endl;
+    cout << "r mul = "<< w <<" bits, shift 1 = "<< BP.shift1 <<" bits, shift 2 = "<< BP.shift2 <<" bits"<<endl;
+
+    BP.M = M;
+    return(BP);
+
+  }
+
 
   //DBC version from Proceed
   template<typename limb_t>
@@ -1827,6 +1910,7 @@ again:
     return (*a**bb).ModBarrett(modulus,mu);
 
   }
+#endif
 
 //  template<typename limb_t>
 //  ubint<limb_t> ubint<limb_t>::ModBarrettMul(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const{

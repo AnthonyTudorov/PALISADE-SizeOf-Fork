@@ -365,6 +365,13 @@ namespace exp_int32{
     usint GetMSB()const;
 
     /**
+     * Returns the size of the underlying vector of Limbs
+     *
+     * @return the size
+     */
+    usint GetNumberOfLimbs()const;
+
+    /**
      * Returns the index number of the array in which MSB is located.
      *
      * @return the index of array of the most significant bit as usint.
@@ -649,8 +656,9 @@ namespace exp_int32{
      * @return is the result of the modulus multiplication operation.
      */
     ubint BModMul(const ubint& b, const ubint& modulus,const ubint& mu) const;
+#if 0
     ubint DBCModMul(const ubint& b, const ubint& modulus,const ubint& mu) const;
-
+#endif
     /**
      * Scalar modular multiplication where Barrett modular reduction is used.
      *
@@ -925,10 +933,10 @@ namespace exp_int32{
     
     int divmnu_vect(ubint& q, ubint& r, const ubint& u, const ubint& v) const;
 
-
+  public: //todo make private again
     //vector storing the native integers. stored little endian
     vector<limb_t> m_value;
-
+  private:
     //variable that stores the MOST SIGNIFICANT BIT position in the
     //number. Note MSB(1) = 1 NOT 0
     usint m_MSB;
