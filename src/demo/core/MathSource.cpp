@@ -818,7 +818,7 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
     "1258144990936911203380326908782167797434418468585961447166768171869509300176263104307921352873859541990711881935956355186437373393544036099224330319773",
     "805842730693986557467234043205212783543391008567040812905713540778130676580166107684104083420854024129298497671985888277617739050093011724484112870671",
     "2799309032266742562930769261070482408568899000258495476312314409719714580243471729247586479328620187276945241504429920336345307950164925099894493715533",
-    "26476852601349348088ts04103597318860343122424407427906327669059277239997218032517842675609320811641720285003894680481883735468131235997696534443428488350",
+    "2647685260134934808804103597318860343122424407427906327669059277239997218032517842675609320811641720285003894680481883735468131235997696534443428488350",
     "693199162376459329128054716987553648346475871132117743341660758355345058542390369742037372302879022664441864154051826106098140959002251215605319777078",
     "2391797749376600579441197977047078160791084122445638582872412922268196751328156295695665483217670569843215892375267224089848674446364986290845863213758",
     "165016581053646305583802200792684936229797960441655784909448934591271278356760823782530076253342418118532753950587932901212416719129878255565055545816",
@@ -876,7 +876,9 @@ ubint init_barrett_mod_mul(usint w, usint MNumBits, ubint &M, BarrettMWParamStru
   //   note this is not the bitwidth of the underlying integer, but rather the size of the smallest
   //   number of bits that represent M
   // M is our Modulus
+  // this code sets us up for limb_t radix.
 
+  bool  dbg_flag = true; // if true print debug statements
 
   usint n = MNumBits;
 
@@ -886,13 +888,13 @@ ubint init_barrett_mod_mul(usint w, usint MNumBits, ubint &M, BarrettMWParamStru
   BP.nw = (usint) ceil((float)n/(float)w);
   // r is the radix
   BP.r = (usint)pow(2.0,(float)w);
-  cout << "w "<< w << " n "<< n << " nw "<< BP.nw << endl;
+  DEBUG("w "<< w << " n "<< n << " nw "<< BP.nw);
 
   // alpha and beta are used to compute the shifts needed
   sint alpha = w+3;
   sint beta = -2;
 
-  cout << "alpha "<< alpha << " beta "<<beta << endl;
+  DEBUG("alpha "<< alpha << " beta "<<beta );
 
   BP.shift1 = n+beta;
   //BP.fast_div1 = 2^(n+beta);
@@ -917,19 +919,19 @@ ubint init_barrett_mod_mul(usint w, usint MNumBits, ubint &M, BarrettMWParamStru
   //else
   ubint two (ubint::TWO);
   ubint tmp = two.Exp(n+alpha);
-  cout << "powtest "<<pow(2,(n+alpha))<<endl;
-  cout<<"tmp in hex is: ";
-  tmp.PrintLimbsInHex();
+  DEBUG( "powtest "<<pow(2,(n+alpha)) );
+  DEBUG("tmp in hex is: "); if (dbg_flag) tmp.PrintLimbsInHex();
 
   //BP.mu = floor((2^(n+alpha)/M));
   ubint mu (tmp/M); //integer divide
 
   //end
 
-  cout <<"barrett constants for M  = "<< M <<" radix = "<< BP.r <<" d = 2^"<< w << " mu = "<< mu <<endl;
+  DEBUG("barrett constants for M  = "<< M <<" radix = "<< BP.r);
+  DEBUG(" d = 2^"<< w << " mu = "<< mu);
 
-  cout << "num bits = "<< BP.n << " num words = "<<BP.nw <<endl;
-  cout << "r mul = "<< w <<" bits, shift 1 = "<< BP.shift1 <<" bits, shift 2 = "<< BP.shift2 <<" bits"<<endl;
+  DEBUG("num bits = "<< BP.n << " num words = "<<BP.nw);
+  DEBUG("r mul = "<< w <<" bits, shift 1 = "<< BP.shift1 <<" bits, shift 2 = "<< BP.shift2 <<" bits");
 
   return(mu);
 
@@ -937,9 +939,6 @@ ubint init_barrett_mod_mul(usint w, usint MNumBits, ubint &M, BarrettMWParamStru
 
 
 ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
-
-
-
   // Perform barrett form of modulo multiprecision multiplication double and
   //  fi version. (note fi inputs calls barrett_mod_mul_fi_vxx.m
   // from:
@@ -952,9 +951,9 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
   // inputs are x and y, Barret Parameters are BP.
 
 
-  // lets work in hex radix. or 4 bit digits. so r = 16 = 2^4, and w = 4;
+  // Example:  hex radix. or 4 bit digits. so r = 16 = 2^4, and w = 4;
   // so M can be represented in nw = 3 digits: 7 0 9
-
+  // this code sets us up for limb_t radix.
 
   //  ubint x = *this;
 
@@ -994,7 +993,7 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
   ubint t4("0");
   ubint t5("0");
   // for ix = BP.nw:-1:1
-  for( sint ix = ydigits.size()-1; ix<= 0; ix-- ){
+  for( sint ix = ydigits.size()-1; ix>= 0; ix-- ){
     //  *r is a shift left, r is 2^w
     //t1 = z * BP.r;
     t1 = zed<< BP.w;
@@ -1105,27 +1104,26 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
      "00000000000000025961", "00000000000000087680", };
   ubintvec modmul1(modmul1sv);
 
-  ubint c1;
+  ubintvec c1(b1.size());
 
   // test math for case 1
 
   BarrettMWParamStruct BP;
-
   ubint mu("0");
   mu = init_barrett_mod_mul(sizeof(usint)*8, q1.GetMSB()-1, q1, BP); //modifies BP
-  //todo make limb_t
 
-  c1 = BMM(a1[0], b1[0], q1, mu, BP);
-  if (c1 != modmul1[0]){
+  //todo make limb_t
+  for (auto i = 0; i < a1.size(); i++){
+    c1[i] = BMM(a1[i], b1[i], q1, mu, BP);
+  }
+  if (c1 != modmul1){
     cout <<"FAIL BMM"<<endl;
-    cout <<"c1"<<endl;
-    c1.PrintLimbsInDec();
-    cout <<"modmul1"<<endl;
-    modmul1[0].PrintLimbsInDec();
+    vec_diff(c1, modmul1);\
+  } else {
+    cout<< "BMM PASSED"<<endl;
   }
   
 
-#if 0
   // q2: larger numbers
 
   ubint q2("00004057816419532801");
@@ -1143,8 +1141,6 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
      "00000375749152798379", "00003933203511673255",
      "00002293434116159938", "00001201413067178193", };
   ubintvec a2(a2sv);
-  mubintvec ma2(a2sv,q2);
-
 
   // b2:
   std::vector<std::string>  b2sv = 
@@ -1158,87 +1154,6 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
      "00002978742255253796", "00002124827461185795", };
 
   ubintvec b2(b2sv);
-  mubintvec mb2(b2sv,q2);
-  // add2:
-  std::vector<std::string>  add2sv = 
-    {"00000884123387923218", "00000138712237895312",
-     "00005332883231566040", "00005053979403959223",
-     "00002619173177932324", "00000568683443309337",
-     "00006313055010273814", "00007020538881695734",
-     "00000930588339595881", "00001137334268426157",
-     "00005406716417105627", "00002152306408779744",
-     "00004352402055428422", "00007171953935869933",
-     "00005272176371413734", "00003326240528363988", };
-  ubintvec add2(add2sv);
-  // sub2:
-#if 0 //set to 1 if we allow b>a in subtraction
-  std::vector<std::string>  sub2sv = 
-    {"18446230400667224908", "00000059047093523014",
-     "00001661936831136476", "00002970884463059287",
-     "00000466868338124838", "18446445579403106561",
-     "00001640853664009664", "00001040158161418506",
-     "18446165366977018045", "18446477211996511393",
-     "00001202588881034661", "00001912733630447884",
-     "18443143169959719952", "00000694453087476577",
-     "18446058765570457758", "18445820659315544014", };
-
-#else
-  std::vector<std::string>  sub2sv = 
-    {"00000000000000000000", "00000059047093523014",
-     "00001661936831136476", "00002970884463059287",
-     "00000466868338124838", "00000000000000000000",
-     "00001640853664009664", "00001040158161418506",
-     "00000000000000000000", "00000000000000000000",
-     "00001202588881034661", "00001912733630447884",
-     "00000000000000000000", "00000694453087476577",
-     "00000000000000000000", "00000000000000000000", };
-
-#endif
-  ubintvec sub2(sub2sv);
-
-  // mul2:
-  std::vector<std::string>  mul2sv = 
-    {"000000000129453542664913267883213339565",
-     "000000000003938631422102517149330983287",
-     "000000006419402382707574566639285895756",
-     "000000004179138330699238739092142453840",
-     "000000001660525522714165323210462878683",
-     "000000000058575501928512376649634356636",
-     "000000009290565704012341618368342178425",
-     "000000012051509297159015143330318631680",
-     "000000000132773293878034164433437538530",
-     "000000000305578516062424854278036474730",
-     "000000006946590599552827582889547919552",
-     "000000000243468234057004000432166157020",
-     "000000001494223959136453394722407100297",
-     "000000012738664541883618180978992446890",
-     "000000006831549111446250063725117624648",
-     "000000002552795477367678807574345368435", };
-  ubintvec mul2(mul2sv);
-
-  // modadd2:
-  std::vector<std::string>  modadd2sv = 
-    {"00000884123387923218", "00000138712237895312",
-     "00001275066812033239", "00000996162984426422",
-     "00002619173177932324", "00000568683443309337",
-     "00002255238590741013", "00002962722462162933",
-     "00000930588339595881", "00001137334268426157",
-     "00001348899997572826", "00002152306408779744",
-     "00000294585635895621", "00003114137516337132",
-     "00001214359951880933", "00003326240528363988", };
-  ubintvec modadd2(modadd2sv);
-
-  // modsub2:
-  std::vector<std::string>  modsub2sv = 
-    {"00003544143377206093", "00000059047093523014",
-     "00001661936831136476", "00002970884463059287",
-     "00000466868338124838", "00003759322113087746",
-     "00001640853664009664", "00001040158161418506",
-     "00003479109686999230", "00003790954706492578",
-     "00001202588881034661", "00001912733630447884",
-     "00000456912669701137", "00000694453087476577",
-     "00003372508280438943", "00003134402025525199", };
-  ubintvec modsub2(modsub2sv);
 
   // modmul2:
   std::vector<std::string>  modmul2sv = 
@@ -1252,20 +1167,21 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
      "00002573793300043944", "00001273980645866111", };
   ubintvec modmul2(modmul2sv);
 
-  ubintvec c2;
-  mubintvec mc2;
-  // test math for case 2
-  TESTIT(t2, c2, a2 + b2, add2, nloop);
-  TESTIT(t2, c2, a2 - b2, sub2, nloop);
-  TESTIT(t2, c2, a2 * b2, mul2, nloop);
-  TESTIT(t2, c2, a2.ModAdd(b2,q2), modadd2, nloop);
-  TESTIT(t2, mc2, ma2 + mb2, modadd2, nloop); 
-  TESTIT(t2, c2, a2.ModSub(b2,q2), modsub2, nloop);
-  TESTIT(t2, mc2, ma2 - mb2, modsub2, nloop);
-  TESTIT(t2, c2, a2.ModMul(b2,q2), modmul2, nloop);
-  TESTIT(t2, mc2, ma2 * mb2,  modmul2, nloop);
-  TESTIT(t2, mc2, ma2.BModMul(mb2),  modmul2, nloop);
+  ubintvec c2(b2.size());
 
+  mu = init_barrett_mod_mul(sizeof(usint)*8, q2.GetMSB()-1, q2, BP); //modifies BP
+
+  //todo make limb_t
+   for (auto i = 0; i < a2.size(); i++){
+    c2[i] = BMM(a2[i], b2[i], q2, mu, BP);
+  }
+  if (c2 != modmul2){
+    cout <<"FAIL BMM 2"<<endl;
+    vec_diff(c2, modmul2);\
+  } else {
+    cout<< "BMM 2 PASSED"<<endl;
+  }
+  
 
 
   //q3: very large numbers.
@@ -1368,7 +1284,7 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
     "1258144990936911203380326908782167797434418468585961447166768171869509300176263104307921352873859541990711881935956355186437373393544036099224330319773",
     "805842730693986557467234043205212783543391008567040812905713540778130676580166107684104083420854024129298497671985888277617739050093011724484112870671",
     "2799309032266742562930769261070482408568899000258495476312314409719714580243471729247586479328620187276945241504429920336345307950164925099894493715533",
-    "26476852601349348088ts04103597318860343122424407427906327669059277239997218032517842675609320811641720285003894680481883735468131235997696534443428488350",
+    "2647685260134934808804103597318860343122424407427906327669059277239997218032517842675609320811641720285003894680481883735468131235997696534443428488350",
     "693199162376459329128054716987553648346475871132117743341660758355345058542390369742037372302879022664441864154051826106098140959002251215605319777078",
     "2391797749376600579441197977047078160791084122445638582872412922268196751328156295695665483217670569843215892375267224089848674446364986290845863213758",
     "165016581053646305583802200792684936229797960441655784909448934591271278356760823782530076253342418118532753950587932901212416719129878255565055545816",
@@ -1388,21 +1304,20 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
   };
 
   ubintvec c3;
-  mubintvec mc3;
-  // test math for case 3
-  TESTIT(t3, c3, a3 + b3, add3, nloop);
-  TESTIT(t3, c3, a3 - b3, sub3, nloop);
-  TESTIT(t3, c3, a3 * b3, mul3, nloop);
-  TESTIT(t3, c3, a3.ModAdd(b3,q3), modadd3, nloop);
-  TESTIT(t3, mc3, ma3 + mb3, modadd3, nloop); 
-  TESTIT(t3, c3, a3.ModSub(b3,q3), modsub3, nloop);
-  TESTIT(t3, mc3, ma3 - mb3, modsub3, nloop);
-  TESTIT(t3, c3, a3.ModMul(b3,q3), modmul3, nloop);
+yyyyyyyyy
+  mu = init_barrett_mod_mul(sizeof(usint)*8, q3.GetMSB()-1, q3, BP); //modifies BP
 
-  TESTIT(t3, mc3, ma3.BModMul(mb3),  modmul3, nloop);
-#endif
-
-
-  return ;
+  //todo make limb_t
+   for (auto i = 0; i < a3.size(); i++){
+    c3[i] = BMM(a3[i], b3[i], q3, mu, BP);
+  }
+  if (c3 != modmul3){
+    cout <<"FAIL BMM 3"<<endl;
+    vec_diff(c3, modmul3);\
+  } else {
+    cout<< "BMM 3 PASSED"<<endl;
+  }
+  
+return ;
 }
 
