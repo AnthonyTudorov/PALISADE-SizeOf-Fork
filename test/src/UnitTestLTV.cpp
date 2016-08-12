@@ -272,7 +272,6 @@ TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
 
 }
 
-
 TEST(method_ILVector2n_IntPlaintextEncoding, Encrypt_Decrypt) {
 
 	usint m = 16;
