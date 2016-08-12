@@ -1,4 +1,4 @@
-﻿VGA // This is a main() file built to test math  operations
+﻿// This is a main() file built to test math  operations
 // D. Cousins
 
 #include <iostream>
@@ -361,13 +361,13 @@ void vec_diff(ubintvec &a, ubintvec &b) {
       cout << "first vector " <<endl;
       cout <<a[i];
       cout << endl;
-      cout << "state " << a[i].GetState() << endl;;
-      cout << "msb: " << a[i].GetMSB() << endl;;
+      cout << "state " << a[i].GetState() << endl;
+      cout << "msb: " << a[i].GetMSB() << endl;
       cout << "second vector " <<endl;
       cout << b[i];
       cout << endl;
-      cout << "state " << b[i].GetState() << endl;;
-      cout << "msb: " << b[i].GetMSB() << endl;;
+      cout << "state " << b[i].GetState() << endl;
+      cout << "msb: " << b[i].GetMSB() << endl;
       cout << endl;
     }
   }
@@ -381,13 +381,13 @@ void vec_diff(mubintvec &a, ubintvec &b) {
 	cout << "first vector " <<endl;
         cout << a[i];
         cout << endl;
-        cout << "state " << a[i].GetState() << endl;;
-        cout << "msb: " << a[i].GetMSB() << endl;;
+        cout << "state " << a[i].GetState() << endl;
+        cout << "msb: " << a[i].GetMSB() << endl;
 	cout << "second vector " <<endl;
         cout << b[i];
         cout << endl;
-        cout << "state " << b[i].GetState() << endl;;
-        cout << "msb: " << b[i].GetMSB() << endl;;
+        cout << "state " << b[i].GetState() << endl;
+        cout << "msb: " << b[i].GetMSB() << endl;
         cout << endl;
       }
     }
@@ -402,13 +402,13 @@ void vec_diff(mubintvec &a, mubintvec &b) {
 	cout << "first vector " <<endl;
         cout << a[i];
         cout << endl;
-        cout << "state " << a[i].GetState() << endl;;
-        cout << "msb: " << a[i].GetMSB() << endl;;
+        cout << "state " << a[i].GetState() << endl;
+        cout << "msb: " << a[i].GetMSB() << endl;
 	cout << "second vector " <<endl;
         cout << b[i];
         cout << endl;
-        cout << "state " << b[i].GetState() << endl;;
-        cout << "msb: " << b[i].GetMSB() << endl;;
+        cout << "state " << b[i].GetState() << endl;
+        cout << "msb: " << b[i].GetMSB() << endl;
         cout << endl;
       }
     }
@@ -971,7 +971,7 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
   }
 
   // decompose y into digits of radix r
-  ubint ytmp(y);
+  //ubint ytmp(y);
   usint yNumLimbs(y.GetNumberOfLimbs());
   ubintvec ydigits(yNumLimbs);
 
@@ -987,31 +987,41 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
 
   // //  this is the actual reduction
   ubint zed("0");
+#if 0
   ubint t1("0");
   ubint t2("0");
+
   ubint t3("0");
   ubint t4("0");
   ubint t5("0");
+#endif
   // for ix = BP.nw:-1:1
   for( sint ix = ydigits.size()-1; ix>= 0; ix-- ){
     //  *r is a shift left, r is 2^w
     //t1 = z * BP.r;
+#if 0
     t1 = zed<< BP.w;
     t2 = x * ydigits[ix];
     t3 = t1 + t2;
 
     zed = t3;
+#else
+      zed = (zed<< BP.w)  + x * ydigits[ix];
+#endif
     if (dbg_flag) {
       cout<< "ix "<<ix <<endl;
+#if 0
       cout<< "t1 "; t1.PrintLimbsInHex();
       cout<< "t2 "; t2.PrintLimbsInHex();
       cout<< "t3 "; t3.PrintLimbsInHex();
+#endif
       cout<< "z  "; zed.PrintLimbsInHex();
     }
     // z = z.*BP.r + x .* ydigits(ix);
     // q = floor(z./M);
 
     //ubint t4 = floor(z/BP.fast_div1);
+#if 0
     t4 = zed>>BP.shift1;
     t5 = t4 * mu;
     if (dbg_flag){
@@ -1021,6 +1031,11 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
 
     //ubint qprime = floor(t5/BP.fast_div2);
     ubint qprime = t5>>BP.shift2;
+
+#else
+    ubint qprime = ((zed>>BP.shift1)*mu) >>BP.shift2;
+#endif
+
     // qprime = floor((floor(z/BP.fast_div1) .* BP.mu)/BP.fast_div2);
 
     // z = z -q.*M;
@@ -1129,10 +1144,12 @@ void test_BMM() {
     }
   }
   timem = TOC(tm);
-  DEBUG(tm << ": " << nloop << " loops " <<" c1 = BMM computation time: " << "\t" << timem << " us"); 
+  DEBUG("tm: " << nloop << " loops " <<" c1 = BMM computation time: " << "\t" << timem << " us"); 
   if (c1 != modmul1){
     cout <<"FAIL BMM"<<endl;
     vec_diff(c1, modmul1);
+  } else {
+    cout<< "BMM 1 PASSED"<<endl;
   }
   
 
@@ -1192,7 +1209,7 @@ void test_BMM() {
     }
   }
   timem = TOC(tm);
-  DEBUG(tm << ": " << nloop << " loops " << "c2 = BMM computation time: " << "\t" << timem << " us"); 
+  DEBUG("tm: " << nloop << " loops " << "c2 = BMM computation time: " << "\t" << timem << " us"); 
   if (c2 != modmul2){
     cout <<"FAIL BMM 2"<<endl;
     vec_diff(c2, modmul2);\
@@ -1253,10 +1270,10 @@ void test_BMM() {
     }
   }
   timem = TOC(tm);
-  DEBUG(tm << ": " << nloop << " loops " << "c3 = BMM computation time: " << "\t" << timem << " us"); 
+  DEBUG("tm : " << nloop << " loops " << "c3 = BMM computation time: " << "\t" << timem << " us"); 
   if (c3 != modmul3){
     cout <<"FAIL BMM 3"<<endl;
-    vec_diff(c3, modmul3);\
+    vec_diff(c3, modmul3);
   } else {
     cout<< "BMM 3 PASSED"<<endl;
   }
