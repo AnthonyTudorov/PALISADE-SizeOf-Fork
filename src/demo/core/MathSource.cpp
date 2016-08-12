@@ -1,4 +1,4 @@
-﻿// This is a main() file built to test math  operations
+﻿VGA // This is a main() file built to test math  operations
 // D. Cousins
 
 #include <iostream>
@@ -1052,7 +1052,7 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
 }
 
 
- void test_BMM() {
+void test_BMM() {
 
   bool dbg_flag = 1;		// if true then print dbg output
  
@@ -1108,19 +1108,31 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
 
   // test math for case 1
 
+
+
+  TimeVar tm;
+  float timem;
+  usint nloop = 1000;
+
+
+
   BarrettMWParamStruct BP;
   ubint mu("0");
   mu = init_barrett_mod_mul(sizeof(usint)*8, q1.GetMSB()-1, q1, BP); //modifies BP
 
-  //todo make limb_t
-  for (auto i = 0; i < a1.size(); i++){
-    c1[i] = BMM(a1[i], b1[i], q1, mu, BP);
+  TIC(tm); 
+  for (usint j = 0; j< nloop; j++){
+    
+    //todo make limb_t
+    for (auto i = 0; i < a1.size(); i++){
+      c1[i] = BMM(a1[i], b1[i], q1, mu, BP);
+    }
   }
+  timem = TOC(tm);
+  DEBUG(tm << ": " << nloop << " loops " <<" c1 = BMM computation time: " << "\t" << timem << " us"); 
   if (c1 != modmul1){
     cout <<"FAIL BMM"<<endl;
-    vec_diff(c1, modmul1);\
-  } else {
-    cout<< "BMM PASSED"<<endl;
+    vec_diff(c1, modmul1);
   }
   
 
@@ -1171,10 +1183,16 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
 
   mu = init_barrett_mod_mul(sizeof(usint)*8, q2.GetMSB()-1, q2, BP); //modifies BP
 
-  //todo make limb_t
-   for (auto i = 0; i < a2.size(); i++){
-    c2[i] = BMM(a2[i], b2[i], q2, mu, BP);
+  TIC(tm); 
+  for (usint j = 0; j< nloop; j++){
+    
+    //todo make limb_t
+    for (auto i = 0; i < a2.size(); i++){
+      c2[i] = BMM(a2[i], b2[i], q2, mu, BP);
+    }
   }
+  timem = TOC(tm);
+  DEBUG(tm << ": " << nloop << " loops " << "c2 = BMM computation time: " << "\t" << timem << " us"); 
   if (c2 != modmul2){
     cout <<"FAIL BMM 2"<<endl;
     vec_diff(c2, modmul2);\
@@ -1226,10 +1244,16 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
 
   mu = init_barrett_mod_mul(sizeof(usint)*8, q3.GetMSB()-1, q3, BP); //modifies BP
 
-  //todo make limb_t
-   for (auto i = 0; i < a3.size(); i++){
-    c3[i] = BMM(a3[i], b3[i], q3, mu, BP);
+  TIC(tm); 
+  for (usint j = 0; j< nloop; j++){
+    
+    //todo make limb_t
+    for (auto i = 0; i < a3.size(); i++){
+      c3[i] = BMM(a3[i], b3[i], q3, mu, BP);
+    }
   }
+  timem = TOC(tm);
+  DEBUG(tm << ": " << nloop << " loops " << "c3 = BMM computation time: " << "\t" << timem << " us"); 
   if (c3 != modmul3){
     cout <<"FAIL BMM 3"<<endl;
     vec_diff(c3, modmul3);\
