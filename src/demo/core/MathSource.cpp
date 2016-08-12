@@ -862,8 +862,8 @@ struct
 {
   usint w;  
   usint n;
-  usint nw;
-  usint r;
+  //usint nw;
+  //usint r;
   usint shift1;
   usint shift2;
 }BarrettMWParamStruct;
@@ -885,10 +885,11 @@ ubint init_barrett_mod_mul(usint w, usint MNumBits, ubint &M, BarrettMWParamStru
   BP.w = w;
   BP.n = n;
   // nw is the number of words (each of radix r) needed
-  BP.nw = (usint) ceil((float)n/(float)w);
+  //BP.nw = (usint) ceil((float)n/(float)w);
   // r is the radix
-  BP.r = (usint)pow(2.0,(float)w);
-  DEBUG("w "<< w << " n "<< n << " nw "<< BP.nw);
+  //BP.r = (usint)pow(2.0,(float)w);
+  //DEBUG("w "<< w << " n "<< n << " nw "<< BP.nw);
+  DEBUG("w "<< w << " n "<< n );
 
   // alpha and beta are used to compute the shifts needed
   sint alpha = w+3;
@@ -927,10 +928,11 @@ ubint init_barrett_mod_mul(usint w, usint MNumBits, ubint &M, BarrettMWParamStru
 
   //end
 
-  DEBUG("barrett constants for M  = "<< M <<" radix = "<< BP.r);
+  //DEBUG("barrett constants for M  = "<< M <<" radix = "<< BP.r);
+DEBUG("barrett constants for M  = "<< M);
   DEBUG(" d = 2^"<< w << " mu = "<< mu);
 
-  DEBUG("num bits = "<< BP.n << " num words = "<<BP.nw);
+  DEBUG("num bits = "<< BP.n);
   DEBUG("r mul = "<< w <<" bits, shift 1 = "<< BP.shift1 <<" bits, shift 2 = "<< BP.shift2 <<" bits");
 
   return(mu);
@@ -950,7 +952,7 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
   // adapted for Palisade by  Dave Cousins BBN (c) 2016
   // inputs are x and y, Barret Parameters are BP.
 
-
+ 
   // Example:  hex radix. or 4 bit digits. so r = 16 = 2^4, and w = 4;
   // so M can be represented in nw = 3 digits: 7 0 9
   // this code sets us up for limb_t radix.
@@ -972,12 +974,14 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
 
   // decompose y into digits of radix r
   //ubint ytmp(y);
+#if 0
   usint yNumLimbs(y.GetNumberOfLimbs());
   ubintvec ydigits(yNumLimbs);
 
   for (usint ix = 0; ix < yNumLimbs; ix++) {
       ydigits[ix] = y.m_value.at(ix); // break into digits.
   }
+#endif
     /* for (usint ix = 0; ix < BP.nw; ix++) { */
     /*   ydigits(ix) = mod(ytmp,BP.r); */
     /*   ytmp = ytmp - ydigits(ix); */
@@ -987,56 +991,20 @@ ubint &BMM(ubint &x, ubint &y, ubint &M, ubint &mu, BarrettMWParamStruct &BP) {
 
   // //  this is the actual reduction
   ubint zed("0");
-#if 0
-  ubint t1("0");
-  ubint t2("0");
 
-  ubint t3("0");
-  ubint t4("0");
-  ubint t5("0");
-#endif
-  // for ix = BP.nw:-1:1
-  for( sint ix = ydigits.size()-1; ix>= 0; ix-- ){
-    //  *r is a shift left, r is 2^w
-    //t1 = z * BP.r;
-#if 0
-    t1 = zed<< BP.w;
-    t2 = x * ydigits[ix];
-    t3 = t1 + t2;
+  for( sint ix = y.m_value.size()-1; ix>= 0; ix-- ){
+    //zed = (zed<< BP.w)  + x * ydigits[ix];
+    zed = (zed<< BP.w)  + x.MulIntegerByLimb(y.m_value[ix]);
 
-    zed = t3;
-#else
-      zed = (zed<< BP.w)  + x * ydigits[ix];
-#endif
     if (dbg_flag) {
       cout<< "ix "<<ix <<endl;
-#if 0
-      cout<< "t1 "; t1.PrintLimbsInHex();
-      cout<< "t2 "; t2.PrintLimbsInHex();
-      cout<< "t3 "; t3.PrintLimbsInHex();
-#endif
       cout<< "z  "; zed.PrintLimbsInHex();
     }
     // z = z.*BP.r + x .* ydigits(ix);
     // q = floor(z./M);
 
     //ubint t4 = floor(z/BP.fast_div1);
-#if 0
-    t4 = zed>>BP.shift1;
-    t5 = t4 * mu;
-    if (dbg_flag){
-      cout<<"t4 "; t4.PrintLimbsInHex();
-      cout<<"t5 "; t5.PrintLimbsInHex();
-    }
-
-    //ubint qprime = floor(t5/BP.fast_div2);
-    ubint qprime = t5>>BP.shift2;
-
-#else
     ubint qprime = ((zed>>BP.shift1)*mu) >>BP.shift2;
-#endif
-
-    // qprime = floor((floor(z/BP.fast_div1) .* BP.mu)/BP.fast_div2);
 
     // z = z -q.*M;
     zed = zed - qprime * M;

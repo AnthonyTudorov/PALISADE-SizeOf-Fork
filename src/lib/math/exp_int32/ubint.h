@@ -888,6 +888,13 @@ namespace exp_int32{
      */
     const std::string GetState()const;
 
+    /**
+     * function that returns the ubint after multiplication by b.
+     * @param b is the number to be multiplied.
+     * @return the ubint after the multiplication.
+     */
+    ubint MulIntegerByLimb(limb_t b) const; //todo rename to ubint
+
   protected:
     
     /**
@@ -907,6 +914,7 @@ namespace exp_int32{
      * @param guessIdxChar is the hint of the MSB position.
      */
     void SetMSB(usint guessIdxChar);
+
 
   private:
     /**
@@ -932,6 +940,8 @@ namespace exp_int32{
      */
     
     int divmnu_vect(ubint& q, ubint& r, const ubint& u, const ubint& v) const;
+
+
 
   public: //todo make private again
     //vector storing the native integers. stored little endian
@@ -966,6 +976,8 @@ namespace exp_int32{
 
     //currently unused array
     static const ubint *m_modChain;
+		
+
 		
 
     //public: 
@@ -1011,13 +1023,6 @@ namespace exp_int32{
     State m_state;
 
 
-    /**
-     * function that returns the ubint after multiplication by b.
-     * @param b is the number to be multiplied.
-     * @return the ubint after the multiplication.
-     */
-    ubint MulIntegerByLimb(limb_t b) const;
-		
     /**
      * function that returns the decimal value from the binary array a.
      * @param a is a pointer to the binary array.
