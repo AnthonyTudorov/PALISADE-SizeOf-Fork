@@ -44,6 +44,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../../src/lib/encoding/byteplaintextencoding.h"
 #include "../../src/lib/utils/cryptoutility.h"
+#include "../../src/lib/encoding/intplaintextencoding.h"
+
 
 #include "../../src/lib/utils/debug.h"
 
@@ -273,5 +275,62 @@ TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
 
 }
 
+TEST(method_ILVector2n_IntPlaintextEncoding, Encrypt_Decrypt) {
 
+	usint m = 16;
+
+	float stdDev = 4;
+
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+
+	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
+
+	DiscreteGaussianGenerator dgg(stdDev);
+	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
+	ILParams params(m, q, RootOfUnity(m, q));
+
+	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
+
+	//Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(dgg, params);
+
+	LPCryptoParametersLTV<ILVector2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
+	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
+	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
+	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
+
+	Ciphertext<ILVector2n> cipherText;
+	cipherText.SetCryptoParameters(&cryptoParams);
+
+	//Initialize the public key containers.
+	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
+	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+
+	std::vector<usint> vectorOfInts = {1,0,1,0,1,0,1,0};
+	IntPlaintextEncoding intArray(vectorOfInts);
+
+	size_t chunksize = (m / 2);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(LEVELEDSHE);
+
+	algorithm.KeyGen(&pk, &sk);
+
+	vector<Ciphertext<ILVector2n>> ciphertext;
+	
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray, &ciphertext, false);
+	vectorOfInts.pop_back();
+
+	IntPlaintextEncoding intArrayNew;
+
+	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &intArrayNew, false);
+
+	EXPECT_EQ(intArray, intArrayNew);
+
+	ILVector2n::DestroyPreComputedSamples();
+
+}
 

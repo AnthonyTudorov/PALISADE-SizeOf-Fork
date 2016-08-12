@@ -357,7 +357,7 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	std::vector<usint> vectorOfInts = { 1,0,1,0,1,0,1,1 };
 	IntPlaintextEncoding intArray(vectorOfInts);
 
-	size_t chunksize = ((m / 2) / 8);
+	size_t chunksize = (m / 2);
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(LEVELEDSHE);
@@ -368,10 +368,10 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	//ciphertext.reserve(8);
 
 	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray, &ciphertext);
-	vectorOfInts.pop_back();
+//	vectorOfInts.pop_back();
 
-	IntPlaintextEncoding intArrayNew(vectorOfInts);
-	//	IntPlaintextEncoding intArrayNew;
+//	IntPlaintextEncoding intArrayNew(vectorOfInts);
+		IntPlaintextEncoding intArrayNew;
 
 	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &intArrayNew);
 
@@ -386,6 +386,32 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	algorithm.KeySwitchHintGen(sk, skSparse, &toSparseKeySwitchHint);
 
 	CryptoUtility<ILVector2n>::RingReduce(algorithm, &ciphertext, toSparseKeySwitchHint);
+
+	ILVector2n skSparseElement(skSparse.GetPrivateElement());
+	skSparseElement.SwitchFormat();
+	skSparseElement.Decompose();
+	skSparseElement.SwitchFormat();
+	ILVector2n skNewElement(ciphertext[0].GetElement().CloneWithParams());
+	BigBinaryVector bbvSkNew(skSparseElement.GetValues());
+	skNewElement.SetValues(bbvSkNew, skNewElement.GetFormat());
+	skSparse.SetPrivateElement(skNewElement);
+
+	IntPlaintextEncoding intArrayNewRR;
+    
+	CryptoUtility<ILVector2n>::Decrypt(algorithm, skSparse, ciphertext, &intArrayNewRR);
+//	skSparse.GetPrivateElement().PrintValues();
+	/*cout << skSparse.GetPrivateElement().GetParams().GetRootOfUnity() << endl;
+	cout << ciphertext.at(0).GetElement().GetParams().GetRootOfUnity() << endl;
+
+	cout << skSparse.GetPrivateElement().GetParams().GetModulus() << endl;
+	cout << ciphertext.at(0).GetElement().GetParams().GetModulus() << endl;
+
+	cout << skSparse.GetPrivateElement().GetParams().GetCyclotomicOrder() << endl;
+	cout << ciphertext.at(0).GetElement().GetParams().GetCyclotomicOrder() << endl;*/
+
+	for (usint i = 0; i < intArrayNewRR.size(); i++) {
+		cout << intArrayNewRR.at(i) << endl;
+	}
 
 	ILVector2n::DestroyPreComputedSamples();
 }
