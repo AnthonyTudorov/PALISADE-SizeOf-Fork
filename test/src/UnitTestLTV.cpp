@@ -275,6 +275,7 @@ TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
 
 }
 
+//!! This test case will only work if the chunksize, ringdimension and IntPlaintextEncoding have all the same size. If not, it will not work !!
 TEST(method_ILVector2n_IntPlaintextEncoding, Encrypt_Decrypt) {
 
 	usint m = 16;
