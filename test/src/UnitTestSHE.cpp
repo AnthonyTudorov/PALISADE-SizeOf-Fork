@@ -409,9 +409,6 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	cout << skSparse.GetPrivateElement().GetParams().GetCyclotomicOrder() << endl;
 	cout << ciphertext.at(0).GetElement().GetParams().GetCyclotomicOrder() << endl;*/
 
-	for (usint i = 0; i < intArrayNewRR.size(); i++) {
-		cout << intArrayNewRR.at(i) << endl;
-	}
 
 	ILVector2n::DestroyPreComputedSamples();
 }
