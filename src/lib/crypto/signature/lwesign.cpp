@@ -46,11 +46,8 @@ namespace lbcrypto {
 		//Get parameters from keys
 		ILParams params = signKey->GetSignatureParameters().GetILParams();
 		sint stddev = signKey->GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
-		
 		//Generate trapdoor based using parameters and 
-		std::cout << "Trapdoor generation started" << std::endl;
 		std::pair<Matrix<ILVector2n>, RLWETrapdoorPair<ILVector2n>> keyPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
-		std::cout << "Trapdoor generated" << std::endl;
 		//Format of vectors are changed to prevent complications in calculations 
 		keyPair.second.m_e.SetFormat(EVALUATION);
 		keyPair.second.m_r.SetFormat(EVALUATION);
@@ -67,6 +64,7 @@ namespace lbcrypto {
 		double s = 40 * std::sqrt(n*(2+k));
 		Matrix<LargeFloat> sigmaSqrt([]() { return make_unique<LargeFloat>(); }, n*2, n*2);
 		RLWETrapdoorUtility::PerturbationMatrixGenAlt(n,k, keyPair.first, keyPair.second, s, &sigmaSqrt);
+
 		//Signing key will contain perturbation matrix, public key matrix of the trapdoor and the trapdoor matrices
 		signKey->SetPrivateElement(std::pair<Matrix<LargeFloat>, std::pair<Matrix<ILVector2n>, RLWETrapdoorPair<ILVector2n>>>(sigmaSqrt,keyPair));
 	}
@@ -75,7 +73,6 @@ namespace lbcrypto {
 	template <class Element>
 	void LPSignatureSchemeGPV<Element>::Sign(LPSignKeyGPV<Element> &signKey, const BytePlaintextEncoding &plainText,
 		Signature<Matrix<Element>> *signatureText) {
-		
 		//Getting parameters for calculations
 		const BigBinaryInteger & q = signKey.GetSignatureParameters().GetILParams().GetModulus();
 		size_t n = signKey.GetSignatureParameters().GetILParams().GetCyclotomicOrder() / 2;
