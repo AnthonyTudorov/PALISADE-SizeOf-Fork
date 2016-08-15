@@ -89,6 +89,7 @@ void IntPlaintextEncoding::Decode(const BigBinaryInteger& modulus, ILVectorArray
 void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t startFrom, size_t length) const
 {
 	int padlen = 0;
+	uint32_t mod = modulus.ConvertToInt();
 
 	if( length == 0 ) length = this->size();
 
@@ -102,15 +103,19 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *i
 
 	Format format = COEFFICIENT;
 
-
 	for (usint i = 0; i < length; i++) {
-		BigBinaryInteger Val = BigBinaryInteger( this->at(i + startFrom) );
+		uint32_t entry = this->at(i + startFrom);
+		if( entry >= mod )
+			throw std::logic_error("Cannot encode integer at position " + std::to_string(i) + " because it is >= plaintext modulus " + std::to_string(mod));
+		BigBinaryInteger Val = BigBinaryInteger( entry );
 		temp.SetValAtIndex(i, Val);
 	}
 
-	BigBinaryInteger padVal(padlen);
-	for (usint i = 0; i < padlen; i++ ) {
-		temp.SetValAtIndex(i+length, padVal);
+	BigBinaryInteger Num = modulus - BigBinaryInteger::ONE;
+	for( usint i=0; i<padlen; i++ ) {
+		temp.SetValAtIndex(i+length, Num);
+		if( i == 0 )
+			Num = BigBinaryInteger::ZERO;
 	}
 
 	ilVector->SetValues(temp,format);
@@ -125,9 +130,16 @@ void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n *
 }
 
 void
-IntPlaintextEncoding::Unpad()
+IntPlaintextEncoding::Unpad(const BigBinaryInteger &modulus)
 {
-	usint nPadding = this->back();
+	uint32_t marker = modulus.ConvertToInt() - 1;
+	usint nPadding = 0;
+	for (sint i = this->size() - 1; i >= 0; --i) {
+		nPadding++;
+		if (this->at(i) == marker) {
+			break;
+		}
+	}
 	this->resize(this->size() - nPadding, 0);
 }
 

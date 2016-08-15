@@ -166,7 +166,7 @@ public:
 			plaintext->Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), &decrypted);
 
 			if( ch == lastone && doPadding ) {
-				plaintext->Unpad();
+				plaintext->Unpad(privateKey.GetCryptoParameters().GetPlaintextModulus());
 			}
 		}
 
@@ -217,7 +217,7 @@ public:
 		}
 
 		// unpad and write the last one
-		pte[!whichArray].Unpad();
+		pte[!whichArray].Unpad(privateKey.GetCryptoParameters().GetPlaintextModulus());
 		outstream << pte[!whichArray];
 
 		return DecryptResult(tot);
