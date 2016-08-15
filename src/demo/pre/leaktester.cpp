@@ -243,9 +243,9 @@ runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plainte
 		exit(1);
 	}
 
-	if( true ) {
+	if( false ) {
 		cout << "Trying int encoding" << endl;
-		IntPlaintextEncoding inInt = { 2, 128, 129, 256, 257, 300 };
+		IntPlaintextEncoding inInt = { 2, 128, 129, 255, 252, 8 };
 //		size_t chunkSize;
 //		cout << (chunkSize = inInt.GetChunksize(pk.GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), pk.GetCryptoParameters().GetPlaintextModulus())) << endl;
 //		ILVector2n pt(pk.GetCryptoParameters().GetElementParams());
@@ -260,9 +260,12 @@ runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plainte
 			cout << "eResult " << eResult.isValid << ":" << eResult.numBytesEncrypted << ", " << intCiphertext.size() << endl;
 			cout << "dResult " << dResult.isValid << ":" << dResult.messageLength << endl;
 			cout << "Output is size " << outInt.GetLength() << endl;
-			for( int i = 0; i < outInt.GetLength(); i++ )
-				cout << outInt.at(i) << " ";
 			cout << endl;
+		} else for( int i=0; i<inInt.size(); i++ ) {
+			if( inInt.at(i) != outInt.at(i) ) {
+				cout << "integers at position " << i << " don't match" << endl;
+				break;
+			}
 		}
 
 		return;

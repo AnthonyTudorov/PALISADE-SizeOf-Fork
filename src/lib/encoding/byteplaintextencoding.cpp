@@ -74,6 +74,11 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 	}
 
 	usint mod = modulus.ConvertToInt();
+
+	if( mod != 2 && mod != 4 && mod != 16 && mod != 256 )
+		throw std::logic_error("Cannot encode byte array with a plaintext modulus of " + std::to_string(mod)
+			+ ", must choose {2,4,16,256}");
+
 	usint p = ceil((float)log((double)255) / log((double)mod));
 
 	BigBinaryVector temp(p*(length+padlen));
@@ -166,7 +171,7 @@ BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n 
 }
 
 void
-BytePlaintextEncoding::Unpad()
+BytePlaintextEncoding::Unpad(const BigBinaryInteger &)
 {
 	usint nPadding = 0;
 	for (sint i = this->size() - 1; i >= 0; --i) {
