@@ -102,7 +102,7 @@ namespace lbcrypto {
 						relinWindow,
 						dgg,
 						depth) {
-						m_delta = (params.GetModulus()).DividedBy(plaintextModulus);
+						m_delta = (params->GetModulus()).DividedBy(plaintextModulus);
 					}
 
 			/**
@@ -368,26 +368,26 @@ namespace lbcrypto {
 		* @param a Uniformly distributed polynomial
 		* @param &pub a public key.
 		*/
-		void MakePublicKey(const Element &a, LPPublicKey<Element> *pub) const {
-			const LPCryptoParametersFV<Element> *cryptoParams =
-			dynamic_cast<const LPCryptoParametersFV<Element>*>(&this->GetCryptoParameters());
+		void MakePublicKey(const Element &a, LPPublicKey<Element> *pub) const;
+		// 	const LPCryptoParametersFV<Element> *cryptoParams =
+		// 	dynamic_cast<const LPCryptoParametersFV<Element>*>(&this->GetCryptoParameters());
 
-			LPPublicKeyFV<Element> *publicKey =
-				dynamic_cast<LPPublicKeyFV<Element>*>(pub);
+		// 	LPPublicKeyFV<Element> *publicKey =
+		// 		dynamic_cast<LPPublicKeyFV<Element>*>(pub);
 
-			const ElemParams &elementParams = cryptoParams->GetElementParams();
-			const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-			const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+		// 	const ElemParams &elementParams = cryptoParams->GetElementParams();
+		// 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+		// 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-			Element e(dgg, elementParams, Format::COEFFICIENT);
-			e.SwitchFormat();
+		// 	Element e(dgg, elementParams, Format::COEFFICIENT);
+		// 	e.SwitchFormat();
 
-			Element b(e);
+		// 	Element b(e);
 
-			// b -= (a*m_sk + e);
+		// 	// b -= (a*m_sk + e);
 
-			publicKey->SetPublicElements({ b, a });
-		}
+		// 	publicKey->SetPublicElements({ b, a });
+		// }
 
 		//JSON FACILITY
 		/**
@@ -545,32 +545,32 @@ namespace lbcrypto {
 		* @param flag an object-specific parameter for the serialization
 		* @return true on success
 		*/
-		bool SetIdFlag(Serialized* serObj, const std::string flag) const {
-			return true;
-		};
+	// 	bool SetIdFlag(Serialized* serObj, const std::string flag) const {
+	// 		return true;
+	// 	};
 
-		/**
-		* Populate the object from the deserialization of the Setialized
-		* @param serObj contains the serialized object
-		* @return true on success
-		*/
-		bool Deserialize(const Serialized& serObj) { return false; }
-		bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
-			return true;
-		};
+	// 	/**
+	// 	* Populate the object from the deserialization of the Setialized
+	// 	* @param serObj contains the serialized object
+	// 	* @return true on success
+	// 	*/
+	// 	bool Deserialize(const Serialized& serObj) { return false; }
+	// 	bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
+	// 		return true;
+	// 	};
 
-	private:
-		LPCryptoParameters<Element> *m_cryptoParameters;
+	// private:
+	// 	LPCryptoParameters<Element> *m_cryptoParameters;
 
-		//elements used for evaluation key - with power of base of secret key
-		std::vector<Element> m_elements;
-		//elements with uniform elements
-		std::vector<Element> m_elementsGenerated;
+	// 	//elements used for evaluation key - with power of base of secret key
+	// 	std::vector<Element> m_elements;
+	// 	//elements with uniform elements
+	// 	std::vector<Element> m_elementsGenerated;
 
-		//pointer to public key
-		const LPPublicKey<Element> *m_publicKey;
+	// 	//pointer to public key
+	// 	const LPPublicKey<Element> *m_publicKey;
 
-	};
+	// };
 
 
 	/**
@@ -592,46 +592,9 @@ namespace lbcrypto {
 		* @param &plaintext the plaintext input.
 		* @param *ciphertext ciphertext which results from encryption.
 		*/
-		EncryptResult Encrypt(const LPPublicKey<Element> &publicKey,
+		EncryptResult Encrypt(const LPPublicKey<Element> &pubKey,
 			const Element &plaintext,
-			Ciphertext<Element> *ciphertext) const {
-
-			const LPCryptoParametersFV<Element> *cryptoParams =
-				dynamic_cast<const LPCryptoParametersFV<Element>*>(&pubKey.GetCryptoParameters());
-
-			const LPPublicKeyFV<Element> *publicKey =
-				dynamic_cast<const LPPublicKeyFV<Element>*>(&pubKey);
-
-			if (cryptoParams == 0) return EncryptResult();
-
-			if (ciphertext == 0) return EncryptResult();
-
-			const ElemParams &elementParams = cryptoParams->GetElementParams();
-			const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-			const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-			const BigBinaryInteger &delta = cryptoParams->GetDelta();
-
-			const Element &a = publicKey->GetPublicElement();
-			const Element &b = publicKey->GetGeneratedPublicElement();
-
-			Element u(dgg, elementParams, Format::EVALUATION);
-			Element e1(dgg, elementParams, Format::EVALUATION);
-			Element e2(dgg, elementParams, Format::EVALUATION);
-
-			Element c0(elementParams);
-			Element c1(elementParams);
-
-			c0 = a*u + e1 + delta*plaintext;
-
-			c1 = b*u + e2;
-
-			ciphertext->SetCryptoParameters(cryptoParams);
-			ciphertext->SetEncryptionAlgorithm(this->GetScheme());
-			ciphertext->SetElements({ c0,c1 });
-
-			return EncryptResult(0);
-
-		}
+			Ciphertext<Element> *ciphertext) const;
 
 		/**
 		* Method for decrypting plaintext using FV
@@ -643,26 +606,7 @@ namespace lbcrypto {
 		*/
 		DecryptResult Decrypt(const LPPrivateKey<Element> &privateKey,
 			const Ciphertext<Element> &ciphertext,
-			Element *plaintext) const{
-
-			const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
-			const ElemParams &elementParams = cryptoParams.GetElementParams();
-			const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
-
-			const std::vector<Element> &c = ciphertext.GetElements();
-
-			const Element &s = privateKey.GetPrivateElement();
-
-			Element b = c[0] + s*c[1];
-
-			// b times p/q in mod p
-
-			b.SwitchFormat();
-			
-			*plaintext = b;
-
-			return DecryptResult(plaintext->GetLength());
-		}
+			Element *plaintext) const;
 
 		/**
 		* Function to generate public and private keys
@@ -672,37 +616,7 @@ namespace lbcrypto {
 		* @return function ran correctly.
 		*/
 		virtual bool KeyGen(LPPublicKey<Element> *publicKey,
-			LPPrivateKey<Element> *privateKey) const {
-			if (publicKey == 0 || privateKey == 0)
-				return false;
-
-			const LPCryptoParametersFV<Element> *cryptoParams =
-				dynamic_cast<const LPCryptoParametersFV<Element>*>(&privateKey->GetCryptoParameters());
-
-			if (cryptoParams == 0)
-				return false;
-
-			const ElemParams &elementParams = cryptoParams->GetElementParams();
-			const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-
-			const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-			const DiscreteUniformGenerator dug(elementParams.GetModulus());
-
-			//Generate the element "a" of the public key
-			Element a(dug, elementParams, Format::EVALUATION);
-
-			//Generate the secret key
-			Element s(dgg, elementParams, Format::COEFFICIENT);
-			s.SwitchFormat();
-
-			privateKey->SetPrivateElement(s);
-			privateKey->AccessCryptoParameters() = *cryptoParams;
-
-			//public key is generated and set
-			privateKey->MakePublicKey(a, publicKey);
-
-			return true;
-		}
+			LPPrivateKey<Element> *privateKey) const;
 
 	};
 
@@ -714,23 +628,12 @@ namespace lbcrypto {
 	class LPPublicKeyEncryptionSchemeFV : public LPPublicKeyEncryptionScheme<Element> {
 	public:
 		LPPublicKeyEncryptionSchemeFV(size_t chunksize) : LPPublicKeyEncryptionScheme<Element>(chunksize) {}
-		LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask, size_t chunksize) {
-			if (mask[ENCRYPTION])
-				this->m_algorithmEncryption = new LPAlgorithmFV<Element>(*this);
-		}
+		LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask, size_t chunksize);
 
 		//These functions can be implemented later
 		//Initialize(mask);
 
-		void Enable(PKESchemeFeature feature) {
-			switch (feature)
-			{
-				case ENCRYPTION:
-					if (this->m_algorithmEncryption == NULL)
-					this->m_algorithmEncryption = new LPAlgorithmFV<Element>(*this);
-				break;
-			}
-		}
+		void Enable(PKESchemeFeature feature);
 	};
 
 } // namespace lbcrypto ends

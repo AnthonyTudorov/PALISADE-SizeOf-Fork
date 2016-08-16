@@ -41,7 +41,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
-/*template <class Element>
+template <class Element>
 void LPPrivateKeyFV<Element>::MakePublicKey(const Element &a, LPPublicKey<Element> *pub) const
 {
 	const LPCryptoParametersFV<Element> *cryptoParams =
@@ -57,7 +57,9 @@ void LPPrivateKeyFV<Element>::MakePublicKey(const Element &a, LPPublicKey<Elemen
 	Element e(dgg, elementParams, Format::COEFFICIENT);
 	e.SwitchFormat();
 
-	Element b(e);
+	Element b(elementParams, Format::EVALUATION, true);
+	b-=e;
+	b-=(a*m_sk);
 
 	// b -= (a*m_sk + e);
 
@@ -158,6 +160,8 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> &priva
 
 	Element b = c[0] + s*c[1];
 
+	b *= p;
+
 	// b times p/q in mod p
 
 	b.SwitchFormat();
@@ -166,68 +170,68 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> &priva
 
 	return DecryptResult(plaintext->GetLength());
 
-}*/
+}
 
 // Constructor for LPPublicKeyEncryptionSchemeFV
-// template <class Element>
-// LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask, size_t chunksize)
-// 	: LPPublicKeyEncryptionScheme<Element>(chunksize) {
+template <class Element>
+LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask, size_t chunksize)
+	: LPPublicKeyEncryptionScheme<Element>(chunksize) {
 
-// 	if (mask[ENCRYPTION])
-// 		this->m_algorithmEncryption = new LPAlgorithmFV<Element>(*this);
+	if (mask[ENCRYPTION])
+		this->m_algorithmEncryption = new LPAlgorithmFV<Element>(*this);
 	
-// 	/*if (mask[PRE])
-// 		this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(*this);
-// 	if (mask[EVALADD])
-// 		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
-// 	if (mask[EVALAUTOMORPHISM])
-// 		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
-// 	if (mask[SHE])
-// 		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
-// 	if (mask[FHE])
-// 		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
-// 	if (mask[LEVELEDSHE])
-// 		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
-// 	*/
+	/*if (mask[PRE])
+		this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(*this);
+	if (mask[EVALADD])
+		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
+	if (mask[EVALAUTOMORPHISM])
+		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
+	if (mask[SHE])
+		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
+	if (mask[FHE])
+		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+	if (mask[LEVELEDSHE])
+		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
+	*/
 
-// }
+}
 
-// // Enable for LPPublicKeyEncryptionSchemeLTV
-// template <class Element>
-// void LPPublicKeyEncryptionSchemeFV<Element>::Enable(PKESchemeFeature feature) {
-// 	switch (feature)
-// 	{
-// 	case ENCRYPTION:
-// 		if (this->m_algorithmEncryption == NULL)
-// 			this->m_algorithmEncryption = new LPAlgorithmFV<Element>(*this);
-// 		break;
-// 	/*case PRE:
-// 		if (this->m_algorithmPRE == NULL)
-// 			this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(*this);
-// 		break;
-// 	case EVALADD:
-// 		if (this->m_algorithmEvalAdd == NULL)
-// 			this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
-// 		break;
-// 	case EVALAUTOMORPHISM:
-// 		if (this->m_algorithmEvalAutomorphism == NULL)
-// 			this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
-// 		break;
-// 	case SHE:
-// 		if (this->m_algorithmSHE == NULL)
-// 			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
-// 		break;
-// 	case FHE:
-// 		if (this->m_algorithmFHE == NULL)
-// 			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
-// 		break;
-// 	case LEVELEDSHE:
-// 		if (this->m_algorithmLeveledSHE == NULL)
-// 			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
-// 		break;
-// 		*/
-// 	}
-// }
+// Enable for LPPublicKeyEncryptionSchemeLTV
+template <class Element>
+void LPPublicKeyEncryptionSchemeFV<Element>::Enable(PKESchemeFeature feature) {
+	switch (feature)
+	{
+	case ENCRYPTION:
+		if (this->m_algorithmEncryption == NULL)
+			this->m_algorithmEncryption = new LPAlgorithmFV<Element>(*this);
+		break;
+	/*case PRE:
+		if (this->m_algorithmPRE == NULL)
+			this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(*this);
+		break;
+	case EVALADD:
+		if (this->m_algorithmEvalAdd == NULL)
+			this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
+		break;
+	case EVALAUTOMORPHISM:
+		if (this->m_algorithmEvalAutomorphism == NULL)
+			this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
+		break;
+	case SHE:
+		if (this->m_algorithmSHE == NULL)
+			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
+		break;
+	case FHE:
+		if (this->m_algorithmFHE == NULL)
+			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+		break;
+	case LEVELEDSHE:
+		if (this->m_algorithmLeveledSHE == NULL)
+			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
+		break;
+		*/
+	}
+}
 
 }  // namespace lbcrypto ends
 

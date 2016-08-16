@@ -65,8 +65,10 @@
 #include "../lattice/ilvectorarray2n.h"
 
 #include "../crypto/bv.h"
-
 #include "../crypto/bv.cpp"
+
+#include "../crypto/fv.h"
+#include "../crypto/fv.cpp"
 
 #include "../utils/serializable.h"
 
