@@ -144,6 +144,8 @@ namespace lbcrypto {
 			}
 
 			const BigBinaryInteger& GetDelta() const { return m_delta; }
+
+			void SetDelta(const BigBinaryInteger &delta) { m_delta = delta; }
 			
 			/**
 			* == operator to compare to this instance of LPCryptoParametersLTV object. 
