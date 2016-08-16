@@ -385,8 +385,12 @@ namespace lbcrypto {
 		if (m_values != NULL) {
 			std::cout << *m_values;
 		}
-		std::cout << " mod:" << m_values->GetModulus() << std::endl;
-		std::cout << " rootOfUnity: " << this->GetRootOfUnity()<< std::endl;
+		try {
+			std::cout << " mod:" << m_values->GetModulus() << std::endl;
+			std::cout << " rootOfUnity: " << this->GetRootOfUnity() << std::endl;
+		}
+		catch(_exception e)
+		{}
 		std::cout << std::endl;
 	}
 

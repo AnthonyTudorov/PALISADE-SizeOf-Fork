@@ -50,6 +50,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <chrono>
 #include "../../lib/utils/debug.h"
 #include "../../lib/encoding/byteplaintextencoding.h"
+#include "../../lib/encoding/intplaintextencoding.h"
+
 
 using namespace std;
 using namespace lbcrypto;
@@ -69,7 +71,7 @@ void FinalLeveledComputation();
 void NTRUPRE(usint input);
 void LevelCircuitEvaluation2WithCEM();
 void ComposedEvalMultTest();
-
+bool canRingReduce(usint ringDimension, std::vector<BigBinaryInteger> moduli, double rootHermiteFactor);
 /**
  * @brief Input parameters for PRE example.
  */
@@ -83,16 +85,30 @@ struct SecureParams {
 #include <iterator>
 int main() {
 
+	//BigBinaryInteger m1("17729");
+	//BigBinaryInteger m2("17761");
+	//std::vector<BigBinaryInteger> moduli;
+	//moduli.reserve(2);
+	//moduli.push_back(m1);
+	//moduli.push_back(m2);
+	//cout << canRingReduce(4096, moduli, 1.006) << endl;
+	//cout << canRingReduce(2048, moduli, 1.006) << endl;
+	//cout << canRingReduce(1024, moduli, 1.006) << endl;
+	//cout << canRingReduce(512, moduli, 1.006) << endl;
+
+
+	RingReduceTest();
 //	RingReduceDCRTTest();
 	NTRUPRE(0);
 	NTRU_DCRT();
+
 	//LevelCircuitEvaluation();
 	//LevelCircuitEvaluation1();
 	//LevelCircuitEvaluation2();
 //	ComposedEvalMultTest();
 //	 FinalLeveledComputation();
 
-	TestParameterSelection();
+//	TestParameterSelection();
 	//LevelCircuitEvaluation2WithCEM();
 
 	std::cin.get();
@@ -1412,4 +1428,19 @@ void ComposedEvalMultTest(){
 	skNewOldElement.DropElementAtIndex(skNewOldElement.GetNumOfElements() - 1);
 	skNew.SetPrivateElement(skNewOldElement);
 
+}
+
+
+bool canRingReduce(usint ringDimension, std::vector<BigBinaryInteger> moduli, double rootHermiteFactor) {
+	if (ringDimension == 1) return false;
+	ringDimension = ringDimension / 2;
+	double multipliedModuli = 1;
+
+	for (usint i = 0; i < moduli.size(); i++) {
+		multipliedModuli = multipliedModuli*  moduli.at(i).ConvertToDouble();
+	}
+	double powerValue = (log(multipliedModuli) / log(2))/(4*ringDimension);
+	double powerOfTwo = pow(2, powerValue);
+
+	return rootHermiteFactor >= powerOfTwo;
 }
