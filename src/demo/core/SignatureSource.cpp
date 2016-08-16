@@ -1,14 +1,12 @@
 #include "../../lib/crypto/signature/lwesign.h"
 #include "../../lib/crypto/signature/lwesign.cpp"
 #include "../../lib/encoding/byteplaintextencoding.h"
-#include <vld.h>
 
 using namespace lbcrypto;
 
 int main() {
 	double start, finish;
 	DiscreteGaussianGenerator dgg(4);
-	
 	usint sm = 16;
 	BigBinaryInteger smodulus("1152921504606847009");
 	BigBinaryInteger srootOfUnity("405107564542978792");
@@ -29,26 +27,22 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Key generation for signature: " << "\t" << finish - start << " ms" << std::endl;
 
+	std::cout << "Test" << std::endl;
 	Signature<Matrix<ILVector2n>> signature, signature2;
-	BytePlaintextEncoding text("1Sig");
-	BytePlaintextEncoding text2("2Sig");
+	BytePlaintextEncoding text("Let's spice things up");
 
 	start = currentDateTime();
 	scheme.Sign(s_k, text, &signature);
-	scheme.Sign(s_k, text2, &signature2);
 	finish = currentDateTime();
-	std::cout << "Signing two texts with same key : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Signing : " << "\t" << finish - start << " ms" << std::endl;
 
 	start = currentDateTime();
 	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text) << std::endl;
-	std::cout << "Signature 2-Text 1 verification:" << scheme.Verify(v_k, signature2, text) << std::endl;
-	std::cout << "Signature 2-Text 2 verification:" << scheme.Verify(v_k, signature2, text2) << std::endl;
-	std::cout << "Signature 1-Text 2 verification:" << scheme.Verify(v_k, signature, text2) << std::endl;
 	finish = currentDateTime();
-	std::cout << "Verifying 4 signature-text combinations : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Verifying : " << "\t" << finish - start << " ms" << std::endl;
 	
 	
-	/* Not included for performance reasons
+	
 	sm = 256;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("102389487");
@@ -63,7 +57,7 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
-
+	
 	signParams.SetDiscreteGaussianGenerator(dgg);
 	signParams.SetElemParams(silParams);
 
@@ -77,18 +71,15 @@ int main() {
 
 	start = currentDateTime();
 	scheme.Sign(s_k, text, &signature);
-	scheme.Sign(s_k, text2, &signature2);
 	finish = currentDateTime();
-	std::cout << "Signing two texts with same key : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Signing : " << "\t" << finish - start << " ms" << std::endl;
 
 	start = currentDateTime();
 	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text) << std::endl;
-	std::cout << "Signature 2-Text 1 verification:" << scheme.Verify(v_k, signature2, text) << std::endl;
-	std::cout << "Signature 2-Text 2 verification:" << scheme.Verify(v_k, signature2, text2) << std::endl;
-	std::cout << "Signature 1-Text 2 verification:" << scheme.Verify(v_k, signature, text2) << std::endl;
 	finish = currentDateTime();
-	std::cout << "Verifying 4 signature-text combinations : " << "\t" << finish - start << " ms" << std::endl;
-
+	std::cout << "Verifying : " << "\t" << finish - start << " ms" << std::endl;
+	
+	
 	sm = 512;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("49884309");
@@ -117,18 +108,15 @@ int main() {
 
 	start = currentDateTime();
 	scheme.Sign(s_k, text, &signature);
-	scheme.Sign(s_k, text2, &signature2);
 	finish = currentDateTime();
-	std::cout << "Signing two texts with same key : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Signing : " << "\t" << finish - start << " ms" << std::endl;
 
 	start = currentDateTime();
 	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text) << std::endl;
-	std::cout << "Signature 2-Text 1 verification:" << scheme.Verify(v_k, signature2, text) << std::endl;
-	std::cout << "Signature 2-Text 2 verification:" << scheme.Verify(v_k, signature2, text2) << std::endl;
-	std::cout << "Signature 1-Text 2 verification:" << scheme.Verify(v_k, signature, text2) << std::endl;
 	finish = currentDateTime();
-	std::cout << "Verifying 4 signature-text combinations : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Verifying : " << "\t" << finish - start << " ms" << std::endl;
 
+	/* Not included for performance reasons
 	sm = 1024;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("122451504");
@@ -157,20 +145,16 @@ int main() {
 
 	start = currentDateTime();
 	scheme.Sign(s_k, text, &signature);
-	scheme.Sign(s_k, text2, &signature2);
 	finish = currentDateTime();
-	std::cout << "Signing two texts with same key : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Signing : " << "\t" << finish - start << " ms" << std::endl;
 
 	start = currentDateTime();
 	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text) << std::endl;
-	std::cout << "Signature 2-Text 1 verification:" << scheme.Verify(v_k, signature2, text) << std::endl;
-	std::cout << "Signature 2-Text 2 verification:" << scheme.Verify(v_k, signature2, text2) << std::endl;
-	std::cout << "Signature 1-Text 2 verification:" << scheme.Verify(v_k, signature, text2) << std::endl;
 	finish = currentDateTime();
-	std::cout << "Verifying 4 signature-text combinations : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Verifying : " << "\t" << finish - start << " ms" << std::endl;
 
 	
-
+	
 	sm = 2048;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("34044212");
@@ -199,23 +183,22 @@ int main() {
 
 	start = currentDateTime();
 	scheme.Sign(s_k, text, &signature);
-	scheme.Sign(s_k, text2, &signature2);
 	finish = currentDateTime();
-	std::cout << "Signing two texts with same key : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Signing : " << "\t" << finish - start << " ms" << std::endl;
 
 	start = currentDateTime();
 	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text) << std::endl;
-	std::cout << "Signature 2-Text 1 verification:" << scheme.Verify(v_k, signature2, text) << std::endl;
-	std::cout << "Signature 2-Text 2 verification:" << scheme.Verify(v_k, signature2, text2) << std::endl;
-	std::cout << "Signature 1-Text 2 verification:" << scheme.Verify(v_k, signature, text2) << std::endl;
 	finish = currentDateTime();
-	std::cout << "Verifying 4 signature-text combinations : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Verifying : " << "\t" << finish - start << " ms" << std::endl;
+		
 	*/
-	
 	
 	std::cout << "Execution completed" << std::endl;
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();
+
+	std::cin.ignore();
+	std::cin.get();
 	
 	return 0;
 }
