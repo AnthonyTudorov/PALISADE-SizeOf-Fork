@@ -12,8 +12,8 @@ DistributionGenerator::DistributionGenerator () {
 }
 
 std::mt19937 & DistributionGenerator::GetPRNG () {
-	std::call_once(DistributionGenerator::m_flag, [] {
-	std::random_device rd;
+	std::call_once(DistributionGenerator::m_flag, [] () {
+		std::random_device rd;
 		DistributionGenerator::m_prng.reset(new std::mt19937(rd()));
 	});
 
