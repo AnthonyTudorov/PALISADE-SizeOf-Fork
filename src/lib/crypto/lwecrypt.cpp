@@ -35,6 +35,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <cstring>
 #include <iostream>
 #include <fstream>
+#include <initializer_list>
 
 namespace lbcrypto {
 
@@ -58,6 +59,8 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
+
+	f = {1,2,1,2,1,2,1,2};
 
 	f = p*f;
 
@@ -305,8 +308,6 @@ void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherTe
 		
 }
 
-
-
 template<class Element>
 void LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
 
@@ -447,7 +448,7 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &priv
 	Element b = f*c;
 
 	b.SwitchFormat();
-
+	
 	*plaintext = b;
 
 	return DecryptResult(plaintext->GetLength());
