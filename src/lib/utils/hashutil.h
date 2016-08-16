@@ -11,7 +11,8 @@ public:
 		case SHA_256:
 			return SHA256(message);
 		case SHA_512:
-			return SHA512(message);
+		  std::cerr <<"error SHA512 disabled, returning SHA256 instead"<<std::endl;
+			return SHA256(message);
 		default:
 			throw std::logic_error("ERROR: Unknown Hash Algorithm");
 			return lbcrypto::BytePlaintextEncoding();
