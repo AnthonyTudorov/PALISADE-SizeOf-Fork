@@ -590,22 +590,6 @@ namespace lbcrypto {
 		virtual bool KeyGen(LPPublicKey<Element> *publicKey,
 			LPPrivateKey<Element> *privateKey) const;
 
-		/**
-		* YSP This should be removed from LPEncryptionAlgorithm
-		* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
-		* and odd indices are set to zero.
-		*
-		* @param &publicKey private key used for decryption.
-		* @param &privateKey private key used for decryption.
-		* @param &dgg discrete Gaussian generator.
-		* @return function ran correctly.
-		*/
-		bool SparseKeyGen(LPPublicKey<Element> &publicKey,
-			LPPrivateKey<Element> &privateKey,
-			const DiscreteGaussianGenerator &dgg) const {
-			return true;
-		};
-
 	};
 
 	/**
