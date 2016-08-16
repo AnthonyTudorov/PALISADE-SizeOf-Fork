@@ -88,49 +88,6 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	return true;
 }
 
-template <class Element>
-bool LPAlgorithmLTV<Element>::SparseKeyGen(LPPublicKey<Element> &publicKey, 
-		        	LPPrivateKey<Element> &privateKey, 
-			        const DiscreteGaussianGenerator &dgg) const
-{
-	LPPublicKeyLTV<Element> &publicKeyLTV = dynamic_cast< LPPublicKeyLTV<Element>& >(publicKey); 
-	LPPrivateKeyLTV<Element> &privateKeyLTV = dynamic_cast< LPPrivateKeyLTV<Element>& >(privateKey);
-	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
-	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
-
-	Element f(dgg,elementParams,Format::COEFFICIENT);
-
-	f = p*f;
-	f = f + BigBinaryInteger::ONE;
-	f.MakeSparse(BigBinaryInteger::TWO);
-
-	f.SwitchFormat();
-
-	//check if inverse does not exist
-	while (!f.InverseExists())
-	{
-		//std::cout << "inverse does not exist" << std::endl;
-		Element temp(dgg, elementParams, Format::COEFFICIENT);
-		f = temp;
-		f = p*f;
-		f = f + BigBinaryInteger::ONE;
-		f.MakeSparse(BigBinaryInteger::TWO);
-		f.SwitchFormat();
-	}
-
-	privateKeyLTV.SetPrivateElement(f);
-	privateKeyLTV.AccessCryptoParameters() = cryptoParams;
-	
-
-	Element g(dgg,elementParams,Format::COEFFICIENT);
-	g.SwitchFormat();
-
-	//public key is generated
-	privateKeyLTV.MakePublicKey(g, &publicKeyLTV);
-
-	return true;
-}
 
 template <class Element>
 bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
@@ -349,6 +306,8 @@ void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherTe
 		
 }
 
+
+
 template<class Element>
 void LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPKeySwitchHint<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
 
@@ -385,6 +344,57 @@ void LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const Ciphertext<Element> &c
 
 	scheme.ModReduce(cipherTextResult);
 
+}
+
+template<class Element>
+bool LPLeveledSHEAlgorithmLTV<Element>::SparseKeyGen(LPPublicKey<Element>* publicKey, LPPrivateKey<Element>* privateKey) const
+{
+	if (publicKey == 0 || privateKey == 0)
+		return false;
+
+	const LPCryptoParametersLTV<Element> *cryptoParams =
+		dynamic_cast<const LPCryptoParametersLTV<Element>*>(&privateKey->GetCryptoParameters());
+
+	if (cryptoParams == 0)
+		return false;
+
+	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+
+	Element f(dgg, elementParams, Format::COEFFICIENT);
+
+	f = p*f;
+
+	f = f + BigBinaryInteger::ONE;
+
+	f.MakeSparse(BigBinaryInteger::TWO);
+
+	f.SwitchFormat();
+
+	//check if inverse does not exist
+	while (!f.InverseExists())
+	{
+		Element temp(dgg, elementParams, Format::COEFFICIENT);
+		f = temp;
+		f = p*f;
+		f = f + BigBinaryInteger::ONE;
+		f.MakeSparse(BigBinaryInteger::TWO);
+		f.SwitchFormat();
+	}
+
+	privateKey->SetPrivateElement(f);
+	privateKey->AccessCryptoParameters() = *cryptoParams;
+
+	Element g(dgg, elementParams, Format::COEFFICIENT);
+
+	g.SwitchFormat();
+
+	//public key is generated
+	privateKey->MakePublicKey(g, publicKey);
+
+	return true;
 }
 
 template <class Element>

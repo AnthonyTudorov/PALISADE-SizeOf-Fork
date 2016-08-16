@@ -336,10 +336,6 @@ namespace lbcrypto {
 			virtual bool KeyGen(LPPublicKey<Element> *publicKey, 
 				LPPrivateKey<Element> *privateKey) const = 0;
 
-			virtual bool SparseKeyGen(LPPublicKey<Element> &publicKey, 
-		        	LPPrivateKey<Element> &privateKey, 
-			        const DiscreteGaussianGenerator &dgg) const = 0;
-
 	};
 
 
@@ -412,7 +408,14 @@ namespace lbcrypto {
 			 * @param &cipherTextResult is the resulting ciphertext.
 			 */
 			virtual void LevelReduce(const Ciphertext<Element> &cipherText1, const LPKeySwitchHint<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const = 0;
-
+			/**
+			* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
+			* and odd indices are set to zero.
+			*
+			* @param *publicKey is the public key to be generated.
+			* @param *privateKey is the private key to be generated.
+			*/
+			virtual bool SparseKeyGen(LPPublicKey<Element> *publicKey, LPPrivateKey<Element> *privateKey) const = 0;
 	};
 
 	/**
@@ -720,11 +723,10 @@ namespace lbcrypto {
 				}
 		}
 
-		bool SparseKeyGen(LPPublicKey<Element> &publicKey, 
-		        	LPPrivateKey<Element> &privateKey, 
-			        const DiscreteGaussianGenerator &dgg) const {
-				if(this->IsEnabled(ENCRYPTION))
-					return this->m_algorithmEncryption->SparseKeyGen(publicKey, privateKey, dgg);
+		bool SparseKeyGen(LPPublicKey<Element> *publicKey, 
+		        	LPPrivateKey<Element> *privateKey) const {
+				if(this->IsEnabled(LEVELEDSHE))
+					return this->m_algorithmLeveledSHE->SparseKeyGen(publicKey, privateKey);
 				else {
 					throw std::logic_error("This operation is not supported");
 				}

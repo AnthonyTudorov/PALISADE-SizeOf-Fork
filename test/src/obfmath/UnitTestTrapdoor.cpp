@@ -327,8 +327,8 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 	ILVector2n u(dug,params,COEFFICIENT);
 	u.SwitchFormat();
 
-	Matrix<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
-	RLWETrapdoorUtility::PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
+	Matrix<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*2, n*2);
+	RLWETrapdoorUtility::PerturbationMatrixGenAlt(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
 
     //  600 is a very rough estimate for s, refer to Durmstradt 4.2 for
     //      estimation
@@ -485,8 +485,10 @@ TEST(UTTrapdoor,EncodeTest_dgg_no) {
 	EXPECT_GT(norm, constraint);
 
 }
-//int main(int argc, char **argv) {
-//	::testing::InitGoogleTest(&argc, argv);
-//	return RUN_ALL_TESTS();
-//
-//}
+/*
+int main(int argc, char **argv) {
+	::testing::InitGoogleTest(&argc, argv);
+	return RUN_ALL_TESTS();
+
+}
+*/

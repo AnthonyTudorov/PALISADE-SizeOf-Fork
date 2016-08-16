@@ -54,8 +54,15 @@ namespace lbcrypto {
 	class LPAlgorithmPRELTV : public LPPREAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
 		public:
 
-			//inherited constructors
+			/**
+			* Default constructor
+			*/					
 			LPAlgorithmPRELTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
+			/**
+			* Constructor that initliazes the scheme
+			*
+			* @param &scheme is a reference to scheme
+			*/
 			LPAlgorithmPRELTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 
 			/**
@@ -63,7 +70,6 @@ namespace lbcrypto {
 			 *
 			 * @param &newPublicKey encryption key for the new ciphertext.
 			 * @param &origPrivateKey original private key used for decryption.
-			 * @param &ddg discrete Gaussian generator.
 			 * @param *evalKey the evaluation key.
 			 */
 			 bool EvalKeyGen(const LPKey<Element> &newPublicKey, 

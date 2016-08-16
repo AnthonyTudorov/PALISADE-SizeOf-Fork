@@ -200,12 +200,12 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::KeyGen(DiscreteGaussianGener
 		DEBUG("keygen2.0:#"<< i << ": "<<TOC(t1) <<" ms");
 
 		TIC(t1);
-		Matrix<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
+		Matrix<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*2, n*2);
 		DEBUG("keygen2.1:#"<< i << ": "<<TOC(t1) <<" ms");
 
 		TIC(t1);
 		//the following takes all the time
-		PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
+		PerturbationMatrixGenAlt(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
 		DEBUG("keygen2.2:#"<< i << ": "<<TOC(t1) <<" ms");
 
 		TIC(t1);
@@ -244,12 +244,12 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::KeyGen(DiscreteGaussianGener
 			DEBUG("keygen2.0:#"<< i << ": "<<TOC(tp) <<" ms");
 
 			TIC(tp);
-			Matrix<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*(k+2), n*(k+2));
+			Matrix<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*2, n*2);
 			DEBUG("keygen2.1:#"<< i << ": "<<TOC(tp) <<" ms");
 
 			TIC(tp);
 			//the following takes all the time
-			RLWETrapdoorUtility::PerturbationMatrixGen(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
+			RLWETrapdoorUtility::PerturbationMatrixGenAlt(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
 			DEBUG("keygen2.2:#"<< i << ": "<<TOC(tp) <<" ms");
 
 			TIC(tp);
