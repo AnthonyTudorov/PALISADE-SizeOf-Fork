@@ -352,7 +352,6 @@ void PRESimulation(usint count, usint dataset){
 	//LWE-NTRU encryption/pre-encryption algorithm instance
 	//LPAlgorithmPRELTV<ILVector2n> algorithm;
 	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
-	size_t chunksize = ((m / 2) / 8);
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
 
 	std::vector<LPPublicKeyLTV<ILVector2n>*> publicKeys;

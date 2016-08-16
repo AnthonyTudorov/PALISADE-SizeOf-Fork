@@ -344,8 +344,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_add) {
 	//Testing eval_add in coefficient format for ILVector2n
 	Ciphertext<ILVector2n> resultsILVector2n(cipher1_single_crt);
 
-	size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
 	algorithm.Enable(SHE);
 	algorithm.EvalAdd(cipher1_single_crt, cipher2_single_crt, &resultsILVector2n);
 
@@ -408,7 +407,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_add) {
 	ILVectorArray2n ilv_dcrt_expectedResults(ilv_dcrt_results_vector);
 	Ciphertext<ILVectorArray2n> cipher_dcrt_results(cipher1_dcrt);
 
-	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm_dcrt(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm_dcrt;
 	algorithm_dcrt.Enable(SHE);
 	algorithm_dcrt.EvalAdd(cipher1_dcrt, cipher2_dcrt, &cipher_dcrt_results);
 
@@ -563,8 +562,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult) {
 	//Testing eval_add in coefficient format for ILVector2n
 	Ciphertext<ILVector2n> resultsILVector2n(cipher1_single_crt);
 
-	size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
 	algorithm.Enable(SHE);
 	algorithm.EvalMult(cipher1_single_crt, cipher2_single_crt, &resultsILVector2n);
 
@@ -616,7 +614,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult) {
 	ILVectorArray2n ilv_dcrt_expectedResults(ilv_dcrt_results_vector);
 	Ciphertext<ILVectorArray2n> cipher_dcrt_results(cipher1_dcrt);
 
-	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm_dcrt(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm_dcrt;
 	algorithm_dcrt.Enable(SHE);
 	algorithm_dcrt.EvalMult(cipher1_dcrt, cipher2_dcrt, &cipher_dcrt_results);
 
@@ -762,8 +760,7 @@ TEST_F(UnitTestSHEAdvanced, test_composed_eval_mult_two_towers) {
 	usint size = finalParamsTwoTowers.GetDepth() + 1;
 	const BigBinaryInteger &plainTextModulus = finalParamsTwoTowers.GetPlaintextModulus();
 	//scheme initialization: LTV Scheme
-	size_t chunksize = (m / 2);
-	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 	algorithm.Enable(SHE);
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(LEVELEDSHE);

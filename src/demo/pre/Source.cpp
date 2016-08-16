@@ -252,8 +252,7 @@ void NTRUPRE(int input) {
 
 	//LPAlgorithmLTV<ILVector2n> algorithm;
 
-	size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
 

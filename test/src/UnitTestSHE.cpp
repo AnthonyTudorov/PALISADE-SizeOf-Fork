@@ -121,8 +121,7 @@ TEST(UnitTestSHE, keyswitch_SingleCRT){
 	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
 	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
 
-	size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(LEVELEDSHE);
 
@@ -192,8 +191,7 @@ TEST(UnitTestSHE, sparsekeygen_single_crt) {
 	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
 	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
 
-	size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
 	algorithm.Enable(LEVELEDSHE);
 	algorithm.Enable(ENCRYPTION);
 
@@ -257,8 +255,7 @@ TEST(UnitTestSHE, keyswitch_ModReduce_RingReduce_DCRT) {
 	LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
 	LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
 
-	size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(LEVELEDSHE);
 
@@ -357,8 +354,7 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	std::vector<usint> vectorOfInts = { 1,0,1,0,1,0,1,1 };
 	IntPlaintextEncoding intArray(vectorOfInts);
 
-	size_t chunksize = (m / 2);
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(LEVELEDSHE);
 
@@ -371,7 +367,7 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 //	vectorOfInts.pop_back();
 
 //	IntPlaintextEncoding intArrayNew(vectorOfInts);
-		IntPlaintextEncoding intArrayNew;
+	IntPlaintextEncoding intArrayNew;
 
 	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &intArrayNew);
 
