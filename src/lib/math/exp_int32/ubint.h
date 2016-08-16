@@ -547,27 +547,6 @@ namespace exp_int32{
      */
     ubint Mod(const ubint& modulus) const;
     
-    /**
-     * returns the modulus with respect to the input value.
-     * Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.
-     * See the cpp file for details of the implementation. 
-     *
-     * @param modulus is the modulus to perform.
-     * @param mu is the Barrett value.
-     * @return is the result of the modulus operation.
-     */
-    ubint ModBarrett(const ubint& modulus, const ubint& mu) const;
-
-    /**
-     * returns the modulus with respect to the input value.
-     * Implements generalized Barrett modular reduction algorithm. Uses an array of precomputed values \mu.
-     * See the cpp file for details of the implementation. 
-     *
-     * @param modulus is the modulus to perform operations with.
-     * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
-     * @return result of the modulus operation.
-     */
-    //ubint ModBarrett(const ubint& modulus, const ubint mu_arr[BARRETT_LEVELS+1]) const;
 
     /**
      * returns the modulus inverse with respect to the input value.
@@ -586,25 +565,6 @@ namespace exp_int32{
      */
     ubint ModAdd(const ubint& b, const ubint& modulus) const;
 
-    /**
-     * Modular addition where Barrett modulo reduction is used.
-     *
-     * @param &b is the scalar to add.
-     * @param modulus is the modulus to perform operations with.
-     * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
-     * @return is the result of the modulus addition operation.
-     */
-    //ubint ModBarrettAdd(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const;
-
-    /**
-     * Modular addition where Barrett modulo reduction is used.
-     *
-     * @param &b is the scalar to add.
-     * @param modulus is the modulus to perform operations with.
-     * @param mu is one precomputed Barrett value.
-     * @return is the result of the modulus addition operation.
-     */
-    ubint ModBarrettAdd(const ubint& b, const ubint& modulus,const ubint& mu) const;
 
     /**
      * Scalar modular subtraction.
@@ -615,25 +575,7 @@ namespace exp_int32{
      */
     ubint ModSub(const ubint& b, const ubint& modulus) const;
 
-    /**
-     * Scalar modular subtraction where Barrett modular reduction is used.
-     *
-     * @param &b is the scalar to subtract.
-     * @param modulus is the modulus to perform operations with.
-     * @param mu is the Barrett value.
-     * @return is the result of the modulus subtraction operation.
-     */
-    ubint ModBarrettSub(const ubint& b, const ubint& modulus,const ubint& mu) const;
 
-    /**
-     * Scalar modular subtraction where Barrett modular reduction is used.
-     *
-     * @param b is the scalar to subtract.
-     * @param modulus is the modulus to perform operations with.
-     * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
-     * @return is the result of the modulus subtraction operation.
-     */
-    //ubint ModBarrettSub(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const;
 
     /**
      * Scalar modulus multiplication.
@@ -644,30 +586,6 @@ namespace exp_int32{
      */
     ubint ModMul(const ubint& b, const ubint& modulus) const;
 
-    /**
-     * Scalar modular multiplication where Barrett modular reduction is used.
-     * Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo). 
-     * Uses one precomputed value \mu.
-     * See the cpp file for details of the implementation. 
-     *
-     * @param b is the scalar to multiply.
-     * @param modulus is the modulus to perform operations with.
-     * @param mu is the precomputed Barrett value.
-     * @return is the result of the modulus multiplication operation.
-     */
-    ubint BModMul(const ubint& b, const ubint& modulus,const ubint& mu) const;
-#if 0
-    ubint DBCModMul(const ubint& b, const ubint& modulus,const ubint& mu) const;
-#endif
-    /**
-     * Scalar modular multiplication where Barrett modular reduction is used.
-     *
-     * @param &b is the scalar to multiply.
-     * @param modulus is the modulus to perform operations with.
-     * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
-     * @return is the result of the modulus multiplication operation.
-     */
-    //ubint ModBarrettMul(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const;
 
     /**
      * Scalar modular exponentiation. Square-and-multiply algorithm is used.

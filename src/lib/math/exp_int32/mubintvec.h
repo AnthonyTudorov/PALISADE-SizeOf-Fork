@@ -419,10 +419,7 @@ public:
    */
   mubintvec Mul(const ubint_el_t &b) const;
   mubintvec ModMul(const ubint_el_t &b) const;//Mul() is the same as ModMul()
-  mubintvec BModMul(const ubint_el_t &b) const;//BarrettMod Mul
-#if 0
-  mubintvec DBCModMul(const ubint_el_t &b) const;//BarrettMod Mul
-#endif
+
       /**
        * scalar *=
        *
@@ -490,10 +487,7 @@ public:
    */
   mubintvec Mul(const mubintvec &b) const;
   mubintvec ModMul(const mubintvec &b) const;
-  mubintvec BModMul(const mubintvec &b) const; //BarrettMod Mul
-#if 0
-  mubintvec DBCModMul(const mubintvec &b) const; //BarrettMod Mul
-#endif
+
       /**
        * vector *=
        *

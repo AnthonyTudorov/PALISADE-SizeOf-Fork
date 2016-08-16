@@ -53,8 +53,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     if (dbg_flag) { std::cerr << #x << ":" << x << " at " << __FILE__ << " line "<< __LINE__ LL std::endl; }	\
   } while (0)
 
-#define TIC(t) t=timeNow() 
+#define TIC(t) t=timeNow()
 #define TOC(t) duration(timeNow()-t)
+#define TOC_NS(t) duration_ns(timeNow()-t) 
+#define TOC_US(t) duration_us(timeNow()-t) 
+#define TOC_MS(t) duration_ms(timeNow()-t) 
 
 #else
 //#define debug(M, ...) fprintf(stderr, "DEBUG %s:%d: " M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
@@ -66,6 +69,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #define TIC(t) 0
 #define TOC(t) 0
+#define TOC_NS(t) 0
+#define TOC_US(t) 0
+#define TOC_MS(t) 0
 
 #endif
 
@@ -76,6 +82,9 @@ typedef std::chrono::high_resolution_clock::time_point TimeVar;
 
 
 #define duration(a) std::chrono::duration_cast<std::chrono::milliseconds>(a).count()
+#define duration_ns(a) std::chrono::duration_cast<std::chrono::nanoseconds>(a).count()
+#define duration_us(a) std::chrono::duration_cast<std::chrono::microseconds>(a).count()
+#define duration_ms(a) std::chrono::duration_cast<std::chrono::milliseconds>(a).count()
 #define timeNow() std::chrono::high_resolution_clock::now()
 
 

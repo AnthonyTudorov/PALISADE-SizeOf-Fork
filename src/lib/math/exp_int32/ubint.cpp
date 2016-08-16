@@ -1372,8 +1372,7 @@ again:
 
   }
 
-  //Algorithm used: Repeated subtraction by a multiple of modulus, which will be referred to as "Classical Modulo Reduction Algorithm"
-  //Complexity: O(log(*this)-log(modulus))
+  //Algorithm used: optimized division algorithm
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::Mod(const ubint& modulus) const{
 
@@ -1394,7 +1393,7 @@ again:
 		  else
 			  return ubint(ONE);
 	  }
-#if 1
+
 		  // return the remainder of the divided by operation
     ubint qv;
     ubint ans(0);
@@ -1409,148 +1408,9 @@ again:
 
     return(ans);
 
-#else
-	  Dlimb_t initial_shift = 0;
-	  //No of initial left shift that can be performed which will make it comparable to the current value.
-	  if(this->m_MSB > modulus.m_MSB)
-		  initial_shift=this->m_MSB - modulus.m_MSB -1;
-
-
-	  ubint j = modulus<<initial_shift;
-
-
-	  ubint result(*this);
-
-	  ubint temp;
-	  usint count = 0;
-	  while(true){
-		  //exit criteria
-		  if(result<modulus) break;
-		  if (result.m_MSB > j.m_MSB) {
-			  temp = j<<1;
-			  if (result.m_MSB == j.m_MSB + 1) {
-				  if(result>temp){
-					  j=temp;
-				  }
-			  }
-			  count ++;
-			  if (count>1000){
-			    std::cout<<"ERROR IN MOD NOT BOTTOMING OUT "<<std::endl;
-			    break;
-			  }
-		  }
-		  //subtracting the running remainder by a multiple of modulus
-		  result -= j;
-
-		  initial_shift = j.m_MSB - result.m_MSB +1;
-		  if(result.m_MSB-1>=modulus.m_MSB){
-			  j>>=initial_shift;
-		  }
-		  else{
-			  j = modulus;
-		  }
-
-	  }
-
-	  return std::move(result);
-#endif
-	  }
-
-  /**
-     Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
-     @article{knezevicspeeding,
-     title={Speeding Up Barrett and Montgomery Modular Multiplications},
-     author={Knezevic, Miroslav and Vercauteren, Frederik and Verbauwhede, Ingrid}
-     }
-     We use the Generalized Barrett modular reduction algorithm described in Algorithm 2 of the Source. The algorithm was originally 
-     proposed in J.-F. Dhem. Modified version of the Barrett algorithm. Technical report, 1994 and described in more detail 
-     in the PhD thesis of the author published at
-     http://users.belgacom.net/dhem/these/these_public.pdf (Section 2.2.4).
-     We take \alpha equal to n + 3. So in our case, \mu = 2^(n + \alpha) = 2^(2*n + 3).
-     Generally speaking, the value of \alpha should be \ge \gamma + 1, where \gamma + n is the number of digits in the dividend.
-     We use the upper bound of dividend assuming that none of the dividends will be larger than 2^(2*n + 3). The value of \mu
-     is computed by BigBinaryVector::ModMult.
-
-  */
-  template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::ModBarrett(const ubint& modulus, const ubint& mu) const{
-    bool dbg_flag = false;
-    if(*this<modulus){
-      return std::move(ubint(*this));
-    }
-    ubint z(*this);
-    ubint q(*this);
-
-    usint n = modulus.m_MSB;
-    usint alpha = n + 3;
-    sint beta = -2;
-
-    q>>=n + beta;
-    DEBUG("q"); if (dbg_flag) q.PrintLimbsInDec();
-
-    q=q*mu;
-    DEBUG("q"); if (dbg_flag) q.PrintLimbsInDec();
-    q>>=alpha-beta;
-    DEBUG("q"); if (dbg_flag) q.PrintLimbsInDec();
-    z-=q*modulus;
-
-    if (dbg_flag) {
-      DEBUG("z");
-      z.PrintLimbsInDec();
-      DEBUG("modulus");
-      modulus.PrintLimbsInDec();
-    }
-    if(z>=modulus)
-      z-=modulus;
-	
-    return z;
-
   }
-#if 0
-  /**
-     Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
-     @article{knezevicspeeding,
-     title={Speeding Up Barrett and Montgomery Modular Multiplications},
-     author={Knezevic, Miroslav and Vercauteren, Frederik and Verbauwhede, Ingrid}
-     }
-     We use the Generalized Barrett modular reduction algorithm described in Algorithm 2 of the Source. The algorithm was originally 
-     proposed in J.-F. Dhem. Modified version of the Barrett algorithm. Technical report, 1994 and described in more detail 
-     in the PhD thesis of the author published at
-     http://users.belgacom.net/dhem/these/these_public.pdf (Section 2.2.4).
-     We take \alpha equal to n + 3. In this case, we work with an array of precomputed \mu values.
-  **/
-  template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::ModBarrett(const ubint& modulus, const ubint mu_arr[BARRETT_LEVELS+1]) const{
 
-    if(*this<modulus){
-      ubint z(*this);
-      return z;
-    }
-    ubint z(*this);
-    ubint q(*this);
 
-    uschar n = modulus.m_MSB;
-    //level is set to the index between 0 and BARRET_LEVELS - 1
-    uschar level = (this->m_MSB-1-n)*BARRETT_LEVELS/(n+1)+1;
-    uschar gamma = (n*level)/BARRETT_LEVELS;
-
-    uschar alpha = gamma + 3;
-    schar beta = -2;
-
-    const ubint& mu = mu_arr[level];
-
-    q>>=n + beta;
-    q=q*mu;
-    q>>=alpha-beta;
-    z-=q*modulus;
-	
-    if(z>=modulus)
-      z-=modulus;
-	
-    return z;
-
-  }
-#endif
   //Extended Euclid algorithm used to find the multiplicative inverse
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModInverse(const ubint& modulus) const{
@@ -1643,19 +1503,6 @@ again:
     return this->Add(b).Mod(modulus);
     //todo what is the order of this operation?
   }
-  // Note none of the Barrett functions are active yet.
-  //Optimized Mod Addition using ModBarrett
-//  template<typename limb_t>
-//  ubint<limb_t> ubint<limb_t>::ModBarrettAdd(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const{
-//    return this->Plus(b).ModBarrett(modulus,mu_arr);
-//  }
-//
-
-
-  template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::ModBarrettAdd(const ubint& b, const ubint& modulus,const ubint& mu) const{
-    return this->Add(b).ModBarrett(modulus,mu);
-  }
 
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModSub(const ubint& b, const ubint& modulus) const{
@@ -1680,66 +1527,6 @@ again:
     }
   }
 
-  //Optimized Mod Substraction using ModBarrett
-  template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::ModBarrettSub(const ubint& b, const ubint& modulus,const ubint& mu) const{
-
-    ubint* a = NULL;
-    ubint* b_op = NULL;
-
-    if(*this>modulus){
-      *a = std::move(this->ModBarrett(modulus,mu));
-    }
-    else{
-      a = const_cast<ubint*>(this);
-    }
-
-    if(b>modulus){
-      *b_op = std::move(b.ModBarrett(modulus,mu));
-    }
-    else{
-      b_op = const_cast<ubint*>(&b);
-    }
-
-    if(!(*a<*b_op)){
-      return ((*a-*b_op).ModBarrett(modulus,mu));
-		
-    }
-    else{
-      return ((*a + modulus) - *b_op);
-    }
-  }
-
-
-//  template<typename limb_t>
-//  ubint<limb_t> ubint<limb_t>::ModBarrettSub(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const{
-//
-//    ubint* a = NULL;
-//    ubint* b_op = NULL;
-//
-//    if(*this>modulus){
-//      *a = std::move(this->ModBarrett(modulus,mu_arr));
-//    }
-//    else{
-//      a = const_cast<ubint*>(this);
-//    }
-//
-//    if(b>modulus){
-//      *b_op = std::move(b.ModBarrett(modulus,mu_arr));
-//    }
-//    else{
-//      b_op = const_cast<ubint*>(&b);
-//    }
-//
-//    if(!(*a<*b_op)){
-//      return ((*a-*b_op).ModBarrett(modulus,mu_arr));
-//
-//    }
-//    else{
-//      return ((*a + modulus) - *b_op);
-//    }
-//
-//  }
 
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModMul(const ubint& b, const ubint& modulus) const{
@@ -1761,180 +1548,8 @@ again:
     return (a*bb).Mod(modulus);
   }
 
-  /*
-    Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
-    @article{knezevicspeeding,
-    title={Speeding Up Barrett and Montgomery Modular Multiplications},
-    author={Knezevic, Miroslav and Vercauteren, Frederik and Verbauwhede, Ingrid}
-    }
-    We use the Generalized Barrett modular reduction algorithm described in Algorithm 2 of the Source. The algorithm was originally 
-    proposed in J.-F. Dhem. Modified version of the Barrett algorithm. Technical report, 1994 and described in more detail 
-    in the PhD thesis of the author published at
-    http://users.belgacom.net/dhem/these/these_public.pdf (Section 2.2.4).
-    We take \alpha equal to n + 3. So in our case, \mu = 2^(n + \alpha) = 2^(2*n + 3).
-    Generally speaking, the value of \alpha should be \ge \gamma + 1, where \gamma + n is the number of digits in the dividend.
-    We use the upper bound of dividend assuming that none of the dividends will be larger than 2^(2*n + 3).
 
-    Multiplication and modulo reduction are NOT INTERLEAVED.
-
-    Potential improvements:
-    1. When working with MATHBACKEND = 1, we tried to compute an evenly distributed array of \mu (the number is approximately equal
-    to the number BARRET_LEVELS) but that did not give any performance improvement. So using one pre-computed value of 
-    \mu was the most efficient option at the time.
-    2. We also tried "Interleaved digit-serial modular multiplication with generalized Barrett reduction" Algorithm 3 in the Source but it 
-    was slower with MATHBACKEND = 1.
-    3. Our implementation makes the modulo operation essentially equivalent to two multiplications. If sparse moduli are selected, it can be replaced
-    with a single multiplication. The interleaved version of modular multiplication for this case is listed in Algorithm 6 of the source. 
-    This algorithm would most like give the biggest improvement but it sets constraints on moduli.
-
-  */
-
-  template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::BModMul(const ubint& b, const ubint& modulus,const ubint& mu) const{
-    bool dbg_flag = false;
-
-    ubint* a  = const_cast<ubint*>(this);
-    ubint* bb = const_cast<ubint*>(&b);
-    DEBUG("ubint bmodmul b"); if (dbg_flag) b.PrintLimbsInDec();
-    DEBUG("ubint bmodmul modulus"); if (dbg_flag) modulus.PrintLimbsInDec();
-    DEBUG("ubint bmodmul mu"); if (dbg_flag) mu.PrintLimbsInDec();
-    //if a is greater than q reduce a to its mod value    if(*this>modulus)
-      *a = std::move(this->ModBarrett(modulus,mu));
-
-
-    //if b is greater than q reduce b to its mod value
-    if(b>modulus)
-      *bb = std::move(b.ModBarrett(modulus,mu));
-
-    return (*a**bb).ModBarrett(modulus,mu);
-
-  }
-#if 0
-
-typedef struct 
-{
-  usint w;  
-  usint n;
-  usint nw;
-  usint r;
-  usint shift1;
-  usint shift2;
-  ubint mu;
-  ubint M;
-
-}BarrettMWParamStruct;
-
-
-  BarrettMWParamStruct& = init_barrett_mod_mul(usint w, usint MNumBits, ubint M, BarrettMWParamStruct &BP) {
-
-    // w is the number of bits of the radix (word size)
-    // MNumBits is the number of bits that represent M (i.e. our largest bitwidth... 
-    //   note this is not the bitwidth of the underlying integer, but rather the size of the smallest
-    //   number of bits that represent M 
-    // M is our Modulus
-  
-    //if 0
-    //n = MNumBits;
-    //else
-    n = floor(log2(M)+1);
-    //end
-
-    BP.w = w;
-    BP.n = n;
-    // nw is the number of words (each of radix r) needed
-    BP.nw = ceil(n/w);
-    // r is the radix
-    BP.r = 2^w;
-
-    // alpha and beta are used to compute the shifts needed
-    sint alpha = w+3;
-    sint beta = -2;
-
-    cout << "test "<< ceil(n/w) << "should = "<< nw << endl;
-
-    BP.shift1 = n+beta;
-    //BP.fast_div1 = 2^(n+beta);
-    BP.shift2 = alpha-beta;
-    //BP.fast_div2 =  2^(alpha-beta);
-    if isfi(M)
-    
-    signed = false;
-    
-    tmp = fi(0,0,n+alpha+1,0);
-    tmp = bitset(tmp,n+alpha+1);
-    
-    // if 1
-    //     %BP.mu = floor(fi((2^(n+alpha))/fi(M)));
-    //     wordLength = tmp.WordLength;
-    //     fracLength = MNumBits;
-    //     nt_scale = numerictype(signed,wordLength,fracLength);
-    //     tmp2 = nt_scale.divide(tmp,M);
-    //     tmp3 = fi(tmp2, 'WordLength', wordLength-fracLength, 'FractionLength', 0);
-    //     BP.mu = tmp3;
-    // end
-    
-
-    //else
-    BP.mu = floor((2^(n+alpha)/M));
-    //end
-    
-    cout <<"barrett constants for M  = "<< M <<"radix = "<< BP.r <<" d = 2^"<< w << "mu = "<< BP.mu <<endl;
-  
-    cout << "num bits = "<< BP.n << " num words = "<<BP.nw <<endl;
-    cout << "r mul = "<< w <<" bits, shift 1 = "<< BP.shift1 <<" bits, shift 2 = "<< BP.shift2 <<" bits"<<endl;
-
-    BP.M = M;
-    return(BP);
-
-  }
-
-
-  //DBC version from Proceed
-  template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::DBCModMul(const ubint& b, const ubint& modulus,const ubint& mu) const{
-    bool dbg_flag = false;
-
-    ubint* a  = const_cast<ubint*>(this);
-    ubint* bb = const_cast<ubint*>(&b);
-    DEBUG("ubint bmodmul b"); if (dbg_flag) b.PrintLimbsInDec();
-    DEBUG("ubint bmodmul modulus"); if (dbg_flag) modulus.PrintLimbsInDec();
-    DEBUG("ubint bmodmul mu"); if (dbg_flag) mu.PrintLimbsInDec();
-    //if a is greater than q reduce a to its mod value    if(*this>modulus)
-      *a = std::move(this->ModBarrett(modulus,mu));
-
-
-    //if b is greater than q reduce b to its mod value
-    if(b>modulus)
-      *bb = std::move(b.ModBarrett(modulus,mu));
-
-    return (*a**bb).ModBarrett(modulus,mu);
-
-  }
-#endif
-
-//  template<typename limb_t>
-//  ubint<limb_t> ubint<limb_t>::ModBarrettMul(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const{
-//    ubint* a  = NULL;
-//    ubint* bb = NULL;
-//
-//    //if a is greater than q reduce a to its mod value
-//    if(*this>modulus)
-//      *a = std::move(this->ModBarrett(modulus,mu_arr));
-//    else
-//      a = const_cast<ubint*>(this);
-//
-//    //if b is greater than q reduce b to its mod value
-//    if(b>modulus)
-//      *bb = std::move(b.ModBarrett(modulus,mu_arr));
-//    else
-//      bb = const_cast<ubint*>(&b);
-//
-//    //return a*b%q
-//
-//    return (*a**bb).ModBarrett(modulus,mu_arr);
-//  }
-
-  //Modular Multiplication using Square and Multiply Algorithm
+  //Modular Exponentiation using Square and Multiply Algorithm
   //reference:http://guan.cse.nsysu.edu.tw/note/expn.pdf
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModExp(const ubint& b, const ubint& modulus) const{
