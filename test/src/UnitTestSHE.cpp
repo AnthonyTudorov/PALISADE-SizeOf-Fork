@@ -321,6 +321,7 @@ TEST(UnitTestSHE, keyswitch_ModReduce_RingReduce_DCRT) {
 	/**************************RINGREDUCE TEST END******************************/
 }
 
+
 TEST(UnitTestSHE, ringreduce_single_crt) {
 
 	//ILVector2n::DestroyPreComputedSamples();
@@ -341,9 +342,6 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
 
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(dgg, params);
-
 	LPCryptoParametersLTV<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
@@ -358,7 +356,7 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	LPPublicKey<ILVector2n> pk(cryptoParams);
 	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
-	std::vector<usint> vectorOfInts = { 1,0,1,0,1,0,1,1 };
+	std::vector<usint> vectorOfInts = { 1,0,1,0,1,0,1,0 };
 	IntPlaintextEncoding intArray(vectorOfInts);
 
 
@@ -366,19 +364,13 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(LEVELEDSHE);
+	algorithm.Enable(SHE);
 
 	algorithm.KeyGen(&pk, &sk);
 
 	vector<Ciphertext<ILVector2n>> ciphertext;
-	//ciphertext.reserve(8);
 
-	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray, &ciphertext);
-
-	IntPlaintextEncoding intArrayNew;
-
-	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &intArrayNew);
-
-	EXPECT_EQ(intArray, intArrayNew);
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray, &ciphertext, false);
 
 	//Initialize the public key containers for sparse key.
 	LPPublicKey<ILVector2n> pkSparse(cryptoParams);
@@ -388,32 +380,43 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	LPEvalKeyNTRU<ILVector2n> toSparseKeySwitchHint;
 	algorithm.KeySwitchHintGen(sk, skSparse, &toSparseKeySwitchHint);
 
+	vector<Ciphertext<ILVector2n>> newCiphertext;
+	newCiphertext.reserve(ciphertext.size());
+
 	CryptoUtility<ILVector2n>::RingReduce(algorithm, &ciphertext, toSparseKeySwitchHint);
 
 	ILVector2n skSparseElement(skSparse.GetPrivateElement());
+	ILVector2n skNewElement(ciphertext[0].GetElement().CloneWithParams());
+
 	skSparseElement.SwitchFormat();
 	skSparseElement.Decompose();
-	skSparseElement.SwitchFormat();
-	ILVector2n skNewElement(ciphertext[0].GetElement().CloneWithParams());
-	BigBinaryVector bbvSkNew(skSparseElement.GetValues());
-	skNewElement.SetValues(bbvSkNew, skNewElement.GetFormat());
+	skNewElement.SetValues(skSparseElement.GetValues(), skSparseElement.GetFormat());
+	skNewElement.SwitchFormat();
 	skSparse.SetPrivateElement(skNewElement);
 
 	IntPlaintextEncoding intArrayNewRR;
-    
-	CryptoUtility<ILVector2n>::Decrypt(algorithm, skSparse, ciphertext, &intArrayNewRR);
-//	skSparse.GetPrivateElement().PrintValues();
-	/*cout << skSparse.GetPrivateElement().GetParams().GetRootOfUnity() << endl;
-	cout << ciphertext.at(0).GetElement().GetParams().GetRootOfUnity() << endl;
 
-	cout << skSparse.GetPrivateElement().GetParams().GetModulus() << endl;
-	cout << ciphertext.at(0).GetElement().GetParams().GetModulus() << endl;
+	LPCryptoParametersLTV<ILVector2n> cryptoParamsRR;
+	ILParams ilparams2(ciphertext[0].GetElement().GetParams());
+	cryptoParamsRR.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
+	cryptoParamsRR.SetDistributionParameter(stdDev);          // Set the noise parameters.
+	cryptoParamsRR.SetRelinWindow(1);						   // Set the relinearization window
+	cryptoParamsRR.SetElementParams(ilparams2);                // Set the initialization parameters.
+	cryptoParamsRR.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-	cout << skSparse.GetPrivateElement().GetParams().GetCyclotomicOrder() << endl;
-	cout << ciphertext.at(0).GetElement().GetParams().GetCyclotomicOrder() << endl;*/
+	for (int i = 0; i < ciphertext.size(); i++) {
+		ciphertext.at(i).SetCryptoParameters(&cryptoParamsRR);
+	}
 
+	skSparse.SetCryptoParameters(&cryptoParamsRR);
+
+	CryptoUtility<ILVector2n>::Decrypt(algorithm, skSparse, ciphertext, &intArrayNewRR, false);
+
+	std::vector<usint> vectorOfExpectedResults = { 1,1,1,1 };
+	IntPlaintextEncoding intArrayExpected(vectorOfExpectedResults);
+
+	EXPECT_EQ(intArrayNewRR, intArrayExpected);
 
 	
 	ILVector2n::DestroyPreComputedSamples();
 }
-
