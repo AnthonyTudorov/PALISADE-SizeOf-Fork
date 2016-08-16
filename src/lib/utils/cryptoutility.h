@@ -70,6 +70,7 @@ public:
 			if( result.isValid == false ) return result;
 
 			cipherResults->push_back(ciphertext);
+			
 		}
 
 		return EncryptResult(ptSize);
