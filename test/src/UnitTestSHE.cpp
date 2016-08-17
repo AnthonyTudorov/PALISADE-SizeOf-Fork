@@ -123,6 +123,7 @@ TEST(UnitTestSHE, keyswitch_SingleCRT){
 	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
+	
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(LEVELEDSHE);
 
@@ -196,6 +197,7 @@ TEST(UnitTestSHE, sparsekeygen_single_crt) {
 
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
 
+
 	algorithm.Enable(LEVELEDSHE);
 	algorithm.Enable(ENCRYPTION);
 
@@ -260,6 +262,7 @@ TEST(UnitTestSHE, keyswitch_ModReduce_RingReduce_DCRT) {
 	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
 
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
+
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(LEVELEDSHE);
 
@@ -419,4 +422,25 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 
 	
 	ILVector2n::DestroyPreComputedSamples();
+}
+
+TEST(UnitTestSHE, canringreduce) {
+	BigBinaryInteger m1("17729");
+	BigBinaryInteger m2("17761");
+	std::vector<BigBinaryInteger> moduli;
+	moduli.reserve(2);
+	moduli.push_back(m1);
+	moduli.push_back(m2);
+
+	size_t chunksize = (8);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(LEVELEDSHE);
+	algorithm.Enable(SHE);
+
+	EXPECT_EQ(algorithm.CanRingReduce(4096, moduli, 1.006), 1);
+	EXPECT_EQ(algorithm.CanRingReduce(2048, moduli, 1.006), 1);
+	EXPECT_EQ(algorithm.CanRingReduce(1024, moduli, 1.006), 0);
+	EXPECT_EQ(algorithm.CanRingReduce(512, moduli, 1.006), 0);
+
 }

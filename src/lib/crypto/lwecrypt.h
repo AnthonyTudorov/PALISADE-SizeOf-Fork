@@ -194,6 +194,14 @@ namespace lbcrypto {
 			* @param *privateKey is the private key to be generated.
 			*/
 			virtual bool SparseKeyGen(LPPublicKey<Element> *publicKey, LPPrivateKey<Element> *privateKey) const;
+			/**
+			* Function that determines if security requirements are met if ring dimension is reduced by half.
+			*
+			* @param ringDimension is the original ringDimension
+			* @param &moduli is the vector of moduli that is used
+			* @param rootHermiteFactor is the security threshold
+			*/
+			virtual bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const;
 	};
 
 	/**

@@ -397,6 +397,22 @@ bool LPLeveledSHEAlgorithmLTV<Element>::SparseKeyGen(LPPublicKey<Element>* publi
 	return true;
 }
 
+template<class Element>
+bool LPLeveledSHEAlgorithmLTV<Element>::CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const
+{
+	if (ringDimension == 1) return false;
+	ringDimension = ringDimension / 2;
+	double multipliedModuli = 1;
+
+	for (usint i = 0; i < moduli.size(); i++) {
+		multipliedModuli = multipliedModuli*  moduli.at(i).ConvertToDouble();
+	}
+	double powerValue = (log(multipliedModuli) / log(2)) / (4 * ringDimension);
+	double powerOfTwo = pow(2, powerValue);
+
+	return rootHermiteFactor >= powerOfTwo;
+}
+
 template <class Element>
 EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
 		const Element &plaintext,

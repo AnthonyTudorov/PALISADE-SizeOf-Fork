@@ -889,6 +889,14 @@ namespace lbcrypto {
 			* @param *privateKey is the private key to be generated.
 			*/
 			virtual bool SparseKeyGen(LPPublicKey<Element> *publicKey, LPPrivateKey<Element> *privateKey) const = 0;
+			/**
+			* Function that determines if security requirements are met if ring dimension is reduced by half.
+			*
+			* @param ringDimension is the original ringDimension
+			* @param &moduli is the vector of moduli that is used
+			* @param rootHermiteFactor is the security threshold
+			*/
+			virtual bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const = 0;
 	};
 
 	/**
@@ -1302,6 +1310,15 @@ namespace lbcrypto {
 			}
 		}
 
+		//wrapper for CanRingReduce
+		bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const {
+			if (this->IsEnabled(LEVELEDSHE)) {
+				this->m_algorithmLeveledSHE->CanRingReduce(ringDimension, moduli, rootHermiteFactor);
+			}
+			else {
+				throw std::logic_error("This operation is not supported");
+			}
+		}
 
 		void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
 			if(this->IsEnabled(LEVELEDSHE)){
