@@ -616,7 +616,7 @@ namespace lbcrypto {
 	class LPPublicKeyEncryptionScheme : public LPEncryptionAlgorithm<Element>, public LPPREAlgorithm<Element>, public LPLeveledSHEAlgorithm<Element>, public LPSHEAlgorithm<Element> {
 
 	public:
-		LPPublicKeyEncryptionScheme(size_t chunksize) : chunksize(chunksize), m_algorithmEncryption(0),
+		LPPublicKeyEncryptionScheme() : m_algorithmEncryption(0),
 			m_algorithmPRE(0), m_algorithmEvalAdd(0), m_algorithmEvalAutomorphism(0),
 			m_algorithmSHE(0), m_algorithmFHE(0), m_algorithmLeveledSHE(0){}
 
@@ -851,16 +851,9 @@ namespace lbcrypto {
 		}
 
 
-		/**
-		 *
-		 * @return the size of plaintext that this scheme can process in one low-level call
-		 */
-		const size_t getChunkSize() const { return chunksize; }
-
 		const LPEncryptionAlgorithm<Element>& getAlgorithm() const { return *m_algorithmEncryption; }
 
 	protected:
-		const size_t chunksize;
 		const LPEncryptionAlgorithm<Element> *m_algorithmEncryption;
 		const LPPREAlgorithm<Element> *m_algorithmPRE;
 		const LPAHEAlgorithm<Element> *m_algorithmEvalAdd;

@@ -205,8 +205,7 @@ void NTRUPRE(int input) {
 	////////////////////////////////////////////////////////////
 
 	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
-	size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask, chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
 
 	bool successKeyGen=false;
 

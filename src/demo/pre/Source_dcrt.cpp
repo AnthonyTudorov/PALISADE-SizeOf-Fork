@@ -175,8 +175,7 @@ void NTRU_DCRT() {
 	LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
 	LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
 
-	size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
 
@@ -885,8 +884,7 @@ void FinalLeveledComputation(){
 	rootsOfUnity = dcrtParams.GetRootsOfUnity();
 
 	//scheme initialization: LTV Scheme
-	size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 	algorithm.Enable(SHE);
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(LEVELEDSHE);
@@ -1130,8 +1128,7 @@ void NTRUPRE(usint input) {
 	//std::bitset<FEATURESETSIZE> mask (std::string("000011"));
 	//LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
 
-	size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
 
@@ -1375,8 +1372,7 @@ void ComposedEvalMultTest(){
 
 
 	//scheme initialization: LTV Scheme
-	size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 	algorithm.Enable(SHE);
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(LEVELEDSHE);

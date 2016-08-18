@@ -13,6 +13,7 @@
 
 #include "../../lib/utils/serializablehelper.h"
 #include "../../lib/encoding/byteplaintextencoding.h"
+#include "../../lib/encoding/intplaintextencoding.h"
 #include "../../lib/utils/cryptoutility.h"
 
 using namespace std;
@@ -44,8 +45,6 @@ main(int argc, char *argv[])
 		cout << "Error on " << input << endl;
 		return 0;
 	}
-
-	cout << "Chunk size is: " << ctx->getChunksize() << endl;
 
 	BytePlaintextEncoding plaintext1("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	BytePlaintextEncoding plaintext2(
@@ -114,7 +113,9 @@ main(int argc, char *argv[])
 	BytePlaintextEncoding plaintext3 = { 9,0,8,0 };
 
 	BytePlaintextEncoding plaintext4;
-	plaintext4.resize(ctx->getChunksize(),0); // make sure this comes out in 2 chunks
+	size_t chunksize = plaintext4.GetChunksize(ctx->getParams()->GetElementParams().GetCyclotomicOrder(), ctx->getParams()->GetPlaintextModulus());
+
+	plaintext4.resize(chunksize,0); // make sure this comes out in 2 chunks
 
 	if( false ) {
 		BytePlaintextEncoding ptz = "hello";
@@ -125,7 +126,7 @@ main(int argc, char *argv[])
 			cout << "Exception thrown" << endl;
 		}
 
-		ptz.resize(ctx->getChunksize(), 'x');
+		ptz.resize(chunksize, 'x');
 		runOneRound(ctx, ptz);
 		try {
 			runOneRound(ctx, ptz, false);
@@ -133,7 +134,7 @@ main(int argc, char *argv[])
 			cout << "Exception thrown" << endl;
 		}
 
-		ptz.resize(ctx->getChunksize()+1, 'x');
+		ptz.resize(chunksize+1, 'x');
 		runOneRound(ctx, ptz);
 		try {
 			runOneRound(ctx, ptz, false);
@@ -155,6 +156,7 @@ main(int argc, char *argv[])
 		} catch (std::logic_error& e) {
 			cout << "Exception thrown: " << e.what() << endl;
 		}
+		continue;
 
 		cout << "test 2 - large plaintext" << endl;
 		try {
@@ -213,6 +215,9 @@ runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plainte
 		exit(1);
 	}
 
+	size_t chunksize = plaintext.GetChunksize(pk.GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), pk.GetCryptoParameters().GetPlaintextModulus());
+	cout << "Chunk size is: " << chunksize << endl;
+
 	//Encryption
 	vector<Ciphertext<ILVector2n>> ciphertext;
 	EncryptResult eResult = CryptoUtility<ILVector2n>::Encrypt(*ctx->getAlgorithm(), pk, plaintext, &ciphertext, doPadding);
@@ -222,7 +227,7 @@ runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plainte
 		exit(1);
 	}
 
-	cout << "I encrypted " << plaintext.size() << " bytes, chunksize " << ctx->getChunksize() << " into " << ciphertext.size() << " parts" << endl;
+	cout << "I encrypted " << plaintext.size() << " bytes, chunksize " << chunksize << " into " << ciphertext.size() << " parts" << endl;
 
 	//Decryption
 	BytePlaintextEncoding plaintextNew;
@@ -236,6 +241,34 @@ runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plainte
 	if( plaintext != plaintextNew ) {
 		cout << "Decryption mismatch!" << endl;
 		exit(1);
+	}
+
+	if( false ) {
+		cout << "Trying int encoding" << endl;
+		IntPlaintextEncoding inInt = { 2, 128, 129, 255, 252, 8 };
+//		size_t chunkSize;
+//		cout << (chunkSize = inInt.GetChunksize(pk.GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), pk.GetCryptoParameters().GetPlaintextModulus())) << endl;
+//		ILVector2n pt(pk.GetCryptoParameters().GetElementParams());
+//		inInt.Encode(pk.GetCryptoParameters().GetPlaintextModulus(), &pt, 0, chunkSize);
+//		cout << pt.GetLength() << endl;
+
+		vector<Ciphertext<ILVector2n>> intCiphertext;
+		IntPlaintextEncoding outInt;
+		eResult = CryptoUtility<ILVector2n>::Encrypt(*ctx->getAlgorithm(), pk, inInt, &intCiphertext, doPadding);
+		dResult = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(), sk, intCiphertext, &outInt, doPadding);
+		if( inInt.size() != outInt.size() ) {
+			cout << "eResult " << eResult.isValid << ":" << eResult.numBytesEncrypted << ", " << intCiphertext.size() << endl;
+			cout << "dResult " << dResult.isValid << ":" << dResult.messageLength << endl;
+			cout << "Output is size " << outInt.GetLength() << endl;
+			cout << endl;
+		} else for( int i=0; i<inInt.size(); i++ ) {
+			if( inInt.at(i) != outInt.at(i) ) {
+				cout << "integers at position " << i << " don't match" << endl;
+				break;
+			}
+		}
+
+		return;
 	}
 
 	//PRE SCHEME

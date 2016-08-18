@@ -102,15 +102,13 @@ private:
 	LPCryptoParameters<Element>				*params;	/*!< crypto parameters used for this context */
 	LPPublicKeyEncryptionScheme<Element>	*algorithm;	/*!< algorithm used; points to keygen and encrypt/decrypt methods */
 
-	long								chunksize;		/*!< the maximum plaintext size that this parameter set can process */
-
 	// these three members are ONLY used by the Java wrapper to cache deserialized keys
 	LPPublicKeyLTV<Element>		*publicKey;
 	LPPrivateKeyLTV<Element>	*privateKey;
 	LPEvalKeyLTV<Element>		*evalKey;
 
 	CryptoContext() : publicKey(0), privateKey(0), evalKey(0),
-			params(0), algorithm(0), chunksize(0), relinWindow(0), ringdim(0), stDev(0), stDevStSt(0) {}
+			params(0), algorithm(0), relinWindow(0), ringdim(0), stDev(0), stDevStSt(0) {}
 
 public:
 	~CryptoContext() {
@@ -132,12 +130,6 @@ public:
 	 * @return crypto algorithm
 	 */
 	LPPublicKeyEncryptionScheme<Element>* getAlgorithm() const { return algorithm; }
-
-	/**
-	 *
-	 * @return max size that this set of parameters can encrypt
-	 */
-	long getChunksize() const { return chunksize; }
 
 	/**
 	 *
