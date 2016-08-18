@@ -627,8 +627,8 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionSchemeFV : public LPPublicKeyEncryptionScheme<Element> {
 	public:
-		LPPublicKeyEncryptionSchemeFV(size_t chunksize) : LPPublicKeyEncryptionScheme<Element>(chunksize) {}
-		LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask, size_t chunksize);
+		LPPublicKeyEncryptionSchemeFV() : LPPublicKeyEncryptionScheme<Element>() {}
+		LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask);
 
 		//These functions can be implemented later
 		//Initialize(mask);

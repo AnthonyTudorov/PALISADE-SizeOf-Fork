@@ -174,8 +174,8 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> &priva
 
 // Constructor for LPPublicKeyEncryptionSchemeFV
 template <class Element>
-LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask, size_t chunksize)
-	: LPPublicKeyEncryptionScheme<Element>(chunksize) {
+LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask)
+	: LPPublicKeyEncryptionScheme<Element>() {
 
 	if (mask[ENCRYPTION])
 		this->m_algorithmEncryption = new LPAlgorithmFV<Element>(*this);
