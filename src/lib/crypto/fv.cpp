@@ -162,6 +162,7 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> &priva
 
 	b *= p;
 
+	// TODO-Nishanth: do the rounding properly
 	// b times p/q in mod p
 
 	b.SwitchFormat();
@@ -169,7 +170,104 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> &priva
 	*plaintext = b;
 
 	return DecryptResult(plaintext->GetLength());
+}
 
+template <class Element>
+bool LPAlgorithmSHEFV<Element>::RelinKeyGen(const LPPrivateKey<Element> &privateKey, LPEvalKey<Element> *ek) const
+{
+	const LPCryptoParametersFV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersFV<Element>&>(privateKey.GetCryptoParameters());
+	const ElemParams &elementParams = cryptoParamsLWE.GetElementParams();
+	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();
+	const Element &s = privateKey.GetPrivateElement();
+
+	LPEvalKeyFV<Element> *evalKey = dynamic_cast<LPEvalKeyFV<Element>*>(ek);
+
+	Element sSquared(s*s);
+
+	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE.GetDiscreteGaussianGenerator();
+	const DiscreteUniformGenerator dug(elementParams.GetModulus());
+
+	std::vector<Element> *evalKeyElements = &evalKey->AccessEvalKeyElements();
+	std::vector<Element> *evalKeyElementsGenerated = &evalKey->AccessEvalKeyElementsGenerated();
+
+	usint relinWindow = cryptoParamsLWE.GetRelinWindow();
+
+	sSquared.PowersOfBase(relinWindow, evalKeyElements);
+
+	for (usint i = 0; i < (evalKeyElements->size()); i++)
+	{
+		// Generate a_i vectors
+		Element a(dug, elementParams, Format::EVALUATION);
+		evalKeyElementsGenerated->push_back(a);
+
+		// Generate a_i * s + e - PowerOfBase(s^2)
+		Element e(dgg, elementParams, Format::EVALUATION);
+		evalKeyElements->at(i) -= (a*s + e);
+	}
+
+	return true;
+}
+
+template <class Element>
+void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext, const LPEvalKey<Element> &evalKey) const {
+
+	if(ciphertext1.GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2.GetElement().GetFormat() == Format::COEFFICIENT){
+		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult cannot multiply in COEFFICIENT domain.");
+	}
+
+	if(!(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters()) || !(ciphertext1.GetCryptoParameters() == newCiphertext->GetCryptoParameters())){
+		std::string errMsg = "LPAlgorithmSHEFV::EvalMult crypto parameters are not the same";
+		throw std::runtime_error(errMsg);
+	}
+
+	const LPCryptoParametersFV<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersFV<Element>*>(&evalKey.GetCryptoParameters());
+	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
+
+	std::vector<Element> *cipherText1Elements = ciphertext1.GetElements();
+	std::vector<Element> *cipherText2Elements = ciphertext2.GetElements();
+
+	// TODO-Nishanth: multiply p/q and rounding
+	Element c0 = cipherText1Elements->at(0) * cipherText2Elements->at(0);
+	Element c1 = cipherText1Elements->at(0) * cipherText2Elements->at(1) + cipherText1Elements->at(1) * cipherText2Elements->at(0);
+	Element c2 = cipherText1Elements->at(1) * cipherText2Elements->at(1);
+
+	std::vector<Element> digitsC2;
+	c2.BaseDecompose(relinWindow, &digitsC2);
+
+	Element ct0(c0), ct1(c1);
+	std::vector<Element> *evalKeyElements = evalKey.AccessEvalKeyElements();
+	std::vector<Element> *evalKeyElementsGenerated = evalKey.AccessEvalKeyElementsGenerated();
+
+	for (usint i = 0; i < digitsC2.size(); ++i)
+	{
+		ct0 += digitsC2[i] * evalKeyElements->at(i);
+		ct1 += digitsC2[i] * evalKeyElementsGenerated->at(i);
+	}
+
+	// *newCiphertext = ciphertext;
+	newCiphertext->SetElements({ct0, ct1});
+
+}
+
+template <class Element>
+void LPAlgorithmSHEFV<Element>::EvalAdd(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const {
+
+	if(!(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters()) || !(ciphertext1.GetCryptoParameters() == newCiphertext->GetCryptoParameters())){
+		std::string errMsg = "LPAlgorithmSHEFV::EvalAdd crypto parameters are not the same";
+		throw std::runtime_error(errMsg);
+	}
+
+	std::vector<Element> *cipherText1Elements = ciphertext1.GetElements();
+	std::vector<Element> *cipherText2Elements = ciphertext2.GetElements();
+
+	Element c0 = cipherText1Elements->at(0) + cipherText2Elements->at(0);
+	Element c1 = cipherText1Elements->at(1) + cipherText2Elements->at(1);
+
+	newCiphertext->SetElements({ c0,c1 });
 }
 
 // Constructor for LPPublicKeyEncryptionSchemeFV
@@ -179,7 +277,9 @@ LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitse
 
 	if (mask[ENCRYPTION])
 		this->m_algorithmEncryption = new LPAlgorithmFV<Element>(*this);
-	
+	// if (mask[SHE])
+	// 	this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>(*this);
+
 	/*if (mask[PRE])
 		this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(*this);
 	if (mask[EVALADD])
@@ -205,6 +305,10 @@ void LPPublicKeyEncryptionSchemeFV<Element>::Enable(PKESchemeFeature feature) {
 		if (this->m_algorithmEncryption == NULL)
 			this->m_algorithmEncryption = new LPAlgorithmFV<Element>(*this);
 		break;
+	// case SHE:
+	// 	if (this->m_algorithmSHE == NULL)
+	// 		this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>(*this);
+	// 	break;
 	/*case PRE:
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(*this);

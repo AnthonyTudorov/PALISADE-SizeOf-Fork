@@ -440,104 +440,104 @@ namespace lbcrypto {
 	* @brief Evaluation/proxy key implementation template for FV-based schemes,
 	* @tparam Element a ring element.
 	*/
-	// template <class Element>
-	// class LPEvalKeyFV : public LPEvalKey<Element> {
-	// public:
+	template <class Element>
+	class LPEvalKeyFV : public LPEvalKey<Element> {
+	public:
 
-	// 	/**
-	// 	* Default constructor
-	// 	*/
+		/**
+		* Default constructor
+		*/
 
-	// 	LPEvalKeyFV() {}
+		LPEvalKeyFV() {}
 
-	// 	/**
-	// 	* Basic constructor for setting crypto params
-	// 	*
-	// 	* @param cryptoParams is the reference to cryptoParams
-	// 	*/
+		/**
+		* Basic constructor for setting crypto params
+		*
+		* @param cryptoParams is the reference to cryptoParams
+		*/
 
-	// 	LPEvalKeyFV(LPCryptoParameters<Element> &cryptoParams) {
-	// 		this->SetCryptoParameters(&cryptoParams);
-	// 	}
+		LPEvalKeyFV(LPCryptoParameters<Element> &cryptoParams) {
+			this->SetCryptoParameters(&cryptoParams);
+		}
 
-	// 	/**
-	// 	* Get Crypto Parameters.
-	// 	* @return the crypto parameters.
-	// 	*/
-	// 	const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
+		/**
+		* Get Crypto Parameters.
+		* @return the crypto parameters.
+		*/
+		const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
 
-	// 	/**
-	// 	* Implementation of the Get accessor for eval key elements (power of base of secret key).
-	// 	* @return the private element.
-	// 	*/
-	// 	const std::vector<Element> &GetEvalKeyElements() const { return m_elements; }
+		/**
+		* Implementation of the Get accessor for eval key elements (power of base of secret key).
+		* @return the private element.
+		*/
+		const std::vector<Element> &GetEvalKeyElements() const { return m_elements; }
 
-	// 	/**
-	// 	* Implementation of the Get accessor for eval key elements (uniformly generated).
-	// 	* @return the private element.
-	// 	*/
-	// 	const std::vector<Element> &GetEvalKeyElementsGenerated() const { return m_elementsGenerated; }
+		/**
+		* Implementation of the Get accessor for eval key elements (uniformly generated).
+		* @return the private element.
+		*/
+		const std::vector<Element> &GetEvalKeyElementsGenerated() const { return m_elementsGenerated; }
 
-	// 	/**
-	// 	* Implementation of the Get accessor for public key.
-	// 	* @return the public.
-	// 	*/
-	// 	const LPPublicKey<Element> &GetPublicKey() const { return *m_publicKey; }
+		/**
+		* Implementation of the Get accessor for public key.
+		* @return the public.
+		*/
+		const LPPublicKey<Element> &GetPublicKey() const { return *m_publicKey; }
 
-	// 	/**
-	// 	* Gets writable instance of cryptoparams.
-	// 	* @return the crypto parameters.
-	// 	*/
-	// 	LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
+		/**
+		* Gets writable instance of cryptoparams.
+		* @return the crypto parameters.
+		*/
+		LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
 
-	// 	/**
-	// 	* Implementation of the writeable accessor for eval key elements (power of base for secret key).
-	// 	* @return the private element.
-	// 	*/
-	// 	std::vector<Element> &AccessEvalKeyElements() { return m_elements; }
+		/**
+		* Implementation of the writeable accessor for eval key elements (power of base for secret key).
+		* @return the private element.
+		*/
+		std::vector<Element> &AccessEvalKeyElements() { return m_elements; }
 
-	// 	/**
-	// 	* Implementation of the writeable accessor for eval key elements (uniformly generated).
-	// 	* @return the private element.
-	// 	*/
-	// 	std::vector<Element> &AccessEvalKeyElementsGenerated() { return m_elementsGenerated; }
+		/**
+		* Implementation of the writeable accessor for eval key elements (uniformly generated).
+		* @return the private element.
+		*/
+		std::vector<Element> &AccessEvalKeyElementsGenerated() { return m_elementsGenerated; }
 
-	// 	/**
-	// 	* Sets crypto params.
-	// 	*
-	// 	* @param *cryptoParams parameters.
-	// 	* @return the crypto parameters.
-	// 	*/
-	// 	void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
+		/**
+		* Sets crypto params.
+		*
+		* @param *cryptoParams parameters.
+		* @return the crypto parameters.
+		*/
+		void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
 
-	// 	*
-	// 	* Implementation of the Set accessor for evaluation key elements (power of base of secret key).
-	// 	* @private &x the public element.
-		
-	// 	void SetEvalKeyElements(std::vector<Element> &elements) { m_elements = elements; }
+		/*
+		* Implementation of the Set accessor for evaluation key elements (power of base of secret key).
+		* @private &x the public element.
+		*/
+		void SetEvalKeyElements(std::vector<Element> &elements) { m_elements = elements; }
 
-	// 	/**
-	// 	* Implementation of the Set accessor for evaluation key elements (uniformly generated).
-	// 	* @private &x the public element.
-	// 	*/
-	// 	void SetEvalKeyElementsGenerated(std::vector<Element> &elements) { m_elementsGenerated = elements; }
+		/**
+		* Implementation of the Set accessor for evaluation key elements (uniformly generated).
+		* @private &x the public element.
+		*/
+		void SetEvalKeyElementsGenerated(std::vector<Element> &elements) { m_elementsGenerated = elements; }
 
-	// 	/**
-	// 	* Implementation of the Set accessor for public key.
-	// 	* @private &publicKey the public element.
-	// 	*/
-	// 	void SetPublicKey(const LPPublicKey<Element> &publicKey) { m_publicKey = &publicKey; }
+		/**
+		* Implementation of the Set accessor for public key.
+		* @private &publicKey the public element.
+		*/
+		void SetPublicKey(const LPPublicKey<Element> &publicKey) { m_publicKey = &publicKey; }
 
-	// 	//JSON FACILITY
-	// 	/**
-	// 	* Serialize the object into a Serialized
-	// 	* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	// 	* @param fileFlag is an object-specific parameter for the serialization
-	// 	* @return true if successfully serialized
-	// 	*/
-	// 	bool Serialize(Serialized* serObj, const std::string fileFlag = "") const {
-	// 		return true;
-	// 	};
+		//JSON FACILITY
+		/**
+		* Serialize the object into a Serialized
+		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @param fileFlag is an object-specific parameter for the serialization
+		* @return true if successfully serialized
+		*/
+		bool Serialize(Serialized* serObj, const std::string fileFlag = "") const {
+			return true;
+		};
 
 		/**
 		* Higher level info about the serialization is saved here
@@ -545,32 +545,32 @@ namespace lbcrypto {
 		* @param flag an object-specific parameter for the serialization
 		* @return true on success
 		*/
-	// 	bool SetIdFlag(Serialized* serObj, const std::string flag) const {
-	// 		return true;
-	// 	};
+		bool SetIdFlag(Serialized* serObj, const std::string flag) const {
+			return true;
+		};
 
-	// 	/**
-	// 	* Populate the object from the deserialization of the Setialized
-	// 	* @param serObj contains the serialized object
-	// 	* @return true on success
-	// 	*/
-	// 	bool Deserialize(const Serialized& serObj) { return false; }
-	// 	bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
-	// 		return true;
-	// 	};
+		/**
+		* Populate the object from the deserialization of the Setialized
+		* @param serObj contains the serialized object
+		* @return true on success
+		*/
+		bool Deserialize(const Serialized& serObj) { return false; }
+		bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
+			return true;
+		};
 
-	// private:
-	// 	LPCryptoParameters<Element> *m_cryptoParameters;
+	private:
+		LPCryptoParameters<Element> *m_cryptoParameters;
 
-	// 	//elements used for evaluation key - with power of base of secret key
-	// 	std::vector<Element> m_elements;
-	// 	//elements with uniform elements
-	// 	std::vector<Element> m_elementsGenerated;
+		//elements used for evaluation key - with power of base of secret key
+		std::vector<Element> m_elements;
+		//elements with uniform elements
+		std::vector<Element> m_elementsGenerated;
 
-	// 	//pointer to public key
-	// 	const LPPublicKey<Element> *m_publicKey;
+		//pointer to public key
+		const LPPublicKey<Element> *m_publicKey;
 
-	// };
+	};
 
 
 	/**
@@ -617,7 +617,38 @@ namespace lbcrypto {
 		*/
 		virtual bool KeyGen(LPPublicKey<Element> *publicKey,
 			LPPrivateKey<Element> *privateKey) const;
+	};
 
+	/**
+	* @brief PRE scheme based on BV.
+	* @tparam Element a ring element.
+	*/
+	template <class Element>
+	class LPAlgorithmSHEFV : public LPPublicKeyEncryptionAlgorithmImpl<Element> { //public LPSHEAlgorithm<Element>, 
+	public:
+
+		//inherited constructors
+		LPAlgorithmSHEFV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
+		LPAlgorithmSHEFV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+
+		/**
+		* Function to generate 1..log(q) encryptions for each bit of the original private key
+		*
+		* @param &newPrivateKey encryption key for the new ciphertext.
+		* @param &origPrivateKey original private key used for decryption.
+		* @param &ddg discrete Gaussian generator.
+		* @param *evalKey the evaluation key.
+		*/
+		bool RelinKeyGen(const LPPrivateKey<Element> &privateKey,
+			LPEvalKey<Element> *evalKey) const;
+		
+		void EvalMult(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext, const LPEvalKey<Element> &evalKey) const;
+
+		void EvalAdd(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const;
 	};
 
 	/**
