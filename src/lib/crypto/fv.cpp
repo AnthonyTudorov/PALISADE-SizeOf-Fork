@@ -225,13 +225,13 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 	const LPCryptoParametersFV<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersFV<Element>*>(&evalKey.GetCryptoParameters());
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
-	std::vector<Element> *cipherText1Elements = ciphertext1.GetElements();
-	std::vector<Element> *cipherText2Elements = ciphertext2.GetElements();
+	std::vector<Element> cipherText1Elements = ciphertext1.GetElements();
+	std::vector<Element> cipherText2Elements = ciphertext2.GetElements();
 
 	// TODO-Nishanth: multiply p/q and rounding
-	Element c0 = cipherText1Elements->at(0) * cipherText2Elements->at(0);
-	Element c1 = cipherText1Elements->at(0) * cipherText2Elements->at(1) + cipherText1Elements->at(1) * cipherText2Elements->at(0);
-	Element c2 = cipherText1Elements->at(1) * cipherText2Elements->at(1);
+	Element c0 = cipherText1Elements.at(0) * cipherText2Elements.at(0);
+	Element c1 = cipherText1Elements.at(0) * cipherText2Elements.at(1) + cipherText1Elements->at(1) * cipherText2Elements->at(0);
+	Element c2 = cipherText1Elements.at(1) * cipherText2Elements.at(1);
 
 	std::vector<Element> digitsC2;
 	c2.BaseDecompose(relinWindow, &digitsC2);
@@ -261,11 +261,11 @@ void LPAlgorithmSHEFV<Element>::EvalAdd(const Ciphertext<Element> &ciphertext1,
 		throw std::runtime_error(errMsg);
 	}
 
-	std::vector<Element> *cipherText1Elements = ciphertext1.GetElements();
-	std::vector<Element> *cipherText2Elements = ciphertext2.GetElements();
+	std::vector<Element> cipherText1Elements = ciphertext1.GetElements();
+	std::vector<Element> cipherText2Elements = ciphertext2.GetElements();
 
-	Element c0 = cipherText1Elements->at(0) + cipherText2Elements->at(0);
-	Element c1 = cipherText1Elements->at(1) + cipherText2Elements->at(1);
+	Element c0 = cipherText1Elements.at(0) + cipherText2Elements.at(0);
+	Element c1 = cipherText1Elements.at(1) + cipherText2Elements.at(1);
 
 	newCiphertext->SetElements({ c0,c1 });
 }
@@ -277,8 +277,8 @@ LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitse
 
 	if (mask[ENCRYPTION])
 		this->m_algorithmEncryption = new LPAlgorithmFV<Element>(*this);
-	// if (mask[SHE])
-	// 	this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>(*this);
+	if (mask[SHE])
+		this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>(*this);
 
 	/*if (mask[PRE])
 		this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(*this);
@@ -305,10 +305,10 @@ void LPPublicKeyEncryptionSchemeFV<Element>::Enable(PKESchemeFeature feature) {
 		if (this->m_algorithmEncryption == NULL)
 			this->m_algorithmEncryption = new LPAlgorithmFV<Element>(*this);
 		break;
-	// case SHE:
-	// 	if (this->m_algorithmSHE == NULL)
-	// 		this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>(*this);
-	// 	break;
+	case SHE:
+		if (this->m_algorithmSHE == NULL)
+			this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>(*this);
+		break;
 	/*case PRE:
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(*this);

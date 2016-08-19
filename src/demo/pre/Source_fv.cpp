@@ -113,7 +113,7 @@ void NTRUPRE(int input) {
 	usint m = 16;
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
-	BytePlaintextEncoding plaintext = "N";
+	BytePlaintextEncoding plaintext = "NISHANTH IS A GREAT PROGRAMMER. DUH, EVERYONE KNOWS THAT!";
 	usint relWindow = input;
 	
 
@@ -205,7 +205,7 @@ void NTRUPRE(int input) {
 	// size_t chunksize = ((m / 2) / 8);
 	LPPublicKeyEncryptionSchemeFV<ILVector2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
-	// algorithm.Enable(PRE);
+	algorithm.Enable(SHE);
 
 	bool successKeyGen=false;
 

@@ -624,7 +624,7 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmSHEFV : public LPPublicKeyEncryptionAlgorithmImpl<Element> { //public LPSHEAlgorithm<Element>, 
+	class LPAlgorithmSHEFV : public LPSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> { //public LPSHEAlgorithm<Element>, 
 	public:
 
 		//inherited constructors
@@ -642,6 +642,10 @@ namespace lbcrypto {
 		bool RelinKeyGen(const LPPrivateKey<Element> &privateKey,
 			LPEvalKey<Element> *evalKey) const;
 		
+		void EvalMult(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const {}
+
 		void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
 				Ciphertext<Element> *newCiphertext, const LPEvalKey<Element> &evalKey) const;
