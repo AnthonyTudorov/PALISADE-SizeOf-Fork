@@ -635,8 +635,10 @@ namespace lbcrypto {
 		// reference to the parameters for ideal lattices
 		ILParams m_params;
 
-		// static variable to store pre-computed samples
+		// static variables to store pre-computed samples and the parms that went with them
 		static std::vector<ILVector2n> m_dggSamples;
+		static ILParams m_dggSamples_params;
+
 
 		// static variable to store the sample size for each set of ILParams
 		static const usint m_sampleSize = SAMPLE_SIZE;

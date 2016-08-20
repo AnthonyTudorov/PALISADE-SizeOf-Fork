@@ -85,7 +85,7 @@ class UnitTestSHE : public ::testing::Test {
 
 TEST(UnitTestSHE, keyswitch_SingleCRT){
   
-	ILVector2n::DestroyPreComputedSamples();
+	//ILVector2n::DestroyPreComputedSamples();
 	usint m = 512;
 
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
@@ -155,7 +155,7 @@ TEST(UnitTestSHE, keyswitch_SingleCRT){
 }
 
 TEST(UnitTestSHE, sparsekeygen_single_crt) {
-	ILVector2n::DestroyPreComputedSamples();
+	//ILVector2n::DestroyPreComputedSamples();
 
 	usint m = 512;
 
@@ -321,7 +321,7 @@ TEST(UnitTestSHE, keyswitch_ModReduce_RingReduce_DCRT) {
 
 TEST(UnitTestSHE, ringreduce_single_crt) {
 
-	ILVector2n::DestroyPreComputedSamples();
+	//ILVector2n::DestroyPreComputedSamples();
 
 	usint m = 16;
 
