@@ -40,26 +40,26 @@ bool LPAlgorithmPRELTV<Element>::EvalKeyGen(const LPKey<Element> &newPK,
 	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();
 	const Element &f = origPrivateKey.GetPrivateElement();
 
-	const LPPublicKeyLTV<Element> *newPublicKey =
-		dynamic_cast<const LPPublicKeyLTV<Element>*>(&newPK);
+	const LPPublicKey<Element> *newPublicKey =
+		dynamic_cast<const LPPublicKey<Element>*>(&newPK);
 
-	const Element &hn = newPublicKey->GetPublicElement();
+	const Element &hn = newPublicKey->GetPublicElements().at(0);
 
 	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE.GetDiscreteGaussianGenerator();
 
-	std::vector<Element> *evalKeyElements = &evalKey->AccessEvalKeyElements();
-
 	usint relinWindow = cryptoParamsLWE.GetRelinWindow();
 
-	f.PowersOfBase(relinWindow, evalKeyElements);
+	std::vector<Element> evalKeyElements( f.PowersOfBase(relinWindow) );
 
-	for (usint i = 0; i < evalKeyElements->size(); ++i)
+	for (usint i = 0; i < evalKeyElements.size(); ++i)
 	{
 		Element s(dgg, elementParams,Format::EVALUATION);
 		Element e(dgg, elementParams,Format::EVALUATION);
 
-		evalKeyElements->at(i) += hn*s + p*e;
+		evalKeyElements.at(i) += hn*s + p*e;
 	}
+
+	evalKey->SetAVector(std::move(evalKeyElements));
 
 	return true;
 
@@ -88,12 +88,13 @@ void LPAlgorithmPRELTV<Element>::ReEncrypt(const LPEvalKey<Element> &evalKey,
 	const Ciphertext<Element> &ciphertext,
 	Ciphertext<Element> *newCiphertext) const
 {
-	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLTV<Element>&>(evalKey.GetCryptoParameters());
+	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = dynamic_cast<const LPCryptoParametersLTV<Element>&>(evalKey.GetCryptoParameters());
+	const ReLinKey<Element> &relinEvalKey = dynamic_cast<const ReLinKey<Element> &>(evalKey);
 	
 	const ElemParams &elementParams = cryptoParamsLWE.GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();
 
-	const std::vector<Element> &proxy = evalKey.GetEvalKeyElements();
+	const std::vector<Element> &proxy = relinEvalKey.GetAVector();
 
 	usint relinWindow = cryptoParamsLWE.GetRelinWindow();
 

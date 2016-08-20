@@ -83,7 +83,7 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	g.SwitchFormat();
 
 	//public key is generated
-	privateKey->MakePublicKey(g,publicKey);
+	publicKey->SetPublicElementAtIndex(0, std::move(cryptoParams->GetPlaintextModulus()*g*privateKey->GetPrivateElement().MultiplicativeInverse()));
 
 	return true;
 }
@@ -392,7 +392,7 @@ bool LPLeveledSHEAlgorithmLTV<Element>::SparseKeyGen(LPPublicKey<Element>* publi
 	g.SwitchFormat();
 
 	//public key is generated
-	privateKey->MakePublicKey(g, publicKey);
+	publicKey->SetPublicElementAtIndex(0, std::move(cryptoParams->GetPlaintextModulus()*g*privateKey->GetPrivateElement().MultiplicativeInverse()));
 
 	return true;
 }
@@ -414,7 +414,7 @@ EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publi
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
-	const Element &h = publicKey.GetPublicElement();
+	const Element &h = publicKey.GetPublicElements().at(0);
 
 	Element s(dgg,elementParams);
 
@@ -454,75 +454,6 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &priv
 	return DecryptResult(plaintext->GetLength());
 }
 
-template <class Element>
-LPPublicKeyLTV<Element>::LPPublicKeyLTV (const LPPublicKey<Element> &rhs) {
-	if(this != rhs) {
-		m_cryptoParameters = rhs.m_cryptoParameters;
-		m_h = rhs.m_h;
-	}
-}
-
-template <class Element>
-LPPublicKeyLTV<Element>& LPPublicKeyLTV<Element>::operator=(const LPPublicKeyLTV<Element> &rhs) {
-	if(this != rhs) {
-		m_cryptoParameters = rhs.m_cryptoParameters;
-		m_h = rhs.m_h;
-	}
-
-	return *this;
-}
-
-// JSON FACILITY
-template <class Element>
-bool LPPublicKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string flag) const {
-
-	SerialItem idFlagMap(rapidjson::kObjectType);
-	idFlagMap.AddMember("ID", "LPPublicKeyLTV", serObj->GetAllocator());
-	idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
-	serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
-
-	return true;
-}
-
-// JSON FACILITY - LPPublicKeyLTV Serialize Operation
-template <class Element>
-bool LPPublicKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
-
-	serObj->SetObject();
-
-	if( !this->GetCryptoParameters().Serialize(serObj, "") ) {
-		return false;
-	}
-
-	const Element& pe = this->GetPublicElement();
-
-	if( !pe.Serialize(serObj, "") ) {
-		return false;
-	}
-
-	if( !this->SetIdFlag(serObj, fileFlag) )
-		return false;
-
-	return true;
-}
-
-// JSON FACILITY - LPPublicKeyLTV Deserialize Operation
-template <class Element>
-bool LPPublicKeyLTV<Element>::Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
-
-	LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-	if( cryptoParams == 0 ) return false;
-
-	this->SetCryptoParameters(cryptoParams);
-
-	Element json_ilElement;
-	if( json_ilElement.Deserialize(serObj) ) {
-		this->SetPublicElement(json_ilElement);
-		return true;
-	}
-
-	return false;
-}
 
 // JSON FACILITY - LPEvalKeyLTV SetIdFlag Operation
 template <class Element>
@@ -604,66 +535,6 @@ bool LPEvalKeyLTV<Element>::Deserialize(const Serialized& serObj, const CryptoCo
 	return true;
 }
 
-template <class Element>
-LPPrivateKeyLTV<Element>::LPPrivateKeyLTV (const LPPrivateKeyLTV<Element> &rhs) {
-	if(this != &rhs) {
-		m_cryptoParameters = rhs.m_cryptoParameters;
-		m_sk = rhs.m_sk;
-	}
-}
-
-template <class Element>
-LPPrivateKeyLTV<Element>& LPPrivateKeyLTV<Element>::operator=(const LPPrivateKeyLTV<Element> &rhs) {
-	if(this != &rhs) {
-		m_cryptoParameters = rhs.m_cryptoParameters;
-		m_sk = rhs.m_sk;
-	}
-
-	return *this;
-}
-
-// JSON FACILITY - LPPrivateKeyLTV SetIdFlag Operation
-template <class Element>
-bool LPPrivateKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string flag) const {
-
-	SerialItem idFlagMap(rapidjson::kObjectType);
-	idFlagMap.AddMember("ID", "LPPrivateKeyLTV", serObj->GetAllocator());
-	idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
-	serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
-
-	return true;
-}
-
-// JSON FACILITY - LPPrivateKeyLTV Serialize Operation
-template <class Element>
-bool LPPrivateKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
-
-	serObj->SetObject();
-	if( !this->SetIdFlag(serObj, fileFlag) )
-		return false;
-
-	if( !this->GetCryptoParameters().Serialize(serObj) )
-		return false;
-
-	return this->GetPrivateElement().Serialize(serObj);
-}
-
-// JSON FACILITY - LPPrivateKeyLTV Deserialize Operation
-template <class Element>
-bool LPPrivateKeyLTV<Element>::Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
-
-	LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-	if( cryptoParams == 0 ) return false;
-
-	this->SetCryptoParameters(cryptoParams);
-
-	Element json_ilElement;
-	if( json_ilElement.Deserialize(serObj) ) {
-		this->SetPrivateElement(json_ilElement);
-		return true;
-	}
-	return false;
-}
 
 // Default constructor for LPPublicKeyEncryptionSchemeLTV
 /*template <class Element>

@@ -42,26 +42,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
-template <class Element>
-void LPPrivateKeyBV<Element>::MakePublicKey(const Element &a, LPPublicKey<Element> *pub) const
-{
-	const LPCryptoParametersBV<Element> *cryptoParams =
-		dynamic_cast<const LPCryptoParametersBV<Element>*>(&this->GetCryptoParameters());
-
-	LPPublicKeyBV<Element> *publicKey =
-		dynamic_cast<LPPublicKeyBV<Element>*>(pub);
-
-	const ElemParams &elementParams = cryptoParams->GetElementParams();
-	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-
-	Element e(dgg, elementParams, Format::COEFFICIENT);
-	e.SwitchFormat();
-
-	Element b = a*m_sk + p*e;
-
-	publicKey->SetPublicElements({ a,b });
-}
 
 template <class Element>
 bool LPAlgorithmBV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
@@ -94,7 +74,14 @@ bool LPAlgorithmBV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	privateKey->AccessCryptoParameters() = *cryptoParams;
 
 	//public key is generated and set
-	privateKey->MakePublicKey(a, publicKey);
+	//privateKey->MakePublicKey(a, publicKey);
+	Element e(dgg, elementParams, Format::COEFFICIENT);
+	e.SwitchFormat();
+
+	Element b = a*s + p*e;
+
+	publicKey->SetPublicElementAtIndex(0, std::move(a));
+	publicKey->SetPublicElementAtIndex(1, std::move(b));
 
 	return true;
 
@@ -109,8 +96,8 @@ EncryptResult LPAlgorithmBV<Element>::Encrypt(const LPPublicKey<Element> &pubKey
 	const LPCryptoParametersBV<Element> *cryptoParams =
 		dynamic_cast<const LPCryptoParametersBV<Element>*>(&pubKey.GetCryptoParameters());
 
-	const LPPublicKeyBV<Element> *publicKey =
-		dynamic_cast<const LPPublicKeyBV<Element>*>(&pubKey);
+	const LPPublicKey<Element> *publicKey =
+		dynamic_cast<const LPPublicKey<Element>*>(&pubKey);
 
 	if (cryptoParams == 0) return EncryptResult();
 
@@ -120,8 +107,9 @@ EncryptResult LPAlgorithmBV<Element>::Encrypt(const LPPublicKey<Element> &pubKey
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
-	const Element &a = publicKey->GetPublicElement();
-	const Element &b = publicKey->GetGeneratedPublicElement();
+	//const Element &a = publicKey->GetPublicElement();
+	const Element &a = publicKey->GetPublicElements().at(0);
+	const Element &b = publicKey->GetPublicElements().at(1);
 
 	Element v(dgg, elementParams, Format::EVALUATION);
 	Element e0(dgg, elementParams, Format::EVALUATION);
@@ -177,36 +165,42 @@ bool LPAlgorithmPREBV<Element>::EvalKeyGen(const LPKey<Element> &newSK,
 	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();
 	const Element &s = origPrivateKey.GetPrivateElement();
 
-	const LPPrivateKeyBV<Element> *newPrivateKey =
-		dynamic_cast<const LPPrivateKeyBV<Element>*>(&newSK);
+	const LPPrivateKey<Element> &newPrivateKey =
+		dynamic_cast<const LPPrivateKey<Element>&>(newSK);
 
-	LPEvalKeyBV<Element> *evalKey =
-		dynamic_cast<LPEvalKeyBV<Element>*>(EK);
+	//LPEvalKeyBV<Element> *evalKey = dynamic_cast<LPEvalKeyBV<Element>*>(EK);
 
-	const Element &sNew = newPrivateKey->GetPrivateElement();
+	const Element &sNew = newPrivateKey.GetPrivateElement();
 
 	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE.GetDiscreteGaussianGenerator();
 	const DiscreteUniformGenerator dug(elementParams.GetModulus());
 
-	std::vector<Element> *evalKeyElements = &evalKey->AccessEvalKeyElements();
-	std::vector<Element> *evalKeyElementsGenerated = &evalKey->AccessEvalKeyElementsGenerated();
-
+	//std::vector<Element> *evalKeyElements = &evalKey->AccessEvalKeyElements();
+	//std::vector<Element> *evalKeyElementsGenerated = &evalKey->AccessEvalKeyElementsGenerated();
 	usint relinWindow = cryptoParamsLWE.GetRelinWindow();
 
-	s.PowersOfBase(relinWindow, evalKeyElements);
+	std::vector<Element> evalKeyElements(s.PowersOfBase(relinWindow));
+	std::vector<Element> evalKeyElementsGenerated;
 
-	for (usint i = 0; i < (evalKeyElements->size()); i++)
+	
+
+	//s.PowersOfBase(relinWindow, evalKeyElements);
+
+	for (usint i = 0; i < (evalKeyElements.size()); i++)
 	{
 		// Generate a_i vectors
 		Element a(dug, elementParams, Format::EVALUATION);
-		evalKeyElementsGenerated->push_back(a);
+		evalKeyElementsGenerated.push_back(a);
 
 		// Generate a_i * newSK + p * e - PowerOfBase(oldSK)
 		Element e(dgg, elementParams, Format::EVALUATION);
-		evalKeyElements->at(i) -= (a*sNew + p*e);
-		evalKeyElements->at(i) *= (elementParams.GetModulus() - BigBinaryInteger::ONE);
+		evalKeyElements.at(i) -= (a*sNew + p*e);
+		evalKeyElements.at(i) *= (elementParams.GetModulus() - BigBinaryInteger::ONE);
 
 	}
+
+	EK->SetAVector(std::move(evalKeyElements));
+	EK->SetBVector(std::move(evalKeyElementsGenerated));
 
 	return true;
 
@@ -223,11 +217,11 @@ void LPAlgorithmPREBV<Element>::ReEncrypt(const LPEvalKey<Element> &EK,
 	const ElemParams &elementParams = cryptoParamsLWE->GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 
-	const LPEvalKeyBV<Element> *evalKey =
-		dynamic_cast<const LPEvalKeyBV<Element>*>(&EK);
+	const ReLinKey<Element> &evalKey =
+		dynamic_cast<const ReLinKey<Element>&>(EK);
 
-	const std::vector<Element> &b = evalKey->GetEvalKeyElements();
-	const std::vector<Element> &a = evalKey->GetEvalKeyElementsGenerated();
+	const std::vector<Element> &b = evalKey.GetAVector();
+	const std::vector<Element> &a = evalKey.GetBVector();
 
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 

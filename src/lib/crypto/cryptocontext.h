@@ -103,8 +103,8 @@ private:
 	LPPublicKeyEncryptionScheme<Element>	*algorithm;	/*!< algorithm used; points to keygen and encrypt/decrypt methods */
 
 	// these three members are ONLY used by the Java wrapper to cache deserialized keys
-	LPPublicKeyLTV<Element>		*publicKey;
-	LPPrivateKeyLTV<Element>	*privateKey;
+	LPPublicKey<Element>		*publicKey;
+	LPPrivateKey<Element>	*privateKey;
 	LPEvalKeyLTV<Element>		*evalKey;
 
 	CryptoContext() : publicKey(0), privateKey(0), evalKey(0),
@@ -150,7 +150,7 @@ public:
 	 *
 	 * @return cached deserialized public key
 	 */
-	LPPublicKeyLTV<Element>	*getPublicKey() const { return publicKey; }
+	LPPublicKey<Element>	*getPublicKey() const { return publicKey; }
 
 	/**
 	 * Used by the Java wrapper
@@ -165,7 +165,7 @@ public:
 	 *
 	 * @return cached deserialized private key
 	 */
-	LPPrivateKeyLTV<Element>	*getPrivateKey() const { return privateKey; }
+	LPPrivateKey<Element>	*getPrivateKey() const { return privateKey; }
 
 	/**
 	 * Used by the Java wrapper

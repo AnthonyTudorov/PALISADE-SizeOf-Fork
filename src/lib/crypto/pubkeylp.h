@@ -161,6 +161,73 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKey : public LPKey<Element> {
 		public:
+
+			/**
+			* Default constructor
+			*/
+			LPPublicKey() {}
+
+			/**
+			* Basic constructor for setting crypto params
+			*
+			* @param &cryptoParams is the reference to cryptoParams
+			*/
+			LPPublicKey(LPCryptoParameters<Element> &cryptoParams) {
+				this->SetCryptoParameters(&cryptoParams);
+			}
+
+			/**
+			* Copy constructor
+			*
+			*@param &rhs LPPublicKey to copy from
+			*/
+			explicit LPPublicKey(const LPPublicKey<Element> &rhs) {
+				m_h = rhs.m_h;
+				this->m_cryptoParameters = rhs.m_cryptoParameters;
+			}
+
+			/**
+			* Move constructor
+			*
+			*@param &rhs LPPublicKey to move from
+			*/
+			explicit LPPublicKey(LPPublicKey<Element> &&rhs) {
+				m_h = std::move(rhs.m_h);
+				m_cryptoParameters = rhs.m_cryptoParameters;
+			}
+
+			/**
+			* Assignment Operator.
+			*
+			* @param &rhs LPPublicKey to copy from
+			*/
+			const LPPublicKey<Element>& operator=(const LPPublicKey<Element> &rhs) {
+				this->m_h = rhs.m_h;
+				this->m_cryptoParameters = rhs.m_cryptoParameters;
+
+				return *this;
+			}
+
+			/**
+			* Move Assignment Operator.
+			*
+			* @param &rhs LPPublicKey to copy from
+			*/
+			const LPPublicKey<Element>& operator=(LPPublicKey<Element> &&rhs) {
+				m_h = std::move(rhs.m_h);
+				this->m_cryptoParameters = rhs.m_cryptoParameters;
+
+				return *this;
+			}
+
+			/**
+			* Get Crypto Parameters.
+			* @param *m_cryptoParameters
+			*
+			* @return the crypto parameters.
+			*/
+			const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
+
 			
 			//@Get Properties
 
@@ -168,13 +235,24 @@ namespace lbcrypto {
 			 * Gets the computed public key 
 			 * @return the public key element.
 			 */
-			virtual const Element &GetPublicElement() const = 0;
+			virtual const std::vector<Element> &GetPublicElements() const {
+				return this->m_h;
+			}
 			
+
 			/**
-			 * Gets the generated polynomial used in computing the public key
-			 * @return the public key element.
-			 */
-			//virtual const Element &GetGeneratedElement() const = 0;
+			* Gets writable instance of cryptoparams.
+			* @return the crypto parameters.
+			*/
+			LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
+
+			/**
+			* Sets crypto params.
+			*
+			* @param *cryptoParams parameters to set to.
+			*/
+			void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
+
 
 			//@Set Properties
 
@@ -182,13 +260,100 @@ namespace lbcrypto {
 			 * Sets the public key 
 			 * @param &element the public key element.
 			 */
-			virtual void SetPublicElement (const Element &element) = 0;
-			
+			void SetPublicElements(const std::vector<Element> &element) {
+				m_h = element;
+			}
+
 			/**
-			 * Sets the generated polynomial used in computing the public key
-			 * @param &element the public key polynomial.
-			 */
-			//virtual void SetGeneratedElement (const Element &element) = 0;
+			* Sets the public key
+			* @param &element the public key element.
+			*/
+			void SetPublicElements(std::vector<Element> &&element) {
+				m_h = std::move(element);
+			}
+
+			void SetPublicElementAtIndex(usint idx, const Element &element) {
+				m_h.insert(m_h.begin() + idx, element);
+			}
+
+			void SetPublicElementAtIndex(usint idx, Element &&element) {
+				m_h.insert(m_h.begin() + idx, std::move(element));
+			}
+			
+			//JSON FACILITY
+			/**
+			* Serialize the object into a Serialized
+			* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+			* @param fileFlag is an object-specific parameter for the serialization
+			* @return true if successfully serialized
+			*/
+			bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+				serObj->SetObject();
+
+				if (!this->GetCryptoParameters().Serialize(serObj, "")) {
+					return false;
+				}
+
+				const Element& pe = this->GetPublicElements().at(0);
+
+				if (!pe.Serialize(serObj, "")) {
+					return false;
+				}
+
+				if (!this->SetIdFlag(serObj, fileFlag))
+					return false;
+
+				return true;
+			}
+
+			/**
+			* Higher level info about the serialization is saved here
+			* @param *serObj to store the the implementing object's serialization specific attributes.
+			* @param flag an object-specific parameter for the serialization
+			* @return true on success
+			*/
+			bool SetIdFlag(Serialized *serObj, const std::string flag) const {
+
+				SerialItem idFlagMap(rapidjson::kObjectType);
+				idFlagMap.AddMember("ID", "LPPublicKey", serObj->GetAllocator());
+				idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
+				serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
+
+				return true;
+			}
+
+			/**
+			* Populate the object from the deserialization of the Serialized
+			* @param &serObj contains the serialized object
+			* @return true on success
+			*/
+			bool Deserialize(const Serialized &serObj) { 
+				/*lpcryptoparameters<element>* cryptoparams = deserializeandvalidatecryptoparameters<element>(serobj, *ctx->getparams());
+				if (cryptoparams == 0) return false;
+
+				this->setcryptoparameters(cryptoparams);
+
+				element json_ilelement;
+				if (json_ilelement.deserialize(serobj)) {
+					this->setpublicelement(json_ilelement);
+					return true;
+				}*/
+
+				return false;
+			}
+
+			/**
+			* Populate the object from the deserialization of the Serialized
+			* @param &serObj contains the serialized object
+			* @param *ctx
+			* @return true on success
+			*/
+			bool Deserialize(const Serialized& serObj, const CryptoContext<Element> *ctx); //TODO: @Gerard Ryan, complete doxygen documentation
+
+	private:
+		LPCryptoParameters<Element> *m_cryptoParameters;
+		
+		std::vector<Element> m_h;
 
 	};
 
@@ -200,73 +365,377 @@ namespace lbcrypto {
 	class LPEvalKey : public LPKey<Element> {
 	public:
 
-		//@Get Properties
+		/**
+		* Default constructor
+		*/
+
+		LPEvalKey() {}
 
 		/**
-		* Gets the computed evaluation key
-		* @return the eval key elements.
+		* Basic constructor for setting crypto params
+		*
+		* @param &cryptoParams is the reference to cryptoParams
 		*/
-		virtual const std::vector<Element> &GetEvalKeyElements() const = 0;
+
+		LPEvalKey(LPCryptoParameters<Element> &cryptoParams) {
+			this->SetCryptoParameters(&cryptoParams);
+		}
 
 		/**
-		* Gets the public key associated with the evaluation key
-		* @return the public key element.
+		* Sets crypto params.
+		*
+		* @param *cryptoParams parameters.
+		*
 		*/
-		virtual const LPPublicKey<Element> &GetPublicKey() const = 0;
+		virtual void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
 
 		/**
-		* Gets a writeable copy of the computed evaluation key
-		* @return the private element.
+		* Gets writable instance of cryptoparams.
+		* @return the crypto parameters.
 		*/
-		virtual std::vector<Element> &AccessEvalKeyElements() = 0;
+		virtual LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
 
 		/**
-		* Sets the evaluation key
-		* @param &elements the evaluation key elements.
+		* Get Crypto Parameters.
+		* @param *m_cryptoParameters
+		*
+		* @return the crypto parameters.
 		*/
-		virtual void SetEvalKeyElements(std::vector<Element> &elements) = 0;
+		virtual const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
+
+
+		virtual void SetAVector(const std::vector<Element> &a) = 0;
+
+		virtual void SetAVector(std::vector<Element> &&a) = 0;
+
+		virtual void SetBVector(const std::vector<Element> &b) = 0;
+
+		virtual void SetBVector(std::vector<Element> &&b) = 0;
+
+		virtual void SetA(const Element &a) = 0;
+
+		virtual void SetA(Element &&a) = 0;
+
+		//JSON FACILITY
+		/**
+		* Serialize the object into a Serialized
+		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @param fileFlag is an object-specific parameter for the serialization
+		* @return true if successfully serialized
+		*/
+		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+			/*serObj->SetObject();
+
+			if (!this->GetCryptoParameters().Serialize(serObj, "")) {
+				return false;
+			}
+
+			const Element& pe = this->GetPublicElements().at(0);
+
+			if (!pe.Serialize(serObj, "")) {
+				return false;
+			}
+
+			if (!this->SetIdFlag(serObj, fileFlag))
+				return false;*/
+
+			return true;
+		}
 
 		/**
-		* Sets the public key
-		* @param &publicKey the public key
+		* Populate the object from the deserialization of the Serialized
+		* @param &serObj contains the serialized object
+		* @return true on success
 		*/
-		virtual void SetPublicKey(const LPPublicKey<Element> &publicKey) = 0;
+		bool Deserialize(const Serialized &serObj) {
+			/*lpcryptoparameters<element>* cryptoparams = deserializeandvalidatecryptoparameters<element>(serobj, *ctx->getparams());
+			if (cryptoparams == 0) return false;
+
+			this->setcryptoparameters(cryptoparams);
+
+			element json_ilelement;
+			if (json_ilelement.deserialize(serobj)) {
+			this->setpublicelement(json_ilelement);
+			return true;
+			}*/
+
+			return false;
+		}
+
+	private:
+		LPCryptoParameters<Element> *m_cryptoParameters;
 
 	};
 
 	/**
-	 * @brief Abstract interface for LP private keys
-	 * @tparam Element a ring element.
-	 */
+	* @brief Abstract interface for Relinearization keys
+	* @tparam Element a ring element.
+	*/
+	template <class Element>
+	class ReLinKey : public LPEvalKey<Element> {
+	public:
+
+		ReLinKey() {};
+
+		ReLinKey(LPCryptoParameters<Element> &cryptoParams) {
+			this->SetCryptoParameters(&cryptoParams);
+		}
+
+		virtual void SetAVector(const std::vector<Element> &a) {
+			m_rKey.insert(m_rKey.begin() + 0, a);
+		}
+
+		virtual void SetAVector(std::vector<Element> &&a) {
+			m_rKey.insert(m_rKey.begin() + 0, std::move(a));
+		}
+
+		const std::vector<Element> &GetAVector() const {
+			return m_rKey.at(0);
+		}
+
+		virtual void SetBVector(const std::vector<Element> &b) {
+			m_rKey.insert(m_rKey.begin() + 1, b);
+		}
+
+		virtual void SetBVector(std::vector<Element> &&b) {
+			m_rKey.insert(m_rKey.begin() + 1, std::move(b));
+		}
+
+		const std::vector<Element> &GetBVector() const {
+			return m_rKey.at(1);
+		}
+
+		virtual void SetA(const Element &a) {
+			throw std::runtime_error("Operation not supported");
+		}
+
+		virtual void SetA(Element &&a) {
+			throw std::runtime_error("Operation not supported");
+		}
+
+	private:
+		std::vector< std::vector<Element> > m_rKey;
+	};
+
+	/**
+	* @brief Abstract interface for NTRU keys
+	* @tparam Element a ring element.
+	*/
+	template <class Element>
+	class NTRUKey : public LPEvalKey<Element> {
+	public:
+
+		NTRUKey() {};
+
+		NTRUKey(LPCryptoParameters<Element> &cryptoParams) {
+			this->SetCryptoParameters(&cryptoParams);
+		}
+
+		virtual void SetAVector(const std::vector<Element> &a) {
+			throw std::runtime_error("Operation not supported");
+		}
+
+		virtual void SetAVector(std::vector<Element> &&a) {
+			throw std::runtime_error("Operation not supported");
+		}
+
+		virtual void SetBVector(const std::vector<Element> &b) {
+			throw std::runtime_error("Operation not supported");
+		}
+
+		virtual void SetBVector(std::vector<Element> &&b) {
+			throw std::runtime_error("Operation not supported");
+		}
+
+		virtual void SetA(const Element &a) {
+			m_Key = a;
+		}
+
+		virtual void SetA(Element &&a) {
+			m_Key = std::move(a);
+		}
+
+		const Element& GetA() const {
+			return m_Key;
+		}
+
+	private:
+		Element m_Key;
+	};
+	
+
+	/**
+	* @brief Private key implementation template for Ring-LWE, NTRU-based schemes,
+	* @tparam Element a ring element.
+	*/
 	template <class Element>
 	class LPPrivateKey : public LPKey<Element> {
-		public:
+	public:
 
-			//@Get Properties
-			
-			/**
-			 * Gets the private key polynomial 
-			 * @return the private key element.
-			 */ 
-			virtual const Element & GetPrivateElement() const = 0;
+		/**
+		* Default constructor
+		*/
 
-			//@Set Properties
-			
-			/**
-			 * Sets the private key polynomial
-			 * @param &x the public key element.
-			 */ 
-			virtual void SetPrivateElement(const Element &x) = 0;
+		LPPrivateKey() {}
 
-			//@Other Methods 
-			/**
-			 * Computes the public key using the parameters stored in implementations of LPPublicKey and LPPrivateKey interfaces 
-			 * @param &g a generated polynomial.
-			 * @param &pub the public key element.
-			 */ 
-			virtual void MakePublicKey(const Element &g, LPPublicKey<Element> *pub) const = 0;
+		/**
+		* Basic constructor for setting crypto params
+		*
+		* @param &cryptoParams is the reference to cryptoParams.
+		*/
+		LPPrivateKey(LPCryptoParameters<Element> &cryptoParams) {
+			this->SetCryptoParameters(&cryptoParams);
+		}
 
-	
+		/**
+		* Copy constructor
+		*@param &rhs the LPPrivateKey to copy from
+		*/
+		explicit LPPrivateKey(const LPPrivateKey<Element> &rhs) {
+			this->m_sk = rhs.m_sk;
+			this->m_cryptoParameters = rhs.m_cryptoParameters;
+		}
+
+		/**
+		* Move constructor
+		*@param &rhs the LPPrivateKey to move from
+		*/
+		explicit LPPrivateKey(LPPrivateKey<Element> &&rhs) {
+			this->m_sk = std::move(rhs.m_sk);
+			this->m_cryptoParameters = rhs.m_cryptoParameters;
+		}
+
+		/**
+		* Assignment Operator.
+		*
+		* @param &rhs LPPrivateKeyto assign from.
+		* @return the resulting LPPrivateKey
+		*/
+		const LPPrivateKey<Element>& operator=(const LPPrivateKey<Element> &rhs) {
+			this->m_sk = rhs.m_sk;
+			this->m_cryptoParameters = rhs.m_cryptoParameters;
+
+			return *this;
+		}
+
+		/**
+		* Move Assignment Operator.
+		*
+		* @param &rhs LPPrivateKey to assign from.
+		* @return the resulting LPPrivateKey
+		*/
+		const LPPrivateKey<Element>& operator=(LPPrivateKey<Element> &&rhs) {
+			this->m_sk = std::move(rhs.m_sk);
+			this->m_cryptoParameters = rhs.m_cryptoParameters;
+
+			return *this;
+		}
+
+		/**
+		* Get Crypto Parameters.
+		* @return the crypto parameters.
+		*/
+		const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
+
+		/**
+		* Implementation of the Get accessor for private element.
+		* @return the private element.
+		*/
+		const Element & GetPrivateElement() const { return m_sk; }
+
+		/**
+		* Gets writable instance of cryptoparams.
+		* @return the crypto parameters.
+		*/
+		LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
+
+		/**
+		* Sets crypto params.
+		*
+		* @param *cryptoParams parameters.
+		* @return the crypto parameters.
+		*/
+		void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
+
+		/**
+		* Set accessor for private element.
+		* @private &x private element to set to.
+		*/
+		void SetPrivateElement(const Element &x) { m_sk = x; }
+
+		/**
+		* Set accessor for private element.
+		* @private &x private element to set to.
+		*/
+		void SetPrivateElement(Element &&x) { m_sk = std::move(x); }
+
+		//JSON FACILITY
+		/**
+		* Serialize the object into a Serialized
+		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @param fileFlag is an object-specific parameter for the serialization
+		* @return true if successfully serialized
+		*/
+		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+
+			serObj->SetObject();
+			if (!this->SetIdFlag(serObj, fileFlag))
+				return false;
+
+			if (!this->GetCryptoParameters().Serialize(serObj))
+				return false;
+
+			return this->GetPrivateElement().Serialize(serObj);
+		}
+
+		/**
+		* Higher level info about the serialization is saved here
+		* @param *serObj to store the the implementing object's serialization specific attributes.
+		* @param flag an object-specific parameter for the serialization
+		* @return true on success
+		*/
+		bool SetIdFlag(Serialized *serObj, const std::string flag) const {
+			SerialItem idFlagMap(rapidjson::kObjectType);
+			idFlagMap.AddMember("ID", "LPPrivateKey", serObj->GetAllocator());
+			idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
+			serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
+
+			return true;
+		}
+
+		/**
+		* Populate the object from the deserialization of the Setialized
+		* @param &serObj contains the serialized object
+		* @return true on success
+		*/
+		bool Deserialize(const Serialized &serObj) { 
+			/*LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
+			if (cryptoParams == 0) return false;
+
+			this->SetCryptoParameters(cryptoParams);
+
+			Element json_ilElement;
+			if (json_ilElement.Deserialize(serObj)) {
+				this->SetPrivateElement(json_ilElement);
+				return true;
+			}*/
+			return false;
+		}
+
+		/**
+		* Populate the object from the deserialization of the Setialized
+		* @param &serObj contains the serialized object
+		* @param *ctx
+		* @return true on success
+		*/
+		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx);
+
+
+	private:
+		LPCryptoParameters<Element> *m_cryptoParameters;
+		//private key polynomial
+		Element m_sk;
+		
 	};
 
 
