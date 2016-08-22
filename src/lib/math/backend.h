@@ -45,8 +45,8 @@
 // uint16_t, and uint32_t; uint32_t is recommended for 32- and 64-bit
 // CPU architectures
 
-//#define MATHBACKEND 3 //64 bit
-#define MATHBACKEND 2 //32 bit
+//#define MATHBACKEND 3 //64 bit (works for ubuntu, not tested otherwise
+#define MATHBACKEND 2 //32 bit should work with all OS
 
 #if MATHBACKEND == 1
 #include "cpu8bit/binint8bit.h"
