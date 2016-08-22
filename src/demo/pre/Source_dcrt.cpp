@@ -84,7 +84,7 @@ struct SecureParams {
 int main() {
 
 //	RingReduceDCRTTest();
-	//NTRUPRE(0);
+	NTRUPRE(0);
 	NTRU_DCRT();
 	//LevelCircuitEvaluation();
 	//LevelCircuitEvaluation1();
@@ -172,8 +172,8 @@ void NTRU_DCRT() {
 	Ciphertext<ILVectorArray2n> cipherText;
 	cipherText.SetCryptoParameters(&cryptoParams);
 
-	LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
+	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
+	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
 
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
@@ -395,8 +395,8 @@ void LevelCircuitEvaluation(){
 
 	// -------------------------- end Set cipherText1 Element ----------------------//
 
-	LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
+	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
+	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
 
 	std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm(mask);
@@ -507,11 +507,11 @@ void LevelCircuitEvaluation1(){
 	cryptoParams1.SetDiscreteGaussianGenerator(dgg);
 
 
-	LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
+	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
+	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
 
-	LPPublicKeyLTV<ILVectorArray2n> pk1(cryptoParams);
-	LPPrivateKeyLTV<ILVectorArray2n> sk1(cryptoParams);
+	LPPublicKey<ILVectorArray2n> pk1(cryptoParams);
+	LPPrivateKey<ILVectorArray2n> sk1(cryptoParams);
 
 	std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm(mask);
@@ -643,14 +643,14 @@ void LevelCircuitEvaluation2WithCEM(){
 	element3 = {1};
 	cipherText3.SetElement(element3);
 
-	LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
+	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
+	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
 
-	LPPublicKeyLTV<ILVectorArray2n> pk1(cryptoParams);
-	LPPrivateKeyLTV<ILVectorArray2n> sk1(cryptoParams);
+	LPPublicKey<ILVectorArray2n> pk1(cryptoParams);
+	LPPrivateKey<ILVectorArray2n> sk1(cryptoParams);
 
-	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams1);
-	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams1);
+	LPPublicKey<ILVectorArray2n> pk2(cryptoParams1);
+	LPPrivateKey<ILVectorArray2n> sk2(cryptoParams1);
 
 	std::bitset<FEATURESETSIZE> mask (std::string("1000011"));
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm(mask);
@@ -890,14 +890,14 @@ void FinalLeveledComputation(){
 	algorithm.Enable(LEVELEDSHE);
 
 	//Generate the secret key for the initial ciphertext:
-	LPPublicKeyLTV<ILVectorArray2n> pk(finalParams);
-	LPPrivateKeyLTV<ILVectorArray2n> sk(finalParams);
+	LPPublicKey<ILVectorArray2n> pk(finalParams);
+	LPPrivateKey<ILVectorArray2n> sk(finalParams);
 	algorithm.KeyGen(&pk,&sk);
 
 	//Generate the secret keys for the levels
-	std::vector< LPPrivateKeyLTV<ILVectorArray2n> > levelSk;
+	std::vector< LPPrivateKey<ILVectorArray2n> > levelSk;
 	levelSk.reserve(finalParams.GetDepth());
-	std::vector< LPPublicKeyLTV<ILVectorArray2n> > levelPk;
+	std::vector< LPPublicKey<ILVectorArray2n> > levelPk;
 	levelPk.reserve(finalParams.GetDepth());
 	std::vector< ILDCRTParams > leveledDcrtParams;
 	leveledDcrtParams.reserve(finalParams.GetDepth()+1);
@@ -925,8 +925,8 @@ void FinalLeveledComputation(){
 
 	//Populate the vector of SK's and PK's
 	for(usint i=0 ;i < finalParams.GetDepth(); i++){
-		levelSk.push_back(LPPrivateKeyLTV<ILVectorArray2n>(leveledCryptoParams[i]));
-		levelPk.push_back(LPPublicKeyLTV<ILVectorArray2n>(leveledCryptoParams[i]));
+		levelSk.push_back(LPPrivateKey<ILVectorArray2n>(leveledCryptoParams[i]));
+		levelPk.push_back(LPPublicKey<ILVectorArray2n>(leveledCryptoParams[i]));
 	}
 
 	//KeyGen on all the SK's and PK's
@@ -936,7 +936,7 @@ void FinalLeveledComputation(){
 
 	//key structure stores all the hints 
 	LPLeveledSHEKeyStructure<ILVectorArray2n> keyStruc(finalParams.GetDepth());
-	LPKeySwitchHintLTV<ILVectorArray2n> linearKeySwitchHint1, linearKeySwitchHint2, quadraticKeySwitchHint1, quadraticKeySwitchHint2;
+	LPEvalKeyNTRU<ILVectorArray2n> linearKeySwitchHint1, linearKeySwitchHint2, quadraticKeySwitchHint1, quadraticKeySwitchHint2;
 	
 	algorithm.KeySwitchHintGen(sk, levelSk[0], &linearKeySwitchHint1);	
 	algorithm.QuadraticKeySwitchHintGen(sk, levelSk[0], &quadraticKeySwitchHint1);
@@ -1114,8 +1114,8 @@ void NTRUPRE(usint input) {
 	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -1225,8 +1225,8 @@ void NTRUPRE(usint input) {
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPPublicKeyLTV<ILVector2n> newPK(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> newSK(cryptoParams);
+	LPPublicKey<ILVector2n> newPK(cryptoParams);
+	LPPrivateKey<ILVector2n> newSK(cryptoParams);
 
 	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
@@ -1252,7 +1252,7 @@ void NTRUPRE(usint input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyLTV<ILVector2n> evalKey(cryptoParams);
+	LPEvalKeyRelin<ILVector2n> evalKey(cryptoParams);
 
 	start = currentDateTime();
 
@@ -1378,13 +1378,13 @@ void ComposedEvalMultTest(){
 	algorithm.Enable(LEVELEDSHE);
 
 	//Generate the secret key for the initial ciphertext:
-	LPPublicKeyLTV<ILVectorArray2n> pk(finalParamsThreeTowers);
-	LPPrivateKeyLTV<ILVectorArray2n> sk(finalParamsThreeTowers);
+	LPPublicKey<ILVectorArray2n> pk(finalParamsThreeTowers);
+	LPPrivateKey<ILVectorArray2n> sk(finalParamsThreeTowers);
 	algorithm.KeyGen(&pk, &sk);
 
 	//Generate the switch cipher text
-	LPPublicKeyLTV<ILVectorArray2n> pkNew(finalParamsThreeTowers);
-	LPPrivateKeyLTV<ILVectorArray2n> skNew(finalParamsThreeTowers);
+	LPPublicKey<ILVectorArray2n> pkNew(finalParamsThreeTowers);
+	LPPrivateKey<ILVectorArray2n> skNew(finalParamsThreeTowers);
 	algorithm.KeyGen(&pkNew, &skNew);
 
 	//Generating original ciphertext to perform ComposedEvalMult on
@@ -1403,7 +1403,7 @@ void ComposedEvalMultTest(){
 	finalParamsTwoTowers.SetElementParams(finalDcrtParamsTwoTowers);
 
 	//Generating Quaraditic KeySwitchHint from sk^2 to skNew
-	LPKeySwitchHintLTV<ILVectorArray2n> quadraticKeySwitchHint;
+	LPEvalKeyNTRU<ILVectorArray2n> quadraticKeySwitchHint;
 	algorithm.QuadraticKeySwitchHintGen(sk, skNew, &quadraticKeySwitchHint);
 
 	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce

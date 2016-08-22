@@ -88,7 +88,7 @@ template <class Element>
 bool LPAlgorithmSHELTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &newPrivateKey, 
 				LPPrivateKey<Element> &origPrivateKey,
 				usint depth,
-				LPKeySwitchHint<Element> *keySwitchHint) const
+				LPEvalKeyNTRU<Element> *keySwitchHint) const
 {
 	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(origPrivateKey.GetCryptoParameters());
 	DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
@@ -110,7 +110,7 @@ bool LPAlgorithmSHELTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &n
 //Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
 bool LPAlgorithmSHELTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &privateKey,  
-				LPKeySwitchHint<Element> *keySwitchHint) const
+				LPEvalKeyNTRU<Element> *keySwitchHint) const
 {
 	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(privateKey.GetCryptoParameters());
 	DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
@@ -126,7 +126,7 @@ bool LPAlgorithmSHELTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &p
 }
 
 template <class Element>
-void LPAlgorithmSHELTV<Element>::KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint,
+void LPAlgorithmSHELTV<Element>::KeySwitch(const LPEvalKeyNTRU<Element> &keySwitchHint,
 				const Ciphertext<Element> &ciphertext, 
 				Ciphertext<Element> *newCiphertext) const
 {

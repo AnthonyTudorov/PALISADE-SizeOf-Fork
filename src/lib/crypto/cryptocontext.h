@@ -105,7 +105,7 @@ private:
 	// these three members are ONLY used by the Java wrapper to cache deserialized keys
 	LPPublicKey<Element>		*publicKey;
 	LPPrivateKey<Element>	*privateKey;
-	LPEvalKeyLTV<Element>		*evalKey;
+	LPEvalKeyRelin<Element>		*evalKey;
 
 	CryptoContext() : publicKey(0), privateKey(0), evalKey(0),
 			params(0), algorithm(0), relinWindow(0), ringdim(0), stDev(0), stDevStSt(0) {}
@@ -180,7 +180,7 @@ public:
 	 *
 	 * @return cached deserialized evaluation key
 	 */
-	LPEvalKeyLTV<Element>	*getEvalKey() const { return evalKey; }
+	LPEvalKeyRelin<Element>	*getEvalKey() const { return evalKey; }
 
 	/**
 	 * Factory method to make an LTV CryptoContext

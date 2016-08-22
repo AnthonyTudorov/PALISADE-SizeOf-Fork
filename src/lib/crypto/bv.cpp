@@ -217,8 +217,8 @@ void LPAlgorithmPREBV<Element>::ReEncrypt(const LPEvalKey<Element> &EK,
 	const ElemParams &elementParams = cryptoParamsLWE->GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 
-	const ReLinKey<Element> &evalKey =
-		dynamic_cast<const ReLinKey<Element>&>(EK);
+	const LPEvalKeyRelin<Element> &evalKey =
+		dynamic_cast<const LPEvalKeyRelin<Element>&>(EK);
 
 	const std::vector<Element> &b = evalKey.GetAVector();
 	const std::vector<Element> &a = evalKey.GetBVector();
