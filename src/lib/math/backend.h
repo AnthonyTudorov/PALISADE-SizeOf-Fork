@@ -45,12 +45,12 @@
 // uint16_t, and uint32_t; uint32_t is recommended for 32- and 64-bit
 // CPU architectures
 
-#define MATHBACKEND 3
+//#define MATHBACKEND 3 //64 bit
+#define MATHBACKEND 2 //32 bit
 
 #if MATHBACKEND == 1
 #include "cpu8bit/binint8bit.h"
 #include "cpu8bit/binvect8bit.h"
-//#include "cpu8bit/binmat.h"	
 
 #endif
 
@@ -60,9 +60,9 @@
 #include "cpu_int/binvect.cpp"
 #include <initializer_list>
 
-#include "exp_int32/ubint.cpp" //experimental dbc unsigned big integers or ubints
-#include "exp_int32/ubintvec.cpp" //vectors of experimental ubints
-#include "exp_int32/mubintvec.cpp" //rings of ubints
+#include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
+#include "exp_int/ubintvec.cpp" //vectors of experimental ubints
+#include "exp_int/mubintvec.cpp" //rings of ubints
 
 #endif
 
@@ -72,9 +72,9 @@
 #include "cpu_int/binvect.cpp"
 #include <initializer_list>
 
-#include "exp_int64/ubint.cpp" //experimental dbc unsigned big integers or ubints
-#include "exp_int64/ubintvec.cpp" //vectors of experimental ubints
-#include "exp_int64/mubintvec.cpp" //rings of ubints
+#include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
+#include "exp_int/ubintvec.cpp" //vectors of experimental ubints
+#include "exp_int/mubintvec.cpp" //rings of ubints
 
 #endif
 
@@ -114,13 +114,13 @@ namespace lbcrypto {
 	//typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
 
 	/** Define the mapping for ExpBigBinaryInteger (experimental) */
-	typedef exp_int32::ubint<integral_dtype> ubint;
+	typedef exp_int::ubint<integral_dtype> ubint;
 
 	/** Define the mapping for Big Integer Vector */
-	typedef exp_int32::ubintvec<ubint> ubintvec;
+	typedef exp_int::ubintvec<ubint> ubintvec;
 
 	/** Define the mapping for modulo Big Integer Vector */
-	typedef exp_int32::mubintvec<ubint> mubintvec;
+	typedef exp_int::mubintvec<ubint> mubintvec;
 
 #endif
 
