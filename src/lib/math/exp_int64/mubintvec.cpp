@@ -45,7 +45,7 @@
 
 #include "../../utils/debug.h"
 
-namespace exp_int64 {
+namespace exp_int {
 
   //CTORS
   // basic constructor

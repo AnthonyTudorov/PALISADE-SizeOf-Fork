@@ -257,9 +257,11 @@ void test_BigBinaryVector () {
   BigBinaryVector modmul2 = BBVfromStrvec(modmul2strvec);
   modmul2.SetModulus(q2);
 
-
+  TESTIT(t2, c2, a2+b2, modsum2, nloop);
   TESTIT(t2, c2, a2.ModAdd(b2), modsum2, nloop);
+  TESTIT(t2, c2, a2-b2, moddiff2, nloop);
   TESTIT(t2, c2, a2.ModSub(b2), moddiff2, nloop);
+  TESTIT(t2, c2, a2*b2, modmul2, nloop);
   TESTIT(t2, c2, a2.ModMul(b2), modmul2, nloop);
 
 
@@ -340,8 +342,11 @@ void test_BigBinaryVector () {
   modmul3.SetModulus(q3);
 
 
+  TESTIT(t3, c3, a3+b3, modsum3, nloop);
   TESTIT(t3, c3, a3.ModAdd(b3), modsum3, nloop);
+  TESTIT(t3, c3, a3-b3, moddiff3, nloop);
   TESTIT(t3, c3, a3.ModSub(b3), moddiff3, nloop);
+  TESTIT(t3, c3, a3*b3, modmul3, nloop);
   TESTIT(t3, c3, a3.ModMul(b3), modmul3, nloop);
 
   return;

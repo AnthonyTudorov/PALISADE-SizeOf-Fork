@@ -147,13 +147,13 @@ namespace lbcrypto {
 	//typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
 
 	/** Define the mapping for ExpBigBinaryInteger (experimental) */
-	typedef exp_int64::ubint<myintegral_dtype> ubint;
+	typedef exp_int::ubint<myintegral_dtype> ubint;
 
 	/** Define the mapping for Big Integer Vector */
-	typedef exp_int64::ubintvec<ubint> ubintvec;
+	typedef exp_int::ubintvec<ubint> ubintvec;
 
 	/** Define the mapping for modulo Big Integer Vector */
-	typedef exp_int64::mubintvec<ubint> mubintvec;
+	typedef exp_int::mubintvec<ubint> mubintvec;
 
 #endif
 

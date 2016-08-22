@@ -94,27 +94,23 @@ const usint ubint<limb_t>::m_limbBitLength = sizeof(limb_t)*8;
   //const uschar ubint<limb_t>::m_log2LimbBitLength = LogDtype<limb_t>::value;
 const usint ubint<limb_t>::m_log2LimbBitLength = Log2<m_limbBitLength>::value;
 
-  //constant static member variable initialization of m_nSize which is size of the array of unit data type
-  //template<typename limb_t>
-  //const usint ubint<limb_t>::m_nSize = BITLENGTH%m_limbBitLength==0 ? BITLENGTH/m_limbBitLength : BITLENGTH/m_limbBitLength + 1;
-
   //constant static member variable initialization of m_uintMax which is maximum value of unit data type
   template<typename limb_t>
 const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 
-  //optimized ceiling function after division by number of bits in the limb data type.
+  //returns the number of limbs needed to store a number with the input msb
   template<typename limb_t>
-  usint ubint<limb_t>::ceilIntByUInt(const limb_t Number){
+  usint ubint<limb_t>::MSB2NLimb(const limb_t msb_in){
     //mask to perform bitwise AND
     static limb_t mask = m_limbBitLength-1;
 
-    if(!Number)
+    if(!msb_in)
       return 1;
 
-    if((Number&mask)!=0)
-      return (Number>>m_log2LimbBitLength)+1;
+    if((msb_in&mask)!=0)
+      return (msb_in>>m_log2LimbBitLength)+1;
     else
-      return Number>>m_log2LimbBitLength;
+      return msb_in>>m_log2LimbBitLength;
   }
 
   //CONSTRUCTORS
@@ -156,7 +152,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
       m_value.push_back((limb_t)init);
       DEBUG("single limb size now "<<m_value.size());
     } else {
-      usint ceilInt = ceilIntByUInt(msb);
+      usint ceilInt = MSB2NLimb(msb);
       //setting the values of the array
       m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
@@ -197,7 +193,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
       m_value.push_back((limb_t)init);
       DEBUG("single limb size now "<<m_value.size());
     } else {
-      usint ceilInt = ceilIntByUInt(msb);
+      usint ceilInt = MSB2NLimb(msb);
       //setting the values of the array
       m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
@@ -233,7 +229,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
       m_value.push_back((limb_t)init);
       DEBUG("single limb size now "<<m_value.size());
     } else {
-      usint ceilInt = ceilIntByUInt(msb);
+      usint ceilInt = MSB2NLimb(msb);
       DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
       //setting the values of the array
       this->m_value.clear(); // make sure it is empty to start
@@ -278,7 +274,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
       m_value.push_back((limb_t)init);
       DEBUG("single limb size now "<<m_value.size());
     } else {
-      usint ceilInt = ceilIntByUInt(msb);
+      usint ceilInt = MSB2NLimb(msb);
       //setting the values of the array
       this->m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
@@ -387,7 +383,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 		  //set num to number of equisized chunks
 		  //usint num = (8*sizeof(usint)) / m_limbBitLength;
 
-		  usint ceilInt = ceilIntByUInt(m_MSB);
+		  usint ceilInt = MSB2NLimb(m_MSB);
 		  //copy the values by shift and add
 		  for (usint i = 0; i < ceilInt; i++){
 			  result += (this->m_value.at(i) << (m_limbBitLength*i));
@@ -498,10 +494,10 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 		  sint i;
 
 		  DEBUG("m_MSB "<<m_MSB);
-		  DEBUG("ilimit "<<ceilIntByUInt(m_MSB));
+		  DEBUG("ilimit "<<MSB2NLimb(m_MSB));
 
 
-		  for(i=0; i<ceilIntByUInt(m_MSB); ++i){
+		  for(i=0; i<MSB2NLimb(m_MSB); ++i){
 	  	  DEBUG("bit shift ");
 		    temp = ans.m_value.at(i);
 			  temp <<=remainingShift;
@@ -628,7 +624,7 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 		  limb_t maskVal = (1<<(remainingShift))-1;
 		  limb_t compShiftVal = m_limbBitLength- remainingShift;
 
-		  usint startVal = ceilIntByUInt(ans.m_MSB);
+		  usint startVal = MSB2NLimb(ans.m_MSB);
 		  //perform shifting by bits by calculating the overflow
 		  //oveflow is added after the shifting operation
 
@@ -778,9 +774,9 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     Dlimb_t ofl=0;
 
     //position from A to end addition
-    limb_t ceilIntA = ceilIntByUInt(A->m_MSB);
+    limb_t ceilIntA = MSB2NLimb(A->m_MSB);
     //position from B to end addition
-    limb_t ceilIntB = ceilIntByUInt(B->m_MSB);
+    limb_t ceilIntB = MSB2NLimb(B->m_MSB);
 
     usint i;//
 
@@ -861,9 +857,9 @@ const usint ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
       result.PrintLimbsInDec();
     }
     //array position in A to end substraction (a is always larger than b now)
-    int endValA = ceilIntByUInt(this->m_MSB);
+    int endValA = MSB2NLimb(this->m_MSB);
     //array position in B to end substraction
-    int endValB = ceilIntByUInt(b.m_MSB);
+    int endValB = MSB2NLimb(b.m_MSB);
 
     if (dbg_flag){
       std::cout<<"a "<<std::endl;
@@ -1881,7 +1877,7 @@ again:
 
     ubint value;
     usint len = v.length();
-    usint cntr = ceilIntByUInt(len);
+    usint cntr = MSB2NLimb(len);
     std::string val;
     Dlimb_t partial_value = 0;
 
@@ -2041,7 +2037,7 @@ again:
     else if (index > m_MSB)
       return 0;
     limb_t result;
-    sint idx =ceilIntByUInt(index)-1;//idx is the index of the character array
+    sint idx =MSB2NLimb(index)-1;//idx is the index of the character array
     limb_t temp = this->m_value.at(idx);
     limb_t bmask_counter = index%m_limbBitLength==0? m_limbBitLength:index%m_limbBitLength;//bmask is the bit number in the 8 bit array
     limb_t bmask = 1;

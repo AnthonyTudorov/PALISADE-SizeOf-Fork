@@ -886,11 +886,11 @@ namespace exp_int32{
     static const usint m_numDigitInPrintval=1500;
 
     /**
-     * function to return the ceiling of the number divided by the number of bits in the limb data type.
-     * @param Number is the number to be divided.
-     * @return the ceiling of Number/(bits in the limb data type)
+     * function to return the number of limbs needed to store the input MSB.
+     * @param Number is the input msb.
+     * @return the number of limbs needed to represent the number
      */
-    static usint ceilIntByUInt(const limb_t Number);
+    static usint MSB2NLimb(const limb_t msb);
 
     //currently unused array
     static const ubint *m_modChain;
