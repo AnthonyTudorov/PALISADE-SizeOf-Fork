@@ -116,7 +116,7 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Verifying : " << "\t" << finish - start << " ms" << std::endl;
 
-	/* Not included for performance reasons
+	
 	sm = 1024;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("122451504");
@@ -191,7 +191,7 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Verifying : " << "\t" << finish - start << " ms" << std::endl;
 		
-	*/
+	
 	
 	std::cout << "Execution completed" << std::endl;
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
