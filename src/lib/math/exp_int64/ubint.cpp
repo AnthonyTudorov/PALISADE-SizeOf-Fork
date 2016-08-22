@@ -1111,15 +1111,16 @@ int ubint<limb_t>::divmnu_vect(ubint& qin, ubint& rin, const ubint& uin, const u
   r.resize(n);
 
   //const uint64_t b = 4294967296LL; // Number base (2**32).
-  const uint128_t b = UINT128_MAX; // Number base (2**32).
-  //std::cout << "ffs bot"<<  (uint64_t)  0xFFFFFFFFFFFFFFFFULL<<std::endl;
-  //std::cout << "ffs top"<<  (0xFFFFFFFFFFFFFFFFULL>>64) <<std::endl;
-  // std::cout<< "b bot : "<< (uint64_t)b<<std::endl;
-  // std::cout<< "b top : "<< (uint64_t)(b >> 64) <<std::endl;
-   //const uint64_t b = ((uint64_t) m_MaxLimb) +1LL; // Number base (2**32).
+  const uint128_t ffs = (uint128_t)UINT64_MAX; // Number  (2**64)-1.
+  const uint128_t b = (uint128_t)UINT64_MAX+1; // Number base (2**64).
+  // std::cout << "ffs bot"<<  (uint64_t)  0xFFFFFFFFFFFFFFFFULL<<std::endl;
+  // std::cout << "ffs top"<<  (0xFFFFFFFFFFFFFFFFULL>>64) <<std::endl;
+  //  std::cout<< "b bot : "<< (uint64_t)b<<std::endl;
+  //  std::cout<< "b top : "<< (uint64_t)(b >> 64) <<std::endl;
+   // const uint64_t b = ((uint64_t) m_MaxLimb) +1LL; // Number base (2**32).
 //   limb_t *un, *vn;                  // Normalized form of u, v.
    uint128_t qhat;                   // Estimated quotient digit.
-   uint128_t rhat;                   // A remainder.
+   uint128_t rhat;                   // A remainder.64
    uint128_t p;                      // Product of two digits.
    int128_t t, k;
    int s, i, j;
@@ -1142,6 +1143,7 @@ int ubint<limb_t>::divmnu_vect(ubint& qin, ubint& rin, const ubint& uin, const u
    high-order digit on the dividend; we do that unconditionally. */
 
    s = nlz(v[n-1]);             // 0 <= s <= 63.
+   // std::cout<< "nlz of " << v[n-1]  << " = "<<  s;
   // vn = (limb_t *)alloca(4*n);
    vector<limb_t> vn(n);
    for (i = n - 1; i > 0; i--)
@@ -1172,7 +1174,8 @@ again:
       for (i = 0; i < n; i++) {
          p = qhat*vn[i];
          //t = un[i+j] - k - (p & 0xFFFFFFFFLL);
-	 t = un[i+j] - k - (p & 0xFFFFFFFFFFFFFFFFLL);
+	 //t = un[i+j] - k - (p & 0xFFFFFFFFFFFFFFFFLL);
+	 t = un[i+j] - k - (p & ffs);
          un[i+j] = t;
          k = (p >> 64) - (t >> 64);
       }

@@ -34,7 +34,7 @@ void test_ubintvec(void);	 // test new vector version
 
 //main()   need this for Kurts' makefile to ignore this.
 int main(int argc, char* argv[]){
-  //  test_BigBinaryVector();
+  test_BigBinaryVector();
   test_ubintvec();
   return 0;
 }
@@ -567,12 +567,12 @@ void test_ubintvec() {
   TESTIT(t1, c1, a1 + b1, add1, nloop);
   TESTIT(t1, c1, a1 - b1, sub1, nloop);
   TESTIT(t1, c1, a1 * b1, mul1, nloop);
-  // TESTIT(t1, c1, a1.ModAdd(b1,q1), modadd1, nloop);
-  // TESTIT(t1, mc1, ma1 + mb1,  modadd1, nloop);
-  // TESTIT(t1, c1, a1.ModSub(b1,q1), modsub1, nloop);
-  // TESTIT(t1, mc1, ma1 - mb1,  modsub1, nloop);
-  // TESTIT(t1, c1, a1.ModMul(b1,q1), modmul1, nloop);
-  // TESTIT(t1, mc1, ma1 * mb1,  modmul1, nloop);
+  TESTIT(t1, c1, a1.ModAdd(b1,q1), modadd1, nloop);
+  TESTIT(t1, mc1, ma1 + mb1,  modadd1, nloop);
+  TESTIT(t1, c1, a1.ModSub(b1,q1), modsub1, nloop);
+  TESTIT(t1, mc1, ma1 - mb1,  modsub1, nloop);
+  TESTIT(t1, c1, a1.ModMul(b1,q1), modmul1, nloop);
+  TESTIT(t1, mc1, ma1 * mb1,  modmul1, nloop);
 
   // q2: larger numbers
 
@@ -706,12 +706,12 @@ void test_ubintvec() {
   TESTIT(t2, c2, a2 + b2, add2, nloop);
   TESTIT(t2, c2, a2 - b2, sub2, nloop);
   TESTIT(t2, c2, a2 * b2, mul2, nloop);
-  //TESTIT(t2, c2, a2.ModAdd(b2,q2), modadd2, nloop);
-  //TESTIT(t2, mc2, ma2 + mb2, modadd2, nloop); 
-  //TESTIT(t2, c2, a2.ModSub(b2,q2), modsub2, nloop);
-  //TESTIT(t2, mc2, ma2 - mb2, modsub2, nloop);
-  //TESTIT(t2, c2, a2.ModMul(b2,q2), modmul2, nloop);
-  //TESTIT(t2, mc2, ma2 * mb2,  modmul2, nloop);
+  TESTIT(t2, c2, a2.ModAdd(b2,q2), modadd2, nloop);
+  TESTIT(t2, mc2, ma2 + mb2, modadd2, nloop); 
+  TESTIT(t2, c2, a2.ModSub(b2,q2), modsub2, nloop);
+  TESTIT(t2, mc2, ma2 - mb2, modsub2, nloop);
+  TESTIT(t2, c2, a2.ModMul(b2,q2), modmul2, nloop);
+  TESTIT(t2, mc2, ma2 * mb2,  modmul2, nloop);
 
   //q3: very large numbers.
   ubint q3("3273390607896141870013189696827599152216642046043064789483291368096133796404674554883270092325904157150886684127560071009217256545885393053328527589431");
@@ -838,12 +838,12 @@ void test_ubintvec() {
   TESTIT(t3, c3, a3 + b3, add3, nloop);
   TESTIT(t3, c3, a3 - b3, sub3, nloop);
   TESTIT(t3, c3, a3 * b3, mul3, nloop);
-  // TESTIT(t3, c3, a3.ModAdd(b3,q3), modadd3, nloop);
-  // TESTIT(t3, mc3, ma3 + mb3, modadd3, nloop); 
-  // TESTIT(t3, c3, a3.ModSub(b3,q3), modsub3, nloop);
-  // TESTIT(t3, mc3, ma3 - mb3, modsub3, nloop);
-  // TESTIT(t3, c3, a3.ModMul(b3,q3), modmul3, nloop);
-  // TESTIT(t3, mc3, ma3 * mb3,  modmul3, nloop);
+  TESTIT(t3, c3, a3.ModAdd(b3,q3), modadd3, nloop);
+  TESTIT(t3, mc3, ma3 + mb3, modadd3, nloop); 
+  TESTIT(t3, c3, a3.ModSub(b3,q3), modsub3, nloop);
+  TESTIT(t3, mc3, ma3 - mb3, modsub3, nloop);
+  TESTIT(t3, c3, a3.ModMul(b3,q3), modmul3, nloop);
+  TESTIT(t3, mc3, ma3 * mb3,  modmul3, nloop);
 
   return ;
 }
