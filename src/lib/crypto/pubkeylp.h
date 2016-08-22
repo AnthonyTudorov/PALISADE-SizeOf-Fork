@@ -462,6 +462,9 @@ namespace lbcrypto {
 			return false;
 		}
 
+		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
+			return true;
+		}
 	private:
 		LPCryptoParameters<Element> *m_cryptoParameters;
 
@@ -728,7 +731,9 @@ namespace lbcrypto {
 		* @param *ctx
 		* @return true on success
 		*/
-		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx);
+		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
+			return true;
+		}
 
 
 	private:
