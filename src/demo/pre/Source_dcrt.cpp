@@ -72,6 +72,7 @@ void NTRUPRE(usint input);
 void LevelCircuitEvaluation2WithCEM();
 void ComposedEvalMultTest();
 bool canRingReduce(usint ringDimension, std::vector<BigBinaryInteger> moduli, double rootHermiteFactor);
+void RootsOfUnitTest();
 /**
  * @brief Input parameters for PRE example.
  */
@@ -85,19 +86,8 @@ struct SecureParams {
 #include <iterator>
 int main() {
 
-	//BigBinaryInteger m1("17729");
-	//BigBinaryInteger m2("17761");
-	//std::vector<BigBinaryInteger> moduli;
-	//moduli.reserve(2);
-	//moduli.push_back(m1);
-	//moduli.push_back(m2);
-	//cout << canRingReduce(4096, moduli, 1.006) << endl;
-	//cout << canRingReduce(2048, moduli, 1.006) << endl;
-	//cout << canRingReduce(1024, moduli, 1.006) << endl;
-	//cout << canRingReduce(512, moduli, 1.006) << endl;
-
-
-	RingReduceTest();
+	RootsOfUnitTest();
+//	RingReduceTest();
 //	RingReduceDCRTTest();
 	NTRUPRE(0);
 	NTRU_DCRT();
@@ -1443,4 +1433,23 @@ bool canRingReduce(usint ringDimension, std::vector<BigBinaryInteger> moduli, do
 	double powerOfTwo = pow(2, powerValue);
 
 	return rootHermiteFactor >= powerOfTwo;
+}
+
+void RootsOfUnitTest() {
+	usint m1 = 32;
+	BigBinaryInteger q("17729");
+//	BigBinaryInteger rootOfUnity1 = RootOfUnity(m1/2, q);
+
+	usint m2 = 16;
+	BigBinaryInteger rootOfUnity2 = RootOfUnity(m2, q);
+//	BigBinaryInteger rootOfUnity3 = RootOfUnity(m2, q);
+//	BigBinaryInteger rootOfUnity4 = RootOfUnity(m2, q);
+
+
+//	cout << rootOfUnity1 << endl;
+	cout << rootOfUnity2 << endl;
+//	cout << rootOfUnity3 << endl;
+//	cout << rootOfUnity4 << endl;
+
+
 }

@@ -472,6 +472,7 @@ namespace lbcrypto {
 		for(int i=0; i < m_numberOfElements; i++) {
 			m_vectors[i].Decompose();
 		}
+		m_cyclotomicOrder = m_cyclotomicOrder / 2;
 	}
 
 	bool ILVectorArray2n::IsEmpty() const{

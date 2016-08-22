@@ -220,8 +220,7 @@ TEST(UnitTestSHE, sparsekeygen_single_crt) {
 	ILVector2n::DestroyPreComputedSamples();
 }
 
-
-TEST(UnitTestSHE, keyswitch_ModReduce_RingReduce_DCRT) {
+TEST(UnitTestSHE, keyswitch_ModReduce_DCRT) {
 
 	usint m = 512;
 
@@ -304,24 +303,6 @@ TEST(UnitTestSHE, keyswitch_ModReduce_RingReduce_DCRT) {
 	
 	EXPECT_EQ(plaintext, plaintextNewModReduce);
 
-	/**************************MODREDUCE TEST BEGIN******************************/
-	/**************************RINGREDUCE TEST BEGIN******************************/
-	//{
-	//algorithm.m_algorithmLeveledSHE->ModReduce(&cipherText);
-	// algorithm.Decrypt(sk, cipherText, &ctxtd);
-
-	// cout << "Decrypted value AFTER ModReduce: \n" << endl;
-	// cout << ctxtd<< "\n" << endl;
-	// EXPECT_EQ(ctxtd.GetData(), plaintext) << "mod_reduce_test_single_crt failed.\n" ;
-	//}
-
-	//{
-	//  algorithm.m_algorithmLeveledSHE->RingReduce(&cipherText, &sk);
-	//  algorithm.Decrypt(sk, cipherText, &ctxtd);
-	//  cout << "Decrypted value after RING Reduce: \n" << endl;
-	//  cout << ctxtd<< "\n" << endl;
-	//}
-	/**************************RINGREDUCE TEST END******************************/
 }
 
 
@@ -389,13 +370,11 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	CryptoUtility<ILVector2n>::RingReduce(algorithm, &ciphertext, toSparseKeySwitchHint);
 
 	ILVector2n skSparseElement(skSparse.GetPrivateElement());
-	ILVector2n skNewElement(ciphertext[0].GetElement().CloneWithParams());
 
 	skSparseElement.SwitchFormat();
 	skSparseElement.Decompose();
-	skNewElement.SetValues(skSparseElement.GetValues(), skSparseElement.GetFormat());
-	skNewElement.SwitchFormat();
-	skSparse.SetPrivateElement(skNewElement);
+	skSparseElement.SwitchFormat();
+	skSparse.SetPrivateElement(skSparseElement);
 
 	IntPlaintextEncoding intArrayNewRR;
 
@@ -495,24 +474,12 @@ TEST(UnitTestSHE, ringreduce_double_crt) {
 	CryptoUtility<ILVectorArray2n>::RingReduce(algorithm, &ciphertext, toSparseKeySwitchHint);
 
 	ILVectorArray2n skSparseElement(skSparse.GetPrivateElement());
-	ILVector2n skNewElement1(ciphertext[0].GetElement().GetElementAtIndex(0).CloneWithParams());
-	ILVector2n skNewElement2(ciphertext[0].GetElement().GetElementAtIndex(1).CloneWithParams());
 
 	skSparseElement.SwitchFormat();
 	skSparseElement.Decompose();
-	
-	skNewElement1.SetValues(skSparseElement.GetElementAtIndex(0).GetValues(), skSparseElement.GetFormat());
-	skNewElement2.SetValues(skSparseElement.GetElementAtIndex(1).GetValues(), skSparseElement.GetFormat());
-	skNewElement1.SwitchFormat();
-	skNewElement2.SwitchFormat();
+	skSparseElement.SwitchFormat();
 
-	std::vector<ILVector2n> newElementsVector;
-	newElementsVector.reserve(2);
-	newElementsVector.push_back(skNewElement1);
-	newElementsVector.push_back(skNewElement2);
-	ILVectorArray2n newILVectorArray2n(newElementsVector);
-
-	skSparse.SetPrivateElement(newILVectorArray2n);
+	skSparse.SetPrivateElement(skSparseElement);
 
 	IntPlaintextEncoding intArrayNewRR;
 
