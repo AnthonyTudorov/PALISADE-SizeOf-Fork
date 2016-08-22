@@ -29,10 +29,10 @@ void testJson(
 		const BytePlaintextEncoding& newPtxt,
 		TestJsonParms *tp) {
 
-	LPPublicKeyLTV<ILVector2n>				pkDeserialized;
-	LPPrivateKeyLTV<ILVector2n>				skDeserialized;
-	LPEvalKeyLTV<ILVector2n>				evalKeyDeserialized;
-	LPPrivateKeyLTV<ILVector2n>				newSKDeserialized;
+	LPPublicKey<ILVector2n>				pkDeserialized;
+	LPPrivateKey<ILVector2n>				skDeserialized;
+	LPEvalKeyRelin<ILVector2n>				evalKeyDeserialized;
+	LPPrivateKey<ILVector2n>				newSKDeserialized;
 
 	cout << "----------------------START JSON FACILITY TESTING-------------------------" << endl;
 
@@ -188,7 +188,8 @@ void testJson(
 	jsonFileName = "LPEvalKey" + cID + "_Pre.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap4);
-	if( evalKeyDeserialized.Deserialize(testMap4, tp->ctx) )
+	//if( evalKeyDeserialized.Deserialize(testMap4, tp->ctx) )
+	if (evalKeyDeserialized.Deserialize(testMap4))
 		cout << "Deserialized into evalKeyDeserialized" << endl;
 	else {
 		cout << "FAILED" << endl;

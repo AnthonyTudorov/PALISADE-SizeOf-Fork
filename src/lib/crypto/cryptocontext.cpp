@@ -82,7 +82,7 @@ bool CryptoContext<T>::setPrivateKey( const std::string& serializedKey )
 template <typename T>
 bool CryptoContext<T>::setEvalKey( const std::string& serializedKey )
 {
-	LPEvalKeyLTV<T> *newKey = deserializeAndCreate<LPEvalKeyLTV<T>,T>(serializedKey, this);
+	LPEvalKeyRelin<T> *newKey = deserializeAndCreate<LPEvalKeyRelin<T>,T>(serializedKey, this);
 	if( newKey == 0 ) return false;
 
 	if( evalKey ) delete evalKey;

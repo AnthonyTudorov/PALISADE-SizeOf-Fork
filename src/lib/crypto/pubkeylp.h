@@ -54,7 +54,7 @@ namespace lbcrypto {
 	class Ciphertext;
 
 	template <class Element>
-	class LPKeySwitchHintLTV;
+	class LPEvalKeyNTRULTV;
 
 	struct EncryptResult {
 
@@ -472,12 +472,12 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class ReLinKey : public LPEvalKey<Element> {
+	class LPEvalKeyRelin : public LPEvalKey<Element> {
 	public:
 
-		ReLinKey() {};
+		LPEvalKeyRelin() {};
 
-		ReLinKey(LPCryptoParameters<Element> &cryptoParams) {
+		LPEvalKeyRelin(LPCryptoParameters<Element> &cryptoParams) {
 			this->SetCryptoParameters(&cryptoParams);
 		}
 
@@ -522,12 +522,12 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class NTRUKey : public LPEvalKey<Element> {
+	class LPEvalKeyNTRU : public LPEvalKey<Element> {
 	public:
 
-		NTRUKey() {};
+		LPEvalKeyNTRU() {};
 
-		NTRUKey(LPCryptoParameters<Element> &cryptoParams) {
+		LPEvalKeyNTRU(LPCryptoParameters<Element> &cryptoParams) {
 			this->SetCryptoParameters(&cryptoParams);
 		}
 
@@ -740,31 +740,6 @@ namespace lbcrypto {
 
 
 	/**
-	 * @brief Abstract interface for LP key switch hints
-	 * @tparam Element a ring element.
-	 */
-	template <class Element>
-	class LPKeySwitchHint : public LPKey<Element> {
-		public:
-
-			//@Get Properties
-			
-			/**
-			 * Gets the private key polynomial 
-			 * @return the private key element.
-			 */ 
-			virtual const Element & GetHintElement() const = 0;
-
-			//@Set Properties
-			
-			/**
-			 * Sets the private key polynomial
-			 * @param &x the public key element.
-			 */ 
-			virtual void SetHintElement(const Element &x) = 0;
-	};
-
-	/**
 	 * @brief Abstract interface for encryption algorithm
 	 * @tparam Element a ring element.
 	 */
@@ -824,7 +799,7 @@ namespace lbcrypto {
 			 * @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
 			 */
 			virtual void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
-				const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const = 0;
+				const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *keySwitchHint) const = 0;
 			
 			/**
 			 * Method for KeySwitch
@@ -832,7 +807,7 @@ namespace lbcrypto {
 			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
 			 * @param &cipherText Original ciphertext to perform switching on.
 			 */
-			virtual Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const = 0;
+			virtual Ciphertext<Element> KeySwitch(const LPEvalKeyNTRU<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const = 0;
 
 			/**
 			 * Method for generating a keyswitchhint from originalPrivateKey square to newPrivateKey
@@ -842,7 +817,7 @@ namespace lbcrypto {
 			 * @param *quadraticKeySwitchHint the generated keyswitchhint.
 			 */
 
-			virtual void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *quadraticKeySwitchHint) const = 0;
+			virtual void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const = 0;
 
 			/**
 			 * Method for Modulus Reduction.
@@ -857,7 +832,7 @@ namespace lbcrypto {
 			 * @param &cipherText Ciphertext to perform ring reduce on.
 			 * @param &privateKey Private key used to encrypt the first argument.
 			 */
-			virtual void RingReduce(Ciphertext<Element> *cipherText, const LPKeySwitchHint<Element> &keySwitchHint) const = 0; 
+			virtual void RingReduce(Ciphertext<Element> *cipherText, const LPEvalKeyNTRU<Element> &keySwitchHint) const = 0; 
 
 			/**
 			 * Method for Composed EvalMult
@@ -867,7 +842,7 @@ namespace lbcrypto {
 			 * @param &quadKeySwitchHint is for resultant quadratic secret key after multiplication to the secret key of the particular level.
 			 * @param &cipherTextResult is the resulting ciphertext that can be decrypted with the secret key of the particular level.
 			 */
-			virtual void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPKeySwitchHint<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const = 0;
+			virtual void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const = 0;
 
 			/**
 			 * Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
@@ -876,7 +851,7 @@ namespace lbcrypto {
 			 * @param &linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
 			 * @param &cipherTextResult is the resulting ciphertext.
 			 */
-			virtual void LevelReduce(const Ciphertext<Element> &cipherText1, const LPKeySwitchHint<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const = 0;
+			virtual void LevelReduce(const Ciphertext<Element> &cipherText1, const LPEvalKeyNTRU<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const = 0;
 			/**
 			* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
 			* and odd indices are set to zero.
@@ -1250,7 +1225,7 @@ namespace lbcrypto {
 
 		//wrapper for KeySwitchHintGen
 		void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
-				const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const {
+				const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *keySwitchHint) const {
 					if(this->IsEnabled(LEVELEDSHE))
 						this->m_algorithmLeveledSHE->KeySwitchHintGen(originalPrivateKey, newPrivateKey,keySwitchHint);
 					else{
@@ -1259,7 +1234,7 @@ namespace lbcrypto {
 		}
 
 		//wrapper for KeySwitch
-		Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const {
+		Ciphertext<Element> KeySwitch(const LPEvalKeyNTRU<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const {
 			if(this->IsEnabled(LEVELEDSHE)){
 				return this->m_algorithmLeveledSHE->KeySwitch(keySwitchHint,cipherText);
 			}
@@ -1269,7 +1244,7 @@ namespace lbcrypto {
 		}
 
 		//wrapper for QuadraticKeySwitchHintGen
-		void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *quadraticKeySwitchHint) const {
+		void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const {
 			if(this->IsEnabled(LEVELEDSHE)){
 				this->m_algorithmLeveledSHE->QuadraticKeySwitchHintGen(originalPrivateKey,newPrivateKey,quadraticKeySwitchHint);
 			}
@@ -1289,7 +1264,7 @@ namespace lbcrypto {
 		}
 
 		//wrapper for RingReduce
-		void RingReduce(Ciphertext<Element> *cipherText, const LPKeySwitchHint<Element> &keySwitchHint) const {
+		void RingReduce(Ciphertext<Element> *cipherText, const LPEvalKeyNTRU<Element> &keySwitchHint) const {
 			if(this->IsEnabled(LEVELEDSHE)){
 				this->m_algorithmLeveledSHE->RingReduce(cipherText,keySwitchHint);
 			}
@@ -1299,7 +1274,7 @@ namespace lbcrypto {
 		}
 
 
-		void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPKeySwitchHint<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+		void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
 			if(this->IsEnabled(LEVELEDSHE)){
 				this->m_algorithmLeveledSHE->ComposedEvalMult(cipherText1,cipherText2,quadKeySwitchHint,cipherTextResult);
 			}
@@ -1310,7 +1285,7 @@ namespace lbcrypto {
 
 
 		//wrapper for LevelReduce
-		void LevelReduce(const Ciphertext<Element> &cipherText1, const LPKeySwitchHint<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+		void LevelReduce(const Ciphertext<Element> &cipherText1, const LPEvalKeyNTRU<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
 			if(this->IsEnabled(LEVELEDSHE)){
 				this->m_algorithmLeveledSHE->LevelReduce(cipherText1,linearKeySwitchHint,cipherTextResult);
 			}

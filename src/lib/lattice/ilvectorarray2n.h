@@ -241,7 +241,9 @@ namespace lbcrypto {
 		* @result is the pointer where the base decomposition vector is stored
 		* @return true if operation is successful
 		*/
-		std::vector<ILVectorArray2n> PowersOfBase(usint baseBits) const { };
+		std::vector<ILVectorArray2n> PowersOfBase(usint baseBits) const { 
+			return std::vector<ILVectorArray2n>();
+		};
 
 
 		//VECTOR OPERATIONS

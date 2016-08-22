@@ -32,7 +32,7 @@
 * This abstract class is inherited through LPKey in pubkeylp.h, ElemParams in elemparams.h,
 * ILVector2n in ilvector2n.h, and BigBinaryVector in binvect.h.
 * Virtual methods are implemented in Ciphertext, LPCryptoParametersLWE, LPPublicKey,
-* LPEvalKeyLTV, LPPrivateKey, ILParams, ILDCRTParams, ILVector2n, BigBinaryVector.
+* LPEvalKeyRelin, LPPrivateKey, ILParams, ILDCRTParams, ILVector2n, BigBinaryVector.
 *
 * TODO:  Complete implementation in ILDCRTParams.
 * TODO:  Setup inheritance through ILElement for ILVector2n once Double CRT is working.

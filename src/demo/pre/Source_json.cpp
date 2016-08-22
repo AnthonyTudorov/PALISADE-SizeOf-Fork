@@ -160,8 +160,8 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
-	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
+	LPPublicKey<ILVector2n> pk(*ctx->getParams());
+	LPPrivateKey<ILVector2n> sk(*ctx->getParams());
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -248,8 +248,8 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPPublicKeyLTV<ILVector2n> newPK(*ctx->getParams());
-	LPPrivateKeyLTV<ILVector2n> newSK(*ctx->getParams());
+	LPPublicKey<ILVector2n> newPK(*ctx->getParams());
+	LPPrivateKey<ILVector2n> newSK(*ctx->getParams());
 
 	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
@@ -270,7 +270,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyLTV<ILVector2n> evalKey(*ctx->getParams());
+	LPEvalKeyRelin<ILVector2n> evalKey(*ctx->getParams());
 
 	start = currentDateTime();
 

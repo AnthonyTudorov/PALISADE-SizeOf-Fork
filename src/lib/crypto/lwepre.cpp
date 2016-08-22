@@ -89,7 +89,7 @@ void LPAlgorithmPRELTV<Element>::ReEncrypt(const LPEvalKey<Element> &evalKey,
 	Ciphertext<Element> *newCiphertext) const
 {
 	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = dynamic_cast<const LPCryptoParametersLTV<Element>&>(evalKey.GetCryptoParameters());
-	const ReLinKey<Element> &relinEvalKey = dynamic_cast<const ReLinKey<Element> &>(evalKey);
+	const LPEvalKeyRelin<Element> &relinEvalKey = dynamic_cast<const LPEvalKeyRelin<Element> &>(evalKey);
 	
 	const ElemParams &elementParams = cryptoParamsLWE.GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();
