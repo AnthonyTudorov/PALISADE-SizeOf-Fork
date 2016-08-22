@@ -76,7 +76,9 @@ public:
 	 */
 	virtual void Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) = 0;
 
-	virtual void Unpad() = 0;
+	virtual void Unpad(const BigBinaryInteger &modulus) = 0;
+
+	virtual size_t GetChunksize(const usint cyc, const BigBinaryInteger& ptm) const = 0;
 
 	/**
 	 * Get method to return the length of plaintext
@@ -84,6 +86,7 @@ public:
 	 * @return the length of the plaintext in terms of the number of bits.
 	 */
 	virtual size_t GetLength() const = 0;
+
 	virtual bool CompareTo(const Plaintext& other) const = 0;
 
 	bool operator==(const Plaintext& other) const {

@@ -33,6 +33,7 @@ namespace lbcrypto {
 
 	//need to be added because m_dggSamples is static and not initialized
 	std::vector<ILVector2n> ILVector2n::m_dggSamples;
+	ILParams ILVector2n::m_dggSamples_params;
 
 	ILVector2n::ILVector2n() :m_values(NULL), m_format(EVALUATION),m_empty(true) {
 	}
@@ -65,10 +66,7 @@ namespace lbcrypto {
 		}
 		else
 		{
-			if (m_dggSamples.size() == 0)
-			{
-				PreComputeDggSamples(dgg, m_params);
-			}
+			PreComputeDggSamples(dgg, m_params);
 
 			const ILVector2n randomElement = GetPrecomputedVector(m_params);
 			m_values = new BigBinaryVector(*randomElement.m_values);
@@ -517,14 +515,16 @@ namespace lbcrypto {
 	}
 
 	void ILVector2n::PreComputeDggSamples(const DiscreteGaussianGenerator &dgg, const ILParams &params) {
-		if (m_dggSamples.size() == 0)
+		if (m_dggSamples.size() == 0 || m_dggSamples_params != params)
 		{
+			DestroyPreComputedSamples();
+			m_dggSamples_params = params;
 			for (usint i = 0; i < m_sampleSize; ++i)
 			{
-				ILVector2n current(params);
-				usint vectorSize = params.GetCyclotomicOrder() / 2;
-				current.m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,params.GetModulus()));
-				current.m_values->SetModulus(params.GetModulus());
+				ILVector2n current(m_dggSamples_params);
+				usint vectorSize = m_dggSamples_params.GetCyclotomicOrder() / 2;
+				current.m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,m_dggSamples_params.GetModulus()));
+				current.m_values->SetModulus(m_dggSamples_params.GetModulus());
 				current.m_format = COEFFICIENT;
 
 				current.SwitchFormat();

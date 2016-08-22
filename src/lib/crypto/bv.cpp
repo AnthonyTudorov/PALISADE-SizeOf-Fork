@@ -254,8 +254,8 @@ void LPAlgorithmPREBV<Element>::ReEncrypt(const LPEvalKey<Element> &EK,
 
 // Constructor for LPPublicKeyEncryptionSchemeBV
 template <class Element>
-LPPublicKeyEncryptionSchemeBV<Element>::LPPublicKeyEncryptionSchemeBV(std::bitset<FEATURESETSIZE> mask, size_t chunksize)
-	: LPPublicKeyEncryptionScheme<Element>(chunksize) {
+LPPublicKeyEncryptionSchemeBV<Element>::LPPublicKeyEncryptionSchemeBV(std::bitset<FEATURESETSIZE> mask)
+	: LPPublicKeyEncryptionScheme<Element>() {
 
 	if (mask[ENCRYPTION])
 		this->m_algorithmEncryption = new LPAlgorithmBV<Element>(*this);

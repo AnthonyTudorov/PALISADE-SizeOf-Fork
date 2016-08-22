@@ -45,7 +45,8 @@ public:
 			std::vector<Ciphertext<Element>> *cipherResults,
 			bool doPadding = true)
 	{
-		size_t chunkSize = scheme.getChunkSize();
+		const BigBinaryInteger& ptm = publicKey.GetCryptoParameters().GetPlaintextModulus();
+		size_t chunkSize = plaintext.GetChunksize(publicKey.GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), ptm);
 		size_t ptSize = plaintext.GetLength();
 		size_t rounds = ptSize/chunkSize;
 
@@ -60,7 +61,7 @@ public:
 		for( int bytes=0, i=0; i < rounds ; bytes += chunkSize,i++ ) {
 
 			Element pt(publicKey.GetCryptoParameters().GetElementParams());
-			plaintext.Encode(publicKey.GetCryptoParameters().GetPlaintextModulus(), &pt, bytes, chunkSize);
+			plaintext.Encode(ptm, &pt, bytes, chunkSize);
 			pt.SwitchFormat();
 
 			Ciphertext<Element> ciphertext;
@@ -90,7 +91,9 @@ public:
 			std::ostream& outstream)
 	{
 		bool padded = false;
-		size_t chunkSize = scheme.getChunkSize();
+		BytePlaintextEncoding px;
+		const BigBinaryInteger& ptm = publicKey.GetCryptoParameters().GetPlaintextModulus();
+		size_t chunkSize = px.GetChunksize(publicKey.GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), ptm);
 		char *ptxt = new char[chunkSize];
 		size_t totBytes = 0;
 
@@ -163,7 +166,7 @@ public:
 			plaintext->Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), &decrypted);
 
 			if( ch == lastone && doPadding ) {
-				plaintext->Unpad();
+				plaintext->Unpad(privateKey.GetCryptoParameters().GetPlaintextModulus());
 			}
 		}
 
@@ -214,7 +217,7 @@ public:
 		}
 
 		// unpad and write the last one
-		pte[!whichArray].Unpad();
+		pte[!whichArray].Unpad(privateKey.GetCryptoParameters().GetPlaintextModulus());
 		outstream << pte[!whichArray];
 
 		return DecryptResult(tot);

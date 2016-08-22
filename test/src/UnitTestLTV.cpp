@@ -110,8 +110,7 @@ TEST(method_ILVectorArray2n, Encrypt_Decrypt) {
 	LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
 	LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
 
-	size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
 
@@ -172,8 +171,7 @@ TEST(method_ILVector2n, Encrypt_Decrypt) {
 	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
 	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
 
-	size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
 
@@ -232,8 +230,7 @@ TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
 	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
 	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
 
-	size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
 
@@ -313,8 +310,7 @@ TEST(method_ILVector2n_IntPlaintextEncoding, Encrypt_Decrypt) {
 	std::vector<usint> vectorOfInts = {1,0,1,0,1,0,1,0};
 	IntPlaintextEncoding intArray(vectorOfInts);
 
-	size_t chunksize = (m / 2);
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(chunksize);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(LEVELEDSHE);
 
