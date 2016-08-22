@@ -36,12 +36,12 @@
  * This file contains the main class for unsigned big integers: ubint. Big
  * integers are represented as arrays of machine native unsigned integers. The
  * native integer type is supplied as a template parameter.  Currently
- * implementation based on uint32_t is
+ * implementation based on uint32_t and uint64_t is
  * supported. a native double the base integer size is also needed.
   */
 
-#ifndef LBCRYPTO_MATH_EXPINT32_UBINT_H
-#define LBCRYPTO_MATH_EXPINT32_UBINT_H
+#ifndef LBCRYPTO_MATH_EXPINT_UBINT_H
+#define LBCRYPTO_MATH_EXPINT_UBINT_H
 
 #include <iostream>
 #include <string>
@@ -56,11 +56,38 @@
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
 
+#if 1
+
+#undef int128_t
+#define int128_t our_int128_t
+#undef uint128_t
+#define uint128_t our_uint128_t
+
+#if HAVE___INT128
+typedef __int128                int128_t;
+typedef unsigned __int128       uint128_t;
+#elif HAVE_INT128
+typedef int128                  int128_t;
+typedef unsigned int128         uint128_t;
+#else /* HAVE__INT128_T */
+typedef __int128_t              int128_t;
+typedef __uint128_t             uint128_t;
+#endif
+
+#define UINT128_MAX             ((uint128_t)-1)
+#endif
+#include <boost/multiprecision/cpp_int.hpp>
+
+//#ifndef uint128_t
+//typedef unsigned __int128 uint128_t
+//#endif
+
+
 /**
- *@namespace exp_int32
+ *@namespace exp_int
  * The namespace of this code
  */
-namespace exp_int32{
+namespace exp_int{
 
   /**The following structs are needed for initialization of ubint at
    *the preprocessing stage.  The structs compute certain values using
@@ -91,7 +118,7 @@ namespace exp_int32{
   };
 
   /**
-   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t}
+   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t, uint128_t}
    *
    * @tparam Dtype primitive datatype.
    */
@@ -101,7 +128,7 @@ namespace exp_int32{
   };
 
   /**
-   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t}.
+   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t, uint128_t}.
    * sets value true if datatype is unsigned integer 8 bit.
    */
   template<>
@@ -110,7 +137,7 @@ namespace exp_int32{
   };
 
   /**
-   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t}.
+   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t, uint128_t}.
    * sets value true if datatype is unsigned integer 16 bit.
    */
   template<>
@@ -119,7 +146,7 @@ namespace exp_int32{
   };
 
   /**
-   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t}.
+   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t, uint128_t}.
    * sets value true if datatype is unsigned integer 32 bit.
    */
   template<>
@@ -128,11 +155,20 @@ namespace exp_int32{
   };
 
   /**
-   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t}.
+   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t, uint128_t}.
    * sets value true if datatype is unsigned integer 64 bit.
    */
   template<>
   struct DataTypeChecker<uint64_t>{
+    const static bool value = true ;	
+  };
+
+  /**
+   * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t, uint128_t}.
+   * sets value true if datatype is unsigned integer 64 bit.
+   */
+  template<>
+  struct DataTypeChecker<uint128_t>{
     const static bool value = true ;	
   };
 
@@ -163,28 +199,92 @@ namespace exp_int32{
    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
    * Sets T as of type unsigned integer 16 bit if limb datatype is 8bit
    */
-  template<>
-  struct DoubleDataType<uint8_t>{
-    typedef uint16_t T;
-  };
+  template<> struct DoubleDataType<uint8_t>{typedef uint16_t T;};
 
   /**
    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
    * sets T as of type unsigned integer 32 bit if limb datatype is 16bit
    */
-  template<>
-  struct DoubleDataType<uint16_t>{
-    typedef uint32_t T;
-  };
+  template<> struct DoubleDataType<uint16_t>{typedef uint32_t T; };
 
   /**
    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
    * sets T as of type unsigned integer 64 bit if limb datatype is 32bit
    */
-  template<>
-  struct DoubleDataType<uint32_t>{
-    typedef uint64_t T;
+  template<> struct DoubleDataType<uint32_t>{typedef uint64_t T; };
+
+  /**
+   * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
+   * sets T as of type unsigned integer 128 bit if limb datatype is 64bit
+   */
+  template<> struct DoubleDataType<uint64_t>{typedef uint128_t T; };
+
+  /**
+   * @brief Struct to determine a datatype that is the signed version of utype.
+   * sets T as of type void for default case
+   * 
+   * @tparam utype primitive integer data type.
+   */
+  template<typename utype> struct SignedDataType{typedef void T; };
+
+  /**
+   * @brief Struct to determine a datatype that is the signed version of utype.
+   * Sets T as of type signed integer 8 bit if limb datatype is 8bit
+   */
+  template<> struct SignedDataType<uint8_t>{ typedef int8_t T; };
+
+  /**
+   * @brief Struct to determine a datatype that is the signed version of utype.
+   * sets T as of type signed integer 16 bit if limb datatype is 16bit
+   */
+  template<>  struct SignedDataType<uint16_t>{ typedef int16_t T; };
+
+  /**
+   * @brief Struct to determine a datatype that is the signed version of utype.
+   * sets T as of type signed integer 32 bit if limb datatype is 32bit
+   */
+  template<> struct SignedDataType<uint32_t>{ typedef int32_t T; };
+
+  /**
+   * @brief Struct to determine a datatype that is the signed version of utype.
+   * sets T as of type signed integer 64 bit if limb datatype is 64bit
+   */
+  template<> struct SignedDataType<uint64_t>{ typedef int64_t T; };
+
+  /**
+   * @brief Struct to determine a signed datatype that is twice as big(bitwise) as utype.
+   * sets T as of type void for default case
+   * 
+   * @tparam utype primitive integer data type.
+   */
+  template<typename utype>
+  struct SignedDoubleDataType{
+    typedef void T;
   };
+
+  /**
+   * @brief Struct to determine a signed datatype that is twice as big(bitwise) as utype.
+   * Sets T as of type unsigned integer 16 bit if limb datatype is 8bit
+   */
+  template<> struct SignedDoubleDataType<uint8_t>{typedef int16_t T;};
+
+  /**
+   * @brief Struct to determine a signed datatype that is twice as big(bitwise) as utype.
+   * sets T as of type unsigned integer 32 bit if limb datatype is 16bit
+   */
+  template<> struct SignedDoubleDataType<uint16_t>{typedef int32_t T; };
+
+  /**
+   * @brief Struct to determine a signed datatype that is twice as big(bitwise) as utype.
+   * sets T as of type unsigned integer 64 bit if limb datatype is 32bit
+   */
+  template<> struct SignedDoubleDataType<uint32_t>{typedef int64_t T; };
+
+  /**
+   * @brief Struct to determine a signed datatype that is twice as big(bitwise) as utype.
+   * sets T as of type unsigned integer 128 bit if limb datatype is 64bit
+   */
+  template<> struct SignedDoubleDataType<uint64_t>{typedef int128_t T; };
 
 
   const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
@@ -370,14 +470,6 @@ namespace exp_int32{
      * @return the size
      */
     usint GetNumberOfLimbs()const;
-
-    /**
-     * Returns the index number of the array in which MSB is located.
-     *
-     * @return the index of array of the most significant bit as usint.
-     * deprecated
-     */
-    //  usint GetMSBCharNum()const;
 
     /**
      * Converts the value to a usint.
@@ -873,7 +965,7 @@ namespace exp_int32{
     static const usint m_limbBitLength;
 
     //variable to store the maximum value of the limb data type.
-    static const usint m_MaxLimb;
+    static const limb_t m_MaxLimb;
 
     //variable to store the log(base 2) of the number of bits in the limb data type.
     static const usint m_log2LimbBitLength;
@@ -883,14 +975,15 @@ namespace exp_int32{
 
     //The maximum number of digits in biginteger. It is used by the cout(ostream) function for printing the bignumber.
     //Todo remove this limitation
-    static const usint m_numDigitInPrintval=1500;
+    static const usint m_numDigitInPrintval=1500; //todo get rid of m_numDigitInPrintval
 
     /**
-     * function to return the ceiling of the number divided by the number of bits in the limb data type.
+     * function to return the ceiling of the number divided by the number of bits in the limb data type. 
+     * DBC *thinks* this is to determine how many limbs are needed for an input bitsize.
      * @param Number is the number to be divided.
      * @return the ceiling of Number/(bits in the limb data type)
      */
-    static usint ceilIntByUInt(const limb_t Number);
+    static usint ceilIntByUInt(const limb_t Number); //todo rename to MSB2NLimbs()
 
     //currently unused array
     static const ubint *m_modChain;
@@ -924,6 +1017,13 @@ namespace exp_int32{
 
     //Dlimb_t is the data type that has twice as many bits in the limb data type.
     typedef typename DoubleDataType<limb_t>::T Dlimb_t;
+
+    //Slimb_t is the data type that as many bits in the limb data type but is signed.
+    typedef typename SignedDataType<limb_t>::T Slimb_t;
+
+    //Slimb_t is the data type that as many bits in the limb data type but is signed.
+    typedef typename SignedDoubleDataType<limb_t>::T Sdlimb_t;
+
 
     //enum defination to represent the state of the ubint.
     enum State{
@@ -976,5 +1076,5 @@ namespace exp_int32{
   
 }//namespace ends
 
-#endif //LBCRYPTO_MATH_EXPINT32_UBINT_H
+#endif //LBCRYPTO_MATH_EXPINT_UBINT_H
 

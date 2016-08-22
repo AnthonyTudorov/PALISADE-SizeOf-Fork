@@ -37,8 +37,8 @@
  *
  */
 
-#ifndef LBCRYPTO_MATH_EXPINT32_MUBINTVEC_H
-#define LBCRYPTO_MATH_EXPINT32_MUBINTVEC_H
+#ifndef LBCRYPTO_MATH_EXPINT_MUBINTVEC_H
+#define LBCRYPTO_MATH_EXPINT_MUBINTVEC_H
 
 #include <iostream>
 #include <vector>
@@ -51,10 +51,10 @@
 
 
 /**
- * @namespace exp_int32
- * The namespace of exp_int32
+ * @namespace exp_int
+ * The namespace of exp_int
  */
-namespace exp_int32 {
+namespace exp_int {
 /**
  * @brief The class for representing vectors of ubint with associated modulo math
  */
@@ -628,4 +628,4 @@ inline mubintvec<ubint_el_t> operator*(const mubintvec<ubint_el_t> &a,
 
 } // namespace lbcrypto ends
 
-#endif // LBCRYPTO_MATH_EXPINT32_MUBINTVEC_H
+#endif // LBCRYPTO_MATH_EXPINT_MUBINTVEC_H

@@ -39,8 +39,8 @@
  *
  */
 
-#ifndef LBCRYPTO_MATH_EXPINT32_UBINTVEC_H
-#define LBCRYPTO_MATH_EXPINT32_UBINTVEC_H
+#ifndef LBCRYPTO_MATH_EXPINT_UBINTVEC_H
+#define LBCRYPTO_MATH_EXPINT_UBINTVEC_H
 
 
 #include <iostream>
@@ -53,10 +53,10 @@
 #include "ubint.h"
 
 /**
- * @namespace exp_int32
- * The namespace of exp_int32
+ * @namespace exp_int
+ * The namespace of exp_int
  */
-namespace exp_int32 {
+namespace exp_int {
   /**
    * @brief The class for representing vectors of ubint with associated math
    */
@@ -585,4 +585,4 @@ namespace exp_int32 {
 
 } // namespace lbcrypto ends
 
-#endif // LBCRYPTO_MATH_EXPINT32_UBINTVEC_H
+#endif // LBCRYPTO_MATH_EXPINT_UBINTVEC_H

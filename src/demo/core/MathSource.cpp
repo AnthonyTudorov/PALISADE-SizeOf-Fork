@@ -19,7 +19,7 @@
 #endif
 #include "time.h"
 #include <chrono>
-
+#include <exception>
 #include "../../lib/utils/debug.h"
 #include <omp.h> //open MP header
 
@@ -44,17 +44,19 @@ int main(int argc, char* argv[]){
 // an a loop nloop times, timed with timer t with res compared to testval
 
 #define TESTIT(t, res, fn, testval, nloop) do {	\
-  TIC(t); \
-  for (usint j = 0; j< nloop; j++){\
-    res = (fn);			   \
-  }\
-  time2 = TOC(t);\
-  DEBUG(#t << ": " << nloop << " loops " << #res << " = " << #fn << " computation time: " << "\t" << time2 << " us"); \
-  if (res != testval){\
-    cout << "Bad " << #res << " = " << #fn << endl;\
-    vec_diff(res, testval);\
-  }\
- } while (0);
+    try {								\
+      TIC(t);								\
+      for (usint j = 0; j< nloop; j++){					\
+	res = (fn);							\
+      }									\
+      time2 = TOC(t);							\
+      DEBUG(#t << ": " << nloop << " loops " << #res << " = " << #fn << " computation time: " << "\t" << time2 << " us"); \
+      if (res != testval){						\
+	cout << "Bad " << #res << " = " << #fn << endl;			\
+	  /*vec_diff(res, testval);*/					\
+      }									\
+    }catch(exception & e) {cout<< #res << " = " << #fn << " caught exception "<< e.what() <<endl;} \
+  } while (0);
 
 
 //helper function that bulds BigBinaryVector from a vector of strings
@@ -255,9 +257,11 @@ void test_BigBinaryVector () {
   BigBinaryVector modmul2 = BBVfromStrvec(modmul2strvec);
   modmul2.SetModulus(q2);
 
-
+  TESTIT(t2, c2, a2+b2, modsum2, nloop);
   TESTIT(t2, c2, a2.ModAdd(b2), modsum2, nloop);
+  TESTIT(t2, c2, a2-b2, moddiff2, nloop);
   TESTIT(t2, c2, a2.ModSub(b2), moddiff2, nloop);
+  TESTIT(t2, c2, a2*b2, modmul2, nloop);
   TESTIT(t2, c2, a2.ModMul(b2), modmul2, nloop);
 
 
@@ -338,8 +342,11 @@ void test_BigBinaryVector () {
   modmul3.SetModulus(q3);
 
 
+  TESTIT(t3, c3, a3+b3, modsum3, nloop);
   TESTIT(t3, c3, a3.ModAdd(b3), modsum3, nloop);
+  TESTIT(t3, c3, a3-b3, moddiff3, nloop);
   TESTIT(t3, c3, a3.ModSub(b3), moddiff3, nloop);
+  TESTIT(t3, c3, a3*b3, modmul3, nloop);
   TESTIT(t3, c3, a3.ModMul(b3), modmul3, nloop);
 
   return;
@@ -425,7 +432,8 @@ void test_ubintvec() {
   double timeTotal;		// overal time
 
   cout<<"testing ubintvec"<<endl;
-cout<<"todo test assignment, < >operators etc. not just math "<<endl;
+
+  cout<<"todo test assignment, < >operators etc. not just math "<<endl;
   TIC(t_total);
   //there are three test cases, 1) small modulus 2) approx 48 bits. 3)
   //large numbers
@@ -697,7 +705,7 @@ cout<<"todo test assignment, < >operators etc. not just math "<<endl;
      "00002573793300043944", "00001273980645866111", };
   ubintvec modmul2(modmul2sv);
 
-  ubintvec c2;
+  ubintvec c2(a2.size());
   mubintvec mc2;
   // test math for case 2
   TESTIT(t2, c2, a2 + b2, add2, nloop);
