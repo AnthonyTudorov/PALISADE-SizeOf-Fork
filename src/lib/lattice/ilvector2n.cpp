@@ -415,7 +415,7 @@ namespace lbcrypto {
 			std::cout << " mod:" << m_values->GetModulus() << std::endl;
 			std::cout << " rootOfUnity: " << this->GetRootOfUnity() << std::endl;
 		}
-		catch(_exception e)
+		catch(std::exception& e)
 		{}
 		std::cout << std::endl;
 	}
