@@ -56,7 +56,6 @@
  * The namespace of lbcrypto
  */
 namespace lbcrypto {
-
 	/**
 	 * @brief Encryption algorithm implementation template for Ring-LWE NTRU-based schemes,
 	 * @tparam Element a ring element.
@@ -240,13 +239,24 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionSchemeLTV : public LPPublicKeyEncryptionScheme<Element>{
 		public:
+			/**
+			* Inherited constructor
+			*/
 			LPPublicKeyEncryptionSchemeLTV() : LPPublicKeyEncryptionScheme<Element>() {}
+			/**
+			* Constructor that initalizes the mask
+			*
+			*@param mask the mask to be initialized
+			*/
 			LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask);
 
 			//These functions can be implemented later
 			//Initialize(mask);
-
-
+			/**
+			* Function to enable a scheme
+			*
+			*@param feature is the feature to enable
+			*/
 			void Enable(PKESchemeFeature feature);
 	};
 
@@ -257,10 +267,22 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionSchemeStehleSteinfeld : public LPPublicKeyEncryptionSchemeLTV<Element>{
 		public:
+			/**
+			* Inherited constructor
+			*/
 			LPPublicKeyEncryptionSchemeStehleSteinfeld() : LPPublicKeyEncryptionSchemeLTV<Element>() {}
+			/**
+			* Constructor that initalizes the mask
+			*
+			*@param mask the mask to be initialized
+			*/
 			LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask);
 
-
+			/**
+			* Function to enable a scheme
+			*
+			*@param feature is the feature to enable
+			*/
 			void Enable(PKESchemeFeature feature);
 	};
 
