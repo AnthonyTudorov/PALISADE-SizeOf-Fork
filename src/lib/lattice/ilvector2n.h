@@ -189,33 +189,13 @@ namespace lbcrypto {
         */
         const ILVector2n& operator=(ILVector2n &&rhs);
 
-		const ILVector2n& ILVector2n::operator=(std::initializer_list<sint> rhs) {
-			usint len = rhs.size();
-			if (!IsEmpty()) {
-				usint vectorLength = this->m_values->GetLength();
-				
-				for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
-					if (j<len) {
-						SetValAtIndex(j, *(rhs.begin() + j) );
-					}
-					else {
-						SetValAtIndex(j, 0);
-					}
-				}
-
-			}
-			else {
-				
-				BigBinaryVector temp(m_params.GetCyclotomicOrder() / 2);
-				temp.SetModulus(m_params.GetModulus());
-				temp = rhs;
-				this->SetValues(std::move(temp), m_format);
-				
-
-			}
-			return *this;
-		}
-
+		/**
+		* Initalizer list
+		*
+		* @param &rhs the list to set the ILVector2n to.
+		* @return the resulting ILVector2n.
+		*/
+		const ILVector2n& operator=(std::initializer_list<sint> rhs);
 
         //CLONE OPERATIONS
 		/**
