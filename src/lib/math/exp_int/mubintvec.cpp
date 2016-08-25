@@ -373,6 +373,44 @@ namespace exp_int {
 
     return(m_modulus);
   }
+
+
+  /**Switches the integers in the vector to values corresponding to the new modulus
+   *  Algorithm: Integer i, Old Modulus om, New Modulus nm, delta = abs(om-nm):
+   *  Case 1: om < nm
+   *  if i > i > om/2
+   *  i' = i + delta
+   *  Case 2: om > nm
+   *  i > om/2
+   *  i' = i-delta
+   */	
+  template<class ubint_el_t>
+  void mubintvec<ubint_el_t>::SwitchModulus(const ubint_el_t& newModulus) {
+	
+    ubint_el_t oldModulus(this->m_modulus);
+    ubint_el_t n;
+    ubint_el_t oldModulusByTwo(oldModulus>>1);
+    ubint_el_t diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
+    for(usint i=0; i< this->m_length; i++) {
+      n = this->GetValAtIndex(i);
+      if(oldModulus < newModulus) {
+	if(n > oldModulusByTwo) {
+	  this->SetValAtIndex(i, n.ModAdd(diff, newModulus));
+	} else {
+	  this->SetValAtIndex(i, n.Mod(newModulus));
+	}
+      } else {
+	if(n > oldModulusByTwo) {
+	  this->SetValAtIndex(i, n.ModSub(diff, newModulus));
+	} else {
+	  this->SetValAtIndex(i, n.Mod(newModulus));
+	}
+      }
+    }
+    this->SetModulus(newModulus);
+  }
+
+
   
   //Math functions
   // Mod
@@ -397,7 +435,42 @@ namespace exp_int {
 
   }
 
+  //method to mod by two
+  template<class ubint_el_t>
+  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModByTwo() const {
 
+    mubintvec ans(this->GetLength(),this->GetModulus());
+    ubint_el_t halfQ(this->GetModulus() >> 1);
+    for (usint i = 0; i<ans.GetLength(); i++) {
+      if (this->GetValAtIndex(i)>halfQ) {
+	if (this->GetValAtIndex(i).Mod(ubint_el_t::TWO) == ubint_el_t::ONE)
+	  ans.SetValAtIndex(i, ubint_el_t::ZERO);
+	else
+	  ans.SetValAtIndex(i, ubint_el_t::ONE);
+      }
+      else {
+	if (this->GetValAtIndex(i).Mod(ubint_el_t::TWO) == ubint_el_t::ONE)
+	  ans.SetValAtIndex(i, ubint_el_t::ONE);
+	else
+	  ans.SetValAtIndex(i, ubint_el_t::ZERO);
+      }
+      
+    }
+    return ans;
+  }
+
+  // method to add scalar to vector element at index i
+
+  template<class ubint_el_t>
+  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModAddAtIndex(usint i, const ubint_el_t &b) const{
+    if(i > this->GetLength()-1) {
+      std::string errMsg = "mubintvec::ModAddAtIndex. Index is out of range. i = " + i;
+      throw std::runtime_error(errMsg);
+    }
+    mubintvec ans(*this);
+    ans.m_data[i] = ans.m_data[i].ModAdd(b, this->m_modulus);
+    return ans;
+  }
 
   // method to add scalar to vector
     template<class ubint_el_t>
@@ -491,6 +564,22 @@ template<class ubint_el_t>
     }
     return ans;
   }
+
+
+  template<class ubint_el_t>
+  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModInverse() const{
+
+    mubintvec ans(*this);
+    //std::cout << ans << std::endl;
+    for(usint i=0;i<this->m_data.size();i++){
+      //std::cout << ans.m_data[i] << std::endl;
+      //ans.m_data[i].PrintValueInDec();
+      ans.m_data[i] = ans.m_data[i].ModInverse(this->m_modulus);
+    }
+    return ans;
+
+}
+
     
  // method to exponentiate vector by scalar 
   template<class ubint_el_t>

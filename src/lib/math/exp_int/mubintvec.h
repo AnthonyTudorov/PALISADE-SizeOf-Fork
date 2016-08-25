@@ -350,6 +350,14 @@ public:
    */
   void SetModulus(const mubintvec& value);
 
+  
+  /**
+   * Sets the vector modulus and changes the values to match the new modulus.
+   *
+   * @param value is the value to set.
+   */
+  void SwitchModulus(const ubint_el_t& value);
+
   /**
    * Gets the vector modulus.
    *
@@ -376,7 +384,23 @@ public:
    */
   const mubintvec& operator%=(const ubint_el_t& modulus);
 
+  /**
+   * Perform a modulus by 2 operation.  Returns the least significant bit.
+   *
+   * @return a new vector which is the return value of the modulus by 2, also the least significant bit.
+   */
+  mubintvec ModByTwo() const;
+
   //scalar operations
+
+  /**
+   * Scalar modulus addition at a particular index.
+   *
+   * @param &b is the scalar to add.
+   * @param i is the index of the entry to add.
+   * @return is the result of the modulus addition operation.
+   */
+  mubintvec ModAddAtIndex(usint i, const ubint_el_t &b) const;
 
   /**
    * Scalar addition.
@@ -386,6 +410,7 @@ public:
    */
   mubintvec Add(const ubint_el_t &b) const;  
   mubintvec ModAdd(const ubint_el_t &b) const;		//Add() is the same as ModAdd()
+
 
       /**
        * scalar +=
@@ -437,6 +462,15 @@ public:
    */
   mubintvec Exp(const ubint_el_t &b) const;
   mubintvec ModExp(const ubint_el_t &b) const;
+
+
+  /**
+   * Modulus inverse.
+   *
+   * @return a new vector which is the result of the modulus inverse operation.
+   */
+  mubintvec ModInverse() const;
+  
 
   //vector operations
 
