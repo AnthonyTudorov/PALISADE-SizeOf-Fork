@@ -46,7 +46,7 @@
 // CPU architectures
 
 //#define MATHBACKEND 3 //64 bit (works for ubuntu, not tested otherwise
-#define MATHBACKEND 2 //32 bit should work with all OS
+#define MATHBACKEND 3 //32 bit should work with all OS
 
 #if MATHBACKEND == 1
 #include "cpu8bit/binint8bit.h"
@@ -68,9 +68,15 @@
 
 #if MATHBACKEND == 3
 
-#include "cpu_int/binint.cpp"
-#include "cpu_int/binvect.cpp"
-#include <initializer_list>
+
+#include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
+#include "exp_int/ubintvec.cpp" //vectors of experimental ubints
+#include "exp_int/mubintvec.cpp" //rings of ubints
+
+#endif
+
+#if MATHBACKEND == 4
+
 
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.cpp" //vectors of experimental ubints
@@ -122,6 +128,7 @@ namespace lbcrypto {
 	/** Define the mapping for modulo Big Integer Vector */
 	typedef exp_int::mubintvec<ubint> mubintvec;
 
+
 #endif
 
 #if MATHBACKEND == 3
@@ -130,24 +137,14 @@ namespace lbcrypto {
 	    should be uint32_t for most applications **/
 	typedef uint32_t integral_dtype;
 
-	/** makes sure that only supported data type is supplied **/
-	static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provided is not supported in BigBinaryInteger");
-
-	/** Define the mapping for BigBinaryInteger
-	    1500 is the maximum bit width supported by BigBinaryIntegers, large enough for most use cases
-		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application - to achieve smaller runtimes**/
-	typedef cpu_int::BigBinaryInteger<integral_dtype,1500> BigBinaryInteger;
-	
-	/** Define the mapping for BigBinaryVector */
-	typedef cpu_int::BigBinaryVector<BigBinaryInteger> BigBinaryVector;
-
-
-	typedef uint64_t myintegral_dtype;	
-	/** Define the mapping for BigBinaryMatrix */
-	//typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
+	/** Define the mapping for ExpBigBinaryInteger (experimental) */
+	typedef exp_int::ubint<integral_dtype> ubint;
 
 	/** Define the mapping for ExpBigBinaryInteger (experimental) */
-	typedef exp_int::ubint<myintegral_dtype> ubint;
+	typedef exp_int::ubint<integral_dtype> BigBinaryInteger;
+
+	/** Define the mapping for modulo Big Integer Vector */
+	typedef exp_int::mubintvec<ubint> BigBinaryVector;
 
 	/** Define the mapping for Big Integer Vector */
 	typedef exp_int::ubintvec<ubint> ubintvec;
@@ -156,6 +153,31 @@ namespace lbcrypto {
 	typedef exp_int::mubintvec<ubint> mubintvec;
 
 #endif
+
+#if MATHBACKEND == 4
+
+	/** integral_dtype specifies the native data type used for the BigBinaryInteger implementation 
+	    should be uint32_t for most applications **/
+	typedef uint64_t integral_dtype;
+
+	/** Define the mapping for ExpBigBinaryInteger (experimental) */
+	typedef exp_int::ubint<integral_dtype> BigBinaryInteger;
+
+	/** Define the mapping for ExpBigBinaryInteger (experimental) */
+	typedef exp_int::ubint<integral_dtype> ubint;
+
+	/** Define the mapping for modulo Big Integer Vector */
+	typedef exp_int::mubintvec<ubint> BigBinaryVector;
+
+	/** Define the mapping for Big Integer Vector */
+	typedef exp_int::ubintvec<ubint> ubintvec;
+
+	/** Define the mapping for modulo Big Integer Vector */
+	typedef exp_int::mubintvec<ubint> mubintvec;
+
+
+#endif
+
 
 } // namespace lbcrypto ends
 
