@@ -348,7 +348,21 @@ namespace lbcrypto {
 			* @param *ctx
 			* @return true on success
 			*/
-			bool Deserialize(const Serialized& serObj, const CryptoContext<Element> *ctx); //TODO: @Gerard Ryan, complete doxygen documentation
+			bool Deserialize(const Serialized& serObj, const CryptoContext<Element> *ctx) { //TODO: @Gerard Ryan, complete doxygen documentation
+
+				LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
+				if (cryptoParams == 0) return false;
+
+				this->SetCryptoParameters(cryptoParams);
+
+				Element json_ilElement;
+				if (json_ilElement.Deserialize(serObj)) {
+					this->SetPublicElementAtIndex(0,json_ilElement);
+					return true;
+				}
+
+				return false;
+			}
 
 	private:
 		LPCryptoParameters<Element> *m_cryptoParameters;
