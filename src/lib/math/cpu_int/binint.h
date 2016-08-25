@@ -604,6 +604,24 @@ namespace cpu_int{
 	*/
     BigBinaryInteger Exp(usint p) const;
 
+	/**
+	* Multiply and Rounding operation on a bigBinaryInteger x. Returns [x*p/q] where [] is the rounding operation.
+	*
+	* @param p is the numerator to be multiplied.
+	* @param q is the denominator to be divided.
+	* @return the big binary integer x^p.
+	*/
+	BigBinaryInteger MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const;
+
+	/**
+	* Divide and Rounding operation on a bigBinaryInteger x. Returns [x*p/q] where [] is the rounding operation.
+	*
+	* @param p is the numerator to be multiplied.
+	* @param q is the denominator to be divided.
+	* @return the big binary integer x^p.
+	*/
+	BigBinaryInteger DivideAndRound(const BigBinaryInteger &q) const;
+
     /**
     * Test equality of the inputs.
     *
