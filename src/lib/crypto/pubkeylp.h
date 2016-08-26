@@ -43,6 +43,7 @@
 #include "../utils/inttypes.h"
 #include "../math/distrgen.h"
 
+
 /**
  * @namespace lbcrypto
  * The namespace of lbcrypto
@@ -54,7 +55,17 @@ namespace lbcrypto {
 	class Ciphertext;
 
 	template <class Element>
-	class LPEvalKeyNTRULTV;
+	class LPCryptoParameters;
+
+	template <typename Element>
+	inline LPCryptoParameters<Element>* DeserializeCryptoParameters(const Serialized &serObj);
+
+	template <typename Element>
+	inline LPCryptoParameters<Element>* DeserializeAndValidateCryptoParameters(const Serialized& serObj, const LPCryptoParameters<Element>& curP);
+
+
+	/*template <class Element>
+	class LPEvalKeyNTRU;*/
 
 	struct EncryptResult {
 
@@ -1350,7 +1361,6 @@ namespace lbcrypto {
 		const LPPublicKeyEncryptionScheme<Element> *m_scheme;
 	};
 
-
 	/** This function is used to deserialize the Crypto Parameters
 	*
 	* @param &serObj object to be serialized
@@ -1408,6 +1418,7 @@ namespace lbcrypto {
 		delete parmPtr;
 		return 0;
 	}
+
 
 } // namespace lbcrypto ends
 #endif

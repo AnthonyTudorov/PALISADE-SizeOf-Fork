@@ -340,5 +340,6 @@ namespace lbcrypto {
 		*/
 		void SetQuadraticKeySwitchHintForLevel(const LPEvalKeyNTRU<Element> &qksh, usint level) { if(level>m_levels-1) {throw std::runtime_error("Level out of range");} else { m_qksh[level] = qksh;} };
 	};
+
 } // namespace lbcrypto ends
 #endif
