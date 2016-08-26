@@ -339,8 +339,8 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	//cipherText.SetCryptoParameters(&cryptoParams);
 
 	//Initialize the public key containers.
-	LPPublicKey<ILVector2n> pk(cryptoParams);
-	LPPrivateKey<ILVector2n> sk(cryptoParams);
+//	LPPublicKey<ILVector2n> pk(cryptoParams);
+//	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	//std::vector<usint> vectorOfInts = { 1,0,1,0,1,0,1,0 };
 	//IntPlaintextEncoding intArray(vectorOfInts);
@@ -358,12 +358,12 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	//CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray, &ciphertext, false);
 
 	//Initialize the public key containers for sparse key.
-	LPPublicKey<ILVector2n> pkSparse(cryptoParams);
+	/*LPPublicKey<ILVector2n> pkSparse(cryptoParams);
 	LPPrivateKey<ILVector2n> skSparse(cryptoParams);
 
 	algorithm.SparseKeyGen(&pkSparse, &skSparse);
 	LPEvalKeyNTRU<ILVector2n> toSparseKeySwitchHint;
-	algorithm.KeySwitchHintGen(sk, skSparse, &toSparseKeySwitchHint);
+	algorithm.KeySwitchHintGen(sk, skSparse, &toSparseKeySwitchHint);*/
 
 	//vector<Ciphertext<ILVector2n>> newCiphertext;
 	//newCiphertext.reserve(ciphertext.size());
