@@ -55,10 +55,14 @@ NumberTheoreticTransform& NumberTheoreticTransform::GetInstance(){
 //Number Theoretic Transform - ITERATIVE IMPLEMENTATION -  twiddle factor table precomputed
 BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBinaryVector& element, const BigBinaryVector &rootOfUnityTable,const usint cycloOrder) {
 	
-	
 	usint n = cycloOrder;
 	BigBinaryVector result(n);
 	result.SetModulus( element.GetModulus() );
+
+	/*std::cout << "Printing Root of Unity table" << std::endl;
+	for (usint i = 0; i < rootOfUnityTable.GetLength(); i++) {
+		std::cout << rootOfUnityTable.GetValAtIndex(i) << std::endl;
+	}*/
 
 	//reverse coefficients (bit reversal)
 	usint msb = GetMSB32(n-1);
@@ -69,19 +73,8 @@ BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBin
 	BigBinaryInteger product;
 	BigBinaryInteger butterflyPlus;
 	BigBinaryInteger butterflyMinus;
-
-	//Precompute the Barrett mu values
-	/*BigBinaryInteger temp;
-	uschar gamma;
-	uschar modulusLength = element.GetModulus().GetMSB() ;
-	BigBinaryInteger mu_arr[BARRETT_LEVELS+1];
-	for(usint i=0;i<BARRETT_LEVELS+1;i++) {
-		temp = BigBinaryInteger::ONE;
-		gamma = modulusLength*i/BARRETT_LEVELS;
-		temp<<=modulusLength+gamma+3;
-		mu_arr[i] = temp.DividedBy(element.GetModulus());
-	}*/
-
+	usint ringDimensionFactor = (rootOfUnityTable.GetLength()) / cycloOrder;
+    
 	//Precompute the Barrett mu parameter
 	BigBinaryInteger temp(BigBinaryInteger::ONE);
 	temp<<=2*element.GetModulus().GetMSB()+3;
@@ -98,9 +91,12 @@ BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBin
 
 				usint x = 2*i*n/m;
 
-				const BigBinaryInteger& omega = rootOfUnityTable.GetValAtIndex(x);
+				const BigBinaryInteger& omega = rootOfUnityTable.GetValAtIndex(x * ringDimensionFactor);
+//				const BigBinaryInteger& omega = rootOfUnityTable.GetValAtIndex(x);
 
-				//std::cout<<omega<<std::endl;
+				/*std::cout << "Omega is : " << omega << std::endl;
+				std::cout << "x : " << x << std::endl;
+*/
 
 				usint indexEven = j + i;
 				usint indexOdd = j + i + m/2;
@@ -135,6 +131,8 @@ BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBin
 					result.SetValAtIndex( indexOdd, result.GetValAtIndex(indexEven));
 
 			}
+	//		std::cout << "--------------------------------"<< std::endl;
+
 		}
 	}
 	

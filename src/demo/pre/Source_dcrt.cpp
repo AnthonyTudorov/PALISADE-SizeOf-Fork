@@ -73,6 +73,8 @@ void LevelCircuitEvaluation2WithCEM();
 void ComposedEvalMultTest();
 bool canRingReduce(usint ringDimension, std::vector<BigBinaryInteger> moduli, double rootHermiteFactor);
 void RootsOfUnitTest();
+void BenchMarking();
+void FFTTest();
 /**
  * @brief Input parameters for PRE example.
  */
@@ -85,8 +87,9 @@ struct SecureParams {
 
 #include <iterator>
 int main() {
-
-	RootsOfUnitTest();
+	FFTTest();
+//	BenchMarking();
+//	RootsOfUnitTest();
 //	RingReduceTest();
 //	RingReduceDCRTTest();
 	NTRUPRE(0);
@@ -124,6 +127,97 @@ int main() {
 
 // 	return std::chrono::duration <double, std::milli>(now - midnight).count();
 // }
+
+void BenchMarking() {
+	double diff, start, finish;
+	std::unordered_map<usint, std::vector<double>> encryptTimer;
+	std::unordered_map<usint, std::vector<double>> decryptTimer;
+
+	usint m = 16;
+	usint numberOfIterations = 100;
+	usint numberOfTowers = 20;
+	std::vector<double> encryptTimeTower(20);
+//	encryptTimeTower.reserve(20);
+	std::fill(encryptTimeTower.begin(), encryptTimeTower.end(), 0);
+	encryptTimer.insert(std::make_pair(m, encryptTimeTower));
+
+	std::vector<double> decryptTimeTower(20);
+//	decryptTimeTower.reserve(19);
+	std::fill(decryptTimeTower.begin(), decryptTimeTower.end(), 0);
+	decryptTimer.insert(std::make_pair(m, decryptTimeTower));
+
+	for (usint k = 0; k < numberOfIterations; k++) {
+		for (usint i = 1; i <= 3; i++) {
+			float stdDev = 4;
+
+			BytePlaintextEncoding plaintext("N");
+
+			BytePlaintextEncoding ctxtd;
+
+			vector<BigBinaryInteger> moduli(i);
+
+			vector<BigBinaryInteger> rootsOfUnity(i);
+
+			BigBinaryInteger q("1");
+			BigBinaryInteger temp;
+			BigBinaryInteger modulus("1");
+
+			for (int j = 0; j < i; j++) {
+				lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+				moduli[j] = q;
+				rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
+				modulus = modulus* moduli[j];
+			}
+
+			DiscreteGaussianGenerator dgg(stdDev);
+
+			ILDCRTParams params(m, moduli, rootsOfUnity);
+
+			LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+			cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+			cryptoParams.SetDistributionParameter(stdDev);
+			cryptoParams.SetRelinWindow(1);
+			cryptoParams.SetElementParams(params);
+			cryptoParams.SetDiscreteGaussianGenerator(dgg);
+
+			Ciphertext<ILVectorArray2n> cipherText;
+			cipherText.SetCryptoParameters(&cryptoParams);
+
+			LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
+			LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
+
+			LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
+			algorithm.Enable(ENCRYPTION);
+			algorithm.Enable(PRE);
+
+			algorithm.KeyGen(&pk, &sk);
+
+			vector<Ciphertext<ILVectorArray2n>> ciphertext;
+
+			start = currentDateTime();
+
+			CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);
+			finish = currentDateTime();
+			diff = finish - start;
+			encryptTimer.at(m).at(i) += diff;
+
+			BytePlaintextEncoding plaintextNew;
+
+			start = currentDateTime();
+
+			CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk, ciphertext, &plaintextNew);
+			finish = currentDateTime();
+			diff = finish - start;
+            decryptTimer.at(m).at(i) += diff;
+		}
+	}
+	for (int i = 1; i < 4; i++) {
+		cout << encryptTimer.at(m).at(i)/100 << endl;
+		cout << decryptTimer.at(m).at(i)/100 << endl;
+		cout << endl;
+	}
+
+}
 
 void NTRU_DCRT() {
 
@@ -1452,4 +1546,28 @@ void RootsOfUnitTest() {
 //	cout << rootOfUnity4 << endl;
 
 
+}
+
+void FFTTest() {
+	usint m1 = 8;
+	
+
+	BigBinaryInteger modulus(17729);
+	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
+	cout << rootOfUnity << endl;
+	cout << rootOfUnity << endl;
+	ILParams params(m1, modulus, rootOfUnity);
+
+	ILVector2n x1(params, Format::COEFFICIENT);
+	x1 = { 1,0,1,0};
+	
+
+	x1.Decompose();
+
+	x1.SwitchFormat();
+	x1.SwitchFormat();
+
+	x1.PrintValues();
+
+	
 }

@@ -318,7 +318,6 @@ TEST(method_ILVector2n_IntPlaintextEncoding, Encrypt_Decrypt) {
 	vector<Ciphertext<ILVector2n>> ciphertext;
 	
 	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray, &ciphertext, false);
-	vectorOfInts.pop_back();
 
 	IntPlaintextEncoding intArrayNew;
 

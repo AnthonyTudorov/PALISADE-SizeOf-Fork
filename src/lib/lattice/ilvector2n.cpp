@@ -444,7 +444,8 @@ namespace lbcrypto {
 		
 		usint decomposedCyclotomicOrder = m_params.GetCyclotomicOrder()/2;
 		//Using the halving lemma propety of roots of unity to calculate the root of unity at half the cyclotomic order
-		m_params.SetRootOfUnity((m_params.GetRootOfUnity()*m_params.GetRootOfUnity()).Mod(m_params.GetModulus())); 
+	//	m_params.SetRootOfUnity((m_params.GetRootOfUnity()*m_params.GetRootOfUnity()).Mod(m_params.GetModulus())); 
+		m_params.SetRootOfUnity(m_params.GetRootOfUnity());
 		m_params.SetCyclotomicOrder(decomposedCyclotomicOrder);
 
 		//Interleaving operation.
