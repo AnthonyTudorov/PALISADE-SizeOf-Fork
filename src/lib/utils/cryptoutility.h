@@ -278,7 +278,7 @@ public:
 		}
 	}
 
-	//KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint,const Ciphertext<Element> &cipherText)
+	//KeySwitch(const LPEvalKeyNTRU<Element> &keySwitchHint,const Ciphertext<Element> &cipherText)
 	/**
 	* perform KeySwitch on a vector of ciphertext
 	* @param scheme - a reference to the encryption scheme in use
@@ -288,7 +288,7 @@ public:
 	*/
 	static void KeySwitch(
 		const LPPublicKeyEncryptionScheme<Element>& scheme,
-		const LPKeySwitchHint<Element> &keySwitchHint,
+		const LPEvalKeyNTRU<Element> &keySwitchHint,
 		const vector<Ciphertext<Element>>& ciphertext,
 		vector<Ciphertext<Element>> *newCiphertext)
 	{
@@ -318,11 +318,11 @@ public:
 	* @param scheme - a reference to the encryption scheme in use
 	* @param ciphertext - vector of ciphertext
 	*/
-	//void RingReduce(Ciphertext<Element> *cipherText, const LPKeySwitchHint<Element> &keySwitchHint) const
+	//void RingReduce(Ciphertext<Element> *cipherText, const LPEvalKeyNTRU<Element> &keySwitchHint) const
 	static void RingReduce(
 		const LPPublicKeyEncryptionScheme<Element>& scheme,
 		vector<Ciphertext<Element>> *ciphertext,
-		const LPKeySwitchHint<Element> &keySwitchHint)
+		const LPEvalKeyNTRU<Element> &keySwitchHint)
 
 	{
 		for (int i = 0; i < ciphertext->size(); i++) {

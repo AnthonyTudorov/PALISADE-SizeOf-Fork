@@ -564,7 +564,7 @@ namespace lbcrypto {
 		* @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
 		* @result is the pointer where the base decomposition vector is stored
 		*/
-		void PowersOfBase(usint baseBits, std::vector<ILVector2n> *result) const;
+		std::vector<ILVector2n> PowersOfBase(usint baseBits) const;
 
 		/**
 		* Shift entries in the vector left a specific number of entries.

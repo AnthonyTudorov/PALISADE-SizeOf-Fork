@@ -57,521 +57,6 @@
  */
 namespace lbcrypto {
 
-
-	/** This function is used to deserialize the Crypto Parameters
-	 *
-	 * @param &serObj object to be serialized
-	 *
-	 * @return the parameters or null on failure
-	 */
-	template <typename Element>
-	inline LPCryptoParameters<Element>* DeserializeCryptoParameters(const Serialized &serObj)
-	{
-		LPCryptoParameters<Element>* parmPtr = 0;
-
-		Serialized::ConstMemberIterator it = serObj.FindMember("LPCryptoParametersType");
-		if( it == serObj.MemberEnd() ) return 0;
-		std::string type = it->value.GetString();
-
-		if( type == "LPCryptoParametersLTV" ) {
-			parmPtr = new LPCryptoParametersLTV<Element>();
-		} else if( type == "LPCryptoParametersStehleSteinfeld" ) {
-			parmPtr = new LPCryptoParametersStehleSteinfeld<Element>();
-		} else if( type == "LPCryptoParametersBV" ) {
-			parmPtr = new LPCryptoParametersBV<Element>();
-		} else
-			return 0;
-
-		if( !parmPtr->Deserialize(serObj) ) {
-			delete parmPtr;
-			return 0;
-		}
-
-		return parmPtr;
-	}
-
-	/** This function is used to deserialize the Crypto Parameters, to compare them to the existing parameters,
-	 * and to fail if they do not match
-	 *
-	 * @param &serObj object to be desrialized
-	 * @param &curP LPCryptoParameters to validate against
-	 *
-	 * @return the parameters or null on failure
-	 */
-	template <typename Element>
-	inline LPCryptoParameters<Element>* DeserializeAndValidateCryptoParameters(const Serialized& serObj, const LPCryptoParameters<Element>& curP)
-	{
-		LPCryptoParameters<Element>* parmPtr = DeserializeCryptoParameters<Element>(serObj);
-
-		if( parmPtr == 0 ) return 0;
-
-		// make sure the deserialized parms match the ones in the current context
-		if( *parmPtr == curP )
-			return parmPtr;
-
-		delete parmPtr;
-		return 0;
-	}
-
-	/**
-	 * @brief Public key implementation template for Ring-LWE NTRU-based schemes,
-	 * @tparam Element a ring element.
-	 */
-	template <class Element>
-	class LPPublicKeyLTV : public LPPublicKey<Element>{
-		public:
-
-			/**
-			* Default constructor
-			*/
-			LPPublicKeyLTV() {}
-
-			/**
-			* Basic constructor for setting crypto params
-			*
-			* @param &cryptoParams is the reference to cryptoParams
-			*/
-			LPPublicKeyLTV(LPCryptoParameters<Element> &cryptoParams) {
-				this->SetCryptoParameters(&cryptoParams);
-			}
-
-			/**
-			* Copy constructor
-			*
-			*@param &rhs LPPublicKey to copy from
-			*/
-			explicit LPPublicKeyLTV(const LPPublicKey<Element> &rhs);
-
-			/**
-			* Assignment Operator.
-			*
-			* @param &rhs LPPublicKeyLTV to copy from
-			*/
-			LPPublicKeyLTV<Element>& operator=(const LPPublicKeyLTV<Element> &rhs);
-
-			/**
-			 * Get Crypto Parameters.
-			 * @param *m_cryptoParameters
-			 *
-			 * @return the crypto parameters.
-			 */
-			const LPCryptoParameters<Element> &GetCryptoParameters() const {return *m_cryptoParameters;}
-
-			/**
-			 * Implementation of the Get accessor for public element.
-			 * @return the private element.
-			 */
-			const Element & GetPublicElement() const {return m_h;}
-
-			/**
-			* Gets writable instance of cryptoparams.
-			* @return the crypto parameters.
-			*/
-			LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
-
-			/**
-			 * Sets crypto params.
-			 *
-			 * @param *cryptoParams parameters to set to.
-			 */
-			void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
-			
-			/**
-			 * Implementation of the Set accessor for public element.
-			 * @private &x the public element to set to.
-			 */
-			void SetPublicElement(const Element &x) {m_h = x;}
-
-			//JSON FACILITY
-			/**
-			* Serialize the object into a Serialized
-			* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-			* @param fileFlag is an object-specific parameter for the serialization
-			* @return true if successfully serialized
-			*/
-			bool Serialize(Serialized *serObj, const std::string fileFlag = "") const;
-
-			/**
-			* Higher level info about the serialization is saved here
-			* @param *serObj to store the the implementing object's serialization specific attributes.
-			* @param flag an object-specific parameter for the serialization
-			* @return true on success
-			*/
-			bool SetIdFlag(Serialized *serObj, const std::string flag) const;
-
-			/**
-			* Populate the object from the deserialization of the Serialized
-			* @param &serObj contains the serialized object
-			* @return true on success
-			*/
-			bool Deserialize(const Serialized &serObj) { return false; }
-
-			/**
-			* Populate the object from the deserialization of the Serialized
-			* @param &serObj contains the serialized object
-			* @param *ctx
-			* @return true on success
-			*/
-			bool Deserialize(const Serialized& serObj, const CryptoContext<Element> *ctx); //TODO: @Gerard Ryan, complete doxygen documentation
-
-		private:
-			LPCryptoParameters<Element> *m_cryptoParameters;
-			//polynomials used for public key
-			//Element m_g;
-			Element m_h;
-	};
-
-	/**
-	* @brief Evaluation/proxy key implementation template for Ring-LWE NTRU-based schemes,
-	* @tparam Element a ring element.
-	*/
-	template <class Element>
-	class LPEvalKeyLTV : public LPEvalKey<Element>{
-	public:
-
-		/**
-		* Default constructor
-		*/
-
-		LPEvalKeyLTV() {}
-
-		/**
-		* Basic constructor for setting crypto params
-		*
-		* @param &cryptoParams is the reference to cryptoParams
-		*/
-
-		LPEvalKeyLTV(LPCryptoParameters<Element> &cryptoParams) {
-			this->SetCryptoParameters(&cryptoParams);
-		}
-
-		/**
-		* Get Crypto Parameters.
-		* @return the LPCryptoParameters.
-		*/
-		const LPCryptoParameters<Element> &GetCryptoParameters() const {return *m_cryptoParameters;}
-
-		/**
-		* Get accessor for eval key elements.
-		* @return the private element.
-		*/
-		const std::vector<Element> &GetEvalKeyElements() const { return m_elements; }
-
-		/**
-		* Get accessor for public key.
-		* @return the LPPublicKey.
-		*/
-		const LPPublicKey<Element> &GetPublicKey() const { return *m_publicKey; }
-
-		/**
-		* Gets writable instance of cryptoparams.
-		* @return the LPCryptoParameters.
-		*/
-		LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
-
-		/**
-		* Get writeable accessor for eval key elements.
-		* @return the private element.
-		*/
-		std::vector<Element> &AccessEvalKeyElements() { return m_elements; }
-
-		/**
-		* Sets crypto params.
-		*
-		* @param *cryptoParams parameters.
-		*
-		*/
-		void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
-
-		/**
-		* Set accessor for evaluation key elements.
-		* @private &elements the vector of element to be set.
-		*/
-		void SetEvalKeyElements(std::vector<Element> &elements) { m_elements = elements; }
-
-		/**
-		* Set accessor for public key.
-		* @private &publicKey the LPPublicKey to set to.
-		*/
-		void SetPublicKey(const LPPublicKey<Element> &publicKey) { m_publicKey = &publicKey; }
-
-		//JSON FACILITY
-		/**
-		* Serialize the object into a Serialized
-		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param fileFlag is an object-specific parameter for the serialization
-		* @return true if successfully serialized
-		*/
-		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const;
-
-		/**
-		* Higher level info about the serialization is saved here
-		* @param *serObj to store the the implementing object's serialization specific attributes.
-		* @param flag an object-specific parameter for the serialization
-		* @return true on success
-		*/
-		bool SetIdFlag(Serialized *serObj, const std::string flag) const;
-
-		/**
-		* Populate the object from the deserialization of the Setialized
-		* @param &serObj contains the serialized object
-		* @return true on success
-		*/
-		bool Deserialize(const Serialized &serObj) { return false; }
-
-		/**
-		* Populate the object from the deserialization of the Serialized
-		* @param &serObj contains the serialized object
-		* @param *ctx
-		* @return true on success
-		*/
-		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx);  //TODO: @Gerard Ryan, complete doxygen documentation
-		
-	private:
-		LPCryptoParameters<Element> *m_cryptoParameters;
-		//elements used for evaluation key
-		std::vector<Element> m_elements;
-
-		//pointer to public key
-		const LPPublicKey<Element> *m_publicKey;
-
-	};
-
-	//! Implementation class for key switch hint
-	/**
-	 * @brief Implementation class for key switch hints
-	 * @tparam Element a ring element
-	 */
-	template <class Element>
-	class LPKeySwitchHintLTV: public LPKeySwitchHint<Element> {
-		public:
-
-			/**
-			* Constructor that initializes nothing.
-			*/
-			LPKeySwitchHintLTV() {
-				/*m_sk = NULL;*/
-				//m_cryptoParameters;
-			}
-
-			/**
-			* Copy constructor
-			*
-			*@param &rhs object to copy from.
-			*/
-			LPKeySwitchHintLTV(const LPKeySwitchHintLTV &rhs){
-				this->m_sk = rhs.m_sk;
-				*this->m_cryptoParameters = *rhs.m_cryptoParameters;
-			}
-
-
-			/**
-			* Get Crypto Parameters.
-			* @return the crypto parameters.
-			*/
-			const LPCryptoParameters<Element> &GetCryptoParameters() const {return *m_cryptoParameters;}
-
-			/**
-			* Implementation of the Get accessor for private element.
-			* @return the private element.
-			*/
-			const Element & GetHintElement() const {return m_sk;}
-
-
-		   /**
-		   * Gets writable instance of cryptoparams.
-		   * @return the crypto parameters.
-		   */
-			LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
-
-		   /**
-			* Sets crypto params.
-			*
-			* @param *cryptoParams parameters.
-			* @return the crypto parameters.
-			*/
-			void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
-
-			/**
-			* Set accessor for private element.
-			* @private &x the private element to set the hint to.
-			*/
-			void SetHintElement(const Element &x) {m_sk = x;}
-
-			// JSON FACILITY - SetIdFlag Operation
-			std::unordered_map <std::string, std::unordered_map <std::string, std::string>> SetIdFlag(std::unordered_map <std::string, std::unordered_map <std::string, std::string>> serializationMap, std::string flag) const {
-			//	std::unordered_map <std::string, std::string> serializationMap;
-			return serializationMap;
-			}
-
-		// JSON FACILITY - Serialize Operation
-		// TODO - GERARD RYAN
-		/**
-		* Serialize the object into a Serialized
-		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param fileFlag is an object-specific parameter for the serialization
-		* @return true if successfully serialized
-		*/
-		bool  Serialize(Serialized* serObj, const std::string fileFlag = "") const {
-			
-			return false;
-		}
-
-		// JSON FACILITY - Deserialize Operation
-		// TODO - GERARD RYAN
-		/**
-		* Populate the object from the deserialization of the Serialized
-		* @param &serObj contains the serialized object
-		* @return true on success
-		*/
-		bool Deserialize(const Serialized &serObj) {	
-			return false;
-		}
-
-		private:
-			LPCryptoParameters<Element> *m_cryptoParameters;
-			//private key polynomial
-			Element m_sk;
-	};
-
-
-	/**
-	 * @brief Private key implementation template for Ring-LWE NTRU-based schemes,
-	 * @tparam Element a ring element.
-	 */
-	template <class Element>
-	class LPPrivateKeyLTV : public LPPrivateKey<Element>{
-		public:
-
-			/**
-			* Default constructor
-			*/
-
-			LPPrivateKeyLTV() {}
-
-			/**
-			* Basic constructor for setting crypto params
-			*
-			* @param &cryptoParams is the reference to cryptoParams.
-			*/
-			LPPrivateKeyLTV(LPCryptoParameters<Element> &cryptoParams) {
-				this->SetCryptoParameters(&cryptoParams);
-			}
-
-			/**
-			* Copy constructor
-			*@param &rhs the LPPrivateKeyLTV to copy from
-			*/
-			explicit LPPrivateKeyLTV(const LPPrivateKeyLTV<Element> &rhs);
-
-			/**
-			* Assignment Operator.
-			*
-			* @param &rhs LPPrivateKeyLTV to assign from.
-			* @return the resulting LPPrivateKeyLTV
-			*/
-			LPPrivateKeyLTV<Element>& operator=(const LPPrivateKeyLTV<Element> &rhs);
-
-			/**
-			 * Get Crypto Parameters.
-			 * @return the crypto parameters.
-			 */
-			const LPCryptoParameters<Element> &GetCryptoParameters() const {return *m_cryptoParameters;}
-
-			/**
-			 * Implementation of the Get accessor for private element.
-			 * @return the private element.
-			 */
-			const Element & GetPrivateElement() const {return m_sk;}
-			
-			/**
-			* Gets writable instance of cryptoparams.
-			* @return the crypto parameters.
-			*/
-			LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
-
-			/**
-			 * Sets crypto params.
-			 *
-			 * @param *cryptoParams parameters.
-			 * @return the crypto parameters.
-			 */
-			void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
-
-			/**
-			 * Set accessor for private element.
-			 * @private &x private element to set to.
-			 */
-			void SetPrivateElement(const Element &x) {m_sk = x;}
-
-			/**
-			 * Procedure to compute the public key using the current private key
-			 * The formula is h = p*g*f^(-1) using standard NTRU notation
-			 *
-			 * @param &g a Gaussian polynomial
-			 * @param *pub a public key.
-			 */
-			void MakePublicKey(const Element &g, LPPublicKey<Element> *pub) const
-			{
-				pub->SetPublicElement(this->GetCryptoParameters().GetPlaintextModulus()*g*this->GetPrivateElement().MultiplicativeInverse());
-			}
-
-			//JSON FACILITY
-			/**
-			* Serialize the object into a Serialized
-			* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-			* @param fileFlag is an object-specific parameter for the serialization
-			* @return true if successfully serialized
-			*/
-			bool Serialize(Serialized *serObj, const std::string fileFlag = "") const;
-
-			/**
-			* Higher level info about the serialization is saved here
-			* @param *serObj to store the the implementing object's serialization specific attributes.
-			* @param flag an object-specific parameter for the serialization
-			* @return true on success
-			*/
-			bool SetIdFlag(Serialized *serObj, const std::string flag) const;
-
-			/**
-			* Populate the object from the deserialization of the Setialized
-			* @param &serObj contains the serialized object
-			* @return true on success
-			*/
-			bool Deserialize(const Serialized &serObj) { return false; }
-
-			/**
-			* Populate the object from the deserialization of the Setialized
-			* @param &serObj contains the serialized object
-			* @param *ctx
-			* @return true on success
-			*/
-			bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx);
-
-			/**
-			* Assignment Operator.
-			*
-			* @param &rhs LPPrivateKeyLTV to copy from 
-			* @return the resulting LPPrivateKeyLTV
-			*/
-			LPPrivateKeyLTV& operator=(LPPrivateKeyLTV &rhs){
-				*m_cryptoParameters = *rhs.m_cryptoParameters;
-				m_sk = rhs.m_sk;
-
-				return *this;
-			}
-				
-
-	private:
-			LPCryptoParameters<Element> *m_cryptoParameters;
-			//private key polynomial
-			Element m_sk;
-			//error polynomial
-			//Element m_e;
-
-			
-	};
-
 	/**
 	 * @brief Encryption algorithm implementation template for Ring-LWE NTRU-based schemes,
 	 * @tparam Element a ring element.
@@ -651,14 +136,14 @@ namespace lbcrypto {
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
 			 * @param *keySwitchHint is where the resulting keySwitchHint will be placed.
 			 */
-			virtual void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const ;
+			virtual void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *keySwitchHint) const ;
 			/**
 			 * Method for KeySwitching based on a KeySwitchHint
 			 *
 			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
 			 * @param &cipherText Original ciphertext to perform switching on.
 			 */
-			virtual Ciphertext<Element> KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint,const  Ciphertext<Element> &cipherText) const;
+			virtual Ciphertext<Element> KeySwitch(const LPEvalKeyNTRU<Element> &keySwitchHint,const  Ciphertext<Element> &cipherText) const;
 
 			/**
 			* Method for generating a keyswitchhint from originalPrivateKey square to newPrivateKey
@@ -667,7 +152,7 @@ namespace lbcrypto {
 			* @param &newPrivateKey new private for generating a keyswitchhint to.
 			* @param *quadraticKeySwitchHint the generated keyswitchhint.
 			*/
-			virtual void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *quadraticKeySwitchHint) const;
+			virtual void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const;
 			
 			/**
 			 * Method for ModReducing CipherText and the Private Key used for encryption.
@@ -681,7 +166,7 @@ namespace lbcrypto {
 			 * @param *cipherText Ciphertext to perform and apply ringreduce on.
 			 * @param *keySwitchHint is the keyswitchhint from the ciphertext's private key to a sparse key
 			 */
-			virtual void RingReduce(Ciphertext<Element> *cipherText, const LPKeySwitchHint<Element> &keySwitchHint) const ; 
+			virtual void RingReduce(Ciphertext<Element> *cipherText, const LPEvalKeyNTRU<Element> &keySwitchHint) const ; 
 			
 			/**
 			* Method for Composed EvalMult
@@ -691,7 +176,7 @@ namespace lbcrypto {
 			* @param &quadKeySwitchHint is for resultant quadratic secret key after multiplication to the secret key of the particular level.
 			* @param &cipherTextResult is the resulting ciphertext that can be decrypted with the secret key of the particular level.
 			*/
-			virtual void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPKeySwitchHint<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const ;
+			virtual void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const ;
 
 			/**
 			* Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
@@ -700,7 +185,7 @@ namespace lbcrypto {
 			* @param &linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
 			* @param &cipherTextResult is the resulting ciphertext.
 			*/
-			virtual void LevelReduce(const Ciphertext<Element> &cipherText1, const LPKeySwitchHint<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const ;
+			virtual void LevelReduce(const Ciphertext<Element> &cipherText1, const LPEvalKeyNTRU<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const ;
 			/**
 			* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
 			* and odd indices are set to zero.
@@ -779,8 +264,8 @@ namespace lbcrypto {
 	class LPLeveledSHEKeyStructure //: TODO: NISHANT to implement serializable public Serializable
 	{
 	private:
-		std::vector< LPKeySwitchHintLTV<Element> > m_qksh;
-		std::vector< LPKeySwitchHintLTV<Element> > m_lksh;
+		std::vector< LPEvalKeyNTRU<Element> > m_qksh;
+		std::vector< LPEvalKeyNTRU<Element> > m_lksh;
 		usint m_levels;
 
 	public:
@@ -796,7 +281,7 @@ namespace lbcrypto {
 		*
 		*@return the LinearKeySwitchHint for the level
 		*/
-		const LPKeySwitchHintLTV<Element>& GetLinearKeySwitchHintForLevel(usint level) const {
+		const LPEvalKeyNTRU<Element>& GetLinearKeySwitchHintForLevel(usint level) const {
 			if(level>m_levels-1) {
 				throw std::runtime_error("Level out of range");
 			} 
@@ -809,7 +294,7 @@ namespace lbcrypto {
 		*
 		*@return the QuadraticKeySwitchHint for the level
 		*/
-		const LPKeySwitchHintLTV<Element>& GetQuadraticKeySwitchHintForLevel(usint level) const {
+		const LPEvalKeyNTRU<Element>& GetQuadraticKeySwitchHintForLevel(usint level) const {
 			if(level>m_levels-1) {
 				throw std::runtime_error("Level out of range");
 			} 
@@ -822,7 +307,7 @@ namespace lbcrypto {
 		*
 		*@param &lksh LinearKeySwitchHintLTV to be added.
 		*/
-		void PushBackLinearKey(const LPKeySwitchHintLTV<Element> &lksh){
+		void PushBackLinearKey(const LPEvalKeyNTRU<Element> &lksh){
 			m_lksh.push_back(std::move(lksh));
 		}
 		/**
@@ -830,7 +315,7 @@ namespace lbcrypto {
 		*
 		*@param &quad QuadraticKeySwitchHintLTV to be added.
 		*/
-		void PushBackQuadraticKey(const LPKeySwitchHintLTV<Element> &quad){
+		void PushBackQuadraticKey(const LPEvalKeyNTRU<Element> &quad){
 			m_qksh.push_back(std::move(quad));
 		}
 		/**
@@ -839,7 +324,7 @@ namespace lbcrypto {
 		*@param &lksh LinearKeySwitchHintLTV to be set.
 		*@param level is the level to set the key to.
 		*/
-		void SetLinearKeySwitchHintForLevel(const LPKeySwitchHintLTV<Element> &lksh, usint level) {
+		void SetLinearKeySwitchHintForLevel(const LPEvalKeyNTRU<Element> &lksh, usint level) {
 			if(level>m_levels-1) {
 				throw std::runtime_error("Level out of range");
 			} 
@@ -853,7 +338,8 @@ namespace lbcrypto {
 		*@param &qksh QuadraticKeySwitchHint to be set.
 		*@param level is the level to set the key to.
 		*/
-		void SetQuadraticKeySwitchHintForLevel(const LPKeySwitchHintLTV<Element> &qksh, usint level) { if(level>m_levels-1) {throw std::runtime_error("Level out of range");} else { m_qksh[level] = qksh;} };
+		void SetQuadraticKeySwitchHintForLevel(const LPEvalKeyNTRU<Element> &qksh, usint level) { if(level>m_levels-1) {throw std::runtime_error("Level out of range");} else { m_qksh[level] = qksh;} };
 	};
+
 } // namespace lbcrypto ends
 #endif

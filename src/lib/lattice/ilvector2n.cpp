@@ -498,7 +498,9 @@ namespace lbcrypto {
 	// used as a subroutine in the relinearization procedure to get powers of a certain "base" for the secret key element
 	// baseBits is the number of bits in the base, i.e., base = 2^baseBits
 
-	void ILVector2n::PowersOfBase(usint baseBits, std::vector<ILVector2n> *result) const {
+	std::vector<ILVector2n> ILVector2n::PowersOfBase(usint baseBits) const {
+
+		std::vector<ILVector2n> result;
 
 		usint nBits = m_params.GetModulus().GetLengthForBase(2);
 
@@ -506,11 +508,15 @@ namespace lbcrypto {
 		if (nBits % baseBits > 0)
 			nWindows++;
 
+		result.reserve(nWindows);
+
 		for (usint i = 0; i < nWindows; ++i)
 		{
 			BigBinaryInteger pI(BigBinaryInteger::TWO.ModExp(UintToBigBinaryInteger(i*baseBits), m_params.GetModulus()));
-			result->push_back(pI*(*this));
+			result.push_back(pI*(*this));
 		}
+
+		return std::move(result);
 
 	}
 

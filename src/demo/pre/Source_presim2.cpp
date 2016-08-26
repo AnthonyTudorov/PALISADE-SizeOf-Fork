@@ -186,8 +186,8 @@ void EncryptionSchemeSimulation(usint count){
 	for (usint j = 0; j<count; j++){
 
 		// Initialize the public key containers.
-		LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-		LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+		LPPublicKey<ILVector2n> pk(cryptoParams);
+		LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 		//Regular LWE-NTRU encryption algorithm
 		LPAlgorithmLTV<ILVector2n> algorithm;
@@ -362,13 +362,13 @@ void PRESimulation(usint count, usint dataset)
 	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
 
-	std::vector<LPPublicKeyLTV<ILVector2n>*> publicKeys;
-	std::vector<LPPrivateKeyLTV<ILVector2n>*> privateKeys;
-	std::vector<LPEvalKeyLTV<ILVector2n>*> evalKeys;
+	std::vector<LPPublicKey<ILVector2n>*> publicKeys;
+	std::vector<LPPrivateKey<ILVector2n>*> privateKeys;
+	std::vector<LPEvalKeyRelin<ILVector2n>*> evalKeys;
 
 	// Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	bool successKeyGen = false;
 	successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
@@ -383,8 +383,8 @@ void PRESimulation(usint count, usint dataset)
 
 	start = currentDateTime();
 
-	LPPublicKeyLTV<ILVector2n> pk0(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk0(cryptoParams);
+	LPPublicKey<ILVector2n> pk0(cryptoParams);
+	LPPrivateKey<ILVector2n> sk0(cryptoParams);
 	for (usint j = 0; j < count; j++){
             algorithm.KeyGen(&pk0, &sk0);
         }
@@ -394,13 +394,13 @@ void PRESimulation(usint count, usint dataset)
 
 	for (usint d = 0; d < depth; d++){
 
-		LPPublicKeyLTV<ILVector2n> *newPK;
-		LPPrivateKeyLTV<ILVector2n> *newSK;
-		LPEvalKeyLTV<ILVector2n> *evalKey;
+		LPPublicKey<ILVector2n> *newPK;
+		LPPrivateKey<ILVector2n> *newSK;
+		LPEvalKeyRelin<ILVector2n> *evalKey;
 
-		newPK = new LPPublicKeyLTV<ILVector2n>(cryptoParams);
-		newSK = new LPPrivateKeyLTV<ILVector2n>(cryptoParams);
-		evalKey = new LPEvalKeyLTV<ILVector2n>(cryptoParams);
+		newPK = new LPPublicKey<ILVector2n>(cryptoParams);
+		newSK = new LPPrivateKey<ILVector2n>(cryptoParams);
+		evalKey = new LPEvalKeyRelin<ILVector2n>(cryptoParams);
 
 		successKeyGen = algorithm.KeyGen(newPK, newSK);	// This is the same core key generation operation.
 
@@ -450,7 +450,7 @@ void PRESimulation(usint count, usint dataset)
 		vector<Ciphertext<ILVector2n>> cv;
 		cv.push_back(arrCiphertext[j]);
 		CryptoUtility<ILVector2n>::Decrypt(algorithm,sk,cv,&plaintextNew[j]);
-		ct.clear();
+		//ct.clear();
 	}
 
 	finish = currentDateTime();
@@ -483,7 +483,7 @@ void PRESimulation(usint count, usint dataset)
 			vector<Ciphertext<ILVector2n>> ct;
 			vector<Ciphertext<ILVector2n>> ctre;
 			ct.push_back(arrCiphertext[j]);
-			CryptoUtility<ILVector2n>::ReEncrypt( algorithm.GetScheme(), *evalKeys[d], ct, &ctre);
+			CryptoUtility<ILVector2n>::ReEncrypt( algorithm , *evalKeys[d], ct, &ctre);
 			arrCiphertextNew[j] = ctre[0];
 			ct.clear();
 			ctre.clear();
@@ -512,7 +512,7 @@ void PRESimulation(usint count, usint dataset)
 
 		vector<Ciphertext<ILVector2n>> ct;
 		ct.push_back(arrCiphertextNew[j]);
-		CryptoUtility<ILVector2n>::Decrypt( algorithm.GetScheme(), *privateKeys.back(), ct, &plaintextNew[j]);
+		CryptoUtility<ILVector2n>::Decrypt( algorithm, *privateKeys.back(), ct, &plaintextNew[j]);
 		ct.clear();
 	}
 
@@ -536,7 +536,7 @@ void PRESimulation(usint count, usint dataset)
 	fout << "Number of decryption errors: " << "\t" << errorcounter << endl;
 
 
-        LPEvalKeyLTV<ILVector2n> evalTmp(cryptoParams);
+        LPEvalKeyRelin<ILVector2n> evalTmp(cryptoParams);
 
 	start = currentDateTime();
 

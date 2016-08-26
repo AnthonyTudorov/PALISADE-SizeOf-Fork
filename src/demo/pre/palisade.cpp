@@ -71,7 +71,7 @@ reencrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) 
 	string rekeyname(argv[1]);
 	string reciphertextname(argv[2]);
 
-	LPEvalKeyLTV<ILVector2n> evalKey(*ctx->getParams());
+	LPEvalKeyRelin<ILVector2n> evalKey(*ctx->getParams());
 	if( !fetchItemFromSer(&evalKey, rekeyname, ctx) ) {
 		cerr << "Could not process re encryption key" << endl;
 		return;
@@ -111,7 +111,7 @@ decrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 	string prikeyname(argv[1]);
 	string cleartextname(argv[2]);
 
-	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
+	LPPrivateKey<ILVector2n> sk(*ctx->getParams());
 	if( !fetchItemFromSer(&sk, prikeyname, ctx) ) {
 		cerr << "Could not process private key" << endl;
 		return;
@@ -156,7 +156,7 @@ encrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	// Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
+	LPPublicKey<ILVector2n> pk(*ctx->getParams());
 
 	if( !fetchItemFromSer(&pk, pubkeyname, ctx) ) {
 		cerr << "Could not process public key" << endl;
@@ -195,8 +195,8 @@ rekeymaker(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 	string rekeyname(argv[2]);
 
 	// Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
-	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
+	LPPublicKey<ILVector2n> pk(*ctx->getParams());
+	LPPrivateKey<ILVector2n> sk(*ctx->getParams());
 
 	if( !fetchItemFromSer(&pk, pubname, ctx) ) {
 		cerr << "Could not process public key" << endl;
@@ -208,7 +208,7 @@ rekeymaker(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	LPEvalKeyLTV<ILVector2n> evalKey(*ctx->getParams());
+	LPEvalKeyRelin<ILVector2n> evalKey(*ctx->getParams());
 
 	if( ctx->getAlgorithm()->EvalKeyGen(pk, sk, &evalKey) ) {
 		Serialized evalK;
@@ -240,8 +240,8 @@ keymaker(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 	string keyname(argv[0]);
 
 	// Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
-	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
+	LPPublicKey<ILVector2n> pk(*ctx->getParams());
+	LPPrivateKey<ILVector2n> sk(*ctx->getParams());
 
 	if( ctx->getAlgorithm()->KeyGen(&pk,&sk) ) {
 		Serialized pubK, privK;

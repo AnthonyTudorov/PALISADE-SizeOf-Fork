@@ -766,13 +766,13 @@ TEST_F(UnitTestSHEAdvanced, test_composed_eval_mult_two_towers) {
 	algorithm.Enable(LEVELEDSHE);
 
 	//Generate the secret key for the initial ciphertext:
-	LPPublicKeyLTV<ILVectorArray2n> pk(finalParamsTwoTowers);
-	LPPrivateKeyLTV<ILVectorArray2n> sk(finalParamsTwoTowers);
+	LPPublicKey<ILVectorArray2n> pk(finalParamsTwoTowers);
+	LPPrivateKey<ILVectorArray2n> sk(finalParamsTwoTowers);
 	algorithm.KeyGen(&pk, &sk);
 
 	//Generate the keys for level 1, same number of towers
-	LPPublicKeyLTV<ILVectorArray2n> pk1(finalParamsTwoTowers);
-	LPPrivateKeyLTV<ILVectorArray2n> sk1(finalParamsTwoTowers);
+	LPPublicKey<ILVectorArray2n> pk1(finalParamsTwoTowers);
+	LPPrivateKey<ILVectorArray2n> sk1(finalParamsTwoTowers);
 	algorithm.KeyGen(&pk1, &sk1);
 
 	//Generating new cryptoparameters for when modulus reduction is done.
@@ -784,7 +784,7 @@ TEST_F(UnitTestSHEAdvanced, test_composed_eval_mult_two_towers) {
 	finalParamsOneTower.SetElementParams(dcrtParamsWith1Tower);
 
 	//Generating Quaraditic KeySwitchHint from sk^2 to skNew
-	LPKeySwitchHintLTV<ILVectorArray2n> quadraticKeySwitchHint;
+	LPEvalKeyNTRU<ILVectorArray2n> quadraticKeySwitchHint;
 	algorithm.QuadraticKeySwitchHintGen(sk, sk1, &quadraticKeySwitchHint);
 
 	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce

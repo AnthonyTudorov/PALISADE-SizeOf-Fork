@@ -119,8 +119,8 @@ TEST(UnitTestSHE, keyswitch_SingleCRT){
 	cipherText.SetCryptoParameters(&cryptoParams);
 
 	 //Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
@@ -134,12 +134,12 @@ TEST(UnitTestSHE, keyswitch_SingleCRT){
 	vector<Ciphertext<ILVector2n>> newCiphertext;
 	newCiphertext.reserve(ciphertext.size());
 		  
-    LPPublicKeyLTV<ILVector2n> pk2(cryptoParams);
-    LPPrivateKeyLTV<ILVector2n> sk2(cryptoParams);
+    LPPublicKey<ILVector2n> pk2(cryptoParams);
+    LPPrivateKey<ILVector2n> sk2(cryptoParams);
 
     algorithm.KeyGen(&pk2, &sk2);
 
-    LPKeySwitchHintLTV<ILVector2n> keySwitchHint;
+    LPEvalKeyNTRU<ILVector2n> keySwitchHint;
     algorithm.KeySwitchHintGen(sk, sk2, &keySwitchHint);
 
     CryptoUtility<ILVector2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
@@ -190,8 +190,8 @@ TEST(UnitTestSHE, sparsekeygen_single_crt) {
 	cipherText.SetCryptoParameters(&cryptoParams);
 
 	//Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
 	algorithm.Enable(LEVELEDSHE);
@@ -254,8 +254,8 @@ TEST(UnitTestSHE, keyswitch_ModReduce_RingReduce_DCRT) {
 	cryptoParams.SetElementParams(params);
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
-	LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
+	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
+	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
 
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
@@ -269,12 +269,12 @@ TEST(UnitTestSHE, keyswitch_ModReduce_RingReduce_DCRT) {
 	vector<Ciphertext<ILVectorArray2n>> newCiphertext;
 	newCiphertext.reserve(ciphertext.size());
 
-	LPPublicKeyLTV<ILVectorArray2n> pk2(cryptoParams);
-	LPPrivateKeyLTV<ILVectorArray2n> sk2(cryptoParams);
+	LPPublicKey<ILVectorArray2n> pk2(cryptoParams);
+	LPPrivateKey<ILVectorArray2n> sk2(cryptoParams);
 
 	algorithm.KeyGen(&pk2, &sk2);
 
-	LPKeySwitchHintLTV<ILVectorArray2n> keySwitchHint;
+	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint;
 	algorithm.KeySwitchHintGen(sk, sk2, &keySwitchHint);
 
 	CryptoUtility<ILVectorArray2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
@@ -352,8 +352,8 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	cipherText.SetCryptoParameters(&cryptoParams);
 
 	//Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	std::vector<usint> vectorOfInts = { 1,0,1,0,1,0,1,1 };
 	IntPlaintextEncoding intArray(vectorOfInts);
@@ -378,11 +378,11 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	EXPECT_EQ(intArray, intArrayNew);
 
 	//Initialize the public key containers for sparse key.
-	LPPublicKeyLTV<ILVector2n> pkSparse(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> skSparse(cryptoParams);
+	LPPublicKey<ILVector2n> pkSparse(cryptoParams);
+	LPPrivateKey<ILVector2n> skSparse(cryptoParams);
 
 	algorithm.SparseKeyGen(&pkSparse, &skSparse);
-	LPKeySwitchHintLTV<ILVector2n> toSparseKeySwitchHint;
+	LPEvalKeyNTRU<ILVector2n> toSparseKeySwitchHint;
 	algorithm.KeySwitchHintGen(sk, skSparse, &toSparseKeySwitchHint);
 
 	CryptoUtility<ILVector2n>::RingReduce(algorithm, &ciphertext, toSparseKeySwitchHint);
