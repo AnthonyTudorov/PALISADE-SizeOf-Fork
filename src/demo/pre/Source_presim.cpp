@@ -187,8 +187,8 @@ void EncryptionSchemeSimulation(usint count){
 	for (usint j = 0; j<count; j++){
 
 		// Initialize the public key containers.
-		LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-		LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+		LPPublicKey<ILVector2n> pk(cryptoParams);
+		LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 		//Regular LWE-NTRU encryption algorithm
 		LPAlgorithmLTV<ILVector2n> algorithm;
@@ -354,13 +354,13 @@ void PRESimulation(usint count, usint dataset){
 	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
 
-	std::vector<LPPublicKeyLTV<ILVector2n>*> publicKeys;
-	std::vector<LPPrivateKeyLTV<ILVector2n>*> privateKeys;
-	std::vector<LPEvalKeyLTV<ILVector2n>*> evalKeys;
+	std::vector<LPPublicKey<ILVector2n>*> publicKeys;
+	std::vector<LPPrivateKey<ILVector2n>*> privateKeys;
+	std::vector<LPEvalKey<ILVector2n>*> evalKeys;
 
 	// Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	bool successKeyGen = false;
 	successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
@@ -375,13 +375,13 @@ void PRESimulation(usint count, usint dataset){
 
 	for (usint d = 0; d < depth; d++){
 
-		LPPublicKeyLTV<ILVector2n> *newPK;
-		LPPrivateKeyLTV<ILVector2n> *newSK;
-		LPEvalKeyLTV<ILVector2n> *evalKey;
+		LPPublicKey<ILVector2n> *newPK;
+		LPPrivateKey<ILVector2n> *newSK;
+		LPEvalKey<ILVector2n> *evalKey;
 
-		newPK = new LPPublicKeyLTV<ILVector2n>(cryptoParams);
-		newSK = new LPPrivateKeyLTV<ILVector2n>(cryptoParams);
-		evalKey = new LPEvalKeyLTV<ILVector2n>(cryptoParams);
+		newPK = new LPPublicKey<ILVector2n>(cryptoParams);
+		newSK = new LPPrivateKey<ILVector2n>(cryptoParams);
+		evalKey = new LPEvalKeyRelin<ILVector2n>(cryptoParams);
 
 		successKeyGen = algorithm.KeyGen(newPK, newSK);	// This is the same core key generation operation.
 
