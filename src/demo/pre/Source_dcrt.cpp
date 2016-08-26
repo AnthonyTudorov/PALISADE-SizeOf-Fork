@@ -183,8 +183,8 @@ void BenchMarking() {
 			Ciphertext<ILVectorArray2n> cipherText;
 			cipherText.SetCryptoParameters(&cryptoParams);
 
-			LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
-			LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
+			LPPublicKey<ILVectorArray2n> pk(cryptoParams);
+			LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
 
 			LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 			algorithm.Enable(ENCRYPTION);
