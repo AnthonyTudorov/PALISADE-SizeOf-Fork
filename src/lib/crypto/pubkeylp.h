@@ -60,6 +60,12 @@ namespace lbcrypto {
 	template <class Element>
 	class LPCryptoParametersLTV;
 
+	template <class Element>
+	class LPCryptoParametersBV;
+
+	template <class Element>
+	class LPCryptoParametersStehleSteinfeld;
+
 	template <typename Element>
 	inline LPCryptoParameters<Element>* DeserializeCryptoParameters(const Serialized &serObj);
 
