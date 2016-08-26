@@ -92,11 +92,6 @@ BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBin
 				usint x = 2*i*n/m;
 
 				const BigBinaryInteger& omega = rootOfUnityTable.GetValAtIndex(x * ringDimensionFactor);
-//				const BigBinaryInteger& omega = rootOfUnityTable.GetValAtIndex(x);
-
-				/*std::cout << "Omega is : " << omega << std::endl;
-				std::cout << "x : " << x << std::endl;
-*/
 
 				usint indexEven = j + i;
 				usint indexOdd = j + i + m/2;
@@ -131,7 +126,6 @@ BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBin
 					result.SetValAtIndex( indexOdd, result.GetValAtIndex(indexEven));
 
 			}
-	//		std::cout << "--------------------------------"<< std::endl;
 
 		}
 	}
