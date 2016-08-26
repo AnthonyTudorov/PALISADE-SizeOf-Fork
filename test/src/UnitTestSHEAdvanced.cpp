@@ -539,8 +539,8 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult_single_crt) {
 	cipherText.SetCryptoParameters(&cryptoParams);
 
 	//Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	std::vector<usint> vectorOfInts1(8);
 	vectorOfInts1.at(0) = 2;
@@ -576,10 +576,10 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult_single_crt) {
 
 	algorithm.EvalMult(ciphertext1.at(0), ciphertext2.at(0), &cResult);
 
-	LPKeySwitchHintLTV<ILVector2n> keySwitchHint;
+    LPEvalKeyNTRU<ILVector2n> keySwitchHint;
 
-	LPPublicKeyLTV<ILVector2n> pkNew(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> skNew(cryptoParams);
+	LPPublicKey<ILVector2n> pkNew(cryptoParams);
+	LPPrivateKey<ILVector2n> skNew(cryptoParams);
 
 	algorithm.KeyGen(&pkNew, &skNew);
 
@@ -654,8 +654,8 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult_double_crt) {
 	algorithm.Enable(LEVELEDSHE);
 
 	//Generate the secret key for the initial ciphertext:
-	LPPublicKeyLTV<ILVectorArray2n> pk(finalParams);
-	LPPrivateKeyLTV<ILVectorArray2n> sk(finalParams);
+	LPPublicKey<ILVectorArray2n> pk(finalParams);
+	LPPrivateKey<ILVectorArray2n> sk(finalParams);
 	algorithm.KeyGen(&pk, &sk);
 
 	//Generating new cryptoparameters for when modulus reduction is done.
@@ -688,10 +688,10 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult_double_crt) {
 
 	algorithm.EvalMult(ciphertext1.at(0), ciphertext2.at(0), &cResult);
 
-	LPKeySwitchHintLTV<ILVectorArray2n> keySwitchHint;
+	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint;
 
-	LPPublicKeyLTV<ILVectorArray2n> pkNew(finalParams);
-	LPPrivateKeyLTV<ILVectorArray2n> skNew(finalParams);
+	LPPublicKey<ILVectorArray2n> pkNew(finalParams);
+	LPPrivateKey<ILVectorArray2n> skNew(finalParams);
 
 	algorithm.KeyGen(&pkNew, &skNew);
 
@@ -739,8 +739,8 @@ TEST_F(UnitTestSHEAdvanced, test_eval_add_single_crt) {
 	cipherText.SetCryptoParameters(&cryptoParams);
 
 	//Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	std::vector<usint> vectorOfInts1(8);
 	vectorOfInts1.at(0) = 2;
