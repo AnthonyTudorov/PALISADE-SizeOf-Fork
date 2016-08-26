@@ -57,6 +57,9 @@ namespace lbcrypto {
 	template <class Element>
 	class LPCryptoParameters;
 
+	template <class Element>
+	class LPCryptoParametersLTV;
+
 	template <typename Element>
 	inline LPCryptoParameters<Element>* DeserializeCryptoParameters(const Serialized &serObj);
 
