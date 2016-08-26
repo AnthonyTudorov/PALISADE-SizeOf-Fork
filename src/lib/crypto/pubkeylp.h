@@ -328,17 +328,6 @@ namespace lbcrypto {
 			* @return true on success
 			*/
 			bool Deserialize(const Serialized &serObj) { 
-				/*lpcryptoparameters<element>* cryptoparams = deserializeandvalidatecryptoparameters<element>(serobj, *ctx->getparams());
-				if (cryptoparams == 0) return false;
-
-				this->setcryptoparameters(cryptoparams);
-
-				element json_ilelement;
-				if (json_ilelement.deserialize(serobj)) {
-					this->setpublicelement(json_ilelement);
-					return true;
-				}*/
-
 				return false;
 			}
 
@@ -726,16 +715,6 @@ namespace lbcrypto {
 		* @return true on success
 		*/
 		bool Deserialize(const Serialized &serObj) { 
-			/*LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-			if (cryptoParams == 0) return false;
-
-			this->SetCryptoParameters(cryptoParams);
-
-			Element json_ilElement;
-			if (json_ilElement.Deserialize(serObj)) {
-				this->SetPrivateElement(json_ilElement);
-				return true;
-			}*/
 			return false;
 		}
 
@@ -746,7 +725,18 @@ namespace lbcrypto {
 		* @return true on success
 		*/
 		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
-			return true;
+			LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
+			if (cryptoParams == 0) return false;
+
+			this->SetCryptoParameters(cryptoParams);
+
+			Element json_ilElement;
+			if (json_ilElement.Deserialize(serObj)) {
+				this->SetPrivateElement(json_ilElement);
+				return true;
+			}
+			return false;
+
 		}
 
 
@@ -1359,6 +1349,65 @@ namespace lbcrypto {
 		//pointer to the parent scheme
 		const LPPublicKeyEncryptionScheme<Element> *m_scheme;
 	};
+
+
+	/** This function is used to deserialize the Crypto Parameters
+	*
+	* @param &serObj object to be serialized
+	*
+	* @return the parameters or null on failure
+	*/
+	template <typename Element>
+	inline LPCryptoParameters<Element>* DeserializeCryptoParameters(const Serialized &serObj)
+	{
+		LPCryptoParameters<Element>* parmPtr = 0;
+
+		Serialized::ConstMemberIterator it = serObj.FindMember("LPCryptoParametersType");
+		if (it == serObj.MemberEnd()) return 0;
+		std::string type = it->value.GetString();
+
+		if (type == "LPCryptoParametersLTV") {
+			parmPtr = new LPCryptoParametersLTV<Element>();
+		}
+		else if (type == "LPCryptoParametersStehleSteinfeld") {
+			parmPtr = new LPCryptoParametersStehleSteinfeld<Element>();
+		}
+		else if (type == "LPCryptoParametersBV") {
+			parmPtr = new LPCryptoParametersBV<Element>();
+		}
+		else
+			return 0;
+
+		if (!parmPtr->Deserialize(serObj)) {
+			delete parmPtr;
+			return 0;
+		}
+
+		return parmPtr;
+	}
+
+	/** This function is used to deserialize the Crypto Parameters, to compare them to the existing parameters,
+	* and to fail if they do not match
+	*
+	* @param &serObj object to be desrialized
+	* @param &curP LPCryptoParameters to validate against
+	*
+	* @return the parameters or null on failure
+	*/
+	template <typename Element>
+	inline LPCryptoParameters<Element>* DeserializeAndValidateCryptoParameters(const Serialized& serObj, const LPCryptoParameters<Element>& curP)
+	{
+		LPCryptoParameters<Element>* parmPtr = DeserializeCryptoParameters<Element>(serObj);
+
+		if (parmPtr == 0) return 0;
+
+		// make sure the deserialized parms match the ones in the current context
+		if (*parmPtr == curP)
+			return parmPtr;
+
+		delete parmPtr;
+		return 0;
+	}
 
 } // namespace lbcrypto ends
 #endif
