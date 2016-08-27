@@ -41,7 +41,7 @@
  * template parameter.  Currently implementation based on uint32_t is
  * supported. One needs a native integer 2x the size of the chosen type for
  * certain math operations.
-  */
+ */
 
 
 #include "ubint.h"
@@ -86,17 +86,17 @@ namespace exp_int {
   //permitted values: 8,16,32
   template<typename limb_t>
   //const uschar ubint<limb_t>::m_uintBitLength = UIntBitWidth<limb_t>::value;
-const usint ubint<limb_t>::m_limbBitLength = sizeof(limb_t)*8;
+  const usint ubint<limb_t>::m_limbBitLength = sizeof(limb_t)*8;
 
   //constant static member variable initialization of m_logUintBitLength which is equal to log of number of bits in the unit data type
   //permitted values: 3,4,5
   template<typename limb_t>
   //const uschar ubint<limb_t>::m_log2LimbBitLength = LogDtype<limb_t>::value;
-const usint ubint<limb_t>::m_log2LimbBitLength = Log2<m_limbBitLength>::value;
+  const usint ubint<limb_t>::m_log2LimbBitLength = Log2<m_limbBitLength>::value;
 
   //constant static member variable initialization of m_uintMax which is maximum value of unit data type
   template<typename limb_t>
-const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
+  const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 
   //optimized ceiling function after division by number of bits in the limb data type.
   template<typename limb_t>
@@ -289,11 +289,11 @@ const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 
     DEBUG("final msb ="<<msb);
   
-}
+  }
   // ctor(string)
   template<typename limb_t>
   ubint<limb_t>::ubint(const std::string& str){
-	    bool dbg_flag = false;		// if true then print dbg output
+    bool dbg_flag = false;		// if true then print dbg output
 
     DEBUG("ctor(str "<<str<<")");
     //memory allocation step
@@ -303,7 +303,7 @@ const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     AssignVal(str);
     //state set
     m_state = INITIALIZED;
-  	DEBUG("final msb ="<<this->m_MSB);
+    DEBUG("final msb ="<<this->m_MSB);
   }
 
   //copy constructor
@@ -323,10 +323,10 @@ const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     DEBUG("final msb ="<<this->m_MSB);
   }
 
-    //move copy cconstructor
+  //move copy cconstructor
   template<typename limb_t>
   ubint<limb_t>::ubint(ubint &&rhs){
-      bool dbg_flag = false;		// if true then print dbg output
+    bool dbg_flag = false;		// if true then print dbg output
 
     DEBUG("move copy ctor(&bint)");
 
@@ -359,8 +359,8 @@ const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     DEBUG("dtor() m_value.size is "<<m_value.size());
 
     //memory deallocation
-	  if (m_value.size()>0)
-	    m_value.clear(); //clears value
+    if (m_value.size()>0)
+      m_value.clear(); //clears value
     DEBUG("leaving dtor");
   }
 
@@ -394,7 +394,7 @@ const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 
   template<typename limb_t>
   usint ubint<limb_t>::ConvertToInt() const{  //todo: deprecate this to Usint
-   return this->ConvertToUsint();
+    return this->ConvertToUsint();
   }
 
   // the following conversions all throw 
@@ -404,7 +404,7 @@ const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     return std::stoul(this->ToString());
   }
 
-    //Converts the ubint to uint64_t using the std library functions.
+  //Converts the ubint to uint64_t using the std library functions.
   template<typename limb_t>
   uint64_t ubint<limb_t>::ConvertToUint64() const{
     return std::stoull(this->ToString());
@@ -431,7 +431,7 @@ const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
   //copy allocator
   template<typename limb_t>
   const ubint<limb_t>&  ubint<limb_t>::operator=(const ubint &rhs){
-	if(this!=&rhs){
+    if(this!=&rhs){
       this->m_MSB=rhs.m_MSB;
       this->m_state = rhs.m_state;
       //copy vector
@@ -466,79 +466,79 @@ const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
   ubint<limb_t>  ubint<limb_t>::operator<<(usint shift) const{
     bool dbg_flag = false;
     //garbage check
-	  if(m_state==State::GARBAGE)
-		  throw std::logic_error("<< on uninitialized bint");
-	  //trivial case
-	  if(this->m_MSB==0)
-		  return ubint(ZERO);
+    if(m_state==State::GARBAGE)
+      throw std::logic_error("<< on uninitialized bint");
+    //trivial case
+    if(this->m_MSB==0)
+      return ubint(ZERO);
 
-	  ubint ans(*this);
+    ubint ans(*this);
 
-	  //compute the number of whole limb shifts
-	  usint shiftByLimb = shift>>m_log2LimbBitLength;
-
-
-	  //compute the remaining number of bits to shift
-	  limb_t remainingShift = (shift&(m_limbBitLength-1));
-
-	  DEBUG("l2lbl "<< m_log2LimbBitLength);
-	  DEBUG("totalshift "<< shift);
-	  DEBUG("shiftByLimb "<<shiftByLimb);
-	  DEBUG("remainingShift "<<remainingShift);
-	  DEBUG("size "<<m_value.size());
-
-	  //first shift by the # remainingShift bits
-	  if(remainingShift!=0){
-		  limb_t oFlow = 0;
-		  Dlimb_t temp = 0;
-		  sint i;
-
-		  DEBUG("m_MSB "<<m_MSB);
-		  DEBUG("ilimit "<<ceilIntByUInt(m_MSB));
+    //compute the number of whole limb shifts
+    usint shiftByLimb = shift>>m_log2LimbBitLength;
 
 
-		  for(i=0; i<ceilIntByUInt(m_MSB); ++i){
-	  	  DEBUG("bit shift ");
-		    temp = ans.m_value.at(i);
-			  temp <<=remainingShift;
-			  ans.m_value.at(i) = (limb_t)temp + oFlow;
-			  oFlow = temp >> m_limbBitLength;
-		  }
+    //compute the remaining number of bits to shift
+    limb_t remainingShift = (shift&(m_limbBitLength-1));
 
-		  if(oFlow) {//there is an overflow set of bits.
-		    if (i<ans.m_value.size()){
-		      ans.m_value.at(i) = oFlow;
-		    } else {
-		      ans.m_value.push_back(oFlow);
-		    }
-		  }
-		  ans.m_MSB += remainingShift;
+    DEBUG("l2lbl "<< m_log2LimbBitLength);
+    DEBUG("totalshift "<< shift);
+    DEBUG("shiftByLimb "<<shiftByLimb);
+    DEBUG("remainingShift "<<remainingShift);
+    DEBUG("size "<<m_value.size());
 
-	  }
+    //first shift by the # remainingShift bits
+    if(remainingShift!=0){
+      limb_t oFlow = 0;
+      Dlimb_t temp = 0;
+      sint i;
 
-	  if(shiftByLimb!=0){
-	    usint currentSize = ans.m_value.size();
-	    DEBUG("CURRENT SIZE "<<currentSize);
-	    ans.m_value.resize(currentSize+shiftByLimb); // allocate more storage
-	          DEBUG("resize is  "<<ans.m_value.size());
-	    for (sint i = currentSize-1; i>=0; i-- ) {  //shift limbs required # of indicies
-	      DEBUG("to : "<<i+shiftByLimb<< "from "<<i );
-	      ans.m_value.at(i+shiftByLimb) = ans.m_value.at(i);
-	    }
-	    //zero out the 'shifted in' limbs
-	    for (sint i = shiftByLimb -1 ; i>=0; i-- ) {
-	      DEBUG("clear : "<<i);
-	      ans.m_value.at(i) = 0;
-	    }
-	    DEBUG("new size is  "<<ans.m_value.size());
+      DEBUG("m_MSB "<<m_MSB);
+      DEBUG("ilimit "<<ceilIntByUInt(m_MSB));
 
-	  }
 
-	  ans.m_MSB += shiftByLimb*m_limbBitLength;
-	  DEBUG("final MSB "<<ans.m_MSB);
-	  //ans.SetMSB();
-	  //DEBUG("final MSB check "<<ans.m_MSB);
-	  return ans;
+      for(i=0; i<ceilIntByUInt(m_MSB); ++i){
+	DEBUG("bit shift ");
+	temp = ans.m_value.at(i);
+	temp <<=remainingShift;
+	ans.m_value.at(i) = (limb_t)temp + oFlow;
+	oFlow = temp >> m_limbBitLength;
+      }
+
+      if(oFlow) {//there is an overflow set of bits.
+	if (i<ans.m_value.size()){
+	  ans.m_value.at(i) = oFlow;
+	} else {
+	  ans.m_value.push_back(oFlow);
+	}
+      }
+      ans.m_MSB += remainingShift;
+
+    }
+
+    if(shiftByLimb!=0){
+      usint currentSize = ans.m_value.size();
+      DEBUG("CURRENT SIZE "<<currentSize);
+      ans.m_value.resize(currentSize+shiftByLimb); // allocate more storage
+      DEBUG("resize is  "<<ans.m_value.size());
+      for (sint i = currentSize-1; i>=0; i-- ) {  //shift limbs required # of indicies
+	DEBUG("to : "<<i+shiftByLimb<< "from "<<i );
+	ans.m_value.at(i+shiftByLimb) = ans.m_value.at(i);
+      }
+      //zero out the 'shifted in' limbs
+      for (sint i = shiftByLimb -1 ; i>=0; i-- ) {
+	DEBUG("clear : "<<i);
+	ans.m_value.at(i) = 0;
+      }
+      DEBUG("new size is  "<<ans.m_value.size());
+
+    }
+
+    ans.m_MSB += shiftByLimb*m_limbBitLength;
+    DEBUG("final MSB "<<ans.m_MSB);
+    //ans.SetMSB();
+    //DEBUG("final MSB check "<<ans.m_MSB);
+    return ans;
 
   }
 
@@ -571,93 +571,93 @@ const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
   template<typename limb_t>
   ubint<limb_t>  ubint<limb_t>::operator>>(usint shift) const{
     bool dbg_flag = false;
-	  //garbage check
-	  if(m_state==State::GARBAGE)
-		  throw std::logic_error("Value not initialized");
+    //garbage check
+    if(m_state==State::GARBAGE)
+      throw std::logic_error("Value not initialized");
 
-	  //trivial cases
-	  if(this->m_MSB==0 || this->m_MSB <= shift)
-		  return ubint(0);
-
-
-	  ubint ans(*this);
-	  //compute the number of whole limb shifts
-	  usint shiftByLimb = shift>>m_log2LimbBitLength;
-
-	  //compute the remaining number of bits to shift
-	  limb_t remainingShift = (shift&(m_limbBitLength-1));
+    //trivial cases
+    if(this->m_MSB==0 || this->m_MSB <= shift)
+      return ubint(0);
 
 
-	  DEBUG("l2lbl "<< m_log2LimbBitLength);
-	  DEBUG("totalshift "<< shift);
-	  DEBUG("shiftByLimb "<<shiftByLimb);
-	  DEBUG("remainingShift "<<remainingShift);
-	  DEBUG("size "<<m_value.size());
+    ubint ans(*this);
+    //compute the number of whole limb shifts
+    usint shiftByLimb = shift>>m_log2LimbBitLength;
 
-	  //first shift by the number of whole limb shifts
-	  if(shiftByLimb!=0){
-
-	    if (shiftByLimb >ans.m_value.size())
-	      DEBUG("LOGIC ERROR size is " <<ans.m_value.size());
+    //compute the remaining number of bits to shift
+    limb_t remainingShift = (shift&(m_limbBitLength-1));
 
 
-	    for(auto i =  shiftByLimb; i < ans.m_value.size(); ++i){
-	      DEBUG("limb shift ");
-	      ans.m_value.at(i-shiftByLimb) = ans.m_value.at(i);
-	    }
-	    //zero out upper  "shifted in" limbs
-	    for(usint i = 0; i< shiftByLimb; ++i){
-	      DEBUG("limb zereo");
-	      ans.m_value.pop_back();
-	    }
+    DEBUG("l2lbl "<< m_log2LimbBitLength);
+    DEBUG("totalshift "<< shift);
+    DEBUG("shiftByLimb "<<shiftByLimb);
+    DEBUG("remainingShift "<<remainingShift);
+    DEBUG("size "<<m_value.size());
 
-	    //msb adjusted to show the shifts
-	    ans.m_MSB -= shiftByLimb<<m_log2LimbBitLength;
+    //first shift by the number of whole limb shifts
+    if(shiftByLimb!=0){
 
-	  }
+      if (shiftByLimb >ans.m_value.size())
+	DEBUG("LOGIC ERROR size is " <<ans.m_value.size());
 
-	  //remainderShift bit shifts
-	  if(remainingShift!=0){
 
-		  limb_t overFlow = 0;
-		  limb_t oldVal;
-		  limb_t maskVal = (1<<(remainingShift))-1;
-		  limb_t compShiftVal = m_limbBitLength- remainingShift;
+      for(auto i =  shiftByLimb; i < ans.m_value.size(); ++i){
+	DEBUG("limb shift ");
+	ans.m_value.at(i-shiftByLimb) = ans.m_value.at(i);
+      }
+      //zero out upper  "shifted in" limbs
+      for(usint i = 0; i< shiftByLimb; ++i){
+	DEBUG("limb zereo");
+	ans.m_value.pop_back();
+      }
 
-		  usint startVal = ceilIntByUInt(ans.m_MSB);
-		  //perform shifting by bits by calculating the overflow
-		  //oveflow is added after the shifting operation
+      //msb adjusted to show the shifts
+      ans.m_MSB -= shiftByLimb<<m_log2LimbBitLength;
 
-		  DEBUG("maskVal "<< maskVal);
-		  DEBUG("startVal "<< startVal);
-		  DEBUG("compShiftVal " << compShiftVal);
+    }
 
-		  for(sint i = startVal -1 ; i>=0;i--){
-	  	  DEBUG("bit shift "<<i);
-			  oldVal = ans.m_value.at(i);
-			  ans.m_value.at(i) = (ans.m_value.at(i)>>remainingShift) + overFlow;
+    //remainderShift bit shifts
+    if(remainingShift!=0){
 
-			  overFlow = (oldVal &  maskVal);
-			  overFlow <<= compShiftVal ;
-		  }
+      limb_t overFlow = 0;
+      limb_t oldVal;
+      limb_t maskVal = (1<<(remainingShift))-1;
+      limb_t compShiftVal = m_limbBitLength- remainingShift;
 
-		  ans.m_MSB -= remainingShift;
+      usint startVal = ceilIntByUInt(ans.m_MSB);
+      //perform shifting by bits by calculating the overflow
+      //oveflow is added after the shifting operation
 
-	  }
+      DEBUG("maskVal "<< maskVal);
+      DEBUG("startVal "<< startVal);
+      DEBUG("compShiftVal " << compShiftVal);
 
-	  //go through the mslimbs and pop off any zero limbs we missed
-	  for (usint i = ans.m_value.size()-1; i >= 0; i--){
-	    if (!ans.m_value.at(i)) {
-	      ans.m_value.pop_back();
-	      //std::cout<<"popped "<<std::endl;
-	    } else {
-	      break;
-	    }
-	  }
-	  DEBUG("final MSB "<<ans.m_MSB);
-	  ans.SetMSB();
-	  DEBUG("final MSB check "<<ans.m_MSB);
-	  return ans;
+      for(sint i = startVal -1 ; i>=0;i--){
+	DEBUG("bit shift "<<i);
+	oldVal = ans.m_value.at(i);
+	ans.m_value.at(i) = (ans.m_value.at(i)>>remainingShift) + overFlow;
+
+	overFlow = (oldVal &  maskVal);
+	overFlow <<= compShiftVal ;
+      }
+
+      ans.m_MSB -= remainingShift;
+
+    }
+
+    //go through the mslimbs and pop off any zero limbs we missed
+    for (usint i = ans.m_value.size()-1; i >= 0; i--){
+      if (!ans.m_value.at(i)) {
+	ans.m_value.pop_back();
+	//std::cout<<"popped "<<std::endl;
+      } else {
+	break;
+      }
+    }
+    DEBUG("final MSB "<<ans.m_MSB);
+    ans.SetMSB();
+    DEBUG("final MSB check "<<ans.m_MSB);
+    return ans;
   }
 
 
@@ -679,8 +679,8 @@ const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
       *this = ZERO;
       return *this;
     } else {
-    	*this = *this >> shift;
-    	return *this;
+      *this = *this >> shift;
+      return *this;
     }
   }
 
@@ -703,19 +703,21 @@ const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
   template<typename limb_t>
   void ubint<limb_t>::PrintLimbsInHex() const{
     bool dbg_flag = false;   // if true then print dbg output
-     if (m_state == GARBAGE) {
-       std::cout <<"bint uninitialised"<<std::endl;
-     } else {
-       DEBUG("PrintLimbsInHex size "<< m_value.size());
-       for (auto i = 0; i < m_value.size(); i++){
-         std::cout<< i << ": 0x"<< std::hex << m_value.at(i) << std::dec <<std::endl;
-       }
-       std::cout<<"MSB: "<<m_MSB << std::endl;
-     }
+    if (m_state == GARBAGE) {
+      std::cout <<"bint uninitialised"<<std::endl;
+    } else {
+      DEBUG("PrintLimbsInHex size "<< m_value.size());
+      for (auto i = 0; i < m_value.size(); i++){
+	std::cout<< i << ": 0x"<< std::hex << m_value.at(i) << std::dec <<std::endl;
+      }
+      std::cout<<"MSB: "<<m_MSB << std::endl;
+    }
   }
 
+
+
   template<typename limb_t>
-  usint ubint<limb_t>::GetMSB() {
+  usint ubint<limb_t>::GetMSB() const {
     return m_MSB;
   }
 
@@ -744,17 +746,17 @@ const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
    */
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::Add(const ubint& b) const{
-	bool dbg_flag = false;		// if true then print dbg output
+    bool dbg_flag = false;		// if true then print dbg output
     //two operands A and B for addition, A is the greater one, B is the smaller one
-	  DEBUG("Add");
+    DEBUG("Add");
     const ubint* A = NULL;
     const ubint* B = NULL;
     //check for garbage initializations
     if(this->m_state==GARBAGE){
-    	throw std::logic_error("Add() to uninitialized bint");
+      throw std::logic_error("Add() to uninitialized bint");
     }
     if(b.m_state==GARBAGE){
-    	throw std::logic_error("Add() from uninitialized bint");
+      throw std::logic_error("Add() from uninitialized bint");
     }
 
     //Assignment of pointers, A assigned the higher value and B assigned the lower value
@@ -809,30 +811,37 @@ const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 
     // we have an overflow at the end
     if(ofl){
-    	for(; i<ceilIntA; ++i){ //keep looping over the remainder of the larger value
-    	  DEBUG("oi "<<i);
-    	  ofl = (Dlimb_t)A->m_value.at(i)+ofl;//sum of the two int and the carry over
+      for(; i<ceilIntA; ++i){ //keep looping over the remainder of the larger value
+	DEBUG("oi "<<i);
+	ofl = (Dlimb_t)A->m_value.at(i)+ofl;//sum of the two int and the carry over
 
-    		result.m_value.push_back((limb_t)ofl);
-    		ofl>>=m_limbBitLength;//current overflow
-    	}
+	result.m_value.push_back((limb_t)ofl);
+	ofl>>=m_limbBitLength;//current overflow
+      }
 
-    	if(ofl){//in the end if overflow is set it indicates MSB is one greater than the one we started with
-    	  DEBUG("push(1)");
-    	  result.m_value.push_back(1);
-    	}
+      if(ofl){//in the end if overflow is set it indicates MSB is one greater than the one we started with
+	DEBUG("push(1)");
+	result.m_value.push_back(1);
+      }
     } else { //there is no overflow at the end
-    	for(; i<ceilIntA; ++i){
-    		DEBUG("push "<<i);
-    	  result.m_value.push_back(A->m_value.at(i));
-    	}
+      for(; i<ceilIntA; ++i){
+	DEBUG("push "<<i);
+	result.m_value.push_back(A->m_value.at(i));
+      }
     }
     result.SetMSB();//Set the MSB.
 
 
-	  DEBUG("final MSB "<<result.m_MSB);
+    DEBUG("final MSB "<<result.m_MSB);
 
     return result;
+  }
+
+  //deprecated Add
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::Plus(const ubint& b) const{
+    ubint ans(*this);
+    return ans.Add(b);
   }
 
   /** Sub operation:
@@ -926,6 +935,14 @@ const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
 
   }
 
+  //deprecated Minus
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::Minus(const ubint& b) const{
+    ubint ans(*this);
+    return ans.Sub(b);
+  }
+
+
   /** Multiply operation:
    *  Algorithm used is usual school book shift and add after multiplication, except for that radix is 2^m_bitLength.
    */
@@ -969,6 +986,12 @@ const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     return ans;
   }
 
+  //deprecated Times
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::Times(const ubint& b) const{
+    ubint ans(*this);
+    return ans.Mul(b);
+  }
 
 
   template<typename limb_t>
@@ -1059,54 +1082,55 @@ const limb_t ubint<limb_t>::m_MaxLimb = std::numeric_limits<limb_t>::max();
     return ans;
   }
 
-/* q[0], r[0], u[0], and v[0] contain the LEAST significant words.
-(The sequence is in little-endian order).
+  /* q[0], r[0], u[0], and v[0] contain the LEAST significant words.
+     (The sequence is in little-endian order).
 
-This is a fairly precise implementation of Knuth's Algorithm D, for a
-binary computer with base b = 2**(32|64). The caller supplies:
-   1. Space q for the quotient, m - n + 1 words (at least one).
-   2. Space r for the remainder (optional), n words.
-   3. The dividend u, m words, m >= 1.
-   4. The divisor v, n words, n >= 2.
-The most significant digit of the divisor, v[n-1], must be nonzero.  The
-dividend u may have leading zeros; this just makes the algorithm take
-longer and makes the quotient contain more leading zeros.  A value of
-NULL may be given for the address of the remainder to signify that the
-caller does not want the remainder.
-   The program does not alter the input parameters u and v.
-   The quotient and remainder returned may have leading zeros.  The
-function itself returns a value of 0 for success and 1 for invalid
-parameters (e.g., division by 0).
-   For now, we must have m >= n.  Knuth's Algorithm D also requires
-that the dividend be at least as long as the divisor.  (In his terms,
-m >= 0 (unstated).  Therefore m+n >= n.) */
+     This is a fairly precise implementation of Knuth's Algorithm D, for a
+     binary computer with base b = 2**(32|64). The caller supplies:
+     1. Space q for the quotient, m - n + 1 words (at least one).
+     2. Space r for the remainder (optional), n words.
+     3. The dividend u, m words, m >= 1.
+     4. The divisor v, n words, n >= 2.
+     The most significant digit of the divisor, v[n-1], must be nonzero.  The
+     dividend u may have leading zeros; this just makes the algorithm take
+     longer and makes the quotient contain more leading zeros.  A value of
+     NULL may be given for the address of the remainder to signify that the
+     caller does not want the remainder.
+     The program does not alter the input parameters u and v.
+     The quotient and remainder returned may have leading zeros.  The
+     function itself returns a value of 0 for success and 1 for invalid
+     parameters (e.g., division by 0).
+     For now, we must have m >= n.  Knuth's Algorithm D also requires
+     that the dividend be at least as long as the divisor.  (In his terms,
+     m >= 0 (unstated).  Therefore m+n >= n.) */
+
   inline const int nlz64(uint64_t x) { //todo: needs to be flexible and select the appropriate nlz based on limb size..
-   int n;
+    int n;
 
-   if (x == 0) return(64);
-   n = 0;
-   if (x <= 0x000000FF) {n = n +32; x = x <<32;}
-   if (x <= 0x0000FFFF) {n = n +16; x = x <<16;}
-   if (x <= 0x00FFFFFF) {n = n + 8; x = x << 8;}
-   if (x <= 0x0FFFFFFF) {n = n + 4; x = x << 4;}
-   if (x <= 0x3FFFFFFF) {n = n + 2; x = x << 2;}
-   if (x <= 0x7FFFFFFF) {n = n + 1;}
-   return n;
-}
+    if (x == 0) return(64);
+    n = 0;
+    if (x <= 0x000000FF) {n = n +32; x = x <<32;}
+    if (x <= 0x0000FFFF) {n = n +16; x = x <<16;}
+    if (x <= 0x00FFFFFF) {n = n + 8; x = x << 8;}
+    if (x <= 0x0FFFFFFF) {n = n + 4; x = x << 4;}
+    if (x <= 0x3FFFFFFF) {n = n + 2; x = x << 2;}
+    if (x <= 0x7FFFFFFF) {n = n + 1;}
+    return n;
+  }
 
   inline const int nlz32(uint32_t x) { //todo: needs to be flexible.
-   int n;
+    int n;
 
-   if (x == 0) return(32);
-   n = 0;
-   if (x <= 0x0000FFFF) {n = n +16; x = x <<16;}
-   if (x <= 0x00FFFFFF) {n = n + 8; x = x << 8;}
-   if (x <= 0x0FFFFFFF) {n = n + 4; x = x << 4;}
-   if (x <= 0x3FFFFFFF) {n = n + 2; x = x << 2;}
-   if (x <= 0x7FFFFFFF) {n = n + 1;}
-   return n;
-}
-//todo figure out a C++ way to do this.... 
+    if (x == 0) return(32);
+    n = 0;
+    if (x <= 0x0000FFFF) {n = n +16; x = x <<16;}
+    if (x <= 0x00FFFFFF) {n = n + 8; x = x << 8;}
+    if (x <= 0x0FFFFFFF) {n = n + 4; x = x << 4;}
+    if (x <= 0x3FFFFFFF) {n = n + 2; x = x << 2;}
+    if (x <= 0x7FFFFFFF) {n = n + 1;}
+    return n;
+  }
+  //todo figure out a C++ way to do this.... 
 #if MATHBACKEND == 2 //32  bit code
 #undef nlz
 #define nlz(x) nlz32(x)
@@ -1117,117 +1141,117 @@ m >= 0 (unstated).  Therefore m+n >= n.) */
 #define nlz(x) nlz64(x)
 #endif
 
-//#define max(x, y) ((x) > (y) ? (x) : (y))
+  //#define max(x, y) ((x) > (y) ? (x) : (y))
 
-template<typename limb_t>
-int ubint<limb_t>::divmnu_vect(ubint& qin, ubint& rin, const ubint& uin, const ubint& vin) const{
+  template<typename limb_t>
+  int ubint<limb_t>::divmnu_vect(ubint& qin, ubint& rin, const ubint& uin, const ubint& vin) const{
 
-  vector<limb_t>&q = (qin.m_value);
-  vector<limb_t>&r = (rin.m_value);
-  const vector<limb_t>&u = (uin.m_value);
-  const vector<limb_t>&v = (vin.m_value);
+    vector<limb_t>&q = (qin.m_value);
+    vector<limb_t>&r = (rin.m_value);
+    const vector<limb_t>&u = (uin.m_value);
+    const vector<limb_t>&v = (vin.m_value);
 
-  int m = u.size();
-  int n = v.size();
+    int m = u.size();
+    int n = v.size();
 
-  q.resize(m-n+1);
-  r.resize(n);
+    q.resize(m-n+1);
+    r.resize(n);
 
-  //  const Dlilmb_t ffs = (Dlimb_t)UINT64_MAX; // Number  (2**64)-1.
-  const Dlimb_t ffs = (Dlimb_t)m_MaxLimb; // Number  (2**64)-1.
-  //  const Dlimb_t b = (Dlimb_t)UINT64_MAX+1; // Number base (2**64).
-  const Dlimb_t b = (Dlimb_t)m_MaxLimb+1; // Number base (2**64).
-  // std::cout << "ffs bot"<<  (uint64_t)  0xFFFFFFFFFFFFFFFFULL<<std::endl;
-  // std::cout << "ffs top"<<  (0xFFFFFFFFFFFFFFFFULL>>64) <<std::endl;
-  //  std::cout<< "b bot : "<< (uint64_t)b<<std::endl;
-  //  std::cout<< "b top : "<< (uint64_t)(b >> 64) <<std::endl;
-   // const uint64_t b = ((uint64_t) m_MaxLimb) +1LL; // Number base (2**32).
-//   limb_t *un, *vn;                  // Normalized form of u, v.
-   Dlimb_t qhat;                   // Estimated quotient digit.
-   Dlimb_t rhat;                   // A remainder.64
-   Dlimb_t p;                      // Product of two digits.
-   Sdlimb_t t, k; 
-   int s, i, j;
+    //  const Dlilmb_t ffs = (Dlimb_t)UINT64_MAX; // Number  (2**64)-1.
+    const Dlimb_t ffs = (Dlimb_t)m_MaxLimb; // Number  (2**64)-1.
+    //  const Dlimb_t b = (Dlimb_t)UINT64_MAX+1; // Number base (2**64).
+    const Dlimb_t b = (Dlimb_t)m_MaxLimb+1; // Number base (2**64).
+    // std::cout << "ffs bot"<<  (uint64_t)  0xFFFFFFFFFFFFFFFFULL<<std::endl;
+    // std::cout << "ffs top"<<  (0xFFFFFFFFFFFFFFFFULL>>64) <<std::endl;
+    //  std::cout<< "b bot : "<< (uint64_t)b<<std::endl;
+    //  std::cout<< "b top : "<< (uint64_t)(b >> 64) <<std::endl;
+    // const uint64_t b = ((uint64_t) m_MaxLimb) +1LL; // Number base (2**32).
+    //   limb_t *un, *vn;                  // Normalized form of u, v.
+    Dlimb_t qhat;                   // Estimated quotient digit.
+    Dlimb_t rhat;                   // A remainder.64
+    Dlimb_t p;                      // Product of two digits.
+    Sdlimb_t t, k; 
+    int s, i, j;
 
-   if (m < n || n <= 0 || v[n-1] == 0)
+    if (m < n || n <= 0 || v[n-1] == 0)
       return 1;                         // Return if invalid param.
 
-   if (n == 1) {                        // Take care of
+    if (n == 1) {                        // Take care of
       k = 0;                            // the case of a
       for (j = m - 1; j >= 0; j--) {    // single-digit
-         q[j] = (k*b + u[j])/v[0];      // divisor here.
-         k = (k*b + u[j]) - q[j]*v[0];
+	q[j] = (k*b + u[j])/v[0];      // divisor here.
+	k = (k*b + u[j]) - q[j]*v[0];
       }
       if (r.size() != 0) r[0]=k;
       return 0;
-   }
+    }
 
-   /* Normalize by shifting v left just enough so that its high-order
-   bit is on, and shift u left the same amount. We may have to append a
-   high-order digit on the dividend; we do that unconditionally. */
+    /* Normalize by shifting v left just enough so that its high-order
+       bit is on, and shift u left the same amount. We may have to append a
+       high-order digit on the dividend; we do that unconditionally. */
    
-   s = nlz(v[n-1]);             // 0 <= s <= m_limbBitLenghth-1.
-   // std::cout<< "nlz of " << v[n-1]  << " = "<<  s;
-  // vn = (limb_t *)alloca(4*n);
-   vector<limb_t> vn(n);
-   for (i = n - 1; i > 0; i--)
+    s = nlz(v[n-1]);             // 0 <= s <= m_limbBitLenghth-1.
+    // std::cout<< "nlz of " << v[n-1]  << " = "<<  s;
+    // vn = (limb_t *)alloca(4*n);
+    vector<limb_t> vn(n);
+    for (i = n - 1; i > 0; i--)
       vn[i] = (v[i] << s) | ((Dlimb_t)v[i-1] >> (m_limbBitLength-s));
-   vn[0] = v[0] << s;
+    vn[0] = v[0] << s;
 
-   //un = (limb_t *)alloca(4*(m + 1));
-   vector<limb_t> un(m+1);
+    //un = (limb_t *)alloca(4*(m + 1));
+    vector<limb_t> un(m+1);
 
-   un[m] = (Dlimb_t)u[m-1] >> (m_limbBitLength-s);
-   for (i = m - 1; i > 0; i--)
+    un[m] = (Dlimb_t)u[m-1] >> (m_limbBitLength-s);
+    for (i = m - 1; i > 0; i--)
       un[i] = (u[i] << s) | ((Dlimb_t)u[i-1] >> (m_limbBitLength-s));
-   un[0] = u[0] << s;
+    un[0] = u[0] << s;
 
-   for (j = m - n; j >= 0; j--) {       // Main loop.
+    for (j = m - n; j >= 0; j--) {       // Main loop.
       // Compute estimate qhat of q[j].
       qhat = (un[j+n]*b + un[j+n-1])/vn[n-1];
       rhat = (un[j+n]*b + un[j+n-1]) - qhat*vn[n-1];
-again:
+    again:
       if (qhat >= b || qhat*vn[n-2] > b*rhat + un[j+n-2])
-      { qhat = qhat - 1;
-        rhat = rhat + vn[n-1];
-        if (rhat < b) goto again;
-      }
+	{ qhat = qhat - 1;
+	  rhat = rhat + vn[n-1];
+	  if (rhat < b) goto again;
+	}
 
       // Multiply and subtract.
       k = 0;
       for (i = 0; i < n; i++) {
-         p = qhat*vn[i];
-         //t = un[i+j] - k - (p & 0xFFFFFFFFLL);
-	 //t = un[i+j] - k - (p & 0xFFFFFFFFFFFFFFFFLL);
-	 t = un[i+j] - k - (p & ffs);
-         un[i+j] = t;
-         k = (p >> m_limbBitLength) - (t >> m_limbBitLength);
+	p = qhat*vn[i];
+	//t = un[i+j] - k - (p & 0xFFFFFFFFLL);
+	//t = un[i+j] - k - (p & 0xFFFFFFFFFFFFFFFFLL);
+	t = un[i+j] - k - (p & ffs);
+	un[i+j] = t;
+	k = (p >> m_limbBitLength) - (t >> m_limbBitLength);
       }
       t = un[j+n] - k;
       un[j+n] = t;
 
       q[j] = qhat;              // Store quotient digit.
       if (t < 0) {              // If we subtracted too
-         q[j] = q[j] - 1;       // much, add back.
-         k = 0;
-         for (i = 0; i < n; i++) {
-            t = (Dlimb_t)un[i+j] + vn[i] + k;
-            un[i+j] = t;
-            k = t >> m_limbBitLength;
-         }
-         un[j+n] = un[j+n] + k;
+	q[j] = q[j] - 1;       // much, add back.
+	k = 0;
+	for (i = 0; i < n; i++) {
+	  t = (Dlimb_t)un[i+j] + vn[i] + k;
+	  un[i+j] = t;
+	  k = t >> m_limbBitLength;
+	}
+	un[j+n] = un[j+n] + k;
       }
-   } // End j.
-   // If the caller wants the remainder, unnormalize
-   // it and pass it back.
-   if (r.size() != 0) {
-     r.resize(n);
-     for (i = 0; i < n-1; i++)
-       r[i] = (un[i] >> s) | ((Dlimb_t)un[i+1] << (m_limbBitLength-s));
-     r[n-1] = un[n-1] >> s;
-   }
-   return 0;
-}
+    } // End j.
+    // If the caller wants the remainder, unnormalize
+    // it and pass it back.
+    if (r.size() != 0) {
+      r.resize(n);
+      for (i = 0; i < n-1; i++)
+	r[i] = (un[i] >> s) | ((Dlimb_t)un[i+1] << (m_limbBitLength-s));
+      r[n-1] = un[n-1] >> s;
+    }
+    return 0;
+  }
 
   /* Division operation:
    *  Algorithm used is usual school book long division , except for that radix is 2^m_bitLength.
@@ -1240,7 +1264,7 @@ again:
       throw std::logic_error("Div() Divisor uninitialised");
 
     if(b==ZERO)
-        throw std::logic_error("Div() Divisor is zero");
+      throw std::logic_error("Div() Divisor is zero");
 
     if(b.m_MSB>this->m_MSB)
       return std::move(ubint(ZERO)); // Kurt and Yuriy want this.
@@ -1261,7 +1285,7 @@ again:
 
     //go through the mslimbs and pop off any zero limbs
     for (usint i = ans.m_value.size()-1; i >= 0; i--){
-     if (!ans.m_value.at(i)) {
+      if (!ans.m_value.at(i)) {
 	ans.m_value.pop_back();
 	//std::cout<<"popped "<<std::endl;
       } else {
@@ -1276,6 +1300,13 @@ again:
     return ans;
 
   }
+
+  //soon to be deprecated older form of Div()
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::DividedBy(const ubint& b) const{
+    return this->Div(b);
+    //todo what is the order of this operation?
+  }  
 
   //Initializes the vector of limbs from the string equivalent of ubint
   // also sets MSB
@@ -1385,11 +1416,11 @@ again:
   {
     m_MSB = 0;
     if(this->m_state==GARBAGE){
-    	throw std::logic_error("SetMSB() of uninitialized bint");
+      throw std::logic_error("SetMSB() of uninitialized bint");
     }
 
-	m_MSB = (m_value.size()-1) * m_limbBitLength; //figure out bit location of all but last limb
-	m_MSB+= GetMSBlimb_t(m_value.back()); //add the value of that last limb.
+    m_MSB = (m_value.size()-1) * m_limbBitLength; //figure out bit location of all but last limb
+    m_MSB+= GetMSBlimb_t(m_value.back()); //add the value of that last limb.
   }
 
   //guessIdx is the index of largest limb_t number in array.
@@ -1410,25 +1441,25 @@ again:
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::Mod(const ubint& modulus) const{
 
-	  //check for garbage initialisation
-	  if(this->m_state==GARBAGE)
-		  throw std::logic_error("Mod() of uninitialized bint");
-	  if(modulus.m_state==GARBAGE)
-		  throw std::logic_error("Mod() using uninitialized bint as modulus");
+    //check for garbage initialisation
+    if(this->m_state==GARBAGE)
+      throw std::logic_error("Mod() of uninitialized bint");
+    if(modulus.m_state==GARBAGE)
+      throw std::logic_error("Mod() using uninitialized bint as modulus");
 
-	  //return the same value if value is less than modulus
-	  if(*this<modulus){
-		  return std::move(ubint(*this));
-	  }
-	  //masking operation if modulus is 2
-	  if(modulus.m_MSB==2 && modulus.m_value.at(0)==2){
-		  if(this->m_value.at(0)%2==0)
-			  return ubint(ZERO);
-		  else
-			  return ubint(ONE);
-	  }
+    //return the same value if value is less than modulus
+    if(*this<modulus){
+      return std::move(ubint(*this));
+    }
+    //masking operation if modulus is 2
+    if(modulus.m_MSB==2 && modulus.m_value.at(0)==2){
+      if(this->m_value.at(0)%2==0)
+	return ubint(ZERO);
+      else
+	return ubint(ONE);
+    }
 
-		  // return the remainder of the divided by operation
+    // return the remainder of the divided by operation
     ubint qv;
     ubint ans(0);
 
@@ -1442,6 +1473,12 @@ again:
 
     return(ans);
 
+  }
+
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::ModBarrett(const ubint& modulus, const ubint& mu) const{
+    ubint ans(*this);
+    return ans.Mod(modulus);
   }
 
 
@@ -1515,7 +1552,7 @@ again:
       second = mods.back();
     }
 
-    #endif
+#endif
     ubint result;
     if(quotient.size()%2==1){
       result = (modulus - mods.back());
@@ -1582,6 +1619,32 @@ again:
     return (a*bb).Mod(modulus);
   }
 
+  //the following is deprecated
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::ModBarrettMul(const ubint& b, const ubint& modulus,const ubint& mu) const{
+
+    ubint ans(*this);  
+    return ans.ModMul(b, modulus);
+
+  }
+  //the following is deprecated
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::ModBarrettMul(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const{
+
+    ubint ans(*this);
+    return ans.ModMul(b, modulus);
+
+  }
+
+
+  //the following is deprecated
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::ModBarrett(const ubint& modulus, const ubint mu_arr[BARRETT_LEVELS+1]) const{
+
+    ubint ans(*this);
+    return ans.Mod(modulus);
+  }
+
 
   //Modular Exponentiation using Square and Multiply Algorithm
   //reference:http://guan.cse.nsysu.edu.tw/note/expn.pdf
@@ -1607,12 +1670,12 @@ again:
     while(true){
       //product is multiplied only if lsb bitvalue is 1
       if(Exp.m_value.at(0)%2==1){
-        product = product*mid;
+	product = product*mid;
       }
 
       //running product is calculated
       if(product>modulus){
-        product = product.Mod(modulus);
+	product = product.Mod(modulus);
       }
 
       DEBUG("product "<<product.ToString());
@@ -1632,9 +1695,9 @@ again:
 
   template<typename limb_t>
   const std::string ubint<limb_t>::ToString() const{
-      //todo get rid of m_numDigitInPrintval make dynamic
+    //todo get rid of m_numDigitInPrintval make dynamic
     if (m_value.size()==0)
-     throw std::logic_error("ToString() on uninitialized bint");		
+      throw std::logic_error("ToString() on uninitialized bint");		
 
     //this string object will store this ubint's value
     std::string bbiString;
@@ -1687,7 +1750,7 @@ again:
   }
 
   //Compares the current object with the ubint a.
-    template<typename limb_t>
+  template<typename limb_t>
   sint ubint<limb_t>::Compare(const ubint& a) const
   {
     bool dbg_flag = false;		// if true then print dbg output
@@ -1703,13 +1766,13 @@ again:
       //check each limb in descending order
       Slimb_t testChar; //signed version of limb_t
       for(sint i=m_value.size()-1 ;i>=0; i--){
-        testChar = this->m_value.at(i)-a.m_value.at(i) ;
+	testChar = this->m_value.at(i)-a.m_value.at(i) ;
 	DEBUG("a "<<this->m_value.at(i));
 	DEBUG("b "<<a.m_value.at(i));
 
 	DEBUG("testChar "<<i<< " = " <<testChar);
-        if(testChar<0)return -1;
-        else if(testChar>0)return 1;
+	if(testChar<0)return -1;
+	else if(testChar>0)return 1;
       }
     }
     return 0; //bottom out? then the same
@@ -1718,7 +1781,7 @@ again:
   template<typename limb_t>
   bool ubint<limb_t>::operator==(const ubint& a) const{
     if(this->m_state==GARBAGE || a.m_state==GARBAGE)
-            throw std::logic_error("ERROR == against uninitialized bint\n");
+      throw std::logic_error("ERROR == against uninitialized bint\n");
     return(this->Compare(a)==0);
   }
 
@@ -1743,7 +1806,7 @@ again:
     return (*this>a || *this==a);
   }
 
-   //less than operator
+  //less than operator
   template<typename limb_t>
   bool ubint<limb_t>::operator<(const ubint& a) const{
     if(this->m_state==GARBAGE || a.m_state==GARBAGE)
@@ -1794,7 +1857,7 @@ again:
    * This function is only used for serialization
    *
    * The scheme here is to take each of the uint_types in the
-   * BigBinaryInteger and turn it into 6 ascii characters. It's
+   * ubint and turn it into 6 ascii characters. It's
    * basically Base64 encoding: 6 bits per character times 5 is the
    * first 30 bits. For efficiency's sake, the last two bits are encoded
    * as A,B,C, or D and the code is implemented as unrolled loops
@@ -1905,17 +1968,17 @@ again:
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::BinaryStringToUbint(const std::string& vin){
     bool dbg_flag = false;		// if true then print dbg output
-	  DEBUG("BinaryStringToUbint ");
-	  std::string v = vin;
-	  // strip off leading spaces from the input string
-	  v.erase(0, v.find_first_not_of(' '));
-	  // strip off leading zeros from the input string
-	  v.erase(0, v.find_first_not_of('0'));
+    DEBUG("BinaryStringToUbint ");
+    std::string v = vin;
+    // strip off leading spaces from the input string
+    v.erase(0, v.find_first_not_of(' '));
+    // strip off leading zeros from the input string
+    v.erase(0, v.find_first_not_of('0'));
 
-	  if (v.size() == 0) {
-		  //caustic case of input string being all zeros
-		  v = "0"; //set to one zero
-	  }
+    if (v.size() == 0) {
+      //caustic case of input string being all zeros
+      v = "0"; //set to one zero
+    }
 
     ubint value;
     usint len = v.length();
@@ -1926,12 +1989,12 @@ again:
     for (usint i = 0; i < cntr; i++) 	  {//loop over limbs
 
       if (len>((i + 1)*m_limbBitLength))
-        val = v.substr((len - (i + 1)*m_limbBitLength), m_limbBitLength);
+	val = v.substr((len - (i + 1)*m_limbBitLength), m_limbBitLength);
       else
-        val = v.substr(0, len%m_limbBitLength);
+	val = v.substr(0, len%m_limbBitLength);
       for (usint j = 0; j < val.length(); j++){
-        partial_value += std::stoi(val.substr(j, 1));
-        partial_value <<= 1;
+	partial_value += std::stoi(val.substr(j, 1));
+	partial_value <<= 1;
       }
       partial_value >>= 1;
       value.m_value.push_back((limb_t)partial_value);
@@ -1945,6 +2008,14 @@ again:
     DEBUG("true msb" <<value.m_MSB);
     return value;
   }
+
+  //deprecated vesion needs renaming
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::BinaryStringToBigBinaryInt(const std::string& vin){ 
+    ubint ans;
+    return ans.BinaryStringToUbint(vin);
+  }
+
 
   //Recursive Exponentiation function
   template<typename limb_t>
@@ -2047,8 +2118,8 @@ again:
       if(*(a+i)>9){
 	*(a+i)=*(a+i)-10+ofl;
 	ofl=1;
-		  } else {
-			  *(a+i)=*(a+i)+ofl;
+      } else {
+	*(a+i)=*(a+i)+ofl;
 	ofl = 0;
       }
 

@@ -473,12 +473,12 @@ namespace exp_int {
       /**
        * Returns a vector of digit at a specific index for all entries
        * for a given number base.
-       *
+       * TODO: rename this better... what is a digit?
+       * TODO: does this fail for some values of base?
        * @param index is the index to return the digit from in all entries.
        * @param base is the base to use for the operation.
        * @return is the resulting vector.
        */
-
       ubintvec GetDigitAtIndexForBase(usint index, usint base) const;
 
 
@@ -503,6 +503,9 @@ namespace exp_int {
        * @return true on success
        */
       bool Deserialize(const lbcrypto::Serialized& serObj);
+
+
+      
 
     protected:
       std::vector<ubint_el_t> m_data;

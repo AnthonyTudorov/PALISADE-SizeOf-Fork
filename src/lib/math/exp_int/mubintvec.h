@@ -186,6 +186,17 @@ public:
   /**
    * Initializer list for mubintvec.
    *
+   * @param &&rhs is the list of sints to be assigned to the mubintvec.
+   * @return mubintvec object 
+   * note if  modulus is set then mod(input) is stored
+   * note modulus remains unchanged.
+   */
+
+  const mubintvec& operator=(std::initializer_list<sint> rhs);
+
+  /**
+   * Initializer list for mubintvec.
+   *
    * @param &&rhs is the list of strings to be assigned to the mubintvec.
    * @return mubintvec object 
    * note if  modulus is set then mod(input) is stored
@@ -522,15 +533,30 @@ public:
   mubintvec Mul(const mubintvec &b) const;
   mubintvec ModMul(const mubintvec &b) const;
 
-      /**
-       * vector *=
-       *
-       * @param &b is the vector to add to lhs
-       * @return is the result of the multiplication operation.
-       */
-      const mubintvec& operator*=(const mubintvec &b);
- 
+  /**
+   * vector *=
+   *
+   * @param &b is the vector to add to lhs
+   * @return is the result of the multiplication operation.
+   */
+  const mubintvec& operator*=(const mubintvec &b);
+  
+
+  /**
+   * Returns a vector of digit at a specific index for all entries
+   * for a given number base.
+   * TODO: rename this better... what is a digit?
+   * TODO: does this fail for some values of base?
+   * @param index is the index to return the digit from in all entries.
+   * @param base is the base to use for the operation.
+   * @return is the resulting vector.
+   */
+  
+  mubintvec GetDigitAtIndexForBase(usint index, usint base) const;
+  
   // auxiliary functions
+
+
 
 
 
@@ -547,6 +573,14 @@ public:
    * @return true if successfully serialized
    */
   bool Serialize(lbcrypto::Serialized* serObj, const std::string fileFlag = "") const;
+
+  /**
+   * Higher level info about the serialization is saved here
+   * @param serObj to store the the implementing object's serialization specific attributes.
+   * @param flag an object-specific parameter for the serialization
+   * @return true on success
+   */
+  bool SetIdFlag(lbcrypto::Serialized* serObj, const std::string flag) const;  
 
   /**
    * Populate the object from the deserialization of the Setialized

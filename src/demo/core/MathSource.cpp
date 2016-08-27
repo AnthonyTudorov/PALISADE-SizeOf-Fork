@@ -30,7 +30,9 @@ using namespace lbcrypto;
 //define the main sections of the test
 void test_BigBinaryInt(void); 	// test old version of big int
 void test_BigBinaryVector(void); // test old version of big int vector
+
 void test_ubintvec(void);	 // test new vector version
+
 
 //main()   need this for Kurts' makefile to ignore this.
 int main(int argc, char* argv[]){
@@ -356,6 +358,7 @@ void test_BigBinaryVector () {
 //////////////////// helper functions fofr test_ubintvec()
 //todo figure out how to share code between these vec_diffs
 
+#if MATHBACKEND == 2 
 //function to compare two bintvecs and print differing indicies
 void vec_diff(ubintvec &a, ubintvec &b) {
   for (usint i= 0; i < a.size(); ++i){  //todo change to size()
@@ -418,8 +421,12 @@ void vec_diff(mubintvec &a, mubintvec &b) {
 
 
 }
+#endif
+
+
 // Code to test ubintvec at three different numbers of limbs.
 void test_ubintvec() {
+#if MATHBACKEND == 2
 
   int nloop = 1000; //number of times to run each test for timing.
 
@@ -851,6 +858,7 @@ void test_ubintvec() {
   TESTIT(t3, mc3, ma3 * mb3,  modmul3, nloop);
 
   return ;
+#endif
 }
 
 

@@ -281,6 +281,26 @@ namespace exp_int {
     return *this;
   }
 
+  //Assignment with initializer list of sints, note, negative values cause 
+  // an exception to throw
+
+  template<class ubint_el_t>
+  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<sint> rhs){
+    usint len = rhs.size();
+    this->m_data.clear();
+    for(usint i=0;i<len;i++){ // this loops over each entry
+      if(i<len) {
+	this->m_data.push_back( ubint_el_t(*(rhs.begin()+i)));
+      } else {
+	this->m_data.push_back(ubint_el_t::ZERO);
+      }
+    }
+    if (this->m_modulus_state == INITIALIZED) {
+      this->Mod(this->m_modulus);
+    }
+    return *this;
+  }
+
   //Assignment with initializer list of strings
   template<class ubint_el_t>
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<std::string> rhs){
@@ -391,7 +411,7 @@ namespace exp_int {
     ubint_el_t n;
     ubint_el_t oldModulusByTwo(oldModulus>>1);
     ubint_el_t diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
-    for(usint i=0; i< this->m_length; i++) {
+    for(usint i=0; i< this->GetLength(); i++) {
       n = this->GetValAtIndex(i);
       if(oldModulus < newModulus) {
 	if(n > oldModulusByTwo) {
@@ -703,6 +723,18 @@ template<class ubint_el_t>
   }
 
 
+  //Gets the ind
+  template<class ubint_el_t>
+  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::GetDigitAtIndexForBase(usint index, usint base) const{
+    mubintvec ans(*this);
+    for(usint i=0; i < this->m_data.size(); i++){
+      ans.m_data[i] = ubint_el_t(ans.m_data[i].GetDigitAtIndexForBase(index,base));
+    }
+
+    return ans;
+  }
+
+
   //new serialize and deserialise operations
   //todo: not tested just added to satisfy compilier
   //currently using the same map as bigBinaryVector, with modulus. 
@@ -728,6 +760,13 @@ template<class ubint_el_t>
     }
     serObj->AddMember("mubintvec", bbvMap, serObj->GetAllocator());
     return true;
+  }
+
+  // JSON FACILITY - SetIdFlag...
+  // Note, untested.. completely!
+  template<class ubint_el_t>
+  bool mubintvec<ubint_el_t>::SetIdFlag(lbcrypto::Serialized* serObj, const std::string flag) const { 
+    return true; 
   }
 
   // JSON FACILITY - Deserialize Operation

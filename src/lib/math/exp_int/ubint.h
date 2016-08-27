@@ -56,7 +56,7 @@
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
 
-#if 1
+#if MATHBACKEND == 4
 
 #undef int128_t
 #define int128_t our_int128_t
@@ -76,11 +76,6 @@ typedef __uint128_t             uint128_t;
 
 #define UINT128_MAX             ((uint128_t)-1)
 #endif
-//#include <boost/multiprecision/cpp_int.hpp>
-
-//#ifndef uint128_t
-//typedef unsigned __int128 uint128_t
-//#endif
 
 
 /**
@@ -163,6 +158,7 @@ namespace exp_int{
     const static bool value = true ;	
   };
 
+#if MATHBACKEND == 4
   /**
    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t, uint128_t}.
    * sets value true if datatype is unsigned integer 64 bit.
@@ -171,6 +167,7 @@ namespace exp_int{
   struct DataTypeChecker<uint128_t>{
     const static bool value = true ;	
   };
+#endif
 
 #if 0
   /**
@@ -213,11 +210,13 @@ namespace exp_int{
    */
   template<> struct DoubleDataType<uint32_t>{typedef uint64_t T; };
 
+#if MATHBACKEND == 4 
   /**
    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
    * sets T as of type unsigned integer 128 bit if limb datatype is 64bit
    */
   template<> struct DoubleDataType<uint64_t>{typedef uint128_t T; };
+#endif
 
   /**
    * @brief Struct to determine a datatype that is the signed version of utype.
@@ -280,14 +279,18 @@ namespace exp_int{
    */
   template<> struct SignedDoubleDataType<uint32_t>{typedef int64_t T; };
 
+#if MATHBACKEND == 4
   /**
    * @brief Struct to determine a signed datatype that is twice as big(bitwise) as utype.
    * sets T as of type unsigned integer 128 bit if limb datatype is 64bit
    */
   template<> struct SignedDoubleDataType<uint64_t>{typedef int128_t T; };
-
+#endif
 
   const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
+
+  //todo: the following will be deprecated
+    const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed values) used in the Barrett reductions.
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // Definition starts here
@@ -464,6 +467,8 @@ namespace exp_int{
      */
     usint GetMSB()const;
 
+    //usshort GetMSB()const; //TODO: deprecate shouldn't be using shorts!
+
     /**
      * Returns the size of the underlying vector of Limbs
      *
@@ -552,7 +557,13 @@ namespace exp_int{
      * @return result of the addition operation of type ubint.
      */
     ubint Add(const ubint& b) const;
-
+    /**
+     * Deprecated Addition operation.
+     *
+     * @param b is the value to add of type ubint.
+     * @return result of the addition operation of type ubint.
+     */
+    ubint Plus(const ubint& b) const;
 		
     /**
      * Addition accumulator.
@@ -603,6 +614,13 @@ namespace exp_int{
      */
     ubint Sub(const ubint& b) const;
 
+    /**
+     * Deprecated Subtraction operation.
+     *
+     * @param b is the value to subtract of type ubint.
+     * @return result of the subtraction operation of type ubint.
+     */
+    ubint Minus(const ubint& b) const;
         
     /**
      * Multiplication operation.
@@ -613,6 +631,14 @@ namespace exp_int{
     ubint Mul(const ubint& b) const;
 
     /**
+     * Deprecated Multiplication operation.
+     *
+     * @param b of type ubint is the value to multiply with.
+     * @return result of the multiplication operation.
+     */
+    ubint Times(const ubint& b) const;
+
+    /**
      * Division operation.
      *
      * @param b of type ubint is the value to divide by.
@@ -620,6 +646,15 @@ namespace exp_int{
      *
      */
     ubint Div(const ubint& b) const;
+
+    /**
+     * Division operation. (provided for backwards compatability
+     * this SHOULD be deprecated, use Div() or /
+     * @param b of type ubint is the value to divide by.
+     * @return result of the division operation.
+     *
+     */
+    ubint DividedBy(const ubint& b) const;
 
     /**
      * Exponentiation of a bigInteger x. Returns x^p
@@ -638,7 +673,29 @@ namespace exp_int{
      * @return ubint that is the result of the modulus operation.
      */
     ubint Mod(const ubint& modulus) const;
-    
+
+    /**
+    * returns the modulus with respect to the input value.
+    * Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.
+    * Deprecated mu is ignored, calls Mod()
+    *
+    * @param modulus is the modulus to perform.
+    * @param mu is the Barrett value.
+    * @return is the result of the modulus operation.
+    */
+    ubint ModBarrett(const ubint& modulus, const ubint& mu) const;
+
+    /**
+    * returns the modulus with respect to the input value.
+	* Implements generalized Barrett modular reduction algorithm. Uses an array of precomputed values \mu.
+    * Deprecated mu_arr is ignored, calls Mod()
+    *
+    * @param modulus is the modulus to perform operations with.
+    * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
+    * @return result of the modulus operation.
+    */
+    ubint ModBarrett(const ubint& modulus, const ubint mu_arr[BARRETT_LEVELS+1]) const;
+
 
     /**
      * returns the modulus inverse with respect to the input value.
@@ -678,6 +735,29 @@ namespace exp_int{
      */
     ubint ModMul(const ubint& b, const ubint& modulus) const;
 
+
+    /**
+    * Scalar modular multiplication where Barrett modular reduction is used.
+    * Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo). 
+    * Uses one precomputed value \mu.
+    * NOTE this actually just calls ModMul, mu is ignored
+    *
+    * @param b is the scalar to multiply.
+    * @param modulus is the modulus to perform operations with.
+    * @param mu is the precomputed Barrett value.
+    * @return is the result of the modulus multiplication operation.
+    */
+    ubint ModBarrettMul(const ubint& b, const ubint& modulus,const ubint& mu) const;
+
+    /**
+    * Scalar modular multiplication where Barrett modular reduction is used.
+    * NOTE this actually just calls ModMul, mu_arr is ignored
+    * @param &b is the scalar to multiply.
+    * @param modulus is the modulus to perform operations with.
+    * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
+    * @return is the result of the modulus multiplication operation.
+    */
+    ubint ModBarrettMul(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const;
 
     /**
      * Scalar modular exponentiation. Square-and-multiply algorithm is used.
@@ -729,11 +809,13 @@ namespace exp_int{
 
     /**
      * Convert a string representation of a binary number to a ubint.
-     *
+     * Note: needs renaming to a generic form since the variable type name is
+     * embedded in the function name. Suggest FromBinaryString()
      * @param bitString the binary num in string.
      * @return the  number represented as a ubint.
      */
     static ubint BinaryStringToUbint(const std::string& bitString);
+    static ubint BinaryStringToBigBinaryInt(const std::string& bitString);
 
   
     /**
@@ -891,7 +973,7 @@ namespace exp_int{
     /**
      * Gets the MSB of the ubint from the internal value.
      */
-    usint GetMSB();
+    //      usint GetMSB();
 
     /**
      * Gets the state of the ubint from the internal value.
@@ -953,7 +1035,7 @@ namespace exp_int{
 
 
 
-  public: //todo make private again
+  private: //todo make private again
     //vector storing the native integers. stored little endian
     vector<limb_t> m_value;
   private:
