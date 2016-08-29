@@ -35,7 +35,7 @@ bool LPAlgorithmPRELTV<Element>::EvalKeyGen(const LPKey<Element> &newPK,
 				const LPPrivateKey<Element> &origPrivateKey,
 				LPEvalKey<Element> *evalKey) const
 {
-	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersLTV<Element>&>(newPK.GetCryptoParameters());
+	const LPCryptoParametersRLWE<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersRLWE<Element>&>(newPK.GetCryptoParameters());
 	const ElemParams &elementParams = cryptoParamsLWE.GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();
 	const Element &f = origPrivateKey.GetPrivateElement();
@@ -88,7 +88,7 @@ void LPAlgorithmPRELTV<Element>::ReEncrypt(const LPEvalKey<Element> &evalKey,
 	const Ciphertext<Element> &ciphertext,
 	Ciphertext<Element> *newCiphertext) const
 {
-	const LPCryptoParametersLTV<Element> &cryptoParamsLWE = dynamic_cast<const LPCryptoParametersLTV<Element>&>(evalKey.GetCryptoParameters());
+	const LPCryptoParametersRLWE<Element> &cryptoParamsLWE = dynamic_cast<const LPCryptoParametersRLWE<Element>&>(evalKey.GetCryptoParameters());
 	const LPEvalKeyRelin<Element> &relinEvalKey = dynamic_cast<const LPEvalKeyRelin<Element> &>(evalKey);
 	
 	const ElemParams &elementParams = cryptoParamsLWE.GetElementParams();
