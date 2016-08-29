@@ -190,8 +190,8 @@ void NTRUPRE(int input) {
 	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
-	LPPublicKeyFV<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyFV<ILVector2n> sk(cryptoParams);
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -282,8 +282,8 @@ void NTRUPRE(int input) {
 	//SHE functionality
 	////////////////////////////////////////////////////////////
 
-	LPEvalKeyFV<ILVector2n> reLinKey(cryptoParams);
-	algorithm.RelinKeyGen(sk, &reLinKey);
+	/*LPEvalKeyFV<ILVector2n> reLinKey(cryptoParams);
+	algorithm.RelinKeyGen(sk, &reLinKey);*/
 
 	std::cout << "Execution completed." << std::endl;
 

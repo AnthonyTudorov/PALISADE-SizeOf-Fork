@@ -42,31 +42,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 template <class Element>
-void LPPrivateKeyFV<Element>::MakePublicKey(const Element &a, LPPublicKey<Element> *pub) const
-{
-	const LPCryptoParametersFV<Element> *cryptoParams =
-		dynamic_cast<const LPCryptoParametersFV<Element>*>(&this->GetCryptoParameters());
-
-	LPPublicKeyFV<Element> *publicKey =
-		dynamic_cast<LPPublicKeyFV<Element>*>(pub);
-
-	const ElemParams &elementParams = cryptoParams->GetElementParams();
-	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-
-	Element e(dgg, elementParams, Format::COEFFICIENT);
-	e.SwitchFormat();
-
-	Element b(elementParams, Format::EVALUATION, true);
-	b-=e;
-	b-=(a*m_sk);
-
-	// b -= (a*m_sk + e);
-
-	publicKey->SetPublicElements({ b, a });
-}
-
-template <class Element>
 bool LPAlgorithmFV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	LPPrivateKey<Element> *privateKey) const
 {
@@ -96,8 +71,16 @@ bool LPAlgorithmFV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	privateKey->SetPrivateElement(s);
 	privateKey->AccessCryptoParameters() = *cryptoParams;
 
-	//public key is generated and set
-	privateKey->MakePublicKey(a, publicKey);
+	Element e(dgg, elementParams, Format::COEFFICIENT);
+	e.SwitchFormat();
+
+	Element b(elementParams, Format::EVALUATION, true);
+	b-=e;
+	b-=(a*s);
+
+	//TODO-Nishanth check order of elements in the Public Key
+	publicKey->SetPublicElementAtIndex(0, std::move(a));
+	publicKey->SetPublicElementAtIndex(1, std::move(b));
 
 	return true;
 }
@@ -111,8 +94,8 @@ EncryptResult LPAlgorithmFV<Element>::Encrypt(const LPPublicKey<Element> &pubKey
 	const LPCryptoParametersFV<Element> *cryptoParams =
 		dynamic_cast<const LPCryptoParametersFV<Element>*>(&pubKey.GetCryptoParameters());
 
-	const LPPublicKeyFV<Element> *publicKey =
-		dynamic_cast<const LPPublicKeyFV<Element>*>(&pubKey);
+	const LPPublicKey<Element> *publicKey =
+		dynamic_cast<const LPPublicKey<Element>*>(&pubKey);
 
 	if (cryptoParams == 0) return EncryptResult();
 
@@ -123,8 +106,8 @@ EncryptResult LPAlgorithmFV<Element>::Encrypt(const LPPublicKey<Element> &pubKey
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	const BigBinaryInteger &delta = cryptoParams->GetDelta();
 
-	const Element &a = publicKey->GetPublicElement();
-	const Element &b = publicKey->GetGeneratedPublicElement();
+	const Element &a = publicKey->GetPublicElements().at(0);
+	const Element &b = publicKey->GetPublicElements().at(1);
 
 	Element u(dgg, elementParams, Format::EVALUATION);
 	Element e1(dgg, elementParams, Format::EVALUATION);
@@ -180,30 +163,30 @@ bool LPAlgorithmSHEFV<Element>::RelinKeyGen(const LPPrivateKey<Element> &private
 	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();
 	const Element &s = privateKey.GetPrivateElement();
 
-	LPEvalKeyFV<Element> *evalKey = dynamic_cast<LPEvalKeyFV<Element>*>(ek);
-
 	Element sSquared(s*s);
 
 	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE.GetDiscreteGaussianGenerator();
 	const DiscreteUniformGenerator dug(elementParams.GetModulus());
 
-	std::vector<Element> *evalKeyElements = &evalKey->AccessEvalKeyElements();
-	std::vector<Element> *evalKeyElementsGenerated = &evalKey->AccessEvalKeyElementsGenerated();
-
 	usint relinWindow = cryptoParamsLWE.GetRelinWindow();
 
-	sSquared.PowersOfBase(relinWindow, evalKeyElements);
+	std::vector<Element> evalKeyElements(sSquared.PowersOfBase(relinWindow));
+	std::vector<Element> evalKeyElementsGenerated;
 
-	for (usint i = 0; i < (evalKeyElements->size()); i++)
+	for (usint i = 0; i < (evalKeyElements.size()); i++)
 	{
 		// Generate a_i vectors
 		Element a(dug, elementParams, Format::EVALUATION);
-		evalKeyElementsGenerated->push_back(a);
+		evalKeyElementsGenerated.push_back(a);
 
 		// Generate a_i * s + e - PowerOfBase(s^2)
 		Element e(dgg, elementParams, Format::EVALUATION);
-		evalKeyElements->at(i) -= (a*s + e);
+		evalKeyElements.at(i) -= (a*s + e);
+		//evalKeyElements.at(i) *= (elementParams.GetModulus() - BigBinaryInteger::ONE);
 	}
+
+	ek->SetAVector(std::move(evalKeyElements));
+	ek->SetBVector(std::move(evalKeyElementsGenerated));
 
 	return true;
 }
@@ -211,7 +194,7 @@ bool LPAlgorithmSHEFV<Element>::RelinKeyGen(const LPPrivateKey<Element> &private
 template <class Element>
 void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext, const LPEvalKey<Element> &evalKey) const {
+				Ciphertext<Element> *newCiphertext, const LPEvalKey<Element> &EK) const {
 
 	if(ciphertext1.GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2.GetElement().GetFormat() == Format::COEFFICIENT){
 		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult cannot multiply in COEFFICIENT domain.");
@@ -222,34 +205,38 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 		throw std::runtime_error(errMsg);
 	}
 
-	const LPCryptoParametersFV<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersFV<Element>*>(&evalKey.GetCryptoParameters());
+	const LPCryptoParametersFV<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersFV<Element>*>(&EK.GetCryptoParameters());
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
-
-	const LPEvalKeyFV<Element> *ek =
-		dynamic_cast<const LPEvalKeyFV<Element>*>(&evalKey);
+	
+	const LPEvalKeyRelin<Element> &evalKey =
+		dynamic_cast<const LPEvalKeyRelin<Element>&>(EK);
 
 	std::vector<Element> cipherText1Elements = ciphertext1.GetElements();
 	std::vector<Element> cipherText2Elements = ciphertext2.GetElements();
 
 	// TODO-Nishanth: multiply p/q and rounding
-	Element c0 = cipherText1Elements.at(0) * cipherText2Elements.at(0);
-	Element c1 = cipherText1Elements.at(0) * cipherText2Elements.at(1) + cipherText1Elements.at(1) * cipherText2Elements.at(0);
-	Element c2 = cipherText1Elements.at(1) * cipherText2Elements.at(1);
+	Element c0 = cipherText1Elements[0] * cipherText2Elements[0];
+	Element c1 = cipherText1Elements[0] * cipherText2Elements[1] + cipherText1Elements[1] * cipherText2Elements[0];
+	Element c2 = cipherText1Elements[1] * cipherText2Elements[1];
 
 	std::vector<Element> digitsC2;
 	c2.BaseDecompose(relinWindow, &digitsC2);
 
 	Element ct0(c0), ct1(c1);
-	std::vector<Element> evalKeyElements = ek->GetEvalKeyElements();
-	std::vector<Element> evalKeyElementsGenerated = ek->GetEvalKeyElementsGenerated();
+	
+	const std::vector<Element> &b = evalKey.GetAVector(); // derivedElements
+	const std::vector<Element> &a = evalKey.GetBVector(); //generatedElements
+
+	// std::vector<Element> evalKeyElements = ek->GetEvalKeyElements();
+	// std::vector<Element> evalKeyElementsGenerated = ek->GetEvalKeyElementsGenerated();
 
 	for (usint i = 0; i < digitsC2.size(); ++i)
 	{
-		ct0 += digitsC2[i] * evalKeyElements.at(i);
-		ct1 += digitsC2[i] * evalKeyElementsGenerated.at(i);
+		ct0 += digitsC2[i] * b[i];
+		ct1 += digitsC2[i] * a[i];
 	}
 
-	// *newCiphertext = ciphertext;
+	*newCiphertext = ciphertext1;
 	newCiphertext->SetElements({ct0, ct1});
 
 }
@@ -267,8 +254,8 @@ void LPAlgorithmSHEFV<Element>::EvalAdd(const Ciphertext<Element> &ciphertext1,
 	std::vector<Element> cipherText1Elements = ciphertext1.GetElements();
 	std::vector<Element> cipherText2Elements = ciphertext2.GetElements();
 
-	Element c0 = cipherText1Elements.at(0) + cipherText2Elements.at(0);
-	Element c1 = cipherText1Elements.at(1) + cipherText2Elements.at(1);
+	Element c0 = cipherText1Elements[0] + cipherText2Elements[0];
+	Element c1 = cipherText1Elements[1] + cipherText2Elements[1];
 
 	newCiphertext->SetElements({ c0,c1 });
 }
