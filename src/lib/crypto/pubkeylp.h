@@ -54,21 +54,27 @@ namespace lbcrypto {
 	template <class Element>
 	class Ciphertext;
 
+	//forward declaration of LPCryptoParameters class;
 	template <class Element>
 	class LPCryptoParameters;
 
+	//forward declaration of LPCryptoParametersLTV class;
 	template <class Element>
 	class LPCryptoParametersLTV;
 
+	//forward declaration of LPCryptoParametersBV class;
 	template <class Element>
 	class LPCryptoParametersBV;
 
+	//forward declaration of LPCryptoParametersStehleSteinfeld class;
 	template <class Element>
 	class LPCryptoParametersStehleSteinfeld;
 
+	//declaration of DeserializeCryptoParameters function;
 	template <typename Element>
 	inline LPCryptoParameters<Element>* DeserializeCryptoParameters(const Serialized &serObj);
 
+	//declaration of DeserializeAndValidateCryptoParameters function;
 	template <typename Element>
 	inline LPCryptoParameters<Element>* DeserializeAndValidateCryptoParameters(const Serialized& serObj, const LPCryptoParameters<Element>& curP);
 
@@ -836,7 +842,7 @@ namespace lbcrypto {
 			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
 			 * @param &cipherText Original ciphertext to perform switching on.
 			 */
-			virtual Ciphertext<Element> KeySwitch(const LPEvalKeyNTRU<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const = 0;
+			virtual Ciphertext<Element> KeySwitch(const LPEvalKey<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const = 0;
 
 			/**
 			 * Method for generating a keyswitchhint from originalPrivateKey square to newPrivateKey
@@ -1271,7 +1277,8 @@ namespace lbcrypto {
 		}
 
 		//wrapper for KeySwitch
-		Ciphertext<Element> KeySwitch(const LPEvalKeyNTRU<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const {
+		Ciphertext<Element> KeySwitch(const LPEvalKey<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const {
+			
 			if(this->IsEnabled(LEVELEDSHE)){
 				return this->m_algorithmLeveledSHE->KeySwitch(keySwitchHint,cipherText);
 			}

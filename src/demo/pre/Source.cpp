@@ -67,13 +67,6 @@ int main() {
 	//DiscreteUniformGenerator gen(BigBinaryInteger("100000"));
 	//auto v = gen.GenerateVector(10000);
 
-	BigBinaryInteger a("7");
-	BigBinaryInteger b("15");
-
-	BigBinaryInteger c = a.DivideAndRound(b);
-
-	std::cout << c << std::endl;
-
 	std::cout << "Relinearization window : " << std::endl;
 	std::cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
 

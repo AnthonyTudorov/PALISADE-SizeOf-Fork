@@ -364,6 +364,31 @@ TEST(UTBinInt,basic_math){
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing divided_by_a_greater_than_b";
   }
+
+  // TEST CASE FOR VERIFICATION OF ROUNDING OPERATION.
+  {
+	  BigBinaryInteger a("204");
+	  BigBinaryInteger b("210");
+
+	  calculatedResult = a.DivideAndRound(b);
+	  expectedResult = 1;
+
+	  EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+		  << "Failure testing divided_and_rounding_by_a_greater_than_b";
+  }
+
+  // TEST CASE FOR VERIFICATION OF ROUNDING OPERATION.
+  {
+	  BigBinaryInteger a("100");
+	  BigBinaryInteger b("210");
+
+	  calculatedResult = a.DivideAndRound(b);
+	  expectedResult = 0;
+
+	  EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+		  << "Failure testing divided_and_rounding_by_a_greater_than_b";
+  }
+
 }
 TEST(UTBinInt,basic_compare){
 
