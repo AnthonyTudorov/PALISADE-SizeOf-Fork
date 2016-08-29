@@ -78,9 +78,8 @@ bool LPAlgorithmFV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	b-=e;
 	b-=(a*s);
 
-	//TODO-Nishanth check order of elements in the Public Key
-	publicKey->SetPublicElementAtIndex(0, std::move(a));
-	publicKey->SetPublicElementAtIndex(1, std::move(b));
+	publicKey->SetPublicElementAtIndex(0, std::move(b));
+	publicKey->SetPublicElementAtIndex(1, std::move(a));
 
 	return true;
 }
@@ -106,8 +105,8 @@ EncryptResult LPAlgorithmFV<Element>::Encrypt(const LPPublicKey<Element> &pubKey
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	const BigBinaryInteger &delta = cryptoParams->GetDelta();
 
-	const Element &a = publicKey->GetPublicElements().at(0);
-	const Element &b = publicKey->GetPublicElements().at(1);
+	const Element &p0 = publicKey->GetPublicElements().at(0);
+	const Element &p1 = publicKey->GetPublicElements().at(1);
 
 	Element u(dgg, elementParams, Format::EVALUATION);
 	Element e1(dgg, elementParams, Format::EVALUATION);
@@ -116,9 +115,9 @@ EncryptResult LPAlgorithmFV<Element>::Encrypt(const LPPublicKey<Element> &pubKey
 	Element c0(elementParams);
 	Element c1(elementParams);
 
-	c0 = a*u + e1 + delta*plaintext;
+	c0 = p0*u + e1 + delta*plaintext;
 
-	c1 = b*u + e2;
+	c1 = p1*u + e2;
 
 	ciphertext->SetCryptoParameters(cryptoParams);
 	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
@@ -224,11 +223,8 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 
 	Element ct0(c0), ct1(c1);
 	
-	const std::vector<Element> &b = evalKey.GetAVector(); // derivedElements
-	const std::vector<Element> &a = evalKey.GetBVector(); //generatedElements
-
-	// std::vector<Element> evalKeyElements = ek->GetEvalKeyElements();
-	// std::vector<Element> evalKeyElementsGenerated = ek->GetEvalKeyElementsGenerated();
+	const std::vector<Element> &b = evalKey.GetAVector();
+	const std::vector<Element> &a = evalKey.GetBVector();
 
 	for (usint i = 0; i < digitsC2.size(); ++i)
 	{
