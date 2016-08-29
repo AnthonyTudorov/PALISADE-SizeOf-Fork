@@ -189,6 +189,14 @@ namespace lbcrypto {
         */
         const ILVector2n& operator=(ILVector2n &&rhs);
 
+		/**
+		* Initalizer list
+		*
+		* @param &rhs the list to set the ILVector2n to.
+		* @return the resulting ILVector2n.
+		*/
+		const ILVector2n& operator=(std::initializer_list<sint> rhs);
+
         //CLONE OPERATIONS
 		/**
 		* Clone

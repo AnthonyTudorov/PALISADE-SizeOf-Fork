@@ -272,7 +272,6 @@ TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
 
 }
 
-//!! This test case will only work if the chunksize, ringdimension and IntPlaintextEncoding have all the same size. If not, it will not work !!
 TEST(method_ILVector2n_IntPlaintextEncoding, Encrypt_Decrypt) {
 
 	usint m = 16;
@@ -319,9 +318,9 @@ TEST(method_ILVector2n_IntPlaintextEncoding, Encrypt_Decrypt) {
 	vector<Ciphertext<ILVector2n>> ciphertext;
 	
 	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray, &ciphertext, false);
-	vectorOfInts.pop_back();
 
 	IntPlaintextEncoding intArrayNew;
+
 
 	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &intArrayNew, false);
 

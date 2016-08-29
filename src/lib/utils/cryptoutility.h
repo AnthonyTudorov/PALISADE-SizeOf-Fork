@@ -70,6 +70,7 @@ public:
 			if( result.isValid == false ) return result;
 
 			cipherResults->push_back(ciphertext);
+			
 		}
 
 		return EncryptResult(ptSize);
@@ -315,8 +316,9 @@ public:
 
 	/**
 	* perform RingReduce on a vector of ciphertext
-	* @param scheme - a reference to the encryption scheme in use
+	* @param &scheme - a reference to the encryption scheme in use
 	* @param ciphertext - vector of ciphertext
+	* @param &keySwitchHint - is the keySwitchHint from original private key to sparse private key
 	*/
 	//void RingReduce(Ciphertext<Element> *cipherText, const LPEvalKeyNTRU<Element> &keySwitchHint) const
 	static void RingReduce(
@@ -329,6 +331,7 @@ public:
 			scheme.RingReduce(&ciphertext->at(i), keySwitchHint);
 		}
 	}
+
 };
 
 }
