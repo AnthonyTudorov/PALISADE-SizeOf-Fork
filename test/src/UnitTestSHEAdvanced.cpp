@@ -72,132 +72,11 @@ class UnitTestSHEAdvanced : public testing::Test
 {
 public:
 	UnitTestSHEAdvanced() {}
-	/*Ciphertext<ILVector2n> cipher1_single_crt;
-	Ciphertext<ILVector2n> cipher2_single_crt;
-
-	Ciphertext<ILVectorArray2n> cipher1_dcrt;
-	Ciphertext<ILVectorArray2n> cipher2_ccrt;
-
-	vector<ILVector2n> ilvectors_dcrt_vector_1;
-	vector<ILVector2n> ilvectors_dcrt_vector_2;
-	vector<ILVector2n> ilvectors_single_crt_vector;*/
-
-	//LPCryptoParametersLTV<ILVector2n> *cryptoParams;
-	//LPCryptoParametersLTV<ILVectorArray2n> *cryptoParams_dcrt;
-
+	
 	virtual void SetUp()
 	{
 
-		//BigBinaryInteger q1("17729");
-		//   BigBinaryInteger rootOfUnity1(RootOfUnity(m,q1));
-		//   ILParams ilParams1(m,q1,rootOfUnity1);
-		// 
-		//BigBinaryInteger q2("17761");
-		//   BigBinaryInteger rootOfUnity2(RootOfUnity(m,q2));
-		//   ILParams ilParams2(m,q2,rootOfUnity2);
-
-		//ILVector2n ilv_single_crt1(ilParams1); // Used for both single and double crt
-		//BigBinaryVector bbv1(m/2, ilParams1.GetModulus());
-		//   bbv1.SetValAtIndex(0, "4");
-		//   bbv1.SetValAtIndex(1, "21323");
-		//   bbv1.SetValAtIndex(2, "2");
-		//   bbv1.SetValAtIndex(3, "0");
-		//bbv1.SetValAtIndex(4, "12301");
-		//   bbv1.SetValAtIndex(5, "1");
-		//bbv1.SetValAtIndex(6, "0");
-		//bbv1.SetValAtIndex(7, "6");
-		//ilv_single_crt1.SetValues(bbv1, Format::COEFFICIENT);
-
-		//ILVector2n ilv_single_crt2(ilParams1);
-		//BigBinaryVector bbv2(m/2, ilParams1.GetModulus());
-		//   bbv2.SetValAtIndex(0, "1");
-		//   bbv2.SetValAtIndex(1, "3");
-		//   bbv2.SetValAtIndex(2, "2");
-		//   bbv2.SetValAtIndex(3, "0");
-		//bbv2.SetValAtIndex(4, "17730");
-		//   bbv2.SetValAtIndex(5, "32");
-		//bbv2.SetValAtIndex(6, "1");
-		//bbv2.SetValAtIndex(7, "0");
-		//ilv_single_crt2.SetValues(bbv2, Format::COEFFICIENT);
-
-		//ilvectors_single_crt_vector.reserve(2);
-		//ilvectors_single_crt_vector.push_back(ilv_single_crt1);
-		//ilvectors_single_crt_vector.push_back(ilv_single_crt2);
-
-		//ILVector2n ilv_dcrt2(ilParams2);
-		//bbv2.SetModulus(ilParams2.GetModulus());
-		//ilv_dcrt2.SetValues(bbv2, Format::COEFFICIENT);
-		//ilvectors_dcrt_vector_1.reserve(2);
-		//ilvectors_dcrt_vector_1.push_back(ilv_single_crt1);
-		//ilvectors_dcrt_vector_2.push_back(ilv_dcrt2);
-
-		//ILVector2n ilv_dcrt3(ilParams1); // Used for both single and double crt
-		//BigBinaryVector bbv3(m/2, ilParams1.GetModulus());
-		//   bbv3.SetValAtIndex(0, "1");
-		//   bbv3.SetValAtIndex(1, "0");
-		//   bbv3.SetValAtIndex(2, "9");
-		//   bbv3.SetValAtIndex(3, "0");
-		//bbv3.SetValAtIndex(4, "12304");
-		//   bbv3.SetValAtIndex(5, "100");
-		//bbv3.SetValAtIndex(6, "0");
-		//bbv3.SetValAtIndex(7, "1");
-		//ilv_dcrt3.SetValues(bbv3, Format::COEFFICIENT);
-
-		//ILVector2n ilv_dcrt4(ilParams2);
-		//BigBinaryVector bbv4(m/2, ilParams2.GetModulus());
-		//   bbv4.SetValAtIndex(0, "0");
-		//   bbv4.SetValAtIndex(1, "1");
-		//   bbv4.SetValAtIndex(2, "2");
-		//   bbv4.SetValAtIndex(3, "0");
-		//bbv4.SetValAtIndex(4, "1");
-		//   bbv4.SetValAtIndex(5, "17729");
-		//bbv4.SetValAtIndex(6, "3");
-		//bbv4.SetValAtIndex(7, "0");
-		//ilv_dcrt4.SetValues(bbv4, Format::COEFFICIENT);
-
-		//ilvectors_dcrt_vector_2.reserve(2);
-		//ilvectors_dcrt_vector_2.push_back(ilv_dcrt3);
-		//ilvectors_dcrt_vector_2.push_back(ilv_dcrt4);
-
-
-		////Intializing Ciphertext for ILVector2n
-		//LPCryptoParametersLTV<ILVector2n> cryptoParams;
-		//cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-		//cryptoParams.SetDistributionParameter(4);
-		//cryptoParams.SetRelinWindow(1);
-		//cryptoParams.SetElementParams(ilParams1);
-
-		//cipher1_single_crt.SetCryptoParameters(&cryptoParams);
-		//cipher1_single_crt.SetElement(ilv_single_crt1);
-		//
-		//cipher2_single_crt = cipher1_single_crt;
-		//cipher2_single_crt.SetElement(ilv_single_crt2);
-
-		////Initalizing Ciphertext for ILVectorArray2n
-		//ILVectorArray2n ilv_dcrt_1(ilvectors_dcrt_vector_1);
-		//ILVectorArray2n ilv_dcrt_2(ilvectors_dcrt_vector_2);
-
-		//vector<BigBinaryInteger> moduli;
-		//moduli.reserve(2);
-		//moduli.push_back(ilParams1.GetModulus());
-		//moduli.push_back(ilParams2.GetModulus());
-
-		//vector<BigBinaryInteger> rootsOfUnity;
-		//rootsOfUnity.reserve(2);
-		//rootsOfUnity.push_back(ilParams1.GetRootOfUnity());
-		//rootsOfUnity.push_back(ilParams2.GetRootOfUnity());
-
-		//ILDCRTParams ildcrtparams(ilParams1.GetCyclotomicOrder(), moduli, rootsOfUnity);
-		//
-		//LPCryptoParametersLTV<ILVectorArray2n> cryptoParams_dcrt;
-		//cryptoParams_dcrt.SetPlaintextModulus(BigBinaryInteger::TWO);
-		//cryptoParams_dcrt.SetDistributionParameter(4);
-		//cryptoParams_dcrt.SetRelinWindow(1);
-		//cryptoParams_dcrt.SetElementParams(ildcrtparams);
-
-		//cipher1_dcrt.SetCryptoParameters(&cryptoParams_dcrt);
-		//
-		//cipher1_dcrt.SetElement(ilvectors_dcrt_vector_1);
+		
 
 	}
 
@@ -427,224 +306,6 @@ TEST_F(UnitTestSHEAdvanced, test_eval_add) {
 	
 }
 
-TEST_F(UnitTestSHEAdvanced, test_eval_mult) {
-	//parameter setup
-	usint m = 16;
-	Ciphertext<ILVector2n> cipher1_single_crt;
-	Ciphertext<ILVector2n> cipher2_single_crt;
-
-	Ciphertext<ILVectorArray2n> cipher1_dcrt;
-	Ciphertext<ILVectorArray2n> cipher2_dcrt;
-
-	vector<ILVector2n> ilvectors_dcrt_vector_1;
-	vector<ILVector2n> ilvectors_dcrt_vector_2;
-	vector<ILVector2n> ilvectors_single_crt_vector;
-
-	//q1 and q2 are precalculated prime modulis
-
-	BigBinaryInteger q1("17729");
-	BigBinaryInteger rootOfUnity1(RootOfUnity(m, q1));
-
-	BigBinaryInteger q2("17761");
-	BigBinaryInteger rootOfUnity2(RootOfUnity(m, q2));
-
-	//setting up two parameters. ilparams2 will be only used for double-crt
-	ILParams ilParams1(m, q1, rootOfUnity1);
-	ILParams ilParams2(m, q2, rootOfUnity2);
-
-	//construcing an ILVector2n, this 
-	ILVector2n ilv_single_crt1_dcrt1(ilParams1); // Used for both single and double crt
-	BigBinaryInteger modulus(ilParams1.GetModulus());
-	BigBinaryVector bbv1(m / 2, modulus);
-	bbv1.SetValAtIndex(0, "4");
-	bbv1.SetValAtIndex(1, "21323");
-	bbv1.SetValAtIndex(2, "2");
-	bbv1.SetValAtIndex(3, "0");
-	bbv1.SetValAtIndex(4, "12301");
-	bbv1.SetValAtIndex(5, "1");
-	bbv1.SetValAtIndex(6, "0");
-	bbv1.SetValAtIndex(7, "6");
-	ilv_single_crt1_dcrt1.SetValues(bbv1, Format::EVALUATION);
-
-	ILVector2n ilv_single_crt2(ilParams1);
-	BigBinaryVector bbv2(m / 2, ilParams1.GetModulus());
-	bbv2.SetValAtIndex(0, "1");
-	bbv2.SetValAtIndex(1, "3");
-	bbv2.SetValAtIndex(2, "2");
-	bbv2.SetValAtIndex(3, "0");
-	bbv2.SetValAtIndex(4, "17730");
-	bbv2.SetValAtIndex(5, "32");
-	bbv2.SetValAtIndex(6, "1");
-	bbv2.SetValAtIndex(7, "0");
-	ilv_single_crt2.SetValues(bbv2, Format::EVALUATION);
-
-	ILVector2n ilv_dcrt2(ilParams2);
-	bbv2.SetModulus(ilParams2.GetModulus());
-	ilv_dcrt2.SetValues(bbv2, Format::EVALUATION);
-	ilvectors_dcrt_vector_1.reserve(2);
-	ilvectors_dcrt_vector_1.push_back(ilv_single_crt1_dcrt1);
-	ilvectors_dcrt_vector_1.push_back(ilv_dcrt2);
-
-	ilvectors_single_crt_vector.reserve(2);
-	ilvectors_single_crt_vector.push_back(ilv_single_crt1_dcrt1);
-	ilvectors_single_crt_vector.push_back(ilv_single_crt2);
-
-	ILVector2n ilv_dcrt3(ilParams1); // Used for both single and double crt
-	BigBinaryVector bbv3(m / 2, ilParams1.GetModulus());
-	bbv3.SetValAtIndex(0, "1");
-	bbv3.SetValAtIndex(1, "0");
-	bbv3.SetValAtIndex(2, "9");
-	bbv3.SetValAtIndex(3, "0");
-	bbv3.SetValAtIndex(4, "12304");
-	bbv3.SetValAtIndex(5, "100");
-	bbv3.SetValAtIndex(6, "0");
-	bbv3.SetValAtIndex(7, "1");
-	ilv_dcrt3.SetValues(bbv3, Format::EVALUATION);
-
-	ILVector2n ilv_dcrt4(ilParams2);
-	BigBinaryVector bbv4(m / 2, ilParams2.GetModulus());
-	bbv4.SetValAtIndex(0, "0");
-	bbv4.SetValAtIndex(1, "1");
-	bbv4.SetValAtIndex(2, "2");
-	bbv4.SetValAtIndex(3, "0");
-	bbv4.SetValAtIndex(4, "1");
-	bbv4.SetValAtIndex(5, "17729");
-	bbv4.SetValAtIndex(6, "3");
-	bbv4.SetValAtIndex(7, "0");
-	ilv_dcrt4.SetValues(bbv4, Format::EVALUATION);
-
-	ilvectors_dcrt_vector_2.reserve(2);
-	ilvectors_dcrt_vector_2.push_back(ilv_dcrt3);
-	ilvectors_dcrt_vector_2.push_back(ilv_dcrt4);
-
-	//Intializing Ciphertext for ILVector2n
-	LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-	cryptoParams.SetDistributionParameter(4);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(ilParams1);
-
-	cipher1_single_crt.SetCryptoParameters(&cryptoParams);
-	cipher1_single_crt.SetElement(ilv_single_crt1_dcrt1);
-
-	cipher2_single_crt = cipher1_single_crt;
-	cipher2_single_crt.SetElement(ilv_single_crt2);
-
-	//Initalizing Ciphertext for ILVectorArray2n
-	ILVectorArray2n ilv_dcrt_1(ilvectors_dcrt_vector_1);
-	ILVectorArray2n ilv_dcrt_2(ilvectors_dcrt_vector_2);
-
-	vector<BigBinaryInteger> moduli;
-	moduli.reserve(2);
-	moduli.push_back(ilParams1.GetModulus());
-	moduli.push_back(ilParams2.GetModulus());
-
-	vector<BigBinaryInteger> rootsOfUnity;
-	rootsOfUnity.reserve(2);
-	rootsOfUnity.push_back(ilParams1.GetRootOfUnity());
-	rootsOfUnity.push_back(ilParams2.GetRootOfUnity());
-
-	ILDCRTParams ildcrtparams(ilParams1.GetCyclotomicOrder(), moduli, rootsOfUnity);
-
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams_dcrt;
-	cryptoParams_dcrt.SetPlaintextModulus(BigBinaryInteger::TWO);
-	cryptoParams_dcrt.SetDistributionParameter(4);
-	cryptoParams_dcrt.SetRelinWindow(1);
-	cryptoParams_dcrt.SetElementParams(ildcrtparams);
-
-	cipher1_dcrt.SetCryptoParameters(&cryptoParams_dcrt);
-
-	cipher1_dcrt.SetElement(ilv_dcrt_1);
-
-	cipher2_dcrt.SetCryptoParameters(&cryptoParams_dcrt);
-	cipher2_dcrt.SetElement(ilv_dcrt_2);
-
-	//Testing eval_add in coefficient format for ILVector2n
-	Ciphertext<ILVector2n> resultsILVector2n(cipher1_single_crt);
-
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(SHE);
-	algorithm.EvalMult(cipher1_single_crt, cipher2_single_crt, &resultsILVector2n);
-
-	ILVector2n resultsIlv(cipher1_single_crt.GetElement());
-	BigBinaryVector bbvResults(m / 2, cipher1_single_crt.GetElement().GetModulus());
-	bbvResults.SetValAtIndex(0, "4");
-	bbvResults.SetValAtIndex(1, "10782");
-	bbvResults.SetValAtIndex(2, "4");
-	bbvResults.SetValAtIndex(3, "0");
-	bbvResults.SetValAtIndex(4, "12301");
-	bbvResults.SetValAtIndex(5, "32");
-	bbvResults.SetValAtIndex(6, "0");
-	bbvResults.SetValAtIndex(7, "0");
-	resultsIlv.SetValues(bbvResults, Format::EVALUATION);
-
-	EXPECT_EQ(resultsILVector2n.GetElement(), resultsIlv);
-	EXPECT_EQ(resultsILVector2n.GetElement().GetFormat(), Format::EVALUATION);
-
-	//Creating ILVectorArray2n Ciphertext with expected results for EvalAdd
-	ILVector2n ilv_dcrt_results_1(ilParams1); // Used for both single and double crt
-	BigBinaryVector bbv_dcrt_results_1(m / 2, ilParams1.GetModulus());
-	bbv_dcrt_results_1.SetValAtIndex(0, "4");
-	bbv_dcrt_results_1.SetValAtIndex(1, "0");
-	bbv_dcrt_results_1.SetValAtIndex(2, "18");
-	bbv_dcrt_results_1.SetValAtIndex(3, "0");
-	bbv_dcrt_results_1.SetValAtIndex(4, "16760");
-	bbv_dcrt_results_1.SetValAtIndex(5, "100");
-	bbv_dcrt_results_1.SetValAtIndex(6, "0");
-	bbv_dcrt_results_1.SetValAtIndex(7, "6");
-	ilv_dcrt_results_1.SetValues(bbv_dcrt_results_1, Format::EVALUATION);
-
-	ILVector2n ilv_dcrt_results_2(ilParams2);
-	BigBinaryVector bbv_dcrt_results_2(m / 2, ilParams2.GetModulus());
-	bbv_dcrt_results_2.SetValAtIndex(0, "0");
-	bbv_dcrt_results_2.SetValAtIndex(1, "3");
-	bbv_dcrt_results_2.SetValAtIndex(2, "4");
-	bbv_dcrt_results_2.SetValAtIndex(3, "0");
-	bbv_dcrt_results_2.SetValAtIndex(4, "17730");
-	bbv_dcrt_results_2.SetValAtIndex(5, "16737");
-	bbv_dcrt_results_2.SetValAtIndex(6, "3");
-	bbv_dcrt_results_2.SetValAtIndex(7, "0");
-	ilv_dcrt_results_2.SetValues(bbv_dcrt_results_2, Format::EVALUATION);
-
-	vector<ILVector2n> ilv_dcrt_results_vector;
-	ilv_dcrt_results_vector.reserve(2);
-	ilv_dcrt_results_vector.push_back(ilv_dcrt_results_1);
-	ilv_dcrt_results_vector.push_back(ilv_dcrt_results_2);
-
-	ILVectorArray2n ilv_dcrt_expectedResults(ilv_dcrt_results_vector);
-	Ciphertext<ILVectorArray2n> cipher_dcrt_results(cipher1_dcrt);
-
-	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm_dcrt;
-	algorithm_dcrt.Enable(SHE);
-	algorithm_dcrt.EvalMult(cipher1_dcrt, cipher2_dcrt, &cipher_dcrt_results);
-
-	EXPECT_EQ(cipher_dcrt_results.GetElement(), ilv_dcrt_expectedResults);
-
-	//NEGATIVE TEST CASES
-
-	//This should throw an error for the parameters not being the same for one the multiplied parties
-	LPCryptoParametersLTV<ILVector2n> badCryptoParams(cryptoParams);
-	badCryptoParams.SetElementParams(ilParams2);
-	cipher1_single_crt.SetCryptoParameters(&badCryptoParams);
-	EXPECT_ANY_THROW(algorithm.EvalMult(cipher1_single_crt, cipher2_single_crt, &resultsILVector2n));
-
-	//This test case should fail because the ciphertext results has different parameters
-	cipher1_single_crt.SetCryptoParameters(&cryptoParams);
-	resultsILVector2n.SetCryptoParameters(&badCryptoParams);
-	EXPECT_ANY_THROW(algorithm.EvalMult(cipher1_single_crt, cipher2_single_crt, &resultsILVector2n));
-
-	//This should throw an error since the format is not in Coefficient
-	resultsILVector2n.SetCryptoParameters(&cryptoParams);
-	ilv_single_crt1_dcrt1.SwitchFormat();
-	ilv_dcrt3.SwitchFormat();
-	cipher1_single_crt.SetElement(ilv_single_crt1_dcrt1);
-	cipher2_single_crt.SetElement(ilv_dcrt3);
-	EXPECT_ANY_THROW(algorithm.EvalMult(cipher1_single_crt, cipher2_single_crt, &resultsILVector2n));
-}
-
-
-
-
 /*Testing Parameter selection. The test will check if generated parameters are greater than the following thresholds:
 * The first modulus generated needs to be greater than q1 > 4pr sqrt(n) w. Where
 * p is the plaintext modulus
@@ -739,7 +400,7 @@ TEST_F(UnitTestSHEAdvanced, test_composed_eval_mult_two_towers) {
 	ILDCRTParams params(init_m, init_moduli, init_rootsOfUnity);
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE);
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::FOUR);
 	cryptoParams.SetDistributionParameter(init_stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
@@ -766,13 +427,13 @@ TEST_F(UnitTestSHEAdvanced, test_composed_eval_mult_two_towers) {
 	algorithm.Enable(LEVELEDSHE);
 
 	//Generate the secret key for the initial ciphertext:
-	LPPublicKeyLTV<ILVectorArray2n> pk(finalParamsTwoTowers);
-	LPPrivateKeyLTV<ILVectorArray2n> sk(finalParamsTwoTowers);
+	LPPublicKey<ILVectorArray2n> pk(finalParamsTwoTowers);
+	LPPrivateKey<ILVectorArray2n> sk(finalParamsTwoTowers);
 	algorithm.KeyGen(&pk, &sk);
 
 	//Generate the keys for level 1, same number of towers
-	LPPublicKeyLTV<ILVectorArray2n> pk1(finalParamsTwoTowers);
-	LPPrivateKeyLTV<ILVectorArray2n> sk1(finalParamsTwoTowers);
+	LPPublicKey<ILVectorArray2n> pk1(finalParamsTwoTowers);
+	LPPrivateKey<ILVectorArray2n> sk1(finalParamsTwoTowers);
 	algorithm.KeyGen(&pk1, &sk1);
 
 	//Generating new cryptoparameters for when modulus reduction is done.
@@ -784,7 +445,7 @@ TEST_F(UnitTestSHEAdvanced, test_composed_eval_mult_two_towers) {
 	finalParamsOneTower.SetElementParams(dcrtParamsWith1Tower);
 
 	//Generating Quaraditic KeySwitchHint from sk^2 to skNew
-	LPKeySwitchHintLTV<ILVectorArray2n> quadraticKeySwitchHint;
+	LPEvalKeyNTRU<ILVectorArray2n> quadraticKeySwitchHint;
 	algorithm.QuadraticKeySwitchHintGen(sk, sk1, &quadraticKeySwitchHint);
 
 	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
@@ -793,20 +454,23 @@ TEST_F(UnitTestSHEAdvanced, test_composed_eval_mult_two_towers) {
 	skNewOldElement.DropElementAtIndex(skNewOldElement.GetNumOfElements() - 1);
 	sk1.SetPrivateElement(skNewOldElement);
 
-	/*ILVectorArray2n c1Element(dcrtParams2WithTwoTowers);
-	ILVectorArray2n c2Element(dcrtParams2WithTwoTowers);
-	c1Element = { 3 };
-	c2Element = { 4 };*/
-
 	std::vector<usint> firstElement(2048);
 	firstElement.at(0) = 8;
-	std::fill(firstElement.begin() + 1, firstElement.end(), 0);
+	firstElement.at(1) = 5;
+	firstElement.at(2) = 4;
+
+
+	std::fill(firstElement.begin() + 3, firstElement.end(), 0);
 
 	IntPlaintextEncoding firstElementEncoding(firstElement);
 
 	std::vector<usint> secondElement(2048);
 	secondElement.at(0) = 7;
-	std::fill(secondElement.begin() + 1, secondElement.end(), 0);
+	secondElement.at(1) = 4;
+	secondElement.at(2) = 2;
+
+	
+	std::fill(secondElement.begin() + 3, secondElement.end(), 0);
 	IntPlaintextEncoding secondElementEncoding(secondElement);
 
 	//Generating original ciphertext to perform ComposedEvalMult on
@@ -836,6 +500,291 @@ TEST_F(UnitTestSHEAdvanced, test_composed_eval_mult_two_towers) {
 	
 	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk1, ciphertextResults, &results, false);
 
-	EXPECT_EQ(results.at(0), 1);
+	EXPECT_EQ(results.at(0), 2);
+	EXPECT_EQ(results.at(1), 4);
+	EXPECT_EQ(results.at(2), 1);
+	EXPECT_EQ(results.at(3), 8);
+	EXPECT_EQ(results.at(4), 8);
 
+
+}
+
+TEST_F(UnitTestSHEAdvanced, test_eval_mult_single_crt) {
+
+	usint m = 16;
+
+	float stdDev = 4;
+
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+
+	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
+	DiscreteGaussianGenerator dgg(stdDev);
+	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
+	ILParams params(m, q, RootOfUnity(m, q));
+
+//	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
+
+	//Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(dgg, params);
+
+	LPCryptoParametersLTV<ILVector2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::THREE); // Set plaintext modulus.
+	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
+	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
+	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
+
+	Ciphertext<ILVector2n> cipherText;
+	cipherText.SetCryptoParameters(&cryptoParams);
+
+	//Initialize the public key containers.
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
+
+	std::vector<usint> vectorOfInts1(8);
+	vectorOfInts1.at(0) = 2;
+	vectorOfInts1.at(1) = 0;
+	vectorOfInts1.at(2) = 0;
+	vectorOfInts1.at(3) = 0;
+	std::fill(vectorOfInts1.begin() + 4, vectorOfInts1.end(), 0);
+	IntPlaintextEncoding intArray1(vectorOfInts1);
+
+	std::vector<usint> vectorOfInts2(8);
+	vectorOfInts2.at(0) = 3;
+	vectorOfInts2.at(1) = 0;
+	vectorOfInts2.at(2) = 0;
+	vectorOfInts2.at(3) = 0;
+	IntPlaintextEncoding intArray2(vectorOfInts2);
+	std::fill(vectorOfInts2.begin() + 4, vectorOfInts2.end(), 0);
+
+
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(SHE);
+	algorithm.Enable(LEVELEDSHE);
+
+	algorithm.KeyGen(&pk, &sk);
+
+	vector<Ciphertext<ILVector2n>> ciphertext1;
+	vector<Ciphertext<ILVector2n>> ciphertext2;
+
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray1, &ciphertext1, false);
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray2, &ciphertext2, false);
+
+	Ciphertext<ILVector2n> cResult(ciphertext1.at(0));
+
+	algorithm.EvalMult(ciphertext1.at(0), ciphertext2.at(0), &cResult);
+
+    LPEvalKeyNTRU<ILVector2n> keySwitchHint;
+
+	LPPublicKey<ILVector2n> pkNew(cryptoParams);
+	LPPrivateKey<ILVector2n> skNew(cryptoParams);
+
+	algorithm.KeyGen(&pkNew, &skNew);
+
+	algorithm.QuadraticKeySwitchHintGen(sk, skNew, &keySwitchHint);
+
+	cResult = algorithm.KeySwitch(keySwitchHint, cResult);
+
+	vector<Ciphertext<ILVector2n>> ciphertextResults(1);
+	ciphertextResults.at(0) = cResult;
+	IntPlaintextEncoding results;
+
+	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertextResults, &results, false);
+
+	EXPECT_EQ(results.at(0),6);
+
+	ILVector2n::DestroyPreComputedSamples();
+}
+
+TEST_F(UnitTestSHEAdvanced, test_eval_mult_double_crt) {
+
+	usint init_m = 16;
+
+	float init_stdDev = 4;
+
+	usint init_size = 2;
+
+	vector<BigBinaryInteger> init_moduli(init_size);
+
+	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
+
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+	BigBinaryInteger modulus("1");
+
+	for (int i = 0; i < init_size; i++) {
+		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, init_m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		init_moduli[i] = q;
+		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
+		modulus = modulus* init_moduli[i];
+
+	}
+
+	DiscreteGaussianGenerator dgg(init_stdDev);
+
+	ILDCRTParams params(init_m, init_moduli, init_rootsOfUnity);
+
+	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::FOUR);
+	cryptoParams.SetDistributionParameter(init_stdDev);
+	cryptoParams.SetRelinWindow(1);
+	cryptoParams.SetElementParams(params);
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);
+	cryptoParams.SetAssuranceMeasure(6);
+	cryptoParams.SetDepth(init_size - 1);
+	cryptoParams.SetSecurityLevel(1.006);
+
+	usint n = 16;
+
+	LPCryptoParametersLTV<ILVectorArray2n> finalParams;
+
+	cryptoParams.ParameterSelection(&finalParams);
+
+	const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(finalParams.GetElementParams());
+
+	usint m = dcrtParams.GetCyclotomicOrder();
+	usint size = finalParams.GetDepth() + 1;
+	const BigBinaryInteger &plainTextModulus = finalParams.GetPlaintextModulus();
+	//scheme initialization: LTV Scheme
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
+	algorithm.Enable(SHE);
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(LEVELEDSHE);
+
+	//Generate the secret key for the initial ciphertext:
+	LPPublicKey<ILVectorArray2n> pk(finalParams);
+	LPPrivateKey<ILVectorArray2n> sk(finalParams);
+	algorithm.KeyGen(&pk, &sk);
+
+	//Generating new cryptoparameters for when modulus reduction is done.
+	LPCryptoParametersLTV<ILVectorArray2n> finalParamsOneTower(finalParams);
+	std::vector<usint> vectorOfInts1(2048);
+	vectorOfInts1.at(0) = 2;
+	vectorOfInts1.at(1) = 4;
+	vectorOfInts1.at(2) = 0;
+	vectorOfInts1.at(3) = 0;
+	std::fill(vectorOfInts1.begin() + 4, vectorOfInts1.end(), 0);
+	IntPlaintextEncoding intArray1(vectorOfInts1);
+
+	std::vector<usint> vectorOfInts2(2048);
+	vectorOfInts2.at(0) = 3;
+	vectorOfInts2.at(1) = 3;
+	vectorOfInts2.at(2) = 0;
+	vectorOfInts2.at(3) = 0;
+	IntPlaintextEncoding intArray2(vectorOfInts2);
+	std::fill(vectorOfInts2.begin() + 4, vectorOfInts2.end(), 0);
+
+	algorithm.KeyGen(&pk, &sk);
+
+	vector<Ciphertext<ILVectorArray2n>> ciphertext1;
+	vector<Ciphertext<ILVectorArray2n>> ciphertext2;
+
+	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray1, &ciphertext1, false);
+	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray2, &ciphertext2, false);
+
+	Ciphertext<ILVectorArray2n> cResult(ciphertext1.at(0));
+
+	algorithm.EvalMult(ciphertext1.at(0), ciphertext2.at(0), &cResult);
+
+	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint;
+
+	LPPublicKey<ILVectorArray2n> pkNew(finalParams);
+	LPPrivateKey<ILVectorArray2n> skNew(finalParams);
+
+	algorithm.KeyGen(&pkNew, &skNew);
+
+	algorithm.QuadraticKeySwitchHintGen(sk, skNew, &keySwitchHint);
+
+	cResult = algorithm.KeySwitch(keySwitchHint, cResult);
+
+	vector<Ciphertext<ILVectorArray2n>> ciphertextResults(1);
+	ciphertextResults.at(0) = cResult;
+	IntPlaintextEncoding results;
+
+	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk, ciphertextResults, &results, false);
+
+	EXPECT_EQ(results.at(0), 6);
+	EXPECT_EQ(results.at(1), 0);
+	EXPECT_EQ(results.at(2), 3);
+
+
+}
+
+TEST_F(UnitTestSHEAdvanced, test_eval_add_single_crt) {
+	//usint m = 16;
+
+	//float stdDev = 4;
+
+	//BigBinaryInteger q("1");
+	//BigBinaryInteger temp;
+
+	//lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4000"), BigBinaryInteger("400"));
+	//DiscreteGaussianGenerator dgg(stdDev);
+	//BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
+	//ILParams params(m, q, RootOfUnity(m, q));
+
+	////Precomputations for DGG
+	//ILVector2n::PreComputeDggSamples(dgg, params);
+
+	//LPCryptoParametersLTV<ILVector2n> cryptoParams;
+	//cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::THREE); // Set plaintext modulus.
+	//cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
+	//cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
+	//cryptoParams.SetElementParams(params);                // Set the initialization parameters.
+	//cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
+
+	//Ciphertext<ILVector2n> cipherText;
+	//cipherText.SetCryptoParameters(&cryptoParams);
+
+	////Initialize the public key containers.
+	//LPPublicKey<ILVector2n> pk(cryptoParams);
+	//LPPrivateKey<ILVector2n> sk(cryptoParams);
+
+	//std::vector<usint> vectorOfInts1(8);
+	//vectorOfInts1.at(0) = 2;
+	//vectorOfInts1.at(1) = 3;
+	//vectorOfInts1.at(2) = 1;
+	//vectorOfInts1.at(3) = 4;
+	//std::fill(vectorOfInts1.begin() + 4, vectorOfInts1.end(), 0);
+	//IntPlaintextEncoding intArray1(vectorOfInts1);
+
+	//std::vector<usint> vectorOfInts2(8);
+	//vectorOfInts2.at(0) = 3;
+	//vectorOfInts2.at(1) = 6;
+	//vectorOfInts2.at(2) = 3;
+	//vectorOfInts2.at(3) = 1;
+	//IntPlaintextEncoding intArray2(vectorOfInts2);
+	//std::fill(vectorOfInts2.begin() + 4, vectorOfInts2.end(), 0);
+
+	//LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
+	//algorithm.Enable(ENCRYPTION);
+	//algorithm.Enable(SHE);
+	//algorithm.Enable(LEVELEDSHE);
+
+	//algorithm.KeyGen(&pk, &sk);
+
+	//vector<Ciphertext<ILVector2n>> ciphertext1;
+	//vector<Ciphertext<ILVector2n>> ciphertext2;
+
+	//CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray1, &ciphertext1, false);
+	//CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray2, &ciphertext2, false);
+
+	//Ciphertext<ILVector2n> cResult(ciphertext1.at(0));
+
+	//algorithm.EvalAdd(ciphertext1.at(0), ciphertext2.at(0), &cResult);
+
+	//vector<Ciphertext<ILVector2n>> ciphertextResults(1);
+	//ciphertextResults.at(0) = cResult;
+	//IntPlaintextEncoding results;
+
+	//CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertextResults, &results, false);
+
+	//EXPECT_EQ(results.at(0), 5);
+	//EXPECT_EQ(results.at(1), 0);
+	//EXPECT_EQ(results.at(2), 4);
+	//EXPECT_EQ(results.at(3), 5);
+
+	//ILVector2n::DestroyPreComputedSamples();
 }

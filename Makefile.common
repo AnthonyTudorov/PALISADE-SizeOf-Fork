@@ -61,7 +61,7 @@ HDREXT := h
 
 $(objects) : %.o : %.cpp
 
-EXTLIB := -pthread -lgomp #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
+EXTLIB := -lpthread -lgomp #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 INC := -I include $(OMPINCLUDE) $(BOOSTINCLUDE)
 
 #the name of the shared object library for palisade objects.  

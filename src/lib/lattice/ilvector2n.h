@@ -189,6 +189,14 @@ namespace lbcrypto {
         */
         const ILVector2n& operator=(ILVector2n &&rhs);
 
+		/**
+		* Initalizer list
+		*
+		* @param &rhs the list to set the ILVector2n to.
+		* @return the resulting ILVector2n.
+		*/
+		const ILVector2n& operator=(std::initializer_list<sint> rhs);
+
         //CLONE OPERATIONS
 		/**
 		* Clone
@@ -564,7 +572,7 @@ namespace lbcrypto {
 		* @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
 		* @result is the pointer where the base decomposition vector is stored
 		*/
-		void PowersOfBase(usint baseBits, std::vector<ILVector2n> *result) const;
+		std::vector<ILVector2n> PowersOfBase(usint baseBits) const;
 
 		/**
 		* Shift entries in the vector left a specific number of entries.
@@ -635,8 +643,10 @@ namespace lbcrypto {
 		// reference to the parameters for ideal lattices
 		ILParams m_params;
 
-		// static variable to store pre-computed samples
+		// static variables to store pre-computed samples and the parms that went with them
 		static std::vector<ILVector2n> m_dggSamples;
+		static ILParams m_dggSamples_params;
+
 
 		// static variable to store the sample size for each set of ILParams
 		static const usint m_sampleSize = SAMPLE_SIZE;

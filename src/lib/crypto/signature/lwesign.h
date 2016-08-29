@@ -222,7 +222,7 @@ namespace lbcrypto {
 		/**
 		*Method for setting the private key used in the signing process
 		*
-		*@param @x a pair of public key, trapdoor and perturbation matrix used for signing
+		*@param &x a pair of public key, trapdoor and perturbation matrix used for signing
 		*/
 		void SetPrivateElement(const std::pair<Matrix<LargeFloat>, std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>>& x) {
 			if (m_sk != nullptr) {
@@ -277,10 +277,10 @@ namespace lbcrypto {
 		*/
 		const Matrix<Element> & GetPublicElement() const { return *m_vk; }
 		
-		/*
+		/**
 		* Method for setting parameters used in verification process
 		*
-		* @param signParams Parameters used in verification
+		* @param &signParams Parameters used in verification
 		*/
 		void SetSignatureParameters(const LPSignatureParameters & signParams) { m_signParameters = signParams; }
 		

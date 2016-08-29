@@ -60,7 +60,7 @@ static T* deserializeAndCreate(const std::string& serializedKey, const CryptoCon
 template <typename T>
 bool CryptoContext<T>::setPublicKey( const std::string& serializedKey )
 {
-	LPPublicKeyLTV<T> *newKey = deserializeAndCreate<LPPublicKeyLTV<T>,T>(serializedKey, this);
+	LPPublicKey<T> *newKey = deserializeAndCreate<LPPublicKey<T>,T>(serializedKey, this);
 	if( newKey == 0 ) return false;
 
 	if( publicKey ) delete publicKey;
@@ -71,7 +71,7 @@ bool CryptoContext<T>::setPublicKey( const std::string& serializedKey )
 template <typename T>
 bool CryptoContext<T>::setPrivateKey( const std::string& serializedKey )
 {
-	LPPrivateKeyLTV<T> *newKey = deserializeAndCreate<LPPrivateKeyLTV<T>,T>(serializedKey, this);
+	LPPrivateKey<T> *newKey = deserializeAndCreate<LPPrivateKey<T>,T>(serializedKey, this);
 	if( newKey == 0 ) return false;
 
 	if( privateKey ) delete privateKey;
@@ -82,7 +82,7 @@ bool CryptoContext<T>::setPrivateKey( const std::string& serializedKey )
 template <typename T>
 bool CryptoContext<T>::setEvalKey( const std::string& serializedKey )
 {
-	LPEvalKeyLTV<T> *newKey = deserializeAndCreate<LPEvalKeyLTV<T>,T>(serializedKey, this);
+	LPEvalKeyRelin<T> *newKey = deserializeAndCreate<LPEvalKeyRelin<T>,T>(serializedKey, this);
 	if( newKey == 0 ) return false;
 
 	if( evalKey ) delete evalKey;

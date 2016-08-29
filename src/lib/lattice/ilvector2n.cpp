@@ -33,6 +33,7 @@ namespace lbcrypto {
 
 	//need to be added because m_dggSamples is static and not initialized
 	std::vector<ILVector2n> ILVector2n::m_dggSamples;
+	ILParams ILVector2n::m_dggSamples_params;
 
 	ILVector2n::ILVector2n() :m_values(NULL), m_format(EVALUATION),m_empty(true) {
 	}
@@ -65,10 +66,7 @@ namespace lbcrypto {
 		}
 		else
 		{
-			if (m_dggSamples.size() == 0)
-			{
-				PreComputeDggSamples(dgg, m_params);
-			}
+			PreComputeDggSamples(dgg, m_params);
 
 			const ILVector2n randomElement = GetPrecomputedVector(m_params);
 			m_values = new BigBinaryVector(*randomElement.m_values);
@@ -142,6 +140,32 @@ namespace lbcrypto {
 
 		return *this;
 	}
+
+	const ILVector2n& ILVector2n::operator=(std::initializer_list<sint> rhs) {
+		usint len = rhs.size();
+		if (!IsEmpty()) {
+			usint vectorLength = this->m_values->GetLength();
+
+			for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
+				if (j<len) {
+					SetValAtIndex(j, *(rhs.begin() + j));
+				}
+				else {
+					SetValAtIndex(j, 0);
+				}
+			}
+
+		}
+		else {
+
+			BigBinaryVector temp(m_params.GetCyclotomicOrder() / 2);
+			temp.SetModulus(m_params.GetModulus());
+			temp = rhs;
+			this->SetValues(std::move(temp), m_format);
+		}
+		return *this;
+	}
+
 
 	const ILVector2n& ILVector2n::operator=(ILVector2n &&rhs) {
 
@@ -387,8 +411,12 @@ namespace lbcrypto {
 		if (m_values != NULL) {
 			std::cout << *m_values;
 		}
-		std::cout << " mod:" << m_values->GetModulus() << std::endl;
-		std::cout << " rootOfUnity: " << this->GetRootOfUnity()<< std::endl;
+		try {
+			std::cout << " mod:" << m_values->GetModulus() << std::endl;
+			std::cout << " rootOfUnity: " << this->GetRootOfUnity() << std::endl;
+		}
+		catch(std::exception& e)
+		{}
 		std::cout << std::endl;
 	}
 
@@ -415,7 +443,9 @@ namespace lbcrypto {
 		}
 		
 		usint decomposedCyclotomicOrder = m_params.GetCyclotomicOrder()/2;
-		m_params.SetRootOfUnity(RootOfUnity(decomposedCyclotomicOrder, GetModulus()));
+		//Using the halving lemma propety of roots of unity to calculate the root of unity at half the cyclotomic order
+	//	m_params.SetRootOfUnity((m_params.GetRootOfUnity()*m_params.GetRootOfUnity()).Mod(m_params.GetModulus())); 
+		m_params.SetRootOfUnity(m_params.GetRootOfUnity());
 		m_params.SetCyclotomicOrder(decomposedCyclotomicOrder);
 
 		//Interleaving operation.
@@ -500,7 +530,9 @@ namespace lbcrypto {
 	// used as a subroutine in the relinearization procedure to get powers of a certain "base" for the secret key element
 	// baseBits is the number of bits in the base, i.e., base = 2^baseBits
 
-	void ILVector2n::PowersOfBase(usint baseBits, std::vector<ILVector2n> *result) const {
+	std::vector<ILVector2n> ILVector2n::PowersOfBase(usint baseBits) const {
+
+		std::vector<ILVector2n> result;
 
 		usint nBits = m_params.GetModulus().GetLengthForBase(2);
 
@@ -508,23 +540,29 @@ namespace lbcrypto {
 		if (nBits % baseBits > 0)
 			nWindows++;
 
+		result.reserve(nWindows);
+
 		for (usint i = 0; i < nWindows; ++i)
 		{
 			BigBinaryInteger pI(BigBinaryInteger::TWO.ModExp(UintToBigBinaryInteger(i*baseBits), m_params.GetModulus()));
-			result->push_back(pI*(*this));
+			result.push_back(pI*(*this));
 		}
+
+		return std::move(result);
 
 	}
 
 	void ILVector2n::PreComputeDggSamples(const DiscreteGaussianGenerator &dgg, const ILParams &params) {
-		if (m_dggSamples.size() == 0)
+		if (m_dggSamples.size() == 0 || m_dggSamples_params != params)
 		{
+			DestroyPreComputedSamples();
+			m_dggSamples_params = params;
 			for (usint i = 0; i < m_sampleSize; ++i)
 			{
-				ILVector2n current(params);
-				usint vectorSize = params.GetCyclotomicOrder() / 2;
-				current.m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,params.GetModulus()));
-				current.m_values->SetModulus(params.GetModulus());
+				ILVector2n current(m_dggSamples_params);
+				usint vectorSize = m_dggSamples_params.GetCyclotomicOrder() / 2;
+				current.m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,m_dggSamples_params.GetModulus()));
+				current.m_values->SetModulus(m_dggSamples_params.GetModulus());
 				current.m_format = COEFFICIENT;
 
 				current.SwitchFormat();

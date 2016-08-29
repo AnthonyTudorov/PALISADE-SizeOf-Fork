@@ -31,8 +31,8 @@
 * This code serves as the abstract class for Palisade's JSON Facility.
 * This abstract class is inherited through LPKey in pubkeylp.h, ElemParams in elemparams.h,
 * ILVector2n in ilvector2n.h, and BigBinaryVector in binvect.h.
-* Virtual methods are implemented in Ciphertext, LPCryptoParametersLWE, LPPublicKeyLTV,
-* LPEvalKeyLTV, LPPrivateKeyLTV, ILParams, ILDCRTParams, ILVector2n, BigBinaryVector.
+* Virtual methods are implemented in Ciphertext, LPCryptoParametersLWE, LPPublicKey,
+* LPEvalKeyRelin, LPPrivateKey, ILParams, ILDCRTParams, ILVector2n, BigBinaryVector.
 *
 * TODO:  Complete implementation in ILDCRTParams.
 * TODO:  Setup inheritance through ILElement for ILVector2n once Double CRT is working.

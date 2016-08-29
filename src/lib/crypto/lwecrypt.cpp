@@ -35,6 +35,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <cstring>
 #include <iostream>
 #include <fstream>
+#include <initializer_list>
 
 namespace lbcrypto {
 
@@ -58,6 +59,8 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
+
+	f = {1,2,1,2,1,2,1,2};
 
 	f = p*f;
 
@@ -83,7 +86,7 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	g.SwitchFormat();
 
 	//public key is generated
-	privateKey->MakePublicKey(g,publicKey);
+	publicKey->SetPublicElementAtIndex(0, std::move(cryptoParams->GetPlaintextModulus()*g*privateKey->GetPrivateElement().MultiplicativeInverse()));
 
 	return true;
 }
@@ -134,7 +137,7 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 	g.SwitchFormat();
 
 	//public key is generated
-	privateKey->MakePublicKey(g,publicKey);
+	publicKey->SetPublicElementAtIndex(0, cryptoParams->GetPlaintextModulus()*g*privateKey->GetPrivateElement().MultiplicativeInverse());
 
 	return true;
 }
@@ -152,7 +155,7 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 */
 template<class Element>
 void LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
-				const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *keySwitchHint) const {  
+				const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *keySwitchHint) const {  
 
 		const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element> &>(originalPrivateKey.GetCryptoParameters() );
 
@@ -175,8 +178,7 @@ void LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(const LPPrivateKey<Elem
 		Element keySwitchHintElement(m * f1 * newKeyInverse);
 
 		/*keySwitchHintElement = m * f1 * newKeyInverse ;*/
-
-		keySwitchHint->SetHintElement(keySwitchHintElement);
+		keySwitchHint->SetA(std::move(keySwitchHintElement));
 
 		keySwitchHint->SetCryptoParameters(new LPCryptoParametersLTV<Element>(cryptoParams));	
 
@@ -194,11 +196,11 @@ void LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(const LPPrivateKey<Elem
 * private key A, is now decryptable by public key B (and not A).
 */
 template<class Element>
-Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint,const Ciphertext<Element> &cipherText) const {
+Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPEvalKeyNTRU<Element> &keySwitchHint,const Ciphertext<Element> &cipherText) const {
 
 	Ciphertext<Element> newCipherText(cipherText);
 
-	Element newCipherTextElement = cipherText.GetElement()*keySwitchHint.GetHintElement();
+	Element newCipherTextElement = cipherText.GetElement()*keySwitchHint.GetA();
 
 	newCipherText.SetElement( newCipherTextElement );
 	
@@ -210,7 +212,7 @@ Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPKeySwit
 template<class Element>
 void LPLeveledSHEAlgorithmLTV<Element>::QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
 	
-	const LPPrivateKey<Element> &newPrivateKey, LPKeySwitchHint<Element> *quadraticKeySwitchHint) const {
+	const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const {
 
 	const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element> &>(originalPrivateKey.GetCryptoParameters() );
 
@@ -236,7 +238,7 @@ void LPLeveledSHEAlgorithmLTV<Element>::QuadraticKeySwitchHintGen(const LPPrivat
 
 	Element keySwitchHintElement(m * f1Squared * newKeyInverse);
 
-	quadraticKeySwitchHint->SetHintElement(keySwitchHintElement);
+	quadraticKeySwitchHint->SetA(keySwitchHintElement);
 
 	quadraticKeySwitchHint->SetCryptoParameters(new LPCryptoParametersLTV<Element>(cryptoParams));
 }
@@ -279,7 +281,7 @@ void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(Ciphertext<ILVectorArr
 * 
 */
 template<class Element>
-void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherText, const LPKeySwitchHint<Element> &keySwitchHint) const {
+void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherText, const LPEvalKeyNTRU<Element> &keySwitchHint) const {
 
 		//KeySwitching to a cipherText that can be decrypted by a sparse key. 
 		*cipherText = this->KeySwitch( keySwitchHint, *cipherText) ;
@@ -306,10 +308,8 @@ void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherTe
 		
 }
 
-
-
 template<class Element>
-void LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPKeySwitchHint<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+void LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
 
 	if(!(cipherText1.GetCryptoParameters() == cipherText2.GetCryptoParameters()) || !(cipherTextResult->GetCryptoParameters() == cipherText2.GetCryptoParameters())){
 		std::string errMsg = "ComposedEvalMult crypto parameters are not the same";
@@ -330,7 +330,7 @@ void LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(const Ciphertext<Elemen
 }
 
 template<class Element>
-void LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const Ciphertext<Element> &cipherText1, const LPKeySwitchHint<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+void LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const Ciphertext<Element> &cipherText1, const LPEvalKeyNTRU<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
 
 	if(!(cipherText1.GetCryptoParameters() == cipherTextResult->GetCryptoParameters())){
 		std::string errMsg = "LevelReduce crypto parameters are not the same";
@@ -392,9 +392,25 @@ bool LPLeveledSHEAlgorithmLTV<Element>::SparseKeyGen(LPPublicKey<Element>* publi
 	g.SwitchFormat();
 
 	//public key is generated
-	privateKey->MakePublicKey(g, publicKey);
+	publicKey->SetPublicElementAtIndex(0, std::move(cryptoParams->GetPlaintextModulus()*g*privateKey->GetPrivateElement().MultiplicativeInverse()));
 
 	return true;
+}
+
+template<class Element>
+bool LPLeveledSHEAlgorithmLTV<Element>::CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const
+{
+	if (ringDimension == 1) return false;
+	ringDimension = ringDimension / 2;
+	double multipliedModuli = 1;
+
+	for (usint i = 0; i < moduli.size(); i++) {
+		multipliedModuli = multipliedModuli*  moduli.at(i).ConvertToDouble();
+	}
+	double powerValue = (log(multipliedModuli) / log(2)) / (4 * ringDimension);
+	double powerOfTwo = pow(2, powerValue);
+
+	return rootHermiteFactor >= powerOfTwo;
 }
 
 template <class Element>
@@ -414,7 +430,7 @@ EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publi
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
-	const Element &h = publicKey.GetPublicElement();
+	const Element &h = publicKey.GetPublicElements().at(0);
 
 	Element s(dgg,elementParams);
 
@@ -448,222 +464,16 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &priv
 	Element b = f*c;
 
 	b.SwitchFormat();
-
+	
 	*plaintext = b;
 
 	return DecryptResult(plaintext->GetLength());
 }
 
-template <class Element>
-LPPublicKeyLTV<Element>::LPPublicKeyLTV (const LPPublicKey<Element> &rhs) {
-	if(this != rhs) {
-		m_cryptoParameters = rhs.m_cryptoParameters;
-		m_h = rhs.m_h;
-	}
-}
 
-template <class Element>
-LPPublicKeyLTV<Element>& LPPublicKeyLTV<Element>::operator=(const LPPublicKeyLTV<Element> &rhs) {
-	if(this != rhs) {
-		m_cryptoParameters = rhs.m_cryptoParameters;
-		m_h = rhs.m_h;
-	}
 
-	return *this;
-}
 
-// JSON FACILITY
-template <class Element>
-bool LPPublicKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string flag) const {
 
-	SerialItem idFlagMap(rapidjson::kObjectType);
-	idFlagMap.AddMember("ID", "LPPublicKeyLTV", serObj->GetAllocator());
-	idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
-	serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
-
-	return true;
-}
-
-// JSON FACILITY - LPPublicKeyLTV Serialize Operation
-template <class Element>
-bool LPPublicKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
-
-	serObj->SetObject();
-
-	if( !this->GetCryptoParameters().Serialize(serObj, "") ) {
-		return false;
-	}
-
-	const Element& pe = this->GetPublicElement();
-
-	if( !pe.Serialize(serObj, "") ) {
-		return false;
-	}
-
-	if( !this->SetIdFlag(serObj, fileFlag) )
-		return false;
-
-	return true;
-}
-
-// JSON FACILITY - LPPublicKeyLTV Deserialize Operation
-template <class Element>
-bool LPPublicKeyLTV<Element>::Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
-
-	LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-	if( cryptoParams == 0 ) return false;
-
-	this->SetCryptoParameters(cryptoParams);
-
-	Element json_ilElement;
-	if( json_ilElement.Deserialize(serObj) ) {
-		this->SetPublicElement(json_ilElement);
-		return true;
-	}
-
-	return false;
-}
-
-// JSON FACILITY - LPEvalKeyLTV SetIdFlag Operation
-template <class Element>
-bool LPEvalKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string flag) const {
-
-	SerialItem idFlagMap(rapidjson::kObjectType);
-	idFlagMap.AddMember("ID", "LPEvalKeyLTV", serObj->GetAllocator());
-	idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
-	serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
-
-	return true;
-}
-
-// JSON FACILITY - LPEvalKeyLTV Serialize Operation
-template <class Element>
-bool LPEvalKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
-
-	serObj->SetObject();
-
-	if( !this->SetIdFlag(serObj, fileFlag) )
-		return false;
-
-	if( !this->GetCryptoParameters().Serialize(serObj) )
-		return false;
-
-	std::vector<int>::size_type evalKeyVectorLength = this->GetEvalKeyElements().size();
-
-	Serialized ilVector2nMap(rapidjson::kArrayType, &serObj->GetAllocator());
-	for (unsigned i = 0; i < evalKeyVectorLength; i++) {
-		Serialized localMap(rapidjson::kObjectType, &serObj->GetAllocator());
-		if( this->GetEvalKeyElements().at(i).Serialize(&localMap) ) {
-			ilVector2nMap.PushBack(localMap, serObj->GetAllocator());
-		}
-		else
-			return false;
-	}
-
-	serObj->AddMember("ILVector2nVector", ilVector2nMap, serObj->GetAllocator());
-	return true;
-}
-
-// JSON FACILITY - LPEvalKeyLTV Deserialize Operation
-template <class Element>
-bool LPEvalKeyLTV<Element>::Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
-
-	LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-	if( cryptoParams == 0 ) return false;
-
-	this->SetCryptoParameters(cryptoParams);
-
-	Serialized::ConstMemberIterator rIt = serObj.FindMember("Root");
-	if( rIt == serObj.MemberEnd() ) return false;
-
-	if( (rIt = serObj.FindMember("ILVector2nVector")) == serObj.MemberEnd() )
-		return false;
-
-	const SerialItem& arr = rIt->value;
-
-	if( !arr.IsArray() )
-		return false;
-
-	std::vector<int>::size_type evalKeyVectorLength = arr.Size();
-	std::vector<Element> evalKeyVectorBuffer; //(evalKeyVectorLength);
-
-	for (int i = 0; i < evalKeyVectorLength; i++) {
-		const SerialItem& fi = arr[i];
-		Serialized oneItem(rapidjson::kObjectType);
-		SerialItem key( fi.MemberBegin()->name, oneItem.GetAllocator() );
-		SerialItem val( fi.MemberBegin()->value, oneItem.GetAllocator() );
-		oneItem.AddMember(key, val, oneItem.GetAllocator());
-
-		Element evalKeySubVector;
-		if( !evalKeySubVector.Deserialize(oneItem) )
-			return false;
-		evalKeyVectorBuffer.push_back(evalKeySubVector);
-	}
-
-	this->SetEvalKeyElements(evalKeyVectorBuffer);
-	return true;
-}
-
-template <class Element>
-LPPrivateKeyLTV<Element>::LPPrivateKeyLTV (const LPPrivateKeyLTV<Element> &rhs) {
-	if(this != &rhs) {
-		m_cryptoParameters = rhs.m_cryptoParameters;
-		m_sk = rhs.m_sk;
-	}
-}
-
-template <class Element>
-LPPrivateKeyLTV<Element>& LPPrivateKeyLTV<Element>::operator=(const LPPrivateKeyLTV<Element> &rhs) {
-	if(this != &rhs) {
-		m_cryptoParameters = rhs.m_cryptoParameters;
-		m_sk = rhs.m_sk;
-	}
-
-	return *this;
-}
-
-// JSON FACILITY - LPPrivateKeyLTV SetIdFlag Operation
-template <class Element>
-bool LPPrivateKeyLTV<Element>::SetIdFlag(Serialized* serObj, const std::string flag) const {
-
-	SerialItem idFlagMap(rapidjson::kObjectType);
-	idFlagMap.AddMember("ID", "LPPrivateKeyLTV", serObj->GetAllocator());
-	idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
-	serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
-
-	return true;
-}
-
-// JSON FACILITY - LPPrivateKeyLTV Serialize Operation
-template <class Element>
-bool LPPrivateKeyLTV<Element>::Serialize(Serialized* serObj, const std::string fileFlag) const {
-
-	serObj->SetObject();
-	if( !this->SetIdFlag(serObj, fileFlag) )
-		return false;
-
-	if( !this->GetCryptoParameters().Serialize(serObj) )
-		return false;
-
-	return this->GetPrivateElement().Serialize(serObj);
-}
-
-// JSON FACILITY - LPPrivateKeyLTV Deserialize Operation
-template <class Element>
-bool LPPrivateKeyLTV<Element>::Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
-
-	LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-	if( cryptoParams == 0 ) return false;
-
-	this->SetCryptoParameters(cryptoParams);
-
-	Element json_ilElement;
-	if( json_ilElement.Deserialize(serObj) ) {
-		this->SetPrivateElement(json_ilElement);
-		return true;
-	}
-	return false;
-}
 
 // Default constructor for LPPublicKeyEncryptionSchemeLTV
 /*template <class Element>

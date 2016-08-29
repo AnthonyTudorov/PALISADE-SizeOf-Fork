@@ -101,7 +101,7 @@ namespace lbcrypto {
 			 bool KeySwitchHintGen(const LPPrivateKey<Element> &newPrivateKey, 
 				LPPrivateKey<Element> &origPrivateKey,
 				usint depth, 
-				LPKeySwitchHint<Element> *keySwitchHint) const;
+				LPEvalKeyNTRU<Element> *keySwitchHint) const;
 
 			/**
 			 * Function to generate key switch hint on a ciphertext for depth 2.
@@ -110,7 +110,7 @@ namespace lbcrypto {
 			 * @param *keySwitchHint the key switch hint.
 			 */
 			 bool KeySwitchHintGen(const LPPrivateKey<Element> &newPrivateKey, 
-				LPKeySwitchHint<Element> *keySwitchHint) const;
+				LPEvalKeyNTRU<Element> *keySwitchHint) const;
 			
 			/**
 			 * Function to define key switching operation
@@ -119,7 +119,7 @@ namespace lbcrypto {
 			 * @param &ciphertext the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			void KeySwitch(const LPKeySwitchHint<Element> &keySwitchHint,
+			void KeySwitch(const LPEvalKeyNTRU<Element> &keySwitchHint,
 				const Ciphertext<Element> &ciphertext, 
 				Ciphertext<Element> *newCiphertext) const;
 

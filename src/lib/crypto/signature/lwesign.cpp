@@ -76,7 +76,6 @@ namespace lbcrypto {
 		//Getting parameters for calculations
 		const BigBinaryInteger & q = signKey.GetSignatureParameters().GetILParams().GetModulus();
 		size_t n = signKey.GetSignatureParameters().GetILParams().GetCyclotomicOrder() / 2;
-		usint p = ceil((float)log((double)255) / log((double)q.ConvertToInt()));
 		double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
 		size_t k = (usint)floor(logTwo);
 		
@@ -84,15 +83,15 @@ namespace lbcrypto {
 		HashUtil util;
 		BytePlaintextEncoding hashedText = util.Hash(plainText,SHA_256);
 		ILVector2n u(signKey.GetSignatureParameters().GetILParams(),EVALUATION,false);
-		if (hashedText.size() > n / p) {
-			hashedText.Encode(q, &u, 0, n / p);
+		if (hashedText.size() > n ) {
+			hashedText.Encode(BigBinaryInteger("256"), &u, 0, n);
 		}
 		else{
-			usint remaining = n / p - hashedText.size();
+			usint remaining = n  - hashedText.size();
 			for (int i = 0;i < remaining;i++) {
 				hashedText.push_back(0);
 			}
-			hashedText.Encode(q, &u);
+			hashedText.Encode(BigBinaryInteger("256"), &u);
 		}
 		u.SwitchFormat();
 
@@ -116,21 +115,20 @@ namespace lbcrypto {
 		const BytePlaintextEncoding & plainText) {
 		size_t n = verificationKey.GetSignatureParameters().GetILParams().GetCyclotomicOrder() / 2;
 		const BigBinaryInteger & q = verificationKey.GetSignatureParameters().GetILParams().GetModulus();
-		usint p = ceil((float)log((double)255) / log((double)q.ConvertToInt()));
 		
 		//Encode the text into a vector so it can be used in verification process. TODO: Adding some kind of digestion algorithm
 		HashUtil util;
 		BytePlaintextEncoding hashedText = util.Hash(plainText,SHA_256);
 		ILVector2n u(verificationKey.GetSignatureParameters().GetILParams());
-		if (hashedText.size() > n / p) {
-			hashedText.Encode(q, &u, 0, n / p);
+		if (hashedText.size() > n ) {
+			hashedText.Encode(BigBinaryInteger("256"), &u, 0, n);
 		}
 		else {
-			usint remaining = n / p - hashedText.size();
+			usint remaining = n - hashedText.size();
 			for (int i = 0;i < remaining;i++) {
 				hashedText.push_back(0);
 			}
-			hashedText.Encode(q, &u);
+			hashedText.Encode(BigBinaryInteger("256"), &u);
 		}
 		u.SwitchFormat();
 
