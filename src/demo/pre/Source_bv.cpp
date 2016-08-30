@@ -183,8 +183,8 @@ void NTRUPRE(int input) {
 	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
-	LPPublicKeyBV<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyBV<ILVector2n> sk(cryptoParams);
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -278,8 +278,8 @@ void NTRUPRE(int input) {
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPPublicKeyBV<ILVector2n> newPK(cryptoParams);
-	LPPrivateKeyBV<ILVector2n> newSK(cryptoParams);
+	LPPublicKey<ILVector2n> newPK(cryptoParams);
+	LPPrivateKey<ILVector2n> newSK(cryptoParams);
 
 	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
@@ -300,7 +300,7 @@ void NTRUPRE(int input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyBV<ILVector2n> evalKey(cryptoParams);
+	LPEvalKeyRelin<ILVector2n> evalKey(cryptoParams);
 
 	start = currentDateTime();
 

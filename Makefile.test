@@ -32,16 +32,11 @@
 # first to work
 TEST_TARGET := test/bin/tests$(EXESUFFIX)
 
+LIB_OBJECTS := $(EXTLIBDIR)/$(PALISADELIB) 
+
 #this is the actual target that gets called when make is executed
 #(part of all in Makefile) it makes the test library, actual palisade
 #tests
-
-.PHONY:alltesttargets
-alltesttargets: make_tests 
-#doc_test_strings 
-
-#.PHONY: make_tests
-make_tests:  $(TEST_TARGET)
 
 # the following are the directories associated with the test system 
 TEST_SRC_DIR := test/src
@@ -49,27 +44,27 @@ TEST_BUILD_DIR := test/build
 TEST_TARGETDIR := test/bin
 TEST_TARGET := test/bin/tests$(EXESUFFIX)
 
-#DBC: what is the following for?
-check: $(TEST_TARGET)   
-#	$(TEST_TARGET)
+.PHONY:alltesttargets
+alltesttargets: make_tests 
 
-# this assembles a list of the palisade sources (using SRCDIR and SRCEXT
-# defined in the calling makefile. We need this to build benchmark
-# executables
-# (note there is a cleaner way to do this as shown in the Makefile.benchmark
-LIB_SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT) | xargs grep -L "main()")
-
-# this assembles a list of the palisade library objects (using
-# BUILDDIR defined in the calling makefile. We need this to build test
-# executables
-LIB_OBJECTS := $(EXTLIBDIR)/$(PALISADELIB) ## $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(LIB_SOURCES:.$(SRCEXT)=.o))
-
+make_tests:  $(TEST_TARGET) $(LIB_OBJECTS)
 
 TEST_SOURCES := $(shell find $(TEST_SRC_DIR) -type f -name *.$(SRCEXT))
 
 #define list of objects (1:1 substituion of $(SRCEXT) -->.o for all 
 #files in TEST_SRC_DIR) and puts objects in TEST_BUILD_DIR
 TEST_OBJECTS := $(patsubst $(TEST_SRC_DIR)/%,$(TEST_BUILD_DIR)/%,$(TEST_SOURCES:.$(SRCEXT)=.o))
+
+-include $(TEST_OBJECTS:.o=.d)
+
+.PRECIOUS: $(TEST_BUILD_DIR)/%
+$(TEST_BUILD_DIR)/%.o: $(TEST_SRC_DIR)/%.cpp
+	@mkdir -p $(@D)
+	@$(CC) -MM $(CPPFLAGS) $(INC) $(patsubst $(TEST_BUILD_DIR)/%,$(TEST_SRC_DIR)/%,$(patsubst %.o,%.cpp,$@)) > $(patsubst %.o,%.d,$@)
+	@mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)
+	@sed -e 's|.*\.o:|$(TEST_BUILD_DIR)/lib/$*:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)
+	@rm -f $(patsubst %.o,%.d.tmp,$@)
+	$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(TEST_BUILD_DIR)/%,$(TEST_SRC_DIR)/%,$(patsubst %.o,%.cpp,$@))
 
 # library strings needed in linking of TEST_TARGET
 #note this could be replaced with $(LIB)
@@ -100,19 +95,10 @@ $(TEST_BUILD_DIR)/%.o: $(TEST_LIB_SRCDIR)/%.$(TEST_LIB_SRCEXT)
 	ar -rv $(TEST_BUILD_DIR)/libgtest.a $@
 	@echo 
 
-# this builds objects from sources in the test source directory
-$(TEST_BUILD_DIR)/%.o: $(TEST_SRC_DIR)/%.$(SRCEXT)
-	@echo " -- test:compiling $@"
-	@mkdir -p $(@D)
-	$(CC) $(CPPFLAGS) $(INC) $(TEST_LIB) -c -o $@ $<
-	@echo 
-
 # this links test executable  from objects in the test build directory
 $(TEST_TARGET): $(TEST_OBJECTS) $(TEST_LIB_OBJECTS) $(LIB_OBJECTS)
-	@echo " -- test:linking $(TEST_TARGET)"
 	@mkdir -p $(TEST_TARGETDIR)
 	$(CC) $^ $(TEST_LIB) $(TEST_BUILD_DIR)/libgtest.a -o $(TEST_TARGET)
-	@echo 
 
 #used to run tests from make, almost never used
 .PHONY: runtests

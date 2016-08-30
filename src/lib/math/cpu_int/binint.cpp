@@ -1868,6 +1868,138 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Exp
 	else return tmp * tmp * x;
 }
 
+template<typename uint_type, usint BITLENGTH>
+BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const {
+	BigBinaryInteger ans;
+	ans *= p;
+	ans = ans.DivideAndRound(q);
+
+	return ans;
+}
+
+template<typename uint_type, usint BITLENGTH>
+BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::DivideAndRound(const BigBinaryInteger &q) const {
+
+	//check for garbage initialization and 0 condition
+	if (q.m_state == GARBAGE || q == ZERO)
+		throw std::logic_error("DIVISION BY ZERO");
+
+	BigBinaryInteger halfQ(q>>1);
+
+	if (*this < q) {
+		if (*this <= halfQ)
+			return BigBinaryInteger(ZERO);
+		else
+			return BigBinaryInteger(ONE);
+	}
+
+	BigBinaryInteger ans;
+
+	//normalised_dividend = result*quotient
+	BigBinaryInteger normalised_dividend(this->Minus(this->Mod(q)));
+	//Number of array elements in Divisor
+	uint_type ncharInDivisor = ceilIntByUInt(q.m_MSB);
+	//Get the uint integer that is in the MSB position of the Divisor
+	uint_type msbCharInDivisor = q.m_value[(usint)(m_nSize - ncharInDivisor)];
+	//Number of array elements in Normalised_dividend
+	uint_type ncharInNormalised_dividend = ceilIntByUInt(normalised_dividend.m_MSB);
+	////Get the uint integer that is in the MSB position of the normalised_dividend
+	uint_type msbCharInRunning_Normalised_dividend = normalised_dividend.m_value[(usint)(m_nSize - ncharInNormalised_dividend)];
+	//variable to store the running dividend
+	BigBinaryInteger running_dividend;
+	//variable to store the running remainder
+	BigBinaryInteger runningRemainder;
+	BigBinaryInteger expectedProd;
+	BigBinaryInteger estimateFinder;
+
+	//Initialize the running dividend
+	for (usint i = 0; i<ncharInDivisor; i++) {
+		running_dividend.m_value[m_nSize - ncharInDivisor + i] = normalised_dividend.m_value[m_nSize - ncharInNormalised_dividend + i];
+	}
+	running_dividend.m_MSB = GetMSBUint_type(running_dividend.m_value[m_nSize - ncharInDivisor]) + (ncharInDivisor - 1)*m_uintBitLength;
+	running_dividend.m_state = INITIALIZED;
+
+	uint_type estimate = 0;
+	uint_type maskBit = 0;
+	uint_type shifts = 0;
+	usint ansCtr = m_nSize - ncharInNormalised_dividend + ncharInDivisor - 1;
+	//Long Division Computation to determine quotient
+	for (usint i = ncharInNormalised_dividend - ncharInDivisor; i >= 0;) {
+		//Get the remainder from the Modulus operation
+		runningRemainder = running_dividend.Mod(q);
+		//Compute the expected product from the running dividend and remainder
+		expectedProd = running_dividend - runningRemainder;
+		estimateFinder = expectedProd;
+		
+		estimate = 0;
+
+		//compute the quotient
+		if (expectedProd>q) {
+			while (estimateFinder.m_MSB > 0) {
+				/*
+				if(expectedProd.m_MSB-b.m_MSB==m_uintBitLength){
+				maskBit= 1<<(m_uintBitLength-1);
+				}
+				else
+				maskBit= 1<<(expectedProd.m_MSB-b.m_MSB);
+				*/
+				shifts = estimateFinder.m_MSB - q.m_MSB;
+				if (shifts == m_uintBitLength) {
+					maskBit = 1 << (m_uintBitLength - 1);
+				}
+				else
+					maskBit = 1 << (shifts);
+
+				if ((q.MulIntegerByChar(maskBit))>estimateFinder) {
+					maskBit >>= 1;
+					estimateFinder -= q << (shifts - 1);
+				}
+				else if (shifts == m_uintBitLength)
+					estimateFinder -= q << (shifts - 1);
+				else
+					estimateFinder -= q << shifts;
+
+				estimate |= maskBit;
+			}
+
+		}
+		else if (expectedProd.m_MSB == 0)
+			estimate = 0;
+		else
+			estimate = 1;
+		//assgning the quotient in the result array
+		ans.m_value[ansCtr] = estimate;
+		ansCtr++;
+		if (i == 0)
+			break;
+		//Get the next uint element from the divisor and proceed with long division
+		if (running_dividend.m_MSB == 0) {
+			running_dividend.m_MSB = GetMSBUint_type(normalised_dividend.m_value[m_nSize - i]);
+		}
+		else
+			running_dividend = runningRemainder << m_uintBitLength;
+
+		running_dividend.m_value[m_nSize - 1] = normalised_dividend.m_value[m_nSize - i];
+		if (running_dividend.m_MSB == 0)
+			running_dividend.m_MSB = GetMSBUint_type(normalised_dividend.m_value[m_nSize - i]);
+		i--;
+	}
+	ansCtr = m_nSize - ncharInNormalised_dividend + ncharInDivisor - 1;
+	//Loop to the MSB position
+	while (ans.m_value[ansCtr] == 0) {
+		ansCtr++;
+	}
+	//Computation of MSB value 
+	ans.m_MSB = GetMSBUint_type(ans.m_value[ansCtr]) + (m_nSize - 1 - ansCtr)*m_uintBitLength;
+	ans.m_state = INITIALIZED;
+
+	//Rounding operation from running remainder
+	if (!(runningRemainder <= halfQ))
+		ans += ONE;
+
+	return ans;
+
+}
 
 template<typename uint_type,usint BITLENGTH>
 usint BigBinaryInteger<uint_type,BITLENGTH>::GetMSBDUint_type(Duint_type x){

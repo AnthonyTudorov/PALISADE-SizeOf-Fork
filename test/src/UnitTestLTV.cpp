@@ -107,8 +107,8 @@ TEST(method_ILVectorArray2n, Encrypt_Decrypt) {
 	Ciphertext<ILVectorArray2n> cipherText;
 	cipherText.SetCryptoParameters(&cryptoParams);
 
-	LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
+	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
+	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
 
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
@@ -168,8 +168,8 @@ TEST(method_ILVector2n, Encrypt_Decrypt) {
 	cipherText.SetCryptoParameters(&cryptoParams);
 
 	// Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
@@ -227,8 +227,8 @@ TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
 	Ciphertext<ILVector2n> cipherText;
 	cipherText.SetCryptoParameters(&cryptoParams);
 
-	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
@@ -250,12 +250,12 @@ TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPPublicKeyLTV<ILVector2n> newPK(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> newSK(cryptoParams);
+	LPPublicKey<ILVector2n> newPK(cryptoParams);
+	LPPrivateKey<ILVector2n> newSK(cryptoParams);
 	
 	algorithm.KeyGen(&newPK, &newSK);	// This is the same core key generation operation.
 
-	LPEvalKeyLTV<ILVector2n> evalKey(cryptoParams);
+	LPEvalKeyRelin<ILVector2n> evalKey(cryptoParams);
 
 	algorithm.EvalKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
@@ -272,7 +272,6 @@ TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
 
 }
 
-//!! This test case will only work if the chunksize, ringdimension and IntPlaintextEncoding have all the same size. If not, it will not work !!
 TEST(method_ILVector2n_IntPlaintextEncoding, Encrypt_Decrypt) {
 
 	usint m = 16;
@@ -304,8 +303,8 @@ TEST(method_ILVector2n_IntPlaintextEncoding, Encrypt_Decrypt) {
 	cipherText.SetCryptoParameters(&cryptoParams);
 
 	//Initialize the public key containers.
-	LPPublicKeyLTV<ILVector2n> pk(cryptoParams);
-	LPPrivateKeyLTV<ILVector2n> sk(cryptoParams);
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	std::vector<usint> vectorOfInts = {1,0,1,0,1,0,1,0};
 	IntPlaintextEncoding intArray(vectorOfInts);
@@ -319,9 +318,9 @@ TEST(method_ILVector2n_IntPlaintextEncoding, Encrypt_Decrypt) {
 	vector<Ciphertext<ILVector2n>> ciphertext;
 	
 	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray, &ciphertext, false);
-	vectorOfInts.pop_back();
 
 	IntPlaintextEncoding intArrayNew;
+
 
 	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &intArrayNew, false);
 
