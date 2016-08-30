@@ -191,14 +191,16 @@ namespace lbcrypto {
 			/**
 			* Default constructor
 			*/
-			LPPublicKey() {}
+			LPPublicKey() : m_cryptoParameters(0) {}
+
+			virtual ~LPPublicKey() {}
 
 			/**
 			* Basic constructor for setting crypto params
 			*
 			* @param &cryptoParams is the reference to cryptoParams
 			*/
-			LPPublicKey(LPCryptoParameters<Element> &cryptoParams) {
+			LPPublicKey(LPCryptoParameters<Element> &cryptoParams) : m_cryptoParameters(0) {
 				this->SetCryptoParameters(&cryptoParams);
 			}
 
@@ -445,55 +447,6 @@ namespace lbcrypto {
 
 		virtual void SetA(Element &&a) = 0;
 
-		//JSON FACILITY
-		/**
-		* Serialize the object into a Serialized
-		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param fileFlag is an object-specific parameter for the serialization
-		* @return true if successfully serialized
-		*/
-		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
-			/*serObj->SetObject();
-
-			if (!this->GetCryptoParameters().Serialize(serObj, "")) {
-				return false;
-			}
-
-			const Element& pe = this->GetPublicElements().at(0);
-
-			if (!pe.Serialize(serObj, "")) {
-				return false;
-			}
-
-			if (!this->SetIdFlag(serObj, fileFlag))
-				return false;*/
-
-			return true;
-		}
-
-		/**
-		* Populate the object from the deserialization of the Serialized
-		* @param &serObj contains the serialized object
-		* @return true on success
-		*/
-		bool Deserialize(const Serialized &serObj) {
-			/*lpcryptoparameters<element>* cryptoparams = deserializeandvalidatecryptoparameters<element>(serobj, *ctx->getparams());
-			if (cryptoparams == 0) return false;
-
-			this->setcryptoparameters(cryptoparams);
-
-			element json_ilelement;
-			if (json_ilelement.deserialize(serobj)) {
-			this->setpublicelement(json_ilelement);
-			return true;
-			}*/
-
-			return false;
-		}
-
-		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
-			return true;
-		}
 	private:
 		LPCryptoParameters<Element> *m_cryptoParameters;
 
@@ -545,6 +498,71 @@ namespace lbcrypto {
 			throw std::runtime_error("Operation not supported");
 		}
 
+		/**
+		* Higher level info about the serialization is saved here
+		* @param *serObj to store the the implementing object's serialization specific attributes.
+		* @param flag an object-specific parameter for the serialization
+		* @return true on success
+		*/
+		bool SetIdFlag(Serialized *serObj, const std::string flag) const {
+
+			SerialItem idFlagMap(rapidjson::kObjectType);
+			idFlagMap.AddMember("ID", "LPEvalKeyRelin", serObj->GetAllocator());
+			idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
+			serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
+
+			return true;
+		}
+
+		/**
+		* Serialize the object into a Serialized
+		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @param fileFlag is an object-specific parameter for the serialization
+		* @return true if successfully serialized
+		*/
+		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+			serObj->SetObject();
+
+			if (!this->GetCryptoParameters().Serialize(serObj, "")) {
+				return false;
+			}
+
+//			const Element& pe = this->GetA();
+//
+//			if (!pe.Serialize(serObj, "")) {
+//				return false;
+//			}
+//
+//			if (!this->SetIdFlag(serObj, fileFlag))
+//				return false;
+//
+//			return true;
+			return false;
+		}
+
+		/**
+		* Populate the object from the deserialization of the Serialized
+		* @param &serObj contains the serialized object
+		* @return true on success
+		*/
+		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
+			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
+			if (cryptoparams == 0) return false;
+
+			this->SetCryptoParameters(cryptoparams);
+
+//			Element json_ilelement;
+//			if (json_ilelement.deserialize(serObj)) {
+//				this->SetA(json_ilelement);
+//				return true;
+//			}
+
+			return false;
+		}
+
+		bool Deserialize(const Serialized &serObj) {
+			return false;
+		}
 	private:
 		std::vector< std::vector<Element> > m_rKey;
 	};
@@ -589,6 +607,71 @@ namespace lbcrypto {
 
 		const Element& GetA() const {
 			return m_Key;
+		}
+
+		/**
+		* Higher level info about the serialization is saved here
+		* @param *serObj to store the the implementing object's serialization specific attributes.
+		* @param flag an object-specific parameter for the serialization
+		* @return true on success
+		*/
+		bool SetIdFlag(Serialized *serObj, const std::string flag) const {
+
+			SerialItem idFlagMap(rapidjson::kObjectType);
+			idFlagMap.AddMember("ID", "LPEvalKeyNTRU", serObj->GetAllocator());
+			idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
+			serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
+
+			return true;
+		}
+
+		/**
+		* Serialize the object into a Serialized
+		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @param fileFlag is an object-specific parameter for the serialization
+		* @return true if successfully serialized
+		*/
+		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+			serObj->SetObject();
+
+			if (!this->GetCryptoParameters().Serialize(serObj, "")) {
+				return false;
+			}
+
+			const Element& pe = this->GetA();
+
+			if (!pe.Serialize(serObj, "")) {
+				return false;
+			}
+
+			if (!this->SetIdFlag(serObj, fileFlag))
+				return false;
+
+			return true;
+		}
+
+		/**
+		* Populate the object from the deserialization of the Serialized
+		* @param &serObj contains the serialized object
+		* @return true on success
+		*/
+		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
+			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getparams());
+			if (cryptoparams == 0) return false;
+
+			this->SetCryptoParameters(cryptoparams);
+
+			Element json_ilelement;
+			if (json_ilelement.deserialize(serObj)) {
+				this->SetA(json_ilelement);
+				return true;
+			}
+
+			return false;
+		}
+
+		bool Deserialize(const Serialized &serObj) {
+			return false;
 		}
 
 	private:
