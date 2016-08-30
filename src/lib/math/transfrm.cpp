@@ -89,9 +89,9 @@ BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBin
 			for(usint i=0;i<=m/2-1;i++)
 			{
 
-				usint x = 2*i*n/m;
+				usint x = (2*i* n/m)  * ringDimensionFactor;
 
-				const BigBinaryInteger& omega = rootOfUnityTable.GetValAtIndex(x * ringDimensionFactor);
+				const BigBinaryInteger& omega = rootOfUnityTable.GetValAtIndex(x);
 
 				usint indexEven = j + i;
 				usint indexOdd = j + i + m/2;
