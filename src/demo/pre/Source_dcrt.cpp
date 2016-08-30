@@ -286,7 +286,6 @@ void NTRU_DCRT() {
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
-	cout << chunksize << endl;
 
 	bool successKeyGen=false;
 
