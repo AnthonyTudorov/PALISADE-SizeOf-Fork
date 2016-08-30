@@ -284,7 +284,6 @@ void NTRU_DCRT() {
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
-	cout << chunksize << endl;
 
 	bool successKeyGen=false;
 
@@ -376,8 +375,8 @@ void NTRU_DCRT() {
 
 	bool doReEncrypt = false;
 
-	LPPublicKeyLTV<ILVectorArray2n> newPK(*ctx->getParams());
-	LPPrivateKeyLTV<ILVectorArray2n> newSK(*ctx->getParams());
+	LPPublicKey<ILVectorArray2n> newPK(*ctx->getParams());
+	LPPrivateKey<ILVectorArray2n> newSK(*ctx->getParams());
 
 	successKeyGen = CryptoUtility<ILVectorArray2n>::KeyGen(algorithm, &newPK, &newSK);
 
@@ -386,7 +385,7 @@ void NTRU_DCRT() {
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
-	LPEvalKeyLTV<ILVectorArray2n> evalKey(*ctx->getParams());
+	LPEvalKeyRelin<ILVectorArray2n> evalKey(*ctx->getParams());
 
 	CryptoUtility<ILVectorArray2n>::EvalKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
