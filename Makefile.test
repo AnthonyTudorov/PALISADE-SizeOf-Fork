@@ -58,18 +58,13 @@ TEST_OBJECTS := $(patsubst $(TEST_SRC_DIR)/%,$(TEST_BUILD_DIR)/%,$(TEST_SOURCES:
 -include $(TEST_OBJECTS:.o=.d)
 
 .PRECIOUS: $(TEST_BUILD_DIR)/%
-$(TEST_BUILD_DIR)/%:
-	@if [ "$(suffix $@)" = ".o" ] ;   \
-	then  \
-		mkdir -p $(@D)  ;\
-		echo $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(TEST_BUILD_DIR)/%,$(TEST_SRC_DIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
-		$(CC) -MM $(CPPFLAGS) $(INC) $(patsubst $(TEST_BUILD_DIR)/%,$(TEST_SRC_DIR)/%,$(patsubst %.o,%.cpp,$@)) > $(patsubst %.o,%.d,$@) ;\
-		mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)  ;\
-		sed -e 's|.*\.o:|$(TEST_BUILD_DIR)/lib/$*:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)  ;\
-		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
-		$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(TEST_BUILD_DIR)/%,$(TEST_SRC_DIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
-	fi
-
+$(TEST_BUILD_DIR)/%.o: $(TEST_SRC_DIR)/%.cpp
+	@mkdir -p $(@D)
+	@$(CC) -MM $(CPPFLAGS) $(INC) $(patsubst $(TEST_BUILD_DIR)/%,$(TEST_SRC_DIR)/%,$(patsubst %.o,%.cpp,$@)) > $(patsubst %.o,%.d,$@)
+	@mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)
+	@sed -e 's|.*\.o:|$(TEST_BUILD_DIR)/lib/$*:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)
+	@rm -f $(patsubst %.o,%.d.tmp,$@)
+	$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(TEST_BUILD_DIR)/%,$(TEST_SRC_DIR)/%,$(patsubst %.o,%.cpp,$@))
 
 # library strings needed in linking of TEST_TARGET
 #note this could be replaced with $(LIB)
