@@ -194,7 +194,7 @@ namespace lbcrypto {
 
 	//If this is in EVALUATION then just set all the values = val
 	const ILVector2n& ILVector2n::operator=(usint val) {
-        m_format = EVALUATION;
+       /* m_format = EVALUATION;
 		if (m_values == NULL)
 			m_values = new BigBinaryVector(m_params.GetCyclotomicOrder()/2, m_params.GetModulus());
   
@@ -202,7 +202,16 @@ namespace lbcrypto {
             this->SetValAtIndex(i, val);
         }
 
-        return *this;
+        return *this;*/
+		m_format = COEFFICIENT;
+		if (m_values == NULL)
+			m_values = new BigBinaryVector(m_params.GetCyclotomicOrder() / 2, m_params.GetModulus());
+		this->SetValAtIndex(0, val);
+		for (size_t i = 1; i < m_values->GetLength(); ++i) {
+			this->SetValAtIndex(i, 0);
+		}
+		this->SwitchFormat();
+		return *this;
     }
 
 	ILVector2n::~ILVector2n()

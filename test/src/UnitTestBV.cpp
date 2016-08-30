@@ -191,8 +191,8 @@ TEST(method_ILVector2n_bv, Encrypt_Decrypt_bv) {
 
 	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(algorithm, newSK, newCiphertext, &plaintextNew2, false);  // This is the core decryption operation.
 
-	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	NumberTheoreticTransform::GetInstance().Destroy();
+	/*ChineseRemainderTransformFTT::GetInstance().Destroy();
+	NumberTheoreticTransform::GetInstance().Destroy();*/
 	
 	EXPECT_EQ(plaintextNew2, plaintext);
 }
