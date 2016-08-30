@@ -351,6 +351,23 @@ public:
 	 */
 	BigBinaryVector ModMul(const BigBinaryVector &b) const;
 
+	/**
+	* Multiply and Rounding operation on a bigBinaryInteger x. Returns [x*p/q] where [] is the rounding operation.
+	*
+	* @param p is the numerator to be multiplied.
+	* @param q is the denominator to be divided.
+	* @return the result of multiply and round.
+	*/
+	BigBinaryVector MultiplyAndRound(const IntegerType &p, const IntegerType &q) const;
+
+	/**
+	* Divide and Rounding operation on a bigBinaryInteger x. Returns [x/q] where [] is the rounding operation.
+	*
+	* @param q is the denominator to be divided.
+	* @return the result of divide and round.
+	*/
+	BigBinaryVector DivideAndRound(const IntegerType &q) const;
+
 	//matrix operations
 	
 	//matrix product - used in FFT and IFFT; new_vector = A*this_vector

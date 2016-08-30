@@ -353,6 +353,23 @@ namespace lbcrypto {
 		* @return is the return value of the times operation.
 		*/
 		ILVectorArray2n Times(const BigBinaryInteger &element) const;
+
+		/**
+		* Scalar multiplication followed by division and rounding operation - operation on all entries.
+		*
+		* @param &p is the element to multiply entry-wise.
+		* @param &q is the element to divide entry-wise.
+		* @return is the return value of the multiply, divide and followed by rounding operation.
+		*/
+		ILVectorArray2n MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const;
+
+		/**
+		* Scalar division followed by rounding operation - operation on all entries.
+		*
+		* @param &q is the element to divide entry-wise.
+		* @return is the return value of the divide, followed by rounding operation.
+		*/
+		ILVectorArray2n DivideAndRound(const BigBinaryInteger &q) const;
 		
 		/**
 		* Performs an addition operation and returns the result.

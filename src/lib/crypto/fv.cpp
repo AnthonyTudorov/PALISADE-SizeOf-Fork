@@ -135,6 +135,7 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> &priva
 	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+	const BigBinaryInteger &q = elementParams.GetModulus();
 
 	const std::vector<Element> &c = ciphertext.GetElements();
 
@@ -142,10 +143,8 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> &priva
 
 	Element b = c[0] + s*c[1];
 
-	b *= p;
-
-	// TODO-Nishanth: do the rounding properly
-	// b times p/q in mod p
+	b = p*b;
+	// b = b.MultiplyAndRound(p, q);
 
 	b.SwitchFormat();
 	

@@ -283,6 +283,18 @@ namespace lbcrypto {
 		return tmp;
 	}
 
+	ILVector2n ILVector2n::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const {
+		ILVector2n tmp(*this);
+		*tmp.m_values = m_values->MultiplyAndRound(p, q);
+		return tmp;
+	}
+
+	ILVector2n ILVector2n::DivideAndRound(const BigBinaryInteger &q) const {
+		ILVector2n tmp(*this);
+		*tmp.m_values = m_values->DivideAndRound(q);
+		return tmp;
+	}
+
 	// VECTOR OPERATIONS
 
 	ILVector2n ILVector2n::Plus(const ILVector2n &element) const {

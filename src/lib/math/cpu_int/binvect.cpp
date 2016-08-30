@@ -288,6 +288,24 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModSub(const IntegerT
 	return ans;
 }
 
+template<class IntegerType>
+BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::MultiplyAndRound(const IntegerType &p, const IntegerType &q) const {
+	BigBinaryVector ans(*this);
+	for(usint i=0;i<this->m_length;i++){
+		ans.m_data[i] = ans.m_data[i].MultiplyAndRound(p, q);
+	}
+	return ans;
+}
+
+template<class IntegerType>
+BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::DivideAndRound(const IntegerType &q) const {
+	BigBinaryVector ans(*this);
+	for(usint i=0;i<this->m_length;i++){
+		ans.m_data[i] = ans.m_data[i].DivideAndRound(q);
+	}
+	return ans;
+}
+
 /*
 Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
 @article{knezevicspeeding,
