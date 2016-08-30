@@ -261,7 +261,7 @@ namespace lbcrypto {
 			 * Gets the computed public key 
 			 * @return the public key element.
 			 */
-			virtual const std::vector<Element> &GetPublicElements() const {
+			const std::vector<Element> &GetPublicElements() const {
 				return this->m_h;
 			}
 			
