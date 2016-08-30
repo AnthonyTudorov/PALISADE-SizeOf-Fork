@@ -194,11 +194,13 @@ void LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(const LPPrivateKey<Elem
 * private key A, is now decryptable by public key B (and not A).
 */
 template<class Element>
-Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPEvalKeyNTRU<Element> &keySwitchHint,const Ciphertext<Element> &cipherText) const {
+Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPEvalKey<Element> &keySwitchHint,const Ciphertext<Element> &cipherText) const {
+
+	const LPEvalKeyNTRU<Element> &keyHint = dynamic_cast<const LPEvalKeyNTRU<Element>&>(keySwitchHint);
 
 	Ciphertext<Element> newCipherText(cipherText);
 
-	Element newCipherTextElement = cipherText.GetElement()*keySwitchHint.GetA();
+	Element newCipherTextElement = cipherText.GetElement()*keyHint.GetA();
 
 	newCipherText.SetElement( newCipherTextElement );
 	

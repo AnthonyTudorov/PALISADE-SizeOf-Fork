@@ -142,7 +142,7 @@ namespace lbcrypto {
 			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
 			 * @param &cipherText Original ciphertext to perform switching on.
 			 */
-			virtual Ciphertext<Element> KeySwitch(const LPEvalKeyNTRU<Element> &keySwitchHint,const  Ciphertext<Element> &cipherText) const;
+			virtual Ciphertext<Element> KeySwitch(const LPEvalKey<Element> &keySwitchHint,const  Ciphertext<Element> &cipherText) const;
 
 			/**
 			* Method for generating a keyswitchhint from originalPrivateKey square to newPrivateKey
