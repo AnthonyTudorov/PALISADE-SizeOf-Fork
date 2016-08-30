@@ -338,7 +338,7 @@ public:
    *
    * @param value is the value to set.
    */
-  void SetModulus(const uint& value);
+  void SetModulus(const usint& value);
 
   /**
    * Sets the vector modulus.
