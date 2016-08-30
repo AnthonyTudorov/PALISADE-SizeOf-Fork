@@ -60,8 +60,6 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
 
-	f = {1,2,1,2,1,2,1,2};
-
 	f = p*f;
 
 	f = f + BigBinaryInteger::ONE;
