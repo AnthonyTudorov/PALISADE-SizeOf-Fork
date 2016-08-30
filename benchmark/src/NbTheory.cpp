@@ -306,6 +306,9 @@ static void BM_PM1(benchmark::State& state) { // benchmark
 
 BENCHMARK(BM_PM1);		// register benchmark
 
+#if 0 //this benchmark has not been tested
+
+
 //note this returns a refrence to BBI
 static BigBinaryInteger& PM_returns_higher_bit_length(void){
   usint m=4096; 
@@ -328,7 +331,9 @@ static void BM_PM2(benchmark::State& state) {
   state.SetLabel(ss.str());
 }
 
-//BENCHMARK(BM_PM2);		// register benchmark
+BENCHMARK(BM_PM2);		// register benchmark
+#endif
+
 
 //Note this benchmark returns two BBIs so we return a string and suffer
 // some overhead
@@ -360,6 +365,7 @@ static void BM_PROU1(benchmark::State& state) {
 }
 BENCHMARK(BM_PROU1);		// register benchmark
 
+#if 0 //this takes a long time to run so comment out for quick check
 //similarly this outputs 3 values with a string
 static string PROU_equals_m_not_equals_mbytwo_mbyfour_single_input(void){
 
@@ -403,8 +409,8 @@ static void BM_PROU2(benchmark::State& state) {
   state.SetLabel(ss.str());
 }
 
-//BENCHMARK(BM_PROU2); this takes a long time to run so comment out for quick check
-
+BENCHMARK(BM_PROU2);
+#endif
 
 //similarly this outputs 3 values with a string
 static string PROU_equals_m_not_equals_mbytwo_mbyfour_multiple_inputs(void){

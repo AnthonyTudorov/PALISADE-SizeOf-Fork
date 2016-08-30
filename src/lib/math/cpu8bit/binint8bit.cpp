@@ -1470,10 +1470,10 @@ void BigBinaryInteger::AssignVal(const std::string& v){
 		}
 		DecValue[arrSize-1]>>=1;
 		//division ends here
-#ifdef DEBUG
+#ifdef DEBUG_ASSIGNVAL
 	for(int i=zptr;i<arrSize;i++)
-		cout<<(short)DecValue[i];//for debug purpose
-	cout<<endl;
+		std::cout<<(short)DecValue[i];//for debug purpose
+	std::cout<<std::endl;
 #endif
 	cnt8--;
 	if(cnt8==-1){//cnt8 = -1 indicates bitArr is ready for transfer
