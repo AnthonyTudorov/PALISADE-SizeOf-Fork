@@ -254,7 +254,7 @@ namespace exp_int {
   ubint<limb_t>::ubint(int64_t sinit){
     bool dbg_flag = false;		// if true then print dbg output
     if (sinit<0)
-      throw std::logic_error("ubint() initialized with negative number");	
+      throw std::logic_error("ubint() initialized with negative number");
 
     uint64_t init = (uint64_t)sinit;
 
@@ -1777,6 +1777,71 @@ namespace exp_int {
     }
     return 0; //bottom out? then the same
   }
+
+
+
+
+
+template<typename limb_t>
+ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) const {
+  ubint ans;
+  ans *= p;
+  ans = ans.DivideAndRound(q);
+  
+  return ans;
+}
+
+
+  template<typename limb_t>
+  ubint<limb_t> ubint<limb_t>::DivideAndRound(const ubint &q) const {
+
+    //check for garbage initialization and 0 condition
+   //check for garbage initialization and 0 condition
+    if(q.m_state==GARBAGE)
+      throw std::logic_error("DivideAndRound() Divisor uninitialised");
+
+    if(q==ZERO)
+      throw std::logic_error("DivideAndRound() Divisor is zero");
+
+    ubint halfQ(q>>1);
+
+    if (*this < q) {
+      if (*this <= halfQ)
+	return ubint(ZERO);
+      else
+	return ubint(ONE);
+    }
+    //=============
+    ubint ans;
+    ubint rv;
+    
+    int f;
+    f = divmnu_vect((ans), (rv),  (*this),  (q));
+    if (f!= 0)
+      throw std::logic_error("Div() error");
+    
+    //go through the mslimbs and pop off any zero limbs
+    for (usint i = ans.m_value.size()-1; i >= 0; i--){
+      if (!ans.m_value.at(i)) {
+	ans.m_value.pop_back();
+	//std::cout<<"popped "<<std::endl;
+      } else {
+	break;
+      }
+    }
+    
+    ans.m_state = INITIALIZED;
+    ans.SetMSB();
+    //==============
+    
+    //Rounding operation from running remainder
+    if (!(rv <= halfQ))
+      ans += ONE;
+
+    return ans;
+
+  }
+
   // == operator
   template<typename limb_t>
   bool ubint<limb_t>::operator==(const ubint& a) const{
@@ -1856,7 +1921,7 @@ namespace exp_int {
   /**
    * This function is only used for serialization
    *
-   * The scheme here is to take each of the uint_types in the
+   * The scheme here is to take each of the limb_ts in the
    * ubint and turn it into 6 ascii characters. It's
    * basically Base64 encoding: 6 bits per character times 5 is the
    * first 30 bits. For efficiency's sake, the last two bits are encoded
