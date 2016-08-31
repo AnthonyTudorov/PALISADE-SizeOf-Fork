@@ -162,12 +162,11 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *
 }
 
 void
-BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n *ilVectorArray2n){
-
+BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n *ilVectorArray2n)
+{
 	ILVector2n interpolatedDecodedValue = ilVectorArray2n->InterpolateIlArrayVector2n();
 		Decode(modulus, &interpolatedDecodedValue);
 		BigBinaryVector tempBBV(interpolatedDecodedValue.GetValues());
-
 
 		std::vector<ILVector2n> encodeValues;
 		encodeValues.reserve(ilVectorArray2n->GetNumOfElements());

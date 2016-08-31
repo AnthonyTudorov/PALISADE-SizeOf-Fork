@@ -55,6 +55,8 @@
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
+#include "../utils/serializable.h"
+#include "../lattice/elemparams.h"
 
 /**
  * @namespace lbcrypto
@@ -73,7 +75,7 @@ public:
 	/**
 	 * Constructor that initializes nothing.
 	 */
-	ILDCRTParams() {}
+	ILDCRTParams() : m_cyclotomicOrder(0) {}
 	/**
 	 * Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated.
 	 *
@@ -211,19 +213,9 @@ public:
 	~ILDCRTParams() {}
 
 	//JSON FACILITY
-	bool Serialize(Serialized* serObj, const std::string fileFlag = "") const {
+	bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
 
-		//Place holder
-
-		return false;
-	}
-
-	//JSON FACILITY
-	bool Deserialize(const Serialized& serObj) {
-
-		//Place holder
-		return false;
-	}
+	bool Deserialize(const Serialized& serObj);
 
 	/**
 	 * == Operator checks if the ElemParams are the same.

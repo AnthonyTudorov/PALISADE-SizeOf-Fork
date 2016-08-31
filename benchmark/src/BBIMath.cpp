@@ -49,7 +49,7 @@
 
 
 #include <iostream>
-
+#define _USE_MATH_DEFINES
 #include "../../src/lib/math/backend.h"
 #if 1
 #include "../../src/lib/utils/inttypes.h"

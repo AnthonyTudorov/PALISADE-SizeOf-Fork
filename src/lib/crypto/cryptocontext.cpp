@@ -126,6 +126,19 @@ CryptoContext<T> *CryptoContext<T>::genCryptoContextLTV(
 }
 
 template <typename T>
+CryptoContext<T> *CryptoContext<T>::getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* params) {
+	CryptoContext	*item = new CryptoContext();
+
+	item->params = params;
+	item->algorithm = new LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n>();
+	item->algorithm->Enable(ENCRYPTION);
+	item->algorithm->Enable(PRE);
+
+	return item;
+}
+
+
+template <typename T>
 CryptoContext<T> *CryptoContext<T>::genCryptoContextStehleSteinfeld(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,

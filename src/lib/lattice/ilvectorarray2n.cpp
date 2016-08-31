@@ -29,6 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "ilvectorarray2n.h"
 #include <fstream>
+#include "../utils/serializablehelper.h"
 
 namespace lbcrypto {
 
@@ -668,12 +669,46 @@ namespace lbcrypto {
 
 	// JSON FACILITY - Serialize Operation
 	bool ILVectorArray2n::Serialize(Serialized* serObj, const std::string fileFlag) const {
-		return false;
+		if( !serObj->IsObject() )
+			return false;
+
+		Serialized obj(rapidjson::kObjectType, &serObj->GetAllocator());
+		obj.AddMember("Format", std::to_string(this->GetFormat()), serObj->GetAllocator());
+		obj.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
+		obj.AddMember("CyclotomicOrder", std::to_string(this->GetCyclotomicOrder()), serObj->GetAllocator());
+
+		SerializeVector<ILVector2n>("Vectors", "ILVector2n", this->GetAllElements(), &obj);
+
+		serObj->AddMember("ILVectorArray2n", obj, serObj->GetAllocator());
+
+		return true;
 	}
 
 	// JSON FACILITY - Deserialize Operation
 	bool ILVectorArray2n::Deserialize(const Serialized& serObj) {
-		return false;
+		SerialItem::ConstMemberIterator it = serObj.FindMember("ILVectorArray2n");
+
+		if( it == serObj.MemberEnd() )
+			return false;
+
+		SerialItem::ConstMemberIterator mIt = it->value.FindMember("Format");
+		if( mIt == it->value.MemberEnd() ) return false;
+		this->m_format = static_cast<Format>(std::stoi(mIt->value.GetString()));
+
+		mIt = it->value.FindMember("Modulus");
+		if( mIt == it->value.MemberEnd() ) return false;
+		this->m_modulus = BigBinaryInteger( mIt->value.GetString() );
+
+		mIt = it->value.FindMember("CyclotomicOrder");
+		if( mIt == it->value.MemberEnd() ) return false;
+		this->m_cyclotomicOrder = std::stoi(mIt->value.GetString());
+
+		bool ret = DeserializeVector<ILVector2n>("Vectors", "ILVector2n", it, &this->m_vectors);
+
+		if( ret == true )
+			this->m_numberOfElements = this->m_vectors.size();
+
+		return ret;
 	}
 
 } // namespace lbcrypto ends

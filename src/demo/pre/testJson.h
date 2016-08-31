@@ -29,17 +29,15 @@
 using namespace std;
 using namespace lbcrypto;
 
+template<typename Element>
 struct TestJsonParms {
-	CryptoContext<ILVector2n>				*ctx;
-	LPPublicKey<ILVector2n>					*pk;
-	LPPrivateKey<ILVector2n>				*sk;
-	LPEvalKey<ILVector2n>					*evalKey;
-	LPPrivateKey<ILVector2n>				*newSK;
+	CryptoContext<Element>				*ctx;
+	LPPublicKey<Element>					*pk;
+	LPPrivateKey<Element>				*sk;
+	LPEvalKey<Element>					*evalKey;
+	LPPrivateKey<Element>				*newSK;
 };
 
-extern void testJson(const std::string cID, const BytePlaintextEncoding& newPtxt, TestJsonParms *p);
-
-
-
+template<typename Element> void testJson(const std::string cID, const BytePlaintextEncoding& newPtxt, TestJsonParms<Element> *p, bool skipReEncrypt = false);
 
 #endif /* SRC_DEMO_PRE_TESTJSON_H_ */
