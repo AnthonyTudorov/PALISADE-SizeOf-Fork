@@ -817,6 +817,25 @@ namespace exp_int{
     static ubint BinaryStringToUbint(const std::string& bitString);
     static ubint BinaryStringToBigBinaryInt(const std::string& bitString);
 
+    /**
+     * Multiply and Rounding operation on a ubint x. 
+     * Returns [x*p/q] where [] is the rounding operation.
+     *
+     * @param p is the numerator to be multiplied.
+     * @param q is the denominator to be divided.
+     * @return the result
+     */
+    ubint MultiplyAndRound(const ubint &p, const ubint &q) const;
+    
+    /**
+     * Divide and Rounding operation on a ubint x. 
+     * Returns [x*p/q] where [] is the rounding operation.
+     *
+     * @param p is the numerator to be multiplied.
+     * @param q is the denominator to be divided.
+     * @return the result
+     */
+    ubint DivideAndRound(const ubint &q) const;
   
     /**
      * Test equality of the inputs.
