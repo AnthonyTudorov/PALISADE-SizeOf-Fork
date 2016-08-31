@@ -1320,7 +1320,7 @@ namespace lbcrypto {
 		//wrapper for CanRingReduce
 		bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const {
 			if (this->IsEnabled(LEVELEDSHE)) {
-				this->m_algorithmLeveledSHE->CanRingReduce(ringDimension, moduli, rootHermiteFactor);
+				return this->m_algorithmLeveledSHE->CanRingReduce(ringDimension, moduli, rootHermiteFactor);
 			}
 			else {
 				throw std::logic_error("This operation is not supported");
