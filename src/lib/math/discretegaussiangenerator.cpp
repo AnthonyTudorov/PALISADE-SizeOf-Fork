@@ -282,18 +282,24 @@ namespace lbcrypto {
 		if (probMatrix != nullptr) {
 			delete[] probMatrix;
 		}
-		else {
-			probMatrix = new uint32_t[m + 2];
-			probMatrixSize = m + 2;
-			double error = 1;
-			for (int i = -m/2;i <= m/2;i++) {
-				double prob = pow(M_E, -pow(i, 2) / (2. * stddev * stddev)) / (stddev * sqrt(2.*M_PI));
-				error -= prob;
-				probMatrix[int(i+m/2)] = prob * pow(2, 32);
+		probMatrix = new uint32_t[m + 2];
+		probMatrixSize = m + 2;
+		double error = 1;
+		for (int i = -m/2;i <= m/2;i++) {
+			double prob = pow(M_E, -pow(i, 2) / (2. * stddev * stddev)) / (stddev * sqrt(2.*M_PI));
+			error -= prob;
+			probMatrix[int(i+m/2)] = prob * pow(2, 32);
+			for (int j = 0;j < 32;j++) {
+				hammingWeights[j] += ((probMatrix[int(i + m / 2)] >> (31 - j)) & 1);
 			}
-			std::cout << "Error: "<< error << std::endl;
-			probMatrix[probMatrixSize-1] = error * pow(2, 32);
 		}
+		std::cout << "Error probability: "<< error << std::endl;
+		probMatrix[probMatrixSize-1] = error * pow(2, 32);
+		for (int k = 0;k< 32;k++) {
+			hammingWeights[k] += ((probMatrix[probMatrixSize - 1] >> (31 - k)) & 1);
+		}
+		
+
 	}
 	/**
 	* Returns a generated integer. Uses Knuth-Yao method defined as Algorithm 1 in http://link.springer.com/chapter/10.1007%2F978-3-662-43414-7_19#page-1
@@ -301,29 +307,40 @@ namespace lbcrypto {
 	int32_t DiscreteGaussianGenerator::GenerateIntegerKnuthYao() {
 		int32_t S = 0;
 		bool discard = true;
-		std::uniform_int_distribution<int32_t> uniform_int(0, 1);
+		std::uniform_int_distribution<int32_t> uniform_int(INT_MIN, INT_MAX);
+		uint32_t seed;
+		char counter=0;
+		bool scanningInitialized = false;
 		int32_t MAX_ROW = probMatrixSize - 1;
 		while (discard == true) {
 			int32_t d = 0;
 			uint32_t hit = 0;
-			uint32_t col = 0;
-			while (hit == 0 && col<=32) {
-				uint32_t r = uniform_int(GetPRNG());
+			short col = 0;
+			while (hit == 0 && col<=31) {
+				if (counter % 32 == 0) {
+					seed = uniform_int(GetPRNG());
+					counter = 0;
+				}
+				uint32_t r = seed >> counter;
 				d = 2 * d + (~r & 1);
-				for (int32_t row = MAX_ROW;row > -1 && hit == 0;row--) {
-					d -= ((probMatrix[row] >> (31 - col)) & 1);
-					if (d == -1) {
-						hit = 1;
-						if (row == MAX_ROW) {
-							std::cout << "Hit error row, discarding sample..." << std::endl;
-						}
-						else {
-							S = row;
-							discard = false;
+				if (d < hammingWeights[col] || scanningInitialized) {
+					scanningInitialized = true;
+					for (int32_t row = MAX_ROW;row > -1 && hit == 0;row--) {
+						d -= ((probMatrix[row] >> (31 - col)) & 1);
+						if (d == -1) {
+							hit = 1;
+							if (row == MAX_ROW) {
+								std::cout << "Hit error row, discarding sample..." << std::endl;
+							}
+							else {
+								S = row;
+								discard = false;
+							}
 						}
 					}
 				}
 				col++;
+				counter++;
 			}
 		}
 		return S - (MAX_ROW - 1) / 2;

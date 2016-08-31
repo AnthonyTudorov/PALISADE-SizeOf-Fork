@@ -189,6 +189,11 @@ private:
 	*The probability matrix used in Knuth-Yao sampling
 	*/
 	uint32_t * probMatrix = nullptr;
+	
+	/**
+	*Array that stores the Hamming Weights of the probability matrix used in Knuth-Yao sampling
+	*/
+	uint32_t hammingWeights[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	/**
 	*Size of probability matrix
 	*/
