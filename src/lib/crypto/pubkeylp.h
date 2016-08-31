@@ -181,7 +181,7 @@ namespace lbcrypto {
 	};
 
 	/**
-	 * @brief Abstract interface for LP public keys
+	 * @brief Concrete class for LP public keys
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
@@ -285,25 +285,33 @@ namespace lbcrypto {
 			//@Set Properties
 
 			/**
-			 * Sets the public key 
-			 * @param &element the public key element.
+			 * Sets the public key vector of Element.
+			 * @param &element is the public key Element vector to be copied.
 			 */
 			void SetPublicElements(const std::vector<Element> &element) {
 				m_h = element;
 			}
 
 			/**
-			* Sets the public key
-			* @param &element the public key element.
+			* Sets the public key vector of Element.
+			* @param &&element is the public key Element vector to be moved.
 			*/
 			void SetPublicElements(std::vector<Element> &&element) {
 				m_h = std::move(element);
 			}
 
+			/**
+			* Sets the public key Element at index idx.
+			* @param &element is the public key Element to be copied.
+			*/
 			void SetPublicElementAtIndex(usint idx, const Element &element) {
 				m_h.insert(m_h.begin() + idx, element);
 			}
 
+			/**
+			* Sets the public key Element at index idx.
+			* @param &&element is the public key Element to be moved.
+			*/
 			void SetPublicElementAtIndex(usint idx, Element &&element) {
 				m_h.insert(m_h.begin() + idx, std::move(element));
 			}
@@ -434,18 +442,106 @@ namespace lbcrypto {
 		*/
 		virtual const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
 
+		/**
+		* Setter function to store Relinearization Element Vector A.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @param &a is the Element vector to be copied.
+		*/
 
-		virtual void SetAVector(const std::vector<Element> &a) = 0;
+		virtual void SetAVector(const std::vector<Element> &a) {
+			throw std::runtime_error("Operation not supported");
+		}
 
-		virtual void SetAVector(std::vector<Element> &&a) = 0;
+		/**
+		* Setter function to store Relinearization Element Vector A.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @param &&a is the Element vector to be moved.
+		*/
 
-		virtual void SetBVector(const std::vector<Element> &b) = 0;
+		virtual void SetAVector(std::vector<Element> &&a) {
+			throw std::runtime_error("Operation not supported");
+		}
 
-		virtual void SetBVector(std::vector<Element> &&b) = 0;
+		/**
+		* Getter function to access Relinearization Element Vector A.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @return Element vector A.
+		*/
 
-		virtual void SetA(const Element &a) = 0;
+		virtual const std::vector<Element> &GetAVector() const {
+			throw std::runtime_error("Operation not supported");
+			return std::vector<Element>();
+		}
 
-		virtual void SetA(Element &&a) = 0;
+		/**
+		* Setter function to store Relinearization Element Vector B.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @param &b is the Element vector to be copied.
+		*/
+
+		virtual void SetBVector(const std::vector<Element> &b) {
+			throw std::runtime_error("Operation not supported");
+		}
+
+		/**
+		* Setter function to store Relinearization Element Vector B.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @param &&b is the Element vector to be moved.
+		*/
+
+		virtual void SetBVector(std::vector<Element> &&b) {
+			throw std::runtime_error("Operation not supported");
+		}
+
+		/**
+		* Getter function to access Relinearization Element Vector B.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @return  Element vector B.
+		*/
+
+		virtual const std::vector<Element> &GetBVector() const {
+			throw std::runtime_error("Operation not supported");
+			return std::vector<Element>();
+		}
+
+		/**
+		* Setter function to store key switch Element.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @param &a is the Element to be copied.
+		*/
+
+		virtual void SetA(const Element &a) {
+			throw std::runtime_error("Operation not supported");
+		}
+
+		/**
+		* Setter function to store key switch Element.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @param &&a is the Element to be moved.
+		*/
+		virtual void SetA(Element &&a) {
+			throw std::runtime_error("Operation not supported");
+		}
+
+		/**
+		* Getter function to access key switch Element.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @return  Element.
+		*/
+
+		virtual const Element &GetA() const {
+			throw std::runtime_error("Operation not supported");
+			return Element();
+		}
 
 	private:
 		LPCryptoParameters<Element> *m_cryptoParameters;
@@ -453,50 +549,88 @@ namespace lbcrypto {
 	};
 
 	/**
-	* @brief Abstract interface for Relinearization keys
+	* @brief Concrete class for Relinearization keys of RLWE scheme
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
 	class LPEvalKeyRelin : public LPEvalKey<Element> {
 	public:
 
+		/**
+		* Default constructor
+		*/
+
 		LPEvalKeyRelin() {};
 
+		/**
+		* Basic constructor for setting crypto params
+		*
+		* @param &cryptoParams is the reference to cryptoParams
+		*/
 		LPEvalKeyRelin(LPCryptoParameters<Element> &cryptoParams) {
 			this->SetCryptoParameters(&cryptoParams);
 		}
 
+		/**
+		* Setter function to store Relinearization Element Vector A.
+		* Overrides base class implementation.
+		*
+		* @param &a is the Element vector to be copied.
+		*/
 		virtual void SetAVector(const std::vector<Element> &a) {
 			m_rKey.insert(m_rKey.begin() + 0, a);
 		}
 
+		/**
+		* Setter function to store Relinearization Element Vector A.
+		* Overrides base class implementation.
+		*
+		* @param &&a is the Element vector to be moved.
+		*/
 		virtual void SetAVector(std::vector<Element> &&a) {
 			m_rKey.insert(m_rKey.begin() + 0, std::move(a));
 		}
 
-		const std::vector<Element> &GetAVector() const {
+		/**
+		* Getter function to access Relinearization Element Vector A.
+		* Overrides base class implementation.
+		*
+		* @return Element vector A.
+		*/
+		virtual const std::vector<Element> &GetAVector() const {
 			return m_rKey.at(0);
 		}
 
+		/**
+		* Setter function to store Relinearization Element Vector B.
+		* Overrides base class implementation.
+		*
+		* @param &b is the Element vector to be copied.
+		*/
 		virtual void SetBVector(const std::vector<Element> &b) {
 			m_rKey.insert(m_rKey.begin() + 1, b);
 		}
 
+		/**
+		* Setter function to store Relinearization Element Vector B.
+		* Overrides base class implementation.
+		*
+		* @param &&b is the Element vector to be moved.
+		*/
 		virtual void SetBVector(std::vector<Element> &&b) {
 			m_rKey.insert(m_rKey.begin() + 1, std::move(b));
 		}
 
-		const std::vector<Element> &GetBVector() const {
+		/**
+		* Getter function to access Relinearization Element Vector B.
+		* Overrides base class implementation.
+		*
+		* @return Element vector B.
+		*/
+		virtual const std::vector<Element> &GetBVector() const {
 			return m_rKey.at(1);
 		}
 
-		virtual void SetA(const Element &a) {
-			throw std::runtime_error("Operation not supported");
-		}
-
-		virtual void SetA(Element &&a) {
-			throw std::runtime_error("Operation not supported");
-		}
 
 		/**
 		* Higher level info about the serialization is saved here
@@ -564,48 +698,128 @@ namespace lbcrypto {
 			return false;
 		}
 	private:
+		//private member to store vector of vector of Element.
 		std::vector< std::vector<Element> > m_rKey;
 	};
 
 	/**
-	* @brief Abstract interface for NTRU keys
+	* @brief Evaluation Relinearization keys for NTRU scheme.
+	* @tparam Element a ring element.
+	*/
+	template <class Element>
+	class LPEvalKeyNTRURelin : public LPEvalKey<Element> {
+	public:
+
+		/**
+		* Default constructor
+		*/
+
+		LPEvalKeyNTRURelin() {};
+
+		/**
+		* Basic constructor for setting crypto params
+		*
+		* @param &cryptoParams is the reference to cryptoParams
+		*/
+
+		LPEvalKeyNTRURelin(LPCryptoParameters<Element> &cryptoParams) {
+			this->SetCryptoParameters(&cryptoParams);
+		}
+
+		/**
+		* Setter function to store Relinearization Element Vector A.
+		* Overrides base class implementation.
+		*
+		* @param &a is the Element vector to be copied.
+		*/
+		virtual void SetAVector(const std::vector<Element> &a) {
+			for (usint i = 0; i < a.size(); i++) {
+				m_rKey.insert(m_rKey.begin() + i, a.at(i));
+			}
+		}
+
+
+		/**
+		* Setter function to store Relinearization Element Vector A.
+		* Overrides base class implementation.
+		*
+		* @param &&a is the Element vector to be moved.
+		*/
+		virtual void SetAVector(std::vector<Element> &&a) {
+			m_rKey = std::move(a);
+		}
+
+		/**
+		* Getter function to access Relinearization Element Vector A.
+		* Overrides base class implementation.
+		*
+		* @return Element vector A.
+		*/
+		virtual const std::vector<Element> &GetAVector() const {
+			return m_rKey;
+		}
+
+		
+	private:
+		//private member to store vector of Element.
+		std::vector<Element>  m_rKey;
+	};
+
+	/**
+	* @brief Concrete class for facilitating NTRU key switch.
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
 	class LPEvalKeyNTRU : public LPEvalKey<Element> {
 	public:
 
+		/**
+		* Default constructor
+		*/
+
 		LPEvalKeyNTRU() {};
+
+		/**
+		* Basic constructor for setting crypto params
+		*
+		* @param &cryptoParams is the reference to cryptoParams
+		*/
 
 		LPEvalKeyNTRU(LPCryptoParameters<Element> &cryptoParams) {
 			this->SetCryptoParameters(&cryptoParams);
 		}
 
-		virtual void SetAVector(const std::vector<Element> &a) {
-			throw std::runtime_error("Operation not supported");
-		}
-
-		virtual void SetAVector(std::vector<Element> &&a) {
-			throw std::runtime_error("Operation not supported");
-		}
-
-		virtual void SetBVector(const std::vector<Element> &b) {
-			throw std::runtime_error("Operation not supported");
-		}
-
-		virtual void SetBVector(std::vector<Element> &&b) {
-			throw std::runtime_error("Operation not supported");
-		}
+		/**
+		* Setter function to store NTRU key switch element.
+		* Function copies the key.
+		* Overrides the virtual function from base class LPEvalKey.
+		*
+		* @param &a is the key switch element to be copied.
+		*/
 
 		virtual void SetA(const Element &a) {
 			m_Key = a;
 		}
 
+		/**
+		* Setter function to store NTRU key switch Element.
+		* Function moves the key.
+		* Overrides the virtual function from base class LPEvalKey.
+		*
+		* @param &&a is the key switch Element to be moved.
+		*/
 		virtual void SetA(Element &&a) {
 			m_Key = std::move(a);
 		}
 
-		const Element& GetA() const {
+		/**
+		* Getter function to access NTRU key switch Element.
+		* Overrides the virtual function from base class LPEvalKey.
+		*
+		* @return NTRU key switch Element.
+		*/
+
+		virtual const Element& GetA() const {
 			return m_Key;
 		}
 
@@ -675,6 +889,9 @@ namespace lbcrypto {
 		}
 
 	private:
+		/**
+		* private member Element to store key.
+		*/
 		Element m_Key;
 	};
 	
@@ -698,6 +915,7 @@ namespace lbcrypto {
 		*
 		* @param &cryptoParams is the reference to cryptoParams.
 		*/
+
 		LPPrivateKey(LPCryptoParameters<Element> &cryptoParams) {
 			this->SetCryptoParameters(&cryptoParams);
 		}

@@ -355,7 +355,7 @@ void NTRUPRE(int input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyRelin<ILVector2n> evalKey(cryptoParams);
+	LPEvalKeyNTRURelin<ILVector2n> evalKey(cryptoParams);
 
 	start = currentDateTime();
 
