@@ -27,6 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define _SRC_LIB_CRYPTO_CRYPTOCONTEXT_C
 
 #include "../crypto/cryptocontext.h"
+#include "../utils/serializablehelper.h"
 
 namespace lbcrypto {
 
@@ -216,6 +217,7 @@ bool Ciphertext<Element>::Deserialize(const Serialized& serObj, const CryptoCont
 	this->SetCryptoParameters(cryptoParams);
 	this->SetNorm(bbiNorm);
 	this->SetElements(elements);
+
 	return true;
 }
 

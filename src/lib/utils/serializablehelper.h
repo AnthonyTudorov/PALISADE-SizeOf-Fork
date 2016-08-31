@@ -160,15 +160,15 @@ bool DeserializeVector(const std::string& vectorName, const std::string& typeNam
 
 		T vectorElem;
 		const SerialItem& s = eIt->value;
-		Serialized ser(rapidjson::kObjectType);
+		SerialItem::ConstMemberIterator s2 = eIt->value.FindMember(typeName);
 
-		std::cout << "looking at item " << i << ", its " << eIt->value.IsObject() << std::endl;
-//		s.AddMember("help", eIt->value, s.GetAllocator());
-//
-////		Serialized svec(rapidjson::kObjectType);
-////		svec.AddMember( SerialItem(typeName, svec.GetAllocator()), &s, svec.GetAllocator());
-//		vectorElem.Deserialize(s);
-//		outVector->at(i) = vectorElem;
+		Serialized ser(rapidjson::kObjectType);
+		SerialItem k( typeName, ser.GetAllocator() );
+		SerialItem v( s2->value, ser.GetAllocator() );
+		ser.AddMember(k, v, ser.GetAllocator());
+
+		vectorElem.Deserialize(ser);
+		outVector->at(i) = vectorElem;
 	}
 
 	return true;

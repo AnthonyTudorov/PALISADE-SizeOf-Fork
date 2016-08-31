@@ -677,7 +677,7 @@ namespace lbcrypto {
 		obj.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
 		obj.AddMember("CyclotomicOrder", std::to_string(this->GetCyclotomicOrder()), serObj->GetAllocator());
 
-		SerializeVector("Vectors", "ILVector2n", this->GetAllElements(), &obj);
+		SerializeVector<ILVector2n>("Vectors", "ILVector2n", this->GetAllElements(), &obj);
 
 		serObj->AddMember("ILVectorArray2n", obj, serObj->GetAllocator());
 
@@ -703,7 +703,12 @@ namespace lbcrypto {
 		if( mIt == it->value.MemberEnd() ) return false;
 		this->m_cyclotomicOrder = std::stoi(mIt->value.GetString());
 
-		return DeserializeVector("Vectors", "ILVector2n", it, &this->m_vectors);
+		bool ret = DeserializeVector<ILVector2n>("Vectors", "ILVector2n", it, &this->m_vectors);
+
+		if( ret == true )
+			this->m_numberOfElements = this->m_vectors.size();
+
+		return ret;
 	}
 
 } // namespace lbcrypto ends
