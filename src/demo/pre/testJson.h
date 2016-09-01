@@ -32,9 +32,9 @@ using namespace lbcrypto;
 template<typename Element>
 struct TestJsonParms {
 	CryptoContext<Element>				*ctx;
-	LPPublicKey<Element>					*pk;
+	LPPublicKey<Element>				*pk;
 	LPPrivateKey<Element>				*sk;
-	LPEvalKey<Element>					*evalKey;
+	LPEvalKeyRelin<Element>				*evalKey;
 	LPPrivateKey<Element>				*newSK;
 };
 
