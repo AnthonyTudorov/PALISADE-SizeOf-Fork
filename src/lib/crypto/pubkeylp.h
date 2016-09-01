@@ -42,6 +42,7 @@
 #include "../lattice/ilelement.h"
 #include "../utils/inttypes.h"
 #include "../math/distrgen.h"
+#include "../utils/serializablehelper.h"
 
 
 /**
@@ -661,17 +662,21 @@ namespace lbcrypto {
 				return false;
 			}
 
+			std::cout << "element count " << m_rKey.size() << std::endl;
+
+			SerializeVector<Element>("AVector", typeid(Element).name(), this->GetAVector(), serObj);
+			SerializeVector<Element>("BVector", typeid(Element).name(), this->GetBVector(), serObj);
+
 //			const Element& pe = this->GetA();
 //
 //			if (!pe.Serialize(serObj, "")) {
 //				return false;
 //			}
 //
-//			if (!this->SetIdFlag(serObj, fileFlag))
-//				return false;
-//
-//			return true;
-			return false;
+			if (!this->SetIdFlag(serObj, fileFlag))
+				return false;
+
+			return true;
 		}
 
 		/**
@@ -757,6 +762,72 @@ namespace lbcrypto {
 		*/
 		virtual const std::vector<Element> &GetAVector() const {
 			return m_rKey;
+		}
+
+		/**
+		* Higher level info about the serialization is saved here
+		* @param *serObj to store the the implementing object's serialization specific attributes.
+		* @param flag an object-specific parameter for the serialization
+		* @return true on success
+		*/
+		bool SetIdFlag(Serialized *serObj, const std::string flag) const {
+
+			SerialItem idFlagMap(rapidjson::kObjectType);
+			idFlagMap.AddMember("ID", "LPEvalKeyNTRURelin", serObj->GetAllocator());
+			idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
+			serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
+
+			return true;
+		}
+
+		/**
+		* Serialize the object into a Serialized
+		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @param fileFlag is an object-specific parameter for the serialization
+		* @return true if successfully serialized
+		*/
+		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+			serObj->SetObject();
+
+			if (!this->GetCryptoParameters().Serialize(serObj, "")) {
+				return false;
+			}
+
+			const vector<Element>& pe = this->GetAVector();
+			SerializeVector<Element>("Vectors", "ILVector2n", this->GetAllElements(), serObj);
+
+//			if (!pe.Serialize(serObj, "")) {
+//				return false;
+//			}
+
+			if (!this->SetIdFlag(serObj, fileFlag))
+				return false;
+
+			return true;
+		}
+
+		/**
+		* Populate the object from the deserialization of the Serialized
+		* @param &serObj contains the serialized object
+		* @return true on success
+		*/
+		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
+			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getparams());
+			if (cryptoparams == 0) return false;
+
+			this->SetCryptoParameters(cryptoparams);
+
+//			Element json_ilelement;
+//			if (json_ilelement.deserialize(serObj)) {
+//				this->SetA(json_ilelement);
+//				return true;
+//			}
+
+			return false;
+		}
+
+		bool Deserialize(const Serialized &serObj) {
+			return false;
 		}
 
 		
