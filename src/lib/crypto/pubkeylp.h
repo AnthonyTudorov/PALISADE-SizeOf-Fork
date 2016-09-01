@@ -42,6 +42,7 @@
 #include "../lattice/ilelement.h"
 #include "../utils/inttypes.h"
 #include "../math/distrgen.h"
+#include "../utils/serializablehelper.h"
 
 
 /**
@@ -627,17 +628,21 @@ namespace lbcrypto {
 				return false;
 			}
 
+			std::cout << "element count " << m_rKey.size() << std::endl;
+
+			SerializeVector<Element>("AVector", typeid(Element).name(), this->GetAVector(), serObj);
+			SerializeVector<Element>("BVector", typeid(Element).name(), this->GetBVector(), serObj);
+
 //			const Element& pe = this->GetA();
 //
 //			if (!pe.Serialize(serObj, "")) {
 //				return false;
 //			}
 //
-//			if (!this->SetIdFlag(serObj, fileFlag))
-//				return false;
-//
-//			return true;
-			return false;
+			if (!this->SetIdFlag(serObj, fileFlag))
+				return false;
+
+			return true;
 		}
 
 		/**
@@ -734,7 +739,7 @@ namespace lbcrypto {
 		bool SetIdFlag(Serialized *serObj, const std::string flag) const {
 
 			SerialItem idFlagMap(rapidjson::kObjectType);
-			idFlagMap.AddMember("ID", "LPEvalKeyNTRU", serObj->GetAllocator());
+			idFlagMap.AddMember("ID", "LPEvalKeyNTRURelin", serObj->GetAllocator());
 			idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
 			serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
 
@@ -754,11 +759,12 @@ namespace lbcrypto {
 				return false;
 			}
 
-			const Element& pe = this->GetA();
+			const vector<Element>& pe = this->GetAVector();
+			SerializeVector<Element>("Vectors", "ILVector2n", this->GetAllElements(), serObj);
 
-			if (!pe.Serialize(serObj, "")) {
-				return false;
-			}
+//			if (!pe.Serialize(serObj, "")) {
+//				return false;
+//			}
 
 			if (!this->SetIdFlag(serObj, fileFlag))
 				return false;
@@ -777,11 +783,11 @@ namespace lbcrypto {
 
 			this->SetCryptoParameters(cryptoparams);
 
-			Element json_ilelement;
-			if (json_ilelement.deserialize(serObj)) {
-				this->SetA(json_ilelement);
-				return true;
-			}
+//			Element json_ilelement;
+//			if (json_ilelement.deserialize(serObj)) {
+//				this->SetA(json_ilelement);
+//				return true;
+//			}
 
 			return false;
 		}
