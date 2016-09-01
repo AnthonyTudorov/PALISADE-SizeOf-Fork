@@ -46,13 +46,13 @@ namespace lbcrypto {
  * @tparam Element a ring element.
  */
 template <class Element>
-class LPCryptoParametersRLWE : public LPCryptoParametersImpl<Element> {
+class LPCryptoParametersRLWE : public LPCryptoParameters<Element> {
 public:
 
 	/**
 	 * Constructor that initializes all values to 0.
 	 */
-	LPCryptoParametersRLWE() : LPCryptoParametersImpl<Element>() {
+	LPCryptoParametersRLWE() : LPCryptoParameters<Element>() {
 		m_distributionParameter = 0.0f;
 		m_assuranceMeasure = 0.0f;
 		m_securityLevel = 0.0f;
@@ -65,7 +65,7 @@ public:
 	 * Copy constructor.
 	 *
 	 */
-	LPCryptoParametersRLWE(const LPCryptoParametersRLWE &rhs) : LPCryptoParametersImpl<Element>(NULL, rhs.GetPlaintextModulus()) {
+	LPCryptoParametersRLWE(const LPCryptoParametersRLWE &rhs) : LPCryptoParameters<Element>(NULL, rhs.GetPlaintextModulus()) {
 
 		m_distributionParameter = rhs.m_distributionParameter;
 		m_assuranceMeasure = rhs.m_assuranceMeasure;
@@ -93,7 +93,7 @@ public:
 			float securityLevel,
 			usint relinWindow,
 			const DiscreteGaussianGenerator &dgg,
-			int depth = 1) : LPCryptoParametersImpl<Element>(params,plaintextModulus)
+			int depth = 1) : LPCryptoParameters<Element>(params,plaintextModulus)
 					{
 		m_distributionParameter = distributionParameter;
 		m_assuranceMeasure = assuranceMeasure;
