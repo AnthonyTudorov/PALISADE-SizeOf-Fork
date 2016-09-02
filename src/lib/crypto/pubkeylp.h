@@ -1419,14 +1419,14 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPPublicKeyEncryptionScheme : public LPEncryptionAlgorithm<Element>, public LPPREAlgorithm<Element>, public LPLeveledSHEAlgorithm<Element>, public LPSHEAlgorithm<Element> {
+	class LPPublicKeyEncryptionScheme {
 
 	public:
-		LPPublicKeyEncryptionScheme() : m_algorithmEncryption(0),
-			m_algorithmPRE(0), m_algorithmEvalAdd(0), m_algorithmEvalAutomorphism(0),
-			m_algorithmSHE(0), m_algorithmFHE(0), m_algorithmLeveledSHE(0){}
+		LPPublicKeyEncryptionScheme() :
+			m_algorithmEncryption(0), m_algorithmPRE(0), m_algorithmEvalAdd(0), m_algorithmEvalAutomorphism(0),
+			m_algorithmSHE(0), m_algorithmFHE(0), m_algorithmLeveledSHE(0) {}
 
-		~LPPublicKeyEncryptionScheme() {
+		virtual ~LPPublicKeyEncryptionScheme() {
 			if (this->m_algorithmEncryption != NULL)
 				delete this->m_algorithmEncryption;
 			if (this->m_algorithmPRE != NULL)
@@ -1442,17 +1442,7 @@ namespace lbcrypto {
 			if (this->m_algorithmLeveledSHE != NULL)
 				delete this->m_algorithmLeveledSHE;
 		}
-
 		
-		//to be implemented later
-		//void Disable(PKESchemeFeature feature);
-		
-		//const std::bitset<FEATURESETSIZE> GetEnabledFeatures() {return m_featureMask;}
-		
-		//to be implemented later
-		//const std::string PrintEnabledFeatures();
-		
-		//needs to be moved to pubkeylp.cpp
 		bool IsEnabled(PKESchemeFeature feature) const {
 			bool flag = false;
 			switch (feature)
@@ -1492,180 +1482,194 @@ namespace lbcrypto {
 		//instantiated in the scheme implementation class
 		virtual void Enable(PKESchemeFeature feature) = 0;
 
-		const LPAutoMorphAlgorithm<Element> &GetLPAutoMorphAlgorithm() {
-			if(this->IsEnabled(EVALAUTOMORPHISM))
-				return *m_algorithmEvalAutomorphism;
-			else
-				throw std::logic_error("This operation is not supported");
-		}
+		/////////////////////////////////////////
+		// the three functions below are wrappers for things in LPEncryptionAlgorithm (ENCRYPT)
+		//
 
-		//wrapper for Encrypt method
 		EncryptResult Encrypt(const LPPublicKey<Element> &publicKey,
 			const Element &plaintext, Ciphertext<Element> *ciphertext) const {
-				if(this->IsEnabled(ENCRYPTION)) {
+				if(this->m_algorithmEncryption) {
 					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext,ciphertext);
 				}
 				else {
-					throw std::logic_error("This operation is not supported");
+					throw std::logic_error("Encrypt operation has not been enabled");
 				}
 		}
 
-		//wrapper for Decrypt method
 		DecryptResult Decrypt(const LPPrivateKey<Element> &privateKey, const Ciphertext<Element> &ciphertext,
 				Element *plaintext) const {
-				if(this->IsEnabled(ENCRYPTION))
+				if(this->m_algorithmEncryption)
 					return this->m_algorithmEncryption->Decrypt(privateKey,ciphertext,plaintext);
 				else {
-					throw std::logic_error("This operation is not supported");
+					throw std::logic_error("Decrypt operation has not been enabled");
 				}
 		}
 
-		//wrapper for KeyGen method
 		bool KeyGen(LPPublicKey<Element> *publicKey, LPPrivateKey<Element> *privateKey) const {
-				if(this->IsEnabled(ENCRYPTION))
+				if(this->m_algorithmEncryption)
 					return this->m_algorithmEncryption->KeyGen(publicKey,privateKey);
 				else {
-					throw std::logic_error("This operation is not supported");
+					throw std::logic_error("KeyGen operation has not been enabled");
 				}
 		}
 
-		bool SparseKeyGen(LPPublicKey<Element> *publicKey, 
-		        	LPPrivateKey<Element> *privateKey) const {
-				if(this->IsEnabled(LEVELEDSHE))
-					return this->m_algorithmLeveledSHE->SparseKeyGen(publicKey, privateKey);
-				else {
-					throw std::logic_error("This operation is not supported");
-				}
-				
-		}
+		/////////////////////////////////////////
+		// the two functions below are wrappers for things in LPPREAlgorithm (PRE)
+		//
 
-		//wrapper for EvalKeyGen method
 		bool EvalKeyGen(const LPKey<Element> &newKey, const LPPrivateKey<Element> &origPrivateKey,
 			LPEvalKey<Element> *evalKey) const{
-				if(this->IsEnabled(PRE))
+				if(this->m_algorithmPRE)
 					return this->m_algorithmPRE->EvalKeyGen(newKey,origPrivateKey,evalKey);
 				else {
-					throw std::logic_error("This operation is not supported");
+					throw std::logic_error("EvalKeyGen operation has not been enabled");
 				}
 		}
 
 		//wrapper for ReEncrypt method
 		void ReEncrypt(const LPEvalKey<Element> &evalKey, const Ciphertext<Element> &ciphertext,
 			Ciphertext<Element> *newCiphertext) const {
-				if(this->IsEnabled(PRE))
+				if(this->m_algorithmPRE)
 					this->m_algorithmPRE->ReEncrypt(evalKey,ciphertext,newCiphertext);
 				else {
-					throw std::logic_error("This operation is not supported");
+					throw std::logic_error("ReEncrypt operation has not been enabled");
 				}
 		}
 
+		/////////////////////////////////////////
+		// the functions below are wrappers for things in LPAHEAlgorithm (EVALADD)
+		//
+		// TODO: Add Functions?
 
-		//wrapper for EvalAdd method
+		/////////////////////////////////////////
+		// the function below is a wrapper for things in LPAutomorphAlgorithm (EVALAUTOMORPHISM)
+		//
+		// TODO: Add Functions?
+
+		const LPAutoMorphAlgorithm<Element> &GetLPAutoMorphAlgorithm() {
+			if(this->m_algorithmEvalAutomorphism)
+				return *m_algorithmEvalAutomorphism;
+			else
+				throw std::logic_error("Automorphism has not been enabled");
+		}
+
+		/////////////////////////////////////////
+		// the two functions below are wrappers for things in LPSHEAlgorithm (SHE)
+		//
+
 		void EvalAdd(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
 				Ciphertext<Element> *newCiphertext) const {
 
-					if(this->IsEnabled(SHE))
+					if(this->m_algorithmSHE)
 						this->m_algorithmSHE->EvalAdd(ciphertext1,ciphertext2,newCiphertext);
 					else{
-						throw std::logic_error("This operation is not supported");
+						throw std::logic_error("EvalAdd operation has not been enabled");
 					}
 		}
 
-		//wrapper for EvalMult method
 		void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
 				Ciphertext<Element> *newCiphertext) const {
 					
-					if(this->IsEnabled(SHE))
+					if(this->m_algorithmSHE)
 						this->m_algorithmSHE->EvalMult(ciphertext1,ciphertext2,newCiphertext);
 					else{
-						throw std::logic_error("This operation is not supported");
+						throw std::logic_error("EvalMult operation has not been enabled");
 					}
+		}
+
+		/////////////////////////////////////////
+		// the functions below are wrappers for things in LPFHEAlgorithm (FHE)
+		//
+		// TODO: Add Functions?
+
+		/////////////////////////////////////////
+		// the nine functions below are wrappers for things in LPSHEAlgorithm (SHE)
+		//
+
+		bool SparseKeyGen(LPPublicKey<Element> *publicKey,
+		        	LPPrivateKey<Element> *privateKey) const {
+				if(this->m_algorithmLeveledSHE)
+					return this->m_algorithmLeveledSHE->SparseKeyGen(publicKey, privateKey);
+				else {
+					throw std::logic_error("SparseKeyGen operation has not been enabled");
+				}
 
 		}
 
-		//wrapper for KeySwitchHintGen
 		void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
 				const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *keySwitchHint) const {
-					if(this->IsEnabled(LEVELEDSHE))
+					if(this->m_algorithmLeveledSHE)
 						this->m_algorithmLeveledSHE->KeySwitchHintGen(originalPrivateKey, newPrivateKey,keySwitchHint);
 					else{
-						throw std::logic_error("This operation is not supported");
+						throw std::logic_error("KeySwitchHintGen operation has not been enabled");
 					}
 		}
 
-		//wrapper for KeySwitch
 		Ciphertext<Element> KeySwitch(const LPEvalKey<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const {
 			
-			if(this->IsEnabled(LEVELEDSHE)){
+			if(this->m_algorithmLeveledSHE){
 				return this->m_algorithmLeveledSHE->KeySwitch(keySwitchHint,cipherText);
 			}
 			else{
-				throw std::logic_error("This operation is not supported");
+				throw std::logic_error("KeySwitch operation has not been enabled");
 			}
 		}
 
-		//wrapper for QuadraticKeySwitchHintGen
 		void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const {
-			if(this->IsEnabled(LEVELEDSHE)){
+			if(this->m_algorithmLeveledSHE){
 				this->m_algorithmLeveledSHE->QuadraticKeySwitchHintGen(originalPrivateKey,newPrivateKey,quadraticKeySwitchHint);
 			}
 			else{
-				throw std::logic_error("This operation is not supported");
+				throw std::logic_error("QuadraticKeySwitchHintGen operation has not been enabled");
 			}
 		}
 
-		//wrapper for ModReduce
 		void ModReduce(Ciphertext<Element> *cipherText) const {
-			if(this->IsEnabled(LEVELEDSHE)){
+			if(this->m_algorithmLeveledSHE){
 				this->m_algorithmLeveledSHE->ModReduce(cipherText);
 			}
 			else{
-				throw std::logic_error("This operation is not supported");
+				throw std::logic_error("ModReduce operation has not been enabled");
 			}
 		}
 
-		//wrapper for RingReduce
 		void RingReduce(Ciphertext<Element> *cipherText, const LPEvalKeyNTRU<Element> &keySwitchHint) const {
-			if(this->IsEnabled(LEVELEDSHE)){
+			if(this->m_algorithmLeveledSHE){
 				this->m_algorithmLeveledSHE->RingReduce(cipherText,keySwitchHint);
 			}
 			else{
-				throw std::logic_error("This operation is not supported");
+				throw std::logic_error("RingReduce operation has not been enabled");
 			}
 		}
 
-		//wrapper for CanRingReduce
 		bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const {
-			if (this->IsEnabled(LEVELEDSHE)) {
+			if (this->m_algorithmLeveledSHE) {
 				return this->m_algorithmLeveledSHE->CanRingReduce(ringDimension, moduli, rootHermiteFactor);
 			}
 			else {
-				throw std::logic_error("This operation is not supported");
+				throw std::logic_error("CanRingReduce operation has not been enabled");
 			}
 		}
 
 		void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
-			if(this->IsEnabled(LEVELEDSHE)){
+			if(this->m_algorithmLeveledSHE){
 				this->m_algorithmLeveledSHE->ComposedEvalMult(cipherText1,cipherText2,quadKeySwitchHint,cipherTextResult);
 			}
 			else{
-				throw std::logic_error("This operation is not supported");
+				throw std::logic_error("ComposedEvalMult operation has not been enabled");
 			}
 		}
 
-
-		//wrapper for LevelReduce
 		void LevelReduce(const Ciphertext<Element> &cipherText1, const LPEvalKeyNTRU<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
-			if(this->IsEnabled(LEVELEDSHE)){
+			if(this->m_algorithmLeveledSHE){
 				this->m_algorithmLeveledSHE->LevelReduce(cipherText1,linearKeySwitchHint,cipherTextResult);
 			}
 			else{
-				throw std::logic_error("This operation is not supported");
+				throw std::logic_error("LevelReduce operation has not been enabled");
 			}
 		}
-
 
 		const LPEncryptionAlgorithm<Element>& getAlgorithm() const { return *m_algorithmEncryption; }
 
@@ -1677,7 +1681,6 @@ namespace lbcrypto {
 		const LPSHEAlgorithm<Element> *m_algorithmSHE;
 		const LPFHEAlgorithm<Element> *m_algorithmFHE;
 		const LPLeveledSHEAlgorithm<Element> *m_algorithmLeveledSHE;
-		//std::bitset<FEATURESETSIZE> m_featureMask;
 	};
 
 
