@@ -136,16 +136,22 @@ template<typename T>
 bool DeserializeVector(const std::string& vectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& serObj, std::vector<T>* outVector) {
 	SerialItem::ConstMemberIterator it = serObj->value.FindMember(vectorName);
 
-	if( it == serObj->value.MemberEnd() )
+	if( it == serObj->value.MemberEnd() ) {
+		std::cout << "no vector named " + vectorName << std::endl;
 		return false;
+	}
 
 	SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
-	if( mIt == it->value.MemberEnd() ) return false;
-	if( mIt->value.GetString() != typeName ) return false;
+	if( mIt == it->value.MemberEnd() ) {
+		std::cout << "no member named Typename" << std::endl;
+		return false;
+	}
+std::cout << "deser vector got type name of " << mIt->value.GetString() << std::endl;
 
+	if( mIt->value.GetString() != typeName ) return false;
 	mIt = it->value.FindMember("Length");
 	if( mIt == it->value.MemberEnd() ) return false;
-
+std::cout << "deser vector got a length of " << mIt->value.GetString() << std::endl;
 	outVector->clear();
 	outVector->resize( std::stoi(mIt->value.GetString()) );
 

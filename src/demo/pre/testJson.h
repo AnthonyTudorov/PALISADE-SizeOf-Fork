@@ -34,7 +34,7 @@ struct TestJsonParms {
 	CryptoContext<Element>				*ctx;
 	LPPublicKey<Element>				*pk;
 	LPPrivateKey<Element>				*sk;
-	LPEvalKeyRelin<Element>				*evalKey;
+	LPEvalKey<Element>					*evalKey;
 	LPPrivateKey<Element>				*newSK;
 };
 
