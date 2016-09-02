@@ -119,40 +119,6 @@ namespace lbcrypto {
 	};
 
 	/**
-	 * @brief Abstract Interface Class to capture common Crypto Parameters 
-	 * @tparam Element a ring element.
-	 */
-	//JSON FACILITY
-	template <class Element>
-	class LPCryptoParameters : public Serializable {
-	public:
-		virtual ~LPCryptoParameters() {}
-		
-		//@Get Properties
-	
-		/**
-		 * Gets the value of plaintext modulus p
-		 */
-		virtual const BigBinaryInteger & GetPlaintextModulus() const = 0;
-
-		//@Set Properties
-
-		/**
-		 * Sets the value of plaintext modulus p
-		 * @param &plaintextModulus the new plaintext modulus.
-		 */
-		virtual void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) = 0;
-
-		/**
-		 * Gets the value of element parameters
-		 */
-		virtual const ElemParams &GetElementParams() const = 0;
-		
-		virtual bool operator==(const LPCryptoParameters<Element> &rhs) const = 0;
-
-	};
-
-	/**
 	 * @brief Abstract interface class for LP Keys
 	 * @tparam Element a ring element.
 	 */
@@ -1339,28 +1305,17 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPCryptoParametersImpl : public LPCryptoParameters<Element>
+	class LPCryptoParameters : public Serializable
 	{		
 	public:
+		virtual ~LPCryptoParameters() {}
 
 		/**
 			* Returns the value of plaintext modulus p
 			*
 			* @return the plaintext modulus.
 			*/
-		const BigBinaryInteger &GetPlaintextModulus() const {return  m_plaintextModulus;}
-
-			//LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; } 
-
-			///**
-			// * Sets crypto params.
-			// *
-			// * @param *cryptoParams parameters.
-			// * @return the crypto parameters.
-			// */
-			//void SetCryptoParameters( LPCryptoParameters<Element> *cryptoParams) { 
-			//	m_cryptoParameters = cryptoParams; 
-			//}
+		const BigBinaryInteger &GetPlaintextModulus() const { return  m_plaintextModulus; }
 
 		/**
 			* Returns the reference to IL params
@@ -1368,13 +1323,11 @@ namespace lbcrypto {
 			* @return the ring element parameters.
 			*/
 		const ElemParams &GetElementParams() const { return *m_params; }
-
-		//@Set Properties
 			
 		/**
 		* Sets the value of plaintext modulus p
 		*/
-		void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {m_plaintextModulus = plaintextModulus;}
+		void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) { m_plaintextModulus = plaintextModulus; }
 			
 		/**
 			* Sets the reference to element params
@@ -1384,9 +1337,9 @@ namespace lbcrypto {
 		virtual bool operator==(const LPCryptoParameters<Element>& cmp) const = 0;
 
 	protected:
-		LPCryptoParametersImpl() : m_params(NULL), m_plaintextModulus(BigBinaryInteger::TWO) {}
+		LPCryptoParameters() : m_params(NULL), m_plaintextModulus(BigBinaryInteger::TWO) {}
 
-		LPCryptoParametersImpl(ElemParams *params, const BigBinaryInteger &plaintextModulus) : m_params(params), m_plaintextModulus(plaintextModulus) {}
+		LPCryptoParameters(ElemParams *params, const BigBinaryInteger &plaintextModulus) : m_params(params), m_plaintextModulus(plaintextModulus) {}
 
 	private:
 		//element-specific parameters
