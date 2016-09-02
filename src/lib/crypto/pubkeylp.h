@@ -725,6 +725,71 @@ namespace lbcrypto {
 			return m_rKey;
 		}
 
+		/**
+		* Higher level info about the serialization is saved here
+		* @param *serObj to store the the implementing object's serialization specific attributes.
+		* @param flag an object-specific parameter for the serialization
+		* @return true on success
+		*/
+		bool SetIdFlag(Serialized *serObj, const std::string flag) const {
+
+			SerialItem idFlagMap(rapidjson::kObjectType);
+			idFlagMap.AddMember("ID", "LPEvalKeyNTRU", serObj->GetAllocator());
+			idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
+			serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
+
+			return true;
+		}
+
+		/**
+		* Serialize the object into a Serialized
+		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @param fileFlag is an object-specific parameter for the serialization
+		* @return true if successfully serialized
+		*/
+		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+			serObj->SetObject();
+
+			if (!this->GetCryptoParameters().Serialize(serObj, "")) {
+				return false;
+			}
+
+			const Element& pe = this->GetA();
+
+			if (!pe.Serialize(serObj, "")) {
+				return false;
+			}
+
+			if (!this->SetIdFlag(serObj, fileFlag))
+				return false;
+
+			return true;
+		}
+
+		/**
+		* Populate the object from the deserialization of the Serialized
+		* @param &serObj contains the serialized object
+		* @return true on success
+		*/
+		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
+			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getparams());
+			if (cryptoparams == 0) return false;
+
+			this->SetCryptoParameters(cryptoparams);
+
+			Element json_ilelement;
+			if (json_ilelement.deserialize(serObj)) {
+				this->SetA(json_ilelement);
+				return true;
+			}
+
+			return false;
+		}
+
+		bool Deserialize(const Serialized &serObj) {
+			return false;
+		}
+
 		
 	private:
 		//private member to store vector of Element.
