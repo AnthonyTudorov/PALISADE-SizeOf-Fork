@@ -656,6 +656,9 @@ namespace lbcrypto {
 
 			this->SetCryptoParameters(cryptoparams);
 
+//			DeSerializeVector<Element>("AVector", typeid(Element).name(), this->GetAVector(), serObj);
+//			DeSerializeVector<Element>("BVector", typeid(Element).name(), this->GetBVector(), serObj);
+
 //			Element json_ilelement;
 //			if (json_ilelement.deserialize(serObj)) {
 //				this->SetA(json_ilelement);
@@ -759,12 +762,7 @@ namespace lbcrypto {
 				return false;
 			}
 
-			const vector<Element>& pe = this->GetAVector();
-			SerializeVector<Element>("Vectors", "ILVector2n", this->GetAllElements(), serObj);
-
-//			if (!pe.Serialize(serObj, "")) {
-//				return false;
-//			}
+			SerializeVector<Element>("Vectors", "ILVector2n", this->GetAVector(), serObj);
 
 			if (!this->SetIdFlag(serObj, fileFlag))
 				return false;
@@ -778,16 +776,17 @@ namespace lbcrypto {
 		* @return true on success
 		*/
 		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
-			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getparams());
+			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
 			if (cryptoparams == 0) return false;
-
 			this->SetCryptoParameters(cryptoparams);
 
-//			Element json_ilelement;
-//			if (json_ilelement.deserialize(serObj)) {
-//				this->SetA(json_ilelement);
-//				return true;
-//			}
+			FIXME!
+			SerialItem::ConstMemberIterator it = serObj.MemberBegin();
+			std::vector<Element> newElements;
+			if( DeserializeVector<Element>("Vectors", "ILVector2n", it, &newElements) ) {
+				this->SetAVector(newElements);
+				return true;
+			}
 
 			return false;
 		}
