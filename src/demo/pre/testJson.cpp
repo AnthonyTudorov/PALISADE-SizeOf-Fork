@@ -30,7 +30,7 @@ void testJson(
 
 	LPPublicKey<Element>			pkDeserialized;
 	LPPrivateKey<Element>			skDeserialized;
-	LPEvalKeyRelin<Element>			evalKeyDeserialized;
+	LPEvalKeyNTRURelin<Element>		evalKeyDeserialized;
 	LPPrivateKey<Element>			newSKDeserialized;
 
 	cout << "----------------------START JSON FACILITY TESTING-------------------------" << endl;
