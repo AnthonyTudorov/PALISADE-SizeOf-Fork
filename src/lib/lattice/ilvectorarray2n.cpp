@@ -703,7 +703,14 @@ namespace lbcrypto {
 		if( mIt == it->value.MemberEnd() ) return false;
 		this->m_cyclotomicOrder = std::stoi(mIt->value.GetString());
 
-		bool ret = DeserializeVector<ILVector2n>("Vectors", "ILVector2n", it, &this->m_vectors);
+		mIt = it->value.FindMember("Vectors");
+
+		if( mIt == it->value.MemberEnd() ) {
+			return false;
+		}
+
+
+		bool ret = DeserializeVector<ILVector2n>("Vectors", "ILVector2n", mIt, &this->m_vectors);
 
 		if( ret == true )
 			this->m_numberOfElements = this->m_vectors.size();

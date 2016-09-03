@@ -227,6 +227,7 @@ void BenchMarking() {
 }
 
 void NTRU_DCRT() {
+	cout << "NTRU_DCRT" << endl;
 
 	double diff, start, finish;
 
@@ -375,8 +376,6 @@ void NTRU_DCRT() {
 //
 //	if(true) return;
 
-	bool doReEncrypt = false;
-
 	LPPublicKey<ILVectorArray2n> newPK(*ctx->getParams());
 	LPPrivateKey<ILVectorArray2n> newSK(*ctx->getParams());
 
@@ -389,16 +388,19 @@ void NTRU_DCRT() {
 
 	LPEvalKeyNTRURelin<ILVectorArray2n> evalKey(*ctx->getParams());
 
-	CryptoUtility<ILVectorArray2n>::EvalKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	cout << "Running eval key gen" << endl;
 
-	////////////////////////////////////////////////////////////
-	//Perform the proxy re-encryption operation.
-	// This switches the keys which are used to perform the key switching.
-	////////////////////////////////////////////////////////////
+	bool rval = CryptoUtility<ILVectorArray2n>::EvalKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
-	if( doReEncrypt ) {
+	if( rval == false ) {
+		cout << "EvalKeyGen failed!!!" << endl;
+	}
+	else {
+		vector<ILVectorArray2n> av = evalKey.GetAVector();
+		cout << "The eval key A vect size is " << av.size() << endl;
 		vector<Ciphertext<ILVectorArray2n>> newCiphertext;
 
+		cout << "Running re encryption" << endl;
 		CryptoUtility<ILVectorArray2n>::ReEncrypt(algorithm, evalKey, ciphertext, &newCiphertext);
 
 		//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
@@ -431,7 +433,7 @@ void NTRU_DCRT() {
 	tjp.evalKey = &evalKey;
 	tjp.newSK = &newSK;
 
-	testJson<ILVectorArray2n>("DCRT", newPlaintext, &tjp, doReEncrypt);
+	testJson<ILVectorArray2n>("DCRT", newPlaintext, &tjp, true);
 }
 
 void LevelCircuitEvaluation(){
@@ -1434,7 +1436,7 @@ void NTRUPRE(usint input) {
 
 	start = currentDateTime();
 
-	algorithm.EvalKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	CryptoUtility<ILVector2n>::EvalKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
