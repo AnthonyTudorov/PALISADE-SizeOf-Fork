@@ -417,7 +417,7 @@ namespace lbcrypto {
 		*/
 
 		virtual void SetAVector(const std::vector<Element> &a) {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("SetAVector copy operation not supported");
 		}
 
 		/**
@@ -428,7 +428,7 @@ namespace lbcrypto {
 		*/
 
 		virtual void SetAVector(std::vector<Element> &&a) {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("SetAVector move operation not supported");
 		}
 
 		/**
@@ -439,7 +439,7 @@ namespace lbcrypto {
 		*/
 
 		virtual const std::vector<Element> &GetAVector() const {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("GetAVector operation not supported");
 			return std::vector<Element>();
 		}
 
@@ -451,7 +451,7 @@ namespace lbcrypto {
 		*/
 
 		virtual void SetBVector(const std::vector<Element> &b) {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("SetBVector copy operation not supported");
 		}
 
 		/**
@@ -462,7 +462,7 @@ namespace lbcrypto {
 		*/
 
 		virtual void SetBVector(std::vector<Element> &&b) {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("SetBVector move operation not supported");
 		}
 
 		/**
@@ -473,7 +473,7 @@ namespace lbcrypto {
 		*/
 
 		virtual const std::vector<Element> &GetBVector() const {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("GetBVector operation not supported");
 			return std::vector<Element>();
 		}
 
@@ -485,7 +485,7 @@ namespace lbcrypto {
 		*/
 
 		virtual void SetA(const Element &a) {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("SetA copy operation not supported");
 		}
 
 		/**
@@ -495,7 +495,7 @@ namespace lbcrypto {
 		* @param &&a is the Element to be moved.
 		*/
 		virtual void SetA(Element &&a) {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("SetA move operation not supported");
 		}
 
 		/**
@@ -506,7 +506,7 @@ namespace lbcrypto {
 		*/
 
 		virtual const Element &GetA() const {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("GetA operation not supported");
 			return Element();
 		}
 
@@ -780,8 +780,12 @@ namespace lbcrypto {
 			if (cryptoparams == 0) return false;
 			this->SetCryptoParameters(cryptoparams);
 
-			FIXME!
-			SerialItem::ConstMemberIterator it = serObj.MemberBegin();
+			SerialItem::ConstMemberIterator it = serObj.FindMember("Vectors");
+
+			if( it == serObj.MemberEnd() ) {
+				return false;
+			}
+
 			std::vector<Element> newElements;
 			if( DeserializeVector<Element>("Vectors", "ILVector2n", it, &newElements) ) {
 				this->SetAVector(newElements);
