@@ -48,10 +48,11 @@ namespace lbcrypto {
 	/**
 	* @brief Interface for ideal lattices
 	*/
-	class ILElement
+	class ILElement : public Serializable
 	{
 	public:
-		
+		virtual ~ILElement() {} //must be virtual since member printvals() is virtual
+
 		/**
 		*Prints all values in either coefficient or evaluation format.
 		*/		
@@ -62,8 +63,7 @@ namespace lbcrypto {
 		*/
 		virtual void AddILElementOne() = 0;
 		
-		virtual ~ILElement(){}; //must be virtual since member printvals() is virtual
-
+		virtual usint GetLength() const = 0;
 	};
 
 } // namespace lbcrypto ends
