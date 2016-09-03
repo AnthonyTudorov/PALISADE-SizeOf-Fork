@@ -46,11 +46,12 @@ namespace lbcrypto {
 		m_format = format;
 		m_modulus = params.GetModulus();
 
-		m_vectors.reserve(dcrtParams.GetModuli().size());
+		size_t vecSize = dcrtParams.GetModuli().size();
+		m_vectors.reserve(vecSize);
 		
 		ILParams ilParamsTemp;
 
-		for (usint i = 0; i < m_vectors.size(); i++) {
+		for (usint i = 0; i < vecSize; i++) {
 
 			BigBinaryInteger modulus(dcrtParams.GetModuli()[i]);
 			BigBinaryInteger rootOfUnity(dcrtParams.GetRootsOfUnity()[i]);
@@ -84,11 +85,12 @@ namespace lbcrypto {
 		m_modulus = params.GetModulus();
 		m_cyclotomicOrder = params.GetCyclotomicOrder();
 
-		m_vectors.reserve(params.GetModuli().size());
+		size_t vecSize = params.GetModuli().size();
+		m_vectors.reserve(vecSize);
 
 		ILVector2n ilvector2n(element);
 
-		for (usint i = 0; i < m_vectors.size(); i++) {
+		for (usint i = 0; i < vecSize; i++) {
 			ILVector2n ilvector2nSwitchModulus(ilvector2n);
 			ilvector2nSwitchModulus.SwitchModulus(params.GetModuli()[i], params.GetRootsOfUnity()[i]);
 			m_vectors.push_back(std::move(ilvector2nSwitchModulus));
@@ -122,7 +124,8 @@ namespace lbcrypto {
 		m_cyclotomicOrder= dcrtParams.GetCyclotomicOrder();
 		m_format = format;
 
-		m_vectors.reserve(dcrtParams.GetModuli().size());
+		size_t vecSize = dcrtParams.GetModuli().size();
+		m_vectors.reserve(vecSize);
 
 		//dgg generating random values
 		
@@ -132,7 +135,7 @@ namespace lbcrypto {
 		BigBinaryInteger rootOfUnity;
 		BigBinaryInteger temp;
 
-		for(usint i = 0; i < m_vectors.size(); i++){
+		for(usint i = 0; i < vecSize; i++){
 			
 			modulus = dcrtParams.GetModuli()[i];
 			rootOfUnity = dcrtParams.GetRootsOfUnity()[i];
