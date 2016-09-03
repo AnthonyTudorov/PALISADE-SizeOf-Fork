@@ -503,9 +503,6 @@ namespace lbcrypto {
 		BigBinaryInteger m_modulus;
 
 		usint m_cyclotomicOrder;
-
-		//Number of ILVector Elements
-		usint m_numberOfElements;
 	};
 
 	/**
