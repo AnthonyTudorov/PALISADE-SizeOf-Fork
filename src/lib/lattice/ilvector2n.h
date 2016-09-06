@@ -60,7 +60,7 @@ namespace lbcrypto {
 								  * @brief Ideal lattice in vector representation or a vector in the double-CRT "matrix".  This is not fully implemented and is currently only stubs.
 								  */
 	//JSON FACILITY
-	class ILVector2n : public ILElement, public Serializable
+	class ILVector2n : public ILElement
 	{
 	public:
 
