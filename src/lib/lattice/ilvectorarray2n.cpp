@@ -35,22 +35,23 @@ namespace lbcrypto {
 
 	/*CONSTRUCTORS*/
 
-	ILVectorArray2n::ILVectorArray2n() : m_format(EVALUATION), m_numberOfElements(0), m_cyclotomicOrder(0), m_modulus(1){
+	ILVectorArray2n::ILVectorArray2n() : m_format(EVALUATION), m_cyclotomicOrder(0), m_modulus(1){
 	}
 
 	ILVectorArray2n::ILVectorArray2n(const ElemParams &params, Format format) : m_format(format)
 	{
 		const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(params);
-		m_numberOfElements = dcrtParams.GetModuli().size(); //TODO- ADD Integrety checks for ILDCRTParams IN ILDCRTParams 
+			//TODO- ADD Integrety checks for ILDCRTParams IN ILDCRTParams
 		m_cyclotomicOrder = params.GetCyclotomicOrder();
 		m_format = format;
 		m_modulus = params.GetModulus();
 
-		m_vectors.reserve(m_numberOfElements);
+		size_t vecSize = dcrtParams.GetModuli().size();
+		m_vectors.reserve(vecSize);
 		
 		ILParams ilParamsTemp;
 
-		for (usint i = 0; i < m_numberOfElements; i++) { 
+		for (usint i = 0; i < vecSize; i++) {
 
 			BigBinaryInteger modulus(dcrtParams.GetModuli()[i]);
 			BigBinaryInteger rootOfUnity(dcrtParams.GetRootsOfUnity()[i]);
@@ -66,7 +67,6 @@ namespace lbcrypto {
 		m_format = element.m_format;
 		m_vectors = element.m_vectors;
 		m_modulus = element.m_modulus;
-		m_numberOfElements = element.m_numberOfElements;
 		m_cyclotomicOrder = element.m_cyclotomicOrder;
 	}
 	
@@ -81,16 +81,16 @@ namespace lbcrypto {
 			throw std::logic_error("There is an issue with the format of ILVectors passed to the constructor of ILVectorArray2n");
 		}
 
-		m_numberOfElements = params.GetModuli().size();
 		m_format = format;
 		m_modulus = params.GetModulus();
 		m_cyclotomicOrder = params.GetCyclotomicOrder();
 
-		m_vectors.reserve(m_numberOfElements);
+		size_t vecSize = params.GetModuli().size();
+		m_vectors.reserve(vecSize);
 
 		ILVector2n ilvector2n(element);
 
-		for (usint i = 0; i < m_numberOfElements; i++) {
+		for (usint i = 0; i < vecSize; i++) {
 			ILVector2n ilvector2nSwitchModulus(ilvector2n);
 			ilvector2nSwitchModulus.SwitchModulus(params.GetModuli()[i], params.GetRootsOfUnity()[i]);
 			m_vectors.push_back(std::move(ilvector2nSwitchModulus));
@@ -109,10 +109,9 @@ namespace lbcrypto {
 		m_vectors = towers; // once all the params are correct, set ILVectorArray2n's towers to the passed value
 		m_format = m_vectors[0].GetFormat();
 		m_cyclotomicOrder = m_vectors[0].GetCyclotomicOrder();
-		m_numberOfElements = towers.size();
 		m_modulus = 1;
 		//TODO: Add a integrity check to acertain if the cyclotomicorder are the same:
-		for (usint i = 0; i<m_numberOfElements; i++)
+		for (usint i = 0; i<towers.size(); i++)
 			m_modulus = m_modulus*m_vectors.at(i).GetModulus();
 	}
 
@@ -121,12 +120,12 @@ namespace lbcrypto {
 	{
 		const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(params);
 
-		m_numberOfElements = dcrtParams.GetModuli().size();
 		m_modulus = dcrtParams.GetModulus();
 		m_cyclotomicOrder= dcrtParams.GetCyclotomicOrder();
 		m_format = format;
 
-		m_vectors.reserve(m_numberOfElements);
+		size_t vecSize = dcrtParams.GetModuli().size();
+		m_vectors.reserve(vecSize);
 
 		//dgg generating random values
 		
@@ -136,7 +135,7 @@ namespace lbcrypto {
 		BigBinaryInteger rootOfUnity;
 		BigBinaryInteger temp;
 
-		for(usint i = 0; i < dcrtParams.GetModuli().size();i++){
+		for(usint i = 0; i < vecSize; i++){
 			
 			modulus = dcrtParams.GetModuli()[i];
 			rootOfUnity = dcrtParams.GetRootsOfUnity()[i];
@@ -176,16 +175,15 @@ namespace lbcrypto {
 		m_format = element.m_format;
 		m_modulus = std::move(element.m_modulus);
 		m_cyclotomicOrder = element.m_cyclotomicOrder;
-		m_numberOfElements = element.m_numberOfElements;
 		m_vectors = std::move(element.m_vectors);
 	}
 
 	ILVectorArray2n ILVectorArray2n::CloneWithParams() const{
 		
 		std::vector<ILVector2n> result;
-		result.reserve(m_numberOfElements);
+		result.reserve(m_vectors.size());
 		
-		for(usint i=0;i<m_numberOfElements;i++){
+		for(usint i=0;i<m_vectors.size();i++){
 			result.push_back(std::move(m_vectors.at(i).CloneWithParams()));
 		}
 
@@ -196,9 +194,9 @@ namespace lbcrypto {
 
 	ILVectorArray2n ILVectorArray2n::CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format) const{
 		std::vector<ILVector2n> result;
-		result.reserve(m_numberOfElements);
+		result.reserve(m_vectors.size());
 		
-		for(usint i=0;i<m_numberOfElements;i++){
+		for(usint i=0;i<m_vectors.size();i++){
 			result.push_back(std::move(m_vectors.at(i).CloneWithNoise(dgg, format)));
 		}
 
@@ -232,7 +230,7 @@ namespace lbcrypto {
 	}
 
 	usint ILVectorArray2n::GetNumOfElements() const {
-		return m_numberOfElements;
+		return m_vectors.size();
 	}
 
 	const std::vector<ILVector2n>& ILVectorArray2n::GetAllElements() const
@@ -339,7 +337,7 @@ namespace lbcrypto {
                 return false;
           }
 
-		if (m_numberOfElements != rhs.m_numberOfElements) {
+		if (m_vectors.size() != rhs.m_vectors.size()) {
                 return false;
           }
 
@@ -354,7 +352,6 @@ namespace lbcrypto {
 			m_format = rhs.m_format;	
 			m_modulus = rhs.m_modulus;
 			m_cyclotomicOrder = rhs.m_cyclotomicOrder;
-			m_numberOfElements = rhs.m_numberOfElements;
 		}
 		return *this;
 	}
@@ -363,7 +360,7 @@ namespace lbcrypto {
 		usint len = rhs.size();
 		if(!IsEmpty()){
 			usint vectorLength = this->m_vectors[0].GetLength();
-			for(usint i = 0;i < m_numberOfElements; ++i){ // this loops over each tower
+			for(usint i = 0;i < m_vectors.size(); ++i){ // this loops over each tower
 				for(usint j = 0; j < vectorLength; ++j) { // loops within a tower
 					if(j<len) {
 						this->m_vectors[i].SetValAtIndex(j, *(rhs.begin()+j));
@@ -374,7 +371,7 @@ namespace lbcrypto {
 			}
 		}
 		else{
-			for(usint i=0;i<m_numberOfElements;i++){
+			for(usint i=0;i<m_vectors.size();i++){
 				BigBinaryVector temp(m_cyclotomicOrder/2);
 				temp.SetModulus(m_vectors.at(i).GetModulus());
 				temp = rhs;
@@ -470,14 +467,14 @@ namespace lbcrypto {
 			throw std::runtime_error(errMsg);
 		}
 		
-		for(int i=0; i < m_numberOfElements; i++) {
+		for(int i=0; i < m_vectors.size(); i++) {
 			m_vectors[i].Decompose();
 		}
 		m_cyclotomicOrder = m_cyclotomicOrder / 2;
 	}
 
 	bool ILVectorArray2n::IsEmpty() const{
-		for(usint i=0;i<m_numberOfElements;i++){
+		for(usint i=0;i<m_vectors.size();i++){
 			if(!m_vectors.at(i).IsEmpty())
 				return false;
 		}
@@ -485,12 +482,11 @@ namespace lbcrypto {
 	}
 
 	void ILVectorArray2n::DropElementAtIndex(usint index){
-		if(index >= m_numberOfElements){
+		if(index >= m_vectors.size()){
 			throw std::out_of_range("Index of tower being removed is larger than ILVectorArray2n tower\n");
 		}
 		m_modulus = m_modulus /(m_vectors[index].GetModulus());
 		m_vectors.erase(m_vectors.begin() + index);
-		m_numberOfElements -= 1;
 	}
 
 	/**
@@ -512,7 +508,7 @@ namespace lbcrypto {
 		}
 		this->SwitchFormat();
 		
-		usint lastTowerIndex = m_numberOfElements - 1;
+		usint lastTowerIndex = m_vectors.size() - 1;
 
 		ILVector2n towerT(m_vectors[lastTowerIndex]); //last tower that will be dropped
 		ILVector2n d(towerT); 
@@ -534,7 +530,7 @@ namespace lbcrypto {
 		//delta.PrintValues();
 
 		//Calculating d' = c + delta mod q (step 3)
-		for(usint i=0; i<m_numberOfElements; i++) {
+		for(usint i=0; i<m_vectors.size(); i++) {
 			ILVector2n temp(delta);
 			temp.SwitchModulus(m_vectors[i].GetModulus(), m_vectors[i].GetRootOfUnity());
 			m_vectors[i] += temp;
@@ -542,8 +538,8 @@ namespace lbcrypto {
 
 		//step 4
 		DropElementAtIndex(lastTowerIndex);
-		std::vector<BigBinaryInteger> qtInverseModQi(m_numberOfElements);
-		for(usint i=0; i<m_numberOfElements; i++) {
+		std::vector<BigBinaryInteger> qtInverseModQi(m_vectors.size());
+		for(usint i=0; i<m_vectors.size(); i++) {
 			qtInverseModQi[i] = qt.ModInverse(m_vectors[i].GetModulus());
 			m_vectors[i] = qtInverseModQi[i] * m_vectors[i];
 		}
@@ -564,7 +560,7 @@ namespace lbcrypto {
 	*/
 	ILVector2n ILVectorArray2n::InterpolateIlArrayVector2n() const
 	{
-		if(m_numberOfElements == 1) return m_vectors.at(0);
+		if(m_vectors.size() == 1) return m_vectors.at(0);
 
 		/*initializing variables for effciency*/
 		usint ringDimension = m_cyclotomicOrder / 2;
@@ -640,7 +636,7 @@ namespace lbcrypto {
 
 	void ILVectorArray2n::SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity) {
 		m_modulus = BigBinaryInteger::ONE;
-		for (usint i = 0; i < m_numberOfElements; ++i)
+		for (usint i = 0; i < m_vectors.size(); ++i)
 		{
 			m_vectors[i].SwitchModulus(modulus, rootOfUnity);
 			m_modulus = m_modulus * modulus;
@@ -648,9 +644,9 @@ namespace lbcrypto {
 	}
 
 	void ILVectorArray2n::SwitchModulusAtIndex(usint index, const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity) {
-		if(index > m_numberOfElements-1) {
+		if(index > m_vectors.size()-1) {
 			std::string errMsg;
-			errMsg = "ILVectorArray2n is of size = " + std::to_string(m_numberOfElements) + " but SwitchModulus for tower at index " + std::to_string(index) + "is called.";
+			errMsg = "ILVectorArray2n is of size = " + std::to_string(m_vectors.size()) + " but SwitchModulus for tower at index " + std::to_string(index) + "is called.";
 			throw std::runtime_error(errMsg);
 		}
 		m_modulus = m_modulus/(m_vectors[index].GetModulus());
@@ -704,9 +700,6 @@ namespace lbcrypto {
 		this->m_cyclotomicOrder = std::stoi(mIt->value.GetString());
 
 		bool ret = DeserializeVector<ILVector2n>("Vectors", "ILVector2n", it, &this->m_vectors);
-
-		if( ret == true )
-			this->m_numberOfElements = this->m_vectors.size();
 
 		return ret;
 	}
