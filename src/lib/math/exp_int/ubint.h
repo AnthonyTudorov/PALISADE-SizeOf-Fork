@@ -478,6 +478,7 @@ namespace exp_int{
 
     /**
      * Converts the value to a usint.
+     * if the ubint is uninitialized std::logic_error is thrown
      * if the ubint is larger than the max value representable
      * it is truncated to the least significant bits that fit
      * @return the int representation of the value as usint.
@@ -486,6 +487,7 @@ namespace exp_int{
     
     /**
      * Converts the value to a usint. Soon to be DEPRECATED, because Int is not usint
+     * if the ubint is uninitialized std::logic_error is thrown
      * if the ubint is larger than the max value representable
      * it is truncated to the least significant bits that fit
      * @return the int representation of the value as usint.
@@ -494,33 +496,35 @@ namespace exp_int{
 
     /**
      * Converts the value to a uint32_t.
+     * if the ubint is uninitialized std::logic_error is thrown
      * if the ubint is larger than the max value representable
-     * std::out_of_range is thrown
+     * it is truncated to the least significant bits that fit
      * @return the int representation of the value as uint32_t
      */
     uint32_t ConvertToUint32() const;
     
     /**
      * Converts the value to a uint64_t.
+     * if the ubint is uninitialized std::logic_error is thrown
      * if the ubint is larger than the max value representable
-     * std::out_of_range is thrown
-     * if conversion fails std::invalid_argment is thrown 
+     * it is truncated to the least significant bits that fit
      * @return the int representation of the value as uint64_t
      */
     uint64_t ConvertToUint64() const;
 
     /**
      * Converts the value to a float
+     * if the ubint is uninitialized std::logic_error is thrown
      * if the ubint is larger than the max value representable
-     * std::out_of_range is thrown
-     * if conversion fails std::invalid_argment is thrown 
+     * or if conversion fails, and error is reported to cerr 
      *
      * @return float representation of the value.
-     */
+    */
     float ConvertToFloat() const;
 
     /**
      * Converts the value to an double.
+     * if the ubint is uninitialized std::logic_error is thrown
      * if the ubint is larger than the max value representable
      * std::out_of_range is thrown
      * if conversion fails std::invalid_argment is thrown 
@@ -532,6 +536,7 @@ namespace exp_int{
 
     /**
      * Converts the value to an long double.
+     * if the ubint is uninitialized std::logic_error is thrown
      * if the ubint is larger than the max value representable
      * std::out_of_range is thrown
      * if conversion fails std::invalid_argment is thrown 
@@ -1006,6 +1011,15 @@ namespace exp_int{
      */
     ubint MulIntegerByLimb(limb_t b) const; //todo rename to ubint
 
+
+    /**
+     * documentation function, prints sizes of constats. 
+     * @param none
+     * @return none
+     */
+    void PrintIntegerConstants(void);
+
+
   protected:
     
     /**
@@ -1025,6 +1039,7 @@ namespace exp_int{
      * @param guessIdxChar is the hint of the MSB position.
      */
     void SetMSB(usint guessIdxChar);
+
 
 
   private:
@@ -1052,11 +1067,10 @@ namespace exp_int{
     
     int divmnu_vect(ubint& q, ubint& r, const ubint& u, const ubint& v) const;
 
-
-
   private: //todo make private again
     //vector storing the native integers. stored little endian
     vector<limb_t> m_value;
+
   private:
     //variable that stores the MOST SIGNIFICANT BIT position in the
     //number. Note MSB(1) = 1 NOT 0
@@ -1079,9 +1093,10 @@ namespace exp_int{
     static const usint m_numDigitInPrintval=1500; //todo get rid of m_numDigitInPrintval
 
     /**
-     * function to return the ceiling of the number divided by the number of bits in the limb data type. 
-     * DBC *thinks* this is to determine how many limbs are needed for an input bitsize.
-     * @param Number is the number to be divided.
+     * function to return the ceiling of the input number divided by
+     * the number of bits in the limb data type.  DBC this is to
+     * determine how many limbs are needed for an input bitsize.
+     * @param Number is the number to be divided. 
      * @return the ceiling of Number/(bits in the limb data type)
      */
     static usint ceilIntByUInt(const limb_t Number); //todo rename to MSB2NLimbs()

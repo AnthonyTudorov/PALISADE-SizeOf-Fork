@@ -134,8 +134,9 @@ namespace lbcrypto {
 
 #if MATHBACKEND == 3
 
-	/** integral_dtype specifies the native data type used for the BigBinaryInteger implementation 
-	    should be uint32_t for most applications **/
+	/** integral_dtype specifies the native data type used for the
+	    BigBinaryInteger implementation should be uint32_t for
+	    most applications **/
 	typedef uint32_t integral_dtype;
 
 	/** Define the mapping for ExpBigBinaryInteger (experimental) */
@@ -157,8 +158,10 @@ namespace lbcrypto {
 
 #if MATHBACKEND == 4
 
-	/** integral_dtype specifies the native data type used for the BigBinaryInteger implementation 
-	    should be uint32_t for most applications **/
+	/** integral_dtype specifies the native data type used for the
+	    BigBinaryInteger implementation set to uint64_t for
+	    machines tha support it. */
+
 	typedef uint64_t integral_dtype;
 
 	/** Define the mapping for ExpBigBinaryInteger (experimental) */

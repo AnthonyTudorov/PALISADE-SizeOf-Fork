@@ -372,24 +372,26 @@ namespace exp_int {
    */
   template<typename limb_t>
   usint ubint<limb_t>::ConvertToUsint() const{
-    usint result;
+    usint result = 0;
     if (m_value.size()==0)
       throw std::logic_error("ConvertToUsint() on uninitialized bint");		       
     if (sizeof(limb_t)>=sizeof(usint)){
       result = m_value.at(0);
-      return result;
     } else {
-      //Case where limb_t is less bits than usint
-      //set num to number of equisized chunks
-      //usint num = (8*sizeof(usint)) / m_limbBitLength;
-
-      usint ceilInt = ceilIntByUInt(m_MSB);
+      //Case where limb_t is less bits than output size
+      //add number of limbs needed to make output
+      int msbTest = sizeof(usint)*8;
+      if (msbTest > m_MSB)
+	msbTest = m_MSB;
+      usint ceilInt = ceilIntByUInt(msbTest);
       //copy the values by shift and add
       for (usint i = 0; i < ceilInt; i++){
-	result += (this->m_value.at(i) << (m_limbBitLength*i));
+	usint tmp = this->m_value.at(i);
+	tmp <<= (m_limbBitLength*i);
+	result += tmp;
       }
-      return result;
     }
+    return result;
   }
 
   template<typename limb_t>
@@ -397,35 +399,116 @@ namespace exp_int {
     return this->ConvertToUsint();
   }
 
-  // the following conversions all throw 
+
   //Converts the ubint to uint32_t using the std library functions.
   template<typename limb_t>
   uint32_t ubint<limb_t>::ConvertToUint32() const{
-    return std::stoul(this->ToString());
+    uint32_t result = 0;
+    if (m_value.size()==0)
+      throw std::logic_error("ConvertToUint32() on uninitialized bint");	
+
+    if (sizeof(limb_t)>=sizeof(uint32_t)){
+      result = (uint32_t)m_value.at(0);
+    } else {
+      //Case where limb_t is less bits than uint32_t
+      int msbTest = sizeof(uint32_t)*8;
+      if (msbTest > m_MSB)
+	msbTest = m_MSB;
+      usint ceilInt = ceilIntByUInt(msbTest);
+      //copy the values by shift and add
+      for (usint i = 0; i < ceilInt; i++){
+	uint32_t tmp = this->m_value.at(i);
+	tmp  <<= (m_limbBitLength*i);
+	result += tmp;
+      }
+    }
+    return result;
   }
 
   //Converts the ubint to uint64_t using the std library functions.
   template<typename limb_t>
   uint64_t ubint<limb_t>::ConvertToUint64() const{
-    return std::stoull(this->ToString());
+    bool dbg_flag = false;		// if true then print dbg output
+    uint64_t result = 0;
+    if (m_value.size()==0)
+      throw std::logic_error("ConvertToUint64() on uninitialized bint");		       
+    if (sizeof(limb_t)>=sizeof(uint64_t)){
+      DEBUG("mvalue0 " << m_value.at(0));
+      result = m_value.at(0);
+      DEBUG("result1 " << result);
+      result = (uint64_t)m_value.at(0);
+      DEBUG("result2 " << result);
+    } else {
+      //Case where limb_t is less bits than uint64_t
+      int msbTest = sizeof(uint64_t)*8;
+      if (msbTest > m_MSB)
+	msbTest = m_MSB;
+      usint ceilInt = ceilIntByUInt(msbTest);
+      DEBUG("msbTest " << msbTest);
+      DEBUG("ceilint " << ceilInt);
+      //copy the values by shift and add
+      for (usint i = 0; i < ceilInt; i++){
+	DEBUG("i "<< i << "v " << this->m_value.at(i));
+	DEBUG("shift "<< (m_limbBitLength*i));
+	DEBUG("preresult " << result);
+	uint64_t tmp  = this->m_value.at(i);
+	tmp <<= (m_limbBitLength*i); 
+	result += tmp;
+	DEBUG("postresult " << result);
+      }
+    }
+return result;
   }
 
+
+  // the following conversions all throw 
   //Converts the ubint to float using the std library functions.
   template<typename limb_t>
   float ubint<limb_t>::ConvertToFloat() const{
-    return std::stof(this->ToString());
+    if (m_value.size()==0)
+      throw std::logic_error("ConvertToFloat() on uninitialized bint");		
+    float ans;
+    try {
+      ans = std::stof(this->ToString());
+    } catch (const std::exception& e) {
+      std::cerr << e.what();
+      throw std::logic_error("ConvertToFloat() parse error converting to float");
+      ans = -1.0; //TODO: this signifies an error... 
+    }
+    return ans;
   }
 
   //Converts the ubint to double using the std library functions.
   template<typename limb_t>
   double ubint<limb_t>::ConvertToDouble() const{
-    return std::stod(this->ToString());
+    if (m_value.size()==0)
+      throw std::logic_error("ConvertToDouble() on uninitialized bint");		
+    double ans;
+    try {
+      ans = std::stod(this->ToString());
+    } catch (const std::exception& e) {
+      std::cerr << e.what();
+      throw std::logic_error("ConvertToDouble() parse error converting to double");
+      ans = -1.0; 
+    }
+    return ans;
   }
 
   //Converts the ubint to long double using the std library functions.
   template<typename limb_t>
   long double ubint<limb_t>::ConvertToLongDouble() const{
-    return std::stold(this->ToString());
+    if (m_value.size()==0)
+      throw std::logic_error("ConvertToLongDouble() on uninitialized bint");		
+    long double ans;
+    try {
+      ans = std::stold(this->ToString());
+    } catch (const std::exception& e) {
+      std::cerr << e.what();
+      throw std::logic_error("ConvertToLongDouble() parse error converting to long double");
+      ans = -1.0; 
+    }
+    return ans;
+
   }
 
   //copy allocator
@@ -2234,7 +2317,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   }
 
   /*
-    This method can be used to convert int to ubint
+    This method can be used to oconvert int to ubint
   */
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::UsintToUbint(usint m){
@@ -2243,5 +2326,27 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
 
   }
 
+
+
+  /* method to print out compiler constants */
+  template<typename limb_t>
+  void ubint<limb_t>::PrintIntegerConstants(void) {
+
+    std::cout << "sizeof UINT8_C "<< sizeof (UINT8_C(1)) << std::endl;
+    std::cout << "sizeof UINT16_C "<< sizeof (UINT16_C(1)) << std::endl;
+    std::cout << "sizeof UINT32_C "<< sizeof (UINT32_C(1)) << std::endl;
+    std::cout << "sizeof UINT64_C "<< sizeof (UINT64_C(1)) << std::endl;
+
+    std::cout << "sizeof uint8_t "<< sizeof (uint8_t) << std::endl;
+    std::cout << "sizeof uint16_t "<< sizeof (uint16_t) << std::endl;
+    std::cout << "sizeof uint32_t "<< sizeof (uint32_t) << std::endl;
+    std::cout << "sizeof uint64_t "<< sizeof (uint64_t) << std::endl;
+#if MATHBACKEND == 4
+    std::cout << "sizeof UINT128_C "<< sizeof (UINT128_C(1)) << std::endl;
+    std::cout << "sizeof uint128_t "<< sizeof (uint128_t) << std::endl;
+#endif
+
+
+  }
 
 } // namespace exp_intg4 ends

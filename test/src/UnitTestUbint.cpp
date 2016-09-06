@@ -115,12 +115,17 @@ SetIdentity()
 TEST(UTubint,string_conversions_msb){
   
   //test string ctor and ConvertTo functions
+  //note number of limbs cited assumes uint32_t implementation
   //create a small ubint with only one limb
+
   ubint q1("00000000000000163841");
+
+  //  q1.PrintIntegerConstants();
+
   EXPECT_EQ(163841, q1.ConvertToUsint())<<"Failure Convert 1 limb to usint";
   EXPECT_EQ(163841, q1.ConvertToUint32())<<"Failure Convert 1 limb to uint";
   EXPECT_EQ(163841, q1.ConvertToUint64())<<"Failure Convert 1 limb to uint64";
-  EXPECT_EQ(163841.0, q1.ConvertToFloat())
+  EXPECT_EQ(163841.0F, q1.ConvertToFloat())
     <<"Failure Convert 1 limb to float";
   EXPECT_EQ(163841.0, q1.ConvertToDouble())
     <<"Failure Convert 1 limb to double";
@@ -137,18 +142,40 @@ TEST(UTubint,string_conversions_msb){
   //to big for usint or for float so we expect that to fail
   EXPECT_NE(4057816419532801UL, q2.ConvertToUsint()) 
     <<"Failure Convert 2 limb to usint";
-  //YSP Temporarily commented out
-  //EXPECT_NE(4057816419532801UL, q2.ConvertToUint32())
-  //  <<"Failure Convert 2 limb to uint32";
+
+  EXPECT_NE(4057816419532801UL, q2.ConvertToUint32())
+    <<"Failure Convert 2 limb to uint32";
   EXPECT_EQ(4057816419532801UL, q2.ConvertToUint64())
     <<"Failure Convert 2 limb to uint64";
   EXPECT_EQ(4057816419532801L, q2.ConvertToUint64())
     <<"Failure Convert 2 limb to uint64";
-  EXPECT_NE(4057816419532801.0, q2.ConvertToFloat())
+
+  //test float converstions. 
+
+  //cout << "flt mantissa digits "<< FLT_MANT_DIG <<endl;
+  //cout << "d mantissa digits "<< DBL_MANT_DIG <<endl;
+  //cout << "ld mantissa digits "<< LDBL_MANT_DIG <<endl;
+
+  float testf = 4057816419532801.0F;
+  //cout << "sizeoffloat "<< sizeof(float) << endl;  
+  //cout << "testf "<< testf << endl;
+  EXPECT_EQ(testf, q2.ConvertToFloat())
     <<"Failure Convert 2 limb to float";    
-  EXPECT_EQ(4057816419532801.0, q2.ConvertToDouble())
-    <<"Failure Convert 2 limb to ouble";    
-  EXPECT_EQ(4057816419532801.0L, q2.ConvertToLongDouble())
+
+  double testd = 4057816419532801.0;
+  //cout << "sizeofdouble "<< sizeof(double) << endl;  
+  //cout << "testd "<< testd << endl;
+  EXPECT_EQ(testd, q2.ConvertToDouble())
+    <<"Failure Convert 2 limb to double";    
+
+  //note we expect a loss of precision
+  EXPECT_NE(testd, (double)q2.ConvertToFloat())
+    <<"Failure Convert 2 limb to float loss of precision";    
+
+  long double testld = 4057816419532801.0L;
+  //cout << "sizeoflongdouble "<< sizeof(long double) << endl;  
+  //cout << "testld "<< testld << endl;
+  EXPECT_EQ(testld, q2.ConvertToLongDouble())
     <<"Failure Convert 2 limb to long double";
 
   //test GetMSB()
@@ -156,8 +183,7 @@ TEST(UTubint,string_conversions_msb){
   //DEBUG("q2 msb "<<msb);
   EXPECT_EQ(msb, 52)<<  "Failure testing 2 limb msb test ";
 
-  bool thrown;
-  thrown = false;
+  bool thrown = false;
   try {
     //test the ctor()
 
