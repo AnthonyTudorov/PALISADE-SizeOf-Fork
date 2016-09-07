@@ -196,6 +196,7 @@ void LPLeveledSHEAlgorithmLTV<Element>::KeySwitchHintGen(const LPPrivateKey<Elem
 template<class Element>
 Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPEvalKey<Element> &keySwitchHint,const Ciphertext<Element> &cipherText) const {
 
+	//Get the EvalKeyNTRU to perform key swich, also verfies if proper EvalKey is instantiated.
 	const LPEvalKeyNTRU<Element> &keyHint = dynamic_cast<const LPEvalKeyNTRU<Element>&>(keySwitchHint);
 
 	Ciphertext<Element> newCipherText(cipherText);

@@ -275,7 +275,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::EvalKeyGen(*ctx->getAlgorithm(), newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	CryptoUtility<ILVector2n>::ReKeyGen(*ctx->getAlgorithm(), newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;

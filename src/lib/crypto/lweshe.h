@@ -68,7 +68,7 @@ namespace lbcrypto {
 			LPAlgorithmSHELTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 
 			/**
-			 * Function for evaluation multiplication on ciphertext.
+			 * Function for evaluating multiplication on ciphertext.
 			 *
 			 * @param &ciphertext1 first input ciphertext.
 			 * @param &ciphertext2 second input ciphertext.
@@ -76,6 +76,18 @@ namespace lbcrypto {
 			 */
 			void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2, 
+				Ciphertext<Element> *newCiphertext) const;
+
+			/**
+			* Function for evaluating multiplication on ciphertext followed by key switching operation.
+			*
+			* @param &ciphertext1 first input ciphertext.
+			* @param &ciphertext2 second input ciphertext.
+			* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2. 
+			* @param *newCiphertext the new resulting ciphertext.
+			*/
+			void EvalMult(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,const LPEvalKey<Element> &ek,
 				Ciphertext<Element> *newCiphertext) const;
 
 			/**

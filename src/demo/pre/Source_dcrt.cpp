@@ -99,7 +99,7 @@ int main() {
 //	RootsOfUnitTest();
 //	RingReduceTest();
 //	RingReduceDCRTTest();
-	NTRUPRE(0);
+//	NTRUPRE(0);
 	NTRU_DCRT();
 
 	//LevelCircuitEvaluation();
@@ -389,7 +389,7 @@ void NTRU_DCRT() {
 
 	LPEvalKeyNTRURelin<ILVectorArray2n> evalKey(*ctx->getParams());
 
-	CryptoUtility<ILVectorArray2n>::EvalKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	CryptoUtility<ILVectorArray2n>::ReKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption operation.
@@ -1434,7 +1434,7 @@ void NTRUPRE(usint input) {
 
 	start = currentDateTime();
 
-	algorithm.EvalKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	algorithm.ReKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;

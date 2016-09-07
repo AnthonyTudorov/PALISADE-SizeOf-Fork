@@ -257,7 +257,7 @@ TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
 
 	LPEvalKeyRelin<ILVector2n> evalKey(cryptoParams);
 
-	algorithm.EvalKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	algorithm.ReKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	vector<Ciphertext<ILVector2n>> newCiphertext;
 

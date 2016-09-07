@@ -1253,7 +1253,7 @@ namespace lbcrypto {
 			 * @param *evalKey the evaluation key.
 			 * @return the re-encryption key.
 			 */
-			virtual bool EvalKeyGen(const LPKey<Element> &newKey, 
+			virtual bool ReKeyGen(const LPKey<Element> &newKey, 
 				const LPPrivateKey<Element> &origPrivateKey,
 				LPEvalKey<Element> *evalKey) const = 0;
 						
@@ -1299,7 +1299,7 @@ namespace lbcrypto {
 		public:
 						
 			/**
-			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext
+			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext.
 			 *
 			 * @param &ciphertext1 the input ciphertext.
 			 * @param &ciphertext2 the input ciphertext.
@@ -1311,6 +1311,18 @@ namespace lbcrypto {
 
 			virtual void EvalAdd(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const = 0;
+
+			/**
+			* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
+			*
+			* @param &ciphertext1 first input ciphertext.
+			* @param &ciphertext2 second input ciphertext.
+			* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+			* @param *newCiphertext the new resulting ciphertext.
+			*/
+			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &ek,
 				Ciphertext<Element> *newCiphertext) const = 0;
 
 	};
@@ -1517,12 +1529,12 @@ namespace lbcrypto {
 		// the two functions below are wrappers for things in LPPREAlgorithm (PRE)
 		//
 
-		bool EvalKeyGen(const LPKey<Element> &newKey, const LPPrivateKey<Element> &origPrivateKey,
+		bool ReKeyGen(const LPKey<Element> &newKey, const LPPrivateKey<Element> &origPrivateKey,
 			LPEvalKey<Element> *evalKey) const{
 				if(this->m_algorithmPRE)
-					return this->m_algorithmPRE->EvalKeyGen(newKey,origPrivateKey,evalKey);
+					return this->m_algorithmPRE->ReKeyGen(newKey,origPrivateKey,evalKey);
 				else {
-					throw std::logic_error("EvalKeyGen operation has not been enabled");
+					throw std::logic_error("ReKeyGen operation has not been enabled");
 				}
 		}
 
@@ -1578,6 +1590,9 @@ namespace lbcrypto {
 						throw std::logic_error("EvalMult operation has not been enabled");
 					}
 		}
+
+
+
 
 		/////////////////////////////////////////
 		// the functions below are wrappers for things in LPFHEAlgorithm (FHE)

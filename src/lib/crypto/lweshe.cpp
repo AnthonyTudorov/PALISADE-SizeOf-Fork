@@ -58,7 +58,20 @@ void LPAlgorithmSHELTV<Element>::EvalMult(
 
 	newCiphertext->SetElement(cResult);
 
-}  
+}
+
+template <class Element>
+void LPAlgorithmSHELTV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
+	const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &ek,
+	Ciphertext<Element> *newCiphertext) const {
+
+	//invoke the EvalMult without the EvalKey
+	EvalMult(ciphertext1, ciphertext2, newCiphertext);
+
+	//Key Switching operation.
+	*newCiphertext = GetScheme().KeySwitch(ek,*newCiphertext);
+
+}
 
 
 template <class Element>

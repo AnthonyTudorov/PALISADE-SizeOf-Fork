@@ -31,7 +31,7 @@ namespace lbcrypto {
 
 //Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
-bool LPAlgorithmPRELTV<Element>::EvalKeyGen(const LPKey<Element> &newPK, 
+bool LPAlgorithmPRELTV<Element>::ReKeyGen(const LPKey<Element> &newPK, 
 				const LPPrivateKey<Element> &origPrivateKey,
 				LPEvalKey<Element> *evalKey) const
 {
@@ -40,10 +40,13 @@ bool LPAlgorithmPRELTV<Element>::EvalKeyGen(const LPKey<Element> &newPK,
 	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();
 	const Element &f = origPrivateKey.GetPrivateElement();
 
-	const LPPublicKey<Element> *newPublicKey =
-		dynamic_cast<const LPPublicKey<Element>*>(&newPK);
+	const LPPublicKey<Element> &newPublicKey =
+		dynamic_cast<const LPPublicKey<Element>&>(newPK);
 
-	const Element &hn = newPublicKey->GetPublicElements().at(0);
+	//dynamic cast to check if proper EvalKey class is instantiated. 
+	LPEvalKeyNTRURelin<Element> &ek = dynamic_cast<LPEvalKeyNTRURelin<Element> &>(*evalKey);
+
+	const Element &hn = newPublicKey.GetPublicElements().at(0);
 
 	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE.GetDiscreteGaussianGenerator();
 

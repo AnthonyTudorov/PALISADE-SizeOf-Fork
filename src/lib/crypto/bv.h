@@ -223,7 +223,7 @@ namespace lbcrypto {
 		* @param &ddg discrete Gaussian generator.
 		* @param *evalKey the evaluation key.
 		*/
-		bool EvalKeyGen(const LPKey<Element> &newPrivateKey,
+		bool ReKeyGen(const LPKey<Element> &newPrivateKey,
 			const LPPrivateKey<Element> &origPrivateKey,
 			LPEvalKey<Element> *evalKey) const;
 
