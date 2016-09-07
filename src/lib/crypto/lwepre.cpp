@@ -58,7 +58,7 @@ bool LPAlgorithmPRELTV<Element>::EvalKeyGen(const LPKey<Element> &newPK,
 
 		evalKeyElements.at(i) += hn*s + p*e;
 	}
-
+	
 	evalKey->SetAVector(std::move(evalKeyElements));
 
 	return true;
@@ -89,12 +89,12 @@ void LPAlgorithmPRELTV<Element>::ReEncrypt(const LPEvalKey<Element> &evalKey,
 	Ciphertext<Element> *newCiphertext) const
 {
 	const LPCryptoParametersRLWE<Element> &cryptoParamsLWE = dynamic_cast<const LPCryptoParametersRLWE<Element>&>(evalKey.GetCryptoParameters());
-	const LPEvalKeyRelin<Element> &relinEvalKey = dynamic_cast<const LPEvalKeyRelin<Element> &>(evalKey);
+	
 	
 	const ElemParams &elementParams = cryptoParamsLWE.GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();
 
-	const std::vector<Element> &proxy = relinEvalKey.GetAVector();
+	const std::vector<Element> &proxy = evalKey.GetAVector();
 
 	usint relinWindow = cryptoParamsLWE.GetRelinWindow();
 

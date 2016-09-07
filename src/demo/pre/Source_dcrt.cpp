@@ -387,7 +387,7 @@ void NTRU_DCRT() {
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
-	LPEvalKeyRelin<ILVectorArray2n> evalKey(*ctx->getParams());
+	LPEvalKeyNTRURelin<ILVectorArray2n> evalKey(*ctx->getParams());
 
 	CryptoUtility<ILVectorArray2n>::EvalKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
@@ -1430,7 +1430,7 @@ void NTRUPRE(usint input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyRelin<ILVector2n> evalKey(cryptoParams);
+	LPEvalKeyNTRURelin<ILVector2n> evalKey(cryptoParams);
 
 	start = currentDateTime();
 

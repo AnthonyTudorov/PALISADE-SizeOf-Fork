@@ -119,40 +119,6 @@ namespace lbcrypto {
 	};
 
 	/**
-	 * @brief Abstract Interface Class to capture common Crypto Parameters 
-	 * @tparam Element a ring element.
-	 */
-	//JSON FACILITY
-	template <class Element>
-	class LPCryptoParameters : public Serializable {
-	public:
-		virtual ~LPCryptoParameters() {}
-		
-		//@Get Properties
-	
-		/**
-		 * Gets the value of plaintext modulus p
-		 */
-		virtual const BigBinaryInteger & GetPlaintextModulus() const = 0;
-
-		//@Set Properties
-
-		/**
-		 * Sets the value of plaintext modulus p
-		 * @param &plaintextModulus the new plaintext modulus.
-		 */
-		virtual void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) = 0;
-
-		/**
-		 * Gets the value of element parameters
-		 */
-		virtual const ElemParams &GetElementParams() const = 0;
-		
-		virtual bool operator==(const LPCryptoParameters<Element> &rhs) const = 0;
-
-	};
-
-	/**
 	 * @brief Abstract interface class for LP Keys
 	 * @tparam Element a ring element.
 	 */
@@ -181,7 +147,7 @@ namespace lbcrypto {
 	};
 
 	/**
-	 * @brief Abstract interface for LP public keys
+	 * @brief Concrete class for LP public keys
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
@@ -285,25 +251,33 @@ namespace lbcrypto {
 			//@Set Properties
 
 			/**
-			 * Sets the public key 
-			 * @param &element the public key element.
+			 * Sets the public key vector of Element.
+			 * @param &element is the public key Element vector to be copied.
 			 */
 			void SetPublicElements(const std::vector<Element> &element) {
 				m_h = element;
 			}
 
 			/**
-			* Sets the public key
-			* @param &element the public key element.
+			* Sets the public key vector of Element.
+			* @param &&element is the public key Element vector to be moved.
 			*/
 			void SetPublicElements(std::vector<Element> &&element) {
 				m_h = std::move(element);
 			}
 
+			/**
+			* Sets the public key Element at index idx.
+			* @param &element is the public key Element to be copied.
+			*/
 			void SetPublicElementAtIndex(usint idx, const Element &element) {
 				m_h.insert(m_h.begin() + idx, element);
 			}
 
+			/**
+			* Sets the public key Element at index idx.
+			* @param &&element is the public key Element to be moved.
+			*/
 			void SetPublicElementAtIndex(usint idx, Element &&element) {
 				m_h.insert(m_h.begin() + idx, std::move(element));
 			}
@@ -434,18 +408,106 @@ namespace lbcrypto {
 		*/
 		virtual const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
 
+		/**
+		* Setter function to store Relinearization Element Vector A.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @param &a is the Element vector to be copied.
+		*/
 
-		virtual void SetAVector(const std::vector<Element> &a) = 0;
+		virtual void SetAVector(const std::vector<Element> &a) {
+			throw std::runtime_error("Operation not supported");
+		}
 
-		virtual void SetAVector(std::vector<Element> &&a) = 0;
+		/**
+		* Setter function to store Relinearization Element Vector A.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @param &&a is the Element vector to be moved.
+		*/
 
-		virtual void SetBVector(const std::vector<Element> &b) = 0;
+		virtual void SetAVector(std::vector<Element> &&a) {
+			throw std::runtime_error("Operation not supported");
+		}
 
-		virtual void SetBVector(std::vector<Element> &&b) = 0;
+		/**
+		* Getter function to access Relinearization Element Vector A.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @return Element vector A.
+		*/
 
-		virtual void SetA(const Element &a) = 0;
+		virtual const std::vector<Element> &GetAVector() const {
+			throw std::runtime_error("Operation not supported");
+			return std::vector<Element>();
+		}
 
-		virtual void SetA(Element &&a) = 0;
+		/**
+		* Setter function to store Relinearization Element Vector B.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @param &b is the Element vector to be copied.
+		*/
+
+		virtual void SetBVector(const std::vector<Element> &b) {
+			throw std::runtime_error("Operation not supported");
+		}
+
+		/**
+		* Setter function to store Relinearization Element Vector B.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @param &&b is the Element vector to be moved.
+		*/
+
+		virtual void SetBVector(std::vector<Element> &&b) {
+			throw std::runtime_error("Operation not supported");
+		}
+
+		/**
+		* Getter function to access Relinearization Element Vector B.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @return  Element vector B.
+		*/
+
+		virtual const std::vector<Element> &GetBVector() const {
+			throw std::runtime_error("Operation not supported");
+			return std::vector<Element>();
+		}
+
+		/**
+		* Setter function to store key switch Element.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @param &a is the Element to be copied.
+		*/
+
+		virtual void SetA(const Element &a) {
+			throw std::runtime_error("Operation not supported");
+		}
+
+		/**
+		* Setter function to store key switch Element.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @param &&a is the Element to be moved.
+		*/
+		virtual void SetA(Element &&a) {
+			throw std::runtime_error("Operation not supported");
+		}
+
+		/**
+		* Getter function to access key switch Element.
+		* Throws exception, to be overridden by derived class.
+		*
+		* @return  Element.
+		*/
+
+		virtual const Element &GetA() const {
+			throw std::runtime_error("Operation not supported");
+			return Element();
+		}
 
 	private:
 		LPCryptoParameters<Element> *m_cryptoParameters;
@@ -453,50 +515,88 @@ namespace lbcrypto {
 	};
 
 	/**
-	* @brief Abstract interface for Relinearization keys
+	* @brief Concrete class for Relinearization keys of RLWE scheme
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
 	class LPEvalKeyRelin : public LPEvalKey<Element> {
 	public:
 
+		/**
+		* Default constructor
+		*/
+
 		LPEvalKeyRelin() {};
 
+		/**
+		* Basic constructor for setting crypto params
+		*
+		* @param &cryptoParams is the reference to cryptoParams
+		*/
 		LPEvalKeyRelin(LPCryptoParameters<Element> &cryptoParams) {
 			this->SetCryptoParameters(&cryptoParams);
 		}
 
+		/**
+		* Setter function to store Relinearization Element Vector A.
+		* Overrides base class implementation.
+		*
+		* @param &a is the Element vector to be copied.
+		*/
 		virtual void SetAVector(const std::vector<Element> &a) {
 			m_rKey.insert(m_rKey.begin() + 0, a);
 		}
 
+		/**
+		* Setter function to store Relinearization Element Vector A.
+		* Overrides base class implementation.
+		*
+		* @param &&a is the Element vector to be moved.
+		*/
 		virtual void SetAVector(std::vector<Element> &&a) {
 			m_rKey.insert(m_rKey.begin() + 0, std::move(a));
 		}
 
-		const std::vector<Element> &GetAVector() const {
+		/**
+		* Getter function to access Relinearization Element Vector A.
+		* Overrides base class implementation.
+		*
+		* @return Element vector A.
+		*/
+		virtual const std::vector<Element> &GetAVector() const {
 			return m_rKey.at(0);
 		}
 
+		/**
+		* Setter function to store Relinearization Element Vector B.
+		* Overrides base class implementation.
+		*
+		* @param &b is the Element vector to be copied.
+		*/
 		virtual void SetBVector(const std::vector<Element> &b) {
 			m_rKey.insert(m_rKey.begin() + 1, b);
 		}
 
+		/**
+		* Setter function to store Relinearization Element Vector B.
+		* Overrides base class implementation.
+		*
+		* @param &&b is the Element vector to be moved.
+		*/
 		virtual void SetBVector(std::vector<Element> &&b) {
 			m_rKey.insert(m_rKey.begin() + 1, std::move(b));
 		}
 
-		const std::vector<Element> &GetBVector() const {
+		/**
+		* Getter function to access Relinearization Element Vector B.
+		* Overrides base class implementation.
+		*
+		* @return Element vector B.
+		*/
+		virtual const std::vector<Element> &GetBVector() const {
 			return m_rKey.at(1);
 		}
 
-		virtual void SetA(const Element &a) {
-			throw std::runtime_error("Operation not supported");
-		}
-
-		virtual void SetA(Element &&a) {
-			throw std::runtime_error("Operation not supported");
-		}
 
 		/**
 		* Higher level info about the serialization is saved here
@@ -564,48 +664,193 @@ namespace lbcrypto {
 			return false;
 		}
 	private:
+		//private member to store vector of vector of Element.
 		std::vector< std::vector<Element> > m_rKey;
 	};
 
 	/**
-	* @brief Abstract interface for NTRU keys
+	* @brief Evaluation Relinearization keys for NTRU scheme.
+	* @tparam Element a ring element.
+	*/
+	template <class Element>
+	class LPEvalKeyNTRURelin : public LPEvalKey<Element> {
+	public:
+
+		/**
+		* Default constructor
+		*/
+
+		LPEvalKeyNTRURelin() {};
+
+		/**
+		* Basic constructor for setting crypto params
+		*
+		* @param &cryptoParams is the reference to cryptoParams
+		*/
+
+		LPEvalKeyNTRURelin(LPCryptoParameters<Element> &cryptoParams) {
+			this->SetCryptoParameters(&cryptoParams);
+		}
+
+		/**
+		* Setter function to store Relinearization Element Vector A.
+		* Overrides base class implementation.
+		*
+		* @param &a is the Element vector to be copied.
+		*/
+		virtual void SetAVector(const std::vector<Element> &a) {
+			for (usint i = 0; i < a.size(); i++) {
+				m_rKey.insert(m_rKey.begin() + i, a.at(i));
+			}
+		}
+
+
+		/**
+		* Setter function to store Relinearization Element Vector A.
+		* Overrides base class implementation.
+		*
+		* @param &&a is the Element vector to be moved.
+		*/
+		virtual void SetAVector(std::vector<Element> &&a) {
+			m_rKey = std::move(a);
+		}
+
+		/**
+		* Getter function to access Relinearization Element Vector A.
+		* Overrides base class implementation.
+		*
+		* @return Element vector A.
+		*/
+		virtual const std::vector<Element> &GetAVector() const {
+			return m_rKey;
+		}
+
+		/**
+		* Higher level info about the serialization is saved here
+		* @param *serObj to store the the implementing object's serialization specific attributes.
+		* @param flag an object-specific parameter for the serialization
+		* @return true on success
+		*/
+		bool SetIdFlag(Serialized *serObj, const std::string flag) const {
+
+			SerialItem idFlagMap(rapidjson::kObjectType);
+			idFlagMap.AddMember("ID", "LPEvalKeyNTRU", serObj->GetAllocator());
+			idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
+			serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
+
+			return true;
+		}
+
+		/**
+		* Serialize the object into a Serialized
+		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @param fileFlag is an object-specific parameter for the serialization
+		* @return true if successfully serialized
+		*/
+		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+			serObj->SetObject();
+
+			if (!this->GetCryptoParameters().Serialize(serObj, "")) {
+				return false;
+			}
+
+			const Element& pe = this->GetA();
+
+			if (!pe.Serialize(serObj, "")) {
+				return false;
+			}
+
+			if (!this->SetIdFlag(serObj, fileFlag))
+				return false;
+
+			return true;
+		}
+
+		/**
+		* Populate the object from the deserialization of the Serialized
+		* @param &serObj contains the serialized object
+		* @return true on success
+		*/
+		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
+			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getparams());
+			if (cryptoparams == 0) return false;
+
+			this->SetCryptoParameters(cryptoparams);
+
+			Element json_ilelement;
+			if (json_ilelement.deserialize(serObj)) {
+				this->SetA(json_ilelement);
+				return true;
+			}
+
+			return false;
+		}
+
+		bool Deserialize(const Serialized &serObj) {
+			return false;
+		}
+
+		
+	private:
+		//private member to store vector of Element.
+		std::vector<Element>  m_rKey;
+	};
+
+	/**
+	* @brief Concrete class for facilitating NTRU key switch.
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
 	class LPEvalKeyNTRU : public LPEvalKey<Element> {
 	public:
 
+		/**
+		* Default constructor
+		*/
+
 		LPEvalKeyNTRU() {};
+
+		/**
+		* Basic constructor for setting crypto params
+		*
+		* @param &cryptoParams is the reference to cryptoParams
+		*/
 
 		LPEvalKeyNTRU(LPCryptoParameters<Element> &cryptoParams) {
 			this->SetCryptoParameters(&cryptoParams);
 		}
 
-		virtual void SetAVector(const std::vector<Element> &a) {
-			throw std::runtime_error("Operation not supported");
-		}
-
-		virtual void SetAVector(std::vector<Element> &&a) {
-			throw std::runtime_error("Operation not supported");
-		}
-
-		virtual void SetBVector(const std::vector<Element> &b) {
-			throw std::runtime_error("Operation not supported");
-		}
-
-		virtual void SetBVector(std::vector<Element> &&b) {
-			throw std::runtime_error("Operation not supported");
-		}
+		/**
+		* Setter function to store NTRU key switch element.
+		* Function copies the key.
+		* Overrides the virtual function from base class LPEvalKey.
+		*
+		* @param &a is the key switch element to be copied.
+		*/
 
 		virtual void SetA(const Element &a) {
 			m_Key = a;
 		}
 
+		/**
+		* Setter function to store NTRU key switch Element.
+		* Function moves the key.
+		* Overrides the virtual function from base class LPEvalKey.
+		*
+		* @param &&a is the key switch Element to be moved.
+		*/
 		virtual void SetA(Element &&a) {
 			m_Key = std::move(a);
 		}
 
-		const Element& GetA() const {
+		/**
+		* Getter function to access NTRU key switch Element.
+		* Overrides the virtual function from base class LPEvalKey.
+		*
+		* @return NTRU key switch Element.
+		*/
+
+		virtual const Element& GetA() const {
 			return m_Key;
 		}
 
@@ -675,6 +920,9 @@ namespace lbcrypto {
 		}
 
 	private:
+		/**
+		* private member Element to store key.
+		*/
 		Element m_Key;
 	};
 	
@@ -698,6 +946,7 @@ namespace lbcrypto {
 		*
 		* @param &cryptoParams is the reference to cryptoParams.
 		*/
+
 		LPPrivateKey(LPCryptoParameters<Element> &cryptoParams) {
 			this->SetCryptoParameters(&cryptoParams);
 		}
@@ -1121,28 +1370,17 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPCryptoParametersImpl : public LPCryptoParameters<Element>
+	class LPCryptoParameters : public Serializable
 	{		
 	public:
+		virtual ~LPCryptoParameters() {}
 
 		/**
 			* Returns the value of plaintext modulus p
 			*
 			* @return the plaintext modulus.
 			*/
-		const BigBinaryInteger &GetPlaintextModulus() const {return  m_plaintextModulus;}
-
-			//LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; } 
-
-			///**
-			// * Sets crypto params.
-			// *
-			// * @param *cryptoParams parameters.
-			// * @return the crypto parameters.
-			// */
-			//void SetCryptoParameters( LPCryptoParameters<Element> *cryptoParams) { 
-			//	m_cryptoParameters = cryptoParams; 
-			//}
+		const BigBinaryInteger &GetPlaintextModulus() const { return  m_plaintextModulus; }
 
 		/**
 			* Returns the reference to IL params
@@ -1150,13 +1388,11 @@ namespace lbcrypto {
 			* @return the ring element parameters.
 			*/
 		const ElemParams &GetElementParams() const { return *m_params; }
-
-		//@Set Properties
 			
 		/**
 		* Sets the value of plaintext modulus p
 		*/
-		void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {m_plaintextModulus = plaintextModulus;}
+		void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) { m_plaintextModulus = plaintextModulus; }
 			
 		/**
 			* Sets the reference to element params
@@ -1166,9 +1402,9 @@ namespace lbcrypto {
 		virtual bool operator==(const LPCryptoParameters<Element>& cmp) const = 0;
 
 	protected:
-		LPCryptoParametersImpl() : m_params(NULL), m_plaintextModulus(BigBinaryInteger::TWO) {}
+		LPCryptoParameters() : m_params(NULL), m_plaintextModulus(BigBinaryInteger::TWO) {}
 
-		LPCryptoParametersImpl(ElemParams *params, const BigBinaryInteger &plaintextModulus) : m_params(params), m_plaintextModulus(plaintextModulus) {}
+		LPCryptoParameters(ElemParams *params, const BigBinaryInteger &plaintextModulus) : m_params(params), m_plaintextModulus(plaintextModulus) {}
 
 	private:
 		//element-specific parameters
@@ -1183,14 +1419,14 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPPublicKeyEncryptionScheme : public LPEncryptionAlgorithm<Element>, public LPPREAlgorithm<Element>, public LPLeveledSHEAlgorithm<Element>, public LPSHEAlgorithm<Element> {
+	class LPPublicKeyEncryptionScheme {
 
 	public:
-		LPPublicKeyEncryptionScheme() : m_algorithmEncryption(0),
-			m_algorithmPRE(0), m_algorithmEvalAdd(0), m_algorithmEvalAutomorphism(0),
-			m_algorithmSHE(0), m_algorithmFHE(0), m_algorithmLeveledSHE(0){}
+		LPPublicKeyEncryptionScheme() :
+			m_algorithmEncryption(0), m_algorithmPRE(0), m_algorithmEvalAdd(0), m_algorithmEvalAutomorphism(0),
+			m_algorithmSHE(0), m_algorithmFHE(0), m_algorithmLeveledSHE(0) {}
 
-		~LPPublicKeyEncryptionScheme() {
+		virtual ~LPPublicKeyEncryptionScheme() {
 			if (this->m_algorithmEncryption != NULL)
 				delete this->m_algorithmEncryption;
 			if (this->m_algorithmPRE != NULL)
@@ -1206,17 +1442,7 @@ namespace lbcrypto {
 			if (this->m_algorithmLeveledSHE != NULL)
 				delete this->m_algorithmLeveledSHE;
 		}
-
 		
-		//to be implemented later
-		//void Disable(PKESchemeFeature feature);
-		
-		//const std::bitset<FEATURESETSIZE> GetEnabledFeatures() {return m_featureMask;}
-		
-		//to be implemented later
-		//const std::string PrintEnabledFeatures();
-		
-		//needs to be moved to pubkeylp.cpp
 		bool IsEnabled(PKESchemeFeature feature) const {
 			bool flag = false;
 			switch (feature)
@@ -1256,180 +1482,194 @@ namespace lbcrypto {
 		//instantiated in the scheme implementation class
 		virtual void Enable(PKESchemeFeature feature) = 0;
 
-		const LPAutoMorphAlgorithm<Element> &GetLPAutoMorphAlgorithm() {
-			if(this->IsEnabled(EVALAUTOMORPHISM))
-				return *m_algorithmEvalAutomorphism;
-			else
-				throw std::logic_error("This operation is not supported");
-		}
+		/////////////////////////////////////////
+		// the three functions below are wrappers for things in LPEncryptionAlgorithm (ENCRYPT)
+		//
 
-		//wrapper for Encrypt method
 		EncryptResult Encrypt(const LPPublicKey<Element> &publicKey,
 			const Element &plaintext, Ciphertext<Element> *ciphertext) const {
-				if(this->IsEnabled(ENCRYPTION)) {
+				if(this->m_algorithmEncryption) {
 					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext,ciphertext);
 				}
 				else {
-					throw std::logic_error("This operation is not supported");
+					throw std::logic_error("Encrypt operation has not been enabled");
 				}
 		}
 
-		//wrapper for Decrypt method
 		DecryptResult Decrypt(const LPPrivateKey<Element> &privateKey, const Ciphertext<Element> &ciphertext,
 				Element *plaintext) const {
-				if(this->IsEnabled(ENCRYPTION))
+				if(this->m_algorithmEncryption)
 					return this->m_algorithmEncryption->Decrypt(privateKey,ciphertext,plaintext);
 				else {
-					throw std::logic_error("This operation is not supported");
+					throw std::logic_error("Decrypt operation has not been enabled");
 				}
 		}
 
-		//wrapper for KeyGen method
 		bool KeyGen(LPPublicKey<Element> *publicKey, LPPrivateKey<Element> *privateKey) const {
-				if(this->IsEnabled(ENCRYPTION))
+				if(this->m_algorithmEncryption)
 					return this->m_algorithmEncryption->KeyGen(publicKey,privateKey);
 				else {
-					throw std::logic_error("This operation is not supported");
+					throw std::logic_error("KeyGen operation has not been enabled");
 				}
 		}
 
-		bool SparseKeyGen(LPPublicKey<Element> *publicKey, 
-		        	LPPrivateKey<Element> *privateKey) const {
-				if(this->IsEnabled(LEVELEDSHE))
-					return this->m_algorithmLeveledSHE->SparseKeyGen(publicKey, privateKey);
-				else {
-					throw std::logic_error("This operation is not supported");
-				}
-				
-		}
+		/////////////////////////////////////////
+		// the two functions below are wrappers for things in LPPREAlgorithm (PRE)
+		//
 
-		//wrapper for EvalKeyGen method
 		bool EvalKeyGen(const LPKey<Element> &newKey, const LPPrivateKey<Element> &origPrivateKey,
 			LPEvalKey<Element> *evalKey) const{
-				if(this->IsEnabled(PRE))
+				if(this->m_algorithmPRE)
 					return this->m_algorithmPRE->EvalKeyGen(newKey,origPrivateKey,evalKey);
 				else {
-					throw std::logic_error("This operation is not supported");
+					throw std::logic_error("EvalKeyGen operation has not been enabled");
 				}
 		}
 
 		//wrapper for ReEncrypt method
 		void ReEncrypt(const LPEvalKey<Element> &evalKey, const Ciphertext<Element> &ciphertext,
 			Ciphertext<Element> *newCiphertext) const {
-				if(this->IsEnabled(PRE))
+				if(this->m_algorithmPRE)
 					this->m_algorithmPRE->ReEncrypt(evalKey,ciphertext,newCiphertext);
 				else {
-					throw std::logic_error("This operation is not supported");
+					throw std::logic_error("ReEncrypt operation has not been enabled");
 				}
 		}
 
+		/////////////////////////////////////////
+		// the functions below are wrappers for things in LPAHEAlgorithm (EVALADD)
+		//
+		// TODO: Add Functions?
 
-		//wrapper for EvalAdd method
+		/////////////////////////////////////////
+		// the function below is a wrapper for things in LPAutomorphAlgorithm (EVALAUTOMORPHISM)
+		//
+		// TODO: Add Functions?
+
+		const LPAutoMorphAlgorithm<Element> &GetLPAutoMorphAlgorithm() {
+			if(this->m_algorithmEvalAutomorphism)
+				return *m_algorithmEvalAutomorphism;
+			else
+				throw std::logic_error("Automorphism has not been enabled");
+		}
+
+		/////////////////////////////////////////
+		// the two functions below are wrappers for things in LPSHEAlgorithm (SHE)
+		//
+
 		void EvalAdd(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
 				Ciphertext<Element> *newCiphertext) const {
 
-					if(this->IsEnabled(SHE))
+					if(this->m_algorithmSHE)
 						this->m_algorithmSHE->EvalAdd(ciphertext1,ciphertext2,newCiphertext);
 					else{
-						throw std::logic_error("This operation is not supported");
+						throw std::logic_error("EvalAdd operation has not been enabled");
 					}
 		}
 
-		//wrapper for EvalMult method
 		void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
 				Ciphertext<Element> *newCiphertext) const {
 					
-					if(this->IsEnabled(SHE))
+					if(this->m_algorithmSHE)
 						this->m_algorithmSHE->EvalMult(ciphertext1,ciphertext2,newCiphertext);
 					else{
-						throw std::logic_error("This operation is not supported");
+						throw std::logic_error("EvalMult operation has not been enabled");
 					}
+		}
+
+		/////////////////////////////////////////
+		// the functions below are wrappers for things in LPFHEAlgorithm (FHE)
+		//
+		// TODO: Add Functions?
+
+		/////////////////////////////////////////
+		// the nine functions below are wrappers for things in LPSHEAlgorithm (SHE)
+		//
+
+		bool SparseKeyGen(LPPublicKey<Element> *publicKey,
+		        	LPPrivateKey<Element> *privateKey) const {
+				if(this->m_algorithmLeveledSHE)
+					return this->m_algorithmLeveledSHE->SparseKeyGen(publicKey, privateKey);
+				else {
+					throw std::logic_error("SparseKeyGen operation has not been enabled");
+				}
 
 		}
 
-		//wrapper for KeySwitchHintGen
 		void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
 				const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *keySwitchHint) const {
-					if(this->IsEnabled(LEVELEDSHE))
+					if(this->m_algorithmLeveledSHE)
 						this->m_algorithmLeveledSHE->KeySwitchHintGen(originalPrivateKey, newPrivateKey,keySwitchHint);
 					else{
-						throw std::logic_error("This operation is not supported");
+						throw std::logic_error("KeySwitchHintGen operation has not been enabled");
 					}
 		}
 
-		//wrapper for KeySwitch
 		Ciphertext<Element> KeySwitch(const LPEvalKey<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const {
 			
-			if(this->IsEnabled(LEVELEDSHE)){
+			if(this->m_algorithmLeveledSHE){
 				return this->m_algorithmLeveledSHE->KeySwitch(keySwitchHint,cipherText);
 			}
 			else{
-				throw std::logic_error("This operation is not supported");
+				throw std::logic_error("KeySwitch operation has not been enabled");
 			}
 		}
 
-		//wrapper for QuadraticKeySwitchHintGen
 		void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const {
-			if(this->IsEnabled(LEVELEDSHE)){
+			if(this->m_algorithmLeveledSHE){
 				this->m_algorithmLeveledSHE->QuadraticKeySwitchHintGen(originalPrivateKey,newPrivateKey,quadraticKeySwitchHint);
 			}
 			else{
-				throw std::logic_error("This operation is not supported");
+				throw std::logic_error("QuadraticKeySwitchHintGen operation has not been enabled");
 			}
 		}
 
-		//wrapper for ModReduce
 		void ModReduce(Ciphertext<Element> *cipherText) const {
-			if(this->IsEnabled(LEVELEDSHE)){
+			if(this->m_algorithmLeveledSHE){
 				this->m_algorithmLeveledSHE->ModReduce(cipherText);
 			}
 			else{
-				throw std::logic_error("This operation is not supported");
+				throw std::logic_error("ModReduce operation has not been enabled");
 			}
 		}
 
-		//wrapper for RingReduce
 		void RingReduce(Ciphertext<Element> *cipherText, const LPEvalKeyNTRU<Element> &keySwitchHint) const {
-			if(this->IsEnabled(LEVELEDSHE)){
+			if(this->m_algorithmLeveledSHE){
 				this->m_algorithmLeveledSHE->RingReduce(cipherText,keySwitchHint);
 			}
 			else{
-				throw std::logic_error("This operation is not supported");
+				throw std::logic_error("RingReduce operation has not been enabled");
 			}
 		}
 
-		//wrapper for CanRingReduce
 		bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const {
-			if (this->IsEnabled(LEVELEDSHE)) {
+			if (this->m_algorithmLeveledSHE) {
 				return this->m_algorithmLeveledSHE->CanRingReduce(ringDimension, moduli, rootHermiteFactor);
 			}
 			else {
-				throw std::logic_error("This operation is not supported");
+				throw std::logic_error("CanRingReduce operation has not been enabled");
 			}
 		}
 
 		void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
-			if(this->IsEnabled(LEVELEDSHE)){
+			if(this->m_algorithmLeveledSHE){
 				this->m_algorithmLeveledSHE->ComposedEvalMult(cipherText1,cipherText2,quadKeySwitchHint,cipherTextResult);
 			}
 			else{
-				throw std::logic_error("This operation is not supported");
+				throw std::logic_error("ComposedEvalMult operation has not been enabled");
 			}
 		}
 
-
-		//wrapper for LevelReduce
 		void LevelReduce(const Ciphertext<Element> &cipherText1, const LPEvalKeyNTRU<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
-			if(this->IsEnabled(LEVELEDSHE)){
+			if(this->m_algorithmLeveledSHE){
 				this->m_algorithmLeveledSHE->LevelReduce(cipherText1,linearKeySwitchHint,cipherTextResult);
 			}
 			else{
-				throw std::logic_error("This operation is not supported");
+				throw std::logic_error("LevelReduce operation has not been enabled");
 			}
 		}
-
 
 		const LPEncryptionAlgorithm<Element>& getAlgorithm() const { return *m_algorithmEncryption; }
 
@@ -1441,7 +1681,6 @@ namespace lbcrypto {
 		const LPSHEAlgorithm<Element> *m_algorithmSHE;
 		const LPFHEAlgorithm<Element> *m_algorithmFHE;
 		const LPLeveledSHEAlgorithm<Element> *m_algorithmLeveledSHE;
-		//std::bitset<FEATURESETSIZE> m_featureMask;
 	};
 
 
