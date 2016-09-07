@@ -139,7 +139,7 @@ namespace exp_int {
     //setting the MSB
     usint msb = 0;
 
-    msb = GetMSB32(init); //todo: this really should be renamed to GetMSBUsint or something.
+    msb = GetMSB32(init); //todo: this really should be renamed to GetMSBUsint or something. or really get NLimbsSize()
     DEBUG("ctor("<<init<<")");
     DEBUG( "msb " <<msb);
     DEBUG( "maxlimb "<<m_MaxLimb);
@@ -153,14 +153,16 @@ namespace exp_int {
       DEBUG("single limb size now "<<m_value.size());
     } else {
       usint ceilInt = ceilIntByUInt(msb);
+      DEBUG("mult limb ceilIntByUInt ="<<ceilInt);
       //setting the values of the array
       m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
       for(usint i= 0;i<ceilInt;++i){
-        this->m_value.at(i) = (limb_t)init;
+        m_value.push_back((limb_t)init);
         init>>=m_limbBitLength;
+	DEBUG("init now  " << init);
       }
-      DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
+
     }
     this->m_MSB = msb;
     m_state = INITIALIZED;
@@ -173,14 +175,14 @@ namespace exp_int {
     bool dbg_flag = false;		// if true then print dbg output
 
     if (sinit<0)
-      throw std::logic_error("ubint() initialized iwth signed number");		
+      throw std::logic_error("ubint() initialized with negative number");
 
     usint init = (usint) sinit;
 
     //setting the MSB
     usint msb = 0;
 
-    msb = GetMSB32(init); //todo: this really should be renamed to GetMSBusint or something.
+    msb = GetMSB32(init); //todo: rename
     DEBUG("ctor("<<init<<")");
     DEBUG( "msb " <<msb);
     DEBUG( "maxlimb "<<m_MaxLimb);
@@ -194,14 +196,15 @@ namespace exp_int {
       DEBUG("single limb size now "<<m_value.size());
     } else {
       usint ceilInt = ceilIntByUInt(msb);
+      DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
       //setting the values of the array
       m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
       for(usint i= 0;i<ceilInt;++i){
-        this->m_value.at(i) = (limb_t)init;
+        m_value.push_back((limb_t)init);
         init>>=m_limbBitLength;
+	DEBUG("init now  " << init);
       }
-      DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
     }
     this->m_MSB = msb;
     m_state = INITIALIZED;
@@ -237,7 +240,6 @@ namespace exp_int {
       for(usint i= 0;i<ceilInt;++i){
 	DEBUG("i " << i);
 	m_value.push_back((limb_t)init);
-	//DEBUG("value  " << this->m_value.at(i));
         init>>=m_limbBitLength;
 	DEBUG("init now  " << init);
       }
@@ -275,14 +277,14 @@ namespace exp_int {
       DEBUG("single limb size now "<<m_value.size());
     } else {
       usint ceilInt = ceilIntByUInt(msb);
+      DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
       //setting the values of the array
       this->m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
       for(usint i= 0;i<ceilInt;++i){
-        this->m_value.at(i) = (limb_t)init;
+        m_value.push_back((limb_t)init);
         init>>=m_limbBitLength;
       }
-      DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
     }
     this->m_MSB = msb;
     m_state = INITIALIZED;
