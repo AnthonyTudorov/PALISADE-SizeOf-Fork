@@ -149,9 +149,9 @@ public:
 	/**
 	* @brief Generates the probability matrix of given distribution, which is used in Knuth-Yao method
 	* @param sttdev standard deviation of Discrete Gaussian Distribution
-	* @param m Number of elements
+	* @param mean Center of the distribution
 	*/
-	void GenerateProbMatrix(double stddev, double m);
+	void GenerateProbMatrix(double stddev, double mean);
 
 	/**
 	* @ brief Returns a generated integer. Uses Knuth-Yao method defined as Algorithm 1 in http://link.springer.com/chapter/10.1007%2F978-3-662-43414-7_19#page-1
@@ -193,11 +193,16 @@ private:
 	/**
 	*Array that stores the Hamming Weights of the probability matrix used in Knuth-Yao sampling
 	*/
-	uint32_t hammingWeights[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	//uint32_t hammingWeights[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	/**
 	*Size of probability matrix
 	*/
 	uint32_t probMatrixSize;
+	
+	/**
+	*Mean of the distribution used for Knuth-Yao probability table
+	*/
+	double probMean;
 };
 
 }  // namespace lbcrypto
