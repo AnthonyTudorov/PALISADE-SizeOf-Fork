@@ -307,6 +307,39 @@ namespace lbcrypto {
 		*/
 	}
 	/**
+	*Generates the probability matrix of given distribution, which is used in Knuth-Yao method (Large Float Version)
+	*/
+	void DiscreteGaussianGenerator::GenerateProbMatrix(const LargeFloat & stddev, const LargeFloat & mean) {
+		if (probMatrix != nullptr) {
+			delete[] probMatrix;
+		}
+		double dbmean= mean.convert_to<double>();
+		double dbstddev = stddev.convert_to<double>();
+		probMean = dbmean;
+		probMatrixSize = 10 * dbstddev + 2;
+		probMatrix = new uint32_t[probMatrixSize];
+		double error = 1;
+		for (int i = -5 * dbstddev + dbmean;i <= 5 * dbstddev + dbmean;i++) {
+			double prob = pow(M_E, -pow(i - dbmean, 2) / (2. * dbstddev * dbstddev)) / (dbstddev * sqrt(2.*M_PI));
+
+			error -= prob;
+			probMatrix[int(i + 5 * dbstddev - dbmean)] = prob * pow(2, 32);
+			/*
+			for (int j = 0;j < 32;j++) {
+			hammingWeights[j] += ((probMatrix[int(i + m / 2)] >> (31 - j)) & 1);
+
+			}
+			*/
+		}
+		std::cout << "Error probability: " << error << std::endl;
+		probMatrix[probMatrixSize - 1] = error * pow(2, 32);
+		/*
+		for (int k = 0;k< 32;k++) {
+		hammingWeights[k] += ((probMatrix[probMatrixSize - 1] >> (31 - k)) & 1);
+		}
+		*/
+	}
+	/**
 	* Returns a generated integer. Uses Knuth-Yao method defined as Algorithm 1 in http://link.springer.com/chapter/10.1007%2F978-3-662-43414-7_19#page-1
 	*/
 	int32_t DiscreteGaussianGenerator::GenerateIntegerKnuthYao() {

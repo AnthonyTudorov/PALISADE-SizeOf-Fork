@@ -154,6 +154,13 @@ public:
 	void GenerateProbMatrix(double stddev, double mean);
 
 	/**
+	* @brief Generates the probability matrix of given distribution, which is used in Knuth-Yao method (Large Float Version)
+	* @param sttdev standard deviation of Discrete Gaussian Distribution
+	* @param mean Center of the distribution
+	*/
+	void GenerateProbMatrix(const LargeFloat & stddev, const LargeFloat & mean);
+
+	/**
 	* @ brief Returns a generated integer. Uses Knuth-Yao method defined as Algorithm 1 in http://link.springer.com/chapter/10.1007%2F978-3-662-43414-7_19#page-1
 	* @ return A random value within the Discrete Gaussian Distribution
 	*/
