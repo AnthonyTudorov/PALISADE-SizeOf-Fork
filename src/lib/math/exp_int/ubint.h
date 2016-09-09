@@ -56,7 +56,7 @@
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
 
-#if MATHBACKEND == 4
+#ifdef UBINT_64
 
 #undef int128_t
 #define int128_t our_int128_t
@@ -75,7 +75,8 @@ typedef __uint128_t             uint128_t;
 #endif
 
 #define UINT128_MAX             ((uint128_t)-1)
-#endif
+
+#endif //UBINT_64
 
 
 /**
@@ -158,7 +159,7 @@ namespace exp_int{
     const static bool value = true ;	
   };
 
-#if MATHBACKEND == 4
+#ifdef UBINT_64
   /**
    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t, uint128_t}.
    * sets value true if datatype is unsigned integer 64 bit.
@@ -210,7 +211,7 @@ namespace exp_int{
    */
   template<> struct DoubleDataType<uint32_t>{typedef uint64_t T; };
 
-#if MATHBACKEND == 4 
+#ifdef UBINT_64
   /**
    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
    * sets T as of type unsigned integer 128 bit if limb datatype is 64bit
@@ -279,7 +280,7 @@ namespace exp_int{
    */
   template<> struct SignedDoubleDataType<uint32_t>{typedef int64_t T; };
 
-#if MATHBACKEND == 4
+#ifdef UBINT_64
   /**
    * @brief Struct to determine a signed datatype that is twice as big(bitwise) as utype.
    * sets T as of type unsigned integer 128 bit if limb datatype is 64bit
@@ -1043,6 +1044,17 @@ namespace exp_int{
 
 
   private:
+    
+    /**
+     * Normalize limb storage of the ubint by making sure the most
+     * significant limb is non-zero (all higher zero limbs are
+     * removed).
+     * 
+     * @return resulting bit.
+     */
+    void NormalizeLimbs(void);
+    
+    
     /**
      * Gets the bit at the specified index.
      *
@@ -1053,9 +1065,10 @@ namespace exp_int{
 
 
     /**
-     * Sets the int value at the specified index.
+     * Sets the limb value at the specified index.
      *
-     * @param index is the index of the int to set in the uint array.
+     * @param index is the index of the limb to set in the ubint storage.
+     * //todo should be renamed SetLimbAtIndex();
      */
     void SetIntAtIndex(usint idx, limb_t value);
         

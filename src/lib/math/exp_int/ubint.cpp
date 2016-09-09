@@ -729,16 +729,19 @@ return result;
       ans.m_MSB -= remainingShift;
 
     }
-
+#if 0
     //go through the mslimbs and pop off any zero limbs we missed
     for (usint i = ans.m_value.size()-1; i >= 0; i--){
-      if (!ans.m_value.at(i)) {
+      if (!ans.m_value.back()) {
 	ans.m_value.pop_back();
-	//std::cout<<"popped "<<std::endl;
+	std::cout<<"shift popped "<<std::endl;
       } else {
 	break;
       }
     }
+#else
+    ans.NormalizeLimbs();
+#endif
     DEBUG("final MSB "<<ans.m_MSB);
     ans.SetMSB();
     DEBUG("final MSB check "<<ans.m_MSB);
@@ -1001,16 +1004,19 @@ return result;
       DEBUG ("res limb "<<i<<" finally "<<result.m_value.at(i));
 
     }
-
+#if 0
     //go through the mslimbs and pop off any zero limbs
     for (usint i = result.m_value.size()-1; i >= 0; i--){
-      if (!result.m_value.at(i)) {
+      if (!result.m_value.back()) {
 	result.m_value.pop_back();
-	//std::cout<<"popped "<<std::endl;
+	std::cout<<"sub popped "<<std::endl;
       } else {
 	break;
       }
     }
+#else
+    result.NormalizeLimbs();
+#endif
     
     result.SetMSB();
     DEBUG("result msb now "<<result.m_MSB);
@@ -1216,12 +1222,12 @@ return result;
     return n;
   }
   //todo figure out a C++ way to do this.... 
-#if MATHBACKEND == 2 //32  bit code
+#ifdef UBINT_32 //32  bit code
 #undef nlz
 #define nlz(x) nlz32(x)
 #endif
 
-#if MATHBACKEND == 3 //64  bit code
+#ifdef UBINT_64 //64  bit code
 #undef nlz
 #define nlz(x) nlz64(x)
 #endif
@@ -1258,9 +1264,10 @@ return result;
     Sdlimb_t t, k; 
     int s, i, j;
 
-    if (m < n || n <= 0 || v[n-1] == 0)
+    if (m < n || n <= 0 || v[n-1] == 0){
+      std::cout<< "m,n,v[n-1] " << m <<", "<< n << ", " << v[n-1] << std::endl;
       return 1;                         // Return if invalid param.
-
+    }
     if (n == 1) {                        // Take care of
       k = 0;                            // the case of a
       for (j = m - 1; j >= 0; j--) {    // single-digit
@@ -1367,17 +1374,19 @@ return result;
     f = divmnu_vect((ans), (rv),  (*this),  (b));
     if (f!= 0)
       throw std::logic_error("Div() error");
-
+#if 0
     //go through the mslimbs and pop off any zero limbs
     for (usint i = ans.m_value.size()-1; i >= 0; i--){
-      if (!ans.m_value.at(i)) {
+      if (!ans.m_value.back()) {
 	ans.m_value.pop_back();
-	//std::cout<<"popped "<<std::endl;
+	std::cout<<"div popped "<<std::endl;
       } else {
 	break;
       }
     }
-
+#else
+    ans.NormalizeLimbs();
+#endif
     ans.m_state = INITIALIZED;
     ans.SetMSB();
 
@@ -1525,7 +1534,7 @@ return result;
   //Algorithm used: optimized division algorithm
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::Mod(const ubint& modulus) const{
-
+    bool dbg_flag = false;
     //check for garbage initialisation
     if(this->m_state==GARBAGE)
       throw std::logic_error("Mod() of uninitialized bint");
@@ -1547,12 +1556,32 @@ return result;
     // return the remainder of the divided by operation
     ubint qv;
     ubint ans(0);
+    
+    DEBUG("modulus m size "<< modulus.m_value.size());
+    //modulus.PrintLimbsInDec();
 
     int f;
     f = divmnu_vect(qv, ans,  *this,  modulus);
     if (f!= 0)
       throw std::logic_error("Mod() error");
 
+    DEBUG("answer m size "<< ans.m_value.size());
+#if 0
+
+    //ans.PrintLimbsInDec();
+    //go through the mslimbs and pop off any zero limbs
+    for (usint i = ans.m_value.size()-1; i >= 0; i--){
+      if (ans.m_value.back() == 0) {
+	ans.m_value.pop_back();
+	DEBUG("Mod popped ");
+      } else {
+	break;
+      }
+    }
+#else
+
+    ans.NormalizeLimbs();
+#endif
     ans.SetMSB();
     ans.m_state = INITIALIZED;
 
@@ -1571,21 +1600,30 @@ return result;
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModInverse(const ubint& modulus) const{
 
+    bool dbg_flag = false;
+
     if(m_state==GARBAGE || modulus.m_state==GARBAGE)
       throw std::logic_error("ModInverse of uninitialized bint");
 
-    //std::ofstream f("grs_Modinverse");
+    DEBUG("Modinverse");
+    DEBUG("THIS VALUE "<< this->ToString());
+    DEBUG("modulus "<<modulus.ToString());
 
-    //f << *this <<" THIS VALUE "<< std::endl;
-    //f << modulus << " Modulus value " << std::endl;
+    // the max number of iterations should be < 2^k where k ==  min(bitsize (inputs))
+    //todo: consider breaking out of the loop if this limit exceeded. the only issue is that the loop counter could would need to be an ubint. 
+    
 
     std::vector<ubint> mods;
     std::vector<ubint> quotient;
     mods.push_back(ubint(modulus));
-    if (*this>modulus)
+    if (*this>modulus){
       mods.push_back(this->Mod(modulus));
-    else
+      //DEBUG("Pushed mod");
+    } else {
       mods.push_back(ubint(*this));
+      //DEBUG("Pushed this");
+    }
+    
     ubint first(mods[0]);
     ubint second(mods[1]);
     //Error if modulus is ZERO
@@ -1596,18 +1634,22 @@ return result;
     }
 
 	
+    //uint ncycle = 0;
     //NORTH ALGORITHM
     while(true){
-		
-      //f << first << std::endl;
-      //f << second << std::endl;
-
+      //DEBUG("**north cycle");
+      //DEBUG("first "<<first.ToString());
+      //DEBUG("second "<<second.ToString());
       mods.push_back(first.Mod(second));
-      //f << "Mod step passed" << std::endl;
+      //DEBUG("Mod step passed");
       quotient.push_back(first.Div(second));
-      //f << "Division step passed" << std::endl;
-      if(mods.back()==ONE)
+      //DEBUG("Division step passed");
+      DEBUG("i "<<ncycle<<" modsback "<<mods.back().ToString());
+
+      if(mods.back()==ONE){
+	//DEBUG("break");
 	break;
+      }
       if(mods.back()==ZERO){
 	std::cout<<"NO INVERSE FOUND, GOING TO THROW ERROR\n";
 	throw std::logic_error("MOD INVERSE NOT FOUND");
@@ -1615,8 +1657,13 @@ return result;
 		
       first = second;
       second = mods.back();
-    }
+      DEBUG("first "<<first.ToString());
+      DEBUG("second "<<second.ToString());
 
+      //ncycle++;
+      //if (ncycle >100) break; // for debug only
+    }
+	DEBUG("MI ncycle "<<ncycle);
     mods.clear();
     mods.push_back(ubint(ZERO));
     mods.push_back(ubint(ONE));
@@ -1624,14 +1671,16 @@ return result;
     first = mods[0];
     second = mods[1];
     //SOUTH ALGORITHM
-#if 0
-    for(sint i=quotient.size()-1;i>=0;i--){
+#if 1
+    usint limtest = quotient.size()-1;
+    for(sint i=limtest; i>=0;i--){
       mods.push_back(quotient.at(i)*second + first);
       first = second;
       second = mods.back();
     }
 #else
-    for(sint i=0; i<quotient.size();++i){
+    usint limtest =  quotient.size();
+    for(sint i=0; i<limtest; ++i){
       mods.push_back(quotient.at(i)*second + first);
       first = second;
       second = mods.back();
@@ -1649,7 +1698,7 @@ return result;
     mods.clear();
     quotient.clear();
     //f.close();
-
+    DEBUG("MI: "<<result.ToString());
     return result;
 
   }
@@ -1904,17 +1953,20 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     f = divmnu_vect((ans), (rv),  (*this),  (q));
     if (f!= 0)
       throw std::logic_error("Div() error");
-    
+#if 0    
     //go through the mslimbs and pop off any zero limbs
     for (usint i = ans.m_value.size()-1; i >= 0; i--){
-      if (!ans.m_value.at(i)) {
+      if (!ans.m_value.back()) {
 	ans.m_value.pop_back();
-	//std::cout<<"popped "<<std::endl;
+	std::cout<<" div popped "<<std::endl;
       } else {
 	break;
       }
     }
-    
+#else
+    ans.NormalizeLimbs();
+
+#endif    
     ans.m_state = INITIALIZED;
     ans.SetMSB();
     //==============
@@ -2289,7 +2341,23 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
 		
     }
   }
-
+  
+  //NormalizeLimbs() function
+  template<typename limb_t>
+  void ubint<limb_t>::NormalizeLimbs(void) {
+    //go through the most significant limbs and pop off any zero limbs we missed
+    for (usint i = this->m_value.size()-1; i >= 0; i--){
+      if (!this->m_value.back()) {
+	this->m_value.pop_back();
+	//std::cout<<"popped "<<std::endl;
+      } else {
+	break;
+      }
+    }
+    return ;
+  }
+  
+  
 
   template<typename limb_t>
   uschar ubint<limb_t>::GetBitAtIndex(usint index) const{
@@ -2343,7 +2411,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     std::cout << "sizeof uint16_t "<< sizeof (uint16_t) << std::endl;
     std::cout << "sizeof uint32_t "<< sizeof (uint32_t) << std::endl;
     std::cout << "sizeof uint64_t "<< sizeof (uint64_t) << std::endl;
-#if MATHBACKEND == 4
+#ifdef UBINT_64
     std::cout << "sizeof UINT128_C "<< sizeof (UINT128_C(1)) << std::endl;
     std::cout << "sizeof uint128_t "<< sizeof (uint128_t) << std::endl;
 #endif

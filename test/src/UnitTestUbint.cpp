@@ -1010,6 +1010,19 @@ TEST(UTubint,mod_operations){
       << "Failure testing %=:  number == modulus";
   }
 
+  // TEST CASE THAT FAILED TR#392    
+  {
+    ubint first("4974113608263");
+    ubint second("486376675628");
+    ubint modcorrect("110346851983");
+    ubint modresult;
+
+    modresult = first.Mod(second);
+
+    EXPECT_EQ(modcorrect, modresult)
+      <<"Failure ModInverse() Mod regression test";
+  }
+
   /************************************************/
   /* TESTING METHOD MOD BARRETT FOR ALL CONDITIONS */
   /************************************************/
@@ -1070,6 +1083,31 @@ TEST(UTubint,mod_operations){
 
     EXPECT_TRUE(thrown)
       << "Failure testing ModInverse() non co-prime arguments";
+
+  }
+  //testcase that failed during testing.
+  {
+
+
+    ubint input ("405107564542978792");
+    ubint modulus("1152921504606847009");
+    ubint modIcorrect("844019068664266609");
+    ubint modIresult;
+
+    bool thrown = false;
+    try {
+      modIresult = input.ModInverse(modulus);
+    }
+    catch (exception& e){
+      thrown = true;
+      std::cout<<e.what()<<std::endl;
+      modIresult = ubint(0);
+    }
+
+    EXPECT_FALSE(thrown)
+      << "Failure ModInverse() regression test caught throw";
+    EXPECT_EQ(modIcorrect, modIresult)
+      <<"Failure ModInverse() regression test";
   }
 
   /************************************************/

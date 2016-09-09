@@ -574,6 +574,43 @@ TEST(UTBinInt,mod_operations){
       << "Failure testing number_greater_than_modulus";
   }
 
+  //TESTCASE 
+
+  //testcase that failed during testing.
+  {
+
+    BigBinaryInteger first("4974113608263");
+    BigBinaryInteger second("486376675628");
+    BigBinaryInteger modcorrect("110346851983");
+    BigBinaryInteger modresult;
+
+    modresult = first.Mod(second);
+
+    EXPECT_EQ(modcorrect, modresult)
+      <<"Failure ModInverse() Mod regression test";
+
+
+    BigBinaryInteger input ("405107564542978792");
+    BigBinaryInteger modulus("1152921504606847009");
+    BigBinaryInteger modIcorrect("844019068664266609");
+    BigBinaryInteger modIresult;
+
+    bool thrown = false;
+    try {
+      modIresult = input.ModInverse(modulus);
+    }
+    catch (...){
+      thrown = true;
+    }
+
+    EXPECT_FALSE(thrown)
+      << "Failure testing ModInverse() non co-prime arguments";
+    EXPECT_EQ(modIcorrect, modIresult)
+      <<"Failure ModInverse() regression test";
+  }
+
+
+
 
   /************************************************/
   /* TESTING METHOD MODADD FOR ALL CONDITIONS     */
