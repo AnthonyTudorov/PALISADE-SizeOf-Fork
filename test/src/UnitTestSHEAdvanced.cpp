@@ -220,7 +220,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult_single_crt) {
 
 	algorithm.KeyGen(&pkNew, &skNew);
 
-	algorithm.QuadraticKeySwitchHintGen(sk, skNew, &keySwitchHint);
+	algorithm.QuadraticEvalMultKeyGen(sk, skNew, &keySwitchHint);
 
 	cResult = algorithm.KeySwitch(keySwitchHint, cResult);
 
@@ -315,6 +315,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult_double_crt) {
 
 	algorithm.KeyGen(&pk, &sk);
 
+
 	vector<Ciphertext<ILVectorArray2n>> ciphertext1;
 	vector<Ciphertext<ILVectorArray2n>> ciphertext2;
 
@@ -332,7 +333,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult_double_crt) {
 
 	algorithm.KeyGen(&pkNew, &skNew);
 
-	algorithm.QuadraticKeySwitchHintGen(sk, skNew, &keySwitchHint);
+	algorithm.QuadraticEvalMultKeyGen(sk, skNew, &keySwitchHint);
 
 	cResult = algorithm.KeySwitch(keySwitchHint, cResult);
 
@@ -428,6 +429,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_add_single_crt) {
 TEST_F(UnitTestSHEAdvanced, test_eval_add_double_crt) {
 
 	usint init_m = 16;
+
 
 	float init_stdDev = 4;
 
@@ -603,7 +605,7 @@ TEST_F(UnitTestSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	//Generating Quaraditic KeySwitchHint from sk^2 to skNew
 	LPEvalKeyNTRU<ILVectorArray2n> quadraticKeySwitchHint;
-	algorithm.QuadraticKeySwitchHintGen(sk, sk1, &quadraticKeySwitchHint);
+	algorithm.QuadraticEvalMultKeyGen(sk, sk1, &quadraticKeySwitchHint);
 
 	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
 	sk1.SetCryptoParameters(&finalParamsOneTower);

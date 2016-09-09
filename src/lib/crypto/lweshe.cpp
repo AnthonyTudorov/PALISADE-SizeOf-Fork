@@ -98,7 +98,7 @@ void LPAlgorithmSHELTV<Element>::EvalAdd(
 
 //Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
-bool LPAlgorithmSHELTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &newPrivateKey, 
+bool LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const LPPrivateKey<Element> &newPrivateKey, 
 				LPPrivateKey<Element> &origPrivateKey,
 				usint depth,
 				LPEvalKeyNTRU<Element> *keySwitchHint) const
@@ -122,7 +122,7 @@ bool LPAlgorithmSHELTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &n
 
 //Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
-bool LPAlgorithmSHELTV<Element>::KeySwitchHintGen(const LPPrivateKey<Element> &privateKey,  
+bool LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const LPPrivateKey<Element> &privateKey,  
 				LPEvalKeyNTRU<Element> *keySwitchHint) const
 {
 	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(privateKey.GetCryptoParameters());

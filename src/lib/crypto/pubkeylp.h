@@ -1159,13 +1159,13 @@ namespace lbcrypto {
 		public:	
 
 			/**
-			 * Method for KeySwitchHintGen
+			 * Method for EvalMultKeyGen
 			 *
 			 * @param &originalPrivateKey Original private key used for encryption.
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
 			 * @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
 			 */
-			virtual void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
+			virtual void EvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, 
 				const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *keySwitchHint) const = 0;
 			
 			/**
@@ -1184,7 +1184,7 @@ namespace lbcrypto {
 			 * @param *quadraticKeySwitchHint the generated keyswitchhint.
 			 */
 
-			virtual void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const = 0;
+			virtual void QuadraticEvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const = 0;
 
 			/**
 			 * Method for Modulus Reduction.
@@ -1613,12 +1613,12 @@ namespace lbcrypto {
 
 		}
 
-		void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
+		void EvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, 
 				const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *keySwitchHint) const {
 					if(this->m_algorithmLeveledSHE)
-						this->m_algorithmLeveledSHE->KeySwitchHintGen(originalPrivateKey, newPrivateKey,keySwitchHint);
+						this->m_algorithmLeveledSHE->EvalMultKeyGen(originalPrivateKey, newPrivateKey,keySwitchHint);
 					else{
-						throw std::logic_error("KeySwitchHintGen operation has not been enabled");
+						throw std::logic_error("EvalMultKeyGen operation has not been enabled");
 					}
 		}
 
@@ -1632,12 +1632,12 @@ namespace lbcrypto {
 			}
 		}
 
-		void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const {
+		void QuadraticEvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const {
 			if(this->m_algorithmLeveledSHE){
-				this->m_algorithmLeveledSHE->QuadraticKeySwitchHintGen(originalPrivateKey,newPrivateKey,quadraticKeySwitchHint);
+				this->m_algorithmLeveledSHE->QuadraticEvalMultKeyGen(originalPrivateKey,newPrivateKey,quadraticKeySwitchHint);
 			}
 			else{
-				throw std::logic_error("QuadraticKeySwitchHintGen operation has not been enabled");
+				throw std::logic_error("QuadraticEvalMultKeyGen operation has not been enabled");
 			}
 		}
 
