@@ -84,372 +84,372 @@ protected:
 
 TEST(UnitTestSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
-	////ILVector2n::DestroyPreComputedSamples();
-	//usint m = 512;
-
-	//BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
-	//float stdDev = 4;
-
-	//BigBinaryInteger q("1");
-	//BigBinaryInteger temp;
-
-	//lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
-
-	//DiscreteGaussianGenerator dgg(stdDev);
-	//BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	//ILParams params(m, q, RootOfUnity(m, q));
-
-	////This code is run only when performing execution time measurements
-
-	////Precomputations for FTT
-	//ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
-
-	////Precomputations for DGG
-	//ILVector2n::PreComputeDggSamples(dgg, params);
-
-	//LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	//cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-	//cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	//cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
-	//cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-	//cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
-
-	//Ciphertext<ILVector2n> cipherText;
-	//cipherText.SetCryptoParameters(&cryptoParams);
-
-	////Initialize the public key containers.
-	//LPPublicKey<ILVector2n> pk(cryptoParams);
-	//LPPrivateKey<ILVector2n> sk(cryptoParams);
-
-	//LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-
-	//algorithm.Enable(ENCRYPTION);
-	//algorithm.Enable(LEVELEDSHE);
-
-	//algorithm.KeyGen(&pk, &sk);
-
-	//vector<Ciphertext<ILVector2n>> ciphertext;
-
-	//CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);
-	//vector<Ciphertext<ILVector2n>> newCiphertext;
-	//newCiphertext.reserve(ciphertext.size());
-
-	//LPPublicKey<ILVector2n> pk2(cryptoParams);
-	//LPPrivateKey<ILVector2n> sk2(cryptoParams);
-
-	//algorithm.SparseKeyGen(&pk2, &sk2);
-
-	//LPEvalKeyNTRU<ILVector2n> keySwitchHint;
-	//algorithm.KeySwitchHintGen(sk, sk2, &keySwitchHint);
-
-
-	//CryptoUtility<ILVector2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
-
-	//BytePlaintextEncoding plaintextNew;
-
-	//CryptoUtility<ILVector2n>::Decrypt(algorithm, sk2, newCiphertext, &plaintextNew);
-
-	//EXPECT_EQ(plaintext, plaintextNew);
-
 	//ILVector2n::DestroyPreComputedSamples();
+	usint m = 512;
+
+	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
+	float stdDev = 4;
+
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+
+	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
+
+	DiscreteGaussianGenerator dgg(stdDev);
+	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
+	ILParams params(m, q, RootOfUnity(m, q));
+
+	//This code is run only when performing execution time measurements
+
+	//Precomputations for FTT
+	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
+
+	//Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(dgg, params);
+
+	LPCryptoParametersLTV<ILVector2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
+	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
+	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
+	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
+
+	Ciphertext<ILVector2n> cipherText;
+	cipherText.SetCryptoParameters(&cryptoParams);
+
+	//Initialize the public key containers.
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
+
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
+
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(LEVELEDSHE);
+
+	algorithm.KeyGen(&pk, &sk);
+
+	vector<Ciphertext<ILVector2n>> ciphertext;
+
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);
+	vector<Ciphertext<ILVector2n>> newCiphertext;
+	newCiphertext.reserve(ciphertext.size());
+
+	LPPublicKey<ILVector2n> pk2(cryptoParams);
+	LPPrivateKey<ILVector2n> sk2(cryptoParams);
+
+	algorithm.SparseKeyGen(&pk2, &sk2);
+
+	LPEvalKeyNTRU<ILVector2n> keySwitchHint;
+	algorithm.KeySwitchHintGen(sk, sk2, &keySwitchHint);
+
+
+	CryptoUtility<ILVector2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
+
+	BytePlaintextEncoding plaintextNew;
+
+	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk2, newCiphertext, &plaintextNew);
+
+	EXPECT_EQ(plaintext, plaintextNew);
+
+	ILVector2n::DestroyPreComputedSamples();
 }
 
 TEST(UnitTestSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 
-	////ILVector2n::DestroyPreComputedSamples();
-	//usint m = 16;
-
-	//float stdDev = 4;
-
-	//BigBinaryInteger q("1");
-	//BigBinaryInteger temp;
-
-	//lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
-
-	//DiscreteGaussianGenerator dgg(stdDev);
-	//BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	//ILParams params(m, q, RootOfUnity(m, q));
-
-	////This code is run only when performing execution time measurements
-
-	////Precomputations for FTT
-	//ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
-
-	////Precomputations for DGG
-	//ILVector2n::PreComputeDggSamples(dgg, params);
-
-	//LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	//cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-	//cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	//cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
-	//cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-	//cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
-
-	//Ciphertext<ILVector2n> cipherText;
-	//cipherText.SetCryptoParameters(&cryptoParams);
-
-	////Initialize the public key containers.
-	//LPPublicKey<ILVector2n> pk(cryptoParams);
-	//LPPrivateKey<ILVector2n> sk(cryptoParams);
-
-	//LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-
-	//algorithm.Enable(ENCRYPTION);
-	//algorithm.Enable(LEVELEDSHE);
-
-	//algorithm.KeyGen(&pk, &sk);
-
-	//vector<Ciphertext<ILVector2n>> ciphertext;
-
-	//std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
-	//IntPlaintextEncoding intArray(vectorOfInts);
-
-	//CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray, &ciphertext);
-	//vector<Ciphertext<ILVector2n>> newCiphertext;
-	//newCiphertext.reserve(ciphertext.size());
-
-	//LPPublicKey<ILVector2n> pk2(cryptoParams);
-	//LPPrivateKey<ILVector2n> sk2(cryptoParams);
-
-	//algorithm.SparseKeyGen(&pk2, &sk2);
-
-	//LPEvalKeyNTRU<ILVector2n> keySwitchHint;
-	//algorithm.KeySwitchHintGen(sk, sk2, &keySwitchHint);
-
-	//CryptoUtility<ILVector2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
-
-	//IntPlaintextEncoding intArrayNew;
-
-	//CryptoUtility<ILVector2n>::Decrypt(algorithm, sk2, newCiphertext, &intArrayNew);
-
-	//EXPECT_EQ(intArray, intArrayNew);
-
 	//ILVector2n::DestroyPreComputedSamples();
+	usint m = 16;
+
+	float stdDev = 4;
+
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+
+	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
+
+	DiscreteGaussianGenerator dgg(stdDev);
+	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
+	ILParams params(m, q, RootOfUnity(m, q));
+
+	//This code is run only when performing execution time measurements
+
+	//Precomputations for FTT
+	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
+
+	//Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(dgg, params);
+
+	LPCryptoParametersLTV<ILVector2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
+	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
+	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
+	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
+
+	Ciphertext<ILVector2n> cipherText;
+	cipherText.SetCryptoParameters(&cryptoParams);
+
+	//Initialize the public key containers.
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
+
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
+
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(LEVELEDSHE);
+
+	algorithm.KeyGen(&pk, &sk);
+
+	vector<Ciphertext<ILVector2n>> ciphertext;
+
+	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
+	IntPlaintextEncoding intArray(vectorOfInts);
+
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray, &ciphertext);
+	vector<Ciphertext<ILVector2n>> newCiphertext;
+	newCiphertext.reserve(ciphertext.size());
+
+	LPPublicKey<ILVector2n> pk2(cryptoParams);
+	LPPrivateKey<ILVector2n> sk2(cryptoParams);
+
+	algorithm.SparseKeyGen(&pk2, &sk2);
+
+	LPEvalKeyNTRU<ILVector2n> keySwitchHint;
+	algorithm.KeySwitchHintGen(sk, sk2, &keySwitchHint);
+
+	CryptoUtility<ILVector2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
+
+	IntPlaintextEncoding intArrayNew;
+
+	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk2, newCiphertext, &intArrayNew);
+
+	EXPECT_EQ(intArray, intArrayNew);
+
+	ILVector2n::DestroyPreComputedSamples();
 
 }
 
 TEST(UnitTestSHE, keyswitch_SingleCRT) {
 
-	////ILVector2n::DestroyPreComputedSamples();
-	//usint m = 512;
+	//ILVector2n::DestroyPreComputedSamples();
+	usint m = 512;
 
-	//BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
-	//float stdDev = 4;
+	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
+	float stdDev = 4;
 
-	//BigBinaryInteger q("1");
-	//BigBinaryInteger temp;
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
 
-	//lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
+	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
 
-	//DiscreteGaussianGenerator dgg(stdDev);
-	//BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	//ILParams params(m, q, RootOfUnity(m, q));
+	DiscreteGaussianGenerator dgg(stdDev);
+	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
+	ILParams params(m, q, RootOfUnity(m, q));
 
-	////This code is run only when performing execution time measurements
+	//This code is run only when performing execution time measurements
 
-	////Precomputations for FTT
-	//ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
+	//Precomputations for FTT
+	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
 
-	////Precomputations for DGG
-	//ILVector2n::PreComputeDggSamples(dgg, params);
+	//Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(dgg, params);
 
-	//LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	//cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-	//cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	//cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
-	//cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-	//cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
+	LPCryptoParametersLTV<ILVector2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
+	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
+	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
+	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-	//Ciphertext<ILVector2n> cipherText;
-	//cipherText.SetCryptoParameters(&cryptoParams);
+	Ciphertext<ILVector2n> cipherText;
+	cipherText.SetCryptoParameters(&cryptoParams);
 
-	// //Initialize the public key containers.
-	//LPPublicKey<ILVector2n> pk(cryptoParams);
-	//LPPrivateKey<ILVector2n> sk(cryptoParams);
+	 //Initialize the public key containers.
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
-	//LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	//
-	//algorithm.Enable(ENCRYPTION);
-	//algorithm.Enable(LEVELEDSHE);
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
+	
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(LEVELEDSHE);
 
-	//algorithm.KeyGen(&pk, &sk); 
+	algorithm.KeyGen(&pk, &sk); 
 
-	//vector<Ciphertext<ILVector2n>> ciphertext;
+	vector<Ciphertext<ILVector2n>> ciphertext;
 
-	//CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);
-	//vector<Ciphertext<ILVector2n>> newCiphertext;
-	//newCiphertext.reserve(ciphertext.size());
-	//	  
-	//   LPPublicKey<ILVector2n> pk2(cryptoParams);
-	//   LPPrivateKey<ILVector2n> sk2(cryptoParams);
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);
+	vector<Ciphertext<ILVector2n>> newCiphertext;
+	newCiphertext.reserve(ciphertext.size());
+		  
+	   LPPublicKey<ILVector2n> pk2(cryptoParams);
+	   LPPrivateKey<ILVector2n> sk2(cryptoParams);
 
-	//   algorithm.KeyGen(&pk2, &sk2);
+	   algorithm.KeyGen(&pk2, &sk2);
 
-	//   LPEvalKeyNTRU<ILVector2n> keySwitchHint;
-	//   algorithm.KeySwitchHintGen(sk, sk2, &keySwitchHint);
+	   LPEvalKeyNTRU<ILVector2n> keySwitchHint;
+	   algorithm.KeySwitchHintGen(sk, sk2, &keySwitchHint);
 
 
-	//   CryptoUtility<ILVector2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
+	   CryptoUtility<ILVector2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
 
-	//BytePlaintextEncoding plaintextNew;
+	BytePlaintextEncoding plaintextNew;
 
-	//   CryptoUtility<ILVector2n>::Decrypt(algorithm, sk2, newCiphertext, &plaintextNew);
+	   CryptoUtility<ILVector2n>::Decrypt(algorithm, sk2, newCiphertext, &plaintextNew);
 
-	//   EXPECT_EQ(plaintext, plaintextNew);
-	// 
-	//   ILVector2n::DestroyPreComputedSamples();
-	// 
+	   EXPECT_EQ(plaintext, plaintextNew);
+	 
+	   ILVector2n::DestroyPreComputedSamples();
+	 
 }
 
 TEST(UnitTestSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 
-	////ILVector2n::DestroyPreComputedSamples();
-
-	//usint m = 512;
-
-	//BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
-	//float stdDev = 4;
-
-	//BigBinaryInteger q("1");
-	//BigBinaryInteger temp;
-
-	//lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
-
-	//DiscreteGaussianGenerator dgg(stdDev);
-	//BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	//ILParams params(m, q, RootOfUnity(m, q));
-
-	////This code is run only when performing execution time measurements
-
-	////Precomputations for FTT
-	//ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
-
-	////Precomputations for DGG
-	//ILVector2n::PreComputeDggSamples(dgg, params);
-
-	//LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	//cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-	//cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	//cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
-	//cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-	//cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
-
-	//Ciphertext<ILVector2n> cipherText;
-	//cipherText.SetCryptoParameters(&cryptoParams);
-
-	////Initialize the public key containers.
-	//LPPublicKey<ILVector2n> pk(cryptoParams);
-	//LPPrivateKey<ILVector2n> sk(cryptoParams);
-
-	//LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-
-	//algorithm.Enable(LEVELEDSHE);
-	//algorithm.Enable(ENCRYPTION);
-
-	//algorithm.SparseKeyGen(&pk, &sk);
-	//vector<Ciphertext<ILVector2n>> ciphertext;
-
-	//CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);
-
-	//BytePlaintextEncoding plaintextNew;
-
-	//CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &plaintextNew);
-
-	//EXPECT_EQ(plaintextNew, plaintext);
-	//ILVector2n privateElement(sk.GetPrivateElement());
-	//privateElement.SwitchFormat();
-
-	//for (usint i = 1; i < privateElement.GetLength(); i += 2) {
-	//	EXPECT_EQ(BigBinaryInteger::ZERO, privateElement.GetValAtIndex(i));
-	//}
 	//ILVector2n::DestroyPreComputedSamples();
+
+	usint m = 512;
+
+	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
+	float stdDev = 4;
+
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+
+	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
+
+	DiscreteGaussianGenerator dgg(stdDev);
+	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
+	ILParams params(m, q, RootOfUnity(m, q));
+
+	//This code is run only when performing execution time measurements
+
+	//Precomputations for FTT
+	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
+
+	//Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(dgg, params);
+
+	LPCryptoParametersLTV<ILVector2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
+	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
+	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
+	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
+
+	Ciphertext<ILVector2n> cipherText;
+	cipherText.SetCryptoParameters(&cryptoParams);
+
+	//Initialize the public key containers.
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
+
+	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
+
+	algorithm.Enable(LEVELEDSHE);
+	algorithm.Enable(ENCRYPTION);
+
+	algorithm.SparseKeyGen(&pk, &sk);
+	vector<Ciphertext<ILVector2n>> ciphertext;
+
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);
+
+	BytePlaintextEncoding plaintextNew;
+
+	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &plaintextNew);
+
+	EXPECT_EQ(plaintextNew, plaintext);
+	ILVector2n privateElement(sk.GetPrivateElement());
+	privateElement.SwitchFormat();
+
+	for (usint i = 1; i < privateElement.GetLength(); i += 2) {
+		EXPECT_EQ(BigBinaryInteger::ZERO, privateElement.GetValAtIndex(i));
+	}
+	ILVector2n::DestroyPreComputedSamples();
 }
 
 TEST(UnitTestSHE, keyswitch_ModReduce_DCRT) {
 
-	//usint m = 512;
+	usint m = 512;
 
-	//BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
-	//float stdDev = 4;
-	//usint size = 4;
+	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
+	float stdDev = 4;
+	usint size = 4;
 
-	//vector<BigBinaryInteger> moduli(size);
-	//moduli.reserve(4);
-	//vector<BigBinaryInteger> rootsOfUnity(size);
-	//rootsOfUnity.reserve(4);
+	vector<BigBinaryInteger> moduli(size);
+	moduli.reserve(4);
+	vector<BigBinaryInteger> rootsOfUnity(size);
+	rootsOfUnity.reserve(4);
 
-	//BigBinaryInteger q("1");
-	//BigBinaryInteger temp;
-	//BigBinaryInteger modulus("1");
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+	BigBinaryInteger modulus("1");
 
-	//lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
+	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
 
-	//for (int i = 0; i < size; i++) {
-	//	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-	//	moduli[i] = q;
-	//	rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
-	//	modulus = modulus* moduli[i];
-	//}
+	for (int i = 0; i < size; i++) {
+		lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		moduli[i] = q;
+		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
+		modulus = modulus* moduli[i];
+	}
 
-	//DiscreteGaussianGenerator dgg(stdDev);
+	DiscreteGaussianGenerator dgg(stdDev);
 
-	//ILDCRTParams params(m, moduli, rootsOfUnity);
+	ILDCRTParams params(m, moduli, rootsOfUnity);
 
-	//LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	//cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-	//cryptoParams.SetDistributionParameter(stdDev);
-	//cryptoParams.SetRelinWindow(1);
-	//cryptoParams.SetElementParams(params);
-	//cryptoParams.SetDiscreteGaussianGenerator(dgg);
-
-
-	//LPPublicKey<ILVectorArray2n> pk(cryptoParams);
-	//LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
-
-	//LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
-
-	//algorithm.Enable(ENCRYPTION);
-	//algorithm.Enable(LEVELEDSHE);
-
-	//algorithm.KeyGen(&pk, &sk); 
-
-	//vector<Ciphertext<ILVectorArray2n>> ciphertext;
-
-	//CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);
-	//vector<Ciphertext<ILVectorArray2n>> newCiphertext;
-	//newCiphertext.reserve(ciphertext.size());
-
-	//LPPublicKey<ILVectorArray2n> pk2(cryptoParams);
-	//LPPrivateKey<ILVectorArray2n> sk2(cryptoParams);
-
-	//algorithm.KeyGen(&pk2, &sk2);
-
-	//LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint;
-	//algorithm.KeySwitchHintGen(sk, sk2, &keySwitchHint);
-	//
+	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+	cryptoParams.SetDistributionParameter(stdDev);
+	cryptoParams.SetRelinWindow(1);
+	cryptoParams.SetElementParams(params);
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 
-	//CryptoUtility<ILVectorArray2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
+	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
+	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
 
-	//BytePlaintextEncoding plaintextNewKeySwitch;
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 
-	//CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk2, newCiphertext, &plaintextNewKeySwitch);
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(LEVELEDSHE);
 
-	//EXPECT_EQ(plaintext, plaintextNewKeySwitch);
+	algorithm.KeyGen(&pk, &sk); 
 
-	///**************************KEYSWITCH TEST END******************************/
-	///**************************MODREDUCE TEST BEGIN******************************/
+	vector<Ciphertext<ILVectorArray2n>> ciphertext;
 
-	//CryptoUtility<ILVectorArray2n>::ModReduce(algorithm, &newCiphertext);
-	//ILVectorArray2n sk2PrivateElement(sk2.GetPrivateElement());
-	//sk2PrivateElement.DropElementAtIndex(sk2PrivateElement.GetNumOfElements() - 1);
-	//sk2.SetPrivateElement(sk2PrivateElement);
+	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);
+	vector<Ciphertext<ILVectorArray2n>> newCiphertext;
+	newCiphertext.reserve(ciphertext.size());
 
-	//BytePlaintextEncoding plaintextNewModReduce;
+	LPPublicKey<ILVectorArray2n> pk2(cryptoParams);
+	LPPrivateKey<ILVectorArray2n> sk2(cryptoParams);
 
-	//CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk2, newCiphertext, &plaintextNewModReduce);
-	//
-	//EXPECT_EQ(plaintext, plaintextNewModReduce);
+	algorithm.KeyGen(&pk2, &sk2);
+
+	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint;
+	algorithm.KeySwitchHintGen(sk, sk2, &keySwitchHint);
+	
+
+
+	CryptoUtility<ILVectorArray2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
+
+	BytePlaintextEncoding plaintextNewKeySwitch;
+
+	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk2, newCiphertext, &plaintextNewKeySwitch);
+
+	EXPECT_EQ(plaintext, plaintextNewKeySwitch);
+
+	/**************************KEYSWITCH TEST END******************************/
+	/**************************MODREDUCE TEST BEGIN******************************/
+
+	CryptoUtility<ILVectorArray2n>::ModReduce(algorithm, &newCiphertext);
+	ILVectorArray2n sk2PrivateElement(sk2.GetPrivateElement());
+	sk2PrivateElement.DropElementAtIndex(sk2PrivateElement.GetNumOfElements() - 1);
+	sk2.SetPrivateElement(sk2PrivateElement);
+
+	BytePlaintextEncoding plaintextNewModReduce;
+
+	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk2, newCiphertext, &plaintextNewModReduce);
+	
+	EXPECT_EQ(plaintext, plaintextNewModReduce);
 
 }
 
@@ -521,13 +521,7 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 
 	CryptoUtility<ILVector2n>::Decrypt(algorithm, skSparse, newCiphertext, &intArrayNew, false);
 
-	for (int i = 0; i < intArrayNew.size(); i++) {
-		cout << intArrayNew.at(i) << endl;
-	}
-
 	CryptoUtility<ILVector2n>::RingReduce(algorithm, &ciphertext, keySwitchHint);
-
-	cout << "==========================================================================" << endl;
 
 	ILVector2n skSparseElement(skSparse.GetPrivateElement());
 	skSparseElement.SwitchFormat();
@@ -564,97 +558,108 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 
 TEST(UnitTestSHE, ringreduce_double_crt) {
 
-	//usint m = 16;
+	usint m = 16;
+	float stdDev = 4;
+	usint size = 3;
 
-	//std::vector<usint> vectorOfInts = { 1,0,1,0,1,0,1,0 };
-	//IntPlaintextEncoding intArray(vectorOfInts);
-	//float stdDev = 4;
-	//usint size = 2;
+	vector<BigBinaryInteger> moduli(size);
+	moduli.reserve(4);
+	vector<BigBinaryInteger> rootsOfUnity(size);
+	rootsOfUnity.reserve(4);
 
-	//vector<BigBinaryInteger> moduli(size);
-	//moduli.reserve(4);
-	//vector<BigBinaryInteger> rootsOfUnity(size);
-	//rootsOfUnity.reserve(4);
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+	BigBinaryInteger modulus("1");
 
-	//BigBinaryInteger q("1");
-	//BigBinaryInteger temp;
-	//BigBinaryInteger modulus("1");
+	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
 
-	//lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
+	for (int i = 0; i < size; i++) {
+		lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		moduli[i] = q;
+		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
+		modulus = modulus* moduli[i];
+	}
 
-	//for (int i = 0; i < size; i++) {
-	//	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-	//	moduli[i] = q;
-	//	rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
-	//	modulus = modulus* moduli[i];
-	//}
+	DiscreteGaussianGenerator dgg(stdDev);
 
-	//DiscreteGaussianGenerator dgg(stdDev);
+	ILDCRTParams params(m, moduli, rootsOfUnity);
 
-	//ILDCRTParams params(m, moduli, rootsOfUnity);
+	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
+	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
+	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
+	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-	//LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	//cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-	//cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	//cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
-	//cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-	//cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
+	Ciphertext<ILVectorArray2n> cipherText;
+	cipherText.SetCryptoParameters(&cryptoParams);
 
-	//Ciphertext<ILVectorArray2n> cipherText;
-	//cipherText.SetCryptoParameters(&cryptoParams);
+	//Initialize the public key containers.
+	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
+	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
 
-	////Initialize the public key containers.
-	//LPPublicKeyLTV<ILVectorArray2n> pk(cryptoParams);
-	//LPPrivateKeyLTV<ILVectorArray2n> sk(cryptoParams);
+	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 
-	//LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
-	//algorithm.Enable(ENCRYPTION);
-	//algorithm.Enable(LEVELEDSHE);
-	//algorithm.Enable(SHE);
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(LEVELEDSHE);
+	algorithm.Enable(SHE);
 
-	//algorithm.KeyGen(&pk, &sk);
+	algorithm.KeyGen(&pk, &sk);
 
-	//vector<Ciphertext<ILVectorArray2n>> ciphertext;
+	vector<Ciphertext<ILVectorArray2n>> ciphertext;
 
-	//CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray, &ciphertext, false);
+	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
+	IntPlaintextEncoding intArray(vectorOfInts);
 
-	////Initialize the public key containers for sparse key.
-	//LPPublicKeyLTV<ILVectorArray2n> pkSparse(cryptoParams);
-	//LPPrivateKeyLTV<ILVectorArray2n> skSparse(cryptoParams);
+	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray, &ciphertext, false);
+	vector<Ciphertext<ILVectorArray2n>> newCiphertext;
+	newCiphertext.reserve(ciphertext.size());
 
-	//algorithm.SparseKeyGen(&pkSparse, &skSparse);
-	//LPKeySwitchHintLTV<ILVectorArray2n> toSparseKeySwitchHint;
-	//algorithm.KeySwitchHintGen(sk, skSparse, &toSparseKeySwitchHint);
+	LPPublicKey<ILVectorArray2n> pk2(cryptoParams);
+	LPPrivateKey<ILVectorArray2n> skSparse(cryptoParams);
 
-	//vector<Ciphertext<ILVector2n>> newCiphertext;
-	//newCiphertext.reserve(ciphertext.size());
+	algorithm.SparseKeyGen(&pk2, &skSparse);
 
-	//CryptoUtility<ILVectorArray2n>::RingReduce(algorithm, &ciphertext, toSparseKeySwitchHint);
+	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint;
+	algorithm.KeySwitchHintGen(sk, skSparse, &keySwitchHint);
 
-	//ILVectorArray2n skSparseElement(skSparse.GetPrivateElement());
+	CryptoUtility<ILVectorArray2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
 
-	//skSparseElement.SwitchFormat();
-	//skSparseElement.Decompose();
-	//skSparseElement.SwitchFormat();
+	IntPlaintextEncoding intArrayNew;
 
-	//skSparse.SetPrivateElement(skSparseElement);
+	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, skSparse, newCiphertext, &intArrayNew, false);
 
-	//IntPlaintextEncoding intArrayNewRR;
+	CryptoUtility<ILVectorArray2n>::RingReduce(algorithm, &ciphertext, keySwitchHint);
 
-	//LPCryptoParametersLTV<ILVectorArray2n> cryptoParamsRR;
-	//cryptoParamsRR.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-	//cryptoParamsRR.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	//cryptoParamsRR.SetRelinWindow(1);						   // Set the relinearization window
-	//cryptoParamsRR.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
+	ILVectorArray2n skSparseElement(skSparse.GetPrivateElement());
+	skSparseElement.SwitchFormat();
+	skSparseElement.Decompose();
+	skSparseElement.SwitchFormat();
 
-	//skSparse.SetCryptoParameters(&cryptoParamsRR);
+	skSparse.SetPrivateElement(skSparseElement);
 
-	//CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, skSparse, ciphertext, &intArrayNewRR, false);
+	IntPlaintextEncoding intArrayNewRR;
 
-	//std::vector<usint> vectorOfExpectedResults = { 1,1,1,1 };
-	//IntPlaintextEncoding intArrayExpected(vectorOfExpectedResults);
+	LPCryptoParametersLTV<ILVectorArray2n> cryptoParamsRR;
+	cryptoParamsRR.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
+	cryptoParamsRR.SetDistributionParameter(stdDev);          // Set the noise parameters.
+	cryptoParamsRR.SetRelinWindow(1);						   // Set the relinearization window
+	cryptoParamsRR.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-	//EXPECT_EQ(intArrayNewRR, intArrayExpected);
+	for (int i = 0; i < ciphertext.size(); i++) {
+		ciphertext.at(i).SetCryptoParameters(&cryptoParamsRR);
+	}
+
+	skSparse.SetCryptoParameters(&cryptoParamsRR);
+
+	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, skSparse, ciphertext, &intArrayNewRR, false);
+
+	std::vector<usint> vectorOfExpectedResults = { 1,1,1,1 };
+	IntPlaintextEncoding intArrayExpected(vectorOfExpectedResults);
+
+	EXPECT_EQ(intArrayNewRR, intArrayExpected);
+
+	ILVector2n::DestroyPreComputedSamples();
 }
 
 TEST(UnitTestSHE, canringreduce) {
@@ -678,7 +683,6 @@ TEST(UnitTestSHE, canringreduce) {
 }
 
 TEST(UnitTestSHE, decomposeMult) {
-
 	usint m1 = 16;
 
 	BigBinaryInteger modulus("1");
@@ -701,26 +705,14 @@ TEST(UnitTestSHE, decomposeMult) {
 	x1.Decompose();
 	x2.Decompose();
 
-	x1.PrintValues();
-	x2.PrintValues();
-
 	ILVector2n resultsEval(params2, Format::EVALUATION);
 
 	x1.SwitchFormat();
 	x2.SwitchFormat();
 
-	cout << "Printing x1 and x2 in EVALUATION switch format" << endl;
-	x1.PrintValues();
-	x2.PrintValues();
-
 	resultsEval = x1*x2;
-	resultsEval.PrintValues();
-
-	cout << "Printing results EVALUATION switch format" << endl;
 
 	resultsEval.SwitchFormat();
-	cout << "Printing results AFTER switch format" << endl;
-	resultsEval.PrintValues();
 
 	ILVector2n x3(x1.CloneWithParams());
 	x3.SetFormat(Format::COEFFICIENT);
@@ -738,7 +730,4 @@ TEST(UnitTestSHE, decomposeMult) {
 	resultsTest = x3 * x4;
 
 	resultsTest.SwitchFormat();
-
-	cout << "Printing Results" << endl;
-	resultsTest.PrintValues();
 }

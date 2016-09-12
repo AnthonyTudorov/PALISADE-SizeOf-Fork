@@ -68,6 +68,9 @@ namespace lbcrypto {
 		BigBinaryInteger product;
 		BigBinaryInteger butterflyPlus;
 		BigBinaryInteger butterflyMinus;
+		/*Ring dimension factor calculates the ratio between the cyclotomic order of the root of unity table
+		  that was generated originally and the cyclotomic order of the current BigBinaryVector. The twiddle table
+		  for lower cyclotomic orders is smaller. This trick only works for powers of two cyclotomics.*/ 
 		usint ringDimensionFactor = (rootOfUnityTable.GetLength()) / cycloOrder;
 
 		//Precompute the Barrett mu parameter
@@ -301,8 +304,6 @@ namespace lbcrypto {
 		rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus().ToString()];
 
 		if (rootOfUnityTable->GetLength() != 0) {
-			/*std::cout << rootOfUnity << std::endl;
-			std::cout << rootOfUnityTable->GetValAtIndex(1) << std::endl;*/
 			if (rootOfUnityTable->GetValAtIndex(1) != rootOfUnity) {
 				this->m_rootOfUnityTableByModulus.clear();
 				rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus().ToString()];
@@ -325,19 +326,15 @@ namespace lbcrypto {
 			rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus().ToString()];
 		}
 
-
-
 		BigBinaryVector OpFFT;
 		BigBinaryVector InputToFFT(element);
 
-
 		usint ringDimensionFactor = rootOfUnityTable->GetLength() / (CycloOrder / 2);
-
+		//Fermat Theoretic Transform (FTT)
 		for (usint i = 0; i<CycloOrder / 2; i++)
 			InputToFFT.SetValAtIndex(i, element.GetValAtIndex(i).ModBarrettMul(rootOfUnityTable->GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
 
 		OpFFT = NumberTheoreticTransform::GetInstance().ForwardTransformIterative(InputToFFT, this->m_rootOfUnityTableByModulus[element.GetModulus().ToString()], CycloOrder / 2);
-
 
 		return OpFFT;
 	}
