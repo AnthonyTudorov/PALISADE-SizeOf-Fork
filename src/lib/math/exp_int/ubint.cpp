@@ -1644,7 +1644,8 @@ return result;
       //DEBUG("Mod step passed");
       quotient.push_back(first.Div(second));
       //DEBUG("Division step passed");
-      DEBUG("i "<<ncycle<<" modsback "<<mods.back().ToString());
+      //DEBUG("i "<<ncycle);
+      DEBUG(" modsback "<<mods.back().ToString());
 
       if(mods.back()==ONE){
 	//DEBUG("break");
@@ -1663,7 +1664,7 @@ return result;
       //ncycle++;
       //if (ncycle >100) break; // for debug only
     }
-	DEBUG("MI ncycle "<<ncycle);
+    //DEBUG("MI ncycle "<<ncycle);
     mods.clear();
     mods.push_back(ubint(ZERO));
     mods.push_back(ubint(ONE));

@@ -42,19 +42,29 @@ protected:
 
 //TEST FOR BASIC SIGNING & VERIFICATION PROCESS
 TEST(simple_sign_verify, compares_to_expected_result) {
+  bool dbg_flag = true;
 
+  DEBUG("1");
 	DiscreteGaussianGenerator dgg(4);
 	usint sm = 16;
 	BigBinaryInteger smodulus("1152921504606847009");
 	BigBinaryInteger srootOfUnity("405107564542978792");
 	ILParams silParams(sm, smodulus, srootOfUnity);
+  DEBUG("2");
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+  DEBUG("3");
 	ILVector2n::PreComputeDggSamples(dgg, silParams);
+  DEBUG("4");
 	LPSignatureParameters signParams(silParams, dgg);
+  DEBUG("5");
 	LPSignKeyGPV<ILVector2n> s_k(signParams);
+  DEBUG("6");
 	LPVerificationKeyGPV<ILVector2n> v_k(signParams);
+  DEBUG("7");
 	LPSignatureSchemeGPV<ILVector2n> scheme;
+  DEBUG("8");
 	scheme.KeyGen(&s_k, &v_k);
+  DEBUG("9");
 	Signature<Matrix<ILVector2n>> signature;
 	BytePlaintextEncoding text("Since hashing is integrated now");
 

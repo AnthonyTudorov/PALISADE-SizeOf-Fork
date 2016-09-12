@@ -46,7 +46,7 @@
 // CPU architectures
 
 //#define MATHBACKEND 2 //side by side comparison of old and new libraries
-#define MATHBACKEND 2 //32 bit should work with all OS
+#define MATHBACKEND 3 //32 bit should work with all OS
 //#define MATHBACKEND 4 //64 bit (currently works for ubuntu, not tested otherwise
 
 #if MATHBACKEND == 1
@@ -61,6 +61,7 @@
 #include "cpu_int/binvect.cpp"
 #include <initializer_list>
 
+#define UBINT_32
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.cpp" //vectors of experimental ubints
 #include "exp_int/mubintvec.cpp" //rings of ubints
@@ -69,16 +70,15 @@
 
 #if MATHBACKEND == 3
 
-
+#define UBINT_32
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.cpp" //vectors of experimental ubints
 #include "exp_int/mubintvec.cpp" //rings of ubints
-
 #endif
 
 #if MATHBACKEND == 4
 
-
+#define UBINT_64
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.cpp" //vectors of experimental ubints
 #include "exp_int/mubintvec.cpp" //rings of ubints
