@@ -183,6 +183,7 @@ TEST(UTubint,string_conversions_msb){
   //DEBUG("q2 msb "<<msb);
   EXPECT_EQ(msb, 52)<<  "Failure testing 2 limb msb test ";
 
+#if 0 //this 'feature' was removed to match BBI operation.
   bool thrown = false;
   try {
     //test the ctor()
@@ -194,7 +195,7 @@ TEST(UTubint,string_conversions_msb){
   }
   EXPECT_TRUE(thrown) 
     << "Failure testing ConvertToUsint() throw on uninitialed ubint";
-
+#endif
 }
 TEST(UTubint,ctor){    
 
@@ -542,6 +543,7 @@ TEST(UTubint,basic_math){
 
     //DEBUG("result "<<result);
     //DEBUG("expect "<<expectedResult);
+
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
       <<"Failure testing Add() : a > b";
 
@@ -1067,10 +1069,11 @@ TEST(UTubint,mod_inverse){
 
     calculatedResult = m.ModInverse(p);
     expectedResult = 65;
-
+    
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToUint64())
       << "Failure testing ModInverse(): number less than modulus";
   }
+  std::cout<<"1"<<std::endl;
   // TEST CASE WHEN THE NUMBER AND MOD ARE NOT CO-PRIME
   {
     ubint m("3017");
@@ -1080,7 +1083,8 @@ TEST(UTubint,mod_inverse){
     try {
       calculatedResult = m.ModInverse(p);
     }
-    catch (...){
+    catch (exception& e){
+      std::cout<<e.what()<<std::endl;
       thrown = true;
     }
     //expectedResult = 77;
@@ -1089,6 +1093,8 @@ TEST(UTubint,mod_inverse){
       << "Failure testing ModInverse() non co-prime arguments";
 
   }
+
+  std::cout<<"2"<<std::endl;
   //testcase that failed during testing.
   {
 

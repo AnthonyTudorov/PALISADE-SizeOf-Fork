@@ -120,6 +120,7 @@ namespace exp_int {
     // builds an uninitialized ubint
     // mostly used internal to the class
     bool dbg_flag = false;		// if true then print dbg output
+#if 0
     m_MSB=0;// initialize
 
     DEBUG("ctor()");
@@ -128,6 +129,13 @@ namespace exp_int {
     DEBUG( "initial size "<< m_value.size());
 
     m_state = GARBAGE;
+#else
+    // BBI bare ctor() generates a valid zero.
+    m_MSB = 0;
+    m_value.clear(); // make sure it is empty to start
+    m_value.push_back((limb_t)0);
+    m_state = INITIALIZED;
+#endif
   }
   
   //todo: figure out how to share code between the following three ctors
@@ -862,6 +870,7 @@ return result;
       return ubint(*A);
 
     ubint result;
+    result.m_value.clear(); //note make sure result has no limbs.
     result.m_state = INITIALIZED;
 
     DEBUG("result initial size "<<result.m_value.size());
@@ -1122,6 +1131,8 @@ return result;
       return ubint(ZERO);
 
     ubint ans;
+    ans.m_value.clear(); //make sure there are no limbs to start.
+
     //position in the array to start multiplication
     //
     usint endVal = this->m_value.size();
@@ -2130,6 +2141,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     }
 
     ubint value;
+    value.m_value.clear(); //clear out all limbs
     usint len = v.length();
     usint cntr = ceilIntByUInt(len);
     std::string val;
