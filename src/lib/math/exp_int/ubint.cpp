@@ -312,11 +312,26 @@ namespace exp_int {
   template<typename limb_t>
   ubint<limb_t>::ubint(const ubint& rhs){
     bool dbg_flag = false;		// if true then print dbg output
+    if (rhs.m_state == GARBAGE)
+      std::cout<<"copy garbage"<<std::endl;
 
+    if (rhs.m_value.size()<0)
+      std::cout<<"copy size<0"<<std::endl;
+	     
     DEBUG("copy ctor(&bint)");
 
     //memory allocation step
     this->m_MSB=rhs.m_MSB; //copy MSB
+    try { 
+      //copy values
+      this->m_value = rhs.m_value; // this occasionally fails may have been
+      //fixed when normalize was fixed.
+    } catch(std::exception& e) {
+      //if it fails, then just clear our copy out. 
+      std::cout<<"Threw"<<std::endl;
+      this->m_value.clear();
+      this->m_value.push_back((limb_t)0);
+    }
 
     //copy values
     this->m_value = rhs.m_value;
@@ -349,8 +364,8 @@ namespace exp_int {
 
   //TODO figure out what this is for
   template<typename limb_t>
-  std::function<unique_ptr<ubint<limb_t>>()> ubint<limb_t>::Allocator = [=](){
-    return lbcrypto::make_unique<ubint<limb_t>>();
+  std::function<unique_ptr<ubint<limb_t>>()> ubint<limb_t>::Allocator = [](){
+    return lbcrypto::make_unique<exp_int::ubint<limb_t>>();
   };
 
   template<typename limb_t>
@@ -729,19 +744,9 @@ return result;
       ans.m_MSB -= remainingShift;
 
     }
-#if 0
-    //go through the mslimbs and pop off any zero limbs we missed
-    for (usint i = ans.m_value.size()-1; i >= 0; i--){
-      if (!ans.m_value.back()) {
-	ans.m_value.pop_back();
-	std::cout<<"shift popped "<<std::endl;
-      } else {
-	break;
-      }
-    }
-#else
+
     ans.NormalizeLimbs();
-#endif
+
     DEBUG("final MSB "<<ans.m_MSB);
     ans.SetMSB();
     DEBUG("final MSB check "<<ans.m_MSB);
@@ -1004,20 +1009,7 @@ return result;
       DEBUG ("res limb "<<i<<" finally "<<result.m_value.at(i));
 
     }
-#if 0
-    //go through the mslimbs and pop off any zero limbs
-    for (usint i = result.m_value.size()-1; i >= 0; i--){
-      if (!result.m_value.back()) {
-	result.m_value.pop_back();
-	std::cout<<"sub popped "<<std::endl;
-      } else {
-	break;
-      }
-    }
-#else
     result.NormalizeLimbs();
-#endif
-    
     result.SetMSB();
     DEBUG("result msb now "<<result.m_MSB);
     //return the result
@@ -1374,19 +1366,7 @@ return result;
     f = divmnu_vect((ans), (rv),  (*this),  (b));
     if (f!= 0)
       throw std::logic_error("Div() error");
-#if 0
-    //go through the mslimbs and pop off any zero limbs
-    for (usint i = ans.m_value.size()-1; i >= 0; i--){
-      if (!ans.m_value.back()) {
-	ans.m_value.pop_back();
-	std::cout<<"div popped "<<std::endl;
-      } else {
-	break;
-      }
-    }
-#else
     ans.NormalizeLimbs();
-#endif
     ans.m_state = INITIALIZED;
     ans.SetMSB();
 
@@ -1566,22 +1546,7 @@ return result;
       throw std::logic_error("Mod() error");
 
     DEBUG("answer m size "<< ans.m_value.size());
-#if 0
-
-    //ans.PrintLimbsInDec();
-    //go through the mslimbs and pop off any zero limbs
-    for (usint i = ans.m_value.size()-1; i >= 0; i--){
-      if (ans.m_value.back() == 0) {
-	ans.m_value.pop_back();
-	DEBUG("Mod popped ");
-      } else {
-	break;
-      }
-    }
-#else
-
     ans.NormalizeLimbs();
-#endif
     ans.SetMSB();
     ans.m_state = INITIALIZED;
 
@@ -1672,22 +1637,14 @@ return result;
     first = mods[0];
     second = mods[1];
     //SOUTH ALGORITHM
-#if 1
+
     usint limtest = quotient.size()-1;
     for(sint i=limtest; i>=0;i--){
       mods.push_back(quotient.at(i)*second + first);
       first = second;
       second = mods.back();
     }
-#else
-    usint limtest =  quotient.size();
-    for(sint i=0; i<limtest; ++i){
-      mods.push_back(quotient.at(i)*second + first);
-      first = second;
-      second = mods.back();
-    }
 
-#endif
     ubint result;
     if(quotient.size()%2==1){
       result = (modulus - mods.back());
@@ -1953,21 +1910,10 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     int f;
     f = divmnu_vect((ans), (rv),  (*this),  (q));
     if (f!= 0)
-      throw std::logic_error("Div() error");
-#if 0    
-    //go through the mslimbs and pop off any zero limbs
-    for (usint i = ans.m_value.size()-1; i >= 0; i--){
-      if (!ans.m_value.back()) {
-	ans.m_value.pop_back();
-	std::cout<<" div popped "<<std::endl;
-      } else {
-	break;
-      }
-    }
-#else
+      throw std::logic_error("Div() error in DivideAndRound");
+
     ans.NormalizeLimbs();
 
-#endif    
     ans.m_state = INITIALIZED;
     ans.SetMSB();
     //==============
@@ -2347,7 +2293,8 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   template<typename limb_t>
   void ubint<limb_t>::NormalizeLimbs(void) {
     //go through the most significant limbs and pop off any zero limbs we missed
-    for (usint i = this->m_value.size()-1; i >= 0; i--){
+    //note, ubint = 0 must  have one limb == 0;
+    for (usint i = this->m_value.size()-1; i >= 1; i--){
       if (!this->m_value.back()) {
 	this->m_value.pop_back();
 	//std::cout<<"popped "<<std::endl;

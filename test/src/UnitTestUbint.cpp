@@ -193,7 +193,7 @@ TEST(UTubint,string_conversions_msb){
     thrown = true;
   }
   EXPECT_TRUE(thrown) 
-    << "Failure testing ConvertToUsint() on uninitialed ubint";
+    << "Failure testing ConvertToUsint() throw on uninitialed ubint";
 
 }
 TEST(UTubint,ctor){    
@@ -1022,6 +1022,7 @@ TEST(UTubint,mod_operations){
     EXPECT_EQ(modcorrect, modresult)
       <<"Failure ModInverse() Mod regression test";
   }
+}
 
   /************************************************/
   /* TESTING METHOD MOD BARRETT FOR ALL CONDITIONS */
@@ -1055,6 +1056,9 @@ TEST(UTubint,mod_operations){
   // If m and p are not co-prime, the method throws an error
   // ConvertToUsint converts ubint calculatedResult to integer
 
+TEST(UTubint,mod_inverse){
+  ubint calculatedResult;
+  int expectedResult;
 
   // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
   {
@@ -1109,6 +1113,12 @@ TEST(UTubint,mod_operations){
     EXPECT_EQ(modIcorrect, modIresult)
       <<"Failure ModInverse() regression test";
   }
+
+}
+
+TEST(UTubint,mod_arithmetic){
+  ubint calculatedResult;
+  int expectedResult;
 
   /************************************************/
   /* TESTING METHOD MODADD FOR ALL CONDITIONS     */

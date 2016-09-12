@@ -41,44 +41,46 @@ protected:
 /*---------------------------------------	TESTING METHODS OF SIGNATURE  --------------------------------------------*/
 
 //TEST FOR BASIC SIGNING & VERIFICATION PROCESS
-TEST(simple_sign_verify, compares_to_expected_result) {
-  bool dbg_flag = true;
+TEST(UTSignatureGPV,simple_sign_verify) {
+  bool dbg_flag = false;
 
-  DEBUG("1");
+  DEBUG("Step 1");
 	DiscreteGaussianGenerator dgg(4);
 	usint sm = 16;
 	BigBinaryInteger smodulus("1152921504606847009");
 	BigBinaryInteger srootOfUnity("405107564542978792");
 	ILParams silParams(sm, smodulus, srootOfUnity);
-  DEBUG("2");
+  DEBUG("Step 2");
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
-  DEBUG("3");
+  DEBUG("Step 3");
 	ILVector2n::PreComputeDggSamples(dgg, silParams);
-  DEBUG("4");
+  DEBUG("Step 4");
 	LPSignatureParameters signParams(silParams, dgg);
-  DEBUG("5");
+  DEBUG("Step 5");
 	LPSignKeyGPV<ILVector2n> s_k(signParams);
-  DEBUG("6");
+  DEBUG("Step 6");
 	LPVerificationKeyGPV<ILVector2n> v_k(signParams);
-  DEBUG("7");
+  DEBUG("Step 7");
 	LPSignatureSchemeGPV<ILVector2n> scheme;
-  DEBUG("8");
+  DEBUG("Step 8");
 	scheme.KeyGen(&s_k, &v_k);
-  DEBUG("9");
+  DEBUG("Step 9");
 	Signature<Matrix<ILVector2n>> signature;
+  DEBUG("Step 10");
 	BytePlaintextEncoding text("Since hashing is integrated now");
-
+  DEBUG("Step 11");
 
 	scheme.Sign(s_k, text, &signature);
 
 	EXPECT_EQ(true, scheme.Verify(v_k, signature, text))
 		<<"Failed verification";
 
+	DEBUG("Step 12");
 	ILVector2n::DestroyPreComputedSamples();
-
+	DEBUG("Step 13");
 }
 //TEST FOR SIGNING AND VERIFYING SIGNATURES GENERATED FROM MULTIPLE TEXTS. ONLY SIGNATURES CORRESPONDING TO THEIR RESPECTIVE TEXT SHOULD VERIFY
-TEST(sign_verify_multiple_texts, compares_to_expected_results) {
+TEST(UTSignatureGPV, sign_verify_multiple_texts) {
 	DiscreteGaussianGenerator dgg(4);
 	usint sm = 16;
 	BigBinaryInteger smodulus("1152921504606847009");
@@ -116,7 +118,7 @@ TEST(sign_verify_multiple_texts, compares_to_expected_results) {
 }
 
 //TEST FOR SIGNING AND VERIFYING SIGNATURES GENERATED FROM MULTIPLE KEYS. ONLY SIGNATURES CORRESPONDING TO THEIR RESPECTIVE SPECIFIC KEY SHOULD VERIFY
-TEST(sign_verify_multiple_keys, compares_to_expected_results) {
+TEST(UTSignatureGPV, sign_verify_multiple_keys) {
 	DiscreteGaussianGenerator dgg(4);
 	usint sm = 16;
 	BigBinaryInteger smodulus("1152921504606847009");
