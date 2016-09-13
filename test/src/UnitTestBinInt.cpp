@@ -376,6 +376,7 @@ TEST(UTBinInt,basic_math){
 
 	  EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
 		  << "Failure testing divided_and_rounding_by_a_greater_than_b";
+  }
 
   /*{
     BigBinaryInteger a("204");
