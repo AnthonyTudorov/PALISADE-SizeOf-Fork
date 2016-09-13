@@ -260,17 +260,19 @@ namespace lbcrypto {
 		//YSP this double conversion is necessary for uniform_int to work properly; the use of double is justified in this case
 		double dbmean = mean.convert_to<double>();
 		double dbt = t.convert_to<double>();
-
+		int count = 0;
 		std::uniform_int_distribution<int32_t> uniform_int(floor(dbmean - dbt), ceil(dbmean + dbt));
 		boost::random::uniform_real_distribution<LargeFloat> uniform_real(0.0, 1.0);
 
 		while (true) {
+			count++;
 			//  pick random int
 			int32_t x = uniform_int(GetPRNG());
 			//  roll the uniform dice
 			LargeFloat dice = uniform_real(GetPRNG());
 			//  check if dice land below pdf
 			if (dice <= UnnormalizedGaussianPDF(mean, stddev, x)) {
+				std::cout << "Count: " << count << std::endl;
 				return x;
 			}
 		}
@@ -291,6 +293,7 @@ namespace lbcrypto {
 
 			error -= prob;
 			probMatrix[int(i+5*stddev-mean)] = prob * pow(2, 32);
+			//Hamming weights are disabled for now
 			/*
 			for (int j = 0;j < 32;j++) {
 				hammingWeights[j] += ((probMatrix[int(i + m / 2)] >> (31 - j)) & 1);
@@ -300,6 +303,7 @@ namespace lbcrypto {
 		}
 		std::cout << "Error probability: "<< error << std::endl;
 		probMatrix[probMatrixSize-1] = error * pow(2, 32);
+		//Hamming weights are disabled for now
 		/*
 		for (int k = 0;k< 32;k++) {
 			hammingWeights[k] += ((probMatrix[probMatrixSize - 1] >> (31 - k)) & 1);
@@ -324,6 +328,7 @@ namespace lbcrypto {
 
 			error -= prob;
 			probMatrix[int(i + 5 * dbstddev - dbmean)] = prob * pow(2, 32);
+			//Hamming weights are disabled for now
 			/*
 			for (int j = 0;j < 32;j++) {
 			hammingWeights[j] += ((probMatrix[int(i + m / 2)] >> (31 - j)) & 1);
@@ -333,6 +338,7 @@ namespace lbcrypto {
 		}
 		std::cout << "Error probability: " << error << std::endl;
 		probMatrix[probMatrixSize - 1] = error * pow(2, 32);
+		//Hamming weights are disabled for now
 		/*
 		for (int k = 0;k< 32;k++) {
 		hammingWeights[k] += ((probMatrix[probMatrixSize - 1] >> (31 - k)) & 1);
@@ -350,10 +356,14 @@ namespace lbcrypto {
 		char counter=0;
 		int32_t MAX_ROW = probMatrixSize - 1;
 		while (discard == true) {
+			//The distance
 			int32_t d = 0;
+			//Whether a terminal node is hit or not
 			uint32_t hit = 0;
+			//Indicator of column
 			short col = 0;
 			bool scanningInitialized = false;
+			//To generate random bit a 32 bit integer is generated in every 32 iterations and each single bit is used in order to save cycles
 			while (hit == 0 && col<=31) {
 				if (counter % 32 == 0) {
 					seed = uniform_int(GetPRNG());
@@ -368,10 +378,12 @@ namespace lbcrypto {
 						d -= ((probMatrix[row] >> (31 - col)) & 1);
 						if (d == -1) {
 							hit = 1;
+							//If the terminal node is found on the last row, it means that it hit an error column therefore the sample is discarded
 							if (row == MAX_ROW) {
 								std::cout << "Hit error row, discarding sample..." << std::endl;
 							}
 							else {
+								//Result is the row that the terminal node found in
 								S = row;
 								discard = false;
 							}
@@ -382,8 +394,8 @@ namespace lbcrypto {
 				counter++;
 			}
 		}
-		int32_t returnValue = S - (MAX_ROW - 1) / 2 + probMean;
-		return returnValue;
+		//The calculation to understand what integer the column actually corresponds to in probability matrix
+		return  S - (MAX_ROW - 1) / 2 + probMean;
 	}
 
 
