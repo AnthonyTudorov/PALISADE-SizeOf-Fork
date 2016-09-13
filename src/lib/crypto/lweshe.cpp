@@ -69,7 +69,7 @@ void LPAlgorithmSHELTV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1
 	EvalMult(ciphertext1, ciphertext2, newCiphertext);
 
 	//Key Switching operation.
-	*newCiphertext = GetScheme().KeySwitch(ek,*newCiphertext);
+	*newCiphertext = this->GetScheme().KeySwitch(ek,*newCiphertext);
 
 }
 
