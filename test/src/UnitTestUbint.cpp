@@ -273,22 +273,22 @@ TEST(UTubint,consts){
 
   // test the constants
   a = ubint::ZERO;
-  EXPECT_EQ(0, a.ConvertToUsint())<< "Failure testing ZERO";
+  EXPECT_EQ(ubint(0), a)<< "Failure testing ZERO";
 
   a = ubint::ONE;
-  EXPECT_EQ(1, a.ConvertToUsint())<< "Failure testing ONE";
+  EXPECT_EQ(ubint(1), a)<< "Failure testing ONE";
 
   a = ubint::TWO;
-  EXPECT_EQ(2, a.ConvertToUsint())<< "Failure testing TWO";
+  EXPECT_EQ(ubint(2), a)<< "Failure testing TWO";
 
   a = ubint::THREE;
-  EXPECT_EQ(3, a.ConvertToUsint())<< "Failure testing THREE";
+  EXPECT_EQ(ubint(3), a)<< "Failure testing THREE";
 
   a = ubint::FOUR;
-  EXPECT_EQ(4, a.ConvertToUsint())<< "Failure testing FOUR";
+  EXPECT_EQ(ubint(4), a)<< "Failure testing FOUR";
 
   a = ubint::FIVE;
-  EXPECT_EQ(5, a.ConvertToUsint())<< "Failure testing FIVE";
+  EXPECT_EQ(ubint(5), a)<< "Failure testing FIVE";
 
   //todo: test log constants?
 }
@@ -1024,6 +1024,27 @@ TEST(UTubint,mod_operations){
     EXPECT_EQ(modcorrect, modresult)
       <<"Failure ModInverse() Mod regression test";
   }
+
+  // Mod(0)
+  {
+    ubint first("4974113608263");
+    ubint second("0");
+    ubint modcorrect("4974113608263");
+    ubint modresult;
+
+    bool thrown = false;
+    try {
+      modresult = first.Mod(second);
+    }
+    catch (exception& e){
+      std::cout<<e.what()<<std::endl;
+      thrown = true;
+    }
+
+    EXPECT_TRUE(thrown)
+      << "Failure testing ModInverse() non co-prime arguments";
+  }
+
 }
 
   /************************************************/
@@ -1073,7 +1094,7 @@ TEST(UTubint,mod_inverse){
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToUint64())
       << "Failure testing ModInverse(): number less than modulus";
   }
-  std::cout<<"1"<<std::endl;
+
   // TEST CASE WHEN THE NUMBER AND MOD ARE NOT CO-PRIME
   {
     ubint m("3017");
@@ -1094,7 +1115,6 @@ TEST(UTubint,mod_inverse){
 
   }
 
-  std::cout<<"2"<<std::endl;
   //testcase that failed during testing.
   {
 

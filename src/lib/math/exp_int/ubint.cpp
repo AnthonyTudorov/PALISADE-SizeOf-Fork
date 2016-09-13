@@ -1268,7 +1268,7 @@ return result;
     int s, i, j;
 
     if (m < n || n <= 0 || v[n-1] == 0){
-      std::cout<< "m,n,v[n-1] " << m <<", "<< n << ", " << v[n-1] << std::endl;
+      std::cout<< "Error in divmnu_vect m, n, v[n-1] " << m <<", "<< n << ", " << v[n-1] << std::endl;
       return 1;                         // Return if invalid param.
     }
     if (n == 1) {                        // Take care of
@@ -1526,17 +1526,25 @@ return result;
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::Mod(const ubint& modulus) const{
     bool dbg_flag = false;
+
     //check for garbage initialisation
     if(this->m_state==GARBAGE)
       throw std::logic_error("Mod() of uninitialized bint");
     if(modulus.m_state==GARBAGE)
       throw std::logic_error("Mod() using uninitialized bint as modulus");
 
+    if(modulus==ZERO)
+      throw std::logic_error("Mod() using zero modulus");
+
+    if(modulus.m_value.size()>1 && modulus.m_value.back()==0)
+      throw std::logic_error("Mod() using unnormalized  modulus");
+
     //return the same value if value is less than modulus
     if(*this<modulus){
       return std::move(ubint(*this));
     }
-    //masking operation if modulus is 2
+
+    //use simple masking operation if modulus is 2
     if(modulus.m_MSB==2 && modulus.m_value.at(0)==2){
       if(this->m_value.at(0)%2==0)
 	return ubint(ZERO);
@@ -1548,13 +1556,16 @@ return result;
     ubint qv;
     ubint ans(0);
     
+    DEBUG("this size "<< this->m_value.size());
     DEBUG("modulus m size "<< modulus.m_value.size());
-    //modulus.PrintLimbsInDec();
+    if (dbg_flag){
+      modulus.PrintLimbsInDec();
+    }
 
     int f;
     f = divmnu_vect(qv, ans,  *this,  modulus);
     if (f!= 0)
-      throw std::logic_error("Mod() error");
+      throw std::logic_error("Mod() divmnu error");
 
     DEBUG("answer m size "<< ans.m_value.size());
     ans.NormalizeLimbs();
@@ -1616,9 +1627,17 @@ return result;
       //DEBUG("**north cycle");
       //DEBUG("first "<<first.ToString());
       //DEBUG("second "<<second.ToString());
-      mods.push_back(first.Mod(second));
+      if (second==ZERO) { // cannot take mod(0);
+	mods.push_back(ZERO);//FLAG bottom out
+      }else{
+	mods.push_back(first.Mod(second));
+      }
       //DEBUG("Mod step passed");
-      quotient.push_back(first.Div(second));
+      if (second==ZERO){// cannot take mod(0);
+	quotient.push_back(ZERO);
+      }else {
+	quotient.push_back(first.Div(second));
+      }
       //DEBUG("Division step passed");
       //DEBUG("i "<<ncycle);
       DEBUG(" modsback "<<mods.back().ToString());
@@ -1628,8 +1647,7 @@ return result;
 	break;
       }
       if(mods.back()==ZERO){
-	std::cout<<"NO INVERSE FOUND, GOING TO THROW ERROR\n";
-	throw std::logic_error("MOD INVERSE NOT FOUND");
+	throw std::logic_error("ModInverse() inverse not found");
       }
 		
       first = second;
@@ -1921,7 +1939,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     int f;
     f = divmnu_vect((ans), (rv),  (*this),  (q));
     if (f!= 0)
-      throw std::logic_error("Div() error in DivideAndRound");
+      throw std::logic_error("Divmnu() error in DivideAndRound");
 
     ans.NormalizeLimbs();
 
