@@ -276,96 +276,14 @@ void NTRUPRE(int input) {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}
-	
 
-	//PRE SCHEME
 
 	////////////////////////////////////////////////////////////
-	//Perform the second key generation operation.
-	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
+	//SHE functionality
 	////////////////////////////////////////////////////////////
 
-	/*LPPublicKeyFV<ILVector2n> newPK(cryptoParams);
-	LPPrivateKeyFV<ILVector2n> newSK(cryptoParams);
-
-	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
-
-	start = currentDateTime();
-
-	successKeyGen = algorithm.KeyGen(&newPK,&newSK);	// This is the same core key generation operation.
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout << "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout << "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	////////////////////////////////////////////////////////////
-	//Perform the proxy re-encryption key generation operation.
-	// This generates the keys which are used to perform the key switching.
-	////////////////////////////////////////////////////////////
-
-	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
-
-	LPEvalKeyFV<ILVector2n> evalKey(cryptoParams);
-
-	start = currentDateTime();
-
-	algorithm.EvalKeyGen(newSK, sk, &evalKey);  // This is the core re-encryption operation.
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Re-encryption key generation time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Re-encryption key generation time: "<<"\t"<<diff<<" ms"<<endl;
-
-	////////////////////////////////////////////////////////////
-	//Perform the proxy re-encryption operation.
-	// This switches the keys which are used to perform the key switching.
-	////////////////////////////////////////////////////////////
-
-
-	vector<Ciphertext<ILVector2n>> newCiphertext;
-
-	std::cout <<"\n"<< "Running re-encryption..." << std::endl;
-
-	start = currentDateTime();
-
-	CryptoUtility<ILVector2n>::ReEncrypt(algorithm, evalKey, ciphertext, &newCiphertext);  // This is the core re-encryption operation.
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Re-encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Re-encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
-
-	////////////////////////////////////////////////////////////
-	//Decryption
-	////////////////////////////////////////////////////////////
-
-	BytePlaintextEncoding plaintextNew2;
-
-	std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
-
-	start = currentDateTime();
-
-	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(algorithm,newSK,newCiphertext,&plaintextNew2,false);  // This is the core decryption operation.
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
-
-	if (!result1.isValid) {
-		std::cout<<"Decryption failed!"<<std::endl;
-		exit(1);
-	}*/
+	LPEvalKeyFV<ILVector2n> reLinKey(cryptoParams);
+	algorithm.RelinKeyGen(sk, &reLinKey);
 
 	std::cout << "Execution completed." << std::endl;
 

@@ -1177,7 +1177,6 @@ namespace lbcrypto {
 	template <class Element>
 	class LPSHEAlgorithm {
 		public:
-						
 			/**
 			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext.
 			 *
@@ -1185,6 +1184,14 @@ namespace lbcrypto {
 			 * @param &ciphertext2 the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
+
+			virtual	bool RelinKeyGen(const LPPrivateKey<Element> &privateKey,
+			LPEvalKey<Element> *evalKey) const = 0;
+		
+			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext, const LPEvalKey<Element> &evalKey) const = 0;
+
 			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
 				Ciphertext<Element> *newCiphertext) const = 0;
@@ -1418,6 +1425,16 @@ namespace lbcrypto {
 				}
 		}
 
+		//wrapper for reLinKeyGen method
+		bool RelinKeyGen(const LPPrivateKey<Element> &privateKey,
+			LPEvalKey<Element> *evalKey) const{
+				if(this->IsEnabled(SHE))
+					return this->m_algorithmSHE->RelinKeyGen(privateKey,evalKey);
+				else {
+					throw std::logic_error("This operation is not supported");
+				}
+		}
+
 		//wrapper for ReEncrypt method
 		void ReEncrypt(const LPEvalKey<Element> &evalKey, const Ciphertext<Element> &ciphertext,
 			Ciphertext<Element> *newCiphertext) const {
@@ -1490,7 +1507,18 @@ namespace lbcrypto {
 				else {
 					throw std::logic_error("SparseKeyGen operation has not been enabled");
 				}
+		}
 
+		//wrapper for EvalMult method
+		void EvalMult(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext, const LPEvalKey<Element> &evalKey) const {
+					
+					if(this->IsEnabled(SHE))
+						this->m_algorithmSHE->EvalMult(ciphertext1,ciphertext2,newCiphertext, evalKey);
+					else{
+						throw std::logic_error("This operation is not supported");
+					}
 		}
 
 		void EvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, 

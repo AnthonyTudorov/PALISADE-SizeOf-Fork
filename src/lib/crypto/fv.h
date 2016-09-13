@@ -644,7 +644,10 @@ namespace lbcrypto {
 		
 		void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext) const {}
+				Ciphertext<Element> *newCiphertext) const {
+					std::string errMsg = "LPAlgorithmSHEFV::EvalMult without RelinKey is not applicable for FV SHE Scheme.";
+					throw std::runtime_error(errMsg);
+		}
 
 		void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,

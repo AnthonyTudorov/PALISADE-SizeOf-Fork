@@ -225,25 +225,28 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 	const LPCryptoParametersFV<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersFV<Element>*>(&evalKey.GetCryptoParameters());
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
+	const LPEvalKeyFV<Element> *ek =
+		dynamic_cast<const LPEvalKeyFV<Element>*>(&evalKey);
+
 	std::vector<Element> cipherText1Elements = ciphertext1.GetElements();
 	std::vector<Element> cipherText2Elements = ciphertext2.GetElements();
 
 	// TODO-Nishanth: multiply p/q and rounding
 	Element c0 = cipherText1Elements.at(0) * cipherText2Elements.at(0);
-	Element c1 = cipherText1Elements.at(0) * cipherText2Elements.at(1) + cipherText1Elements->at(1) * cipherText2Elements->at(0);
+	Element c1 = cipherText1Elements.at(0) * cipherText2Elements.at(1) + cipherText1Elements.at(1) * cipherText2Elements.at(0);
 	Element c2 = cipherText1Elements.at(1) * cipherText2Elements.at(1);
 
 	std::vector<Element> digitsC2;
 	c2.BaseDecompose(relinWindow, &digitsC2);
 
 	Element ct0(c0), ct1(c1);
-	std::vector<Element> *evalKeyElements = evalKey.AccessEvalKeyElements();
-	std::vector<Element> *evalKeyElementsGenerated = evalKey.AccessEvalKeyElementsGenerated();
+	std::vector<Element> evalKeyElements = ek->GetEvalKeyElements();
+	std::vector<Element> evalKeyElementsGenerated = ek->GetEvalKeyElementsGenerated();
 
 	for (usint i = 0; i < digitsC2.size(); ++i)
 	{
-		ct0 += digitsC2[i] * evalKeyElements->at(i);
-		ct1 += digitsC2[i] * evalKeyElementsGenerated->at(i);
+		ct0 += digitsC2[i] * evalKeyElements.at(i);
+		ct1 += digitsC2[i] * evalKeyElementsGenerated.at(i);
 	}
 
 	// *newCiphertext = ciphertext;

@@ -78,6 +78,19 @@ namespace lbcrypto {
 				const Ciphertext<Element> &ciphertext2, 
 				Ciphertext<Element> *newCiphertext) const;
 
+			bool RelinKeyGen(const LPPrivateKey<Element> &privateKey,
+				LPEvalKey<Element> *evalKey) const {
+					std::string errMsg = "LPAlgorithmSHELTV::RelinKeyGen is not applicable for LTV SHE Scheme.";
+					throw std::runtime_error(errMsg);
+			}
+		
+			void EvalMult(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext, const LPEvalKey<Element> &evalKey) const {
+					std::string errMsg = "LPAlgorithmSHELTV::EvalMult with RelinKey is not applicable for LTV SHE Scheme.";
+					throw std::runtime_error(errMsg);
+			}
+
 			/**
 			* Function for evaluating multiplication on ciphertext followed by key switching operation.
 			*
