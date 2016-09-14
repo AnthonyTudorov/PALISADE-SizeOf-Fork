@@ -146,6 +146,30 @@ public:
 	//int32_t GenerateInt32 (double mean, double stddev);
 	//will be defined later
 
+	/**
+	* @brief Generates the probability matrix of given distribution, which is used in Knuth-Yao method
+	* @param sttdev standard deviation of Discrete Gaussian Distribution
+	* @param mean Center of the distribution
+	*/
+	void GenerateProbMatrix(double stddev, double mean);
+
+	/**
+	* @brief Generates the probability matrix of given distribution, which is used in Knuth-Yao method (Large Float Version)
+	* @param sttdev standard deviation of Discrete Gaussian Distribution
+	* @param mean Center of the distribution
+	*/
+	void GenerateProbMatrix(const LargeFloat & stddev, const LargeFloat & mean);
+
+	/**
+	* @ brief Returns a generated integer. Uses Knuth-Yao method defined as Algorithm 1 in http://link.springer.com/chapter/10.1007%2F978-3-662-43414-7_19#page-1
+	* @ return A random value within the Discrete Gaussian Distribution
+	*/
+	int32_t GenerateIntegerKnuthYao();
+	/**
+	* @brief Destructor
+	*/
+	~DiscreteGaussianGenerator() { if (probMatrix != nullptr) { delete[] probMatrix;} }
+
 private:
 	usint FindInVector (const std::vector<double> &S, double search) const;
 
@@ -167,7 +191,25 @@ private:
 	* The standard deviation of the distribution.
 	*/
 	sint m_std;
-
+	
+	/**
+	*The probability matrix used in Knuth-Yao sampling
+	*/
+	uint32_t * probMatrix = nullptr;
+	
+	/**
+	*Array that stores the Hamming Weights of the probability matrix used in Knuth-Yao sampling
+	*/
+	//uint32_t hammingWeights[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	/**
+	*Size of probability matrix
+	*/
+	uint32_t probMatrixSize;
+	
+	/**
+	*Mean of the distribution used for Knuth-Yao probability table
+	*/
+	double probMean;
 };
 
 }  // namespace lbcrypto
