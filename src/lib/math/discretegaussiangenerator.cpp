@@ -272,7 +272,7 @@ namespace lbcrypto {
 			LargeFloat dice = uniform_real(GetPRNG());
 			//  check if dice land below pdf
 			if (dice <= UnnormalizedGaussianPDF(mean, stddev, x)) {
-				std::cout << "Count: " << count << std::endl;
+				// std::cout << "Count: " << count << std::endl;
 				return x;
 			}
 		}
@@ -301,7 +301,7 @@ namespace lbcrypto {
 			}
 			*/
 		}
-		std::cout << "Error probability: "<< error << std::endl;
+		//std::cout << "Error probability: "<< error << std::endl;
 		probMatrix[probMatrixSize-1] = error * pow(2, 32);
 		//Hamming weights are disabled for now
 		/*
@@ -336,7 +336,7 @@ namespace lbcrypto {
 			}
 			*/
 		}
-		std::cout << "Error probability: " << error << std::endl;
+		//std::cout << "Error probability: " << error << std::endl;
 		probMatrix[probMatrixSize - 1] = error * pow(2, 32);
 		//Hamming weights are disabled for now
 		/*
@@ -380,7 +380,7 @@ namespace lbcrypto {
 							hit = 1;
 							//If the terminal node is found on the last row, it means that it hit an error column therefore the sample is discarded
 							if (row == MAX_ROW) {
-								std::cout << "Hit error row, discarding sample..." << std::endl;
+								//std::cout << "Hit error row, discarding sample..." << std::endl;
 							}
 							else {
 								//Result is the row that the terminal node found in
