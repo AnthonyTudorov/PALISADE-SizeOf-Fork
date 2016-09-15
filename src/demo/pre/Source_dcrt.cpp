@@ -390,7 +390,7 @@ void NTRU_DCRT() {
 
 	cout << "Running eval key gen" << endl;
 
-	bool rval = CryptoUtility<ILVectorArray2n>::EvalKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	bool rval = CryptoUtility<ILVectorArray2n>::ReKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	if( rval == false ) {
 		cout << "EvalKeyGen failed!!!" << endl;
@@ -1436,7 +1436,7 @@ void NTRUPRE(usint input) {
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::EvalKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	CryptoUtility<ILVector2n>::ReKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
