@@ -71,7 +71,7 @@ reencrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) 
 	string rekeyname(argv[1]);
 	string reciphertextname(argv[2]);
 
-	LPEvalKeyRelin<ILVector2n> evalKey(*ctx->getParams());
+	LPEvalKeyNTRURelin<ILVector2n> evalKey(*ctx->getParams());
 	if( !fetchItemFromSer(&evalKey, rekeyname, ctx) ) {
 		cerr << "Could not process re encryption key" << endl;
 		return;
@@ -208,7 +208,7 @@ rekeymaker(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	LPEvalKeyRelin<ILVector2n> evalKey(*ctx->getParams());
+	LPEvalKeyNTRURelin<ILVector2n> evalKey(*ctx->getParams());
 
 	if( ctx->getAlgorithm()->ReKeyGen(pk, sk, &evalKey) ) {
 		Serialized evalK;
