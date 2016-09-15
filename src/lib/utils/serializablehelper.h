@@ -118,8 +118,6 @@ void SerializeVector(const std::string& vectorName, const std::string& typeName,
 	ser.AddMember("Typename", typeName, serObj->GetAllocator());
 	ser.AddMember("Length", std::to_string(inVector.size()), serObj->GetAllocator());
 
-	std::cout << "Serializing array of " << typeName << " vector type is " << typeid(T).name() << std::endl;
-
 	Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
 	for( int i=0; i<inVector.size(); i++ ) {
 		Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
