@@ -285,7 +285,7 @@ runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plainte
 
 	LPEvalKeyRelin<ILVector2n> evalKey(*ctx->getParams());
 
-	CryptoUtility<ILVector2n>::EvalKeyGen(*ctx->getAlgorithm(), newPK, sk, &evalKey);
+	CryptoUtility<ILVector2n>::ReKeyGen(*ctx->getAlgorithm(), newPK, sk, &evalKey);
 
 	//Perform the proxy re-encryption operation.
 

@@ -243,7 +243,7 @@ namespace lbcrypto {
 		*/
 		std::vector<ILVectorArray2n> PowersOfBase(usint baseBits) const { 
 			return std::vector<ILVectorArray2n>();
-		};
+		}
 
 
 		//VECTOR OPERATIONS

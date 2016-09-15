@@ -72,7 +72,7 @@ namespace lbcrypto {
 			 * @param &origPrivateKey original private key used for decryption.
 			 * @param *evalKey the evaluation key.
 			 */
-			 bool EvalKeyGen(const LPKey<Element> &newPublicKey, 
+			 bool ReKeyGen(const LPKey<Element> &newPublicKey, 
 				const LPPrivateKey<Element> &origPrivateKey,
 				LPEvalKey<Element> *evalKey) const;
 			

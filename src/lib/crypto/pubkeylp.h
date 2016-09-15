@@ -1159,13 +1159,13 @@ namespace lbcrypto {
 		public:	
 
 			/**
-			 * Method for KeySwitchHintGen
+			 * Method for EvalMultKeyGen
 			 *
 			 * @param &originalPrivateKey Original private key used for encryption.
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
 			 * @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
 			 */
-			virtual void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
+			virtual void EvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, 
 				const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *keySwitchHint) const = 0;
 			
 			/**
@@ -1184,7 +1184,7 @@ namespace lbcrypto {
 			 * @param *quadraticKeySwitchHint the generated keyswitchhint.
 			 */
 
-			virtual void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const = 0;
+			virtual void QuadraticEvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const = 0;
 
 			/**
 			 * Method for Modulus Reduction.
@@ -1253,7 +1253,7 @@ namespace lbcrypto {
 			 * @param *evalKey the evaluation key.
 			 * @return the re-encryption key.
 			 */
-			virtual bool EvalKeyGen(const LPKey<Element> &newKey, 
+			virtual bool ReKeyGen(const LPKey<Element> &newKey, 
 				const LPPrivateKey<Element> &origPrivateKey,
 				LPEvalKey<Element> *evalKey) const = 0;
 						
@@ -1299,7 +1299,7 @@ namespace lbcrypto {
 		public:
 						
 			/**
-			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext
+			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext.
 			 *
 			 * @param &ciphertext1 the input ciphertext.
 			 * @param &ciphertext2 the input ciphertext.
@@ -1311,6 +1311,18 @@ namespace lbcrypto {
 
 			virtual void EvalAdd(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const = 0;
+
+			/**
+			* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
+			*
+			* @param &ciphertext1 first input ciphertext.
+			* @param &ciphertext2 second input ciphertext.
+			* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+			* @param *newCiphertext the new resulting ciphertext.
+			*/
+			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &ek,
 				Ciphertext<Element> *newCiphertext) const = 0;
 
 	};
@@ -1517,12 +1529,12 @@ namespace lbcrypto {
 		// the two functions below are wrappers for things in LPPREAlgorithm (PRE)
 		//
 
-		bool EvalKeyGen(const LPKey<Element> &newKey, const LPPrivateKey<Element> &origPrivateKey,
+		bool ReKeyGen(const LPKey<Element> &newKey, const LPPrivateKey<Element> &origPrivateKey,
 			LPEvalKey<Element> *evalKey) const{
 				if(this->m_algorithmPRE)
-					return this->m_algorithmPRE->EvalKeyGen(newKey,origPrivateKey,evalKey);
+					return this->m_algorithmPRE->ReKeyGen(newKey,origPrivateKey,evalKey);
 				else {
-					throw std::logic_error("EvalKeyGen operation has not been enabled");
+					throw std::logic_error("ReKeyGen operation has not been enabled");
 				}
 		}
 
@@ -1579,6 +1591,9 @@ namespace lbcrypto {
 					}
 		}
 
+
+
+
 		/////////////////////////////////////////
 		// the functions below are wrappers for things in LPFHEAlgorithm (FHE)
 		//
@@ -1598,12 +1613,12 @@ namespace lbcrypto {
 
 		}
 
-		void KeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, 
+		void EvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, 
 				const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *keySwitchHint) const {
 					if(this->m_algorithmLeveledSHE)
-						this->m_algorithmLeveledSHE->KeySwitchHintGen(originalPrivateKey, newPrivateKey,keySwitchHint);
+						this->m_algorithmLeveledSHE->EvalMultKeyGen(originalPrivateKey, newPrivateKey,keySwitchHint);
 					else{
-						throw std::logic_error("KeySwitchHintGen operation has not been enabled");
+						throw std::logic_error("EvalMultKeyGen operation has not been enabled");
 					}
 		}
 
@@ -1617,12 +1632,12 @@ namespace lbcrypto {
 			}
 		}
 
-		void QuadraticKeySwitchHintGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const {
+		void QuadraticEvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const {
 			if(this->m_algorithmLeveledSHE){
-				this->m_algorithmLeveledSHE->QuadraticKeySwitchHintGen(originalPrivateKey,newPrivateKey,quadraticKeySwitchHint);
+				this->m_algorithmLeveledSHE->QuadraticEvalMultKeyGen(originalPrivateKey,newPrivateKey,quadraticKeySwitchHint);
 			}
 			else{
-				throw std::logic_error("QuadraticKeySwitchHintGen operation has not been enabled");
+				throw std::logic_error("QuadraticEvalMultKeyGen operation has not been enabled");
 			}
 		}
 

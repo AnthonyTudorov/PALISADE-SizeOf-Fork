@@ -210,7 +210,7 @@ rekeymaker(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 
 	LPEvalKeyRelin<ILVector2n> evalKey(*ctx->getParams());
 
-	if( ctx->getAlgorithm()->EvalKeyGen(pk, sk, &evalKey) ) {
+	if( ctx->getAlgorithm()->ReKeyGen(pk, sk, &evalKey) ) {
 		Serialized evalK;
 
 		if( evalKey.Serialize(&evalK, rekeyname) ) {

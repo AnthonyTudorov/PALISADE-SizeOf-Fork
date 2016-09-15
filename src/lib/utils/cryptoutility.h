@@ -20,13 +20,13 @@ public:
 		return scheme.KeyGen(publicKey, privateKey);
 	}
 
-	static bool EvalKeyGen(
+	static bool ReKeyGen(
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPPublicKey<Element> &newPublicKey,
 			const LPPrivateKey<Element> &origPrivateKey,
 			LPEvalKey<Element> *evalKey)
 	{
-		return scheme.EvalKeyGen(newPublicKey, origPrivateKey, evalKey);
+		return scheme.ReKeyGen(newPublicKey, origPrivateKey, evalKey);
 	}
 
 	/**
