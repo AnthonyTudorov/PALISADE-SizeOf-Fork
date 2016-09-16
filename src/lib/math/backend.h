@@ -45,8 +45,8 @@
 // uint16_t, and uint32_t; uint32_t is recommended for 32- and 64-bit
 // CPU architectures
 
-//#define MATHBACKEND 2 //side by side comparison of old and new libraries
-#define MATHBACKEND 3 //32 bit should work with all OS
+#define MATHBACKEND 2 //side by side comparison of old and new libraries
+//#define MATHBACKEND 3 //32 bit should work with all OS
 //#define MATHBACKEND 4 //64 bit (currently works for ubuntu, not tested otherwise
 
 #if MATHBACKEND == 1
