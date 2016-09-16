@@ -168,7 +168,7 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	LPEvalKeyRelin<ILVector2n> evalKey(cryptoParams);
 
 
-	algorithm.EvalKeyGen(newSK, sk, &evalKey);  // This is the core re-encryption operation.
+	algorithm.ReKeyGen(newSK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption operation.

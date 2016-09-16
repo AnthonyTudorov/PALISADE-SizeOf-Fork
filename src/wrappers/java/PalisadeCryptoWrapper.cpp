@@ -315,8 +315,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_generatePalisadeEv
 	}
 
 	LPEvalKeyLTV<ILVector2n> evalKey(*ctx->getParams());
-	if( !ctx->getAlgorithm()->EvalKeyGen(pk, sk, &evalKey) ) {
-		cp->errorMessage = "EvalKeyGen failed in generateEvalKey";
+	if( !ctx->getAlgorithm()->ReKeyGen(pk, sk, &evalKey) ) {
+		cp->errorMessage = "ReKeyGen failed in generateEvalKey";
 		return 0;
 	}
 

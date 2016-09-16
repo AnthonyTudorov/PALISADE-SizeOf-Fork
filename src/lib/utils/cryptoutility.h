@@ -20,13 +20,13 @@ public:
 		return scheme.KeyGen(publicKey, privateKey);
 	}
 
-	static bool EvalKeyGen(
+	static bool ReKeyGen(
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPPublicKey<Element> &newPublicKey,
 			const LPPrivateKey<Element> &origPrivateKey,
 			LPEvalKey<Element> *evalKey)
 	{
-		return scheme.EvalKeyGen(newPublicKey, origPrivateKey, evalKey);
+		return scheme.ReKeyGen(newPublicKey, origPrivateKey, evalKey);
 	}
 
 	/**
@@ -329,6 +329,30 @@ public:
 	{
 		for (int i = 0; i < ciphertext->size(); i++) {
 			scheme.RingReduce(&ciphertext->at(i), keySwitchHint);
+		}
+	}
+
+	/**
+	* perform RingReduce on a vector of ciphertext
+	* @param &scheme - a reference to the encryption scheme in use
+	* @param ciphertext1 - first cipher text
+	* @param ciphertext2 - second cipher text
+	* @param &quadKeySwitchHint - is the quadratic key switch hint from original private key to the quadratic key
+	* @param ciphertextResult - resulting ciphertext
+	*/
+	static void ComposedEvalMult(
+		const LPPublicKeyEncryptionScheme<Element>& scheme,
+		const vector<Ciphertext<Element>> &ciphertext1,
+		const vector<Ciphertext<Element>> &ciphertext2,
+		const LPEvalKeyNTRU<Element> &quadKeySwitchHint, 
+		vector<Ciphertext<Element>> *ciphertextResult
+		)
+	{
+		if (ciphertext1.size() != ciphertext2.size()) {
+			throw std::logic_error("Cannot have ciphertext of different length");
+		}
+		for (int i = 0; i < ciphertext1.size(); i++) {
+			scheme.ComposedEvalMult(ciphertext1.at(i), ciphertext2.at(i), quadKeySwitchHint, &ciphertextResult->at(i));
 		}
 	}
 

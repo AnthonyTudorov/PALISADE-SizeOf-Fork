@@ -304,7 +304,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	algorithm.EvalKeyGen(newSK, sk, &evalKey);  // This is the core re-encryption operation.
+	algorithm.ReKeyGen(newSK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;

@@ -104,8 +104,8 @@ TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
 	cryptoParams.SetElementParams(params);
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
-	Ciphertext<ILVectorArray2n> cipherText;
-	cipherText.SetCryptoParameters(&cryptoParams);
+	//Ciphertext<ILVectorArray2n> cipherText;
+	//cipherText.SetCryptoParameters(&cryptoParams);
 
 	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
 	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
@@ -164,8 +164,8 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt) {
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-	Ciphertext<ILVector2n> cipherText;
-	cipherText.SetCryptoParameters(&cryptoParams);
+	//Ciphertext<ILVector2n> cipherText;
+	//cipherText.SetCryptoParameters(&cryptoParams);
 
 	// Initialize the public key containers.
 	LPPublicKey<ILVector2n> pk(cryptoParams);
@@ -224,8 +224,8 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_PRE) {
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
-	Ciphertext<ILVector2n> cipherText;
-	cipherText.SetCryptoParameters(&cryptoParams);
+	//Ciphertext<ILVector2n> cipherText;
+	//cipherText.SetCryptoParameters(&cryptoParams);
 
 	LPPublicKey<ILVector2n> pk(cryptoParams);
 	LPPrivateKey<ILVector2n> sk(cryptoParams);
@@ -255,9 +255,9 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_PRE) {
 	
 	algorithm.KeyGen(&newPK, &newSK);	// This is the same core key generation operation.
 
-	LPEvalKeyRelin<ILVector2n> evalKey(cryptoParams);
+	LPEvalKeyNTRURelin<ILVector2n> evalKey(cryptoParams);
 
-	algorithm.EvalKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	algorithm.ReKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	vector<Ciphertext<ILVector2n>> newCiphertext;
 
@@ -299,8 +299,8 @@ TEST(UTLTV, ILVector2n_IntPlaintextEncoding_Encrypt_Decrypt) {
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-	Ciphertext<ILVector2n> cipherText;
-	cipherText.SetCryptoParameters(&cryptoParams);
+	/*Ciphertext<ILVector2n> cipherText;
+	cipherText.SetCryptoParameters(&cryptoParams);*/
 
 	//Initialize the public key containers.
 	LPPublicKey<ILVector2n> pk(cryptoParams);
@@ -320,7 +320,6 @@ TEST(UTLTV, ILVector2n_IntPlaintextEncoding_Encrypt_Decrypt) {
 	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray, &ciphertext, false);
 
 	IntPlaintextEncoding intArrayNew;
-
 
 	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &intArrayNew, false);
 
