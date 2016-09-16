@@ -66,62 +66,68 @@ class UnitTestNbTheory : public ::testing::Test {
 
 /*----------------------------	TESTING METHODS OF NBTHEORY	  --------------------------------------------*/
 
-// TEST CASE TO FIND GREATEST COMMON DIVISOR OF TWO SMALL NUMBERS
-
-TEST(method_greatest_common_divisor,equals_small_numbers){
-	BigBinaryInteger a("10403"), b("103");
-	BigBinaryInteger c = lbcrypto::GreatestCommonDivisor(a, b);
-
-	int expectedResult = 103;
-
-	EXPECT_EQ(expectedResult, c.ConvertToInt());
+TEST(UTNbTheory, method_greatest_common_divisor){
+  {
+    // TEST CASE TO FIND GREATEST COMMON DIVISOR OF TWO SMALL NUMBERS
+    BigBinaryInteger a("10403"), b("103");
+    BigBinaryInteger c = lbcrypto::GreatestCommonDivisor(a, b);
+    
+    int expectedResult = 103;
+    
+    EXPECT_EQ(expectedResult, c.ConvertToInt())
+      <<"Failure equals_small_numbers";
+  }
+  {
+    // TEST CASE TO FIND GREATEST COMMON DIVISOR OF TWO POWERS OF 2 NUMBERS
+    
+    
+    BigBinaryInteger a("1048576"), b("4096");
+    BigBinaryInteger c(lbcrypto::GreatestCommonDivisor(a, b));
+    
+    BigBinaryInteger expectedResult(b);
+    
+    EXPECT_EQ(expectedResult, c)
+      <<"Failure equals_powers_of_two_numbers";
+  }
 }
+TEST(UTNbTheory, method_miller_rabin_primality) {
+  {
+    // TEST CASE FOR MILLER RABIN PRIMALITY TEST FOR SMALL PRIME
+    BigBinaryInteger prime("24469");
+    EXPECT_TRUE(lbcrypto::MillerRabinPrimalityTest(prime))
+      <<"Failure is_prime_small_prime";
+  }
+  {
+    // TEST CASE FOR MILLER RABIN PRIMALITY TEST FOR BIG PRIME
 
-// TEST CASE TO FIND GREATEST COMMON DIVISOR OF TWO POWERS OF 2 NUMBERS
 
-TEST(method_greatest_common_divisor,equals_powers_of_two_numbers){
-	BigBinaryInteger a("1048576"), b("4096");
-	BigBinaryInteger c(lbcrypto::GreatestCommonDivisor(a, b));
-	
-	BigBinaryInteger expectedResult(b);
+    BigBinaryInteger prime("952229140957");
 
-	EXPECT_EQ(expectedResult, c);
+    EXPECT_TRUE(lbcrypto::MillerRabinPrimalityTest(prime))
+      <<"Failure is_prime_big_prime";
+  }
+  {
+    // TEST CASE FOR MILLER RABIN PRIMALITY TEST FOR SMALL COMPOSITE NUMBER
+
+
+    BigBinaryInteger isNotPrime("10403");
+
+    EXPECT_FALSE(lbcrypto::MillerRabinPrimalityTest(isNotPrime))
+      <<"Failure is_not_prime_small_composite_number";
+  }
+  {
+    // TEST CASE FOR MILLER RABIN PRIMALITY TEST FOR BIG COMPOSITE NUMBER
+
+
+    BigBinaryInteger isNotPrime("952229140959");
+
+    EXPECT_FALSE(lbcrypto::MillerRabinPrimalityTest(isNotPrime))
+      <<"Failure is_not_prime_big_composite_number";
+  }
 }
-
-// TEST CASE FOR MILLER RABIN PRIMALITY TEST FOR SMALL PRIME
-
-TEST(method_miller_rabin_primality, is_prime_small_prime){
-	BigBinaryInteger prime("24469");
-	EXPECT_TRUE(lbcrypto::MillerRabinPrimalityTest(prime));
-}
-
-// TEST CASE FOR MILLER RABIN PRIMALITY TEST FOR BIG PRIME
-
-TEST(method_miller_rabin_primality, is_prime_big_prime){
-	BigBinaryInteger prime("952229140957");
-
-	EXPECT_TRUE(lbcrypto::MillerRabinPrimalityTest(prime));
-}
-
-// TEST CASE FOR MILLER RABIN PRIMALITY TEST FOR SMALL COMPOSITE NUMBER
-
-TEST(method_miller_rabin_primality, is_not_prime_small_composite_number){
-	BigBinaryInteger isNotPrime("10403");
-
-	EXPECT_FALSE(lbcrypto::MillerRabinPrimalityTest(isNotPrime));
-}
-
-// TEST CASE FOR MILLER RABIN PRIMALITY TEST FOR BIG COMPOSITE NUMBER
-
-TEST(method_miller_rabin_primality, is_not_prime_big_composite_number){
-	BigBinaryInteger isNotPrime("952229140959");
-
-	EXPECT_FALSE(lbcrypto::MillerRabinPrimalityTest(isNotPrime));
-}
-
 // TEST CASE FOR FACTORIZATION
 
-TEST(method_factorize, returns_factors){
+TEST(UTNbTheory, method_factorize_returns_factors){
 	BigBinaryInteger comp("53093040");
 	std::set<BigBinaryInteger> factors;
 	lbcrypto::PrimeFactorize(comp, factors);
@@ -132,76 +138,81 @@ TEST(method_factorize, returns_factors){
 	}
 }
 
-//TEST CASE TO FIND PRIME MODULUS
-TEST(method_prime_modulus, foundPrimeModulus){
-	usint m = 2048;
-	usint nBits = 30;
 
-	BigBinaryInteger expectedResult("536881153");
 
-	EXPECT_EQ(expectedResult, lbcrypto::FindPrimeModulus(m, nBits));
+TEST(UTNbTheory, method_prime_modulus) {
+  {
+    //TEST CASE TO FIND PRIME MODULUS
+    usint m = 2048;
+    usint nBits = 30;
+
+    BigBinaryInteger expectedResult("536881153");
+
+    EXPECT_EQ(expectedResult, lbcrypto::FindPrimeModulus(m, nBits))
+      <<"Failure foundPrimeModulus";
+  }
+  {
+    // TEST CASE TO FIND PRIME MODULUS FOR A HIGHER BIT LENGTH 
+    usint m=4096; 
+    usint nBits=49;
+	
+    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
+    BigBinaryInteger expectedResult("281474976768001");
+    EXPECT_EQ(expectedResult, primeModulus)
+      <<"Failure returns_higher_bit_length";
+  }
 }
 
-// TEST CASE TO FIND PRIME MODULUS FOR A HIGHER BIT LENGTH 
-TEST(method_prime_modulus, returns_higher_bit_length){
+
+TEST(UTNbTheory, method_primitive_root_of_unity){
+  {	
+    //TEST CASE TO ENSURE THE ROOT OF UNITY THAT IS FOUND IS A PRIMITIVE ROOT OF UNTIY
+    usint m=4096; 
+    usint nBits=33;
 	
-	usint m=4096; 
-	usint nBits=49;
-	
-	BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
-	BigBinaryInteger expectedResult("281474976768001");
-	EXPECT_EQ(expectedResult, primeModulus);
-}
+    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
+    BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(m, primeModulus);
 
-//TEST CASE TO ENSURE THE ROOT OF UNITY THAT IS FOUND IS A PRIMITIVE ROOT OF UNTIY
+    BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO));
 
-TEST(method_primitive_root_of_unity, equals_m_not_equals_mbytwo){
-	
-	usint m=4096; 
-	usint nBits=33;
-	
-	BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
-	BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(m, primeModulus);
+    BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
+    EXPECT_EQ(wpowerm, BigBinaryInteger::ONE)
+      <<"Failure single equal_m";
 
-	BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO));
+    BigBinaryInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
+    EXPECT_NE(wpowermbytwo, BigBinaryInteger::ONE)
+      <<"Failure single not_equal_mbytwo";
+  }
+  {
+    //TEST CASE TO ENSURE THE ROOTS OF UNITY THAT ARE FOUND ARE
+    //CONSISTENTLY THE PRIMITIVE ROOTS OF UNTIY
+    const usint n=2048;
+    const usint m=2*n;
+    const usint nBits=43;
+    const int ITERATIONS = m*2;
 
-	BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
-	EXPECT_EQ(wpowerm, BigBinaryInteger::ONE);
+    BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO)), MbyFour(MbyTwo.DividedBy(BigBinaryInteger::TWO));
 
+    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
+
+    for(int i=0; i<ITERATIONS; i++) {
+      BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(m, primeModulus);
+
+      BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
+      EXPECT_EQ(wpowerm, BigBinaryInteger::ONE)
+	<<"Failure single input iteration "<< i <<" equal_m";
 	BigBinaryInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
-	EXPECT_NE(wpowermbytwo, BigBinaryInteger::ONE);
-}
+      EXPECT_NE(wpowermbytwo, BigBinaryInteger::ONE)
+	<<"Failure single input  iteration "<< i <<" not_equal_mbytwo";
+      BigBinaryInteger wpowermbyfour = primitiveRootOfUnity.ModExp(MbyFour, primeModulus);
+      EXPECT_NE(wpowermbyfour, BigBinaryInteger::ONE)
+	<<"Failure single input iteration "<< i <<"not_equal_mbyfour";
+    }
+  }
+  {
+    //TEST CASE TO ENSURE THE ROOTS OF UNITY FOUND FOR MULTIPLE
+    //CYCLOTOMIC NUMBERS ARE ALL PRIMITIVE ROOTS OF UNTIY
 
-//TEST CASE TO ENSURE THE ROOTS OF UNITY THAT ARE FOUND ARE CONSISTENTLY THE PRIMITIVE ROOTS OF UNTIY
-
-TEST(method_primitive_root_of_unity, equals_m_not_equals_mbytwo_mbyfour_single_input){
-
-	const usint n=2048;
-	const usint m=2*n;
-	const usint nBits=43;
-	const int ITERATIONS = m*2;
-
-	BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO)), MbyFour(MbyTwo.DividedBy(BigBinaryInteger::TWO));
-
-	BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
-
-	for(int i=0; i<ITERATIONS; i++) {
-		BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(m, primeModulus);
-
-		BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
-		EXPECT_EQ(wpowerm, BigBinaryInteger::ONE);
-
-		BigBinaryInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
-		EXPECT_NE(wpowermbytwo, BigBinaryInteger::ONE);
-
-		BigBinaryInteger wpowermbyfour = primitiveRootOfUnity.ModExp(MbyFour, primeModulus);
-		EXPECT_NE(wpowermbyfour, BigBinaryInteger::ONE);
-	}
-}
-
-//TEST CASE TO ENSURE THE ROOTS OF UNITY FOUND FOR MULTIPLE CYCLOTOMIC NUMBERS ARE ALL PRIMITIVE ROOTS OF UNTIY
-
-TEST(method_primitive_root_of_unity, equals_m_not_equals_mbytwo_mbyfour_multiple_inputs){
 	// ofstream fout;
 	// fout.open ("primitiveRootsBug.log");
 	usint nqBitsArray[] = {
@@ -266,25 +277,28 @@ TEST(method_primitive_root_of_unity, equals_m_not_equals_mbytwo_mbyfour_multiple
 
 		BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
 		// fout << "w^m = " << wpowerm << endl;
-		EXPECT_EQ(wpowerm, BigBinaryInteger::ONE);
+		EXPECT_EQ(wpowerm, BigBinaryInteger::ONE)
+		  <<"Failure multi input iteration "<< i <<" equal_m";
 
 		BigBinaryInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
 		// fout << "w^(m/2) = " << wpowermbytwo << endl;
-		EXPECT_NE(wpowermbytwo, BigBinaryInteger::ONE);
+		EXPECT_NE(wpowermbytwo, BigBinaryInteger::ONE)
+		  <<"Failure multi input  iteration "<< i <<" not_equal_mbytwo";
 
 		BigBinaryInteger wpowermbyfour = primitiveRootOfUnity.ModExp(MbyFour, primeModulus);
 		// fout << "w^(m/4) = " << wpowermbyfour << endl;
-		EXPECT_NE(wpowermbyfour, BigBinaryInteger::ONE);
+		EXPECT_NE(wpowermbyfour, BigBinaryInteger::ONE)
+		  <<"Failure multi input  iteration "<< i <<" not_equal_mbyfour";
 		// fout << "----------------------------------------------------------------------------------------------------------------------------------" << endl;
 		// fout << endl;
 	}
 	// fout << "End of Computation" << endl;
 	// fout.close();
 
-}
+  }
 
-TEST(method_primitive_root_of_unity, exception_handling) {
-	
+  //Exception handling
+  {
 	int m = 32;
 	BigBinaryInteger modulus1("67108913"), modulus2("17729"), modulus3("2097169"), modulus4("8353"), modulus5("8369");
 
@@ -314,9 +328,10 @@ TEST(method_primitive_root_of_unity, exception_handling) {
 	std::cout << "RootOfUnity for " << modulus1 << " is " << primitiveRootOfUnity1 << std::endl;
 	std::cout << "RootOfUnity for " << modulus2 << " is " << primitiveRootOfUnity2 << std::endl;
 
+  }
 }
 
-TEST(method_nextQ, test_nextQ){
+TEST(UTNbTheory, test_nextQ){
 	BigBinaryInteger q("1");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");

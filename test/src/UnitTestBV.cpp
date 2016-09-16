@@ -66,7 +66,7 @@ public:
 * plaintext
 * The cyclotomic order is set 2048
 */
-TEST(method_ILVector2n_bv, Encrypt_Decrypt_bv) {
+TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 
 	usint m = 2048;
 	BigBinaryInteger modulus("268441601");

@@ -59,7 +59,7 @@ class UnitTestTransform : public ::testing::Test {
 
 // TEST CASE TO TEST POLYNOMIAL MULTIPLICATION USING CHINESE REMAINDER THEOREM
 
-TEST(method_CRT_polynomial_multiplication, compares_to_brute_force_multiplication){
+TEST(UTTransform, CRT_polynomial_multiplication){
 
 	BigBinaryInteger primeModulus("113"); //65537
 	usint cycloOrder = 8;

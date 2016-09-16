@@ -66,7 +66,7 @@ public:
 * plaintext
 * The cyclotomic order is set 2048
 *tower size is set to 3*/
-TEST(method_ILVectorArray2n, Encrypt_Decrypt) {
+TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
 
 	usint m = 2048;
 
@@ -132,7 +132,7 @@ TEST(method_ILVectorArray2n, Encrypt_Decrypt) {
 * plaintext
 * The cyclotomic order is set 2048
 */
-TEST(method_ILVector2n, Encrypt_Decrypt) {
+TEST(UTLTV, ILVector2n_Encrypt_Decrypt) {
 
 	usint m = 2048;
 
@@ -195,7 +195,7 @@ TEST(method_ILVector2n, Encrypt_Decrypt) {
 * The cyclotomic order is set 2048
 * The relinwindow is set to 1 and the modulus and root of unity are precomputed values that satisfy PRE conditions
 */
-TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
+TEST(UTLTV, ILVector2n_Encrypt_Decrypt_PRE) {
 
 	usint m = 2048;
 	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
@@ -272,7 +272,7 @@ TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
 
 }
 
-TEST(method_ILVector2n_IntPlaintextEncoding, Encrypt_Decrypt) {
+TEST(UTLTV, ILVector2n_IntPlaintextEncoding_Encrypt_Decrypt) {
 
 	usint m = 16;
 

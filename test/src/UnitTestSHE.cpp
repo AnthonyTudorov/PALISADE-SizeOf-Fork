@@ -83,7 +83,7 @@ class UnitTestSHE : public ::testing::Test {
 };
 
 
-TEST(UnitTestSHE, keyswitch_SingleCRT){
+TEST(UTSHE, keyswitch_SingleCRT){
   
 	//ILVector2n::DestroyPreComputedSamples();
 	usint m = 512;
@@ -156,7 +156,7 @@ TEST(UnitTestSHE, keyswitch_SingleCRT){
   
 }
 
-TEST(UnitTestSHE, sparsekeygen_single_crt) {
+TEST(UTSHE, sparsekeygen_single_crt) {
 
 	//ILVector2n::DestroyPreComputedSamples();
 
@@ -220,7 +220,7 @@ TEST(UnitTestSHE, sparsekeygen_single_crt) {
 	ILVector2n::DestroyPreComputedSamples();
 }
 
-TEST(UnitTestSHE, keyswitch_ModReduce_DCRT) {
+TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	usint m = 512;
 
@@ -309,7 +309,7 @@ TEST(UnitTestSHE, keyswitch_ModReduce_DCRT) {
 }
 
 
-TEST(UnitTestSHE, ringreduce_single_crt) {
+TEST(UTSHE, ringreduce_single_crt) {
 
 	//ILVector2n::DestroyPreComputedSamples();
 
@@ -403,7 +403,7 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	//ILVector2n::DestroyPreComputedSamples();
 }
 
-TEST(UnitTestSHE, ringreduce_double_crt) {
+TEST(UTSHE, ringreduce_double_crt) {
 
 	//usint m = 16;
 
@@ -498,7 +498,7 @@ TEST(UnitTestSHE, ringreduce_double_crt) {
 	//EXPECT_EQ(intArrayNewRR, intArrayExpected);
 }
 
-TEST(UnitTestSHE, canringreduce) {
+TEST(UTSHE, canringreduce) {
 	BigBinaryInteger m1("17729");
 	BigBinaryInteger m2("17761");
 	std::vector<BigBinaryInteger> moduli;

@@ -68,10 +68,10 @@ using namespace std;
 using namespace lbcrypto;
 
 // A new one of these is created for each test
-class UnitTestSHEAdvanced : public testing::Test
+class UTSHEAdvanced : public testing::Test
 {
 public:
-	UnitTestSHEAdvanced() {}
+	UTSHEAdvanced() {}
 	
 	virtual void SetUp()
 	{
@@ -88,7 +88,7 @@ public:
 /*Testing EvalAdd for both ILVector2n and ILVectorArray2n
 * EvalAdd is tested in both coefficient and evaluation domains
 */
-TEST_F(UnitTestSHEAdvanced, test_eval_add) {
+TEST_F(UTSHEAdvanced, test_eval_add) {
 	//parameter setup
 	usint m = 16;
 	Ciphertext<ILVector2n> cipher1_single_crt;
@@ -314,7 +314,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_add) {
 * n is the ring dimension
 */
 
-TEST_F(UnitTestSHEAdvanced, ParameterSelection) {
+TEST_F(UTSHEAdvanced, ParameterSelection) {
 
 
 	usint m = 16; // initial cycltomic order
@@ -372,7 +372,7 @@ TEST_F(UnitTestSHEAdvanced, ParameterSelection) {
 	}
 }
 
-TEST_F(UnitTestSHEAdvanced, test_composed_eval_mult_two_towers) {
+TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	usint init_m = 16;
 
 	float init_stdDev = 4;
@@ -509,7 +509,7 @@ TEST_F(UnitTestSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 }
 
-TEST_F(UnitTestSHEAdvanced, test_eval_mult_single_crt) {
+TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 
 //	usint m = 16;
 //
@@ -598,7 +598,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult_single_crt) {
 //	ILVector2n::DestroyPreComputedSamples();
 }
 
-TEST_F(UnitTestSHEAdvanced, test_eval_mult_double_crt) {
+TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	//usint init_m = 16;
 
@@ -712,7 +712,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult_double_crt) {
 
 }
 
-TEST_F(UnitTestSHEAdvanced, test_eval_add_single_crt) {
+TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 	//usint m = 16;
 
 	//float stdDev = 4;
