@@ -210,7 +210,7 @@ rekeymaker(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 
 	LPEvalKeyNTRURelin<ILVector2n> evalKey(*ctx->getParams());
 
-	if( ctx->getAlgorithm()->ReKeyGen(pk, sk, &evalKey) ) {
+	if( CryptoUtility<ILVector2n>::ReKeyGen(*ctx->getAlgorithm(), pk, sk, &evalKey) ) {
 		Serialized evalK;
 
 		if( evalKey.Serialize(&evalK, rekeyname) ) {
@@ -243,7 +243,7 @@ keymaker(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 	LPPublicKey<ILVector2n> pk(*ctx->getParams());
 	LPPrivateKey<ILVector2n> sk(*ctx->getParams());
 
-	if( ctx->getAlgorithm()->KeyGen(&pk,&sk) ) {
+	if( CryptoUtility<ILVector2n>::KeyGen(*ctx->getAlgorithm(),&pk,&sk) ) {
 		Serialized pubK, privK;
 
 		if( pk.Serialize(&pubK, keyname) ) {

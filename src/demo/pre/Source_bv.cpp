@@ -300,11 +300,11 @@ void NTRUPRE(int input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyRelin<ILVector2n> evalKey(cryptoParams);
+	LPEvalKeyNTRURelin<ILVector2n> evalKey(cryptoParams);
 
 	start = currentDateTime();
 
-	algorithm.ReKeyGen(newSK, sk, &evalKey);  // This is the core re-encryption operation.
+	CryptoUtility<ILVector2n>::ReKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
