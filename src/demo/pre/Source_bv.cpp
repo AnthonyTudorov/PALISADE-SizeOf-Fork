@@ -285,7 +285,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	successKeyGen = algorithm.KeyGen(&newPK,&newSK);	// This is the same core key generation operation.
+	successKeyGen = CryptoUtility<ILVector2n>::KeyGen(algorithm,&newPK,&newSK);	// This is the same core key generation operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
