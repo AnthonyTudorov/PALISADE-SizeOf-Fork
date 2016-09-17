@@ -26,6 +26,10 @@ public:
 			const LPPrivateKey<Element> &origPrivateKey,
 			LPEvalKey<Element> *evalKey)
 	{
+		if( typeid(Element) == typeid(ILVectorArray2n) ) {
+			throw std::logic_error("Sorry, re-encryption keys have not been implemented with Element of ILVectorArray2n");
+		}
+
 		return scheme.ReKeyGen(newPublicKey, origPrivateKey, evalKey);
 	}
 

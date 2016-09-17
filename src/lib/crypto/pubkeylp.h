@@ -42,6 +42,7 @@
 #include "../lattice/ilelement.h"
 #include "../utils/inttypes.h"
 #include "../math/distrgen.h"
+#include "../utils/serializablehelper.h"
 
 
 /**
@@ -416,7 +417,7 @@ namespace lbcrypto {
 		*/
 
 		virtual void SetAVector(const std::vector<Element> &a) {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("SetAVector copy operation not supported");
 		}
 
 		/**
@@ -427,7 +428,7 @@ namespace lbcrypto {
 		*/
 
 		virtual void SetAVector(std::vector<Element> &&a) {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("SetAVector move operation not supported");
 		}
 
 		/**
@@ -438,7 +439,7 @@ namespace lbcrypto {
 		*/
 
 		virtual const std::vector<Element> &GetAVector() const {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("GetAVector operation not supported");
 			return std::vector<Element>();
 		}
 
@@ -450,7 +451,7 @@ namespace lbcrypto {
 		*/
 
 		virtual void SetBVector(const std::vector<Element> &b) {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("SetBVector copy operation not supported");
 		}
 
 		/**
@@ -461,7 +462,7 @@ namespace lbcrypto {
 		*/
 
 		virtual void SetBVector(std::vector<Element> &&b) {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("SetBVector move operation not supported");
 		}
 
 		/**
@@ -472,7 +473,7 @@ namespace lbcrypto {
 		*/
 
 		virtual const std::vector<Element> &GetBVector() const {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("GetBVector operation not supported");
 			return std::vector<Element>();
 		}
 
@@ -484,7 +485,7 @@ namespace lbcrypto {
 		*/
 
 		virtual void SetA(const Element &a) {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("SetA copy operation not supported");
 		}
 
 		/**
@@ -494,7 +495,7 @@ namespace lbcrypto {
 		* @param &&a is the Element to be moved.
 		*/
 		virtual void SetA(Element &&a) {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("SetA move operation not supported");
 		}
 
 		/**
@@ -505,7 +506,7 @@ namespace lbcrypto {
 		*/
 
 		virtual const Element &GetA() const {
-			throw std::runtime_error("Operation not supported");
+			throw std::runtime_error("GetA operation not supported");
 			return Element();
 		}
 
@@ -627,17 +628,21 @@ namespace lbcrypto {
 				return false;
 			}
 
+			std::cout << "element count " << m_rKey.size() << std::endl;
+
+			SerializeVector<Element>("AVector", typeid(Element).name(), this->GetAVector(), serObj);
+			SerializeVector<Element>("BVector", typeid(Element).name(), this->GetBVector(), serObj);
+
 //			const Element& pe = this->GetA();
 //
 //			if (!pe.Serialize(serObj, "")) {
 //				return false;
 //			}
 //
-//			if (!this->SetIdFlag(serObj, fileFlag))
-//				return false;
-//
-//			return true;
-			return false;
+			if (!this->SetIdFlag(serObj, fileFlag))
+				return false;
+
+			return true;
 		}
 
 		/**
@@ -650,6 +655,9 @@ namespace lbcrypto {
 			if (cryptoparams == 0) return false;
 
 			this->SetCryptoParameters(cryptoparams);
+
+//			DeSerializeVector<Element>("AVector", typeid(Element).name(), this->GetAVector(), serObj);
+//			DeSerializeVector<Element>("BVector", typeid(Element).name(), this->GetBVector(), serObj);
 
 //			Element json_ilelement;
 //			if (json_ilelement.deserialize(serObj)) {
@@ -734,7 +742,7 @@ namespace lbcrypto {
 		bool SetIdFlag(Serialized *serObj, const std::string flag) const {
 
 			SerialItem idFlagMap(rapidjson::kObjectType);
-			idFlagMap.AddMember("ID", "LPEvalKeyNTRU", serObj->GetAllocator());
+			idFlagMap.AddMember("ID", "LPEvalKeyNTRURelin", serObj->GetAllocator());
 			idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
 			serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
 
@@ -754,11 +762,7 @@ namespace lbcrypto {
 				return false;
 			}
 
-			const Element& pe = this->GetA();
-
-			if (!pe.Serialize(serObj, "")) {
-				return false;
-			}
+			SerializeVector<Element>("Vectors", "ILVector2n", this->GetAVector(), serObj);
 
 			if (!this->SetIdFlag(serObj, fileFlag))
 				return false;
@@ -772,14 +776,19 @@ namespace lbcrypto {
 		* @return true on success
 		*/
 		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
-			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getparams());
+			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
 			if (cryptoparams == 0) return false;
-
 			this->SetCryptoParameters(cryptoparams);
 
-			Element json_ilelement;
-			if (json_ilelement.deserialize(serObj)) {
-				this->SetA(json_ilelement);
+			SerialItem::ConstMemberIterator it = serObj.FindMember("Vectors");
+
+			if( it == serObj.MemberEnd() ) {
+				return false;
+			}
+
+			std::vector<Element> newElements;
+			if( DeserializeVector<Element>("Vectors", "ILVector2n", it, &newElements) ) {
+				this->SetAVector(newElements);
 				return true;
 			}
 
