@@ -170,8 +170,8 @@ bool LPAlgorithmPREBV<Element>::ReKeyGen(const LPKey<Element> &newSK,
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const Element &s = origPrivateKey.GetPrivateElement();
 
-	const LPPublicKey<Element> *newPrivateKey =
-		dynamic_cast<const LPPublicKey<Element>*>(&newSK);
+	const LPPrivateKey<Element> *newPrivateKey =
+		dynamic_cast<const LPPrivateKey<Element>*>(&newSK);
 
 	if( newPrivateKey == 0 ) {
 		throw std::logic_error("Secret Key has incorrect type in LPAlgorithmPREBV<Element>::ReKeyGen");
@@ -179,7 +179,7 @@ bool LPAlgorithmPREBV<Element>::ReKeyGen(const LPKey<Element> &newSK,
 
 	//LPEvalKeyBV<Element> *evalKey = dynamic_cast<LPEvalKeyBV<Element>*>(EK);
 
-	const Element &sNew = newPrivateKey->GetPublicElements().at(0);
+	const Element &sNew = newPrivateKey->GetPrivateElement();
 
 	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
 	const DiscreteUniformGenerator dug(elementParams.GetModulus());
