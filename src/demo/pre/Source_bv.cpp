@@ -304,7 +304,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::ReKeyGen(algorithm, newSK, sk, &evalKey);  // This is the core re-encryption operation.
+	algorithm.ReKeyGen(newSK, sk, &evalKey);  // FIXME this can't use CryptoUtility because the calling sequence is wrong (2 private keys)
 
 	finish = currentDateTime();
 	diff = finish - start;
