@@ -150,11 +150,6 @@ namespace lbcrypto {
 		public:
 
 			/**
-			* Default constructor
-			*/
-			LPPublicKey() {}
-
-			/**
 			* Basic constructor for setting crypto params
 			*
 			* @param &cryptoParams is the reference to cryptoParams
@@ -336,12 +331,6 @@ namespace lbcrypto {
 	public:
 
 		/**
-		* Default constructor
-		*/
-
-		LPEvalKey() {}
-
-		/**
 		* Basic constructor for setting crypto params
 		*
 		* @param &cryptoParams is the reference to cryptoParams
@@ -458,12 +447,6 @@ namespace lbcrypto {
 	template <class Element>
 	class LPEvalKeyRelin : public LPEvalKey<Element> {
 	public:
-
-		/**
-		* Default constructor
-		*/
-
-		LPEvalKeyRelin() {};
 
 		/**
 		* Basic constructor for setting crypto params
@@ -619,12 +602,6 @@ namespace lbcrypto {
 	public:
 
 		/**
-		* Default constructor
-		*/
-
-		LPEvalKeyNTRURelin() {};
-
-		/**
 		* Basic constructor for setting crypto params
 		*
 		* @param &cryptoParams is the reference to cryptoParams
@@ -745,12 +722,6 @@ namespace lbcrypto {
 	template <class Element>
 	class LPEvalKeyNTRU : public LPEvalKey<Element> {
 	public:
-
-		/**
-		* Default constructor
-		*/
-
-		LPEvalKeyNTRU() {};
 
 		/**
 		* Basic constructor for setting crypto params
@@ -874,12 +845,6 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPrivateKey : public LPKey<Element> {
 	public:
-
-		/**
-		* Default constructor
-		*/
-
-		LPPrivateKey() {}
 
 		/**
 		* Basic constructor for setting crypto params
