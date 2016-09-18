@@ -198,13 +198,6 @@ void testJson(
 	}
 	cout << "---END LPEvalKey" + cID + " DESERIALIZATION---" << endl << endl;
 
-	{
-	cout << "gwr" << endl;
-	Serialized gmap;
-	evalKeyDeserialized.Serialize(&gmap, "xxx");
-	SerializableHelper::WriteSerializationToFile(gmap, "gwr.txt");
-	}
-
 	cout << "----------BEGIN LPAlgorithmPRE" + cID + ".ReEncrypt TESTING----------" << endl;
 	cout << "Calling ReEncrypt in LPAlgorithmPRE" + cID + " with deserialized instances of" << endl;
 	cout << "LPEvalKey" + cID + " and Ciphertext." << endl;

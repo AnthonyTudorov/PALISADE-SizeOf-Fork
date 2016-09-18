@@ -125,26 +125,20 @@ namespace lbcrypto {
 	 */
 	template <class Element>
 	class LPKey : public Serializable {
-		public:
-			/**
-			 * Gets a read-only reference to an LPCryptoParameters-derived class
-			 * @return the crypto parameters.
-			 */
-			virtual const LPCryptoParameters<Element> &GetCryptoParameters() const = 0;
+	public:
 
-			/**
-			 * Gets a writable reference to an LPCryptoParameters-derived class
-			 * @return the crypto parameters.
-			 */
-			virtual LPCryptoParameters<Element> &AccessCryptoParameters() = 0;
+		LPKey(LPCryptoParameters<Element> *cp = 0) : m_cryptoParameters(cp) {}
 
-			/**
-			 * Sets crypto params.
-			 *
-			 * @param *cryptoParams parameters.
-			 * @return the crypto parameters.
-			 */
-			virtual void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) = 0;
+		virtual ~LPKey() {}
+
+		/**
+		 * Gets a read-only reference to an LPCryptoParameters-derived class
+		 * @return the crypto parameters.
+		 */
+		const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
+
+	protected:
+		LPCryptoParameters<Element> *m_cryptoParameters;
 	};
 
 	/**
@@ -158,18 +152,14 @@ namespace lbcrypto {
 			/**
 			* Default constructor
 			*/
-			LPPublicKey() : m_cryptoParameters(0) {}
-
-			virtual ~LPPublicKey() {}
+			LPPublicKey() {}
 
 			/**
 			* Basic constructor for setting crypto params
 			*
 			* @param &cryptoParams is the reference to cryptoParams
 			*/
-			LPPublicKey(LPCryptoParameters<Element> &cryptoParams) : m_cryptoParameters(0) {
-				this->SetCryptoParameters(&cryptoParams);
-			}
+			LPPublicKey(LPCryptoParameters<Element> &cryptoParams) : LPKey<Element>(&cryptoParams) {}
 
 			/**
 			* Copy constructor
@@ -188,7 +178,7 @@ namespace lbcrypto {
 			*/
 			explicit LPPublicKey(LPPublicKey<Element> &&rhs) {
 				m_h = std::move(rhs.m_h);
-				m_cryptoParameters = rhs.m_cryptoParameters;
+				this->m_cryptoParameters = rhs.m_cryptoParameters;
 			}
 
 			/**
@@ -215,15 +205,6 @@ namespace lbcrypto {
 				return *this;
 			}
 
-			/**
-			* Get Crypto Parameters.
-			* @param *m_cryptoParameters
-			*
-			* @return the crypto parameters.
-			*/
-			const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
-
-			
 			//@Get Properties
 
 			/**
@@ -234,21 +215,6 @@ namespace lbcrypto {
 				return this->m_h;
 			}
 			
-
-			/**
-			* Gets writable instance of cryptoparams.
-			* @return the crypto parameters.
-			*/
-			LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
-
-			/**
-			* Sets crypto params.
-			*
-			* @param *cryptoParams parameters to set to.
-			*/
-			void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
-
-
 			//@Set Properties
 
 			/**
@@ -345,7 +311,7 @@ namespace lbcrypto {
 				LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
 				if (cryptoParams == 0) return false;
 
-				this->SetCryptoParameters(cryptoParams);
+				this->m_cryptoParameters = cryptoParams;
 
 				Element json_ilElement;
 				if (json_ilElement.Deserialize(serObj)) {
@@ -357,8 +323,6 @@ namespace lbcrypto {
 			}
 
 	private:
-		LPCryptoParameters<Element> *m_cryptoParameters;
-		
 		std::vector<Element> m_h;
 
 	};
@@ -383,31 +347,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKey(LPCryptoParameters<Element> &cryptoParams) {
-			this->SetCryptoParameters(&cryptoParams);
-		}
-
-		/**
-		* Sets crypto params.
-		*
-		* @param *cryptoParams parameters.
-		*
-		*/
-		virtual void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
-
-		/**
-		* Gets writable instance of cryptoparams.
-		* @return the crypto parameters.
-		*/
-		virtual LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
-
-		/**
-		* Get Crypto Parameters.
-		* @param *m_cryptoParameters
-		*
-		* @return the crypto parameters.
-		*/
-		virtual const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
+		LPEvalKey(LPCryptoParameters<Element> &cryptoParams) : LPKey<Element>(&cryptoParams) {}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -509,10 +449,6 @@ namespace lbcrypto {
 			throw std::runtime_error("GetA operation not supported");
 			return Element();
 		}
-
-	private:
-		LPCryptoParameters<Element> *m_cryptoParameters;
-
 	};
 
 	/**
@@ -534,9 +470,7 @@ namespace lbcrypto {
 		*
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
-		LPEvalKeyRelin(LPCryptoParameters<Element> &cryptoParams) {
-			this->SetCryptoParameters(&cryptoParams);
-		}
+		LPEvalKeyRelin(LPCryptoParameters<Element> &cryptoParams) : LPEvalKey<Element>(cryptoParams) {}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -654,7 +588,7 @@ namespace lbcrypto {
 			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
 			if (cryptoparams == 0) return false;
 
-			this->SetCryptoParameters(cryptoparams);
+			this->m_cryptoParameters = cryptoparams;
 
 //			DeSerializeVector<Element>("AVector", typeid(Element).name(), this->GetAVector(), serObj);
 //			DeSerializeVector<Element>("BVector", typeid(Element).name(), this->GetBVector(), serObj);
@@ -696,9 +630,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRURelin(LPCryptoParameters<Element> &cryptoParams) {
-			this->SetCryptoParameters(&cryptoParams);
-		}
+		LPEvalKeyNTRURelin(LPCryptoParameters<Element> &cryptoParams) : LPEvalKey<Element>(cryptoParams) {}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -778,7 +710,8 @@ namespace lbcrypto {
 		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
 			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
 			if (cryptoparams == 0) return false;
-			this->SetCryptoParameters(cryptoparams);
+
+			this->m_cryptoParameters = cryptoparams;
 
 			SerialItem::ConstMemberIterator it = serObj.FindMember("Vectors");
 
@@ -825,9 +758,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRU(LPCryptoParameters<Element> &cryptoParams) {
-			this->SetCryptoParameters(&cryptoParams);
-		}
+		LPEvalKeyNTRU(LPCryptoParameters<Element> &cryptoParams) : LPEvalKey<Element>(cryptoParams) {}
 
 		/**
 		* Setter function to store NTRU key switch element.
@@ -913,7 +844,7 @@ namespace lbcrypto {
 			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getparams());
 			if (cryptoparams == 0) return false;
 
-			this->SetCryptoParameters(cryptoparams);
+			this->m_cryptoParameters = cryptoparams;
 
 			Element json_ilelement;
 			if (json_ilelement.deserialize(serObj)) {
@@ -956,9 +887,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams.
 		*/
 
-		LPPrivateKey(LPCryptoParameters<Element> &cryptoParams) {
-			this->SetCryptoParameters(&cryptoParams);
-		}
+		LPPrivateKey(LPCryptoParameters<Element> &cryptoParams) : LPKey<Element>(&cryptoParams) {}
 
 		/**
 		* Copy constructor
@@ -1005,30 +934,10 @@ namespace lbcrypto {
 		}
 
 		/**
-		* Get Crypto Parameters.
-		* @return the crypto parameters.
-		*/
-		const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
-
-		/**
 		* Implementation of the Get accessor for private element.
 		* @return the private element.
 		*/
 		const Element & GetPrivateElement() const { return m_sk; }
-
-		/**
-		* Gets writable instance of cryptoparams.
-		* @return the crypto parameters.
-		*/
-		LPCryptoParameters<Element> &AccessCryptoParameters() { return *m_cryptoParameters; }
-
-		/**
-		* Sets crypto params.
-		*
-		* @param *cryptoParams parameters.
-		* @return the crypto parameters.
-		*/
-		void SetCryptoParameters(LPCryptoParameters<Element> *cryptoParams) { m_cryptoParameters = cryptoParams; }
 
 		/**
 		* Set accessor for private element.
@@ -1095,7 +1004,7 @@ namespace lbcrypto {
 			LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
 			if (cryptoParams == 0) return false;
 
-			this->SetCryptoParameters(cryptoParams);
+			this->m_cryptoParameters = cryptoParams;
 
 			Element json_ilElement;
 			if (json_ilElement.Deserialize(serObj)) {
@@ -1108,10 +1017,7 @@ namespace lbcrypto {
 
 
 	private:
-		LPCryptoParameters<Element> *m_cryptoParameters;
-		//private key polynomial
 		Element m_sk;
-		
 	};
 
 

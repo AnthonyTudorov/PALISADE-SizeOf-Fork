@@ -173,9 +173,6 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult_single_crt) {
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-	Ciphertext<ILVector2n> cipherText;
-	cipherText.SetCryptoParameters(&cryptoParams);
-
 	//Initialize the public key containers.
 	LPPublicKey<ILVector2n> pk(cryptoParams);
 	LPPrivateKey<ILVector2n> sk(cryptoParams);
@@ -371,9 +368,6 @@ TEST_F(UnitTestSHEAdvanced, test_eval_add_single_crt) {
 	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
-
-	Ciphertext<ILVector2n> cipherText;
-	cipherText.SetCryptoParameters(&cryptoParams);
 
 	//Initialize the public key containers.
 	LPPublicKey<ILVector2n> pk(cryptoParams);
@@ -608,10 +602,10 @@ TEST_F(UnitTestSHEAdvanced, test_composed_eval_mult_two_towers) {
 	algorithm.QuadraticEvalMultKeyGen(sk, sk1, &quadraticKeySwitchHint);
 
 	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
-	sk1.SetCryptoParameters(&finalParamsOneTower);
+	LPPrivateKey<ILVectorArray2n> sk2(finalParamsOneTower);
 	ILVectorArray2n skNewOldElement(sk1.GetPrivateElement());
 	skNewOldElement.DropElementAtIndex(skNewOldElement.GetNumOfElements() - 1);
-	sk1.SetPrivateElement(skNewOldElement);
+	sk2.SetPrivateElement(skNewOldElement);
 
 	std::vector<usint> firstElement(2048);
 	firstElement.at(0) = 8;
@@ -643,7 +637,7 @@ TEST_F(UnitTestSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	IntPlaintextEncoding results;
 
-	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk1, cResult, &results, false);
+	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk2, cResult, &results, false);
 
 	EXPECT_EQ(results.at(0), 2);
 	EXPECT_EQ(results.at(1), 4);
