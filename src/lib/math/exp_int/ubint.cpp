@@ -1472,7 +1472,9 @@ return result;
     }
 
     m_state = INITIALIZED;
+    NormalizeLimbs(); //normalize the limbs
     SetMSB(); //sets the MSB correctly
+
     delete []bitArr;
     delete[] DecValue;//deallocate memory
 
@@ -1541,6 +1543,7 @@ return result;
 
     //return the same value if value is less than modulus
     if(*this<modulus){
+      DEBUG("this< modulus");
       return std::move(ubint(*this));
     }
 
@@ -1878,6 +1881,14 @@ return result;
     if(this->m_state==GARBAGE || a.m_state==GARBAGE)
       throw std::logic_error("ERROR Compare() against uninitialized bint\n");
 
+    DEBUG("comparing this "<< this->ToString());
+    if (dbg_flag)
+      this->PrintLimbsInHex();
+
+    DEBUG("a "<<a.ToString());
+    if (dbg_flag)
+      a.PrintLimbsInHex();
+
     //check MSBs to get quick answer
     if(this->m_MSB<a.m_MSB)
       return -1;
@@ -1885,15 +1896,15 @@ return result;
       return 1;
     if(this->m_MSB==a.m_MSB){
       //check each limb in descending order
-      Slimb_t testChar; //signed version of limb_t
       for(sint i=m_value.size()-1 ;i>=0; i--){
-	testChar = this->m_value.at(i)-a.m_value.at(i) ;
+	DEBUG("i "<<i);
 	DEBUG("a "<<this->m_value.at(i));
 	DEBUG("b "<<a.m_value.at(i));
 
-	DEBUG("testChar "<<i<< " = " <<testChar);
-	if(testChar<0)return -1;
-	else if(testChar>0)return 1;
+	if (this->m_value.at(i)>a.m_value.at(i)) //b>a
+	    return 1;
+	else if (this->m_value.at(i)<a.m_value.at(i)) //a>b
+	    return -1;
       }
     }
     return 0; //bottom out? then the same

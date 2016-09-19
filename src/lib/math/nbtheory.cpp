@@ -35,7 +35,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
+
+
 #include "nbtheory.h"
+
+#include "time.h"
+#include <chrono>
+
+#include "../utils/debug.h"
+
+
 #define _USE_MATH_DEFINES 
 #include <math.h>
 #include <time.h>
@@ -220,14 +229,20 @@ usint GetMSB32(usint x)
 
   BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b)
  {
+   bool dbg_flag = false;
  	BigBinaryInteger m_a, m_b, m_t;
  	m_a = a;
  	m_b = b;
+	DEBUG("GCD a "<<a.ToString()<<" b "<< b.ToString());
 	while (m_b != BigBinaryInteger::ZERO) {
 		m_t = m_b;
+		DEBUG("GCD m_a.Mod(b) "<<m_a.ToString() <<"( "<<m_b.ToString()<<")");
 		m_b = m_a.Mod(m_b);
+		
 		m_a = m_t;
+		DEBUG("GCD m_a "<<m_b.ToString() <<" m_b "<<m_b.ToString());
 	}
+	DEBUG("GCD ret "<<m_a.ToString());		  
 	return m_a;
  }
 
@@ -266,6 +281,7 @@ usint GetMSB32(usint x)
 */
  const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n)
  {
+   bool dbg_flag = false;
  	BigBinaryInteger divisor(BigBinaryInteger::ONE);
  	
  	BigBinaryInteger c(RNG(n));
@@ -281,6 +297,8 @@ usint GetMSB32(usint x)
  		xx = (xx.ModMul(xx, n) + c).Mod(n);
  		xx = (xx.ModMul(xx, n) + c).Mod(n);
  		divisor = GreatestCommonDivisor(((x-xx) > BigBinaryInteger::ZERO) ? x-xx : xx-x, n);
+		DEBUG("PRF divisor "<<divisor.ToString());
+		
  	} while (divisor == BigBinaryInteger::ONE);
  	
  	return divisor;
@@ -293,16 +311,30 @@ usint GetMSB32(usint x)
 */
  void PrimeFactorize(const BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors)
  {
+   bool dbg_flag = false;
+
 	// primeFactors.clear();
+        DEBUG("In PrimeFactorize ");
+	DEBUG("n " <<n.ToString());
+	DEBUG("set size "<< primeFactors.size());
  	if(n == BigBinaryInteger::ONE) return;
  	if(MillerRabinPrimalityTest(n)) {
+	        DEBUG("Miller true");
  		primeFactors.insert(n);
  		return;
  	}
- 	BigBinaryInteger divisor(PollardRhoFactorization(n));
+	DEBUG("calling PrFact "<<n.ToString());
+ 	BigBinaryInteger tmp2(PollardRhoFactorization(n));
+	DEBUG("tmp2  "<<tmp2.ToString());
+	BigBinaryInteger divisor(tmp2);
+	DEBUG("calling PF "<<divisor.ToString());
  	PrimeFactorize(divisor, primeFactors);
- 	BigBinaryInteger reducedN(n.DividedBy(divisor));
- 	PrimeFactorize(reducedN, primeFactors);
+	DEBUG("calling div "<<divisor.ToString());
+	BigBinaryInteger tmp = n.DividedBy(divisor);
+	DEBUG("result tmp "<<tmp.ToString());
+ 	BigBinaryInteger reducedN(tmp);
+	DEBUG("calling PF "<<reducedN.ToString());
+	PrimeFactorize(reducedN, primeFactors);
  }
 
 /*

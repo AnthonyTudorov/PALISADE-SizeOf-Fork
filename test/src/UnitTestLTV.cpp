@@ -67,6 +67,7 @@ public:
 * The cyclotomic order is set 2048
 *tower size is set to 3*/
 TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
+  bool dbg_flag = true;
 
 	usint m = 2048;
 
@@ -86,17 +87,19 @@ TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
+	DEBUG("1");
 	for (int i = 0; i < size; i++) {
 		lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
 		modulus = modulus* moduli[i];
+		DEBUG("2 i "<<i);
 	}
-
+	DEBUG("3");	
 	DiscreteGaussianGenerator dgg(stdDev);
 
 	ILDCRTParams params(m, moduli, rootsOfUnity);
-
+	DEBUG("4");	
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
 	cryptoParams.SetDistributionParameter(stdDev);
@@ -106,10 +109,12 @@ TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
 
 	//Ciphertext<ILVectorArray2n> cipherText;
 	//cipherText.SetCryptoParameters(&cryptoParams);
-
+	DEBUG("5");	
 	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
+	DEBUG("6");	
 	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
 
+	DEBUG("7");	
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
@@ -117,14 +122,17 @@ TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
 	algorithm.KeyGen(&pk, &sk);	
 
 	vector<Ciphertext<ILVectorArray2n>> ciphertext;
-
+	DEBUG("9");	
 	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);
 
 	BytePlaintextEncoding plaintextNew;
 
+	DEBUG("10");	
 	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk, ciphertext, &plaintextNew);
 
+	DEBUG("11");	
 	EXPECT_EQ(plaintextNew, plaintext);
+	DEBUG("Done");	
 }
 
 /*Simple Encrypt-Decrypt check for ILVector2n. The assumption is this test case is that everything with respect to lattice and math

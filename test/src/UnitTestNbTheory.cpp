@@ -89,6 +89,15 @@ TEST(UTNbTheory, method_greatest_common_divisor){
     EXPECT_EQ(expectedResult, c)
       <<"Failure equals_powers_of_two_numbers";
   }
+  {
+    //test that failed in Issue #409
+    BigBinaryInteger a("883035439563027"), b("3042269397984931");
+    BigBinaryInteger c(lbcrypto::GreatestCommonDivisor(a, b));
+    BigBinaryInteger expectedResult("1");
+    EXPECT_EQ(expectedResult, c)
+      <<"Failure Issue 409";
+  }
+
 }
 TEST(UTNbTheory, method_miller_rabin_primality) {
   {
