@@ -63,13 +63,13 @@ using namespace lbcrypto;
 
 
 template <class T>
-class UnitTestNTT : public ::testing::Test {
+class UTNTT : public ::testing::Test {
 
 public:
 	const usint m = 16;
 
 protected:
-	UnitTestNTT() {}
+	UTNTT() {}
 
 	virtual void SetUp() {
 	}
@@ -78,13 +78,13 @@ protected:
 
 	}
 
-	virtual ~UnitTestNTT() {  }
+	virtual ~UTNTT() {  }
 
 };
 
 
 
-TEST(UnitTestNTT, switch_format_simple_single_crt) {
+TEST(UTNTT, switch_format_simple_single_crt) {
 	usint m1 = 16;
 
 	BigBinaryInteger modulus("1");
@@ -111,7 +111,7 @@ TEST(UnitTestNTT, switch_format_simple_single_crt) {
 	EXPECT_EQ(x2, x2Clone);
 }
 
-TEST(UnitTestNTT, switch_format_simple_double_crt) {
+TEST(UTNTT, switch_format_simple_double_crt) {
 	usint init_m = 16;
 
 	float init_stdDev = 4;
@@ -156,7 +156,7 @@ TEST(UnitTestNTT, switch_format_simple_double_crt) {
 	EXPECT_EQ(x2, x2Clone);
 }
 
-TEST(UnitTestNTT, switch_format_decompose_single_crt) {
+TEST(UTNTT, switch_format_decompose_single_crt) {
 	usint m1 = 16;
 
 	BigBinaryInteger modulus("1");
@@ -196,7 +196,7 @@ TEST(UnitTestNTT, switch_format_decompose_single_crt) {
 	EXPECT_EQ(x2, x2Expected);
 }
 
-TEST(UnitTestNTT, decomposeMult_double_crt) {
+TEST(UTNTT, decomposeMult_double_crt) {
 	usint init_m = 16;
 
 	float init_stdDev = 4;
@@ -257,7 +257,7 @@ TEST(UnitTestNTT, decomposeMult_double_crt) {
 	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(3), BigBinaryInteger::ZERO);
 }
 
-TEST(UnitTestNTT, decomposeMult_single_crt) {
+TEST(UTNTT, decomposeMult_single_crt) {
 	usint m1 = 16;
 
 	BigBinaryInteger modulus("17729");

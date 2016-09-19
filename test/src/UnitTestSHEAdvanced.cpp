@@ -68,10 +68,10 @@ using namespace std;
 using namespace lbcrypto;
 
 // A new one of these is created for each test
-class UnitTestSHEAdvanced : public testing::Test
+class UTSHEAdvanced : public testing::Test
 {
 public:
-	UnitTestSHEAdvanced() {}
+	UTSHEAdvanced() {}
 
 	virtual void SetUp()
 	{
@@ -89,7 +89,7 @@ public:
 * w is the assurance measure
 * n is the ring dimension
 */
-TEST_F(UnitTestSHEAdvanced, ParameterSelection) {
+TEST_F(UTSHEAdvanced, ParameterSelection) {
 
 
 	usint m = 16; // initial cycltomic order
@@ -147,7 +147,7 @@ TEST_F(UnitTestSHEAdvanced, ParameterSelection) {
 	}
 }
 
-TEST_F(UnitTestSHEAdvanced, test_eval_mult_single_crt) {
+TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 
 	usint m = 16;
 
@@ -235,7 +235,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult_single_crt) {
 	ILVector2n::DestroyPreComputedSamples();
 }
 
-TEST_F(UnitTestSHEAdvanced, test_eval_mult_double_crt) {
+TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	usint init_m = 16;
 
@@ -349,7 +349,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult_double_crt) {
 
 }
 
-TEST_F(UnitTestSHEAdvanced, test_eval_add_single_crt) {
+TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 	usint m = 16;
 
 	float stdDev = 4;
@@ -426,7 +426,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_add_single_crt) {
 	ILVector2n::DestroyPreComputedSamples();
 }
 
-TEST_F(UnitTestSHEAdvanced, test_eval_add_double_crt) {
+TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 
 	usint init_m = 16;
 
@@ -531,7 +531,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_add_double_crt) {
 
 }
 
-TEST_F(UnitTestSHEAdvanced, test_composed_eval_mult_two_towers) {
+TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	usint init_m = 16;
 
 	float init_stdDev = 4;
