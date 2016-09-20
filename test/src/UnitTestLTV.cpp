@@ -116,7 +116,7 @@ TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
-    DEBUG("8")
+	DEBUG("8");
 	algorithm.KeyGen(&pk, &sk);	
 
 	vector<Ciphertext<ILVectorArray2n>> ciphertext;
