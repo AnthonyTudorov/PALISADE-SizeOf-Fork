@@ -644,6 +644,31 @@ public:
 	}
 };
 
+template <class Element>
+class CryptoContextFactory {
+	static shared_ptr<CryptoContext<Element>> genCryptoContextLTV(
+			const usint plaintextmodulus,
+			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
+			usint relinWindow, float stDev);
+
+	static shared_ptr<CryptoContext<Element>> genCryptoContextBV(
+			const usint plaintextmodulus,
+			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
+			usint relinWindow, float stDev);
+
+	// FIXME: this is temporary until we better incorporate DCRT
+	static shared_ptr<CryptoContext<Element>>getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams);
+
+	static shared_ptr<CryptoContext<Element>> genCryptoContextStehleSteinfeld(
+			const usint plaintextmodulus,
+			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
+			usint relinWindow, float stDev, float stDevStSt);
+
+};
+
+
+
+}
 
 }
 
