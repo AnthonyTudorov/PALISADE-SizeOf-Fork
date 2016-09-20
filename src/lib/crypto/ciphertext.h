@@ -43,6 +43,8 @@
 #include "pubkeylp.h"
 #include "lwecrypt.h"
 
+#include <memory>
+using std::shared_ptr;
 
 /**
 * @namespace lbcrypto
@@ -221,6 +223,8 @@ namespace lbcrypto {
 		bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx);
 
 	private:
+
+		const shared_ptr<CryptoContext<Element>>	cryptoContext;
 
 		//pointer to crypto parameters
 		const LPCryptoParameters<Element> *m_cryptoParameters;

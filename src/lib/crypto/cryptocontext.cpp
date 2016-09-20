@@ -178,5 +178,44 @@ CryptoContext<T> *CryptoContext<T>::genCryptoContextStehleSteinfeld(
 	return item;
 }
 
+template <typename T>
+shared_ptr<CryptoContext<T>>
+CryptoContextFactory<T>::genCryptoContextLTV(
+		const usint plaintextmodulus,
+		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
+		usint relinWindow, float stDev)
+		{
+
+		}
+
+template <typename T>
+shared_ptr<CryptoContext<T>>
+CryptoContextFactory<T>::genCryptoContextBV(
+		const usint plaintextmodulus,
+		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
+		usint relinWindow, float stDev)
+		{
+
+		}
+
+// FIXME: this is temporary until we better incorporate DCRT
+template <typename T>
+shared_ptr<CryptoContext<T>>
+CryptoContextFactory<T>::getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams)
+{
+
+}
+
+template <typename T>
+shared_ptr<CryptoContext<T>>
+CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
+		const usint plaintextmodulus,
+		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
+		usint relinWindow, float stDev, float stDevStSt)
+		{
+
+		}
+
+
 }
 
