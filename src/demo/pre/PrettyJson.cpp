@@ -76,6 +76,7 @@ main( int argc, char *argv[] )
 			cout << endl;
 		}
 
+		fil.close();
 	}
 
 	return 0;

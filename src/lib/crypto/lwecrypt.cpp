@@ -47,11 +47,20 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	if( publicKey == 0 || privateKey == 0 )
 		return false;
 
+	const LPCryptoParametersLTV<Element> *pubKeyCp =
+			dynamic_cast<const LPCryptoParametersLTV<Element>*>(&publicKey->GetCryptoParameters());
+
+	if( pubKeyCp == 0 )
+		throw std::logic_error("Public Key must use LTV parameters of type LPCryptoParametersLTV");
+
 	const LPCryptoParametersLTV<Element> *cryptoParams =
 			dynamic_cast<const LPCryptoParametersLTV<Element>*>(&privateKey->GetCryptoParameters());
 
 	if( cryptoParams == 0 )
-		return false;
+		throw std::logic_error("Private Key must use LTV parameters of type LPCryptoParametersLTV");
+
+//	if( *pubKeyCp != *cryptoParams )
+//		throw std::logic_error("Public and Private Key must use same crypto parameters");
 
 	const ElemParams &elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
@@ -77,7 +86,6 @@ bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	}
 
 	privateKey->SetPrivateElement(f);
-	privateKey->AccessCryptoParameters() = *cryptoParams;
 
 	Element g(dgg,elementParams,Format::COEFFICIENT);
 
@@ -128,7 +136,6 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 	}
 
 	privateKey->SetPrivateElement(f);
-	privateKey->AccessCryptoParameters() = *cryptoParams;
 
 	Element g(dgg,elementParams,Format::COEFFICIENT);
 
@@ -177,9 +184,6 @@ void LPLeveledSHEAlgorithmLTV<Element>::EvalMultKeyGen(const LPPrivateKey<Elemen
 
 		/*keySwitchHintElement = m * f1 * newKeyInverse ;*/
 		keySwitchHint->SetA(std::move(keySwitchHintElement));
-
-		keySwitchHint->SetCryptoParameters(new LPCryptoParametersLTV<Element>(cryptoParams));	
-
 }
 			
 /*
@@ -240,8 +244,6 @@ void LPLeveledSHEAlgorithmLTV<Element>::QuadraticEvalMultKeyGen(const LPPrivateK
 	Element keySwitchHintElement(m * f1Squared * newKeyInverse);
 
 	quadraticKeySwitchHint->SetA(keySwitchHintElement);
-
-	quadraticKeySwitchHint->SetCryptoParameters(new LPCryptoParametersLTV<Element>(cryptoParams));
 }
 
 /**
@@ -386,7 +388,6 @@ bool LPLeveledSHEAlgorithmLTV<Element>::SparseKeyGen(LPPublicKey<Element>* publi
 	}
 
 	privateKey->SetPrivateElement(f);
-	privateKey->AccessCryptoParameters() = *cryptoParams;
 
 	Element g(dgg, elementParams, Format::COEFFICIENT);
 

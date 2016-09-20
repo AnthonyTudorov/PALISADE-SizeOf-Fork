@@ -28,10 +28,10 @@ void testJson(
 		TestJsonParms<Element> *tp,
 		bool skipReEncrypt) {
 
-	LPPublicKey<Element>			pkDeserialized;
-	LPPrivateKey<Element>			skDeserialized;
-	LPEvalKeyRelin<Element>			evalKeyDeserialized;
-	LPPrivateKey<Element>			newSKDeserialized;
+	LPPublicKey<Element>			pkDeserialized(*tp->ctx->getParams());
+	LPPrivateKey<Element>			skDeserialized(*tp->ctx->getParams());
+	LPEvalKeyNTRURelin<Element>		evalKeyDeserialized(*tp->ctx->getParams());
+	LPPrivateKey<Element>			newSKDeserialized(*tp->ctx->getParams());
 
 	cout << "----------------------START JSON FACILITY TESTING-------------------------" << endl;
 

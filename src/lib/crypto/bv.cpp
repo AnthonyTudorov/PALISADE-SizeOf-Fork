@@ -71,7 +71,6 @@ bool LPAlgorithmBV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	s.SwitchFormat();
 
 	privateKey->SetPrivateElement(s);
-	privateKey->AccessCryptoParameters() = *cryptoParams;
 
 	//public key is generated and set
 	//privateKey->MakePublicKey(a, publicKey);
@@ -160,24 +159,33 @@ bool LPAlgorithmPREBV<Element>::ReKeyGen(const LPKey<Element> &newSK,
 	const LPPrivateKey<Element> &origPrivateKey,
 	LPEvalKey<Element> *EK) const
 {
-	const LPCryptoParametersBV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersBV<Element>&>(newSK.GetCryptoParameters());
-	const ElemParams &elementParams = cryptoParamsLWE.GetElementParams();
-	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();
+	const LPCryptoParametersBV<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersBV<Element>*>(&newSK.GetCryptoParameters());
+
+	if( cryptoParamsLWE == 0 ) {
+		throw std::logic_error("Secret Key crypto parameters have incorrect type in LPAlgorithmPREBV<Element>::ReKeyGen");
+	}
+
+	const ElemParams &elementParams = cryptoParamsLWE->GetElementParams();
+	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const Element &s = origPrivateKey.GetPrivateElement();
 
-	const LPPrivateKey<Element> &newPrivateKey =
-		dynamic_cast<const LPPrivateKey<Element>&>(newSK);
+	const LPPrivateKey<Element> *newPrivateKey =
+		dynamic_cast<const LPPrivateKey<Element>*>(&newSK);
+
+	if( newPrivateKey == 0 ) {
+		throw std::logic_error("Secret Key has incorrect type in LPAlgorithmPREBV<Element>::ReKeyGen");
+	}
 
 	//LPEvalKeyBV<Element> *evalKey = dynamic_cast<LPEvalKeyBV<Element>*>(EK);
 
-	const Element &sNew = newPrivateKey.GetPrivateElement();
+	const Element &sNew = newPrivateKey->GetPrivateElement();
 
-	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE.GetDiscreteGaussianGenerator();
+	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
 	const DiscreteUniformGenerator dug(elementParams.GetModulus());
 
 	//std::vector<Element> *evalKeyElements = &evalKey->AccessEvalKeyElements();
 	//std::vector<Element> *evalKeyElementsGenerated = &evalKey->AccessEvalKeyElementsGenerated();
-	usint relinWindow = cryptoParamsLWE.GetRelinWindow();
+	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
 	std::vector<Element> evalKeyElements(s.PowersOfBase(relinWindow));
 	std::vector<Element> evalKeyElementsGenerated;

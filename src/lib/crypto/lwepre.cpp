@@ -35,22 +35,35 @@ bool LPAlgorithmPRELTV<Element>::ReKeyGen(const LPKey<Element> &newPK,
 				const LPPrivateKey<Element> &origPrivateKey,
 				LPEvalKey<Element> *evalKey) const
 {
-	const LPCryptoParametersRLWE<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersRLWE<Element>&>(newPK.GetCryptoParameters());
-	const ElemParams &elementParams = cryptoParamsLWE.GetElementParams();
-	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();
+	const LPCryptoParametersRLWE<Element> *cryptoParamsLWE =
+			dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&newPK.GetCryptoParameters());
+
+	if( cryptoParamsLWE == 0 ) {
+		throw std::logic_error("Public key is not using RLWE parameters in LPAlgorithmPRELTV<Element>::ReKeyGen");
+	}
+	const ElemParams &elementParams = cryptoParamsLWE->GetElementParams();
+	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const Element &f = origPrivateKey.GetPrivateElement();
 
-	const LPPublicKey<Element> &newPublicKey =
-		dynamic_cast<const LPPublicKey<Element>&>(newPK);
+	const LPPublicKey<Element> *newPublicKey =
+		dynamic_cast<const LPPublicKey<Element>*>(&newPK);
+
+	if( newPublicKey == 0 ) {
+		throw std::logic_error("Public Key argument is not an LPPublicKey in LPAlgorithmPRELTV<Element>::ReKeyGen");
+	}
 
 	//dynamic cast to check if proper EvalKey class is instantiated. 
-	LPEvalKeyNTRURelin<Element> &ek = dynamic_cast<LPEvalKeyNTRURelin<Element> &>(*evalKey);
+	LPEvalKeyNTRURelin<Element> *ek = dynamic_cast<LPEvalKeyNTRURelin<Element> *>(evalKey);
 
-	const Element &hn = newPublicKey.GetPublicElements().at(0);
+	if( ek == 0 ) {
+		throw std::logic_error("Eval Key argument is not an LPEvalKeyNTRURelin in LPAlgorithmPRELTV<Element>::ReKeyGen");
+	}
 
-	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE.GetDiscreteGaussianGenerator();
+	const Element &hn = newPublicKey->GetPublicElements().at(0);
 
-	usint relinWindow = cryptoParamsLWE.GetRelinWindow();
+	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
+
+	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
 	std::vector<Element> evalKeyElements( f.PowersOfBase(relinWindow) );
 

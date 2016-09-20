@@ -114,9 +114,6 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-	Ciphertext<ILVector2n> cipherText;
-	cipherText.SetCryptoParameters(&cryptoParams);
-
 	//Initialize the public key containers.
 	LPPublicKey<ILVector2n> pk(cryptoParams);
 	LPPrivateKey<ILVector2n> sk(cryptoParams);
@@ -139,7 +136,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	algorithm.SparseKeyGen(&pk2, &sk2);
 
-	LPEvalKeyNTRU<ILVector2n> keySwitchHint;
+	LPEvalKeyNTRU<ILVector2n> keySwitchHint(cryptoParams);
 	algorithm.EvalMultKeyGen(sk, sk2, &keySwitchHint);
 
 
@@ -185,9 +182,6 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-	Ciphertext<ILVector2n> cipherText;
-	cipherText.SetCryptoParameters(&cryptoParams);
-
 	//Initialize the public key containers.
 	LPPublicKey<ILVector2n> pk(cryptoParams);
 	LPPrivateKey<ILVector2n> sk(cryptoParams);
@@ -213,7 +207,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 
 	algorithm.SparseKeyGen(&pk2, &sk2);
 
-	LPEvalKeyNTRU<ILVector2n> keySwitchHint;
+	LPEvalKeyNTRU<ILVector2n> keySwitchHint(cryptoParams);
 	algorithm.EvalMultKeyGen(sk, sk2, &keySwitchHint);
 
 	CryptoUtility<ILVector2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
@@ -260,9 +254,6 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-	Ciphertext<ILVector2n> cipherText;
-	cipherText.SetCryptoParameters(&cryptoParams);
-
 	 //Initialize the public key containers.
 	LPPublicKey<ILVector2n> pk(cryptoParams);
 	LPPrivateKey<ILVector2n> sk(cryptoParams);
@@ -286,7 +277,7 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 	   algorithm.KeyGen(&pk2, &sk2);
 
 
-    LPEvalKeyNTRU<ILVector2n> keySwitchHint;
+    LPEvalKeyNTRU<ILVector2n> keySwitchHint(cryptoParams);
     algorithm.EvalMultKeyGen(sk, sk2, &keySwitchHint);
 
 
@@ -334,9 +325,6 @@ TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
-
-	Ciphertext<ILVector2n> cipherText;
-	cipherText.SetCryptoParameters(&cryptoParams);
 
 	//Initialize the public key containers.
 	LPPublicKey<ILVector2n> pk(cryptoParams);
@@ -425,7 +413,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	algorithm.KeyGen(&pk2, &sk2);
 
-	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint;
+	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint(cryptoParams);
 	algorithm.EvalMultKeyGen(sk, sk2, &keySwitchHint);
 	
 
@@ -484,9 +472,6 @@ TEST(UTSHE, ringreduce_single_crt) {
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-	Ciphertext<ILVector2n> cipherText;
-	cipherText.SetCryptoParameters(&cryptoParams);
-
 	//Initialize the public key containers.
 	LPPublicKey<ILVector2n> pk(cryptoParams);
 	LPPrivateKey<ILVector2n> sk(cryptoParams);
@@ -513,7 +498,7 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 	algorithm.SparseKeyGen(&pk2, &skSparse);
 
-	LPEvalKeyNTRU<ILVector2n> keySwitchHint;
+	LPEvalKeyNTRU<ILVector2n> keySwitchHint(cryptoParams);
 
 	algorithm.EvalMultKeyGen(sk, skSparse, &keySwitchHint);
 
@@ -542,11 +527,11 @@ TEST(UTSHE, ringreduce_single_crt) {
 	cryptoParamsRR.SetElementParams(ilparams2);                // Set the initialization parameters.
 	cryptoParamsRR.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-	for (int i = 0; i < ciphertext.size(); i++) {
-		ciphertext.at(i).SetCryptoParameters(&cryptoParamsRR);
-	}
+//	for (int i = 0; i < ciphertext.size(); i++) {
+//		ciphertext.at(i).SetCryptoParameters(&cryptoParamsRR);
+//	}
 
-	skSparse.SetCryptoParameters(&cryptoParamsRR);
+//	skSparse.SetCryptoParameters(&cryptoParamsRR);
 
 	CryptoUtility<ILVector2n>::Decrypt(algorithm, skSparse, ciphertext, &intArrayNewRR, false);
 
@@ -593,9 +578,6 @@ TEST(UTSHE, ringreduce_double_crt) {
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-	Ciphertext<ILVectorArray2n> cipherText;
-	cipherText.SetCryptoParameters(&cryptoParams);
-
 	//Initialize the public key containers.
 	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
 	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
@@ -622,7 +604,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 
 	algorithm.SparseKeyGen(&pk2, &skSparse);
 
-	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint;
+	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint(cryptoParams);
 	algorithm.EvalMultKeyGen(sk, skSparse, &keySwitchHint);
 
 	CryptoUtility<ILVectorArray2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
@@ -648,11 +630,11 @@ TEST(UTSHE, ringreduce_double_crt) {
 	cryptoParamsRR.SetRelinWindow(1);						   // Set the relinearization window
 	cryptoParamsRR.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-	for (int i = 0; i < ciphertext.size(); i++) {
-		ciphertext.at(i).SetCryptoParameters(&cryptoParamsRR);
-	}
+//	for (int i = 0; i < ciphertext.size(); i++) {
+//		ciphertext.at(i).SetCryptoParameters(&cryptoParamsRR);
+//	}
 
-	skSparse.SetCryptoParameters(&cryptoParamsRR);
+	LPPrivateKey<ILVectorArray2n> skSparseRR(cryptoParamsRR);
 
 	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, skSparse, ciphertext, &intArrayNewRR, false);
 

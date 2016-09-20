@@ -107,8 +107,6 @@ TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
 	cryptoParams.SetElementParams(params);
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
-	//Ciphertext<ILVectorArray2n> cipherText;
-	//cipherText.SetCryptoParameters(&cryptoParams);
 	DEBUG("5");	
 	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
 	DEBUG("6");	
@@ -118,7 +116,7 @@ TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(PRE);
-
+    DEBUG("8")
 	algorithm.KeyGen(&pk, &sk);	
 
 	vector<Ciphertext<ILVectorArray2n>> ciphertext;
@@ -171,9 +169,6 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt) {
 	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
-
-	//Ciphertext<ILVector2n> cipherText;
-	//cipherText.SetCryptoParameters(&cryptoParams);
 
 	// Initialize the public key containers.
 	LPPublicKey<ILVector2n> pk(cryptoParams);
@@ -231,9 +226,6 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_PRE) {
 	cryptoParams.SetRelinWindow(1);				    // Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
-
-	//Ciphertext<ILVector2n> cipherText;
-	//cipherText.SetCryptoParameters(&cryptoParams);
 
 	LPPublicKey<ILVector2n> pk(cryptoParams);
 	LPPrivateKey<ILVector2n> sk(cryptoParams);
@@ -306,9 +298,6 @@ TEST(UTLTV, ILVector2n_IntPlaintextEncoding_Encrypt_Decrypt) {
 	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
-
-	/*Ciphertext<ILVector2n> cipherText;
-	cipherText.SetCryptoParameters(&cryptoParams);*/
 
 	//Initialize the public key containers.
 	LPPublicKey<ILVector2n> pk(cryptoParams);
