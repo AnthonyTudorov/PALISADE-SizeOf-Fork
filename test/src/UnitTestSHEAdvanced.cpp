@@ -210,7 +210,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult_single_crt) {
 
 	algorithm.EvalMult(ciphertext1.at(0), ciphertext2.at(0), &cResult);
 
-	LPEvalKeyNTRU<ILVector2n> keySwitchHint;
+	LPEvalKeyNTRU<ILVector2n> keySwitchHint(cryptoParams);
 
 	LPPublicKey<ILVector2n> pkNew(cryptoParams);
 	LPPrivateKey<ILVector2n> skNew(cryptoParams);
@@ -323,7 +323,7 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult_double_crt) {
 
 	algorithm.EvalMult(ciphertext1.at(0), ciphertext2.at(0), &cResult);
 
-	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint;
+	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint(cryptoParams);
 
 	LPPublicKey<ILVectorArray2n> pkNew(finalParams);
 	LPPrivateKey<ILVectorArray2n> skNew(finalParams);
@@ -598,7 +598,7 @@ TEST_F(UnitTestSHEAdvanced, test_composed_eval_mult_two_towers) {
 	finalParamsOneTower.SetElementParams(dcrtParamsWith1Tower);
 
 	//Generating Quaraditic KeySwitchHint from sk^2 to skNew
-	LPEvalKeyNTRU<ILVectorArray2n> quadraticKeySwitchHint;
+	LPEvalKeyNTRU<ILVectorArray2n> quadraticKeySwitchHint(finalParamsTwoTowers);
 	algorithm.QuadraticEvalMultKeyGen(sk, sk1, &quadraticKeySwitchHint);
 
 	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce

@@ -136,7 +136,7 @@ TEST(UnitTestSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	algorithm.SparseKeyGen(&pk2, &sk2);
 
-	LPEvalKeyNTRU<ILVector2n> keySwitchHint;
+	LPEvalKeyNTRU<ILVector2n> keySwitchHint(cryptoParams);
 	algorithm.EvalMultKeyGen(sk, sk2, &keySwitchHint);
 
 
@@ -207,7 +207,7 @@ TEST(UnitTestSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 
 	algorithm.SparseKeyGen(&pk2, &sk2);
 
-	LPEvalKeyNTRU<ILVector2n> keySwitchHint;
+	LPEvalKeyNTRU<ILVector2n> keySwitchHint(cryptoParams);
 	algorithm.EvalMultKeyGen(sk, sk2, &keySwitchHint);
 
 	CryptoUtility<ILVector2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
@@ -277,7 +277,7 @@ TEST(UnitTestSHE, keyswitch_SingleCRT) {
 	   algorithm.KeyGen(&pk2, &sk2);
 
 
-    LPEvalKeyNTRU<ILVector2n> keySwitchHint;
+    LPEvalKeyNTRU<ILVector2n> keySwitchHint(cryptoParams);
     algorithm.EvalMultKeyGen(sk, sk2, &keySwitchHint);
 
 
@@ -413,7 +413,7 @@ TEST(UnitTestSHE, keyswitch_ModReduce_DCRT) {
 
 	algorithm.KeyGen(&pk2, &sk2);
 
-	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint;
+	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint(cryptoParams);
 	algorithm.EvalMultKeyGen(sk, sk2, &keySwitchHint);
 	
 
@@ -498,7 +498,7 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 
 	algorithm.SparseKeyGen(&pk2, &skSparse);
 
-	LPEvalKeyNTRU<ILVector2n> keySwitchHint;
+	LPEvalKeyNTRU<ILVector2n> keySwitchHint(cryptoParams);
 
 	algorithm.EvalMultKeyGen(sk, skSparse, &keySwitchHint);
 
@@ -604,7 +604,7 @@ TEST(UnitTestSHE, ringreduce_double_crt) {
 
 	algorithm.SparseKeyGen(&pk2, &skSparse);
 
-	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint;
+	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint(cryptoParams);
 	algorithm.EvalMultKeyGen(sk, skSparse, &keySwitchHint);
 
 	CryptoUtility<ILVectorArray2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
