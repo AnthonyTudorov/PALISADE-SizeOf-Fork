@@ -531,9 +531,9 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 //		ciphertext.at(i).SetCryptoParameters(&cryptoParamsRR);
 //	}
 
-	LPPrivateKey<ILVector2n> skSparseRR(cryptoParamsRR);
+//	skSparse.SetCryptoParameters(&cryptoParamsRR);
 
-	CryptoUtility<ILVector2n>::Decrypt(algorithm, skSparseRR, ciphertext, &intArrayNewRR, false);
+	CryptoUtility<ILVector2n>::Decrypt(algorithm, skSparse, ciphertext, &intArrayNewRR, false);
 
 	std::vector<usint> vectorOfExpectedResults = { 1,1,1,1 };
 	IntPlaintextEncoding intArrayExpected(vectorOfExpectedResults);

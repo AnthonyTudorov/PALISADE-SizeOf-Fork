@@ -214,8 +214,8 @@ TEST(UTubint,ctor32){
 TEST(UTubint,ctor64){    
   // TEST CASE FOR 64bit VALUES
 
-  ubint a(9223372036854775807UL); // = 7FFFFFFF
-  uint64_t auint64 = 9223372036854775807UL;
+  ubint a(9223372036854775807ULL); // = 7FFFFFFF
+  uint64_t auint64 = 9223372036854775807ULL;
   EXPECT_EQ(auint64,a.ConvertToUint64())
     << "Failure testing ConvertToUint64() for big numbers";    
   bitset<64> abs;
