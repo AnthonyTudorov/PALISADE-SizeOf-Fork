@@ -38,6 +38,9 @@
 #define SRC_DEMO_PRE_CRYPTOCONTEXT_H_
 
 #include <string>
+#include <memory>
+using std::string;
+using std::shared_ptr;
 
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
@@ -218,6 +221,30 @@ public:
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev, float stDevStSt);
 };
+
+template <class Element>
+class CryptoContextFactory {
+	static shared_ptr<CryptoContext<Element>> genCryptoContextLTV(
+			const usint plaintextmodulus,
+			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
+			usint relinWindow, float stDev);
+
+	static shared_ptr<CryptoContext<Element>> genCryptoContextBV(
+			const usint plaintextmodulus,
+			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
+			usint relinWindow, float stDev);
+
+	// FIXME: this is temporary until we better incorporate DCRT
+	static shared_ptr<CryptoContext<Element>>getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams);
+
+	static shared_ptr<CryptoContext<Element>> genCryptoContextStehleSteinfeld(
+			const usint plaintextmodulus,
+			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
+			usint relinWindow, float stDev, float stDevStSt);
+
+};
+
+
 
 }
 
