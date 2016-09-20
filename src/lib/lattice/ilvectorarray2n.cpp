@@ -503,6 +503,7 @@ namespace lbcrypto {
 	* 4. output (d′/q′) in R(q/q′).
 	*/
 	void ILVectorArray2n::ModReduce(const BigBinaryInteger &plaintextModulus) {
+	  bool dbg_flag = false;
 		if(m_format != Format::EVALUATION) {
 			throw std::logic_error("Mod Reduce function expects EVAL Formatted ILVectorArray2n. It was passed COEFF Formatted ILVectorArray2n.");
 		}
@@ -515,9 +516,10 @@ namespace lbcrypto {
 
 		//precomputations
 		BigBinaryInteger qt(m_vectors[lastTowerIndex].GetModulus());
-		//std::cout<<"qt:	"<<qt<<std::endl;
+		DEBUG("qt: "<< qt.ToString());
+		DEBUG("plaintextModulus: "<< plaintextModulus.ToString());
 		BigBinaryInteger v(qt.ModInverse(plaintextModulus));
-		//std::cout<<"v:	"<<v<<std::endl;
+		DEBUG("v: "<< v.ToString());
 		BigBinaryInteger a((v * qt).ModSub(BigBinaryInteger::ONE, plaintextModulus*qt));
 		//std::cout<<"a:	"<<a<<std::endl;
 

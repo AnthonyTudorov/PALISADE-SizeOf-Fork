@@ -1616,6 +1616,13 @@ return result;
     
     ubint first(mods[0]);
     ubint second(mods[1]);
+    ubint result;
+
+    if(mods[1]==ONE){
+      result = ONE;
+      return result;
+    }
+
     //Error if modulus is ZERO
     if(*this==ZERO){
       //std::cout<<"ZERO HAS NO INVERSE\n";
@@ -1624,12 +1631,12 @@ return result;
     }
 
 	
-    //uint ncycle = 0;
+    uint ncycle = 0;
     //NORTH ALGORITHM
     while(true){
       //DEBUG("**north cycle");
-      //DEBUG("first "<<first.ToString());
-      //DEBUG("second "<<second.ToString());
+      DEBUG("first "<<first.ToString());
+      DEBUG("second "<<second.ToString());
       if (second==ZERO) { // cannot take mod(0);
 	mods.push_back(ZERO);//FLAG bottom out
       }else{
@@ -1641,8 +1648,8 @@ return result;
       }else {
 	quotient.push_back(first.Div(second));
       }
-      //DEBUG("Division step passed");
-      //DEBUG("i "<<ncycle);
+      DEBUG("Division step passed");
+      DEBUG("i "<<ncycle);
       DEBUG(" modsback "<<mods.back().ToString());
 
       if(mods.back()==ONE){
@@ -1658,7 +1665,7 @@ return result;
       DEBUG("first "<<first.ToString());
       DEBUG("second "<<second.ToString());
 
-      //ncycle++;
+      if (dbg_flag) ncycle++;
       //if (ncycle >100) break; // for debug only
     }
     //DEBUG("MI ncycle "<<ncycle);
@@ -1677,7 +1684,6 @@ return result;
       second = mods.back();
     }
 
-    ubint result;
     if(quotient.size()%2==1){
       result = (modulus - mods.back());
     }

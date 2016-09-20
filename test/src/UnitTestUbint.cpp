@@ -1072,6 +1072,39 @@ TEST(UTubint,mod_operations){
   }
 
 
+  // ANOTHER TEST CASE THAT FAILED TR#409
+  {
+
+    std::cout<<"CASE 409 2"<<std::endl;
+    std::cout<<"CASE 409 2"<<std::endl;
+    std::cout<<"CASE 409 2"<<std::endl;
+
+    ubint first("239109124202497");
+    ubint second("9");
+    std::cout<"first ";
+    std::cout<<first.ToString();
+    std::cout<<std::endl;
+    first.PrintLimbsInHex();
+    
+    std::cout<"second ";
+    std::cout<<second.ToString();
+    std::cout<<std::endl;
+    second.PrintLimbsInHex();
+    ubint modcorrect("1");
+    ubint modresult;
+    
+    modresult = first.Mod(second);
+
+    std::cout<"modresult ";
+    std::cout<<modresult.ToString();
+    std::cout<<std::endl;
+   modresult.PrintLimbsInHex();    
+    
+    EXPECT_EQ(modcorrect, modresult)
+      <<"Failure Mod() Mod tr #409 2";
+  }
+
+
 
 
   // Mod(0)
