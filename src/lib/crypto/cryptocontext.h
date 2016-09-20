@@ -640,7 +640,6 @@ public:
 	}
 };
 
-
 }
 
 #endif /* SRC_DEMO_PRE_CRYPTOCONTEXT_H_ */
