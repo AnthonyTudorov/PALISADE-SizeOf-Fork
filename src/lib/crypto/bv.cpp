@@ -71,7 +71,6 @@ bool LPAlgorithmBV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	s.SwitchFormat();
 
 	privateKey->SetPrivateElement(s);
-	privateKey->AccessCryptoParameters() = *cryptoParams;
 
 	//public key is generated and set
 	//privateKey->MakePublicKey(a, publicKey);

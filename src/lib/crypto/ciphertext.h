@@ -148,7 +148,11 @@ namespace lbcrypto {
 		* @param cryptoParameters
 		*
 		*/
-		void SetCryptoParameters(const LPCryptoParameters<Element> *cryptoParameters) { m_cryptoParameters = cryptoParameters; }
+		void SetCryptoParameters(const LPCryptoParameters<Element> *cryptoParameters) {
+			if( m_cryptoParameters != 0 )
+				throw std::logic_error("Crypto parameters can not be changed in existing ciphertext");
+			m_cryptoParameters = cryptoParameters;
+		}
 
 		/**
 		* Set algorithm for this ciphertext.

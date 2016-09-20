@@ -28,10 +28,10 @@ void testJson(
 		TestJsonParms<Element> *tp,
 		bool skipReEncrypt) {
 
-	LPPublicKey<Element>			pkDeserialized;
-	LPPrivateKey<Element>			skDeserialized;
-	LPEvalKeyNTRURelin<Element>		evalKeyDeserialized;
-	LPPrivateKey<Element>			newSKDeserialized;
+	LPPublicKey<Element>			pkDeserialized(*tp->ctx->getParams());
+	LPPrivateKey<Element>			skDeserialized(*tp->ctx->getParams());
+	LPEvalKeyNTRURelin<Element>		evalKeyDeserialized(*tp->ctx->getParams());
+	LPPrivateKey<Element>			newSKDeserialized(*tp->ctx->getParams());
 
 	cout << "----------------------START JSON FACILITY TESTING-------------------------" << endl;
 
@@ -197,13 +197,6 @@ void testJson(
 		return;
 	}
 	cout << "---END LPEvalKey" + cID + " DESERIALIZATION---" << endl << endl;
-
-	{
-	cout << "gwr" << endl;
-	Serialized gmap;
-	evalKeyDeserialized.Serialize(&gmap, "xxx");
-	SerializableHelper::WriteSerializationToFile(gmap, "gwr.txt");
-	}
 
 	cout << "----------BEGIN LPAlgorithmPRE" + cID + ".ReEncrypt TESTING----------" << endl;
 	cout << "Calling ReEncrypt in LPAlgorithmPRE" + cID + " with deserialized instances of" << endl;

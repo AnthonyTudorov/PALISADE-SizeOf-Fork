@@ -104,9 +104,6 @@ TEST(method_ILVectorArray2n, Encrypt_Decrypt) {
 	cryptoParams.SetElementParams(params);
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
-	//Ciphertext<ILVectorArray2n> cipherText;
-	//cipherText.SetCryptoParameters(&cryptoParams);
-
 	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
 	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
 
@@ -164,9 +161,6 @@ TEST(method_ILVector2n, Encrypt_Decrypt) {
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-	//Ciphertext<ILVector2n> cipherText;
-	//cipherText.SetCryptoParameters(&cryptoParams);
-
 	// Initialize the public key containers.
 	LPPublicKey<ILVector2n> pk(cryptoParams);
 	LPPrivateKey<ILVector2n> sk(cryptoParams);
@@ -223,9 +217,6 @@ TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
 	cryptoParams.SetRelinWindow(1);				    // Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
-
-	//Ciphertext<ILVector2n> cipherText;
-	//cipherText.SetCryptoParameters(&cryptoParams);
 
 	LPPublicKey<ILVector2n> pk(cryptoParams);
 	LPPrivateKey<ILVector2n> sk(cryptoParams);
@@ -298,9 +289,6 @@ TEST(method_ILVector2n_IntPlaintextEncoding, Encrypt_Decrypt) {
 	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
-
-	/*Ciphertext<ILVector2n> cipherText;
-	cipherText.SetCryptoParameters(&cryptoParams);*/
 
 	//Initialize the public key containers.
 	LPPublicKey<ILVector2n> pk(cryptoParams);
