@@ -20,7 +20,7 @@
 using namespace std;
 using namespace lbcrypto;
 
-void runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plaintext, bool doPadding = true);
+void runOneRound(CryptoContextHandle<ILVector2n> ctx, const BytePlaintextEncoding& plaintext, bool doPadding = true);
 
 
 int
@@ -198,7 +198,7 @@ main(int argc, char *argv[])
 //		- Decrypt the re-encrypted data.
 
 void
-runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plaintext, bool doPadding)
+runOneRound(CryptoContextHandle<ILVector2n> ctx, const BytePlaintextEncoding& plaintext, bool doPadding)
 {
 	//Perform the key generation operation.
 
