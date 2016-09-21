@@ -211,41 +211,105 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 }
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContextHandle<T>
 CryptoContextFactory<T>::genCryptoContextLTV(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev)
 		{
+	CryptoContextHandle<T>	item( new CryptoContext<T>() );
 
+	item->ringdim = ringdim;
+	item->ptmod = BigBinaryInteger(plaintextmodulus);
+	item->mod = BigBinaryInteger(modulus);
+	item->ru = BigBinaryInteger(rootOfUnity);
+	item->relinWindow = relinWindow;
+	item->stDev = stDev;
+
+	item->ilParams = ILParams(item->ringdim, item->mod, item->ru);
+
+	LPCryptoParametersLTV<T>* params = new LPCryptoParametersLTV<T>();
+	item->params = params;
+
+	params->SetPlaintextModulus(item->ptmod);
+	params->SetDistributionParameter(item->stDev);
+	params->SetRelinWindow(item->relinWindow);
+	params->SetElementParams(item->ilParams);
+
+	item->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
+	params->SetDiscreteGaussianGenerator(item->dgg);
+
+	item->algorithm = new LPPublicKeyEncryptionSchemeLTV<T>();
+	item->algorithm->Enable(ENCRYPTION);
+	item->algorithm->Enable(PRE);
+
+	return item;
 		}
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContextHandle<T>
 CryptoContextFactory<T>::genCryptoContextBV(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev)
 		{
-
+			throw std::logic_error("Must implement factory for BV");
 		}
 
 // FIXME: this is temporary until we better incorporate DCRT
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContextHandle<T>
 CryptoContextFactory<T>::getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams)
 {
+	CryptoContextHandle<T>	item( new CryptoContext<T>() );
 
+	item->params = cryptoParams;
+	item->algorithm = new LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n>();
+	item->algorithm->Enable(ENCRYPTION);
+	item->algorithm->Enable(PRE);
+
+	return item;
 }
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContextHandle<T>
 CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev, float stDevStSt)
 		{
+	CryptoContextHandle<T>	item( new CryptoContext<T>() );
 
+	item->ringdim = ringdim;
+	item->ptmod = BigBinaryInteger(plaintextmodulus);
+	item->mod = BigBinaryInteger(modulus);
+	item->ru = BigBinaryInteger(rootOfUnity);
+	item->relinWindow = relinWindow;
+	item->stDev = stDev;
+	item->stDevStSt = stDevStSt;
+
+	item->ilParams = ILParams(item->ringdim, item->mod, item->ru);
+
+	LPCryptoParametersStehleSteinfeld<T>* params = new LPCryptoParametersStehleSteinfeld<T>();
+	item->params = params;
+
+	params->SetPlaintextModulus(item->ptmod);
+	params->SetDistributionParameter(item->stDev);
+	params->SetDistributionParameterStSt(item->stDevStSt);
+	params->SetRelinWindow(item->relinWindow);
+	params->SetElementParams(item->ilParams);
+
+	item->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
+	params->SetDiscreteGaussianGenerator(item->dgg);
+
+	item->dggStSt = DiscreteGaussianGenerator(stDevStSt);				// Create the noise generator
+	params->SetDiscreteGaussianGeneratorStSt(item->dggStSt);
+
+	item->algorithm = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>();
+	item->algorithm->Enable(ENCRYPTION);
+	item->algorithm->Enable(PRE);
+
+	return item;
 		}
 
 }

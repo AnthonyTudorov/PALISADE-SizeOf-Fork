@@ -60,7 +60,7 @@ getValueForName(const SerialItem& allvals, const char *key, std::string& value)
 }
 
 template <class Element>
-static CryptoContext<Element>
+static CryptoContextHandle<Element>
 buildContextFromSerialized(const SerialItem& s)
 {
 	std::string parmtype;
@@ -109,12 +109,14 @@ buildContextFromSerialized(const SerialItem& s)
 }
 
 template <class Element>
-CryptoContext<Element>
+CryptoContextHandle<Element>
 CryptoContextHelper<Element>::getNewContextFromSerialization(const Serialized& ser)
 {
 	LPCryptoParameters<Element>* cParams = DeserializeCryptoParameters<Element>(ser);
 
 	if( cParams == 0 ) return 0;
+
+	CryptoContextHandle<Element> newCtx;
 
 	const ILParams& ep = dynamic_cast<const ILParams&>(cParams->GetElementParams());
 
@@ -123,22 +125,20 @@ CryptoContextHelper<Element>::getNewContextFromSerialization(const Serialized& s
 	LPCryptoParametersStehleSteinfeld<Element> *ststp = dynamic_cast<LPCryptoParametersStehleSteinfeld<Element> *>(cParams);
 
 	if( ststp != 0 ){
-		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(cParams->GetPlaintextModulus().ConvertToInt(), ep.GetCyclotomicOrder(),
+		newCtx = CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(cParams->GetPlaintextModulus().ConvertToInt(), ep.GetCyclotomicOrder(),
 				ep.GetModulus().ToString(), ep.GetRootOfUnity().ToString(), ststp->GetRelinWindow(), ststp->GetDistributionParameter(), ststp->GetDistributionParameterStSt());
 	}
 	else if( ltvp != 0 ) {
-		return CryptoContextFactory<Element>::genCryptoContextLTV(cParams->GetPlaintextModulus().ConvertToInt(), ep.GetCyclotomicOrder(),
+		newCtx = CryptoContextFactory<Element>::genCryptoContextLTV(cParams->GetPlaintextModulus().ConvertToInt(), ep.GetCyclotomicOrder(),
 				ep.GetModulus().ToString(), ep.GetRootOfUnity().ToString(), ltvp->GetRelinWindow(), ltvp->GetDistributionParameter());
 	}
 
-	// empty one
-	CryptoContext<Element> newCtx;
 	return newCtx;
 }
 
 
 template <class Element>
-CryptoContext<Element>
+CryptoContextHandle<Element>
 CryptoContextHelper<Element>::getNewContext(const std::string& parmSetJson)
 {
 	// convert string to a map
@@ -150,7 +150,7 @@ CryptoContextHelper<Element>::getNewContext(const std::string& parmSetJson)
 }
 
 template <class Element>
-CryptoContext<Element>
+CryptoContextHandle<Element>
 CryptoContextHelper<Element>::getNewContext(const std::string& parmfile, const std::string& parmset)
 {
 	Serialized sobj;
