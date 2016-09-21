@@ -39,12 +39,7 @@
 #define LBCRYPTO_CRYPTO_CIPHERTEXT_H
 
 //Includes Section
-#include "../utils/serializable.h"
-#include "pubkeylp.h"
-#include "lwecrypt.h"
-
-#include <memory>
-using std::shared_ptr;
+#include "../palisade.h"
 
 /**
 * @namespace lbcrypto
@@ -224,7 +219,7 @@ namespace lbcrypto {
 
 	private:
 
-		const shared_ptr<CryptoContext<Element>>	cryptoContext;
+		CryptoContextHandle<Element>	cryptoContext;
 
 		//pointer to crypto parameters
 		const LPCryptoParameters<Element> *m_cryptoParameters;

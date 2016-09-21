@@ -39,17 +39,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define _USE_MATH_DEFINES 
 #include <iostream>
 #include <fstream>
-#include "lib/crypto/cryptocontext.h"
+#include "lib/palisade.h"
+#include "lib/palisadespace.h"
+
 #include "lib/utils/cryptocontexthelper.h"
 #include "lib/crypto/cryptocontext.cpp"
 #include "lib/utils/cryptocontexthelper.cpp"
-
-#include "lib/math/nbtheory.h"
-
-#include "lib/math/distrgen.h"
-
-#include "lib/lattice/ilvector2n.h"
-#include "lib/lattice/ilvectorarray2n.h"
 
 #include "lib/encoding/byteplaintextencoding.h"
 #include "lib/utils/cryptoutility.h"

@@ -55,9 +55,6 @@
 */
 namespace lbcrypto {
 
-	template <class Element>
-	class CryptoContext;
-
 	// C+11 "using" is not supported in VS 2012 - so it was replaced with C+03 "typedef"
 	typedef rapidjson::Value SerialItem;
 	typedef rapidjson::Document Serialized;
@@ -67,6 +64,9 @@ namespace lbcrypto {
 
 	class Serializable
 	{
+		template <class Element>
+		class CryptoContext;
+
 		/**
 		* Version number of the serialization; defaults to 1
 		* @return version of the serialization
