@@ -96,6 +96,12 @@ public:
 		const std::vector<uint32_t>& rv = dynamic_cast<const std::vector<uint32_t>&>(other);
 		return lv == rv;
 	}
+
+	friend std::ostream& operator<<(std::ostream& out, const IntPlaintextEncoding& item) {
+		for( int i=0; i<item.size(); i++ )
+			out << item.at(i);
+		return out;
+	}
 };
 
 }

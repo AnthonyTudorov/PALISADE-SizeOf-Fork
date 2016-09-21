@@ -119,7 +119,7 @@ public:
   // constructor specifying the mubintvec as an ubintvec and undefined modulus
  explicit mubintvec(const ubintvec<ubint_el_t> &b);
 
- explicit mubintvec(const cpu_int::BigBinaryVector<ubint_el_t> &b);
+ // explicit mubintvec(const cpu_int::BigBinaryVector<ubint_el_t> &b);
 
 #if 1
 

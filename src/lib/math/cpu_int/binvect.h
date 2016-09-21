@@ -352,6 +352,14 @@ public:
 	BigBinaryVector ModMul(const BigBinaryVector &b) const;
 
 	/**
+	 * Vector multiplication.
+	 *
+	 * @param &b is the vector to multiply.
+	 * @return is the result of the multiplication operation.
+	 */
+	BigBinaryVector MultWithOutMod(const BigBinaryVector &b) const;
+
+	/**
 	* Multiply and Rounding operation on a bigBinaryInteger x. Returns [x*p/q] where [] is the rounding operation.
 	*
 	* @param p is the numerator to be multiplied.

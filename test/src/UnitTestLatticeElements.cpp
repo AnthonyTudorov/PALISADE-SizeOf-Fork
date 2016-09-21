@@ -175,6 +175,43 @@ TEST(UTILVector2n, getters_tests) {
 
 }
 
+TEST(UTILVector2n, TimesWithOutModTest) {
+  usint m = 8; 
+  
+  BigBinaryInteger primeModulus("73");
+  BigBinaryInteger primitiveRootOfUnity("22");
+
+  ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
+
+  ILVector2n ilvector2n(ilparams);
+  // std::cout << "GetCyclotomicOrder = " << ilvector2n.GetCyclotomicOrder() << std::endl;
+  BigBinaryVector bbv(m/2, primeModulus);
+  bbv.SetValAtIndex(0, "3");
+  bbv.SetValAtIndex(1, "2");
+  bbv.SetValAtIndex(2, "4");
+  bbv.SetValAtIndex(3, "5");
+  ilvector2n.SetValues(bbv, Format::EVALUATION);
+
+  ILVector2n ilvector2n2(ilparams);
+  // std::cout << "GetCyclotomicOrder = " << ilvector2n.GetCyclotomicOrder() << std::endl;
+  BigBinaryVector bbv2(m/2, primeModulus);
+  bbv2.SetValAtIndex(0, "39");
+  bbv2.SetValAtIndex(1, "33");
+  bbv2.SetValAtIndex(2, "53");
+  bbv2.SetValAtIndex(3, "23");
+  ilvector2n2.SetValues(bbv2, Format::EVALUATION);
+
+  ILVector2n calculatedResult = ilvector2n.TimesWithOutMod(ilvector2n2);
+
+  int expectedResult[5] = {117,66,212,115};
+
+  for (usint i = 0; i < m/2; ++i)
+  {
+    EXPECT_EQ(expectedResult[i], (calculatedResult.GetValAtIndex(i)).ConvertToInt());
+  }
+
+}
+
 TEST(UTILVector2n, setters_tests) {
   usint m = 8; 
   

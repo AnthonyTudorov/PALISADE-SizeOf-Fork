@@ -161,12 +161,12 @@ namespace exp_int {
     DEBUG("mubintvec CTOR from ubint no modulus length "<<b.size());    
   }
 
-  /*template<class ubint_el_t>
+ /* template<class ubint_el_t>
   mubintvec<ubint_el_t>::mubintvec(const cpu_int::BigBinaryVector<ubint_el_t> &b) {
-    this->m_data.resize(b.size());
+    this->m_data.resize(b.GetLength());
     //this->m_data = b.m_data; for some reason this did not work, even though
     //we inheret from ubintvec and it is protected... 
-    for(auto i = 0; i< b.size(); i++){
+    for(auto i = 0; i< b.GetLength(); i++){
       this->m_data[i] = b.GetValAtIndex(i);
     }
 

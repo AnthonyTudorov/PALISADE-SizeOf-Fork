@@ -316,17 +316,13 @@ namespace lbcrypto {
 	}
 
 	//mubintvec
-	/*ILVector2n ILVector2n::TimesWithOutMod(const ILVector2n &element) const {
+	ILVector2n ILVector2n::TimesWithOutMod(const ILVector2n &element) const {
 		ILVector2n tmp(*this);
 
-		mubintvec vec1(*m_values);
-		// mubintvec vec2(element.m_values);
-		// vec1 = vec1.Mul(vec2);
-
-		// *tmp.m_values = vec1;
+		*tmp.m_values = m_values->MultWithOutMod(*element.m_values);
 
 		return tmp;
-	}*/
+	}
 
 	const ILVector2n& ILVector2n::operator+=(const ILVector2n &element) {
 		if(!(this->m_params == element.m_params))

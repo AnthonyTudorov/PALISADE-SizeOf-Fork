@@ -63,20 +63,33 @@ bool LPAlgorithmFV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 
 	//Generate the element "a" of the public key
 	Element a(dug, elementParams, Format::EVALUATION);
+	// a.SwitchFormat();
+	// std::cout << "a = " << std::endl;
+	// a.PrintValues();
+	// a.SwitchFormat();
 
 	//Generate the secret key
 	Element s(dgg, elementParams, Format::COEFFICIENT);
+	// std::cout << "s = " << std::endl;
+	// s.PrintValues();
 	s.SwitchFormat();
 
 	privateKey->SetPrivateElement(s);
 	// privateKey->AccessCryptoParameters() = *cryptoParams;
 
 	Element e(dgg, elementParams, Format::COEFFICIENT);
+	// std::cout << "e = " << std::endl;
+	// e.PrintValues();
 	e.SwitchFormat();
 
 	Element b(elementParams, Format::EVALUATION, true);
 	b-=e;
 	b-=(a*s);
+
+	// b.SwitchFormat();
+	// std::cout << "b = " << std::endl;
+	// b.PrintValues();
+	// b.SwitchFormat();
 
 	publicKey->SetPublicElementAtIndex(0, std::move(b));
 	publicKey->SetPublicElementAtIndex(1, std::move(a));
@@ -112,12 +125,42 @@ EncryptResult LPAlgorithmFV<Element>::Encrypt(const LPPublicKey<Element> &pubKey
 	Element e1(dgg, elementParams, Format::EVALUATION);
 	Element e2(dgg, elementParams, Format::EVALUATION);
 
+	/*u.SwitchFormat();
+	std::cout << "u = " << std::endl;
+	u.PrintValues();
+	u.SwitchFormat();
+
+	e1.SwitchFormat();
+	std::cout << "e1 = " << std::endl;
+	e1.PrintValues();
+	e1.SwitchFormat();
+
+	e2.SwitchFormat();
+	std::cout << "e2 = " << std::endl;
+	e2.PrintValues();
+	e2.SwitchFormat();*/
+
 	Element c0(elementParams);
 	Element c1(elementParams);
 
 	c0 = p0*u + e1 + delta*plaintext;
 
 	c1 = p1*u + e2;
+
+	/*std::cout << "c0 in Eval format = " << std::endl;
+	c0.PrintValues();
+	c0.SwitchFormat();
+	std::cout << "c0 = " << std::endl;
+	c0.PrintValues();
+	c0.SwitchFormat();
+
+	std::cout << "c1 in Eval format = " << std::endl;
+	c1.PrintValues();
+	c1.SwitchFormat();
+	std::cout << "c1 = " << std::endl;
+	c1.PrintValues();
+	c1.SwitchFormat();*/
+
 
 	ciphertext->SetCryptoParameters(cryptoParams);
 	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
@@ -140,13 +183,31 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> &priva
 	const std::vector<Element> &c = ciphertext.GetElements();
 
 	const Element &s = privateKey.GetPrivateElement();
+	// std::cout << "s in Eval format = " << std::endl;
+	// s.PrintValues();
 
-	Element b = c[0] + s*c[1];
+	/*Element temp = s.TimesWithOutMod(c[1]);
+	// temp.SwitchFormat();
+	std::cout << "temp in eval format = " << std::endl;
+	temp.PrintValues();
+	// temp.SwitchFormat();*/
+
+	Element b = c[0] + s.TimesWithOutMod(c[1]);
+	// Element b = c[0] + temp;
+
+	/*b.SwitchFormat();
+	std::cout << "b = " << std::endl;
+	b.PrintValues();
+	b.SwitchFormat();*/
 
 	// b = p*b;
+
 	b = b.MultiplyAndRound(p, q);
 
 	b.SwitchFormat();
+
+	/*std::cout << "After MultiplyAndRound, b = " << std::endl;
+	b.PrintValues();*/
 	
 	*plaintext = b;
 
