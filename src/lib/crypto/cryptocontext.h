@@ -80,6 +80,10 @@ public:
 
 	DiscreteGaussianGenerator& GetGenerator() { return dgg; }
 
+	LPKeyPair<Element> KeyGen() {
+		return algorithm->KeyGen(this);
+	}
+
 	/**
 	 *
 	 * @return crypto parameters

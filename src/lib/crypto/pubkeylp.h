@@ -1179,28 +1179,6 @@ namespace lbcrypto {
 			LPEvalKey<Element> *evalKey) const = 0;
 
 			/**
-<<<<<<< HEAD
-			* Virtual function to define the interface for homomorphic multiplication of ciphertexts.
-			*
-			* @param &ciphertext1 the input ciphertext.
-			* @param &ciphertext2 the input ciphertext.
-			* @param *newCiphertext the new ciphertext.
-			*/
-			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				shared_ptr<Ciphertext<Element>> *newCiphertext) const = 0;
-
-			/**
-			* Virtual function to define the interface for homomorphic addition of ciphertexts.
-			*
-			* @param &ciphertext1 the input ciphertext.
-			* @param &ciphertext2 the input ciphertext.
-			* @param *newCiphertext the new ciphertext.
-			*/
-			virtual void EvalAdd(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext) const = 0;
-=======
 			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext.
 			 *
 			 * @param &ciphertext1 the input ciphertext.
@@ -1212,7 +1190,6 @@ namespace lbcrypto {
 
 			virtual shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
 				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
->>>>>>> null works with int encoding AND first pass at evaladd AND unit tests, BOOM!
 
 			/**
 			* Virtual function to define the interface for homomorphic subtraction of ciphertexts.
