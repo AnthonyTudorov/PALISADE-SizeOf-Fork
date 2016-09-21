@@ -96,6 +96,10 @@ public:
 	DiscreteGaussianGenerator& GetGenerator() { return dgg; }
 	ILParams& GetILParams() { return ilParams; }
 
+	LPKeyPair<Element> KeyGen() {
+		return algorithm->KeyGen(this);
+	}
+
 	/**
 	 *
 	 * @return crypto parameters
