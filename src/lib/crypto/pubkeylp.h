@@ -1187,10 +1187,6 @@ namespace lbcrypto {
 
 			virtual	bool RelinKeyGen(const LPPrivateKey<Element> &privateKey,
 			LPEvalKey<Element> *evalKey) const = 0;
-		
-			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext, const LPEvalKey<Element> &evalKey) const = 0;
 
 			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,

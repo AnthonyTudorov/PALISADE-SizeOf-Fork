@@ -241,12 +241,12 @@ namespace lbcrypto {
 					throw std::runtime_error(errMsg);
 		}
 
-		void EvalMult(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext, const LPEvalKey<Element> &EK) const;
-
 		void EvalAdd(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const;
+
+		virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &ek,
 				Ciphertext<Element> *newCiphertext) const;
 	};
 

@@ -205,7 +205,7 @@ void NTRUPRE(int input) {
 	// size_t chunksize = ((m / 2) / 8);
 	LPPublicKeyEncryptionSchemeFV<ILVector2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(SHE);
+	// algorithm.Enable(SHE);
 
 	bool successKeyGen=false;
 

@@ -69,7 +69,7 @@ bool LPAlgorithmFV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	s.SwitchFormat();
 
 	privateKey->SetPrivateElement(s);
-	privateKey->AccessCryptoParameters() = *cryptoParams;
+	// privateKey->AccessCryptoParameters() = *cryptoParams;
 
 	Element e(dgg, elementParams, Format::COEFFICIENT);
 	e.SwitchFormat();
@@ -143,8 +143,8 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> &priva
 
 	Element b = c[0] + s*c[1];
 
-	b = p*b;
-	// b = b.MultiplyAndRound(p, q);
+	// b = p*b;
+	b = b.MultiplyAndRound(p, q);
 
 	b.SwitchFormat();
 	
@@ -191,8 +191,8 @@ bool LPAlgorithmSHEFV<Element>::RelinKeyGen(const LPPrivateKey<Element> &private
 
 template <class Element>
 void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext, const LPEvalKey<Element> &EK) const {
+				const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &ek,
+				Ciphertext<Element> *newCiphertext) const {
 
 	if(ciphertext1.GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2.GetElement().GetFormat() == Format::COEFFICIENT){
 		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult cannot multiply in COEFFICIENT domain.");
@@ -203,11 +203,11 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 		throw std::runtime_error(errMsg);
 	}
 
-	const LPCryptoParametersFV<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersFV<Element>*>(&EK.GetCryptoParameters());
+	const LPCryptoParametersFV<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersFV<Element>*>(&ek.GetCryptoParameters());
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 	
 	const LPEvalKeyRelin<Element> &evalKey =
-		dynamic_cast<const LPEvalKeyRelin<Element>&>(EK);
+		dynamic_cast<const LPEvalKeyRelin<Element>&>(ek);
 
 	std::vector<Element> cipherText1Elements = ciphertext1.GetElements();
 	std::vector<Element> cipherText2Elements = ciphertext2.GetElements();
