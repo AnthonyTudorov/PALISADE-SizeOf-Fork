@@ -35,8 +35,7 @@ namespace lbcrypto {
 // copy constructor
 template <class Element>
 Ciphertext<Element>::Ciphertext(const Ciphertext<Element> &ciphertext) {
-	m_cryptoParameters = ciphertext.m_cryptoParameters;
-	m_encryptionAlgorithm = ciphertext.m_encryptionAlgorithm;
+	cryptoContext = ciphertext.cryptoContext;
 	m_norm = ciphertext.m_norm;
 	m_elements = ciphertext.m_elements;
 } //
@@ -44,8 +43,7 @@ Ciphertext<Element>::Ciphertext(const Ciphertext<Element> &ciphertext) {
 // move constructor
 template <class Element>
 Ciphertext<Element>::Ciphertext(Ciphertext<Element> &&ciphertext) {
-	m_cryptoParameters = ciphertext.m_cryptoParameters;
-	m_encryptionAlgorithm = ciphertext.m_encryptionAlgorithm;
+	cryptoContext = ciphertext.cryptoContext;
 	m_norm = ciphertext.m_norm;
 	m_elements = ciphertext.m_elements;
 }
@@ -55,8 +53,7 @@ template <class Element>
 Ciphertext<Element>& Ciphertext<Element>::operator=(const Ciphertext<Element> &rhs)
 {
 	if (this != &rhs) {
-		this->m_cryptoParameters = rhs.m_cryptoParameters;
-		this->m_encryptionAlgorithm = rhs.m_encryptionAlgorithm;
+		this->cryptoContext = rhs.cryptoContext;
 		this->m_norm = rhs.m_norm;
 		this->m_elements = rhs.m_elements;
 	}
@@ -69,8 +66,7 @@ template <class Element>
 Ciphertext<Element>& Ciphertext<Element>::operator=(Ciphertext<Element> &&rhs)
 {
 	if (this != &rhs) {
-		this->m_cryptoParameters = rhs.m_cryptoParameters;
-		this->m_encryptionAlgorithm = rhs.m_encryptionAlgorithm;
+		this->cryptoContext = rhs.cryptoContext;
 		this->m_norm = rhs.m_norm;
 		this->m_elements = rhs.m_elements;
 	}
@@ -82,7 +78,7 @@ Ciphertext<Element>& Ciphertext<Element>::operator=(Ciphertext<Element> &&rhs)
 template <class Element>
 Ciphertext<Element> Ciphertext<Element>::EvalAdd(const Ciphertext<Element> &ciphertext) const
 {
-	if(this->m_cryptoParameters != ciphertext.m_cryptoParameters){
+	if(this->cryptoContext != ciphertext.cryptoContext){
 		std::string errMsg = "EvalAdd: CryptoParameters of added the ciphertexts are the not the same.";
 		throw std::runtime_error(errMsg);
 	}
@@ -159,67 +155,68 @@ bool Ciphertext<Element>::Serialize(Serialized* serObj, const std::string fileFl
 template <class Element>
 bool Ciphertext<Element>::Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
 
-	LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-	if( cryptoParams == 0 ) return false;
-
-	Serialized::ConstMemberIterator mIter = serObj.FindMember("Root");
-	if( mIter == serObj.MemberEnd() )
-		return false;
-
-	Serialized::ConstMemberIterator normIter = serObj.FindMember("Norm");
-	if( normIter == serObj.MemberEnd() )
-		return false;
-
-	BigBinaryInteger bbiNorm(normIter->value.GetString());
-
-	Serialized::ConstMemberIterator sizeIter = serObj.FindMember("VectorSize");
-	if( sizeIter == serObj.MemberEnd() )
-		return false;
-
-	int nElements = std::stoi(sizeIter->value.GetString());
-	std::vector<Element> elements(nElements);
-
-	Serialized::ConstMemberIterator typeIter = serObj.FindMember("VectorElementType");
-	if( typeIter == serObj.MemberEnd() )
-		return false;
-
-	std::string elType = typeIter->value.GetString();
-
-	if( typeid(Element) == typeid(ILVector2n) && elType != "ILVector2n" ) {
-		throw std::logic_error("Serialization Element type does not match this Ciphertext");
-	} else if( typeid(Element) == typeid(ILVectorArray2n) && elType != "ILVectorArray2n" ) {
-		throw std::logic_error("Serialization Element type does not match this Ciphertext");
-	}
-
-	Serialized::ConstMemberIterator elVec = serObj.FindMember("Elements");
-	if( elVec == serObj.MemberEnd() )
-		return false;
-
-	for( int i=0; i<nElements; i++ ) {
-		SerialItem::ConstMemberIterator elIter = elVec->value.FindMember( std::to_string(i) );
-		if( elIter == elVec->value.MemberEnd() ) {
-			return false;
-		}
-
-		Serialized::ConstMemberIterator findEl = elIter->value.FindMember( elType );
-		if( findEl == elIter->value.MemberEnd() ) {
-			return false;
-		}
-
-		Serialized el(rapidjson::kObjectType);
-		el.AddMember(SerialItem(elType,el.GetAllocator()), SerialItem(findEl->value,el.GetAllocator()), el.GetAllocator());
-		Element json_ilElement;
-		if( !json_ilElement.Deserialize( el ) )
-			return false;
-
-		elements[i] = json_ilElement;
-	}
-
-	this->m_cryptoParameters = cryptoParams;
-	this->SetNorm(bbiNorm);
-	this->SetElements(elements);
-
-	return true;
+//	LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
+//	if( cryptoParams == 0 ) return false;
+//
+//	Serialized::ConstMemberIterator mIter = serObj.FindMember("Root");
+//	if( mIter == serObj.MemberEnd() )
+//		return false;
+//
+//	Serialized::ConstMemberIterator normIter = serObj.FindMember("Norm");
+//	if( normIter == serObj.MemberEnd() )
+//		return false;
+//
+//	BigBinaryInteger bbiNorm(normIter->value.GetString());
+//
+//	Serialized::ConstMemberIterator sizeIter = serObj.FindMember("VectorSize");
+//	if( sizeIter == serObj.MemberEnd() )
+//		return false;
+//
+//	int nElements = std::stoi(sizeIter->value.GetString());
+//	std::vector<Element> elements(nElements);
+//
+//	Serialized::ConstMemberIterator typeIter = serObj.FindMember("VectorElementType");
+//	if( typeIter == serObj.MemberEnd() )
+//		return false;
+//
+//	std::string elType = typeIter->value.GetString();
+//
+//	if( typeid(Element) == typeid(ILVector2n) && elType != "ILVector2n" ) {
+//		throw std::logic_error("Serialization Element type does not match this Ciphertext");
+//	} else if( typeid(Element) == typeid(ILVectorArray2n) && elType != "ILVectorArray2n" ) {
+//		throw std::logic_error("Serialization Element type does not match this Ciphertext");
+//	}
+//
+//	Serialized::ConstMemberIterator elVec = serObj.FindMember("Elements");
+//	if( elVec == serObj.MemberEnd() )
+//		return false;
+//
+//	for( int i=0; i<nElements; i++ ) {
+//		SerialItem::ConstMemberIterator elIter = elVec->value.FindMember( std::to_string(i) );
+//		if( elIter == elVec->value.MemberEnd() ) {
+//			return false;
+//		}
+//
+//		Serialized::ConstMemberIterator findEl = elIter->value.FindMember( elType );
+//		if( findEl == elIter->value.MemberEnd() ) {
+//			return false;
+//		}
+//
+//		Serialized el(rapidjson::kObjectType);
+//		el.AddMember(SerialItem(elType,el.GetAllocator()), SerialItem(findEl->value,el.GetAllocator()), el.GetAllocator());
+//		Element json_ilElement;
+//		if( !json_ilElement.Deserialize( el ) )
+//			return false;
+//
+//		elements[i] = json_ilElement;
+//	}
+//
+//	this->m_cryptoParameters = cryptoParams;
+//	this->SetNorm(bbiNorm);
+//	this->SetElements(elements);
+//
+//	return true;
+	return false;
 }
 
 }  // namespace lbcrypto ends

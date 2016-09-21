@@ -49,7 +49,13 @@ namespace lbcrypto {
  */
 
 template <class Element>
+class CryptoContextFactory;
+
+template <class Element>
 class CryptoContext {
+
+	friend class CryptoContextFactory<Element>;
+
 private:
 	/* these variables are used to initialize the CryptoContext */
 	usint				ringdim;		/*!< ring dimension */
@@ -85,6 +91,9 @@ public:
 		if( privateKey ) delete privateKey;
 		if( evalKey ) delete evalKey;
 	}
+
+	const LPCryptoParameters<Element> &GetCryptoParameters() const { return *params; }
+	const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *algorithm; }
 
 	/**
 	 *
@@ -188,20 +197,21 @@ public:
 
 template <class Element>
 class CryptoContextFactory {
-	static shared_ptr<CryptoContext<Element>> genCryptoContextLTV(
+public:
+	static CryptoContextHandle<Element> genCryptoContextLTV(
 			const usint plaintextmodulus,
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev);
 
-	static shared_ptr<CryptoContext<Element>> genCryptoContextBV(
+	static CryptoContextHandle<Element> genCryptoContextBV(
 			const usint plaintextmodulus,
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev);
 
 	// FIXME: this is temporary until we better incorporate DCRT
-	static shared_ptr<CryptoContext<Element>>getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams);
+	static CryptoContextHandle<Element> getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams);
 
-	static shared_ptr<CryptoContext<Element>> genCryptoContextStehleSteinfeld(
+	static CryptoContextHandle<Element> genCryptoContextStehleSteinfeld(
 			const usint plaintextmodulus,
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev, float stDevStSt);

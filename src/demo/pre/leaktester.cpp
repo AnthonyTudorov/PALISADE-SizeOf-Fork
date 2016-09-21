@@ -21,7 +21,7 @@
 using namespace std;
 using namespace lbcrypto;
 
-void runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plaintext, bool doPadding = true);
+void runOneRound(CryptoContextHandle<ILVector2n> ctx, const BytePlaintextEncoding& plaintext, bool doPadding = true);
 
 
 int
@@ -42,7 +42,7 @@ main(int argc, char *argv[])
 	string input; // = "StSt6";
 	std::cin >> input;
 
-	CryptoContext<ILVector2n> *ctx = CryptoContextHelper<ILVector2n>::getNewContext(filename, input);
+	CryptoContextHandle<ILVector2n> ctx = CryptoContextHelper<ILVector2n>::getNewContext(filename, input);
 	if( ctx == 0 ) {
 		cout << "Error on " << input << endl;
 		return 0;
@@ -183,8 +183,6 @@ main(int argc, char *argv[])
 		tryPad = !tryPad;
 	}
 
-	delete ctx;
-
 	ILVector2n::DestroyPreComputedSamples();
 
 	//	ChineseRemainderTransformFTT::GetInstance().Destroy();
@@ -204,7 +202,7 @@ main(int argc, char *argv[])
 //		- Decrypt the re-encrypted data.
 
 void
-runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plaintext, bool doPadding)
+runOneRound(CryptoContextHandle<ILVector2n> ctx, const BytePlaintextEncoding& plaintext, bool doPadding)
 {
 	// Initialize the public key containers.
 	LPPublicKey<ILVector2n> pk(*ctx->getParams());
