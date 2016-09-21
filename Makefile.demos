@@ -114,7 +114,8 @@ $(BINDIR)/demo/pre/SampleApp$(EXESUFFIX): $(BUILDDIR)/demo/pre/SampleApp.o $(EXT
 
 $(BINDIR)/demo/pre/palisade$(EXESUFFIX): $(BUILDDIR)/demo/pre/palisade.o $(EXTLIBDIR)/$(PALISADELIB)
 	@mkdir -p $(@D)
-	$(CC) -o $@ $^ $(EXTLIB)
+	@echo SKIPPING PALISADE DEMO APP
+	### $(CC) -o $@ $^ $(EXTLIB)
 
 
 # this target lets us see what all the strings are define as, 

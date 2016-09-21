@@ -64,6 +64,9 @@ namespace lbcrypto {
 
 	class Serializable
 	{
+		template <class Element>
+		class CryptoContext;
+
 		/**
 		* Version number of the serialization; defaults to 1
 		* @return version of the serialization
