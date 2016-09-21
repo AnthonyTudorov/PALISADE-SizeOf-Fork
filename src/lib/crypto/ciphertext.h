@@ -68,7 +68,9 @@ namespace lbcrypto {
 		/**
 		 * Default constructor
 		 */
-		Ciphertext() : m_cryptoParameters(NULL), m_encryptionAlgorithm(NULL), m_norm(BigBinaryInteger::ZERO) {}
+		Ciphertext() : m_norm(BigBinaryInteger::ZERO) {}
+
+		Ciphertext(CryptoContextHandle<Element> cc) : cryptoContext(cc), m_norm(BigBinaryInteger::ZERO) {}
 
 		/**
 		* Copy constructor
@@ -105,13 +107,13 @@ namespace lbcrypto {
 		* Get a reference to crypto parameters.
 		* @return the crypto parameters.
 		*/
-		const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
+		const LPCryptoParameters<Element> &GetCryptoParameters() const { return cryptoContext->GetCryptoParameters(); }
 
 		/**
 		* Get a reference to the encryption algorithm.
 		* @return the encryption alorithm.
 		*/
-		const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *m_encryptionAlgorithm; }
+		const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return cryptoContext->GetEncryptionAlgorithm(); }
 
 		/**
 		* Get current estimate of estimate norm
@@ -146,17 +148,11 @@ namespace lbcrypto {
 		*
 		*/
 		void SetCryptoParameters(const LPCryptoParameters<Element> *cryptoParameters) {
-			if( m_cryptoParameters != 0 )
-				throw std::logic_error("Crypto parameters can not be changed in existing ciphertext");
-			m_cryptoParameters = cryptoParameters;
+			throw std::logic_error("fix my setting parameters!");
+//			if( m_cryptoParameters != 0 )
+//				throw std::logic_error("Crypto parameters can not be changed in existing ciphertext");
+//			m_cryptoParameters = cryptoParameters;
 		}
-
-		/**
-		* Set algorithm for this ciphertext.
-		*
-		* @param encryptionAlgorithm
-		*/
-		void SetEncryptionAlgorithm(const LPPublicKeyEncryptionScheme<Element> &encryptionAlgorithm) { m_encryptionAlgorithm = &encryptionAlgorithm; }
 
 		/**
 		* Sets ciphertext norm.
@@ -220,12 +216,6 @@ namespace lbcrypto {
 	private:
 
 		CryptoContextHandle<Element>	cryptoContext;
-
-		//pointer to crypto parameters
-		const LPCryptoParameters<Element> *m_cryptoParameters;
-
-		//pointer to algorithm
-		const LPPublicKeyEncryptionScheme<Element> *m_encryptionAlgorithm;
 
 		//current value of error norm
 		BigBinaryInteger m_norm;

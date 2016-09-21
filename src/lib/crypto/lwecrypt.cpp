@@ -242,13 +242,13 @@ void LPLeveledSHEAlgorithmLTV<Element>::QuadraticEvalMultKeyGen(const LPPrivateK
 	quadraticKeySwitchHint->SetA(keySwitchHintElement);
 }
 
-/**
-* Method for ModReducing on any Element datastructure-TODO
-*/
-template<class Element>
-void LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Element> *cipherText) const {
-	
-}
+///**
+//* Method for ModReducing on any Element datastructure-TODO
+//*/
+//template<class Element>
+//void LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Element> *cipherText) const {
+//
+//}
 
 /**
 * This function performs ModReduce on ciphertext element and private key element. The algorithm can be found from this paper:
@@ -258,10 +258,10 @@ void LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Element> *cipherTex
 * Modulus reduction reduces a ciphertext from modulus q to a smaller modulus q/qi. The qi is generally the largest. In the code below,
 * ModReduce is written for ILVectorArray2n and it drops the last tower while updating the necessary parameters. 
 */
-template<> inline
-void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(Ciphertext<ILVectorArray2n> *cipherText) const {
+template<class Element> inline
+void LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Element> *cipherText) const {
 
-	ILVectorArray2n cipherTextElement(cipherText->GetElement()); 
+	Element cipherTextElement(cipherText->GetElement());
 
 	BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters().GetPlaintextModulus());
 
