@@ -122,7 +122,6 @@ inline shared_ptr<LPCryptoParameters<Element>> DeserializeCryptoParameters(const
 template <typename Element>
 inline shared_ptr<LPCryptoParameters<Element>> DeserializeAndValidateCryptoParameters(const Serialized& serObj, const LPCryptoParameters<Element>& curP);
 
-
 /** This function is used to deserialize the Crypto Parameters
 *
 * @param &serObj object to be serialized
