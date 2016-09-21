@@ -127,7 +127,7 @@ namespace lbcrypto {
 	class LPKey : public Serializable {
 	public:
 
-		LPKey(LPCryptoParameters<Element> *cp = 0) : m_cryptoParameters(cp) {}
+		LPKey(CryptoContextHandle<Element> cc) : cryptoContext(cc) {}
 
 		virtual ~LPKey() {}
 
@@ -135,10 +135,16 @@ namespace lbcrypto {
 		 * Gets a read-only reference to an LPCryptoParameters-derived class
 		 * @return the crypto parameters.
 		 */
-		const LPCryptoParameters<Element> &GetCryptoParameters() const { return *m_cryptoParameters; }
+		const CryptoContextHandle<Element> GetCryptoContext() const { return cryptoContext; }
+
+		/**
+		 * Gets a read-only reference to an LPCryptoParameters-derived class
+		 * @return the crypto parameters.
+		 */
+		const LPCryptoParameters<Element> &GetCryptoParameters() const { return cryptoContext->GetCryptoParameters(); }
 
 	protected:
-		LPCryptoParameters<Element> *m_cryptoParameters;
+		CryptoContextHandle<Element>	cryptoContext;
 	};
 
 	/**
@@ -985,6 +991,12 @@ namespace lbcrypto {
 		Element m_sk;
 	};
 
+	template <class Element>
+	class LPKeyPair {
+	public:
+		shared_ptr<LPPublicKey<Element>>	publicKey;
+		shared_ptr<LPPrivateKey<Element>>	secretKey;
+	};
 
 	/**
 	 * @brief Abstract interface for encryption algorithm
@@ -1001,9 +1013,7 @@ namespace lbcrypto {
 			 * @param &plaintext the plaintext input.
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			virtual EncryptResult Encrypt(const LPPublicKey<Element> &publicKey,
-				const Element &plaintext,
-				Ciphertext<Element> *ciphertext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> Encrypt(const LPPublicKey<Element> &publicKey, const Element &plaintext) const = 0;
 
 			/**
 			 * Method for decrypting plaintext using LBC
@@ -1024,8 +1034,7 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			virtual bool KeyGen(LPPublicKey<Element> *publicKey, 
-				LPPrivateKey<Element> *privateKey) const = 0;
+			virtual LPKeyPair<Element> KeyGen(CryptoContextHandle<Element> cc) const = 0;
 
 	};
 
@@ -1378,10 +1387,10 @@ namespace lbcrypto {
 		// the three functions below are wrappers for things in LPEncryptionAlgorithm (ENCRYPT)
 		//
 
-		EncryptResult Encrypt(const LPPublicKey<Element> &publicKey,
-			const Element &plaintext, Ciphertext<Element> *ciphertext) const {
+		shared_ptr<Ciphertext<Element>> Encrypt(const LPPublicKey<Element> &publicKey,
+			const Element &plaintext) const {
 				if(this->m_algorithmEncryption) {
-					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext,ciphertext);
+					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext);
 				}
 				else {
 					throw std::logic_error("Encrypt operation has not been enabled");
@@ -1397,9 +1406,9 @@ namespace lbcrypto {
 				}
 		}
 
-		bool KeyGen(LPPublicKey<Element> *publicKey, LPPrivateKey<Element> *privateKey) const {
+		LPKeyPair KeyGen(CryptoContextHandle<Element> cc) const {
 				if(this->m_algorithmEncryption)
-					return this->m_algorithmEncryption->KeyGen(publicKey,privateKey);
+					return this->m_algorithmEncryption->KeyGen(cc);
 				else {
 					throw std::logic_error("KeyGen operation has not been enabled");
 				}
