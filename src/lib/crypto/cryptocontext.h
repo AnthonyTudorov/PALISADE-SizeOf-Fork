@@ -37,43 +37,7 @@
 #ifndef SRC_DEMO_PRE_CRYPTOCONTEXT_H_
 #define SRC_DEMO_PRE_CRYPTOCONTEXT_H_
 
-#include <string>
-#include <memory>
-using std::string;
-using std::shared_ptr;
-
-#include "../math/backend.h"
-#include "../utils/inttypes.h"
-
-#include "../lattice/elemparams.h"
-#include "../lattice/ilparams.h"
-#include "../lattice/ildcrtparams.h"
-#include "../lattice/ilelement.h"
-
-#include "../crypto/lwepre.h"
-#include "../crypto/lwepre.cpp"
-#include "../crypto/lweahe.h"
-#include "../crypto/lweahe.cpp"
-#include "../crypto/lweshe.h"
-#include "../crypto/lweshe.cpp"
-#include "../crypto/lwefhe.h"
-#include "../crypto/lwefhe.cpp"
-#include "../crypto/lweautomorph.h"
-#include "../crypto/lweautomorph.cpp"
-
-#include "../crypto/ltv.h"
-#include "../crypto/stst.h"
-
-#include "../lattice/ilvector2n.h"
-#include "../lattice/ilvectorarray2n.h"
-
-#include "../crypto/bv.h"
-
-#include "../crypto/bv.cpp"
-
-#include "../utils/serializable.h"
-
-// NOTE there are some #includes at the bottom of the file as well!
+#include "../palisade.h"
 
 namespace lbcrypto {
 
@@ -244,13 +208,6 @@ class CryptoContextFactory {
 
 };
 
-
-
 }
-
-#include "../crypto/lwecrypt.h"
-#include "../crypto/lwecrypt.cpp"
-#include "../crypto/ciphertext.h"
-#include "../crypto/ciphertext.cpp"
 
 #endif /* SRC_DEMO_PRE_CRYPTOCONTEXT_H_ */

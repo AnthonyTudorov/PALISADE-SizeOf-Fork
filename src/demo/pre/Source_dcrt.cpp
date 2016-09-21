@@ -37,14 +37,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <fstream>
 
-#include "../../lib/math/nbtheory.h"
-#include "../../lib/math/distrgen.h"
+#include "../lib/palisade.h"
+#include "../lib/palisadespace.h"
 
-#include "../../lib/lattice/ilvector2n.h"
-#include "../../lib/lattice/ilvectorarray2n.h"
-#include "../../lib/crypto/cryptocontext.h"
-
-#include "../../lib/crypto/cryptocontext.h"
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/crypto/cryptocontext.cpp"
 #include "../../lib/utils/cryptocontexthelper.cpp"
@@ -57,8 +52,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/encoding/byteplaintextencoding.h"
 #include "../../lib/encoding/intplaintextencoding.h"
 
-#include "testJson.h"
-#include "testJson.cpp"
+//#include "testJson.h"
+//#include "testJson.cpp"
 
 using namespace std;
 using namespace lbcrypto;
@@ -416,18 +411,18 @@ void NTRU_DCRT() {
 	std::cout << "Execution completed." << std::endl;
 
 
-	cout << "Running serialization testing:" << endl;
-
-	TestJsonParms<ILVectorArray2n> tjp;
-	BytePlaintextEncoding newPlaintext("1) SERIALIZE CRYPTO-OBJS TO FILE AS NESTED JSON STRUCTURES\n2) DESERIALIZE JSON FILES INTO CRYPTO-OBJS USED FOR CRYPTO-APIS\n3) Profit!!!!!");
-
-	tjp.ctx = ctx;
-	tjp.pk = &pk;
-	tjp.sk = &sk;
-	tjp.evalKey = &evalKey;
-	tjp.newSK = &newSK;
-
-	testJson<ILVectorArray2n>("DCRT", newPlaintext, &tjp, true);
+//	cout << "Running serialization testing:" << endl;
+//
+//	TestJsonParms<ILVectorArray2n> tjp;
+//	BytePlaintextEncoding newPlaintext("1) SERIALIZE CRYPTO-OBJS TO FILE AS NESTED JSON STRUCTURES\n2) DESERIALIZE JSON FILES INTO CRYPTO-OBJS USED FOR CRYPTO-APIS\n3) Profit!!!!!");
+//
+//	tjp.ctx = ctx;
+//	tjp.pk = &pk;
+//	tjp.sk = &sk;
+//	tjp.evalKey = &evalKey;
+//	tjp.newSK = &newSK;
+//
+//	testJson<ILVectorArray2n>("DCRT", newPlaintext, &tjp, true);
 }
 
 void LevelCircuitEvaluation(){

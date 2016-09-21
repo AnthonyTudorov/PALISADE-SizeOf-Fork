@@ -39,7 +39,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <fstream>
 #include <iterator>
 
-#include "../../lib/crypto/cryptocontext.h"
+#include "../lib/palisade.h"
+#include "../lib/palisadespace.h"
+
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/crypto/cryptocontext.cpp"
 #include "../../lib/utils/cryptocontexthelper.cpp"
@@ -54,8 +56,8 @@ void NTRUPRE(CryptoContext<ILVector2n> *ctx, bool);
 
 #include "../../lib/utils/serializablehelper.h"
 
-#include "testJson.h"
-#include "testJson.cpp"
+//#include "testJson.h"
+//#include "testJson.cpp"
 
 using namespace std;
 using namespace lbcrypto;
@@ -338,16 +340,16 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	cout << "Original Plaintext: " << endl;
 	cout << newPlaintext << endl;
 
-	if( doJson ) {
-		TestJsonParms<ILVector2n>	tjp;
-		tjp.ctx = ctx;
-		tjp.pk = &pk;
-		tjp.sk = &sk;
-		tjp.evalKey = &evalKey;
-		tjp.newSK = &newSK;
-
-		testJson<ILVector2n>("LTV", newPlaintext, &tjp);
-	}
+//	if( doJson ) {
+//		TestJsonParms<ILVector2n>	tjp;
+//		tjp.ctx = ctx;
+//		tjp.pk = &pk;
+//		tjp.sk = &sk;
+//		tjp.evalKey = &evalKey;
+//		tjp.newSK = &newSK;
+//
+//		testJson<ILVector2n>("LTV", newPlaintext, &tjp);
+//	}
 
 	fout.close();
 }

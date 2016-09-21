@@ -26,8 +26,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef _SRC_LIB_CRYPTO_CRYPTOCONTEXT_C
 #define _SRC_LIB_CRYPTO_CRYPTOCONTEXT_C
 
-#include "../crypto/cryptocontext.h"
+#include "ciphertext.h"
 #include "../utils/serializablehelper.h"
+#include "cryptocontext.h"
 
 namespace lbcrypto {
 

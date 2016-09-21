@@ -35,21 +35,7 @@
 #define LBCRYPTO_CRYPTO_LWECRYPT_H
 
 //Includes Section
-#include "../utils/inttypes.h"
-#include "../math/distrgen.h"
-#include "../math/backend.h"
-#include "pubkeylp.h"
-#include "ciphertext.h"
-#include "rlwe.h"
-#include "lweahe.h"
-#include "lwepre.h"
-#include "lweshe.h"
-#include "lwefhe.h"
-#include "lweautomorph.h"
-#include "../lattice/elemparams.h"
-#include "../lattice/ilparams.h"
-#include "../lattice/ildcrtparams.h"
-#include "../lattice/ilelement.h"
+#include "../palisade.h"
 
 /**
  * @namespace lbcrypto
