@@ -36,12 +36,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 template <class Element>
-bool LPAlgorithmLTV<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
-		LPPrivateKey<Element> *privateKey) const
+LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(CryptoContextHandle<Element> cc) const
 {
-
-	if( publicKey == 0 || privateKey == 0 )
-		return false;
+	LPKeyPair<Element>	kp;
+	kp.publicKey = make_shared<LPPublicKey<Element>>( new LPPublicKey<Element>(cc) );
+	kp.secretKey = make_shared<LPPrivateKey<Element>>( new LPPrivateKey<Element>(cc) );
 
 	const LPCryptoParametersLTV<Element> *pubKeyCp =
 			dynamic_cast<const LPCryptoParametersLTV<Element>*>(&publicKey->GetCryptoParameters());
@@ -413,9 +412,8 @@ bool LPLeveledSHEAlgorithmLTV<Element>::CanRingReduce(usint ringDimension, const
 }
 
 template <class Element>
-EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
-		const Element &plaintext,
-		Ciphertext<Element> *ciphertext) const
+shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
+		const Element &plaintext) const
 {
 
 	const LPCryptoParametersRLWE<Element> *cryptoParams =
@@ -423,7 +421,7 @@ EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publi
 
 	if( cryptoParams == 0 ) return EncryptResult();
 
-	if( ciphertext == 0 ) return EncryptResult();
+	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>( publicKey.GetCryptoParameters() ) );
 
 	const ElemParams &elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
@@ -439,11 +437,9 @@ EncryptResult LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publi
 
 	c = h*s + p*e + plaintext;
 
-	ciphertext->SetCryptoParameters(cryptoParams);
-	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
 	ciphertext->SetElement(c);
 
-	return EncryptResult(0);
+	return ciphertext;
 }
 
 template <class Element>
