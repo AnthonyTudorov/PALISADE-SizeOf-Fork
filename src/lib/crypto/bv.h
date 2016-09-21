@@ -38,16 +38,7 @@
 #define LBCRYPTO_CRYPTO_BV_H
 
 //Includes Section
-#include "../utils/inttypes.h"
-#include "../math/distrgen.h"
-#include "../math/backend.h"
-#include "pubkeylp.h"
-#include "ciphertext.h"
-#include "../lattice/elemparams.h"
-#include "../lattice/ilparams.h"
-#include "../lattice/ilelement.h"
-
-#include "rlwe.h"
+#include "../palisade.h"
 
 /**
  * @namespace lbcrypto

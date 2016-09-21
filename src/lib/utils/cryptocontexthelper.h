@@ -41,6 +41,7 @@
 #include <iostream>
 
 #include "../utils/serializablehelper.h"
+#include "../crypto/cryptocontext.h"
 
 namespace lbcrypto {
 

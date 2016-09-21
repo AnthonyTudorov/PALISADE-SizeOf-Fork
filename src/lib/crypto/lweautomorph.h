@@ -35,10 +35,7 @@
 #define LBCRYPTO_CRYPTO_LWEAUTOMORPH_H
 
 //Includes Section
-#include "pubkeylp.h"
-#include "../utils/inttypes.h"
-#include "lwecrypt.h"
-#include "lweahe.h"
+#include "../palisade.h"
 
 /**
  * @namespace lbcrypto

@@ -35,10 +35,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef LBCRYPTO_CRYPTO_BV_C
 #define LBCRYPTO_CRYPTO_BV_C
 
-#include "../crypto/cryptocontext.h"
-#include <cstring>
-#include <iostream>
-#include <fstream>
+#include "bv.h"
 
 namespace lbcrypto {
 
