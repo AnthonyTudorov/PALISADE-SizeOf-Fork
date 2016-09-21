@@ -69,9 +69,8 @@ namespace lbcrypto {
 			 * @param *ciphertext ciphertext which results from encryption.
 			 * @return an instance of EncryptResult related to the ciphertext that is encrypted.
 			 */
-			EncryptResult Encrypt(const LPPublicKey<Element> &publicKey,
-				const Element &plaintext,
-				Ciphertext<Element> *ciphertext) const;
+			shared_ptr<Ciphertext<Element>> Encrypt(const LPPublicKey<Element> &publicKey,
+				const Element &plaintext) const;
 
 			/**
 			 * Method for decrypting plaintext using Ring-LWE NTRU
@@ -92,8 +91,7 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			virtual bool KeyGen(LPPublicKey<Element> *publicKey, 
-		        	LPPrivateKey<Element> *privateKey) const;
+			virtual LPKeyPair<Element> KeyGen(CryptoContextHandle<Element> cc) const;
 	 };
 
 	/**
@@ -214,8 +212,7 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			 bool KeyGen(LPPublicKey<Element> *publicKey, 
-		        	LPPrivateKey<Element> *privateKey) const;
+			LPKeyPair<Element> KeyGen(CryptoContextHandle<Element> cc) const;
 	};
 
 	/**

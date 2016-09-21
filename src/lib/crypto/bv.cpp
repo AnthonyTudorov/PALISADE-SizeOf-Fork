@@ -41,12 +41,11 @@ namespace lbcrypto {
 
 
 template <class Element>
-bool LPAlgorithmBV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
-	LPPrivateKey<Element> *privateKey) const
+LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContextHandle<Element> cc) const
 {
-
-	if (publicKey == 0 || privateKey == 0)
-		return false;
+	LPKeyPair	kp;
+	kp.publicKey = make_shared<LPPublicKey<Element>>( new LPPublicKey<Element>(cc) );
+	kp.secretKey = make_shared<LPPrivateKey<Element>>( new LPPrivateKey<Element>(cc) );
 
 	const LPCryptoParametersBV<Element> *cryptoParams =
 		dynamic_cast<const LPCryptoParametersBV<Element>*>(&privateKey->GetCryptoParameters());
@@ -84,9 +83,8 @@ bool LPAlgorithmBV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 }
 
 template <class Element>
-EncryptResult LPAlgorithmBV<Element>::Encrypt(const LPPublicKey<Element> &pubKey,
-	const Element &plaintext,
-	Ciphertext<Element> *ciphertext) const
+shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const LPPublicKey<Element> &pubKey,
+	const Element &plaintext) const
 {
 
 	const LPCryptoParametersBV<Element> *cryptoParams =
@@ -97,7 +95,7 @@ EncryptResult LPAlgorithmBV<Element>::Encrypt(const LPPublicKey<Element> &pubKey
 
 	if (cryptoParams == 0) return EncryptResult();
 
-	if (ciphertext == 0) return EncryptResult();
+	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey.GetCryptoParameters()) );
 
 	const ElemParams &elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
@@ -120,11 +118,9 @@ EncryptResult LPAlgorithmBV<Element>::Encrypt(const LPPublicKey<Element> &pubKey
 	//c2 = a v + p e_1
 	c2 = a*v + p*e1;
 
-	ciphertext->SetCryptoParameters(cryptoParams);
-	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
 	ciphertext->SetElements({ c1,c2 });
 
-	return EncryptResult(0);
+	return ciphertext;
 }
 
 template <class Element>

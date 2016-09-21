@@ -95,6 +95,10 @@ public:
 	const LPCryptoParameters<Element> &GetCryptoParameters() const { return *params; }
 	const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *algorithm; }
 
+	LPKeyPair<Element> KeyGen() {
+		return algorithm->KeyGen(this);
+	}
+
 	/**
 	 *
 	 * @return crypto parameters
