@@ -261,13 +261,14 @@ void LPLeveledSHEAlgorithmLTV<Element>::QuadraticEvalMultKeyGen(const LPPrivateK
 template<class Element> inline
 void LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Element> *cipherText) const {
 
-	Element cipherTextElement(cipherText->GetElement());
-
-	BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters().GetPlaintextModulus());
-
-	cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
-
-	cipherText->SetElement(cipherTextElement);
+	throw std::logic_error("fix me in ModReduce of LPLeveledSHEAlgorithmLTV");
+//	Element cipherTextElement(cipherText->GetElement());
+//
+//	BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters().GetPlaintextModulus());
+//
+//	cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
+//
+//	cipherText->SetElement(cipherTextElement);
 	
 }
 
