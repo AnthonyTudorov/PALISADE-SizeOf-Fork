@@ -119,7 +119,7 @@ namespace lbcrypto {
 		* Get a reference to the encryption algorithm.
 		* @return the encryption alorithm.
 		*/
-		const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return cryptoContext.GetEncryptionAlgorithm(); }
+		const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return cryptoContext->GetEncryptionAlgorithm(); }
 
 		/**
 		* Get current estimate of estimate norm
