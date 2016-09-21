@@ -19,6 +19,10 @@ using std::shared_ptr;
 namespace lbcrypto {
 template <class Element>
 class CryptoContext;
+
+template <class Element>
+using CryptoContextHandle = shared_ptr<CryptoContext<Element>>;
+
 }
 
 #include "math/backend.h"
