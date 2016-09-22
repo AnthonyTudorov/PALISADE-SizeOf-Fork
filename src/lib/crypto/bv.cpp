@@ -43,20 +43,16 @@ namespace lbcrypto {
 template <class Element>
 LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContextHandle<Element> cc) const
 {
-	LPKeyPair	kp;
-	kp.publicKey = make_shared<LPPublicKey<Element>>( new LPPublicKey<Element>(cc) );
-	kp.secretKey = make_shared<LPPrivateKey<Element>>( new LPPrivateKey<Element>(cc) );
+	LPKeyPair<Element>	kp;
+	kp.publicKey = std::make_shared<LPPublicKey<Element>>( new LPPublicKey<Element>(cc) );
+	kp.secretKey = std::make_shared<LPPrivateKey<Element>>( new LPPrivateKey<Element>(cc) );
 
-	const LPCryptoParametersBV<Element> *cryptoParams =
-		dynamic_cast<const LPCryptoParametersBV<Element>*>(&privateKey->GetCryptoParameters());
+	const LPCryptoParametersBV<Element> &cryptoParams = cc.GetCryptoParams();
 
-	if (cryptoParams == 0)
-		return false;
+	const ElemParams &elementParams = cryptoParams.GetElementParams();
+	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
-	const ElemParams &elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-
-	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 	const DiscreteUniformGenerator dug(elementParams.GetModulus());
 
 	//Generate the element "a" of the public key
@@ -66,7 +62,7 @@ LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContextHandle<Element> c
 	Element s(dgg, elementParams, Format::COEFFICIENT);
 	s.SwitchFormat();
 
-	privateKey->SetPrivateElement(s);
+	kp.secretKey->SetPrivateElement(s);
 
 	//public key is generated and set
 	//privateKey->MakePublicKey(a, publicKey);
@@ -75,11 +71,10 @@ LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContextHandle<Element> c
 
 	Element b = a*s + p*e;
 
-	publicKey->SetPublicElementAtIndex(0, std::move(a));
-	publicKey->SetPublicElementAtIndex(1, std::move(b));
+	kp.publicKey->SetPublicElementAtIndex(0, std::move(a));
+	kp.publicKey->SetPublicElementAtIndex(1, std::move(b));
 
-	return true;
-
+	return kp;
 }
 
 template <class Element>

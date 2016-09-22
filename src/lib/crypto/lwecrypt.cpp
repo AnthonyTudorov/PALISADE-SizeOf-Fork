@@ -39,28 +39,15 @@ template <class Element>
 LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(CryptoContextHandle<Element> cc) const
 {
 	LPKeyPair<Element>	kp;
-	kp.publicKey = make_shared<LPPublicKey<Element>>( new LPPublicKey<Element>(cc) );
-	kp.secretKey = make_shared<LPPrivateKey<Element>>( new LPPrivateKey<Element>(cc) );
+	kp.publicKey = std::make_shared<LPPublicKey<Element>>( new LPPublicKey<Element>(cc) );
+	kp.secretKey = std::make_shared<LPPrivateKey<Element>>( new LPPrivateKey<Element>(cc) );
 
-	const LPCryptoParametersLTV<Element> *pubKeyCp =
-			dynamic_cast<const LPCryptoParametersLTV<Element>*>(&publicKey->GetCryptoParameters());
+	const LPCryptoParametersLTV<Element> &cryptoParams = cc.GetCryptoParameters();
 
-	if( pubKeyCp == 0 )
-		throw std::logic_error("Public Key must use LTV parameters of type LPCryptoParametersLTV");
+	const ElemParams &elementParams = cryptoParams.GetElementParams();
+	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
-	const LPCryptoParametersLTV<Element> *cryptoParams =
-			dynamic_cast<const LPCryptoParametersLTV<Element>*>(&privateKey->GetCryptoParameters());
-
-	if( cryptoParams == 0 )
-		throw std::logic_error("Private Key must use LTV parameters of type LPCryptoParametersLTV");
-
-//	if( *pubKeyCp != *cryptoParams )
-//		throw std::logic_error("Public and Private Key must use same crypto parameters");
-
-	const ElemParams &elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-
-	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
 
@@ -80,36 +67,32 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(CryptoContextHandle<Element> 
 		f.SwitchFormat();
 	}
 
-	privateKey->SetPrivateElement(f);
+	kp.secretKey->SetPrivateElement(f);
 
 	Element g(dgg,elementParams,Format::COEFFICIENT);
 
 	g.SwitchFormat();
 
 	//public key is generated
-	publicKey->SetPublicElementAtIndex(0, std::move(cryptoParams->GetPlaintextModulus()*g*privateKey->GetPrivateElement().MultiplicativeInverse()));
+	kp.publicKey->SetPublicElementAtIndex(0, std::move(cryptoParams->GetPlaintextModulus()*g*kp.secretKey->GetPrivateElement().MultiplicativeInverse()));
 
-	return true;
+	return kp;
 }
 
 
 template <class Element>
-bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> *publicKey, 
-		LPPrivateKey<Element> *privateKey) const
+LPKeyPair<Element> LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(CryptoContextHandle<Element> cc) const
 		{
-	if( publicKey == 0 || privateKey == 0 )
-		return false;
+	LPKeyPair<Element>	kp;
+	kp.publicKey = std::make_shared<LPPublicKey<Element>>( new LPPublicKey<Element>(cc) );
+	kp.secretKey = std::make_shared<LPPrivateKey<Element>>( new LPPrivateKey<Element>(cc) );
 
-	const LPCryptoParametersStehleSteinfeld<Element> *cryptoParams =
-			dynamic_cast<const LPCryptoParametersStehleSteinfeld<Element>*>(&privateKey->GetCryptoParameters());
+	const LPCryptoParametersStehleSteinfeld<Element> &cryptoParams = cc.GetCryptoParameters();
 
-	if( cryptoParams == 0 )
-		return false;
+	const ElemParams &elementParams = cryptoParams.GetElementParams();
+	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
-	const ElemParams &elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-
-	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGeneratorStSt();
+	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGeneratorStSt();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
 
@@ -130,16 +113,16 @@ bool LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(LPPublicKey<Element> 
 		f.SwitchFormat();
 	}
 
-	privateKey->SetPrivateElement(f);
+	kp.secretKey->SetPrivateElement(f);
 
 	Element g(dgg,elementParams,Format::COEFFICIENT);
 
 	g.SwitchFormat();
 
 	//public key is generated
-	publicKey->SetPublicElementAtIndex(0, cryptoParams->GetPlaintextModulus()*g*privateKey->GetPrivateElement().MultiplicativeInverse());
+	kp.publicKey->SetPublicElementAtIndex(0, cryptoParams->GetPlaintextModulus()*g*kp.privateKey->GetPrivateElement().MultiplicativeInverse());
 
-	return true;
+	return kp;
 }
 
 /**

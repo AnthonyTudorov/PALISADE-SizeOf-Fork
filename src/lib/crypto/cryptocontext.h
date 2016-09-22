@@ -93,7 +93,11 @@ public:
 	}
 
 	const LPCryptoParameters<Element> &GetCryptoParameters() const { return *params; }
+	DiscreteGaussianGenerator& GetGenerator() { return dgg; }
+	ILParams& GetILParams() { return ilParams; }
 	const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *algorithm; }
+	void Enable(PKESchemeFeature feature) { algorithm->Enable(feature); }
+
 
 	LPKeyPair<Element> KeyGen() {
 		return algorithm->KeyGen(this);
