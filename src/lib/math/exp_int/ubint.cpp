@@ -1631,8 +1631,7 @@ return result;
     }
 
 	
-    uint ncycle = 0;
-    //NORTH ALGORITHM
+    usint ncycle = 0;
     while(true){
       //DEBUG("**north cycle");
       DEBUG("first "<<first.ToString());
@@ -1677,7 +1676,7 @@ return result;
     second = mods[1];
     //SOUTH ALGORITHM
 
-    usint limtest = quotient.size()-1;
+    size_t limtest = quotient.size()-1;
     for(sint i=limtest; i>=0;i--){
       mods.push_back(quotient.at(i)*second + first);
       first = second;
