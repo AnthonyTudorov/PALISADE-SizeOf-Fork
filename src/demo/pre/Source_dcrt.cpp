@@ -357,7 +357,7 @@ void NTRU_DCRT() {
 //
 //	if(true) return;
 
-	LPKeyPair<ILVectorArray2n> newKp = cc->KeyGen();
+	LPKeyPair<ILVectorArray2n> newKp = cc.GetEncryptionAlgorithm().KeyGen(cc);
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption key generation operation.
