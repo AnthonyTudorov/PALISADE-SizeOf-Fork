@@ -96,10 +96,6 @@ public:
 	DiscreteGaussianGenerator& GetGenerator() { return dgg; }
 	ILParams& GetILParams() { return ilParams; }
 
-	LPKeyPair<Element> KeyGen() {
-		return algorithm->KeyGen(this);
-	}
-
 	/**
 	 *
 	 * @return crypto parameters
@@ -226,28 +222,6 @@ public:
 
 };
 
-template <class Element>
-class CryptoContextFactory {
-public:
-	static CryptoContextHandle<Element> genCryptoContextLTV(
-			const usint plaintextmodulus,
-			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-			usint relinWindow, float stDev);
-
-	static CryptoContextHandle<Element> genCryptoContextBV(
-			const usint plaintextmodulus,
-			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-			usint relinWindow, float stDev);
-
-	// FIXME: this is temporary until we better incorporate DCRT
-	static CryptoContextHandle<Element> getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams);
-
-	static CryptoContextHandle<Element> genCryptoContextStehleSteinfeld(
-			const usint plaintextmodulus,
-			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-			usint relinWindow, float stDev, float stDevStSt);
-
-};
 
 }
 
