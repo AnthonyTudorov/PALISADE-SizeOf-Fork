@@ -1781,7 +1781,7 @@ return result;
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModExp(const ubint& b, const ubint& modulus) const{
     bool dbg_flag = false;
-    DEBUG("ModExp");
+    DEBUG("ModExp() ==================");
 
     DEBUG("a: "<<this->ToString());
     DEBUG("b: "<<b.ToString());
@@ -1820,6 +1820,10 @@ return result;
       mid = (mid.Mod(modulus));
       DEBUG("mid: "<<mid.ToString());
     }
+    if (dbg_flag) {
+      product.PrintLimbsInHex();
+    }
+
     return product;
   }
 
@@ -2407,7 +2411,8 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     std::cout << "sizeof uint32_t "<< sizeof (uint32_t) << std::endl;
     std::cout << "sizeof uint64_t "<< sizeof (uint64_t) << std::endl;
 #ifdef UBINT_64
-    std::cout << "sizeof UINT128_C "<< sizeof (UINT128_C(1)) << std::endl;
+    //std::cout << "sizeof UINT128_C "<< sizeof (UINT128_C(1)) << std::endl;
+    //dbc commented out  unsupported on some machines
     std::cout << "sizeof uint128_t "<< sizeof (uint128_t) << std::endl;
 #endif
 

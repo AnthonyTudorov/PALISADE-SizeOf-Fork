@@ -562,6 +562,8 @@ namespace lbcrypto {
 	*/
 	ILVector2n ILVectorArray2n::InterpolateIlArrayVector2n() const
 	{
+	  bool dbg_flag = false;
+	  DEBUG("in InterpolateIlArrayVector2n");
 		if(m_vectors.size() == 1) return m_vectors.at(0);
 
 		/*initializing variables for effciency*/
@@ -607,17 +609,21 @@ namespace lbcrypto {
 			coefficients.SetValAtIndex(i, interpolateValue); // This Calculates V[j]
 			interpolateValue = BigBinaryInteger::ZERO;
 		}
+		DEBUG("passed loops");
+
 		/*Intializing and setting the params of the resulting ILVector2n*/
 		usint m = m_cyclotomicOrder;
 		BigBinaryInteger modulus;
 		modulus = m_modulus;
 		BigBinaryInteger rootOfUnity;
-
+		DEBUG("X");
+		DEBUG("m_cyclotomicOrder "<<m_cyclotomicOrder);
+		DEBUG("modulus "<< modulus.ToString());
 		ILParams ilParams(m_cyclotomicOrder, modulus);
-
+		DEBUG("Y");
 		ILVector2n polynomialReconstructed(ilParams);
 		polynomialReconstructed.SetValues(coefficients,m_format);
-
+		DEBUG("Z");
 		return polynomialReconstructed;
 	}
 

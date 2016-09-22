@@ -421,7 +421,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 }
 
 TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
-
+        bool dbg_flag = false;
 	usint init_m = 16;
 
 
@@ -436,6 +436,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	BigBinaryInteger q("1");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
+	DEBUG("1");
 
 	for (int i = 0; i < init_size; i++) {
 		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, init_m, BigBinaryInteger("4"), BigBinaryInteger("4"));
@@ -444,11 +445,11 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 		modulus = modulus* init_moduli[i];
 
 	}
-
+	DEBUG("2");
 	DiscreteGaussianGenerator dgg(init_stdDev);
-
+	DEBUG("3");
 	ILDCRTParams params(init_m, init_moduli, init_rootsOfUnity);
-
+	DEBUG("4");
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::FOUR);
 	cryptoParams.SetDistributionParameter(init_stdDev);
@@ -458,7 +459,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	cryptoParams.SetAssuranceMeasure(6);
 	cryptoParams.SetDepth(init_size - 1);
 	cryptoParams.SetSecurityLevel(1.006);
-
+	DEBUG("5");
 	usint n = 16;
 
 	LPCryptoParametersLTV<ILVectorArray2n> finalParams;
@@ -470,6 +471,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	usint m = dcrtParams.GetCyclotomicOrder();
 	usint size = finalParams.GetDepth() + 1;
 	const BigBinaryInteger &plainTextModulus = finalParams.GetPlaintextModulus();
+	DEBUG("6");
 	//scheme initialization: LTV Scheme
 	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
 	algorithm.Enable(SHE);
@@ -480,7 +482,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	LPPublicKey<ILVectorArray2n> pk(finalParams);
 	LPPrivateKey<ILVectorArray2n> sk(finalParams);
 	algorithm.KeyGen(&pk, &sk);
-
+	DEBUG("7");
 	//Generating new cryptoparameters for when modulus reduction is done.
 	LPCryptoParametersLTV<ILVectorArray2n> finalParamsOneTower(finalParams);
 	std::vector<usint> vectorOfInts1(2048);
@@ -499,14 +501,17 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	IntPlaintextEncoding intArray2(vectorOfInts2);
 	std::fill(vectorOfInts2.begin() + 4, vectorOfInts2.end(), 0);
 
-	algorithm.KeyGen(&pk, &sk);
 
+	DEBUG("8");
+
+	algorithm.KeyGen(&pk, &sk);
+	DEBUG("9");
 	vector<Ciphertext<ILVectorArray2n>> ciphertext1;
 	vector<Ciphertext<ILVectorArray2n>> ciphertext2;
 
 	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray1, &ciphertext1, false);
 	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray2, &ciphertext2, false);
-
+	DEBUG("10");
 	Ciphertext<ILVectorArray2n> cResult(ciphertext1.at(0));
 
 	algorithm.EvalAdd(ciphertext1.at(0), ciphertext2.at(0), &cResult);
@@ -515,14 +520,14 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	vector<Ciphertext<ILVectorArray2n>> ciphertextResults(1);
 	ciphertextResults.at(0) = cResult;
 	IntPlaintextEncoding results;
-
+	DEBUG("11");
 	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk, ciphertextResults, &results, false);
-
+	DEBUG("12");
 	EXPECT_EQ(results.at(0), 5);
 	EXPECT_EQ(results.at(1), 7);
 	EXPECT_EQ(results.at(2), 3);
 	EXPECT_EQ(results.at(3), 6);
-
+	DEBUG("13");
 }
 
 TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {

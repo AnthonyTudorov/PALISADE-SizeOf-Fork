@@ -67,7 +67,7 @@ public:
 * The cyclotomic order is set 2048
 *tower size is set to 3*/
 TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
-  bool dbg_flag = true;
+  bool dbg_flag = false;
 
 	usint m = 2048;
 

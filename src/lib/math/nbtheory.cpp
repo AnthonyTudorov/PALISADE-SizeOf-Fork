@@ -101,15 +101,26 @@ static bool WitnessFunction(const BigBinaryInteger& a, const BigBinaryInteger& d
 */
 static BigBinaryInteger FindGenerator(const BigBinaryInteger& q)
  {
+	bool dbg_flag = false;
  	std::set<BigBinaryInteger> primeFactors;
+	DEBUG("calling PrimeFactorize");
  	PrimeFactorize(q-BigBinaryInteger::ONE, primeFactors);
+	DEBUG("done");
  	bool generatorFound = false;
  	BigBinaryInteger gen;
  	while(!generatorFound) {
  		usint count = 0;
+		DEBUG("count "<<count);
  		gen = RNG(q-BigBinaryInteger::TWO).ModAdd(BigBinaryInteger::ONE, q);
  		for(std::set<BigBinaryInteger>::iterator it = primeFactors.begin(); it != primeFactors.end(); ++it) {
+		  DEBUG("in set");
+		  DEBUG("divide "<< (q-BigBinaryInteger::ONE).ToString() 
+			<<" by "<< (*it).ToString()); 
+
  			BigBinaryInteger exponent = (q-BigBinaryInteger::ONE).DividedBy(*it);
+			DEBUG("calling modexp "<<gen.ToString()
+			      <<" exponent "<<exponent.ToString()
+			      <<" q "<<q.ToString());
  			if(gen.ModExp(exponent, q) == BigBinaryInteger::ONE) break;
  			else count++;
  		}
@@ -127,15 +138,23 @@ static BigBinaryInteger FindGenerator(const BigBinaryInteger& q)
 */
 BigBinaryInteger RootOfUnity(usint m, const BigBinaryInteger& modulo) 
 {
+	bool dbg_flag = false;
+	DEBUG("in Root of unity m :"<<m<<" modulo "<<modulo.ToString());
 	BigBinaryInteger M(m);
 	if((modulo-BigBinaryInteger::ONE).Mod(M) != BigBinaryInteger::ZERO) {
 		std::string errMsg = "Please provide a primeModulus(q) and a cyclotomic number(m) satisfying the condition: (q-1)/m is an integer. The values of primeModulus = " + modulo.ToString() + " and m = " + std::to_string(m) + " do not satisfy this condition";
 		throw std::runtime_error(errMsg);
 	}
 	BigBinaryInteger result;
+	DEBUG("calling FindGenerator");	
 	BigBinaryInteger gen = FindGenerator(modulo);
+	DEBUG("gen = "<<gen.ToString());
+
+	DEBUG("calling gen.ModExp( " <<((modulo-BigBinaryInteger::ONE).DividedBy(M)).ToString() << ", modulus "<< modulo.ToString());
 	result = gen.ModExp((modulo-BigBinaryInteger::ONE).DividedBy(M), modulo);
+	DEBUG("result = "<<result.ToString());
 	if(result == BigBinaryInteger::ONE) {
+	  DEBUG("LOOP?");
 		return RootOfUnity(m, modulo);
 	}
 	return result;
