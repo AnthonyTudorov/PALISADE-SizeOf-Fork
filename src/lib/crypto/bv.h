@@ -188,7 +188,7 @@ namespace lbcrypto {
 		* @param &privateKey private key used for decryption.
 		* @return function ran correctly.
 		*/
-		virtual LPKeyPair<Element> KeyGen(CryptoContextHandle<Element> cc) const;
+		virtual LPKeyPair<Element> KeyGen(CryptoContext<Element> cc) const;
 
 	};
 

@@ -91,7 +91,7 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			virtual LPKeyPair<Element> KeyGen(CryptoContextHandle<Element> cc) const;
+			virtual LPKeyPair<Element> KeyGen(CryptoContext<Element> cc) const;
 	 };
 
 	/**
@@ -212,7 +212,7 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			LPKeyPair<Element> KeyGen(CryptoContextHandle<Element> cc) const;
+			LPKeyPair<Element> KeyGen(CryptoContext<Element> cc) const;
 	};
 
 	/**

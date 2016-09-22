@@ -64,9 +64,6 @@ namespace lbcrypto {
 
 	class Serializable
 	{
-		template <class Element>
-		class CryptoContext;
-
 		/**
 		* Version number of the serialization; defaults to 1
 		* @return version of the serialization
@@ -100,13 +97,13 @@ namespace lbcrypto {
 		*/
 		virtual bool Deserialize(const Serialized& serObj) = 0;
 
-		/**
-		* Populate the object from the deserialization of the Serialized
-		* @param serObj contains the serialized object
-		* @param ctx is the CryptoContext that the object must match up with
-		* @return true on success
-		*/
-		template <class Element> bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx);
+//		/**
+//		* Populate the object from the deserialization of the Serialized
+//		* @param serObj contains the serialized object
+//		* @param ctx is the CryptoContext that the object must match up with
+//		* @return true on success
+//		*/
+//		template <class Element> bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx);
 	};
 
 }
