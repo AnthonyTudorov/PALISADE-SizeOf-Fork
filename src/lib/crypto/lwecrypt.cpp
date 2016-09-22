@@ -48,7 +48,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 	const ElemParams &elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
 
@@ -88,10 +88,10 @@ LPKeyPair<Element> LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(const C
 
 	const LPCryptoParametersStehleSteinfeld<Element> *cryptoParams = dynamic_cast<const LPCryptoParametersStehleSteinfeld<Element> *>( &cc.GetCryptoParameters() );
 
-	const ElemParams &elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+	const ElemParams &elementParams = cryptoParams.GetElementParams();
+	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
-	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGeneratorStSt();
+	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGeneratorStSt();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
 

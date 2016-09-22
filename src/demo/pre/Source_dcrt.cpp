@@ -1147,6 +1147,7 @@ void FinalLeveledComputation(){
 //	cc.GetEncryptionAlgorithm().ComposedEvalMult(cipherText8,*cipherText5,keyStruc.GetQuadraticKeySwitchHintForLevel(1),&cipherText9);
 
 
+	cc->GetEncryptionAlgorithm().Decrypt(*levelPairs[1].secretKey, cipherText9, &plaintextNew);
 
 //	//BytePlaintextEncoding plaintextNew;
 //	//CryptoUtility<ILVector2n>::Decrypt(algorithm, levelSk[1], cipherText9, &plaintextNew);
