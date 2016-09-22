@@ -69,16 +69,16 @@ public:
 	 * @param parmsetname name of parameter set to use
 	 * @return newly constructed CryptoContext, or null on failure
 	 */
-	static CryptoContextHandle<Element> getNewContext(const std::string& parmfile, const std::string& parmsetname);
+	static CryptoContext<Element> getNewContext(const std::string& parmfile, const std::string& parmsetname);
 
 	/**
 	 *
 	 * @param parmSetJson JSON string with a parameter set
 	 * @return newly constructed CryptoContext, or null on failure
 	 */
-	static CryptoContextHandle<Element> getNewContext(const std::string& parmSetJson);
+	static CryptoContext<Element> getNewContext(const std::string& parmSetJson);
 
-	static CryptoContextHandle<Element> getNewContextFromSerialization(const Serialized& ser);
+	static CryptoContext<Element> getNewContextFromSerialization(const Serialized& ser);
 };
 
 }

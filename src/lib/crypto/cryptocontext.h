@@ -52,9 +52,10 @@ template <class Element>
 class CryptoContextFactory;
 
 template <class Element>
-class CryptoContext {
+class CryptoContextImpl {
 
 	friend class CryptoContextFactory<Element>;
+	friend class CryptoContext<Element>;
 
 private:
 	/* these variables are used to initialize the CryptoContext */
@@ -73,35 +74,27 @@ private:
 	DiscreteGaussianGenerator	dggStSt;	// unused unless we use StSt scheme
 
 	LPCryptoParameters<Element>				*params;	/*!< crypto parameters used for this context */
-	LPPublicKeyEncryptionScheme<Element>	*algorithm;	/*!< algorithm used; points to keygen and encrypt/decrypt methods */
+	LPPublicKeyEncryptionScheme<Element>	*scheme;	/*!< algorithm used; points to keygen and encrypt/decrypt methods */
 
 	// these three members are ONLY used by the Java wrapper to cache deserialized keys
 	LPPublicKey<Element>		*publicKey;
-	LPPrivateKey<Element>	*privateKey;
+	LPPrivateKey<Element>		*privateKey;
 	LPEvalKeyRelin<Element>		*evalKey;
 
-	CryptoContext() : publicKey(0), privateKey(0), evalKey(0),
-			params(0), algorithm(0), relinWindow(0), ringdim(0), stDev(0), stDevStSt(0) {}
+	CryptoContextImpl() : publicKey(0), privateKey(0), evalKey(0),
+			params(0), scheme(0), relinWindow(0), ringdim(0), stDev(0), stDevStSt(0) {}
 
 public:
-	~CryptoContext() {
+	~CryptoContextImpl() {
 		if( params ) delete params;
-		if( algorithm ) delete algorithm;
+		if( scheme ) delete scheme;
 		if( publicKey ) delete publicKey;
 		if( privateKey ) delete privateKey;
 		if( evalKey ) delete evalKey;
 	}
 
-	const LPCryptoParameters<Element> &GetCryptoParameters() const { return *params; }
 	DiscreteGaussianGenerator& GetGenerator() { return dgg; }
 	ILParams& GetILParams() { return ilParams; }
-	const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *algorithm; }
-	void Enable(PKESchemeFeature feature) { algorithm->Enable(feature); }
-
-
-	LPKeyPair<Element> KeyGen() {
-		return algorithm->KeyGen(this);
-	}
 
 	/**
 	 *
@@ -113,7 +106,7 @@ public:
 	 *
 	 * @return crypto algorithm
 	 */
-	LPPublicKeyEncryptionScheme<Element>* getAlgorithm() const { return algorithm; }
+	LPPublicKeyEncryptionScheme<Element>* getScheme() const { return scheme; }
 
 	/**
 	 *
@@ -166,65 +159,54 @@ public:
 	 */
 	LPEvalKeyRelin<Element>	*getEvalKey() const { return evalKey; }
 
-	/**
-	 * Factory method to make an LTV CryptoContext
-	 *
-	 * @param plaintextmodulus
-	 * @param ringdim
-	 * @param modulus
-	 * @param rootOfUnity
-	 * @param relinWindow
-	 * @param stDev
-	 * @return
-	 */
-	static CryptoContext<Element> *genCryptoContextLTV(
-			const usint plaintextmodulus,
-			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-			usint relinWindow, float stDev);
+};
 
-	// FIXME: this is temporary until we better incorporate DCRT
-	static CryptoContext<Element> *getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams);
+template <class Element>
+class CryptoContext {
+public:
+	shared_ptr<CryptoContextImpl<Element>>	ctx;
 
-	/**
-	 * Factory method to make an StSt CryptoContext
-	 *
-	 * @param plaintextmodulus
-	 * @param ringdim
-	 * @param modulus
-	 * @param rootOfUnity
-	 * @param relinWindow
-	 * @param stDev
-	 * @param stDevStSt
-	 * @return
-	 */
-	static CryptoContext<Element> *genCryptoContextStehleSteinfeld(
-			const usint plaintextmodulus,
-			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-			usint relinWindow, float stDev, float stDevStSt);
+	CryptoContext(CryptoContextImpl<Element> *e) {
+		ctx = std::make_shared<CryptoContextImpl<Element>>(e);
+	}
+
+	LPKeyPair<Element> KeyGen() const {
+		return GetEncryptionAlgorithm().KeyGen(*this);
+	}
+
+	void Enable(PKESchemeFeature feature) { ctx->getScheme()->Enable(feature); }
+	const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *ctx->getScheme(); }
+	const LPCryptoParameters<Element> &GetCryptoParameters() const { return *ctx->getParams(); }
+	DiscreteGaussianGenerator& GetGenerator() { return ctx->GetGenerator(); }
+	ILParams& GetILParams() { return ctx->GetILParams(); }
+
+	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.ctx == b.ctx; }
+	friend bool operator!=(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.ctx != b.ctx; }
 };
 
 template <class Element>
 class CryptoContextFactory {
 public:
-	static CryptoContextHandle<Element> genCryptoContextLTV(
+	static CryptoContext<Element> genCryptoContextLTV(
 			const usint plaintextmodulus,
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev);
 
-	static CryptoContextHandle<Element> genCryptoContextBV(
+	static CryptoContext<Element> genCryptoContextBV(
 			const usint plaintextmodulus,
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev);
 
 	// FIXME: this is temporary until we better incorporate DCRT
-	static CryptoContextHandle<Element> getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams);
+	static CryptoContext<Element> getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams);
 
-	static CryptoContextHandle<Element> genCryptoContextStehleSteinfeld(
+	static CryptoContext<Element> genCryptoContextStehleSteinfeld(
 			const usint plaintextmodulus,
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev, float stDevStSt);
 
 };
+
 
 }
 

@@ -36,7 +36,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 template <class Element>
-LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(CryptoContextHandle<Element> cc) const
+LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(CryptoContext<Element> cc) const
 {
 	LPKeyPair<Element>	kp;
 	kp.publicKey = std::make_shared<LPPublicKey<Element>>( new LPPublicKey<Element>(cc) );
@@ -81,7 +81,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(CryptoContextHandle<Element> 
 
 
 template <class Element>
-LPKeyPair<Element> LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(CryptoContextHandle<Element> cc) const
+LPKeyPair<Element> LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(CryptoContext<Element> cc) const
 		{
 	LPKeyPair<Element>	kp;
 	kp.publicKey = std::make_shared<LPPublicKey<Element>>( new LPPublicKey<Element>(cc) );

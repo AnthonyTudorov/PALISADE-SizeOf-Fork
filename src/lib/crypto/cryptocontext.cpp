@@ -58,7 +58,7 @@ static T* deserializeAndCreate(const std::string& serializedKey, const CryptoCon
 }
 
 template <typename T>
-bool CryptoContext<T>::setPublicKey( const std::string& serializedKey )
+bool CryptoContextImpl<T>::setPublicKey( const std::string& serializedKey )
 {
 	LPPublicKey<T> *newKey = deserializeAndCreate<LPPublicKey<T>,T>(serializedKey, this);
 	if( newKey == 0 ) return false;
@@ -69,7 +69,7 @@ bool CryptoContext<T>::setPublicKey( const std::string& serializedKey )
 }
 
 template <typename T>
-bool CryptoContext<T>::setPrivateKey( const std::string& serializedKey )
+bool CryptoContextImpl<T>::setPrivateKey( const std::string& serializedKey )
 {
 	LPPrivateKey<T> *newKey = deserializeAndCreate<LPPrivateKey<T>,T>(serializedKey, this);
 	if( newKey == 0 ) return false;
@@ -80,7 +80,7 @@ bool CryptoContext<T>::setPrivateKey( const std::string& serializedKey )
 }
 
 template <typename T>
-bool CryptoContext<T>::setEvalKey( const std::string& serializedKey )
+bool CryptoContextImpl<T>::setEvalKey( const std::string& serializedKey )
 {
 	LPEvalKeyRelin<T> *newKey = deserializeAndCreate<LPEvalKeyRelin<T>,T>(serializedKey, this);
 	if( newKey == 0 ) return false;
@@ -91,131 +91,41 @@ bool CryptoContext<T>::setEvalKey( const std::string& serializedKey )
 }
 
 template <typename T>
-CryptoContext<T> *CryptoContext<T>::genCryptoContextLTV(
-		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-		usint relinWindow, float stDev) {
-
-	CryptoContext	*item = new CryptoContext();
-
-	item->ringdim = ringdim;
-	item->ptmod = BigBinaryInteger(plaintextmodulus);
-	item->mod = BigBinaryInteger(modulus);
-	item->ru = BigBinaryInteger(rootOfUnity);
-	item->relinWindow = relinWindow;
-	item->stDev = stDev;
-
-	item->ilParams = ILParams(item->ringdim, item->mod, item->ru);
-
-	LPCryptoParametersLTV<T>* params = new LPCryptoParametersLTV<T>();
-	item->params = params;
-
-	params->SetPlaintextModulus(item->ptmod);
-	params->SetDistributionParameter(item->stDev);
-	params->SetRelinWindow(item->relinWindow);
-	params->SetElementParams(item->ilParams);
-
-	item->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-	params->SetDiscreteGaussianGenerator(item->dgg);
-
-	item->algorithm = new LPPublicKeyEncryptionSchemeLTV<T>();
-	item->algorithm->Enable(ENCRYPTION);
-	item->algorithm->Enable(PRE);
-
-	return item;
-}
-
-template <typename T>
-CryptoContext<T> *CryptoContext<T>::getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* params) {
-	CryptoContext	*item = new CryptoContext();
-
-	item->params = params;
-	item->algorithm = new LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n>();
-	item->algorithm->Enable(ENCRYPTION);
-	item->algorithm->Enable(PRE);
-
-	return item;
-}
-
-
-template <typename T>
-CryptoContext<T> *CryptoContext<T>::genCryptoContextStehleSteinfeld(
-		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-		usint relinWindow, float stDev, float stDevStSt) {
-
-	CryptoContext	*item = new CryptoContext();
-
-	item->ringdim = ringdim;
-	item->ptmod = BigBinaryInteger(plaintextmodulus);
-	item->mod = BigBinaryInteger(modulus);
-	item->ru = BigBinaryInteger(rootOfUnity);
-	item->relinWindow = relinWindow;
-	item->stDev = stDev;
-	item->stDevStSt = stDevStSt;
-
-	item->ilParams = ILParams(item->ringdim, item->mod, item->ru);
-
-	LPCryptoParametersStehleSteinfeld<T>* params = new LPCryptoParametersStehleSteinfeld<T>();
-	item->params = params;
-
-	params->SetPlaintextModulus(item->ptmod);
-	params->SetDistributionParameter(item->stDev);
-	params->SetDistributionParameterStSt(item->stDevStSt);
-	params->SetRelinWindow(item->relinWindow);
-	params->SetElementParams(item->ilParams);
-
-	item->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-	params->SetDiscreteGaussianGenerator(item->dgg);
-
-	item->dggStSt = DiscreteGaussianGenerator(stDevStSt);				// Create the noise generator
-	params->SetDiscreteGaussianGeneratorStSt(item->dggStSt);
-
-	item->algorithm = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>();
-	item->algorithm->Enable(ENCRYPTION);
-	item->algorithm->Enable(PRE);
-
-	return item;
-}
-
-template <typename T>
-CryptoContextHandle<T>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextLTV(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev)
-		{
-	CryptoContextHandle<T>	item( new CryptoContext<T>() );
+{
+	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
-	item->ringdim = ringdim;
-	item->ptmod = BigBinaryInteger(plaintextmodulus);
-	item->mod = BigBinaryInteger(modulus);
-	item->ru = BigBinaryInteger(rootOfUnity);
-	item->relinWindow = relinWindow;
-	item->stDev = stDev;
+	item.ctx->ringdim = ringdim;
+	item.ctx->ptmod = BigBinaryInteger(plaintextmodulus);
+	item.ctx->mod = BigBinaryInteger(modulus);
+	item.ctx->ru = BigBinaryInteger(rootOfUnity);
+	item.ctx->relinWindow = relinWindow;
+	item.ctx->stDev = stDev;
 
-	item->ilParams = ILParams(item->ringdim, item->mod, item->ru);
+	item.ctx->ilParams = ILParams(item.ringdim, item.mod, item.ru);
 
 	LPCryptoParametersLTV<T>* params = new LPCryptoParametersLTV<T>();
-	item->params = params;
+	item.ctx->params = params;
 
-	params->SetPlaintextModulus(item->ptmod);
-	params->SetDistributionParameter(item->stDev);
-	params->SetRelinWindow(item->relinWindow);
-	params->SetElementParams(item->ilParams);
+	params->SetPlaintextModulus(item.ptmod);
+	params->SetDistributionParameter(item.stDev);
+	params->SetRelinWindow(item.relinWindow);
+	params->SetElementParams(item.ilParams);
 
-	item->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-	params->SetDiscreteGaussianGenerator(item->dgg);
+	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
+	params->SetDiscreteGaussianGenerator(item.dgg);
 
-	item->algorithm = new LPPublicKeyEncryptionSchemeLTV<T>();
-	item->algorithm->Enable(ENCRYPTION);
-	item->algorithm->Enable(PRE);
+	item.ctx->algorithm = new LPPublicKeyEncryptionSchemeLTV<T>();
 
 	return item;
-		}
+}
 
 template <typename T>
-CryptoContextHandle<T>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBV(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
@@ -226,59 +136,55 @@ CryptoContextFactory<T>::genCryptoContextBV(
 
 // FIXME: this is temporary until we better incorporate DCRT
 template <typename T>
-CryptoContextHandle<T>
+CryptoContext<T>
 CryptoContextFactory<T>::getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams)
 {
-	CryptoContextHandle<T>	item( new CryptoContext<T>() );
+	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
-	item->params = cryptoParams;
-	item->algorithm = new LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n>();
-	item->algorithm->Enable(ENCRYPTION);
-	item->algorithm->Enable(PRE);
+	item.ctx->params = cryptoParams;
+	item.ctx->scheme = new LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n>();
 
 	return item;
 }
 
 template <typename T>
-CryptoContextHandle<T>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev, float stDevStSt)
-		{
-	CryptoContextHandle<T>	item( new CryptoContext<T>() );
+{
+	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
-	item->ringdim = ringdim;
-	item->ptmod = BigBinaryInteger(plaintextmodulus);
-	item->mod = BigBinaryInteger(modulus);
-	item->ru = BigBinaryInteger(rootOfUnity);
-	item->relinWindow = relinWindow;
-	item->stDev = stDev;
-	item->stDevStSt = stDevStSt;
+	item.ctx->ringdim = ringdim;
+	item.ctx->ptmod = BigBinaryInteger(plaintextmodulus);
+	item.ctx->mod = BigBinaryInteger(modulus);
+	item.ctx->ru = BigBinaryInteger(rootOfUnity);
+	item.ctx->relinWindow = relinWindow;
+	item.ctx->stDev = stDev;
+	item.ctx->stDevStSt = stDevStSt;
 
-	item->ilParams = ILParams(item->ringdim, item->mod, item->ru);
+	item.ctx->ilParams = ILParams(item.ringdim, item.mod, item.ru);
 
 	LPCryptoParametersStehleSteinfeld<T>* params = new LPCryptoParametersStehleSteinfeld<T>();
-	item->params = params;
+	item.ctx->params = params;
 
-	params->SetPlaintextModulus(item->ptmod);
-	params->SetDistributionParameter(item->stDev);
-	params->SetDistributionParameterStSt(item->stDevStSt);
-	params->SetRelinWindow(item->relinWindow);
-	params->SetElementParams(item->ilParams);
+	params->SetPlaintextModulus(item.ptmod);
+	params->SetDistributionParameter(item.stDev);
+	params->SetDistributionParameterStSt(item.stDevStSt);
+	params->SetRelinWindow(item.relinWindow);
+	params->SetElementParams(item.ilParams);
 
-	item->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-	params->SetDiscreteGaussianGenerator(item->dgg);
+	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
+	params->SetDiscreteGaussianGenerator(item.dgg);
 
-	item->dggStSt = DiscreteGaussianGenerator(stDevStSt);				// Create the noise generator
-	params->SetDiscreteGaussianGeneratorStSt(item->dggStSt);
+	item.ctx->dggStSt = DiscreteGaussianGenerator(stDevStSt);				// Create the noise generator
+	params->SetDiscreteGaussianGeneratorStSt(item.dggStSt);
 
-	item->algorithm = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>();
-	item->algorithm->Enable(ENCRYPTION);
-	item->algorithm->Enable(PRE);
+	item.ctx->algorithm = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>();
 
 	return item;
-		}
+}
 
 
 }
