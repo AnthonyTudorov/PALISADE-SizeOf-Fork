@@ -80,10 +80,6 @@ public:
 
 	DiscreteGaussianGenerator& GetGenerator() { return dgg; }
 
-	LPKeyPair<Element> KeyGen() {
-		return algorithm->KeyGen(this);
-	}
-
 	/**
 	 *
 	 * @return crypto parameters
@@ -121,19 +117,8 @@ class CryptoContext {
 public:
 	shared_ptr<CryptoContextImpl<Element>>	ctx;
 
-	CryptoContext() {}
-
 	CryptoContext(CryptoContextImpl<Element> *e) {
-		ctx.reset( e );
-	}
-
-	CryptoContext(const CryptoContext<Element>& c) {
-		ctx = c.ctx;
-	}
-
-	CryptoContext<Element>& operator=(const CryptoContext<Element>& rhs) {
-		ctx = rhs.ctx;
-		return *this;
+		ctx = std::make_shared<CryptoContextImpl<Element>>(e);
 	}
 
 	operator bool() const { return bool(ctx); }
@@ -644,28 +629,6 @@ public:
 	}
 };
 
-template <class Element>
-class CryptoContextFactory {
-public:
-	static CryptoContextHandle<Element> genCryptoContextLTV(
-			const usint plaintextmodulus,
-			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-			usint relinWindow, float stDev);
-
-	static CryptoContextHandle<Element> genCryptoContextBV(
-			const usint plaintextmodulus,
-			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-			usint relinWindow, float stDev);
-
-	// FIXME: this is temporary until we better incorporate DCRT
-	static CryptoContextHandle<Element> getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams);
-
-	static CryptoContextHandle<Element> genCryptoContextStehleSteinfeld(
-			const usint plaintextmodulus,
-			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-			usint relinWindow, float stDev, float stDevStSt);
-
-};
 
 }
 
