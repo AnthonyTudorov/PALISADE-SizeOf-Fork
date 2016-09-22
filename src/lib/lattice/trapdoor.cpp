@@ -33,6 +33,7 @@
 * This code provides the utility for working with trapdoor lattices.
 */
 
+#include "../crypto/cryptocontext.h"
 #include "trapdoor.h"
 
 namespace lbcrypto {

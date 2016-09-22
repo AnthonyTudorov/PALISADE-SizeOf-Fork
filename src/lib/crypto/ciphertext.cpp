@@ -152,8 +152,8 @@ bool Ciphertext<Element>::Serialize(Serialized* serObj, const std::string fileFl
 }
 
 // JSON FACILITY - Deserialize Operation
-template <class Element>
-bool Ciphertext<Element>::Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
+//template <class Element>
+//bool Ciphertext<Element>::Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
 
 //	LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
 //	if( cryptoParams == 0 ) return false;
@@ -216,8 +216,8 @@ bool Ciphertext<Element>::Deserialize(const Serialized& serObj, const CryptoCont
 //	this->SetElements(elements);
 //
 //	return true;
-	return false;
-}
+//	return false;
+//}
 
 }  // namespace lbcrypto ends
 

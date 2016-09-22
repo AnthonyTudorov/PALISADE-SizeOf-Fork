@@ -127,7 +127,7 @@ namespace lbcrypto {
 	class LPKey : public Serializable {
 	public:
 
-		LPKey(CryptoContextHandle<Element> cc) : cryptoContext(cc) {}
+		LPKey(CryptoContext<Element> cc) : cryptoContext(cc) {}
 
 		virtual ~LPKey() {}
 
@@ -135,7 +135,7 @@ namespace lbcrypto {
 		 * Gets a read-only reference to an LPCryptoParameters-derived class
 		 * @return the crypto parameters.
 		 */
-		const CryptoContextHandle<Element> GetCryptoContext() const { return cryptoContext; }
+		const CryptoContext<Element> GetCryptoContext() const { return cryptoContext; }
 
 		/**
 		 * Gets a read-only reference to an LPCryptoParameters-derived class
@@ -144,7 +144,7 @@ namespace lbcrypto {
 		const LPCryptoParameters<Element> &GetCryptoParameters() const { return cryptoContext->GetCryptoParameters(); }
 
 	protected:
-		CryptoContextHandle<Element>	cryptoContext;
+		CryptoContext<Element>	cryptoContext;
 	};
 
 	/**
@@ -160,7 +160,7 @@ namespace lbcrypto {
 			*
 			* @param &cryptoParams is the reference to cryptoParams
 			*/
-			LPPublicKey(CryptoContextHandle<Element> cc) : LPKey<Element>(cc) {}
+			LPPublicKey(CryptoContext<Element> cc) : LPKey<Element>(cc) {}
 
 			/**
 			* Copy constructor
@@ -301,27 +301,27 @@ namespace lbcrypto {
 				return false;
 			}
 
-			/**
-			* Populate the object from the deserialization of the Serialized
-			* @param &serObj contains the serialized object
-			* @param *ctx
-			* @return true on success
-			*/
-			bool Deserialize(const Serialized& serObj, const CryptoContext<Element> *ctx) { //TODO: @Gerard Ryan, complete doxygen documentation
-
-				LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-				if (cryptoParams == 0) return false;
-
-				this->m_cryptoParameters = cryptoParams;
-
-				Element json_ilElement;
-				if (json_ilElement.Deserialize(serObj)) {
-					this->SetPublicElementAtIndex(0,json_ilElement);
-					return true;
-				}
-
-				return false;
-			}
+//			/**
+//			* Populate the object from the deserialization of the Serialized
+//			* @param &serObj contains the serialized object
+//			* @param *ctx
+//			* @return true on success
+//			*/
+//			bool Deserialize(const Serialized& serObj, const CryptoContext<Element> *ctx) { //TODO: @Gerard Ryan, complete doxygen documentation
+//
+//				LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
+//				if (cryptoParams == 0) return false;
+//
+//				this->m_cryptoParameters = cryptoParams;
+//
+//				Element json_ilElement;
+//				if (json_ilElement.Deserialize(serObj)) {
+//					this->SetPublicElementAtIndex(0,json_ilElement);
+//					return true;
+//				}
+//
+//				return false;
+//			}
 
 	private:
 		std::vector<Element> m_h;
@@ -342,7 +342,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKey(CryptoContextHandle<Element> cc) : LPKey<Element>(cc) {}
+		LPEvalKey(CryptoContext<Element> cc) : LPKey<Element>(cc) {}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -459,7 +459,7 @@ namespace lbcrypto {
 		*
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
-		LPEvalKeyRelin(CryptoContextHandle<Element> cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyRelin(CryptoContext<Element> cc) : LPEvalKey<Element>(cc) {}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -568,28 +568,28 @@ namespace lbcrypto {
 			return true;
 		}
 
-		/**
-		* Populate the object from the deserialization of the Serialized
-		* @param &serObj contains the serialized object
-		* @return true on success
-		*/
-		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
-			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-			if (cryptoparams == 0) return false;
-
-			this->m_cryptoParameters = cryptoparams;
-
-//			DeSerializeVector<Element>("AVector", typeid(Element).name(), this->GetAVector(), serObj);
-//			DeSerializeVector<Element>("BVector", typeid(Element).name(), this->GetBVector(), serObj);
-
-//			Element json_ilelement;
-//			if (json_ilelement.deserialize(serObj)) {
-//				this->SetA(json_ilelement);
-//				return true;
-//			}
-
-			return false;
-		}
+//		/**
+//		* Populate the object from the deserialization of the Serialized
+//		* @param &serObj contains the serialized object
+//		* @return true on success
+//		*/
+//		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
+//			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
+//			if (cryptoparams == 0) return false;
+//
+//			this->m_cryptoParameters = cryptoparams;
+//
+////			DeSerializeVector<Element>("AVector", typeid(Element).name(), this->GetAVector(), serObj);
+////			DeSerializeVector<Element>("BVector", typeid(Element).name(), this->GetBVector(), serObj);
+//
+////			Element json_ilelement;
+////			if (json_ilelement.deserialize(serObj)) {
+////				this->SetA(json_ilelement);
+////				return true;
+////			}
+//
+//			return false;
+//		}
 
 		bool Deserialize(const Serialized &serObj) {
 			return false;
@@ -613,7 +613,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRURelin(CryptoContextHandle<Element> cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyNTRURelin(CryptoContext<Element> cc) : LPEvalKey<Element>(cc) {}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -685,31 +685,31 @@ namespace lbcrypto {
 			return true;
 		}
 
-		/**
-		* Populate the object from the deserialization of the Serialized
-		* @param &serObj contains the serialized object
-		* @return true on success
-		*/
-		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
-			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-			if (cryptoparams == 0) return false;
-
-			this->m_cryptoParameters = cryptoparams;
-
-			SerialItem::ConstMemberIterator it = serObj.FindMember("Vectors");
-
-			if( it == serObj.MemberEnd() ) {
-				return false;
-			}
-
-			std::vector<Element> newElements;
-			if( DeserializeVector<Element>("Vectors", "ILVector2n", it, &newElements) ) {
-				this->SetAVector(newElements);
-				return true;
-			}
-
-			return false;
-		}
+//		/**
+//		* Populate the object from the deserialization of the Serialized
+//		* @param &serObj contains the serialized object
+//		* @return true on success
+//		*/
+//		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
+//			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
+//			if (cryptoparams == 0) return false;
+//
+//			this->m_cryptoParameters = cryptoparams;
+//
+//			SerialItem::ConstMemberIterator it = serObj.FindMember("Vectors");
+//
+//			if( it == serObj.MemberEnd() ) {
+//				return false;
+//			}
+//
+//			std::vector<Element> newElements;
+//			if( DeserializeVector<Element>("Vectors", "ILVector2n", it, &newElements) ) {
+//				this->SetAVector(newElements);
+//				return true;
+//			}
+//
+//			return false;
+//		}
 
 		bool Deserialize(const Serialized &serObj) {
 			return false;
@@ -735,7 +735,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRU(CryptoContextHandle<Element> cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyNTRU(CryptoContext<Element> cc) : LPEvalKey<Element>(cc) {}
 
 		/**
 		* Setter function to store NTRU key switch element.
@@ -812,25 +812,25 @@ namespace lbcrypto {
 			return true;
 		}
 
-		/**
-		* Populate the object from the deserialization of the Serialized
-		* @param &serObj contains the serialized object
-		* @return true on success
-		*/
-		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
-			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getparams());
-			if (cryptoparams == 0) return false;
-
-			this->m_cryptoParameters = cryptoparams;
-
-			Element json_ilelement;
-			if (json_ilelement.deserialize(serObj)) {
-				this->SetA(json_ilelement);
-				return true;
-			}
-
-			return false;
-		}
+//		/**
+//		* Populate the object from the deserialization of the Serialized
+//		* @param &serObj contains the serialized object
+//		* @return true on success
+//		*/
+//		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
+//			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getparams());
+//			if (cryptoparams == 0) return false;
+//
+//			this->m_cryptoParameters = cryptoparams;
+//
+//			Element json_ilelement;
+//			if (json_ilelement.deserialize(serObj)) {
+//				this->SetA(json_ilelement);
+//				return true;
+//			}
+//
+//			return false;
+//		}
 
 		bool Deserialize(const Serialized &serObj) {
 			return false;
@@ -858,7 +858,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams.
 		*/
 
-		LPPrivateKey(CryptoContextHandle<Element> cc) : LPKey<Element>(cc) {}
+		LPPrivateKey(CryptoContext<Element> cc) : LPKey<Element>(cc) {}
 
 		/**
 		* Copy constructor
@@ -965,26 +965,26 @@ namespace lbcrypto {
 			return false;
 		}
 
-		/**
-		* Populate the object from the deserialization of the Setialized
-		* @param &serObj contains the serialized object
-		* @param *ctx
-		* @return true on success
-		*/
-		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
-			LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-			if (cryptoParams == 0) return false;
-
-			this->m_cryptoParameters = cryptoParams;
-
-			Element json_ilElement;
-			if (json_ilElement.Deserialize(serObj)) {
-				this->SetPrivateElement(json_ilElement);
-				return true;
-			}
-			return false;
-
-		}
+//		/**
+//		* Populate the object from the deserialization of the Setialized
+//		* @param &serObj contains the serialized object
+//		* @param *ctx
+//		* @return true on success
+//		*/
+//		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
+//			LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
+//			if (cryptoParams == 0) return false;
+//
+//			this->m_cryptoParameters = cryptoParams;
+//
+//			Element json_ilElement;
+//			if (json_ilElement.Deserialize(serObj)) {
+//				this->SetPrivateElement(json_ilElement);
+//				return true;
+//			}
+//			return false;
+//
+//		}
 
 
 	private:
@@ -1034,7 +1034,7 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			virtual LPKeyPair<Element> KeyGen(CryptoContextHandle<Element> cc) const = 0;
+			virtual LPKeyPair<Element> KeyGen(CryptoContext<Element> cc) const = 0;
 
 	};
 
@@ -1406,7 +1406,7 @@ namespace lbcrypto {
 				}
 		}
 
-		LPKeyPair<Element> KeyGen(CryptoContextHandle<Element> cc) const {
+		LPKeyPair<Element> KeyGen(CryptoContext<Element> cc) const {
 				if(this->m_algorithmEncryption)
 					return this->m_algorithmEncryption->KeyGen(cc);
 				else {

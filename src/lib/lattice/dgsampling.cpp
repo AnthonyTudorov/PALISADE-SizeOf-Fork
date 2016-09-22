@@ -33,6 +33,7 @@
 * This code provides the utility for lattice Gaussian sampling (needed by lattice trapdoors).
 */
 
+#include "../crypto/cryptocontext.h"
 #include "dgsampling.h"
 
 namespace lbcrypto {
