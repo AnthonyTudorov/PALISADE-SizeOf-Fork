@@ -84,10 +84,6 @@ public:
 		return algorithm->KeyGen(this);
 	}
 
-	LPKeyPair<Element> KeyGen() {
-		return algorithm->KeyGen(this);
-	}
-
 	/**
 	 *
 	 * @return crypto parameters
