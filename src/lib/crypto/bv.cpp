@@ -41,7 +41,7 @@ namespace lbcrypto {
 
 
 template <class Element>
-LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContextHandle<Element> cc) const
+LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContext<Element> cc) const
 {
 	LPKeyPair<Element>	kp;
 	kp.publicKey = std::make_shared<LPPublicKey<Element>>( new LPPublicKey<Element>(cc) );

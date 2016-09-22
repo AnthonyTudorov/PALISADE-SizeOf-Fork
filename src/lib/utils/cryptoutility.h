@@ -12,14 +12,6 @@ template<typename Element>
 class CryptoUtility {
 public:
 
-	static bool KeyGen(
-			const LPPublicKeyEncryptionScheme<Element>& scheme,
-			LPPublicKey<Element> *publicKey,
-			LPPrivateKey<Element> *privateKey)
-	{
-		return scheme.KeyGen(publicKey, privateKey);
-	}
-
 	static bool ReKeyGen(
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPPublicKey<Element> &newPublicKey,
@@ -46,7 +38,7 @@ public:
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPPublicKey<Element>& publicKey,
 			const Plaintext& plaintext,
-			std::vector<Ciphertext<Element>> *cipherResults,
+			std::vector<shared_ptr<Ciphertext<Element>>> *cipherResults,
 			bool doPadding = true)
 	{
 		const BigBinaryInteger& ptm = publicKey.GetCryptoParameters().GetPlaintextModulus();
@@ -68,10 +60,9 @@ public:
 			plaintext.Encode(ptm, &pt, bytes, chunkSize);
 			pt.SwitchFormat();
 
-			Ciphertext<Element> ciphertext;
-			EncryptResult result = scheme.Encrypt(publicKey,pt,&ciphertext);
+			shared_ptr<Ciphertext<Element>> ciphertext = scheme.Encrypt(publicKey,pt);
 
-			if( result.isValid == false ) return result;
+			if( !ciphertext ) return EncryptResult();
 
 			cipherResults->push_back(ciphertext);
 			
@@ -200,24 +191,24 @@ public:
 		bool whichArray = false;
 
 		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
-			Ciphertext<Element> ct;
-			if( ct.Deserialize(serObj, ctx) ) {
-				Element decrypted;
-				DecryptResult res = ctx->getAlgorithm()->Decrypt(privateKey, ct, &decrypted);
-				if( !res.isValid )
-					return DecryptResult();
-				tot += res.messageLength;
-
-				pte[whichArray].Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), &decrypted);
-
-				if( !firstTime ) {
-					outstream << pte[!whichArray];
-					pte[!whichArray].clear();
-				}
-				firstTime = false;
-				whichArray = !whichArray;
-			}
-			else
+//			Ciphertext<Element> ct;
+//			if( ct.Deserialize(serObj, ctx) ) {
+//				Element decrypted;
+//				DecryptResult res = ctx->getAlgorithm()->Decrypt(privateKey, ct, &decrypted);
+//				if( !res.isValid )
+//					return DecryptResult();
+//				tot += res.messageLength;
+//
+//				pte[whichArray].Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), &decrypted);
+//
+//				if( !firstTime ) {
+//					outstream << pte[!whichArray];
+//					pte[!whichArray].clear();
+//				}
+//				firstTime = false;
+//				whichArray = !whichArray;
+//			}
+//			else
 				return DecryptResult();
 		}
 
@@ -264,22 +255,22 @@ public:
 		Serialized serObj;
 
 		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
-			Ciphertext<Element> ct;
-			if( ct.Deserialize(serObj, ctx) ) {
-				Ciphertext<Element> reCt;
-				ctx->getAlgorithm()->ReEncrypt(evalKey, ct, &reCt);
-
-				Serialized serReObj;
-				if( reCt.Serialize(&serReObj, "re") ) {
-					SerializableHelper::SerializationToStream(serReObj, outstream);
-				}
-				else {
-					return; // error
-				}
-			}
-			else {
+//			Ciphertext<Element> ct;
+//			if( ct.Deserialize(serObj, ctx) ) {
+//				Ciphertext<Element> reCt;
+//				ctx->getAlgorithm()->ReEncrypt(evalKey, ct, &reCt);
+//
+//				Serialized serReObj;
+//				if( reCt.Serialize(&serReObj, "re") ) {
+//					SerializableHelper::SerializationToStream(serReObj, outstream);
+//				}
+//				else {
+//					return; // error
+//				}
+//			}
+//			else {
 				return;
-			}
+//			}
 		}
 	}
 
