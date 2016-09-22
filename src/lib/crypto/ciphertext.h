@@ -70,7 +70,7 @@ namespace lbcrypto {
 		 */
 		Ciphertext() : m_norm(BigBinaryInteger::ZERO) {}
 
-		Ciphertext(CryptoContextHandle<Element> cc) : cryptoContext(cc), m_norm(BigBinaryInteger::ZERO) {}
+		Ciphertext(CryptoContext<Element> cc) : cryptoContext(cc), m_norm(BigBinaryInteger::ZERO) {}
 
 		/**
 		* Copy constructor
@@ -107,7 +107,7 @@ namespace lbcrypto {
 		* Get a reference to crypto parameters.
 		* @return the crypto parameters.
 		*/
-		const CryptoContextHandle<Element> &GetCryptoContext() const { return cryptoContext; }
+		const CryptoContext<Element> &GetCryptoContext() const { return cryptoContext; }
 
 		/**
 		* Get a reference to crypto parameters.
@@ -221,7 +221,7 @@ namespace lbcrypto {
 
 	private:
 
-		CryptoContextHandle<Element>	cryptoContext;
+		CryptoContext<Element>	cryptoContext;
 
 		//current value of error norm
 		BigBinaryInteger m_norm;

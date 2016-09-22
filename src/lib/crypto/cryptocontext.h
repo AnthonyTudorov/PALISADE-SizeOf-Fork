@@ -93,16 +93,8 @@ public:
 		if( evalKey ) delete evalKey;
 	}
 
-	const LPCryptoParameters<Element> &GetCryptoParameters() const { return *params; }
 	DiscreteGaussianGenerator& GetGenerator() { return dgg; }
 	ILParams& GetILParams() { return ilParams; }
-	const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *algorithm; }
-	void Enable(PKESchemeFeature feature) { algorithm->Enable(feature); }
-
-
-	LPKeyPair<Element> KeyGen() {
-		return algorithm->KeyGen(this);
-	}
 
 	/**
 	 *
@@ -174,27 +166,12 @@ class CryptoContext {
 public:
 	shared_ptr<CryptoContextImpl<Element>>	ctx;
 
-	CryptoContext() {}
-
 	CryptoContext(CryptoContextImpl<Element> *e) {
-		ctx.reset( e );
-	}
-
-	CryptoContext(const CryptoContext<Element>& c) {
-		ctx = c.ctx;
-	}
-
-	CryptoContext<Element>& operator=(const CryptoContext<Element>& rhs) {
-		ctx = rhs.ctx;
-		return *this;
+		ctx = std::make_shared<CryptoContextImpl<Element>>(e);
 	}
 
 	LPKeyPair<Element> KeyGen() const {
 		return GetEncryptionAlgorithm().KeyGen(*this);
-	}
-
-	LPKeyPair<Element> SparseKeyGen() const {
-		return GetEncryptionAlgorithm().SparseKeyGen(*this);
 	}
 
 	void Enable(PKESchemeFeature feature) { ctx->getScheme()->Enable(feature); }
@@ -230,28 +207,6 @@ public:
 
 };
 
-template <class Element>
-class CryptoContextFactory {
-public:
-	static CryptoContextHandle<Element> genCryptoContextLTV(
-			const usint plaintextmodulus,
-			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-			usint relinWindow, float stDev);
-
-	static CryptoContextHandle<Element> genCryptoContextBV(
-			const usint plaintextmodulus,
-			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-			usint relinWindow, float stDev);
-
-	// FIXME: this is temporary until we better incorporate DCRT
-	static CryptoContextHandle<Element> getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams);
-
-	static CryptoContextHandle<Element> genCryptoContextStehleSteinfeld(
-			const usint plaintextmodulus,
-			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-			usint relinWindow, float stDev, float stDevStSt);
-
-};
 
 }
 

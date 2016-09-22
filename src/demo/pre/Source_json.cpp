@@ -52,7 +52,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 using namespace lbcrypto;
 
-void NTRUPRE(CryptoContextHandle<ILVector2n> ctx, bool);
+void NTRUPRE(CryptoContext<ILVector2n> ctx, bool);
 
 #include "../../lib/utils/serializablehelper.h"
 
@@ -99,7 +99,7 @@ main(int argc, char *argv[])
 	string input;
 	std::cin >> input;
 
-	CryptoContextHandle<ILVector2n> ctx = CryptoContextHelper<ILVector2n>::getNewContext(filename, input);
+	CryptoContext<ILVector2n> ctx = CryptoContextHelper<ILVector2n>::getNewContext(filename, input);
 	if( ctx == 0 ) {
 		cout << "Error on " << input << endl;
 		return 0;
@@ -131,7 +131,7 @@ main(int argc, char *argv[])
 //////////////////////////////////////////////////////////////////////
 
 void
-NTRUPRE(CryptoContextHandle<ILVector2n> ctx, bool doJson) {
+NTRUPRE(CryptoContext<ILVector2n> ctx, bool doJson) {
 
 	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	//BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
