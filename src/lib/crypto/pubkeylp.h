@@ -160,7 +160,7 @@ namespace lbcrypto {
 			*
 			* @param &cryptoParams is the reference to cryptoParams
 			*/
-			LPPublicKey(LPCryptoParameters<Element> &cryptoParams) : LPKey<Element>(&cryptoParams) {}
+			LPPublicKey(CryptoContextHandle<Element> cc) : LPKey<Element>(cc) {}
 
 			/**
 			* Copy constructor
@@ -342,7 +342,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKey(LPCryptoParameters<Element> &cryptoParams) : LPKey<Element>(&cryptoParams) {}
+		LPEvalKey(CryptoContextHandle<Element> cc) : LPKey<Element>(cc) {}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -459,7 +459,7 @@ namespace lbcrypto {
 		*
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
-		LPEvalKeyRelin(LPCryptoParameters<Element> &cryptoParams) : LPEvalKey<Element>(cryptoParams) {}
+		LPEvalKeyRelin(CryptoContextHandle<Element> cc) : LPEvalKey<Element>(cc) {}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -613,7 +613,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRURelin(LPCryptoParameters<Element> &cryptoParams) : LPEvalKey<Element>(cryptoParams) {}
+		LPEvalKeyNTRURelin(CryptoContextHandle<Element> cc) : LPEvalKey<Element>(cc) {}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -735,7 +735,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRU(LPCryptoParameters<Element> &cryptoParams) : LPEvalKey<Element>(cryptoParams) {}
+		LPEvalKeyNTRU(CryptoContextHandle<Element> cc) : LPEvalKey<Element>(cc) {}
 
 		/**
 		* Setter function to store NTRU key switch element.
@@ -858,7 +858,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams.
 		*/
 
-		LPPrivateKey(LPCryptoParameters<Element> &cryptoParams) : LPKey<Element>(&cryptoParams) {}
+		LPPrivateKey(CryptoContextHandle<Element> cc) : LPKey<Element>(cc) {}
 
 		/**
 		* Copy constructor
@@ -1406,7 +1406,7 @@ namespace lbcrypto {
 				}
 		}
 
-		LPKeyPair KeyGen(CryptoContextHandle<Element> cc) const {
+		LPKeyPair<Element> KeyGen(CryptoContextHandle<Element> cc) const {
 				if(this->m_algorithmEncryption)
 					return this->m_algorithmEncryption->KeyGen(cc);
 				else {
