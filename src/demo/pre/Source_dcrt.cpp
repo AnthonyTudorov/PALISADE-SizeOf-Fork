@@ -357,7 +357,7 @@ void NTRU_DCRT() {
 //
 //	if(true) return;
 
-	LPKeyPair<ILVectorArray2n> newKp = cc.GetEncryptionAlgorithm().KeyGen(cc);
+	LPKeyPair<ILVectorArray2n> newKp = cc->KeyGen();
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption key generation operation.
@@ -1249,7 +1249,7 @@ void NTRUPRE(usint input) {
 
 	start = currentDateTime();
 
-	LPKeyPair<ILVector2n> kp = cc.GetEncryptionAlgorithm().KeyGen(cc);	// This is the core function call that generates the keys.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();	// This is the core function call that generates the keys.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -1338,7 +1338,7 @@ void NTRUPRE(usint input) {
 
 	start = currentDateTime();
 
-	LPKeyPair<ILVector2n> newKp = cc.GetEncryptionAlgorithm().KeyGen(cc);	// This is the same core key generation operation.
+	LPKeyPair<ILVector2n> newKp = cc.KeyGen();	// This is the same core key generation operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
