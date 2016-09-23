@@ -859,6 +859,49 @@ TEST(UTILVectorArray2n, constructors_test) {
 
 }
 
+// Signed mod must handle the modulo operation for both positive and negative numbers
+// It is used in decoding/decryption of homomorphic encryption schemes
+TEST(UTILVector2n, signed_mod_tests) {
+
+	usint m = 8;
+
+	BigBinaryInteger primeModulus("73");
+	BigBinaryInteger primitiveRootOfUnity("22");
+
+	ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
+
+	ILVector2n ilvector2n1(ilparams,COEFFICIENT);
+	BigBinaryVector bbv1(m / 2, primeModulus);
+	bbv1.SetValAtIndex(0, "62");
+	bbv1.SetValAtIndex(1, "7");
+	bbv1.SetValAtIndex(2, "65");
+	bbv1.SetValAtIndex(3, "8");
+	ilvector2n1.SetValues(bbv1, ilvector2n1.GetFormat());
+
+	{
+		ILVector2n ilv1(ilparams, COEFFICIENT);
+		ilv1 = ilvector2n1.SignedMod(BigBinaryInteger::TWO);
+
+		EXPECT_EQ(BigBinaryInteger::ONE, ilv1.GetValAtIndex(0)) << "ILVector2n.SignedMod fails.\n";
+		EXPECT_EQ(BigBinaryInteger::ONE, ilv1.GetValAtIndex(1)) << "ILVector2n.SignedMod fails.\n";
+		EXPECT_EQ(BigBinaryInteger::ZERO, ilv1.GetValAtIndex(2)) << "ILVector2n.SignedMod fails.\n";
+		EXPECT_EQ(BigBinaryInteger::ZERO, ilv1.GetValAtIndex(3)) << "ILVector2n.SignedMod fails.\n";
+
+	}
+
+	{
+		ILVector2n ilv1(ilparams, COEFFICIENT);
+		ilv1 = ilvector2n1.SignedMod(BigBinaryInteger("5"));
+
+		EXPECT_EQ(BigBinaryInteger::FOUR, ilv1.GetValAtIndex(0)) << "ILVector2n.SignedMod fails.\n";
+		EXPECT_EQ(BigBinaryInteger::TWO, ilv1.GetValAtIndex(1)) << "ILVector2n.SignedMod fails.\n";
+		EXPECT_EQ(BigBinaryInteger::TWO, ilv1.GetValAtIndex(2)) << "ILVector2n.SignedMod fails.\n";
+		EXPECT_EQ(BigBinaryInteger::THREE, ilv1.GetValAtIndex(3)) << "ILVector2n.SignedMod fails.\n";
+
+	}
+
+}
+
 TEST(UTILVectorArray2n, getters_tests) {
   usint m = 8; //16
   usint towersize = 3;
