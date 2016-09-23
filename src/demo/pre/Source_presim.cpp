@@ -60,8 +60,8 @@ const usint NUMBER_OF_RUNS = 100;
 //defination of input parameters for 
 struct SecureParams {
 	usint m;
-	BigBinaryInteger modulus;
-	BigBinaryInteger rootOfUnity;
+	string modulus;
+	string rootOfUnity;
 	usint relinWindow;
 	usint depth;
 	usint bitLength;
@@ -104,10 +104,6 @@ void EncryptionSchemeSimulation(usint count){
 		std::cin.get();
 	}
 
-	//string modulus
-	string mod;
-	string rUnity;
-
 	//Load sets of params for different ring dimensions
 	SecureParams data[10];
 	usint i = 0;
@@ -115,13 +111,8 @@ void EncryptionSchemeSimulation(usint count){
 	while (!dataFile.eof()){
 
 		dataFile >> data[i].m;
-		//cout << "m = " <<data[i].m << endl;
-		dataFile >> mod;
-		data[i].modulus.SetValue(mod);
-		//cout<<"modulus = "<<data[i].modulus<<endl;
-		dataFile >> rUnity;
-		data[i].rootOfUnity.SetValue(rUnity);
-		//cout <<"root of unity = "<<data[i].rootOfUnity << endl;
+		dataFile >> data[i].modulus;
+		dataFile >> data[i].rootOfUnity;
 
 		i++;
 	}
@@ -145,21 +136,14 @@ void EncryptionSchemeSimulation(usint count){
 
 	int stdDev = 4;
 
-	//Set crypto parametes
-	LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
-	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
-
-	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
+	// Create crypto context
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2,m,data[i].modulus,data[i].rootOfUnity,relWindow,stdDev);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(dgg, ilParams);
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), ilParams);
 
 	//prepare the plaintext
 	BytePlaintextEncoding plaintext;
@@ -182,15 +166,8 @@ void EncryptionSchemeSimulation(usint count){
 
 	for (usint j = 0; j<count; j++){
 
-		// Initialize the public key containers.
-		LPPublicKey<ILVector2n> pk(cryptoParams);
-		LPPrivateKey<ILVector2n> sk(cryptoParams);
-
-		//Regular LWE-NTRU encryption algorithm
-		LPAlgorithmLTV<ILVector2n> algorithm;
-
 		bool successKeyGen = false;
-		successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
+		LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
 		if (!successKeyGen) {
 			std::cout << "Key generation failed!" << std::endl;
@@ -199,11 +176,11 @@ void EncryptionSchemeSimulation(usint count){
 
 		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
-		CryptoUtility<ILVector2n>::Encrypt(algorithm.GetScheme(), pk, plaintext, &ciphertext);	// This is the core encryption operation.
+		CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext);	// This is the core encryption operation.
 
 		BytePlaintextEncoding plaintextNew;
 
-		DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm.GetScheme(), sk, ciphertext, &plaintextNew);  // This is the core decryption operation.
+		DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp.secretKey, ciphertext, &plaintextNew);  // This is the core decryption operation.
 
 		if (!result.isValid) {
 			std::cout << "Decryption failed!" << std::endl;
@@ -275,10 +252,8 @@ void PRESimulation(usint count, usint dataset){
 	while (!dataFile.eof()){
 
 		dataFile >> data[i].m;
-		dataFile >> mod;
-		data[i].modulus.SetValue(mod);
-		dataFile >> rUnity;
-		data[i].rootOfUnity.SetValue(rUnity);
+		dataFile >> data[i].modulus;
+		dataFile >> data[i].rootOfUnity;
 		dataFile >> data[i].relinWindow;
 		dataFile >> data[i].depth;
 		dataFile >> data[i].bitLength;
@@ -325,6 +300,8 @@ void PRESimulation(usint count, usint dataset){
 
 	DiscreteGaussianGenerator dgg(stdDev);				 // Create the noise generator
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2,m,data[i].modulus,data[i].rootOfUnity,relWindow,stdDev);
 
 	// Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);

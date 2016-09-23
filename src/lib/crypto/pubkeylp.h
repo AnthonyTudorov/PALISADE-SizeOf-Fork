@@ -127,7 +127,7 @@ namespace lbcrypto {
 	class LPKey : public Serializable {
 	public:
 
-		LPKey(CryptoContext<Element> cc) : cryptoContext(cc) {}
+		LPKey(CryptoContext<Element>& cc) : cryptoContext(cc) {}
 
 		virtual ~LPKey() {}
 
@@ -141,7 +141,7 @@ namespace lbcrypto {
 		 * Gets a read-only reference to an LPCryptoParameters-derived class
 		 * @return the crypto parameters.
 		 */
-		const LPCryptoParameters<Element> &GetCryptoParameters() const { return cryptoContext->GetCryptoParameters(); }
+		const LPCryptoParameters<Element> &GetCryptoParameters() const { return cryptoContext.GetCryptoParameters(); }
 
 	protected:
 		CryptoContext<Element>	cryptoContext;
@@ -160,7 +160,7 @@ namespace lbcrypto {
 			*
 			* @param &cryptoParams is the reference to cryptoParams
 			*/
-			LPPublicKey(CryptoContext<Element> cc) : LPKey<Element>(cc) {}
+			LPPublicKey(CryptoContext<Element>& cc) : LPKey<Element>(cc) {}
 
 			/**
 			* Copy constructor
@@ -342,7 +342,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKey(CryptoContext<Element> cc) : LPKey<Element>(cc) {}
+		LPEvalKey(CryptoContext<Element>& cc) : LPKey<Element>(cc) {}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -459,7 +459,7 @@ namespace lbcrypto {
 		*
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
-		LPEvalKeyRelin(CryptoContext<Element> cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyRelin(CryptoContext<Element>& cc) : LPEvalKey<Element>(cc) {}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -613,7 +613,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRURelin(CryptoContext<Element> cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyNTRURelin(CryptoContext<Element>& cc) : LPEvalKey<Element>(cc) {}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -735,7 +735,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRU(CryptoContext<Element> cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyNTRU(CryptoContext<Element>& cc) : LPEvalKey<Element>(cc) {}
 
 		/**
 		* Setter function to store NTRU key switch element.
@@ -858,7 +858,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams.
 		*/
 
-		LPPrivateKey(CryptoContext<Element> cc) : LPKey<Element>(cc) {}
+		LPPrivateKey(CryptoContext<Element>& cc) : LPKey<Element>(cc) {}
 
 		/**
 		* Copy constructor
@@ -996,6 +996,8 @@ namespace lbcrypto {
 	public:
 		shared_ptr<LPPublicKey<Element>>	publicKey;
 		shared_ptr<LPPrivateKey<Element>>	secretKey;
+
+		bool good() { return publicKey && secretKey; }
 	};
 
 	/**
@@ -1175,9 +1177,8 @@ namespace lbcrypto {
 			 * @param &ciphertext the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			virtual void ReEncrypt(const LPEvalKey<Element> &evalKey, 
-				const Ciphertext<Element> &ciphertext,
-				Ciphertext<Element> *newCiphertext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> ReEncrypt(const LPEvalKey<Element> &evalKey,
+				const Ciphertext<Element> &ciphertext) const = 0;
 	};
 
 
@@ -1292,8 +1293,8 @@ namespace lbcrypto {
 			 * @param &ciphertext the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			virtual void EvalAtIndex(const Ciphertext<Element> &ciphertext, const usint i, const std::vector<LPEvalKey<Element> *> &evalKeys,
-				Ciphertext<Element> *newCiphertext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, const usint i,
+					const std::vector<LPEvalKey<Element> *> &evalKeys) const = 0;
 
 			/**
 			 * Virtual function to generate all isomorphism keys for a given private key
@@ -1498,10 +1499,9 @@ namespace lbcrypto {
 		}
 
 		//wrapper for ReEncrypt method
-		void ReEncrypt(const LPEvalKey<Element> &evalKey, const Ciphertext<Element> &ciphertext,
-			Ciphertext<Element> *newCiphertext) const {
+		shared_ptr<Ciphertext<Element>> ReEncrypt(const LPEvalKey<Element> &evalKey, const Ciphertext<Element> &ciphertext) const {
 				if(this->m_algorithmPRE)
-					this->m_algorithmPRE->ReEncrypt(evalKey,ciphertext,newCiphertext);
+					return this->m_algorithmPRE->ReEncrypt(evalKey,ciphertext);
 				else {
 					throw std::logic_error("ReEncrypt operation has not been enabled");
 				}
