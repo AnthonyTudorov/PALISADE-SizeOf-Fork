@@ -188,7 +188,7 @@ void BenchMarking() {
 
 			LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
-			vector<Ciphertext<ILVectorArray2n>> ciphertext;
+			vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext;
 
 			start = currentDateTime();
 
@@ -299,7 +299,7 @@ void NTRU_DCRT() {
 	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 	//fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
-	vector<Ciphertext<ILVectorArray2n>> ciphertext;
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext;
 
 	std::cout << "Running encryption..." << std::endl;
 
@@ -376,7 +376,8 @@ void NTRU_DCRT() {
 	else {
 		vector<ILVectorArray2n> av = evalKey.GetAVector();
 		cout << "The eval key A vect size is " << av.size() << endl;
-		vector<Ciphertext<ILVectorArray2n>> newCiphertext;
+
+		vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext;
 
 		cout << "Running re encryption" << endl;
 		CryptoUtility<ILVectorArray2n>::ReEncrypt(cc.GetEncryptionAlgorithm(), evalKey, ciphertext, &newCiphertext);
@@ -1131,29 +1132,29 @@ void FinalLeveledComputation(){
 	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText5 = cc.GetEncryptionAlgorithm().Encrypt(*kp.publicKey,element5);
 
 	//Computation: C = (C1*C2 + C3*C4)*C5
-	Ciphertext<ILVectorArray2n> cipherText6(*cipherText1);
-	cc.GetEncryptionAlgorithm().ComposedEvalMult(*cipherText1,*cipherText2,keyStruc.GetQuadraticKeySwitchHintForLevel(0),&cipherText6);
+//	Ciphertext<ILVectorArray2n> cipherText6(cipherText1);
+//	cc.GetEncryptionAlgorithm().ComposedEvalMult(*cipherText1,*cipherText2,keyStruc.GetQuadraticKeySwitchHintForLevel(0),&cipherText6);
+//
+//	Ciphertext<ILVectorArray2n> cipherText7(*cipherText1);
+//	cc.GetEncryptionAlgorithm().ComposedEvalMult(*cipherText3,*cipherText4,keyStruc.GetQuadraticKeySwitchHintForLevel(0),&cipherText7);
+//	cc.GetEncryptionAlgorithm().LevelReduce(*cipherText5,keyStruc.GetLinearKeySwitchHintForLevel(0),&(*cipherText5));
+//
+//	Ciphertext<ILVectorArray2n> cipherText8(cipherText7);
+//	cc.GetEncryptionAlgorithm().EvalAdd(cipherText6,cipherText7,&cipherText8);
+//
+//
+//	Ciphertext<ILVectorArray2n> cipherText9(cipherText8);
+//	cc.GetEncryptionAlgorithm().ComposedEvalMult(cipherText8,*cipherText5,keyStruc.GetQuadraticKeySwitchHintForLevel(1),&cipherText9);
 
-	Ciphertext<ILVectorArray2n> cipherText7(*cipherText1);
-	cc.GetEncryptionAlgorithm().ComposedEvalMult(*cipherText3,*cipherText4,keyStruc.GetQuadraticKeySwitchHintForLevel(0),&cipherText7);
-	cc.GetEncryptionAlgorithm().LevelReduce(*cipherText5,keyStruc.GetLinearKeySwitchHintForLevel(0),&(*cipherText5));
-
-	Ciphertext<ILVectorArray2n> cipherText8(cipherText7);
-	cc.GetEncryptionAlgorithm().EvalAdd(cipherText6,cipherText7,&cipherText8);
 
 
-	Ciphertext<ILVectorArray2n> cipherText9(cipherText8);
-	cc.GetEncryptionAlgorithm().ComposedEvalMult(cipherText8,*cipherText5,keyStruc.GetQuadraticKeySwitchHintForLevel(1),&cipherText9);
-
-
-
-	//BytePlaintextEncoding plaintextNew;
-	//CryptoUtility<ILVector2n>::Decrypt(algorithm, levelSk[1], cipherText9, &plaintextNew);
-	ILVectorArray2n plaintextNew;
-
-	cc.GetEncryptionAlgorithm().Decrypt(*levelPairs[1].secretKey, cipherText9, &plaintextNew);
-
-	cout << plaintextNew.GetElementAtIndex(0).GetValAtIndex(0) << endl;
+//	//BytePlaintextEncoding plaintextNew;
+//	//CryptoUtility<ILVector2n>::Decrypt(algorithm, levelSk[1], cipherText9, &plaintextNew);
+//	ILVectorArray2n plaintextNew;
+//
+//	cc.GetEncryptionAlgorithm().Decrypt(*levelPairs[1].secretKey, cipherText9, &plaintextNew);
+//
+//	cout << plaintextNew.GetElementAtIndex(0).GetValAtIndex(0) << endl;
 }
 
 void NTRUPRE(usint input) {
@@ -1276,7 +1277,7 @@ void NTRUPRE(usint input) {
 	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
-	std::vector< Ciphertext<ILVector2n> > ciphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 	//BytePlaintextEncoding ptxt(plaintext);
 	//ptxt.Pad<ZeroPad>(m/16);
 	//ptxt.Pad<ZeroPad>(m/8);
@@ -1379,7 +1380,7 @@ void NTRUPRE(usint input) {
 	////////////////////////////////////////////////////////////
 
 
-	vector<Ciphertext<ILVector2n>> newCiphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
 
 
 	std::cout <<"\n"<< "Running re-encryption..." << std::endl;
@@ -1479,15 +1480,15 @@ void ComposedEvalMultTest(){
 	cc.Enable(LEVELEDSHE);
 
 	//Generate the secret key for the initial ciphertext:
-	LPKeyPair<ILVectorArray2n> kp = cc.GetEncryptionAlgorithm().KeyGen(cc);
+	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
 	//Generate the switch cipher text
-	LPKeyPair<ILVectorArray2n> kpNew = cc.GetEncryptionAlgorithm().KeyGen(cc);
+	LPKeyPair<ILVectorArray2n> kpNew = cc.KeyGen();
 
 	//Generating original ciphertext to perform ComposedEvalMult on
-	Ciphertext<ILVectorArray2n> c1;
+	shared_ptr<Ciphertext<ILVectorArray2n>> c1;
 
-	Ciphertext<ILVectorArray2n> c2;
+	shared_ptr<Ciphertext<ILVectorArray2n>> c2;
 
 	//Generating new cryptoparameters for when modulus reduction is done.
 	LPCryptoParametersLTV<ILVectorArray2n> finalParamsTwoTowers(finalParamsThreeTowers);

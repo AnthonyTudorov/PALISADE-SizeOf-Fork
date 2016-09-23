@@ -197,7 +197,7 @@ void EncryptionSchemeSimulation(usint count){
 			exit(1);
 		}
 
-		vector<Ciphertext<ILVector2n>> ciphertext;
+		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 		CryptoUtility<ILVector2n>::Encrypt(algorithm.GetScheme(), pk, plaintext, &ciphertext);	// This is the core encryption operation.
 
@@ -404,8 +404,8 @@ void PRESimulation(usint count, usint dataset){
 
 	for (usint j = 0; j < count; j++){
 
-		vector<Ciphertext<ILVector2n>> ct;
-		CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, arrPlaintext[j], &ct);
+		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+		CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, arrPlaintext[j], &ciphertext);
 		arrCiphertext[j] = ct[0];
 
 	}

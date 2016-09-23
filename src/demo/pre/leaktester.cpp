@@ -219,7 +219,7 @@ runOneRound(CryptoContextHandle<ILVector2n> ctx, const BytePlaintextEncoding& pl
 	cout << "Chunk size is: " << chunksize << endl;
 
 	//Encryption
-	vector<Ciphertext<ILVector2n>> ciphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 	EncryptResult eResult = CryptoUtility<ILVector2n>::Encrypt(*ctx->getAlgorithm(), pk, plaintext, &ciphertext, doPadding);
 
 	if (!eResult.isValid) {

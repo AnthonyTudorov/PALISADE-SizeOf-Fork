@@ -148,14 +148,14 @@ public:
 	static DecryptResult Decrypt(
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPPrivateKey<Element>& privateKey,
-			const std::vector<Ciphertext<Element>>& ciphertext,
+			const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
 			Plaintext *plaintext,
 			bool doPadding = true)
 	{
 		int lastone = ciphertext.size() - 1;
 		for( int ch = 0; ch < ciphertext.size(); ch++ ) {
 			Element decrypted;
-			DecryptResult result = scheme.Decrypt(privateKey, ciphertext[ch], &decrypted);
+			DecryptResult result = scheme.Decrypt(privateKey, *ciphertext[ch], &decrypted);
 
 			if( result.isValid == false ) return result;
 
@@ -229,13 +229,13 @@ public:
 	static void ReEncrypt(
 			const LPPublicKeyEncryptionScheme<Element>& scheme,
 			const LPEvalKey<Element> &evalKey,
-			const std::vector<Ciphertext<Element>>& ciphertext,
-			std::vector<Ciphertext<Element>> *newCiphertext)
+			const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
+			std::vector<shared_ptr<Ciphertext<Element>>> *newCiphertext)
 	{
 		for( int i=0; i < ciphertext.size(); i++ ) {
-			Ciphertext<Element> nCipher;
-			scheme.ReEncrypt(evalKey, ciphertext[i], &nCipher);
-			newCiphertext->push_back(nCipher);
+			shared_ptr<Ciphertext<Element>> nCipher( new Ciphertext<Element>() );
+			scheme.ReEncrypt(evalKey, *ciphertext[i], &(*nCipher));
+			newCiphertext->push_back( nCipher );
 		}
 	}
 
