@@ -237,6 +237,22 @@ TEST(UTILVector2n, binary_operations) {
   bbv2.SetValAtIndex(3, "1");
   ilvector2n2.SetValues(bbv2, ilvector2n2.GetFormat());
 
+  ILVector2n ilvector2n3(ilparams, COEFFICIENT);
+  BigBinaryVector bbv3(m / 2, primeModulus);
+  bbv3.SetValAtIndex(0, "2");
+  bbv3.SetValAtIndex(1, "1");
+  bbv3.SetValAtIndex(2, "1");
+  bbv3.SetValAtIndex(3, "1");
+  ilvector2n3.SetValues(bbv3, ilvector2n3.GetFormat());
+
+  ILVector2n ilvector2n4(ilparams, COEFFICIENT);
+  BigBinaryVector bbv4(m / 2, primeModulus);
+  bbv4.SetValAtIndex(0, "1");
+  bbv4.SetValAtIndex(1, "0");
+  bbv4.SetValAtIndex(2, "1");
+  bbv4.SetValAtIndex(3, "1");
+  ilvector2n4.SetValues(bbv4, ilvector2n4.GetFormat());
+
   {
     ILVector2n ilv1(ilvector2n1);
     ILVector2n ilv2 = ilv1.Plus(ilvector2n2);
@@ -265,6 +281,21 @@ TEST(UTILVector2n, binary_operations) {
     EXPECT_EQ(BigBinaryInteger::ZERO, ilv2.GetValAtIndex(1)) << "ILVector2n.Times is incorrect.\n";
     EXPECT_EQ(BigBinaryInteger::ONE, ilv2.GetValAtIndex(2)) << "ILVector2n.Times is incorrect.\n";
     EXPECT_EQ(BigBinaryInteger::ONE, ilv2.GetValAtIndex(3)) << "ILVector2n.Times is incorrect.\n";
+  }
+
+  {
+	  ilvector2n3.SwitchFormat();
+	  ilvector2n4.SwitchFormat();
+	  
+	  ILVector2n ilv3(ilvector2n3);
+	  ILVector2n ilv4 = ilv3.Times(ilvector2n4);
+
+	  ilv4.SwitchFormat();
+
+	  EXPECT_EQ(BigBinaryInteger("0"), ilv4.GetValAtIndex(0)) << "ILVector2n.Times using NTT is incorrect.\n";
+	  EXPECT_EQ(BigBinaryInteger("72"), ilv4.GetValAtIndex(1)) << "ILVector2n.Times using NTT is incorrect.\n";
+	  EXPECT_EQ(BigBinaryInteger("2"), ilv4.GetValAtIndex(2)) << "ILVector2n.Times using NTT is incorrect.\n";
+	  EXPECT_EQ(BigBinaryInteger("4"), ilv4.GetValAtIndex(3)) << "ILVector2n.Times using NTT is incorrect.\n";
   }
 
 }
