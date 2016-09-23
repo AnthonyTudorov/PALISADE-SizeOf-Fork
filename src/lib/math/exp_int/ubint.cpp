@@ -336,7 +336,7 @@ namespace exp_int {
       //fixed when normalize was fixed.
     } catch(std::exception& e) {
       //if it fails, then just clear our copy out. 
-      std::cout<<"Threw"<<std::endl;
+      std::cout<<"Threw "<< e.what()<< std::endl;
       this->m_value.clear();
       this->m_value.push_back((limb_t)0);
     }
@@ -405,7 +405,7 @@ namespace exp_int {
     } else {
       //Case where limb_t is less bits than output size
       //add number of limbs needed to make output
-      int msbTest = sizeof(usint)*8;
+      size_t msbTest = sizeof(usint)*8;
       if (msbTest > m_MSB)
 	msbTest = m_MSB;
       usint ceilInt = ceilIntByUInt(msbTest);
@@ -1056,12 +1056,12 @@ return result;
       return std::move(ubint(b)); //todo check this? don't think standard move is what we want.
 	
     //position of B in the array where the multiplication should start
-    limb_t ceilLimb = b.m_value.size();
+    //limb_t ceilLimb = b.m_value.size();
     //Multiplication is done by getting a limb_t from b and multiplying it with *this
     //after multiplication the result is shifted and added to the final answer
 
-    usint nSize = this->m_value.size();
-    for(sint i= 0;i< b.m_value.size();++i){
+    size_t nSize = this->m_value.size();
+    for(size_t i= 0;i< b.m_value.size();++i){
       DEBUG("i "<<i);
       ubint tmp2;
 
@@ -1135,13 +1135,13 @@ return result;
 
     //position in the array to start multiplication
     //
-    usint endVal = this->m_value.size();
+    size_t endVal = this->m_value.size();
     DEBUG("endVal"<<endVal);
     //variable to capture the overflow
     Dlimb_t temp=0;
     //overflow value
     limb_t ofl=0;
-    sint i= 0;
+    size_t i= 0;
 
     DEBUG("mibl A:"<<this->ToString() );
     DEBUG("mibl B:"<<b );
@@ -1420,7 +1420,7 @@ return result;
 
 
     uschar *DecValue;//array of decimal values
-    int arrSize=v.length();
+    size_t arrSize=v.length();
 
     //memory allocated for decimal array
     DecValue = new uschar[arrSize]; //todo smartpointer
@@ -2067,7 +2067,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     //const uint_type *fromP;
 
     //	sint siz = (m_MSB%m_uintBitLength==0&&m_MSB!=0) ? (m_MSB/m_uintBitLength) : ((sint)m_MSB/m_uintBitLength +1);
-    int i;
+    //int i;
     //note limbs are now stored little endian in ubint
     //for(i=m_nSize-1, fromP=m_value+i ; i>=m_nSize-siz ; i--,fromP--) {
     for (auto fromP = m_value.begin(); fromP!=m_value.end(); fromP++){

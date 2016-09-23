@@ -1086,8 +1086,7 @@ namespace exp_int{
 
   private:
     //variable that stores the MOST SIGNIFICANT BIT position in the
-    //number. Note MSB(1) = 1 NOT 0
-    usint m_MSB;
+    size_t m_MSB;
 
     //variable to store the bitlength of the limb data type.
     static const usint m_limbBitLength;

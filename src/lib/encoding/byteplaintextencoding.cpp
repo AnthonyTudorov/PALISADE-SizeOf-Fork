@@ -62,14 +62,14 @@ BytePlaintextEncoding& BytePlaintextEncoding::operator=(const char* cstr) {
 void
 BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t startFrom, size_t length) const
 {
-	int		padlen = 0;
+	int		padlen = 0;	
 
 	// default values mean "do it all"
 	if( length == 0 ) length = this->size();
 
 	// length is usually chunk size; if start + length would go past the end of the item, add padding
 	if( (startFrom + length) > this->size() ) {
-		padlen = (startFrom + length) - this->size();
+		padlen = (startFrom + length) - this->size(); //todo: warning conversion from size_t
 		length = length - padlen;
 	}
 
@@ -81,12 +81,12 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 
 	usint p = ceil((float)log((double)255) / log((double)mod));
 
-	BigBinaryVector temp(p*(length+padlen));
+	BigBinaryVector temp(p*(length+padlen)); //todo: warning conversion from size_t
 	temp.SetModulus(ilVector->GetModulus());
 	Format format = COEFFICIENT;
 
 	for (usint i = 0; i<length; i++) {
-		usint actualPos = i + startFrom;
+		usint actualPos = i + startFrom; //todo: warning conversion from size_t
 		usint actualPosP = i * p;
 		usint Num = this->at(actualPos);
 		usint exp = mod, Rem = 0;
@@ -99,8 +99,8 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 	}
 
 	usint Num = 0x80;
-	for( usint i=0; i<padlen; i++ ) {
-		usint actualPos = (i + length) * p;
+	for( usint i=0; i<padlen; i++ ) { //todo: signed unsinged mismatch
+		usint actualPos = (i + length) * p; //todo: warning conversion from size_t
 		usint exp = mod, Rem = 0;
 		for (usint j = 0; j<p; j++) {
 			Rem = Num%exp;
@@ -201,7 +201,7 @@ void
 BytePlaintextEncoding::Unpad(const BigBinaryInteger &)
 {
 	usint nPadding = 0;
-	for (sint i = this->size() - 1; i >= 0; --i) {
+	for (sint i = this->size() - 1; i >= 0; --i) { //todo: warning conversion from size_t
 		nPadding++;
 		if (this->at(i) == 0x80) {
 			break;

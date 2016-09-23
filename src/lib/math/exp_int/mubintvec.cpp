@@ -152,7 +152,7 @@ namespace exp_int {
     this->m_data.resize(b.size());
     //this->m_data = b.m_data; for some reason this did not work, even though
     //we inheret from ubintvec and it is protected... 
-    for(auto i = 0; i< b.size(); i++){
+    for(size_t i = 0; i< b.size(); i++){
       this->m_data[i] = b.GetValAtIndex(i);
     }
 
@@ -169,7 +169,7 @@ namespace exp_int {
     this->m_data.resize(b.size());
     //this->m_data = b.m_data; for some reason this did not work, even though
     //we inheret from ubintvec
-    for(auto i = 0; i< b.size(); i++){
+    for(size_t i = 0; i< b.size(); i++){
       this->m_data[i] = b.GetValAtIndex(i);
     }
 
@@ -187,7 +187,7 @@ namespace exp_int {
     this->m_data.resize(b.size());
     //this->m_data = b.m_data; for some reason this did not work, even though
     //we inheret from ubintvec
-    for(auto i = 0; i< b.size(); i++){
+    for(size_t i = 0; i< b.size(); i++){
       this->m_data[i] = b.GetValAtIndex(i);
 
     }
@@ -207,7 +207,7 @@ namespace exp_int {
     this->m_data.resize(b.size());
     //this->m_data = b.m_data; for some reason this did not work, even though
     //we inheret from ubintvec
-    for(auto i = 0; i< b.size(); i++){
+    for(size_t i = 0; i< b.size(); i++){
       this->m_data[i] = b.GetValAtIndex(i);
     }
 
@@ -222,7 +222,7 @@ namespace exp_int {
   mubintvec<ubint_el_t>::mubintvec(const mubintvec &in_bintvec){
     bool dbg_flag = false;
     //todo: redo
-    usint length = in_bintvec.m_data.size();
+    size_t length = in_bintvec.m_data.size();
     this->m_data.resize(length);
     for(usint i=0;i < length;i++){
       this->m_data[i]= in_bintvec.m_data[i];
@@ -281,7 +281,7 @@ namespace exp_int {
   template<class ubint_el_t>
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<ubint_el_t> rhs){
     bool dbg_flag = false;
-    usint len = rhs.size();
+    size_t len = rhs.size();
     this->m_data.clear();
 
     for(usint i=0;i<len;i++){ // this loops over each entry
@@ -302,7 +302,7 @@ namespace exp_int {
   template<class ubint_el_t>
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<usint> rhs){
     bool dbg_flag = false;
-    usint len = rhs.size();
+    size_t len = rhs.size();
     this->m_data.clear();
     for(usint i=0;i<len;i++){ // this loops over each entry
       if(i<len) {
@@ -324,7 +324,7 @@ namespace exp_int {
   template<class ubint_el_t>
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<sint> rhs){
     bool dbg_flag = false;
-    usint len = rhs.size();
+    size_t len = rhs.size();
     this->m_data.clear();
     for(usint i=0;i<len;i++){ // this loops over each entry
       if(i<len) {
@@ -344,7 +344,7 @@ namespace exp_int {
   template<class ubint_el_t>
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<std::string> rhs){
     bool dbg_flag = false;
-    usint len = rhs.size();
+    size_t len = rhs.size();
     this->m_data.clear();
     for(usint i=0;i<len;i++){ // this loops over each entry
       if(i<len) {
@@ -791,10 +791,10 @@ template<class ubint_el_t>
     lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
     bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator()); 
 
-    usint pkVectorLength = this->m_data.size();
+    size_t pkVectorLength = this->m_data.size();
     if( pkVectorLength > 0 ) {
       std::string pkBufferString = this->m_data.at(0).Serialize();
-      for (int i = 1; i < pkVectorLength; i++) {
+      for (size_t i = 1; i < pkVectorLength; i++) {
 	pkBufferString += "|";
 	pkBufferString += this->m_data.at(i).Serialize();
       }
