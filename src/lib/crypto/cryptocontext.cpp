@@ -106,20 +106,20 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 	item.ctx->relinWindow = relinWindow;
 	item.ctx->stDev = stDev;
 
-	item.ctx->ilParams = ILParams(item.ringdim, item.mod, item.ru);
+	item.ctx->ilParams = ILParams(item.ctx->ringdim, item.ctx->mod, item.ctx->ru);
 
 	LPCryptoParametersLTV<T>* params = new LPCryptoParametersLTV<T>();
 	item.ctx->params = params;
 
-	params->SetPlaintextModulus(item.ptmod);
-	params->SetDistributionParameter(item.stDev);
-	params->SetRelinWindow(item.relinWindow);
-	params->SetElementParams(item.ilParams);
+	params->SetPlaintextModulus(item.ctx->ptmod);
+	params->SetDistributionParameter(item.ctx->stDev);
+	params->SetRelinWindow(item.ctx->relinWindow);
+	params->SetElementParams(item.ctx->ilParams);
 
 	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-	params->SetDiscreteGaussianGenerator(item.dgg);
+	params->SetDiscreteGaussianGenerator(item.ctx->dgg);
 
-	item.ctx->algorithm = new LPPublicKeyEncryptionSchemeLTV<T>();
+	item.ctx->scheme = new LPPublicKeyEncryptionSchemeLTV<T>();
 
 	return item;
 }
@@ -164,24 +164,24 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 	item.ctx->stDev = stDev;
 	item.ctx->stDevStSt = stDevStSt;
 
-	item.ctx->ilParams = ILParams(item.ringdim, item.mod, item.ru);
+	item.ctx->ilParams = ILParams(item.ctx->ringdim, item.ctx->mod, item.ctx->ru);
 
 	LPCryptoParametersStehleSteinfeld<T>* params = new LPCryptoParametersStehleSteinfeld<T>();
 	item.ctx->params = params;
 
-	params->SetPlaintextModulus(item.ptmod);
-	params->SetDistributionParameter(item.stDev);
-	params->SetDistributionParameterStSt(item.stDevStSt);
-	params->SetRelinWindow(item.relinWindow);
-	params->SetElementParams(item.ilParams);
+	params->SetPlaintextModulus(item.ctx->ptmod);
+	params->SetDistributionParameter(item.ctx->stDev);
+	params->SetDistributionParameterStSt(item.ctx->stDevStSt);
+	params->SetRelinWindow(item.ctx->relinWindow);
+	params->SetElementParams(item.ctx->ilParams);
 
 	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-	params->SetDiscreteGaussianGenerator(item.dgg);
+	params->SetDiscreteGaussianGenerator(item.ctx->dgg);
 
 	item.ctx->dggStSt = DiscreteGaussianGenerator(stDevStSt);				// Create the noise generator
-	params->SetDiscreteGaussianGeneratorStSt(item.dggStSt);
+	params->SetDiscreteGaussianGeneratorStSt(item.ctx->dggStSt);
 
-	item.ctx->algorithm = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>();
+	item.ctx->scheme = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>();
 
 	return item;
 }
