@@ -167,7 +167,7 @@ public:
 	shared_ptr<CryptoContextImpl<Element>>	ctx;
 
 	CryptoContext(CryptoContextImpl<Element> *e) {
-		ctx = std::make_shared<CryptoContextImpl<Element>>(e);
+		ctx.reset( e );
 	}
 
 	LPKeyPair<Element> KeyGen() const {
