@@ -287,6 +287,8 @@ void PRESimulation(usint count, usint dataset){
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2,m,data[i].modulus,data[i].rootOfUnity,data[i].relinWindow,stdDev, depth);
 
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2,m,data[i].modulus,data[i].rootOfUnity,relWindow,stdDev);
+
 	// Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
