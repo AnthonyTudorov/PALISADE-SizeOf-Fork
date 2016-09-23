@@ -223,9 +223,8 @@ namespace lbcrypto {
 		* @param &ciphertext the input ciphertext.
 		* @param *newCiphertext the new ciphertext.
 		*/
-		void ReEncrypt(const LPEvalKey<Element> &evalKey,
-			const Ciphertext<Element> &ciphertext,
-			Ciphertext<Element> *newCiphertext) const;
+		shared_ptr<Ciphertext<Element>> ReEncrypt(const LPEvalKey<Element> &evalKey,
+			const Ciphertext<Element> &ciphertext) const;
 	};
 
 

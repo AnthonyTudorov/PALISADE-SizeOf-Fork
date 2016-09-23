@@ -31,24 +31,21 @@ namespace lbcrypto {
 			
 //Function for extracting a value at a certain index using automorphism operation.
 template <class Element>
-void LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(const Ciphertext<Element> &ciphertext, const usint i, 
-				const std::vector<LPEvalKey<Element> *> &evalKeys, Ciphertext<Element> *newCiphertext) const
+shared_ptr<Ciphertext<Element>> LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext,
+		const usint i, const std::vector<LPEvalKey<Element> *> &evalKeys) const
 
 {
-	
 	usint autoIndex = 2*i - 1;
-	usint m = ciphertext.GetElement().GetCyclotomicOrder();
+	//usint m = ciphertext.GetElement().GetCyclotomicOrder();
 
 	//usint iInverse = ModInverse(autoIndex,m);
 
-	Ciphertext<Element> permutedCiphertext;
-	permutedCiphertext = ciphertext;
+	Ciphertext<Element> permutedCiphertext(*ciphertext);
+
 	//permutedCiphertext.SetElement(ciphertext.GetElement().AutomorphismTransform(iInverse));
-	permutedCiphertext.SetElement(ciphertext.GetElement().AutomorphismTransform(autoIndex));
+	permutedCiphertext.SetElement(ciphertext->GetElement().AutomorphismTransform(autoIndex));
 
-	*newCiphertext = ciphertext;
-
-	this->GetScheme().ReEncrypt(*evalKeys[i-2], permutedCiphertext, newCiphertext);
+	return this->GetScheme().ReEncrypt(*evalKeys[i-2], permutedCiphertext);
 
 
 		////debugging
@@ -66,7 +63,6 @@ void LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(const Ciphertext<Element> &ci
 		//std::cout << "permuted cipher" << "index " << autoIndex << "\n" << newEl.GetValues() << std::endl;
 
 		////end of debugging
-
 }  
 
 template <class Element>
