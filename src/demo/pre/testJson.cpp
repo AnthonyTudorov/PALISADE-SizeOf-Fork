@@ -110,7 +110,7 @@ void testJson(
 
 	cout << "----------BEGIN LPAlgorithm" + cID + ".Encrypt TESTING----------" << endl;
 	cout << "Calling Encrypt in LPAlgorithm" + cID + " with deserialized instance of LPPublicKey" + cID + "" << endl;
-	vector<Ciphertext<Element>> testCiphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> testCiphertext;
 	EncryptResult er = CryptoUtility<Element>::Encrypt(*tp->ctx->getAlgorithm(), pkDeserialized, newPtxt, &testCiphertext);
 	if( er.isValid == false ) {
 		cout << "FAILED" << endl;
