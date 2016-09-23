@@ -478,13 +478,39 @@ namespace exp_int {
   // Mod
   template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Mod(const ubint_el_t& modulus) const{
-    mubintvec ans(*this);
-    for(usint i=0;i<this->m_data.size();i++){
-      ans.m_data[i] = ans.m_data[i].Mod(modulus);
-    }
-    ans.m_modulus = modulus;
-    ans. m_modulus_state = INITIALIZED;
-    return ans;
+
+    // previous version
+    //mubintvec ans(*this);
+    //for(usint i=0;i<this->m_data.size();i++){
+    //  ans.m_data[i] = ans.m_data[i].Mod(modulus);
+    //}
+    //ans.m_modulus = modulus;
+    //ans. m_modulus_state = INITIALIZED;
+    //return ans;
+
+	if (modulus == ubint_el_t::TWO)
+		return this->ModByTwo();
+	else
+	{
+
+		mubintvec ans(*this);
+		ubint_el_t halfQ(this->GetModulus() >> 1);
+		for (usint i = 0; i<this->m_data.size(); i++) {
+			ans.m_data[i] = ans.m_data[i].Mod(modulus);
+			if (this->GetValAtIndex(i)>halfQ) {
+				ans.m_data[i] = ans.m_data[i].ModSub(this->GetModulus(), modulus);
+				//ans.SetValAtIndex(i, this->GetValAtIndex(i).ModSub(this->GetModulus(), modulus));
+			}
+			else {
+				ans.m_data[i] = ans.m_data[i].Mod(modulus);
+			}
+		}
+		ans.m_modulus = modulus;
+		ans.m_modulus_state = INITIALIZED;
+		return ans;
+
+	}
+
   }
 
   // %=
