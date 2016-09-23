@@ -235,9 +235,7 @@ public:
 			std::vector<shared_ptr<Ciphertext<Element>>> *newCiphertext)
 	{
 		for( int i=0; i < ciphertext.size(); i++ ) {
-			shared_ptr<Ciphertext<Element>> nCipher( new Ciphertext<Element>() );
-			scheme.ReEncrypt(evalKey, *ciphertext[i], &(*nCipher));
-			newCiphertext->push_back( nCipher );
+			newCiphertext->push_back( scheme.ReEncrypt(evalKey, *ciphertext[i]) );
 		}
 	}
 
