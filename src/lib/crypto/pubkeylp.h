@@ -1023,13 +1023,6 @@ namespace lbcrypto {
 
 	};
 
-	template <class Element>
-	class LPKeyPair {
-	public:
-		shared_ptr<LPPublicKey<Element>>	publicKey;
-		shared_ptr<LPPrivateKey<Element>>	secretKey;
-	};
-
 	/**
 	 * @brief Abstract interface for encryption algorithm
 	 * @tparam Element a ring element.
