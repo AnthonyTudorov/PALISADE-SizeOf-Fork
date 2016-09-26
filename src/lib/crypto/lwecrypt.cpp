@@ -36,18 +36,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 template <class Element>
-LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(CryptoContext<Element> cc) const
+LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> cc) const
 {
-	LPKeyPair<Element>	kp;
-	kp.publicKey = std::make_shared<LPPublicKey<Element>>( new LPPublicKey<Element>(cc) );
-	kp.secretKey = std::make_shared<LPPrivateKey<Element>>( new LPPrivateKey<Element>(cc) );
+	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
-	const LPCryptoParametersLTV<Element> &cryptoParams = cc.GetCryptoParameters();
+	const LPCryptoParametersLTV<Element> *cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element> *>( &cc.GetCryptoParameters() );
 
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
-	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+	if( cryptoParams == 0 )
+		throw std::logic_error("Wrong type for crypto parameters in LPAlgorithmLTV<Element>::KeyGen");
 
-	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
+	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
 
@@ -81,18 +82,16 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(CryptoContext<Element> cc) co
 
 
 template <class Element>
-LPKeyPair<Element> LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(CryptoContext<Element> cc) const
+LPKeyPair<Element> LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(const CryptoContext<Element> cc) const
 		{
-	LPKeyPair<Element>	kp;
-	kp.publicKey = std::make_shared<LPPublicKey<Element>>( new LPPublicKey<Element>(cc) );
-	kp.secretKey = std::make_shared<LPPrivateKey<Element>>( new LPPrivateKey<Element>(cc) );
+	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
-	const LPCryptoParametersStehleSteinfeld<Element> &cryptoParams = cc.GetCryptoParameters();
+	const LPCryptoParametersStehleSteinfeld<Element> *cryptoParams = dynamic_cast<const LPCryptoParametersStehleSteinfeld<Element> *>( &cc.GetCryptoParameters() );
 
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
-	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGeneratorStSt();
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGeneratorStSt();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
 
@@ -120,7 +119,7 @@ LPKeyPair<Element> LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(CryptoC
 	g.SwitchFormat();
 
 	//public key is generated
-	kp.publicKey->SetPublicElementAtIndex(0, cryptoParams->GetPlaintextModulus()*g*kp.privateKey->GetPrivateElement().MultiplicativeInverse());
+	kp.publicKey->SetPublicElementAtIndex(0, cryptoParams->GetPlaintextModulus()*g*kp.secretKey->GetPrivateElement().MultiplicativeInverse());
 
 	return kp;
 }
@@ -176,16 +175,16 @@ void LPLeveledSHEAlgorithmLTV<Element>::EvalMultKeyGen(const LPPrivateKey<Elemen
 * private key A, is now decryptable by public key B (and not A).
 */
 template<class Element>
-Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPEvalKey<Element> &keySwitchHint,const Ciphertext<Element> &cipherText) const {
+shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPEvalKey<Element> &keySwitchHint,const Ciphertext<Element> &cipherText) const {
 
 	//Get the EvalKeyNTRU to perform key swich, also verfies if proper EvalKey is instantiated.
 	const LPEvalKeyNTRU<Element> &keyHint = dynamic_cast<const LPEvalKeyNTRU<Element>&>(keySwitchHint);
 
-	Ciphertext<Element> newCipherText(cipherText);
+	shared_ptr<Ciphertext<Element>> newCipherText( new Ciphertext<Element>(cipherText) );
 
 	Element newCipherTextElement = cipherText.GetElement()*keyHint.GetA();
 
-	newCipherText.SetElement( newCipherTextElement );
+	newCipherText->SetElement( newCipherTextElement );
 	
 	return newCipherText ;
 }
@@ -241,7 +240,7 @@ void LPLeveledSHEAlgorithmLTV<Element>::QuadraticEvalMultKeyGen(const LPPrivateK
 * ModReduce is written for ILVectorArray2n and it drops the last tower while updating the necessary parameters. 
 */
 template<class Element> inline
-void LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Element> *cipherText) const {
+void LPLeveledSHEAlgorithmLTV<Element>::ModReduce(shared_ptr<Ciphertext<Element>> *cipherText) const {
 
 	throw std::logic_error("fix me in ModReduce of LPLeveledSHEAlgorithmLTV");
 //	Element cipherTextElement(cipherText->GetElement());
@@ -266,7 +265,7 @@ template<class Element>
 void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherText, const LPEvalKeyNTRU<Element> &keySwitchHint) const {
 
 		//KeySwitching to a cipherText that can be decrypted by a sparse key. 
-		*cipherText = this->KeySwitch( keySwitchHint, *cipherText) ;
+		*cipherText = *this->KeySwitch( keySwitchHint, *cipherText) ;
 
 		//Once the keyswitching of the ciphertext has been done, based on the algorithm in the referenced paper, the ciphertext needs to be decomposed.
 		Element keySwitchedCipherTextElement(cipherText->GetElement());
@@ -291,7 +290,7 @@ void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherTe
 }
 
 template<class Element>
-void LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+void LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, shared_ptr<Ciphertext<Element>> cipherTextResult) const {
 
 	if(!(cipherText1.GetCryptoParameters() == cipherText2.GetCryptoParameters()) || !(cipherTextResult->GetCryptoParameters() == cipherText2.GetCryptoParameters())){
 		std::string errMsg = "ComposedEvalMult crypto parameters are not the same";
@@ -301,13 +300,13 @@ void LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(const Ciphertext<Elemen
 	const LPPublicKeyEncryptionSchemeLTV<Element> &scheme = dynamic_cast< const LPPublicKeyEncryptionSchemeLTV<Element> &>( this->GetScheme() );
 
 	//scheme.m_algorithmSHE->EvalMult(cipherText1,cipherText2, cipherTextResult);
-	scheme.EvalMult(cipherText1,cipherText2, cipherTextResult);
+	scheme.EvalMult(cipherText1, cipherText2, &cipherTextResult);
 
 	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(quadKeySwitchHint,*cipherTextResult);
-	*cipherTextResult = scheme.KeySwitch(quadKeySwitchHint,*cipherTextResult);
+	*cipherTextResult = *scheme.KeySwitch(quadKeySwitchHint,*cipherTextResult);
 
 	//scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
-	scheme.ModReduce(cipherTextResult);
+	scheme.ModReduce(&cipherTextResult);
 	
 }
 
@@ -322,23 +321,24 @@ void LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const Ciphertext<Element> &c
 	const LPPublicKeyEncryptionSchemeLTV<Element> &scheme = dynamic_cast< const LPPublicKeyEncryptionSchemeLTV<Element> &>( this->GetScheme() );
 
 	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(linearKeySwitchHint,cipherText1);
-	*cipherTextResult = scheme.KeySwitch(linearKeySwitchHint,cipherText1);
+	*cipherTextResult = *scheme.KeySwitch(linearKeySwitchHint,cipherText1);
 
-	scheme.ModReduce(cipherTextResult);
+	shared_ptr<Ciphertext<Element>> temp(cipherTextResult);
+
+	scheme.ModReduce(&temp);
 
 }
 
 template<class Element>
-bool LPLeveledSHEAlgorithmLTV<Element>::SparseKeyGen(LPPublicKey<Element>* publicKey, LPPrivateKey<Element>* privateKey) const
+LPKeyPair<Element> LPLeveledSHEAlgorithmLTV<Element>::SparseKeyGen(const CryptoContext<Element> cc) const
 {
-	if (publicKey == 0 || privateKey == 0)
-		return false;
+	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
 	const LPCryptoParametersLTV<Element> *cryptoParams =
-		dynamic_cast<const LPCryptoParametersLTV<Element>*>(&privateKey->GetCryptoParameters());
+		dynamic_cast<const LPCryptoParametersLTV<Element>*>(&cc.GetCryptoParameters());
 
 	if (cryptoParams == 0)
-		return false;
+		return LPKeyPair<Element>();
 
 	const ElemParams &elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
@@ -366,16 +366,16 @@ bool LPLeveledSHEAlgorithmLTV<Element>::SparseKeyGen(LPPublicKey<Element>* publi
 		f.SwitchFormat();
 	}
 
-	privateKey->SetPrivateElement(f);
+	kp.secretKey->SetPrivateElement(f);
 
 	Element g(dgg, elementParams, Format::COEFFICIENT);
 
 	g.SwitchFormat();
 
 	//public key is generated
-	publicKey->SetPublicElementAtIndex(0, std::move(cryptoParams->GetPlaintextModulus()*g*privateKey->GetPrivateElement().MultiplicativeInverse()));
+	kp.publicKey->SetPublicElementAtIndex(0, std::move(cryptoParams->GetPlaintextModulus()*g*kp.secretKey->GetPrivateElement().MultiplicativeInverse()));
 
-	return true;
+	return kp;
 }
 
 template<class Element>
@@ -402,9 +402,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const LPPublicK
 	const LPCryptoParametersRLWE<Element> *cryptoParams =
 			dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&publicKey.GetCryptoParameters());
 
-	if( cryptoParams == 0 ) return EncryptResult();
+	if( cryptoParams == 0 ) return shared_ptr<Ciphertext<Element>>();
 
-	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>( publicKey.GetCryptoParameters() ) );
+	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>( publicKey.GetCryptoContext() ) );
 
 	const ElemParams &elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();

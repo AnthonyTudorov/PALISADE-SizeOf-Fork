@@ -91,7 +91,7 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			virtual LPKeyPair<Element> KeyGen(CryptoContext<Element> cc) const;
+			virtual LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc) const;
 	 };
 
 	/**
@@ -126,7 +126,7 @@ namespace lbcrypto {
 			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
 			 * @param &cipherText Original ciphertext to perform switching on.
 			 */
-			virtual Ciphertext<Element> KeySwitch(const LPEvalKey<Element> &keySwitchHint,const  Ciphertext<Element> &cipherText) const;
+			virtual shared_ptr<Ciphertext<Element>> KeySwitch(const LPEvalKey<Element> &keySwitchHint,const  Ciphertext<Element> &cipherText) const;
 
 			/**
 			* Method for generating a keyswitchhint from originalPrivateKey square to newPrivateKey
@@ -142,7 +142,7 @@ namespace lbcrypto {
 			 *
 			 * @param *cipherText Ciphertext to perform and apply modreduce on.
 			 */
-			virtual void ModReduce(Ciphertext<Element> *cipherText) const; 
+			virtual void ModReduce(shared_ptr<Ciphertext<Element>> *cipherText) const;
 			/**
 			 * Method for RingReducing CipherText and the Private Key used for encryption.
 			 *
@@ -152,14 +152,14 @@ namespace lbcrypto {
 			virtual void RingReduce(Ciphertext<Element> *cipherText, const LPEvalKeyNTRU<Element> &keySwitchHint) const ; 
 			
 			/**
-			* Method for Composed EvalMult
+			* Method for ComposedEvalMult
 			*
 			* @param &cipherText1 ciphertext1, first input ciphertext to perform multiplication on.
 			* @param &cipherText2 cipherText2, second input ciphertext to perform multiplication on.
 			* @param &quadKeySwitchHint is for resultant quadratic secret key after multiplication to the secret key of the particular level.
 			* @param &cipherTextResult is the resulting ciphertext that can be decrypted with the secret key of the particular level.
 			*/
-			virtual void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const ;
+			virtual void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, shared_ptr<Ciphertext<Element>> cipherTextResult) const ;
 
 			/**
 			* Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
@@ -176,7 +176,7 @@ namespace lbcrypto {
 			* @param *publicKey is the public key to be generated.
 			* @param *privateKey is the private key to be generated.
 			*/
-			virtual bool SparseKeyGen(LPPublicKey<Element> *publicKey, LPPrivateKey<Element> *privateKey) const;
+			virtual LPKeyPair<Element> SparseKeyGen(const CryptoContext<Element> cc) const;
 			/**
 			* Function that determines if security requirements are met if ring dimension is reduced by half.
 			*
@@ -212,7 +212,7 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			LPKeyPair<Element> KeyGen(CryptoContext<Element> cc) const;
+			LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc) const;
 	};
 
 	/**

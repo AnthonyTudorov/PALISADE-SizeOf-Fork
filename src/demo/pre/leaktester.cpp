@@ -248,8 +248,8 @@ runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plainte
 
 		vector<shared_ptr<Ciphertext<ILVector2n>>> intCiphertext;
 		IntPlaintextEncoding outInt;
-		eResult = CryptoUtility<ILVector2n>::Encrypt(ctx.GetEncryptionAlgorithm(), pk, inInt, &intCiphertext, doPadding);
-		dResult = CryptoUtility<ILVector2n>::Decrypt(ctx.GetEncryptionAlgorithm(), sk, intCiphertext, &outInt, doPadding);
+		eResult = CryptoUtility<ILVector2n>::Encrypt(ctx.GetEncryptionAlgorithm(), *kp.publicKey, inInt, &intCiphertext, doPadding);
+		dResult = CryptoUtility<ILVector2n>::Decrypt(ctx.GetEncryptionAlgorithm(), *kp.secretKey, intCiphertext, &outInt, doPadding);
 		if( inInt.size() != outInt.size() ) {
 			cout << "eResult " << eResult.isValid << ":" << eResult.numBytesEncrypted << ", " << intCiphertext.size() << endl;
 			cout << "dResult " << dResult.isValid << ":" << dResult.messageLength << endl;
@@ -281,7 +281,7 @@ runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plainte
 
 	//Perform the proxy re-encryption operation.
 
-	vector<Ciphertext<ILVector2n>> newCiphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
 
 	CryptoUtility<ILVector2n>::ReEncrypt(ctx.GetEncryptionAlgorithm(), evalKey, ciphertext, &newCiphertext);
 
