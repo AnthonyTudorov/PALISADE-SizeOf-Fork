@@ -38,14 +38,14 @@ template <class Element>
 void LPAlgorithmSHELTV<Element>::EvalMult(
 				const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2, 
-				Ciphertext<Element> *newCiphertext) const
+				shared_ptr<Ciphertext<Element>> *newCiphertext) const
 {
 	
 	if(ciphertext1.GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2.GetElement().GetFormat() == Format::COEFFICIENT){
 		throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 	}
 
-	if(!(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters()) || !(ciphertext1.GetCryptoParameters() == newCiphertext->GetCryptoParameters())){
+	if(!(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters()) || !(ciphertext1.GetCryptoParameters() == (*newCiphertext)->GetCryptoParameters())){
 		std::string errMsg = "EvalMult crypto parameters are not the same";
 		throw std::runtime_error(errMsg);
 	}
@@ -56,20 +56,21 @@ void LPAlgorithmSHELTV<Element>::EvalMult(
 
 	Element cResult = c1*c2;
 
-	newCiphertext->SetElement(cResult);
+	(*newCiphertext)->SetElement(cResult);
 
 }
 
 template <class Element>
 void LPAlgorithmSHELTV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 	const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &ek,
-	Ciphertext<Element> *newCiphertext) const {
+	shared_ptr<Ciphertext<Element>> *newCiphertext) const {
 
 	//invoke the EvalMult without the EvalKey
 	EvalMult(ciphertext1, ciphertext2, newCiphertext);
 
 	//Key Switching operation.
-	*newCiphertext = this->GetScheme().KeySwitch(ek,*newCiphertext);
+	shared_ptr<Ciphertext<Element>> switched( this->GetScheme().KeySwitch(ek,**newCiphertext) );
+	(*newCiphertext).reset( switched.get() );
 
 }
 
@@ -139,12 +140,10 @@ bool LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const LPPrivateKey<Element> &pri
 }
 
 template <class Element>
-void LPAlgorithmSHELTV<Element>::KeySwitch(const LPEvalKeyNTRU<Element> &keySwitchHint,
-				const Ciphertext<Element> &ciphertext, 
-				Ciphertext<Element> *newCiphertext) const
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::KeySwitch(const LPEvalKeyNTRU<Element> &keySwitchHint,
+				const Ciphertext<Element> &ciphertext) const
 {
-	Ciphertext<Element> ctOut();
-	*newCiphertext = ctOut;
+	return shared_ptr<Ciphertext<Element>>( new Ciphertext<Element>( ciphertext.GetCryptoContext() ) );
 }  
 
 }

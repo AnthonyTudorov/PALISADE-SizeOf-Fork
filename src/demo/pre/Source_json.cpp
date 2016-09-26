@@ -264,7 +264,7 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyNTRURelin<ILVector2n> evalKey(*ctx.getParams());
+	LPEvalKeyNTRURelin<ILVector2n> evalKey(ctx);
 
 	start = currentDateTime();
 
@@ -282,7 +282,7 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 	////////////////////////////////////////////////////////////
 
 
-	vector<Ciphertext<ILVector2n>> newCiphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
 
 	std::cout <<"\n"<< "Running re-encryption..." << std::endl;
 

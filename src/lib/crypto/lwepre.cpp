@@ -103,7 +103,7 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmPRELTV<Element>::ReEncrypt(const LPEvalKey<Element> &evalKey,
 	const Ciphertext<Element> &ciphertext) const
 {
-	shared_ptr<Ciphertext<Element>> newCiphertext( ciphertext );
+	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(ciphertext) );
 
 	const LPCryptoParametersRLWE<Element> &cryptoParamsLWE = dynamic_cast<const LPCryptoParametersRLWE<Element>&>(evalKey.GetCryptoParameters());
 	

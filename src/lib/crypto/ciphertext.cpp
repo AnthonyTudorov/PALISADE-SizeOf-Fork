@@ -38,7 +38,7 @@ Ciphertext<Element>::Ciphertext(const Ciphertext<Element> &ciphertext) {
 	cryptoContext = ciphertext.cryptoContext;
 	m_norm = ciphertext.m_norm;
 	m_elements = ciphertext.m_elements;
-} //
+}
 
 // move constructor
 template <class Element>
