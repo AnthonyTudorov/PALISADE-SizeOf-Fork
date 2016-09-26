@@ -194,38 +194,26 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_Short_Ring) {
 	//BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 	ILParams params(m, q, rootOfUnity);
 
-	//This code is run only when performing execution time measurements
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m, q.ToString(), RootOfUnity(m,q).ToString(), 1, stdDev);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(PRE);
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
+	ChineseRemainderTransformFTT::GetInstance().PreCompute(RootOfUnity(m,q), m, q);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(dgg, params);
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetILParams());
 
-	LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
-	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
-															// Initialize the public key containers.
-	LPPublicKey<ILVector2n> pk(cryptoParams);
-	LPPrivateKey<ILVector2n> sk(cryptoParams);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
-
-	algorithm.KeyGen(&pk, &sk); // This is the core function call that generates the keys.
-
-	vector<Ciphertext<ILVector2n>> ciphertext;
-
-	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext, &ciphertext);
+	CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext);
 
 	BytePlaintextEncoding plaintextNew;
 
-	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &plaintextNew);
+	CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp.secretKey, ciphertext, &plaintextNew);
 
 	EXPECT_EQ(plaintextNew, plaintext);
 	ILVector2n::DestroyPreComputedSamples();
