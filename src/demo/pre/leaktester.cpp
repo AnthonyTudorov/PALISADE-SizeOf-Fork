@@ -45,6 +45,9 @@ main(int argc, char *argv[])
 		return 0;
 	}
 
+	ctx.Enable(ENCRYPTION);
+	ctx.Enable(PRE);
+
 	BytePlaintextEncoding plaintext1("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	BytePlaintextEncoding plaintext2(
 			"1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
@@ -204,7 +207,7 @@ runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plainte
 	//Perform the key generation operation.
 
 	LPKeyPair<ILVector2n> kp = ctx.KeyGen();
-	if( false ) {
+	if( !kp.good() ) {
 		cout << "First key generation failed" << endl;
 		exit(1);
 	}
@@ -275,7 +278,7 @@ runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plainte
 
 	//Perform the proxy re-encryption key generation operation.
 
-	LPEvalKeyRelin<ILVector2n> evalKey(ctx);
+	LPEvalKeyNTRURelin<ILVector2n> evalKey(ctx);
 
 	CryptoUtility<ILVector2n>::ReKeyGen(ctx.GetEncryptionAlgorithm(), *newKp.publicKey, *kp.secretKey, &evalKey);
 
