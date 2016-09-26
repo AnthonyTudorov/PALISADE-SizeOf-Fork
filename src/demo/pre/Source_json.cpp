@@ -103,6 +103,8 @@ main(int argc, char *argv[])
 	ctx.Enable(ENCRYPTION);
 	ctx.Enable(PRE);
 
+	NTRUPRE(ctx, doJson);
+
 	//	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	//	NumberTheoreticTransform::GetInstance().Destroy();
 
