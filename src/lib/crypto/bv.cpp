@@ -43,16 +43,17 @@ namespace lbcrypto {
 template <class Element>
 LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContext<Element> cc) const
 {
-	LPKeyPair<Element>	kp;
-	kp.publicKey = std::make_shared<LPPublicKey<Element>>( new LPPublicKey<Element>(cc) );
-	kp.secretKey = std::make_shared<LPPrivateKey<Element>>( new LPPrivateKey<Element>(cc) );
+	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
-	const LPCryptoParametersBV<Element> &cryptoParams = cc.GetCryptoParams();
+	const LPCryptoParametersBV<Element> *cryptoParams = dynamic_cast<const LPCryptoParametersBV<Element> *>( &cc.GetCryptoParameters() );
 
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
-	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+	if( cryptoParams == 0 )
+		throw std::logic_error("Wrong type for crypto parameters in LPAlgorithmBV<Element>::KeyGen");
 
-	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
+	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	const DiscreteUniformGenerator dug(elementParams.GetModulus());
 
 	//Generate the element "a" of the public key
@@ -88,9 +89,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const LPPublicKe
 	const LPPublicKey<Element> *publicKey =
 		dynamic_cast<const LPPublicKey<Element>*>(&pubKey);
 
-	if (cryptoParams == 0) return EncryptResult();
+	if( cryptoParams == 0 ) return shared_ptr<Ciphertext<Element>>();
 
-	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey.GetCryptoParameters()) );
+	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey.GetCryptoContext()) );
 
 	const ElemParams &elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
@@ -207,7 +208,7 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmPREBV<Element>::ReEncrypt(const LPEvalKey<Element> &EK,
 	const Ciphertext<Element> &ciphertext) const
 {
-	shared_ptr<Ciphertext<Element>> newCiphertext( ciphertext );
+	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(ciphertext) );
 
 	const LPCryptoParametersBV<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersBV<Element>*>(&EK.GetCryptoParameters());
 

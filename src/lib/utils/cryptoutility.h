@@ -285,13 +285,11 @@ public:
 	static void KeySwitch(
 		const LPPublicKeyEncryptionScheme<Element>& scheme,
 		const LPEvalKeyNTRU<Element> &keySwitchHint,
-		const vector<Ciphertext<Element>>& ciphertext,
-		vector<Ciphertext<Element>> *newCiphertext)
+		const vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
+		vector<shared_ptr<Ciphertext<Element>>> *newCiphertext)
 	{
 		for (int i = 0; i < ciphertext.size(); i++) {
-			Ciphertext<Element> nCipher;
-			nCipher = scheme.KeySwitch(keySwitchHint, ciphertext.at(i));
-			newCiphertext->push_back(std::move(nCipher));
+			newCiphertext->push_back( scheme.KeySwitch(keySwitchHint, ciphertext.at(i)) );
 		}
 	}
 
@@ -302,10 +300,10 @@ public:
 	*/
 	static void ModReduce(
 		const LPPublicKeyEncryptionScheme<Element>& scheme,
-		vector<Ciphertext<Element>> *ciphertext)
+		vector<shared_ptr<Ciphertext<Element>>> *ciphertext)
 	{
 		for (int i = 0; i < ciphertext->size(); i++) {
-			scheme.ModReduce(&ciphertext->at(i));
+			scheme.ModReduce(ciphertext->at(i));
 		}
 	}
 
@@ -318,7 +316,7 @@ public:
 	//void RingReduce(Ciphertext<Element> *cipherText, const LPEvalKeyNTRU<Element> &keySwitchHint) const
 	static void RingReduce(
 		const LPPublicKeyEncryptionScheme<Element>& scheme,
-		vector<Ciphertext<Element>> *ciphertext,
+		vector<shared_ptr<Ciphertext<Element>>> *ciphertext,
 		const LPEvalKeyNTRU<Element> &keySwitchHint)
 
 	{
@@ -340,14 +338,14 @@ public:
 		const vector<Ciphertext<Element>> &ciphertext1,
 		const vector<Ciphertext<Element>> &ciphertext2,
 		const LPEvalKeyNTRU<Element> &quadKeySwitchHint, 
-		vector<Ciphertext<Element>> *ciphertextResult
+		vector<shared_ptr<Ciphertext<Element>>> *ciphertextResult
 		)
 	{
 		if (ciphertext1.size() != ciphertext2.size()) {
 			throw std::logic_error("Cannot have ciphertext of different length");
 		}
 		for (int i = 0; i < ciphertext1.size(); i++) {
-			scheme.ComposedEvalMult(ciphertext1.at(i), ciphertext2.at(i), quadKeySwitchHint, &ciphertextResult->at(i));
+			scheme.ComposedEvalMult(ciphertext1.at(i), ciphertext2.at(i), quadKeySwitchHint, ciphertextResult->at(i));
 		}
 	}
 

@@ -130,9 +130,33 @@ CryptoContextFactory<T>::genCryptoContextBV(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev)
-		{
-			throw std::logic_error("Must implement factory for BV");
-		}
+{
+	CryptoContext<T>	item( new CryptoContextImpl<T>() );
+
+	item.ctx->ringdim = ringdim;
+	item.ctx->ptmod = BigBinaryInteger(plaintextmodulus);
+	item.ctx->mod = BigBinaryInteger(modulus);
+	item.ctx->ru = BigBinaryInteger(rootOfUnity);
+	item.ctx->relinWindow = relinWindow;
+	item.ctx->stDev = stDev;
+
+	item.ctx->ilParams = ILParams(item.ctx->ringdim, item.ctx->mod, item.ctx->ru);
+
+	LPCryptoParametersBV<T>* params = new LPCryptoParametersBV<T>();
+	item.ctx->params = params;
+
+	params->SetPlaintextModulus(item.ctx->ptmod);
+	params->SetDistributionParameter(item.ctx->stDev);
+	params->SetRelinWindow(item.ctx->relinWindow);
+	params->SetElementParams(item.ctx->ilParams);
+
+	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
+	params->SetDiscreteGaussianGenerator(item.ctx->dgg);
+
+	item.ctx->scheme = new LPPublicKeyEncryptionSchemeBV<T>();
+
+	return item;
+}
 
 // FIXME: this is temporary until we better incorporate DCRT
 template <typename T>
