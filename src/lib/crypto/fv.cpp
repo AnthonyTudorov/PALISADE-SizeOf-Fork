@@ -70,8 +70,8 @@ bool LPAlgorithmFV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 
 	//Generate the secret key
 	Element s(dgg, elementParams, Format::COEFFICIENT);
-	// std::cout << "s = " << std::endl;
-	// s.PrintValues();
+	std::cout << "s = " << std::endl;
+	s.PrintValues();
 	s.SwitchFormat();
 
 	privateKey->SetPrivateElement(s);
@@ -147,19 +147,19 @@ EncryptResult LPAlgorithmFV<Element>::Encrypt(const LPPublicKey<Element> &pubKey
 
 	c1 = p1*u + e2;
 
-	/*std::cout << "c0 in Eval format = " << std::endl;
-	c0.PrintValues();
+	// std::cout << "c0 in Eval format = " << std::endl;
+	// c0.PrintValues();
 	c0.SwitchFormat();
 	std::cout << "c0 = " << std::endl;
 	c0.PrintValues();
 	c0.SwitchFormat();
 
-	std::cout << "c1 in Eval format = " << std::endl;
-	c1.PrintValues();
+	// std::cout << "c1 in Eval format = " << std::endl;
+	// c1.PrintValues();
 	c1.SwitchFormat();
 	std::cout << "c1 = " << std::endl;
 	c1.PrintValues();
-	c1.SwitchFormat();*/
+	c1.SwitchFormat();
 
 
 	ciphertext->SetCryptoParameters(cryptoParams);
@@ -183,16 +183,15 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> &priva
 	const std::vector<Element> &c = ciphertext.GetElements();
 
 	const Element &s = privateKey.GetPrivateElement();
-	// std::cout << "s in Eval format = " << std::endl;
-	// s.PrintValues();
 
 	/*Element temp = s.TimesWithOutMod(c[1]);
-	// temp.SwitchFormat();
-	std::cout << "temp in eval format = " << std::endl;
+	temp.SwitchFormat();
+	std::cout << "temp = " << std::endl;
 	temp.PrintValues();
-	// temp.SwitchFormat();*/
+	temp.SwitchFormat();*/
 
-	Element b = c[0] + s.TimesWithOutMod(c[1]);
+	Element b = c[0] + s*c[1];
+	// Element b = c[0] + s.TimesWithOutMod(c[1]);
 	// Element b = c[0] + temp;
 
 	/*b.SwitchFormat();
@@ -202,12 +201,20 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> &priva
 
 	// b = p*b;
 
-	b = b.MultiplyAndRound(p, q);
-
 	b.SwitchFormat();
 
-	/*std::cout << "After MultiplyAndRound, b = " << std::endl;
-	b.PrintValues();*/
+	std::cout << "Before MultiplyAndRound, b = " << std::endl;
+	b.PrintValues();
+
+	b = b.MultiplyAndRound(p, q);
+	
+	std::cout << "After MultiplyAndRound, b = " << std::endl;
+	b.PrintValues();
+
+	b = b.ModByTwo();
+
+	std::cout << "After ModByTwo, b = " << std::endl;
+	b.PrintValues();
 	
 	*plaintext = b;
 

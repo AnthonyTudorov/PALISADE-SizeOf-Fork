@@ -111,8 +111,12 @@ void NTRUPRE(int input) {
 	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
 	
 	usint m = 16;
-	BigBinaryInteger modulus("67108913");
-	BigBinaryInteger rootOfUnity("61564");
+	// BigBinaryInteger modulus("67108913");
+	// BigBinaryInteger rootOfUnity("61564");
+
+	BigBinaryInteger modulus("4049");
+	BigBinaryInteger rootOfUnity(lbcrypto::RootOfUnity(m, modulus));
+
 	BytePlaintextEncoding plaintext = "N";
 	usint relWindow = input;
 	
@@ -141,12 +145,10 @@ void NTRUPRE(int input) {
 	*/
 	//BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 
-
-	float stdDev = 4;
+	float stdDev = 1;
 
 	ofstream fout;
 	fout.open ("output.txt");
-
 
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
