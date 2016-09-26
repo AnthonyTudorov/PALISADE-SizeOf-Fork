@@ -203,6 +203,10 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 
 	const LPCryptoParametersFV<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersFV<Element>*>(&ek.GetCryptoParameters());
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
+
+	const ElemParams &elementParams = cryptoParamsLWE->GetElementParams();
+	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
+	const BigBinaryInteger &q = elementParams.GetModulus();
 	
 	const LPEvalKeyRelin<Element> &evalKey =
 		dynamic_cast<const LPEvalKeyRelin<Element>&>(ek);
@@ -210,10 +214,13 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 	std::vector<Element> cipherText1Elements = ciphertext1.GetElements();
 	std::vector<Element> cipherText2Elements = ciphertext2.GetElements();
 
-	// TODO-Nishanth: multiply p/q and rounding
 	Element c0 = cipherText1Elements[0] * cipherText2Elements[0];
 	Element c1 = cipherText1Elements[0] * cipherText2Elements[1] + cipherText1Elements[1] * cipherText2Elements[0];
 	Element c2 = cipherText1Elements[1] * cipherText2Elements[1];
+
+	c0 = c0.MultiplyAndRound(p, q);
+	c1 = c1.MultiplyAndRound(p, q);
+	c2 = c2.MultiplyAndRound(p, q);
 
 	std::vector<Element> digitsC2;
 	c2.BaseDecompose(relinWindow, &digitsC2);
