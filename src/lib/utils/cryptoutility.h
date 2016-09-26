@@ -289,7 +289,7 @@ public:
 		vector<shared_ptr<Ciphertext<Element>>> *newCiphertext)
 	{
 		for (int i = 0; i < ciphertext.size(); i++) {
-			newCiphertext->push_back( scheme.KeySwitch(keySwitchHint, ciphertext.at(i)) );
+			newCiphertext->push_back( scheme.KeySwitch(keySwitchHint, *ciphertext.at(i)) );
 		}
 	}
 
@@ -303,7 +303,7 @@ public:
 		vector<shared_ptr<Ciphertext<Element>>> *ciphertext)
 	{
 		for (int i = 0; i < ciphertext->size(); i++) {
-			scheme.ModReduce(ciphertext->at(i));
+			scheme.ModReduce(&ciphertext->at(i));
 		}
 	}
 
@@ -321,7 +321,7 @@ public:
 
 	{
 		for (int i = 0; i < ciphertext->size(); i++) {
-			scheme.RingReduce(&ciphertext->at(i), keySwitchHint);
+			scheme.RingReduce(&(*ciphertext->at(i)), keySwitchHint);
 		}
 	}
 

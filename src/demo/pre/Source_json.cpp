@@ -105,6 +105,9 @@ main(int argc, char *argv[])
 		return 0;
 	}
 
+	ctx.Enable(ENCRYPTION);
+	ctx.Enable(PRE);
+
 	NTRUPRE(ctx, doJson);
 
 	//	ChineseRemainderTransformFTT::GetInstance().Destroy();
@@ -166,8 +169,6 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	bool successKeyGen=false;
-
 	std::cout <<"\n" <<  "Running key generation..." << std::endl;
 
 	start = currentDateTime();
@@ -183,7 +184,7 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 	//fout<< currentDateTime()  << " pk = "<<pk.GetPublicElement().GetValues()<<endl;
 	//fout<< currentDateTime()  << " sk = "<<sk.GetPrivateElement().GetValues()<<endl;
 
-	if (!successKeyGen) {
+	if (!kp.good()) {
 		std::cout<<"Key generation failed!"<<std::endl;
 		exit(1);
 	}
