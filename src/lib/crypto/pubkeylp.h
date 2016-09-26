@@ -127,7 +127,7 @@ namespace lbcrypto {
 	class LPKey : public Serializable {
 	public:
 
-		LPKey(CryptoContext<Element>& cc) : cryptoContext(cc) {}
+		LPKey(const CryptoContext<Element>& cc) : cryptoContext(cc) {}
 
 		virtual ~LPKey() {}
 
@@ -160,7 +160,7 @@ namespace lbcrypto {
 			*
 			* @param &cryptoParams is the reference to cryptoParams
 			*/
-			LPPublicKey(CryptoContext<Element>& cc) : LPKey<Element>(cc) {}
+			LPPublicKey(const CryptoContext<Element>& cc) : LPKey<Element>(cc) {}
 
 			/**
 			* Copy constructor
@@ -342,7 +342,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKey(CryptoContext<Element>& cc) : LPKey<Element>(cc) {}
+		LPEvalKey(const CryptoContext<Element>& cc) : LPKey<Element>(cc) {}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -459,7 +459,7 @@ namespace lbcrypto {
 		*
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
-		LPEvalKeyRelin(CryptoContext<Element>& cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyRelin(const CryptoContext<Element>& cc) : LPEvalKey<Element>(cc) {}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -613,7 +613,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRURelin(CryptoContext<Element>& cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyNTRURelin(const CryptoContext<Element>& cc) : LPEvalKey<Element>(cc) {}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -735,7 +735,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRU(CryptoContext<Element>& cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyNTRU(const CryptoContext<Element>& cc) : LPEvalKey<Element>(cc) {}
 
 		/**
 		* Setter function to store NTRU key switch element.
@@ -858,7 +858,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams.
 		*/
 
-		LPPrivateKey(CryptoContext<Element>& cc) : LPKey<Element>(cc) {}
+		LPPrivateKey(const CryptoContext<Element>& cc) : LPKey<Element>(cc) {}
 
 		/**
 		* Copy constructor
@@ -997,6 +997,8 @@ namespace lbcrypto {
 		shared_ptr<LPPublicKey<Element>>	publicKey;
 		shared_ptr<LPPrivateKey<Element>>	secretKey;
 
+		LPKeyPair(LPPublicKey<Element>* a=0, LPPrivateKey<Element>* b=0) : publicKey(a), secretKey(b) {}
+
 		bool good() { return publicKey && secretKey; }
 	};
 
@@ -1087,7 +1089,7 @@ namespace lbcrypto {
 			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
 			 * @param &cipherText Original ciphertext to perform switching on.
 			 */
-			virtual Ciphertext<Element> KeySwitch(const LPEvalKey<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> KeySwitch(const LPEvalKey<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const = 0;
 
 			/**
 			 * Method for generating a keyswitchhint from originalPrivateKey square to newPrivateKey
@@ -1104,7 +1106,7 @@ namespace lbcrypto {
 			 *
 			 * @param &cipherText Ciphertext to perform mod reduce on.
 			 */
-			virtual void ModReduce(Ciphertext<Element> *cipherText) const = 0; 
+			virtual void ModReduce(shared_ptr<Ciphertext<Element>> *cipherText) const = 0;
 
 			/**
 			 * Method for Ring Reduction.
@@ -1122,7 +1124,7 @@ namespace lbcrypto {
 			 * @param &quadKeySwitchHint is for resultant quadratic secret key after multiplication to the secret key of the particular level.
 			 * @param &cipherTextResult is the resulting ciphertext that can be decrypted with the secret key of the particular level.
 			 */
-			virtual void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const = 0;
+			virtual void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, shared_ptr<Ciphertext<Element>> cipherTextResult) const = 0;
 
 			/**
 			 * Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
@@ -1139,7 +1141,7 @@ namespace lbcrypto {
 			* @param *publicKey is the public key to be generated.
 			* @param *privateKey is the private key to be generated.
 			*/
-			virtual bool SparseKeyGen(LPPublicKey<Element> *publicKey, LPPrivateKey<Element> *privateKey) const = 0;
+			virtual LPKeyPair<Element> SparseKeyGen(const CryptoContext<Element> cc) const = 0;
 			/**
 			* Function that determines if security requirements are met if ring dimension is reduced by half.
 			*
@@ -1222,7 +1224,7 @@ namespace lbcrypto {
 			*/
 			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext) const = 0;
+				shared_ptr<Ciphertext<Element>> *newCiphertext) const = 0;
 
 			/**
 			* Virtual function to define the interface for homomorphic addition of ciphertexts.
@@ -1257,7 +1259,7 @@ namespace lbcrypto {
 			*/
 			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &ek,
-				Ciphertext<Element> *newCiphertext) const = 0;
+				shared_ptr<Ciphertext<Element>> *newCiphertext) const = 0;
 
 	};
 
@@ -1552,7 +1554,7 @@ namespace lbcrypto {
 
 		void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext) const {
+				shared_ptr<Ciphertext<Element>> *newCiphertext) const {
 					
 					if(this->m_algorithmSHE)
 						this->m_algorithmSHE->EvalMult(ciphertext1,ciphertext2,newCiphertext);
@@ -1573,10 +1575,9 @@ namespace lbcrypto {
 		// the nine functions below are wrappers for things in LPSHEAlgorithm (SHE)
 		//
 
-		bool SparseKeyGen(LPPublicKey<Element> *publicKey,
-		        	LPPrivateKey<Element> *privateKey) const {
+		LPKeyPair<Element> SparseKeyGen(const CryptoContext<Element> cc) const {
 				if(this->m_algorithmLeveledSHE)
-					return this->m_algorithmLeveledSHE->SparseKeyGen(publicKey, privateKey);
+					return this->m_algorithmLeveledSHE->SparseKeyGen(cc);
 				else {
 					throw std::logic_error("SparseKeyGen operation has not been enabled");
 				}
@@ -1603,7 +1604,7 @@ namespace lbcrypto {
 					}
 		}
 
-		Ciphertext<Element> KeySwitch(const LPEvalKey<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const {
+		shared_ptr<Ciphertext<Element>> KeySwitch(const LPEvalKey<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const {
 			
 			if(this->m_algorithmLeveledSHE){
 				return this->m_algorithmLeveledSHE->KeySwitch(keySwitchHint,cipherText);
@@ -1622,7 +1623,7 @@ namespace lbcrypto {
 			}
 		}
 
-		void ModReduce(Ciphertext<Element> *cipherText) const {
+		void ModReduce(shared_ptr<Ciphertext<Element>> *cipherText) const {
 			if(this->m_algorithmLeveledSHE){
 				this->m_algorithmLeveledSHE->ModReduce(cipherText);
 			}
@@ -1649,7 +1650,7 @@ namespace lbcrypto {
 			}
 		}
 
-		void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+		void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, shared_ptr<Ciphertext<Element>> cipherTextResult) const {
 			if(this->m_algorithmLeveledSHE){
 				this->m_algorithmLeveledSHE->ComposedEvalMult(cipherText1,cipherText2,quadKeySwitchHint,cipherTextResult);
 			}

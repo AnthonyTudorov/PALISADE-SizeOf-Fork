@@ -327,41 +327,33 @@ void PRESimulation(usint count, usint dataset){
 	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
 
-	std::vector<LPPublicKey<ILVector2n>*> publicKeys;
-	std::vector<LPPrivateKey<ILVector2n>*> privateKeys;
-	std::vector<LPEvalKey<ILVector2n>*> evalKeys;
+	std::vector<shared_ptr<LPPublicKey<ILVector2n>>> publicKeys;
+	std::vector<shared_ptr<LPPrivateKey<ILVector2n>>> privateKeys;
+	std::vector<shared_ptr<LPEvalKey<ILVector2n>>> evalKeys;
 
 	// Initialize the public key containers.
-	LPPublicKey<ILVector2n> pk(cryptoParams);
-	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	bool successKeyGen = false;
-	successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();	// This is the core function call that generates the keys.
 
 	if (!successKeyGen) {
 		std::cout << "Key generation failed!" << std::endl;
 		exit(1);
 	}
 
-	publicKeys.push_back(&pk);
-	privateKeys.push_back(&sk);
+	publicKeys.push_back(kp.publicKey);
+	privateKeys.push_back(kp.secretKey);
 
 	for (usint d = 0; d < depth; d++){
 
-		LPPublicKey<ILVector2n> *newPK;
-		LPPrivateKey<ILVector2n> *newSK;
-		LPEvalKey<ILVector2n> *evalKey;
+		LPKeyPair<ILVector2n> newKp = cc.KeyGen();
 
-		newPK = new LPPublicKey<ILVector2n>(cryptoParams);
-		newSK = new LPPrivateKey<ILVector2n>(cryptoParams);
-		evalKey = new LPEvalKeyRelin<ILVector2n>(cryptoParams);
+		shared_ptr<LPEvalKey<ILVector2n>> evalKey( new LPEvalKeyRelin<ILVector2n>(cc) );
 
-		successKeyGen = algorithm.KeyGen(newPK, newSK);	// This is the same core key generation operation.
+		CryptoUtility<ILVector2n>::ReKeyGen(cc.GetEncryptionAlgorithm(), *newKp.publicKey, *privateKeys[d], &(*evalKey));  // This is the core re-encryption operation.
 
-		CryptoUtility<ILVector2n>::ReKeyGen(algorithm, *newPK, *privateKeys[d], evalKey);  // This is the core re-encryption operation.
-
-		publicKeys.push_back(newPK);
-		privateKeys.push_back(newSK);
+		publicKeys.push_back(newKp.publicKey);
+		privateKeys.push_back(newKp.secretKey);
 		evalKeys.push_back(evalKey);
 
 	}
@@ -371,7 +363,7 @@ void PRESimulation(usint count, usint dataset){
 	//all expensive operations are moved outside the loop
 
 	BytePlaintextEncoding arrPlaintext[NUMBER_OF_RUNS];
-	Ciphertext<ILVector2n> arrCiphertext[NUMBER_OF_RUNS];
+	shared_ptr<Ciphertext<ILVector2n>> arrCiphertext[NUMBER_OF_RUNS];
 
 	for (usint j = 0; j < count; j++){
 		arrPlaintext[j] = all.substr(j*(n / 8), n / 8);
@@ -382,8 +374,8 @@ void PRESimulation(usint count, usint dataset){
 	for (usint j = 0; j < count; j++){
 
 		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
-		CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, arrPlaintext[j], &ciphertext);
-		arrCiphertext[j] = ct[0];
+		CryptoUtility<ILVector2n>::Encrypt(algorithm, *kp.publicKey, arrPlaintext[j], &ciphertext);
+		arrCiphertext[j] = ciphertext[0];
 
 	}
 
@@ -403,9 +395,9 @@ void PRESimulation(usint count, usint dataset){
 
 	for (usint j = 0; j < count; j++){
 
-		vector<Ciphertext<ILVector2n>> ct;
+		vector<shared_ptr<Ciphertext<ILVector2n>>> ct;
 		ct.push_back(arrCiphertext[j]);
-		DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ct, &plaintextNew[j]);
+		DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, *kp.secretKey, ct, &plaintextNew[j]);
 		ct.clear();
 
 	}
@@ -427,7 +419,7 @@ void PRESimulation(usint count, usint dataset){
 	cout << "Number of decryption errors: " << "\t" << errorcounter << endl;
 	fout << "Number of decryption errors: " << "\t" << errorcounter << endl;
 
-	Ciphertext<ILVector2n> arrCiphertextNew[NUMBER_OF_RUNS];
+	shared_ptr<Ciphertext<ILVector2n>> arrCiphertextNew[NUMBER_OF_RUNS];
 
 	//computing re-encryption time
 
@@ -436,11 +428,11 @@ void PRESimulation(usint count, usint dataset){
 		start = currentDateTime();
 
 		for (usint j = 0; j < count; j++){
-			vector<Ciphertext<ILVector2n>> ct;
+			vector<shared_ptr<Ciphertext<ILVector2n>>> ct;
 			ct.push_back(arrCiphertext[j]);
-			vector<Ciphertext<ILVector2n>> ctR;
+			vector<shared_ptr<Ciphertext<ILVector2n>>> ctR;
 
-			CryptoUtility<ILVector2n>::ReEncrypt(algorithm, *evalKeys[d], ct, &ctR);
+			CryptoUtility<ILVector2n>::ReEncrypt(cc.GetEncryptionAlgorithm(), *evalKeys[d], ct, &ctR);
 			arrCiphertextNew[j] = ctR[0];
 			ct.clear();
 			ctR.clear();
@@ -467,7 +459,7 @@ void PRESimulation(usint count, usint dataset){
 
 	for (usint j = 0; j < count; j++){
 
-		vector<Ciphertext<ILVector2n>> ct;
+		vector<shared_ptr<Ciphertext<ILVector2n>>> ct;
 		ct.push_back(arrCiphertextNew[j]);
 		DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, *privateKeys.back(), ct, &plaintextNew[j]);
 		ct.clear();

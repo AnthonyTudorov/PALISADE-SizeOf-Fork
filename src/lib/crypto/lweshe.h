@@ -73,7 +73,7 @@ namespace lbcrypto {
 			 */
 			void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2, 
-				Ciphertext<Element> *newCiphertext) const;
+				shared_ptr<Ciphertext<Element>> *newCiphertext) const;
 
 			bool EvalMultKeyGen(const LPPrivateKey<Element> &privateKey,
 				LPEvalKey<Element> *evalKey) const {
@@ -97,8 +97,8 @@ namespace lbcrypto {
 			* @param *newCiphertext the new resulting ciphertext.
 			*/
 			void EvalMult(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,const LPEvalKey<Element> &ek,
-				Ciphertext<Element> *newCiphertext) const;
+				const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &ek,
+				shared_ptr<Ciphertext<Element>> *newCiphertext) const;
 
 			/**
 			 * Function for evaluation addition on ciphertext.
@@ -152,9 +152,8 @@ namespace lbcrypto {
 			 * @param &ciphertext the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			void KeySwitch(const LPEvalKeyNTRU<Element> &keySwitchHint,
-				const Ciphertext<Element> &ciphertext, 
-				Ciphertext<Element> *newCiphertext) const;
+			 shared_ptr<Ciphertext<Element>> KeySwitch(const LPEvalKeyNTRU<Element> &keySwitchHint,
+				const Ciphertext<Element> &ciphertext) const;
 
 	};
 

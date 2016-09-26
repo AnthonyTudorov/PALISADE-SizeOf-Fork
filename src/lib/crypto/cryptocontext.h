@@ -166,12 +166,27 @@ class CryptoContext {
 public:
 	shared_ptr<CryptoContextImpl<Element>>	ctx;
 
+	CryptoContext() {}
+
 	CryptoContext(CryptoContextImpl<Element> *e) {
 		ctx.reset( e );
 	}
 
+	CryptoContext(const CryptoContext<Element>& c) {
+		ctx = c.ctx;
+	}
+
+	CryptoContext<Element>& operator=(const CryptoContext<Element>& rhs) {
+		ctx = rhs.ctx;
+		return *this;
+	}
+
 	LPKeyPair<Element> KeyGen() const {
 		return GetEncryptionAlgorithm().KeyGen(*this);
+	}
+
+	LPKeyPair<Element> SparseKeyGen() const {
+		return GetEncryptionAlgorithm().SparseKeyGen(*this);
 	}
 
 	void Enable(PKESchemeFeature feature) { ctx->getScheme()->Enable(feature); }

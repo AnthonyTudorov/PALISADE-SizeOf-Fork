@@ -69,42 +69,27 @@ public:
 TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 
 	usint m = 2048;
-	BigBinaryInteger modulus("268441601");
-	BigBinaryInteger rootOfUnity("16947867");
+	string modulus("268441601");
+	string rootOfUnity("16947867");
 	usint relWindow = 1;
 
 	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	
 	float stdDev = 4;
 
-	//Prepare for parameters.
-	ILParams ilParams(m, modulus, rootOfUnity);
 
-	//Set crypto parametes
-	LPCryptoParametersBV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
-																//cryptoParams.SetPlaintextModulus(BigBinaryInteger("4"));  	// Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-	cryptoParams.SetRelinWindow(1);				// Set the relinearization window
-	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
-
-	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
-
-	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
-
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(2, m,
+			modulus, rootOfUnity, relWindow, stdDev);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(PRE);
 
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	ChineseRemainderTransformFTT::GetInstance().PreCompute(BigBinaryInteger(rootOfUnity), m, BigBinaryInteger(modulus));
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(dgg, ilParams);
-
-	// Initialize the public key containers.
-	LPPublicKey<ILVector2n> pk(cryptoParams);
-	LPPrivateKey<ILVector2n> sk(cryptoParams);
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetILParams());
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -112,18 +97,10 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	//LPAlgorithmLTV<ILVector2n> algorithm;
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
-
-	LPPublicKeyEncryptionSchemeBV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
-
-	bool successKeyGen = false;
-
-	successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
-
-	if (!successKeyGen) {
+	if (!kp.good()) {
 		std::cout << "Key generation failed!" << std::endl;
 		exit(1);
 	}
@@ -132,9 +109,9 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	vector<Ciphertext<ILVector2n>> ciphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
-	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext, &ciphertext, false);	// This is the core encryption operation.
+	CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext, false);	// This is the core encryption operation.
 
 
 	////////////////////////////////////////////////////////////
@@ -143,7 +120,7 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 
 	BytePlaintextEncoding plaintextNew;
 
-	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &plaintextNew, false);  // This is the core decryption operation.
+	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp.secretKey, ciphertext, &plaintextNew, false);  // This is the core decryption operation.
 
 	EXPECT_EQ(plaintextNew, plaintext);
 
@@ -154,10 +131,7 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPPublicKey<ILVector2n> newPK(cryptoParams);
-	LPPrivateKey<ILVector2n> newSK(cryptoParams);
-
-	successKeyGen = algorithm.KeyGen(&newPK, &newSK);	// This is the same core key generation operation.
+	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
 
 
 	////////////////////////////////////////////////////////////
@@ -165,10 +139,10 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
-	LPEvalKeyRelin<ILVector2n> evalKey(cryptoParams);
+	LPEvalKeyRelin<ILVector2n> evalKey(cc);
 
 
-	algorithm.ReKeyGen(newSK, sk, &evalKey);  // This is the core re-encryption operation.
+	cc.GetEncryptionAlgorithm().ReKeyGen(*newKp.secretKey, *kp.secretKey, &evalKey);  // This is the core re-encryption operation.
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption operation.
@@ -176,10 +150,10 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	////////////////////////////////////////////////////////////
 
 
-	vector<Ciphertext<ILVector2n>> newCiphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
 
 
-	CryptoUtility<ILVector2n>::ReEncrypt(algorithm, evalKey, ciphertext, &newCiphertext);  // This is the core re-encryption operation.
+	CryptoUtility<ILVector2n>::ReEncrypt(cc.GetEncryptionAlgorithm(), evalKey, ciphertext, &newCiphertext);  // This is the core re-encryption operation.
 
 	//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
 
@@ -189,7 +163,7 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 
 	BytePlaintextEncoding plaintextNew2;
 
-	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(algorithm, newSK, newCiphertext, &plaintextNew2, false);  // This is the core decryption operation.
+	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *newKp.secretKey, newCiphertext, &plaintextNew2, false);  // This is the core decryption operation.
 
 	/*ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();*/
