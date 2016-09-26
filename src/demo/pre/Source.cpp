@@ -41,9 +41,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../lib/palisade.h"
 #include "../lib/palisadespace.h"
 
-#include "../lib/palisade.h"
-#include "../lib/palisadespace.h"
-
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/crypto/cryptocontext.cpp"
 #include "../../lib/utils/cryptocontexthelper.cpp"

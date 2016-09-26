@@ -303,7 +303,7 @@ public:
 		vector<shared_ptr<Ciphertext<Element>>> *ciphertext)
 	{
 		for (int i = 0; i < ciphertext->size(); i++) {
-			scheme.ModReduce(&ciphertext->at(i));
+			scheme.ModReduce(ciphertext->at(i));
 		}
 	}
 

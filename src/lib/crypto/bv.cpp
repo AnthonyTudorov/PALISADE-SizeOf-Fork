@@ -50,10 +50,10 @@ LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContext<Element> cc) con
 	if( cryptoParams == 0 )
 		throw std::logic_error("Wrong type for crypto parameters in LPAlgorithmBV<Element>::KeyGen");
 
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
-	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	const DiscreteUniformGenerator dug(elementParams.GetModulus());
 
 	//Generate the element "a" of the public key

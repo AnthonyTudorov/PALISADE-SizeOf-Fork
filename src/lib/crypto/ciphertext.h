@@ -113,13 +113,13 @@ namespace lbcrypto {
 		* Get a reference to crypto parameters.
 		* @return the crypto parameters.
 		*/
-		const LPCryptoParameters<Element> &GetCryptoParameters() const { return cryptoContext->GetCryptoParameters(); }
+		const LPCryptoParameters<Element> &GetCryptoParameters() const { return cryptoContext.GetCryptoParameters(); }
 
 		/**
 		* Get a reference to the encryption algorithm.
 		* @return the encryption alorithm.
 		*/
-		const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return cryptoContext->GetEncryptionAlgorithm(); }
+		const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return cryptoContext.GetEncryptionAlgorithm(); }
 
 		/**
 		* Get current estimate of estimate norm
