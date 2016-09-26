@@ -128,7 +128,6 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNew);
 
-
 	EXPECT_EQ(plaintext, plaintextNew);
 
 	ILVector2n::DestroyPreComputedSamples();

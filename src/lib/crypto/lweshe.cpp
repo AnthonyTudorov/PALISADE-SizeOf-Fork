@@ -57,7 +57,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
 
 	Element cResult = c1*c2;
 
-	newCiphertext->SetElement(cResult);
+	(*newCiphertext)->SetElement(cResult);
 
 	return newCiphertext;
 }
