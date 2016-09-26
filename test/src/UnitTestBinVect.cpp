@@ -446,30 +446,3 @@ TEST(UTBinVect, modmul_vector){
 		EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(i)).ConvertToInt());
 	}
 }
-
-TEST(UTBinVect, MultWithoutMod_vector){
-
-	// BigBinaryInteger q("657");		// constructor calling to set mod value
-	BigBinaryVector m(5);			// calling constructor to create a vector of length 5 and passing value of q
-	BigBinaryVector n(5);
-
-	m.SetValAtIndex(0,"10");
-	m.SetValAtIndex(1,"10000");
-	m.SetValAtIndex(2,"4554");
-	m.SetValAtIndex(3,"2343");
-	m.SetValAtIndex(4,"9789");
-
-	n.SetValAtIndex(0,"4");
-	n.SetValAtIndex(1,"9");
-	n.SetValAtIndex(2,"66");
-	n.SetValAtIndex(3,"33");
-	n.SetValAtIndex(4,"7");
-	
-	BigBinaryVector calculatedResult = m.MultWithOutMod(n);
-
-	int expectedResult[5] = {40,90000,300564,77319,68523};
-
-	for (usint i=0;i<5;i++){
-		EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(i)).ConvertToInt());
-	}
-}

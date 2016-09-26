@@ -106,28 +106,7 @@ int main() {
 //////////////////////////////////////////////////////////////////////
 void NTRUPRE(int input) {
 
-	//Set element params
-
-	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
-	
-	usint m = 16;
-	// BigBinaryInteger modulus("67108913");
-	// BigBinaryInteger rootOfUnity("61564");
-
-	BigBinaryInteger modulus("4049");
-	BigBinaryInteger rootOfUnity(lbcrypto::RootOfUnity(m, modulus));
-
-	BytePlaintextEncoding plaintext = "N";
-	usint relWindow = input;
-	
-
-	// The comments below provide a high-security parameterization for prototype use.  If this code were verified/certified for high-security applications, we would say that the following parameters would be appropriate for "production" use.
-	//usint m = 2048;
-	//BigBinaryInteger modulus("8590983169");
-	//BigBinaryInteger rootOfUnity("4810681236");
-	//BytePlaintextEncoding plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
-
-	/*SecureParams const SECURE_PARAMS[] = {
+	SecureParams const SECURE_PARAMS[] = {
 		{ 2048, BigBinaryInteger("268441601"), BigBinaryInteger("16947867"), 1 }, //r = 1
 		{ 2048, BigBinaryInteger("536881153"), BigBinaryInteger("267934765"), 2 }, // r = 2
 		{ 2048, BigBinaryInteger("1073750017"), BigBinaryInteger("180790047"), 4 },  // r = 4
@@ -142,10 +121,10 @@ void NTRUPRE(int input) {
 	usint relWindow = SECURE_PARAMS[input].relinWindow;
 
 	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-	*/
-	//BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	
+	// BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 
-	float stdDev = 1;
+	float stdDev = 4;
 
 	ofstream fout;
 	fout.open ("output.txt");

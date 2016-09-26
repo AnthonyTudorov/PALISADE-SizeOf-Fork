@@ -444,14 +444,6 @@ namespace lbcrypto {
 		ILVector2n Times(const ILVector2n &element) const;
 
 		/**
-		* Performs a multiplication operation and returns the result.
-		*
-		* @param &element is the element to multiply with.
-		* @return is the result of the multiplication.
-		*/
-		ILVector2n TimesWithOutMod(const ILVector2n &element) const;
-
-		/**
 		* Performs an addition operation and returns the result.
 		*
 		* @param &element is the element to add with.

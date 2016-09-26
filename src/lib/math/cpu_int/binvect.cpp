@@ -535,22 +535,6 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const BigBinar
 	return ans;
 }
 
-template<class IntegerType>
-BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::MultWithOutMod(const BigBinaryVector &b) const{
-
-	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-        std::cout<<"MultWithoutMod called on BigBinaryVector's with different parameters."<<std::endl;
-		return (BigBinaryVector)NULL;
-	}
-
-	BigBinaryVector ans(m_length, m_modulus);
-
-	for(usint i=0;i<ans.m_length;++i){
-		ans.m_data[i] = (this->m_data[i]).Times(b.GetValAtIndex(i));
-	}
-	return ans;
-}
-
 /*
 template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMatrixMul(const BigBinaryMatrix &a) const{

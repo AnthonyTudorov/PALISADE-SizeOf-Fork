@@ -415,10 +415,6 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::TimesWithOutMod(const ILVectorArray2n &element) const{
-		return *this;
-	}
-
 	ILVectorArray2n ILVectorArray2n::Times(const BigBinaryInteger &element) const
 	{
 		ILVectorArray2n tmp(*this);

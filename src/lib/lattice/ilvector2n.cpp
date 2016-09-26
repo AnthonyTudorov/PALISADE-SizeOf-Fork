@@ -315,15 +315,6 @@ namespace lbcrypto {
 		return tmp;
 	}
 
-	//mubintvec
-	ILVector2n ILVector2n::TimesWithOutMod(const ILVector2n &element) const {
-		ILVector2n tmp(*this);
-
-		*tmp.m_values = m_values->MultWithOutMod(*element.m_values);
-
-		return tmp;
-	}
-
 	const ILVector2n& ILVector2n::operator+=(const ILVector2n &element) {
 		if(!(this->m_params == element.m_params))
         	throw std::logic_error("operator+= called on ILVector2n's with different params.");
