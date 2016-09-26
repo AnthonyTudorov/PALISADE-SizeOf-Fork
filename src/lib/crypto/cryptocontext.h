@@ -189,6 +189,26 @@ public:
 		return GetEncryptionAlgorithm().SparseKeyGen(*this);
 	}
 
+	shared_ptr<LPKey<Element>> ReKeyGen(
+			const shared_ptr<LPPublicKey<Element>> newPublicKey,
+			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
+
+//		// make sure they keys were made with this particular context
+//		static bool ReKeyGen(
+//				const LPPublicKeyEncryptionScheme<Element>& scheme,
+//				const LPPublicKey<Element> &newPublicKey,
+//				const LPPrivateKey<Element> &origPrivateKey,
+//				LPEvalKey<Element> *evalKey)
+//		{
+//			if( typeid(Element) == typeid(ILVectorArray2n) ) {
+//				throw std::logic_error("Sorry, re-encryption keys have not been implemented with Element of ILVectorArray2n");
+//			}
+//
+//			return scheme.ReKeyGen(newPublicKey, origPrivateKey, evalKey);
+		}
+
+	}
+
 	void Enable(PKESchemeFeature feature) { ctx->getScheme()->Enable(feature); }
 	const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *ctx->getScheme(); }
 	const LPCryptoParameters<Element> &GetCryptoParameters() const { return *ctx->getParams(); }
