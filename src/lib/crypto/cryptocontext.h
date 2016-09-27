@@ -189,11 +189,11 @@ public:
 		return GetEncryptionAlgorithm().SparseKeyGen(*this);
 	}
 
-	shared_ptr<LPKey<Element>> ReKeyGen(
+	shared_ptr<LPEvalKey<Element>> ReKeyGen(
 			const shared_ptr<LPPublicKey<Element>> newPublicKey,
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
 
-		if( newPublicKey->ctx != ctx || origPrivateKey->ctx != ctx )
+		if( newPublicKey->GetCryptoContext() != *this || origPrivateKey->GetCryptoContext() != *this )
 			throw std::logic_error("Keys passed to ReKeyGen were not generated with this context");
 
 		if( typeid(Element) == typeid(ILVectorArray2n) )
