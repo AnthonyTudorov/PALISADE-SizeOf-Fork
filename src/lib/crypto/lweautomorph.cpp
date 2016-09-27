@@ -69,7 +69,7 @@ template <class Element>
 bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const LPPublicKey<Element> &publicKey, 
 	const LPPrivateKey<Element> &origPrivateKey,
 	const usint size, LPPrivateKey<Element> *tempPrivateKey, 
-	std::vector<LPEvalKey<Element>*> *evalKeys) const
+	std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const
 {
 	const Element &privateKeyElement = origPrivateKey.GetPrivateElement();
 	usint m = privateKeyElement.GetCyclotomicOrder();
@@ -99,7 +99,7 @@ bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const LPPublicKey<
 
 			//const LPPublicKeyEncryptionScheme<Element> *scheme = ciphertext.GetEncryptionAlgorithm();
 
-			this->GetScheme().ReKeyGen(publicKey, *tempPrivateKey, evalKeys->at(index));
+			evalKeys->at(index) = this->GetScheme().ReKeyGen(publicKey, *tempPrivateKey);
 
 			i = i + 2;
 

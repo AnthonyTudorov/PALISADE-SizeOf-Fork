@@ -364,23 +364,21 @@ void NTRU_DCRT() {
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
-	LPEvalKeyNTRURelin<ILVectorArray2n> evalKey(cc);
-
 	cout << "Running eval key gen" << endl;
 
-	bool rval = CryptoUtility<ILVectorArray2n>::ReKeyGen(cc.GetEncryptionAlgorithm(), *newKp.publicKey, *newKp.secretKey, &evalKey);  // This is the core re-encryption operation.
+	shared_ptr<LPEvalKey<ILVectorArray2n>> evalKey = cc.ReKeyGen(newKp.publicKey, newKp.secretKey);
 
-	if( rval == false ) {
+	if( evalKey == false ) {
 		cout << "EvalKeyGen failed!!!" << endl;
 	}
 	else {
-		vector<ILVectorArray2n> av = evalKey.GetAVector();
+		vector<ILVectorArray2n> av = evalKey->GetAVector();
 		cout << "The eval key A vect size is " << av.size() << endl;
 
 		vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext;
 
 		cout << "Running re encryption" << endl;
-		CryptoUtility<ILVectorArray2n>::ReEncrypt(cc.GetEncryptionAlgorithm(), evalKey, ciphertext, &newCiphertext);
+		CryptoUtility<ILVectorArray2n>::ReEncrypt(cc.GetEncryptionAlgorithm(), *evalKey, ciphertext, &newCiphertext);
 
 		//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
 
@@ -1360,11 +1358,9 @@ void NTRUPRE(usint input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyNTRURelin<ILVector2n> evalKey(cc);
-
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::ReKeyGen(cc.GetEncryptionAlgorithm(), *newKp.publicKey, *kp.secretKey, &evalKey);  // This is the core re-encryption operation.
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey = cc.ReKeyGen(newKp.publicKey, kp.secretKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -1385,7 +1381,7 @@ void NTRUPRE(usint input) {
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::ReEncrypt(cc.GetEncryptionAlgorithm(), evalKey, ciphertext, &newCiphertext); // This is the core re-encryption operation.
+	CryptoUtility<ILVector2n>::ReEncrypt(cc.GetEncryptionAlgorithm(), *evalKey, ciphertext, &newCiphertext);
 
 	finish = currentDateTime();
 	diff = finish - start;
