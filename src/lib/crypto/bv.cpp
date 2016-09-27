@@ -144,13 +144,13 @@ DecryptResult LPAlgorithmBV<Element>::Decrypt(const LPPrivateKey<Element> &priva
 }
 
 template <class Element>
-shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const LPKey<Element> &newSK,
-	const LPPrivateKey<Element> &origPrivateKey) const
+shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const shared_ptr<LPKey<Element>> newSK,
+	const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
 {
 	// create a new ReKey of the proper type, in this context
-	shared_ptr<LPEvalKeyNTRURelin<Element>> EK( new LPEvalKeyNTRURelin<Element>(newSK.GetCryptoContext()) );
+	shared_ptr<LPEvalKeyNTRURelin<Element>> EK( new LPEvalKeyNTRURelin<Element>(newSK->GetCryptoContext()) );
 
-	const LPCryptoParametersBV<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersBV<Element>*>(&newSK.GetCryptoParameters());
+	const LPCryptoParametersBV<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersBV<Element>*>(&newSK->GetCryptoParameters());
 
 //	if( cryptoParamsLWE == 0 ) {
 //		throw std::logic_error("Secret Key crypto parameters have incorrect type in LPAlgorithmPREBV<Element>::ReKeyGen");
@@ -161,7 +161,7 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const LPKey<E
 	const Element &s = origPrivateKey.GetPrivateElement();
 
 	const LPPrivateKey<Element> *newPrivateKey =
-		dynamic_cast<const LPPrivateKey<Element>*>(&newSK);
+		dynamic_cast<const LPPrivateKey<Element>*>(*newSK);
 
 //	if( newPrivateKey == 0 ) {
 //		throw std::logic_error("Secret Key has incorrect type in LPAlgorithmPREBV<Element>::ReKeyGen");

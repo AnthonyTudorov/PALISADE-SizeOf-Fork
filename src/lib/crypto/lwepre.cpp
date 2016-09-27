@@ -31,16 +31,16 @@ namespace lbcrypto {
 
 //Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
-shared_ptr<LPEvalKey<Element>> LPAlgorithmPRELTV<Element>::ReKeyGen(const LPKey<Element> &newPK,
-				const LPPrivateKey<Element> &origPrivateKey) const
+shared_ptr<LPEvalKey<Element>> LPAlgorithmPRELTV<Element>::ReKeyGen(const shared_ptr<LPKey<Element>> newPK,
+				const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
 {
 	// create a new ReKey of the proper type, in this context
-	shared_ptr<LPEvalKeyNTRURelin<Element>> ek( new LPEvalKeyNTRURelin<Element>(newPK.GetCryptoContext()) );
+	shared_ptr<LPEvalKeyNTRURelin<Element>> ek( new LPEvalKeyNTRURelin<Element>(newPK->GetCryptoContext()) );
 
 	// the wrapper checked to make sure that the input keys were created in the proper context
 
 	const LPCryptoParametersRLWE<Element> *cryptoParamsLWE =
-			dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&newPK.GetCryptoParameters());
+			dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&newPK->GetCryptoParameters());
 
 //	if( cryptoParamsLWE == 0 ) {
 //		throw std::logic_error("Public key is not using RLWE parameters in LPAlgorithmPRELTV<Element>::ReKeyGen");

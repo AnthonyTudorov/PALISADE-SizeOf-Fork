@@ -87,7 +87,7 @@ namespace lbcrypto {
 			virtual bool EvalAutomorphismKeyGen(const LPPublicKey<Element> &publicKey, 
 				const LPPrivateKey<Element> &origPrivateKey,
 				const usint size, LPPrivateKey<Element> *tempPrivateKey, 
-				std::vector<LPEvalKey<Element> *> *evalKeys) const;
+				std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const;
 
 	};
 
