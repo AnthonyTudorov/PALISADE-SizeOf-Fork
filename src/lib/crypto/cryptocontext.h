@@ -196,6 +196,9 @@ public:
 		if( newPublicKey->ctx != ctx || origPrivateKey->ctx != ctx )
 			throw std::logic_error("Keys passed to ReKeyGen were not generated with this context");
 
+		if( typeid(Element) == typeid(ILVectorArray2n) )
+			throw std::logic_error("Sorry, re-encryption keys have not been implemented with Element of ILVectorArray2n");
+
 		return GetEncryptionAlgorithm().ReKeyGen(newPublicKey, origPrivateKey);
 
 //		// make sure they keys were made with this particular context
@@ -205,8 +208,6 @@ public:
 //				const LPPrivateKey<Element> &origPrivateKey,
 //				LPEvalKey<Element> *evalKey)
 //		{
-//			if( typeid(Element) == typeid(ILVectorArray2n) ) {
-//				throw std::logic_error("Sorry, re-encryption keys have not been implemented with Element of ILVectorArray2n");
 //			}
 //
 //			return scheme.ReKeyGen(newPublicKey, origPrivateKey, evalKey);
