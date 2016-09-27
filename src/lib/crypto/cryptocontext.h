@@ -193,6 +193,11 @@ public:
 			const shared_ptr<LPPublicKey<Element>> newPublicKey,
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
 
+		if( newPublicKey->ctx != ctx || origPrivateKey->ctx != ctx )
+			throw std::logic_error("Keys passed to ReKeyGen were not generated with this context");
+
+		return GetEncryptionAlgorithm().ReKeyGen(newPublicKey, origPrivateKey);
+
 //		// make sure they keys were made with this particular context
 //		static bool ReKeyGen(
 //				const LPPublicKeyEncryptionScheme<Element>& scheme,
@@ -205,7 +210,7 @@ public:
 //			}
 //
 //			return scheme.ReKeyGen(newPublicKey, origPrivateKey, evalKey);
-		}
+//		}
 
 	}
 
