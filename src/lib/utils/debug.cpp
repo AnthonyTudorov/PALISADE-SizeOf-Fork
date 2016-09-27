@@ -38,7 +38,7 @@ double currentDateTime()
 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 
     time_t tnow = std::chrono::system_clock::to_time_t(now);
-    tm *date = localtime(&tnow);
+	tm *date = localtime(&tnow); //todo: dperecated use localtime_s
     date->tm_hour = 0;
     date->tm_min = 0;
     date->tm_sec = 0;

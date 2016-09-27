@@ -62,14 +62,14 @@ BytePlaintextEncoding& BytePlaintextEncoding::operator=(const char* cstr) {
 void
 BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t startFrom, size_t length) const
 {
-	int		padlen = 0;
+	int		padlen = 0;	
 
 	// default values mean "do it all"
 	if( length == 0 ) length = this->size();
 
 	// length is usually chunk size; if start + length would go past the end of the item, add padding
 	if( (startFrom + length) > this->size() ) {
-		padlen = (startFrom + length) - this->size();
+		padlen = (startFrom + length) - this->size(); //todo: warning conversion from size_t
 		length = length - padlen;
 	}
 
@@ -81,12 +81,12 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 
 	usint p = ceil((float)log((double)255) / log((double)mod));
 
-	BigBinaryVector temp(p*(length+padlen));
+	BigBinaryVector temp(p*(length+padlen)); //todo: warning conversion from size_t
 	temp.SetModulus(ilVector->GetModulus());
 	Format format = COEFFICIENT;
 
 	for (usint i = 0; i<length; i++) {
-		usint actualPos = i + startFrom;
+		usint actualPos = i + startFrom; //todo: warning conversion from size_t
 		usint actualPosP = i * p;
 		usint Num = this->at(actualPos);
 		usint exp = mod, Rem = 0;
@@ -99,8 +99,8 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 	}
 
 	usint Num = 0x80;
-	for( usint i=0; i<padlen; i++ ) {
-		usint actualPos = (i + length) * p;
+	for( usint i=0; i<padlen; i++ ) { //todo: signed unsinged mismatch
+		usint actualPos = (i + length) * p; //todo: warning conversion from size_t
 		usint exp = mod, Rem = 0;
 		for (usint j = 0; j<p; j++) {
 			Rem = Num%exp;
@@ -117,14 +117,16 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 void
 BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector)
 {
+   bool dbg_flag = false;
 	*ilVector = ilVector->SignedMod(modulus);
-
+	DEBUG("in DECODE IlVector2n");
 	usint mod = modulus.ConvertToInt();
 	usint p = ceil((float)log((double)255) / log((double)mod));
 	usint resultant_char;
 
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i = i + p) {
-		usint exp = 1;
+	  DEBUG("i "<<i);
+	  usint exp = 1;
 		resultant_char = 0;
 		for (usint j = 0; j<p; j++) {
 			resultant_char += ilVector->GetValues().GetValAtIndex(i + j).ConvertToInt()*exp;
@@ -132,6 +134,7 @@ BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 		}
 		this->push_back(resultant_char);
 	}
+	DEBUG("leaving DECODE ");
 }
 
 void
@@ -164,7 +167,9 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *
 void
 BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n *ilVectorArray2n)
 {
-	ILVector2n interpolatedDecodedValue = ilVectorArray2n->InterpolateIlArrayVector2n();
+		bool dbg_flag = false;
+		DEBUG("in byte DECODE IlVectorArray2n");
+		ILVector2n interpolatedDecodedValue = ilVectorArray2n->InterpolateIlArrayVector2n();
 		Decode(modulus, &interpolatedDecodedValue);
 		BigBinaryVector tempBBV(interpolatedDecodedValue.GetValues());
 
@@ -172,11 +177,18 @@ BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n 
 		encodeValues.reserve(ilVectorArray2n->GetNumOfElements());
 
 		for (usint i = 0; i<ilVectorArray2n->GetNumOfElements(); i++) {
+		  DEBUG("i "<<i);
+
 			ILParams ilparams(ilVectorArray2n->GetElementAtIndex(i).GetCyclotomicOrder(), ilVectorArray2n->GetElementAtIndex(i).GetModulus(), ilVectorArray2n->GetElementAtIndex(i).GetRootOfUnity());
+			DEBUG("a");
 			ILVector2n temp(ilparams);
+			DEBUG("b");
 			tempBBV = interpolatedDecodedValue.GetValues();
+			DEBUG("c");
 			tempBBV.SetModulus(ilparams.GetModulus());
+			DEBUG("d");
 			temp.SetValues(tempBBV, interpolatedDecodedValue.GetFormat());
+			DEBUG("e");
 			temp.SignedMod(ilparams.GetModulus());
 			encodeValues.push_back(temp);
 		}
@@ -189,7 +201,7 @@ void
 BytePlaintextEncoding::Unpad(const BigBinaryInteger &)
 {
 	usint nPadding = 0;
-	for (sint i = this->size() - 1; i >= 0; --i) {
+	for (sint i = this->size() - 1; i >= 0; --i) { //todo: warning conversion from size_t
 		nPadding++;
 		if (this->at(i) == 0x80) {
 			break;

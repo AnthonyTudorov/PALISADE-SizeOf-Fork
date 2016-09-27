@@ -215,7 +215,7 @@ namespace exp_int {
   }
 
   template<class ubint_el_t>
-  const ubint_el_t& ubintvec<ubint_el_t>::GetValAtIndex(usint index) const{
+  const ubint_el_t& ubintvec<ubint_el_t>::GetValAtIndex(size_t index) const{
     if(!this->IndexCheck(index)){
       throw std::logic_error("ubintvec index out of range");
     }
@@ -227,13 +227,12 @@ namespace exp_int {
 
   //todo: deprecate this.
   template<class ubint_el_t>
-  usint ubintvec<ubint_el_t>::GetLength() const{
+  size_t ubintvec<ubint_el_t>::GetLength() const{
     return this->m_data.size();
   }
 
-  //replacement for GetLength()
   template<class ubint_el_t>
-  usint ubintvec<ubint_el_t>::size() const{
+  size_t ubintvec<ubint_el_t>::size() const{
     return this->m_data.size();
   }
 
@@ -521,10 +520,10 @@ template<class ubint_el_t>
     // ubintvec has no modulus, mubintvec does.
     // bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator()); 
 
-    usint pkVectorLength = GetLength();
+    size_t pkVectorLength = GetLength();
     if( pkVectorLength > 0 ) {
       std::string pkBufferString = GetValAtIndex(0).Serialize();
-      for (int i = 1; i < pkVectorLength; i++) {
+      for (size_t i = 1; i < pkVectorLength; i++) {
 	pkBufferString += "|";
 	pkBufferString += GetValAtIndex(i).Serialize();
       }

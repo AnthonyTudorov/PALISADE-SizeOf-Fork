@@ -35,7 +35,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
+
+
 #include "nbtheory.h"
+
+#include "time.h"
+#include <chrono>
+
+#include "../utils/debug.h"
+
+
 #define _USE_MATH_DEFINES 
 #include <math.h>
 #include <time.h>
@@ -92,15 +101,26 @@ static bool WitnessFunction(const BigBinaryInteger& a, const BigBinaryInteger& d
 */
 static BigBinaryInteger FindGenerator(const BigBinaryInteger& q)
  {
+	bool dbg_flag = false;
  	std::set<BigBinaryInteger> primeFactors;
+	DEBUG("calling PrimeFactorize");
  	PrimeFactorize(q-BigBinaryInteger::ONE, primeFactors);
+	DEBUG("done");
  	bool generatorFound = false;
  	BigBinaryInteger gen;
  	while(!generatorFound) {
  		usint count = 0;
+		DEBUG("count "<<count);
  		gen = RNG(q-BigBinaryInteger::TWO).ModAdd(BigBinaryInteger::ONE, q);
  		for(std::set<BigBinaryInteger>::iterator it = primeFactors.begin(); it != primeFactors.end(); ++it) {
+		  DEBUG("in set");
+		  DEBUG("divide "<< (q-BigBinaryInteger::ONE).ToString() 
+			<<" by "<< (*it).ToString()); 
+
  			BigBinaryInteger exponent = (q-BigBinaryInteger::ONE).DividedBy(*it);
+			DEBUG("calling modexp "<<gen.ToString()
+			      <<" exponent "<<exponent.ToString()
+			      <<" q "<<q.ToString());
  			if(gen.ModExp(exponent, q) == BigBinaryInteger::ONE) break;
  			else count++;
  		}
@@ -118,15 +138,23 @@ static BigBinaryInteger FindGenerator(const BigBinaryInteger& q)
 */
 BigBinaryInteger RootOfUnity(usint m, const BigBinaryInteger& modulo) 
 {
+	bool dbg_flag = false;
+	DEBUG("in Root of unity m :"<<m<<" modulo "<<modulo.ToString());
 	BigBinaryInteger M(m);
 	if((modulo-BigBinaryInteger::ONE).Mod(M) != BigBinaryInteger::ZERO) {
 		std::string errMsg = "Please provide a primeModulus(q) and a cyclotomic number(m) satisfying the condition: (q-1)/m is an integer. The values of primeModulus = " + modulo.ToString() + " and m = " + std::to_string(m) + " do not satisfy this condition";
 		throw std::runtime_error(errMsg);
 	}
 	BigBinaryInteger result;
+	DEBUG("calling FindGenerator");	
 	BigBinaryInteger gen = FindGenerator(modulo);
+	DEBUG("gen = "<<gen.ToString());
+
+	DEBUG("calling gen.ModExp( " <<((modulo-BigBinaryInteger::ONE).DividedBy(M)).ToString() << ", modulus "<< modulo.ToString());
 	result = gen.ModExp((modulo-BigBinaryInteger::ONE).DividedBy(M), modulo);
+	DEBUG("result = "<<result.ToString());
 	if(result == BigBinaryInteger::ONE) {
+	  DEBUG("LOOP?");
 		return RootOfUnity(m, modulo);
 	}
 	return result;
@@ -220,14 +248,20 @@ usint GetMSB32(usint x)
 
   BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b)
  {
+   bool dbg_flag = false;
  	BigBinaryInteger m_a, m_b, m_t;
  	m_a = a;
  	m_b = b;
+	DEBUG("GCD a "<<a.ToString()<<" b "<< b.ToString());
 	while (m_b != BigBinaryInteger::ZERO) {
 		m_t = m_b;
+		DEBUG("GCD m_a.Mod(b) "<<m_a.ToString() <<"( "<<m_b.ToString()<<")");
 		m_b = m_a.Mod(m_b);
+		
 		m_a = m_t;
+		DEBUG("GCD m_a "<<m_b.ToString() <<" m_b "<<m_b.ToString());
 	}
+	DEBUG("GCD ret "<<m_a.ToString());		  
 	return m_a;
  }
 
@@ -266,6 +300,7 @@ usint GetMSB32(usint x)
 */
  const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n)
  {
+   bool dbg_flag = false;
  	BigBinaryInteger divisor(BigBinaryInteger::ONE);
  	
  	BigBinaryInteger c(RNG(n));
@@ -281,6 +316,8 @@ usint GetMSB32(usint x)
  		xx = (xx.ModMul(xx, n) + c).Mod(n);
  		xx = (xx.ModMul(xx, n) + c).Mod(n);
  		divisor = GreatestCommonDivisor(((x-xx) > BigBinaryInteger::ZERO) ? x-xx : xx-x, n);
+		DEBUG("PRF divisor "<<divisor.ToString());
+		
  	} while (divisor == BigBinaryInteger::ONE);
  	
  	return divisor;
@@ -293,16 +330,30 @@ usint GetMSB32(usint x)
 */
  void PrimeFactorize(const BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors)
  {
+   bool dbg_flag = false;
+
 	// primeFactors.clear();
+        DEBUG("In PrimeFactorize ");
+	DEBUG("n " <<n.ToString());
+	DEBUG("set size "<< primeFactors.size());
  	if(n == BigBinaryInteger::ONE) return;
  	if(MillerRabinPrimalityTest(n)) {
+	        DEBUG("Miller true");
  		primeFactors.insert(n);
  		return;
  	}
- 	BigBinaryInteger divisor(PollardRhoFactorization(n));
+	DEBUG("calling PrFact "<<n.ToString());
+ 	BigBinaryInteger tmp2(PollardRhoFactorization(n));
+	DEBUG("tmp2  "<<tmp2.ToString());
+	BigBinaryInteger divisor(tmp2);
+	DEBUG("calling PF "<<divisor.ToString());
  	PrimeFactorize(divisor, primeFactors);
- 	BigBinaryInteger reducedN(n.DividedBy(divisor));
- 	PrimeFactorize(reducedN, primeFactors);
+	DEBUG("calling div "<<divisor.ToString());
+	BigBinaryInteger tmp = n.DividedBy(divisor);
+	DEBUG("result tmp "<<tmp.ToString());
+ 	BigBinaryInteger reducedN(tmp);
+	DEBUG("calling PF "<<reducedN.ToString());
+	PrimeFactorize(reducedN, primeFactors);
  }
 
 /*

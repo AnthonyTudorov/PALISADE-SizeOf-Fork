@@ -2003,7 +2003,7 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::D
 
 template<typename uint_type,usint BITLENGTH>
 usint BigBinaryInteger<uint_type,BITLENGTH>::GetMSBDUint_type(Duint_type x){
-	return BigBinaryInteger<uint_type,BITLENGTH>::GetMSB32(x);
+	return BigBinaryInteger<uint_type,BITLENGTH>::GetMSB32(x); //todo possible loss of data
 }
 
 //Algoritm used is shift and add

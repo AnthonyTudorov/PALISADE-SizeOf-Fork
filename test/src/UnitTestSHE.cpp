@@ -63,13 +63,13 @@ using namespace lbcrypto;
 
 
 template <class T>
-class UnitTestSHE : public ::testing::Test {
+class UTSHE : public ::testing::Test {
 
 public:
 	const usint m = 16;
 
 protected:
-	UnitTestSHE() {}
+	UTSHE() {}
 
 	virtual void SetUp() {
 	}
@@ -78,11 +78,11 @@ protected:
 
 	}
 
-	virtual ~UnitTestSHE() {  }
+	virtual ~UTSHE() {  }
 
 };
 
-TEST(UnitTestSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
+TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	//ILVector2n::DestroyPreComputedSamples();
 	usint m = 512;
@@ -151,7 +151,7 @@ TEST(UnitTestSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 	ILVector2n::DestroyPreComputedSamples();
 }
 
-TEST(UnitTestSHE, keyswitch_sparse_key_SingleCRT_intArray) {
+TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 
 	//ILVector2n::DestroyPreComputedSamples();
 	usint m = 16;
@@ -222,7 +222,7 @@ TEST(UnitTestSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 
 }
 
-TEST(UnitTestSHE, keyswitch_SingleCRT) {
+TEST(UTSHE, keyswitch_SingleCRT) {
 
 	//ILVector2n::DestroyPreComputedSamples();
 	usint m = 512;
@@ -293,7 +293,7 @@ TEST(UnitTestSHE, keyswitch_SingleCRT) {
 	 
 }
 
-TEST(UnitTestSHE, sparsekeygen_single_crt_encrypt_decrypt) {
+TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 
 	//ILVector2n::DestroyPreComputedSamples();
 
@@ -354,7 +354,7 @@ TEST(UnitTestSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 	ILVector2n::DestroyPreComputedSamples();
 }
 
-TEST(UnitTestSHE, keyswitch_ModReduce_DCRT) {
+TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	usint m = 512;
 
@@ -442,7 +442,7 @@ TEST(UnitTestSHE, keyswitch_ModReduce_DCRT) {
 
 }
 
-TEST(UnitTestSHE, ringreduce_single_crt) {
+TEST(UTSHE, ringreduce_single_crt) {
 	//ILVector2n::DestroyPreComputedSamples();
 	usint m = 16;
 
@@ -543,7 +543,7 @@ TEST(UnitTestSHE, ringreduce_single_crt) {
 	ILVector2n::DestroyPreComputedSamples();
 }
 
-TEST(UnitTestSHE, ringreduce_double_crt) {
+TEST(UTSHE, ringreduce_double_crt) {
 
 	usint m = 16;
 	float stdDev = 4;
@@ -646,7 +646,7 @@ TEST(UnitTestSHE, ringreduce_double_crt) {
 	ILVector2n::DestroyPreComputedSamples();
 }
 
-TEST(UnitTestSHE, canringreduce) {
+TEST(UTSHE, canringreduce) {
 	BigBinaryInteger m1("17729");
 	BigBinaryInteger m2("17761");
 	std::vector<BigBinaryInteger> moduli;
@@ -666,7 +666,7 @@ TEST(UnitTestSHE, canringreduce) {
 
 }
 
-TEST(UnitTestSHE, decomposeMult) {
+TEST(UTSHE, decomposeMult) {
 	usint m1 = 16;
 
 	BigBinaryInteger modulus("1");

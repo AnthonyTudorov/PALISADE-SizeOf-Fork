@@ -161,11 +161,13 @@ public:
 			Plaintext *plaintext,
 			bool doPadding = true)
 	{
+		bool dbg_flag = false;
 		int lastone = ciphertext.size() - 1;
 		for( int ch = 0; ch < ciphertext.size(); ch++ ) {
+			DEBUG("ch:" << ch);
 			Element decrypted;
 			DecryptResult result = scheme.Decrypt(privateKey, ciphertext[ch], &decrypted);
-
+			DEBUG("result valid "<<result.isValid<< " msg length "<<result.messageLength );
 			if( result.isValid == false ) return result;
 
 			plaintext->Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), &decrypted);
@@ -174,7 +176,7 @@ public:
 				plaintext->Unpad(privateKey.GetCryptoParameters().GetPlaintextModulus());
 			}
 		}
-
+		DEBUG("decrypting");
 		return DecryptResult(plaintext->GetLength());
 	}
 

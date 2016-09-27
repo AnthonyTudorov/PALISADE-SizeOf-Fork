@@ -503,6 +503,7 @@ namespace lbcrypto {
 	* 4. output (d′/q′) in R(q/q′).
 	*/
 	void ILVectorArray2n::ModReduce(const BigBinaryInteger &plaintextModulus) {
+	  bool dbg_flag = false;
 		if(m_format != Format::EVALUATION) {
 			throw std::logic_error("Mod Reduce function expects EVAL Formatted ILVectorArray2n. It was passed COEFF Formatted ILVectorArray2n.");
 		}
@@ -515,9 +516,10 @@ namespace lbcrypto {
 
 		//precomputations
 		BigBinaryInteger qt(m_vectors[lastTowerIndex].GetModulus());
-		//std::cout<<"qt:	"<<qt<<std::endl;
+		DEBUG("qt: "<< qt.ToString());
+		DEBUG("plaintextModulus: "<< plaintextModulus.ToString());
 		BigBinaryInteger v(qt.ModInverse(plaintextModulus));
-		//std::cout<<"v:	"<<v<<std::endl;
+		DEBUG("v: "<< v.ToString());
 		BigBinaryInteger a((v * qt).ModSub(BigBinaryInteger::ONE, plaintextModulus*qt));
 		//std::cout<<"a:	"<<a<<std::endl;
 
@@ -560,6 +562,8 @@ namespace lbcrypto {
 	*/
 	ILVector2n ILVectorArray2n::InterpolateIlArrayVector2n() const
 	{
+	  bool dbg_flag = false;
+	  DEBUG("in InterpolateIlArrayVector2n");
 		if(m_vectors.size() == 1) return m_vectors.at(0);
 
 		/*initializing variables for effciency*/
@@ -605,17 +609,21 @@ namespace lbcrypto {
 			coefficients.SetValAtIndex(i, interpolateValue); // This Calculates V[j]
 			interpolateValue = BigBinaryInteger::ZERO;
 		}
+		DEBUG("passed loops");
+
 		/*Intializing and setting the params of the resulting ILVector2n*/
 		usint m = m_cyclotomicOrder;
 		BigBinaryInteger modulus;
 		modulus = m_modulus;
 		BigBinaryInteger rootOfUnity;
-
+		DEBUG("X");
+		DEBUG("m_cyclotomicOrder "<<m_cyclotomicOrder);
+		DEBUG("modulus "<< modulus.ToString());
 		ILParams ilParams(m_cyclotomicOrder, modulus);
-
+		DEBUG("Y");
 		ILVector2n polynomialReconstructed(ilParams);
 		polynomialReconstructed.SetValues(coefficients,m_format);
-
+		DEBUG("Z");
 		return polynomialReconstructed;
 	}
 

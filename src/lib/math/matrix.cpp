@@ -65,6 +65,7 @@ Matrix<Element>& Matrix<Element>::operator=(const Matrix<Element>& other) {
 
 template<class Element>
 Matrix<Element>& Matrix<Element>::Ones() {
+  //std::cout<<"in Ones"<<std::endl;
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
             *data[row][col] = 1;
@@ -85,6 +86,7 @@ Matrix<Element>& Matrix<Element>::Fill(Element val) {
 
 template<class Element>
 Matrix<Element>& Matrix<Element>::Identity() {
+  //std::cout<<"in Identity"<<std::endl;
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
             if (row == col) {
