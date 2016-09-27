@@ -156,6 +156,9 @@ public:
 		if( typeid(Element) == typeid(ILVectorArray2n) )
 			throw std::logic_error("Sorry, re-encryption keys have not been implemented with Element of ILVectorArray2n");
 
+		if( typeid(Element) == typeid(ILVectorArray2n) )
+			throw std::logic_error("Sorry, re-encryption keys have not been implemented with Element of ILVectorArray2n");
+
 		return GetEncryptionAlgorithm().ReKeyGen(newPublicKey, origPrivateKey);
 	}
 
