@@ -38,6 +38,8 @@
 #define SRC_DEMO_PRE_CRYPTOCONTEXT_H_
 
 #include "../palisade.h"
+#include "../encoding/plaintext.h"
+//#include "../encoding/byteplaintextencoding.h"
 
 namespace lbcrypto {
 
@@ -52,17 +54,15 @@ template <class Element>
 class CryptoContextFactory;
 
 template <class Element>
-class CryptoContextImpl {
+class CryptoContextImpl /*: public Serializable */{
 
 	friend class CryptoContextFactory<Element>;
 	friend class CryptoContext<Element>;
 
 private:
-	/* these variables are used to initialize the CryptoContext */
+	/* these variables are used to initialize the CryptoContext - if they are not used they can get ditched */
 	usint				ringdim;		/*!< ring dimension */
 	BigBinaryInteger	ptmod;			/*!< plaintext modulus */
-	BigBinaryInteger	mod;			/*!< modulus */
-	BigBinaryInteger	ru;				/*!< root of unity */
 	usint				relinWindow;	/*!< relin window */
 	float				stDev;			/*!< stamdard deviation */
 	float				stDevStSt;		/*!< standard deviation for StSt uses */
@@ -181,6 +181,15 @@ public:
 		return *this;
 	}
 
+	void Enable(PKESchemeFeature feature) { ctx->getScheme()->Enable(feature); }
+	const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *ctx->getScheme(); }
+	const LPCryptoParameters<Element> &GetCryptoParameters() const { return *ctx->getParams(); }
+	DiscreteGaussianGenerator& GetGenerator() { return ctx->GetGenerator(); }
+	ILParams& GetILParams() { return ctx->GetILParams(); }
+
+	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.ctx == b.ctx; }
+	friend bool operator!=(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.ctx != b.ctx; }
+
 	LPKeyPair<Element> KeyGen() const {
 		return GetEncryptionAlgorithm().KeyGen(*this);
 	}
@@ -194,35 +203,56 @@ public:
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
 
 		if( newPublicKey->GetCryptoContext() != *this || origPrivateKey->GetCryptoContext() != *this )
-			throw std::logic_error("Keys passed to ReKeyGen were not generated with this context");
+			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
 
 		if( typeid(Element) == typeid(ILVectorArray2n) )
 			throw std::logic_error("Sorry, re-encryption keys have not been implemented with Element of ILVectorArray2n");
 
 		return GetEncryptionAlgorithm().ReKeyGen(newPublicKey, origPrivateKey);
-
-//		// make sure they keys were made with this particular context
-//		static bool ReKeyGen(
-//				const LPPublicKeyEncryptionScheme<Element>& scheme,
-//				const LPPublicKey<Element> &newPublicKey,
-//				const LPPrivateKey<Element> &origPrivateKey,
-//				LPEvalKey<Element> *evalKey)
-//		{
-//			}
-//
-//			return scheme.ReKeyGen(newPublicKey, origPrivateKey, evalKey);
-//		}
-
 	}
 
-	void Enable(PKESchemeFeature feature) { ctx->getScheme()->Enable(feature); }
-	const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *ctx->getScheme(); }
-	const LPCryptoParameters<Element> &GetCryptoParameters() const { return *ctx->getParams(); }
-	DiscreteGaussianGenerator& GetGenerator() { return ctx->GetGenerator(); }
-	ILParams& GetILParams() { return ctx->GetILParams(); }
+	std::vector<shared_ptr<Ciphertext<Element>>> Encrypt(
+			const shared_ptr<LPPublicKey<Element>> publicKey,
+			const Plaintext& plaintext,
+			bool doPadding = true)
+	{
+		std::vector<shared_ptr<Ciphertext<Element>>> cipherResults;
 
-	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.ctx == b.ctx; }
-	friend bool operator!=(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.ctx != b.ctx; }
+		if( publicKey->GetCryptoContext() != *this )
+			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
+
+		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters().GetPlaintextModulus();
+		size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), ptm);
+		size_t ptSize = plaintext.GetLength();
+		size_t rounds = ptSize/chunkSize;
+
+		if( doPadding == false && ptSize%chunkSize != 0 ) {
+			throw std::logic_error("Cannot Encrypt without padding with this plaintext size");
+		}
+
+		// if there is a partial chunk OR if there isn't but we need to pad
+		if( ptSize%chunkSize != 0 || doPadding == true )
+			rounds += 1;
+
+		for( int bytes=0, i=0; i < rounds ; bytes += chunkSize,i++ ) {
+
+			Element pt(publicKey->GetCryptoParameters().GetElementParams());
+			plaintext.Encode(ptm, &pt, bytes, chunkSize);
+			pt.SwitchFormat();
+
+			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm().Encrypt(publicKey,pt);
+
+			if( !ciphertext ) {
+				cipherResults.clear();
+				break;
+			}
+
+			cipherResults.push_back(ciphertext);
+
+		}
+
+		return cipherResults;
+	}
 };
 
 template <class Element>
