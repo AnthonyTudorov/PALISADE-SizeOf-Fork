@@ -12,64 +12,51 @@ template<typename Element>
 class CryptoUtility {
 public:
 
-//	static bool ReKeyGen(
+//	/**
+//	 * Perform an encryption of a plaintext
+//	 * @param scheme - a reference to the encryption scheme in use
+//	 * @param publicKey - the encryption key in use
+//	 * @param plaintext - array of bytes to be encrypted
+//	 * @param ciphertext - resulting vector of ciphertext, one per chunk
+//	 * @param doPadding - if false, padding is not used; plaintext MUST be an integral multiple of chunksize or an exception is thrown
+//	 * @return
+//	 */
+//	static EncryptResult Encrypt(
 //			const LPPublicKeyEncryptionScheme<Element>& scheme,
-//			const LPPublicKey<Element> &newPublicKey,
-//			const LPPrivateKey<Element> &origPrivateKey,
-//			LPEvalKey<Element> *evalKey)
+//			const LPPublicKey<Element>& publicKey,
+//			const Plaintext& plaintext,
+//			std::vector<shared_ptr<Ciphertext<Element>>> *cipherResults,
+//			bool doPadding = true)
 //	{
-//		if( typeid(Element) == typeid(ILVectorArray2n) ) {
-//			throw std::logic_error("Sorry, re-encryption keys have not been implemented with Element of ILVectorArray2n");
+//		const BigBinaryInteger& ptm = publicKey.GetCryptoParameters().GetPlaintextModulus();
+//		size_t chunkSize = plaintext.GetChunksize(publicKey.GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), ptm);
+//		size_t ptSize = plaintext.GetLength();
+//		size_t rounds = ptSize/chunkSize;
+//
+//		if( doPadding == false && ptSize%chunkSize != 0 ) {
+//			throw std::logic_error("Cannot Encrypt without padding with this plaintext size");
 //		}
 //
-//		return scheme.ReKeyGen(newPublicKey, origPrivateKey, evalKey);
+//		// if there is a partial chunk OR if there isn't but we need to pad
+//		if( ptSize%chunkSize != 0 || doPadding == true )
+//			rounds += 1;
+//
+//		for( int bytes=0, i=0; i < rounds ; bytes += chunkSize,i++ ) {
+//
+//			Element pt(publicKey.GetCryptoParameters().GetElementParams());
+//			plaintext.Encode(ptm, &pt, bytes, chunkSize);
+//			pt.SwitchFormat();
+//
+//			shared_ptr<Ciphertext<Element>> ciphertext = scheme.Encrypt(publicKey,pt);
+//
+//			if( !ciphertext ) return EncryptResult();
+//
+//			cipherResults->push_back(ciphertext);
+//
+//		}
+//
+//		return EncryptResult(ptSize);
 //	}
-
-	/**
-	 * Perform an encryption of a plaintext
-	 * @param scheme - a reference to the encryption scheme in use
-	 * @param publicKey - the encryption key in use
-	 * @param plaintext - array of bytes to be encrypted
-	 * @param ciphertext - resulting vector of ciphertext, one per chunk
-	 * @param doPadding - if false, padding is not used; plaintext MUST be an integral multiple of chunksize or an exception is thrown
-	 * @return
-	 */
-	static EncryptResult Encrypt(
-			const LPPublicKeyEncryptionScheme<Element>& scheme,
-			const LPPublicKey<Element>& publicKey,
-			const Plaintext& plaintext,
-			std::vector<shared_ptr<Ciphertext<Element>>> *cipherResults,
-			bool doPadding = true)
-	{
-		const BigBinaryInteger& ptm = publicKey.GetCryptoParameters().GetPlaintextModulus();
-		size_t chunkSize = plaintext.GetChunksize(publicKey.GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), ptm);
-		size_t ptSize = plaintext.GetLength();
-		size_t rounds = ptSize/chunkSize;
-
-		if( doPadding == false && ptSize%chunkSize != 0 ) {
-			throw std::logic_error("Cannot Encrypt without padding with this plaintext size");
-		}
-
-		// if there is a partial chunk OR if there isn't but we need to pad
-		if( ptSize%chunkSize != 0 || doPadding == true )
-			rounds += 1;
-
-		for( int bytes=0, i=0; i < rounds ; bytes += chunkSize,i++ ) {
-
-			Element pt(publicKey.GetCryptoParameters().GetElementParams());
-			plaintext.Encode(ptm, &pt, bytes, chunkSize);
-			pt.SwitchFormat();
-
-			shared_ptr<Ciphertext<Element>> ciphertext = scheme.Encrypt(publicKey,pt);
-
-			if( !ciphertext ) return EncryptResult();
-
-			cipherResults->push_back(ciphertext);
-			
-		}
-
-		return EncryptResult(ptSize);
-	}
 
 	/**
 	 * Perform an encryption by reading plaintext from a stream, serializing each piece of ciphertext,
@@ -86,54 +73,56 @@ public:
 			std::istream& instream,
 			std::ostream& outstream)
 	{
-		bool padded = false;
-		BytePlaintextEncoding px;
-		const BigBinaryInteger& ptm = publicKey.GetCryptoParameters().GetPlaintextModulus();
-		size_t chunkSize = px.GetChunksize(publicKey.GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), ptm);
-		char *ptxt = new char[chunkSize];
-		size_t totBytes = 0;
+//		bool padded = false;
+//		BytePlaintextEncoding px;
+//		const BigBinaryInteger& ptm = publicKey.GetCryptoParameters().GetPlaintextModulus();
+//		size_t chunkSize = px.GetChunksize(publicKey.GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), ptm);
+//		char *ptxt = new char[chunkSize];
+//		size_t totBytes = 0;
+//
+//		while( instream.good() ) {
+//			instream.read(ptxt, chunkSize);
+//			size_t nRead = instream.gcount();
+//
+//			if( nRead <= 0 && padded )
+//				break;
+//
+//			BytePlaintextEncoding px(ptxt, nRead);
+//
+//			if( nRead < chunkSize ) {
+//				padded = true;
+//			}
+//
+//			Element pt(publicKey.GetCryptoParameters().GetElementParams());
+//			px.Encode(publicKey.GetCryptoParameters().GetPlaintextModulus(), &pt, 0, chunkSize);
+//			pt.SwitchFormat();
+//
+//			Ciphertext<Element> ciphertext;
+//			EncryptResult res = scheme.Encrypt(publicKey, pt, &ciphertext);
+//			if( res.isValid == false ) {
+//				delete ptxt;
+//				return EncryptResult();
+//			}
+//
+//			totBytes += res.numBytesEncrypted;
+//
+//			Serialized cS;
+//
+//			if( ciphertext.Serialize(&cS, "ct") ) {
+//				if( !SerializableHelper::SerializationToStream(cS, outstream) ) {
+//					delete ptxt;
+//					return EncryptResult();
+//				}
+//			} else {
+//				delete ptxt;
+//				return EncryptResult();
+//			}
+//		}
+//
+//		delete ptxt;
+//		return EncryptResult(totBytes);
 
-		while( instream.good() ) {
-			instream.read(ptxt, chunkSize);
-			size_t nRead = instream.gcount();
-
-			if( nRead <= 0 && padded )
-				break;
-
-			BytePlaintextEncoding px(ptxt, nRead);
-
-			if( nRead < chunkSize ) {
-				padded = true;
-			}
-
-			Element pt(publicKey.GetCryptoParameters().GetElementParams());
-			px.Encode(publicKey.GetCryptoParameters().GetPlaintextModulus(), &pt, 0, chunkSize);
-			pt.SwitchFormat();
-
-			Ciphertext<Element> ciphertext;
-			EncryptResult res = scheme.Encrypt(publicKey, pt, &ciphertext);
-			if( res.isValid == false ) {
-				delete ptxt;
-				return EncryptResult();
-			}
-
-			totBytes += res.numBytesEncrypted;
-
-			Serialized cS;
-
-			if( ciphertext.Serialize(&cS, "ct") ) {
-				if( !SerializableHelper::SerializationToStream(cS, outstream) ) {
-					delete ptxt;
-					return EncryptResult();
-				}
-			} else {
-				delete ptxt;
-				return EncryptResult();
-			}
-		}
-
-		delete ptxt;
-		return EncryptResult(totBytes);
+		return EncryptResult();
 	}
 
 	/**
