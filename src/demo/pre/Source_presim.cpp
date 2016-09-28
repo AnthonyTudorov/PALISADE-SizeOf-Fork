@@ -348,9 +348,7 @@ void PRESimulation(usint count, usint dataset){
 
 		LPKeyPair<ILVector2n> newKp = cc.KeyGen();
 
-		shared_ptr<LPEvalKey<ILVector2n>> evalKey( new LPEvalKeyRelin<ILVector2n>(cc) );
-
-		CryptoUtility<ILVector2n>::ReKeyGen(cc.GetEncryptionAlgorithm(), *newKp.publicKey, *privateKeys[d], &(*evalKey));  // This is the core re-encryption operation.
+		shared_ptr<LPEvalKey<ILVector2n>> evalKey = cc.ReKeyGen(newKp.publicKey, privateKeys[d]);
 
 		publicKeys.push_back(newKp.publicKey);
 		privateKeys.push_back(newKp.secretKey);

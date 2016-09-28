@@ -265,11 +265,9 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyNTRURelin<ILVector2n> evalKey(ctx);
-
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::ReKeyGen(ctx.GetEncryptionAlgorithm(), *newKp.publicKey, *kp.secretKey, &evalKey);  // This is the core re-encryption operation.
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey = ctx.ReKeyGen(newKp.publicKey, kp.secretKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -289,7 +287,7 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::ReEncrypt(ctx.GetEncryptionAlgorithm(), evalKey, ciphertext, &newCiphertext);
+	CryptoUtility<ILVector2n>::ReEncrypt(ctx.GetEncryptionAlgorithm(), *evalKey, ciphertext, &newCiphertext);
 
 	finish = currentDateTime();
 	diff = finish - start;

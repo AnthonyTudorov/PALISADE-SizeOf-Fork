@@ -278,12 +278,10 @@ void NTRUPRE(int input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyRelin<ILVector2n> evalKey(cc);
-
 	start = currentDateTime();
 
 	// FIXME this can't use CryptoUtility because the calling sequence is wrong (2 private keys)
-	cc.GetEncryptionAlgorithm().ReKeyGen(*newKp.secretKey, *kp.secretKey, &evalKey);
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey = cc.GetEncryptionAlgorithm().ReKeyGen(newKp.secretKey, kp.secretKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -303,7 +301,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::ReEncrypt(cc.GetEncryptionAlgorithm(), evalKey, ciphertext, &newCiphertext);  // This is the core re-encryption operation.
+	CryptoUtility<ILVector2n>::ReEncrypt(cc.GetEncryptionAlgorithm(), *evalKey, ciphertext, &newCiphertext);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;

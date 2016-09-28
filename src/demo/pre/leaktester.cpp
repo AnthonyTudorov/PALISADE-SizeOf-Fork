@@ -278,15 +278,13 @@ runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plainte
 
 	//Perform the proxy re-encryption key generation operation.
 
-	LPEvalKeyNTRURelin<ILVector2n> evalKey(ctx);
-
-	CryptoUtility<ILVector2n>::ReKeyGen(ctx.GetEncryptionAlgorithm(), *newKp.publicKey, *kp.secretKey, &evalKey);
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey = ctx.ReKeyGen(newKp.publicKey, kp.secretKey);
 
 	//Perform the proxy re-encryption operation.
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
 
-	CryptoUtility<ILVector2n>::ReEncrypt(ctx.GetEncryptionAlgorithm(), evalKey, ciphertext, &newCiphertext);
+	CryptoUtility<ILVector2n>::ReEncrypt(ctx.GetEncryptionAlgorithm(), *evalKey, ciphertext, &newCiphertext);
 
 	//Decryption
 

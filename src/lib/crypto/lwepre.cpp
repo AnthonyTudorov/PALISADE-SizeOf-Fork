@@ -48,10 +48,10 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmPRELTV<Element>::ReKeyGen(const shared
 
 	const ElemParams &elementParams = cryptoParamsLWE->GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
-	const Element &f = origPrivateKey.GetPrivateElement();
+	const Element &f = origPrivateKey->GetPrivateElement();
 
 	const LPPublicKey<Element> *newPublicKey =
-		dynamic_cast<const LPPublicKey<Element>*>(&newPK);
+		dynamic_cast<const LPPublicKey<Element>*>(&(*newPK));
 
 //	if( newPublicKey == 0 ) {
 //		throw std::logic_error("Public Key argument is not an LPPublicKey in LPAlgorithmPRELTV<Element>::ReKeyGen");
