@@ -216,10 +216,10 @@ runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plainte
 	cout << "Chunk size is: " << chunksize << endl;
 
 	//Encryption
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
-	EncryptResult eResult = CryptoUtility<ILVector2n>::Encrypt(ctx.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext, doPadding);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
+			ctx.Encrypt(kp.publicKey, plaintext, doPadding);
 
-	if (!eResult.isValid) {
+	if (ciphertext.size() == 0) {
 		cout << "Encryption failed!" << endl;
 		exit(1);
 	}
@@ -251,10 +251,10 @@ runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plainte
 
 		vector<shared_ptr<Ciphertext<ILVector2n>>> intCiphertext;
 		IntPlaintextEncoding outInt;
-		eResult = CryptoUtility<ILVector2n>::Encrypt(ctx.GetEncryptionAlgorithm(), *kp.publicKey, inInt, &intCiphertext, doPadding);
+		intCiphertext = ctx.Encrypt(kp.publicKey, inInt, doPadding);
 		dResult = CryptoUtility<ILVector2n>::Decrypt(ctx.GetEncryptionAlgorithm(), *kp.secretKey, intCiphertext, &outInt, doPadding);
 		if( inInt.size() != outInt.size() ) {
-			cout << "eResult " << eResult.isValid << ":" << eResult.numBytesEncrypted << ", " << intCiphertext.size() << endl;
+			cout << "eResult " << intCiphertext.size() << endl;
 			cout << "dResult " << dResult.isValid << ":" << dResult.messageLength << endl;
 			cout << "Output is size " << outInt.GetLength() << endl;
 			cout << endl;
