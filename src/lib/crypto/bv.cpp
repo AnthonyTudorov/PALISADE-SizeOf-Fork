@@ -82,19 +82,19 @@ LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContext<Element> cc) con
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const LPPublicKey<Element> &pubKey,
+shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
 	const Element &plaintext) const
 {
 
 	const LPCryptoParametersBV<Element> *cryptoParams =
-		dynamic_cast<const LPCryptoParametersBV<Element>*>(&pubKey.GetCryptoParameters());
+		dynamic_cast<const LPCryptoParametersBV<Element>*>(&pubKey->GetCryptoParameters());
 
 	const LPPublicKey<Element> *publicKey =
-		dynamic_cast<const LPPublicKey<Element>*>(&pubKey);
+		dynamic_cast<const LPPublicKey<Element>*>(&(*pubKey));
 
 	if( cryptoParams == 0 ) return shared_ptr<Ciphertext<Element>>();
 
-	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey.GetCryptoContext()) );
+	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey->GetCryptoContext()) );
 
 	const ElemParams &elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();

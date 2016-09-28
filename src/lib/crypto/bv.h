@@ -166,7 +166,7 @@ namespace lbcrypto {
 		* @param &plaintext the plaintext input.
 		* @param *ciphertext ciphertext which results from encryption.
 		*/
-		shared_ptr<Ciphertext<Element>> Encrypt(const LPPublicKey<Element> &publicKey,
+		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
 			const Element &plaintext) const;
 
 		/**

@@ -1038,7 +1038,7 @@ namespace lbcrypto {
 			 * @param &plaintext the plaintext input.
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			virtual shared_ptr<Ciphertext<Element>> Encrypt(const LPPublicKey<Element> &publicKey, const Element &plaintext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, const Element &plaintext) const = 0;
 
 			/**
 			 * Method for decrypting plaintext using LBC
@@ -1448,7 +1448,7 @@ namespace lbcrypto {
 		// the three functions below are wrappers for things in LPEncryptionAlgorithm (ENCRYPT)
 		//
 
-		shared_ptr<Ciphertext<Element>> Encrypt(const LPPublicKey<Element> &publicKey,
+		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
 			const Element &plaintext) const {
 				if(this->m_algorithmEncryption) {
 					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext);
