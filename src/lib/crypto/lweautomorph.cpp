@@ -66,15 +66,15 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(co
 }  
 
 template <class Element>
-bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const LPPublicKey<Element> &publicKey, 
-	const LPPrivateKey<Element> &origPrivateKey,
-	const usint size, LPPrivateKey<Element> *tempPrivateKey, 
+bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+	const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
+	const usint size, shared_ptr<LPPrivateKey<Element>> *tempPrivateKey,
 	std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const
 {
-	const Element &privateKeyElement = origPrivateKey.GetPrivateElement();
+	const Element &privateKeyElement = origPrivateKey->GetPrivateElement();
 	usint m = privateKeyElement.GetCyclotomicOrder();
 
-	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
+	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey->GetCryptoParameters());
 	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 
 	if (size > m/2 - 1)
@@ -95,7 +95,7 @@ bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const LPPublicKey<
 
 			//std::cout<< "after " << i << " \n" << permutedPrivateKeyElement.GetValues() << std::endl;
 			
-			tempPrivateKey->SetPrivateElement(permutedPrivateKeyElement);
+			(*tempPrivateKey)->SetPrivateElement(permutedPrivateKeyElement);
 
 			//const LPPublicKeyEncryptionScheme<Element> *scheme = ciphertext.GetEncryptionAlgorithm();
 

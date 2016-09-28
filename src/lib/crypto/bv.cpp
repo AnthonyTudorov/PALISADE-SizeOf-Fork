@@ -161,10 +161,10 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const shared_
 
 	const ElemParams &elementParams = cryptoParamsLWE->GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
-	const Element &s = origPrivateKey.GetPrivateElement();
+	const Element &s = origPrivateKey->GetPrivateElement();
 
 	const LPPrivateKey<Element> *newPrivateKey =
-		dynamic_cast<const LPPrivateKey<Element>*>(*newSK);
+		dynamic_cast<const LPPrivateKey<Element>*>(&(*newSK));
 
 //	if( newPrivateKey == 0 ) {
 //		throw std::logic_error("Secret Key has incorrect type in LPAlgorithmPREBV<Element>::ReKeyGen");
