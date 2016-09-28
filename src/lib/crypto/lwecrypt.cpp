@@ -395,22 +395,22 @@ bool LPLeveledSHEAlgorithmLTV<Element>::CanRingReduce(usint ringDimension, const
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> &publicKey,
+shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
 		const Element &plaintext) const
 {
 
 	const LPCryptoParametersRLWE<Element> *cryptoParams =
-			dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&publicKey.GetCryptoParameters());
+			dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&publicKey->GetCryptoParameters());
 
 	if( cryptoParams == 0 ) return shared_ptr<Ciphertext<Element>>();
 
-	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>( publicKey.GetCryptoContext() ) );
+	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>( publicKey->GetCryptoContext() ) );
 
 	const ElemParams &elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
-	const Element &h = publicKey.GetPublicElements().at(0);
+	const Element &h = publicKey->GetPublicElements().at(0);
 
 	Element s(dgg,elementParams);
 

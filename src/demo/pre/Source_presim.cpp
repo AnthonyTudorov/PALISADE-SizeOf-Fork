@@ -174,9 +174,8 @@ void EncryptionSchemeSimulation(usint count){
 			exit(1);
 		}
 
-		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
-
-		CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext);	// This is the core encryption operation.
+		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
+				cc.Encrypt(kp.publicKey, plaintext);
 
 		BytePlaintextEncoding plaintextNew;
 
@@ -369,10 +368,9 @@ void PRESimulation(usint count, usint dataset){
 
 	start = currentDateTime();
 
-	for (usint j = 0; j < count; j++){
+	for (usint j = 0; j < count; j++) {
 
-		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
-		CryptoUtility<ILVector2n>::Encrypt(algorithm, *kp.publicKey, arrPlaintext[j], &ciphertext);
+		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, arrPlaintext[j]);
 		arrCiphertext[j] = ciphertext[0];
 
 	}

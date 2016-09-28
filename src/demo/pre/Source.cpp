@@ -263,7 +263,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(),*kp.publicKey,plaintext,&ciphertext,false);	// This is the core encryption operation.
+	ciphertext = cc.Encrypt(kp.publicKey, plaintext, false);
 
 	finish = currentDateTime();
 	diff = finish - start;
