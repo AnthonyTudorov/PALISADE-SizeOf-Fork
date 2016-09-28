@@ -192,7 +192,7 @@ void BenchMarking() {
 
 			start = currentDateTime();
 
-			CryptoUtility<ILVectorArray2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext);
+			ciphertext = cc.Encrypt(kp.publicKey, plaintext);
 			finish = currentDateTime();
 			diff = finish - start;
 			encryptTimer.at(m).at(i) += diff;
@@ -305,7 +305,7 @@ void NTRU_DCRT() {
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVectorArray2n>::Encrypt(cc.GetEncryptionAlgorithm(),*kp.publicKey,plaintext,&ciphertext);	// This is the core encryption operation.
+	ciphertext = cc.Encrypt(kp.publicKey,plaintext);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -1282,7 +1282,7 @@ void NTRUPRE(usint input) {
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext);
+	ciphertext = cc.Encrypt(kp.publicKey, plaintext);
 
 	finish = currentDateTime();
 	diff = finish - start;
