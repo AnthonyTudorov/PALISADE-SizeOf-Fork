@@ -291,12 +291,10 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 
 	item.ctx->ringdim = ringdim;
 	item.ctx->ptmod = BigBinaryInteger(plaintextmodulus);
-	item.ctx->mod = BigBinaryInteger(modulus);
-	item.ctx->ru = BigBinaryInteger(rootOfUnity);
 	item.ctx->relinWindow = relinWindow;
 	item.ctx->stDev = stDev;
 
-	item.ctx->ilParams = ILParams(item.ctx->ringdim, item.ctx->mod, item.ctx->ru);
+	item.ctx->ilParams = ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity));
 
 	LPCryptoParametersLTV<T>* params = new LPCryptoParametersLTV<T>();
 	item.ctx->params = params;
@@ -325,12 +323,10 @@ CryptoContextFactory<T>::genCryptoContextBV(
 
 	item.ctx->ringdim = ringdim;
 	item.ctx->ptmod = BigBinaryInteger(plaintextmodulus);
-	item.ctx->mod = BigBinaryInteger(modulus);
-	item.ctx->ru = BigBinaryInteger(rootOfUnity);
 	item.ctx->relinWindow = relinWindow;
 	item.ctx->stDev = stDev;
 
-	item.ctx->ilParams = ILParams(item.ctx->ringdim, item.ctx->mod, item.ctx->ru);
+	item.ctx->ilParams = ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity));
 
 	LPCryptoParametersBV<T>* params = new LPCryptoParametersBV<T>();
 	item.ctx->params = params;
@@ -372,13 +368,11 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 
 	item.ctx->ringdim = ringdim;
 	item.ctx->ptmod = BigBinaryInteger(plaintextmodulus);
-	item.ctx->mod = BigBinaryInteger(modulus);
-	item.ctx->ru = BigBinaryInteger(rootOfUnity);
 	item.ctx->relinWindow = relinWindow;
 	item.ctx->stDev = stDev;
 	item.ctx->stDevStSt = stDevStSt;
 
-	item.ctx->ilParams = ILParams(item.ctx->ringdim, item.ctx->mod, item.ctx->ru);
+	item.ctx->ilParams = ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity));
 
 	LPCryptoParametersStehleSteinfeld<T>* params = new LPCryptoParametersStehleSteinfeld<T>();
 	item.ctx->params = params;
