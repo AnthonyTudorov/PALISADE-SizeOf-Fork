@@ -201,7 +201,7 @@ void BenchMarking() {
 
 			start = currentDateTime();
 
-			CryptoUtility<ILVectorArray2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp.secretKey, ciphertext, &plaintextNew);
+			cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 			finish = currentDateTime();
 			diff = finish - start;
             decryptTimer.at(m).at(i) += diff;
@@ -323,7 +323,7 @@ void NTRU_DCRT() {
 
 	start = currentDateTime();
 
-	DecryptResult result = CryptoUtility<ILVectorArray2n>::Decrypt(cc.GetEncryptionAlgorithm(),*kp.secretKey,ciphertext,&plaintextNew);  // This is the core decryption operation.
+	DecryptResult result = cc.Decrypt(kp.secretKey,ciphertext,&plaintextNew);  // This is the core decryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -388,7 +388,7 @@ void NTRU_DCRT() {
 
 		BytePlaintextEncoding plaintextNew2;
 
-		DecryptResult result1 = CryptoUtility<ILVectorArray2n>::Decrypt(cc.GetEncryptionAlgorithm(), *newKp.secretKey, newCiphertext, &plaintextNew2);
+		DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &plaintextNew2);
 
 		if (!result1.isValid) {
 			std::cout<<"Decryption failed!"<<std::endl;
@@ -1306,7 +1306,7 @@ void NTRUPRE(usint input) {
 
 	//DecodingResult result = algorithm.Decrypt(sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
 
-	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp.secretKey, ciphertext, &ctxtd);
+	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &ctxtd);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -1401,7 +1401,7 @@ void NTRUPRE(usint input) {
 
 	start = currentDateTime();
 
-	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(),*newKp.secretKey,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
+	DecryptResult result1 = cc.Decrypt(newKp.secretKey,newCiphertext,&plaintextNew2);
 
 	finish = currentDateTime();
 	diff = finish - start;

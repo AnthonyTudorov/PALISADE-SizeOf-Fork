@@ -12,52 +12,6 @@ template<typename Element>
 class CryptoUtility {
 public:
 
-//	/**
-//	 * Perform an encryption of a plaintext
-//	 * @param scheme - a reference to the encryption scheme in use
-//	 * @param publicKey - the encryption key in use
-//	 * @param plaintext - array of bytes to be encrypted
-//	 * @param ciphertext - resulting vector of ciphertext, one per chunk
-//	 * @param doPadding - if false, padding is not used; plaintext MUST be an integral multiple of chunksize or an exception is thrown
-//	 * @return
-//	 */
-//	static EncryptResult Encrypt(
-//			const LPPublicKeyEncryptionScheme<Element>& scheme,
-//			const LPPublicKey<Element>& publicKey,
-//			const Plaintext& plaintext,
-//			std::vector<shared_ptr<Ciphertext<Element>>> *cipherResults,
-//			bool doPadding = true)
-//	{
-//		const BigBinaryInteger& ptm = publicKey.GetCryptoParameters().GetPlaintextModulus();
-//		size_t chunkSize = plaintext.GetChunksize(publicKey.GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), ptm);
-//		size_t ptSize = plaintext.GetLength();
-//		size_t rounds = ptSize/chunkSize;
-//
-//		if( doPadding == false && ptSize%chunkSize != 0 ) {
-//			throw std::logic_error("Cannot Encrypt without padding with this plaintext size");
-//		}
-//
-//		// if there is a partial chunk OR if there isn't but we need to pad
-//		if( ptSize%chunkSize != 0 || doPadding == true )
-//			rounds += 1;
-//
-//		for( int bytes=0, i=0; i < rounds ; bytes += chunkSize,i++ ) {
-//
-//			Element pt(publicKey.GetCryptoParameters().GetElementParams());
-//			plaintext.Encode(ptm, &pt, bytes, chunkSize);
-//			pt.SwitchFormat();
-//
-//			shared_ptr<Ciphertext<Element>> ciphertext = scheme.Encrypt(publicKey,pt);
-//
-//			if( !ciphertext ) return EncryptResult();
-//
-//			cipherResults->push_back(ciphertext);
-//
-//		}
-//
-//		return EncryptResult(ptSize);
-//	}
-
 	/**
 	 * Perform an encryption by reading plaintext from a stream, serializing each piece of ciphertext,
 	 * and writing the serializations to an output stream

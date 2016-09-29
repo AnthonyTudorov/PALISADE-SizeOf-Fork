@@ -1048,8 +1048,8 @@ namespace lbcrypto {
 			 * @param *plaintext the plaintext output.
 			 * @return the decoding result.
 			 */
-			virtual DecryptResult Decrypt(const LPPrivateKey<Element> &privateKey, 
-				const Ciphertext<Element> &ciphertext,
+			virtual DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+				const shared_ptr<Ciphertext<Element>> ciphertext,
 				Element *plaintext) const = 0;
 
 			/**
@@ -1458,7 +1458,7 @@ namespace lbcrypto {
 				}
 		}
 
-		DecryptResult Decrypt(const LPPrivateKey<Element> &privateKey, const Ciphertext<Element> &ciphertext,
+		DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, const shared_ptr<Ciphertext<Element>> ciphertext,
 				Element *plaintext) const {
 				if(this->m_algorithmEncryption)
 					return this->m_algorithmEncryption->Decrypt(privateKey,ciphertext,plaintext);

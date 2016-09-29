@@ -174,12 +174,11 @@ void EncryptionSchemeSimulation(usint count){
 			exit(1);
 		}
 
-		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-				cc.Encrypt(kp.publicKey, plaintext);
+		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, plaintext);
 
 		BytePlaintextEncoding plaintextNew;
 
-		DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp.secretKey, ciphertext, &plaintextNew);  // This is the core decryption operation.
+		DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 
 		if (!result.isValid) {
 			std::cout << "Decryption failed!" << std::endl;
@@ -393,7 +392,7 @@ void PRESimulation(usint count, usint dataset){
 
 		vector<shared_ptr<Ciphertext<ILVector2n>>> ct;
 		ct.push_back(arrCiphertext[j]);
-		DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, *kp.secretKey, ct, &plaintextNew[j]);
+		DecryptResult result = cc.Decrypt(kp.secretKey, ct, &plaintextNew[j]);
 		ct.clear();
 
 	}
@@ -457,7 +456,7 @@ void PRESimulation(usint count, usint dataset){
 
 		vector<shared_ptr<Ciphertext<ILVector2n>>> ct;
 		ct.push_back(arrCiphertextNew[j]);
-		DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, *privateKeys.back(), ct, &plaintextNew[j]);
+		DecryptResult result = cc.Decrypt(privateKeys.back(), ct, &plaintextNew[j]);
 		ct.clear();
 	}
 

@@ -127,7 +127,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	BytePlaintextEncoding plaintextNew;
 
-	CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp2.secretKey, newCiphertext, &plaintextNew);
+	cc.Decrypt(
 
 	EXPECT_EQ(plaintext, plaintextNew);
 
@@ -179,7 +179,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 
 	IntPlaintextEncoding intArrayNew;
 
-	CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp2.secretKey, newCiphertext, &intArrayNew);
+	cc.Decrypt(
 
 	//this step is needed because there is no marker for padding in the case of IntPlaintextEncoding
 	intArrayNew.resize(intArray.size());
@@ -233,7 +233,7 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 
 	BytePlaintextEncoding plaintextNew;
 
-	CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp2.secretKey, newCiphertext, &plaintextNew);
+	cc.Decrypt(
 
 	EXPECT_EQ(plaintext, plaintextNew);
 	 
@@ -276,7 +276,7 @@ TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 
 	BytePlaintextEncoding plaintextNew;
 
-	CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp.secretKey, ciphertext, &plaintextNew);
+	cc.Decrypt(
 
 	EXPECT_EQ(plaintextNew, plaintext);
 	ILVector2n privateElement(kp.secretKey->GetPrivateElement());
@@ -346,7 +346,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	BytePlaintextEncoding plaintextNewKeySwitch;
 
-	CryptoUtility<ILVectorArray2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp2.secretKey, newCiphertext, &plaintextNewKeySwitch);
+	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNewKeySwitch);
 
 	EXPECT_EQ(plaintext, plaintextNewKeySwitch);
 
@@ -360,7 +360,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	BytePlaintextEncoding plaintextNewModReduce;
 
-	CryptoUtility<ILVectorArray2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp2.secretKey, newCiphertext, &plaintextNewModReduce);
+	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNewModReduce);
 	
 	EXPECT_EQ(plaintext, plaintextNewModReduce);
 
@@ -413,7 +413,7 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 	IntPlaintextEncoding intArrayNew;
 
-	CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp2.secretKey, newCiphertext, &intArrayNew, false);
+	cc.Decrypt(
 
 	CryptoUtility<ILVector2n>::RingReduce(cc.GetEncryptionAlgorithm(), &ciphertext, keySwitchHint);
 
@@ -442,7 +442,7 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 //	skSparse.SetCryptoParameters(&cryptoParamsRR);
 
-	CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp2.secretKey, ciphertext, &intArrayNewRR, false);
+	cc.Decrypt(
 
 	std::vector<usint> vectorOfExpectedResults = { 1,1,1,1 };
 	IntPlaintextEncoding intArrayExpected(vectorOfExpectedResults);
@@ -512,7 +512,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 
 	IntPlaintextEncoding intArrayNew;
 
-	CryptoUtility<ILVectorArray2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp2.secretKey, newCiphertext, &intArrayNew, false);
+	cc.Decrypt(kp2.secretKey, newCiphertext, &intArrayNew, false);
 
 	CryptoUtility<ILVectorArray2n>::RingReduce(cc.GetEncryptionAlgorithm(), &ciphertext, keySwitchHint);
 
@@ -535,7 +535,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 //		ciphertext.at(i).SetCryptoParameters(&cryptoParamsRR);
 //	}
 
-	CryptoUtility<ILVectorArray2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp2.secretKey, ciphertext, &intArrayNewRR, false);
+	cc.Decrypt(kp2.secretKey, ciphertext, &intArrayNewRR, false);
 
 	std::vector<usint> vectorOfExpectedResults = { 1,1,1,1 };
 	IntPlaintextEncoding intArrayExpected(vectorOfExpectedResults);

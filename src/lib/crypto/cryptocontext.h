@@ -253,6 +253,36 @@ public:
 
 		return cipherResults;
 	}
+
+	DecryptResult Decrypt(
+			const shared_ptr<LPPrivateKey<Element>> privateKey,
+			const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
+			Plaintext *plaintext,
+			bool doPadding = true)
+	{
+		// edge case
+		if( ciphertext.size() == 0 )
+			return DecryptResult();
+
+		if( privateKey->GetCryptoContext() != *this || ciphertext.at(0)->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
+
+		int lastone = ciphertext.size() - 1;
+		for( int ch = 0; ch < ciphertext.size(); ch++ ) {
+			Element decrypted;
+			DecryptResult result = GetEncryptionAlgorithm().Decrypt(privateKey, ciphertext[ch], &decrypted);
+
+			if( result.isValid == false ) return result;
+
+			plaintext->Decode(privateKey->GetCryptoParameters().GetPlaintextModulus(), &decrypted);
+
+			if( ch == lastone && doPadding ) {
+				plaintext->Unpad(privateKey->GetCryptoParameters().GetPlaintextModulus());
+			}
+		}
+
+		return DecryptResult(plaintext->GetLength());
+	}
 };
 
 template <class Element>
