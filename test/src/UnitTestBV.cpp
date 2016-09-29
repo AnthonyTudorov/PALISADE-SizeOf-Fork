@@ -120,7 +120,7 @@ TEST(method_ILVector2n_bv, Encrypt_Decrypt_bv) {
 
 	BytePlaintextEncoding plaintextNew;
 
-	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp.secretKey, ciphertext, &plaintextNew, false);  // This is the core decryption operation.
+	DecryptResult result = cc.Decrypt(
 
 	EXPECT_EQ(plaintextNew, plaintext);
 
@@ -163,7 +163,7 @@ TEST(method_ILVector2n_bv, Encrypt_Decrypt_bv) {
 
 	BytePlaintextEncoding plaintextNew2;
 
-	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *newKp.secretKey, newCiphertext, &plaintextNew2, false);  // This is the core decryption operation.
+	DecryptResult result1 = cc.Decrypt(
 
 	/*ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();*/

@@ -234,7 +234,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(),*kp.secretKey,ciphertext,&plaintextNew,false);  // This is the core decryption operation.
+	DecryptResult result = cc.Decrypt(kp.secretKey,ciphertext,&plaintextNew,false);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -321,7 +321,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(),*newKp.secretKey,newCiphertext,&plaintextNew2,false);  // This is the core decryption operation.
+	DecryptResult result1 = cc.Decrypt(newKp.secretKey,newCiphertext,&plaintextNew2,false);
 
 	finish = currentDateTime();
 	diff = finish - start;

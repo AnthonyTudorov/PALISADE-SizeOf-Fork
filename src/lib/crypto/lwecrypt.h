@@ -79,8 +79,8 @@ namespace lbcrypto {
 			 * @param *plaintext the plaintext output.
 			 * @return an instance of DecryptResult related to the plaintext that is decrypted
 			 */			
-			DecryptResult Decrypt(const LPPrivateKey<Element> &privateKey, 
-				const Ciphertext<Element> &ciphertext,
+			DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+				const shared_ptr<Ciphertext<Element>> ciphertext,
 				Element *plaintext) const;
 			
 			/**

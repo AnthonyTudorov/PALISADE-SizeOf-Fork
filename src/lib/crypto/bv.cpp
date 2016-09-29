@@ -120,18 +120,18 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr
 }
 
 template <class Element>
-DecryptResult LPAlgorithmBV<Element>::Decrypt(const LPPrivateKey<Element> &privateKey,
-	const Ciphertext<Element> &ciphertext,
+DecryptResult LPAlgorithmBV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+	const shared_ptr<Ciphertext<Element>> ciphertext,
 	Element *plaintext) const
 {
 
-	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
+	const LPCryptoParameters<Element> &cryptoParams = privateKey->GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
-	const std::vector<Element> &c = ciphertext.GetElements();
+	const std::vector<Element> &c = ciphertext->GetElements();
 
-	const Element &s = privateKey.GetPrivateElement();
+	const Element &s = privateKey->GetPrivateElement();
 
 	Element b = c[0] - s*c[1];
 

@@ -228,7 +228,7 @@ runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plainte
 
 	//Decryption
 	BytePlaintextEncoding plaintextNew;
-	DecryptResult dResult = CryptoUtility<ILVector2n>::Decrypt(ctx.GetEncryptionAlgorithm(), *kp.secretKey, ciphertext, &plaintextNew, doPadding);
+	DecryptResult dResult = ctx.Decrypt(kp.secretKey, ciphertext, &plaintextNew, doPadding);
 
 	if (!dResult.isValid) {
 		cout << "Decryption failed!" << endl;
@@ -252,7 +252,7 @@ runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plainte
 		vector<shared_ptr<Ciphertext<ILVector2n>>> intCiphertext;
 		IntPlaintextEncoding outInt;
 		intCiphertext = ctx.Encrypt(kp.publicKey, inInt, doPadding);
-		dResult = CryptoUtility<ILVector2n>::Decrypt(ctx.GetEncryptionAlgorithm(), *kp.secretKey, intCiphertext, &outInt, doPadding);
+		DecryptResult dResult = ctx.Decrypt(kp.secretKey, ciphertext, &plaintextNew, doPadding);
 		if( inInt.size() != outInt.size() ) {
 			cout << "eResult " << intCiphertext.size() << endl;
 			cout << "dResult " << dResult.isValid << ":" << dResult.messageLength << endl;
@@ -290,7 +290,7 @@ runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plainte
 
 	BytePlaintextEncoding plaintextNew2;
 
-	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(ctx.GetEncryptionAlgorithm(), *newKp.secretKey, newCiphertext, &plaintextNew2, doPadding);
+	DecryptResult result1 = ctx.Decrypt(newKp.secretKey, newCiphertext, &plaintextNew2, doPadding);
 
 
 	if (!result1.isValid) {

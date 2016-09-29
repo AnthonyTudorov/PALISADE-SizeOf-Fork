@@ -426,18 +426,18 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 }
 
 template <class Element>
-DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &privateKey, 
-		const Ciphertext<Element> &ciphertext,
+DecryptResult LPAlgorithmLTV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const shared_ptr<Ciphertext<Element>> ciphertext,
 		Element *plaintext) const
 		{
 
-	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
+	const LPCryptoParameters<Element> &cryptoParams = privateKey->GetCryptoParameters();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
-	Element c( ciphertext.GetElement() );
+	Element c( ciphertext->GetElement() );
 
-	Element f = privateKey.GetPrivateElement(); //add const
+	Element f = privateKey->GetPrivateElement(); //add const
 
 	Element b = f*c;
 
@@ -447,24 +447,6 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> &priv
 
 	return DecryptResult(plaintext->GetLength());
 }
-
-
-
-
-
-
-// Default constructor for LPPublicKeyEncryptionSchemeLTV
-/*template <class Element>
-LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(){
-	this->m_algorithmEncryption = NULL;
-	this->m_algorithmPRE = NULL;
-	this->m_algorithmEvalAdd = NULL;
-	this->m_algorithmEvalAutomorphism = NULL;
-	this->m_algorithmSHE = NULL;
-	this->m_algorithmFHE = NULL;
-	this->m_algorithmLeveledSHE = NULL;
-}
-*/
 
 // Constructor for LPPublicKeyEncryptionSchemeLTV
 template <class Element>
