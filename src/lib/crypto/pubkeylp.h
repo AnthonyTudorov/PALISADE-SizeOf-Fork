@@ -1348,15 +1348,20 @@ namespace lbcrypto {
 		virtual bool operator==(const LPCryptoParameters<Element>& cmp) const = 0;
 
 	protected:
-		LPCryptoParameters() : m_params(NULL), m_plaintextModulus(BigBinaryInteger::TWO) {}
+		LPCryptoParameters() : m_plaintextModulus(BigBinaryInteger::TWO) {}
 
-		LPCryptoParameters(ElemParams *params, const BigBinaryInteger &plaintextModulus) : m_params(params), m_plaintextModulus(plaintextModulus) {}
+		LPCryptoParameters(const BigBinaryInteger &plaintextModulus) : m_plaintextModulus(plaintextModulus) {}
+
+		LPCryptoParameters(shared_ptr<ElemParams> params, const BigBinaryInteger &plaintextModulus) : m_plaintextModulus(plaintextModulus) {
+			m_params = params;
+		}
 
 	private:
 		//element-specific parameters
-		ElemParams *m_params;
+		shared_ptr<ElemParams>	m_params;
+
 		//plaintext modulus p
-		BigBinaryInteger m_plaintextModulus;
+		BigBinaryInteger		m_plaintextModulus;
 	};
 
 	

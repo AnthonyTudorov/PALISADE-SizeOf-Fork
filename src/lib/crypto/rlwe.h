@@ -65,8 +65,7 @@ public:
 	 * Copy constructor.
 	 *
 	 */
-	LPCryptoParametersRLWE(const LPCryptoParametersRLWE &rhs) : LPCryptoParameters<Element>(NULL, rhs.GetPlaintextModulus()) {
-
+	LPCryptoParametersRLWE(const LPCryptoParametersRLWE &rhs) : LPCryptoParameters<Element>(rhs.m_params, rhs.GetPlaintextModulus()) {
 		m_distributionParameter = rhs.m_distributionParameter;
 		m_assuranceMeasure = rhs.m_assuranceMeasure;
 		m_securityLevel = rhs.m_securityLevel;
@@ -86,14 +85,15 @@ public:
 	 * @param relinWindow the size of the relinearization window.
 	 * @param depth depth which defaults to 1.
 	 */
-	LPCryptoParametersRLWE(ElemParams *params,
+	LPCryptoParametersRLWE(
+			shared_ptr<ElemParams> params,
 			const BigBinaryInteger &plaintextModulus,
 			float distributionParameter,
 			float assuranceMeasure,
 			float securityLevel,
 			usint relinWindow,
 			const DiscreteGaussianGenerator &dgg,
-			int depth = 1) : LPCryptoParameters<Element>(params,plaintextModulus)
+			int depth = 1) : LPCryptoParameters<Element>(params, plaintextModulus)
 					{
 		m_distributionParameter = distributionParameter;
 		m_assuranceMeasure = assuranceMeasure;
@@ -216,8 +216,8 @@ public:
 			rootsOfUnity.push_back(rootOfUnity);
 		}
 
-		ILDCRTParams *newCryptoParams = new ILDCRTParams(m, moduli, rootsOfUnity);
-		cryptoParams->SetElementParams(*newCryptoParams);
+		shared_ptr<ElemParams> newCryptoParams( new ILDCRTParams(m, moduli, rootsOfUnity) );
+		cryptoParams->SetElementParams(newCryptoParams);
 	}
 
 	/**
