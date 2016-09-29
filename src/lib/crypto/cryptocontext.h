@@ -69,7 +69,7 @@ private:
 
 	/* these three parameters get initialized when an instance is constructed; they are used by the context
 	 */
-	ILParams					ilParams;
+	shared_ptr<ElemParams>		elemParams;
 	DiscreteGaussianGenerator	dgg;
 	DiscreteGaussianGenerator	dggStSt;	// unused unless we use StSt scheme
 
@@ -94,7 +94,7 @@ public:
 	}
 
 	DiscreteGaussianGenerator& GetGenerator() { return dgg; }
-	ILParams& GetILParams() { return ilParams; }
+	ILParams& GetILParams() { return *elemParams; }
 
 	/**
 	 *

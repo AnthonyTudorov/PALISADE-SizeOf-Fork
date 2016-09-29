@@ -76,7 +76,8 @@ namespace lbcrypto {
 			 * @param relinWindow the size of the relinearization window.
 			 * @param depth depth which is set to 1.
 			 */
-			LPCryptoParametersBV(ElemParams *params,
+			LPCryptoParametersBV(
+				shared_ptr<ElemParams> params,
 				const BigBinaryInteger &plaintextModulus, 
 				float distributionParameter, 
 				float assuranceMeasure, 
@@ -84,7 +85,8 @@ namespace lbcrypto {
 				usint relinWindow,
 				const DiscreteGaussianGenerator &dgg,
 				int depth = 1)
-					: LPCryptoParametersRLWE<Element>(params,
+					: LPCryptoParametersRLWE<Element>(
+						params,
 						plaintextModulus,
 						distributionParameter,
 						assuranceMeasure,
