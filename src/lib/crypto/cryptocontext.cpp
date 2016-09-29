@@ -290,22 +290,23 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
 	item.ctx->ringdim = ringdim;
-	item.ctx->ptmod = BigBinaryInteger(plaintextmodulus);
 	item.ctx->relinWindow = relinWindow;
 	item.ctx->stDev = stDev;
 
-	item.ctx->ilParams = ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity));
-
-	LPCryptoParametersLTV<T>* params = new LPCryptoParametersLTV<T>();
-	item.ctx->params = params;
-
-	params->SetPlaintextModulus(item.ctx->ptmod);
-	params->SetDistributionParameter(item.ctx->stDev);
-	params->SetRelinWindow(item.ctx->relinWindow);
-	params->SetElementParams(item.ctx->ilParams);
+	item.ctx->elemParams.reset( new ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
 	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-	params->SetDiscreteGaussianGenerator(item.ctx->dgg);
+
+	LPCryptoParametersLTV<T>* params = new LPCryptoParametersLTV<T>(
+			item.ctx->elemParams,
+			BigBinaryInteger(plaintextmodulus),
+			stDev, // distribution parameter
+			0.0, // assuranceMeasure,
+			0.0, // securityLevel,
+			relinWindow,
+			item.ctx->dgg);
+
+	item.ctx->params = params;
 
 	item.ctx->scheme = new LPPublicKeyEncryptionSchemeLTV<T>();
 
@@ -322,22 +323,22 @@ CryptoContextFactory<T>::genCryptoContextBV(
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
 	item.ctx->ringdim = ringdim;
-	item.ctx->ptmod = BigBinaryInteger(plaintextmodulus);
 	item.ctx->relinWindow = relinWindow;
 	item.ctx->stDev = stDev;
 
-	item.ctx->ilParams = ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity));
-
-	LPCryptoParametersBV<T>* params = new LPCryptoParametersBV<T>();
-	item.ctx->params = params;
-
-	params->SetPlaintextModulus(item.ctx->ptmod);
-	params->SetDistributionParameter(item.ctx->stDev);
-	params->SetRelinWindow(item.ctx->relinWindow);
-	params->SetElementParams(item.ctx->ilParams);
-
 	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-	params->SetDiscreteGaussianGenerator(item.ctx->dgg);
+	item.ctx->elemParams.reset( new ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
+
+	LPCryptoParametersBV<T>* params = new LPCryptoParametersBV<T>(
+		item.ctx->elemParams,
+		BigBinaryInteger(plaintextmodulus),
+		item.ctx->stDev,
+		0.0, // assuranceMeasure,
+		0.0, // securityLevel,
+		relinWindow,
+		item.ctx->dgg
+		);
+	item.ctx->params = params;
 
 	item.ctx->scheme = new LPPublicKeyEncryptionSchemeBV<T>();
 
@@ -367,27 +368,27 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
 	item.ctx->ringdim = ringdim;
-	item.ctx->ptmod = BigBinaryInteger(plaintextmodulus);
 	item.ctx->relinWindow = relinWindow;
 	item.ctx->stDev = stDev;
 	item.ctx->stDevStSt = stDevStSt;
 
-	item.ctx->ilParams = ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity));
-
-	LPCryptoParametersStehleSteinfeld<T>* params = new LPCryptoParametersStehleSteinfeld<T>();
-	item.ctx->params = params;
-
-	params->SetPlaintextModulus(item.ctx->ptmod);
-	params->SetDistributionParameter(item.ctx->stDev);
-	params->SetDistributionParameterStSt(item.ctx->stDevStSt);
-	params->SetRelinWindow(item.ctx->relinWindow);
-	params->SetElementParams(item.ctx->ilParams);
+	item.ctx->elemParams.reset( new ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
 	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-	params->SetDiscreteGaussianGenerator(item.ctx->dgg);
-
 	item.ctx->dggStSt = DiscreteGaussianGenerator(stDevStSt);				// Create the noise generator
-	params->SetDiscreteGaussianGeneratorStSt(item.ctx->dggStSt);
+
+	LPCryptoParametersStehleSteinfeld<T>* params = new LPCryptoParametersStehleSteinfeld<T>(
+			item.ctx->elemParams,
+			BigBinaryInteger(plaintextmodulus),
+			item.ctx->stDev,
+			0.0, // assuranceMeasure,
+			0.0, // securityLevel,
+			item.ctx->relinWindow,
+			item.ctx->dgg,
+			item.ctx->dggStSt,
+			item.ctx->stDevStSt
+			);
+	item.ctx->params = params;
 
 	item.ctx->scheme = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>();
 
