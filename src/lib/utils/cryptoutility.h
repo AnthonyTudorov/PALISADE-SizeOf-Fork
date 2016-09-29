@@ -12,52 +12,6 @@ template<typename Element>
 class CryptoUtility {
 public:
 
-//	/**
-//	 * Perform an encryption of a plaintext
-//	 * @param scheme - a reference to the encryption scheme in use
-//	 * @param publicKey - the encryption key in use
-//	 * @param plaintext - array of bytes to be encrypted
-//	 * @param ciphertext - resulting vector of ciphertext, one per chunk
-//	 * @param doPadding - if false, padding is not used; plaintext MUST be an integral multiple of chunksize or an exception is thrown
-//	 * @return
-//	 */
-//	static EncryptResult Encrypt(
-//			const LPPublicKeyEncryptionScheme<Element>& scheme,
-//			const LPPublicKey<Element>& publicKey,
-//			const Plaintext& plaintext,
-//			std::vector<shared_ptr<Ciphertext<Element>>> *cipherResults,
-//			bool doPadding = true)
-//	{
-//		const BigBinaryInteger& ptm = publicKey.GetCryptoParameters().GetPlaintextModulus();
-//		size_t chunkSize = plaintext.GetChunksize(publicKey.GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), ptm);
-//		size_t ptSize = plaintext.GetLength();
-//		size_t rounds = ptSize/chunkSize;
-//
-//		if( doPadding == false && ptSize%chunkSize != 0 ) {
-//			throw std::logic_error("Cannot Encrypt without padding with this plaintext size");
-//		}
-//
-//		// if there is a partial chunk OR if there isn't but we need to pad
-//		if( ptSize%chunkSize != 0 || doPadding == true )
-//			rounds += 1;
-//
-//		for( int bytes=0, i=0; i < rounds ; bytes += chunkSize,i++ ) {
-//
-//			Element pt(publicKey.GetCryptoParameters().GetElementParams());
-//			plaintext.Encode(ptm, &pt, bytes, chunkSize);
-//			pt.SwitchFormat();
-//
-//			shared_ptr<Ciphertext<Element>> ciphertext = scheme.Encrypt(publicKey,pt);
-//
-//			if( !ciphertext ) return EncryptResult();
-//
-//			cipherResults->push_back(ciphertext);
-//
-//		}
-//
-//		return EncryptResult(ptSize);
-//	}
-
 	/**
 	 * Perform an encryption by reading plaintext from a stream, serializing each piece of ciphertext,
 	 * and writing the serializations to an output stream
@@ -125,40 +79,38 @@ public:
 		return EncryptResult();
 	}
 
-	/**
-	 * perform a decryption of a vector of ciphertext
-	 * @param scheme - a reference to the encryption scheme in use
-	 * @param privateKey - reference to the decryption key
-	 * @param ciphertext - reference to a vector of ciphertext to be decrypted
-	 * @param plaintext - destination for the decrypted ciphertext
-	 * @param doPadding - if false, the encryptor did NOT use padding, so do not unpad; default is to use padding
-	 * @return
-	 */
-	static DecryptResult Decrypt(
-			const LPPublicKeyEncryptionScheme<Element>& scheme,
-			const LPPrivateKey<Element>& privateKey,
-			const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
-			Plaintext *plaintext,
-			bool doPadding = true)
-	{
-		bool dbg_flag = false;
-		int lastone = ciphertext.size() - 1;
-		for( int ch = 0; ch < ciphertext.size(); ch++ ) {
-			DEBUG("ch:" << ch);
-			Element decrypted;
-			DecryptResult result = scheme.Decrypt(privateKey, ciphertext[ch], &decrypted);
-			DEBUG("result valid "<<result.isValid<< " msg length "<<result.messageLength );
-			if( result.isValid == false ) return result;
-
-			plaintext->Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), &decrypted);
-
-			if( ch == lastone && doPadding ) {
-				plaintext->Unpad(privateKey.GetCryptoParameters().GetPlaintextModulus());
-			}
-		}
-		DEBUG("decrypting");
-		return DecryptResult(plaintext->GetLength());
-	}
+//	/**
+//	 * perform a decryption of a vector of ciphertext
+//	 * @param scheme - a reference to the encryption scheme in use
+//	 * @param privateKey - reference to the decryption key
+//	 * @param ciphertext - reference to a vector of ciphertext to be decrypted
+//	 * @param plaintext - destination for the decrypted ciphertext
+//	 * @param doPadding - if false, the encryptor did NOT use padding, so do not unpad; default is to use padding
+//	 * @return
+//	 */
+//	static DecryptResult Decrypt(
+//			const LPPublicKeyEncryptionScheme<Element>& scheme,
+//			const LPPrivateKey<Element>& privateKey,
+//			const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
+//			Plaintext *plaintext,
+//			bool doPadding = true)
+//	{
+//		int lastone = ciphertext.size() - 1;
+//		for( int ch = 0; ch < ciphertext.size(); ch++ ) {
+//			Element decrypted;
+//			DecryptResult result = scheme.Decrypt(privateKey, *ciphertext[ch], &decrypted);
+//
+//			if( result.isValid == false ) return result;
+//
+//			plaintext->Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), &decrypted);
+//
+//			if( ch == lastone && doPadding ) {
+//				plaintext->Unpad(privateKey.GetCryptoParameters().GetPlaintextModulus());
+//			}
+//		}
+//
+//		return DecryptResult(plaintext->GetLength());
+//	}
 
 	/**
 	 * read a stream for a sequence of serialized ciphertext; deserialize it, decrypt it, and write it to another stream

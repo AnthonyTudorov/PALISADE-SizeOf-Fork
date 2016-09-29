@@ -221,7 +221,7 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 
 	start = currentDateTime();
 
-	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(ctx.GetEncryptionAlgorithm(),*kp.secretKey,ciphertext,&plaintextNew);
+	DecryptResult result = ctx.Decrypt(kp.secretKey,ciphertext,&plaintextNew);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -307,7 +307,7 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 
 	start = currentDateTime();
 
-	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(ctx.GetEncryptionAlgorithm(),*newKp.secretKey,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
+	DecryptResult result1 = ctx.Decrypt(newKp.secretKey,newCiphertext,&plaintextNew2);
 
 	finish = currentDateTime();
 	diff = finish - start;

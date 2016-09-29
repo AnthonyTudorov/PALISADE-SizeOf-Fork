@@ -120,7 +120,7 @@ TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
 
 	BytePlaintextEncoding plaintextNew;
 
-	CryptoUtility<ILVectorArray2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp.secretKey, ciphertext, &plaintextNew);
+	cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 
 	DEBUG("11");	
 	EXPECT_EQ(plaintextNew, plaintext);
@@ -163,7 +163,7 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt) {
 
 	BytePlaintextEncoding plaintextNew;
 
-	CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp.secretKey, ciphertext, &plaintextNew);
+	cc.Decrypt(
 
 	EXPECT_EQ(plaintextNew, plaintext);
 	ILVector2n::DestroyPreComputedSamples();
@@ -254,7 +254,7 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_PRE) {
 	CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext);
 
 	BytePlaintextEncoding plaintextNew;
-	CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp.secretKey, ciphertext, &plaintextNew);
+	cc.Decrypt(
 
 	EXPECT_EQ(plaintextNew, plaintext);
 	//PRE SCHEME
@@ -276,7 +276,7 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_PRE) {
 
 	BytePlaintextEncoding plaintextNew2;
 
-	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *newKp.secretKey, newCiphertext, &plaintextNew2);  // This is the core decryption operation.
+	DecryptResult result1 = cc.Decrypt(
 
 	EXPECT_EQ(plaintextNew2, plaintext);
 	ILVector2n::DestroyPreComputedSamples();
@@ -317,7 +317,7 @@ TEST(UTLTV, ILVector2n_IntPlaintextEncoding_Encrypt_Decrypt) {
 
 	IntPlaintextEncoding intArrayNew;
 
-	CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp.secretKey, ciphertext, &intArrayNew, false);
+	cc.Decrypt(
 
 	EXPECT_EQ(intArray, intArrayNew);
 
