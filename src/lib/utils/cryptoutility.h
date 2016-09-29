@@ -79,39 +79,6 @@ public:
 		return EncryptResult();
 	}
 
-//	/**
-//	 * perform a decryption of a vector of ciphertext
-//	 * @param scheme - a reference to the encryption scheme in use
-//	 * @param privateKey - reference to the decryption key
-//	 * @param ciphertext - reference to a vector of ciphertext to be decrypted
-//	 * @param plaintext - destination for the decrypted ciphertext
-//	 * @param doPadding - if false, the encryptor did NOT use padding, so do not unpad; default is to use padding
-//	 * @return
-//	 */
-//	static DecryptResult Decrypt(
-//			const LPPublicKeyEncryptionScheme<Element>& scheme,
-//			const LPPrivateKey<Element>& privateKey,
-//			const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
-//			Plaintext *plaintext,
-//			bool doPadding = true)
-//	{
-//		int lastone = ciphertext.size() - 1;
-//		for( int ch = 0; ch < ciphertext.size(); ch++ ) {
-//			Element decrypted;
-//			DecryptResult result = scheme.Decrypt(privateKey, *ciphertext[ch], &decrypted);
-//
-//			if( result.isValid == false ) return result;
-//
-//			plaintext->Decode(privateKey.GetCryptoParameters().GetPlaintextModulus(), &decrypted);
-//
-//			if( ch == lastone && doPadding ) {
-//				plaintext->Unpad(privateKey.GetCryptoParameters().GetPlaintextModulus());
-//			}
-//		}
-//
-//		return DecryptResult(plaintext->GetLength());
-//	}
-
 	/**
 	 * read a stream for a sequence of serialized ciphertext; deserialize it, decrypt it, and write it to another stream
 	 * @param ctx - a pointer to the crypto context used in this session

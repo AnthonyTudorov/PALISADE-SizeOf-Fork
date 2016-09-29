@@ -72,7 +72,8 @@ public:
 	 * @param relinWindow the size of the relinearization window.
 	 * @param depth depth which is set to 1.
 	 */
-	LPCryptoParametersStehleSteinfeld(ElemParams *params,
+	LPCryptoParametersStehleSteinfeld(
+			shared_ptr<ElemParams> params,
 			const BigBinaryInteger &plaintextModulus,
 			float distributionParameter,
 			float assuranceMeasure,
