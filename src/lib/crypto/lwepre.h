@@ -79,8 +79,8 @@ namespace lbcrypto {
 			 * @param &ciphertext the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			 shared_ptr<Ciphertext<Element>> ReEncrypt(const LPEvalKey<Element> &evalKey,
-				 const Ciphertext<Element> &ciphertext) const;
+			 shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
+				 const shared_ptr<Ciphertext<Element>> ciphertext) const;
 	};
 
 } // namespace lbcrypto ends

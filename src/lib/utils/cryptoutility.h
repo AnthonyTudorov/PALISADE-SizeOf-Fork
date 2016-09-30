@@ -171,16 +171,16 @@ public:
 	 * @param ciphertext - vector of ciphertext
 	 * @param newCiphertext - contains a vector of re-encrypted ciphertext
 	 */
-	static void ReEncrypt(
-			const LPPublicKeyEncryptionScheme<Element>& scheme,
-			const LPEvalKey<Element> &evalKey,
-			const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
-			std::vector<shared_ptr<Ciphertext<Element>>> *newCiphertext)
-	{
-		for( int i=0; i < ciphertext.size(); i++ ) {
-			newCiphertext->push_back( scheme.ReEncrypt(evalKey, *ciphertext[i]) );
-		}
-	}
+//	static void ReEncrypt(
+//			const LPPublicKeyEncryptionScheme<Element>& scheme,
+//			const LPEvalKey<Element> &evalKey,
+//			const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
+//			std::vector<shared_ptr<Ciphertext<Element>>> *newCiphertext)
+//	{
+//		for( int i=0; i < ciphertext.size(); i++ ) {
+//			newCiphertext->push_back( scheme.ReEncrypt(evalKey, *ciphertext[i]) );
+//		}
+//	}
 
 	/**
 	 * perform re-encryption using streams

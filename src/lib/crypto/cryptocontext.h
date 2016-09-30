@@ -283,6 +283,20 @@ public:
 
 		return DecryptResult(plaintext->GetLength());
 	}
+
+	std::vector<shared_ptr<Ciphertext<Element>>> ReEncrypt(
+			shared_ptr<LPEvalKey<Element>> evalKey,
+			std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext)
+	{
+		// FIXME: add check for key and ciphertext
+
+		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
+		for( int i=0; i < ciphertext.size(); i++ ) {
+			newCiphertext.push_back( GetEncryptionAlgorithm().ReEncrypt(evalKey, ciphertext[i]) );
+		}
+		return newCiphertext;
+	}
+
 };
 
 template <class Element>

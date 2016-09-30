@@ -45,7 +45,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(co
 	//permutedCiphertext.SetElement(ciphertext.GetElement().AutomorphismTransform(iInverse));
 	permutedCiphertext.SetElement(ciphertext->GetElement().AutomorphismTransform(autoIndex));
 
-	return this->GetScheme().ReEncrypt(*evalKeys[i-2], permutedCiphertext);
+	return this->GetScheme().ReEncrypt(evalKeys[i-2], permutedCiphertext);
 
 
 		////debugging

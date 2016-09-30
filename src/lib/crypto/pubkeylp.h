@@ -1177,8 +1177,8 @@ namespace lbcrypto {
 			 * @param &ciphertext the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			virtual shared_ptr<Ciphertext<Element>> ReEncrypt(const LPEvalKey<Element> &evalKey,
-				const Ciphertext<Element> &ciphertext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
+				const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
 	};
 
 
@@ -1503,7 +1503,8 @@ namespace lbcrypto {
 		}
 
 		//wrapper for ReEncrypt method
-		shared_ptr<Ciphertext<Element>> ReEncrypt(const LPEvalKey<Element> &evalKey, const Ciphertext<Element> &ciphertext) const {
+		shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
+				const shared_ptr<Ciphertext<Element>> ciphertext) const {
 				if(this->m_algorithmPRE)
 					return this->m_algorithmPRE->ReEncrypt(evalKey,ciphertext);
 				else {
