@@ -26,6 +26,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 #ifndef LBCRYPTO_MATH_MATRIX_H
 #define LBCRYPTO_MATH_MATRIX_H
+#include "dgemm-blas.h"
+#include "communicationCAPS.h"
+#include <assert.h>
+#include <stdlib.h>
 
 #include <iostream>
 #include <functional>
@@ -46,6 +50,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../utils/memory.h"
 
 namespace lbcrypto {
+
+
+
+
 
 		template<class Element>
         class Matrix {
@@ -342,14 +350,32 @@ namespace lbcrypto {
              */ 
             inline void SwitchFormat(); 
 
+            Element* allocate( long long int s );
+            void deallocate( Element *A, long long s );
+            void multiplyCAPS( Element *A, Element *B, Element *C, MatDescriptor desc);
+            void multiplyInternalCAPS( Element *A, Element *B, Element *C, MatDescriptor desc, Element *work );
+            void strassenDFSCAPS( Element *A, Element *B, Element *C, MatDescriptor desc, Element *work );
+            void block_multiplyCAPS( Element *A, Element *B, Element *C, MatDescriptor desc, Element *work );
+
         private:
             data_t data;
             size_t rows;
             size_t cols;
             alloc_func allocZero;
+            char *pattern = NULL;
 
 			//deep copy of data - used for copy constructor
             void deepCopyData(data_t const& src);
+            void addMatricesCAPS( int numEntries, Element *C, Element *A, Element *B );
+            void addSubMatricesCAPS(int numEntries, Element *T1, Element *S11, Element *S12, Element *T2,
+            		       Element *S21, Element *S22 );
+            void subMatricesCAPS( int numEntries, Element *C, Element *A, Element *B );
+            void tripleAddMatricesCAPS(int numEntries, Element *T1, Element *S11, Element *S12, Element *T2,
+            		       Element *S21, Element *S22, Element *T3, Element *S31, Element *S32);
+            void tripleSubMatricesCAPS(int numEntries, Element *T1, Element *S11, Element *S12, Element *T2,
+            		       Element *S21, Element *S22, Element *T3, Element *S31, Element *S32);
+
+
         };
 
 	/**

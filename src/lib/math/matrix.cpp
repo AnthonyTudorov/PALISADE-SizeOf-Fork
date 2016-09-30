@@ -607,5 +607,219 @@ Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& ot
 }
 
 
+
+template<class Element>
+Element* Matrix<Element>::allocate( long long int s ) {
+	//printf("Allocating %lld Elements\n",s);
+
+  return (Element*) calloc( s, sizeof(Element) );
+}
+
+template<class Element>
+void Matrix<Element>::deallocate( Element *A, long long s ) {
+
+  free(A);
+}
+
+template<class Element>
+void Matrix<Element>::multiplyCAPS( Element *A, Element *B, Element *C, MatDescriptor desc) {
+
+  printf("lda:%d nrec:%d nproc:%d nprocc:%d nprocr:%d nrpoc_summa:%d bs:%d\n", desc.lda,desc.nrec,desc.nproc,desc.nprocc,desc.nprocr,desc.nproc_summa,desc.bs);
+
+  omp_set_num_threads(NUM_THREADS);
+
+  multiplyInternalCAPS( A, B, C, desc, NULL );
+
+}
+
+// nproc is the number of processors that share the matrices, and will be involved in the multiplication
+template<class Element>
+void Matrix<Element>::multiplyInternalCAPS(Element *A, Element *B, Element *C, MatDescriptor desc,
+		Element *work) {
+	if (desc.nrec == 0) { // (planned) out of recursion in the data layout, do a regular matrix multiply.  The matrix is now in a 2d block cyclic layout
+
+		// A 2d block cyclic layout with 1 processor still has blocks to deal with
+		// run a 1-proc non-strassen
+		block_multiplyCAPS(A, B, C, desc, work);
+
+	} else {
+		if (pattern == NULL) {
+
+			//COUNTERS setExecutionType(desc.nrec, "DFS");
+			strassenDFSCAPS(A, B, C, desc, work);
+
+		} else {
+			if (pattern[0] == 'D' || pattern[0] == 'd') {
+				//COUNTERS setExecutionType(desc.nrec, "DFS");
+				pattern++;
+				strassenDFSCAPS(A, B, C, desc, work);
+				pattern--;
+			}
+		}
+
+	}
+}
+
+template<class Element>
+void Matrix<Element>::addMatricesCAPS( int numEntries, Element *C, Element *A, Element *B ) {
+	//COUNTERS increaseAdditions(numEntries);
+	//COUNTERS startTimer(TIMER_ADD);
+#pragma omp parallel for schedule(static, (numEntries+NUM_THREADS-1)/NUM_THREADS)
+  for( int i = 0; i < numEntries; i++ )
+    C[i] = A[i] + B[i];
+  //COUNTERS stopTimer(TIMER_ADD);
+}
+
+template<class Element>
+void Matrix<Element>::subMatricesCAPS( int numEntries, Element *C, Element *A, Element *B ) {
+	//COUNTERS increaseAdditions(numEntries);
+	//COUNTERS startTimer(TIMER_ADD);
+#pragma omp parallel for schedule(static, (numEntries+NUM_THREADS-1)/NUM_THREADS)
+  for( int i = 0; i < numEntries; i++ )
+    C[i] = A[i] - B[i];
+  //COUNTERS stopTimer(TIMER_ADD);
+}
+// useful to improve cache behavior if there is some overlap.  It is safe for T_i to be the same as S_j* as long as i<j.  That is, operations will happen in the order specified
+template<class Element>
+void Matrix<Element>::tripleSubMatricesCAPS(int numEntries, Element *T1, Element *S11, Element *S12, Element *T2,
+		       Element *S21, Element *S22, Element *T3, Element *S31, Element *S32) {
+	//COUNTERS increaseAdditions(3*numEntries);
+	//COUNTERS startTimer(TIMER_ADD);
+#pragma omp parallel for schedule(static, (numEntries+NUM_THREADS-1)/NUM_THREADS)
+  for( int i = 0; i < numEntries; i++ ) {
+      T1[i] = S11[i] - S12[i];
+      T2[i] = S21[i] - S22[i];
+      T3[i] = S31[i] - S32[i];
+  }
+  //COUNTERS stopTimer(TIMER_ADD);
+}
+
+template<class Element>
+void Matrix<Element>::tripleAddMatricesCAPS(int numEntries, Element *T1, Element *S11, Element *S12, Element *T2,
+		       Element *S21, Element *S22, Element *T3, Element *S31, Element *S32) {
+	//COUNTERS increaseAdditions(3*numEntries);
+	//COUNTERS startTimer(TIMER_ADD);
+#pragma omp parallel for schedule(static, (numEntries+NUM_THREADS-1)/NUM_THREADS)
+  for( int i = 0; i < numEntries; i++ ) {
+      T1[i] = S11[i] + S12[i];
+      T2[i] = S21[i] + S22[i];
+      T3[i] = S31[i] + S32[i];
+  }
+  //COUNTERS stopTimer(TIMER_ADD);
+}
+
+template<class Element>
+void Matrix<Element>::addSubMatricesCAPS(int numEntries, Element *T1, Element *S11, Element *S12, Element *T2,
+		       Element *S21, Element *S22 ) {
+	//COUNTERS increaseAdditions(2*numEntries);
+	//COUNTERS startTimer(TIMER_ADD);
+#pragma omp parallel for schedule(static, (numEntries+NUM_THREADS-1)/NUM_THREADS)
+  for( int i = 0; i < numEntries; i++ ) {
+      T1[i] = S11[i] + S12[i];
+      T2[i] = S21[i] - S22[i];
+  }
+  //COUNTERS stopTimer(TIMER_ADD);
+}
+
+
+template<class Element>
+void Matrix<Element>::strassenDFSCAPS( Element *A, Element *B, Element *C, MatDescriptor desc, Element *workPassThrough ) {
+#ifdef SANITY_CHECKS
+  verifyDescriptor( desc );
+#endif
+  MatDescriptor halfDesc = desc;
+  halfDesc.lda /= 2;
+  halfDesc.nrec -= 1;
+#ifdef SANITY_CHECKS
+  verifyDescriptor( halfDesc );
+#endif
+
+  // submatrices; these are described by halfDesc;
+  long long int numEntriesHalf = numEntriesPerProc(halfDesc);
+  Element *A11 = A;
+  Element *A21 = A+numEntriesHalf;
+  Element *A12 = A+2*numEntriesHalf;
+  Element *A22 = A+3*numEntriesHalf;
+  Element *B11 = B;
+  Element *B21 = B+numEntriesHalf;
+  Element *B12 = B+2*numEntriesHalf;
+  Element *B22 = B+3*numEntriesHalf;
+  Element *C11 = C;
+  Element *C21 = C+numEntriesHalf;
+  Element *C12 = C+2*numEntriesHalf;
+  Element *C22 = C+3*numEntriesHalf;
+
+
+  // six registers.  halfDesc is the descriptor for these
+  Element *R1 = C21;
+  Element *R2 = allocate( numEntriesHalf );
+  Element *R3 = C11;
+  Element *R4 = C22;
+  Element *R5 = (Element *)allocate( numEntriesHalf );
+  Element *R6 = C12;
+
+  Element *S5 = R1;
+  Element *S3 = R2;
+  Element *S4 = R3;
+  tripleSubMatricesCAPS(numEntriesHalf, S5, B22, B12, S3, B12, B11, S4, B22, S3);
+  Element *T5 = R4;
+  Element *T3 = R6; // was R1
+  addSubMatricesCAPS(numEntriesHalf, T3, A21, A22, T5, A11, A21);
+  Element *Q5 = R5;
+  multiplyInternalCAPS( T5, S5, Q5, halfDesc, workPassThrough);
+  Element *Q3 = R4;
+  multiplyInternalCAPS( T3, S3, Q3, halfDesc, workPassThrough);
+  Element *T4 = R6;
+  subMatricesCAPS(numEntriesHalf, T4, T3, A11);
+  Element *Q4 = R2;
+  multiplyInternalCAPS( T4, S4, Q4, halfDesc, workPassThrough);
+  Element *T6 = R6;
+  subMatricesCAPS(numEntriesHalf, T6, A12, T4);
+  Element *S7 = R3;
+  subMatricesCAPS(numEntriesHalf, S7, S4, B21);
+  Element *Q7 = R1;
+  multiplyInternalCAPS( A22, S7, Q7, halfDesc, workPassThrough);
+  Element *Q1 = R3;
+  multiplyInternalCAPS( A11, B11, Q1, halfDesc, workPassThrough);
+  Element *U1 = R2;
+  Element *U2 = R5;
+  Element *U3 = R2;
+  tripleAddMatricesCAPS(numEntriesHalf, U1, Q1, Q4, U2, U1, Q5, U3, U1, Q3);
+  addSubMatricesCAPS(numEntriesHalf, C22, U2, Q3, C21, U2, Q7);
+  Element *Q2 = R5;
+  multiplyInternalCAPS( A12, B21, Q2, halfDesc, workPassThrough);
+  addMatricesCAPS(numEntriesHalf, C11, Q1, Q2);
+  Element *Q6 = R5;
+  multiplyInternalCAPS(T6, B22, Q6, halfDesc, workPassThrough);
+  addMatricesCAPS(numEntriesHalf, C12, U3, Q6);
+  deallocate(R5, numEntriesHalf);
+  deallocate(R2, numEntriesHalf);
+
+}
+
+template<class Element>
+void Matrix<Element>::block_multiplyCAPS( Element *A, Element *B, Element *C, MatDescriptor d, Element *work ) {
+  long long lda = d.lda;
+  //long long lda3 = lda*lda*lda;
+  //COUNTERS increaseAdditions( lda3 );
+  //COUNTERS increaseMultiplications( lda3 );
+
+  Element *AA, *BB, *CC;
+
+    AA = A;
+    BB = B;
+    CC = C;
+
+
+  // do the multiplication, without requiring CC to be zeroed
+    //COUNTERS startTimer(TIMER_MUL);
+  square_dgemm_zero( d.lda, AA, BB, CC );
+  //COUNTERS stopTimer(TIMER_MUL);
+
+
+
+}
+
+
 }
 

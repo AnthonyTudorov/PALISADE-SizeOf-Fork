@@ -31,14 +31,15 @@
 
 
 CC := g++ # This is the main compiler
+#CC := mpic++ # This is the message passing wrapper needed for CAPS (parallel Strassen)
 
 # NOTE select the appropriate set of CPPFLAGS 
 # most code is checked into git with the first line active
 #CPPFLAGS += -Wall $(CPPSTD) -w -g ## undefine for single thread debug NO OPTIMIZATION operation
-CPPFLAGS += -Wall -O3 $(CPPSTD) -w -g ## undefine for single thread debug operation
+#CPPFLAGS += -Wall -O3 $(CPPSTD) -w -g ## undefine for single thread debug operation
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w -g -fopenmp  ##undefine for parallel debug operation
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w  -DNDEBUG  ##undefine for single thread best performance operation
-#CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp  ##undefine for parallel best performance operation
+CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp  ##undefine for parallel best performance operation
 
 #fundamental locations in the palisade directory structure
 #sources for all palisade code
@@ -62,7 +63,7 @@ HDREXT := h
 
 $(objects) : %.o : %.cpp
 
-EXTLIB := -lpthread -lgomp #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
+EXTLIB := -lpthread -lgomp -lblas#-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 INC := -I include $(OMPINCLUDE) $(BOOSTINCLUDE)
 
 #the name of the shared object library for palisade objects.  
