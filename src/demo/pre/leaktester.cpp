@@ -282,9 +282,8 @@ runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plainte
 
 	//Perform the proxy re-encryption operation.
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
-
-	CryptoUtility<ILVector2n>::ReEncrypt(ctx.GetEncryptionAlgorithm(), *evalKey, ciphertext, &newCiphertext);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext =
+			ctx.ReEncrypt(evalKey, ciphertext);
 
 	//Decryption
 
