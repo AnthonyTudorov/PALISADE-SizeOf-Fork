@@ -51,7 +51,7 @@ namespace lbcrypto {
 		double logTwo = log(val-1.0)/log(2)+1.0;
 		//std::cout << "logTwo : " << logTwo << std::endl;
 		size_t k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
-		std::cout << "BitLength in Trapdoor: " << k << std::endl;
+		//std::cout << "BitLength in Trapdoor: " << k << std::endl;
 
 		auto a = uniform_alloc();
 
