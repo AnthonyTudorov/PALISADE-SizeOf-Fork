@@ -43,10 +43,12 @@ bool CONJOBF(bool dbg_flag, int n_evals, int dataset); //defined later
 int main(int argc, char* argv[]){
 	bool errorflag = false;
 
-	if (argc < 2) { // called with no arguments
-		std::cout << "arg 1 = debugflag 0:1 [0] " << std::endl;
-		std::cout << "arg 2 = num evals 1:3 [1] " << std::endl;
-		std::cout << "arg 3 = ring dimension 8:256 [8] " << std::endl;
+	if (argc < 2) { // called with no arguments		
+		std::cout << "Usage is `ObfuscateSimulator arg1 arg2 arg3' where: " << std::endl;
+		std::cout << "  arg1 indicate verbosity of output. Possible values are 0 or 1 with 1 being verbose.  Default is 0." << std::endl;
+		std::cout << "  arg2 indicates number of evaluation operations to run.  Possible values are 1, 2 or 3.  Default is 1." << std::endl;
+		std::cout << "  arg3 indicates ring dimension to use with possible values of {8,16,32,64,128,256}." << std::endl;
+		std::cout << "If no input is given, then this message is displayed, defaults are assumed and user is prompted for ring dimension." << std::endl;
 	}
 	bool dbg_flag = false; 
 
@@ -54,12 +56,10 @@ int main(int argc, char* argv[]){
 		if (atoi(argv[1]) != 0) {
 #ifndef NDEBUG
 			dbg_flag = true;
-			std::cout << "setting dbg_flag true" << std::endl;
+			// std::cout << "setting dbg_flag true" << std::endl;
 #endif
 		}
 	}
-
-	std::cerr  <<"Running " << argv[0] <<" with "<< omp_get_num_procs() << " processors." << std::endl;
 
 	int n_evals = 1;
 
@@ -72,7 +72,8 @@ int main(int argc, char* argv[]){
 			n_evals = atoi(argv[2]);
 		}
 	}
-	std::cerr << "Running " << argv[0] << " with " << n_evals << " evaluations." << std::endl;
+
+	std::cerr  <<"Configured to run " << argv[0] <<" with "<< omp_get_num_procs() << " processor[s] and " << n_evals << " evaluation[s]." << std::endl;
 
 	int nthreads, tid;
 
@@ -101,7 +102,7 @@ int main(int argc, char* argv[]){
 
 	if (inputstring == "") {
 
-		std::cout << "Please choose the ring dimension (pattern length is 32 bits, root Hermite factor d is given in parantheses): " << std::endl;
+		std::cout << "Ring dimension unspecified.  Please choose the ring dimension (pattern length is 32 bits, root Hermite factor d is given in parantheses): " << std::endl;
 		std::cout << "8 (d = 4.97), 16 (d = 2.33), 32 (d = 1.56), 64 (d = 1.27), 128 (d = 1.13), 256 (k = 1.066): [8] ";
 
 		std::getline(std::cin, inputstring);
