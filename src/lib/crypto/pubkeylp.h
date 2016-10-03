@@ -1059,7 +1059,7 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			virtual LPKeyPair<Element> KeyGen(CryptoContext<Element> cc) const = 0;
+			virtual LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc) const = 0;
 
 	};
 
@@ -1472,7 +1472,7 @@ namespace lbcrypto {
 				}
 		}
 
-		LPKeyPair<Element> KeyGen(CryptoContext<Element> cc) const {
+		LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc) const {
 				if(this->m_algorithmEncryption)
 					return this->m_algorithmEncryption->KeyGen(cc);
 				else {
