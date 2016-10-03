@@ -1333,7 +1333,7 @@ namespace lbcrypto {
 			*
 			* @return the ring element parameters.
 			*/
-		const ElemParams &GetElementParams() const { return *m_params; }
+		const shared_ptr<ElemParams> GetElementParams() const { return m_params; }
 			
 		/**
 		* Sets the value of plaintext modulus p
@@ -1343,7 +1343,7 @@ namespace lbcrypto {
 		/**
 			* Sets the reference to element params
 			*/
-		void SetElementParams(ElemParams &params) { m_params = &params; }
+		void SetElementParams(shared_ptr<ElemParams> params) { m_params = params; }
 
 		virtual bool operator==(const LPCryptoParameters<Element>& cmp) const = 0;
 
@@ -1354,6 +1354,11 @@ namespace lbcrypto {
 
 		LPCryptoParameters(shared_ptr<ElemParams> params, const BigBinaryInteger &plaintextModulus) : m_plaintextModulus(plaintextModulus) {
 			m_params = params;
+		}
+
+		LPCryptoParameters(LPCryptoParameters<Element> *from, shared_ptr<ElemParams> newElemParms) {
+			*this = *from;
+			m_params = newElemParms;
 		}
 
 	private:

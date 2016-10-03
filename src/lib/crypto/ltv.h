@@ -159,8 +159,8 @@ public:
 			rootsOfUnity.push_back(rootOfUnity);
 		}
 
-		shared_ptr<ElemParams> newCryptoParams( new ILDCRTParams(m, moduli, rootsOfUnity) );
-		cryptoParams->SetElementParams(newCryptoParams);
+		shared_ptr<ElemParams> newElemParams( new ILDCRTParams(m, moduli, rootsOfUnity) );
+		cryptoParams->SetElementParams(newElemParams);
 	}
 
 	/**

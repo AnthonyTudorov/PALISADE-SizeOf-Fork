@@ -178,7 +178,7 @@ public:
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
 		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters().GetPlaintextModulus();
-		size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), ptm);
+		size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoParameters().GetElementParams()->GetCyclotomicOrder(), ptm);
 		size_t ptSize = plaintext.GetLength();
 		size_t rounds = ptSize/chunkSize;
 
