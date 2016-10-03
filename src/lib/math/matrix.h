@@ -27,7 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef LBCRYPTO_MATH_MATRIX_H
 #define LBCRYPTO_MATH_MATRIX_H
 #include "dgemm-blas.h"
-#include "communicationCAPS.h"
+#include "CAPSutils.h"
 #include <assert.h>
 #include <stdlib.h>
 
@@ -58,9 +58,11 @@ namespace lbcrypto {
 		template<class Element>
         class Matrix {
             typedef vector<vector<unique_ptr<Element>>> data_t;
+            typedef vector<unique_ptr<Element>> lineardata_t;
             typedef std::function<unique_ptr<Element>(void)> alloc_func;
         
         public:
+
 			/**
 			 * Constructor that initializes matrix values using a zero allocator
 			 *
@@ -204,6 +206,10 @@ namespace lbcrypto {
              */ 
             const data_t& GetData() const {
                 return data;
+            }
+
+            const data_t& GetLinearData() const {
+                return lineardata;
             }
 
             /**
@@ -350,33 +356,48 @@ namespace lbcrypto {
              */ 
             inline void SwitchFormat(); 
 
-            Element* allocate( long long int s );
-            void deallocate( Element *A, long long s );
-            void multiplyCAPS( Element *A, Element *B, Element *C, MatDescriptor desc);
-            void multiplyInternalCAPS( Element *A, Element *B, Element *C, MatDescriptor desc, Element *work );
-            void strassenDFSCAPS( Element *A, Element *B, Element *C, MatDescriptor desc, Element *work );
-            void block_multiplyCAPS( Element *A, Element *B, Element *C, MatDescriptor desc, Element *work );
+            unique_ptr<Element> * allocate( long long int s );
+            void deallocate( unique_ptr<Element> *A, long long s );
+            Matrix<Element> MultiplyCAPS(Matrix<Element>& other, int nrec);
 
+            void PrintLinearDataCAPS(unique_ptr<Element> *elem);
+
+            void multiplyInternalCAPS( unique_ptr<Element> *A, unique_ptr<Element> *B, unique_ptr<Element> *C, MatDescriptor desc, unique_ptr<Element> *work );
+            void strassenDFSCAPS( unique_ptr<Element> *A, unique_ptr<Element> *B, unique_ptr<Element> *C, MatDescriptor desc, unique_ptr<Element> *work );
+            void block_multiplyCAPS( unique_ptr<Element> *A, unique_ptr<Element> *B, unique_ptr<Element> *C, MatDescriptor desc, unique_ptr<Element> *work );
+            void LinearizeDataCAPS();
+            void UnlinearizeDataCAPS();
         private:
             data_t data;
+            data_t newdata;
+            lineardata_t lineardata;
             size_t rows;
             size_t cols;
             alloc_func allocZero;
             char *pattern = NULL;
+            MatDescriptor desc;
 
 			//deep copy of data - used for copy constructor
             void deepCopyData(data_t const& src);
-            void addMatricesCAPS( int numEntries, Element *C, Element *A, Element *B );
-            void addSubMatricesCAPS(int numEntries, Element *T1, Element *S11, Element *S12, Element *T2,
-            		       Element *S21, Element *S22 );
-            void subMatricesCAPS( int numEntries, Element *C, Element *A, Element *B );
-            void tripleAddMatricesCAPS(int numEntries, Element *T1, Element *S11, Element *S12, Element *T2,
-            		       Element *S21, Element *S22, Element *T3, Element *S31, Element *S32);
-            void tripleSubMatricesCAPS(int numEntries, Element *T1, Element *S11, Element *S12, Element *T2,
-            		       Element *S21, Element *S22, Element *T3, Element *S31, Element *S32);
 
+            void addMatricesCAPS( int numEntries, unique_ptr<Element> *C, unique_ptr<Element> *A, unique_ptr<Element> *B );
+            void addSubMatricesCAPS(int numEntries, unique_ptr<Element> *T1, unique_ptr<Element> *S11, unique_ptr<Element> *S12, unique_ptr<Element> *T2,
+            		       unique_ptr<Element> *S21, unique_ptr<Element> *S22 );
+            void subMatricesCAPS( int numEntries, unique_ptr<Element> *C, unique_ptr<Element> *A, unique_ptr<Element> *B );
+            void tripleAddMatricesCAPS(int numEntries, unique_ptr<Element> *T1, unique_ptr<Element> *S11, unique_ptr<Element> *S12, unique_ptr<Element> *T2,
+            		       unique_ptr<Element> *S21, unique_ptr<Element> *S22, unique_ptr<Element> *T3, unique_ptr<Element> *S31, unique_ptr<Element> *S32);
+            void tripleSubMatricesCAPS(int numEntries, unique_ptr<Element> *T1, unique_ptr<Element> *S11, unique_ptr<Element> *S12, unique_ptr<Element> *T2,
+            		       unique_ptr<Element> *S21, unique_ptr<Element> *S22, unique_ptr<Element> *T3, unique_ptr<Element> *S31, unique_ptr<Element> *S32);
 
-        };
+            // this is really a toy function for testing.  It takes a matrix all on 1 processor, and distributes it to match desc.  All processors must provide consistent descriptors.  However I may be NULL on processors with ranks other than 0 in desc; the processor with rank 0 is desc currently holds the matrix.
+            void distributeFrom1ProcCAPS( MatDescriptor desc, unique_ptr<Element> *O, unique_ptr<Element> *I );
+            void collectTo1ProcCAPS( MatDescriptor desc, unique_ptr<Element> *O, unique_ptr<Element> *I );
+            void sendBlockCAPS( int rank, int target, unique_ptr<Element> *O, int bs, int source, unique_ptr<Element> *I, int ldi );
+            void receiveBlockCAPS(  int rank, int target, unique_ptr<Element> *O, int bs, int source, unique_ptr<Element> *I, int ldo );
+            void distributeFrom1ProcRecCAPS( MatDescriptor desc, unique_ptr<Element> *O, unique_ptr<Element> *I, int ldi );
+            void collectTo1ProcRecCAPS( MatDescriptor desc, unique_ptr<Element>*O, unique_ptr<Element>*I, int ldo );
+            void testCAPS( MatDescriptor desc );
+		};
 
 	/**
     * Operator for scalar multiplication of matrix
