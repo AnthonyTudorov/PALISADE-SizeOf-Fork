@@ -67,7 +67,8 @@ private:
 	float				stDev;			/*!< stamdard deviation */
 	float				stDevStSt;		/*!< standard deviation for StSt uses */
 
-	/* these three parameters get initialized when an instance is constructed; they are used by the context */
+	/* these three parameters get initialized when an instance is constructed; they are used by the context
+	 */
 	shared_ptr<ElemParams>		elemParams;
 	DiscreteGaussianGenerator	dgg;
 	DiscreteGaussianGenerator	dggStSt;	// unused unless we use StSt scheme
@@ -75,12 +76,21 @@ private:
 	LPCryptoParameters<Element>				*params;	/*!< crypto parameters used for this context */
 	LPPublicKeyEncryptionScheme<Element>	*scheme;	/*!< algorithm used; points to keygen and encrypt/decrypt methods */
 
-	CryptoContextImpl() : params(0), scheme(0), relinWindow(0), ringdim(0), stDev(0), stDevStSt(0) {}
+	// these three members are ONLY used by the Java wrapper to cache deserialized keys
+	LPPublicKey<Element>		*publicKey;
+	LPPrivateKey<Element>		*privateKey;
+	LPEvalKeyRelin<Element>		*evalKey;
+
+	CryptoContextImpl() : publicKey(0), privateKey(0), evalKey(0),
+			params(0), scheme(0), relinWindow(0), ringdim(0), stDev(0), stDevStSt(0) {}
 
 public:
 	~CryptoContextImpl() {
 		if( params ) delete params;
 		if( scheme ) delete scheme;
+		if( publicKey ) delete publicKey;
+		if( privateKey ) delete privateKey;
+		if( evalKey ) delete evalKey;
 	}
 
 	DiscreteGaussianGenerator& GetGenerator() { return dgg; }
@@ -103,16 +113,54 @@ public:
 	 * @return amount of padding that must be added
 	 */
 	usint getPadAmount() const { return ringdim/16 * (ptmod.GetMSB()-1); }
+
+	/**
+	 * Used by the Java wrapper
+	 *
+	 * @param serializedKey
+	 * @return true on success
+	 */
+	bool setPublicKey( const std::string& serializedKey );
+
+	/**
+	 * Used by the Java wrapper
+	 *
+	 * @return cached deserialized public key
+	 */
+	LPPublicKey<Element>	*getPublicKey() const { return publicKey; }
+
+	/**
+	 * Used by the Java wrapper
+	 *
+	 * @param serializedKey
+	 * @return true on success
+	 */
+	bool setPrivateKey( const std::string& serializedKey );
+
+	/**
+	 * Used by the Java wrapper
+	 *
+	 * @return cached deserialized private key
+	 */
+	LPPrivateKey<Element>	*getPrivateKey() const { return privateKey; }
+
+	/**
+	 * Used by the Java wrapper
+	 *
+	 * @param serializedKey
+	 * @return true on success
+	 */
+	bool setEvalKey( const std::string& serializedKey );
+
+	/**
+	 * Used by the Java wrapper
+	 *
+	 * @return cached deserialized evaluation key
+	 */
+	LPEvalKeyRelin<Element>	*getEvalKey() const { return evalKey; }
+
 };
 
-/**
- * @brief CryptoContext
- *
- * CryptoContext contains a shared pointer to the implementation of a Crypto Context and
- * wrappers around all of the functionality provided by a context
- *
- * Guards are implemented to ensure that only objects created in/by the context will be used with it
- */
 template <class Element>
 class CryptoContext {
 public:
@@ -134,13 +182,9 @@ public:
 	}
 
 	void Enable(PKESchemeFeature feature) { ctx->getScheme()->Enable(feature); }
-
 	const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *ctx->getScheme(); }
-
 	const LPCryptoParameters<Element> &GetCryptoParameters() const { return *ctx->getParams(); }
-
 	DiscreteGaussianGenerator& GetGenerator() { return ctx->GetGenerator(); }
-
 	ILParams& GetILParams() { return ctx->GetILParams(); }
 
 	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.ctx == b.ctx; }
@@ -244,114 +288,13 @@ public:
 			shared_ptr<LPEvalKey<Element>> evalKey,
 			std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext)
 	{
-		if( evalKey->GetCryptoContext() != *this || ciphertext.at(0)->GetCryptoContext() != *this )
-			throw std::logic_error("Information passed to ReEncrypt was not generated with this crypto context");
+		// FIXME: add check for key and ciphertext
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
 		for( int i=0; i < ciphertext.size(); i++ ) {
 			newCiphertext.push_back( GetEncryptionAlgorithm().ReEncrypt(evalKey, ciphertext[i]) );
 		}
-
 		return newCiphertext;
-	}
-
-	/**
-	* perform KeySwitch on a vector of ciphertext
-	* @param scheme - a reference to the encryption scheme in use
-	* @param keySwitchHint - reference to KeySwitchHint
-	* @param ciphertext - vector of ciphertext
-	*/
-	std::vector<shared_ptr<Ciphertext<Element>>> KeySwitch(
-		const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint,
-		const vector<shared_ptr<Ciphertext<Element>>>& ciphertext)
-	{
-		if( keySwitchHint->GetCryptoContext() != *this )
-			throw std::logic_error("Key passed to KeySwitch was not generated with this crypto context");
-
-		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
-
-		for (int i = 0; i < ciphertext.size(); i++) {
-			if( ciphertext.at(i)->GetCryptoContext() != *this )
-				throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
-
-			newCiphertext->push_back( GetEncryptionAlgorithm().KeySwitch(keySwitchHint, ciphertext[i]) );
-		}
-
-		return newCiphertext;
-	}
-
-	/**
-	* perform ModReduce on a vector of ciphertext
-	* @param scheme - a reference to the encryption scheme in use
-	* @param ciphertext - vector of ciphertext
-	*/
-	std::vector<shared_ptr<Ciphertext<Element>>> ModReduce(
-		vector<shared_ptr<Ciphertext<Element>>> ciphertext)
-	{
-		for (int i = 0; i < ciphertext->size(); i++) {
-			if( ciphertext.at(i)->GetCryptoContext() != *this )
-				throw std::logic_error("Information passed to KeySwitch was not generated with this crypto context");
-
-			ciphertext[i] = GetEncryptionAlgorithm().ModReduce(ciphertext[i]);
-		}
-
-		return ciphertext;
-	}
-
-	/**
-	* perform RingReduce on a vector of ciphertext
-	* @param &scheme - a reference to the encryption scheme in use
-	* @param ciphertext - vector of ciphertext
-	* @param &keySwitchHint - is the keySwitchHint from original private key to sparse private key
-	*/
-
-	std::vector<shared_ptr<Ciphertext<Element>>> RingReduce(
-		std::vector<shared_ptr<Ciphertext<Element>>> ciphertext,
-		const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint)
-	{
-		if( keySwitchHint->GetCryptoContext() != *this )
-			throw std::logic_error("Key passed to KeySwitch was not generated with this crypto context");
-
-		for (int i = 0; i < ciphertext->size(); i++) {
-			if( ciphertext.at(i)->GetCryptoContext() != *this )
-				throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
-
-			ciphertext[i] = GetEncryptionAlgorithm().RingReduce(ciphertext[i], keySwitchHint);
-		}
-
-		return ciphertext;
-	}
-
-	/**
-	* perform RingReduce on a vector of ciphertext
-	* @param &scheme - a reference to the encryption scheme in use
-	* @param ciphertext1 - first cipher text
-	* @param ciphertext2 - second cipher text
-	* @param &quadKeySwitchHint - is the quadratic key switch hint from original private key to the quadratic key
-	* @param ciphertextResult - resulting ciphertext
-	*/
-	std::vector<shared_ptr<Ciphertext<Element>>> ComposedEvalMult(
-		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext1,
-		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext2,
-		const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint)
-	{
-		if (ciphertext1.size() != ciphertext2.size()) {
-			throw std::logic_error("Cannot have ciphertext of different length");
-		}
-
-		if( quadKeySwitchHint->GetCryptoContext() != *this )
-			throw std::logic_error("Key passed to ComposedEvalMult was not generated with this crypto context");
-
-		vector<shared_ptr<Ciphertext<Element>>> ciphertextResult;
-
-		for (int i = 0; i < ciphertext1.size(); i++) {
-			if( ciphertext1.at(i)->GetCryptoContext() != *this || ciphertext2.at(i)->GetCryptoContext() != *this )
-				throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
-
-			ciphertextResult.push_back( GetEncryptionAlgorithm().ComposedEvalMult(ciphertext1.at(i), ciphertext2.at(i), quadKeySwitchHint) );
-		}
-
-		return ciphertextResult;
 	}
 
 };

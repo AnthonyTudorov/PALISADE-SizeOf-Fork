@@ -41,7 +41,7 @@ namespace lbcrypto {
 
 
 template <class Element>
-LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContext<Element> cc) const
+LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(const CryptoContext<Element> cc) const
 {
 	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
