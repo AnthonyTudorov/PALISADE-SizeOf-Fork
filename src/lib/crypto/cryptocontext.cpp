@@ -57,38 +57,38 @@ static T* deserializeAndCreate(const std::string& serializedKey, const CryptoCon
 	return newKey;
 }
 
-template <typename T>
-bool CryptoContextImpl<T>::setPublicKey( const std::string& serializedKey )
-{
-	LPPublicKey<T> *newKey = deserializeAndCreate<LPPublicKey<T>,T>(serializedKey, this);
-	if( newKey == 0 ) return false;
-
-	if( publicKey ) delete publicKey;
-	publicKey = newKey;
-	return true;
-}
-
-template <typename T>
-bool CryptoContextImpl<T>::setPrivateKey( const std::string& serializedKey )
-{
-	LPPrivateKey<T> *newKey = deserializeAndCreate<LPPrivateKey<T>,T>(serializedKey, this);
-	if( newKey == 0 ) return false;
-
-	if( privateKey ) delete privateKey;
-	privateKey = newKey;
-	return true;
-}
-
-template <typename T>
-bool CryptoContextImpl<T>::setEvalKey( const std::string& serializedKey )
-{
-	LPEvalKeyRelin<T> *newKey = deserializeAndCreate<LPEvalKeyRelin<T>,T>(serializedKey, this);
-	if( newKey == 0 ) return false;
-
-	if( evalKey ) delete evalKey;
-	evalKey = newKey;
-	return true;
-}
+//template <typename T>
+//bool CryptoContextImpl<T>::setPublicKey( const std::string& serializedKey )
+//{
+//	LPPublicKey<T> *newKey = deserializeAndCreate<LPPublicKey<T>,T>(serializedKey, this);
+//	if( newKey == 0 ) return false;
+//
+//	if( publicKey ) delete publicKey;
+//	publicKey = newKey;
+//	return true;
+//}
+//
+//template <typename T>
+//bool CryptoContextImpl<T>::setPrivateKey( const std::string& serializedKey )
+//{
+//	LPPrivateKey<T> *newKey = deserializeAndCreate<LPPrivateKey<T>,T>(serializedKey, this);
+//	if( newKey == 0 ) return false;
+//
+//	if( privateKey ) delete privateKey;
+//	privateKey = newKey;
+//	return true;
+//}
+//
+//template <typename T>
+//bool CryptoContextImpl<T>::setEvalKey( const std::string& serializedKey )
+//{
+//	LPEvalKeyRelin<T> *newKey = deserializeAndCreate<LPEvalKeyRelin<T>,T>(serializedKey, this);
+//	if( newKey == 0 ) return false;
+//
+//	if( evalKey ) delete evalKey;
+//	evalKey = newKey;
+//	return true;
+//}
 
 template <typename T>
 CryptoContext<T>
