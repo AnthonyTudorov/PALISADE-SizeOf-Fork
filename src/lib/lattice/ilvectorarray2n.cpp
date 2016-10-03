@@ -173,6 +173,45 @@ namespace lbcrypto {
 		}
 	}
 
+	ILVectorArray2n::ILVectorArray2n(const DiscreteUniformGenerator &dug, const ElemParams &params, Format format) {
+
+		const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(params);
+		m_modulus = dcrtParams.GetModulus();
+		m_cyclotomicOrder = dcrtParams.GetCyclotomicOrder();
+		m_format = format;
+
+		size_t numberOfTowers = dcrtParams.GetModuli().size();
+		m_vectors.reserve(numberOfTowers);
+
+		//dgg generating random values
+		BigBinaryVector vals(dug.GenerateVector(m_cyclotomicOrder / 2));
+
+		BigBinaryInteger modulus;
+		BigBinaryInteger rootOfUnity;
+		BigBinaryInteger temp;
+
+		for (usint i = 0; i < numberOfTowers; i++) {
+
+			modulus = dcrtParams.GetModuli()[i];
+			rootOfUnity = dcrtParams.GetRootsOfUnity()[i];
+
+			ILParams ilParams(params.GetCyclotomicOrder(), modulus, rootOfUnity);
+			ILVector2n ilvector(ilParams);
+
+			//BigBinaryVector ilDggValues(params.GetCyclotomicOrder() / 2, modulus);
+			vals.SwitchModulus(modulus);
+			
+			ilvector.SetValues(vals , Format::COEFFICIENT); // the random values are set in coefficient format
+			if (m_format == Format::EVALUATION) {  // if the input format is evaluation, then once random values are set in coefficient format, switch the format to achieve what the caller asked for.
+				ilvector.SwitchFormat();
+			}
+			m_vectors.push_back(ilvector);
+
+		}
+
+
+	}
+
 	/*Move constructor*/
 	ILVectorArray2n::ILVectorArray2n(const ILVectorArray2n &&element){
 		m_format = element.m_format;

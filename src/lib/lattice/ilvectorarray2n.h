@@ -117,6 +117,15 @@ namespace lbcrypto {
 		}
 
 		/**
+		* Constructor based on full methods.
+		*
+		* @param &dug the input discrete Uniform Generator.
+		* @param &params the input params.
+		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVectorArray2n(const DiscreteUniformGenerator &dug, const ElemParams &params, Format format = EVALUATION);
+
+		/**
 		* Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n. 
 		*
 		* @param &element ILVector2n to build other towers from.
@@ -642,6 +651,16 @@ namespace lbcrypto {
 	* @return an ILVectorArray2n with the resulting value.
 	*/
 	inline ILVectorArray2n operator+(const BigBinaryInteger &a, const ILVectorArray2n &b) { return b.Plus(a); }
+
+	/**
+	* Subtraction operator overload.  Performs a subtraction in the ring.
+	*
+	* @param &a the first parameter.
+	* @param &b the first parameter.
+	*
+	* @return The result of subtraction in the ring.
+	*/
+	inline ILVectorArray2n operator-(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Minus(b); }
 
 } // namespace lbcrypto ends
 

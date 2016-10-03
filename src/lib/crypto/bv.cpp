@@ -164,23 +164,16 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const shared_
 		throw std::logic_error("Secret Key has incorrect type in LPAlgorithmPREBV<Element>::ReKeyGen");
 	}
 
-	//LPEvalKeyBV<Element> *evalKey = dynamic_cast<LPEvalKeyBV<Element>*>(EK);
 
 	const Element &sNew = newPrivateKey->GetPrivateElement();
 
 	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
 	const DiscreteUniformGenerator dug(elementParams->GetModulus());
 
-	//std::vector<Element> *evalKeyElements = &evalKey->AccessEvalKeyElements();
-	//std::vector<Element> *evalKeyElementsGenerated = &evalKey->AccessEvalKeyElementsGenerated();
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
 	std::vector<Element> evalKeyElements(s.PowersOfBase(relinWindow));
 	std::vector<Element> evalKeyElementsGenerated;
-
-	
-
-	//s.PowersOfBase(relinWindow, evalKeyElements);
 
 	for (usint i = 0; i < (evalKeyElements.size()); i++)
 	{
@@ -190,9 +183,8 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const shared_
 
 		// Generate a_i * newSK + p * e - PowerOfBase(oldSK)
 		Element e(dgg, elementParams, Format::EVALUATION);
-		evalKeyElements.at(i) -= (a*sNew + p*e);
-		evalKeyElements.at(i) *= (elementParams->GetModulus() - BigBinaryInteger::ONE);
-
+		evalKeyElements.at(i) = (a*sNew + p*e) - evalKeyElements.at(i);
+		
 	}
 
 	EK->SetAVector(std::move(evalKeyElements));
@@ -222,13 +214,13 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPREBV<Element>::ReEncrypt(const share
 
 	const std::vector<Element> &c = ciphertext->GetElements();
 
-	std::vector<Element> digitsC1;
-	c[1].BaseDecompose(relinWindow, &digitsC1);
+	std::vector<Element> digitsC1(c[1].BaseDecompose(relinWindow));
+
 
 	// c0' = c0 + \sum\limits_{i}{c_1*b}_i 
 	// c1' = \sum\limits_{i}{c_1*a}_i 
-	Element ct0(c[0] + digitsC1[0]*b[0]);
-	Element ct1(digitsC1[0]*a[0]);
+	Element ct0(c[0] + digitsC1[0] * b[0]);
+	Element ct1(digitsC1[0] * a[0]);
 
 	for (usint i = 1; i < digitsC1.size(); ++i)
 	{
@@ -236,7 +228,8 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPREBV<Element>::ReEncrypt(const share
 		ct1 += digitsC1[i] * a[i];
 	}
 
-	newCiphertext->SetElements({ct0, ct1});
+	*newCiphertext = ciphertext;
+	newCiphertext->SetElements({ ct0, ct1 });
 	return newCiphertext;
 }
 
@@ -247,9 +240,13 @@ LPPublicKeyEncryptionSchemeBV<Element>::LPPublicKeyEncryptionSchemeBV(std::bitse
 
 	if (mask[ENCRYPTION])
 		this->m_algorithmEncryption = new LPAlgorithmBV<Element>(*this);
-	
+
 	if (mask[PRE])
 		this->m_algorithmPRE = new LPAlgorithmPREBV<Element>(*this);
+
+	if (mask[SHE])
+		this->m_algorithmSHE = new LPAlgorithmSHEBV<Element>(*this);
+
 	/*if (mask[EVALADD])
 		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
 	if (mask[EVALAUTOMORPHISM])
@@ -277,25 +274,33 @@ void LPPublicKeyEncryptionSchemeBV<Element>::Enable(PKESchemeFeature feature) {
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPREBV<Element>(*this);
 		break;
-	/*case EVALADD:
-		if (this->m_algorithmEvalAdd == NULL)
-			this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
-		break;
-	case EVALAUTOMORPHISM:
-		if (this->m_algorithmEvalAutomorphism == NULL)
-			this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
-		break;
 	case SHE:
 		if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
-		break;
-	case FHE:
-		if (this->m_algorithmFHE == NULL)
-			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+			this->m_algorithmSHE = new LPAlgorithmSHEBV<Element>(*this);
 		break;
 	case LEVELEDSHE:
 		if (this->m_algorithmLeveledSHE == NULL)
-			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
+			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>(*this);
+		break;
+		/*case EVALADD:
+		if (this->m_algorithmEvalAdd == NULL)
+		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
+		break;
+		case EVALAUTOMORPHISM:
+		if (this->m_algorithmEvalAutomorphism == NULL)
+		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
+		break;
+		case SHE:
+		if (this->m_algorithmSHE == NULL)
+		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
+		break;
+		case FHE:
+		if (this->m_algorithmFHE == NULL)
+		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+		break;
+		case LEVELEDSHE:
+		if (this->m_algorithmLeveledSHE == NULL)
+		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
 		break;
 		*/
 	}
