@@ -115,7 +115,8 @@ main(int argc, char *argv[])
 	BytePlaintextEncoding plaintext3 = { 9,0,8,0 };
 
 	BytePlaintextEncoding plaintext4;
-	size_t chunksize = plaintext4.GetChunksize(ctx.GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), ctx.GetCryptoParameters().GetPlaintextModulus());
+	size_t chunksize = plaintext4.GetChunksize(ctx.GetCryptoParameters().GetElementParams()->GetCyclotomicOrder(),
+			ctx.GetCryptoParameters().GetPlaintextModulus());
 
 	plaintext4.resize(chunksize,0); // make sure this comes out in 2 chunks
 
@@ -212,7 +213,8 @@ runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plainte
 		exit(1);
 	}
 
-	size_t chunksize = plaintext.GetChunksize(kp.publicKey->GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), kp.publicKey->GetCryptoParameters().GetPlaintextModulus());
+	size_t chunksize = plaintext.GetChunksize(kp.publicKey->GetCryptoParameters().GetElementParams()->GetCyclotomicOrder(),
+			kp.publicKey->GetCryptoParameters().GetPlaintextModulus());
 	cout << "Chunk size is: " << chunksize << endl;
 
 	//Encryption
