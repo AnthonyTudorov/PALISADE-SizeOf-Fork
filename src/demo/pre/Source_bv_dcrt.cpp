@@ -66,17 +66,6 @@ struct SecureParams {
 
 int main() {
 
-	std::cout << "Relinearization window : " << std::endl;
-	std::cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
-
-	int input = 0;
-	std::cin >> input;
-	//cleans up the buffer
-	cin.ignore();
-
-	if ((input<0) || (input>4))
-		input = 0;
-
 	////NTRUPRE is where the core functionality is provided.
 	EncryptionTest();
 	//NTRUPRE(3);
@@ -203,6 +192,6 @@ void EncryptionTest() {
 	DecryptResult result = CryptoUtility<ILVectorArray2n>::Decrypt(algorithm,sk,ciphertext,&ctxtd,false);  // This is the core decryption operation.
 
 
-	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<< ctxtd <<"\n"<<endl;
+	std::cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<< ctxtd <<"\n"<< std::endl ;
 
 }
