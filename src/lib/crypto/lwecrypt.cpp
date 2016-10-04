@@ -141,7 +141,7 @@ void LPLeveledSHEAlgorithmLTV<Element>::EvalMultKeyGen(const LPPrivateKey<Elemen
 
 		const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element> &>(originalPrivateKey.GetCryptoParameters() );
 
-		const ElemParams &originalKeyParams = cryptoParams.GetElementParams() ;
+		const ElemParams &originalKeyParams = *cryptoParams.GetElementParams() ;
 
 		const Element f1 = originalPrivateKey.GetPrivateElement(); //add const
 		const Element f2 = newPrivateKey.GetPrivateElement(); //add const
@@ -198,7 +198,7 @@ void LPLeveledSHEAlgorithmLTV<Element>::QuadraticEvalMultKeyGen(const LPPrivateK
 
 	const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element> &>(originalPrivateKey.GetCryptoParameters() );
 
-	const ElemParams &originalKeyParams = cryptoParams.GetElementParams() ;
+	const ElemParams &originalKeyParams = *cryptoParams.GetElementParams() ;
 
 	const Element f1 = originalPrivateKey.GetPrivateElement(); //add const
 
@@ -340,7 +340,7 @@ LPKeyPair<Element> LPLeveledSHEAlgorithmLTV<Element>::SparseKeyGen(const CryptoC
 	if (cryptoParams == 0)
 		return LPKeyPair<Element>();
 
-	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const ElemParams &elementParams = *cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
