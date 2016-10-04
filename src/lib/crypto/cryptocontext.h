@@ -192,7 +192,7 @@ public:
 
 		for( int bytes=0, i=0; i < rounds ; bytes += chunkSize,i++ ) {
 
-			Element pt(publicKey->GetCryptoParameters().GetElementParams());
+			Element pt(*publicKey->GetCryptoParameters().GetElementParams());
 			plaintext.Encode(ptm, &pt, bytes, chunkSize);
 			pt.SwitchFormat();
 
