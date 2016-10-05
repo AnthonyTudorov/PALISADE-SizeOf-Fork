@@ -29,6 +29,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "ilvectorarray2n.h"
 #include <fstream>
+#include <memory>
+using std::shared_ptr;
 #include "../utils/serializablehelper.h"
 
 namespace lbcrypto {
@@ -42,6 +44,7 @@ namespace lbcrypto {
 	{
 		const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(params);
 			//TODO- ADD Integrety checks for ILDCRTParams IN ILDCRTParams
+
 		m_cyclotomicOrder = params.GetCyclotomicOrder();
 		m_format = format;
 		m_modulus = params.GetModulus();
@@ -49,17 +52,11 @@ namespace lbcrypto {
 		size_t vecSize = dcrtParams.GetModuli().size();
 		m_vectors.reserve(vecSize);
 		
-		ILParams ilParamsTemp;
-
 		for (usint i = 0; i < vecSize; i++) {
-
 			BigBinaryInteger modulus(dcrtParams.GetModuli()[i]);
 			BigBinaryInteger rootOfUnity(dcrtParams.GetRootsOfUnity()[i]);
-
-			ilParamsTemp.SetCyclotomicOrder(m_cyclotomicOrder);
-			ilParamsTemp.SetModulus(modulus);
-			ilParamsTemp.SetRootOfUnity(rootOfUnity);					
-			m_vectors.push_back(std::move(ILVector2n(ilParamsTemp,format)));
+			shared_ptr<ILParams> ip( new ILParams(m_cyclotomicOrder, modulus, rootOfUnity) );
+			m_vectors.push_back(std::move(ILVector2n(ip,format)));
 		}
 	}
 
@@ -140,7 +137,7 @@ namespace lbcrypto {
 			modulus = dcrtParams.GetModuli()[i];
 			rootOfUnity = dcrtParams.GetRootsOfUnity()[i];
 
-			ILParams ilVectorDggValuesParams(params.GetCyclotomicOrder(), modulus, rootOfUnity);	
+			shared_ptr<ILParams> ilVectorDggValuesParams( new ILParams(params.GetCyclotomicOrder(), modulus, rootOfUnity) );
 			ILVector2n ilvector(ilVectorDggValuesParams);
 
 			BigBinaryVector ilDggValues(params.GetCyclotomicOrder()/2,modulus);
@@ -611,9 +608,7 @@ namespace lbcrypto {
 		modulus = m_modulus;
 		BigBinaryInteger rootOfUnity;
 
-		ILParams ilParams(m_cyclotomicOrder, modulus);
-
-		ILVector2n polynomialReconstructed(ilParams);
+		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(m_cyclotomicOrder, modulus) ) );
 		polynomialReconstructed.SetValues(coefficients,m_format);
 
 		return polynomialReconstructed;
