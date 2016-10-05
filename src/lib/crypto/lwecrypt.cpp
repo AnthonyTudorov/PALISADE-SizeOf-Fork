@@ -45,7 +45,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 	if( cryptoParams == 0 )
 		throw std::logic_error("Wrong type for crypto parameters in LPAlgorithmLTV<Element>::KeyGen");
 
-	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
@@ -88,7 +88,7 @@ LPKeyPair<Element> LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(const C
 
 	const LPCryptoParametersStehleSteinfeld<Element> *cryptoParams = dynamic_cast<const LPCryptoParametersStehleSteinfeld<Element> *>( &cc.GetCryptoParameters() );
 
-	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGeneratorStSt();
@@ -141,13 +141,11 @@ void LPLeveledSHEAlgorithmLTV<Element>::EvalMultKeyGen(const LPPrivateKey<Elemen
 
 		const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element> &>(originalPrivateKey.GetCryptoParameters() );
 
-		const ElemParams &originalKeyParams = *cryptoParams.GetElementParams() ;
-
 		const Element f1 = originalPrivateKey.GetPrivateElement(); //add const
 		const Element f2 = newPrivateKey.GetPrivateElement(); //add const
 		const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
-		Element e(cryptoParams.GetDiscreteGaussianGenerator() , originalKeyParams, Format::COEFFICIENT );
+		Element e(cryptoParams.GetDiscreteGaussianGenerator() , cryptoParams.GetElementParams(), Format::COEFFICIENT );
 		
 		e.SwitchFormat();
 
@@ -198,15 +196,13 @@ void LPLeveledSHEAlgorithmLTV<Element>::QuadraticEvalMultKeyGen(const LPPrivateK
 
 	const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element> &>(originalPrivateKey.GetCryptoParameters() );
 
-	const ElemParams &originalKeyParams = *cryptoParams.GetElementParams() ;
-
 	const Element f1 = originalPrivateKey.GetPrivateElement(); //add const
 
 	const Element f1Squared(f1*f1); //squaring the key
 	const Element f2 = newPrivateKey.GetPrivateElement(); //add const
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
-	Element e(cryptoParams.GetDiscreteGaussianGenerator() , originalKeyParams, Format::COEFFICIENT );
+	Element e(cryptoParams.GetDiscreteGaussianGenerator() , cryptoParams.GetElementParams(), Format::COEFFICIENT );
 
 	e.SwitchFormat();
 
@@ -340,7 +336,7 @@ LPKeyPair<Element> LPLeveledSHEAlgorithmLTV<Element>::SparseKeyGen(const CryptoC
 	if (cryptoParams == 0)
 		return LPKeyPair<Element>();
 
-	const ElemParams &elementParams = *cryptoParams->GetElementParams();
+	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
@@ -406,7 +402,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>( publicKey->GetCryptoContext() ) );
 
-	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
@@ -432,7 +428,7 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Ele
 		{
 
 	const LPCryptoParameters<Element> &cryptoParams = privateKey->GetCryptoParameters();
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
+	const shared_ptr<ElemParams> elementParams = cryptoParams.GetElementParams();
 	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
 
 	Element c( ciphertext->GetElement() );

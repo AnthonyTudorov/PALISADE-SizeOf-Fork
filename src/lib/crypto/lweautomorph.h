@@ -73,7 +73,7 @@ namespace lbcrypto {
 			 * @param *newCiphertext the new ciphertext.
 			 */
 			shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, const usint i,
-					const std::vector<LPEvalKey<Element> *> &evalKeys) const;
+					const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const;
 
 			/**
 			 * Generate automophism keys for a given private key; works only with odd indices in the ciphertext

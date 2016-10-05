@@ -48,12 +48,11 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger& modulus, ILVectorArray
 	encodeValues.reserve(element->GetNumOfElements());
 
 	for (usint i = 0; i<element->GetNumOfElements(); i++) {
-		ILParams ilparams(element->GetElementAtIndex(i).GetCyclotomicOrder(), element->GetElementAtIndex(i).GetModulus(), element->GetElementAtIndex(i).GetRootOfUnity());
-		ILVector2n temp(ilparams);
+		ILVector2n temp(element->GetElementAtIndex(i).GetParams());
 		tempBBV = encodedSingleCrt.GetValues();
-		tempBBV.SetModulus(ilparams.GetModulus());
+		tempBBV.SetModulus(temp.GetModulus());
 		temp.SetValues(tempBBV, encodedSingleCrt.GetFormat());
-		temp.SignedMod(ilparams.GetModulus());
+		temp.SignedMod(temp.GetModulus());
 		encodeValues.push_back(temp);
 	}
 
@@ -73,12 +72,11 @@ void IntPlaintextEncoding::Decode(const BigBinaryInteger& modulus, ILVectorArray
 	encodeValues.reserve(ilVectorArray2n->GetNumOfElements());
 
 	for (usint i = 0; i<ilVectorArray2n->GetNumOfElements(); i++) {
-		ILParams ilparams(ilVectorArray2n->GetElementAtIndex(i).GetCyclotomicOrder(), ilVectorArray2n->GetElementAtIndex(i).GetModulus(), ilVectorArray2n->GetElementAtIndex(i).GetRootOfUnity());
-		ILVector2n temp(ilparams);
+		ILVector2n temp(ilVectorArray2n->GetElementAtIndex(i).GetParams());
 		tempBBV = interpolatedDecodedValue.GetValues();
-		tempBBV.SetModulus(ilparams.GetModulus());
+		tempBBV.SetModulus(temp.GetModulus());
 		temp.SetValues(tempBBV, interpolatedDecodedValue.GetFormat());
-		temp.SignedMod(ilparams.GetModulus());
+		temp.SignedMod(temp.GetModulus());
 		encodeValues.push_back(temp);
 	}
 
@@ -100,7 +98,7 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *i
 		length = length - padlen;
 	}
 
-	BigBinaryVector temp(ilVector->GetParams().GetCyclotomicOrder()/2,ilVector->GetModulus());
+	BigBinaryVector temp(ilVector->GetParams()->GetCyclotomicOrder()/2,ilVector->GetModulus());
 
 	Format format = COEFFICIENT;
 
