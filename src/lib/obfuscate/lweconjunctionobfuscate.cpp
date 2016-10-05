@@ -209,7 +209,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 	std::cout << "BitLength in KeyGen: " << k << std::endl;
 
 	usint l = obfuscatedPattern->GetLength();
-	const ElemParams *params = obfuscatedPattern->GetParameters();
+	const shared_ptr<ElemParams> params = obfuscatedPattern->GetParameters();
 	usint stddev = dgg.GetStd(); 
 	//double s = 1000;
 	//double s = 600;
