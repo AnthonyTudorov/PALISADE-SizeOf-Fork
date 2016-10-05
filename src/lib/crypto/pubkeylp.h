@@ -1251,7 +1251,7 @@ namespace lbcrypto {
 			 * @param *newCiphertext the new ciphertext.
 			 */
 			virtual shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, const usint i,
-					const std::vector<LPEvalKey<Element> *> &evalKeys) const = 0;
+					const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const = 0;
 
 			/**
 			 * Virtual function to generate all isomorphism keys for a given private key

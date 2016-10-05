@@ -37,6 +37,9 @@
 #include <vector>
 #include <functional>
 using std::function;
+#include <memory>
+using std::shared_ptr;
+
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../utils/memory.h"
@@ -77,7 +80,7 @@ namespace lbcrypto {
 		*/
         // ILVector2n(const ElemParams &params, Format format = EVALUATION);
 
-        ILVector2n(const ElemParams &params, Format format = EVALUATION, bool initializeElementToZero = false);
+        ILVector2n(const shared_ptr<ElemParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 		// void GenerateNoise(DiscreteGaussianGenerator &dgg, Format format = EVALUATION) ;
 
@@ -88,7 +91,7 @@ namespace lbcrypto {
 		* @param &params the input params.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVector2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
+		ILVector2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 		
 		/**
 		* Constructor based on full methods.
@@ -97,7 +100,7 @@ namespace lbcrypto {
 		* @param &params the input params.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVector2n(const BinaryUniformGenerator &bug, const ElemParams &params, Format format = EVALUATION);
+		ILVector2n(const BinaryUniformGenerator &bug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 
 		/**
 		* Constructor based on full methods.
@@ -106,13 +109,13 @@ namespace lbcrypto {
 		* @param &params the input params.
 		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVector2n(const DiscreteUniformGenerator &dug, const ElemParams &params, Format format = EVALUATION);
+		ILVector2n(const DiscreteUniformGenerator &dug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 
         /**
          *  Create lambda that allocates a zeroed element with the specified
          *  parameters and format
          */
-        inline static function<unique_ptr<ILVector2n>()> MakeAllocator(ILParams params, Format format) {
+        inline static function<unique_ptr<ILVector2n>()> MakeAllocator(shared_ptr<ILParams> params, Format format) {
             return [=]() {
                 return make_unique<ILVector2n>(params, format, true);
             };
@@ -121,10 +124,14 @@ namespace lbcrypto {
         /**
          *  Create lambda that allocates a zeroed element for the case when it is called from a templated class
          */
-        inline static function<unique_ptr<ILVector2n>()> MakeAllocator(const ElemParams *params, Format format) {
+        inline static function<unique_ptr<ILVector2n>()> MakeAllocator(const shared_ptr<ElemParams> params, Format format) {
             return [=]() {
                 //return MakeAllocator(*(static_cast<const ILParams*>(params)),format);
-				return make_unique<ILVector2n>(*(dynamic_cast<const ILParams*>(params)), format, true);
+            	ILParams *ip = dynamic_cast<ILParams *>( &*params );
+            	if( ip == 0 )
+            		throw std::logic_error("MakeAllocator was not passed an ILParams");
+            	shared_ptr<ILParams> pcast( ip );
+				return make_unique<ILVector2n>(pcast, format, true);
             };
         }
 
@@ -136,7 +143,7 @@ namespace lbcrypto {
 		* @param stddev standard deviation for the dicrete gaussian generator.
 		* @return the resulting vector.
 		*/
-        inline static function<unique_ptr<ILVector2n>()> MakeDiscreteGaussianCoefficientAllocator(ILParams params, Format resultFormat, int stddev) {
+        inline static function<unique_ptr<ILVector2n>()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<ILParams> params, Format resultFormat, int stddev) {
             return [=]() {
                 DiscreteGaussianGenerator dgg(stddev);
                 auto ilvec = make_unique<ILVector2n>(dgg, params, COEFFICIENT);
@@ -152,9 +159,9 @@ namespace lbcrypto {
 		* @param format format for the polynomials generated.
 		* @return the resulting vector.
 		*/
-        inline static function<unique_ptr<ILVector2n>()> MakeDiscreteUniformAllocator(ILParams params, Format format) {
+        inline static function<unique_ptr<ILVector2n>()> MakeDiscreteUniformAllocator(shared_ptr<ILParams> params, Format format) {
             return [=]() {
-                DiscreteUniformGenerator dug(params.GetModulus());
+                DiscreteUniformGenerator dug(params->GetModulus());
                 return make_unique<ILVector2n>(dug, params, format);
             };
         }
@@ -234,8 +241,9 @@ namespace lbcrypto {
             if (this->GetFormat() != rhs.GetFormat()) {
                 return false;
             }
-            if(m_params.GetRootOfUnity() != rhs.GetRootOfUnity())
+            if(m_params->GetRootOfUnity() != rhs.GetRootOfUnity()) {
             	return false;
+            }
             if (this->GetValues() != rhs.GetValues()) {
                 return false;
             }
@@ -257,7 +265,7 @@ namespace lbcrypto {
 		*
 		* @return the ring element params.
 		*/
-		inline const ILParams &GetParams() const { return m_params; }
+		inline const shared_ptr<ILParams> GetParams() const { return m_params; }
 
 		/**
 		* Get method of the modulus.
@@ -604,7 +612,7 @@ namespace lbcrypto {
 		* @param &dgg the discrete Gaussian Generator.
 		* @param &params are the relevant ring parameters.
 		*/
-		static void PreComputeDggSamples(const DiscreteGaussianGenerator &dgg, const ILParams &params);
+		static void PreComputeDggSamples(const DiscreteGaussianGenerator &dgg, const shared_ptr<ILParams> params);
 
 		/**
 		* Clear the pre-computed discrete Gaussian samples.
@@ -640,12 +648,12 @@ namespace lbcrypto {
 		// noise norm associated with this vector - to be defined later
 		// BigBinaryInteger m_norm;
 
-		// reference to the parameters for ideal lattices
-		ILParams m_params;
+		// parameters for ideal lattices
+		shared_ptr<ILParams> m_params;
 
 		// static variables to store pre-computed samples and the parms that went with them
 		static std::vector<ILVector2n> m_dggSamples;
-		static ILParams m_dggSamples_params;
+		static shared_ptr<ILParams> m_dggSamples_params;
 
 
 		// static variable to store the sample size for each set of ILParams
@@ -654,7 +662,7 @@ namespace lbcrypto {
 		bool m_empty;
 
 		// gets a random discrete Gaussian polynomial
-		static const ILVector2n GetPrecomputedVector(const ILParams &params);
+		static const ILVector2n GetPrecomputedVector();
 	};
 
 	// overloaded operators for ILVector2n

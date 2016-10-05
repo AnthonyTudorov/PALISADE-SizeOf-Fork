@@ -307,7 +307,8 @@ protected:
 			return false;
 		}
 
-		this->SetElementParams(*json_ilParams);
+		// FIXME
+		// this->SetElementParams(*json_ilParams);
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;

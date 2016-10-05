@@ -151,12 +151,11 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *
 	encodeValues.reserve(element->GetNumOfElements());
 
 	for (usint i = 0; i<element->GetNumOfElements(); i++) {
-		ILParams ilparams(element->GetElementAtIndex(i).GetCyclotomicOrder(), element->GetElementAtIndex(i).GetModulus(), element->GetElementAtIndex(i).GetRootOfUnity());
-		ILVector2n temp(ilparams);
+		ILVector2n temp(element->GetElementAtIndex(i).GetParams());
 		tempBBV = encodedSingleCrt.GetValues();
-		tempBBV.SetModulus(ilparams.GetModulus());
+		tempBBV.SetModulus(temp.GetModulus());
 		temp.SetValues(tempBBV, encodedSingleCrt.GetFormat());
-		temp.SignedMod(ilparams.GetModulus());
+		temp.SignedMod(temp.GetModulus());
 		encodeValues.push_back(temp);
 	}
 

@@ -192,7 +192,7 @@ public:
 
 		for( int bytes=0, i=0; i < rounds ; bytes += chunkSize,i++ ) {
 
-			Element pt(*publicKey->GetCryptoParameters().GetElementParams());
+			Element pt(publicKey->GetCryptoParameters().GetElementParams());
 			plaintext.Encode(ptm, &pt, bytes, chunkSize);
 			pt.SwitchFormat();
 
@@ -377,6 +377,7 @@ public:
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev, float stDevStSt);
 
+	static CryptoContext<Element> getCryptoContextNull();
 };
 
 

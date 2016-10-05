@@ -46,7 +46,7 @@ namespace lbcrypto {
 	void LPSignatureSchemeGPV<Element>::KeyGen(LPSignKeyGPV<Element>* signKey,
 		LPVerificationKeyGPV<Element>* verificationKey) {
 		//Get parameters from keys
-		ILParams params = signKey->GetSignatureParameters().GetILParams();
+		shared_ptr<ILParams> params = signKey->GetSignatureParameters().GetILParams();
 		sint stddev = signKey->GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
 		//Generate trapdoor based using parameters and 
 		std::pair<Matrix<ILVector2n>, RLWETrapdoorPair<ILVector2n>> keyPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
