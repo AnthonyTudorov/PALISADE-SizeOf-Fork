@@ -33,7 +33,7 @@ namespace lbcrypto {
 
 	//need to be added because m_dggSamples is static and not initialized
 	std::vector<ILVector2n> ILVector2n::m_dggSamples;
-	ILParams ILVector2n::m_dggSamples_params;
+	shared_ptr<ILParams> ILVector2n::m_dggSamples_params;
 
 	ILVector2n::ILVector2n() :m_values(NULL), m_format(EVALUATION),m_empty(true) {
 	}
@@ -43,47 +43,53 @@ namespace lbcrypto {
 		m_params = ilParam;
 	}*/
 
-	ILVector2n::ILVector2n(const ElemParams &params, Format format, bool initializeElementToZero) : m_values(NULL), m_format(format), m_empty(true) {
-		const ILParams &ilParam = dynamic_cast<const ILParams&>(params);
-		m_params = ilParam;
+	ILVector2n::ILVector2n(const shared_ptr<ElemParams> params, Format format, bool initializeElementToZero) : m_values(NULL), m_format(format), m_empty(true) {
+		if( typeid(*params) != typeid(ILParams) )
+			throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
+
+		m_params = params;
 		if(initializeElementToZero) {
 			this->SetValuesToZero();
 			m_empty = false;
 		}
 	}
 
-	ILVector2n::ILVector2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format) {
+	ILVector2n::ILVector2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ElemParams> params, Format format) {
 	
-		m_params = dynamic_cast<const ILParams&>(params);
+		if( typeid(*params) != typeid(ILParams) )
+			throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
+
+		m_params = params;
 
 		if (format == COEFFICIENT)
 		{
 			//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
-			usint vectorSize = params.GetCyclotomicOrder() / 2;
-			m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,params.GetModulus()));
-			(*m_values).SetModulus(params.GetModulus());
+			usint vectorSize = params->GetCyclotomicOrder() / 2;
+			m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,params->GetModulus()));
+			(*m_values).SetModulus(params->GetModulus());
 			m_format = COEFFICIENT;
 		}
 		else
 		{
 			PreComputeDggSamples(dgg, m_params);
 
-			const ILVector2n randomElement = GetPrecomputedVector(m_params);
+			const ILVector2n randomElement = GetPrecomputedVector();
 			m_values = new BigBinaryVector(*randomElement.m_values);
 
-			(*m_values).SetModulus(params.GetModulus());
+			(*m_values).SetModulus(params->GetModulus());
 			m_format = EVALUATION;
 		}
 	}
 
 
-	ILVector2n::ILVector2n(const DiscreteUniformGenerator &dug, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
+	ILVector2n::ILVector2n(const DiscreteUniformGenerator &dug, const shared_ptr<ElemParams> params, Format format) : m_params(params) {
 
-		const ILParams &ilParams = static_cast<const ILParams&>(params);
+		if( typeid(*params) != typeid(ILParams) )
+			throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
 
-		usint vectorSize = ilParams.GetCyclotomicOrder() / 2;
+		usint vectorSize = params->GetCyclotomicOrder() / 2;
 		m_values = new BigBinaryVector(dug.GenerateVector(vectorSize));
-		(*m_values).SetModulus(params.GetModulus());
+		(*m_values).SetModulus(params->GetModulus());
 
 		m_format = COEFFICIENT;
 
@@ -92,12 +98,13 @@ namespace lbcrypto {
 
 	}
 
-	ILVector2n::ILVector2n(const BinaryUniformGenerator &bug, const ElemParams &params, Format format) :m_params(static_cast<const ILParams&>(params)) {
+	ILVector2n::ILVector2n(const BinaryUniformGenerator &bug, const shared_ptr<ElemParams> params, Format format) :m_params(static_cast<const ILParams&>(params)) {
 
-		const ILParams &ilParams = static_cast<const ILParams&>(params);
+		if( typeid(*params) != typeid(ILParams) )
+			throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
 
-		usint vectorSize = ilParams.GetCyclotomicOrder() / 2;
-		m_values = new BigBinaryVector(bug.GenerateVector(vectorSize,ilParams.GetModulus()));
+		usint vectorSize = params->GetCyclotomicOrder() / 2;
+		m_values = new BigBinaryVector(bug.GenerateVector(vectorSize, params->GetModulus()));
 		//(*m_values).SetModulus(ilParams.GetModulus());
 
 		m_format = COEFFICIENT;
@@ -583,7 +590,7 @@ namespace lbcrypto {
 
 	}
 
-	void ILVector2n::PreComputeDggSamples(const DiscreteGaussianGenerator &dgg, const ILParams &params) {
+	void ILVector2n::PreComputeDggSamples(const DiscreteGaussianGenerator &dgg, const shared_ptr<ILParams> params) {
 		if (m_dggSamples.size() == 0 || m_dggSamples_params != params)
 		{
 			DestroyPreComputedSamples();
@@ -591,9 +598,9 @@ namespace lbcrypto {
 			for (usint i = 0; i < m_sampleSize; ++i)
 			{
 				ILVector2n current(m_dggSamples_params);
-				usint vectorSize = m_dggSamples_params.GetCyclotomicOrder() / 2;
-				current.m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize,m_dggSamples_params.GetModulus()));
-				current.m_values->SetModulus(m_dggSamples_params.GetModulus());
+				usint vectorSize = m_dggSamples_params->GetCyclotomicOrder() / 2;
+				current.m_values = new BigBinaryVector(dgg->GenerateVector(vectorSize,m_dggSamples_params->GetModulus()));
+				current.m_values->SetModulus(m_dggSamples_params->GetModulus());
 				current.m_format = COEFFICIENT;
 
 				current.SwitchFormat();
@@ -604,7 +611,7 @@ namespace lbcrypto {
 	}
 
 	//Select a precomputed vector randomly
-	const ILVector2n ILVector2n::GetPrecomputedVector(const ILParams &params) {
+	const ILVector2n ILVector2n::GetPrecomputedVector() {
 
 		//std::default_random_engine generator;
 		//std::uniform_real_distribution<int> distribution(0,SAMPLE_SIZE-1);

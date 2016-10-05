@@ -75,7 +75,7 @@ namespace lbcrypto {
 	void LatticeGaussSampUtility::GaussSampG(const ILVector2n &u, double sttdev, size_t k,
 		DiscreteGaussianGenerator &dgg, Matrix<BigBinaryInteger> *z)
 	{
-        const BigBinaryInteger& modulus = u.GetParams().GetModulus();
+        const BigBinaryInteger& modulus = u.GetParams()->GetModulus();
 		for (size_t i = 0; i < u.GetLength(); i++) {
 
 			//initial value of integer syndrome corresponding to component u_i
@@ -170,7 +170,7 @@ namespace lbcrypto {
 	void LatticeGaussSampUtility::GaussSampGqV2(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q, int32_t base,
 				DiscreteGaussianGenerator &dgg, Matrix<int32_t> *z)
 	{
-		const BigBinaryInteger& modulus = u.GetParams().GetModulus();
+		const BigBinaryInteger& modulus = u.GetParams()->GetModulus();
 		//std::cout << "modulus = " << modulus << std::endl; 
 		double sigma = stddev/(base + 1);
 

@@ -32,7 +32,7 @@ namespace lbcrypto {
 //Function for extracting a value at a certain index using automorphism operation.
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext,
-		const usint i, const std::vector<LPEvalKey<Element> *> &evalKeys) const
+		const usint i, const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
 
 {
 	usint autoIndex = 2*i - 1;
@@ -40,10 +40,10 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(co
 
 	//usint iInverse = ModInverse(autoIndex,m);
 
-	Ciphertext<Element> permutedCiphertext(*ciphertext);
+	shared_ptr<Ciphertext<Element>> permutedCiphertext( new Ciphertext<Element>(*ciphertext) );
 
 	//permutedCiphertext.SetElement(ciphertext.GetElement().AutomorphismTransform(iInverse));
-	permutedCiphertext.SetElement(ciphertext->GetElement().AutomorphismTransform(autoIndex));
+	permutedCiphertext->SetElement(ciphertext->GetElement().AutomorphismTransform(autoIndex));
 
 	return this->GetScheme().ReEncrypt(evalKeys[i-2], permutedCiphertext);
 
