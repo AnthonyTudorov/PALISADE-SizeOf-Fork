@@ -184,7 +184,7 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const shared_
 		// Generate a_i * newSK + p * e - PowerOfBase(oldSK)
 		Element e(dgg, elementParams, Format::EVALUATION);
 		evalKeyElements.at(i) = (a*sNew + p*e) - evalKeyElements.at(i);
-		
+	
 	}
 
 	EK->SetAVector(std::move(evalKeyElements));
