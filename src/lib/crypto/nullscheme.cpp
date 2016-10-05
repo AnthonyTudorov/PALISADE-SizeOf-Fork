@@ -205,5 +205,4 @@ void LPPublicKeyEncryptionSchemeNull<Element>::Enable(PKESchemeFeature feature) 
 	}
 }
 
-
 }

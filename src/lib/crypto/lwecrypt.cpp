@@ -48,7 +48,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
