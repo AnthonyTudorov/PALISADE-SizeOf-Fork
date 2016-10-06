@@ -54,7 +54,7 @@ template <class Element>
 class CryptoContextFactory;
 
 template <class Element>
-class CryptoContextImpl {
+class CryptoContextImpl : public Serializable {
 
 	friend class CryptoContextFactory<Element>;
 	friend class CryptoContext<Element>;
@@ -63,34 +63,30 @@ private:
 	/* these variables are used to initialize the CryptoContext - if they are not used they can get ditched */
 	usint				ringdim;		/*!< ring dimension */
 	BigBinaryInteger	ptmod;			/*!< plaintext modulus */
-	usint				relinWindow;	/*!< relin window */
-	float				stDev;			/*!< stamdard deviation */
-	float				stDevStSt;		/*!< standard deviation for StSt uses */
 
 	/* these three parameters get initialized when an instance is constructed; they are used by the context */
-	shared_ptr<ElemParams>		elemParams;
 	DiscreteGaussianGenerator	dgg;
 	DiscreteGaussianGenerator	dggStSt;	// unused unless we use StSt scheme
 
-	LPCryptoParameters<Element>				*params;	/*!< crypto parameters used for this context */
+	shared_ptr<LPCryptoParameters<Element>>	params;	/*!< crypto parameters used for this context */
 	LPPublicKeyEncryptionScheme<Element>	*scheme;	/*!< algorithm used; points to keygen and encrypt/decrypt methods */
 
-	CryptoContextImpl() : params(0), scheme(0), relinWindow(0), ringdim(0), stDev(0), stDevStSt(0) {}
+	CryptoContextImpl() : scheme(0), ringdim(0) {}
+	CryptoContextImpl(shared_ptr<LPCryptoParameters<Element>> cp) : params(cp), scheme(0), ringdim(0) {}
 
 public:
 	~CryptoContextImpl() {
-		if( params ) delete params;
 		if( scheme ) delete scheme;
 	}
 
 	DiscreteGaussianGenerator& GetGenerator() { return dgg; }
-	ILParams& GetILParams() { return *elemParams; }
+	//ILParams& GetILParams() { return *elemParams; }
 
 	/**
 	 *
 	 * @return crypto parameters
 	 */
-	LPCryptoParameters<Element>* getParams() const { return params; }
+	const shared_ptr<LPCryptoParameters<Element>> getCryptoParams() const { return params; }
 
 	/**
 	 *
@@ -103,6 +99,18 @@ public:
 	 * @return amount of padding that must be added
 	 */
 	usint getPadAmount() const { return ringdim/16 * (ptmod.GetMSB()-1); }
+
+	bool Serialize(Serialized* serObj, const std::string fileFlag = "") const { return false; }
+
+	bool SetIdFlag(Serialized* serObj, const std::string flag) const { return true; }
+
+	/**
+	* Populate the object from the deserialization of the Serialized
+	* @param serObj contains the serialized object
+	* @return true on success
+	*/
+	bool Deserialize(const Serialized& serObj) { return false; }
+
 };
 
 /**
@@ -137,11 +145,11 @@ public:
 
 	const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *ctx->getScheme(); }
 
-	const LPCryptoParameters<Element> &GetCryptoParameters() const { return *ctx->getParams(); }
+	const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return ctx->getCryptoParams(); }
 
 	DiscreteGaussianGenerator& GetGenerator() { return ctx->GetGenerator(); }
 
-	ILParams& GetILParams() { return ctx->GetILParams(); }
+	//ILParams& GetILParams() { return ctx->GetILParams(); }
 
 	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.ctx == b.ctx; }
 	friend bool operator!=(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.ctx != b.ctx; }
@@ -378,6 +386,65 @@ public:
 			usint relinWindow, float stDev, float stDevStSt);
 
 	static CryptoContext<Element> getCryptoContextNull();
+
+	// helpers for deserialization of contexts
+	static shared_ptr<LPCryptoParameters<Element>> GetParameterObject( const Serialized& serObj ) {
+
+		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersType");
+		if( mIter != serObj.MemberEnd() ) {
+			string parmstype = mIter->value;
+
+			if( parmstype == "LPCryptoParametersLTV") {
+				return shared_ptr<LPCryptoParameters<Element>>( new LPCryptoParametersLTV<Element>() );
+			}
+			else if( parmstype == "LPCryptoParametersBV") {
+				return shared_ptr<LPCryptoParameters<Element>>( new LPCryptoParametersBV<Element>() );
+			}
+			else if( parmstype == "LPCryptoParametersDCRT") { // fixme
+				return shared_ptr<LPCryptoParameters<Element>>();
+			}
+			else if( parmstype == "LPCryptoParametersStehleSteinfeld") {
+				return shared_ptr<LPCryptoParameters<Element>>( new LPCryptoParametersStehleSteinfeld<Element>() );
+			}
+			else if( parmstype == "LPCryptoParametersNull" ) {
+				return shared_ptr<LPCryptoParameters<Element>>( new LPCryptoParametersBV<Element>() );
+			}
+		}
+
+		return shared_ptr<LPCryptoParameters<Element>>();
+	}
+
+	static CryptoContext<Element> DeserializeAndCreateContext( const Serialized& serObj ) {
+		shared_ptr<LPCryptoParameters<Element>> cp = GetParameterObject(serObj);
+
+		if( cp == false ) {
+			throw std::logic_error("Unable to create crypto parameters");
+		}
+
+		if( cp->Deserialize(serObj) ) {
+			return CryptoContext<Element>( new CryptoContextImpl<Element>(cp) );
+		}
+
+		throw std::logic_error("Unable to deserialize crypto parameters");
+	}
+
+	static bool DeserializeAndValidateParams( const CryptoContext<Element> ctx, const Serialized& serObj ) {
+		shared_ptr<LPCryptoParameters<Element>> cp = GetParameterObject(serObj);
+
+		if( typeid(cp) != typeid(ctx.GetCryptoParameters()) ) {
+			return false;
+		}
+
+		if( cp == false ) {
+			return false;
+		}
+
+		if( cp->Deserialize(serObj) == false ) {
+			return false;
+		}
+
+		return false; //CryptoContext<Element>( new CryptoContextImpl<Element>(cp) );
+	}
 };
 
 

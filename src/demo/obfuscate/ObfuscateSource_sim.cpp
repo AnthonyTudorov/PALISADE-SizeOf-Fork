@@ -252,7 +252,7 @@ void NTRUPRE(int input) {
 	double diff, diffKeyGen, diffObf, diffEval, start, finish;
 
 	//Prepare for parameters.
-	ILParams ilParams(m,modulus,rootOfUnity);
+	shared_ptr<ILParams> ilParams( new ILParams(m,modulus,rootOfUnity) );
 
 	//Set crypto parametes
 	//LPCryptoParametersLWE<ILVector2n> cryptoParams;
@@ -328,7 +328,7 @@ void NTRUPRE(int input) {
 	std::cout << " \nCleartext pattern: " << std::endl;
 	std::cout << clearPattern.GetPatternString() << std::endl;
 
-	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(ilParams);
+	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(*ilParams);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 
 	std::cout << "Key generation started" << std::endl;
