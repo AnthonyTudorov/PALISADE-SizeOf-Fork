@@ -40,21 +40,21 @@ namespace lbcrypto {
 	ILVectorArray2n::ILVectorArray2n() : m_format(EVALUATION), m_cyclotomicOrder(0), m_modulus(1){
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const ElemParams &params, Format format) : m_format(format)
+	ILVectorArray2n::ILVectorArray2n(const shared_ptr<ElemParams> params, Format format) : m_format(format)
 	{
-		const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(params);
+		const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(params);
 			//TODO- ADD Integrety checks for ILDCRTParams IN ILDCRTParams
 
-		m_cyclotomicOrder = params.GetCyclotomicOrder();
+		m_cyclotomicOrder = params->GetCyclotomicOrder();
 		m_format = format;
-		m_modulus = params.GetModulus();
+		m_modulus = params->GetModulus();
 
-		size_t vecSize = dcrtParams.GetModuli().size();
+		size_t vecSize = dcrtParams->GetModuli().size();
 		m_vectors.reserve(vecSize);
 		
 		for (usint i = 0; i < vecSize; i++) {
-			BigBinaryInteger modulus(dcrtParams.GetModuli()[i]);
-			BigBinaryInteger rootOfUnity(dcrtParams.GetRootsOfUnity()[i]);
+			BigBinaryInteger modulus(dcrtParams->GetModuli()[i]);
+			BigBinaryInteger rootOfUnity(dcrtParams->GetRootsOfUnity()[i]);
 			shared_ptr<ILParams> ip( new ILParams(m_cyclotomicOrder, modulus, rootOfUnity) );
 			m_vectors.push_back(std::move(ILVector2n(ip,format)));
 		}
@@ -68,7 +68,7 @@ namespace lbcrypto {
 	}
 	
 	/* Construct using a single ILVector2n. The format is derived from the passed in ILVector2n.*/
-	ILVectorArray2n::ILVectorArray2n(const ILVector2n &element, const ILDCRTParams &params)
+	ILVectorArray2n::ILVectorArray2n(const ILVector2n &element, const shared_ptr<ILDCRTParams> params)
 	{
 		Format format;
 		try{
@@ -79,17 +79,17 @@ namespace lbcrypto {
 		}
 
 		m_format = format;
-		m_modulus = params.GetModulus();
-		m_cyclotomicOrder = params.GetCyclotomicOrder();
+		m_modulus = params->GetModulus();
+		m_cyclotomicOrder = params->GetCyclotomicOrder();
 
-		size_t vecSize = params.GetModuli().size();
+		size_t vecSize = params->GetModuli().size();
 		m_vectors.reserve(vecSize);
 
 		ILVector2n ilvector2n(element);
 
 		for (usint i = 0; i < vecSize; i++) {
 			ILVector2n ilvector2nSwitchModulus(ilvector2n);
-			ilvector2nSwitchModulus.SwitchModulus(params.GetModuli()[i], params.GetRootsOfUnity()[i]);
+			ilvector2nSwitchModulus.SwitchModulus(params->GetModuli()[i], params->GetRootsOfUnity()[i]);
 			m_vectors.push_back(std::move(ilvector2nSwitchModulus));
 		}
 	}
@@ -113,20 +113,20 @@ namespace lbcrypto {
 	}
 
 	/*The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers. The algorithm to populate the towers can be seen below.*/
-	ILVectorArray2n::ILVectorArray2n(const DiscreteGaussianGenerator & dgg, const ElemParams &params, Format format)
+	ILVectorArray2n::ILVectorArray2n(const DiscreteGaussianGenerator & dgg, const shared_ptr<ElemParams> params, Format format)
 	{
-		const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(params);
+		const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(params);
 
-		m_modulus = dcrtParams.GetModulus();
-		m_cyclotomicOrder= dcrtParams.GetCyclotomicOrder();
+		m_modulus = dcrtParams->GetModulus();
+		m_cyclotomicOrder= dcrtParams->GetCyclotomicOrder();
 		m_format = format;
 
-		size_t vecSize = dcrtParams.GetModuli().size();
+		size_t vecSize = dcrtParams->GetModuli().size();
 		m_vectors.reserve(vecSize);
 
 		//dgg generating random values
 		
-		sint* dggValues = dgg.GenerateIntVector(params.GetCyclotomicOrder()/2);
+		sint* dggValues = dgg.GenerateIntVector(params->GetCyclotomicOrder()/2);
 
 		BigBinaryInteger modulus;
 		BigBinaryInteger rootOfUnity;
@@ -134,21 +134,21 @@ namespace lbcrypto {
 
 		for(usint i = 0; i < vecSize; i++){
 			
-			modulus = dcrtParams.GetModuli()[i];
-			rootOfUnity = dcrtParams.GetRootsOfUnity()[i];
+			modulus = dcrtParams->GetModuli()[i];
+			rootOfUnity = dcrtParams->GetRootsOfUnity()[i];
 
-			shared_ptr<ILParams> ilVectorDggValuesParams( new ILParams(params.GetCyclotomicOrder(), modulus, rootOfUnity) );
+			shared_ptr<ILParams> ilVectorDggValuesParams( new ILParams(params->GetCyclotomicOrder(), modulus, rootOfUnity) );
 			ILVector2n ilvector(ilVectorDggValuesParams);
 
-			BigBinaryVector ilDggValues(params.GetCyclotomicOrder()/2,modulus);
+			BigBinaryVector ilDggValues(params->GetCyclotomicOrder()/2,modulus);
 
-			for(usint j = 0; j < params.GetCyclotomicOrder()/2; j++){
+			for(usint j = 0; j < params->GetCyclotomicOrder()/2; j++){
 				// if the random generated value is less than zero, then multiply it by (-1) and subtract the modulus of the current tower to set the coefficient
 				if((int)dggValues[j] < 0){
 					int k = (int)dggValues[j];
 					k = k * (-1);
 					temp = k;
-					temp = dcrtParams.GetModuli()[i] - temp;
+					temp = dcrtParams->GetModuli()[i] - temp;
 					ilDggValues.SetValAtIndex(j,temp);
 				}
 				//if greater than or equal to zero, set it the value generated
