@@ -287,7 +287,7 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::ReEncrypt(ctx.GetEncryptionAlgorithm(), *evalKey, ciphertext, &newCiphertext);
+	newCiphertext = ctx.ReEncrypt(evalKey, ciphertext);
 
 	finish = currentDateTime();
 	diff = finish - start;
