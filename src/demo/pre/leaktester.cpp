@@ -115,8 +115,8 @@ main(int argc, char *argv[])
 	BytePlaintextEncoding plaintext3 = { 9,0,8,0 };
 
 	BytePlaintextEncoding plaintext4;
-	size_t chunksize = plaintext4.GetChunksize(ctx.GetCryptoParameters().GetElementParams()->GetCyclotomicOrder(),
-			ctx.GetCryptoParameters().GetPlaintextModulus());
+	size_t chunksize = plaintext4.GetChunksize(ctx.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(),
+			ctx.GetCryptoParameters()->GetPlaintextModulus());
 
 	plaintext4.resize(chunksize,0); // make sure this comes out in 2 chunks
 

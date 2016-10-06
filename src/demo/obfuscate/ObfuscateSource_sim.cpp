@@ -328,7 +328,7 @@ void NTRUPRE(int input) {
 	std::cout << " \nCleartext pattern: " << std::endl;
 	std::cout << clearPattern.GetPatternString() << std::endl;
 
-	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(*ilParams);
+	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(ilParams);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 
 	std::cout << "Key generation started" << std::endl;

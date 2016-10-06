@@ -964,8 +964,8 @@ void TestParameterSelection(){
 	cout << "parameter selection test" << endl;
 	cout << cryptoParams2.GetAssuranceMeasure() << endl;
 
-	const ILDCRTParams &dcrtParams = static_cast< const ILDCRTParams& >(cryptoParams2.GetElementParams());
-	std::vector<BigBinaryInteger> moduli2 = dcrtParams.GetModuli();
+	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(cryptoParams2.GetElementParams());
+	std::vector<BigBinaryInteger> moduli2 = dcrtParams->GetModuli();
 
 	for(usint i =0; i < moduliV.size();i++){
 		cout<< moduli2[i] << endl;
@@ -1022,7 +1022,7 @@ void FinalLeveledComputation(){
 
 	cryptoParams.ParameterSelection(&finalParams);
 
-	const shared_ptr<ILDCRTParams> dcrtParams = /*dynamic_cast<const ILDCRTParams&>(*/ finalParams.GetElementParams() /*)*/ ;
+	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>( finalParams.GetElementParams() ) ;
 
 	usint m = dcrtParams->GetCyclotomicOrder();
 	usint size = finalParams.GetDepth()+1;
@@ -1054,7 +1054,7 @@ void FinalLeveledComputation(){
 	leveledDcrtParams.push_back(dcrtParams);
 	for(usint i=1;i <= finalParams.GetDepth(); i++){
 		leveledDcrtParams.push_back(leveledDcrtParams[i-1]);
-		leveledDcrtParams.back().PopLastParam();
+		leveledDcrtParams.back()->PopLastParam();
 	}
 
 	//Populate the vector of CryptoParams
@@ -1230,7 +1230,7 @@ void NTRUPRE(usint input) {
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetCryptoParameters()->GetElementParams());
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), std::static_pointer_cast<ILParams>(cc.GetCryptoParameters()->GetElementParams()));
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -1382,7 +1382,7 @@ void NTRUPRE(usint input) {
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::ReEncrypt(cc.GetEncryptionAlgorithm(), *evalKey, ciphertext, &newCiphertext);
+	newCiphertext = cc.ReEncrypt(evalKey, ciphertext);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -1451,23 +1451,22 @@ void ComposedEvalMultTest(){
 
 	DiscreteGaussianGenerator dgg(init_stdDev);
 
-	ILDCRTParams params(init_m, init_moduli, init_rootsOfUnity);
+	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
 
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE);
-	cryptoParams.SetDistributionParameter(init_stdDev);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(params);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
-	cryptoParams.SetAssuranceMeasure(6);
-	cryptoParams.SetDepth(init_size - 1);
-	cryptoParams.SetSecurityLevel(1.006);
+	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams(params,
+			BigBinaryInteger::FIVE,
+			init_stdDev,
+			6,
+			1.006,
+			1,
+			dgg,
+			init_size - 1);
 
 	LPCryptoParametersLTV<ILVectorArray2n> finalParamsThreeTowers;
 
 	cryptoParams.ParameterSelection(&finalParamsThreeTowers);
 
-	const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(finalParamsThreeTowers.GetElementParams());
+	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(finalParamsThreeTowers.GetElementParams());
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&finalParamsThreeTowers);
 	cc.Enable(SHE);
@@ -1488,7 +1487,7 @@ void ComposedEvalMultTest(){
 	//Generating new cryptoparameters for when modulus reduction is done.
 	LPCryptoParametersLTV<ILVectorArray2n> finalParamsTwoTowers(finalParamsThreeTowers);
 
-	const ILDCRTParams &dcrtParams2 = dynamic_cast<const ILDCRTParams&>(finalParamsThreeTowers.GetElementParams());
+	const shared_ptr<ILDCRTParams> dcrtParams2 = std::static_pointer_cast<ILDCRTParams>(finalParamsThreeTowers.GetElementParams());
 	ILDCRTParams finalDcrtParamsTwoTowers(dcrtParams2);
 	finalDcrtParamsTwoTowers.PopLastParam();
 	finalParamsTwoTowers.SetElementParams(finalDcrtParamsTwoTowers);
