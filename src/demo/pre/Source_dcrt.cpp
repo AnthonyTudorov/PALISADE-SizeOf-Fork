@@ -173,7 +173,7 @@ void BenchMarking() {
 
 			DiscreteGaussianGenerator dgg(stdDev);
 
-			ILDCRTParams params(m, moduli, rootsOfUnity);
+			shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 			LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 			cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
@@ -254,9 +254,10 @@ void NTRU_DCRT() {
 	}
 
 	cout << "big modulus: " << modulus << endl;
+
 	DiscreteGaussianGenerator dgg(stdDev);
 
-	ILDCRTParams params(m, moduli, rootsOfUnity);
+	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
@@ -378,7 +379,7 @@ void NTRU_DCRT() {
 		vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext;
 
 		cout << "Running re encryption" << endl;
-		CryptoUtility<ILVectorArray2n>::ReEncrypt(cc.GetEncryptionAlgorithm(), *evalKey, ciphertext, &newCiphertext);
+		newCiphertext = cc.ReEncrypt(evalKey, ciphertext);
 
 		//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
 
@@ -940,7 +941,7 @@ void TestParameterSelection(){
 	cout << "big modulus: " << modulus << endl;
 	DiscreteGaussianGenerator dgg(stdDev);
 
-	ILDCRTParams params(m, moduli, rootsOfUnity);
+	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
@@ -1002,7 +1003,7 @@ void FinalLeveledComputation(){
 	cout << "big modulus: " << modulus << endl;
 	DiscreteGaussianGenerator dgg(init_stdDev);
 
-	ILDCRTParams params(init_m, init_moduli, init_rootsOfUnity);
+	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::THREE);
@@ -1021,16 +1022,16 @@ void FinalLeveledComputation(){
 
 	cryptoParams.ParameterSelection(&finalParams);
 
-	const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(finalParams.GetElementParams()); 
+	const shared_ptr<ILDCRTParams> dcrtParams = /*dynamic_cast<const ILDCRTParams&>(*/ finalParams.GetElementParams() /*)*/ ;
 
-	usint m = dcrtParams.GetCyclotomicOrder();
+	usint m = dcrtParams->GetCyclotomicOrder();
 	usint size = finalParams.GetDepth()+1;
 	const BigBinaryInteger &plainTextModulus = finalParams.GetPlaintextModulus();
 
 	vector<BigBinaryInteger> moduli(size);
-	moduli = dcrtParams.GetModuli();
+	moduli = dcrtParams->GetModuli();
 	vector<BigBinaryInteger> rootsOfUnity(size);
-	rootsOfUnity = dcrtParams.GetRootsOfUnity();
+	rootsOfUnity = dcrtParams->GetRootsOfUnity();
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&finalParams);
 	//scheme initialization: LTV Scheme
@@ -1044,7 +1045,7 @@ void FinalLeveledComputation(){
 	//Generate the secret keys for the levels
 	std::vector< LPKeyPair<ILVectorArray2n> > levelPairs(finalParams.GetDepth());
 
-	std::vector< ILDCRTParams > leveledDcrtParams;
+	std::vector< shared_ptr<ILDCRTParams> > leveledDcrtParams;
 	leveledDcrtParams.reserve(finalParams.GetDepth()+1);
 	std::vector< LPCryptoParametersLTV<ILVectorArray2n> > leveledCryptoParams;
 	leveledCryptoParams.reserve(finalParams.GetDepth()+1);
@@ -1231,7 +1232,7 @@ void NTRUPRE(usint input) {
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetILParams());
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetCryptoParameters()->GetElementParams());
 
 	finish = currentDateTime();
 	diff = finish - start;

@@ -39,24 +39,24 @@
 
 namespace lbcrypto {
 
-template <class T, class T2>
-static T* deserializeAndCreate(const std::string& serializedKey, const CryptoContext<T2>* ctx )
-{
-	Serialized ser;
-	if( !SerializableHelper::StringToSerialization(serializedKey, &ser) )
-		return false;
-
-	T *newKey = new T();
-	if( newKey == 0 ) return newKey;
-
-	if( !newKey->Deserialize(ser, ctx) ) {
-		delete newKey;
-		return 0;
-	}
-
-	return newKey;
-}
-
+//template <class T, class T2>
+//static T* deserializeAndCreate(const std::string& serializedKey, const CryptoContext<T2>* ctx )
+//{
+//	Serialized ser;
+//	if( !SerializableHelper::StringToSerialization(serializedKey, &ser) )
+//		return false;
+//
+//	T *newKey = new T();
+//	if( newKey == 0 ) return newKey;
+//
+//	if( !newKey->Deserialize(ser, ctx) ) {
+//		delete newKey;
+//		return 0;
+//	}
+//
+//	return newKey;
+//}
+//
 //template <typename T>
 //bool CryptoContextImpl<T>::setPublicKey( const std::string& serializedKey )
 //{
@@ -100,15 +100,13 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
 	item.ctx->ringdim = ringdim;
-	item.ctx->relinWindow = relinWindow;
-	item.ctx->stDev = stDev;
 
-	item.ctx->elemParams.reset( new ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
+	shared_ptr<ElemParams> ep( new ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
 	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
 
 	LPCryptoParametersLTV<T>* params = new LPCryptoParametersLTV<T>(
-			item.ctx->elemParams,
+			ep,
 			BigBinaryInteger(plaintextmodulus),
 			stDev, // distribution parameter
 			0.0, // assuranceMeasure,
@@ -116,7 +114,7 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 			relinWindow,
 			item.ctx->dgg);
 
-	item.ctx->params = params;
+	item.ctx->params.reset( params );
 
 	item.ctx->scheme = new LPPublicKeyEncryptionSchemeLTV<T>();
 
@@ -133,22 +131,21 @@ CryptoContextFactory<T>::genCryptoContextBV(
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
 	item.ctx->ringdim = ringdim;
-	item.ctx->relinWindow = relinWindow;
-	item.ctx->stDev = stDev;
 
 	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-	item.ctx->elemParams.reset( new ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
+	shared_ptr<ElemParams> ep( new ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
 	LPCryptoParametersBV<T>* params = new LPCryptoParametersBV<T>(
-		item.ctx->elemParams,
+		ep,
 		BigBinaryInteger(plaintextmodulus),
-		item.ctx->stDev,
+		stDev,
 		0.0, // assuranceMeasure,
 		0.0, // securityLevel,
 		relinWindow,
 		item.ctx->dgg
 		);
-	item.ctx->params = params;
+
+	item.ctx->params.reset( params );
 
 	item.ctx->scheme = new LPPublicKeyEncryptionSchemeBV<T>();
 
@@ -162,7 +159,7 @@ CryptoContextFactory<T>::getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArra
 {
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
-	item.ctx->params = cryptoParams;
+	item.ctx->params.reset( cryptoParams );
 	item.ctx->scheme = new LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n>();
 
 	return item;
@@ -178,27 +175,25 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
 	item.ctx->ringdim = ringdim;
-	item.ctx->relinWindow = relinWindow;
-	item.ctx->stDev = stDev;
-	item.ctx->stDevStSt = stDevStSt;
 
-	item.ctx->elemParams.reset( new ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
+	shared_ptr<ElemParams> ep( new ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
 	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
 	item.ctx->dggStSt = DiscreteGaussianGenerator(stDevStSt);				// Create the noise generator
 
 	LPCryptoParametersStehleSteinfeld<T>* params = new LPCryptoParametersStehleSteinfeld<T>(
-			item.ctx->elemParams,
+			ep,
 			BigBinaryInteger(plaintextmodulus),
-			item.ctx->stDev,
+			stDev,
 			0.0, // assuranceMeasure,
 			0.0, // securityLevel,
-			item.ctx->relinWindow,
+			relinWindow,
 			item.ctx->dgg,
 			item.ctx->dggStSt,
-			item.ctx->stDevStSt
+			stDevStSt
 			);
-	item.ctx->params = params;
+
+	item.ctx->params.reset( params );
 
 	item.ctx->scheme = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>();
 

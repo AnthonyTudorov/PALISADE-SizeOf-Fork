@@ -156,7 +156,7 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 
 
 	//Prepare for parameters.
-	ILParams ilParams(m,modulus,rootOfUnity);
+	shared_ptr<ILParams> ilParams( new ILParams(m,modulus,rootOfUnity) );
 
 	//Set crypto parametes
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev);			// Create the noise generator
@@ -214,7 +214,7 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	std::cout << " \nCleartext pattern: " << std::endl;
 	std::cout << clearPattern.GetPatternString() << std::endl;
 
-	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(ilParams);
+	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(*ilParams);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 
 	DEBUG( "Key generation started"); 
