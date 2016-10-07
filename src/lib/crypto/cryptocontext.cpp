@@ -201,5 +201,24 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 	return item;
 }
 
+template <typename T>
+CryptoContext<T>
+CryptoContextFactory<T>::getCryptoContextNull()
+{
+	CryptoContext<T>	item( new CryptoContextImpl<T>() );
+
+	item.ctx->ringdim = 4096;
+
+	shared_ptr<ElemParams> ep( new ILParams(item.ctx->ringdim, BigBinaryInteger::ONE, BigBinaryInteger::ONE) );
+
+	LPCryptoParametersNull<T>* params = new LPCryptoParametersNull<T>(ep, BigBinaryInteger::TWO);
+
+	item.ctx->params.reset( params );
+
+	item.ctx->scheme = new LPPublicKeyEncryptionSchemeNull<T>();
+
+	return item;
+}
+
 }
 

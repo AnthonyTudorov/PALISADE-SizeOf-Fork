@@ -14,12 +14,7 @@ LPKeyPair<Element> LPAlgorithmNull<Element>::KeyGen(const CryptoContext<Element>
 {
 	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
-	const LPCryptoParametersNull<Element> *cryptoParams = dynamic_cast<const LPCryptoParametersNull<Element> *>( &cc.GetCryptoParameters() );
-
-	if( cryptoParams == 0 )
-		throw std::logic_error("Wrong type for crypto parameters in LPAlgorithmNull<Element>::KeyGen");
-
-	Element a(cryptoParams->GetElementParams(), Format::EVALUATION, true);
+	Element a(cc.GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
 	kp.secretKey->SetPrivateElement(a);
 	kp.publicKey->SetPublicElementAtIndex(0, a);
 	kp.publicKey->SetPublicElementAtIndex(1, a);
@@ -56,19 +51,13 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmPRENull<Element>::ReKeyGen(const share
 	// create a new ReKey of the proper type, in this context
 	shared_ptr<LPEvalKeyNTRURelin<Element>> EK( new LPEvalKeyNTRURelin<Element>(newSK->GetCryptoContext()) );
 
-	const LPCryptoParametersNull<Element> *cryptoParams = dynamic_cast<const LPCryptoParametersNull<Element>*>(&newSK->GetCryptoParameters());
-
-	if( cryptoParams == 0 ) {
-		throw std::logic_error("Re Key crypto parameters have incorrect type in LPAlgorithmPRENull<Element>::ReKeyGen");
-	}
-
 	std::vector<Element> evalKeyElements(1);
 	std::vector<Element> evalKeyElementsGenerated;
 
 	for (usint i = 0; i < (evalKeyElements.size()); i++)
 	{
 		// Generate a_i vectors
-		Element a(cryptoParams->GetElementParams(), Format::EVALUATION, true);
+		Element a(newSK->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
 		evalKeyElementsGenerated.push_back(a);
 	}
 
@@ -83,7 +72,7 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmPRENull<Element>::ReEncrypt(const shared_ptr<LPEvalKey<Element>> EK,
 	const shared_ptr<Ciphertext<Element>> ciphertext) const
 {
-	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(ciphertext) );
+	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(*ciphertext) );
 	return newCiphertext;
 }
 

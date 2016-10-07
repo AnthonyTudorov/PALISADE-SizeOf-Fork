@@ -34,6 +34,9 @@
 * This file implements a helper class for managing and manipulating Crypto Contexts
 */
 
+#include "../palisade.h"
+#include "../palisadespace.h"
+
 #include "../crypto/cryptocontext.h"
 #include "../utils/cryptocontexthelper.h"
 #include "../../../include/rapidjson/filewritestream.h"
@@ -103,6 +106,9 @@ buildContextFromSerialized(const SerialItem& s)
 
 		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(stoul(plaintextModulus), stoul(ring),
 				modulus, rootOfUnity, stoul(relinWindow), stof(stDev), stof(stDevStSt));
+	}
+	else if( parmtype == "Null" ) {
+		return CryptoContextFactory<Element>::getCryptoContextNull();
 	}
 
 	return 0;
