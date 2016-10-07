@@ -74,8 +74,6 @@ main(int argc, char *argv[])
 {
 	bool	doJson = false;
 
-	string filename = "src/demo/pre/PalisadeCryptoContext.parms";
-
 	while( argc-- > 1 ) {
 		string arg(*++argv);
 
@@ -89,17 +87,15 @@ main(int argc, char *argv[])
 			usage();
 			return(0);
 		}
-
-		else filename = arg;
 	}
 
 	std::cout << "Choose parameter set: ";
-	CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout, filename);
+	CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout);
 
 	string input;
 	std::cin >> input;
 
-	CryptoContext<ILVector2n> ctx = CryptoContextHelper<ILVector2n>::getNewContext(filename, input);
+	CryptoContext<ILVector2n> ctx = CryptoContextHelper<ILVector2n>::getNewContext(input);
 	if( ctx == 0 ) {
 		cout << "Error on " << input << endl;
 		return 0;
