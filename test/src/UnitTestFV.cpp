@@ -35,6 +35,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../src/lib/utils/cryptocontexthelper.cpp"
 
 #include "../../src/lib/encoding/byteplaintextencoding.h"
+#include "../../src/lib/encoding/intplaintextencoding.h"
 #include "../../src/lib/utils/cryptoutility.h"
 
 #include "../../src/lib/utils/debug.h"
@@ -136,3 +137,103 @@ TEST(UTFV, ILVector2n_FV_Encrypt_Decrypt) {
 
 }
 
+TEST(UTFV, ILVector2n_FV_Eval_Operations) {
+
+	usint m = 2048;
+	BigBinaryInteger modulus("268441601");
+	BigBinaryInteger rootOfUnity("16947867");
+	usint relWindow = 1;
+
+	BigBinaryInteger plaintextModulus(BigBinaryInteger("16"));
+
+	float stdDev = 4;
+
+	//Prepare for parameters.
+	ILParams ilParams(m, modulus, rootOfUnity);
+
+	//Set crypto parametes
+	LPCryptoParametersFV<ILVector2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(plaintextModulus);  	// Set plaintext modulus.
+	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
+	cryptoParams.SetRelinWindow(1);				// Set the relinearization window
+	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
+
+	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
+	cryptoParams.SetDelta(delta);
+
+	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);
+
+	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
+
+	//Precomputations for FTT
+	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
+
+	//Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(dgg, ilParams);
+
+	// Initialize the public key containers.
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
+
+	std::vector<usint> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
+	IntPlaintextEncoding plaintext1(vectorOfInts1);
+
+	std::vector<usint> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
+	IntPlaintextEncoding plaintext2(vectorOfInts2);
+
+	std::vector<usint> vectorOfIntsAdd = { 3,1,6,3,2,1,5,1 };
+	IntPlaintextEncoding plaintextAdd(vectorOfIntsAdd);
+
+	////////////////////////////////////////////////////////////
+	//Perform the key generation operation.
+	////////////////////////////////////////////////////////////
+
+	LPPublicKeyEncryptionSchemeFV<ILVector2n> algorithm;
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(SHE);
+
+	bool successKeyGen = false;
+
+	successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
+
+	if (!successKeyGen) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
+
+	////////////////////////////////////////////////////////////
+	//Encryption
+	////////////////////////////////////////////////////////////
+
+	vector<Ciphertext<ILVector2n>> ciphertext1;
+	vector<Ciphertext<ILVector2n>> ciphertext2;
+	vector<Ciphertext<ILVector2n>> ciphertextAdd;
+
+
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext1, &ciphertext1, true);	
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext2, &ciphertext2, true);
+
+	////////////////////////////////////////////////////////////
+	//EvalAdd Operation
+	////////////////////////////////////////////////////////////
+
+	//YSP this is a workaround for now - I think we need to change EvalAdd to do this automatically
+	Ciphertext<ILVector2n> ciphertextTemp(ciphertext1[0]);
+
+	//YSP this needs to be switched to the Ciphertext class operation
+	algorithm.EvalAdd(ciphertext1[0], ciphertext2[0], &ciphertextTemp);
+
+	ciphertextAdd.push_back(ciphertextTemp);
+
+	IntPlaintextEncoding plaintextNew;
+
+	////////////////////////////////////////////////////////////
+	//Decryption after EvalAdd Operation
+	////////////////////////////////////////////////////////////
+
+	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertextAdd, &plaintextNew, true);  // This is the core decryption operation.
+
+	EXPECT_EQ(plaintextAdd, plaintextNew);
+
+}
