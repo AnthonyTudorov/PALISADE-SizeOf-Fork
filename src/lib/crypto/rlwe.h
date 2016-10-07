@@ -65,7 +65,7 @@ public:
 	 * Copy constructor.
 	 *
 	 */
-	LPCryptoParametersRLWE(const LPCryptoParametersRLWE &rhs) : LPCryptoParameters<Element>(rhs.m_params, rhs.GetPlaintextModulus()) {
+	LPCryptoParametersRLWE(const LPCryptoParametersRLWE &rhs) : LPCryptoParameters<Element>(rhs.GetElementParams(), rhs.GetPlaintextModulus()) {
 		m_distributionParameter = rhs.m_distributionParameter;
 		m_assuranceMeasure = rhs.m_assuranceMeasure;
 		m_securityLevel = rhs.m_securityLevel;

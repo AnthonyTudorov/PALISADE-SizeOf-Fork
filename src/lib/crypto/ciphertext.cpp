@@ -115,7 +115,7 @@ bool Ciphertext<Element>::Serialize(Serialized* serObj, const std::string fileFl
 	if( !this->SetIdFlag(serObj, fileFlag) )
 		return false;
 
-	if( !this->GetCryptoParameters().Serialize(serObj) )
+	if( !this->GetCryptoParameters()->Serialize(serObj) )
 		return false;
 
 	serObj->AddMember("Norm", this->GetNorm().ToString(), serObj->GetAllocator());

@@ -95,7 +95,7 @@ CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextLTV(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-		usint relinWindow, float stDev)
+		usint relinWindow, float stDev, int depth)
 {
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
@@ -112,7 +112,8 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 			0.0, // assuranceMeasure,
 			0.0, // securityLevel,
 			relinWindow,
-			item.ctx->dgg);
+			item.ctx->dgg,
+			depth);
 
 	item.ctx->params.reset( params );
 

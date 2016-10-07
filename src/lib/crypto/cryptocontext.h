@@ -185,8 +185,8 @@ public:
 		if( publicKey->GetCryptoContext() != *this )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
-		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters().GetPlaintextModulus();
-		size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoParameters().GetElementParams()->GetCyclotomicOrder(), ptm);
+		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
+		size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), ptm);
 		size_t ptSize = plaintext.GetLength();
 		size_t rounds = ptSize/chunkSize;
 
@@ -200,7 +200,7 @@ public:
 
 		for( int bytes=0, i=0; i < rounds ; bytes += chunkSize,i++ ) {
 
-			Element pt(publicKey->GetCryptoParameters().GetElementParams());
+			Element pt(publicKey->GetCryptoParameters()->GetElementParams());
 			plaintext.Encode(ptm, &pt, bytes, chunkSize);
 			pt.SwitchFormat();
 
@@ -238,10 +238,10 @@ public:
 
 			if( result.isValid == false ) return result;
 
-			plaintext->Decode(privateKey->GetCryptoParameters().GetPlaintextModulus(), &decrypted);
+			plaintext->Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
 
 			if( ch == lastone && doPadding ) {
-				plaintext->Unpad(privateKey->GetCryptoParameters().GetPlaintextModulus());
+				plaintext->Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
 			}
 		}
 
@@ -370,7 +370,7 @@ public:
 	static CryptoContext<Element> genCryptoContextLTV(
 			const usint plaintextmodulus,
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-			usint relinWindow, float stDev);
+			usint relinWindow, float stDev, int depth = 1);
 
 	static CryptoContext<Element> genCryptoContextBV(
 			const usint plaintextmodulus,
