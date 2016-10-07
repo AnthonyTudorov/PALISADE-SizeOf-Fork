@@ -323,7 +323,7 @@ main( int argc, char *argv[] )
 	}
 
 	if( string(argv[1]) == "-list" && argc == 3) {
-		CryptoContextHelper<ILVector2n>::printAllParmSets(cout, argv[2]);
+		CryptoContextHelper<ILVector2n>::printAllParmSets(cout);
 		return 0;
 	}
 
@@ -331,7 +331,7 @@ main( int argc, char *argv[] )
 
 	int cmdidx = 1;
 	if( string(argv[1]) == "-use" && argc >= 4) {
-		ctx = CryptoContextHelper<ILVector2n>::getNewContext( string(argv[2]), string(argv[3]) );
+		ctx = 0; // CryptoContextHelper<ILVector2n>::getNewContext( string(argv[2]), string(argv[3]) );
 		if( ctx == 0 ) {
 			usage("ALL", "Could not construct a crypto context");
 			return 1;
