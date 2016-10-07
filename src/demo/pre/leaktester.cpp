@@ -27,19 +27,15 @@ void runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& pl
 int
 main(int argc, char *argv[])
 {
-	string filename = "src/demo/pre/PalisadeCryptoContext.parms";
 	string parmset;
 
-	if( argc == 2 )
-		filename = string(*++argv);
-
 	std::cout << "Choose parameter set: ";
-	CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout, filename);
+	CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout);
 
 	string input; // = "StSt6";
 	std::cin >> input;
 
-	CryptoContext<ILVector2n> ctx = CryptoContextHelper<ILVector2n>::getNewContext(filename, input);
+	CryptoContext<ILVector2n> ctx = CryptoContextHelper<ILVector2n>::getNewContext(input);
 	if( ctx == 0 ) {
 		cout << "Error on " << input << endl;
 		return 0;

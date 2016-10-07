@@ -44,27 +44,21 @@
 namespace lbcrypto {
 
 static bool
-getParmsFile(const std::string& fn, Serialized* obj)
+getValueForName(const map<string,string>& allvals, const string key, string& value)
 {
-	return SerializableHelper::ReadSerializationFromFile(fn, obj);
-}
-
-static bool
-getValueForName(const SerialItem& allvals, const char *key, std::string& value)
-{
-	Serialized::ConstMemberIterator it;
-	if( (it = allvals.FindMember(key)) == allvals.MemberEnd() ) {
+	map<string,string>::const_iterator it = allvals.find(key);
+	if( it == allvals.end() ) {
 		std::cerr << key << " element is missing" << std::endl;
 		return false;
 	}
 
-	value = it->value.GetString();
+	value = it->second;
 	return true;
 }
 
 template <class Element>
 static CryptoContext<Element>
-buildContextFromSerialized(const SerialItem& s)
+buildContextFromSerialized(const map<string,string>& s)
 {
 	std::string parmtype;
 	std::string plaintextModulus;
@@ -142,84 +136,61 @@ CryptoContextHelper<Element>::getNewContextFromSerialization(const Serialized& s
 	return newCtx;
 }
 
-
 template <class Element>
 CryptoContext<Element>
-CryptoContextHelper<Element>::getNewContext(const std::string& parmSetJson)
+CryptoContextHelper<Element>::getNewContext(const string parmset)
 {
-	// convert string to a map
-	Serialized sObj;
-	sObj.Parse( parmSetJson.c_str() );
-	if( sObj.HasParseError() )
+	map<string, map<string,string>>::iterator it = CryptoContextParameterSets.find(parmset);
+
+	if( it == CryptoContextParameterSets.end() ) {
 		return 0;
-	return buildContextFromSerialized<Element>(sObj);
+	}
+
+	return buildContextFromSerialized<Element>(it->second);
 }
 
-template <class Element>
-CryptoContext<Element>
-CryptoContextHelper<Element>::getNewContext(const std::string& parmfile, const std::string& parmset)
+static void printSet(std::ostream& out, string key, map<string,string>& pset)
 {
-	Serialized sobj;
+	out << "Parameter set: " << key << std::endl;
 
-	if( !getParmsFile(parmfile, &sobj) ) {
-		std::cerr << "Unable to read serialization from " << parmfile << std::endl;
-		return 0;
-	}
-
-	Serialized::ConstMemberIterator it;
-	for( it = sobj.MemberBegin(); it != sobj.MemberEnd(); it++ ) {
-		if( parmset != it->name.GetString() )
-			continue;
-
-		break;
-	}
-
-	if( it == sobj.MemberEnd() )
-		return 0;
-
-	const SerialItem& cObj = it->value;
-	return buildContextFromSerialized<Element>(cObj);
-}
-
-template <class Element>
-void
-CryptoContextHelper<Element>::printAllParmSets(std::ostream& out, const std::string& fn)
-{
-	Serialized sobj;
-
-	if( !getParmsFile(fn, &sobj) ) {
-		out << "Unable to read serialization from " << fn << std::endl;
-		return;
-	}
-
-	for( Serialized::ConstMemberIterator it = sobj.MemberBegin(); it != sobj.MemberEnd(); it++ ) {
-		out << "Parameter set " << it->name.GetString() << std::endl;
-
-		char writeBuffer[1024];
-		rapidjson::FileWriteStream os(stdout, writeBuffer, sizeof(writeBuffer));
-		rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(os);
-
-		it->value.Accept(writer);
-		out << std::endl;
+	for( auto P : pset ) {
+		out << "  " << P.first << ": " << P.second << std::endl;
 	}
 }
 
 template <class Element>
 void
-CryptoContextHelper<Element>::printAllParmSetNames(std::ostream& out, const std::string& fn)
+CryptoContextHelper<Element>::printParmSet(std::ostream& out, string parmset)
 {
-	Serialized sobj;
-
-	if( !getParmsFile(fn, &sobj) ) {
-		out << "Unable to read serialization from " << fn << std::endl;
-		return;
+	auto it = CryptoContextParameterSets.find(parmset);
+	if( it == CryptoContextParameterSets.end() ) {
+		out << "Parameter set " << parmset << " is unknown" << std::endl;
 	}
+	else
+		printSet(out, it->first, it->second);
 
-	Serialized::ConstMemberIterator it = sobj.MemberBegin();
-	out << it->name.GetString();
+}
 
-	for( it++; it != sobj.MemberEnd(); it++ ) {
-		out << ", " << it->name.GetString();
+
+template <class Element>
+void
+CryptoContextHelper<Element>::printAllParmSets(std::ostream& out)
+{
+	for( auto S : CryptoContextParameterSets ) {
+		printSet(out, S.first, S.second);
+	}
+}
+
+template <class Element>
+void
+CryptoContextHelper<Element>::printAllParmSetNames(std::ostream& out)
+{
+	map<string, map<string,string>>::iterator it = CryptoContextParameterSets.begin();
+
+	out << it->first;
+
+	for( it++; it != CryptoContextParameterSets.end(); it++ ) {
+		out << ", " << it->first;
 	}
 	out << std::endl;
 }

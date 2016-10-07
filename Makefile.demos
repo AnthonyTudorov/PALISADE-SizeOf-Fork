@@ -107,9 +107,12 @@ $(BINDIR)/demo/pre/PrettyJson$(EXESUFFIX): $(BUILDDIR)/demo/pre/PrettyJson.o $(E
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 
+$(BINDIR)/demo/pre/SampleApp$(EXESUFFIX): $(BUILDDIR)/demo/pre/SampleApp.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
 $(BINDIR)/demo/pre/palisade$(EXESUFFIX): $(BUILDDIR)/demo/pre/palisade.o $(EXTLIBDIR)/$(PALISADELIB)
 	@mkdir -p $(@D)
-	@echo SKIPPING PALISADE DEMO APP
 	### $(CC) -o $@ $^ $(EXTLIB)
 
 
