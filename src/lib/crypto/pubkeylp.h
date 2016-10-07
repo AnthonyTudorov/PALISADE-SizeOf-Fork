@@ -141,7 +141,7 @@ namespace lbcrypto {
 		 * Gets a read-only reference to an LPCryptoParameters-derived class
 		 * @return the crypto parameters.
 		 */
-		const LPCryptoParameters<Element> &GetCryptoParameters() const { return cryptoContext.GetCryptoParameters(); }
+		const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return cryptoContext.GetCryptoParameters(); }
 
 	protected:
 		CryptoContext<Element>	cryptoContext;
@@ -260,7 +260,7 @@ namespace lbcrypto {
 			bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
 				serObj->SetObject();
 
-				if (!this->GetCryptoParameters().Serialize(serObj, "")) {
+				if (!this->GetCryptoParameters()->Serialize(serObj, "")) {
 					return false;
 				}
 
@@ -547,7 +547,7 @@ namespace lbcrypto {
 		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
 			serObj->SetObject();
 
-			if (!this->GetCryptoParameters().Serialize(serObj, "")) {
+			if (!this->GetCryptoParameters()->Serialize(serObj, "")) {
 				return false;
 			}
 
@@ -673,7 +673,7 @@ namespace lbcrypto {
 		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
 			serObj->SetObject();
 
-			if (!this->GetCryptoParameters().Serialize(serObj, "")) {
+			if (!this->GetCryptoParameters()->Serialize(serObj, "")) {
 				return false;
 			}
 
@@ -796,7 +796,7 @@ namespace lbcrypto {
 		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
 			serObj->SetObject();
 
-			if (!this->GetCryptoParameters().Serialize(serObj, "")) {
+			if (!this->GetCryptoParameters()->Serialize(serObj, "")) {
 				return false;
 			}
 
@@ -935,7 +935,7 @@ namespace lbcrypto {
 			if (!this->SetIdFlag(serObj, fileFlag))
 				return false;
 
-			if (!this->GetCryptoParameters().Serialize(serObj))
+			if (!this->GetCryptoParameters()->Serialize(serObj))
 				return false;
 
 			return this->GetPrivateElement().Serialize(serObj);

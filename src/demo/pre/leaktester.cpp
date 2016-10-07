@@ -213,8 +213,8 @@ runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plainte
 		exit(1);
 	}
 
-	size_t chunksize = plaintext.GetChunksize(kp.publicKey->GetCryptoParameters().GetElementParams()->GetCyclotomicOrder(),
-			kp.publicKey->GetCryptoParameters().GetPlaintextModulus());
+	size_t chunksize = plaintext.GetChunksize(kp.publicKey->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(),
+			kp.publicKey->GetCryptoParameters()->GetPlaintextModulus());
 	cout << "Chunk size is: " << chunksize << endl;
 
 	//Encryption
