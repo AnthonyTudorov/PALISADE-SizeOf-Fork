@@ -74,8 +74,8 @@ bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<L
 	const Element &privateKeyElement = origPrivateKey->GetPrivateElement();
 	usint m = privateKeyElement.GetCyclotomicOrder();
 
-	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey->GetCryptoParameters());
-	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
+	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersLTV<Element>>(publicKey->GetCryptoParameters());
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 	if (size > m/2 - 1)
 		throw std::logic_error("size exceeds the ring dimensions\n");

@@ -39,8 +39,8 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmPRELTV<Element>::ReKeyGen(const shared
 
 	// the wrapper checked to make sure that the input keys were created in the proper context
 
-	const LPCryptoParametersRLWE<Element> *cryptoParamsLWE =
-			dynamic_cast<const LPCryptoParametersRLWE<Element>*>(&newPK->GetCryptoParameters());
+	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParamsLWE =
+			std::static_pointer_cast<LPCryptoParametersRLWE<Element>>(newPK->GetCryptoParameters());
 
 //	if( cryptoParamsLWE == 0 ) {
 //		throw std::logic_error("Public key is not using RLWE parameters in LPAlgorithmPRELTV<Element>::ReKeyGen");
@@ -103,15 +103,15 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPRELTV<Element>::ReEncrypt(const shar
 {
 	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(*ciphertext) );
 
-	const LPCryptoParametersRLWE<Element> &cryptoParamsLWE =
-			dynamic_cast<const LPCryptoParametersRLWE<Element>&>(evalKey->GetCryptoParameters());
+	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParamsLWE =
+			std::static_pointer_cast<LPCryptoParametersRLWE<Element>>(evalKey->GetCryptoParameters());
 	
-	const shared_ptr<ElemParams> elementParams = cryptoParamsLWE.GetElementParams();
-	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();
+	const shared_ptr<ElemParams> elementParams = cryptoParamsLWE->GetElementParams();
+	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 
 	const std::vector<Element> &proxy = evalKey->GetAVector();
 
-	usint relinWindow = cryptoParamsLWE.GetRelinWindow();
+	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
 	Element c(ciphertext->GetElement());
 

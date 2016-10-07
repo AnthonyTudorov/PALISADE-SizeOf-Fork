@@ -138,7 +138,7 @@ public:
 		std::vector<BigBinaryInteger> moduli(this->m_depth+1);
 		moduli.reserve(this->m_depth+1);
 
-		usint n = this->GetElementParams().GetCyclotomicOrder()/2;
+		usint n = this->GetElementParams()->GetCyclotomicOrder()/2;
 		// set the values for n (ring dimension) and chain of moduli
 		this->ParameterSelection(n, moduli);
 

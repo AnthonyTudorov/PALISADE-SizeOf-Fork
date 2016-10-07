@@ -113,7 +113,7 @@ namespace lbcrypto {
 		* Get a reference to crypto parameters.
 		* @return the crypto parameters.
 		*/
-		const LPCryptoParameters<Element> &GetCryptoParameters() const { return cryptoContext.GetCryptoParameters(); }
+		const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return cryptoContext.GetCryptoParameters(); }
 
 		/**
 		* Get a reference to the encryption algorithm.

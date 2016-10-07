@@ -132,7 +132,7 @@ void EncryptionSchemeSimulation(usint count){
 	BigBinaryInteger rootOfUnity(data[i].rootOfUnity);
 	usint relWindow = 1;
 
-	ILParams ilParams(m, modulus, rootOfUnity);
+	shared_ptr<ILParams> ilParams( new ILParams(m, modulus, rootOfUnity) );
 
 	int stdDev = 4;
 
@@ -282,30 +282,17 @@ void PRESimulation(usint count, usint dataset){
 	usint m = data[i].m;
 	BigBinaryInteger modulus(data[i].modulus);
 	BigBinaryInteger rootOfUnity(data[i].rootOfUnity);
-	usint relWindow = data[i].relinWindow;
 	usint depth = data[i].depth;
-
-	ILParams ilParams(m, modulus, rootOfUnity);
 
 	int stdDev = 4;
 
-	// Set crypto parametes
-	LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);			 // Set the noise parameters.
-	cryptoParams.SetRelinWindow(relWindow);				     // Set the relinearization window
-	cryptoParams.SetElementParams(ilParams);			     // Set the initialization parameters.
-
-	DiscreteGaussianGenerator dgg(stdDev);				 // Create the noise generator
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
-
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2,m,data[i].modulus,data[i].rootOfUnity,relWindow,stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2,m,data[i].modulus,data[i].rootOfUnity,data[i].relinWindow,stdDev, depth);
 
 	// Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
 	// Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(dgg, ilParams);
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), std::static_pointer_cast<ILParams>(cc.GetCryptoParameters()->GetElementParams()));
 
 	// prepare the plaintext
 	BytePlaintextEncoding plaintext;
@@ -427,7 +414,7 @@ void PRESimulation(usint count, usint dataset){
 			ct.push_back(arrCiphertext[j]);
 			vector<shared_ptr<Ciphertext<ILVector2n>>> ctR;
 
-			CryptoUtility<ILVector2n>::ReEncrypt(cc.GetEncryptionAlgorithm(), *evalKeys[d], ct, &ctR);
+			ctR = cc.ReEncrypt(evalKeys[d], ct);
 			arrCiphertextNew[j] = ctR[0];
 			ct.clear();
 			ctR.clear();

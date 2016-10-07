@@ -1490,8 +1490,8 @@ void ComposedEvalMultTest(){
 	LPCryptoParametersLTV<ILVectorArray2n> finalParamsTwoTowers(finalParamsThreeTowers);
 
 	const shared_ptr<ILDCRTParams> dcrtParams2 = std::static_pointer_cast<ILDCRTParams>(finalParamsThreeTowers.GetElementParams());
-	ILDCRTParams finalDcrtParamsTwoTowers(dcrtParams2);
-	finalDcrtParamsTwoTowers.PopLastParam();
+	shared_ptr<ILDCRTParams> finalDcrtParamsTwoTowers( new ILDCRTParams(*dcrtParams2) );
+	finalDcrtParamsTwoTowers->PopLastParam();
 	finalParamsTwoTowers.SetElementParams(finalDcrtParamsTwoTowers);
 
 	//Generating Quaraditic KeySwitchHint from sk^2 to skNew
@@ -1547,7 +1547,7 @@ void FFTTest() {
 	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
 	cout << rootOfUnity << endl;
 	cout << rootOfUnity << endl;
-	ILParams params(m1, modulus, rootOfUnity);
+	shared_ptr<ILParams> params( new ILParams(m1, modulus, rootOfUnity) );
 
 	ILVector2n x1(params, Format::COEFFICIENT);
 	x1 = { 1,0,1,0};

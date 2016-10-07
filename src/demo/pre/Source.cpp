@@ -212,7 +212,7 @@ void NTRUPRE(int input) {
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetILParams());
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), std::static_pointer_cast<ILParams>(cc.GetCryptoParameters()->GetElementParams()));
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -345,7 +345,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::ReEncrypt(cc.GetEncryptionAlgorithm(), *evalKey, ciphertext, &newCiphertext);  // This is the core re-encryption operation.
+	newCiphertext = cc.ReEncrypt(evalKey, ciphertext);
 
 	finish = currentDateTime();
 	diff = finish - start;
