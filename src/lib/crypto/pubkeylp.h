@@ -968,10 +968,10 @@ namespace lbcrypto {
 			 * @param &newPrivateKey new private for generating a keyswitchhint to.
 			 * @param *quadraticKeySwitchHint the generated keyswitchhint.
 			 */
-
 			virtual shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
 				const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 				const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
+
 
 			/**
 			 * Method for Modulus Reduction.
@@ -1436,7 +1436,16 @@ namespace lbcrypto {
 					}
 		}
 
+		void EvalMult(const Ciphertext<Element> &ciphertext1,
+			const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &ek,
+			Ciphertext<Element> *newCiphertext) const {
 
+			if (this->m_algorithmSHE)
+				this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2, ek ,newCiphertext);
+			else {
+				throw std::logic_error("EvalMult operation has not been enabled");
+			}
+		}
 
 
 		/////////////////////////////////////////
@@ -1472,6 +1481,11 @@ namespace lbcrypto {
 					
 					if(this->IsEnabled(SHE))
 						return this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2, evalKey);
+
+		void EvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, 
+				const LPPrivateKey<Element> &newPrivateKey, LPEvalKey<Element> *keySwitchHint) const {
+					if(this->m_algorithmLeveledSHE)
+						this->m_algorithmLeveledSHE->EvalMultKeyGen(originalPrivateKey, newPrivateKey,keySwitchHint);
 					else{
 						throw std::logic_error("This operation is not supported");
 					}
@@ -1492,6 +1506,9 @@ namespace lbcrypto {
 		shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
 			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
+
+		void QuadraticEvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKey<Element> *quadraticKeySwitchHint) const {
+
 			if(this->m_algorithmLeveledSHE){
 				return this->m_algorithmLeveledSHE->QuadraticEvalMultKeyGen(originalPrivateKey,newPrivateKey);
 			}

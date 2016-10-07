@@ -115,6 +115,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr
 	ciphertext->SetElements({ c1,c2 });
 
 	return ciphertext;
+
 }
 
 template <class Element>
@@ -282,7 +283,8 @@ void LPPublicKeyEncryptionSchemeBV<Element>::Enable(PKESchemeFeature feature) {
 		if (this->m_algorithmLeveledSHE == NULL)
 			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>(*this);
 		break;
-		/*case EVALADD:
+
+	/*case EVALADD:
 		if (this->m_algorithmEvalAdd == NULL)
 		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
 		break;
