@@ -17,9 +17,8 @@ List of Authors:
 Description:	
 
  This code implements the Fan-Vercauteren (FV) homomorphic encryption scheme.
- The scheme is described at http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf (or alternative Internet source:
- http://dx.doi.org/10.1007/978-3-642-22792-9_29). Implementation details are provided in
- {the link to the ACM TISSEC manuscript to be added}.
+ The FV scheme is introduced in https://eprint.iacr.org/2012/144.pdf and originally implemented in https://eprint.iacr.org/2014/062.pdf 
+ (this paper has optimized correctness constraints, which are used here as well). 
 
 License Information:
 
@@ -65,11 +64,13 @@ bool LPAlgorithmFV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	Element a(dug, elementParams, Format::EVALUATION);
 
 	//Generate the secret key
+	//Done in two steps not to use a discrete Gaussian polynomial from a pre-computed pool
 	Element s(dgg, elementParams, Format::COEFFICIENT);
 	s.SwitchFormat();
 
 	privateKey->SetPrivateElement(s);
 
+	//Done in two steps not to use a discrete Gaussian polynomial from a pre-computed pool
 	Element e(dgg, elementParams, Format::COEFFICIENT);
 	e.SwitchFormat();
 
