@@ -17,6 +17,7 @@
 #include "crypto/lweautomorph.cpp"
 
 #include "crypto/bv.cpp"
+#include "crypto/nullscheme.cpp"
 
 #include "crypto/lwecrypt.cpp"
 #include "crypto/ciphertext.cpp"

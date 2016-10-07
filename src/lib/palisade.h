@@ -44,6 +44,7 @@ class CryptoContext;
 #include "crypto/ltv.h"
 #include "crypto/stst.h"
 #include "crypto/bv.h"
+#include "crypto/nullscheme.h"
 
 #include "utils/serializable.h"
 
