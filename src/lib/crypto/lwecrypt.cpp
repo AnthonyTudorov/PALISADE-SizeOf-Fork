@@ -48,9 +48,6 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 	Element f(dgg,elementParams,Format::COEFFICIENT);
@@ -231,13 +228,13 @@ shared_ptr<LPEvalKeyNTRU<Element>> LPLeveledSHEAlgorithmLTV<Element>::QuadraticE
 	return quadraticKeySwitchHint;
 }
 
-///**
-//* Method for ModReducing on any Element datastructure-TODO
-//*/
-//template<class Element>
-//void LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Element> *cipherText) const {
-//
-//}
+/**
+* Method for ModReducing on any Element datastructure-TODO
+*/
+template<> inline
+void LPLeveledSHEAlgorithmLTV<ILVector2n>::ModReduce(shared_ptr<Ciphertext<ILVector2n>> *cipherText) const {
+
+}
 
 /**
 * This function performs ModReduce on ciphertext element and private key element. The algorithm can be found from this paper:
@@ -247,17 +244,17 @@ shared_ptr<LPEvalKeyNTRU<Element>> LPLeveledSHEAlgorithmLTV<Element>::QuadraticE
 * Modulus reduction reduces a ciphertext from modulus q to a smaller modulus q/qi. The qi is generally the largest. In the code below,
 * ModReduce is written for ILVectorArray2n and it drops the last tower while updating the necessary parameters. 
 */
-template<class Element> inline
-void LPLeveledSHEAlgorithmLTV<Element>::ModReduce(shared_ptr<Ciphertext<Element>> *cipherText) const {
+template<> inline
+void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(shared_ptr<Ciphertext<ILVectorArray2n>> *cipherText) const {
 
-	throw std::logic_error("fix me in ModReduce of LPLeveledSHEAlgorithmLTV");
-//	Element cipherTextElement(cipherText->GetElement());
+	//FIXME:
+//	ILVectorArray2n cipherTextElement((*cipherText)->GetElement());
 //
-//	BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters().GetPlaintextModulus());
+//	BigBinaryInteger plaintextModulus((*cipherText)->GetCryptoParameters().GetPlaintextModulus());
 //
 //	cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
 //
-//	cipherText->SetElement(cipherTextElement);
+//	(*cipherText)->SetElement(cipherTextElement);
 	
 }
 
