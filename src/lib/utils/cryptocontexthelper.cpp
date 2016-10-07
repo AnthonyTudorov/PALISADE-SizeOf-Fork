@@ -224,8 +224,6 @@ CryptoContextHelper<Element>::getNewContextFromSerialization(const Serialized& s
 	return emptyCtx;
 }
 
-
-
 template <class Element>
 CryptoContext<Element>
 CryptoContextHelper<Element>::getNewContext(const string parmset)

@@ -114,7 +114,6 @@ $(BINDIR)/demo/pre/SampleApp$(EXESUFFIX): $(BUILDDIR)/demo/pre/SampleApp.o $(EXT
 
 $(BINDIR)/demo/pre/palisade$(EXESUFFIX): $(BUILDDIR)/demo/pre/palisade.o $(EXTLIBDIR)/$(PALISADELIB)
 	@mkdir -p $(@D)
-	@echo SKIPPING PALISADE DEMO APP
 	### $(CC) -o $@ $^ $(EXTLIB)
 
 
