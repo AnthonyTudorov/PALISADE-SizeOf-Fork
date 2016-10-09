@@ -99,9 +99,7 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 {
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
-	item.ctx->ringdim = ringdim;
-
-	shared_ptr<ElemParams> ep( new ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
+	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
 	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
 
@@ -131,10 +129,8 @@ CryptoContextFactory<T>::genCryptoContextBV(
 {
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
-	item.ctx->ringdim = ringdim;
-
 	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-	shared_ptr<ElemParams> ep( new ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
+	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
 	LPCryptoParametersBV<T>* params = new LPCryptoParametersBV<T>(
 		ep,
@@ -175,9 +171,7 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 {
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
-	item.ctx->ringdim = ringdim;
-
-	shared_ptr<ElemParams> ep( new ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
+	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
 	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
 	item.ctx->dggStSt = DiscreteGaussianGenerator(stDevStSt);				// Create the noise generator
@@ -207,9 +201,7 @@ CryptoContextFactory<T>::getCryptoContextNull()
 {
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
-	item.ctx->ringdim = 4096;
-
-	shared_ptr<ElemParams> ep( new ILParams(item.ctx->ringdim, BigBinaryInteger::ONE, BigBinaryInteger::ONE) );
+	shared_ptr<ElemParams> ep( new ILParams(4096, BigBinaryInteger::ONE, BigBinaryInteger::ONE) );
 
 	LPCryptoParametersNull<T>* params = new LPCryptoParametersNull<T>(ep, BigBinaryInteger::TWO);
 
@@ -218,6 +210,43 @@ CryptoContextFactory<T>::getCryptoContextNull()
 	item.ctx->scheme = new LPPublicKeyEncryptionSchemeNull<T>();
 
 	return item;
+}
+
+template <typename T>
+shared_ptr<LPPublicKey<T>>
+CryptoContext<T>::deserializePublicKey(const Serialized& serObj)
+{
+	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
+		return shared_ptr<LPPublicKey<T>>();
+	}
+
+	shared_ptr<LPPublicKey<T>> key( new LPPublicKey<T>(*this) );
+
+	if( key->Deserialize(serObj) )
+		return key;
+
+	return shared_ptr<LPPublicKey<T>>();
+}
+
+template <typename T>
+shared_ptr<LPPrivateKey<T>>
+CryptoContext<T>::deserializeSecretKey(const Serialized& serObj)
+{
+
+}
+
+template <typename T>
+shared_ptr<Ciphertext<T>>
+CryptoContext<T>::deserializeCiphertext(const Serialized& serObj)
+{
+
+}
+
+template <typename T>
+shared_ptr<LPEvalKey<T>>
+CryptoContext<T>::deserializeEvalKey(const Serialized& serObj)
+{
+
 }
 
 }

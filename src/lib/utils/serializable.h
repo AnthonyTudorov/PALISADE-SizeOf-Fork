@@ -96,14 +96,6 @@ namespace lbcrypto {
 		* @return true on success
 		*/
 		virtual bool Deserialize(const Serialized& serObj) = 0;
-
-//		/**
-//		* Populate the object from the deserialization of the Serialized
-//		* @param serObj contains the serialized object
-//		* @param ctx is the CryptoContext that the object must match up with
-//		* @return true on success
-//		*/
-//		template <class Element> bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx);
 	};
 
 }

@@ -56,8 +56,8 @@ void NTRUPRE(CryptoContext<ILVector2n>& ctx, bool);
 
 #include "../../lib/utils/serializablehelper.h"
 
-//#include "testJson.h"
-//#include "testJson.cpp"
+#include "testJson.h"
+#include "testJson.cpp"
 
 using namespace std;
 using namespace lbcrypto;
@@ -326,16 +326,16 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 	cout << "Original Plaintext: " << endl;
 	cout << newPlaintext << endl;
 
-//	if( doJson ) {
-//		TestJsonParms<ILVector2n>	tjp;
-//		tjp.ctx = ctx;
-//		tjp.pk = &pk;
-//		tjp.sk = &sk;
-//		tjp.evalKey = &evalKey;
-//		tjp.newSK = &newSK;
-//
-//		testJson<ILVector2n>("LTV", newPlaintext, &tjp);
-//	}
+	if( doJson ) {
+		TestJsonParms<ILVector2n>	tjp;
+		tjp.ctx = ctx;
+		tjp.pk = kp.publicKey;
+		tjp.sk = kp.secretKey;
+		tjp.evalKey = evalKey;
+		tjp.newSK = newKp.secretKey;
+
+		testJson<ILVector2n>("LTV", newPlaintext, &tjp);
+	}
 
 	fout.close();
 }
