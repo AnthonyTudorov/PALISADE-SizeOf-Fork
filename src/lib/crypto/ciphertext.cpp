@@ -152,72 +152,71 @@ bool Ciphertext<Element>::Serialize(Serialized* serObj, const std::string fileFl
 }
 
 // JSON FACILITY - Deserialize Operation
-//template <class Element>
-//bool Ciphertext<Element>::Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
+template <class Element>
+bool Ciphertext<Element>::Deserialize(const Serialized& serObj) {
 
-//	LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-//	if( cryptoParams == 0 ) return false;
-//
-//	Serialized::ConstMemberIterator mIter = serObj.FindMember("Root");
-//	if( mIter == serObj.MemberEnd() )
-//		return false;
-//
-//	Serialized::ConstMemberIterator normIter = serObj.FindMember("Norm");
-//	if( normIter == serObj.MemberEnd() )
-//		return false;
-//
-//	BigBinaryInteger bbiNorm(normIter->value.GetString());
-//
-//	Serialized::ConstMemberIterator sizeIter = serObj.FindMember("VectorSize");
-//	if( sizeIter == serObj.MemberEnd() )
-//		return false;
-//
-//	int nElements = std::stoi(sizeIter->value.GetString());
-//	std::vector<Element> elements(nElements);
-//
-//	Serialized::ConstMemberIterator typeIter = serObj.FindMember("VectorElementType");
-//	if( typeIter == serObj.MemberEnd() )
-//		return false;
-//
-//	std::string elType = typeIter->value.GetString();
-//
-//	if( typeid(Element) == typeid(ILVector2n) && elType != "ILVector2n" ) {
-//		throw std::logic_error("Serialization Element type does not match this Ciphertext");
-//	} else if( typeid(Element) == typeid(ILVectorArray2n) && elType != "ILVectorArray2n" ) {
-//		throw std::logic_error("Serialization Element type does not match this Ciphertext");
-//	}
-//
-//	Serialized::ConstMemberIterator elVec = serObj.FindMember("Elements");
-//	if( elVec == serObj.MemberEnd() )
-//		return false;
-//
-//	for( int i=0; i<nElements; i++ ) {
-//		SerialItem::ConstMemberIterator elIter = elVec->value.FindMember( std::to_string(i) );
-//		if( elIter == elVec->value.MemberEnd() ) {
-//			return false;
-//		}
-//
-//		Serialized::ConstMemberIterator findEl = elIter->value.FindMember( elType );
-//		if( findEl == elIter->value.MemberEnd() ) {
-//			return false;
-//		}
-//
-//		Serialized el(rapidjson::kObjectType);
-//		el.AddMember(SerialItem(elType,el.GetAllocator()), SerialItem(findEl->value,el.GetAllocator()), el.GetAllocator());
-//		Element json_ilElement;
-//		if( !json_ilElement.Deserialize( el ) )
-//			return false;
-//
-//		elements[i] = json_ilElement;
-//	}
-//
-//	this->m_cryptoParameters = cryptoParams;
-//	this->SetNorm(bbiNorm);
-//	this->SetElements(elements);
-//
-//	return true;
-//	return false;
-//}
+	// deserialization must be done in a crypto context; this object must be initialized before deserializing the elements
+	if( !this->cryptoContext.ctx )
+		return false;
+
+	Serialized::ConstMemberIterator mIter = serObj.FindMember("Root");
+	if( mIter == serObj.MemberEnd() )
+		return false;
+
+	Serialized::ConstMemberIterator normIter = serObj.FindMember("Norm");
+	if( normIter == serObj.MemberEnd() )
+		return false;
+
+	BigBinaryInteger bbiNorm(normIter->value.GetString());
+
+	Serialized::ConstMemberIterator sizeIter = serObj.FindMember("VectorSize");
+	if( sizeIter == serObj.MemberEnd() )
+		return false;
+
+	int nElements = std::stoi(sizeIter->value.GetString());
+	std::vector<Element> elements(nElements);
+
+	Serialized::ConstMemberIterator typeIter = serObj.FindMember("VectorElementType");
+	if( typeIter == serObj.MemberEnd() )
+		return false;
+
+	std::string elType = typeIter->value.GetString();
+
+	if( typeid(Element) == typeid(ILVector2n) && elType != "ILVector2n" ) {
+		throw std::logic_error("Serialization Element type does not match this Ciphertext");
+	} else if( typeid(Element) == typeid(ILVectorArray2n) && elType != "ILVectorArray2n" ) {
+		throw std::logic_error("Serialization Element type does not match this Ciphertext");
+	}
+
+	Serialized::ConstMemberIterator elVec = serObj.FindMember("Elements");
+	if( elVec == serObj.MemberEnd() )
+		return false;
+
+	for( int i=0; i<nElements; i++ ) {
+		SerialItem::ConstMemberIterator elIter = elVec->value.FindMember( std::to_string(i) );
+		if( elIter == elVec->value.MemberEnd() ) {
+			return false;
+		}
+
+		Serialized::ConstMemberIterator findEl = elIter->value.FindMember( elType );
+		if( findEl == elIter->value.MemberEnd() ) {
+			return false;
+		}
+
+		Serialized el(rapidjson::kObjectType);
+		el.AddMember(SerialItem(elType,el.GetAllocator()), SerialItem(findEl->value,el.GetAllocator()), el.GetAllocator());
+		Element json_ilElement;
+		if( !json_ilElement.Deserialize( el ) )
+			return false;
+
+		elements[i] = json_ilElement;
+	}
+
+	this->SetNorm(bbiNorm);
+	this->SetElements(elements);
+
+	return true;
+}
 
 }  // namespace lbcrypto ends
 

@@ -31,11 +31,11 @@ using namespace lbcrypto;
 
 template<typename Element>
 struct TestJsonParms {
-	CryptoContext<Element>				*ctx;
-	LPPublicKey<Element>				*pk;
-	LPPrivateKey<Element>				*sk;
-	LPEvalKey<Element>					*evalKey;
-	LPPrivateKey<Element>				*newSK;
+	CryptoContext<Element>				ctx;
+	shared_ptr<LPPublicKey<Element>>	pk;
+	shared_ptr<LPPrivateKey<Element>>	sk;
+	shared_ptr<LPEvalKey<Element>>		evalKey;
+	shared_ptr<LPPrivateKey<Element>>	newSK;
 };
 
 template<typename Element> void testJson(const std::string cID, const BytePlaintextEncoding& newPtxt, TestJsonParms<Element> *p, bool skipReEncrypt = false);

@@ -39,7 +39,7 @@
 
 #include "../palisade.h"
 #include "../encoding/plaintext.h"
-//#include "../encoding/byteplaintextencoding.h"
+#include "../utils/cryptocontexthelper.h"
 
 namespace lbcrypto {
 
@@ -60,10 +60,6 @@ class CryptoContextImpl : public Serializable {
 	friend class CryptoContext<Element>;
 
 private:
-	/* these variables are used to initialize the CryptoContext - if they are not used they can get ditched */
-	usint				ringdim;		/*!< ring dimension */
-	BigBinaryInteger	ptmod;			/*!< plaintext modulus */
-
 	/* these three parameters get initialized when an instance is constructed; they are used by the context */
 	DiscreteGaussianGenerator	dgg;
 	DiscreteGaussianGenerator	dggStSt;	// unused unless we use StSt scheme
@@ -71,8 +67,8 @@ private:
 	shared_ptr<LPCryptoParameters<Element>>	params;	/*!< crypto parameters used for this context */
 	LPPublicKeyEncryptionScheme<Element>	*scheme;	/*!< algorithm used; points to keygen and encrypt/decrypt methods */
 
-	CryptoContextImpl() : scheme(0), ringdim(0) {}
-	CryptoContextImpl(shared_ptr<LPCryptoParameters<Element>> cp) : params(cp), scheme(0), ringdim(0) {}
+	CryptoContextImpl() : scheme(0) {}
+	CryptoContextImpl(shared_ptr<LPCryptoParameters<Element>> cp) : params(cp), scheme(0) {}
 
 public:
 	~CryptoContextImpl() {
@@ -80,7 +76,6 @@ public:
 	}
 
 	DiscreteGaussianGenerator& GetGenerator() { return dgg; }
-	//ILParams& GetILParams() { return *elemParams; }
 
 	/**
 	 *
@@ -94,12 +89,6 @@ public:
 	 */
 	LPPublicKeyEncryptionScheme<Element>* getScheme() const { return scheme; }
 
-	/**
-	 *
-	 * @return amount of padding that must be added
-	 */
-	usint getPadAmount() const { return ringdim/16 * (ptmod.GetMSB()-1); }
-
 	bool Serialize(Serialized* serObj, const std::string fileFlag = "") const { return false; }
 
 	bool SetIdFlag(Serialized* serObj, const std::string flag) const { return true; }
@@ -110,7 +99,6 @@ public:
 	* @return true on success
 	*/
 	bool Deserialize(const Serialized& serObj) { return false; }
-
 };
 
 /**
@@ -362,6 +350,10 @@ public:
 		return ciphertextResult;
 	}
 
+	shared_ptr<LPPublicKey<Element>>	deserializePublicKey(const Serialized& serObj);
+	shared_ptr<LPPrivateKey<Element>>	deserializeSecretKey(const Serialized& serObj);
+	shared_ptr<Ciphertext<Element>>		deserializeCiphertext(const Serialized& serObj);
+	shared_ptr<LPEvalKey<Element>>		deserializeEvalKey(const Serialized& serObj);
 };
 
 template <class Element>
