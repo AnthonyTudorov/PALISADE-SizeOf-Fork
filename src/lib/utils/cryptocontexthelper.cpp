@@ -108,13 +108,95 @@ buildContextFromSerialized(const map<string,string>& s)
 	return 0;
 }
 
+//declaration of DeserializeCryptoParameters function;
+template <typename Element>
+inline shared_ptr<LPCryptoParameters<Element>> DeserializeCryptoParameters(const Serialized &serObj);
+
+//declaration of DeserializeAndValidateCryptoParameters function;
+template <typename Element>
+inline shared_ptr<LPCryptoParameters<Element>> DeserializeAndValidateCryptoParameters(const Serialized& serObj, const LPCryptoParameters<Element>& curP);
+
+
+/** This function is used to deserialize the Crypto Parameters
+*
+* @param &serObj object to be serialized
+*
+* @return the parameters or null on failure
+*/
+template <typename Element>
+inline shared_ptr<LPCryptoParameters<Element>> DeserializeCryptoParameters(const Serialized &serObj)
+{
+	LPCryptoParameters<Element>* parmPtr = 0;
+
+	Serialized::ConstMemberIterator it = serObj.FindMember("LPCryptoParametersType");
+	if (it == serObj.MemberEnd()) return 0;
+	std::string type = it->value.GetString();
+
+	if (type == "LPCryptoParametersLTV") {
+		parmPtr = new LPCryptoParametersLTV<Element>();
+	}
+	else if (type == "LPCryptoParametersStehleSteinfeld") {
+		parmPtr = new LPCryptoParametersStehleSteinfeld<Element>();
+	}
+	else if (type == "LPCryptoParametersBV") {
+		parmPtr = new LPCryptoParametersBV<Element>();
+	}
+	else
+		return 0;
+
+	if (!parmPtr->Deserialize(serObj)) {
+		delete parmPtr;
+		return 0;
+	}
+
+	return shared_ptr<LPCryptoParameters<Element>>(parmPtr);
+}
+
+/** This function is used to deserialize the Crypto Parameters, to compare them to the existing parameters,
+* and to fail if they do not match
+*
+* @param &serObj object to be desrialized
+* @param &curP LPCryptoParameters to validate against
+*
+* @return the parameters or null on failure
+*/
+template <typename Element>
+inline shared_ptr<LPCryptoParameters<Element>> DeserializeAndValidateCryptoParameters(const Serialized& serObj, const LPCryptoParameters<Element>& curP)
+{
+	LPCryptoParameters<Element>* parmPtr = DeserializeCryptoParameters<Element>(serObj);
+
+	if (parmPtr == 0) return 0;
+
+	// make sure the deserialized parms match the ones in the current context
+	if (*parmPtr == curP)
+		return parmPtr;
+
+	delete parmPtr;
+	return 0;
+}
+
+
+template <class Element>
+bool
+CryptoContextHelper<Element>::matchContextToSerialization(const CryptoContext<Element> cc, const Serialized& ser)
+{
+	shared_ptr<LPCryptoParameters<Element>> ctxParams = cc.GetCryptoParameters();
+	shared_ptr<LPCryptoParameters<Element>> cParams = DeserializeCryptoParameters<Element>(ser);
+
+//	if( cParams == 0 ) return 0;
+//
+//	const ILParams& ep = dynamic_cast<const ILParams&>(cParams->GetElementParams());
+
+	return false;
+}
+
 template <class Element>
 CryptoContext<Element>
 CryptoContextHelper<Element>::getNewContextFromSerialization(const Serialized& ser)
 {
-	LPCryptoParameters<Element>* cParams = DeserializeCryptoParameters<Element>(ser);
+	shared_ptr<LPCryptoParameters<Element>> cParams = DeserializeCryptoParameters<Element>(ser);
 
-	if( cParams == 0 ) return 0;
+	if( !cParams ) return cParams;
 
 	const ILParams& ep = dynamic_cast<const ILParams&>(cParams->GetElementParams());
 
@@ -135,6 +217,8 @@ CryptoContextHelper<Element>::getNewContextFromSerialization(const Serialized& s
 	CryptoContext<Element> newCtx;
 	return newCtx;
 }
+
+
 
 template <class Element>
 CryptoContext<Element>
