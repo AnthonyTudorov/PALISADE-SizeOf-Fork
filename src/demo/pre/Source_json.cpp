@@ -55,8 +55,8 @@ void NTRUPRE(CryptoContext<ILVector2n>& ctx, bool);
 
 #include "../../lib/utils/serializablehelper.h"
 
-//#include "testJson.h"
-//#include "testJson.cpp"
+#include "testJson.h"
+#include "testJson.cpp"
 
 using namespace std;
 using namespace lbcrypto;

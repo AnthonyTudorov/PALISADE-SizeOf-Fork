@@ -102,7 +102,6 @@ public:
 	* @return true on success
 	*/
 	bool Deserialize(const Serialized& serObj) { return false; }
-
 };
 
 /**
