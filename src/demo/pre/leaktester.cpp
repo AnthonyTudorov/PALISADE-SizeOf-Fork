@@ -256,12 +256,8 @@ runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plainte
 		IntPlaintextEncoding outInt;
 		eResult = CryptoUtility<ILVector2n>::Encrypt(*ctx->getAlgorithm(), pk, inInt, &intCiphertext, doPadding);
 		dResult = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(), sk, intCiphertext, &outInt, doPadding);
-		if( inInt.size() != outInt.size() ) {
-			cout << "eResult " << eResult.isValid << ":" << eResult.numBytesEncrypted << ", " << intCiphertext.size() << endl;
-			cout << "dResult " << dResult.isValid << ":" << dResult.messageLength << endl;
-			cout << "Output is size " << outInt.GetLength() << endl;
-			cout << endl;
-		} else for( int i=0; i<inInt.size(); i++ ) {
+
+		for( int i=0; i<inInt.size(); i++ ) {
 			if( inInt.at(i) != outInt.at(i) ) {
 				cout << "integers at position " << i << " don't match" << endl;
 				break;

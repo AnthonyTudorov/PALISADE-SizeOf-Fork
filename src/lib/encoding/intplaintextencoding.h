@@ -85,7 +85,7 @@ public:
 	*/
 	void Decode(const BigBinaryInteger &modulus,  ILVector2n *ilVector);
 
-	void Unpad(const BigBinaryInteger &modulus);
+	void Unpad(const BigBinaryInteger &modulus) {} // a null op; no padding in int
 
 	size_t GetChunksize(const usint cyc, const BigBinaryInteger& ptm) const;
 
