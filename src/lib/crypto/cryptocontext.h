@@ -123,6 +123,8 @@ public:
 
 	operator bool() const { return bool(ctx); }
 
+	operator bool() const { return bool(ctx); }
+
 	void Enable(PKESchemeFeature feature) { ctx->getScheme()->Enable(feature); }
 
 	const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *ctx->getScheme(); }
