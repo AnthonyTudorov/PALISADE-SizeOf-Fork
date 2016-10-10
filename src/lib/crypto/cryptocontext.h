@@ -223,8 +223,8 @@ public:
 	{
 		bool padded = false;
 		BytePlaintextEncoding px;
-		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters().GetPlaintextModulus();
-		size_t chunkSize = px.GetChunksize(publicKey->GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), ptm);
+		const BigBinaryInteger& ptm = publicKey->GetCryptoContext().GetCryptoParameters()->GetPlaintextModulus();
+		size_t chunkSize = px.GetChunksize(publicKey->GetCryptoContext().GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), ptm);
 		char *ptxt = new char[chunkSize];
 
 		while( instream.good() ) {
@@ -240,11 +240,11 @@ public:
 				padded = true;
 			}
 
-			Element pt(publicKey->GetCryptoParameters().GetElementParams());
-			px.Encode(publicKey->GetCryptoParameters().GetPlaintextModulus(), &pt, 0, chunkSize);
+			Element pt(publicKey->GetCryptoParameters()->GetElementParams());
+			px.Encode(publicKey->GetCryptoParameters()->GetPlaintextModulus(), &pt, 0, chunkSize);
 			pt.SwitchFormat();
 
-			shared_ptr<Ciphertext<Element>> ciphertext = Encrypt(publicKey, pt);
+			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm().Encrypt(publicKey, pt);
 			if( !ciphertext ) {
 				delete ptxt;
 				return;
@@ -252,7 +252,7 @@ public:
 
 			Serialized cS;
 
-			if( ciphertext.Serialize(&cS, "ct") ) {
+			if( ciphertext->Serialize(&cS, "ct") ) {
 				if( !SerializableHelper::SerializationToStream(cS, outstream) ) {
 					delete ptxt;
 					return;
@@ -319,14 +319,14 @@ public:
 
 		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
 			shared_ptr<Ciphertext<Element>> ct;
-			if( (ct = deserializeCiphertext(serObj)) == true ) {
+			if( ct = deserializeCiphertext(serObj) ) {
 				Element decrypted;
-				DecryptResult res = Decrypt(privateKey, ct, &decrypted);
+				DecryptResult res = GetEncryptionAlgorithm().Decrypt(privateKey, ct, &decrypted);
 				if( !res.isValid )
 					return;
 				tot += res.messageLength;
 
-				pte[whichArray].Decode(privateKey->GetCryptoParameters().GetPlaintextModulus(), &decrypted);
+				pte[whichArray].Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
 
 				if( !firstTime ) {
 					outstream << pte[!whichArray];
@@ -340,7 +340,7 @@ public:
 		}
 
 		// unpad and write the last one
-		pte[!whichArray].Unpad(privateKey->GetCryptoParameters().GetPlaintextModulus());
+		pte[!whichArray].Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
 		outstream << pte[!whichArray];
 
 		return;
