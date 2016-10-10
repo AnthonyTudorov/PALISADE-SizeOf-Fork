@@ -1,8 +1,7 @@
 f=bin/demo/pre
-p=src/demo/pre/PalisadeCryptoContext.parms
 in=src/demo/pre/plaintextMessage
 h=LTV3
-g="-use $p $h"
+g="-use $h"
 
 echo try $h
 $f/palisade $g makekey publisher$h
