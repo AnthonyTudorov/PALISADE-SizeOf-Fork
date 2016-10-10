@@ -39,6 +39,7 @@
 
 #include "../palisade.h"
 #include "../encoding/plaintext.h"
+#include "../encoding/byteplaintextencoding.h"
 #include "../utils/cryptocontexthelper.h"
 
 namespace lbcrypto {
@@ -206,6 +207,66 @@ public:
 		return cipherResults;
 	}
 
+	/**
+	 * Perform an encryption by reading plaintext from a stream, serializing each piece of ciphertext,
+	 * and writing the serializations to an output stream
+	 * @param scheme - a reference to the encryption scheme in use
+	 * @param publicKey - the encryption key in use
+	 * @param instream - where to read the input from
+	 * @param ostream - where to write the serialization to
+	 * @return
+	 */
+	void EncryptStream(
+			const shared_ptr<LPPublicKey<Element>> publicKey,
+			std::istream& instream,
+			std::ostream& outstream)
+	{
+		bool padded = false;
+		BytePlaintextEncoding px;
+		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters().GetPlaintextModulus();
+		size_t chunkSize = px.GetChunksize(publicKey->GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), ptm);
+		char *ptxt = new char[chunkSize];
+
+		while( instream.good() ) {
+			instream.read(ptxt, chunkSize);
+			size_t nRead = instream.gcount();
+
+			if( nRead <= 0 && padded )
+				break;
+
+			BytePlaintextEncoding px(ptxt, nRead);
+
+			if( nRead < chunkSize ) {
+				padded = true;
+			}
+
+			Element pt(publicKey->GetCryptoParameters().GetElementParams());
+			px.Encode(publicKey->GetCryptoParameters().GetPlaintextModulus(), &pt, 0, chunkSize);
+			pt.SwitchFormat();
+
+			shared_ptr<Ciphertext<Element>> ciphertext = Encrypt(publicKey, pt);
+			if( !ciphertext ) {
+				delete ptxt;
+				return;
+			}
+
+			Serialized cS;
+
+			if( ciphertext.Serialize(&cS, "ct") ) {
+				if( !SerializableHelper::SerializationToStream(cS, outstream) ) {
+					delete ptxt;
+					return;
+				}
+			} else {
+				delete ptxt;
+				return;
+			}
+		}
+
+		delete ptxt;
+		return;
+	}
+
 	DecryptResult Decrypt(
 			const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
@@ -236,6 +297,55 @@ public:
 		return DecryptResult(plaintext->GetLength());
 	}
 
+	/**
+	 * read a stream for a sequence of serialized ciphertext; deserialize it, decrypt it, and write it to another stream
+	 * @param ctx - a pointer to the crypto context used in this session
+	 * @param privateKey - reference to the decryption key
+	 * @param instream - input stream with sequence of serialized ciphertexts
+	 * @param outstream - output stream for plaintext
+	 * @return
+	 */
+	void DecryptStream(
+			const shared_ptr<LPPrivateKey<Element>> privateKey,
+			std::istream& instream,
+			std::ostream& outstream)
+	{
+		Serialized serObj;
+		size_t tot = 0;
+
+		bool firstTime = true;
+		BytePlaintextEncoding pte[2];
+		bool whichArray = false;
+
+		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
+			shared_ptr<Ciphertext<Element>> ct;
+			if( (ct = deserializeCiphertext(serObj)) == true ) {
+				Element decrypted;
+				DecryptResult res = Decrypt(privateKey, ct, &decrypted);
+				if( !res.isValid )
+					return;
+				tot += res.messageLength;
+
+				pte[whichArray].Decode(privateKey->GetCryptoParameters().GetPlaintextModulus(), &decrypted);
+
+				if( !firstTime ) {
+					outstream << pte[!whichArray];
+					pte[!whichArray].clear();
+				}
+				firstTime = false;
+				whichArray = !whichArray;
+			}
+			else
+				return;
+		}
+
+		// unpad and write the last one
+		pte[!whichArray].Unpad(privateKey->GetCryptoParameters().GetPlaintextModulus());
+		outstream << pte[!whichArray];
+
+		return;
+	}
+
 	std::vector<shared_ptr<Ciphertext<Element>>> ReEncrypt(
 			shared_ptr<LPEvalKey<Element>> evalKey,
 			std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext)
@@ -251,6 +361,41 @@ public:
 		return newCiphertext;
 	}
 
+	/**
+	 * perform re-encryption using streams
+	 * @param ctx - a pointer to the crypto context used in this session
+	 * @param evalKey - reference to the re-encryption key
+	 * @param instream - input stream with sequence of serialized ciphertext
+	 * @param outstream - output stream with sequence of serialized re-encrypted ciphertext
+	 */
+	void ReEncryptStream(
+			const shared_ptr<LPEvalKey<Element>> evalKey,
+			std::istream& instream,
+			std::ostream& outstream)
+	{
+		Serialized serObj;
+
+		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
+			shared_ptr<Ciphertext<Element>> ct;
+			if( (ct = deserializeCiphertext(serObj)) == false ) {
+				std::vector<shared_ptr<Ciphertext<Element>>> allCt;
+				allCt.push_back(ct);
+				std::vector<shared_ptr<Ciphertext<Element>>> reCt = ReEncrypt(evalKey, allCt);
+
+				Serialized serReObj;
+				if( reCt[0]->Serialize(&serReObj, "re") ) {
+					SerializableHelper::SerializationToStream(serReObj, outstream);
+				}
+				else {
+					return; // error
+				}
+				allCt.clear();
+			}
+			else {
+				return;
+			}
+		}
+	}
 	/**
 	* perform KeySwitch on a vector of ciphertext
 	* @param scheme - a reference to the encryption scheme in use

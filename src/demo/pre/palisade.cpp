@@ -60,10 +60,10 @@ bool fetchItemFromSer(T* key, const string& filename, const CryptoContext<ILVect
 	return false;
 }
 
-typedef void (*cmdparser)(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]);
+typedef void (*cmdparser)(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]);
 
 void
-reencrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
+reencrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -73,8 +73,14 @@ reencrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) 
 	string rekeyname(argv[1]);
 	string reciphertextname(argv[2]);
 
-	LPEvalKeyNTRURelin<ILVector2n> evalKey(*ctx->getParams());
-	if( !fetchItemFromSer(&evalKey, rekeyname, ctx) ) {
+	Serialized	kser;
+	if( SerializableHelper::ReadSerializationFromFile(rekeyname, &kser) == false ) {
+		cerr << "Could not process re encryption key" << endl;
+		return;
+	}
+
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey = ctx.deserializeEvalKey(kser);
+	if( !evalKey ) {
 		cerr << "Could not process re encryption key" << endl;
 		return;
 	}
@@ -95,7 +101,7 @@ reencrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) 
 		return;
 	}
 
-	CryptoUtility<ILVector2n>::ReEncrypt(ctx, evalKey, inCt, outCt);
+	ctx.ReEncryptStream(evalKey, inCt, outCt);
 
 	inCt.close();
 	outCt.close();
@@ -103,7 +109,7 @@ reencrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) 
 }
 
 void
-decrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
+decrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -113,8 +119,14 @@ decrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 	string prikeyname(argv[1]);
 	string cleartextname(argv[2]);
 
-	LPPrivateKey<ILVector2n> sk(*ctx->getParams());
-	if( !fetchItemFromSer(&sk, prikeyname, ctx) ) {
+	Serialized	kser;
+	if( SerializableHelper::ReadSerializationFromFile(prikeyname, &kser) == false ) {
+		cerr << "Could not process private key" << endl;
+		return;
+	}
+
+	shared_ptr<LPPrivateKey<ILVector2n>> sk = ctx.deserializeSecretKey(kser);
+	if( !sk ) {
 		cerr << "Could not process private key" << endl;
 		return;
 	}
@@ -132,7 +144,7 @@ decrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	CryptoUtility<ILVector2n>::Decrypt(ctx, sk, inCt, outF);
+	ctx.DecryptStream(sk, inCt, outF);
 
 	inCt.close();
 	outF.close();
@@ -141,7 +153,7 @@ decrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 }
 
 void
-encrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
+encrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -157,10 +169,16 @@ encrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	// Initialize the public key containers.
-	LPPublicKey<ILVector2n> pk(*ctx->getParams());
+	Serialized	kser;
+	if( SerializableHelper::ReadSerializationFromFile(pubkeyname, &kser) == false ) {
+		cerr << "Could not process private key" << endl;
+		return;
+	}
 
-	if( !fetchItemFromSer(&pk, pubkeyname, ctx) ) {
+	// Initialize the public key containers.
+	shared_ptr<LPPublicKey<ILVector2n>> pk = ctx.deserializePublicKey(kser);
+
+	if( !pk ) {
 		cerr << "Could not process public key" << endl;
 		ctSer.close();
 		return;
@@ -174,11 +192,11 @@ encrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	EncryptResult er = CryptoUtility<ILVector2n>::Encrypt(*ctx->getAlgorithm(), pk, inf, ctSer);
+	ctx.EncryptStream(pk, inf, ctSer);
 
-	if( !er.isValid ) {
-		cerr << "failed to encrypt" << endl;
-	}
+//	if( !er.isValid ) {
+//		cerr << "failed to encrypt" << endl;
+//	}
 
 	inf.close();
 	ctSer.close();
@@ -186,7 +204,7 @@ encrypter(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 }
 
 void
-rekeymaker(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
+rekeymaker(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -196,26 +214,39 @@ rekeymaker(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 	string privname(argv[1]);
 	string rekeyname(argv[2]);
 
-	// Initialize the public key containers.
-	LPPublicKey<ILVector2n> pk(*ctx->getParams());
-	LPPrivateKey<ILVector2n> sk(*ctx->getParams());
-
-	if( !fetchItemFromSer(&pk, pubname, ctx) ) {
+	Serialized	kser;
+	if( SerializableHelper::ReadSerializationFromFile(pubname, &kser) == false ) {
 		cerr << "Could not process public key" << endl;
 		return;
 	}
 
-	if( !fetchItemFromSer(&sk, privname, ctx) ) {
+	// Initialize the public key containers.
+	shared_ptr<LPPublicKey<ILVector2n>> pk = ctx.deserializePublicKey(kser);
+
+	Serialized	kser2;
+	if( SerializableHelper::ReadSerializationFromFile(privname, &kser2) == false ) {
 		cerr << "Could not process private key" << endl;
 		return;
 	}
 
-	LPEvalKeyNTRURelin<ILVector2n> evalKey(*ctx->getParams());
+	shared_ptr<LPPrivateKey<ILVector2n>> sk = ctx.deserializeSecretKey(kser2);
 
-	if( CryptoUtility<ILVector2n>::ReKeyGen(*ctx->getAlgorithm(), pk, sk, &evalKey) ) {
+	if( !pk ) {
+		cerr << "Could not process public key" << endl;
+		return;
+	}
+
+	if( !sk ) {
+		cerr << "Could not process private key" << endl;
+		return;
+	}
+
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey = ctx.ReKeyGen(pk, sk);
+
+	if( evalKey ) {
 		Serialized evalK;
 
-		if( evalKey.Serialize(&evalK, rekeyname) ) {
+		if( evalKey->Serialize(&evalK, rekeyname) ) {
 			if( !SerializableHelper::WriteSerializationToFile(evalK, rekeyname) ) {
 				cerr << "Error writing serialization of recryption key to " + rekeyname << endl;
 				return;
@@ -233,7 +264,7 @@ rekeymaker(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 }
 
 void
-keymaker(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
+keymaker(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 1 ) {
 		usage(cmd, "missing keyname");
 		return;
@@ -242,13 +273,12 @@ keymaker(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 	string keyname(argv[0]);
 
 	// Initialize the public key containers.
-	LPPublicKey<ILVector2n> pk(*ctx->getParams());
-	LPPrivateKey<ILVector2n> sk(*ctx->getParams());
+	LPKeyPair<ILVector2n> kp = ctx.KeyGen();
 
-	if( CryptoUtility<ILVector2n>::KeyGen(*ctx->getAlgorithm(),&pk,&sk) ) {
+	if( kp.publicKey && kp.secretKey ) {
 		Serialized pubK, privK;
 
-		if( pk.Serialize(&pubK, keyname) ) {
+		if( kp.publicKey->Serialize(&pubK, keyname) ) {
 			if( !SerializableHelper::WriteSerializationToFile(pubK, keyname + "PUB.txt") ) {
 				cerr << "Error writing serialization of public key to " + keyname + "PUB.txt" << endl;
 				return;
@@ -259,7 +289,7 @@ keymaker(CryptoContext<ILVector2n> *ctx, string cmd, int argc, char *argv[]) {
 			return;
 		}
 
-		if( sk.Serialize(&privK, keyname) ) {
+		if( kp.secretKey->Serialize(&privK, keyname) ) {
 			if( !SerializableHelper::WriteSerializationToFile(privK, keyname + "PRI.txt") ) {
 				cerr << "Error writing serialization of private key to " + keyname + "PRI.txt" << endl;
 				return;
@@ -327,7 +357,7 @@ main( int argc, char *argv[] )
 		return 0;
 	}
 
-	CryptoContext<ILVector2n> *ctx = 0;
+	CryptoContext<ILVector2n> ctx;
 
 	int cmdidx = 1;
 	if( string(argv[1]) == "-use" && argc >= 4) {
@@ -339,16 +369,16 @@ main( int argc, char *argv[] )
 
 		cmdidx += 3;
 	}
-	else if( string(argv[1]) == "-from" && argc >= 3 ) {
-		Serialized	kser;
-		if( SerializableHelper::ReadSerializationFromFile(string(argv[2]), &kser) ) {
-			ctx = CryptoContextHelper<ILVector2n>::getNewContextFromSerialization(kser);
-		}
-
-		cmdidx += 2;
-	}
+//	else if( string(argv[1]) == "-from" && argc >= 3 ) {
+//		Serialized	kser;
+//		if( SerializableHelper::ReadSerializationFromFile(string(argv[2]), &kser) ) {
+//			ctx = CryptoContextHelper<ILVector2n>::getNewContextFromSerialization(kser);
+//		}
+//
+//		cmdidx += 2;
+//	}
 	else {
-		ctx = CryptoContext<ILVector2n>::genCryptoContextLTV(2, 2048, "268441601", "16947867", 1, 4);
+		ctx = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, 2048, "268441601", "16947867", 1, 4);
 	}
 
 	if( ctx == 0 ) {
