@@ -36,7 +36,7 @@ main(int argc, char *argv[])
 	std::cin >> input;
 
 	CryptoContext<ILVector2n> ctx = CryptoContextHelper<ILVector2n>::getNewContext(input);
-	if( ctx == 0 ) {
+	if( !ctx ) {
 		cout << "Error on " << input << endl;
 		return 0;
 	}
