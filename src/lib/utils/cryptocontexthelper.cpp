@@ -183,11 +183,11 @@ CryptoContextHelper<Element>::matchContextToSerialization(const CryptoContext<El
 	shared_ptr<LPCryptoParameters<Element>> ctxParams = cc.GetCryptoParameters();
 	shared_ptr<LPCryptoParameters<Element>> cParams = DeserializeCryptoParameters<Element>(ser);
 
-//	if( cParams == 0 ) return 0;
-//
-//	const ILParams& ep = dynamic_cast<const ILParams&>(cParams->GetElementParams());
+	if( !cParams ) return false;
 
-	return false;
+	std::cout << "trying to compare crypto params here..." << std::endl;
+
+	return *ctxParams == *cParams;
 }
 
 template <class Element>

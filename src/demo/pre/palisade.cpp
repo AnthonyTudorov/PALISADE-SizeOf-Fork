@@ -75,19 +75,19 @@ reencrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 
 	Serialized	kser;
 	if( SerializableHelper::ReadSerializationFromFile(rekeyname, &kser) == false ) {
-		cerr << "Could not process re encryption key" << endl;
+		cerr << "Could not read re encryption key" << endl;
 		return;
 	}
 
 	shared_ptr<LPEvalKey<ILVector2n>> evalKey = ctx.deserializeEvalKey(kser);
 	if( !evalKey ) {
-		cerr << "Could not process re encryption key" << endl;
+		cerr << "Could not deserialize re encryption key" << endl;
 		return;
 	}
 
 	ofstream outCt(reciphertextname, ios::binary);
 	if( !outCt.is_open() ) {
-		cerr << "Could not open re-encryption file";
+		cerr << "Could not open re-encryption output file";
 		return;
 	}
 
@@ -96,7 +96,7 @@ reencrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 
 	ifstream inCt(ciphertextname, ios::binary);
 	if( !inCt.is_open() ) {
-		cerr << "Could not process ciphertext" << endl;
+		cerr << "Could not open ciphertext input file" << endl;
 		outCt.close();
 		return;
 	}
@@ -121,13 +121,13 @@ decrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 
 	Serialized	kser;
 	if( SerializableHelper::ReadSerializationFromFile(prikeyname, &kser) == false ) {
-		cerr << "Could not process private key" << endl;
+		cerr << "Could not read private key" << endl;
 		return;
 	}
 
 	shared_ptr<LPPrivateKey<ILVector2n>> sk = ctx.deserializeSecretKey(kser);
 	if( !sk ) {
-		cerr << "Could not process private key" << endl;
+		cerr << "Could not decrypt private key" << endl;
 		return;
 	}
 
@@ -139,7 +139,7 @@ decrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 
 	ifstream inCt(ciphertextname, ios::binary);
 	if( !inCt.is_open() ) {
-		cerr << "Could not process ciphertext" << endl;
+		cerr << "Could not open ciphertext" << endl;
 		outF.close();
 		return;
 	}
@@ -171,7 +171,7 @@ encrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 
 	Serialized	kser;
 	if( SerializableHelper::ReadSerializationFromFile(pubkeyname, &kser) == false ) {
-		cerr << "Could not process private key" << endl;
+		cerr << "Could not read public key" << endl;
 		return;
 	}
 
@@ -179,7 +179,7 @@ encrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	shared_ptr<LPPublicKey<ILVector2n>> pk = ctx.deserializePublicKey(kser);
 
 	if( !pk ) {
-		cerr << "Could not process public key" << endl;
+		cerr << "Could not deserialize public key" << endl;
 		ctSer.close();
 		return;
 	}
@@ -216,7 +216,7 @@ rekeymaker(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 
 	Serialized	kser;
 	if( SerializableHelper::ReadSerializationFromFile(pubname, &kser) == false ) {
-		cerr << "Could not process public key" << endl;
+		cerr << "Could not read public key" << endl;
 		return;
 	}
 
@@ -225,19 +225,19 @@ rekeymaker(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 
 	Serialized	kser2;
 	if( SerializableHelper::ReadSerializationFromFile(privname, &kser2) == false ) {
-		cerr << "Could not process private key" << endl;
+		cerr << "Could not read private key" << endl;
 		return;
 	}
 
 	shared_ptr<LPPrivateKey<ILVector2n>> sk = ctx.deserializeSecretKey(kser2);
 
 	if( !pk ) {
-		cerr << "Could not process public key" << endl;
+		cerr << "Could not deserialize public key" << endl;
 		return;
 	}
 
 	if( !sk ) {
-		cerr << "Could not process private key" << endl;
+		cerr << "Could not deserialize private key" << endl;
 		return;
 	}
 
@@ -360,14 +360,14 @@ main( int argc, char *argv[] )
 	CryptoContext<ILVector2n> ctx;
 
 	int cmdidx = 1;
-	if( string(argv[1]) == "-use" && argc >= 4) {
-		ctx = 0; // CryptoContextHelper<ILVector2n>::getNewContext( string(argv[2]), string(argv[3]) );
-		if( ctx == 0 ) {
+	if( string(argv[1]) == "-use" && argc >= 3) {
+		ctx = CryptoContextHelper<ILVector2n>::getNewContext( string(argv[2]) );
+		if( !ctx ) {
 			usage("ALL", "Could not construct a crypto context");
 			return 1;
 		}
 
-		cmdidx += 3;
+		cmdidx += 2;
 	}
 //	else if( string(argv[1]) == "-from" && argc >= 3 ) {
 //		Serialized	kser;
@@ -381,7 +381,7 @@ main( int argc, char *argv[] )
 		ctx = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, 2048, "268441601", "16947867", 1, 4);
 	}
 
-	if( ctx == 0 ) {
+	if( !ctx ) {
 		usage("ALL", "Unable to create a crypto context");
 		return 1;
 	}
@@ -390,6 +390,9 @@ main( int argc, char *argv[] )
 		usage("ALL");
 		return 1;
 	}
+
+	ctx.Enable(ENCRYPTION);
+	ctx.Enable(PRE);
 
 	bool	rancmd = false;
 	string userCmd(argv[cmdidx]);
