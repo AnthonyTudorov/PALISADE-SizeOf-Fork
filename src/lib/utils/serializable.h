@@ -76,14 +76,16 @@ namespace lbcrypto {
 		/**
 		* Serialize the object into a Serialized
 		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param cryptoCtx is required for top-level objects
 		* @param fileFlag is an optional tag for the serialization
 		* @return true if successfully serialized
 		*/
 		virtual bool Serialize(Serialized* serObj, const std::string fileFlag = "") const = 0;
 
 		/**
-		* Higher level info about the serialization is saved here
+		* Higher level info about the serialization is saved here; this is only used for serializations
+		* of larger objects that are saved to a file. For cases of smaller objects that are part of larger objects,
+		* the default version (do nothing, return true) is used
+		*
 		* @param serObj to store the the implementing object's serialization specific attributes.
 		* @param flag an object-specific parameter for the serialization
 		* @return true on success
