@@ -216,6 +216,9 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 
 	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk2, newCiphertext, &intArrayNew);
 
+	//this step is needed because there is no marker for padding in the case of IntPlaintextEncoding
+	intArrayNew.resize(intArray.size());
+
 	EXPECT_EQ(intArray, intArrayNew);
 
 	ILVector2n::DestroyPreComputedSamples();

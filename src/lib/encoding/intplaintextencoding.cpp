@@ -107,11 +107,11 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *i
 
 	if( length == 0 ) length = this->size();
 
-//	// length is usually chunk size; if start + length would go past the end of the item, add padding
-//	if( (startFrom + length) > this->size() ) {
-//		padlen = (startFrom + length) - this->size();
-//		length = length - padlen;
-//	}
+	// length is usually chunk size; if start + length would go past the end of the item, add padding
+	if( (startFrom + length) > this->size() ) {
+		padlen = (startFrom + length) - this->size();
+		length = length - padlen;
+	}
 
 	BigBinaryVector temp(ilVector->GetParams().GetCyclotomicOrder()/2,ilVector->GetModulus());
 
@@ -125,12 +125,13 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *i
 		temp.SetValAtIndex(i, Val);
 	}
 
-//	BigBinaryInteger Num = modulus - BigBinaryInteger::ONE;
-//	for( usint i=0; i<padlen; i++ ) {
-//		temp.SetValAtIndex(i+length, Num);
-//		if( i == 0 )
-//			Num = BigBinaryInteger::ZERO;
-//	}
+	//BigBinaryInteger Num = modulus - BigBinaryInteger::ONE;
+	for( usint i=0; i<padlen; i++ ) {
+		temp.SetValAtIndex(i+length, BigBinaryInteger::ZERO);
+		//temp.SetValAtIndex(i + length, Num);
+		//if( i == 0 )
+		//	Num = BigBinaryInteger::ZERO;
+	}
 
 	ilVector->SetValues(temp,format);
 }

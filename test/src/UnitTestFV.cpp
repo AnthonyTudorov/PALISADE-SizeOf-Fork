@@ -176,13 +176,13 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	LPPublicKey<ILVector2n> pk(cryptoParams);
 	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
-	std::vector<usint> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
+	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	IntPlaintextEncoding plaintext1(vectorOfInts1);
 
-	std::vector<usint> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
+	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
 	IntPlaintextEncoding plaintext2(vectorOfInts2);
 
-	std::vector<usint> vectorOfIntsAdd = { 3,1,6,3,2,1,5,1 };
+	std::vector<uint32_t> vectorOfIntsAdd = { 3,1,6,3,2,2,5,1 };
 	IntPlaintextEncoding plaintextAdd(vectorOfIntsAdd);
 
 	////////////////////////////////////////////////////////////
@@ -210,7 +210,6 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	vector<Ciphertext<ILVector2n>> ciphertext2;
 	vector<Ciphertext<ILVector2n>> ciphertextAdd;
 
-
 	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext1, &ciphertext1, true);	
 	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext2, &ciphertext2, true);
 
@@ -221,7 +220,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	//YSP this is a workaround for now - I think we need to change EvalAdd to do this automatically
 	Ciphertext<ILVector2n> ciphertextTemp(ciphertext1[0]);
 
-	//YSP this needs to be switched to the Ciphertext class operation
+	//YSP this needs to be switched to the CryptoUtility operation
 	algorithm.EvalAdd(ciphertext1[0], ciphertext2[0], &ciphertextTemp);
 
 	ciphertextAdd.push_back(ciphertextTemp);
@@ -234,6 +233,9 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertextAdd, &plaintextNew, true);  // This is the core decryption operation.
 
-	EXPECT_EQ(plaintextAdd, plaintextNew);
+	//this step is needed because there is no marker for padding in the case of IntPlaintextEncoding
+	plaintextNew.resize(plaintextAdd.size());
+
+	EXPECT_EQ(plaintextAdd, plaintextNew) << "FV.EvalAdd gives incorrect results.\n";
 
 }
