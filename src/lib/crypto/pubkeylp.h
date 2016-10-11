@@ -663,33 +663,29 @@ namespace lbcrypto {
 			return true;
 		}
 
-//		/**
-//		* Populate the object from the deserialization of the Serialized
-//		* @param &serObj contains the serialized object
-//		* @return true on success
-//		*/
-//		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
+		/**
+		* Populate the object from the deserialization of the Serialized
+		* @param &serObj contains the serialized object
+		* @return true on success
+		*/
+		bool Deserialize(const Serialized &serObj) {
 //			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
 //			if (cryptoparams == 0) return false;
 //
 //			this->m_cryptoParameters = cryptoparams;
-//
-//			SerialItem::ConstMemberIterator it = serObj.FindMember("Vectors");
-//
-//			if( it == serObj.MemberEnd() ) {
-//				return false;
-//			}
-//
-//			std::vector<Element> newElements;
-//			if( DeserializeVector<Element>("Vectors", "ILVector2n", it, &newElements) ) {
-//				this->SetAVector(newElements);
-//				return true;
-//			}
-//
-//			return false;
-//		}
 
-		bool Deserialize(const Serialized &serObj) {
+			SerialItem::ConstMemberIterator it = serObj.FindMember("Vectors");
+
+			if( it == serObj.MemberEnd() ) {
+				return false;
+			}
+
+			std::vector<Element> newElements;
+			if( DeserializeVector<Element>("Vectors", "ILVector2n", it, &newElements) ) {
+				this->SetAVector(newElements);
+				return true;
+			}
+
 			return false;
 		}
 
@@ -940,29 +936,19 @@ namespace lbcrypto {
 		* @return true on success
 		*/
 		bool Deserialize(const Serialized &serObj) { 
-			return false;
-		}
-
-//		/**
-//		* Populate the object from the deserialization of the Setialized
-//		* @param &serObj contains the serialized object
-//		* @param *ctx
-//		* @return true on success
-//		*/
-//		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
 //			LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
 //			if (cryptoParams == 0) return false;
 //
 //			this->m_cryptoParameters = cryptoParams;
-//
-//			Element json_ilElement;
-//			if (json_ilElement.Deserialize(serObj)) {
-//				this->SetPrivateElement(json_ilElement);
-//				return true;
-//			}
-//			return false;
-//
-//		}
+
+			Element json_ilElement;
+			if (json_ilElement.Deserialize(serObj)) {
+				this->SetPrivateElement(json_ilElement);
+				return true;
+			}
+			return false;
+
+		}
 
 
 	private:
