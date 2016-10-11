@@ -393,9 +393,9 @@ CryptoContextFactory<T>::getCryptoContextNull()
 {
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
-	shared_ptr<ElemParams> ep( new ILParams(4096, BigBinaryInteger::ONE, BigBinaryInteger::ONE) );
+	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
-	LPCryptoParametersNull<T>* params = new LPCryptoParametersNull<T>(ep, BigBinaryInteger::TWO);
+	LPCryptoParametersNull<T>* params = new LPCryptoParametersNull<T>(ep, BigBinaryInteger(plaintextmodulus));
 
 	item.ctx->params.reset( params );
 
