@@ -286,30 +286,20 @@ namespace lbcrypto {
 			* @return true on success
 			*/
 			bool Deserialize(const Serialized &serObj) { 
-				return false;
-			}
 
-//			/**
-//			* Populate the object from the deserialization of the Serialized
-//			* @param &serObj contains the serialized object
-//			* @param *ctx
-//			* @return true on success
-//			*/
-//			bool Deserialize(const Serialized& serObj, const CryptoContext<Element> *ctx) { //TODO: @Gerard Ryan, complete doxygen documentation
-//
 //				LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
 //				if (cryptoParams == 0) return false;
 //
 //				this->m_cryptoParameters = cryptoParams;
-//
-//				Element json_ilElement;
-//				if (json_ilElement.Deserialize(serObj)) {
-//					this->SetPublicElementAtIndex(0,json_ilElement);
-//					return true;
-//				}
-//
-//				return false;
-//			}
+
+				Element json_ilElement;
+				if (json_ilElement.Deserialize(serObj)) {
+					this->SetPublicElementAtIndex(0,json_ilElement);
+					return true;
+				}
+
+				return false;
+			}
 
 	private:
 		std::vector<Element> m_h;
@@ -1285,12 +1275,12 @@ namespace lbcrypto {
 		*/
 		void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) { m_plaintextModulus = plaintextModulus; }
 			
-		/**
-			* Sets the reference to element params
-			*/
-		void SetElementParams(shared_ptr<ElemParams> params) { m_params = params; }
-
 		virtual bool operator==(const LPCryptoParameters<Element>& cmp) const = 0;
+
+		/**
+		 * Sets the reference to element params
+		 */
+		void SetElementParams(shared_ptr<ElemParams> params) { m_params = params; }
 
 	protected:
 		LPCryptoParameters() : m_plaintextModulus(BigBinaryInteger::TWO) {}

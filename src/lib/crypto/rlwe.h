@@ -225,13 +225,13 @@ public:
 	 *
 	 * @param &rhs LPCryptoParameters to check equality against.
 	 */
-	virtual bool operator==(const LPCryptoParameters<Element> &rhs) const {
+	bool operator==(const LPCryptoParameters<Element> &rhs) const {
 		const LPCryptoParametersRLWE<Element> *el = dynamic_cast<const LPCryptoParametersRLWE<Element> *>(&rhs);
 
 		if( el == 0 ) return false;
 
 		return  this->GetPlaintextModulus() == el->GetPlaintextModulus() &&
-				this->GetElementParams() == el->GetElementParams() &&
+				*this->GetElementParams() == *el->GetElementParams() &&
 				m_distributionParameter == el->GetDistributionParameter() &&
 				m_assuranceMeasure == el->GetAssuranceMeasure() &&
 				m_securityLevel == el->GetSecurityLevel() &&
@@ -240,7 +240,7 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& os, const LPCryptoParametersRLWE<Element>& item) {
 		os << "Plaintext modulus " << item.GetPlaintextModulus() << std::endl;
-		os<< item.GetElementParams();
+		os<< *item.GetElementParams();
 
 		os << "Distrib parm " << item.GetDistributionParameter() <<
 				", Assurance measure " << item.GetAssuranceMeasure() <<
@@ -307,8 +307,8 @@ protected:
 			return false;
 		}
 
-		// FIXME
-		// this->SetElementParams(*json_ilParams);
+		shared_ptr<ElemParams> ep( json_ilParams );
+		this->SetElementParams( ep );
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;
