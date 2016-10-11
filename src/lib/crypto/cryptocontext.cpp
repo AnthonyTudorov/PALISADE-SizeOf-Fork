@@ -417,6 +417,7 @@ CryptoContext<T>::deserializePublicKey(const Serialized& serObj)
 	if( key->Deserialize(serObj) )
 		return key;
 
+	std::cout << "context did not deserialize" << std::endl;
 	return shared_ptr<LPPublicKey<T>>();
 }
 
