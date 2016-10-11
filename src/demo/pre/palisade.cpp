@@ -369,14 +369,14 @@ main( int argc, char *argv[] )
 
 		cmdidx += 2;
 	}
-//	else if( string(argv[1]) == "-from" && argc >= 3 ) {
-//		Serialized	kser;
-//		if( SerializableHelper::ReadSerializationFromFile(string(argv[2]), &kser) ) {
-//			ctx = CryptoContextHelper<ILVector2n>::getNewContextFromSerialization(kser);
-//		}
-//
-//		cmdidx += 2;
-//	}
+	else if( string(argv[1]) == "-from" && argc >= 3 ) {
+		Serialized	kser;
+		if( SerializableHelper::ReadSerializationFromFile(string(argv[2]), &kser) ) {
+			ctx = CryptoContextHelper<ILVector2n>::getNewContextFromSerialization(kser);
+		}
+
+		cmdidx += 2;
+	}
 	else {
 		ctx = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, 2048, "268441601", "16947867", 1, 4);
 	}
