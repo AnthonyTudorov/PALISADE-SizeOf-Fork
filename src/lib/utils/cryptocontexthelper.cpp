@@ -185,8 +185,6 @@ CryptoContextHelper<Element>::matchContextToSerialization(const CryptoContext<El
 
 	if( !cParams ) return false;
 
-	std::cout << "trying to compare crypto params here..." << std::endl;
-
 	return *ctxParams == *cParams;
 }
 
@@ -194,28 +192,28 @@ template <class Element>
 CryptoContext<Element>
 CryptoContextHelper<Element>::getNewContextFromSerialization(const Serialized& ser)
 {
+	CryptoContext<Element> emptyCtx;
 	shared_ptr<LPCryptoParameters<Element>> cParams = DeserializeCryptoParameters<Element>(ser);
 
-	if( !cParams ) return cParams;
+	if( !cParams ) return emptyCtx;
 
-	const ILParams& ep = dynamic_cast<const ILParams&>(cParams->GetElementParams());
+	const shared_ptr<ILParams> ep = std::static_pointer_cast<ILParams>(cParams->GetElementParams());
 
 	// see what kind of parms we have here...
-	LPCryptoParametersLTV<Element> *ltvp = dynamic_cast<LPCryptoParametersLTV<Element> *>(cParams);
-	LPCryptoParametersStehleSteinfeld<Element> *ststp = dynamic_cast<LPCryptoParametersStehleSteinfeld<Element> *>(cParams);
+	shared_ptr<LPCryptoParametersLTV<Element>> ltvp = std::static_pointer_cast<LPCryptoParametersLTV<Element>>(cParams);
+	shared_ptr<LPCryptoParametersStehleSteinfeld<Element>> ststp = std::static_pointer_cast<LPCryptoParametersStehleSteinfeld<Element>>(cParams);
 
-	if( ststp != 0 ){
-		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(cParams->GetPlaintextModulus().ConvertToInt(), ep.GetCyclotomicOrder(),
-				ep.GetModulus().ToString(), ep.GetRootOfUnity().ToString(), ststp->GetRelinWindow(), ststp->GetDistributionParameter(), ststp->GetDistributionParameterStSt());
+	if( ststp ){
+		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(cParams->GetPlaintextModulus().ConvertToInt(), ep->GetCyclotomicOrder(),
+				ep->GetModulus().ToString(), ep->GetRootOfUnity().ToString(), ststp->GetRelinWindow(), ststp->GetDistributionParameter(), ststp->GetDistributionParameterStSt());
 	}
-	else if( ltvp != 0 ) {
-		return CryptoContextFactory<Element>::genCryptoContextLTV(cParams->GetPlaintextModulus().ConvertToInt(), ep.GetCyclotomicOrder(),
-				ep.GetModulus().ToString(), ep.GetRootOfUnity().ToString(), ltvp->GetRelinWindow(), ltvp->GetDistributionParameter());
+	else if( ltvp ) {
+		return CryptoContextFactory<Element>::genCryptoContextLTV(cParams->GetPlaintextModulus().ConvertToInt(), ep->GetCyclotomicOrder(),
+				ep->GetModulus().ToString(), ep->GetRootOfUnity().ToString(), ltvp->GetRelinWindow(), ltvp->GetDistributionParameter());
 	}
 
 	// empty one
-	CryptoContext<Element> newCtx;
-	return newCtx;
+	return emptyCtx;
 }
 
 
