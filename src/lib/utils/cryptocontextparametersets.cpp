@@ -131,7 +131,11 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 		} },
 
 		{ "Null", {
-				{ "parameters", "Null" }
+				{ "parameters", "Null" },
+				{ "plaintextModulus", "256" },
+				{ "ring", "8192" },
+				{ "modulus", "1" },
+				{ "rootOfUnity", "1" },
 		} }
 
 };

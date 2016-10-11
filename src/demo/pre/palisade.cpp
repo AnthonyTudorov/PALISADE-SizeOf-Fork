@@ -91,9 +91,6 @@ reencrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	Ciphertext<ILVector2n> ciphertext;
-	Ciphertext<ILVector2n> newCiphertext;
-
 	ifstream inCt(ciphertextname, ios::binary);
 	if( !inCt.is_open() ) {
 		cerr << "Could not open ciphertext input file" << endl;
