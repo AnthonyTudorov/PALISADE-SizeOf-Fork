@@ -369,6 +369,29 @@ public:
 	BigBinaryVector MultiplyAndRound(const IntegerType &p, const IntegerType &q) const;
 
 	/**
+	* Multiply and Rounding operation for a product of two polynomials. Returns [this*v*p/q] where [] is the rounding operation.
+	*
+	* @param v is the polynomial multiplicand.
+	* @param p is the integer multiplicand.
+	* @param q is the integer divisor.
+	* @return the result of multiply and round.
+	*/
+	BigBinaryVector MultiplyAndRound(const BigBinaryVector &v, const IntegerType &p, const IntegerType &q) const;
+
+	/**
+	* Multiply and Rounding operation for a sum of two polynomial products. Returns [(this*v1+v2*v3)*p/q] where [] is the rounding operation.
+	*
+	* @param v1 is the first polynomial.
+	* @param v2 is the second polynomial
+	* @param v3 is the third polynomial.
+	* @param p is the integer multiplicand.
+	* @param q is the integer divisor.
+	* @return the result of multiply and round.
+	*/
+	BigBinaryVector MultiplyAndRound(const BigBinaryVector &v1, const BigBinaryVector &v2, const BigBinaryVector &v3, const IntegerType &p, const IntegerType &q) const;
+
+
+	/**
 	* Divide and Rounding operation on a bigBinaryInteger x. Returns [x/q] where [] is the rounding operation.
 	*
 	* @param q is the denominator to be divided.

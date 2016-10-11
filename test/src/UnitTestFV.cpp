@@ -140,11 +140,15 @@ TEST(UTFV, ILVector2n_FV_Encrypt_Decrypt) {
 TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 	usint m = 2048;
-	BigBinaryInteger modulus("268441601");
-	BigBinaryInteger rootOfUnity("16947867");
+	BigBinaryInteger modulus("8589987841");
+	BigBinaryInteger rootOfUnity("2678760785");
+
+	//BigBinaryInteger modulus("1267650600228229401496703385601");
+	//BigBinaryInteger rootOfUnity("540976213121087081496420385771");
+
 	usint relWindow = 1;
 
-	BigBinaryInteger plaintextModulus(BigBinaryInteger("16"));
+	BigBinaryInteger plaintextModulus(BigBinaryInteger("64"));
 
 	float stdDev = 4;
 
@@ -184,6 +188,9 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 	std::vector<uint32_t> vectorOfIntsAdd = { 3,1,6,3,2,2,5,1 };
 	IntPlaintextEncoding plaintextAdd(vectorOfIntsAdd);
+
+	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
+	IntPlaintextEncoding plaintextMult(vectorOfIntsMult);
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
@@ -237,5 +244,36 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	plaintextNew.resize(plaintextAdd.size());
 
 	EXPECT_EQ(plaintextAdd, plaintextNew) << "FV.EvalAdd gives incorrect results.\n";
+
+	////////////////////////////////////////////////////////////
+	//EvalMult Operation
+	////////////////////////////////////////////////////////////
+
+	LPEvalKeyRelin<ILVector2n> evalKey(cryptoParams);
+
+	//generate the evaluate key
+	algorithm.RelinKeyGen(sk, &evalKey);
+
+	vector<Ciphertext<ILVector2n>> ciphertextMult;
+
+	//YSP this is a workaround for now - I think we need to change EvalAdd to do this automatically
+	Ciphertext<ILVector2n> ciphertextTempMult(ciphertext1[0]);
+
+	//YSP this needs to be switched to the CryptoUtility operation
+	algorithm.EvalMult(ciphertext1[0], ciphertext2[0], evalKey, &ciphertextTempMult);
+
+	ciphertextMult.push_back(ciphertextTempMult);
+
+	IntPlaintextEncoding plaintextNewMult;
+
+	////////////////////////////////////////////////////////////
+	//Decryption after EvalMult Operation
+	////////////////////////////////////////////////////////////
+
+	result = CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertextMult, &plaintextNewMult, true);  // This is the core decryption operation.	
+																														//this step is needed because there is no marker for padding in the case of IntPlaintextEncoding
+	plaintextNewMult.resize(plaintextMult.size());
+
+	EXPECT_EQ(plaintextMult, plaintextNewMult) << "FV.EvalMult gives incorrect results.\n";
 
 }

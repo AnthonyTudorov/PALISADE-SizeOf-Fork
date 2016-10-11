@@ -1507,11 +1507,11 @@ namespace lbcrypto {
 
 		//wrapper for EvalMult method
 		void EvalMult(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext, const LPEvalKey<Element> &evalKey) const {
+				const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &evalKey,
+				Ciphertext<Element> *newCiphertext) const {
 					
 					if(this->IsEnabled(SHE))
-						this->m_algorithmSHE->EvalMult(ciphertext1,ciphertext2,newCiphertext, evalKey);
+						this->m_algorithmSHE->EvalMult(ciphertext1,ciphertext2, evalKey, newCiphertext);
 					else{
 						throw std::logic_error("This operation is not supported");
 					}
