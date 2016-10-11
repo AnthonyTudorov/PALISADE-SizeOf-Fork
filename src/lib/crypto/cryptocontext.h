@@ -379,7 +379,8 @@ public:
 
 		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
 			shared_ptr<Ciphertext<Element>> ct;
-			if( (ct = deserializeCiphertext(serObj)) == false ) {
+			ct = deserializeCiphertext(serObj);
+			if( ct ) {
 				std::vector<shared_ptr<Ciphertext<Element>>> allCt;
 				allCt.push_back(ct);
 				std::vector<shared_ptr<Ciphertext<Element>>> reCt = ReEncrypt(evalKey, allCt);
@@ -524,7 +525,9 @@ public:
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev, float stDevStSt);
 
-	static CryptoContext<Element> getCryptoContextNull();
+	static CryptoContext<Element> getCryptoContextNull(
+			const usint plaintextmodulus,
+			usint ringdim, const std::string& modulus, const std::string& rootOfUnity);
 
 	// helpers for deserialization of contexts
 	static shared_ptr<LPCryptoParameters<Element>> GetParameterObject( const Serialized& serObj ) {
@@ -546,7 +549,7 @@ public:
 				return shared_ptr<LPCryptoParameters<Element>>( new LPCryptoParametersStehleSteinfeld<Element>() );
 			}
 			else if( parmstype == "LPCryptoParametersNull" ) {
-				return shared_ptr<LPCryptoParameters<Element>>( new LPCryptoParametersBV<Element>() );
+				return shared_ptr<LPCryptoParameters<Element>>( new LPCryptoParametersNull<Element>() );
 			}
 		}
 

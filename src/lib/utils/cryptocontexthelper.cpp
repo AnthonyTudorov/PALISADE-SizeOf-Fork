@@ -102,7 +102,13 @@ buildContextFromSerialized(const map<string,string>& s)
 				modulus, rootOfUnity, stoul(relinWindow), stof(stDev), stof(stDevStSt));
 	}
 	else if( parmtype == "Null" ) {
-		return CryptoContextFactory<Element>::getCryptoContextNull();
+		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
+				!getValueForName(s, "ring", ring) ||
+				!getValueForName(s, "modulus", modulus) ||
+				!getValueForName(s, "rootOfUnity", rootOfUnity) ) {
+			return 0;
+		}
+		return CryptoContextFactory<Element>::getCryptoContextNull(stoul(plaintextModulus), stoul(ring), modulus, rootOfUnity);
 	}
 
 	return 0;
