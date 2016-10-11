@@ -340,7 +340,7 @@ namespace lbcrypto {
 	//}
 
 	const ILVector2n& ILVector2n::operator+=(const ILVector2n &element) {
-		if(!(this->m_params == element.m_params))
+		if(!(*this->m_params == *element.m_params))
         	throw std::logic_error("operator+= called on ILVector2n's with different params.");
 		
 		if (m_values == NULL)
@@ -351,7 +351,7 @@ namespace lbcrypto {
 	}
 
 	const ILVector2n& ILVector2n::operator-=(const ILVector2n &element) {
-    	if(!(this->m_params == element.m_params))
+    	if(!(*this->m_params == *element.m_params))
     		throw std::logic_error("operator-= called on ILVector2n's with different params.");
     	if (m_values == NULL)
 			m_values = new BigBinaryVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
@@ -364,7 +364,7 @@ namespace lbcrypto {
     	if(m_format != Format::EVALUATION || element.m_format != Format::EVALUATION)
     		throw std::logic_error("operator*= for ILVector2n is supported only in EVALUATION format.\n");
     	
-    	if(!(this->m_params == element.m_params))
+    	if(!(*this->m_params == *element.m_params))
     		throw std::logic_error("operator*= called on ILVector2n's with different params.");
     	
     	if (m_values == NULL)
@@ -651,11 +651,10 @@ namespace lbcrypto {
 		Serialized parm(rapidjson::kObjectType);
 		parm.AddMember(SerialItem(pIt->name,parm.GetAllocator()), SerialItem(pIt->value,parm.GetAllocator()), parm.GetAllocator());
 
-		// FIXME
-//		ILParams json_ilParams;
-//		if( !json_ilParams.Deserialize(parm) )
-//			return false;
-//		m_params = json_ilParams;
+		shared_ptr<ILParams> json_ilParams( new ILParams() );
+		if( !json_ilParams->Deserialize(parm) )
+			return false;
+		m_params = json_ilParams;
 
 		usint vectorLength = this->m_params->GetCyclotomicOrder() / 2;
 
