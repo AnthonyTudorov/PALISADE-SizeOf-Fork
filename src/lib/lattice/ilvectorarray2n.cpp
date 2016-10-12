@@ -195,7 +195,7 @@ namespace lbcrypto {
 			modulus = dcrtParams.GetModuli()[i];
 			rootOfUnity = dcrtParams.GetRootsOfUnity()[i];
 
-			ILParams ilParams(params.GetCyclotomicOrder(), modulus, rootOfUnity);
+			shared_ptr<ILParams> ilParams(new ILParams(dcrtParams.GetCyclotomicOrder(), modulus, rootOfUnity));
 			ILVector2n ilvector(ilParams);
 
 			//BigBinaryVector ilDggValues(params.GetCyclotomicOrder() / 2, modulus);
@@ -291,6 +291,66 @@ namespace lbcrypto {
 		return tmp;
 	}
 
+	std::vector<ILVectorArray2n> ILVectorArray2n::BaseDecompose(usint baseBits) const {
+		
+		std::vector< std::vector<ILVector2n> > baseDecomposeElementWise;
+
+		std::vector<ILVectorArray2n> result;
+
+		ILVectorArray2n zero(this->CloneWithParams());
+		zero = { 0,0 };
+				
+		for (usint i= 0 ; i <  this->m_vectors.size(); i++) {
+			baseDecomposeElementWise.push_back(std::move(this->m_vectors.at(i).BaseDecompose(baseBits)));
+		}
+
+		usint maxTowerVectorSize = baseDecomposeElementWise.back().size();
+
+		for (usint i = 0; i < maxTowerVectorSize; i++) {
+			ILVectorArray2n temp;
+			for (usint j = 0; j < this->m_vectors.size(); j++) {
+				if (i<baseDecomposeElementWise.at(j).size())
+					temp.m_vectors.insert(temp.m_vectors.begin()+j,baseDecomposeElementWise.at(j).at(i));
+				else
+					temp.m_vectors.insert(temp.m_vectors.begin() + j, zero.m_vectors.at(j));
+			}
+			result.push_back(std::move(temp));
+		}
+
+		return std::move(result);
+
+	}
+
+	std::vector<ILVectorArray2n> ILVectorArray2n::PowersOfBase(usint baseBits) const {
+
+		std::vector<ILVectorArray2n> result;
+
+		std::vector< std::vector<ILVector2n> > towerVals;
+
+		ILVectorArray2n zero(this->CloneWithParams());
+		zero = {0,0};
+		
+
+		for (usint i = 0; i < this->m_vectors.size(); i++) {
+			towerVals.insert(towerVals.begin()+i,std::move(this->m_vectors[i].PowersOfBase(baseBits)) );
+		}
+
+		usint maxTowerVectorSize = towerVals.back().size();
+
+		for (usint i = 0; i < maxTowerVectorSize; i++) {
+			ILVectorArray2n temp;
+			for (usint j = 0; j < this->m_vectors.size(); j++) {
+				if(i<towerVals.at(j).size())
+					temp.m_vectors.insert(temp.m_vectors.begin()+j,towerVals.at(j).at(i));
+				else
+					temp.m_vectors.insert(temp.m_vectors.begin() + j, zero.m_vectors.at(j));
+			}
+			result.push_back(std::move(temp));
+		}
+
+		return std::move(result);
+	}
+
 	/*VECTOR OPERATIONS*/
 
 	ILVectorArray2n ILVectorArray2n::MultiplicativeInverse() const
@@ -333,6 +393,17 @@ namespace lbcrypto {
 		return tmp;
 	}
 
+	ILVectorArray2n ILVectorArray2n::Negate() const {
+		ILVectorArray2n tmp(this->CloneWithParams());
+		tmp.m_vectors.clear();
+
+		for (usint i = 0; i < this->m_vectors.size(); i++) {
+			tmp.m_vectors.push_back(std::move(this->m_vectors.at(i).Negate()));
+		}
+
+		return tmp;
+	}
+
 	ILVectorArray2n ILVectorArray2n::Minus(const ILVectorArray2n &element) const {
 		ILVectorArray2n tmp(*this);
 
@@ -356,6 +427,16 @@ namespace lbcrypto {
 			this->m_vectors.at(i) -= rhs.GetElementAtIndex(i);
 		}
 		return *this;
+
+	}
+
+	const ILVectorArray2n& ILVectorArray2n::operator*=(const ILVectorArray2n &element) {
+		for (usint i = 0; i < this->m_vectors.size(); i++) {
+			this->m_vectors.at(i) *= element.m_vectors.at(i);
+		}
+
+		return *this;
+
 	}
 
 	const ILVectorArray2n& ILVectorArray2n::operator*=(const ILVectorArray2n &rhs) {
@@ -493,8 +574,13 @@ namespace lbcrypto {
           return this->Minus(rhs); //TODO-OPTIMIZE
 	}
 
-	const ILVectorArray2n& ILVectorArray2n::operator*=(const BigBinaryInteger &rhs){
-          return this->Times(rhs); //TODO-OPTIMIZE
+
+	const ILVectorArray2n& ILVectorArray2n::operator*=(const BigBinaryInteger &element) {
+		for (usint i = 0; i < this->m_vectors.size(); i++) {
+			this->m_vectors.at(i) *= element;
+		}
+
+		return *this;
 	}
 
 	/*OTHER FUNCTIONS*/

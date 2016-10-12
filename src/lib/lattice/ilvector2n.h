@@ -119,14 +119,14 @@ namespace lbcrypto {
         /**
          *  Create lambda that allocates a zeroed element for the case when it is called from a templated class
          */
-        inline static function<unique_ptr<ILVector2n>()> MakeAllocator(const shared_ptr<ElemParams> params, Format format) {
-            return [=]() {
-            	shared_ptr<ILParams> ip = std::dynamic_pointer_cast<ILParams>( params );
-            	if( ip == 0 )
-            		throw std::logic_error("MakeAllocator was not passed an ILParams");
+		inline static function<unique_ptr<ILVector2n>()> MakeAllocator(const shared_ptr<ElemParams> params, Format format) {
+			return [=]() {
+				shared_ptr<ILParams> ip = std::dynamic_pointer_cast<ILParams>(params);
+				if (ip == 0)
+					throw std::logic_error("MakeAllocator was not passed an ILParams");
 				return lbcrypto::make_unique<ILVector2n>(ip, format, true);
-            };
-        }
+			};
+		}
 
 		/**
 		* Allocator for discrete uniform distribution.
@@ -461,6 +461,12 @@ namespace lbcrypto {
 		* @return is the result of the multiplication.
 		*/
 		//ILVector2n TimesNoMod(const ILVector2n &element) const;
+		/**
+		* Performs a negation operation and returns the result.
+		*
+		* @return is the result of the negation.
+		*/
+		ILVector2n Negate() const;
 
 		/**
 		* Performs an addition operation and returns the result.
@@ -599,7 +605,7 @@ namespace lbcrypto {
 		* @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
 		* @result is the pointer where the base decomposition vector is stored
 		*/
-		void BaseDecompose(usint baseBits, std::vector<ILVector2n> *result) const;
+		std::vector<ILVector2n> BaseDecompose(usint baseBits) const;
 
 		/**
 		* Generate a vector of ILVector2n's as {x, base*x, base^2*x, ..., base^{\lfloor {\log q/base} \rfloor}*x, where x is the current ILVector2n object;

@@ -83,74 +83,89 @@ int main() {
 
 void EvalMultTest() {
 	
-	usint m = 8;
+	usint init_m = 8;
 
-	float stdDev = 4;
+	float init_stdDev = 4;
 
-	BigBinaryInteger q("500000");
+	usint init_size = 3;
+
+	vector<BigBinaryInteger> init_moduli(init_size);
+
+	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
+
+	BigBinaryInteger q("2199023288321");
 	BigBinaryInteger temp;
+	BigBinaryInteger modulus("1");
 
-	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
-	DiscreteGaussianGenerator dgg(stdDev);
-	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	ILParams params(m, q, RootOfUnity(m, q));
+	for (int i = 0; i < init_size; i++) {
+		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, init_m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		init_moduli[i] = q;
+		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
+		modulus = modulus* init_moduli[i];
+		cout << "modulus: " << init_moduli[i] << endl;
+		cout << "root: " << init_rootsOfUnity[i] << endl;
+	}
+
+	DiscreteGaussianGenerator dgg(init_stdDev);
+	ILDCRTParams params(init_m, init_moduli, init_rootsOfUnity);
+	
 
 	//	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(dgg, params);
 
-	LPCryptoParametersBV<ILVector2n> cryptoParams;
+	LPCryptoParametersBV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE); // Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	cryptoParams.SetRelinWindow(8);						   // Set the relinearization window
+	cryptoParams.SetDistributionParameter(init_stdDev);          // Set the noise parameters.
+	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
+	cryptoParams.SetAssuranceMeasure(6);
+	cryptoParams.SetDepth(init_size - 1);
+	cryptoParams.SetSecurityLevel(1.006);
 
 															//Initialize the public key containers.
-	LPPublicKey<ILVector2n> pk(cryptoParams);
-	LPPrivateKey<ILVector2n> sk(cryptoParams);
+	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
+	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
 
 	std::vector<usint> vectorOfInts1 = { 4,0,0,0 };
 	
 	IntPlaintextEncoding intArray1(vectorOfInts1);
 
-	std::vector<usint> vectorOfInts2 = { 3,0,0,0 };
+	std::vector<usint> vectorOfInts2 = { 2,0,0,0 };
 	
 	IntPlaintextEncoding intArray2(vectorOfInts2);
 	
 
-	LPPublicKeyEncryptionSchemeBV<ILVector2n> algorithm;
+	LPPublicKeyEncryptionSchemeBV<ILVectorArray2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(SHE);
 	algorithm.Enable(LEVELEDSHE);
 
 	algorithm.KeyGen(&pk, &sk);
 
-	vector<Ciphertext<ILVector2n>> ciphertext1;
-	vector<Ciphertext<ILVector2n>> ciphertext2;
+	vector<Ciphertext<ILVectorArray2n>> ciphertext1;
+	vector<Ciphertext<ILVectorArray2n>> ciphertext2;
 
-	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray1, &ciphertext1, false);
-	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray2, &ciphertext2, false);
+	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray1, &ciphertext1, false);
+	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray2, &ciphertext2, false);
 
 	
 
-	Ciphertext<ILVector2n> cResult(ciphertext1.at(0));
+	Ciphertext<ILVectorArray2n> cResult(ciphertext1.at(0));
 
-	LPEvalKeyRelin<ILVector2n> keySwitchHint(cryptoParams);	
+	LPEvalKeyRelin<ILVectorArray2n> keySwitchHint(cryptoParams);
 
 	algorithm.QuadraticEvalMultKeyGen(sk, sk, &keySwitchHint);
 
 	algorithm.EvalMult(ciphertext1.at(0), ciphertext2.at(0), keySwitchHint, &cResult);
 
-	vector<Ciphertext<ILVector2n>> ciphertextResults(1);
+	vector<Ciphertext<ILVectorArray2n>> ciphertextResults(1);
 
 	ciphertextResults.at(0) = cResult;
 
 	IntPlaintextEncoding results;
 
-	//CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext2, &results, false);
-
-	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertextResults, &results, false);
+	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk, ciphertextResults, &results, false);
 
 }

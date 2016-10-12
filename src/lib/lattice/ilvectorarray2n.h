@@ -267,7 +267,7 @@ namespace lbcrypto {
 		* @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
 		* @result is the pointer where the base decomposition vector is stored
 		*/
-		void BaseDecompose(usint baseBits, std::vector<ILVectorArray2n> *result) const { };
+		std::vector<ILVectorArray2n> BaseDecompose(usint baseBits) const ;
 
 		/**
 		* Generate a vector of ILVector2n's as {x, base*x, base^2*x, ..., base^{\lfloor {\log q/base} \rfloor}*x, where x is the current ILVector2n object;
@@ -277,9 +277,7 @@ namespace lbcrypto {
 		* @result is the pointer where the base decomposition vector is stored
 		* @return true if operation is successful
 		*/
-		std::vector<ILVectorArray2n> PowersOfBase(usint baseBits) const { 
-			return std::vector<ILVectorArray2n>();
-		}
+		std::vector<ILVectorArray2n> PowersOfBase(usint baseBits) const ;
 
 
 		//VECTOR OPERATIONS
@@ -416,6 +414,14 @@ namespace lbcrypto {
 		ILVectorArray2n DivideAndRound(const BigBinaryInteger &q) const;
 		
 		/**
+		*Performs a negation operation and returns the result.
+		*
+		* @return is the result of the negation.
+		*/
+		ILVectorArray2n Negate() const;
+
+		
+		/**
 		* Performs an addition operation and returns the result.
 		*
 		* @param &rhs is the element to add with.
@@ -438,6 +444,14 @@ namespace lbcrypto {
 		* @return is the result of the subtraction.
 		*/
 		const ILVectorArray2n& operator*=(const BigBinaryInteger &element);
+
+		/**
+		* Performs an multiplication operation and returns the result.
+		*
+		* @param &element is the element to multiply with.
+		* @return is the result of the multiplication.
+		*/
+		const ILVectorArray2n& operator*=(const ILVectorArray2n &element);
 
 		// multiplicative inverse operation
 		/**
