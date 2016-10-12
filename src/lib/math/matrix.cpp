@@ -393,15 +393,15 @@ void Matrix<Element>::UnlinearizeDataCAPS(){
 
 	int datasize = data.size();
 	int lineardatasize = lineardata.size();
-    printf("data.size() = %d\n",datasize);
+    //printf("data.size() = %d\n",datasize);
     data.clear();
     data.resize(datasize);
-    printf("lineardata.size() = %d\n",lineardatasize);
+    //printf("lineardata.size() = %d\n",lineardatasize);
 
 int row = 0;
 int counter = 0;
         for (auto elem = lineardata.begin(); elem != lineardata.end(); ++elem) {
-        	printf("counter = %d row = %d\n",counter,row);
+        	//printf("counter = %d row = %d\n",counter,row);
             data[row].push_back(make_unique<Element>(**elem));
             counter++;
             if (counter % datasize == 0){
@@ -689,28 +689,28 @@ Matrix<Element> Matrix<Element>::MultiplyCAPS(Matrix<Element>& other,int nrec) {
     this->LinearizeDataCAPS();
     other.LinearizeDataCAPS();
     result.LinearizeDataCAPS();
-    printf("Initial result data:\n");
-    for (int i = 0; i < rows*other.cols;i++){
-    	printf("*result.lineardata[%d] = %d\n",i,(int)*result.lineardata[i]);
-    }
+//    printf("Initial result data:\n");
+//    for (int i = 0; i < rows*other.cols;i++){
+//    	printf("*result.lineardata[%d] = %d\n",i,(int)*result.lineardata[i]);
+//    }
 
-printf("&lineardata = %p\n",&lineardata);
+//printf("&lineardata = %p\n",&lineardata);
 PrintLinearDataCAPS(&lineardata[0]);
 int len = rows*rows;
-for (int32_t row = 0; row < len; ++row) {
-	printf("&(lineardata[%d]) = %p    *(lineardata[%d]) = %f\n",row,&(lineardata[row]),row,*(lineardata[row]));
-	printf("&(other.lineardata[%d]) = %p    *(other.lineardata[%d]) = %f\n",row,&(other.lineardata[row]),row,*(other.lineardata[row]));
-}
+//for (int32_t row = 0; row < len; ++row) {
+//	printf("&(lineardata[%d]) = %p    *(lineardata[%d]) = %f\n",row,&(lineardata[row]),row,*(lineardata[row]));
+//	printf("&(other.lineardata[%d]) = %p    *(other.lineardata[%d]) = %f\n",row,&(other.lineardata[row]),row,*(other.lineardata[row]));
+//}
 
-for (int32_t row = 0; row < rows; ++row) {
-
-
-    for (int32_t col = 0; col < cols; ++col) {
-        //printf(" *(data[%d][%d]) = %f\n",row,col,*(data[row][col]));data[%d][%d] = %p row,col,data[row][col],
-            printf("&(data[%d][%d]) = %p    *(data[%d][%d]) = %f\n",row,col,&(data[row][col]),row,col,*(data[row][col]));
-
-        }
-    }
+//for (int32_t row = 0; row < rows; ++row) {
+//
+//
+//    for (int32_t col = 0; col < cols; ++col) {
+//        //printf(" *(data[%d][%d]) = %f\n",row,col,*(data[row][col]));data[%d][%d] = %p row,col,data[row][col],
+//            printf("&(data[%d][%d]) = %p    *(data[%d][%d]) = %f\n",row,col,&(data[row][col]),row,col,*(data[row][col]));
+//
+//        }
+//    }
 
 lineardata_t thisdata;
 lineardata_t otherdata;
@@ -721,15 +721,15 @@ for (int i = 0; i < len; i++){
 	  otherdata.push_back(allocZero());
 	  resultdata.push_back(allocZero());
 }
-testCAPS(desc);
+
 distributeFrom1ProcCAPS( desc,&thisdata[0], &lineardata[0]);
 distributeFrom1ProcCAPS( desc, &otherdata[0], &(other.lineardata[0]));
 
 multiplyInternalCAPS(&thisdata[0], &otherdata[0], &resultdata[0], desc, 0);//&(result.lineardata[0])
-for (int32_t row = 0; row < len; ++row) {
-
-	printf("&(result.lineardata[%d]) = %p    *(result.lineardata[%d]) = %f\n",row,&(result.lineardata[row]),row,*(result.lineardata[row]));
-}
+//for (int32_t row = 0; row < len; ++row) {
+//
+//	printf("&(result.lineardata[%d]) = %p    *(result.lineardata[%d]) = %f\n",row,&(result.lineardata[row]),row,*(result.lineardata[row]));
+//}
 
 collectTo1ProcCAPS( desc, &(result.lineardata[0]), &resultdata[0] );
 result.UnlinearizeDataCAPS();
@@ -744,26 +744,26 @@ return result;
 template<class Element>
 void Matrix<Element>::multiplyInternalCAPS(unique_ptr<Element> *A, unique_ptr<Element> *B, unique_ptr<Element> *C, MatDescriptor desc,
 		unique_ptr<Element> *work) {
-	printf("In multiplyInternalCAPS, desc.nrec = %d\n",desc.nrec);
+	//printf("In multiplyInternalCAPS, desc.nrec = %d\n",desc.nrec);
 	if (desc.nrec == 0) { // (planned) out of recursion in the data layout, do a regular matrix multiply.  The matrix is now in a 2d block cyclic layout
 
 		// A 2d block cyclic layout with 1 processor still has blocks to deal with
 		// run a 1-proc non-strassen
-		printf("Going to call block_multiplyCAPS\n");
+		//printf("Going to call block_multiplyCAPS\n");
 		block_multiplyCAPS(A, B, C, desc, work);
 
 	} else {
 		if (pattern == NULL) {
 
 			//COUNTERS setExecutionType(desc.nrec, "DFS");
-			printf("Going to start Strassen\n");
+			//printf("Going to start Strassen\n");
 			strassenDFSCAPS(A, B, C, desc, work);
 
 		} else {
 			if (pattern[0] == 'D' || pattern[0] == 'd') {
 				//COUNTERS setExecutionType(desc.nrec, "DFS");
 				pattern++;
-				printf("Going to start Strassen with D pattern\n");
+				//printf("Going to start Strassen with D pattern\n");
 				strassenDFSCAPS(A, B, C, desc, work);
 				pattern--;
 			}
@@ -797,20 +797,20 @@ void Matrix<Element>::tripleSubMatricesCAPS(int numEntries, unique_ptr<Element> 
 		unique_ptr<Element> *S21, unique_ptr<Element> *S22, unique_ptr<Element> *T3, unique_ptr<Element> *S31, unique_ptr<Element> *S32) {
 	//COUNTERS increaseAdditions(3*numEntries);
 	//COUNTERS startTimer(TIMER_ADD);
-	 printf("IN TRIPLESUBMATRICESCAPS !!\n");
-	printf("numEntries = %d\n",numEntries);
+	 //printf("IN TRIPLESUBMATRICESCAPS !!\n");
+	//printf("numEntries = %d\n",numEntries);
 #pragma omp parallel for schedule(static, (numEntries+NUM_THREADS-1)/NUM_THREADS)
 
   for( int i = 0; i < numEntries; i++ ) {
-	  printf("i = %d *S11[i] = %f *S12[i] = %f\n",i,*S11[i],*S12[i]);
+	  //printf("i = %d *S11[i] = %f *S12[i] = %f\n",i,*S11[i],*S12[i]);
       *T1[i] = *S11[i] - *S12[i];
-      printf("i = %d *T1[i] = %f\n",i,*T1[i]);
-      printf("i = %d *S21[i] = %f *S22[i] = %f\n",i,*S21[i],*S22[i]);
+      //printf("i = %d *T1[i] = %f\n",i,*T1[i]);
+      //printf("i = %d *S21[i] = %f *S22[i] = %f\n",i,*S21[i],*S22[i]);
       *T2[i] = *S21[i] - *S22[i];
-      printf("i = %d *T2[i] = %f\n",i,*T2[i]);
-      printf("i = %d *S21[i] = %f *S32[i] = %f\n",i,*S31[i],*S32[i]);
+      //printf("i = %d *T2[i] = %f\n",i,*T2[i]);
+      //printf("i = %d *S21[i] = %f *S32[i] = %f\n",i,*S31[i],*S32[i]);
       *T3[i] = *S31[i] - *S32[i];
-      printf("i = %d *T3[i] = %f\n",i,*T3[i]);
+      //printf("i = %d *T3[i] = %f\n",i,*T3[i]);
   }
   //COUNTERS stopTimer(TIMER_ADD);
 }
@@ -860,7 +860,7 @@ void Matrix<Element>::strassenDFSCAPS( unique_ptr<Element> *A, unique_ptr<Elemen
   // submatrices; these are described by halfDesc;
   long long int numEntriesHalf = numEntriesPerProc(halfDesc);
 
-  printf("numEntriesHalf = %lld\n",numEntriesHalf);
+  //printf("numEntriesHalf = %lld\n",numEntriesHalf);
   unique_ptr<Element> *A11 = A;
   unique_ptr<Element> *A21 = A+numEntriesHalf;
   unique_ptr<Element> *A12 = A+2*numEntriesHalf;
@@ -874,9 +874,9 @@ void Matrix<Element>::strassenDFSCAPS( unique_ptr<Element> *A, unique_ptr<Elemen
   unique_ptr<Element> *C12 = C+2*numEntriesHalf;
   unique_ptr<Element> *C22 = C+3*numEntriesHalf;
 
-  for (int i = 0; i < numEntriesHalf; i++){
-	  printf("%d: *(A11[i]) = %f *(A21[i]) = %f  *(A12[i]) = %f *(A22[i]) = %f\n",i, *(A11[i]),*(A21[i]),*(A12[i]),*(A22[i]));
-  }
+//  for (int i = 0; i < numEntriesHalf; i++){
+//	  printf("%d: *(A11[i]) = %f *(A21[i]) = %f  *(A12[i]) = %f *(A22[i]) = %f\n",i, *(A11[i]),*(A21[i]),*(A12[i]),*(A22[i]));
+//  }
 
   lineardata_t R2data;
   lineardata_t R5data;
@@ -961,13 +961,14 @@ void Matrix<Element>::block_multiplyCAPS(unique_ptr<Element> *A,
 			Element temp = 0.;
 			Element Aval = 0., Bval = 0.;
 			for (int32_t i = 0; i < d.lda; i++) {
-				printf("Row %d Col %d i %d initial Cval %d Aval %d Bval %d\n",row,col,i,(int)**(C+row*d.lda+col),(int)**(A+d.lda*row+i),(int)**(B+i*d.lda+col));
+				//printf("Row %d Col %d i %d\n",row,col,i);
+				//printf("Row %d Col %d i %d initial Cval %d Aval %d Bval %d\n",row,col,i,(int)**(C+row*d.lda+col),(int)**(A+d.lda*row+i),(int)**(B+i*d.lda+col));
 				//**(C + d.lda * row + col) += **(A + d.lda * row + i)
 				//		* **(B + i * d.lda + col);
 				Aval = **(A+row + i * d.lda);  // **(A + d.lda * row + i);
 				Bval = **(B + i + d.lda * col); //  **(B + i * d.lda + col);
 				temp += (Aval * Bval);
-				printf("Cval(%d,%d) =  %d temp = %d Aval = %d Bval = %d\n",row,col,(int)**(C+row*d.lda+col),(int)temp,(int)Aval,(int)Bval);
+				//printf("Cval(%d,%d) =  %d temp = %d Aval = %d Bval = %d\n",row,col,(int)**(C+row*d.lda+col),(int)temp,(int)Aval,(int)Bval);
 			}
 			**(C+row+d.lda*col) = temp;  //**(C + d.lda * row + col) = temp;
 		}
@@ -982,10 +983,10 @@ void Matrix<Element>::block_multiplyCAPS(unique_ptr<Element> *A,
 //	}
 //}
 	int len = d.lda * d.lda;
-	for (int r = 0; r < len; r++) {
-		printf("A(%d) = %d B(%d) = %d C(%d) = %d\n", r, (int) **(A + r), r,
-				(int) **(B + r), r, (int) **(C + r));
-	}
+//	for (int r = 0; r < len; r++) {
+//		printf("A(%d) = %d B(%d) = %d C(%d) = %d\n", r, (int) **(A + r), r,
+//				(int) **(B + r), r, (int) **(C + r));
+//	}
 
 }
 
@@ -995,9 +996,9 @@ template<class Element>
 void Matrix<Element>::sendBlockCAPS( /*MPI_Comm comm,*/int rank, int target,
 		unique_ptr<Element> *O, int bs, int source, unique_ptr<Element> *I,
 		int ldi) {
-	printf(
-			"IN SENDBLOCKCAPS, bs = %d ldi = %d rank = %d target = %d source = %d\n",
-			bs, ldi, rank, target, source);
+//	printf(
+//			"IN SENDBLOCKCAPS, bs = %d ldi = %d rank = %d target = %d source = %d\n",
+//			bs, ldi, rank, target, source);
 	if (source == target) {
 		if (rank == source) {
 			for (int c = 0; c < bs; c++) {
@@ -1122,10 +1123,6 @@ void Matrix<Element>::collectTo1ProcRecCAPS( MatDescriptor desc, unique_ptr<Elem
 template <class Element>
 void Matrix<Element>::collectTo1ProcCAPS( MatDescriptor desc, unique_ptr<Element>*O, unique_ptr<Element> *I ) {
   collectTo1ProcRecCAPS( desc, O, I, desc.lda );
-}
-template <class Element>
-void Matrix<Element>::testCAPS( MatDescriptor desc ){
-	return;
 }
 
 
