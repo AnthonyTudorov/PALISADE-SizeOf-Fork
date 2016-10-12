@@ -190,9 +190,6 @@ public:
 			const Plaintext& plaintext,
 			bool doPadding = true)
 	{
-		if( GetEncryptionAlgorithm().neverPadPlaintext() )
-			doPadding = false;
-
 		std::vector<shared_ptr<Ciphertext<Element>>> cipherResults;
 
 		if( publicKey->GetCryptoContext() != *this )
@@ -296,9 +293,6 @@ public:
 			Plaintext *plaintext,
 			bool doPadding = true)
 	{
-		if( GetEncryptionAlgorithm().neverPadPlaintext() )
-			doPadding = false;
-
 		// edge case
 		if( ciphertext.size() == 0 )
 			return DecryptResult();
@@ -365,8 +359,7 @@ public:
 		}
 
 		// unpad and write the last one
-		if( GetEncryptionAlgorithm().neverPadPlaintext() == false )
-			pte[!whichArray].Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
+		pte[!whichArray].Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
 		outstream << pte[!whichArray];
 
 		return;

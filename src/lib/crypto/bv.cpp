@@ -125,6 +125,9 @@ DecryptResult LPAlgorithmBV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Elem
 	Element *plaintext) const
 {
 
+	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+
 	const std::vector<Element> &c = ciphertext->GetElements();
 
 	const Element &s = privateKey->GetPrivateElement();
