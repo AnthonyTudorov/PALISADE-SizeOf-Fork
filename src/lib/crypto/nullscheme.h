@@ -15,6 +15,8 @@ namespace lbcrypto {
 template <class Element>
 class LPCryptoParametersNull : public LPCryptoParameters<Element> {
 public:
+	LPCryptoParametersNull() : LPCryptoParameters<Element>() {}
+
 	LPCryptoParametersNull(const shared_ptr<ElemParams> ep, const BigBinaryInteger &plaintextModulus)
 		: LPCryptoParameters<Element>(ep, plaintextModulus) {}
 

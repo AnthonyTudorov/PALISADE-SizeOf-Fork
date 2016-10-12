@@ -94,19 +94,19 @@ TEST(UTNTT, switch_format_simple_single_crt) {
 	shared_ptr<ILParams> x1p( new ILParams(params) );
 	shared_ptr<ILParams> x2p( new ILParams(params2) );
 
-	ILVector2n x1( x1p, Format::COEFFICIENT );
+	shared_ptr<ILVector2n> x1( new ILParams(params, Format::COEFFICIENT) );
 	x1 = { 431,3414,1234,7845,2145,7415,5471,8452 };
 
-	ILVector2n x2( x2p, Format::COEFFICIENT );
+	shared_ptr<ILVector2n> x2( new ILParams(params, Format::COEFFICIENT) );
 	x2 = { 4127,9647,1987,5410,6541,7014,9741,1256 };
 
 	ILVector2n x1Clone(x1);
 	ILVector2n x2Clone(x2);
 
-	x1.SwitchFormat();
-	x2.SwitchFormat();
-	x1.SwitchFormat();
-	x2.SwitchFormat();
+	x1->SwitchFormat();
+	x2->SwitchFormat();
+	x1->SwitchFormat();
+	x2->SwitchFormat();
 
 	EXPECT_EQ(x1, x1Clone);
 	EXPECT_EQ(x2, x2Clone);

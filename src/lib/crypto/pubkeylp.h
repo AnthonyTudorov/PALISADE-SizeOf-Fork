@@ -1356,6 +1356,8 @@ namespace lbcrypto {
 				delete this->m_algorithmLeveledSHE;
 		}
 		
+		virtual bool neverPadPlaintext() const { return false; }
+
 		bool IsEnabled(PKESchemeFeature feature) const {
 			bool flag = false;
 			switch (feature)
