@@ -63,18 +63,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #if defined(PROFILE) //Profiler works
 
 #define PROFILELOG(x) do {		\
-    if (true) {std::out << x <<std::endl;}	\
+    if (true) {std::cout << x <<std::endl;}	\
   } while (0)
 
 // debugging macro prints typography of x and value of x on cerr
 #define PROFILELOGEXP(x) do {	\
-    if (true){ std::out << #x << ":" << x << std::endl; }	\
+    if (true){ std::cout << #x << ":" << x << std::endl; }	\
   } while (0)
 
 
 // debugging macro prints value of x and location in codex on cerr
 #define PROFILELOGWHERE(x) do {					\
-    if (true){ std::out << #x << ":" << x << " at " << __FILE__ << " line "<< __LINE__ LL std::endl;} \
+    if (true){ std::cout << #x << ":" << x << " at " << __FILE__ << " line "<< __LINE__ LL std::endl;} \
   } while (0)
 
 #else //#if defined(PROFILE) //profiling a noop
@@ -126,12 +126,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 // debugging macro prints typography of x and value of x on cerr
 #define PROFILELOGEXP(x) do {	\
-    if (true) {std::out << #x << ":" << x << std::endl;	}	\
+    if (true) {std::cout << #x << ":" << x << std::endl;	}	\
   } while (0)
 
 // debugging macro prints value of x and location in codex on cerr
 #define PROFILELOGWHERE(x) do {					\
-			       if (true) {std::out << #x << ":" << x << " at " << __FILE__ << " line "<< __LINE__ LL std::endl;} \
+			       if (true) {std::cout << #x << ":" << x << " at " << __FILE__ << " line "<< __LINE__ LL std::endl;} \
   } while (0)
 
 #define TIC(t) t=timeNow()
