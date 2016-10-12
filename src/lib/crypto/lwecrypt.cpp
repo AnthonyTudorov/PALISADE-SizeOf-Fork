@@ -434,7 +434,7 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Ele
 
 	b.SwitchFormat();
 	
-	*plaintext = b;
+	*plaintext = b.SignedMod(p);
 
 	return DecryptResult(plaintext->GetLength());
 }

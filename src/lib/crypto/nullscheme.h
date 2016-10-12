@@ -189,7 +189,6 @@ public:
 	LPPublicKeyEncryptionSchemeNull() : LPPublicKeyEncryptionScheme<Element>() {}
 	LPPublicKeyEncryptionSchemeNull(std::bitset<FEATURESETSIZE> mask);
 
-	bool neverPadPlaintext() const { return true; }
 	void Enable(PKESchemeFeature feature);
 };
 
