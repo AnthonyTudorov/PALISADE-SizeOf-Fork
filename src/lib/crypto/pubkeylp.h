@@ -1002,7 +1002,7 @@ namespace lbcrypto {
 			 * @param &plaintext the plaintext input.
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, const Element &plaintext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Element &plaintext) const = 0;
 
 			/**
 			 * Method for decrypting plaintext using LBC
@@ -1365,6 +1365,8 @@ namespace lbcrypto {
 				delete this->m_algorithmLeveledSHE;
 		}
 		
+		virtual bool neverPadPlaintext() const { return false; }
+
 		bool IsEnabled(PKESchemeFeature feature) const {
 			bool flag = false;
 			switch (feature)
@@ -1423,7 +1425,7 @@ namespace lbcrypto {
 		//
 
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-			const Element &plaintext) const {
+			Element &plaintext) const {
 				if(this->m_algorithmEncryption) {
 					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext);
 				}
@@ -1502,12 +1504,11 @@ namespace lbcrypto {
 		// the three functions below are wrappers for things in LPSHEAlgorithm (SHE)
 		//
 
-		void EvalAdd(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext) const {
+		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 
 					if(this->m_algorithmSHE)
-						this->m_algorithmSHE->EvalAdd(ciphertext1,ciphertext2,newCiphertext);
+						return this->m_algorithmSHE->EvalAdd(ciphertext1,ciphertext2);
 					else{
 						throw std::logic_error("EvalAdd operation has not been enabled");
 					}

@@ -80,7 +80,7 @@ LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(const CryptoContext<Element> c
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
-	const Element &plaintext) const
+	Element &plaintext) const
 {
 
 	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(pubKey->GetCryptoParameters());
@@ -105,6 +105,8 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr
 
 	Element c1(elementParams);
 	Element c2(elementParams);
+
+	plaintext.SwitchFormat();
 
 	//c1 = b v + p e_0 + m
 	c1 = b*v + p*e0 + plaintext;

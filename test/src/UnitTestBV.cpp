@@ -89,7 +89,7 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(BigBinaryInteger(rootOfUnity), m, BigBinaryInteger(modulus));
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetILParams());
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -109,9 +109,8 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
-
-	CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext, false);	// This is the core encryption operation.
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
+			cc.Encrypt(kp.publicKey, plaintext, false);	// This is the core encryption operation.
 
 
 	////////////////////////////////////////////////////////////
@@ -120,7 +119,7 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 
 	BytePlaintextEncoding plaintextNew;
 
-	DecryptResult result = cc.Decrypt(
+	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew, false);
 
 	EXPECT_EQ(plaintextNew, plaintext);
 
@@ -139,10 +138,9 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
-	LPEvalKeyRelin<ILVector2n> evalKey(cc);
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
 
-
-	cc.GetEncryptionAlgorithm().ReKeyGen(*newKp.secretKey, *kp.secretKey, &evalKey);  // This is the core re-encryption operation.
+	evalKey = cc.GetEncryptionAlgorithm().ReKeyGen(newKp.secretKey, kp.secretKey);
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption operation.
@@ -152,8 +150,7 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
 
-
-	CryptoUtility<ILVector2n>::ReEncrypt(cc.GetEncryptionAlgorithm(), evalKey, ciphertext, &newCiphertext);  // This is the core re-encryption operation.
+	newCiphertext = cc.ReEncrypt(evalKey, ciphertext);
 
 	//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
 
@@ -163,7 +160,7 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 
 	BytePlaintextEncoding plaintextNew2;
 
-	DecryptResult result1 = cc.Decrypt(
+	DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &plaintextNew2, false);
 
 	/*ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();*/

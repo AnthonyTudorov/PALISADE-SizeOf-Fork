@@ -169,7 +169,7 @@ namespace lbcrypto {
 		* @param *ciphertext ciphertext which results from encryption.
 		*/
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-			const Element &plaintext) const;
+			Element &plaintext) const;
 
 		/**
 		* Method for decrypting plaintext using BV

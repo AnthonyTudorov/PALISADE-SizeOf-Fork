@@ -24,9 +24,10 @@ LPKeyPair<Element> LPAlgorithmNull<Element>::KeyGen(const CryptoContext<Element>
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmNull<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
-	const Element &plaintext) const
+	Element &plaintext) const
 {
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey->GetCryptoContext()) );
+
 	const Element copyPlain = plaintext;
 	ciphertext->SetElement(copyPlain);
 
@@ -41,7 +42,6 @@ DecryptResult LPAlgorithmNull<Element>::Decrypt(const shared_ptr<LPPrivateKey<El
 	const Element c = ciphertext->GetElement();
 	*plaintext = c;
 	return DecryptResult(plaintext->GetLength());
-
 }
 
 template <class Element>

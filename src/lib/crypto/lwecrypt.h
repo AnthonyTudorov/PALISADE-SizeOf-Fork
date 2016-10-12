@@ -69,7 +69,7 @@ namespace lbcrypto {
 			 * @param *ciphertext ciphertext which results from encryption.
 			 * @return an instance of EncryptResult related to the ciphertext that is encrypted.
 			 */
-			shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, const Element &plaintext) const;
+			shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Element &plaintext) const;
 
 			/**
 			 * Method for decrypting plaintext using Ring-LWE NTRU
