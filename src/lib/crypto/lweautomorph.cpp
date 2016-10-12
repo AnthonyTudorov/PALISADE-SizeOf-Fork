@@ -103,7 +103,7 @@ bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const LPPublicKey<
 
 			//const LPPublicKeyEncryptionScheme<Element> *scheme = ciphertext.GetEncryptionAlgorithm();
 
-			this->GetScheme().EvalKeyGen(publicKey, *tempPrivateKey, evalKeys->at(index));
+			this->GetScheme().ReKeyGen(publicKey, *tempPrivateKey, evalKeys->at(index));
 
 			i = i + 2;
 

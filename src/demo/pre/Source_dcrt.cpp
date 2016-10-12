@@ -99,7 +99,7 @@ int main() {
 //	RootsOfUnitTest();
 //	RingReduceTest();
 //	RingReduceDCRTTest();
-	NTRUPRE(0);
+//	NTRUPRE(0);
 	NTRU_DCRT();
 
 	//LevelCircuitEvaluation();
@@ -187,9 +187,6 @@ void BenchMarking() {
 			cryptoParams.SetElementParams(params);
 			cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
-			Ciphertext<ILVectorArray2n> cipherText;
-			cipherText.SetCryptoParameters(&cryptoParams);
-
 			LPPublicKey<ILVectorArray2n> pk(cryptoParams);
 			LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
 
@@ -227,6 +224,7 @@ void BenchMarking() {
 }
 
 void NTRU_DCRT() {
+	cout << "NTRU_DCRT" << endl;
 
 	double diff, start, finish;
 
@@ -276,9 +274,6 @@ void NTRU_DCRT() {
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	CryptoContext<ILVectorArray2n> *ctx = CryptoContext<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
-
-	Ciphertext<ILVectorArray2n> cipherText;
-	cipherText.SetCryptoParameters(&cryptoParams);
 
 	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
 	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
@@ -375,8 +370,6 @@ void NTRU_DCRT() {
 //
 //	if(true) return;
 
-	bool doReEncrypt = false;
-
 	LPPublicKey<ILVectorArray2n> newPK(*ctx->getParams());
 	LPPrivateKey<ILVectorArray2n> newSK(*ctx->getParams());
 
@@ -389,16 +382,19 @@ void NTRU_DCRT() {
 
 	LPEvalKeyNTRURelin<ILVectorArray2n> evalKey(*ctx->getParams());
 
-	CryptoUtility<ILVectorArray2n>::EvalKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	cout << "Running eval key gen" << endl;
 
-	////////////////////////////////////////////////////////////
-	//Perform the proxy re-encryption operation.
-	// This switches the keys which are used to perform the key switching.
-	////////////////////////////////////////////////////////////
+	bool rval = CryptoUtility<ILVectorArray2n>::ReKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
-	if( doReEncrypt ) {
+	if( rval == false ) {
+		cout << "EvalKeyGen failed!!!" << endl;
+	}
+	else {
+		vector<ILVectorArray2n> av = evalKey.GetAVector();
+		cout << "The eval key A vect size is " << av.size() << endl;
 		vector<Ciphertext<ILVectorArray2n>> newCiphertext;
 
+		cout << "Running re encryption" << endl;
 		CryptoUtility<ILVectorArray2n>::ReEncrypt(algorithm, evalKey, ciphertext, &newCiphertext);
 
 		//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
@@ -431,7 +427,7 @@ void NTRU_DCRT() {
 	tjp.evalKey = &evalKey;
 	tjp.newSK = &newSK;
 
-	testJson<ILVectorArray2n>("DCRT", newPlaintext, &tjp, doReEncrypt);
+	testJson<ILVectorArray2n>("DCRT", newPlaintext, &tjp, true);
 }
 
 void LevelCircuitEvaluation(){
@@ -602,12 +598,10 @@ void LevelCircuitEvaluation(){
 	// pkElementInCoeff.PrintValues();
 	// cout << "End Printing pk values in COEFFICIENT. " << endl;
 
-	Ciphertext<ILVectorArray2n> cipherText;
-	cipherText.SetCryptoParameters(&cryptoParams);
+	Ciphertext<ILVectorArray2n> cipherText(&cryptoParams);
 	cipherText.SetElement(cipherTextElement);
 
-	Ciphertext<ILVectorArray2n> cipherText1;
-	cipherText1.SetCryptoParameters(&cryptoParams);
+	Ciphertext<ILVectorArray2n> cipherText1(&cryptoParams);
 	cipherText1.SetElement(cipherText1Element);
 
 	algorithm.Encrypt(pk, &cipherText);
@@ -702,16 +696,14 @@ void LevelCircuitEvaluation1(){
 	algorithm.KeyGen(&pk, &sk);
 	algorithm.KeyGen(&pk1, &sk1);
 
-	Ciphertext<ILVectorArray2n> cipherText1;
-	cipherText1.SetCryptoParameters(&cryptoParams);
+	Ciphertext<ILVectorArray2n> cipherText1(&cryptoParams);
 	ILVectorArray2n element1(ildcrtParams);
 	element1.SwitchFormat();
 	element1 = {2};
 	element1.PrintValues();
 	cipherText1.SetElement(element1);
 
-	Ciphertext<ILVectorArray2n> cipherText2;
-	cipherText2.SetCryptoParameters(&cryptoParams);
+	Ciphertext<ILVectorArray2n> cipherText2(&cryptoParams);
 	ILVectorArray2n element2(ildcrtParams);
 	element2.SwitchFormat();
 	element2 = {2};
@@ -726,8 +718,8 @@ void LevelCircuitEvaluation1(){
 
 	LPKeySwitchHintLTV<ILVectorArray2n> linearKeySwitchHint1, linearKeySwitchHint2, quadraticKeySwitchHint1, quadraticKeySwitchHint2;
 
-	algorithm.m_algorithmLeveledSHE->KeySwitchHintGen(sk,sk1, &linearKeySwitchHint1);
-	algorithm.m_algorithmLeveledSHE->QuadraticKeySwitchHintGen(sk,sk1, &quadraticKeySwitchHint1);
+	algorithm.m_algorithmLeveledSHE->EvalMultKeyGen(sk,sk1, &linearKeySwitchHint1);
+	algorithm.m_algorithmLeveledSHE->QuadraticEvalMultKeyGen(sk,sk1, &quadraticKeySwitchHint1);
 
 	///////////////////----------- Start LEVEL 1 Computation ---------------------/////////////////
 	Ciphertext<ILVectorArray2n> cipherText3(cipherText1);
@@ -738,7 +730,6 @@ void LevelCircuitEvaluation1(){
 	algorithm.Decrypt(sk1, cipherText3, &ctxtd);
 
 	ILVectorArray2n pvElement1 = sk1.GetPrivateElement();
-	sk1.SetCryptoParameters(&cryptoParams1);
 	pvElement1.DropTower(pvElement1.GetTowerLength() - 1);
 	sk1.SetPrivateElement(pvElement1);
 
@@ -804,23 +795,20 @@ void LevelCircuitEvaluation2WithCEM(){
 	cryptoParams1.SetElementParams(params1);
 	cryptoParams1.SetDiscreteGaussianGenerator(dgg);
 
-	Ciphertext<ILVectorArray2n> cipherText1;
-	cipherText1.SetCryptoParameters(&cryptoParams);
+	Ciphertext<ILVectorArray2n> cipherText1(&cryptoParams);
 	ILVectorArray2n element1(params);
 	element1.SwitchFormat();
 	element1 = {2};
 	// element1.PrintValues();
 	cipherText1.SetElement(element1);
 
-	Ciphertext<ILVectorArray2n> cipherText2;
-	cipherText2.SetCryptoParameters(&cryptoParams);
+	Ciphertext<ILVectorArray2n> cipherText2(&cryptoParams);
 	ILVectorArray2n element2(params);
 	element2.SwitchFormat();
 	element2 = {3};
 	cipherText2.SetElement(element2);
 
-	Ciphertext<ILVectorArray2n> cipherText3;
-	cipherText3.SetCryptoParameters(&cryptoParams);
+	Ciphertext<ILVectorArray2n> cipherText3(&cryptoParams);
 	ILVectorArray2n element3(params);
 	element3.SwitchFormat();
 	element3 = {1};
@@ -864,16 +852,15 @@ void LevelCircuitEvaluation2WithCEM(){
 
 	LPKeySwitchHintLTV<ILVectorArray2n> linearKeySwitchHint1, linearKeySwitchHint2, quadraticKeySwitchHint1, quadraticKeySwitchHint2;
 
-	algorithm.m_algorithmLeveledSHE->KeySwitchHintGen(sk,sk1, &linearKeySwitchHint1);
-	algorithm.m_algorithmLeveledSHE->QuadraticKeySwitchHintGen(sk,sk1, &quadraticKeySwitchHint1);
+	algorithm.m_algorithmLeveledSHE->EvalMultKeyGen(sk,sk1, &linearKeySwitchHint1);
+	algorithm.m_algorithmLeveledSHE->QuadraticEvalMultKeyGen(sk,sk1, &quadraticKeySwitchHint1);
 
 	ILVectorArray2n pvElement1 = sk1.GetPrivateElement();
-	sk1.SetCryptoParameters(&cryptoParams1);
 	pvElement1.DropTower(pvElement1.GetTowerLength() - 1);
 	sk1.SetPrivateElement(pvElement1);
 
-	algorithm.m_algorithmLeveledSHE->KeySwitchHintGen(sk1,sk2, &linearKeySwitchHint2);
-	algorithm.m_algorithmLeveledSHE->QuadraticKeySwitchHintGen(sk1,sk2, &quadraticKeySwitchHint2);
+	algorithm.m_algorithmLeveledSHE->EvalMultKeyGen(sk1,sk2, &linearKeySwitchHint2);
+	algorithm.m_algorithmLeveledSHE->QuadraticEvalMultKeyGen(sk1,sk2, &quadraticKeySwitchHint2);
 
 	cout << "HintGen Finished" << endl;
 	///////////////////----------- Start LEVEL 1 Computation ---------------------/////////////////
@@ -1115,21 +1102,22 @@ void FinalLeveledComputation(){
 
 	//key structure stores all the hints 
 	LPLeveledSHEKeyStructure<ILVectorArray2n> keyStruc(finalParams.GetDepth());
-	LPEvalKeyNTRU<ILVectorArray2n> linearKeySwitchHint1, linearKeySwitchHint2, quadraticKeySwitchHint1, quadraticKeySwitchHint2;
+	LPEvalKeyNTRU<ILVectorArray2n> linearKeySwitchHint1(leveledCryptoParams[0]);
+	LPEvalKeyNTRU<ILVectorArray2n> linearKeySwitchHint2(leveledCryptoParams[1]);
+	LPEvalKeyNTRU<ILVectorArray2n> quadraticKeySwitchHint1(leveledCryptoParams[0]);
+	LPEvalKeyNTRU<ILVectorArray2n> quadraticKeySwitchHint2(leveledCryptoParams[1]);
 	
-	algorithm.KeySwitchHintGen(sk, levelSk[0], &linearKeySwitchHint1);	
-	algorithm.QuadraticKeySwitchHintGen(sk, levelSk[0], &quadraticKeySwitchHint1);
+	algorithm.EvalMultKeyGen(sk, levelSk[0], &linearKeySwitchHint1);	
+	algorithm.QuadraticEvalMultKeyGen(sk, levelSk[0], &quadraticKeySwitchHint1);
 	auto e = levelSk[0].GetPrivateElement();
 	e.DropElementAtIndex(e.GetNumOfElements()-1);
 	levelSk[0].SetPrivateElement(e);
-	levelSk[0].SetCryptoParameters(&leveledCryptoParams[1]);
 
-	algorithm.KeySwitchHintGen(levelSk[0], levelSk[1], &linearKeySwitchHint2);
-	algorithm.QuadraticKeySwitchHintGen(levelSk[0], levelSk[1], &quadraticKeySwitchHint2);
+	algorithm.EvalMultKeyGen(levelSk[0], levelSk[1], &linearKeySwitchHint2);
+	algorithm.QuadraticEvalMultKeyGen(levelSk[0], levelSk[1], &quadraticKeySwitchHint2);
 	e = levelSk[1].GetPrivateElement();
 	e.DropElementAtIndex(e.GetNumOfElements()-1);
 	levelSk[1].SetPrivateElement(e);
-	levelSk[1].SetCryptoParameters(&leveledCryptoParams[2]);
 
 
 	//keyStruc.SetLinearKeySwitchHintForLevel(linearKeySwitchHint1,0);
@@ -1142,37 +1130,30 @@ void FinalLeveledComputation(){
 
 	//create the ciphertexts for computation
 	Ciphertext<ILVectorArray2n> cipherText1;
-	cipherText1.SetCryptoParameters(&finalParams);
 	ILVectorArray2n element1(dcrtParams);
 	element1.SwitchFormat();
 	element1 = {1};
 	algorithm.Encrypt(pk,element1,&cipherText1);
 
-
-
 	Ciphertext<ILVectorArray2n> cipherText2;
-	cipherText2.SetCryptoParameters(&finalParams);
 	ILVectorArray2n element2(dcrtParams);
 	element2.SwitchFormat();
 	element2 = {2};
 	algorithm.Encrypt(pk,element2,&cipherText2);
 
 	Ciphertext<ILVectorArray2n> cipherText3;
-	cipherText3.SetCryptoParameters(&finalParams);
 	ILVectorArray2n element3(dcrtParams);
 	element3.SwitchFormat();
 	element3 = {3};
 	algorithm.Encrypt(pk,element3,&cipherText3);
 
 	Ciphertext<ILVectorArray2n> cipherText4;
-	cipherText4.SetCryptoParameters(&finalParams);
 	ILVectorArray2n element4(dcrtParams);
 	element4.SwitchFormat();
 	element4 = {4};
 	algorithm.Encrypt(pk,element4,&cipherText4);
 
 	Ciphertext<ILVectorArray2n> cipherText5;
-	cipherText5.SetCryptoParameters(&finalParams);
 	ILVectorArray2n element5(dcrtParams);
 	element5.SwitchFormat();
 	element5 = {5};
@@ -1434,7 +1415,7 @@ void NTRUPRE(usint input) {
 
 	start = currentDateTime();
 
-	algorithm.EvalKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	CryptoUtility<ILVector2n>::ReKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -1567,10 +1548,8 @@ void ComposedEvalMultTest(){
 
 	//Generating original ciphertext to perform ComposedEvalMult on
 	Ciphertext<ILVectorArray2n> c1;
-	c1.SetCryptoParameters(&finalParamsThreeTowers);
 
 	Ciphertext<ILVectorArray2n> c2;
-	c2.SetCryptoParameters(&finalParamsThreeTowers);
 
 	//Generating new cryptoparameters for when modulus reduction is done.
 	LPCryptoParametersLTV<ILVectorArray2n> finalParamsTwoTowers(finalParamsThreeTowers);
@@ -1581,11 +1560,10 @@ void ComposedEvalMultTest(){
 	finalParamsTwoTowers.SetElementParams(finalDcrtParamsTwoTowers);
 
 	//Generating Quaraditic KeySwitchHint from sk^2 to skNew
-	LPEvalKeyNTRU<ILVectorArray2n> quadraticKeySwitchHint;
-	algorithm.QuadraticKeySwitchHintGen(sk, skNew, &quadraticKeySwitchHint);
+	LPEvalKeyNTRU<ILVectorArray2n> quadraticKeySwitchHint(finalParamsThreeTowers);
+	algorithm.QuadraticEvalMultKeyGen(sk, skNew, &quadraticKeySwitchHint);
 
 	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
-	skNew.SetCryptoParameters(&finalParamsTwoTowers);
 	ILVectorArray2n skNewOldElement(skNew.GetPrivateElement());
 	skNewOldElement.DropElementAtIndex(skNewOldElement.GetNumOfElements() - 1);
 	skNew.SetPrivateElement(skNewOldElement);

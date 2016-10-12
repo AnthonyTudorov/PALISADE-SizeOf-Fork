@@ -113,14 +113,31 @@ TEST(UTMatrix,basic_int_math){
 }
 
 TEST(UTMatrix,basic_intvec_math){
-	BigBinaryInteger modulus("67108913");
+
+  bool dbg_flag = false;
+
+    BigBinaryInteger modulus("67108913");
+    DEBUG("1");
     auto singleAlloc = [=](){ return make_unique<BigBinaryVector>(1, modulus); };
+    DEBUG("2");
     Matrix<BigBinaryVector> z(singleAlloc, 2,2);
+    DEBUG("3");
     Matrix<BigBinaryVector> n = Matrix<BigBinaryVector>(singleAlloc, 2, 2).Ones();
+    DEBUG("4");
     Matrix<BigBinaryVector> I = Matrix<BigBinaryVector>(singleAlloc, 2, 2).Identity();
+    DEBUG("5");
+    DEBUG("z mod 00 "<<z(0,0).GetModulus().ToString());
+    DEBUG("z mod 01 "<<z(0,1).GetModulus().ToString());
+    DEBUG("z mod 10 "<<z(1,0).GetModulus().ToString());
+    DEBUG("z mod 1 1 "<<z(1,1).GetModulus().ToString());
+    DEBUG("n mod "<<n(0,0).GetModulus().ToString());
+    DEBUG("I mod "<<I(0,0).GetModulus().ToString());
     EXPECT_EQ(n, I*n);
+    DEBUG("6");
     n -= n;
+    DEBUG("7");
     EXPECT_EQ(n, z);
+    DEBUG("8");
 }
 
 TEST(UTMatrix, transpose){

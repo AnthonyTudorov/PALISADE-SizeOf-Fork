@@ -214,7 +214,7 @@ bool Ciphertext<Element>::Deserialize(const Serialized& serObj, const CryptoCont
 		elements[i] = json_ilElement;
 	}
 
-	this->SetCryptoParameters(cryptoParams);
+	this->m_cryptoParameters = cryptoParams;
 	this->SetNorm(bbiNorm);
 	this->SetElements(elements);
 

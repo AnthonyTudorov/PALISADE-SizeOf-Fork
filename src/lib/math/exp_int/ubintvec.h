@@ -255,7 +255,7 @@ namespace exp_int {
        * @param index is the index to get a value at.
        * @return is the value at the index. return NULL if invalid index.
        */
-      const ubint_el_t& GetValAtIndex(usint index) const;
+      const ubint_el_t& GetValAtIndex(size_t index) const;
 
 
       /**
@@ -272,8 +272,8 @@ namespace exp_int {
        * NOTE DEPRECATED BY size()
        * @return the vector length.
        */
-      usint GetLength() const;
-      usint size() const;
+      size_t GetLength() const;
+      size_t size() const;
 	
       //METHODS
 

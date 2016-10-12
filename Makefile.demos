@@ -42,6 +42,9 @@ make_demos: \
 	$(BINDIR)/demo/obfuscate/ObfuscateSource_sim$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSourceDbc$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSourceDbcV2$(EXESUFFIX) \
+	$(BINDIR)/demo/obfuscate/ObfuscateSimulator$(EXESUFFIX) \
+	$(BINDIR)/demo/obfuscate/ObfuscateSimulator32$(EXESUFFIX) \
+	$(BINDIR)/demo/obfuscate/ObfuscateSimulator64$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/Source_dcrt$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/Source_json$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/leaktester$(EXESUFFIX) \

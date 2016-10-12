@@ -133,16 +133,15 @@ void SerializeVector(const std::string& vectorName, const std::string& typeName,
 }
 
 template<typename T>
-bool DeserializeVector(const std::string& vectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& serObj, std::vector<T>* outVector) {
-	SerialItem::ConstMemberIterator it = serObj->value.FindMember(vectorName);
-
-	if( it == serObj->value.MemberEnd() )
-		return false;
+bool DeserializeVector(const std::string& vectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, std::vector<T>* outVector) {
 
 	SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
-	if( mIt == it->value.MemberEnd() ) return false;
-	if( mIt->value.GetString() != typeName ) return false;
+	if( mIt == it->value.MemberEnd() ) {
+		std::cout << "no member named Typename" << std::endl;
+		return false;
+	}
 
+	if( mIt->value.GetString() != typeName ) return false;
 	mIt = it->value.FindMember("Length");
 	if( mIt == it->value.MemberEnd() ) return false;
 

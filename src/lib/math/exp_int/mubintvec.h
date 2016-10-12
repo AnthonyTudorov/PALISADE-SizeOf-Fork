@@ -275,12 +275,13 @@ public:
 
   //&&&&
 
-      //currently screwing around with these
-      //assignment from usint Note this is not the standard mathematical approach
-      /**
-       * @param &&rhs is the usint value to assign to the zeroth entry
-       * @return resulting ubintvec
-       */
+  //currently screwing around with these
+  //assignment from usint Note this is not the standard mathematical approach
+  /**
+   * @param &&rhs is the usint value to assign to the zeroth entry
+   * @return resulting ubintvec
+   * note that modulus remains untouched.
+   */
 
   //assignment from usint
   inline const mubintvec& operator=(usint val) {
@@ -289,29 +290,46 @@ public:
     for (size_t i = 1; i < this->ubintvec<ubint_el_t>::GetLength(); ++i) {
       this->m_data[i] = 0;
     }
-    m_modulus=0;
-    m_modulus_state = GARBAGE;
-
+    //m_modulus=0;
+    //m_modulus_state = GARBAGE;
+    //std::cout<<"inline operator=usint "<<val<<std::endl;
+    return *this;
+  }
+  
+  //assignment from sint
+  inline const mubintvec& operator=(sint val) {
+    //todo this is the way kurt and yuri want it
+    if (val<0) 
+      throw std::logic_error("mubintvec() = with  negative number");
+    this->m_data.at(0) = val;
+    for (size_t i = 1; i < this->ubintvec<ubint_el_t>::GetLength(); ++i) {
+      this->m_data[i] = 0;
+    }
+    //m_modulus=0;
+    //m_modulus_state = GARBAGE;
+    //std::cout<<"inline operator=sint "<<val<<std::endl;
     return *this;
   }
   
   
-      //assignment from usint Note this is not the standard mathematical approach
-      /**
-       * @param &&rhs is the ubint value to assign to the zeroth entry
-       * @return resulting ubintvec
-       */
+  //assignment from usint Note this is not the standard mathematical approach
+  /**
+   * @param &&rhs is the ubint value to assign to the zeroth entry
+   * @return resulting ubintvec
+   */
 
-      const mubintvec& operator=(const ubint_el_t &val) {
-        //todo this is the way that yuri and kurt want it?
-        this->m_data.at(0) = val;
-        for (size_t i = 1; i < this->m_data.size(); ++i) {
-          this->m_data[i] = 0;
-        }
-        m_modulus=0;
-        m_modulus_state = GARBAGE;
-        return *this;
-      }
+  const mubintvec& operator=(const ubint_el_t &val) {
+    //todo this is the way that yuri and kurt want it?
+    this->m_data.at(0) = val;
+    for (size_t i = 1; i < this->m_data.size(); ++i) {
+      this->m_data[i] = 0;
+    }
+    //      m_modulus=0;
+    // m_modulus_state = GARBAGE;
+
+    //std::cout<<"inline operator=ubint "<<val.ToString()<<std::endl;
+    return *this;
+  }
 
 
   /**

@@ -404,7 +404,7 @@ void PRESimulation(usint count, usint dataset)
 
 		successKeyGen = algorithm.KeyGen(newPK, newSK);	// This is the same core key generation operation.
 
-		algorithm.EvalKeyGen(*newPK, *privateKeys[d], evalKey);  // This is the core re-encryption operation.
+		CryptoUtility<ILVector2n>::ReKeyGen(algorithm, *newPK, *privateKeys[d], evalKey);  // This is the core re-encryption operation.
 
 		publicKeys.push_back(newPK);
 		privateKeys.push_back(newSK);
@@ -541,7 +541,7 @@ void PRESimulation(usint count, usint dataset)
 	start = currentDateTime();
 
 	for (usint j = 0; j < count; ++j) {
-            algorithm.EvalKeyGen(*publicKeys[j%(depth)], *privateKeys[j%(depth)], &evalTmp);
+            CryptoUtility<ILVector2n>::ReKeyGen(algorithm, *publicKeys[j%(depth)], *privateKeys[j%(depth)], &evalTmp);
 	}
 
 	diff = currentDateTime() - start;

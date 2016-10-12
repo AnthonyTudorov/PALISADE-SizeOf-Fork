@@ -1896,7 +1896,7 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::D
 	BigBinaryInteger ans;
 
 	//normalised_dividend = result*quotient
-	BigBinaryInteger normalised_dividend(this->Minus(this->Mod(q)));
+	BigBinaryInteger normalised_dividend(*this);
 	//Number of array elements in Divisor
 	uint_type ncharInDivisor = ceilIntByUInt(q.m_MSB);
 	//Get the uint integer that is in the MSB position of the Divisor
@@ -2003,7 +2003,7 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::D
 
 template<typename uint_type,usint BITLENGTH>
 usint BigBinaryInteger<uint_type,BITLENGTH>::GetMSBDUint_type(Duint_type x){
-	return BigBinaryInteger<uint_type,BITLENGTH>::GetMSB32(x);
+	return BigBinaryInteger<uint_type,BITLENGTH>::GetMSB32(x); //todo possible loss of data
 }
 
 //Algoritm used is shift and add

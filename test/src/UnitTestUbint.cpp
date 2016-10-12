@@ -115,12 +115,17 @@ SetIdentity()
 TEST(UTubint,string_conversions_msb){
   
   //test string ctor and ConvertTo functions
+  //note number of limbs cited assumes uint32_t implementation
   //create a small ubint with only one limb
+
   ubint q1("00000000000000163841");
+
+  //  q1.PrintIntegerConstants();
+
   EXPECT_EQ(163841, q1.ConvertToUsint())<<"Failure Convert 1 limb to usint";
   EXPECT_EQ(163841, q1.ConvertToUint32())<<"Failure Convert 1 limb to uint";
   EXPECT_EQ(163841, q1.ConvertToUint64())<<"Failure Convert 1 limb to uint64";
-  EXPECT_EQ(163841.0, q1.ConvertToFloat())
+  EXPECT_EQ(163841.0F, q1.ConvertToFloat())
     <<"Failure Convert 1 limb to float";
   EXPECT_EQ(163841.0, q1.ConvertToDouble())
     <<"Failure Convert 1 limb to double";
@@ -137,18 +142,40 @@ TEST(UTubint,string_conversions_msb){
   //to big for usint or for float so we expect that to fail
   EXPECT_NE(4057816419532801UL, q2.ConvertToUsint()) 
     <<"Failure Convert 2 limb to usint";
-  //YSP Temporarily commented out
-  //EXPECT_NE(4057816419532801UL, q2.ConvertToUint32())
-  //  <<"Failure Convert 2 limb to uint32";
+
+  EXPECT_NE(4057816419532801UL, q2.ConvertToUint32())
+    <<"Failure Convert 2 limb to uint32";
   EXPECT_EQ(4057816419532801UL, q2.ConvertToUint64())
     <<"Failure Convert 2 limb to uint64";
   EXPECT_EQ(4057816419532801L, q2.ConvertToUint64())
     <<"Failure Convert 2 limb to uint64";
-  EXPECT_NE(4057816419532801.0, q2.ConvertToFloat())
+
+  //test float converstions. 
+
+  //cout << "flt mantissa digits "<< FLT_MANT_DIG <<endl;
+  //cout << "d mantissa digits "<< DBL_MANT_DIG <<endl;
+  //cout << "ld mantissa digits "<< LDBL_MANT_DIG <<endl;
+
+  float testf = 4057816419532801.0F;
+  //cout << "sizeoffloat "<< sizeof(float) << endl;  
+  //cout << "testf "<< testf << endl;
+  EXPECT_EQ(testf, q2.ConvertToFloat())
     <<"Failure Convert 2 limb to float";    
-  EXPECT_EQ(4057816419532801.0, q2.ConvertToDouble())
-    <<"Failure Convert 2 limb to ouble";    
-  EXPECT_EQ(4057816419532801.0L, q2.ConvertToLongDouble())
+
+  double testd = 4057816419532801.0;
+  //cout << "sizeofdouble "<< sizeof(double) << endl;  
+  //cout << "testd "<< testd << endl;
+  EXPECT_EQ(testd, q2.ConvertToDouble())
+    <<"Failure Convert 2 limb to double";    
+
+  //note we expect a loss of precision
+  EXPECT_NE(testd, (double)q2.ConvertToFloat())
+    <<"Failure Convert 2 limb to float loss of precision";    
+
+  long double testld = 4057816419532801.0L;
+  //cout << "sizeoflongdouble "<< sizeof(long double) << endl;  
+  //cout << "testld "<< testld << endl;
+  EXPECT_EQ(testld, q2.ConvertToLongDouble())
     <<"Failure Convert 2 limb to long double";
 
   //test GetMSB()
@@ -156,8 +183,8 @@ TEST(UTubint,string_conversions_msb){
   //DEBUG("q2 msb "<<msb);
   EXPECT_EQ(msb, 52)<<  "Failure testing 2 limb msb test ";
 
-  bool thrown;
-  thrown = false;
+#if 0 //this 'feature' was removed to match BBI operation.
+  bool thrown = false;
   try {
     //test the ctor()
 
@@ -167,8 +194,8 @@ TEST(UTubint,string_conversions_msb){
     thrown = true;
   }
   EXPECT_TRUE(thrown) 
-    << "Failure testing ConvertToUsint() on uninitialed ubint";
-
+    << "Failure testing ConvertToUsint() throw on uninitialed ubint";
+#endif
 }
 TEST(UTubint,ctor){    
 
@@ -214,8 +241,12 @@ TEST(UTubint,ctor32){
 TEST(UTubint,ctor64){    
   // TEST CASE FOR 64bit VALUES
 
-  ubint a(9223372036854775807UL); // = 7FFFFFFF
-  uint64_t auint64 = 9223372036854775807UL;
+  uint64_t auint64 = 9223372036854775807ULL;// = 7FFFFFFFFFFFFFFF
+
+  EXPECT_EQ(auint64, 9223372036854775807ULL); 
+
+  ubint a(auint64); 
+
   EXPECT_EQ(auint64,a.ConvertToUint64())
     << "Failure testing ConvertToUint64() for big numbers";    
   bitset<64> abs;
@@ -246,22 +277,22 @@ TEST(UTubint,consts){
 
   // test the constants
   a = ubint::ZERO;
-  EXPECT_EQ(0, a.ConvertToUsint())<< "Failure testing ZERO";
+  EXPECT_EQ(ubint(0), a)<< "Failure testing ZERO";
 
   a = ubint::ONE;
-  EXPECT_EQ(1, a.ConvertToUsint())<< "Failure testing ONE";
+  EXPECT_EQ(ubint(1), a)<< "Failure testing ONE";
 
   a = ubint::TWO;
-  EXPECT_EQ(2, a.ConvertToUsint())<< "Failure testing TWO";
+  EXPECT_EQ(ubint(2), a)<< "Failure testing TWO";
 
   a = ubint::THREE;
-  EXPECT_EQ(3, a.ConvertToUsint())<< "Failure testing THREE";
+  EXPECT_EQ(ubint(3), a)<< "Failure testing THREE";
 
   a = ubint::FOUR;
-  EXPECT_EQ(4, a.ConvertToUsint())<< "Failure testing FOUR";
+  EXPECT_EQ(ubint(4), a)<< "Failure testing FOUR";
 
   a = ubint::FIVE;
-  EXPECT_EQ(5, a.ConvertToUsint())<< "Failure testing FIVE";
+  EXPECT_EQ(ubint(5), a)<< "Failure testing FIVE";
 
   //todo: test log constants?
 }
@@ -493,6 +524,18 @@ TEST(UTubint, compare){
     cbool= a!=b;
     EXPECT_FALSE(cbool)<< "Failure testing != : a == b";
   }
+  
+  //test case that failed in TR 409
+  {
+
+    ubint a("11272741999");
+    ubint b("8828677302");
+
+    c = a.Compare(b);
+    expectedResult = 1;
+    EXPECT_EQ(expectedResult,c)<< "Failure testing compare TR 409";
+
+  }
 }
 
 /************************************************/
@@ -516,6 +559,7 @@ TEST(UTubint,basic_math){
 
     //DEBUG("result "<<result);
     //DEBUG("expect "<<expectedResult);
+
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
       <<"Failure testing Add() : a > b";
 
@@ -984,6 +1028,75 @@ TEST(UTubint,mod_operations){
       << "Failure testing %=:  number == modulus";
   }
 
+  // TEST CASE THAT FAILED TR#392    
+  {
+    ubint first("4974113608263");
+    ubint second("486376675628");
+    ubint modcorrect("110346851983");
+    ubint modresult;
+
+    modresult = first.Mod(second);
+
+    EXPECT_EQ(modcorrect, modresult)
+      <<"Failure ModInverse() Mod regression test";
+  }
+
+  // TEST CASE THAT FAILED TR#409
+  {
+
+    ubint first("11272741999");
+    ubint second("8828677302");
+
+    ubint modcorrect("2444064697");
+    ubint modresult;
+    
+    modresult = first.Mod(second);
+
+    EXPECT_EQ(modcorrect, modresult)
+      <<"Failure Mod() Mod tr #409";
+  }
+
+
+  // ANOTHER TEST CASE THAT FAILED TR#409
+  {
+
+    ubint first("239109124202497");
+    ubint second("9");
+
+    ubint modcorrect("1");
+    ubint modresult;
+    
+    modresult = first.Mod(second);
+
+    EXPECT_EQ(modcorrect, modresult)
+      <<"Failure Mod() Mod tr #409 2";
+  }
+
+
+
+
+  // Mod(0)
+  {
+    ubint first("4974113608263");
+    ubint second("0");
+    ubint modcorrect("4974113608263");
+    ubint modresult;
+
+    bool thrown = false;
+    try {
+      modresult = first.Mod(second);
+    }
+    catch (exception& e){
+      std::cout<<e.what()<<std::endl;
+      thrown = true;
+    }
+
+    EXPECT_TRUE(thrown)
+      << "Failure testing ModInverse() non co-prime arguments";
+  }
+
+}
+
   /************************************************/
   /* TESTING METHOD MOD BARRETT FOR ALL CONDITIONS */
   /************************************************/
@@ -1016,6 +1129,9 @@ TEST(UTubint,mod_operations){
   // If m and p are not co-prime, the method throws an error
   // ConvertToUsint converts ubint calculatedResult to integer
 
+TEST(UTubint,mod_inverse){
+  ubint calculatedResult;
+  int expectedResult;
 
   // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
   {
@@ -1024,10 +1140,11 @@ TEST(UTubint,mod_operations){
 
     calculatedResult = m.ModInverse(p);
     expectedResult = 65;
-
+    
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToUint64())
       << "Failure testing ModInverse(): number less than modulus";
   }
+
   // TEST CASE WHEN THE NUMBER AND MOD ARE NOT CO-PRIME
   {
     ubint m("3017");
@@ -1037,14 +1154,47 @@ TEST(UTubint,mod_operations){
     try {
       calculatedResult = m.ModInverse(p);
     }
-    catch (...){
+    catch (exception& e){
+      std::cout<<e.what()<<std::endl;
       thrown = true;
     }
     //expectedResult = 77;
 
     EXPECT_TRUE(thrown)
       << "Failure testing ModInverse() non co-prime arguments";
+
   }
+
+  //testcase that failed during testing.
+  {
+
+
+    ubint input ("405107564542978792");
+    ubint modulus("1152921504606847009");
+    ubint modIcorrect("844019068664266609");
+    ubint modIresult;
+
+    bool thrown = false;
+    try {
+      modIresult = input.ModInverse(modulus);
+    }
+    catch (exception& e){
+      thrown = true;
+      std::cout<<e.what()<<std::endl;
+      modIresult = ubint(0);
+    }
+
+    EXPECT_FALSE(thrown)
+      << "Failure ModInverse() regression test caught throw";
+    EXPECT_EQ(modIcorrect, modIresult)
+      <<"Failure ModInverse() regression test";
+  }
+
+}
+
+TEST(UTubint,mod_arithmetic){
+  ubint calculatedResult;
+  int expectedResult;
 
   /************************************************/
   /* TESTING METHOD MODADD FOR ALL CONDITIONS     */

@@ -38,12 +38,18 @@
 #define LBCRYPTO_MATH_BACKEND_H
  
 /*! Define the library being used via the MATHBACKEND macro. */
-// 1 - old implementation based on 8-bit character arrays (bytes),
+// 1 - DEPRECATED DO NOT USE: old implementation based on 8-bit character arrays (bytes),
 // uses a memory pool for storing character arrays
-// 2 - main math backend supporting arbitrary bitwidths; no memory
-// pool is used; can grow up to RAM limit currently supports uint8_t,
-// uint16_t, and uint32_t; uint32_t is recommended for 32- and 64-bit
-// CPU architectures
+
+// 2 -side by side comparison of main math backend supporting
+// arbitrary bitwidths; no memory pool is used; can grow up to RAM
+// limit currently supports uint32_t; uint32_t is recommended for 32-
+// and 64-bit and new backend that has dynamic allocation and support
+// uint32_t and uint64_t on linux
+
+// 3- new dynamicly allocated backend and support uint32_t and uint64_t on linux
+// 4- new dynamicly allocated backend and supports  uint64_t on linux
+
 
 //#define MATHBACKEND 2 //side by side comparison of old and new libraries
 #define MATHBACKEND 2 //32 bit should work with all OS
@@ -61,6 +67,7 @@
 #include "cpu_int/binvect.cpp"
 #include <initializer_list>
 
+#define UBINT_32
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.cpp" //vectors of experimental ubints
 #include "exp_int/mubintvec.cpp" //rings of ubints
@@ -69,16 +76,15 @@
 
 #if MATHBACKEND == 3
 
-
+#define UBINT_32
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.cpp" //vectors of experimental ubints
 #include "exp_int/mubintvec.cpp" //rings of ubints
-
 #endif
 
 #if MATHBACKEND == 4
 
-
+#define UBINT_64
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.cpp" //vectors of experimental ubints
 #include "exp_int/mubintvec.cpp" //rings of ubints
@@ -112,7 +118,7 @@ namespace lbcrypto {
 	/** Define the mapping for BigBinaryInteger
 	    1500 is the maximum bit width supported by BigBinaryIntegers, large enough for most use cases
 		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application - to achieve smaller runtimes**/
-	typedef cpu_int::BigBinaryInteger<integral_dtype,1500> BigBinaryInteger;
+	typedef cpu_int::BigBinaryInteger<integral_dtype,224> BigBinaryInteger;
 	
 	/** Define the mapping for BigBinaryVector */
 	typedef cpu_int::BigBinaryVector<BigBinaryInteger> BigBinaryVector;
@@ -134,8 +140,9 @@ namespace lbcrypto {
 
 #if MATHBACKEND == 3
 
-	/** integral_dtype specifies the native data type used for the BigBinaryInteger implementation 
-	    should be uint32_t for most applications **/
+	/** integral_dtype specifies the native data type used for the
+	    BigBinaryInteger implementation should be uint32_t for
+	    most applications **/
 	typedef uint32_t integral_dtype;
 
 	/** Define the mapping for ExpBigBinaryInteger (experimental) */
@@ -157,8 +164,10 @@ namespace lbcrypto {
 
 #if MATHBACKEND == 4
 
-	/** integral_dtype specifies the native data type used for the BigBinaryInteger implementation 
-	    should be uint32_t for most applications **/
+	/** integral_dtype specifies the native data type used for the
+	    BigBinaryInteger implementation set to uint64_t for
+	    machines tha support it. */
+
 	typedef uint64_t integral_dtype;
 
 	/** Define the mapping for ExpBigBinaryInteger (experimental) */

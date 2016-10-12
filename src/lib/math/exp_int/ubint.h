@@ -56,7 +56,7 @@
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
 
-#if MATHBACKEND == 4
+#ifdef UBINT_64
 
 #undef int128_t
 #define int128_t our_int128_t
@@ -75,7 +75,8 @@ typedef __uint128_t             uint128_t;
 #endif
 
 #define UINT128_MAX             ((uint128_t)-1)
-#endif
+
+#endif //UBINT_64
 
 
 /**
@@ -158,7 +159,7 @@ namespace exp_int{
     const static bool value = true ;	
   };
 
-#if MATHBACKEND == 4
+#ifdef UBINT_64
   /**
    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t, uint64_t, uint128_t}.
    * sets value true if datatype is unsigned integer 64 bit.
@@ -210,7 +211,7 @@ namespace exp_int{
    */
   template<> struct DoubleDataType<uint32_t>{typedef uint64_t T; };
 
-#if MATHBACKEND == 4 
+#ifdef UBINT_64
   /**
    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
    * sets T as of type unsigned integer 128 bit if limb datatype is 64bit
@@ -279,7 +280,7 @@ namespace exp_int{
    */
   template<> struct SignedDoubleDataType<uint32_t>{typedef int64_t T; };
 
-#if MATHBACKEND == 4
+#ifdef UBINT_64
   /**
    * @brief Struct to determine a signed datatype that is twice as big(bitwise) as utype.
    * sets T as of type unsigned integer 128 bit if limb datatype is 64bit
@@ -478,6 +479,7 @@ namespace exp_int{
 
     /**
      * Converts the value to a usint.
+     * if the ubint is uninitialized std::logic_error is thrown
      * if the ubint is larger than the max value representable
      * it is truncated to the least significant bits that fit
      * @return the int representation of the value as usint.
@@ -486,6 +488,7 @@ namespace exp_int{
     
     /**
      * Converts the value to a usint. Soon to be DEPRECATED, because Int is not usint
+     * if the ubint is uninitialized std::logic_error is thrown
      * if the ubint is larger than the max value representable
      * it is truncated to the least significant bits that fit
      * @return the int representation of the value as usint.
@@ -494,33 +497,35 @@ namespace exp_int{
 
     /**
      * Converts the value to a uint32_t.
+     * if the ubint is uninitialized std::logic_error is thrown
      * if the ubint is larger than the max value representable
-     * std::out_of_range is thrown
+     * it is truncated to the least significant bits that fit
      * @return the int representation of the value as uint32_t
      */
     uint32_t ConvertToUint32() const;
     
     /**
      * Converts the value to a uint64_t.
+     * if the ubint is uninitialized std::logic_error is thrown
      * if the ubint is larger than the max value representable
-     * std::out_of_range is thrown
-     * if conversion fails std::invalid_argment is thrown 
+     * it is truncated to the least significant bits that fit
      * @return the int representation of the value as uint64_t
      */
     uint64_t ConvertToUint64() const;
 
     /**
      * Converts the value to a float
+     * if the ubint is uninitialized std::logic_error is thrown
      * if the ubint is larger than the max value representable
-     * std::out_of_range is thrown
-     * if conversion fails std::invalid_argment is thrown 
+     * or if conversion fails, and error is reported to cerr 
      *
      * @return float representation of the value.
-     */
+    */
     float ConvertToFloat() const;
 
     /**
      * Converts the value to an double.
+     * if the ubint is uninitialized std::logic_error is thrown
      * if the ubint is larger than the max value representable
      * std::out_of_range is thrown
      * if conversion fails std::invalid_argment is thrown 
@@ -532,6 +537,7 @@ namespace exp_int{
 
     /**
      * Converts the value to an long double.
+     * if the ubint is uninitialized std::logic_error is thrown
      * if the ubint is larger than the max value representable
      * std::out_of_range is thrown
      * if conversion fails std::invalid_argment is thrown 
@@ -1006,6 +1012,15 @@ namespace exp_int{
      */
     ubint MulIntegerByLimb(limb_t b) const; //todo rename to ubint
 
+
+    /**
+     * documentation function, prints sizes of constats. 
+     * @param none
+     * @return none
+     */
+    void PrintIntegerConstants(void);
+
+
   protected:
     
     /**
@@ -1027,7 +1042,19 @@ namespace exp_int{
     void SetMSB(usint guessIdxChar);
 
 
+
   private:
+    
+    /**
+     * Normalize limb storage of the ubint by making sure the most
+     * significant limb is non-zero (all higher zero limbs are
+     * removed).
+     * 
+     * @return resulting bit.
+     */
+    void NormalizeLimbs(void);
+    
+    
     /**
      * Gets the bit at the specified index.
      *
@@ -1038,9 +1065,10 @@ namespace exp_int{
 
 
     /**
-     * Sets the int value at the specified index.
+     * Sets the limb value at the specified index.
      *
-     * @param index is the index of the int to set in the uint array.
+     * @param index is the index of the limb to set in the ubint storage.
+     * //todo should be renamed SetLimbAtIndex();
      */
     void SetIntAtIndex(usint idx, limb_t value);
         
@@ -1052,15 +1080,13 @@ namespace exp_int{
     
     int divmnu_vect(ubint& q, ubint& r, const ubint& u, const ubint& v) const;
 
-
-
   private: //todo make private again
     //vector storing the native integers. stored little endian
     vector<limb_t> m_value;
+
   private:
     //variable that stores the MOST SIGNIFICANT BIT position in the
-    //number. Note MSB(1) = 1 NOT 0
-    usint m_MSB;
+    size_t m_MSB;
 
     //variable to store the bitlength of the limb data type.
     static const usint m_limbBitLength;
@@ -1079,9 +1105,10 @@ namespace exp_int{
     static const usint m_numDigitInPrintval=1500; //todo get rid of m_numDigitInPrintval
 
     /**
-     * function to return the ceiling of the number divided by the number of bits in the limb data type. 
-     * DBC *thinks* this is to determine how many limbs are needed for an input bitsize.
-     * @param Number is the number to be divided.
+     * function to return the ceiling of the input number divided by
+     * the number of bits in the limb data type.  DBC this is to
+     * determine how many limbs are needed for an input bitsize.
+     * @param Number is the number to be divided. 
      * @return the ceiling of Number/(bits in the limb data type)
      */
     static usint ceilIntByUInt(const limb_t Number); //todo rename to MSB2NLimbs()

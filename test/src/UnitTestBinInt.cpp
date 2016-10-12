@@ -505,7 +505,7 @@ TEST(UTBinInt,mod_operations){
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing number_equal_to_modulus";
   }
-
+}
 
   /************************************************/
   /* TESTING METHOD MOD BARRETT FOR ALL CONDITIONS */
@@ -538,7 +538,7 @@ TEST(UTBinInt,mod_operations){
     //EXPECT_EQ(27,calculatedResult.ConvertToInt());
     }
   */
-
+TEST(UTBinInt,mod_inverse){
   /*************************************************/
   /* TESTING METHOD MOD INVERSE FOR ALL CONDITIONS */
   /*************************************************/
@@ -550,6 +550,8 @@ TEST(UTBinInt,mod_operations){
   // If m and p are not co-prime, the method throws an error
   // ConvertToInt converts BigBinaryInteger calculatedResult to integer
 
+  BigBinaryInteger calculatedResult;
+  int expectedResult;
 
   // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
   {
@@ -574,7 +576,65 @@ TEST(UTBinInt,mod_operations){
       << "Failure testing number_greater_than_modulus";
   }
 
+  //TESTCASE 
 
+  //testcase that failed during testing.
+  {
+
+    BigBinaryInteger first("4974113608263");
+    BigBinaryInteger second("486376675628");
+    string modcorrect("110346851983");
+    BigBinaryInteger modresult;
+
+    modresult = first.Mod(second);
+
+    EXPECT_EQ(modcorrect, modresult.ToString())
+      <<"Failure ModInverse() Mod regression test";
+
+
+    BigBinaryInteger input ("405107564542978792");
+    BigBinaryInteger modulus("1152921504606847009");
+    string modIcorrect("844019068664266609");
+    BigBinaryInteger modIresult;
+
+    bool thrown = false;
+    try {
+      modIresult = input.ModInverse(modulus);
+    }
+    catch (...){
+      thrown = true;
+    }
+
+    EXPECT_FALSE(thrown)
+      << "Failure testing ModInverse() non co-prime arguments";
+    EXPECT_EQ(modIcorrect, modIresult.ToString())
+      <<"Failure ModInverse() regression test";
+  }
+
+
+
+  // Mod(0)
+  {
+#if 0 //BBI just hangs, do not run this test.
+    BigBinaryInteger first("4974113608263");
+    BigBinaryInteger second("0");
+    string modcorrect("4974113608263");
+    BigBinaryInteger modresult;
+
+    modresult = first.Mod(second);
+
+    EXPECT_EQ(modcorrect, modresult.ToString())
+      <<"Failure ModInverse() Mod(0)";
+#endif
+  }
+
+
+}
+
+
+TEST(UTBinInt,mod_arithmetic){
+  BigBinaryInteger calculatedResult;
+  int expectedResult;
   /************************************************/
   /* TESTING METHOD MODADD FOR ALL CONDITIONS     */
   /************************************************/
@@ -933,7 +993,7 @@ TEST(UTBinInt,method_exponentiation_without_modulus){
     << "Failure testing exp";
 }
 
-TEST(method_to_test_convert_to_double, ConvertToDouble) {
+TEST(UTBinInt,method_ConvertToDouble) {
   BigBinaryInteger x("104037585658683683");
   double xInDouble = 104037585658683683;
 

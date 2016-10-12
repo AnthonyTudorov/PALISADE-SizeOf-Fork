@@ -75,7 +75,7 @@ void testDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_na
 void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_name);
 
 
-TEST(UTDistrGen, DiscreteUniformGenerator ) {
+TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
 
   // TEST CASE TO GENERATE A UNIFORM BIG BINARY INTEGER WITH SMALL MODULUS
   {
@@ -223,7 +223,7 @@ void testDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_na
 }
 
 
-TEST(UTDistrGen, ParallelDiscreteUniformGenerator ) {
+TEST(UTDistrGen, ParallelDiscreteUniformGenerator_LONG ) {
 
   //BUILD SEVERAL VECTORS OF BBI IN PARALLEL, CONCATENATE THEM TO ONE LARGE VECTOR AND TEST
   //THE RESULT OF THE FIRST AND SECOND CENTRAL MOMENTS
@@ -404,6 +404,7 @@ TEST(UTDistrGen, DiscreteGaussianGenerator) {
   //mean test
 
   {
+    std::cout<<"note this sometimes fails. are limits set correctly?"<<std::endl;
     sint stdev = 5;
     usint size = 10000;
     BigBinaryInteger modulus("10403");

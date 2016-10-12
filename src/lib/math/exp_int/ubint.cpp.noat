@@ -403,7 +403,7 @@ namespace exp_int {
     if (m_value.size()==0)
       throw std::logic_error("ConvertToUsint() on uninitialized bint");		       
     if (sizeof(limb_t)>=sizeof(usint)){
-      result = m_value.at(0);
+      result = m_value[0];
     } else {
       //Case where limb_t is less bits than output size
       //add number of limbs needed to make output
@@ -413,7 +413,7 @@ namespace exp_int {
       usint ceilInt = ceilIntByUInt(msbTest);
       //copy the values by shift and add
       for (usint i = 0; i < ceilInt; i++){
-	usint tmp = this->m_value.at(i);
+	usint tmp = this->m_value[i];
 	tmp <<= (m_limbBitLength*i);
 	result += tmp;
       }
@@ -435,7 +435,7 @@ namespace exp_int {
       throw std::logic_error("ConvertToUint32() on uninitialized bint");	
 
     if (sizeof(limb_t)>=sizeof(uint32_t)){
-      result = (uint32_t)m_value.at(0);
+      result = (uint32_t)m_value[0];
     } else {
       //Case where limb_t is less bits than uint32_t
       int msbTest = sizeof(uint32_t)*8;
@@ -444,7 +444,7 @@ namespace exp_int {
       usint ceilInt = ceilIntByUInt(msbTest);
       //copy the values by shift and add
       for (usint i = 0; i < ceilInt; i++){
-	uint32_t tmp = this->m_value.at(i);
+	uint32_t tmp = this->m_value[i];
 	tmp  <<= (m_limbBitLength*i);
 	result += tmp;
       }
@@ -460,10 +460,10 @@ namespace exp_int {
     if (m_value.size()==0)
       throw std::logic_error("ConvertToUint64() on uninitialized bint");		       
     if (sizeof(limb_t)>=sizeof(uint64_t)){
-      DEBUG("mvalue0 " << m_value.at(0));
-      result = m_value.at(0);
+      DEBUG("mvalue0 " << m_value[0]);
+      result = m_value[0];
       DEBUG("result1 " << result);
-      result = (uint64_t)m_value.at(0);
+      result = (uint64_t)m_value[0];
       DEBUG("result2 " << result);
     } else {
       //Case where limb_t is less bits than uint64_t
@@ -475,10 +475,10 @@ namespace exp_int {
       DEBUG("ceilint " << ceilInt);
       //copy the values by shift and add
       for (usint i = 0; i < ceilInt; i++){
-	DEBUG("i "<< i << "v " << this->m_value.at(i));
+	DEBUG("i "<< i << "v " << this->m_value[i]);
 	DEBUG("shift "<< (m_limbBitLength*i));
 	DEBUG("preresult " << result);
-	uint64_t tmp  = this->m_value.at(i);
+	uint64_t tmp  = this->m_value[i];
 	tmp <<= (m_limbBitLength*i); 
 	result += tmp;
 	DEBUG("postresult " << result);
@@ -609,15 +609,15 @@ return result;
 
       for(i=0; i<ceilIntByUInt(m_MSB); ++i){
 	DEBUG("bit shift ");
-	temp = ans.m_value.at(i);
+	temp = ans.m_value[i];
 	temp <<=remainingShift;
-	ans.m_value.at(i) = (limb_t)temp + oFlow;
+	ans.m_value[i] = (limb_t)temp + oFlow;
 	oFlow = temp >> m_limbBitLength;
       }
 
       if(oFlow) {//there is an overflow set of bits.
 	if (i<ans.m_value.size()){
-	  ans.m_value.at(i) = oFlow;
+	  ans.m_value[i] = oFlow;
 	} else {
 	  ans.m_value.push_back(oFlow);
 	}
@@ -633,12 +633,12 @@ return result;
       DEBUG("resize is  "<<ans.m_value.size());
       for (sint i = currentSize-1; i>=0; i-- ) {  //shift limbs required # of indicies
 	DEBUG("to : "<<i+shiftByLimb<< "from "<<i );
-	ans.m_value.at(i+shiftByLimb) = ans.m_value.at(i);
+	ans.m_value[i+shiftByLimb] = ans.m_value[i];
       }
       //zero out the 'shifted in' limbs
       for (sint i = shiftByLimb -1 ; i>=0; i-- ) {
 	DEBUG("clear : "<<i);
-	ans.m_value.at(i) = 0;
+	ans.m_value[i] = 0;
       }
       DEBUG("new size is  "<<ans.m_value.size());
 
@@ -713,7 +713,7 @@ return result;
 
       for(auto i =  shiftByLimb; i < ans.m_value.size(); ++i){
 	DEBUG("limb shift ");
-	ans.m_value.at(i-shiftByLimb) = ans.m_value.at(i);
+	ans.m_value[i-shiftByLimb] = ans.m_value[i];
       }
       //zero out upper  "shifted in" limbs
       for(usint i = 0; i< shiftByLimb; ++i){
@@ -744,8 +744,8 @@ return result;
 
       for(sint i = startVal -1 ; i>=0;i--){
 	DEBUG("bit shift "<<i);
-	oldVal = ans.m_value.at(i);
-	ans.m_value.at(i) = (ans.m_value.at(i)>>remainingShift) + overFlow;
+	oldVal = ans.m_value[i];
+	ans.m_value[i] = (ans.m_value[i]>>remainingShift) + overFlow;
 
 	overFlow = (oldVal &  maskVal);
 	overFlow <<= compShiftVal ;
@@ -796,7 +796,7 @@ return result;
     } else {
       DEBUG("PrintLimbsInDec size "<< m_value.size());
       for (auto i = 0; i < m_value.size(); i++){
-        std::cout<< i << ":"<< m_value.at(i);
+        std::cout<< i << ":"<< m_value[i];
         std::cout <<std::endl;
       }
       std::cout<<"MSB: "<<m_MSB << std::endl;
@@ -811,7 +811,7 @@ return result;
     } else {
       DEBUG("PrintLimbsInHex size "<< m_value.size());
       for (auto i = 0; i < m_value.size(); i++){
-	std::cout<< i << ": 0x"<< std::hex << m_value.at(i) << std::dec <<std::endl;
+	std::cout<< i << ": 0x"<< std::hex << m_value[i] << std::dec <<std::endl;
       }
       std::cout<<"MSB: "<<m_MSB << std::endl;
     }
@@ -899,10 +899,10 @@ return result;
 
       //      DEBUG("ofl "<<ofl);  //todo fix <<ostream for Dlimb_t (when it is 128 bits
 
-      DEBUG("Alimb "<<A->m_value.at(i));
-      DEBUG("Blimb "<<B->m_value.at(i));
+      DEBUG("Alimb "<<A->m_value[i]);
+      DEBUG("Blimb "<<B->m_value[i]);
 
-      ofl =(Dlimb_t)A->m_value.at(i)+ (Dlimb_t)B->m_value.at(i)+ofl;//sum of the two int and the carry over
+      ofl =(Dlimb_t)A->m_value[i]+ (Dlimb_t)B->m_value[i]+ofl;//sum of the two int and the carry over
 
       // DEBUG("newofl "<<ofl);
 
@@ -917,7 +917,7 @@ return result;
     if(ofl){
       for(; i<ceilIntA; ++i){ //keep looping over the remainder of the larger value
 	DEBUG("oi "<<i);
-	ofl = (Dlimb_t)A->m_value.at(i)+ofl;//sum of the two int and the carry over
+	ofl = (Dlimb_t)A->m_value[i]+ofl;//sum of the two int and the carry over
 
 	result.m_value.push_back((limb_t)ofl);
 	ofl>>=m_limbBitLength;//current overflow
@@ -930,7 +930,7 @@ return result;
     } else { //there is no overflow at the end
       for(; i<ceilIntA; ++i){
 	DEBUG("push "<<i);
-	result.m_value.push_back(A->m_value.at(i));
+	result.m_value.push_back(A->m_value[i]);
       }
     }
     result.SetMSB();//Set the MSB.
@@ -993,10 +993,10 @@ return result;
 
     for(sint i=0; i<b.m_value.size(); ++i){
       DEBUG ("limb  "<<i);
-      DEBUG ("a limb "<<this->m_value.at(i));
-      DEBUG ("res limb "<<result.m_value.at(i));
-      DEBUG ("b limb "<<b.m_value.at(i));
-      if(result.m_value.at(i)<b.m_value.at(i)){ //carryover condition need to borrow from higher limbs.
+      DEBUG ("a limb "<<this->m_value[i]);
+      DEBUG ("res limb "<<result.m_value[i]);
+      DEBUG ("b limb "<<b.m_value[i]);
+      if(result.m_value[i]<b.m_value[i]){ //carryover condition need to borrow from higher limbs.
         DEBUG ("borrow at "<<i);
         current=i;
         cntr = current+1;
@@ -1004,20 +1004,20 @@ return result;
         if (cntr>=result.m_value.size()){
           std::cout<<"error seek past end of result "<<std::endl;
         }
-        while(result.m_value.at(cntr)==0){
+        while(result.m_value[cntr]==0){
           DEBUG("FF at cntr" <<cntr);
-          result.m_value.at(cntr)=m_MaxLimb; //set all the zero limbs to all FFs (propagate the 1)
+          result.m_value[cntr]=m_MaxLimb; //set all the zero limbs to all FFs (propagate the 1)
           cntr++;
         }
         DEBUG("decrement at " << cntr);
-        result.m_value.at(cntr)--; // and eventually borrow 1 from the first nonzero limb we find
+        result.m_value[cntr]--; // and eventually borrow 1 from the first nonzero limb we find
         DEBUG("sub with borrow at " <<i);
-        result.m_value.at(i)=result.m_value.at(i)+(m_MaxLimb - b.m_value.at(i)) +1; // and add the it to the current limb
+        result.m_value[i]=result.m_value[i]+(m_MaxLimb - b.m_value[i]) +1; // and add the it to the current limb
       } else {       //usual subtraction condition
         DEBUG("sub no borrow at " <<i);
-        result.m_value.at(i)=result.m_value.at(i)- b.m_value.at(i);
+        result.m_value[i]=result.m_value[i]- b.m_value[i];
       }
-      DEBUG ("res limb "<<i<<" finally "<<result.m_value.at(i));
+      DEBUG ("res limb "<<i<<" finally "<<result.m_value[i]);
 
     }
     result.NormalizeLimbs();
@@ -1067,10 +1067,10 @@ return result;
       DEBUG("i "<<i);
       ubint tmp2;
 
-      //ans += (this->MulIntegerByLimb(b.m_value.at(i)))<<=(i)*m_limbBitLength;
+      //ans += (this->MulIntegerByLimb(b.m_value[i]))<<=(i)*m_limbBitLength;
       usint tmp1 = (i)*m_limbBitLength;
       DEBUG("tmp1 "<<tmp1);
-      tmp2 = (this->MulIntegerByLimb(b.m_value.at(i))) <<= tmp1;
+      tmp2 = (this->MulIntegerByLimb(b.m_value[i])) <<= tmp1;
       DEBUG("tmp2 "<<tmp2.ToString());
       ans += tmp2;
 
@@ -1152,7 +1152,7 @@ return result;
       ans.PrintLimbsInDec();
     for(;i<endVal ;++i){
       DEBUG("mullimb i"<<i);
-      temp = ((Dlimb_t)m_value.at(i)*(Dlimb_t)b) + ofl;
+      temp = ((Dlimb_t)m_value[i]*(Dlimb_t)b) + ofl;
       //DEBUG("temp "<<temp); //todo fix when ostream<< works for 128 bit
 
       ans.m_value.push_back((limb_t)temp);
@@ -1483,16 +1483,16 @@ return result;
     if (dbg_flag) {
       std::cout << "in AssignVal m_value ";
       for(int i=0;i<m_value.size();i++)
-	std::cout <<m_value.at(i) << " ";//for debug purpose
+	std::cout <<m_value[i] << " ";//for debug purpose
       std::cout << std::endl;
       std::cout << "in AssignVal m_value hex ";
       for(int i=0;i<m_value.size();i++)
-	std::cout << std::hex <<m_value.at(i) <<  " ";//for debug purpose
+	std::cout << std::hex <<m_value[i] <<  " ";//for debug purpose
       std::cout <<std::dec << std::endl;
 
       std::cout << "in AssignVal m_value hex ";
       for(int i=0;i<m_value.size();i++)
-	std::cout << std::hex <<m_value.at(i) <<  " ";//for debug purpose
+	std::cout << std::hex <<m_value[i] <<  " ";//for debug purpose
       std::cout <<std::dec << std::endl;
     }
     DEBUG("in AssignVal msb now "<< m_MSB );
@@ -1517,7 +1517,7 @@ return result;
   void ubint<limb_t>::SetMSB(usint guessIdxChar){
 
     m_MSB = (m_value.size() - guessIdxChar - 1)*m_limbBitLength;
-    m_MSB += GetMSBlimb_t(m_value.at(guessIdxChar));
+    m_MSB += GetMSBlimb_t(m_value[guessIdxChar]);
   }
 
   template<typename limb_t>
@@ -1550,8 +1550,8 @@ return result;
     }
 
     //use simple masking operation if modulus is 2
-    if(modulus.m_MSB==2 && modulus.m_value.at(0)==2){
-      if(this->m_value.at(0)%2==0)
+    if(modulus.m_MSB==2 && modulus.m_value[0]==2){
+      if(this->m_value[0]%2==0)
 	return ubint(ZERO);
       else
 	return ubint(ONE);
@@ -1680,7 +1680,7 @@ return result;
 
     size_t limtest = quotient.size()-1;
     for(sint i=limtest; i>=0;i--){
-      mods.push_back(quotient.at(i)*second + first);
+      mods.push_back(quotient[i]*second + first);
       first = second;
       second = mods.back();
     }
@@ -1800,7 +1800,7 @@ return result;
 
     while(true){
       //product is multiplied only if lsb bitvalue is 1
-      if(Exp.m_value.at(0)%2==1){
+      if(Exp.m_value[0]%2==1){
 	product = product*mid;
       }
 
@@ -1909,12 +1909,12 @@ return result;
       //check each limb in descending order
       for(sint i=m_value.size()-1 ;i>=0; i--){
 	DEBUG("i "<<i);
-	DEBUG("a "<<this->m_value.at(i));
-	DEBUG("b "<<a.m_value.at(i));
+	DEBUG("a "<<this->m_value[i]);
+	DEBUG("b "<<a.m_value[i]);
 
-	if (this->m_value.at(i)>a.m_value.at(i)) //b>a
+	if (this->m_value[i]>a.m_value[i]) //b>a
 	    return 1;
-	else if (this->m_value.at(i)<a.m_value.at(i)) //a>b
+	else if (this->m_value[i]<a.m_value[i]) //a>b
 	    return -1;
       }
     }
@@ -2369,7 +2369,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
       return 0;
     limb_t result;
     sint idx =ceilIntByUInt(index)-1;//idx is the index of the character array
-    limb_t temp = this->m_value.at(idx);
+    limb_t temp = this->m_value[idx];
     limb_t bmask_counter = index%m_limbBitLength==0? m_limbBitLength:index%m_limbBitLength;//bmask is the bit number in the 8 bit array
     limb_t bmask = 1;
     for(sint i=1;i<bmask_counter;i++)
@@ -2383,7 +2383,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   void ubint<limb_t>::SetIntAtIndex(usint idx, limb_t value){
     if (idx >= m_value.size())
       throw std::logic_error("Index Invalid");
-    this->m_value.at(idx) = value;
+    this->m_value[idx] = value;
   }
 
   /*

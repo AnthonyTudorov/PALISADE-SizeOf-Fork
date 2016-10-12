@@ -359,7 +359,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	algorithm.EvalKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	CryptoUtility<ILVector2n>::ReKeyGen(algorithm, newPK, sk, &evalKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
