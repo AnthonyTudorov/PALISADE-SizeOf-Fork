@@ -15,6 +15,8 @@ namespace lbcrypto {
 template <class Element>
 class LPCryptoParametersNull : public LPCryptoParameters<Element> {
 public:
+	LPCryptoParametersNull() : LPCryptoParameters<Element>() {}
+
 	LPCryptoParametersNull(const shared_ptr<ElemParams> ep, const BigBinaryInteger &plaintextModulus)
 		: LPCryptoParameters<Element>(ep, plaintextModulus) {}
 
@@ -26,6 +28,17 @@ public:
 		if( !serObj->IsObject() )
 			return false;
 
+		SerialItem cryptoParamsMap(rapidjson::kObjectType);
+
+		Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
+		const ElemParams& ep = *this->GetElementParams();
+		if( !ep.Serialize(&pser, fileFlag) )
+			return false;
+
+		cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
+		cryptoParamsMap.AddMember("PlaintextModulus", this->GetPlaintextModulus().ToString(), serObj->GetAllocator());
+
+		serObj->AddMember("LPCryptoParametersNull", cryptoParamsMap.Move(), serObj->GetAllocator());
 		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersNull", serObj->GetAllocator());
 
 		return true;
@@ -40,6 +53,37 @@ public:
 		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersNull");
 		if( mIter == serObj.MemberEnd() ) return false;
 
+		SerialItem::ConstMemberIterator pIt;
+
+		if( (pIt = mIter->value.FindMember("ElemParams")) == mIter->value.MemberEnd() )
+			return false;
+		Serialized oneItem(rapidjson::kObjectType);
+		SerialItem key( pIt->value.MemberBegin()->name, oneItem.GetAllocator() );
+		SerialItem val( pIt->value.MemberBegin()->value, oneItem.GetAllocator() );
+		oneItem.AddMember(key, val, oneItem.GetAllocator());
+
+		ElemParams *json_ilParams;
+		if( typeid(Element) == typeid(ILVector2n) )
+			json_ilParams = new ILParams();
+		else if( typeid(Element) == typeid(ILVectorArray2n) )
+			json_ilParams = new ILDCRTParams();
+		else {
+			throw std::logic_error("Unrecognized element type");
+		}
+
+		if( !json_ilParams->Deserialize(oneItem) ) {
+			delete json_ilParams;
+			return false;
+		}
+
+		shared_ptr<ElemParams> ep( json_ilParams );
+		this->SetElementParams( ep );
+
+		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
+			return false;
+		BigBinaryInteger bbiPlaintextModulus(pIt->value.GetString());
+
+		this->SetPlaintextModulus(bbiPlaintextModulus);
 		return true;
 	}
 
@@ -75,7 +119,7 @@ public:
 	* @param *ciphertext ciphertext which results from encryption.
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		const Element &plaintext) const;
+		Element &plaintext) const;
 
 	/**
 	* Method for decrypting plaintext using Null
@@ -145,9 +189,7 @@ public:
 	LPPublicKeyEncryptionSchemeNull() : LPPublicKeyEncryptionScheme<Element>() {}
 	LPPublicKeyEncryptionSchemeNull(std::bitset<FEATURESETSIZE> mask);
 
-	//These functions can be implemented later
-	//Initialize(mask);
-
+	bool neverPadPlaintext() const { return true; }
 	void Enable(PKESchemeFeature feature);
 };
 

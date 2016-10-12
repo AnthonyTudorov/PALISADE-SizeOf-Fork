@@ -388,7 +388,7 @@ bool LPLeveledSHEAlgorithmLTV<Element>::CanRingReduce(usint ringDimension, const
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		const Element &plaintext) const
+		Element &plaintext) const
 {
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams =
 			std::static_pointer_cast<LPCryptoParametersRLWE<Element>>(publicKey->GetCryptoParameters());
@@ -406,6 +406,8 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 	Element e(dgg,elementParams);
 
 	Element c(elementParams);
+
+	plaintext.SwitchFormat();
 
 	c = h*s + p*e + plaintext;
 

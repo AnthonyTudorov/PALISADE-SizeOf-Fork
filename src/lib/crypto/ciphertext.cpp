@@ -79,7 +79,7 @@ template <class Element>
 Ciphertext<Element> Ciphertext<Element>::EvalAdd(const Ciphertext<Element> &ciphertext) const
 {
 	if(this->cryptoContext != ciphertext.cryptoContext){
-		std::string errMsg = "EvalAdd: CryptoParameters of added the ciphertexts are the not the same.";
+		std::string errMsg = "EvalAdd: Ciphertexts are not from the same context";
 		throw std::runtime_error(errMsg);
 	}
 

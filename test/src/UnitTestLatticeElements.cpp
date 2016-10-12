@@ -63,7 +63,7 @@ TEST(UTILVector2n, operators_tests) {
   BigBinaryInteger primeModulus("73");
   BigBinaryInteger primitiveRootOfUnity("22");
 
-  ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
+  shared_ptr<ILParams> ilparams( new ILParams(m, primeModulus, primitiveRootOfUnity) );
 
   ILVector2n ilvector2n1(ilparams);
   BigBinaryVector bbv1(m/2, primeModulus);
@@ -132,7 +132,7 @@ TEST(UTILVector2n, getters_tests) {
   BigBinaryInteger primeModulus("73");
   BigBinaryInteger primitiveRootOfUnity("22");
 
-  ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
+  shared_ptr<ILParams> ilparams( new ILParams(m, primeModulus, primitiveRootOfUnity) );
 
   ILVector2n ilvector2n(ilparams);
   // std::cout << "GetCyclotomicOrder = " << ilvector2n.GetCyclotomicOrder() << std::endl;
@@ -181,7 +181,7 @@ TEST(UTILVector2n, setters_tests) {
   BigBinaryInteger primeModulus("73");
   BigBinaryInteger primitiveRootOfUnity("22");
 
-  ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
+  shared_ptr<ILParams> ilparams( new ILParams(m, primeModulus, primitiveRootOfUnity) );
 
   ILVector2n ilvector2n(ilparams);
   // std::cout << "GetCyclotomicOrder = " << ilvector2n.GetCyclotomicOrder() << std::endl;
@@ -219,7 +219,7 @@ TEST(UTILVector2n, binary_operations) {
   BigBinaryInteger primeModulus("73");
   BigBinaryInteger primitiveRootOfUnity("22");
 
-  ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
+  shared_ptr<ILParams> ilparams( new ILParams(m, primeModulus, primitiveRootOfUnity) );
 
   ILVector2n ilvector2n1(ilparams);
   BigBinaryVector bbv1(m/2, primeModulus);
@@ -305,7 +305,7 @@ TEST(UTILVector2n, clone_operations) {
   BigBinaryInteger primeModulus("73");
   BigBinaryInteger primitiveRootOfUnity("22");
 
-  ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
+  shared_ptr<ILParams> ilparams( new ILParams(m, primeModulus, primitiveRootOfUnity) );
 
   ILVector2n ilv(ilparams);
   BigBinaryVector bbv(m/2, primeModulus);
@@ -342,7 +342,7 @@ TEST(UTILVector2n, arithmetic_operations_element) {
   BigBinaryInteger primeModulus("73");
   BigBinaryInteger primitiveRootOfUnity("22");
 
-  ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
+  shared_ptr<ILParams> ilparams( new ILParams(m, primeModulus, primitiveRootOfUnity) );
 
   ILVector2n ilv(ilparams);
   BigBinaryVector bbv(m/2, primeModulus);
@@ -438,7 +438,7 @@ TEST(UTILVector2n, other_methods) {
   BinaryUniformGenerator bug;
   DiscreteUniformGenerator dug(primeModulus);
 
-  ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
+  shared_ptr<ILParams> ilparams( new ILParams(m, primeModulus, primitiveRootOfUnity) );
 
   ILVector2n ilvector2n(ilparams);
   BigBinaryVector bbv1(m/2, primeModulus);
@@ -706,11 +706,11 @@ TEST(UTILVector2n, other_methods) {
 
 TEST(UTILVector2n, cyclotomicOrder_test) {
   usint m = 8;
-  ILParams ilparams0(m, BigBinaryInteger("17661"), BigBinaryInteger("8765"));
+  shared_ptr<ILParams> ilparams0( new ILParams(m, BigBinaryInteger("17661"), BigBinaryInteger("8765")) );
   // std::cout << "ilparams0.GetCyclotomicOrder()  = " << ilparams0.GetCyclotomicOrder() << std::endl;
   ILVector2n ilv0(ilparams0);
   // std::cout << "ilv0.GetCyclotomicOrder()  = " << ilv0.GetCyclotomicOrder() << std::endl;
-  EXPECT_EQ(ilparams0.GetCyclotomicOrder(), ilv0.GetCyclotomicOrder());
+  EXPECT_EQ(ilparams0->GetCyclotomicOrder(), ilv0.GetCyclotomicOrder());
 }
 
 TEST(UTILVectorArray2n, constructors_test) {
@@ -728,9 +728,9 @@ TEST(UTILVectorArray2n, constructors_test) {
     modulus = modulus * moduli[i];
   }
 
-  ILParams ilparams0(m, moduli[0], rootsOfUnity[0]);
-  ILParams ilparams1(m, moduli[1], rootsOfUnity[1]);
-  ILParams ilparams2(m, moduli[2], rootsOfUnity[2]);
+  shared_ptr<ILParams> ilparams0( new ILParams(m, moduli[0], rootsOfUnity[0]) );
+  shared_ptr<ILParams> ilparams1( new ILParams(m, moduli[1], rootsOfUnity[1]) );
+  shared_ptr<ILParams> ilparams2( new ILParams(m, moduli[2], rootsOfUnity[2]) );
   
   ILVector2n ilv0(ilparams0);
   BigBinaryVector bbv0(m/2, moduli[0]);
@@ -746,7 +746,7 @@ TEST(UTILVectorArray2n, constructors_test) {
   ILVector2n ilv2(ilv0);
   ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
-  ILDCRTParams ildcrtparams(m, moduli, rootsOfUnity);
+  shared_ptr<ILDCRTParams> ildcrtparams( new ILDCRTParams(m, moduli, rootsOfUnity) );
     
   std::vector<ILVector2n> ilvector2nVector(towersize);
   ilvector2nVector[0] = ilv0;
@@ -775,7 +775,7 @@ TEST(UTILVectorArray2n, constructors_test) {
     EXPECT_EQ(towersize, ilva.GetNumOfElements());
 
 	std::vector<ILVector2n> ilvector2nVectorInconsistent(towersize);
-	ILParams ilparamsNegativeTestCase(128, BigBinaryInteger("1231"), BigBinaryInteger("213"));
+	shared_ptr<ILParams> ilparamsNegativeTestCase( new ILParams(128, BigBinaryInteger("1231"), BigBinaryInteger("213")) );
 	ILVector2n ilvNegative(ilparamsNegativeTestCase);
 	ilvector2nVectorInconsistent[0] = ilvNegative;
 	ilvector2nVectorInconsistent[1] = ilv1;
@@ -917,9 +917,9 @@ TEST(UTILVectorArray2n, getters_tests) {
     modulus = modulus * moduli[i];
   }
 
-  ILParams ilparams0(m, moduli[0], rootsOfUnity[0]);
-  ILParams ilparams1(m, moduli[1], rootsOfUnity[1]);
-  ILParams ilparams2(m, moduli[2], rootsOfUnity[2]);
+  shared_ptr<ILParams> ilparams0( new ILParams(m, moduli[0], rootsOfUnity[0]) );
+  shared_ptr<ILParams> ilparams1( new ILParams(m, moduli[1], rootsOfUnity[1]) );
+  shared_ptr<ILParams> ilparams2( new ILParams(m, moduli[2], rootsOfUnity[2]) );
 
   ILVector2n ilv0(ilparams0);
   BigBinaryVector bbv0(m/2, moduli[0]);
@@ -935,7 +935,7 @@ TEST(UTILVectorArray2n, getters_tests) {
   ILVector2n ilv2(ilv0);
   ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
-  ILDCRTParams ildcrtparams(m, moduli, rootsOfUnity);
+  shared_ptr<ILDCRTParams> ildcrtparams( new ILDCRTParams(m, moduli, rootsOfUnity) );
     
   std::vector<ILVector2n> ilvector2nVector(towersize);
   // ilvector2nVector = {ilv0, ilv1, ilv2};
@@ -969,9 +969,9 @@ TEST(UTILVectorArray2n, operator_test) {
     modulus = modulus * moduli[i];
   }
 
-  ILParams ilparams0(m, moduli[0], rootsOfUnity[0]);
-  ILParams ilparams1(m, moduli[1], rootsOfUnity[1]);
-  ILParams ilparams2(m, moduli[2], rootsOfUnity[2]);
+  shared_ptr<ILParams> ilparams0( new ILParams(m, moduli[0], rootsOfUnity[0]) );
+  shared_ptr<ILParams> ilparams1( new ILParams(m, moduli[1], rootsOfUnity[1]) );
+  shared_ptr<ILParams> ilparams2( new ILParams(m, moduli[2], rootsOfUnity[2]) );
   
   ILVector2n ilv0(ilparams0);
   BigBinaryVector bbv0(m/2, moduli[0]);
@@ -987,7 +987,7 @@ TEST(UTILVectorArray2n, operator_test) {
   ILVector2n ilv2(ilv0);
   ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
-  ILDCRTParams ildcrtparams(m, moduli, rootsOfUnity);
+  shared_ptr<ILDCRTParams> ildcrtparams( new ILDCRTParams(m, moduli, rootsOfUnity) );
     
   std::vector<ILVector2n> ilvector2nVector(towersize);
   ilvector2nVector[0] = ilv0;
@@ -1054,9 +1054,9 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     modulus = modulus * moduli[i];
   }
 
-  ILParams ilparams0(m, moduli[0], rootsOfUnity[0]);
-  ILParams ilparams1(m, moduli[1], rootsOfUnity[1]);
-  ILParams ilparams2(m, moduli[2], rootsOfUnity[2]);
+  shared_ptr<ILParams> ilparams0( new ILParams(m, moduli[0], rootsOfUnity[0]) );
+  shared_ptr<ILParams> ilparams1( new ILParams(m, moduli[1], rootsOfUnity[1]) );
+  shared_ptr<ILParams> ilparams2( new ILParams(m, moduli[2], rootsOfUnity[2]) );
   
   ILVector2n ilv0(ilparams0);
   BigBinaryVector bbv0(m/2, moduli[0]);
@@ -1339,7 +1339,7 @@ TEST(UTILVectorArray2n, decompose_test) {
   float stdDev = 4;
   DiscreteGaussianGenerator dgg(stdDev);
 
-  ILDCRTParams params(order, moduli, rootsOfUnity);
+  shared_ptr<ILDCRTParams> params( new ILDCRTParams(order, moduli, rootsOfUnity) );
   ILVectorArray2n ilVectorArray2n(dgg, params, Format::COEFFICIENT);
 
   ILVectorArray2n ilvectorarray2nOriginal(ilVectorArray2n);
@@ -1368,7 +1368,7 @@ TEST(UTILVector2n, ensures_mod_operation_during_operations_on_two_ILVector2ns){
   BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(order, nBits);
   BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(order, primeModulus);
 
-  ILParams ilparams(order, primeModulus, primitiveRootOfUnity);
+  shared_ptr<ILParams> ilparams( new ILParams(order, primeModulus, primitiveRootOfUnity) );
 
   DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(primeModulus);
   
@@ -1406,7 +1406,7 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVectorA
 
   std::vector<BigBinaryInteger> moduli(towersize);
   std::vector<BigBinaryInteger> rootsOfUnity(towersize);
-  std::vector<ILParams> ilparams(towersize);
+  std::vector<shared_ptr<ILParams>> ilparams(towersize);
 
   std::vector<ILVector2n> ilvector2n1(towersize);
   std::vector<BigBinaryVector> bbv1(towersize);
@@ -1422,7 +1422,7 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVectorA
       rootsOfUnity[i] = RootOfUnity(order,moduli[i]);
       modulus = modulus* moduli[i];
       
-      ILParams ilparamsi(order, moduli[i], rootsOfUnity[i]);
+      shared_ptr<ILParams> ilparamsi( new ILParams(order, moduli[i], rootsOfUnity[i]) );
       ilparams.push_back(ilparamsi);
 
       DiscreteUniformGenerator distrUniGeni = lbcrypto::DiscreteUniformGenerator(moduli[i]);
@@ -1436,7 +1436,7 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVectorA
       bbv2[i] = (ilv2.GetValues());
   }
 
-  ILDCRTParams ildcrtparams(order, moduli, rootsOfUnity);
+  shared_ptr<ILDCRTParams> ildcrtparams( new ILDCRTParams(order, moduli, rootsOfUnity) );
 
   ILVectorArray2n ilvectorarray2n1(ilvector2n1);
   ILVectorArray2n ilvectorarray2n2(ilvector2n2);

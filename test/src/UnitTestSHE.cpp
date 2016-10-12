@@ -107,13 +107,12 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetILParams());
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
-
-	CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
+			cc.Encrypt(kp.publicKey, plaintext);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext(ciphertext.size());
 

@@ -140,7 +140,9 @@ public:
 
 	DiscreteGaussianGenerator& GetGenerator() { return ctx->GetGenerator(); }
 
-	//ILParams& GetILParams() { return ctx->GetILParams(); }
+	const shared_ptr<ILParams> GetElementParams() {
+		return std::static_pointer_cast<ILParams>(ctx->getCryptoParams()->GetElementParams());
+	}
 
 	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.ctx == b.ctx; }
 	friend bool operator!=(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.ctx != b.ctx; }
@@ -171,6 +173,9 @@ public:
 			const Plaintext& plaintext,
 			bool doPadding = true)
 	{
+		if( GetEncryptionAlgorithm().neverPadPlaintext() )
+			doPadding = false;
+
 		std::vector<shared_ptr<Ciphertext<Element>>> cipherResults;
 
 		if( publicKey->GetCryptoContext() != *this )
@@ -182,7 +187,7 @@ public:
 		size_t rounds = ptSize/chunkSize;
 
 		if( doPadding == false && ptSize%chunkSize != 0 ) {
-			throw std::logic_error("Cannot Encrypt without padding with this plaintext size");
+			throw std::logic_error("Cannot Encrypt without padding with chunksize " + std::to_string(chunkSize) + " and plaintext size " + std::to_string(ptSize));
 		}
 
 		// if there is a partial chunk OR if there isn't but we need to pad
@@ -193,7 +198,6 @@ public:
 
 			Element pt(publicKey->GetCryptoParameters()->GetElementParams());
 			plaintext.Encode(ptm, &pt, bytes, chunkSize);
-			pt.SwitchFormat();
 
 			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm().Encrypt(publicKey,pt);
 
@@ -244,7 +248,6 @@ public:
 
 			Element pt(publicKey->GetCryptoParameters()->GetElementParams());
 			px.Encode(publicKey->GetCryptoParameters()->GetPlaintextModulus(), &pt, 0, chunkSize);
-			pt.SwitchFormat();
 
 			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm().Encrypt(publicKey, pt);
 			if( !ciphertext ) {
@@ -275,6 +278,9 @@ public:
 			Plaintext *plaintext,
 			bool doPadding = true)
 	{
+		if( GetEncryptionAlgorithm().neverPadPlaintext() )
+			doPadding = false;
+
 		// edge case
 		if( ciphertext.size() == 0 )
 			return DecryptResult();
@@ -342,7 +348,8 @@ public:
 		}
 
 		// unpad and write the last one
-		pte[!whichArray].Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
+		if( GetEncryptionAlgorithm().neverPadPlaintext() == false )
+			pte[!whichArray].Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
 		outstream << pte[!whichArray];
 
 		return;
@@ -399,6 +406,16 @@ public:
 			}
 		}
 	}
+
+	shared_ptr<Ciphertext<Element>>
+	EvalMult(shared_ptr<Ciphertext<Element>> ct1, shared_ptr<Ciphertext<Element>> ct2)
+	{
+		if( ct1.GetCryptoContext() != *this || ct2.GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
+
+		return GetEncryptionAlgorithm().EvalMult(ct1, ct2);
+	}
+
 	/**
 	* perform KeySwitch on a vector of ciphertext
 	* @param scheme - a reference to the encryption scheme in use
