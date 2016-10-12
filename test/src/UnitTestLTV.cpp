@@ -95,7 +95,7 @@ TEST(method_ILVectorArray2n, Encrypt_Decrypt) {
 
 	DiscreteGaussianGenerator dgg(stdDev);
 
-	ILDCRTParams params(m, moduli, rootsOfUnity);
+	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
@@ -110,9 +110,8 @@ TEST(method_ILVectorArray2n, Encrypt_Decrypt) {
 
 	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext;
-
-	CryptoUtility<ILVectorArray2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext);
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext =
+		cc.Encrypt(kp.publicKey, plaintext);
 
 	BytePlaintextEncoding plaintextNew;
 
@@ -146,18 +145,17 @@ TEST(method_ILVector2n, Encrypt_Decrypt) {
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(RootOfUnity(m,q), m, q);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetILParams());
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
-
-	CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
+			cc.Encrypt(kp.publicKey, plaintext);
 
 	BytePlaintextEncoding plaintextNew;
 
-	cc.Decrypt(
+	cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 
 	EXPECT_EQ(plaintextNew, plaintext);
 	ILVector2n::DestroyPreComputedSamples();
@@ -190,15 +188,15 @@ TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetILParams());
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
-	CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
+		cc.Encrypt(kp.publicKey, plaintext);
 
 	BytePlaintextEncoding plaintextNew;
-	cc.Decrypt(
+	cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 
 	EXPECT_EQ(plaintextNew, plaintext);
 	//PRE SCHEME
@@ -210,17 +208,15 @@ TEST(method_ILVector2n, Encrypt_Decrypt_PRE) {
 
 	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
 
-	LPEvalKeyNTRURelin<ILVector2n> evalKey(cc);
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey =
+			cc.ReKeyGen(newKp.publicKey, kp.secretKey);
 
-	CryptoUtility<ILVector2n>::ReKeyGen(cc.GetEncryptionAlgorithm(), *newKp.publicKey, *kp.secretKey, &evalKey);  // This is the core re-encryption operation.
-
-	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
-
-	CryptoUtility<ILVector2n>::ReEncrypt(cc.GetEncryptionAlgorithm(), evalKey, ciphertext, &newCiphertext);  // This is the core re-encryption operation.
+	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext =
+			cc.ReEncrypt(evalKey, ciphertext);
 
 	BytePlaintextEncoding plaintextNew2;
 
-	DecryptResult result1 = cc.Decrypt(
+	DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &plaintextNew2);
 
 	EXPECT_EQ(plaintextNew2, plaintext);
 	ILVector2n::DestroyPreComputedSamples();
@@ -251,17 +247,16 @@ TEST(method_ILVector2n_IntPlaintextEncoding, Encrypt_Decrypt) {
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetILParams());
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
-	
-	CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, intArray, &ciphertext, false);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
+			cc.Encrypt(kp.publicKey, intArray, false);
 
 	IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(
+	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew);
 
 	EXPECT_EQ(intArray, intArrayNew);
 

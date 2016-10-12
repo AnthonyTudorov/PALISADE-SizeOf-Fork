@@ -13,7 +13,19 @@ $f/palisade $g reencrypt encrypted${h}.txt rekey${h}.txt reencrypted${h}.txt
 $f/palisade $g decrypt reencrypted${h}.txt subscriber${h}PRI.txt cleartextOutput${h}.txt
 
 h=StSt6
-g="-use $p $h"
+g="-use $h"
+
+echo try $h
+$f/palisade $g makekey publisher$h
+$f/palisade $g makekey subscriber$h
+$f/palisade $g makerekey subscriber${h}PUB.txt publisher${h}PRI.txt rekey${h}.txt
+
+$f/palisade $g encrypt $in publisher${h}PUB.txt encrypted${h}.txt
+$f/palisade $g reencrypt encrypted${h}.txt rekey${h}.txt reencrypted${h}.txt
+$f/palisade $g decrypt reencrypted${h}.txt subscriber${h}PRI.txt cleartextOutput${h}.txt
+
+h=Null
+g="-use $h"
 
 echo try $h
 $f/palisade $g makekey publisher$h

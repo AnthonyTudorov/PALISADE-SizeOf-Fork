@@ -68,8 +68,8 @@ static function<unique_ptr<ILVector2n>()> secureIL2nAlloc() {
     BigBinaryInteger secureModulus("8590983169");
     BigBinaryInteger secureRootOfUnity("4810681236");
     return ILVector2n::MakeAllocator(
-        ILParams(
-        2048, secureModulus, secureRootOfUnity),
+        shared_ptr<ILParams>( new ILParams(
+        2048, secureModulus, secureRootOfUnity) ),
         EVALUATION
         );
 }
@@ -79,8 +79,8 @@ static function<unique_ptr<ILVector2n>()> fastIL2nAlloc() {
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
     return ILVector2n::MakeAllocator(
-        ILParams(
-        m, modulus, rootOfUnity),
+        shared_ptr<ILParams>( new ILParams(
+        m, modulus, rootOfUnity) ),
         EVALUATION
         );
 }
