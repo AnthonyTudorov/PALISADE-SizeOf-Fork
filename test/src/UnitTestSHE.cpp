@@ -126,7 +126,8 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	BytePlaintextEncoding plaintextNew;
 
-	cc.Decrypt(
+	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNew);
+
 
 	EXPECT_EQ(plaintext, plaintextNew);
 
@@ -157,7 +158,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetILParams());
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
@@ -166,7 +167,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
 	IntPlaintextEncoding intArray(vectorOfInts);
 
-	CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, intArray, &ciphertext);
+	ciphertext = cc.Encrypt(kp.publicKey, intArray);
 	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext(ciphertext.size());
 
 	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
@@ -178,7 +179,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 
 	IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(
+	cc.Decrypt(kp2.secretKey, newCiphertext, &intArrayNew);
 
 	EXPECT_EQ(intArray, intArrayNew);
 
@@ -211,13 +212,12 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetILParams());
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
-
-	CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
+			cc.Encrypt(kp.publicKey, plaintext);
 	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext(ciphertext.size());
 
 	LPKeyPair<ILVector2n> kp2 = cc.KeyGen();
@@ -229,7 +229,7 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 
 	BytePlaintextEncoding plaintextNew;
 
-	cc.Decrypt(
+	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNew);
 
 	EXPECT_EQ(plaintext, plaintextNew);
 	 
@@ -262,17 +262,16 @@ TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetILParams());
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 	LPKeyPair<ILVector2n> kp = cc.SparseKeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
-
-	CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
+			cc.Encrypt(kp.publicKey, plaintext);
 
 	BytePlaintextEncoding plaintextNew;
 
-	cc.Decrypt(
+	cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 
 	EXPECT_EQ(plaintextNew, plaintext);
 	ILVector2n privateElement(kp.secretKey->GetPrivateElement());
@@ -312,7 +311,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	DiscreteGaussianGenerator dgg(stdDev);
 
-	ILDCRTParams params(m, moduli, rootsOfUnity);
+	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
@@ -327,9 +326,8 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext;
-
-	CryptoUtility<ILVectorArray2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext);
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext =
+			cc.Encrypt(kp.publicKey, plaintext);
 
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext(ciphertext.size());
 
@@ -386,16 +384,15 @@ TEST(UTSHE, ringreduce_single_crt) {
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetILParams());
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
 	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
 	IntPlaintextEncoding intArray(vectorOfInts);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
-
-	CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, intArray, &ciphertext);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
+			cc.Encrypt(kp.publicKey, intArray);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext(ciphertext.size());
 
@@ -409,7 +406,7 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 	IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(
+	cc.Decrypt(kp2.secretKey, newCiphertext, &intArrayNew);
 
 	CryptoUtility<ILVector2n>::RingReduce(cc.GetEncryptionAlgorithm(), &ciphertext, keySwitchHint);
 
@@ -422,15 +419,15 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 	IntPlaintextEncoding intArrayNewRR;
 
-//	LPCryptoParametersLTV<ILVector2n> cryptoParamsRR;
-//	ILParams ilparams2(ciphertext[0]->GetElement().GetParams().GetCyclotomicOrder() / 2,
-//			ciphertext[0]->GetElement().GetParams().GetModulus(),
-//			ciphertext[0]->GetElement().GetParams().GetRootOfUnity());
-//	cryptoParamsRR.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-//	cryptoParamsRR.SetDistributionParameter(stdDev);          // Set the noise parameters.
-//	cryptoParamsRR.SetRelinWindow(1);						   // Set the relinearization window
-//	cryptoParamsRR.SetElementParams(ilparams2);                // Set the initialization parameters.
-//	cryptoParamsRR.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
+	LPCryptoParametersLTV<ILVector2n> cryptoParamsRR;
+	shared_ptr<ILParams> ilparams2( new ILParams(ciphertext[0]->GetElement().GetParams()->GetCyclotomicOrder() / 2,
+			ciphertext[0]->GetElement().GetParams()->GetModulus(),
+			ciphertext[0]->GetElement().GetParams()->GetRootOfUnity()) );
+	cryptoParamsRR.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
+	cryptoParamsRR.SetDistributionParameter(stdDev);          // Set the noise parameters.
+	cryptoParamsRR.SetRelinWindow(1);						   // Set the relinearization window
+	cryptoParamsRR.SetElementParams(ilparams2);                // Set the initialization parameters.
+	cryptoParamsRR.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
 //	for (int i = 0; i < ciphertext.size(); i++) {
 //		ciphertext.at(i).SetCryptoParameters(&cryptoParamsRR);
@@ -438,10 +435,10 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 //	skSparse.SetCryptoParameters(&cryptoParamsRR);
 
-	cc.Decrypt(
+	cc.Decrypt(kp2.secretKey, ciphertext, &intArrayNewRR, false);
 
-	std::vector<usint> vectorOfExpectedResults = { 1,1,1,1 };
-	IntPlaintextEncoding intArrayExpected(vectorOfExpectedResults);
+	//std::vector<usint> vectorOfExpectedResults = { 1,1,1,1 };
+	IntPlaintextEncoding intArrayExpected = {1,1,1,1};
 
 	EXPECT_EQ(intArrayNewRR, intArrayExpected);
 
@@ -474,7 +471,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 
 	DiscreteGaussianGenerator dgg(stdDev);
 
-	ILDCRTParams params(m, moduli, rootsOfUnity);
+	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
@@ -495,7 +492,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
 	IntPlaintextEncoding intArray(vectorOfInts);
 
-	CryptoUtility<ILVectorArray2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, intArray, &ciphertext, false);
+	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
 
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext(ciphertext.size());
 
@@ -567,8 +564,8 @@ TEST(UTSHE, decomposeMult) {
 	BigBinaryInteger modulus("1");
 	NextQ(modulus, BigBinaryInteger("2"), m1, BigBinaryInteger("4"), BigBinaryInteger("4"));
 	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
-	ILParams params(m1, modulus, rootOfUnity);
-	ILParams params2(m1 / 2, modulus, rootOfUnity);
+	shared_ptr<ILParams> params( new ILParams(m1, modulus, rootOfUnity) );
+	shared_ptr<ILParams> params2( new ILParams(m1 / 2, modulus, rootOfUnity) );
 
 	ILVector2n x1(params, Format::COEFFICIENT);
 	x1 = { 0,0,0,0,0,0,1,0 };
