@@ -175,6 +175,47 @@ TEST(UTILVector2n, getters_tests) {
 
 }
 
+TEST(UTILVector2n, rounding_operations) {
+	usint m = 8;
+
+	BigBinaryInteger q("73");
+	BigBinaryInteger primitiveRootOfUnity("22");
+	BigBinaryInteger p("4");
+
+	ILParams ilparams(m, q, primitiveRootOfUnity);
+
+	ILVector2n ilvector2n1(ilparams,COEFFICIENT);
+	ilvector2n1 = { 43,51,35,37};
+	//ilvector2n1.SwitchFormat();
+
+	ILVector2n ilvector2n2(ilparams,COEFFICIENT);
+	ilvector2n2 = { 41,61,35,32 };
+	//ilvector2n2.SwitchFormat();
+
+	ILVector2n roundingCorrect1(ilparams, COEFFICIENT);
+	roundingCorrect1 = { 2,3,2,2 };
+
+	ILVector2n rounding1 = ilvector2n1.MultiplyAndRound(p, q);
+
+	EXPECT_EQ(roundingCorrect1, rounding1) << "Rounding p*polynomial/q is incorrect.\n";
+
+	ILVector2n roundingCorrect2(ilparams, COEFFICIENT);
+	roundingCorrect2 = { 35,53,48,8 };
+
+	//ilvector2n1.SwitchFormat();
+	//ilvector2n2.SwitchFormat();
+
+	//ILVector2n rounding2 = ilvector2n1 * ilvector2n2;
+	//rounding2.SwitchFormat();
+
+	//rounding2.PrintValues();
+
+	//rounding2 = rounding2.MultiplyAndRound(p, q);
+
+	//EXPECT_EQ(roundingCorrect2, rounding2) << "Rounding p*polynomial1*polynomial2/q is incorrect.\n";
+
+}
+
 TEST(UTILVector2n, setters_tests) {
   usint m = 8; 
   

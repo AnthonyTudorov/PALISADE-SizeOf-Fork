@@ -352,7 +352,7 @@ public:
 	BigBinaryVector ModMul(const BigBinaryVector &b) const;
 
 	/**
-	 * Vector multiplication.
+	 * Vector multiplication without applying the modulus operation.
 	 *
 	 * @param &b is the vector to multiply.
 	 * @return is the result of the multiplication operation.
