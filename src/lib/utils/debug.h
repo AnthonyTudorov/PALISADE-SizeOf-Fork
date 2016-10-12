@@ -60,7 +60,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     if (dbg_flag) { std::cerr << #x << ":" << x << " at " << __FILE__ << " line "<< __LINE__ LL std::endl; }	\
   } while (0)
 
-#if defined(PROFILE) \\profiler works
+#if defined(PROFILE) //Profiler works
 
 #define PROFILELOG(x) do {		\
     if (true) {std::out << x <<std::endl;}	\

@@ -25,7 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-/#define PROFILE  //define this to enable PROFILELOG and TIC/TOC 
+#define PROFILE  //define this to enable PROFILELOG and TIC/TOC 
                   // Note must must be before all headers
 
 #include <iostream>
