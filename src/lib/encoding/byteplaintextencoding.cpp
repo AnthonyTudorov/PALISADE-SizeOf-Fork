@@ -118,8 +118,6 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 void
 BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector)
 {
-	*ilVector = ilVector->SignedMod(modulus);
-
 	usint mod = modulus.ConvertToInt();
 	usint p = ceil((float)log((double)255) / log((double)mod));
 	usint resultant_char;

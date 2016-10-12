@@ -132,8 +132,8 @@ TEST_F(UnitTestSHEAdvanced, ParameterSelection) {
 	//calling ParameterSelection. cryptoParams2 will have the new Moduli and ring dimension (cyclotomicorder/2)
 	cryptoParams.ParameterSelection(&cryptoParams2);
 
-	const ILDCRTParams &dcrtParams = static_cast<const ILDCRTParams&>(cryptoParams2.GetElementParams());
-	std::vector<BigBinaryInteger> finalModuli = dcrtParams.GetModuli();
+	shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(cryptoParams2.GetElementParams());
+	std::vector<BigBinaryInteger> finalModuli = dcrtParams->GetModuli();
 	//threshold for the first modulus
 	double q1Threshold = 4 * pow(cryptoParams2.GetPlaintextModulus().ConvertToDouble(), 2) * pow(cryptoParams2.GetElementParams()->GetCyclotomicOrder() / 2, 0.5) * cryptoParams2.GetAssuranceMeasure();
 	//test for the first modulus
@@ -199,15 +199,13 @@ TEST_F(UnitTestSHEAdvanced, test_eval_mult_single_crt) {
 	shared_ptr<Ciphertext<ILVector2n>> cResult =
 			cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0));
 
-	LPEvalKeyNTRU<ILVector2n> keySwitchHint(cryptoParams);
+	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
 
-	LPKeyPair<ILVector2n> newKp;
+	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
 
-	newKp = cc.KeyGen();
+	cc.GetEncryptionAlgorithm().QuadraticEvalMultKeyGen(kp.secretKey, skNew, &keySwitchHint);
 
-	algorithm.QuadraticEvalMultKeyGen(sk, skNew, &keySwitchHint);
-
-	cResult = algorithm.KeySwitch(keySwitchHint, cResult);
+	cResult = cc.GetEncryptionAlgorithm().KeySwitch(keySwitchHint, cResult);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextResults(1);
 	ciphertextResults.at(0) = cResult;
