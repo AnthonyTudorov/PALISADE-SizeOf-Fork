@@ -203,7 +203,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 
 	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
 
-	cc.GetEncryptionAlgorithm().QuadraticEvalMultKeyGen(kp.secretKey, skNew, &keySwitchHint);
+	keySwitchHint = cc.GetEncryptionAlgorithm().QuadraticEvalMultKeyGen(kp.secretKey, newKp.secretKey);
 
 	cResult = cc.GetEncryptionAlgorithm().KeySwitch(keySwitchHint, cResult);
 
@@ -244,7 +244,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	DiscreteGaussianGenerator dgg(init_stdDev);
 
-	ILDCRTParams params(init_m, init_moduli, init_rootsOfUnity);
+	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::FOUR);
@@ -262,21 +262,20 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	cryptoParams.ParameterSelection(&finalParams);
 
-	const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(finalParams.GetElementParams());
+	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(finalParams.GetElementParams());
 
-	usint m = dcrtParams.GetCyclotomicOrder();
+	usint m = dcrtParams->GetCyclotomicOrder();
 	usint size = finalParams.GetDepth() + 1;
 	const BigBinaryInteger &plainTextModulus = finalParams.GetPlaintextModulus();
+
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&finalParams);
 	//scheme initialization: LTV Scheme
-	LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
-	algorithm.Enable(SHE);
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(LEVELEDSHE);
+	cc.Enable(SHE);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(LEVELEDSHE);
 
 	//Generate the secret key for the initial ciphertext:
-	LPPublicKey<ILVectorArray2n> pk(finalParams);
-	LPPrivateKey<ILVectorArray2n> sk(finalParams);
-	algorithm.KeyGen(&pk, &sk);
+	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
 	//Generating new cryptoparameters for when modulus reduction is done.
 	LPCryptoParametersLTV<ILVectorArray2n> finalParamsOneTower(finalParams);
@@ -296,35 +295,29 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	IntPlaintextEncoding intArray2(vectorOfInts2);
 	std::fill(vectorOfInts2.begin() + 4, vectorOfInts2.end(), 0);
 
-	algorithm.KeyGen(&pk, &sk);
+	// dup? algorithm.KeyGen(&pk, &sk);
 
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext2;
 
-	vector<Ciphertext<ILVectorArray2n>> ciphertext1;
-	vector<Ciphertext<ILVectorArray2n>> ciphertext2;
+	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
+	ciphertext2 - cc.Encrypt(kp.publicKey, intArray2, false);
 
-	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray1, &ciphertext1, false);
-	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray2, &ciphertext2, false);
+	shared_ptr<Ciphertext<ILVectorArray2n>> cResult = cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0));
 
-	Ciphertext<ILVectorArray2n> cResult(ciphertext1.at(0));
+	shared_ptr<LPEvalKeyNTRU<ILVectorArray2n>> keySwitchHint;
 
-	algorithm.EvalMult(ciphertext1.at(0), ciphertext2.at(0), &cResult);
+	LPKeyPair<ILVectorArray2n> newKp = cc.KeyGen();
 
-	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint(cryptoParams);
+	keySwitchHint = cc.QuadraticEvalMultKeyGen(kp.secretKey, newKp.secretKey);
 
-	LPPublicKey<ILVectorArray2n> pkNew(finalParams);
-	LPPrivateKey<ILVectorArray2n> skNew(finalParams);
+	cResult = cc.KeySwitch(keySwitchHint, cResult);
 
-	algorithm.KeyGen(&pkNew, &skNew);
-
-	algorithm.QuadraticEvalMultKeyGen(sk, skNew, &keySwitchHint);
-
-	cResult = algorithm.KeySwitch(keySwitchHint, cResult);
-
-	vector<Ciphertext<ILVectorArray2n>> ciphertextResults(1);
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertextResults(1);
 	ciphertextResults.at(0) = cResult;
 	IntPlaintextEncoding results;
 
-	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, skNew, ciphertextResults, &results, false);
+	cc.Decrypt(newKp.secretKey, ciphertextResults, &results, false);
 
 	EXPECT_EQ(results.at(0), 6);
 	EXPECT_EQ(results.at(1), 0);

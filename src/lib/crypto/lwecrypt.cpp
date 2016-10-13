@@ -136,13 +136,16 @@ LPKeyPair<Element> LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(const C
 * KeySwitchHint 
 */
 template<class Element>
-void LPLeveledSHEAlgorithmLTV<Element>::EvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, 
-				const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *keySwitchHint) const {  
+shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmLTV<Element>::EvalMultKeyGen(
+		const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+		const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 
-		const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersLTV<Element>>(originalPrivateKey.GetCryptoParameters() );
+	shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyNTRU<Element>(originalPrivateKey->GetCryptoContext()));
 
-		const Element f1 = originalPrivateKey.GetPrivateElement(); //add const
-		const Element f2 = newPrivateKey.GetPrivateElement(); //add const
+		const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersLTV<Element>>(originalPrivateKey->GetCryptoParameters() );
+
+		const Element f1 = originalPrivateKey->GetPrivateElement(); //add const
+		const Element f2 = newPrivateKey->GetPrivateElement(); //add const
 		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 		Element e(cryptoParams->GetDiscreteGaussianGenerator() , cryptoParams->GetElementParams(), Format::COEFFICIENT );
@@ -159,6 +162,7 @@ void LPLeveledSHEAlgorithmLTV<Element>::EvalMultKeyGen(const LPPrivateKey<Elemen
 
 		/*keySwitchHintElement = m * f1 * newKeyInverse ;*/
 		keySwitchHint->SetA(std::move(keySwitchHintElement));
+		return keySwitchHint;
 }
 			
 /*
@@ -190,16 +194,18 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(con
 
 /*Generates a keyswitchhint from originalPrivateKey^(2) to newPrivateKey */
 template<class Element>
-void LPLeveledSHEAlgorithmLTV<Element>::QuadraticEvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, 
+shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmLTV<Element>::QuadraticEvalMultKeyGen(
+	const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+	const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 	
-	const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const {
+	shared_ptr<LPEvalKeyNTRU<Element>> quadraticKeySwitchHint( new LPEvalKeyNTRU<Element>(originalPrivateKey->GetCryptoContext()) );
 
-	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersLTV<Element>>(originalPrivateKey.GetCryptoParameters() );
+	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersLTV<Element>>(originalPrivateKey->GetCryptoParameters() );
 
-	const Element f1 = originalPrivateKey.GetPrivateElement(); //add const
+	const Element f1 = originalPrivateKey->GetPrivateElement(); //add const
 
 	const Element f1Squared(f1*f1); //squaring the key
-	const Element f2 = newPrivateKey.GetPrivateElement(); //add const
+	const Element f2 = newPrivateKey->GetPrivateElement(); //add const
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	Element e(cryptoParams->GetDiscreteGaussianGenerator() , cryptoParams->GetElementParams(), Format::COEFFICIENT );
@@ -217,6 +223,7 @@ void LPLeveledSHEAlgorithmLTV<Element>::QuadraticEvalMultKeyGen(const LPPrivateK
 	Element keySwitchHintElement(m * f1Squared * newKeyInverse);
 
 	quadraticKeySwitchHint->SetA(keySwitchHintElement);
+	return quadraticKeySwitchHint;
 }
 
 /**
