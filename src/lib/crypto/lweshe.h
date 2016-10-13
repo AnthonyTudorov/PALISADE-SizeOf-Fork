@@ -131,10 +131,9 @@ namespace lbcrypto {
 			 * @param depth used for decryption.
 			 * @param *keySwitchHint the key switch hint.
 			 */
-			 bool EvalMultKeyGen(const LPPrivateKey<Element> &newPrivateKey, 
-				LPPrivateKey<Element> &origPrivateKey,
-				usint depth, 
-				LPEvalKeyNTRU<Element> *keySwitchHint) const;
+			shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> newPrivateKey,
+				shared_ptr<LPPrivateKey<Element>> origPrivateKey,
+				usint depth) const;
 
 			/**
 			 * Function to generate key switch hint on a ciphertext for depth 2.
@@ -142,8 +141,7 @@ namespace lbcrypto {
 			 * @param &newPrivateKey private key for the new ciphertext.
 			 * @param *keySwitchHint the key switch hint.
 			 */
-			 bool EvalMultKeyGen(const LPPrivateKey<Element> &newPrivateKey, 
-				LPEvalKeyNTRU<Element> *keySwitchHint) const;
+			shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey) const;
 			
 			/**
 			 * Function to define key switching operation

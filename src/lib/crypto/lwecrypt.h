@@ -118,7 +118,10 @@ namespace lbcrypto {
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
 			 * @param *keySwitchHint is where the resulting keySwitchHint will be placed.
 			 */
-			virtual void EvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *keySwitchHint) const ;
+			virtual shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+					const shared_ptr<LPPrivateKey<Element>> k1,
+					const shared_ptr<LPPrivateKey<Element>> k2) const ;
+
 			/**
 			 * Method for KeySwitching based on a KeySwitchHint
 			 *
@@ -134,8 +137,10 @@ namespace lbcrypto {
 			* @param &newPrivateKey new private for generating a keyswitchhint to.
 			* @param *quadraticKeySwitchHint the generated keyswitchhint.
 			*/
-			virtual void QuadraticEvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const;
-			
+			virtual shared_ptr<LPEvalKey<Element>> QuadraticEvalMultKeyGen(
+				const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+				const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const;
+
 			/**
 			 * Method for ModReducing CipherText and the Private Key used for encryption.
 			 *
@@ -278,8 +283,8 @@ namespace lbcrypto {
 	class LPLeveledSHEKeyStructure //: TODO: NISHANT to implement serializable public Serializable
 	{
 	private:
-		std::vector< LPEvalKeyNTRU<Element> > m_qksh;
-		std::vector< LPEvalKeyNTRU<Element> > m_lksh;
+		std::vector< shared_ptr<LPEvalKey<Element>> > m_qksh;
+		std::vector< shared_ptr<LPEvalKey<Element>> > m_lksh;
 		usint m_levels;
 
 	public:
@@ -295,7 +300,7 @@ namespace lbcrypto {
 		*
 		*@return the LinearKeySwitchHint for the level
 		*/
-		const LPEvalKeyNTRU<Element>& GetLinearKeySwitchHintForLevel(usint level) const {
+		const shared_ptr<LPEvalKey<Element>> GetLinearKeySwitchHintForLevel(usint level) const {
 			if(level>m_levels-1) {
 				throw std::runtime_error("Level out of range");
 			} 
@@ -309,7 +314,7 @@ namespace lbcrypto {
 		*
 		*@return the QuadraticKeySwitchHint for the level
 		*/
-		const LPEvalKeyNTRU<Element>& GetQuadraticKeySwitchHintForLevel(usint level) const {
+		const shared_ptr<LPEvalKey<Element>> GetQuadraticKeySwitchHintForLevel(usint level) const {
 			if(level>m_levels-1) {
 				throw std::runtime_error("Level out of range");
 			} 
@@ -322,16 +327,16 @@ namespace lbcrypto {
 		*
 		*@param &lksh LinearKeySwitchHintLTV to be added.
 		*/
-		void PushBackLinearKey(const LPEvalKeyNTRU<Element> &lksh){
-			m_lksh.push_back(std::move(lksh));
+		void PushBackLinearKey(const shared_ptr<LPEvalKey<Element>> lksh){
+			m_lksh.push_back(lksh);
 		}
 		/**
 		* Method to add a QuadraticKeySwitchHint. The added key will be the key for the last level
 		*
 		*@param &quad QuadraticKeySwitchHintLTV to be added.
 		*/
-		void PushBackQuadraticKey(const LPEvalKeyNTRU<Element> &quad){
-			m_qksh.push_back(std::move(quad));
+		void PushBackQuadraticKey(const shared_ptr<LPEvalKey<Element>> quad){
+			m_qksh.push_back(quad);
 		}
 		/**
 		* Method to set LinearKeySwitchHint for a particular level of computation.
@@ -339,7 +344,7 @@ namespace lbcrypto {
 		*@param &lksh LinearKeySwitchHintLTV to be set.
 		*@param level is the level to set the key to.
 		*/
-		void SetLinearKeySwitchHintForLevel(const LPEvalKeyNTRU<Element> &lksh, usint level) {
+		void SetLinearKeySwitchHintForLevel(const shared_ptr<LPEvalKey<Element>> lksh, usint level) {
 			if(level>m_levels-1) {
 				throw std::runtime_error("Level out of range");
 			} 
@@ -353,7 +358,15 @@ namespace lbcrypto {
 		*@param &qksh QuadraticKeySwitchHint to be set.
 		*@param level is the level to set the key to.
 		*/
-		void SetQuadraticKeySwitchHintForLevel(const LPEvalKeyNTRU<Element> &qksh, usint level) { if(level>m_levels-1) {throw std::runtime_error("Level out of range");} else { m_qksh[level] = qksh;} };
+		void SetQuadraticKeySwitchHintForLevel(const shared_ptr<LPEvalKey<Element>> qksh, usint level) {
+			if(level>m_levels-1)
+			{
+				throw std::runtime_error("Level out of range");
+			}
+			else {
+				m_qksh[level] = qksh;
+			}
+		}
 	};
 
 } // namespace lbcrypto ends

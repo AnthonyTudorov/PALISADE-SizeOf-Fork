@@ -111,18 +111,15 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-			cc.Encrypt(kp.publicKey, plaintext);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, plaintext);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext(ciphertext.size());
+	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
 
 	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
 
-	LPEvalKeyNTRU<ILVector2n> keySwitchHint(cc);
+	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint = cc.EvalMultKeyGen(kp.secretKey, kp2.secretKey);
 
-	cc.GetEncryptionAlgorithm().EvalMultKeyGen(*kp.secretKey, *kp2.secretKey, &keySwitchHint);
-
-	CryptoUtility<ILVector2n>::KeySwitch(cc.GetEncryptionAlgorithm(), keySwitchHint, ciphertext, &newCiphertext);
+	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
 
 	BytePlaintextEncoding plaintextNew;
 
@@ -172,10 +169,10 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 
 	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
 
-	LPEvalKeyNTRU<ILVector2n> keySwitchHint(cc);
-	cc.GetEncryptionAlgorithm().EvalMultKeyGen(*kp.secretKey, *kp2.secretKey, &keySwitchHint);
+	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
+	keySwitchHint = cc.GetEncryptionAlgorithm().EvalMultKeyGen(kp.secretKey, kp2.secretKey);
 
-	CryptoUtility<ILVector2n>::KeySwitch(cc.GetEncryptionAlgorithm(), keySwitchHint, ciphertext, &newCiphertext);
+	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
 
 	IntPlaintextEncoding intArrayNew;
 
@@ -225,10 +222,10 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 
 	LPKeyPair<ILVector2n> kp2 = cc.KeyGen();
 
-    LPEvalKeyNTRU<ILVector2n> keySwitchHint(cc);
-    cc.GetEncryptionAlgorithm().EvalMultKeyGen(*kp.secretKey, *kp2.secretKey, &keySwitchHint);
+	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
+	keySwitchHint = cc.GetEncryptionAlgorithm().EvalMultKeyGen(kp.secretKey, kp2.secretKey);
 
-	CryptoUtility<ILVector2n>::KeySwitch(cc.GetEncryptionAlgorithm(), keySwitchHint, ciphertext, &newCiphertext);
+	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
 
 	BytePlaintextEncoding plaintextNew;
 
@@ -332,14 +329,14 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext =
 			cc.Encrypt(kp.publicKey, plaintext);
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext(ciphertext.size());
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext;
 
 	LPKeyPair<ILVectorArray2n> kp2 = cc.KeyGen();
 
-	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint(cc);
-	cc.GetEncryptionAlgorithm().EvalMultKeyGen(*kp.secretKey, *kp2.secretKey, &keySwitchHint);
+	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint;
+	keySwitchHint = cc.GetEncryptionAlgorithm().EvalMultKeyGen(kp.secretKey, kp2.secretKey);
 
-	CryptoUtility<ILVectorArray2n>::KeySwitch(cc.GetEncryptionAlgorithm(), keySwitchHint, ciphertext, &newCiphertext);
+	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
 
 	BytePlaintextEncoding plaintextNewKeySwitch;
 
@@ -401,11 +398,10 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
 
-	LPEvalKeyNTRU<ILVector2n> keySwitchHint(cc);
+	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
+	keySwitchHint = cc.GetEncryptionAlgorithm().EvalMultKeyGen(kp.secretKey, kp2.secretKey);
 
-	cc.GetEncryptionAlgorithm().EvalMultKeyGen(*kp.secretKey, *kp2.secretKey, &keySwitchHint);
-
-	CryptoUtility<ILVector2n>::KeySwitch(cc.GetEncryptionAlgorithm(), keySwitchHint, ciphertext, &newCiphertext);
+	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
 
 	IntPlaintextEncoding intArrayNew;
 
