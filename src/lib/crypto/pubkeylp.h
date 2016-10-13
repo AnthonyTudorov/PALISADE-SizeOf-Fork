@@ -529,8 +529,6 @@ namespace lbcrypto {
 				return false;
 			}
 
-			std::cout << "element count " << m_rKey.size() << std::endl;
-
 			SerializeVector<Element>("AVector", typeid(Element).name(), this->GetAVector(), serObj);
 			SerializeVector<Element>("BVector", typeid(Element).name(), this->GetBVector(), serObj);
 
@@ -669,11 +667,6 @@ namespace lbcrypto {
 		* @return true on success
 		*/
 		bool Deserialize(const Serialized &serObj) {
-//			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-//			if (cryptoparams == 0) return false;
-//
-//			this->m_cryptoParameters = cryptoparams;
-
 			SerialItem::ConstMemberIterator it = serObj.FindMember("Vectors");
 
 			if( it == serObj.MemberEnd() ) {
@@ -1022,8 +1015,9 @@ namespace lbcrypto {
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
 			 * @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
 			 */
-			virtual void EvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, 
-				const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *keySwitchHint) const = 0;
+			virtual shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+					const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+					const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
 			
 			/**
 			 * Method for KeySwitch
@@ -1041,7 +1035,9 @@ namespace lbcrypto {
 			 * @param *quadraticKeySwitchHint the generated keyswitchhint.
 			 */
 
-			virtual void QuadraticEvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const = 0;
+			virtual shared_ptr<LPEvalKey<Element>> QuadraticEvalMultKeyGen(
+				const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+				const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
 
 			/**
 			 * Method for Modulus Reduction.
@@ -1475,10 +1471,11 @@ namespace lbcrypto {
 
 		}
 
-		void EvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, 
-				const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *keySwitchHint) const {
+		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+				const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+				const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 					if(this->m_algorithmLeveledSHE)
-						this->m_algorithmLeveledSHE->EvalMultKeyGen(originalPrivateKey, newPrivateKey,keySwitchHint);
+						return this->m_algorithmLeveledSHE->EvalMultKeyGen(originalPrivateKey, newPrivateKey);
 					else{
 						throw std::logic_error("EvalMultKeyGen operation has not been enabled");
 					}
@@ -1494,9 +1491,11 @@ namespace lbcrypto {
 			}
 		}
 
-		void QuadraticEvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const {
+		shared_ptr<LPEvalKey<Element>> QuadraticEvalMultKeyGen(
+			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 			if(this->m_algorithmLeveledSHE){
-				this->m_algorithmLeveledSHE->QuadraticEvalMultKeyGen(originalPrivateKey,newPrivateKey,quadraticKeySwitchHint);
+				return this->m_algorithmLeveledSHE->QuadraticEvalMultKeyGen(originalPrivateKey,newPrivateKey);
 			}
 			else{
 				throw std::logic_error("QuadraticEvalMultKeyGen operation has not been enabled");

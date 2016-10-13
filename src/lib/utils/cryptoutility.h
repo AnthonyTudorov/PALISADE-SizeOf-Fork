@@ -13,24 +13,6 @@ class CryptoUtility {
 public:
 
 	/**
-	* perform KeySwitch on a vector of ciphertext
-	* @param scheme - a reference to the encryption scheme in use
-	* @param keySwitchHint - reference to KeySwitchHint
-	* @param ciphertext - vector of ciphertext
-	* @param newCiphertext - contains a vector of KeySwitched ciphertext
-	*/
-	static void KeySwitch(
-		const LPPublicKeyEncryptionScheme<Element>& scheme,
-		const LPEvalKeyNTRU<Element> &keySwitchHint,
-		const vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
-		vector<shared_ptr<Ciphertext<Element>>> *newCiphertext)
-	{
-		for (int i = 0; i < ciphertext.size(); i++) {
-			newCiphertext->push_back( scheme.KeySwitch(keySwitchHint, *ciphertext.at(i)) );
-		}
-	}
-
-	/**
 	* perform ModReduce on a vector of ciphertext
 	* @param scheme - a reference to the encryption scheme in use
 	* @param ciphertext - vector of ciphertext

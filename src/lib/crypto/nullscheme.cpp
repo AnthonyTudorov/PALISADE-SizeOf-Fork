@@ -51,15 +51,9 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmPRENull<Element>::ReKeyGen(const share
 	// create a new ReKey of the proper type, in this context
 	shared_ptr<LPEvalKeyNTRURelin<Element>> EK( new LPEvalKeyNTRURelin<Element>(newSK->GetCryptoContext()) );
 
-	std::vector<Element> evalKeyElements(1);
-	std::vector<Element> evalKeyElementsGenerated;
-
-	for (usint i = 0; i < (evalKeyElements.size()); i++)
-	{
-		// Generate a_i vectors
-		Element a(newSK->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
-		evalKeyElementsGenerated.push_back(a);
-	}
+	Element a(newSK->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
+	vector<Element> evalKeyElements;
+	evalKeyElements.push_back(a);
 
 	EK->SetAVector(std::move(evalKeyElements));
 

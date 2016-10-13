@@ -97,14 +97,15 @@ void LPAlgorithmSHELTV<Element>::EvalAdd(
 }  
 
 
-//Function to generate 1..log(q) encryptions for each bit of the original private key
+////Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
-bool LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const LPPrivateKey<Element> &newPrivateKey, 
-				LPPrivateKey<Element> &origPrivateKey,
-				usint depth,
-				LPEvalKeyNTRU<Element> *keySwitchHint) const
+shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> newPrivateKey,
+		shared_ptr<LPPrivateKey<Element>> origPrivateKey,
+		usint depth) const
 {
-	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(origPrivateKey.GetCryptoParameters());
+	shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyNTRU<Element>(origPrivateKey->GetCryptoContext()));
+
+	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(origPrivateKey->GetCryptoParameters());
 	DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 
@@ -116,26 +117,27 @@ bool LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const LPPrivateKey<Element> &new
 
 	keySwitchHint = m*origPrivateKeyExp*privKeyInverse;
 */
-	return true;
+	return keySwitchHint;
 
 }
 
-
 //Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
-bool LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const LPPrivateKey<Element> &privateKey,  
-				LPEvalKeyNTRU<Element> *keySwitchHint) const
+shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(
+		const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const
 {
-	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(privateKey.GetCryptoParameters());
+	shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyNTRU<Element>(newPrivateKey->GetCryptoContext()));
+
+	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(newPrivateKey->GetCryptoParameters());
 	DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 	const ElemParams &elementParams = cryptoParams.GetElementParams();
 
 	Element m(dgg,elementParams,Format::COEFFICIENT);
-	Element modularInverseOfNewPrivateKey = privateKey.MultiplicativeInverse();
+	Element modularInverseOfNewPrivateKey = newPrivateKey->MultiplicativeInverse();
 
-	keySwitchHint->SetHintElement((privateKey.Times(privateKey)).Times(modularInverseOfNewPrivateKey));// frogot to add modulu
+	keySwitchHint->SetHintElement((newPrivateKey->Times(*newPrivateKey)).Times(modularInverseOfNewPrivateKey));// frogot to add modulu
 
-	return true;
+	return keySwitchHint;
 
 }
 
