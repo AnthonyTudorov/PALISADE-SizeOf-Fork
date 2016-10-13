@@ -50,9 +50,12 @@
 // 3- new dynamicly allocated backend and support uint32_t and uint64_t on linux
 // 4- new dynamicly allocated backend and supports  uint64_t on linux
 
+//Please UNCOMMENT the approproate line rather than changing the number on the 
+//uncommented line (and breaking the documentation of the line)
 
-//#define MATHBACKEND 2 //side by side comparison of old and new libraries
-#define MATHBACKEND 2 //32 bit should work with all OS
+#define MATHBACKEND 2 //side by side comparison of old and new libraries
+
+//#define MATHBACKEND 3 //32 bit should work with all OS
 //#define MATHBACKEND 4 //64 bit (currently works for ubuntu, not tested otherwise
 
 #if MATHBACKEND == 1

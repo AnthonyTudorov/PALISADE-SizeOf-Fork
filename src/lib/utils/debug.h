@@ -25,15 +25,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
+
+
 #ifndef __dbg_h__
 #define __dbg_h__
 
 //include <iostream>
 //include <cstdlib.h>
 
-/* defining NDEBUG in the compile line turns everything off.  */
-#ifndef NDEBUG			
-//#define debug(M, ...)
+/* defining NDEBUG in the compile line turns everything off.
+   unless PROFILE is defined in the file before all includes,'
+   in which case TIC/TOC will still work and PROFILELOG() can be
+   used for logging results to std::cout, and DEBUG() will remain
+   silent. dbg_flag does not get used by PROFILELOG()
+ */
+
+#if!defined(NDEBUG) 
 
 // note that for the following dbg_flag needs to be defined in some scope
 
@@ -53,19 +60,52 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     if (dbg_flag) { std::cerr << #x << ":" << x << " at " << __FILE__ << " line "<< __LINE__ LL std::endl; }	\
   } while (0)
 
+#if defined(PROFILE) //Profiler works
+
+#define PROFILELOG(x) do {		\
+    if (true) {std::cout << x <<std::endl;}	\
+  } while (0)
+
+// debugging macro prints typography of x and value of x on cerr
+#define PROFILELOGEXP(x) do {	\
+    if (true){ std::cout << #x << ":" << x << std::endl; }	\
+  } while (0)
+
+
+// debugging macro prints value of x and location in codex on cerr
+#define PROFILELOGWHERE(x) do {					\
+    if (true){ std::cout << #x << ":" << x << " at " << __FILE__ << " line "<< __LINE__ LL std::endl;} \
+  } while (0)
+
+#else //#if defined(PROFILE) //profiling a noop
+#define PROFILELOG(x)  
+#define PROFILELOGEXP(x)
+#define PROFILELOGWHERE(x)
+
+#endif //PROFILE
+
 #define TIC(t) t=timeNow()
 #define TOC(t) duration(timeNow()-t)
 #define TOC_NS(t) duration_ns(timeNow()-t) 
 #define TOC_US(t) duration_us(timeNow()-t) 
 #define TOC_MS(t) duration_ms(timeNow()-t) 
 
-#else
+#else //NDEBUG
+
 //#define debug(M, ...) fprintf(stderr, "DEBUG %s:%d: " M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+
+#if !defined(PROFILE)
 
 //these are turned off functions
 
 #define DEBUG(x) 
 #define DEBUGEXP(x) 
+#define DEBUGWHERE(x)
+
+#define PROFILELOG(x)
+#define PROFILELOGEXP(x)
+#define PROFILELOGWHERE(x)
+
 
 #define TIC(t) 0
 #define TOC(t) 0
@@ -73,10 +113,36 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define TOC_US(t) 0
 #define TOC_MS(t) 0
 
-#endif
+#else //PROFILE
+//if PROFILE is turned on, then TIC TOC still work and 
 
+#define DEBUG(x) 
+#define DEBUGEXP(x) 
+#define DEBUGWHERE(x)
 
+#define PROFILELOG(x) do {					\
+    if (true) { std::cerr << x <<std::endl; }			\
+  } while (0)
 
+// debugging macro prints typography of x and value of x on cerr
+#define PROFILELOGEXP(x) do {	\
+    if (true) {std::cout << #x << ":" << x << std::endl;	}	\
+  } while (0)
+
+// debugging macro prints value of x and location in codex on cerr
+#define PROFILELOGWHERE(x) do {					\
+			       if (true) {std::cout << #x << ":" << x << " at " << __FILE__ << " line "<< __LINE__ LL std::endl;} \
+  } while (0)
+
+#define TIC(t) t=timeNow()
+#define TOC(t) duration(timeNow()-t)
+#define TOC_NS(t) duration_ns(timeNow()-t) 
+#define TOC_US(t) duration_us(timeNow()-t) 
+#define TOC_MS(t) duration_ms(timeNow()-t) 
+
+#endif //PROFILE
+
+#endif //NDEBUG
 
 typedef std::chrono::high_resolution_clock::time_point TimeVar;
 
