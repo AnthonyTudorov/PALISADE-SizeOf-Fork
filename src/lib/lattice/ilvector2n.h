@@ -410,30 +410,29 @@ namespace lbcrypto {
 		*/
 		ILVector2n MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const;
 
-		/**
-		* Vector multiplication followed by division and rounding operation - operation on all entries.
-		*
-		* @param &v is the element to multiply entry-wise.
-		* @param &p is the integer muliplicand.
-		* @param &q is the integer divisor.
-		* @return is the return value of the multiply, divide and followed by rounding operation.
-		*/
-		ILVector2n MultiplyAndRound(const ILVector2n &v, const BigBinaryInteger &p, const BigBinaryInteger &q) const;
+		///**
+		//* Vector multiplication followed by division and rounding operation - operation on all entries.
+		//*
+		//* @param &v is the element to multiply entry-wise.
+		//* @param &p is the integer muliplicand.
+		//* @param &q is the integer divisor.
+		//* @return is the return value of the multiply, divide and followed by rounding operation.
+		//*/
+		//ILVector2n MultiplyAndRound(const ILVector2n &v, const BigBinaryInteger &p, const BigBinaryInteger &q) const;
 
-		/**
-		* Sum of polynomial products followed by division and rounding operation - operation on all entries.
-		* Returns [(this*v1+v2*v3)*p/q] where [] is the rounding operation.
-		*
-		* @param &v1 is the first element.
-		* @param &v2 is the first element.
-		* @param &v3 is the first element.
-		* @param &p is the integer muliplicand.
-		* @param &q is the integer divisor.
-		* @return is the return value of the multiply, divide and followed by rounding operation.
-		*/
-		ILVector2n MultiplyAndRound(const ILVector2n &v1, const ILVector2n &v2, const ILVector2n &v3,
-			const BigBinaryInteger &p, const BigBinaryInteger &q) const;
-
+		///**
+		//* Sum of polynomial products followed by division and rounding operation - operation on all entries.
+		//* Returns [(this*v1+v2*v3)*p/q] where [] is the rounding operation.
+		//*
+		//* @param &v1 is the first element.
+		//* @param &v2 is the first element.
+		//* @param &v3 is the first element.
+		//* @param &p is the integer muliplicand.
+		//* @param &q is the integer divisor.
+		//* @return is the return value of the multiply, divide and followed by rounding operation.
+		//*/
+		//ILVector2n MultiplyAndRound(const ILVector2n &v1, const ILVector2n &v2, const ILVector2n &v3,
+		//	const BigBinaryInteger &p, const BigBinaryInteger &q) const;
 
 		/**
 		* Scalar division followed by rounding operation - operation on all entries.
@@ -467,6 +466,14 @@ namespace lbcrypto {
 		* @return is the result of the multiplication.
 		*/
 		ILVector2n Times(const ILVector2n &element) const;
+
+		/**
+		* Performs a multiplication operation w/o applying the modulo operation.
+		*
+		* @param &element is the element to multiply with.
+		* @return is the result of the multiplication.
+		*/
+		//ILVector2n TimesNoMod(const ILVector2n &element) const;
 
 		/**
 		* Performs an addition operation and returns the result.

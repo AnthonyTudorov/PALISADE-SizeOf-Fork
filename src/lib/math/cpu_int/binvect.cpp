@@ -297,25 +297,25 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::MultiplyAndRound(cons
 	return ans;
 }
 
-template<class IntegerType>
-BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::MultiplyAndRound(const BigBinaryVector &v, const IntegerType &p, const IntegerType &q) const {
-	BigBinaryVector ans(*this);
-	for (usint i = 0; i<this->m_length; i++) {
-		ans.m_data[i] = ans.m_data[i].MultiplyAndRound(p*v.m_data[i], q).Mod(this->m_modulus);
-	}
-	return ans;
-}
-
-template<class IntegerType>
-BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::MultiplyAndRound(const BigBinaryVector &v1, 
-	const BigBinaryVector &v2, const BigBinaryVector &v3, const IntegerType &p, const IntegerType &q) const {
-	BigBinaryVector ans(*this);
-	for (usint i = 0; i<this->m_length; i++) {
-		ans.m_data[i] = ans.m_data[i] * v1.m_data[i] + v2.m_data[i] * v3.m_data[i];
-		ans.m_data[i] = ans.m_data[i].MultiplyAndRound(p, q).Mod(this->m_modulus);
-	}
-	return ans;
-}
+//template<class IntegerType>
+//BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::MultiplyAndRound(const BigBinaryVector &v, const IntegerType &p, const IntegerType &q) const {
+//	BigBinaryVector ans(*this);
+//	for (usint i = 0; i<this->m_length; i++) {
+//		ans.m_data[i] = ans.m_data[i].MultiplyAndRound(p*v.m_data[i], q).Mod(this->m_modulus);
+//	}
+//	return ans;
+//}
+//
+//template<class IntegerType>
+//BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::MultiplyAndRound(const BigBinaryVector &v1, 
+//	const BigBinaryVector &v2, const BigBinaryVector &v3, const IntegerType &p, const IntegerType &q) const {
+//	BigBinaryVector ans(*this);
+//	for (usint i = 0; i<this->m_length; i++) {
+//		ans.m_data[i] = ans.m_data[i] * v1.m_data[i] + v2.m_data[i] * v3.m_data[i];
+//		ans.m_data[i] = ans.m_data[i].MultiplyAndRound(p, q).Mod(this->m_modulus);
+//	}
+//	return ans;
+//}
 
 template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::DivideAndRound(const IntegerType &q) const {

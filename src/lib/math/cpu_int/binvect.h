@@ -205,6 +205,14 @@ public:
 	const IntegerType& GetValAtIndex(usint index) const;
 
 	/**
+	* operators to get a value at an index.
+	* @param idx is the index to get a value at.
+	* @return is the value at the index. return NULL if invalid index.
+	*/
+	inline IntegerType& operator[](std::size_t idx) { return (this->m_data[idx]); }
+	inline const IntegerType& operator[](std::size_t idx) const { return (this->m_data[idx]); }
+
+	/**
 	 * Sets the vector modulus.
 	 *
 	 * @param value is the value to set.
@@ -376,7 +384,7 @@ public:
 	* @param q is the integer divisor.
 	* @return the result of multiply and round.
 	*/
-	BigBinaryVector MultiplyAndRound(const BigBinaryVector &v, const IntegerType &p, const IntegerType &q) const;
+	//BigBinaryVector MultiplyAndRound(const BigBinaryVector &v, const IntegerType &p, const IntegerType &q) const;
 
 	/**
 	* Multiply and Rounding operation for a sum of two polynomial products. Returns [(this*v1+v2*v3)*p/q] where [] is the rounding operation.
@@ -388,7 +396,7 @@ public:
 	* @param q is the integer divisor.
 	* @return the result of multiply and round.
 	*/
-	BigBinaryVector MultiplyAndRound(const BigBinaryVector &v1, const BigBinaryVector &v2, const BigBinaryVector &v3, const IntegerType &p, const IntegerType &q) const;
+	//BigBinaryVector MultiplyAndRound(const BigBinaryVector &v1, const BigBinaryVector &v2, const BigBinaryVector &v3, const IntegerType &p, const IntegerType &q) const;
 
 
 	/**

@@ -215,14 +215,22 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 	std::vector<Element> cipherText1Elements = ciphertext1.GetElements();
 	std::vector<Element> cipherText2Elements = ciphertext2.GetElements();
 
-	Element c0 = cipherText1Elements[0];
-	c0 = c0.MultiplyAndRound(cipherText2Elements[0], p, q);
+	Element c0 = cipherText1Elements[0] * cipherText2Elements[0];
+	Element c1 = cipherText1Elements[0] * cipherText2Elements[1] + cipherText1Elements[1] * cipherText2Elements[0];
+	Element c2 = cipherText1Elements[1] * cipherText2Elements[1];
 
-	Element c1 = cipherText1Elements[0];
-	c1 = c1.MultiplyAndRound(cipherText2Elements[1], cipherText1Elements[1], cipherText2Elements[0], p, q);
+	c0 = c0.MultiplyAndRound(p, q);
+	c1 = c1.MultiplyAndRound(p, q);
+	c2 = c2.MultiplyAndRound(p, q);
 
-	Element c2 = cipherText1Elements[1];
-	c2 = c2.MultiplyAndRound(cipherText2Elements[1], p, q);
+	//Element c0 = cipherText1Elements[0];
+	//c0 = c0.MultiplyAndRound(cipherText2Elements[0], p, q);
+
+	//Element c1 = cipherText1Elements[0];
+	//c1 = c1.MultiplyAndRound(cipherText2Elements[1], cipherText1Elements[1], cipherText2Elements[0], p, q);
+
+	//Element c2 = cipherText1Elements[1];
+	//c2 = c2.MultiplyAndRound(cipherText2Elements[1], p, q);
 
 	std::vector<Element> digitsC2;
 	c2.BaseDecompose(relinWindow, &digitsC2);

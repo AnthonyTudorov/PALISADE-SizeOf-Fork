@@ -289,7 +289,7 @@ namespace lbcrypto {
 		return tmp;
 	}
 
-	ILVector2n ILVector2n::MultiplyAndRound(const ILVector2n &v, const BigBinaryInteger &p, const BigBinaryInteger &q) const {
+	/*ILVector2n ILVector2n::MultiplyAndRound(const ILVector2n &v, const BigBinaryInteger &p, const BigBinaryInteger &q) const {
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->MultWithOutMod(*(v.m_values));
 		*tmp.m_values = tmp.m_values->MultiplyAndRound(p, q);
@@ -301,7 +301,7 @@ namespace lbcrypto {
 		ILVector2n tmp(*this);
 		*tmp.m_values = m_values->MultiplyAndRound(*(v1.m_values), *(v2.m_values), *(v3.m_values), p, q);
 		return tmp;
-	}
+	}*/
 
 	ILVector2n ILVector2n::DivideAndRound(const BigBinaryInteger &q) const {
 		ILVector2n tmp(*this);
@@ -328,6 +328,23 @@ namespace lbcrypto {
 		*tmp.m_values = m_values->ModMul(*element.m_values);
 		return tmp;
 	}
+
+	//multiplication without applying the modulo operation; needed for rounding
+	//ILVector2n ILVector2n::TimesNoMod(const ILVector2n &element) const {
+	//	if ((m_format != Format::COEFFICIENT) || (element.m_format != Format::COEFFICIENT))
+	//		throw std::runtime_error("ILVector2n::TimesNoMod requires both polynomials to be in COEFFICIENT format.");
+	//	
+	//	//create a polynomial with zero coefficients
+	//	ILVector2n tmp(this->m_params, Format::COEFFICIENT, true);
+
+	//	for (usint i = 0; i < tmp.GetLength(); i++) {
+	//		for (usint j = 0; j < tmp.GetLength(); j++) {
+	//			if ((i + j) < tmp.GetLength())
+	//				tmp.m_values[i + j] += this->m_values[i] * element.m_values[j];
+	//	}
+
+	//	return tmp;
+	//}
 
 	const ILVector2n& ILVector2n::operator+=(const ILVector2n &element) {
 		if(!(this->m_params == element.m_params))
