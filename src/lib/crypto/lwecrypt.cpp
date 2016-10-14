@@ -136,11 +136,11 @@ LPKeyPair<Element> LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(const C
 * KeySwitchHint 
 */
 template<class Element>
-shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmLTV<Element>::EvalMultKeyGen(
+shared_ptr<LPEvalKeyNTRU<Element>> LPLeveledSHEAlgorithmLTV<Element>::EvalMultKeyGen(
 		const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 		const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 
-	shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyNTRU<Element>(originalPrivateKey->GetCryptoContext()));
+		shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint(new LPEvalKeyNTRU<Element>(originalPrivateKey->GetCryptoContext()));
 
 		const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersLTV<Element>>(originalPrivateKey->GetCryptoParameters() );
 
@@ -177,14 +177,16 @@ shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmLTV<Element>::EvalMultKeyGen
 * private key A, is now decryptable by public key B (and not A).
 */
 template<class Element>
-shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(const LPEvalKey<Element> &keySwitchHint,const Ciphertext<Element> &cipherText) const {
+shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(
+		const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+		const shared_ptr<Ciphertext<Element>> cipherText) const {
 
 	//Get the EvalKeyNTRU to perform key swich, also verfies if proper EvalKey is instantiated.
-	const LPEvalKeyNTRU<Element> &keyHint = dynamic_cast<const LPEvalKeyNTRU<Element>&>(keySwitchHint);
+	const shared_ptr<LPEvalKeyNTRU<Element>> keyHint = std::static_pointer_cast<LPEvalKeyNTRU<Element>>(keySwitchHint);
 
-	shared_ptr<Ciphertext<Element>> newCipherText( new Ciphertext<Element>(cipherText) );
+	shared_ptr<Ciphertext<Element>> newCipherText( new Ciphertext<Element>(cipherText->GetCryptoContext()) );
 
-	Element newCipherTextElement = cipherText.GetElement()*keyHint.GetA();
+	Element newCipherTextElement = cipherText->GetElement() * keyHint->GetA();
 
 	newCipherText->SetElement( newCipherTextElement );
 	
@@ -194,7 +196,7 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(con
 
 /*Generates a keyswitchhint from originalPrivateKey^(2) to newPrivateKey */
 template<class Element>
-shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmLTV<Element>::QuadraticEvalMultKeyGen(
+shared_ptr<LPEvalKeyNTRU<Element>> LPLeveledSHEAlgorithmLTV<Element>::QuadraticEvalMultKeyGen(
 	const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 	const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 	
@@ -230,7 +232,7 @@ shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmLTV<Element>::QuadraticEvalM
 * Method for ModReducing on any Element datastructure-TODO
 */
 template<> inline
-void LPLeveledSHEAlgorithmLTV<ILVector2n>::ModReduce(shared_ptr<Ciphertext<ILVector2n>> *cipherText) const {
+void LPLeveledSHEAlgorithmLTV<ILVector2n>::ModReduce(shared_ptr<Ciphertext<ILVector2n>> cipherText) const {
 
 }
 
@@ -243,16 +245,15 @@ void LPLeveledSHEAlgorithmLTV<ILVector2n>::ModReduce(shared_ptr<Ciphertext<ILVec
 * ModReduce is written for ILVectorArray2n and it drops the last tower while updating the necessary parameters. 
 */
 template<> inline
-void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(shared_ptr<Ciphertext<ILVectorArray2n>> *cipherText) const {
+void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(shared_ptr<Ciphertext<ILVectorArray2n>> cipherText) const {
 
-	//FIXME:
-//	ILVectorArray2n cipherTextElement((*cipherText)->GetElement());
+//	ILVectorArray2n cipherTextElement(cipherText->GetElement());
 //
-//	BigBinaryInteger plaintextModulus((*cipherText)->GetCryptoParameters().GetPlaintextModulus());
+//	BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
 //
 //	cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
 //
-//	(*cipherText)->SetElement(cipherTextElement);
+//	cipherText->SetElement(cipherTextElement);
 	
 }
 
@@ -265,10 +266,10 @@ void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(shared_ptr<Ciphertext<
 * 
 */
 template<class Element>
-void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherText, const LPEvalKeyNTRU<Element> &keySwitchHint) const {
+void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const {
 
 		//KeySwitching to a cipherText that can be decrypted by a sparse key. 
-		*cipherText = *this->KeySwitch( keySwitchHint, *cipherText) ;
+		cipherText = KeySwitch( keySwitchHint, cipherText) ;
 
 		//Once the keyswitching of the ciphertext has been done, based on the algorithm in the referenced paper, the ciphertext needs to be decomposed.
 		Element keySwitchedCipherTextElement(cipherText->GetElement());
@@ -293,43 +294,48 @@ void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> *cipherTe
 }
 
 template<class Element>
-void LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, shared_ptr<Ciphertext<Element>> cipherTextResult) const {
+shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(
+		const shared_ptr<Ciphertext<Element>> cipherText1,
+		const shared_ptr<Ciphertext<Element>> cipherText2,
+		const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint) const {
 
-	if(!(cipherText1.GetCryptoParameters() == cipherText2.GetCryptoParameters()) || !(cipherTextResult->GetCryptoParameters() == cipherText2.GetCryptoParameters())){
+	if(!(cipherText1->GetCryptoParameters() == cipherText2->GetCryptoParameters()) ) {
 		std::string errMsg = "ComposedEvalMult crypto parameters are not the same";
 		throw std::runtime_error(errMsg);
 	}
 
+	shared_ptr<Ciphertext<Element>> cipherTextResult;
+
 	const LPPublicKeyEncryptionSchemeLTV<Element> &scheme = dynamic_cast< const LPPublicKeyEncryptionSchemeLTV<Element> &>( this->GetScheme() );
 
-	//scheme.m_algorithmSHE->EvalMult(cipherText1,cipherText2, cipherTextResult);
-	scheme.EvalMult(cipherText1, cipherText2, &cipherTextResult);
+	cipherTextResult = scheme.EvalMult(cipherText1, cipherText2);
 
 	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(quadKeySwitchHint,*cipherTextResult);
-	*cipherTextResult = *scheme.KeySwitch(quadKeySwitchHint,*cipherTextResult);
+	cipherTextResult = scheme.KeySwitch(quadKeySwitchHint, cipherTextResult);
 
 	//scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
-	scheme.ModReduce(&cipherTextResult);
+	scheme.ModReduce(cipherTextResult);
 	
+	return cipherTextResult;
 }
 
 template<class Element>
-void LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const Ciphertext<Element> &cipherText1, const LPEvalKeyNTRU<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
+		const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const {
 
-	if(!(cipherText1.GetCryptoParameters() == cipherTextResult->GetCryptoParameters())){
-		std::string errMsg = "LevelReduce crypto parameters are not the same";
-		throw std::runtime_error(errMsg);
-	}
+//	if(!(cipherText1.GetCryptoParameters() == cipherTextResult->GetCryptoParameters())){
+//		std::string errMsg = "LevelReduce crypto parameters are not the same";
+//		throw std::runtime_error(errMsg);
+//	}
 	
 	const LPPublicKeyEncryptionSchemeLTV<Element> &scheme = dynamic_cast< const LPPublicKeyEncryptionSchemeLTV<Element> &>( this->GetScheme() );
 
 	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(linearKeySwitchHint,cipherText1);
-	*cipherTextResult = *scheme.KeySwitch(linearKeySwitchHint,cipherText1);
+	shared_ptr<Ciphertext<Element>> cipherTextResult = scheme.KeySwitch(linearKeySwitchHint,cipherText1);
 
-	shared_ptr<Ciphertext<Element>> temp(cipherTextResult);
+	scheme.ModReduce(cipherTextResult);
 
-	scheme.ModReduce(&temp);
-
+	return cipherTextResult;
 }
 
 template<class Element>

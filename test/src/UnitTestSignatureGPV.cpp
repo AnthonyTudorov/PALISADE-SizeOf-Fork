@@ -49,8 +49,7 @@ TEST(UTSignatureGPV,simple_sign_verify) {
 	usint sm = 16;
 	BigBinaryInteger smodulus("1152921504606847009");
 	BigBinaryInteger srootOfUnity("405107564542978792");
-	ILParams silParams(sm, smodulus, srootOfUnity);
-  DEBUG("Step 2");
+	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
   DEBUG("Step 3");
 	ILVector2n::PreComputeDggSamples(dgg, silParams);
@@ -85,7 +84,7 @@ TEST(UTSignatureGPV, sign_verify_multiple_texts) {
 	usint sm = 16;
 	BigBinaryInteger smodulus("1152921504606847009");
 	BigBinaryInteger srootOfUnity("405107564542978792");
-	ILParams silParams(sm, smodulus, srootOfUnity);
+	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 	ILVector2n::PreComputeDggSamples(dgg, silParams);
 	LPSignatureParameters signParams(silParams, dgg);
@@ -123,7 +122,7 @@ TEST(UTSignatureGPV, sign_verify_multiple_keys) {
 	usint sm = 16;
 	BigBinaryInteger smodulus("1152921504606847009");
 	BigBinaryInteger srootOfUnity("405107564542978792");
-	ILParams silParams(sm, smodulus, srootOfUnity);
+	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 	ILVector2n::PreComputeDggSamples(dgg, silParams);
 	LPSignatureParameters signParams(silParams, dgg);

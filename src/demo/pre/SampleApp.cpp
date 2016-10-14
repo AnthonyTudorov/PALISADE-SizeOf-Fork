@@ -23,6 +23,8 @@ using std::vector;
 
 using namespace lbcrypto;
 
+void demoCrypto(bool doJson);
+
 void
 usage()
 {
@@ -83,7 +85,7 @@ main( int argc, char *argv[] )
 	}
 
 	if( parmSetName.length() == 0 )
-		parmSetName = "LTV5"; // default
+		parmSetName = "Null"; // default
 
 	CryptoContext<ILVector2n> cc = CryptoContextHelper<ILVector2n>::getNewContext(parmSetName);
 

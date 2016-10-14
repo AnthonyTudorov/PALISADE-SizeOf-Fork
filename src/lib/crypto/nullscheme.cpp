@@ -30,6 +30,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmNull<Element>::Encrypt(const shared_p
 
 	const Element copyPlain = plaintext;
 	ciphertext->SetElement(copyPlain);
+	ciphertext->SetNorm(BigBinaryInteger::ONE);
 
 	return ciphertext;
 }

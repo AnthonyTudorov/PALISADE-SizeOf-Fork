@@ -1015,7 +1015,7 @@ namespace lbcrypto {
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
 			 * @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
 			 */
-			virtual shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+			virtual shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
 					const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 					const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
 			
@@ -1025,7 +1025,9 @@ namespace lbcrypto {
 			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
 			 * @param &cipherText Original ciphertext to perform switching on.
 			 */
-			virtual shared_ptr<Ciphertext<Element>> KeySwitch(const LPEvalKey<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> KeySwitch(
+					const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+					const shared_ptr<Ciphertext<Element>> cipherText) const = 0;
 
 			/**
 			 * Method for generating a keyswitchhint from originalPrivateKey square to newPrivateKey
@@ -1035,7 +1037,7 @@ namespace lbcrypto {
 			 * @param *quadraticKeySwitchHint the generated keyswitchhint.
 			 */
 
-			virtual shared_ptr<LPEvalKey<Element>> QuadraticEvalMultKeyGen(
+			virtual shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
 				const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 				const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
 
@@ -1044,7 +1046,7 @@ namespace lbcrypto {
 			 *
 			 * @param &cipherText Ciphertext to perform mod reduce on.
 			 */
-			virtual void ModReduce(shared_ptr<Ciphertext<Element>> *cipherText) const = 0;
+			virtual void ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const = 0;
 
 			/**
 			 * Method for Ring Reduction.
@@ -1052,7 +1054,7 @@ namespace lbcrypto {
 			 * @param &cipherText Ciphertext to perform ring reduce on.
 			 * @param &privateKey Private key used to encrypt the first argument.
 			 */
-			virtual void RingReduce(Ciphertext<Element> *cipherText, const LPEvalKeyNTRU<Element> &keySwitchHint) const = 0; 
+			virtual void RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const = 0;
 
 			/**
 			 * Method for Composed EvalMult
@@ -1062,7 +1064,10 @@ namespace lbcrypto {
 			 * @param &quadKeySwitchHint is for resultant quadratic secret key after multiplication to the secret key of the particular level.
 			 * @param &cipherTextResult is the resulting ciphertext that can be decrypted with the secret key of the particular level.
 			 */
-			virtual void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, shared_ptr<Ciphertext<Element>> cipherTextResult) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> ComposedEvalMult(
+					const shared_ptr<Ciphertext<Element>> cipherText1,
+					const shared_ptr<Ciphertext<Element>> cipherText2,
+					const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint) const = 0;
 
 			/**
 			 * Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
@@ -1071,7 +1076,8 @@ namespace lbcrypto {
 			 * @param &linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
 			 * @param &cipherTextResult is the resulting ciphertext.
 			 */
-			virtual void LevelReduce(const Ciphertext<Element> &cipherText1, const LPEvalKeyNTRU<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
+					const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const = 0;
 			/**
 			* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
 			* and odd indices are set to zero.
@@ -1136,9 +1142,8 @@ namespace lbcrypto {
 			 * @param &ciphertext2 the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			virtual void EvalAdd(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
 	};
 
 	/**
@@ -1156,13 +1161,11 @@ namespace lbcrypto {
 			 * @param &ciphertext2 the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				shared_ptr<Ciphertext<Element>> *newCiphertext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+					const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
 
-			virtual void EvalAdd(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
 
 			/**
 			* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
@@ -1172,9 +1175,8 @@ namespace lbcrypto {
 			* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
 			* @param *newCiphertext the new resulting ciphertext.
 			*/
-			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &ek,
-				shared_ptr<Ciphertext<Element>> *newCiphertext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+					const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const = 0;
 
 	};
 
@@ -1439,12 +1441,11 @@ namespace lbcrypto {
 					}
 		}
 
-		void EvalMult(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				shared_ptr<Ciphertext<Element>> *newCiphertext) const {
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 					
 					if(this->m_algorithmSHE)
-						this->m_algorithmSHE->EvalMult(ciphertext1,ciphertext2,newCiphertext);
+						return this->m_algorithmSHE->EvalMult(ciphertext1,ciphertext2);
 					else{
 						throw std::logic_error("EvalMult operation has not been enabled");
 					}
@@ -1471,7 +1472,7 @@ namespace lbcrypto {
 
 		}
 
-		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+		shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
 				const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 				const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 					if(this->m_algorithmLeveledSHE)
@@ -1481,7 +1482,9 @@ namespace lbcrypto {
 					}
 		}
 
-		shared_ptr<Ciphertext<Element>> KeySwitch(const LPEvalKey<Element> &keySwitchHint, const Ciphertext<Element> &cipherText) const {
+		shared_ptr<Ciphertext<Element>> KeySwitch(
+				const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+				const shared_ptr<Ciphertext<Element>> cipherText) const {
 			
 			if(this->m_algorithmLeveledSHE){
 				return this->m_algorithmLeveledSHE->KeySwitch(keySwitchHint,cipherText);
@@ -1491,7 +1494,7 @@ namespace lbcrypto {
 			}
 		}
 
-		shared_ptr<LPEvalKey<Element>> QuadraticEvalMultKeyGen(
+		shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
 			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 			if(this->m_algorithmLeveledSHE){
@@ -1502,7 +1505,7 @@ namespace lbcrypto {
 			}
 		}
 
-		void ModReduce(shared_ptr<Ciphertext<Element>> *cipherText) const {
+		void ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
 			if(this->m_algorithmLeveledSHE){
 				this->m_algorithmLeveledSHE->ModReduce(cipherText);
 			}
@@ -1511,7 +1514,7 @@ namespace lbcrypto {
 			}
 		}
 
-		void RingReduce(Ciphertext<Element> *cipherText, const LPEvalKeyNTRU<Element> &keySwitchHint) const {
+		void RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const {
 			if(this->m_algorithmLeveledSHE){
 				this->m_algorithmLeveledSHE->RingReduce(cipherText,keySwitchHint);
 			}
@@ -1529,18 +1532,22 @@ namespace lbcrypto {
 			}
 		}
 
-		void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, shared_ptr<Ciphertext<Element>> cipherTextResult) const {
+		shared_ptr<Ciphertext<Element>> ComposedEvalMult(
+							const shared_ptr<Ciphertext<Element>> cipherText1,
+							const shared_ptr<Ciphertext<Element>> cipherText2,
+							const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint) const {
 			if(this->m_algorithmLeveledSHE){
-				this->m_algorithmLeveledSHE->ComposedEvalMult(cipherText1,cipherText2,quadKeySwitchHint,cipherTextResult);
+				return this->m_algorithmLeveledSHE->ComposedEvalMult(cipherText1,cipherText2,quadKeySwitchHint);
 			}
 			else{
 				throw std::logic_error("ComposedEvalMult operation has not been enabled");
 			}
 		}
 
-		void LevelReduce(const Ciphertext<Element> &cipherText1, const LPEvalKeyNTRU<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const {
+		shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
+				const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const {
 			if(this->m_algorithmLeveledSHE){
-				this->m_algorithmLeveledSHE->LevelReduce(cipherText1,linearKeySwitchHint,cipherTextResult);
+				this->m_algorithmLeveledSHE->LevelReduce(cipherText1,linearKeySwitchHint);
 			}
 			else{
 				throw std::logic_error("LevelReduce operation has not been enabled");
