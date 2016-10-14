@@ -232,7 +232,7 @@ shared_ptr<LPEvalKeyNTRU<Element>> LPLeveledSHEAlgorithmLTV<Element>::QuadraticE
 * Method for ModReducing on any Element datastructure-TODO
 */
 template<> inline
-void LPLeveledSHEAlgorithmLTV<ILVector2n>::ModReduce(shared_ptr<Ciphertext<ILVector2n>> *cipherText) const {
+void LPLeveledSHEAlgorithmLTV<ILVector2n>::ModReduce(shared_ptr<Ciphertext<ILVector2n>> cipherText) const {
 
 }
 
@@ -245,16 +245,15 @@ void LPLeveledSHEAlgorithmLTV<ILVector2n>::ModReduce(shared_ptr<Ciphertext<ILVec
 * ModReduce is written for ILVectorArray2n and it drops the last tower while updating the necessary parameters. 
 */
 template<> inline
-void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(shared_ptr<Ciphertext<ILVectorArray2n>> *cipherText) const {
+void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(shared_ptr<Ciphertext<ILVectorArray2n>> cipherText) const {
 
-	//FIXME:
-//	ILVectorArray2n cipherTextElement((*cipherText)->GetElement());
+//	ILVectorArray2n cipherTextElement(cipherText->GetElement());
 //
-//	BigBinaryInteger plaintextModulus((*cipherText)->GetCryptoParameters().GetPlaintextModulus());
+//	BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
 //
 //	cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
 //
-//	(*cipherText)->SetElement(cipherTextElement);
+//	cipherText->SetElement(cipherTextElement);
 	
 }
 
@@ -315,7 +314,7 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalM
 	cipherTextResult = scheme.KeySwitch(quadKeySwitchHint, cipherTextResult);
 
 	//scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
-	scheme.ModReduce(&cipherTextResult);
+	scheme.ModReduce(cipherTextResult);
 	
 	return cipherTextResult;
 }
@@ -334,7 +333,7 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(c
 	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(linearKeySwitchHint,cipherText1);
 	shared_ptr<Ciphertext<Element>> cipherTextResult = scheme.KeySwitch(linearKeySwitchHint,cipherText1);
 
-	scheme.ModReduce(&temp);
+	scheme.ModReduce(cipherTextResult);
 
 	return cipherTextResult;
 }
