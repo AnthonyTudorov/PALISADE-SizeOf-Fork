@@ -49,7 +49,6 @@ Test cases in this file make the following assumptions:
 
 #include "../../src/lib/crypto/lwecrypt.cpp"
 #include "../../src/lib/crypto/ciphertext.cpp"
-#include "../../src/lib/utils/cryptoutility.h"
 
 #include "../../src/lib/utils/debug.h"
 #include "../../src/lib/encoding/byteplaintextencoding.h"

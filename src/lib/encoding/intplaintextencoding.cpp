@@ -121,7 +121,7 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *i
 }
 
 void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n *ilVector) {
-	*ilVector = ilVector->SignedMod(modulus);
+
 	std::vector<uint32_t> intArray(ilVector->GetValues().GetLength());
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
 		this->push_back( ilVector->GetValues().GetValAtIndex(i).ConvertToInt() );

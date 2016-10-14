@@ -16,7 +16,6 @@
 #include "../../lib/utils/serializablehelper.h"
 #include "../../lib/encoding/byteplaintextencoding.h"
 #include "../../lib/encoding/intplaintextencoding.h"
-#include "../../lib/utils/cryptoutility.h"
 
 using namespace std;
 using namespace lbcrypto;

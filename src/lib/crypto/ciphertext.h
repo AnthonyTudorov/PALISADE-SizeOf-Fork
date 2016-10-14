@@ -192,7 +192,7 @@ namespace lbcrypto {
 		* @param &ciphertext is the element to add.
 		* @return the new ciphertext.
 		*/
-		Ciphertext<Element> EvalAdd(const Ciphertext<Element> &ciphertext) const;
+		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext) const;
 	
 		//JSON FACILITY
 		/**

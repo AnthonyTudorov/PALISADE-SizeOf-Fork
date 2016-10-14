@@ -118,7 +118,7 @@ namespace lbcrypto {
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
 			 * @param *keySwitchHint is where the resulting keySwitchHint will be placed.
 			 */
-			virtual shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+			virtual shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
 					const shared_ptr<LPPrivateKey<Element>> k1,
 					const shared_ptr<LPPrivateKey<Element>> k2) const ;
 
@@ -128,7 +128,9 @@ namespace lbcrypto {
 			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
 			 * @param &cipherText Original ciphertext to perform switching on.
 			 */
-			virtual shared_ptr<Ciphertext<Element>> KeySwitch(const LPEvalKey<Element> &keySwitchHint,const  Ciphertext<Element> &cipherText) const;
+			virtual shared_ptr<Ciphertext<Element>> KeySwitch(
+					const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+					const shared_ptr<Ciphertext<Element>> cipherText) const;
 
 			/**
 			* Method for generating a keyswitchhint from originalPrivateKey square to newPrivateKey
@@ -137,7 +139,7 @@ namespace lbcrypto {
 			* @param &newPrivateKey new private for generating a keyswitchhint to.
 			* @param *quadraticKeySwitchHint the generated keyswitchhint.
 			*/
-			virtual shared_ptr<LPEvalKey<Element>> QuadraticEvalMultKeyGen(
+			virtual shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
 				const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 				const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const;
 
@@ -146,14 +148,14 @@ namespace lbcrypto {
 			 *
 			 * @param *cipherText Ciphertext to perform and apply modreduce on.
 			 */
-			virtual void ModReduce(shared_ptr<Ciphertext<Element>> *cipherText) const;
+			virtual void ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const;
 			/**
 			 * Method for RingReducing CipherText and the Private Key used for encryption.
 			 *
 			 * @param *cipherText Ciphertext to perform and apply ringreduce on.
 			 * @param *keySwitchHint is the keyswitchhint from the ciphertext's private key to a sparse key
 			 */
-			virtual void RingReduce(Ciphertext<Element> *cipherText, const LPEvalKeyNTRU<Element> &keySwitchHint) const ; 
+			virtual void RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const ;
 			
 			/**
 			* Method for ComposedEvalMult
@@ -163,7 +165,10 @@ namespace lbcrypto {
 			* @param &quadKeySwitchHint is for resultant quadratic secret key after multiplication to the secret key of the particular level.
 			* @param &cipherTextResult is the resulting ciphertext that can be decrypted with the secret key of the particular level.
 			*/
-			virtual void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, shared_ptr<Ciphertext<Element>> cipherTextResult) const ;
+			virtual shared_ptr<Ciphertext<Element>> ComposedEvalMult(
+					const shared_ptr<Ciphertext<Element>> cipherText1,
+					const shared_ptr<Ciphertext<Element>> cipherText2,
+					const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint) const ;
 
 			/**
 			* Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
@@ -172,7 +177,8 @@ namespace lbcrypto {
 			* @param &linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
 			* @param &cipherTextResult is the resulting ciphertext.
 			*/
-			virtual void LevelReduce(const Ciphertext<Element> &cipherText1, const LPEvalKeyNTRU<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const ;
+			virtual shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
+					const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const ;
 			/**
 			* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
 			* and odd indices are set to zero.
