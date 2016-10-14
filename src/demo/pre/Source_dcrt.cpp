@@ -44,7 +44,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/crypto/cryptocontext.cpp"
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
-#include "../../lib/utils/cryptoutility.h"
 #include "time.h"
 
 #include <chrono>

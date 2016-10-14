@@ -76,19 +76,19 @@ Ciphertext<Element>& Ciphertext<Element>::operator=(Ciphertext<Element> &&rhs)
 
 // EvalAdd Operation
 template <class Element>
-Ciphertext<Element> Ciphertext<Element>::EvalAdd(const Ciphertext<Element> &ciphertext) const
+shared_ptr<Ciphertext<Element>> Ciphertext<Element>::EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext) const
 {
-	if(this->cryptoContext != ciphertext.cryptoContext){
+	if(this->cryptoContext != ciphertext->cryptoContext){
 		std::string errMsg = "EvalAdd: Ciphertexts are not from the same context";
 		throw std::runtime_error(errMsg);
 	}
 
-	Ciphertext<Element> sum(*this);
+	shared_ptr<Ciphertext<Element>> sum( new Ciphertext<Element>(*this) );
 
 	//YSP this should be optimized to use the in-place += operator
 	for (int i = 0; i < this->m_elements.size(); i++)
 	{
-		sum.m_elements[i] = this->m_elements[i] + ciphertext.m_elements[i];
+		sum->m_elements[i] = this->m_elements[i] + ciphertext->m_elements[i];
 	}
 	return sum;
 }

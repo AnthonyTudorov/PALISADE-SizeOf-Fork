@@ -72,9 +72,8 @@ namespace lbcrypto {
 			 * @param &ciphertext2 the input ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
-			void EvalAdd(const Ciphertext<Element> &ciphertext1, 
-				const Ciphertext<Element> &ciphertext2, 
-				Ciphertext<Element> *newCiphertext) const;
+			shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
 	};
 

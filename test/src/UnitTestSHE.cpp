@@ -49,7 +49,10 @@ Test cases in this file make the following assumptions:
 
 #include "../../src/lib/crypto/lwecrypt.cpp"
 #include "../../src/lib/crypto/ciphertext.cpp"
-#include "../../src/lib/utils/cryptoutility.h"
+#include "../../src/lib/crypto/cryptocontext.h"
+#include "../../src/lib/utils/cryptocontexthelper.h"
+#include "../../src/lib/crypto/cryptocontext.cpp"
+#include "../../src/lib/utils/cryptocontexthelper.cpp"
 
 #include "../../src/lib/utils/debug.h"
 #include "../../src/lib/encoding/byteplaintextencoding.h"
@@ -347,7 +350,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	/**************************KEYSWITCH TEST END******************************/
 	/**************************MODREDUCE TEST BEGIN******************************/
 
-	CryptoUtility<ILVectorArray2n>::ModReduce(cc.GetEncryptionAlgorithm(), &newCiphertext);
+	cc.ModReduce(newCiphertext);
 	ILVectorArray2n sk2PrivateElement(kp2.secretKey->GetPrivateElement());
 	sk2PrivateElement.DropElementAtIndex(sk2PrivateElement.GetNumOfElements() - 1);
 	kp2.secretKey->SetPrivateElement(sk2PrivateElement);
@@ -391,14 +394,13 @@ TEST(UTSHE, ringreduce_single_crt) {
 	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
 	IntPlaintextEncoding intArray(vectorOfInts);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-			cc.Encrypt(kp.publicKey, intArray);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, intArray);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext(ciphertext.size());
 
 	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
 
-	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
+	shared_ptr<LPEvalKeyNTRU<ILVector2n>> keySwitchHint;
 	keySwitchHint = cc.GetEncryptionAlgorithm().EvalMultKeyGen(kp.secretKey, kp2.secretKey);
 
 	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
@@ -407,7 +409,7 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 	cc.Decrypt(kp2.secretKey, newCiphertext, &intArrayNew);
 
-	CryptoUtility<ILVector2n>::RingReduce(cc.GetEncryptionAlgorithm(), &ciphertext, keySwitchHint);
+	cc.RingReduce(ciphertext, keySwitchHint);
 
 	ILVector2n skSparseElement(kp2.secretKey->GetPrivateElement());
 	skSparseElement.SwitchFormat();
@@ -497,16 +499,15 @@ TEST(UTSHE, ringreduce_double_crt) {
 
 	LPKeyPair<ILVectorArray2n> kp2 = cc.SparseKeyGen();
 
-	LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint(cc);
-	cc.GetEncryptionAlgorithm().EvalMultKeyGen(*kp.secretKey, *kp2.secretKey, &keySwitchHint);
+	shared_ptr<LPEvalKeyNTRU<ILVectorArray2n>> keySwitchHint = cc.EvalMultKeyGen(kp.secretKey, kp2.secretKey);
 
-	CryptoUtility<ILVectorArray2n>::KeySwitch(cc.GetEncryptionAlgorithm(), keySwitchHint, ciphertext, &newCiphertext);
+	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
 
 	IntPlaintextEncoding intArrayNew;
 
 	cc.Decrypt(kp2.secretKey, newCiphertext, &intArrayNew, false);
 
-	CryptoUtility<ILVectorArray2n>::RingReduce(cc.GetEncryptionAlgorithm(), &ciphertext, keySwitchHint);
+	cc.RingReduce(ciphertext, keySwitchHint);
 
 	ILVectorArray2n skSparseElement(kp2.secretKey->GetPrivateElement());
 	skSparseElement.SwitchFormat();

@@ -9,7 +9,6 @@
 #include <fstream>
 
 #include "../../lib/encoding/byteplaintextencoding.h"
-#include "../../lib/utils/cryptoutility.h"
 #include "../../lib/utils/debug.h"
 
 #include <chrono>

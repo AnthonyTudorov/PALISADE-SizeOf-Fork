@@ -44,6 +44,8 @@
 
 namespace lbcrypto {
 
+//FIXME: comments for doxygen are wrong
+
 /**
  * @brief CryptoContextImpl Class.
  *
@@ -168,7 +170,7 @@ public:
 		return GetEncryptionAlgorithm().ReKeyGen(newPublicKey, origPrivateKey);
 	}
 
-	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+	shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
 			const shared_ptr<LPPrivateKey<Element>> k1,
 			const shared_ptr<LPPrivateKey<Element>> k2) const {
 
@@ -179,7 +181,7 @@ public:
 	}
 
 
-	shared_ptr<LPEvalKey<Element>> QuadraticEvalMultKeyGen(
+	shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
 			const shared_ptr<LPPrivateKey<Element>> k1,
 			const shared_ptr<LPPrivateKey<Element>> k2) const {
 
@@ -311,7 +313,6 @@ public:
 			if( result.isValid == false ) return result;
 
 			plaintext->Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
-
 			if( ch == lastone && doPadding ) {
 				plaintext->Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
 			}
@@ -422,18 +423,18 @@ public:
 	}
 
 	shared_ptr<Ciphertext<Element>>
-	EvalAdd(shared_ptr<Ciphertext<Element>> ct1, shared_ptr<Ciphertext<Element>> ct2)
+	EvalAdd(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2)
 	{
-		if( ct1.GetCryptoContext() != *this || ct2.GetCryptoContext() != *this )
-			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
+		if( ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
 
 		return GetEncryptionAlgorithm().EvalAdd(ct1, ct2);
 	}
 
 	shared_ptr<Ciphertext<Element>>
-	EvalMult(shared_ptr<Ciphertext<Element>> ct1, shared_ptr<Ciphertext<Element>> ct2)
+	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2)
 	{
-		if( ct1.GetCryptoContext() != *this || ct2.GetCryptoContext() != *this )
+		if( ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
 
 		return GetEncryptionAlgorithm().EvalMult(ct1, ct2);
@@ -454,7 +455,7 @@ public:
 		if( keySwitchHint->GetCryptoContext() != *this )
 			throw std::logic_error("Key passed to KeySwitch was not generated with this crypto context");
 
-		for (int i = 0; i < ciphertext->size(); i++) {
+		for (int i = 0; i < ciphertext.size(); i++) {
 			if( ciphertext.at(i)->GetCryptoContext() != *this )
 				throw std::logic_error("Information passed to KeySwitch was not generated with this crypto context");
 
@@ -472,43 +473,51 @@ public:
 	std::vector<shared_ptr<Ciphertext<Element>>> ModReduce(
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext)
 	{
-		for (int i = 0; i < ciphertext->size(); i++) {
+		for (int i = 0; i < ciphertext.size(); i++) {
 			if( ciphertext.at(i)->GetCryptoContext() != *this )
 				throw std::logic_error("Information passed to ModReduce was not generated with this crypto context");
 
-			ciphertext[i] = GetEncryptionAlgorithm().ModReduce(ciphertext[i]);
+			GetEncryptionAlgorithm().ModReduce(ciphertext[i]);
 		}
 
 		return ciphertext;
 	}
 
+	shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
+			const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const {
+
+		if( cipherText1->GetCryptoContext() != *this || linearKeySwitchHint->GetCryptoContext() != *this) {
+			throw std::logic_error("Information passed to LevelReduce was not generated with this crypto context");
+		}
+
+		return GetEncryptionAlgorithm().LevelReduce(cipherText1, linearKeySwitchHint);
+	}
+
 	/**
 	* perform RingReduce on a vector of ciphertext
-	* @param &scheme - a reference to the encryption scheme in use
 	* @param ciphertext - vector of ciphertext
 	* @param &keySwitchHint - is the keySwitchHint from original private key to sparse private key
 	*/
 
-	std::vector<shared_ptr<Ciphertext<Element>>> RingReduce(
+	void RingReduce(
 		std::vector<shared_ptr<Ciphertext<Element>>> ciphertext,
 		const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint)
 	{
 		if( keySwitchHint->GetCryptoContext() != *this )
-			throw std::logic_error("Key passed to KeySwitch was not generated with this crypto context");
+			throw std::logic_error("Key passed to RingReduce was not generated with this crypto context");
 
-		for (int i = 0; i < ciphertext->size(); i++) {
+		for (int i = 0; i < ciphertext.size(); i++) {
 			if( ciphertext.at(i)->GetCryptoContext() != *this )
-				throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
+				throw std::logic_error("Ciphertext passed to RingReduce was not generated with this crypto context");
 
-			ciphertext[i] = GetEncryptionAlgorithm().RingReduce(ciphertext[i], keySwitchHint);
+			GetEncryptionAlgorithm().RingReduce(ciphertext[i], keySwitchHint);
 		}
 
-		return ciphertext;
+		return;
 	}
 
 	/**
-	* perform RingReduce on a vector of ciphertext
-	* @param &scheme - a reference to the encryption scheme in use
+	* perform ComposedEvalMult
 	* @param ciphertext1 - first cipher text
 	* @param ciphertext2 - second cipher text
 	* @param &quadKeySwitchHint - is the quadratic key switch hint from original private key to the quadratic key
@@ -532,7 +541,8 @@ public:
 			if( ciphertext1.at(i)->GetCryptoContext() != *this || ciphertext2.at(i)->GetCryptoContext() != *this )
 				throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
 
-			ciphertextResult.push_back( GetEncryptionAlgorithm().ComposedEvalMult(ciphertext1.at(i), ciphertext2.at(i), quadKeySwitchHint) );
+			shared_ptr<Ciphertext<Element>> e = GetEncryptionAlgorithm().ComposedEvalMult(ciphertext1.at(i), ciphertext2.at(i), quadKeySwitchHint);
+			ciphertextResult.push_back( e );
 		}
 
 		return ciphertextResult;
