@@ -374,12 +374,6 @@ evaladder(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	string cipher2name(argv[1]);
 	string cipheraddname(argv[2]);
 
-	ofstream ctSer(cipheraddname, ios::binary);
-	if( !ctSer.is_open() ) {
-		cerr << "could not open output file " << cipheraddname << endl;
-		return;
-	}
-
 	Serialized	kser;
 	if( SerializableHelper::ReadSerializationFromFile(cipher1name, &kser) == false ) {
 		cerr << "Could not read cipher1" << endl;
@@ -391,7 +385,6 @@ evaladder(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 
 	if( !c1 ) {
 		cerr << "Could not deserialize cipher1" << endl;
-		ctSer.close();
 		return;
 	}
 
@@ -406,11 +399,13 @@ evaladder(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 
 	if( !c2 ) {
 		cerr << "Could not deserialize cipher2" << endl;
-		ctSer.close();
 		return;
 	}
 
+	for( int i=0; i<10; i++ ) cout << c1->GetElement().GetValAtIndex(i) << " "; cout << endl;
+	for( int i=0; i<10; i++ ) cout << c2->GetElement().GetValAtIndex(i) << " "; cout << endl;
 	shared_ptr<Ciphertext<ILVector2n>> cdsum = ctx.EvalAdd(c1, c2);
+	for( int i=0; i<10; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " "; cout << endl;
 
 	Serialized cSer;
 	if( cdsum->Serialize(&cSer, cipheraddname) ) {
@@ -428,9 +423,72 @@ evaladder(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 //		cerr << "failed to encrypt" << endl;
 //	}
 
-	ctSer.close();
 	return;
 }
+
+void
+evalmulter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
+	if( argc != 3 ) {
+		usage(cmd, "missing arguments");
+		return;
+	}
+
+	string cipher1name(argv[0]);
+	string cipher2name(argv[1]);
+	string ciphermulname(argv[2]);
+
+	Serialized	kser;
+	if( SerializableHelper::ReadSerializationFromFile(cipher1name, &kser) == false ) {
+		cerr << "Could not read cipher1" << endl;
+		return;
+	}
+
+	// Initialize the public key containers.
+	shared_ptr<Ciphertext<ILVector2n>> c1 = ctx.deserializeCiphertext(kser);
+
+	if( !c1 ) {
+		cerr << "Could not deserialize cipher1" << endl;
+		return;
+	}
+
+	Serialized	kser2;
+	if( SerializableHelper::ReadSerializationFromFile(cipher2name, &kser2) == false ) {
+		cerr << "Could not read cipher2" << endl;
+		return;
+	}
+
+	// Initialize the public key containers.
+	shared_ptr<Ciphertext<ILVector2n>> c2 = ctx.deserializeCiphertext(kser2);
+
+	if( !c2 ) {
+		cerr << "Could not deserialize cipher2" << endl;
+		return;
+	}
+
+	for( int i=0; i<10; i++ ) cout << c1->GetElement().GetValAtIndex(i) << " "; cout << endl;
+	for( int i=0; i<10; i++ ) cout << c2->GetElement().GetValAtIndex(i) << " "; cout << endl;
+	shared_ptr<Ciphertext<ILVector2n>> cdsum = ctx.EvalMult(c1, c2);
+	for( int i=0; i<10; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " "; cout << endl;
+
+	Serialized cSer;
+	if( cdsum->Serialize(&cSer, ciphermulname) ) {
+		if( !SerializableHelper::WriteSerializationToFile(cSer, ciphermulname) ) {
+				cerr << "Error writing serialization of ciphertext to " + ciphermulname << endl;
+				return;
+		}
+	}
+	else {
+		cerr << "Error serializing ciphertext" << endl;
+		return;
+	}
+
+//	if( !er.isValid ) {
+//		cerr << "failed to encrypt" << endl;
+//	}
+
+	return;
+}
+
 
 struct {
 	string		command;
@@ -447,9 +505,10 @@ struct {
 		"\treencrypt the contents of encrypted_file using the contents of rekey_file, save results in reencrypted_file",
 		"decrypt", decrypter,  " [optional parms] ciphertext_file prikey_file cleartext_file\n"
 		"\tdecrypt the contents of ciphertext_file using the contents of prikey_file, save results in cleartext_file",
-		"evaladd", evaladder, " [optional parms] ciphertext1 ciphertext2 addresult\n",
+		"evaladd", evaladder, " [optional parms] ciphertext1 ciphertext2 addresult\n"
 		"\teval-add both ciphertexts\n",
-
+		"evalmult", evalmulter, " [optional parms] ciphertext1 ciphertext2 addresult\n"
+		"\teval-mult both ciphertexts\n",
 };
 
 void
