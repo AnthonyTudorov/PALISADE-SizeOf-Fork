@@ -868,7 +868,7 @@ TEST(UTILVector2n, signed_mod_tests) {
 	BigBinaryInteger primeModulus("73");
 	BigBinaryInteger primitiveRootOfUnity("22");
 
-	ILParams ilparams(m, primeModulus, primitiveRootOfUnity);
+	shared_ptr<ILParams> ilparams( new ILParams(m, primeModulus, primitiveRootOfUnity) );
 
 	ILVector2n ilvector2n1(ilparams,COEFFICIENT);
 	BigBinaryVector bbv1(m / 2, primeModulus);

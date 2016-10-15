@@ -200,7 +200,7 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_Short_Ring) {
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(RootOfUnity(m,q), m, q);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetILParams());
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();

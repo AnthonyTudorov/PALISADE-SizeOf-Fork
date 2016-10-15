@@ -79,17 +79,19 @@ void IntPlaintextEncoding::Decode(const BigBinaryInteger& modulus, ILVectorArray
 	DEBUG("D");
 	for (usint i = 0; i<ilVectorArray2n->GetNumOfElements(); i++) {
 	  		    DEBUG("i "<<i);
-		ILParams ilparams(ilVectorArray2n->GetElementAtIndex(i).GetCyclotomicOrder(), ilVectorArray2n->GetElementAtIndex(i).GetModulus(), ilVectorArray2n->GetElementAtIndex(i).GetRootOfUnity());
+		shared_ptr<ILParams> ilparams( new ILParams(ilVectorArray2n->GetElementAtIndex(i).GetCyclotomicOrder(),
+				ilVectorArray2n->GetElementAtIndex(i).GetModulus(),
+				ilVectorArray2n->GetElementAtIndex(i).GetRootOfUnity()) );
 		DEBUG("a");
 		ILVector2n temp(ilparams);
 		DEBUG("b");
 		tempBBV = interpolatedDecodedValue.GetValues();
 		DEBUG("c");
-		tempBBV.SetModulus(ilparams.GetModulus());
+		tempBBV.SetModulus(ilparams->GetModulus());
 		DEBUG("d");
 		temp.SetValues(tempBBV, interpolatedDecodedValue.GetFormat());
 		DEBUG("e");
-		temp.SignedMod(ilparams.GetModulus());
+		temp.SignedMod(ilparams->GetModulus());
 		DEBUG("f");
 		encodeValues.push_back(temp);
 		DEBUG("g");

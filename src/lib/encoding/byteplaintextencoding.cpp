@@ -123,7 +123,6 @@ BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 	usint resultant_char;
 
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i = i + p) {
-	  DEBUG("i "<<i);
 	  usint exp = 1;
 		resultant_char = 0;
 		for (usint j = 0; j<p; j++) {
@@ -132,7 +131,6 @@ BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 		}
 		this->push_back(resultant_char);
 	}
-	DEBUG("leaving DECODE ");
 }
 
 void
@@ -176,17 +174,19 @@ BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n 
 		for (usint i = 0; i<ilVectorArray2n->GetNumOfElements(); i++) {
 		  DEBUG("i "<<i);
 
-			ILParams ilparams(ilVectorArray2n->GetElementAtIndex(i).GetCyclotomicOrder(), ilVectorArray2n->GetElementAtIndex(i).GetModulus(), ilVectorArray2n->GetElementAtIndex(i).GetRootOfUnity());
+			shared_ptr<ILParams> ilparams( new ILParams(ilVectorArray2n->GetElementAtIndex(i).GetCyclotomicOrder(),
+					ilVectorArray2n->GetElementAtIndex(i).GetModulus(),
+					ilVectorArray2n->GetElementAtIndex(i).GetRootOfUnity()) );
 			DEBUG("a");
 			ILVector2n temp(ilparams);
 			DEBUG("b");
 			tempBBV = interpolatedDecodedValue.GetValues();
 			DEBUG("c");
-			tempBBV.SetModulus(ilparams.GetModulus());
+			tempBBV.SetModulus(ilparams->GetModulus());
 			DEBUG("d");
 			temp.SetValues(tempBBV, interpolatedDecodedValue.GetFormat());
 			DEBUG("e");
-			temp.SignedMod(ilparams.GetModulus());
+			temp.SignedMod(ilparams->GetModulus());
 			encodeValues.push_back(temp);
 		}
 
