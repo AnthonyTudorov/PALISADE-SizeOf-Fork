@@ -55,7 +55,9 @@ g="-use $h"
 
 $f/palisade -integers $g encrypt $inint1 publisher${h}PUB.txt encryptedInt1${h}.txt
 $f/palisade -integers $g encrypt $inint2 publisher${h}PUB.txt encryptedInt2${h}.txt
-$f/palisade -integers $g decrypt encryptedInt${h}.txt subscriber${h}PRI.txt cleartextIntOutput${h}.txt
+$f/palisade -integers $g decrypt encryptedInt1${h}.txt subscriber${h}PRI.txt cleartextIntOutput${h}.txt
 
-$f/palisade -integers $g evaladd encryptedInt1${h}.txt encryptedInt2${h}PRI.txt encryptedIntAdd${h}.txt
-$f/palisade -integers $g decrypt encryptedIntAdd${h}.txt subscriber${h}PRI.txt cleartextIntAdded${h}.txt
+$f/palisade -integers $g evaladd encryptedInt1${h}.txt encryptedInt2${h}.txt encryptedIntAdd${h}.txt
+$f/palisade -integers $g evalmult encryptedInt1${h}.txt encryptedInt2${h}.txt encryptedIntMult${h}.txt
+$f/palisade -integers $g decrypt encryptedIntAdd${h}.txt publisher${h}PRI.txt cleartextIntAdded${h}.txt
+$f/palisade -integers $g decrypt encryptedIntMult${h}.txt publisher${h}PRI.txt cleartextIntMulted${h}.txt

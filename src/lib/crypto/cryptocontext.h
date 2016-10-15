@@ -207,6 +207,7 @@ public:
 		size_t rounds = ptSize/chunkSize;
 
 		if( doPadding == false && ptSize%chunkSize != 0 ) {
+				//&& typeid(plaintext) == typeid(BytePlaintextEncoding)) {
 			throw std::logic_error("Cannot Encrypt without padding with chunksize " + std::to_string(chunkSize) + " and plaintext size " + std::to_string(ptSize));
 		}
 
