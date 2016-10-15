@@ -143,8 +143,11 @@ TEST(UTFV, ILVector2n_FV_Encrypt_Decrypt) {
 TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 	usint m = 2048;
-	BigBinaryInteger modulus("1152921504606877697");
-	BigBinaryInteger rootOfUnity("418639631973566421");
+	//BigBinaryInteger modulus("1152921504606877697");
+	//BigBinaryInteger rootOfUnity("418639631973566421");
+
+	BigBinaryInteger modulus("1099511678977");
+	BigBinaryInteger rootOfUnity("928976858506");
 
 	//BigBinaryInteger modulus("1267650600228229401496703385601");
 	//BigBinaryInteger rootOfUnity("540976213121087081496420385771");

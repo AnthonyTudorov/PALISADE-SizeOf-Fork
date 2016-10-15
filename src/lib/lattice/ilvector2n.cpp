@@ -544,7 +544,8 @@ namespace lbcrypto {
 
 		// convert the polynomial to coefficient representation
 		ILVector2n x(*this);
-		x.SwitchFormat();
+		if (x.GetFormat() == EVALUATION)
+			x.SwitchFormat();
 
 		for (usint i = 0; i < nWindows; ++i)
 		{

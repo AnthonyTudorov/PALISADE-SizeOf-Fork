@@ -212,22 +212,25 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 	const LPEvalKeyRelin<Element> &evalKey =
 		dynamic_cast<const LPEvalKeyRelin<Element>&>(ek);
 
-	BigBinaryInteger modulus2("1427247692705959881058285969449495136382760961");
-	BigBinaryInteger rootOfUnity2("1309545563532998440286416675852779804293253743");
+	BigBinaryInteger modulus2("1237940039285380274899136513");
+	BigBinaryInteger rootOfUnity2("1067388930511360414468370668");
 
 	std::vector<Element> cipherText1Elements = ciphertext1.GetElements();
 	std::vector<Element> cipherText2Elements = ciphertext2.GetElements();
 
+	//converts the ciphertext elements to coefficient format so that the modulus switching can be done
 	cipherText1Elements[0].SwitchFormat();
 	cipherText1Elements[1].SwitchFormat();
 	cipherText2Elements[0].SwitchFormat();
 	cipherText2Elements[1].SwitchFormat();
 
+	//switches the modulus to a larger value so that polynomial multiplication w/o mod q can be performed
 	cipherText1Elements[0].SwitchModulus(modulus2, rootOfUnity2);
 	cipherText1Elements[1].SwitchModulus(modulus2, rootOfUnity2);
 	cipherText2Elements[0].SwitchModulus(modulus2, rootOfUnity2);
 	cipherText2Elements[1].SwitchModulus(modulus2, rootOfUnity2);
 
+	//converts the ciphertext elements back to evaluation representation
 	cipherText1Elements[0].SwitchFormat();
 	cipherText1Elements[1].SwitchFormat();
 	cipherText2Elements[0].SwitchFormat();
@@ -237,6 +240,7 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 	Element c1 = cipherText1Elements[0] * cipherText2Elements[1] + cipherText1Elements[1] * cipherText2Elements[0];
 	Element c2 = cipherText1Elements[1] * cipherText2Elements[1];
 
+	//converts to coefficient representation before rounding
 	c0.SwitchFormat();
 	c1.SwitchFormat();
 	c2.SwitchFormat();
@@ -245,13 +249,14 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 	c1 = c1.MultiplyAndRound(p, q);
 	c2 = c2.MultiplyAndRound(p, q);
 
+	//switch the modulus back to the original value
 	c0.SwitchModulus(q, elementParams.GetRootOfUnity());
 	c1.SwitchModulus(q, elementParams.GetRootOfUnity());
 	c2.SwitchModulus(q, elementParams.GetRootOfUnity());
 
 	c0.SwitchFormat();
 	c1.SwitchFormat();
-	c2.SwitchFormat();
+	//c2.SwitchFormat();
 
 	std::vector<Element> digitsC2;
 	c2.BaseDecompose(relinWindow, &digitsC2);
