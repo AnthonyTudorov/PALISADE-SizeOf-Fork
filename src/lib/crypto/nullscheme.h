@@ -178,6 +178,189 @@ public:
 		const shared_ptr<Ciphertext<Element>> ciphertext) const;
 };
 
+/**
+ * @brief Concrete feature class for Leveled SHELTV operations
+ * @tparam Element a ring element.
+ */
+template <class Element>
+class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+	public:
+		/**
+		* Default constructor
+		*/
+		LPLeveledSHEAlgorithmNull() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
+		/**
+		* Constructor that initliazes the scheme
+		*
+		* @param &scheme is a reference to scheme
+		*/
+		LPLeveledSHEAlgorithmNull(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+
+		/**
+		 * Method for generating a KeySwitchHint
+		 *
+		 * @param &originalPrivateKey Original private key used for encryption.
+		 * @param &newPrivateKey New private key to generate the keyswitch hint.
+		 * @param *keySwitchHint is where the resulting keySwitchHint will be placed.
+		 */
+		virtual shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
+				const shared_ptr<LPPrivateKey<Element>> k1,
+				const shared_ptr<LPPrivateKey<Element>> k2) const ;
+
+		/**
+		 * Method for KeySwitching based on a KeySwitchHint
+		 *
+		 * @param &keySwitchHint Hint required to perform the ciphertext switching.
+		 * @param &cipherText Original ciphertext to perform switching on.
+		 */
+		virtual shared_ptr<Ciphertext<Element>> KeySwitch(
+				const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+				const shared_ptr<Ciphertext<Element>> cipherText) const;
+
+		/**
+		* Method for generating a keyswitchhint from originalPrivateKey square to newPrivateKey
+		*
+		* @param &originalPrivateKey that is (in method) squared for the keyswitchhint.
+		* @param &newPrivateKey new private for generating a keyswitchhint to.
+		* @param *quadraticKeySwitchHint the generated keyswitchhint.
+		*/
+		virtual shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
+			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const;
+
+		/**
+		 * Method for ModReducing CipherText and the Private Key used for encryption.
+		 *
+		 * @param *cipherText Ciphertext to perform and apply modreduce on.
+		 */
+		virtual void ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const;
+		/**
+		 * Method for RingReducing CipherText and the Private Key used for encryption.
+		 *
+		 * @param *cipherText Ciphertext to perform and apply ringreduce on.
+		 * @param *keySwitchHint is the keyswitchhint from the ciphertext's private key to a sparse key
+		 */
+		virtual void RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const ;
+
+		/**
+		* Method for ComposedEvalMult
+		*
+		* @param &cipherText1 ciphertext1, first input ciphertext to perform multiplication on.
+		* @param &cipherText2 cipherText2, second input ciphertext to perform multiplication on.
+		* @param &quadKeySwitchHint is for resultant quadratic secret key after multiplication to the secret key of the particular level.
+		* @param &cipherTextResult is the resulting ciphertext that can be decrypted with the secret key of the particular level.
+		*/
+		virtual shared_ptr<Ciphertext<Element>> ComposedEvalMult(
+				const shared_ptr<Ciphertext<Element>> cipherText1,
+				const shared_ptr<Ciphertext<Element>> cipherText2,
+				const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint) const ;
+
+		/**
+		* Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
+		*
+		* @param &cipherText1 is the original ciphertext to be key switched and mod reduced.
+		* @param &linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
+		* @param &cipherTextResult is the resulting ciphertext.
+		*/
+		virtual shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
+				const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const ;
+		/**
+		* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
+		* and odd indices are set to zero.
+		*
+		* @param *publicKey is the public key to be generated.
+		* @param *privateKey is the private key to be generated.
+		*/
+		virtual LPKeyPair<Element> SparseKeyGen(const CryptoContext<Element> cc) const;
+		/**
+		* Function that determines if security requirements are met if ring dimension is reduced by half.
+		*
+		* @param ringDimension is the original ringDimension
+		* @param &moduli is the vector of moduli that is used
+		* @param rootHermiteFactor is the security threshold
+		*/
+		virtual bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const;
+};
+
+template <class Element>
+class LPAlgorithmSHENull : public LPSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+	public:
+
+		/**
+		* Default constructor
+		*/
+		LPAlgorithmSHENull() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
+		/**
+		* Constructor that initliazes the scheme
+		*
+		* @param &scheme is a reference to scheme
+		*/
+		LPAlgorithmSHENull(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+
+		/**
+		 * Function for evaluating multiplication on ciphertext.
+		 *
+		 * @param &ciphertext1 first input ciphertext.
+		 * @param &ciphertext2 second input ciphertext.
+		 * @param *newCiphertext the new resulting ciphertext.
+		 */
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2) const;
+
+		/**
+		* Function for evaluating multiplication on ciphertext followed by key switching operation.
+		*
+		* @param &ciphertext1 first input ciphertext.
+		* @param &ciphertext2 second input ciphertext.
+		* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const;
+
+		/**
+		 * Function for evaluation addition on ciphertext.
+		 *
+		 * @param &ciphertext1 first input ciphertext.
+		 * @param &ciphertext2 second input ciphertext.
+		 * @param *newCiphertext the new resulting ciphertext.
+		 */
+
+		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2) const ;
+
+		/**
+		 * Function to generate key switch hint on a ciphertext.
+		 *
+		 * @param &newPrivateKey private key for the new ciphertext.
+		 * @param &origPrivateKey original private key used for decryption.
+		 * @param depth used for decryption.
+		 * @param *keySwitchHint the key switch hint.
+		 */
+		shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> newPrivateKey,
+			shared_ptr<LPPrivateKey<Element>> origPrivateKey,
+			usint depth) const;
+
+		/**
+		 * Function to generate key switch hint on a ciphertext for depth 2.
+		 *
+		 * @param &newPrivateKey private key for the new ciphertext.
+		 * @param *keySwitchHint the key switch hint.
+		 */
+		shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey) const;
+
+		/**
+		 * Function to define key switching operation
+		 *
+		 * @param &keySwitchHint the evaluation key.
+		 * @param &ciphertext the input ciphertext.
+		 * @param *newCiphertext the new ciphertext.
+		 */
+		 shared_ptr<Ciphertext<Element>> KeySwitch(
+					const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+					const shared_ptr<Ciphertext<Element>> cipherText) const;
+
+};
 
 /**
 * @brief Main public key encryption scheme for Null implementation,
