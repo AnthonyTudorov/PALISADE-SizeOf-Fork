@@ -212,25 +212,46 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 	const LPEvalKeyRelin<Element> &evalKey =
 		dynamic_cast<const LPEvalKeyRelin<Element>&>(ek);
 
+	BigBinaryInteger modulus2("1427247692705959881058285969449495136382760961");
+	BigBinaryInteger rootOfUnity2("1309545563532998440286416675852779804293253743");
+
 	std::vector<Element> cipherText1Elements = ciphertext1.GetElements();
 	std::vector<Element> cipherText2Elements = ciphertext2.GetElements();
+
+	cipherText1Elements[0].SwitchFormat();
+	cipherText1Elements[1].SwitchFormat();
+	cipherText2Elements[0].SwitchFormat();
+	cipherText2Elements[1].SwitchFormat();
+
+	cipherText1Elements[0].SwitchModulus(modulus2, rootOfUnity2);
+	cipherText1Elements[1].SwitchModulus(modulus2, rootOfUnity2);
+	cipherText2Elements[0].SwitchModulus(modulus2, rootOfUnity2);
+	cipherText2Elements[1].SwitchModulus(modulus2, rootOfUnity2);
+
+	cipherText1Elements[0].SwitchFormat();
+	cipherText1Elements[1].SwitchFormat();
+	cipherText2Elements[0].SwitchFormat();
+	cipherText2Elements[1].SwitchFormat();
 
 	Element c0 = cipherText1Elements[0] * cipherText2Elements[0];
 	Element c1 = cipherText1Elements[0] * cipherText2Elements[1] + cipherText1Elements[1] * cipherText2Elements[0];
 	Element c2 = cipherText1Elements[1] * cipherText2Elements[1];
 
+	c0.SwitchFormat();
+	c1.SwitchFormat();
+	c2.SwitchFormat();
+
 	c0 = c0.MultiplyAndRound(p, q);
 	c1 = c1.MultiplyAndRound(p, q);
 	c2 = c2.MultiplyAndRound(p, q);
 
-	//Element c0 = cipherText1Elements[0];
-	//c0 = c0.MultiplyAndRound(cipherText2Elements[0], p, q);
+	c0.SwitchModulus(q, elementParams.GetRootOfUnity());
+	c1.SwitchModulus(q, elementParams.GetRootOfUnity());
+	c2.SwitchModulus(q, elementParams.GetRootOfUnity());
 
-	//Element c1 = cipherText1Elements[0];
-	//c1 = c1.MultiplyAndRound(cipherText2Elements[1], cipherText1Elements[1], cipherText2Elements[0], p, q);
-
-	//Element c2 = cipherText1Elements[1];
-	//c2 = c2.MultiplyAndRound(cipherText2Elements[1], p, q);
+	c0.SwitchFormat();
+	c1.SwitchFormat();
+	c2.SwitchFormat();
 
 	std::vector<Element> digitsC2;
 	c2.BaseDecompose(relinWindow, &digitsC2);

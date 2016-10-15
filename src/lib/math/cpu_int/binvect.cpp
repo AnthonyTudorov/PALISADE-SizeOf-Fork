@@ -290,32 +290,31 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModSub(const IntegerT
 
 template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::MultiplyAndRound(const IntegerType &p, const IntegerType &q) const {
+
+	//BigBinaryVector ans(this->GetLength(), this->GetModulus());
+	//IntegerType halfQ(this->GetModulus() >> 1);
+	//for (usint i = 0; i<ans.GetLength(); i++) {
+	//	if (this->GetValAtIndex(i)>halfQ) {
+	//		ans.SetValAtIndex(i, this->GetValAtIndex(i).ModSub(this->GetModulus(), modulus));
+	//	}
+	//	else {
+	//		ans.SetValAtIndex(i, this->GetValAtIndex(i).Mod(modulus));
+	//	}
+	//}
+	//return ans;
+
 	BigBinaryVector ans(*this);
+	IntegerType halfQ(this->m_modulus >> 1);
 	for(usint i=0;i<this->m_length;i++){
-		ans.m_data[i] = ans.m_data[i].MultiplyAndRound(p, q).Mod(this->m_modulus);
+		if (ans.m_data[i] > halfQ) {
+			IntegerType temp = this->m_modulus - ans.m_data[i];
+			ans.m_data[i] = this->m_modulus - temp.MultiplyAndRound(p, q);
+		}
+		else
+			ans.m_data[i] = ans.m_data[i].MultiplyAndRound(p, q).Mod(this->m_modulus);
 	}
 	return ans;
 }
-
-//template<class IntegerType>
-//BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::MultiplyAndRound(const BigBinaryVector &v, const IntegerType &p, const IntegerType &q) const {
-//	BigBinaryVector ans(*this);
-//	for (usint i = 0; i<this->m_length; i++) {
-//		ans.m_data[i] = ans.m_data[i].MultiplyAndRound(p*v.m_data[i], q).Mod(this->m_modulus);
-//	}
-//	return ans;
-//}
-//
-//template<class IntegerType>
-//BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::MultiplyAndRound(const BigBinaryVector &v1, 
-//	const BigBinaryVector &v2, const BigBinaryVector &v3, const IntegerType &p, const IntegerType &q) const {
-//	BigBinaryVector ans(*this);
-//	for (usint i = 0; i<this->m_length; i++) {
-//		ans.m_data[i] = ans.m_data[i] * v1.m_data[i] + v2.m_data[i] * v3.m_data[i];
-//		ans.m_data[i] = ans.m_data[i].MultiplyAndRound(p, q).Mod(this->m_modulus);
-//	}
-//	return ans;
-//}
 
 template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::DivideAndRound(const IntegerType &q) const {

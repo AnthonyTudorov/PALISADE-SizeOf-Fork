@@ -64,6 +64,9 @@ TEST(UTFV, ILVector2n_FV_Encrypt_Decrypt) {
 	BigBinaryInteger rootOfUnity("16947867");
 	usint relWindow = 1;
 
+	BigBinaryInteger modulus2("1152921504606877697");
+	BigBinaryInteger rootOfUnity2("418639631973566421");
+
 	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	
 	float stdDev = 4;
@@ -140,8 +143,8 @@ TEST(UTFV, ILVector2n_FV_Encrypt_Decrypt) {
 TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 	usint m = 2048;
-	BigBinaryInteger modulus("8589987841");
-	BigBinaryInteger rootOfUnity("2678760785");
+	BigBinaryInteger modulus("1152921504606877697");
+	BigBinaryInteger rootOfUnity("418639631973566421");
 
 	//BigBinaryInteger modulus("1267650600228229401496703385601");
 	//BigBinaryInteger rootOfUnity("540976213121087081496420385771");
