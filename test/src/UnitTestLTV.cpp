@@ -207,11 +207,11 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_Short_Ring) {
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
-	CryptoUtility<ILVector2n>::Encrypt(cc.GetEncryptionAlgorithm(), *kp.publicKey, plaintext, &ciphertext);
+	ciphertext = cc.Encrypt(kp.publicKey, plaintext);
 
 	BytePlaintextEncoding plaintextNew;
 
-	CryptoUtility<ILVector2n>::Decrypt(cc.GetEncryptionAlgorithm(), *kp.secretKey, ciphertext, &plaintextNew);
+	cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 
 	EXPECT_EQ(plaintextNew, plaintext);
 	ILVector2n::DestroyPreComputedSamples();
