@@ -402,9 +402,11 @@ evaladder(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
+	cout << "EvalAdd-ing:" << endl;
 	for( int i=0; i<10; i++ ) cout << c1->GetElement().GetValAtIndex(i) << " "; cout << endl;
 	for( int i=0; i<10; i++ ) cout << c2->GetElement().GetValAtIndex(i) << " "; cout << endl;
 	shared_ptr<Ciphertext<ILVector2n>> cdsum = ctx.EvalAdd(c1, c2);
+	cout << "Result:" << endl;
 	for( int i=0; i<10; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " "; cout << endl;
 
 	Serialized cSer;
@@ -465,9 +467,11 @@ evalmulter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
+	cout << "EvalMult-ing:" << endl;
 	for( int i=0; i<10; i++ ) cout << c1->GetElement().GetValAtIndex(i) << " "; cout << endl;
 	for( int i=0; i<10; i++ ) cout << c2->GetElement().GetValAtIndex(i) << " "; cout << endl;
 	shared_ptr<Ciphertext<ILVector2n>> cdsum = ctx.EvalMult(c1, c2);
+	cout << "Result:" << endl;
 	for( int i=0; i<10; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " "; cout << endl;
 
 	Serialized cSer;
