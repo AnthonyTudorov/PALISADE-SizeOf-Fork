@@ -23,17 +23,18 @@ LPKeyPair<Element> LPAlgorithmNull<Element>::KeyGen(const CryptoContext<Element>
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmNull<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
-		Element &plaintext) const
-		{
+shared_ptr<Ciphertext<Element>> LPAlgorithmNull<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey, Element &plaintext) const
+{
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey->GetCryptoContext()) );
 
-	const Element copyPlain = plaintext;
+	Element copyPlain(pubKey->GetCryptoContext().GetCryptoParameters()->GetElementParams());
+	copyPlain.SetValues(plaintext.GetValues(), Format::EVALUATION);
+
 	ciphertext->SetElement(copyPlain);
 	ciphertext->SetNorm(BigBinaryInteger::ONE);
 
 	return ciphertext;
-		}
+}
 
 template <class Element>
 DecryptResult LPAlgorithmNull<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
@@ -86,7 +87,25 @@ LPAlgorithmSHENull<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciph
 
 	Element c2(ciphertext2->GetElement());
 
-	Element cResult = c1*c2;
+	Element cResult(c1.GetParams(), Format::EVALUATION, true);
+
+	const BigBinaryInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+
+	for( int c1e = 0; c1e<c1.GetLength(); c1e++ ) {
+		BigBinaryInteger answer, c1val, c2val;
+		c1val = c1.GetValAtIndex(c1e);
+		if( c1val != BigBinaryInteger::ZERO ) {
+			for( int c2e = 0; c2e<c2.GetLength(); c2e++ ) {
+				c2val = c2.GetValAtIndex(c2e);
+				if( c2val != BigBinaryInteger::ZERO )
+					cResult.SetValAtIndex(c1e+c2e,
+						(cResult.GetValAtIndex(c1e+c2e) +
+						c1val * c2.GetValAtIndex(c2e))%ptm );
+			}
+		}
+	}
+
+	// DO NOT USE element's operator* !!!  Element cResult = c1*c2;
 
 	newCiphertext->SetElement(cResult);
 

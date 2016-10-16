@@ -47,6 +47,7 @@ using namespace std;
 using namespace lbcrypto;
 
 enum CmdMode { INTMODE, BYTEMODE } CommandMode = BYTEMODE;
+int	IntVectorLen = 10; // default value
 
 void usage(const string& cmd, const string& msg = "");
 
@@ -154,9 +155,9 @@ decrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 		IntPlaintextEncoding iPlaintext;
 
 		// now decrypt iPlaintext
-		ctx.Decrypt(sk, ciphertext, &iPlaintext);
+		ctx.Decrypt(sk, ciphertext, &iPlaintext, false);
 
-		for( int i=0; i<iPlaintext.size(); i++ ) {
+		for( int i=0; i<IntVectorLen; i++ ) {
 			outF << iPlaintext.at(i) << ' ';
 		}
 		outF << endl;
@@ -217,22 +218,23 @@ encrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 		// pull in file full of integers and do the encryption
 		IntPlaintextEncoding iPlaintext;
 
-		for( ;; ) {
+		for( int i=0; i<IntVectorLen; i++ ) {
 			int val;
 
 			inf >> val;
-			if( !inf.good() )
+			if( !inf.good() ) {
 				break;
+			}
 
 			iPlaintext.push_back(val);
 		}
 
 		// now encrypt iPlaintext
-		std::vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = ctx.Encrypt(pk, iPlaintext);
+		std::vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = ctx.Encrypt(pk, iPlaintext, false);
 
 		// FIXME: this works iff size == 1
 		if( ciphertext.size() != 1 ) {
-			cerr << "too many ciphertexts!!!" << endl;
+			cerr << ciphertext.size() << " is the wrong # of ciphertexts!!!" << endl;
 			return;
 		}
 
@@ -403,11 +405,11 @@ evaladder(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	cout << "EvalAdd-ing:" << endl;
-	for( int i=0; i<10; i++ ) cout << c1->GetElement().GetValAtIndex(i) << " "; cout << endl;
-	for( int i=0; i<10; i++ ) cout << c2->GetElement().GetValAtIndex(i) << " "; cout << endl;
+	for( int i=0; i<IntVectorLen; i++ ) cout << c1->GetElement().GetValAtIndex(i) << " "; cout << endl;
+	for( int i=0; i<IntVectorLen; i++ ) cout << c2->GetElement().GetValAtIndex(i) << " "; cout << endl;
 	shared_ptr<Ciphertext<ILVector2n>> cdsum = ctx.EvalAdd(c1, c2);
 	cout << "Result:" << endl;
-	for( int i=0; i<10; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " "; cout << endl;
+	for( int i=0; i<IntVectorLen; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " "; cout << endl;
 
 	Serialized cSer;
 	if( cdsum->Serialize(&cSer, cipheraddname) ) {
@@ -468,11 +470,11 @@ evalmulter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	cout << "EvalMult-ing:" << endl;
-	for( int i=0; i<10; i++ ) cout << c1->GetElement().GetValAtIndex(i) << " "; cout << endl;
-	for( int i=0; i<10; i++ ) cout << c2->GetElement().GetValAtIndex(i) << " "; cout << endl;
+	for( int i=0; i<IntVectorLen; i++ ) cout << c1->GetElement().GetValAtIndex(i) << " "; cout << endl;
+	for( int i=0; i<IntVectorLen; i++ ) cout << c2->GetElement().GetValAtIndex(i) << " "; cout << endl;
 	shared_ptr<Ciphertext<ILVector2n>> cdsum = ctx.EvalMult(c1, c2);
 	cout << "Result:" << endl;
-	for( int i=0; i<10; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " "; cout << endl;
+	for( int i=0; i<IntVectorLen; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " "; cout << endl;
 
 	Serialized cSer;
 	if( cdsum->Serialize(&cSer, ciphermulname) ) {
@@ -529,6 +531,7 @@ usage(const string& cmd, const string& msg)
 	cerr << endl;
 	cerr << "[optional params] are:" << endl;
 	cerr << "-integers: indicates system should use int plaintext instead of byte plaintext: plaintext file is ascii ints delimited by whitespace" << endl;
+	cerr << "-intlen N: when using integers, indicates number of integers in the int plaintext; default is 5. activates -integers mode" << endl;
 	cerr << "-list filename: list all the parameter sets in the file filename, then exit" << endl;
 	cerr << "-use filename parmset: use the parameter set named parmset from the parameter file" << endl;
 	cerr << "-from filename: use the deserialization of filename to set the crypto context" << endl;
@@ -550,29 +553,40 @@ main( int argc, char *argv[] )
 	CryptoContext<ILVector2n> ctx;
 
 	int cmdidx = 1;
-	if( string(argv[cmdidx]) == "-integers" ) {
-		CommandMode = INTMODE;
-		cmdidx++;
-	}
-
-	if( string(argv[cmdidx]) == "-use" && argc >= 3) {
-		ctx = CryptoContextHelper<ILVector2n>::getNewContext( string(argv[cmdidx+1]) );
-		if( !ctx ) {
-			usage("ALL", "Could not construct a crypto context");
-			return 1;
+	while( cmdidx < argc ) {
+		if( string(argv[cmdidx]) == "-integers" ) {
+			CommandMode = INTMODE;
+			cmdidx++;
 		}
 
-		cmdidx += 2;
-	}
-	else if( string(argv[cmdidx]) == "-from" && argc >= 3 ) {
-		Serialized	kser;
-		if( SerializableHelper::ReadSerializationFromFile(string(argv[cmdidx+1]), &kser) ) {
-			ctx = CryptoContextHelper<ILVector2n>::getNewContextFromSerialization(kser);
+		else if( string(argv[cmdidx]) == "-intlen" && cmdidx+1 < argc ) {
+			CommandMode = INTMODE;
+			IntVectorLen = stoi( string(argv[cmdidx + 1]) );
+			cmdidx+= 2;
 		}
 
-		cmdidx += 2;
+		else if( string(argv[cmdidx]) == "-use" && cmdidx+1 < argc) {
+			ctx = CryptoContextHelper<ILVector2n>::getNewContext( string(argv[cmdidx+1]) );
+			if( !ctx ) {
+				usage("ALL", "Could not construct a crypto context");
+				return 1;
+			}
+
+			cmdidx += 2;
+		}
+		else if( string(argv[cmdidx]) == "-from" && cmdidx+1 < argc ) {
+			Serialized	kser;
+			if( SerializableHelper::ReadSerializationFromFile(string(argv[cmdidx+1]), &kser) ) {
+				ctx = CryptoContextHelper<ILVector2n>::getNewContextFromSerialization(kser);
+			}
+
+			cmdidx += 2;
+		}
+		else
+			break;
 	}
-	else {
+
+	if( !ctx ) {
 		ctx = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, 2048, "268441601", "16947867", 1, 4);
 	}
 

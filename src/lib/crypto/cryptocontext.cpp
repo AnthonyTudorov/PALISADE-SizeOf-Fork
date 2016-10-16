@@ -156,7 +156,9 @@ CryptoContextFactory<T>::getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArra
 {
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
-	item.ctx->params.reset( cryptoParams );
+	LPCryptoParametersLTV<ILVectorArray2n>* mycryptoParams = new LPCryptoParametersLTV<ILVectorArray2n>( *cryptoParams); // copy so memory works right
+
+	item.ctx->params.reset( mycryptoParams );
 	item.ctx->scheme = new LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n>();
 
 	return item;
