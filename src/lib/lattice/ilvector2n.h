@@ -347,6 +347,16 @@ namespace lbcrypto {
             m_values->SetValAtIndex(index, BigBinaryInteger(val));
         }
 
+		/**
+        *  Set BigBinaryVector value to val
+        *
+        * @param index is the index at which the value is to be set.
+		* @param val is the value to be set.
+        */
+        inline void SetValAtIndex(size_t index, const BigBinaryInteger& val) {
+            m_values->SetValAtIndex(index, val);
+        }
+
 		// SCALAR OPERATIONS
         /**
 		* Performs an subtracion operation and returns the result.

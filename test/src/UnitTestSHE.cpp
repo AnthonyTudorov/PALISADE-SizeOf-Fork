@@ -391,41 +391,49 @@ TEST(UTSHE, ringreduce_single_crt) {
 	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
 	IntPlaintextEncoding intArray(vectorOfInts);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, intArray);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext(ciphertext.size());
 
+	std::cout << "1" << std::endl;
 	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
 
 	shared_ptr<LPEvalKeyNTRU<ILVector2n>> keySwitchHint;
 	keySwitchHint = cc.GetEncryptionAlgorithm().EvalMultKeyGen(kp.secretKey, kp2.secretKey);
 
+	std::cout << "2" << std::endl;
 	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
 
+	std::cout << "3" << std::endl;
 	IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp2.secretKey, newCiphertext, &intArrayNew);
+	cc.Decrypt(kp2.secretKey, newCiphertext, &intArrayNew, false);
 
+	std::cout << "4" << std::endl;
 	cc.RingReduce(ciphertext, keySwitchHint);
 
+	std::cout << "5" << std::endl;
 	ILVector2n skSparseElement(kp2.secretKey->GetPrivateElement());
 	skSparseElement.SwitchFormat();
+	std::cout << skSparseElement.GetParams()->GetModulus() << "," << skSparseElement.GetParams()->GetRootOfUnity() << "," << skSparseElement.GetParams()->GetCyclotomicOrder() << std::endl;
 	skSparseElement.Decompose();
+	std::cout << skSparseElement.GetParams()->GetModulus() << "," << skSparseElement.GetParams()->GetRootOfUnity() << "," << skSparseElement.GetParams()->GetCyclotomicOrder() << std::endl;
 	skSparseElement.SwitchFormat();
 
 	kp2.secretKey->SetPrivateElement(skSparseElement);
 
+	std::cout << "6" << std::endl;
 	IntPlaintextEncoding intArrayNewRR;
 
 	LPCryptoParametersLTV<ILVector2n> cryptoParamsRR;
-	shared_ptr<ILParams> ilparams2( new ILParams(ciphertext[0]->GetElement().GetParams()->GetCyclotomicOrder() / 2,
-			ciphertext[0]->GetElement().GetParams()->GetModulus(),
-			ciphertext[0]->GetElement().GetParams()->GetRootOfUnity()) );
-	cryptoParamsRR.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-	cryptoParamsRR.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	cryptoParamsRR.SetRelinWindow(1);						   // Set the relinearization window
-	cryptoParamsRR.SetElementParams(ilparams2);                // Set the initialization parameters.
-	cryptoParamsRR.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
+//	shared_ptr<ILParams> ilparams2( new ILParams(ciphertext[0]->GetElement().GetParams()->GetCyclotomicOrder() / 2,
+//			ciphertext[0]->GetElement().GetParams()->GetModulus(),
+//			ciphertext[0]->GetElement().GetParams()->GetRootOfUnity()) );
+//	cryptoParamsRR.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
+//	cryptoParamsRR.SetDistributionParameter(stdDev);          // Set the noise parameters.
+//	cryptoParamsRR.SetRelinWindow(1);						   // Set the relinearization window
+//	cryptoParamsRR.SetElementParams(ilparams2);                // Set the initialization parameters.
+//	cryptoParamsRR.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
 //	for (int i = 0; i < ciphertext.size(); i++) {
 //		ciphertext.at(i).SetCryptoParameters(&cryptoParamsRR);
@@ -433,8 +441,10 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 //	skSparse.SetCryptoParameters(&cryptoParamsRR);
 
+	std::cout << "7" << std::endl;
 	cc.Decrypt(kp2.secretKey, ciphertext, &intArrayNewRR, false);
 
+	std::cout << "8" << std::endl;
 	//std::vector<usint> vectorOfExpectedResults = { 1,1,1,1 };
 	IntPlaintextEncoding intArrayExpected = {1,1,1,1};
 

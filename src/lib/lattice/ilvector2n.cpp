@@ -399,8 +399,9 @@ namespace lbcrypto {
 
 	void ILVector2n::SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity){
 		m_values->SwitchModulus(modulus);
-		m_params->SetModulus(modulus);
-		m_params->SetRootOfUnity(rootOfUnity);
+		m_params = shared_ptr<ILParams>( new ILParams(m_params->GetCyclotomicOrder(), modulus, rootOfUnity) );
+//		m_params->SetModulus(modulus);
+//		m_params->SetRootOfUnity(rootOfUnity);
 	}
 
 	void ILVector2n::SwitchFormat() {
@@ -453,8 +454,9 @@ namespace lbcrypto {
 		usint decomposedCyclotomicOrder = m_params->GetCyclotomicOrder()/2;
 		//Using the halving lemma propety of roots of unity to calculate the root of unity at half the cyclotomic order
 	//	m_params->SetRootOfUnity((m_params->GetRootOfUnity()*m_params->GetRootOfUnity()).Mod(m_params->GetModulus()));
-		m_params->SetRootOfUnity(m_params->GetRootOfUnity());
-		m_params->SetCyclotomicOrder(decomposedCyclotomicOrder);
+		m_params = shared_ptr<ILParams>( new ILParams(decomposedCyclotomicOrder, m_params->GetModulus(), m_params->GetRootOfUnity()) );
+//		m_params->SetRootOfUnity(m_params->GetRootOfUnity());
+//		m_params->SetCyclotomicOrder(decomposedCyclotomicOrder);
 
 		//Interleaving operation.
 		BigBinaryVector decomposeValues(GetLength()/2, GetModulus());
