@@ -308,11 +308,11 @@ TEST(UTLTV, ILVector2n_IntPlaintextEncoding_Encrypt_Decrypt) {
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-			cc.Encrypt(kp.publicKey, intArray);
+			cc.Encrypt(kp.publicKey, intArray, false);
 
 	IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew);
+	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	EXPECT_EQ(intArray, intArrayNew);
 

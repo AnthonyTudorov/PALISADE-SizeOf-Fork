@@ -236,14 +236,14 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element>, public 
 		 *
 		 * @param *cipherText Ciphertext to perform and apply modreduce on.
 		 */
-		virtual void ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const;
+		virtual shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const;
 		/**
 		 * Method for RingReducing CipherText and the Private Key used for encryption.
 		 *
 		 * @param *cipherText Ciphertext to perform and apply ringreduce on.
 		 * @param *keySwitchHint is the keyswitchhint from the ciphertext's private key to a sparse key
 		 */
-		virtual void RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const ;
+		virtual shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const ;
 
 		/**
 		* Method for ComposedEvalMult

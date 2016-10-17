@@ -1067,7 +1067,7 @@ namespace lbcrypto {
 			 *
 			 * @param &cipherText Ciphertext to perform mod reduce on.
 			 */
-			virtual void ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const = 0;
 
 			/**
 			 * Method for Ring Reduction.
@@ -1075,7 +1075,7 @@ namespace lbcrypto {
 			 * @param &cipherText Ciphertext to perform ring reduce on.
 			 * @param &privateKey Private key used to encrypt the first argument.
 			 */
-			virtual void RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const = 0;
 
 			/**
 			 * Method for Composed EvalMult
@@ -1589,18 +1589,18 @@ namespace lbcrypto {
 			}
 		}
 
-		void ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
+		shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
 			if(this->m_algorithmLeveledSHE){
-				this->m_algorithmLeveledSHE->ModReduce(cipherText);
+				return this->m_algorithmLeveledSHE->ModReduce(cipherText);
 			}
 			else{
 				throw std::logic_error("ModReduce operation has not been enabled");
 			}
 		}
 
-		void RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const {
+		shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const {
 			if(this->m_algorithmLeveledSHE){
-				this->m_algorithmLeveledSHE->RingReduce(cipherText,keySwitchHint);
+				return this->m_algorithmLeveledSHE->RingReduce(cipherText,keySwitchHint);
 			}
 			else{
 				throw std::logic_error("RingReduce operation has not been enabled");
