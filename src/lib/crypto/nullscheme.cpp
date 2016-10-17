@@ -90,17 +90,31 @@ LPAlgorithmSHENull<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciph
 	Element cResult(c1.GetParams(), Format::EVALUATION, true);
 
 	const BigBinaryInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+	int	ringdim = c1.GetCyclotomicOrder()/2;
+	std::cout << c1.GetLength() << std::endl;
+	std::cout << "EM " << ptm << ":" << ringdim << std::endl;
 
 	for( int c1e = 0; c1e<c1.GetLength(); c1e++ ) {
 		BigBinaryInteger answer, c1val, c2val;
 		c1val = c1.GetValAtIndex(c1e);
 		if( c1val != BigBinaryInteger::ZERO ) {
 			for( int c2e = 0; c2e<c2.GetLength(); c2e++ ) {
+				bool doAdd = true;
+				if( c1e+c2e > ringdim )
+					doAdd = false;
+
+				int index = (c1e + c2e)%ringdim;
+
 				c2val = c2.GetValAtIndex(c2e);
 				if( c2val != BigBinaryInteger::ZERO )
-					cResult.SetValAtIndex(c1e+c2e,
-						(cResult.GetValAtIndex(c1e+c2e) +
-						c1val * c2.GetValAtIndex(c2e))%ptm );
+					if( doAdd )
+						cResult.SetValAtIndex(ringdim,
+								(cResult.GetValAtIndex(ringdim) +
+								 c1val * c2.GetValAtIndex(c2e))%ptm );
+					else
+						cResult.SetValAtIndex(ringdim,
+								(cResult.GetValAtIndex(ringdim) -
+								 c1val * c2.GetValAtIndex(c2e))%ptm );
 			}
 		}
 	}
@@ -113,6 +127,7 @@ LPAlgorithmSHENull<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciph
 
 /**
  * Function for evaluating multiplication on ciphertext followed by key switching operation.
+ * NOT USED IN NULL
  *
  * @param &ciphertext1 first input ciphertext.
  * @param &ciphertext2 second input ciphertext.
@@ -124,21 +139,14 @@ shared_ptr<Ciphertext<Element>>
 LPAlgorithmSHENull<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const
 		{
-	if(ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT){
-		throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
-	}
-
-	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
-
-	Element c1(ciphertext1->GetElement());
-
-	Element c2(ciphertext2->GetElement());
-
-	Element cResult = c1*c2;
-
-	newCiphertext->SetElement(cResult);
-
-	return newCiphertext;}
+//	shared_ptr<Ciphertext<Element>> newCiphertext;
+//
+//	//invoke the EvalMult without the EvalKey
+//	newCiphertext = EvalMult(ciphertext1, ciphertext2);
+//
+//	//Key Switching operation.
+//	return KeySwitch( ek, newCiphertext );
+		}
 
 /**
  * Function for evaluation addition on ciphertext.
