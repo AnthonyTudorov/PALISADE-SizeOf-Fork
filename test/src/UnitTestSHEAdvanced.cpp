@@ -327,9 +327,9 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	cc.Decrypt(newKp.secretKey, sResult, /*ciphertextResults,*/ &results, false);
 
-	EXPECT_EQ(results.at(0), 6);
-	EXPECT_EQ(results.at(1), 0);
-	EXPECT_EQ(results.at(2), 3);
+	EXPECT_EQ(6, results.at(0));
+	EXPECT_EQ(0, results.at(1));
+	EXPECT_EQ(3, results.at(2));
 
 }
 
