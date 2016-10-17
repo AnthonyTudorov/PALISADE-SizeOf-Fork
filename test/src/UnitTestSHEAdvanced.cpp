@@ -300,6 +300,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	std::vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cResult;
 	cResult.insert(cResult.begin(), cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0)));
 
+
 	DEBUG("1 " << ciphertext1.at(0)->GetElement().GetLength());
 	DEBUG("2 " << ciphertext2.at(0)->GetElement().GetLength());
 	DEBUG("out " << cResult.at(0)->GetElement().GetLength());
@@ -317,6 +318,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	IntPlaintextEncoding results;
 
 	cc.Decrypt(newKp.secretKey, cResult, &results, false);
+
 
 	EXPECT_EQ(6, results.at(0));
 	EXPECT_EQ(0, results.at(1));

@@ -388,13 +388,13 @@ void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const 
 	BigBinaryInteger lowerBound;
 	BigBinaryInteger ringDimensions(ringDimension);
 
-	lowerBound = bigSixteen * ringDimensions * sigma  * sigma * alpha;
-	if (!(q >= lowerBound)) {
-		q = lowerBound;
-	}
-	else {
+	//lowerBound = bigSixteen * ringDimensions * sigma  * sigma * alpha;
+	//if (!(q >= lowerBound)) {
+	//	q = lowerBound;
+	//}
+	//else {
 		q = q + BigBinaryInteger::ONE;
-	}
+	//}
 
 	while (q.Mod(plainTextModulus) != BigBinaryInteger::ONE) {
 		q = q + BigBinaryInteger::ONE;
