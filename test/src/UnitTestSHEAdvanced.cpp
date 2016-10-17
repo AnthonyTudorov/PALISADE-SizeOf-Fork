@@ -217,6 +217,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 }
 
 TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
+    bool dbg_flag = true;
 
 	usint init_m = 16;
 
@@ -260,23 +261,26 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	cryptoParams.ParameterSelection(&finalParams);
 
-	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(finalParams.GetElementParams());
+	DEBUG("old parms " << cryptoParams);
+	DEBUG("new parms" << finalParams);
 
-	usint m = dcrtParams->GetCyclotomicOrder();
-	usint size = finalParams.GetDepth() + 1;
-	const BigBinaryInteger &plainTextModulus = finalParams.GetPlaintextModulus();
+//	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(finalParams.GetElementParams());
+//
+//	usint m = dcrtParams->GetCyclotomicOrder();
+//	usint size = finalParams.GetDepth() + 1;
+//	const BigBinaryInteger &plainTextModulus = finalParams.GetPlaintextModulus();
 
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&finalParams);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
 	//scheme initialization: LTV Scheme
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 
 	//Generate the secret key for the initial ciphertext:
-	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
+	LPKeyPair<ILVectorArray2n> kp;
 
-	//Generating new cryptoparameters for when modulus reduction is done.
-	LPCryptoParametersLTV<ILVectorArray2n> finalParamsOneTower(finalParams);
+	//Generating new cryptoparameters for when modulus reduction is done. - not used?
+//	LPCryptoParametersLTV<ILVectorArray2n> finalParamsOneTower(finalParams);
 	std::vector<usint> vectorOfInts1(2048);
 	vectorOfInts1.at(0) = 2;
 	vectorOfInts1.at(1) = 4;
@@ -290,10 +294,10 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	vectorOfInts2.at(1) = 3;
 	vectorOfInts2.at(2) = 0;
 	vectorOfInts2.at(3) = 0;
-	IntPlaintextEncoding intArray2(vectorOfInts2);
 	std::fill(vectorOfInts2.begin() + 4, vectorOfInts2.end(), 0);
+	IntPlaintextEncoding intArray2(vectorOfInts2);
 
-	// dup? algorithm.KeyGen(&pk, &sk);
+	kp = cc.KeyGen(); // duplicated???
 
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext2;
@@ -303,19 +307,25 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	shared_ptr<Ciphertext<ILVectorArray2n>> cResult = cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0));
 
-	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint;
+	DEBUG("1 " << ciphertext1.at(0)->GetElement().GetLength());
+	DEBUG("2 " << ciphertext2.at(0)->GetElement().GetLength());
+	DEBUG("out " << cResult->GetElement().GetLength());
+
+	shared_ptr<LPEvalKeyNTRU<ILVectorArray2n>> keySwitchHint;
 
 	LPKeyPair<ILVectorArray2n> newKp = cc.KeyGen();
 
-	keySwitchHint = cc.QuadraticEvalMultKeyGen(kp.secretKey, newKp.secretKey);
+	keySwitchHint = cc.GetEncryptionAlgorithm().QuadraticEvalMultKeyGen(kp.secretKey, newKp.secretKey);
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> sResult = cc.KeySwitch(keySwitchHint, vector<shared_ptr<Ciphertext<ILVectorArray2n>>>({cResult}));
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> emResult;
+	emResult.push_back(cResult);
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> sResult = cc.KeySwitch(keySwitchHint, emResult);
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertextResults(1);
-	ciphertextResults.at(0) = cResult;
+//	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertextResults;
+//	ciphertextResults.push_back( cResult );
 	IntPlaintextEncoding results;
 
-	cc.Decrypt(newKp.secretKey, ciphertextResults, &results, false);
+	cc.Decrypt(newKp.secretKey, sResult, /*ciphertextResults,*/ &results, false);
 
 	EXPECT_EQ(results.at(0), 6);
 	EXPECT_EQ(results.at(1), 0);
@@ -324,6 +334,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 }
 
 TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
+    bool dbg_flag = false;
 	usint m = 16;
 
 	float stdDev = 4;
@@ -333,18 +344,18 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 
 	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	shared_ptr<ILParams> params( new ILParams(m, q, RootOfUnity(m, q)) );
+	//shared_ptr<ILParams> params( new ILParams(m, q, RootOfUnity(m, q)) );
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(
 			/* plaintextmodulus */ 5 + 3,
 			/* ringdim */ m,
-			/* modulus */ "1",
+			/* modulus */ q.ToString(),
 			rootOfUnity.ToString(),
 			/* relinWindow */ 1,
 			stdDev);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), params);
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -353,6 +364,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 	//Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
 
+	DEBUG("Filling 1");
 	std::vector<usint> vectorOfInts1(8);
 	vectorOfInts1.at(0) = 2;
 	vectorOfInts1.at(1) = 3;
@@ -361,25 +373,31 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 	std::fill(vectorOfInts1.begin() + 4, vectorOfInts1.end(), 0);
 	IntPlaintextEncoding intArray1(vectorOfInts1);
 
+	DEBUG("Filling 2");
 	std::vector<usint> vectorOfInts2(8);
 	vectorOfInts2.at(0) = 3;
 	vectorOfInts2.at(1) = 6;
 	vectorOfInts2.at(2) = 3;
 	vectorOfInts2.at(3) = 1;
-	IntPlaintextEncoding intArray2(vectorOfInts2);
 	std::fill(vectorOfInts2.begin() + 4, vectorOfInts2.end(), 0);
+	IntPlaintextEncoding intArray2(vectorOfInts2);
 
+	DEBUG("getting pairs");
 	kp = cc.KeyGen();
 
+	DEBUG("got pairs");
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
 
 	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
+	DEBUG("after crypt 1");
 	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+	DEBUG("after crypt 2");
 
 	shared_ptr<Ciphertext<ILVector2n>> cResult;
-
+	DEBUG("before EA");
 	cResult = cc.EvalAdd(ciphertext1.at(0), ciphertext2.at(0));
+	DEBUG("after");
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextResults({ cResult });
 	IntPlaintextEncoding results;
@@ -566,7 +584,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	finalParamsOneTower.SetElementParams(dcrtParamsWith1Tower);
 
 	//Generating Quaraditic KeySwitchHint from sk^2 to skNew
-	shared_ptr<LPEvalKeyNTRU<ILVectorArray2n>> quadraticKeySwitchHint = cc.QuadraticEvalMultKeyGen(kp.secretKey, kp1.secretKey);
+	shared_ptr<LPEvalKeyNTRU<ILVectorArray2n>> quadraticKeySwitchHint = cc.GetEncryptionAlgorithm().QuadraticEvalMultKeyGen(kp.secretKey, kp1.secretKey);
 
 	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
 	shared_ptr<LPPrivateKey<ILVectorArray2n>> sk2( new LPPrivateKey<ILVectorArray2n>( kp1.secretKey->GetCryptoContext() ) );

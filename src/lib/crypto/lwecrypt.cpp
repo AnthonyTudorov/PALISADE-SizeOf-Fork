@@ -229,14 +229,6 @@ shared_ptr<LPEvalKeyNTRU<Element>> LPLeveledSHEAlgorithmLTV<Element>::QuadraticE
 }
 
 /**
-* Method for ModReducing on any Element datastructure-TODO
-*/
-template<> inline
-void LPLeveledSHEAlgorithmLTV<ILVector2n>::ModReduce(shared_ptr<Ciphertext<ILVector2n>> cipherText) const {
-
-}
-
-/**
 * This function performs ModReduce on ciphertext element and private key element. The algorithm can be found from this paper:
 * D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
 * http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
@@ -244,17 +236,28 @@ void LPLeveledSHEAlgorithmLTV<ILVector2n>::ModReduce(shared_ptr<Ciphertext<ILVec
 * Modulus reduction reduces a ciphertext from modulus q to a smaller modulus q/qi. The qi is generally the largest. In the code below,
 * ModReduce is written for ILVectorArray2n and it drops the last tower while updating the necessary parameters. 
 */
-template<> inline
-void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(shared_ptr<Ciphertext<ILVectorArray2n>> cipherText) const {
+template<class Element> inline
+shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
 
-//	ILVectorArray2n cipherTextElement(cipherText->GetElement());
-//
-//	BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
-//
-//	cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
-//
-//	cipherText->SetElement(cipherTextElement);
+	shared_ptr<Ciphertext<Element>> newcipherText( cipherText );
+
+	Element cipherTextElement(cipherText->GetElement());
+
+	BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
+
+	// FIXME: note this will not work for ILVector2n yet so we must have a small hack here.
+
+	ILVectorArray2n *ep = dynamic_cast<ILVectorArray2n *>( &cipherTextElement );
+	if( ep == 0 ) {
+		throw std::logic_error("ModReduce is only implemented for ILVectorArray2n");
+	}
+
+	ep->ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
+
+	cipherText->SetElement(cipherTextElement);
 	
+	return newcipherText;
+
 }
 
 /**
@@ -266,13 +269,14 @@ void LPLeveledSHEAlgorithmLTV<ILVectorArray2n>::ModReduce(shared_ptr<Ciphertext<
 * 
 */
 template<class Element>
-void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const {
+shared_ptr<Ciphertext<Element>>
+LPLeveledSHEAlgorithmLTV<Element>::RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const {
 
 		//KeySwitching to a cipherText that can be decrypted by a sparse key. 
-		cipherText = KeySwitch( keySwitchHint, cipherText) ;
+		shared_ptr<Ciphertext<Element>> newcipherText = KeySwitch( keySwitchHint, cipherText ) ;
 
 		//Once the keyswitching of the ciphertext has been done, based on the algorithm in the referenced paper, the ciphertext needs to be decomposed.
-		Element keySwitchedCipherTextElement(cipherText->GetElement());
+		Element keySwitchedCipherTextElement(newcipherText->GetElement());
 		
 		//changing from EVALUATION to COEFFICIENT domain before performing Decompose operation. Decompose is done in coeffiecient domain.
 		keySwitchedCipherTextElement.SwitchFormat();
@@ -285,12 +289,9 @@ void LPLeveledSHEAlgorithmLTV<Element>::RingReduce(shared_ptr<Ciphertext<Element
 		keySwitchedCipherTextElement.SwitchFormat();
 
 		//setting the decomposed element into ciphertext.
-		cipherText->SetElement(keySwitchedCipherTextElement);
-
-		//Modifying the cipherText crypto parameters to account for changes in cipherText Element.
-		//const LPCryptoParametersLTV<Element> &cryptoParams = dynamic_cast<const LPCryptoParametersLTV<Element>&>(cipherText->GetCryptoParameters());
-		//ElemParams elementParams(cryptoParams.GetElementParams());
+        newcipherText->SetElement(keySwitchedCipherTextElement);
 		
+		return newcipherText;
 }
 
 template<class Element>
@@ -314,9 +315,7 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalM
 	cipherTextResult = scheme.KeySwitch(quadKeySwitchHint, cipherTextResult);
 
 	//scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
-	scheme.ModReduce(cipherTextResult);
-	
-	return cipherTextResult;
+	return scheme.ModReduce(cipherTextResult);
 }
 
 template<class Element>
@@ -333,9 +332,7 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(c
 	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(linearKeySwitchHint,cipherText1);
 	shared_ptr<Ciphertext<Element>> cipherTextResult = scheme.KeySwitch(linearKeySwitchHint,cipherText1);
 
-	scheme.ModReduce(cipherTextResult);
-
-	return cipherTextResult;
+	return scheme.ModReduce(cipherTextResult);
 }
 
 template<class Element>
@@ -436,7 +433,6 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Ele
 		{
 
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
-	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	Element c( ciphertext->GetElement() );

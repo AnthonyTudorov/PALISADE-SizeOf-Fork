@@ -474,14 +474,16 @@ public:
 	std::vector<shared_ptr<Ciphertext<Element>>> ModReduce(
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext)
 	{
+		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext(ciphertext.size());
+
 		for (int i = 0; i < ciphertext.size(); i++) {
 			if( ciphertext.at(i)->GetCryptoContext() != *this )
 				throw std::logic_error("Information passed to ModReduce was not generated with this crypto context");
 
-			GetEncryptionAlgorithm().ModReduce(ciphertext[i]);
+			newCiphertext[i] = GetEncryptionAlgorithm().ModReduce(ciphertext[i]);
 		}
 
-		return ciphertext;
+		return newCiphertext;
 	}
 
 	shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
@@ -500,21 +502,23 @@ public:
 	* @param &keySwitchHint - is the keySwitchHint from original private key to sparse private key
 	*/
 
-	void RingReduce(
+	std::vector<shared_ptr<Ciphertext<Element>>> RingReduce(
 		std::vector<shared_ptr<Ciphertext<Element>>> ciphertext,
 		const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint)
 	{
 		if( keySwitchHint->GetCryptoContext() != *this )
 			throw std::logic_error("Key passed to RingReduce was not generated with this crypto context");
 
+		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext(ciphertext.size());
+
 		for (int i = 0; i < ciphertext.size(); i++) {
 			if( ciphertext.at(i)->GetCryptoContext() != *this )
 				throw std::logic_error("Ciphertext passed to RingReduce was not generated with this crypto context");
 
-			GetEncryptionAlgorithm().RingReduce(ciphertext[i], keySwitchHint);
+			newCiphertext[i] = GetEncryptionAlgorithm().RingReduce(ciphertext[i], keySwitchHint);
 		}
 
-		return;
+		return newCiphertext;
 	}
 
 	/**
