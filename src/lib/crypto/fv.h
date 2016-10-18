@@ -84,6 +84,10 @@ namespace lbcrypto {
 			 * @param assuranceMeasure assurance level.
 			 * @param securityLevel security level.
 			 * @param relinWindow the size of the relinearization window.
+			 * @param dgg discrete Gaussian generator instance
+			 * @param mode optimization setting (RLWE vs OPTIMIZED)
+			 * @param bigModulus modulus used in polynomial multiplications in EvalMult
+			 * @param bigRootOfUnity root of unity for bigModulus
 			 * @param depth depth which is set to 1.
 			 */
 			LPCryptoParametersFV(ElemParams *params,
@@ -93,6 +97,10 @@ namespace lbcrypto {
 				float securityLevel, 
 				usint relinWindow,
 				const DiscreteGaussianGenerator &dgg,
+				const BigBinaryInteger &delta,
+				MODE mode,
+				const BigBinaryInteger &bigModulus,
+				const BigBinaryInteger &bigRootOfUnity,
 				int depth = 1)
 					: LPCryptoParametersRLWE<Element>(params,
 						plaintextModulus,
@@ -102,7 +110,10 @@ namespace lbcrypto {
 						relinWindow,
 						dgg,
 						depth) {
-						m_delta = (params->GetModulus()).DividedBy(plaintextModulus);
+						m_delta = delta;
+						m_mode = mode;
+						m_bigModulus = bigModulus;
+						m_bigRootOfUnity = bigRootOfUnity;
 					}
 
 			/**
@@ -143,12 +154,56 @@ namespace lbcrypto {
 				return this->DeserializeRLWE(mIter);
 			}
 
+			/**
+			* Gets the value of the delta factor.
+			*
+			* @return the delta factor.
+			*/
 			const BigBinaryInteger& GetDelta() const { return m_delta; }
 
-			void SetDelta(const BigBinaryInteger &delta) { m_delta = delta; }
-			
 			/**
-			* == operator to compare to this instance of LPCryptoParametersLTV object. 
+			* Gets the mode setting: RLWE or OPTIMIZED.
+			*
+			* @return the mode setting.
+			*/
+			MODE GetMode() const { return m_mode; }
+
+			/**
+			* Gets the modulus used for polynomial multiplications in EvalMult
+			*
+			* @return the modulus value.
+			*/
+			const BigBinaryInteger& GetBigModulus() const { return m_bigModulus; }
+
+			/**
+			* Gets the primitive root of unity used for polynomial multiplications in EvalMult
+			*
+			* @return the primitive root of unity value.
+			*/
+			const BigBinaryInteger& GetBigRootOfUnity() const { return m_bigRootOfUnity; }
+
+			/**
+			* Sets the value of the delta factor
+			*/
+			void SetDelta(const BigBinaryInteger &delta) { m_delta = delta; }
+
+			/**
+			* Configures the mode
+			*/
+			void SetMode(MODE mode) { m_mode = mode; }
+
+			/**
+			* Sets the modulus used for polynomial multiplications in EvalMult
+			*/
+			void SetBigModulus(const BigBinaryInteger &bigModulus) { m_bigModulus = bigModulus; }
+
+			/**
+			* Sets primitive root of unity used for polynomial multiplications in EvalMult
+			*/
+			void SetBigRootOfUnity(const BigBinaryInteger &bigRootOfUnity) { m_bigRootOfUnity = bigRootOfUnity; }
+
+			/**
+			* == operator to compare to this instance of LPCryptoParametersFV object. 
 			*
 			* @param &rhs LPCryptoParameters to check equality against.
 			*/
@@ -157,13 +212,26 @@ namespace lbcrypto {
 
 				if( el == 0 ) return false;
 
-				if(m_delta != el->m_delta) return false;
+				if (m_delta != el->m_delta) return false;
+				if (m_mode != el->m_mode) return false;
+				if (m_bigModulus != el->m_bigModulus) return false;
+				if (m_bigRootOfUnity != el->m_bigRootOfUnity) return false;
 
 				return  LPCryptoParametersRLWE<Element>::operator==(rhs);
 			}
 
 		private:
+			//factor delta = floor(q/p) that is multipled by the plaintext polynomial in FV (most significant bit ranges are used to represent the message)
 			BigBinaryInteger m_delta;
+			
+			//specifies whether the keys are generated from discrete Gaussian distribution or ternary distribution with the norm of unity
+			MODE m_mode;
+			
+			//larger modulus that is used in polynomial multiplications within EvalMult (before rounding is done)
+			BigBinaryInteger m_bigModulus;
+			
+			//primitive root of unity for m_bigModulus
+			BigBinaryInteger m_bigRootOfUnity;
 	};
 
 	/**

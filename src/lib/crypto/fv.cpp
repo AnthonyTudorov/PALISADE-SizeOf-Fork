@@ -208,12 +208,12 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 	const ElemParams &elementParams = cryptoParamsLWE->GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const BigBinaryInteger &q = elementParams.GetModulus();
+
+	const BigBinaryInteger &bigModulus = cryptoParamsLWE->GetBigModulus();
+	const BigBinaryInteger &bigRootOfUnity = cryptoParamsLWE->GetBigRootOfUnity();
 	
 	const LPEvalKeyRelin<Element> &evalKey =
 		dynamic_cast<const LPEvalKeyRelin<Element>&>(ek);
-
-	BigBinaryInteger modulus2("1237940039285380274899136513");
-	BigBinaryInteger rootOfUnity2("1067388930511360414468370668");
 
 	std::vector<Element> cipherText1Elements = ciphertext1.GetElements();
 	std::vector<Element> cipherText2Elements = ciphertext2.GetElements();
@@ -225,10 +225,10 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 	cipherText2Elements[1].SwitchFormat();
 
 	//switches the modulus to a larger value so that polynomial multiplication w/o mod q can be performed
-	cipherText1Elements[0].SwitchModulus(modulus2, rootOfUnity2);
-	cipherText1Elements[1].SwitchModulus(modulus2, rootOfUnity2);
-	cipherText2Elements[0].SwitchModulus(modulus2, rootOfUnity2);
-	cipherText2Elements[1].SwitchModulus(modulus2, rootOfUnity2);
+	cipherText1Elements[0].SwitchModulus(bigModulus, bigRootOfUnity);
+	cipherText1Elements[1].SwitchModulus(bigModulus, bigRootOfUnity);
+	cipherText2Elements[0].SwitchModulus(bigModulus, bigRootOfUnity);
+	cipherText2Elements[1].SwitchModulus(bigModulus, bigRootOfUnity);
 
 	//converts the ciphertext elements back to evaluation representation
 	cipherText1Elements[0].SwitchFormat();

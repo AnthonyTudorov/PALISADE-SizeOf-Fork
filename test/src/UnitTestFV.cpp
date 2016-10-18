@@ -64,8 +64,11 @@ TEST(UTFV, ILVector2n_FV_Encrypt_Decrypt) {
 	BigBinaryInteger rootOfUnity("16947867");
 	usint relWindow = 1;
 
-	BigBinaryInteger modulus2("1152921504606877697");
-	BigBinaryInteger rootOfUnity2("418639631973566421");
+	//BigBinaryInteger modulus2("1237940039285380274899136513");
+	//BigBinaryInteger rootOfUnity2("1067388930511360414468370668");
+
+	//BigBinaryInteger modulus2("1152921504606877697");
+	//BigBinaryInteger rootOfUnity2("418639631973566421");
 
 	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	
@@ -149,6 +152,9 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	BigBinaryInteger modulus("1099511678977");
 	BigBinaryInteger rootOfUnity("928976858506");
 
+	BigBinaryInteger bigModulus("1237940039285380274899136513");
+	BigBinaryInteger bigRootOfUnity("1067388930511360414468370668");
+
 	//BigBinaryInteger modulus("1267650600228229401496703385601");
 	//BigBinaryInteger rootOfUnity("540976213121087081496420385771");
 
@@ -170,6 +176,9 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
 	cryptoParams.SetDelta(delta);
+	cryptoParams.SetMode(RLWE);
+	cryptoParams.SetBigModulus(bigModulus);
+	cryptoParams.SetBigRootOfUnity(bigRootOfUnity);
 
 	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
