@@ -200,14 +200,14 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::getCryptoContextNull(
-		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity)
+		const usint modulus,
+		usint ringdim)
 {
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
-	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
+	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger::ONE) );
 
-	LPCryptoParametersNull<T>* params = new LPCryptoParametersNull<T>(ep, BigBinaryInteger(plaintextmodulus));
+	LPCryptoParametersNull<T>* params = new LPCryptoParametersNull<T>(ep, BigBinaryInteger(modulus));
 
 	item.ctx->params.reset( params );
 
