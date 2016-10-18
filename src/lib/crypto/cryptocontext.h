@@ -575,8 +575,8 @@ public:
 			usint relinWindow, float stDev, float stDevStSt);
 
 	static CryptoContext<Element> getCryptoContextNull(
-			const usint plaintextmodulus,
-			usint ringdim, const std::string& modulus, const std::string& rootOfUnity);
+			const usint modulus,
+			usint ringdim);
 
 	// helpers for deserialization of contexts
 	static shared_ptr<LPCryptoParameters<Element>> GetParameterObject( const Serialized& serObj ) {

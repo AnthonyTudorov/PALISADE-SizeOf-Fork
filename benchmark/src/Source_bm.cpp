@@ -63,8 +63,8 @@ void NTRUPRE(int input);
  */
 struct SecureParams {
 	usint m;			///< The ring parameter.
-	BigBinaryInteger modulus;	///< The modulus
-	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
+	string modulus;	///< The modulus
+	string rootOfUnity;	///< The rootOfUnity
 	usint relinWindow;		///< The relinearization window parameter.
 };
 
@@ -135,16 +135,16 @@ void NTRUPRE(int input) {
 	//BytePlaintextEncoding plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
 
 	SecureParams const SECURE_PARAMS[] = {
-		{ 2048, BigBinaryInteger("268441601"), BigBinaryInteger("16947867"), 1 }, //r = 1
-		{ 2048, BigBinaryInteger("536881153"), BigBinaryInteger("267934765"), 2 }, // r = 2
-		{ 2048, BigBinaryInteger("1073750017"), BigBinaryInteger("180790047"), 4 },  // r = 4
-		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("2678760785"), 8 }, //r = 8
-		{ 4096, BigBinaryInteger("2199023288321"), BigBinaryInteger("1858080237421"), 16 }  // r= 16
+		{ 2048, ("268441601"), ("16947867"), 1 }, //r = 1
+		{ 2048, ("536881153"), ("267934765"), 2 }, // r = 2
+		{ 2048, ("1073750017"), ("180790047"), 4 },  // r = 4
+		{ 2048, ("8589987841"), ("2678760785"), 8 }, //r = 8
+		{ 4096, ("2199023288321"), ("1858080237421"), 16 }  // r= 16
 	};
 
 	usint m = SECURE_PARAMS[input].m;
-	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
-	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
+	string modulus(SECURE_PARAMS[input].modulus);
+	string rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
 	usint relWindow = SECURE_PARAMS[input].relinWindow;
 
 	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
@@ -156,20 +156,15 @@ void NTRUPRE(int input) {
 
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
-	//Prepare for parameters.
-	ILParams ilParams(m,modulus,rootOfUnity);
-
 	//Set crypto parametes
-	LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
-	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
-	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
-
-	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
+	CryptoContext<ILVector2n> cc =  CryptoContextFactory<ILVector2n>::genCryptoContextLTV(
+			/* plaintextmodulus */ 2,
+			/* ringdim */ m,
+			modulus,
+			rootOfUnity,
+			relWindow,
+			stdDev);
 
 	double diff, start, finish;
 
@@ -177,10 +172,10 @@ void NTRUPRE(int input) {
 
 	//This code is run only when performing execution time measurements
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	ChineseRemainderTransformFTT::GetInstance().PreCompute(BigBinaryInteger(rootOfUnity), m, BigBinaryInteger(modulus));
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(dgg, ilParams);
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -189,8 +184,7 @@ void NTRUPRE(int input) {
 	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
-	LPPublicKey<ILVector2n> pk(cryptoParams);
-	LPPrivateKey<ILVector2n> sk(cryptoParams);
+	LPKeyPair<ILVector2n> kp;
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -198,16 +192,14 @@ void NTRUPRE(int input) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
-	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
-
-	bool successKeyGen=false;
+	cc.Enable(ENCRYPTION);
+	cc.Enable(PRE);
 
 	std::cout <<"\n" <<  "Running key generation..." << std::endl;
 
 	start = currentDateTime();
 
-	successKeyGen = algorithm.KeyGen(&pk,&sk);	// This is the core function call that generates the keys.
+	kp = cc.KeyGen();
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -215,7 +207,7 @@ void NTRUPRE(int input) {
 	cout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
 	fout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
 
-	if (!successKeyGen) {
+	if (!kp.good()) {
 		std::cout<<"Key generation failed!"<<std::endl;
 		exit(1);
 	}
@@ -234,7 +226,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::Encrypt(algorithm,pk,plaintext,&ciphertext);	// This is the core encryption operation.
+	ciphertext = cc.Encrypt(kp.publicKey,plaintext);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -254,7 +246,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm,sk,ciphertext,&plaintextNew);  // This is the core decryption operation.
+	DecryptResult result = cc.Decrypt(kp.secretKey,ciphertext,&plaintextNew);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -280,14 +272,13 @@ void NTRUPRE(int input) {
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPPublicKey<ILVector2n> newPK(cryptoParams);
-	LPPrivateKey<ILVector2n> newSK(cryptoParams);
+	LPKeyPair<ILVector2n> newKp;
 
 	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
 	start = currentDateTime();
 
-	successKeyGen = algorithm.KeyGen(&newPK,&newSK);	// This is the same core key generation operation.
+	newKp = cc.KeyGen();
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -302,11 +293,11 @@ void NTRUPRE(int input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyRelin<ILVector2n> evalKey(cryptoParams);
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
 
 	start = currentDateTime();
 
-	algorithm.ReKeyGen(newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	evalKey = cc.ReKeyGen(newKp.publicKey, kp.secretKey);  // This is the core re-encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -320,13 +311,13 @@ void NTRUPRE(int input) {
 	////////////////////////////////////////////////////////////
 
 
-	vector<Ciphertext<ILVector2n>> newCiphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
 
 	std::cout <<"\n"<< "Running re-encryption..." << std::endl;
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::ReEncrypt(algorithm, evalKey, ciphertext, &newCiphertext);  // This is the core re-encryption operation.
+	newCiphertext = cc.ReEncrypt(evalKey, ciphertext);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -345,7 +336,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(algorithm,newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
+	DecryptResult result1 = cc.Decrypt(newKp.secretKey,newCiphertext,&plaintextNew2);
 
 	finish = currentDateTime();
 	diff = finish - start;

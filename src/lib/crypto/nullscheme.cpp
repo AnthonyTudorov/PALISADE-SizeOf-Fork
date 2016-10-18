@@ -89,34 +89,38 @@ LPAlgorithmSHENull<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciph
 
 	Element cResult(c1.GetParams(), Format::EVALUATION, true);
 
+	Element cLarger(c1.GetParams(), Format::EVALUATION, true);
+
 	const BigBinaryInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
 	int	ringdim = c1.GetCyclotomicOrder()/2;
-	std::cout << c1.GetLength() << std::endl;
-	std::cout << "EM " << ptm << ":" << ringdim << std::endl;
 
-	for( int c1e = 0; c1e<c1.GetLength(); c1e++ ) {
-		BigBinaryInteger answer, c1val, c2val;
+	for( int c1e = 0; c1e<ringdim; c1e++ ) {
+		BigBinaryInteger answer, c1val, c2val, prod;
 		c1val = c1.GetValAtIndex(c1e);
 		if( c1val != BigBinaryInteger::ZERO ) {
-			for( int c2e = 0; c2e<c2.GetLength(); c2e++ ) {
-				bool doAdd = true;
-				if( c1e+c2e > ringdim )
-					doAdd = false;
-
-				int index = (c1e + c2e)%ringdim;
-
+			for( int c2e = 0; c2e<ringdim; c2e++ ) {
 				c2val = c2.GetValAtIndex(c2e);
-				if( c2val != BigBinaryInteger::ZERO )
-					if( doAdd )
-						cResult.SetValAtIndex(ringdim,
-								(cResult.GetValAtIndex(ringdim) +
-								 c1val * c2.GetValAtIndex(c2e))%ptm );
+				if( c2val != BigBinaryInteger::ZERO ) {
+					prod = c1val * c2val;
+
+					int index = (c1e + c2e);
+
+					if( index >= ringdim ) {
+						index %= ringdim;
+						cLarger.SetValAtIndex(index, (cLarger.GetValAtIndex(index) + prod) % ptm );
+					}
 					else
-						cResult.SetValAtIndex(ringdim,
-								(cResult.GetValAtIndex(ringdim) -
-								 c1val * c2.GetValAtIndex(c2e))%ptm );
+						cResult.SetValAtIndex(index, (cResult.GetValAtIndex(index) + prod) % ptm );
+				}
 			}
 		}
+	}
+
+	// fold cLarger back into the answer
+	for( int i=0; i<ringdim; i++ ) {
+		BigBinaryInteger adj;
+		adj = cResult.GetValAtIndex(i) + (ptm - cLarger.GetValAtIndex(i))%ptm;
+		cResult.SetValAtIndex(i, adj % ptm );
 	}
 
 	// DO NOT USE element's operator* !!!  Element cResult = c1*c2;
@@ -139,13 +143,13 @@ shared_ptr<Ciphertext<Element>>
 LPAlgorithmSHENull<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const
 		{
-//	shared_ptr<Ciphertext<Element>> newCiphertext;
-//
-//	//invoke the EvalMult without the EvalKey
-//	newCiphertext = EvalMult(ciphertext1, ciphertext2);
-//
-//	//Key Switching operation.
-//	return KeySwitch( ek, newCiphertext );
+	//	shared_ptr<Ciphertext<Element>> newCiphertext;
+	//
+	//	//invoke the EvalMult without the EvalKey
+	//	newCiphertext = EvalMult(ciphertext1, ciphertext2);
+	//
+	//	//Key Switching operation.
+	//	return KeySwitch( ek, newCiphertext );
 		}
 
 /**
