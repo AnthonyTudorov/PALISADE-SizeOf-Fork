@@ -41,6 +41,24 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 template <class Element>
+bool LPAlgorithmParamsGenFV<Element>::ParamsGen(LPCryptoParameters<Element> *cryptoParams, int32_t evalAddCount = 0,
+	int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const
+{
+
+	if (cryptoParams == 0)
+		return false;
+
+	LPCryptoParametersFV<Element> *cryptoParamsFV =
+		dynamic_cast<LPCryptoParametersFV<Element>*>(cryptoParamsFV);
+
+	//std::cout << "Parameter generation is running ...." << endl;
+
+	return true;
+	
+}
+
+
+template <class Element>
 bool LPAlgorithmFV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	LPPrivateKey<Element> *privateKey) const
 {

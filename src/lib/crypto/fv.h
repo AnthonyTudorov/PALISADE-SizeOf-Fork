@@ -235,6 +235,31 @@ namespace lbcrypto {
 	};
 
 	/**
+	* @brief Parameter generation for FV.
+	* @tparam Element a ring element.
+	*/
+	template <class Element>
+	class LPAlgorithmParamsGenFV : public LPParameterGenerationAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> { //public LPSHEAlgorithm<Element>, 
+	public:
+
+		//inherited constructors
+		LPAlgorithmParamsGenFV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
+		LPAlgorithmParamsGenFV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+
+		/**
+		* Method for computing all derived parameters based on chosen primitive parameters
+		*
+		* @param *cryptoParams the crypto parameters object to be populated with parameters.
+		* @param evalAddCount number of EvalAdds assuming no EvalMult and KeySwitch operations are performed.
+		* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
+		* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
+		*/
+		bool ParamsGen(LPCryptoParameters<Element> *cryptoParams, int32_t evalAddCount = 0,
+			int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const;
+
+	};
+
+	/**
 	* @brief Encryption algorithm implementation template for FV-based schemes,
 	* @tparam Element a ring element.
 	*/
@@ -325,7 +350,9 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionSchemeFV : public LPPublicKeyEncryptionScheme<Element> {
 	public:
-		LPPublicKeyEncryptionSchemeFV() : LPPublicKeyEncryptionScheme<Element>() {}
+		LPPublicKeyEncryptionSchemeFV() : LPPublicKeyEncryptionScheme<Element>() {
+			this->m_algorithmParamsGen = new LPAlgorithmParamsGenFV<Element>(*this);
+		}
 		LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask);
 
 		//These functions can be implemented later

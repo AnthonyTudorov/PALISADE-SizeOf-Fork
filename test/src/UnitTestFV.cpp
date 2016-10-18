@@ -215,6 +215,8 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(SHE);
 
+	algorithm.ParamsGen(&cryptoParams);
+
 	bool successKeyGen = false;
 
 	successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.

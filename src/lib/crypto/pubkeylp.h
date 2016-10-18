@@ -987,6 +987,28 @@ namespace lbcrypto {
 
 
 	/**
+	* @brief Abstract interface for parameter generation algorithm
+	* @tparam Element a ring element.
+	*/
+	template <class Element>
+	class LPParameterGenerationAlgorithm {
+	public:
+
+		/**
+		* Method for computing all derived parameters based on chosen primitive parameters
+		*
+		* @param *cryptoParams the crypto parameters object to be populated with parameters.
+		* @param evalAddCount number of EvalAdds assuming no EvalMult and KeySwitch operations are performed.
+		* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
+		* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
+		*/
+		virtual bool ParamsGen(LPCryptoParameters<Element> *cryptoParams, int32_t evalAddCount = 0, 
+			int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const = 0;
+
+	};
+
+
+	/**
 	 * @brief Abstract interface for encryption algorithm
 	 * @tparam Element a ring element.
 	 */
@@ -1318,10 +1340,12 @@ namespace lbcrypto {
 
 	public:
 		LPPublicKeyEncryptionScheme() :
-			m_algorithmEncryption(0), m_algorithmPRE(0), m_algorithmEvalAdd(0), m_algorithmEvalAutomorphism(0),
+			m_algorithmParamsGen(0), m_algorithmEncryption(0), m_algorithmPRE(0), m_algorithmEvalAdd(0), m_algorithmEvalAutomorphism(0),
 			m_algorithmSHE(0), m_algorithmFHE(0), m_algorithmLeveledSHE(0) {}
 
 		virtual ~LPPublicKeyEncryptionScheme() {
+			if (this->m_algorithmParamsGen != NULL)
+				delete this->m_algorithmParamsGen;
 			if (this->m_algorithmEncryption != NULL)
 				delete this->m_algorithmEncryption;
 			if (this->m_algorithmPRE != NULL)
@@ -1376,6 +1400,20 @@ namespace lbcrypto {
 
 		//instantiated in the scheme implementation class
 		virtual void Enable(PKESchemeFeature feature) = 0;
+
+		/////////////////////////////////////////
+		// wrapper for LPParameterSelectionAlgorithm
+		//
+
+		bool ParamsGen(LPCryptoParameters<Element> *cryptoParams, int32_t evalAddCount = 0,
+			int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const {
+			if (this->m_algorithmParamsGen) {
+				return this->m_algorithmParamsGen->ParamsGen(cryptoParams, evalAddCount, evalMultCount, keySwitchCount);
+			}
+			else {
+				throw std::logic_error("Parameter generation operation has not been implemented");
+			}
+		}
 
 		/////////////////////////////////////////
 		// the three functions below are wrappers for things in LPEncryptionAlgorithm (ENCRYPT)
@@ -1593,6 +1631,7 @@ namespace lbcrypto {
 		const LPEncryptionAlgorithm<Element>& getAlgorithm() const { return *m_algorithmEncryption; }
 
 	protected:
+		const LPParameterGenerationAlgorithm<Element> *m_algorithmParamsGen;
 		const LPEncryptionAlgorithm<Element> *m_algorithmEncryption;
 		const LPPREAlgorithm<Element> *m_algorithmPRE;
 		const LPAHEAlgorithm<Element> *m_algorithmEvalAdd;
