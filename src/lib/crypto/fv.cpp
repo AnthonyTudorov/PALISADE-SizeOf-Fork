@@ -49,7 +49,26 @@ bool LPAlgorithmParamsGenFV<Element>::ParamsGen(LPCryptoParameters<Element> *cry
 		return false;
 
 	LPCryptoParametersFV<Element> *cryptoParamsFV =
-		dynamic_cast<LPCryptoParametersFV<Element>*>(cryptoParamsFV);
+		dynamic_cast<LPCryptoParametersFV<Element>*>(cryptoParams);
+
+	float sigma = cryptoParamsFV->GetDistributionParameter();
+	float alpha = cryptoParamsFV->GetAssuranceMeasure();
+
+	//Bound of the Gaussian error polynomial
+	double Berr = sigma*sqrt(alpha);
+
+	//Bound of the key polynomial
+	double Bkey = sigma*sqrt(alpha);
+
+	//expansion factor delta
+	auto delta = [](uint32_t n) -> double { return sqrt(n); };
+
+	//norm of fresh ciphertext polynomial
+	auto Vnorm = [&](uint32_t n) -> double { return Berr*(1+2*sqrt(n)*Bkey);  };
+
+	double V = Vnorm(1024);
+
+	std::cout << "V norm = " << V << std::endl;
 
 	//std::cout << "Parameter generation is running ...." << endl;
 

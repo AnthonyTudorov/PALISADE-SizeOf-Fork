@@ -183,6 +183,8 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
+	cryptoParams.SetAssuranceMeasure(9);
+
 	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
 
 	//Precomputations for FTT
