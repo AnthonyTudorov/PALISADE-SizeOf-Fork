@@ -41,8 +41,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 template <class Element>
-bool LPAlgorithmParamsGenFV<Element>::ParamsGen(LPCryptoParameters<Element> *cryptoParams, int32_t evalAddCount = 0,
-	int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const
+bool LPAlgorithmParamsGenFV<Element>::ParamsGen(LPCryptoParameters<Element> *cryptoParams, int32_t evalAddCount,
+	int32_t evalMultCount, int32_t keySwitchCount) const
 {
 
 	if (cryptoParams == 0)
