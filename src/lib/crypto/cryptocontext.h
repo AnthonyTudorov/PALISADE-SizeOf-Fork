@@ -44,13 +44,12 @@
 
 namespace lbcrypto {
 
-//FIXME: comments for doxygen are wrong
-
 /**
  * @brief CryptoContextImpl Class.
  *
- * This class implements a container for the full Crypto Context.
- * Every object in Palisade is created within a context and maintains a shared pointer to its context
+ * This class implements a container for the Crypto Context.
+ * Every object in Palisade is created within a context and
+ * maintains a shared pointer to its context
  */
 
 template <class Element>
