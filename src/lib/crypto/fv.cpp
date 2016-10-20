@@ -53,6 +53,9 @@ bool LPAlgorithmParamsGenFV<Element>::ParamsGen(LPCryptoParameters<Element> *cry
 
 	float sigma = cryptoParamsFV->GetDistributionParameter();
 	float alpha = cryptoParamsFV->GetAssuranceMeasure();
+	float hermiteFactor = cryptoParamsFV->GetSecurityLevel();
+	double p = cryptoParamsFV->GetPlaintextModulus().ConvertToDouble();
+	uint32_t r = cryptoParamsFV->GetRelinWindow();
 
 	//Bound of the Gaussian error polynomial
 	double Berr = sigma*sqrt(alpha);
@@ -64,18 +67,93 @@ bool LPAlgorithmParamsGenFV<Element>::ParamsGen(LPCryptoParameters<Element> *cry
 	auto delta = [](uint32_t n) -> double { return sqrt(n); };
 
 	//norm of fresh ciphertext polynomial
-	auto Vnorm = [&](uint32_t n) -> double { return Berr*(1+2*sqrt(n)*Bkey);  };
+	auto Vnorm = [&](uint32_t n) -> double { return Berr*(1+2*delta(n)*Bkey);  };
 
-	double V = Vnorm(1024);
+	//RLWE security constraint
+	auto nRLWE = [&](double q) -> double { return log2(q / sigma) / (4 * log2(hermiteFactor));  };
 
-	std::cout << "V norm = " << V << std::endl;
+	//initial values
+	uint32_t n = 512;
+	double q = 0;
+	
+	//only public key encryption and EvalAdd (optional when evalAddCount = 0) operations are supported
+	//the correctness constraint from section 3.5 of https://eprint.iacr.org/2014/062.pdf is used
+	if ((evalMultCount == 0) && (keySwitchCount == 0)) {
 
-	//std::cout << "Parameter generation is running ...." << endl;
+		//Correctness constraint
+		auto qFV = [&](uint32_t n) -> double { return p*(2*((evalAddCount+1)*Vnorm(n) + evalAddCount*p) + p);  };
+
+		//initial value
+		q = qFV(n);
+
+		while (nRLWE(q) > n) {
+			n = 2 * n;
+			q = qFV(n);
+		}
+
+	} 
+	//Only EvalMult operations are used in the correctness constraint
+	//the correctness constraint from section 3.5 of https://eprint.iacr.org/2014/062.pdf is used
+	else if ((evalAddCount == 0) && (evalMultCount > 0) && (keySwitchCount == 0))
+	{
+
+		//base for relinearization
+		double w = pow(2, r);
+
+		//function used in the EvalMult constraint
+		auto epsilon1 = [&](uint32_t n) -> double { return 4 / (delta(n)*p*Bkey);  };
+
+		//function used in the EvalMult constraint
+		auto C1 = [&](uint32_t n) -> double { return (1 + epsilon1(n))*delta(n)*delta(n)*p*p*Bkey;  };
+
+		//function used in the EvalMult constraint
+		auto C2 = [&](uint32_t n, double qPrev) -> double { return delta(n)*delta(n)*p*Bkey*(p*(Bkey + p) + (floor(log2(qPrev) / r) + 1)*w*Berr);  };
+
+		//main correctness constraint
+		auto qFV = [&](uint32_t n, double qPrev) -> double { return p*(2 * (pow(C1(n), evalMultCount)*Vnorm(n) + evalMultCount*pow(C1(n), evalMultCount - 1)*C2(n, qPrev)) + p);  };
+
+		//initial values
+		double qPrev = 1e6;
+		q = qFV(n, qPrev);
+		qPrev = q;
+
+		//this "while" condition is needed in case the iterative solution for q 
+		//changes the requirement for n, which is rare but still theortically possible
+		while (nRLWE(q) > n) {
+
+			while (nRLWE(q) > n) {
+				n = 2 * n;
+				q = qFV(n, qPrev);
+				qPrev = q;
+			}
+
+			q = qFV(n, qPrev);
+
+			while (abs(q - qPrev) > 0.001*q) {
+				qPrev = q;
+				q = qFV(n, qPrev);
+			}
+
+		}
+
+	}
+
+	BigBinaryInteger qPrime = FindPrimeModulus(2 * n, ceil(log2(q))+1);
+	BigBinaryInteger rootOfUnity = RootOfUnity(2 * n, qPrime);
+	BigBinaryInteger qPrime2 = FindPrimeModulus(2 * n, 2.2*(ceil(log2(q)) + 1));
+	BigBinaryInteger rootOfUnity2 = RootOfUnity(2 * n, qPrime2);
+
+	cryptoParamsFV->SetBigModulus(qPrime2);
+	cryptoParamsFV->SetBigRootOfUnity(rootOfUnity2);
+
+	ILParams* ilParams = new ILParams(2*n, qPrime, rootOfUnity);
+	cryptoParamsFV->SetElementParams(*ilParams);
+
+	cryptoParamsFV->SetDelta(qPrime.DividedBy(cryptoParamsFV->GetPlaintextModulus()));
 
 	return true;
 	
 }
-
 
 template <class Element>
 bool LPAlgorithmFV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
@@ -368,8 +446,6 @@ LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitse
 		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
 	if (mask[EVALAUTOMORPHISM])
 		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
-	if (mask[SHE])
-		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
 	if (mask[FHE])
 		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
 	if (mask[LEVELEDSHE])

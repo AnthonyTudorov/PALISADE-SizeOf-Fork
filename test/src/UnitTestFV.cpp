@@ -179,6 +179,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	cryptoParams.SetMode(RLWE);
 	cryptoParams.SetBigModulus(bigModulus);
 	cryptoParams.SetBigRootOfUnity(bigRootOfUnity);
+	cryptoParams.SetSecurityLevel(1.006);
 
 	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
@@ -220,7 +221,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	algorithm.Enable(ENCRYPTION);
 	algorithm.Enable(SHE);
 
-	algorithm.ParamsGen(&cryptoParams);
+	algorithm.ParamsGen(&cryptoParams,0,1);
 
 	bool successKeyGen = false;
 
