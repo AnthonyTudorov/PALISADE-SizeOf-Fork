@@ -78,9 +78,9 @@ namespace lbcrypto {
 				const Ciphertext<Element> &ciphertext2, 
 				Ciphertext<Element> *newCiphertext) const;
 
-			bool RelinKeyGen(const LPPrivateKey<Element> &privateKey,
+			bool EvalMultKeyGen(const LPPrivateKey<Element> &privateKey,
 				LPEvalKey<Element> *evalKey) const {
-					std::string errMsg = "LPAlgorithmSHELTV::RelinKeyGen is not applicable for LTV SHE Scheme.";
+					std::string errMsg = "LPAlgorithmSHELTV::EvalMultKeyGen is not applicable for LTV SHE Scheme.";
 					throw std::runtime_error(errMsg);
 			}
 		

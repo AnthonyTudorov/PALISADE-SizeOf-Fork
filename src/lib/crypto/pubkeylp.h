@@ -1207,7 +1207,7 @@ namespace lbcrypto {
 			 * @param *newCiphertext the new ciphertext.
 			 */
 
-			virtual	bool RelinKeyGen(const LPPrivateKey<Element> &privateKey,
+			virtual	bool EvalMultKeyGen(const LPPrivateKey<Element> &privateKey,
 			LPEvalKey<Element> *evalKey) const = 0;
 
 			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
@@ -1460,10 +1460,10 @@ namespace lbcrypto {
 		}
 
 		//wrapper for reLinKeyGen method
-		bool RelinKeyGen(const LPPrivateKey<Element> &privateKey,
+		bool EvalMultKeyGen(const LPPrivateKey<Element> &privateKey,
 			LPEvalKey<Element> *evalKey) const{
 				if(this->IsEnabled(SHE))
-					return this->m_algorithmSHE->RelinKeyGen(privateKey,evalKey);
+					return this->m_algorithmSHE->EvalMultKeyGen(privateKey,evalKey);
 				else {
 					throw std::logic_error("This operation is not supported");
 				}

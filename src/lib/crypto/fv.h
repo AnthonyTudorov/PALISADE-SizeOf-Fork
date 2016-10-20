@@ -325,7 +325,7 @@ namespace lbcrypto {
 		* @param &ddg discrete Gaussian generator.
 		* @param *evalKey the evaluation key.
 		*/
-		bool RelinKeyGen(const LPPrivateKey<Element> &privateKey, LPEvalKey<Element> *ek) const;
+		bool EvalMultKeyGen(const LPPrivateKey<Element> &privateKey, LPEvalKey<Element> *ek) const;
 		
 		void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,

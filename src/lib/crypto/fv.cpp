@@ -190,7 +190,7 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> &priva
 }
 
 template <class Element>
-bool LPAlgorithmSHEFV<Element>::RelinKeyGen(const LPPrivateKey<Element> &privateKey, LPEvalKey<Element> *ek) const
+bool LPAlgorithmSHEFV<Element>::EvalMultKeyGen(const LPPrivateKey<Element> &privateKey, LPEvalKey<Element> *ek) const
 {
 	const LPCryptoParametersFV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersFV<Element>&>(privateKey.GetCryptoParameters());
 	const ElemParams &elementParams = cryptoParamsLWE.GetElementParams();

@@ -271,7 +271,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	LPEvalKeyRelin<ILVector2n> evalKey(cryptoParams);
 
 	//generate the evaluate key
-	algorithm.RelinKeyGen(sk, &evalKey);
+	algorithm.EvalMultKeyGen(sk, &evalKey);
 
 	vector<Ciphertext<ILVector2n>> ciphertextMult;
 
