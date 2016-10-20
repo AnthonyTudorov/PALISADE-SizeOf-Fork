@@ -140,12 +140,13 @@ bool LPAlgorithmParamsGenFV<Element>::ParamsGen(LPCryptoParameters<Element> *cry
 
 	BigBinaryInteger qPrime = FindPrimeModulus(2 * n, ceil(log2(q))+1);
 	BigBinaryInteger rootOfUnity = RootOfUnity(2 * n, qPrime);
-	BigBinaryInteger qPrime2 = FindPrimeModulus(2 * n, 2.2*(ceil(log2(q)) + 1));
+	BigBinaryInteger qPrime2 = FindPrimeModulus(2 * n, 2.03*(ceil(log2(q)) + 1));
 	BigBinaryInteger rootOfUnity2 = RootOfUnity(2 * n, qPrime2);
 
 	cryptoParamsFV->SetBigModulus(qPrime2);
 	cryptoParamsFV->SetBigRootOfUnity(rootOfUnity2);
 
+	//YSP a memory leak is created. This should go away with the new design.
 	ILParams* ilParams = new ILParams(2*n, qPrime, rootOfUnity);
 	cryptoParamsFV->SetElementParams(*ilParams);
 
