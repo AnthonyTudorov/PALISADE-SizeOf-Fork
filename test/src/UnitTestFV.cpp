@@ -143,6 +143,7 @@ TEST(UTFV, ILVector2n_FV_Encrypt_Decrypt) {
 
 }
 
+//Tests EvalAdd, EvalSub, and EvalMul operations for FV in the RLWE mode
 TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 	usint m = 2048;
@@ -326,10 +327,11 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 }
 
+// Generates parameters for FV in the RWLE mode to support a single EvalMult and then validates that single EvalMult works correctly
 TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 
 	usint relWindow = 1;
-	BigBinaryInteger plaintextModulus(BigBinaryInteger("64"));
+	BigBinaryInteger plaintextModulus(BigBinaryInteger("4"));
 	float stdDev = 4;
 
 	//Set crypto parametes
@@ -349,6 +351,9 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 
 	algorithm.ParamsGen(&cryptoParams, 0, 1);
 
+	std::cout << "n = " << cryptoParams.GetElementParams().GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << log2(cryptoParams.GetElementParams().GetModulus().ConvertToDouble()) << std::endl;
+
 	// Initialize the public key containers.
 	LPPublicKey<ILVector2n> pk(cryptoParams);
 	LPPrivateKey<ILVector2n> sk(cryptoParams);
@@ -359,7 +364,7 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
 	IntPlaintextEncoding plaintext2(vectorOfInts2);
 
-	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
+	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 1, 3, 0, 0, 0, 0, 3, 0, 3, 3, 3, 3 };
 	IntPlaintextEncoding plaintextMult(vectorOfIntsMult);
 
 	////////////////////////////////////////////////////////////

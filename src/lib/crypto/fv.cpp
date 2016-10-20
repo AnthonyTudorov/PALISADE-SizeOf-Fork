@@ -101,13 +101,13 @@ bool LPAlgorithmParamsGenFV<Element>::ParamsGen(LPCryptoParameters<Element> *cry
 		double w = pow(2, r);
 
 		//function used in the EvalMult constraint
-		auto epsilon1 = [&](uint32_t n) -> double { return 4 / (delta(n)*p*Bkey);  };
+		auto epsilon1 = [&](uint32_t n) -> double { return 4 / (delta(n)*Bkey);  };
 
 		//function used in the EvalMult constraint
-		auto C1 = [&](uint32_t n) -> double { return (1 + epsilon1(n))*delta(n)*delta(n)*p*p*Bkey;  };
+		auto C1 = [&](uint32_t n) -> double { return (1 + epsilon1(n))*delta(n)*delta(n)*p*Bkey;  };
 
 		//function used in the EvalMult constraint
-		auto C2 = [&](uint32_t n, double qPrev) -> double { return delta(n)*delta(n)*p*Bkey*(p*(Bkey + p) + (floor(log2(qPrev) / r) + 1)*w*Berr);  };
+		auto C2 = [&](uint32_t n, double qPrev) -> double { return delta(n)*delta(n)*Bkey*(Bkey + p*p) + delta(n)*(floor(log2(qPrev) / r) + 1)*w*Berr;  };
 
 		//main correctness constraint
 		auto qFV = [&](uint32_t n, double qPrev) -> double { return p*(2 * (pow(C1(n), evalMultCount)*Vnorm(n) + evalMultCount*pow(C1(n), evalMultCount - 1)*C2(n, qPrev)) + p);  };
@@ -140,7 +140,9 @@ bool LPAlgorithmParamsGenFV<Element>::ParamsGen(LPCryptoParameters<Element> *cry
 
 	BigBinaryInteger qPrime = FindPrimeModulus(2 * n, ceil(log2(q))+1);
 	BigBinaryInteger rootOfUnity = RootOfUnity(2 * n, qPrime);
-	BigBinaryInteger qPrime2 = FindPrimeModulus(2 * n, 2.03*(ceil(log2(q)) + 1));
+
+	//reserves enough digits to avoid wrap-around when evaluating p*(c1*c2+c3*c4)
+	BigBinaryInteger qPrime2 = FindPrimeModulus(2 * n, 2*(ceil(log2(q)) + 1) + ceil(log2(p)) + 3);
 	BigBinaryInteger rootOfUnity2 = RootOfUnity(2 * n, qPrime2);
 
 	cryptoParamsFV->SetBigModulus(qPrime2);
