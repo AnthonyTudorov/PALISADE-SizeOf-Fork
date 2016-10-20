@@ -334,11 +334,37 @@ namespace lbcrypto {
 					throw std::runtime_error(errMsg);
 		}
 
+		/**
+		* Function for homomorphic addition of ciphertexts.
+		*
+		* @param &ciphertext1 the input ciphertext.
+		* @param &ciphertext2 the input ciphertext.
+		* @param *newCiphertext the new ciphertext.
+		*/
 		void EvalAdd(const Ciphertext<Element> &ciphertext1,
+			const Ciphertext<Element> &ciphertext2,
+			Ciphertext<Element> *newCiphertext) const;
+
+		/**
+		* Function for homomorphic subtraction of ciphertexts.
+		*
+		* @param &ciphertext1 the input ciphertext.
+		* @param &ciphertext2 the input ciphertext.
+		* @param *newCiphertext the new ciphertext.
+		*/
+		void EvalSub(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
 				Ciphertext<Element> *newCiphertext) const;
 
-		virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
+		/**
+		* Function for evaluating multiplication on ciphertext followed by key switching operation.
+		*
+		* @param &ciphertext1 first input ciphertext.
+		* @param &ciphertext2 second input ciphertext.
+		* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+		void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &ek,
 				Ciphertext<Element> *newCiphertext) const;
 	};

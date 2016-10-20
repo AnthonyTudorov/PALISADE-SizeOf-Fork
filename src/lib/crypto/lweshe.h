@@ -116,6 +116,17 @@ namespace lbcrypto {
 				Ciphertext<Element> *newCiphertext) const ;
 
 			/**
+			* Function for homomorphic subtraction of ciphertexts.
+			*
+			* @param &ciphertext1 the input ciphertext.
+			* @param &ciphertext2 the input ciphertext.
+			* @param *newCiphertext the new ciphertext.
+			*/
+			virtual void EvalSub(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const;
+
+			/**
 			 * Function to generate key switch hint on a ciphertext.
 			 *
 			 * @param &newPrivateKey private key for the new ciphertext.

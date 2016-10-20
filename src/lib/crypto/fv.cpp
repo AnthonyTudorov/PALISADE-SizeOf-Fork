@@ -333,6 +333,25 @@ void LPAlgorithmSHEFV<Element>::EvalAdd(const Ciphertext<Element> &ciphertext1,
 	newCiphertext->SetElements({ c0,c1 });
 }
 
+template <class Element>
+void LPAlgorithmSHEFV<Element>::EvalSub(const Ciphertext<Element> &ciphertext1,
+	const Ciphertext<Element> &ciphertext2,
+	Ciphertext<Element> *newCiphertext) const {
+
+	if (!(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters()) || !(ciphertext1.GetCryptoParameters() == newCiphertext->GetCryptoParameters())) {
+		std::string errMsg = "LPAlgorithmSHEFV::EvalSub crypto parameters are not the same";
+		throw std::runtime_error(errMsg);
+	}
+
+	std::vector<Element> cipherText1Elements = ciphertext1.GetElements();
+	std::vector<Element> cipherText2Elements = ciphertext2.GetElements();
+
+	Element c0 = cipherText1Elements[0] - cipherText2Elements[0];
+	Element c1 = cipherText1Elements[1] - cipherText2Elements[1];
+
+	newCiphertext->SetElements({ c0,c1 });
+}
+
 // Constructor for LPPublicKeyEncryptionSchemeFV
 template <class Element>
 LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask)

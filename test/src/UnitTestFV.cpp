@@ -206,6 +206,9 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	std::vector<uint32_t> vectorOfIntsAdd = { 3,1,6,3,2,2,5,1 };
 	IntPlaintextEncoding plaintextAdd(vectorOfIntsAdd);
 
+	std::vector<uint32_t> vectorOfIntsSub = { 63,63,0,63,62,0,63,1 };
+	IntPlaintextEncoding plaintextSub(vectorOfIntsSub);
+
 	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
 	IntPlaintextEncoding plaintextMult(vectorOfIntsMult);
 
@@ -234,7 +237,6 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 	vector<Ciphertext<ILVector2n>> ciphertext1;
 	vector<Ciphertext<ILVector2n>> ciphertext2;
-	vector<Ciphertext<ILVector2n>> ciphertextAdd;
 
 	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext1, &ciphertext1, true);	
 	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext2, &ciphertext2, true);
@@ -242,6 +244,8 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	////////////////////////////////////////////////////////////
 	//EvalAdd Operation
 	////////////////////////////////////////////////////////////
+
+	vector<Ciphertext<ILVector2n>> ciphertextAdd;
 
 	//YSP this is a workaround for now - I think we need to change EvalAdd to do this automatically
 	Ciphertext<ILVector2n> ciphertextTemp(ciphertext1[0]);
@@ -263,6 +267,34 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	plaintextNew.resize(plaintextAdd.size());
 
 	EXPECT_EQ(plaintextAdd, plaintextNew) << "FV.EvalAdd gives incorrect results.\n";
+
+	////////////////////////////////////////////////////////////
+	//EvalSub Operation
+	////////////////////////////////////////////////////////////
+
+	vector<Ciphertext<ILVector2n>> ciphertextSub;
+
+	//YSP this is a workaround for now - I think we need to change EvalAdd to do this automatically
+	Ciphertext<ILVector2n> ciphertextTempSub(ciphertext1[0]);
+
+	//YSP this needs to be switched to the CryptoUtility operation
+	algorithm.EvalSub(ciphertext1[0], ciphertext2[0], &ciphertextTempSub);
+
+	ciphertextSub.push_back(ciphertextTempSub);
+
+	IntPlaintextEncoding plaintextNewSub;
+
+	////////////////////////////////////////////////////////////
+	//Decryption after EvalAdd Operation
+	////////////////////////////////////////////////////////////
+
+	result = CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertextSub, &plaintextNewSub, true);  // This is the core decryption operation.
+
+																												   //this step is needed because there is no marker for padding in the case of IntPlaintextEncoding
+	plaintextNewSub.resize(plaintextSub.size());
+
+	EXPECT_EQ(plaintextSub, plaintextNewSub) << "FV.EvalSub gives incorrect results.\n";
+
 
 	////////////////////////////////////////////////////////////
 	//EvalMult Operation

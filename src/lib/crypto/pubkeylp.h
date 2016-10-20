@@ -1199,24 +1199,43 @@ namespace lbcrypto {
 	template <class Element>
 	class LPSHEAlgorithm {
 		public:
-			/**
-			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext.
-			 *
-			 * @param &ciphertext1 the input ciphertext.
-			 * @param &ciphertext2 the input ciphertext.
-			 * @param *newCiphertext the new ciphertext.
-			 */
 
 			virtual	bool EvalMultKeyGen(const LPPrivateKey<Element> &privateKey,
 			LPEvalKey<Element> *evalKey) const = 0;
 
+			/**
+			* Virtual function to define the interface for homomorphic multiplication of ciphertexts.
+			*
+			* @param &ciphertext1 the input ciphertext.
+			* @param &ciphertext2 the input ciphertext.
+			* @param *newCiphertext the new ciphertext.
+			*/
 			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
 				Ciphertext<Element> *newCiphertext) const = 0;
 
+			/**
+			* Virtual function to define the interface for homomorphic addition of ciphertexts.
+			*
+			* @param &ciphertext1 the input ciphertext.
+			* @param &ciphertext2 the input ciphertext.
+			* @param *newCiphertext the new ciphertext.
+			*/
 			virtual void EvalAdd(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
 				Ciphertext<Element> *newCiphertext) const = 0;
+
+			/**
+			* Virtual function to define the interface for homomorphic subtraction of ciphertexts.
+			*
+			* @param &ciphertext1 the input ciphertext.
+			* @param &ciphertext2 the input ciphertext.
+			* @param *newCiphertext the new ciphertext.
+			*/
+			virtual void EvalSub(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const = 0;
+
 
 			/**
 			* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
@@ -1497,7 +1516,7 @@ namespace lbcrypto {
 		}
 
 		/////////////////////////////////////////
-		// the two functions below are wrappers for things in LPSHEAlgorithm (SHE)
+		// the three functions below are wrappers for things in LPSHEAlgorithm (SHE)
 		//
 
 		void EvalAdd(const Ciphertext<Element> &ciphertext1,
@@ -1509,6 +1528,17 @@ namespace lbcrypto {
 					else{
 						throw std::logic_error("EvalAdd operation has not been enabled");
 					}
+		}
+
+		void EvalSub(const Ciphertext<Element> &ciphertext1,
+			const Ciphertext<Element> &ciphertext2,
+			Ciphertext<Element> *newCiphertext) const {
+
+			if (this->m_algorithmSHE)
+				this->m_algorithmSHE->EvalSub(ciphertext1, ciphertext2, newCiphertext);
+			else {
+				throw std::logic_error("EvalSub operation has not been enabled");
+			}
 		}
 
 		void EvalMult(const Ciphertext<Element> &ciphertext1,

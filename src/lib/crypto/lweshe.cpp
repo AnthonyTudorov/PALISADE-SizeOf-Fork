@@ -89,11 +89,32 @@ void LPAlgorithmSHELTV<Element>::EvalAdd(
 
 	Element c2(ciphertext2.GetElement());
 
-	Element cResult = c1+c2;
+	Element cResult = c1 + c2;
 
 	newCiphertext->SetElement(cResult);
 
 }  
+
+template <class Element>
+void LPAlgorithmSHELTV<Element>::EvalSub(
+	const Ciphertext<Element> &ciphertext1,
+	const Ciphertext<Element> &ciphertext2,
+	Ciphertext<Element> *newCiphertext) const
+{
+	if (!(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters()) || !(ciphertext1.GetCryptoParameters() == newCiphertext->GetCryptoParameters())) {
+		std::string errMsg = "EvalSub crypto parameters are not the same";
+		throw std::runtime_error(errMsg);
+	}
+
+	Element c1(ciphertext1.GetElement());
+
+	Element c2(ciphertext2.GetElement());
+
+	Element cResult = c1 - c2;
+
+	newCiphertext->SetElement(cResult);
+
+}
 
 
 //Function to generate 1..log(q) encryptions for each bit of the original private key
