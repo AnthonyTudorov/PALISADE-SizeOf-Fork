@@ -422,6 +422,7 @@ namespace lbcrypto {
 	}
 
 	ILVector2n ILVector2n::AutomorphismTransform(const usint &i) const {
+		
 		if (i % 2 == 0)
 			throw std::logic_error("automorphism index should be odd\n");
 		else

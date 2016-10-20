@@ -148,14 +148,16 @@ void EncryptionTest() {
 
 	//LPAlgorithmLTV<ILVector2n> algorithm;
 
-	std::vector<usint> vectorOfInts1 = { 4,0,0,0 };
+	std::vector<usint> vectorOfInts1 = { 4,1,2,3 };
 
 	IntPlaintextEncoding intArray1(vectorOfInts1);
 
 
 	LPPublicKeyEncryptionSchemeBV<ILVectorArray2n> algorithm;
 	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
+	algorithm.Enable(SHE);
+	algorithm.Enable(LEVELEDSHE);
+	
 
 	bool successKeyGen = false;
 
@@ -189,7 +191,21 @@ void EncryptionTest() {
 
 	IntPlaintextEncoding intArrayNew;
 
-	
+	//ModReduce the ciphertext
+	/*std::vector<ILVectorArray2n> els(ciphertext.at(0).GetElements());
+
+	for (auto &x : els) {
+		x.ModReduce(cryptoParams.GetPlaintextModulus());
+	}
+
+	ciphertext.at(0).SetElements(std::move(els));*/
+	CryptoUtility<ILVectorArray2n>::ModReduce(algorithm, &ciphertext);
+
+	//drop a tower from the secret key
+
+	auto skEl(sk.GetPrivateElement());
+	skEl.DropElementAtIndex(skEl.GetNumOfElements() - 1);
+	sk.SetPrivateElement(skEl);
 
 	DecryptResult result = CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk, ciphertext, &intArrayNew, false);  // This is the core decryption operation.
 
@@ -202,64 +218,7 @@ void EncryptionTest() {
 
 
 
-	//PRE SCHEME
-
-	////////////////////////////////////////////////////////////
-	//Perform the second key generation operation.
-	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
-	////////////////////////////////////////////////////////////
-
-	LPPublicKey<ILVectorArray2n> newPK(cryptoParams);
-	LPPrivateKey<ILVectorArray2n> newSK(cryptoParams);
-
-	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
-
-
-	successKeyGen = CryptoUtility<ILVectorArray2n>::KeyGen(algorithm, &newPK, &newSK);	// This is the same core key generation operation.
-
-	////////////////////////////////////////////////////////////
-	//Perform the proxy re-encryption key generation operation.
-	// This generates the keys which are used to perform the key switching.
-	////////////////////////////////////////////////////////////
-
-	std::cout << "\n" << "Generating proxy re-encryption key..." << std::endl;
-
-	LPEvalKeyRelin<ILVectorArray2n> evalKey(cryptoParams);
-
-	algorithm.ReKeyGen(newSK, sk, &evalKey);  // FIXME this can't use CryptoUtility because the calling sequence is wrong (2 private keys)
-
-
-	////////////////////////////////////////////////////////////
-	//Perform the proxy re-encryption operation.
-	// This switches the keys which are used to perform the key switching.
-	////////////////////////////////////////////////////////////
-
-
-	vector<Ciphertext<ILVectorArray2n>> newCiphertext;
-
-	std::cout << "\n" << "Running re-encryption..." << std::endl;
-
-	CryptoUtility<ILVectorArray2n>::ReEncrypt(algorithm, evalKey, ciphertext, &newCiphertext);  // This is the core re-encryption operation.
-
-
-
-	//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
-
-	////////////////////////////////////////////////////////////
-	//Decryption
-	////////////////////////////////////////////////////////////
-
-	IntPlaintextEncoding intArrayNew2;
-
-	std::cout << "\n" << "Running decryption of re-encrypted cipher..." << std::endl;
-
-	DecryptResult result1 = CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, newSK, newCiphertext, &intArrayNew2, false);  // This is the core decryption operation.
-
-	if (!result1.isValid) {
-		std::cout << "Decryption failed!" << std::endl;
-		exit(1);
-	}
-
+	
 	std::cout << "Execution completed." << std::endl;
 
 
