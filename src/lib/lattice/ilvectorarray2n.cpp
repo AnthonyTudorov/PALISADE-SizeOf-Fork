@@ -422,8 +422,21 @@ namespace lbcrypto {
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = (element*tmp.m_vectors[i]);
 		}
-		// tmp.m_params= this->m_params;
 		return std::move(tmp);
+	}
+
+	ILVectorArray2n ILVectorArray2n::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const
+	{
+		std::string errMsg = "Operation not implemented yet";
+		throw std::runtime_error(errMsg);
+		return *this;
+	}
+
+	ILVectorArray2n ILVectorArray2n::DivideAndRound(const BigBinaryInteger &q) const
+	{
+		std::string errMsg = "Operation not implemented yet";
+		throw std::runtime_error(errMsg);
+		return *this;
 	}
 
 	const ILVectorArray2n& ILVectorArray2n::operator+=(const BigBinaryInteger &rhs){

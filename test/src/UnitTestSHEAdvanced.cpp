@@ -412,10 +412,10 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 
 	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertextResults, &results, false);
 
-	EXPECT_EQ(results.at(0), 5);
-	EXPECT_EQ(results.at(1), 1);
-	EXPECT_EQ(results.at(2), 4);
-	EXPECT_EQ(results.at(3), 5);
+	EXPECT_EQ(5, results.at(0));
+	EXPECT_EQ(1, results.at(1));
+	EXPECT_EQ(4, results.at(2));
+	EXPECT_EQ(5, results.at(3));
 
 	ILVector2n::DestroyPreComputedSamples();
 }

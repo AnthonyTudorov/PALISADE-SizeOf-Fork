@@ -609,16 +609,15 @@ namespace cpu_int{
 	*
 	* @param p is the numerator to be multiplied.
 	* @param q is the denominator to be divided.
-	* @return the big binary integer x^p.
+	* @return the result of multiply and round.
 	*/
 	BigBinaryInteger MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const;
 
 	/**
-	* Divide and Rounding operation on a bigBinaryInteger x. Returns [x*p/q] where [] is the rounding operation.
+	* Divide and Rounding operation on a bigBinaryInteger x. Returns [x/q] where [] is the rounding operation.
 	*
-	* @param p is the numerator to be multiplied.
 	* @param q is the denominator to be divided.
-	* @return the big binary integer x^p.
+	* @return the result of divide and round.
 	*/
 	BigBinaryInteger DivideAndRound(const BigBinaryInteger &q) const;
 

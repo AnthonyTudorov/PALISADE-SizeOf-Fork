@@ -205,6 +205,14 @@ public:
 	const IntegerType& GetValAtIndex(usint index) const;
 
 	/**
+	* operators to get a value at an index.
+	* @param idx is the index to get a value at.
+	* @return is the value at the index. return NULL if invalid index.
+	*/
+	inline IntegerType& operator[](std::size_t idx) { return (this->m_data[idx]); }
+	inline const IntegerType& operator[](std::size_t idx) const { return (this->m_data[idx]); }
+
+	/**
 	 * Sets the vector modulus.
 	 *
 	 * @param value is the value to set.
@@ -350,6 +358,31 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	BigBinaryVector ModMul(const BigBinaryVector &b) const;
+
+	/**
+	 * Vector multiplication without applying the modulus operation.
+	 *
+	 * @param &b is the vector to multiply.
+	 * @return is the result of the multiplication operation.
+	 */
+	BigBinaryVector MultWithOutMod(const BigBinaryVector &b) const;
+
+	/**
+	* Multiply and Rounding operation on a bigBinaryInteger x. Returns [x*p/q] where [] is the rounding operation.
+	*
+	* @param p is the numerator to be multiplied.
+	* @param q is the denominator to be divided.
+	* @return the result of multiply and round.
+	*/
+	BigBinaryVector MultiplyAndRound(const IntegerType &p, const IntegerType &q) const;
+
+	/**
+	* Divide and Rounding operation on a bigBinaryInteger x. Returns [x/q] where [] is the rounding operation.
+	*
+	* @param q is the denominator to be divided.
+	* @return the result of divide and round.
+	*/
+	BigBinaryVector DivideAndRound(const IntegerType &q) const;
 
 	//matrix operations
 	

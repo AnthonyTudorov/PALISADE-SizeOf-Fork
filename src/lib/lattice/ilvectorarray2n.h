@@ -353,6 +353,23 @@ namespace lbcrypto {
 		* @return is the return value of the times operation.
 		*/
 		ILVectorArray2n Times(const BigBinaryInteger &element) const;
+
+		/**
+		* Scalar multiplication followed by division and rounding operation - operation on all entries.
+		*
+		* @param &p is the element to multiply entry-wise.
+		* @param &q is the element to divide entry-wise.
+		* @return is the return value of the multiply, divide and followed by rounding operation.
+		*/
+		ILVectorArray2n MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const;
+
+		/**
+		* Scalar division followed by rounding operation - operation on all entries.
+		*
+		* @param &q is the element to divide entry-wise.
+		* @return is the return value of the divide, followed by rounding operation.
+		*/
+		ILVectorArray2n DivideAndRound(const BigBinaryInteger &q) const;
 		
 		/**
 		* Performs an addition operation and returns the result.
@@ -544,6 +561,16 @@ namespace lbcrypto {
 	* @return an ILVectorArray2n with the resulting value.
 	*/
 	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Plus(b); }
+
+	/**
+	* Subtraction operator overload.
+	*
+	* @param &a ILVectorArray2n to be added to the second argument.
+	* @param &b ILVectorArray2n to be added to the first argument.
+	*
+	* @return an ILVectorArray2n with the resulting value.
+	*/
+	inline ILVectorArray2n operator-(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Minus(b); }
 
 	/**
 	* Scalar addition operator overload-add an element to the first index of each tower.

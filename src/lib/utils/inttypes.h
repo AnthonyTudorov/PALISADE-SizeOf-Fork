@@ -91,6 +91,14 @@ enum PKESchemeFeature{
 	LEVELEDSHE=6
 };
 
+/**
+* @brief Lists all modes for RLWE schemes, such as BGV and FV
+*/
+enum MODE {
+	RLWE = 0,
+	OPTIMIZED = 1
+};
+
 const uint8_t FEATURESETSIZE = 7;
 
 //} // namespace lbcrypto ends

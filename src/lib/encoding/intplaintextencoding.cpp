@@ -125,11 +125,12 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *i
 		temp.SetValAtIndex(i, Val);
 	}
 
-	BigBinaryInteger Num = modulus - BigBinaryInteger::ONE;
+	//BigBinaryInteger Num = modulus - BigBinaryInteger::ONE;
 	for( usint i=0; i<padlen; i++ ) {
-		temp.SetValAtIndex(i+length, Num);
-		if( i == 0 )
-			Num = BigBinaryInteger::ZERO;
+		temp.SetValAtIndex(i+length, BigBinaryInteger::ZERO);
+		//temp.SetValAtIndex(i + length, Num);
+		//if( i == 0 )
+		//	Num = BigBinaryInteger::ZERO;
 	}
 
 	ilVector->SetValues(temp,format);
@@ -141,20 +142,6 @@ void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n *
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
 		this->push_back( ilVector->GetValues().GetValAtIndex(i).ConvertToInt() );
 	}
-}
-
-void
-IntPlaintextEncoding::Unpad(const BigBinaryInteger &modulus)
-{
-	uint32_t marker = modulus.ConvertToInt() - 1;
-	usint nPadding = 0;
-	for (sint i = this->size() - 1; i >= 0; --i) {
-		nPadding++;
-		if (this->at(i) == marker) {
-			break;
-		}
-	}
-	this->resize(this->size() - nPadding, 0);
 }
 
 size_t

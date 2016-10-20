@@ -48,6 +48,7 @@
 #include "../../utils/serializable.h"
 #include <initializer_list>
 #include "ubintvec.h"
+ #include "../cpu_int/binvect.h"
 
 
 /**

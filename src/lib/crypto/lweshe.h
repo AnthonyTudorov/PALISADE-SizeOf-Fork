@@ -78,6 +78,19 @@ namespace lbcrypto {
 				const Ciphertext<Element> &ciphertext2, 
 				Ciphertext<Element> *newCiphertext) const;
 
+			bool EvalMultKeyGen(const LPPrivateKey<Element> &privateKey,
+				LPEvalKey<Element> *evalKey) const {
+					std::string errMsg = "LPAlgorithmSHELTV::EvalMultKeyGen is not applicable for LTV SHE Scheme.";
+					throw std::runtime_error(errMsg);
+			}
+		
+			void EvalMult(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext, const LPEvalKey<Element> &evalKey) const {
+					std::string errMsg = "LPAlgorithmSHELTV::EvalMult with RelinKey is not applicable for LTV SHE Scheme.";
+					throw std::runtime_error(errMsg);
+			}
+
 			/**
 			* Function for evaluating multiplication on ciphertext followed by key switching operation.
 			*
@@ -101,6 +114,17 @@ namespace lbcrypto {
 			void EvalAdd(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
 				Ciphertext<Element> *newCiphertext) const ;
+
+			/**
+			* Function for homomorphic subtraction of ciphertexts.
+			*
+			* @param &ciphertext1 the input ciphertext.
+			* @param &ciphertext2 the input ciphertext.
+			* @param *newCiphertext the new ciphertext.
+			*/
+			virtual void EvalSub(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const;
 
 			/**
 			 * Function to generate key switch hint on a ciphertext.

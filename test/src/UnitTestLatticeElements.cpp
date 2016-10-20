@@ -175,6 +175,69 @@ TEST(UTILVector2n, getters_tests) {
 
 }
 
+TEST(UTILVector2n, rounding_operations) {
+	usint m = 8;
+
+	BigBinaryInteger q("73");
+	BigBinaryInteger primitiveRootOfUnity("22");
+	BigBinaryInteger p("8");
+
+	ILParams ilparams(m, q, primitiveRootOfUnity);
+
+	//temporary larger modulus that is used for polynomial multiplication before rounding
+	BigBinaryInteger q2("16417");
+	BigBinaryInteger primitiveRootOfUnity2("13161");
+
+	ILParams ilparams2(m, q2, primitiveRootOfUnity2);
+
+	//ilparams = ilparams2;
+
+	ILVector2n ilvector2n1(ilparams,COEFFICIENT);
+	ilvector2n1 = { 31,21,15,34};
+	//ilvector2n1.SwitchFormat();
+
+	ILVector2n ilvector2n2(ilparams,COEFFICIENT);
+	ilvector2n2 = { 21,11,35,32 };
+	//ilvector2n2.SwitchFormat();
+
+	//unit test for MultiplyAndRound
+
+	ILVector2n roundingCorrect1(ilparams, COEFFICIENT);
+	roundingCorrect1 = { 3,2,2,4 };
+
+	ILVector2n rounding1 = ilvector2n1.MultiplyAndRound(p, q);
+
+	EXPECT_EQ(roundingCorrect1, rounding1) << "Rounding p*polynomial/q is incorrect.\n";
+
+	//unit test for MultiplyAndRound after a polynomial multiplication using the larger modulus
+
+	ILVector2n roundingCorrect2(ilparams2, COEFFICIENT);
+	roundingCorrect2 = { 16316, 16320, 60, 286 };
+
+	ilvector2n1.SwitchModulus(q2, primitiveRootOfUnity2);
+	ilvector2n2.SwitchModulus(q2, primitiveRootOfUnity2);
+
+	ilvector2n1.SwitchFormat();
+	ilvector2n2.SwitchFormat();
+
+	ILVector2n rounding2 = ilvector2n1 * ilvector2n2;
+	rounding2.SwitchFormat();
+
+	rounding2 = rounding2.MultiplyAndRound(p, q);
+
+	EXPECT_EQ(roundingCorrect2, rounding2) << "Rounding p*polynomial1*polynomial2/q is incorrect.\n";
+
+	//makes sure the result is correct after going back to the original modulus
+
+	rounding2.SwitchModulus(q, primitiveRootOfUnity);
+
+	ILVector2n roundingCorrect3(ilparams, COEFFICIENT);
+	roundingCorrect3 = { 45, 49, 60, 67 };
+
+	EXPECT_EQ(roundingCorrect3, rounding2) << "Rounding p*polynomial1*polynomial2/q (mod q) is incorrect.\n";
+
+}
+
 TEST(UTILVector2n, setters_tests) {
   usint m = 8; 
   

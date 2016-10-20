@@ -987,6 +987,28 @@ namespace lbcrypto {
 
 
 	/**
+	* @brief Abstract interface for parameter generation algorithm
+	* @tparam Element a ring element.
+	*/
+	template <class Element>
+	class LPParameterGenerationAlgorithm {
+	public:
+
+		/**
+		* Method for computing all derived parameters based on chosen primitive parameters
+		*
+		* @param *cryptoParams the crypto parameters object to be populated with parameters.
+		* @param evalAddCount number of EvalAdds assuming no EvalMult and KeySwitch operations are performed.
+		* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
+		* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
+		*/
+		virtual bool ParamsGen(LPCryptoParameters<Element> *cryptoParams, int32_t evalAddCount = 0, 
+			int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const = 0;
+
+	};
+
+
+	/**
 	 * @brief Abstract interface for encryption algorithm
 	 * @tparam Element a ring element.
 	 */
@@ -1177,21 +1199,43 @@ namespace lbcrypto {
 	template <class Element>
 	class LPSHEAlgorithm {
 		public:
-						
+
+			virtual	bool EvalMultKeyGen(const LPPrivateKey<Element> &privateKey,
+			LPEvalKey<Element> *evalKey) const = 0;
+
 			/**
-			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext.
-			 *
-			 * @param &ciphertext1 the input ciphertext.
-			 * @param &ciphertext2 the input ciphertext.
-			 * @param *newCiphertext the new ciphertext.
-			 */
+			* Virtual function to define the interface for homomorphic multiplication of ciphertexts.
+			*
+			* @param &ciphertext1 the input ciphertext.
+			* @param &ciphertext2 the input ciphertext.
+			* @param *newCiphertext the new ciphertext.
+			*/
 			virtual void EvalMult(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
 				Ciphertext<Element> *newCiphertext) const = 0;
 
+			/**
+			* Virtual function to define the interface for homomorphic addition of ciphertexts.
+			*
+			* @param &ciphertext1 the input ciphertext.
+			* @param &ciphertext2 the input ciphertext.
+			* @param *newCiphertext the new ciphertext.
+			*/
 			virtual void EvalAdd(const Ciphertext<Element> &ciphertext1,
 				const Ciphertext<Element> &ciphertext2,
 				Ciphertext<Element> *newCiphertext) const = 0;
+
+			/**
+			* Virtual function to define the interface for homomorphic subtraction of ciphertexts.
+			*
+			* @param &ciphertext1 the input ciphertext.
+			* @param &ciphertext2 the input ciphertext.
+			* @param *newCiphertext the new ciphertext.
+			*/
+			virtual void EvalSub(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2,
+				Ciphertext<Element> *newCiphertext) const = 0;
+
 
 			/**
 			* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
@@ -1315,10 +1359,12 @@ namespace lbcrypto {
 
 	public:
 		LPPublicKeyEncryptionScheme() :
-			m_algorithmEncryption(0), m_algorithmPRE(0), m_algorithmEvalAdd(0), m_algorithmEvalAutomorphism(0),
+			m_algorithmParamsGen(0), m_algorithmEncryption(0), m_algorithmPRE(0), m_algorithmEvalAdd(0), m_algorithmEvalAutomorphism(0),
 			m_algorithmSHE(0), m_algorithmFHE(0), m_algorithmLeveledSHE(0) {}
 
 		virtual ~LPPublicKeyEncryptionScheme() {
+			if (this->m_algorithmParamsGen != NULL)
+				delete this->m_algorithmParamsGen;
 			if (this->m_algorithmEncryption != NULL)
 				delete this->m_algorithmEncryption;
 			if (this->m_algorithmPRE != NULL)
@@ -1375,6 +1421,20 @@ namespace lbcrypto {
 		virtual void Enable(PKESchemeFeature feature) = 0;
 
 		/////////////////////////////////////////
+		// wrapper for LPParameterSelectionAlgorithm
+		//
+
+		bool ParamsGen(LPCryptoParameters<Element> *cryptoParams, int32_t evalAddCount = 0,
+			int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const {
+			if (this->m_algorithmParamsGen) {
+				return this->m_algorithmParamsGen->ParamsGen(cryptoParams, evalAddCount, evalMultCount, keySwitchCount);
+			}
+			else {
+				throw std::logic_error("Parameter generation operation has not been implemented");
+			}
+		}
+
+		/////////////////////////////////////////
 		// the three functions below are wrappers for things in LPEncryptionAlgorithm (ENCRYPT)
 		//
 
@@ -1418,6 +1478,16 @@ namespace lbcrypto {
 				}
 		}
 
+		//wrapper for reLinKeyGen method
+		bool EvalMultKeyGen(const LPPrivateKey<Element> &privateKey,
+			LPEvalKey<Element> *evalKey) const{
+				if(this->IsEnabled(SHE))
+					return this->m_algorithmSHE->EvalMultKeyGen(privateKey,evalKey);
+				else {
+					throw std::logic_error("This operation is not supported");
+				}
+		}
+
 		//wrapper for ReEncrypt method
 		void ReEncrypt(const LPEvalKey<Element> &evalKey, const Ciphertext<Element> &ciphertext,
 			Ciphertext<Element> *newCiphertext) const {
@@ -1446,7 +1516,7 @@ namespace lbcrypto {
 		}
 
 		/////////////////////////////////////////
-		// the two functions below are wrappers for things in LPSHEAlgorithm (SHE)
+		// the three functions below are wrappers for things in LPSHEAlgorithm (SHE)
 		//
 
 		void EvalAdd(const Ciphertext<Element> &ciphertext1,
@@ -1458,6 +1528,17 @@ namespace lbcrypto {
 					else{
 						throw std::logic_error("EvalAdd operation has not been enabled");
 					}
+		}
+
+		void EvalSub(const Ciphertext<Element> &ciphertext1,
+			const Ciphertext<Element> &ciphertext2,
+			Ciphertext<Element> *newCiphertext) const {
+
+			if (this->m_algorithmSHE)
+				this->m_algorithmSHE->EvalSub(ciphertext1, ciphertext2, newCiphertext);
+			else {
+				throw std::logic_error("EvalSub operation has not been enabled");
+			}
 		}
 
 		void EvalMult(const Ciphertext<Element> &ciphertext1,
@@ -1490,7 +1571,18 @@ namespace lbcrypto {
 				else {
 					throw std::logic_error("SparseKeyGen operation has not been enabled");
 				}
+		}
 
+		//wrapper for EvalMult method
+		void EvalMult(const Ciphertext<Element> &ciphertext1,
+				const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &evalKey,
+				Ciphertext<Element> *newCiphertext) const {
+					
+					if(this->IsEnabled(SHE))
+						this->m_algorithmSHE->EvalMult(ciphertext1,ciphertext2, evalKey, newCiphertext);
+					else{
+						throw std::logic_error("This operation is not supported");
+					}
 		}
 
 		void EvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, 
@@ -1569,6 +1661,7 @@ namespace lbcrypto {
 		const LPEncryptionAlgorithm<Element>& getAlgorithm() const { return *m_algorithmEncryption; }
 
 	protected:
+		const LPParameterGenerationAlgorithm<Element> *m_algorithmParamsGen;
 		const LPEncryptionAlgorithm<Element> *m_algorithmEncryption;
 		const LPPREAlgorithm<Element> *m_algorithmPRE;
 		const LPAHEAlgorithm<Element> *m_algorithmEvalAdd;
