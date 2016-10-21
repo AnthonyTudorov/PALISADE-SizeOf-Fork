@@ -196,7 +196,7 @@ CryptoContextHelper<Element>::matchContextToSerialization(const CryptoContext<El
 }
 
 template <class Element>
-CryptoContextHandle<Element>
+CryptoContext<Element>
 CryptoContextHelper<Element>::getNewContextFromSerialization(const Serialized& ser)
 {
 	CryptoContext<Element> emptyCtx;

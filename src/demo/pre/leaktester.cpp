@@ -248,8 +248,8 @@ runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plainte
 
 		vector<shared_ptr<Ciphertext<ILVector2n>>> intCiphertext;
 		IntPlaintextEncoding outInt;
-		intCiphertext = ctx.Encrypt(pk, inInt, doPadding);
-		dResult = ctx.Decrypt(sk, intCiphertext, &outInt, doPadding);
+		intCiphertext = ctx.Encrypt(kp.publicKey, inInt, doPadding);
+		DecryptResult dResult = ctx.Decrypt(kp.secretKey, ciphertext, &plaintextNew, doPadding);
 		if( inInt.size() != outInt.size() ) {
 			cout << "eResult " << intCiphertext.size() << endl;
 			cout << "dResult " << dResult.isValid << ":" << dResult.messageLength << endl;

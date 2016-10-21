@@ -122,8 +122,6 @@ public:
 
 	operator bool() const { return bool(ctx); }
 
-	operator bool() const { return bool(ctx); }
-
 	void Enable(PKESchemeFeature feature) { ctx->getScheme()->Enable(feature); }
 
 	const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *ctx->getScheme(); }
@@ -153,9 +151,6 @@ public:
 
 		if( newPublicKey->GetCryptoContext() != *this || origPrivateKey->GetCryptoContext() != *this )
 			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
-
-		if( typeid(Element) == typeid(ILVectorArray2n) )
-			throw std::logic_error("Sorry, re-encryption keys have not been implemented with Element of ILVectorArray2n");
 
 		if( typeid(Element) == typeid(ILVectorArray2n) )
 			throw std::logic_error("Sorry, re-encryption keys have not been implemented with Element of ILVectorArray2n");

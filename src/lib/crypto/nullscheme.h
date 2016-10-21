@@ -20,9 +20,6 @@ public:
 	LPCryptoParametersNull(const shared_ptr<ElemParams> ep, const BigBinaryInteger &plaintextModulus)
 		: LPCryptoParameters<Element>(ep, plaintextModulus) {}
 
-	LPCryptoParametersNull(const shared_ptr<ElemParams> ep, const BigBinaryInteger &plaintextModulus)
-		: LPCryptoParameters<Element>(ep, plaintextModulus) {}
-
 	LPCryptoParametersNull(const LPCryptoParametersNull& rhs) : LPCryptoParameters<Element>(rhs) {}
 
 	virtual ~LPCryptoParametersNull() {}

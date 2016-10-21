@@ -631,7 +631,8 @@ namespace lbcrypto {
 		DEBUG("modulus "<< modulus.ToString());
 		ILParams ilParams(m_cyclotomicOrder, modulus);
 		DEBUG("Y");
-		ILVector2n polynomialReconstructed(ilParams);
+
+		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(m_cyclotomicOrder, modulus) ) );
 		polynomialReconstructed.SetValues(coefficients,m_format);
 		DEBUG("Z");
 		return polynomialReconstructed;

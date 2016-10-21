@@ -264,6 +264,7 @@ CryptoContext<T>::deserializeCiphertext(const Serialized& serObj)
 	return shared_ptr<Ciphertext<T>>();
 }
 
+// FIXME: this is temporary until we better incorporate DCRT
 template <typename T>
 shared_ptr<LPEvalKey<T>>
 CryptoContext<T>::deserializeEvalKey(const Serialized& serObj)
@@ -403,7 +404,7 @@ CryptoContextFactory<T>::getCryptoContextNull()
 
 	item.ctx->scheme = new LPPublicKeyEncryptionSchemeNull<T>();
 
-	return item;
+	return shared_ptr<LPEvalKeyNTRURelin<T>>();
 }
 
 template <typename T>
