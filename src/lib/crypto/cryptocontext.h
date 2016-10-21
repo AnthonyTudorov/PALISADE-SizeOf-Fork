@@ -116,8 +116,19 @@ class CryptoContext {
 public:
 	shared_ptr<CryptoContextImpl<Element>>	ctx;
 
+	CryptoContext() {}
+
 	CryptoContext(CryptoContextImpl<Element> *e) {
-		ctx = std::make_shared<CryptoContextImpl<Element>>(e);
+		ctx.reset( e );
+	}
+
+	CryptoContext(const CryptoContext<Element>& c) {
+		ctx = c.ctx;
+	}
+
+	CryptoContext<Element>& operator=(const CryptoContext<Element>& rhs) {
+		ctx = rhs.ctx;
+		return *this;
 	}
 
 	operator bool() const { return bool(ctx); }
@@ -555,6 +566,11 @@ public:
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev, int depth = 1);
 
+	static CryptoContext<Element> genCryptoContextFV(
+			const usint plaintextmodulus,
+			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
+			usint relinWindow, float stDev, const std::string& delta, int depth = 1);
+
 	static CryptoContext<Element> genCryptoContextBV(
 			const usint plaintextmodulus,
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
@@ -584,6 +600,9 @@ public:
 			}
 			else if( parmstype == "LPCryptoParametersBV") {
 				return shared_ptr<LPCryptoParameters<Element>>( new LPCryptoParametersBV<Element>() );
+			}
+			else if( parmstype == "LPCryptoParametersFV") {
+				return shared_ptr<LPCryptoParameters<Element>>( new LPCryptoParametersFV<Element>() );
 			}
 			else if( parmstype == "LPCryptoParametersDCRT") { // fixme
 				return shared_ptr<LPCryptoParameters<Element>>();

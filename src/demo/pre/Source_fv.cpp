@@ -37,13 +37,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <fstream>
 
-#include "../../lib/crypto/cryptocontext.h"
+#include "../lib/palisade.h"
+#include "../lib/palisadespace.h"
+
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/crypto/cryptocontext.cpp"
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
 #include "../../lib/encoding/byteplaintextencoding.h"
-#include "../../lib/utils/cryptoutility.h"
 
 #include "../../lib/utils/debug.h"
 
@@ -57,8 +58,8 @@ void NTRUPRE(int input);
  */
 struct SecureParams {
 	usint m;			///< The ring parameter.
-	BigBinaryInteger modulus;	///< The modulus
-	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
+	string modulus;	///< The modulus
+	string rootOfUnity;	///< The rootOfUnity
 	usint relinWindow;		///< The relinearization window parameter.
 };
 
@@ -107,11 +108,11 @@ int main() {
 void NTRUPRE(int input) {
 
 	SecureParams const SECURE_PARAMS[] = {
-		{ 2048, BigBinaryInteger("268441601"), BigBinaryInteger("16947867"), 1 }, //r = 1
-		{ 2048, BigBinaryInteger("536881153"), BigBinaryInteger("267934765"), 2 }, // r = 2
-		{ 2048, BigBinaryInteger("1073750017"), BigBinaryInteger("180790047"), 4 },  // r = 4
-		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("2678760785"), 8 }, //r = 8
-		{ 4096, BigBinaryInteger("2199023288321"), BigBinaryInteger("1858080237421"), 16 }  // r= 16
+		{ 2048, ("268441601"), ("16947867"), 1 }, //r = 1
+		{ 2048, ("536881153"), ("267934765"), 2 }, // r = 2
+		{ 2048, ("1073750017"), ("180790047"), 4 },  // r = 4
+		{ 2048, ("8589987841"), ("2678760785"), 8 }, //r = 8
+		{ 4096, ("2199023288321"), ("1858080237421"), 16 }  // r= 16
 		//{ 2048, CalltoModulusComputation(), CalltoRootComputation, 0 }  // r= 16
 	};
 
@@ -137,20 +138,11 @@ void NTRUPRE(int input) {
 	BigBinaryInteger plaintextModulus(BigBinaryInteger::TWO);
 
 	//Set crypto parametes
-	LPCryptoParametersFV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(plaintextModulus);  	// Set plaintext modulus.
-	//cryptoParams.SetPlaintextModulus(BigBinaryInteger("4"));  	// Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
-	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
-
 	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
-	cryptoParams.SetDelta(delta);
-
-	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
-
-	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+			2, m, SECURE_PARAMS[input].modulus, SECURE_PARAMS[input].rootOfUnity,
+			relWindow, stdDev, delta.ToString());
+	cc.Enable(ENCRYPTION);
 
 	double diff, start, finish;
 
@@ -162,7 +154,7 @@ void NTRUPRE(int input) {
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(dgg, ilParams);
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -171,8 +163,7 @@ void NTRUPRE(int input) {
 	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
-	LPPublicKey<ILVector2n> pk(cryptoParams);
-	LPPrivateKey<ILVector2n> sk(cryptoParams);
+	LPKeyPair<ILVector2n> kp;
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -184,8 +175,6 @@ void NTRUPRE(int input) {
 
 
 	// size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeFV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
 	// algorithm.Enable(SHE);
 
 	bool successKeyGen=false;
@@ -194,7 +183,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	successKeyGen = algorithm.KeyGen(&pk,&sk);	// This is the core function call that generates the keys.
+	kp = cc.KeyGen();
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -205,7 +194,7 @@ void NTRUPRE(int input) {
 	//fout<< currentDateTime()  << " pk = "<<pk.GetPublicElement().GetValues()<<endl;
 	//fout<< currentDateTime()  << " sk = "<<sk.GetPrivateElement().GetValues()<<endl;
 
-	if (!successKeyGen) {
+	if (!kp.good()) {
 		std::cout<<"Key generation failed!"<<std::endl;
 		exit(1);
 	}
@@ -218,13 +207,13 @@ void NTRUPRE(int input) {
 	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
-	vector<Ciphertext<ILVector2n>> ciphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 	std::cout << "Running encryption..." << std::endl;
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::Encrypt(algorithm,pk,plaintext,&ciphertext,false);	// This is the core encryption operation.
+	ciphertext = cc.Encrypt(kp.publicKey, plaintext, false);	// This is the core encryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -242,7 +231,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm,sk,ciphertext,&plaintextNew,false);  // This is the core decryption operation.
+	DecryptResult result = cc.Decrypt(kp.secretKey,ciphertext,&plaintextNew,false);  // This is the core decryption operation.
 
 	finish = currentDateTime();
 	diff = finish - start;

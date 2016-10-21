@@ -74,8 +74,9 @@ namespace lbcrypto {
 			shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 				const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
-			bool EvalMultKeyGen(const LPPrivateKey<Element> &privateKey,
-				LPEvalKey<Element> *evalKey) const {
+			shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
+								const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+								const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 					std::string errMsg = "LPAlgorithmSHELTV::EvalMultKeyGen is not applicable for LTV SHE Scheme.";
 					throw std::runtime_error(errMsg);
 			}
@@ -116,9 +117,8 @@ namespace lbcrypto {
 			* @param &ciphertext2 the input ciphertext.
 			* @param *newCiphertext the new ciphertext.
 			*/
-			virtual void EvalSub(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext) const;
+			shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
 			/**
 			 * Function to generate key switch hint on a ciphertext.

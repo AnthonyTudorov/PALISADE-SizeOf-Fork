@@ -38,16 +38,7 @@
 #define LBCRYPTO_CRYPTO_FV_H
 
 //Includes Section
-#include "../utils/inttypes.h"
-#include "../math/distrgen.h"
-#include "../math/backend.h"
-#include "pubkeylp.h"
-#include "ciphertext.h"
-#include "../lattice/elemparams.h"
-#include "../lattice/ilparams.h"
-#include "../lattice/ilelement.h"
-
-#include "rlwe.h"
+#include "../palisade.h"
 
 /**
  * @namespace lbcrypto
@@ -90,7 +81,7 @@ namespace lbcrypto {
 			 * @param bigRootOfUnity root of unity for bigModulus
 			 * @param depth depth which is set to 1.
 			 */
-			LPCryptoParametersFV(ElemParams *params,
+			LPCryptoParametersFV(shared_ptr<ElemParams> params,
 				const BigBinaryInteger &plaintextModulus, 
 				float distributionParameter, 
 				float assuranceMeasure, 
@@ -278,9 +269,8 @@ namespace lbcrypto {
 		* @param &plaintext the plaintext input.
 		* @param *ciphertext ciphertext which results from encryption.
 		*/
-		EncryptResult Encrypt(const LPPublicKey<Element> &pubKey,
-			const Element &plaintext,
-			Ciphertext<Element> *ciphertext) const;
+		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
+			Element &plaintext) const;
 
 		/**
 		* Method for decrypting plaintext using FV
@@ -290,8 +280,8 @@ namespace lbcrypto {
 		* @param *plaintext the plaintext output.
 		* @return the decrypted plaintext returned.
 		*/
-		DecryptResult Decrypt(const LPPrivateKey<Element> &privateKey,
-			const Ciphertext<Element> &ciphertext,
+		DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			const shared_ptr<Ciphertext<Element>> ciphertext,
 			Element *plaintext) const;
 
 		/**
@@ -301,8 +291,7 @@ namespace lbcrypto {
 		* @param &privateKey private key used for decryption.
 		* @return function ran correctly.
 		*/
-		virtual bool KeyGen(LPPublicKey<Element> *publicKey,
-			LPPrivateKey<Element> *privateKey) const;
+		LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc) const;
 	};
 
 	/**
@@ -325,11 +314,11 @@ namespace lbcrypto {
 		* @param &ddg discrete Gaussian generator.
 		* @param *evalKey the evaluation key.
 		*/
-		bool EvalMultKeyGen(const LPPrivateKey<Element> &privateKey, LPEvalKey<Element> *ek) const;
+		shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
+					const shared_ptr<LPPrivateKey<Element>> k1,
+					const shared_ptr<LPPrivateKey<Element>> k2) const;
 		
-		void EvalMult(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext) const {
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2) const {
 					std::string errMsg = "LPAlgorithmSHEFV::EvalMult without RelinKey is not applicable for FV SHE Scheme.";
 					throw std::runtime_error(errMsg);
 		}
@@ -341,9 +330,7 @@ namespace lbcrypto {
 		* @param &ciphertext2 the input ciphertext.
 		* @param *newCiphertext the new ciphertext.
 		*/
-		void EvalAdd(const Ciphertext<Element> &ciphertext1,
-			const Ciphertext<Element> &ciphertext2,
-			Ciphertext<Element> *newCiphertext) const;
+		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct) const;
 
 		/**
 		* Function for homomorphic subtraction of ciphertexts.
@@ -352,9 +339,7 @@ namespace lbcrypto {
 		* @param &ciphertext2 the input ciphertext.
 		* @param *newCiphertext the new ciphertext.
 		*/
-		void EvalSub(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext) const;
+		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by key switching operation.
@@ -364,9 +349,8 @@ namespace lbcrypto {
 		* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
-		void EvalMult(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &ek,
-				Ciphertext<Element> *newCiphertext) const;
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1,
+				const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
 	};
 
 	/**

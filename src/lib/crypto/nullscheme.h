@@ -297,6 +297,10 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element>, public LPPublicKeyEnc
 		*/
 		LPAlgorithmSHENull(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 
+		shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
+					const shared_ptr<LPPrivateKey<Element>> k1,
+					const shared_ptr<LPPrivateKey<Element>> k2) const;
+
 		/**
 		 * Function for evaluating multiplication on ciphertext.
 		 *
@@ -327,6 +331,9 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element>, public LPPublicKeyEnc
 		 */
 
 		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2) const ;
+
+		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const ;
 
 		/**

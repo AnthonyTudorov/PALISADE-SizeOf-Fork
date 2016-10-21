@@ -1175,8 +1175,9 @@ namespace lbcrypto {
 	class LPSHEAlgorithm {
 		public:
 
-			virtual	bool EvalMultKeyGen(const LPPrivateKey<Element> &privateKey,
-			LPEvalKey<Element> *evalKey) const = 0;
+			virtual	shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
+					const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+					const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
 
 			/**
 			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext.
@@ -1198,9 +1199,8 @@ namespace lbcrypto {
 			* @param &ciphertext2 the input ciphertext.
 			* @param *newCiphertext the new ciphertext.
 			*/
-			virtual void EvalSub(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
 
 
 			/**
@@ -1453,10 +1453,11 @@ namespace lbcrypto {
 		}
 
 		//wrapper for reLinKeyGen method
-		bool EvalMultKeyGen(const LPPrivateKey<Element> &privateKey,
-			LPEvalKey<Element> *evalKey) const{
+		shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
+							const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+							const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 				if(this->IsEnabled(SHE))
-					return this->m_algorithmSHE->EvalMultKeyGen(privateKey,evalKey);
+					return this->m_algorithmSHE->EvalMultKeyGen(originalPrivateKey, newPrivateKey);
 				else {
 					throw std::logic_error("This operation is not supported");
 				}
@@ -1553,16 +1554,6 @@ namespace lbcrypto {
 						this->m_algorithmSHE->EvalMult(ciphertext1,ciphertext2, evalKey, newCiphertext);
 					else{
 						throw std::logic_error("This operation is not supported");
-					}
-		}
-
-		shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
-				const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-				const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
-					if(this->m_algorithmLeveledSHE)
-						return this->m_algorithmLeveledSHE->EvalMultKeyGen(originalPrivateKey, newPrivateKey);
-					else{
-						throw std::logic_error("EvalMultKeyGen operation has not been enabled");
 					}
 		}
 

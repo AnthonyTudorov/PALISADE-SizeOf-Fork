@@ -36,7 +36,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../../src/lib/encoding/byteplaintextencoding.h"
 #include "../../src/lib/encoding/intplaintextencoding.h"
-#include "../../src/lib/utils/cryptoutility.h"
 
 #include "../../src/lib/utils/debug.h"
 

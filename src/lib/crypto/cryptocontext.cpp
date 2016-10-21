@@ -122,6 +122,41 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 
 template <typename T>
 CryptoContext<T>
+CryptoContextFactory<T>::genCryptoContextFV(
+		const usint plaintextmodulus,
+		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
+		usint relinWindow, float stDev, const std::string& delta, int depth)
+{
+	CryptoContext<T>	item( new CryptoContextImpl<T>() );
+
+	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
+
+	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
+
+	LPCryptoParametersFV<T>* params =
+			new LPCryptoParametersFV<T>(ep,
+					BigBinaryInteger(plaintextmodulus),
+					stDev,
+					0.0, // assuranceMeasure,
+					0.0, // securityLevel,
+					relinWindow,
+					item.ctx->dgg,
+					BigBinaryInteger(delta),
+//					MODE mode,
+//					const BigBinaryInteger &bigModulus,
+//					const BigBinaryInteger &bigRootOfUnity,
+					RLWE, BigBinaryInteger::ZERO, BigBinaryInteger::ZERO,
+					depth);
+
+	item.ctx->params.reset( params );
+
+	item.ctx->scheme = new LPPublicKeyEncryptionSchemeLTV<T>();
+
+	return item;
+}
+
+template <typename T>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBV(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
@@ -214,197 +249,6 @@ CryptoContextFactory<T>::getCryptoContextNull(
 	item.ctx->scheme = new LPPublicKeyEncryptionSchemeNull<T>();
 
 	return item;
-}
-
-template <typename T>
-shared_ptr<LPPublicKey<T>>
-CryptoContext<T>::deserializePublicKey(const Serialized& serObj)
-{
-	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
-		return shared_ptr<LPPublicKey<T>>();
-	}
-
-	shared_ptr<LPPublicKey<T>> key( new LPPublicKey<T>(*this) );
-
-	if( key->Deserialize(serObj) )
-		return key;
-
-	return shared_ptr<LPPublicKey<T>>();
-}
-
-template <typename T>
-shared_ptr<LPPrivateKey<T>>
-CryptoContext<T>::deserializeSecretKey(const Serialized& serObj)
-{
-	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
-		return shared_ptr<LPPrivateKey<T>>();
-	}
-
-	shared_ptr<LPPrivateKey<T>> key( new LPPrivateKey<T>(*this) );
-
-	if( key->Deserialize(serObj) )
-		return key;
-
-	return shared_ptr<LPPrivateKey<T>>();
-}
-
-template <typename T>
-shared_ptr<Ciphertext<T>>
-CryptoContext<T>::deserializeCiphertext(const Serialized& serObj)
-{
-	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
-		return shared_ptr<Ciphertext<T>>();
-	}
-
-	shared_ptr<Ciphertext<T>> ctxt( new Ciphertext<T>(*this) );
-
-	if( ctxt->Deserialize(serObj) )
-		return ctxt;
-
-	return shared_ptr<Ciphertext<T>>();
-}
-
-// FIXME: this is temporary until we better incorporate DCRT
-template <typename T>
-shared_ptr<LPEvalKey<T>>
-CryptoContext<T>::deserializeEvalKey(const Serialized& serObj)
-{
-	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
-		return shared_ptr<LPEvalKeyNTRURelin<T>>();
-	}
-
-	//LPEvalKeyNTRURelin
-
-	shared_ptr<LPEvalKeyNTRURelin<T>> key( new LPEvalKeyNTRURelin<T>(*this) );
-
-	if( key->Deserialize(serObj) )
-		return key;
-
-	return shared_ptr<LPEvalKeyNTRURelin<T>>();
-}
-
-template <typename T>
-CryptoContextHandle<T>
-CryptoContextFactory<T>::genCryptoContextLTV(
-		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-		usint relinWindow, float stDev)
-{
-	CryptoContext<T>	item( new CryptoContextImpl<T>() );
-
-	item.ctx->ringdim = ringdim;
-
-	shared_ptr<ElemParams> ep( new ILParams(item.ctx->ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
-
-	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-
-	LPCryptoParametersLTV<T>* params = new LPCryptoParametersLTV<T>(
-			ep,
-			BigBinaryInteger(plaintextmodulus),
-			stDev, // distribution parameter
-			0.0, // assuranceMeasure,
-			0.0, // securityLevel,
-			relinWindow,
-			item.ctx->dgg,
-			depth);
-
-	item.ctx->params.reset( params );
-
-	item.ctx->scheme = new LPPublicKeyEncryptionSchemeLTV<T>();
-
-	return item;
-}
-
-template <typename T>
-CryptoContext<T>
-CryptoContextFactory<T>::genCryptoContextBV(
-		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-		usint relinWindow, float stDev)
-{
-	CryptoContext<T>	item( new CryptoContextImpl<T>() );
-
-	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
-
-	LPCryptoParametersBV<T>* params = new LPCryptoParametersBV<T>(
-		ep,
-		BigBinaryInteger(plaintextmodulus),
-		stDev,
-		0.0, // assuranceMeasure,
-		0.0, // securityLevel,
-		relinWindow,
-		item.ctx->dgg
-		);
-
-	item.ctx->params.reset( params );
-
-	item.ctx->scheme = new LPPublicKeyEncryptionSchemeBV<T>();
-
-	return item;
-}
-
-// FIXME: this is temporary until we better incorporate DCRT
-template <typename T>
-CryptoContext<T>
-CryptoContextFactory<T>::getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams)
-{
-	CryptoContext<T>	item( new CryptoContextImpl<T>() );
-
-	item.ctx->params.reset( cryptoParams );
-	item.ctx->scheme = new LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n>();
-
-	return item;
-}
-
-template <typename T>
-CryptoContext<T>
-CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
-		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-		usint relinWindow, float stDev, float stDevStSt)
-{
-	CryptoContext<T>	item( new CryptoContextImpl<T>() );
-
-	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
-
-	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-	item.ctx->dggStSt = DiscreteGaussianGenerator(stDevStSt);				// Create the noise generator
-
-	LPCryptoParametersStehleSteinfeld<T>* params = new LPCryptoParametersStehleSteinfeld<T>(
-			ep,
-			BigBinaryInteger(plaintextmodulus),
-			stDev,
-			0.0, // assuranceMeasure,
-			0.0, // securityLevel,
-			relinWindow,
-			item.ctx->dgg,
-			item.ctx->dggStSt,
-			stDevStSt
-			);
-
-	item.ctx->params.reset( params );
-
-	item.ctx->scheme = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>();
-
-	return item;
-}
-
-template <typename T>
-CryptoContext<T>
-CryptoContextFactory<T>::getCryptoContextNull()
-{
-	CryptoContext<T>	item( new CryptoContextImpl<T>() );
-
-	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
-
-	LPCryptoParametersNull<T>* params = new LPCryptoParametersNull<T>(ep, BigBinaryInteger(plaintextmodulus));
-
-	item.ctx->params.reset( params );
-
-	item.ctx->scheme = new LPPublicKeyEncryptionSchemeNull<T>();
-
-	return shared_ptr<LPEvalKeyNTRURelin<T>>();
 }
 
 template <typename T>

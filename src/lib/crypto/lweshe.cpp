@@ -100,17 +100,18 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
 }  
 
 template <class Element>
-void LPAlgorithmSHELTV<Element>::EvalSub(
-	const Ciphertext<Element> &ciphertext1,
-	const Ciphertext<Element> &ciphertext2,
-	Ciphertext<Element> *newCiphertext) const
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
+		const shared_ptr<Ciphertext<Element>> ciphertext1,
+						const shared_ptr<Ciphertext<Element>> ciphertext2) const
 {
-	if (!(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters()) || !(ciphertext1.GetCryptoParameters() == newCiphertext->GetCryptoParameters())) {
+	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
 		std::string errMsg = "EvalSub crypto parameters are not the same";
 		throw std::runtime_error(errMsg);
 	}
 
-	Element c1(ciphertext1.GetElement());
+	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>( ciphertext1->GetCryptoContext() ) );
+
+	Element c1(ciphertext1->GetElement());
 
 	Element c2(ciphertext2->GetElement());
 
@@ -118,6 +119,7 @@ void LPAlgorithmSHELTV<Element>::EvalSub(
 
 	newCiphertext->SetElement(cResult);
 
+	return newCiphertext;
 }
 
 
