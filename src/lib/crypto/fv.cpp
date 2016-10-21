@@ -61,7 +61,13 @@ bool LPAlgorithmParamsGenFV<Element>::ParamsGen(LPCryptoParameters<Element> *cry
 	double Berr = sigma*sqrt(alpha);
 
 	//Bound of the key polynomial
-	double Bkey = sigma*sqrt(alpha);
+	double Bkey;
+	
+	//supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+	if (cryptoParamsFV->GetMode() == RLWE)
+		Bkey = sigma*sqrt(alpha);
+	else
+		Bkey = 1;
 
 	//expansion factor delta
 	auto delta = [](uint32_t n) -> double { return sqrt(n); };
@@ -177,14 +183,25 @@ bool LPAlgorithmFV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	const DiscreteUniformGenerator dug(elementParams.GetModulus());
+	TernaryUniformGenerator tug;
 
 	//Generate the element "a" of the public key
 	Element a(dug, elementParams, Format::EVALUATION);
 
 	//Generate the secret key
-	//Done in two steps not to use a discrete Gaussian polynomial from a pre-computed pool
-	Element s(dgg, elementParams, Format::COEFFICIENT);
-	s.SwitchFormat();
+
+	Element s;
+
+	//Done in two steps not to use a random polynomial from a pre-computed pool
+	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+	if (cryptoParams->GetMode() == RLWE) {
+		s = Element(dgg, elementParams, Format::COEFFICIENT);
+		s.SwitchFormat();
+	}
+	else {
+		s = Element(tug, elementParams, Format::COEFFICIENT);
+		s.SwitchFormat();
+	}
 
 	privateKey->SetPrivateElement(s);
 
@@ -223,10 +240,19 @@ EncryptResult LPAlgorithmFV<Element>::Encrypt(const LPPublicKey<Element> &pubKey
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	const BigBinaryInteger &delta = cryptoParams->GetDelta();
 
+	TernaryUniformGenerator tug;
+
 	const Element &p0 = publicKey->GetPublicElements().at(0);
 	const Element &p1 = publicKey->GetPublicElements().at(1);
 
-	Element u(dgg, elementParams, Format::EVALUATION);
+	Element u;
+
+	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+	if (cryptoParams->GetMode()==RLWE)
+		u = Element(dgg, elementParams, Format::EVALUATION);
+	else
+		u = Element(tug, elementParams, Format::EVALUATION);
+
 	Element e1(dgg, elementParams, Format::EVALUATION);
 	Element e2(dgg, elementParams, Format::EVALUATION);
 

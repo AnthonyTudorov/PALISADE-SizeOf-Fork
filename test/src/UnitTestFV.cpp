@@ -87,6 +87,8 @@ TEST(UTFV, ILVector2n_FV_Encrypt_Decrypt) {
 	cryptoParams.SetRelinWindow(1);				// Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
 
+	//cryptoParams.SetMode(RLWE);
+
 	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
 	cryptoParams.SetDelta(delta);
 
@@ -420,5 +422,162 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 	plaintextNewMult.resize(plaintextMult.size());
 
 	EXPECT_EQ(plaintextMult, plaintextNewMult) << "FV.EvalMult gives incorrect results when parameters are generated on the fly by ParamsGen.\n";
+
+}
+
+//Tests ParamsGen, EvalAdd, EvalSub, and EvalMul operations for FV in the OPTIMIZED mode
+TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
+
+	usint relWindow = 1;
+	BigBinaryInteger plaintextModulus(BigBinaryInteger("64"));
+	float stdDev = 4;
+
+	//Set crypto parametes
+	LPCryptoParametersFV<ILVector2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(plaintextModulus);  	// Set plaintext modulus.
+	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
+	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
+	cryptoParams.SetMode(OPTIMIZED);
+	cryptoParams.SetSecurityLevel(1.006);
+	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);
+	cryptoParams.SetAssuranceMeasure(9);
+
+	LPPublicKeyEncryptionSchemeFV<ILVector2n> algorithm;
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(SHE);
+
+	algorithm.ParamsGen(&cryptoParams, 0, 1);
+
+	std::cout << "n = " << cryptoParams.GetElementParams().GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << log2(cryptoParams.GetElementParams().GetModulus().ConvertToDouble()) << std::endl;
+
+	// Initialize the public key containers.
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
+
+	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
+	IntPlaintextEncoding plaintext1(vectorOfInts1);
+
+	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
+	IntPlaintextEncoding plaintext2(vectorOfInts2);
+
+	std::vector<uint32_t> vectorOfIntsAdd = { 3,1,6,3,2,2,5,1 };
+	IntPlaintextEncoding plaintextAdd(vectorOfIntsAdd);
+
+	std::vector<uint32_t> vectorOfIntsSub = { 63,63,0,63,62,0,63,1 };
+	IntPlaintextEncoding plaintextSub(vectorOfIntsSub);
+
+	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
+	IntPlaintextEncoding plaintextMult(vectorOfIntsMult);
+
+	////////////////////////////////////////////////////////////
+	//Perform the key generation operation.
+	////////////////////////////////////////////////////////////
+
+	bool successKeyGen = false;
+
+	successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
+
+	if (!successKeyGen) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
+
+	////////////////////////////////////////////////////////////
+	//Encryption
+	////////////////////////////////////////////////////////////
+
+	vector<Ciphertext<ILVector2n>> ciphertext1;
+	vector<Ciphertext<ILVector2n>> ciphertext2;
+
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext1, &ciphertext1, true);
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext2, &ciphertext2, true);
+
+	////////////////////////////////////////////////////////////
+	//EvalAdd Operation
+	////////////////////////////////////////////////////////////
+
+	vector<Ciphertext<ILVector2n>> ciphertextAdd;
+
+	//YSP this is a workaround for now - I think we need to change EvalAdd to do this automatically
+	Ciphertext<ILVector2n> ciphertextTemp(ciphertext1[0]);
+
+	//YSP this needs to be switched to the CryptoUtility operation
+	algorithm.EvalAdd(ciphertext1[0], ciphertext2[0], &ciphertextTemp);
+
+	ciphertextAdd.push_back(ciphertextTemp);
+
+	IntPlaintextEncoding plaintextNew;
+
+	////////////////////////////////////////////////////////////
+	//Decryption after EvalAdd Operation
+	////////////////////////////////////////////////////////////
+
+	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertextAdd, &plaintextNew, true);  // This is the core decryption operation.
+
+																												   //this step is needed because there is no marker for padding in the case of IntPlaintextEncoding
+	plaintextNew.resize(plaintextAdd.size());
+
+	EXPECT_EQ(plaintextAdd, plaintextNew) << "FVOptimized.EvalAdd gives incorrect results.\n";
+
+	////////////////////////////////////////////////////////////
+	//EvalSub Operation
+	////////////////////////////////////////////////////////////
+
+	vector<Ciphertext<ILVector2n>> ciphertextSub;
+
+	//YSP this is a workaround for now - I think we need to change EvalAdd to do this automatically
+	Ciphertext<ILVector2n> ciphertextTempSub(ciphertext1[0]);
+
+	//YSP this needs to be switched to the CryptoUtility operation
+	algorithm.EvalSub(ciphertext1[0], ciphertext2[0], &ciphertextTempSub);
+
+	ciphertextSub.push_back(ciphertextTempSub);
+
+	IntPlaintextEncoding plaintextNewSub;
+
+	////////////////////////////////////////////////////////////
+	//Decryption after EvalAdd Operation
+	////////////////////////////////////////////////////////////
+
+	result = CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertextSub, &plaintextNewSub, true);  // This is the core decryption operation.
+
+																										//this step is needed because there is no marker for padding in the case of IntPlaintextEncoding
+	plaintextNewSub.resize(plaintextSub.size());
+
+	EXPECT_EQ(plaintextSub, plaintextNewSub) << "FVOptimized.EvalSub gives incorrect results.\n";
+
+
+	////////////////////////////////////////////////////////////
+	//EvalMult Operation
+	////////////////////////////////////////////////////////////
+
+	LPEvalKeyRelin<ILVector2n> evalKey(cryptoParams);
+
+	//generate the evaluate key
+	algorithm.EvalMultKeyGen(sk, &evalKey);
+
+	vector<Ciphertext<ILVector2n>> ciphertextMult;
+
+	//YSP this is a workaround for now - I think we need to change EvalAdd to do this automatically
+	Ciphertext<ILVector2n> ciphertextTempMult(ciphertext1[0]);
+
+	//YSP this needs to be switched to the CryptoUtility operation
+	algorithm.EvalMult(ciphertext1[0], ciphertext2[0], evalKey, &ciphertextTempMult);
+
+	ciphertextMult.push_back(ciphertextTempMult);
+
+	IntPlaintextEncoding plaintextNewMult;
+
+	////////////////////////////////////////////////////////////
+	//Decryption after EvalMult Operation
+	////////////////////////////////////////////////////////////
+
+	result = CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertextMult, &plaintextNewMult, true);  // This is the core decryption operation.	
+																										  //this step is needed because there is no marker for padding in the case of IntPlaintextEncoding
+	plaintextNewMult.resize(plaintextMult.size());
+
+	EXPECT_EQ(plaintextMult, plaintextNewMult) << "FVOptimized.EvalMult gives incorrect results.\n";
 
 }

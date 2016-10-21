@@ -67,7 +67,12 @@ namespace lbcrypto {
 			/**
 			 * Constructor that initializes all values to 0.
 			 */
-			LPCryptoParametersFV() : LPCryptoParametersRLWE<Element>() {}
+			LPCryptoParametersFV() : LPCryptoParametersRLWE<Element>() {
+				m_delta = BigBinaryInteger::ZERO;
+				m_mode = RLWE;
+				m_bigModulus = BigBinaryInteger::ZERO;
+				m_bigRootOfUnity = BigBinaryInteger::ZERO;
+			}
 
 			/**
 			 * Copy constructor.
