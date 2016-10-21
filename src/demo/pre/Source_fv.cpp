@@ -43,6 +43,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
 #include "../../lib/encoding/byteplaintextencoding.h"
+#include "../../lib/encoding/intplaintextencoding.h"
 #include "../../lib/utils/cryptoutility.h"
 
 #include "../../lib/utils/debug.h"
@@ -50,6 +51,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 using namespace lbcrypto;
 void NTRUPRE(int input);
+void EvalMul();
 //double currentDateTime();
 
 /**
@@ -80,6 +82,8 @@ int main() {
 	////NTRUPRE is where the core functionality is provided.
 	NTRUPRE(input);
 	//NTRUPRE(3);
+
+	EvalMul();
 	
 	std::cin.get();
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
@@ -269,4 +273,132 @@ void NTRUPRE(int input) {
 	std::cout << "Execution completed." << std::endl;
 
 	fout.close();
+}
+
+void EvalMul() {
+
+	cout << "\nStarting Eval Mult demo " << endl;
+
+	usint relWindow = 16;
+	BigBinaryInteger plaintextModulus(BigBinaryInteger("4"));
+	float stdDev = 4;
+
+	//Set crypto parametes
+	LPCryptoParametersFV<ILVector2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(plaintextModulus);  	// Set plaintext modulus.
+	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
+	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
+	cryptoParams.SetMode(RLWE);
+	cryptoParams.SetSecurityLevel(1.006);
+	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
+	cryptoParams.SetDiscreteGaussianGenerator(dgg);
+	cryptoParams.SetAssuranceMeasure(9);
+
+	LPPublicKeyEncryptionSchemeFV<ILVector2n> algorithm;
+	algorithm.Enable(ENCRYPTION);
+	algorithm.Enable(SHE);
+
+	double diff, start, finish;
+
+	start = currentDateTime();
+
+	algorithm.ParamsGen(&cryptoParams, 0, 1);
+
+	finish = currentDateTime();
+	diff = finish - start;
+
+	cout << "Parameter generation time: " << "\t" << diff << " ms" << endl;
+
+	std::cout << "n = " << cryptoParams.GetElementParams().GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << log2(cryptoParams.GetElementParams().GetModulus().ConvertToDouble()) << std::endl;
+
+	// Initialize the public key containers.
+	LPPublicKey<ILVector2n> pk(cryptoParams);
+	LPPrivateKey<ILVector2n> sk(cryptoParams);
+
+	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
+	IntPlaintextEncoding plaintext1(vectorOfInts1);
+
+	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
+	IntPlaintextEncoding plaintext2(vectorOfInts2);
+
+	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 1, 3, 0, 0, 0, 0, 3, 0, 3, 3, 3, 3 };
+	IntPlaintextEncoding plaintextMult(vectorOfIntsMult);
+
+	////////////////////////////////////////////////////////////
+	//Perform the key generation operation.
+	////////////////////////////////////////////////////////////
+
+	bool successKeyGen = false;
+
+	successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
+
+	if (!successKeyGen) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
+
+	////////////////////////////////////////////////////////////
+	//Encryption
+	////////////////////////////////////////////////////////////
+
+	vector<Ciphertext<ILVector2n>> ciphertext1;
+	vector<Ciphertext<ILVector2n>> ciphertext2;
+
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext2, &ciphertext2, true);
+
+	start = currentDateTime();
+
+	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, plaintext1, &ciphertext1, true);
+
+	finish = currentDateTime();
+	diff = finish - start;
+
+	cout << "Encryption execution time: " << "\t" << diff << " ms" << endl;
+
+	////////////////////////////////////////////////////////////
+	//EvalMult Operation
+	////////////////////////////////////////////////////////////
+
+	LPEvalKeyRelin<ILVector2n> evalKey(cryptoParams);
+
+	//generate the evaluate key
+	algorithm.EvalMultKeyGen(sk, &evalKey);
+
+	vector<Ciphertext<ILVector2n>> ciphertextMult;
+
+	//YSP this is a workaround for now - I think we need to change EvalAdd to do this automatically
+	Ciphertext<ILVector2n> ciphertextTempMult(ciphertext1[0]);
+
+	start = currentDateTime();
+
+	//YSP this needs to be switched to the CryptoUtility operation
+	algorithm.EvalMult(ciphertext1[0], ciphertext2[0], evalKey, &ciphertextTempMult);
+
+	finish = currentDateTime();
+	diff = finish - start;
+
+	cout << "EvalMult execution time: " << "\t" << diff << " ms" << endl;
+
+
+	ciphertextMult.push_back(ciphertextTempMult);
+
+	IntPlaintextEncoding plaintextNewMult;
+
+	////////////////////////////////////////////////////////////
+	//Decryption after EvalMult Operation
+	////////////////////////////////////////////////////////////
+
+	start = currentDateTime();
+
+	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertextMult, &plaintextNewMult, true);  // This is the core decryption operation.	
+																														//this step is needed because there is no marker for padding in the case of IntPlaintextEncoding
+	finish = currentDateTime();
+	diff = finish - start;
+
+	cout << "Decryption execution time: " << "\t" << diff << " ms" << endl;
+
+	plaintextNewMult.resize(plaintextMult.size());
+
+
 }
