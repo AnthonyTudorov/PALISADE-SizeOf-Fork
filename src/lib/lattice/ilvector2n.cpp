@@ -35,6 +35,9 @@ namespace lbcrypto {
 	std::vector<ILVector2n> ILVector2n::m_dggSamples;
 	ILParams ILVector2n::m_dggSamples_params;
 
+	std::vector<ILVector2n> ILVector2n::m_tugSamples;
+	ILParams ILVector2n::m_tugSamples_params;
+
 	ILVector2n::ILVector2n() :m_values(NULL), m_format(EVALUATION),m_empty(true) {
 	}
 
@@ -104,6 +107,30 @@ namespace lbcrypto {
 
 		if (format == EVALUATION)
 			this->SwitchFormat();
+	}
+
+	ILVector2n::ILVector2n(const TernaryUniformGenerator &tug, const ElemParams &params, Format format) {
+
+		m_params = dynamic_cast<const ILParams&>(params);
+
+		if (format == COEFFICIENT)
+		{
+			//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
+			usint vectorSize = params.GetCyclotomicOrder() / 2;
+			m_values = new BigBinaryVector(tug.GenerateVector(vectorSize, params.GetModulus()));
+			(*m_values).SetModulus(params.GetModulus());
+			m_format = COEFFICIENT;
+		}
+		else
+		{
+			PreComputeTugSamples(tug, m_params);
+
+			const ILVector2n randomElement = GetPrecomputedTugVector(m_params);
+			m_values = new BigBinaryVector(*randomElement.m_values);
+
+			(*m_values).SetModulus(params.GetModulus());
+			m_format = EVALUATION;
+		}
 	}
 
 	ILVector2n::ILVector2n(const ILVector2n &element) : m_params(element.m_params), m_format(element.m_format)
@@ -613,6 +640,34 @@ namespace lbcrypto {
 		int randomIndex = rand() % SAMPLE_SIZE;
 		return m_dggSamples[randomIndex];
 	}
+
+	void ILVector2n::PreComputeTugSamples(const TernaryUniformGenerator &tug, const ILParams &params) {
+		if (m_tugSamples.size() == 0 || m_tugSamples_params != params)
+		{
+			DestroyPreComputedSamples();
+			m_tugSamples_params = params;
+			for (usint i = 0; i < m_sampleSize; ++i)
+			{
+				ILVector2n current(m_tugSamples_params);
+				usint vectorSize = m_tugSamples_params.GetCyclotomicOrder() / 2;
+				current.m_values = new BigBinaryVector(tug.GenerateVector(vectorSize, m_tugSamples_params.GetModulus()));
+				current.m_values->SetModulus(m_tugSamples_params.GetModulus());
+				current.m_format = COEFFICIENT;
+
+				current.SwitchFormat();
+
+				m_tugSamples.push_back(current);
+			}
+		}
+	}
+
+	//Select a precomputed vector randomly
+	const ILVector2n ILVector2n::GetPrecomputedTugVector(const ILParams &params) {
+
+		int randomIndex = rand() % SAMPLE_SIZE;
+		return m_tugSamples[randomIndex];
+	}
+
 
 	// JSON FACILITY - Serialize Operation
 	bool ILVector2n::Serialize(Serialized* serObj, const std::string) const {
