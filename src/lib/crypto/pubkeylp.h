@@ -1504,12 +1504,11 @@ namespace lbcrypto {
 					}
 		}
 
-		void EvalSub(const Ciphertext<Element> &ciphertext1,
-			const Ciphertext<Element> &ciphertext2,
-			Ciphertext<Element> *newCiphertext) const {
+		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 
 			if (this->m_algorithmSHE)
-				this->m_algorithmSHE->EvalSub(ciphertext1, ciphertext2, newCiphertext);
+				return this->m_algorithmSHE->EvalSub(ciphertext1, ciphertext2);
 			else {
 				throw std::logic_error("EvalSub operation has not been enabled");
 			}
@@ -1546,12 +1545,11 @@ namespace lbcrypto {
 		}
 
 		//wrapper for EvalMult method
-		void EvalMult(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &evalKey,
-				Ciphertext<Element> *newCiphertext) const {
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> evalKey) const {
 					
 					if(this->IsEnabled(SHE))
-						this->m_algorithmSHE->EvalMult(ciphertext1,ciphertext2, evalKey, newCiphertext);
+						return this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2, evalKey);
 					else{
 						throw std::logic_error("This operation is not supported");
 					}

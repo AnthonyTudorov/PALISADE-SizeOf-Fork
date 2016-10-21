@@ -432,12 +432,30 @@ public:
 	}
 
 	shared_ptr<Ciphertext<Element>>
+	EvalSub(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2)
+	{
+		if( ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
+
+		return GetEncryptionAlgorithm().EvalSub(ct1, ct2);
+	}
+
+	shared_ptr<Ciphertext<Element>>
 	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2)
 	{
 		if( ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
 
 		return GetEncryptionAlgorithm().EvalMult(ct1, ct2);
+	}
+
+	shared_ptr<Ciphertext<Element>>
+	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2, const shared_ptr<LPEvalKey<Element>> ek)
+	{
+		if( ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this || ek->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
+
+		return GetEncryptionAlgorithm().EvalMult(ct1, ct2, ek);
 	}
 
 	/**
@@ -569,7 +587,8 @@ public:
 	static CryptoContext<Element> genCryptoContextFV(
 			const usint plaintextmodulus,
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-			usint relinWindow, float stDev, const std::string& delta, int depth = 1);
+			usint relinWindow, float stDev, const std::string& delta,
+			MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0", int depth = 1, int assuranceMeasure = 0);
 
 	static CryptoContext<Element> genCryptoContextBV(
 			const usint plaintextmodulus,

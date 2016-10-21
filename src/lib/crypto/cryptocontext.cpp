@@ -125,7 +125,8 @@ CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextFV(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-		usint relinWindow, float stDev, const std::string& delta, int depth)
+		usint relinWindow, float stDev, const std::string& delta,
+		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure)
 {
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
@@ -137,20 +138,19 @@ CryptoContextFactory<T>::genCryptoContextFV(
 			new LPCryptoParametersFV<T>(ep,
 					BigBinaryInteger(plaintextmodulus),
 					stDev,
-					0.0, // assuranceMeasure,
+					assuranceMeasure,
 					0.0, // securityLevel,
 					relinWindow,
 					item.ctx->dgg,
 					BigBinaryInteger(delta),
-//					MODE mode,
-//					const BigBinaryInteger &bigModulus,
-//					const BigBinaryInteger &bigRootOfUnity,
-					RLWE, BigBinaryInteger::ZERO, BigBinaryInteger::ZERO,
+					mode,
+					BigBinaryInteger(bigmodulus),
+					BigBinaryInteger(bigrootofunity),
 					depth);
 
 	item.ctx->params.reset( params );
 
-	item.ctx->scheme = new LPPublicKeyEncryptionSchemeLTV<T>();
+	item.ctx->scheme = new LPPublicKeyEncryptionSchemeFV<T>();
 
 	return item;
 }

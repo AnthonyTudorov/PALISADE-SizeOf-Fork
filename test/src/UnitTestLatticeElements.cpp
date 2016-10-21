@@ -182,13 +182,13 @@ TEST(UTILVector2n, rounding_operations) {
 	BigBinaryInteger primitiveRootOfUnity("22");
 	BigBinaryInteger p("8");
 
-	ILParams ilparams(m, q, primitiveRootOfUnity);
+	shared_ptr<ILParams> ilparams( new ILParams(m, q, primitiveRootOfUnity) );
 
 	//temporary larger modulus that is used for polynomial multiplication before rounding
 	BigBinaryInteger q2("16417");
 	BigBinaryInteger primitiveRootOfUnity2("13161");
 
-	ILParams ilparams2(m, q2, primitiveRootOfUnity2);
+	shared_ptr<ILParams> ilparams2( new ILParams(m, q2, primitiveRootOfUnity2) );
 
 	//ilparams = ilparams2;
 
