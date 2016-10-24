@@ -117,7 +117,7 @@ namespace lbcrypto {
          */
         inline static function<unique_ptr<ILVector2n>()> MakeAllocator(shared_ptr<ILParams> params, Format format) {
             return [=]() {
-                return make_unique<ILVector2n>(params, format, true);
+                return lbcrypto::make_unique<ILVector2n>(params, format, true);
             };
         }
 
@@ -131,7 +131,7 @@ namespace lbcrypto {
             	if( ip == 0 )
             		throw std::logic_error("MakeAllocator was not passed an ILParams");
             	shared_ptr<ILParams> pcast( ip );
-				return make_unique<ILVector2n>(pcast, format, true);
+				return lbcrypto::make_unique<ILVector2n>(pcast, format, true);
             };
         }
 
@@ -146,7 +146,7 @@ namespace lbcrypto {
         inline static function<unique_ptr<ILVector2n>()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<ILParams> params, Format resultFormat, int stddev) {
             return [=]() {
                 DiscreteGaussianGenerator dgg(stddev);
-                auto ilvec = make_unique<ILVector2n>(dgg, params, COEFFICIENT);
+                auto ilvec = lbcrypto::make_unique<ILVector2n>(dgg, params, COEFFICIENT);
                 ilvec->SetFormat(resultFormat);
                 return ilvec;
             };
@@ -162,7 +162,7 @@ namespace lbcrypto {
         inline static function<unique_ptr<ILVector2n>()> MakeDiscreteUniformAllocator(shared_ptr<ILParams> params, Format format) {
             return [=]() {
                 DiscreteUniformGenerator dug(params->GetModulus());
-                return make_unique<ILVector2n>(dug, params, format);
+                return lbcrypto::make_unique<ILVector2n>(dug, params, format);
             };
         }
 
