@@ -55,11 +55,12 @@ namespace lbcrypto {
 
 		public:
 		friend std::ostream& operator<<(std::ostream& o, const LPCryptoParametersFV& f) {
-			o << f.GetPlaintextModulus() << ","
+			o << *f.GetElementParams() << "::::";
+			o << "ptm=" << f.GetPlaintextModulus() << ","
 					<< f.GetDistributionParameter() << ","
 					<< f.GetAssuranceMeasure() << ","
 					<< f.GetSecurityLevel() << ","
-					<< f.GetRelinWindow() << ","
+					<< "relwin=" << f.GetRelinWindow() << ","
 					<< f.m_delta << ","
 					<< f.m_mode << ","
 					<< f.m_bigModulus << ","

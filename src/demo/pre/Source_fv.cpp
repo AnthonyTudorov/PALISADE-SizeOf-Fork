@@ -181,8 +181,6 @@ void NTRUPRE(int input) {
 	// size_t chunksize = ((m / 2) / 8);
 	// algorithm.Enable(SHE);
 
-	bool successKeyGen=false;
-
 	std::cout <<"\n" <<  "Running key generation..." << std::endl;
 
 	start = currentDateTime();
@@ -207,6 +205,8 @@ void NTRUPRE(int input) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
+	cout << plaintext.size() << endl;
+
 	// Begin the initial encryption operation.
 	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
@@ -218,6 +218,8 @@ void NTRUPRE(int input) {
 	start = currentDateTime();
 
 	ciphertext = cc.Encrypt(kp.publicKey, plaintext, false);	// This is the core encryption operation.
+
+	cout << ciphertext.size() << endl;
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -236,6 +238,9 @@ void NTRUPRE(int input) {
 	start = currentDateTime();
 
 	DecryptResult result = cc.Decrypt(kp.secretKey,ciphertext,&plaintextNew,false);  // This is the core decryption operation.
+
+	cout << result.isValid << ":" << result.messageLength << endl;
+	cout << plaintextNew.size() << endl;
 
 	finish = currentDateTime();
 	diff = finish - start;
