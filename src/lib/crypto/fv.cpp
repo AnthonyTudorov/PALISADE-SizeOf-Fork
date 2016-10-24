@@ -84,11 +84,9 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> c
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersFV<Element>>(cc.GetCryptoParameters());
 
-	if( cryptoParams == 0 )
-		throw std::logic_error("Wrong type for crypto parameters in LPAlgorithmFV<Element>::KeyGen");
-
 	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+	std::cout << *elementParams << ":" << p << std::endl;
 
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	const DiscreteUniformGenerator dug(elementParams->GetModulus());
@@ -167,12 +165,24 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Elem
 
 	Element b = c[0] + s*c[1];
 
+	for(int i=0;i<20;i++)
+		std::cout << b.GetValAtIndex(i) << ":";
+	std::cout << std::endl;
+
 	b.SwitchFormat();
 
 	b = b.MultiplyAndRound(p, q);
 	
-	*plaintext = b;
+	for(int i=0;i<20;i++)
+		std::cout << b.GetValAtIndex(i) << ":";
+	std::cout << std::endl;
+	//*plaintext = b;
 
+	*plaintext = b.SignedMod(p);
+
+	for(int i=0;i<20;i++)
+		std::cout << plaintext->GetValAtIndex(i) << ":";
+	std::cout << std::endl;
 	return DecryptResult(plaintext->GetLength());
 }
 
