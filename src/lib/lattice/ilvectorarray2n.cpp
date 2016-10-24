@@ -97,8 +97,10 @@ namespace lbcrypto {
 	/* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArray2n will be derived from the towers.*/
 	ILVectorArray2n::ILVectorArray2n(const std::vector<ILVector2n> &towers)
 	{
+		std::cout<<towers.size()<<std::endl;
 		usint ringDimension = towers.at(0).GetCyclotomicOrder() / 2;
 		for (usint i = 0; i < towers.size(); i++) {
+			std::cout << i << "," << (towers.at(i).GetCyclotomicOrder() / 2) << std::endl;
 			if (!(towers.at(i).GetCyclotomicOrder() / 2 == ringDimension)) {
 				throw std::logic_error("ILVectors provided to ILVectorArray2n do not have the same parameters. Throwing error.");
 			}

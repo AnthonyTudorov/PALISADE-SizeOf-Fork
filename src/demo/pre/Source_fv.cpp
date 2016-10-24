@@ -144,6 +144,10 @@ void NTRUPRE(int input) {
 			relWindow, stdDev, delta.ToString());
 	cc.Enable(ENCRYPTION);
 
+	LPCryptoParametersFV<ILVector2n> *p = (LPCryptoParametersFV<ILVector2n> *)cc.GetCryptoParameters().get();
+
+	std::cout << (*p) << std::endl;
+
 	double diff, start, finish;
 
 	start = currentDateTime();

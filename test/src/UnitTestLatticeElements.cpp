@@ -777,6 +777,7 @@ TEST(UTILVector2n, cyclotomicOrder_test) {
 }
 
 TEST(UTILVectorArray2n, constructors_test) {
+	  bool dbg_flag = true;
   usint m = 8;
   usint towersize = 3;
 
@@ -816,6 +817,7 @@ TEST(UTILVectorArray2n, constructors_test) {
   ilvector2nVector[1] = ilv1;
   ilvector2nVector[2] = ilv2;
 
+  DEBUG("1");
   float stdDev = 4.0;
   DiscreteGaussianGenerator dgg(stdDev);
 
@@ -828,6 +830,7 @@ TEST(UTILVectorArray2n, constructors_test) {
     EXPECT_EQ(towersize, ilva.GetNumOfElements());
   }
 
+  DEBUG("2");
   {
     ILVectorArray2n ilva(ilvector2nVector);
     
@@ -837,6 +840,7 @@ TEST(UTILVectorArray2n, constructors_test) {
     EXPECT_EQ(m, ilva.GetCyclotomicOrder());
     EXPECT_EQ(towersize, ilva.GetNumOfElements());
 
+    DEBUG("2.1");
 	std::vector<ILVector2n> ilvector2nVectorInconsistent(towersize);
 	shared_ptr<ILParams> ilparamsNegativeTestCase( new ILParams(128, BigBinaryInteger("1231"), BigBinaryInteger("213")) );
 	ILVector2n ilvNegative(ilparamsNegativeTestCase);
@@ -844,9 +848,11 @@ TEST(UTILVectorArray2n, constructors_test) {
 	ilvector2nVectorInconsistent[1] = ilv1;
 	ilvector2nVectorInconsistent[2] = ilv2;
 
+    DEBUG("2.2");
 	EXPECT_THROW(testILVectorArray2nConstructorNegative(ilvector2nVectorInconsistent), std::logic_error);
   }
 
+  DEBUG("3");
   {
     ILVectorArray2n ilva(ilv0, ildcrtparams);
 
@@ -860,6 +866,7 @@ TEST(UTILVectorArray2n, constructors_test) {
     }
   }
 
+  DEBUG("4");
   {
     ILVectorArray2n ilva0;
     ILVectorArray2n ilva1(ildcrtparams);
@@ -899,6 +906,7 @@ TEST(UTILVectorArray2n, constructors_test) {
     }
   }
 
+  DEBUG("5");
   {
     ILVectorArray2n ilva(dgg, ildcrtparams);
 
@@ -908,6 +916,7 @@ TEST(UTILVectorArray2n, constructors_test) {
     EXPECT_EQ(towersize, ilva.GetNumOfElements());
   }
 
+  DEBUG("6");
   {
     ILVectorArray2n ilva(ilv0, ildcrtparams);
     ILVectorArray2n ilvaClone(ilva.CloneWithParams());

@@ -80,7 +80,6 @@ bool LPAlgorithmParamsGenFV<Element>::ParamsGen(LPCryptoParameters<Element> *cry
 template <class Element>
 LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> cc) const
 {
-
 	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersFV<Element>>(cc.GetCryptoParameters());
@@ -122,6 +121,7 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
 		Element &plaintext) const
 {
+	std::cout << "FV Encrypt" << std::endl;
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(publicKey->GetCryptoContext()) );
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersFV<Element>>(publicKey->GetCryptoParameters());
@@ -155,7 +155,7 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Elem
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		Element *plaintext) const
 {
-
+	std::cout << "FV Decrypt" << std::endl;
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
 	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();

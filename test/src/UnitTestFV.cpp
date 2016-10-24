@@ -146,7 +146,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
 			64, m, modulus.ToString(), rootOfUnity.ToString(),
-			1, stdDev, delta.ToString(), RLWE, bigModulus.ToString(), bigRootOfUnity.ToString(), 1, 9);
+			1, stdDev, delta.ToString(), RLWE, bigModulus.ToString(), bigRootOfUnity.ToString(), 0, 9);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 

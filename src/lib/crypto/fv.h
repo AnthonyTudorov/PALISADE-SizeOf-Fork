@@ -54,6 +54,19 @@ namespace lbcrypto {
 	class LPCryptoParametersFV : public LPCryptoParametersRLWE<Element> {
 
 		public:
+		friend std::ostream& operator<<(std::ostream& o, const LPCryptoParametersFV& f) {
+			o << f.GetPlaintextModulus() << ","
+					<< f.GetDistributionParameter() << ","
+					<< f.GetAssuranceMeasure() << ","
+					<< f.GetSecurityLevel() << ","
+					<< f.GetRelinWindow() << ","
+					<< f.m_delta << ","
+					<< f.m_mode << ","
+					<< f.m_bigModulus << ","
+					<< f.m_bigRootOfUnity << ","
+					<< f.GetDepth();
+			return o;
+		}
 			
 			/**
 			 * Constructor that initializes all values to 0.
