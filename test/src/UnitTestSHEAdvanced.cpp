@@ -270,7 +270,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 //	usint size = finalParams.GetDepth() + 1;
 //	const BigBinaryInteger &plainTextModulus = finalParams.GetPlaintextModulus();
 
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&finalParams);
 	//scheme initialization: LTV Scheme
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
