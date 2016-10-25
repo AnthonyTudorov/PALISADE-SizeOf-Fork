@@ -126,7 +126,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev, const std::string& delta,
-		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure)
+		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel)
 {
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
@@ -139,7 +139,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 					BigBinaryInteger(plaintextmodulus),
 					stDev,
 					assuranceMeasure,
-					0.0, // securityLevel,
+					securityLevel,
 					relinWindow,
 					item.ctx->dgg,
 					BigBinaryInteger(delta),

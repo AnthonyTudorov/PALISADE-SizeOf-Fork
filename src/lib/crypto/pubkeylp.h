@@ -975,7 +975,7 @@ namespace lbcrypto {
 		* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
 		* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
 		*/
-		virtual bool ParamsGen(LPCryptoParameters<Element> *cryptoParams, int32_t evalAddCount = 0, 
+		virtual bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
 			int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const = 0;
 
 	};
@@ -1399,7 +1399,7 @@ namespace lbcrypto {
 		// wrapper for LPParameterSelectionAlgorithm
 		//
 
-		bool ParamsGen(LPCryptoParameters<Element> *cryptoParams, int32_t evalAddCount = 0,
+		bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
 			int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const {
 			if (this->m_algorithmParamsGen) {
 				return this->m_algorithmParamsGen->ParamsGen(cryptoParams, evalAddCount, evalMultCount, keySwitchCount);

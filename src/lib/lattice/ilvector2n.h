@@ -59,9 +59,9 @@ namespace lbcrypto {
 
 	const usint SAMPLE_SIZE = 30; //!< @brief The maximum number of samples used for random variable sampling.
 
-								  /**
-								  * @brief Ideal lattice in vector representation or a vector in the double-CRT "matrix".  This is not fully implemented and is currently only stubs.
-								  */
+	/**
+	* @brief Ideal lattice in vector representation or a vector in the double-CRT "matrix".  This is not fully implemented and is currently only stubs.
+	*/
 	//JSON FACILITY
 	class ILVector2n : public ILElement
 	{
@@ -96,11 +96,20 @@ namespace lbcrypto {
 		/**
 		* Constructor based on full methods.
 		*
-		* @param &dbg the input Binary Uniform Generator.
+		* @param &bug the input Binary Uniform Generator.
 		* @param &params the input params.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVector2n(const BinaryUniformGenerator &bug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
+
+		/**
+		* Constructor based on full methods.
+		*
+		* @param &tug the input Ternary Uniform Generator.
+		* @param &params the input params.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVector2n(const TernaryUniformGenerator &tug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 
 		/**
 		* Constructor based on full methods.
@@ -650,10 +659,25 @@ namespace lbcrypto {
 		static void PreComputeDggSamples(const DiscreteGaussianGenerator &dgg, const shared_ptr<ILParams> params);
 
 		/**
+		* Pre computes the Tug samples.
+		*
+		* @param &tug the ternary uniform generator.
+		* @param &params are the relevant ring parameters.
+		*/
+		static void PreComputeTugSamples(const TernaryUniformGenerator &tug, const shared_ptr<ILParams> params);
+
+		/**
 		* Clear the pre-computed discrete Gaussian samples.
 		*/
 		static void DestroyPreComputedSamples() {
 			m_dggSamples.clear();
+		}
+
+		/**
+		* Clear the pre-computed ternary uniform samples.
+		*/
+		static void DestroyPreComputedTugSamples() {
+			m_tugSamples.clear();
 		}
 
 		//JSON FACILITY
@@ -690,6 +714,9 @@ namespace lbcrypto {
 		static std::vector<ILVector2n> m_dggSamples;
 		static shared_ptr<ILParams> m_dggSamples_params;
 
+		// static variables to store pre-computed samples and the parms that went with them
+		static std::vector<ILVector2n> m_tugSamples;
+		static shared_ptr<ILParams> m_tugSamples_params;
 
 		// static variable to store the sample size for each set of ILParams
 		static const usint m_sampleSize = SAMPLE_SIZE;
@@ -698,6 +725,9 @@ namespace lbcrypto {
 
 		// gets a random discrete Gaussian polynomial
 		static const ILVector2n GetPrecomputedVector();
+
+		// gets a random polynomial generated using ternary uniform distribution
+		static const ILVector2n GetPrecomputedTugVector();
 	};
 
 	// overloaded operators for ILVector2n

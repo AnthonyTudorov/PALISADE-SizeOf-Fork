@@ -57,7 +57,12 @@ namespace lbcrypto {
 			/**
 			 * Constructor that initializes all values to 0.
 			 */
-			LPCryptoParametersFV() : LPCryptoParametersRLWE<Element>() {}
+			LPCryptoParametersFV() : LPCryptoParametersRLWE<Element>() {
+				m_delta = BigBinaryInteger::ZERO;
+				m_mode = RLWE;
+				m_bigModulus = BigBinaryInteger::ZERO;
+				m_bigRootOfUnity = BigBinaryInteger::ZERO;
+			}
 
 			/**
 			 * Copy constructor.
@@ -244,7 +249,7 @@ namespace lbcrypto {
 		* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
 		* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
 		*/
-		bool ParamsGen(LPCryptoParameters<Element> *cryptoParams, int32_t evalAddCount = 0,
+		bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
 			int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const;
 
 	};
