@@ -1459,7 +1459,7 @@ namespace lbcrypto {
 				if(this->IsEnabled(SHE))
 					return this->m_algorithmSHE->EvalMultKeyGen(originalPrivateKey, newPrivateKey);
 				else {
-					throw std::logic_error("This operation is not supported");
+					throw std::logic_error("EvalMultKeyGen operation has not been enabled");
 				}
 		}
 
