@@ -534,6 +534,23 @@ public:
   mubintvec ModSub(const mubintvec &b) const;
 
   /**
+  * Multiply and Rounding operation on a big integer x. Returns [x*p/q] where [] is the rounding operation.
+  *
+  * @param p is the numerator to be multiplied.
+  * @param q is the denominator to be divided.
+  * @return the result of multiply and round.
+  */
+  mubintvec MultiplyAndRound(const ubint_el_t &p, const ubint_el_t &q) const;
+
+  /**
+  * Divide and Rounding operation on a big integer x. Returns [x/q] where [] is the rounding operation.
+  *
+  * @param q is the denominator to be divided.
+  * @return the result of divide and round.
+  */
+  mubintvec DivideAndRound(const ubint_el_t &q) const;
+
+  /**
    * vector -=
    *
    * @param &b is the vector to mod subtract from lhs
