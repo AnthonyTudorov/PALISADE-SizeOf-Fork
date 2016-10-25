@@ -74,7 +74,7 @@ namespace lbcrypto {
 			shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 				const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
-			shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
+			shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
 								const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 								const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 					std::string errMsg = "LPAlgorithmSHELTV::EvalMultKeyGen is not applicable for LTV SHE Scheme.";
@@ -128,7 +128,7 @@ namespace lbcrypto {
 			 * @param depth used for decryption.
 			 * @param *keySwitchHint the key switch hint.
 			 */
-			shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> newPrivateKey,
+			shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> newPrivateKey,
 				shared_ptr<LPPrivateKey<Element>> origPrivateKey,
 				usint depth) const;
 
@@ -138,7 +138,7 @@ namespace lbcrypto {
 			 * @param &newPrivateKey private key for the new ciphertext.
 			 * @param *keySwitchHint the key switch hint.
 			 */
-			shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey) const;
+			shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey) const;
 			
 			/**
 			 * Function to define key switching operation

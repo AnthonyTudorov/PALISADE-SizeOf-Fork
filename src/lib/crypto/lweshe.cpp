@@ -125,11 +125,11 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
 
 ////Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
-shared_ptr<LPEvalKeyNTRU<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> newPrivateKey,
+shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> newPrivateKey,
 		shared_ptr<LPPrivateKey<Element>> origPrivateKey,
 		usint depth) const
 {
-	shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyNTRU<Element>(origPrivateKey->GetCryptoContext()));
+	shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKey<Element>(origPrivateKey->GetCryptoContext()));
 
 	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(origPrivateKey->GetCryptoParameters());
 	DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
@@ -149,10 +149,10 @@ shared_ptr<LPEvalKeyNTRU<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(co
 
 //Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
-shared_ptr<LPEvalKeyNTRU<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(
+shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(
 		const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const
 {
-	shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyNTRU<Element>(newPrivateKey->GetCryptoContext()));
+	shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKey<Element>(newPrivateKey->GetCryptoContext()));
 
 	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(newPrivateKey->GetCryptoParameters());
 	DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();

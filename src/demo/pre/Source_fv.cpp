@@ -37,8 +37,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <fstream>
 
-#include "../lib/palisade.h"
-#include "../lib/palisadespace.h"
+#include "../../lib/palisade.h"
+#include "../../lib/palisadespace.h"
 
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/crypto/cryptocontext.cpp"
@@ -143,10 +143,6 @@ void NTRUPRE(int input) {
 			2, m, SECURE_PARAMS[input].modulus, SECURE_PARAMS[input].rootOfUnity,
 			relWindow, stdDev, delta.ToString());
 	cc.Enable(ENCRYPTION);
-
-	LPCryptoParametersFV<ILVector2n> *p = (LPCryptoParametersFV<ILVector2n> *)cc.GetCryptoParameters().get();
-
-	std::cout << (*p) << std::endl;
 
 	double diff, start, finish;
 

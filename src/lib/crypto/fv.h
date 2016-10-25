@@ -54,21 +54,6 @@ namespace lbcrypto {
 	class LPCryptoParametersFV : public LPCryptoParametersRLWE<Element> {
 
 		public:
-		friend std::ostream& operator<<(std::ostream& o, const LPCryptoParametersFV& f) {
-			o << *f.GetElementParams() << "::::";
-			o << "ptm=" << f.GetPlaintextModulus() << ","
-					<< f.GetDistributionParameter() << ","
-					<< f.GetAssuranceMeasure() << ","
-					<< f.GetSecurityLevel() << ","
-					<< "relwin=" << f.GetRelinWindow() << ","
-					<< f.m_delta << ","
-					<< f.m_mode << ","
-					<< f.m_bigModulus << ","
-					<< f.m_bigRootOfUnity << ","
-					<< f.GetDepth();
-			return o;
-		}
-			
 			/**
 			 * Constructor that initializes all values to 0.
 			 */
@@ -328,7 +313,7 @@ namespace lbcrypto {
 		* @param &ddg discrete Gaussian generator.
 		* @param *evalKey the evaluation key.
 		*/
-		shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
+		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
 					const shared_ptr<LPPrivateKey<Element>> k1,
 					const shared_ptr<LPPrivateKey<Element>> k2) const;
 		

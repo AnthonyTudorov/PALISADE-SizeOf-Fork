@@ -136,11 +136,11 @@ LPKeyPair<Element> LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(const C
 * KeySwitchHint 
 */
 template<class Element>
-shared_ptr<LPEvalKeyNTRU<Element>> LPLeveledSHEAlgorithmLTV<Element>::EvalMultKeyGen(
+shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmLTV<Element>::EvalMultKeyGen(
 		const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 		const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 
-		shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint(new LPEvalKeyNTRU<Element>(originalPrivateKey->GetCryptoContext()));
+		shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
 
 		const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersLTV<Element>>(originalPrivateKey->GetCryptoParameters() );
 
@@ -270,7 +270,7 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ModReduce(sha
 */
 template<class Element>
 shared_ptr<Ciphertext<Element>>
-LPLeveledSHEAlgorithmLTV<Element>::RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const {
+LPLeveledSHEAlgorithmLTV<Element>::RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const {
 
 		//KeySwitching to a cipherText that can be decrypted by a sparse key. 
 		shared_ptr<Ciphertext<Element>> newcipherText = KeySwitch( keySwitchHint, cipherText ) ;

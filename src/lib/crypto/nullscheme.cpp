@@ -72,11 +72,11 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPRENull<Element>::ReEncrypt(const sha
 }
 
 template <class Element>
-shared_ptr<LPEvalKeyNTRU<Element>> LPAlgorithmSHENull<Element>::EvalMultKeyGen(
+shared_ptr<LPEvalKey<Element>> LPAlgorithmSHENull<Element>::EvalMultKeyGen(
 			const shared_ptr<LPPrivateKey<Element>> k1,
 			const shared_ptr<LPPrivateKey<Element>> k2) const
 {
-	shared_ptr<LPEvalKeyNTRU<Element>> EK( new LPEvalKeyNTRU<Element>(k1->GetCryptoContext()) );
+	shared_ptr<LPEvalKey<Element>> EK( new LPEvalKeyRelin<Element>(k1->GetCryptoContext()) );
 
 	Element a(k1->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
 	vector<Element> evalKeyElements;

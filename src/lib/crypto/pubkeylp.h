@@ -1036,7 +1036,7 @@ namespace lbcrypto {
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
 			 * @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
 			 */
-			virtual shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
+			virtual shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
 					const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 					const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
 			
@@ -1075,7 +1075,7 @@ namespace lbcrypto {
 			 * @param &cipherText Ciphertext to perform ring reduce on.
 			 * @param &privateKey Private key used to encrypt the first argument.
 			 */
-			virtual shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const = 0;
 
 			/**
 			 * Method for Composed EvalMult
@@ -1175,7 +1175,7 @@ namespace lbcrypto {
 	class LPSHEAlgorithm {
 		public:
 
-			virtual	shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
+			virtual	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
 					const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 					const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
 
@@ -1453,7 +1453,7 @@ namespace lbcrypto {
 		}
 
 		//wrapper for reLinKeyGen method
-		shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
+		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
 							const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 							const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 				if(this->IsEnabled(SHE))
@@ -1587,7 +1587,7 @@ namespace lbcrypto {
 			}
 		}
 
-		shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const {
+		shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const {
 			if(this->m_algorithmLeveledSHE){
 				return this->m_algorithmLeveledSHE->RingReduce(cipherText,keySwitchHint);
 			}

@@ -118,7 +118,7 @@ namespace lbcrypto {
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
 			 * @param *keySwitchHint is where the resulting keySwitchHint will be placed.
 			 */
-			virtual shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
+			virtual shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
 					const shared_ptr<LPPrivateKey<Element>> k1,
 					const shared_ptr<LPPrivateKey<Element>> k2) const ;
 
@@ -155,7 +155,7 @@ namespace lbcrypto {
 			 * @param *cipherText Ciphertext to perform and apply ringreduce on.
 			 * @param *keySwitchHint is the keyswitchhint from the ciphertext's private key to a sparse key
 			 */
-			virtual shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint) const ;
+			virtual shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const ;
 			
 			/**
 			* Method for ComposedEvalMult

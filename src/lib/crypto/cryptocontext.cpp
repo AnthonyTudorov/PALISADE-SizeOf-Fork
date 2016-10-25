@@ -133,7 +133,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
 	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-std::cout << modulus << ":" << delta << std::endl;
+
 	LPCryptoParametersFV<T>* params =
 			new LPCryptoParametersFV<T>(ep,
 					BigBinaryInteger(plaintextmodulus),

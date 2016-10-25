@@ -169,7 +169,7 @@ public:
 		return GetEncryptionAlgorithm().ReKeyGen(newPublicKey, origPrivateKey);
 	}
 
-	shared_ptr<LPEvalKeyNTRU<Element>> EvalMultKeyGen(
+	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
 			const shared_ptr<LPPrivateKey<Element>> k1,
 			const shared_ptr<LPPrivateKey<Element>> k2) const {
 
@@ -521,7 +521,7 @@ public:
 
 	std::vector<shared_ptr<Ciphertext<Element>>> RingReduce(
 		std::vector<shared_ptr<Ciphertext<Element>>> ciphertext,
-		const shared_ptr<LPEvalKeyNTRU<Element>> keySwitchHint)
+		const shared_ptr<LPEvalKey<Element>> keySwitchHint)
 	{
 		if( keySwitchHint->GetCryptoContext() != *this )
 			throw std::logic_error("Key passed to RingReduce was not generated with this crypto context");

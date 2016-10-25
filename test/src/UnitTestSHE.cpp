@@ -399,7 +399,7 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
 
-	shared_ptr<LPEvalKeyNTRU<ILVector2n>> keySwitchHint;
+	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
 	keySwitchHint = cc.GetEncryptionAlgorithm().EvalMultKeyGen(kp.secretKey, kp2.secretKey);
 
 	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
@@ -481,7 +481,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 
 	LPKeyPair<ILVectorArray2n> kp2 = cc.SparseKeyGen();
 
-	shared_ptr<LPEvalKeyNTRU<ILVectorArray2n>> keySwitchHint = cc.EvalMultKeyGen(kp.secretKey, kp2.secretKey);
+	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint = cc.EvalMultKeyGen(kp.secretKey, kp2.secretKey);
 
 	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
 

@@ -86,7 +86,6 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> c
 
 	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-	std::cout << *elementParams << ":" << p << std::endl;
 
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	const DiscreteUniformGenerator dug(elementParams->GetModulus());
@@ -119,7 +118,6 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
 		Element &plaintext) const
 {
-	std::cout << "FV Encrypt" << std::endl;
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(publicKey->GetCryptoContext()) );
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersFV<Element>>(publicKey->GetCryptoParameters());
@@ -139,6 +137,8 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 	Element c0(elementParams);
 	Element c1(elementParams);
 
+	plaintext.SwitchFormat();
+
 	c0 = p0*u + e1 + delta*plaintext;
 
 	c1 = p1*u + e2;
@@ -153,7 +153,6 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Elem
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		Element *plaintext) const
 {
-	std::cout << "FV Decrypt" << std::endl;
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
 	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
@@ -165,33 +164,21 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Elem
 
 	Element b = c[0] + s*c[1];
 
-	for(int i=0;i<20;i++)
-		std::cout << b.GetValAtIndex(i) << ":";
-	std::cout << std::endl;
-
 	b.SwitchFormat();
 
 	b = b.MultiplyAndRound(p, q);
 	
-	for(int i=0;i<20;i++)
-		std::cout << b.GetValAtIndex(i) << ":";
-	std::cout << std::endl;
-	//*plaintext = b;
-
 	*plaintext = b.SignedMod(p);
 
-	for(int i=0;i<20;i++)
-		std::cout << plaintext->GetValAtIndex(i) << ":";
-	std::cout << std::endl;
 	return DecryptResult(plaintext->GetLength());
 }
 
 template <class Element>
-shared_ptr<LPEvalKeyNTRU<Element>> LPAlgorithmSHEFV<Element>::EvalMultKeyGen(
+shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::EvalMultKeyGen(
 			const shared_ptr<LPPrivateKey<Element>> k1,
 			const shared_ptr<LPPrivateKey<Element>>) const
 {
-	shared_ptr<LPEvalKeyNTRU<Element>> ek(new LPEvalKeyNTRU<Element>(k1->GetCryptoContext()));
+	shared_ptr<LPEvalKeyRelin<Element>> ek(new LPEvalKeyRelin<Element>(k1->GetCryptoContext()));
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::static_pointer_cast<LPCryptoParametersFV<Element>>(k1->GetCryptoParameters());
 	const shared_ptr<ElemParams> elementParams = cryptoParamsLWE->GetElementParams();
