@@ -102,6 +102,7 @@
 namespace lbcrypto {
 
 #if MATHBACKEND == 1
+
 	/** Define the mapping for BigBinaryInteger */
 	typedef cpu8bit::BigBinaryInteger BigBinaryInteger;
 	/** Define the mapping for BigBinaryVector */
@@ -121,7 +122,8 @@ namespace lbcrypto {
 	/** Define the mapping for BigBinaryInteger
 	    1500 is the maximum bit width supported by BigBinaryIntegers, large enough for most use cases
 		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application - to achieve smaller runtimes**/
-	typedef cpu_int::BigBinaryInteger<integral_dtype,1500> BigBinaryInteger;
+	#define BigBinaryIntegerBitLength 1500
+	typedef cpu_int::BigBinaryInteger<integral_dtype,BigBinaryIntegerBitLength> BigBinaryInteger;
 	
 	/** Define the mapping for BigBinaryVector */
 	typedef cpu_int::BigBinaryVector<BigBinaryInteger> BigBinaryVector;
@@ -148,6 +150,8 @@ namespace lbcrypto {
 	    most applications **/
 	typedef uint32_t integral_dtype;
 
+	#define BigBinaryIntegerBitLength 0 // zero indicates unused
+
 	/** Define the mapping for ExpBigBinaryInteger (experimental) */
 	typedef exp_int::ubint<integral_dtype> ubint;
 
@@ -172,6 +176,8 @@ namespace lbcrypto {
 	    machines tha support it. */
 
 	typedef uint64_t integral_dtype;
+
+        #define BigBinaryIntegerBitLength 0 // zero indicates unused
 
 	/** Define the mapping for ExpBigBinaryInteger (experimental) */
 	typedef exp_int::ubint<integral_dtype> BigBinaryInteger;
