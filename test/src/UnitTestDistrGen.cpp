@@ -392,7 +392,35 @@ void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string
   }
 } // end TEST(
 
+ // mean test
+ TEST(UTDistrGen, TernaryUniformGenerator) {
+	 
+	 TernaryUniformGenerator ternaryUniGen = lbcrypto::TernaryUniformGenerator();
 
+	 usint length = 100000;
+	 BigBinaryInteger modulus = BigBinaryInteger("1041");
+	 BigBinaryVector randBigBinaryVector = ternaryUniGen.GenerateVector(length, modulus);
+
+	 int32_t sum = 0;
+
+	 for (usint index = 0; index<randBigBinaryVector.GetLength(); index++) {
+		 if (randBigBinaryVector[index] == modulus - BigBinaryInteger::ONE)
+			 sum -= 1;
+		 else
+			 sum += randBigBinaryVector[index].ConvertToInt();
+	 }
+
+	 float computedMean = (double)sum / (double)length;
+
+	 float expectedMean = 0;
+	 float dif = abs(computedMean - expectedMean);
+
+	 //std::cout << "Running Test." << std::endl;
+	 EXPECT_LT(dif, 0.01)
+		 << "Ternary Uniform Distribution Failure Mean is incorrect";
+	 // a large sample. Max of them should be less than q
+
+ }
 
 
 ////////////////////////////////////////////////

@@ -1,0 +1,13 @@
+f=bin/demo/pre
+inint=src/demo/pre/intPlaintext3
+
+echo now trying null and integers
+h=Null2
+g="-use $h -intlen 4"
+
+$f/palisade $g makekey publisher$h
+$f/palisade -integers $g encrypt $inint publisher${h}PUB.txt encryptedInt1${h}.txt
+$f/palisade -integers $g encrypt $inint publisher${h}PUB.txt encryptedInt2${h}.txt
+
+$f/palisade -integers $g evalmult encryptedInt1${h}.txt encryptedInt2${h}.txt encryptedIntMult${h}.txt
+$f/palisade -integers $g decrypt encryptedIntMult${h}.txt publisher${h}PRI.txt cleartextIntMulted${h}.txt

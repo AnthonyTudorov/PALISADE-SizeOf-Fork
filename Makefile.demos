@@ -54,6 +54,7 @@ make_demos: \
 	$(BINDIR)/demo/pre/Source_bv$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/Source_fv$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/PrettyJson$(EXESUFFIX) \
+	$(BINDIR)/demo/pre/SampleApp$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/palisade$(EXESUFFIX)
 
 ## builder for source files in the demo directory
@@ -104,6 +105,10 @@ $(BINDIR)/demo/pre/Source_fv$(EXESUFFIX): $(BUILDDIR)/demo/pre/Source_fv.o $(EXT
 	$(CC) -o $@ $^ $(EXTLIB)
 
 $(BINDIR)/demo/pre/PrettyJson$(EXESUFFIX): $(BUILDDIR)/demo/pre/PrettyJson.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
+
+$(BINDIR)/demo/pre/SampleApp$(EXESUFFIX): $(BUILDDIR)/demo/pre/SampleApp.o $(EXTLIBDIR)/$(PALISADELIB)
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 

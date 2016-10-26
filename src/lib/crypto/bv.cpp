@@ -35,33 +35,26 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef LBCRYPTO_CRYPTO_BV_C
 #define LBCRYPTO_CRYPTO_BV_C
 
-#include "../crypto/cryptocontext.h"
-#include <cstring>
-#include <iostream>
-#include <fstream>
+#include "bv.h"
 
 namespace lbcrypto {
 
 
 template <class Element>
-bool LPAlgorithmBV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
-	LPPrivateKey<Element> *privateKey) const
+LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(const CryptoContext<Element> cc) const
 {
+	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
-	if (publicKey == 0 || privateKey == 0)
-		return false;
+	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc.GetCryptoParameters());
 
-	const LPCryptoParametersBV<Element> *cryptoParams =
-		dynamic_cast<const LPCryptoParametersBV<Element>*>(&privateKey->GetCryptoParameters());
+	if( cryptoParams == 0 )
+		throw std::logic_error("Wrong type for crypto parameters in LPAlgorithmBV<Element>::KeyGen");
 
-	if (cryptoParams == 0)
-		return false;
-
-	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-	const DiscreteUniformGenerator dug(elementParams.GetModulus());
+	const DiscreteUniformGenerator dug(elementParams->GetModulus());
 
 	//Generate the element "a" of the public key
 	Element a(dug, elementParams, Format::EVALUATION);
@@ -70,7 +63,7 @@ bool LPAlgorithmBV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	Element s(dgg, elementParams, Format::COEFFICIENT);
 	s.SwitchFormat();
 
-	privateKey->SetPrivateElement(s);
+	kp.secretKey->SetPrivateElement(s);
 
 	//public key is generated and set
 	//privateKey->MakePublicKey(a, publicKey);
@@ -79,30 +72,26 @@ bool LPAlgorithmBV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 
 	Element b = a*s + p*e;
 
-	publicKey->SetPublicElementAtIndex(0, std::move(a));
-	publicKey->SetPublicElementAtIndex(1, std::move(b));
+	kp.publicKey->SetPublicElementAtIndex(0, std::move(a));
+	kp.publicKey->SetPublicElementAtIndex(1, std::move(b));
 
-	return true;
-
+	return kp;
 }
 
 template <class Element>
-EncryptResult LPAlgorithmBV<Element>::Encrypt(const LPPublicKey<Element> &pubKey,
-	const Element &plaintext,
-	Ciphertext<Element> *ciphertext) const
+shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
+	Element &plaintext) const
 {
 
-	const LPCryptoParametersBV<Element> *cryptoParams =
-		dynamic_cast<const LPCryptoParametersBV<Element>*>(&pubKey.GetCryptoParameters());
+	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(pubKey->GetCryptoParameters());
 
-	const LPPublicKey<Element> *publicKey =
-		dynamic_cast<const LPPublicKey<Element>*>(&pubKey);
+	const shared_ptr<LPPublicKey<Element>> publicKey = std::static_pointer_cast<LPPublicKey<Element>>(pubKey);
 
-	if (cryptoParams == 0) return EncryptResult();
+	if( cryptoParams == 0 ) return shared_ptr<Ciphertext<Element>>();
 
-	if (ciphertext == 0) return EncryptResult();
+	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey->GetCryptoContext()) );
 
-	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
@@ -117,60 +106,61 @@ EncryptResult LPAlgorithmBV<Element>::Encrypt(const LPPublicKey<Element> &pubKey
 	Element c1(elementParams);
 	Element c2(elementParams);
 
+	plaintext.SwitchFormat();
+
 	//c1 = b v + p e_0 + m
 	c1 = b*v + p*e0 + plaintext;
 
 	//c2 = a v + p e_1
 	c2 = a*v + p*e1;
 
-	ciphertext->SetCryptoParameters(cryptoParams);
-	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
 	ciphertext->SetElements({ c1,c2 });
 
-	return EncryptResult(0);
+	return ciphertext;
 }
 
 template <class Element>
-DecryptResult LPAlgorithmBV<Element>::Decrypt(const LPPrivateKey<Element> &privateKey,
-	const Ciphertext<Element> &ciphertext,
+DecryptResult LPAlgorithmBV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+	const shared_ptr<Ciphertext<Element>> ciphertext,
 	Element *plaintext) const
 {
 
-	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
-	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-	const std::vector<Element> &c = ciphertext.GetElements();
+	const std::vector<Element> &c = ciphertext->GetElements();
 
-	const Element &s = privateKey.GetPrivateElement();
+	const Element &s = privateKey->GetPrivateElement();
 
 	Element b = c[0] - s*c[1];
 
 	b.SwitchFormat();
-	
-	*plaintext = b;
+
+	*plaintext = b.SignedMod(p);
 
 	return DecryptResult(plaintext->GetLength());
 
 }
 
 template <class Element>
-bool LPAlgorithmPREBV<Element>::ReKeyGen(const LPKey<Element> &newSK,
-	const LPPrivateKey<Element> &origPrivateKey,
-	LPEvalKey<Element> *EK) const
+shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const shared_ptr<LPKey<Element>> newSK,
+	const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
 {
-	const LPCryptoParametersBV<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersBV<Element>*>(&newSK.GetCryptoParameters());
+	// create a new ReKey of the proper type, in this context
+	shared_ptr<LPEvalKeyRelin<Element>> EK( new LPEvalKeyRelin<Element>(newSK->GetCryptoContext()) );
+
+	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::static_pointer_cast<LPCryptoParametersBV<Element>>(newSK->GetCryptoParameters());
 
 	if( cryptoParamsLWE == 0 ) {
 		throw std::logic_error("Secret Key crypto parameters have incorrect type in LPAlgorithmPREBV<Element>::ReKeyGen");
 	}
 
-	const ElemParams &elementParams = cryptoParamsLWE->GetElementParams();
+	const shared_ptr<ElemParams> elementParams = cryptoParamsLWE->GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
-	const Element &s = origPrivateKey.GetPrivateElement();
+	const Element &s = origPrivateKey->GetPrivateElement();
 
 	const LPPrivateKey<Element> *newPrivateKey =
-		dynamic_cast<const LPPrivateKey<Element>*>(&newSK);
+		dynamic_cast<const LPPrivateKey<Element>*>(&(*newSK));
 
 	if( newPrivateKey == 0 ) {
 		throw std::logic_error("Secret Key has incorrect type in LPAlgorithmPREBV<Element>::ReKeyGen");
@@ -181,7 +171,7 @@ bool LPAlgorithmPREBV<Element>::ReKeyGen(const LPKey<Element> &newSK,
 	const Element &sNew = newPrivateKey->GetPrivateElement();
 
 	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
-	const DiscreteUniformGenerator dug(elementParams.GetModulus());
+	const DiscreteUniformGenerator dug(elementParams->GetModulus());
 
 	//std::vector<Element> *evalKeyElements = &evalKey->AccessEvalKeyElements();
 	//std::vector<Element> *evalKeyElementsGenerated = &evalKey->AccessEvalKeyElementsGenerated();
@@ -203,37 +193,36 @@ bool LPAlgorithmPREBV<Element>::ReKeyGen(const LPKey<Element> &newSK,
 		// Generate a_i * newSK + p * e - PowerOfBase(oldSK)
 		Element e(dgg, elementParams, Format::EVALUATION);
 		evalKeyElements.at(i) -= (a*sNew + p*e);
-		evalKeyElements.at(i) *= (elementParams.GetModulus() - BigBinaryInteger::ONE);
+		evalKeyElements.at(i) *= (elementParams->GetModulus() - BigBinaryInteger::ONE);
 
 	}
 
 	EK->SetAVector(std::move(evalKeyElements));
 	EK->SetBVector(std::move(evalKeyElementsGenerated));
 
-	return true;
+	return EK;
 
 }
 
 //Function for re-encypting ciphertext using the arrays generated by ReKeyGen
 template <class Element>
-void LPAlgorithmPREBV<Element>::ReEncrypt(const LPEvalKey<Element> &EK,
-	const Ciphertext<Element> &ciphertext,
-	Ciphertext<Element> *newCiphertext) const
+shared_ptr<Ciphertext<Element>> LPAlgorithmPREBV<Element>::ReEncrypt(const shared_ptr<LPEvalKey<Element>> EK,
+	const shared_ptr<Ciphertext<Element>> ciphertext) const
 {
-	const LPCryptoParametersBV<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersBV<Element>*>(&EK.GetCryptoParameters());
+	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(*ciphertext) );
 
-	const ElemParams &elementParams = cryptoParamsLWE->GetElementParams();
+	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::static_pointer_cast<LPCryptoParametersBV<Element>>(EK->GetCryptoParameters());
+
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 
-	const LPEvalKeyRelin<Element> &evalKey =
-		dynamic_cast<const LPEvalKeyRelin<Element>&>(EK);
+	const shared_ptr<LPEvalKeyRelin<Element>> evalKey = std::static_pointer_cast<LPEvalKeyRelin<Element>>(EK);
 
-	const std::vector<Element> &b = evalKey.GetAVector();
-	const std::vector<Element> &a = evalKey.GetBVector();
+	const std::vector<Element> &b = evalKey->GetAVector();
+	const std::vector<Element> &a = evalKey->GetBVector();
 
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
-	const std::vector<Element> &c = ciphertext.GetElements();
+	const std::vector<Element> &c = ciphertext->GetElements();
 
 	std::vector<Element> digitsC1;
 	c[1].BaseDecompose(relinWindow, &digitsC1);
@@ -249,9 +238,8 @@ void LPAlgorithmPREBV<Element>::ReEncrypt(const LPEvalKey<Element> &EK,
 		ct1 += digitsC1[i] * a[i];
 	}
 
-	*newCiphertext = ciphertext;
 	newCiphertext->SetElements({ct0, ct1});
-
+	return newCiphertext;
 }
 
 // Constructor for LPPublicKeyEncryptionSchemeBV

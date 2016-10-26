@@ -39,18 +39,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <fstream>
 #include <iterator>
 
-#include "../../lib/crypto/cryptocontext.h"
+#include "../lib/palisade.h"
+#include "../lib/palisadespace.h"
+
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/crypto/cryptocontext.cpp"
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
 #include "../../lib/utils/debug.h"
 #include "../../lib/encoding/byteplaintextencoding.h"
-#include "../../lib/utils/cryptoutility.h"
 
 using namespace lbcrypto;
 
-void NTRUPRE(CryptoContext<ILVector2n> *ctx, bool);
+void NTRUPRE(CryptoContext<ILVector2n>& ctx, bool);
 
 #include "../../lib/utils/serializablehelper.h"
 
@@ -72,8 +73,6 @@ main(int argc, char *argv[])
 {
 	bool	doJson = false;
 
-	string filename = "src/demo/pre/PalisadeCryptoContext.parms";
-
 	while( argc-- > 1 ) {
 		string arg(*++argv);
 
@@ -87,25 +86,24 @@ main(int argc, char *argv[])
 			usage();
 			return(0);
 		}
-
-		else filename = arg;
 	}
 
 	std::cout << "Choose parameter set: ";
-	CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout, filename);
+	CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout);
 
 	string input;
 	std::cin >> input;
 
-	CryptoContext<ILVector2n> *ctx = CryptoContextHelper<ILVector2n>::getNewContext(filename, input);
-	if( ctx == 0 ) {
+	CryptoContext<ILVector2n> ctx = CryptoContextHelper<ILVector2n>::getNewContext(input);
+	if( !ctx ) {
 		cout << "Error on " << input << endl;
 		return 0;
 	}
 
-	NTRUPRE(ctx, doJson);
+	ctx.Enable(ENCRYPTION);
+	ctx.Enable(PRE);
 
-	delete ctx;
+	NTRUPRE(ctx, doJson);
 
 	//	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	//	NumberTheoreticTransform::GetInstance().Destroy();
@@ -130,7 +128,7 @@ main(int argc, char *argv[])
 //////////////////////////////////////////////////////////////////////
 
 void
-NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
+NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 
 	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	//BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
@@ -160,23 +158,17 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	cout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
-	// Initialize the public key containers.
-	LPPublicKey<ILVector2n> pk(*ctx->getParams());
-	LPPrivateKey<ILVector2n> sk(*ctx->getParams());
-
 	//Regular LWE-NTRU encryption algorithm
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	bool successKeyGen=false;
-
 	std::cout <<"\n" <<  "Running key generation..." << std::endl;
 
 	start = currentDateTime();
 
-	successKeyGen = CryptoUtility<ILVector2n>::KeyGen(*ctx->getAlgorithm(),&pk,&sk);	// This is the core function call that generates the keys.
+	LPKeyPair<ILVector2n> kp = ctx.KeyGen();	// This is the core function call that generates the keys.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -187,7 +179,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	//fout<< currentDateTime()  << " pk = "<<pk.GetPublicElement().GetValues()<<endl;
 	//fout<< currentDateTime()  << " sk = "<<sk.GetPrivateElement().GetValues()<<endl;
 
-	if (!successKeyGen) {
+	if (!kp.good()) {
 		std::cout<<"Key generation failed!"<<std::endl;
 		exit(1);
 	}
@@ -200,13 +192,13 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
-	vector<Ciphertext<ILVector2n>> ciphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 	std::cout << "Running encryption..." << std::endl;
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::Encrypt(*ctx->getAlgorithm(),pk,plaintext,&ciphertext);
+	ciphertext = ctx.Encrypt(kp.publicKey,plaintext);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -224,7 +216,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 
 	start = currentDateTime();
 
-	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(),sk,ciphertext,&plaintextNew);
+	DecryptResult result = ctx.Decrypt(kp.secretKey,ciphertext,&plaintextNew);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -249,14 +241,11 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPPublicKey<ILVector2n> newPK(*ctx->getParams());
-	LPPrivateKey<ILVector2n> newSK(*ctx->getParams());
-
 	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
 	start = currentDateTime();
 
-	successKeyGen = CryptoUtility<ILVector2n>::KeyGen(*ctx->getAlgorithm(),&newPK,&newSK);	// This is the same core key generation operation.
+	LPKeyPair<ILVector2n> newKp = ctx.KeyGen();	// This is the same core key generation operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -271,11 +260,9 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	LPEvalKeyNTRURelin<ILVector2n> evalKey(*ctx->getParams());
-
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::ReKeyGen(*ctx->getAlgorithm(), newPK, sk, &evalKey);  // This is the core re-encryption operation.
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey = ctx.ReKeyGen(newKp.publicKey, kp.secretKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -289,13 +276,13 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	////////////////////////////////////////////////////////////
 
 
-	vector<Ciphertext<ILVector2n>> newCiphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
 
 	std::cout <<"\n"<< "Running re-encryption..." << std::endl;
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::ReEncrypt(*ctx->getAlgorithm(), evalKey, ciphertext, &newCiphertext);
+	newCiphertext = ctx.ReEncrypt(evalKey, ciphertext);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -315,7 +302,7 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 
 	start = currentDateTime();
 
-	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(),newSK,newCiphertext,&plaintextNew2);  // This is the core decryption operation.
+	DecryptResult result1 = ctx.Decrypt(newKp.secretKey,newCiphertext,&plaintextNew2);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -341,10 +328,10 @@ NTRUPRE(CryptoContext<ILVector2n> *ctx, bool doJson) {
 	if( doJson ) {
 		TestJsonParms<ILVector2n>	tjp;
 		tjp.ctx = ctx;
-		tjp.pk = &pk;
-		tjp.sk = &sk;
-		tjp.evalKey = &evalKey;
-		tjp.newSK = &newSK;
+		tjp.pk = kp.publicKey;
+		tjp.sk = kp.secretKey;
+		tjp.evalKey = evalKey;
+		tjp.newSK = newKp.secretKey;
 
 		testJson<ILVector2n>("LTV", newPlaintext, &tjp);
 	}

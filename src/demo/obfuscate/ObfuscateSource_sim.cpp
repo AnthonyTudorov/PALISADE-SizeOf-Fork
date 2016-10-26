@@ -252,7 +252,7 @@ void NTRUPRE(int input) {
 	double diff, diffKeyGen, diffObf, diffEval, start, finish;
 
 	//Prepare for parameters.
-	ILParams ilParams(m,modulus,rootOfUnity);
+	shared_ptr<ILParams> ilParams( new ILParams(m,modulus,rootOfUnity) );
 
 	//Set crypto parametes
 	//LPCryptoParametersLWE<ILVector2n> cryptoParams;

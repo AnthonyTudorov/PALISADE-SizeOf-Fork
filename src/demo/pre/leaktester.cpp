@@ -4,7 +4,9 @@
 #include <fstream>
 #include <iterator>
 
-#include "../../lib/crypto/cryptocontext.h"
+#include "../lib/palisade.h"
+#include "../lib/palisadespace.h"
+
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/crypto/cryptocontext.cpp"
 #include "../../lib/utils/cryptocontexthelper.cpp"
@@ -14,37 +16,32 @@
 #include "../../lib/utils/serializablehelper.h"
 #include "../../lib/encoding/byteplaintextencoding.h"
 #include "../../lib/encoding/intplaintextencoding.h"
-#include "../../lib/utils/cryptoutility.h"
 
 using namespace std;
 using namespace lbcrypto;
 
-void runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plaintext, bool doPadding = true);
+void runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plaintext, bool doPadding = true);
 
 
 int
 main(int argc, char *argv[])
 {
-	string filename = "src/demo/pre/PalisadeCryptoContext.parms";
 	string parmset;
 
-	if( argc == 2 )
-		filename = string(*++argv);
-
-	//DiscreteUniformGenerator gen(BigBinaryInteger("100000"));
-	//auto v = gen.GenerateVector(10000);
-
 	std::cout << "Choose parameter set: ";
-	CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout, filename);
+	CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout);
 
 	string input; // = "StSt6";
 	std::cin >> input;
 
-	CryptoContext<ILVector2n> *ctx = CryptoContextHelper<ILVector2n>::getNewContext(filename, input);
-	if( ctx == 0 ) {
+	CryptoContext<ILVector2n> ctx = CryptoContextHelper<ILVector2n>::getNewContext(input);
+	if( !ctx ) {
 		cout << "Error on " << input << endl;
 		return 0;
 	}
+
+	ctx.Enable(ENCRYPTION);
+	ctx.Enable(PRE);
 
 	BytePlaintextEncoding plaintext1("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	BytePlaintextEncoding plaintext2(
@@ -113,7 +110,8 @@ main(int argc, char *argv[])
 	BytePlaintextEncoding plaintext3 = { 9,0,8,0 };
 
 	BytePlaintextEncoding plaintext4;
-	size_t chunksize = plaintext4.GetChunksize(ctx->getParams()->GetElementParams().GetCyclotomicOrder(), ctx->getParams()->GetPlaintextModulus());
+	size_t chunksize = plaintext4.GetChunksize(ctx.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(),
+			ctx.GetCryptoParameters()->GetPlaintextModulus());
 
 	plaintext4.resize(chunksize,0); // make sure this comes out in 2 chunks
 
@@ -181,8 +179,6 @@ main(int argc, char *argv[])
 		tryPad = !tryPad;
 	}
 
-	delete ctx;
-
 	ILVector2n::DestroyPreComputedSamples();
 
 	//	ChineseRemainderTransformFTT::GetInstance().Destroy();
@@ -202,27 +198,25 @@ main(int argc, char *argv[])
 //		- Decrypt the re-encrypted data.
 
 void
-runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plaintext, bool doPadding)
+runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& plaintext, bool doPadding)
 {
-	// Initialize the public key containers.
-	LPPublicKey<ILVector2n> pk(*ctx->getParams());
-	LPPrivateKey<ILVector2n> sk(*ctx->getParams());
-
 	//Perform the key generation operation.
 
-	if( ! CryptoUtility<ILVector2n>::KeyGen(*ctx->getAlgorithm(), &pk, &sk) ) {
+	LPKeyPair<ILVector2n> kp = ctx.KeyGen();
+	if( !kp.good() ) {
 		cout << "First key generation failed" << endl;
 		exit(1);
 	}
 
-	size_t chunksize = plaintext.GetChunksize(pk.GetCryptoParameters().GetElementParams().GetCyclotomicOrder(), pk.GetCryptoParameters().GetPlaintextModulus());
+	size_t chunksize = plaintext.GetChunksize(kp.publicKey->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(),
+			kp.publicKey->GetCryptoParameters()->GetPlaintextModulus());
 	cout << "Chunk size is: " << chunksize << endl;
 
 	//Encryption
-	vector<Ciphertext<ILVector2n>> ciphertext;
-	EncryptResult eResult = CryptoUtility<ILVector2n>::Encrypt(*ctx->getAlgorithm(), pk, plaintext, &ciphertext, doPadding);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
+			ctx.Encrypt(kp.publicKey, plaintext, doPadding);
 
-	if (!eResult.isValid) {
+	if (ciphertext.size() == 0) {
 		cout << "Encryption failed!" << endl;
 		exit(1);
 	}
@@ -231,7 +225,7 @@ runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plainte
 
 	//Decryption
 	BytePlaintextEncoding plaintextNew;
-	DecryptResult dResult = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(), sk, ciphertext, &plaintextNew, doPadding);
+	DecryptResult dResult = ctx.Decrypt(kp.secretKey, ciphertext, &plaintextNew, doPadding);
 
 	if (!dResult.isValid) {
 		cout << "Decryption failed!" << endl;
@@ -252,12 +246,16 @@ runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plainte
 //		inInt.Encode(pk.GetCryptoParameters().GetPlaintextModulus(), &pt, 0, chunkSize);
 //		cout << pt.GetLength() << endl;
 
-		vector<Ciphertext<ILVector2n>> intCiphertext;
+		vector<shared_ptr<Ciphertext<ILVector2n>>> intCiphertext;
 		IntPlaintextEncoding outInt;
-		eResult = CryptoUtility<ILVector2n>::Encrypt(*ctx->getAlgorithm(), pk, inInt, &intCiphertext, doPadding);
-		dResult = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(), sk, intCiphertext, &outInt, doPadding);
-
-		for( int i=0; i<inInt.size(); i++ ) {
+		intCiphertext = ctx.Encrypt(kp.publicKey, inInt, doPadding);
+		DecryptResult dResult = ctx.Decrypt(kp.secretKey, ciphertext, &plaintextNew, doPadding);
+		if( inInt.size() != outInt.size() ) {
+			cout << "eResult " << intCiphertext.size() << endl;
+			cout << "dResult " << dResult.isValid << ":" << dResult.messageLength << endl;
+			cout << "Output is size " << outInt.GetLength() << endl;
+			cout << endl;
+		} else for( int i=0; i<inInt.size(); i++ ) {
 			if( inInt.at(i) != outInt.at(i) ) {
 				cout << "integers at position " << i << " don't match" << endl;
 				break;
@@ -269,31 +267,26 @@ runOneRound(CryptoContext<ILVector2n> *ctx, const BytePlaintextEncoding& plainte
 
 	//PRE SCHEME
 
-	LPPublicKey<ILVector2n> newPK(*ctx->getParams());
-	LPPrivateKey<ILVector2n> newSK(*ctx->getParams());
-
-	if( ! CryptoUtility<ILVector2n>::KeyGen(*ctx->getAlgorithm(), &newPK, &newSK) ) {
+	LPKeyPair<ILVector2n> newKp = ctx.KeyGen();
+	if( false ) {
 		cout << "Second keygen failed!" << endl;
 		exit(1);
 	}
 
 	//Perform the proxy re-encryption key generation operation.
 
-	LPEvalKeyRelin<ILVector2n> evalKey(*ctx->getParams());
-
-	CryptoUtility<ILVector2n>::ReKeyGen(*ctx->getAlgorithm(), newPK, sk, &evalKey);
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey = ctx.ReKeyGen(newKp.publicKey, kp.secretKey);
 
 	//Perform the proxy re-encryption operation.
 
-	vector<Ciphertext<ILVector2n>> newCiphertext;
-
-	CryptoUtility<ILVector2n>::ReEncrypt(*ctx->getAlgorithm(), evalKey, ciphertext, &newCiphertext);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext =
+			ctx.ReEncrypt(evalKey, ciphertext);
 
 	//Decryption
 
 	BytePlaintextEncoding plaintextNew2;
 
-	DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(*ctx->getAlgorithm(), newSK, newCiphertext, &plaintextNew2, doPadding);
+	DecryptResult result1 = ctx.Decrypt(newKp.secretKey, newCiphertext, &plaintextNew2, doPadding);
 
 
 	if (!result1.isValid) {

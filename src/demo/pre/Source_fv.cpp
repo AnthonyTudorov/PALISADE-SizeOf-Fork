@@ -37,30 +37,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <fstream>
 
-#include "../../lib/crypto/cryptocontext.h"
+#include "../../lib/palisade.h"
+#include "../../lib/palisadespace.h"
+
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/crypto/cryptocontext.cpp"
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
 #include "../../lib/encoding/byteplaintextencoding.h"
-#include "../../lib/utils/cryptoutility.h"
+#include "../../lib/encoding/intplaintextencoding.h"
 
 #include "../../lib/utils/debug.h"
 
 using namespace std;
 using namespace lbcrypto;
-void NTRUPRE(int input);
+void EvalMul(int input, MODE mode);
 //double currentDateTime();
 
-/**
- * @brief Input parameters for PRE example.
- */
-struct SecureParams {
-	usint m;			///< The ring parameter.
-	BigBinaryInteger modulus;	///< The modulus
-	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
-	usint relinWindow;		///< The relinearization window parameter.
-};
 
 #include <iterator>
 
@@ -77,10 +70,16 @@ int main() {
 	if ((input<0) || (input>4))
 		input = 0;
 
-	////NTRUPRE is where the core functionality is provided.
-	NTRUPRE(input);
-	//NTRUPRE(3);
+	cout << "\nStarting FV Eval Mult demo in the RLWE mode" << endl;
+
+	EvalMul(input, RLWE);
+
+	cout << "\nStarting FV Eval Mult demo in the OPTIMIZED mode" << endl;
+
+	EvalMul(input, OPTIMIZED);
 	
+	std::cout << "Execution Completed. Press any key to continue." << std::endl;
+
 	std::cin.get();
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();
@@ -88,125 +87,56 @@ int main() {
 	return 0;
 }
 
+void EvalMul(int input, MODE mode) {
 
-//////////////////////////////////////////////////////////////////////
-//	NTRUPRE is where the core functionality is provided.
-//	In this code we:
-//		- Generate a key pair.
-//		- Encrypt a string of data.
-//		- Decrypt the data.
-//		- Generate a new key pair.
-//		- Generate a proxy re-encryption key.
-//		- Re-Encrypt the encrypted data.
-//		- Decrypt the re-encrypted data.
-//////////////////////////////////////////////////////////////////////
-//	We provide two different paramet settings.
-//	The low-security, highly efficient settings are commented out.
-//	The high-security, less efficient settings are enabled by default.
-//////////////////////////////////////////////////////////////////////
-void NTRUPRE(int input) {
+	int relinWindows[] = { 1, 2, 4, 8, 16 };
 
-	SecureParams const SECURE_PARAMS[] = {
-		{ 2048, BigBinaryInteger("268441601"), BigBinaryInteger("16947867"), 1 }, //r = 1
-		{ 2048, BigBinaryInteger("536881153"), BigBinaryInteger("267934765"), 2 }, // r = 2
-		{ 2048, BigBinaryInteger("1073750017"), BigBinaryInteger("180790047"), 4 },  // r = 4
-		{ 2048, BigBinaryInteger("8589987841"), BigBinaryInteger("2678760785"), 8 }, //r = 8
-		{ 4096, BigBinaryInteger("2199023288321"), BigBinaryInteger("1858080237421"), 16 }  // r= 16
-		//{ 2048, CalltoModulusComputation(), CalltoRootComputation, 0 }  // r= 16
-	};
+	usint relWindow = relinWindows[input];
 
-	usint m = SECURE_PARAMS[input].m;
-	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
-	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
-	usint relWindow = SECURE_PARAMS[input].relinWindow;
-
-	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-	
-	// BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-
+	BigBinaryInteger plaintextModulus(BigBinaryInteger("4"));
 	float stdDev = 4;
 
-	ofstream fout;
-	fout.open ("output.txt");
-
-	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
-
-	//Prepare for parameters.
-	ILParams ilParams(m,modulus,rootOfUnity);
-
-	BigBinaryInteger plaintextModulus(BigBinaryInteger::TWO);
-
 	//Set crypto parametes
-	LPCryptoParametersFV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(plaintextModulus);  	// Set plaintext modulus.
-	//cryptoParams.SetPlaintextModulus(BigBinaryInteger("4"));  	// Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
-	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
-
-	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
-	cryptoParams.SetDelta(delta);
-
-	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
-
-	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+			4, 0, "0", "0",
+			relWindow, stdDev, "0", mode, "0", "0", 0, 9, 1.006);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
 
 	double diff, start, finish;
 
 	start = currentDateTime();
 
-	//This code is run only when performing execution time measurements
-
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(dgg, ilParams);
+	cc.GetEncryptionAlgorithm().ParamsGen(cc.GetCryptoParameters(), 0, 1);
 
 	finish = currentDateTime();
 	diff = finish - start;
 
-	cout << "Precomputation time: " << "\t" << diff << " ms" << endl;
-	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
+	cout << "Parameter generation time: " << "\t" << diff << " ms" << endl;
+
+	std::cout << "n = " << cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << log2(cc.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
 	// Initialize the public key containers.
-	LPPublicKey<ILVector2n> pk(cryptoParams);
-	LPPrivateKey<ILVector2n> sk(cryptoParams);
+	LPKeyPair<ILVector2n> kp;
 
-	//Regular LWE-NTRU encryption algorithm
+	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
+	IntPlaintextEncoding plaintext1(vectorOfInts1);
+
+	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
+	IntPlaintextEncoding plaintext2(vectorOfInts2);
+
+	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 1, 3, 0, 0, 0, 0, 3, 0, 3, 3, 3, 3 };
+	IntPlaintextEncoding plaintextMult(vectorOfIntsMult);
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	//LPAlgorithmLTV<ILVector2n> algorithm;
+	kp = cc.KeyGen();
 
-
-	// size_t chunksize = ((m / 2) / 8);
-	LPPublicKeyEncryptionSchemeFV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	// algorithm.Enable(SHE);
-
-	bool successKeyGen=false;
-
-	std::cout <<"\n" <<  "Running key generation..." << std::endl;
-
-	start = currentDateTime();
-
-	successKeyGen = algorithm.KeyGen(&pk,&sk);	// This is the core function call that generates the keys.
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	//fout<< currentDateTime()  << " pk = "<<pk.GetPublicElement().GetValues()<<endl;
-	//fout<< currentDateTime()  << " sk = "<<sk.GetPrivateElement().GetValues()<<endl;
-
-	if (!successKeyGen) {
-		std::cout<<"Key generation failed!"<<std::endl;
+	if( !kp.good() ) {
+		std::cout << "Key generation failed!" << std::endl;
 		exit(1);
 	}
 
@@ -214,59 +144,76 @@ void NTRUPRE(int input) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	// Begin the initial encryption operation.
-	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
-	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
 
-	vector<Ciphertext<ILVector2n>> ciphertext;
-
-	std::cout << "Running encryption..." << std::endl;
+	ciphertext2 = cc.Encrypt(kp.publicKey, plaintext2, true);
 
 	start = currentDateTime();
 
-	CryptoUtility<ILVector2n>::Encrypt(algorithm,pk,plaintext,&ciphertext,false);	// This is the core encryption operation.
+	ciphertext1 = cc.Encrypt(kp.publicKey, plaintext1, true);
 
 	finish = currentDateTime();
 	diff = finish - start;
 
-	cout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+	cout << "Encryption execution time: " << "\t" << diff << " ms" << endl;
 
 	////////////////////////////////////////////////////////////
-	//Decryption
+	//EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	BytePlaintextEncoding plaintextNew;
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
 
-	std::cout <<"\n"<< "Running decryption..." << std::endl;
+	//generate the evaluate key
+	evalKey = cc.EvalMultKeyGen(kp.secretKey, kp.secretKey);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
+
+	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult;
 
 	start = currentDateTime();
 
-	DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm,sk,ciphertext,&plaintextNew,false);  // This is the core decryption operation.
+	ciphertextTempMult = cc.EvalMult(ciphertext1[0], ciphertext2[0], evalKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
 
-	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+	cout << "EvalMult execution time: " << "\t" << diff << " ms" << endl;
 
-	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
+	ciphertextMult.push_back(ciphertextTempMult);
 
-	if (!result.isValid) {
-		std::cout<<"Decryption failed!"<<std::endl;
-		exit(1);
-	}
-
+	IntPlaintextEncoding plaintextNewMult;
 
 	////////////////////////////////////////////////////////////
-	//SHE functionality
+	//Decryption after EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	/*LPEvalKeyFV<ILVector2n> reLinKey(cryptoParams);
-	algorithm.RelinKeyGen(sk, &reLinKey);*/
+	start = currentDateTime();
 
-	std::cout << "Execution completed." << std::endl;
+	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult, true);
 
-	fout.close();
+	finish = currentDateTime();
+	diff = finish - start;
+
+	cout << "Decryption execution time: " << "\t" << diff << " ms" << endl;
+
+	plaintextNewMult.resize(plaintextMult.size());
+
+	cout << plaintext1 << " * " << plaintext2 << " = \n" << plaintextNewMult << endl;
+
+	cout << "Correct answer: = " << plaintextMult << endl;
+
+	string test;
+
+	if (plaintextNewMult == plaintextMult)
+		test = "SUCCESS";
+	else
+		test = "FAILURE";
+
+	cout << "Result: " << test << endl;
+
+	//TernaryUniformGenerator tug;
+
+	//cout << tug.GenerateVector(10, BigBinaryInteger("17")) << endl;
+
 }

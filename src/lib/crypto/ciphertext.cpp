@@ -26,25 +26,24 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef _SRC_LIB_CRYPTO_CRYPTOCONTEXT_C
 #define _SRC_LIB_CRYPTO_CRYPTOCONTEXT_C
 
-#include "../crypto/cryptocontext.h"
+#include "ciphertext.h"
 #include "../utils/serializablehelper.h"
+#include "cryptocontext.h"
 
 namespace lbcrypto {
 
 // copy constructor
 template <class Element>
 Ciphertext<Element>::Ciphertext(const Ciphertext<Element> &ciphertext) {
-	m_cryptoParameters = ciphertext.m_cryptoParameters;
-	m_encryptionAlgorithm = ciphertext.m_encryptionAlgorithm;
+	cryptoContext = ciphertext.cryptoContext;
 	m_norm = ciphertext.m_norm;
 	m_elements = ciphertext.m_elements;
-} //
+}
 
 // move constructor
 template <class Element>
 Ciphertext<Element>::Ciphertext(Ciphertext<Element> &&ciphertext) {
-	m_cryptoParameters = ciphertext.m_cryptoParameters;
-	m_encryptionAlgorithm = ciphertext.m_encryptionAlgorithm;
+	cryptoContext = ciphertext.cryptoContext;
 	m_norm = ciphertext.m_norm;
 	m_elements = ciphertext.m_elements;
 }
@@ -54,8 +53,7 @@ template <class Element>
 Ciphertext<Element>& Ciphertext<Element>::operator=(const Ciphertext<Element> &rhs)
 {
 	if (this != &rhs) {
-		this->m_cryptoParameters = rhs.m_cryptoParameters;
-		this->m_encryptionAlgorithm = rhs.m_encryptionAlgorithm;
+		this->cryptoContext = rhs.cryptoContext;
 		this->m_norm = rhs.m_norm;
 		this->m_elements = rhs.m_elements;
 	}
@@ -68,8 +66,7 @@ template <class Element>
 Ciphertext<Element>& Ciphertext<Element>::operator=(Ciphertext<Element> &&rhs)
 {
 	if (this != &rhs) {
-		this->m_cryptoParameters = rhs.m_cryptoParameters;
-		this->m_encryptionAlgorithm = rhs.m_encryptionAlgorithm;
+		this->cryptoContext = rhs.cryptoContext;
 		this->m_norm = rhs.m_norm;
 		this->m_elements = rhs.m_elements;
 	}
@@ -79,19 +76,19 @@ Ciphertext<Element>& Ciphertext<Element>::operator=(Ciphertext<Element> &&rhs)
 
 // EvalAdd Operation
 template <class Element>
-Ciphertext<Element> Ciphertext<Element>::EvalAdd(const Ciphertext<Element> &ciphertext) const
+shared_ptr<Ciphertext<Element>> Ciphertext<Element>::EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext) const
 {
-	if(this->m_cryptoParameters != ciphertext.m_cryptoParameters){
-		std::string errMsg = "EvalAdd: CryptoParameters of added the ciphertexts are the not the same.";
+	if(this->cryptoContext != ciphertext->cryptoContext){
+		std::string errMsg = "EvalAdd: Ciphertexts are not from the same context";
 		throw std::runtime_error(errMsg);
 	}
 
-	Ciphertext<Element> sum(*this);
+	shared_ptr<Ciphertext<Element>> sum( new Ciphertext<Element>(*this) );
 
 	//YSP this should be optimized to use the in-place += operator
 	for (int i = 0; i < this->m_elements.size(); i++)
 	{
-		sum.m_elements[i] = this->m_elements[i] + ciphertext.m_elements[i];
+		sum->m_elements[i] = this->m_elements[i] + ciphertext->m_elements[i];
 	}
 	return sum;
 }
@@ -118,7 +115,7 @@ bool Ciphertext<Element>::Serialize(Serialized* serObj, const std::string fileFl
 	if( !this->SetIdFlag(serObj, fileFlag) )
 		return false;
 
-	if( !this->GetCryptoParameters().Serialize(serObj) )
+	if( !this->GetCryptoParameters()->Serialize(serObj) )
 		return false;
 
 	serObj->AddMember("Norm", this->GetNorm().ToString(), serObj->GetAllocator());
@@ -156,10 +153,11 @@ bool Ciphertext<Element>::Serialize(Serialized* serObj, const std::string fileFl
 
 // JSON FACILITY - Deserialize Operation
 template <class Element>
-bool Ciphertext<Element>::Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx) {
+bool Ciphertext<Element>::Deserialize(const Serialized& serObj) {
 
-	LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-	if( cryptoParams == 0 ) return false;
+	// deserialization must be done in a crypto context; this object must be initialized before deserializing the elements
+	if( !this->cryptoContext.ctx )
+		return false;
 
 	Serialized::ConstMemberIterator mIter = serObj.FindMember("Root");
 	if( mIter == serObj.MemberEnd() )
@@ -214,7 +212,6 @@ bool Ciphertext<Element>::Deserialize(const Serialized& serObj, const CryptoCont
 		elements[i] = json_ilElement;
 	}
 
-	this->m_cryptoParameters = cryptoParams;
 	this->SetNorm(bbiNorm);
 	this->SetElements(elements);
 

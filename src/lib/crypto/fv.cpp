@@ -34,78 +34,167 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef LBCRYPTO_CRYPTO_FV_C
 #define LBCRYPTO_CRYPTO_FV_C
 
-#include "../crypto/cryptocontext.h"
+#include "fv.h"
 #include <iostream>
 #include <fstream>
 
 namespace lbcrypto {
 
 template <class Element>
-bool LPAlgorithmParamsGenFV<Element>::ParamsGen(LPCryptoParameters<Element> *cryptoParams, int32_t evalAddCount,
+bool LPAlgorithmParamsGenFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount,
 	int32_t evalMultCount, int32_t keySwitchCount) const
 {
 
-	if (cryptoParams == 0)
+	if (!cryptoParams)
 		return false;
 
-	LPCryptoParametersFV<Element> *cryptoParamsFV =
-		dynamic_cast<LPCryptoParametersFV<Element>*>(cryptoParams);
+	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsFV = std::static_pointer_cast<LPCryptoParametersFV<Element>>(cryptoParams);
 
 	float sigma = cryptoParamsFV->GetDistributionParameter();
 	float alpha = cryptoParamsFV->GetAssuranceMeasure();
+	float hermiteFactor = cryptoParamsFV->GetSecurityLevel();
+	double p = cryptoParamsFV->GetPlaintextModulus().ConvertToDouble();
+	uint32_t r = cryptoParamsFV->GetRelinWindow();
 
 	//Bound of the Gaussian error polynomial
 	double Berr = sigma*sqrt(alpha);
 
 	//Bound of the key polynomial
-	double Bkey = sigma*sqrt(alpha);
+	double Bkey;
+	
+	//supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+	if (cryptoParamsFV->GetMode() == RLWE)
+		Bkey = sigma*sqrt(alpha);
+	else
+		Bkey = 1;
 
 	//expansion factor delta
 	auto delta = [](uint32_t n) -> double { return sqrt(n); };
 
 	//norm of fresh ciphertext polynomial
-	auto Vnorm = [&](uint32_t n) -> double { return Berr*(1+2*sqrt(n)*Bkey);  };
+	auto Vnorm = [&](uint32_t n) -> double { return Berr*(1+2*delta(n)*Bkey);  };
 
-	double V = Vnorm(1024);
+	//RLWE security constraint
+	auto nRLWE = [&](double q) -> double { return log2(q / sigma) / (4 * log2(hermiteFactor));  };
 
-	std::cout << "V norm = " << V << std::endl;
+	//initial values
+	uint32_t n = 512;
+	double q = 0;
+	
+	//only public key encryption and EvalAdd (optional when evalAddCount = 0) operations are supported
+	//the correctness constraint from section 3.5 of https://eprint.iacr.org/2014/062.pdf is used
+	if ((evalMultCount == 0) && (keySwitchCount == 0)) {
 
-	//std::cout << "Parameter generation is running ...." << endl;
+		//Correctness constraint
+		auto qFV = [&](uint32_t n) -> double { return p*(2*((evalAddCount+1)*Vnorm(n) + evalAddCount*p) + p);  };
+
+		//initial value
+		q = qFV(n);
+
+		while (nRLWE(q) > n) {
+			n = 2 * n;
+			q = qFV(n);
+		}
+
+	} 
+	//Only EvalMult operations are used in the correctness constraint
+	//the correctness constraint from section 3.5 of https://eprint.iacr.org/2014/062.pdf is used
+	else if ((evalAddCount == 0) && (evalMultCount > 0) && (keySwitchCount == 0))
+	{
+
+		//base for relinearization
+		double w = pow(2, r);
+
+		//function used in the EvalMult constraint
+		auto epsilon1 = [&](uint32_t n) -> double { return 4 / (delta(n)*Bkey);  };
+
+		//function used in the EvalMult constraint
+		auto C1 = [&](uint32_t n) -> double { return (1 + epsilon1(n))*delta(n)*delta(n)*p*Bkey;  };
+
+		//function used in the EvalMult constraint
+		auto C2 = [&](uint32_t n, double qPrev) -> double { return delta(n)*delta(n)*Bkey*(Bkey + p*p) + delta(n)*(floor(log2(qPrev) / r) + 1)*w*Berr;  };
+
+		//main correctness constraint
+		auto qFV = [&](uint32_t n, double qPrev) -> double { return p*(2 * (pow(C1(n), evalMultCount)*Vnorm(n) + evalMultCount*pow(C1(n), evalMultCount - 1)*C2(n, qPrev)) + p);  };
+
+		//initial values
+		double qPrev = 1e6;
+		q = qFV(n, qPrev);
+		qPrev = q;
+
+		//this "while" condition is needed in case the iterative solution for q 
+		//changes the requirement for n, which is rare but still theortically possible
+		while (nRLWE(q) > n) {
+
+			while (nRLWE(q) > n) {
+				n = 2 * n;
+				q = qFV(n, qPrev);
+				qPrev = q;
+			}
+
+			q = qFV(n, qPrev);
+
+			while (abs(q - qPrev) > 0.001*q) {
+				qPrev = q;
+				q = qFV(n, qPrev);
+			}
+
+		}
+
+	}
+
+	BigBinaryInteger qPrime = FindPrimeModulus(2 * n, ceil(log2(q))+1);
+	BigBinaryInteger rootOfUnity = RootOfUnity(2 * n, qPrime);
+
+	//reserves enough digits to avoid wrap-around when evaluating p*(c1*c2+c3*c4)
+	BigBinaryInteger qPrime2 = FindPrimeModulus(2 * n, 2*(ceil(log2(q)) + 1) + ceil(log2(p)) + 3);
+	BigBinaryInteger rootOfUnity2 = RootOfUnity(2 * n, qPrime2);
+
+	cryptoParamsFV->SetBigModulus(qPrime2);
+	cryptoParamsFV->SetBigRootOfUnity(rootOfUnity2);
+
+	shared_ptr<ILParams> ilParams( new ILParams(2*n, qPrime, rootOfUnity) );
+	cryptoParamsFV->SetElementParams(ilParams);
+
+	cryptoParamsFV->SetDelta(qPrime.DividedBy(cryptoParamsFV->GetPlaintextModulus()));
 
 	return true;
 	
 }
 
-
 template <class Element>
-bool LPAlgorithmFV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
-	LPPrivateKey<Element> *privateKey) const
+LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> cc) const
 {
+	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
-	if (publicKey == 0 || privateKey == 0)
-		return false;
+	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersFV<Element>>(cc.GetCryptoParameters());
 
-	const LPCryptoParametersFV<Element> *cryptoParams =
-		dynamic_cast<const LPCryptoParametersFV<Element>*>(&privateKey->GetCryptoParameters());
-
-	if (cryptoParams == 0)
-		return false;
-
-	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-	const DiscreteUniformGenerator dug(elementParams.GetModulus());
+	const DiscreteUniformGenerator dug(elementParams->GetModulus());
+	TernaryUniformGenerator tug;
 
 	//Generate the element "a" of the public key
 	Element a(dug, elementParams, Format::EVALUATION);
 
 	//Generate the secret key
-	//Done in two steps not to use a discrete Gaussian polynomial from a pre-computed pool
-	Element s(dgg, elementParams, Format::COEFFICIENT);
-	s.SwitchFormat();
 
-	privateKey->SetPrivateElement(s);
+	Element s;
+
+	//Done in two steps not to use a random polynomial from a pre-computed pool
+	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+	if (cryptoParams->GetMode() == RLWE) {
+		s = Element(dgg, elementParams, Format::COEFFICIENT);
+		s.SwitchFormat();
+	}
+	else {
+		s = Element(tug, elementParams, Format::COEFFICIENT);
+		s.SwitchFormat();
+	}
+
+	kp.secretKey->SetPrivateElement(s);
 
 	//Done in two steps not to use a discrete Gaussian polynomial from a pre-computed pool
 	Element e(dgg, elementParams, Format::COEFFICIENT);
@@ -115,68 +204,68 @@ bool LPAlgorithmFV<Element>::KeyGen(LPPublicKey<Element> *publicKey,
 	b-=e;
 	b-=(a*s);
 
-	publicKey->SetPublicElementAtIndex(0, std::move(b));
-	publicKey->SetPublicElementAtIndex(1, std::move(a));
+	kp.publicKey->SetPublicElementAtIndex(0, std::move(b));
+	kp.publicKey->SetPublicElementAtIndex(1, std::move(a));
 
-	return true;
+	return kp;
 }
 
 template <class Element>
-EncryptResult LPAlgorithmFV<Element>::Encrypt(const LPPublicKey<Element> &pubKey,
-	const Element &plaintext,
-	Ciphertext<Element> *ciphertext) const
+shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
+		Element &plaintext) const
 {
+	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(publicKey->GetCryptoContext()) );
 
-	const LPCryptoParametersFV<Element> *cryptoParams =
-		dynamic_cast<const LPCryptoParametersFV<Element>*>(&pubKey.GetCryptoParameters());
+	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersFV<Element>>(publicKey->GetCryptoParameters());
 
-	const LPPublicKey<Element> *publicKey =
-		dynamic_cast<const LPPublicKey<Element>*>(&pubKey);
-
-	if (cryptoParams == 0) return EncryptResult();
-
-	if (ciphertext == 0) return EncryptResult();
-
-	const ElemParams &elementParams = cryptoParams->GetElementParams();
+	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	const BigBinaryInteger &delta = cryptoParams->GetDelta();
 
+	TernaryUniformGenerator tug;
+
 	const Element &p0 = publicKey->GetPublicElements().at(0);
 	const Element &p1 = publicKey->GetPublicElements().at(1);
 
-	Element u(dgg, elementParams, Format::EVALUATION);
+	Element u;
+
+	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+	if (cryptoParams->GetMode()==RLWE)
+		u = Element(dgg, elementParams, Format::EVALUATION);
+	else
+		u = Element(tug, elementParams, Format::EVALUATION);
+
 	Element e1(dgg, elementParams, Format::EVALUATION);
 	Element e2(dgg, elementParams, Format::EVALUATION);
 
 	Element c0(elementParams);
 	Element c1(elementParams);
 
+	plaintext.SwitchFormat();
+
 	c0 = p0*u + e1 + delta*plaintext;
 
 	c1 = p1*u + e2;
 
-	ciphertext->SetCryptoParameters(cryptoParams);
-	ciphertext->SetEncryptionAlgorithm(this->GetScheme());
 	ciphertext->SetElements({ c0,c1 });
 
-	return EncryptResult(0);
+	return ciphertext;
 }
 
 template <class Element>
-DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> &privateKey,
-	const Ciphertext<Element> &ciphertext,
-	Element *plaintext) const
+DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const shared_ptr<Ciphertext<Element>> ciphertext,
+		Element *plaintext) const
 {
+	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
+	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+	const BigBinaryInteger &q = elementParams->GetModulus();
 
-	const LPCryptoParameters<Element> &cryptoParams = privateKey.GetCryptoParameters();
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
-	const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
-	const BigBinaryInteger &q = elementParams.GetModulus();
+	const std::vector<Element> &c = ciphertext->GetElements();
 
-	const std::vector<Element> &c = ciphertext.GetElements();
-
-	const Element &s = privateKey.GetPrivateElement();
+	const Element &s = privateKey->GetPrivateElement();
 
 	Element b = c[0] + s*c[1];
 
@@ -184,25 +273,29 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> &priva
 
 	b = b.MultiplyAndRound(p, q);
 	
-	*plaintext = b;
+	*plaintext = b.SignedMod(p);
 
 	return DecryptResult(plaintext->GetLength());
 }
 
 template <class Element>
-bool LPAlgorithmSHEFV<Element>::EvalMultKeyGen(const LPPrivateKey<Element> &privateKey, LPEvalKey<Element> *ek) const
+shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::EvalMultKeyGen(
+			const shared_ptr<LPPrivateKey<Element>> k1,
+			const shared_ptr<LPPrivateKey<Element>>) const
 {
-	const LPCryptoParametersFV<Element> &cryptoParamsLWE = static_cast<const LPCryptoParametersFV<Element>&>(privateKey.GetCryptoParameters());
-	const ElemParams &elementParams = cryptoParamsLWE.GetElementParams();
-	const BigBinaryInteger &p = cryptoParamsLWE.GetPlaintextModulus();
-	const Element &s = privateKey.GetPrivateElement();
+	shared_ptr<LPEvalKeyRelin<Element>> ek(new LPEvalKeyRelin<Element>(k1->GetCryptoContext()));
+
+	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::static_pointer_cast<LPCryptoParametersFV<Element>>(k1->GetCryptoParameters());
+	const shared_ptr<ElemParams> elementParams = cryptoParamsLWE->GetElementParams();
+	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
+	const Element &s = k1->GetPrivateElement();
 
 	Element sSquared(s*s);
 
-	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE.GetDiscreteGaussianGenerator();
-	const DiscreteUniformGenerator dug(elementParams.GetModulus());
+	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
+	const DiscreteUniformGenerator dug(elementParams->GetModulus());
 
-	usint relinWindow = cryptoParamsLWE.GetRelinWindow();
+	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
 	std::vector<Element> evalKeyElements(sSquared.PowersOfBase(relinWindow));
 	std::vector<Element> evalKeyElementsGenerated;
@@ -222,38 +315,39 @@ bool LPAlgorithmSHEFV<Element>::EvalMultKeyGen(const LPPrivateKey<Element> &priv
 	ek->SetAVector(std::move(evalKeyElements));
 	ek->SetBVector(std::move(evalKeyElementsGenerated));
 
-	return true;
+	return ek;
 }
 
 template <class Element>
-void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &ek,
-				Ciphertext<Element> *newCiphertext) const {
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+		const shared_ptr<Ciphertext<Element>> ciphertext2,
+		const shared_ptr<LPEvalKey<Element>> ek) const {
 
-	if(ciphertext1.GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2.GetElement().GetFormat() == Format::COEFFICIENT){
+	if(ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT){
 		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult cannot multiply in COEFFICIENT domain.");
 	}
 
-	if(!(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters()) || !(ciphertext1.GetCryptoParameters() == newCiphertext->GetCryptoParameters())){
+	if(!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())){
 		std::string errMsg = "LPAlgorithmSHEFV::EvalMult crypto parameters are not the same";
 		throw std::runtime_error(errMsg);
 	}
 
-	const LPCryptoParametersFV<Element> *cryptoParamsLWE = dynamic_cast<const LPCryptoParametersFV<Element>*>(&ek.GetCryptoParameters());
+	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
+
+	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::static_pointer_cast<LPCryptoParametersFV<Element>>(ek->GetCryptoParameters());
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
-	const ElemParams &elementParams = cryptoParamsLWE->GetElementParams();
+	const shared_ptr<ElemParams> elementParams = cryptoParamsLWE->GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
-	const BigBinaryInteger &q = elementParams.GetModulus();
+	const BigBinaryInteger &q = elementParams->GetModulus();
 
 	const BigBinaryInteger &bigModulus = cryptoParamsLWE->GetBigModulus();
 	const BigBinaryInteger &bigRootOfUnity = cryptoParamsLWE->GetBigRootOfUnity();
 	
-	const LPEvalKeyRelin<Element> &evalKey =
-		dynamic_cast<const LPEvalKeyRelin<Element>&>(ek);
+	shared_ptr<LPEvalKeyRelin<Element>> evalKey = std::static_pointer_cast<LPEvalKeyRelin<Element>>(ek);
 
-	std::vector<Element> cipherText1Elements = ciphertext1.GetElements();
-	std::vector<Element> cipherText2Elements = ciphertext2.GetElements();
+	std::vector<Element> cipherText1Elements = ciphertext1->GetElements();
+	std::vector<Element> cipherText2Elements = ciphertext2->GetElements();
 
 	//converts the ciphertext elements to coefficient format so that the modulus switching can be done
 	cipherText1Elements[0].SwitchFormat();
@@ -287,9 +381,9 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 	c2 = c2.MultiplyAndRound(p, q);
 
 	//switch the modulus back to the original value
-	c0.SwitchModulus(q, elementParams.GetRootOfUnity());
-	c1.SwitchModulus(q, elementParams.GetRootOfUnity());
-	c2.SwitchModulus(q, elementParams.GetRootOfUnity());
+	c0.SwitchModulus(q, elementParams->GetRootOfUnity());
+	c1.SwitchModulus(q, elementParams->GetRootOfUnity());
+	c2.SwitchModulus(q, elementParams->GetRootOfUnity());
 
 	c0.SwitchFormat();
 	c1.SwitchFormat();
@@ -300,8 +394,8 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 
 	Element ct0(c0), ct1(c1);
 	
-	const std::vector<Element> &b = evalKey.GetAVector();
-	const std::vector<Element> &a = evalKey.GetBVector();
+	const std::vector<Element> &b = evalKey->GetAVector();
+	const std::vector<Element> &a = evalKey->GetBVector();
 
 	for (usint i = 0; i < digitsC2.size(); ++i)
 	{
@@ -309,47 +403,52 @@ void LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element> &ciphertext1,
 		ct1 += digitsC2[i] * a[i];
 	}
 
-	*newCiphertext = ciphertext1;
+	//*newCiphertext = ciphertext1;
 	newCiphertext->SetElements({ct0, ct1});
+	return newCiphertext;
 
 }
 
 template <class Element>
-void LPAlgorithmSHEFV<Element>::EvalAdd(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext) const {
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 
-	if(!(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters()) || !(ciphertext1.GetCryptoParameters() == newCiphertext->GetCryptoParameters())){
+	if(!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())){
 		std::string errMsg = "LPAlgorithmSHEFV::EvalAdd crypto parameters are not the same";
 		throw std::runtime_error(errMsg);
 	}
 
-	std::vector<Element> cipherText1Elements = ciphertext1.GetElements();
-	std::vector<Element> cipherText2Elements = ciphertext2.GetElements();
+	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>( ciphertext1->GetCryptoContext() ) );
+
+	std::vector<Element> cipherText1Elements = ciphertext1->GetElements();
+	std::vector<Element> cipherText2Elements = ciphertext2->GetElements();
 
 	Element c0 = cipherText1Elements[0] + cipherText2Elements[0];
 	Element c1 = cipherText1Elements[1] + cipherText2Elements[1];
 
 	newCiphertext->SetElements({ c0,c1 });
+	return newCiphertext;
 }
 
 template <class Element>
-void LPAlgorithmSHEFV<Element>::EvalSub(const Ciphertext<Element> &ciphertext1,
-	const Ciphertext<Element> &ciphertext2,
-	Ciphertext<Element> *newCiphertext) const {
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
+	const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 
-	if (!(ciphertext1.GetCryptoParameters() == ciphertext2.GetCryptoParameters()) || !(ciphertext1.GetCryptoParameters() == newCiphertext->GetCryptoParameters())) {
+	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
 		std::string errMsg = "LPAlgorithmSHEFV::EvalSub crypto parameters are not the same";
 		throw std::runtime_error(errMsg);
 	}
 
-	std::vector<Element> cipherText1Elements = ciphertext1.GetElements();
-	std::vector<Element> cipherText2Elements = ciphertext2.GetElements();
+	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>( ciphertext1->GetCryptoContext() ) );
+
+	std::vector<Element> cipherText1Elements = ciphertext1->GetElements();
+	std::vector<Element> cipherText2Elements = ciphertext2->GetElements();
 
 	Element c0 = cipherText1Elements[0] - cipherText2Elements[0];
 	Element c1 = cipherText1Elements[1] - cipherText2Elements[1];
 
 	newCiphertext->SetElements({ c0,c1 });
+	return newCiphertext;
 }
 
 // Constructor for LPPublicKeyEncryptionSchemeFV
@@ -368,8 +467,6 @@ LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitse
 		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
 	if (mask[EVALAUTOMORPHISM])
 		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
-	if (mask[SHE])
-		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
 	if (mask[FHE])
 		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
 	if (mask[LEVELEDSHE])

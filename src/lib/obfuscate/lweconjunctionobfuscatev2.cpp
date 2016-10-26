@@ -32,7 +32,6 @@ namespace lbcrypto {
 template <class Element>
 ObfuscatedLWEConjunctionPatternV2<Element>::ObfuscatedLWEConjunctionPatternV2() {
 
-	this->m_elemParams = NULL;
 	this->m_length = 0;
 	this->m_chunkSize = 1;
 	this->m_S_vec = NULL;
@@ -66,9 +65,9 @@ ObfuscatedLWEConjunctionPatternV2<Element>::~ObfuscatedLWEConjunctionPatternV2()
 }
 
 template <class Element>
-ObfuscatedLWEConjunctionPatternV2<Element>::ObfuscatedLWEConjunctionPatternV2(ElemParams &elemParams, usint chunkSize) {
+ObfuscatedLWEConjunctionPatternV2<Element>::ObfuscatedLWEConjunctionPatternV2(shared_ptr<ElemParams> elemParams, usint chunkSize) {
 
-	this->m_elemParams = &elemParams;
+	this->m_elemParams = elemParams;
 
 	this->m_length = 0;
 	this->m_chunkSize = chunkSize;
@@ -86,7 +85,7 @@ ObfuscatedLWEConjunctionPatternV2<Element>::ObfuscatedLWEConjunctionPatternV2(El
 }
 
 template <class Element>
-ObfuscatedLWEConjunctionPatternV2<Element>::ObfuscatedLWEConjunctionPatternV2(ElemParams &elemParams) : 
+ObfuscatedLWEConjunctionPatternV2<Element>::ObfuscatedLWEConjunctionPatternV2(shared_ptr<ElemParams> elemParams) :
 	ObfuscatedLWEConjunctionPatternV2(elemParams,1) {};
 
 template <class Element>
@@ -174,7 +173,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::KeyGen(DiscreteGaussianGener
 	std::cout << "BitLength in KeyGen: " << k << std::endl;
 
 	usint l = obfuscatedPattern->GetLength();
-	const ElemParams *params = obfuscatedPattern->GetParameters();
+	const shared_ptr<ElemParams> params = obfuscatedPattern->GetParameters();
 	usint chunkSize = obfuscatedPattern->GetChunkSize();
 	usint adjustedLength = l/chunkSize;
 	usint stddev = dgg.GetStd(); 
@@ -294,10 +293,9 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Encode(
 
 	size_t m = Ai.GetCols();
 	size_t k = m - 2;
-	size_t n = elemS.GetParams().GetCyclotomicOrder()/2;
-	const BigBinaryInteger &modulus = elemS.GetParams().GetModulus();
-	const ElemParams &params = elemS.GetParams();
-	auto zero_alloc = Element::MakeAllocator(&params, COEFFICIENT);
+	size_t n = elemS.GetParams()->GetCyclotomicOrder()/2;
+	const BigBinaryInteger &modulus = elemS.GetParams()->GetModulus();
+	auto zero_alloc = Element::MakeAllocator(elemS.GetParams(), COEFFICIENT);
 
 	//generate a row vector of discrete Gaussian ring elements
 	//YSP this can be done using discrete Gaussian allocator later - after the dgg allocator is updated to use the same dgg instance
@@ -364,7 +362,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 	usint chunkSize = obfuscatedPattern->GetChunkSize();
 	usint adjustedLength = l/chunkSize;
 	usint chunkExponent = 1 << chunkSize;
-	const ElemParams *params = obfuscatedPattern->GetParameters();
+	const shared_ptr<ElemParams> params = obfuscatedPattern->GetParameters();
 
 	const std::string patternString = clearPattern.GetPatternString();
 
@@ -429,7 +427,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 			// otherwise use an existing one that has already been created
 			if ((k & chunkMask)==0) {
 				//cout << "entered the non-mask condition " << endl;
-				Element elems1(dbg,*params,EVALUATION);
+				Element elems1(dbg,params,EVALUATION);
 				sVector.push_back(elems1);
 			}
 			else
@@ -439,7 +437,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 				sVector.push_back(elems1);
 			}
 			
-			Element elemr1(dbg,*params,EVALUATION);
+			Element elemr1(dbg,params,EVALUATION);
 			rVector.push_back(elemr1);
 
 		}
@@ -505,7 +503,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 
 	//std::cout << "encode started for L" << std::endl;
 
-	Element	elemrl1(dbg,*params,EVALUATION);
+	Element	elemrl1(dbg,params,EVALUATION);
 
 	Matrix<Element> *Sl = new Matrix<Element>(zero_alloc, m, m);
 	this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],Sigma[adjustedLength],elemrl1*s_prod,dgg,Sl);
@@ -575,7 +573,7 @@ bool LWEConjunctionObfuscationAlgorithmV2<Element>::Evaluate(
 
 	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
 
-	const ElemParams *params = obfuscatedPattern.GetParameters();
+	const shared_ptr<ElemParams> params = obfuscatedPattern.GetParameters();
 
 	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
 
