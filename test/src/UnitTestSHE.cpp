@@ -121,7 +121,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
 
-	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint = cc.EvalMultKeyGen(kp.secretKey, kp2.secretKey);
+	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
 
 	shared_ptr<Ciphertext<ILVector2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
 	newCiphertext.push_back(newCt);
@@ -174,7 +174,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
 
 	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
-	keySwitchHint = cc.GetEncryptionAlgorithm().EvalMultKeyGen(kp.secretKey, kp2.secretKey);
+	keySwitchHint = cc.GetEncryptionAlgorithm().KeySwitchGen(kp.secretKey, kp2.secretKey);
 
 	shared_ptr<Ciphertext<ILVector2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
 	newCiphertext[0] = newCt;
@@ -228,7 +228,7 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 	LPKeyPair<ILVector2n> kp2 = cc.KeyGen();
 
 	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
-	keySwitchHint = cc.GetEncryptionAlgorithm().EvalMultKeyGen(kp.secretKey, kp2.secretKey);
+	keySwitchHint = cc.GetEncryptionAlgorithm().KeySwitchGen(kp.secretKey, kp2.secretKey);
 
 	shared_ptr<Ciphertext<ILVector2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
 	newCiphertext[0] = newCt;
@@ -340,7 +340,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	LPKeyPair<ILVectorArray2n> kp2 = cc.KeyGen();
 
 	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint;
-	keySwitchHint = cc.EvalMultKeyGen(kp.secretKey, kp2.secretKey);
+	keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
 
 	shared_ptr<Ciphertext<ILVectorArray2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
 	newCiphertext[0] = newCt;
@@ -405,7 +405,7 @@ TEST(UTSHE, ringreduce_single_crt) {
 	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
 
 	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
-	keySwitchHint = cc.GetEncryptionAlgorithm().EvalMultKeyGen(kp.secretKey, kp2.secretKey);
+	keySwitchHint = cc.GetEncryptionAlgorithm().KeySwitchGen(kp.secretKey, kp2.secretKey);
 
 	shared_ptr<Ciphertext<ILVector2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
 	newCiphertext[0] = newCt;
@@ -487,7 +487,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 
 	LPKeyPair<ILVectorArray2n> kp2 = cc.SparseKeyGen();
 
-	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint = cc.EvalMultKeyGen(kp.secretKey, kp2.secretKey);
+	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
 
 	newCiphertext[0] = cc.KeySwitch(keySwitchHint, ciphertext[0]);
 

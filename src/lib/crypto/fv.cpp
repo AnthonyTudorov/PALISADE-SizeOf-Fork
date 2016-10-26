@@ -280,8 +280,7 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Elem
 
 template <class Element>
 shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::EvalMultKeyGen(
-			const shared_ptr<LPPrivateKey<Element>> k1,
-			const shared_ptr<LPPrivateKey<Element>>) const
+			const shared_ptr<LPPrivateKey<Element>> k1) const
 {
 	shared_ptr<LPEvalKeyRelin<Element>> ek(new LPEvalKeyRelin<Element>(k1->GetCryptoContext()));
 

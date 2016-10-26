@@ -73,8 +73,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPRENull<Element>::ReEncrypt(const sha
 
 template <class Element>
 shared_ptr<LPEvalKey<Element>> LPAlgorithmSHENull<Element>::EvalMultKeyGen(
-			const shared_ptr<LPPrivateKey<Element>> k1,
-			const shared_ptr<LPPrivateKey<Element>> k2) const
+			const shared_ptr<LPPrivateKey<Element>> k1) const
 {
 	shared_ptr<LPEvalKey<Element>> EK( new LPEvalKeyRelin<Element>(k1->GetCryptoContext()) );
 

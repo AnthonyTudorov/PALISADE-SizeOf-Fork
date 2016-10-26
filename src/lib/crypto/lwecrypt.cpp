@@ -136,11 +136,11 @@ LPKeyPair<Element> LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(const C
 * KeySwitchHint 
 */
 template<class Element>
-shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmLTV<Element>::EvalMultKeyGen(
+shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmLTV<Element>::KeySwitchGen(
 		const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 		const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 
-		shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
+		shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyNTRU<Element>(originalPrivateKey->GetCryptoContext()));
 
 		const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersLTV<Element>>(originalPrivateKey->GetCryptoParameters() );
 

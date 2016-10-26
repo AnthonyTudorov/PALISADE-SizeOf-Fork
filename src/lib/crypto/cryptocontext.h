@@ -170,15 +170,22 @@ public:
 	}
 
 	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
-			const shared_ptr<LPPrivateKey<Element>> k1,
-			const shared_ptr<LPPrivateKey<Element>> k2) const {
+			const shared_ptr<LPPrivateKey<Element>> key) const {
 
-		if( k1->GetCryptoContext() != *this || k2->GetCryptoContext() != *this )
-			throw std::logic_error("Keys passed to EvalMultKeyGen were not generated with this crypto context");
+		if( key->GetCryptoContext() != *this )
+			throw std::logic_error("Key passed to EvalMultKeyGen were not generated with this crypto context");
 
-		return GetEncryptionAlgorithm().EvalMultKeyGen(k1, k2);
+		return GetEncryptionAlgorithm().EvalMultKeyGen(key);
 	}
 
+	shared_ptr<LPEvalKey<Element>> KeySwitchGen(
+			const shared_ptr<LPPrivateKey<Element>> key1, const shared_ptr<LPPrivateKey<Element>> key2) const {
+
+		if( key1->GetCryptoContext() != *this || key2->GetCryptoContext() != *this )
+			throw std::logic_error("Keys passed to KeySwitchGen were not generated with this crypto context");
+
+		return GetEncryptionAlgorithm().KeySwitchGen(key1, key2);
+	}
 
 	shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
 			const shared_ptr<LPPrivateKey<Element>> k1,

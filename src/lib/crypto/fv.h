@@ -319,8 +319,7 @@ namespace lbcrypto {
 		* @param *evalKey the evaluation key.
 		*/
 		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
-					const shared_ptr<LPPrivateKey<Element>> k1,
-					const shared_ptr<LPPrivateKey<Element>> k2) const;
+					const shared_ptr<LPPrivateKey<Element>> k1) const;
 		
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2) const {
 					std::string errMsg = "LPAlgorithmSHEFV::EvalMult without RelinKey is not applicable for FV SHE Scheme.";

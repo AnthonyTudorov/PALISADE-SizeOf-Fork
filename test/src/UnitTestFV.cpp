@@ -248,7 +248,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
 
 	//generate the evaluate key
-	evalKey = cc.EvalMultKeyGen(kp.secretKey, kp.secretKey);
+	evalKey = cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
 
@@ -331,7 +331,7 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
 
 	//generate the evaluate key
-	evalKey = cc.EvalMultKeyGen(kp.secretKey, kp.secretKey);
+	evalKey = cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
 
@@ -469,7 +469,7 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
 
 	//generate the evaluate key
-	evalKey= cc.EvalMultKeyGen(kp.secretKey, kp.secretKey);
+	evalKey= cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
 

@@ -1082,13 +1082,13 @@ void FinalLeveledComputation(){
 	shared_ptr<LPEvalKey<ILVectorArray2n>> quadraticKeySwitchHint1;
 	shared_ptr<LPEvalKey<ILVectorArray2n>> quadraticKeySwitchHint2;
 	
-	linearKeySwitchHint1 = cc.EvalMultKeyGen(kp.secretKey, levelPairs[0].secretKey);
+	linearKeySwitchHint1 = cc.KeySwitchGen(kp.secretKey, levelPairs[0].secretKey);
 	quadraticKeySwitchHint1 = cc.QuadraticEvalMultKeyGen(kp.secretKey, levelPairs[0].secretKey);
 	auto e = levelPairs[0].secretKey->GetPrivateElement();
 	e.DropElementAtIndex(e.GetNumOfElements()-1);
 	levelPairs[0].secretKey->SetPrivateElement(e);
 
-	linearKeySwitchHint2 = cc.EvalMultKeyGen(levelPairs[0].secretKey, levelPairs[1].secretKey);
+	linearKeySwitchHint2 = cc.KeySwitchGen(levelPairs[0].secretKey, levelPairs[1].secretKey);
 	quadraticKeySwitchHint2 = cc.QuadraticEvalMultKeyGen(levelPairs[0].secretKey, levelPairs[1].secretKey);
 	e = levelPairs[1].secretKey->GetPrivateElement();
 	e.DropElementAtIndex(e.GetNumOfElements()-1);
