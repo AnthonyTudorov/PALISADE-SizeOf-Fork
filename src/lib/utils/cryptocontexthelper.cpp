@@ -148,6 +148,9 @@ inline shared_ptr<LPCryptoParameters<Element>> DeserializeCryptoParameters(const
 	else if (type == "LPCryptoParametersNull") {
 		parmPtr = new LPCryptoParametersNull<Element>();
 	}
+	else if (type == "LPCryptoParametersFV") {
+		parmPtr = new LPCryptoParametersFV<Element>();
+	}
 	else
 		return 0;
 

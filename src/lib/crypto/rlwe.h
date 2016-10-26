@@ -113,7 +113,7 @@ public:
 	 *
 	 * @return the standard deviation r.
 	 */
-	float GetDistributionParameter() const { return m_dgg.GetStd(); }
+	float GetDistributionParameter() const { return m_distributionParameter; }
 
 	/**
 	 * Returns the values of assurance measure alpha

@@ -178,8 +178,6 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	cc.GetEncryptionAlgorithm().ParamsGen(cc.GetCryptoParameters());
-
 	kp = cc.KeyGen();
 
 	if (!kp.good()) {
@@ -194,8 +192,8 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
 
-	ciphertext1 = cc.Encrypt(kp.publicKey, plaintext1, false);
-	ciphertext2 = cc.Encrypt(kp.publicKey, plaintext2, false);
+	ciphertext1 = cc.Encrypt(kp.publicKey, plaintext1, true);
+	ciphertext2 = cc.Encrypt(kp.publicKey, plaintext2, true);
 
 	////////////////////////////////////////////////////////////
 	//EvalAdd Operation
@@ -213,7 +211,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	//Decryption after EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertextAdd, &plaintextNew, false);
+	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertextAdd, &plaintextNew, true);
 
 	//this step is needed because there is no marker for padding in the case of IntPlaintextEncoding
 	plaintextNew.resize(plaintextAdd.size());
@@ -236,7 +234,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	//Decryption after EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	result = cc.Decrypt(kp.secretKey, ciphertextSub, &plaintextNewSub, false);
+	result = cc.Decrypt(kp.secretKey, ciphertextSub, &plaintextNewSub, true);
 
 	plaintextNewSub.resize(plaintextSub.size());
 
@@ -264,7 +262,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	//Decryption after EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	result = cc.Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult, false);
+	result = cc.Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult, true);
 
 	plaintextNewMult.resize(plaintextMult.size());
 
