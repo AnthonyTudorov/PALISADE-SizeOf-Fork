@@ -2,8 +2,11 @@
 // D. Cousins
 
 #define PROFILE //need to define in order to turn on timing
-
+#define TEST1
+//#define TEST2
 //#define TEST3
+
+
 
 
 
@@ -227,7 +230,7 @@ void test_NTT () {
   //  BigBinaryInteger modulus(q1);
 
   //  NextQ(modulus, BigBinaryInteger("2"), m1, BigBinaryInteger("4"), BigBinaryInteger("4"));
- 
+#ifdef TEST1 
   BigBinaryInteger rootOfUnity1(RootOfUnity(m, q1));
   ILParams params1(m, q1, rootOfUnity1);
 
@@ -243,7 +246,8 @@ void test_NTT () {
 
   ILVector2n x1aClone(x1a);
   ILVector2n x1bClone(x1b);
-
+#endif
+#ifdef TEST2
   BigBinaryInteger rootOfUnity2(RootOfUnity(m, q2));
   ILParams params2(m, q2, rootOfUnity2);
 
@@ -259,7 +263,7 @@ void test_NTT () {
 
   ILVector2n x2aClone(x2a);
   ILVector2n x2bClone(x2b);
-  
+#endif  
 #ifdef TEST3
   NextQ(q3, BigBinaryInteger("2"), m, BigBinaryInteger("4"), BigBinaryInteger("4"));
   cout << "q3 : "<<q3.ToString()<<endl;
@@ -309,7 +313,7 @@ void test_NTT () {
   for (ix = 0; ix <nloop; ix++) {
     if (ix%100 == 0)
       cout << ix <<endl;
-    
+#ifdef TEST1    
     //forward 
     TIC(t1);
     x1a.SwitchFormat();
@@ -318,7 +322,8 @@ void test_NTT () {
     TIC(t1);
     x1b.SwitchFormat();
     time1bf += TOC_US(t1);
-
+#endif
+#ifdef TEST2    
     TIC(t1);
     x2a.SwitchFormat();
     time2af += TOC_US(t1);
@@ -326,6 +331,7 @@ void test_NTT () {
     TIC(t1);
     x2b.SwitchFormat();
     time2bf += TOC_US(t1);
+#endif
 #ifdef TEST3
     TIC(t1);
     x3a.SwitchFormat();
@@ -335,7 +341,7 @@ void test_NTT () {
     x3b.SwitchFormat();
     time3bf += TOC_US(t1);
 #endif
-    //reverse
+#ifdef TEST1    //reverse
     TIC(t1);
     x1a.SwitchFormat();
     time1ar += TOC_US(t1);
@@ -343,7 +349,8 @@ void test_NTT () {
     TIC(t1);
     x1b.SwitchFormat();
     time1br += TOC_US(t1);
-
+#endif
+#ifdef TEST2
     TIC(t1);
     x2a.SwitchFormat();
     time2ar += TOC_US(t1);
@@ -351,6 +358,7 @@ void test_NTT () {
     TIC(t1);
     x2b.SwitchFormat();
     time2br += TOC_US(t1);
+#endif
 #ifdef TEST3
     TIC(t1);
     x3a.SwitchFormat();
@@ -360,10 +368,14 @@ void test_NTT () {
     x3b.SwitchFormat();
     time3br += TOC_US(t1);
 #endif
+#ifdef TEST1
     failed |= clonetest(x1a, x1aClone, "x1a");
     failed |= clonetest(x1b, x1bClone, "x1b");
+#endif
+#ifdef TEST2
     failed |= clonetest(x2a, x2aClone, "x2a");
     failed |= clonetest(x2b, x2bClone, "x2b");
+#endif
 #ifdef TEST3
     failed |= clonetest(x3a, x3aClone, "x3a");
     failed |= clonetest(x3b, x3bClone, "x3b");
