@@ -777,7 +777,7 @@ TEST(UTILVector2n, cyclotomicOrder_test) {
 }
 
 TEST(UTILVectorArray2n, constructors_test) {
-	  bool dbg_flag = true;
+	  bool dbg_flag = false;
   usint m = 8;
   usint towersize = 3;
 

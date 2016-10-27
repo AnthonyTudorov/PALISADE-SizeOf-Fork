@@ -217,7 +217,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 }
 
 TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
-    bool dbg_flag = true;
+    bool dbg_flag = false;
 
 	usint init_m = 16;
 
