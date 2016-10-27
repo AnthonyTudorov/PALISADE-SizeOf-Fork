@@ -442,10 +442,14 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Ele
 	Element b = f*c;
 
 	b.SwitchFormat();
-	
-	*plaintext = b.SignedMod(p);
+
+	// Interpolation is needed in the case of Double-CRT interpolation, for example, ILVectorArray2n
+	// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as ILVector2n
+	Element interpolatedElement = b.CRTInterpolate();
+	*plaintext = interpolatedElement.SignedMod(p);
 
 	return DecryptResult(plaintext->GetLength());
+
 }
 
 // Constructor for LPPublicKeyEncryptionSchemeLTV

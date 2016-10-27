@@ -48,6 +48,9 @@ namespace lbcrypto {
 	/**
 	* @brief Interface for ideal lattices
 	*/
+	//template is used to implement curiosly recurring template pattern so that abstract data type could be use as in return,
+	//such as in the case of CRTInterpolate
+	template <typename Element>
 	class ILElement : public Serializable
 	{
 	public:
@@ -64,6 +67,14 @@ namespace lbcrypto {
 		virtual void AddILElementOne() = 0;
 		
 		virtual usint GetLength() const = 0;
+
+		/**
+		* Virtual interface for interpolation based on the Chinese Remainder Transform Interpolation.
+		*
+		* @return the original ring element.
+		*/
+		virtual Element CRTInterpolate() const = 0;
+
 	};
 
 } // namespace lbcrypto ends
