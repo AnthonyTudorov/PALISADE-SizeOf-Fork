@@ -365,6 +365,18 @@ TEST(UTBinInt,basic_math){
       << "Failure testing divided_by_a_greater_than_b";
   }
 
+
+  {
+	  BigBinaryInteger a("8096");
+	  BigBinaryInteger b("4049");
+
+	  calculatedResult = a.Mod(b);
+	  expectedResult = 4047;
+
+	  EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+		  << "Failure testing Mod";
+  }
+
   // TEST CASE FOR VERIFICATION OF ROUNDING OPERATION.
 
   {
