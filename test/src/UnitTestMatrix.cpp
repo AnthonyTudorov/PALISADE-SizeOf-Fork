@@ -85,6 +85,17 @@ static function<unique_ptr<ILVector2n>()> fastIL2nAlloc() {
         );
 }
 
+static function<unique_ptr<ILVector2n>()> fastUniformIL2nAlloc() {
+	usint m = 16;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	return ILVector2n::MakeDiscreteUniformAllocator(
+		shared_ptr<ILParams>(new ILParams(
+			m, modulus, rootOfUnity)),
+		EVALUATION
+	);
+}
+
 TEST(UTMatrix,basic_il2n_math){
     Matrix<ILVector2n> z(secureIL2nAlloc(), 2,2);
     Matrix<ILVector2n> n = Matrix<ILVector2n>(secureIL2nAlloc(), 2, 2).Ones();
@@ -159,6 +170,25 @@ TEST(UTMatrix, scalar_mult){
     //*two = 2;
     //EXPECT_EQ(*two*n, twos);
     //EXPECT_EQ(n**two, twos);
+}
+
+TEST(UTMatrix, ILVector2n_mult_square_matrix) {
+
+	int32_t dimension = 4;
+
+	Matrix<ILVector2n> A = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
+	Matrix<ILVector2n> B = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
+	Matrix<ILVector2n> C = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
+	Matrix<ILVector2n> I = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension).Identity();
+
+	EXPECT_EQ(A, A*I) << "Matrix multiplication of two ILVector2Ns: A = AI - failed.\n";
+	EXPECT_EQ(A, I*A) << "Matrix multiplication of two ILVector2Ns: A = IA - failed.\n";
+
+	EXPECT_EQ((A*B).Transpose(), B.Transpose()*A.Transpose()) << "Matrix multiplication of two ILVector2Ns: (A*B)^T = B^T*A^T - failed.\n";
+
+	EXPECT_EQ(A*B*C, A*(B*C)) << "Matrix multiplication of two ILVector2Ns: A*B*C = A*(B*C) - failed.\n";
+	EXPECT_EQ(A*B*C, (A*B)*C) << "Matrix multiplication of two ILVector2Ns: A*B*C = (A*B)*C - failed.\n";
+
 }
 
 inline void expect_close(double a, double b) {
