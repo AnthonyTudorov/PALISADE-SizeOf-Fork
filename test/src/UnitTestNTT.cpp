@@ -98,7 +98,7 @@ TEST(UTNTT, switch_format_simple_single_crt) {
 	x1 = { 431,3414,1234,7845,2145,7415,5471,8452 };
 
 	ILVector2n x2( x2p, Format::COEFFICIENT );
-	x2 = { 4127,9647,1987,5410,6541,7014,9741,1256 };
+	x2 = { 4127,9647,1987,5410 };
 
 	ILVector2n x1Clone(x1);
 	ILVector2n x2Clone(x2);
