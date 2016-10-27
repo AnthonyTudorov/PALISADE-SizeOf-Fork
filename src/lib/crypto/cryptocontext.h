@@ -170,15 +170,22 @@ public:
 	}
 
 	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
-			const shared_ptr<LPPrivateKey<Element>> k1,
-			const shared_ptr<LPPrivateKey<Element>> k2) const {
+			const shared_ptr<LPPrivateKey<Element>> key) const {
 
-		if( k1->GetCryptoContext() != *this || k2->GetCryptoContext() != *this )
-			throw std::logic_error("Keys passed to EvalMultKeyGen were not generated with this crypto context");
+		if( key->GetCryptoContext() != *this )
+			throw std::logic_error("Key passed to EvalMultKeyGen were not generated with this crypto context");
 
-		return GetEncryptionAlgorithm().EvalMultKeyGen(k1, k2);
+		return GetEncryptionAlgorithm().EvalMultKeyGen(key);
 	}
 
+	shared_ptr<LPEvalKey<Element>> KeySwitchGen(
+			const shared_ptr<LPPrivateKey<Element>> key1, const shared_ptr<LPPrivateKey<Element>> key2) const {
+
+		if( key1->GetCryptoContext() != *this || key2->GetCryptoContext() != *this )
+			throw std::logic_error("Keys passed to KeySwitchGen were not generated with this crypto context");
+
+		return GetEncryptionAlgorithm().KeySwitchGen(key1, key2);
+	}
 
 	shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
 			const shared_ptr<LPPrivateKey<Element>> k1,
@@ -464,23 +471,17 @@ public:
 	* @param keySwitchHint - reference to KeySwitchHint
 	* @param ciphertext - vector of ciphertext
 	*/
-	std::vector<shared_ptr<Ciphertext<Element>>> KeySwitch(
+	shared_ptr<Ciphertext<Element>> KeySwitch(
 		const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext)
+		const shared_ptr<Ciphertext<Element>> ciphertext)
 	{
-		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
-
 		if( keySwitchHint->GetCryptoContext() != *this )
 			throw std::logic_error("Key passed to KeySwitch was not generated with this crypto context");
 
-		for (int i = 0; i < ciphertext.size(); i++) {
-			if( ciphertext.at(i)->GetCryptoContext() != *this )
-				throw std::logic_error("Information passed to KeySwitch was not generated with this crypto context");
+		if( ciphertext->GetCryptoContext() != *this )
+			throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
 
-			newCiphertext.push_back( GetEncryptionAlgorithm().KeySwitch(keySwitchHint, ciphertext[i]) );
-		}
-
-		return newCiphertext;
+		return GetEncryptionAlgorithm().KeySwitch(keySwitchHint, ciphertext);
 	}
 
 	/**

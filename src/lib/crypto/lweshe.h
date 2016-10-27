@@ -74,30 +74,9 @@ namespace lbcrypto {
 			shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 				const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
-			shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
-								const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-								const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
-					std::string errMsg = "LPAlgorithmSHELTV::EvalMultKeyGen is not applicable for LTV SHE Scheme.";
-					throw std::runtime_error(errMsg);
-			}
-		
-			void EvalMult(const Ciphertext<Element> &ciphertext1,
-				const Ciphertext<Element> &ciphertext2,
-				Ciphertext<Element> *newCiphertext, const LPEvalKey<Element> &evalKey) const {
-					std::string errMsg = "LPAlgorithmSHELTV::EvalMult with RelinKey is not applicable for LTV SHE Scheme.";
-					throw std::runtime_error(errMsg);
-			}
-
-			/**
-			* Function for evaluating multiplication on ciphertext followed by key switching operation.
-			*
-			* @param &ciphertext1 first input ciphertext.
-			* @param &ciphertext2 second input ciphertext.
-			* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2. 
-			* @param *newCiphertext the new resulting ciphertext.
-			*/
 			shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-					const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const;
+				const shared_ptr<Ciphertext<Element>> ciphertext2,
+				const shared_ptr<LPEvalKey<Element>> evalKey) const;
 
 			/**
 			 * Function for evaluation addition on ciphertext.
@@ -121,36 +100,12 @@ namespace lbcrypto {
 				const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
 			/**
-			 * Function to generate key switch hint on a ciphertext.
-			 *
-			 * @param &newPrivateKey private key for the new ciphertext.
-			 * @param &origPrivateKey original private key used for decryption.
-			 * @param depth used for decryption.
-			 * @param *keySwitchHint the key switch hint.
-			 */
-			shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> newPrivateKey,
-				shared_ptr<LPPrivateKey<Element>> origPrivateKey,
-				usint depth) const;
-
-			/**
 			 * Function to generate key switch hint on a ciphertext for depth 2.
 			 *
 			 * @param &newPrivateKey private key for the new ciphertext.
 			 * @param *keySwitchHint the key switch hint.
 			 */
 			shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey) const;
-			
-			/**
-			 * Function to define key switching operation
-			 *
-			 * @param &keySwitchHint the evaluation key.
-			 * @param &ciphertext the input ciphertext.
-			 * @param *newCiphertext the new ciphertext.
-			 */
-			 shared_ptr<Ciphertext<Element>> KeySwitch(
-						const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-						const shared_ptr<Ciphertext<Element>> cipherText) const;
-
 	};
 
 } // namespace lbcrypto ends

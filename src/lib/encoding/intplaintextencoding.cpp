@@ -63,42 +63,12 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger& modulus, ILVectorArray
 
 
 void IntPlaintextEncoding::Decode(const BigBinaryInteger& modulus, ILVectorArray2n *ilVectorArray2n){
-	bool dbg_flag = false;
-	DEBUG("in Int DECODE IlVectorArray2n");
 
-	ILVector2n interpolatedDecodedValue = ilVectorArray2n->InterpolateIlArrayVector2n();
-	DEBUG("A");
-	Decode(modulus, &interpolatedDecodedValue);
-	DEBUG("B");
-	BigBinaryVector tempBBV(interpolatedDecodedValue.GetValues());
-	DEBUG("C");
-
-
-	std::vector<ILVector2n> encodeValues;
-	encodeValues.reserve(ilVectorArray2n->GetNumOfElements());
-	DEBUG("D");
-	for (usint i = 0; i<ilVectorArray2n->GetNumOfElements(); i++) {
-	  		    DEBUG("i "<<i);
-		shared_ptr<ILParams> ilparams( new ILParams(ilVectorArray2n->GetElementAtIndex(i).GetCyclotomicOrder(),
-				ilVectorArray2n->GetElementAtIndex(i).GetModulus(),
-				ilVectorArray2n->GetElementAtIndex(i).GetRootOfUnity()) );
-		DEBUG("a");
-		ILVector2n temp(ilparams);
-		DEBUG("b");
-		tempBBV = interpolatedDecodedValue.GetValues();
-		DEBUG("c");
-		tempBBV.SetModulus(ilparams->GetModulus());
-		DEBUG("d");
-		temp.SetValues(tempBBV, interpolatedDecodedValue.GetFormat());
-		DEBUG("e");
-		temp.SignedMod(ilparams->GetModulus());
-		DEBUG("f");
-		encodeValues.push_back(temp);
-		DEBUG("g");
+	const ILVector2n &ilVector = ilVectorArray2n->GetElementAtIndex(0);
+	for (usint i = 0; i<ilVector.GetValues().GetLength(); i++) {
+		this->push_back(ilVector.GetValues().GetValAtIndex(i).ConvertToInt());
 	}
 
-	ILVectorArray2n elementNew(encodeValues);
-	*ilVectorArray2n = elementNew;
 }
 
 
@@ -140,7 +110,6 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *i
 
 void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n *ilVector) {
 
-	std::vector<uint32_t> intArray(ilVector->GetValues().GetLength());
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
 		this->push_back( ilVector->GetValues().GetValAtIndex(i).ConvertToInt() );
 	}

@@ -66,13 +66,15 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 	const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
-	shared_ptr<Ciphertext<Element>> newCiphertext;
+	throw std::logic_error("this EvalMult is not implemented");
 
-	//invoke the EvalMult without the EvalKey
-	newCiphertext = EvalMult(ciphertext1, ciphertext2);
-
-	//Key Switching operation.
-	return KeySwitch( ek, newCiphertext );
+//	shared_ptr<Ciphertext<Element>> newCiphertext;
+//
+//	//invoke the EvalMult without the EvalKey
+//	newCiphertext = EvalMult(ciphertext1, ciphertext2);
+//
+//	//Key Switching operation.
+//	return KeySwitch( ek, newCiphertext );
 }
 
 
@@ -122,57 +124,28 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
 	return newCiphertext;
 }
 
-
-////Function to generate 1..log(q) encryptions for each bit of the original private key
-template <class Element>
-shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> newPrivateKey,
-		shared_ptr<LPPrivateKey<Element>> origPrivateKey,
-		usint depth) const
-{
-	shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKey<Element>(origPrivateKey->GetCryptoContext()));
-
-	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(origPrivateKey->GetCryptoParameters());
-	DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
-
-	Element m(dgg,elementParams,Format::COEFFICIENT);
-/*
-	privKeyInverse = inverse(newPrivateKey);
-
-	origPrivateKeyExp = exp(origPrivateKey,depth)
-
-	keySwitchHint = m*origPrivateKeyExp*privKeyInverse;
-*/
-	return keySwitchHint;
-
-}
-
 //Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
-shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(
-		const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const
+shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const
 {
-	shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKey<Element>(newPrivateKey->GetCryptoContext()));
+	shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyRelin<Element>(newPrivateKey->GetCryptoContext()));
 
-	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(newPrivateKey->GetCryptoParameters());
-	DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
-	const ElemParams &elementParams = cryptoParams.GetElementParams();
+	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams =
+			std::static_pointer_cast<LPCryptoParametersLTV<Element>>(newPrivateKey->GetCryptoParameters());
+
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 
 	Element m(dgg,elementParams,Format::COEFFICIENT);
-	Element modularInverseOfNewPrivateKey = newPrivateKey->MultiplicativeInverse();
+	Element modularInverseOfNewPrivateKey = newPrivateKey->GetPrivateElement().MultiplicativeInverse();
 
-	keySwitchHint->SetHintElement((newPrivateKey->Times(*newPrivateKey)).Times(modularInverseOfNewPrivateKey));// frogot to add modulu
+	Element a = newPrivateKey->GetPrivateElement() * newPrivateKey->GetPrivateElement() * modularInverseOfNewPrivateKey; // frogot to add modulu
 
+	vector<Element> evalKeyElements;
+	evalKeyElements.push_back(a);
+
+	keySwitchHint->SetAVector(std::move(evalKeyElements));
 	return keySwitchHint;
-
 }
-
-template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::KeySwitch(
-		const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-		const shared_ptr<Ciphertext<Element>> cipherText) const
-{
-	return shared_ptr<Ciphertext<Element>>( new Ciphertext<Element>( cipherText->GetCryptoContext() ) );
-}  
 
 }

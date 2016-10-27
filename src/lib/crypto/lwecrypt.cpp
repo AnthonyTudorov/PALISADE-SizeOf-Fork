@@ -136,11 +136,11 @@ LPKeyPair<Element> LPEncryptionAlgorithmStehleSteinfeld<Element>::KeyGen(const C
 * KeySwitchHint 
 */
 template<class Element>
-shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmLTV<Element>::EvalMultKeyGen(
+shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmLTV<Element>::KeySwitchGen(
 		const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 		const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 
-		shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
+		shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyNTRU<Element>(originalPrivateKey->GetCryptoContext()));
 
 		const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersLTV<Element>>(originalPrivateKey->GetCryptoParameters() );
 
@@ -442,10 +442,14 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Ele
 	Element b = f*c;
 
 	b.SwitchFormat();
-	
-	*plaintext = b.SignedMod(p);
+
+	// Interpolation is needed in the case of Double-CRT interpolation, for example, ILVectorArray2n
+	// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as ILVector2n
+	Element interpolatedElement = b.CRTInterpolate();
+	*plaintext = interpolatedElement.SignedMod(p);
 
 	return DecryptResult(plaintext->GetLength());
+
 }
 
 // Constructor for LPPublicKeyEncryptionSchemeLTV

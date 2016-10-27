@@ -63,7 +63,7 @@ namespace lbcrypto {
 	* @brief Ideal lattice in vector representation or a vector in the double-CRT "matrix".  This is not fully implemented and is currently only stubs.
 	*/
 	//JSON FACILITY
-	class ILVector2n : public ILElement
+	class ILVector2n : public ILElement<ILVector2n>
 	{
 	public:
 
@@ -641,6 +641,14 @@ namespace lbcrypto {
 		* @return is the resulting vector from shifting right.
 		*/
 		ILVector2n ShiftRight(unsigned int n) const;
+
+		/**
+		* Interpolates based on the Chinese Remainder Transform Interpolation.
+		* Does nothing for ILVector2n. Needed to support the linear CRT interpolation in ILVectorArray2n.
+		*
+		* @return the original ring element.
+		*/
+		ILVector2n CRTInterpolate() const { return *this; }
 
 		/**
 		* Print the pre-computed discrete Gaussian samples.

@@ -118,7 +118,7 @@ namespace lbcrypto {
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
 			 * @param *keySwitchHint is where the resulting keySwitchHint will be placed.
 			 */
-			virtual shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+			virtual shared_ptr<LPEvalKey<Element>> KeySwitchGen(
 					const shared_ptr<LPPrivateKey<Element>> k1,
 					const shared_ptr<LPPrivateKey<Element>> k2) const ;
 

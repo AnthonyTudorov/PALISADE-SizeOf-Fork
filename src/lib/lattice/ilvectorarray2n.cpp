@@ -97,10 +97,8 @@ namespace lbcrypto {
 	/* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArray2n will be derived from the towers.*/
 	ILVectorArray2n::ILVectorArray2n(const std::vector<ILVector2n> &towers)
 	{
-		std::cout<<towers.size()<<std::endl;
 		usint ringDimension = towers.at(0).GetCyclotomicOrder() / 2;
 		for (usint i = 0; i < towers.size(); i++) {
-			std::cout << i << "," << (towers.at(i).GetCyclotomicOrder() / 2) << std::endl;
 			if (!(towers.at(i).GetCyclotomicOrder() / 2 == ringDimension)) {
 				throw std::logic_error("ILVectors provided to ILVectorArray2n do not have the same parameters. Throwing error.");
 			}
@@ -561,7 +559,8 @@ namespace lbcrypto {
 		SwitchFormat();
 	}
 
-	/*This method applies the Chinese Remainder Interpolation on an ILVectoArray2n and produces an ILVector2n. The ILVector2n is the ILVectorArray2n's represantation
+	/*This method applies the Chinese Remainder Interpolation on an ILVectoArray2n and produces an ILVector2n embedded into ILVectorArray2n. 
+	* The ILVector2n is the ILVectorArray2n's represantation
 	* with one single coefficient vector.
 	* How the Algorithm works:
 	* Consider the ILVectorArray2n as a 2-dimensional matrix, denoted as M, with dimension ringDimension * Number of Towers. For breviety , lets say this is r * t
@@ -572,11 +571,11 @@ namespace lbcrypto {
 	*
 	* Once we have the V values, we construct an ILVector2n from V, use qt as it's modulus and calculate a root of unity for parameter selection of the ILVector2n.
 	*/
-	ILVector2n ILVectorArray2n::InterpolateIlArrayVector2n() const
+	ILVectorArray2n ILVectorArray2n::CRTInterpolate() const
 	{
 	  bool dbg_flag = false;
 	  DEBUG("in InterpolateIlArrayVector2n");
-		if(m_vectors.size() == 1) return m_vectors.at(0);
+		if(m_vectors.size() == 1) return *this;
 
 		/*initializing variables for effciency*/
 		usint ringDimension = m_cyclotomicOrder / 2;
@@ -637,7 +636,15 @@ namespace lbcrypto {
 		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(m_cyclotomicOrder, modulus) ) );
 		polynomialReconstructed.SetValues(coefficients,m_format);
 		DEBUG("Z");
-		return polynomialReconstructed;
+
+		ILVectorArray2n interpolatedIL2n;
+		interpolatedIL2n.m_format = this->m_format;
+		interpolatedIL2n.m_cyclotomicOrder = this->m_cyclotomicOrder;
+		interpolatedIL2n.m_modulus = modulus;
+		interpolatedIL2n.m_vectors.push_back(polynomialReconstructed);
+
+		return interpolatedIL2n;
+
 	}
 
 	/*Switch format calls IlVector2n's switchformat*/

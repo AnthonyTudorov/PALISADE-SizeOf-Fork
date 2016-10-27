@@ -76,7 +76,7 @@ namespace lbcrypto {
 	/**
 	* @brief Ideal lattice in the double-CRT representation.  This is not fully implemented and is currently only stubs.
 	*/
-	class ILVectorArray2n : public ILElement
+	class ILVectorArray2n : public ILElement<ILVectorArray2n>
 	{
 	public:
 
@@ -455,10 +455,11 @@ namespace lbcrypto {
 
 		/**
 		* Interpolates the ILVectorArray2n to an ILVector2n based on the Chinese Remainder Transform Interpolation.
+		* and then returns an ILVectorArray2n with that single element
 		*
-		* @return the ILVector2n representation of the ILVectorArray2n.
+		* @return the interpolated ring element embeded into ILVectorArray2n.
 		*/
-		ILVector2n InterpolateIlArrayVector2n() const;
+		ILVectorArray2n CRTInterpolate() const;
 
 		/**
 		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
