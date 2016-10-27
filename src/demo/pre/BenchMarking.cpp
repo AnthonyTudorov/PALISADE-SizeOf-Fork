@@ -94,10 +94,11 @@ struct secureParams {
 static std::map<usint, std::map<usint, BigBinaryInteger>> moduli; //first usint is cyc order, second map maps towersize to moduli
 static std::map<usint, std::map<usint, BigBinaryInteger>> rootsOfUnity; //first usint is cyc order, second map maps towersize to rootsOfUnity
 static std::map<usint, std::map<usint, usint>> bitSizes; //first usint is cyc order, second map maps towersize to bitsize
-static usint maxCyclotomicOrder = 2048;
-static usint maxTowerSize = 7;
-static usint numberOfIterations = 1;
-static usint minCyclotomicOrder = 1024;
+static std::map<usint, std::map<usint, BigBinaryInteger>> cyclotomicOrderToIndexOfRingDimensiontoCRIMap;
+static usint maxCyclotomicOrder = 32768;
+static usint maxTowerSize = 20;
+static usint numberOfIterations = 10;
+static usint minCyclotomicOrder = 16;
 static usint minTowerSize = 1;
 static float stdDev = 4;
 
@@ -167,34 +168,25 @@ void CalculateModuli() {
 		lbcrypto::NextQ(q1BBI, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 		lbcrypto::NextQ(q2BBI, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 		cout << endl;
-		//cout << "m: " << m << endl;
-		for (usint i = minTowerSize; i <= maxTowerSize; i++) {
+		for (usint i = 1; i <= maxTowerSize; i++) {
 			std::vector<BigBinaryInteger> moduli_vector_local(i);
 			if (i == 1) {
 				moduli[m][i] = q1BBI;
 				rootsOfUnity[m][i] = RootOfUnity(m, q1BBI);
-				/*cout << "moduli[" << m << "][" << i << "] = " << moduli[m][i] << endl;
-				cout << "rootsOfUnity[" << m << "][" << i << "] = " << rootsOfUnity[m][i] << endl;*/
 				}
 			else if (i == 2) {
 				moduli[m][i] = q2BBI;
 				rootsOfUnity[m][i] = RootOfUnity(m, q2BBI);
-				/*cout << "moduli[" << m << "][" << i << "] = " << moduli[m][i] << endl;
-				cout << "rootsOfUnity[" << m << "][" << i << "] = " << rootsOfUnity[m][i] << endl;*/
 				}
 			else {
 				temp = moduli[m][i - 1];
 				lbcrypto::NextQ(temp, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 				moduli[m][i] = temp;
 				rootsOfUnity[m][i] = RootOfUnity(m, temp);
-				/*cout << "moduli[" << m << "][" << i << "] = " << moduli[m][i] << endl;
-				cout << "rootsOfUnity[" << m << "][" << i << "] = " << rootsOfUnity[m][i] << endl;*/
-
 			}
 			double doubleOfBBI = moduli[m][i].ConvertToDouble();
 			double bitSize = floor(log(doubleOfBBI) / log(2)) + 1;
 			bitSizes[m][i] = bitSize;
-//			cout << "bitSizes[" << m << "][" << i << "] = " << bitSizes[m][i] << endl;
 		}
 	}
 
@@ -203,8 +195,6 @@ void CalculateModuli() {
 	myfile << "\n";
 	myfile << "Bit size\n";
 	myfile << "Cyclotomic Order,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768\n";
-
-
 
 	for (usint i = minTowerSize; i <= maxTowerSize; i++) {
 		myfile << "t=" << i << ",";
@@ -238,11 +228,11 @@ void BenchMarking_DCRT_ByteArray(){
 
 	for (usint m = minCyclotomicOrder; m <= maxCyclotomicOrder; m = m * 2) {
 
-		std::vector<double> encryptTimeTower(20);
+		std::vector<double> encryptTimeTower(21);
 		std::fill(encryptTimeTower.begin(), encryptTimeTower.end(), 0);
 		encryptTimer.insert(std::make_pair(m, encryptTimeTower));
 
-		std::vector<double> decryptTimeTower(20);
+		std::vector<double> decryptTimeTower(21);
 		std::fill(decryptTimeTower.begin(), decryptTimeTower.end(), 0);
 		decryptTimer.insert(std::make_pair(m, decryptTimeTower));
 
@@ -258,8 +248,6 @@ void BenchMarking_DCRT_ByteArray(){
 				for (int j = 0; j < i; j++) {
 					moduli_vector[j] = moduli[m][j+1];
 					rootsOfUnity_vector[j] = rootsOfUnity[m][j+1];
-					/*cout << "moduli[" << m << "][" << i << "] = " << moduli[m][i] << endl;
-					cout << "rootsOfUnity[" << m << "][" << i << "] = " << rootsOfUnity[m][i] << endl;*/
 				}
 
 				DiscreteGaussianGenerator dgg(stdDev);
@@ -302,7 +290,6 @@ void BenchMarking_DCRT_ByteArray(){
 				finish = currentDateTime();
 				diff = finish - start;
 				decryptTimer.at(m).at(i) += diff;
-		//		cout << plaintextNew << endl;
 			}
 		}
 	}
@@ -324,11 +311,12 @@ void BenchMarking_DCRT_ByteArray(){
 
 	myfile << "\n";
 	myfile << "Decrypt \n";
-	for (usint i = minTowerSize; i <= minTowerSize; i++) {
+	for (usint i = minTowerSize; i <= maxTowerSize; i++) {
 		myfile << "t=" << i << ",";
 		for (usint m = minCyclotomicOrder; m <= maxCyclotomicOrder; m = m * 2) {
 			myfile << decryptTimer.at(m).at(i)/numberOfIterations << ",";
 		}
+		myfile << "\n";
 	}
 	myfile << "\n" << numberOfIterations << " iterations\n";
 }
@@ -410,7 +398,7 @@ void BenchMarking_DCRT_ByteArray_KeySwitch() {
 				algorithm.KeyGen(&pk, &sk);
 				algorithm.KeyGen(&pkNew, &skNew);
 
-				LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint;
+				LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint(cryptoParams);
 				algorithm.EvalMultKeyGen(sk, skNew, &keySwitchHint);
 
 				vector<Ciphertext<ILVectorArray2n>> ciphertext;
@@ -792,7 +780,7 @@ void BenchMarking_Ring_Reduce_Dcrt() {
 
 				algorithm.SparseKeyGen(&pk2, &skSparse);
 
-				LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint;
+				LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint(cryptoParams);
 				algorithm.EvalMultKeyGen(sk, skSparse, &keySwitchHint);
 
 				vector<Ciphertext<ILVectorArray2n>> newCiphertext;
@@ -836,7 +824,7 @@ void BenchMarking_Ring_Reduce_Dcrt() {
 					ciphertext.at(i).SetCryptoParameters(&cryptoParamsRR);
 				}
 
-				skSparse.SetCryptoParameters(&cryptoParamsRR);
+		//		skSparse.SetCryptoParameters(&cryptoParamsRR);
 
 				CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, skSparse, ciphertext, &intArrayNewRR, false);
 
@@ -938,7 +926,7 @@ void BenchMarking_Ring_Reduce_Single_Crt() {
 
 			algorithm.SparseKeyGen(&pk2, &skSparse);
 
-			LPEvalKeyNTRU<ILVector2n> keySwitchHint;
+			LPEvalKeyNTRU<ILVector2n> keySwitchHint(cryptoParams);
 			algorithm.EvalMultKeyGen(sk, skSparse, &keySwitchHint);
 
 			vector<Ciphertext<ILVector2n>> newCiphertext;
@@ -973,7 +961,7 @@ void BenchMarking_Ring_Reduce_Single_Crt() {
 			cryptoParamsRR.SetElementParams(ilparams2);                // Set the initialization parameters.
 			cryptoParamsRR.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-			skSparse.SetCryptoParameters(&cryptoParamsRR);
+		//	skSparse.SetCryptoParameters(&cryptoParamsRR);
 		}
 		ILVector2n::DestroyPreComputedSamples();
 	}
@@ -1288,7 +1276,7 @@ void BenchMarking_KeySwitch_Single_Crt(){
 
 			vector<Ciphertext<ILVector2n>> keySwitchedCiphertext;
 
-			LPEvalKeyNTRU<ILVector2n> keySwitchHint;
+			LPEvalKeyNTRU<ILVector2n> keySwitchHint(cryptoParams);
 			algorithm.EvalMultKeyGen(sk, skNew, &keySwitchHint);
 
 			start = currentDateTime();

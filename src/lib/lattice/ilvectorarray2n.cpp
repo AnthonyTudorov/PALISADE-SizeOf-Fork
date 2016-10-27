@@ -712,21 +712,21 @@ namespace lbcrypto {
 		/*initializing variables for effciency*/
 		usint ringDimension = m_cyclotomicOrder / 2;
 
-		BigBinaryInteger qi; //qi
+		BigBinaryInteger qj; //qj
 
 		BigBinaryInteger bigModulus(m_modulus); //qt
 
-		BigBinaryInteger divideBigModulusByIndexModulus; //qt/qi
+		BigBinaryInteger divideBigModulusByIndexModulus; //qt/qj
 
-		BigBinaryInteger modularInverse; // (qt/qi)^(-1) mod qi
+		BigBinaryInteger modularInverse; // (qt/qj)^(-1) mod qj
 
-		BigBinaryInteger chineseRemainderMultiplier; // qt/qi * [(qt/qi)(-1) mod qi]
+		BigBinaryInteger chineseRemainderMultiplier; // qt/qj * [(qt/qj)(-1) mod qj]
 
-		BigBinaryInteger multiplyValue;// M (r, i) * qt/qi * [(qt/qi)(-1) mod qi]
+		BigBinaryInteger multiplyValue;// M (r, i) * qt/qj * [(qt/qj)(-1) mod qj]
 
 		BigBinaryVector coefficients(ringDimension,m_modulus); // V vector
 
-		BigBinaryInteger interpolateValue("0"); // this will finally be  V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qi *[ (qt/qi)^(-1) mod qi ]}modqt 
+		BigBinaryInteger interpolateValue("0"); // this will finally be  V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qj *[ (qt/qj)^(-1) mod qj ]}modqt 
 
 		/*This loop calculates every coefficient of the interpolated valued.*/
 		for (usint i = 0; i < ringDimension; i++) {
@@ -734,18 +734,18 @@ namespace lbcrypto {
 		Mod qt is done outside the loop*/
 			for (usint j = 0; j < m_vectors.size(); j++) {
 
-				qi = m_vectors[j].GetModulus(); //qi
+				qj = m_vectors[j].GetModulus(); //qj
 
-				divideBigModulusByIndexModulus = bigModulus.DividedBy(qi); //qt/qi
+				divideBigModulusByIndexModulus = bigModulus.DividedBy(qj); //qt/qj
 
-				modularInverse = divideBigModulusByIndexModulus.Mod(qi).ModInverse(qi); // (qt/qi)^(-1) mod qi
+				modularInverse = divideBigModulusByIndexModulus.Mod(qj).ModInverse(qj); // (qt/qj)^(-1) mod qj
 
-				chineseRemainderMultiplier = divideBigModulusByIndexModulus.Times(modularInverse); // qt/qi * [(qt/qi)(-1) mod qi]
+				chineseRemainderMultiplier = divideBigModulusByIndexModulus.Times(modularInverse); // qt/qj * [(qt/qj)(-1) mod qj]
 
-				/*m_vectors[i].GetValAtIndex(index) is M (r, i) with r = index amd r = j. The helper method CalculateChineseRemainderInterpolationCoefficient 
-				calculates qt/qi *[ (qt/qi)^(-1) mod qi ] where the input parameter j is the row that the operation is performed on.*/
-				multiplyValue = (m_vectors[j].GetValAtIndex(i)).Times(chineseRemainderMultiplier); // M (r, i) * qt/qi * [(qt/qi)(-1) mod qi]
+				multiplyValue = (m_vectors[j].GetValAtIndex(i)).Times(chineseRemainderMultiplier); // M (r, i) * qt/qj * [(qt/qj)(-1) mod qj]
+
 				interpolateValue += multiplyValue;
+
 			}
 
 			interpolateValue = interpolateValue.Mod(m_modulus);
@@ -762,7 +762,7 @@ namespace lbcrypto {
 		DEBUG("X");
 		DEBUG("m_cyclotomicOrder "<<m_cyclotomicOrder);
 		DEBUG("modulus "<< modulus.ToString());
-		ILParams ilParams(m_cyclotomicOrder, modulus);
+		ILParams ilParams(m_cyclotomicOrder, modulus, BigBinaryInteger::ONE);
 		DEBUG("Y");
 
 		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(m_cyclotomicOrder, modulus) ) );
