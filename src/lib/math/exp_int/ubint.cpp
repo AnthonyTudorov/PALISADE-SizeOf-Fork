@@ -118,20 +118,20 @@ namespace exp_int {
   template<typename limb_t>
   ubint<limb_t>::ubint()
   {
-    // builds an uninitialized ubint
-    // mostly used internal to the class
+    // builds a ubint that defaults to zero
+    
     bool dbg_flag = false;		// if true then print dbg output
 #if 0
     m_MSB=0;// initialize
-
+    m_value.reserve(4);
     DEBUG("ctor()");
     DEBUG( "maxlimb "<<m_MaxLimb);
-
+ 
     DEBUG( "initial size "<< m_value.size());
 
     m_state = GARBAGE;
 #else
-    // BBI bare ctor() generates a valid zero.
+    // BBI bare ctor() generates a valid zero. mimic that activity
     m_MSB = 0;
     m_value.reserve(4);
       //m_value.clear(); // make sure it is empty to start
@@ -208,7 +208,7 @@ namespace exp_int {
       usint ceilInt = ceilIntByUInt(msb);
       DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
       //setting the values of the array
-      m_value.clear(); // make sure it is empty to start
+      //m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
       for(usint i= 0;i<ceilInt;++i){
         m_value.push_back((limb_t)init);
@@ -238,14 +238,14 @@ namespace exp_int {
 
     if (init <= m_MaxLimb) {
       //init fits in first limb entry
-      m_value.clear(); // make sure it is empty to start
+      //m_value.clear(); // make sure it is empty to start
       m_value.push_back((limb_t)init);
       DEBUG("single limb size now "<<m_value.size());
     } else {
       usint ceilInt = ceilIntByUInt(msb);
       DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
       //setting the values of the array
-      this->m_value.clear(); // make sure it is empty to start
+      //this->m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
       for(usint i= 0;i<ceilInt;++i){
 	DEBUG("i " << i);
@@ -289,7 +289,7 @@ namespace exp_int {
       usint ceilInt = ceilIntByUInt(msb);
       DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
       //setting the values of the array
-      this->m_value.clear(); // make sure it is empty to start
+      //this->m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
       for(usint i= 0;i<ceilInt;++i){
         m_value.push_back((limb_t)init);
@@ -322,6 +322,7 @@ namespace exp_int {
   template<typename limb_t>
   ubint<limb_t>::ubint(const ubint& rhs){
     bool dbg_flag = false;		// if true then print dbg output
+    //std::cout<<"Cc";
     if (rhs.m_state == GARBAGE)
       std::cout<<"copy garbage"<<std::endl;
 
@@ -354,7 +355,7 @@ namespace exp_int {
   template<typename limb_t>
   ubint<limb_t>::ubint(ubint &&rhs){
     bool dbg_flag = false;		// if true then print dbg output
-
+    //std::cout<<"Mc";
     DEBUG("move copy ctor(&bint)");
 
     //copy MSB
@@ -541,6 +542,7 @@ return result;
   //copy allocator
   template<typename limb_t>
   const ubint<limb_t>&  ubint<limb_t>::operator=(const ubint &rhs){
+    //std::cout<<"Ca";
     if(this!=&rhs){
       this->m_MSB=rhs.m_MSB;
       this->m_state = rhs.m_state;
@@ -552,7 +554,7 @@ return result;
   // move copy allocator
   template<typename limb_t>
   const ubint<limb_t>&  ubint<limb_t>::operator=(ubint &&rhs){
-
+    //std::cout<<"Ma";
     if(this!=&rhs){
       this->m_MSB = rhs.m_MSB;
       this->m_state = rhs.m_state;
@@ -586,7 +588,7 @@ return result;
 
     //compute the number of whole limb shifts
     usint shiftByLimb = shift>>m_log2LimbBitLength;
-
+    //ans.m_value.reserve(shiftByLimb+this->m_value.size());
 
     //compute the remaining number of bits to shift
     limb_t remainingShift = (shift&(m_limbBitLength-1));
@@ -1063,17 +1065,65 @@ return result;
     //after multiplication the result is shifted and added to the final answer
 
     size_t nSize = this->m_value.size();
-    for(size_t i= 0;i< b.m_value.size();++i){
+    size_t bSize = b.m_value.size();
+    ubint tmpans;
+    //ans.m_value.reserve(nSize+bSize);    
+    //tmpans.m_value.reserve(nSize+1);    
+
+    for(size_t i= 0;i< bSize;++i){
       DEBUG("i "<<i);
       ubint tmp2;
+      //////
+      tmpans.m_value.clear(); //make sure there are no limbs to start.
+      Dlimb_t limbb(b.m_value.at(i));
 
+      //position in the array to start multiplication
+      //
+      //variable to capture the overflow
+      Dlimb_t temp=0;
+      //overflow value
+      limb_t ofl=0;
+
+
+      DEBUG("mibl A:"<<this->ToString() );
+      DEBUG("mibl B:"<<limbb );
+      DEBUG("ans.size() now " <<ans.m_value.size());
+      if (dbg_flag)
+	ans.PrintLimbsInDec();
+      for(auto itr: m_value){
+	DEBUG("mullimb i"<<i);
+	temp = ((Dlimb_t)itr*(Dlimb_t)limbb) + ofl;
+	//DEBUG("temp "<<temp); //todo fix when ostream<< works for 128 bit
+
+	tmpans.m_value.push_back((limb_t)temp);
+	ofl = temp>>m_limbBitLength;
+	DEBUG("ans.size() now " <<ans.m_value.size());
+	if (dbg_flag)
+	  tmpans.PrintLimbsInDec();
+      }
+      //check if there is any final overflow
+      if(ofl){
+	DEBUG("mullimb ofl "<<ofl);
+	tmpans.m_value.push_back(ofl);
+      }
+
+      //usint nSize = m_value.size();
+      tmpans.m_state = INITIALIZED;
+      tmpans.SetMSB();
+      DEBUG("ans.size() final " <<ans.m_value.size());
+      if (dbg_flag)
+	tmpans.PrintLimbsInDec();
+      DEBUG("mibl ans "<<ans.ToString());
+      /////
+
+      ans += tmpans<<=(i)*m_limbBitLength;
       //ans += (this->MulIntegerByLimb(b.m_value.at(i)))<<=(i)*m_limbBitLength;
-      usint tmp1 = (i)*m_limbBitLength;
-      DEBUG("tmp1 "<<tmp1);
-      tmp2 = (this->MulIntegerByLimb(b.m_value.at(i))) <<= tmp1;
-      DEBUG("tmp2 "<<tmp2.ToString());
-      ans += tmp2;
-
+      // usint tmp1 = (i)*m_limbBitLength;
+      // DEBUG("tmp1 "<<tmp1);
+      // tmp2 = (this->MulIntegerByLimb(b.m_value.at(i))) <<= tmp1;
+      // DEBUG("tmp2 "<<tmp2.ToString());
+      // ans += tmp2;
+      
       DEBUG("ans now "<<ans.ToString());
     }
     
@@ -1124,7 +1174,7 @@ return result;
    *  This function is used in the Multiplication of two ubint objects
    */
   template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::MulIntegerByLimb(limb_t b) const{
+  inline ubint<limb_t> ubint<limb_t>::MulIntegerByLimb(limb_t b) const{
     bool dbg_flag = false;
     DEBUG("MulIntegerByLimb");
     if(this->m_state==GARBAGE)
@@ -1133,6 +1183,7 @@ return result;
       return ubint(ZERO);
 
     ubint ans;
+    //ans.m_value.reserve(this->m_value.size()+1);    
     ans.m_value.clear(); //make sure there are no limbs to start.
 
     //position in the array to start multiplication

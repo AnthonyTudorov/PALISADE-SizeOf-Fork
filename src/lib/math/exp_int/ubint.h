@@ -1010,7 +1010,7 @@ namespace exp_int{
      * @param b is the number to be multiplied.
      * @return the ubint after the multiplication.
      */
-    ubint MulIntegerByLimb(limb_t b) const; //todo rename to ubint
+    inline ubint MulIntegerByLimb(limb_t b) const; //todo rename to ubint
 
 
     /**

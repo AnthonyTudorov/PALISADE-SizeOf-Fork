@@ -105,7 +105,7 @@ void test_NTT () {
 
   // Code to test NTT at three different numbers of limbs.
 
-  int nloop = 1000; //number of times to run each test for timing.
+  int nloop = 10; //number of times to run each test for timing.
 
   bool dbg_flag = 1;		// if true then print dbg output
  

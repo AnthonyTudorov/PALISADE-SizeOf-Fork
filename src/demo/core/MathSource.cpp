@@ -89,19 +89,6 @@ void vec_diff(BigBinaryVector &a, BigBinaryVector &b) {
 
 }
 
-std::vector<string> expand_vector(std::vector<string> a, usint n){
-  //concatenate the vector with itself n times.
-  std::vector<string> b;
-  b = a;
-  for (usint jx = 0; jx < n; jx++) {
-    usint length = a.GetLength();
-    for (usint ix = 0; ix < length; ix++){
-      b.PushBack(a[ix]);
-    }
-  }
-  return b;
-}
-
 
 //main BigBinaryVector test suite. tests math
 void test_BigBinaryVector () {
