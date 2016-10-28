@@ -67,6 +67,8 @@ namespace lbcrypto {
 		*/
 		virtual const usint GetCyclotomicOrder() const = 0;
 
+		virtual const BigBinaryInteger &GetRootOfUnity() const { return BigBinaryInteger::ZERO; }
+
 	    friend std::ostream& operator<<(std::ostream& out, const ElemParams &item) {
 	    	return item.doprint(out);
 	    }

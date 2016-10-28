@@ -33,20 +33,21 @@
 * This code provides the utility for working with trapdoor lattices.
 */
 
+#include "../crypto/cryptocontext.h"
 #include "trapdoor.h"
 
 namespace lbcrypto {
 
 	//Trapdoor generation method as described in section 3.2 of https://eprint.iacr.org/2013/297.pdf (Construction 1)
-	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> RLWETrapdoorUtility::TrapdoorGen(ILParams params, int stddev) 
+	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> RLWETrapdoorUtility::TrapdoorGen(shared_ptr<ILParams> params, int stddev)
 	{
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 		auto gaussian_alloc = ILVector2n::MakeDiscreteGaussianCoefficientAllocator(params, EVALUATION, stddev);
 		auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
-		size_t n = params.GetCyclotomicOrder() / 2;
+		size_t n = params->GetCyclotomicOrder() / 2;
 		//  k ~= bitlength of q
 		// size_t k = params.GetModulus().GetMSB();
-		double val = params.GetModulus().ConvertToDouble();
+		double val = params->GetModulus().ConvertToDouble();
 		//std::cout << "val : " << val << std::endl;
 		double logTwo = log(val-1.0)/log(2)+1.0;
 		//std::cout << "logTwo : " << logTwo << std::endl;
@@ -77,7 +78,7 @@ namespace lbcrypto {
 	RingMat RLWETrapdoorUtility::GaussSamp(size_t n, size_t k, const RingMat& A, const RLWETrapdoorPair<ILVector2n>& T, const Matrix<LargeFloat> &SigmaP, const ILVector2n &u,
 			double sigma, DiscreteGaussianGenerator &dgg) {
 
-		const ILParams &params = u.GetParams();
+		const shared_ptr<ILParams> params = u.GetParams();
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
 		//We should convert this to a static variable later

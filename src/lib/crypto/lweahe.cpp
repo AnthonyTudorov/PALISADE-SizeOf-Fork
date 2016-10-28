@@ -31,15 +31,15 @@ namespace lbcrypto {
 			
 //Function for addition evaluation of homomorphic cryptosystem.
 template <class Element>
-void LPAlgorithmAHELTV<Element>::EvalAdd(const Ciphertext<Element> &ciphertext1, 
-				const Ciphertext<Element> &ciphertext2, 
-				Ciphertext<Element> *newCiphertext) const
+shared_ptr<Ciphertext<Element>> LPAlgorithmAHELTV<Element>::EvalAdd(
+		const shared_ptr<Ciphertext<Element>> ciphertext1,
+		const shared_ptr<Ciphertext<Element>> ciphertext2) const
 
 {
 //Need to check the same crypto parameters hold.
 //Need to check a common encryption key was used.
 //Make sure compatible encryption algorithm was used.
-	*newCiphertext = ciphertext1.EvalAdd(ciphertext2);
+	return ciphertext1->EvalAdd(ciphertext2);
 /*
 	Ciphertext<Element> ctOut(ciphertext1);
 	ctOut.Plus(ciphertext2);

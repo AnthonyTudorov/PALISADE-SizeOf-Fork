@@ -60,7 +60,7 @@ public:
 	* @param modulus The modulus to use to generate discrete values.
 	* @param std     The standard deviation for this Gaussian Distribution.
 	*/
-	DiscreteGaussianGenerator (const sint std);
+	DiscreteGaussianGenerator (float std);
 
 	/**
 	* @brief Initializes the generator.
@@ -71,13 +71,13 @@ public:
 	* @brief  Returns the standard deviation of the generator.
 	* @return The analytically obtained standard deviation of the generator.
 	*/
-	sint GetStd () const;
+	float GetStd () const;
 
 	/**
 	* @brief     Sets the standard deviation of the generator.
 	* @param std The analytic standard deviation of the generator.
 	*/
-	void SetStd (const sint std);
+	void SetStd (float std);
 
 	//BigBinaryVector DiscreteGaussianGenerator::GenerateIdentity(usint size, const BigBinaryInteger &modulus);
 
@@ -190,7 +190,7 @@ private:
 	/**
 	* The standard deviation of the distribution.
 	*/
-	sint m_std;
+	float m_std;
 	
 	/**
 	*The probability matrix used in Knuth-Yao sampling

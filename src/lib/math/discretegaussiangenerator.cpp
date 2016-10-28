@@ -16,17 +16,17 @@ namespace lbcrypto {
 		Initialize();
 	}
 
-	DiscreteGaussianGenerator::DiscreteGaussianGenerator(const sint std) : DistributionGenerator() {
+	DiscreteGaussianGenerator::DiscreteGaussianGenerator(float std) : DistributionGenerator() {
 
 		SetStd(std);
 		Initialize();
 	}
 
-	void DiscreteGaussianGenerator::SetStd(const sint std) {
+	void DiscreteGaussianGenerator::SetStd(float std) {
 		m_std = std;
 	}
 
-	sint DiscreteGaussianGenerator::GetStd() const {
+	float DiscreteGaussianGenerator::GetStd() const {
 		return m_std;
 	}
 
@@ -35,7 +35,7 @@ namespace lbcrypto {
 		const double pi = 3.1415926;
 		//weightDiscreteGaussian
 		double acc = 0.00000001;
-		sint variance = m_std * m_std;
+		float variance = m_std * m_std;
 
 		//int fin = (int)ceil(sqrt(2 * pi) * m_std * sqrt(-1 * log(acc) / pi));
 		int fin = (int)ceil(m_std * sqrt(-2 * log(acc))); //this value of fin (M) may be too low; 

@@ -830,13 +830,6 @@ template<class ubint_el_t>
     return true;
   }
 
-  // JSON FACILITY - SetIdFlag...
-  // Note, untested.. completely!
-  template<class ubint_el_t>
-  bool mubintvec<ubint_el_t>::SetIdFlag(lbcrypto::Serialized* serObj, const std::string flag) const { 
-    return true; 
-  }
-
   // JSON FACILITY - Deserialize Operation
   template<class ubint_el_t>
   bool mubintvec<ubint_el_t>::Deserialize(const lbcrypto::Serialized& serObj) {

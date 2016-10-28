@@ -93,7 +93,7 @@ namespace lbcrypto {
 		*@param &params parameter set required for ILVectorArray2n.
 		*@param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArray2n(const ElemParams &params, Format format = EVALUATION);
+		ILVectorArray2n(const shared_ptr<ElemParams> params, Format format = EVALUATION);
 
 		/**
 		* Constructor based on discrete Gaussian generator.
@@ -102,7 +102,7 @@ namespace lbcrypto {
 		* @param &params parameter set required for ILVectorArray2n. 
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const ElemParams &params, Format format = EVALUATION);
+		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 
 		/**
 		* Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n. 
@@ -110,7 +110,7 @@ namespace lbcrypto {
 		* @param &element ILVector2n to build other towers from.
 		* @param &params parameter set required for ILVectorArray2n.
 		*/
-		ILVectorArray2n(const ILVector2n &element, const ILDCRTParams &params);
+		ILVectorArray2n(const ILVector2n &element, const shared_ptr<ILDCRTParams> params);
 
 		/**
 		* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArray2n will be derived from the towers.
@@ -353,6 +353,23 @@ namespace lbcrypto {
 		* @return is the return value of the times operation.
 		*/
 		ILVectorArray2n Times(const BigBinaryInteger &element) const;
+
+		/**
+		* Scalar multiplication followed by division and rounding operation - operation on all entries.
+		*
+		* @param &p is the element to multiply entry-wise.
+		* @param &q is the element to divide entry-wise.
+		* @return is the return value of the multiply, divide and followed by rounding operation.
+		*/
+		ILVectorArray2n MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const;
+
+		/**
+		* Scalar division followed by rounding operation - operation on all entries.
+		*
+		* @param &q is the element to divide entry-wise.
+		* @return is the return value of the divide, followed by rounding operation.
+		*/
+		ILVectorArray2n DivideAndRound(const BigBinaryInteger &q) const;
 		
 		/**
 		* Performs an addition operation and returns the result.
@@ -544,6 +561,16 @@ namespace lbcrypto {
 	* @return an ILVectorArray2n with the resulting value.
 	*/
 	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Plus(b); }
+
+	/**
+	* Subtraction operator overload.
+	*
+	* @param &a ILVectorArray2n to be added to the second argument.
+	* @param &b ILVectorArray2n to be added to the first argument.
+	*
+	* @return an ILVectorArray2n with the resulting value.
+	*/
+	inline ILVectorArray2n operator-(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Minus(b); }
 
 	/**
 	* Scalar addition operator overload-add an element to the first index of each tower.

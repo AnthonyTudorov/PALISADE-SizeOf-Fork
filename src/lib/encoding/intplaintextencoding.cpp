@@ -32,6 +32,7 @@
  *
  */
 
+#include "../crypto/cryptocontext.h"
 #include "intplaintextencoding.h"
 
 namespace lbcrypto {
@@ -47,12 +48,11 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger& modulus, ILVectorArray
 	encodeValues.reserve(element->GetNumOfElements());
 
 	for (usint i = 0; i<element->GetNumOfElements(); i++) {
-		ILParams ilparams(element->GetElementAtIndex(i).GetCyclotomicOrder(), element->GetElementAtIndex(i).GetModulus(), element->GetElementAtIndex(i).GetRootOfUnity());
-		ILVector2n temp(ilparams);
+		ILVector2n temp(element->GetElementAtIndex(i).GetParams());
 		tempBBV = encodedSingleCrt.GetValues();
-		tempBBV.SetModulus(ilparams.GetModulus());
+		tempBBV.SetModulus(temp.GetModulus());
 		temp.SetValues(tempBBV, encodedSingleCrt.GetFormat());
-		temp.SignedMod(ilparams.GetModulus());
+		temp.SignedMod(temp.GetModulus());
 		encodeValues.push_back(temp);
 	}
 
@@ -79,17 +79,19 @@ void IntPlaintextEncoding::Decode(const BigBinaryInteger& modulus, ILVectorArray
 	DEBUG("D");
 	for (usint i = 0; i<ilVectorArray2n->GetNumOfElements(); i++) {
 	  		    DEBUG("i "<<i);
-		ILParams ilparams(ilVectorArray2n->GetElementAtIndex(i).GetCyclotomicOrder(), ilVectorArray2n->GetElementAtIndex(i).GetModulus(), ilVectorArray2n->GetElementAtIndex(i).GetRootOfUnity());
+		shared_ptr<ILParams> ilparams( new ILParams(ilVectorArray2n->GetElementAtIndex(i).GetCyclotomicOrder(),
+				ilVectorArray2n->GetElementAtIndex(i).GetModulus(),
+				ilVectorArray2n->GetElementAtIndex(i).GetRootOfUnity()) );
 		DEBUG("a");
 		ILVector2n temp(ilparams);
 		DEBUG("b");
 		tempBBV = interpolatedDecodedValue.GetValues();
 		DEBUG("c");
-		tempBBV.SetModulus(ilparams.GetModulus());
+		tempBBV.SetModulus(ilparams->GetModulus());
 		DEBUG("d");
 		temp.SetValues(tempBBV, interpolatedDecodedValue.GetFormat());
 		DEBUG("e");
-		temp.SignedMod(ilparams.GetModulus());
+		temp.SignedMod(ilparams->GetModulus());
 		DEBUG("f");
 		encodeValues.push_back(temp);
 		DEBUG("g");
@@ -113,7 +115,7 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *i
 		length = length - padlen;
 	}
 
-	BigBinaryVector temp(ilVector->GetParams().GetCyclotomicOrder()/2,ilVector->GetModulus());
+	BigBinaryVector temp(ilVector->GetParams()->GetCyclotomicOrder()/2,ilVector->GetModulus());
 
 	Format format = COEFFICIENT;
 
@@ -125,36 +127,23 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *i
 		temp.SetValAtIndex(i, Val);
 	}
 
-	BigBinaryInteger Num = modulus - BigBinaryInteger::ONE;
+	//BigBinaryInteger Num = modulus - BigBinaryInteger::ONE;
 	for( usint i=0; i<padlen; i++ ) {
-		temp.SetValAtIndex(i+length, Num);
-		if( i == 0 )
-			Num = BigBinaryInteger::ZERO;
+		temp.SetValAtIndex(i+length, BigBinaryInteger::ZERO);
+		//temp.SetValAtIndex(i + length, Num);
+		//if( i == 0 )
+		//	Num = BigBinaryInteger::ZERO;
 	}
 
 	ilVector->SetValues(temp,format);
 }
 
 void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n *ilVector) {
-	*ilVector = ilVector->SignedMod(modulus);
+
 	std::vector<uint32_t> intArray(ilVector->GetValues().GetLength());
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
 		this->push_back( ilVector->GetValues().GetValAtIndex(i).ConvertToInt() );
 	}
-}
-
-void
-IntPlaintextEncoding::Unpad(const BigBinaryInteger &modulus)
-{
-	uint32_t marker = modulus.ConvertToInt() - 1;
-	usint nPadding = 0;
-	for (sint i = this->size() - 1; i >= 0; --i) {
-		nPadding++;
-		if (this->at(i) == marker) {
-			break;
-		}
-	}
-	this->resize(this->size() - nPadding, 0);
 }
 
 size_t

@@ -48,6 +48,7 @@
 #include "../../utils/serializable.h"
 #include <initializer_list>
 #include "ubintvec.h"
+ #include "../cpu_int/binvect.h"
 
 
 /**
@@ -591,14 +592,6 @@ public:
    * @return true if successfully serialized
    */
   bool Serialize(lbcrypto::Serialized* serObj, const std::string fileFlag = "") const;
-
-  /**
-   * Higher level info about the serialization is saved here
-   * @param serObj to store the the implementing object's serialization specific attributes.
-   * @param flag an object-specific parameter for the serialization
-   * @return true on success
-   */
-  bool SetIdFlag(lbcrypto::Serialized* serObj, const std::string flag) const;  
 
   /**
    * Populate the object from the deserialization of the Setialized

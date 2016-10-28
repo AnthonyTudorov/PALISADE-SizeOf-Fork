@@ -33,6 +33,8 @@
 */
 #ifndef _SRC_LIB_CRYPTO_SIGNATURE_LWESIGN_CPP
 #define _SRC_LIB_CRYPTO_SIGNATURE_LWESIGN_CPP
+
+#include "../cryptocontext.h"
 #include "lwesign.h"
 #include "../../lattice/trapdoor.h"
 #include "../../utils/hashutil.h"
@@ -44,7 +46,7 @@ namespace lbcrypto {
 	void LPSignatureSchemeGPV<Element>::KeyGen(LPSignKeyGPV<Element>* signKey,
 		LPVerificationKeyGPV<Element>* verificationKey) {
 		//Get parameters from keys
-		ILParams params = signKey->GetSignatureParameters().GetILParams();
+		shared_ptr<ILParams> params = signKey->GetSignatureParameters().GetILParams();
 		sint stddev = signKey->GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
 		//Generate trapdoor based using parameters and 
 		std::pair<Matrix<ILVector2n>, RLWETrapdoorPair<ILVector2n>> keyPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
@@ -57,8 +59,8 @@ namespace lbcrypto {
 		verificationKey->SetPublicElement(keyPair.first);
 		
 		//Calculate perturbation matrix once so multiple signatures won't be slowed down by this step. Refer to the paper for clarification on the usage of this matrix.
-		const BigBinaryInteger & q = verificationKey->GetSignatureParameters().GetILParams().GetModulus();
-		size_t n = verificationKey->GetSignatureParameters().GetILParams().GetCyclotomicOrder() / 2;
+		const BigBinaryInteger & q = verificationKey->GetSignatureParameters().GetILParams()->GetModulus();
+		size_t n = verificationKey->GetSignatureParameters().GetILParams()->GetCyclotomicOrder() / 2;
 		double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
 		size_t k = (usint)floor(logTwo);
 		double s = 40 * std::sqrt(n*(2+k));
@@ -74,8 +76,8 @@ namespace lbcrypto {
 	void LPSignatureSchemeGPV<Element>::Sign(LPSignKeyGPV<Element> &signKey, const BytePlaintextEncoding &plainText,
 		Signature<Matrix<Element>> *signatureText) {
 		//Getting parameters for calculations
-		const BigBinaryInteger & q = signKey.GetSignatureParameters().GetILParams().GetModulus();
-		size_t n = signKey.GetSignatureParameters().GetILParams().GetCyclotomicOrder() / 2;
+		const BigBinaryInteger & q = signKey.GetSignatureParameters().GetILParams()->GetModulus();
+		size_t n = signKey.GetSignatureParameters().GetILParams()->GetCyclotomicOrder() / 2;
 		double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
 		size_t k = (usint)floor(logTwo);
 		
@@ -113,8 +115,8 @@ namespace lbcrypto {
 	bool LPSignatureSchemeGPV<Element>::Verify(LPVerificationKeyGPV<Element> &verificationKey,
 		const Signature<Matrix<Element>> &signatureText,
 		const BytePlaintextEncoding & plainText) {
-		size_t n = verificationKey.GetSignatureParameters().GetILParams().GetCyclotomicOrder() / 2;
-		const BigBinaryInteger & q = verificationKey.GetSignatureParameters().GetILParams().GetModulus();
+		size_t n = verificationKey.GetSignatureParameters().GetILParams()->GetCyclotomicOrder() / 2;
+		const BigBinaryInteger & q = verificationKey.GetSignatureParameters().GetILParams()->GetModulus();
 		
 		//Encode the text into a vector so it can be used in verification process. TODO: Adding some kind of digestion algorithm
 		HashUtil util;

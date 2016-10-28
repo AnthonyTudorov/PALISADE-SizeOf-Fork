@@ -68,7 +68,8 @@ public:
 	 * @param relinWindow the size of the relinearization window.
 	 * @param depth depth which is set to 1.
 	 */
-	LPCryptoParametersLTV(ElemParams *params,
+	LPCryptoParametersLTV(
+			shared_ptr<ElemParams> params,
 			const BigBinaryInteger &plaintextModulus,
 			float distributionParameter,
 			float assuranceMeasure,
@@ -76,7 +77,8 @@ public:
 			usint relinWindow,
 			const DiscreteGaussianGenerator &dgg,
 			int depth = 1)
-	: LPCryptoParametersRLWE<Element>(params,
+	: LPCryptoParametersRLWE<Element>(
+			params,
 			plaintextModulus,
 			distributionParameter,
 			assuranceMeasure,
@@ -136,7 +138,7 @@ public:
 		std::vector<BigBinaryInteger> moduli(this->m_depth+1);
 		moduli.reserve(this->m_depth+1);
 
-		usint n = this->GetElementParams().GetCyclotomicOrder()/2;
+		usint n = this->GetElementParams()->GetCyclotomicOrder()/2;
 		// set the values for n (ring dimension) and chain of moduli
 		this->ParameterSelection(n, moduli);
 
@@ -157,8 +159,8 @@ public:
 			rootsOfUnity.push_back(rootOfUnity);
 		}
 
-		ILDCRTParams *newCryptoParams = new ILDCRTParams(m, moduli, rootsOfUnity);
-		cryptoParams->SetElementParams(*newCryptoParams);
+		shared_ptr<ElemParams> newElemParams( new ILDCRTParams(m, moduli, rootsOfUnity) );
+		cryptoParams->SetElementParams(newElemParams);
 	}
 
 	/**

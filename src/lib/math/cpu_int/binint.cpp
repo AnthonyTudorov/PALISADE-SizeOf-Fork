@@ -1870,8 +1870,8 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Exp
 
 template<typename uint_type, usint BITLENGTH>
 BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const {
-	BigBinaryInteger ans;
-	ans *= p;
+	BigBinaryInteger ans(*this);
+	ans = ans*p;
 	ans = ans.DivideAndRound(q);
 
 	return ans;

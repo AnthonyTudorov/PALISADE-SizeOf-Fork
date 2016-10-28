@@ -289,6 +289,31 @@ TEST(UTmubintvec,ctor_access_eq_neq){
 
 }
 
+TEST(UTmubintvec, constructorTest){
+
+  BigBinaryVector m(10);
+  
+  m.SetValAtIndex(0,"48");
+  m.SetValAtIndex(1,"53");
+  m.SetValAtIndex(2,"7");
+  m.SetValAtIndex(3,"178");
+  m.SetValAtIndex(4,"190");
+  m.SetValAtIndex(5,"120");
+  m.SetValAtIndex(6,"79");
+  m.SetValAtIndex(7,"108");
+  m.SetValAtIndex(8,"60");
+  m.SetValAtIndex(9,"12"); 
+
+  int expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};  // the expected values are stored as one dimensional integer array
+
+  // mubintvec binvect(m);
+
+  /*for (usint i=0;i<10;i++){
+    EXPECT_EQ (expectedResult[i], (binvect.GetValAtIndex(i)).ConvertToInt());
+  }*/
+
+}
+
 TEST(UTmubintvec,mod){
 
   mubintvec m(10); // calling constructor to create a vector of length 10 zeroed

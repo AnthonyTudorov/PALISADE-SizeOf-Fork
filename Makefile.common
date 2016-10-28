@@ -36,10 +36,10 @@ CC := g++ # This is the main compiler
 # NOTE select the appropriate set of CPPFLAGS 
 # most code is checked into git with the first line active
 
-#3CPPFLAGS += -Wall $(CPPSTD) -w -g ## undefine for single thread debug NO OPTIMIZATION operation
+#CPPFLAGS += -Wall $(CPPSTD) -w -g ## undefine for single thread debug NO OPTIMIZATION operation
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w -g ## undefine for single thread debug operation
 CPPFLAGS += -Wall -O3 $(CPPSTD) -w -g -fopenmp  ##undefine for parallel debug operation
-#CPPFLAGS += -Wall -O3 $(CPPSTD) -w  -DNDEBUG  ##undefine for single thread best performance operation
+#CPPFLAGS += -Wall $(CPPSTD) -w  -DNDEBUG -m64 -Ofast -flto -march=native -funroll-loops ##undefine for single thread best performance operation
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w  -DNDEBUG  -pg ##undefine for single thread best performance operation with gprof profiling 
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp  ##undefine for parallel best performance operation
 

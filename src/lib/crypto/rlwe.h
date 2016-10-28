@@ -65,8 +65,7 @@ public:
 	 * Copy constructor.
 	 *
 	 */
-	LPCryptoParametersRLWE(const LPCryptoParametersRLWE &rhs) : LPCryptoParameters<Element>(NULL, rhs.GetPlaintextModulus()) {
-
+	LPCryptoParametersRLWE(const LPCryptoParametersRLWE &rhs) : LPCryptoParameters<Element>(rhs.GetElementParams(), rhs.GetPlaintextModulus()) {
 		m_distributionParameter = rhs.m_distributionParameter;
 		m_assuranceMeasure = rhs.m_assuranceMeasure;
 		m_securityLevel = rhs.m_securityLevel;
@@ -86,14 +85,15 @@ public:
 	 * @param relinWindow the size of the relinearization window.
 	 * @param depth depth which defaults to 1.
 	 */
-	LPCryptoParametersRLWE(ElemParams *params,
+	LPCryptoParametersRLWE(
+			shared_ptr<ElemParams> params,
 			const BigBinaryInteger &plaintextModulus,
 			float distributionParameter,
 			float assuranceMeasure,
 			float securityLevel,
 			usint relinWindow,
 			const DiscreteGaussianGenerator &dgg,
-			int depth = 1) : LPCryptoParameters<Element>(params,plaintextModulus)
+			int depth = 1) : LPCryptoParameters<Element>(params, plaintextModulus)
 					{
 		m_distributionParameter = distributionParameter;
 		m_assuranceMeasure = assuranceMeasure;
@@ -113,7 +113,7 @@ public:
 	 *
 	 * @return the standard deviation r.
 	 */
-	float GetDistributionParameter() const {return m_distributionParameter;}
+	float GetDistributionParameter() const { return m_distributionParameter; }
 
 	/**
 	 * Returns the values of assurance measure alpha
@@ -216,8 +216,8 @@ public:
 			rootsOfUnity.push_back(rootOfUnity);
 		}
 
-		ILDCRTParams *newCryptoParams = new ILDCRTParams(m, moduli, rootsOfUnity);
-		cryptoParams->SetElementParams(*newCryptoParams);
+		shared_ptr<ElemParams> newCryptoParams( new ILDCRTParams(m, moduli, rootsOfUnity) );
+		cryptoParams->SetElementParams(newCryptoParams);
 	}
 
 	/**
@@ -225,13 +225,13 @@ public:
 	 *
 	 * @param &rhs LPCryptoParameters to check equality against.
 	 */
-	virtual bool operator==(const LPCryptoParameters<Element> &rhs) const {
+	bool operator==(const LPCryptoParameters<Element> &rhs) const {
 		const LPCryptoParametersRLWE<Element> *el = dynamic_cast<const LPCryptoParametersRLWE<Element> *>(&rhs);
 
 		if( el == 0 ) return false;
 
 		return  this->GetPlaintextModulus() == el->GetPlaintextModulus() &&
-				this->GetElementParams() == el->GetElementParams() &&
+				*this->GetElementParams() == *el->GetElementParams() &&
 				m_distributionParameter == el->GetDistributionParameter() &&
 				m_assuranceMeasure == el->GetAssuranceMeasure() &&
 				m_securityLevel == el->GetSecurityLevel() &&
@@ -240,7 +240,7 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& os, const LPCryptoParametersRLWE<Element>& item) {
 		os << "Plaintext modulus " << item.GetPlaintextModulus() << std::endl;
-		os<< item.GetElementParams();
+		os<< *item.GetElementParams();
 
 		os << "Distrib parm " << item.GetDistributionParameter() <<
 				", Assurance measure " << item.GetAssuranceMeasure() <<
@@ -267,7 +267,7 @@ protected:
 	bool SerializeRLWE(Serialized* serObj, SerialItem& cryptoParamsMap, const std::string fileFlag) const {
 
 		Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
-		const ElemParams& ep = this->GetElementParams();
+		const ElemParams& ep = *this->GetElementParams();
 		if( !ep.Serialize(&pser, fileFlag) )
 			return false;
 
@@ -307,7 +307,8 @@ protected:
 			return false;
 		}
 
-		this->SetElementParams(*json_ilParams);
+		shared_ptr<ElemParams> ep( json_ilParams );
+		this->SetElementParams( ep );
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;

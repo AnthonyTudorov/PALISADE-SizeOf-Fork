@@ -1,8 +1,9 @@
 f=bin/demo/pre
-p=src/demo/pre/PalisadeCryptoContext.parms
 in=src/demo/pre/plaintextMessage
+inint1=src/demo/pre/intPlaintext1
+inint2=src/demo/pre/intPlaintext2
 h=LTV3
-g="-use $p $h"
+g="-use $h"
 
 echo try $h
 $f/palisade $g makekey publisher$h
@@ -14,7 +15,19 @@ $f/palisade $g reencrypt encrypted${h}.txt rekey${h}.txt reencrypted${h}.txt
 $f/palisade $g decrypt reencrypted${h}.txt subscriber${h}PRI.txt cleartextOutput${h}.txt
 
 h=StSt6
-g="-use $p $h"
+g="-use $h"
+
+echo try $h
+$f/palisade $g makekey publisher$h
+$f/palisade $g makekey subscriber$h
+$f/palisade $g makerekey subscriber${h}PUB.txt publisher${h}PRI.txt rekey${h}.txt
+
+$f/palisade $g encrypt $in publisher${h}PUB.txt encrypted${h}.txt
+$f/palisade $g reencrypt encrypted${h}.txt rekey${h}.txt reencrypted${h}.txt
+$f/palisade $g decrypt reencrypted${h}.txt subscriber${h}PRI.txt cleartextOutput${h}.txt
+
+h=Null
+g="-use $h"
 
 echo try $h
 $f/palisade $g makekey publisher$h
@@ -27,6 +40,7 @@ $f/palisade $g decrypt reencrypted${h}.txt subscriber${h}PRI.txt cleartextOutput
 
 echo now try with -from option
 h=StSt6-2
+
 $f/palisade $g makekey publisher$h
 $f/palisade $g makekey subscriber$h
 $f/palisade -from publisher${h}PUB.txt makerekey subscriber${h}PUB.txt publisher${h}PRI.txt rekey${h}.txt
@@ -34,3 +48,16 @@ $f/palisade -from publisher${h}PUB.txt makerekey subscriber${h}PUB.txt publisher
 $f/palisade -from publisher${h}PUB.txt encrypt $in publisher${h}PUB.txt encrypted${h}.txt
 $f/palisade -from publisher${h}PUB.txt reencrypt encrypted${h}.txt rekey${h}.txt reencrypted${h}.txt
 $f/palisade -from publisher${h}PUB.txt decrypt reencrypted${h}.txt subscriber${h}PRI.txt cleartextOutput${h}.txt
+
+echo now trying null and integers
+h=Null
+g="-use $h"
+
+$f/palisade -integers $g encrypt $inint1 publisher${h}PUB.txt encryptedInt1${h}.txt
+$f/palisade -integers $g encrypt $inint2 publisher${h}PUB.txt encryptedInt2${h}.txt
+$f/palisade -integers $g decrypt encryptedInt1${h}.txt subscriber${h}PRI.txt cleartextIntOutput${h}.txt
+
+$f/palisade -integers $g evaladd encryptedInt1${h}.txt encryptedInt2${h}.txt encryptedIntAdd${h}.txt
+$f/palisade -integers $g evalmult encryptedInt1${h}.txt encryptedInt2${h}.txt encryptedIntMult${h}.txt
+$f/palisade -integers $g decrypt encryptedIntAdd${h}.txt publisher${h}PRI.txt cleartextIntAdded${h}.txt
+$f/palisade -integers $g decrypt encryptedIntMult${h}.txt publisher${h}PRI.txt cleartextIntMulted${h}.txt

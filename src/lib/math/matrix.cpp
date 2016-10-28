@@ -610,7 +610,7 @@ Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryVector> &input, const BigBi
 }
 
 //  split a vector of int32_t into a vector of ring elements with ring dimension n
-Matrix<ILVector2n> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const ILParams &params) {
+Matrix<ILVector2n> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
 			
 	auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
@@ -619,7 +619,7 @@ Matrix<ILVector2n> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other
     Matrix<ILVector2n> result(zero_alloc, rows, 1);
 
     for (size_t row = 0; row < rows; ++row) {
-		BigBinaryVector tempBBV(n,params.GetModulus());
+		BigBinaryVector tempBBV(n,params->GetModulus());
 
         for (size_t i = 0; i < n; ++i) {
 			BigBinaryInteger tempBBI;
@@ -627,7 +627,7 @@ Matrix<ILVector2n> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other
 			if (other(row*n + i,0) < 0)
 			{
 				tempInteger = -other(row*n + i,0);
-				tempBBI = params.GetModulus() - BigBinaryInteger(tempInteger);
+				tempBBI = params->GetModulus() - BigBinaryInteger(tempInteger);
 			}
 			else
 			{
@@ -644,7 +644,7 @@ Matrix<ILVector2n> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other
 }
 
 //  split a vector of BBI into a vector of ring elements with ring dimension n
-Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const ILParams &params) {
+Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
 			
 	auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
@@ -654,7 +654,7 @@ Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& ot
 
     for (size_t row = 0; row < rows; ++row) {
 
-		BigBinaryVector tempBBV(n,params.GetModulus());
+		BigBinaryVector tempBBV(n,params->GetModulus());
 
         for (size_t i = 0; i < n; ++i) {
 
@@ -663,7 +663,7 @@ Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& ot
 			if (other(row,i) < 0)
 			{
 				tempInteger = -other(row,i);
-				tempBBI = params.GetModulus() - BigBinaryInteger(tempInteger);
+				tempBBI = params->GetModulus() - BigBinaryInteger(tempInteger);
 			}
 			else
 			{

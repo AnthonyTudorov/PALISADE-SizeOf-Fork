@@ -11,18 +11,11 @@ List of Authors:
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
-Description:
-	This code exercises the Proxy Re-Encryption capabilities of the NJIT Lattice crypto library.
-	In this code we:
-		- Generate a key pair.
-		- Encrypt a string of data.
-		- Decrypt the data.
-		- Generate a new key pair.
-		- Generate a proxy re-encryption key.
-		- Re-Encrypt the encrypted data.
-		- Decrypt the re-encrypted data.
-	We configured parameters (namely the ring dimension and ciphertext modulus) to provide a level of security roughly equivalent to a root hermite factor of 1.007 which is generally considered secure and conservatively comparable to AES-128 in terms of computational work factor and may be closer to AES-256.
+		Dr. David Cousins, dcousins@bbn.com
 
+Description:
+ 
+This is a highly simplified version of ObfuscateSimulator.cpp used for debugging.
 License Information:
 
 Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
@@ -34,10 +27,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
+#define PROFILE  //define this to enable PROFILELOG and TIC/TOC 
+                  // Note must must be before all headers
+
 #include <iostream>
 #include <fstream>
 #include "../../lib/obfuscate/lweconjunctionobfuscatev2.h"
 #include "../../lib/obfuscate/lweconjunctionobfuscatev2.cpp"
+
 
 #include "../../lib/utils/debug.h"
 
@@ -46,7 +43,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //using namespace std;
 using namespace lbcrypto;
 
-bool NTRUPRE(bool dbg_flag, int n_evals); //defined later
+bool CONJOBF(bool dbg_flag, int n_evals); //defined later
 
 
 //main()   need this for Kurts makefile to ignore this.
@@ -54,21 +51,21 @@ int main(int argc, char* argv[]){
 	bool errorflag = false;
 
 	if (argc < 2) { // called with no arguments
-		std::cout << "arg 1 = debugflag 0:1 [0] " << std::endl;
-		std::cout << "arg 2 = num evals 1:3 [1] " << std::endl;
+		std::cout << "Usage is `"<<argv[0]<<" arg1 arg2 arg3' where: " << std::endl;
+		std::cout << "  arg1 indicate verbosity of output. Possible values are 0 or 1 with 1 being verbose.  Default is 0." << std::endl;
+		std::cout << "  arg2 indicates number of evaluation operations to run.  Possible values are 1, 2 or 3.  Default is 1." << std::endl;
+		std::cout << "If no input is given, then this message is displayed, defaults are assumed and user is prompted for ring dimension." << std::endl;
 	}
 	bool dbg_flag = false; 
 
 	if (argc >= 2 ) {
 		if (atoi(argv[1]) != 0) {
-#ifndef NDEBUG
+#if !defined(NDEBUG)
 			dbg_flag = true;
-			std::cout << "setting dbg_flag true" << std::endl;
+			// std::cout << "setting dbg_flag true" << std::endl;
 #endif
 		}
 	}
-
-	std::cerr  <<"Running " << argv[0] <<" with "<< omp_get_num_procs() << " processors." << std::endl;
 
 	int n_evals = 1;
 
@@ -81,7 +78,8 @@ int main(int argc, char* argv[]){
 			n_evals = atoi(argv[2]);
 		}
 	}
-	std::cerr << "Running " << argv[0] << " with " << n_evals << " evaluations." << std::endl;
+
+	std::cerr  <<"Configured to run " << argv[0] <<" with "<< omp_get_num_procs() << " processor[s] and " << n_evals << " evaluation[s]." << std::endl;
 
 	int nthreads, tid;
 
@@ -101,36 +99,29 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	//	NTRUPRE(input, dbg_flag, n_evals);
-	errorflag = NTRUPRE(dbg_flag, n_evals);
-
-	//std::cin.get();
+	errorflag = CONJOBF(dbg_flag, n_evals);
 
 	return ((int)errorflag);
+
 }
 
 //////////////////////////////////////////////////////////////////////
-//	NTRUPRE is where the core functionality is provided.
-//	In this code we:
-//		- Generate a key pair.
-//		- Encrypt a string of data.
-//		- Decrypt the data.
-//		- Generate a new key pair.
-//		- Generate a proxy re-encryption key.
-//		- Re-Encrypt the encrypted data.
-//		- Decrypt the re-encrypted data.
-//////////////////////////////////////////////////////////////////////
-//	We provide two different paramet settings.
-//	The low-security, highly efficient settings are commented out.
-//	The high-security, less efficient settings are enabled by default.
-//////////////////////////////////////////////////////////////////////
-//void NTRUPRE(int input, bool dbg_flag, int n_evals) {
-bool NTRUPRE(bool dbg_flag, int n_evals) {
+bool CONJOBF(bool dbg_flag, int n_evals) {
 
 	//if dbg_flag == true; print debug outputs
 	// n_evals = 1,2,3 number of evaluations to perform
 	//returns
 	//  errorflag = # of bad evaluations
+
+
+  DEBUG("DEBUG IS TRUE");
+  PROFILELOG("PROFILELOG IS TRUE");
+#ifdef PROFILE
+  std::cout<<"PROFILE is defined"<<std::endl;
+#endif
+#ifdef NDEBUG
+  std::cout<<"NDEBUG is defined"<<std::endl;
+#endif
 
 	TimeVar t1,t_total; //for TIC TOC
 	TIC(t_total); //start timer for total time
@@ -158,14 +149,14 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 
 
 	//Prepare for parameters.
-	ILParams ilParams(m,modulus,rootOfUnity);
+	shared_ptr<ILParams> ilParams( new ILParams(m,modulus,rootOfUnity) );
 
 	//Set crypto parametes
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev);			// Create the noise generator
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 	BinaryUniformGenerator bug = BinaryUniformGenerator();			// Create the noise generator
 
-	DEBUG("Cryptosystem initialization: Performing precomputations...");
+	PROFILELOG("Cryptosystem initialization: Performing precomputations...");
 
 	//This code is run only when performing execution time measurements
 
@@ -176,7 +167,7 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	TIC(t1);
 	ILVector2n::PreComputeDggSamples(dgg, ilParams);
 	timeDGGSetup = TOC(t1);
-	DEBUG("DGG Precomputation time: " << "\t" << timeDGGSetup << " ms");
+	PROFILELOG("DGG Precomputation time: " << "\t" << timeDGGSetup << " ms");
 
 	////////////////////////////////////////////////////////////
 	//Generate and test the cleartext pattern
@@ -219,11 +210,11 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	ObfuscatedLWEConjunctionPatternV2<ILVector2n> obfuscatedPattern(ilParams,chunkSize);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 
-	DEBUG( "Key generation started"); 
+	PROFILELOG( "Key generation started");
 	TIC(t1);
 	algorithm.KeyGen(dgg,&obfuscatedPattern);
 	timeKeyGen = TOC(t1);
-	DEBUG( "Key generation time: " << "\t" << timeKeyGen << " ms");
+	PROFILELOG( "Key generation time: " << "\t" << timeKeyGen << " ms");
 
 	BinaryUniformGenerator dbg = BinaryUniformGenerator();	
 
@@ -231,14 +222,14 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	TIC(t1);
 	algorithm.Obfuscate(clearPattern,dgg,dbg,&obfuscatedPattern);
 	timeObf = TOC(t1);
-	DEBUG( "Obfuscation time: " << "\t" << timeObf<< " ms");
+	PROFILELOG( "Obfuscation time: " << "\t" << timeObf<< " ms");
 
-	DEBUG("Evaluation 1 started");
+	PROFILELOG("Evaluation 1 started");
 	TIC(t1);
 	result1 = algorithm.Evaluate(obfuscatedPattern,inputStr1);
 	timeEval1 = TOC(t1);
 	DEBUG( " \nCleartext pattern evaluation of: " << inputStr1 << " is " << result1 << ".");
-	DEBUG( "Evaluation 1 execution time: " << "\t" << timeEval1 << " ms" );
+	PROFILELOG( "Evaluation 1 execution time: " << "\t" << timeEval1 << " ms" );
 
 	bool errorflag = false;
 	if (result1 != out1) {
@@ -247,12 +238,12 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	}
 
 	if (n_evals > 1)  {
-		DEBUG("Evaluation 2 started");
+		PROFILELOG("Evaluation 2 started");
 		TIC(t1);
 		result2 = algorithm.Evaluate(obfuscatedPattern,inputStr2);
 		timeEval2 = TOC(t1);
 		DEBUG( " \nCleartext pattern evaluation of: " << inputStr2 << " is " << result2 << ".");
-		DEBUG( "Evaluation 2 execution time: " << "\t" << timeEval2 << " ms" );
+		PROFILELOG( "Evaluation 2 execution time: " << "\t" << timeEval2 << " ms" );
 
 		if (result2 != out2) {
 			std::cout << "ERROR EVALUATING 2"<< std::endl;
@@ -261,12 +252,12 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	}
 
 	if (n_evals > 2)  {
-		DEBUG("Evaluation 3 started");
+		PROFILELOG("Evaluation 3 started");
 		TIC(t1);
 		result3 = algorithm.Evaluate(obfuscatedPattern,inputStr3);
 		timeEval3 = TOC(t1);
 		DEBUG( "\nCleartext pattern evaluation of: " << inputStr3 << " is " << result3 << ".");
-		DEBUG( "Evaluation 3 execution time: " << "\t" << timeEval3 << " ms");
+		PROFILELOG( "Evaluation 3 execution time: " << "\t" << timeEval3 << " ms");
 		if (result3 != out3) {
 			std::cout << "ERROR EVALUATING 3"<< std::endl;
 			errorflag |= true;
@@ -277,8 +268,8 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	timeTotal = TOC(t_total);
 
 	//print output timing results
-
-	std::cout << "Timing Summary" << std::endl;
+	//note one could use PROFILELOG for these lines
+	std::cout << "Timing Summary for n = " << m/2 << std::endl;
 	std::cout << "T: DGG setup time:        " << "\t" << timeDGGSetup << " ms" << std::endl;
 	std::cout << "T: Key generation time:        " << "\t" << timeKeyGen << " ms" << std::endl;
 	std::cout << "T: Obfuscation execution time: " << "\t" << timeObf << " ms" << std::endl;
@@ -292,6 +283,8 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	} else {
 		std::cout << "SUCCESS " << std::endl;
 	}
+
+	ILVector2n::DestroyPreComputedSamples();
 
 	return (errorflag);
 }

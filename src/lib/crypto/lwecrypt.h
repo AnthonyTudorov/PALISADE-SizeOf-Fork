@@ -35,21 +35,7 @@
 #define LBCRYPTO_CRYPTO_LWECRYPT_H
 
 //Includes Section
-#include "../utils/inttypes.h"
-#include "../math/distrgen.h"
-#include "../math/backend.h"
-#include "pubkeylp.h"
-#include "ciphertext.h"
-#include "rlwe.h"
-#include "lweahe.h"
-#include "lwepre.h"
-#include "lweshe.h"
-#include "lwefhe.h"
-#include "lweautomorph.h"
-#include "../lattice/elemparams.h"
-#include "../lattice/ilparams.h"
-#include "../lattice/ildcrtparams.h"
-#include "../lattice/ilelement.h"
+#include "../palisade.h"
 
 /**
  * @namespace lbcrypto
@@ -83,9 +69,7 @@ namespace lbcrypto {
 			 * @param *ciphertext ciphertext which results from encryption.
 			 * @return an instance of EncryptResult related to the ciphertext that is encrypted.
 			 */
-			EncryptResult Encrypt(const LPPublicKey<Element> &publicKey,
-				const Element &plaintext,
-				Ciphertext<Element> *ciphertext) const;
+			shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Element &plaintext) const;
 
 			/**
 			 * Method for decrypting plaintext using Ring-LWE NTRU
@@ -95,8 +79,8 @@ namespace lbcrypto {
 			 * @param *plaintext the plaintext output.
 			 * @return an instance of DecryptResult related to the plaintext that is decrypted
 			 */			
-			DecryptResult Decrypt(const LPPrivateKey<Element> &privateKey, 
-				const Ciphertext<Element> &ciphertext,
+			DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+				const shared_ptr<Ciphertext<Element>> ciphertext,
 				Element *plaintext) const;
 			
 			/**
@@ -106,8 +90,7 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			virtual bool KeyGen(LPPublicKey<Element> *publicKey, 
-		        	LPPrivateKey<Element> *privateKey) const;
+			virtual LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc) const;
 	 };
 
 	/**
@@ -135,14 +118,19 @@ namespace lbcrypto {
 			 * @param &newPrivateKey New private key to generate the keyswitch hint.
 			 * @param *keySwitchHint is where the resulting keySwitchHint will be placed.
 			 */
-			virtual void EvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *keySwitchHint) const ;
+			virtual shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+					const shared_ptr<LPPrivateKey<Element>> k1,
+					const shared_ptr<LPPrivateKey<Element>> k2) const ;
+
 			/**
 			 * Method for KeySwitching based on a KeySwitchHint
 			 *
 			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
 			 * @param &cipherText Original ciphertext to perform switching on.
 			 */
-			virtual Ciphertext<Element> KeySwitch(const LPEvalKey<Element> &keySwitchHint,const  Ciphertext<Element> &cipherText) const;
+			virtual shared_ptr<Ciphertext<Element>> KeySwitch(
+					const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+					const shared_ptr<Ciphertext<Element>> cipherText) const;
 
 			/**
 			* Method for generating a keyswitchhint from originalPrivateKey square to newPrivateKey
@@ -151,31 +139,36 @@ namespace lbcrypto {
 			* @param &newPrivateKey new private for generating a keyswitchhint to.
 			* @param *quadraticKeySwitchHint the generated keyswitchhint.
 			*/
-			virtual void QuadraticEvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKeyNTRU<Element> *quadraticKeySwitchHint) const;
-			
+			virtual shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
+				const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+				const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const;
+
 			/**
 			 * Method for ModReducing CipherText and the Private Key used for encryption.
 			 *
 			 * @param *cipherText Ciphertext to perform and apply modreduce on.
 			 */
-			virtual void ModReduce(Ciphertext<Element> *cipherText) const; 
+			virtual shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const;
 			/**
 			 * Method for RingReducing CipherText and the Private Key used for encryption.
 			 *
 			 * @param *cipherText Ciphertext to perform and apply ringreduce on.
 			 * @param *keySwitchHint is the keyswitchhint from the ciphertext's private key to a sparse key
 			 */
-			virtual void RingReduce(Ciphertext<Element> *cipherText, const LPEvalKeyNTRU<Element> &keySwitchHint) const ; 
+			virtual shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const ;
 			
 			/**
-			* Method for Composed EvalMult
+			* Method for ComposedEvalMult
 			*
 			* @param &cipherText1 ciphertext1, first input ciphertext to perform multiplication on.
 			* @param &cipherText2 cipherText2, second input ciphertext to perform multiplication on.
 			* @param &quadKeySwitchHint is for resultant quadratic secret key after multiplication to the secret key of the particular level.
 			* @param &cipherTextResult is the resulting ciphertext that can be decrypted with the secret key of the particular level.
 			*/
-			virtual void ComposedEvalMult(const Ciphertext<Element> &cipherText1, const Ciphertext<Element> &cipherText2, const LPEvalKeyNTRU<Element> &quadKeySwitchHint, Ciphertext<Element> *cipherTextResult) const ;
+			virtual shared_ptr<Ciphertext<Element>> ComposedEvalMult(
+					const shared_ptr<Ciphertext<Element>> cipherText1,
+					const shared_ptr<Ciphertext<Element>> cipherText2,
+					const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint) const ;
 
 			/**
 			* Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
@@ -184,7 +177,8 @@ namespace lbcrypto {
 			* @param &linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
 			* @param &cipherTextResult is the resulting ciphertext.
 			*/
-			virtual void LevelReduce(const Ciphertext<Element> &cipherText1, const LPEvalKeyNTRU<Element> &linearKeySwitchHint, Ciphertext<Element> *cipherTextResult) const ;
+			virtual shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
+					const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const ;
 			/**
 			* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
 			* and odd indices are set to zero.
@@ -192,7 +186,7 @@ namespace lbcrypto {
 			* @param *publicKey is the public key to be generated.
 			* @param *privateKey is the private key to be generated.
 			*/
-			virtual bool SparseKeyGen(LPPublicKey<Element> *publicKey, LPPrivateKey<Element> *privateKey) const;
+			virtual LPKeyPair<Element> SparseKeyGen(const CryptoContext<Element> cc) const;
 			/**
 			* Function that determines if security requirements are met if ring dimension is reduced by half.
 			*
@@ -228,8 +222,7 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			 bool KeyGen(LPPublicKey<Element> *publicKey, 
-		        	LPPrivateKey<Element> *privateKey) const;
+			LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc) const;
 	};
 
 	/**
@@ -296,8 +289,8 @@ namespace lbcrypto {
 	class LPLeveledSHEKeyStructure //: TODO: NISHANT to implement serializable public Serializable
 	{
 	private:
-		std::vector< LPEvalKeyNTRU<Element> > m_qksh;
-		std::vector< LPEvalKeyNTRU<Element> > m_lksh;
+		std::vector< shared_ptr<LPEvalKey<Element>> > m_qksh;
+		std::vector< shared_ptr<LPEvalKey<Element>> > m_lksh;
 		usint m_levels;
 
 	public:
@@ -313,7 +306,7 @@ namespace lbcrypto {
 		*
 		*@return the LinearKeySwitchHint for the level
 		*/
-		const LPEvalKeyNTRU<Element>& GetLinearKeySwitchHintForLevel(usint level) const {
+		const shared_ptr<LPEvalKey<Element>> GetLinearKeySwitchHintForLevel(usint level) const {
 			if(level>m_levels-1) {
 				throw std::runtime_error("Level out of range");
 			} 
@@ -327,7 +320,7 @@ namespace lbcrypto {
 		*
 		*@return the QuadraticKeySwitchHint for the level
 		*/
-		const LPEvalKeyNTRU<Element>& GetQuadraticKeySwitchHintForLevel(usint level) const {
+		const shared_ptr<LPEvalKey<Element>> GetQuadraticKeySwitchHintForLevel(usint level) const {
 			if(level>m_levels-1) {
 				throw std::runtime_error("Level out of range");
 			} 
@@ -340,16 +333,16 @@ namespace lbcrypto {
 		*
 		*@param &lksh LinearKeySwitchHintLTV to be added.
 		*/
-		void PushBackLinearKey(const LPEvalKeyNTRU<Element> &lksh){
-			m_lksh.push_back(std::move(lksh));
+		void PushBackLinearKey(const shared_ptr<LPEvalKey<Element>> lksh){
+			m_lksh.push_back(lksh);
 		}
 		/**
 		* Method to add a QuadraticKeySwitchHint. The added key will be the key for the last level
 		*
 		*@param &quad QuadraticKeySwitchHintLTV to be added.
 		*/
-		void PushBackQuadraticKey(const LPEvalKeyNTRU<Element> &quad){
-			m_qksh.push_back(std::move(quad));
+		void PushBackQuadraticKey(const shared_ptr<LPEvalKey<Element>> quad){
+			m_qksh.push_back(quad);
 		}
 		/**
 		* Method to set LinearKeySwitchHint for a particular level of computation.
@@ -357,7 +350,7 @@ namespace lbcrypto {
 		*@param &lksh LinearKeySwitchHintLTV to be set.
 		*@param level is the level to set the key to.
 		*/
-		void SetLinearKeySwitchHintForLevel(const LPEvalKeyNTRU<Element> &lksh, usint level) {
+		void SetLinearKeySwitchHintForLevel(const shared_ptr<LPEvalKey<Element>> lksh, usint level) {
 			if(level>m_levels-1) {
 				throw std::runtime_error("Level out of range");
 			} 
@@ -371,7 +364,15 @@ namespace lbcrypto {
 		*@param &qksh QuadraticKeySwitchHint to be set.
 		*@param level is the level to set the key to.
 		*/
-		void SetQuadraticKeySwitchHintForLevel(const LPEvalKeyNTRU<Element> &qksh, usint level) { if(level>m_levels-1) {throw std::runtime_error("Level out of range");} else { m_qksh[level] = qksh;} };
+		void SetQuadraticKeySwitchHintForLevel(const shared_ptr<LPEvalKey<Element>> qksh, usint level) {
+			if(level>m_levels-1)
+			{
+				throw std::runtime_error("Level out of range");
+			}
+			else {
+				m_qksh[level] = qksh;
+			}
+		}
 	};
 
 } // namespace lbcrypto ends

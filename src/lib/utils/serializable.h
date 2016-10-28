@@ -55,9 +55,6 @@
 */
 namespace lbcrypto {
 
-	template <class Element>
-	class CryptoContext;
-
 	// C+11 "using" is not supported in VS 2012 - so it was replaced with C+03 "typedef"
 	typedef rapidjson::Value SerialItem;
 	typedef rapidjson::Document Serialized;
@@ -79,14 +76,16 @@ namespace lbcrypto {
 		/**
 		* Serialize the object into a Serialized
 		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param cryptoCtx is required for top-level objects
 		* @param fileFlag is an optional tag for the serialization
 		* @return true if successfully serialized
 		*/
 		virtual bool Serialize(Serialized* serObj, const std::string fileFlag = "") const = 0;
 
 		/**
-		* Higher level info about the serialization is saved here
+		* Higher level info about the serialization is saved here; this is only used for serializations
+		* of larger objects that are saved to a file. For cases of smaller objects that are part of larger objects,
+		* the default version (do nothing, return true) is used
+		*
 		* @param serObj to store the the implementing object's serialization specific attributes.
 		* @param flag an object-specific parameter for the serialization
 		* @return true on success
@@ -99,14 +98,6 @@ namespace lbcrypto {
 		* @return true on success
 		*/
 		virtual bool Deserialize(const Serialized& serObj) = 0;
-
-		/**
-		* Populate the object from the deserialization of the Serialized
-		* @param serObj contains the serialized object
-		* @param ctx is the CryptoContext that the object must match up with
-		* @return true on success
-		*/
-		template <class Element> bool Deserialize(const Serialized& serObj, const CryptoContext<Element>* ctx);
 	};
 
 }
