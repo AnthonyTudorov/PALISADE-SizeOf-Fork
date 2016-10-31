@@ -121,26 +121,14 @@ namespace lbcrypto {
 		ILVector2n(const DiscreteUniformGenerator &dug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 
         /**
-         *  Create lambda that allocates a zeroed element with the specified
-         *  parameters and format
-         */
-        inline static function<unique_ptr<ILVector2n>()> MakeAllocator(shared_ptr<ILParams> params, Format format) {
-            return [=]() {
-                return lbcrypto::make_unique<ILVector2n>(params, format, true);
-            };
-        }
-
-        /**
          *  Create lambda that allocates a zeroed element for the case when it is called from a templated class
          */
         inline static function<unique_ptr<ILVector2n>()> MakeAllocator(const shared_ptr<ElemParams> params, Format format) {
             return [=]() {
-                //return MakeAllocator(*(static_cast<const ILParams*>(params)),format);
-            	ILParams *ip = dynamic_cast<ILParams *>( &*params );
+            	shared_ptr<ILParams> ip = std::dynamic_pointer_cast<ILParams>( params );
             	if( ip == 0 )
             		throw std::logic_error("MakeAllocator was not passed an ILParams");
-            	shared_ptr<ILParams> pcast( ip );
-				return lbcrypto::make_unique<ILVector2n>(pcast, format, true);
+				return lbcrypto::make_unique<ILVector2n>(ip, format, true);
             };
         }
 
@@ -728,8 +716,6 @@ namespace lbcrypto {
 
 		// static variable to store the sample size for each set of ILParams
 		static const usint m_sampleSize = SAMPLE_SIZE;
-
-		bool m_empty;
 
 		// gets a random discrete Gaussian polynomial
 		static const ILVector2n GetPrecomputedVector();

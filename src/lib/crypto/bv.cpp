@@ -79,17 +79,15 @@ LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(const CryptoContext<Element> c
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
+shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
 	Element &plaintext) const
 {
 
-	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(pubKey->GetCryptoParameters());
-
-	const shared_ptr<LPPublicKey<Element>> publicKey = std::static_pointer_cast<LPPublicKey<Element>>(pubKey);
+	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(publicKey->GetCryptoParameters());
 
 	if( cryptoParams == 0 ) return shared_ptr<Ciphertext<Element>>();
 
-	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey->GetCryptoContext()) );
+	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(publicKey->GetCryptoContext()) );
 
 	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
@@ -149,7 +147,7 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const shared_
 	// create a new ReKey of the proper type, in this context
 	shared_ptr<LPEvalKeyRelin<Element>> EK( new LPEvalKeyRelin<Element>(newSK->GetCryptoContext()) );
 
-	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::static_pointer_cast<LPCryptoParametersBV<Element>>(newSK->GetCryptoParameters());
+	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(newSK->GetCryptoParameters());
 
 	if( cryptoParamsLWE == 0 ) {
 		throw std::logic_error("Secret Key crypto parameters have incorrect type in LPAlgorithmPREBV<Element>::ReKeyGen");
@@ -211,7 +209,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPREBV<Element>::ReEncrypt(const share
 {
 	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(*ciphertext) );
 
-	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::static_pointer_cast<LPCryptoParametersBV<Element>>(EK->GetCryptoParameters());
+	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(EK->GetCryptoParameters());
 
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 

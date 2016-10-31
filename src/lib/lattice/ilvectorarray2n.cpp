@@ -42,7 +42,7 @@ namespace lbcrypto {
 
 	ILVectorArray2n::ILVectorArray2n(const shared_ptr<ElemParams> params, Format format) : m_format(format)
 	{
-		const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(params);
+		const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(params);
 			//TODO- ADD Integrety checks for ILDCRTParams IN ILDCRTParams
 
 		m_cyclotomicOrder = params->GetCyclotomicOrder();
@@ -115,7 +115,7 @@ namespace lbcrypto {
 	/*The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers. The algorithm to populate the towers can be seen below.*/
 	ILVectorArray2n::ILVectorArray2n(const DiscreteGaussianGenerator & dgg, const shared_ptr<ElemParams> params, Format format)
 	{
-		const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(params);
+		const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(params);
 
 		m_modulus = dcrtParams->GetModulus();
 		m_cyclotomicOrder= dcrtParams->GetCyclotomicOrder();

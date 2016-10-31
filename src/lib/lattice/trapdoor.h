@@ -88,7 +88,7 @@ public:
 	*/
 	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(const shared_ptr<ElemParams> params, int stddev)
 	{
-		shared_ptr<ILParams> ip( dynamic_cast<ILParams *>(&*params) );
+		shared_ptr<ILParams> ip = std::dynamic_pointer_cast<ILParams>(params);
 		return TrapdoorGen(ip, stddev);
 	}
 

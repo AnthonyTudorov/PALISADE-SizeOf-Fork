@@ -131,7 +131,7 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const 
 	shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyRelin<Element>(newPrivateKey->GetCryptoContext()));
 
 	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams =
-			std::static_pointer_cast<LPCryptoParametersLTV<Element>>(newPrivateKey->GetCryptoParameters());
+			std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(newPrivateKey->GetCryptoParameters());
 
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
