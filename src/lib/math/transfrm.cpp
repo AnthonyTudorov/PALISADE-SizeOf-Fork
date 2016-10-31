@@ -301,12 +301,12 @@ namespace lbcrypto {
 
 		BigBinaryVector *rootOfUnityTable = NULL;
 
-		rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus().ToString()];
+		rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus().Serialize()];
 
 		if (rootOfUnityTable->GetLength() != 0) {
 			if (rootOfUnityTable->GetValAtIndex(1) != rootOfUnity) {
 				this->m_rootOfUnityTableByModulus.clear();
-				rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus().ToString()];
+				rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus().Serialize()];
 			}
 		}
 
@@ -321,9 +321,9 @@ namespace lbcrypto {
 				x = x.ModBarrettMul(rootOfUnity, modulus, mu);
 			}
 
-			this->m_rootOfUnityTableByModulus[modulus.ToString()] = std::move(rTable);
+			this->m_rootOfUnityTableByModulus[modulus.Serialize()] = std::move(rTable);
 
-			rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus().ToString()];
+			rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus().Serialize()];
 		}
 
 		BigBinaryVector OpFFT;
@@ -334,7 +334,7 @@ namespace lbcrypto {
 		for (usint i = 0; i<CycloOrder / 2; i++)
 			InputToFFT.SetValAtIndex(i, element.GetValAtIndex(i).ModBarrettMul(rootOfUnityTable->GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
 
-		OpFFT = NumberTheoreticTransform::GetInstance().ForwardTransformIterative(InputToFFT, this->m_rootOfUnityTableByModulus[element.GetModulus().ToString()], CycloOrder / 2);
+		OpFFT = NumberTheoreticTransform::GetInstance().ForwardTransformIterative(InputToFFT, this->m_rootOfUnityTableByModulus[element.GetModulus().Serialize()], CycloOrder / 2);
 
 		return OpFFT;
 	}
@@ -355,14 +355,14 @@ namespace lbcrypto {
 
 		BigBinaryVector *rootOfUnityITable = NULL;
 
-		//std::cout<<m_rootOfUnityTableByModulus[element.GetModulus().ToString()];
+		//std::cout<<m_rootOfUnityTableByModulus[element.GetModulus().Serialize()];
 
-		rootOfUnityITable = &m_rootOfUnityInverseTableByModulus[element.GetModulus().ToString()];
+		rootOfUnityITable = &m_rootOfUnityInverseTableByModulus[element.GetModulus().Serialize()];
 
 		if (rootOfUnityITable->GetLength() != 0) {
 			if (rootOfUnityITable->GetValAtIndex(1) != rootOfUnity.ModInverse(element.GetModulus())) {
 				this->m_rootOfUnityInverseTableByModulus.clear();
-				rootOfUnityITable = &m_rootOfUnityInverseTableByModulus[element.GetModulus().ToString()];
+				rootOfUnityITable = &m_rootOfUnityInverseTableByModulus[element.GetModulus().Serialize()];
 			}
 		}
 
@@ -379,19 +379,19 @@ namespace lbcrypto {
 				x = x.ModBarrettMul(rootOfUnityInverse, element.GetModulus(), mu);
 			}
 
-			//this->m_rootOfUnityInverseTableByModulus.insert(std::make_pair(modulus.ToString(),TableI));
-			this->m_rootOfUnityInverseTableByModulus[element.GetModulus().ToString()] = std::move(TableI);
+			//this->m_rootOfUnityInverseTableByModulus.insert(std::make_pair(modulus.Serialize(),TableI));
+			this->m_rootOfUnityInverseTableByModulus[element.GetModulus().Serialize()] = std::move(TableI);
 
 		}
 
 
 
 		BigBinaryVector OpIFFT;
-		OpIFFT = NumberTheoreticTransform::GetInstance().InverseTransformIterative(element, m_rootOfUnityInverseTableByModulus[element.GetModulus().ToString()], CycloOrder / 2);
+		OpIFFT = NumberTheoreticTransform::GetInstance().InverseTransformIterative(element, m_rootOfUnityInverseTableByModulus[element.GetModulus().Serialize()], CycloOrder / 2);
 
 		usint ringDimensionFactor = rootOfUnityITable->GetLength() / (CycloOrder / 2);
 
-		BigBinaryVector rInvTable(this->m_rootOfUnityInverseTableByModulus[element.GetModulus().ToString()]);
+		BigBinaryVector rInvTable(this->m_rootOfUnityInverseTableByModulus[element.GetModulus().Serialize()]);
 		for (usint i = 0; i<CycloOrder / 2; i++)
 			OpIFFT.SetValAtIndex(i, OpIFFT.GetValAtIndex(i).ModBarrettMul(rInvTable.GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
 
@@ -409,7 +409,7 @@ namespace lbcrypto {
 
 
 		BigBinaryVector *rootOfUnityTableCheck = NULL;
-		rootOfUnityTableCheck = &m_rootOfUnityTableByModulus[modulus.ToString()];
+		rootOfUnityTableCheck = &m_rootOfUnityTableByModulus[modulus.Serialize()];
 		//Precomputes twiddle factor omega and FTT parameter phi for Forward Transform
 		if (rootOfUnityTableCheck->GetLength() == 0) {
 			BigBinaryVector Table(CycloOrder / 2);
@@ -420,15 +420,15 @@ namespace lbcrypto {
 				x = x.ModBarrettMul(rootOfUnity, modulus, mu);
 			}
 
-			//this->m_rootOfUnityTableByModulus.insert( std::make_pair(modulus.ToString(),Table));
-			this->m_rootOfUnityTableByModulus[modulus.ToString()] = std::move(Table);
+			//this->m_rootOfUnityTableByModulus.insert( std::make_pair(modulus.Serialize(),Table));
+			this->m_rootOfUnityTableByModulus[modulus.Serialize()] = std::move(Table);
 
 
 
 		}
 
 		//Precomputes twiddle factor omega and FTT parameter phi for Inverse Transform
-		BigBinaryVector  *rootOfUnityInverseTableCheck = &m_rootOfUnityInverseTableByModulus[modulus.ToString()];
+		BigBinaryVector  *rootOfUnityInverseTableCheck = &m_rootOfUnityInverseTableByModulus[modulus.Serialize()];
 		if (rootOfUnityInverseTableCheck->GetLength() == 0) {
 			BigBinaryVector TableI(CycloOrder / 2);
 			BigBinaryInteger rootOfUnityInverse = rootOfUnity.ModInverse(modulus);
@@ -440,7 +440,7 @@ namespace lbcrypto {
 				x = x.ModBarrettMul(rootOfUnityInverse, modulus, mu);
 			}
 
-			this->m_rootOfUnityInverseTableByModulus[modulus.ToString()] = std::move(TableI);
+			this->m_rootOfUnityInverseTableByModulus[modulus.Serialize()] = std::move(TableI);
 
 		}
 
@@ -467,7 +467,7 @@ namespace lbcrypto {
 			temp <<= 2 * currentMod.GetMSB() + 3;
 			BigBinaryInteger mu = temp.DividedBy(currentMod);
 
-			if (this->m_rootOfUnityTableByModulus[moduliiChain[i].ToString()].GetLength() != 0)
+			if (this->m_rootOfUnityTableByModulus[moduliiChain[i].Serialize()].GetLength() != 0)
 				continue;
 
 
@@ -484,7 +484,7 @@ namespace lbcrypto {
 				x = x.ModBarrettMul(currentRoot, currentMod, mu);
 			}
 
-			this->m_rootOfUnityTableByModulus[currentMod.ToString()] = std::move(rTable);
+			this->m_rootOfUnityTableByModulus[currentMod.Serialize()] = std::move(rTable);
 
 			//computation of root of unity inverse table
 			x = BigBinaryInteger::ONE;
@@ -499,7 +499,7 @@ namespace lbcrypto {
 				x = x.ModBarrettMul(rootOfUnityInverse, currentMod, mu);
 			}
 
-			this->m_rootOfUnityInverseTableByModulus[currentMod.ToString()] = std::move(rTableI);
+			this->m_rootOfUnityInverseTableByModulus[currentMod.Serialize()] = std::move(rTableI);
 
 
 		}
