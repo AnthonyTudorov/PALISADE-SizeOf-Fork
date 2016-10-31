@@ -142,7 +142,7 @@ public:
 	DiscreteGaussianGenerator& GetGenerator() { return ctx->GetGenerator(); }
 
 	const shared_ptr<ILParams> GetElementParams() {
-		return std::static_pointer_cast<ILParams>(ctx->getCryptoParams()->GetElementParams());
+		return std::dynamic_pointer_cast<ILParams>(ctx->getCryptoParams()->GetElementParams());
 	}
 
 	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.ctx == b.ctx; }

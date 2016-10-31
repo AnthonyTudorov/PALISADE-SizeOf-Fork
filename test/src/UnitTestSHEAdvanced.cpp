@@ -130,7 +130,7 @@ TEST_F(UTSHEAdvanced, ParameterSelection) {
 	//calling ParameterSelection. cryptoParams2 will have the new Moduli and ring dimension (cyclotomicorder/2)
 	cryptoParams.ParameterSelection(&cryptoParams2);
 
-	shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(cryptoParams2.GetElementParams());
+	shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(cryptoParams2.GetElementParams());
 	std::vector<BigBinaryInteger> finalModuli = dcrtParams->GetModuli();
 	//threshold for the first modulus
 	double q1Threshold = 4 * pow(cryptoParams2.GetPlaintextModulus().ConvertToDouble(), 2) * pow(cryptoParams2.GetElementParams()->GetCyclotomicOrder() / 2, 0.5) * cryptoParams2.GetAssuranceMeasure();
@@ -448,7 +448,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 
 	cryptoParams.ParameterSelection(&finalParams);
 
-	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(finalParams.GetElementParams());
+	const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(finalParams.GetElementParams());
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&finalParams);
 
@@ -548,7 +548,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	cryptoParams.ParameterSelection(&finalParamsTwoTowers);
 
-	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(finalParamsTwoTowers.GetElementParams());
+	const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(finalParamsTwoTowers.GetElementParams());
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&finalParamsTwoTowers);
 	cc.Enable(SHE);
@@ -568,7 +568,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	//Generating new cryptoparameters for when modulus reduction is done.
 	LPCryptoParametersLTV<ILVectorArray2n> finalParamsOneTower(finalParamsTwoTowers);
 
-	const shared_ptr<ILDCRTParams> dcrtParamsWithOneTowers = std::static_pointer_cast<ILDCRTParams>(finalParamsTwoTowers.GetElementParams());
+	const shared_ptr<ILDCRTParams> dcrtParamsWithOneTowers = std::dynamic_pointer_cast<ILDCRTParams>(finalParamsTwoTowers.GetElementParams());
 	shared_ptr<ILDCRTParams> dcrtParamsWith1Tower( new ILDCRTParams(*dcrtParamsWithOneTowers) );
 	dcrtParamsWith1Tower->PopLastParam();
 	finalParamsOneTower.SetElementParams(dcrtParamsWith1Tower);

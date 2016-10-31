@@ -165,7 +165,7 @@ template <class Element>
 void LWEConjunctionObfuscationAlgorithmV2<Element>::KeyGen(DiscreteGaussianGenerator &dgg,
 				ObfuscatedLWEConjunctionPatternV2<Element> *obfuscatedPattern) const {
 	TimeVar t1,t2; // for TIC TOC
-	bool dbg_flag = 0;
+	bool dbg_flag = false;
 	TIC(t1);
 
 	usint n = obfuscatedPattern->GetRingDimension();
@@ -319,13 +319,12 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Encode(
 
 	  // the following takes approx 250 msec
 		Matrix<Element> gaussj = RLWETrapdoorUtility::GaussSamp(n,k,Ai,Ti,sigma,bj(0,i),dgg.GetStd(), dgg);
-		gaussj(0, 0).PrintValues();
-		gaussj(1, 0).PrintValues();
+//		gaussj(0, 0).PrintValues();
+//		gaussj(1, 0).PrintValues();
 		// the following takes no time
 		for(int32_t j=0; j<m; j++) {
-			gaussj(j, 0).PrintValues();
+//			gaussj(j, 0).PrintValues();
 			(*encodedElem)(j,i) = gaussj(j,0);
-
 		}
 
 	}
