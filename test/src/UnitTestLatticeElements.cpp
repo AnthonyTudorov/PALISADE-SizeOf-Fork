@@ -777,7 +777,7 @@ TEST(UTILVector2n, cyclotomicOrder_test) {
 }
 
 TEST(UTILVectorArray2n, constructors_test) {
-	  bool dbg_flag = false;
+	  bool dbg_flag = true;
   usint m = 8;
   usint towersize = 3;
 
@@ -849,6 +849,9 @@ TEST(UTILVectorArray2n, constructors_test) {
 	ilvector2nVectorInconsistent[2] = ilv2;
 
     DEBUG("2.2");
+    for( int ii=0; ii<ilvector2nVectorInconsistent.size(); ii++ ) {
+    	DEBUG(ii << " item " << ilvector2nVectorInconsistent.at(ii).GetParams().use_count());
+    }
 	EXPECT_THROW(testILVectorArray2nConstructorNegative(ilvector2nVectorInconsistent), std::logic_error);
   }
 

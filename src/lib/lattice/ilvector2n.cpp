@@ -237,7 +237,8 @@ namespace lbcrypto {
 
 	ILVector2n::~ILVector2n()
 	{
-		delete m_values;
+		if( m_values )
+			delete m_values;
 	}
 
 	const BigBinaryInteger &ILVector2n::GetModulus() const {
@@ -249,6 +250,8 @@ namespace lbcrypto {
 	}
 
 	const BigBinaryVector &ILVector2n::GetValues() const {
+		if( m_values == 0 )
+			throw std::logic_error("No values in ILVector2n");
 		return *m_values;
 	}
 
@@ -262,10 +265,14 @@ namespace lbcrypto {
 
 	const BigBinaryInteger& ILVector2n::GetValAtIndex(usint i) const
 	{
+		if( m_values == 0 )
+			throw std::logic_error("No values in ILVector2n");
 		return m_values->GetValAtIndex(i);
 	}
 
 	usint ILVector2n::GetLength() const {
+		if( m_values == 0 )
+			throw std::logic_error("No values in ILVector2n");
 		return m_values->GetLength();
 	}
 
@@ -296,31 +303,31 @@ namespace lbcrypto {
 		if(m_format != Format::COEFFICIENT)
 			throw std::logic_error("ILVector2n::Plus can only be called in COEFFICIENT format.\n");
 		ILVector2n tmp(*this);
-		*tmp.m_values = m_values->ModAddAtIndex(0, element);
+		*tmp.m_values = GetValues().ModAddAtIndex(0, element);
 		return tmp;
 	}
 
 	ILVector2n ILVector2n::Minus(const BigBinaryInteger &element) const {
 		ILVector2n tmp(*this);
-		*tmp.m_values = m_values->ModSub(element);
+		*tmp.m_values = GetValues().ModSub(element);
 		return tmp;
 	}
 
 	ILVector2n ILVector2n::Times(const BigBinaryInteger &element) const {
 		ILVector2n tmp(*this);
-		*tmp.m_values = m_values->ModMul(element);
+		*tmp.m_values = GetValues().ModMul(element);
 		return tmp;
 	}
 
 	ILVector2n ILVector2n::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const {
 		ILVector2n tmp(*this);
-		*tmp.m_values = m_values->MultiplyAndRound(p, q);
+		*tmp.m_values = GetValues().MultiplyAndRound(p, q);
 		return tmp;
 	}
 
 	ILVector2n ILVector2n::DivideAndRound(const BigBinaryInteger &q) const {
 		ILVector2n tmp(*this);
-		*tmp.m_values = m_values->DivideAndRound(q);
+		*tmp.m_values = GetValues().DivideAndRound(q);
 		return tmp;
 	}
 
@@ -328,19 +335,19 @@ namespace lbcrypto {
 
 	ILVector2n ILVector2n::Plus(const ILVector2n &element) const {
 		ILVector2n tmp(*this);
-		*tmp.m_values = m_values->ModAdd(*element.m_values);
+		*tmp.m_values = GetValues().ModAdd(*element.m_values);
 		return tmp;
 	}
 
 	ILVector2n ILVector2n::Minus(const ILVector2n &element) const {
 		ILVector2n tmp(*this);
-		*tmp.m_values = m_values->ModSub(*element.m_values);
+		*tmp.m_values = GetValues().ModSub(*element.m_values);
 		return tmp;
 	}
 
 	ILVector2n ILVector2n::Times(const ILVector2n &element) const {
 		ILVector2n tmp(*this);
-		*tmp.m_values = m_values->ModMul(*element.m_values);
+		*tmp.m_values = GetValues().ModMul(*element.m_values);
 		return tmp;
 	}
 
@@ -402,7 +409,7 @@ namespace lbcrypto {
 			throw std::runtime_error("ILVector2n::AddILElementOne cannot be called on a ILVector2n in COEFFICIENT format.");
 		BigBinaryInteger tempValue;
 		for(usint i = 0; i < m_params->GetCyclotomicOrder()/2; i++){
-			tempValue = m_values->GetValAtIndex(i) + BigBinaryInteger::ONE; 
+			tempValue = GetValues().GetValAtIndex(i) + BigBinaryInteger::ONE; 
 			tempValue = tempValue.Mod(m_params->GetModulus());
 			m_values->SetValAtIndex(i,tempValue);
 		}
@@ -420,7 +427,7 @@ namespace lbcrypto {
 			{
 				//usint newIndex = (j*iInverse) % m;
 				usint newIndex = (j*i) % m;
-				result.m_values->SetValAtIndex((newIndex + 1)/2-1,this->m_values->GetValAtIndex((j+1)/2-1));
+				result.m_values->SetValAtIndex((newIndex + 1)/2-1,GetValues().GetValAtIndex((j+1)/2-1));
 			}
 			return result;
 		}
@@ -429,7 +436,7 @@ namespace lbcrypto {
 	ILVector2n ILVector2n::MultiplicativeInverse() const {
 		ILVector2n tmp(*this);
 		if (tmp.InverseExists()) {
-			*tmp.m_values = m_values->ModInverse();
+			*tmp.m_values = GetValues().ModInverse();
 			return tmp;
 		} else {
 			throw std::logic_error("ILVector2n has no inverse\n");
@@ -438,21 +445,21 @@ namespace lbcrypto {
 
 	ILVector2n ILVector2n::ModByTwo() const {
 		ILVector2n tmp(*this);
-		*tmp.m_values = m_values->ModByTwo();
+		*tmp.m_values = GetValues().ModByTwo();
 		return tmp;
 	}
 
 	ILVector2n ILVector2n::SignedMod(const BigBinaryInteger & modulus) const {
 		ILVector2n tmp(*this);
-		*tmp.m_values = m_values->Mod(modulus);
+		*tmp.m_values = GetValues().Mod(modulus);
 		return tmp;
 	}
 
 	void ILVector2n::SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity){
-		m_values->SwitchModulus(modulus);
-		m_params = shared_ptr<ILParams>( new ILParams(m_params->GetCyclotomicOrder(), modulus, rootOfUnity) );
-//		m_params->SetModulus(modulus);
-//		m_params->SetRootOfUnity(rootOfUnity);
+		if( m_values ) {
+			m_values->SwitchModulus(modulus);
+			m_params = shared_ptr<ILParams>( new ILParams(m_params->GetCyclotomicOrder(), modulus, rootOfUnity) );
+		}
 	}
 
 	void ILVector2n::SwitchFormat() {
@@ -485,10 +492,12 @@ namespace lbcrypto {
 		BigBinaryInteger modTemp;
 		BigBinaryInteger tempValue;
 		usint w;
-		for(usint i = 0; i < m_params->GetCyclotomicOrder()/2;i++){
-			w = wFactor.ConvertToInt();
-			if(i%w != 0){
-				m_values->SetValAtIndex(i, BigBinaryInteger::ZERO);
+		if( m_values != 0 ) {
+			for(usint i = 0; i < m_params->GetCyclotomicOrder()/2;i++){
+				w = wFactor.ConvertToInt();
+				if(i%w != 0){
+					m_values->SetValAtIndex(i, BigBinaryInteger::ZERO);
+				}
 			}
 		}
 	}
@@ -525,7 +534,7 @@ namespace lbcrypto {
 	}
 
 	bool ILVector2n::InverseExists() const {
-		for (usint i = 0; i < m_values->GetLength(); i++) {
+		for (usint i = 0; i < GetValues().GetLength(); i++) {
 			if(m_values->GetValAtIndex(i) == BigBinaryInteger::ZERO)
 				return false;
 		}
@@ -537,7 +546,7 @@ namespace lbcrypto {
 		double locVal = 0.0;
 		double q = m_params->GetModulus().ConvertToDouble();
 
-		for (usint i = 0; i < m_values->GetLength(); i++) {
+		for (usint i = 0; i < GetValues().GetLength(); i++) {
 			if (m_values->GetValAtIndex(i) > (m_params->GetModulus()>>1))
 			{
 				locVal = q - (m_values->GetValAtIndex(i)).ConvertToDouble();
@@ -553,7 +562,7 @@ namespace lbcrypto {
 
 	ILVector2n ILVector2n::GetDigitAtIndexForBase(usint index, usint base) const {
 		ILVector2n tmp(*this);
-		*tmp.m_values = m_values->GetDigitAtIndexForBase(index, base);
+		*tmp.m_values = GetValues().GetDigitAtIndexForBase(index, base);
 		return tmp;
 	}
 
