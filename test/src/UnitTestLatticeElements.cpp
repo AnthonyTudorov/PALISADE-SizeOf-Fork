@@ -849,6 +849,9 @@ TEST(UTILVectorArray2n, constructors_test) {
 	ilvector2nVectorInconsistent[2] = ilv2;
 
     DEBUG("2.2");
+    for( int ii=0; ii<ilvector2nVectorInconsistent.size(); ii++ ) {
+    	DEBUG(ii << " item " << ilvector2nVectorInconsistent.at(ii).GetParams().use_count());
+    }
 	EXPECT_THROW(testILVectorArray2nConstructorNegative(ilvector2nVectorInconsistent), std::logic_error);
   }
 

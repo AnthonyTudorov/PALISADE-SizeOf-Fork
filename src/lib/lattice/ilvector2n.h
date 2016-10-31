@@ -78,11 +78,7 @@ namespace lbcrypto {
 		* @param &params element parameters.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-        // ILVector2n(const ElemParams &params, Format format = EVALUATION);
-
         ILVector2n(const shared_ptr<ElemParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
-
-		// void GenerateNoise(DiscreteGaussianGenerator &dgg, Format format = EVALUATION) ;
 
 		/**
 		* Constructor based on full methods.

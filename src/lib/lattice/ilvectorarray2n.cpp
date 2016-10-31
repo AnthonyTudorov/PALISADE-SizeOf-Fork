@@ -43,7 +43,9 @@ namespace lbcrypto {
 	ILVectorArray2n::ILVectorArray2n(const shared_ptr<ElemParams> params, Format format) : m_format(format)
 	{
 		const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(params);
-			//TODO- ADD Integrety checks for ILDCRTParams IN ILDCRTParams
+
+		if( dcrtParams == 0 )
+			throw std::logic_error("ILVectorArray2n must be constructed with an ILDCRTParams");
 
 		m_cyclotomicOrder = params->GetCyclotomicOrder();
 		m_format = format;
@@ -98,16 +100,17 @@ namespace lbcrypto {
 	ILVectorArray2n::ILVectorArray2n(const std::vector<ILVector2n> &towers)
 	{
 		usint ringDimension = towers.at(0).GetCyclotomicOrder() / 2;
-		for (usint i = 0; i < towers.size(); i++) {
+		for (usint i = 1; i < towers.size(); i++) {
 			if (!(towers.at(i).GetCyclotomicOrder() / 2 == ringDimension)) {
-				throw std::logic_error("ILVectors provided to ILVectorArray2n do not have the same parameters. Throwing error.");
+				throw std::logic_error(std::string("ILVectors provided to ILVectorArray2n do not have the same parameters. Throwing error."));
 			}
 		}
+
 		m_vectors = towers; // once all the params are correct, set ILVectorArray2n's towers to the passed value
 		m_format = m_vectors[0].GetFormat();
 		m_cyclotomicOrder = m_vectors[0].GetCyclotomicOrder();
 		m_modulus = 1;
-		//TODO: Add a integrity check to acertain if the cyclotomicorder are the same:
+
 		for (usint i = 0; i<towers.size(); i++)
 			m_modulus = m_modulus*m_vectors.at(i).GetModulus();
 	}
@@ -116,6 +119,9 @@ namespace lbcrypto {
 	ILVectorArray2n::ILVectorArray2n(const DiscreteGaussianGenerator & dgg, const shared_ptr<ElemParams> params, Format format)
 	{
 		const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(params);
+
+		if( dcrtParams == 0 )
+			throw std::logic_error("ILVectorArray2n must be constructed with an ILDCRTParams");
 
 		m_modulus = dcrtParams->GetModulus();
 		m_cyclotomicOrder= dcrtParams->GetCyclotomicOrder();
@@ -211,10 +217,7 @@ namespace lbcrypto {
 
 	// DESTRUCTORS
 
-	ILVectorArray2n::~ILVectorArray2n()
-	{
-
-	}
+	ILVectorArray2n::~ILVectorArray2n() {}
 
 	// GET ACCESSORS
 	const ILVector2n& ILVectorArray2n::GetElementAtIndex (usint i) const
@@ -256,9 +259,9 @@ namespace lbcrypto {
 		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
-			tmp.m_vectors[i] = tmp.m_vectors[i].MultiplicativeInverse();
+			tmp.m_vectors[i] = m_vectors[i].MultiplicativeInverse();
 		}
-		return std::move(tmp);
+		return tmp;
 	}
 
 	ILVectorArray2n ILVectorArray2n::ModByTwo() const
@@ -268,7 +271,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = m_vectors[i].ModByTwo();
 		   }
-		return std::move(tmp);
+		return tmp;
 	}
 
 	ILVectorArray2n ILVectorArray2n::SignedMod(const BigBinaryInteger & modulus) const
@@ -278,7 +281,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = m_vectors[i].SignedMod(modulus);
 		}
-		return std::move(tmp);
+		return tmp;
 	}
 
 	ILVectorArray2n ILVectorArray2n::Plus(const ILVectorArray2n &element) const
@@ -288,7 +291,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] += element.GetElementAtIndex (i);
 		}
-		return std::move(tmp);
+		return tmp;
 	}
 
 	ILVectorArray2n ILVectorArray2n::Minus(const ILVectorArray2n &element) const {
@@ -297,7 +300,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] -= element.GetElementAtIndex (i);
 		}
-		return std::move(tmp);
+		return tmp;
 	}
 
 	const ILVectorArray2n& ILVectorArray2n::operator+=(const ILVectorArray2n &rhs)
@@ -305,7 +308,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < this->GetNumOfElements(); i++) {
 			this->m_vectors.at(i) += rhs.GetElementAtIndex(i);
 		}
-		return std::move(*this);
+		return *this;
 
 	}
 
@@ -313,7 +316,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < this->GetNumOfElements(); i++) {
 			this->m_vectors.at(i) -= rhs.GetElementAtIndex(i);
 		}
-		return std::move(*this);
+		return *this;
 	}
 
 	bool ILVectorArray2n::operator!=(const ILVectorArray2n &rhs) const {
@@ -388,7 +391,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] += element;
 		}
-		return std::move(tmp);
+		return tmp;
 	}
 
 	ILVectorArray2n ILVectorArray2n::Minus(const BigBinaryInteger &element) const {
@@ -397,7 +400,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] -= element;
 		}
-		return std::move(tmp);
+		return tmp;
 	}
 
 	ILVectorArray2n ILVectorArray2n::Times(const ILVectorArray2n & element) const
@@ -409,7 +412,7 @@ namespace lbcrypto {
 			tmp.m_vectors[i].SetValues(((m_vectors[i].GetValues()).ModMul(element.m_vectors[i].GetValues())), m_format);
 			
 		}
-		return std::move(tmp);
+		return tmp;
 	}
 
 	ILVectorArray2n ILVectorArray2n::Times(const BigBinaryInteger &element) const
@@ -419,7 +422,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = (element*tmp.m_vectors[i]);
 		}
-		return std::move(tmp);
+		return tmp;
 	}
 
 	ILVectorArray2n ILVectorArray2n::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const
