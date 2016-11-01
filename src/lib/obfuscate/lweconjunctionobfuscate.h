@@ -304,13 +304,12 @@ namespace lbcrypto {
 			 * @param &obfuscatedPattern the obfuscated pattern.
 			 * @param &clearPattern cleartext pattern to obfuscate.
 			 * @param &dgg discrete Gaussian generator.
-			 * @param &dug discrete uniform generator.
-			 * @param &bug binary uniform generator.
+			 * @param &tug ternary uniform generator.
 			 */
 			void Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				DiscreteGaussianGenerator &dgg,
-				BinaryUniformGenerator &dbg,
+				TernaryUniformGenerator &tug,
 				ObfuscatedLWEConjunctionPattern<Element> * obfuscatedPattern) const;
 
 			/**

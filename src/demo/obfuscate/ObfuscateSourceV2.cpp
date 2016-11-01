@@ -113,7 +113,7 @@ void NTRUPRE(int input) {
 	//DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(modulus, stdDev);			// Create the noise generator
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev); // Create the noise generator
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
-	BinaryUniformGenerator bug = BinaryUniformGenerator();			// Create the noise generator
+	TernaryUniformGenerator tug = TernaryUniformGenerator();			// Create the noise generator
 
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
@@ -204,7 +204,7 @@ void NTRUPRE(int input) {
 
 	BinaryUniformGenerator dbg = BinaryUniformGenerator();	
 
-	algorithm.Obfuscate(clearPattern,dgg,dbg,&obfuscatedPattern);
+	algorithm.Obfuscate(clearPattern,dgg,tug,&obfuscatedPattern);
 	std::cout << "Obfuscation Execution completed." << std::endl;
 
 //	obfuscatedPattern.GetSl();

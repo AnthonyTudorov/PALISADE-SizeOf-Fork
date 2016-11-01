@@ -225,7 +225,6 @@ bool CONJOBF(bool dbg_flag, int n_evals, int dataset) {
 	//Set crypto parametes
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev);			// Create the noise generator
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
-	BinaryUniformGenerator bug = BinaryUniformGenerator();			// Create the noise generator
 
 	PROFILELOG("Cryptosystem initialization: Performing precomputations...");
 
@@ -287,11 +286,11 @@ bool CONJOBF(bool dbg_flag, int n_evals, int dataset) {
 	timeKeyGen = TOC(t1);
 	PROFILELOG( "Key generation time: " << "\t" << timeKeyGen << " ms");
 
-	BinaryUniformGenerator dbg = BinaryUniformGenerator();
+	TernaryUniformGenerator tug = TernaryUniformGenerator();
 
 	DEBUG( "Obfuscation Execution started");
 	TIC(t1);
-	algorithm.Obfuscate(clearPattern,dgg,dbg,&obfuscatedPattern);
+	algorithm.Obfuscate(clearPattern,dgg,tug,&obfuscatedPattern);
 	timeObf = TOC(t1);
 	PROFILELOG( "Obfuscation time: " << "\t" << timeObf<< " ms");
 
