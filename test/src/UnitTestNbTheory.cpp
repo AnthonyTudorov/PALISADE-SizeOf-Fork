@@ -308,6 +308,7 @@ TEST(UTNbTheory, method_primitive_root_of_unity_LONG){
 
   //Exception handling
   {
+	bool dbg_flag = false;
 	int m = 32;
 	BigBinaryInteger modulus1("67108913"), modulus2("17729"), modulus3("2097169"), modulus4("8353"), modulus5("8369");
 
@@ -334,8 +335,8 @@ TEST(UTNbTheory, method_primitive_root_of_unity_LONG){
 	  primitiveRootOfUnity2 = lbcrypto::RootOfUnity(m, modulus2); 
 	)<<"RootOfUnity threw an error and should not have";
 
-	std::cout << "RootOfUnity for " << modulus1 << " is " << primitiveRootOfUnity1 << std::endl;
-	std::cout << "RootOfUnity for " << modulus2 << " is " << primitiveRootOfUnity2 << std::endl;
+	DEBUG("RootOfUnity for " << modulus1 << " is " << primitiveRootOfUnity1);
+	DEBUG("RootOfUnity for " << modulus2 << " is " << primitiveRootOfUnity2 );
 
   }
 }
