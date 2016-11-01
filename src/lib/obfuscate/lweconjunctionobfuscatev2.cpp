@@ -350,7 +350,7 @@ template <class Element>
 void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				DiscreteGaussianGenerator &dgg,
-				BinaryUniformGenerator &dbg,
+				TernaryUniformGenerator &tug,
 				ObfuscatedLWEConjunctionPatternV2<Element> *obfuscatedPattern) const {
 
 	TimeVar t1; // for TIC TOC
@@ -429,7 +429,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 			// otherwise use an existing one that has already been created
 			if ((k & chunkMask)==0) {
 				//cout << "entered the non-mask condition " << endl;
-				Element elems1(dbg,params,EVALUATION);
+				Element elems1(tug,params,EVALUATION);
 				sVector.push_back(elems1);
 			}
 			else
@@ -439,7 +439,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 				sVector.push_back(elems1);
 			}
 			
-			Element elemr1(dbg,params,EVALUATION);
+			Element elemr1(tug,params,EVALUATION);
 			rVector.push_back(elemr1);
 
 		}
@@ -505,7 +505,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 
 	//std::cout << "encode started for L" << std::endl;
 
-	Element	elemrl1(dbg,params,EVALUATION);
+	Element	elemrl1(tug,params,EVALUATION);
 
 	Matrix<Element> *Sl = new Matrix<Element>(zero_alloc, m, m);
 	this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],Sigma[adjustedLength],elemrl1*s_prod,dgg,Sl);
