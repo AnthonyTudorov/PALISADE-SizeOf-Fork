@@ -170,7 +170,8 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::KeyGen(DiscreteGaussianGener
 
 	usint n = obfuscatedPattern->GetRingDimension();
 	usint k = obfuscatedPattern->GetLogModulus();
-	std::cout << "BitLength in KeyGen: " << k << std::endl;
+
+	DEBUG("BitLength in KeyGen: " << k);
 
 	usint l = obfuscatedPattern->GetLength();
 	const shared_ptr<ElemParams> params = obfuscatedPattern->GetParameters();
@@ -180,7 +181,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::KeyGen(DiscreteGaussianGener
 	//double s = 1000;
 	//double s = 600;
 	double s = 40*std::sqrt(n*(k+2));
-	std::cout << "parameter s = " << s << std::endl;
+	DEBUG("parameter s = " << s);
 
 #if 0 //original code
 	// Initialize the Pk and Ek matrices.
