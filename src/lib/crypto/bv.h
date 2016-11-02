@@ -83,7 +83,6 @@ namespace lbcrypto {
 				float assuranceMeasure, 
 				float securityLevel, 
 				usint relinWindow,
-				const DiscreteGaussianGenerator &dgg,
 				int depth = 1)
 					: LPCryptoParametersRLWE<Element>(
 						params,
@@ -92,7 +91,6 @@ namespace lbcrypto {
 						assuranceMeasure,
 						securityLevel,
 						relinWindow,
-						dgg,
 						depth) {}
 
 			/**

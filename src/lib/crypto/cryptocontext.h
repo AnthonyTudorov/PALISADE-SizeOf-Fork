@@ -62,22 +62,16 @@ class CryptoContextImpl : public Serializable {
 	friend class CryptoContext<Element>;
 
 private:
-	/* these three parameters get initialized when an instance is constructed; they are used by the context */
-	DiscreteGaussianGenerator	dgg;
-	DiscreteGaussianGenerator	dggStSt;	// unused unless we use StSt scheme
+	shared_ptr<LPCryptoParameters<Element>>				params;	/*!< crypto parameters used for this context */
+	shared_ptr<LPPublicKeyEncryptionScheme<Element>>	scheme;	/*!< algorithm used; points to keygen and encrypt/decrypt methods */
 
-	shared_ptr<LPCryptoParameters<Element>>	params;	/*!< crypto parameters used for this context */
-	LPPublicKeyEncryptionScheme<Element>	*scheme;	/*!< algorithm used; points to keygen and encrypt/decrypt methods */
-
-	CryptoContextImpl() : scheme(0) {}
-	CryptoContextImpl(shared_ptr<LPCryptoParameters<Element>> cp) : params(cp), scheme(0) {}
+	CryptoContextImpl() {}
+	CryptoContextImpl(shared_ptr<LPCryptoParameters<Element>> cp) : params(cp) {}
 
 public:
-	~CryptoContextImpl() {
-		if( scheme ) delete scheme;
-	}
+	~CryptoContextImpl() {}
 
-	DiscreteGaussianGenerator& GetGenerator() { return dgg; }
+	DiscreteGaussianGenerator& GetGenerator() { return params->GetDiscreteGaussianGenerator(); }
 
 	/**
 	 *
@@ -89,17 +83,12 @@ public:
 	 *
 	 * @return crypto algorithm
 	 */
-	LPPublicKeyEncryptionScheme<Element>* getScheme() const { return scheme; }
+	const shared_ptr<LPPublicKeyEncryptionScheme<Element>> getScheme() const { return scheme; }
 
 	bool Serialize(Serialized* serObj, const std::string fileFlag = "") const { return false; }
 
 	bool SetIdFlag(Serialized* serObj, const std::string flag) const { return true; }
 
-	/**
-	* Populate the object from the deserialization of the Serialized
-	* @param serObj contains the serialized object
-	* @return true on success
-	*/
 	bool Deserialize(const Serialized& serObj) { return false; }
 };
 
@@ -148,6 +137,10 @@ public:
 	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.ctx == b.ctx; }
 	friend bool operator!=(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.ctx != b.ctx; }
 
+	/**
+	 * KeyGen generates a key pair using this algorithm's KeyGen method
+	 * @return a public/secret key pair
+	 */
 	LPKeyPair<Element> KeyGen() const {
 		return GetEncryptionAlgorithm().KeyGen(*this);
 	}
