@@ -116,6 +116,26 @@ void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVecto
 		aI.push_back(rootOfUnity.ModExp(BigBinaryInteger(2 * i + 1), modulus));
 	}
 
+	ILParams params(m,modulus,rootOfUnity);
+
+	ILVector2n a1(params,Format::COEFFICIENT);
+	a1 = { 15,1,0,0 };
+	a1.SwitchFormat();
+
+	ILVector2n a2(params,Format::COEFFICIENT);
+	a2 = { 9,1,0,0 };
+	a2.SwitchFormat();
+
+	ILVector2n a3(params,Format::COEFFICIENT);
+	a3 = { 2,1,0,0 };
+	a3.SwitchFormat();
+
+	ILVector2n a4(params,Format::COEFFICIENT);
+	a4 = { 8,1,0,0 };
+	a4.SwitchFormat();
+
+	//ILVector2n x1(
+
 	if( length == 0 ) length = this->size();
 
 	// length is usually chunk size; if start + length would go past the end of the item, add padding
