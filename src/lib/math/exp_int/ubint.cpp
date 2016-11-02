@@ -1768,10 +1768,8 @@ return result;
     // return the remainder of the divided by operation
     ubint qv;
     ubint ans(0);
-    
-    DEBUG("this size "<< this->m_value.size());
-    DEBUG("modulus m size "<< modulus.m_value.size());
     if (dbg_flag){
+      DEBUG("modulus ");
       modulus.PrintLimbsInDec();
     }
 
@@ -1780,10 +1778,13 @@ return result;
     if (f!= 0)
       throw std::logic_error("Mod() divmnu error");
 
-    DEBUG("answer m size "<< ans.m_value.size());
     ans.NormalizeLimbs();
     ans.SetMSB();
     ans.m_state = INITIALIZED;
+    if (dbg_flag){
+      DEBUG("ans");
+      ans.PrintLimbsInDec();
+    }
 
     return(ans);
 
@@ -2221,7 +2222,7 @@ return result;
 
 template<typename limb_t>
 ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) const {
-  ubint ans;
+  ubint ans(*this);
   ans *= p;
   ans = ans.DivideAndRound(q);
   
@@ -2231,7 +2232,8 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
 
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::DivideAndRound(const ubint &q) const {
-
+    bool dbg_flag = false;
+    
     //check for garbage initialization and 0 condition
    //check for garbage initialization and 0 condition
     if(q.m_state==GARBAGE)
@@ -2241,6 +2243,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
       throw std::logic_error("DivideAndRound() Divisor is zero");
 
     ubint halfQ(q>>1);
+    DEBUG("halfq "<<halfQ.ToString());
 
     if (*this < q) {
       if (*this <= halfQ)
@@ -2249,24 +2252,41 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
 	return ubint(ONE);
     }
     //=============
-    ubint ans;
-    ubint rv;
+    ubint ans(0);
+    ubint rv(0);
     
     int f;
-    f = divmnu_vect((ans), (rv),  (*this),  (q));
+
+    DEBUG( "*this "<<this->ToString());
+    DEBUG("q "<<q.ToString());
+
+    f = divmnu_vect(ans, rv,  *this,  q);
     if (f!= 0)
       throw std::logic_error("Divmnu() error in DivideAndRound");
 
     ans.NormalizeLimbs();
+    rv.NormalizeLimbs();
 
     ans.m_state = INITIALIZED;
     ans.SetMSB();
+    rv.m_state = INITIALIZED;
+    rv.SetMSB();
+    DEBUG("ans "<<ans.ToString());
+    DEBUG("rv "<<rv.ToString());
+
+
+    DEBUG("ans "<<ans.ToString());
+    DEBUG("rv "<<rv.ToString());
+
+
     //==============
     
-    //Rounding operation from running remainder
-    if (!(rv <= halfQ))
-      ans += ONE;
 
+    //Rounding operation from running remainder
+    if (!(rv <= halfQ)) {
+      ans += ONE;
+      DEBUG("added1 ans "<<ans.ToString());
+    }
     return ans;
 
   }
@@ -2574,14 +2594,14 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
 #ifdef DEBUG_OSTREAM
       for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 	std::cout<<(sint)*(print_VALUE+i);
-      std::cout<<endl;
+      std::cout<<std::endl;
 #endif
       //adds the bit value to the print_VALUE
       ubint<limb_t_c_c>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
 #ifdef DEBUG_OSTREAM
       for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 	std::cout<<(sint)*(print_VALUE+i);
-      std::cout<<endl;
+      std::cout<<std::endl;
 #endif
 
     }

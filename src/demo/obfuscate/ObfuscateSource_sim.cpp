@@ -252,7 +252,7 @@ void NTRUPRE(int input) {
 	double diff, diffKeyGen, diffObf, diffEval, start, finish;
 
 	//Prepare for parameters.
-	ILParams ilParams(m,modulus,rootOfUnity);
+	shared_ptr<ILParams> ilParams( new ILParams(m,modulus,rootOfUnity) );
 
 	//Set crypto parametes
 	//LPCryptoParametersLWE<ILVector2n> cryptoParams;
@@ -262,7 +262,7 @@ void NTRUPRE(int input) {
 	//DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(modulus, stdDev);			// Create the noise generator
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev);			// Create the noise generator
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
-	BinaryUniformGenerator bug = BinaryUniformGenerator();			// Create the noise generator
+	TernaryUniformGenerator tug = TernaryUniformGenerator();
 
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
@@ -351,7 +351,7 @@ void NTRUPRE(int input) {
 
 	start = currentDateTime();
 
-	algorithm.Obfuscate(clearPattern,dgg,bug,&obfuscatedPattern);
+	algorithm.Obfuscate(clearPattern,dgg,tug,&obfuscatedPattern);
 
 	finish = currentDateTime();
 	diffObf = finish - start;

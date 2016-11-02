@@ -149,12 +149,12 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 
 
 	//Prepare for parameters.
-	ILParams ilParams(m,modulus,rootOfUnity);
+	shared_ptr<ILParams> ilParams( new ILParams(m,modulus,rootOfUnity) );
 
 	//Set crypto parametes
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev);			// Create the noise generator
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
-	BinaryUniformGenerator bug = BinaryUniformGenerator();			// Create the noise generator
+	TernaryUniformGenerator tug = TernaryUniformGenerator();			// Create the noise generator
 
 	PROFILELOG("Cryptosystem initialization: Performing precomputations...");
 
@@ -220,7 +220,7 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 
 	DEBUG( "Obfuscation Execution started");
 	TIC(t1);
-	algorithm.Obfuscate(clearPattern,dgg,dbg,&obfuscatedPattern);
+	algorithm.Obfuscate(clearPattern,dgg,tug,&obfuscatedPattern);
 	timeObf = TOC(t1);
 	PROFILELOG( "Obfuscation time: " << "\t" << timeObf<< " ms");
 

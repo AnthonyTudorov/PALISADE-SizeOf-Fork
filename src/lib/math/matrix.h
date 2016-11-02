@@ -431,7 +431,7 @@ namespace lbcrypto {
 	* @param &params ILVector2n element params
 	* @return the resulting matrix of ILVector2n
     */ 
-    inline Matrix<ILVector2n> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const ILParams &params); 
+    inline Matrix<ILVector2n> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
 
 	/**
     * Another method for splitting a vector of int32_t into a vector of ring elements with ring dimension n
@@ -441,7 +441,7 @@ namespace lbcrypto {
 	* @param &params ILVector2n element params
 	* @return the resulting matrix of ILVector2n
     */ 
-    inline Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const ILParams &params); 
+    inline Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
 
 }
 #endif // LBCRYPTO_MATH_MATRIX_H

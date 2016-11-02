@@ -1870,8 +1870,8 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Exp
 
 template<typename uint_type, usint BITLENGTH>
 BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const {
-	BigBinaryInteger ans;
-	ans *= p;
+	BigBinaryInteger ans(*this);
+	ans = ans*p;
 	ans = ans.DivideAndRound(q);
 
 	return ans;
@@ -1885,6 +1885,7 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::D
 		throw std::logic_error("DIVISION BY ZERO");
 
 	BigBinaryInteger halfQ(q>>1);
+	//std::cout<< "halfq "<<halfQ.ToString()<<std::endl;
 
 	if (*this < q) {
 		if (*this <= halfQ)
@@ -1892,6 +1893,9 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::D
 		else
 			return BigBinaryInteger(ONE);
 	}
+
+	//std::cout<< "*this "<<this->ToString()<<std::endl;
+	//std::cout<< "q "<<q.ToString()<<std::endl;
 
 	BigBinaryInteger ans;
 
@@ -1993,9 +1997,17 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::D
 	ans.m_MSB = GetMSBUint_type(ans.m_value[ansCtr]) + (m_nSize - 1 - ansCtr)*m_uintBitLength;
 	ans.m_state = INITIALIZED;
 
+
+	//std::cout<< "ans "<<ans.ToString()<<std::endl;
+	//std::cout<< "rv "<<runningRemainder.ToString()<<std::endl;
+
+
+
 	//Rounding operation from running remainder
-	if (!(runningRemainder <= halfQ))
+	if (!(runningRemainder <= halfQ)){
 		ans += ONE;
+		//std::cout<< "added1 ans "<<ans.ToString()<<std::endl;
+	}
 
 	return ans;
 

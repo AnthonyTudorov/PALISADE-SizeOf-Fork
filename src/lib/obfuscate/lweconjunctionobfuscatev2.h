@@ -67,14 +67,14 @@ namespace lbcrypto {
 			 *
 			 * @param &elemParams the parameters being used.
 			 */
-			explicit ObfuscatedLWEConjunctionPatternV2(ElemParams &elemParams); 
+			explicit ObfuscatedLWEConjunctionPatternV2(shared_ptr<ElemParams> elemParams);
 
 			/**
 			 * Constructor with element params and chunk size
 			 *
 			 * @param &elemParams the parameters being used.
 			 */
-			explicit ObfuscatedLWEConjunctionPatternV2(ElemParams &elemParams, usint chunkSize); 
+			explicit ObfuscatedLWEConjunctionPatternV2(shared_ptr<ElemParams> elemParams, usint chunkSize);
 
 			/**
 			 * Sets elements params.
@@ -88,7 +88,7 @@ namespace lbcrypto {
 			 *
 			 * @return parameters.
 			 */
-			const ElemParams *GetParameters() const { return m_elemParams;}
+			const shared_ptr<ElemParams> GetParameters() const { return m_elemParams;}
 
 			/**
 			 * Gets the ring dimension
@@ -230,7 +230,7 @@ namespace lbcrypto {
 
 			//length of the pattern
 			usint m_length;
-			ElemParams *m_elemParams;
+			shared_ptr<ElemParams> m_elemParams;
 
 			//number of bits encoded by one matrix
 			usint m_chunkSize;
@@ -273,13 +273,12 @@ namespace lbcrypto {
 			 * @param &obfuscatedPattern the obfuscated pattern.
 			 * @param &clearPattern cleartext pattern to obfuscate.
 			 * @param &dgg discrete Gaussian generator.
-			 * @param &dug discrete uniform generator.
-			 * @param &bug binary uniform generator.
+			 * @param &tug ternary uniform generator.
 			 */
 			void Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				DiscreteGaussianGenerator &dgg,
-				BinaryUniformGenerator &dbg,
+				TernaryUniformGenerator &tug,
 				ObfuscatedLWEConjunctionPatternV2<Element> * obfuscatedPattern) const;
 
 			/**

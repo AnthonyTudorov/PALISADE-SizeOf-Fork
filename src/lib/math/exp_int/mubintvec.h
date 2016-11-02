@@ -48,6 +48,7 @@
 #include "../../utils/serializable.h"
 #include <initializer_list>
 #include "ubintvec.h"
+ #include "../cpu_int/binvect.h"
 
 
 /**
@@ -533,6 +534,23 @@ public:
   mubintvec ModSub(const mubintvec &b) const;
 
   /**
+  * Multiply and Rounding operation on a big integer x. Returns [x*p/q] where [] is the rounding operation.
+  *
+  * @param p is the numerator to be multiplied.
+  * @param q is the denominator to be divided.
+  * @return the result of multiply and round.
+  */
+  mubintvec MultiplyAndRound(const ubint_el_t &p, const ubint_el_t &q) const;
+
+  /**
+  * Divide and Rounding operation on a big integer x. Returns [x/q] where [] is the rounding operation.
+  *
+  * @param q is the denominator to be divided.
+  * @return the result of divide and round.
+  */
+  mubintvec DivideAndRound(const ubint_el_t &q) const;
+
+  /**
    * vector -=
    *
    * @param &b is the vector to mod subtract from lhs
@@ -591,14 +609,6 @@ public:
    * @return true if successfully serialized
    */
   bool Serialize(lbcrypto::Serialized* serObj, const std::string fileFlag = "") const;
-
-  /**
-   * Higher level info about the serialization is saved here
-   * @param serObj to store the the implementing object's serialization specific attributes.
-   * @param flag an object-specific parameter for the serialization
-   * @return true on success
-   */
-  bool SetIdFlag(lbcrypto::Serialized* serObj, const std::string flag) const;  
 
   /**
    * Populate the object from the deserialization of the Setialized

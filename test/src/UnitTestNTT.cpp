@@ -49,7 +49,6 @@ Test cases in this file make the following assumptions:
 
 #include "../../src/lib/crypto/lwecrypt.cpp"
 #include "../../src/lib/crypto/ciphertext.cpp"
-#include "../../src/lib/utils/cryptoutility.h"
 
 #include "../../src/lib/utils/debug.h"
 #include "../../src/lib/encoding/byteplaintextencoding.h"
@@ -92,12 +91,14 @@ TEST(UTNTT, switch_format_simple_single_crt) {
 	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
 	ILParams params(m1, modulus, rootOfUnity);
 	ILParams params2(m1 / 2, modulus, rootOfUnity);
+	shared_ptr<ILParams> x1p( new ILParams(params) );
+	shared_ptr<ILParams> x2p( new ILParams(params2) );
 
-	ILVector2n x1(params, Format::COEFFICIENT);
+	ILVector2n x1( x1p, Format::COEFFICIENT );
 	x1 = { 431,3414,1234,7845,2145,7415,5471,8452 };
 
-	ILVector2n x2(params, Format::COEFFICIENT);
-	x2 = { 4127,9647,1987,5410,6541,7014,9741,1256 };
+	ILVector2n x2( x2p, Format::COEFFICIENT );
+	x2 = { 4127,9647,1987,5410 };
 
 	ILVector2n x1Clone(x1);
 	ILVector2n x2Clone(x2);
@@ -136,7 +137,7 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 
 	DiscreteGaussianGenerator dgg(init_stdDev);
 
-	ILDCRTParams params(init_m, init_moduli, init_rootsOfUnity);
+	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
 
 	ILVectorArray2n x1(params, Format::COEFFICIENT);
 	x1 = { 431,3414,1234,7845,2145,7415,5471,8452 };
@@ -162,8 +163,8 @@ TEST(UTNTT, switch_format_decompose_single_crt) {
 	BigBinaryInteger modulus("1");
 	NextQ(modulus, BigBinaryInteger("2"), m1, BigBinaryInteger("4"), BigBinaryInteger("4"));
 	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
-	ILParams params(m1, modulus, rootOfUnity);
-	ILParams params2(m1 / 2, modulus, rootOfUnity);
+	shared_ptr<ILParams> params( new ILParams(m1, modulus, rootOfUnity) );
+	shared_ptr<ILParams> params2( new ILParams(m1 / 2, modulus, rootOfUnity) );
 
 	ILVector2n x1(params, Format::COEFFICIENT);
 	x1 = { 431,3414,1234,7845,2145,7415,5471,8452 };
@@ -219,7 +220,7 @@ TEST(UTNTT, decomposeMult_double_crt) {
 
 	DiscreteGaussianGenerator dgg(init_stdDev);
 
-	ILDCRTParams params(init_m, init_moduli, init_rootsOfUnity);
+	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
 
 	ILVectorArray2n x1(params, Format::COEFFICIENT);
 	x1 = { 0,0,0,0,0,0,1,0 };
@@ -262,8 +263,8 @@ TEST(UTNTT, decomposeMult_single_crt) {
 
 	BigBinaryInteger modulus("17729");
 	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
-	ILParams params(m1, modulus, rootOfUnity);
-	ILParams params2(m1 / 2, modulus, rootOfUnity);
+	shared_ptr<ILParams> params( new ILParams(m1, modulus, rootOfUnity) );
+	shared_ptr<ILParams> params2( new ILParams(m1 / 2, modulus, rootOfUnity) );
 
 	ILVector2n x1(params, Format::COEFFICIENT);
 	x1 = { 0,0,0,0,0,0,1,0 };

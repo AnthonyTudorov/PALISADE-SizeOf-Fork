@@ -33,6 +33,7 @@
  *
  */
 
+#include "../crypto/cryptocontext.h"
 #include "byteplaintextencoding.h"
 
 namespace lbcrypto {
@@ -117,15 +118,11 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 void
 BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector)
 {
-   bool dbg_flag = false;
-	*ilVector = ilVector->SignedMod(modulus);
-	DEBUG("in DECODE IlVector2n");
-	usint mod = modulus.ConvertToInt();
+    usint mod = modulus.ConvertToInt();
 	usint p = ceil((float)log((double)255) / log((double)mod));
 	usint resultant_char;
 
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i = i + p) {
-	  DEBUG("i "<<i);
 	  usint exp = 1;
 		resultant_char = 0;
 		for (usint j = 0; j<p; j++) {
@@ -134,7 +131,6 @@ BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 		}
 		this->push_back(resultant_char);
 	}
-	DEBUG("leaving DECODE ");
 }
 
 void
@@ -150,12 +146,11 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *
 	encodeValues.reserve(element->GetNumOfElements());
 
 	for (usint i = 0; i<element->GetNumOfElements(); i++) {
-		ILParams ilparams(element->GetElementAtIndex(i).GetCyclotomicOrder(), element->GetElementAtIndex(i).GetModulus(), element->GetElementAtIndex(i).GetRootOfUnity());
-		ILVector2n temp(ilparams);
+		ILVector2n temp(element->GetElementAtIndex(i).GetParams());
 		tempBBV = encodedSingleCrt.GetValues();
-		tempBBV.SetModulus(ilparams.GetModulus());
+		tempBBV.SetModulus(temp.GetModulus());
 		temp.SetValues(tempBBV, encodedSingleCrt.GetFormat());
-		temp.SignedMod(ilparams.GetModulus());
+		temp.SignedMod(temp.GetModulus());
 		encodeValues.push_back(temp);
 	}
 
@@ -165,36 +160,24 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *
 }
 
 void
-BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVectorArray2n *ilVectorArray2n)
+BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVectorArray2n)
 {
-		bool dbg_flag = false;
-		DEBUG("in byte DECODE IlVectorArray2n");
-		ILVector2n interpolatedDecodedValue = ilVectorArray2n->InterpolateIlArrayVector2n();
-		Decode(modulus, &interpolatedDecodedValue);
-		BigBinaryVector tempBBV(interpolatedDecodedValue.GetValues());
 
-		std::vector<ILVector2n> encodeValues;
-		encodeValues.reserve(ilVectorArray2n->GetNumOfElements());
+	const ILVector2n &ilVector = ilVectorArray2n->GetElementAtIndex(0);
+	usint mod = modulus.ConvertToInt();
+	usint p = ceil((float)log((double)255) / log((double)mod));
+	usint resultant_char;
 
-		for (usint i = 0; i<ilVectorArray2n->GetNumOfElements(); i++) {
-		  DEBUG("i "<<i);
-
-			ILParams ilparams(ilVectorArray2n->GetElementAtIndex(i).GetCyclotomicOrder(), ilVectorArray2n->GetElementAtIndex(i).GetModulus(), ilVectorArray2n->GetElementAtIndex(i).GetRootOfUnity());
-			DEBUG("a");
-			ILVector2n temp(ilparams);
-			DEBUG("b");
-			tempBBV = interpolatedDecodedValue.GetValues();
-			DEBUG("c");
-			tempBBV.SetModulus(ilparams.GetModulus());
-			DEBUG("d");
-			temp.SetValues(tempBBV, interpolatedDecodedValue.GetFormat());
-			DEBUG("e");
-			temp.SignedMod(ilparams.GetModulus());
-			encodeValues.push_back(temp);
+	for (usint i = 0; i < ilVector.GetValues().GetLength(); i = i + p) {
+		usint exp = 1;
+		resultant_char = 0;
+		for (usint j = 0; j < p; j++) {
+			resultant_char += ilVector.GetValues().GetValAtIndex(i + j).ConvertToInt()*exp;
+			exp *= mod;
 		}
+		this->push_back(resultant_char);
+	}
 
-		ILVectorArray2n elementNew(encodeValues);
-		*ilVectorArray2n = elementNew;
 }
 
 void

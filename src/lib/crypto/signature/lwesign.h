@@ -133,7 +133,7 @@ namespace lbcrypto {
 		*
 		*@param params Parameters to be held, used in ILVector construction
 		*/
-		void SetElemParams(ILParams& params) { m_params = params; };
+		void SetElemParams(shared_ptr<ILParams> params) { m_params = params; };
 		
 		/**
 		*Method for setting the DiscreteGaussianGenerator held in this class
@@ -147,7 +147,7 @@ namespace lbcrypto {
 		*
 		*@return Parameters held
 		*/
-		ILParams & GetILParams() { return m_params; }
+		shared_ptr<ILParams> GetILParams() { return m_params; }
 		
 		/**
 		*Method for accessing the DiscreteGaussianGenerator object held in this class
@@ -165,11 +165,11 @@ namespace lbcrypto {
 		*@param params Parameters used in ILVector construction
 		*@param dgg DiscreteGaussianGenerator used in sampling
 		*/
-		LPSignatureParameters(ILParams params, DiscreteGaussianGenerator dgg) : m_params(params), dgg(dgg) {}
+		LPSignatureParameters(shared_ptr<ILParams> params, DiscreteGaussianGenerator dgg) : m_params(params), dgg(dgg) {}
 
 
 	private:
-		ILParams m_params;
+		shared_ptr<ILParams> m_params;
 		DiscreteGaussianGenerator dgg;
 	};
 	/**

@@ -85,7 +85,7 @@ public:
 	*/
 	void Decode(const BigBinaryInteger &modulus,  ILVector2n *ilVector);
 
-	void Unpad(const BigBinaryInteger &modulus);
+	void Unpad(const BigBinaryInteger &modulus) {} // a null op; no padding in int
 
 	size_t GetChunksize(const usint cyc, const BigBinaryInteger& ptm) const;
 
@@ -95,6 +95,12 @@ public:
 		const std::vector<uint32_t>& lv = dynamic_cast<const std::vector<uint32_t>&>(*this);
 		const std::vector<uint32_t>& rv = dynamic_cast<const std::vector<uint32_t>&>(other);
 		return lv == rv;
+	}
+
+	friend std::ostream& operator<<(std::ostream& out, const IntPlaintextEncoding& item) {
+		for( int i=0; i<item.size(); i++ )
+			out << item.at(i);
+		return out;
 	}
 };
 

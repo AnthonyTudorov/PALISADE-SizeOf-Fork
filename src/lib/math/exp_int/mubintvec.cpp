@@ -821,6 +821,31 @@ template<class ubint_el_t>
     return ans;
   }
 
+  template<class ubint_el_t>
+  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::MultiplyAndRound(const ubint_el_t &p, const ubint_el_t &q) const {
+
+	  mubintvec ans(*this);
+	  ubint_el_t halfQ(this->m_modulus >> 1);
+	  for (usint i = 0; i<this->m_data.size(); i++) {
+		  if (ans.m_data[i] > halfQ) {
+			  ubint_el_t temp = this->m_modulus - ans.m_data[i];
+			  ans.m_data[i] = this->m_modulus - temp.MultiplyAndRound(p, q);
+		  }
+		  else
+			  ans.m_data[i] = ans.m_data[i].MultiplyAndRound(p, q).Mod(this->m_modulus);
+	  }
+	  return ans;
+  }
+
+  template<class ubint_el_t>
+  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::DivideAndRound(const ubint_el_t &q) const {
+	  mubintvec ans(*this);
+	  for (usint i = 0; i<this->m_data.size(); i++) {
+		  ans.m_data[i] = ans.m_data[i].DivideAndRound(q);
+	  }
+	  return ans;
+  }
+
   // assignment operators
 
   template<class ubint_el_t>
@@ -896,13 +921,6 @@ template<class ubint_el_t>
     }
     serObj->AddMember("mubintvec", bbvMap, serObj->GetAllocator());
     return true;
-  }
-
-  // JSON FACILITY - SetIdFlag...
-  // Note, untested.. completely!
-  template<class ubint_el_t>
-  bool mubintvec<ubint_el_t>::SetIdFlag(lbcrypto::Serialized* serObj, const std::string flag) const { 
-    return true; 
   }
 
   // JSON FACILITY - Deserialize Operation

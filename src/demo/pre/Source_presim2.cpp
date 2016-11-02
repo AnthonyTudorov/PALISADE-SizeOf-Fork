@@ -36,13 +36,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <fstream>
-#include "../../lib/crypto/cryptocontext.h"
 #include "../../lib/crypto/cryptocontext.cpp"
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
 #include "../../lib/encoding/byteplaintextencoding.h"
-#include "../../lib/utils/cryptoutility.h"
 
 
 using namespace std;
@@ -200,7 +198,7 @@ void EncryptionSchemeSimulation(usint count){
 			exit(1);
 		}
 
-		vector<Ciphertext<ILVector2n>> ciphertext;
+		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 		CryptoUtility<ILVector2n>::Encrypt( algorithm.GetScheme(), pk, plaintext, &ciphertext);	// This is the core encryption operation.
 
@@ -426,8 +424,8 @@ void PRESimulation(usint count, usint dataset)
 
 	for (usint j = 0; j < count; j++){
 
-		vector<Ciphertext<ILVector2n>> cv;
-		CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, arrPlaintext[j], &cv);
+		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+		CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, arrPlaintext[j], &ciphertext);
 		arrCiphertext[j] = cv[0];
 	}
 

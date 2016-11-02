@@ -41,6 +41,8 @@
 #include <iostream>
 
 #include "../utils/serializablehelper.h"
+#include "../crypto/cryptocontext.h"
+#include "cryptocontextparametersets.h"
 
 namespace lbcrypto {
 
@@ -51,33 +53,32 @@ public:
 	/**
 	 *
 	 * @param out stream to write to
-	 * @param fn name of file containing parameter sets in JSON
 	 */
-	static void printAllParmSets(std::ostream& out, const std::string& fn);
+	static void printAllParmSets(std::ostream& out);
 
 	/**
 	 *
 	 * @param out stream to write to
-	 * @param fn name of file containing parameter sets in JSON
+	 * @param parmset parameter set name
 	 */
-	static void printAllParmSetNames(std::ostream& out, const std::string& fn);
+	static void printParmSet(std::ostream& out, string parmset);
 
 	/**
 	 *
-	 * @param parmfile file containing parameter sets in JSON
+	 * @param out stream to write to
+	 */
+	static void printAllParmSetNames(std::ostream& out);
+
+	/**
+	 *
 	 * @param parmsetname name of parameter set to use
 	 * @return newly constructed CryptoContext, or null on failure
 	 */
-	static CryptoContext<Element> *getNewContext(const std::string& parmfile, const std::string& parmsetname);
+	static CryptoContext<Element> getNewContext(const string parmsetname);
 
-	/**
-	 *
-	 * @param parmSetJson JSON string with a parameter set
-	 * @return newly constructed CryptoContext, or null on failure
-	 */
-	static CryptoContext<Element> *getNewContext(const std::string& parmSetJson);
+	static CryptoContext<Element> getNewContextFromSerialization(const Serialized& ser);
 
-	static CryptoContext<Element> *getNewContextFromSerialization(const Serialized& ser);
+	static bool matchContextToSerialization(const CryptoContext<Element> cc, const Serialized& ser);
 };
 
 }

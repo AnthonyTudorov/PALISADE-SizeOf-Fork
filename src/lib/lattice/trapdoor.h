@@ -77,7 +77,7 @@ public:
 	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
 	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 	*/
-	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(ILParams params, int stddev);
+	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(shared_ptr<ILParams> params, int stddev);
 
 	/**
 	* Wrapper for TrapdoorGen(ILParams params, int stddev) - currently supports only ILVector2n, support for other rings will be added later
@@ -86,9 +86,10 @@ public:
 	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
 	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 	*/
-	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(const ElemParams *params, int stddev)
+	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(const shared_ptr<ElemParams> params, int stddev)
 	{
-		return TrapdoorGen(*(dynamic_cast<const ILParams*>(params)), stddev);
+		shared_ptr<ILParams> ip = std::dynamic_pointer_cast<ILParams>(params);
+		return TrapdoorGen(ip, stddev);
 	}
 
 	/**

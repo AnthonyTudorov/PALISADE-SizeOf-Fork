@@ -31,24 +31,21 @@ namespace lbcrypto {
 			
 //Function for extracting a value at a certain index using automorphism operation.
 template <class Element>
-void LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(const Ciphertext<Element> &ciphertext, const usint i, 
-				const std::vector<LPEvalKey<Element> *> &evalKeys, Ciphertext<Element> *newCiphertext) const
+shared_ptr<Ciphertext<Element>> LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext,
+		const usint i, const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
 
 {
-	
 	usint autoIndex = 2*i - 1;
-	usint m = ciphertext.GetElement().GetCyclotomicOrder();
+	//usint m = ciphertext.GetElement().GetCyclotomicOrder();
 
 	//usint iInverse = ModInverse(autoIndex,m);
 
-	Ciphertext<Element> permutedCiphertext;
-	permutedCiphertext = ciphertext;
+	shared_ptr<Ciphertext<Element>> permutedCiphertext( new Ciphertext<Element>(*ciphertext) );
+
 	//permutedCiphertext.SetElement(ciphertext.GetElement().AutomorphismTransform(iInverse));
-	permutedCiphertext.SetElement(ciphertext.GetElement().AutomorphismTransform(autoIndex));
+	permutedCiphertext->SetElement(ciphertext->GetElement().AutomorphismTransform(autoIndex));
 
-	*newCiphertext = ciphertext;
-
-	this->GetScheme().ReEncrypt(*evalKeys[i-2], permutedCiphertext, newCiphertext);
+	return this->GetScheme().ReEncrypt(evalKeys[i-2], permutedCiphertext);
 
 
 		////debugging
@@ -66,20 +63,19 @@ void LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(const Ciphertext<Element> &ci
 		//std::cout << "permuted cipher" << "index " << autoIndex << "\n" << newEl.GetValues() << std::endl;
 
 		////end of debugging
-
 }  
 
 template <class Element>
-bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const LPPublicKey<Element> &publicKey, 
-	const LPPrivateKey<Element> &origPrivateKey,
-	const usint size, LPPrivateKey<Element> *tempPrivateKey, 
-	std::vector<LPEvalKey<Element>*> *evalKeys) const
+bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+	const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
+	const usint size, shared_ptr<LPPrivateKey<Element>> *tempPrivateKey,
+	std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const
 {
-	const Element &privateKeyElement = origPrivateKey.GetPrivateElement();
+	const Element &privateKeyElement = origPrivateKey->GetPrivateElement();
 	usint m = privateKeyElement.GetCyclotomicOrder();
 
-	const LPCryptoParametersLTV<Element> &cryptoParams = static_cast<const LPCryptoParametersLTV<Element>&>(publicKey.GetCryptoParameters());
-	const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
+	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(publicKey->GetCryptoParameters());
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 	if (size > m/2 - 1)
 		throw std::logic_error("size exceeds the ring dimensions\n");
@@ -99,11 +95,11 @@ bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const LPPublicKey<
 
 			//std::cout<< "after " << i << " \n" << permutedPrivateKeyElement.GetValues() << std::endl;
 			
-			tempPrivateKey->SetPrivateElement(permutedPrivateKeyElement);
+			(*tempPrivateKey)->SetPrivateElement(permutedPrivateKeyElement);
 
 			//const LPPublicKeyEncryptionScheme<Element> *scheme = ciphertext.GetEncryptionAlgorithm();
 
-			this->GetScheme().ReKeyGen(publicKey, *tempPrivateKey, evalKeys->at(index));
+			evalKeys->at(index) = this->GetScheme().ReKeyGen(publicKey, *tempPrivateKey);
 
 			i = i + 2;
 

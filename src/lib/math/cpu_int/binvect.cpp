@@ -288,6 +288,43 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModSub(const IntegerT
 	return ans;
 }
 
+template<class IntegerType>
+BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::MultiplyAndRound(const IntegerType &p, const IntegerType &q) const {
+
+	//BigBinaryVector ans(this->GetLength(), this->GetModulus());
+	//IntegerType halfQ(this->GetModulus() >> 1);
+	//for (usint i = 0; i<ans.GetLength(); i++) {
+	//	if (this->GetValAtIndex(i)>halfQ) {
+	//		ans.SetValAtIndex(i, this->GetValAtIndex(i).ModSub(this->GetModulus(), modulus));
+	//	}
+	//	else {
+	//		ans.SetValAtIndex(i, this->GetValAtIndex(i).Mod(modulus));
+	//	}
+	//}
+	//return ans;
+
+	BigBinaryVector ans(*this);
+	IntegerType halfQ(this->m_modulus >> 1);
+	for(usint i=0;i<this->m_length;i++){
+		if (ans.m_data[i] > halfQ) {
+			IntegerType temp = this->m_modulus - ans.m_data[i];
+			ans.m_data[i] = this->m_modulus - temp.MultiplyAndRound(p, q);
+		}
+		else
+			ans.m_data[i] = ans.m_data[i].MultiplyAndRound(p, q).Mod(this->m_modulus);
+	}
+	return ans;
+}
+
+template<class IntegerType>
+BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::DivideAndRound(const IntegerType &q) const {
+	BigBinaryVector ans(*this);
+	for(usint i=0;i<this->m_length;i++){
+		ans.m_data[i] = ans.m_data[i].DivideAndRound(q);
+	}
+	return ans;
+}
+
 /*
 Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
 @article{knezevicspeeding,
@@ -346,6 +383,8 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerT
 
 	return ans;
 }
+
+
 
 template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModExp(const IntegerType &b) const{
@@ -514,6 +553,23 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const BigBinar
 	}
 	return ans;
 }
+
+template<class IntegerType>
+BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::MultWithOutMod(const BigBinaryVector &b) const {
+
+	if ((this->m_length != b.m_length) || this->m_modulus != b.m_modulus) {
+		std::cout << "ModMul called on BigBinaryVector's with different parameters." << std::endl;
+		return (BigBinaryVector)NULL;
+	}
+
+	BigBinaryVector ans(*this);
+
+	for (usint i = 0; i<ans.m_length; i++) {
+		ans.m_data[i] = ans.m_data[i] * b.m_data[i];
+	}
+	return ans;
+}
+
 
 /*
 template<class IntegerType>

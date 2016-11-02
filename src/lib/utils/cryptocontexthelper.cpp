@@ -34,6 +34,9 @@
 * This file implements a helper class for managing and manipulating Crypto Contexts
 */
 
+#include "../palisade.h"
+#include "../palisadespace.h"
+
 #include "../crypto/cryptocontext.h"
 #include "../utils/cryptocontexthelper.h"
 #include "../../../include/rapidjson/filewritestream.h"
@@ -41,27 +44,21 @@
 namespace lbcrypto {
 
 static bool
-getParmsFile(const std::string& fn, Serialized* obj)
+getValueForName(const map<string,string>& allvals, const string key, string& value)
 {
-	return SerializableHelper::ReadSerializationFromFile(fn, obj);
-}
-
-static bool
-getValueForName(const SerialItem& allvals, const char *key, std::string& value)
-{
-	Serialized::ConstMemberIterator it;
-	if( (it = allvals.FindMember(key)) == allvals.MemberEnd() ) {
+	map<string,string>::const_iterator it = allvals.find(key);
+	if( it == allvals.end() ) {
 		std::cerr << key << " element is missing" << std::endl;
 		return false;
 	}
 
-	value = it->value.GetString();
+	value = it->second;
 	return true;
 }
 
 template <class Element>
-static CryptoContext<Element> *
-buildContextFromSerialized(const SerialItem& s)
+static CryptoContext<Element>
+buildContextFromSerialized(const map<string,string>& s)
 {
 	std::string parmtype;
 	std::string plaintextModulus;
@@ -87,7 +84,7 @@ buildContextFromSerialized(const SerialItem& s)
 			return 0;
 		}
 
-		return CryptoContext<Element>::genCryptoContextLTV(stoul(plaintextModulus), stoul(ring),
+		return CryptoContextFactory<Element>::genCryptoContextLTV(stoul(plaintextModulus), stoul(ring),
 				modulus, rootOfUnity, stoul(relinWindow), stof(stDev));
 	}
 	else if( parmtype == "StehleSteinfeld" ) {
@@ -101,120 +98,191 @@ buildContextFromSerialized(const SerialItem& s)
 			return 0;
 		}
 
-		return CryptoContext<Element>::genCryptoContextStehleSteinfeld(stoul(plaintextModulus), stoul(ring),
+		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(stoul(plaintextModulus), stoul(ring),
 				modulus, rootOfUnity, stoul(relinWindow), stof(stDev), stof(stDevStSt));
+	}
+	else if( parmtype == "Null" ) {
+		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
+				!getValueForName(s, "ring", ring) ) {
+			return 0;
+		}
+		unsigned long mo = stoul(plaintextModulus);
+		return CryptoContextFactory<Element>::getCryptoContextNull(mo, stoul(ring));
 	}
 
 	return 0;
 }
 
+//declaration of DeserializeCryptoParameters function;
+template <typename Element>
+inline shared_ptr<LPCryptoParameters<Element>> DeserializeCryptoParameters(const Serialized &serObj);
+
+//declaration of DeserializeAndValidateCryptoParameters function;
+template <typename Element>
+inline shared_ptr<LPCryptoParameters<Element>> DeserializeAndValidateCryptoParameters(const Serialized& serObj, const LPCryptoParameters<Element>& curP);
+
+/** This function is used to deserialize the Crypto Parameters
+*
+* @param &serObj object to be serialized
+*
+* @return the parameters or null on failure
+*/
+template <typename Element>
+inline shared_ptr<LPCryptoParameters<Element>> DeserializeCryptoParameters(const Serialized &serObj)
+{
+	LPCryptoParameters<Element>* parmPtr = 0;
+
+	Serialized::ConstMemberIterator it = serObj.FindMember("LPCryptoParametersType");
+	if (it == serObj.MemberEnd()) return 0;
+	std::string type = it->value.GetString();
+
+	if (type == "LPCryptoParametersLTV") {
+		parmPtr = new LPCryptoParametersLTV<Element>();
+	}
+	else if (type == "LPCryptoParametersStehleSteinfeld") {
+		parmPtr = new LPCryptoParametersStehleSteinfeld<Element>();
+	}
+	else if (type == "LPCryptoParametersBV") {
+		parmPtr = new LPCryptoParametersBV<Element>();
+	}
+	else if (type == "LPCryptoParametersNull") {
+		parmPtr = new LPCryptoParametersNull<Element>();
+	}
+	else if (type == "LPCryptoParametersFV") {
+		parmPtr = new LPCryptoParametersFV<Element>();
+	}
+	else
+		return 0;
+
+	if (!parmPtr->Deserialize(serObj)) {
+		delete parmPtr;
+		return 0;
+	}
+
+	return shared_ptr<LPCryptoParameters<Element>>(parmPtr);
+}
+
+/** This function is used to deserialize the Crypto Parameters, to compare them to the existing parameters,
+* and to fail if they do not match
+*
+* @param &serObj object to be desrialized
+* @param &curP LPCryptoParameters to validate against
+*
+* @return the parameters or null on failure
+*/
+template <typename Element>
+inline shared_ptr<LPCryptoParameters<Element>> DeserializeAndValidateCryptoParameters(const Serialized& serObj, const LPCryptoParameters<Element>& curP)
+{
+	LPCryptoParameters<Element>* parmPtr = DeserializeCryptoParameters<Element>(serObj);
+
+	if (parmPtr == 0) return 0;
+
+	// make sure the deserialized parms match the ones in the current context
+	if (*parmPtr == curP)
+		return parmPtr;
+
+	delete parmPtr;
+	return 0;
+}
+
+
 template <class Element>
-CryptoContext<Element> *
+bool
+CryptoContextHelper<Element>::matchContextToSerialization(const CryptoContext<Element> cc, const Serialized& ser)
+{
+	shared_ptr<LPCryptoParameters<Element>> ctxParams = cc.GetCryptoParameters();
+	shared_ptr<LPCryptoParameters<Element>> cParams = DeserializeCryptoParameters<Element>(ser);
+
+	if( !cParams ) return false;
+
+	return *ctxParams == *cParams;
+}
+
+template <class Element>
+CryptoContext<Element>
 CryptoContextHelper<Element>::getNewContextFromSerialization(const Serialized& ser)
 {
-	LPCryptoParameters<Element>* cParams = DeserializeCryptoParameters<Element>(ser);
+	CryptoContext<Element> emptyCtx;
+	shared_ptr<LPCryptoParameters<Element>> cParams = DeserializeCryptoParameters<Element>(ser);
 
-	if( cParams == 0 ) return 0;
+	if( !cParams ) return emptyCtx;
 
-	CryptoContext<Element>* newCtx = 0;
-
-	const ILParams& ep = dynamic_cast<const ILParams&>(cParams->GetElementParams());
+	const shared_ptr<ILParams> ep = std::dynamic_pointer_cast<ILParams>(cParams->GetElementParams());
 
 	// see what kind of parms we have here...
-	LPCryptoParametersLTV<Element> *ltvp = dynamic_cast<LPCryptoParametersLTV<Element> *>(cParams);
-	LPCryptoParametersStehleSteinfeld<Element> *ststp = dynamic_cast<LPCryptoParametersStehleSteinfeld<Element> *>(cParams);
+	shared_ptr<LPCryptoParametersLTV<Element>> ltvp = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(cParams);
+	shared_ptr<LPCryptoParametersStehleSteinfeld<Element>> ststp = std::dynamic_pointer_cast<LPCryptoParametersStehleSteinfeld<Element>>(cParams);
 
-	if( ststp != 0 ){
-		newCtx = CryptoContext<Element>::genCryptoContextStehleSteinfeld(cParams->GetPlaintextModulus().ConvertToInt(), ep.GetCyclotomicOrder(),
-				ep.GetModulus().ToString(), ep.GetRootOfUnity().ToString(), ststp->GetRelinWindow(), ststp->GetDistributionParameter(), ststp->GetDistributionParameterStSt());
+	if( ststp ){
+		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(cParams->GetPlaintextModulus().ConvertToInt(), ep->GetCyclotomicOrder(),
+				ep->GetModulus().ToString(), ep->GetRootOfUnity().ToString(), ststp->GetRelinWindow(), ststp->GetDistributionParameter(), ststp->GetDistributionParameterStSt());
 	}
-	else if( ltvp != 0 ) {
-		newCtx = CryptoContext<Element>::genCryptoContextLTV(cParams->GetPlaintextModulus().ConvertToInt(), ep.GetCyclotomicOrder(),
-				ep.GetModulus().ToString(), ep.GetRootOfUnity().ToString(), ltvp->GetRelinWindow(), ltvp->GetDistributionParameter());
+	else if( ltvp ) {
+		return CryptoContextFactory<Element>::genCryptoContextLTV(cParams->GetPlaintextModulus().ConvertToInt(), ep->GetCyclotomicOrder(),
+				ep->GetModulus().ToString(), ep->GetRootOfUnity().ToString(), ltvp->GetRelinWindow(), ltvp->GetDistributionParameter());
 	}
 
-	delete ltvp;
-	return newCtx;
+	// empty one
+	return emptyCtx;
 }
 
 
+
 template <class Element>
-CryptoContext<Element> *
-CryptoContextHelper<Element>::getNewContext(const std::string& parmSetJson)
+CryptoContext<Element>
+CryptoContextHelper<Element>::getNewContext(const string parmset)
 {
-	// convert string to a map
-	Serialized sObj;
-	sObj.Parse( parmSetJson.c_str() );
-	if( sObj.HasParseError() )
+	map<string, map<string,string>>::iterator it = CryptoContextParameterSets.find(parmset);
+
+	if( it == CryptoContextParameterSets.end() ) {
 		return 0;
-	return buildContextFromSerialized<Element>(sObj);
+	}
+
+	return buildContextFromSerialized<Element>(it->second);
 }
 
-template <class Element>
-CryptoContext<Element> *
-CryptoContextHelper<Element>::getNewContext(const std::string& parmfile, const std::string& parmset)
+static void printSet(std::ostream& out, string key, map<string,string>& pset)
 {
-	Serialized sobj;
+	out << "Parameter set: " << key << std::endl;
 
-	if( !getParmsFile(parmfile, &sobj) ) {
-		std::cerr << "Unable to read serialization from " << parmfile << std::endl;
-		return 0;
-	}
-
-	Serialized::ConstMemberIterator it;
-	for( it = sobj.MemberBegin(); it != sobj.MemberEnd(); it++ ) {
-		if( parmset != it->name.GetString() )
-			continue;
-
-		break;
-	}
-
-	if( it == sobj.MemberEnd() )
-		return 0;
-
-	const SerialItem& cObj = it->value;
-	return buildContextFromSerialized<Element>(cObj);
-}
-
-template <class Element>
-void
-CryptoContextHelper<Element>::printAllParmSets(std::ostream& out, const std::string& fn)
-{
-	Serialized sobj;
-
-	if( !getParmsFile(fn, &sobj) ) {
-		out << "Unable to read serialization from " << fn << std::endl;
-		return;
-	}
-
-	for( Serialized::ConstMemberIterator it = sobj.MemberBegin(); it != sobj.MemberEnd(); it++ ) {
-		out << "Parameter set " << it->name.GetString() << std::endl;
-
-		char writeBuffer[1024];
-		rapidjson::FileWriteStream os(stdout, writeBuffer, sizeof(writeBuffer));
-		rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(os);
-
-		it->value.Accept(writer);
-		out << std::endl;
+	for( auto P : pset ) {
+		out << "  " << P.first << ": " << P.second << std::endl;
 	}
 }
 
 template <class Element>
 void
-CryptoContextHelper<Element>::printAllParmSetNames(std::ostream& out, const std::string& fn)
+CryptoContextHelper<Element>::printParmSet(std::ostream& out, string parmset)
 {
-	Serialized sobj;
-
-	if( !getParmsFile(fn, &sobj) ) {
-		out << "Unable to read serialization from " << fn << std::endl;
-		return;
+	auto it = CryptoContextParameterSets.find(parmset);
+	if( it == CryptoContextParameterSets.end() ) {
+		out << "Parameter set " << parmset << " is unknown" << std::endl;
 	}
+	else
+		printSet(out, it->first, it->second);
 
-	Serialized::ConstMemberIterator it = sobj.MemberBegin();
-	out << it->name.GetString();
+}
 
-	for( it++; it != sobj.MemberEnd(); it++ ) {
-		out << ", " << it->name.GetString();
+
+template <class Element>
+void
+CryptoContextHelper<Element>::printAllParmSets(std::ostream& out)
+{
+	for( auto S : CryptoContextParameterSets ) {
+		printSet(out, S.first, S.second);
+	}
+}
+
+template <class Element>
+void
+CryptoContextHelper<Element>::printAllParmSetNames(std::ostream& out)
+{
+	map<string, map<string,string>>::iterator it = CryptoContextParameterSets.begin();
+
+	out << it->first;
+
+	for( it++; it != CryptoContextParameterSets.end(); it++ ) {
+		out << ", " << it->first;
 	}
 	out << std::endl;
 }

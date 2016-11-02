@@ -37,19 +37,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <fstream>
 
-#include "../../lib/math/nbtheory.h"
-#include "../../lib/math/distrgen.h"
+#include "../lib/palisade.h"
+#include "../lib/palisadespace.h"
 
-
-#include "../../lib/lattice/ilvector2n.h"
-#include "../../lib/lattice/ilvectorarray2n.h"
-#include "../../lib/crypto/cryptocontext.h"
 #include "../../lib/crypto/cryptocontext.cpp"
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
 #include "../../lib/encoding/byteplaintextencoding.h"
-#include "../../lib/utils/cryptoutility.h"
 #include "../../lib/utils/debug.h"
 #include <vector>
 
@@ -64,8 +59,8 @@ const usint NUMBER_OF_RUNS = 100;
 //defination of input parameters for 
 struct SecureParams {
 	usint m;
-	BigBinaryInteger modulus;
-	BigBinaryInteger rootOfUnity;
+	string modulus;
+	string rootOfUnity;
 	usint relinWindow;
 	usint depth;
 	usint bitLength;
@@ -108,10 +103,6 @@ void EncryptionSchemeSimulation(usint count){
 		std::cin.get();
 	}
 
-	//string modulus
-	string mod;
-	string rUnity;
-
 	//Load sets of params for different ring dimensions
 	SecureParams data[10];
 	usint i = 0;
@@ -119,13 +110,8 @@ void EncryptionSchemeSimulation(usint count){
 	while (!dataFile.eof()){
 
 		dataFile >> data[i].m;
-		//cout << "m = " <<data[i].m << endl;
-		dataFile >> mod;
-		data[i].modulus.SetValue(mod);
-		//cout<<"modulus = "<<data[i].modulus<<endl;
-		dataFile >> rUnity;
-		data[i].rootOfUnity.SetValue(rUnity);
-		//cout <<"root of unity = "<<data[i].rootOfUnity << endl;
+		dataFile >> data[i].modulus;
+		dataFile >> data[i].rootOfUnity;
 
 		i++;
 	}
@@ -145,25 +131,18 @@ void EncryptionSchemeSimulation(usint count){
 	BigBinaryInteger rootOfUnity(data[i].rootOfUnity);
 	usint relWindow = 1;
 
-	ILParams ilParams(m, modulus, rootOfUnity);
+	shared_ptr<ILParams> ilParams( new ILParams(m, modulus, rootOfUnity) );
 
 	int stdDev = 4;
 
-	//Set crypto parametes
-	LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
-	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
-
-	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
+	// Create crypto context
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2,m,data[i].modulus,data[i].rootOfUnity,relWindow,stdDev);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(dgg, ilParams);
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), ilParams);
 
 	//prepare the plaintext
 	BytePlaintextEncoding plaintext;
@@ -186,28 +165,19 @@ void EncryptionSchemeSimulation(usint count){
 
 	for (usint j = 0; j<count; j++){
 
-		// Initialize the public key containers.
-		LPPublicKey<ILVector2n> pk(cryptoParams);
-		LPPrivateKey<ILVector2n> sk(cryptoParams);
-
-		//Regular LWE-NTRU encryption algorithm
-		LPAlgorithmLTV<ILVector2n> algorithm;
-
 		bool successKeyGen = false;
-		successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
+		LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
 		if (!successKeyGen) {
 			std::cout << "Key generation failed!" << std::endl;
 			exit(1);
 		}
 
-		vector<Ciphertext<ILVector2n>> ciphertext;
-
-		CryptoUtility<ILVector2n>::Encrypt(algorithm.GetScheme(), pk, plaintext, &ciphertext);	// This is the core encryption operation.
+		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, plaintext);
 
 		BytePlaintextEncoding plaintextNew;
 
-		DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm.GetScheme(), sk, ciphertext, &plaintextNew);  // This is the core decryption operation.
+		DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 
 		if (!result.isValid) {
 			std::cout << "Decryption failed!" << std::endl;
@@ -279,10 +249,8 @@ void PRESimulation(usint count, usint dataset){
 	while (!dataFile.eof()){
 
 		dataFile >> data[i].m;
-		dataFile >> mod;
-		data[i].modulus.SetValue(mod);
-		dataFile >> rUnity;
-		data[i].rootOfUnity.SetValue(rUnity);
+		dataFile >> data[i].modulus;
+		dataFile >> data[i].rootOfUnity;
 		dataFile >> data[i].relinWindow;
 		dataFile >> data[i].depth;
 		dataFile >> data[i].bitLength;
@@ -313,28 +281,17 @@ void PRESimulation(usint count, usint dataset){
 	usint m = data[i].m;
 	BigBinaryInteger modulus(data[i].modulus);
 	BigBinaryInteger rootOfUnity(data[i].rootOfUnity);
-	usint relWindow = data[i].relinWindow;
 	usint depth = data[i].depth;
-
-	ILParams ilParams(m, modulus, rootOfUnity);
 
 	int stdDev = 4;
 
-	// Set crypto parametes
-	LPCryptoParametersLTV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);			 // Set the noise parameters.
-	cryptoParams.SetRelinWindow(relWindow);				     // Set the relinearization window
-	cryptoParams.SetElementParams(ilParams);			     // Set the initialization parameters.
-
-	DiscreteGaussianGenerator dgg(stdDev);				 // Create the noise generator
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2,m,data[i].modulus,data[i].rootOfUnity,data[i].relinWindow,stdDev, depth);
 
 	// Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
 	// Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(dgg, ilParams);
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), std::static_pointer_cast<ILParams>(cc.GetCryptoParameters()->GetElementParams()));
 
 	// prepare the plaintext
 	BytePlaintextEncoding plaintext;
@@ -354,41 +311,31 @@ void PRESimulation(usint count, usint dataset){
 	std::bitset<FEATURESETSIZE> mask (std::string("000011"));
 	LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm(mask);
 
-	std::vector<LPPublicKey<ILVector2n>*> publicKeys;
-	std::vector<LPPrivateKey<ILVector2n>*> privateKeys;
-	std::vector<LPEvalKey<ILVector2n>*> evalKeys;
+	std::vector<shared_ptr<LPPublicKey<ILVector2n>>> publicKeys;
+	std::vector<shared_ptr<LPPrivateKey<ILVector2n>>> privateKeys;
+	std::vector<shared_ptr<LPEvalKey<ILVector2n>>> evalKeys;
 
 	// Initialize the public key containers.
-	LPPublicKey<ILVector2n> pk(cryptoParams);
-	LPPrivateKey<ILVector2n> sk(cryptoParams);
 
 	bool successKeyGen = false;
-	successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();	// This is the core function call that generates the keys.
 
 	if (!successKeyGen) {
 		std::cout << "Key generation failed!" << std::endl;
 		exit(1);
 	}
 
-	publicKeys.push_back(&pk);
-	privateKeys.push_back(&sk);
+	publicKeys.push_back(kp.publicKey);
+	privateKeys.push_back(kp.secretKey);
 
 	for (usint d = 0; d < depth; d++){
 
-		LPPublicKey<ILVector2n> *newPK;
-		LPPrivateKey<ILVector2n> *newSK;
-		LPEvalKey<ILVector2n> *evalKey;
+		LPKeyPair<ILVector2n> newKp = cc.KeyGen();
 
-		newPK = new LPPublicKey<ILVector2n>(cryptoParams);
-		newSK = new LPPrivateKey<ILVector2n>(cryptoParams);
-		evalKey = new LPEvalKeyRelin<ILVector2n>(cryptoParams);
+		shared_ptr<LPEvalKey<ILVector2n>> evalKey = cc.ReKeyGen(newKp.publicKey, privateKeys[d]);
 
-		successKeyGen = algorithm.KeyGen(newPK, newSK);	// This is the same core key generation operation.
-
-		CryptoUtility<ILVector2n>::ReKeyGen(algorithm, *newPK, *privateKeys[d], evalKey);  // This is the core re-encryption operation.
-
-		publicKeys.push_back(newPK);
-		privateKeys.push_back(newSK);
+		publicKeys.push_back(newKp.publicKey);
+		privateKeys.push_back(newKp.secretKey);
 		evalKeys.push_back(evalKey);
 
 	}
@@ -398,7 +345,7 @@ void PRESimulation(usint count, usint dataset){
 	//all expensive operations are moved outside the loop
 
 	BytePlaintextEncoding arrPlaintext[NUMBER_OF_RUNS];
-	Ciphertext<ILVector2n> arrCiphertext[NUMBER_OF_RUNS];
+	shared_ptr<Ciphertext<ILVector2n>> arrCiphertext[NUMBER_OF_RUNS];
 
 	for (usint j = 0; j < count; j++){
 		arrPlaintext[j] = all.substr(j*(n / 8), n / 8);
@@ -406,11 +353,10 @@ void PRESimulation(usint count, usint dataset){
 
 	start = currentDateTime();
 
-	for (usint j = 0; j < count; j++){
+	for (usint j = 0; j < count; j++) {
 
-		vector<Ciphertext<ILVector2n>> ct;
-		CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, arrPlaintext[j], &ct);
-		arrCiphertext[j] = ct[0];
+		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, arrPlaintext[j]);
+		arrCiphertext[j] = ciphertext[0];
 
 	}
 
@@ -430,9 +376,9 @@ void PRESimulation(usint count, usint dataset){
 
 	for (usint j = 0; j < count; j++){
 
-		vector<Ciphertext<ILVector2n>> ct;
+		vector<shared_ptr<Ciphertext<ILVector2n>>> ct;
 		ct.push_back(arrCiphertext[j]);
-		DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ct, &plaintextNew[j]);
+		DecryptResult result = cc.Decrypt(kp.secretKey, ct, &plaintextNew[j]);
 		ct.clear();
 
 	}
@@ -454,7 +400,7 @@ void PRESimulation(usint count, usint dataset){
 	cout << "Number of decryption errors: " << "\t" << errorcounter << endl;
 	fout << "Number of decryption errors: " << "\t" << errorcounter << endl;
 
-	Ciphertext<ILVector2n> arrCiphertextNew[NUMBER_OF_RUNS];
+	shared_ptr<Ciphertext<ILVector2n>> arrCiphertextNew[NUMBER_OF_RUNS];
 
 	//computing re-encryption time
 
@@ -463,11 +409,11 @@ void PRESimulation(usint count, usint dataset){
 		start = currentDateTime();
 
 		for (usint j = 0; j < count; j++){
-			vector<Ciphertext<ILVector2n>> ct;
+			vector<shared_ptr<Ciphertext<ILVector2n>>> ct;
 			ct.push_back(arrCiphertext[j]);
-			vector<Ciphertext<ILVector2n>> ctR;
+			vector<shared_ptr<Ciphertext<ILVector2n>>> ctR;
 
-			CryptoUtility<ILVector2n>::ReEncrypt(algorithm, *evalKeys[d], ct, &ctR);
+			ctR = cc.ReEncrypt(evalKeys[d], ct);
 			arrCiphertextNew[j] = ctR[0];
 			ct.clear();
 			ctR.clear();
@@ -494,9 +440,9 @@ void PRESimulation(usint count, usint dataset){
 
 	for (usint j = 0; j < count; j++){
 
-		vector<Ciphertext<ILVector2n>> ct;
+		vector<shared_ptr<Ciphertext<ILVector2n>>> ct;
 		ct.push_back(arrCiphertextNew[j]);
-		DecryptResult result = CryptoUtility<ILVector2n>::Decrypt(algorithm, *privateKeys.back(), ct, &plaintextNew[j]);
+		DecryptResult result = cc.Decrypt(privateKeys.back(), ct, &plaintextNew[j]);
 		ct.clear();
 	}
 
