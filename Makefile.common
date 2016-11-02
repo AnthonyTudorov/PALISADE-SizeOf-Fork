@@ -42,6 +42,7 @@ CPPFLAGS += -Wall $(CPPSTD) -w -g ## undefine for single thread debug NO OPTIMIZ
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp  ##undefine for parallel best performance operation
 #CPPFLAGS += -Wall $(CPPSTD) -w  -DNDEBUG -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
 CPPFLAGS += -Wall $(CPPSTD) -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp -DNDEBUG ##undefine for multithread really best performance operation
+#CPPFLAGS += -Wall $(CPPSTD) -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
 
 #fundamental locations in the palisade directory structure
 #sources for all palisade code

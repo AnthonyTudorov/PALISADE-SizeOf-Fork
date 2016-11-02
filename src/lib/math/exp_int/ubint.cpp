@@ -333,19 +333,17 @@ namespace exp_int {
 
     //memory allocation step
     this->m_MSB=rhs.m_MSB; //copy MSB
-    try { 
+    //   try { 
       //copy values
       this->m_value = rhs.m_value; // this occasionally fails may have been
       //fixed when normalize was fixed.
-    } catch(std::exception& e) {
-      //if it fails, then just clear our copy out. 
-      std::cout<<"Threw "<< e.what()<< std::endl;
-      this->m_value.clear();
-      this->m_value.push_back((limb_t)0);
-    }
+    // } catch(std::exception& e) {
+    //   //if it fails, then just clear our copy out. 
+    //   std::cout<<"Threw "<< e.what()<< std::endl;
+    //   this->m_value.clear();
+    //   this->m_value.push_back((limb_t)0);
+    // }
 
-    //copy values
-    this->m_value = rhs.m_value;
     //set state
     m_state = rhs.m_state;
     DEBUG("final msb ="<<this->m_MSB);
@@ -541,7 +539,7 @@ return result;
 
   //copy allocator
   template<typename limb_t>
-  const ubint<limb_t>&  ubint<limb_t>::operator=(const ubint &rhs){
+  ubint<limb_t>&  ubint<limb_t>::operator=(const ubint &rhs){
     //std::cout<<"Ca";
     if(this!=&rhs){
       this->m_MSB=rhs.m_MSB;
@@ -551,9 +549,10 @@ return result;
     }
     return *this;
   }
+
   // move copy allocator
   template<typename limb_t>
-  const ubint<limb_t>&  ubint<limb_t>::operator=(ubint &&rhs){
+  ubint<limb_t>&  ubint<limb_t>::operator=(ubint &&rhs){
     //std::cout<<"Ma";
     if(this!=&rhs){
       this->m_MSB = rhs.m_MSB;
@@ -572,7 +571,7 @@ return result;
    *1. Multiple of the bit length of limb data type.
    *	Shifting is done by the shifting the limb type numbers.
    *2. Shifts between 1 to bit length of limb data type.
-   *   Shifting is done by using bit shift operations and carry over propagation.
+   *   Shifting is done by using bit shift operations and carry over prop.
    */
   template<typename limb_t>
   ubint<limb_t>  ubint<limb_t>::operator<<(usint shift) const{
@@ -625,9 +624,9 @@ return result;
 	}
       }
       ans.m_MSB += remainingShift;
-
+      
     }
-
+    
     if(shiftByLimb!=0){
       usint currentSize = ans.m_value.size();
       DEBUG("CURRENT SIZE "<<currentSize);
@@ -643,33 +642,97 @@ return result;
 	ans.m_value.at(i) = 0;
       }
       DEBUG("new size is  "<<ans.m_value.size());
-
+      
     }
-
+    
     ans.m_MSB += shiftByLimb*m_limbBitLength;
     DEBUG("final MSB "<<ans.m_MSB);
     //ans.SetMSB();
     //DEBUG("final MSB check "<<ans.m_MSB);
     return ans;
-
+    
   }
-
+  
   /**
    *	Left Shift is done by splitting the number of shifts into
    *1. Multiple of the bit length of limb data type.
    *	Shifting is done by the shifting the limb type numbers.
    *2. Shifts between 1 to bit length of limb data type.
-   *   Shifting is done by using bit shift operations and carry over propagation.
+   *   Shifting is done by using bit shift operations and carry over prop.
    */
   template<typename limb_t>
-  const ubint<limb_t>&  ubint<limb_t>::operator<<=(usint shift){
+  ubint<limb_t>&  ubint<limb_t>::operator<<=(usint const shift) {
+    bool dbg_flag = false;
     if(m_state==State::GARBAGE)
-      throw std::logic_error("Value not initialized");
-
+      throw std::logic_error("<<= on uninitialized bint");
     if(this->m_MSB==0) {
       return *this;
     } else {
-      *this = *this << shift;
+      
+      //compute the number of whole limb shifts
+      usint shiftByLimb = shift>>m_log2LimbBitLength;
+      
+      //compute the remaining number of bits to shift
+      limb_t remainingShift = (shift&(m_limbBitLength-1));
+      
+      DEBUG("l2lbl "<< m_log2LimbBitLength);
+      DEBUG("totalshift "<< shift);
+      DEBUG("shiftByLimb "<<shiftByLimb);
+      DEBUG("remainingShift "<<remainingShift);
+      DEBUG("size "<<m_value.size());
+      
+      //first shift by the # remainingShift bits
+      if(remainingShift!=0){
+	limb_t oFlow = 0;
+	Dlimb_t temp = 0;
+	sint i;
+	
+	DEBUG("m_MSB "<<m_MSB);
+	DEBUG("ilimit "<<ceilIntByUInt(m_MSB));
+	
+	
+	for(i=0; i<ceilIntByUInt(m_MSB); ++i){
+	  DEBUG("bit shift ");
+	  
+	  //can optimize here further.
+	  temp = m_value.at(i);
+	  temp <<=remainingShift;
+	  m_value.at(i) = (limb_t)temp + oFlow;
+	  oFlow = temp >> m_limbBitLength;
+	}
+	
+	if(oFlow) {//there is an overflow set of bits.
+	  if (i<m_value.size()){
+	    m_value.at(i) = oFlow;
+	  } else {
+	    m_value.push_back(oFlow);
+	  }
+	}
+	m_MSB += remainingShift;
+	
+      }
+      
+      if(shiftByLimb!=0){
+	usint currentSize = m_value.size();
+	DEBUG("CURRENT SIZE "<<currentSize);
+	m_value.resize(currentSize+shiftByLimb); // allocate more storage
+	DEBUG("resize is  "<<m_value.size());
+	for (sint i = currentSize-1; i>=0; i-- ) {  //shift limbs required # of indicies
+	  DEBUG("to : "<<i+shiftByLimb<< "from "<<i );
+	  m_value.at(i+shiftByLimb) = m_value.at(i);
+	}
+	//zero out the 'shifted in' limbs
+	for (sint i = shiftByLimb -1 ; i>=0; i-- ) {
+	  DEBUG("clear : "<<i);
+	  m_value.at(i) = 0;
+	}
+	DEBUG("new size is  "<<m_value.size());
+      }
+      
+      m_MSB += shiftByLimb*m_limbBitLength;
+      DEBUG("final MSB "<<m_MSB);
+      //ans.SetMSB();
+      //DEBUG("final MSB check "<<ans.m_MSB);
       return *this;
     }
   }
@@ -1139,31 +1202,125 @@ return result;
 
 
   template<typename limb_t>
-  const ubint<limb_t>& ubint<limb_t>::operator+=(const ubint &b){
-    *this = *this+b;
+  ubint<limb_t>& ubint<limb_t>::operator+=(const ubint& b){
+    bool dbg_flag = false;		// if true then print dbg output
+    DEBUG("in +=");
+    //check for garbage initializations
+    if(this->m_state==GARBAGE){
+      throw std::logic_error("+= to uninitialized bint");
+    }
+    if(b.m_state==GARBAGE){
+      throw std::logic_error("+= from uninitialized bint");
+    }
+
+    if(b.m_MSB==0){ //b==0
+      DEBUG("b ==0");
+      return (*this);
+    }
+    if(this->m_MSB==0){ //a==0
+      DEBUG("a ==0");
+      *this = b;
+      return (*this);
+    }
+
+    //overflow variable
+    Dlimb_t ofl=0;
+
+    size_t sizeThis = this->m_value.size();
+    size_t sizeB = b.m_value.size();
+
+    usint i;//
+
+    DEBUG("sizeThis "<<sizeThis);
+    DEBUG("sizeB "<<sizeB);
+
+    DEBUG("size this "<< this->m_value.size());
+    DEBUG("size b "<< b.m_value.size());
+    bool thisIsBigger = sizeThis>sizeB;
+    size_t sizeSmall= (sizeThis<sizeB)?sizeThis:sizeB;
+    
+
+    for(i=0; i<sizeSmall; ++i){ //loop over limbs low to high till you reach the end of the smaller one
+      DEBUG("i "<<i);
+
+      //      DEBUG("ofl "<<ofl);  //todo fix <<ostream for Dlimb_t (when it is 128 bits
+
+      DEBUG("thislimb "<<this->m_value.at(i));
+      DEBUG("blimb "<<b.m_value.at(i));
+
+      ofl =(Dlimb_t)this->m_value.at(i)+ (Dlimb_t)b.m_value.at(i)+ofl;//sum of the two int and the carry over
+
+      // DEBUG("newofl "<<ofl);
+
+      this->m_value.at(i)=(limb_t)ofl;
+      ofl>>=m_limbBitLength;//current overflow
+
+      //DEBUG("shiftofl "<<ofl);
+
+    }
+    if (thisIsBigger) {
+      // we have an overflow at the of the shorter word, so we need to 
+      if(ofl){
+	for(; i<sizeThis; ++i){ //keep looping over the remainder of the larger value
+	  DEBUG("oi "<<i);
+	  ofl = (Dlimb_t)this->m_value.at(i)+ofl;//sum of the two int and the carry over
+	  this->m_value.at(i) = (limb_t)ofl;
+	  ofl>>=m_limbBitLength;//current overflow
+	}
+	if(ofl){//in the end if overflow is set it indicates MSB is one greater than the one we started with
+	  DEBUG("push(1)");
+	  this->m_value.push_back(1);
+	}
+      }
+    }else{
+      
+      // B is bigger and we have an overflow at the of the shorter word, so we need to 
+      if(ofl){
+	for(; i<sizeB; ++i){ //keep looping over the remainder of the larger value
+	  DEBUG("oi "<<i);
+	  ofl = (Dlimb_t)b.m_value.at(i)+ofl;//sum of the two int and the carry over
+
+	  this->m_value.push_back((limb_t)ofl);
+	  ofl>>=m_limbBitLength;//current overflow
+	}
+
+	if(ofl){//in the end if overflow is set it indicates MSB is one greater than the one we started with
+	  DEBUG("push(1)");
+	  this->m_value.push_back(1);
+	}
+      } else { //there is no overflow at the end, just copy the rest
+	for(; i<sizeB; ++i){
+	  DEBUG("push "<<i);
+	  this->m_value.push_back(b.m_value.at(i));
+	}
+      }
+    }
+    this->SetMSB();//Set the MSB.
+    DEBUG("final MSB "<<this->m_MSB);
     return *this;
   }
 
+
   template<typename limb_t>
-  const ubint<limb_t>& ubint<limb_t>::operator-=(const ubint &b){
+  ubint<limb_t>& ubint<limb_t>::operator-=(const ubint &b){
     *this = *this-b;
     return *this;
   }
 
   template<typename limb_t>
-  const ubint<limb_t>& ubint<limb_t>::operator*=(const ubint &b){
+  ubint<limb_t>& ubint<limb_t>::operator*=(const ubint &b){
     *this = *this*b;
     return *this;
   }
 
   template<typename limb_t>
-  const ubint<limb_t>& ubint<limb_t>::operator/=(const ubint &b){
+  ubint<limb_t>& ubint<limb_t>::operator/=(const ubint &b){
     *this = *this/b;
     return *this;
   }
 
   template<typename limb_t>
-  const ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
+  ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
     *this = *this%b;
     return *this;
   }
@@ -1634,8 +1791,31 @@ return result;
 
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModBarrett(const ubint& modulus, const ubint& mu) const{
+#ifdef NO_BARRETT	
     ubint ans(*this);
-    return ans.Mod(modulus);
+    ans%=modulus;
+    return(ans);
+#else
+	if(*this<modulus){
+		return std::move(ubint(*this));
+	}
+	ubint z(*this);
+	ubint q(*this);
+
+	usint n = modulus.m_MSB;
+	usint alpha = n + 3;
+	sint beta = -2;
+
+	q>>=n + beta;
+	q=q*mu;
+	q>>=alpha-beta;
+	z-=q*modulus;
+	
+	if(z>=modulus)
+		z-=modulus;
+	
+	return z;
+#endif
   }
 
 
@@ -1804,27 +1984,90 @@ return result;
   //the following is deprecated
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModBarrettMul(const ubint& b, const ubint& modulus,const ubint& mu) const{
-
+#ifdef NO_BARRETT
     ubint ans(*this);  
     return ans.ModMul(b, modulus);
 
+#else
+    ubint* a  = const_cast<ubint*>(this);
+    ubint* bb = const_cast<ubint*>(&b);
+    
+    //if a is greater than q reduce a to its mod value
+    if(*this>modulus)
+      *a = std::move(this->ModBarrett(modulus,mu));
+    
+    //if b is greater than q reduce b to its mod value
+    if(b>modulus)
+      *bb = std::move(b.ModBarrett(modulus,mu));
+    
+    return (*a**bb).ModBarrett(modulus,mu);
+#endif
   }
+
+
   //the following is deprecated
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModBarrettMul(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const{
-
+#ifdef NO_BARRETT
     ubint ans(*this);
     return ans.ModMul(b, modulus);
-
+#else
+    ubint* a  = NULL;
+    ubint* bb = NULL;
+    
+    //if a is greater than q reduce a to its mod value
+    if(*this>modulus)
+      *a = std::move(this->ModBarrett(modulus,mu_arr));
+    else
+      a = const_cast<ubint*>(this);
+    
+    //if b is greater than q reduce b to its mod value
+    if(b>modulus)
+      *bb = std::move(b.ModBarrett(modulus,mu_arr));
+    else
+      bb = const_cast<ubint*>(&b);
+    
+    //return a*b%q
+    return (*a**bb).ModBarrett(modulus,mu_arr);
+#endif    
   }
 
 
   //the following is deprecated
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModBarrett(const ubint& modulus, const ubint mu_arr[BARRETT_LEVELS+1]) const{
-
+#ifdef NO_BARRETT
     ubint ans(*this);
-    return ans.Mod(modulus);
+    ans%=modulus;
+    return(ans);
+#else
+	if(*this<modulus){
+		ubint z(*this);
+		return z;
+	}
+	ubint z(*this);
+	ubint q(*this);
+
+	uschar n = modulus.m_MSB;
+	//level is set to the index between 0 and BARRET_LEVELS - 1
+	uschar level = (this->m_MSB-1-n)*BARRETT_LEVELS/(n+1)+1;
+	uschar gamma = (n*level)/BARRETT_LEVELS;
+
+	uschar alpha = gamma + 3;
+	schar beta = -2;
+
+	const ubint& mu = mu_arr[level];
+
+	q>>=n + beta;
+	q=q*mu;
+	q>>=alpha-beta;
+	z-=q*modulus;
+	
+	if(z>=modulus)
+		z-=modulus;
+	
+	return z;
+#endif
   }
 
 

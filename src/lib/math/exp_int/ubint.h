@@ -43,6 +43,9 @@
 #ifndef LBCRYPTO_MATH_EXPINT_UBINT_H
 #define LBCRYPTO_MATH_EXPINT_UBINT_H
 
+#define NO_BARRETT
+
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -369,7 +372,7 @@ namespace exp_int{
      * @param &rhs is the ubint to be assigned from.
      * @return assigned ubint ref.
      */
-    const ubint&  operator=(const ubint &rhs);
+    ubint&  operator=(const ubint &rhs);
 
     /**
      * Assignment operator from unsigned integer
@@ -377,7 +380,7 @@ namespace exp_int{
      * @param val is the unsigned integer value that is assigned.
      * @return the assigned ubint ref.
      */
-    inline const ubint& operator=(usint val) {
+    inline ubint& operator=(usint val) {
     //  *this = intTobint(val);
     	  *this = ubint(val);
       return *this;
@@ -389,7 +392,7 @@ namespace exp_int{
      * @param val is the string value that is assigned.
      * @return the assigned ubint ref.
      */
-    inline const ubint& operator=(std::string val) {
+    inline ubint& operator=(std::string val) {
       *this = ubint(val);
       return *this;
     }
@@ -401,7 +404,7 @@ namespace exp_int{
      * @param &&rhs is the ubint to move.
      * @return object of type ubint.
      */
-    const ubint&  operator=(ubint &&rhs);
+    ubint&  operator=(ubint &&rhs);
 
     //Shift Operators
    
@@ -418,8 +421,8 @@ namespace exp_int{
      * @param shift is the amount to shift of type usint.
      * @return the object of type ubint
      */
-    const ubint&  operator<<=(usint shift);
-        
+    ubint&  operator<<=(usint shift);
+
     /**
      * Right shift operator of ubint
      * @param shift is the amount to shift of type usint.
@@ -577,7 +580,7 @@ namespace exp_int{
      * @param &b is the value to add of type ubint.
      * @return result of the addition operation of type ubint.
      */
-    const ubint& operator+=(const ubint &b);
+    ubint& operator+=(const ubint &b);
 
 		
     /**
@@ -586,7 +589,7 @@ namespace exp_int{
      * @param &b is the value to subtract of type ubint.
      * @return result of the subtraction operation of type ubint.
      */
-    const ubint& operator-=(const ubint &b);
+    ubint& operator-=(const ubint &b);
 
     /**
      * Multiplication accumulator.
@@ -594,7 +597,7 @@ namespace exp_int{
      * @param &b is the value to multiply by of type ubint.
      * @return result of the multiplication operation of type ubint.
      */
-    const ubint& operator*=(const ubint &b);
+    ubint& operator*=(const ubint &b);
 
     /**
      * Division accumulator.
@@ -602,7 +605,7 @@ namespace exp_int{
      * @param &b is the value to divide by of type ubint.
      * @return result of the division operation of type ubint.
      */
-    const ubint& operator/=(const ubint &b);
+    ubint& operator/=(const ubint &b);
 
     /**
      * Modulus accumulator.
@@ -610,7 +613,7 @@ namespace exp_int{
      * @param &b is the value to modulo by of type ubint.
      * @return result of the modulo operation of type ubint.
      */
-    const ubint& operator%=(const ubint &b);
+    ubint& operator%=(const ubint &b);
 
     /**
      * Subtraction operation.
