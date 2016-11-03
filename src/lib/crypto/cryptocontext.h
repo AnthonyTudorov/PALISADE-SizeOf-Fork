@@ -71,7 +71,7 @@ private:
 public:
 	~CryptoContextImpl() {}
 
-	DiscreteGaussianGenerator& GetGenerator() { return params->GetDiscreteGaussianGenerator(); }
+	const DiscreteGaussianGenerator& GetGenerator() const { return params->GetDiscreteGaussianGenerator(); }
 
 	/**
 	 *
@@ -128,7 +128,7 @@ public:
 
 	const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return ctx->getCryptoParams(); }
 
-	DiscreteGaussianGenerator& GetGenerator() { return ctx->GetGenerator(); }
+	const DiscreteGaussianGenerator& GetGenerator() const { return ctx->GetGenerator(); }
 
 	const shared_ptr<ILParams> GetElementParams() {
 		return std::dynamic_pointer_cast<ILParams>(ctx->getCryptoParams()->GetElementParams());

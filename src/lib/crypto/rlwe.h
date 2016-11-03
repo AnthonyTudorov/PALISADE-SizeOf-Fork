@@ -66,7 +66,6 @@ public:
 	 *
 	 */
 	LPCryptoParametersRLWE(const LPCryptoParametersRLWE &rhs) : LPCryptoParameters<Element>(rhs.GetElementParams(), rhs.GetPlaintextModulus()) {
-		throw std::logic_error("no copying, chulo");
 		m_distributionParameter = rhs.m_distributionParameter;
 		m_assuranceMeasure = rhs.m_assuranceMeasure;
 		m_securityLevel = rhs.m_securityLevel;
@@ -207,7 +206,6 @@ public:
 		cryptoParams->SetDepth(m_depth);
 		cryptoParams->SetSecurityLevel(m_securityLevel);
 		cryptoParams->SetDistributionParameter(m_distributionParameter);
-		cryptoParams->SetDiscreteGaussianGenerator(m_dgg);
 		cryptoParams->SetPlaintextModulus(this->GetPlaintextModulus());
 
 		std::vector<BigBinaryInteger> rootsOfUnity;

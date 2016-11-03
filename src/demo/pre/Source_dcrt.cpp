@@ -441,7 +441,6 @@ void LevelCircuitEvaluation(){
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(ildcrtParams);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	// vector<ILVector2n> levelsSk(size);
 
@@ -651,14 +650,12 @@ void LevelCircuitEvaluation1(){
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(ildcrtParams);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams1;
 	cryptoParams1.SetPlaintextModulus(plainTextModulus);
 	cryptoParams1.SetDistributionParameter(stdDev);
 	cryptoParams1.SetRelinWindow(1);
 	cryptoParams1.SetElementParams(ildcrtParams1);
-	cryptoParams1.SetDiscreteGaussianGenerator(dgg);
 
 
 	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
@@ -763,14 +760,12 @@ void LevelCircuitEvaluation2WithCEM(){
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams1;
 	cryptoParams1.SetPlaintextModulus(plainTextModulus);
 	cryptoParams1.SetDistributionParameter(stdDev);
 	cryptoParams1.SetRelinWindow(1);
 	cryptoParams1.SetElementParams(params1);
-	cryptoParams1.SetDiscreteGaussianGenerator(dgg);
 
 	Ciphertext<ILVectorArray2n> cipherText1(&cryptoParams);
 	ILVectorArray2n element1(params);
@@ -1200,9 +1195,6 @@ void NTRUPRE(usint input) {
 //	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 //	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 //	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
-//
-//	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
-//	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 //
 //	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
 
