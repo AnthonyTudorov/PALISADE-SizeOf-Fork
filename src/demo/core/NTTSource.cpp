@@ -225,6 +225,7 @@ void test_NTT () {
   BigBinaryVector b3 = BBVfromStrvec(b3strvec);
   b3.SetModulus(q3);
 
+#if 1
   usint m = 32;
 
   //  BigBinaryInteger modulus(q1);
@@ -233,13 +234,14 @@ void test_NTT () {
 #ifdef TEST1 
   BigBinaryInteger rootOfUnity1(RootOfUnity(m, q1));
   ILParams params1(m, q1, rootOfUnity1);
+  shared_ptr<ILParams> x1p(new ILParams(params1));
 
-  ILVector2n x1a(params1, Format::COEFFICIENT);
+  ILVector2n x1a(x1p, Format::COEFFICIENT);
   //a1.SetModulus(modulus); //note setting modulus does not perform a modulus.
   //a1.Mod(modulus);
   x1a.SetValues(a1, Format::COEFFICIENT);
 
-  ILVector2n x1b(params1, Format::COEFFICIENT);
+  ILVector2n x1b(x1p, Format::COEFFICIENT);
   //b1.SetModulus(modulus);
   //b1.Mod(modulus);
   x1b.SetValues(b1, Format::COEFFICIENT);
@@ -250,13 +252,14 @@ void test_NTT () {
 #ifdef TEST2
   BigBinaryInteger rootOfUnity2(RootOfUnity(m, q2));
   ILParams params2(m, q2, rootOfUnity2);
+  shared_ptr<ILParams> x2p(new ILParams(params2));
 
-  ILVector2n x2a(params2, Format::COEFFICIENT);
+  ILVector2n x2a(x2p, Format::COEFFICIENT);
   //a2.SetModulus(modulus); //note setting modulus does not perform a modulus.
   //a2.Mod(modulus);
   x2a.SetValues(a2, Format::COEFFICIENT);
 
-  ILVector2n x2b(params2, Format::COEFFICIENT);
+  ILVector2n x2b(x2p, Format::COEFFICIENT);
   //b2.SetModulus(modulus);
   //b2.Mod(modulus);
   x2b.SetValues(b2, Format::COEFFICIENT);
@@ -271,14 +274,14 @@ void test_NTT () {
   BigBinaryInteger rootOfUnity3(RootOfUnity(m, q3));
   cout << "rootOfUnity3 : "<<rootOfUnity3.ToString()<<endl;
   ILParams params3(m, q3, rootOfUnity3);
+  shared_ptr<ILParams> x3p(new ILParams(params3));
 
-
-  ILVector2n x3a(params3, Format::COEFFICIENT);
+  ILVector2n x3a(x3p, Format::COEFFICIENT);
   //a3.SetModulus(modulus); //note setting modulus does not perform a modulus.
   //a3.Mod(modulus);
   x3a.SetValues(a3, Format::COEFFICIENT);
 
-  ILVector2n x3b(params3, Format::COEFFICIENT);
+  ILVector2n x3b(x3p, Format::COEFFICIENT);
   //b3.SetModulus(modulus);
   //b3.Mod(modulus);
   x3b.SetValues(b3, Format::COEFFICIENT);
@@ -421,7 +424,7 @@ void test_NTT () {
     cout << "t3ar: " << "\t" << time3ar << " us"<< endl;
     cout << "t3br: " << "\t" << time3br << " us"<< endl;
   }
-  
+#endif  
   return ;
 }
 

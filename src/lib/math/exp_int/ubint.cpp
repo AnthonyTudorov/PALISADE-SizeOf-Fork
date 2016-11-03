@@ -1459,7 +1459,7 @@ return result;
     int n = v.size();
 
     q.resize(m-n+1);
-    r.resize(n);
+    //r.resize(n);
 
     //  const Dlilmb_t ffs = (Dlimb_t)UINT64_MAX; // Number  (2**64)-1.
     const Dlimb_t ffs = (Dlimb_t)m_MaxLimb; // Number  (2**64)-1.

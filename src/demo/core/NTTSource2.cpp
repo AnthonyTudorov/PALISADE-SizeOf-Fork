@@ -235,11 +235,12 @@ void test_NTT () {
   std::cout << "q1=" << q1 << std::endl;
 
   ILParams params1(m, q1, rootOfUnity1);
+  shared_ptr<ILParams> x1p(new ILParams(params1));
 
   const DiscreteUniformGenerator dug1(q1);
 
-  ILVector2n x1a(dug1, params1, Format::COEFFICIENT);
-  ILVector2n x1b(dug1, params1, Format::COEFFICIENT);
+  ILVector2n x1a(dug1, x1p, Format::COEFFICIENT);
+  ILVector2n x1b(dug1, x1p, Format::COEFFICIENT);
 
   //ILVector2n x1a(dgg, params1, Format::COEFFICIENT);
   //a1.SetModulus(modulus); //note setting modulus does not perform a modulus.
@@ -256,11 +257,12 @@ void test_NTT () {
 
   BigBinaryInteger rootOfUnity2(RootOfUnity(m, q2));
   ILParams params2(m, q2, rootOfUnity2);
+  shared_ptr<ILParams> x2p(new ILParams(params2));
 
   const DiscreteUniformGenerator dug2(q2);
 
-  ILVector2n x2a(dug2, params2, Format::COEFFICIENT);
-  ILVector2n x2b(dug2, params2, Format::COEFFICIENT);
+  ILVector2n x2a(dug2, x2p, Format::COEFFICIENT);
+  ILVector2n x2b(dug2, x2p, Format::COEFFICIENT);
 
   //Precomputations for FTT
   ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity1, m, q1);
@@ -286,6 +288,7 @@ void test_NTT () {
   BigBinaryInteger rootOfUnity3(RootOfUnity(m, q3));
   cout << "rootOfUnity3 : "<<rootOfUnity3.ToString()<<endl;
   ILParams params3(m, q3, rootOfUnity3);
+  shared_ptr<ILParams> x3p(new ILParams(params3));
 
 
   ILVector2n x3a(params3, Format::COEFFICIENT);

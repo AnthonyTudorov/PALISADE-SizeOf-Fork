@@ -30,9 +30,8 @@ using namespace lbcrypto;
 
 
 //define the main sections of the test
-void test_BigBinaryInt(void); 	// test old version of big int
-void test_BigBinaryVector(void); // test old version of big int vector
 
+void test_BigBinaryVector(void); // test old version of big int vector
 void test_ubintvec(void);	 // test new vector version
 
 
@@ -188,7 +187,7 @@ void test_BigBinaryVector () {
 
   // compute results for each function and compare.
 
-#if 0
+#if 1
   TESTIT(t1, c1, a1 + b1, modsum1, nloop);
   TESTIT(t1, c1, a1.ModAdd(b1), modsum1, nloop);
   TESTIT(t1, c1, a1 - b1, moddiff1, nloop);
@@ -261,7 +260,7 @@ void test_BigBinaryVector () {
 
   BigBinaryVector modmul2 = BBVfromStrvec(modmul2strvec);
   modmul2.SetModulus(q2);
-#if 0
+#if 1
   TESTIT(t2, c2, a2+b2, modsum2, nloop);
   TESTIT(t2, c2, a2.ModAdd(b2), modsum2, nloop);
   TESTIT(t2, c2, a2-b2, moddiff2, nloop);
@@ -346,7 +345,7 @@ void test_BigBinaryVector () {
   BigBinaryVector modmul3 = BBVfromStrvec(modmul3strvec);
   modmul3.SetModulus(q3);
 
-#if 0
+#if 1
   TESTIT(t3, c3, a3+b3, modsum3, nloop);
   TESTIT(t3, c3, a3.ModAdd(b3), modsum3, nloop);
   TESTIT(t3, c3, a3-b3, moddiff3, nloop);
@@ -581,7 +580,7 @@ void test_ubintvec() {
   mubintvec mc1;
   // test math for case 1
 
-#if 0
+#if 1
   TESTIT(t1, c1, a1 + b1, add1, nloop);
   TESTIT(t1, c1, a1 - b1, sub1, nloop);
   TESTIT(t1, c1, a1 * b1, mul1, nloop);
@@ -721,7 +720,7 @@ void test_ubintvec() {
 
   ubintvec c2(a2.size());
   mubintvec mc2;
-#if 0
+#if 1
   // test math for case 2
   TESTIT(t2, c2, a2 + b2, add2, nloop);
   TESTIT(t2, c2, a2 - b2, sub2, nloop);
@@ -854,7 +853,7 @@ void test_ubintvec() {
 
   ubintvec c3;
   mubintvec mc3;
-#if 0
+#if 1
   // test math for case 3
   TESTIT(t3, c3, a3 + b3, add3, nloop);
   TESTIT(t3, c3, a3 - b3, sub3, nloop);
