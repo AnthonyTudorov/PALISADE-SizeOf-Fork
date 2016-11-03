@@ -144,17 +144,13 @@ void EncryptionSchemeSimulation(usint count){
 
 	//Set crypto parameters
 #if 1
-	DiscreteGaussianGenerator dgg(stdDev);
-	LPCryptoParametersLTV<ILVector2n> cryptoParams(&ilParams, BigBinaryInteger::TWO, stdDev, 0/*assuranceMeasure*/, 0/*securityLevel*/, relWindow, dgg);
+	LPCryptoParametersLTV<ILVector2n> cryptoParams(&ilParams, BigBinaryInteger::TWO, stdDev, 0/*assuranceMeasure*/, 0/*securityLevel*/, relWindow);
 #else
 	LPCryptoParametersLTV<ILVector2n> cryptoParams();
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
-
-	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 #endif
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
@@ -324,17 +320,13 @@ void PRESimulation(usint count, usint dataset)
 
 	// Set crypto parametes
 #if 1
-	DiscreteGaussianGenerator dgg(stdDev);
-	LPCryptoParametersLTV<ILVector2n> cryptoParams(&ilParams, BigBinaryInteger::TWO, stdDev, 0/*assuranceMeasure*/, 0/*securityLevel*/, relWindow, dgg);
+	LPCryptoParametersLTV<ILVector2n> cryptoParams(&ilParams, BigBinaryInteger::TWO, stdDev, 0/*assuranceMeasure*/, 0/*securityLevel*/, relWindow);
 #else
 	LPCryptoParametersLTV<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			 // Set the noise parameters.
 	cryptoParams.SetRelinWindow(relWindow);				     // Set the relinearization window
 	cryptoParams.SetElementParams(ilParams);			     // Set the initialization parameters.
-
-	DiscreteGaussianGenerator dgg(stdDev);				 // Create the noise generator
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 #endif
 	// Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);

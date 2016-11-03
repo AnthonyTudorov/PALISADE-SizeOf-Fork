@@ -79,7 +79,6 @@ namespace lbcrypto {
 			 * @param assuranceMeasure assurance level.
 			 * @param securityLevel security level.
 			 * @param relinWindow the size of the relinearization window.
-			 * @param dgg discrete Gaussian generator instance
 			 * @param mode optimization setting (RLWE vs OPTIMIZED)
 			 * @param bigModulus modulus used in polynomial multiplications in EvalMult
 			 * @param bigRootOfUnity root of unity for bigModulus
@@ -91,7 +90,6 @@ namespace lbcrypto {
 				float assuranceMeasure, 
 				float securityLevel, 
 				usint relinWindow,
-				const DiscreteGaussianGenerator &dgg,
 				const BigBinaryInteger &delta,
 				MODE mode,
 				const BigBinaryInteger &bigModulus,
@@ -103,7 +101,6 @@ namespace lbcrypto {
 						assuranceMeasure,
 						securityLevel,
 						relinWindow,
-						dgg,
 						depth) {
 						m_delta = delta;
 						m_mode = mode;

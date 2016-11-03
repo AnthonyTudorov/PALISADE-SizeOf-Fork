@@ -113,14 +113,12 @@ TEST_F(UTSHEAdvanced, ParameterSelection) {
 	}
 
 	//intializing cryptoparameters alongside variables
-	DiscreteGaussianGenerator dgg(stdDev);
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 	cryptoParams.SetAssuranceMeasure(6);
 	cryptoParams.SetDepth(size - 1);
 	cryptoParams.SetSecurityLevel(1.006);
@@ -241,8 +239,6 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	}
 
-	DiscreteGaussianGenerator dgg(init_stdDev);
-
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
@@ -250,7 +246,6 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	cryptoParams.SetDistributionParameter(init_stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 	cryptoParams.SetAssuranceMeasure(6);
 	cryptoParams.SetDepth(init_size - 1);
 	cryptoParams.SetSecurityLevel(1.006);
@@ -428,8 +423,6 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 
 	}
 	DEBUG("2");
-	DiscreteGaussianGenerator dgg(init_stdDev);
-
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
@@ -437,7 +430,6 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	cryptoParams.SetDistributionParameter(init_stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 	cryptoParams.SetAssuranceMeasure(6);
 	cryptoParams.SetDepth(init_size - 1);
 	cryptoParams.SetSecurityLevel(1.006);
@@ -528,8 +520,6 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	}
 
-	DiscreteGaussianGenerator dgg(init_stdDev);
-
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
@@ -537,7 +527,6 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	cryptoParams.SetDistributionParameter(init_stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 	cryptoParams.SetAssuranceMeasure(6);
 	cryptoParams.SetDepth(init_size - 1);
 	cryptoParams.SetSecurityLevel(1.006);

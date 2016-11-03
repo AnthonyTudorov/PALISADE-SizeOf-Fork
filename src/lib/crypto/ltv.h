@@ -75,7 +75,6 @@ public:
 			float assuranceMeasure,
 			float securityLevel,
 			usint relinWindow,
-			const DiscreteGaussianGenerator &dgg,
 			int depth = 1)
 	: LPCryptoParametersRLWE<Element>(
 			params,
@@ -84,7 +83,6 @@ public:
 			assuranceMeasure,
 			securityLevel,
 			relinWindow,
-			dgg,
 			depth) {}
 
 	/**
@@ -146,7 +144,6 @@ public:
 		cryptoParams->SetDepth(this->m_depth);
 		cryptoParams->SetSecurityLevel(this->m_securityLevel);
 		cryptoParams->SetDistributionParameter(this->m_distributionParameter);
-		cryptoParams->SetDiscreteGaussianGenerator(this->m_dgg);
 		cryptoParams->SetPlaintextModulus(this->GetPlaintextModulus());
 
 		std::vector<BigBinaryInteger> rootsOfUnity;

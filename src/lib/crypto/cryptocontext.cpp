@@ -101,8 +101,6 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 
 	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
-	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-
 	LPCryptoParametersLTV<T>* params = new LPCryptoParametersLTV<T>(
 			ep,
 			BigBinaryInteger(plaintextmodulus),
@@ -110,12 +108,10 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 			0.0, // assuranceMeasure,
 			0.0, // securityLevel,
 			relinWindow,
-			item.ctx->dgg,
 			depth);
 
 	item.ctx->params.reset( params );
-
-	item.ctx->scheme = new LPPublicKeyEncryptionSchemeLTV<T>();
+	item.ctx->scheme.reset(new LPPublicKeyEncryptionSchemeLTV<T>());
 
 	return item;
 }
@@ -132,8 +128,6 @@ CryptoContextFactory<T>::genCryptoContextFV(
 
 	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
-	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-
 	LPCryptoParametersFV<T>* params =
 			new LPCryptoParametersFV<T>(ep,
 					BigBinaryInteger(plaintextmodulus),
@@ -141,7 +135,6 @@ CryptoContextFactory<T>::genCryptoContextFV(
 					assuranceMeasure,
 					securityLevel,
 					relinWindow,
-					item.ctx->dgg,
 					BigBinaryInteger(delta),
 					mode,
 					BigBinaryInteger(bigmodulus),
@@ -149,8 +142,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 					depth);
 
 	item.ctx->params.reset( params );
-
-	item.ctx->scheme = new LPPublicKeyEncryptionSchemeFV<T>();
+	item.ctx->scheme.reset( new LPPublicKeyEncryptionSchemeFV<T>() );
 
 	return item;
 }
@@ -164,7 +156,6 @@ CryptoContextFactory<T>::genCryptoContextBV(
 {
 	CryptoContext<T>	item( new CryptoContextImpl<T>() );
 
-	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
 	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
 	LPCryptoParametersBV<T>* params = new LPCryptoParametersBV<T>(
@@ -173,13 +164,11 @@ CryptoContextFactory<T>::genCryptoContextBV(
 		stDev,
 		0.0, // assuranceMeasure,
 		0.0, // securityLevel,
-		relinWindow,
-		item.ctx->dgg
+		relinWindow
 		);
 
 	item.ctx->params.reset( params );
-
-	item.ctx->scheme = new LPPublicKeyEncryptionSchemeBV<T>();
+	item.ctx->scheme.reset( new LPPublicKeyEncryptionSchemeBV<T>() );
 
 	return item;
 }
@@ -194,7 +183,7 @@ CryptoContextFactory<T>::getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArra
 	LPCryptoParametersLTV<ILVectorArray2n>* mycryptoParams = new LPCryptoParametersLTV<ILVectorArray2n>( *cryptoParams); // copy so memory works right
 
 	item.ctx->params.reset( mycryptoParams );
-	item.ctx->scheme = new LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n>();
+	item.ctx->scheme.reset( new LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n>() );
 
 	return item;
 }
@@ -210,9 +199,6 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 
 	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
-	item.ctx->dgg = DiscreteGaussianGenerator(stDev);				// Create the noise generator
-	item.ctx->dggStSt = DiscreteGaussianGenerator(stDevStSt);				// Create the noise generator
-
 	LPCryptoParametersStehleSteinfeld<T>* params = new LPCryptoParametersStehleSteinfeld<T>(
 			ep,
 			BigBinaryInteger(plaintextmodulus),
@@ -220,14 +206,11 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 			0.0, // assuranceMeasure,
 			0.0, // securityLevel,
 			relinWindow,
-			item.ctx->dgg,
-			item.ctx->dggStSt,
 			stDevStSt
 			);
 
 	item.ctx->params.reset( params );
-
-	item.ctx->scheme = new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>();
+	item.ctx->scheme.reset( new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>() );
 
 	return item;
 }
@@ -245,8 +228,7 @@ CryptoContextFactory<T>::getCryptoContextNull(
 	LPCryptoParametersNull<T>* params = new LPCryptoParametersNull<T>(ep, BigBinaryInteger(modulus));
 
 	item.ctx->params.reset( params );
-
-	item.ctx->scheme = new LPPublicKeyEncryptionSchemeNull<T>();
+	item.ctx->scheme.reset( new LPPublicKeyEncryptionSchemeNull<T>() );
 
 	return item;
 }

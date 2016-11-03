@@ -170,8 +170,6 @@ void BenchMarking() {
 				modulus = modulus* moduli[j];
 			}
 
-			DiscreteGaussianGenerator dgg(stdDev);
-
 			shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 			LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
@@ -179,7 +177,6 @@ void BenchMarking() {
 			cryptoParams.SetDistributionParameter(stdDev);
 			cryptoParams.SetRelinWindow(1);
 			cryptoParams.SetElementParams(params);
-			cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 			CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
 			cc.Enable(ENCRYPTION);
@@ -254,8 +251,6 @@ void NTRU_DCRT() {
 
 	cout << "big modulus: " << modulus << endl;
 
-	DiscreteGaussianGenerator dgg(stdDev);
-
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
@@ -263,7 +258,6 @@ void NTRU_DCRT() {
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
 	cc.Enable(ENCRYPTION);
@@ -447,7 +441,6 @@ void LevelCircuitEvaluation(){
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(ildcrtParams);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	// vector<ILVector2n> levelsSk(size);
 
@@ -657,14 +650,12 @@ void LevelCircuitEvaluation1(){
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(ildcrtParams);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams1;
 	cryptoParams1.SetPlaintextModulus(plainTextModulus);
 	cryptoParams1.SetDistributionParameter(stdDev);
 	cryptoParams1.SetRelinWindow(1);
 	cryptoParams1.SetElementParams(ildcrtParams1);
-	cryptoParams1.SetDiscreteGaussianGenerator(dgg);
 
 
 	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
@@ -769,14 +760,12 @@ void LevelCircuitEvaluation2WithCEM(){
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams1;
 	cryptoParams1.SetPlaintextModulus(plainTextModulus);
 	cryptoParams1.SetDistributionParameter(stdDev);
 	cryptoParams1.SetRelinWindow(1);
 	cryptoParams1.SetElementParams(params1);
-	cryptoParams1.SetDiscreteGaussianGenerator(dgg);
 
 	Ciphertext<ILVectorArray2n> cipherText1(&cryptoParams);
 	ILVectorArray2n element1(params);
@@ -938,7 +927,6 @@ void TestParameterSelection(){
 	}
 
 	cout << "big modulus: " << modulus << endl;
-	DiscreteGaussianGenerator dgg(stdDev);
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
@@ -947,7 +935,6 @@ void TestParameterSelection(){
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 	cryptoParams.SetAssuranceMeasure(6);
 	cryptoParams.SetDepth(size-1);
 	cryptoParams.SetSecurityLevel(1.006);
@@ -1000,7 +987,6 @@ void FinalLeveledComputation(){
 	}
 
 	cout << "big modulus: " << modulus << endl;
-	DiscreteGaussianGenerator dgg(init_stdDev);
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
 
@@ -1009,7 +995,6 @@ void FinalLeveledComputation(){
 	cryptoParams.SetDistributionParameter(init_stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 	cryptoParams.SetAssuranceMeasure(6);
 	cryptoParams.SetDepth(init_size-1);
 	cryptoParams.SetSecurityLevel(1.006);
@@ -1210,9 +1195,6 @@ void NTRUPRE(usint input) {
 //	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 //	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 //	cryptoParams.SetElementParams(ilParams);			// Set the initialization parameters.
-//
-//	DiscreteGaussianGenerator dgg(stdDev);				// Create the noise generator
-//	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 //
 //	const ILParams &cpILParams = static_cast<const ILParams&>(cryptoParams.GetElementParams());
 
@@ -1450,8 +1432,6 @@ void ComposedEvalMultTest(){
 
 	}
 
-	DiscreteGaussianGenerator dgg(init_stdDev);
-
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams(params,
@@ -1460,7 +1440,6 @@ void ComposedEvalMultTest(){
 			6,
 			1.006,
 			1,
-			dgg,
 			init_size - 1);
 
 	LPCryptoParametersLTV<ILVectorArray2n> finalParamsThreeTowers;

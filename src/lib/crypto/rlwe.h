@@ -57,7 +57,7 @@ public:
 		m_assuranceMeasure = 0.0f;
 		m_securityLevel = 0.0f;
 		m_relinWindow = 1;
-		m_dgg = DiscreteGaussianGenerator();
+		m_dgg.SetStd(m_distributionParameter);
 		m_depth = 0;
 	}
 
@@ -70,7 +70,7 @@ public:
 		m_assuranceMeasure = rhs.m_assuranceMeasure;
 		m_securityLevel = rhs.m_securityLevel;
 		m_relinWindow = rhs.m_relinWindow;
-		m_dgg = rhs.m_dgg;
+		m_dgg.SetStd(m_distributionParameter);
 		m_depth = rhs.m_depth;
 	}
 
@@ -92,14 +92,13 @@ public:
 			float assuranceMeasure,
 			float securityLevel,
 			usint relinWindow,
-			const DiscreteGaussianGenerator &dgg,
 			int depth = 1) : LPCryptoParameters<Element>(params, plaintextModulus)
 					{
 		m_distributionParameter = distributionParameter;
 		m_assuranceMeasure = assuranceMeasure;
 		m_securityLevel = securityLevel;
 		m_relinWindow = relinWindow;
-		m_dgg = dgg;
+		m_dgg.SetStd(m_distributionParameter);
 		m_depth = depth;
 					}
 
@@ -155,7 +154,11 @@ public:
 	/**
 	 * Sets the value of standard deviation r for discrete Gaussian distribution
 	 */
-	void SetDistributionParameter(float distributionParameter) {m_distributionParameter = distributionParameter;}
+	void SetDistributionParameter(float distributionParameter) {
+		m_distributionParameter = distributionParameter;
+		m_dgg.SetStd(m_distributionParameter);
+
+	}
 
 	/**
 	 * Sets the values of assurance measure alpha
@@ -203,7 +206,6 @@ public:
 		cryptoParams->SetDepth(m_depth);
 		cryptoParams->SetSecurityLevel(m_securityLevel);
 		cryptoParams->SetDistributionParameter(m_distributionParameter);
-		cryptoParams->SetDiscreteGaussianGenerator(m_dgg);
 		cryptoParams->SetPlaintextModulus(this->GetPlaintextModulus());
 
 		std::vector<BigBinaryInteger> rootsOfUnity;
