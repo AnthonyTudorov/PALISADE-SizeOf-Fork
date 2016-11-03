@@ -583,6 +583,10 @@ namespace lbcrypto {
 		BigBinaryInteger m_modulus;
 
 		usint m_cyclotomicOrder;
+
+		//This table stores constant interpolation values
+		std::map<usint, std::map<usint, BigBinaryInteger>> m_towersize_cri_factors;
+
 	};
 
 	/**

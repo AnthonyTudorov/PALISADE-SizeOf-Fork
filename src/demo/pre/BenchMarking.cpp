@@ -95,7 +95,7 @@ static std::map<usint, std::map<usint, BigBinaryInteger>> moduli; //first usint 
 static std::map<usint, std::map<usint, BigBinaryInteger>> rootsOfUnity; //first usint is cyc order, second map maps towersize to rootsOfUnity
 static std::map<usint, std::map<usint, usint>> bitSizes; //first usint is cyc order, second map maps towersize to bitsize
 static std::map<usint, std::map<usint, BigBinaryInteger>> cyclotomicOrderToIndexOfRingDimensiontoCRIMap;
-static usint maxCyclotomicOrder = 32768;
+static usint maxCyclotomicOrder = 16;
 static usint maxTowerSize = 20;
 static usint numberOfIterations = 10;
 static usint minCyclotomicOrder = 16;
@@ -287,6 +287,9 @@ void BenchMarking_DCRT_ByteArray(){
 				start = currentDateTime();
 
 				CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk, ciphertext, &plaintextNew);
+
+				cout << plaintextNew << endl;
+
 				finish = currentDateTime();
 				diff = finish - start;
 				decryptTimer.at(m).at(i) += diff;

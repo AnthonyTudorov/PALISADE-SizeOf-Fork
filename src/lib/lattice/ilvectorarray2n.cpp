@@ -728,25 +728,48 @@ namespace lbcrypto {
 
 		BigBinaryInteger interpolateValue("0"); // this will finally be  V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qj *[ (qt/qj)^(-1) mod qj ]}modqt 
 
+	//	bool criPreCalculated = true;
+	//	std::map<usint, BigBinaryInteger> towerNumber_cri_map;
+
+	//	if (this->m_towersize_cri_factors.find(m_vectors.size()) == this->m_towersize_cri_factors.end()) {
+	//		criPreCalculated == false;
+	////		m_towersize_cri_factors[m_vectors.size()] = towerNumber_cri_map;
+	//	}
+	//	else {
+	//		towerNumber_cri_map = this->m_towersize_cri_factors[m_vectors.size()];
+	//	}
+
 		/*This loop calculates every coefficient of the interpolated valued.*/
 		for (usint i = 0; i < ringDimension; i++) {
 		/*This for loops to calculate V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qi *[ (qt/qi)^(-1) mod qi ]}mod qt, the loop is basically the sigma.
 		Mod qt is done outside the loop*/
 			for (usint j = 0; j < m_vectors.size(); j++) {
+				/*if (criPreCalculated == false) {
+					*/
+					qj = m_vectors[j].GetModulus(); //qj
 
-				qj = m_vectors[j].GetModulus(); //qj
+					divideBigModulusByIndexModulus = bigModulus.DividedBy(qj); //qt/qj
 
-				divideBigModulusByIndexModulus = bigModulus.DividedBy(qj); //qt/qj
+					modularInverse = divideBigModulusByIndexModulus.Mod(qj).ModInverse(qj); // (qt/qj)^(-1) mod qj
 
-				modularInverse = divideBigModulusByIndexModulus.Mod(qj).ModInverse(qj); // (qt/qj)^(-1) mod qj
+			//		towerNumber_cri_map[j] = divideBigModulusByIndexModulus.Times(modularInverse); // qt/qj * [(qt/qj)(-1) mod qj]
+				
+			/*	} 
 
-				chineseRemainderMultiplier = divideBigModulusByIndexModulus.Times(modularInverse); // qt/qj * [(qt/qj)(-1) mod qj]
+				chineseRemainderMultiplier = towerNumber_cri_map[j];*/
+
+				chineseRemainderMultiplier = divideBigModulusByIndexModulus.Times(modularInverse);
 
 				multiplyValue = (m_vectors[j].GetValAtIndex(i)).Times(chineseRemainderMultiplier); // M (r, i) * qt/qj * [(qt/qj)(-1) mod qj]
 
 				interpolateValue += multiplyValue;
 
 			}
+
+		/*	if (criPreCalculated == false) {
+				criPreCalculated = true;
+				this->m_towersize_cri_factors[m_vectors.size()] = towerNumber_cri_map;
+			}*/
 
 			interpolateValue = interpolateValue.Mod(m_modulus);
 			coefficients.SetValAtIndex(i, interpolateValue); // This Calculates V[j]
