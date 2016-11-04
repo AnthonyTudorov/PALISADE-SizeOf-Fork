@@ -469,7 +469,7 @@ namespace exp_int{
      *
      * @return the index of the most significant bit.
      */
-    usint GetMSB()const;
+    inline usint GetMSB()const;
 
     //usshort GetMSB()const; //TODO: deprecate shouldn't be using shorts!
 
@@ -986,7 +986,7 @@ namespace exp_int{
      * @param a is the ubint to be compared with.
      * @return  -1 for strictly less than, 0 for equal to and 1 for strictly greater than conditons.
      */
-    sint Compare(const ubint& a) const;
+    inline sint Compare(const ubint& a) const;
 
     /**
      *  Set this int to 1.
@@ -1129,14 +1129,18 @@ namespace exp_int{
      * @param x is the 32 bit integer.
      * @return the MSB position in the 32 bit number x. Note MSB(1) is 1 NOT zero!!!!!
      */
-    static uint64_t GetMSB32(uint64_t x);
+#if 0
+    inline static uint64_t GetMSB32(uint64_t x);
+#else
+    inline static uint32_t GetMSB32(uint32_t x);
+#endif
     /**
      * function to return the MSB of number.
      * @param x is the number.
      * @return the MSB position in the number x.Note MSB(1) is 1 NOT zero!!!!!
      */
 		
-    static usint GetMSBlimb_t(limb_t x);
+    inline static usint GetMSBlimb_t(limb_t x);
 		
 		
     /**
@@ -1144,8 +1148,8 @@ namespace exp_int{
      * @param x is the number.
      * @return the MSB position in the number x. Note MSB(1) is 1 NOT zero!!!!!
      */
-    static uint64_t GetMSB64(uint64_t x);
-
+    inline static uint64_t GetMSB64(uint64_t x);
+    
     //Dlimb_t is the data type that has twice as many bits in the limb data type.
     typedef typename DoubleDataType<limb_t>::T Dlimb_t;
 

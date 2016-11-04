@@ -1752,7 +1752,10 @@ return result;
       throw std::logic_error("Mod() using unnormalized  modulus");
 
     //return the same value if value is less than modulus
-    if(*this<modulus){
+    if (this->m_MSB < modulus.m_MSB){
+      return std::move(ubint(*this));
+    } 
+    if ((this->m_MSB == modulus.m_MSB)&&(*this<modulus)){
       DEBUG("this< modulus");
       return std::move(ubint(*this));
     }
@@ -2181,7 +2184,7 @@ return result;
 
   //Compares the current object with the ubint a.
   template<typename limb_t>
-  sint ubint<limb_t>::Compare(const ubint& a) const
+  inline sint ubint<limb_t>::Compare(const ubint& a) const
   {
     bool dbg_flag = false;		// if true then print dbg output
     if(this->m_state==GARBAGE || a.m_state==GARBAGE)
@@ -2302,7 +2305,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
 
   template<typename limb_t>
   bool ubint<limb_t>::operator!=(const ubint& a)const{
-    return !(*this==a);
+    return(this->Compare(a)!=0);
   }
 
   //greater than operator
@@ -2317,7 +2320,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   //greater than or equals operator
   template<typename limb_t>
   bool ubint<limb_t>::operator>=(const ubint& a) const{
-    return (*this>a || *this==a);
+    return(this->Compare(a)>=0);
   }
 
   //less than operator
@@ -2332,7 +2335,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   //less than or equal operation
   template<typename limb_t>
   bool ubint<limb_t>::operator<=(const ubint& a) const{
-    return (*this<a || *this==a);
+    return(this->Compare(a)<=0);
   }
   
   //the following code is new serialize/deserialize code from
@@ -2433,9 +2436,9 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     }
     return true;
   }
-
+#if 0
   template<typename limb_t>
-  uint64_t ubint<limb_t>::GetMSB32(uint64_t x)
+  inline uint64_t ubint<limb_t>::GetMSB32(uint64_t x)
   {
     static const usint bval[] =
       {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
@@ -2449,13 +2452,13 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   }
 
   template<typename limb_t>
-  usint ubint<limb_t>::GetMSBlimb_t(limb_t x){
+  inline  usint ubint<limb_t>::GetMSBlimb_t(limb_t x){
     return ubint<limb_t>::GetMSB32(x);
   }
   
   
   template<typename limb_t>
-  uint64_t ubint<limb_t>::GetMSB64(uint64_t x) {
+  inline uint64_t ubint<limb_t>::GetMSB64(uint64_t x) {
     uint64_t bitpos = 0;
     while (x != 0) {
       bitpos++; //increment the bit position
@@ -2463,7 +2466,47 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     }
     return bitpos;
   }
+#else
+  template<typename limb_t>
+  inline uint32_t ubint<limb_t>::GetMSB32(uint32_t x)
+   {
+     static const usint bval[] =
+       {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
 
+     uint32_t r = 0;
+
+     if (x & 0xFFFF0000) { r += 32/2; x >>= 32/2; }
+     if (x & 0x0000FF00) { r += 32/4; x >>= 32/4; }
+     if (x & 0x000000F0) { r += 32/8; x >>= 32/8; }
+     return r + bval[x];
+   }
+
+   template<typename limb_t>
+   inline  usint ubint<limb_t>::GetMSBlimb_t(limb_t x){
+
+#ifdef UBINT_32
+     return ubint<limb_t>::GetMSB32(x);
+#endif
+#ifdef UBINT_64
+     return ubint<limb_t>::GetMSB64(x);
+#endif
+   }
+
+
+   template<typename limb_t>
+   inline uint64_t ubint<limb_t>::GetMSB64(uint64_t x) {
+    static const usint bval[] =
+      {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
+
+    uint64_t r = 0;
+    if (x & 0xFFFFFFFF00000000) { r += 32/1; x >>= 32/1; }
+    if (x & 0x00000000FFFF0000) { r += 32/2; x >>= 32/2; }
+    if (x & 0x000000000000FF00) { r += 32/4; x >>= 32/4; }
+    if (x & 0x00000000000000F0) { r += 32/8; x >>= 32/8; }
+    return r + bval[x];
+  }
+
+#endif
   template<typename limb_t>
   usint ubint<limb_t>::GetDigitAtIndexForBase(usint index, usint base) const{
 
