@@ -1460,18 +1460,11 @@ return result;
     int n = v.size();
 
     q.resize(m-n+1);
-    //r.resize(n);
 
-    //  const Dlilmb_t ffs = (Dlimb_t)UINT64_MAX; // Number  (2**64)-1.
+
     const Dlimb_t ffs = (Dlimb_t)m_MaxLimb; // Number  (2**64)-1.
-    //  const Dlimb_t b = (Dlimb_t)UINT64_MAX+1; // Number base (2**64).
     const Dlimb_t b = (Dlimb_t)m_MaxLimb+1; // Number base (2**64).
-    // std::cout << "ffs bot"<<  (uint64_t)  0xFFFFFFFFFFFFFFFFULL<<std::endl;
-    // std::cout << "ffs top"<<  (0xFFFFFFFFFFFFFFFFULL>>64) <<std::endl;
-    //  std::cout<< "b bot : "<< (uint64_t)b<<std::endl;
-    //  std::cout<< "b top : "<< (uint64_t)(b >> 64) <<std::endl;
-    // const uint64_t b = ((uint64_t) m_MaxLimb) +1LL; // Number base (2**32).
-    //   limb_t *un, *vn;                  // Normalized form of u, v.
+
     Dlimb_t qhat;                   // Estimated quotient digit.
     Dlimb_t rhat;                   // A remainder.64
     Dlimb_t p;                      // Product of two digits.
@@ -1548,14 +1541,13 @@ return result;
 	un[j+n] = un[j+n] + k;
       }
     } // End j.
-    // If the caller wants the remainder, unnormalize
+    // the caller wants the remainder, unnormalize
     // it and pass it back.
-    if (r.size() != 0) {
-      r.resize(n);
-      for (i = 0; i < n-1; i++)
-	r[i] = (un[i] >> s) | ((Dlimb_t)un[i+1] << (m_limbBitLength-s));
-      r[n-1] = un[n-1] >> s;
-    }
+    r.resize(n);
+    for (i = 0; i < n-1; i++)
+      r[i] = (un[i] >> s) | ((Dlimb_t)un[i+1] << (m_limbBitLength-s));
+    r[n-1] = un[n-1] >> s;
+    
     return 0;
   }
 
