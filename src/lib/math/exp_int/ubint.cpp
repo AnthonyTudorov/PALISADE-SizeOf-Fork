@@ -402,7 +402,7 @@ namespace exp_int {
     if (m_value.size()==0)
       throw std::logic_error("ConvertToUsint() on uninitialized bint");		       
     if (sizeof(limb_t)>=sizeof(usint)){
-      result = m_value.at(0);
+      result = m_value[0];
     } else {
       //Case where limb_t is less bits than output size
       //add number of limbs needed to make output
@@ -412,7 +412,7 @@ namespace exp_int {
       usint ceilInt = ceilIntByUInt(msbTest);
       //copy the values by shift and add
       for (usint i = 0; i < ceilInt; i++){
-	usint tmp = this->m_value.at(i);
+	usint tmp = this->m_value[i];
 	tmp <<= (m_limbBitLength*i);
 	result += tmp;
       }
@@ -434,7 +434,7 @@ namespace exp_int {
       throw std::logic_error("ConvertToUint32() on uninitialized bint");	
 
     if (sizeof(limb_t)>=sizeof(uint32_t)){
-      result = (uint32_t)m_value.at(0);
+      result = (uint32_t)m_value[0];
     } else {
       //Case where limb_t is less bits than uint32_t
       int msbTest = sizeof(uint32_t)*8;
@@ -443,7 +443,7 @@ namespace exp_int {
       usint ceilInt = ceilIntByUInt(msbTest);
       //copy the values by shift and add
       for (usint i = 0; i < ceilInt; i++){
-	uint32_t tmp = this->m_value.at(i);
+	uint32_t tmp = this->m_value[i];
 	tmp  <<= (m_limbBitLength*i);
 	result += tmp;
       }
@@ -459,10 +459,10 @@ namespace exp_int {
     if (m_value.size()==0)
       throw std::logic_error("ConvertToUint64() on uninitialized bint");		       
     if (sizeof(limb_t)>=sizeof(uint64_t)){
-      DEBUG("mvalue0 " << m_value.at(0));
-      result = m_value.at(0);
+      DEBUG("mvalue0 " << m_value[0]);
+      result = m_value[0];
       DEBUG("result1 " << result);
-      result = (uint64_t)m_value.at(0);
+      result = (uint64_t)m_value[0];
       DEBUG("result2 " << result);
     } else {
       //Case where limb_t is less bits than uint64_t
@@ -474,10 +474,10 @@ namespace exp_int {
       DEBUG("ceilint " << ceilInt);
       //copy the values by shift and add
       for (usint i = 0; i < ceilInt; i++){
-	DEBUG("i "<< i << "v " << this->m_value.at(i));
+	DEBUG("i "<< i << "v " << this->m_value[i]);
 	DEBUG("shift "<< (m_limbBitLength*i));
 	DEBUG("preresult " << result);
-	uint64_t tmp  = this->m_value.at(i);
+	uint64_t tmp  = this->m_value[i];
 	tmp <<= (m_limbBitLength*i); 
 	result += tmp;
 	DEBUG("postresult " << result);
@@ -610,15 +610,15 @@ return result;
 
       for(i=0; i<ceilIntByUInt(m_MSB); ++i){
 	DEBUG("bit shift ");
-	temp = ans.m_value.at(i);
+	temp = ans.m_value[i];
 	temp <<=remainingShift;
-	ans.m_value.at(i) = (limb_t)temp + oFlow;
+	ans.m_value[i] = (limb_t)temp + oFlow;
 	oFlow = temp >> m_limbBitLength;
       }
 
       if(oFlow) {//there is an overflow set of bits.
 	if (i<ans.m_value.size()){
-	  ans.m_value.at(i) = oFlow;
+	  ans.m_value[i] = oFlow;
 	} else {
 	  ans.m_value.push_back(oFlow);
 	}
@@ -634,12 +634,12 @@ return result;
       DEBUG("resize is  "<<ans.m_value.size());
       for (sint i = currentSize-1; i>=0; i-- ) {  //shift limbs required # of indicies
 	DEBUG("to : "<<i+shiftByLimb<< "from "<<i );
-	ans.m_value.at(i+shiftByLimb) = ans.m_value.at(i);
+	ans.m_value[i+shiftByLimb] = ans.m_value[i];
       }
       //zero out the 'shifted in' limbs
       for (sint i = shiftByLimb -1 ; i>=0; i-- ) {
 	DEBUG("clear : "<<i);
-	ans.m_value.at(i) = 0;
+	ans.m_value[i] = 0;
       }
       DEBUG("new size is  "<<ans.m_value.size());
       
@@ -695,15 +695,15 @@ return result;
 	  DEBUG("bit shift ");
 	  
 	  //can optimize here further.
-	  temp = m_value.at(i);
+	  temp = m_value[i];
 	  temp <<=remainingShift;
-	  m_value.at(i) = (limb_t)temp + oFlow;
+	  m_value[i] = (limb_t)temp + oFlow;
 	  oFlow = temp >> m_limbBitLength;
 	}
 	
 	if(oFlow) {//there is an overflow set of bits.
 	  if (i<m_value.size()){
-	    m_value.at(i) = oFlow;
+	    m_value[i] = oFlow;
 	  } else {
 	    m_value.push_back(oFlow);
 	  }
@@ -719,12 +719,12 @@ return result;
 	DEBUG("resize is  "<<m_value.size());
 	for (sint i = currentSize-1; i>=0; i-- ) {  //shift limbs required # of indicies
 	  DEBUG("to : "<<i+shiftByLimb<< "from "<<i );
-	  m_value.at(i+shiftByLimb) = m_value.at(i);
+	  m_value[i+shiftByLimb] = m_value[i];
 	}
 	//zero out the 'shifted in' limbs
 	for (sint i = shiftByLimb -1 ; i>=0; i-- ) {
 	  DEBUG("clear : "<<i);
-	  m_value.at(i) = 0;
+	  m_value[i] = 0;
 	}
 	DEBUG("new size is  "<<m_value.size());
       }
@@ -778,7 +778,7 @@ return result;
 
       for(auto i =  shiftByLimb; i < ans.m_value.size(); ++i){
 	DEBUG("limb shift ");
-	ans.m_value.at(i-shiftByLimb) = ans.m_value.at(i);
+	ans.m_value[i-shiftByLimb] = ans.m_value[i];
       }
       //zero out upper  "shifted in" limbs
       for(usint i = 0; i< shiftByLimb; ++i){
@@ -809,8 +809,8 @@ return result;
 
       for(sint i = startVal -1 ; i>=0;i--){
 	DEBUG("bit shift "<<i);
-	oldVal = ans.m_value.at(i);
-	ans.m_value.at(i) = (ans.m_value.at(i)>>remainingShift) + overFlow;
+	oldVal = ans.m_value[i];
+	ans.m_value[i] = (ans.m_value[i]>>remainingShift) + overFlow;
 
 	overFlow = (oldVal &  maskVal);
 	overFlow <<= compShiftVal ;
@@ -861,7 +861,7 @@ return result;
     } else {
       DEBUG("PrintLimbsInDec size "<< m_value.size());
       for (auto i = 0; i < m_value.size(); i++){
-        std::cout<< i << ":"<< m_value.at(i);
+        std::cout<< i << ":"<< m_value[i];
         std::cout <<std::endl;
       }
       std::cout<<"MSB: "<<m_MSB << std::endl;
@@ -876,7 +876,7 @@ return result;
     } else {
       DEBUG("PrintLimbsInHex size "<< m_value.size());
       for (auto i = 0; i < m_value.size(); i++){
-	std::cout<< i << ": 0x"<< std::hex << m_value.at(i) << std::dec <<std::endl;
+	std::cout<< i << ": 0x"<< std::hex << m_value[i] << std::dec <<std::endl;
       }
       std::cout<<"MSB: "<<m_MSB << std::endl;
     }
@@ -964,10 +964,10 @@ return result;
 
       //      DEBUG("ofl "<<ofl);  //todo fix <<ostream for Dlimb_t (when it is 128 bits
 
-      DEBUG("Alimb "<<A->m_value.at(i));
-      DEBUG("Blimb "<<B->m_value.at(i));
+      DEBUG("Alimb "<<A->m_value[i]);
+      DEBUG("Blimb "<<B->m_value[i]);
 
-      ofl =(Dlimb_t)A->m_value.at(i)+ (Dlimb_t)B->m_value.at(i)+ofl;//sum of the two int and the carry over
+      ofl =(Dlimb_t)A->m_value[i]+ (Dlimb_t)B->m_value[i]+ofl;//sum of the two int and the carry over
 
       // DEBUG("newofl "<<ofl);
 
@@ -982,7 +982,7 @@ return result;
     if(ofl){
       for(; i<ceilIntA; ++i){ //keep looping over the remainder of the larger value
 	DEBUG("oi "<<i);
-	ofl = (Dlimb_t)A->m_value.at(i)+ofl;//sum of the two int and the carry over
+	ofl = (Dlimb_t)A->m_value[i]+ofl;//sum of the two int and the carry over
 
 	result.m_value.push_back((limb_t)ofl);
 	ofl>>=m_limbBitLength;//current overflow
@@ -995,7 +995,7 @@ return result;
     } else { //there is no overflow at the end
       for(; i<ceilIntA; ++i){
 	DEBUG("push "<<i);
-	result.m_value.push_back(A->m_value.at(i));
+	result.m_value.push_back(A->m_value[i]);
       }
     }
     result.SetMSB();//Set the MSB.
@@ -1058,10 +1058,10 @@ return result;
 
     for(sint i=0; i<b.m_value.size(); ++i){
       DEBUG ("limb  "<<i);
-      DEBUG ("a limb "<<this->m_value.at(i));
-      DEBUG ("res limb "<<result.m_value.at(i));
-      DEBUG ("b limb "<<b.m_value.at(i));
-      if(result.m_value.at(i)<b.m_value.at(i)){ //carryover condition need to borrow from higher limbs.
+      DEBUG ("a limb "<<this->m_value[i]);
+      DEBUG ("res limb "<<result.m_value[i]);
+      DEBUG ("b limb "<<b.m_value[i]);
+      if(result.m_value[i]<b.m_value[i]){ //carryover condition need to borrow from higher limbs.
         DEBUG ("borrow at "<<i);
         current=i;
         cntr = current+1;
@@ -1069,20 +1069,20 @@ return result;
         if (cntr>=result.m_value.size()){
           std::cout<<"error seek past end of result "<<std::endl;
         }
-        while(result.m_value.at(cntr)==0){
+        while(result.m_value[cntr]==0){
           DEBUG("FF at cntr" <<cntr);
-          result.m_value.at(cntr)=m_MaxLimb; //set all the zero limbs to all FFs (propagate the 1)
+          result.m_value[cntr]=m_MaxLimb; //set all the zero limbs to all FFs (propagate the 1)
           cntr++;
         }
         DEBUG("decrement at " << cntr);
-        result.m_value.at(cntr)--; // and eventually borrow 1 from the first nonzero limb we find
+        result.m_value[cntr]--; // and eventually borrow 1 from the first nonzero limb we find
         DEBUG("sub with borrow at " <<i);
-        result.m_value.at(i)=result.m_value.at(i)+(m_MaxLimb - b.m_value.at(i)) +1; // and add the it to the current limb
+        result.m_value[i]=result.m_value[i]+(m_MaxLimb - b.m_value[i]) +1; // and add the it to the current limb
       } else {       //usual subtraction condition
         DEBUG("sub no borrow at " <<i);
-        result.m_value.at(i)=result.m_value.at(i)- b.m_value.at(i);
+        result.m_value[i]=result.m_value[i]- b.m_value[i];
       }
-      DEBUG ("res limb "<<i<<" finally "<<result.m_value.at(i));
+      DEBUG ("res limb "<<i<<" finally "<<result.m_value[i]);
 
     }
     result.NormalizeLimbs();
@@ -1138,7 +1138,7 @@ return result;
       ubint tmp2;
       //////
       tmpans.m_value.clear(); //make sure there are no limbs to start.
-      Dlimb_t limbb(b.m_value.at(i));
+      Dlimb_t limbb(b.m_value[i]);
 
       //position in the array to start multiplication
       //
@@ -1180,10 +1180,10 @@ return result;
       /////
 
       ans += tmpans<<=(i)*m_limbBitLength;
-      //ans += (this->MulIntegerByLimb(b.m_value.at(i)))<<=(i)*m_limbBitLength;
+      //ans += (this->MulIntegerByLimb(b.m_value[i]))<<=(i)*m_limbBitLength;
       // usint tmp1 = (i)*m_limbBitLength;
       // DEBUG("tmp1 "<<tmp1);
-      // tmp2 = (this->MulIntegerByLimb(b.m_value.at(i))) <<= tmp1;
+      // tmp2 = (this->MulIntegerByLimb(b.m_value[i])) <<= tmp1;
       // DEBUG("tmp2 "<<tmp2.ToString());
       // ans += tmp2;
       
@@ -1245,14 +1245,14 @@ return result;
 
       //      DEBUG("ofl "<<ofl);  //todo fix <<ostream for Dlimb_t (when it is 128 bits
 
-      DEBUG("thislimb "<<this->m_value.at(i));
-      DEBUG("blimb "<<b.m_value.at(i));
+      DEBUG("thislimb "<<this->m_value[i]);
+      DEBUG("blimb "<<b.m_value[i]);
 
-      ofl =(Dlimb_t)this->m_value.at(i)+ (Dlimb_t)b.m_value.at(i)+ofl;//sum of the two int and the carry over
+      ofl =(Dlimb_t)this->m_value[i]+ (Dlimb_t)b.m_value[i]+ofl;//sum of the two int and the carry over
 
       // DEBUG("newofl "<<ofl);
 
-      this->m_value.at(i)=(limb_t)ofl;
+      this->m_value[i]=(limb_t)ofl;
       ofl>>=m_limbBitLength;//current overflow
 
       //DEBUG("shiftofl "<<ofl);
@@ -1263,8 +1263,8 @@ return result;
       if(ofl){
 	for(; i<sizeThis; ++i){ //keep looping over the remainder of the larger value
 	  DEBUG("oi "<<i);
-	  ofl = (Dlimb_t)this->m_value.at(i)+ofl;//sum of the two int and the carry over
-	  this->m_value.at(i) = (limb_t)ofl;
+	  ofl = (Dlimb_t)this->m_value[i]+ofl;//sum of the two int and the carry over
+	  this->m_value[i] = (limb_t)ofl;
 	  ofl>>=m_limbBitLength;//current overflow
 	}
 	if(ofl){//in the end if overflow is set it indicates MSB is one greater than the one we started with
@@ -1278,7 +1278,7 @@ return result;
       if(ofl){
 	for(; i<sizeB; ++i){ //keep looping over the remainder of the larger value
 	  DEBUG("oi "<<i);
-	  ofl = (Dlimb_t)b.m_value.at(i)+ofl;//sum of the two int and the carry over
+	  ofl = (Dlimb_t)b.m_value[i]+ofl;//sum of the two int and the carry over
 
 	  this->m_value.push_back((limb_t)ofl);
 	  ofl>>=m_limbBitLength;//current overflow
@@ -1291,7 +1291,7 @@ return result;
       } else { //there is no overflow at the end, just copy the rest
 	for(; i<sizeB; ++i){
 	  DEBUG("push "<<i);
-	  this->m_value.push_back(b.m_value.at(i));
+	  this->m_value.push_back(b.m_value[i]);
 	}
       }
     }
@@ -1360,7 +1360,7 @@ return result;
       ans.PrintLimbsInDec();
     for(;i<endVal ;++i){
       DEBUG("mullimb i"<<i);
-      temp = ((Dlimb_t)m_value.at(i)*(Dlimb_t)b) + ofl;
+      temp = ((Dlimb_t)m_value[i]*(Dlimb_t)b) + ofl;
       //DEBUG("temp "<<temp); //todo fix when ostream<< works for 128 bit
 
       ans.m_value.push_back((limb_t)temp);
@@ -1447,8 +1447,9 @@ return result;
 
   //#define max(x, y) ((x) > (y) ? (x) : (y))
 
+  //returns quotient and remainder
   template<typename limb_t>
-  int ubint<limb_t>::divmnu_vect(ubint& qin, ubint& rin, const ubint& uin, const ubint& vin) const{
+  int ubint<limb_t>::divqr_vect(ubint& qin, ubint& rin, const ubint& uin, const ubint& vin) const{
 
     vector<limb_t>&q = (qin.m_value);
     vector<limb_t>&r = (rin.m_value);
@@ -1478,7 +1479,7 @@ return result;
     int s, i, j;
 
     if (m < n || n <= 0 || v[n-1] == 0){
-      std::cout<< "Error in divmnu_vect m, n, v[n-1] " << m <<", "<< n << ", " << v[n-1] << std::endl;
+      std::cout<< "Error in divqr_vect m, n, v[n-1] " << m <<", "<< n << ", " << v[n-1] << std::endl;
       return 1;                         // Return if invalid param.
     }
     if (n == 1) {                        // Take care of
@@ -1558,6 +1559,208 @@ return result;
     return 0;
   }
 
+  //quotient only 
+  template<typename limb_t>
+  int ubint<limb_t>::divq_vect(ubint& qin, const ubint& uin, const ubint& vin) const{
+
+    vector<limb_t>&q = (qin.m_value);
+    const vector<limb_t>&u = (uin.m_value);
+    const vector<limb_t>&v = (vin.m_value);
+
+    int m = u.size();
+    int n = v.size();
+
+    q.resize(m-n+1);
+
+
+    const Dlimb_t ffs = (Dlimb_t)m_MaxLimb; // Number  (2**64)-1.
+    const Dlimb_t b = (Dlimb_t)m_MaxLimb+1; // Number base (2**64).
+
+    Dlimb_t qhat;                   // Estimated quotient digit.
+    Dlimb_t rhat;                   // A remainder.64
+    Dlimb_t p;                      // Product of two digits.
+    Sdlimb_t t, k; 
+    int s, i, j;
+
+    if (m < n || n <= 0 || v[n-1] == 0){
+      std::cout<< "Error in divq_vect m, n, v[n-1] " << m <<", "<< n << ", " << v[n-1] << std::endl;
+      return 1;                         // Return if invalid param.
+    }
+    if (n == 1) {                        // Take care of
+      k = 0;                            // the case of a
+      for (j = m - 1; j >= 0; j--) {    // single-digit
+	q[j] = (k*b + u[j])/v[0];      // divisor here.
+	k = (k*b + u[j]) - q[j]*v[0];
+      }
+
+      return 0;
+    }
+
+    /* Normalize by shifting v left just enough so that its high-order
+       bit is on, and shift u left the same amount. We may have to append a
+       high-order digit on the dividend; we do that unconditionally. */
+   
+    s = nlz(v[n-1]);             // 0 <= s <= m_limbBitLenghth-1.
+    // std::cout<< "nlz of " << v[n-1]  << " = "<<  s;
+    // vn = (limb_t *)alloca(4*n);
+    vector<limb_t> vn(n);
+    for (i = n - 1; i > 0; i--)
+      vn[i] = (v[i] << s) | ((Dlimb_t)v[i-1] >> (m_limbBitLength-s));
+    vn[0] = v[0] << s;
+
+    //un = (limb_t *)alloca(4*(m + 1));
+    vector<limb_t> un(m+1);
+
+    un[m] = (Dlimb_t)u[m-1] >> (m_limbBitLength-s);
+    for (i = m - 1; i > 0; i--)
+      un[i] = (u[i] << s) | ((Dlimb_t)u[i-1] >> (m_limbBitLength-s));
+    un[0] = u[0] << s;
+
+    for (j = m - n; j >= 0; j--) {       // Main loop.
+      // Compute estimate qhat of q[j].
+      qhat = (un[j+n]*b + un[j+n-1])/vn[n-1];
+      rhat = (un[j+n]*b + un[j+n-1]) - qhat*vn[n-1];
+    again:
+      if (qhat >= b || qhat*vn[n-2] > b*rhat + un[j+n-2])
+	{ qhat = qhat - 1;
+	  rhat = rhat + vn[n-1];
+	  if (rhat < b) goto again;
+	}
+
+      // Multiply and subtract.
+      k = 0;
+      for (i = 0; i < n; i++) {
+	p = qhat*vn[i];
+	//t = un[i+j] - k - (p & 0xFFFFFFFFLL);
+	//t = un[i+j] - k - (p & 0xFFFFFFFFFFFFFFFFLL);
+	t = un[i+j] - k - (p & ffs);
+	un[i+j] = t;
+	k = (p >> m_limbBitLength) - (t >> m_limbBitLength);
+      }
+      t = un[j+n] - k;
+      un[j+n] = t;
+
+      q[j] = qhat;              // Store quotient digit.
+      if (t < 0) {              // If we subtracted too
+	q[j] = q[j] - 1;       // much, add back.
+	k = 0;
+	for (i = 0; i < n; i++) {
+	  t = (Dlimb_t)un[i+j] + vn[i] + k;
+	  un[i+j] = t;
+	  k = t >> m_limbBitLength;
+	}
+	un[j+n] = un[j+n] + k;
+      }
+    } // End j.
+    return 0;
+  }
+  ///////
+  //remainder only 
+  template<typename limb_t>
+  int ubint<limb_t>::divr_vect(ubint& rin, const ubint& uin, const ubint& vin) const{
+
+    vector<limb_t>&r = (rin.m_value);
+    const vector<limb_t>&u = (uin.m_value);
+    const vector<limb_t>&v = (vin.m_value);
+
+    int m = u.size();
+    int n = v.size();
+
+
+    const Dlimb_t ffs = (Dlimb_t)m_MaxLimb; // Number  (2**64)-1.
+    const Dlimb_t b = (Dlimb_t)m_MaxLimb+1; // Number base (2**64).
+
+    Dlimb_t qhat;                   // Estimated quotient digit.
+    Dlimb_t rhat;                   // A remainder.64
+    Dlimb_t p;                      // Product of two digits.
+    Sdlimb_t t, k; 
+    int s, i, j;
+
+    if (m < n || n <= 0 || v[n-1] == 0){
+      std::cout<< "Error in divr_vect m, n, v[n-1] " << m <<", "<< n << ", " << v[n-1] << std::endl;
+      return 1;                         // Return if invalid param.
+    }
+    if (n == 1) {                        // Take care of
+      vector<limb_t>q(m-n+1); 
+      //q.resize(m-n+1);
+
+      k = 0;                            // the case of a
+      for (j = m - 1; j >= 0; j--) {    // single-digit
+	q[j] = (k*b + u[j])/v[0];      // divisor here.
+	k = (k*b + u[j]) - q[j]*v[0];
+      }
+      r.resize(n);
+      r[0]=k;
+      return 0;
+    }
+
+    /* Normalize by shifting v left just enough so that its high-order
+       bit is on, and shift u left the same amount. We may have to append a
+       high-order digit on the dividend; we do that unconditionally. */
+   
+    s = nlz(v[n-1]);             // 0 <= s <= m_limbBitLenghth-1.
+    // std::cout<< "nlz of " << v[n-1]  << " = "<<  s;
+    // vn = (limb_t *)alloca(4*n);
+    vector<limb_t> vn(n);
+    for (i = n - 1; i > 0; i--)
+      vn[i] = (v[i] << s) | ((Dlimb_t)v[i-1] >> (m_limbBitLength-s));
+    vn[0] = v[0] << s;
+
+    //un = (limb_t *)alloca(4*(m + 1));
+    vector<limb_t> un(m+1);
+
+    un[m] = (Dlimb_t)u[m-1] >> (m_limbBitLength-s);
+    for (i = m - 1; i > 0; i--)
+      un[i] = (u[i] << s) | ((Dlimb_t)u[i-1] >> (m_limbBitLength-s));
+    un[0] = u[0] << s;
+
+    for (j = m - n; j >= 0; j--) {       // Main loop.
+      // Compute estimate qhat of q[j].
+      qhat = (un[j+n]*b + un[j+n-1])/vn[n-1];
+      rhat = (un[j+n]*b + un[j+n-1]) - qhat*vn[n-1];
+    again:
+      if (qhat >= b || qhat*vn[n-2] > b*rhat + un[j+n-2])
+	{ qhat = qhat - 1;
+	  rhat = rhat + vn[n-1];
+	  if (rhat < b) goto again;
+	}
+
+      // Multiply and subtract.
+      k = 0;
+      for (i = 0; i < n; i++) {
+	p = qhat*vn[i];
+	//t = un[i+j] - k - (p & 0xFFFFFFFFLL);
+	//t = un[i+j] - k - (p & 0xFFFFFFFFFFFFFFFFLL);
+	t = un[i+j] - k - (p & ffs);
+	un[i+j] = t;
+	k = (p >> m_limbBitLength) - (t >> m_limbBitLength);
+      }
+      t = un[j+n] - k;
+      un[j+n] = t;
+
+      //q[j] = qhat;              // Store quotient digit.
+      if (t < 0) {              // If we subtracted too
+	//q[j] = q[j] - 1;       // much, add back.
+	k = 0;
+	for (i = 0; i < n; i++) {
+	  t = (Dlimb_t)un[i+j] + vn[i] + k;
+	  un[i+j] = t;
+	  k = t >> m_limbBitLength;
+	}
+	un[j+n] = un[j+n] + k;
+      }
+    } // End j.
+
+    // the caller wants the remainder, unnormalize
+    // it and pass it back.
+    r.resize(n);
+    for (i = 0; i < n-1; i++)
+      r[i] = (un[i] >> s) | ((Dlimb_t)un[i+1] << (m_limbBitLength-s));
+    r[n-1] = un[n-1] >> s;
+    
+    return 0;
+  }
+  
   /* Division operation:
    *  Algorithm used is usual school book long division , except for that radix is 2^m_bitLength.
    *  Optimization done: Uses bit shift operation for logarithmic convergence.
@@ -1584,14 +1787,12 @@ return result;
     ubint rv;
 
     int f;
-    f = divmnu_vect((ans), (rv),  (*this),  (b));
+    f = divq_vect((ans), (*this),  (b));
     if (f!= 0)
       throw std::logic_error("Div() error");
     ans.NormalizeLimbs();
     ans.m_state = INITIALIZED;
     ans.SetMSB();
-
-
     return ans;
 
   }
@@ -1691,16 +1892,16 @@ return result;
     if (dbg_flag) {
       std::cout << "in AssignVal m_value ";
       for(int i=0;i<m_value.size();i++)
-	std::cout <<m_value.at(i) << " ";//for debug purpose
+	std::cout <<m_value[i] << " ";//for debug purpose
       std::cout << std::endl;
       std::cout << "in AssignVal m_value hex ";
       for(int i=0;i<m_value.size();i++)
-	std::cout << std::hex <<m_value.at(i) <<  " ";//for debug purpose
+	std::cout << std::hex <<m_value[i] <<  " ";//for debug purpose
       std::cout <<std::dec << std::endl;
 
       std::cout << "in AssignVal m_value hex ";
       for(int i=0;i<m_value.size();i++)
-	std::cout << std::hex <<m_value.at(i) <<  " ";//for debug purpose
+	std::cout << std::hex <<m_value[i] <<  " ";//for debug purpose
       std::cout <<std::dec << std::endl;
     }
     DEBUG("in AssignVal msb now "<< m_MSB );
@@ -1725,7 +1926,7 @@ return result;
   void ubint<limb_t>::SetMSB(usint guessIdxChar){
 
     m_MSB = (m_value.size() - guessIdxChar - 1)*m_limbBitLength;
-    m_MSB += GetMSBlimb_t(m_value.at(guessIdxChar));
+    m_MSB += GetMSBlimb_t(m_value[guessIdxChar]);
   }
 
   template<typename limb_t>
@@ -1761,8 +1962,8 @@ return result;
     }
 
     //use simple masking operation if modulus is 2
-    if(modulus.m_MSB==2 && modulus.m_value.at(0)==2){
-      if(this->m_value.at(0)%2==0)
+    if(modulus.m_MSB==2 && modulus.m_value[0]==2){
+      if(this->m_value[0]%2==0)
 	return ubint(ZERO);
       else
 	return ubint(ONE);
@@ -1777,9 +1978,9 @@ return result;
     }
 
     int f;
-    f = divmnu_vect(qv, ans,  *this,  modulus);
+    f = divr_vect(ans,  *this,  modulus);
     if (f!= 0)
-      throw std::logic_error("Mod() divmnu error");
+      throw std::logic_error("Mod() divr error");
 
     ans.NormalizeLimbs();
     ans.SetMSB();
@@ -1915,7 +2116,7 @@ return result;
 
     size_t limtest = quotient.size()-1;
     for(sint i=limtest; i>=0;i--){
-      mods.push_back(quotient.at(i)*second + first);
+      mods.push_back(quotient[i]*second + first);
       first = second;
       second = mods.back();
     }
@@ -2098,7 +2299,7 @@ return result;
 
     while(true){
       //product is multiplied only if lsb bitvalue is 1
-      if(Exp.m_value.at(0)%2==1){
+      if(Exp.m_value[0]%2==1){
 	product = product*mid;
       }
 
@@ -2207,12 +2408,12 @@ return result;
       //check each limb in descending order
       for(sint i=m_value.size()-1 ;i>=0; i--){
 	DEBUG("i "<<i);
-	DEBUG("a "<<this->m_value.at(i));
-	DEBUG("b "<<a.m_value.at(i));
+	DEBUG("a "<<this->m_value[i]);
+	DEBUG("b "<<a.m_value[i]);
 
-	if (this->m_value.at(i)>a.m_value.at(i)) //b>a
+	if (this->m_value[i]>a.m_value[i]) //b>a
 	    return 1;
-	else if (this->m_value.at(i)<a.m_value.at(i)) //a>b
+	else if (this->m_value[i]<a.m_value[i]) //a>b
 	    return -1;
       }
     }
@@ -2263,9 +2464,9 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     DEBUG( "*this "<<this->ToString());
     DEBUG("q "<<q.ToString());
 
-    f = divmnu_vect(ans, rv,  *this,  q);
+    f = divqr_vect(ans, rv,  *this,  q);
     if (f!= 0)
-      throw std::logic_error("Divmnu() error in DivideAndRound");
+      throw std::logic_error("Divqr() error in DivideAndRound");
 
     ans.NormalizeLimbs();
     rv.NormalizeLimbs();
@@ -2726,7 +2927,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
       return 0;
     limb_t result;
     sint idx =ceilIntByUInt(index)-1;//idx is the index of the character array
-    limb_t temp = this->m_value.at(idx);
+    limb_t temp = this->m_value[idx];
     limb_t bmask_counter = index%m_limbBitLength==0? m_limbBitLength:index%m_limbBitLength;//bmask is the bit number in the 8 bit array
     limb_t bmask = 1;
     for(sint i=1;i<bmask_counter;i++)
@@ -2740,7 +2941,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   void ubint<limb_t>::SetIntAtIndex(usint idx, limb_t value){
     if (idx >= m_value.size())
       throw std::logic_error("Index Invalid");
-    this->m_value.at(idx) = value;
+    this->m_value[idx] = value;
   }
 
   /*

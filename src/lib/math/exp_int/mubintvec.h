@@ -74,7 +74,7 @@ public:
 
   static inline mubintvec Single(const ubint_el_t& val, const ubint_el_t&modulus) {
     mubintvec vec(1);
-    vec.m_data.at(0)=val;
+    vec.m_data[0]=val;
     vec.SetModulus(modulus);
     return vec;
   }
@@ -287,7 +287,7 @@ public:
   //assignment from usint
   inline const mubintvec& operator=(usint val) {
     //todo this is the way kurt and yuri want it
-    this->m_data.at(0) = val;
+    this->m_data[0] = val;
     for (size_t i = 1; i < this->ubintvec<ubint_el_t>::GetLength(); ++i) {
       this->m_data[i] = 0;
     }
@@ -302,7 +302,7 @@ public:
     //todo this is the way kurt and yuri want it
     if (val<0) 
       throw std::logic_error("mubintvec() = with  negative number");
-    this->m_data.at(0) = val;
+    this->m_data[0] = val;
     for (size_t i = 1; i < this->ubintvec<ubint_el_t>::GetLength(); ++i) {
       this->m_data[i] = 0;
     }
@@ -321,7 +321,7 @@ public:
 
   const mubintvec& operator=(const ubint_el_t &val) {
     //todo this is the way that yuri and kurt want it?
-    this->m_data.at(0) = val;
+    this->m_data[0] = val;
     for (size_t i = 1; i < this->m_data.size(); ++i) {
       this->m_data[i] = 0;
     }

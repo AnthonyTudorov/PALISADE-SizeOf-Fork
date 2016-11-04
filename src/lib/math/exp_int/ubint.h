@@ -1081,7 +1081,10 @@ namespace exp_int{
      * @param defined in ubint.cpp
      */
     
-    int divmnu_vect(ubint& q, ubint& r, const ubint& u, const ubint& v) const;
+    int divqr_vect(ubint& q, ubint& r, const ubint& u, const ubint& v) const;
+
+    int divr_vect(ubint& r, const ubint& u, const ubint& v) const;
+    int divq_vect(ubint& q, const ubint& u, const ubint& v) const;
 
   private: //todo make private again
     //vector storing the native integers. stored little endian

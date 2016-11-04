@@ -121,7 +121,8 @@ void test_NTT () {
 
   cout<<"testing NTT backend "<<MATHBACKEND;
   if (BigBinaryIntegerBitLength >0)
-    cout<<" BITLENGTH "<< BigBinaryIntegerBitLength <<endl;
+    cout<<" BITLENGTH "<< BigBinaryIntegerBitLength;
+  cout <<endl;
 
   TIC(t_total);
   //there are three test cases, 1) small modulus 2) approx 48 bits. 
