@@ -31,6 +31,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <assert.h>
 #include <stdlib.h>
 
+#include <typeinfo>
+#include <string>
 #include <iostream>
 #include <functional>
 #include <math.h>
