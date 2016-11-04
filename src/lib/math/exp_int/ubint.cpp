@@ -1776,8 +1776,6 @@ return result;
       return std::move(ubint(ONE));
 
     ubint ans;
-    ubint rv;
-
     int f;
     f = divq_vect((ans), (*this),  (b));
     if (f!= 0)
@@ -1962,7 +1960,6 @@ return result;
     }
 
     // return the remainder of the divided by operation
-    ubint qv;
     ubint ans(0);
     if (dbg_flag){
       DEBUG("modulus ");
