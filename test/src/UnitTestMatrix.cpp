@@ -174,7 +174,9 @@ TEST(UTMatrix, scalar_mult){
 
 TEST(UTMatrix, ILVector2n_mult_square_matrix) {
 
-	int32_t dimension = 4;
+	int32_t dimension = 8;
+
+
 
 	Matrix<ILVector2n> A = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
 	Matrix<ILVector2n> B = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
@@ -189,7 +191,52 @@ TEST(UTMatrix, ILVector2n_mult_square_matrix) {
 	EXPECT_EQ(A*B*C, A*(B*C)) << "Matrix multiplication of two ILVector2Ns: A*B*C = A*(B*C) - failed.\n";
 	EXPECT_EQ(A*B*C, (A*B)*C) << "Matrix multiplication of two ILVector2Ns: A*B*C = (A*B)*C - failed.\n";
 
+
+
 }
+
+TEST(UTMatrix, ILVector2n_mult_square_matrix_strassen) {
+
+	int32_t dimension = 16;
+
+	Matrix<ILVector2n> A = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
+	Matrix<ILVector2n> B = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
+	Matrix<ILVector2n> C = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
+	Matrix<ILVector2n> I = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension).Identity();
+
+
+
+	EXPECT_EQ((A.Mult(B))(0,0), (A.MultiplyStrassen(B,dimension/2))(0,0)) << "Strassen matrix multiplication of two ILVector2Ns doesn't agree with Mult: A.Mult(B), A.MultiplyStrassen(B,"<<dimension/2<<") - failed.\n";
+	EXPECT_EQ(A, A.MultiplyStrassen(I,dimension/2)) << "Strassen matrix multiplication of two ILVector2Ns: A = AI - failed.\n";
+	EXPECT_EQ(A, I.MultiplyStrassen(A,dimension/2)) << "Matrix multiplication of two ILVector2Ns: A = IA - failed.\n";
+
+	EXPECT_EQ((A.MultiplyStrassen(B,dimension/2)).Transpose(), B.Transpose().MultiplyStrassen(A.Transpose(),dimension/2)) << "Matrix multiplication of two ILVector2Ns: (A.MultiplyStrassen(B,2)).Transpose(), B.Transpose().MultiplyStrassen(A.Transpose(),2) - failed.\n";
+
+	EXPECT_EQ(A.MultiplyStrassen(B,dimension/2).MultiplyStrassen(C,dimension/2), A.MultiplyStrassen((B.MultiplyStrassen(C,dimension/2)),2)) << "Matrix multiplication of two ILVector2Ns: A.MultiplyStrassen(B,2).MultiplyStrassen(C,2), A.MultiplyStrassen((B.MultiplyStrassen(C,2)),2) - failed.\n";
+	EXPECT_EQ(A.MultiplyStrassen(B,dimension/2).MultiplyStrassen(C,dimension/2), (A.MultiplyStrassen(B,dimension/2)).MultiplyStrassen(C,dimension/2)) << "Matrix multiplication of two ILVector2Ns: A.MultiplyStrassen(B,2).MultiplyStrassen(C,2), (A.MultiplyStrassen(B,2)).MultiplyStrassen(C,2) - failed.\n";
+
+}
+
+TEST(UTMatrix, ILVector2n_mult_square_matrix_caps) {
+
+	int32_t dimension = 16;
+
+	Matrix<ILVector2n> A = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
+	Matrix<ILVector2n> B = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
+	Matrix<ILVector2n> C = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
+	Matrix<ILVector2n> I = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension).Identity();
+
+	EXPECT_EQ((A.Mult(B))(0,0), (A.MultiplyCAPS(B,2))(0,0)) << "CAPS matrix multiplication of two ILVector2Ns doesn't agree with Mult: A.Mult(B), A.MultiplyCAPS(B,2) - failed.\n";
+	EXPECT_EQ(A, A.MultiplyCAPS(I,2)) << "CAPS matrix multiplication of two ILVector2Ns: A = AI - failed.\n";
+	EXPECT_EQ(A, I.MultiplyCAPS(A,2)) << "Matrix multiplication of two ILVector2Ns: A = IA - failed.\n";
+
+	EXPECT_EQ((A.MultiplyCAPS(B,2)).Transpose(), B.Transpose().MultiplyCAPS(A.Transpose(),2)) << "Matrix multiplication of two ILVector2Ns: (A.MultiplyCAPS(B,2)).Transpose(), B.Transpose().MultiplyCAPS(A.Transpose(),2) - failed.\n";
+
+	EXPECT_EQ(A.MultiplyCAPS(B,2).MultiplyCAPS(C,2), A.MultiplyCAPS((B.MultiplyCAPS(C,2)),2)) << "Matrix multiplication of two ILVector2Ns: A.MultiplyCAPS(B,2).MultiplyCAPS(C,2), A.MultiplyCAPS((B.MultiplyCAPS(C,2)),2) - failed.\n";
+	EXPECT_EQ(A.MultiplyCAPS(B,2).MultiplyCAPS(C,2), (A.MultiplyCAPS(B,2)).MultiplyCAPS(C,2)) << "Matrix multiplication of two ILVector2Ns: A.MultiplyCAPS(B,2).MultiplyCAPS(C,2), (A.MultiplyCAPS(B,2)).MultiplyCAPS(C,2) - failed.\n";
+
+}
+
 
 inline void expect_close(double a, double b) {
 	EXPECT_LE(abs(a - b), 10e-8);
