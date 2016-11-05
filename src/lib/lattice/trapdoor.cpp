@@ -101,10 +101,9 @@ namespace lbcrypto {
 
 		// YSP It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
 		// perturbedSyndrome is in the evaluation representation
-		//ILVector2n perturbedSyndrome = u - (A.Mult(pHat))(0, 0);
+		ILVector2n perturbedSyndrome = u - (A.Mult(pHat))(0, 0);
 
-		ILVector2n perturbedSyndrome = u - (A.MultiplyStrassen(pHat,16))(0, 0);
-		std::cout <<"multiply strassen"<<std::endl;
+
 		//Matrix<BigBinaryInteger> zHatBBI(BigBinaryInteger::Allocator, k, n);
 		Matrix<int32_t> zHatBBI([](){ return make_unique<int32_t>(); },  k, n);
 
@@ -125,10 +124,9 @@ namespace lbcrypto {
 
 		RingMat zHatPrime(zero_alloc, k + 2, 1);
 
-		//zHatPrime(0,0) = pHat(0,0) + T.m_e.Mult(zHat)(0,0);
-		//zHatPrime(1,0) = pHat(1,0) + T.m_r.Mult(zHat)(0,0);
-		zHatPrime(0,0) = pHat(0,0) + T.m_e.MultiplyStrassen(zHat,16)(0,0);
-		zHatPrime(1,0) = pHat(1,0) + T.m_r.MultiplyStrassen(zHat,16)(0,0);
+		zHatPrime(0,0) = pHat(0,0) + T.m_e.Mult(zHat)(0,0);
+		zHatPrime(1,0) = pHat(1,0) + T.m_r.Mult(zHat)(0,0);
+
 		for (size_t row = 2; row < k + 2; ++row)
 			zHatPrime(row,0) = pHat(row,0) + zHat(row-2,0);
 
