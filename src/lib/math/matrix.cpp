@@ -140,6 +140,7 @@ double Matrix<Element>::Norm() const {
 
 template<class Element>
 Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
+	omp_set_num_threads(NUM_THREADS);
     if (cols != other.rows) {
         throw invalid_argument("incompatible matrix multiplication");
     }
@@ -155,8 +156,6 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
     }
 #else
     #pragma omp parallel for
-
-
     for (int32_t row = 0; row < result.rows; ++row) {
 
 	//if result was zero allocated the following should not be needed
@@ -393,7 +392,7 @@ void Matrix<Element>::LinearizeDataCAPS() const{
 template<class Element>
 void Matrix<Element>::UnlinearizeDataCAPS() const{
     	int datasize = data.size();
-    	//int lineardatasize = lineardata.size();
+    	int lineardatasize = lineardata.size();
         //printf("data.size() = %d\n",datasize);
         //data.clear();
         //data.resize(datasize);
@@ -403,9 +402,10 @@ void Matrix<Element>::UnlinearizeDataCAPS() const{
     int row = 0;
     int counter = 0;
     		data[row].clear();
-    		data[row].reserve(rows);
+    		data[row].reserve(datasize);
             for (auto elem = lineardata.begin(); elem != lineardata.end(); ++elem) {
             	//printf("counter = %d row = %d\n",counter,row);
+            	//std::cout<<"Elem "<<counter<<" is "<<(**elem)<<std::endl;
                 data[row].push_back(make_unique<Element>(**elem));
                 //printf("data[%d].size() is now %d\n",row,data[row].size());
                 counter++;
@@ -704,8 +704,8 @@ void Matrix<Element>::PrintLinearDataCAPS(unique_ptr<Element> *elem) const{
 template<class Element>
 Matrix<Element> Matrix<Element>::MultiplyStrassen(const Matrix<Element>& other,int leafsize) const{
 	omp_set_num_threads(NUM_THREADS);
-	std::cout <<"In MultiplyStrassen, this rows = "<<rows << " this cols = "<<cols<<std::endl;
-	std::cout <<"In MultiplyStrassen, other rows = "<<other.rows << " other cols = "<<other.cols<<std::endl;
+	//std::cout <<"In MultiplyStrassen, this rows = "<<rows << " this cols = "<<cols<<std::endl;
+	//std::cout <<"In MultiplyStrassen, other rows = "<<other.rows << " other cols = "<<other.cols<<std::endl;
     Matrix<Element> result(allocZero, rows, other.cols);
     this->leafsize = leafsize;
     strassen(this->data,other.data,result.data,rows);
@@ -726,6 +726,8 @@ Matrix<Element> Matrix<Element>::MultiplyCAPS(Matrix<Element> const& other,int n
 	desc.nprocr = 1;
 
 	omp_set_num_threads(NUM_THREADS);
+
+	//std::cout<<"In MultiplyCAPS"<<std::endl;
     Matrix<Element> result(allocZero, rows, other.cols);
 
 
@@ -765,16 +767,49 @@ for (int i = 0; i < len; i++){
 	  resultdata.push_back(allocZero());
 }
 
-distributeFrom1ProcCAPS( desc,&thisdata[0], &lineardata[0]);
-distributeFrom1ProcCAPS( desc, &otherdata[0], &(other.lineardata[0]));
 
-multiplyInternalCAPS(&thisdata[0], &otherdata[0], &resultdata[0], desc, 0);//&(result.lineardata[0])
+
+distributeFrom1ProcCAPS( desc,&thisdata[0], &lineardata[0]);
+//std::cout<<"After distribution, lineardata is :"<<std::endl;
+//for (int i = 0; i < lineardata.size();i++){
+//	std::cout<<*lineardata[i]<<" ";
+//}
+//std::cout<<std::endl<<"thisdata is :"<<std::endl;
+//for (int i = 0; i < thisdata.size();i++){
+//	std::cout<<*thisdata[i]<<" ";
+//}
+//std::cout<<std::endl;
+distributeFrom1ProcCAPS( desc, &otherdata[0], &(other.lineardata[0]));
+//multiplyInternalCAPS(&lineardata[0], &(other.lineardata[0]), &(result.lineardata[0]), desc, 0);
+
+//std::cout<<std::endl<<"resultdata before multiplyInternal is :"<<std::endl;
+//for (int i = 0; i < resultdata.size();i++){
+//	std::cout<<*resultdata[i]<<" ";
+//}
+//std::cout<<std::endl;
+multiplyInternalCAPS(&otherdata[0], &thisdata[0], &resultdata[0], desc, 0);//&(result.lineardata[0])
+//std::cout<<std::endl<<"resultdata after multiplyInternal is :"<<std::endl;
+//for (int i = 0; i < resultdata.size();i++){
+//	std::cout<<*resultdata[i]<<" ";
+//}
+//std::cout<<std::endl;
+
 //for (int32_t row = 0; row < len; ++row) {
 //
 //	printf("&(result.lineardata[%d]) = %p    *(result.lineardata[%d]) = %f\n",row,&(result.lineardata[row]),row,*(result.lineardata[row]));
 //}
-
+//std::cout<<"Done with multiplyInternalCAPS"<<std::endl;
 collectTo1ProcCAPS( desc, &(result.lineardata[0]), &resultdata[0] );
+//std::cout<<"After collection, resultdata is :"<<std::endl;
+//for (int i = 0; i < resultdata.size();i++){
+//	std::cout<<*(resultdata[i])<<" ";
+//}
+//std::cout<<std::endl<<"result.lineardata is :"<<std::endl;
+//for (int i = 0; i < result.lineardata.size();i++){
+//	std::cout<<*(result.lineardata[i])<<" ";
+//}
+//std::cout<<std::endl;
+//std::cout<<"About to unlinearize data"<<std::endl;
 result.UnlinearizeDataCAPS();
 
 
@@ -987,22 +1022,24 @@ void Matrix<Element>::block_multiplyCAPS(unique_ptr<Element> *A,
 	//COUNTERS increaseAdditions( lda3 );
 	//COUNTERS increaseMultiplications( lda3 );
 
-//  printf("A = %p  **A = %f\n",A, **A);
-//  printf("B = %p  **B = %f\n",B, **B);
 
-	//printf("In block_multiplyCAPS, d.lda = %d\n", d.lda);
+
+
+	//std::cout<<"In block_multiplyCAPS, d.lda = "<<d.lda<<std::endl;
 
 	// do the multiplication, without requiring CC to be zeroed
 	//COUNTERS startTimer(TIMER_MUL);
 	//square_dgemm_zero( d.lda, AA, BB, CC );
 	//COUNTERS stopTimer(TIMER_MUL);
 #pragma omp parallel for
-
 	for (int32_t row = 0; row < d.lda; row++) {
-
+		Element temp = *allocZero();
+		Element Aval = *allocZero();
+		Element Bval = *allocZero();
 		for (int32_t col = 0; col < d.lda; col++) {
-			Element temp = *allocZero();
-			Element Aval, Bval;
+			//std::cout << "About to zero temp in block_multiplyCAPS"<<std::endl;
+			//temp = *allocZero();
+
 			for (int32_t i = 0; i < d.lda; i++) {
 				//printf("Row %d Col %d i %d\n",row,col,i);
 				//printf("Row %d Col %d i %d initial Cval %d Aval %d Bval %d\n",row,col,i,(int)**(C+row*d.lda+col),(int)**(A+d.lda*row+i),(int)**(B+i*d.lda+col));
@@ -1010,7 +1047,10 @@ void Matrix<Element>::block_multiplyCAPS(unique_ptr<Element> *A,
 				//		* **(B + i * d.lda + col);
 				Aval = **(A+row + i * d.lda);  // **(A + d.lda * row + i);
 				Bval = **(B + i + d.lda * col); //  **(B + i * d.lda + col);
-				temp += (Aval * Bval);
+				if (i == 0)
+					temp = (Aval * Bval);
+				else
+					temp += (Aval * Bval);
 				//printf("Cval(%d,%d) =  %d temp = %d Aval = %d Bval = %d\n",row,col,(int)**(C+row*d.lda+col),(int)temp,(int)Aval,(int)Bval);
 			}
 			**(C+row+d.lda*col) = temp;  //**(C + d.lda * row + col) = temp;
@@ -1042,16 +1082,35 @@ void Matrix<Element>::sendBlockCAPS( /*MPI_Comm comm,*/int rank, int target,
 //	printf(
 //			"IN SENDBLOCKCAPS, bs = %d ldi = %d rank = %d target = %d source = %d\n",
 //			bs, ldi, rank, target, source);
+
+	bool haveILVector2n  = false;
+	string elemtype = typeid(**O).name();
+	//std::cout<<"In sendBlockCAPS"<<std::endl;
+//	if (string::npos != elemtype.find("ILVector2n")){
+//		std::cout<<"In sendBlockCAPS, O is an ILVector2n"<<std::endl;
+//		haveILVector2n = true;
+//	}
+
 	if (source == target) {
 		if (rank == source) {
 			for (int c = 0; c < bs; c++) {
 				for (int i = 0; i < bs; i++) {
-					*O = make_unique<Element>(**I);
+//					if (haveILVector2n){
+//						ILVector2n dual;
+//						dual = **I;
+//						*O = make_unique<Element>(dual); //New
+//					}
+//					else{
+//						*O = make_unique<Element>(**I); //New
+//					}
+					*O = make_unique<Element>(**I); //New
+					O++;  //New
 					I++;
 				}
 				//memcpy(O, I, bs * sizeof(unique_ptr<Element> ));
-				O += bs;
-				I += ldi;
+				//O += bs;  //New
+				I += ldi - bs;  //New
+				//I += ldi; //New
 			}
 		}
 	}
@@ -1059,17 +1118,39 @@ void Matrix<Element>::sendBlockCAPS( /*MPI_Comm comm,*/int rank, int target,
 
 template<class Element>
 void Matrix<Element>::receiveBlockCAPS(  int rank, int target, unique_ptr<Element> *O, int bs, int source, unique_ptr<Element> *I, int ldo ) const{
+
+	bool haveILVector2n  = false;
+	string elemtype = typeid(**O).name();
+	//std::cout<<"In receiveBlockCAPS"<<std::endl;
+//	if (string::npos != elemtype.find("ILVector2n")){
+//		std::cout<<"In receiveBlockCAPS, O is an ILVector2n"<<std::endl;
+//		haveILVector2n = true;
+//	}
+
+
+
 	if (source == target) {
 		if (rank == source) {
 			for (int c = 0; c < bs; c++) {
 				for (int i = 0; i < bs; i++) {
-					*O = make_unique<Element>(**I);
+//					if (haveILVector2n){
+//						ILVector2n dual;
+//						dual = **I;
+//						*O = make_unique<Element>(dual); //New
+//					}
+//					else{
+//						*O = make_unique<Element>(**I); //New
+//					}
+					*O = make_unique<Element>(**I); //New
+					//*O = *I;
 					I++;
+					O++;  //New
 				}
 
 				//memcpy( O, I, bs*sizeof(unique_ptr<Element>) );
-				O += ldo;
-				I += bs;
+				//O += ldo; //New
+				O += ldo - bs; //New
+				//I += bs; //New
 			}
 		}
 	}
@@ -1088,6 +1169,12 @@ void Matrix<Element>::distributeFrom1ProcRecCAPS( MatDescriptor desc, unique_ptr
     int nBlocksPerProcRow = numBlocks / desc.nprocr / desc.nproc_summa;
     int nBlocksPerProcCol = numBlocks / desc.nprocc;
     int nBlocksPerBase = numBlocks / desc.nproc_summa;
+//    std::cout<<"In distributeFrom1ProcRecCAPS :"<<std::endl;
+//    std::cout<<"desc.nproc_summa = "<<desc.nproc_summa<<std::endl;
+//    std::cout<<"nBlocksPerProcRow = "<<nBlocksPerProcRow<<std::endl;
+//    std::cout<<"desc.nprocr = "<<desc.nprocr<<std::endl;
+//    std::cout<<"nBlocksPerProcCol = "<<nBlocksPerProcCol<<std::endl;
+//    std::cout<<"desc.nprocc = "<<desc.nprocc<<std::endl;
     for( int sp = 0; sp < desc.nproc_summa; sp++ ) {
       for( int i = 0; i < nBlocksPerProcRow; i++ ) {
 	for( int rproc = 0; rproc < desc.nprocr; rproc++ ) {
@@ -1180,10 +1267,18 @@ void Matrix<Element>::collectTo1ProcCAPS( MatDescriptor desc, unique_ptr<Element
 
 template<class Element>
 void Matrix<Element>::ikjalgorithm(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int n) const{
-
-	std::cout<<"In ijkalgo"<<std::endl;
+//	string elemtype = typeid(*(Adata[0][0])).name();
+//	if (string::npos != elemtype.find("ILVector2n")){
+//		std::cout<<"A is an ILVector2n"<<std::endl;
+//		(*(Adata[0][0])).PrintValues();
+//	}
+//	elemtype = typeid(*(Bdata[0][0])).name();
+//	if (string::npos != elemtype.find("ILVector2n")){
+//		std::cout<<"B is an ILVector2n"<<std::endl;
+//		(*(Bdata[0][0])).PrintValues();
+//	}
+//	//std::cout<<"In ijkalgo"<<std::endl;
 	#pragma omp parallel for
-
 	for (int i = 0; i < n; i++) {
         for (int k = 0; k < n; k++) {
             for (int j = 0; j < n; j++) {
