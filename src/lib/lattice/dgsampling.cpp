@@ -265,5 +265,20 @@ namespace lbcrypto {
 			(*z)[i] = dgg.GenerateInteger(-(*a)(i, 0), sigma, n);
 
 	}
+	void ZSampleSigmaP(size_t n, BigBinaryInteger q, double s, double sigma, Matrix<ILVector2n> Tprime, Matrix<int32_t> *perturbationVector) {
+		std::vector<double> a = (Tprime(0, 0)* Tprime.Transpose()(0, 0) + Tprime(0, 1) * Tprime.Transpose()(0, 1)).CalculateDFT();
+		std::vector<double> b = (Tprime(1, 0) *  Tprime.Transpose()(0, 0) + Tprime(1, 1) *  Tprime.Transpose()(0, 1)).CalculateDFT();
+		std::vector<double> d = (Tprime(1, 0) *  Tprime.Transpose()(1, 0) + Tprime(1, 1) *  Tprime.Transpose()(1, 1)).CalculateDFT();
 
+		for (int i = 0;i < a.size();i++) {
+			a[i] = a[i] * (s * s * (1 - sigma * sigma / (s * s - sigma * sigma)));
+			b[i] = b[i] * -s *s * sigma * sigma / (s* s - sigma * sigma);
+			d[i] = d[i] * (s * s * (1 - sigma * sigma / (s * s - sigma * sigma)));
+		}
+		/* p2 = Sample;
+		  c =  - sigma / (s * s - sigma * sigma) * T * p2; 
+		  p1 =  ZSampleSigma2x2(a,b,d,c);
+		  concatenate p1,p2
+		  */
+	}
 }

@@ -119,7 +119,9 @@ public:
 		for (size_t i = 0; i < p.GetRows(); i++) {
 			(*perturbationVector)(i,0) = DiscreteGaussianGenerator::GenerateInteger(p(i,0), sigma, n);
 		}
-	}
+	};
+	void ZSampleSigmaP(size_t n, BigBinaryInteger q, double s, double sigma, Matrix<ILVector2n> Tprime, Matrix<int32_t> *perturbationVector);
+
 
 private:
 	
