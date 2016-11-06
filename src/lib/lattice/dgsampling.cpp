@@ -277,8 +277,16 @@ namespace lbcrypto {
 		}
 		/* p2 = Sample;
 		  c =  - sigma / (s * s - sigma * sigma) * T * p2; 
-		  p1 =  ZSampleSigma2x2(a,b,d,c);
+		  p1 =  ZSampleSigma2x2(a,b,d,c, p1);
 		  concatenate p1,p2
 		  */
+	}
+	void ZSampleSigma2x2(const std::vector<double> & a, const std::vector<double> & b, const std::vector<double> & d, const std::vector<double> & c, Matrix<int32_t>* p1) {
+		/*
+			q2  = ZSampleF(d,c2);
+			c1 = c1 + phi(bd-1)(q2-c2)
+			q1 = ZSampleF(a-bd-1bt,c1)
+			p1 = concetanete q1,q2
+		*/
 	}
 }

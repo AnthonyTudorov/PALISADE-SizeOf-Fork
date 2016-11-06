@@ -134,7 +134,8 @@ private:
 	// Algorithm was provided in a personal communication by Daniele Micciancio
 	static inline void SampleC(const Matrix<double> &c, size_t k, size_t n, 
 		double sigma, DiscreteGaussianGenerator &dgg, Matrix<double> *a, vector<int32_t> *z);
-
+	
+	void ZSampleSigma2x2(const std::vector<double> & a, const std::vector<double> & b, const std::vector<double> & d, const std::vector<double> & c, Matrix<int32_t>* p1);
 };
 
 }
