@@ -121,23 +121,13 @@ namespace exp_int {
     // builds a ubint that defaults to zero
     
     bool dbg_flag = false;		// if true then print dbg output
-#if 0
-    m_MSB=0;// initialize
-    m_value.reserve(4);
-    DEBUG("ctor()");
-    DEBUG( "maxlimb "<<m_MaxLimb);
- 
-    DEBUG( "initial size "<< m_value.size());
-
-    m_state = GARBAGE;
-#else
     // BBI bare ctor() generates a valid zero. mimic that activity
     m_MSB = 0;
     m_value.reserve(4);
       //m_value.clear(); // make sure it is empty to start
     m_value.push_back((limb_t)0);
     m_state = INITIALIZED;
-#endif
+
   }
   
   //todo: figure out how to share code between the following three ctors
@@ -333,16 +323,8 @@ namespace exp_int {
 
     //memory allocation step
     this->m_MSB=rhs.m_MSB; //copy MSB
-    //   try { 
-      //copy values
-      this->m_value = rhs.m_value; // this occasionally fails may have been
-      //fixed when normalize was fixed.
-    // } catch(std::exception& e) {
-    //   //if it fails, then just clear our copy out. 
-    //   std::cout<<"Threw "<< e.what()<< std::endl;
-    //   this->m_value.clear();
-    //   this->m_value.push_back((limb_t)0);
-    // }
+    //copy values
+    this->m_value = rhs.m_value; // this occasionally fails may have been
 
     //set state
     m_state = rhs.m_state;
@@ -1135,7 +1117,7 @@ return result;
 
     for(size_t i= 0;i< bSize;++i){
       DEBUG("i "<<i);
-      ubint tmp2;
+      //ubint tmp2;
       //////
       tmpans.m_value.clear(); //make sure there are no limbs to start.
       Dlimb_t limbb(b.m_value[i]);
@@ -2157,22 +2139,105 @@ return result;
 
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModMul(const ubint& b, const ubint& modulus) const{
+
     ubint a(*this);
     ubint bb(b);
-
+#if 0
     //if a is greater than q reduce a to its mod value
-    if(a>modulus){
+    if(a>=modulus){
       a = a.Mod(modulus);
     }
 
     //if b is greater than q reduce b to its mod value
-    if(b>modulus){ 
+    if(b>=modulus){ 
       bb = bb.Mod(modulus);
     }
 
     //return a*b%q
 
     return (a*bb).Mod(modulus);
+#else
+    //&&&&&&&&&&&&&&&&&
+    bool dbg_flag = false;
+    DEBUG("ModMul");
+	
+    ubint ans(ZERO);
+    //check for garbage initialized objects
+    if(bb.m_MSB==0 || bb.m_state==GARBAGE ||a.m_state==GARBAGE || a.m_MSB==0){
+      return ans;
+    }
+    //check for trivial condtions
+    if(bb.m_MSB==1)
+      return ubint(*this);
+
+    if(a.m_MSB==1)
+      return std::move(ubint(b)); //todo check this? don't think standard move is what we want.
+	
+    //position of B in the array where the multiplication should start
+    //limb_t ceilLimb = bb.m_value.size();
+    //Multiplication is done by getting a limb_t from b and multiplying it with *this
+    //after multiplication the result is shifted and added to the final answer
+
+    size_t nSize = a.m_value.size();
+    size_t bSize = bb.m_value.size();
+    ubint tmpans;
+    //ans.m_value.reserve(nSize+bSize);    
+    //tmpans.m_value.reserve(nSize+1);    
+
+    for(size_t i= 0;i< bSize;++i){
+      DEBUG("i "<<i);
+      //ubint tmp2;
+      //////
+      tmpans.m_value.clear(); //make sure there are no limbs to start.
+      Dlimb_t limbb(bb.m_value[i]);
+
+      //position in the array to start multiplication
+      //
+      //variable to capture the overflow
+      Dlimb_t temp=0;
+      //overflow value
+      limb_t ofl=0;
+
+
+      DEBUG("mibl A:"<<a.ToString() );
+      DEBUG("mibl B:"<<limbb );
+      DEBUG("ans.size() now " <<ans.m_value.size());
+      if (dbg_flag)
+	ans.PrintLimbsInDec();
+      for(auto itr: a.m_value){
+	DEBUG("mullimb i"<<i);
+	temp = ((Dlimb_t)itr*(Dlimb_t)limbb) + ofl;
+	//DEBUG("temp "<<temp); //todo fix when ostream<< works for 128 bit
+
+	tmpans.m_value.push_back((limb_t)temp);
+	ofl = temp>>a.m_limbBitLength;
+	DEBUG("ans.size() now " <<ans.m_value.size());
+	if (dbg_flag)
+	  tmpans.PrintLimbsInDec();
+      }
+      //check if there is any final overflow
+      if(ofl){
+	DEBUG("mullimb ofl "<<ofl);
+	tmpans.m_value.push_back(ofl);
+      }
+
+      //usint nSize = m_value.size();
+      tmpans.m_state = INITIALIZED;
+      tmpans.SetMSB();
+      DEBUG("ans.size() final " <<ans.m_value.size());
+      if (dbg_flag)
+	tmpans.PrintLimbsInDec();
+      DEBUG("mibl ans "<<ans.ToString());
+      /////
+
+      ans += (tmpans<<=(i)*a.m_limbBitLength);
+      ans = ans.Mod(modulus);
+      DEBUG("ans now "<<ans.ToString());
+    }
+    
+    return ans;
+    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7
+#endif
   }
 
   //the following is deprecated
