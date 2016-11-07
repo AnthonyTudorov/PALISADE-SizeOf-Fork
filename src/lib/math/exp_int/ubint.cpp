@@ -54,6 +54,7 @@
 
 #include "../../utils/debug.h"
 
+#define LimbReserveHint 4  // hint for reservation of limbs
 
 namespace exp_int {
 
@@ -123,8 +124,7 @@ namespace exp_int {
     bool dbg_flag = false;		// if true then print dbg output
     // BBI bare ctor() generates a valid zero. mimic that activity
     m_MSB = 0;
-    m_value.reserve(4);
-      //m_value.clear(); // make sure it is empty to start
+    m_value.reserve(LimbReserveHint);
     m_value.push_back((limb_t)0);
     m_state = INITIALIZED;
 
@@ -148,14 +148,12 @@ namespace exp_int {
 
     if (init <= m_MaxLimb) {
       //init fits in first limb entry
-      m_value.clear(); // make sure it is empty to start
       m_value.push_back((limb_t)init);
       DEBUG("single limb size now "<<m_value.size());
     } else {
       usint ceilInt = ceilIntByUInt(msb);
       DEBUG("mult limb ceilIntByUInt ="<<ceilInt);
       //setting the values of the array
-      m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
       for(usint i= 0;i<ceilInt;++i){
         m_value.push_back((limb_t)init);
@@ -191,14 +189,12 @@ namespace exp_int {
 
     if (init <= m_MaxLimb) {
       //init fits in first limb entry
-      m_value.clear(); // make sure it is empty to start
       m_value.push_back((limb_t)init);
       DEBUG("single limb size now "<<m_value.size());
     } else {
       usint ceilInt = ceilIntByUInt(msb);
       DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
       //setting the values of the array
-      //m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
       for(usint i= 0;i<ceilInt;++i){
         m_value.push_back((limb_t)init);
@@ -228,14 +224,12 @@ namespace exp_int {
 
     if (init <= m_MaxLimb) {
       //init fits in first limb entry
-      //m_value.clear(); // make sure it is empty to start
       m_value.push_back((limb_t)init);
       DEBUG("single limb size now "<<m_value.size());
     } else {
       usint ceilInt = ceilIntByUInt(msb);
       DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
       //setting the values of the array
-      //this->m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
       for(usint i= 0;i<ceilInt;++i){
 	DEBUG("i " << i);
@@ -272,14 +266,12 @@ namespace exp_int {
 
     if (init <= m_MaxLimb) {
       //init fits in first limb entry
-      m_value.clear(); // make sure it is empty to start
       m_value.push_back((limb_t)init);
       DEBUG("single limb size now "<<m_value.size());
     } else {
       usint ceilInt = ceilIntByUInt(msb);
       DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
       //setting the values of the array
-      //this->m_value.clear(); // make sure it is empty to start
       this->m_value.reserve(ceilInt);
       for(usint i= 0;i<ceilInt;++i){
         m_value.push_back((limb_t)init);
@@ -346,11 +338,6 @@ namespace exp_int {
 
     //set state
     m_state = rhs.m_state;
-
-    //remove ref from bigInteger
-    if (rhs.m_value.size()>0)
-      rhs.m_value.clear(); //clears value
-    //rhs.m_value.shrink_to_fit(); //clears value with reallocation.
   }
 
   //TODO figure out what this is for
@@ -365,10 +352,7 @@ namespace exp_int {
     bool dbg_flag = false;		// if true then print dbg output
 
     DEBUG("dtor() m_value.size is "<<m_value.size());
-
-    //memory deallocation
-    if (m_value.size()>0)
-      m_value.clear(); //clears value
+    //vector is cleaned up by stl when it goes out of scope
     DEBUG("leaving dtor");
   }
 
@@ -540,10 +524,6 @@ return result;
       this->m_MSB = rhs.m_MSB;
       this->m_state = rhs.m_state;
       this->m_value.swap(rhs.m_value);
-      //remove ref from bigInteger
-      if (rhs.m_value.size()>0)
-        rhs.m_value.clear();  //clears value
-      //rhs.m_value.shrink_to_fit(); //clears value with reallocation.
     }
     return *this;
   }
@@ -919,7 +899,8 @@ return result;
       return ubint(*A);
 
     ubint result;
-    result.m_value.clear(); //note make sure result has no limbs.
+    //note make sure result has no limbs as we are adding them below.
+    result.m_value.clear(); 
     result.m_state = INITIALIZED;
 
     DEBUG("result initial size "<<result.m_value.size());
@@ -1311,6 +1292,7 @@ return result;
   /** Multiply operation helper function:
    *  Algorithm used is usual school book multiplication.
    *  This function is used in the Multiplication of two ubint objects
+   * note this function is deprecated
    */
   template<typename limb_t>
   inline ubint<limb_t> ubint<limb_t>::MulIntegerByLimb(limb_t b) const{
@@ -2099,9 +2081,6 @@ return result;
       result = ubint(mods.back());
     }
 
-    mods.clear();
-    quotient.clear();
-    //f.close();
     DEBUG("MI: "<<result.ToString());
     return result;
 
@@ -2142,22 +2121,6 @@ return result;
 
     ubint a(*this);
     ubint bb(b);
-#if 0
-    //if a is greater than q reduce a to its mod value
-    if(a>=modulus){
-      a = a.Mod(modulus);
-    }
-
-    //if b is greater than q reduce b to its mod value
-    if(b>=modulus){ 
-      bb = bb.Mod(modulus);
-    }
-
-    //return a*b%q
-
-    return (a*bb).Mod(modulus);
-#else
-    //&&&&&&&&&&&&&&&&&
     bool dbg_flag = false;
     DEBUG("ModMul");
 	
@@ -2207,7 +2170,6 @@ return result;
       for(auto itr: a.m_value){
 	DEBUG("mullimb i"<<i);
 	temp = ((Dlimb_t)itr*(Dlimb_t)limbb) + ofl;
-	//DEBUG("temp "<<temp); //todo fix when ostream<< works for 128 bit
 
 	tmpans.m_value.push_back((limb_t)temp);
 	ofl = temp>>a.m_limbBitLength;
@@ -2228,16 +2190,12 @@ return result;
       if (dbg_flag)
 	tmpans.PrintLimbsInDec();
       DEBUG("mibl ans "<<ans.ToString());
-      /////
 
       ans += (tmpans<<=(i)*a.m_limbBitLength);
       ans = ans.Mod(modulus);
       DEBUG("ans now "<<ans.ToString());
     }
-    
     return ans;
-    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7
-#endif
   }
 
   //the following is deprecated
@@ -2691,37 +2649,6 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     }
     return true;
   }
-#if 0
-  template<typename limb_t>
-  inline uint64_t ubint<limb_t>::GetMSB32(uint64_t x)
-  {
-    static const usint bval[] =
-      {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
-
-    uint64_t r = 0;
-    if (x & 0xFFFFFFFF00000000) { r += 32/1; x >>= 32/1; }
-    if (x & 0x00000000FFFF0000) { r += 32/2; x >>= 32/2; }
-    if (x & 0x000000000000FF00) { r += 32/4; x >>= 32/4; }
-    if (x & 0x00000000000000F0) { r += 32/8; x >>= 32/8; }
-    return r + bval[x];
-  }
-
-  template<typename limb_t>
-  inline  usint ubint<limb_t>::GetMSBlimb_t(limb_t x){
-    return ubint<limb_t>::GetMSB32(x);
-  }
-  
-  
-  template<typename limb_t>
-  inline uint64_t ubint<limb_t>::GetMSB64(uint64_t x) {
-    uint64_t bitpos = 0;
-    while (x != 0) {
-      bitpos++; //increment the bit position
-      x = x >> 1; // shift the whole thing to the right once
-    }
-    return bitpos;
-  }
-#else
   template<typename limb_t>
   inline uint32_t ubint<limb_t>::GetMSB32(uint32_t x)
    {
@@ -2761,7 +2688,6 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     return r + bval[x];
   }
 
-#endif
   template<typename limb_t>
   usint ubint<limb_t>::GetDigitAtIndexForBase(usint index, usint base) const{
 
