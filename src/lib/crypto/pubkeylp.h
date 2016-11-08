@@ -1258,6 +1258,11 @@ namespace lbcrypto {
 		 */
 		void SetElementParams(shared_ptr<ElemParams> params) { m_params = params; }
 
+		virtual const DiscreteGaussianGenerator& GetDiscreteGaussianGenerator() const {
+			throw std::logic_error("These parameters do not use a DGG");
+		}
+
+
 	protected:
 		LPCryptoParameters() : m_plaintextModulus(BigBinaryInteger::TWO) {}
 

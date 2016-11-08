@@ -315,8 +315,6 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 		modulus = modulus* moduli[i];
 	}
 
-	DiscreteGaussianGenerator dgg(stdDev);
-
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
@@ -324,7 +322,6 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
 	cc.Enable(ENCRYPTION);
@@ -458,8 +455,6 @@ TEST(UTSHE, ringreduce_double_crt) {
 		modulus = modulus* moduli[i];
 	}
 
-	DiscreteGaussianGenerator dgg(stdDev);
-
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
@@ -467,7 +462,6 @@ TEST(UTSHE, ringreduce_double_crt) {
 	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
 	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
 	cc.Enable(ENCRYPTION);

@@ -49,7 +49,7 @@ public:
 	 */
 	LPCryptoParametersStehleSteinfeld() : LPCryptoParametersRLWE<Element>() {
 		m_distributionParameterStSt = 0.0f;
-		m_dggStSt = DiscreteGaussianGenerator();
+		m_dggStSt.SetStd(m_distributionParameterStSt);
 	}
 
 	/**
@@ -58,7 +58,7 @@ public:
 	 */
 	LPCryptoParametersStehleSteinfeld(const LPCryptoParametersStehleSteinfeld &rhs) : LPCryptoParametersRLWE<Element>(rhs) {
 		m_distributionParameterStSt = rhs.m_distributionParameterStSt;
-		m_dggStSt = rhs.m_dggStSt;
+		m_dggStSt.SetStd(m_distributionParameterStSt);
 	}
 
 	/**
@@ -79,8 +79,6 @@ public:
 			float assuranceMeasure,
 			float securityLevel,
 			usint relinWindow,
-			const DiscreteGaussianGenerator &dgg,
-			const DiscreteGaussianGenerator &dggStSt,
 			float distributionParmStst,
 			int depth = 1)
 	: LPCryptoParametersRLWE<Element>(params,
@@ -89,11 +87,9 @@ public:
 			assuranceMeasure,
 			securityLevel,
 			relinWindow,
-			dgg,
 			depth) {
 		m_distributionParameterStSt = distributionParmStst;
-		m_dggStSt = dggStSt;
-
+		m_dggStSt.SetStd(m_distributionParameterStSt);
 	}
 
 
@@ -116,7 +112,10 @@ public:
 	/**
 	 * Sets the value of standard deviation r for discrete Gaussian distribution
 	 */
-	void SetDistributionParameterStSt(float distributionParameterStSt) {m_distributionParameterStSt = distributionParameterStSt;}
+	void SetDistributionParameterStSt(float distributionParameterStSt) {
+		m_distributionParameterStSt = distributionParameterStSt;
+		m_dggStSt.SetStd(m_distributionParameterStSt);
+	}
 
 	/**
 	 * Sets the discrete Gaussian Generator for keys

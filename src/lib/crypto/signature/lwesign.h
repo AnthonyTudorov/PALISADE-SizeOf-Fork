@@ -136,13 +136,6 @@ namespace lbcrypto {
 		void SetElemParams(shared_ptr<ILParams> params) { m_params = params; };
 		
 		/**
-		*Method for setting the DiscreteGaussianGenerator held in this class
-		*
-		*@param dgg DiscreteGaussianGenerator object to be held, used in sampling
-		*/
-		void SetDiscreteGaussianGenerator(DiscreteGaussianGenerator& dgg) { this->dgg = dgg; }
-		
-		/**
 		*Method for accessing the ILParams held in this class
 		*
 		*@return Parameters held
