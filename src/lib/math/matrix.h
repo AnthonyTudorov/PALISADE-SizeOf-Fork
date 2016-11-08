@@ -39,8 +39,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../math/nbtheory.h"
 #include "../math/distrgen.h"
 #include "../lattice/ilvector2n.h"
-#include "../crypto/lwecrypt.h"
-#include "../crypto/lwepre.h"
 #include "../utils/inttypes.h"
 #include "../utils/utilities.h"
 #include "../utils/memory.h"

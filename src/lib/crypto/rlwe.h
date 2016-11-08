@@ -191,36 +191,36 @@ public:
 	 *
 	 * @param *cryptoParams is where the resulting new LPCryptoParametersLTV will be placed in.
 	 */
-	template <class ILVectorArray2n>
-	void ParameterSelection(LPCryptoParametersLTV<ILVectorArray2n> *cryptoParams) {
+	//template <class ILVectorArray2n>
+	//void ParameterSelection(LPCryptoParametersLTV<ILVectorArray2n> *cryptoParams) {
 
-		//defining moduli outside of recursive call for efficiency
-		std::vector<BigBinaryInteger> moduli(m_depth+1);
-		moduli.reserve(m_depth+1);
+	//	//defining moduli outside of recursive call for efficiency
+	//	std::vector<BigBinaryInteger> moduli(m_depth+1);
+	//	moduli.reserve(m_depth+1);
 
-		usint n = this->GetElementParams().GetCyclotomicOrder()/2;
-		// set the values for n (ring dimension) and chain of moduli
-		this->ParameterSelection(n, moduli);
+	//	usint n = this->GetElementParams().GetCyclotomicOrder()/2;
+	//	// set the values for n (ring dimension) and chain of moduli
+	//	this->ParameterSelection(n, moduli);
 
-		cryptoParams->SetAssuranceMeasure(m_assuranceMeasure);
-		cryptoParams->SetDepth(m_depth);
-		cryptoParams->SetSecurityLevel(m_securityLevel);
-		cryptoParams->SetDistributionParameter(m_distributionParameter);
-		cryptoParams->SetPlaintextModulus(this->GetPlaintextModulus());
+	//	cryptoParams->SetAssuranceMeasure(m_assuranceMeasure);
+	//	cryptoParams->SetDepth(m_depth);
+	//	cryptoParams->SetSecurityLevel(m_securityLevel);
+	//	cryptoParams->SetDistributionParameter(m_distributionParameter);
+	//	cryptoParams->SetPlaintextModulus(this->GetPlaintextModulus());
 
-		std::vector<BigBinaryInteger> rootsOfUnity;
-		rootsOfUnity.reserve(m_depth+1);
-		usint m = n*2; //cyclotomic order
-		BigBinaryInteger rootOfUnity;
+	//	std::vector<BigBinaryInteger> rootsOfUnity;
+	//	rootsOfUnity.reserve(m_depth+1);
+	//	usint m = n*2; //cyclotomic order
+	//	BigBinaryInteger rootOfUnity;
 
-		for(usint i = 0; i < m_depth+1; i++){
-			rootOfUnity = RootOfUnity(m, moduli.at(i));
-			rootsOfUnity.push_back(rootOfUnity);
-		}
+	//	for(usint i = 0; i < m_depth+1; i++){
+	//		rootOfUnity = RootOfUnity(m, moduli.at(i));
+	//		rootsOfUnity.push_back(rootOfUnity);
+	//	}
 
-		shared_ptr<ElemParams> newCryptoParams( new ILDCRTParams(m, moduli, rootsOfUnity) );
-		cryptoParams->SetElementParams(newCryptoParams);
-	}
+	//	shared_ptr<ElemParams> newCryptoParams( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	//	cryptoParams->SetElementParams(newCryptoParams);
+	//}
 
 	/**
 	 * == operator to compare to this instance of LPCryptoParametersLTV object.
@@ -359,63 +359,63 @@ private:
 	}
 
 	//function for parameter selection. The public ParameterSelection function is a wrapper around this function.
-	void ParameterSelection(usint& n, vector<BigBinaryInteger> &moduli) {
-		int t = m_depth + 1;
-		int d = m_depth;
+	//void ParameterSelection(usint& n, vector<BigBinaryInteger> &moduli) {
+	//	int t = m_depth + 1;
+	//	int d = m_depth;
 
-		BigBinaryInteger pBigBinaryInteger(this->GetPlaintextModulus());
-		int p = pBigBinaryInteger.ConvertToInt();
-		double w = m_assuranceMeasure;
-		double r = m_distributionParameter;
-		double rootHermitFactor = m_securityLevel;
+	//	BigBinaryInteger pBigBinaryInteger(this->GetPlaintextModulus());
+	//	int p = pBigBinaryInteger.ConvertToInt();
+	//	double w = m_assuranceMeasure;
+	//	double r = m_distributionParameter;
+	//	double rootHermitFactor = m_securityLevel;
 
-		double sqrtn = sqrt(n);
-		double q1 = 4 * p * r * sqrtn * w;
-		double q2 = 4 * pow(p, 2) * pow(r, 5) * pow(sqrtn, 3) * pow(w, 5);
+	//	double sqrtn = sqrt(n);
+	//	double q1 = 4 * p * r * sqrtn * w;
+	//	double q2 = 4 * pow(p, 2) * pow(r, 5) * pow(sqrtn, 3) * pow(w, 5);
 
-		BigBinaryInteger plaintextModulus(p);
+	//	BigBinaryInteger plaintextModulus(p);
 
-		double* q = new double[t];
-		q[0] = q1;
-		for(int i=1; i<t; i++)
-			q[i] = q2;
+	//	double* q = new double[t];
+	//	q[0] = q1;
+	//	for(int i=1; i<t; i++)
+	//		q[i] = q2;
 
-		double sum = 0.0;
-		for(int i=0; i<t; i++) {
-			sum += log(q[i]);
-		}
+	//	double sum = 0.0;
+	//	for(int i=0; i<t; i++) {
+	//		sum += log(q[i]);
+	//	}
 
-		int next = ceil(sum/ (4 * log(rootHermitFactor)));
-		int nprime = pow(2, ceil(log(next)/log(2)));
-		char c = '.';
+	//	int next = ceil(sum/ (4 * log(rootHermitFactor)));
+	//	int nprime = pow(2, ceil(log(next)/log(2)));
+	//	char c = '.';
 
-		if(n == nprime) {
-			sum = 0.0;
-			for(int i=0; i<t; i++) {
-				moduli[i] = BigBinaryInteger(split(std::to_string(q[i]), c));
-				if(i == 0 || i == 1){
-					NextQ(moduli[i], pBigBinaryInteger, n, BigBinaryInteger("4"), BigBinaryInteger("4"));
-				}
-				else{
-					moduli[i] = moduli[i-1];
-					NextQ(moduli[i], pBigBinaryInteger, n, BigBinaryInteger("4"), BigBinaryInteger("4"));
-				}
-				q[i] = moduli[i].ConvertToDouble();
-				sum += log(q[i]);
-			}
+	//	if(n == nprime) {
+	//		sum = 0.0;
+	//		for(int i=0; i<t; i++) {
+	//			moduli[i] = BigBinaryInteger(split(std::to_string(q[i]), c));
+	//			if(i == 0 || i == 1){
+	//				NextQ(moduli[i], pBigBinaryInteger, n, BigBinaryInteger("4"), BigBinaryInteger("4"));
+	//			}
+	//			else{
+	//				moduli[i] = moduli[i-1];
+	//				NextQ(moduli[i], pBigBinaryInteger, n, BigBinaryInteger("4"), BigBinaryInteger("4"));
+	//			}
+	//			q[i] = moduli[i].ConvertToDouble();
+	//			sum += log(q[i]);
+	//		}
 
-			int nprimeCalcFactor = ceil(sum/ (4 * log(rootHermitFactor)));
-			if(nprime < nprimeCalcFactor){
-				n *= 2;
-				ParameterSelection(n, moduli);
-			}
-		} else {
-			n *= 2;
-			ParameterSelection(n, moduli);
-		}
+	//		int nprimeCalcFactor = ceil(sum/ (4 * log(rootHermitFactor)));
+	//		if(nprime < nprimeCalcFactor){
+	//			n *= 2;
+	//			ParameterSelection(n, moduli);
+	//		}
+	//	} else {
+	//		n *= 2;
+	//		ParameterSelection(n, moduli);
+	//	}
 
-		delete q;
-	}
+	//	delete q;
+	//}
 
 };
 }

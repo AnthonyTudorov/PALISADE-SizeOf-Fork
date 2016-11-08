@@ -158,13 +158,14 @@ shared_ptr<Ciphertext<Element>>
 LPAlgorithmSHENull<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const
 		{
-	//	shared_ptr<Ciphertext<Element>> newCiphertext;
-	//
-	//	//invoke the EvalMult without the EvalKey
-	//	newCiphertext = EvalMult(ciphertext1, ciphertext2);
-	//
-	//	//Key Switching operation.
-	//	return KeySwitch( ek, newCiphertext );
+			//	shared_ptr<Ciphertext<Element>> newCiphertext;
+			//
+			//	//invoke the EvalMult without the EvalKey
+			//	newCiphertext = EvalMult(ciphertext1, ciphertext2);
+			//
+			//	//Key Switching operation.
+			//	return KeySwitch( ek, newCiphertext );
+			return EvalMult(ciphertext1, ciphertext2);
 		}
 
 /**

@@ -42,10 +42,10 @@
 
 #include "../include/gtest/gtest.h"
 #include <iostream>
+#include <bitset>
 //todo reduce the number of required includes
 
 #include "../../src/lib/math/backend.h"
-#include "../../src/lib/crypto/lwecrypt.h"
 #include "../../src/lib/utils/inttypes.h"
 #include "../../src/lib/utils/utilities.h"
 

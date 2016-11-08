@@ -18,8 +18,6 @@
 #include "../../lib/lattice/ildcrtparams.h"
 #include "../../lib/lattice/ilelement.h"
 #include "../../lib/math/distrgen.h"
-#include "../../lib/crypto/lwecrypt.h"
-#include "../../lib/crypto/lwepre.h"
 #include "../../lib/lattice/ilvector2n.h"
 #include "../../lib/lattice/ilvectorarray2n.h"
 

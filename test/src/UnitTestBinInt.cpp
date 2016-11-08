@@ -37,8 +37,6 @@
 #include "../../src/lib/lattice/ilelement.h"
 #include "../../src/lib/lattice/ilvector2n.h"
 #include "../../src/lib/lattice/ilvectorarray2n.h"
-#include "../../src/lib/crypto/lwecrypt.h"
-#include "../../src/lib/crypto/lwepre.h"
 #include "../../src/lib/utils/inttypes.h"
 #include "../../src/lib/utils/utilities.h"
 
