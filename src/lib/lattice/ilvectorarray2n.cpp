@@ -36,6 +36,7 @@ using std::shared_ptr;
 namespace lbcrypto {
 
 	/*CONSTRUCTORS*/
+	std::map<BigBinaryInteger, std::map<usint, BigBinaryInteger>> *ILVectorArray2n::m_towersize_cri_factors = 0;
 
 	ILVectorArray2n::ILVectorArray2n() : m_format(EVALUATION), m_cyclotomicOrder(0), m_modulus(1){
 	}
@@ -785,7 +786,7 @@ namespace lbcrypto {
 		DEBUG("X");
 		DEBUG("m_cyclotomicOrder "<<m_cyclotomicOrder);
 		DEBUG("modulus "<< modulus.ToString());
-		ILParams ilParams(m_cyclotomicOrder, modulus, BigBinaryInteger::ONE);
+		ILParams ilParams(m_cyclotomicOrder, modulus, BigBinaryInteger::ONE); // Setting the root of unity to ONE as the calculation is expensive and not required.
 		DEBUG("Y");
 
 		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(m_cyclotomicOrder, modulus) ) );
@@ -843,6 +844,46 @@ namespace lbcrypto {
 			if (!m_vectors[i].InverseExists()) return false;
 		}
 		return true;
+	}
+	void ILVectorArray2n::PreComputeCRIFactors(const std::vector<BigBinaryInteger>& moduli)
+	{
+
+		if (m_towersize_cri_factors == 0) {
+			m_towersize_cri_factors = new std::map<BigBinaryInteger, std::map<usint, BigBinaryInteger>>();
+		}
+
+		std::map<usint, BigBinaryInteger> tower_number_to_cri_value_map;
+
+		BigBinaryInteger qj;
+		BigBinaryInteger divideBigModulusByIndexModulus;
+		BigBinaryInteger modularInverse;
+		BigBinaryInteger chineseRemainderMultiplier;
+
+		BigBinaryInteger bigModulus("1");
+
+		for (usint i = 0; i < moduli.size(); i++) {
+			bigModulus = bigModulus * moduli[i];
+		}
+
+		for (usint j = 0; j < moduli.size(); j++) {
+
+			qj = moduli[j]; //qj
+
+			divideBigModulusByIndexModulus = bigModulus.DividedBy(qj); //qt/qj
+
+			modularInverse = divideBigModulusByIndexModulus.Mod(qj).ModInverse(qj); // (qt/qj)^(-1) mod qj
+
+			chineseRemainderMultiplier = divideBigModulusByIndexModulus.Times(modularInverse);
+
+			tower_number_to_cri_value_map[j] = chineseRemainderMultiplier;
+		}
+
+		m_towersize_cri_factors->at(bigModulus) = std::move(tower_number_to_cri_value_map);
+	}
+
+	void ILVectorArray2n::DestroyPrecomputedCRIFactors()
+	{
+		delete m_towersize_cri_factors;
 	}
 	//JSON FACILITY
 

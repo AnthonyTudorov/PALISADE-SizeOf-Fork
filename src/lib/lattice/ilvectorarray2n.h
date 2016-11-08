@@ -555,6 +555,21 @@ namespace lbcrypto {
 		*/
 		bool InverseExists() const;
 
+		/**
+		* Pre computes the CRI factors. CRI factors are used in the chinese remainder interpolation.
+		* Note that different vector of moduli can co-exist as precomputed values.
+		*
+		* @param &moduli is the chain of moduli to construct the CRI factors from
+		*/
+		static void PreComputeCRIFactors(const std::vector<BigBinaryInteger> &moduli);
+
+		/**
+		* Deletes the static pointer CRI factors pointer
+		*
+		* @param &moduli is the chain of moduli to construct the CRI factors from
+		*/
+		static void DestroyPrecomputedCRIFactors();
+
 		//JSON FACILITY
 		/**
 		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
@@ -585,7 +600,7 @@ namespace lbcrypto {
 		usint m_cyclotomicOrder;
 
 		//This table stores constant interpolation values
-		std::map<usint, std::map<usint, BigBinaryInteger>> m_towersize_cri_factors;
+		static std::map<BigBinaryInteger, std::map<usint, BigBinaryInteger>> *m_towersize_cri_factors;
 
 	};
 
