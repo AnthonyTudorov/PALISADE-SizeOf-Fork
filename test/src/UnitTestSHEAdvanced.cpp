@@ -59,6 +59,7 @@ ModReduce, RingReduce and KeySwitch Hint will be in UnitTestSHE.cpp
 #include "../../src/lib/encoding/intplaintextencoding.h"
 
 #include "../../src/lib/utils/debug.h"
+
 #include <cmath>
 
 
