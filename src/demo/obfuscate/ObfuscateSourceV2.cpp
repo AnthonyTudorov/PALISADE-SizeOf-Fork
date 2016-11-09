@@ -95,11 +95,17 @@ void NTRUPRE(int input) {
 
 	usint m = 16;
 	//60 bits
-	BigBinaryInteger modulus("1152921504606847009");
+	//BigBinaryInteger modulus("1152921504606847009");
+
+	//45 bits
+	BigBinaryInteger modulus("17592186045073");
+
 	//27 bits
 	//BigBinaryInteger modulus("67108913");
+	//45 bits
+	BigBinaryInteger rootOfUnity("9930619651640");
 	//60 bits
-	BigBinaryInteger rootOfUnity("405107564542978792");
+	//BigBinaryInteger rootOfUnity("405107564542978792");
 	//27 bits
 	//BigBinaryInteger rootOfUnity("61564");
 

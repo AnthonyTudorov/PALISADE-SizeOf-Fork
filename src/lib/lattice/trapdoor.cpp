@@ -127,7 +127,42 @@ namespace lbcrypto {
 		zHatPrime(1,0) = pHat(1,0) + T.m_r.Mult(zHat)(0,0);
 
 		for (size_t row = 2; row < k + 2; ++row)
-			zHatPrime(row,0) = pHat(row,0) + zHat(row-2,0);
+			zHatPrime(row, 0) = pHat(row, 0) + zHat(row - 2, 0);
+
+		/*
+		
+		//This code is helpful in tightening parameter constraints
+
+		zHatPrime(0, 0).SwitchFormat();
+		ILVector2n z0 = zHatPrime(0, 0);
+		zHatPrime(0, 0).SwitchFormat();
+
+		zHatPrime(1, 0).SwitchFormat();
+		ILVector2n z1 = zHatPrime(1, 0);
+		zHatPrime(1, 0).SwitchFormat();
+
+		std::cout << "z0=" << z0.Norm() << std::endl;
+		std::cout << "z1=" << z1.Norm() << std::endl;
+
+		zHatPrime(2, 0).SwitchFormat();
+		ILVector2n z2 = zHatPrime(2, 0);
+		zHatPrime(2, 0).SwitchFormat();
+
+		std::cout << "z2=" << z2.Norm() << std::endl;
+
+		pHat(2, 0).SwitchFormat();
+		ILVector2n pHat2 = pHat(2, 0);
+		pHat(2, 0).SwitchFormat();
+
+		std::cout << "pHat=" << pHat2.Norm() << std::endl;
+	
+		zHat(0, 0).SwitchFormat();
+		ILVector2n zHat2 = zHat(0, 0);
+		zHat(0, 0).SwitchFormat();
+
+		std::cout << "zHat=" << zHat2.Norm() << std::endl;
+		
+		*/
 
 		return zHatPrime;
 
