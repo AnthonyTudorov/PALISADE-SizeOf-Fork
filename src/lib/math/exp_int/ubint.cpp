@@ -54,7 +54,7 @@
 
 #include "../../utils/debug.h"
 
-#define LimbReserveHint 6  // hint for reservation of limbs
+#define LimbReserveHint 4  // hint for reservation of limbs
 
 namespace exp_int {
 
@@ -1180,8 +1180,8 @@ return result;
     size_t nSize = this->m_value.size();
     size_t bSize = b.m_value.size();
     ubint tmpans;
-    //ans.m_value.reserve(nSize+bSize);    
-    //tmpans.m_value.reserve(nSize+1);    
+    ans.m_value.reserve(nSize+bSize);    
+    tmpans.m_value.reserve(nSize+1);    
 
     for(size_t i= 0;i< bSize;++i){
       DEBUG("i "<<i);
@@ -1261,7 +1261,7 @@ return result;
 
 
   template<typename limb_t>
- inline ubint<limb_t>& ubint<limb_t>::operator+=(const ubint& b){
+  ubint<limb_t>& ubint<limb_t>::operator+=(const ubint& b){
     bool dbg_flag = false;		// if true then print dbg output
     DEBUG("in +=");
     //check for garbage initializations
@@ -1361,25 +1361,25 @@ return result;
 
 
   template<typename limb_t>
-inline  ubint<limb_t>& ubint<limb_t>::operator-=(const ubint &b){
+  ubint<limb_t>& ubint<limb_t>::operator-=(const ubint &b){
     *this = *this-b;
     return *this;
   }
 
   template<typename limb_t>
-inline  ubint<limb_t>& ubint<limb_t>::operator*=(const ubint &b){
+  ubint<limb_t>& ubint<limb_t>::operator*=(const ubint &b){
     *this = *this*b;
     return *this;
   }
 
   template<typename limb_t>
-inline  ubint<limb_t>& ubint<limb_t>::operator/=(const ubint &b){
+  ubint<limb_t>& ubint<limb_t>::operator/=(const ubint &b){
     *this = *this/b;
     return *this;
   }
 
   template<typename limb_t>
-inline  ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
+  ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
     *this = *this%b;
     return *this;
   }
@@ -1710,14 +1710,24 @@ inline  ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
   //remainder only 
   template<typename limb_t>
   int ubint<limb_t>::divr_vect(ubint& rin, const ubint& uin, const ubint& vin) const{
-
+#ifdef OLD_DIV
     vector<limb_t>&r = (rin.m_value);
     const vector<limb_t>&u = (uin.m_value);
     const vector<limb_t>&v = (vin.m_value);
 
     int m = u.size();
     int n = v.size();
+#else
+    vector<limb_t>&r = (rin.m_value);
+    limb_t const *u = (uin.m_value.data());
+    const vector<limb_t>&v = (vin.m_value);
 
+    int m = uin.m_value.size();
+    int n = v.size();
+
+
+
+#endif
 
     const Dlimb_t ffs = (Dlimb_t)m_MaxLimb; // Number  (2**64)-1.
     const Dlimb_t b = (Dlimb_t)m_MaxLimb+1; // Number base (2**64).
@@ -1752,14 +1762,18 @@ inline  ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
    
     s = nlz(v[n-1]);             // 0 <= s <= m_limbBitLenghth-1.
     // std::cout<< "nlz of " << v[n-1]  << " = "<<  s;
-    // vn = (limb_t *)alloca(4*n);
-    vector<limb_t> vn(n);
+#ifdef OLD_DIV
+    vector<limb_t> vn(n); 
+    vector<limb_t> un(m+1);
+#else
+    limb_t *vn = (limb_t *)alloca(sizeof(limb_t)*n);
+    limb_t *un = (limb_t *)alloca(sizeof(limb_t)*(m + 1));
+#endif
     for (i = n - 1; i > 0; i--)
       vn[i] = (v[i] << s) | ((Dlimb_t)v[i-1] >> (m_limbBitLength-s));
     vn[0] = v[0] << s;
 
-    //un = (limb_t *)alloca(4*(m + 1));
-    vector<limb_t> un(m+1);
+
 
     un[m] = (Dlimb_t)u[m-1] >> (m_limbBitLength-s);
     for (i = m - 1; i > 0; i--)
@@ -1805,7 +1819,9 @@ inline  ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
 
     // the caller wants the remainder, unnormalize
     // it and pass it back.
+#ifdef OLD_DIV
     r.resize(n);
+#endif
     for (i = 0; i < n-1; i++)
       r[i] = (un[i] >> s) | ((Dlimb_t)un[i+1] << (m_limbBitLength-s));
     r[n-1] = un[n-1] >> s;
@@ -2027,6 +2043,10 @@ inline  ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
     }
 
     int f;
+#ifndef OLD_DIV
+    ans.m_value.resize(modulus.m_value.size());
+#endif
+
     f = divr_vect(ans,  *this,  modulus);
     if (f!= 0)
       throw std::logic_error("Mod() divr error");
@@ -2215,8 +2235,8 @@ inline  ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModMul(const ubint& b, const ubint& modulus) const{
 
-    ubint const  &a(*this);
-    ubint const &bb(b);
+    ubint a(*this);
+    ubint bb(b);
     bool dbg_flag = false;
     DEBUG("ModMul");
 	
@@ -2241,7 +2261,7 @@ inline  ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
     size_t bSize = bb.m_value.size();
     ubint tmpans;
     ans.m_value.reserve(nSize+bSize);    
-    //    tmpans.m_value.reserve(nSize+1);    
+    //tmpans.m_value.reserve(nSize+1);    
     tmpans.m_value.reserve(nSize+bSize);    
     for(size_t i= 0;i< bSize;++i){
       DEBUG("i "<<i);
@@ -2297,7 +2317,8 @@ inline  ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
       DEBUG("mibl ans "<<ans.ToString());
 
       //      ans += (tmpans<<=(i)*a.m_limbBitLength);
-      ans += tmpans.Mod(modulus);
+      //ans += tmpans.Mod(modulus);
+      ans += tmpans;
       ans = ans.Mod(modulus);
       DEBUG("ans now "<<ans.ToString());
     }

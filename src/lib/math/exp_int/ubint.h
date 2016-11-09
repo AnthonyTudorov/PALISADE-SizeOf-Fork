@@ -580,7 +580,7 @@ namespace exp_int{
      * @param &b is the value to add of type ubint.
      * @return result of the addition operation of type ubint.
      */
-    inline ubint& operator+=(const ubint &b);
+    ubint& operator+=(const ubint &b);
 
 		
     /**
@@ -589,7 +589,7 @@ namespace exp_int{
      * @param &b is the value to subtract of type ubint.
      * @return result of the subtraction operation of type ubint.
      */
-    inline ubint& operator-=(const ubint &b);
+    ubint& operator-=(const ubint &b);
 
     /**
      * Multiplication accumulator.
@@ -597,7 +597,7 @@ namespace exp_int{
      * @param &b is the value to multiply by of type ubint.
      * @return result of the multiplication operation of type ubint.
      */
-    inline ubint& operator*=(const ubint &b);
+    ubint& operator*=(const ubint &b);
 
     /**
      * Division accumulator.
@@ -605,7 +605,7 @@ namespace exp_int{
      * @param &b is the value to divide by of type ubint.
      * @return result of the division operation of type ubint.
      */
-    inline ubint& operator/=(const ubint &b);
+    ubint& operator/=(const ubint &b);
 
     /**
      * Modulus accumulator.
@@ -613,7 +613,7 @@ namespace exp_int{
      * @param &b is the value to modulo by of type ubint.
      * @return result of the modulo operation of type ubint.
      */
-    inline ubint& operator%=(const ubint &b);
+    ubint& operator%=(const ubint &b);
 
     /**
      * Subtraction operation.
