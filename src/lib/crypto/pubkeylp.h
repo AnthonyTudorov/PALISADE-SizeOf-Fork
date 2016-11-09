@@ -968,7 +968,7 @@ namespace lbcrypto {
 			 * @param &newPrivateKey new private for generating a keyswitchhint to.
 			 * @param *quadraticKeySwitchHint the generated keyswitchhint.
 			 */
-			virtual shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
+			virtual shared_ptr<LPEvalKey<Element>> QuadraticEvalMultKeyGen(
 				const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 				const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
 
@@ -999,7 +999,7 @@ namespace lbcrypto {
 			virtual shared_ptr<Ciphertext<Element>> ComposedEvalMult(
 					const shared_ptr<Ciphertext<Element>> cipherText1,
 					const shared_ptr<Ciphertext<Element>> cipherText2,
-					const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint) const = 0;
+					const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const = 0;
 
 			/**
 			 * Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
@@ -1009,7 +1009,7 @@ namespace lbcrypto {
 			 * @param &cipherTextResult is the resulting ciphertext.
 			 */
 			virtual shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
-					const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const = 0;
+					const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const = 0;
 			/**
 			* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
 			* and odd indices are set to zero.
@@ -1481,6 +1481,10 @@ namespace lbcrypto {
 					
 					if(this->IsEnabled(SHE))
 						return this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2, evalKey);
+					else {
+						throw std::logic_error("This operation is not supported");
+					}
+		}
 
 		void EvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, 
 				const LPPrivateKey<Element> &newPrivateKey, LPEvalKey<Element> *keySwitchHint) const {
@@ -1506,13 +1510,10 @@ namespace lbcrypto {
 		shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
 			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
-
-		void QuadraticEvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, const LPPrivateKey<Element> &newPrivateKey, LPEvalKey<Element> *quadraticKeySwitchHint) const {
-
-			if(this->m_algorithmLeveledSHE){
-				return this->m_algorithmLeveledSHE->QuadraticEvalMultKeyGen(originalPrivateKey,newPrivateKey);
+			if (this->m_algorithmLeveledSHE) {
+				return this->m_algorithmLeveledSHE->QuadraticEvalMultKeyGen(originalPrivateKey, newPrivateKey);
 			}
-			else{
+			else {
 				throw std::logic_error("QuadraticEvalMultKeyGen operation has not been enabled");
 			}
 		}

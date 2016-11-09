@@ -1,10 +1,10 @@
 /**
 * @file
-* @author	TPOC: 
-				Dr. Kurt Rohloff <rohloff@njit.edu>,
-			Programmers: 
-				Dr. Yuriy Polyakov <polyakov@njit.edu>
-				Hadi Sajjadpour <ss2959@njit.edu>
+* @author	TPOC:
+Dr. Kurt Rohloff <rohloff@njit.edu>,
+Programmers:
+Dr. Yuriy Polyakov <polyakov@njit.edu>
+Hadi Sajjadpour <ss2959@njit.edu>
 
 * @version 00_03
 *
@@ -58,16 +58,16 @@ namespace lbcrypto {
 	class LPCryptoParametersBV;
 
 	/**
-	 * @brief Main ciphertext class.
-	 * @tparam Element a ring element.
-	 */
+	* @brief Main ciphertext class.
+	* @tparam Element a ring element.
+	*/
 	template <class Element>
 	class Ciphertext : public Serializable {
 	public:
 
 		/**
-		 * Default constructor
-		 */
+		* Default constructor
+		*/
 		Ciphertext() : m_norm(BigBinaryInteger::ZERO) {}
 
 		Ciphertext(CryptoContext<Element> cc) : cryptoContext(cc), m_norm(BigBinaryInteger::ZERO) {}
@@ -80,12 +80,12 @@ namespace lbcrypto {
 		/**
 		* Moveable copy constructor
 		*/
-		Ciphertext(Ciphertext<Element> &&ciphertext); 
+		Ciphertext(Ciphertext<Element> &&ciphertext);
 
 		/**
-		 * Destructor
-		 */
-		~Ciphertext(){}
+		* Destructor
+		*/
+		~Ciphertext() {}
 
 		/**
 		* Assignment Operator.
@@ -131,9 +131,9 @@ namespace lbcrypto {
 		* Get the first element
 		* @return the ring element.
 		*/
-		const Element &GetElement() const { 
+		const Element &GetElement() const {
 			if (m_elements.size() > 0)
-				return m_elements[0]; 
+				return m_elements[0];
 			else
 			{
 				std::string errMsg = "No elements are current stored in the ciphertext";
@@ -155,9 +155,9 @@ namespace lbcrypto {
 		*/
 		void SetCryptoParameters(const LPCryptoParameters<Element> *cryptoParameters) {
 			throw std::logic_error("fix my setting parameters!");
-//			if( m_cryptoParameters != 0 )
-//				throw std::logic_error("Crypto parameters can not be changed in existing ciphertext");
-//			m_cryptoParameters = cryptoParameters;
+			//			if( m_cryptoParameters != 0 )
+			//				throw std::logic_error("Crypto parameters can not be changed in existing ciphertext");
+			//			m_cryptoParameters = cryptoParameters;
 		}
 
 		/**
@@ -165,14 +165,14 @@ namespace lbcrypto {
 		*
 		* @param &norm is ciphertext norm estimate.
 		*/
-		void SetNorm(const BigBinaryInteger &norm) {  m_norm = norm; }
+		void SetNorm(const BigBinaryInteger &norm) { m_norm = norm; }
 
 		/**
 		* Sets the first data element.
 		*
 		* @param &element is a polynomial ring element.
 		*/
-		void SetElement(const Element &element) { 
+		void SetElement(const Element &element) {
 			if (m_elements.size() > 0)
 				m_elements[0] = element;
 			else
@@ -193,7 +193,7 @@ namespace lbcrypto {
 		* @return the new ciphertext.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext) const;
-	
+
 		//JSON FACILITY
 		/**
 		* Serialize the object into a Serialized

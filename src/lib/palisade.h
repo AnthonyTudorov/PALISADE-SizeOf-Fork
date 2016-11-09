@@ -17,6 +17,7 @@ using std::string;
 using std::shared_ptr;
 
 namespace lbcrypto {
+
 template <class Element>
 class CryptoContext;
 }

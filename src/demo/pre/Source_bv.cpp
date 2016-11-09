@@ -75,7 +75,7 @@ int main() {
 	int input = 0;
 	std::cin >> input;
 	//cleans up the buffer
-	cin.ignore();
+	std::cin.ignore();
 
 	if ((input<0) || (input>4))
 		input = 0;
