@@ -18,7 +18,7 @@
 #include "../../lib/lattice/ilparams.h"
 #include "../../lib/lattice/ildcrtparams.h"
 #include "../../lib/lattice/ilelement.h"
-#include "../../lib/crypto/lwecrypt.h"
+//#include "../../lib/crypto/lwecrypt.h"
 #include "../../lib/obfuscate/lweconjunctionobfuscate.h"
 #include "../../lib/obfuscate/lweconjunctionobfuscate.cpp"
 #include "../../lib/obfuscate/obfuscatelp.h"
