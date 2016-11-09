@@ -54,7 +54,7 @@
 
 #include "../../utils/debug.h"
 
-#define LimbReserveHint 4  // hint for reservation of limbs
+#define LimbReserveHint 6  // hint for reservation of limbs
 
 namespace exp_int {
 
@@ -799,6 +799,7 @@ return result;
    */
   template<typename limb_t>
   ubint<limb_t>&  ubint<limb_t>::operator>>=(usint shift){
+#if 0
     //check for garbage
     if(m_state==State::GARBAGE)
       throw std::logic_error("Value not initialized");
@@ -812,6 +813,92 @@ return result;
       *this = *this >> shift;
       return *this;
     }
+#else
+    bool dbg_flag = false;
+    //garbage check
+    if(m_state==State::GARBAGE)
+      throw std::logic_error("Value not initialized");
+
+    //trivial cases
+    if(this->m_MSB==0)
+      return *this;
+    if(this->m_MSB <= shift){
+      this->m_value.clear(); //zero out this
+      this->m_value.push_back(0);
+      this->m_MSB=0;
+    }
+
+    //compute the number of whole limb shifts
+    usint shiftByLimb = shift>>m_log2LimbBitLength;
+
+    //compute the remaining number of bits to shift
+    limb_t remainingShift = (shift&(m_limbBitLength-1));
+
+
+    DEBUG("l2lbl "<< m_log2LimbBitLength);
+    DEBUG("totalshift "<< shift);
+    DEBUG("shiftByLimb "<<shiftByLimb);
+    DEBUG("remainingShift "<<remainingShift);
+    DEBUG("size "<<m_value.size());
+
+    //first shift by the number of whole limb shifts
+    if(shiftByLimb!=0){
+
+      if (shiftByLimb >this->m_value.size())
+	DEBUG("LOGIC ERROR size is " <<this->m_value.size());
+
+
+      for(auto i =  shiftByLimb; i < this->m_value.size(); ++i){
+	DEBUG("limb shift ");
+	this->m_value[i-shiftByLimb] = this->m_value[i];
+      }
+      //zero out upper  "shifted in" limbs
+      for(usint i = 0; i< shiftByLimb; ++i){
+	DEBUG("limb zereo");
+	this->m_value.pop_back();
+      }
+
+      //msb adjusted to show the shifts
+      this->m_MSB -= shiftByLimb<<m_log2LimbBitLength;
+
+    }
+
+    //remainderShift bit shifts
+    if(remainingShift!=0){
+
+      limb_t overFlow = 0;
+      limb_t oldVal;
+      limb_t maskVal = (1<<(remainingShift))-1;
+      limb_t compShiftVal = m_limbBitLength- remainingShift;
+
+      usint startVal = ceilIntByUInt(this->m_MSB);
+      //perform shifting by bits by calculating the overflow
+      //oveflow is added after the shifting operation
+
+      DEBUG("maskVal "<< maskVal);
+      DEBUG("startVal "<< startVal);
+      DEBUG("compShiftVal " << compShiftVal);
+
+      for(sint i = startVal -1 ; i>=0;i--){
+	DEBUG("bit shift "<<i);
+	oldVal = this->m_value[i];
+	this->m_value[i] = (this->m_value[i]>>remainingShift) + overFlow;
+
+	overFlow = (oldVal &  maskVal);
+	overFlow <<= compShiftVal ;
+      }
+
+      this->m_MSB -= remainingShift;
+
+    }
+
+    this->NormalizeLimbs();
+
+    DEBUG("final MSB "<<this->m_MSB);
+    this->SetMSB();
+    DEBUG("final MSB check "<<this->m_MSB);
+    return *this;
+#endif
   }
 
 
@@ -1116,6 +1203,14 @@ return result;
       DEBUG("ans.size() now " <<ans.m_value.size());
       if (dbg_flag)
 	ans.PrintLimbsInDec();
+
+      usint ix= 0;
+      while (ix<i){
+	tmpans.m_value.push_back(0); //equivalent of << shift
+	//could use insert
+	++ix;
+      }
+
       for(auto itr: m_value){
 	DEBUG("mullimb i"<<i);
 	temp = ((Dlimb_t)itr*(Dlimb_t)limbb) + ofl;
@@ -1142,7 +1237,8 @@ return result;
       DEBUG("mibl ans "<<ans.ToString());
       /////
 
-      ans += tmpans<<=(i)*m_limbBitLength;
+      //ans += tmpans<<=(i)*m_limbBitLength;
+      ans += tmpans;
       //ans += (this->MulIntegerByLimb(b.m_value[i]))<<=(i)*m_limbBitLength;
       // usint tmp1 = (i)*m_limbBitLength;
       // DEBUG("tmp1 "<<tmp1);
@@ -1165,7 +1261,7 @@ return result;
 
 
   template<typename limb_t>
-  ubint<limb_t>& ubint<limb_t>::operator+=(const ubint& b){
+ inline ubint<limb_t>& ubint<limb_t>::operator+=(const ubint& b){
     bool dbg_flag = false;		// if true then print dbg output
     DEBUG("in +=");
     //check for garbage initializations
@@ -1265,25 +1361,25 @@ return result;
 
 
   template<typename limb_t>
-  ubint<limb_t>& ubint<limb_t>::operator-=(const ubint &b){
+inline  ubint<limb_t>& ubint<limb_t>::operator-=(const ubint &b){
     *this = *this-b;
     return *this;
   }
 
   template<typename limb_t>
-  ubint<limb_t>& ubint<limb_t>::operator*=(const ubint &b){
+inline  ubint<limb_t>& ubint<limb_t>::operator*=(const ubint &b){
     *this = *this*b;
     return *this;
   }
 
   template<typename limb_t>
-  ubint<limb_t>& ubint<limb_t>::operator/=(const ubint &b){
+inline  ubint<limb_t>& ubint<limb_t>::operator/=(const ubint &b){
     *this = *this/b;
     return *this;
   }
 
   template<typename limb_t>
-  ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
+inline  ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
     *this = *this%b;
     return *this;
   }
@@ -1965,7 +2061,7 @@ return result;
 	sint beta = -2;
 
 	q>>=n + beta;
-	q=q*mu;
+	q*=mu;
 	q>>=alpha-beta;
 	z-=q*modulus;
 	
@@ -2119,8 +2215,8 @@ return result;
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModMul(const ubint& b, const ubint& modulus) const{
 
-    ubint a(*this);
-    ubint bb(b);
+    ubint const  &a(*this);
+    ubint const &bb(b);
     bool dbg_flag = false;
     DEBUG("ModMul");
 	
@@ -2144,9 +2240,9 @@ return result;
     size_t nSize = a.m_value.size();
     size_t bSize = bb.m_value.size();
     ubint tmpans;
-    //ans.m_value.reserve(nSize+bSize);    
-    //tmpans.m_value.reserve(nSize+1);    
-
+    ans.m_value.reserve(nSize+bSize);    
+    //    tmpans.m_value.reserve(nSize+1);    
+    tmpans.m_value.reserve(nSize+bSize);    
     for(size_t i= 0;i< bSize;++i){
       DEBUG("i "<<i);
       //ubint tmp2;
@@ -2167,10 +2263,19 @@ return result;
       DEBUG("ans.size() now " <<ans.m_value.size());
       if (dbg_flag)
 	ans.PrintLimbsInDec();
+
+      usint ix= 0;
+      while (ix<i){
+	tmpans.m_value.push_back(0); //equivalent of << shift
+	//could use insert
+	++ix;
+      }
+      
       for(auto itr: a.m_value){
 	DEBUG("mullimb i"<<i);
 	temp = ((Dlimb_t)itr*(Dlimb_t)limbb) + ofl;
 
+	
 	tmpans.m_value.push_back((limb_t)temp);
 	ofl = temp>>a.m_limbBitLength;
 	DEBUG("ans.size() now " <<ans.m_value.size());
@@ -2191,7 +2296,8 @@ return result;
 	tmpans.PrintLimbsInDec();
       DEBUG("mibl ans "<<ans.ToString());
 
-      ans += (tmpans<<=(i)*a.m_limbBitLength);
+      //      ans += (tmpans<<=(i)*a.m_limbBitLength);
+      ans += tmpans.Mod(modulus);
       ans = ans.Mod(modulus);
       DEBUG("ans now "<<ans.ToString());
     }

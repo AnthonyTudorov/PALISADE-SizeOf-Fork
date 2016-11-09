@@ -3,7 +3,7 @@
 
 #define PROFILE //need to define in order to turn on timing
 
-//#define TEST3
+#define TEST3
 
 
 
@@ -41,35 +41,6 @@ int main(int argc, char* argv[]){
   return 0;
 }
 
-//Testing macro runs the desired code 
-// res = fn
-// an a loop nloop times, timed with timer t with res compared to testval
-
-#define TESTIT(t, res, fn, testval, nloop) do {				\
-    try {								\
-      TIC(t);								\
-      for (usint j = 0; j< nloop; j++){					\
-	res = (fn);							\
-      }									\
-      time2 = TOC(t);							\
-      DEBUG(#t << ": " << nloop << " loops " << #res << " = " << #fn << " computation time: " << "\t" << time2 << " us"); \
-      if (res != testval){						\
-	cout << "Bad " << #res << " = " << #fn << endl;			\
-	  /*vec_diff(res, testval);*/					\
-      }									\
-    }catch(exception & e) {cout<< #res << " = " << #fn << " caught exception "<< e.what() <<endl;} \
-  } while (0);
-
-
-//helper function that bulds BigBinaryVector from a vector of strings
-BigBinaryVector BBVfromStrvec( std::vector<std::string> &s) {
-  BigBinaryVector a(s.size());
-  for (usint i = 0; i< s.size(); i++){
-    a.SetValAtIndex(i,s[i]);
-  }
-  return a;
-}
-
 //function to compare two BigBinaryVectors and print differing indicies
 void vec_diff(BigBinaryVector &a, BigBinaryVector &b) {
   for (usint i= 0; i < a.GetLength(); ++i){  
@@ -89,11 +60,8 @@ void vec_diff(BigBinaryVector &a, BigBinaryVector &b) {
 
 //function to compare two ILVector2n and print differing values
 bool clonetest(ILVector2n &a, ILVector2n &b, string name){ 
-
   if (a != b){
     cout << name <<" FAILED "<<endl;
-    a.PrintValues();
-    b.PrintValues();
     return true;
   } else {
     return false;
@@ -102,11 +70,9 @@ bool clonetest(ILVector2n &a, ILVector2n &b, string name){
 
 //main NTT test suite.
 void test_NTT () {
-
   // Code to test NTT at three different numbers of limbs.
 
   int nloop = 10; //number of times to run each test for timing.
-
   bool dbg_flag = 1;		// if true then print dbg output
  
   TimeVar t1,t2, t3,t_total; // timers for TIC() TOC()
@@ -125,138 +91,45 @@ void test_NTT () {
   cout <<endl;
 
   TIC(t_total);
-  //there are three test cases, 1) small modulus 2) approx 48 bits. 
-  //3) large numbers and two examples of each 
 
-  //note this fails BigBinaryInteger q1 = {"163841"};
-  BigBinaryInteger q1 ("270337");
-
-  // for each vector, define a, b inputs as vectors of strings
-  std::vector<std::string> a1strvec = {
-    "127753", "077706",
-    "017133", "022582",
-    "112132", "027625",
-    "126773", "008924",
-    "125972", "002551",
-    "113837", "112045",
-    "100953", "077352",
-    "132013", "057029", };
-
-  // this fails too!!! BigBinaryVector a1(a1string);
-  // so I wrote this function
-  BigBinaryVector a1 = BBVfromStrvec(a1strvec);
-  a1.SetModulus(q1);
-
-  //b:
-  std::vector<std::string> b1strvec = 
-    { "066773", "069572",
-      "142134", "141115",
-      "123182", "155822",
-      "128147", "094818",
-      "135782", "030844",
-      "088634", "099407",
-      "053647", "111689",
-      "028502", "026401", };
-  
-  BigBinaryVector b1  = BBVfromStrvec(b1strvec);
-  b1.SetModulus(q1);
-  
-  //test case 2
-  BigBinaryInteger q2 ("4503599627446273");
-
-  std::vector<std::string> a2strvec = {
-    "00000185225172798255", "00000098879665709163",
-    "00003497410031351258", "00004012431933509255",
-    "00001543020758028581", "00000135094568432141",
-    "00003976954337141739", "00004030348521557120",
-    "00000175940803531155", "00000435236277692967",
-    "00003304652649070144", "00002032520019613814",
-    "00000375749152798379", "00003933203511673255",
-    "00002293434116159938", "00001201413067178193", };
-
-  BigBinaryVector a2 = BBVfromStrvec(a2strvec);
-  a2.SetModulus(q2);
-
-  std::vector<std::string> b2strvec = 
-    { "00000698898215124963", "00000039832572186149",
-      "00001835473200214782", "00001041547470449968",
-      "00001076152419903743", "00000433588874877196",
-      "00002336100673132075", "00002990190360138614",
-      "00000754647536064726", "00000702097990733190",
-      "00002102063768035483", "00000119786389165930",
-      "00003976652902630043", "00003238750424196678",
-      "00002978742255253796", "00002124827461185795", };
-
-  BigBinaryVector b2 = BBVfromStrvec(b2strvec);
-  b2.SetModulus(q2);
-
-  //test case 3
-
-  //q3: very large numbers.
-  BigBinaryInteger q3("3273390607896141870013189696827599152216642046043064789483291368096133796404674554883270092325904157150886684127560071009217256545885393053328527589431");
-
-  std::vector<std::string> a3strvec = {
-    "2259002487796164904665772121894078584543401744155154298312726209247751689172189255653866355964200768484575418973864307364757237946940733747446643725054",
-    "1478743816308009734668992873633380110912159803397999015955212019971253231528589466789603074746010444199132421555598329082557053986240265071537647362089",
-    "2442250766561334341166822783674395133995556495312318016431141348749482739749788174173081312927274880146329980363424977565638001056841245678661782610982",
-    "917779106114096279364098211126816308037915672568153320523308800097705587686270523428976942621563981845568821206569141624247183330715577260930218556767",
-    "214744931049447103852875386182628152420432967632133352449560778740158135437968557572597545037670326240142368149137864407874100658923913041236510842284",
-    "3022931024526554241483841300690432083112912011870712018209552253068347592628043101662926263810401378532416655773738499681026278335470355055192240903881",
-    "2177879458107855257699914331737144896274676269055062432826552808869348125407671199582563543692287114712642299482144959316835614426673048987634699368975",
-    "297233451802123294436846683552230198845414118375785255038220841170372509047202030175469239142902723134737621108313142071558385068315554041062888072990"
-  };
-
-  BigBinaryVector a3 = BBVfromStrvec(a3strvec);
-  a3.SetModulus(q3);
-
-  std::vector<std::string> b3strvec = { 
-    "1746404952192586268381151521422372143182145525977836700420382237240400642889251297954418325675184427789348433626369450669892557208439401215109489355089",
-    "220598825371098531288665964851212313477741334812037568788443848101743931352326362481681721872150902208420539619641973896119680592696228972313317042316",
-    "1636408035867347783699588740469182350452165486745277203525427807971352063169622066488977229506420856017031482691439089288020262006748233954177669740311",
-    "1391860681743495586446518646883933051685658718352722633694285758474124803847473349064660555618847951719510263829699292297119131926436045214364252430665",
-    "840450278810654165061961485691366961514650606247291814263792869596294713810125269780258316551932763106025157596216051681623225968811609560121609943365",
-    "2329731862150094912355786583702878434766436140738594274867891494713002534085652731920888891507522355867974791619686673574928137376468103839586921126803",
-    "3059472316627396548271906051517665887700234192652488639437431254697285170484189458770168152800520702020313091234437806236204196526193455750117363744648",
-    "132216870748476988853044482759545262615616157934129470128771906579101230690441206392939162889560305016204867157725209170345968349185675785497832527174"
-  };
-
-  BigBinaryVector b3 = BBVfromStrvec(b3strvec);
-  b3.SetModulus(q3);
+  BigBinaryInteger q1 ("270337"); //test case 1 smaller than 32 bits
+  BigBinaryInteger q2 ("4503599627446273");   //test case 2 32 > x> 64 bits
 
   usint m = 2048;
+  cout << "m=" << m << endl;
 
-  //  BigBinaryInteger modulus(q1);
-
-  //  NextQ(modulus, BigBinaryInteger("2"), m1, BigBinaryInteger("4"), BigBinaryInteger("4"));
- 
   BigBinaryInteger rootOfUnity1(RootOfUnity(m, q1));
+  cout << "q1 = " << q1 << endl;
+  cout << "rootOfUnity1 = " << rootOfUnity1 << endl;
 
-  std::cout << "rootOfUnity=" << rootOfUnity1 << std::endl;
-  std::cout << "m=" << m << std::endl;
-  std::cout << "q1=" << q1 << std::endl;
-
+  //build parameters fo`r two vectors. 
   ILParams params1(m, q1, rootOfUnity1);
   shared_ptr<ILParams> x1p(new ILParams(params1));
 
-  const DiscreteUniformGenerator dug1(q1);
+  const DiscreteUniformGenerator dug1(q1); //random # generator to use
 
-  ILVector2n x1a(dug1, x1p, Format::COEFFICIENT);
+  // two vectors
+  ILVector2n x1a(dug1, x1p, Format::COEFFICIENT); 
   ILVector2n x1b(dug1, x1p, Format::COEFFICIENT);
 
-  //ILVector2n x1a(dgg, params1, Format::COEFFICIENT);
-  //a1.SetModulus(modulus); //note setting modulus does not perform a modulus.
-  //a1.Mod(modulus);
-  //x1a.SetValues(a1, Format::COEFFICIENT);
 
-  //ILVector2n x1b(params1, Format::COEFFICIENT);
-  //b1.SetModulus(modulus);
-  //b1.Mod(modulus);
-  //x1b.SetValues(b1, Format::COEFFICIENT);
-
+  for (size_t ix = 0; ix < m/2; ix++){
+    if (x1a.GetValues().GetValAtIndex(ix)>=q1) {
+      cout<<"bad value x1a "<<endl;
+    }
+    if (x1b.GetValues().GetValAtIndex(ix)>=q1) {
+      cout<<"bad value x1a "<<endl;
+    }
+  }
+  //make copies to compare against
   ILVector2n x1aClone(x1a);
   ILVector2n x1bClone(x1b);
 
+  //repeat for q2;
   BigBinaryInteger rootOfUnity2(RootOfUnity(m, q2));
+  cout << "q2 = " << q2 << endl;
+  cout << "rootOfUnity2 = " << rootOfUnity2 << endl;
+
   ILParams params2(m, q2, rootOfUnity2);
   shared_ptr<ILParams> x2p(new ILParams(params2));
 
@@ -265,45 +138,39 @@ void test_NTT () {
   ILVector2n x2a(dug2, x2p, Format::COEFFICIENT);
   ILVector2n x2b(dug2, x2p, Format::COEFFICIENT);
 
-  //Precomputations for FTT
-  ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity1, m, q1);
-  ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity2, m, q2);
-
-  //ILVector2n x2a(params2, Format::COEFFICIENT);
-  //a2.SetModulus(modulus); //note setting modulus does not perform a modulus.
-  //a2.Mod(modulus);
-  //x2a.SetValues(a2, Format::COEFFICIENT);
-
-  //ILVector2n x2b(params2, Format::COEFFICIENT);
-  //b2.SetModulus(modulus);
-  //b2.Mod(modulus);
-  //x2b.SetValues(b2, Format::COEFFICIENT);
-
   ILVector2n x2aClone(x2a);
   ILVector2n x2bClone(x2b);
-  
-#ifdef TEST3
-  NextQ(q3, BigBinaryInteger("2"), m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-  cout << "q3 : "<<q3.ToString()<<endl;
 
-  BigBinaryInteger rootOfUnity3(RootOfUnity(m, q3));
+#ifdef TEST3
+  //repeat for q3
+  //note computation of root of unity for big numbers takes forever
+  //hardwire this case
+  BigBinaryInteger q3("13093562431584567480052758787310396608866568184172259157933165472384535185618698219533080369303616628603546736510240284036869026183541572213314110873601");
+
+  BigBinaryInteger rootOfUnity3("12023848463855649466660377440069556144464267030949365165993725942220441412632799311989973938254823071405336623315668961501139592673000297887682895033094");
+
+  cout << "q3 : "<<q3.ToString()<<endl;
   cout << "rootOfUnity3 : "<<rootOfUnity3.ToString()<<endl;
+
   ILParams params3(m, q3, rootOfUnity3);
   shared_ptr<ILParams> x3p(new ILParams(params3));
 
+  const DiscreteUniformGenerator dug3(q3); //random # generator to use
 
-  ILVector2n x3a(params3, Format::COEFFICIENT);
-  //a3.SetModulus(modulus); //note setting modulus does not perform a modulus.
-  //a3.Mod(modulus);
-  x3a.SetValues(a3, Format::COEFFICIENT);
+  // two vectors
+  ILVector2n x3a(dug3, x3p, Format::COEFFICIENT); 
+  ILVector2n x3b(dug3, x3p, Format::COEFFICIENT);
 
-  ILVector2n x3b(params3, Format::COEFFICIENT);
-  //b3.SetModulus(modulus);
-  //b3.Mod(modulus);
-  x3b.SetValues(b3, Format::COEFFICIENT);
-
+  //make copies to compare against
   ILVector2n x3aClone(x3a);
   ILVector2n x3bClone(x3b);
+#endif
+
+  //Precomputations for FTT
+  ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity1, m, q1);
+  ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity2, m, q2);
+#ifdef TEST3
+  ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity3, m, q3);
 #endif
 
   time1af = 0.0;
@@ -349,6 +216,7 @@ void test_NTT () {
     TIC(t1);
     x2b.SwitchFormat();
     time2bf += TOC_US(t1);
+
 #ifdef TEST3
     TIC(t1);
     x3a.SwitchFormat();
@@ -358,6 +226,7 @@ void test_NTT () {
     x3b.SwitchFormat();
     time3bf += TOC_US(t1);
 #endif
+
     //reverse
     TIC(t1);
     x1a.SwitchFormat();
@@ -374,6 +243,7 @@ void test_NTT () {
     TIC(t1);
     x2b.SwitchFormat();
     time2br += TOC_US(t1);
+
 #ifdef TEST3
     TIC(t1);
     x3a.SwitchFormat();
@@ -383,6 +253,7 @@ void test_NTT () {
     x3b.SwitchFormat();
     time3br += TOC_US(t1);
 #endif
+
     failed |= clonetest(x1a, x1aClone, "x1a");
     failed |= clonetest(x1b, x1bClone, "x1b");
     failed |= clonetest(x2a, x2aClone, "x2a");
