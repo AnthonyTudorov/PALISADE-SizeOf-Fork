@@ -656,7 +656,7 @@ namespace lbcrypto {
 	void ILVector2n::PreComputeTugSamples(const TernaryUniformGenerator &tug, const shared_ptr<ILParams> params) {
 		if (m_tugSamples.size() == 0 || m_tugSamples_params != params)
 		{
-			DestroyPreComputedSamples();
+			DestroyPreComputedTugSamples();
 			m_tugSamples_params = params;
 			for (usint i = 0; i < m_sampleSize; ++i)
 			{
