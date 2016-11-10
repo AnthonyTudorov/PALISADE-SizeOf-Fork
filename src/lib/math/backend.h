@@ -55,6 +55,12 @@
 
 //#define MATHBACKEND 2 //side by side comparison of old and new libraries
 #define MATHBACKEND 3 //32 bit should work with all OS
+
+//NOTE currently MATHBACKEND 4 fails the followin unit tests
+//UTSHE.keyswitch_ModReduce_DCRT
+//UTSHEAdvanced.test_eval_mult_double_crt
+//UTSHEAdvanced.test_eval_add_double_crt
+
 //#define MATHBACKEND 4 //64 bit (currently works for ubuntu, not tested otherwise
 
 #if MATHBACKEND == 1

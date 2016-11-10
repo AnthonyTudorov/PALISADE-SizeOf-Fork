@@ -2236,47 +2236,41 @@ return result;
   ubint<limb_t> ubint<limb_t>::ModMul(const ubint& b, const ubint& modulus) const{
 
     ubint a(*this);
-    ubint bb(b);
     bool dbg_flag = false;
     DEBUG("ModMul");
 	
     ubint ans(ZERO);
     //check for garbage initialized objects
-    if(bb.m_MSB==0 || bb.m_state==GARBAGE ||a.m_state==GARBAGE || a.m_MSB==0){
+    if(b.m_MSB==0 || b.m_state==GARBAGE ||a.m_state==GARBAGE || a.m_MSB==0){
       return ans;
     }
     //check for trivial condtions
-    if(bb.m_MSB==1)
-      return ubint(*this);
+    if(b.m_MSB==1)
+      return a;
 
     if(a.m_MSB==1)
       return std::move(ubint(b)); //todo check this? don't think standard move is what we want.
 	
     //position of B in the array where the multiplication should start
-    //limb_t ceilLimb = bb.m_value.size();
+    //limb_t ceilLimb = b.m_value.size();
     //Multiplication is done by getting a limb_t from b and multiplying it with *this
     //after multiplication the result is shifted and added to the final answer
 
     size_t nSize = a.m_value.size();
-    size_t bSize = bb.m_value.size();
+    size_t bSize = b.m_value.size();
     ubint tmpans;
     ans.m_value.reserve(nSize+bSize);    
-    //tmpans.m_value.reserve(nSize+1);    
     tmpans.m_value.reserve(nSize+bSize);    
+
     for(size_t i= 0;i< bSize;++i){
       DEBUG("i "<<i);
-      //ubint tmp2;
-      //////
       tmpans.m_value.clear(); //make sure there are no limbs to start.
-      Dlimb_t limbb(bb.m_value[i]);
+      Dlimb_t limbb(b.m_value[i]);
 
-      //position in the array to start multiplication
-      //
       //variable to capture the overflow
       Dlimb_t temp=0;
       //overflow value
       limb_t ofl=0;
-
 
       DEBUG("mibl A:"<<a.ToString() );
       DEBUG("mibl B:"<<limbb );
@@ -2294,7 +2288,6 @@ return result;
       for(auto itr: a.m_value){
 	DEBUG("mullimb i"<<i);
 	temp = ((Dlimb_t)itr*(Dlimb_t)limbb) + ofl;
-
 	
 	tmpans.m_value.push_back((limb_t)temp);
 	ofl = temp>>a.m_limbBitLength;
@@ -2316,7 +2309,7 @@ return result;
 	tmpans.PrintLimbsInDec();
       DEBUG("mibl ans "<<ans.ToString());
 
-      //      ans += (tmpans<<=(i)*a.m_limbBitLength);
+      //      ans += (tmpans<<=(i)*a.m_limbitLength);
       ans += tmpans;
       ans = ans.Mod(modulus);
       DEBUG("ans now "<<ans.ToString());
@@ -2333,7 +2326,7 @@ return result;
 
 #else
     ubint* a  = const_cast<ubint*>(this);
-    ubint* bb = const_cast<ubint*>(&b);
+    ubint* oflbb = const_cast<ubint*>(&b);
     
     //if a is greater than q reduce a to its mod value
     if(*this>modulus)
