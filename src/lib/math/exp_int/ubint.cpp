@@ -1261,7 +1261,7 @@ return result;
 
 
   template<typename limb_t>
-  ubint<limb_t>& ubint<limb_t>::operator+=(const ubint& b){
+  inline ubint<limb_t>& ubint<limb_t>::operator+=(const ubint& b){
     bool dbg_flag = false;		// if true then print dbg output
     DEBUG("in +=");
     //check for garbage initializations
@@ -1361,25 +1361,25 @@ return result;
 
 
   template<typename limb_t>
-  ubint<limb_t>& ubint<limb_t>::operator-=(const ubint &b){
+  inline ubint<limb_t>& ubint<limb_t>::operator-=(const ubint &b){
     *this = *this-b;
     return *this;
   }
 
   template<typename limb_t>
-  ubint<limb_t>& ubint<limb_t>::operator*=(const ubint &b){
+  inline ubint<limb_t>& ubint<limb_t>::operator*=(const ubint &b){
     *this = *this*b;
     return *this;
   }
 
   template<typename limb_t>
-  ubint<limb_t>& ubint<limb_t>::operator/=(const ubint &b){
+  inline ubint<limb_t>& ubint<limb_t>::operator/=(const ubint &b){
     *this = *this/b;
     return *this;
   }
 
   template<typename limb_t>
-  ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
+  inline ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
     *this = *this%b;
     return *this;
   }
