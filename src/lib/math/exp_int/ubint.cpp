@@ -2317,7 +2317,6 @@ return result;
       DEBUG("mibl ans "<<ans.ToString());
 
       //      ans += (tmpans<<=(i)*a.m_limbBitLength);
-      //ans += tmpans.Mod(modulus);
       ans += tmpans;
       ans = ans.Mod(modulus);
       DEBUG("ans now "<<ans.ToString());
