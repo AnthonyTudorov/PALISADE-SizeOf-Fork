@@ -246,7 +246,7 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(
 
 /*Generates a keyswitchhint from originalPrivateKey^(2) to newPrivateKey */
 template<class Element>
-shared_ptr<LPEvalKeyNTRU<Element>> LPLeveledSHEAlgorithmLTV<Element>::QuadraticEvalMultKeyGen(
+shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmLTV<Element>::QuadraticEvalMultKeyGen(
 	const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 	const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 
@@ -348,7 +348,7 @@ template<class Element>
 shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(
 	const shared_ptr<Ciphertext<Element>> cipherText1,
 	const shared_ptr<Ciphertext<Element>> cipherText2,
-	const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint) const {
+	const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const {
 
 	if (!(cipherText1->GetCryptoParameters() == cipherText2->GetCryptoParameters())) {
 		std::string errMsg = "ComposedEvalMult crypto parameters are not the same";
@@ -370,7 +370,7 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalM
 
 template<class Element>
 shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
-	const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const {
+	const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const {
 
 	//	if(!(cipherText1.GetCryptoParameters() == cipherTextResult->GetCryptoParameters())){
 	//		std::string errMsg = "LevelReduce crypto parameters are not the same";
@@ -587,9 +587,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPRELTV<Element>::ReEncrypt(const shar
 
 	Element c(ciphertext->GetElement());
 
-	std::vector<Element> digits;
-
-	c.BaseDecompose(relinWindow, &digits);
+	std::vector<Element> digits(c.BaseDecompose(relinWindow));
 
 	Element ct(digits[0] * proxy[0]);
 

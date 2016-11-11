@@ -447,7 +447,7 @@ public:
 	* @param &newPrivateKey new private for generating a keyswitchhint to.
 	* @param *quadraticKeySwitchHint the generated keyswitchhint.
 	*/
-	virtual shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
+	virtual shared_ptr<LPEvalKey<Element>> QuadraticEvalMultKeyGen(
 		const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 		const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const;
 
@@ -476,7 +476,7 @@ public:
 	virtual shared_ptr<Ciphertext<Element>> ComposedEvalMult(
 		const shared_ptr<Ciphertext<Element>> cipherText1,
 		const shared_ptr<Ciphertext<Element>> cipherText2,
-		const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint) const;
+		const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const;
 
 	/**
 	* Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
@@ -486,7 +486,7 @@ public:
 	* @param &cipherTextResult is the resulting ciphertext.
 	*/
 	virtual shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
-		const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const;
+		const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const;
 	/**
 	* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
 	* and odd indices are set to zero.

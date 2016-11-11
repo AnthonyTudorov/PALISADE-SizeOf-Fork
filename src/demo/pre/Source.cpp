@@ -225,7 +225,7 @@ void NTRUPRE(int input) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	bool successKeyGen=false;
+	//bool successKeyGen=false;
 
 	std::cout <<"\n" <<  "Running key generation..." << std::endl;
 
@@ -247,6 +247,7 @@ void NTRUPRE(int input) {
 		std::cout<<"Key generation failed!"<<std::endl;
 		exit(1);
 	}
+
 
 	////////////////////////////////////////////////////////////
 	//Encryption
