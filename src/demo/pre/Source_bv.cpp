@@ -180,8 +180,6 @@ void NTRUPRE(int input) {
 
 	//LPAlgorithmLTV<ILVector2n> algorithm;
 
-	bool successKeyGen = false;
-
 	std::cout << "\n" << "Running key generation..." << std::endl;
 
 	start = currentDateTime();
@@ -198,6 +196,7 @@ void NTRUPRE(int input) {
 	//fout<< currentDateTime()  << " pk = "<<pk.GetPublicElement().GetValues()<<endl;
 	//fout<< currentDateTime()  << " sk = "<<sk.GetPrivateElement().GetValues()<<endl;
 
+<<<<<<< e0fc1fee2567e792fd6fdb4484da2f9d03fb4c25
 <<<<<<< df712ec36b97a744b8ac73518b365b42cef68db9
 	if (!kp.good()) {
 		std::cout<<"Key generation failed!"<<std::endl;
@@ -208,6 +207,8 @@ void NTRUPRE(int input) {
 		exit(1);
 	}
 
+=======
+>>>>>>> rebase completed
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////

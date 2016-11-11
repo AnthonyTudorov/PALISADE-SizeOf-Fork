@@ -144,7 +144,7 @@ namespace lbcrypto {
 	template <class Element>
 	shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEBV<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const
 	{
-		shared_ptr<LPEvalKey<Element>> quadraticKeySwitchHint(new LPEvalKey<Element>(originalPrivateKey->GetCryptoContext()));
+		shared_ptr<LPEvalKeyRelin<Element>> quadraticKeySwitchHint(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
 
 		shared_ptr<LPPrivateKey<Element>> originalPrivateKeySquared(originalPrivateKey);
 
@@ -155,7 +155,7 @@ namespace lbcrypto {
 		originalPrivateKeySquared->SetPrivateElement(std::move(sSquare));
 
 		//this->GetScheme().EvalMultKeyGen(originalPrivateKeySquared, newPrivateKey, quadraticKeySwitchHint);
-		return this->GetScheme().KeySwitchGen(originalPrivateKeySquared, newPrivateKey);
+		return this->GetScheme().KeySwitchGen(originalPrivateKeySquared, originalPrivateKey);
 
 	}
 
@@ -165,7 +165,7 @@ namespace lbcrypto {
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const
 	{
 
-		if (ciphertext1->GetElement()->GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement()->GetFormat() == Format::COEFFICIENT) {
+		if (ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT) {
 			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 		}
 
@@ -194,7 +194,7 @@ namespace lbcrypto {
 		const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const
 	{
-		if (!(ciphertext1->GetCryptoParameters() == ciphertext2.GetCryptoParameters())) {
+		if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
 			std::string errMsg = "EvalAdd crypto parameters are not the same";
 			throw std::runtime_error(errMsg);
 		}
@@ -244,7 +244,7 @@ namespace lbcrypto {
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
-		if (ciphertext1->GetElement()->GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement()->GetFormat() == Format::COEFFICIENT) {
+		if (ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT) {
 			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 		}
 
@@ -255,13 +255,13 @@ namespace lbcrypto {
 
 		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
 
-		const LPCryptoParametersBV<Element> &cryptoParamsLWE = dynamic_cast<const LPCryptoParametersBV<Element> &>(ek.GetCryptoParameters());
+		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(ek->GetCryptoParameters());
 
-		usint relinWindow = cryptoParamsLWE.GetRelinWindow();
+		usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
-		const LPEvalKeyRelin<Element> &ekRelin = dynamic_cast<const LPEvalKeyRelin<Element> &>(ek);
+		const shared_ptr<LPEvalKeyRelin<Element>> ekRelin = std::dynamic_pointer_cast<LPEvalKeyRelin<Element>>(ek);
 
-		this->GetScheme().EvalMult(ciphertext1, ciphertext2, newCiphertext);
+		newCiphertext = this->GetScheme().EvalMult(ciphertext1, ciphertext2);
 
 		const Element c0 = newCiphertext->GetElements().at(0);
 
@@ -275,9 +275,9 @@ namespace lbcrypto {
 
 		finalElements.push_back(c1);
 
-		const std::vector<Element> &b = ekRelin.GetAVector();
+		const std::vector<Element> &b = ekRelin->GetAVector();
 
-		const std::vector<Element> &a = ekRelin.GetBVector();
+		const std::vector<Element> &a = ekRelin->GetBVector();
 
 		std::vector<Element> c2Decomposed(c2.BaseDecompose(relinWindow));
 
@@ -375,8 +375,7 @@ namespace lbcrypto {
 
 		const std::vector<Element> &c = ciphertext->GetElements();
 
-		std::vector<Element> digitsC1;
-		c[1].BaseDecompose(relinWindow, &digitsC1);
+		std::vector<Element> digitsC1(c[1].BaseDecompose(relinWindow));
 
 		// c0' = c0 + \sum\limits_{i}{c_1*b}_i 
 		// c1' = \sum\limits_{i}{c_1*a}_i 
@@ -398,24 +397,24 @@ namespace lbcrypto {
 		
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(originalPrivateKey->GetCryptoParameters());
 
-		const ElemParams &originalKeyParams = cryptoParams.GetElementParams();
+		const shared_ptr<ElemParams> originalKeyParams = cryptoParams->GetElementParams();
 
-		const BigBinaryInteger &p = cryptoParams.GetPlaintextModulus();
+		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-		LPEvalKeyRelin<Element> *keySwitchHintRelin = dynamic_cast<LPEvalKeyRelin<Element> *>(keySwitchHint);
+		shared_ptr<LPEvalKey<Element>> keySwitchHintRelin(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
 
 		if (keySwitchHintRelin == nullptr)
 			throw std::runtime_error("Mismatch in proper Eval Key class type");
 
-		const Element &sNew = newPrivateKey.GetPrivateElement();
+		const Element sNew = newPrivateKey->GetPrivateElement();
 
-		const Element &s = originalPrivateKey.GetPrivateElement();
+		const Element s = originalPrivateKey->GetPrivateElement();
 
-		const DiscreteGaussianGenerator &dgg = cryptoParams.GetDiscreteGaussianGenerator();
+		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
-		const DiscreteUniformGenerator dug(originalKeyParams.GetModulus());
+		const DiscreteUniformGenerator dug(originalKeyParams->GetModulus());
 
-		usint relinWindow = cryptoParams.GetRelinWindow();
+		usint relinWindow = cryptoParams->GetRelinWindow();
 
 		std::vector<Element> evalKeyElements(s.PowersOfBase(relinWindow));
 
@@ -454,7 +453,7 @@ namespace lbcrypto {
 	shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmBV<Element>::QuadraticEvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 		const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 
-		shared_ptr<LPEvalKey<Element>> quadraticKeySwitchHint(new LPEvalKey<Element>(originalPrivateKey->GetCryptoContext()));
+		shared_ptr<LPEvalKeyRelin<Element>> quadraticKeySwitchHint(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
 
 		shared_ptr<LPPrivateKey<Element>> originalPrivateKeySquared(originalPrivateKey);
 
@@ -480,10 +479,10 @@ namespace lbcrypto {
 
 		// FIXME: note this will not work for ILVector2n yet so we must have a small hack here.
 
-		/*ILVectorArray2n *ep = dynamic_cast<ILVectorArray2n *>(&cipherTextElement);
+		ILVectorArray2n *ep = dynamic_cast<ILVectorArray2n *>(&cipherTextElement);
 		if (ep == 0) {
 			throw std::logic_error("ModReduce is only implemented for ILVectorArray2n");
-		}*/
+		}
 
 		ep->ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
 
@@ -492,7 +491,7 @@ namespace lbcrypto {
 		return newcipherText;
 	}
 
-	template<> inline
+	/*template<> inline
 	shared_ptr<Ciphertext<ILVectorArray2n>> LPLeveledSHEAlgorithmBV<ILVectorArray2n>::ModReduce(shared_ptr<Ciphertext<ILVectorArray2n>> cipherText) const {
 		
 		shared_ptr<Ciphertext<ILVectorArray2n>> newcipherText(cipherText);
@@ -507,12 +506,12 @@ namespace lbcrypto {
 
 		return newcipherText;
 
-	}
+	}*/
 
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmBV<Element>::RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const {
-
+		return cipherText;
 	}
 
 	template <class Element>
@@ -520,23 +519,24 @@ namespace lbcrypto {
 		const shared_ptr<Ciphertext<Element>> cipherText1,
 		const shared_ptr<Ciphertext<Element>> cipherText2,
 		const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const {
-
+		return cipherText1;
 	}
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmBV<Element>::LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
 		const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const {
-
+		return cipherText1;
 	}
 
 	template <class Element>
 	LPKeyPair<Element> LPLeveledSHEAlgorithmBV<Element>::SparseKeyGen(const CryptoContext<Element> cc) const {
-
+		LPKeyPair<Element> f;
+		return f;
 	}
 
 	template <class Element>
 	bool LPLeveledSHEAlgorithmBV<Element>::CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const {
-
+		return false;
 	}
 
 
