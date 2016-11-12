@@ -388,8 +388,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	c1.SwitchFormat();
 	//c2.SwitchFormat();
 
-	std::vector<Element> digitsC2;
-	c2.BaseDecompose(relinWindow, &digitsC2);
+	std::vector<Element> digitsC2(c2.BaseDecompose(relinWindow));
 
 	Element ct0(c0), ct1(c1);
 	

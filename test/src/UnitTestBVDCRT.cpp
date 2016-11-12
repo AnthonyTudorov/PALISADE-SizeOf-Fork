@@ -43,7 +43,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../src/lib/utils/cryptocontexthelper.cpp"
 
 #include "../../src/lib/encoding/byteplaintextencoding.h"
-#include "../../src/lib/utils/cryptoutility.h"
 #include "../../src/lib/encoding/intplaintextencoding.h"
 
 
@@ -92,7 +91,7 @@ TEST(UTBVDCRT, ILVector2n_bv_Encrypt_Decrypt_DCRT) {
 	DiscreteGaussianGenerator dgg(stdDev);
 
 	//Prepare for parameters.
-	ILDCRTParams params(m, moduli, rootsOfUnity);
+	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
 
 	//Set crypto parametes
 	LPCryptoParametersBV<ILVectorArray2n> cryptoParams;
@@ -105,55 +104,34 @@ TEST(UTBVDCRT, ILVector2n_bv_Encrypt_Decrypt_DCRT) {
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootsOfUnity, m, moduli);
 
-	// Initialize the public key containers.
-	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
-	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
+	std::vector<usint> vectorOfInts1 = { 4,0,0,0 };
+
+	IntPlaintextEncoding intArray1(vectorOfInts1);
+
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(5, m/2, "modulus","rootOfUnity",8,stdDev);
+	cc.Enable(ENCRYPTION);
+
 
 	//Regular LWE-NTRU encryption algorithm
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
+	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
-	//LPAlgorithmLTV<ILVector2n> algorithm;
-
-	std::vector<usint> vectorOfInts1 = { 4,0,0,0 };
-
-	IntPlaintextEncoding intArray1(vectorOfInts1);
-
-
-	LPPublicKeyEncryptionSchemeBV<ILVectorArray2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-
-	bool successKeyGen = false;
-
-	successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
-
-	if (!successKeyGen) {
-		exit(1);
-	}
 
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
-
-	vector<Ciphertext<ILVectorArray2n>> ciphertext;
-
-	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray1, &ciphertext, false);	// This is the core encryption operation.
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext =
+		cc.Encrypt(kp.publicKey, intArray1); // This is the core encryption operation.
 
 
 	IntPlaintextEncoding intArrayNew;
 
 
 
-	DecryptResult result = CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk, ciphertext, &intArrayNew, false);  // This is the core decryption operation.
-
-
-
-	if (!result.isValid) {
-		std::cout << "Decryption failed!" << std::endl;
-		exit(1);
-	}
+	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew);  // This is the core decryption operation.
 	
 	EXPECT_EQ(intArray1, intArrayNew);
 }
@@ -176,7 +154,7 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 	BigBinaryInteger modulus("1");
 
 	for (int j = 0; j < numOfTower; j++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 		moduli[j] = q;
 		rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
 		modulus = modulus* moduli[j];
@@ -185,11 +163,11 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 	DiscreteGaussianGenerator dgg(stdDev);
 
 	//Prepare for parameters.
-	ILDCRTParams params(m, moduli, rootsOfUnity);
+	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
 
 	//Set crypto parametes
 	LPCryptoParametersBV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger("5"));  	// Set plaintext modulus.
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger("2"));  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
@@ -198,43 +176,26 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootsOfUnity, m, moduli);
 
-	// Initialize the public key containers.
-	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
-	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
+	std::vector<usint> vectorOfInts1 = { 4,0,0,0 };
+
+	IntPlaintextEncoding intArray1(vectorOfInts1);
+
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(2, m / 2, "modulus", "rootOfUnity", 8, stdDev);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(PRE);	
 
 	//Regular LWE-NTRU encryption algorithm
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
-
-	//LPAlgorithmLTV<ILVector2n> algorithm;
-
-	std::vector<usint> vectorOfInts1 = { 4,0,0,0 };
-
-	IntPlaintextEncoding intArray1(vectorOfInts1);
-
-
-	LPPublicKeyEncryptionSchemeBV<ILVectorArray2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(PRE);
-
-	bool successKeyGen = false;
-
-	successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
-
-	if (!successKeyGen) {
-		exit(1);
-	}
+	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
-
-	vector<Ciphertext<ILVectorArray2n>> ciphertext;
-
-	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray1, &ciphertext, false);	// This is the core encryption operation.
-
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext =
+		cc.Encrypt(kp.publicKey, intArray1);
 
 	//PRE SCHEME
 
@@ -243,33 +204,25 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPPublicKey<ILVectorArray2n> newPK(cryptoParams);
-	LPPrivateKey<ILVectorArray2n> newSK(cryptoParams);
+	LPKeyPair<ILVectorArray2n> newKp = cc.KeyGen();
 
+	shared_ptr<LPEvalKey<ILVectorArray2n>> evalKey =
+		cc.ReKeyGen(newKp.publicKey, kp.secretKey);
 
-
-	successKeyGen = CryptoUtility<ILVectorArray2n>::KeyGen(algorithm, &newPK, &newSK);	// This is the same core key generation operation.
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption key generation operation.
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
-
-
-	LPEvalKeyRelin<ILVectorArray2n> evalKey(cryptoParams);
-
-	algorithm.ReKeyGen(newSK, sk, &evalKey);  // FIXME this can't use CryptoUtility because the calling sequence is wrong (2 private keys)
-
-
+	
+	
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption operation.
 	// This switches the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
-
-
-	vector<Ciphertext<ILVectorArray2n>> newCiphertext;
-
-	CryptoUtility<ILVectorArray2n>::ReEncrypt(algorithm, evalKey, ciphertext, &newCiphertext);  // This is the core re-encryption operation.																				
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext =
+		cc.ReEncrypt(evalKey, ciphertext);
+																			
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -278,11 +231,8 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 	IntPlaintextEncoding intArrayNew;
 
 
-	DecryptResult result1 = CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, newSK, newCiphertext, &intArrayNew, false);  // This is the core decryption operation.
+	DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &intArrayNew);
 
-	if (!result1.isValid) {
-		exit(1);
-	}
 
 	EXPECT_EQ(intArray1, intArrayNew);
 }
@@ -315,7 +265,11 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALADD_DCRT) {
 	DiscreteGaussianGenerator dgg(stdDev);
 
 	//Prepare for parameters.
-	ILDCRTParams params(m, moduli, rootsOfUnity);
+	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
+
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(2, m / 2, "modulus", "rootOfUnity", 8, stdDev);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
 
 	//Set crypto parametes
 	LPCryptoParametersBV<ILVectorArray2n> cryptoParams;
@@ -330,14 +284,6 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALADD_DCRT) {
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootsOfUnity, m, moduli);
-
-	//Precomputations for DGG
-	//ILVector2n::PreComputeDggSamples(dgg, params);
-
-
-	// Initialize the public key containers.
-	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
-	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
 
 	std::vector<usint> vectorOfInts1(4);
 	vectorOfInts1 = { 2,3,1,4 };
@@ -356,34 +302,23 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALADD_DCRT) {
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
+	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
 	//LPAlgorithmLTV<ILVector2n> algorithm;
 
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext1 =
+		cc.Encrypt(kp.publicKey, intArray1);
 
-	LPPublicKeyEncryptionSchemeBV<ILVectorArray2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(SHE);
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext2 =
+		cc.Encrypt(kp.publicKey, intArray2);
 
-	bool successKeyGen = false;
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cResult;
 
-	successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
+	cResult.at(0) = cc.EvalAdd(ciphertext1.at(0), ciphertext2.at(0));
 
-
-	vector<Ciphertext<ILVectorArray2n>> ciphertext1;
-	vector<Ciphertext<ILVectorArray2n>> ciphertext2;
-
-	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray1, &ciphertext1, false);
-	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray2, &ciphertext2, false);
-
-	Ciphertext<ILVectorArray2n> cResult(ciphertext1.at(0));
-
-	algorithm.EvalAdd(ciphertext1.at(0), ciphertext2.at(0), &cResult);
-
-	vector<Ciphertext<ILVectorArray2n>> ciphertextResults(1);
-	ciphertextResults.at(0) = cResult;
 	IntPlaintextEncoding results;
 
-	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk, ciphertextResults, &results, false);
+	cc.Decrypt(kp.secretKey, cResult, &results);	
 
 	EXPECT_EQ(intArrayExpected, results);
 }
@@ -401,7 +336,7 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT) {
 	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
 	DiscreteGaussianGenerator dgg(stdDev);
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	ILParams params(m, q, RootOfUnity(m, q));
+	shared_ptr<ILParams> params(new ILParams(m, q, RootOfUnity(m, q)));
 
 	//	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
 
@@ -415,9 +350,11 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT) {
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
-															//Initialize the public key containers.
-	LPPublicKey<ILVector2n> pk(cryptoParams);
-	LPPrivateKey<ILVector2n> sk(cryptoParams);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(5,m,q.ToString(),params->GetRootOfUnity().ToString(),8,stdDev);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+	cc.Enable(LEVELEDSHE);
+
 
 	std::vector<usint> vectorOfInts1 = { 4,0,0,0 };
 
@@ -431,35 +368,25 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT) {
 
 	IntPlaintextEncoding intArrayExpected(vectorOfIntsExpected);
 
-	LPPublicKeyEncryptionSchemeBV<ILVector2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(SHE);
-	algorithm.Enable(LEVELEDSHE);
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
-	algorithm.KeyGen(&pk, &sk);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1 =
+		cc.Encrypt(kp.publicKey, intArray1);
 
-	vector<Ciphertext<ILVector2n>> ciphertext1;
-	vector<Ciphertext<ILVector2n>> ciphertext2;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2 =
+		cc.Encrypt(kp.publicKey, intArray2);
 
-	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray1, &ciphertext1, false);
-	CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray2, &ciphertext2, false);
+	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint = cc.QuadraticEvalMultKeyGen(kp.secretKey,kp.secretKey);
 
+	vector<shared_ptr<Ciphertext<ILVector2n>>> cResult;
 
-	Ciphertext<ILVector2n> cResult(ciphertext1.at(0));
+	cResult.at(0) = cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0),keySwitchHint);
 
-	LPEvalKeyRelin<ILVector2n> keySwitchHint(cryptoParams);
-
-	algorithm.QuadraticEvalMultKeyGen(sk, sk, &keySwitchHint);
-
-	algorithm.EvalMult(ciphertext1.at(0), ciphertext2.at(0), keySwitchHint, &cResult);
-
-	vector<Ciphertext<ILVector2n>> ciphertextResults(1);
-
-	ciphertextResults.at(0) = cResult;
 
 	IntPlaintextEncoding results;
 
-	CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertextResults, &results, false);
+	cc.Decrypt(kp.secretKey, cResult, &results);
 
 	EXPECT_EQ(intArrayExpected, results);
 
@@ -489,7 +416,7 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT_DCRT) {
 	}
 
 	DiscreteGaussianGenerator dgg(init_stdDev);
-	ILDCRTParams params(init_m, init_moduli, init_rootsOfUnity);
+	shared_ptr<ILDCRTParams> params(new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity));
 
 
 	//	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
@@ -506,9 +433,10 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT_DCRT) {
 	cryptoParams.SetDepth(init_size - 1);
 	cryptoParams.SetSecurityLevel(1.006);
 
-	//Initialize the public key containers.
-	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
-	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(5, init_m, q.ToString(), params->GetRootOfUnity().ToString(), 8, init_stdDev);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+	cc.Enable(LEVELEDSHE);
 
 	std::vector<usint> vectorOfInts1 = { 4,0,0,0 };
 	IntPlaintextEncoding intArray1(vectorOfInts1);
@@ -520,36 +448,25 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT_DCRT) {
 	IntPlaintextEncoding intArrayExpected(vectorOfIntsExpected);
 
 
-	LPPublicKeyEncryptionSchemeBV<ILVectorArray2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(SHE);
-	algorithm.Enable(LEVELEDSHE);
-
-	algorithm.KeyGen(&pk, &sk);
-
-	vector<Ciphertext<ILVectorArray2n>> ciphertext1;
-	vector<Ciphertext<ILVectorArray2n>> ciphertext2;
-
-	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray1, &ciphertext1, false);
-	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray2, &ciphertext2, false);
+	// Initialize the public key containers.
+	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
 
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext1 =
+		cc.Encrypt(kp.publicKey, intArray1);
 
-	Ciphertext<ILVectorArray2n> cResult(ciphertext1.at(0));
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext2 =
+		cc.Encrypt(kp.publicKey, intArray2);
 
-	LPEvalKeyRelin<ILVectorArray2n> keySwitchHint(cryptoParams);
+	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint = cc.QuadraticEvalMultKeyGen(kp.secretKey, kp.secretKey);
 
-	algorithm.QuadraticEvalMultKeyGen(sk, sk, &keySwitchHint);
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cResult;
 
-	algorithm.EvalMult(ciphertext1.at(0), ciphertext2.at(0), keySwitchHint, &cResult);
-
-	vector<Ciphertext<ILVectorArray2n>> ciphertextResults(1);
-
-	ciphertextResults.at(0) = cResult;
+	cResult.at(0) = cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0), keySwitchHint);
 
 	IntPlaintextEncoding results;
 
-	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk, ciphertextResults, &results, false);
+	cc.Decrypt(kp.secretKey, cResult, &results);
 
 	EXPECT_EQ(intArrayExpected, results);
 
@@ -586,7 +503,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 	DiscreteGaussianGenerator dgg(stdDev);
 
 	//Prepare for parameters.
-	ILDCRTParams params(m, moduli, rootsOfUnity);
+	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
 
 	//Set crypto parametes
 	LPCryptoParametersBV<ILVectorArray2n> cryptoParams;
@@ -597,7 +514,10 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
-	//This code is run only when performing execution time measurements
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(5, m, q.ToString(), params->GetRootOfUnity().ToString(), 8, stdDev);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+	cc.Enable(LEVELEDSHE);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootsOfUnity, m, moduli);
@@ -607,8 +527,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 
 
 	// Initialize the public key containers.
-	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
-	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
+	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -623,23 +542,6 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 	IntPlaintextEncoding intArray1(vectorOfInts1);
 
 
-	LPPublicKeyEncryptionSchemeBV<ILVectorArray2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(SHE);
-	algorithm.Enable(LEVELEDSHE);
-
-
-	bool successKeyGen = false;
-
-	std::cout << "\n" << "Running key generation..." << std::endl;
-
-
-	successKeyGen = algorithm.KeyGen(&pk, &sk);	// This is the core function call that generates the keys.
-
-	if (!successKeyGen) {
-		exit(1);
-	}
-
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
@@ -647,28 +549,21 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 	// Begin the initial encryption operation.
 	//cout<<"\n"<<"original plaintext: "<< intArray1 <<"\n"<<endl;
 
-	vector<Ciphertext<ILVectorArray2n>> ciphertext;
-
-	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray1, &ciphertext, false);	// This is the core encryption operation.
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext =
+		cc.Encrypt(kp.publicKey, intArray1);
 
 
 	IntPlaintextEncoding intArrayNew;
 
-	CryptoUtility<ILVectorArray2n>::ModReduce(algorithm, &ciphertext);
+	cc.ModReduce(ciphertext);
 
 	//drop a tower from the secret key
-
-	auto skEl(sk.GetPrivateElement());
+	
+	auto skEl(kp.secretKey->GetPrivateElement());
 	skEl.DropElementAtIndex(skEl.GetNumOfElements() - 1);
-	sk.SetPrivateElement(skEl);
+	kp.secretKey->SetPrivateElement(skEl);
 
-	DecryptResult result = CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk, ciphertext, &intArrayNew, false);  // This is the core decryption operation.
-
-
-
-	if (!result.isValid) {
-		exit(1);
-	}
+	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew);
 
 	EXPECT_EQ(intArray1, intArrayNew);
 
@@ -699,7 +594,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
 	}
 
 	DiscreteGaussianGenerator dgg(init_stdDev);
-	ILDCRTParams params(init_m, init_moduli, init_rootsOfUnity);
+	shared_ptr<ILDCRTParams> params(new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity));
 
 
 	//	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
@@ -716,9 +611,13 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
 	cryptoParams.SetDepth(init_size - 1);
 	cryptoParams.SetSecurityLevel(1.006);
 
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(5, init_m, q.ToString(), params->GetRootOfUnity().ToString(), 1, init_stdDev);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+	cc.Enable(LEVELEDSHE);
+
 	//Initialize the public key containers.
-	LPPublicKey<ILVectorArray2n> pk(cryptoParams);
-	LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
+	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
 	std::vector<usint> vectorOfInts1 = { 4,0,0,0 };
 	IntPlaintextEncoding intArray1(vectorOfInts1);
@@ -729,38 +628,28 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
 	std::vector<usint> vectorOfIntsExpected = { 3,0,0,0 };
 	IntPlaintextEncoding intArrayExpected(vectorOfIntsExpected);
 
-	LPPublicKeyEncryptionSchemeBV<ILVectorArray2n> algorithm;
-	algorithm.Enable(ENCRYPTION);
-	algorithm.Enable(SHE);
-	algorithm.Enable(LEVELEDSHE);
+	
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext1 =
+		cc.Encrypt(kp.publicKey, intArray1);
 
-	algorithm.KeyGen(&pk, &sk);
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext2 =
+		cc.Encrypt(kp.publicKey, intArray2);
 
-	vector<Ciphertext<ILVectorArray2n>> ciphertext1;
-	vector<Ciphertext<ILVectorArray2n>> ciphertext2;
-	vector<Ciphertext<ILVectorArray2n>> ciphertextResult(1);
+	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint = cc.QuadraticEvalMultKeyGen(kp.secretKey, kp.secretKey);
 
-	ciphertextResult.at(0).SetCryptoParameters(&cryptoParams);
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cResult;
 
+	cResult.at(0) = cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0), keySwitchHint);
 
-	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray1, &ciphertext1, false);
-	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray2, &ciphertext2, false);
-
-	//Ciphertext<ILVectorArray2n> cResult(ciphertext1.at(0));
-
-	LPEvalKeyRelin<ILVectorArray2n> keySwitchHint(cryptoParams);
-
-	algorithm.QuadraticEvalMultKeyGen(sk, sk, &keySwitchHint);
-
-
-	algorithm.EvalMult(ciphertext1.at(0), ciphertext2.at(0), keySwitchHint, &ciphertextResult.at(0));
-
-	//CryptoUtility<ILVectorArray2n>::ModReduce(algorithm,&ciphertextResult);
-
+	cc.ModReduce(cResult);
 
 	IntPlaintextEncoding results;
 
-	CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk, ciphertextResult, &results, false);
+	auto skEl(kp.secretKey->GetPrivateElement());
+	skEl.DropElementAtIndex(skEl.GetNumOfElements() - 1);
+	kp.secretKey->SetPrivateElement(skEl);
+
+	cc.Decrypt(kp.secretKey, cResult, &results);
 
 	EXPECT_EQ(intArrayExpected, results);
 

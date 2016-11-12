@@ -564,7 +564,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	finalParamsOneTower.SetElementParams(dcrtParamsWith1Tower);
 
 	//Generating Quaraditic KeySwitchHint from sk^2 to skNew
-	shared_ptr<LPEvalKeyNTRU<ILVectorArray2n>> quadraticKeySwitchHint = cc.QuadraticEvalMultKeyGen(kp.secretKey, kp1.secretKey);
+	shared_ptr<LPEvalKey<ILVectorArray2n>> quadraticKeySwitchHint = cc.QuadraticEvalMultKeyGen(kp.secretKey, kp1.secretKey);
 
 	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
 	shared_ptr<LPPrivateKey<ILVectorArray2n>> sk2( new LPPrivateKey<ILVectorArray2n>( kp1.secretKey->GetCryptoContext() ) );

@@ -1507,7 +1507,7 @@ namespace lbcrypto {
 			}
 		}
 
-		shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
+		shared_ptr<LPEvalKey<Element>> QuadraticEvalMultKeyGen(
 			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 			if (this->m_algorithmLeveledSHE) {

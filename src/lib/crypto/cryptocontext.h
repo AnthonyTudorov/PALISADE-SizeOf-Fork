@@ -205,7 +205,7 @@ public:
 		return GetEncryptionAlgorithm().KeySwitchGen(key1, key2);
 	}
 
-	shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
+	shared_ptr<LPEvalKey<Element>> QuadraticEvalMultKeyGen(
 			const shared_ptr<LPPrivateKey<Element>> k1,
 			const shared_ptr<LPPrivateKey<Element>> k2) const {
 
