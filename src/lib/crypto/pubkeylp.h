@@ -1548,7 +1548,7 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> ComposedEvalMult(
 							const shared_ptr<Ciphertext<Element>> cipherText1,
 							const shared_ptr<Ciphertext<Element>> cipherText2,
-							const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint) const {
+							const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const {
 			if(this->m_algorithmLeveledSHE){
 				return this->m_algorithmLeveledSHE->ComposedEvalMult(cipherText1,cipherText2,quadKeySwitchHint);
 			}

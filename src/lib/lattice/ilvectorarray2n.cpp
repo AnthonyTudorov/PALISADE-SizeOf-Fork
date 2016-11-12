@@ -173,14 +173,14 @@ namespace lbcrypto {
 		}
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const DiscreteUniformGenerator &dug, const ElemParams &params, Format format) {
+	ILVectorArray2n::ILVectorArray2n(const DiscreteUniformGenerator &dug, const shared_ptr<ElemParams> params, Format format) {
 
-		const ILDCRTParams &dcrtParams = dynamic_cast<const ILDCRTParams&>(params);
-		m_modulus = dcrtParams.GetModulus();
-		m_cyclotomicOrder = dcrtParams.GetCyclotomicOrder();
+		const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(params);
+		m_modulus = dcrtParams->GetModulus();
+		m_cyclotomicOrder = dcrtParams->GetCyclotomicOrder();
 		m_format = format;
 
-		size_t numberOfTowers = dcrtParams.GetModuli().size();
+		size_t numberOfTowers = dcrtParams->GetModuli().size();
 		m_vectors.reserve(numberOfTowers);
 
 		//dgg generating random values
@@ -192,10 +192,10 @@ namespace lbcrypto {
 
 		for (usint i = 0; i < numberOfTowers; i++) {
 
-			modulus = dcrtParams.GetModuli()[i];
-			rootOfUnity = dcrtParams.GetRootsOfUnity()[i];
+			modulus = dcrtParams->GetModuli()[i];
+			rootOfUnity = dcrtParams->GetRootsOfUnity()[i];
 
-			shared_ptr<ILParams> ilParams(new ILParams(dcrtParams.GetCyclotomicOrder(), modulus, rootOfUnity));
+			shared_ptr<ILParams> ilParams(new ILParams(dcrtParams->GetCyclotomicOrder(), modulus, rootOfUnity));
 			ILVector2n ilvector(ilParams);
 
 			//BigBinaryVector ilDggValues(params.GetCyclotomicOrder() / 2, modulus);

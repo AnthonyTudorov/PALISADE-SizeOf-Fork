@@ -196,11 +196,9 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 	shared_ptr<Ciphertext<ILVector2n>> cResult =
 			cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0));
 
-	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
-
 	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
 
-	keySwitchHint = cc.QuadraticEvalMultKeyGen(kp.secretKey, newKp.secretKey);
+	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint = cc.QuadraticEvalMultKeyGen(kp.secretKey, newKp.secretKey);
 
 	cResult = cc.KeySwitch(keySwitchHint, cResult);
 

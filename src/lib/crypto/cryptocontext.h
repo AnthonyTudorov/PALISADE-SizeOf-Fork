@@ -567,7 +567,7 @@ public:
 	std::vector<shared_ptr<Ciphertext<Element>>> ComposedEvalMult(
 		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext1,
 		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext2,
-		const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint)
+		const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint)
 	{
 		if (ciphertext1.size() != ciphertext2.size()) {
 			throw std::logic_error("Cannot have ciphertext of different length");

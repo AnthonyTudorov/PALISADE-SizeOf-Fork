@@ -77,10 +77,9 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	float stdDev = 4;
 
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(2, m,
-			modulus, rootOfUnity, relWindow, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(2, m, modulus, rootOfUnity, relWindow, stdDev);
 	cc.Enable(ENCRYPTION);
-	cc.Enable(PRE);
+	
 
 	//This code is run only when performing execution time measurements
 

@@ -108,7 +108,7 @@ TEST(UTBVDCRT, ILVector2n_bv_Encrypt_Decrypt_DCRT) {
 
 	IntPlaintextEncoding intArray1(vectorOfInts1);
 
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(5, m/2, "modulus","rootOfUnity",8,stdDev);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(5, m, "modulus","rootOfUnity",8,stdDev);
 	cc.Enable(ENCRYPTION);
 
 
