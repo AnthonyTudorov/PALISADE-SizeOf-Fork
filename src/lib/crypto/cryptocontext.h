@@ -585,6 +585,10 @@ public:
 			MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
 			int depth = 0, int assuranceMeasure = 0, float securityLevel = 0);
 
+	static CryptoContext<Element> genCryptoContextFV(
+			const BigBinaryInteger& plaintextModulus, float securityLevel,
+			unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
+
 	static CryptoContext<Element> genCryptoContextBV(
 			const usint plaintextmodulus,
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,

@@ -149,6 +149,44 @@ CryptoContextFactory<T>::genCryptoContextFV(
 
 template <typename T>
 CryptoContext<T>
+CryptoContextFactory<T>::genCryptoContextFV(
+		const BigBinaryInteger& plaintextModulus, float securityLevel,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches)
+{
+	int nonZeroCount = 0;
+
+	if( numAdds > 0 ) nonZeroCount++;
+	if( numMults > 0 ) nonZeroCount++;
+	if( numKeyswitches > 0 ) nonZeroCount++;
+
+	if( nonZeroCount > 1 )
+		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in FV context constructor");
+
+	CryptoContext<T>	item( new CryptoContextImpl<T>() );
+
+	shared_ptr<ElemParams> ep( new ILParams(0, BigBinaryInteger::ZERO, BigBinaryInteger::ZERO) );
+
+	LPCryptoParametersFV<T>* params = new LPCryptoParametersFV<T>();
+
+	params->SetElementParams(ep);
+	params->SetPlaintextModulus(plaintextModulus);
+	params->SetSecurityLevel(securityLevel);
+	params->SetRelinWindow(16);
+	params->SetDistributionParameter(4.0);
+	params->SetMode(OPTIMIZED);
+	params->SetAssuranceMeasure(9.0);
+
+	item.ctx->params.reset( params );
+	item.ctx->scheme.reset( new LPPublicKeyEncryptionSchemeFV<T>() );
+
+	item.ctx->scheme->ParamsGen(item.GetCryptoParameters(), numAdds, numMults, numKeyswitches);
+
+	return item;
+}
+
+
+template <typename T>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBV(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
