@@ -260,9 +260,13 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
+
+	try {
+
 	start = currentDateTime();
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey = ctx.ReKeyGen(newKp.publicKey, kp.secretKey);
+	evalKey = ctx.ReKeyGen(newKp.publicKey, kp.secretKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -319,6 +323,9 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 	}
 
 	std::cout << "Execution completed." << std::endl;
+	} catch (const exception& e) {
+		cout << "Re Encryption threw exception: " << e.what() << endl;
+	}
 
 	BytePlaintextEncoding newPlaintext("1) SERIALIZE CRYPTO-OBJS TO FILE AS NESTED JSON STRUCTURES\n2) DESERIALIZE JSON FILES INTO CRYPTO-OBJS USED FOR CRYPTO-APIS\n3) Profit!!!!!");
 

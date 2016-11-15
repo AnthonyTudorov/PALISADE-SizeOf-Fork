@@ -68,6 +68,7 @@ buildContextFromSerialized(const map<string,string>& s)
 	std::string relinWindow;
 	std::string stDev;
 	std::string stDevStSt;
+	std::string secLevel;
 
 	if( !getValueForName(s, "parameters", parmtype) ) {
 		std::cerr << "parameters element is missing" << std::endl;
@@ -100,6 +101,17 @@ buildContextFromSerialized(const map<string,string>& s)
 
 		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(stoul(plaintextModulus), stoul(ring),
 				modulus, rootOfUnity, stoul(relinWindow), stof(stDev), stof(stDevStSt));
+	}
+	else if( parmtype == "FV" ) {
+		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
+				!getValueForName(s, "securityLevel", secLevel) )
+			return 0;
+
+		BigBinaryInteger ptm(plaintextModulus);
+
+		return CryptoContextFactory<Element>::genCryptoContextFV(ptm, stof(secLevel),
+				0, 1, 0);
+
 	}
 	else if( parmtype == "Null" ) {
 		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
