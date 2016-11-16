@@ -568,6 +568,7 @@ public:
 	shared_ptr<LPPrivateKey<Element>>	deserializeSecretKey(const Serialized& serObj);
 	shared_ptr<Ciphertext<Element>>		deserializeCiphertext(const Serialized& serObj);
 	shared_ptr<LPEvalKey<Element>>		deserializeEvalKey(const Serialized& serObj);
+	shared_ptr<LPEvalKey<Element>>		deserializeEvalMultKey(const Serialized& serObj);
 };
 
 template <class Element>

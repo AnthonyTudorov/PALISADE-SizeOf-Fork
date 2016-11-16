@@ -337,5 +337,21 @@ CryptoContext<T>::deserializeEvalKey(const Serialized& serObj)
 	return shared_ptr<LPEvalKeyNTRURelin<T>>();
 }
 
+
+template <typename T>
+shared_ptr<LPEvalKey<T>>
+CryptoContext<T>::deserializeEvalMultKey(const Serialized& serObj)
+{
+	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
+		return shared_ptr<LPEvalKeyNTRURelin<T>>();
+	}
+
+	shared_ptr<LPEvalKeyRelin<T>> key( new LPEvalKeyRelin<T>(*this) );
+
+	if( key->Deserialize(serObj) )
+		return key;
+
+	return shared_ptr<LPEvalKeyRelin<T>>();
+}
 }
 
