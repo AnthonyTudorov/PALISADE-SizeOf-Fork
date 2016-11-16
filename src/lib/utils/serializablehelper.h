@@ -166,8 +166,9 @@ bool DeserializeVector(const std::string& vectorName, const std::string& typeNam
 		SerialItem v( s2->value, ser.GetAllocator() );
 		ser.AddMember(k, v, ser.GetAllocator());
 
-		vectorElem.Deserialize(ser);
-		outVector->at(i) = vectorElem;
+		if( vectorElem.Deserialize(ser) ) {
+			outVector->at(i) = vectorElem;
+		}
 	}
 
 	return true;

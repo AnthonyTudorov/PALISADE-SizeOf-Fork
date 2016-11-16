@@ -128,6 +128,11 @@ namespace lbcrypto {
 				if( this->SerializeRLWE(serObj, cryptoParamsMap, fileFlag) == false )
 					return false;
 
+				cryptoParamsMap.AddMember("delta", m_delta.ToString(), serObj->GetAllocator());
+				cryptoParamsMap.AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
+				cryptoParamsMap.AddMember("bigmodulus", m_bigModulus.ToString(), serObj->GetAllocator());
+				cryptoParamsMap.AddMember("bigrootofunity", m_bigRootOfUnity.ToString(), serObj->GetAllocator());
+
 				serObj->AddMember("LPCryptoParametersFV", cryptoParamsMap.Move(), serObj->GetAllocator());
 				serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersFV", serObj->GetAllocator());
 
@@ -143,7 +148,32 @@ namespace lbcrypto {
 				Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersFV");
 				if( mIter == serObj.MemberEnd() ) return false;
 
-				return this->DeserializeRLWE(mIter);
+				if( this->DeserializeRLWE(mIter) == false )
+					return false;
+
+				SerialItem::ConstMemberIterator pIt;
+				if( (pIt = mIter->value.FindMember("delta")) == mIter->value.MemberEnd() )
+					return false;
+				BigBinaryInteger delta(pIt->value.GetString());
+
+				if( (pIt = mIter->value.FindMember("mode")) == mIter->value.MemberEnd() )
+					return false;
+				MODE mode = (MODE)atoi(pIt->value.GetString());
+
+				if( (pIt = mIter->value.FindMember("bigmodulus")) == mIter->value.MemberEnd() )
+					return false;
+				BigBinaryInteger bigmodulus(pIt->value.GetString());
+
+				if( (pIt = mIter->value.FindMember("bigrootofunity")) == mIter->value.MemberEnd() )
+					return false;
+				BigBinaryInteger bigrootofunity(pIt->value.GetString());
+
+				this->SetBigModulus(bigmodulus);
+				this->SetBigRootOfUnity(bigrootofunity);
+				this->SetMode(mode);
+				this->SetDelta(delta);
+
+				return true;
 			}
 
 			/**

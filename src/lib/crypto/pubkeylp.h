@@ -71,6 +71,18 @@ namespace lbcrypto {
 	template <class Element>
 	class LPCryptoParametersStehleSteinfeld;
 
+	template <class Element>
+	inline std::string elementName() {
+		if( typeid(Element) == typeid(ILVector2n) )
+			return "ILVector2n";
+		else if( typeid(Element) == typeid(ILVectorArray2n) )
+			return "ILVectorArray2n";
+		else {
+			std::string msg = "Unrecognized type name for Element: ";
+			throw std::logic_error( msg + typeid(Element).name() );
+		}
+	}
+
 	struct EncryptResult {
 
 		explicit EncryptResult() : isValid(false), numBytesEncrypted(0) {}
@@ -252,11 +264,7 @@ namespace lbcrypto {
 					return false;
 				}
 
-				const Element& pe = this->GetPublicElements().at(0);
-
-				if (!pe.Serialize(serObj, "")) {
-					return false;
-				}
+				SerializeVector<Element>("Vectors", elementName<Element>(), this->GetPublicElements(), serObj);
 
 				if (!this->SetIdFlag(serObj, fileFlag))
 					return false;
@@ -287,18 +295,15 @@ namespace lbcrypto {
 			*/
 			bool Deserialize(const Serialized &serObj) { 
 
-//				LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-//				if (cryptoParams == 0) return false;
-//
-//				this->m_cryptoParameters = cryptoParams;
+				SerialItem::ConstMemberIterator mIt = serObj.FindMember("Vectors");
 
-				Element json_ilElement;
-				if (json_ilElement.Deserialize(serObj)) {
-					this->SetPublicElementAtIndex(0,json_ilElement);
-					return true;
+				if( mIt == serObj.MemberEnd() ) {
+					return false;
 				}
 
-				return false;
+				bool ret = DeserializeVector<Element>("Vectors", elementName<Element>(), mIt, &this->m_h);
+
+				return ret;
 			}
 
 	private:
@@ -529,15 +534,9 @@ namespace lbcrypto {
 				return false;
 			}
 
-			SerializeVector<Element>("AVector", typeid(Element).name(), this->GetAVector(), serObj);
-			SerializeVector<Element>("BVector", typeid(Element).name(), this->GetBVector(), serObj);
+			SerializeVector<Element>("AVector", elementName<Element>(), this->m_rKey[0], serObj);
+			SerializeVector<Element>("BVector", elementName<Element>(), this->m_rKey[1], serObj);
 
-//			const Element& pe = this->GetA();
-//
-//			if (!pe.Serialize(serObj, "")) {
-//				return false;
-//			}
-//
 			if (!this->SetIdFlag(serObj, fileFlag))
 				return false;
 
@@ -545,7 +544,26 @@ namespace lbcrypto {
 		}
 
 		bool Deserialize(const Serialized &serObj) {
-			return false;
+
+			SerialItem::ConstMemberIterator mIt = serObj.FindMember("AVector");
+
+			if( mIt == serObj.MemberEnd() ) {
+				return false;
+			}
+
+			bool ret = DeserializeVector<Element>("AVector", elementName<Element>(), mIt, &this->m_rKey[0]);
+
+			if( !ret ) return ret;
+
+			mIt = serObj.FindMember("BVector");
+
+			if( mIt == serObj.MemberEnd() ) {
+				return false;
+			}
+
+			ret = DeserializeVector<Element>("BVector", elementName<Element>(), mIt, &this->m_rKey[1]);
+
+			return ret;
 		}
 	private:
 		//private member to store vector of vector of Element.

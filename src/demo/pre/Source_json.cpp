@@ -340,7 +340,7 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 		tjp.evalKey = evalKey;
 		tjp.newSK = newKp.secretKey;
 
-		testJson<ILVector2n>("LTV", newPlaintext, &tjp);
+		testJson<ILVector2n>("LTV", newPlaintext, &tjp, !evalKey ? true: false);
 	}
 
 	fout.close();
