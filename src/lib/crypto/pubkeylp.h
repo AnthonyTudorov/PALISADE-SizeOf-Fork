@@ -551,7 +551,9 @@ namespace lbcrypto {
 				return false;
 			}
 
-			bool ret = DeserializeVector<Element>("AVector", elementName<Element>(), mIt, &this->m_rKey[0]);
+			std::vector<Element> deserElem;
+			bool ret = DeserializeVector<Element>("AVector", elementName<Element>(), mIt, &deserElem);
+			this->m_rKey.push_back(deserElem);
 
 			if( !ret ) return ret;
 
@@ -561,7 +563,8 @@ namespace lbcrypto {
 				return false;
 			}
 
-			ret = DeserializeVector<Element>("BVector", elementName<Element>(), mIt, &this->m_rKey[1]);
+			ret = DeserializeVector<Element>("BVector", elementName<Element>(), mIt, &deserElem);
+			this->m_rKey.push_back(deserElem);
 
 			return ret;
 		}
