@@ -1468,8 +1468,8 @@ namespace lbcrypto {
 		shared_ptr<LPEvalKey<Element>> KeySwitchGen(
 							const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 							const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
-				if(this->m_algorithmLeveledSHE)
-					return this->m_algorithmLeveledSHE->KeySwitchGen(originalPrivateKey, newPrivateKey);
+			if (this->m_algorithmLeveledSHE)
+				return  this->m_algorithmLeveledSHE->KeySwitchGen(originalPrivateKey, newPrivateKey);
 				else {
 					throw std::logic_error("KeySwitchGen operation has not been enabled");
 				}

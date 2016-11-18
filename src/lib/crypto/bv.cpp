@@ -310,8 +310,8 @@ namespace lbcrypto {
 		const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 		const Element &s = origPrivateKey->GetPrivateElement();
 
-		const LPPrivateKey<Element> *newPrivateKey =
-			dynamic_cast<const LPPrivateKey<Element>*>(&(*newSK));
+		const shared_ptr<LPPrivateKey<Element>> newPrivateKey =
+			std::dynamic_pointer_cast<LPPrivateKey<Element>>(newSK);
 
 		if (newPrivateKey == 0) {
 			throw std::logic_error("Secret Key has incorrect type in LPAlgorithmPREBV<Element>::ReKeyGen");
@@ -438,6 +438,8 @@ namespace lbcrypto {
 		keySwitchHintRelin->SetAVector(std::move(evalKeyElements));
 
 		keySwitchHintRelin->SetBVector(std::move(evalKeyElementsGenerated));
+
+		return keySwitchHintRelin;
 	}
 
 	template <class Element>

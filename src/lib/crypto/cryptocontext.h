@@ -181,8 +181,8 @@ public:
 		if( newPublicKey->GetCryptoContext() != *this || origPrivateKey->GetCryptoContext() != *this )
 			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
 
-		if( typeid(Element) == typeid(ILVectorArray2n) )
-			throw std::logic_error("Sorry, re-encryption keys have not been implemented with Element of ILVectorArray2n");
+		/*if( typeid(Element) == typeid(ILVectorArray2n) )
+			throw std::logic_error("Sorry, re-encryption keys have not been implemented with Element of ILVectorArray2n");*/
 
 		return GetEncryptionAlgorithm().ReKeyGen(newPublicKey, origPrivateKey);
 	}
@@ -619,6 +619,9 @@ public:
 			const usint plaintextmodulus,
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev);
+
+	//temp function written by GRS
+	static CryptoContext<Element> genCryptoContextBV(LPCryptoParametersBV<Element>* cryptoParams);
 
 	// FIXME: this is temporary until we better incorporate DCRT
 	static CryptoContext<Element> getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams);
