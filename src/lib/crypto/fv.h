@@ -120,12 +120,12 @@ namespace lbcrypto {
 			* @param fileFlag is an object-specific parameter for the serialization
 			* @return true if successfully serialized
 			*/
-			bool Serialize(Serialized* serObj, const std::string fileFlag = "") const {
+			bool Serialize(Serialized* serObj) const {
 				if( !serObj->IsObject() )
 					return false;
 
 				SerialItem cryptoParamsMap(rapidjson::kObjectType);
-				if( this->SerializeRLWE(serObj, cryptoParamsMap, fileFlag) == false )
+				if( this->SerializeRLWE(serObj, cryptoParamsMap) == false )
 					return false;
 
 				cryptoParamsMap.AddMember("delta", m_delta.ToString(), serObj->GetAllocator());

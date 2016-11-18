@@ -240,7 +240,7 @@ encrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 
 		for( int i=0; i<ciphertext.size(); i++ ) {
 			Serialized cSer;
-			if( ciphertext[i]->Serialize(&cSer, ciphertextname) ) {
+			if( ciphertext[i]->Serialize(&cSer) ) {
 				if( !SerializableHelper::WriteSerializationToFile(cSer, ciphertextname) ) {
 					cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
 					return;
@@ -305,7 +305,7 @@ rekeymaker(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	if( evalKey ) {
 		Serialized evalK;
 
-		if( evalKey->Serialize(&evalK, rekeyname) ) {
+		if( evalKey->Serialize(&evalK) ) {
 			if( !SerializableHelper::WriteSerializationToFile(evalK, rekeyname) ) {
 				cerr << "Error writing serialization of recryption key to " + rekeyname << endl;
 				return;
@@ -337,7 +337,7 @@ keymaker(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	if( kp.publicKey && kp.secretKey ) {
 		Serialized pubK, privK;
 
-		if( kp.publicKey->Serialize(&pubK, keyname) ) {
+		if( kp.publicKey->Serialize(&pubK) ) {
 			if( !SerializableHelper::WriteSerializationToFile(pubK, keyname + "PUB.txt") ) {
 				cerr << "Error writing serialization of public key to " + keyname + "PUB.txt" << endl;
 				return;
@@ -348,7 +348,7 @@ keymaker(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 			return;
 		}
 
-		if( kp.secretKey->Serialize(&privK, keyname) ) {
+		if( kp.secretKey->Serialize(&privK) ) {
 			if( !SerializableHelper::WriteSerializationToFile(privK, keyname + "PRI.txt") ) {
 				cerr << "Error writing serialization of private key to " + keyname + "PRI.txt" << endl;
 				return;
@@ -412,7 +412,7 @@ evaladder(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	for( int i=0; i<IntVectorLen; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " "; cout << endl;
 
 	Serialized cSer;
-	if( cdsum->Serialize(&cSer, cipheraddname) ) {
+	if( cdsum->Serialize(&cSer) ) {
 		if( !SerializableHelper::WriteSerializationToFile(cSer, cipheraddname) ) {
 				cerr << "Error writing serialization of ciphertext to " + cipheraddname << endl;
 				return;
@@ -477,7 +477,7 @@ evalmulter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	for( int i=0; i<IntVectorLen; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " "; cout << endl;
 
 	Serialized cSer;
-	if( cdsum->Serialize(&cSer, ciphermulname) ) {
+	if( cdsum->Serialize(&cSer) ) {
 		if( !SerializableHelper::WriteSerializationToFile(cSer, ciphermulname) ) {
 				cerr << "Error writing serialization of ciphertext to " + ciphermulname << endl;
 				return;
@@ -577,7 +577,7 @@ main( int argc, char *argv[] )
 		else if( string(argv[cmdidx]) == "-from" && cmdidx+1 < argc ) {
 			Serialized	kser;
 			if( SerializableHelper::ReadSerializationFromFile(string(argv[cmdidx+1]), &kser) ) {
-				ctx = CryptoContextHelper<ILVector2n>::getNewContextFromSerialization(kser);
+				ctx = CryptoContextFactory<ILVector2n>::DeserializeAndCreateContext(kser);
 			}
 
 			cmdidx += 2;

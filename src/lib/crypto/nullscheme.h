@@ -24,7 +24,7 @@ public:
 
 	virtual ~LPCryptoParametersNull() {}
 
-	bool Serialize(Serialized* serObj, const std::string fileFlag = "") const {
+	bool Serialize(Serialized* serObj) const {
 		if( !serObj->IsObject() )
 			return false;
 
@@ -32,7 +32,7 @@ public:
 
 		Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
 		const ElemParams& ep = *this->GetElementParams();
-		if( !ep.Serialize(&pser, fileFlag) )
+		if( !ep.Serialize(&pser) )
 			return false;
 
 		cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());

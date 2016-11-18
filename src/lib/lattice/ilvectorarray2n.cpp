@@ -695,7 +695,7 @@ namespace lbcrypto {
 	//JSON FACILITY
 
 	// JSON FACILITY - Serialize Operation
-	bool ILVectorArray2n::Serialize(Serialized* serObj, const std::string fileFlag) const {
+	bool ILVectorArray2n::Serialize(Serialized* serObj) const {
 		if( !serObj->IsObject() )
 			return false;
 

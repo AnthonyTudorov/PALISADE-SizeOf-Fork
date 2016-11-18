@@ -63,7 +63,7 @@ class CryptoContextImpl : public Serializable {
 
 private:
 	shared_ptr<LPCryptoParameters<Element>>				params;	/*!< crypto parameters used for this context */
-	shared_ptr<LPPublicKeyEncryptionScheme<Element>>	scheme;	/*!< algorithm used; points to keygen and encrypt/decrypt methods */
+	shared_ptr<LPPublicKeyEncryptionScheme<Element>>	scheme;	/*!< algorithm used; accesses all keygen and encrypt/decrypt methods */
 
 	CryptoContextImpl() {}
 	CryptoContextImpl(shared_ptr<LPCryptoParameters<Element>> cp) : params(cp) {}
@@ -85,10 +85,18 @@ public:
 	 */
 	const shared_ptr<LPPublicKeyEncryptionScheme<Element>> getScheme() const { return scheme; }
 
-	bool Serialize(Serialized* serObj, const std::string fileFlag = "") const { return false; }
+	/**
+	 * Serialize the context (it's really just the params...)
+	 *
+	 * @param serObj
+	 * @param fileFlag
+	 * @return
+	 */
+	bool Serialize(Serialized* serObj) const;
 
-	bool SetIdFlag(Serialized* serObj, const std::string flag) const { return true; }
-
+	/**
+	 * we don't deserialize directly, we use a cryptocontextfactory method
+	 */
 	bool Deserialize(const Serialized& serObj) { return false; }
 };
 
@@ -101,7 +109,7 @@ public:
  * Guards are implemented to ensure that only objects created in/by the context will be used with it
  */
 template <class Element>
-class CryptoContext {
+class CryptoContext : public Serializable {
 public:
 	shared_ptr<CryptoContextImpl<Element>>	ctx;
 
@@ -119,6 +127,23 @@ public:
 		ctx = rhs.ctx;
 		return *this;
 	}
+
+	/**
+	 * Serialize the context (it's really just the params...)
+	 *
+	 * @param serObj
+	 * @param fileFlag
+	 * @return
+	 */
+	bool Serialize(Serialized* serObj) const { return ctx->Serialize(serObj); }
+
+	/**
+	 * Deserialize the context AND initialize the algorithm
+	 *
+	 * @param serObj
+	 * @return
+	 */
+	bool Deserialize(const Serialized& serObj);
 
 	operator bool() const { return bool(ctx); }
 
@@ -277,7 +302,7 @@ public:
 
 			Serialized cS;
 
-			if( ciphertext->Serialize(&cS, "ct") ) {
+			if( ciphertext->Serialize(&cS) ) {
 				if( !SerializableHelper::SerializationToStream(cS, outstream) ) {
 					delete ptxt;
 					return;
@@ -408,7 +433,7 @@ public:
 				std::vector<shared_ptr<Ciphertext<Element>>> reCt = ReEncrypt(evalKey, allCt);
 
 				Serialized serReObj;
-				if( reCt[0]->Serialize(&serReObj, "re") ) {
+				if( reCt[0]->Serialize(&serReObj) ) {
 					SerializableHelper::SerializationToStream(serReObj, outstream);
 				}
 				else {
@@ -612,7 +637,7 @@ public:
 
 		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersType");
 		if( mIter != serObj.MemberEnd() ) {
-			string parmstype = mIter->value;
+			string parmstype = mIter->value.GetString();
 
 			if( parmstype == "LPCryptoParametersLTV") {
 				return shared_ptr<LPCryptoParameters<Element>>( new LPCryptoParametersLTV<Element>() );
@@ -637,6 +662,39 @@ public:
 		return shared_ptr<LPCryptoParameters<Element>>();
 	}
 
+	static shared_ptr<LPPublicKeyEncryptionScheme<Element>> GetSchemeObject( const Serialized& serObj ) {
+
+		if( typeid(Element) == typeid(ILVectorArray2n) )
+			return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeLTV<Element>() );
+
+		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersType");
+		if( mIter != serObj.MemberEnd() ) {
+			string parmstype = mIter->value.GetString();
+			std::cout << parmstype << std::endl;
+
+			if( parmstype == "LPCryptoParametersLTV") {
+				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeLTV<ILVector2n>() );
+			}
+			else if( parmstype == "LPCryptoParametersBV") {
+				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeBV<ILVector2n>() );
+			}
+			else if( parmstype == "LPCryptoParametersFV") {
+				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeFV<ILVector2n>() );
+			}
+			else if( parmstype == "LPCryptoParametersDCRT") { // fixme
+				return shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>>( new LPPublicKeyEncryptionSchemeLTV<ILVector2n>());
+			}
+			else if( parmstype == "LPCryptoParametersStehleSteinfeld") {
+				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeStehleSteinfeld<ILVector2n>() );
+			}
+			else if( parmstype == "LPCryptoParametersNull" ) {
+				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeNull<ILVector2n>() );
+			}
+		}
+
+		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>();
+	}
+
 	static CryptoContext<Element> DeserializeAndCreateContext( const Serialized& serObj ) {
 		shared_ptr<LPCryptoParameters<Element>> cp = GetParameterObject(serObj);
 
@@ -644,11 +702,15 @@ public:
 			throw std::logic_error("Unable to create crypto parameters");
 		}
 
-		if( cp->Deserialize(serObj) ) {
-			return CryptoContext<Element>( new CryptoContextImpl<Element>(cp) );
+		if( !cp->Deserialize(serObj) ) {
+			throw std::logic_error("Unable to deserialize crypto parameters");
 		}
 
-		throw std::logic_error("Unable to deserialize crypto parameters");
+		shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme = GetSchemeObject(serObj);
+
+		CryptoContext<Element> cc( new CryptoContextImpl<Element>(cp) );
+		cc.ctx->scheme = scheme;
+		return cc;
 	}
 
 	static bool DeserializeAndValidateParams( const CryptoContext<Element> ctx, const Serialized& serObj ) {

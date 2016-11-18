@@ -51,7 +51,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 using namespace lbcrypto;
 
-void NTRUPRE(CryptoContext<ILVector2n>& ctx, bool);
+void NTRUPRE(CryptoContext<ILVector2n>& ctx, string& parmset, bool dojson);
 
 #include "../../lib/utils/serializablehelper.h"
 
@@ -65,7 +65,6 @@ void usage()
 {
 	cout << "args are:" << endl;
 	cout << "-dojson : includes the json tests" << endl;
-	cout << "an arg not beginning with a - is taken as a filename of parameters" << endl;
 }
 
 int
@@ -103,7 +102,7 @@ main(int argc, char *argv[])
 	ctx.Enable(ENCRYPTION);
 	ctx.Enable(PRE);
 
-	NTRUPRE(ctx, doJson);
+	NTRUPRE(ctx, input, doJson);
 
 	//	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	//	NumberTheoreticTransform::GetInstance().Destroy();
@@ -128,7 +127,7 @@ main(int argc, char *argv[])
 //////////////////////////////////////////////////////////////////////
 
 void
-NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
+NTRUPRE(CryptoContext<ILVector2n>& ctx, string& parmset, bool doJson) {
 
 	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	//BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
@@ -340,7 +339,7 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 		tjp.evalKey = evalKey;
 		tjp.newSK = newKp.secretKey;
 
-		testJson<ILVector2n>("LTV", newPlaintext, &tjp, !evalKey ? true: false);
+		testJson<ILVector2n>(parmset, newPlaintext, &tjp, !evalKey ? true: false);
 	}
 
 	fout.close();

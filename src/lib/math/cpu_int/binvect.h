@@ -410,13 +410,12 @@ public:
 	/**
 	* Serialize the object into a Serialized
 	* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	* @param fileFlag is an object-specific parameter for the serialization
 	* @return true if successfully serialized
 	*/
-	bool Serialize(lbcrypto::Serialized* serObj, const std::string fileFlag = "") const;
+	bool Serialize(lbcrypto::Serialized* serObj) const;
 
 	/**
-	* Populate the object from the deserialization of the Setialized
+	* Populate the object from the deserialization of the Serialized
 	* @param serObj contains the serialized object
 	* @return true on success
 	*/

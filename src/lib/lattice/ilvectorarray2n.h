@@ -498,10 +498,9 @@ namespace lbcrypto {
 		* Invokes nested serialization of BigBinaryVector.
 		*
 		* @param serializationMap stores this object's serialized attribute name value pairs.
-		* @param fileFlag TODO.
-		* @return map updated with the attribute name value pairs required to serialize this object.
+		* @return true on success
 		*/
-		bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
+		bool Serialize(Serialized* serObj) const;
 
 		/**
 		* Populate the object from the deserialization of the Setialized

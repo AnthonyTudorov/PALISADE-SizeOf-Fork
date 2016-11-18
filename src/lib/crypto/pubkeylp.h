@@ -257,33 +257,16 @@ namespace lbcrypto {
 			* @param fileFlag is an object-specific parameter for the serialization
 			* @return true if successfully serialized
 			*/
-			bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+			bool Serialize(Serialized *serObj) const {
 				serObj->SetObject();
 
-				if (!this->GetCryptoParameters()->Serialize(serObj, "")) {
+				serObj->AddMember("Object", "PublicKey", serObj->GetAllocator());
+
+				if (!this->GetCryptoParameters()->Serialize(serObj)) {
 					return false;
 				}
 
 				SerializeVector<Element>("Vectors", elementName<Element>(), this->GetPublicElements(), serObj);
-
-				if (!this->SetIdFlag(serObj, fileFlag))
-					return false;
-
-				return true;
-			}
-
-			/**
-			* Higher level info about the serialization is saved here
-			* @param *serObj to store the the implementing object's serialization specific attributes.
-			* @param flag an object-specific parameter for the serialization
-			* @return true on success
-			*/
-			bool SetIdFlag(Serialized *serObj, const std::string flag) const {
-
-				SerialItem idFlagMap(rapidjson::kObjectType);
-				idFlagMap.AddMember("ID", "LPPublicKey", serObj->GetAllocator());
-				idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
-				serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
 
 				return true;
 			}
@@ -295,7 +278,11 @@ namespace lbcrypto {
 			*/
 			bool Deserialize(const Serialized &serObj) { 
 
-				SerialItem::ConstMemberIterator mIt = serObj.FindMember("Vectors");
+				Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
+				if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "PublicKey" )
+					return false;
+
+				mIt = serObj.FindMember("Vectors");
 
 				if( mIt == serObj.MemberEnd() ) {
 					return false;
@@ -506,46 +493,33 @@ namespace lbcrypto {
 
 
 		/**
-		* Higher level info about the serialization is saved here
-		* @param *serObj to store the the implementing object's serialization specific attributes.
-		* @param flag an object-specific parameter for the serialization
-		* @return true on success
-		*/
-		bool SetIdFlag(Serialized *serObj, const std::string flag) const {
-
-			SerialItem idFlagMap(rapidjson::kObjectType);
-			idFlagMap.AddMember("ID", "LPEvalKeyRelin", serObj->GetAllocator());
-			idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
-			serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
-
-			return true;
-		}
-
-		/**
 		* Serialize the object into a Serialized
 		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+		bool Serialize(Serialized *serObj) const {
 			serObj->SetObject();
 
-			if (!this->GetCryptoParameters()->Serialize(serObj, "")) {
+			serObj->AddMember("Object", "EvalKeyRelin", serObj->GetAllocator());
+
+			if (!this->GetCryptoParameters()->Serialize(serObj)) {
 				return false;
 			}
 
 			SerializeVector<Element>("AVector", elementName<Element>(), this->m_rKey[0], serObj);
 			SerializeVector<Element>("BVector", elementName<Element>(), this->m_rKey[1], serObj);
 
-			if (!this->SetIdFlag(serObj, fileFlag))
-				return false;
-
 			return true;
 		}
 
 		bool Deserialize(const Serialized &serObj) {
 
-			SerialItem::ConstMemberIterator mIt = serObj.FindMember("AVector");
+			Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
+			if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyRelin" )
+				return false;
+
+			mIt = serObj.FindMember("AVector");
 
 			if( mIt == serObj.MemberEnd() ) {
 				return false;
@@ -623,38 +597,21 @@ namespace lbcrypto {
 		}
 
 		/**
-		* Higher level info about the serialization is saved here
-		* @param *serObj to store the the implementing object's serialization specific attributes.
-		* @param flag an object-specific parameter for the serialization
-		* @return true on success
-		*/
-		bool SetIdFlag(Serialized *serObj, const std::string flag) const {
-
-			SerialItem idFlagMap(rapidjson::kObjectType);
-			idFlagMap.AddMember("ID", "LPEvalKeyNTRURelin", serObj->GetAllocator());
-			idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
-			serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
-
-			return true;
-		}
-
-		/**
 		* Serialize the object into a Serialized
 		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+		bool Serialize(Serialized *serObj) const {
 			serObj->SetObject();
 
-			if (!this->GetCryptoParameters()->Serialize(serObj, "")) {
+			serObj->AddMember("Object", "EvalKeyNTRURelin", serObj->GetAllocator());
+
+			if (!this->GetCryptoParameters()->Serialize(serObj)) {
 				return false;
 			}
 
-			SerializeVector<Element>("Vectors", "ILVector2n", this->GetAVector(), serObj);
-
-			if (!this->SetIdFlag(serObj, fileFlag))
-				return false;
+			SerializeVector<Element>("Vectors", elementName<Element>(), this->GetAVector(), serObj);
 
 			return true;
 		}
@@ -665,6 +622,10 @@ namespace lbcrypto {
 		* @return true on success
 		*/
 		bool Deserialize(const Serialized &serObj) {
+			Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
+			if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyNTRURelin" )
+				return false;
+
 			SerialItem::ConstMemberIterator it = serObj.FindMember("Vectors");
 
 			if( it == serObj.MemberEnd() ) {
@@ -672,7 +633,7 @@ namespace lbcrypto {
 			}
 
 			std::vector<Element> newElements;
-			if( DeserializeVector<Element>("Vectors", "ILVector2n", it, &newElements) ) {
+			if( DeserializeVector<Element>("Vectors", elementName<Element>(), it, &newElements) ) {
 				this->SetAVector(newElements);
 				return true;
 			}
@@ -737,48 +698,43 @@ namespace lbcrypto {
 		}
 
 		/**
-		* Higher level info about the serialization is saved here
-		* @param *serObj to store the the implementing object's serialization specific attributes.
-		* @param flag an object-specific parameter for the serialization
-		* @return true on success
-		*/
-		bool SetIdFlag(Serialized *serObj, const std::string flag) const {
-
-			SerialItem idFlagMap(rapidjson::kObjectType);
-			idFlagMap.AddMember("ID", "LPEvalKeyNTRU", serObj->GetAllocator());
-			idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
-			serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
-
-			return true;
-		}
-
-		/**
 		* Serialize the object into a Serialized
 		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+		bool Serialize(Serialized *serObj) const {
 			serObj->SetObject();
 
-			if (!this->GetCryptoParameters()->Serialize(serObj, "")) {
+			serObj->AddMember("Object", "EvalKeyNTRU", serObj->GetAllocator());
+
+			if (!this->GetCryptoParameters()->Serialize(serObj)) {
 				return false;
 			}
 
 			const Element& pe = this->GetA();
 
-			if (!pe.Serialize(serObj, "")) {
+			if (!pe.Serialize(serObj)) {
 				return false;
 			}
-
-			if (!this->SetIdFlag(serObj, fileFlag))
-				return false;
 
 			return true;
 		}
 
 		bool Deserialize(const Serialized &serObj) {
-			return false;
+			Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
+			if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyNTRU" )
+				return false;
+
+			Element pe;
+
+			if( !pe.Deserialize(serObj) ) {
+				return false;
+			}
+
+			m_Key = pe;
+
+			return true;
 		}
 
 	private:
@@ -867,18 +823,11 @@ namespace lbcrypto {
 		*/
 		void SetPrivateElement(Element &&x) { m_sk = std::move(x); }
 
-		//JSON FACILITY
-		/**
-		* Serialize the object into a Serialized
-		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param fileFlag is an object-specific parameter for the serialization
-		* @return true if successfully serialized
-		*/
-		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+		bool Serialize(Serialized *serObj) const {
 
 			serObj->SetObject();
-			if (!this->SetIdFlag(serObj, fileFlag))
-				return false;
+
+			serObj->AddMember("Object", "PrivateKey", serObj->GetAllocator());
 
 			if (!this->GetCryptoParameters()->Serialize(serObj))
 				return false;
@@ -887,30 +836,14 @@ namespace lbcrypto {
 		}
 
 		/**
-		* Higher level info about the serialization is saved here
-		* @param *serObj to store the the implementing object's serialization specific attributes.
-		* @param flag an object-specific parameter for the serialization
-		* @return true on success
-		*/
-		bool SetIdFlag(Serialized *serObj, const std::string flag) const {
-			SerialItem idFlagMap(rapidjson::kObjectType);
-			idFlagMap.AddMember("ID", "LPPrivateKey", serObj->GetAllocator());
-			idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
-			serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
-
-			return true;
-		}
-
-		/**
 		* Populate the object from the deserialization of the Setialized
 		* @param &serObj contains the serialized object
 		* @return true on success
 		*/
 		bool Deserialize(const Serialized &serObj) { 
-//			LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-//			if (cryptoParams == 0) return false;
-//
-//			this->m_cryptoParameters = cryptoParams;
+			Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
+			if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "PrivateKey" )
+				return false;
 
 			Element json_ilElement;
 			if (json_ilElement.Deserialize(serObj)) {

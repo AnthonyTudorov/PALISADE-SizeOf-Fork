@@ -39,6 +39,40 @@
 
 namespace lbcrypto {
 
+/**
+ * Serialize the context (it's really just the params...)
+ *
+ * @param serObj
+ * @param fileFlag
+ * @return
+ */
+template <typename T>
+bool
+CryptoContextImpl<T>::Serialize(Serialized* serObj) const
+{
+	return params->Serialize(serObj);
+}
+
+/**
+ * Deserialize the context AND initialize the algorithm
+ *
+ * @param serObj
+ * @return
+ */
+template <typename T>
+bool
+CryptoContext<T>::Deserialize(const Serialized& serObj)
+{
+	CryptoContext<T> newctx = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
+
+	if( newctx.ctx ) {
+		this->ctx = newctx.ctx;
+		return true;
+	}
+
+	return false;
+}
+
 //template <class T, class T2>
 //static T* deserializeAndCreate(const std::string& serializedKey, const CryptoContext<T2>* ctx )
 //{
