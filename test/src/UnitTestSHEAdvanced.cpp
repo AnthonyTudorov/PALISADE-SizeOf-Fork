@@ -298,7 +298,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	DEBUG("2 " << ciphertext2.at(0)->GetElement().GetLength());
 	DEBUG("out " << cResult->GetElement().GetLength());
 
-	shared_ptr<LPEvalKeyNTRU<ILVectorArray2n>> keySwitchHint;
+	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint;
 
 	LPKeyPair<ILVectorArray2n> newKp = cc.KeyGen();
 
