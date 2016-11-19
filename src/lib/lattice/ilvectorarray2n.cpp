@@ -40,7 +40,7 @@ namespace lbcrypto {
 	ILVectorArray2n::ILVectorArray2n() : m_format(EVALUATION), m_cyclotomicOrder(0), m_modulus(1){
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const shared_ptr<ElemParams> params, Format format) : m_format(format)
+	ILVectorArray2n::ILVectorArray2n(const shared_ptr<ElemParams> params, Format format, bool initializeElementToZero)
 	{
 		const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(params);
 
@@ -58,7 +58,7 @@ namespace lbcrypto {
 			BigBinaryInteger modulus(dcrtParams->GetModuli()[i]);
 			BigBinaryInteger rootOfUnity(dcrtParams->GetRootsOfUnity()[i]);
 			shared_ptr<ILParams> ip( new ILParams(m_cyclotomicOrder, modulus, rootOfUnity) );
-			m_vectors.push_back(std::move(ILVector2n(ip,format)));
+			m_vectors.push_back(std::move(ILVector2n(ip,format,initializeElementToZero)));
 		}
 	}
 
@@ -102,7 +102,7 @@ namespace lbcrypto {
 		usint ringDimension = towers.at(0).GetCyclotomicOrder() / 2;
 		for (usint i = 1; i < towers.size(); i++) {
 			if (!(towers.at(i).GetCyclotomicOrder() / 2 == ringDimension)) {
-				throw std::logic_error(std::string("ILVectors provided to ILVectorArray2n do not have the same parameters. Throwing error."));
+				throw std::logic_error(std::string("ILVectors provided to ILVectorArray2n must have the same parameters"));
 			}
 		}
 
@@ -319,6 +319,13 @@ namespace lbcrypto {
 		return *this;
 	}
 
+	const ILVectorArray2n& ILVectorArray2n::operator*=(const ILVectorArray2n &rhs) {
+		for (usint i = 0; i < this->GetNumOfElements(); i++) {
+			this->m_vectors.at(i) *= rhs.GetElementAtIndex(i);
+		}
+		return *this;
+	}
+
 	bool ILVectorArray2n::operator!=(const ILVectorArray2n &rhs) const {
         return !(*this == rhs); 
     }
@@ -445,6 +452,10 @@ namespace lbcrypto {
 	
 	const ILVectorArray2n& ILVectorArray2n::operator-=(const BigBinaryInteger &rhs){
           return this->Minus(rhs); //TODO-OPTIMIZE
+	}
+
+	const ILVectorArray2n& ILVectorArray2n::operator*=(const BigBinaryInteger &rhs){
+          return this->Times(rhs); //TODO-OPTIMIZE
 	}
 
 	/*OTHER FUNCTIONS*/

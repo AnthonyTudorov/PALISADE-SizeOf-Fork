@@ -40,11 +40,11 @@ template <class Element>
 DecryptResult LPAlgorithmNull<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		Element *plaintext) const
-		{
+{
 	const Element c = ciphertext->GetElement();
 	*plaintext = c;
 	return DecryptResult(plaintext->GetLength());
-		}
+}
 
 template <class Element>
 shared_ptr<LPEvalKey<Element>> LPAlgorithmPRENull<Element>::ReKeyGen(const shared_ptr<LPKey<Element>> newSK,
@@ -91,19 +91,23 @@ shared_ptr<Ciphertext<Element>>
 LPAlgorithmSHENull<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const
 {
+	if( typeid(Element) != typeid(ILVector2n) ) {
+		throw std::runtime_error("EvalMult only implemented for Null Scheme and element ILVector2n.");
+	}
+
 	if(ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT){
 		throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 	}
 
-	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
+	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(ciphertext2->GetCryptoContext()));
 
 	Element c1(ciphertext1->GetElement());
 
 	Element c2(ciphertext2->GetElement());
 
-	Element cResult(c1.GetParams(), Format::EVALUATION, true);
+	Element cResult(ciphertext1->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
 
-	Element cLarger(c1.GetParams(), Format::EVALUATION, true);
+	Element cLarger(ciphertext1->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
 
 	const BigBinaryInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
 	int	ringdim = c1.GetCyclotomicOrder()/2;

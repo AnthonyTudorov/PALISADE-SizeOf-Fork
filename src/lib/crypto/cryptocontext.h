@@ -664,31 +664,27 @@ public:
 
 	static shared_ptr<LPPublicKeyEncryptionScheme<Element>> GetSchemeObject( const Serialized& serObj ) {
 
-		if( typeid(Element) == typeid(ILVectorArray2n) )
-			return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeLTV<Element>() );
-
 		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersType");
 		if( mIter != serObj.MemberEnd() ) {
 			string parmstype = mIter->value.GetString();
-			std::cout << parmstype << std::endl;
 
 			if( parmstype == "LPCryptoParametersLTV") {
-				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeLTV<ILVector2n>() );
+				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeLTV<Element>() );
 			}
 			else if( parmstype == "LPCryptoParametersBV") {
-				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeBV<ILVector2n>() );
+				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeBV<Element>() );
 			}
 			else if( parmstype == "LPCryptoParametersFV") {
-				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeFV<ILVector2n>() );
+				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeFV<Element>() );
 			}
 			else if( parmstype == "LPCryptoParametersDCRT") { // fixme
-				return shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>>( new LPPublicKeyEncryptionSchemeLTV<ILVector2n>());
+				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeLTV<Element>());
 			}
 			else if( parmstype == "LPCryptoParametersStehleSteinfeld") {
-				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeStehleSteinfeld<ILVector2n>() );
+				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>() );
 			}
 			else if( parmstype == "LPCryptoParametersNull" ) {
-				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeNull<ILVector2n>() );
+				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeNull<Element>() );
 			}
 		}
 
