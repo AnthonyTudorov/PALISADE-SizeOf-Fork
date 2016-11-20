@@ -148,6 +148,10 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, string& parmset, bool doJson) {
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(ctx.GetGenerator(), ctx.GetElementParams());
 
+	//Precomputations for TUG
+	TernaryUniformGenerator tug = TernaryUniformGenerator();
+	ILVector2n::PreComputeTugSamples(tug, ctx.GetElementParams());
+
 	finish = currentDateTime();
 	diff = finish - start;
 
