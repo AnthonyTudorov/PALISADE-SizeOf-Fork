@@ -104,8 +104,8 @@ main(int argc, char *argv[])
 
 	NTRUPRE(ctx, input, doJson);
 
-	//	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	//	NumberTheoreticTransform::GetInstance().Destroy();
+	ChineseRemainderTransformFTT::GetInstance().Destroy();
+	NumberTheoreticTransform::GetInstance().Destroy();
 
 	return 0;
 }
@@ -145,11 +145,8 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, string& parmset, bool doJson) {
 
 	//This code is run only when performing execution time measurements
 
-	//	//Precomputations for FTT
-	//	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-	//
-	//	//Precomputations for DGG
-	//	ILVector2n::PreComputeDggSamples(dgg, ilParams);
+	//Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(ctx.GetGenerator(), ctx.GetElementParams());
 
 	finish = currentDateTime();
 	diff = finish - start;
