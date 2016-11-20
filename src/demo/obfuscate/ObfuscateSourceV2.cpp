@@ -195,9 +195,7 @@ void NTRUPRE(int input) {
 
 	std::cout << "Key generation ended" << std::endl;
 
-	std::cout << "Key generation time: " << "\t" << diff << " ms" << std::endl;
-
-	BinaryUniformGenerator dbg = BinaryUniformGenerator();	
+	std::cout << "Key generation time: " << "\t" << diff << " ms" << std::endl;	
 
 	algorithm.Obfuscate(clearPattern,dgg,tug,&obfuscatedPattern);
 	std::cout << "Obfuscation Execution completed." << std::endl;

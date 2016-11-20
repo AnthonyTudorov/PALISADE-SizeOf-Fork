@@ -138,7 +138,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 
 		{ "FV2", {
 				{ "parameters", "FV" },
-				{ "plaintextModulus", "64" },
+				{ "plaintextModulus", "16" },
 				{ "securityLevel", "1.006" }
 		} },
 
