@@ -39,6 +39,40 @@
 
 namespace lbcrypto {
 
+/**
+ * Serialize the context (it's really just the params...)
+ *
+ * @param serObj
+ * @param fileFlag
+ * @return
+ */
+template <typename T>
+bool
+CryptoContextImpl<T>::Serialize(Serialized* serObj) const
+{
+	return params->Serialize(serObj);
+}
+
+/**
+ * Deserialize the context AND initialize the algorithm
+ *
+ * @param serObj
+ * @return
+ */
+template <typename T>
+bool
+CryptoContext<T>::Deserialize(const Serialized& serObj)
+{
+	CryptoContext<T> newctx = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
+
+	if( newctx.ctx ) {
+		this->ctx = newctx.ctx;
+		return true;
+	}
+
+	return false;
+}
+
 //template <class T, class T2>
 //static T* deserializeAndCreate(const std::string& serializedKey, const CryptoContext<T2>* ctx )
 //{
@@ -146,6 +180,44 @@ CryptoContextFactory<T>::genCryptoContextFV(
 
 	return item;
 }
+
+template <typename T>
+CryptoContext<T>
+CryptoContextFactory<T>::genCryptoContextFV(
+		const BigBinaryInteger& plaintextModulus, float securityLevel,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches)
+{
+	int nonZeroCount = 0;
+
+	if( numAdds > 0 ) nonZeroCount++;
+	if( numMults > 0 ) nonZeroCount++;
+	if( numKeyswitches > 0 ) nonZeroCount++;
+
+	if( nonZeroCount > 1 )
+		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in FV context constructor");
+
+	CryptoContext<T>	item( new CryptoContextImpl<T>() );
+
+	shared_ptr<ElemParams> ep( new ILParams(0, BigBinaryInteger::ZERO, BigBinaryInteger::ZERO) );
+
+	LPCryptoParametersFV<T>* params = new LPCryptoParametersFV<T>();
+
+	params->SetElementParams(ep);
+	params->SetPlaintextModulus(plaintextModulus);
+	params->SetSecurityLevel(securityLevel);
+	params->SetRelinWindow(16);
+	params->SetDistributionParameter(4.0);
+	params->SetMode(OPTIMIZED);
+	params->SetAssuranceMeasure(9.0);
+
+	item.ctx->params.reset( params );
+	item.ctx->scheme.reset( new LPPublicKeyEncryptionSchemeFV<T>() );
+
+	item.ctx->scheme->ParamsGen(item.GetCryptoParameters(), numAdds, numMults, numKeyswitches);
+
+	return item;
+}
+
 
 template <typename T>
 CryptoContext<T>
@@ -299,5 +371,21 @@ CryptoContext<T>::deserializeEvalKey(const Serialized& serObj)
 	return shared_ptr<LPEvalKeyNTRURelin<T>>();
 }
 
+
+template <typename T>
+shared_ptr<LPEvalKey<T>>
+CryptoContext<T>::deserializeEvalMultKey(const Serialized& serObj)
+{
+	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
+		return shared_ptr<LPEvalKeyNTRURelin<T>>();
+	}
+
+	shared_ptr<LPEvalKeyRelin<T>> key( new LPEvalKeyRelin<T>(*this) );
+
+	if( key->Deserialize(serObj) )
+		return key;
+
+	return shared_ptr<LPEvalKeyRelin<T>>();
+}
 }
 

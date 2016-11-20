@@ -834,7 +834,7 @@ template<class ubint_el_t>
 
   // JSON FACILITY - Serialize Operation
   template<class bin_el_t>
-  bool mubintvec<bin_el_t>::Serialize(lbcrypto::Serialized* serObj, const std::string) const {
+  bool mubintvec<bin_el_t>::Serialize(lbcrypto::Serialized* serObj) const {
 
     if( !serObj->IsObject() )
       return false;

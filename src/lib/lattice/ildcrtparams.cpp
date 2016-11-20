@@ -57,7 +57,7 @@ DeSerializeBBIVector(const std::string& vectorName, const SerialItem& serObj, st
 
 
 bool
-ILDCRTParams::Serialize(Serialized* serObj, const std::string fileFlag) const
+ILDCRTParams::Serialize(Serialized* serObj) const
 {
 	if( !serObj->IsObject() )
 		return false;

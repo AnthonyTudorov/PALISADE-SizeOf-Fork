@@ -26,6 +26,23 @@ void runOneRound(CryptoContext<ILVector2n>& ctx, const BytePlaintextEncoding& pl
 int
 main(int argc, char *argv[])
 {
+	CryptoContext<ILVector2n> ctx2 = CryptoContextFactory<ILVector2n>::genCryptoContextFV(35,2048,"8589987841", "7685854512",
+			16, 4.0, "245428224",
+			(MODE)1, "75557863725914323468289", "2260917530640266888185",
+			0, 9.0, 1.006);
+
+	Serialized	kser;
+	if( SerializableHelper::ReadSerializationFromFile("owner.pk.ev", &kser) == false ) {
+		cerr << "Could not read re encryption key" << endl;
+		return 1;
+	}
+
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey = ctx2.deserializeEvalMultKey(kser);
+	if( !evalKey ) {
+		cerr << "Could not deserialize re encryption key" << endl;
+		return 1;
+	}
+
 	string parmset;
 
 	std::cout << "Choose parameter set: ";

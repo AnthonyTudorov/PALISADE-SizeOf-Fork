@@ -93,7 +93,7 @@ namespace lbcrypto {
 		*@param &params parameter set required for ILVectorArray2n.
 		*@param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArray2n(const shared_ptr<ElemParams> params, Format format = EVALUATION);
+		ILVectorArray2n(const shared_ptr<ElemParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 		/**
 		* Constructor based on discrete Gaussian generator.
@@ -103,6 +103,18 @@ namespace lbcrypto {
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION);
+
+		ILVectorArray2n(const DiscreteUniformGenerator & dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION) {
+			throw std::logic_error("Cannot use DiscreteUniformGenerator with ILVectorArray2n; not implemented");
+		}
+
+		ILVectorArray2n(const BinaryUniformGenerator & dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION) {
+			throw std::logic_error("Cannot use BinaryUniformGenerator with ILVectorArray2n; not implemented");
+		}
+
+		ILVectorArray2n(const TernaryUniformGenerator & dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION) {
+			throw std::logic_error("Cannot use TernaryUniformGenerator with ILVectorArray2n; not implemented");
+		}
 
 		/**
 		* Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n. 
@@ -186,6 +198,21 @@ namespace lbcrypto {
 		}
 
 		/**
+		* Next three methods will get triggered if user accidentally uses ILVector2n methods
+		*/
+		const BigBinaryInteger& GetValAtIndex(usint i) const {
+			throw std::logic_error("GetValAtIndex not implemented for ILVectorArray2n");
+		}
+
+        inline void SetValAtIndex(size_t index, int val) {
+			throw std::logic_error("SetValAtIndex not implemented for ILVectorArray2n");
+        }
+
+        inline void SetValAtIndex(size_t index, const BigBinaryInteger& val) {
+			throw std::logic_error("SetValAtIndex not implemented for ILVectorArray2n");
+        }
+
+        /**
 		* Get method of individual towers.
 		*
 		* @param i index of tower to be returned.
@@ -291,10 +318,18 @@ namespace lbcrypto {
 		/**
 		* Performs an entry-wise subtraction over all elements of each tower with the towers of the ILVectorArray2n on the right hand side.
 		*
-		* @param &rhs is the element to add with.
+		* @param &rhs is the element to subtract from.
 		* @return is the result of the addition.
 		*/
 		const ILVectorArray2n& operator-=(const ILVectorArray2n &rhs);
+
+		/**
+		* Performs an entry-wise multiplication over all elements of each tower with the towers of the ILVectorArray2n on the right hand side.
+		*
+		* @param &rhs is the element to multiply by.
+		* @return is the result of the addition.
+		*/
+		const ILVectorArray2n& operator*=(const ILVectorArray2n &rhs);
 
 		/**
 		* Permutes coefficients in a polynomial. Moves the ith index to the first one, it only supports odd indices. 
@@ -380,12 +415,20 @@ namespace lbcrypto {
 		const ILVectorArray2n& operator+=(const BigBinaryInteger &rhs);
 
 		/**
-		* Performs an addition operation and returns the result.
+		* Performs a subtraction operation and returns the result.
 		*
 		* @param &element is the element to subtract from.
 		* @return is the result of the subtraction.
 		*/
 		const ILVectorArray2n& operator-=(const BigBinaryInteger &element);
+
+		/**
+		* Performs a multiplication operation and returns the result.
+		*
+		* @param &element is the element to multiply by.
+		* @return is the result of the subtraction.
+		*/
+		const ILVectorArray2n& operator*=(const BigBinaryInteger &element);
 
 		// multiplicative inverse operation
 		/**
@@ -411,6 +454,14 @@ namespace lbcrypto {
 		ILVectorArray2n SignedMod(const BigBinaryInteger &modulus) const;
 
 		// OTHER FUNCTIONS AND UTILITIES 
+
+		/* should not be used */
+		const BigBinaryVector &GetValues() const {
+			throw std::logic_error("GetValues not implemented on ILVectorArray2n");
+		}
+		void SetValues(const BigBinaryVector& values, Format format) {
+			throw std::logic_error("SetValues not implemented on ILVectorArray2n");
+		}
 
 		/**
 		* Prints values of each tower
@@ -498,10 +549,9 @@ namespace lbcrypto {
 		* Invokes nested serialization of BigBinaryVector.
 		*
 		* @param serializationMap stores this object's serialized attribute name value pairs.
-		* @param fileFlag TODO.
-		* @return map updated with the attribute name value pairs required to serialize this object.
+		* @return true on success
 		*/
-		bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
+		bool Serialize(Serialized* serObj) const;
 
 		/**
 		* Populate the object from the deserialization of the Setialized

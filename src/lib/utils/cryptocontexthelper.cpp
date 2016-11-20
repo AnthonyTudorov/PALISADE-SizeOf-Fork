@@ -68,6 +68,7 @@ buildContextFromSerialized(const map<string,string>& s)
 	std::string relinWindow;
 	std::string stDev;
 	std::string stDevStSt;
+	std::string secLevel;
 
 	if( !getValueForName(s, "parameters", parmtype) ) {
 		std::cerr << "parameters element is missing" << std::endl;
@@ -100,6 +101,17 @@ buildContextFromSerialized(const map<string,string>& s)
 
 		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(stoul(plaintextModulus), stoul(ring),
 				modulus, rootOfUnity, stoul(relinWindow), stof(stDev), stof(stDevStSt));
+	}
+	else if( parmtype == "FV" ) {
+		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
+				!getValueForName(s, "securityLevel", secLevel) )
+			return 0;
+
+		BigBinaryInteger ptm(plaintextModulus);
+
+		return CryptoContextFactory<Element>::genCryptoContextFV(ptm, stof(secLevel),
+				0, 1, 0);
+
 	}
 	else if( parmtype == "Null" ) {
 		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
@@ -197,36 +209,6 @@ CryptoContextHelper<Element>::matchContextToSerialization(const CryptoContext<El
 
 	return *ctxParams == *cParams;
 }
-
-template <class Element>
-CryptoContext<Element>
-CryptoContextHelper<Element>::getNewContextFromSerialization(const Serialized& ser)
-{
-	CryptoContext<Element> emptyCtx;
-	shared_ptr<LPCryptoParameters<Element>> cParams = DeserializeCryptoParameters<Element>(ser);
-
-	if( !cParams ) return emptyCtx;
-
-	const shared_ptr<ILParams> ep = std::dynamic_pointer_cast<ILParams>(cParams->GetElementParams());
-
-	// see what kind of parms we have here...
-	shared_ptr<LPCryptoParametersLTV<Element>> ltvp = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(cParams);
-	shared_ptr<LPCryptoParametersStehleSteinfeld<Element>> ststp = std::dynamic_pointer_cast<LPCryptoParametersStehleSteinfeld<Element>>(cParams);
-
-	if( ststp ){
-		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(cParams->GetPlaintextModulus().ConvertToInt(), ep->GetCyclotomicOrder(),
-				ep->GetModulus().ToString(), ep->GetRootOfUnity().ToString(), ststp->GetRelinWindow(), ststp->GetDistributionParameter(), ststp->GetDistributionParameterStSt());
-	}
-	else if( ltvp ) {
-		return CryptoContextFactory<Element>::genCryptoContextLTV(cParams->GetPlaintextModulus().ConvertToInt(), ep->GetCyclotomicOrder(),
-				ep->GetModulus().ToString(), ep->GetRootOfUnity().ToString(), ltvp->GetRelinWindow(), ltvp->GetDistributionParameter());
-	}
-
-	// empty one
-	return emptyCtx;
-}
-
-
 
 template <class Element>
 CryptoContext<Element>

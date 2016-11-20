@@ -266,11 +266,11 @@ protected:
 	//Discrete Gaussian Generator
 	DiscreteGaussianGenerator m_dgg;
 
-	bool SerializeRLWE(Serialized* serObj, SerialItem& cryptoParamsMap, const std::string fileFlag) const {
+	bool SerializeRLWE(Serialized* serObj, SerialItem& cryptoParamsMap) const {
 
 		Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
 		const ElemParams& ep = *this->GetElementParams();
-		if( !ep.Serialize(&pser, fileFlag) )
+		if( !ep.Serialize(&pser) )
 			return false;
 
 		cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
