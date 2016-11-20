@@ -149,7 +149,7 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, string& parmset, bool doJson) {
 	ILVector2n::PreComputeDggSamples(ctx.GetGenerator(), ctx.GetElementParams());
 
 	//Precomputations for TUG
-	TernaryUniformGenerator tug = TernaryUniformGenerator();
+	TernaryUniformGenerator tug;
 	ILVector2n::PreComputeTugSamples(tug, ctx.GetElementParams());
 
 	finish = currentDateTime();
