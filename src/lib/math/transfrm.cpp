@@ -526,4 +526,40 @@ namespace lbcrypto {
 	}
 
 
+	std::vector<double> DiscreteFourierTransform::ForwardTransform(std::vector<double> & A, double w, double m) {
+		if (m == 1) {
+			return A;
+		}
+		else {
+			std::vector<double> A_even(m/2);
+			std::vector<double> A_odd(m/2);
+			for (int i = 0;i<m;i++) {
+				if (i % 2 == 0) {
+					A_even[i / 2] = A[i];
+				}
+				else {
+					A_odd[(i-1)/2] = A[i];
+				}
+			}
+			std::vector<double> P_even = DiscreteFourierTransform::ForwardTransform(A_even,  w*w, m / 2);
+			std::vector<double> P_odd = DiscreteFourierTransform::ForwardTransform(A_odd,  w*w, m / 2);
+			std::vector<double> P(m,0);
+			double x = 1;
+			for (int j = 0;j<m / 2;j++) {
+				P[j] = P_even[j] + x * P_odd[j];
+				P[j+m/2] = P_even[j] - x * P_odd[j];
+				x *= w;
+			}
+			return P;
+		}
+	}
+	std::vector<double> DiscreteFourierTransform::InverseTransform(std::vector<double> & A, double w, double m) {
+		
+		std::vector<double> result = DiscreteFourierTransform::ForwardTransform(A,(double) 1/w , m);
+			for(int i=0;i < m;i++) {
+				result[i] = (double)(result[i] / m) ;
+		}
+			return result;
+	}
+
 }//namespace ends here
