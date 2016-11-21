@@ -94,14 +94,9 @@ void NTRUPRE(int input) {
 	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
 
 	usint m = 16;
-	//60 bits
-	BigBinaryInteger modulus("1152921504606847009");
-	//27 bits
-	//BigBinaryInteger modulus("67108913");
-	//60 bits
-	BigBinaryInteger rootOfUnity("405107564542978792");
-	//27 bits
-	//BigBinaryInteger rootOfUnity("61564");
+	//47 bits
+	BigBinaryInteger modulus("35184372088961");
+	BigBinaryInteger rootOfUnity("21593505674172");
 
 	float stdDev = 4;
 
@@ -200,9 +195,7 @@ void NTRUPRE(int input) {
 
 	std::cout << "Key generation ended" << std::endl;
 
-	std::cout << "Key generation time: " << "\t" << diff << " ms" << std::endl;
-
-	BinaryUniformGenerator dbg = BinaryUniformGenerator();	
+	std::cout << "Key generation time: " << "\t" << diff << " ms" << std::endl;	
 
 	algorithm.Obfuscate(clearPattern,dgg,tug,&obfuscatedPattern);
 	std::cout << "Obfuscation Execution completed." << std::endl;

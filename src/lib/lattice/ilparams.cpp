@@ -48,7 +48,7 @@ namespace lbcrypto {
 		* @param serObj stores this object's serialized attribute name value pairs.
 		* @return map updated with the attribute name value pairs required to serialize this object.
 		*/
-		bool ILParams::Serialize(Serialized* serObj, const std::string fileFlag) const {
+		bool ILParams::Serialize(Serialized* serObj) const {
 
 			if( !serObj->IsObject() )
 				return false;

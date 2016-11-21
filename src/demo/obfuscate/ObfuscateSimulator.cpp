@@ -144,7 +144,7 @@ int main(int argc, char* argv[]){
 			break;
 		case 256:
 			i = 5;
-			optionSelected = "Selected ring dimension: 256 (k = 1.066)";
+			optionSelected = "Selected ring dimension: 256 (d = 1.066)";
 			break;
 		default:
 			i = 0;
@@ -189,18 +189,18 @@ bool CONJOBF(bool dbg_flag, int n_evals, int dataset) {
 	TIC(t_total); //start timer for total time
 
 	SecureParams const SECURE_PARAMS[] = {
-		{ 16, BigBinaryInteger("75557863725914323420321"),
-			BigBinaryInteger("12274497033257922715595")}, //log q = 77 bits, n = 8
-		{ 32, BigBinaryInteger("1208925819614629174707521"),
-			BigBinaryInteger("193814240942483199145482")}, //log q = 81 bits, n = 16
-		{ 64, BigBinaryInteger("19342813113834066795305089"),
-			BigBinaryInteger("4234348280277576671195402") }, // log q = 85 bits, n = 32
-		{ 128, BigBinaryInteger("618970019642690137449567233"),
-			BigBinaryInteger("541020383458560877089542400") },  // log q = 90 bits, n = 64
-		{ 256, BigBinaryInteger("9903520314283042199193000193"),
-			BigBinaryInteger("7913145601236445148616781527") }, // log q = 94 bits, n = 128
-		{ 512, BigBinaryInteger("158456325028528675187087907841"),
-			BigBinaryInteger("139668608762638314001983516094") }  // log q = 98 bits, n = 256
+		{ 16, BigBinaryInteger("288230376151711969"),
+		BigBinaryInteger("110926819574788955") }, //log q = 59 bits, n = 8
+		{ 32, BigBinaryInteger("4611686018427388097"),
+		BigBinaryInteger("3749353375025977635") }, //log q = 64 bits, n = 16
+		{ 64, BigBinaryInteger("73786976294838207169"),
+		BigBinaryInteger("18478736723072519957") }, // log q = 68 bits, n = 32
+		{ 128, BigBinaryInteger("1180591620717411303809"),
+		BigBinaryInteger("1045241421304505831910") },  // log q = 72 bits, n = 64
+		{ 256, BigBinaryInteger("18889465931478580859137"),
+		BigBinaryInteger("701118114663743452021") }, // log q = 76 bits, n = 128
+		{ 512, BigBinaryInteger("604462909807314587356673"),
+		BigBinaryInteger("315652146132535045281800") }  // log q = 81 bits, n = 256
 	};
 
 	//Set element params

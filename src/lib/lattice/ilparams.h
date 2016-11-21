@@ -250,7 +250,7 @@ public:
 	 * @param fileFlag is an object-specific parameter for the serialization
 	 * @return true if successfully serialized
 	 */
-	bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
+	bool Serialize(Serialized* serObj) const;
 
 	/**
 	 * Populate the object from the deserialization of the Setialized

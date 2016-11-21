@@ -130,6 +130,18 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 				{ "stDevStSt", "41411.5" }
 		} },
 
+		{ "FV1", {
+				{ "parameters", "FV" },
+				{ "plaintextModulus", "4" },
+				{ "securityLevel", "1.006" }
+		} },
+
+		{ "FV2", {
+				{ "parameters", "FV" },
+				{ "plaintextModulus", "16" },
+				{ "securityLevel", "1.006" }
+		} },
+
 		{ "Null", {
 				{ "parameters", "Null" },
 				{ "plaintextModulus", "256" },

@@ -446,7 +446,7 @@ BigBinaryVector BigBinaryVector::GetDigitAtIndexForBase(usint index, usint base)
 }
 
 // JSON FACILITY - Serialize Operation
-bool BigBinaryVector::Serialize(lbcrypto::Serialized* serObj, const std::string) const {
+bool BigBinaryVector::Serialize(lbcrypto::Serialized* serObj) const {
 
 	if( !serObj->IsObject() )
 		return false;

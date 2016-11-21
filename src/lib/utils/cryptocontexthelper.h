@@ -76,8 +76,6 @@ public:
 	 */
 	static CryptoContext<Element> getNewContext(const string parmsetname);
 
-	static CryptoContext<Element> getNewContextFromSerialization(const Serialized& ser);
-
 	static bool matchContextToSerialization(const CryptoContext<Element> cc, const Serialized& ser);
 };
 

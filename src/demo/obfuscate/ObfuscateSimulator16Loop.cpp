@@ -4,18 +4,16 @@ PRE SCHEME PROJECT, Crypto Lab, NJIT
 Version:
 	v00.01
 Last Edited:
-	6/17/2015 4:37AM
+	7/19/2016 4:37AM
 List of Authors:
 	TPOC:
 		Dr. Kurt Rohloff, rohloff@njit.edu
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
-		Gyana Sahu, grs22@njit.edu
-		Dr. David Cousins, dcousins@bbn.com
-
+		Dr. David Cousins
 Description:
- 
-This is a highly simplified version of ObfuscateSimulator.cpp used for debugging.
+	To be added
+
 License Information:
 
 Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
@@ -27,14 +25,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#define PROFILE  //define this to enable PROFILELOG and TIC/TOC 
-                  // Note must must be before all headers
-
 #include <iostream>
 #include <fstream>
 #include "../../lib/obfuscate/lweconjunctionobfuscatev2.h"
 #include "../../lib/obfuscate/lweconjunctionobfuscatev2.cpp"
-
 
 #include "../../lib/utils/debug.h"
 
@@ -43,29 +37,28 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //using namespace std;
 using namespace lbcrypto;
 
-bool CONJOBF(bool dbg_flag, int n_evals); //defined later
-
+bool CONJOBF(bool dbg_flag, int n_evals, int dataset); //defined later
 
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
 	bool errorflag = false;
 
 	if (argc < 2) { // called with no arguments
-		std::cout << "Usage is `"<<argv[0]<<" arg1 arg2 arg3' where: " << std::endl;
-		std::cout << "  arg1 indicate verbosity of output. Possible values are 0 or 1 with 1 being verbose.  Default is 0." << std::endl;
-		std::cout << "  arg2 indicates number of evaluation operations to run.  Possible values are 1, 2 or 3.  Default is 1." << std::endl;
-		std::cout << "If no input is given, then this message is displayed, defaults are assumed and user is prompted for ring dimension." << std::endl;
+		std::cout << "arg 1 = debugflag 0:1 [0] " << std::endl;
+		std::cout << "arg 2 = num evals 1:3 [1] " << std::endl;
 	}
 	bool dbg_flag = false; 
 
 	if (argc >= 2 ) {
 		if (atoi(argv[1]) != 0) {
-#if !defined(NDEBUG)
+#ifndef NDEBUG
 			dbg_flag = true;
-			// std::cout << "setting dbg_flag true" << std::endl;
+			std::cout << "setting dbg_flag true" << std::endl;
 #endif
 		}
 	}
+
+	std::cerr  <<"Running " << argv[0] <<" with "<< omp_get_num_procs() << " processors." << std::endl;
 
 	int n_evals = 1;
 
@@ -78,8 +71,7 @@ int main(int argc, char* argv[]){
 			n_evals = atoi(argv[2]);
 		}
 	}
-
-	std::cerr  <<"Configured to run " << argv[0] <<" with "<< omp_get_num_procs() << " processor[s] and " << n_evals << " evaluation[s]." << std::endl;
+	std::cerr << "Running " << argv[0] << " with " << n_evals << " evaluations." << std::endl;
 
 	int nthreads, tid;
 
@@ -99,45 +91,59 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	errorflag = CONJOBF(dbg_flag, n_evals);
-
-	system("PAUSE");
+	for (usint i = 0; i < 6; i++)
+	{
+		errorflag = CONJOBF(dbg_flag, n_evals, i);
+	}
 
 	return ((int)errorflag);
 
+	//std::cin.get();
 }
 
-//////////////////////////////////////////////////////////////////////
-bool CONJOBF(bool dbg_flag, int n_evals) {
+/**
+* @brief Input parameters for conjunction obfuscation example.
+*/
+struct SecureParams {
+	usint m;			///< The ring parameter.
+	BigBinaryInteger modulus;	///< The modulus
+	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
+};
+
+bool CONJOBF(bool dbg_flag, int n_evals, int dataset) {
 
 	//if dbg_flag == true; print debug outputs
 	// n_evals = 1,2,3 number of evaluations to perform
 	//returns
 	//  errorflag = # of bad evaluations
 
-
-  DEBUG("DEBUG IS TRUE");
-  PROFILELOG("PROFILELOG IS TRUE");
-#ifdef PROFILE
-  std::cout<<"PROFILE is defined"<<std::endl;
-#endif
-#ifdef NDEBUG
-  std::cout<<"NDEBUG is defined"<<std::endl;
-#endif
-
 	TimeVar t1,t_total; //for TIC TOC
 	TIC(t_total); //start timer for total time
+
+	SecureParams const SECURE_PARAMS[] = {
+		{ 16, BigBinaryInteger("288230376151711969"),
+			BigBinaryInteger("110926819574788955")}, //log q = 59 bits, n = 8
+			{ 32, BigBinaryInteger("4611686018427388097"),
+			BigBinaryInteger("3749353375025977635") }, //log q = 64 bits, n = 16
+			{ 64, BigBinaryInteger("73786976294838207169"),
+			BigBinaryInteger("18478736723072519957") }, // log q = 68 bits, n = 32
+			{ 128, BigBinaryInteger("1180591620717411303809"),
+			BigBinaryInteger("1045241421304505831910") },  // log q = 72 bits, n = 64
+			{ 256, BigBinaryInteger("18889465931478580859137"),
+			BigBinaryInteger("701118114663743452021") }, // log q = 76 bits, n = 128
+			{ 512, BigBinaryInteger("604462909807314587356673"),
+			BigBinaryInteger("315652146132535045281800") }  // log q = 81 bits, n = 256
+	};
 
 	//Set element params
 
 	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
 
-	usint m = 16;
-	//47 bits
-	BigBinaryInteger modulus("35184372088961");
-	BigBinaryInteger rootOfUnity("21593505674172");
+	usint m = SECURE_PARAMS[dataset].m;
+	BigBinaryInteger modulus(SECURE_PARAMS[dataset].modulus);
+	BigBinaryInteger rootOfUnity(SECURE_PARAMS[dataset].rootOfUnity);
 
-	usint chunkSize = 2;
+	usint chunkSize = 4;
 
 	float stdDev = 4;
 
@@ -151,9 +157,8 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	//Set crypto parametes
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev);			// Create the noise generator
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
-	TernaryUniformGenerator tug = TernaryUniformGenerator();			// Create the noise generator
 
-	PROFILELOG("Cryptosystem initialization: Performing precomputations...");
+	DEBUG("Cryptosystem initialization: Performing precomputations...");
 
 	//This code is run only when performing execution time measurements
 
@@ -164,14 +169,14 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	TIC(t1);
 	ILVector2n::PreComputeDggSamples(dgg, ilParams);
 	timeDGGSetup = TOC(t1);
-	PROFILELOG("DGG Precomputation time: " << "\t" << timeDGGSetup << " ms");
+	DEBUG("DGG Precomputation time: " << "\t" << timeDGGSetup << " ms");
 
 	////////////////////////////////////////////////////////////
 	//Generate and test the cleartext pattern
 	////////////////////////////////////////////////////////////
 
-	std::string inputPattern = "1?10?1";
-
+	std::string inputPattern = "1?10?10?1?10?10?";
+	
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 	LWEConjunctionObfuscationAlgorithmV2<ILVector2n> algorithm;
 
@@ -181,16 +186,16 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	DEBUG(" \nCleartext pattern length: ");
 	DEBUG(clearPattern.GetLength());
 
-	std::string inputStr1 = "111001";
-	bool out1 = algorithm.Evaluate(clearPattern,inputStr1);
+	std::string inputStr1 = "1110010011100101";
+	bool out1 = algorithm.Evaluate(clearPattern, inputStr1);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << out1);
 
-	std::string inputStr2 = "110011";
-	bool out2 = algorithm.Evaluate(clearPattern,inputStr2);
+	std::string inputStr2 = "1100110111001101";
+	bool out2 = algorithm.Evaluate(clearPattern, inputStr2);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << out2);
-	
-	std::string inputStr3 = "101011";
-	bool out3 = algorithm.Evaluate(clearPattern,inputStr3);
+
+	std::string inputStr3 = "1010110110101101";
+	bool out3 = algorithm.Evaluate(clearPattern, inputStr3);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr3 << " is " << out3);
 
 	////////////////////////////////////////////////////////////
@@ -207,26 +212,26 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	ObfuscatedLWEConjunctionPatternV2<ILVector2n> obfuscatedPattern(ilParams,chunkSize);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 
-	PROFILELOG( "Key generation started");
+	DEBUG( "Key generation started"); 
 	TIC(t1);
 	algorithm.KeyGen(dgg,&obfuscatedPattern);
 	timeKeyGen = TOC(t1);
-	PROFILELOG( "Key generation time: " << "\t" << timeKeyGen << " ms");
+	DEBUG( "Key generation time: " << "\t" << timeKeyGen << " ms");
 
-	BinaryUniformGenerator dbg = BinaryUniformGenerator();	
+	TernaryUniformGenerator tug = TernaryUniformGenerator();	
 
 	DEBUG( "Obfuscation Execution started");
 	TIC(t1);
 	algorithm.Obfuscate(clearPattern,dgg,tug,&obfuscatedPattern);
 	timeObf = TOC(t1);
-	PROFILELOG( "Obfuscation time: " << "\t" << timeObf<< " ms");
+	DEBUG( "Obfuscation time: " << "\t" << timeObf<< " ms");
 
-	PROFILELOG("Evaluation 1 started");
+	DEBUG("Evaluation 1 started");
 	TIC(t1);
 	result1 = algorithm.Evaluate(obfuscatedPattern,inputStr1);
 	timeEval1 = TOC(t1);
 	DEBUG( " \nCleartext pattern evaluation of: " << inputStr1 << " is " << result1 << ".");
-	PROFILELOG( "Evaluation 1 execution time: " << "\t" << timeEval1 << " ms" );
+	DEBUG( "Evaluation 1 execution time: " << "\t" << timeEval1 << " ms" );
 
 	bool errorflag = false;
 	if (result1 != out1) {
@@ -235,12 +240,12 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	}
 
 	if (n_evals > 1)  {
-		PROFILELOG("Evaluation 2 started");
+		DEBUG("Evaluation 2 started");
 		TIC(t1);
 		result2 = algorithm.Evaluate(obfuscatedPattern,inputStr2);
 		timeEval2 = TOC(t1);
 		DEBUG( " \nCleartext pattern evaluation of: " << inputStr2 << " is " << result2 << ".");
-		PROFILELOG( "Evaluation 2 execution time: " << "\t" << timeEval2 << " ms" );
+		DEBUG( "Evaluation 2 execution time: " << "\t" << timeEval2 << " ms" );
 
 		if (result2 != out2) {
 			std::cout << "ERROR EVALUATING 2"<< std::endl;
@@ -249,12 +254,12 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	}
 
 	if (n_evals > 2)  {
-		PROFILELOG("Evaluation 3 started");
+		DEBUG("Evaluation 3 started");
 		TIC(t1);
 		result3 = algorithm.Evaluate(obfuscatedPattern,inputStr3);
 		timeEval3 = TOC(t1);
 		DEBUG( "\nCleartext pattern evaluation of: " << inputStr3 << " is " << result3 << ".");
-		PROFILELOG( "Evaluation 3 execution time: " << "\t" << timeEval3 << " ms");
+		DEBUG( "Evaluation 3 execution time: " << "\t" << timeEval3 << " ms");
 		if (result3 != out3) {
 			std::cout << "ERROR EVALUATING 3"<< std::endl;
 			errorflag |= true;
@@ -265,7 +270,7 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	timeTotal = TOC(t_total);
 
 	//print output timing results
-	//note one could use PROFILELOG for these lines
+
 	std::cout << "Timing Summary for n = " << m/2 << std::endl;
 	std::cout << "T: DGG setup time:        " << "\t" << timeDGGSetup << " ms" << std::endl;
 	std::cout << "T: Key generation time:        " << "\t" << timeKeyGen << " ms" << std::endl;
@@ -281,7 +286,7 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 		std::cout << "SUCCESS " << std::endl;
 	}
 
-	ILVector2n::DestroyPreComputedSamples();
+	//ILVector2n::DestroyPreComputedSamples();
 
 	return (errorflag);
 }

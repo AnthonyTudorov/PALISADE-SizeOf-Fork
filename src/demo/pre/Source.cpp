@@ -243,7 +243,7 @@ void NTRUPRE(int input) {
 	//fout<< currentDateTime()  << " pk = "<<pk.GetPublicElement().GetValues()<<endl;
 	//fout<< currentDateTime()  << " sk = "<<sk.GetPrivateElement().GetValues()<<endl;
 
-	if (!successKeyGen) {
+	if ( !kp.good() ) {
 		std::cout<<"Key generation failed!"<<std::endl;
 		exit(1);
 	}

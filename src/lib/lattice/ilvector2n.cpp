@@ -656,7 +656,7 @@ namespace lbcrypto {
 	void ILVector2n::PreComputeTugSamples(const TernaryUniformGenerator &tug, const shared_ptr<ILParams> params) {
 		if (m_tugSamples.size() == 0 || m_tugSamples_params != params)
 		{
-			DestroyPreComputedSamples();
+			DestroyPreComputedTugSamples();
 			m_tugSamples_params = params;
 			for (usint i = 0; i < m_sampleSize; ++i)
 			{
@@ -682,7 +682,7 @@ namespace lbcrypto {
 
 
 	// JSON FACILITY - Serialize Operation
-	bool ILVector2n::Serialize(Serialized* serObj, const std::string) const {
+	bool ILVector2n::Serialize(Serialized* serObj) const {
 		if( !serObj->IsObject() )
 			return false;
 
