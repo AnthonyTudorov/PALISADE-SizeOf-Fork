@@ -519,7 +519,7 @@ public:
 			newCiphertext[i] = GetEncryptionAlgorithm().ModReduce(ciphertext[i]);
 		}
 
-		return newCiphertext;
+		return std::move(newCiphertext);
 	}
 
 	shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,

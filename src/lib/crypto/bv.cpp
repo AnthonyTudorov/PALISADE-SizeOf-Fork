@@ -58,7 +58,6 @@ namespace lbcrypto {
 
 		//Generate the element "a" of the public key
 		Element a(dug, elementParams, Format::EVALUATION);
-
 		//Generate the secret key
 		Element s(dgg, elementParams, Format::COEFFICIENT);
 		s.SwitchFormat();
@@ -344,7 +343,7 @@ namespace lbcrypto {
 			// Generate a_i * newSK + p * e - PowerOfBase(oldSK)
 			Element e(dgg, elementParams, Format::EVALUATION);
 			evalKeyElements.at(i) -= (a*sNew + p*e);
-			evalKeyElements.at(i) *= (elementParams->GetModulus() - BigBinaryInteger::ONE);
+			evalKeyElements.at(i) *= (elementParams->GetModulus() - BigBinaryInteger::ONE);//change it wrong implementation
 
 		}
 
@@ -377,8 +376,7 @@ namespace lbcrypto {
 
 		std::vector<Element> digitsC1(c[1].BaseDecompose(relinWindow));
 
-		// c0' = c0 + \sum\limits_{i}{c_1*b}_i 
-		// c1' = \sum\limits_{i}{c_1*a}_i 
+		
 		Element ct0(c[0] + digitsC1[0] * b[0]);
 		Element ct1(digitsC1[0] * a[0]);
 
@@ -430,7 +428,6 @@ namespace lbcrypto {
 			// Generate a_i * newSK + p * e - PowerOfBase(oldSK)
 			Element e(dgg, originalKeyParams, Format::EVALUATION);
 
-			//evalKeyElements.at(i) -= (a*sNew + p*e);//commented by grs as operator -= not available for ilvectorarray2n
 			evalKeyElements.at(i) = (a*sNew + p*e) - evalKeyElements.at(i);
 
 		}
@@ -472,22 +469,25 @@ namespace lbcrypto {
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmBV<Element>::ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
 		
-		shared_ptr<Ciphertext<Element>> newcipherText(cipherText);
+		shared_ptr<Ciphertext<Element>> newcipherText(new Ciphertext<Element>(*cipherText));
 
-		Element cipherTextElement(cipherText->GetElement());
+		std::vector<Element> cipherTextElements(cipherText->GetElements());
 
 		BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
 
 		// FIXME: note this will not work for ILVector2n yet so we must have a small hack here.
 
-		ILVectorArray2n *ep = dynamic_cast<ILVectorArray2n *>(&cipherTextElement);
+		/*ILVectorArray2n *ep = dynamic_cast<ILVectorArray2n *>(&cipherTextElement);
 		if (ep == 0) {
 			throw std::logic_error("ModReduce is only implemented for ILVectorArray2n");
+		}*/
+
+		for (auto &cipherTextElement : cipherTextElements) {
+			cipherTextElement.ModReduce(plaintextModulus);// this is being done at the lattice layer. The ciphertext is mod reduced.
 		}
 
-		ep->ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
 
-		cipherText->SetElement(cipherTextElement);
+		newcipherText->SetElements(cipherTextElements);
 
 		return newcipherText;
 	}

@@ -560,6 +560,10 @@ namespace lbcrypto {
 		*/
 		void Decompose();
 
+		void ModReduce(const BigBinaryInteger &plaintextModulus) {
+
+		}
+
 		/**
 		* Returns true if the vector is empty/ m_values==NULL  
 		*/

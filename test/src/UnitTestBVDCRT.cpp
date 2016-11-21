@@ -150,7 +150,7 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 
 	std::vector<BigBinaryInteger> rootsOfUnity(numOfTower);
 
-	BigBinaryInteger q("500000000");
+	BigBinaryInteger q("50000");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
@@ -402,13 +402,13 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT_DCRT) {
 
 	float init_stdDev = 4;
 
-	usint init_size = 3;
+	usint init_size = 5;
 
 	vector<BigBinaryInteger> init_moduli(init_size);
 
 	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	BigBinaryInteger q("219902328832109088567");
+	BigBinaryInteger q("2199023288321");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
@@ -559,7 +559,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 
 	IntPlaintextEncoding intArrayNew;
 
-	cc.ModReduce(ciphertext);
+	ciphertext = cc.ModReduce(ciphertext);
 
 	//drop a tower from the secret key
 	
@@ -591,7 +591,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
 	BigBinaryInteger modulus("1");
 
 	for (int i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, init_m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, init_m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
 		modulus = modulus* init_moduli[i];
@@ -645,7 +645,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
 
 	cResult.insert( cResult.begin() , cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0), keySwitchHint) );
 
-	cc.ModReduce(cResult);
+	cResult = cc.ModReduce(cResult);
 
 	IntPlaintextEncoding results;
 
