@@ -455,8 +455,6 @@ namespace lbcrypto {
 	shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmBV<Element>::QuadraticEvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 		const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 
-		shared_ptr<LPEvalKeyRelin<Element>> quadraticKeySwitchHint(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
-
 		shared_ptr<LPPrivateKey<Element>> originalPrivateKeySquared(originalPrivateKey);
 
 		Element sSquare(originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement());
@@ -466,7 +464,8 @@ namespace lbcrypto {
 		originalPrivateKeySquared->SetPrivateElement(std::move(sSquare));
 
 		//this->GetScheme().EvalMultKeyGen(originalPrivateKeySquared, newPrivateKey, quadraticKeySwitchHint);
-		return this->GetScheme().KeySwitchGen(originalPrivateKeySquared, newPrivateKey);
+		//return this->GetScheme().KeySwitchGen(originalPrivateKeySquared, newPrivateKey);
+		return this->GetScheme().KeySwitchGen(originalPrivateKey, originalPrivateKeySquared);
 
 	}
 

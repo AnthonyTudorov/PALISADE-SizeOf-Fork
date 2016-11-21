@@ -150,7 +150,7 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 
 	std::vector<BigBinaryInteger> rootsOfUnity(numOfTower);
 
-	BigBinaryInteger q("50000");
+	BigBinaryInteger q("500000000");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
@@ -211,7 +211,7 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 	/*shared_ptr<LPEvalKey<ILVectorArray2n>> evalKey =
 		cc.ReKeyGen(newKp.secretKey, kp.secretKey);*/
 	shared_ptr<LPEvalKey<ILVectorArray2n>> evalKey =
-		cc.KeySwitchGen(newKp.secretKey, kp.secretKey);
+		cc.KeySwitchGen(kp.secretKey, newKp.secretKey);
 
 
 	////////////////////////////////////////////////////////////
@@ -340,7 +340,7 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT) {
 	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
 	DiscreteGaussianGenerator dgg(stdDev);
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	shared_ptr<ILParams> params(new ILParams(m, q, RootOfUnity(m, q)));
+	shared_ptr<ILParams> params(new ILParams(m, q, rootOfUnity));
 
 	//	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
 
@@ -408,7 +408,7 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT_DCRT) {
 
 	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	BigBinaryInteger q("2199023288321");
+	BigBinaryInteger q("219902328832109088567");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
@@ -488,21 +488,21 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 
 	std::vector<BigBinaryInteger> rootsOfUnity(numOfTower);
 
-	BigBinaryInteger q("50000");
+	BigBinaryInteger q("500000000");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for (int j = 0; j < numOfTower; j++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 		moduli[j] = q;
 		rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
 		modulus = modulus* moduli[j];
-		std::cout << "modulus is: " << moduli[j] << std::endl;
-		std::cout << "rootsOfUnity is: " << rootsOfUnity[j] << std::endl;
+		//std::cout << "modulus is: " << moduli[j] << std::endl;
+		//std::cout << "rootsOfUnity is: " << rootsOfUnity[j] << std::endl;
 	}
 
 
-	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
+	//std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
 	DiscreteGaussianGenerator dgg(stdDev);
 
