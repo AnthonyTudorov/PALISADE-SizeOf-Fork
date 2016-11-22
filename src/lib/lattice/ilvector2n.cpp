@@ -748,24 +748,5 @@ namespace lbcrypto {
 
 		return true;
 	}
-	std::vector<double> ILVector2n::CalculateDFT() {
-		std::vector<double> pol;
-		if (m_format == COEFFICIENT) {
-			std::vector<double> pol;
-			usint n = m_params->GetCyclotomicOrder() / 2;
-			for (int k = 0;k < n;k++) {
-				BigBinaryInteger sum("0");
-				for (int j = 0;j < n;j++) {
-					sum += this->GetValAtIndex(j) * (m_params->GetRootOfUnity().Exp(k*j));
-				}
-				pol.push_back(sum.Mod(m_params->GetModulus()).ConvertToDouble());
-			}
-		}
-		else {
-			std::cout << "ERROR: Vector not in coefficient form" << std::endl;
-		}
-
-		return pol;
-	}
 
 } // namespace lbcrypto ends
