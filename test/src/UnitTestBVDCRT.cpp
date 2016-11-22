@@ -334,7 +334,7 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT) {
 
 	float stdDev = 4;
 
-	BigBinaryInteger q("500000");
+	BigBinaryInteger q("2199023288321127658970987");
 	BigBinaryInteger temp;
 
 	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
@@ -408,7 +408,7 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT_DCRT) {
 
 	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	BigBinaryInteger q("2199023288321");
+	BigBinaryInteger q("2199023288321127658970987");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
@@ -586,7 +586,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
 
 	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	BigBinaryInteger q("2199023288321");
+	BigBinaryInteger q("219902328832110677487839977774993");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
