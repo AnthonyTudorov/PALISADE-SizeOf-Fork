@@ -266,30 +266,65 @@ namespace lbcrypto {
 
 	}
 	
-	void ZSampleSigmaP(size_t n, BigBinaryInteger q, double s, double sigma, Matrix<ILVector2n> Tprime, Matrix<int32_t> *perturbationVector, DiscreteGaussianGenerator & dgg) {
-		ILVector2n va = Tprime(0, 0)* Tprime.Transpose()(0, 0) + Tprime(0, 1) * Tprime.Transpose()(0, 1);
-		ILVector2n vb = Tprime(1, 0) *  Tprime.Transpose()(0, 0) + Tprime(1, 1) *  Tprime.Transpose()(0, 1);
-		ILVector2n vd = Tprime(1, 0) *  Tprime.Transpose()(1, 0) + Tprime(1, 1) *  Tprime.Transpose()(1, 1);
+	void LatticeGaussSampUtility::ZSampleSigmaP(size_t n, BigBinaryInteger q, double s, double sigma, 
+		const Matrix<ILVector2n> &Tprime, Matrix<Field2n> *perturbationVector, const DiscreteGaussianGenerator & dgg) {
+		
+		Matrix<ILVector2n> Tprime0 = Tprime.ExtractRow(0);
+		Matrix<ILVector2n> Tprime1 = Tprime.ExtractRow(1);
+		Matrix<ILVector2n> TprimeTransposed0 = Tprime0.Transpose();
+		Matrix<ILVector2n> TprimeTransposed1 = Tprime1.Transpose();
 
-		std::vector<double> a, b, d;
+		//Perform multiplication in the NTT format
+		ILVector2n va = (Tprime0 * TprimeTransposed0)(0, 0);
+		ILVector2n vb = (Tprime1 * TprimeTransposed0)(0, 0);
+		ILVector2n vd = (Tprime1 * TprimeTransposed1)(0, 0);
 
-		for (int i = 0; i < va.GetLength();i++){
-			a.push_back(va.GetValAtIndex(i).ConvertToDouble() * (s * s * (1 - sigma * sigma / (s * s - sigma * sigma))));
-			b.push_back(vb.GetValAtIndex(i).ConvertToDouble() * -s *s * sigma * sigma / (s* s - sigma * sigma));
-			d.push_back(vd.GetValAtIndex(i).ConvertToDouble() *(s * s * (1 - sigma * sigma / (s * s - sigma * sigma))));
-		}
+		//Switch the ring elements (polynomials) to coefficient representation
+		va.SwitchFormat();
+		vb.SwitchFormat();
+		vd.SwitchFormat();
 
-		for (size_t i = 0; i < n * log (q.ConvertToDouble()); i++) {
-			(*perturbationVector)(i, 0) = dgg.GenerateInteger(0, sqrt(s * s - sigma * sigma), n);
-		}
-		  /*
-			c =  - sigma / (s * s - sigma * sigma) * Tprime * p2;
-		  ZSampleSigma2x2(a,b,d,c, p1,dgg);
-		  return p1.insert(p1.end(),p2.begin(),p2.end());
-		  */
+		//Create field elements from ring elements
+		//Field2n a(va), b(vb), d(vd);
+
+		//a = a.ScalarMult(s * s * (1 - sigma * sigma / (s * s - sigma * sigma)));
+		//b = b.ScalarMult(-s *s * sigma * sigma / (s* s - sigma * sigma));
+		//d = d.ScalarMult(s * s * (1 - sigma * sigma / (s * s - sigma * sigma)));
+
+		//size_t k = Tprime.GetRows();
+		//Matrix<int32_t> p2ZVector([]() { return make_unique<int32_t>(); }, 1, n*k);
+
+		////this loop can be replaced with Peikert's and Yao's inversion methods - more efficient
+		//for (size_t i = 0; i < n * k; i++) {
+		//	p2ZVector(i, 0) = dgg.GenerateInteger(0, sqrt(s * s - sigma * sigma), n);
+		//}
+
+		//so far everything should be good
+
+		////create k ring elements in coefficient representation
+		//Matrix<ILVector2n> p2 = SplitInt32AltIntoILVector2nElements(p2ZVector, n,va.GetParams());
+
+		////now converting to evaluation representation before multiplication
+		//p2.SwitchFormat();
+
+		////the dimension is 2x1 - a vector of 2 ring elements
+		//Matrix<ILVector2n> Tp2 = Tprime * p2;
+
+		//Matrix<Field2n> c([]() { return make_unique<Field2n>(); }, 2, 1);
+
+		//c(0, 0) = Field2n(Tp2(0, 0));
+		//c(1, 0) = Field2n(Tp2(1, 0));
+
+		
+
+		//  /*
+		//	c =  - sigma / (s * s - sigma * sigma) * Tprime * p2;
+		//  ZSampleSigma2x2(a,b,d,c, p1,dgg);
+		//  return p1.insert(p1.end(),p2.begin(),p2.end());
+		//  */
 
 	}
-	void ZSampleSigma2x2(const std::vector<double> & a, const std::vector<double> & b, const std::vector<double> & d, const std::vector<double> & c, Matrix<int32_t>* p1,DiscreteGaussianGenerator & dgg) {
+	void LatticeGaussSampUtility::ZSampleSigma2x2(const std::vector<double> & a, const std::vector<double> & b, const std::vector<double> & d, const std::vector<double> & c, Matrix<int32_t>* p1,DiscreteGaussianGenerator & dgg) {
 		/*
 			q2  = ZSampleF(d,c2);
 			c1 = AddPol(c1,MultiplyPol(MultiplyPol(b,d inverse),SubstractPol(q2,c2)));
@@ -298,97 +333,97 @@ namespace lbcrypto {
 		*/
 
 	}
-	std::vector<double> ZSampleF(std::vector<double> f, double c, DiscreteGaussianGenerator & dgg,double w,double m,double n) {
-		if (f.size() == 1) {
-			std::vector<double> p;
-			DiscreteFourierTransform dft;
-			p.push_back(dgg.GenerateInteger(c, sqrt(dft.InverseTransform(f, w, m)[0]), n));
-			return p;
-		}
-		else {
-			/*inverse c
-			std::vector<double> f_even,f_odd;
-			for(int i=0;i<f.size();f++){
-				if(i%2==0){
-					f_even.push_back(f[i]);
-				}
-				else{
-					f_odd.push_back(f[i]);
-				}
-			}
-			std::vector<double> r2 = ZSampleF(f_even,c2,dgg,w,m/2,n);
-			c1 = AddPol(c1,MultiplyPol(MultiplyPol(f_odd, f_even inverse),SubstractPol(r2,c2))
-			r1 = ZSampleF(SubstractPol(f_even,MultiplyPol(MultiplyPol(f_odd,f_odd),f_even inverse,c1,dgg,w,m,n);
-			return r1.insert(r1.end(),r2.begin(),r2.end());
-			*/
-		}
+	std::vector<double> LatticeGaussSampUtility::ZSampleF(std::vector<double> f, double c, DiscreteGaussianGenerator & dgg,double w,double m,double n) {
+		//if (f.size() == 1) {
+		//	std::vector<double> p;
+		//	DiscreteFourierTransform dft;
+		//	p.push_back(dgg.GenerateInteger(c, sqrt(dft.InverseTransform(f, w, m)[0]), n));
+		//	return p;
+		//}
+		//else {
+		//	/*inverse c
+		//	std::vector<double> f_even,f_odd;
+		//	for(int i=0;i<f.size();f++){
+		//		if(i%2==0){
+		//			f_even.push_back(f[i]);
+		//		}
+		//		else{
+		//			f_odd.push_back(f[i]);
+		//		}
+		//	}
+		//	std::vector<double> r2 = ZSampleF(f_even,c2,dgg,w,m/2,n);
+		//	c1 = AddPol(c1,MultiplyPol(MultiplyPol(f_odd, f_even inverse),SubstractPol(r2,c2))
+		//	r1 = ZSampleF(SubstractPol(f_even,MultiplyPol(MultiplyPol(f_odd,f_odd),f_even inverse,c1,dgg,w,m,n);
+		//	return r1.insert(r1.end(),r2.begin(),r2.end());
+		//	*/
+		//}
 	}
 
-	std::vector<double> MultiplyPol(std::vector<double> A, std::vector<double> B) {
-		
-		usint size_a = A.size();
-		usint size_b = B.size();
-		if (size_a < size_b) {
-			for (int i = 0;i < size_b - size_a;i++) {
-				A.push_back((double)0);
-			}
-		}
-		else {
-			if (size_b < size_a) {
-				for (int i = 0;i < size_a - size_b;i++) {
-					B.push_back((double)0);
-				}
-			}
-		}
-		std::vector<double> result;
-		for (int j = 0;j < A.size();j++) {
-			result.push_back(A[j] * B[j]);
-		}
-		return result;
-	}
-	std::vector<double> AddPol(std::vector<double> A, std::vector<double> B) {
+	//std::vector<double> MultiplyPol(std::vector<double> A, std::vector<double> B) {
+	//	
+	//	usint size_a = A.size();
+	//	usint size_b = B.size();
+	//	if (size_a < size_b) {
+	//		for (int i = 0;i < size_b - size_a;i++) {
+	//			A.push_back((double)0);
+	//		}
+	//	}
+	//	else {
+	//		if (size_b < size_a) {
+	//			for (int i = 0;i < size_a - size_b;i++) {
+	//				B.push_back((double)0);
+	//			}
+	//		}
+	//	}
+	//	std::vector<double> result;
+	//	for (int j = 0;j < A.size();j++) {
+	//		result.push_back(A[j] * B[j]);
+	//	}
+	//	return result;
+	//}
+	//std::vector<double> AddPol(std::vector<double> A, std::vector<double> B) {
 
-		usint size_a = A.size();
-		usint size_b = B.size();
-		if (size_a < size_b) {
-			for (int i = 0;i < size_b - size_a;i++) {
-				A.push_back((double)0);
-			}
-		}
-		else {
-			if (size_b < size_a) {
-				for (int i = 0;i < size_a - size_b;i++) {
-					B.push_back((double)0);
-				}
-			}
-		}
-		std::vector<double> result;
-		for (int j = 0;j < A.size();j++) {
-			result.push_back(A[j] + B[j]);
-		}
-		return result;
-	}
-	std::vector<double> SubstractPol(std::vector<double> A, std::vector<double> B) {
+	//	usint size_a = A.size();
+	//	usint size_b = B.size();
+	//	if (size_a < size_b) {
+	//		for (int i = 0;i < size_b - size_a;i++) {
+	//			A.push_back((double)0);
+	//		}
+	//	}
+	//	else {
+	//		if (size_b < size_a) {
+	//			for (int i = 0;i < size_a - size_b;i++) {
+	//				B.push_back((double)0);
+	//			}
+	//		}
+	//	}
+	//	std::vector<double> result;
+	//	for (int j = 0;j < A.size();j++) {
+	//		result.push_back(A[j] + B[j]);
+	//	}
+	//	return result;
+	//}
+	//std::vector<double> SubstractPol(std::vector<double> A, std::vector<double> B) {
 
-		usint size_a = A.size();
-		usint size_b = B.size();
-		if (size_a < size_b) {
-			for (int i = 0;i < size_b - size_a;i++) {
-				A.push_back((double)0);
-			}
-		}
-		else {
-			if (size_b < size_a) {
-				for (int i = 0;i < size_a - size_b;i++) {
-					B.push_back((double)0);
-				}
-			}
-		}
-		std::vector<double> result;
-		for (int j = 0;j < A.size();j++) {
-			result.push_back(A[j] - B[j]);
-		}
-		return result;
-	}
+	//	usint size_a = A.size();
+	//	usint size_b = B.size();
+	//	if (size_a < size_b) {
+	//		for (int i = 0;i < size_b - size_a;i++) {
+	//			A.push_back((double)0);
+	//		}
+	//	}
+	//	else {
+	//		if (size_b < size_a) {
+	//			for (int i = 0;i < size_a - size_b;i++) {
+	//				B.push_back((double)0);
+	//			}
+	//		}
+	//	}
+	//	std::vector<double> result;
+	//	for (int j = 0;j < A.size();j++) {
+	//		result.push_back(A[j] - B[j]);
+	//	}
+	//	return result;
+	//}
 	
 }

@@ -42,6 +42,9 @@
 
 namespace lbcrypto {
 
+//Forward declaration for now
+class Field2n : public std::vector<double> {};
+
 /**
 * @brief Utility class containing operations needed for lattice sampling; Sources: https://eprint.iacr.org/2013/297.pdf & https://eprint.iacr.org/2011/501.pdf
 * This construction is based on the hardness of Ring-LWE problem 
@@ -120,7 +123,9 @@ public:
 			(*perturbationVector)(i,0) = DiscreteGaussianGenerator::GenerateInteger(p(i,0), sigma, n);
 		}
 	};
-	void ZSampleSigmaP(size_t n, BigBinaryInteger q, double s, double sigma, Matrix<ILVector2n> Tprime, Matrix<int32_t> *perturbationVector,DiscreteGaussianGenerator& dgg);
+
+	static inline void ZSampleSigmaP(size_t n, BigBinaryInteger q, double s, double sigma, 
+		const Matrix<ILVector2n> &Tprime, Matrix<Field2n> *perturbationVector,const DiscreteGaussianGenerator& dgg);
 
 
 private:
@@ -135,8 +140,8 @@ private:
 	static inline void SampleC(const Matrix<double> &c, size_t k, size_t n, 
 		double sigma, DiscreteGaussianGenerator &dgg, Matrix<double> *a, vector<int32_t> *z);
 	
-	void ZSampleSigma2x2(const std::vector<double> & a, const std::vector<double> & b, const std::vector<double> & d, const std::vector<double> & c, Matrix<int32_t>* p1, DiscreteGaussianGenerator & dgg);
-	std::vector<double> ZSampleF(std::vector<double> f, double c, DiscreteGaussianGenerator & dgg, double w, double m,double n);
+	static inline void ZSampleSigma2x2(const std::vector<double> & a, const std::vector<double> & b, const std::vector<double> & d, const std::vector<double> & c, Matrix<int32_t>* p1, DiscreteGaussianGenerator & dgg);
+	static inline std::vector<double> ZSampleF(std::vector<double> f, double c, DiscreteGaussianGenerator & dgg, double w, double m,double n);
 };
 
 }

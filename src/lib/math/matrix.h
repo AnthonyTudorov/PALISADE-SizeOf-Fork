@@ -328,6 +328,20 @@ namespace lbcrypto {
                 return *data[row][col];
             }
 
+			/**
+			* Matrix row extractor
+			*
+			* @param &row row index
+			* @return the row at the index
+			*/
+			inline Matrix<Element> ExtractRow(size_t row) const {
+				//Matrix<Element> result(this->allocZero,1,1);
+				//result.data[row] = data[row];
+				//result.cols = this->cols;
+				//return result;
+				return *this;
+			}
+
             /**
              * Print values of the matrix to the cout stream
 			 *
