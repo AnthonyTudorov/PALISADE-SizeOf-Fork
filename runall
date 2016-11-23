@@ -1,12 +1,13 @@
+rm -f timing_10_14_16_multithread$1
 export OMP_NUM_THREADS=1
 echo 1 thread
-bin/obfuscate/ObfuscateSourceDbc 1 3 >& timing_4_21_16_1thread
+bin/demo/obfuscate/ObfuscateSimulator16 1 1 0 2>&1 >> timing_10_14_16_multithread$1 
 export OMP_NUM_THREADS=2
 echo 2 thread
-bin/obfuscate/ObfuscateSourceDbc 1 3 >& timing_4_21_16_2thread
+bin/demo/obfuscate/ObfuscateSimulator16 1 1 0 2>&1 >> timing_10_14_16_multithread$1 
 export OMP_NUM_THREADS=4
 echo 4 thread
-bin/obfuscate/ObfuscateSourceDbc  1 3 >& timing_4_21_16_4thread
+bin/demo/obfuscate/ObfuscateSimulator16  1 1 0 2>&1 >> timing_10_14_16_multithread$1 
 export OMP_NUM_THREADS=8
 echo 8 thread
-bin/obfuscate/ObfuscateSourceDbc  1 3 >& timing_4_21_16_8thread
+bin/demo/obfuscate/ObfuscateSimulator16  1 1 0 2>&1 >> timing_10_14_16_multithread$1 

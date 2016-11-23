@@ -36,6 +36,8 @@ alldemos: make_demos
 make_demos: \
 	$(BINDIR)/demo/core/LargeFloatSource$(EXESUFFIX) \
 	$(BINDIR)/demo/core/MathSource$(EXESUFFIX) \
+	$(BINDIR)/demo/core/NTTSource$(EXESUFFIX) \
+	$(BINDIR)/demo/core/NTTSource2$(EXESUFFIX) \
 	$(BINDIR)/demo/core/ParallelSource$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSource$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSourceV2$(EXESUFFIX) \

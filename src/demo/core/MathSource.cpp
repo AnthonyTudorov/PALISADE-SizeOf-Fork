@@ -1,6 +1,8 @@
 ﻿// This is a main() file built to test math  operations
 // D. Cousins
 
+#define PROFILE // need to define in order to turn on timing reporting
+
 #include <iostream>
 #include <fstream>
 #include "../../lib/utils/inttypes.h"
@@ -27,9 +29,8 @@ using namespace lbcrypto;
 
 
 //define the main sections of the test
-void test_BigBinaryInt(void); 	// test old version of big int
-void test_BigBinaryVector(void); // test old version of big int vector
 
+void test_BigBinaryVector(void); // test old version of big int vector
 void test_ubintvec(void);	 // test new vector version
 
 
@@ -51,7 +52,7 @@ int main(int argc, char* argv[]){
 	res = (fn);							\
       }									\
       time2 = TOC(t);							\
-      DEBUG(#t << ": " << nloop << " loops " << #res << " = " << #fn << " computation time: " << "\t" << time2 << " us"); \
+      PROFILELOG(#t << ": " << nloop << " loops " << #res << " = " << #fn << " computation time: " << "\t" << time2 << " us"); \
       if (res != testval){						\
 	cout << "Bad " << #res << " = " << #fn << endl;			\
 	  /*vec_diff(res, testval);*/					\
@@ -85,6 +86,7 @@ void vec_diff(BigBinaryVector &a, BigBinaryVector &b) {
     }
 
 }
+
 
 //main BigBinaryVector test suite. tests math
 void test_BigBinaryVector () {
@@ -184,14 +186,14 @@ void test_BigBinaryVector () {
 
   // compute results for each function and compare.
 
-
+#if 1
   TESTIT(t1, c1, a1 + b1, modsum1, nloop);
   TESTIT(t1, c1, a1.ModAdd(b1), modsum1, nloop);
   TESTIT(t1, c1, a1 - b1, moddiff1, nloop);
   TESTIT(t1, c1, a1.ModSub(b1), moddiff1, nloop);
   TESTIT(t1, c1, a1 * b1, modmul1, nloop);
   TESTIT(t1, c1, a1.ModMul(b1), modmul1, nloop);
-
+#endif
   //test case 2
   BigBinaryInteger q2 ("00004057816419532801");
 
@@ -257,14 +259,14 @@ void test_BigBinaryVector () {
 
   BigBinaryVector modmul2 = BBVfromStrvec(modmul2strvec);
   modmul2.SetModulus(q2);
-
+#if 1
   TESTIT(t2, c2, a2+b2, modsum2, nloop);
   TESTIT(t2, c2, a2.ModAdd(b2), modsum2, nloop);
   TESTIT(t2, c2, a2-b2, moddiff2, nloop);
   TESTIT(t2, c2, a2.ModSub(b2), moddiff2, nloop);
   TESTIT(t2, c2, a2*b2, modmul2, nloop);
   TESTIT(t2, c2, a2.ModMul(b2), modmul2, nloop);
-
+#endif
 
   //test case 3
 
@@ -342,11 +344,12 @@ void test_BigBinaryVector () {
   BigBinaryVector modmul3 = BBVfromStrvec(modmul3strvec);
   modmul3.SetModulus(q3);
 
-
+#if 1
   TESTIT(t3, c3, a3+b3, modsum3, nloop);
   TESTIT(t3, c3, a3.ModAdd(b3), modsum3, nloop);
   TESTIT(t3, c3, a3-b3, moddiff3, nloop);
   TESTIT(t3, c3, a3.ModSub(b3), moddiff3, nloop);
+#endif
   TESTIT(t3, c3, a3*b3, modmul3, nloop);
   TESTIT(t3, c3, a3.ModMul(b3), modmul3, nloop);
 
@@ -575,6 +578,8 @@ void test_ubintvec() {
   ubintvec c1;
   mubintvec mc1;
   // test math for case 1
+
+#if 1
   TESTIT(t1, c1, a1 + b1, add1, nloop);
   TESTIT(t1, c1, a1 - b1, sub1, nloop);
   TESTIT(t1, c1, a1 * b1, mul1, nloop);
@@ -584,7 +589,7 @@ void test_ubintvec() {
   TESTIT(t1, mc1, ma1 - mb1,  modsub1, nloop);
   TESTIT(t1, c1, a1.ModMul(b1,q1), modmul1, nloop);
   TESTIT(t1, mc1, ma1 * mb1,  modmul1, nloop);
-
+#endif
   // q2: larger numbers
 
   ubint q2("00004057816419532801");
@@ -601,6 +606,7 @@ void test_ubintvec() {
      "00003304652649070144", "00002032520019613814",
      "00000375749152798379", "00003933203511673255",
      "00002293434116159938", "00001201413067178193", };
+
   ubintvec a2(a2sv);
   mubintvec ma2(a2sv,q2);
 
@@ -713,6 +719,7 @@ void test_ubintvec() {
 
   ubintvec c2(a2.size());
   mubintvec mc2;
+#if 1
   // test math for case 2
   TESTIT(t2, c2, a2 + b2, add2, nloop);
   TESTIT(t2, c2, a2 - b2, sub2, nloop);
@@ -723,7 +730,7 @@ void test_ubintvec() {
   TESTIT(t2, mc2, ma2 - mb2, modsub2, nloop);
   TESTIT(t2, c2, a2.ModMul(b2,q2), modmul2, nloop);
   TESTIT(t2, mc2, ma2 * mb2,  modmul2, nloop);
-
+#endif
   //q3: very large numbers.
   ubint q3("3273390607896141870013189696827599152216642046043064789483291368096133796404674554883270092325904157150886684127560071009217256545885393053328527589431");
 
@@ -845,6 +852,7 @@ void test_ubintvec() {
 
   ubintvec c3;
   mubintvec mc3;
+#if 1
   // test math for case 3
   TESTIT(t3, c3, a3 + b3, add3, nloop);
   TESTIT(t3, c3, a3 - b3, sub3, nloop);
@@ -853,11 +861,26 @@ void test_ubintvec() {
   TESTIT(t3, mc3, ma3 + mb3, modadd3, nloop); 
   TESTIT(t3, c3, a3.ModSub(b3,q3), modsub3, nloop);
   TESTIT(t3, mc3, ma3 - mb3, modsub3, nloop);
+#endif
   TESTIT(t3, c3, a3.ModMul(b3,q3), modmul3, nloop);
   TESTIT(t3, mc3, ma3 * mb3,  modmul3, nloop);
 
   return ;
 #endif
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
