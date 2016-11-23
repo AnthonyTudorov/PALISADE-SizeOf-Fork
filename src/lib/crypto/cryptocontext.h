@@ -55,87 +55,61 @@ namespace lbcrypto {
 template <class Element>
 class CryptoContextFactory;
 
-template <class Element>
-class CryptoContextImpl : public Serializable {
-
-	friend class CryptoContextFactory<Element>;
-	friend class CryptoContext<Element>;
-
-private:
-	shared_ptr<LPCryptoParameters<Element>>				params;	/*!< crypto parameters used for this context */
-	shared_ptr<LPPublicKeyEncryptionScheme<Element>>	scheme;	/*!< algorithm used; accesses all keygen and encrypt/decrypt methods */
-
-	CryptoContextImpl() {}
-	CryptoContextImpl(shared_ptr<LPCryptoParameters<Element>> cp) : params(cp) {}
-
-public:
-	~CryptoContextImpl() {}
-
-	const DiscreteGaussianGenerator& GetGenerator() const { return params->GetDiscreteGaussianGenerator(); }
-
-	/**
-	 *
-	 * @return crypto parameters
-	 */
-	const shared_ptr<LPCryptoParameters<Element>> getCryptoParams() const { return params; }
-
-	/**
-	 *
-	 * @return crypto algorithm
-	 */
-	const shared_ptr<LPPublicKeyEncryptionScheme<Element>> getScheme() const { return scheme; }
-
-	/**
-	 * Serialize the context (it's really just the params...)
-	 *
-	 * @param serObj
-	 * @param fileFlag
-	 * @return
-	 */
-	bool Serialize(Serialized* serObj) const;
-
-	/**
-	 * we don't deserialize directly, we use a cryptocontextfactory method
-	 */
-	bool Deserialize(const Serialized& serObj) { return false; }
-};
-
 /**
  * @brief CryptoContext
  *
- * CryptoContext contains a shared pointer to the implementation of a Crypto Context and
- * wrappers around all of the functionality provided by a context
+ * A CryptoContext is the object used to access the PALISADE library
  *
- * Guards are implemented to ensure that only objects created in/by the context will be used with it
+ * All PALISADE functionality is accessed by way of an instance of a CryptoContext; we say that various objects are
+ * "created in" a context, and can only be used in the context in which they were created
+ *
+ * All PALISADE methods are accessed through CryptoContext methods. Guards are implemented to make certain that
+ * only valid objects that have been created in the context are used
+ *
+ * Contexts are created using the CryptoContextFactory, and can be serialized and recovered from a serialization
  */
 template <class Element>
 class CryptoContext : public Serializable {
+	friend class CryptoContextFactory<Element>;
+
+private:
+	shared_ptr<LPCryptoParameters<Element>>				params;	/*!< crypto parameters used for this context */
+	shared_ptr<LPPublicKeyEncryptionScheme<Element>>	scheme;	/*!< algorithm used; accesses all crypto methods */
+
+	/**
+	 * Private methods to compare two contexts; this is only used internally and is not generally available
+	 * @param a
+	 * @param b
+	 * @return true
+	 */
+	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.params == b.params; }
+	friend bool operator!=(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.params != b.params; }
+
 public:
-	shared_ptr<CryptoContextImpl<Element>>	ctx;
-
-	CryptoContext() {}
-
-	CryptoContext(CryptoContextImpl<Element> *e) {
-		ctx.reset( e );
+	CryptoContext(shared_ptr<LPCryptoParameters<Element>> params, shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme) {
+		this->params = params;
+		this->scheme = scheme;
 	}
 
 	CryptoContext(const CryptoContext<Element>& c) {
-		ctx = c.ctx;
+		params = c.params;
+		scheme = c.scheme;
 	}
 
 	CryptoContext<Element>& operator=(const CryptoContext<Element>& rhs) {
-		ctx = rhs.ctx;
+		params = rhs.params;
+		scheme = rhs.scheme;
 		return *this;
 	}
 
+	operator bool() const { return bool(params); }
 	/**
-	 * Serialize the context (it's really just the params...)
+	 * Serialize the CryptoContext
 	 *
-	 * @param serObj
-	 * @param fileFlag
-	 * @return
+	 * @param serObj - rapidJson object for the serializaion
+	 * @return true on success
 	 */
-	bool Serialize(Serialized* serObj) const { return ctx->Serialize(serObj); }
+	bool Serialize(Serialized* serObj) const { return params->Serialize(serObj); }
 
 	/**
 	 * Deserialize the context AND initialize the algorithm
@@ -145,22 +119,17 @@ public:
 	 */
 	bool Deserialize(const Serialized& serObj);
 
-	operator bool() const { return bool(ctx); }
+	void Enable(PKESchemeFeature feature) { scheme->Enable(feature); }
 
-	void Enable(PKESchemeFeature feature) { ctx->getScheme()->Enable(feature); }
+	const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *scheme; }
 
-	const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *ctx->getScheme(); }
+	const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return params; }
 
-	const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return ctx->getCryptoParams(); }
-
-	const DiscreteGaussianGenerator& GetGenerator() const { return ctx->GetGenerator(); }
+	const DiscreteGaussianGenerator& GetGenerator() const { return params->GetDiscreteGaussianGenerator(); }
 
 	const shared_ptr<ILParams> GetElementParams() {
-		return std::dynamic_pointer_cast<ILParams>(ctx->getCryptoParams()->GetElementParams());
+		return std::dynamic_pointer_cast<ILParams>(params->GetElementParams());
 	}
-
-	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.ctx == b.ctx; }
-	friend bool operator!=(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.ctx != b.ctx; }
 
 	/**
 	 * KeyGen generates a key pair using this algorithm's KeyGen method
@@ -697,8 +666,7 @@ public:
 
 		shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme = GetSchemeObject(serObj);
 
-		CryptoContext<Element> cc( new CryptoContextImpl<Element>(cp) );
-		cc.ctx->scheme = scheme;
+		CryptoContext<Element> cc( cp, scheme );
 		return cc;
 	}
 
