@@ -335,11 +335,10 @@ namespace lbcrypto {
 			* @return the row at the index
 			*/
 			inline Matrix<Element> ExtractRow(size_t row) const {
-				//Matrix<Element> result(this->allocZero,1,1);
-				//result.data[row] = data[row];
-				//result.cols = this->cols;
-				//return result;
-				return *this;
+				Matrix<Element> result(this->allocZero,1,this->cols);
+				result.data[0] = data[row];
+				result.cols = this->cols;
+				return result;
 			}
 
             /**
@@ -454,6 +453,5 @@ namespace lbcrypto {
 	* @return the resulting matrix of ILVector2n
     */ 
     inline Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
-
 }
 #endif // LBCRYPTO_MATH_MATRIX_H

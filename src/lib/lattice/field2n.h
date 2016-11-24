@@ -1,0 +1,173 @@
+#include "ilvector2n.h"
+#include "../math/transfrm.h"
+
+namespace lbcrypto {
+
+	class Field2n :std::vector<double> {
+	public:
+		Field2n(int size, Format f = EVALUATION, bool initializeElementToZero = false)
+			:std::vector<double>(size,initializeElementToZero?0:-DBL_MAX){
+	
+			this->format = f;
+		}
+		Field2n(const ILVector2n & element) {
+			if (element.GetFormat != COEFFICIENT) {
+				throw std::logic_error("ILVector2n not in coefficient representation");
+			}
+			else {
+				for (int i = 0;i < element.GetLength();i++) {
+					this->push_back(element.GetValAtIndex(i).ConvertToDouble());
+					this->format = COEFFICIENT;
+				}
+			}
+		}
+		Format GetFormat() const {
+			return format;
+		}
+		Field2n Inverse() {
+			if (format == COEFFICIENT) {
+				throw std::logic_error("Polynomial not in evaluation representation");
+			}
+			else {
+				Field2n inverse(this->size(), EVALUATION);
+				for (int i = 0;i < this->size(); i++) {
+					inverse.at(i) = 1/this->at(i);
+				}
+				return inverse;
+			}
+		}
+		Field2n Times(const Field2n & rhs) {
+			if (format == EVALUATION && rhs.GetFormat() == EVALUATION) {
+				Field2n result(rhs.size(), EVALUATION);
+				for (int i = 0;i < rhs.size();i++) {
+					result.at(i)=this->at(i) * rhs.at(i);
+				}
+				return result;
+			}
+			else {
+				throw std::logic_error("At least one of the polynomials is not in evaluation representation");
+			}
+		}
+		Field2n ShiftRight() {
+			if(this->format==COEFFICIENT){
+				Field2n result(this->size(), COEFFICIENT);
+				for (int i = 0;i < this->size() - 1;i++) {
+					result.at(i) = this->at(i + 1);
+				}
+				result.at(this->size() - 1) = this->at(0);
+				return result;
+			}
+			else {
+				throw std::logic_error("Polynomial not in coefficient representation");
+			}
+		}
+		Field2n Transpose() {
+			if (this->format == COEFFICIENT) {
+				Field2n transpose(this->size(), COEFFICIENT);
+				for (int i=this->size()-1;i>0;i--) {
+					transpose.at(this->size()-1-i) = -1 * this->at(i);
+				}
+				transpose.at(0) = this->at(0);
+				return transpose;
+			}
+			else {
+				throw std::logic_error("Polynomial not in coefficient representation");
+			}
+		}
+		Field2n ExtractOdd() {
+			if (this->format == COEFFICIENT) {
+				Field2n odds(this->size()/2,COEFFICIENT,true);
+				for (int i = 0;i < odds.size();i++) {
+					odds.at(i) = this->at(1 + 2*i);
+				}
+				return odds;
+			}
+			else {
+				throw std::logic_error("Polynomial not in coefficient representation");
+			}
+		}
+		Field2n ExtractEven() {
+			if (this->format == COEFFICIENT) {
+				Field2n evens(this->size() / 2, COEFFICIENT, true);
+				for (int i = 0;i < evens.size();i++) {
+					evens.at(i) = this->at(0 + 2 * i);
+				}
+				return evens;
+			}
+			else {
+				throw std::logic_error("Polynomial not in coefficient representation");
+			}
+		}
+		Field2n Permute() {
+			if (this->format == COEFFICIENT) {
+				Field2n permuted(this->size(), COEFFICIENT, true);
+				int evenPtr = 0;
+				int oddPtr = this->size() / 2;
+				for (int i = 0;i <this->size();i++) {
+					if (i % 2 == 0) {
+						permuted.at(evenPtr) = this->at(i);
+						evenPtr++;
+					}
+					else {
+						permuted.at(oddPtr) = this->at(i);
+						oddPtr++;
+					}
+				}
+				return permuted;
+			}
+			else {
+				throw std::logic_error("Polynomial not in coefficient representation");
+			}
+		}
+		Field2n InversePermute() {
+			if (this->format == COEFFICIENT) {
+				Field2n invpermuted(this->size(), COEFFICIENT, true);
+				int evenPtr = 0;
+				int oddPtr = this->size() / 2;
+				for (int i = 0;evenPtr<4;i+=2){
+					invpermuted.at(i) = this->at(evenPtr);
+					invpermuted.at(i + 1) = this->at(oddPtr);
+					evenPtr++;
+					oddPtr++;
+				}
+				return invpermuted;
+			}
+			else {
+				throw std::logic_error("Polynomial not in coefficient representation");
+			}
+	}
+		Field2n ScalarMult(double d) {
+			Field2n scaled(this->size(), this->GetFormat(), true);
+			for (int i = 0;i < this->size();i++) {
+				scaled.at(i) = d * this->at(i);
+			}
+			return scaled;
+		}
+		void SwitchFormat() {
+			if (format == COEFFICIENT) {
+				DiscreteFourierTransform dft;
+				double w = 1.0;
+
+				std::vector<double> r = dft.ForwardTransform(*this, w, this->size());
+				for (int i = 0;i < r.size();i++) {
+					this->at(i) = r.at(i);
+				}
+
+				format = EVALUATION;
+			}
+			else {
+				if (format == COEFFICIENT) {
+					DiscreteFourierTransform dft;
+					double w = 1.0;
+					std::vector<double> r = dft.InverseTransform(*this, w, this->size());
+					for (int i = 0;i < r.size();i++) {
+						this->at(i) = r.at(i);
+					}
+					format = COEFFICIENT;
+				}
+			}
+		}
+	private:
+		Format format;
+	};
+}
