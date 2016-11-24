@@ -526,13 +526,14 @@ namespace lbcrypto {
 	}
 
 
-	std::vector<double> DiscreteFourierTransform::ForwardTransform(std::vector<double> & A, double w, double m) {
-		if (m == 1) {
+	std::vector<std::complex<double>> DiscreteFourierTransform::ForwardTransform(std::vector<std::complex<double>> & A) {
+		if (A.size()==1) {
 			return A;
 		}
 		else {
-			std::vector<double> A_even(m/2);
-			std::vector<double> A_odd(m/2);
+			int m = A.size();
+			std::vector<std::complex<double>> A_even(m/2);
+			std::vector<std::complex<double>> A_odd(m/2);
 			for (int i = 0;i<m;i++) {
 				if (i % 2 == 0) {
 					A_even[i / 2] = A[i];
@@ -541,25 +542,37 @@ namespace lbcrypto {
 					A_odd[(i-1)/2] = A[i];
 				}
 			}
-			std::vector<double> P_even = DiscreteFourierTransform::ForwardTransform(A_even,  w*w, m / 2);
-			std::vector<double> P_odd = DiscreteFourierTransform::ForwardTransform(A_odd,  w*w, m / 2);
-			std::vector<double> P(m,0);
-			double x = 1;
+			std::vector<std::complex<double>> P_even = DiscreteFourierTransform::ForwardTransform(A_even);
+			std::vector<std::complex<double>> P_odd = DiscreteFourierTransform::ForwardTransform(A_odd);
+			std::vector<std::complex<double>> P(m,0);
+			for (size_t k = 0; k < m / 2; ++k)
+			{
+				
+
+			}
+
+
 			for (int j = 0;j<m / 2;j++) {
-				P[j] = P_even[j] + x * P_odd[j];
-				P[j+m/2] = P_even[j] - x * P_odd[j];
-				x *= w;
+				std::complex<double> x = std::polar(1.0, -2 * M_PI * j / m) * P_odd[j];
+				P[j] = P_even[j] + x ;
+				P[j+m/2] = P_even[j] - x;
 			}
 			return P;
 		}
 	}
-	std::vector<double> DiscreteFourierTransform::InverseTransform(std::vector<double> & A, double w, double m) {
+
+	std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std::vector<std::complex<double>> & A) {
 		
-		std::vector<double> result = DiscreteFourierTransform::ForwardTransform(A,(double) 1/w , m);
-			for(int i=0;i < m;i++) {
-				result[i] = (double)(result[i] / m) ;
+		std::vector<std::complex<double>> result = DiscreteFourierTransform::ForwardTransform(A);
+		double m = result.size();
+		for(int i=0;i < m;i++) {
+				result[i] =std::complex<double>(result[i].real()/m, result[i].imag()/m);
+		}
+		for (int i = 1;i < m/2;i++) {
+			std::complex<double>temp = result[i];
+			result[i] = result[m - i];
+			result[m - i] = temp;
 		}
 			return result;
 	}
-
 }//namespace ends here

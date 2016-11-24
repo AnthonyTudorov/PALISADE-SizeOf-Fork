@@ -39,11 +39,15 @@
 #include "nbtheory.h"
 #include "../utils/utilities.h"
 #include <chrono>
+#include <complex>
 #include <time.h>
 #include <map>
 #include <fstream>
 #include <thread>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 /**
  * @namespace lbcrypto
  * The namespace of lbcrypto
@@ -265,21 +269,17 @@ public:
 	* Virtual forward transform.
 	*
 	* @param A is the element to perform the transform on.
-	* @param w the root of unity.
-	* @param m is the cyclotomic order.
 	* @return is the output result of the transform.
 	*/
-	std::vector<double> ForwardTransform(std::vector<double>& A, const double w, const double m);
+	std::vector<std::complex<double>> ForwardTransform(std::vector<std::complex<double>>& A);
 
 	/**
 	* Virtual inverse transform.
 	*
 	* @param A is the element to perform the inverse transform on.
-	* @param w the root of unity.
-	* @param m is the cyclotomic order.
 	* @return is the output result of the inverse transform.
 	*/
-	std::vector<double> InverseTransform(std::vector<double>& A, const double w, const double m);
+	std::vector<std::complex<double>> InverseTransform(std::vector<std::complex<double>>& A);
 private:
 };
 

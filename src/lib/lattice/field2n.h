@@ -1,12 +1,15 @@
+#ifndef _SRC_LIB_LATTICE_SIGNATURE_FIELD2N_H
+#define _SRC_LIB_LATTICE_SIGNATURE_FIELD2N_H
+
 #include "ilvector2n.h"
 #include "../math/transfrm.h"
 
 namespace lbcrypto {
 
-	class Field2n :std::vector<double> {
+	class Field2n :std::vector<std::complex<double>> {
 	public:
 		Field2n(int size, Format f = EVALUATION, bool initializeElementToZero = false)
-			:std::vector<double>(size,initializeElementToZero?0:-DBL_MAX){
+			:std::vector<std::complex<double>>(size,initializeElementToZero?0:-DBL_MAX){
 	
 			this->format = f;
 		}
@@ -31,7 +34,8 @@ namespace lbcrypto {
 			else {
 				Field2n inverse(this->size(), EVALUATION);
 				for (int i = 0;i < this->size(); i++) {
-					inverse.at(i) = 1/this->at(i);
+					double quotient = this->at(i).real() * this->at(i).real() + this->at(i).imag() * this->at(i).imag();
+					inverse.at(i) = std::complex<double>(this->at(i).real()/quotient,-this->at(i).imag()/quotient);
 				}
 				return inverse;
 			}
@@ -52,9 +56,9 @@ namespace lbcrypto {
 			if(this->format==COEFFICIENT){
 				Field2n result(this->size(), COEFFICIENT);
 				for (int i = 0;i < this->size() - 1;i++) {
-					result.at(i) = this->at(i + 1);
+					result.at(i+1) = this->at(i);
 				}
-				result.at(this->size() - 1) = this->at(0);
+				result.at(this->size() - 1) = std::complex<double>(-1,0) * this->at(this->size() - 1);
 				return result;
 			}
 			else {
@@ -65,7 +69,7 @@ namespace lbcrypto {
 			if (this->format == COEFFICIENT) {
 				Field2n transpose(this->size(), COEFFICIENT);
 				for (int i=this->size()-1;i>0;i--) {
-					transpose.at(this->size()-1-i) = -1 * this->at(i);
+					transpose.at(this->size()-1-i) = std::complex<double>(-1, 0) * this->at(i);
 				}
 				transpose.at(0) = this->at(0);
 				return transpose;
@@ -146,9 +150,8 @@ namespace lbcrypto {
 		void SwitchFormat() {
 			if (format == COEFFICIENT) {
 				DiscreteFourierTransform dft;
-				double w = 1.0;
 
-				std::vector<double> r = dft.ForwardTransform(*this, w, this->size());
+				std::vector<std::complex<double>> r = dft.ForwardTransform(*this);
 				for (int i = 0;i < r.size();i++) {
 					this->at(i) = r.at(i);
 				}
@@ -158,8 +161,7 @@ namespace lbcrypto {
 			else {
 				if (format == COEFFICIENT) {
 					DiscreteFourierTransform dft;
-					double w = 1.0;
-					std::vector<double> r = dft.InverseTransform(*this, w, this->size());
+					std::vector<std::complex<double>> r = dft.InverseTransform(*this);
 					for (int i = 0;i < r.size();i++) {
 						this->at(i) = r.at(i);
 					}
@@ -171,3 +173,4 @@ namespace lbcrypto {
 		Format format;
 	};
 }
+#endif
