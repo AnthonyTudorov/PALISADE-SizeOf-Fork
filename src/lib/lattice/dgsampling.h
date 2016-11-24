@@ -141,7 +141,9 @@ private:
 	static inline void ZSampleSigma2x2(const Field2n & a, const Field2n & b,
 		const Field2n & d, const Matrix<Field2n> &c, Matrix<int32_t>* p, const DiscreteGaussianGenerator & dgg);
 
-	static inline std::vector<double> ZSampleF(std::vector<double> f, double c, DiscreteGaussianGenerator & dgg, double w, double m,double n);
+	static inline Matrix<int32_t> ZSampleF(const Field2n &f, const Field2n &c,
+		const DiscreteGaussianGenerator &dgg);
+
 };
 
 }

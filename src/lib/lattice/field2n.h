@@ -25,10 +25,13 @@ namespace lbcrypto {
 				}
 			}
 		}
+		//Doruk, please add implementation
+		Field2n(const Matrix<int32_t> &element) {
+		}
 		Format GetFormat() const {
 			return format;
 		}
-		Field2n Inverse() {
+		Field2n Inverse() const{
 			if (format == COEFFICIENT) {
 				throw std::logic_error("Polynomial not in evaluation representation");
 			}
@@ -41,7 +44,15 @@ namespace lbcrypto {
 				return inverse;
 			}
 		}
-		Field2n Times(const Field2n & rhs) {
+		//Doruk, please add implementation
+		Field2n Plus(const Field2n &rhs) const {
+			return *this;
+		};
+		//Doruk, please add implementation
+		Field2n Minus(const Field2n &rhs) const {
+			return *this;
+		};
+		Field2n Times(const Field2n & rhs) const {
 			if (format == EVALUATION && rhs.GetFormat() == EVALUATION) {
 				Field2n result(rhs.size(), EVALUATION);
 				for (int i = 0;i < rhs.size();i++) {
@@ -66,7 +77,7 @@ namespace lbcrypto {
 				throw std::logic_error("Polynomial not in coefficient representation");
 			}
 		}
-		Field2n Transpose() {
+		Field2n Transpose() const{
 			if (this->format == COEFFICIENT) {
 				Field2n transpose(this->size(), COEFFICIENT);
 				for (int i=this->size()-1;i>0;i--) {
@@ -173,5 +184,8 @@ namespace lbcrypto {
 	private:
 		Format format;
 	};
+	inline Field2n operator+(const Field2n &a, const Field2n &b) { return a.Plus(b); }
+	inline Field2n operator-(const Field2n &a, const Field2n &b) { return a.Minus(b); }
+	inline Field2n operator*(const Field2n &a, const Field2n &b) { return a.Times(b); }
 }
 #endif

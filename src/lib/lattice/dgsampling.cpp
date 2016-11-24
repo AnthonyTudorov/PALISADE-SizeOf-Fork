@@ -291,6 +291,11 @@ namespace lbcrypto {
 		b = b.ScalarMult(-s *s * sigma * sigma / (s* s - sigma * sigma));
 		d = d.ScalarMult(s * s * (1 - sigma * sigma / (s * s - sigma * sigma)));
 
+		//converts the field elements to DFT representation
+		a.SwitchFormat();
+		b.SwitchFormat();
+		d.SwitchFormat();
+
 		size_t k = Tprime.GetRows();
 		Matrix<int32_t> p2ZVector([]() { return make_unique<int32_t>(); }, n*k, 1);
 
@@ -315,7 +320,7 @@ namespace lbcrypto {
 		Matrix<Field2n> c([]() { return make_unique<Field2n>(); }, 2, 1);
 
 		c(0, 0) = Field2n(Tp2(0, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
-		c(1, 0) = Field2n(Tp2(1, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));;
+		c(1, 0) = Field2n(Tp2(1, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
 
 		Matrix<int32_t> p1ZVector([]() { return make_unique<int32_t>(); }, n*2, 1);
 
@@ -331,108 +336,41 @@ namespace lbcrypto {
 
 	}
 
-	void LatticeGaussSampUtility::ZSampleSigma2x2(const Field2n & a, const Field2n & b,
-		const Field2n & d, const Matrix<Field2n> &c, Matrix<int32_t>* p,const DiscreteGaussianGenerator & dgg) {
-		/*
-			q2  = ZSampleF(d,c2);
-			c1 = AddPol(c1,MultiplyPol(MultiplyPol(b,d inverse),SubstractPol(q2,c2)));
-			q1 = ZSampleF(a-bd inverse b transpose,c1);
-			p1 = q1.insert(q1.end(),q2.begin(),q2.end());
-		*/
+	void LatticeGaussSampUtility::ZSampleSigma2x2(const Field2n &a, const Field2n &b,
+		const Field2n &d, const Matrix<Field2n> &c, Matrix<int32_t>* q,const DiscreteGaussianGenerator & dgg) {
+
+			Matrix<int32_t> q2Int  = ZSampleF(d,c(1,0),dgg);
+			Field2n q2(q2Int);
+			
+			Field2n q2Minusc2 = q2 - c(1, 0);
+			//Convert to DFT represenation prior to multiplication
+			q2Minusc2.SwitchFormat();
+
+			Field2n product = b * d.Inverse() * q2Minusc2;
+			//Convert the product to coefficient representation
+			product.SwitchFormat();
+			
+			//Computes c1 in DFT format
+			Field2n c1 = c(0, 0) + product;
+
+			Matrix<int32_t> q1Int = ZSampleF(a - b*d.Inverse()*b.Transpose(), c1, dgg);
+
+			for (size_t i = 0; i < q1Int.GetRows(); i++) {
+				(*q)(i, 0) = q1Int(i,0);
+			}
+
+			for (size_t i = 0; i < q2Int.GetRows(); i++) {
+				(*q)(i + q1Int.GetRows(), 0) = q2Int(i, 0);
+			}
 
 	}
 
-	std::vector<double> LatticeGaussSampUtility::ZSampleF(std::vector<double> f, double c, DiscreteGaussianGenerator & dgg,double w,double m,double n) {
-		//if (f.size() == 1) {
-		//	std::vector<double> p;
-		//	DiscreteFourierTransform dft;
-		//	p.push_back(dgg.GenerateInteger(c, sqrt(dft.InverseTransform(f, w, m)[0]), n));
-		//	return p;
-		//}
-		//else {
-		//	/*inverse c
-		//	std::vector<double> f_even,f_odd;
-		//	for(int i=0;i<f.size();f++){
-		//		if(i%2==0){
-		//			f_even.push_back(f[i]);
-		//		}
-		//		else{
-		//			f_odd.push_back(f[i]);
-		//		}
-		//	}
-		//	std::vector<double> r2 = ZSampleF(f_even,c2,dgg,w,m/2,n);
-		//	c1 = AddPol(c1,MultiplyPol(MultiplyPol(f_odd, f_even inverse),SubstractPol(r2,c2))
-		//	r1 = ZSampleF(SubstractPol(f_even,MultiplyPol(MultiplyPol(f_odd,f_odd),f_even inverse,c1,dgg,w,m,n);
-		//	return r1.insert(r1.end(),r2.begin(),r2.end());
-		//	*/
-		//}
+	//f is in DFT representation
+	//c is in Coefficient representation
+	Matrix<int32_t> LatticeGaussSampUtility::ZSampleF(const Field2n &f, const Field2n &c,
+		const DiscreteGaussianGenerator &dgg) {
+
 	}
 
-	//std::vector<double> MultiplyPol(std::vector<double> A, std::vector<double> B) {
-	//	
-	//	usint size_a = A.size();
-	//	usint size_b = B.size();
-	//	if (size_a < size_b) {
-	//		for (int i = 0;i < size_b - size_a;i++) {
-	//			A.push_back((double)0);
-	//		}
-	//	}
-	//	else {
-	//		if (size_b < size_a) {
-	//			for (int i = 0;i < size_a - size_b;i++) {
-	//				B.push_back((double)0);
-	//			}
-	//		}
-	//	}
-	//	std::vector<double> result;
-	//	for (int j = 0;j < A.size();j++) {
-	//		result.push_back(A[j] * B[j]);
-	//	}
-	//	return result;
-	//}
-	//std::vector<double> AddPol(std::vector<double> A, std::vector<double> B) {
-
-	//	usint size_a = A.size();
-	//	usint size_b = B.size();
-	//	if (size_a < size_b) {
-	//		for (int i = 0;i < size_b - size_a;i++) {
-	//			A.push_back((double)0);
-	//		}
-	//	}
-	//	else {
-	//		if (size_b < size_a) {
-	//			for (int i = 0;i < size_a - size_b;i++) {
-	//				B.push_back((double)0);
-	//			}
-	//		}
-	//	}
-	//	std::vector<double> result;
-	//	for (int j = 0;j < A.size();j++) {
-	//		result.push_back(A[j] + B[j]);
-	//	}
-	//	return result;
-	//}
-	//std::vector<double> SubstractPol(std::vector<double> A, std::vector<double> B) {
-
-	//	usint size_a = A.size();
-	//	usint size_b = B.size();
-	//	if (size_a < size_b) {
-	//		for (int i = 0;i < size_b - size_a;i++) {
-	//			A.push_back((double)0);
-	//		}
-	//	}
-	//	else {
-	//		if (size_b < size_a) {
-	//			for (int i = 0;i < size_a - size_b;i++) {
-	//				B.push_back((double)0);
-	//			}
-	//		}
-	//	}
-	//	std::vector<double> result;
-	//	for (int j = 0;j < A.size();j++) {
-	//		result.push_back(A[j] - B[j]);
-	//	}
-	//	return result;
-	//}
 	
 }
