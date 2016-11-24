@@ -25,8 +25,11 @@ namespace lbcrypto {
 				}
 			}
 		}
-		//Doruk, please add implementation
 		Field2n(const Matrix<int32_t> &element) {
+			for (int i = 0;i < element.GetCols();i++) {
+				this->push_back(element(0, i));
+			}
+			this->format = COEFFICIENT;
 		}
 		Format GetFormat() const {
 			return format;
@@ -44,13 +47,29 @@ namespace lbcrypto {
 				return inverse;
 			}
 		}
-		//Doruk, please add implementation
 		Field2n Plus(const Field2n &rhs) const {
-			return *this;
+			if (format == COEFFICIENT) {
+				throw std::logic_error("Polynomial not in evaluation representation");
+			}
+			else {
+				Field2n sum(this->size(), EVALUATION);
+				for (int i = 0;i < this->size(); i++) {
+					sum.at(i) = this->at(i) + rhs.at(i);
+				}
+				return sum;
+			}
 		};
-		//Doruk, please add implementation
 		Field2n Minus(const Field2n &rhs) const {
-			return *this;
+			if (format == COEFFICIENT) {
+				throw std::logic_error("Polynomial not in evaluation representation");
+			}
+			else {
+				Field2n difference(this->size(), EVALUATION);
+				for (int i = 0;i < this->size(); i++) {
+					difference.at(i) = this->at(i) - rhs.at(i);
+				}
+				return difference;
+			}
 		};
 		Field2n Times(const Field2n & rhs) const {
 			if (format == EVALUATION && rhs.GetFormat() == EVALUATION) {
