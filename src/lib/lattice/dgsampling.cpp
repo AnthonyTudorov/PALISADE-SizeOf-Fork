@@ -268,8 +268,6 @@ namespace lbcrypto {
 	
 	void LatticeGaussSampUtility::ZSampleSigmaP(size_t n, BigBinaryInteger q, double s, double sigma, 
 		const Matrix<ILVector2n> &Tprime, Matrix<int32_t> *perturbationVector, const DiscreteGaussianGenerator & dgg) {
-		
-		/*
 
 		Matrix<ILVector2n> Tprime0 = Tprime.ExtractRow(0);
 		Matrix<ILVector2n> Tprime1 = Tprime.ExtractRow(1);
@@ -331,12 +329,10 @@ namespace lbcrypto {
 			(*perturbationVector)(i+2*n, 0) = p2ZVector(i, 0);
 		}
 
-		*/
-
 	}
 
-	void LatticeGaussSampUtility::ZSampleSigma2x2(const std::vector<double> & a, const std::vector<double> & b, 
-		const std::vector<double> & d, const Matrix<Field2n> &c, Matrix<int32_t>* p,const DiscreteGaussianGenerator & dgg) {
+	void LatticeGaussSampUtility::ZSampleSigma2x2(const Field2n & a, const Field2n & b,
+		const Field2n & d, const Matrix<Field2n> &c, Matrix<int32_t>* p,const DiscreteGaussianGenerator & dgg) {
 		/*
 			q2  = ZSampleF(d,c2);
 			c1 = AddPol(c1,MultiplyPol(MultiplyPol(b,d inverse),SubstractPol(q2,c2)));
@@ -345,6 +341,7 @@ namespace lbcrypto {
 		*/
 
 	}
+
 	std::vector<double> LatticeGaussSampUtility::ZSampleF(std::vector<double> f, double c, DiscreteGaussianGenerator & dgg,double w,double m,double n) {
 		//if (f.size() == 1) {
 		//	std::vector<double> p;

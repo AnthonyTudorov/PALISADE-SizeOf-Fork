@@ -8,13 +8,14 @@ namespace lbcrypto {
 
 	class Field2n :std::vector<std::complex<double>> {
 	public:
+		Field2n() : format(COEFFICIENT) {};
 		Field2n(int size, Format f = EVALUATION, bool initializeElementToZero = false)
 			:std::vector<std::complex<double>>(size,initializeElementToZero?0:-DBL_MAX){
 	
 			this->format = f;
 		}
 		Field2n(const ILVector2n & element) {
-			if (element.GetFormat != COEFFICIENT) {
+			if (element.GetFormat() != COEFFICIENT) {
 				throw std::logic_error("ILVector2n not in coefficient representation");
 			}
 			else {

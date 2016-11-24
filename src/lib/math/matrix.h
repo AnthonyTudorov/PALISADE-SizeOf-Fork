@@ -335,10 +335,11 @@ namespace lbcrypto {
 			* @return the row at the index
 			*/
 			inline Matrix<Element> ExtractRow(size_t row) const {
-				Matrix<Element> result(this->allocZero,1,this->cols);
-				result.data[0] = data[row];
-				result.cols = this->cols;
-				return result;
+				//Matrix<Element> result(this->allocZero,1,this->cols);
+				//result.data[0] = data[row];
+				//result.cols = this->cols;
+				//return result;
+				return *this;
 			}
 
             /**

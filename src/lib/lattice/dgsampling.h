@@ -39,11 +39,9 @@
 
 #include "../math/largefloat.h"
 #include "../math/matrix.h"
+#include "field2n.h"
 
 namespace lbcrypto {
-
-//Forward declaration for now
-class Field2n : public std::vector<double> {};
 
 /**
 * @brief Utility class containing operations needed for lattice sampling; Sources: https://eprint.iacr.org/2013/297.pdf & https://eprint.iacr.org/2011/501.pdf
@@ -140,8 +138,8 @@ private:
 	static inline void SampleC(const Matrix<double> &c, size_t k, size_t n, 
 		double sigma, DiscreteGaussianGenerator &dgg, Matrix<double> *a, vector<int32_t> *z);
 	
-	static inline void ZSampleSigma2x2(const std::vector<double> & a, const std::vector<double> & b, 
-		const std::vector<double> & d, const Matrix<Field2n> &c, Matrix<int32_t>* p, const DiscreteGaussianGenerator & dgg);
+	static inline void ZSampleSigma2x2(const Field2n & a, const Field2n & b,
+		const Field2n & d, const Matrix<Field2n> &c, Matrix<int32_t>* p, const DiscreteGaussianGenerator & dgg);
 
 	static inline std::vector<double> ZSampleF(std::vector<double> f, double c, DiscreteGaussianGenerator & dgg, double w, double m,double n);
 };
