@@ -351,7 +351,7 @@ void NTRU_DCRT() {
 //
 //	if(true) return;
 
-	LPKeyPair<ILVectorArray2n> newKp = cc.GetEncryptionAlgorithm().KeyGen(cc);
+	LPKeyPair<ILVectorArray2n> newKp = cc.KeyGen();
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption key generation operation.
@@ -1093,27 +1093,27 @@ void FinalLeveledComputation(){
 	ILVectorArray2n element1(dcrtParams);
 	element1.SwitchFormat();
 	element1 = {1};
-	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText1 = cc.GetEncryptionAlgorithm().Encrypt(kp.publicKey,element1);
+	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText1 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element1);
 
 	ILVectorArray2n element2(dcrtParams);
 	element2.SwitchFormat();
 	element2 = {2};
-	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText2 = cc.GetEncryptionAlgorithm().Encrypt(kp.publicKey,element2);
+	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText2 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element2);
 
 	ILVectorArray2n element3(dcrtParams);
 	element3.SwitchFormat();
 	element3 = {3};
-	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText3 = cc.GetEncryptionAlgorithm().Encrypt(kp.publicKey,element3);
+	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText3 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element3);
 
 	ILVectorArray2n element4(dcrtParams);
 	element4.SwitchFormat();
 	element4 = {4};
-	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText4 = cc.GetEncryptionAlgorithm().Encrypt(kp.publicKey,element4);
+	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText4 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element4);
 
 	ILVectorArray2n element5(dcrtParams);
 	element5.SwitchFormat();
 	element5 = {5};
-	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText5 = cc.GetEncryptionAlgorithm().Encrypt(kp.publicKey,element5);
+	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText5 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element5);
 
 	//Computation: C = (C1*C2 + C3*C4)*C5
 //	Ciphertext<ILVectorArray2n> cipherText6(cipherText1);

@@ -275,7 +275,7 @@ void NTRUPRE(int input) {
 	start = currentDateTime();
 
 	// FIXME this can't use CryptoUtility because the calling sequence is wrong (2 private keys)
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey = cc.GetEncryptionAlgorithm().ReKeyGen(newKp.secretKey, kp.secretKey);
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey = cc.GetEncryptionAlgorithm()->ReKeyGen(newKp.secretKey, kp.secretKey);
 
 	finish = currentDateTime();
 	diff = finish - start;

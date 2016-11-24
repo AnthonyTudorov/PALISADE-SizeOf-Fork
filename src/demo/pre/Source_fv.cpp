@@ -107,7 +107,7 @@ void EvalMul(int input, MODE mode) {
 
 	start = currentDateTime();
 
-	cc.GetEncryptionAlgorithm().ParamsGen(cc.GetCryptoParameters(), 0, 1);
+	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 1);
 
 	finish = currentDateTime();
 	diff = finish - start;

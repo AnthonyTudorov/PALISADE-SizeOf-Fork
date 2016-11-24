@@ -39,12 +39,6 @@
 
 namespace lbcrypto {
 
-/**
- * Deserialize the context AND initialize the algorithm
- *
- * @param serObj
- * @return
- */
 template <typename T>
 bool
 CryptoContext<T>::Deserialize(const Serialized& serObj)
@@ -110,6 +104,8 @@ CryptoContext<T>::Deserialize(const Serialized& serObj)
 //	return true;
 //}
 
+// factory methods for the different schemes
+
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextLTV(
@@ -128,7 +124,7 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 			relinWindow,
 			depth) );
 
-	shared_ptr<LPPublicKeyEncryptionSchemeLTV<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
 
 	return CryptoContext<T>(params, scheme);
 }
@@ -156,7 +152,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 					BigBinaryInteger(bigrootofunity),
 					depth) );
 
-	shared_ptr<LPPublicKeyEncryptionSchemeFV<T>> scheme( new LPPublicKeyEncryptionSchemeFV<T>() );
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeFV<T>() );
 
 	return CryptoContext<T>(params, scheme);
 }
@@ -188,7 +184,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	params->SetMode(OPTIMIZED);
 	params->SetAssuranceMeasure(9.0);
 
-	shared_ptr<LPPublicKeyEncryptionSchemeFV<T>> scheme( new LPPublicKeyEncryptionSchemeFV<T>() );
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeFV<T>() );
 
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches);
 
@@ -213,7 +209,7 @@ CryptoContextFactory<T>::genCryptoContextBV(
 		0.0, // securityLevel,
 		relinWindow) );
 
-	shared_ptr<LPPublicKeyEncryptionSchemeFV<T>> scheme( new LPPublicKeyEncryptionSchemeBV<T>() );
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBV<T>() );
 
 	return CryptoContext<T>(params, scheme);
 }
@@ -239,7 +235,7 @@ CryptoContextFactory<T>::getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArra
 {
 	shared_ptr<LPCryptoParametersLTV<ILVectorArray2n>> mycryptoParams( new LPCryptoParametersLTV<ILVectorArray2n>( *cryptoParams ) ); // copy so memory works right
 
-	shared_ptr<LPPublicKeyEncryptionSchemeLTV<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
 
 	return CryptoContext<T>(mycryptoParams, scheme);
 }
@@ -262,7 +258,7 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 			relinWindow,
 			stDevStSt) );
 
-	shared_ptr<LPPublicKeyEncryptionSchemeLTV<T>> scheme(new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>());
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>());
 
 	return CryptoContext<T>(params, scheme);
 }
@@ -280,6 +276,9 @@ CryptoContextFactory<T>::getCryptoContextNull(
 
 	return CryptoContext<T>(params, scheme);
 }
+
+// the methods below allow me to deserialize a json object into this context
+// ... which will only succeed if the object was serialized from this context!
 
 template <typename T>
 shared_ptr<LPPublicKey<T>>

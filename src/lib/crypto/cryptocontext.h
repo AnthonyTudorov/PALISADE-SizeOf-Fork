@@ -80,29 +80,57 @@ private:
 	 * Private methods to compare two contexts; this is only used internally and is not generally available
 	 * @param a
 	 * @param b
-	 * @return true
+	 * @return true if the parameters match (no need to check schemes)
 	 */
 	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.params == b.params; }
 	friend bool operator!=(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.params != b.params; }
 
 public:
+	/**
+	 * CryptoContext constructor from pointers to parameters and scheme
+	 * @param params - pointer to CryptoParameters
+	 * @param scheme - pointer to Crypto Scheme
+	 */
+	CryptoContext(LPCryptoParameters<Element> *params = 0, LPPublicKeyEncryptionScheme<Element> *scheme = 0) {
+		this->params.reset(params);
+		this->scheme.reset(scheme);
+	}
+
+	/**
+	 * CryptoContext constructor from shared pointers to parameters and scheme
+	 * @param params - shared pointer to CryptoParameters
+	 * @param scheme - sharedpointer to Crypto Scheme
+	 */
 	CryptoContext(shared_ptr<LPCryptoParameters<Element>> params, shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme) {
 		this->params = params;
 		this->scheme = scheme;
 	}
 
+	/**
+	 * Copy constructor
+	 * @param c
+	 */
 	CryptoContext(const CryptoContext<Element>& c) {
 		params = c.params;
 		scheme = c.scheme;
 	}
 
+	/**
+	 * Assignment
+	 * @param rhs
+	 * @return
+	 */
 	CryptoContext<Element>& operator=(const CryptoContext<Element>& rhs) {
 		params = rhs.params;
 		scheme = rhs.scheme;
 		return *this;
 	}
 
-	operator bool() const { return bool(params); }
+	/**
+	 * A CryptoContext is only valid if the shared pointers are both valid
+	 */
+	operator bool() const { return bool(params) && bool(scheme); }
+
 	/**
 	 * Serialize the CryptoContext
 	 *
@@ -115,18 +143,38 @@ public:
 	 * Deserialize the context AND initialize the algorithm
 	 *
 	 * @param serObj
-	 * @return
+	 * @return true on success
 	 */
 	bool Deserialize(const Serialized& serObj);
 
+	/**
+	 * Enable a particular feature for use with this CryptoContext
+	 * @param feature - the feature that should be enabled
+	 */
 	void Enable(PKESchemeFeature feature) { scheme->Enable(feature); }
 
-	const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return *scheme; }
+	/**
+	 * Getter for Scheme
+	 * @return scheme
+	 */
+	const shared_ptr<LPPublicKeyEncryptionScheme<Element>> GetEncryptionAlgorithm() const { return scheme; }
 
+	/**
+	 * Getter for CryptoParams
+	 * @return params
+	 */
 	const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return params; }
 
+	/**
+	 * Getter for the Discrete Gaussian Generator used by the params
+	 * @return reference to the generator
+	 */
 	const DiscreteGaussianGenerator& GetGenerator() const { return params->GetDiscreteGaussianGenerator(); }
 
+	/**
+	 * FIXME this should go away soon
+	 * @return
+	 */
 	const shared_ptr<ILParams> GetElementParams() {
 		return std::dynamic_pointer_cast<ILParams>(params->GetElementParams());
 	}
@@ -136,44 +184,84 @@ public:
 	 * @return a public/secret key pair
 	 */
 	LPKeyPair<Element> KeyGen() const {
-		return GetEncryptionAlgorithm().KeyGen(*this);
+		return GetEncryptionAlgorithm()->KeyGen(*this);
 	}
 
+	/**
+	 * FIXME this comment needs help
+	 * @return a public/secret key pair
+	 */
 	LPKeyPair<Element> SparseKeyGen() const {
-		return GetEncryptionAlgorithm().SparseKeyGen(*this);
+		return GetEncryptionAlgorithm()->SparseKeyGen(*this);
 	}
 
+	/**
+	 * ReKeyGen produces an Eval Key that PALISADE can use for Proxy Re Encryption
+	 * @param PublicKey
+	 * @param PrivateKey
+	 * @return new evaluation key
+	 */
 	shared_ptr<LPEvalKey<Element>> ReKeyGen(
-			const shared_ptr<LPPublicKey<Element>> newPublicKey,
-			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
+			const shared_ptr<LPPublicKey<Element>> PublicKey,
+			const shared_ptr<LPPrivateKey<Element>> PrivateKey) const {
 
-		if( newPublicKey->GetCryptoContext() != *this || origPrivateKey->GetCryptoContext() != *this )
+		if( !PublicKey || !PrivateKey || PublicKey->GetCryptoContext() != *this || PrivateKey->GetCryptoContext() != *this )
 			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
 
-		/*if( typeid(Element) == typeid(ILVectorArray2n) )
-			throw std::logic_error("Sorry, re-encryption keys have not been implemented with Element of ILVectorArray2n");*/
-
-		return GetEncryptionAlgorithm().ReKeyGen(newPublicKey, origPrivateKey);
+		return GetEncryptionAlgorithm()->ReKeyGen(PublicKey, PrivateKey);
 	}
 
-	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
-			const shared_ptr<LPPrivateKey<Element>> key) const {
+	/**
+	 * EvalMultKeyGen creates a key that can be used with the EvalMult operator
+	 * @param key
+	 * @return new evaluation key
+	 */
+	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) const {
 
-		if( key->GetCryptoContext() != *this )
+		if( !key || key->GetCryptoContext() != *this )
 			throw std::logic_error("Key passed to EvalMultKeyGen were not generated with this crypto context");
 
-		return GetEncryptionAlgorithm().EvalMultKeyGen(key);
+		return GetEncryptionAlgorithm()->EvalMultKeyGen(key);
 	}
 
+	/**
+	 * KeySwitchGen creates a key that can be used with the KeySwitch operation
+	 * @param key1
+	 * @param key2
+	 * @return new evaluation key
+	 */
 	shared_ptr<LPEvalKey<Element>> KeySwitchGen(
 			const shared_ptr<LPPrivateKey<Element>> key1, const shared_ptr<LPPrivateKey<Element>> key2) const {
 
-		if( key1->GetCryptoContext() != *this || key2->GetCryptoContext() != *this )
+		if( !key1 || !key2 || key1->GetCryptoContext() != *this || key2->GetCryptoContext() != *this )
 			throw std::logic_error("Keys passed to KeySwitchGen were not generated with this crypto context");
 
-		return GetEncryptionAlgorithm().KeySwitchGen(key1, key2);
+		return GetEncryptionAlgorithm()->KeySwitchGen(key1, key2);
 	}
 
+	/**
+	 * QuadraticEvalMultKeyGen creates the key that can be used with Quadratic EvalMult
+	 * @param k1
+	 * @param k2
+	 * @return new evaluation key
+	 */
+	shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
+			const shared_ptr<LPPrivateKey<Element>> k1,
+			const shared_ptr<LPPrivateKey<Element>> k2) const {
+
+		if( !k1 || !k2 || k1->GetCryptoContext() != *this || k2->GetCryptoContext() != *this )
+			throw std::logic_error("Keys passed to QuadraticEvalMultKeyGen were not generated with this crypto context");
+
+		return GetEncryptionAlgorithm()->QuadraticEvalMultKeyGen(k1, k2);
+	}
+
+	/**
+	 * Encrypt method for PALISADE
+	 * @param publicKey - for encryption
+	 * @param plaintext - to encrypt
+	 * @param doPadding - if true, pad the input out to fill the encrypted chunk
+	 * @return a vector of pointers to Ciphertexts created by encrypting the plaintext
+	 */
 	std::vector<shared_ptr<Ciphertext<Element>>> Encrypt(
 			const shared_ptr<LPPublicKey<Element>> publicKey,
 			const Plaintext& plaintext,
@@ -181,7 +269,7 @@ public:
 	{
 		std::vector<shared_ptr<Ciphertext<Element>>> cipherResults;
 
-		if( publicKey->GetCryptoContext() != *this )
+		if( !publicKey || publicKey->GetCryptoContext() != *this )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
 		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
@@ -203,7 +291,7 @@ public:
 			Element pt(publicKey->GetCryptoParameters()->GetElementParams());
 			plaintext.Encode(ptm, &pt, bytes, chunkSize);
 
-			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm().Encrypt(publicKey,pt);
+			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey,pt);
 
 			if( !ciphertext ) {
 				cipherResults.clear();
@@ -231,6 +319,9 @@ public:
 			std::istream& instream,
 			std::ostream& outstream)
 	{
+		if( !publicKey || publicKey->GetCryptoContext() != *this )
+			throw std::logic_error("key passed to EncryptStream was not generated with this crypto context");
+
 		bool padded = false;
 		BytePlaintextEncoding px;
 		const BigBinaryInteger& ptm = publicKey->GetCryptoContext().GetCryptoParameters()->GetPlaintextModulus();
@@ -253,7 +344,7 @@ public:
 			Element pt(publicKey->GetCryptoParameters()->GetElementParams());
 			px.Encode(publicKey->GetCryptoParameters()->GetPlaintextModulus(), &pt, 0, chunkSize);
 
-			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm().Encrypt(publicKey, pt);
+			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt);
 			if( !ciphertext ) {
 				delete ptxt;
 				return;
@@ -276,6 +367,14 @@ public:
 		return;
 	}
 
+	/**
+	 * Decrypt method for PALISADE
+	 * @param privateKey - for decryption
+	 * @param ciphertext - vector of encrypted ciphertext
+	 * @param plaintext - pointer to destination for the result of decryption
+	 * @param doPadding - true if input plaintext was padded; causes unpadding on last piece of ciphertext
+	 * @return size of plaintext
+	 */
 	DecryptResult Decrypt(
 			const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
@@ -286,13 +385,16 @@ public:
 		if( ciphertext.size() == 0 )
 			return DecryptResult();
 
-		if( privateKey->GetCryptoContext() != *this || ciphertext.at(0)->GetCryptoContext() != *this )
+		if( !privateKey || privateKey->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
 
 		int lastone = ciphertext.size() - 1;
 		for( int ch = 0; ch < ciphertext.size(); ch++ ) {
+			if( !ciphertext[ch] || ciphertext[ch]->GetCryptoContext() != *this )
+				throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
+
 			Element decrypted;
-			DecryptResult result = GetEncryptionAlgorithm().Decrypt(privateKey, ciphertext[ch], &decrypted);
+			DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext[ch], &decrypted);
 
 			if( result.isValid == false ) return result;
 
@@ -318,6 +420,9 @@ public:
 			std::istream& instream,
 			std::ostream& outstream)
 	{
+		if( !privateKey || privateKey->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
+
 		Serialized serObj;
 		size_t tot = 0;
 
@@ -329,7 +434,7 @@ public:
 			shared_ptr<Ciphertext<Element>> ct;
 			if( ct = deserializeCiphertext(serObj) ) {
 				Element decrypted;
-				DecryptResult res = GetEncryptionAlgorithm().Decrypt(privateKey, ct, &decrypted);
+				DecryptResult res = GetEncryptionAlgorithm()->Decrypt(privateKey, ct, &decrypted);
 				if( !res.isValid )
 					return;
 				tot += res.messageLength;
@@ -354,16 +459,24 @@ public:
 		return;
 	}
 
+	/**
+	 * ReEncrypt - Proxy Re Encryption mechanism for PALISADE
+	 * @param evalKey - evaluation key from the PRE keygen method
+	 * @param ciphertext - vector of shared pointers to encrypted Ciphertext
+	 * @return vector of shared pointers to re-encrypted ciphertexts
+	 */
 	std::vector<shared_ptr<Ciphertext<Element>>> ReEncrypt(
 			shared_ptr<LPEvalKey<Element>> evalKey,
 			std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext)
 	{
-		if( evalKey->GetCryptoContext() != *this || ciphertext.at(0)->GetCryptoContext() != *this )
+		if( !evalKey || evalKey->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to ReEncrypt was not generated with this crypto context");
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
 		for( int i=0; i < ciphertext.size(); i++ ) {
-			newCiphertext.push_back( GetEncryptionAlgorithm().ReEncrypt(evalKey, ciphertext[i]) );
+			if( !ciphertext[i] || ciphertext[i]->GetCryptoContext() != *this )
+				throw std::logic_error("One of the ciphertexts passed to ReEncrypt was not generated with this crypto context");
+			newCiphertext.push_back( GetEncryptionAlgorithm()->ReEncrypt(evalKey, ciphertext[i]) );
 		}
 
 		return newCiphertext;
@@ -381,6 +494,9 @@ public:
 			std::istream& instream,
 			std::ostream& outstream)
 	{
+		if( !evalKey || evalKey->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to ReEncrypt was not generated with this crypto context");
+
 		Serialized serObj;
 
 		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
@@ -406,65 +522,90 @@ public:
 		}
 	}
 
+	/**
+	 * EvalAdd - PALISADE EvalAdd method for a pair of ciphertexts
+	 * @param ct1
+	 * @param ct2
+	 * @return new ciphertext for ct1 + ct2
+	 */
 	shared_ptr<Ciphertext<Element>>
 	EvalAdd(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2)
 	{
-		if( ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
+		if( !ct1 || !ct2 || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm().EvalAdd(ct1, ct2);
-	}
-
-	shared_ptr<Ciphertext<Element>>
-	EvalSub(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2)
-	{
-		if( ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
-			throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
-
-		return GetEncryptionAlgorithm().EvalSub(ct1, ct2);
-	}
-
-	shared_ptr<Ciphertext<Element>>
-	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2)
-	{
-		if( ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
-			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
-
-		return GetEncryptionAlgorithm().EvalMult(ct1, ct2);
-	}
-
-	shared_ptr<Ciphertext<Element>>
-	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2, const shared_ptr<LPEvalKey<Element>> ek)
-	{
-		if( ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this || ek->GetCryptoContext() != *this )
-			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
-
-		return GetEncryptionAlgorithm().EvalMult(ct1, ct2, ek);
+		return GetEncryptionAlgorithm()->EvalAdd(ct1, ct2);
 	}
 
 	/**
-	* perform KeySwitch on a vector of ciphertext
-	* @param scheme - a reference to the encryption scheme in use
+	 * EvalSub - PALISADE EvalSub method for a pair of ciphertexts
+	 * @param ct1
+	 * @param ct2
+	 * @return new ciphertext for ct1 - ct2
+	 */
+	shared_ptr<Ciphertext<Element>>
+	EvalSub(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2)
+	{
+		if( !ct1 || !ct2 || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to EvalSub was not generated with this crypto context");
+
+		return GetEncryptionAlgorithm()->EvalSub(ct1, ct2);
+	}
+
+	/**
+	 * EvalMult - PALISADE EvalMult method for a pair of ciphertexts
+	 * @param ct1
+	 * @param ct2
+	 * @return new ciphertext for ct1 * ct2
+	 */
+	shared_ptr<Ciphertext<Element>>
+	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2)
+	{
+		if( !ct1 || !ct2 || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
+
+		return GetEncryptionAlgorithm()->EvalMult(ct1, ct2);
+	}
+
+	/**
+	 * EvalMult - PALISADE EvalMult method for a pair of ciphertexts, followed by recrypt with given key
+	 * @param ct1
+	 * @param ct2
+	 * @param ek
+	 * @return new ciphertext for ct1 * ct2, recrypted with ek
+	 */
+	shared_ptr<Ciphertext<Element>>
+	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2, const shared_ptr<LPEvalKey<Element>> ek)
+	{
+		if( !ct1 || !ct2 || !ek || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this || ek->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
+
+		return GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek);
+	}
+
+	/**
+	* KeySwitch - PALISADE KeySwitch method
 	* @param keySwitchHint - reference to KeySwitchHint
 	* @param ciphertext - vector of ciphertext
+	* @return new Ciphertext after applying key switch
 	*/
 	shared_ptr<Ciphertext<Element>> KeySwitch(
 		const shared_ptr<LPEvalKey<Element>> keySwitchHint,
 		const shared_ptr<Ciphertext<Element>> ciphertext)
 	{
-		if( keySwitchHint->GetCryptoContext() != *this )
+		if( !keySwitchHint || keySwitchHint->GetCryptoContext() != *this )
 			throw std::logic_error("Key passed to KeySwitch was not generated with this crypto context");
 
-		if( ciphertext->GetCryptoContext() != *this )
+		if( !ciphertext || ciphertext->GetCryptoContext() != *this )
 			throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm().KeySwitch(keySwitchHint, ciphertext);
+		return GetEncryptionAlgorithm()->KeySwitch(keySwitchHint, ciphertext);
 	}
 
 	/**
-	* perform ModReduce on a vector of ciphertext
-	* @param scheme - a reference to the encryption scheme in use
+	* ModReduce - PALISADE ModReduce method
 	* @param ciphertext - vector of ciphertext
+	* @return vector of mod reduced ciphertext
 	*/
 	std::vector<shared_ptr<Ciphertext<Element>>> ModReduce(
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext)
@@ -472,89 +613,132 @@ public:
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext(ciphertext.size());
 
 		for (int i = 0; i < ciphertext.size(); i++) {
-			if( ciphertext.at(i)->GetCryptoContext() != *this )
+			if( !ciphertext[i] || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("Information passed to ModReduce was not generated with this crypto context");
 
-			newCiphertext[i] = GetEncryptionAlgorithm().ModReduce(ciphertext[i]);
+			newCiphertext[i] = GetEncryptionAlgorithm()->ModReduce(ciphertext[i]);
 		}
 
 		return std::move(newCiphertext);
 	}
 
+	/**
+	 * LevelReduce - PALISADE LevelReduce method
+	 * @param cipherText1
+	 * @param linearKeySwitchHint
+	* @return vector of level reduced ciphertext
+	 */
 	shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
 			const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const {
 
-		if( cipherText1->GetCryptoContext() != *this || linearKeySwitchHint->GetCryptoContext() != *this) {
+		if( !cipherText1 || !linearKeySwitchHint || cipherText1->GetCryptoContext() != *this || linearKeySwitchHint->GetCryptoContext() != *this) {
 			throw std::logic_error("Information passed to LevelReduce was not generated with this crypto context");
 		}
 
-		return GetEncryptionAlgorithm().LevelReduce(cipherText1, linearKeySwitchHint);
+		return GetEncryptionAlgorithm()->LevelReduce(cipherText1, linearKeySwitchHint);
 	}
 
 	/**
-	* perform RingReduce on a vector of ciphertext
+	* RingReduce - PALISADE RingReduce method
 	* @param ciphertext - vector of ciphertext
-	* @param &keySwitchHint - is the keySwitchHint from original private key to sparse private key
+	* @param keySwitchHint - the keySwitchHint from original private key to sparse private key
+	* @return vector of ring-reduced ciphertexts
 	*/
 
 	std::vector<shared_ptr<Ciphertext<Element>>> RingReduce(
 		std::vector<shared_ptr<Ciphertext<Element>>> ciphertext,
 		const shared_ptr<LPEvalKey<Element>> keySwitchHint)
 	{
-		if( keySwitchHint->GetCryptoContext() != *this )
+		if( !keySwitchHint || keySwitchHint->GetCryptoContext() != *this )
 			throw std::logic_error("Key passed to RingReduce was not generated with this crypto context");
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext(ciphertext.size());
 
 		for (int i = 0; i < ciphertext.size(); i++) {
-			if( ciphertext.at(i)->GetCryptoContext() != *this )
+			if( !ciphertext[i] || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("Ciphertext passed to RingReduce was not generated with this crypto context");
 
-			newCiphertext[i] = GetEncryptionAlgorithm().RingReduce(ciphertext[i], keySwitchHint);
+			newCiphertext[i] = GetEncryptionAlgorithm()->RingReduce(ciphertext[i], keySwitchHint);
 		}
 
 		return newCiphertext;
 	}
 
 	/**
-	* perform ComposedEvalMult
-	* @param ciphertext1 - first cipher text
-	* @param ciphertext2 - second cipher text
-	* @param &quadKeySwitchHint - is the quadratic key switch hint from original private key to the quadratic key
-	* @param ciphertextResult - resulting ciphertext
+	* ComposedEvalMult - PALISADE composed evalmult
+	* @param ciphertext1 - vector for first cipher text
+	* @param ciphertext2 - vector for second cipher text
+	* @param quadKeySwitchHint - is the quadratic key switch hint from original private key to the quadratic key
+	* return vector of resulting ciphertext
 	*/
 	std::vector<shared_ptr<Ciphertext<Element>>> ComposedEvalMult(
 		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext1,
 		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext2,
 		const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint)
 	{
+		if( !quadKeySwitchHint || quadKeySwitchHint->GetCryptoContext() != *this) {
+			throw std::logic_error("Information passed to ComposedEvalMult was not generated with this crypto context");
+		}
 		if (ciphertext1.size() != ciphertext2.size()) {
 			throw std::logic_error("Cannot have ciphertext of different length");
 		}
 
-		if( quadKeySwitchHint->GetCryptoContext() != *this )
-			throw std::logic_error("Key passed to ComposedEvalMult was not generated with this crypto context");
-
 		vector<shared_ptr<Ciphertext<Element>>> ciphertextResult;
 
 		for (int i = 0; i < ciphertext1.size(); i++) {
-			if( ciphertext1.at(i)->GetCryptoContext() != *this || ciphertext2.at(i)->GetCryptoContext() != *this )
+			if( !ciphertext1[i] || !ciphertext2[i] || ciphertext1[i]->GetCryptoContext() != *this || ciphertext2[i]->GetCryptoContext() != *this )
 				throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
 
-			shared_ptr<Ciphertext<Element>> e = GetEncryptionAlgorithm().ComposedEvalMult(ciphertext1.at(i), ciphertext2.at(i), quadKeySwitchHint);
+			shared_ptr<Ciphertext<Element>> e = GetEncryptionAlgorithm()->ComposedEvalMult(ciphertext1[i], ciphertext2[i], quadKeySwitchHint);
 			ciphertextResult.push_back( e );
 		}
 
 		return ciphertextResult;
 	}
 
+	/**
+	 * Deserialize into a Public Key
+	 * @param serObj
+	 * @return deserialized object
+	 */
 	shared_ptr<LPPublicKey<Element>>	deserializePublicKey(const Serialized& serObj);
+
+	/**
+	 * Deserialize into a Private Key
+	 * @param serObj
+	 * @return deserialized object
+	 */
 	shared_ptr<LPPrivateKey<Element>>	deserializeSecretKey(const Serialized& serObj);
+
+	/**
+	 * Deserialize into a Ciphertext
+	 * @param serObj
+	 * @return deserialized object
+	 */
 	shared_ptr<Ciphertext<Element>>		deserializeCiphertext(const Serialized& serObj);
+
+	/**
+	 * Deserialize into an Eval Key
+	 * @param serObj
+	 * @return deserialized object
+	 */
 	shared_ptr<LPEvalKey<Element>>		deserializeEvalKey(const Serialized& serObj);
+
+	/**
+	 * Deserialize into an EvalMult Key
+	 * @param serObj
+	 * @return deserialized object
+	 */
 	shared_ptr<LPEvalKey<Element>>		deserializeEvalMultKey(const Serialized& serObj);
 };
 
+
+/**
+ * @brief CryptoContextFactory
+ *
+ * A class that contains static methods to generate new crypto contexts from user parameters
+ *
+ */
 template <class Element>
 class CryptoContextFactory {
 public:
