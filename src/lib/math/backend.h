@@ -56,10 +56,11 @@
 //#define MATHBACKEND 2 //side by side comparison of old and new libraries
 #define MATHBACKEND 2 //32 bit should work with all OS
 
-//NOTE currently MATHBACKEND 4 fails the followin unit tests
-//UTSHE.keyswitch_ModReduce_DCRT
-//UTSHEAdvanced.test_eval_mult_double_crt
-//UTSHEAdvanced.test_eval_add_double_crt
+//NOTE currently MATHBACKEND 4 has issues with the following unit tests
+//stemming from poor run time performance of 128 bit intrinsic divide
+//UTSHE.keyswitch_ModReduce_DCRT takes incredibly rediculously long (9637 sec)
+//UTSHEAdvanced.test_eval_mult_double_crt takes extremely long (89 sec)
+//UTSHEAdvanced.test_eval_add_double_crt takes extremely long (86 sec)
 
 //#define MATHBACKEND 4 //64 bit (currently works for ubuntu, not tested otherwise
 
