@@ -205,16 +205,6 @@ public:
 		return GetEncryptionAlgorithm().KeySwitchGen(key1, key2);
 	}
 
-	shared_ptr<LPEvalKey<Element>> QuadraticEvalMultKeyGen(
-			const shared_ptr<LPPrivateKey<Element>> k1,
-			const shared_ptr<LPPrivateKey<Element>> k2) const {
-
-		if( k1->GetCryptoContext() != *this || k2->GetCryptoContext() != *this )
-			throw std::logic_error("Keys passed to QuadraticEvalMultKeyGen were not generated with this crypto context");
-
-		return GetEncryptionAlgorithm().QuadraticEvalMultKeyGen(k1, k2);
-	}
-
 	std::vector<shared_ptr<Ciphertext<Element>>> Encrypt(
 			const shared_ptr<LPPublicKey<Element>> publicKey,
 			const Plaintext& plaintext,

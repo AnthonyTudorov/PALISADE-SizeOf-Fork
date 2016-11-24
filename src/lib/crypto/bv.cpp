@@ -139,55 +139,6 @@ namespace lbcrypto {
 
 	}
 
-	//Function to generate 1..log(q) encryptions for each bit of the original private key
-	template <class Element>
-	shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEBV<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const
-	{
-		shared_ptr<LPEvalKeyRelin<Element>> quadraticKeySwitchHint(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
-
-		shared_ptr<LPPrivateKey<Element>> originalPrivateKeySquared(originalPrivateKey);
-
-		Element sSquare(originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement());
-
-		sSquare = sSquare.Negate();
-
-		originalPrivateKeySquared->SetPrivateElement(std::move(sSquare));
-
-		//this->GetScheme().EvalMultKeyGen(originalPrivateKeySquared, newPrivateKey, quadraticKeySwitchHint);
-		return this->GetScheme().KeySwitchGen(originalPrivateKeySquared, originalPrivateKey);
-
-	}
-
-	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(
-		const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2) const
-	{
-
-		if (ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT) {
-			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
-		}
-
-		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
-
-		const std::vector<Element> &c1 = ciphertext1->GetElements();
-
-		const std::vector<Element> &c2 = ciphertext2->GetElements();
-
-		std::vector<Element> cNew;
-
-		cNew.insert(cNew.begin(), std::move(c1[0] * c2[0]));
-
-		cNew.insert(cNew.begin() + 1, std::move(c1[0] * c2[1] + c1[1] * c2[0]));
-
-		cNew.insert(cNew.begin() + 2, std::move(c1[1] * c2[1]));
-
-		newCiphertext->SetElements(std::move(cNew));
-
-		return newCiphertext;
-
-	}
-
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalAdd(
 		const shared_ptr<Ciphertext<Element>> ciphertext1,
@@ -238,6 +189,37 @@ namespace lbcrypto {
 		newCiphertext->SetElements({ c0,c1 });
 		return newCiphertext;
 	}
+
+	template <class Element>
+	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(
+		const shared_ptr<Ciphertext<Element>> ciphertext1,
+		const shared_ptr<Ciphertext<Element>> ciphertext2) const
+	{
+
+		if (ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT) {
+			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
+		}
+
+		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
+
+		const std::vector<Element> &c1 = ciphertext1->GetElements();
+
+		const std::vector<Element> &c2 = ciphertext2->GetElements();
+
+		std::vector<Element> cNew;
+
+		cNew.insert(cNew.begin(), std::move(c1[0] * c2[0]));
+
+		cNew.insert(cNew.begin() + 1, std::move(c1[0] * c2[1] + c1[1] * c2[0]));
+
+		cNew.insert(cNew.begin() + 2, std::move(c1[1] * c2[1]));
+
+		newCiphertext->SetElements(std::move(cNew));
+
+		return newCiphertext;
+
+	}
+
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
@@ -291,6 +273,84 @@ namespace lbcrypto {
 		return newCiphertext;
 
 	}
+	
+	template <class Element>
+	shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEBV<Element>::KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
+
+		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(originalPrivateKey->GetCryptoParameters());
+
+		const shared_ptr<ElemParams> originalKeyParams = cryptoParams->GetElementParams();
+
+		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+
+		shared_ptr<LPEvalKey<Element>> keySwitchHintRelin(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
+
+		if (keySwitchHintRelin == nullptr)
+			throw std::runtime_error("Mismatch in proper Eval Key class type");
+
+		const Element sNew = newPrivateKey->GetPrivateElement();
+
+		const Element s = originalPrivateKey->GetPrivateElement();
+
+		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+
+		const DiscreteUniformGenerator dug(originalKeyParams->GetModulus());
+
+		usint relinWindow = cryptoParams->GetRelinWindow();
+
+		std::vector<Element> evalKeyElements(s.PowersOfBase(relinWindow));
+
+		std::vector<Element> evalKeyElementsGenerated;
+
+		for (usint i = 0; i < (evalKeyElements.size()); i++)
+		{
+			// Generate a_i vectors
+			Element a(dug, originalKeyParams, Format::EVALUATION);
+
+			evalKeyElementsGenerated.push_back(a);
+
+			// Generate a_i * newSK + p * e - PowerOfBase(oldSK)
+			Element e(dgg, originalKeyParams, Format::EVALUATION);
+
+			evalKeyElements.at(i) = (a*sNew + p*e) - evalKeyElements.at(i);
+
+		}
+
+		keySwitchHintRelin->SetAVector(std::move(evalKeyElements));
+
+		keySwitchHintRelin->SetBVector(std::move(evalKeyElementsGenerated));
+
+		return keySwitchHintRelin;
+	}
+
+	template <class Element>
+	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint, const shared_ptr<Ciphertext<Element>> cipherText) const {
+
+		shared_ptr<Ciphertext<Element>> x;
+
+		return x;
+
+	}
+
+	template <class Element>
+	shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEBV<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const
+	{
+		shared_ptr<LPEvalKeyRelin<Element>> quadraticKeySwitchHint(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
+
+		shared_ptr<LPPrivateKey<Element>> originalPrivateKeySquared(originalPrivateKey);
+
+		Element sSquare(originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement());
+
+		sSquare = sSquare.Negate();
+
+		originalPrivateKeySquared->SetPrivateElement(std::move(sSquare));
+
+		//this->GetScheme().EvalMultKeyGen(originalPrivateKeySquared, newPrivateKey, quadraticKeySwitchHint);
+		return this->GetScheme().KeySwitchGen(originalPrivateKeySquared, originalPrivateKey);
+
+	}
+
+	
 
 	template <class Element>
 	shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const shared_ptr<LPKey<Element>> newSK,
@@ -388,82 +448,6 @@ namespace lbcrypto {
 
 		newCiphertext->SetElements({ ct0, ct1 });
 		return newCiphertext;
-	}
-
-	template <class Element>
-	shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmBV<Element>::KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
-		
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(originalPrivateKey->GetCryptoParameters());
-
-		const shared_ptr<ElemParams> originalKeyParams = cryptoParams->GetElementParams();
-
-		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-
-		shared_ptr<LPEvalKey<Element>> keySwitchHintRelin(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
-
-		if (keySwitchHintRelin == nullptr)
-			throw std::runtime_error("Mismatch in proper Eval Key class type");
-
-		const Element sNew = newPrivateKey->GetPrivateElement();
-
-		const Element s = originalPrivateKey->GetPrivateElement();
-
-		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-
-		const DiscreteUniformGenerator dug(originalKeyParams->GetModulus());
-
-		usint relinWindow = cryptoParams->GetRelinWindow();
-
-		std::vector<Element> evalKeyElements(s.PowersOfBase(relinWindow));
-
-		std::vector<Element> evalKeyElementsGenerated;
-
-		for (usint i = 0; i < (evalKeyElements.size()); i++)
-		{
-			// Generate a_i vectors
-			Element a(dug, originalKeyParams, Format::EVALUATION);
-
-			evalKeyElementsGenerated.push_back(a);
-
-			// Generate a_i * newSK + p * e - PowerOfBase(oldSK)
-			Element e(dgg, originalKeyParams, Format::EVALUATION);
-
-			evalKeyElements.at(i) = (a*sNew + p*e) - evalKeyElements.at(i);
-
-		}
-
-		keySwitchHintRelin->SetAVector(std::move(evalKeyElements));
-
-		keySwitchHintRelin->SetBVector(std::move(evalKeyElementsGenerated));
-
-		return keySwitchHintRelin;
-	}
-
-	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmBV<Element>::KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint, const shared_ptr<Ciphertext<Element>> cipherText) const {
-
-		shared_ptr<Ciphertext<Element>> x;
-
-		return x;
-
-	}
-
-	template <class Element>
-	shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmBV<Element>::QuadraticEvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-		const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
-
-		shared_ptr<LPPrivateKey<Element>> originalPrivateKeySquared(originalPrivateKey);
-
-		Element sSquare(originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement());
-
-		sSquare = sSquare.Negate();
-
-		originalPrivateKeySquared->SetPrivateElement(std::move(sSquare));
-
-		//this->GetScheme().EvalMultKeyGen(originalPrivateKeySquared, newPrivateKey, quadraticKeySwitchHint);
-		//return this->GetScheme().KeySwitchGen(originalPrivateKeySquared, newPrivateKey);
-		return this->GetScheme().KeySwitchGen(originalPrivateKey, originalPrivateKeySquared);
-
 	}
 
 	template <class Element>

@@ -151,6 +151,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
+	cc.Enable(SHE);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
@@ -171,7 +172,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
 
 	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
-	keySwitchHint = cc.GetEncryptionAlgorithm().KeySwitchGen(kp.secretKey, kp2.secretKey);
+	keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
 
 	shared_ptr<Ciphertext<ILVector2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
 	newCiphertext[0] = newCt;
@@ -208,7 +209,7 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m,
 			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
 	cc.Enable(ENCRYPTION);
-	cc.Enable(LEVELEDSHE);
+	cc.Enable(SHE);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
@@ -225,7 +226,7 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 	LPKeyPair<ILVector2n> kp2 = cc.KeyGen();
 
 	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
-	keySwitchHint = cc.GetEncryptionAlgorithm().KeySwitchGen(kp.secretKey, kp2.secretKey);
+	keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
 
 	shared_ptr<Ciphertext<ILVector2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
 	newCiphertext[0] = newCt;
@@ -260,6 +261,7 @@ TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
+	cc.Enable(SHE);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
@@ -323,6 +325,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
+	cc.Enable(SHE);
 
 	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 

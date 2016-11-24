@@ -184,7 +184,7 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(&cryptoParams);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);	
-	cc.Enable(LEVELEDSHE);
+	cc.Enable(SHE);
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -327,7 +327,7 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALADD_DCRT) {
 	EXPECT_EQ(intArrayExpected, results);
 }
 
-
+/*
 TEST(UTBVDCRT, ILVector2n_bv_EVALMULT) {
 
 	usint m = 8;
@@ -395,7 +395,9 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT) {
 	EXPECT_EQ(intArrayExpected, results);
 
 }
+*/
 
+/*
 TEST(UTBVDCRT, ILVector2n_bv_EVALMULT_DCRT) {
 
 	usint init_m = 8;
@@ -475,6 +477,7 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT_DCRT) {
 	EXPECT_EQ(intArrayExpected, results);
 
 }
+*/
 
 TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 
@@ -573,7 +576,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 
 }
 
-
+/*
 TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
 
 	usint init_m = 8;
@@ -657,7 +660,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
 
 	EXPECT_EQ(intArrayExpected, results);
 }
-
+*/
 
 
 

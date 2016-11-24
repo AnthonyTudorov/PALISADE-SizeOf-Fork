@@ -96,7 +96,7 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams);
 	cc.Enable(ENCRYPTION);
-	cc.Enable(LEVELEDSHE);
+	cc.Enable(SHE);
 	cc.Enable(PRE);
 
 	//This code is run only when performing execution time measurements

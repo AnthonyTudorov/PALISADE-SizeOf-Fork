@@ -196,19 +196,6 @@ void NTRUPRE(int input) {
 	//fout<< currentDateTime()  << " pk = "<<pk.GetPublicElement().GetValues()<<endl;
 	//fout<< currentDateTime()  << " sk = "<<sk.GetPrivateElement().GetValues()<<endl;
 
-<<<<<<< e0fc1fee2567e792fd6fdb4484da2f9d03fb4c25
-<<<<<<< df712ec36b97a744b8ac73518b365b42cef68db9
-	if (!kp.good()) {
-		std::cout<<"Key generation failed!"<<std::endl;
-=======
-	if (!successKeyGen) {
-		std::cout << "Key generation failed!" << std::endl;
->>>>>>> EvalMult double CRT completed
-		exit(1);
-	}
-
-=======
->>>>>>> rebase completed
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////

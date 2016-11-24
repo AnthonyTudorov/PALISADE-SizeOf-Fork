@@ -104,9 +104,6 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 
-		ILVectorArray2n(const DiscreteUniformGenerator & dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION) {
-			throw std::logic_error("Cannot use DiscreteUniformGenerator with ILVectorArray2n; not implemented");
-		}
 
 		ILVectorArray2n(const BinaryUniformGenerator & dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION) {
 			throw std::logic_error("Cannot use BinaryUniformGenerator with ILVectorArray2n; not implemented");
@@ -329,14 +326,6 @@ namespace lbcrypto {
 		* @return is the result of the addition.
 		*/
 		const ILVectorArray2n& operator-=(const ILVectorArray2n &rhs);
-
-		/**
-		* Performs an entry-wise multiplication over all elements of each tower with the towers of the ILVectorArray2n on the right hand side.
-		*
-		* @param &rhs is the element to multiply by.
-		* @return is the result of the addition.
-		*/
-		const ILVectorArray2n& operator*=(const ILVectorArray2n &rhs);
 
 		/**
 		* Permutes coefficients in a polynomial. Moves the ith index to the first one, it only supports odd indices. 

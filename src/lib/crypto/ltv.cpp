@@ -174,109 +174,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 	return kp;
 }
 
-/**
-* Method for KeySwitching based on a KeySwitchHint
-*
-* This function Calculates a  KeySwitchHint. The hint is used to convert a ciphertext encrypted with
-* private key A to a ciphertext that is decryptable by the public key of B.
-* The algorithm can be found from this paper.
-* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
-* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
-*
-* KeySwitchHint
-*/
-template<class Element>
-shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmLTV<Element>::KeySwitchGen(
-	const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-	const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 
-	shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyNTRU<Element>(originalPrivateKey->GetCryptoContext()));
-
-	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(originalPrivateKey->GetCryptoParameters());
-
-	const Element f1 = originalPrivateKey->GetPrivateElement(); //add const
-	const Element f2 = newPrivateKey->GetPrivateElement(); //add const
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-
-	Element e(cryptoParams->GetDiscreteGaussianGenerator(), cryptoParams->GetElementParams(), Format::COEFFICIENT);
-
-	e.SwitchFormat();
-
-	Element m(p*e);
-
-	m.AddILElementOne();
-
-	Element newKeyInverse = f2.MultiplicativeInverse();
-
-	Element keySwitchHintElement(m * f1 * newKeyInverse);
-
-	/*keySwitchHintElement = m * f1 * newKeyInverse ;*/
-	keySwitchHint->SetA(std::move(keySwitchHintElement));
-	return keySwitchHint;
-}
-
-/*
-* Method for KeySwitching based on a KeySwitchHint
-*
-* This function performs KeySwitch based on a KeySwitchHint.
-* The algorithm can be found from this paper:
-* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
-*
-*KeySwitch takes in a KeySwitchHint and a cipher text. Based on the two, it calculates and returns a new ciphertext.
-* if the KeySwitchHint is constructed for Private Key A converted to Private Key B, then the new ciphertext, originally encrypted with
-* private key A, is now decryptable by public key B (and not A).
-*/
-template<class Element>
-shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::KeySwitch(
-	const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-	const shared_ptr<Ciphertext<Element>> cipherText) const {
-
-	//Get the EvalKeyNTRU to perform key swich, also verfies if proper EvalKey is instantiated.
-	const shared_ptr<LPEvalKeyNTRU<Element>> keyHint = std::dynamic_pointer_cast<LPEvalKeyNTRU<Element>>(keySwitchHint);
-
-	shared_ptr<Ciphertext<Element>> newCipherText(new Ciphertext<Element>(cipherText->GetCryptoContext()));
-
-	Element newCipherTextElement = cipherText->GetElement() * keyHint->GetA();
-
-	newCipherText->SetElement(newCipherTextElement);
-
-	return newCipherText;
-}
-
-
-/*Generates a keyswitchhint from originalPrivateKey^(2) to newPrivateKey */
-template<class Element>
-shared_ptr<LPEvalKey<Element>> LPLeveledSHEAlgorithmLTV<Element>::QuadraticEvalMultKeyGen(
-	const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-	const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
-
-	shared_ptr<LPEvalKeyNTRU<Element>> quadraticKeySwitchHint(new LPEvalKeyNTRU<Element>(originalPrivateKey->GetCryptoContext()));
-
-	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(originalPrivateKey->GetCryptoParameters());
-
-	const Element f1 = originalPrivateKey->GetPrivateElement(); //add const
-
-	const Element f1Squared(f1*f1); //squaring the key
-	const Element f2 = newPrivateKey->GetPrivateElement(); //add const
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-
-	Element e(cryptoParams->GetDiscreteGaussianGenerator(), cryptoParams->GetElementParams(), Format::COEFFICIENT);
-
-	e.SwitchFormat();
-
-	Element m(p*e);
-
-	m = p * e;
-
-	m.AddILElementOne();
-
-	Element newKeyInverse = f2.MultiplicativeInverse();
-
-	Element keySwitchHintElement(m * f1Squared * newKeyInverse);
-
-	quadraticKeySwitchHint->SetA(keySwitchHintElement);
-	return quadraticKeySwitchHint;
-}
 
 /**
 * This function performs ModReduce on ciphertext element and private key element. The algorithm can be found from this paper:
@@ -323,7 +221,7 @@ shared_ptr<Ciphertext<Element>>
 LPLeveledSHEAlgorithmLTV<Element>::RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const {
 
 	//KeySwitching to a cipherText that can be decrypted by a sparse key. 
-	shared_ptr<Ciphertext<Element>> newcipherText = KeySwitch(keySwitchHint, cipherText);
+	shared_ptr<Ciphertext<Element>> newcipherText = this->GetScheme().KeySwitch(keySwitchHint, cipherText);
 
 	//Once the keyswitching of the ciphertext has been done, based on the algorithm in the referenced paper, the ciphertext needs to be decomposed.
 	Element keySwitchedCipherTextElement(newcipherText->GetElement());
@@ -621,6 +519,52 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPRELTV<Element>::ReEncrypt(const shar
 	return newCiphertext;
 }
 
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
+	const shared_ptr<Ciphertext<Element>> ciphertext1,
+	const shared_ptr<Ciphertext<Element>> ciphertext2) const
+{
+	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
+		std::string errMsg = "EvalAdd crypto parameters are not the same";
+		throw std::runtime_error(errMsg);
+	}
+
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
+
+	Element c1(ciphertext1->GetElement());
+
+	Element c2(ciphertext2->GetElement());
+
+	Element cResult = c1 + c2;
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
+	const shared_ptr<Ciphertext<Element>> ciphertext1,
+	const shared_ptr<Ciphertext<Element>> ciphertext2) const
+{
+	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
+		std::string errMsg = "EvalSub crypto parameters are not the same";
+		throw std::runtime_error(errMsg);
+	}
+
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
+
+	Element c1(ciphertext1->GetElement());
+
+	Element c2(ciphertext2->GetElement());
+
+	Element cResult = c1 - c2;
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
 //Function for addition evaluation of homomorphic cryptosystem.
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmAHELTV<Element>::EvalAdd(
@@ -638,6 +582,153 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmAHELTV<Element>::EvalAdd(
 	*newCiphertext = ctOut;
 	*/
 }  // namespace lbcrypto ends
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
+	const shared_ptr<Ciphertext<Element>> ciphertext1,
+	const shared_ptr<Ciphertext<Element>> ciphertext2) const
+{
+
+	if (ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT) {
+		throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
+	}
+
+	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
+		std::string errMsg = "EvalMult crypto parameters are not the same";
+		throw std::runtime_error(errMsg);
+	}
+
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
+
+	Element c1(ciphertext1->GetElement());
+
+	Element c2(ciphertext2->GetElement());
+
+	Element cResult = c1*c2;
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+	const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
+
+	throw std::logic_error("this EvalMult is not implemented");
+
+	//	shared_ptr<Ciphertext<Element>> newCiphertext;
+	//
+	//	//invoke the EvalMult without the EvalKey
+	//	newCiphertext = EvalMult(ciphertext1, ciphertext2);
+	//
+	//	//Key Switching operation.
+	//	return KeySwitch( ek, newCiphertext );
+}
+
+
+/**
+* Method for KeySwitching based on a KeySwitchHint
+*
+* This function Calculates a  KeySwitchHint. The hint is used to convert a ciphertext encrypted with
+* private key A to a ciphertext that is decryptable by the public key of B.
+* The algorithm can be found from this paper.
+* D.Cousins, K. Rohloff, A Scalabale Implementation of Fully Homomorphic Encyrption Built on NTRU, October 2014, Financial Cryptography and Data Security
+* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+*
+* KeySwitchHint
+*/
+template<class Element>
+shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::KeySwitchGen(
+	const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+	const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
+
+	shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyNTRU<Element>(originalPrivateKey->GetCryptoContext()));
+
+	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(originalPrivateKey->GetCryptoParameters());
+
+	const Element f1 = originalPrivateKey->GetPrivateElement(); //add const
+	const Element f2 = newPrivateKey->GetPrivateElement(); //add const
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+
+	Element e(cryptoParams->GetDiscreteGaussianGenerator(), cryptoParams->GetElementParams(), Format::COEFFICIENT);
+
+	e.SwitchFormat();
+
+	Element m(p*e);
+
+	m.AddILElementOne();
+
+	Element newKeyInverse = f2.MultiplicativeInverse();
+
+	Element keySwitchHintElement(m * f1 * newKeyInverse);
+
+	/*keySwitchHintElement = m * f1 * newKeyInverse ;*/
+	keySwitchHint->SetA(std::move(keySwitchHintElement));
+	return keySwitchHint;
+}
+
+/*
+* Method for KeySwitching based on a KeySwitchHint
+*
+* This function performs KeySwitch based on a KeySwitchHint.
+* The algorithm can be found from this paper:
+* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
+*
+*KeySwitch takes in a KeySwitchHint and a cipher text. Based on the two, it calculates and returns a new ciphertext.
+* if the KeySwitchHint is constructed for Private Key A converted to Private Key B, then the new ciphertext, originally encrypted with
+* private key A, is now decryptable by public key B (and not A).
+*/
+template<class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::KeySwitch(
+	const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+	const shared_ptr<Ciphertext<Element>> cipherText) const {
+
+	//Get the EvalKeyNTRU to perform key swich, also verfies if proper EvalKey is instantiated.
+	const shared_ptr<LPEvalKeyNTRU<Element>> keyHint = std::dynamic_pointer_cast<LPEvalKeyNTRU<Element>>(keySwitchHint);
+
+	shared_ptr<Ciphertext<Element>> newCipherText(new Ciphertext<Element>(cipherText->GetCryptoContext()));
+
+	Element newCipherTextElement = cipherText->GetElement() * keyHint->GetA();
+
+	newCipherText->SetElement(newCipherTextElement);
+
+	return newCipherText;
+}
+
+
+//Function to generate 1..log(q) encryptions for each bit of the original private key
+template <class Element>
+shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const
+{
+	shared_ptr<LPEvalKeyNTRU<Element>> quadraticKeySwitchHint(new LPEvalKeyNTRU<Element>(originalPrivateKey->GetCryptoContext()));
+
+	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(originalPrivateKey->GetCryptoParameters());
+
+	const Element f1 = originalPrivateKey->GetPrivateElement(); //add const
+
+	const Element f1Squared(f1*f1); //squaring the key
+	const Element f2 = originalPrivateKey->GetPrivateElement(); //add const
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+
+	Element e(cryptoParams->GetDiscreteGaussianGenerator(), cryptoParams->GetElementParams(), Format::COEFFICIENT);
+
+	e.SwitchFormat();
+
+	Element m(p*e);
+
+	m = p * e;
+
+	m.AddILElementOne();
+
+	Element newKeyInverse = f2.MultiplicativeInverse();
+
+	Element keySwitchHintElement(m * f1Squared * newKeyInverse);
+
+	quadraticKeySwitchHint->SetA(keySwitchHintElement);
+
+	return quadraticKeySwitchHint;
+}
 
    //Function for extracting a value at a certain index using automorphism operation.
 template <class Element>
@@ -734,119 +825,9 @@ bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<L
 	}
 }
 
-template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
-	const shared_ptr<Ciphertext<Element>> ciphertext1,
-	const shared_ptr<Ciphertext<Element>> ciphertext2) const
-{
-
-	if (ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT) {
-		throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
-	}
-
-	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
-		std::string errMsg = "EvalMult crypto parameters are not the same";
-		throw std::runtime_error(errMsg);
-	}
-
-	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
-
-	Element c1(ciphertext1->GetElement());
-
-	Element c2(ciphertext2->GetElement());
-
-	Element cResult = c1*c2;
-
-	newCiphertext->SetElement(cResult);
-
-	return newCiphertext;
-}
-
-template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-	const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
-
-	throw std::logic_error("this EvalMult is not implemented");
-
-	//	shared_ptr<Ciphertext<Element>> newCiphertext;
-	//
-	//	//invoke the EvalMult without the EvalKey
-	//	newCiphertext = EvalMult(ciphertext1, ciphertext2);
-	//
-	//	//Key Switching operation.
-	//	return KeySwitch( ek, newCiphertext );
-}
 
 
-template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
-	const shared_ptr<Ciphertext<Element>> ciphertext1,
-	const shared_ptr<Ciphertext<Element>> ciphertext2) const
-{
-	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
-		std::string errMsg = "EvalAdd crypto parameters are not the same";
-		throw std::runtime_error(errMsg);
-	}
 
-	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
-
-	Element c1(ciphertext1->GetElement());
-
-	Element c2(ciphertext2->GetElement());
-
-	Element cResult = c1 + c2;
-
-	newCiphertext->SetElement(cResult);
-
-	return newCiphertext;
-}
-
-template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
-	const shared_ptr<Ciphertext<Element>> ciphertext1,
-	const shared_ptr<Ciphertext<Element>> ciphertext2) const
-{
-	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
-		std::string errMsg = "EvalSub crypto parameters are not the same";
-		throw std::runtime_error(errMsg);
-	}
-
-	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
-
-	Element c1(ciphertext1->GetElement());
-
-	Element c2(ciphertext2->GetElement());
-
-	Element cResult = c1 - c2;
-
-	newCiphertext->SetElement(cResult);
-
-	return newCiphertext;
-}
-
-//Function to generate 1..log(q) encryptions for each bit of the original private key
-template <class Element>
-shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const
-{
-	shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyRelin<Element>(newPrivateKey->GetCryptoContext()));
-
-	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams =
-		std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(newPrivateKey->GetCryptoParameters());
-
-	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
-
-	Element m(dgg, elementParams, Format::COEFFICIENT);
-	Element modularInverseOfNewPrivateKey = newPrivateKey->GetPrivateElement().MultiplicativeInverse();
-
-	Element a = newPrivateKey->GetPrivateElement() * newPrivateKey->GetPrivateElement() * modularInverseOfNewPrivateKey; // frogot to add modulu
-
-	vector<Element> evalKeyElements;
-	evalKeyElements.push_back(a);
-
-	keySwitchHint->SetAVector(std::move(evalKeyElements));
-	return keySwitchHint;
-}
 
 //Function for re-encypting ciphertext using the array generated by ProxyGen
 template <class Element>

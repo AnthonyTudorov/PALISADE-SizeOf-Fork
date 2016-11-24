@@ -439,13 +439,6 @@ namespace lbcrypto {
 
 	}
 
-	const ILVectorArray2n& ILVectorArray2n::operator*=(const ILVectorArray2n &rhs) {
-		for (usint i = 0; i < this->GetNumOfElements(); i++) {
-			this->m_vectors.at(i) *= rhs.GetElementAtIndex(i);
-		}
-		return *this;
-	}
-
 	bool ILVectorArray2n::operator!=(const ILVectorArray2n &rhs) const {
         return !(*this == rhs); 
     }

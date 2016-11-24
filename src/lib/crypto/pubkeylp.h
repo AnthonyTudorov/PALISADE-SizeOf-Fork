@@ -941,39 +941,6 @@ namespace lbcrypto {
 		public:	
 
 			/**
-			 * Method for KeySwitchGen
-			 *
-			 * @param &originalPrivateKey Original private key used for encryption.
-			 * @param &newPrivateKey New private key to generate the keyswitch hint.
-			 * @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
-			 */
-			virtual shared_ptr<LPEvalKey<Element>> KeySwitchGen(
-					const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-					const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
-			
-			/**
-			 * Method for KeySwitch
-			 *
-			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
-			 * @param &cipherText Original ciphertext to perform switching on.
-			 */
-			virtual shared_ptr<Ciphertext<Element>> KeySwitch(
-					const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-					const shared_ptr<Ciphertext<Element>> cipherText) const = 0;
-
-			/**
-			 * Method for generating a keyswitchhint from originalPrivateKey square to newPrivateKey
-			 *
-			 * @param &originalPrivateKey that is (in method) squared for the keyswitchhint.
-			 * @param &newPrivateKey new private for generating a keyswitchhint to.
-			 * @param *quadraticKeySwitchHint the generated keyswitchhint.
-			 */
-			virtual shared_ptr<LPEvalKey<Element>> QuadraticEvalMultKeyGen(
-				const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-				const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
-
-
-			/**
 			 * Method for Modulus Reduction.
 			 *
 			 * @param &cipherText Ciphertext to perform mod reduce on.
@@ -1086,19 +1053,13 @@ namespace lbcrypto {
 	class LPSHEAlgorithm {
 		public:
 
-			virtual	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
-					const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const = 0;
-
 			/**
-			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext.
-			 *
-			 * @param &ciphertext1 the input ciphertext.
-			 * @param &ciphertext2 the input ciphertext.
-			 * @param *newCiphertext the new ciphertext.
-			 */
-			virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-					const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
-
+			* Virtual function to define the interface for homomorphic addition of ciphertexts.
+			*
+			* @param &ciphertext1 the input ciphertext.
+			* @param &ciphertext2 the input ciphertext.
+			* @param *newCiphertext the new ciphertext.
+			*/
 			virtual shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
 				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
 
@@ -1112,6 +1073,15 @@ namespace lbcrypto {
 			virtual shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
 				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
 
+			/**
+			* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext.
+			*
+			* @param &ciphertext1 the input ciphertext.
+			* @param &ciphertext2 the input ciphertext.
+			* @param *newCiphertext the new ciphertext.
+			*/
+			virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
 
 			/**
 			* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
@@ -1122,7 +1092,39 @@ namespace lbcrypto {
 			* @param *newCiphertext the new resulting ciphertext.
 			*/
 			virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-					const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const = 0;
+				const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const = 0;
+
+			/**
+			* Method for KeySwitchGen
+			*
+			* @param &originalPrivateKey Original private key used for encryption.
+			* @param &newPrivateKey New private key to generate the keyswitch hint.
+			* @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
+			*/
+			virtual shared_ptr<LPEvalKey<Element>> KeySwitchGen(
+				const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+				const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
+
+			/**
+			* Method for KeySwitch
+			*
+			* @param &keySwitchHint Hint required to perform the ciphertext switching.
+			* @param &cipherText Original ciphertext to perform switching on.
+			*/
+			virtual shared_ptr<Ciphertext<Element>> KeySwitch(
+				const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+				const shared_ptr<Ciphertext<Element>> cipherText) const = 0;
+
+			/**
+			* Virtual function to define the interface for generating a evaluation key which is used after each multiplication.
+			*
+			* @param &ciphertext1 first input ciphertext.
+			* @param &ciphertext2 second input ciphertext.
+			* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+			* @param *newCiphertext the new resulting ciphertext.
+			*/
+			virtual	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+					const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const = 0;		
 
 	};
 
@@ -1398,22 +1400,14 @@ namespace lbcrypto {
 		// the three functions below are wrappers for things in LPSHEAlgorithm (SHE)
 		//
 
-		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
-				if(this->m_algorithmSHE)
-					return this->m_algorithmSHE->EvalMultKeyGen(originalPrivateKey);
-				else {
-					throw std::logic_error("EvalMultKeyGen operation has not been enabled");
-				}
-		}
-
 		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Ciphertext<Element>> ciphertext2) const {
+			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 
-					if(this->m_algorithmSHE)
-						return this->m_algorithmSHE->EvalAdd(ciphertext1,ciphertext2);
-					else{
-						throw std::logic_error("EvalAdd operation has not been enabled");
-					}
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalAdd(ciphertext1, ciphertext2);
+			else {
+				throw std::logic_error("EvalAdd operation has not been enabled");
+			}
 		}
 
 		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
@@ -1427,27 +1421,57 @@ namespace lbcrypto {
 		}
 
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Ciphertext<Element>> ciphertext2) const {
-					
-					if(this->m_algorithmSHE)
-						return this->m_algorithmSHE->EvalMult(ciphertext1,ciphertext2);
-					else{
-						throw std::logic_error("EvalMult operation has not been enabled");
-					}
-		}
-
-		void EvalMult(const Ciphertext<Element> &ciphertext1,
-			const Ciphertext<Element> &ciphertext2, const LPEvalKey<Element> &ek,
-			Ciphertext<Element> *newCiphertext) const {
+			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 
 			if (this->m_algorithmSHE)
-				this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2, ek ,newCiphertext);
+				return this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2);
 			else {
 				throw std::logic_error("EvalMult operation has not been enabled");
 			}
 		}
 
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2,
+			const shared_ptr<LPEvalKey<Element>> evalKey) const {
 
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2, evalKey);
+			else {
+				throw std::logic_error("EvalMult operation has not been enabled");
+			}
+		}
+
+		shared_ptr<LPEvalKey<Element>> KeySwitchGen(
+			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
+			if (this->m_algorithmSHE)
+				return  this->m_algorithmSHE->KeySwitchGen(originalPrivateKey, newPrivateKey);
+			else {
+				throw std::logic_error("KeySwitchGen operation has not been enabled");
+			}
+		}
+
+		shared_ptr<Ciphertext<Element>> KeySwitch(
+			const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+			const shared_ptr<Ciphertext<Element>> cipherText) const {
+
+			if (this->m_algorithmSHE) {
+				return this->m_algorithmSHE->KeySwitch(keySwitchHint, cipherText);
+			}
+			else {
+				throw std::logic_error("KeySwitch operation has not been enabled");
+			}
+		}
+
+		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
+				if(this->m_algorithmSHE)
+					return this->m_algorithmSHE->EvalMultKeyGen(originalPrivateKey);
+				else {
+					throw std::logic_error("EvalMultKeyGen operation has not been enabled");
+				}
+		}
+
+		
 		/////////////////////////////////////////
 		// the functions below are wrappers for things in LPFHEAlgorithm (FHE)
 		//
@@ -1465,58 +1489,6 @@ namespace lbcrypto {
 				}
 		}
 
-		shared_ptr<LPEvalKey<Element>> KeySwitchGen(
-							const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-							const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
-			if (this->m_algorithmLeveledSHE)
-				return  this->m_algorithmLeveledSHE->KeySwitchGen(originalPrivateKey, newPrivateKey);
-				else {
-					throw std::logic_error("KeySwitchGen operation has not been enabled");
-				}
-		}
-
-		//wrapper for EvalMult method
-		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> evalKey) const {
-					
-					if(this->IsEnabled(SHE))
-						return this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2, evalKey);
-					else {
-						throw std::logic_error("This operation is not supported");
-					}
-		}
-
-		void EvalMultKeyGen(const LPPrivateKey<Element> &originalPrivateKey, 
-				const LPPrivateKey<Element> &newPrivateKey, LPEvalKey<Element> *keySwitchHint) const {
-					if(this->m_algorithmLeveledSHE)
-						this->m_algorithmLeveledSHE->EvalMultKeyGen(originalPrivateKey, newPrivateKey,keySwitchHint);
-					else{
-						throw std::logic_error("This operation is not supported");
-					}
-		}
-
-		shared_ptr<Ciphertext<Element>> KeySwitch(
-				const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-				const shared_ptr<Ciphertext<Element>> cipherText) const {
-			
-			if(this->m_algorithmLeveledSHE){
-				return this->m_algorithmLeveledSHE->KeySwitch(keySwitchHint,cipherText);
-			}
-			else{
-				throw std::logic_error("KeySwitch operation has not been enabled");
-			}
-		}
-
-		shared_ptr<LPEvalKey<Element>> QuadraticEvalMultKeyGen(
-			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
-			if (this->m_algorithmLeveledSHE) {
-				return this->m_algorithmLeveledSHE->QuadraticEvalMultKeyGen(originalPrivateKey, newPrivateKey);
-			}
-			else {
-				throw std::logic_error("QuadraticEvalMultKeyGen operation has not been enabled");
-			}
-		}
 
 		shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
 			if(this->m_algorithmLeveledSHE){

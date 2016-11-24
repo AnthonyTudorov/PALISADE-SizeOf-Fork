@@ -338,22 +338,6 @@ namespace lbcrypto {
 		LPAlgorithmSHEFV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 
 		/**
-		* Function to generate 1..log(q) encryptions for each bit of the original private key
-		*
-		* @param &newPrivateKey encryption key for the new ciphertext.
-		* @param &origPrivateKey original private key used for decryption.
-		* @param &ddg discrete Gaussian generator.
-		* @param *evalKey the evaluation key.
-		*/
-		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
-					const shared_ptr<LPPrivateKey<Element>> k1) const;
-		
-		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2) const {
-					std::string errMsg = "LPAlgorithmSHEFV::EvalMult without RelinKey is not applicable for FV SHE Scheme.";
-					throw std::runtime_error(errMsg);
-		}
-
-		/**
 		* Function for homomorphic addition of ciphertexts.
 		*
 		* @param &ciphertext1 the input ciphertext.
@@ -371,6 +355,11 @@ namespace lbcrypto {
 		*/
 		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct) const;
 
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2) const {
+			std::string errMsg = "LPAlgorithmSHEFV::EvalMult without RelinKey is not applicable for FV SHE Scheme.";
+			throw std::runtime_error(errMsg);
+		}
+
 		/**
 		* Function for evaluating multiplication on ciphertext followed by key switching operation.
 		*
@@ -380,7 +369,47 @@ namespace lbcrypto {
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1,
-				const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
+			const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
+
+		/**
+		* Method for generating a KeySwitchHint
+		*
+		* @param &originalPrivateKey Original private key used for encryption.
+		* @param &newPrivateKey New private key to generate the keyswitch hint.
+		* @param *keySwitchHint is where the resulting keySwitchHint will be placed.
+		*/
+		shared_ptr<LPEvalKey<Element>> KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
+			std::string errMsg = "LPAlgorithmSHEFV::KeySwitchGen  is not applicable for FV SHE Scheme.";
+			throw std::runtime_error(errMsg);
+		}
+
+		/**
+		* Method for KeySwitching based on a KeySwitchHint
+		*
+		* @param &keySwitchHint Hint required to perform the ciphertext switching.
+		* @param &cipherText Original ciphertext to perform switching on.
+		*/
+		shared_ptr<Ciphertext<Element>> KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint, const shared_ptr<Ciphertext<Element>> cipherText) const {
+			std::string errMsg = "LPAlgorithmSHEFV::KeySwitch  is not applicable for FV SHE Scheme.";
+			throw std::runtime_error(errMsg);
+		}
+
+		/**
+		* Function to generate 1..log(q) encryptions for each bit of the original private key
+		*
+		* @param &newPrivateKey encryption key for the new ciphertext.
+		* @param &origPrivateKey original private key used for decryption.
+		* @param &ddg discrete Gaussian generator.
+		* @param *evalKey the evaluation key.
+		*/
+		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+					const shared_ptr<LPPrivateKey<Element>> k1) const;
+		
+		
+
+		
+
+	
 	};
 
 	/**
