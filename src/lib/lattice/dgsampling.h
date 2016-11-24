@@ -125,7 +125,7 @@ public:
 	};
 
 	static inline void ZSampleSigmaP(size_t n, BigBinaryInteger q, double s, double sigma, 
-		const Matrix<ILVector2n> &Tprime, Matrix<Field2n> *perturbationVector,const DiscreteGaussianGenerator& dgg);
+		const Matrix<ILVector2n> &Tprime, Matrix<int32_t> *perturbationVector,const DiscreteGaussianGenerator& dgg);
 
 
 private:
@@ -140,7 +140,9 @@ private:
 	static inline void SampleC(const Matrix<double> &c, size_t k, size_t n, 
 		double sigma, DiscreteGaussianGenerator &dgg, Matrix<double> *a, vector<int32_t> *z);
 	
-	static inline void ZSampleSigma2x2(const std::vector<double> & a, const std::vector<double> & b, const std::vector<double> & d, const std::vector<double> & c, Matrix<int32_t>* p1, DiscreteGaussianGenerator & dgg);
+	static inline void ZSampleSigma2x2(const std::vector<double> & a, const std::vector<double> & b, 
+		const std::vector<double> & d, const Matrix<Field2n> &c, Matrix<int32_t>* p, const DiscreteGaussianGenerator & dgg);
+
 	static inline std::vector<double> ZSampleF(std::vector<double> f, double c, DiscreteGaussianGenerator & dgg, double w, double m,double n);
 };
 

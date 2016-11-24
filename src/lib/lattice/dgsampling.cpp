@@ -267,8 +267,10 @@ namespace lbcrypto {
 	}
 	
 	void LatticeGaussSampUtility::ZSampleSigmaP(size_t n, BigBinaryInteger q, double s, double sigma, 
-		const Matrix<ILVector2n> &Tprime, Matrix<Field2n> *perturbationVector, const DiscreteGaussianGenerator & dgg) {
+		const Matrix<ILVector2n> &Tprime, Matrix<int32_t> *perturbationVector, const DiscreteGaussianGenerator & dgg) {
 		
+		/*
+
 		Matrix<ILVector2n> Tprime0 = Tprime.ExtractRow(0);
 		Matrix<ILVector2n> Tprime1 = Tprime.ExtractRow(1);
 		Matrix<ILVector2n> TprimeTransposed0 = Tprime0.Transpose();
@@ -285,46 +287,56 @@ namespace lbcrypto {
 		vd.SwitchFormat();
 
 		//Create field elements from ring elements
-		//Field2n a(va), b(vb), d(vd);
+		Field2n a(va), b(vb), d(vd);
 
-		//a = a.ScalarMult(s * s * (1 - sigma * sigma / (s * s - sigma * sigma)));
-		//b = b.ScalarMult(-s *s * sigma * sigma / (s* s - sigma * sigma));
-		//d = d.ScalarMult(s * s * (1 - sigma * sigma / (s * s - sigma * sigma)));
+		a = a.ScalarMult(s * s * (1 - sigma * sigma / (s * s - sigma * sigma)));
+		b = b.ScalarMult(-s *s * sigma * sigma / (s* s - sigma * sigma));
+		d = d.ScalarMult(s * s * (1 - sigma * sigma / (s * s - sigma * sigma)));
 
-		//size_t k = Tprime.GetRows();
-		//Matrix<int32_t> p2ZVector([]() { return make_unique<int32_t>(); }, 1, n*k);
+		size_t k = Tprime.GetRows();
+		Matrix<int32_t> p2ZVector([]() { return make_unique<int32_t>(); }, n*k, 1);
 
-		////this loop can be replaced with Peikert's and Yao's inversion methods - more efficient
-		//for (size_t i = 0; i < n * k; i++) {
-		//	p2ZVector(i, 0) = dgg.GenerateInteger(0, sqrt(s * s - sigma * sigma), n);
-		//}
+		//this loop can be replaced with Peikert's and Yao's inversion methods - more efficient
+		for (size_t i = 0; i < n * k; i++) {
+			p2ZVector(i, 0) = dgg.GenerateInteger(0, sqrt(s * s - sigma * sigma), n);
+		}
 
-		//so far everything should be good
+		//create k ring elements in coefficient representation
+		Matrix<ILVector2n> p2 = SplitInt32AltIntoILVector2nElements(p2ZVector, n,va.GetParams());
 
-		////create k ring elements in coefficient representation
-		//Matrix<ILVector2n> p2 = SplitInt32AltIntoILVector2nElements(p2ZVector, n,va.GetParams());
+		//now converting to evaluation representation before multiplication
+		p2.SwitchFormat();
 
-		////now converting to evaluation representation before multiplication
-		//p2.SwitchFormat();
+		//the dimension is 2x1 - a vector of 2 ring elements
+		Matrix<ILVector2n> Tp2 = Tprime * p2;
 
-		////the dimension is 2x1 - a vector of 2 ring elements
-		//Matrix<ILVector2n> Tp2 = Tprime * p2;
+		//change to coefficient representation before converting to field elements
+		Tp2(0, 0).SwitchFormat();
+		Tp2(1, 0).SwitchFormat();
 
-		//Matrix<Field2n> c([]() { return make_unique<Field2n>(); }, 2, 1);
+		Matrix<Field2n> c([]() { return make_unique<Field2n>(); }, 2, 1);
 
-		//c(0, 0) = Field2n(Tp2(0, 0));
-		//c(1, 0) = Field2n(Tp2(1, 0));
+		c(0, 0) = Field2n(Tp2(0, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
+		c(1, 0) = Field2n(Tp2(1, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));;
 
-		
+		Matrix<int32_t> p1ZVector([]() { return make_unique<int32_t>(); }, n*2, 1);
 
-		//  /*
-		//	c =  - sigma / (s * s - sigma * sigma) * Tprime * p2;
-		//  ZSampleSigma2x2(a,b,d,c, p1,dgg);
-		//  return p1.insert(p1.end(),p2.begin(),p2.end());
-		//  */
+		ZSampleSigma2x2(a, b, d, c, &p1ZVector, dgg);
+
+		for (size_t i = 0; i < 2*n; i++) {
+			(*perturbationVector)(i, 0) = p1ZVector(i,0);
+		}
+
+		for (size_t i = 0; i < k * n; i++) {
+			(*perturbationVector)(i+2*n, 0) = p2ZVector(i, 0);
+		}
+
+		*/
 
 	}
-	void LatticeGaussSampUtility::ZSampleSigma2x2(const std::vector<double> & a, const std::vector<double> & b, const std::vector<double> & d, const std::vector<double> & c, Matrix<int32_t>* p1,DiscreteGaussianGenerator & dgg) {
+
+	void LatticeGaussSampUtility::ZSampleSigma2x2(const std::vector<double> & a, const std::vector<double> & b, 
+		const std::vector<double> & d, const Matrix<Field2n> &c, Matrix<int32_t>* p,const DiscreteGaussianGenerator & dgg) {
 		/*
 			q2  = ZSampleF(d,c2);
 			c1 = AddPol(c1,MultiplyPol(MultiplyPol(b,d inverse),SubstractPol(q2,c2)));
