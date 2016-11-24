@@ -266,12 +266,28 @@ class DiscreteFourierTransform
 {
 public:
 	/**
+	* Virtual FFT forward transform.
+	*
+	* @param A is the element to perform the transform on.
+	* @return is the output result of the transform.
+	*/
+	std::vector<std::complex<double>> FFTForwardTransform(std::vector<std::complex<double>>& A);
+
+	/**
+	* Virtual FFT inverse transform.
+	*
+	* @param A is the element to perform the inverse transform on.
+	* @return is the output result of the inverse transform.
+	*/
+	std::vector<std::complex<double>> FFTInverseTransform(std::vector<std::complex<double>>& A);
+	
+	/**
 	* Virtual forward transform.
 	*
 	* @param A is the element to perform the transform on.
 	* @return is the output result of the transform.
 	*/
-	std::vector<std::complex<double>> ForwardTransform(std::vector<std::complex<double>>& A);
+	std::vector<std::complex<double>> ForwardTransform(std::vector<std::complex<double>> A);
 
 	/**
 	* Virtual inverse transform.
@@ -279,7 +295,7 @@ public:
 	* @param A is the element to perform the inverse transform on.
 	* @return is the output result of the inverse transform.
 	*/
-	std::vector<std::complex<double>> InverseTransform(std::vector<std::complex<double>>& A);
+	std::vector<std::complex<double>> InverseTransform(std::vector<std::complex<double>> A);
 private:
 };
 

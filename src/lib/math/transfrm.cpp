@@ -526,7 +526,7 @@ namespace lbcrypto {
 	}
 
 
-	std::vector<std::complex<double>> DiscreteFourierTransform::ForwardTransform(std::vector<std::complex<double>> & A) {
+	std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransform(std::vector<std::complex<double>> & A) {
 		if (A.size()==1) {
 			return A;
 		}
@@ -542,15 +542,9 @@ namespace lbcrypto {
 					A_odd[(i-1)/2] = A[i];
 				}
 			}
-			std::vector<std::complex<double>> P_even = DiscreteFourierTransform::ForwardTransform(A_even);
-			std::vector<std::complex<double>> P_odd = DiscreteFourierTransform::ForwardTransform(A_odd);
+			std::vector<std::complex<double>> P_even = DiscreteFourierTransform::FFTForwardTransform(A_even);
+			std::vector<std::complex<double>> P_odd = DiscreteFourierTransform::FFTForwardTransform(A_odd);
 			std::vector<std::complex<double>> P(m,0);
-			for (size_t k = 0; k < m / 2; ++k)
-			{
-				
-
-			}
-
 
 			for (int j = 0;j<m / 2;j++) {
 				std::complex<double> x = std::polar(1.0, -2 * M_PI * j / m) * P_odd[j];
@@ -561,18 +555,42 @@ namespace lbcrypto {
 		}
 	}
 
-	std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std::vector<std::complex<double>> & A) {
+	std::vector<std::complex<double>> DiscreteFourierTransform::FFTInverseTransform(std::vector<std::complex<double>> & A) {
 		
-		std::vector<std::complex<double>> result = DiscreteFourierTransform::ForwardTransform(A);
-		double m = result.size();
-		for(int i=0;i < m;i++) {
-				result[i] =std::complex<double>(result[i].real()/m, result[i].imag()/m);
-		}
-		for (int i = 1;i < m/2;i++) {
-			std::complex<double>temp = result[i];
-			result[i] = result[m - i];
-			result[m - i] = temp;
+		std::vector<std::complex<double>> result = DiscreteFourierTransform::FFTForwardTransform(A);
+		double n = result.size()/2;
+		for(int i=0;i < n;i++) {
+				result[i] =std::complex<double>(result[i].real()/n, result[i].imag()/n);
 		}
 			return result;
 	}
+	std::vector<std::complex<double>> DiscreteFourierTransform::ForwardTransform(std::vector<std::complex<double>> A) {
+		int n = A.size();
+		for (int i = 0;i < n;i++) {
+			A.push_back(0);
+		}
+		std::vector<std::complex<double>> dft = FFTForwardTransform(A);
+		std::vector<std::complex<double>> dftRemainder;
+		for (int i = dft.size() - 1;i > 0;i--) {
+			if (i % 2 != 0) {
+				dftRemainder.push_back(dft.at(i));
+			}
+		}
+		return dftRemainder;
+	}
+	std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std::vector<std::complex<double>> A) {
+		int n = A.size();
+		std::vector<std::complex<double>> dft;
+		for (int i = 0;i < n;i++) {
+			dft.push_back(0);
+			dft.push_back(A.at(i));
+		}
+		std::vector<std::complex<double>> invDft = FFTInverseTransform(dft);
+		std::vector<std::complex<double>> invDftRemainder;
+		for (int i = 0;i<invDft.size()/2;i++) {
+				invDftRemainder.push_back(invDft.at(i));
+		}
+		return invDftRemainder;
+	}
+
 }//namespace ends here
