@@ -68,7 +68,7 @@ namespace lbcrypto {
 		/**
 		 * Default constructor
 		 */
-		//Ciphertext() : m_norm(BigBinaryInteger::ZERO) {}
+		Ciphertext() : m_norm(BigBinaryInteger::ZERO) {}
 
 		Ciphertext(CryptoContext<Element> cc) : cryptoContext(cc), m_norm(BigBinaryInteger::ZERO) {}
 
