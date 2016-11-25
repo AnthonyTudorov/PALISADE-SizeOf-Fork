@@ -225,7 +225,7 @@ CryptoContext<T> CryptoContextFactory<T>::genCryptoContextBV(LPCryptoParametersB
 
 	item.ctx->scheme.reset(new LPPublicKeyEncryptionSchemeBV<T>());
 
-	return item;
+	return CryptoContext<T>(params, scheme);
 }
 
 // FIXME: this is temporary until we better incorporate DCRT
