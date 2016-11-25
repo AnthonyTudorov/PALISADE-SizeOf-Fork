@@ -217,15 +217,11 @@ CryptoContextFactory<T>::genCryptoContextBV(
 template <typename T>
 CryptoContext<T> CryptoContextFactory<T>::genCryptoContextBV(LPCryptoParametersBV<T>* cryptoParams) {
 
-	CryptoContext<T>	item(new CryptoContextImpl<T>());
+	shared_ptr<LPCryptoParametersBV<T>> mycryptoParams( new LPCryptoParametersBV<T>(*cryptoParams) ); // copy so memory works right
 
-	LPCryptoParametersBV<T>* mycryptoParams = new LPCryptoParametersBV<T>(*cryptoParams); // copy so memory works right
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBV<T>() );
 
-	item.ctx->params.reset(mycryptoParams);
-
-	item.ctx->scheme.reset(new LPPublicKeyEncryptionSchemeBV<T>());
-
-	return CryptoContext<T>(params, scheme);
+	return CryptoContext<T>(mycryptoParams, scheme);
 }
 
 // FIXME: this is temporary until we better incorporate DCRT

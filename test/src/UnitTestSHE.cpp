@@ -402,7 +402,7 @@ TEST(UTSHE, ringreduce_single_crt) {
 	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
 
 	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
-	keySwitchHint = cc.GetEncryptionAlgorithm().KeySwitchGen(kp.secretKey, kp2.secretKey);
+	keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
 
 	shared_ptr<Ciphertext<ILVector2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
 	newCiphertext[0] = newCt;
