@@ -142,7 +142,7 @@ private:
 		const Field2n & d, const Matrix<Field2n> &c, Matrix<int32_t>* p, const DiscreteGaussianGenerator & dgg);
 
 	static inline Matrix<int32_t> ZSampleF(const Field2n &f, const Field2n &c,
-		const DiscreteGaussianGenerator &dgg);
+		const DiscreteGaussianGenerator &dgg, size_t n);
 
 };
 

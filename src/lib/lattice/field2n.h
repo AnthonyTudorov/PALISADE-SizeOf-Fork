@@ -109,7 +109,7 @@ namespace lbcrypto {
 				throw std::logic_error("Polynomial not in coefficient representation");
 			}
 		}
-		Field2n ExtractOdd() {
+		Field2n ExtractOdd() const {
 			if (this->format == COEFFICIENT) {
 				Field2n odds(this->size()/2,COEFFICIENT,true);
 				for (int i = 0;i < odds.size();i++) {
@@ -121,7 +121,7 @@ namespace lbcrypto {
 				throw std::logic_error("Polynomial not in coefficient representation");
 			}
 		}
-		Field2n ExtractEven() {
+		Field2n ExtractEven() const {
 			if (this->format == COEFFICIENT) {
 				Field2n evens(this->size() / 2, COEFFICIENT, true);
 				for (int i = 0;i < evens.size();i++) {
@@ -133,7 +133,7 @@ namespace lbcrypto {
 				throw std::logic_error("Polynomial not in coefficient representation");
 			}
 		}
-		Field2n Permute() {
+		Field2n Permute() const{
 			if (this->format == COEFFICIENT) {
 				Field2n permuted(this->size(), COEFFICIENT, true);
 				int evenPtr = 0;
@@ -200,6 +200,11 @@ namespace lbcrypto {
 				}
 			}
 		}
+		size_t Size() const{
+			return this->size();
+		}
+		inline std::complex<double>& operator[](std::size_t idx) { return (this->at(idx)); }
+		inline const std::complex<double>& operator[](std::size_t idx) const { return (this->at(idx)); }
 	private:
 		Format format;
 	};

@@ -339,7 +339,14 @@ namespace lbcrypto {
 	void LatticeGaussSampUtility::ZSampleSigma2x2(const Field2n &a, const Field2n &b,
 		const Field2n &d, const Matrix<Field2n> &c, Matrix<int32_t>* q,const DiscreteGaussianGenerator & dgg) {
 
-			Matrix<int32_t> q2Int  = ZSampleF(d,c(1,0),dgg);
+			//size of the the lattice
+		    size_t n = a.Size();
+
+			Field2n dCoeff = d;
+			//Converts to coefficient representation
+			dCoeff.SwitchFormat();
+
+			Matrix<int32_t> q2Int  = ZSampleF(dCoeff,c(1,0),dgg,n);
 			Field2n q2(q2Int);
 			
 			Field2n q2Minusc2 = q2 - c(1, 0);
@@ -350,10 +357,14 @@ namespace lbcrypto {
 			//Convert the product to coefficient representation
 			product.SwitchFormat();
 			
-			//Computes c1 in DFT format
+			//Computes c1 in coefficient format
 			Field2n c1 = c(0, 0) + product;
 
-			Matrix<int32_t> q1Int = ZSampleF(a - b*d.Inverse()*b.Transpose(), c1, dgg);
+			Field2n f = a - b*d.Inverse()*b.Transpose();
+			//Convert to coefficient representation
+			f.SwitchFormat();
+
+			Matrix<int32_t> q1Int = ZSampleF(f, c1, dgg,n);
 
 			for (size_t i = 0; i < q1Int.GetRows(); i++) {
 				(*q)(i, 0) = q1Int(i,0);
@@ -365,12 +376,76 @@ namespace lbcrypto {
 
 	}
 
-	//f is in DFT representation
+	//f is in Coefficient representation
 	//c is in Coefficient representation
 	Matrix<int32_t> LatticeGaussSampUtility::ZSampleF(const Field2n &f, const Field2n &c,
-		const DiscreteGaussianGenerator &dgg) {
+		const DiscreteGaussianGenerator &dgg, size_t n) {
+
+		if (f.Size() == 1)
+		{
+			Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, 1, 1);
+			p(0, 0) = dgg.GenerateInteger(c[0].real(), sqrt(f[0].real()), n);
+			return p;
+		}
+		else {
+
+			// in the main algorithm it has inverse
+			// but in the main text it is listed as transpose
+			// we assume that transpose is correct
+			Field2n cNew(c.Permute().Transpose());
+
+			Field2n fe = f.ExtractEven();
+			Field2n fo = f.ExtractOdd();
+
+			// Stores fe in coefficient representation to be used later
+			Field2n feCoeff = fe;
+
+			Field2n c1(cNew.Size() / 2, COEFFICIENT);
+			Field2n c2(cNew.Size() / 2, COEFFICIENT);
+
+			// c1 corresponds to even coefficients in cNew
+			for (size_t i = 0; i < c1.Size(); i++) {
+				c1[i] = cNew[i];
+			}
+
+			// c2 corresponds to odd coefficients in cNew
+			for (size_t i = 0; i < c2.Size(); i++) {
+				c2[i] = cNew[i+c2.Size()];
+			}
+
+			Matrix<int32_t> r2Int = ZSampleF(fe, c2, dgg, n);
+			Field2n r2(r2Int);
+
+			Field2n r2Minusc2 = r2 - c2;
+			//Convert to DFT represenation prior to multiplication
+			r2Minusc2.SwitchFormat();
+
+			//Convert fo and fe to DFT Format
+			fe.SwitchFormat();
+			fo.SwitchFormat();
+
+			Field2n product = fo * fe.Inverse() * r2Minusc2;
+			//Convert the product to coefficient representation
+			product.SwitchFormat();
+
+			//Convert c1 in coefficient representation
+			c1 = c1 + product;
+
+			Field2n product2 = fo * fo * fe.Inverse();
+			//Convert the product to coefficient representation
+			product2.SwitchFormat();
+
+			Matrix<int32_t> r1Int = ZSampleF(feCoeff - product2.ShiftRight(), c1, dgg, n);
+
+			Matrix<int32_t> rInt([]() { return make_unique<int32_t>(); }, 2*r1Int.GetRows(), 1);
+
+			//Doruk, please add the code that treats (r1, r2) as one vector of size 2*r1Int.GetRows()	
+			//and permutes it using the same logic as Field2n.Transpose()
+
+			return rInt;
+			
+		}
 
 	}
-
 	
 }
