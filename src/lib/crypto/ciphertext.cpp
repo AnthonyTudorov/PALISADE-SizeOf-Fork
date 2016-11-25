@@ -114,7 +114,7 @@ template <class Element>
 bool Ciphertext<Element>::Deserialize(const Serialized& serObj)
 {
 	// deserialization must be done in a crypto context; this object must be initialized before deserializing the elements
-	if( !this->cryptoContext.ctx )
+	if( !this->cryptoContext )
 		return false;
 
 	Serialized::ConstMemberIterator mIter = serObj.FindMember("Object");

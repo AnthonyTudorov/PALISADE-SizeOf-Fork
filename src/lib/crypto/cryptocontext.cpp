@@ -39,34 +39,14 @@
 
 namespace lbcrypto {
 
-/**
- * Serialize the context (it's really just the params...)
- *
- * @param serObj
- * @param fileFlag
- * @return
- */
-template <typename T>
-bool
-CryptoContextImpl<T>::Serialize(Serialized* serObj) const
-{
-	return params->Serialize(serObj);
-}
-
-/**
- * Deserialize the context AND initialize the algorithm
- *
- * @param serObj
- * @return
- */
 template <typename T>
 bool
 CryptoContext<T>::Deserialize(const Serialized& serObj)
 {
 	CryptoContext<T> newctx = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
 
-	if( newctx.ctx ) {
-		this->ctx = newctx.ctx;
+	if( newctx ) {
+		*this = newctx;
 		return true;
 	}
 
@@ -124,6 +104,8 @@ CryptoContext<T>::Deserialize(const Serialized& serObj)
 //	return true;
 //}
 
+// factory methods for the different schemes
+
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextLTV(
@@ -131,23 +113,20 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev, int depth)
 {
-	CryptoContext<T>	item( new CryptoContextImpl<T>() );
-
 	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
-	LPCryptoParametersLTV<T>* params = new LPCryptoParametersLTV<T>(
+	shared_ptr<LPCryptoParametersLTV<T>> params( new LPCryptoParametersLTV<T>(
 			ep,
 			BigBinaryInteger(plaintextmodulus),
 			stDev, // distribution parameter
 			0.0, // assuranceMeasure,
 			0.0, // securityLevel,
 			relinWindow,
-			depth);
+			depth) );
 
-	item.ctx->params.reset( params );
-	item.ctx->scheme.reset(new LPPublicKeyEncryptionSchemeLTV<T>());
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
 
-	return item;
+	return CryptoContext<T>(params, scheme);
 }
 
 template <typename T>
@@ -158,11 +137,9 @@ CryptoContextFactory<T>::genCryptoContextFV(
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel)
 {
-	CryptoContext<T>	item( new CryptoContextImpl<T>() );
-
 	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
-	LPCryptoParametersFV<T>* params =
+	shared_ptr<LPCryptoParametersFV<T>> params(
 			new LPCryptoParametersFV<T>(ep,
 					BigBinaryInteger(plaintextmodulus),
 					stDev,
@@ -173,12 +150,11 @@ CryptoContextFactory<T>::genCryptoContextFV(
 					mode,
 					BigBinaryInteger(bigmodulus),
 					BigBinaryInteger(bigrootofunity),
-					depth);
+					depth) );
 
-	item.ctx->params.reset( params );
-	item.ctx->scheme.reset( new LPPublicKeyEncryptionSchemeFV<T>() );
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeFV<T>() );
 
-	return item;
+	return CryptoContext<T>(params, scheme);
 }
 
 template <typename T>
@@ -196,11 +172,9 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	if( nonZeroCount > 1 )
 		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in FV context constructor");
 
-	CryptoContext<T>	item( new CryptoContextImpl<T>() );
-
 	shared_ptr<ElemParams> ep( new ILParams(0, BigBinaryInteger::ZERO, BigBinaryInteger::ZERO) );
 
-	LPCryptoParametersFV<T>* params = new LPCryptoParametersFV<T>();
+	shared_ptr<LPCryptoParametersFV<T>> params( new LPCryptoParametersFV<T>() );
 
 	params->SetElementParams(ep);
 	params->SetPlaintextModulus(plaintextModulus);
@@ -210,12 +184,11 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	params->SetMode(OPTIMIZED);
 	params->SetAssuranceMeasure(9.0);
 
-	item.ctx->params.reset( params );
-	item.ctx->scheme.reset( new LPPublicKeyEncryptionSchemeFV<T>() );
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeFV<T>() );
 
-	item.ctx->scheme->ParamsGen(item.GetCryptoParameters(), numAdds, numMults, numKeyswitches);
+	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches);
 
-	return item;
+	return CryptoContext<T>(params, scheme);
 }
 
 
@@ -226,37 +199,29 @@ CryptoContextFactory<T>::genCryptoContextBV(
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev)
 {
-	CryptoContext<T>	item( new CryptoContextImpl<T>() );
-
 	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
-	LPCryptoParametersBV<T>* params = new LPCryptoParametersBV<T>(
+	shared_ptr<LPCryptoParametersBV<T>> params( new LPCryptoParametersBV<T>(
 		ep,
 		BigBinaryInteger(plaintextmodulus),
 		stDev,
 		0.0, // assuranceMeasure,
 		0.0, // securityLevel,
-		relinWindow
-		);
+		relinWindow) );
 
-	item.ctx->params.reset( params );
-	item.ctx->scheme.reset( new LPPublicKeyEncryptionSchemeBV<T>() );
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBV<T>() );
 
-	return item;
+	return CryptoContext<T>(params, scheme);
 }
 
 template <typename T>
 CryptoContext<T> CryptoContextFactory<T>::genCryptoContextBV(LPCryptoParametersBV<T>* cryptoParams) {
 
-	CryptoContext<T>	item(new CryptoContextImpl<T>());
+	shared_ptr<LPCryptoParametersBV<T>> mycryptoParams( new LPCryptoParametersBV<T>(*cryptoParams) ); // copy so memory works right
 
-	LPCryptoParametersBV<T>* mycryptoParams = new LPCryptoParametersBV<T>(*cryptoParams); // copy so memory works right
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBV<T>() );
 
-	item.ctx->params.reset(mycryptoParams);
-
-	item.ctx->scheme.reset(new LPPublicKeyEncryptionSchemeBV<T>());
-
-	return item;
+	return CryptoContext<T>(mycryptoParams, scheme);
 }
 
 // FIXME: this is temporary until we better incorporate DCRT
@@ -264,14 +229,11 @@ template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams)
 {
-	CryptoContext<T>	item( new CryptoContextImpl<T>() );
+	shared_ptr<LPCryptoParametersLTV<ILVectorArray2n>> mycryptoParams( new LPCryptoParametersLTV<ILVectorArray2n>( *cryptoParams ) ); // copy so memory works right
 
-	LPCryptoParametersLTV<ILVectorArray2n>* mycryptoParams = new LPCryptoParametersLTV<ILVectorArray2n>( *cryptoParams); // copy so memory works right
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
 
-	item.ctx->params.reset( mycryptoParams );
-	item.ctx->scheme.reset( new LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n>() );
-
-	return item;
+	return CryptoContext<T>(mycryptoParams, scheme);
 }
 
 template <typename T>
@@ -281,24 +243,20 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev, float stDevStSt)
 {
-	CryptoContext<T>	item( new CryptoContextImpl<T>() );
-
 	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
-	LPCryptoParametersStehleSteinfeld<T>* params = new LPCryptoParametersStehleSteinfeld<T>(
+	shared_ptr<LPCryptoParametersStehleSteinfeld<T>> params( new LPCryptoParametersStehleSteinfeld<T>(
 			ep,
 			BigBinaryInteger(plaintextmodulus),
 			stDev,
 			0.0, // assuranceMeasure,
 			0.0, // securityLevel,
 			relinWindow,
-			stDevStSt
-			);
+			stDevStSt) );
 
-	item.ctx->params.reset( params );
-	item.ctx->scheme.reset( new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>() );
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>());
 
-	return item;
+	return CryptoContext<T>(params, scheme);
 }
 
 template <typename T>
@@ -307,17 +265,16 @@ CryptoContextFactory<T>::getCryptoContextNull(
 		const usint modulus,
 		usint ringdim)
 {
-	CryptoContext<T>	item( new CryptoContextImpl<T>() );
-
 	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger::ONE) );
 
-	LPCryptoParametersNull<T>* params = new LPCryptoParametersNull<T>(ep, BigBinaryInteger(modulus));
+	shared_ptr<LPCryptoParametersNull<T>> params( new LPCryptoParametersNull<T>(ep, BigBinaryInteger(modulus)) );
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeNull<T>() );
 
-	item.ctx->params.reset( params );
-	item.ctx->scheme.reset( new LPPublicKeyEncryptionSchemeNull<T>() );
-
-	return item;
+	return CryptoContext<T>(params, scheme);
 }
+
+// the methods below allow me to deserialize a json object into this context
+// ... which will only succeed if the object was serialized from this context!
 
 template <typename T>
 shared_ptr<LPPublicKey<T>>

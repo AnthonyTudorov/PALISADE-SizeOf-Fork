@@ -104,8 +104,12 @@ main(int argc, char *argv[])
 
 	NTRUPRE(ctx, input, doJson);
 
-	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	NumberTheoreticTransform::GetInstance().Destroy();
+	try {
+		ChineseRemainderTransformFTT::GetInstance().Destroy();
+		NumberTheoreticTransform::GetInstance().Destroy();
+	} catch (...) {
+		// ok if this fails...
+	}
 
 	return 0;
 }
@@ -145,12 +149,16 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, string& parmset, bool doJson) {
 
 	//This code is run only when performing execution time measurements
 
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(ctx.GetGenerator(), ctx.GetElementParams());
+	try {
+		//Precomputations for DGG
+		ILVector2n::PreComputeDggSamples(ctx.GetGenerator(), ctx.GetElementParams());
 
-	//Precomputations for TUG
-	TernaryUniformGenerator tug;
-	ILVector2n::PreComputeTugSamples(tug, ctx.GetElementParams());
+		//Precomputations for TUG
+		TernaryUniformGenerator tug;
+		ILVector2n::PreComputeTugSamples(tug, ctx.GetElementParams());
+	} catch (...) {
+		// ignore if this fails... which it will in some cases, like if there is no generator in use
+	}
 
 	finish = currentDateTime();
 	diff = finish - start;
