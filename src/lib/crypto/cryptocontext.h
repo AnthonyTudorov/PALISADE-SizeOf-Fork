@@ -181,8 +181,8 @@ public:
 		if( newPublicKey->GetCryptoContext() != *this || origPrivateKey->GetCryptoContext() != *this )
 			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
 
-		if( typeid(Element) == typeid(ILVectorArray2n) )
-			throw std::logic_error("Sorry, re-encryption keys have not been implemented with Element of ILVectorArray2n");
+		/*if( typeid(Element) == typeid(ILVectorArray2n) )
+			throw std::logic_error("Sorry, re-encryption keys have not been implemented with Element of ILVectorArray2n");*/
 
 		return GetEncryptionAlgorithm().ReKeyGen(newPublicKey, origPrivateKey);
 	}
@@ -203,16 +203,6 @@ public:
 			throw std::logic_error("Keys passed to KeySwitchGen were not generated with this crypto context");
 
 		return GetEncryptionAlgorithm().KeySwitchGen(key1, key2);
-	}
-
-	shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
-			const shared_ptr<LPPrivateKey<Element>> k1,
-			const shared_ptr<LPPrivateKey<Element>> k2) const {
-
-		if( k1->GetCryptoContext() != *this || k2->GetCryptoContext() != *this )
-			throw std::logic_error("Keys passed to QuadraticEvalMultKeyGen were not generated with this crypto context");
-
-		return GetEncryptionAlgorithm().QuadraticEvalMultKeyGen(k1, k2);
 	}
 
 	std::vector<shared_ptr<Ciphertext<Element>>> Encrypt(
@@ -519,7 +509,7 @@ public:
 			newCiphertext[i] = GetEncryptionAlgorithm().ModReduce(ciphertext[i]);
 		}
 
-		return newCiphertext;
+		return std::move(newCiphertext);
 	}
 
 	shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
@@ -567,7 +557,7 @@ public:
 	std::vector<shared_ptr<Ciphertext<Element>>> ComposedEvalMult(
 		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext1,
 		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext2,
-		const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint)
+		const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint)
 	{
 		if (ciphertext1.size() != ciphertext2.size()) {
 			throw std::logic_error("Cannot have ciphertext of different length");
@@ -619,6 +609,9 @@ public:
 			const usint plaintextmodulus,
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev);
+
+	//temp function written by GRS
+	static CryptoContext<Element> genCryptoContextBV(LPCryptoParametersBV<Element>* cryptoParams);
 
 	// FIXME: this is temporary until we better incorporate DCRT
 	static CryptoContext<Element> getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams);

@@ -2,26 +2,26 @@
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
 Version:
-	v00.01
+v00.01
 Last Edited:
-	6/17/2015 4:37AM
+6/17/2015 4:37AM
 List of Authors:
-	TPOC:
-		Dr. Kurt Rohloff, rohloff@njit.edu
-	Programmers:
-		Dr. Yuriy Polyakov, polyakov@njit.edu
-		Gyana Sahu, grs22@njit.edu
+TPOC:
+Dr. Kurt Rohloff, rohloff@njit.edu
+Programmers:
+Dr. Yuriy Polyakov, polyakov@njit.edu
+Gyana Sahu, grs22@njit.edu
 Description:
-	This code exercises the Proxy Re-Encryption capabilities of the NJIT Lattice crypto library.
-	In this code we:
-		- Generate a key pair.
-		- Encrypt a string of data.
-		- Decrypt the data.
-		- Generate a new key pair.
-		- Generate a proxy re-encryption key.
-		- Re-Encrypt the encrypted data.
-		- Decrypt the re-encrypted data.
-	We configured parameters (namely the ring dimension and ciphertext modulus) to provide a level of security roughly equivalent to a root hermite factor of 1.007 which is generally considered secure and conservatively comparable to AES-128 in terms of computational work factor and may be closer to AES-256.
+This code exercises the Proxy Re-Encryption capabilities of the NJIT Lattice crypto library.
+In this code we:
+- Generate a key pair.
+- Encrypt a string of data.
+- Decrypt the data.
+- Generate a new key pair.
+- Generate a proxy re-encryption key.
+- Re-Encrypt the encrypted data.
+- Decrypt the re-encrypted data.
+We configured parameters (namely the ring dimension and ciphertext modulus) to provide a level of security roughly equivalent to a root hermite factor of 1.007 which is generally considered secure and conservatively comparable to AES-128 in terms of computational work factor and may be closer to AES-256.
 
 License Information:
 
@@ -37,8 +37,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <fstream>
 
+
 #include "../../lib/palisade.h"
 #include "../../lib/palisadespace.h"
+
 
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/crypto/cryptocontext.cpp"
@@ -54,8 +56,8 @@ void NTRUPRE(int input);
 //double currentDateTime();
 
 /**
- * @brief Input parameters for PRE example.
- */
+* @brief Input parameters for PRE example.
+*/
 struct SecureParams {
 	usint m;			///< The ring parameter.
 	string modulus;	///< The modulus
@@ -73,7 +75,7 @@ int main() {
 	int input = 0;
 	std::cin >> input;
 	//cleans up the buffer
-	cin.ignore();
+	std::cin.ignore();
 
 	if ((input<0) || (input>4))
 		input = 0;
@@ -81,7 +83,7 @@ int main() {
 	////NTRUPRE is where the core functionality is provided.
 	NTRUPRE(input);
 	//NTRUPRE(3);
-	
+
 	std::cin.get();
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();
@@ -129,7 +131,7 @@ void NTRUPRE(int input) {
 		{ 2048, "1073750017", "180790047", 4 },  // r = 4
 		{ 2048, "8589987841", "2678760785", 8 }, //r = 8
 		{ 4096, "2199023288321", "1858080237421", 16 }  // r= 16
-		//{ 2048, CalltoModulusComputation(), CalltoRootComputation, 0 }  // r= 16
+														//{ 2048, CalltoModulusComputation(), CalltoRootComputation, 0 }  // r= 16
 	};
 
 	usint m = SECURE_PARAMS[input].m;
@@ -144,7 +146,7 @@ void NTRUPRE(int input) {
 	float stdDev = 4;
 
 	ofstream fout;
-	fout.open ("output.txt");
+	fout.open("output.txt");
 
 
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
@@ -154,7 +156,7 @@ void NTRUPRE(int input) {
 	start = currentDateTime();
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(2, SECURE_PARAMS[input].m,
-			SECURE_PARAMS[input].modulus, SECURE_PARAMS[input].rootOfUnity, SECURE_PARAMS[input].relinWindow, stdDev);
+		SECURE_PARAMS[input].modulus, SECURE_PARAMS[input].rootOfUnity, SECURE_PARAMS[input].relinWindow, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 
@@ -178,9 +180,7 @@ void NTRUPRE(int input) {
 
 	//LPAlgorithmLTV<ILVector2n> algorithm;
 
-	bool successKeyGen=false;
-
-	std::cout <<"\n" <<  "Running key generation..." << std::endl;
+	std::cout << "\n" << "Running key generation..." << std::endl;
 
 	start = currentDateTime();
 
@@ -190,24 +190,19 @@ void NTRUPRE(int input) {
 	finish = currentDateTime();
 	diff = finish - start;
 
-	cout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
+	cout << "Key generation execution time: " << "\t" << diff << " ms" << endl;
+	fout << "Key generation execution time: " << "\t" << diff << " ms" << endl;
 
 	//fout<< currentDateTime()  << " pk = "<<pk.GetPublicElement().GetValues()<<endl;
 	//fout<< currentDateTime()  << " sk = "<<sk.GetPrivateElement().GetValues()<<endl;
-
-	if (!kp.good()) {
-		std::cout<<"Key generation failed!"<<std::endl;
-		exit(1);
-	}
 
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
 
 	// Begin the initial encryption operation.
-	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
-	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
+	cout << "\n" << "original plaintext: " << plaintext << "\n" << endl;
+	fout << "\n" << "original plaintext: " << plaintext << "\n" << endl;
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
@@ -220,8 +215,8 @@ void NTRUPRE(int input) {
 	finish = currentDateTime();
 	diff = finish - start;
 
-	cout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+	cout << "Encryption execution time: " << "\t" << diff << " ms" << endl;
+	fout << "Encryption execution time: " << "\t" << diff << " ms" << endl;
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -229,27 +224,27 @@ void NTRUPRE(int input) {
 
 	BytePlaintextEncoding plaintextNew;
 
-	std::cout <<"\n"<< "Running decryption..." << std::endl;
+	std::cout << "\n" << "Running decryption..." << std::endl;
 
 	start = currentDateTime();
 
-	DecryptResult result = cc.Decrypt(kp.secretKey,ciphertext,&plaintextNew,false);
+	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew, false);
 
 	finish = currentDateTime();
 	diff = finish - start;
 
-	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+	cout << "Decryption execution time: " << "\t" << diff << " ms" << endl;
+	fout << "Decryption execution time: " << "\t" << diff << " ms" << endl;
 
-	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
+	cout << "\n" << "decrypted plaintext (NTRU encryption): " << plaintextNew << "\n" << endl;
+	fout << "\n" << "decrypted plaintext (NTRU encryption): " << plaintextNew << "\n" << endl;
 
 	if (!result.isValid) {
-		std::cout<<"Decryption failed!"<<std::endl;
+		std::cout << "Decryption failed!" << std::endl;
 		exit(1);
 	}
 
-	
+
 
 	//PRE SCHEME
 
@@ -267,15 +262,15 @@ void NTRUPRE(int input) {
 	finish = currentDateTime();
 	diff = finish - start;
 
-	cout << "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout << "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
+	cout << "Key generation execution time: " << "\t" << diff << " ms" << endl;
+	fout << "Key generation execution time: " << "\t" << diff << " ms" << endl;
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption key generation operation.
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
-	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
+	std::cout << "\n" << "Generating proxy re-encryption key..." << std::endl;
 
 	start = currentDateTime();
 
@@ -285,8 +280,8 @@ void NTRUPRE(int input) {
 	finish = currentDateTime();
 	diff = finish - start;
 
-	cout<< "Re-encryption key generation time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Re-encryption key generation time: "<<"\t"<<diff<<" ms"<<endl;
+	cout << "Re-encryption key generation time: " << "\t" << diff << " ms" << endl;
+	fout << "Re-encryption key generation time: " << "\t" << diff << " ms" << endl;
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption operation.
@@ -296,7 +291,7 @@ void NTRUPRE(int input) {
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
 
-	std::cout <<"\n"<< "Running re-encryption..." << std::endl;
+	std::cout << "\n" << "Running re-encryption..." << std::endl;
 
 	start = currentDateTime();
 
@@ -305,8 +300,8 @@ void NTRUPRE(int input) {
 	finish = currentDateTime();
 	diff = finish - start;
 
-	cout<< "Re-encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Re-encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+	cout << "Re-encryption execution time: " << "\t" << diff << " ms" << endl;
+	fout << "Re-encryption execution time: " << "\t" << diff << " ms" << endl;
 
 	//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
 
@@ -316,23 +311,23 @@ void NTRUPRE(int input) {
 
 	BytePlaintextEncoding plaintextNew2;
 
-	std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
+	std::cout << "\n" << "Running decryption of re-encrypted cipher..." << std::endl;
 
 	start = currentDateTime();
 
-	DecryptResult result1 = cc.Decrypt(newKp.secretKey,newCiphertext,&plaintextNew2,false);
+	DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &plaintextNew2, false);
 
 	finish = currentDateTime();
 	diff = finish - start;
 
-	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
+	cout << "Decryption execution time: " << "\t" << diff << " ms" << endl;
+	fout << "Decryption execution time: " << "\t" << diff << " ms" << endl;
 
-	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
+	cout << "\n" << "decrypted plaintext (PRE Re-Encrypt): " << plaintextNew2 << "\n" << endl;
+	fout << "\n" << "decrypted plaintext (PRE Re-Encrypt): " << plaintextNew2 << "\n" << endl;
 
 	if (!result1.isValid) {
-		std::cout<<"Decryption failed!"<<std::endl;
+		std::cout << "Decryption failed!" << std::endl;
 		exit(1);
 	}
 

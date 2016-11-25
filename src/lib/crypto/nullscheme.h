@@ -197,36 +197,6 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element>, public 
 		LPLeveledSHEAlgorithmNull(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 
 		/**
-		 * Method for generating a KeySwitchHint
-		 *
-		 * @param &originalPrivateKey Original private key used for encryption.
-		 * @param &newPrivateKey New private key to generate the keyswitch hint.
-		 * @param *keySwitchHint is where the resulting keySwitchHint will be placed.
-		 */
-		virtual shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> k1) const ;
-
-		/**
-		 * Method for KeySwitching based on a KeySwitchHint
-		 *
-		 * @param &keySwitchHint Hint required to perform the ciphertext switching.
-		 * @param &cipherText Original ciphertext to perform switching on.
-		 */
-		virtual shared_ptr<Ciphertext<Element>> KeySwitch(
-				const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-				const shared_ptr<Ciphertext<Element>> cipherText) const;
-
-		/**
-		* Method for generating a keyswitchhint from originalPrivateKey square to newPrivateKey
-		*
-		* @param &originalPrivateKey that is (in method) squared for the keyswitchhint.
-		* @param &newPrivateKey new private for generating a keyswitchhint to.
-		* @param *quadraticKeySwitchHint the generated keyswitchhint.
-		*/
-		virtual shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
-			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const;
-
-		/**
 		 * Method for ModReducing CipherText and the Private Key used for encryption.
 		 *
 		 * @param *cipherText Ciphertext to perform and apply modreduce on.
@@ -296,6 +266,20 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element>, public LPPublicKeyEnc
 		LPAlgorithmSHENull(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 
 		/**
+		* Function for evaluation addition on ciphertext.
+		*
+		* @param &ciphertext1 first input ciphertext.
+		* @param &ciphertext2 second input ciphertext.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+
+		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2) const;
+
+		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2) const;
+
+		/**
 		 * Function for evaluating multiplication on ciphertext.
 		 *
 		 * @param &ciphertext1 first input ciphertext.
@@ -317,18 +301,31 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element>, public LPPublicKeyEnc
 				const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const;
 
 		/**
-		 * Function for evaluation addition on ciphertext.
-		 *
-		 * @param &ciphertext1 first input ciphertext.
-		 * @param &ciphertext2 second input ciphertext.
-		 * @param *newCiphertext the new resulting ciphertext.
-		 */
+		* Method for generating a KeySwitchHint
+		*
+		* @param &originalPrivateKey Original private key used for encryption.
+		* @param &newPrivateKey New private key to generate the keyswitch hint.
+		* @param *keySwitchHint is where the resulting keySwitchHint will be placed.
+		*/
+		shared_ptr<LPEvalKey<Element>> KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
+			return shared_ptr<LPEvalKey<Element>>();
+		}
 
-		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Ciphertext<Element>> ciphertext2) const ;
+		/**
+		* Function to define key switching operation
+		*
+		* @param &keySwitchHint the evaluation key.
+		* @param &ciphertext the input ciphertext.
+		* @param *newCiphertext the new ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> KeySwitch(
+			const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+			const shared_ptr<Ciphertext<Element>> cipherText) const {
+			shared_ptr<Ciphertext<Element>> ans(new Ciphertext<Element>());
+			return ans;
+		}
 
-		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Ciphertext<Element>> ciphertext2) const ;
+
 
 		/**
 		 * Function to generate key switch hint on a ciphertext for depth 2.
@@ -336,18 +333,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element>, public LPPublicKeyEnc
 		 * @param &newPrivateKey private key for the new ciphertext.
 		 * @param *keySwitchHint the key switch hint.
 		 */
-		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey) const;
-
-		/**
-		 * Function to define key switching operation
-		 *
-		 * @param &keySwitchHint the evaluation key.
-		 * @param &ciphertext the input ciphertext.
-		 * @param *newCiphertext the new ciphertext.
-		 */
-		 shared_ptr<Ciphertext<Element>> KeySwitch(
-					const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-					const shared_ptr<Ciphertext<Element>> cipherText) const;
+		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const;	
 
 };
 

@@ -1068,13 +1068,14 @@ void FinalLeveledComputation(){
 	shared_ptr<LPEvalKey<ILVectorArray2n>> quadraticKeySwitchHint2;
 	
 	linearKeySwitchHint1 = cc.KeySwitchGen(kp.secretKey, levelPairs[0].secretKey);
-	quadraticKeySwitchHint1 = cc.QuadraticEvalMultKeyGen(kp.secretKey, levelPairs[0].secretKey);
+	//quadraticKeySwitchHint1 = cc.QuadraticEvalMultKeyGen(kp.secretKey, levelPairs[0].secretKey);
+	quadraticKeySwitchHint1 = cc.EvalMultKeyGen(kp.secretKey);
 	auto e = levelPairs[0].secretKey->GetPrivateElement();
 	e.DropElementAtIndex(e.GetNumOfElements()-1);
 	levelPairs[0].secretKey->SetPrivateElement(e);
 
 	linearKeySwitchHint2 = cc.KeySwitchGen(levelPairs[0].secretKey, levelPairs[1].secretKey);
-	quadraticKeySwitchHint2 = cc.QuadraticEvalMultKeyGen(levelPairs[0].secretKey, levelPairs[1].secretKey);
+	quadraticKeySwitchHint2 = cc.EvalMultKeyGen(levelPairs[0].secretKey);
 	e = levelPairs[1].secretKey->GetPrivateElement();
 	e.DropElementAtIndex(e.GetNumOfElements()-1);
 	levelPairs[1].secretKey->SetPrivateElement(e);
@@ -1475,7 +1476,8 @@ void ComposedEvalMultTest(){
 	//FIXME: this is never used??
 	//Generating Quaraditic KeySwitchHint from sk^2 to skNew
 	shared_ptr<LPEvalKey<ILVectorArray2n>> quadraticKeySwitchHint;
-	quadraticKeySwitchHint = cc.QuadraticEvalMultKeyGen(kp.secretKey, kpNew.secretKey);
+	//quadraticKeySwitchHint = cc.QuadraticEvalMultKeyGen(kp.secretKey, kpNew.secretKey);
+	quadraticKeySwitchHint = cc.EvalMultKeyGen(kp.secretKey);
 
 	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
 	ILVectorArray2n skNewOldElement(kpNew.secretKey->GetPrivateElement());

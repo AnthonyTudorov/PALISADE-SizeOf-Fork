@@ -331,6 +331,12 @@ namespace lbcrypto {
 		return tmp;
 	}
 
+	ILVector2n ILVector2n::Negate() const {
+		ILVector2n tmp(*this);
+		*tmp.m_values = m_values->ModMul(this->m_params->GetModulus() - BigBinaryInteger::ONE);
+		return tmp;
+	}
+
 	// VECTOR OPERATIONS
 
 	ILVector2n ILVector2n::Plus(const ILVector2n &element) const {
@@ -416,6 +422,7 @@ namespace lbcrypto {
 	}
 
 	ILVector2n ILVector2n::AutomorphismTransform(const usint &i) const {
+		
 		if (i % 2 == 0)
 			throw std::logic_error("automorphism index should be odd\n");
 		else
@@ -571,7 +578,7 @@ namespace lbcrypto {
 	// used as a subroutine in the relinearization procedure
 	// baseBits is the number of bits in the base, i.e., base = 2^baseBits
 
-	void ILVector2n::BaseDecompose(usint baseBits, std::vector<ILVector2n> *result) const {
+	std::vector<ILVector2n> ILVector2n::BaseDecompose(usint baseBits) const {
 		
 		usint nBits = m_params->GetModulus().GetLengthForBase(2);
 
@@ -581,6 +588,8 @@ namespace lbcrypto {
 
 		ILVector2n xDigit(m_params);
 
+		std::vector<ILVector2n> result;
+		result.reserve(nWindows);
 		// convert the polynomial to coefficient representation
 		ILVector2n x(*this);
 		if (x.GetFormat() == EVALUATION)
@@ -591,9 +600,10 @@ namespace lbcrypto {
 			xDigit = x.GetDigitAtIndexForBase(i*baseBits + 1, 1 << baseBits);
 			// convert the polynomial back to evaluation representation
 			xDigit.SwitchFormat();
-			result->push_back(xDigit);
+			result.push_back(xDigit);
 		}
 
+		return std::move(result);
 	}
 
 	// Generate a vector of ILVector2n's as {x, base*x, base^2*x, ..., base^{\lfloor {\log q/base} \rfloor}*x, where x is the current ILVector2n object;
