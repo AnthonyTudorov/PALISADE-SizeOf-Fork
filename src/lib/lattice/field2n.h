@@ -6,12 +6,12 @@
 
 namespace lbcrypto {
 
-	class Field2n :std::vector<std::complex<double>> {
+	class Field2n :public std::vector<std::complex<double>> {
 	public:
 		Field2n() : format(COEFFICIENT) {};
 		Field2n(int size, Format f = EVALUATION, bool initializeElementToZero = false)
-			:std::vector<std::complex<double>>(size,initializeElementToZero?0:-DBL_MAX){
-	
+			:std::vector<std::complex<double>>(size, initializeElementToZero ? 0 : -DBL_MAX) {
+
 			this->format = f;
 		}
 		Field2n(const ILVector2n & element) {
@@ -34,7 +34,7 @@ namespace lbcrypto {
 		Format GetFormat() const {
 			return format;
 		}
-		Field2n Inverse() const{
+		Field2n Inverse() const {
 			if (format == COEFFICIENT) {
 				throw std::logic_error("Polynomial not in evaluation representation");
 			}
@@ -42,40 +42,30 @@ namespace lbcrypto {
 				Field2n inverse(this->size(), EVALUATION);
 				for (int i = 0;i < this->size(); i++) {
 					double quotient = this->at(i).real() * this->at(i).real() + this->at(i).imag() * this->at(i).imag();
-					inverse.at(i) = std::complex<double>(this->at(i).real()/quotient,-this->at(i).imag()/quotient);
+					inverse.at(i) = std::complex<double>(this->at(i).real() / quotient, -this->at(i).imag() / quotient);
 				}
 				return inverse;
 			}
 		}
 		Field2n Plus(const Field2n &rhs) const {
-			if (format == COEFFICIENT) {
-				throw std::logic_error("Polynomial not in evaluation representation");
+			Field2n sum(this->size(), EVALUATION);
+			for (int i = 0;i < this->size(); i++) {
+				sum.at(i) = this->at(i) + rhs.at(i);
 			}
-			else {
-				Field2n sum(this->size(), EVALUATION);
-				for (int i = 0;i < this->size(); i++) {
-					sum.at(i) = this->at(i) + rhs.at(i);
-				}
-				return sum;
-			}
+			return sum;
 		};
 		Field2n Minus(const Field2n &rhs) const {
-			if (format == COEFFICIENT) {
-				throw std::logic_error("Polynomial not in evaluation representation");
+			Field2n difference(this->size(), EVALUATION);
+			for (int i = 0;i < this->size(); i++) {
+				difference.at(i) = this->at(i) - rhs.at(i);
 			}
-			else {
-				Field2n difference(this->size(), EVALUATION);
-				for (int i = 0;i < this->size(); i++) {
-					difference.at(i) = this->at(i) - rhs.at(i);
-				}
-				return difference;
-			}
+			return difference;
 		};
 		Field2n Times(const Field2n & rhs) const {
 			if (format == EVALUATION && rhs.GetFormat() == EVALUATION) {
 				Field2n result(rhs.size(), EVALUATION);
 				for (int i = 0;i < rhs.size();i++) {
-					result.at(i)=this->at(i) * rhs.at(i);
+					result.at(i) = this->at(i) * rhs.at(i);
 				}
 				return result;
 			}
@@ -84,23 +74,23 @@ namespace lbcrypto {
 			}
 		}
 		Field2n ShiftRight() {
-			if(this->format==COEFFICIENT){
+			if (this->format == COEFFICIENT) {
 				Field2n result(this->size(), COEFFICIENT);
 				for (int i = 0;i < this->size() - 1;i++) {
-					result.at(i+1) = this->at(i);
+					result.at(i + 1) = this->at(i);
 				}
-				result.at(this->size() - 1) = std::complex<double>(-1,0) * this->at(this->size() - 1);
+				result.at(this->size() - 1) = std::complex<double>(-1, 0) * this->at(this->size() - 1);
 				return result;
 			}
 			else {
 				throw std::logic_error("Polynomial not in coefficient representation");
 			}
 		}
-		Field2n Transpose() const{
+		Field2n Transpose() const {
 			if (this->format == COEFFICIENT) {
 				Field2n transpose(this->size(), COEFFICIENT);
-				for (int i=this->size()-1;i>0;i--) {
-					transpose.at(this->size()-1-i) = std::complex<double>(-1, 0) * this->at(i);
+				for (int i = this->size() - 1;i > 0;i--) {
+					transpose.at(this->size() - 1 - i) = std::complex<double>(-1, 0) * this->at(i);
 				}
 				transpose.at(0) = this->at(0);
 				return transpose;
@@ -111,9 +101,9 @@ namespace lbcrypto {
 		}
 		Field2n ExtractOdd() const {
 			if (this->format == COEFFICIENT) {
-				Field2n odds(this->size()/2,COEFFICIENT,true);
+				Field2n odds(this->size() / 2, COEFFICIENT, true);
 				for (int i = 0;i < odds.size();i++) {
-					odds.at(i) = this->at(1 + 2*i);
+					odds.at(i) = this->at(1 + 2 * i);
 				}
 				return odds;
 			}
@@ -133,12 +123,12 @@ namespace lbcrypto {
 				throw std::logic_error("Polynomial not in coefficient representation");
 			}
 		}
-		Field2n Permute() const{
+		Field2n Permute() const {
 			if (this->format == COEFFICIENT) {
 				Field2n permuted(this->size(), COEFFICIENT, true);
 				int evenPtr = 0;
 				int oddPtr = this->size() / 2;
-				for (int i = 0;i <this->size();i++) {
+				for (int i = 0;i < this->size();i++) {
 					if (i % 2 == 0) {
 						permuted.at(evenPtr) = this->at(i);
 						evenPtr++;
@@ -159,7 +149,7 @@ namespace lbcrypto {
 				Field2n invpermuted(this->size(), COEFFICIENT, true);
 				int evenPtr = 0;
 				int oddPtr = this->size() / 2;
-				for (int i = 0;evenPtr<4;i+=2){
+				for (int i = 0;evenPtr < 4;i += 2) {
 					invpermuted.at(i) = this->at(evenPtr);
 					invpermuted.at(i + 1) = this->at(oddPtr);
 					evenPtr++;
@@ -170,7 +160,7 @@ namespace lbcrypto {
 			else {
 				throw std::logic_error("Polynomial not in coefficient representation");
 			}
-	}
+		}
 		Field2n ScalarMult(double d) {
 			Field2n scaled(this->size(), this->GetFormat(), true);
 			for (int i = 0;i < this->size();i++) {
@@ -200,7 +190,7 @@ namespace lbcrypto {
 				}
 			}
 		}
-		size_t Size() const{
+		size_t Size() const {
 			return this->size();
 		}
 		inline std::complex<double>& operator[](std::size_t idx) { return (this->at(idx)); }

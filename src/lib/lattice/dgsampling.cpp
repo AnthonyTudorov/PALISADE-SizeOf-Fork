@@ -436,11 +436,23 @@ namespace lbcrypto {
 			product2.SwitchFormat();
 
 			Matrix<int32_t> r1Int = ZSampleF(feCoeff - product2.ShiftRight(), c1, dgg, n);
-
+			
 			Matrix<int32_t> rInt([]() { return make_unique<int32_t>(); }, 2*r1Int.GetRows(), 1);
-
-			//Doruk, please add the code that treats (r1, r2) as one vector of size 2*r1Int.GetRows()	
-			//and permutes it using the same logic as Field2n.Transpose()
+			//Generate the field element r1 from the matrix
+			Field2n r1(r1Int);
+			
+			//Concatenate r1 and r2
+			for (int i = 0;i < r2.Size();i++) {
+				r1.push_back(r2.at(i));
+			}
+		
+			//Permute the resulting vector
+			Field2n r = r1.Permute();
+			
+			//Write the result to the matrix
+			for (int j = 0;j < r.size();j++) {
+				rInt(0, j) = r.at(j).real();
+			}
 
 			return rInt;
 			
