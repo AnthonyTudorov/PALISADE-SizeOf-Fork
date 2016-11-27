@@ -335,7 +335,7 @@ namespace lbcrypto {
 		}
 
 	}
-
+	//Subroutine used for ZSampleSigmaP
 	void LatticeGaussSampUtility::ZSampleSigma2x2(const Field2n &a, const Field2n &b,
 		const Field2n &d, const Matrix<Field2n> &c, Matrix<int32_t>* q,const DiscreteGaussianGenerator & dgg) {
 
@@ -375,7 +375,7 @@ namespace lbcrypto {
 			}
 
 	}
-
+	//Subroutine used for ZSampleSigma2x2
 	//f is in Coefficient representation
 	//c is in Coefficient representation
 	Matrix<int32_t> LatticeGaussSampUtility::ZSampleF(const Field2n &f, const Field2n &c,

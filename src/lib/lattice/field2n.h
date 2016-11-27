@@ -3,203 +3,165 @@
 
 #include "ilvector2n.h"
 #include "../math/transfrm.h"
+#include "../math/matrix.h"
 
 namespace lbcrypto {
 
 	class Field2n :public std::vector<std::complex<double>> {
 	public:
+		/**Default Constructor
+		*/
 		Field2n() : format(COEFFICIENT) {};
+
+		/**Constructor for field element
+		*
+		*@param size element size
+		*@param f format of the element
+		*@param initializeElementToZero flag for initializing values to zero
+		*/
 		Field2n(int size, Format f = EVALUATION, bool initializeElementToZero = false)
 			:std::vector<std::complex<double>>(size, initializeElementToZero ? 0 : -DBL_MAX) {
-
 			this->format = f;
 		}
-		Field2n(const ILVector2n & element) {
-			if (element.GetFormat() != COEFFICIENT) {
-				throw std::logic_error("ILVector2n not in coefficient representation");
-			}
-			else {
-				for (int i = 0;i < element.GetLength();i++) {
-					this->push_back(element.GetValAtIndex(i).ConvertToDouble());
-					this->format = COEFFICIENT;
-				}
-			}
-		}
-		Field2n(const Matrix<int32_t> &element) {
-			for (int i = 0;i < element.GetCols();i++) {
-				this->push_back(element(0, i));
-			}
-			this->format = COEFFICIENT;
-		}
-		Format GetFormat() const {
-			return format;
-		}
-		Field2n Inverse() const {
-			if (format == COEFFICIENT) {
-				throw std::logic_error("Polynomial not in evaluation representation");
-			}
-			else {
-				Field2n inverse(this->size(), EVALUATION);
-				for (int i = 0;i < this->size(); i++) {
-					double quotient = this->at(i).real() * this->at(i).real() + this->at(i).imag() * this->at(i).imag();
-					inverse.at(i) = std::complex<double>(this->at(i).real() / quotient, -this->at(i).imag() / quotient);
-				}
-				return inverse;
-			}
-		}
-		Field2n Plus(const Field2n &rhs) const {
-			Field2n sum(this->size(), EVALUATION);
-			for (int i = 0;i < this->size(); i++) {
-				sum.at(i) = this->at(i) + rhs.at(i);
-			}
-			return sum;
-		};
-		Field2n Minus(const Field2n &rhs) const {
-			Field2n difference(this->size(), EVALUATION);
-			for (int i = 0;i < this->size(); i++) {
-				difference.at(i) = this->at(i) - rhs.at(i);
-			}
-			return difference;
-		};
-		Field2n Times(const Field2n & rhs) const {
-			if (format == EVALUATION && rhs.GetFormat() == EVALUATION) {
-				Field2n result(rhs.size(), EVALUATION);
-				for (int i = 0;i < rhs.size();i++) {
-					result.at(i) = this->at(i) * rhs.at(i);
-				}
-				return result;
-			}
-			else {
-				throw std::logic_error("At least one of the polynomials is not in evaluation representation");
-			}
-		}
-		Field2n ShiftRight() {
-			if (this->format == COEFFICIENT) {
-				Field2n result(this->size(), COEFFICIENT);
-				for (int i = 0;i < this->size() - 1;i++) {
-					result.at(i + 1) = this->at(i);
-				}
-				result.at(this->size() - 1) = std::complex<double>(-1, 0) * this->at(this->size() - 1);
-				return result;
-			}
-			else {
-				throw std::logic_error("Polynomial not in coefficient representation");
-			}
-		}
-		Field2n Transpose() const {
-			if (this->format == COEFFICIENT) {
-				Field2n transpose(this->size(), COEFFICIENT);
-				for (int i = this->size() - 1;i > 0;i--) {
-					transpose.at(this->size() - 1 - i) = std::complex<double>(-1, 0) * this->at(i);
-				}
-				transpose.at(0) = this->at(0);
-				return transpose;
-			}
-			else {
-				throw std::logic_error("Polynomial not in coefficient representation");
-			}
-		}
-		Field2n ExtractOdd() const {
-			if (this->format == COEFFICIENT) {
-				Field2n odds(this->size() / 2, COEFFICIENT, true);
-				for (int i = 0;i < odds.size();i++) {
-					odds.at(i) = this->at(1 + 2 * i);
-				}
-				return odds;
-			}
-			else {
-				throw std::logic_error("Polynomial not in coefficient representation");
-			}
-		}
-		Field2n ExtractEven() const {
-			if (this->format == COEFFICIENT) {
-				Field2n evens(this->size() / 2, COEFFICIENT, true);
-				for (int i = 0;i < evens.size();i++) {
-					evens.at(i) = this->at(0 + 2 * i);
-				}
-				return evens;
-			}
-			else {
-				throw std::logic_error("Polynomial not in coefficient representation");
-			}
-		}
-		Field2n Permute() const {
-			if (this->format == COEFFICIENT) {
-				Field2n permuted(this->size(), COEFFICIENT, true);
-				int evenPtr = 0;
-				int oddPtr = this->size() / 2;
-				for (int i = 0;i < this->size();i++) {
-					if (i % 2 == 0) {
-						permuted.at(evenPtr) = this->at(i);
-						evenPtr++;
-					}
-					else {
-						permuted.at(oddPtr) = this->at(i);
-						oddPtr++;
-					}
-				}
-				return permuted;
-			}
-			else {
-				throw std::logic_error("Polynomial not in coefficient representation");
-			}
-		}
-		Field2n InversePermute() {
-			if (this->format == COEFFICIENT) {
-				Field2n invpermuted(this->size(), COEFFICIENT, true);
-				int evenPtr = 0;
-				int oddPtr = this->size() / 2;
-				for (int i = 0;evenPtr < 4;i += 2) {
-					invpermuted.at(i) = this->at(evenPtr);
-					invpermuted.at(i + 1) = this->at(oddPtr);
-					evenPtr++;
-					oddPtr++;
-				}
-				return invpermuted;
-			}
-			else {
-				throw std::logic_error("Polynomial not in coefficient representation");
-			}
-		}
-		Field2n ScalarMult(double d) {
-			Field2n scaled(this->size(), this->GetFormat(), true);
-			for (int i = 0;i < this->size();i++) {
-				scaled.at(i) = d * this->at(i);
-			}
-			return scaled;
-		}
-		void SwitchFormat() {
-			if (format == COEFFICIENT) {
-				DiscreteFourierTransform dft;
 
-				std::vector<std::complex<double>> r = dft.ForwardTransform(*this);
-				for (int i = 0;i < r.size();i++) {
-					this->at(i) = r.at(i);
-				}
+		/**Constructor from ring element
+		*
+		*@param & element ring element
+		*/
+		Field2n(const ILVector2n & element);
 
-				format = EVALUATION;
-			}
-			else {
-				if (format == COEFFICIENT) {
-					DiscreteFourierTransform dft;
-					std::vector<std::complex<double>> r = dft.InverseTransform(*this);
-					for (int i = 0;i < r.size();i++) {
-						this->at(i) = r.at(i);
-					}
-					format = COEFFICIENT;
-				}
-			}
-		}
-		size_t Size() const {
-			return this->size();
-		}
+		/** Constructor from a ring element matrix
+		*
+		*@param &element ring element matrix
+		*/
+		Field2n(const Matrix<int32_t> & element);
+
+		/**Method for getting the format of the element
+		*
+		*@return format of the field element
+		*/
+		Format GetFormat() const { return format; }
+
+		/**Inverse operation for the field elements
+		*
+		*@return the inverse field element
+		*/
+		Field2n Inverse() const;
+
+		/**Addition operation for field elements
+		*
+		*@param &rhs right hand side element for operation
+		*@return result of the operation
+		*/
+		Field2n Plus(const Field2n &rhs) const;
+
+		/**Substraction operation for field elements
+		*
+		*@param &rhs right hand side element for operation
+		*@return result of the operation
+		*/
+		Field2n Minus(const Field2n &rhs) const;
+
+		/**Multiplication operation for field elements
+		*
+		*@param &rhs right hand side element for operation
+		*@return result of the operation
+		*/
+		Field2n Times(const Field2n & rhs) const;
+
+		/**Right shift operation for the field element
+		*
+		*@return the shifted field element
+		*/
+		Field2n ShiftRight();
+
+		/**Transpose operation defined in the paper of perturbation sampling
+		*
+		*@return the transpose of the element
+		*/
+		Field2n Transpose() const;
+
+		/**Function for extracting odd factors of the field element
+		*
+		*@return the field element with odd parts of the initial element
+		*/
+		Field2n ExtractOdd() const;
+
+		/**Function for extracting even factors of the field element
+		*
+		*@return the field element with even parts of the initial element
+		*/
+		Field2n ExtractEven() const;
+
+		/**Permutation operation defined in the paper
+		*
+		*@return permuted new field element
+		*/
+		Field2n Permute() const;
+
+		/**Inverse operation for permutation operation defined in the paper
+		*
+		*@return non permuted version of the element
+		*/
+		Field2n InversePermute();
+
+		/**Operation for scalar multiplication
+		*
+		*@param d scalar for multiplication
+		*@return the field element with the scalar multiplication
+		*/
+		Field2n ScalarMult(double d);
+
+		/** Method for switching format of the field elements
+		*/
+		void SwitchFormat();
+
+		/** Method for getting the size of the element
+		*
+		*@return the size of the element
+		*/
+		size_t Size() const { return this->size(); }
+
+		/**Indexing operator for field elements
+		*
+		*@param idx index of the element
+		*@return element at the index
+		*/
 		inline std::complex<double>& operator[](std::size_t idx) { return (this->at(idx)); }
+
+		/**Indexing operator for field elements
+		*
+		*@param idx index of the element
+		*@return element at the index
+		*/
 		inline const std::complex<double>& operator[](std::size_t idx) const { return (this->at(idx)); }
+
 	private:
+		//Format of the field element
 		Format format;
 	};
+	/**Addition operator for field elements
+	*
+	*@param &a left hand side field element
+	*@param &b right hand side field element
+	*@return result of the addition operation
+	*/
 	inline Field2n operator+(const Field2n &a, const Field2n &b) { return a.Plus(b); }
+
+	/**Substraction operator for field elements
+	*
+	*@param &a left hand side field element
+	*@param &b right hand side field element
+	*@return result of the substraction operation
+	*/
 	inline Field2n operator-(const Field2n &a, const Field2n &b) { return a.Minus(b); }
+
+	/**Multiplication operator for field elements
+	*
+	*@param &a left hand side field element
+	*@param &b right hand side field element
+	*@return result of the multiplication operation
+	*/
 	inline Field2n operator*(const Field2n &a, const Field2n &b) { return a.Times(b); }
 }
 #endif
