@@ -74,10 +74,11 @@ namespace lbcrypto {
 	Field2n Field2n::ShiftRight() {
 		if (this->format == COEFFICIENT) {
 			Field2n result(this->size(), COEFFICIENT);
+			std::complex<double> temp = std::complex<double>(-1, 0) * this->at(this->size() - 1);
 			for (int i = 0;i < this->size() - 1;i++) {
 				result.at(i + 1) = this->at(i);
 			}
-			result.at(this->size() - 1) = std::complex<double>(-1, 0) * this->at(this->size() - 1);
+			result.at(0) = temp;
 			return result;
 		}
 		else {
@@ -89,8 +90,8 @@ namespace lbcrypto {
 	Field2n Field2n::Transpose() const {
 		if (this->format == COEFFICIENT) {
 			Field2n transpose(this->size(), COEFFICIENT);
-			for (int i = this->size() - 1;i > 0;i--) {
-				transpose.at(this->size() - 1 - i) = std::complex<double>(-1, 0) * this->at(i);
+			for (int i = 1;i < this->size();i++) {
+				transpose.at(i) = std::complex<double>(-1, 0) * this->at(this->size()-i);
 			}
 			transpose.at(0) = this->at(0);
 			return transpose;
@@ -157,7 +158,7 @@ namespace lbcrypto {
 			Field2n invpermuted(this->size(), COEFFICIENT, true);
 			int evenPtr = 0;
 			int oddPtr = this->size() / 2;
-			for (int i = 0;evenPtr < 4;i += 2) {
+			for (int i = 0;evenPtr < this->size()/2;i += 2) {
 				invpermuted.at(i) = this->at(evenPtr);
 				invpermuted.at(i + 1) = this->at(oddPtr);
 				evenPtr++;
