@@ -561,7 +561,7 @@ namespace lbcrypto {
 		*
 		* @param &moduli is the chain of moduli to construct the CRI factors from
 		*/
-		static void PreComputeCRIFactors(const std::vector<BigBinaryInteger> &moduli);
+		static void PreComputeCRIFactors(const std::vector<BigBinaryInteger> &moduli, const usint cyclotomicOrder);
 
 		/**
 		* Deletes the static pointer CRI factors pointer
@@ -599,8 +599,11 @@ namespace lbcrypto {
 
 		usint m_cyclotomicOrder;
 
-		//This table stores constant interpolation values
+		//This table stores constant interpolation values. The map maps a moduli to a each tower of the moduli's CRI factor.
 		static std::map<BigBinaryInteger, std::map<usint, BigBinaryInteger>> *m_towersize_cri_factors;
+
+		//This variable holds the cyclotomic order that the precomputed values are set for
+		static usint m_cyclotomicOrder_precompute;
 
 	};
 

@@ -189,9 +189,9 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ModReduce(sha
 
 	shared_ptr<Ciphertext<Element>> newcipherText(cipherText);
 
-	Element cipherTextElement(cipherText->GetElement());
+	Element cipherTextElement(newcipherText->GetElement());
 
-	BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
+	BigBinaryInteger plaintextModulus(newcipherText->GetCryptoParameters()->GetPlaintextModulus());
 
 	// FIXME: note this will not work for ILVector2n yet so we must have a small hack here.
 
@@ -202,7 +202,7 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ModReduce(sha
 
 	ep->ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
 
-	cipherText->SetElement(cipherTextElement);
+	newcipherText->SetElement(cipherTextElement);
 
 	return newcipherText;
 

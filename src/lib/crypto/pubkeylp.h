@@ -868,6 +868,7 @@ namespace lbcrypto {
 		LPKeyPair(LPPublicKey<Element>* a=0, LPPrivateKey<Element>* b=0) : publicKey(a), secretKey(b) {}
 
 		bool good() { return publicKey && secretKey; }
+		
 	};
 
 	/**

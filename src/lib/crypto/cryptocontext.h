@@ -563,17 +563,23 @@ public:
 	* @param ciphertext - vector of ciphertext
 	* @return new Ciphertext after applying key switch
 	*/
-	shared_ptr<Ciphertext<Element>> KeySwitch(
+	std::vector<shared_ptr<Ciphertext<Element>>> KeySwitch(
 		const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-		const shared_ptr<Ciphertext<Element>> ciphertext)
+		const vector<shared_ptr<Ciphertext<Element>>> ciphertext)
 	{
 		if( !keySwitchHint || keySwitchHint->GetCryptoContext() != *this )
 			throw std::logic_error("Key passed to KeySwitch was not generated with this crypto context");
 
-		if( !ciphertext || ciphertext->GetCryptoContext() != *this )
-			throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
+		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext(ciphertext.size());
 
-		return GetEncryptionAlgorithm()->KeySwitch(keySwitchHint, ciphertext);
+		for (int i = 0; i < ciphertext.size(); i++) {
+			if (ciphertext.at(i)->GetCryptoContext() != *this)
+				throw std::logic_error("Information passed to KeySwitch was not generated with this crypto context");
+
+			newCiphertext[i] = GetEncryptionAlgorithm()->KeySwitch(keySwitchHint, ciphertext[i]);
+		}
+
+		return newCiphertext;
 	}
 
 	/**

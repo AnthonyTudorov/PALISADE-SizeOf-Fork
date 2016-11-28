@@ -37,6 +37,7 @@ namespace lbcrypto {
 
 	/*CONSTRUCTORS*/
 	std::map<BigBinaryInteger, std::map<usint, BigBinaryInteger>> *ILVectorArray2n::m_towersize_cri_factors = 0;
+	usint ILVectorArray2n::m_cyclotomicOrder_precompute = 0;
 
 	ILVectorArray2n::ILVectorArray2n() : m_format(EVALUATION), m_cyclotomicOrder(0), m_modulus(1){
 	}
@@ -728,49 +729,56 @@ namespace lbcrypto {
 		BigBinaryVector coefficients(ringDimension,m_modulus); // V vector
 
 		BigBinaryInteger interpolateValue("0"); // this will finally be  V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qj *[ (qt/qj)^(-1) mod qj ]}modqt 
+		
+		/*In these two cases, the CRI map has either not been initialized or not calcualted for this moduli.
+		* the assumption is that the lower the moduli, the lower the tower number. This case will also take
+		* care of mod reduce.
+		**/
+		if (m_towersize_cri_factors == 0 || m_towersize_cri_factors->find(this->m_modulus) == m_towersize_cri_factors->end()) {
+			std::vector<BigBinaryInteger> moduli;
+			moduli.reserve(m_vectors.size());
+			
+			for (usint i = 0; i < m_vectors.size(); i++) {
+				moduli.push_back(m_vectors.at(i).GetModulus());
+			}
 
-	//	bool criPreCalculated = true;
-	//	std::map<usint, BigBinaryInteger> towerNumber_cri_map;
+			PreComputeCRIFactors(moduli, m_cyclotomicOrder);
+			m_cyclotomicOrder_precompute = m_cyclotomicOrder;
+		}
+		/* In case there is ring reduction, the moduli values do not change, however the cyclotomic order changes.
+		** However, when both moduli and cyclotomic order change, then it means that it was not a ring reduction only
+		*/
+		else if (m_cyclotomicOrder_precompute != this->m_cyclotomicOrder && bigModulus != this->m_modulus) {
 
-	//	if (this->m_towersize_cri_factors.find(m_vectors.size()) == this->m_towersize_cri_factors.end()) {
-	//		criPreCalculated == false;
-	////		m_towersize_cri_factors[m_vectors.size()] = towerNumber_cri_map;
-	//	}
-	//	else {
-	//		towerNumber_cri_map = this->m_towersize_cri_factors[m_vectors.size()];
-	//	}
+			DestroyPrecomputedCRIFactors(); //destroy precomputed values because there is a new cyclotomic order
+
+			std::vector<BigBinaryInteger> moduli;
+			moduli.reserve(m_vectors.size());
+
+			for (usint i = 0; i < m_vectors.size(); i++) {
+				moduli.push_back(m_vectors.at(i).GetModulus());
+			}
+
+			PreComputeCRIFactors(moduli, m_cyclotomicOrder);
+			m_cyclotomicOrder_precompute = m_cyclotomicOrder;
+		}
+		else {
+			m_cyclotomicOrder_precompute = m_cyclotomicOrder;
+		}
 
 		/*This loop calculates every coefficient of the interpolated valued.*/
 		for (usint i = 0; i < ringDimension; i++) {
 		/*This for loops to calculate V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qi *[ (qt/qi)^(-1) mod qi ]}mod qt, the loop is basically the sigma.
 		Mod qt is done outside the loop*/
 			for (usint j = 0; j < m_vectors.size(); j++) {
-				/*if (criPreCalculated == false) {
-					*/
-					qj = m_vectors[j].GetModulus(); //qj
-
-					divideBigModulusByIndexModulus = bigModulus.DividedBy(qj); //qt/qj
-
-					modularInverse = divideBigModulusByIndexModulus.Mod(qj).ModInverse(qj); // (qt/qj)^(-1) mod qj
-
-			//		towerNumber_cri_map[j] = divideBigModulusByIndexModulus.Times(modularInverse); // qt/qj * [(qt/qj)(-1) mod qj]
-				
-			/*	} 
-
-				chineseRemainderMultiplier = towerNumber_cri_map[j];*/
-
-				chineseRemainderMultiplier = divideBigModulusByIndexModulus.Times(modularInverse);
+			
+				chineseRemainderMultiplier = m_towersize_cri_factors->at(m_modulus).at(j);
 
 				multiplyValue = (m_vectors[j].GetValAtIndex(i)).Times(chineseRemainderMultiplier); // M (r, i) * qt/qj * [(qt/qj)(-1) mod qj]
 
 				interpolateValue += multiplyValue;
 
 			}
-
-		/*	if (criPreCalculated == false) {
-				criPreCalculated = true;
-				this->m_towersize_cri_factors[m_vectors.size()] = towerNumber_cri_map;
-			}*/
 
 			interpolateValue = interpolateValue.Mod(m_modulus);
 			coefficients.SetValAtIndex(i, interpolateValue); // This Calculates V[j]
@@ -786,10 +794,10 @@ namespace lbcrypto {
 		DEBUG("X");
 		DEBUG("m_cyclotomicOrder "<<m_cyclotomicOrder);
 		DEBUG("modulus "<< modulus.ToString());
-		ILParams ilParams(m_cyclotomicOrder, modulus, BigBinaryInteger::ONE); // Setting the root of unity to ONE as the calculation is expensive and not required.
+//		ILParams ilParams(m_cyclotomicOrder, modulus, BigBinaryInteger::ONE); // Setting the root of unity to ONE as the calculation is expensive and not required.
 		DEBUG("Y");
 
-		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(m_cyclotomicOrder, modulus) ) );
+		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(m_cyclotomicOrder, modulus, BigBinaryInteger::ONE) ) ); // Setting the root of unity to ONE as the calculation is expensive and not required.
 		polynomialReconstructed.SetValues(coefficients,m_format);
 		DEBUG("Z");
 
@@ -845,7 +853,7 @@ namespace lbcrypto {
 		}
 		return true;
 	}
-	void ILVectorArray2n::PreComputeCRIFactors(const std::vector<BigBinaryInteger>& moduli)
+	void ILVectorArray2n::PreComputeCRIFactors(const std::vector<BigBinaryInteger>& moduli, const usint cyclotomicOrder)
 	{
 
 		if (m_towersize_cri_factors == 0) {
@@ -878,12 +886,19 @@ namespace lbcrypto {
 			tower_number_to_cri_value_map[j] = chineseRemainderMultiplier;
 		}
 
-		m_towersize_cri_factors->at(bigModulus) = std::move(tower_number_to_cri_value_map);
+		m_towersize_cri_factors->insert(std::make_pair(bigModulus, tower_number_to_cri_value_map));
+		m_cyclotomicOrder_precompute = cyclotomicOrder;
 	}
 
 	void ILVectorArray2n::DestroyPrecomputedCRIFactors()
 	{
+		/*typedef std::map<BigBinaryInteger, std::map<usint, BigBinaryInteger>>::iterator it_type;
+		for (it_type iterator = m_towersize_cri_factors->begin(); iterator != m_towersize_cri_factors->end(); iterator++) {
+			m_towersize_cri_factors->erase(iterator);
+		}*/
+		m_towersize_cri_factors->clear();
 		delete m_towersize_cri_factors;
+		m_towersize_cri_factors = NULL;
 	}
 	//JSON FACILITY
 

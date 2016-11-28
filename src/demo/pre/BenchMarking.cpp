@@ -45,6 +45,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
 #include "../../lib/encoding/byteplaintextencoding.h"
+#include "../../lib/encoding/intplaintextencoding.h"
+
 
 #include "../../lib/utils/debug.h"
 
@@ -53,23 +55,22 @@ using namespace lbcrypto;
 
 
 void BenchMarking();
-void BenchMarking_DCRT_ByteArray();
-void BenchMarking_DCRT_ByteArray_KeySwitch();
+void BenchMarking_DCRT_ByteArray(bool intOrByteArray);
 void BenchMarking_DCRT_Eval_Mult();
 void BenchMarking_DCRT_Eval_Add();
-void BenchMarking_Mod_Reduce();
-void BenchMarking_Ring_Reduce_Dcrt();
 void BenchMarking_Ring_Reduce_Single_Crt();
-void BenchMarking_DCRT_IntArray();
 void BenchMarking_Encrypt_Single_Crt();
 void BenchMarking_KeySwitch_Single_Crt();
 void BenchMarking_Pre();
 void Benchmarking_find_table_of_secure_params();
+void PreComputeIntArray(usint minCycorder, usint maxCycorder, usint intArray_modulus);
 bool checkSecureParams(const std::vector<BigBinaryInteger> &moduli, const usint towerSize, const usint ringDimension, std::map<double, std::map<usint, usint>> *deltaToRingdimensionToTowerSizeMapper, const std::vector<double> &deltas, BigBinaryInteger &multModuli);
 std::string split(const std::string s, char c);
 void standardMapTest();
-void CalculateModuli();
+void CalculateModuli(usint m);
 int bitSizeCalculator(int n);
+void ringReduceTest();
+char getRandomChar();
 /**
  * @brief Input parameters for PRE example.
  */
@@ -82,19 +83,30 @@ struct secureParams {
 static std::map<usint, std::map<usint, BigBinaryInteger>> moduli; //first usint is cyc order, second map maps towersize to moduli
 static std::map<usint, std::map<usint, BigBinaryInteger>> rootsOfUnity; //first usint is cyc order, second map maps towersize to rootsOfUnity
 static std::map<usint, std::map<usint, usint>> bitSizes; //first usint is cyc order, second map maps towersize to bitsize
-static std::map<usint, std::map<usint, BigBinaryInteger>> cyclotomicOrderToIndexOfRingDimensiontoCRIMap;
-static usint maxCyclotomicOrder = 32;
-static usint maxTowerSize = 5;
+static std::map<usint, IntPlaintextEncoding> cyclotomicOrderToIntArrayMapper; //used for encryption/decryption
+static std::map<usint, BytePlaintextEncoding> cyclotomicOrderToByteArrayMapper; //used for encryption/decryption
+static const char alphanum[] =
+"0123456789"
+"!@#$%^&*"
+"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+"abcdefghijklmnopqrstuvwxyz"; //to generate a random string
+
+static int stringLength = sizeof(alphanum) - 1;
+static usint maxCyclotomicOrder = 16;
+static usint maxTowerSize = 20;
 static usint numberOfIterations = 1;
 static usint minCyclotomicOrder = 16;
 static usint minTowerSize = 1;
 static float stdDev = 4;
+static int randSeed = 1;
+
 
 
 #include <iterator>
 int main() {
-	CalculateModuli();
-	BenchMarking_DCRT_ByteArray();
+//	ringReduceTest();
+	//	CalculateModuli();
+	BenchMarking_DCRT_ByteArray(1);
 	//BenchMarking_DCRT_ByteArray_KeySwitch();
 	//BenchMarking_DCRT_Eval_Mult();
 //	BenchMarking_DCRT_IntArray();
@@ -126,7 +138,14 @@ int bitSizeCalculator(int n) {
 	return r;
 }
 
-void CalculateModuli() {
+char getRandomChar()  // Random string generator function.
+{
+	const usint seed = 2;
+	srand(time(0) + randSeed++);
+	return alphanum[rand() % stringLength];
+}
+
+void CalculateModuli(usint m) {
 
 	double plaintextModulus = 2;
 	double assuranceMeasureW = 6;
@@ -138,7 +157,7 @@ void CalculateModuli() {
 	char c = '.';
 	BigBinaryInteger temp;
 
-	for (usint m = minCyclotomicOrder; m <= maxCyclotomicOrder; m = m * 2) {
+//	for (usint m = minCyclotomicOrder; m <= maxCyclotomicOrder; m = m * 2) {
 		std::map<usint, BigBinaryInteger> towerToModuliOrRootOfUnity;
 		moduli.insert(std::make_pair(m, towerToModuliOrRootOfUnity));
 		rootsOfUnity.insert(std::make_pair(m, towerToModuliOrRootOfUnity));
@@ -175,7 +194,15 @@ void CalculateModuli() {
 			double doubleOfBBI = moduli[m][i].ConvertToDouble();
 			double bitSize = floor(log(doubleOfBBI) / log(2)) + 1;
 			bitSizes[m][i] = bitSize;
-		}
+			if (i != 1) {
+				std::vector<BigBinaryInteger> moduliV;
+				moduliV.reserve(i-1);
+				for (usint j = 1; j <= i; j++) {
+					moduliV.push_back(moduli[m][j]);
+				}
+				ILVectorArray2n::PreComputeCRIFactors(moduliV,m);
+			}
+//		}
 	}
 
 	ofstream myfile;
@@ -193,40 +220,58 @@ void CalculateModuli() {
 	}
 }
 
-void BenchMarking_DCRT_ByteArray(){
+void PreComputeIntArray(usint minCycorder, usint maxCycorder, usint intArray_modulus) {
+	cyclotomicOrderToIntArrayMapper.clear();
+	for (usint m = minCycorder; m <= maxCyclotomicOrder; m = m * 2) {
+		std::vector<uint32_t> randomValues;
+		randomValues.reserve(m/2);
+		for (usint i = 0; i < m/2; i++) {
+			srand(time(0) + randSeed++);
+			randomValues.push_back(rand() % intArray_modulus);
+		}
+		cyclotomicOrderToIntArrayMapper.insert(std::make_pair(m, randomValues));
+	}
+}
+
+void PreComputeByteArray(usint minCycorder, usint maxCycorder) {
+	cyclotomicOrderToByteArrayMapper.clear();
+	for (usint m = minCycorder; m <= maxCyclotomicOrder; m = m * 2) {
+		std::string x = "";
+		for (usint i = 0; i < m / 2; i++) {
+			x = x + getRandomChar();
+		}
+		cyclotomicOrderToByteArrayMapper.insert(std::make_pair(m, BytePlaintextEncoding(x)));
+	}
+}
+//false for intArray true for ByteArray
+void BenchMarking_DCRT_ByteArray(bool intOrByteArray){
 	double diff, start, finish;
 	std::map<usint, std::vector<double>> encryptTimer;
 	std::map<usint, std::vector<double>> decryptTimer;
-
-	std::vector<BytePlaintextEncoding> plaintextEncodingVector;
-	std:map<usint, BytePlaintextEncoding> cyclotomicOrderToByteArrayMapper;
-
-	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(16 ,BytePlaintextEncoding("A")));
-	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(32, BytePlaintextEncoding("AB")));
-	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(64, BytePlaintextEncoding("ABCD")));
-	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(128, BytePlaintextEncoding("ABCDEFGH")));
-	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(256, BytePlaintextEncoding("ABCDEFGHIJKLMNOP")));
-	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(512, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(1024, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(2048, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(4096, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(8192, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(16384, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(32768, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
+	std::map<usint, std::vector<double>> modReduceTimer;
+	std::map<usint, std::vector<double>> ringReduceTimer;
+	std::map<usint, std::vector<double>> keySwitchTimer;
+	if (!intOrByteArray) {
+		PreComputeIntArray(minCyclotomicOrder, maxCyclotomicOrder, 2);
+	}
+	else {
+		PreComputeByteArray(minCyclotomicOrder, maxCyclotomicOrder);
+	}
 
 	for (usint m = minCyclotomicOrder; m <= maxCyclotomicOrder; m = m * 2) {
+		CalculateModuli(m); // calculate moduli and precompute CRI factors
+		std::vector<double> tower_timer(maxTowerSize + 1);
+		std::fill(tower_timer.begin(), tower_timer.end(), 0);
 
-		std::vector<double> encryptTimeTower(21);
-		std::fill(encryptTimeTower.begin(), encryptTimeTower.end(), 0);
-		encryptTimer.insert(std::make_pair(m, encryptTimeTower));
-
-		std::vector<double> decryptTimeTower(21);
-		std::fill(decryptTimeTower.begin(), decryptTimeTower.end(), 0);
-		decryptTimer.insert(std::make_pair(m, decryptTimeTower));
+		encryptTimer.insert(std::make_pair(m, tower_timer));
+		modReduceTimer.insert(std::make_pair(m, tower_timer));
+		ringReduceTimer.insert(std::make_pair(m, tower_timer));
+		keySwitchTimer.insert(std::make_pair(m, tower_timer));
+		decryptTimer.insert(std::make_pair(m, tower_timer));
 
 		for (usint k = 0; k < numberOfIterations; k++) {
 			for (usint i = minTowerSize; i <= maxTowerSize; i++) {
-
+				/***************************SETUP START**********************************/
 				cout << "Processing cyclotomic order of " << m << " and tower size of " << i << " under " << k << "th iteration" << endl;
 
 				vector<BigBinaryInteger> moduli_vector(i);
@@ -251,42 +296,165 @@ void BenchMarking_DCRT_ByteArray(){
 
 				CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
 				cc.Enable(ENCRYPTION);
-				cc.Enable(PRE);
+	//			cc.Enable(PRE);
+				cc.Enable(LEVELEDSHE);
 
 				LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
-				start = currentDateTime();
+				/***************************SETUP END**********************************/
 
-				vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext = 
-																cc.Encrypt(kp.publicKey, cyclotomicOrderToByteArrayMapper.at(m));
+				/***************************ENCRYPTION START**********************************/
+
+				start = currentDateTime();
+				vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext;
+				if (!intOrByteArray) {
+					ciphertext = cc.Encrypt(kp.publicKey, cyclotomicOrderToIntArrayMapper.at(m), false);
+				}
+				else {
+					cout << cyclotomicOrderToByteArrayMapper.at(m) << endl;
+					ciphertext = cc.Encrypt(kp.publicKey, cyclotomicOrderToByteArrayMapper.at(m));
+				}
 
 				finish = currentDateTime();
 				diff = finish - start;
 				encryptTimer.at(m).at(i) += diff;
 
-				BytePlaintextEncoding plaintextNew;
-				
+				/***************************ENCRYPTION END**********************************/
+				/***************************DECRYPTION START**********************************/
+				if (!intOrByteArray) {
+					IntPlaintextEncoding plaintextNew;
+					start = currentDateTime();
+
+					cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
+
+					cout << "Decrypt " << plaintextNew << endl;
+
+					finish = currentDateTime();
+					diff = finish - start;
+					decryptTimer.at(m).at(i) += diff;
+				}
+				else {
+					BytePlaintextEncoding plaintextNew;
+					start = currentDateTime();
+
+					cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
+
+					cout << "Decrypt " << plaintextNew << endl;
+
+					finish = currentDateTime();
+					diff = finish - start;
+					decryptTimer.at(m).at(i) += diff;
+				}
+
+				/***************************DECRYPTION END**********************************/
+				/***************************KETSWITCH START**********************************/
+				LPKeyPair<ILVectorArray2n> kp2 = cc.KeyGen();
+
+				shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint;
+				keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
+
 				start = currentDateTime();
 
-				cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
-
-				cout << plaintextNew << endl;
+				vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cipherTextKeySwitch = cc.KeySwitch(keySwitchHint, ciphertext);
 
 				finish = currentDateTime();
 				diff = finish - start;
-				decryptTimer.at(m).at(i) += diff;
-
+				keySwitchTimer.at(m).at(i) += diff;
+				if (!intOrByteArray) {
+					IntPlaintextEncoding plaintextNew_keyswitch_int;
+					cc.Decrypt(kp2.secretKey, cipherTextKeySwitch, &plaintextNew_keyswitch_int);
+					cout << "KeySwitch " << plaintextNew_keyswitch_int << endl;
+				}
+				else {
+					BytePlaintextEncoding plaintextNew_keyswitch_byte;
+					cc.Decrypt(kp2.secretKey, cipherTextKeySwitch, &plaintextNew_keyswitch_byte);
+					cout << "KeySwitch " << plaintextNew_keyswitch_byte << endl;
+				}
 				
+				/***************************KETSWITCH END**********************************/
+				/***************************MODREDUCE START**********************************/
+				if (i > 1) {
+					vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cipherTextModReduce(ciphertext);
+					start = currentDateTime();
+
+					cipherTextModReduce = cc.ModReduce(cipherTextModReduce);
+
+					finish = currentDateTime();
+					diff = finish - start;
+					modReduceTimer.at(m).at(i) += diff;
+
+					LPKeyPair<ILVectorArray2n> kp_modreduce(kp);
+
+					ILVectorArray2n sk3PrivateElement(kp_modreduce.secretKey->GetPrivateElement());
+					sk3PrivateElement.DropElementAtIndex(sk3PrivateElement.GetNumOfElements() - 1);
+					kp_modreduce.secretKey->SetPrivateElement(sk3PrivateElement);
+
+					if (!intOrByteArray) {
+						IntPlaintextEncoding plaintextNew_modreduce;
+						cc.Decrypt(kp_modreduce.secretKey, cipherTextModReduce, &plaintextNew_modreduce, false);
+						cout << "Mod Reduce " << plaintextNew_modreduce << endl;
+					}
+					else {
+						BytePlaintextEncoding plaintextNew_modreduce;
+						cc.Decrypt(kp_modreduce.secretKey, cipherTextModReduce, &plaintextNew_modreduce);
+						cout << "Mod Reduce " << plaintextNew_modreduce << endl;
+					}
+				}
+			    /***************************MODREDUCE END**********************************/
+
+				/***************************RINGREDUCE START**********************************/
+				if (m > 16) {
+					start = currentDateTime();
+
+					LPKeyPair<ILVectorArray2n> kp_rr = cc.KeyGen();
+					vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cipherTextRingReduce;
+					if (!intOrByteArray) {
+						cipherTextRingReduce = cc.Encrypt(kp_rr.publicKey, cyclotomicOrderToIntArrayMapper.at(m), false);
+					}
+					else {
+						cipherTextRingReduce = cc.Encrypt(kp_rr.publicKey, cyclotomicOrderToByteArrayMapper.at(m));
+					}
+					LPKeyPair<ILVectorArray2n> kp_sparse = cc.SparseKeyGen();
+
+					shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint_sparse = cc.KeySwitchGen(kp_rr.secretKey, kp_sparse.secretKey);
+
+					cipherTextRingReduce = cc.RingReduce(cipherTextRingReduce, keySwitchHint_sparse);
+
+					finish = currentDateTime();
+					diff = finish - start;
+					ringReduceTimer.at(m).at(i) += diff;
+
+					if (!intOrByteArray) {
+						ILVectorArray2n skSparseElement(kp_sparse.secretKey->GetPrivateElement());
+						skSparseElement.SwitchFormat();
+						skSparseElement.Decompose();
+						skSparseElement.SwitchFormat();
+
+						kp_sparse.secretKey->SetPrivateElement(skSparseElement);
+
+						IntPlaintextEncoding plaintextNew_ringreduce;
+
+						cc.Decrypt(kp_sparse.secretKey, cipherTextRingReduce, &plaintextNew_ringreduce, false);
+
+						cout << "Ring Reduce " << plaintextNew_ringreduce << endl;
+					}
+				}
+				/***************************RINGREDUCE END**********************************/
 			}
+		
 		}
+		ILVectorArray2n::DestroyPrecomputedCRIFactors();
 	}
 	
 	ofstream myfile;
 	myfile.open("C:/Users/Ha/Documents/Code/Palisade/benchmark.csv", std::ios_base::app);
 	myfile << "\n";
 	myfile << "Encrypt-Decrypt Double-CRT\n";
-	myfile << "Cyclotomic Order,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768\n";
-	myfile << "Encrypt\n";
+	myfile << "Cyclotomic Order";
+	for (usint m = minCyclotomicOrder; m <= maxCyclotomicOrder; m = m * 2) {
+		myfile << "," << m;
+	}
+	myfile << "\nEncrypt\n";
 
 	for (usint i = minTowerSize; i <= maxTowerSize; i++) {
 		myfile << "t=" << i << ",";
@@ -306,214 +474,114 @@ void BenchMarking_DCRT_ByteArray(){
 		myfile << "\n";
 	}
 	myfile << "\n" << numberOfIterations << " iterations\n";
+
+
+	myfile << "\n";
+	myfile << "ModReduce \n";
+	for (usint i = minTowerSize; i <= maxTowerSize; i++) {
+		myfile << "t=" << i << ",";
+		for (usint m = minCyclotomicOrder; m <= maxCyclotomicOrder; m = m * 2) {
+			myfile << modReduceTimer.at(m).at(i) / numberOfIterations << ",";
+		}
+		myfile << "\n";
+	}
+	myfile << "\n" << numberOfIterations << " iterations\n";
+
+	myfile << "\n";
+	myfile << "RingReduce \n";
+	for (usint i = minTowerSize; i <= maxTowerSize; i++) {
+		myfile << "t=" << i << ",";
+		for (usint m = minCyclotomicOrder; m <= maxCyclotomicOrder; m = m * 2) {
+			myfile << modReduceTimer.at(m).at(i) / numberOfIterations << ",";
+		}
+		myfile << "\n";
+	}
+	myfile << "\n" << numberOfIterations << " iterations\n";
 }
-//
-//void BenchMarking_DCRT_ByteArray_KeySwitch() {
-//	double diff, start, finish;
-//	std::map<usint, std::vector<double>> keySwitchTimerMap;
-//
-//	usint numberOfIterations = 3;
-//	usint numberOfTowers = 20;
-//	usint maxCyclotomicOrder = 32768;
-//
-//	std::vector<BytePlaintextEncoding> plaintextEncodingVector;
-//    std:map<usint, BytePlaintextEncoding> cyclotomicOrderToByteArrayMapper;
-//
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(16, BytePlaintextEncoding("A")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(32, BytePlaintextEncoding("AB")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(64, BytePlaintextEncoding("ABCD")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(128, BytePlaintextEncoding("ABCDEFGH")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(256, BytePlaintextEncoding("ABCDEFGHIJKLMNOP")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(512, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(1024, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(2048, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(4096, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(8192, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(16384, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(32768, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-//
-//	for (usint m = 16; m <= maxCyclotomicOrder; m = m * 2) {
-//
-//		std::vector<double> keySwitchTimer(20);
-//		std::fill(keySwitchTimer.begin(), keySwitchTimer.end(), 0);
-//		keySwitchTimerMap.insert(std::make_pair(m, keySwitchTimer));
-//
-//		for (usint k = 0; k < numberOfIterations; k++) {
-//			for (usint i = 1; i <= numberOfTowers; i++) {
-//				float stdDev = 4;
-//
-//				vector<BigBinaryInteger> moduli(i);
-//
-//				vector<BigBinaryInteger> rootsOfUnity(i);
-//
-//				BigBinaryInteger q("1");
-//				BigBinaryInteger temp;
-//				BigBinaryInteger modulus("1");
-//
-//				for (int j = 0; j < i; j++) {
-//					lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-//					moduli[j] = q;
-//					rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-//					modulus = modulus* moduli[j];
-//				}
-//
-//				DiscreteGaussianGenerator dgg(stdDev);
-//
-//				ILDCRTParams params(m, moduli, rootsOfUnity);
-//
-//				LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-//				cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-//				cryptoParams.SetDistributionParameter(stdDev);
-//				cryptoParams.SetRelinWindow(1);
-//				cryptoParams.SetElementParams(params);
-//				cryptoParams.SetDiscreteGaussianGenerator(dgg);
-//
-//				Ciphertext<ILVectorArray2n> cipherText;
-//				cipherText.SetCryptoParameters(&cryptoParams);
-//
-//				LPPublicKey<ILVectorArray2n> pk(cryptoParams);
-//				LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
-//
-//				LPPublicKey<ILVectorArray2n> pkNew(cryptoParams);
-//				LPPrivateKey<ILVectorArray2n> skNew(cryptoParams);
-//
-//				LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
-//				algorithm.Enable(ENCRYPTION);
-//				algorithm.Enable(PRE);
-//				algorithm.Enable(LEVELEDSHE);
-//
-//				algorithm.KeyGen(&pk, &sk);
-//				algorithm.KeyGen(&pkNew, &skNew);
-//
-//				LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint(cryptoParams);
-//				algorithm.EvalMultKeyGen(sk, skNew, &keySwitchHint);
-//
-//				vector<Ciphertext<ILVectorArray2n>> ciphertext;
-//
-//				CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, cyclotomicOrderToByteArrayMapper.at(m), &ciphertext);
-//
-//				vector<Ciphertext<ILVectorArray2n>> keySwitchedCiphertext;
-//
-//				start = currentDateTime();
-//
-//				CryptoUtility<ILVectorArray2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &keySwitchedCiphertext);
-//
-//				finish = currentDateTime();
-//				diff = finish - start;
-//				keySwitchTimerMap.at(m).at(i) += diff;
-//
-//				BytePlaintextEncoding plaintextNew;
-//
-//				CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, skNew, keySwitchedCiphertext, &plaintextNew);
-//				
-//				cout << plaintextNew << endl;
-//			}
-//		}
-//	}
-//	ofstream myfile;
-//	myfile.open("C:/Users/Ha/Documents/Code/Palisade/benchmark.csv", std::ios_base::app);
-//	myfile << "\n";
-//	myfile << "KeySwitch Double-CRT\n";
-//	myfile << "Cyclotomic Order,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768\n";
-//
-//	for (usint i = 1; i <= numberOfTowers; i++) {
-//		myfile << "t=" << i << ",";
-//		for (usint m = 16; m <= maxCyclotomicOrder; m = m * 2) {
-//			myfile << keySwitchTimerMap.at(m).at(i) / numberOfIterations << ",";
-//		}
-//		myfile << "\n";
-//	}
-//
-//	myfile << "\n" << numberOfIterations << " iterations\n";
-//}
-//
-//void BenchMarking_DCRT_Eval_Mult() {
-//	double diff, start, finish;
-//	std::map<usint, std::vector<double>> evalMultTimerMap;
-//
-//	usint numberOfIterations = 3;
-//	usint numberOfTowers = 20;
-//	usint maxCyclotomicOrder = 32768;
-//
-//	for (usint m = 16; m <= 327; m = m * 2) {
-//
-//		std::vector<double> evalMultTimer(20);
-//		std::fill(evalMultTimer.begin(), evalMultTimer.end(), 0);
-//		evalMultTimerMap.insert(std::make_pair(m, evalMultTimer));
-//
-//		for (usint k = 0; k < numberOfIterations; k++) {
-//			for (usint i = 1; i <= numberOfTowers; i++) {
-//				float stdDev = 4;
-//
-//				vector<BigBinaryInteger> moduli(i);
-//
-//				vector<BigBinaryInteger> rootsOfUnity(i);
-//
-//				BigBinaryInteger q("1");
-//				BigBinaryInteger temp;
-//				BigBinaryInteger modulus("1");
-//
-//				for (int j = 0; j < i; j++) {
-//					lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-//					moduli[j] = q;
-//					rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-//					modulus = modulus* moduli[j];
-//				}
-//
-//				DiscreteGaussianGenerator dgg(stdDev);
-//
-//				ILDCRTParams params(m, moduli, rootsOfUnity);
-//				ILVectorArray2n element1(dgg, params, Format::EVALUATION);
-//				ILVectorArray2n element2(dgg, params, Format::EVALUATION);
-//
-//				LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-//				cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-//				cryptoParams.SetDistributionParameter(stdDev);
-//				cryptoParams.SetRelinWindow(1);
-//				cryptoParams.SetElementParams(params);
-//				cryptoParams.SetDiscreteGaussianGenerator(dgg);
-//
-//				Ciphertext<ILVectorArray2n> cipherText1;
-//				cipherText1.SetCryptoParameters(&cryptoParams);
-//				cipherText1.SetElement(element1);
-//				
-//				Ciphertext<ILVectorArray2n> cipherText2;
-//				cipherText2.SetCryptoParameters(&cryptoParams);
-//				cipherText2.SetElement(element2);
-//
-//				Ciphertext<ILVectorArray2n> results;
-//				results.SetCryptoParameters(&cryptoParams);
-//
-//				LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
-//		
-//				algorithm.Enable(SHE);
-//
-//				start = currentDateTime();
-//
-//				algorithm.EvalMult(cipherText1, cipherText2, &results);
-//
-//				finish = currentDateTime();
-//				diff = finish - start;
-//				evalMultTimerMap.at(m).at(i) += diff;
-//			}
-//		}
-//	}
-//	ofstream myfile;
-//	myfile.open("C:/Users/Ha/Documents/Code/Palisade/benchmark.csv", std::ios_base::app);
-//	myfile << "\n";
-//	myfile << "EvalMult Double-CRT\n";
-//	myfile << "Cyclotomic Order,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768\n";
-//
-//	for (usint i = 1; i <= numberOfTowers; i++) {
-//		myfile << "t=" << i << ",";
-//		for (usint m = 16; m <= maxCyclotomicOrder; m = m * 2) {
-//			myfile << evalMultTimerMap.at(m).at(i) / numberOfIterations << ",";
-//		}
-//		myfile << "\n";
-//	}
-//
-//	myfile << "\n" << numberOfIterations << " iterations\n";
-//}
+
+void BenchMarking_DCRT_Eval_Mult() {
+	/*double diff, start, finish;
+	std::map<usint, std::vector<double>> evalMultTimerMap;
+
+	for (usint m = minCyclotomicOrder; m <= maxCyclotomicOrder; m = m * 2) {
+
+		std::vector<double> evalMultTimer(20);
+		std::fill(evalMultTimer.begin(), evalMultTimer.end(), 0);
+		evalMultTimerMap.insert(std::make_pair(m, evalMultTimer));
+
+		for (usint k = 0; k < numberOfIterations; k++) {
+			for (usint i = minTowerSize; i <= maxTowerSize; i++) {
+				float stdDev = 4;
+
+				vector<BigBinaryInteger> moduli(i);
+
+				vector<BigBinaryInteger> rootsOfUnity(i);
+
+				BigBinaryInteger q("1");
+				BigBinaryInteger temp;
+				BigBinaryInteger modulus("1");
+
+				for (int j = 0; j < i; j++) {
+					lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+					moduli[j] = q;
+					rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
+					modulus = modulus* moduli[j];
+				}
+
+				DiscreteGaussianGenerator dgg(stdDev);
+
+				ILDCRTParams params(m, moduli, rootsOfUnity);
+				ILVectorArray2n element1(dgg, params, Format::EVALUATION);
+				ILVectorArray2n element2(dgg, params, Format::EVALUATION);
+
+				LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+				cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+				cryptoParams.SetDistributionParameter(stdDev);
+				cryptoParams.SetRelinWindow(1);
+				cryptoParams.SetElementParams(params);
+				cryptoParams.SetDiscreteGaussianGenerator(dgg);
+
+				Ciphertext<ILVectorArray2n> cipherText1;
+				cipherText1.SetCryptoParameters(&cryptoParams);
+				cipherText1.SetElement(element1);
+				
+				Ciphertext<ILVectorArray2n> cipherText2;
+				cipherText2.SetCryptoParameters(&cryptoParams);
+				cipherText2.SetElement(element2);
+
+				Ciphertext<ILVectorArray2n> results;
+				results.SetCryptoParameters(&cryptoParams);
+
+				LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
+		
+				algorithm.Enable(SHE);
+
+				start = currentDateTime();
+
+				algorithm.EvalMult(cipherText1, cipherText2, &results);
+
+				finish = currentDateTime();
+				diff = finish - start;
+				evalMultTimerMap.at(m).at(i) += diff;
+			}
+		}
+	}
+	ofstream myfile;
+	myfile.open("C:/Users/Ha/Documents/Code/Palisade/benchmark.csv", std::ios_base::app);
+	myfile << "\n";
+	myfile << "EvalMult Double-CRT\n";
+	myfile << "Cyclotomic Order,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768\n";
+
+	for (usint i = 1; i <= numberOfTowers; i++) {
+		myfile << "t=" << i << ",";
+		for (usint m = 16; m <= maxCyclotomicOrder; m = m * 2) {
+			myfile << evalMultTimerMap.at(m).at(i) / numberOfIterations << ",";
+		}
+		myfile << "\n";
+	}
+
+	myfile << "\n" << numberOfIterations << " iterations\n";*/
+}
 //
 //void BenchMarking_DCRT_Eval_Add() {
 //	double diff, start, finish;
@@ -603,242 +671,8 @@ void BenchMarking_DCRT_ByteArray(){
 //	myfile << "\n" << numberOfIterations << " iterations\n";
 //}
 //
-//void BenchMarking_Mod_Reduce() {
-//	double diff, start, finish;
-//	std::map<usint, std::vector<double>> mod_reduce_timer;
-//
-//	usint numberOfIterations = 40;
-//	usint numberOfTowers = 4;
-//	usint maxCyclotomicOrder = 32768;
-//
-//
-//	for (usint m = 16; m <= maxCyclotomicOrder; m = m * 2) {
-//
-//		std::vector<double> cycltomic_order_timer(20);
-//		std::fill(cycltomic_order_timer.begin(), cycltomic_order_timer.end(), 0);
-//		mod_reduce_timer.insert(std::make_pair(m, cycltomic_order_timer));
-//
-//		for (usint k = 0; k < numberOfIterations; k++) {
-//			for (usint i = 1; i <= numberOfTowers; i++) {
-//				float stdDev = 4;
-//
-//				vector<BigBinaryInteger> moduli(i);
-//
-//				vector<BigBinaryInteger> rootsOfUnity(i);
-//
-//				BigBinaryInteger q("1");
-//				BigBinaryInteger temp;
-//				BigBinaryInteger modulus("1");
-//
-//				for (int j = 0; j < i; j++) {
-//					lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-//					moduli[j] = q;
-//					rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-//					modulus = modulus* moduli[j];
-//				}
-//
-//				DiscreteGaussianGenerator dgg(stdDev);
-//
-//				ILDCRTParams params(m, moduli, rootsOfUnity);
-//				ILVectorArray2n element1(dgg, params, Format::EVALUATION);
-//
-//				LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-//				cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-//				cryptoParams.SetDistributionParameter(stdDev);
-//				cryptoParams.SetRelinWindow(1);
-//				cryptoParams.SetElementParams(params);
-//				cryptoParams.SetDiscreteGaussianGenerator(dgg);
-//
-//				Ciphertext<ILVectorArray2n> cipherText1;
-//				cipherText1.SetCryptoParameters(&cryptoParams);
-//				cipherText1.SetElement(element1);
-//
-//				LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
-//
-//				algorithm.Enable(LEVELEDSHE);
-//
-//				start = currentDateTime();
-//
-//				algorithm.ModReduce(&cipherText1);
-//
-//				finish = currentDateTime();
-//				diff = finish - start;
-//				mod_reduce_timer.at(m).at(i) += diff;
-//			}
-//		}
-//	}
-//	ofstream myfile;
-//	myfile.open("C:/Users/Ha/Documents/Code/Palisade/benchmark.csv", std::ios_base::app);
-//	myfile << "\n";
-//	myfile << "Mod Double-CRT\n";
-//	myfile << "Cyclotomic Order,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768\n";
-//
-//	for (usint i = 1; i <= numberOfTowers; i++) {
-//		myfile << "t=" << i << ",";
-//		for (usint m = 16; m <= maxCyclotomicOrder; m = m * 2) {
-//			myfile << mod_reduce_timer.at(m).at(i) / numberOfIterations << ",";
-//		}
-//		myfile << "\n";
-//	}
-//
-//	myfile << "\n" << numberOfIterations << " iterations\n";
-//}
-//
-//void BenchMarking_Ring_Reduce_Dcrt() {
-//	double diff, start, finish;
-//	std::map<usint, std::vector<double>> ring_reduce_timer_map;
-//
-//	usint numberOfIterations = 1;
-//	usint numberOfTowers = 4;
-//	usint maxCyclotomicOrder = 32768;
-//
-//	std:map<usint, IntPlaintextEncoding> cyclotomicOrderToIntArrayMapper;
-//
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(16, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(32, IntPlaintextEncoding({ 1 , 0 , 0, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(64, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(128, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(256, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(512, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(1024, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(2048, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(4096, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//
-//
-//	for (usint m = 16; m <= 64; m = m * 2) {
-//
-//		std::vector<double> cycltomic_order_timer(20);
-//		std::fill(cycltomic_order_timer.begin(), cycltomic_order_timer.end(), 0);
-//		ring_reduce_timer_map.insert(std::make_pair(m, cycltomic_order_timer));
-//
-//		for (usint k = 0; k < numberOfIterations; k++) {
-//			for (usint i = 1; i <= numberOfTowers; i++) {
-//				float stdDev = 4;
-//
-//				vector<BigBinaryInteger> moduli(i);
-//
-//				vector<BigBinaryInteger> rootsOfUnity(i);
-//
-//				BigBinaryInteger q("1");
-//				BigBinaryInteger temp;
-//				BigBinaryInteger modulus("1");
-//
-//				for (int j = 0; j < i; j++) {
-//					lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-//					moduli[j] = q;
-//					rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-//					modulus = modulus* moduli[j];
-//				}
-//
-//				DiscreteGaussianGenerator dgg(stdDev);
-//
-//				ILDCRTParams params(m, moduli, rootsOfUnity);
-//				ILVectorArray2n element1(dgg, params, Format::EVALUATION);
-//
-//				LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-//				cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-//				cryptoParams.SetDistributionParameter(stdDev);
-//				cryptoParams.SetRelinWindow(1);
-//				cryptoParams.SetElementParams(params);
-//				cryptoParams.SetDiscreteGaussianGenerator(dgg);
-//
-//				Ciphertext<ILVectorArray2n> cipherText1;
-//				cipherText1.SetCryptoParameters(&cryptoParams);
-//				cipherText1.SetElement(element1);
-//
-//				LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
-//
-//				algorithm.Enable(LEVELEDSHE);
-//				algorithm.Enable(ENCRYPTION);
-//
-//				//Initialize the public key containers.
-//				LPPublicKey<ILVectorArray2n> pk(cryptoParams);
-//				LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
-//				
-//				algorithm.KeyGen(&pk, &sk);
-//				vector<Ciphertext<ILVectorArray2n>> ciphertext;
-//
-//				IntPlaintextEncoding intArray(cyclotomicOrderToIntArrayMapper.at(m));
-//	
-//				CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, intArray, &ciphertext, false);
-//
-//				LPPublicKey<ILVectorArray2n> pk2(cryptoParams);
-//				LPPrivateKey<ILVectorArray2n> skSparse(cryptoParams);
-//
-//				algorithm.SparseKeyGen(&pk2, &skSparse);
-//
-//				LPEvalKeyNTRU<ILVectorArray2n> keySwitchHint(cryptoParams);
-//				algorithm.EvalMultKeyGen(sk, skSparse, &keySwitchHint);
-//
-//				vector<Ciphertext<ILVectorArray2n>> newCiphertext;
-//				newCiphertext.reserve(ciphertext.size());
-//
-//				CryptoUtility<ILVectorArray2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
-//
-//				IntPlaintextEncoding intArrayNew;
-//
-//				CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, skSparse, newCiphertext, &intArrayNew, false);
-//
-//				for (usint i = 0; i < intArrayNew.size(); i++) {
-//					cout << intArrayNew.at(i) << endl;
-//				}
-//				cout << endl;
-//
-//				start = currentDateTime();
-//
-//				CryptoUtility<ILVectorArray2n>::RingReduce(algorithm, &ciphertext, keySwitchHint);
-//
-//				finish = currentDateTime();
-//				diff = finish - start;
-//				ring_reduce_timer_map.at(m).at(i) += diff;
-//
-//				ILVectorArray2n skSparseElement(skSparse.GetPrivateElement());
-//				skSparseElement.SwitchFormat();
-//				skSparseElement.Decompose();
-//				skSparseElement.SwitchFormat();
-//
-//				skSparse.SetPrivateElement(skSparseElement);
-//
-//				IntPlaintextEncoding intArrayNewRR;
-//
-//				LPCryptoParametersLTV<ILVectorArray2n> cryptoParamsRR;
-//				cryptoParamsRR.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-//				cryptoParamsRR.SetDistributionParameter(stdDev);          // Set the noise parameters.
-//				cryptoParamsRR.SetRelinWindow(1);						   // Set the relinearization window
-//				cryptoParamsRR.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
-//
-//				for (int i = 0; i < ciphertext.size(); i++) {
-//					ciphertext.at(i).SetCryptoParameters(&cryptoParamsRR);
-//				}
-//
-//		//		skSparse.SetCryptoParameters(&cryptoParamsRR);
-//
-//				CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, skSparse, ciphertext, &intArrayNewRR, false);
-//
-//				for (usint i = 0; i < intArrayNewRR.size(); i++) {
-//					cout << intArrayNewRR.at(i) << endl;
-//				}
-//				cout << endl;
-//			}
-//		}
-//	}
-//	ofstream myfile;
-//	myfile.open("C:/Users/Ha/Documents/Code/Palisade/benchmark.csv", std::ios_base::app);
-//	myfile << "\n";
-//	myfile << "Mod Double-CRT\n";
-//	myfile << "Cyclotomic Order,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768\n";
-//
-//	for (usint i = 1; i <= numberOfTowers; i++) {
-//		myfile << "t=" << i << ",";
-//		for (usint m = 16; m <= maxCyclotomicOrder; m = m * 2) {
-//			myfile << ring_reduce_timer_map.at(m).at(i) / numberOfIterations << ",";
-//		}
-//		myfile << "\n";
-//	}
-//
-//	myfile << "\n" << numberOfIterations << " iterations\n";
-//}
-//
+
+
 //void BenchMarking_Ring_Reduce_Single_Crt() {
 //	double diff, start, finish;
 //	std::map<usint, double> ring_reduce_timer;
@@ -960,115 +794,7 @@ void BenchMarking_DCRT_ByteArray(){
 //	}
 //}
 //
-//void BenchMarking_DCRT_IntArray() {
-//	double diff, start, finish;
-//	std::map<usint, std::vector<double>> encryptTimer;
-//	std::map<usint, std::vector<double>> decryptTimer;
-//
-//	//	usint m = 16;
-//	usint numberOfIterations = 3;
-//	usint numberOfTowers = 20;
-//
-//	std:map<usint, IntPlaintextEncoding> cyclotomicOrderToIntArrayMapper;
-//
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(16, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(32, IntPlaintextEncoding({ 1 , 0 , 0, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(64, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(128, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(256, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(512, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(1024, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(2048, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(4096, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(8192, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(16384, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0 })));
-//
-//	for (usint m = 16; m <= 64; m = m * 2) {
-//
-//		std::vector<double> encryptTimeTower(20);
-//		std::fill(encryptTimeTower.begin(), encryptTimeTower.end(), 0);
-//		encryptTimer.insert(std::make_pair(m, encryptTimeTower));
-//
-//		std::vector<double> decryptTimeTower(20);
-//		std::fill(decryptTimeTower.begin(), decryptTimeTower.end(), 0);
-//		decryptTimer.insert(std::make_pair(m, decryptTimeTower));
-//
-//		for (usint k = 0; k < numberOfIterations; k++) {
-//			for (usint i = 1; i <= 3; i++) {
-//				float stdDev = 4;
-//
-//				vector<BigBinaryInteger> moduli(i);
-//
-//				vector<BigBinaryInteger> rootsOfUnity(i);
-//
-//				BigBinaryInteger q("1");
-//				BigBinaryInteger temp;
-//				BigBinaryInteger modulus("1");
-//
-//				for (int j = 0; j < i; j++) {
-//					lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-//					moduli[j] = q;
-//					rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-//					modulus = modulus* moduli[j];
-//				}
-//
-//				DiscreteGaussianGenerator dgg(stdDev);
-//
-//				ILDCRTParams params(m, moduli, rootsOfUnity);
-//
-//				LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-//				cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-//				cryptoParams.SetDistributionParameter(stdDev);
-//				cryptoParams.SetRelinWindow(1);
-//				cryptoParams.SetElementParams(params);
-//				cryptoParams.SetDiscreteGaussianGenerator(dgg);
-//
-//				Ciphertext<ILVectorArray2n> cipherText;
-//				cipherText.SetCryptoParameters(&cryptoParams);
-//
-//				LPPublicKey<ILVectorArray2n> pk(cryptoParams);
-//				LPPrivateKey<ILVectorArray2n> sk(cryptoParams);
-//
-//				LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
-//				algorithm.Enable(ENCRYPTION);
-//				algorithm.Enable(PRE);
-//
-//				algorithm.KeyGen(&pk, &sk);
-//
-//				vector<Ciphertext<ILVectorArray2n>> ciphertext;
-//
-//				start = currentDateTime();
-//
-//				CryptoUtility<ILVectorArray2n>::Encrypt(algorithm, pk, cyclotomicOrderToIntArrayMapper.at(m), &ciphertext);
-//				finish = currentDateTime();
-//				diff = finish - start;
-//				encryptTimer.at(m).at(i) += diff;
-//
-//				BytePlaintextEncoding plaintextNew;
-//
-//				start = currentDateTime();
-//
-//				CryptoUtility<ILVectorArray2n>::Decrypt(algorithm, sk, ciphertext, &plaintextNew);
-//				finish = currentDateTime();
-//				diff = finish - start;
-//				decryptTimer.at(m).at(i) += diff;
-//
-//				cout << plaintextNew << endl;
-//
-//			}
-//		}
-//	}
-//	for (usint m = 16; m <= 64; m = m * 2) {
-//		cout << "m is :" << m << endl;
-//		for (int i = 1; i < 4; i++) {
-//			cout << "tower size:" << i << endl;
-//			cout << encryptTimer.at(m).at(i) / 3 << endl;
-//			cout << decryptTimer.at(m).at(i) / 3 << endl;
-//			cout << endl;
-//		}
-//	}
-//}
-//
+
 //void BenchMarking_Pre(){
 //	double diff, start, finish;
 //	std::map<usint, double> reEncryptTimer;
@@ -1525,4 +1251,81 @@ void standardMapTest() {
 
 	}
 
+}
+
+void ringReduceTest() {
+	usint m = 16;
+	float stdDev = 4;
+	usint size = 3;
+
+	vector<BigBinaryInteger> moduli(size);
+	moduli.reserve(4);
+	vector<BigBinaryInteger> rootsOfUnity(size);
+	rootsOfUnity.reserve(4);
+
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+	BigBinaryInteger modulus("1");
+
+	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
+
+	for (int i = 0; i < size; i++) {
+		lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		moduli[i] = q;
+		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
+		modulus = modulus* moduli[i];
+	}
+
+	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
+
+	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
+	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
+	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
+	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
+
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(LEVELEDSHE);
+	cc.Enable(SHE);
+
+	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
+
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext;
+
+	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
+	IntPlaintextEncoding intArray(vectorOfInts);
+
+	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext(ciphertext.size());
+
+	LPKeyPair<ILVectorArray2n> kp2 = cc.SparseKeyGen();
+
+	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
+
+	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
+
+	IntPlaintextEncoding intArrayNew;
+
+	cc.Decrypt(kp2.secretKey, newCiphertext, &intArrayNew, false);
+
+	ciphertext = cc.RingReduce(ciphertext, keySwitchHint);
+
+	ILVectorArray2n skSparseElement(kp2.secretKey->GetPrivateElement());
+	skSparseElement.SwitchFormat();
+	skSparseElement.Decompose();
+	skSparseElement.SwitchFormat();
+
+	kp2.secretKey->SetPrivateElement(skSparseElement);
+
+	IntPlaintextEncoding intArrayNewRR;
+
+	cc.Decrypt(kp2.secretKey, ciphertext, &intArrayNewRR, false);
+
+	IntPlaintextEncoding intArrayExpected({ 1,1,1,1 });
+
+	cout << intArrayNewRR << endl;
+
+	ILVector2n::DestroyPreComputedSamples();
 }
