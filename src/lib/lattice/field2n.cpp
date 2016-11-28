@@ -40,20 +40,30 @@ namespace lbcrypto {
 
 	//Addition operation for field elements
 	Field2n Field2n::Plus(const Field2n &rhs) const {
-		Field2n sum(this->size(), EVALUATION);
-		for (int i = 0;i < this->size(); i++) {
-			sum.at(i) = this->at(i) + rhs.at(i);
+		if (format == rhs.GetFormat()) {
+			Field2n sum(this->size(), rhs.GetFormat());
+			for (int i = 0;i < this->size(); i++) {
+				sum.at(i) = this->at(i) + rhs.at(i);
+			}
+			return sum;
 		}
-		return sum;
+		else {
+			throw std::logic_error("Operands are not in the same format");
+		}
 	}
 
 	//Substraction operation for field elements
 	Field2n Field2n::Minus(const Field2n &rhs) const {
-		Field2n difference(this->size(), EVALUATION);
-		for (int i = 0;i < this->size(); i++) {
-			difference.at(i) = this->at(i) - rhs.at(i);
+		if (format == rhs.GetFormat()) {
+			Field2n difference(this->size(), rhs.GetFormat());
+			for (int i = 0;i < this->size(); i++) {
+				difference.at(i) = this->at(i) - rhs.at(i);
+			}
+			return difference;
 		}
-		return difference;
+		else {
+			throw std::logic_error("Operands are not in the same format");
+		}
 	}
 
 	//Multiplication operation for field elements
@@ -91,7 +101,7 @@ namespace lbcrypto {
 		if (this->format == COEFFICIENT) {
 			Field2n transpose(this->size(), COEFFICIENT);
 			for (int i = 1;i < this->size();i++) {
-				transpose.at(i) = std::complex<double>(-1, 0) * this->at(this->size()-i);
+				transpose.at(i) = std::complex<double>(-1, 0) * this->at(this->size() - i);
 			}
 			transpose.at(0) = this->at(0);
 			return transpose;
@@ -158,7 +168,7 @@ namespace lbcrypto {
 			Field2n invpermuted(this->size(), COEFFICIENT, true);
 			int evenPtr = 0;
 			int oddPtr = this->size() / 2;
-			for (int i = 0;evenPtr < this->size()/2;i += 2) {
+			for (int i = 0;evenPtr < this->size() / 2;i += 2) {
 				invpermuted.at(i) = this->at(evenPtr);
 				invpermuted.at(i + 1) = this->at(oddPtr);
 				evenPtr++;
