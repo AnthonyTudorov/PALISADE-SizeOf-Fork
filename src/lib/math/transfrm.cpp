@@ -560,7 +560,7 @@ namespace lbcrypto {
 		std::vector<std::complex<double>> result = DiscreteFourierTransform::FFTForwardTransform(A);
 		double n = result.size()/2;
 		for(int i=0;i < n;i++) {
-				result[i] =std::complex<double>(result[i].real()/n, result[i].imag()/n);
+				result[i] =std::complex<double>(result[i].real()/(2*n), result[i].imag()/(2*n));
 		}
 			return result;
 	}
@@ -573,7 +573,7 @@ namespace lbcrypto {
 		std::vector<std::complex<double>> dftRemainder;
 		for (int i = dft.size() - 1;i > 0;i--) {
 			if (i % 2 != 0) {
-				dftRemainder.push_back(dft.at(i));
+				dftRemainder.push_back(std::complex<double>(2*dft.at(i).real(), 2 * dft.at(i).imag()));
 			}
 		}
 		return dftRemainder;

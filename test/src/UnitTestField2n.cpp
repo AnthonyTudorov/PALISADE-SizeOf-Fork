@@ -40,14 +40,14 @@ protected:
 
 //TEST FOR GETTER FOR FORMAT
 TEST(UTField2n, get_format) {
-  bool dbg_flag = false;
+	bool dbg_flag = false;
 
-  DEBUG("Step 1");
-  Field2n test(2, COEFFICIENT, true);
-  DEBUG("Step 2");
-  EXPECT_EQ(COEFFICIENT, test.GetFormat())
-	  << "Failed getter" << std::endl;
-  }
+	DEBUG("Step 1");
+	Field2n test(2, COEFFICIENT, true);
+	DEBUG("Step 2");
+	EXPECT_EQ(COEFFICIENT, test.GetFormat())
+		<< "Failed getter" << std::endl;
+}
 //TEST FOR INVERSE OF FIELD ELEMENT
 TEST(UTField2n, inverse) {
 	bool dbg_flag = false;
@@ -57,7 +57,7 @@ TEST(UTField2n, inverse) {
 	test.at(1) = std::complex<double>(-4, 0);
 	DEBUG("Step 2");
 	Field2n inverse(2, EVALUATION, true);
-	inverse.at(0)= std::complex<double>(0.5, 0);
+	inverse.at(0) = std::complex<double>(0.5, 0);
 	inverse.at(1) = std::complex<double>(-0.25, 0);
 	DEBUG("Step 3");
 	EXPECT_EQ(inverse, test.Inverse());
@@ -133,7 +133,7 @@ TEST(UTField2n, shift_right) {
 	b.at(2) = std::complex<double>(3, 0);
 	b.at(3) = std::complex<double>(2, 0);
 	DEBUG("Step 3");
-	EXPECT_EQ(b,a.ShiftRight());
+	EXPECT_EQ(b, a.ShiftRight());
 }
 
 //TEST FOR TRANSPOSE OPERATION
@@ -245,9 +245,66 @@ TEST(UTField2n, scalar_mult) {
 	DEBUG("Step 3");
 	EXPECT_EQ(b, a.ScalarMult(3));
 }
-/*
+
+//TEST FOR COEFFICIENT TO EVALUATION FORMAT CHANGE
+TEST(UTField2n, coefficient_evaluation) {
+	bool dbg_flag = false;
+	DEBUG("Step 1");
+	Field2n a(8, COEFFICIENT, true);
+	a.at(0) = std::complex<double>(4, 0);
+	a.at(1) = std::complex<double>(5, 0);
+	a.at(2) = std::complex<double>(5, 0);
+	a.at(3) = std::complex<double>(4.2, 0);
+	a.at(4) = std::complex<double>(5, 0);
+	a.at(5) = std::complex<double>(7.1, 0);
+	a.at(6) = std::complex<double>(6, 0);
+	a.at(7) = std::complex<double>(3, 0);
+	DEBUG("Step 2");
+	Field2n b(8, EVALUATION, true);
+	b.at(0) = std::complex<double>(8.74631, 52.2118);
+	b.at(1) = std::complex<double>(17.281, 12.1583);
+	b.at(2) = std::complex<double>(3.5474, 1.04558);
+	b.at(3) = std::complex<double>(6.42526, 1.09913);
+	b.at(4) = std::complex<double>(6.42526, -1.09913);
+	b.at(5) = std::complex<double>(3.5474, -1.04558);
+	b.at(6) = std::complex<double>(17.281, -12.1583);
+	b.at(7) = std::complex<double>(8.74631, -52.2118);
+	DEBUG("Step 3");
+	a.SwitchFormat();
+	EXPECT_EQ(b, a);
+}
+
+//TEST FOR EVALUATION TO COEFFICIENT FORMAT CHANGE
+TEST(UTField2n, evaluation_coefficient) {
+	bool dbg_flag = false;
+	DEBUG("Step 1");
+	Field2n b(8, EVALUATION, true);
+	b.at(0) = std::complex<double>(8.74631, 52.2118);
+	b.at(1) = std::complex<double>(17.281, 12.1583);
+	b.at(2) = std::complex<double>(3.5474, 1.04558);
+	b.at(3) = std::complex<double>(6.42526, 1.09913);
+	b.at(4) = std::complex<double>(6.42526, -1.09913);
+	b.at(5) = std::complex<double>(3.5474, -1.04558);
+	b.at(6) = std::complex<double>(17.281, -12.1583);
+	b.at(7) = std::complex<double>(8.74631, -52.2118);
+	DEBUG("Step 2");
+	Field2n a(8, COEFFICIENT, true);
+	a.at(0) = std::complex<double>(4, 0);
+	a.at(1) = std::complex<double>(5, 0);
+	a.at(2) = std::complex<double>(5, 0);
+	a.at(3) = std::complex<double>(4.2, 0);
+	a.at(4) = std::complex<double>(5, 0);
+	a.at(5) = std::complex<double>(7.1, 0);
+	a.at(6) = std::complex<double>(6, 0);
+	a.at(7) = std::complex<double>(3, 0);
+	
+	DEBUG("Step 3");
+	b.SwitchFormat();
+	EXPECT_EQ(a, b);
+}
+
 int main(int argc, char **argv) {
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 }
-*/
+
