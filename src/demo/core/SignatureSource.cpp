@@ -10,7 +10,8 @@ int main() {
 	usint sm = 16;
 	BigBinaryInteger smodulus("1152921504606847009");
 	BigBinaryInteger srootOfUnity("405107564542978792");
-	ILParams silParams(sm, smodulus, srootOfUnity);
+	ILParams ilParams(sm, smodulus, srootOfUnity);
+	shared_ptr<ILParams> silParams = std::make_shared<ILParams>(ilParams);
 	start = currentDateTime();
 	std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 	finish = currentDateTime();
@@ -46,9 +47,9 @@ int main() {
 	sm = 256;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("102389487");
-	silParams.SetCyclotomicOrder(sm);
-	silParams.SetRootOfUnity(srootOfUnity);
-	silParams.SetModulus(smodulus);
+	ilParams.SetCyclotomicOrder(sm);
+	ilParams.SetRootOfUnity(srootOfUnity);
+	ilParams.SetModulus(smodulus);
 	std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 	std::cout << "Signature precomputations" << std::endl;
 	start = currentDateTime();
@@ -57,8 +58,7 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
-	
-	signParams.SetDiscreteGaussianGenerator(dgg);
+	silParams = std::make_shared<ILParams>(ilParams);
 	signParams.SetElemParams(silParams);
 
 	s_k.SetSignatureParameters(signParams);
@@ -83,9 +83,9 @@ int main() {
 	sm = 512;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("49884309");
-	silParams.SetCyclotomicOrder(sm);
-	silParams.SetRootOfUnity(srootOfUnity);
-	silParams.SetModulus(smodulus);
+	ilParams.SetCyclotomicOrder(sm);
+	ilParams.SetRootOfUnity(srootOfUnity);
+	ilParams.SetModulus(smodulus);
 	std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 	std::cout << "Signature precomputations" << std::endl;
 	start = currentDateTime();
@@ -94,8 +94,7 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
-
-	signParams.SetDiscreteGaussianGenerator(dgg);
+	silParams = std::make_shared<ILParams>(ilParams);
 	signParams.SetElemParams(silParams);
 
 	s_k.SetSignatureParameters(signParams);
@@ -120,9 +119,9 @@ int main() {
 	sm = 1024;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("122451504");
-	silParams.SetCyclotomicOrder(sm);
-	silParams.SetRootOfUnity(srootOfUnity);
-	silParams.SetModulus(smodulus);
+	ilParams.SetCyclotomicOrder(sm);
+	ilParams.SetRootOfUnity(srootOfUnity);
+	ilParams.SetModulus(smodulus);
 	std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 	std::cout << "Signature precomputations" << std::endl;
 	start = currentDateTime();
@@ -132,7 +131,7 @@ int main() {
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
 
-	signParams.SetDiscreteGaussianGenerator(dgg);
+	silParams = std::make_shared<ILParams>(ilParams);
 	signParams.SetElemParams(silParams);
 
 	s_k.SetSignatureParameters(signParams);
@@ -158,9 +157,9 @@ int main() {
 	sm = 2048;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("34044212");
-	silParams.SetCyclotomicOrder(sm);
-	silParams.SetRootOfUnity(srootOfUnity);
-	silParams.SetModulus(smodulus);
+	ilParams.SetCyclotomicOrder(sm);
+	ilParams.SetRootOfUnity(srootOfUnity);
+	ilParams.SetModulus(smodulus);
 	std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 	std::cout << "Signature precomputations" << std::endl;
 	start = currentDateTime();
@@ -169,7 +168,7 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
-	signParams.SetDiscreteGaussianGenerator(dgg);
+	silParams = std::make_shared<ILParams>(ilParams);
 	signParams.SetElemParams(silParams);
 
 	s_k.SetSignatureParameters(signParams);

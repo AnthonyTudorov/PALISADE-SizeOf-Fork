@@ -43,13 +43,22 @@ namespace lbcrypto {
 	void LatticeGaussSampUtility::NonSphericalSample(size_t n, const Matrix<LargeFloat> &sigmaSqrt, double stddev, Matrix<int32_t> *perturbationVector)
 	{
 		int32_t a(floor(stddev / 2));
+		
+		double s = 40 * std::sqrt(perturbationVector->GetRows());
+		int32_t r(ceil(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI)));
+		int32_t c(floor(r / 2));
+		int32_t b = s*s - 5 * c *c;
 
 		Matrix<LargeFloat> sample([]() { return make_unique<LargeFloat>(); }, sigmaSqrt.GetRows(), 1);
 
 		ContinuousGaussianGenerator(&sample);
-
+		Matrix<LargeFloat> nkEntry([]() { return make_unique<LargeFloat>(); }, perturbationVector->GetRows()-2*n, 1);
+		ContinuousGaussianGenerator(&nkEntry);
 		Matrix<LargeFloat> p = sigmaSqrt.Mult(sample);
 		RandomizeRound(n, p, a, perturbationVector);
+		for (int i = 0;i < nkEntry.GetRows();i++) {
+			(*perturbationVector)(2 * n + i,0) = (int32_t)(nkEntry(i, 0) * sqrt(b));
+		}
 
 	}
 
