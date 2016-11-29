@@ -1,5 +1,6 @@
 /**
-* @file
+* @file		cryptocontext.cpp
+*
 * @author	TPOC:
 				Dr. Kurt Rohloff <rohloff@njit.edu>,
 			Programmers:
@@ -53,6 +54,7 @@ CryptoContext<T>::Deserialize(const Serialized& serObj)
 	return false;
 }
 
+// FIXME these routines will shortly move into the java wrapper (or the trash)
 //template <class T, class T2>
 //static T* deserializeAndCreate(const std::string& serializedKey, const CryptoContext<T2>* ctx )
 //{
@@ -274,7 +276,8 @@ CryptoContextFactory<T>::getCryptoContextNull(
 }
 
 // the methods below allow me to deserialize a json object into this context
-// ... which will only succeed if the object was serialized from this context!
+// ... which will only succeed if the object was serialized from this context,
+// ... or from another context with identical parameters
 
 template <typename T>
 shared_ptr<LPPublicKey<T>>
