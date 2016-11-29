@@ -349,6 +349,58 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 
 }
 
+// Test of Gaussian Sampling using the UCSD integer perturbation sampling algorithm
+TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
+
+	usint m = 16;
+	usint n = m / 2;
+	double s = 600;
+
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	float stddev = 4;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = log(val - 1.0) / log(2) + 1.0;
+	usint k = (usint)floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
+	//auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+
+	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+
+	RingMat eHat = trapPair.second.m_e;
+	RingMat rHat = trapPair.second.m_r;
+	//auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
+
+	DiscreteGaussianGenerator dgg(4);
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
+
+	ILVector2n u(dug, params, COEFFICIENT);
+	u.SwitchFormat();
+
+	//  600 is a very rough estimate for s, refer to Durmstradt 4.2 for
+	//      estimation
+	RingMat z = RLWETrapdoorUtility::GaussSampV3(m / 2, k, trapPair.first, trapPair.second, u, stddev, dgg);
+
+	//Matrix<ILVector2n> uEst = trapPair.first * z;
+
+	EXPECT_EQ(trapPair.first.GetCols(), z.GetRows())
+		<< "Failure testing number of rows";
+	EXPECT_EQ(m / 2, z(0, 0).GetLength())
+		<< "Failure testing ring dimension for the first ring element";
+
+	ILVector2n uEst = (trapPair.first * z)(0, 0);
+	uEst.SwitchFormat();
+	u.SwitchFormat();
+
+	EXPECT_EQ(u, uEst);
+
+	//std::cout << z << std::endl;
+
+}
+
+
 TEST(UTTrapdoor,EncodeTest_dgg_yes) {
 	bool dbg_flag = false;
 

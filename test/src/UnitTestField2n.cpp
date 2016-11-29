@@ -209,7 +209,7 @@ TEST(UTField2n, permute) {
 }
 
 //TEST FOR INVERSE PERMUTE OPERATION
-TEST(UTField2n, inveres_permute) {
+TEST(UTField2n, inverse_permute) {
 	bool dbg_flag = false;
 	DEBUG("Step 1");
 	Field2n a(4, COEFFICIENT, true);
@@ -303,8 +303,8 @@ TEST(UTField2n, evaluation_coefficient) {
 	EXPECT_EQ(a, b);
 }
 
-int main(int argc, char **argv) {
-	::testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
-}
+//int main(int argc, char **argv) {
+//	::testing::InitGoogleTest(&argc, argv);
+//	return RUN_ALL_TESTS();
+//}
 

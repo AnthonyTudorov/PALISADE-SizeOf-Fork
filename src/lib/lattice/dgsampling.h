@@ -121,20 +121,14 @@ public:
 			(*perturbationVector)(i,0) = DiscreteGaussianGenerator::GenerateInteger(p(i,0), sigma, n);
 		}
 	};
-	/**
-	* New method for perturbation generation based by the new paper
-	*
-	*@param n ring dimension
-	*@param q modulus
-	*@param s parameter Gaussian distribution
-	*@param sigma standard deviation
-	*@param &Tprime compact trapdoor matrix
-	*@param *perturbationVector perturbation vector;output of the function
-	*@param &dgg discrete Gaussian generator for sampling 
-	*/
-	static inline void ZSampleSigmaP(size_t n, BigBinaryInteger q, double s, double sigma, 
-		const Matrix<ILVector2n> &Tprime, Matrix<int32_t> *perturbationVector,const DiscreteGaussianGenerator& dgg);
 
+	//Subroutine used by ZSampleSigmaP
+	static inline void ZSampleSigma2x2(const Field2n & a, const Field2n & b,
+		const Field2n & d, const Matrix<Field2n> &c, Matrix<int32_t>* p, const DiscreteGaussianGenerator & dgg);
+
+	//Subroutine used by ZSampleSigma2x2
+	static inline Matrix<int32_t> ZSampleF(const Field2n &f, const Field2n &c,
+		const DiscreteGaussianGenerator &dgg, size_t n);
 
 private:
 	
@@ -147,14 +141,7 @@ private:
 	// Algorithm was provided in a personal communication by Daniele Micciancio
 	static inline void SampleC(const Matrix<double> &c, size_t k, size_t n, 
 		double sigma, DiscreteGaussianGenerator &dgg, Matrix<double> *a, vector<int32_t> *z);
-	
-	//Subroutine used by ZSampleSigmaP
-	static inline void ZSampleSigma2x2(const Field2n & a, const Field2n & b,
-		const Field2n & d, const Matrix<Field2n> &c, Matrix<int32_t>* p, const DiscreteGaussianGenerator & dgg);
 
-	//Subroutine used by ZSampleSigma2x2
-	static inline Matrix<int32_t> ZSampleF(const Field2n &f, const Field2n &c,
-		const DiscreteGaussianGenerator &dgg, size_t n);
 
 };
 

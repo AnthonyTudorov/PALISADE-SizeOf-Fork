@@ -57,7 +57,7 @@ class RLWETrapdoorPair {
 public:
 	// matrix of noise polynomials
 	Matrix<Element> m_r;
-	// matirx 
+	// matrix 
 	Matrix<Element> m_e;
 
 	RLWETrapdoorPair();
@@ -112,6 +112,23 @@ public:
 			double sigma, DiscreteGaussianGenerator &dgg); 
 
 	/**
+	* Gaussian sampling introduced - UCSD version
+	*
+	* @param n ring dimension
+	* @param k matrix sample dimension; k = logq + 2
+	* @param &A public key of the trapdoor pair
+	* @param &T trapdoor itself
+	* @param &SigmaP Cholesky decomposition matrix for the trapdoor
+	* @param &u syndrome vector where gaussian that Gaussian sampling is centered around
+	* @param sigma noise distriubution parameter
+	* @param &dgg discrete Gaussian generator for integers
+	* @return the sampled vector (matrix)
+	*/
+	static inline RingMat GaussSampV3(size_t n, size_t k, const RingMat& A, 
+		const RLWETrapdoorPair<ILVector2n>& T, const ILVector2n &u,
+		double sigma, DiscreteGaussianGenerator &dgg);
+
+	/**
 	* Generation of perturbation matrix based on Cholesky decomposition 
 	* see Section 3.2 of https://eprint.iacr.org/2013/297.pdf for details
 	*
@@ -138,6 +155,19 @@ public:
 	*/
 	static inline void PerturbationMatrixGenAlt(size_t n,size_t k, const RingMat& A,
 		const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt);
+
+	/**
+	* New method for perturbation generation based by the new paper
+	*
+	*@param n ring dimension
+	*@param s parameter Gaussian distribution
+	*@param sigma standard deviation
+	*@param &Tprime compact trapdoor matrix
+	*@param *perturbationVector perturbation vector;output of the function
+	*@param &dgg discrete Gaussian generator for sampling
+	*/
+	static inline void ZSampleSigmaP(size_t n, double s, double sigma,
+		const RLWETrapdoorPair<ILVector2n> &Tprime, Matrix<int32_t> *perturbationVector, const DiscreteGaussianGenerator& dgg);
 
 };
 
