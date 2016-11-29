@@ -1,5 +1,6 @@
 /**
-* @file
+* @file		cryptocontext.h
+*
 * @author	TPOC:
 				Dr. Kurt Rohloff <rohloff@njit.edu>,
 			Programmers:
@@ -43,14 +44,6 @@
 #include "../utils/cryptocontexthelper.h"
 
 namespace lbcrypto {
-
-/**
- * @brief CryptoContextImpl Class.
- *
- * This class implements a container for the Crypto Context.
- * Every object in Palisade is created within a context and
- * maintains a shared pointer to its context
- */
 
 template <class Element>
 class CryptoContextFactory;
@@ -188,7 +181,7 @@ public:
 	}
 
 	/**
-	 * FIXME this comment needs help
+	 * SparseKeyGen generates keys with special structure, and without full entropy, for use in special cases like Ring Reduction
 	 * @return a public/secret key pair
 	 */
 	LPKeyPair<Element> SparseKeyGen() const {
@@ -212,7 +205,7 @@ public:
 	}
 
 	/**
-	 * EvalMultKeyGen creates a key that can be used with the EvalMult operator
+	 * EvalMultKeyGen creates a key that can be used with the PALISADE EvalMult operator
 	 * @param key
 	 * @return new evaluation key
 	 */
@@ -225,7 +218,7 @@ public:
 	}
 
 	/**
-	 * KeySwitchGen creates a key that can be used with the KeySwitch operation
+	 * KeySwitchGen creates a key that can be used with the PALISADE KeySwitch operation
 	 * @param key1
 	 * @param key2
 	 * @return new evaluation key
@@ -240,7 +233,7 @@ public:
 	}
 
 	/**
-	 * QuadraticEvalMultKeyGen creates the key that can be used with Quadratic EvalMult
+	 * QuadraticEvalMultKeyGen creates the key that can be used with the PALISADE Quadratic EvalMult
 	 * @param k1
 	 * @param k2
 	 * @return new evaluation key
@@ -308,7 +301,6 @@ public:
 	/**
 	 * Perform an encryption by reading plaintext from a stream, serializing each piece of ciphertext,
 	 * and writing the serializations to an output stream
-	 * @param scheme - a reference to the encryption scheme in use
 	 * @param publicKey - the encryption key in use
 	 * @param instream - where to read the input from
 	 * @param ostream - where to write the serialization to
@@ -408,8 +400,7 @@ public:
 	}
 
 	/**
-	 * read a stream for a sequence of serialized ciphertext; deserialize it, decrypt it, and write it to another stream
-	 * @param ctx - a pointer to the crypto context used in this session
+	 * read instream for a sequence of serialized ciphertext; deserialize it, decrypt it, and write it to outstream
 	 * @param privateKey - reference to the decryption key
 	 * @param instream - input stream with sequence of serialized ciphertexts
 	 * @param outstream - output stream for plaintext
@@ -483,8 +474,7 @@ public:
 	}
 
 	/**
-	 * perform re-encryption using streams
-	 * @param ctx - a pointer to the crypto context used in this session
+	 * read instream for a serialized ciphertext. deserialize, re-encrypt, serialize, and write to outstream
 	 * @param evalKey - reference to the re-encryption key
 	 * @param instream - input stream with sequence of serialized ciphertext
 	 * @param outstream - output stream with sequence of serialized re-encrypted ciphertext
@@ -742,11 +732,39 @@ public:
 template <class Element>
 class CryptoContextFactory {
 public:
+	/**
+	 * construct a PALISADE CryptoContext for the LTV Scheme
+	 * @param plaintextmodulus
+	 * @param ringdim
+	 * @param modulus
+	 * @param rootOfUnity
+	 * @param relinWindow
+	 * @param stDev
+	 * @param depth
+	 * @return new context
+	 */
 	static CryptoContext<Element> genCryptoContextLTV(
 			const usint plaintextmodulus,
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev, int depth = 1);
 
+	/**
+	 * construct a PALISADE CryptoContext for the FV Scheme
+	 * @param plaintextmodulus
+	 * @param ringdim
+	 * @param modulus
+	 * @param rootOfUnity
+	 * @param relinWindow
+	 * @param stDev
+	 * @param delta
+	 * @param mode
+	 * @param bigmodulus
+	 * @param bigrootofunity
+	 * @param depth
+	 * @param assuranceMeasure
+	 * @param securityLevel
+	 * @return new context
+	 */
 	static CryptoContext<Element> genCryptoContextFV(
 			const usint plaintextmodulus,
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
@@ -754,31 +772,75 @@ public:
 			MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
 			int depth = 0, int assuranceMeasure = 0, float securityLevel = 0);
 
+	/**
+	 * construct a PALISADE CryptoContext for the FV Scheme using the scheme's ParamsGen methods
+	 * @param plaintextModulus
+	 * @param securityLevel
+	 * @param numAdds
+	 * @param numMults
+	 * @param numKeyswitches
+	 * @return new context
+	 */
 	static CryptoContext<Element> genCryptoContextFV(
 			const BigBinaryInteger& plaintextModulus, float securityLevel,
 			unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
 
+	/**
+	 * construct a PALISADE CryptoContext for the BV Scheme
+	 * @param plaintextmodulus
+	 * @param ringdim
+	 * @param modulus
+	 * @param rootOfUnity
+	 * @param relinWindow
+	 * @param stDev
+	 * @return new context
+	 */
 	static CryptoContext<Element> genCryptoContextBV(
 			const usint plaintextmodulus,
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev);
 
-	//temp function written by GRS
+	/**
+	 * FIXME temp function written by GRS
+	 * @param cryptoParams
+	 * @return
+	 */
 	static CryptoContext<Element> genCryptoContextBV(LPCryptoParametersBV<Element>* cryptoParams);
 
-	// FIXME: this is temporary until we better incorporate DCRT
+	/**
+	 * FIXME this is temporary until we better incorporate DCRT
+	 * @param cryptoParams
+	 * @return
+	 */
 	static CryptoContext<Element> getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams);
 
+	/**
+	 * construct a PALISADE CryptoContext for the StehleSteinfeld Scheme
+	 * @param plaintextmodulus
+	 * @param ringdim
+	 * @param modulus
+	 * @param rootOfUnity
+	 * @param relinWindow
+	 * @param stDev
+	 * @param stDevStSt
+	 * @return new context
+	 */
 	static CryptoContext<Element> genCryptoContextStehleSteinfeld(
 			const usint plaintextmodulus,
 			usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 			usint relinWindow, float stDev, float stDevStSt);
 
+	/**
+	 * construct a PALISADE CryptoContext for the Null Scheme
+	 * @param modulus
+	 * @param ringdim
+	 * @return
+	 */
 	static CryptoContext<Element> getCryptoContextNull(
 			const usint modulus,
 			usint ringdim);
 
-	// helpers for deserialization of contexts
+	// helper for deserialization of contexts
 	static shared_ptr<LPCryptoParameters<Element>> GetParameterObject( const Serialized& serObj ) {
 
 		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersType");
@@ -808,6 +870,7 @@ public:
 		return shared_ptr<LPCryptoParameters<Element>>();
 	}
 
+	// helper for deserialization of contexts
 	static shared_ptr<LPPublicKeyEncryptionScheme<Element>> GetSchemeObject( const Serialized& serObj ) {
 
 		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersType");
@@ -837,6 +900,11 @@ public:
 		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>();
 	}
 
+	/**
+	 * Create a PALISADE CryptoContext from a serialization
+	 * @param serObj
+	 * @return new context
+	 */
 	static CryptoContext<Element> DeserializeAndCreateContext( const Serialized& serObj ) {
 		shared_ptr<LPCryptoParameters<Element>> cp = GetParameterObject(serObj);
 
@@ -854,6 +922,12 @@ public:
 		return cc;
 	}
 
+	/**
+	 * Test if a serialization matches a given CryptoContext
+	 * @param ctx
+	 * @param serObj
+	 * @return
+	 */
 	static bool DeserializeAndValidateParams( const CryptoContext<Element> ctx, const Serialized& serObj ) {
 		shared_ptr<LPCryptoParameters<Element>> cp = GetParameterObject(serObj);
 
@@ -869,7 +943,7 @@ public:
 			return false;
 		}
 
-		return false; //CryptoContext<Element>( new CryptoContextImpl<Element>(cp) );
+		return false;
 	}
 };
 
