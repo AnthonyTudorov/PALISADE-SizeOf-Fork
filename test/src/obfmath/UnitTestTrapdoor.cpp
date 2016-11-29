@@ -354,7 +354,6 @@ TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
 
 	usint m = 16;
 	usint n = m / 2;
-	double s = 600;
 
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");

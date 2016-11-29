@@ -10,8 +10,8 @@ namespace lbcrypto {
 		else {
 			for (int i = 0;i < element.GetLength();i++) {
 				this->push_back(element.GetValAtIndex(i).ConvertToDouble());
-				this->format = COEFFICIENT;
 			}
+			this->format = COEFFICIENT;
 		}
 	}
 

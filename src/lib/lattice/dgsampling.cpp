@@ -290,7 +290,7 @@ namespace lbcrypto {
 			Field2n q2(q2Int);
 			
 			Field2n q2Minusc2 = q2 - c(1, 0);
-			//Convert to DFT represenation prior to multiplication
+			//Convert to DFT representation prior to multiplication
 			q2Minusc2.SwitchFormat();
 
 			Field2n product = b * d.Inverse() * q2Minusc2;
@@ -300,7 +300,14 @@ namespace lbcrypto {
 			//Computes c1 in coefficient format
 			Field2n c1 = c(0, 0) + product;
 
-			Field2n f = a - b*d.Inverse()*b.Transpose();
+			//Transpose can be done directly in evaluation represention
+			//Will be optimized later
+			Field2n bTransposed = b;
+			bTransposed.SwitchFormat();
+			bTransposed = bTransposed.Transpose();
+			bTransposed.SwitchFormat();
+
+			Field2n f = a - b*d.Inverse()*bTransposed;
 			//Convert to coefficient representation
 			f.SwitchFormat();
 
