@@ -391,7 +391,7 @@ namespace lbcrypto {
 			
 			//Write the result to the matrix
 			for (int j = 0;j < r.size();j++) {
-				rInt(0, j) = r.at(j).real();
+				rInt(j, 0) = r.at(j).real();
 			}
 
 			return rInt;

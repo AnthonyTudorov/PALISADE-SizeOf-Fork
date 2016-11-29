@@ -335,7 +335,7 @@ namespace lbcrypto {
 		b.SwitchFormat();
 		d.SwitchFormat();
 
-		size_t k = Tprime0.GetRows();
+		size_t k = Tprime0.GetCols();
 		Matrix<int32_t> p2ZVector([]() { return make_unique<int32_t>(); }, n*k, 1);
 
 		//this loop can be replaced with Peikert's and Yao's inversion methods - more efficient
@@ -344,7 +344,7 @@ namespace lbcrypto {
 		}
 
 		//create k ring elements in coefficient representation
-		Matrix<ILVector2n> p2 = SplitInt32AltIntoILVector2nElements(p2ZVector, n, va.GetParams());
+		Matrix<ILVector2n> p2 = SplitInt32IntoILVector2nElements(p2ZVector, n, va.GetParams());
 
 		//now converting to evaluation representation before multiplication
 		p2.SwitchFormat();
@@ -355,8 +355,7 @@ namespace lbcrypto {
 		Matrix<ILVector2n> Tp2 = TprimeMatrix * p2;
 
 		//change to coefficient representation before converting to field elements
-		Tp2(0, 0).SwitchFormat();
-		Tp2(1, 0).SwitchFormat();
+		Tp2.SwitchFormat();
 
 		Matrix<Field2n> c([]() { return make_unique<Field2n>(); }, 2, 1);
 
