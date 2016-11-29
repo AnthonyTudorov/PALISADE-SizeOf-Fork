@@ -17,8 +17,8 @@ namespace lbcrypto {
 
 	//Constructor from a ring element matrix
 	Field2n::Field2n(const Matrix<int32_t> &element) {
-		for (int i = 0;i < element.GetCols();i++) {
-			this->push_back(element(0, i));
+		for (int i = 0;i < element.GetRows();i++) {
+			this->push_back(element(i, 0));
 		}
 		this->format = COEFFICIENT;
 	}
