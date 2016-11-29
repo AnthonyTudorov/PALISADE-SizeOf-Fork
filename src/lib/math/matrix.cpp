@@ -877,9 +877,10 @@ template<class Element>
 void Matrix<Element>::addMatricesCAPS( int numEntries, unique_ptr<Element> **C, unique_ptr<Element> **A, unique_ptr<Element> **B ) const{
 	//COUNTERS increaseAdditions(numEntries);
 	//COUNTERS startTimer(TIMER_ADD);
-	Element temp;
+
 #pragma omp parallel for schedule(static, (numEntries+NUM_THREADS-1)/NUM_THREADS)
   for( int i = 0; i < numEntries; i++ ){
+	  Element temp;
     temp = **A[i] + **B[i];
     accessUniquePtr(C[i], temp);
   }
@@ -890,9 +891,10 @@ template<class Element>
 void Matrix<Element>::subMatricesCAPS( int numEntries, unique_ptr<Element> **C, unique_ptr<Element> **A, unique_ptr<Element> **B ) const{
 	//COUNTERS increaseAdditions(numEntries);
 	//COUNTERS startTimer(TIMER_ADD);
-	Element temp;
+
 #pragma omp parallel for schedule(static, (numEntries+NUM_THREADS-1)/NUM_THREADS)
   for( int i = 0; i < numEntries; i++ ){
+	  Element temp;
     temp = **A[i] - **B[i];
     accessUniquePtr(C[i], temp);
   }
@@ -919,9 +921,10 @@ void Matrix<Element>::tripleSubMatricesCAPS(int numEntries, unique_ptr<Element> 
 	//COUNTERS startTimer(TIMER_ADD);
 	 //std::cout<<"IN TRIPLESUBMATRICESCAPS!!"<<std::endl;
 	//printf("numEntries = %d\n",numEntries);
-	 Element temp;
+
 #pragma omp parallel for schedule(static, (numEntries+NUM_THREADS-1)/NUM_THREADS)
   for( int i = 0; i < numEntries; i++ ) {
+	  Element temp;
 	  //std::cout<<"i = "<<i<<"**S11[i] = "<<(Element)**S11[i]<<"  **S12[i] = "<<(Element)**S12[i]<<std::endl;
       temp = **S11[i] - **S12[i];
       accessUniquePtr(T1[i], temp);
@@ -959,9 +962,10 @@ void Matrix<Element>::tripleAddMatricesCAPS(int numEntries, unique_ptr<Element> 
 	//COUNTERS increaseAdditions(3*numEntries);
 	//COUNTERS startTimer(TIMER_ADD);
 	//printf("In tripleAddMatricesCAPS\n");
-	Element temp;
+
 #pragma omp parallel for schedule(static, (numEntries+NUM_THREADS-1)/NUM_THREADS)
   for( int i = 0; i < numEntries; i++ ) {
+	  Element temp;
       temp = **S11[i] + **S12[i];
       accessUniquePtr(T1[i], temp);
       temp = **S21[i] + **S22[i];
@@ -978,9 +982,10 @@ void Matrix<Element>::addSubMatricesCAPS(int numEntries, unique_ptr<Element> **T
 	//COUNTERS increaseAdditions(2*numEntries);
 	//COUNTERS startTimer(TIMER_ADD);
 	//std::cout<<"IN ADDSUBMATRICESCAPS!!"<<std::endl;
-	Element temp;
+
 #pragma omp parallel for schedule(static, (numEntries+NUM_THREADS-1)/NUM_THREADS)
   for( int i = 0; i < numEntries; i++ ) {
+	  Element temp;
       temp = **S11[i] + **S12[i];
       accessUniquePtr(T1[i], temp);
 
@@ -1119,12 +1124,12 @@ void Matrix<Element>::block_multiplyCAPS(unique_ptr<Element> **A,
 #pragma omp parallel for
 	for (int32_t row = 0; row < d.lda; row++) {
 
-		Element temp;
+
 
 		Element Aval = *allocZero();
 		Element Bval = *allocZero();
 		for (int32_t col = 0; col < d.lda; col++) {
-
+			Element temp;
 
 			//std::cout<<"At start of calc,  temp = "<<temp<<std::endl;
 			//std::cout <<"START: C+row+d.lda*col = "<<C+row+d.lda*col<<"  *(C+row+d.lda*col) = "<<*(C+row+d.lda*col)<<" C[row+d.lda*col] = "<<C[row+d.lda*col]<<std::endl;
