@@ -37,8 +37,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <fstream>
 
-#include "../../lib/obfuscate/lweconjunctionobfuscatev2.h"
-#include "../../lib/obfuscate/lweconjunctionobfuscatev2.cpp"
+#include "../../lib/obfuscate/lweconjunctionobfuscatev3.h"
+#include "../../lib/obfuscate/lweconjunctionobfuscatev3.cpp"
 //#include "../../lib/obfuscate/obfuscatelp.h"
 #include "time.h"
 #include <chrono>
@@ -94,6 +94,10 @@ void NTRUPRE(int input) {
 	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
 
 	usint m = 16;
+	//47 bits
+	//BigBinaryInteger modulus("35184372088961");
+	//BigBinaryInteger rootOfUnity("21593505674172");
+
 	//54 bits
 	BigBinaryInteger modulus("9007199254741169");
 	BigBinaryInteger rootOfUnity("7629104920968175");
@@ -139,7 +143,7 @@ void NTRUPRE(int input) {
 	//std::string inputPattern = "1";
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 
-	LWEConjunctionObfuscationAlgorithmV2<ILVector2n> algorithm;
+	LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm;
 
 	std::cout << " \nCleartext pattern: " << std::endl;
 	std::cout << clearPattern.GetPatternString() << std::endl;
@@ -181,7 +185,7 @@ void NTRUPRE(int input) {
 	std::cout << " \nCleartext pattern: " << std::endl;
 	std::cout << clearPattern.GetPatternString() << std::endl;
 
-	ObfuscatedLWEConjunctionPatternV2<ILVector2n> obfuscatedPattern(ilParams,chunkSize);
+	ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern(ilParams,chunkSize);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 
 	std::cout << "Key generation started" << std::endl;
