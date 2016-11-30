@@ -8,8 +8,16 @@ namespace lbcrypto {
 			throw std::logic_error("ILVector2n not in coefficient representation");
 		}
 		else {
+			// the value of element.GetValAtIndex(i) is usually small - so a 32-bit integer is more than enough
+			// this approach is much faster than BigBinaryInteger::ConvertToDouble
+			BigBinaryInteger negativeThreshold(element.GetModulus()/ BigBinaryInteger::TWO);
 			for (int i = 0;i < element.GetLength();i++) {
-				this->push_back(element.GetValAtIndex(i).ConvertToDouble());
+				if (element.GetValAtIndex(i) > negativeThreshold)
+					this->push_back((double)(int32_t)(-1 * (element.GetModulus() - element.GetValAtIndex(i)).ConvertToInt()));
+					//this->push_back(-(element.GetModulus() - element.GetValAtIndex(i)).ConvertToDouble());
+				else
+					this->push_back((double)(int32_t)(element.GetValAtIndex(i).ConvertToInt()));
+					//this->push_back(element.GetValAtIndex(i).ConvertToDouble());
 			}
 			this->format = COEFFICIENT;
 		}
