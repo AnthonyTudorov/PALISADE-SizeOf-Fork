@@ -55,6 +55,13 @@ namespace lbcrypto {
 		*/
 		Field2n Plus(const Field2n &rhs) const;
 
+		/**Scalar addition operation for field elements
+		*
+		*@param &rhs right hand side element for operation
+		*@return result of the operation
+		*/
+		Field2n Plus(double rhs) const;
+
 		/**Substraction operation for field elements
 		*
 		*@param &rhs right hand side element for operation
@@ -147,6 +154,14 @@ namespace lbcrypto {
 	*@return result of the addition operation
 	*/
 	inline Field2n operator+(const Field2n &a, const Field2n &b) { return a.Plus(b); }
+
+	/**Scalar addition operator for field elements
+	*
+	*@param &a left hand side field element
+	*@param &b  the scalar to be added
+	*@return result of the addition operation
+	*/
+	inline Field2n operator+(const Field2n &a, double scalar) { return a.Plus(scalar); }
 
 	/**Substraction operator for field elements
 	*

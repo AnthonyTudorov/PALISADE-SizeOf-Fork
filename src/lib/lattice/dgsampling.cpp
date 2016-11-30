@@ -302,10 +302,13 @@ namespace lbcrypto {
 
 			//Transpose can be done directly in evaluation represention
 			//Will be optimized later
+			//b is in Evaluation format
 			Field2n bTransposed = b;
+			//bTransposed gets converted to Coefficient format
 			bTransposed.SwitchFormat();
 			bTransposed = bTransposed.Transpose();
 			bTransposed.SwitchFormat();
+			//bTransposed is converted back to Evaluation format
 
 			Field2n f = a - b*d.Inverse()*bTransposed;
 			//Convert to coefficient representation

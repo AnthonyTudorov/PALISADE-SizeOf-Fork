@@ -326,9 +326,18 @@ namespace lbcrypto {
 		//Create field elements from ring elements
 		Field2n a(va), b(vb), d(vd);
 
-		a = a.ScalarMult(s * s * (1 - sigma * sigma / (s * s - sigma * sigma)));
-		b = b.ScalarMult(-s *s * sigma * sigma / (s* s - sigma * sigma));
-		d = d.ScalarMult(s * s * (1 - sigma * sigma / (s * s - sigma * sigma)));
+		double scalarFactor = -s *s * sigma * sigma / (s* s - sigma * sigma);
+
+		a = a.ScalarMult(scalarFactor);
+		b = b.ScalarMult(scalarFactor);
+		d = d.ScalarMult(scalarFactor);
+
+		a = a + s*s;
+		d = d + s*s;
+
+		//a = a.ScalarMult(s * s * (1 - sigma * sigma / (s * s - sigma * sigma)));
+		//b = b.ScalarMult(-s *s * sigma * sigma / (s* s - sigma * sigma));
+		//d = d.ScalarMult(s * s * (1 - sigma * sigma / (s * s - sigma * sigma)));
 
 		//converts the field elements to DFT representation
 		a.SwitchFormat();

@@ -53,12 +53,12 @@ TEST(UTField2n, inverse) {
 	bool dbg_flag = false;
 	DEBUG("Step 1");
 	Field2n test(2, EVALUATION, true);
-	test.at(0) = std::complex<double>(2, 0);
-	test.at(1) = std::complex<double>(-4, 0);
+	test.at(0) = std::complex<double>(2, 1);
+	test.at(1) = std::complex<double>(-4, -2);
 	DEBUG("Step 2");
 	Field2n inverse(2, EVALUATION, true);
-	inverse.at(0) = std::complex<double>(0.5, 0);
-	inverse.at(1) = std::complex<double>(-0.25, 0);
+	inverse.at(0) = std::complex<double>(0.4, -0.2);
+	inverse.at(1) = std::complex<double>(-0.2, 0.1);
 	DEBUG("Step 3");
 	EXPECT_EQ(inverse, test.Inverse());
 }

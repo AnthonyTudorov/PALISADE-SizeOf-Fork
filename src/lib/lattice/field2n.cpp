@@ -60,6 +60,18 @@ namespace lbcrypto {
 		}
 	}
 
+	//Scalar addition operation for field elements
+	Field2n Field2n::Plus(double scalar) const {
+		if (format == COEFFICIENT) {
+			Field2n sum(*this);
+			sum.at(0) = this->at(0) + scalar;
+			return sum;
+		}
+		else {
+			throw std::logic_error("Field2n scalar addition is currently supported only for coefficient representation");
+		}
+	}
+
 	//Substraction operation for field elements
 	Field2n Field2n::Minus(const Field2n &rhs) const {
 		if (format == rhs.GetFormat()) {
