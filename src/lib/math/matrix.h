@@ -375,11 +375,13 @@ namespace lbcrypto {
             mutable int leafsize = 256;
             mutable lineardata_t lineardata;
             size_t rows;
+            mutable int rowpad = 0;
             size_t cols;
+            mutable int colpad = 0;
             alloc_func allocZero;
             mutable char *pattern = NULL;
             mutable MatDescriptor desc;
-
+            mutable unique_ptr<Element> zeroUniquePtr = allocZero();
 			//deep copy of data - used for copy constructor
             void deepCopyData(data_t const& src);
             void getData(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int row, int inner, int col) const;
@@ -391,6 +393,8 @@ namespace lbcrypto {
             void subtract(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int tam) const;
             void ikjalgorithm(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int n) const;
             void accessUniquePtr(unique_ptr<Element> *ptr, Element val) const;
+            void smartSubtraction(unique_ptr<Element> *result, unique_ptr<Element> *A, unique_ptr<Element> *B) const;
+            void smartAddition(unique_ptr<Element> *result, unique_ptr<Element> *A, unique_ptr<Element> *B) const;
             void addMatricesCAPS( int numEntries, unique_ptr<Element> **C, unique_ptr<Element> **A, unique_ptr<Element> **B ) const;
             void addSubMatricesCAPS(int numEntries, unique_ptr<Element> **T1, unique_ptr<Element> **S11, unique_ptr<Element> **S12, unique_ptr<Element> **T2,
             		       unique_ptr<Element> **S21, unique_ptr<Element> **S22 ) const;
@@ -400,13 +404,14 @@ namespace lbcrypto {
             void tripleSubMatricesCAPS(int numEntries, unique_ptr<Element> **T1, unique_ptr<Element> **S11, unique_ptr<Element> **S12, unique_ptr<Element> **T2,
             		       unique_ptr<Element> **S21, unique_ptr<Element> **S22, unique_ptr<Element> **T3, unique_ptr<Element> **S31, unique_ptr<Element> **S32) const ;
 
-            // this is really a toy function for testing.  It takes a matrix all on 1 processor, and distributes it to match desc.  All processors must provide consistent descriptors.  However I may be NULL on processors with ranks other than 0 in desc; the processor with rank 0 is desc currently holds the matrix.
+
             void distributeFrom1ProcCAPS( MatDescriptor desc, unique_ptr<Element> **O, unique_ptr<Element> **I ) const;
             void collectTo1ProcCAPS( MatDescriptor desc, unique_ptr<Element> **O, unique_ptr<Element> **I ) const;
             void sendBlockCAPS( int rank, int target, unique_ptr<Element> **O, int bs, int source, unique_ptr<Element> **I, int ldi ) const;
             void receiveBlockCAPS(  int rank, int target, unique_ptr<Element> **O, int bs, int source, unique_ptr<Element> **I, int ldo ) const;
             void distributeFrom1ProcRecCAPS( MatDescriptor desc, unique_ptr<Element> **O, unique_ptr<Element> **I, int ldi ) const;
             void collectTo1ProcRecCAPS( MatDescriptor desc, unique_ptr<Element>**O, unique_ptr<Element>**I, int ldo ) const;
+
             void testCAPS( MatDescriptor desc );
 		};
 
