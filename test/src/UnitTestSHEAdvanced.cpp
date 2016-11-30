@@ -200,19 +200,17 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 
 	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint1 = cc.EvalMultKeyGen(kp.secretKey);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> cResultVector;
-	cResultVector.reserve(1);
-	cResultVector.push_back(cResult);
-
-	cResultVector = cc.KeySwitch(keySwitchHint1, cResultVector);
+	cResult = cc.KeySwitch(keySwitchHint1, cResult);
 
 	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint2 = cc.KeySwitchGen(kp.secretKey, newKp.secretKey);
 
-	cResultVector = cc.KeySwitch(keySwitchHint2, cResultVector);
+	cResult = cc.KeySwitch(keySwitchHint2, cResult);
 
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextResults(1);
+	ciphertextResults.at(0) = cResult;
 	IntPlaintextEncoding results;
 
-	cc.Decrypt(newKp.secretKey, cResultVector, &results, false);
+	cc.Decrypt(newKp.secretKey, ciphertextResults, &results, false);
 
 	EXPECT_EQ(results.at(0), 6);
 
@@ -310,11 +308,11 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint1 = cc.EvalMultKeyGen(kp.secretKey);
 
-	cResult = cc.KeySwitch(keySwitchHint1, cResult);
+	cResult.at(0) = cc.KeySwitch(keySwitchHint1, cResult.at(0));
 
 	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint2 = cc.KeySwitchGen(kp.secretKey, newKp.secretKey);
 
-	cResult = cc.KeySwitch(keySwitchHint2, cResult);
+	cResult.at(0) = cc.KeySwitch(keySwitchHint2, cResult.at(0));
 
 	IntPlaintextEncoding results;
 
@@ -611,7 +609,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cResult =
 		cc.ComposedEvalMult(ciphertextElementOne, ciphertextElementTwo, quadraticKeySwitchHint);
 
-	cResult = cc.KeySwitch(KeySwitchHint, cResult);
+	cResult.at(0) = cc.KeySwitch(KeySwitchHint, cResult.at(0));
 
 	IntPlaintextEncoding results;
 

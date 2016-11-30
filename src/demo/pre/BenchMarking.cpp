@@ -92,7 +92,7 @@ static const char alphanum[] =
 "abcdefghijklmnopqrstuvwxyz"; //to generate a random string
 
 static int stringLength = sizeof(alphanum) - 1;
-static usint maxCyclotomicOrder = 16;
+static usint maxCyclotomicOrder = 32;
 static usint maxTowerSize = 20;
 static usint numberOfIterations = 1;
 static usint minCyclotomicOrder = 16;
@@ -296,7 +296,7 @@ void BenchMarking_DCRT_ByteArray(bool intOrByteArray){
 
 				CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
 				cc.Enable(ENCRYPTION);
-	//			cc.Enable(PRE);
+				cc.Enable(SHE);
 				cc.Enable(LEVELEDSHE);
 
 				LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
@@ -355,19 +355,23 @@ void BenchMarking_DCRT_ByteArray(bool intOrByteArray){
 
 				start = currentDateTime();
 
-				vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cipherTextKeySwitch = cc.KeySwitch(keySwitchHint, ciphertext);
+				shared_ptr<Ciphertext<ILVectorArray2n>> cipherTextKeySwitch = cc.KeySwitch(keySwitchHint, ciphertext.at(0));
 
 				finish = currentDateTime();
 				diff = finish - start;
 				keySwitchTimer.at(m).at(i) += diff;
+				vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cipherTextVector(1);
+				cipherTextVector.at(0) = cipherTextKeySwitch;
+
 				if (!intOrByteArray) {
 					IntPlaintextEncoding plaintextNew_keyswitch_int;
-					cc.Decrypt(kp2.secretKey, cipherTextKeySwitch, &plaintextNew_keyswitch_int);
+					cc.Decrypt(kp2.secretKey, cipherTextVector, &plaintextNew_keyswitch_int);
 					cout << "KeySwitch " << plaintextNew_keyswitch_int << endl;
 				}
+
 				else {
 					BytePlaintextEncoding plaintextNew_keyswitch_byte;
-					cc.Decrypt(kp2.secretKey, cipherTextKeySwitch, &plaintextNew_keyswitch_byte);
+					cc.Decrypt(kp2.secretKey, cipherTextVector, &plaintextNew_keyswitch_byte);
 					cout << "KeySwitch " << plaintextNew_keyswitch_byte << endl;
 				}
 				
@@ -1254,78 +1258,78 @@ void standardMapTest() {
 }
 
 void ringReduceTest() {
-	usint m = 16;
-	float stdDev = 4;
-	usint size = 3;
+	//usint m = 16;
+	//float stdDev = 4;
+	//usint size = 3;
 
-	vector<BigBinaryInteger> moduli(size);
-	moduli.reserve(4);
-	vector<BigBinaryInteger> rootsOfUnity(size);
-	rootsOfUnity.reserve(4);
+	//vector<BigBinaryInteger> moduli(size);
+	//moduli.reserve(4);
+	//vector<BigBinaryInteger> rootsOfUnity(size);
+	//rootsOfUnity.reserve(4);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
+	//BigBinaryInteger q("1");
+	//BigBinaryInteger temp;
+	//BigBinaryInteger modulus("1");
 
-	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
+	//lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
 
-	for (int i = 0; i < size; i++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-		moduli[i] = q;
-		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
-		modulus = modulus* moduli[i];
-	}
+	//for (int i = 0; i < size; i++) {
+	//	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+	//	moduli[i] = q;
+	//	rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
+	//	modulus = modulus* moduli[i];
+	//}
 
-	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
+	//shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
 
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
-	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
+	//LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+	//cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
+	//cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
+	//cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
+	//cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(LEVELEDSHE);
-	cc.Enable(SHE);
+	//CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
+	//cc.Enable(ENCRYPTION);
+	//cc.Enable(LEVELEDSHE);
+	//cc.Enable(SHE);
 
-	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
+	//LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext;
+	//vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext;
 
-	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
-	IntPlaintextEncoding intArray(vectorOfInts);
+	//std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
+	//IntPlaintextEncoding intArray(vectorOfInts);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	//ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext(ciphertext.size());
+	//vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext(ciphertext.size());
 
-	LPKeyPair<ILVectorArray2n> kp2 = cc.SparseKeyGen();
+	//LPKeyPair<ILVectorArray2n> kp2 = cc.SparseKeyGen();
 
-	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
+	//shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
+	//newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
 
-	IntPlaintextEncoding intArrayNew;
+	//IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp2.secretKey, newCiphertext, &intArrayNew, false);
+	//cc.Decrypt(kp2.secretKey, newCiphertext, &intArrayNew, false);
 
-	ciphertext = cc.RingReduce(ciphertext, keySwitchHint);
+	//ciphertext = cc.RingReduce(ciphertext, keySwitchHint);
 
-	ILVectorArray2n skSparseElement(kp2.secretKey->GetPrivateElement());
-	skSparseElement.SwitchFormat();
-	skSparseElement.Decompose();
-	skSparseElement.SwitchFormat();
+	//ILVectorArray2n skSparseElement(kp2.secretKey->GetPrivateElement());
+	//skSparseElement.SwitchFormat();
+	//skSparseElement.Decompose();
+	//skSparseElement.SwitchFormat();
 
-	kp2.secretKey->SetPrivateElement(skSparseElement);
+	//kp2.secretKey->SetPrivateElement(skSparseElement);
 
-	IntPlaintextEncoding intArrayNewRR;
+	//IntPlaintextEncoding intArrayNewRR;
 
-	cc.Decrypt(kp2.secretKey, ciphertext, &intArrayNewRR, false);
+	//cc.Decrypt(kp2.secretKey, ciphertext, &intArrayNewRR, false);
 
-	IntPlaintextEncoding intArrayExpected({ 1,1,1,1 });
+	//IntPlaintextEncoding intArrayExpected({ 1,1,1,1 });
 
-	cout << intArrayNewRR << endl;
+	//cout << intArrayNewRR << endl;
 
 	ILVector2n::DestroyPreComputedSamples();
 }
