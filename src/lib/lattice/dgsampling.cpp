@@ -390,27 +390,27 @@ namespace lbcrypto {
 
 			Matrix<int32_t> r1Int = ZSampleF(feCoeff - product2.ShiftRight(), c1, dgg, n);
 			
-			Matrix<int32_t> rInt([]() { return make_unique<int32_t>(); }, 2*r1Int.GetRows(), 1);
-			//Generate the field element r1 from the matrix
-			Field2n r1(r1Int);
-			
-			//Concatenate r1 and r2
-			for (int i = 0;i < r2.Size();i++) {
-				r1.push_back(r2.at(i));
-			}
-		
-			//Permute the resulting vector
-			Field2n r = r1.Permute();
-			
-			//Write the result to the matrix
-			for (int j = 0;j < r.size();j++) {
-				rInt(j, 0) = r.at(j).real();
-			}
-
-			return rInt;
+			Matrix<int32_t> rInt = r1Int.VStack(r2Int);
+			return Permute(&rInt);
 			
 		}
 
 	}
+	Matrix<int32_t> LatticeGaussSampUtility::Permute(Matrix<int32_t> * p) {
+		int evenPtr = 0;
+		int oddPtr = p->GetRows() / 2;
+		Matrix<int32_t> permuted([]() { return make_unique<int32_t>(); }, p->GetRows(), 1);
+		for (int i = 0;i < p->GetRows();i++) {
+			if (i % 2 == 0) {
+				permuted(evenPtr,0) = (*p)(i,0);
+				evenPtr++;
+			}
+			else {
+				permuted(oddPtr, 0) = (*p)(i, 0);
+				oddPtr++;
+			}
+		}
+		return permuted;
+	};
 	
 }

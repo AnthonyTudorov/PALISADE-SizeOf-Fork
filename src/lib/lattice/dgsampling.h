@@ -142,6 +142,9 @@ private:
 	static inline void SampleC(const Matrix<double> &c, size_t k, size_t n, 
 		double sigma, DiscreteGaussianGenerator &dgg, Matrix<double> *a, vector<int32_t> *z);
 
+	//subroutine used by ZSampleF
+	//Algorithm utilizes the same permutation algorithm discussed in the paper
+	  static inline Matrix<int32_t> Permute(Matrix<int32_t> * p);
 
 };
 
