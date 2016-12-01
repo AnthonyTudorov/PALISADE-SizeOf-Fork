@@ -44,15 +44,6 @@ Hadi Sajjadpour <ss2959@njit.edu>
 
 namespace lbcrypto {
 
-	template <class Element>
-	class LPCryptoParametersLTV;
-
-	template <class Element>
-	class LPCryptoParametersStehleSteinfeld;
-
-	template <class Element>
-	class LPCryptoParametersBV;
-
 	/**
 	* @brief Main ciphertext class.
 	* @tparam Element a ring element.
@@ -110,12 +101,6 @@ namespace lbcrypto {
 		* @return the crypto parameters.
 		*/
 		const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return cryptoContext.GetCryptoParameters(); }
-
-		/**
-		* Get a reference to the encryption algorithm.
-		* @return the encryption alorithm.
-		*/
-		const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return cryptoContext.GetEncryptionAlgorithm(); }
 
 		/**
 		* Get current estimate of estimate norm
@@ -182,15 +167,6 @@ namespace lbcrypto {
 		*/
 		void SetElements(const std::vector<Element> &elements) { m_elements = elements; }
 
-		/**
-		* Performs EvalAdd operation.
-		*
-		* @param &ciphertext is the element to add.
-		* @return the new ciphertext.
-		*/
-		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext) const;
-
-		//JSON FACILITY
 		/**
 		* Serialize the object into a Serialized
 		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
