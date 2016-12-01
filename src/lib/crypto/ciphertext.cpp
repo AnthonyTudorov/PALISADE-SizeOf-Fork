@@ -74,25 +74,6 @@ Ciphertext<Element>& Ciphertext<Element>::operator=(Ciphertext<Element> &&rhs)
 	return *this;
 }
 
-// EvalAdd Operation
-template <class Element>
-shared_ptr<Ciphertext<Element>> Ciphertext<Element>::EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext) const
-{
-	if(this->cryptoContext != ciphertext->cryptoContext){
-		std::string errMsg = "EvalAdd: Ciphertexts are not from the same context";
-		throw std::runtime_error(errMsg);
-	}
-
-	shared_ptr<Ciphertext<Element>> sum( new Ciphertext<Element>(*this) );
-
-	//YSP this should be optimized to use the in-place += operator
-	for (int i = 0; i < this->m_elements.size(); i++)
-	{
-		sum->m_elements[i] = this->m_elements[i] + ciphertext->m_elements[i];
-	}
-	return sum;
-}
-
 template <class Element>
 bool Ciphertext<Element>::Serialize(Serialized* serObj) const
 {
