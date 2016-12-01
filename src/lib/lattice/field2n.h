@@ -110,7 +110,7 @@ namespace lbcrypto {
 		*
 		*@return non permuted version of the element
 		*/
-		Field2n InversePermute();
+		Field2n InversePermute() const;
 
 		/**Operation for scalar multiplication
 		*

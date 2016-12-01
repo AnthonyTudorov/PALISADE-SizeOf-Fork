@@ -339,10 +339,9 @@ namespace lbcrypto {
 		}
 		else {
 
-			// in the main algorithm it has inverse
-			// but in the main text it is listed as transpose
-			// we assume that transpose is correct
-			Field2n cNew(c.Permute().Transpose());
+			// Here, we apply the inverse of the permutation matrix, which is the same as the transpose of the 
+			// permutation matrix since the permutation matrix is orthogonal
+			Field2n cNew(c.InversePermute());
 
 			Field2n fe = f.ExtractEven();
 			Field2n fo = f.ExtractOdd();

@@ -183,7 +183,7 @@ namespace lbcrypto {
 	}
 
 	//Inverse operation for permutation operation defined in the paper
-	Field2n Field2n::InversePermute() {
+	Field2n Field2n::InversePermute() const {
 		if (this->format == COEFFICIENT) {
 			Field2n invpermuted(this->size(), COEFFICIENT, true);
 			int evenPtr = 0;
