@@ -143,6 +143,37 @@ TEST(UTField2n, times) {
 	}
 }
 
+//TEST FOR MULTIPLICATION OPERATION WITH SWITCH FORMAT
+TEST(UTField2n, times_with_switch) {
+	bool dbg_flag = false;
+	DEBUG("Step 1");
+	Field2n a(4, COEFFICIENT, true);
+	a.at(0) = std::complex<double>(1, 0);
+	a.at(1) = std::complex<double>(1, 0);
+	a.at(2) = std::complex<double>(1, 0);
+	a.at(3) = std::complex<double>(1, 0);
+	DEBUG("Step 2");
+	Field2n b(4, COEFFICIENT, true);
+	b.at(0) = std::complex<double>(1, 0);
+	b.at(1) = std::complex<double>(0, 0);
+	b.at(2) = std::complex<double>(1, 0);
+	b.at(3) = std::complex<double>(0, 0);
+	DEBUG("Step 3");
+	Field2n c(4, COEFFICIENT, true);
+	c.at(0) = std::complex<double>(0, 0);
+	c.at(1) = std::complex<double>(0, 0);
+	c.at(2) = std::complex<double>(2, 0);
+	c.at(3) = std::complex<double>(2, 0);
+	DEBUG("Step 4");
+	a.SwitchFormat();
+	b.SwitchFormat();
+	Field2n d = a.Times(b);
+	d.SwitchFormat();
+	for (int i = 0;i < 4;i++) {
+		EXPECT_LE(abs(d.at(i).real() - c.at(i).real()),pow(10,-12));
+	}
+}
+
 //TEST FOR SHIFT RIGHT OPERATION
 TEST(UTField2n, shift_right) {
 	bool dbg_flag = false;
@@ -297,7 +328,10 @@ TEST(UTField2n, coefficient_evaluation) {
 	b.at(7) = std::complex<double>(4.03087, -26.2795);
 	DEBUG("Step 3");
 	a.SwitchFormat();
-	EXPECT_EQ(b, a);
+	for (int i = 0;i < 8;i++) {
+		EXPECT_LE(abs(a.at(i).real() - b.at(i).real()), abs(b.at(i).real())*0.01);
+		EXPECT_LE(abs(a.at(i).imag() - b.at(i).imag()), abs(b.at(i).imag())*0.01);
+	}
 }
 
 //TEST FOR EVALUATION TO COEFFICIENT FORMAT CHANGE
@@ -326,11 +360,14 @@ TEST(UTField2n, evaluation_coefficient) {
 	
 	DEBUG("Step 3");
 	b.SwitchFormat();
-	EXPECT_EQ(a, b);
+	for (int i = 0;i < 8;i++) {
+		EXPECT_LE(abs(a.at(i).real() - b.at(i).real()), abs(a.at(i).real())*0.01);
+	}
 }
 
-//int main(int argc, char **argv) {
-//	::testing::InitGoogleTest(&argc, argv);
-//	return RUN_ALL_TESTS();
-//}
+
+int main(int argc, char **argv) {
+	::testing::InitGoogleTest(&argc, argv);
+	return RUN_ALL_TESTS();
+}
 

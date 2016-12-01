@@ -56,7 +56,7 @@ namespace lbcrypto {
 		ContinuousGaussianGenerator(&sample2);
 		Matrix<LargeFloat> p2([]() { return make_unique<LargeFloat>(); }, perturbationVector->GetRows() - 2 * n, 1);
 		p2 = sample2.ScalarMult(sqrt(b));
-		Matrix<int32_t> perturbationVector2([]() { return make_unique<LargeFloat>(); }, perturbationVector->GetRows() - 2 * n, 1);
+		Matrix<int32_t> perturbationVector2([]() { return make_unique<int32_t>(); }, perturbationVector->GetRows() - 2 * n, 1);
 		Matrix<LargeFloat> p = sigmaSqrt.Mult(sample);
 		RandomizeRound(n, p, a, perturbationVector);
 		RandomizeRound(n, p2, a, &perturbationVector2);
