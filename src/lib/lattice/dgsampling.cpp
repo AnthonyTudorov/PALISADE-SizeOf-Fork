@@ -42,12 +42,12 @@ namespace lbcrypto {
 
 	void LatticeGaussSampUtility::NonSphericalSample(size_t n, const Matrix<LargeFloat> &sigmaSqrt, double stddev, Matrix<int32_t> *perturbationVector)
 	{
-		int32_t a(floor(stddev / 2));
-		
+		double a(stddev / 2);
+
 		double s = 40 * std::sqrt(perturbationVector->GetRows());
-		int32_t r(ceil(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI)));
-		int32_t c(floor(r / 2));
-		int32_t b = s*s - 5 * c *c;
+		//double r(ceil(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI)));
+		//double c(floor(r / 2));
+		double b = s*s - 5*a*a;
 
 		Matrix<LargeFloat> sample([]() { return make_unique<LargeFloat>(); }, sigmaSqrt.GetRows(), 1);
 
@@ -359,7 +359,7 @@ namespace lbcrypto {
 
 			// c2 corresponds to odd coefficients in cNew
 			for (size_t i = 0; i < c2.Size(); i++) {
-				c2[i] = cNew[i+c2.Size()];
+				c2[i] = cNew[i+c1.Size()];
 			}
 
 			Matrix<int32_t> r2Int = ZSampleF(fe, c2, dgg, n);

@@ -82,7 +82,7 @@ namespace lbcrypto {
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
 		//We should convert this to a static variable later
-		int32_t c(ceil(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI)));
+		double c(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI));
 
 		const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
@@ -178,8 +178,7 @@ namespace lbcrypto {
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
 		//We should convert this to a static variable later
-		int32_t c(ceil(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI)));
-		int32_t a(floor(c / 2));
+		double c(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI));
 
 		const BigBinaryInteger& modulus = A(0, 0).GetModulus();
 
@@ -188,7 +187,7 @@ namespace lbcrypto {
 		//spectral bound s
 		double s = 40 * std::sqrt(n*(k + 2));
 
-		ZSampleSigmaP(n, s, a, T, &p, dgg);
+		ZSampleSigmaP(n, s, c, T, &p, dgg);
 
 		//LatticeGaussSampUtility::NonSphericalSample(n, SigmaP, c, &p);
 
@@ -244,7 +243,7 @@ namespace lbcrypto {
 		TimeVar t1; // for TIC TOC
 		bool dbg_flag = 0; //set to 1 for debug timing...
 		//We should convert this to a static variable later
-		int32_t c(ceil(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI)));
+		double c(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI));
 
 		const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
@@ -260,7 +259,7 @@ namespace lbcrypto {
 										.VStack(Matrix<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
 		DEBUG("p1: "<<TOC(t1) <<" ms");
 		TIC(t1);
-	Matrix<int32_t> Rint = ConvertToInt32(R, modulus);
+		Matrix<int32_t> Rint = ConvertToInt32(R, modulus);
 		DEBUG("P2: "<<TOC(t1) <<" ms");
 		TIC(t1);
 		Matrix<int32_t> COV = Rint*Rint.Transpose().ScalarMult(c*c);
@@ -272,10 +271,12 @@ namespace lbcrypto {
 		Matrix<int32_t> p([](){ return make_unique<int32_t>(); }, (2+k)*n, 1);
 		DEBUG("P5: "<<TOC(t1) <<" ms");
 		TIC(t1);
-		int32_t a(floor(c/2));
+
+		double a(c/2);
+		int32_t aSquare = a*a;
 
 		// YSP added the a^2*I term which was missing in the original LaTex document
-		Matrix<int32_t> sigmaA = SigmaP - (a*a)*Matrix<int32_t>(SigmaP.GetAllocator(), SigmaP.GetRows(), SigmaP.GetCols()).Identity();
+		Matrix<int32_t> sigmaA = SigmaP - aSquare*Matrix<int32_t>(SigmaP.GetAllocator(), SigmaP.GetRows(), SigmaP.GetCols()).Identity();
 		DEBUG("P6: "<<TOC(t1) <<" ms");
 		TIC(t1);
 		*sigmaSqrt = Cholesky(sigmaA);
@@ -288,8 +289,8 @@ namespace lbcrypto {
 	void RLWETrapdoorUtility::PerturbationMatrixGenAlt(size_t n,size_t k,const RingMat& A,
 		const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt) {
 
-		int32_t r(ceil(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI)));
-		int32_t a(floor(r / 2));
+		double r(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI));
+		double a(r / 2);
 		const BigBinaryInteger& modulus = A(0, 0).GetModulus();
 		
 		Matrix<ILVector2n> eCoeff = T.m_e;
@@ -326,7 +327,7 @@ namespace lbcrypto {
 		//Create field elements from ring elements
 		Field2n a(va), b(vb), d(vd);
 
-		double scalarFactor = -s *s * sigma * sigma / (s* s - sigma * sigma);
+		double scalarFactor = -s * s * sigma * sigma / (s* s - sigma * sigma);
 
 		a = a.ScalarMult(scalarFactor);
 		b = b.ScalarMult(scalarFactor);

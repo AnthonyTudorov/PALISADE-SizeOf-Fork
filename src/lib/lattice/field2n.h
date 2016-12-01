@@ -34,7 +34,7 @@ namespace lbcrypto {
 		*
 		*@param &element ring element matrix
 		*/
-		Field2n(const Matrix<int32_t> & element);
+		explicit Field2n(const Matrix<int32_t> & element);
 
 		/**Method for getting the format of the element
 		*

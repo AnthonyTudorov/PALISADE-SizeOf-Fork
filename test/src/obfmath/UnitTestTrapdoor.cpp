@@ -399,6 +399,57 @@ TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
 
 }
 
+// Test  UCSD integer perturbation sampling algorithm
+TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
+
+	usint m = 16;
+	usint n = m / 2;
+
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	float stddev = 4;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = log(val - 1.0) / log(2) + 1.0;
+	usint k = (usint)floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	double c(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI));
+
+	//spectral bound s
+	double s = 40 * std::sqrt(n*(k + 2));
+
+	//Generate the trapdoor pair
+	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
+
+	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+
+	RingMat eHat = trapPair.second.m_e;
+	RingMat rHat = trapPair.second.m_r;
+
+	DiscreteGaussianGenerator dgg(4);
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
+
+	//Do perturbation sampling
+	Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, (2 + k)*n, 1);
+
+	Matrix<int32_t> pTrapdoor([]() { return make_unique<int32_t>(); }, 2*n, 1);
+
+	RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, &p, dgg);
+
+	for (size_t i = 0; i < 2*n; i++) {
+		pTrapdoor(i, 0) = p(i, 0);
+	}
+
+	Matrix<int32_t> pCovarianceMatrix = pTrapdoor*pTrapdoor.Transpose();
+
+	//std::cout << "value of s" << s << std::endl;
+
+	//std::cout << pTrapdoor << std::endl;
+
+	//std::cout << pCovarianceMatrix << std::endl;
+
+}
+
 
 TEST(UTTrapdoor,EncodeTest_dgg_yes) {
 	bool dbg_flag = false;
