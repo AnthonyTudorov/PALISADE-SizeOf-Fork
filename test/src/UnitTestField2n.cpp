@@ -80,6 +80,23 @@ TEST(UTField2n, plus) {
 	EXPECT_EQ(c, a.Plus(b));
 }
 
+//TEST FOR SCALAR ADDITION
+TEST(UTField2n, scalar_plus) {
+	bool dbg_flag = false;
+	DEBUG("Step 1");
+	Field2n a(2, COEFFICIENT, true);
+	a.at(0) = std::complex<double>(2, 0);
+	a.at(1) = std::complex<double>(-4, 0);
+	DEBUG("Step 2");
+	double b=3.2;
+	DEBUG("Step 3");
+	Field2n c(2, COEFFICIENT, true);
+	c.at(0) = std::complex<double>(5.2, 0);
+	c.at(1) = std::complex<double>(-4, 0);
+	EXPECT_EQ(c, a.Plus(b));
+}
+
+
 //TEST FOR SUBSTRACTION OPERATION
 TEST(UTField2n, minus) {
 	bool dbg_flag = false;
@@ -95,6 +112,7 @@ TEST(UTField2n, minus) {
 	Field2n c(2, EVALUATION, true);
 	c.at(0) = std::complex<double>(-1, 1.1);
 	c.at(1) = std::complex<double>(0, -1.2);
+	EXPECT
 	EXPECT_EQ(c, a.Minus(b));
 }
 
