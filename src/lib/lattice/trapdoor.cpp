@@ -327,7 +327,7 @@ namespace lbcrypto {
 		//Create field elements from ring elements
 		Field2n a(va), b(vb), d(vd);
 
-		double scalarFactor = -s * s * sigma * sigma / (s* s - sigma * sigma);
+		double scalarFactor = -s * s * sigma * sigma / (s * s - sigma * sigma);
 
 		a = a.ScalarMult(scalarFactor);
 		b = b.ScalarMult(scalarFactor);
