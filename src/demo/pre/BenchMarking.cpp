@@ -55,7 +55,7 @@ using namespace lbcrypto;
 
 
 void BenchMarking();
-void BenchMarking_DCRT_ByteArray(bool intOrByteArray);
+void BenchMarking_DCRT(bool intOrByteArray);
 void BenchMarking_DCRT_Eval_Mult();
 void BenchMarking_DCRT_Eval_Add();
 void BenchMarking_Ring_Reduce_Single_Crt();
@@ -71,6 +71,8 @@ void CalculateModuli(usint m);
 int bitSizeCalculator(int n);
 void ringReduceTest();
 char getRandomChar();
+void BenchMarking_SCRT(bool intOrByteArray);
+
 /**
  * @brief Input parameters for PRE example.
  */
@@ -92,11 +94,11 @@ static const char alphanum[] =
 "abcdefghijklmnopqrstuvwxyz"; //to generate a random string
 
 static int stringLength = sizeof(alphanum) - 1;
-static usint maxCyclotomicOrder = 32;
+static usint maxCyclotomicOrder = 4096;
 static usint maxTowerSize = 20;
 static usint numberOfIterations = 1;
 static usint minCyclotomicOrder = 16;
-static usint minTowerSize = 1;
+static usint minTowerSize = 2;
 static float stdDev = 4;
 static int randSeed = 1;
 
@@ -106,19 +108,14 @@ static int randSeed = 1;
 int main() {
 //	ringReduceTest();
 	//	CalculateModuli();
-	BenchMarking_DCRT_ByteArray(1);
-	//BenchMarking_DCRT_ByteArray_KeySwitch();
+	BenchMarking_DCRT(1);
+//	BenchMarking_SCRT(1);
 	//BenchMarking_DCRT_Eval_Mult();
-//	BenchMarking_DCRT_IntArray();
-//	BenchMarking_Mod_Reduce();
-//	BenchMarking_Ring_Reduce_Dcrt();
-//	BenchMarking_Ring_Reduce_Single_Crt();
-//	BenchMarking_Encrypt_Single_Crt();
-//	BenchMarking_KeySwitch_Single_Crt();
 //	BenchMarking_Pre();
 //	Benchmarking_find_table_of_secure_params();
 //	standardMapTest();
-	
+//	BenchMarking_DCRT_Eval_Mult();
+
 	std::cin.get();
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();
@@ -157,7 +154,6 @@ void CalculateModuli(usint m) {
 	char c = '.';
 	BigBinaryInteger temp;
 
-//	for (usint m = minCyclotomicOrder; m <= maxCyclotomicOrder; m = m * 2) {
 		std::map<usint, BigBinaryInteger> towerToModuliOrRootOfUnity;
 		moduli.insert(std::make_pair(m, towerToModuliOrRootOfUnity));
 		rootsOfUnity.insert(std::make_pair(m, towerToModuliOrRootOfUnity));
@@ -244,7 +240,7 @@ void PreComputeByteArray(usint minCycorder, usint maxCycorder) {
 	}
 }
 //false for intArray true for ByteArray
-void BenchMarking_DCRT_ByteArray(bool intOrByteArray){
+void BenchMarking_DCRT(bool intOrByteArray){
 	double diff, start, finish;
 	std::map<usint, std::vector<double>> encryptTimer;
 	std::map<usint, std::vector<double>> decryptTimer;
@@ -503,8 +499,228 @@ void BenchMarking_DCRT_ByteArray(bool intOrByteArray){
 	myfile << "\n" << numberOfIterations << " iterations\n";
 }
 
+/* false for intArray true for ByteArray*/
+void BenchMarking_SCRT(bool intOrByteArray) {
+	double diff, start, finish;
+	std::map<usint, double> encryptTimer;
+	std::map<usint, double> decryptTimer;
+	std::map<usint, double> modReduceTimer;
+	std::map<usint, double> ringReduceTimer;
+	std::map<usint, double> keySwitchTimer;
+	if (!intOrByteArray) {
+		PreComputeIntArray(minCyclotomicOrder, maxCyclotomicOrder, 2);
+	}
+	else {
+		PreComputeByteArray(minCyclotomicOrder, maxCyclotomicOrder);
+	}
+
+	for (usint m = minCyclotomicOrder; m <= maxCyclotomicOrder; m = m * 2) {
+		CalculateModuli(m); // calculate moduli and precompute CRI factors
+		double timer;
+
+		encryptTimer.insert(std::make_pair(m, timer));
+		modReduceTimer.insert(std::make_pair(m, timer));
+		ringReduceTimer.insert(std::make_pair(m, timer));
+		keySwitchTimer.insert(std::make_pair(m, timer));
+		decryptTimer.insert(std::make_pair(m, timer));
+
+		for (usint k = 0; k < numberOfIterations; k++) {
+				/***************************SETUP START**********************************/
+				cout << "Processing cyclotomic order of " << m << "under " << k << "th iteration" << endl;
+
+				DiscreteGaussianGenerator dgg(stdDev);
+
+				shared_ptr<ILParams> params(new ILParams(m, moduli[m][2], rootsOfUnity[m][2]));
+
+				LPCryptoParametersLTV<ILVector2n> cryptoParams;
+				cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+				cryptoParams.SetDistributionParameter(stdDev);
+				cryptoParams.SetRelinWindow(1);
+				cryptoParams.SetElementParams(params);
+				cryptoParams.SetDiscreteGaussianGenerator(dgg);
+
+			//	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextDCRT(&cryptoParams);
+				
+				CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m,
+					moduli[m][2].ToString(), rootsOfUnity[m][2].ToString(), 1, stdDev);
+				cc.Enable(ENCRYPTION);
+				cc.Enable(SHE);
+				cc.Enable(LEVELEDSHE);
+
+				LPKeyPair<ILVector2n> kp = cc.KeyGen();
+
+				/***************************SETUP END**********************************/
+
+				/***************************ENCRYPTION START**********************************/
+
+				start = currentDateTime();
+				vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+				if (!intOrByteArray) {
+					ciphertext = cc.Encrypt(kp.publicKey, cyclotomicOrderToIntArrayMapper.at(m), false);
+				}
+				else {
+					cout << cyclotomicOrderToByteArrayMapper.at(m) << endl;
+					ciphertext = cc.Encrypt(kp.publicKey, cyclotomicOrderToByteArrayMapper.at(m));
+				}
+
+				finish = currentDateTime();
+				diff = finish - start;
+				encryptTimer.at(m) += diff;
+
+				/***************************ENCRYPTION END**********************************/
+				/***************************DECRYPTION START**********************************/
+				if (!intOrByteArray) {
+					IntPlaintextEncoding plaintextNew;
+					start = currentDateTime();
+
+					cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
+
+					cout << "Decrypt " << plaintextNew << endl;
+
+					finish = currentDateTime();
+					diff = finish - start;
+					decryptTimer.at(m) += diff;
+				}
+				else {
+					BytePlaintextEncoding plaintextNew;
+					start = currentDateTime();
+
+					cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
+
+					cout << "Decrypt " << plaintextNew << endl;
+
+					finish = currentDateTime();
+					diff = finish - start;
+					decryptTimer.at(m) += diff;
+				}
+
+				/***************************DECRYPTION END**********************************/
+				/***************************KETSWITCH START**********************************/
+				LPKeyPair<ILVector2n> kp2 = cc.KeyGen();
+
+				shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
+				keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
+
+				start = currentDateTime();
+
+				shared_ptr<Ciphertext<ILVector2n>> cipherTextKeySwitch = cc.KeySwitch(keySwitchHint, ciphertext.at(0));
+
+				finish = currentDateTime();
+				diff = finish - start;
+				keySwitchTimer.at(m) += diff;
+				vector<shared_ptr<Ciphertext<ILVector2n>>> cipherTextVector(1);
+				cipherTextVector.at(0) = cipherTextKeySwitch;
+
+				if (!intOrByteArray) {
+					IntPlaintextEncoding plaintextNew_keyswitch_int;
+					cc.Decrypt(kp2.secretKey, cipherTextVector, &plaintextNew_keyswitch_int);
+					cout << "KeySwitch " << plaintextNew_keyswitch_int << endl;
+				}
+
+				else {
+					BytePlaintextEncoding plaintextNew_keyswitch_byte;
+					cc.Decrypt(kp2.secretKey, cipherTextVector, &plaintextNew_keyswitch_byte);
+					cout << "KeySwitch " << plaintextNew_keyswitch_byte << endl;
+				}
+
+				/***************************KETSWITCH END**********************************/
+				
+
+				/***************************RINGREDUCE START**********************************/
+				if (m > 16) {
+					start = currentDateTime();
+
+					LPKeyPair<ILVector2n> kp_rr = cc.KeyGen();
+					vector<shared_ptr<Ciphertext<ILVector2n>>> cipherTextRingReduce;
+					if (!intOrByteArray) {
+						cipherTextRingReduce = cc.Encrypt(kp_rr.publicKey, cyclotomicOrderToIntArrayMapper.at(m), false);
+					}
+					else {
+						cipherTextRingReduce = cc.Encrypt(kp_rr.publicKey, cyclotomicOrderToByteArrayMapper.at(m));
+					}
+					LPKeyPair<ILVector2n> kp_sparse = cc.SparseKeyGen();
+
+					shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint_sparse = cc.KeySwitchGen(kp_rr.secretKey, kp_sparse.secretKey);
+
+					cipherTextRingReduce = cc.RingReduce(cipherTextRingReduce, keySwitchHint_sparse);
+
+					finish = currentDateTime();
+					diff = finish - start;
+					ringReduceTimer.at(m) += diff;
+
+					if (!intOrByteArray) {
+						ILVector2n skSparseElement(kp_sparse.secretKey->GetPrivateElement());
+						skSparseElement.SwitchFormat();
+						skSparseElement.Decompose();
+						skSparseElement.SwitchFormat();
+
+						kp_sparse.secretKey->SetPrivateElement(skSparseElement);
+
+						IntPlaintextEncoding plaintextNew_ringreduce;
+
+						cc.Decrypt(kp_sparse.secretKey, cipherTextRingReduce, &plaintextNew_ringreduce, false);
+
+						cout << "Ring Reduce " << plaintextNew_ringreduce << endl;
+					}
+				}
+				/***************************RINGREDUCE END**********************************/
+		}
+	}
+
+	ofstream myfile;
+	myfile.open("C:/Users/Ha/Documents/Code/Palisade/benchmark.csv", std::ios_base::app);
+	myfile << "\n";
+	myfile << "Encrypt-Decrypt Double-CRT\n";
+	myfile << "Cyclotomic Order";
+	for (usint m = minCyclotomicOrder; m <= maxCyclotomicOrder; m = m * 2) {
+		myfile << "," << m;
+	}
+	myfile << "\nEncrypt\n,";
+
+		for (usint m = minCyclotomicOrder; m <= maxCyclotomicOrder; m = m * 2) {
+			myfile << encryptTimer.at(m) / numberOfIterations << ",";
+		}
+		myfile << "\n";
+	
+
+	myfile << "\n";
+	myfile << "Decrypt\n,";
+	
+		for (usint m = minCyclotomicOrder; m <= maxCyclotomicOrder; m = m * 2) {
+			myfile << decryptTimer.at(m) / numberOfIterations << ",";
+		}
+		myfile << "\n";
+	
+	myfile << "\n" << numberOfIterations << " iterations\n";
+
+	myfile << "\n";
+	myfile << "RingReduce\n,";
+	usint mRing = 16;
+	if (minCyclotomicOrder == 16) { 
+		mRing = 32; myfile << ","; 
+	}
+	
+	for (usint m = mRing; m <= maxCyclotomicOrder; m = m * 2) {
+		myfile << ringReduceTimer.at(m) / numberOfIterations << ",";
+	}
+	
+	myfile << "\n";
+	myfile << "\n" << numberOfIterations << " iterations\n";
+
+	myfile << "\n";
+	myfile << "KeySwitch\n,";
+	
+	for (usint m = minCyclotomicOrder; m <= maxCyclotomicOrder; m = m * 2) {
+		myfile << keySwitchTimer.at(m) / numberOfIterations << ",";
+	}
+
+	myfile << "\n";
+	myfile << "\n" << numberOfIterations << " iterations\n";
+
+}
+
 void BenchMarking_DCRT_Eval_Mult() {
-	/*double diff, start, finish;
+	double diff, start, finish;
 	std::map<usint, std::vector<double>> evalMultTimerMap;
 
 	for (usint m = minCyclotomicOrder; m <= maxCyclotomicOrder; m = m * 2) {
@@ -512,61 +728,113 @@ void BenchMarking_DCRT_Eval_Mult() {
 		std::vector<double> evalMultTimer(20);
 		std::fill(evalMultTimer.begin(), evalMultTimer.end(), 0);
 		evalMultTimerMap.insert(std::make_pair(m, evalMultTimer));
+		CalculateModuli(m);
+
+		ofstream myfile2;
+
+		myfile2.open("C:/Users/Ha/Documents/Code/Palisade/results.txt", std::ios_base::app);
+		myfile2 <<"\n" << m << "\n";
+
 
 		for (usint k = 0; k < numberOfIterations; k++) {
 			for (usint i = minTowerSize; i <= maxTowerSize; i++) {
-				float stdDev = 4;
+				/***************************SETUP START**********************************/
+				cout << "Processing cyclotomic order of " << m << " and tower size of " << i << " under " << k << "th iteration" << endl;
 
-				vector<BigBinaryInteger> moduli(i);
+				vector<BigBinaryInteger> moduli_vector(i);
 
-				vector<BigBinaryInteger> rootsOfUnity(i);
-
-				BigBinaryInteger q("1");
-				BigBinaryInteger temp;
-				BigBinaryInteger modulus("1");
+				vector<BigBinaryInteger> rootsOfUnity_vector(i);
 
 				for (int j = 0; j < i; j++) {
-					lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-					moduli[j] = q;
-					rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-					modulus = modulus* moduli[j];
+					moduli_vector[j] = moduli[m][j + 1];
+					rootsOfUnity_vector[j] = rootsOfUnity[m][j + 1];
 				}
 
 				DiscreteGaussianGenerator dgg(stdDev);
 
-				ILDCRTParams params(m, moduli, rootsOfUnity);
-				ILVectorArray2n element1(dgg, params, Format::EVALUATION);
-				ILVectorArray2n element2(dgg, params, Format::EVALUATION);
+				shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli_vector, rootsOfUnity_vector));
 
 				LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-				cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+				cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::FOUR);
 				cryptoParams.SetDistributionParameter(stdDev);
 				cryptoParams.SetRelinWindow(1);
 				cryptoParams.SetElementParams(params);
-				cryptoParams.SetDiscreteGaussianGenerator(dgg);
+				cryptoParams.SetAssuranceMeasure(6);
+				cryptoParams.SetDepth(i - 1);
+				cryptoParams.SetSecurityLevel(1.006);
 
-				Ciphertext<ILVectorArray2n> cipherText1;
-				cipherText1.SetCryptoParameters(&cryptoParams);
-				cipherText1.SetElement(element1);
-				
-				Ciphertext<ILVectorArray2n> cipherText2;
-				cipherText2.SetCryptoParameters(&cryptoParams);
-				cipherText2.SetElement(element2);
+				LPCryptoParametersLTV<ILVectorArray2n> finalParams;
 
-				Ciphertext<ILVectorArray2n> results;
-				results.SetCryptoParameters(&cryptoParams);
+				cryptoParams.ParameterSelection(&finalParams);
 
-				LPPublicKeyEncryptionSchemeLTV<ILVectorArray2n> algorithm;
-		
-				algorithm.Enable(SHE);
+				usint n = finalParams.GetElementParams()->GetCyclotomicOrder();
 
-				start = currentDateTime();
+				cout << "Cyclotomic order for final params is " << n << "and tower size is :" << i << endl;				
+				myfile2 << "Cyclotomic order for final params is " << n << "and tower size is :" << i  << "\n";
+				BigBinaryInteger modulus(finalParams.GetElementParams()->GetModulus());
 
-				algorithm.EvalMult(cipherText1, cipherText2, &results);
+				myfile2 << "Modulus value:" << modulus << "\n";
 
-				finish = currentDateTime();
-				diff = finish - start;
-				evalMultTimerMap.at(m).at(i) += diff;
+				CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&finalParams);
+				cc.Enable(SHE);
+				cc.Enable(LEVELEDSHE);
+				cc.Enable(ENCRYPTION);
+
+				//Generate the secret key for the initial ciphertext:
+				//LPKeyPair<ILVectorArray2n> kp;
+				//
+				////Generating new cryptoparameters for when modulus reduction is done. - not used?
+				//std::vector<usint> vectorOfInts1(2048);
+				//vectorOfInts1.at(0) = 2;
+				//vectorOfInts1.at(1) = 4;
+				//vectorOfInts1.at(2) = 0;
+				//vectorOfInts1.at(3) = 0;
+				//std::fill(vectorOfInts1.begin() + 4, vectorOfInts1.end(), 0);
+				//IntPlaintextEncoding intArray1(vectorOfInts1);
+
+				//std::vector<usint> vectorOfInts2(2048);
+				//vectorOfInts2.at(0) = 3;
+				//vectorOfInts2.at(1) = 3;
+				//vectorOfInts2.at(2) = 0;
+				//vectorOfInts2.at(3) = 0;
+				//std::fill(vectorOfInts2.begin() + 4, vectorOfInts2.end(), 0);
+				//IntPlaintextEncoding intArray2(vectorOfInts2);
+
+				//kp = cc.KeyGen();
+
+				//vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext1;
+				//vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext2;
+
+				//ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
+				//ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+
+				//std::vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cResult;
+				//cResult.insert(cResult.begin(), cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0)));
+
+				//LPKeyPair<ILVectorArray2n> newKp = cc.KeyGen();
+
+				//shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint1 = cc.EvalMultKeyGen(kp.secretKey);
+
+				//cResult.at(0) = cc.KeySwitch(keySwitchHint1, cResult.at(0));
+
+				//shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint2 = cc.KeySwitchGen(kp.secretKey, newKp.secretKey);
+
+				//cResult.at(0) = cc.KeySwitch(keySwitchHint2, cResult.at(0));
+
+				//IntPlaintextEncoding results;
+
+				//cc.Decrypt(newKp.secretKey, cResult, &results, false);
+
+				//cout << results.at(0) << endl;
+				//cout << results.at(1) << endl;
+				//cout << results.at(2) << endl;
+				//
+				//start = currentDateTime();
+
+
+				//finish = currentDateTime();
+				//diff = finish - start;
+				//evalMultTimerMap.at(m).at(i) += diff;
 			}
 		}
 	}
@@ -574,9 +842,9 @@ void BenchMarking_DCRT_Eval_Mult() {
 	myfile.open("C:/Users/Ha/Documents/Code/Palisade/benchmark.csv", std::ios_base::app);
 	myfile << "\n";
 	myfile << "EvalMult Double-CRT\n";
-	myfile << "Cyclotomic Order,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768\n";
+	myfile << "Cyclotomic Order,4096,8192,16384,\n";
 
-	for (usint i = 1; i <= numberOfTowers; i++) {
+	for (usint i = 4196; i <= 65536; i++) {
 		myfile << "t=" << i << ",";
 		for (usint m = 16; m <= maxCyclotomicOrder; m = m * 2) {
 			myfile << evalMultTimerMap.at(m).at(i) / numberOfIterations << ",";
@@ -584,7 +852,7 @@ void BenchMarking_DCRT_Eval_Mult() {
 		myfile << "\n";
 	}
 
-	myfile << "\n" << numberOfIterations << " iterations\n";*/
+	myfile << "\n" << numberOfIterations << " iterations\n";
 }
 //
 //void BenchMarking_DCRT_Eval_Add() {
@@ -677,127 +945,7 @@ void BenchMarking_DCRT_Eval_Mult() {
 //
 
 
-//void BenchMarking_Ring_Reduce_Single_Crt() {
-//	double diff, start, finish;
-//	std::map<usint, double> ring_reduce_timer;
-//
-//	usint numberOfIterations = 1;
-//
-//	std:map<usint, IntPlaintextEncoding> cyclotomicOrderToIntArrayMapper;
-//
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(16, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(32, IntPlaintextEncoding({ 1 , 0 , 0, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(64, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(128, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(256, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(512, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(1024, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(2048, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//	cyclotomicOrderToIntArrayMapper.insert(std::make_pair(4096, IntPlaintextEncoding({ 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0,  1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0, 1 , 0 , 1, 0, 1, 1, 1, 0 })));
-//
-//
-//	for (usint m = 16; m <= 64; m = m * 2) {
-//		double temp = 0;
-//		ring_reduce_timer.insert(std::make_pair(m, temp));
-//
-//		for (usint k = 0; k < numberOfIterations; k++) {
-//			float stdDev = 4;
-//
-//			BigBinaryInteger q("1");
-//			BigBinaryInteger temp;
-//
-//			lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-//
-//			DiscreteGaussianGenerator dgg(stdDev);
-//			BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-//			ILParams params(m, q, RootOfUnity(m, q));
-//
-//			//This code is run only when performing execution time measurements
-//
-//			//Precomputations for FTT
-//			ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
-//
-//			//Precomputations for DGG
-//			ILVector2n::PreComputeDggSamples(dgg, params);
-//
-//			LPCryptoParametersLTV<ILVector2n> cryptoParams;
-//			cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-//			cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-//			cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
-//			cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-//			cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
-//
-//			Ciphertext<ILVector2n> cipherText;
-//			cipherText.SetCryptoParameters(&cryptoParams);
-//
-//			LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-//
-//			algorithm.Enable(LEVELEDSHE);
-//			algorithm.Enable(ENCRYPTION);
-//
-//			//Initialize the public key containers.
-//			LPPublicKey<ILVector2n> pk(cryptoParams);
-//			LPPrivateKey<ILVector2n> sk(cryptoParams);
-//
-//			algorithm.KeyGen(&pk, &sk);
-//			vector<Ciphertext<ILVector2n>> ciphertext;
-//
-//			IntPlaintextEncoding intArray(cyclotomicOrderToIntArrayMapper.at(m));
-//
-//			CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, intArray, &ciphertext, false);
-//
-//			LPPublicKey<ILVector2n> pk2(cryptoParams);
-//			LPPrivateKey<ILVector2n> skSparse(cryptoParams);
-//
-//			algorithm.SparseKeyGen(&pk2, &skSparse);
-//
-//			LPEvalKeyNTRU<ILVector2n> keySwitchHint(cryptoParams);
-//			algorithm.EvalMultKeyGen(sk, skSparse, &keySwitchHint);
-//
-//			vector<Ciphertext<ILVector2n>> newCiphertext;
-//			newCiphertext.reserve(ciphertext.size());
-//
-//			CryptoUtility<ILVector2n>::KeySwitch(algorithm, keySwitchHint, ciphertext, &newCiphertext);
-//
-//			IntPlaintextEncoding intArrayNew;
-//
-//			start = currentDateTime();
-//
-//			CryptoUtility<ILVector2n>::RingReduce(algorithm, &ciphertext, keySwitchHint);
-//
-//			finish = currentDateTime();
-//			diff = finish - start;
-//			ring_reduce_timer.at(m) += diff;
-//
-//			ILVector2n skSparseElement(skSparse.GetPrivateElement());
-//			skSparseElement.SwitchFormat();
-//			skSparseElement.Decompose();
-//			skSparseElement.SwitchFormat();
-//
-//			skSparse.SetPrivateElement(skSparseElement);
-//
-//			IntPlaintextEncoding intArrayNewRR;
-//
-//			LPCryptoParametersLTV<ILVector2n> cryptoParamsRR;
-//			ILParams ilparams2(ciphertext[0].GetElement().GetParams().GetCyclotomicOrder() / 2, ciphertext[0].GetElement().GetParams().GetModulus(), ciphertext[0].GetElement().GetParams().GetRootOfUnity());
-//			cryptoParamsRR.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-//			cryptoParamsRR.SetDistributionParameter(stdDev);          // Set the noise parameters.
-//			cryptoParamsRR.SetRelinWindow(1);						   // Set the relinearization window
-//			cryptoParamsRR.SetElementParams(ilparams2);                // Set the initialization parameters.
-//			cryptoParamsRR.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
-//
-//		//	skSparse.SetCryptoParameters(&cryptoParamsRR);
-//		}
-//		ILVector2n::DestroyPreComputedSamples();
-//	}
-//	
-//	for (usint m = 32; m <= 64; m = m * 2) {
-//			cout << "m is :" << m << endl;
-//			cout << ring_reduce_timer.at(m) / numberOfIterations << endl;
-//			cout << endl;
-//	}
-//}
-//
+
 
 //void BenchMarking_Pre(){
 //	double diff, start, finish;
@@ -1019,112 +1167,7 @@ void BenchMarking_DCRT_Eval_Mult() {
 //	}	cout << endl;
 //}
 //
-//void BenchMarking_Encrypt_Single_Crt() {
-//	double diff, start, finish;
-//	std::map<usint, double> encryptTimer;
-//	std::map<usint, double> decryptTimer;
-//
-//	usint numberOfIterations = 100;
-//
-//	std::vector<BytePlaintextEncoding> plaintextEncodingVector;
-//	std:map<usint, BytePlaintextEncoding> cyclotomicOrderToByteArrayMapper;
-//
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(16, BytePlaintextEncoding("A")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(32, BytePlaintextEncoding("AB")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(64, BytePlaintextEncoding("ABCD")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(128, BytePlaintextEncoding("ABCDEFGH")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(256, BytePlaintextEncoding("ABCDEFGHIJKLMNOP")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(512, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(1024, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(2048, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(4096, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(8192, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(16384, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-//	cyclotomicOrderToByteArrayMapper.insert(std::make_pair(32768, BytePlaintextEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF")));
-//
-//	for (usint m = 16; m <= 32768; m = m * 2) {
-//
-//		double temp = 0;
-//		encryptTimer.insert(std::make_pair(m, temp));
-//		decryptTimer.insert(std::make_pair(m, temp));
-//
-//		for (usint k = 0; k < numberOfIterations; k++) {
-//			float stdDev = 4;
-//
-//			BigBinaryInteger q("1");
-//			BigBinaryInteger temp;
-//
-//			lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-//
-//			DiscreteGaussianGenerator dgg(stdDev);
-//			BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-//			ILParams params(m, q, RootOfUnity(m, q));
-//
-//			//This code is run only when performing execution time measurements
-//
-//			//Precomputations for FTT
-//			ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
-//
-//			//Precomputations for DGG
-//			ILVector2n::PreComputeDggSamples(dgg, params);
-//
-//			LPCryptoParametersLTV<ILVector2n> cryptoParams;
-//			cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-//			cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-//			cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
-//			cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-//			cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
-//
-//			Ciphertext<ILVector2n> cipherText;
-//			cipherText.SetCryptoParameters(&cryptoParams);
-//
-//			LPPublicKeyEncryptionSchemeLTV<ILVector2n> algorithm;
-//			LPPublicKey<ILVector2n> pk(cryptoParams);
-//			LPPrivateKey<ILVector2n> sk(cryptoParams);
-//
-//			algorithm.Enable(ENCRYPTION);
-//
-//			algorithm.KeyGen(&pk, &sk);
-//
-//			vector<Ciphertext<ILVector2n>> ciphertext;
-//
-//			start = currentDateTime();
-//
-//			CryptoUtility<ILVector2n>::Encrypt(algorithm, pk, cyclotomicOrderToByteArrayMapper.at(m), &ciphertext);
-//			
-//			finish = currentDateTime();
-//			diff = finish - start;
-//			encryptTimer.at(m) += diff;
-//
-//			BytePlaintextEncoding plaintextNew;
-//
-//			start = currentDateTime();
-//
-//			CryptoUtility<ILVector2n>::Decrypt(algorithm, sk, ciphertext, &plaintextNew);
-//			finish = currentDateTime();
-//			diff = finish - start;
-//			decryptTimer.at(m) += diff;
-//		}
-//	}
-//
-//	ofstream myfile;
-//	myfile.open("C:/Users/Ha/Documents/Code/Palisade/benchmark.csv", std::ios_base::app);
-//	myfile << "\n";
-//	myfile << "Encrypt-Decrypt Single-CRT\n";
-//	myfile << "Cyclotomic Order,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768\n";
-//	myfile << "Encrypt,";
-//
-//	for(usint m = 16; m <= 32768; m = m * 2) {
-//			myfile << encryptTimer.at(m)/ numberOfIterations << ",";
-//		}	
-//	myfile << "\n";
-//	myfile << "Decrypt,";
-//	for (usint m = 16; m <= 32768; m = m * 2) {
-//		myfile << decryptTimer.at(m) / numberOfIterations << ",";
-//	}
-//	myfile << "\n" << numberOfIterations << " iterations\n";
-//}
-//
+
 //void Benchmarking_find_table_of_secure_params() {
 //	
 //	double plaintextModulus = 2;
@@ -1257,79 +1300,3 @@ void standardMapTest() {
 
 }
 
-void ringReduceTest() {
-	//usint m = 16;
-	//float stdDev = 4;
-	//usint size = 3;
-
-	//vector<BigBinaryInteger> moduli(size);
-	//moduli.reserve(4);
-	//vector<BigBinaryInteger> rootsOfUnity(size);
-	//rootsOfUnity.reserve(4);
-
-	//BigBinaryInteger q("1");
-	//BigBinaryInteger temp;
-	//BigBinaryInteger modulus("1");
-
-	//lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
-
-	//for (int i = 0; i < size; i++) {
-	//	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-	//	moduli[i] = q;
-	//	rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
-	//	modulus = modulus* moduli[i];
-	//}
-
-	//shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
-
-	//LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	//cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-	//cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	//cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
-	//cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-
-	//CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
-	//cc.Enable(ENCRYPTION);
-	//cc.Enable(LEVELEDSHE);
-	//cc.Enable(SHE);
-
-	//LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
-
-	//vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext;
-
-	//std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
-	//IntPlaintextEncoding intArray(vectorOfInts);
-
-	//ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
-
-	//vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext(ciphertext.size());
-
-	//LPKeyPair<ILVectorArray2n> kp2 = cc.SparseKeyGen();
-
-	//shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
-
-	//newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
-
-	//IntPlaintextEncoding intArrayNew;
-
-	//cc.Decrypt(kp2.secretKey, newCiphertext, &intArrayNew, false);
-
-	//ciphertext = cc.RingReduce(ciphertext, keySwitchHint);
-
-	//ILVectorArray2n skSparseElement(kp2.secretKey->GetPrivateElement());
-	//skSparseElement.SwitchFormat();
-	//skSparseElement.Decompose();
-	//skSparseElement.SwitchFormat();
-
-	//kp2.secretKey->SetPrivateElement(skSparseElement);
-
-	//IntPlaintextEncoding intArrayNewRR;
-
-	//cc.Decrypt(kp2.secretKey, ciphertext, &intArrayNewRR, false);
-
-	//IntPlaintextEncoding intArrayExpected({ 1,1,1,1 });
-
-	//cout << intArrayNewRR << endl;
-
-	ILVector2n::DestroyPreComputedSamples();
-}
