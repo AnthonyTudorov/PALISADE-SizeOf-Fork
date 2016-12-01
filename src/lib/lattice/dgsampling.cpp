@@ -52,12 +52,16 @@ namespace lbcrypto {
 		Matrix<LargeFloat> sample([]() { return make_unique<LargeFloat>(); }, sigmaSqrt.GetRows(), 1);
 
 		ContinuousGaussianGenerator(&sample);
-		Matrix<LargeFloat> nkEntry([]() { return make_unique<LargeFloat>(); }, perturbationVector->GetRows()-2*n, 1);
-		ContinuousGaussianGenerator(&nkEntry);
+		Matrix<LargeFloat> sample2([]() { return make_unique<LargeFloat>(); }, perturbationVector->GetRows() - 2 * n, 1);
+		ContinuousGaussianGenerator(&sample2);
+		Matrix<LargeFloat> p2([]() { return make_unique<LargeFloat>(); }, perturbationVector->GetRows() - 2 * n, 1);
+		p2 = sample2.ScalarMult(sqrt(b));
+		Matrix<int32_t> perturbationVector2([]() { return make_unique<LargeFloat>(); }, perturbationVector->GetRows() - 2 * n, 1);
 		Matrix<LargeFloat> p = sigmaSqrt.Mult(sample);
 		RandomizeRound(n, p, a, perturbationVector);
-		for (int i = 0;i < nkEntry.GetRows();i++) {
-			(*perturbationVector)(2 * n + i,0) = (int32_t)(nkEntry(i, 0) * sqrt(b));
+		RandomizeRound(n, p2, a, &perturbationVector2);
+		for (int i = 0;i < perturbationVector->GetRows();i++) {
+			(*perturbationVector)(2 * n + i, 0) = perturbationVector2(i, 0);
 		}
 
 	}
