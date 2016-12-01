@@ -112,8 +112,12 @@ TEST(UTField2n, minus) {
 	Field2n c(2, EVALUATION, true);
 	c.at(0) = std::complex<double>(-1, 1.1);
 	c.at(1) = std::complex<double>(0, -1.2);
-	EXPECT
-	EXPECT_EQ(c, a.Minus(b));
+	
+	Field2n d = a.Minus(b);
+	for (int i = 0;i < 2;i++) {
+		EXPECT_LE(abs(d.at(i).real() - c.at(i).real()), abs(c.at(i).real())*0.00001);
+		EXPECT_LE(abs(d.at(i).imag() - c.at(i).imag()), abs(c.at(i).imag())*0.00001);
+	}
 }
 
 //TEST FOR MULTIPLICATION OPERATION
@@ -132,7 +136,11 @@ TEST(UTField2n, times) {
 	c.at(0) = std::complex<double>(25, 0);
 	c.at(1) = std::complex<double>(15.6, -28.8);
 	DEBUG("Step 4");
-	EXPECT_EQ(c, a.Times(b));
+	Field2n d = a.Times(b);
+	for (int i = 0;i < 2;i++) {
+		EXPECT_LE(abs(d.at(i).real() - c.at(i).real()), abs(c.at(i).real())*0.00001);
+		EXPECT_LE(abs(d.at(i).imag() - c.at(i).imag()), abs(c.at(i).imag())*0.00001);
+	}
 }
 
 //TEST FOR SHIFT RIGHT OPERATION
