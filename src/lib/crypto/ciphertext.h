@@ -1,5 +1,6 @@
 /**
-* @file
+* @file		ciphertext.h
+*
 * @author	TPOC:
 Dr. Kurt Rohloff <rohloff@njit.edu>,
 Programmers:
@@ -32,7 +33,7 @@ Hadi Sajjadpour <ss2959@njit.edu>
 *
 * @section DESCRIPTION
 *
-* This file contains the big binary integer functionality.
+* This file contains the representation of Ciphertext in PALISADE
 */
 
 #ifndef LBCRYPTO_CRYPTO_CIPHERTEXT_H
@@ -41,13 +42,8 @@ Hadi Sajjadpour <ss2959@njit.edu>
 //Includes Section
 #include "../palisade.h"
 
-/**
-* @namespace lbcrypto
-* The namespace of lbcrypto
-*/
 namespace lbcrypto {
 
-	//JSON FACILITY - Forward declaration for temporary fix of lweautomorph.cpp Linux compilation error
 	template <class Element>
 	class LPCryptoParametersLTV;
 
@@ -198,7 +194,6 @@ namespace lbcrypto {
 		/**
 		* Serialize the object into a Serialized
 		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
 		bool Serialize(Serialized* serObj) const;
