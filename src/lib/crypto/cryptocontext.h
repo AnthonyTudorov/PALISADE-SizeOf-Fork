@@ -233,22 +233,6 @@ public:
 	}
 
 	/**
-	 * QuadraticEvalMultKeyGen creates the key that can be used with the PALISADE Quadratic EvalMult
-	 * @param k1
-	 * @param k2
-	 * @return new evaluation key
-	 */
-	shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
-			const shared_ptr<LPPrivateKey<Element>> k1,
-			const shared_ptr<LPPrivateKey<Element>> k2) const {
-
-		if( !k1 || !k2 || k1->GetCryptoContext() != *this || k2->GetCryptoContext() != *this )
-			throw std::logic_error("Keys passed to QuadraticEvalMultKeyGen were not generated with this crypto context");
-
-		return GetEncryptionAlgorithm()->QuadraticEvalMultKeyGen(k1, k2);
-	}
-
-	/**
 	 * Encrypt method for PALISADE
 	 * @param publicKey - for encryption
 	 * @param plaintext - to encrypt

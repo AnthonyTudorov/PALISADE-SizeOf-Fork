@@ -327,17 +327,17 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALADD_DCRT) {
 	EXPECT_EQ(intArrayExpected, results);
 }
 
-/*
+
 TEST(UTBVDCRT, ILVector2n_bv_EVALMULT) {
 
 	usint m = 8;
 
 	float stdDev = 4;
 
-	BigBinaryInteger q("2199023288321127658970987");
+	BigBinaryInteger q("21990232");
 	BigBinaryInteger temp;
 
-	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
+	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 	DiscreteGaussianGenerator dgg(stdDev);
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 	shared_ptr<ILParams> params(new ILParams(m, q, rootOfUnity));
@@ -381,7 +381,7 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT) {
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2 =
 		cc.Encrypt(kp.publicKey, intArray2,false);
 
-	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint = cc.QuadraticEvalMultKeyGen(kp.secretKey,kp.secretKey);
+	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint = cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> cResult;
 
@@ -395,9 +395,8 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT) {
 	EXPECT_EQ(intArrayExpected, results);
 
 }
-*/
 
-/*
+
 TEST(UTBVDCRT, ILVector2n_bv_EVALMULT_DCRT) {
 
 	usint init_m = 8;
@@ -410,7 +409,7 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT_DCRT) {
 
 	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	BigBinaryInteger q("2199023288321127658970987");
+	BigBinaryInteger q("21990232");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
@@ -464,7 +463,7 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT_DCRT) {
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext2 =
 		cc.Encrypt(kp.publicKey, intArray2,false);
 
-	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint = cc.QuadraticEvalMultKeyGen(kp.secretKey, kp.secretKey);
+	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint = cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cResult;
 
@@ -477,7 +476,7 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT_DCRT) {
 	EXPECT_EQ(intArrayExpected, results);
 
 }
-*/
+
 
 TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 
@@ -491,7 +490,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 
 	std::vector<BigBinaryInteger> rootsOfUnity(numOfTower);
 
-	BigBinaryInteger q("500000000");
+	BigBinaryInteger q("50000");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
@@ -589,12 +588,12 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
 
 	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	BigBinaryInteger q("219902328832110677487839977774993");
+	BigBinaryInteger q("2199023282348389495048590");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for (int i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, init_m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
+		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, init_m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
 		modulus = modulus* init_moduli[i];
@@ -642,7 +641,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext2 =
 		cc.Encrypt(kp.publicKey, intArray2,false);
 
-	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint = cc.QuadraticEvalMultKeyGen(kp.secretKey, kp.secretKey);
+	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint = cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cResult;
 
@@ -661,7 +660,6 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
 	EXPECT_EQ(intArrayExpected, results);
 }
 */
-
 
 
 
