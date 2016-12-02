@@ -121,18 +121,18 @@ bool CONJOBF(bool dbg_flag, int n_evals, int dataset) {
 	TIC(t_total); //start timer for total time
 
 	SecureParams const SECURE_PARAMS[] = {
-		{ 16, BigBinaryInteger("288230376151711969"),
-		BigBinaryInteger("110926819574788955") }, //log q = 59 bits, n = 8
-		{ 32, BigBinaryInteger("4611686018427388097"),
-		BigBinaryInteger("3749353375025977635") }, //log q = 64 bits, n = 16
-		{ 64, BigBinaryInteger("73786976294838207169"),
-		BigBinaryInteger("18478736723072519957") }, // log q = 68 bits, n = 32
-		{ 128, BigBinaryInteger("1180591620717411303809"),
-		BigBinaryInteger("1045241421304505831910") },  // log q = 72 bits, n = 64
-		{ 256, BigBinaryInteger("18889465931478580859137"),
-		BigBinaryInteger("701118114663743452021") }, // log q = 76 bits, n = 128
-		{ 512, BigBinaryInteger("604462909807314587356673"),
-		BigBinaryInteger("315652146132535045281800") }  // log q = 81 bits, n = 256
+		{ 16, BigBinaryInteger("295147905179352825889"),
+		BigBinaryInteger("124721243810329641926") }, //log q = 69 bits, n = 8
+		{ 32, BigBinaryInteger("9444732965739290428129"),
+		BigBinaryInteger("9435634234635383549045") }, //log q = 74 bits, n = 16
+		{ 64, BigBinaryInteger("151115727451828646840833"),
+		BigBinaryInteger("43768632958077729079089") }, // log q = 78 bits, n = 32
+		{ 128, BigBinaryInteger("2417851639229258349415553"),
+		BigBinaryInteger("1516920322058425003297600") },  // log q = 82 bits, n = 64
+		{ 256, BigBinaryInteger("77371252455336267181196801"),
+		BigBinaryInteger("29846242359127323974618793") }, // log q = 87 bits, n = 128
+		{ 512, BigBinaryInteger("1237940039285380274899136513"),
+		BigBinaryInteger("977145384161930579732228319") }  // log q = 91 bits, n = 256
 	};
 
 	//Set element params

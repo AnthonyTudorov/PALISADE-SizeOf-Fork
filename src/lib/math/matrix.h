@@ -328,6 +328,23 @@ namespace lbcrypto {
                 return *data[row][col];
             }
 
+			/**
+			* Matrix row extractor
+			*
+			* @param &row row index
+			* @return the row at the index
+			*/
+			inline Matrix<Element> ExtractRow(size_t row) const {
+				Matrix<Element> result(this->allocZero,1,this->cols);
+				int i = 0;
+				for (auto elem = this->GetData()[row].begin(); elem != this->GetData()[row].end(); ++elem) {
+					result(0,i) = **elem;
+					i++;
+				}
+				return result;
+				//return *this;
+			}
+
             /**
              * Print values of the matrix to the cout stream
 			 *
@@ -440,6 +457,5 @@ namespace lbcrypto {
 	* @return the resulting matrix of ILVector2n
     */ 
     inline Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
-
 }
 #endif // LBCRYPTO_MATH_MATRIX_H

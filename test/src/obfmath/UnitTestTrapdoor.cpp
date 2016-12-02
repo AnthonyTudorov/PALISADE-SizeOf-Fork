@@ -349,6 +349,173 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 
 }
 
+// Test of Gaussian Sampling using the UCSD integer perturbation sampling algorithm
+TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
+
+	usint m = 16;
+	usint n = m / 2;
+
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	float stddev = 4;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = log(val - 1.0) / log(2) + 1.0;
+	usint k = (usint)floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
+	//auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+
+	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+
+	RingMat eHat = trapPair.second.m_e;
+	RingMat rHat = trapPair.second.m_r;
+	//auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
+
+	DiscreteGaussianGenerator dgg(4);
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
+
+	ILVector2n u(dug, params, COEFFICIENT);
+	u.SwitchFormat();
+
+	//  600 is a very rough estimate for s, refer to Durmstradt 4.2 for
+	//      estimation
+	RingMat z = RLWETrapdoorUtility::GaussSampV3(m / 2, k, trapPair.first, trapPair.second, u, stddev, dgg);
+
+	//Matrix<ILVector2n> uEst = trapPair.first * z;
+
+	EXPECT_EQ(trapPair.first.GetCols(), z.GetRows())
+		<< "Failure testing number of rows";
+	EXPECT_EQ(m / 2, z(0, 0).GetLength())
+		<< "Failure testing ring dimension for the first ring element";
+
+	ILVector2n uEst = (trapPair.first * z)(0, 0);
+	uEst.SwitchFormat();
+	u.SwitchFormat();
+
+	EXPECT_EQ(u, uEst);
+
+	//std::cout << z << std::endl;
+
+}
+
+// Test  UCSD integer perturbation sampling algorithm
+// So far the test simply runs 100 instances of ZSampleSigmaP
+// and makes sure no exceptions are encountered - this validates that
+// covariance matrices at all steps are positive definite 
+TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
+
+	usint m = 16;
+	usint n = m / 2;
+
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	float stddev = 4;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = log(val - 1.0) / log(2) + 1.0;
+	usint k = (usint)floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	double c(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI));
+
+	//spectral bound s
+	double s = 40 * std::sqrt(n*(k + 2));
+
+	//Generate the trapdoor pair
+	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
+
+	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+
+	RingMat eHat = trapPair.second.m_e;
+	RingMat rHat = trapPair.second.m_r;
+
+	DiscreteGaussianGenerator dgg(4);
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
+
+	//Do perturbation sampling
+	Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, (2 + k)*n, 1);
+
+	Matrix<int32_t> pCovarianceMatrix([]()  { return make_unique<int32_t>(); }, 2*n, 2*n);;
+
+	//std::vector<Matrix<int32_t>> pTrapdoors;
+
+	Matrix<int32_t> pTrapdoor([]() { return make_unique<int32_t>(); }, 2 * n, 1);
+
+	size_t count = 100;
+
+	for (size_t i = 0; i < count; i++) {
+		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, &p, dgg);
+
+		for (size_t j = 0; j < 2 * n; j++)
+			pTrapdoor(j, 0) = p(j, 0);
+		//pTrapdoors.push_back(pTrapdoor);
+		
+		pCovarianceMatrix = pCovarianceMatrix + pTrapdoor*pTrapdoor.Transpose();
+	}
+
+	Matrix<ILVector2n> Tprime0 = trapPair.second.m_e;
+	Matrix<ILVector2n> Tprime1 = trapPair.second.m_r;
+	Matrix<ILVector2n> TprimeTransposed0 = Tprime0.Transpose();
+	Matrix<ILVector2n> TprimeTransposed1 = Tprime1.Transpose();
+
+	//Perform multiplication in the NTT format
+	ILVector2n va = (Tprime0 * TprimeTransposed0)(0, 0);
+	ILVector2n vb = (Tprime1 * TprimeTransposed0)(0, 0);
+	ILVector2n vd = (Tprime1 * TprimeTransposed1)(0, 0);
+
+	//Switch the ring elements (polynomials) to coefficient representation
+	va.SwitchFormat();
+	vb.SwitchFormat();
+	vd.SwitchFormat();
+
+	//Create field elements from ring elements
+	Field2n a(va), b(vb), d(vd);
+
+	double scalarFactor = -s * s * c * c / (s * s - c * c);
+
+	a = a.ScalarMult(scalarFactor);
+	b = b.ScalarMult(scalarFactor);
+	d = d.ScalarMult(scalarFactor);
+
+	a = a + s*s;
+
+	//std::cout << a << std::endl;
+
+	//std::cout << double(pCovarianceMatrix(0,0))/count << std::endl;
+	//std::cout << double(pCovarianceMatrix(1,0)) / count << std::endl;
+	//std::cout << double(pCovarianceMatrix(2, 0)) / count << std::endl;
+	//std::cout << double(pCovarianceMatrix(3, 0)) / count << std::endl;
+
+	//std::cout << double(pCovarianceMatrix(0, 0)) / count << std::endl;
+	//std::cout << double(pCovarianceMatrix(0, 1)) / count << std::endl;
+	//std::cout << double(pCovarianceMatrix(0, 2)) / count << std::endl;
+	//std::cout << double(pCovarianceMatrix(0, 3)) / count << std::endl;
+
+	//for (size_t i = 0; i < 2*n; i++) {
+	//	pTrapdoor(i, 0) = p(i, 0);
+	//}
+
+	//double mean = 0;
+	//for (size_t i = 0; i < 2 * n; i++) {
+	//	mean += pTrapdoor(i, 0);
+	//}
+	//mean = mean / (2 * n);
+
+	//double sigma = 0;
+	//for (size_t i = 0; i < 2 * n; i++) {
+	//	sigma += (pTrapdoor(i, 0)-mean)*(pTrapdoor(i, 0) - mean);
+	//}
+	//sigma = sqrt(sigma / n);
+
+	//std::cout << "s = " << s << std::endl;
+
+	//std::cout << "mean = " << mean << std::endl;
+
+	//std::cout << "standard deviation = " << sigma << std::endl;
+
+}
+
+
 TEST(UTTrapdoor,EncodeTest_dgg_yes) {
 	bool dbg_flag = false;
 

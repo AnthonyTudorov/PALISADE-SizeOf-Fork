@@ -82,7 +82,7 @@ namespace lbcrypto {
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
 		//We should convert this to a static variable later
-		int32_t c(ceil(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI)));
+		double c(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI));
 
 		const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
@@ -168,6 +168,73 @@ namespace lbcrypto {
 
 	}
 
+	// Gaussian sampling based on the UCSD integer perturbation sampling
+
+	RingMat RLWETrapdoorUtility::GaussSampV3(size_t n, size_t k, const RingMat& A, 
+		const RLWETrapdoorPair<ILVector2n>& T, const ILVector2n &u,
+		double sigma, DiscreteGaussianGenerator &dgg) {
+
+		const shared_ptr<ILParams> params = u.GetParams();
+		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+
+		//We should convert this to a static variable later
+		double c(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI));
+
+		const BigBinaryInteger& modulus = A(0, 0).GetModulus();
+
+		Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, (2 + k)*n, 1);
+
+		//spectral bound s
+		double s = 40 * std::sqrt(n*(k + 2));
+
+		ZSampleSigmaP(n, s, c, T, &p, dgg);
+
+		//LatticeGaussSampUtility::NonSphericalSample(n, SigmaP, c, &p);
+
+		//std::cout << "GaussSamp: Just finished running NonSphericalSample" << std::endl;
+
+		// pHat is in the coefficient representation
+		Matrix<ILVector2n> pHat = SplitInt32IntoILVector2nElements(p, n, params);
+
+		// Now pHat is in the evaluation representation
+		pHat.SwitchFormat();
+
+		//std::cout<<"phat dimensions: rows, columns" << pHat.GetRows() << pHat.GetCols() << std::endl;
+
+		// YSP It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
+		// perturbedSyndrome is in the evaluation representation
+		ILVector2n perturbedSyndrome = u - (A.Mult(pHat))(0, 0);
+
+		//Matrix<BigBinaryInteger> zHatBBI(BigBinaryInteger::Allocator, k, n);
+		Matrix<int32_t> zHatBBI([]() { return make_unique<int32_t>(); }, k, n);
+
+		// GaussSampG(perturbedSyndrome,sigma,k,dgg,&zHatBBI);
+
+		// converting perturbed syndrome to coefficient representation
+		perturbedSyndrome.SwitchFormat();
+
+		//LatticeGaussSampUtility::GaussSampGq(perturbedSyndrome,sigma,k,modulus,dgg,&zHatBBI);
+		LatticeGaussSampUtility::GaussSampGqV2(perturbedSyndrome, sigma, k, modulus, 2, dgg, &zHatBBI);
+
+		// Convert zHat from a matrix of BBI to a vector of ILVector2n ring elements
+		// zHat is in the coefficient representation
+		RingMat zHat = SplitInt32AltIntoILVector2nElements(zHatBBI, n, params);
+		// Now converting it to the evaluation representation before multiplication
+		zHat.SwitchFormat();
+
+		RingMat zHatPrime(zero_alloc, k + 2, 1);
+
+		zHatPrime(0, 0) = pHat(0, 0) + T.m_e.Mult(zHat)(0, 0);
+		zHatPrime(1, 0) = pHat(1, 0) + T.m_r.Mult(zHat)(0, 0);
+
+		for (size_t row = 2; row < k + 2; ++row)
+			zHatPrime(row, 0) = pHat(row, 0) + zHat(row - 2, 0);
+
+	
+		return zHatPrime;
+
+	}
+
 	// Generation of perturbation matrix based on Cholesky decomposition 
 	// see Section 3.2 of https://eprint.iacr.org/2013/297.pdf for details
 
@@ -176,7 +243,7 @@ namespace lbcrypto {
 		TimeVar t1; // for TIC TOC
 		bool dbg_flag = 0; //set to 1 for debug timing...
 		//We should convert this to a static variable later
-		int32_t c(ceil(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI)));
+		double c(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI));
 
 		const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
@@ -192,7 +259,7 @@ namespace lbcrypto {
 										.VStack(Matrix<BigBinaryInteger>(BigBinaryInteger::Allocator, n*k, n*k).Identity());
 		DEBUG("p1: "<<TOC(t1) <<" ms");
 		TIC(t1);
-	Matrix<int32_t> Rint = ConvertToInt32(R, modulus);
+		Matrix<int32_t> Rint = ConvertToInt32(R, modulus);
 		DEBUG("P2: "<<TOC(t1) <<" ms");
 		TIC(t1);
 		Matrix<int32_t> COV = Rint*Rint.Transpose().ScalarMult(c*c);
@@ -204,10 +271,12 @@ namespace lbcrypto {
 		Matrix<int32_t> p([](){ return make_unique<int32_t>(); }, (2+k)*n, 1);
 		DEBUG("P5: "<<TOC(t1) <<" ms");
 		TIC(t1);
-		int32_t a(floor(c/2));
+
+		double a(c/2);
+		int32_t aSquare = a*a;
 
 		// YSP added the a^2*I term which was missing in the original LaTex document
-		Matrix<int32_t> sigmaA = SigmaP - (a*a)*Matrix<int32_t>(SigmaP.GetAllocator(), SigmaP.GetRows(), SigmaP.GetCols()).Identity();
+		Matrix<int32_t> sigmaA = SigmaP - aSquare*Matrix<int32_t>(SigmaP.GetAllocator(), SigmaP.GetRows(), SigmaP.GetCols()).Identity();
 		DEBUG("P6: "<<TOC(t1) <<" ms");
 		TIC(t1);
 		*sigmaSqrt = Cholesky(sigmaA);
@@ -220,8 +289,8 @@ namespace lbcrypto {
 	void RLWETrapdoorUtility::PerturbationMatrixGenAlt(size_t n,size_t k,const RingMat& A,
 		const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt) {
 
-		int32_t r(ceil(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI)));
-		int32_t a(floor(r / 2));
+		double r(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI));
+		double a(r / 2);
 		const BigBinaryInteger& modulus = A(0, 0).GetModulus();
 		
 		Matrix<ILVector2n> eCoeff = T.m_e;
@@ -236,6 +305,83 @@ namespace lbcrypto {
 		Matrix<int32_t> Snk = ((int32_t)(s*s - a*a))*(Matrix<int32_t>(Rint.GetAllocator(), n * 2, n * 2).Identity())- Rint*Rint.Transpose().ScalarMult(double(r*r + 1 / b));
 		*sigmaSqrt = Cholesky(Snk); 
 	}
+
+	void RLWETrapdoorUtility::ZSampleSigmaP(size_t n, double s, double sigma,
+		const RLWETrapdoorPair<ILVector2n>& Tprime, Matrix<int32_t> *perturbationVector, const DiscreteGaussianGenerator & dgg) {
+
+		Matrix<ILVector2n> Tprime0 = Tprime.m_e;
+		Matrix<ILVector2n> Tprime1 = Tprime.m_r;
+		Matrix<ILVector2n> TprimeTransposed0 = Tprime0.Transpose();
+		Matrix<ILVector2n> TprimeTransposed1 = Tprime1.Transpose();
+
+		//Perform multiplication in the NTT format
+		ILVector2n va = (Tprime0 * TprimeTransposed0)(0, 0);
+		ILVector2n vb = (Tprime1 * TprimeTransposed0)(0, 0);
+		ILVector2n vd = (Tprime1 * TprimeTransposed1)(0, 0);
+
+		//Switch the ring elements (polynomials) to coefficient representation
+		va.SwitchFormat();
+		vb.SwitchFormat();
+		vd.SwitchFormat();
+
+		//Create field elements from ring elements
+		Field2n a(va), b(vb), d(vd);
+
+		double scalarFactor = -s * s * sigma * sigma / (s * s - sigma * sigma);
+
+		a = a.ScalarMult(scalarFactor);
+		b = b.ScalarMult(scalarFactor);
+		d = d.ScalarMult(scalarFactor);
+
+		a = a + s*s;
+		d = d + s*s;
+
+		//converts the field elements to DFT representation
+		a.SwitchFormat();
+		b.SwitchFormat();
+		d.SwitchFormat();
+
+		size_t k = Tprime0.GetCols();
+		Matrix<int32_t> p2ZVector([]() { return make_unique<int32_t>(); }, n*k, 1);
+
+		//this loop can be replaced with Peikert's and Yao's inversion methods - more efficient
+		for (size_t i = 0; i < n * k; i++) {
+			p2ZVector(i, 0) = dgg.GenerateInteger(0, sqrt(s * s - sigma * sigma), n);
+		}
+
+		//create k ring elements in coefficient representation
+		Matrix<ILVector2n> p2 = SplitInt32IntoILVector2nElements(p2ZVector, n, va.GetParams());
+
+		//now converting to evaluation representation before multiplication
+		p2.SwitchFormat();
+
+		Matrix<ILVector2n> TprimeMatrix = Tprime0.VStack(Tprime1);
+
+		//the dimension is 2x1 - a vector of 2 ring elements
+		Matrix<ILVector2n> Tp2 = TprimeMatrix * p2;
+
+		//change to coefficient representation before converting to field elements
+		Tp2.SwitchFormat();
+
+		Matrix<Field2n> c([]() { return make_unique<Field2n>(); }, 2, 1);
+
+		c(0, 0) = Field2n(Tp2(0, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
+		c(1, 0) = Field2n(Tp2(1, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
+
+		Matrix<int32_t> p1ZVector([]() { return make_unique<int32_t>(); }, n * 2, 1);
+
+		LatticeGaussSampUtility::ZSampleSigma2x2(a, b, d, c, dgg, &p1ZVector);
+
+		for (size_t i = 0; i < 2 * n; i++) {
+			(*perturbationVector)(i, 0) = p1ZVector(i, 0);
+		}
+
+		for (size_t i = 0; i < k * n; i++) {
+			(*perturbationVector)(i + 2 * n, 0) = p2ZVector(i, 0);
+		}
+
+	}
+
 
 
 } //end namespace crypto

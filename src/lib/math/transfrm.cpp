@@ -526,4 +526,73 @@ namespace lbcrypto {
 	}
 
 
+	std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransform(std::vector<std::complex<double>> & A) {
+		if (A.size()==1) {
+			return A;
+		}
+		else {
+			int m = A.size();
+			std::vector<std::complex<double>> A_even(m/2);
+			std::vector<std::complex<double>> A_odd(m/2);
+			for (int i = 0;i<m;i++) {
+				if (i % 2 == 0) {
+					A_even[i / 2] = A[i];
+				}
+				else {
+					A_odd[(i-1)/2] = A[i];
+				}
+			}
+			std::vector<std::complex<double>> P_even = DiscreteFourierTransform::FFTForwardTransform(A_even);
+			std::vector<std::complex<double>> P_odd = DiscreteFourierTransform::FFTForwardTransform(A_odd);
+			std::vector<std::complex<double>> P(m,0);
+
+			for (int j = 0;j<m / 2;j++) {
+				std::complex<double> x = std::polar(1.0, -2 * M_PI * j / m) * P_odd[j];
+				P[j] = P_even[j] + x ;
+				P[j+m/2] = P_even[j] - x;
+			}
+			return P;
+		}
+	}
+
+	std::vector<std::complex<double>> DiscreteFourierTransform::FFTInverseTransform(std::vector<std::complex<double>> & A) {
+		
+		std::vector<std::complex<double>> result = DiscreteFourierTransform::FFTForwardTransform(A);
+		double n = result.size()/2;
+		for(int i=0;i < n;i++) {
+			result[i] = std::complex<double>(result[i].real() / n, result[i].imag() / n);
+			//result[i] =std::complex<double>(result[i].real()/(2*n), result[i].imag()/(2*n));
+		}
+			return result;
+	}
+	std::vector<std::complex<double>> DiscreteFourierTransform::ForwardTransform(std::vector<std::complex<double>> A) {
+		int n = A.size();
+		for (int i = 0;i < n;i++) {
+			A.push_back(0);
+		}
+		std::vector<std::complex<double>> dft = FFTForwardTransform(A);
+		std::vector<std::complex<double>> dftRemainder;
+		for (int i = dft.size() - 1;i > 0;i--) {
+			if (i % 2 != 0) {
+				dftRemainder.push_back(dft.at(i));
+				//dftRemainder.push_back(std::complex<double>(2*dft.at(i).real(), 2 * dft.at(i).imag()));
+			}
+		}
+		return dftRemainder;
+	}
+	std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std::vector<std::complex<double>> A) {
+		int n = A.size();
+		std::vector<std::complex<double>> dft;
+		for (int i = 0;i < n;i++) {
+			dft.push_back(0);
+			dft.push_back(A.at(i));
+		}
+		std::vector<std::complex<double>> invDft = FFTInverseTransform(dft);
+		std::vector<std::complex<double>> invDftRemainder;
+		for (int i = 0;i<invDft.size()/2;i++) {
+				invDftRemainder.push_back(invDft.at(i));
+		}
+		return invDftRemainder;
+	}
+
 }//namespace ends here

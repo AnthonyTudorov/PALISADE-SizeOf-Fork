@@ -133,9 +133,9 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
 
 	usint m = 16;
-	//47 bits
-	BigBinaryInteger modulus("35184372088961");
-	BigBinaryInteger rootOfUnity("21593505674172");
+	//54 bits
+	BigBinaryInteger modulus("9007199254741169");
+	BigBinaryInteger rootOfUnity("7629104920968175");
 
 	usint chunkSize = 2;
 
