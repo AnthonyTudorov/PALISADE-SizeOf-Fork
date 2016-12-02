@@ -74,6 +74,8 @@ namespace lbcrypto {
 		kp.publicKey->SetPublicElementAtIndex(0, std::move(a));
 		kp.publicKey->SetPublicElementAtIndex(1, std::move(b));
 
+
+
 		return kp;
 	}
 
@@ -234,31 +236,29 @@ namespace lbcrypto {
 			throw std::runtime_error(errMsg);
 		}
 
-		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
-
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(ek->GetCryptoParameters());
 
 		usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
 		const shared_ptr<LPEvalKeyRelin<Element>> ekRelin = std::dynamic_pointer_cast<LPEvalKeyRelin<Element>>(ek);
 
-		newCiphertext = this->GetScheme().EvalMult(ciphertext1, ciphertext2);
+		shared_ptr<Ciphertext<Element>> newCiphertext = this->GetScheme().EvalMult(ciphertext1, ciphertext2);
 
-		const Element c0 = newCiphertext->GetElements().at(0);
+		const Element &c0 = newCiphertext->GetElements().at(0);
 
-		const Element c1 = newCiphertext->GetElements().at(1);
+		const Element &c1 = newCiphertext->GetElements().at(1);
 
-		const Element c2 = newCiphertext->GetElements().at(2);
+		const Element &c2 = newCiphertext->GetElements().at(2);
 
 		std::vector<Element> finalElements;
 
-		finalElements.push_back(c0);
+		finalElements.push_back(std::move(c0));
 
-		finalElements.push_back(c1);
+		finalElements.push_back(std::move(c1));
 
-		const std::vector<Element> &b = ekRelin->GetAVector();
+		const std::vector<Element> &b = ekRelin->GetBVector();
 
-		const std::vector<Element> &a = ekRelin->GetBVector();
+		const std::vector<Element> &a = ekRelin->GetAVector();
 
 		std::vector<Element> c2Decomposed(c2.BaseDecompose(relinWindow));
 
@@ -288,9 +288,9 @@ namespace lbcrypto {
 		if (keySwitchHintRelin == nullptr)
 			throw std::runtime_error("Mismatch in proper Eval Key class type");
 
-		const Element sNew = newPrivateKey->GetPrivateElement();
+		const Element &sNew = newPrivateKey->GetPrivateElement();
 
-		const Element s = originalPrivateKey->GetPrivateElement();
+		const Element &s = originalPrivateKey->GetPrivateElement();
 
 		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
@@ -307,7 +307,7 @@ namespace lbcrypto {
 			// Generate a_i vectors
 			Element a(dug, originalKeyParams, Format::EVALUATION);
 
-			evalKeyElementsGenerated.push_back(a);
+			evalKeyElementsGenerated.push_back(a); //alpha's of i
 
 			// Generate a_i * newSK + p * e - PowerOfBase(oldSK)
 			Element e(dgg, originalKeyParams, Format::EVALUATION);
@@ -316,9 +316,9 @@ namespace lbcrypto {
 
 		}
 
-		keySwitchHintRelin->SetAVector(std::move(evalKeyElements));
+		keySwitchHintRelin->SetAVector(std::move(evalKeyElementsGenerated));
 
-		keySwitchHintRelin->SetBVector(std::move(evalKeyElementsGenerated));
+		keySwitchHintRelin->SetBVector(std::move(evalKeyElements));
 
 		return keySwitchHintRelin;
 	}
@@ -337,7 +337,7 @@ namespace lbcrypto {
 	{
 		shared_ptr<LPEvalKeyRelin<Element>> quadraticKeySwitchHint(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
 
-		shared_ptr<LPPrivateKey<Element>> originalPrivateKeySquared(originalPrivateKey);
+		shared_ptr<LPPrivateKey<Element>> originalPrivateKeySquared = std::shared_ptr<LPPrivateKey<Element>>(new LPPrivateKey<Element>(originalPrivateKey->GetCryptoContext()));
 
 		Element sSquare(originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement());
 
@@ -345,8 +345,7 @@ namespace lbcrypto {
 
 		originalPrivateKeySquared->SetPrivateElement(std::move(sSquare));
 
-		//this->GetScheme().EvalMultKeyGen(originalPrivateKeySquared, newPrivateKey, quadraticKeySwitchHint);
-		return this->GetScheme().KeySwitchGen(originalPrivateKeySquared, originalPrivateKey);
+		return this->GetScheme().KeySwitchGen(originalPrivateKeySquared , originalPrivateKey);
 
 	}
 
@@ -427,8 +426,8 @@ namespace lbcrypto {
 
 		const shared_ptr<LPEvalKeyRelin<Element>> evalKey = std::static_pointer_cast<LPEvalKeyRelin<Element>>(EK);
 
-		const std::vector<Element> &b = evalKey->GetAVector();
-		const std::vector<Element> &a = evalKey->GetBVector();
+		const std::vector<Element> &a = evalKey->GetAVector();
+		const std::vector<Element> &b = evalKey->GetBVector();
 
 		usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
