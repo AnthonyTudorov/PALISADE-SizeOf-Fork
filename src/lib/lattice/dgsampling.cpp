@@ -284,9 +284,13 @@ namespace lbcrypto {
 
 	}
 	
-	//Subroutine used for ZSampleSigmaP
+	//Subroutine used by ZSampleSigmaP
+	// a - field element in DFT format
+	// b - field element in DFT format
+	// d - field element in DFT format
+	// c - vector of field elements in Coefficient format
 	void LatticeGaussSampUtility::ZSampleSigma2x2(const Field2n &a, const Field2n &b,
-		const Field2n &d, const Matrix<Field2n> &c, Matrix<int32_t>* q,const DiscreteGaussianGenerator & dgg) {
+		const Field2n &d, const Matrix<Field2n> &c, const DiscreteGaussianGenerator & dgg, Matrix<int32_t>* q) {
 
 			//size of the the lattice
 		    size_t n = a.Size();
@@ -316,14 +320,14 @@ namespace lbcrypto {
 			//bTransposed gets converted to Coefficient format
 			bTransposed.SwitchFormat();
 			bTransposed = bTransposed.Transpose();
+			//bTransposed is converted back to DFT format
 			bTransposed.SwitchFormat();
-			//bTransposed is converted back to Evaluation format
 
 			Field2n f = a - b*d.Inverse()*bTransposed;
 			//Convert to coefficient representation
 			f.SwitchFormat();
 
-			Matrix<int32_t> q1Int = ZSampleF(f, c1, dgg,n);
+			Matrix<int32_t> q1Int = ZSampleF(f, c1, dgg, n);
 
 			for (size_t i = 0; i < q1Int.GetRows(); i++) {
 				(*q)(i, 0) = q1Int(i,0);
@@ -334,7 +338,8 @@ namespace lbcrypto {
 			}
 
 	}
-	//Subroutine used for ZSampleSigma2x2
+
+	//Subroutine used by ZSampleSigma2x2
 	//f is in Coefficient representation
 	//c is in Coefficient representation
 	Matrix<int32_t> LatticeGaussSampUtility::ZSampleF(const Field2n &f, const Field2n &c,
@@ -361,12 +366,12 @@ namespace lbcrypto {
 			Field2n c1(cNew.Size() / 2, COEFFICIENT);
 			Field2n c2(cNew.Size() / 2, COEFFICIENT);
 
-			// c1 corresponds to even coefficients in cNew
+			// c1 corresponds to even coefficients
 			for (size_t i = 0; i < c1.Size(); i++) {
 				c1[i] = cNew[i];
 			}
 
-			// c2 corresponds to odd coefficients in cNew
+			// c2 corresponds to odd coefficients
 			for (size_t i = 0; i < c2.Size(); i++) {
 				c2[i] = cNew[i+c1.Size()];
 			}
@@ -386,7 +391,7 @@ namespace lbcrypto {
 			//Convert the product to coefficient representation
 			product.SwitchFormat();
 
-			//Convert c1 in coefficient representation
+			//Compute c1 in coefficient representation
 			c1 = c1 + product;
 
 			Field2n product2 = fo * fo * fe.Inverse();

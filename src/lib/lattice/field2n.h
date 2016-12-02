@@ -147,6 +147,23 @@ namespace lbcrypto {
 		//Format of the field element
 		Format format;
 	};
+
+	/**
+	*  Stream output operator
+	*
+	* @param &os stream
+	* @param &m matrix to be outputted
+	* @return the chained stream
+	*/
+	inline std::ostream& operator<<(std::ostream& os, const Field2n& m) {
+		os << "[ ";
+		for (size_t row = 0; row < m.size(); ++row) {
+			os << m.at(row) << " ";
+		}
+		os << " ]\n";
+		return os;
+	}
+
 	/**Addition operator for field elements
 	*
 	*@param &a left hand side field element

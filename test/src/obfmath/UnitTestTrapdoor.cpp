@@ -400,6 +400,9 @@ TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
 }
 
 // Test  UCSD integer perturbation sampling algorithm
+// So far the test simply runs 100 instances of ZSampleSigmaP
+// and makes sure no exceptions are encountered - this validates that
+// covariance matrices at all steps are positive definite 
 TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	usint m = 16;
@@ -432,21 +435,83 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	//Do perturbation sampling
 	Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, (2 + k)*n, 1);
 
-	Matrix<int32_t> pTrapdoor([]() { return make_unique<int32_t>(); }, 2*n, 1);
+	Matrix<int32_t> pCovarianceMatrix([]()  { return make_unique<int32_t>(); }, 2*n, 2*n);;
 
-	RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, &p, dgg);
+	//std::vector<Matrix<int32_t>> pTrapdoors;
 
-	for (size_t i = 0; i < 2*n; i++) {
-		pTrapdoor(i, 0) = p(i, 0);
+	Matrix<int32_t> pTrapdoor([]() { return make_unique<int32_t>(); }, 2 * n, 1);
+
+	size_t count = 100;
+
+	for (size_t i = 0; i < count; i++) {
+		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, &p, dgg);
+
+		for (size_t j = 0; j < 2 * n; j++)
+			pTrapdoor(j, 0) = p(j, 0);
+		//pTrapdoors.push_back(pTrapdoor);
+		
+		pCovarianceMatrix = pCovarianceMatrix + pTrapdoor*pTrapdoor.Transpose();
 	}
 
-	Matrix<int32_t> pCovarianceMatrix = pTrapdoor*pTrapdoor.Transpose();
+	Matrix<ILVector2n> Tprime0 = trapPair.second.m_e;
+	Matrix<ILVector2n> Tprime1 = trapPair.second.m_r;
+	Matrix<ILVector2n> TprimeTransposed0 = Tprime0.Transpose();
+	Matrix<ILVector2n> TprimeTransposed1 = Tprime1.Transpose();
 
-	//std::cout << "value of s" << s << std::endl;
+	//Perform multiplication in the NTT format
+	ILVector2n va = (Tprime0 * TprimeTransposed0)(0, 0);
+	ILVector2n vb = (Tprime1 * TprimeTransposed0)(0, 0);
+	ILVector2n vd = (Tprime1 * TprimeTransposed1)(0, 0);
 
-	//std::cout << pTrapdoor << std::endl;
+	//Switch the ring elements (polynomials) to coefficient representation
+	va.SwitchFormat();
+	vb.SwitchFormat();
+	vd.SwitchFormat();
 
-	//std::cout << pCovarianceMatrix << std::endl;
+	//Create field elements from ring elements
+	Field2n a(va), b(vb), d(vd);
+
+	double scalarFactor = -s * s * c * c / (s * s - c * c);
+
+	a = a.ScalarMult(scalarFactor);
+	b = b.ScalarMult(scalarFactor);
+	d = d.ScalarMult(scalarFactor);
+
+	a = a + s*s;
+
+	//std::cout << a << std::endl;
+
+	//std::cout << double(pCovarianceMatrix(0,0))/count << std::endl;
+	//std::cout << double(pCovarianceMatrix(1,0)) / count << std::endl;
+	//std::cout << double(pCovarianceMatrix(2, 0)) / count << std::endl;
+	//std::cout << double(pCovarianceMatrix(3, 0)) / count << std::endl;
+
+	//std::cout << double(pCovarianceMatrix(0, 0)) / count << std::endl;
+	//std::cout << double(pCovarianceMatrix(0, 1)) / count << std::endl;
+	//std::cout << double(pCovarianceMatrix(0, 2)) / count << std::endl;
+	//std::cout << double(pCovarianceMatrix(0, 3)) / count << std::endl;
+
+	//for (size_t i = 0; i < 2*n; i++) {
+	//	pTrapdoor(i, 0) = p(i, 0);
+	//}
+
+	//double mean = 0;
+	//for (size_t i = 0; i < 2 * n; i++) {
+	//	mean += pTrapdoor(i, 0);
+	//}
+	//mean = mean / (2 * n);
+
+	//double sigma = 0;
+	//for (size_t i = 0; i < 2 * n; i++) {
+	//	sigma += (pTrapdoor(i, 0)-mean)*(pTrapdoor(i, 0) - mean);
+	//}
+	//sigma = sqrt(sigma / n);
+
+	//std::cout << "s = " << s << std::endl;
+
+	//std::cout << "mean = " << mean << std::endl;
+
+	//std::cout << "standard deviation = " << sigma << std::endl;
 
 }
 

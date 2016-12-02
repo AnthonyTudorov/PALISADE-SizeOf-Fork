@@ -336,10 +336,6 @@ namespace lbcrypto {
 		a = a + s*s;
 		d = d + s*s;
 
-		//a = a.ScalarMult(s * s * (1 - sigma * sigma / (s * s - sigma * sigma)));
-		//b = b.ScalarMult(-s *s * sigma * sigma / (s* s - sigma * sigma));
-		//d = d.ScalarMult(s * s * (1 - sigma * sigma / (s * s - sigma * sigma)));
-
 		//converts the field elements to DFT representation
 		a.SwitchFormat();
 		b.SwitchFormat();
@@ -374,7 +370,7 @@ namespace lbcrypto {
 
 		Matrix<int32_t> p1ZVector([]() { return make_unique<int32_t>(); }, n * 2, 1);
 
-		LatticeGaussSampUtility::ZSampleSigma2x2(a, b, d, c, &p1ZVector, dgg);
+		LatticeGaussSampUtility::ZSampleSigma2x2(a, b, d, c, dgg, &p1ZVector);
 
 		for (size_t i = 0; i < 2 * n; i++) {
 			(*perturbationVector)(i, 0) = p1ZVector(i, 0);
