@@ -31,7 +31,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmNull<Element>::Encrypt(const shared_p
 	copyPlain.SetValues(plaintext.GetValues(), Format::EVALUATION);
 
 	ciphertext->SetElement(copyPlain);
-	ciphertext->SetNorm(BigBinaryInteger::ONE);
 
 	return ciphertext;
 }
@@ -227,8 +226,6 @@ LPPublicKeyEncryptionSchemeNull<Element>::LPPublicKeyEncryptionSchemeNull(std::b
 
 	if (mask[PRE])
 		this->m_algorithmPRE = new LPAlgorithmPRENull<Element>(*this);
-	//	if (mask[EVALADD])
-	//		this->m_algorithmEvalAdd = new LPAlgorithmAHENull<Element>(*this);
 	//	if (mask[EVALAUTOMORPHISM])
 	//		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphNull<Element>(*this);
 	if (mask[SHE])
@@ -252,10 +249,6 @@ void LPPublicKeyEncryptionSchemeNull<Element>::Enable(PKESchemeFeature feature) 
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPRENull<Element>(*this);
 		break;
-		//	case EVALADD:
-		//		if (this->m_algorithmEvalAdd == NULL)
-		//			this->m_algorithmEvalAdd = new LPAlgorithmAHENull<Element>(*this);
-		//		break;
 		//	case EVALAUTOMORPHISM:
 		//		if (this->m_algorithmEvalAutomorphism == NULL)
 		//			this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphNull<Element>(*this);

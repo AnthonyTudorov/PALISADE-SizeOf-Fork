@@ -1252,7 +1252,7 @@ namespace lbcrypto {
 
 	public:
 		LPPublicKeyEncryptionScheme() :
-			m_algorithmParamsGen(0), m_algorithmEncryption(0), m_algorithmPRE(0), m_algorithmEvalAdd(0), m_algorithmEvalAutomorphism(0),
+			m_algorithmParamsGen(0), m_algorithmEncryption(0), m_algorithmPRE(0), m_algorithmEvalAutomorphism(0),
 			m_algorithmSHE(0), m_algorithmFHE(0), m_algorithmLeveledSHE(0) {}
 
 		virtual ~LPPublicKeyEncryptionScheme() {
@@ -1262,8 +1262,6 @@ namespace lbcrypto {
 				delete this->m_algorithmEncryption;
 			if (this->m_algorithmPRE != NULL)
 				delete this->m_algorithmPRE;
-			if (this->m_algorithmEvalAdd != NULL)
-				delete this->m_algorithmEvalAdd;
 			if (this->m_algorithmEvalAutomorphism != NULL)
 				delete this->m_algorithmEvalAutomorphism;
 			if (this->m_algorithmSHE != NULL)
@@ -1284,10 +1282,6 @@ namespace lbcrypto {
 					break;
 				 case PRE:
 					if (m_algorithmPRE!= NULL)
-						flag = true;
-					break;
-				 case EVALADD:
-					if (m_algorithmEvalAdd!= NULL)
 						flag = true;
 					break;
 				 case EVALAUTOMORPHISM:
@@ -1379,11 +1373,6 @@ namespace lbcrypto {
 					throw std::logic_error("ReEncrypt operation has not been enabled");
 				}
 		}
-
-		/////////////////////////////////////////
-		// the functions below are wrappers for things in LPAHEAlgorithm (EVALADD)
-		//
-		// TODO: Add Functions?
 
 		/////////////////////////////////////////
 		// the function below is a wrapper for things in LPAutomorphAlgorithm (EVALAUTOMORPHISM)
@@ -1546,7 +1535,6 @@ namespace lbcrypto {
 		const LPParameterGenerationAlgorithm<Element> *m_algorithmParamsGen;
 		const LPEncryptionAlgorithm<Element> *m_algorithmEncryption;
 		const LPPREAlgorithm<Element> *m_algorithmPRE;
-		const LPAHEAlgorithm<Element> *m_algorithmEvalAdd;
 		const LPAutoMorphAlgorithm<Element> *m_algorithmEvalAutomorphism;
 		const LPSHEAlgorithm<Element> *m_algorithmSHE;
 		const LPFHEAlgorithm<Element> *m_algorithmFHE;
