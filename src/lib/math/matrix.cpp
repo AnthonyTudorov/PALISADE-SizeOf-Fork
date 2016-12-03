@@ -751,6 +751,9 @@ Matrix<Element> Matrix<Element>::MultiplyCAPS(Matrix<Element> const& other,int n
 	int allcols = (int)pow(2,collog);
 	rowpad = allrows - rows;
 	colpad = allcols - cols;
+	numAdd = 0;
+	numSub = 0;
+	numMult = 0;
 
 	//std::cout<<"rows = "<<rows<<"  rowpad = "<<rowpad<<" rows+rowpad = "<<rows+rowpad<<std::endl;
 	//std::cout<<"cols = "<<cols<<"  colpad = "<<colpad<<" cols+colpad = "<<cols+colpad<<std::endl;
@@ -883,6 +886,26 @@ collectTo1ProcCAPS( desc, &(result.lineardata[0]), &resultdata[0] );
 //std::cout<<"About to unlinearize data"<<std::endl;
 result.UnlinearizeDataCAPS();
 
+std::cout<<"numMult = "<<numMult<<"  numAdd = "<<numAdd<<"  numSub = "<<numSub<<std::endl;
+
+
+
+for (size_t elem = 0; elem < len; ++elem) {
+    //free(resultdata[elem]);
+    free(result.lineardata[elem]);
+}
+lineardata.clear();
+thisdata.clear();
+other.lineardata.clear();
+otherdata.clear();
+resultdata.clear();
+result.lineardata.clear();
+
+
+
+
+
+
 
 return result;
 }
@@ -968,9 +991,11 @@ void Matrix<Element>::smartSubtraction(unique_ptr<Element> *result, unique_ptr<E
 
 	if (*A != 0 && *B != 0){
 		temp = **A - **B;
+		numSub++;
 	}
 	else if (*A == 0 && *B != 0){
 		temp = *zeroUniquePtr - **B;
+		numSub++;
 	}
 	else if (*A != 0 && *B == 0){
 		temp = **A;
@@ -989,6 +1014,7 @@ void Matrix<Element>::smartAddition(unique_ptr<Element> *result, unique_ptr<Elem
 
 	if (*A != 0 && *B != 0){
 		temp = **A + **B;
+		numAdd++;
 	}
 	else if (*A == 0 && *B != 0){
 		temp = **B;
@@ -1193,6 +1219,12 @@ void Matrix<Element>::strassenDFSCAPS( unique_ptr<Element> **A, unique_ptr<Eleme
   addMatricesCAPS(numEntriesHalf, C12, U3, Q6);
   //deallocate(R5, numEntriesHalf);
   //deallocate(R2, numEntriesHalf);
+
+  for (size_t elem = 0; elem < numEntriesHalf; ++elem) {
+	  free(R2data[elem]);
+	  free(R5data[elem]);
+  }
+
   R2data.clear();
   R5data.clear();
 
@@ -1264,11 +1296,14 @@ void Matrix<Element>::block_multiplyCAPS(unique_ptr<Element> **A,
 				}
 				Aval = ***(A+row + i * d.lda);  // **(A + d.lda * row + i);
 				Bval = ***(B + i + d.lda * col); //  **(B + i * d.lda + col);
+				numMult++;
 				if (uninitializedTemp == 1){
 					uninitializedTemp = 0;
 					temp = (Aval * Bval);
-				}else
+				}else{
+					numAdd++;
 					temp += (Aval * Bval);
+				}
 				//std::cout <<"Aval = "<<Aval<<" Bval = "<<Bval<<" temp = "<<temp<<std::endl;
 				//printf("Cval(%d,%d) =  %d temp = %d Aval = %d Bval = %d\n",row,col,(int)**(C+row*d.lda+col),(int)temp,(int)Aval,(int)Bval);
 			}

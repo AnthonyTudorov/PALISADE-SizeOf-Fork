@@ -371,7 +371,6 @@ namespace lbcrypto {
             void UnlinearizeDataCAPS() const;
         private:
             mutable data_t data;
-            mutable data_t newdata;
             mutable int leafsize = 256;
             mutable lineardata_t lineardata;
             size_t rows;
@@ -380,6 +379,9 @@ namespace lbcrypto {
             mutable int colpad = 0;
             alloc_func allocZero;
             mutable char *pattern = NULL;
+            mutable int numAdd = 0;
+            mutable int numMult = 0;
+            mutable int numSub = 0;
             mutable MatDescriptor desc;
             mutable unique_ptr<Element> zeroUniquePtr = allocZero();
 			//deep copy of data - used for copy constructor
