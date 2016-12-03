@@ -254,40 +254,6 @@ public:
 };
 
 /**
-* Evaluation addition for homomorphic encryption operations.
-*
-* @brief Template for crypto PRE.
-* @tparam Element a ring element.
-*/
-template <class Element>
-class LPAlgorithmAHELTV : public LPAHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
-public:
-
-	/**
-	* Default constructor
-	*/
-	LPAlgorithmAHELTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-
-	/**
-	* Constructor that initliazes the scheme
-	*
-	* @param &scheme is a reference to scheme
-	*/
-	LPAlgorithmAHELTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
-
-	/**
-	* Virtual function to define the interface for evaluation addition on ciphertext.
-	*
-	* @param &ciphertext1 the input ciphertext.
-	* @param &ciphertext2 the input ciphertext.
-	* @param *newCiphertext the new ciphertext.
-	*/
-	shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2) const;
-
-};
-
-/**
 * Automorphism-based SHE operations.
 *
 * @brief Template for crypto PRE.

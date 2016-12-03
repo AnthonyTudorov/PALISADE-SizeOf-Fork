@@ -71,7 +71,7 @@ reencrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	shared_ptr<LPEvalKey<ILVector2n>> evalKey = ctx.deserializeEvalKey(kser);
-	if( !evalKey ) {
+	if( evalKey == NULL ) {
 		cerr << "Could not deserialize re encryption key" << endl;
 		return;
 	}

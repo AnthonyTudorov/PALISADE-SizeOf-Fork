@@ -71,12 +71,13 @@ private:
 
 	/**
 	 * Private methods to compare two contexts; this is only used internally and is not generally available
-	 * @param a
-	 * @param b
-	 * @return true if the parameters match (no need to check schemes)
+	 * @param a - shared pointer in the object
+	 * @param b - this object, usually
+	 * @return true if the shared pointer is a pointer to "this"
 	 */
-	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.params == b.params; }
-	friend bool operator!=(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.params != b.params; }
+	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.params.get() == b.params.get(); }
+
+	friend bool operator!=(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.params.get() != b.params.get(); }
 
 public:
 	/**
@@ -198,7 +199,7 @@ public:
 			const shared_ptr<LPPublicKey<Element>> PublicKey,
 			const shared_ptr<LPPrivateKey<Element>> PrivateKey) const {
 
-		if( !PublicKey || !PrivateKey || PublicKey->GetCryptoContext() != *this || PrivateKey->GetCryptoContext() != *this )
+		if( PublicKey == NULL || PrivateKey == NULL || PublicKey->GetCryptoContext() != *this || PrivateKey->GetCryptoContext() != *this )
 			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
 
 		return GetEncryptionAlgorithm()->ReKeyGen(PublicKey, PrivateKey);
@@ -211,7 +212,7 @@ public:
 	 */
 	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) const {
 
-		if( !key || key->GetCryptoContext() != *this )
+		if( key == NULL || key->GetCryptoContext() != *this )
 			throw std::logic_error("Key passed to EvalMultKeyGen were not generated with this crypto context");
 
 		return GetEncryptionAlgorithm()->EvalMultKeyGen(key);
@@ -226,7 +227,7 @@ public:
 	shared_ptr<LPEvalKey<Element>> KeySwitchGen(
 			const shared_ptr<LPPrivateKey<Element>> key1, const shared_ptr<LPPrivateKey<Element>> key2) const {
 
-		if( !key1 || !key2 || key1->GetCryptoContext() != *this || key2->GetCryptoContext() != *this )
+		if( key1 == NULL || key2 == NULL || key1->GetCryptoContext() != *this || key2->GetCryptoContext() != *this )
 			throw std::logic_error("Keys passed to KeySwitchGen were not generated with this crypto context");
 
 		return GetEncryptionAlgorithm()->KeySwitchGen(key1, key2);
@@ -246,7 +247,7 @@ public:
 	{
 		std::vector<shared_ptr<Ciphertext<Element>>> cipherResults;
 
-		if( !publicKey || publicKey->GetCryptoContext() != *this )
+		if( publicKey == NULL || publicKey->GetCryptoContext() != *this )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
 		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
@@ -295,7 +296,7 @@ public:
 			std::istream& instream,
 			std::ostream& outstream)
 	{
-		if( !publicKey || publicKey->GetCryptoContext() != *this )
+		if( publicKey == NULL || publicKey->GetCryptoContext() != *this )
 			throw std::logic_error("key passed to EncryptStream was not generated with this crypto context");
 
 		bool padded = false;
@@ -361,12 +362,12 @@ public:
 		if( ciphertext.size() == 0 )
 			return DecryptResult();
 
-		if( !privateKey || privateKey->GetCryptoContext() != *this )
+		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
 
 		int lastone = ciphertext.size() - 1;
 		for( int ch = 0; ch < ciphertext.size(); ch++ ) {
-			if( !ciphertext[ch] || ciphertext[ch]->GetCryptoContext() != *this )
+			if( ciphertext[ch] == NULL || ciphertext[ch]->GetCryptoContext() != *this )
 				throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
 
 			Element decrypted;
@@ -395,8 +396,8 @@ public:
 			std::istream& instream,
 			std::ostream& outstream)
 	{
-		if( !privateKey || privateKey->GetCryptoContext() != *this )
-			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
+		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to DecryptStream was not generated with this crypto context");
 
 		Serialized serObj;
 		size_t tot = 0;
@@ -444,12 +445,12 @@ public:
 			shared_ptr<LPEvalKey<Element>> evalKey,
 			std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext)
 	{
-		if( !evalKey || evalKey->GetCryptoContext() != *this )
+		if( evalKey == NULL || evalKey->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to ReEncrypt was not generated with this crypto context");
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
 		for( int i=0; i < ciphertext.size(); i++ ) {
-			if( !ciphertext[i] || ciphertext[i]->GetCryptoContext() != *this )
+			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("One of the ciphertexts passed to ReEncrypt was not generated with this crypto context");
 			newCiphertext.push_back( GetEncryptionAlgorithm()->ReEncrypt(evalKey, ciphertext[i]) );
 		}
@@ -468,8 +469,8 @@ public:
 			std::istream& instream,
 			std::ostream& outstream)
 	{
-		if( !evalKey || evalKey->GetCryptoContext() != *this )
-			throw std::logic_error("Information passed to ReEncrypt was not generated with this crypto context");
+		if( evalKey == NULL || evalKey->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to ReEncryptStream was not generated with this crypto context");
 
 		Serialized serObj;
 
@@ -505,7 +506,7 @@ public:
 	shared_ptr<Ciphertext<Element>>
 	EvalAdd(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2)
 	{
-		if( !ct1 || !ct2 || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
+		if( ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
 
 		return GetEncryptionAlgorithm()->EvalAdd(ct1, ct2);
@@ -520,7 +521,7 @@ public:
 	shared_ptr<Ciphertext<Element>>
 	EvalSub(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2)
 	{
-		if( !ct1 || !ct2 || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
+		if( ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to EvalSub was not generated with this crypto context");
 
 		return GetEncryptionAlgorithm()->EvalSub(ct1, ct2);
@@ -535,7 +536,7 @@ public:
 	shared_ptr<Ciphertext<Element>>
 	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2)
 	{
-		if( !ct1 || !ct2 || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
+		if( ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
 
 		return GetEncryptionAlgorithm()->EvalMult(ct1, ct2);
@@ -551,7 +552,7 @@ public:
 	shared_ptr<Ciphertext<Element>>
 	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2, const shared_ptr<LPEvalKey<Element>> ek)
 	{
-		if( !ct1 || !ct2 || !ek || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this || ek->GetCryptoContext() != *this )
+		if( ct1 == NULL || ct2 == NULL || ek == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this || ek->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
 
 		return GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek);
@@ -567,10 +568,10 @@ public:
 		const shared_ptr<LPEvalKey<Element>> keySwitchHint,
 		const shared_ptr<Ciphertext<Element>> ciphertext)
 	{
-		if( !keySwitchHint || keySwitchHint->GetCryptoContext() != *this )
+		if( keySwitchHint == NULL || keySwitchHint->GetCryptoContext() != *this )
 			throw std::logic_error("Key passed to KeySwitch was not generated with this crypto context");
 
-		if( !ciphertext || ciphertext->GetCryptoContext() != *this )
+		if( ciphertext == NULL || ciphertext->GetCryptoContext() != *this )
 			throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
 
 		return GetEncryptionAlgorithm()->KeySwitch(keySwitchHint, ciphertext);
@@ -587,7 +588,7 @@ public:
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext(ciphertext.size());
 
 		for (int i = 0; i < ciphertext.size(); i++) {
-			if( !ciphertext[i] || ciphertext[i]->GetCryptoContext() != *this )
+			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("Information passed to ModReduce was not generated with this crypto context");
 
 			newCiphertext[i] = GetEncryptionAlgorithm()->ModReduce(ciphertext[i]);
@@ -605,7 +606,7 @@ public:
 	shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
 			const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const {
 
-		if( !cipherText1 || !linearKeySwitchHint || cipherText1->GetCryptoContext() != *this || linearKeySwitchHint->GetCryptoContext() != *this) {
+		if( cipherText1 == NULL || linearKeySwitchHint == NULL || cipherText1->GetCryptoContext() != *this || linearKeySwitchHint->GetCryptoContext() != *this) {
 			throw std::logic_error("Information passed to LevelReduce was not generated with this crypto context");
 		}
 
@@ -623,13 +624,13 @@ public:
 		std::vector<shared_ptr<Ciphertext<Element>>> ciphertext,
 		const shared_ptr<LPEvalKey<Element>> keySwitchHint)
 	{
-		if( !keySwitchHint || keySwitchHint->GetCryptoContext() != *this )
+		if( keySwitchHint == NULL || keySwitchHint->GetCryptoContext() != *this )
 			throw std::logic_error("Key passed to RingReduce was not generated with this crypto context");
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext(ciphertext.size());
 
 		for (int i = 0; i < ciphertext.size(); i++) {
-			if( !ciphertext[i] || ciphertext[i]->GetCryptoContext() != *this )
+			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("Ciphertext passed to RingReduce was not generated with this crypto context");
 
 			newCiphertext[i] = GetEncryptionAlgorithm()->RingReduce(ciphertext[i], keySwitchHint);
@@ -650,7 +651,7 @@ public:
 		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext2,
 		const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint)
 	{
-		if( !quadKeySwitchHint || quadKeySwitchHint->GetCryptoContext() != *this) {
+		if( quadKeySwitchHint == NULL || quadKeySwitchHint->GetCryptoContext() != *this) {
 			throw std::logic_error("Information passed to ComposedEvalMult was not generated with this crypto context");
 		}
 		if (ciphertext1.size() != ciphertext2.size()) {
@@ -660,7 +661,7 @@ public:
 		vector<shared_ptr<Ciphertext<Element>>> ciphertextResult;
 
 		for (int i = 0; i < ciphertext1.size(); i++) {
-			if( !ciphertext1[i] || !ciphertext2[i] || ciphertext1[i]->GetCryptoContext() != *this || ciphertext2[i]->GetCryptoContext() != *this )
+			if( ciphertext1[i] == NULL || ciphertext2[i] == NULL || ciphertext1[i]->GetCryptoContext() != *this || ciphertext2[i]->GetCryptoContext() != *this )
 				throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
 
 			shared_ptr<Ciphertext<Element>> e = GetEncryptionAlgorithm()->ComposedEvalMult(ciphertext1[i], ciphertext2[i], quadKeySwitchHint);
