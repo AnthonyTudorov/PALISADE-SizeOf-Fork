@@ -36,16 +36,14 @@ namespace lbcrypto {
 template <class Element>
 Ciphertext<Element>::Ciphertext(const Ciphertext<Element> &ciphertext) {
 	cryptoContext = ciphertext.cryptoContext;
-	m_norm = ciphertext.m_norm;
 	m_elements = ciphertext.m_elements;
 }
 
 // move constructor
 template <class Element>
 Ciphertext<Element>::Ciphertext(Ciphertext<Element> &&ciphertext) {
-	cryptoContext = ciphertext.cryptoContext;
-	m_norm = ciphertext.m_norm;
-	m_elements = ciphertext.m_elements;
+	cryptoContext = std::move(ciphertext.cryptoContext);
+	m_elements = std::move(ciphertext.m_elements);
 }
 
 // assignment operator
@@ -54,21 +52,19 @@ Ciphertext<Element>& Ciphertext<Element>::operator=(const Ciphertext<Element> &r
 {
 	if (this != &rhs) {
 		this->cryptoContext = rhs.cryptoContext;
-		this->m_norm = rhs.m_norm;
 		this->m_elements = rhs.m_elements;
 	}
 
 	return *this;
 }
 
-// moveable assignment operator
+// move assignment operator
 template <class Element>
 Ciphertext<Element>& Ciphertext<Element>::operator=(Ciphertext<Element> &&rhs)
 {
 	if (this != &rhs) {
-		this->cryptoContext = rhs.cryptoContext;
-		this->m_norm = rhs.m_norm;
-		this->m_elements = rhs.m_elements;
+		cryptoContext = std::move(rhs.cryptoContext);
+		m_elements = std::move(rhs.m_elements);
 	}
 
 	return *this;
@@ -83,8 +79,6 @@ bool Ciphertext<Element>::Serialize(Serialized* serObj) const
 
 	if( !this->GetCryptoParameters()->Serialize(serObj) )
 		return false;
-
-	serObj->AddMember("Norm", this->GetNorm().ToString(), serObj->GetAllocator());
 
 	SerializeVector("Elements", elementName<Element>(), this->m_elements, serObj);
 
@@ -101,12 +95,6 @@ bool Ciphertext<Element>::Deserialize(const Serialized& serObj)
 	Serialized::ConstMemberIterator mIter = serObj.FindMember("Object");
 	if( mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "Ciphertext" )
 		return false;
-
-	mIter = serObj.FindMember("Norm");
-	if( mIter == serObj.MemberEnd() )
-		return false;
-
-	BigBinaryInteger bbiNorm(mIter->value.GetString());
 
 	mIter = serObj.FindMember("Elements");
 	if( mIter == serObj.MemberEnd() )
