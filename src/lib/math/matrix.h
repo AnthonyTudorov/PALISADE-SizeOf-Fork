@@ -60,7 +60,8 @@ namespace lbcrypto {
 		template<class Element>
         class Matrix {
             typedef vector<vector<unique_ptr<Element>>> data_t;
-            typedef vector<unique_ptr<Element>*> lineardata_t;
+            typedef vector<unique_ptr<Element>> lineardata_t;
+            typedef typename vector<unique_ptr<Element>>::iterator it_lineardata_t;
             typedef std::function<unique_ptr<Element>(void)> alloc_func;
         
         public:
@@ -358,15 +359,15 @@ namespace lbcrypto {
              */ 
             inline void SwitchFormat(); 
 
-            unique_ptr<Element> ** allocate( long long int s );
-            void deallocate( unique_ptr<Element> **A, long long s );
+//            it_lineardata_t  allocate( long long int s );
+//            void deallocate( it_lineardata_t A, long long s );
             Matrix<Element> MultiplyCAPS(const Matrix<Element>& other, int nrec=0) const;
             Matrix<Element> MultiplyStrassen(const Matrix<Element>& other,int leafsize) const;
-            void PrintLinearDataCAPS(unique_ptr<Element> **elem) const;
+            void PrintLinearDataCAPS(it_lineardata_t elem) const;
 
-            void multiplyInternalCAPS( unique_ptr<Element> **A, unique_ptr<Element> **B, unique_ptr<Element> **C, MatDescriptor desc, unique_ptr<Element> *work ) const;
-            void strassenDFSCAPS( unique_ptr<Element> **A, unique_ptr<Element> **B, unique_ptr<Element> **C, MatDescriptor desc, unique_ptr<Element> *workPassThrough ) const;
-            void block_multiplyCAPS( unique_ptr<Element> **A, unique_ptr<Element> **B, unique_ptr<Element> **C, MatDescriptor d, unique_ptr<Element> *workPassThrough ) const;
+            void multiplyInternalCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc, it_lineardata_t work ) const;
+            void strassenDFSCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc, it_lineardata_t workPassThrough ) const;
+            void block_multiplyCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor d, it_lineardata_t workPassThrough ) const;
             void LinearizeDataCAPS() const;
             void UnlinearizeDataCAPS() const;
         private:
@@ -394,25 +395,26 @@ namespace lbcrypto {
             void sum(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int tam) const;
             void subtract(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int tam) const;
             void ikjalgorithm(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int n) const;
-            void accessUniquePtr(unique_ptr<Element> *ptr, Element val) const;
-            void smartSubtraction(unique_ptr<Element> *result, unique_ptr<Element> *A, unique_ptr<Element> *B) const;
-            void smartAddition(unique_ptr<Element> *result, unique_ptr<Element> *A, unique_ptr<Element> *B) const;
-            void addMatricesCAPS( int numEntries, unique_ptr<Element> **C, unique_ptr<Element> **A, unique_ptr<Element> **B ) const;
-            void addSubMatricesCAPS(int numEntries, unique_ptr<Element> **T1, unique_ptr<Element> **S11, unique_ptr<Element> **S12, unique_ptr<Element> **T2,
-            		       unique_ptr<Element> **S21, unique_ptr<Element> **S22 ) const;
-            void subMatricesCAPS( int numEntries, unique_ptr<Element> **C, unique_ptr<Element> **A, unique_ptr<Element> **B ) const;
-            void tripleAddMatricesCAPS(int numEntries, unique_ptr<Element> **T1, unique_ptr<Element> **S11, unique_ptr<Element> **S12, unique_ptr<Element> **T2,
-            		       unique_ptr<Element> **S21, unique_ptr<Element> **S22, unique_ptr<Element> **T3, unique_ptr<Element> **S31, unique_ptr<Element> **S32) const;
-            void tripleSubMatricesCAPS(int numEntries, unique_ptr<Element> **T1, unique_ptr<Element> **S11, unique_ptr<Element> **S12, unique_ptr<Element> **T2,
-            		       unique_ptr<Element> **S21, unique_ptr<Element> **S22, unique_ptr<Element> **T3, unique_ptr<Element> **S31, unique_ptr<Element> **S32) const ;
+            void accessUniquePtr(it_lineardata_t ptr, Element val) const;
+            void smartSubtraction(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const;
+
+            void smartAddition(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const;
+            void addMatricesCAPS( int numEntries, it_lineardata_t C, it_lineardata_t A, it_lineardata_t B ) const;
+            void addSubMatricesCAPS(int numEntries, it_lineardata_t T1, it_lineardata_t S11, it_lineardata_t S12, it_lineardata_t T2,
+            		       it_lineardata_t S21, it_lineardata_t S22 ) const;
+            void subMatricesCAPS( int numEntries, it_lineardata_t C, it_lineardata_t A, it_lineardata_t B ) const;
+            void tripleAddMatricesCAPS(int numEntries, it_lineardata_t T1, it_lineardata_t S11, it_lineardata_t S12, it_lineardata_t T2,
+            		       it_lineardata_t S21, it_lineardata_t S22, it_lineardata_t T3, it_lineardata_t S31, it_lineardata_t S32) const;
+            void tripleSubMatricesCAPS(int numEntries, it_lineardata_t T1, it_lineardata_t S11, it_lineardata_t S12, it_lineardata_t T2,
+            		       it_lineardata_t S21, it_lineardata_t S22, it_lineardata_t T3, it_lineardata_t S31, it_lineardata_t S32) const ;
 
 
-            void distributeFrom1ProcCAPS( MatDescriptor desc, unique_ptr<Element> **O, unique_ptr<Element> **I ) const;
-            void collectTo1ProcCAPS( MatDescriptor desc, unique_ptr<Element> **O, unique_ptr<Element> **I ) const;
-            void sendBlockCAPS( int rank, int target, unique_ptr<Element> **O, int bs, int source, unique_ptr<Element> **I, int ldi ) const;
-            void receiveBlockCAPS(  int rank, int target, unique_ptr<Element> **O, int bs, int source, unique_ptr<Element> **I, int ldo ) const;
-            void distributeFrom1ProcRecCAPS( MatDescriptor desc, unique_ptr<Element> **O, unique_ptr<Element> **I, int ldi ) const;
-            void collectTo1ProcRecCAPS( MatDescriptor desc, unique_ptr<Element>**O, unique_ptr<Element>**I, int ldo ) const;
+            void distributeFrom1ProcCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I ) const;
+            void collectTo1ProcCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I ) const;
+            void sendBlockCAPS( int rank, int target, it_lineardata_t O, int bs, int source, it_lineardata_t I, int ldi ) const;
+            void receiveBlockCAPS(  int rank, int target, it_lineardata_t O, int bs, int source, it_lineardata_t I, int ldo ) const;
+            void distributeFrom1ProcRecCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I, int ldi ) const;
+            void collectTo1ProcRecCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I, int ldo ) const;
 
             void testCAPS( MatDescriptor desc );
 		};

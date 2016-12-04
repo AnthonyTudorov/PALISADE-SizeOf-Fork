@@ -385,20 +385,20 @@ void Matrix<Element>::LinearizeDataCAPS() const{
     for (size_t row = 0; row < data.size(); ++row) {
         for (auto elem = data[row].begin(); elem != data[row].end(); ++elem) {
             //lineardata.push_back((make_unique<Element>(**elem)));
-        	unique_ptr<Element>* elemptr = &(*elem);
+        	//unique_ptr<Element>* elemptr = &(*elem);
 
-            lineardata.push_back(elemptr);
+            lineardata.push_back(std::move(*elem));
         }
         //Now add the padded columns for each row
         for (int i = 0; i < colpad; i++){
-        	lineardata.push_back(new (unique_ptr<Element>)); //Should point to 0
+        	lineardata.push_back(0); //Should point to 0
         }
     }
     //Now add the padded rows
     int numelem = rowpad * (cols + colpad);
     //std::cout<<"Number of extra padding elements across extra rows = "<<numelem<<std::endl;
     for (int i = 0; i < numelem; i++){
-    	lineardata.push_back(new (unique_ptr<Element>)); //Should point to 0
+    	lineardata.push_back(0); //Should point to 0
     }
 }
 
@@ -406,21 +406,20 @@ template<class Element>
 void Matrix<Element>::UnlinearizeDataCAPS() const{
     	int datasize = data.size();
     	int lineardatasize = lineardata.size();
-        //printf("data.size() = %d\n",datasize);
-        //data.clear();
-        //data.resize(datasize);
+//    	std::cout<<"data.size()  = "<<datasize<<std::endl;
 
-        //printf("lineardata.size() = %d\n",lineardatasize);
+
+//        std::cout<<"lineardata.size()  = "<<lineardatasize<<std::endl;
 
     int row = 0;
     int counter = 0;
     		data[row].clear();
     		data[row].reserve(datasize);
             for (auto elem = lineardata.begin(); elem != lineardata.end(); ++elem) {
-            	//std::cout<<"counter = counter "<<" row = "<<row<<std::endl;
+//            	std::cout<<"counter = counter "<<" row = "<<row<<std::endl;
             	//std::cout<<"Elem "<<counter<<" is "<<(***elem)<<std::endl;
                 //data[row].push_back(make_unique<Element>(**elem));
-            	data[row].push_back(make_unique<Element>(***elem));
+            	data[row].push_back(std::move(*elem));
                 //printf("data[%d].size() is now %d\n",row,data[row].size());
                 counter++;
                 if (counter % rows == 0){
@@ -702,21 +701,21 @@ Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& ot
 
 
 
+//template<class Element>
+//it_lineardata_t  Matrix<Element>::allocate( long long int s ) {
+//	//printf("Allocating %lld Elements\n",s);
+//
+//  return (it_lineardata_t ) calloc( s, sizeof(it_lineardata_t ) );
+//}
+
+//template<class Element>
+//void Matrix<Element>::deallocate( it_lineardata_t A, long long s ) {
+//
+//  free(A);
+//}
+
 template<class Element>
-unique_ptr<Element> ** Matrix<Element>::allocate( long long int s ) {
-	//printf("Allocating %lld Elements\n",s);
-
-  return (unique_ptr<Element> **) calloc( s, sizeof(unique_ptr<Element> **) );
-}
-
-template<class Element>
-void Matrix<Element>::deallocate( unique_ptr<Element> **A, long long s ) {
-
-  free(A);
-}
-
-template<class Element>
-void Matrix<Element>::PrintLinearDataCAPS(unique_ptr<Element> **elem) const{
+void Matrix<Element>::PrintLinearDataCAPS(it_lineardata_t elem) const{
 
 	//printf("elem = %p  **elem = %f\n",elem, **elem);
 }
@@ -804,67 +803,87 @@ Matrix<Element> Matrix<Element>::MultiplyCAPS(Matrix<Element> const& other,int n
 lineardata_t thisdata;
 lineardata_t otherdata;
 lineardata_t resultdata;
+lineardata_t tempdata;
 
 for (size_t elem = 0; elem < len; ++elem) {
-    resultdata.push_back(new (unique_ptr<Element>));
+    resultdata.push_back(allocZero());
 }
 
-
+tempdata.resize(len);
 thisdata.resize(len);
 otherdata.resize(len);
 
 //std::cout<<"Before distribution, lineardata is :"<<std::endl;
 //for (int i = 0; i < lineardata.size();i++){
-//	if (*lineardata[i])
-//		std::cout<<**lineardata[i]<<" ";
+//	if (lineardata[i])
+//		std::cout<<*lineardata[i]<<" ";
 //	else
 //		std::cout<<"NULL ";
 //}
 //std::cout<<std::endl;
-distributeFrom1ProcCAPS( desc,&thisdata[0], &lineardata[0]);
+distributeFrom1ProcCAPS( desc,thisdata.begin(), lineardata.begin());
 //std::cout<<"After distribution, lineardata is :"<<std::endl;
 //for (int i = 0; i < lineardata.size();i++){
-//	if (*lineardata[i])
-//	std::cout<<**lineardata[i]<<" ";
+//	if (lineardata[i])
+//	std::cout<<*lineardata[i]<<" ";
 //	else
 //		std::cout<<"NULL ";
 //}
 //std::cout<<std::endl<<"thisdata is :"<<std::endl;
 //for (int i = 0; i < thisdata.size();i++){
-//	if (*thisdata[i])
-//	std::cout<<**thisdata[i]<<" ";
+//	if (thisdata[i])
+//	std::cout<<*thisdata[i]<<" ";
 //	else
 //		std::cout<<"NULL ";
 //}
 //std::cout<<std::endl;
-distributeFrom1ProcCAPS( desc, &otherdata[0], &(other.lineardata[0]));
+//collectTo1ProcCAPS( desc, tempdata.begin(), thisdata.begin() );
+//std::cout<<"After collection, tempdata is :"<<std::endl;
+//
+//for (int i = 0; i < tempdata.size();i++){
+//	if (tempdata[i])
+//	std::cout<<*tempdata[i]<<" ";
+//	else
+//		std::cout<<"NULL ";
+//}
+//
+//std::cout<<std::endl<<"thisdata is :"<<std::endl;
+//for (int i = 0; i < thisdata.size();i++){
+//	if (thisdata[i])
+//	std::cout<<*thisdata[i]<<" ";
+//	else
+//		std::cout<<"NULL ";
+//}
+//std::cout<<std::endl;
+
+
+
+distributeFrom1ProcCAPS( desc, otherdata.begin(), other.lineardata.begin());
 //std::cout<<"After distribution, other.lineardata is :"<<std::endl;
 //for (int i = 0; i < other.lineardata.size();i++){
-//	if (*(other.lineardata[i]))
-//	std::cout<<**(other.lineardata[i])<<" ";
+//	if (other.lineardata[i])
+//	std::cout<<*(other.lineardata[i])<<" ";
 //	else
 //		std::cout<<"NULL ";
 //}
 //std::cout<<std::endl<<"otherdata is :"<<std::endl;
 //for (int i = 0; i < otherdata.size();i++){
-//	if (*otherdata[i])
-//	std::cout<<**otherdata[i]<<" ";
+//	if (otherdata[i])
+//		std::cout<<*otherdata[i]<<" ";
 //	else
 //		std::cout<<"NULL ";
 //}
 //std::cout<<std::endl;
-//multiplyInternalCAPS(&lineardata[0], &(other.lineardata[0]), &(result.lineardata[0]), desc, 0);
 
-//std::cout<<std::endl<<"resultdata before multiplyInternal is :"<<std::endl;
-//for (int i = 0; i < resultdata.size();i++){
-//	std::cout<<**resultdata[i]<<" ";
-//}
-//std::cout<<std::endl;
-multiplyInternalCAPS(&otherdata[0], &thisdata[0], &resultdata[0] /*,&(result.lineardata[0])*/, desc, 0);//&(result.lineardata[0])
+multiplyInternalCAPS(otherdata.begin(), thisdata.begin(), resultdata.begin() /*,&(result.lineardata[0])*/, desc, (it_lineardata_t)0);//&(result.lineardata[0])
+
 
 //std::cout<<std::endl<<"resultdata after multiplyInternal is :"<<std::endl;
 //for (int i = 0; i < resultdata.size();i++){
-//	std::cout<<**resultdata[i]<<" ";
+//	if (resultdata[i])
+//		std::cout<<*resultdata[i]<<" ";
+//	else
+//		std::cout<<"NULL ";
 //}
 //std::cout<<std::endl;
 
@@ -873,40 +892,86 @@ multiplyInternalCAPS(&otherdata[0], &thisdata[0], &resultdata[0] /*,&(result.lin
 //	printf("&(result.lineardata[%d]) = %p    *(result.lineardata[%d]) = %f\n",row,&(result.lineardata[row]),row,*(result.lineardata[row]));
 //}
 //std::cout<<"Done with multiplyInternalCAPS"<<std::endl;
-collectTo1ProcCAPS( desc, &(result.lineardata[0]), &resultdata[0] );
+collectTo1ProcCAPS( desc, result.lineardata.begin(), resultdata.begin() );
+resultdata.clear();
 //std::cout<<"After collection, resultdata is :"<<std::endl;
 //for (int i = 0; i < resultdata.size();i++){
-//	std::cout<<*(resultdata[i])<<" ";
+//	if (resultdata[i])
+//		std::cout<<*resultdata[i]<<" ";
+//	else
+//		std::cout<<"NULL ";
 //}
 //std::cout<<std::endl<<"result.lineardata is :"<<std::endl;
 //for (int i = 0; i < result.lineardata.size();i++){
-//	std::cout<<*(result.lineardata[i])<<" ";
+//	if (result.lineardata[i])
+//		std::cout<<*result.lineardata[i]<<" ";
+//	else
+//		std::cout<<"NULL ";
 //}
 //std::cout<<std::endl;
 //std::cout<<"About to unlinearize data"<<std::endl;
 result.UnlinearizeDataCAPS();
-
-std::cout<<"numMult = "<<numMult<<"  numAdd = "<<numAdd<<"  numSub = "<<numSub<<std::endl;
-
-
-
-for (size_t elem = 0; elem < len; ++elem) {
-    //free(resultdata[elem]);
-    free(result.lineardata[elem]);
-}
-lineardata.clear();
-thisdata.clear();
-other.lineardata.clear();
-otherdata.clear();
-resultdata.clear();
 result.lineardata.clear();
+//std::cout<<"Done unlinearizing result data"<<std::endl;
+
+collectTo1ProcCAPS( desc, lineardata.begin(), thisdata.begin() );
+thisdata.clear();
+//std::cout<<"After collection, lineardata is :"<<std::endl;
+//
+//for (int i = 0; i < lineardata.size();i++){
+//	if (lineardata[i])
+//	std::cout<<*lineardata[i]<<" ";
+//	else
+//		std::cout<<"NULL ";
+//}
+//
+//std::cout<<std::endl<<"thisdata is :"<<std::endl;
+//for (int i = 0; i < thisdata.size();i++){
+//	if (thisdata[i])
+//	std::cout<<*thisdata[i]<<" ";
+//	else
+//		std::cout<<"NULL ";
+//}
+//std::cout<<std::endl;
+
+this->UnlinearizeDataCAPS();
+lineardata.clear();
+
+collectTo1ProcCAPS( desc, other.lineardata.begin(), otherdata.begin());
+otherdata.clear();
+//std::cout<<"After collection, other.lineardata is :"<<std::endl;
+//
+//for (int i = 0; i < other.lineardata.size();i++){
+//	if (other.lineardata[i])
+//	std::cout<<*(other.lineardata[i])<<" ";
+//	else
+//		std::cout<<"NULL ";
+//}
+//
+//std::cout<<std::endl<<"otherdata is :"<<std::endl;
+//for (int i = 0; i < otherdata.size();i++){
+//	if (otherdata[i])
+//	std::cout<<*otherdata[i]<<" ";
+//	else
+//		std::cout<<"NULL ";
+//}
+//std::cout<<std::endl;
+
+other.UnlinearizeDataCAPS();
+other.lineardata.clear();
+//
+//std::cout<<"numMult = "<<numMult<<"  numAdd = "<<numAdd<<"  numSub = "<<numSub<<std::endl;
+//
+//
+//
+//for (size_t elem = 0; elem < len; ++elem) {
+//    //free(resultdata[elem]);
+//    free(result.lineardata[elem]);
+//}
 
 
 
-
-
-
-
+//std::cout <<"About to return from MultiplyCAPS"<<std::endl;
 return result;
 }
 
@@ -914,8 +979,8 @@ return result;
 
 // nproc is the number of processors that share the matrices, and will be involved in the multiplication
 template<class Element>
-void Matrix<Element>::multiplyInternalCAPS(unique_ptr<Element> **A, unique_ptr<Element> **B, unique_ptr<Element> **C, MatDescriptor desc,
-		unique_ptr<Element> *work) const{
+void Matrix<Element>::multiplyInternalCAPS(it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc,
+		it_lineardata_t work) const{
 	//std::cout<<"In multiplyInternalCAPS, desc.nrec = "<<desc.nrec<<std::endl;
 	if (desc.nrec == 0) { // (planned) out of recursion in the data layout, do a regular matrix multiply.  The matrix is now in a 2d block cyclic layout
 
@@ -945,7 +1010,7 @@ void Matrix<Element>::multiplyInternalCAPS(unique_ptr<Element> **A, unique_ptr<E
 }
 
 template<class Element>
-void Matrix<Element>::addMatricesCAPS( int numEntries, unique_ptr<Element> **C, unique_ptr<Element> **A, unique_ptr<Element> **B ) const{
+void Matrix<Element>::addMatricesCAPS( int numEntries, it_lineardata_t C, it_lineardata_t A, it_lineardata_t B ) const{
 	//COUNTERS increaseAdditions(numEntries);
 	//COUNTERS startTimer(TIMER_ADD);
 
@@ -954,13 +1019,13 @@ void Matrix<Element>::addMatricesCAPS( int numEntries, unique_ptr<Element> **C, 
 	  //Element temp;
     //temp = **A[i] + **B[i];
     //accessUniquePtr(C[i], temp);
-    smartAddition(C[i],A[i],B[i]);
+    smartAddition(C+i,A+i,B+i);
   }
   //COUNTERS stopTimer(TIMER_ADD);
 }
 
 template<class Element>
-void Matrix<Element>::subMatricesCAPS( int numEntries, unique_ptr<Element> **C, unique_ptr<Element> **A, unique_ptr<Element> **B ) const{
+void Matrix<Element>::subMatricesCAPS( int numEntries, it_lineardata_t C, it_lineardata_t A, it_lineardata_t B ) const{
 	//COUNTERS increaseAdditions(numEntries);
 	//COUNTERS startTimer(TIMER_ADD);
 
@@ -969,13 +1034,13 @@ void Matrix<Element>::subMatricesCAPS( int numEntries, unique_ptr<Element> **C, 
 	  //Element temp;
     //temp = **A[i] - **B[i];
     //accessUniquePtr(C[i], temp);
-    smartSubtraction(C[i],A[i],B[i]);
+    smartSubtraction(C+i,A+i,B+i);
   }
   //COUNTERS stopTimer(TIMER_ADD);
 }
 
 template<class Element>
-void Matrix<Element>::accessUniquePtr(unique_ptr<Element> *ptr, Element val) const{
+void Matrix<Element>::accessUniquePtr(it_lineardata_t ptr, Element val) const{
 	if (*ptr == 0) {
 		//std::cout << "Unique_ptr does not already exist" << std::endl;
 		*ptr = make_unique<Element>(val);
@@ -986,7 +1051,7 @@ void Matrix<Element>::accessUniquePtr(unique_ptr<Element> *ptr, Element val) con
 }
 
 template<class Element>
-void Matrix<Element>::smartSubtraction(unique_ptr<Element> *result, unique_ptr<Element> *A, unique_ptr<Element> *B) const{
+void Matrix<Element>::smartSubtraction(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const{
 	Element temp;
 
 	if (*A != 0 && *B != 0){
@@ -1009,7 +1074,7 @@ void Matrix<Element>::smartSubtraction(unique_ptr<Element> *result, unique_ptr<E
 }
 
 template<class Element>
-void Matrix<Element>::smartAddition(unique_ptr<Element> *result, unique_ptr<Element> *A, unique_ptr<Element> *B) const{
+void Matrix<Element>::smartAddition(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const{
 	Element temp;
 
 	if (*A != 0 && *B != 0){
@@ -1031,8 +1096,8 @@ void Matrix<Element>::smartAddition(unique_ptr<Element> *result, unique_ptr<Elem
 }
 // useful to improve cache behavior if there is some overlap.  It is safe for T_i to be the same as S_j* as long as i<j.  That is, operations will happen in the order specified
 template<class Element>
-void Matrix<Element>::tripleSubMatricesCAPS(int numEntries, unique_ptr<Element> **T1, unique_ptr<Element> **S11, unique_ptr<Element> **S12, unique_ptr<Element> **T2,
-		unique_ptr<Element> **S21, unique_ptr<Element> **S22, unique_ptr<Element> **T3, unique_ptr<Element> **S31, unique_ptr<Element> **S32) const{
+void Matrix<Element>::tripleSubMatricesCAPS(int numEntries, it_lineardata_t T1, it_lineardata_t S11, it_lineardata_t S12, it_lineardata_t T2,
+		it_lineardata_t S21, it_lineardata_t S22, it_lineardata_t T3, it_lineardata_t S31, it_lineardata_t S32) const{
 	//COUNTERS increaseAdditions(3*numEntries);
 	//COUNTERS startTimer(TIMER_ADD);
 	 //std::cout<<"IN TRIPLESUBMATRICESCAPS!!"<<std::endl;
@@ -1044,7 +1109,7 @@ void Matrix<Element>::tripleSubMatricesCAPS(int numEntries, unique_ptr<Element> 
 	  //std::cout<<"i = "<<i<<"**S11[i] = "<<(Element)**S11[i]<<"  **S12[i] = "<<(Element)**S12[i]<<std::endl;
       //temp = **S11[i] - **S12[i];
       //accessUniquePtr(T1[i], temp);
-      smartSubtraction(T1[i],S11[i],S12[i]);
+      smartSubtraction(T1+i,S11+i,S12+i);
 //      if (*T1[i] == 0){
 //    	  std::cout<<"T1 unique_ptr does not already exist"<<std::endl;
 //    	  *T1[i] = make_unique<Element>(temp);
@@ -1054,7 +1119,7 @@ void Matrix<Element>::tripleSubMatricesCAPS(int numEntries, unique_ptr<Element> 
       //std::cout<<"i = "<<i<<"**S21[i] = "<<(Element)**S21[i]<<"  **S22[i] = "<<(Element)**S22[i]<<std::endl;
       //temp = **S21[i] - **S22[i];
       //accessUniquePtr(T2[i], temp);
-      smartSubtraction(T2[i],S21[i],S22[i]);
+      smartSubtraction(T2+i,S21+i,S22+i);
 //      if (*T2[i] == 0){
 //    	  std::cout<<"T2 unique_ptr does not already exist"<<std::endl;
 //    	  *T2[i] = make_unique<Element>(temp);
@@ -1064,7 +1129,7 @@ void Matrix<Element>::tripleSubMatricesCAPS(int numEntries, unique_ptr<Element> 
       //std::cout<<"i = "<<i<<"**S31[i] = "<<(Element)**S31[i]<<"  **S32[i] = "<<(Element)**S32[i]<<std::endl;
       //temp = **S31[i] - **S32[i];
       //accessUniquePtr(T3[i], temp);
-      smartSubtraction(T3[i],S31[i],S32[i]);
+      smartSubtraction(T3+i,S31+i,S32+i);
 //      if (*T3[i] == 0){
 //    	  std::cout<<"T3 unique_ptr does not already exist"<<std::endl;
 //    	  *T3[i] = make_unique<Element>(temp);
@@ -1076,8 +1141,8 @@ void Matrix<Element>::tripleSubMatricesCAPS(int numEntries, unique_ptr<Element> 
 }
 
 template<class Element>
-void Matrix<Element>::tripleAddMatricesCAPS(int numEntries, unique_ptr<Element> **T1, unique_ptr<Element> **S11, unique_ptr<Element> **S12, unique_ptr<Element> **T2,
-		unique_ptr<Element> **S21, unique_ptr<Element> **S22, unique_ptr<Element> **T3, unique_ptr<Element> **S31, unique_ptr<Element> **S32) const{
+void Matrix<Element>::tripleAddMatricesCAPS(int numEntries, it_lineardata_t T1, it_lineardata_t S11, it_lineardata_t S12, it_lineardata_t T2,
+		it_lineardata_t S21, it_lineardata_t S22, it_lineardata_t T3, it_lineardata_t S31, it_lineardata_t S32) const{
 	//COUNTERS increaseAdditions(3*numEntries);
 	//COUNTERS startTimer(TIMER_ADD);
 	//printf("In tripleAddMatricesCAPS\n");
@@ -1087,20 +1152,20 @@ void Matrix<Element>::tripleAddMatricesCAPS(int numEntries, unique_ptr<Element> 
 	  //Element temp;
       //temp = **S11[i] + **S12[i];
       //accessUniquePtr(T1[i], temp);
-      smartAddition(T1[i],S11[i],S12[i]);
+      smartAddition(T1+i,S11+i,S12+i);
       //temp = **S21[i] + **S22[i];
       //accessUniquePtr(T2[i], temp);
-      smartAddition(T2[i],S21[i],S22[i]);
+      smartAddition(T2+i,S21+i,S22+i);
       //temp = **S31[i] + **S32[i];
       //accessUniquePtr(T3[i], temp);
-      smartAddition(T3[i],S31[i],S32[i]);
+      smartAddition(T3+i,S31+i,S32+i);
   }
   //COUNTERS stopTimer(TIMER_ADD);
 }
 
 template<class Element>
-void Matrix<Element>::addSubMatricesCAPS(int numEntries, unique_ptr<Element> **T1, unique_ptr<Element> **S11, unique_ptr<Element> **S12, unique_ptr<Element> **T2,
-		unique_ptr<Element> **S21, unique_ptr<Element> **S22 ) const{
+void Matrix<Element>::addSubMatricesCAPS(int numEntries, it_lineardata_t T1, it_lineardata_t S11, it_lineardata_t S12, it_lineardata_t T2,
+		it_lineardata_t S21, it_lineardata_t S22 ) const{
 	//COUNTERS increaseAdditions(2*numEntries);
 	//COUNTERS startTimer(TIMER_ADD);
 	//std::cout<<"IN ADDSUBMATRICESCAPS!!"<<std::endl;
@@ -1110,17 +1175,17 @@ void Matrix<Element>::addSubMatricesCAPS(int numEntries, unique_ptr<Element> **T
 	  //Element temp;
       //temp = **S11[i] + **S12[i];
       //accessUniquePtr(T1[i], temp);
-      smartAddition(T1[i],S11[i],S12[i]);
+      smartAddition(T1+i,S11+i,S12+i);
       //temp = **S21[i] - **S22[i];
       //accessUniquePtr(T2[i], temp);
-      smartSubtraction(T2[i],S21[i],S22[i]);
+      smartSubtraction(T2+i,S21+i,S22+i);
   }
   //COUNTERS stopTimer(TIMER_ADD);
 }
 
 
 template<class Element>
-void Matrix<Element>::strassenDFSCAPS( unique_ptr<Element> **A, unique_ptr<Element> **B, unique_ptr<Element> **C, MatDescriptor desc, unique_ptr<Element> *workPassThrough ) const{
+void Matrix<Element>::strassenDFSCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc, it_lineardata_t workPassThrough ) const{
 #ifdef SANITY_CHECKS
   verifyDescriptor( desc );
 #endif
@@ -1135,18 +1200,18 @@ void Matrix<Element>::strassenDFSCAPS( unique_ptr<Element> **A, unique_ptr<Eleme
   long long int numEntriesHalf = numEntriesPerProc(halfDesc);
 
   //printf("numEntriesHalf = %lld\n",numEntriesHalf);
-  unique_ptr<Element> **A11 = A;
-  unique_ptr<Element> **A21 = A+numEntriesHalf;
-  unique_ptr<Element> **A12 = A+2*numEntriesHalf;
-  unique_ptr<Element> **A22 = A+3*numEntriesHalf;
-  unique_ptr<Element> **B11 = B;
-  unique_ptr<Element> **B21 = B+numEntriesHalf;
-  unique_ptr<Element> **B12 = B+2*numEntriesHalf;
-  unique_ptr<Element> **B22 = B+3*numEntriesHalf;
-  unique_ptr<Element> **C11 = C;
-  unique_ptr<Element> **C21 = C+numEntriesHalf;
-  unique_ptr<Element> **C12 = C+2*numEntriesHalf;
-  unique_ptr<Element> **C22 = C+3*numEntriesHalf;
+  it_lineardata_t A11 = A;
+  it_lineardata_t A21 = A+numEntriesHalf;
+  it_lineardata_t A12 = A+2*numEntriesHalf;
+  it_lineardata_t A22 = A+3*numEntriesHalf;
+  it_lineardata_t B11 = B;
+  it_lineardata_t B21 = B+numEntriesHalf;
+  it_lineardata_t B12 = B+2*numEntriesHalf;
+  it_lineardata_t B22 = B+3*numEntriesHalf;
+  it_lineardata_t C11 = C;
+  it_lineardata_t C21 = C+numEntriesHalf;
+  it_lineardata_t C12 = C+2*numEntriesHalf;
+  it_lineardata_t C22 = C+3*numEntriesHalf;
 
 //  for (int i = 0; i < numEntriesHalf; i++){
 //	  printf("%d: *(A11[i]) = %f *(A21[i]) = %f  *(A12[i]) = %f *(A22[i]) = %f\n",i, *(A11[i]),*(A21[i]),*(A12[i]),*(A22[i]));
@@ -1163,67 +1228,67 @@ void Matrix<Element>::strassenDFSCAPS( unique_ptr<Element> **A, unique_ptr<Eleme
 //  R5data.resize(numEntriesHalf);
 
   for (size_t elem = 0; elem < numEntriesHalf; ++elem) {
-	  unique_ptr<Element> *ptr = new (unique_ptr<Element>);
-//	  unique_ptr<Element> uptr = allocZero();
-//	  ptr = &uptr;
-	  R2data.push_back(ptr);
-	  ptr = new (unique_ptr<Element>);
-//	  uptr = allocZero();
-//	  ptr = &uptr;
-	  R5data.push_back(ptr);
+//	  unique_ptr<Element> *ptr = new (unique_ptr<Element>);
+////	  unique_ptr<Element> uptr = allocZero();
+////	  ptr = &uptr;
+	  R2data.push_back(allocZero());
+//	  ptr = new (unique_ptr<Element>);
+////	  uptr = allocZero();
+////	  ptr = &uptr;
+	  R5data.push_back(allocZero());
   }
 
 
 
   // six registers.  halfDesc is the descriptor for these
-  unique_ptr<Element> **R1 = C21;
-  unique_ptr<Element> **R2 = &R2data[0];
-  unique_ptr<Element> **R3 = C11;
-  unique_ptr<Element> **R4 = C22;
-  unique_ptr<Element> **R5 = &R5data[0];
-  unique_ptr<Element> **R6 = C12;
+  it_lineardata_t R1 = C21;
+  it_lineardata_t R2 = R2data.begin();
+  it_lineardata_t R3 = C11;
+  it_lineardata_t R4 = C22;
+  it_lineardata_t R5 = R5data.begin();
+  it_lineardata_t R6 = C12;
 
-  unique_ptr<Element> **S5 = R1;
-  unique_ptr<Element> **S3 = R2;
-  unique_ptr<Element> **S4 = R3;
+  it_lineardata_t S5 = R1;
+  it_lineardata_t S3 = R2;
+  it_lineardata_t S4 = R3;
   tripleSubMatricesCAPS(numEntriesHalf, S5, B22, B12, S3, B12, B11, S4, B22, S3);
-  unique_ptr<Element> **T5 = R4;
-  unique_ptr<Element> **T3 = R6; // was R1
+  it_lineardata_t T5 = R4;
+  it_lineardata_t T3 = R6; // was R1
   addSubMatricesCAPS(numEntriesHalf, T3, A21, A22, T5, A11, A21);
-  unique_ptr<Element> **Q5 = R5;
+  it_lineardata_t Q5 = R5;
   multiplyInternalCAPS( T5, S5, Q5, halfDesc, workPassThrough);
-  unique_ptr<Element> **Q3 = R4;
+  it_lineardata_t Q3 = R4;
   multiplyInternalCAPS( T3, S3, Q3, halfDesc, workPassThrough);
-  unique_ptr<Element> **T4 = R6;
+  it_lineardata_t T4 = R6;
   subMatricesCAPS(numEntriesHalf, T4, T3, A11);
-  unique_ptr<Element> **Q4 = R2;
+  it_lineardata_t Q4 = R2;
   multiplyInternalCAPS( T4, S4, Q4, halfDesc, workPassThrough);
-  unique_ptr<Element> **T6 = R6;
+  it_lineardata_t T6 = R6;
   subMatricesCAPS(numEntriesHalf, T6, A12, T4);
-  unique_ptr<Element> **S7 = R3;
+  it_lineardata_t S7 = R3;
   subMatricesCAPS(numEntriesHalf, S7, S4, B21);
-  unique_ptr<Element> **Q7 = R1;
+  it_lineardata_t Q7 = R1;
   multiplyInternalCAPS( A22, S7, Q7, halfDesc, workPassThrough);
-  unique_ptr<Element> **Q1 = R3;
+  it_lineardata_t Q1 = R3;
   multiplyInternalCAPS( A11, B11, Q1, halfDesc, workPassThrough);
-  unique_ptr<Element> **U1 = R2;
-  unique_ptr<Element> **U2 = R5;
-  unique_ptr<Element> **U3 = R2;
+  it_lineardata_t U1 = R2;
+  it_lineardata_t U2 = R5;
+  it_lineardata_t U3 = R2;
   tripleAddMatricesCAPS(numEntriesHalf, U1, Q1, Q4, U2, U1, Q5, U3, U1, Q3);
   addSubMatricesCAPS(numEntriesHalf, C22, U2, Q3, C21, U2, Q7);
-  unique_ptr<Element> **Q2 = R5;
+  it_lineardata_t Q2 = R5;
   multiplyInternalCAPS( A12, B21, Q2, halfDesc, workPassThrough);
   addMatricesCAPS(numEntriesHalf, C11, Q1, Q2);
-  unique_ptr<Element> **Q6 = R5;
+  it_lineardata_t Q6 = R5;
   multiplyInternalCAPS(T6, B22, Q6, halfDesc, workPassThrough);
   addMatricesCAPS(numEntriesHalf, C12, U3, Q6);
   //deallocate(R5, numEntriesHalf);
   //deallocate(R2, numEntriesHalf);
 
-  for (size_t elem = 0; elem < numEntriesHalf; ++elem) {
-	  free(R2data[elem]);
-	  free(R5data[elem]);
-  }
+//  for (size_t elem = 0; elem < numEntriesHalf; ++elem) {
+//	  free(R2data[elem]);
+//	  free(R5data[elem]);
+//  }
 
   R2data.clear();
   R5data.clear();
@@ -1233,9 +1298,9 @@ void Matrix<Element>::strassenDFSCAPS( unique_ptr<Element> **A, unique_ptr<Eleme
 }
 
 template<class Element>
-void Matrix<Element>::block_multiplyCAPS(unique_ptr<Element> **A,
-		unique_ptr<Element> **B, unique_ptr<Element> **C, MatDescriptor d,
-		unique_ptr<Element> *work) const{
+void Matrix<Element>::block_multiplyCAPS(it_lineardata_t A,
+		it_lineardata_t B, it_lineardata_t C, MatDescriptor d,
+		it_lineardata_t work) const{
 	long long lda = d.lda;
 	//long long lda3 = lda*lda*lda;
 	//COUNTERS increaseAdditions( lda3 );
@@ -1269,8 +1334,8 @@ void Matrix<Element>::block_multiplyCAPS(unique_ptr<Element> **A,
 				//printf("Row %d Col %d i %d initial Cval %d Aval %d Bval %d\n",row,col,i,(int)**(C+row*d.lda+col),(int)**(A+d.lda*row+i),(int)**(B+i*d.lda+col));
 				//**(C + d.lda * row + col) += **(A + d.lda * row + i)
 				//		* **(B + i * d.lda + col);
-				unique_ptr<Element> **Aelem = A + row + i * d.lda;
-				unique_ptr<Element> **Belem = B + i + d.lda * col;
+				it_lineardata_t Aelem = A + row + i * d.lda;
+				it_lineardata_t Belem = B + i + d.lda * col;
 //				if (Aelem != 0) {
 //					//std::cout << "Aelem is not 0" << std::endl;
 //					if (*Aelem != 0) {
@@ -1286,16 +1351,16 @@ void Matrix<Element>::block_multiplyCAPS(unique_ptr<Element> **A,
 //				} else
 //					std::cout << "Aelem is 0" << std::endl;
 
-				if (Aelem == 0 || *Aelem == 0 || **Aelem == 0){
-					//std::cout<<"Can't get ***Aelem. Continuing. i = "<<i<<std::endl;
+				if (*Aelem == 0){
+					//std::cout<<"Can't get **Aelem. Continuing. i = "<<i<<std::endl;
 					continue;
 				}
-				if (Belem == 0 || *Belem == 0 || **Belem == 0){
-					//std::cout<<"Can't get ***Belem. Continuing.  i = "<<i<<std::endl;
+				if (*Belem == 0 ){
+					//std::cout<<"Can't get **Belem. Continuing.  i = "<<i<<std::endl;
 					continue;
 				}
-				Aval = ***(A+row + i * d.lda);  // **(A + d.lda * row + i);
-				Bval = ***(B + i + d.lda * col); //  **(B + i * d.lda + col);
+				Aval = **(A+row + i * d.lda);  // **(A + d.lda * row + i);
+				Bval = **(B + i + d.lda * col); //  **(B + i * d.lda + col);
 				numMult++;
 				if (uninitializedTemp == 1){
 					uninitializedTemp = 0;
@@ -1309,10 +1374,11 @@ void Matrix<Element>::block_multiplyCAPS(unique_ptr<Element> **A,
 			}
 			//std::cout <<"row = "<<row<<" col = "<<col<<" temp = "<<(Element)(temp)<<std::endl;
 			if (uninitializedTemp == 1){ //Because of nulls, temp never got value.
-				**(C+row+d.lda*col) = allocZero();
+				**(C+row+d.lda*col) = 0;
 			}
 			else {
-				**(C+row+d.lda*col) = make_unique<Element>(temp);  //**(C + d.lda * row + col) = temp;
+				//**(C+row+d.lda*col) = make_unique<Element>(temp);  //**(C + d.lda * row + col) = temp;
+				**(C+row+d.lda*col) = temp;
 			}
 			//std::cout <<"END: C+row+d.lda*col = "<<C+row+d.lda*col<<"  *(C+row+d.lda*col) = "<<*(C+row+d.lda*col)<<" C[row+d.lda*col] = "<<C[row+d.lda*col]<<"***(C+row+d.lda*col) "<<***(C+row+d.lda*col)<<std::endl;
 		}
@@ -1338,7 +1404,7 @@ void Matrix<Element>::block_multiplyCAPS(unique_ptr<Element> **A,
 
 template<class Element>
 void Matrix<Element>::sendBlockCAPS( /*MPI_Comm comm,*/int rank, int target,
-		unique_ptr<Element> **O, int bs, int source, unique_ptr<Element> **I,
+		it_lineardata_t O, int bs, int source, it_lineardata_t I,
 		int ldi) const{
 //	printf(
 //			"IN SENDBLOCKCAPS, bs = %d ldi = %d rank = %d target = %d source = %d\n",
@@ -1365,7 +1431,7 @@ void Matrix<Element>::sendBlockCAPS( /*MPI_Comm comm,*/int rank, int target,
 //						*O = make_unique<Element>(**I); //New
 //					}
 					//*O = make_unique<Element>(**I); //New
-					*O=*I;
+					*O=std::move(*I);
 					O++;  //New
 					I++;
 				}
@@ -1379,10 +1445,10 @@ void Matrix<Element>::sendBlockCAPS( /*MPI_Comm comm,*/int rank, int target,
 }
 
 template<class Element>
-void Matrix<Element>::receiveBlockCAPS(  int rank, int target, unique_ptr<Element> **O, int bs, int source, unique_ptr<Element> **I, int ldo ) const{
+void Matrix<Element>::receiveBlockCAPS(  int rank, int target, it_lineardata_t O, int bs, int source, it_lineardata_t I, int ldo ) const{
 
-	bool haveILVector2n  = false;
-	string elemtype = typeid(**O).name();
+//	bool haveILVector2n  = false;
+//	string elemtype = typeid(**O).name();
 	//std::cout<<"In receiveBlockCAPS"<<std::endl;
 //	if (string::npos != elemtype.find("ILVector2n")){
 //		std::cout<<"In receiveBlockCAPS, O is an ILVector2n"<<std::endl;
@@ -1404,7 +1470,7 @@ void Matrix<Element>::receiveBlockCAPS(  int rank, int target, unique_ptr<Elemen
 //						*O = make_unique<Element>(**I); //New
 //					}
 					//*O = make_unique<Element>(**I); //New
-					*O=*I;
+					*O=std::move(*I);
 
 					I++;
 					O++;  //New
@@ -1420,7 +1486,7 @@ void Matrix<Element>::receiveBlockCAPS(  int rank, int target, unique_ptr<Elemen
 }
 
 template <class Element>
-void Matrix<Element>::distributeFrom1ProcRecCAPS( MatDescriptor desc, unique_ptr<Element> **O, unique_ptr<Element> **I, int ldi ) const{
+void Matrix<Element>::distributeFrom1ProcRecCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I, int ldi ) const{
   if( desc.nrec == 0 ) { // base case; put the matrix block-cyclic layout
     //MPI_Comm comm = getComm();
     int rank = getRank();
@@ -1472,12 +1538,12 @@ void Matrix<Element>::distributeFrom1ProcRecCAPS( MatDescriptor desc, unique_ptr
 }
 
 template <class Element>
-void Matrix<Element>::distributeFrom1ProcCAPS( MatDescriptor desc, unique_ptr<Element> **O, unique_ptr<Element> **I ) const{
+void Matrix<Element>::distributeFrom1ProcCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I ) const{
   distributeFrom1ProcRecCAPS( desc, O, I, desc.lda );
 }
 
 template <class Element>
-void Matrix<Element>::collectTo1ProcRecCAPS( MatDescriptor desc, unique_ptr<Element>**O, unique_ptr<Element>**I, int ldo ) const{
+void Matrix<Element>::collectTo1ProcRecCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I, int ldo ) const{
   if( desc.nrec == 0 ) { // base case; put the matrix block-cyclic layout
     //MPI_Comm comm = getComm();
     int rank = getRank();
@@ -1523,7 +1589,7 @@ void Matrix<Element>::collectTo1ProcRecCAPS( MatDescriptor desc, unique_ptr<Elem
 }
 
 template <class Element>
-void Matrix<Element>::collectTo1ProcCAPS( MatDescriptor desc, unique_ptr<Element>**O, unique_ptr<Element> **I ) const{
+void Matrix<Element>::collectTo1ProcCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I ) const{
   collectTo1ProcRecCAPS( desc, O, I, desc.lda );
 }
 
