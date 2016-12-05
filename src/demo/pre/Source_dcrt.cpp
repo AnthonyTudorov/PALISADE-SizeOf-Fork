@@ -74,7 +74,6 @@ void LevelCircuitEvaluation2WithCEM();
 void ComposedEvalMultTest();
 bool canRingReduce(usint ringDimension, std::vector<BigBinaryInteger> moduli, double rootHermiteFactor);
 void RootsOfUnitTest();
-void BenchMarking();
 void FFTTest();
 /**
  * @brief Input parameters for PRE example.
@@ -88,22 +87,10 @@ struct SecureParams {
 
 #include <iterator>
 int main() {
-	FFTTest();
-//	BenchMarking();
-//	RootsOfUnitTest();
-//	RingReduceTest();
-//	RingReduceDCRTTest();
-//	NTRUPRE(0);
+
 	NTRU_DCRT();
 
-	//LevelCircuitEvaluation();
-	//LevelCircuitEvaluation1();
-	//LevelCircuitEvaluation2();
-	//	ComposedEvalMultTest();
-	//	 FinalLeveledComputation();
 
-//	TestParameterSelection();
-	//LevelCircuitEvaluation2WithCEM();
 
 	std::cin.get();
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
@@ -129,87 +116,7 @@ int main() {
 // 	return std::chrono::duration <double, std::milli>(now - midnight).count();
 // }
 
-void BenchMarking() {
-	double diff, start, finish;
-	std::unordered_map<usint, std::vector<double>> encryptTimer;
-	std::unordered_map<usint, std::vector<double>> decryptTimer;
 
-	usint m = 16;
-	usint numberOfIterations = 100;
-	usint numberOfTowers = 20;
-	std::vector<double> encryptTimeTower(20);
-//	encryptTimeTower.reserve(20);
-	std::fill(encryptTimeTower.begin(), encryptTimeTower.end(), 0);
-	encryptTimer.insert(std::make_pair(m, encryptTimeTower));
-
-	std::vector<double> decryptTimeTower(20);
-//	decryptTimeTower.reserve(19);
-	std::fill(decryptTimeTower.begin(), decryptTimeTower.end(), 0);
-	decryptTimer.insert(std::make_pair(m, decryptTimeTower));
-
-	for (usint k = 0; k < numberOfIterations; k++) {
-		for (usint i = 1; i <= 3; i++) {
-			float stdDev = 4;
-
-			BytePlaintextEncoding plaintext("N");
-
-			BytePlaintextEncoding ctxtd;
-
-			vector<BigBinaryInteger> moduli(i);
-
-			vector<BigBinaryInteger> rootsOfUnity(i);
-
-			BigBinaryInteger q("1");
-			BigBinaryInteger temp;
-			BigBinaryInteger modulus("1");
-
-			for (int j = 0; j < i; j++) {
-				lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-				moduli[j] = q;
-				rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-				modulus = modulus* moduli[j];
-			}
-
-			shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
-
-			LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-			cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-			cryptoParams.SetDistributionParameter(stdDev);
-			cryptoParams.SetRelinWindow(1);
-			cryptoParams.SetElementParams(params);
-
-			CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
-			cc.Enable(ENCRYPTION);
-			cc.Enable(PRE);
-
-			LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
-
-			vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext;
-
-			start = currentDateTime();
-
-			ciphertext = cc.Encrypt(kp.publicKey, plaintext);
-			finish = currentDateTime();
-			diff = finish - start;
-			encryptTimer.at(m).at(i) += diff;
-
-			BytePlaintextEncoding plaintextNew;
-
-			start = currentDateTime();
-
-			cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
-			finish = currentDateTime();
-			diff = finish - start;
-            decryptTimer.at(m).at(i) += diff;
-		}
-	}
-	for (int i = 1; i < 4; i++) {
-		cout << encryptTimer.at(m).at(i)/100 << endl;
-		cout << decryptTimer.at(m).at(i)/100 << endl;
-		cout << endl;
-	}
-
-}
 
 void NTRU_DCRT() {
 	cout << "NTRU_DCRT" << endl;
@@ -250,7 +157,7 @@ void NTRU_DCRT() {
 	}
 
 	cout << "big modulus: " << modulus << endl;
-
+	ILVectorArray2n::PreComputeCRIFactors(moduli, m);
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
@@ -391,6 +298,7 @@ void NTRU_DCRT() {
 	}
 
 	std::cout << "Execution completed." << std::endl;
+	ILVectorArray2n::DestroyPrecomputedCRIFactors();
 
 
 //	cout << "Running serialization testing:" << endl;
