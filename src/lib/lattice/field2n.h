@@ -82,6 +82,14 @@ namespace lbcrypto {
 		*/
 		Field2n ShiftRight();
 
+		/**
+		* Performs an automorphism transform operation and returns the result.
+		*
+		* @param &i is the element to perform the automorphism transform with.
+		* @return is the result of the automorphism transform.
+		*/
+		Field2n AutomorphismTransform(size_t i) const;
+
 		/**Transpose operation defined in the paper of perturbation sampling
 		*
 		*@return the transpose of the element

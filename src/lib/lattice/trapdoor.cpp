@@ -397,6 +397,4 @@ namespace lbcrypto {
 
 	}
 
-
-
 } //end namespace crypto
