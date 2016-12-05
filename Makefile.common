@@ -67,8 +67,8 @@ HDREXT := h
 $(objects) : %.o : %.cpp
 
 
-#EXTLIB := -lpthread -lgomp -lblas#-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## no profiling
-EXTLIB := -lpthread -lgomp -lblas -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
+#EXTLIB := -lpthread -lgomp #-lblas#-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## no profiling
+EXTLIB := -lpthread -lgomp -pg #-lblas  #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
 
 INC := -I include $(OMPINCLUDE) $(BOOSTINCLUDE)
 

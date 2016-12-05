@@ -26,7 +26,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 #ifndef LBCRYPTO_MATH_MATRIX_H
 #define LBCRYPTO_MATH_MATRIX_H
-#include "dgemm-blas.h"
 #include "CAPSutils.h"
 #include <assert.h>
 #include <stdlib.h>
@@ -211,10 +210,6 @@ namespace lbcrypto {
                 return data;
             }
 
-//            const data_t& GetLinearData() const {
-//                return lineardata;
-//            }
-
             /**
              * Get property to access the number of rows in the matrix
 			 *
@@ -359,12 +354,8 @@ namespace lbcrypto {
              */ 
             inline void SwitchFormat(); 
 
-//            it_lineardata_t  allocate( long long int s );
-//            void deallocate( it_lineardata_t A, long long s );
-            Matrix<Element> MultiplyCAPS(const Matrix<Element>& other, int nrec=0) const;
-            Matrix<Element> MultiplyStrassen(const Matrix<Element>& other,int leafsize) const;
-            void PrintLinearDataCAPS(it_lineardata_t elem) const;
 
+            Matrix<Element> MultiplyCAPS(const Matrix<Element>& other, int nrec=0) const;
             void multiplyInternalCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc, it_lineardata_t work ) const;
             void strassenDFSCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc, it_lineardata_t workPassThrough ) const;
             void block_multiplyCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor d, it_lineardata_t workPassThrough ) const;
@@ -372,8 +363,6 @@ namespace lbcrypto {
             void UnlinearizeDataCAPS(lineardata_t *lineardataPtr) const;
         private:
             mutable data_t data;
-            mutable int leafsize = 256;
-            //mutable lineardata_t lineardata;
             size_t rows;
             mutable int rowpad = 0;
             size_t cols;
@@ -385,20 +374,14 @@ namespace lbcrypto {
             mutable int numSub = 0;
             mutable MatDescriptor desc;
             mutable unique_ptr<Element> zeroUniquePtr = allocZero();
+
 			//deep copy of data - used for copy constructor
             void deepCopyData(data_t const& src);
             void getData(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int row, int inner, int col) const;
-            void strassen(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, unsigned int n) const;
-            unsigned int nextPowerOfTwo(int n) const;
-            void strassenR(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int tam) const;
-            void allocate_data_t(data_t &A, int outerdim, int innerdim) const;
-            void sum(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int tam) const;
-            void subtract(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int tam) const;
-            void ikjalgorithm(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int n) const;
-            void accessUniquePtr(it_lineardata_t ptr, Element val) const;
-            void smartSubtraction(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const;
 
-            void smartAddition(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const;
+            void accessUniquePtrCAPS(it_lineardata_t ptr, Element val) const;
+            void smartSubtractionCAPS(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const;
+            void smartAdditionCAPS(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const;
             void addMatricesCAPS( int numEntries, it_lineardata_t C, it_lineardata_t A, it_lineardata_t B ) const;
             void addSubMatricesCAPS(int numEntries, it_lineardata_t T1, it_lineardata_t S11, it_lineardata_t S12, it_lineardata_t T2,
             		       it_lineardata_t S21, it_lineardata_t S22 ) const;
@@ -416,7 +399,6 @@ namespace lbcrypto {
             void distributeFrom1ProcRecCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I, int ldi ) const;
             void collectTo1ProcRecCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I, int ldo ) const;
 
-            void testCAPS( MatDescriptor desc );
 		};
 
 

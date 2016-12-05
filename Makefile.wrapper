@@ -41,7 +41,7 @@ allwrappers: $(EXTLIBDIR)/$(JNILIB) $(EXTLIBDIR)/PalisadeCrypto.jar
 #this builds the palisade JNI wrapper library
 $(EXTLIBDIR)/$(JNILIB): $(LIBOBJECTS) build/wrappers/java/PalisadeCryptoWrapper.o
 	mkdir -p $(EXTLIBDIR)
-	$(CC) $(LIBCMD) -o $@ $(LIBOBJECTS) build/wrappers/java/PalisadeCryptoWrapper.o $(JNILINKPARM) -lpthread -lgomp -lblas
+	$(CC) $(LIBCMD) -o $@ $(LIBOBJECTS) build/wrappers/java/PalisadeCryptoWrapper.o $(JNILINKPARM) -lpthread -lgomp #-lblas
 
 $(EXTLIBDIR)/PalisadeCrypto.jar: src/wrappers/java/PalisadeCrypto/src/com/palisade/PalisadeCrypto.class src/wrappers/java/PalisadeCrypto/src/com/palisade/PalisadeKeypair.class
 	( cd src/wrappers/java/PalisadeCrypto/src/ ; jar cvf ../../../../../bin/lib/PalisadeCrypto.jar com/palisade/*.class )

@@ -703,37 +703,7 @@ Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& ot
 
 
 
-//template<class Element>
-//it_lineardata_t  Matrix<Element>::allocate( long long int s ) {
-//	//printf("Allocating %lld Elements\n",s);
-//
-//  return (it_lineardata_t ) calloc( s, sizeof(it_lineardata_t ) );
-//}
 
-//template<class Element>
-//void Matrix<Element>::deallocate( it_lineardata_t A, long long s ) {
-//
-//  free(A);
-//}
-
-template<class Element>
-void Matrix<Element>::PrintLinearDataCAPS(it_lineardata_t elem) const{
-
-	//printf("elem = %p  **elem = %f\n",elem, **elem);
-}
-
-template<class Element>
-Matrix<Element> Matrix<Element>::MultiplyStrassen(const Matrix<Element>& other,int leafsize) const{
-	omp_set_num_threads(NUM_THREADS);
-	//std::cout <<"In MultiplyStrassen, this rows = "<<rows << " this cols = "<<cols<<std::endl;
-	//std::cout <<"In MultiplyStrassen, other rows = "<<other.rows << " other cols = "<<other.cols<<std::endl;
-    Matrix<Element> result(allocZero, rows, other.cols);
-    this->leafsize = leafsize;
-    strassen(this->data,other.data,result.data,rows);
-
-
-    return result;
-}
 
 
 template<class Element>
@@ -1031,8 +1001,8 @@ void Matrix<Element>::addMatricesCAPS( int numEntries, it_lineardata_t C, it_lin
   for( int i = 0; i < numEntries; i++ ){
 	  //Element temp;
     //temp = **A[i] + **B[i];
-    //accessUniquePtr(C[i], temp);
-    smartAddition(C+i,A+i,B+i);
+    //accessUniquePtrCAPS(C[i], temp);
+    smartAdditionCAPS(C+i,A+i,B+i);
   }
   //COUNTERS stopTimer(TIMER_ADD);
 }
@@ -1046,14 +1016,14 @@ void Matrix<Element>::subMatricesCAPS( int numEntries, it_lineardata_t C, it_lin
   for( int i = 0; i < numEntries; i++ ){
 	  //Element temp;
     //temp = **A[i] - **B[i];
-    //accessUniquePtr(C[i], temp);
-    smartSubtraction(C+i,A+i,B+i);
+    //accessUniquePtrCAPS(C[i], temp);
+    smartSubtractionCAPS(C+i,A+i,B+i);
   }
   //COUNTERS stopTimer(TIMER_ADD);
 }
 
 template<class Element>
-void Matrix<Element>::accessUniquePtr(it_lineardata_t ptr, Element val) const{
+void Matrix<Element>::accessUniquePtrCAPS(it_lineardata_t ptr, Element val) const{
 	if (*ptr == 0) {
 		//std::cout <<std::endl<<std::endl<<"!!!!!UNIQUE PTR does not already exist" << std::endl<<std::endl;
 		*ptr = make_unique<Element>(val);
@@ -1064,7 +1034,7 @@ void Matrix<Element>::accessUniquePtr(it_lineardata_t ptr, Element val) const{
 }
 
 template<class Element>
-void Matrix<Element>::smartSubtraction(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const{
+void Matrix<Element>::smartSubtractionCAPS(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const{
 	Element temp;
 
 	if (*A != 0 && *B != 0){
@@ -1082,12 +1052,12 @@ void Matrix<Element>::smartSubtraction(it_lineardata_t result, it_lineardata_t A
 		temp = *zeroUniquePtr;
 	}
 
-    accessUniquePtr(result, temp);
+    accessUniquePtrCAPS(result, temp);
 	return;
 }
 
 template<class Element>
-void Matrix<Element>::smartAddition(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const{
+void Matrix<Element>::smartAdditionCAPS(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const{
 	Element temp;
 
 	if (*A != 0 && *B != 0){
@@ -1104,7 +1074,7 @@ void Matrix<Element>::smartAddition(it_lineardata_t result, it_lineardata_t A, i
 		temp = *zeroUniquePtr;
 	}
 
-    accessUniquePtr(result, temp);
+    accessUniquePtrCAPS(result, temp);
 	return;
 }
 // useful to improve cache behavior if there is some overlap.  It is safe for T_i to be the same as S_j* as long as i<j.  That is, operations will happen in the order specified
@@ -1121,8 +1091,8 @@ void Matrix<Element>::tripleSubMatricesCAPS(int numEntries, it_lineardata_t T1, 
 	  //Element temp;
 	  //std::cout<<"i = "<<i<<"**S11[i] = "<<(Element)**S11[i]<<"  **S12[i] = "<<(Element)**S12[i]<<std::endl;
       //temp = **S11[i] - **S12[i];
-      //accessUniquePtr(T1[i], temp);
-      smartSubtraction(T1+i,S11+i,S12+i);
+      //accessUniquePtrCAPS(T1[i], temp);
+      smartSubtractionCAPS(T1+i,S11+i,S12+i);
 //      if (*T1[i] == 0){
 //    	  std::cout<<"T1 unique_ptr does not already exist"<<std::endl;
 //    	  *T1[i] = make_unique<Element>(temp);
@@ -1131,8 +1101,8 @@ void Matrix<Element>::tripleSubMatricesCAPS(int numEntries, it_lineardata_t T1, 
       //std::cout<<"i = "<<i<<"**T1[i] = "<<(Element)**T1[i]<<std::endl;
       //std::cout<<"i = "<<i<<"**S21[i] = "<<(Element)**S21[i]<<"  **S22[i] = "<<(Element)**S22[i]<<std::endl;
       //temp = **S21[i] - **S22[i];
-      //accessUniquePtr(T2[i], temp);
-      smartSubtraction(T2+i,S21+i,S22+i);
+      //accessUniquePtrCAPS(T2[i], temp);
+      smartSubtractionCAPS(T2+i,S21+i,S22+i);
 //      if (*T2[i] == 0){
 //    	  std::cout<<"T2 unique_ptr does not already exist"<<std::endl;
 //    	  *T2[i] = make_unique<Element>(temp);
@@ -1141,8 +1111,8 @@ void Matrix<Element>::tripleSubMatricesCAPS(int numEntries, it_lineardata_t T1, 
       //std::cout<<"i = "<<i<<"**T2[i] = "<<(Element)**T2[i]<<std::endl;
       //std::cout<<"i = "<<i<<"**S31[i] = "<<(Element)**S31[i]<<"  **S32[i] = "<<(Element)**S32[i]<<std::endl;
       //temp = **S31[i] - **S32[i];
-      //accessUniquePtr(T3[i], temp);
-      smartSubtraction(T3+i,S31+i,S32+i);
+      //accessUniquePtrCAPS(T3[i], temp);
+      smartSubtractionCAPS(T3+i,S31+i,S32+i);
 //      if (*T3[i] == 0){
 //    	  std::cout<<"T3 unique_ptr does not already exist"<<std::endl;
 //    	  *T3[i] = make_unique<Element>(temp);
@@ -1164,14 +1134,14 @@ void Matrix<Element>::tripleAddMatricesCAPS(int numEntries, it_lineardata_t T1, 
   for( int i = 0; i < numEntries; i++ ) {
 	  //Element temp;
       //temp = **S11[i] + **S12[i];
-      //accessUniquePtr(T1[i], temp);
-      smartAddition(T1+i,S11+i,S12+i);
+      //accessUniquePtrCAPS(T1[i], temp);
+      smartAdditionCAPS(T1+i,S11+i,S12+i);
       //temp = **S21[i] + **S22[i];
-      //accessUniquePtr(T2[i], temp);
-      smartAddition(T2+i,S21+i,S22+i);
+      //accessUniquePtrCAPS(T2[i], temp);
+      smartAdditionCAPS(T2+i,S21+i,S22+i);
       //temp = **S31[i] + **S32[i];
-      //accessUniquePtr(T3[i], temp);
-      smartAddition(T3+i,S31+i,S32+i);
+      //accessUniquePtrCAPS(T3[i], temp);
+      smartAdditionCAPS(T3+i,S31+i,S32+i);
   }
   //COUNTERS stopTimer(TIMER_ADD);
 }
@@ -1187,11 +1157,11 @@ void Matrix<Element>::addSubMatricesCAPS(int numEntries, it_lineardata_t T1, it_
   for( int i = 0; i < numEntries; i++ ) {
 	  //Element temp;
       //temp = **S11[i] + **S12[i];
-      //accessUniquePtr(T1[i], temp);
-      smartAddition(T1+i,S11+i,S12+i);
+      //accessUniquePtrCAPS(T1[i], temp);
+      smartAdditionCAPS(T1+i,S11+i,S12+i);
       //temp = **S21[i] - **S22[i];
-      //accessUniquePtr(T2[i], temp);
-      smartSubtraction(T2+i,S21+i,S22+i);
+      //accessUniquePtrCAPS(T2[i], temp);
+      smartSubtractionCAPS(T2+i,S21+i,S22+i);
   }
   //COUNTERS stopTimer(TIMER_ADD);
 }
@@ -1607,28 +1577,7 @@ void Matrix<Element>::collectTo1ProcCAPS( MatDescriptor desc, it_lineardata_t O,
 }
 
 
-template<class Element>
-void Matrix<Element>::ikjalgorithm(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int n) const{
-//	string elemtype = typeid(*(Adata[0][0])).name();
-//	if (string::npos != elemtype.find("ILVector2n")){
-//		std::cout<<"A is an ILVector2n"<<std::endl;
-//		(*(Adata[0][0])).PrintValues();
-//	}
-//	elemtype = typeid(*(Bdata[0][0])).name();
-//	if (string::npos != elemtype.find("ILVector2n")){
-//		std::cout<<"B is an ILVector2n"<<std::endl;
-//		(*(Bdata[0][0])).PrintValues();
-//	}
-//	//std::cout<<"In ijkalgo"<<std::endl;
-	#pragma omp parallel for
-	for (int i = 0; i < n; i++) {
-        for (int k = 0; k < n; k++) {
-            for (int j = 0; j < n; j++) {
-                *(Cdata[i][j]) += *(Adata[i][k]) * *(Bdata[k][j]);
-            }
-        }
-    }
-}
+
 
 template<class Element>
 void Matrix<Element>::getData(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int row, int inner, int col) const{
@@ -1648,176 +1597,6 @@ void Matrix<Element>::getData(const data_t &Adata, const data_t &Bdata, const da
     }
 }
 
-template <class Element>
-void Matrix<Element>::allocate_data_t(data_t &A, int outerdim, int innerdim) const {
-    A.resize(outerdim);
-    for (auto row = A.begin(); row != A.end(); ++row) {
-        for (size_t i = 0; i < innerdim; ++i) {
-            row->push_back(allocZero());
-        }
-    }
-}
-
-template <class Element>
-void Matrix<Element>::strassenR(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int tam) const {
-    if (tam <= leafsize) {
-        ikjalgorithm(Adata, Bdata, Cdata, tam);
-        return;
-    }
-
-    // other cases are treated here:
-    else {
-        int newTam = tam/2;
-		data_t
-            a11, a12, a21, a22,
-            b11, b12, b21, b22,
-              c11, c12, c21, c22,
-            p1, p2, p3, p4,
-            p5, p6, p7,
-            aResult, bResult;
-allocate_data_t(a11,newTam,newTam);
-allocate_data_t(a12,newTam,newTam);
-allocate_data_t(a21,newTam,newTam);
-allocate_data_t(a22,newTam,newTam);
-allocate_data_t(b11,newTam,newTam);
-allocate_data_t(b12,newTam,newTam);
-allocate_data_t(b21,newTam,newTam);
-allocate_data_t(b22,newTam,newTam);
-allocate_data_t(c11,newTam,newTam);
-allocate_data_t(c12,newTam,newTam);
-allocate_data_t(c21,newTam,newTam);
-allocate_data_t(c22,newTam,newTam);
-allocate_data_t(p1,newTam,newTam);
-allocate_data_t(p2,newTam,newTam);
-allocate_data_t(p3,newTam,newTam);
-allocate_data_t(p4,newTam,newTam);
-allocate_data_t(p5,newTam,newTam);
-allocate_data_t(p6,newTam,newTam);
-allocate_data_t(p7,newTam,newTam);
-allocate_data_t(aResult,newTam,newTam);
-allocate_data_t(bResult,newTam,newTam);
-
-        int i, j;
-
-        //dividing the matrices in 4 sub-matrices:
-        for (i = 0; i < newTam; i++) {
-            for (j = 0; j < newTam; j++) {
-                *(a11[i][j]) = *(Adata[i][j]);
-                *(a12[i][j]) = *(Adata[i][j + newTam]);
-                *(a21[i][j]) = *(Adata[i + newTam][j]);
-                *(a22[i][j]) = *(Adata[i + newTam][j + newTam]);
-
-                *(b11[i][j]) = *(Bdata[i][j]);
-                *(b12[i][j]) = *(Bdata[i][j + newTam]);
-                *(b21[i][j]) = *(Bdata[i + newTam][j]);
-                *(b22[i][j]) = *(Bdata[i + newTam][j + newTam]);
-            }
-        }
-
-        // Calculating p1 to p7:
-
-        sum(a11, a22, aResult, newTam); // a11 + a22
-        sum(b11, b22, bResult, newTam); // b11 + b22
-        strassenR(aResult, bResult, p1, newTam); // p1 = (a11+a22) * (b11+b22)
-
-        sum(a21, a22, aResult, newTam); // a21 + a22
-        strassenR(aResult, b11, p2, newTam); // p2 = (a21+a22) * (b11)
-
-        subtract(b12, b22, bResult, newTam); // b12 - b22
-        strassenR(a11, bResult, p3, newTam); // p3 = (a11) * (b12 - b22)
-
-        subtract(b21, b11, bResult, newTam); // b21 - b11
-        strassenR(a22, bResult, p4, newTam); // p4 = (a22) * (b21 - b11)
-
-        sum(a11, a12, aResult, newTam); // a11 + a12
-        strassenR(aResult, b22, p5, newTam); // p5 = (a11+a12) * (b22)
-
-        subtract(a21, a11, aResult, newTam); // a21 - a11
-        sum(b11, b12, bResult, newTam); // b11 + b12
-        strassenR(aResult, bResult, p6, newTam); // p6 = (a21-a11) * (b11+b12)
-
-        subtract(a12, a22, aResult, newTam); // a12 - a22
-        sum(b21, b22, bResult, newTam); // b21 + b22
-        strassenR(aResult, bResult, p7, newTam); // p7 = (a12-a22) * (b21+b22)
-
-        // calculating c21, c21, c11 e c22:
-
-        sum(p3, p5, c12, newTam); // c12 = p3 + p5
-        sum(p2, p4, c21, newTam); // c21 = p2 + p4
-
-        sum(p1, p4, aResult, newTam); // p1 + p4
-        sum(aResult, p7, bResult, newTam); // p1 + p4 + p7
-        subtract(bResult, p5, c11, newTam); // c11 = p1 + p4 - p5 + p7
-
-        sum(p1, p3, aResult, newTam); // p1 + p3
-        sum(aResult, p6, bResult, newTam); // p1 + p3 + p6
-        subtract(bResult, p2, c22, newTam); // c22 = p1 + p3 - p2 + p6
-
-        // Grouping the results obtained in a single matrix:
-        for (i = 0; i < newTam ; i++) {
-            for (j = 0 ; j < newTam ; j++) {
-                *(Cdata[i][j]) = *(c11[i][j]);
-                *(Cdata[i][j + newTam]) = *(c12[i][j]);
-                *(Cdata[i + newTam][j]) = *(c21[i][j]);
-                *(Cdata[i + newTam][j + newTam]) = *(c22[i][j]);
-            }
-        }
-    }
-}
-
-template <class Element>
-unsigned int Matrix<Element>::nextPowerOfTwo(int n) const {
-    return pow(2, int(ceil(log2(n))));
-}
-//
-template <class Element>
-void Matrix<Element>::strassen(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, unsigned int n) const {
-    //unsigned int n = tam;
-    unsigned int m = nextPowerOfTwo(n);
-
-    data_t APrep, BPrep, CPrep;
-    allocate_data_t(APrep,m,m);
-    allocate_data_t(BPrep,m,m);
-    allocate_data_t(CPrep,m,m);
-
-
-    for(unsigned int i=0; i<n; i++) {
-        for (unsigned int j=0; j<n; j++) {
-            *(APrep[i][j]) = *(Adata[i][j]);
-            *(BPrep[i][j]) = *(Bdata[i][j]);
-        }
-    }
-
-    strassenR(APrep, BPrep, CPrep, m);
-    for(unsigned int i=0; i<n; i++) {
-        for (unsigned int j=0; j<n; j++) {
-            *(Cdata[i][j]) = *(CPrep[i][j]);
-        }
-    }
-}
-//
-template <class Element>
-void Matrix<Element>::sum(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int tam) const {
-    int i, j;
-
-    for (i = 0; i < tam; i++) {
-        for (j = 0; j < tam; j++) {
-            *(Cdata[i][j]) = *(Adata[i][j]) + *(Bdata[i][j]);
-        }
-    }
-}
-
-
-template <class Element>
-void Matrix<Element>::subtract(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int tam) const{
-    int i, j;
-
-    for (i = 0; i < tam; i++) {
-        for (j = 0; j < tam; j++) {
-            *(Cdata[i][j]) = *(Adata[i][j]) - *(Bdata[i][j]);
-        }
-    }
-}
 
 
 }

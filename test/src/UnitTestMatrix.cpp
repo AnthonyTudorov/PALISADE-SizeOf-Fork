@@ -195,27 +195,7 @@ TEST(UTMatrix, ILVector2n_mult_square_matrix) {
 
 }
 
-TEST(UTMatrix, ILVector2n_mult_square_matrix_strassen) {
 
-	int32_t dimension = 16;
-
-	Matrix<ILVector2n> A = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
-	Matrix<ILVector2n> B = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
-	Matrix<ILVector2n> C = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
-	Matrix<ILVector2n> I = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension).Identity();
-
-
-
-	EXPECT_EQ((A.Mult(B))(0,0), (A.MultiplyStrassen(B,dimension/2))(0,0)) << "Strassen matrix multiplication of two ILVector2Ns doesn't agree with Mult: A.Mult(B), A.MultiplyStrassen(B,"<<dimension/2<<") - failed.\n";
-	EXPECT_EQ(A, A.MultiplyStrassen(I,dimension/2)) << "Strassen matrix multiplication of two ILVector2Ns: A = AI - failed.\n";
-	EXPECT_EQ(A, I.MultiplyStrassen(A,dimension/2)) << "Matrix multiplication of two ILVector2Ns: A = IA - failed.\n";
-
-	EXPECT_EQ((A.MultiplyStrassen(B,dimension/2)).Transpose(), B.Transpose().MultiplyStrassen(A.Transpose(),dimension/2)) << "Matrix multiplication of two ILVector2Ns: (A.MultiplyStrassen(B,2)).Transpose(), B.Transpose().MultiplyStrassen(A.Transpose(),2) - failed.\n";
-
-	EXPECT_EQ(A.MultiplyStrassen(B,dimension/2).MultiplyStrassen(C,dimension/2), A.MultiplyStrassen((B.MultiplyStrassen(C,dimension/2)),2)) << "Matrix multiplication of two ILVector2Ns: A.MultiplyStrassen(B,2).MultiplyStrassen(C,2), A.MultiplyStrassen((B.MultiplyStrassen(C,2)),2) - failed.\n";
-	EXPECT_EQ(A.MultiplyStrassen(B,dimension/2).MultiplyStrassen(C,dimension/2), (A.MultiplyStrassen(B,dimension/2)).MultiplyStrassen(C,dimension/2)) << "Matrix multiplication of two ILVector2Ns: A.MultiplyStrassen(B,2).MultiplyStrassen(C,2), (A.MultiplyStrassen(B,2)).MultiplyStrassen(C,2) - failed.\n";
-
-}
 
 TEST(UTMatrix, ILVector2n_mult_square_matrix_caps) {
 

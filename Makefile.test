@@ -68,7 +68,7 @@ $(TEST_BUILD_DIR)/%.o: $(TEST_SRC_DIR)/%.cpp
 
 # library strings needed in linking of TEST_TARGET
 #note this could be replaced with $(LIB)
-TEST_LIB := -lpthread -lgomp -lblas#-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
+TEST_LIB := -lpthread -lgomp #-lblas#-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 
 #
 # the following define the componenets of the google test library
