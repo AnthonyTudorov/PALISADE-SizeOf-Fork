@@ -406,10 +406,16 @@ TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
 TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	usint m = 16;
+	//usint m = 512;
 	usint n = m / 2;
 
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
+
+	//BigBinaryInteger modulus("1237940039285380274899136513");
+	//BigBinaryInteger rootOfUnity("977145384161930579732228319");
+
+
 	float stddev = 4;
 
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
@@ -452,6 +458,8 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 		
 		pCovarianceMatrix = pCovarianceMatrix + pTrapdoor*pTrapdoor.Transpose();
 	}
+
+	std::cout << pTrapdoor << std::endl;
 
 	Matrix<ILVector2n> Tprime0 = trapPair.second.m_e;
 	Matrix<ILVector2n> Tprime1 = trapPair.second.m_r;
