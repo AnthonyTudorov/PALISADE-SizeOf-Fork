@@ -311,18 +311,34 @@ namespace lbcrypto {
 
 		Matrix<ILVector2n> Tprime0 = Tprime.m_e;
 		Matrix<ILVector2n> Tprime1 = Tprime.m_r;
-		Matrix<ILVector2n> TprimeTransposed0 = Tprime0.Transpose();
-		Matrix<ILVector2n> TprimeTransposed1 = Tprime1.Transpose();
 
-		//Perform multiplication in the NTT format
-		ILVector2n va = (Tprime0 * TprimeTransposed0)(0, 0);
-		ILVector2n vb = (Tprime1 * TprimeTransposed0)(0, 0);
-		ILVector2n vd = (Tprime1 * TprimeTransposed1)(0, 0);
+		// k is the bit length
+		size_t k = Tprime0.GetCols();
+
+		const shared_ptr<ElemParams> params = Tprime0(0, 0).GetParams();
+
+		// all three polynomials are initialized with "0" coefficients
+		ILVector2n va(params, EVALUATION, 1);
+		ILVector2n vb(params, EVALUATION, 1);
+		ILVector2n vd(params, EVALUATION, 1);
+
+		for (size_t i = 0; i < k; i++) {
+			va = va + Tprime0(0, i)*Tprime0(0, i).Transpose();
+			vb = vb + Tprime1(0, i)*Tprime0(0, i).Transpose();
+			vd = vd + Tprime1(0, i)*Tprime1(0, i).Transpose();
+		}
 
 		//Switch the ring elements (polynomials) to coefficient representation
 		va.SwitchFormat();
 		vb.SwitchFormat();
 		vd.SwitchFormat();
+
+		//std::cout << "a = " << std::endl;
+		//va.PrintValues();
+		//std::cout << "b = " << std::endl;
+		//vb.PrintValues();
+		//std::cout << "d = " << std::endl;
+		//vd.PrintValues();
 
 		//Create field elements from ring elements
 		Field2n a(va), b(vb), d(vd);
@@ -341,7 +357,6 @@ namespace lbcrypto {
 		b.SwitchFormat();
 		d.SwitchFormat();
 
-		size_t k = Tprime0.GetCols();
 		Matrix<int32_t> p2ZVector([]() { return make_unique<int32_t>(); }, n*k, 1);
 
 		//this loop can be replaced with Peikert's and Yao's inversion methods - more efficient
@@ -381,7 +396,5 @@ namespace lbcrypto {
 		}
 
 	}
-
-
 
 } //end namespace crypto

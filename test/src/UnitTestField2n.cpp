@@ -212,6 +212,56 @@ TEST(UTField2n, transpose) {
 	EXPECT_EQ(b, a.Transpose());
 }
 
+//TEST FOR TRANSPOSE OPERATION
+TEST(UTField2n, transpose_eval) {
+	bool dbg_flag = false;
+	DEBUG("Step 1");
+	Field2n a(4, COEFFICIENT, true);
+	a.at(0) = std::complex<double>(4, 0);
+	a.at(1) = std::complex<double>(3, 0);
+	a.at(2) = std::complex<double>(2, 0);
+	a.at(3) = std::complex<double>(1, 0);
+	//Convert to Evaluation format
+	a.SwitchFormat();
+	a = a.Transpose();
+	//back to coefficient representation
+	a.SwitchFormat();
+	DEBUG("Step 2");
+	Field2n b(4, COEFFICIENT, true);
+	b.at(0) = std::complex<double>(4, 0);
+	b.at(1) = std::complex<double>(-1, 0);
+	b.at(2) = std::complex<double>(-2, 0);
+	b.at(3) = std::complex<double>(-3, 0);
+	DEBUG("Step 3");
+	for (int i = 0; i < 4; i++) {
+		EXPECT_LE(abs(b.at(i).real() - a.at(i).real()), abs(b.at(i).real())*0.0001);
+	}
+}
+
+//TEST FOR AUTOMORPHISM OPERATION
+TEST(UTField2n, automorphism) {
+	bool dbg_flag = false;
+	DEBUG("Step 1");
+	Field2n a(4, COEFFICIENT, true);
+	a.at(0) = std::complex<double>(1, 0);
+	a.at(1) = std::complex<double>(2, 0);
+	a.at(2) = std::complex<double>(3, 0);
+	a.at(3) = std::complex<double>(4, 0);
+	a.SwitchFormat();
+	a = a.AutomorphismTransform(3);
+	a.SwitchFormat();
+	DEBUG("Step 2");
+	Field2n b(4, COEFFICIENT, true);
+	b.at(0) = std::complex<double>(1, 0);
+	b.at(1) = std::complex<double>(4, 0);
+	b.at(2) = std::complex<double>(-3, 0);
+	b.at(3) = std::complex<double>(2, 0);
+	DEBUG("Step 3");
+	for (int i = 0; i < 4; i++) {
+		EXPECT_LE(abs(b.at(i).real() - a.at(i).real()), abs(b.at(i).real())*0.0001);
+	}
+}
+
 //TEST FOR EXTRACT ODD OPERATION
 TEST(UTField2n, extract_odd) {
 	bool dbg_flag = false;
@@ -329,8 +379,8 @@ TEST(UTField2n, coefficient_evaluation) {
 	DEBUG("Step 3");
 	a.SwitchFormat();
 	for (int i = 0;i < 8;i++) {
-		EXPECT_LE(abs(a.at(i).real() - b.at(i).real()), abs(b.at(i).real())*0.01);
-		EXPECT_LE(abs(a.at(i).imag() - b.at(i).imag()), abs(b.at(i).imag())*0.01);
+		EXPECT_LE(abs(a.at(i).real() - b.at(i).real()), abs(b.at(i).real())*0.0001);
+		EXPECT_LE(abs(a.at(i).imag() - b.at(i).imag()), abs(b.at(i).imag())*0.0001);
 	}
 }
 
@@ -361,7 +411,7 @@ TEST(UTField2n, evaluation_coefficient) {
 	DEBUG("Step 3");
 	b.SwitchFormat();
 	for (int i = 0;i < 8;i++) {
-		EXPECT_LE(abs(a.at(i).real() - b.at(i).real()), abs(a.at(i).real())*0.01);
+		EXPECT_LE(abs(a.at(i).real() - b.at(i).real()), abs(a.at(i).real())*0.0001);
 	}
 }
 

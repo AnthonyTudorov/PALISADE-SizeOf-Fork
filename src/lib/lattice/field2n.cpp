@@ -117,6 +117,32 @@ namespace lbcrypto {
 	}
 
 	//Transpose operation defined in the paper of perturbation sampling
+	Field2n Field2n::AutomorphismTransform(size_t i) const {
+		if (this->format == EVALUATION) {
+
+			if (i % 2 == 0)
+				throw std::logic_error("automorphism index should be odd\n");
+			else
+			{
+				Field2n result(*this);
+				usint m = this->size() * 2;
+
+				for (usint j = 1; j < m; j = j + 2)
+				{
+					//usint newIndex = (j*iInverse) % m;
+					usint newIndex = (j*i) % m;
+					result.at((newIndex + 1) / 2 - 1) = this->at((j + 1) / 2 - 1);
+				}
+				return result;
+			}
+
+		}
+		else {
+			throw std::logic_error("Field2n Automorphism is only implemented for Evaluation format");
+		}
+	}
+
+	//Transpose operation defined in the paper of perturbation sampling
 	Field2n Field2n::Transpose() const {
 		if (this->format == COEFFICIENT) {
 			Field2n transpose(this->size(), COEFFICIENT);
@@ -127,7 +153,8 @@ namespace lbcrypto {
 			return transpose;
 		}
 		else {
-			throw std::logic_error("Polynomial not in coefficient representation");
+			usint m = this->size()*2;
+			return AutomorphismTransform(2 * m - 1);
 		}
 	}
 

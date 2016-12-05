@@ -406,10 +406,16 @@ TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
 TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	usint m = 16;
+	//usint m = 512;
 	usint n = m / 2;
 
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
+
+	//BigBinaryInteger modulus("1237940039285380274899136513");
+	//BigBinaryInteger rootOfUnity("977145384161930579732228319");
+
+
 	float stddev = 4;
 
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
@@ -441,27 +447,35 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	Matrix<int32_t> pTrapdoor([]() { return make_unique<int32_t>(); }, 2 * n, 1);
 
+	Matrix<int32_t> pTrapdoorAverage([]() { return make_unique<int32_t>(); }, 2 * n, 1);
+
 	size_t count = 100;
 
 	for (size_t i = 0; i < count; i++) {
 		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, &p, dgg);
 
-		for (size_t j = 0; j < 2 * n; j++)
+		for (size_t j = 0; j < 2 * n; j++) {
 			pTrapdoor(j, 0) = p(j, 0);
+			pTrapdoorAverage(j, 0) = pTrapdoorAverage(j, 0) + p(j, 0);
+		}
 		//pTrapdoors.push_back(pTrapdoor);
 		
 		pCovarianceMatrix = pCovarianceMatrix + pTrapdoor*pTrapdoor.Transpose();
 	}
 
-	Matrix<ILVector2n> Tprime0 = trapPair.second.m_e;
-	Matrix<ILVector2n> Tprime1 = trapPair.second.m_r;
-	Matrix<ILVector2n> TprimeTransposed0 = Tprime0.Transpose();
-	Matrix<ILVector2n> TprimeTransposed1 = Tprime1.Transpose();
+	Matrix<ILVector2n> Tprime0 = eHat;
+	Matrix<ILVector2n> Tprime1 = rHat;
 
-	//Perform multiplication in the NTT format
-	ILVector2n va = (Tprime0 * TprimeTransposed0)(0, 0);
-	ILVector2n vb = (Tprime1 * TprimeTransposed0)(0, 0);
-	ILVector2n vd = (Tprime1 * TprimeTransposed1)(0, 0);
+	// all three polynomials are initialized with "0" coefficients
+	ILVector2n va(params, EVALUATION, 1);
+	ILVector2n vb(params, EVALUATION, 1);
+	ILVector2n vd(params, EVALUATION, 1);
+
+	for (size_t i = 0; i < k; i++) {
+		va = va + Tprime0(0, i)*Tprime0(0, i).Transpose();
+		vb = vb + Tprime1(0, i)*Tprime0(0, i).Transpose();
+		vd = vd + Tprime1(0, i)*Tprime1(0, i).Transpose();
+	}
 
 	//Switch the ring elements (polynomials) to coefficient representation
 	va.SwitchFormat();
@@ -478,40 +492,20 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	d = d.ScalarMult(scalarFactor);
 
 	a = a + s*s;
+	d = d + s*s;
+
+	for (size_t j = 0; j < 2 * n; j++) {
+		pTrapdoorAverage(j, 0) = pTrapdoorAverage(j, 0) / count;
+	}
 
 	//std::cout << a << std::endl;
 
-	//std::cout << double(pCovarianceMatrix(0,0))/count << std::endl;
-	//std::cout << double(pCovarianceMatrix(1,0)) / count << std::endl;
-	//std::cout << double(pCovarianceMatrix(2, 0)) / count << std::endl;
-	//std::cout << double(pCovarianceMatrix(3, 0)) / count << std::endl;
+	/*Matrix<int32_t> meanMatrix = pTrapdoorAverage*pTrapdoorAverage.Transpose();
 
-	//std::cout << double(pCovarianceMatrix(0, 0)) / count << std::endl;
-	//std::cout << double(pCovarianceMatrix(0, 1)) / count << std::endl;
-	//std::cout << double(pCovarianceMatrix(0, 2)) / count << std::endl;
-	//std::cout << double(pCovarianceMatrix(0, 3)) / count << std::endl;
-
-	//for (size_t i = 0; i < 2*n; i++) {
-	//	pTrapdoor(i, 0) = p(i, 0);
-	//}
-
-	//double mean = 0;
-	//for (size_t i = 0; i < 2 * n; i++) {
-	//	mean += pTrapdoor(i, 0);
-	//}
-	//mean = mean / (2 * n);
-
-	//double sigma = 0;
-	//for (size_t i = 0; i < 2 * n; i++) {
-	//	sigma += (pTrapdoor(i, 0)-mean)*(pTrapdoor(i, 0) - mean);
-	//}
-	//sigma = sqrt(sigma / n);
-
-	//std::cout << "s = " << s << std::endl;
-
-	//std::cout << "mean = " << mean << std::endl;
-
-	//std::cout << "standard deviation = " << sigma << std::endl;
+	std::cout << double(pCovarianceMatrix(0, 0)) / count - meanMatrix(0, 0) << std::endl;
+	std::cout << double(pCovarianceMatrix(1, 0)) / count - meanMatrix(1, 0) << std::endl;
+	std::cout << double(pCovarianceMatrix(2, 0)) / count - meanMatrix(2, 0) << std::endl;
+	std::cout << double(pCovarianceMatrix(3, 0)) / count - meanMatrix(3, 0) << std::endl;*/
 
 }
 

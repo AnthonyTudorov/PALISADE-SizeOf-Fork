@@ -440,6 +440,16 @@ namespace lbcrypto {
 		}
 	}
 
+	ILVector2n ILVector2n::Transpose() const {
+		if (m_format == COEFFICIENT)
+			throw std::logic_error("ILVector2n element transposition is currently implemented only in the Evaluation representation.");
+		else
+		{
+			usint m = m_params->GetCyclotomicOrder();
+			return AutomorphismTransform(2 * m - 1);
+		}
+	}
+
 	ILVector2n ILVector2n::MultiplicativeInverse() const {
 		ILVector2n tmp(*this);
 		if (tmp.InverseExists()) {
