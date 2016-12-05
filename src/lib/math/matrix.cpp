@@ -379,33 +379,34 @@ void Matrix<Element>::SwitchFormat() {
 }
 
 template<class Element>
-void Matrix<Element>::LinearizeDataCAPS() const{
-    lineardata.clear();
+void Matrix<Element>::LinearizeDataCAPS(lineardata_t *lineardataPtr) const{
+    lineardataPtr->clear();
 //std::cout<<"In LinearizeDataCAPS"<<std::endl;
     for (size_t row = 0; row < data.size(); ++row) {
         for (auto elem = data[row].begin(); elem != data[row].end(); ++elem) {
             //lineardata.push_back((make_unique<Element>(**elem)));
         	//unique_ptr<Element>* elemptr = &(*elem);
 
-            lineardata.push_back(std::move(*elem));
+            lineardataPtr->push_back(std::move(*elem));
         }
+        data[row].clear();
         //Now add the padded columns for each row
         for (int i = 0; i < colpad; i++){
-        	lineardata.push_back(0); //Should point to 0
+        	lineardataPtr->push_back(0); //Should point to 0
         }
     }
     //Now add the padded rows
     int numelem = rowpad * (cols + colpad);
     //std::cout<<"Number of extra padding elements across extra rows = "<<numelem<<std::endl;
     for (int i = 0; i < numelem; i++){
-    	lineardata.push_back(0); //Should point to 0
+    	lineardataPtr->push_back(0); //Should point to 0
     }
 }
 
 template<class Element>
-void Matrix<Element>::UnlinearizeDataCAPS() const{
-    	int datasize = data.size();
-    	int lineardatasize = lineardata.size();
+void Matrix<Element>::UnlinearizeDataCAPS(lineardata_t *lineardataPtr) const{
+    	int datasize = cols;
+
 //    	std::cout<<"data.size()  = "<<datasize<<std::endl;
 
 
@@ -415,7 +416,7 @@ void Matrix<Element>::UnlinearizeDataCAPS() const{
     int counter = 0;
     		data[row].clear();
     		data[row].reserve(datasize);
-            for (auto elem = lineardata.begin(); elem != lineardata.end(); ++elem) {
+            for (auto elem = lineardataPtr->begin(); elem != lineardataPtr->end(); ++elem) {
 //            	std::cout<<"counter = counter "<<" row = "<<row<<std::endl;
             	//std::cout<<"Elem "<<counter<<" is "<<(***elem)<<std::endl;
                 //data[row].push_back(make_unique<Element>(**elem));
@@ -439,6 +440,7 @@ void Matrix<Element>::UnlinearizeDataCAPS() const{
                 }
 
             }
+            lineardataPtr->clear();
 	//int datasize = data.size();
 	//int lineardatasize = lineardata.size();
     //printf("data.size() = %d\n",datasize);
@@ -773,10 +775,12 @@ Matrix<Element> Matrix<Element>::MultiplyCAPS(Matrix<Element> const& other,int n
     result.rowpad = rowpad;
     other.colpad = colpad;
     result.colpad = colpad;
-
-    this->LinearizeDataCAPS();
-    other.LinearizeDataCAPS();
-    result.LinearizeDataCAPS();
+    lineardata_t *lineardataPtr = (lineardata_t *)new lineardata_t;
+    lineardata_t *otherlineardataPtr = (lineardata_t *)new lineardata_t;
+    lineardata_t *resultlineardataPtr = (lineardata_t *)new lineardata_t;
+    this->LinearizeDataCAPS(lineardataPtr);
+    other.LinearizeDataCAPS(otherlineardataPtr);
+    result.LinearizeDataCAPS(resultlineardataPtr);
     //printf("Initial result data:\n");
 //    for (int i = 0; i < rows*other.cols;i++){
 //    	printf("**result.lineardata[%d] = %f\n",i,(double)(**result.lineardata[i]));
@@ -821,7 +825,7 @@ otherdata.resize(len);
 //		std::cout<<"NULL ";
 //}
 //std::cout<<std::endl;
-distributeFrom1ProcCAPS( desc,thisdata.begin(), lineardata.begin());
+distributeFrom1ProcCAPS( desc,thisdata.begin(), lineardataPtr->begin());
 //std::cout<<"After distribution, lineardata is :"<<std::endl;
 //for (int i = 0; i < lineardata.size();i++){
 //	if (lineardata[i])
@@ -858,7 +862,7 @@ distributeFrom1ProcCAPS( desc,thisdata.begin(), lineardata.begin());
 
 
 
-distributeFrom1ProcCAPS( desc, otherdata.begin(), other.lineardata.begin());
+distributeFrom1ProcCAPS( desc, otherdata.begin(), otherlineardataPtr->begin());
 //std::cout<<"After distribution, other.lineardata is :"<<std::endl;
 //for (int i = 0; i < other.lineardata.size();i++){
 //	if (other.lineardata[i])
@@ -892,8 +896,9 @@ multiplyInternalCAPS(otherdata.begin(), thisdata.begin(), resultdata.begin() /*,
 //	printf("&(result.lineardata[%d]) = %p    *(result.lineardata[%d]) = %f\n",row,&(result.lineardata[row]),row,*(result.lineardata[row]));
 //}
 //std::cout<<"Done with multiplyInternalCAPS"<<std::endl;
-collectTo1ProcCAPS( desc, result.lineardata.begin(), resultdata.begin() );
+collectTo1ProcCAPS( desc, resultlineardataPtr->begin(), resultdata.begin() );
 resultdata.clear();
+
 //std::cout<<"After collection, resultdata is :"<<std::endl;
 //for (int i = 0; i < resultdata.size();i++){
 //	if (resultdata[i])
@@ -910,12 +915,15 @@ resultdata.clear();
 //}
 //std::cout<<std::endl;
 //std::cout<<"About to unlinearize data"<<std::endl;
-result.UnlinearizeDataCAPS();
-result.lineardata.clear();
+result.UnlinearizeDataCAPS(resultlineardataPtr);
+resultlineardataPtr->clear();
+
+delete resultlineardataPtr;
 //std::cout<<"Done unlinearizing result data"<<std::endl;
 
-collectTo1ProcCAPS( desc, lineardata.begin(), thisdata.begin() );
+collectTo1ProcCAPS( desc, lineardataPtr->begin(), thisdata.begin() );
 thisdata.clear();
+
 //std::cout<<"After collection, lineardata is :"<<std::endl;
 //
 //for (int i = 0; i < lineardata.size();i++){
@@ -934,11 +942,14 @@ thisdata.clear();
 //}
 //std::cout<<std::endl;
 
-this->UnlinearizeDataCAPS();
-lineardata.clear();
+this->UnlinearizeDataCAPS(lineardataPtr);
+lineardataPtr->clear();
 
-collectTo1ProcCAPS( desc, other.lineardata.begin(), otherdata.begin());
+delete lineardataPtr;
+
+collectTo1ProcCAPS( desc, otherlineardataPtr->begin(), otherdata.begin());
 otherdata.clear();
+
 //std::cout<<"After collection, other.lineardata is :"<<std::endl;
 //
 //for (int i = 0; i < other.lineardata.size();i++){
@@ -957,8 +968,10 @@ otherdata.clear();
 //}
 //std::cout<<std::endl;
 
-other.UnlinearizeDataCAPS();
-other.lineardata.clear();
+other.UnlinearizeDataCAPS(otherlineardataPtr);
+otherlineardataPtr->clear();
+
+delete otherlineardataPtr;
 //
 //std::cout<<"numMult = "<<numMult<<"  numAdd = "<<numAdd<<"  numSub = "<<numSub<<std::endl;
 //
@@ -1042,7 +1055,7 @@ void Matrix<Element>::subMatricesCAPS( int numEntries, it_lineardata_t C, it_lin
 template<class Element>
 void Matrix<Element>::accessUniquePtr(it_lineardata_t ptr, Element val) const{
 	if (*ptr == 0) {
-		//std::cout << "Unique_ptr does not already exist" << std::endl;
+		//std::cout <<std::endl<<std::endl<<"!!!!!UNIQUE PTR does not already exist" << std::endl<<std::endl;
 		*ptr = make_unique<Element>(val);
 	} else {
 		//std::cout << "!!!UNIQUE PTR ALREADY EXISTS!!!" << std::endl;

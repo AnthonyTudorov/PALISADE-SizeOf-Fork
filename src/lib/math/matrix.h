@@ -211,9 +211,9 @@ namespace lbcrypto {
                 return data;
             }
 
-            const data_t& GetLinearData() const {
-                return lineardata;
-            }
+//            const data_t& GetLinearData() const {
+//                return lineardata;
+//            }
 
             /**
              * Get property to access the number of rows in the matrix
@@ -368,12 +368,12 @@ namespace lbcrypto {
             void multiplyInternalCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc, it_lineardata_t work ) const;
             void strassenDFSCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc, it_lineardata_t workPassThrough ) const;
             void block_multiplyCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor d, it_lineardata_t workPassThrough ) const;
-            void LinearizeDataCAPS() const;
-            void UnlinearizeDataCAPS() const;
+            void LinearizeDataCAPS(lineardata_t *lineardataPtr) const;
+            void UnlinearizeDataCAPS(lineardata_t *lineardataPtr) const;
         private:
             mutable data_t data;
             mutable int leafsize = 256;
-            mutable lineardata_t lineardata;
+            //mutable lineardata_t lineardata;
             size_t rows;
             mutable int rowpad = 0;
             size_t cols;
