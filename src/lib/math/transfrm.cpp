@@ -271,7 +271,11 @@ namespace lbcrypto {
 	//main Forward CRT Transform - implements FTT - uses iterative NTT as a subroutine
 	//includes precomputation of twidle factor table
 	BigBinaryVector ChineseRemainderTransformFTT::ForwardTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) {
-
+		if (rootOfUnity == BigBinaryInteger::ONE || rootOfUnity == BigBinaryInteger::ZERO) {
+			std::string errMsg;
+			errMsg = "Root of unity cannot be zero or one to perform a forward transform";
+			throw std::runtime_error(errMsg);
+		}
 		if (!IsPowerOfTwo(CycloOrder)) {
 			std::cout << "Error in the FFT operation\n\n";
 			exit(-10);
@@ -342,7 +346,11 @@ namespace lbcrypto {
 	//main Inverse CRT Transform - implements FTT - uses iterative NTT as a subroutine
 	//includes precomputation of inverse twidle factor table
 	BigBinaryVector ChineseRemainderTransformFTT::InverseTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) {
-
+		if (rootOfUnity == BigBinaryInteger::ONE || rootOfUnity == BigBinaryInteger::ZERO) {
+			std::string errMsg;
+			errMsg = "Root of unity cannot be zero or one to perform a forward transform";
+			throw std::runtime_error(errMsg);
+		}
 		if (!IsPowerOfTwo(CycloOrder)) {
 			std::cout << "Error in the FFT operation\n\n";
 			exit(-10);

@@ -314,6 +314,8 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 		modulus = modulus* moduli[i];
 	}
 
+	ILVectorArray2n::PreComputeCRIFactors(moduli, m);
+
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
@@ -361,7 +363,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNewModReduce);
 	
 	EXPECT_EQ(plaintext, plaintextNewModReduce);
-
+	ILVectorArray2n::DestroyPrecomputedCRIFactors();
 }
 
 TEST(UTSHE, ringreduce_single_crt) {
@@ -454,6 +456,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
 		modulus = modulus* moduli[i];
 	}
+	ILVectorArray2n::PreComputeCRIFactors(moduli, m);
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
@@ -507,6 +510,8 @@ TEST(UTSHE, ringreduce_double_crt) {
 	EXPECT_EQ(intArrayNewRR, intArrayExpected);
 
 	ILVector2n::DestroyPreComputedSamples();
+	ILVectorArray2n::DestroyPrecomputedCRIFactors();
+
 }
 
 TEST(UTSHE, canringreduce) {
