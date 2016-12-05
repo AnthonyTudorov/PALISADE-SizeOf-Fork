@@ -508,6 +508,13 @@ namespace lbcrypto {
 		ILVector2n AutomorphismTransform(const usint &i) const;
 
 		/**
+		* Transpose the ring element using the automorphism operation
+		*
+		* @return is the result of the transposition.
+		*/
+		ILVector2n Transpose() const;
+
+		/**
 		* Performs a multiplicative inverse operation and returns the result.
 		*
 		* @return is the result of the multiplicative inverse.

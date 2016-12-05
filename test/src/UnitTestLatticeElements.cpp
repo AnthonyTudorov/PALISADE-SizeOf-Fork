@@ -977,6 +977,38 @@ TEST(UTILVector2n, signed_mod_tests) {
 
 }
 
+TEST(UTILVector2n, transposition_test) {
+	usint m = 8;
+
+	BigBinaryInteger q("73");
+	BigBinaryInteger primitiveRootOfUnity("22");
+
+	shared_ptr<ILParams> ilparams(new ILParams(m, q, primitiveRootOfUnity));
+
+	ILVector2n ilvector2n1(ilparams, COEFFICIENT);
+	ilvector2n1 = { 31,21,15,34 };
+	
+	// converts to evaluation representation
+	ilvector2n1.SwitchFormat();
+
+	ilvector2n1 = ilvector2n1.Transpose();
+
+	// converts back to coefficient representation
+	ilvector2n1.SwitchFormat();
+
+	ILVector2n ilvector2n2(ilparams);
+	BigBinaryVector bbv0(m / 2, q);
+	bbv0.SetValAtIndex(0, "31");
+	bbv0.SetValAtIndex(1, "39");
+	bbv0.SetValAtIndex(2, "58");
+	bbv0.SetValAtIndex(3, "52");
+	ilvector2n2.SetValues(bbv0, Format::COEFFICIENT);
+		
+	EXPECT_EQ(ilvector2n2, ilvector2n1);
+
+}
+
+
 TEST(UTILVectorArray2n, getters_tests) {
   usint m = 8; //16
   usint towersize = 3;
