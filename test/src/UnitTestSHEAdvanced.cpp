@@ -455,6 +455,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	usint m = dcrtParams->GetCyclotomicOrder();
 	usint size = finalParams.GetDepth() + 1;
 	const BigBinaryInteger &plainTextModulus = finalParams.GetPlaintextModulus();
+//	finalParams.GetElementParams()->GetModuli();
 
 	//scheme initialization: LTV Scheme
 	cc.Enable(SHE);

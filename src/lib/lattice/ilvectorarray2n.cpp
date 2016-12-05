@@ -730,7 +730,8 @@ namespace lbcrypto {
 
 		BigBinaryInteger interpolateValue("0"); // this will finally be  V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qj *[ (qt/qj)^(-1) mod qj ]}modqt 
 		
-		/*In these two cases, the CRI map has either not been initialized or not calcualted for this moduli.
+		/*With respect to precomputing CRI Factors, 
+		* in this case, the CRI map has either not been initialized or not calcualted for this moduli.
 		* the assumption is that the lower the moduli, the lower the tower number. This case will also take
 		* care of mod reduce.
 		**/
@@ -761,7 +762,8 @@ namespace lbcrypto {
 
 			PreComputeCRIFactors(moduli, m_cyclotomicOrder);
 			m_cyclotomicOrder_precompute = m_cyclotomicOrder;
-		}
+		} //This will ensure that the cyclotomic order of the precomputed values is updated due to ring reduction.
+		  // note that reverting back to a non ring-reduce will create a problem if the precomputed values are not destroyed.
 		else {
 			m_cyclotomicOrder_precompute = m_cyclotomicOrder;
 		}
@@ -892,13 +894,11 @@ namespace lbcrypto {
 
 	void ILVectorArray2n::DestroyPrecomputedCRIFactors()
 	{
-		/*typedef std::map<BigBinaryInteger, std::map<usint, BigBinaryInteger>>::iterator it_type;
-		for (it_type iterator = m_towersize_cri_factors->begin(); iterator != m_towersize_cri_factors->end(); iterator++) {
-			m_towersize_cri_factors->erase(iterator);
-		}*/
-		m_towersize_cri_factors->clear();
-		delete m_towersize_cri_factors;
-		m_towersize_cri_factors = NULL;
+		if (m_towersize_cri_factors != 0) {
+			m_towersize_cri_factors->clear();
+			delete m_towersize_cri_factors;
+			m_towersize_cri_factors = NULL;
+		}
 	}
 	//JSON FACILITY
 

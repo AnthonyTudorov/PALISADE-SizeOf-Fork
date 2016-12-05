@@ -90,26 +90,40 @@ namespace lbcrypto {
 		/**
 		* Constructor that initializes parameters.
 		*
-		*@param &params parameter set required for ILVectorArray2n.
+		*@param params parameter set required for ILVectorArray2n.
 		*@param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*@param initializeElementToZero
 		*/
 		ILVectorArray2n(const shared_ptr<ElemParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 		/**
-		* Constructor based on discrete Gaussian generator.
+		* Constructor based on discrete Gaussian generator. 
 		*
 		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers.
-		* @param &params parameter set required for ILVectorArray2n. 
+		* @param params parameter set required for ILVectorArray2n. 
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 
-
-		ILVectorArray2n(const BinaryUniformGenerator & dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION) {
+		/**
+		* Constructor based on binary Gaussian generator. This is not implemented. Will throw a logic_error.
+		*
+		* @param &bug the input binary uniform generator. The bug will be the seed to populate the towers of the ILVectorArray2n with random numbers.
+		* @param params parameter set required for ILVectorArray2n.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVectorArray2n(const BinaryUniformGenerator &bug, const shared_ptr<ElemParams> params, Format format = EVALUATION) {
 			throw std::logic_error("Cannot use BinaryUniformGenerator with ILVectorArray2n; not implemented");
 		}
 
-		ILVectorArray2n(const TernaryUniformGenerator & dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION) {
+		/**
+		* Constructor based on binary Gaussian generator. This is not implemented. Will throw a logic_error.
+		*
+		* @param &tug the input ternary uniform generator. The bug will be the seed to populate the towers of the ILVectorArray2n with random numbers.
+		* @param params parameter set required for ILVectorArray2n.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVectorArray2n(const TernaryUniformGenerator &tug, const shared_ptr<ElemParams> params, Format format = EVALUATION) {
 			throw std::logic_error("Cannot use TernaryUniformGenerator with ILVectorArray2n; not implemented");
 		}
 
@@ -117,7 +131,7 @@ namespace lbcrypto {
 		* Constructor based on full methods.
 		*
 		* @param &dug the input discrete Uniform Generator.
-		* @param &params the input params.
+		* @param params the input params.
 		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVectorArray2n(const DiscreteUniformGenerator &dug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
@@ -126,7 +140,7 @@ namespace lbcrypto {
 		* Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n. 
 		*
 		* @param &element ILVector2n to build other towers from.
-		* @param &params parameter set required for ILVectorArray2n.
+		* @param params parameter set required for ILVectorArray2n.
 		*/
 		ILVectorArray2n(const ILVector2n &element, const shared_ptr<ILDCRTParams> params);
 
@@ -206,14 +220,32 @@ namespace lbcrypto {
 		/**
 		* Next three methods will get triggered if user accidentally uses ILVector2n methods
 		*/
+
+		/**
+		* Get method called by mistake.
+		*
+		* @param i 
+		* @return will throw a logic_error.
+		*/
 		const BigBinaryInteger& GetValAtIndex(usint i) const {
 			throw std::logic_error("GetValAtIndex not implemented for ILVectorArray2n");
 		}
 
+		/**
+		* Set method called by mistake, will throw a logic_error.
+		*
+		* @param index
+		* @param val
+		*/
         inline void SetValAtIndex(size_t index, int val) {
 			throw std::logic_error("SetValAtIndex not implemented for ILVectorArray2n");
         }
-
+		/**
+		* Set method called by mistake, will throw a logic_error.
+		*
+		* @param index
+		* @param val
+		*/
         inline void SetValAtIndex(size_t index, const BigBinaryInteger& val) {
 			throw std::logic_error("SetValAtIndex not implemented for ILVectorArray2n");
         }
@@ -467,11 +499,21 @@ namespace lbcrypto {
 
 		// OTHER FUNCTIONS AND UTILITIES 
 
-		/* should not be used */
+		/**
+		* Get method that should not be used
+		*
+		* @return will throw a logic_error
+		*/
 		const BigBinaryVector &GetValues() const {
 			throw std::logic_error("GetValues not implemented on ILVectorArray2n");
 		}
-		void SetValues(const BigBinaryVector& values, Format format) {
+		/**
+		* Set method that should not be used, will throw an error.
+		*
+		* @param &values
+		* @param format
+		*/
+		void SetValues(const BigBinaryVector &values, Format format) {
 			throw std::logic_error("SetValues not implemented on ILVectorArray2n");
 		}
 
@@ -499,6 +541,7 @@ namespace lbcrypto {
 
 		/**
 		* Returns true if ALL the tower(s) are empty.  
+		*@return true if all towers are empty
 		*/
 		bool IsEmpty() const;
 
