@@ -201,10 +201,6 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::KeyGen(DiscreteGaussianGener
 			DEBUG("keygen2.0:#"<< i << ": "<<TOC(tp) <<" ms");
 
 			TIC(tp);
-			Matrix<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*2, n*2);
-			DEBUG("keygen2.1:#"<< i << ": "<<TOC(tp) <<" ms");
-
-			TIC(tp);
 			Pk_vector_pvt->push_back(trapPair.first);
 			Ek_vector_pvt->push_back(trapPair.second);
 
@@ -364,7 +360,9 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Obfuscate(
 			// otherwise use an existing one that has already been created
 			if ((k & chunkMask)==0) {
 				//cout << "entered the non-mask condition " << endl;
-				Element elems1(tug,params,EVALUATION);
+				Element elems1(tug,params,COEFFICIENT);
+				//Convert to Evaluation representation
+				elems1.SwitchFormat();
 				sVector.push_back(elems1);
 			}
 			else
@@ -374,7 +372,9 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Obfuscate(
 				sVector.push_back(elems1);
 			}
 			
-			Element elemr1(tug,params,EVALUATION);
+			Element elemr1(tug,params,COEFFICIENT);
+			//Convert to Evaluation representation
+			elemr1.SwitchFormat();
 			rVector.push_back(elemr1);
 
 		}
@@ -440,7 +440,9 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Obfuscate(
 
 	//std::cout << "encode started for L" << std::endl;
 
-	Element	elemrl1(tug,params,EVALUATION);
+	Element	elemrl1(tug,params,COEFFICIENT);
+	//Convert to Evaluation representation
+	elemrl1.SwitchFormat();
 
 	Matrix<Element> *Sl = new Matrix<Element>(zero_alloc, m, m);
 	this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1*s_prod,dgg,Sl);

@@ -438,29 +438,33 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	DiscreteGaussianGenerator dgg(4);
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 
-	//Do perturbation sampling
-	Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, (2 + k)*n, 1);
+	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
-	Matrix<int32_t> pCovarianceMatrix([]()  { return make_unique<int32_t>(); }, 2*n, 2*n);;
+	//Do perturbation sampling
+	RingMat pHat(zero_alloc, k + 2, 1);
+
+	//Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, (2 + k)*n, 1);
+
+	//Matrix<int32_t> pCovarianceMatrix([]()  { return make_unique<int32_t>(); }, 2*n, 2*n);;
 
 	//std::vector<Matrix<int32_t>> pTrapdoors;
 
-	Matrix<int32_t> pTrapdoor([]() { return make_unique<int32_t>(); }, 2 * n, 1);
+	//Matrix<int32_t> pTrapdoor([]() { return make_unique<int32_t>(); }, 2 * n, 1);
 
-	Matrix<int32_t> pTrapdoorAverage([]() { return make_unique<int32_t>(); }, 2 * n, 1);
+	//Matrix<int32_t> pTrapdoorAverage([]() { return make_unique<int32_t>(); }, 2 * n, 1);
 
 	size_t count = 100;
 
 	for (size_t i = 0; i < count; i++) {
-		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, &p, dgg);
+		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, &pHat, dgg);
 
-		for (size_t j = 0; j < 2 * n; j++) {
-			pTrapdoor(j, 0) = p(j, 0);
-			pTrapdoorAverage(j, 0) = pTrapdoorAverage(j, 0) + p(j, 0);
-		}
-		//pTrapdoors.push_back(pTrapdoor);
-		
-		pCovarianceMatrix = pCovarianceMatrix + pTrapdoor*pTrapdoor.Transpose();
+		//for (size_t j = 0; j < 2 * n; j++) {
+		//	pTrapdoor(j, 0) = p(j, 0);
+		//	pTrapdoorAverage(j, 0) = pTrapdoorAverage(j, 0) + p(j, 0);
+		//}
+		////pTrapdoors.push_back(pTrapdoor);
+		//
+		//pCovarianceMatrix = pCovarianceMatrix + pTrapdoor*pTrapdoor.Transpose();
 	}
 
 	Matrix<ILVector2n> Tprime0 = eHat;
@@ -494,9 +498,9 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	a = a + s*s;
 	d = d + s*s;
 
-	for (size_t j = 0; j < 2 * n; j++) {
-		pTrapdoorAverage(j, 0) = pTrapdoorAverage(j, 0) / count;
-	}
+	//for (size_t j = 0; j < 2 * n; j++) {
+	//	pTrapdoorAverage(j, 0) = pTrapdoorAverage(j, 0) / count;
+	//}
 
 	//std::cout << a << std::endl;
 
