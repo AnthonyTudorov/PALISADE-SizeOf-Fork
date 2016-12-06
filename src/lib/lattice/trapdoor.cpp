@@ -186,24 +186,13 @@ namespace lbcrypto {
 
 		const BigBinaryInteger& modulus = A(0, 0).GetModulus();
 
-		Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, (2 + k)*n, 1);
-
 		//spectral bound s
 		double s = 40 * std::sqrt(n*(k + 2));
 
-		ZSampleSigmaP(n, s, c, T, &p, dgg);
+		//perturbation vector in evaluation representation
+		RingMat pHat(zero_alloc, k + 2, 1);
 
-		//LatticeGaussSampUtility::NonSphericalSample(n, SigmaP, c, &p);
-
-		//std::cout << "GaussSamp: Just finished running NonSphericalSample" << std::endl;
-
-		// pHat is in the coefficient representation
-		Matrix<ILVector2n> pHat = SplitInt32IntoILVector2nElements(p, n, params);
-
-		// Now pHat is in the evaluation representation
-		pHat.SwitchFormat();
-
-		//std::cout<<"phat dimensions: rows, columns" << pHat.GetRows() << pHat.GetCols() << std::endl;
+		ZSampleSigmaP(n, s, c, T, &pHat, dgg);
 
 		// YSP It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
 		// perturbedSyndrome is in the evaluation representation
@@ -212,12 +201,9 @@ namespace lbcrypto {
 		//Matrix<BigBinaryInteger> zHatBBI(BigBinaryInteger::Allocator, k, n);
 		Matrix<int32_t> zHatBBI([]() { return make_unique<int32_t>(); }, k, n);
 
-		// GaussSampG(perturbedSyndrome,sigma,k,dgg,&zHatBBI);
-
 		// converting perturbed syndrome to coefficient representation
 		perturbedSyndrome.SwitchFormat();
 
-		//LatticeGaussSampUtility::GaussSampGq(perturbedSyndrome,sigma,k,modulus,dgg,&zHatBBI);
 		LatticeGaussSampUtility::GaussSampGqV2(perturbedSyndrome, sigma, k, modulus, 2, dgg, &zHatBBI);
 
 		// Convert zHat from a matrix of BBI to a vector of ILVector2n ring elements
@@ -234,7 +220,6 @@ namespace lbcrypto {
 		for (size_t row = 2; row < k + 2; ++row)
 			zHatPrime(row, 0) = pHat(row, 0) + zHat(row - 2, 0);
 
-	
 		return zHatPrime;
 
 	}
@@ -311,7 +296,7 @@ namespace lbcrypto {
 	}
 
 	void RLWETrapdoorUtility::ZSampleSigmaP(size_t n, double s, double sigma,
-		const RLWETrapdoorPair<ILVector2n>& Tprime, Matrix<int32_t> *perturbationVector, const DiscreteGaussianGenerator & dgg) {
+		const RLWETrapdoorPair<ILVector2n>& Tprime, RingMat *perturbationVector, const DiscreteGaussianGenerator & dgg) {
 
 		Matrix<ILVector2n> Tprime0 = Tprime.m_e;
 		Matrix<ILVector2n> Tprime1 = Tprime.m_r;
@@ -391,13 +376,13 @@ namespace lbcrypto {
 
 		LatticeGaussSampUtility::ZSampleSigma2x2(a, b, d, c, dgg, &p1ZVector);
 
-		for (size_t i = 0; i < 2 * n; i++) {
-			(*perturbationVector)(i, 0) = p1ZVector(i, 0);
-		}
+		//create 2 ring elements in coefficient representation
+		Matrix<ILVector2n> p1 = SplitInt32IntoILVector2nElements(p1ZVector, n, va.GetParams());
 
-		for (size_t i = 0; i < k * n; i++) {
-			(*perturbationVector)(i + 2 * n, 0) = p2ZVector(i, 0);
-		}
+		//Converts p1 to Evaluation representation
+		p1.SwitchFormat();
+
+		*perturbationVector = p1.VStack(p2);
 
 	}
 

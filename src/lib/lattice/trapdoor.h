@@ -167,7 +167,7 @@ public:
 	*@param &dgg discrete Gaussian generator for sampling
 	*/
 	static inline void ZSampleSigmaP(size_t n, double s, double sigma,
-		const RLWETrapdoorPair<ILVector2n> &Tprime, Matrix<int32_t> *perturbationVector, const DiscreteGaussianGenerator& dgg);
+		const RLWETrapdoorPair<ILVector2n> &Tprime, RingMat *perturbationVector, const DiscreteGaussianGenerator& dgg);
 
 };
 
