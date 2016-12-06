@@ -67,8 +67,9 @@ HDREXT := h
 $(objects) : %.o : %.cpp
 
 #EXTLIB := -lpthread -lgomp #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## no profiling
-EXTLIB := -lpthread -lgomp -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
-INC := -I include $(OMPINCLUDE) $(BOOSTINCLUDE)
+#EXTLIB := -lpthread -lgomp -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
+EXTLIB :=  -lpthread -lgomp -pg $(NTLLIB) $(GMPLIB) #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
+INC := -I include $(OMPINCLUDE) $(BOOSTINCLUDE) $(NTLINCLUDE) $(GMPINCLUDE)
 
 #the name of the shared object library for palisade objects.  
 SOLIB := PALISADE

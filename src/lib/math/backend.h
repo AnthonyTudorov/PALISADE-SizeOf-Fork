@@ -49,12 +49,13 @@
 
 // 3- new dynamicly allocated backend and support uint32_t and uint64_t on linux
 // 4- new dynamicly allocated backend and supports  uint64_t on linux
+// 5- GMP 6.1.1 backend currently experimental on linux
 
 //Please UNCOMMENT the approproate line rather than changing the number on the 
 //uncommented line (and breaking the documentation of the line)
 
 //#define MATHBACKEND 2 //side by side comparison of old and new libraries
-#define MATHBACKEND 2 //32 bit should work with all OS
+//#define MATHBACKEND 3 //32 bit should work with all OS
 
 //NOTE currently MATHBACKEND 4 has issues with the following unit tests
 //stemming from poor run time performance of 128 bit intrinsic divide
@@ -63,6 +64,12 @@
 //UTSHEAdvanced.test_eval_add_double_crt takes extremely long (86 sec)
 
 //#define MATHBACKEND 4 //64 bit (currently works for ubuntu, not tested otherwise
+
+
+
+
+
+#define MATHBACKEND 5 // njit and GMP coexistance backend
 
 #if MATHBACKEND == 1
 #include "cpu8bit/binint8bit.h"
@@ -97,6 +104,18 @@
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.cpp" //vectors of experimental ubints
 #include "exp_int/mubintvec.cpp" //rings of ubints
+
+#endif
+
+#if MATHBACKEND == 5
+
+#include "cpu_int/binint.cpp"
+#include "cpu_int/binvect.cpp"
+#include <initializer_list>
+
+#include "gmp_int/gmpint.cpp" //experimental gmp unsigned big ints
+//#include "gmp_int/gmpintvec.cpp" //vectors of such
+//#include "gmp_int/mgmpintvec.cpp" //rings of such
 
 #endif
 
@@ -200,6 +219,41 @@ namespace lbcrypto {
 
 	/** Define the mapping for modulo Big Integer Vector */
 	typedef exp_int::mubintvec<ubint> mubintvec;
+
+
+#endif
+
+
+#if MATHBACKEND == 5
+
+	/** integral_dtype specifies the native data type used for the BigBinaryInteger implementation 
+	    should be uint32_t for most applications **/
+	typedef uint32_t integral_dtype;
+
+	/** makes sure that only supported data type is supplied **/
+	static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provided is not supported in BigBinaryInteger");
+
+	/** Define the mapping for BigBinaryInteger
+	    1500 is the maximum bit width supported by BigBinaryIntegers, large enough for most use cases
+		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application - to achieve smaller runtimes**/
+        #define BigBinaryIntegerBitLength 1500 //for documentation on tests
+	typedef cpu_int::BigBinaryInteger<integral_dtype,BigBinaryIntegerBitLength> BigBinaryInteger;
+	
+	/** Define the mapping for BigBinaryVector */
+	typedef cpu_int::BigBinaryVector<BigBinaryInteger> BigBinaryVector;
+	
+	/** Define the mapping for BigBinaryMatrix */
+	//typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
+
+	/** Define the mapping for BigBinaryInteger */
+	//typedef gmp_int::myZZ ubint;
+	typedef NTL::ZZ ubint;
+
+	/** Define the mapping for Big Integer Vector */
+	//	typedef exp_int::myvec_ZZ ubintvec;
+
+	/** Define the mapping for modulo Big Integer Vector */
+	//typedef exp_int::myvec_ZZ_p mubintvec;
 
 
 #endif

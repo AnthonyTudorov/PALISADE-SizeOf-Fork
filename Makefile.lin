@@ -2,6 +2,11 @@
 
 BOOSTINCLUDE := -I /afs/cad/linux/boost-1.60-sl6/include/
 OMPINCLUDE := 
+NTLINCLUDE := -I $(HOME)/sw/include
+GMPINCLUDE := -I $(HOME)/sw/include
+
+NTLLIB := -L $(HOME)/sw/lib/libntl.a
+GMPLIB := -L $(HOME)/sw/lib/libgmp.a
 CPPSTD := -std=gnu++11
 
 PALISADELIB := libPALISADE.so
