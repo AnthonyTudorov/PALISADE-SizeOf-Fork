@@ -645,6 +645,8 @@ public:
 		if( keySwitchHint == NULL || keySwitchHint->GetCryptoContext() != *this )
 			throw std::logic_error("Key passed to RingReduce was not generated with this crypto context");
 
+		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext(ciphertext.size());
+
 		for (int i = 0; i < ciphertext.size(); i++) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("Ciphertext passed to RingReduce was not generated with this crypto context");
@@ -673,6 +675,8 @@ public:
 		if (ciphertext1.size() != ciphertext2.size()) {
 			throw std::logic_error("Cannot have ciphertext of different length");
 		}
+
+		vector<shared_ptr<Ciphertext<Element>>> ciphertextResult;
 
 		for (int i = 0; i < ciphertext1.size(); i++) {
 			if( ciphertext1[i] == NULL || ciphertext2[i] == NULL || ciphertext1[i]->GetCryptoContext() != *this || ciphertext2[i]->GetCryptoContext() != *this )
