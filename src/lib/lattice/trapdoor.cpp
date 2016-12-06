@@ -42,7 +42,7 @@ namespace lbcrypto {
 	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> RLWETrapdoorUtility::TrapdoorGen(shared_ptr<ILParams> params, int stddev)
 	{
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
-		auto gaussian_alloc = ILVector2n::MakeDiscreteGaussianCoefficientAllocator(params, EVALUATION, stddev);
+		auto gaussian_alloc = ILVector2n::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
 		auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
 		size_t n = params->GetCyclotomicOrder() / 2;
 		//  k ~= bitlength of q
@@ -58,6 +58,10 @@ namespace lbcrypto {
 
 		RingMat r(zero_alloc, 1, k, gaussian_alloc);
 		RingMat e(zero_alloc, 1, k, gaussian_alloc);
+
+		//Converts discrete gaussians to Evaluation representation
+		r.SwitchFormat();
+		e.SwitchFormat();
 
 		RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
 
