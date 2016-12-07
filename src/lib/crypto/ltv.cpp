@@ -565,24 +565,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
 	return newCiphertext;
 }
 
-//Function for addition evaluation of homomorphic cryptosystem.
-template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmAHELTV<Element>::EvalAdd(
-	const shared_ptr<Ciphertext<Element>> ciphertext1,
-	const shared_ptr<Ciphertext<Element>> ciphertext2) const
-
-{
-	//Need to check the same crypto parameters hold.
-	//Need to check a common encryption key was used.
-	//Make sure compatible encryption algorithm was used.
-	return ciphertext1->EvalAdd(ciphertext2);
-	/*
-	Ciphertext<Element> ctOut(ciphertext1);
-	ctOut.Plus(ciphertext2);
-	*newCiphertext = ctOut;
-	*/
-}  // namespace lbcrypto ends
-
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
 	const shared_ptr<Ciphertext<Element>> ciphertext1,
@@ -849,8 +831,6 @@ LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bit
 		this->m_algorithmEncryption = new LPAlgorithmLTV<Element>(*this);
 	if (mask[PRE])
 		this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
-	if (mask[EVALADD])
-		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
 	if (mask[EVALAUTOMORPHISM])
 		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
 	if (mask[SHE])
@@ -874,10 +854,6 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature) {
 	case PRE:
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
-		break;
-	case EVALADD:
-		if (this->m_algorithmEvalAdd == NULL)
-			this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
 		break;
 	case EVALAUTOMORPHISM:
 		if (this->m_algorithmEvalAutomorphism == NULL)

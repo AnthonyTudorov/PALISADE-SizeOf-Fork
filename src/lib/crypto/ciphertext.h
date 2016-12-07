@@ -1,5 +1,6 @@
 /**
-* @file
+* @file		ciphertext.h
+*
 * @author	TPOC:
 Dr. Kurt Rohloff <rohloff@njit.edu>,
 Programmers:
@@ -32,7 +33,7 @@ Hadi Sajjadpour <ss2959@njit.edu>
 *
 * @section DESCRIPTION
 *
-* This file contains the big binary integer functionality.
+* This file contains the representation of Ciphertext in PALISADE
 */
 
 #ifndef LBCRYPTO_CRYPTO_CIPHERTEXT_H
@@ -41,24 +42,13 @@ Hadi Sajjadpour <ss2959@njit.edu>
 //Includes Section
 #include "../palisade.h"
 
-/**
-* @namespace lbcrypto
-* The namespace of lbcrypto
-*/
 namespace lbcrypto {
 
-	//JSON FACILITY - Forward declaration for temporary fix of lweautomorph.cpp Linux compilation error
-	template <class Element>
-	class LPCryptoParametersLTV;
-
-	template <class Element>
-	class LPCryptoParametersStehleSteinfeld;
-
-	template <class Element>
-	class LPCryptoParametersBV;
-
 	/**
-	* @brief Main ciphertext class.
+	* @brief Ciphertext
+	*
+	* The Ciphertext object is used to contain encrypted text in the PALISADE library
+	*
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
@@ -68,9 +58,14 @@ namespace lbcrypto {
 		/**
 		* Default constructor
 		*/
-		Ciphertext() : m_norm(BigBinaryInteger::ZERO) {}
+		Ciphertext() {}
 
-		Ciphertext(CryptoContext<Element> cc) : cryptoContext(cc), m_norm(BigBinaryInteger::ZERO) {}
+		/**
+		 * Construct a new ciphertext in the given context
+		 *
+		 * @param cc
+		 */
+		Ciphertext(CryptoContext<Element> cc) : cryptoContext(cc) {}
 
 		/**
 		* Copy constructor
@@ -78,7 +73,7 @@ namespace lbcrypto {
 		Ciphertext(const Ciphertext<Element> &ciphertext);
 
 		/**
-		* Moveable copy constructor
+		* Move constructor
 		*/
 		Ciphertext(Ciphertext<Element> &&ciphertext);
 
@@ -90,16 +85,16 @@ namespace lbcrypto {
 		/**
 		* Assignment Operator.
 		*
-		* @param &rhs the copied vector.
-		* @return the resulting vector.
+		* @param &rhs the Ciphertext to assign from
+		* @return this Ciphertext
 		*/
 		Ciphertext<Element>& operator=(const Ciphertext<Element> &rhs);
 
 		/**
-		* Moveable Assignment Operator.
+		* Move Assignment Operator.
 		*
-		* @param &rhs the copied vector.
-		* @return the resulting vector.
+		* @param &rhs the Ciphertext to move from
+		* @return this Ciphertext
 		*/
 		Ciphertext<Element>& operator=(Ciphertext<Element> &&rhs);
 
@@ -107,7 +102,7 @@ namespace lbcrypto {
 		* Get a reference to crypto parameters.
 		* @return the crypto parameters.
 		*/
-		const CryptoContext<Element> &GetCryptoContext() const { return cryptoContext; }
+		const CryptoContext<Element>& GetCryptoContext() const { return cryptoContext; }
 
 		/**
 		* Get a reference to crypto parameters.
@@ -116,67 +111,37 @@ namespace lbcrypto {
 		const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return cryptoContext.GetCryptoParameters(); }
 
 		/**
-		* Get a reference to the encryption algorithm.
-		* @return the encryption alorithm.
-		*/
-		const LPPublicKeyEncryptionScheme<Element> &GetEncryptionAlgorithm() const { return cryptoContext.GetEncryptionAlgorithm(); }
-
-		/**
-		* Get current estimate of estimate norm
-		* @return the current estimate of ciphertext norm.
-		*/
-		const BigBinaryInteger &GetNorm() const { return m_norm; }
-
-		/**
-		* Get the first element
-		* @return the ring element.
-		*/
+		 * GetElement - get the ring element for the cases that use only one element in the vector
+		 * this method will throw an exception if it's ever called in cases with other than 1 element
+		 * @return the first (and only!) ring element
+		 */
 		const Element &GetElement() const {
-			if (m_elements.size() > 0)
+			if (m_elements.size() == 1)
 				return m_elements[0];
 			else
 			{
-				std::string errMsg = "No elements are current stored in the ciphertext";
-				throw std::runtime_error(errMsg);
+				throw std::logic_error("GetElement should only be used in cases with a Ciphertext with a single element");
 			}
 		}
 
 		/**
-		* Get all elements in the ciphertext
-		* @return the ring element.
+		* GetElements: get all of the ring elements in the Ciphertext
+		* @return vector of ring elements
 		*/
 		const std::vector<Element> &GetElements() const { return m_elements; }
 
 		/**
-		* Set crypto parameters for this ciphertext.
-		*
-		* @param cryptoParameters
-		*
-		*/
-		void SetCryptoParameters(const LPCryptoParameters<Element> *cryptoParameters) {
-			throw std::logic_error("fix my setting parameters!");
-			//			if( m_cryptoParameters != 0 )
-			//				throw std::logic_error("Crypto parameters can not be changed in existing ciphertext");
-			//			m_cryptoParameters = cryptoParameters;
-		}
-
-		/**
-		* Sets ciphertext norm.
-		*
-		* @param &norm is ciphertext norm estimate.
-		*/
-		void SetNorm(const BigBinaryInteger &norm) { m_norm = norm; }
-
-		/**
-		* Sets the first data element.
-		*
+		* SetElement - sets the ring element for the cases that use only one element in the vector
+		* this method will throw an exception if it's ever called in cases with other than 1 element
 		* @param &element is a polynomial ring element.
 		*/
 		void SetElement(const Element &element) {
-			if (m_elements.size() > 0)
+			if (m_elements.size() == 0)
+				m_elements.push_back(element);
+			else if (m_elements.size() == 1)
 				m_elements[0] = element;
 			else
-				m_elements.push_back(element);
+				throw std::logic_error("SetElement should only be used in cases with a Ciphertext with a single element");
 		}
 
 		/**
@@ -187,24 +152,14 @@ namespace lbcrypto {
 		void SetElements(const std::vector<Element> &elements) { m_elements = elements; }
 
 		/**
-		* Performs EvalAdd operation.
-		*
-		* @param &ciphertext is the element to add.
-		* @return the new ciphertext.
-		*/
-		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext) const;
-
-		//JSON FACILITY
-		/**
 		* Serialize the object into a Serialized
 		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
 		bool Serialize(Serialized* serObj) const;
 
 		/**
-		* Populate the object from the deserialization of the Setialized
+		* Populate the object from the deserialization of the Serialized
 		* @param serObj contains the serialized object
 		* @return true on success
 		*/
@@ -212,13 +167,12 @@ namespace lbcrypto {
 
 	private:
 
-		CryptoContext<Element>	cryptoContext;
+		CryptoContext<Element>	cryptoContext;	/*!< crypto context that this Ciphertext belongs to */
 
-		//current value of error norm
-		BigBinaryInteger m_norm;
+		//FUTURE ENHANCEMENT: current value of error norm
+		//BigBinaryInteger m_norm;
 
-		//data element
-		std::vector<Element> m_elements;
+		std::vector<Element> m_elements;		/*!< vector of fing elements for this Ciphertext */
 
 	};
 

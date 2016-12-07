@@ -198,7 +198,7 @@ namespace lbcrypto {
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const
 	{
 
-		if (ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT) {
+		if (ciphertext1->GetElements()[0].GetFormat() == Format::COEFFICIENT || ciphertext2->GetElements()[0].GetFormat() == Format::COEFFICIENT) {
 			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 		}
 
@@ -227,7 +227,7 @@ namespace lbcrypto {
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
-		if (ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT) {
+		if (ciphertext1->GetElements()[0].GetFormat() == Format::COEFFICIENT || ciphertext2->GetElements()[0].GetFormat() == Format::COEFFICIENT) {
 			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 		}
 
@@ -534,8 +534,7 @@ namespace lbcrypto {
 
 		if (mask[PRE])
 			this->m_algorithmPRE = new LPAlgorithmPREBV<Element>(*this);
-		/*if (mask[EVALADD])
-		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
+		/*
 		if (mask[EVALAUTOMORPHISM])
 		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
 		if (mask[SHE])
@@ -569,10 +568,7 @@ namespace lbcrypto {
 			if (this->m_algorithmLeveledSHE == NULL)
 				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>(*this);
 			break;
-			/*case EVALADD:
-			if (this->m_algorithmEvalAdd == NULL)
-			this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
-			break;
+			/*
 			case EVALAUTOMORPHISM:
 			if (this->m_algorithmEvalAutomorphism == NULL)
 			this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);

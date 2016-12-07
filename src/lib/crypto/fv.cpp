@@ -325,7 +325,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	const shared_ptr<Ciphertext<Element>> ciphertext2,
 	const shared_ptr<LPEvalKey<Element>> ek) const {
 
-	if (ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT) {
+	if (ciphertext1->GetElements()[0].GetFormat() == Format::COEFFICIENT || ciphertext2->GetElements()[0].GetFormat() == Format::COEFFICIENT) {
 		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult cannot multiply in COEFFICIENT domain.");
 	}
 
@@ -463,8 +463,6 @@ LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitse
 
 	/*if (mask[PRE])
 		this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(*this);
-	if (mask[EVALADD])
-		this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
 	if (mask[EVALAUTOMORPHISM])
 		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
 	if (mask[FHE])
@@ -491,10 +489,6 @@ void LPPublicKeyEncryptionSchemeFV<Element>::Enable(PKESchemeFeature feature) {
 	/*case PRE:
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(*this);
-		break;
-	case EVALADD:
-		if (this->m_algorithmEvalAdd == NULL)
-			this->m_algorithmEvalAdd = new LPAlgorithmAHELTV<Element>(*this);
 		break;
 	case EVALAUTOMORPHISM:
 		if (this->m_algorithmEvalAutomorphism == NULL)
