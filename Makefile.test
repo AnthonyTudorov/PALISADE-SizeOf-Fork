@@ -68,7 +68,7 @@ $(TEST_BUILD_DIR)/%.o: $(TEST_SRC_DIR)/%.cpp
 
 # library strings needed in linking of TEST_TARGET
 #note this could be replaced with $(LIB)
-TEST_LIB := -pthread -lgomp #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
+TEST_LIB := -pthread -lgomp $(NTLLIB) $(GMPLIB) #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 
 #
 # the following define the componenets of the google test library
@@ -98,7 +98,7 @@ $(TEST_BUILD_DIR)/%.o: $(TEST_LIB_SRCDIR)/%.$(TEST_LIB_SRCEXT)
 # this links test executable  from objects in the test build directory
 $(TEST_TARGET): $(TEST_OBJECTS) $(TEST_LIB_OBJECTS) $(LIB_OBJECTS)
 	@mkdir -p $(TEST_TARGETDIR)
-	$(CC) $^ $(TEST_LIB) $(TEST_BUILD_DIR)/libgtest.a -o $(TEST_TARGET) ## -pg ##add if using gprof
+	$(CC) $^ $(TEST_BUILD_DIR)/libgtest.a  $(TEST_LIB) -o $(TEST_TARGET) ## -pg ##add if using gprof
 
 #used to run tests from make, almost never used
 .PHONY: runtests

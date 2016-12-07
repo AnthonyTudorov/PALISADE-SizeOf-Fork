@@ -128,7 +128,7 @@ TEST(UTubint,string_conversions_msb){
   //float f = conv<float>(q1);
   float f(conv<float>(q1));
   double d(conv<double>(q1));
-  long double xd(conv<long double>(q1));
+  //long double xd(conv<long double>(q1));
 
   EXPECT_EQ(163841, q1)<<"Failure Convert 1 limb to usint";
   EXPECT_EQ(163841, q1)<<"Failure Convert 1 limb to uint";
@@ -137,30 +137,28 @@ TEST(UTubint,string_conversions_msb){
     <<"Failure Convert 1 limb to float";
   EXPECT_EQ(163841.0, d )
     <<"Failure Convert 1 limb to double";
-  EXPECT_EQ(163841.0L, xd)
-    <<"Failure Convert 1 limb to longdouble";
+  //EXPECT_EQ(163841.0L, xd)
+  //  <<"Failure Convert 1 limb to longdouble";
 
 #if 0
   //test GetMSB() for 1 limb
   usint msb = q1.GetMSB();
 
   EXPECT_EQ(msb, 18)<<  "Failure testing 1 limb msb test ";
-
-
+#endif
+  cout<<"GetMSB does not exist"<<endl;
   //create a large ubint with two limbs
   ubint q2;
   q2 = conv<ubint>("00004057816419532801");
   //to big for usint or for float so we expect that to fail
-  EXPECT_NE(4057816419532801UL, q2)
-    <<"Failure Convert 2 limb to usint";
 
-  EXPECT_NE(4057816419532801UL, q2.ConvertToUint32())
-    <<"Failure Convert 2 limb to uint32";
   EXPECT_EQ(4057816419532801UL, q2)
     <<"Failure Convert 2 limb to uint64";
   EXPECT_EQ(4057816419532801L, q2)
     <<"Failure Convert 2 limb to uint64";
 
+
+#if 0
   //test float converstions. 
 
   //cout << "flt mantissa digits "<< FLT_MANT_DIG <<endl;
@@ -207,6 +205,7 @@ TEST(UTubint,string_conversions_msb){
   EXPECT_TRUE(thrown) 
     << "Failure testing ConvertToUsint() throw on uninitialed ubint";
 #endif
+  cout<<"float conversions not tested"<<endl;
 }
 TEST(UTubint,ctor){    
 
@@ -686,14 +685,18 @@ TEST(UTubint,basic_math){
   {
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
       
-    ubint a(20489);
+    ZZ a(20489);
     ubint b(2034455);
       
     //calculatedResult = a.Sub(b);
     sub(calculatedResult,a,b);
-    expectedResult = 0;
-      
+#ifndef NTL_BITS_PER_LONG //then NTL is being used
     //since ubint is unsigned  result should be zero
+    expectedResult = 0;
+#else
+    expectedResult = -2013966;
+#endif
+
     EXPECT_EQ(expectedResult, calculatedResult)
       << "Failure testing Sub() : a < b";
       
@@ -823,10 +826,12 @@ TEST(UTubint,basic_math){
     EXPECT_EQ(expectedResultStr,calculatedResultStr.str())
       <<"testing Mul() : multi limb";
     calculatedResult = a * b;
+    calculatedResultStr.str(""); //clear string
     calculatedResultStr << calculatedResult;
     EXPECT_EQ(expectedResultStr,calculatedResultStr.str())
       <<"Failure testing * : multi limb";
     a *= b;
+    calculatedResultStr.str(""); //clear string
     calculatedResultStr<< a;
     EXPECT_EQ(expectedResultStr,calculatedResultStr.str())
       <<"Failure testing *= : multi limb";
@@ -993,7 +998,7 @@ TEST(UTubint,mod_operations){
     ubint p(240);
 
     //calculatedResult = m.Mod(p);
-    mod(calculatedResult,m,p);
+    rem(calculatedResult,m,p);
     expectedResult = 27;
 
     EXPECT_EQ(expectedResult,calculatedResult)
@@ -1013,7 +1018,7 @@ TEST(UTubint,mod_operations){
     ubint p(406);
 
     //calculatedResult = m.Mod(p);
-    mod(calculatedResult,m,p);
+    rem(calculatedResult,m,p);
     expectedResult = 35;
 
     EXPECT_EQ(expectedResult,calculatedResult)
@@ -1033,7 +1038,7 @@ TEST(UTubint,mod_operations){
     ubint p(16);
 
     //calculatedResult = m.Mod(p);
-    mod(calculatedResult,m,p);
+    rem(calculatedResult,m,p);
     expectedResult = 0;
 
     EXPECT_EQ(expectedResult,calculatedResult)
@@ -1054,7 +1059,7 @@ TEST(UTubint,mod_operations){
     ubint p(67108913);
 
     //calculatedResult = m.Mod(p);
-    mod(calculatedResult,m,p);
+    rem(calculatedResult,m,p);
     expectedResult = 0;
 
     EXPECT_EQ(expectedResult,calculatedResult)
@@ -1076,7 +1081,7 @@ TEST(UTubint,mod_operations){
     ubint modresult;
 
    // modresult = first.Mod(second);
-    mod(modresult, first, second);
+    rem(modresult, first, second);
     EXPECT_EQ(modcorrect, modresult)
       <<"Failure ModInverse() Mod regression test";
   }
@@ -1084,14 +1089,14 @@ TEST(UTubint,mod_operations){
   // TEST CASE THAT FAILED TR#409
   {
 
-    ubint first("11272741999");
-    ubint second("8828677302");
+    ubint first(conv<ubint>("11272741999"));
+    ubint second(conv<ubint>("8828677302"));
 
-    ubint modcorrect("2444064697");
+    ubint modcorrect(conv<ubint>("2444064697"));
     ubint modresult;
     
     //modresult = first.Mod(second);
-  mod(modresult, first, second);
+    rem(modresult, first, second);
     EXPECT_EQ(modcorrect, modresult)
       <<"Failure Mod() Mod tr #409";
   }
@@ -1100,14 +1105,14 @@ TEST(UTubint,mod_operations){
   // ANOTHER TEST CASE THAT FAILED TR#409
   {
 
-    ubint first("239109124202497");
-    ubint second("9");
+    ubint first(conv<ubint>("239109124202497"));
+    ubint second(conv<ubint>("9"));
 
-    ubint modcorrect("1");
+    ubint modcorrect(1);
     ubint modresult;
     
     //modresult = first.Mod(second);
-    mod(modresult, first, second);
+    rem(modresult, first, second);
     EXPECT_EQ(modcorrect, modresult)
       <<"Failure Mod() Mod tr #409 2";
   }
@@ -1117,15 +1122,15 @@ TEST(UTubint,mod_operations){
 
   // Mod(0)
   {
-    ubint first("4974113608263");
-    ubint second("0");
-    ubint modcorrect("4974113608263");
+    ubint first(conv<ubint>("4974113608263"));
+    ubint second(0);
+    ubint modcorrect(conv<ubint>("4974113608263"));
     ubint modresult;
 
     bool thrown = false;
     try {
       //modresult = first.Mod(second);
-      mod(modresult, first, second);
+      rem(modresult, first, second);
     }
     catch (exception& e){
       std::cout<<e.what()<<std::endl;
@@ -1176,10 +1181,11 @@ TEST(UTubint,mod_inverse){
 
   // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
   {
-    ubint m("5");
-    ubint p("108");
+    ubint m(5);
+    ubint p(108);
 
-    calculatedResult = m.ModInverse(p);
+    //calculatedResult = m.ModInverse(p);
+    InvMod(calculatedResult,m,p);
     expectedResult = 65;
     
     EXPECT_EQ(expectedResult,calculatedResult)
@@ -1188,12 +1194,13 @@ TEST(UTubint,mod_inverse){
 
   // TEST CASE WHEN THE NUMBER AND MOD ARE NOT CO-PRIME
   {
-    ubint m("3017");
-    ubint p("7");
+    ubint m(3017);
+    ubint p(7);
 
     bool thrown = false;
     try {
-      calculatedResult = m.ModInverse(p);
+      //calculatedResult = m.ModInverse(p);
+      InvMod(calculatedResult,m,p);
     }
     catch (exception& e){
       std::cout<<e.what()<<std::endl;
@@ -1210,14 +1217,15 @@ TEST(UTubint,mod_inverse){
   {
 
 
-    ubint input ("405107564542978792");
-    ubint modulus("1152921504606847009");
-    ubint modIcorrect("844019068664266609");
+    ubint input (conv<ubint>("405107564542978792"));
+    ubint modulus(conv<ubint>("1152921504606847009"));
+    ubint modIcorrect(conv<ubint>("844019068664266609"));
     ubint modIresult;
 
     bool thrown = false;
     try {
-      modIresult = input.ModInverse(modulus);
+      //modIresult = input.ModInverse(modulus);
+      InvMod(modIresult, input, modulus);
     }
     catch (exception& e){
       thrown = true;
@@ -1247,35 +1255,49 @@ TEST(UTubint,mod_arithmetic){
 
   // TEST CASE WHEN THE FIRST NUMBER IS GREATER THAN MOD
   {
-    ubint m("58059595");
-    ubint n("3768");
-    ubint q("4067");
+    ubint m(58059595);
+    ubint n(3768);
+    ubint q(4067);
 
-    calculatedResult = m.ModAdd(n,q);
+    //calculatedResult = m.ModAdd(n,q);
+    AddMod(calculatedResult,m,n,q);
     expectedResult = 2871;
 
-    EXPECT_EQ(expectedResult,calculatedResult)
+    EXPECT_NE(expectedResult,calculatedResult)
       << "Failure testing ModAdd() first number > modulus";
+
+    AddMod(calculatedResult,m%q,n,q);
+    EXPECT_EQ(expectedResult,calculatedResult)
+      << "Failure testing ModAdd() taking mod of first number";
+
+
   }
   // TEST CASE WHEN THE SECOND NUMBER IS GREATER THAN MOD
   {
-    ubint m("595");
-    ubint n("376988");
-    ubint q("4067");
+    ubint m(595);
+    ubint n(376988);
+    ubint q(4067);
 
-    calculatedResult = m.ModAdd(n,q);
+    //calculatedResult = m.ModAdd(n,q);
+    AddMod(calculatedResult,m,n,q);
     expectedResult = 3419;
 
-    EXPECT_EQ(expectedResult,calculatedResult)
+    EXPECT_NE(expectedResult,calculatedResult)
       << "Failure testing ModAdd() second number > modulus";
+
+    AddMod(calculatedResult,m,n%q,q);
+    EXPECT_EQ(expectedResult,calculatedResult)
+      << "Failure testing ModAdd() taking mod second number";
+
   }
   // TEST CASE WHEN THE BOTH NUMBERS ARE LESS THAN MOD
   {
-    ubint m("595");
-    ubint n("376");
-    ubint q("4067");
+    ubint m(595);
+    ubint n(376);
+    ubint q(4067);
 
-    calculatedResult = m.ModAdd(n,q);
+    //calculatedResult = m.ModAdd(n,q);
+    AddMod(calculatedResult,m,n,q);
     expectedResult = 971;
     EXPECT_EQ(expectedResult, calculatedResult)
       << "Failure testing ModAdd() both numbers < modulus";
@@ -1283,15 +1305,21 @@ TEST(UTubint,mod_arithmetic){
   // TEST CASE WHEN THE BOTH NUMBERS ARE GREATER THAN MOD
   {
 
-    ubint m("59509095449");
-    ubint n("37654969960");
-    ubint q("4067");
+    ubint m(59509095449);
+    ubint n(37654969960);
+    ubint q(4067);
 
-    calculatedResult = m.ModAdd(n,q);
+    //calculatedResult = m.ModAdd(n,q);
+    AddMod(calculatedResult,m,n,q);
     expectedResult = 2861;
 
-    EXPECT_EQ(expectedResult, calculatedResult)
+    EXPECT_NE(expectedResult, calculatedResult)
      << "Failure testing ModAdd() both numbers > modulus";
+
+    AddMod(calculatedResult,m%q,n%q,q);
+
+    EXPECT_EQ(expectedResult, calculatedResult)
+     << "Failure testing ModAdd() taking mod both numbers > modulus";
   }
 
   /************************************************/
@@ -1315,11 +1343,18 @@ TEST(UTubint,mod_arithmetic){
 
     //std::cout << "Before : " << std::endl;
 
-    calculatedResult = m.ModSub(n,q);
+    //calculatedResult = m.ModSub(n,q);
+    SubMod(calculatedResult,m,n,q);
     expectedResult = 196;
 
+    // Action is undefined, you would expect this to fail but it doesnt
     EXPECT_EQ(expectedResult, calculatedResult)
       << "Failure testing ModSub() first number > modulus";
+
+    SubMod(calculatedResult,m%q,n,q);
+
+    EXPECT_EQ(expectedResult, calculatedResult)
+      << "Failure testing ModSub() taking mod first number > modulus";
   }
   // TEST CASE WHEN THE FIRST NUMBER LESS THAN SECOND NUMBER AND MOD
   {
@@ -1327,12 +1362,20 @@ TEST(UTubint,mod_arithmetic){
     ubint n(595090959);
     ubint q(406756);
 
-    calculatedResult = m.ModSub(n,q);
+    //calculatedResult = m.ModSub(n,q);
+    SubMod(calculatedResult,m,n,q);
     expectedResult = 33029;
 
     //[{(a mod c)+ c} - (b mod c)] since a < b
+    EXPECT_NE(expectedResult,calculatedResult)
+      << "Failure testing ModSub() second number > modulus";
+
+    SubMod(calculatedResult,m,n%q,q);
+
     EXPECT_EQ(expectedResult,calculatedResult)
-      << "Failure testing ModSub() first number < modulus";
+      << "Failure testing ModSub() taking mod of second number > modulus";
+
+
   }
   // TEST CASE WHEN THE FIRST NUMBER EQUAL TO SECOND NUMBER
   {
@@ -1340,7 +1383,8 @@ TEST(UTubint,mod_arithmetic){
     ubint n(595090959);
     ubint q(406756);
 
-    calculatedResult = m.ModSub(n,q);
+    //calculatedResult = m.ModSub(n,q);
+    SubMod(calculatedResult,m,n,q);
     expectedResult = 0;
 
     EXPECT_EQ(expectedResult, calculatedResult)
@@ -1360,7 +1404,8 @@ TEST(UTubint,mod_arithmetic){
     ubint n(7959);
     ubint q(406756);
 
-    ubint calculatedResult = m.ModMul(n,q);
+    //ubint calculatedResult = m.ModMul(n,q);
+    MulMod(calculatedResult,m,n,q);
     int expectedResult = 365204;
 
     EXPECT_EQ(expectedResult, calculatedResult)
@@ -1380,14 +1425,15 @@ TEST(UTubint,mod_arithmetic){
     ubint n(10);
     ubint q(406756);
 
-    ubint calculatedResult = m.ModExp(n,q);
+    //ubint calculatedResult = m.ModExp(n,q);
+    PowerMod(calculatedResult,m,n,q);
     int expectedResult = 139668;
 
     EXPECT_EQ(expectedResult, calculatedResult)
       << "Failure testing ModExp()";
   }
 }
-
+#if 0
 //Miscellaneous functions tests
 TEST(UTubint, misc_functions){
   // TESTING METHOD  BinaryStringToUbint
@@ -1400,3 +1446,4 @@ TEST(UTubint, misc_functions){
   EXPECT_EQ(expectedResult, b)
     << "Failure testing BinaryToUbint()";
 }
+#endif

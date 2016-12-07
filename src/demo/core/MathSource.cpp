@@ -360,7 +360,8 @@ void test_BigBinaryVector () {
 //////////////////// helper functions fofr test_ubintvec()
 //todo figure out how to share code between these vec_diffs
 
-#if MATHBACKEND == 2 
+//#if MATHBACKEND == 2 ||  MATHBACKEND ==5
+#if MATHBACKEND == 2
 //function to compare two bintvecs and print differing indicies
 void vec_diff(ubintvec &a, ubintvec &b) {
   for (usint i= 0; i < a.size(); ++i){  //todo change to size()
@@ -428,6 +429,7 @@ void vec_diff(mubintvec &a, mubintvec &b) {
 
 // Code to test ubintvec at three different numbers of limbs.
 void test_ubintvec() {
+  //#if MATHBACKEND == 2 ||  MATHBACKEND ==5
 #if MATHBACKEND == 2
 
   int nloop = 1000; //number of times to run each test for timing.

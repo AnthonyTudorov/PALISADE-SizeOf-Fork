@@ -84,7 +84,7 @@ BENCHMARK_EXAMPLES_OBJ = $(BENCHMARK_EXAMPLES_SRC:$(BENCHMARK_EXAMPLES_SRC_DIR)%
 BENCHMARK_EXAMPLES = $(BENCHMARK_EXAMPLES_SRC:$(BENCHMARK_EXAMPLES_SRC_DIR)%.cc=$(BENCHMARK_EXAMPLES_BIN_DIR)%)
 
 # this is the include line for generating any benc2hmark object (not in the library)
-BENCHMARK_INCLUDES = -Ibenchmark/include -Iinclude $(BOOSTINCLUDE)
+BENCHMARK_INCLUDES = -Ibenchmark/include -Iinclude $(BOOSTINCLUDE) $(NTLINCLUDE) $(GMPINCLUDE)
 
 # this builds objects from sources for examples
 $(BENCHMARK_EXAMPLES_BUILD_DIR)/%.o: $(BENCHMARK_EXAMPLES_SRC_DIR)/%.cc
@@ -96,7 +96,7 @@ $(BENCHMARK_EXAMPLES_BUILD_DIR)/%.o: $(BENCHMARK_EXAMPLES_SRC_DIR)/%.cc
 $(BENCHMARK_EXAMPLES_BIN_DIR)/%$(EXESUFFIX): $(BENCHMARK_EXAMPLES_BUILD_DIR)/%.o
 	@echo " -- benchmark:linking example $@"	
 	@mkdir -p $(BENCHMARK_EXAMPLES_SRC_DIR)/bin/
-	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ $(RDYNAMIC) $(BENCHMARK_LIB) $(LIB) -lpthread $(MINGWREGEX) 
+	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ $(RDYNAMIC) $(BENCHMARK_LIB) $(LIB) -lpthread $(MINGWREGEX)  
 
 #this updates the binaries when the objects or libraries are touched
 $(BENCHMARK_EXAMPLES): $(BENCHMARK_EXAMPLES_OBJ)  $(BENCHMARK_LIB)

@@ -5,8 +5,8 @@ OMPINCLUDE :=
 NTLINCLUDE := -I $(HOME)/sw/include
 GMPINCLUDE := -I $(HOME)/sw/include
 
-NTLLIB := -L $(HOME)/sw/lib/libntl.a
-GMPLIB := -L $(HOME)/sw/lib/libgmp.a
+NTLLIB := $(HOME)/sw/lib/libntl.a
+GMPLIB := $(HOME)/sw/lib/libgmp.a
 CPPSTD := -std=gnu++11
 
 PALISADELIB := libPALISADE.so

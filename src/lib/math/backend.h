@@ -114,8 +114,8 @@
 #include <initializer_list>
 
 #include "gmp_int/gmpint.cpp" //experimental gmp unsigned big ints
-//#include "gmp_int/gmpintvec.cpp" //vectors of such
-//#include "gmp_int/mgmpintvec.cpp" //rings of such
+#include "gmp_int/gmpintvec.cpp" //vectors of such
+#include "gmp_int/mgmpintvec.cpp" //rings of such
 
 #endif
 
@@ -250,10 +250,10 @@ namespace lbcrypto {
 	typedef NTL::ZZ ubint;
 
 	/** Define the mapping for Big Integer Vector */
-	//	typedef exp_int::myvec_ZZ ubintvec;
+	typedef NTL::Vec<NTL::ZZ> ubintvec;
 
 	/** Define the mapping for modulo Big Integer Vector */
-	//typedef exp_int::myvec_ZZ_p mubintvec;
+	typedef NTL::Vec<NTL::ZZ_p> mubintvec;
 
 
 #endif
