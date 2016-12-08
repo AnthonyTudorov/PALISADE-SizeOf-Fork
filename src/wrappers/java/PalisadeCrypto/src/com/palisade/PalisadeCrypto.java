@@ -103,11 +103,6 @@ public class PalisadeCrypto {
 	 */
 	public native byte[] decrypt(String id, byte[] ciphertext);
 	
-	// the method below is a piece of test code that does not work. Using it crashes the world.
-	// So you should not use it :)
-	// this was a first pass at implementing connecting Java streams to C++ streams
-	public native void writeBytes(byte[] bytes, InputStream instream, OutputStream outstream);
-	
 	/**
 	 * Finish with this PalisadeCrypto instance
 	 */

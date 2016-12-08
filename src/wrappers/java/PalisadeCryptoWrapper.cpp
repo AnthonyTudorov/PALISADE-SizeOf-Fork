@@ -8,6 +8,7 @@
 #include "com_palisade_PalisadeCrypto.h"
 
 #include <string>
+#include <memory>
 
 #include <iostream>
 #include <fstream>
@@ -24,99 +25,14 @@ using namespace lbcrypto;
 
 class JavaPalisadeCrypto {
 public:
-	CryptoContext<ILVector2n>	*ctx;
-	string						errorMessage;
+	CryptoContext<ILVector2n>				ctx;
+	string									errorMessage;
+	shared_ptr<LPPublicKey<ILVector2n>>		publicKey;
+	shared_ptr<LPPrivateKey<ILVector2n>>	secretKey;
+	shared_ptr<LPEvalKeyRelin<ILVector2n>>	evalKey;
 
-	JavaPalisadeCrypto(CryptoContext<ILVector2n> *ctx) : ctx(ctx), errorMessage("") {}
+	JavaPalisadeCrypto(const CryptoContext<ILVector2n>& ctx) : ctx(ctx), errorMessage("") {}
 };
-
-// this class is used to convert writing to a std::ostream into writing to a java.io.OutputStream
-// create an ostream, use *this* as the streambuf, and write to the stream to your heart's content!
-class javaWstreambuf : public streambuf {
-	JNIEnv		*env;
-	jobject		obj;
-	jmethodID writer;
-
-public:
-	javaWstreambuf(JNIEnv *env, jobject outstream, jmethodID writer) : env(env), obj(outstream), writer(writer) {}
-
-protected:
-	int overflow(int c) {
-		if( c != EOF ) {
-			env->CallVoidMethod(obj, writer, c);
-		}
-
-		return c;
-	}
-};
-
-class javaRstreambuf : public streambuf {
-	JNIEnv		*env;
-	jobject		obj;
-	jmethodID reader;
-
-public:
-	javaRstreambuf(JNIEnv *env, jobject outstream, jmethodID reader) : env(env), obj(outstream), reader(reader) {}
-
-protected:
-	int underflow() {
-		jint ch = env->CallIntMethod(obj, reader);
-
-		return ch;
-	}
-};
-
-JNIEXPORT void JNICALL Java_com_palisade_PalisadeCrypto_writeBytes
-(JNIEnv *env, jobject thiz, jbyteArray bytes, jobject inputstream, jobject outstream)
-{
-	cout << "Before" << std::endl;
-
-	jclass		ostr;
-	jmethodID writer;
-
-	ostr = env->FindClass("java/io/OutputStream");
-	if( ostr == 0 ) {
-		throw std::logic_error("no output class");
-	}
-
-	writer = env->GetMethodID(ostr, "write", "(I)V");
-	if( writer == 0 ) {
-		throw std::logic_error("no write method");
-	}
-
-	javaWstreambuf ob(env, outstream, writer);
-	ostream wStream(&ob);
-
-	jclass	istr;
-	jmethodID reader;
-
-	istr = env->FindClass("java/io/InputStream");
-	if( istr == 0 ) {
-		throw std::logic_error("no input class");
-	}
-
-	reader = env->GetMethodID(istr, "read", "()I");
-	if( reader == 0 ) {
-		throw std::logic_error("no read method");
-	}
-
-	javaRstreambuf ib(env, inputstream, reader);
-	istream rStream(&ib);
-
-	jboolean isCopy;
-	jbyte *jnibytes = env->GetByteArrayElements(bytes, &isCopy);
-	jint len = env->GetArrayLength(bytes);
-	string str((char *)jnibytes,len);
-	wStream << str;
-	wStream.flush();
-	if( isCopy ) env->ReleaseByteArrayElements(bytes, jnibytes, JNI_ABORT);
-
-	char ch;
-	while( (ch = rStream.get()) != EOF )
-		wStream << ch;
-
-	cout << "After" << std::endl;
-}
 
 static JavaPalisadeCrypto* getCrypto(JNIEnv *env, jobject thiz)
 {
@@ -142,19 +58,17 @@ JNIEXPORT jobject JNICALL Java_com_palisade_PalisadeCrypto_generatePalisadeKeyPa
 	JavaPalisadeCrypto* cp = getCrypto(env, thiz);
 	if( cp == 0 ) return 0;
 
-	CryptoContext<ILVector2n> *ctx = cp->ctx;
-	if( ctx == 0 ) return 0;
-
 	const char *idS = env->GetStringUTFChars(id, 0);
-	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
-	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
 
-	if( ! CryptoUtility<ILVector2n>::KeyGen(*ctx->getAlgorithm(), &pk, &sk ) )
+	LPKeyPair<ILVector2n> kp = cp->ctx.KeyGen();
+
+	if( !kp.good() )
 		return 0;
+
 	Serialized pubMap, priMap;
 	string	pubStr, priStr;
 
-	if ( !pk.Serialize(&pubMap, idS) || !sk.Serialize(&priMap, idS) ) {
+	if ( !kp.publicKey->Serialize(&pubMap) || !kp.secretKey->Serialize(&priMap) ) {
 		return 0;
 	}
 
@@ -202,7 +116,17 @@ static jboolean keySetter(JNIEnv *env, jobject thiz, jbyteArray key, bool (Crypt
 JNIEXPORT jboolean JNICALL Java_com_palisade_PalisadeCrypto_setPublicKey
 (JNIEnv *env, jobject thiz, jbyteArray key)
 {
-	return keySetter(env, thiz, key, &CryptoContext<ILVector2n>::setPublicKey);
+	JavaPalisadeCrypto* cp = getCrypto(env, thiz);
+	if( cp == 0 ) return false;
+
+	jboolean isCopy;
+	char *kData = (char *)env->GetByteArrayElements(key, &isCopy);
+	string keyStr(kData, env->GetArrayLength(key));
+	if( isCopy ) env->ReleaseByteArrayElements(key, (jbyte *)kData, JNI_ABORT);
+
+	cp->publicKey = cp->ctx.deserializePublicKey(X);
+
+	return keySetter(env, thiz, key, &CryptoContext<ILVector2n>::deserializePublicKey);
 }
 
 JNIEXPORT jboolean JNICALL Java_com_palisade_PalisadeCrypto_setPrivateKey
