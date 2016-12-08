@@ -28,13 +28,12 @@
  *
  * @section DESCRIPTION
  *
- * This code provides the core proxy re-encryption functionality.
+ * This code provides the definitions for the LTV scheme
  */
 
 #ifndef LBCRYPTO_CRYPTO_LTV_H
 #define LBCRYPTO_CRYPTO_LTV_H
 
-//#include "../crypto/rlwe.h"
 #include "../palisade.h"
 
 namespace lbcrypto {
@@ -159,7 +158,6 @@ private:
 
 	//function for parameter selection. The public ParameterSelection function is a wrapper around this function.
 	void ParameterSelection(usint& n, vector<BigBinaryInteger> &moduli);
-
 };
 
 /**

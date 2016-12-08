@@ -41,7 +41,7 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<IL
 {
 
 	//defining moduli outside of recursive call for efficiency
-	std::vector<BigBinaryInteger> moduli(this->m_depth + 1);
+	std::vector<BigBinaryInteger> moduli;
 	moduli.reserve(this->m_depth + 1);
 
 	usint n = this->GetElementParams()->GetCyclotomicOrder() / 2;
@@ -75,16 +75,14 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<BigBina
 	int d = this->m_depth;
 
 	BigBinaryInteger pBigBinaryInteger(this->GetPlaintextModulus());
-	int p = pBigBinaryInteger.ConvertToInt();
+	int p = pBigBinaryInteger.ConvertToInt(); // what if this does not fit in an int? (unlikely)
 	double w = this->m_assuranceMeasure;
 	double r = this->m_distributionParameter;
 	double rootHermitFactor = this->m_securityLevel;
 
 	double sqrtn = sqrt(n);
 	double q1 = 4 * p * r * sqrtn * w;
-	double q2 = 4 * pow(p, 2) * pow(r, 5) * pow(sqrtn, 3) * pow(w, 5);
-
-	BigBinaryInteger plaintextModulus(p);
+	double q2 = 4 * pow(p, 2) * pow(r, 5) * pow(sqrtn, 3) * pow(w, 5); // maybe p * p instead
 
 	double* q = new double[t];
 	q[0] = q1;
@@ -93,24 +91,25 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<BigBina
 
 	double sum = 0.0;
 	for (int i = 0; i<t; i++) {
-		sum += log(q[i]);
+		sum += log(q[i]);  /// probably needs to be log2?????
 	}
 
+	// which log are we using???
 	int next = ceil(sum / (4 * log(rootHermitFactor)));
 	int nprime = pow(2, ceil(log(next) / log(2)));
 	char c = '.';
 
+	// splitting a string version on dot is ... probably ... wrong
 	if (n == nprime) {
 		sum = 0.0;
 		for (int i = 0; i<t; i++) {
-			moduli[i] = BigBinaryInteger(split(std::to_string(q[i]), c));
 			if (i == 0 || i == 1) {
-				NextQ(moduli[i], pBigBinaryInteger, n, BigBinaryInteger("4"), BigBinaryInteger("4"));
+				moduli[i] = BigBinaryInteger(split(std::to_string(q[i]), c));
 			}
 			else {
 				moduli[i] = moduli[i - 1];
-				NextQ(moduli[i], pBigBinaryInteger, n, BigBinaryInteger("4"), BigBinaryInteger("4"));
 			}
+			NextQ(moduli[i], pBigBinaryInteger, n, BigBinaryInteger("4"), BigBinaryInteger("4"));
 			q[i] = moduli[i].ConvertToDouble();
 			sum += log(q[i]);
 		}
