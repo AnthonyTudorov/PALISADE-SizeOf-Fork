@@ -228,6 +228,7 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Encode(
 				const RLWETrapdoorPair<ILVector2n> &Ti,
 				const Element &elemS,
 				DiscreteGaussianGenerator &dgg,
+				DiscreteGaussianGenerator &dggLargeSigma,
 				Matrix<Element> *encodedElem) const {
 
     TimeVar t1,t_total; // for TIC TOC
@@ -262,7 +263,7 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Encode(
 	for(int32_t i=0; i<m; i++) {
 
 	  // the following takes approx 250 msec
-		Matrix<Element> gaussj = RLWETrapdoorUtility::GaussSampV3(n,k,Ai,Ti,bj(0,i),dgg.GetStd(), dgg);
+		Matrix<Element> gaussj = RLWETrapdoorUtility::GaussSampV3(n,k,Ai,Ti,bj(0,i),dgg.GetStd(), dgg, dggLargeSigma);
 //		gaussj(0, 0).PrintValues();
 //		gaussj(1, 0).PrintValues();
 		// the following takes no time
@@ -297,6 +298,11 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Obfuscate(
 	usint adjustedLength = l/chunkSize;
 	usint chunkExponent = 1 << chunkSize;
 	const shared_ptr<ElemParams> params = obfuscatedPattern->GetParameters();
+
+	double sigma = dgg.GetStd();
+	double s = 40 * sqrt(m*n);
+
+	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - sigma * sigma));
 
 	const std::string patternString = clearPattern.GetPatternString();
 
@@ -420,11 +426,11 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Obfuscate(
 		for(usint k=0; k<chunkExponent; k++) {
 
 			Matrix<Element> *S_i = new Matrix<Element>(zero_alloc, m, m);
-			this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small[i-1][k]*r_small[i-1][k],dgg,S_i);
+			this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small[i-1][k]*r_small[i-1][k],dgg, dggLargeSigma, S_i);
 			SVector.push_back(*S_i);
 
 			Matrix<Element> *R_i = new Matrix<Element>(zero_alloc, m, m);
-			this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],r_small[i-1][k],dgg,R_i);
+			this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],r_small[i-1][k],dgg, dggLargeSigma, R_i);
 			RVector.push_back(*R_i);
 
 		}
@@ -445,13 +451,13 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Obfuscate(
 	elemrl1.SwitchFormat();
 
 	Matrix<Element> *Sl = new Matrix<Element>(zero_alloc, m, m);
-	this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1*s_prod,dgg,Sl);
+	this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1*s_prod,dgg, dggLargeSigma, Sl);
 
 	//std::cout << "encode 1 for L ran" << std::endl;
 	//std::cout << elemrl1.GetValues() << std::endl;
 
 	Matrix<Element> *Rl = new Matrix<Element>(zero_alloc, m, m);
-	this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1,dgg,Rl);
+	this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1,dgg, dggLargeSigma, Rl);
 
 	//std::cout << "encode 2 for L ran" << std::endl;
 

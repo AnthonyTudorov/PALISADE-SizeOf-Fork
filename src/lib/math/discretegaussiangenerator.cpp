@@ -68,7 +68,7 @@ namespace lbcrypto {
 		//	std::cout << m_vals[i] << std::endl;
 		//}
 
-		std::cout<<m_a<<std::endl;
+		//std::cout<<m_a<<std::endl;
 
 	}
 

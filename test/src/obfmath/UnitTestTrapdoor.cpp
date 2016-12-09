@@ -372,15 +372,19 @@ TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
 	RingMat rHat = trapPair.second.m_r;
 	//auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
 
-	DiscreteGaussianGenerator dgg(4);
+	double sigma = 4;
+	DiscreteGaussianGenerator dgg(sigma);
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
+
+	double s = 40 * sqrt((k + 2)*n);
+	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - sigma * sigma));
 
 	ILVector2n u(dug, params, COEFFICIENT);
 	u.SwitchFormat();
 
 	//  600 is a very rough estimate for s, refer to Durmstradt 4.2 for
 	//      estimation
-	RingMat z = RLWETrapdoorUtility::GaussSampV3(m / 2, k, trapPair.first, trapPair.second, u, stddev, dgg);
+	RingMat z = RLWETrapdoorUtility::GaussSampV3(m / 2, k, trapPair.first, trapPair.second, u, stddev, dgg, dggLargeSigma);
 
 	//Matrix<ILVector2n> uEst = trapPair.first * z;
 
@@ -435,8 +439,11 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
 
-	DiscreteGaussianGenerator dgg(4);
+	double sigma = 4;
+	DiscreteGaussianGenerator dgg(sigma);
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
+
+	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - sigma * sigma));
 
 	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
@@ -456,7 +463,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	size_t count = 100;
 
 	for (size_t i = 0; i < count; i++) {
-		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, &pHat, dgg);
+		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, dgg, dggLargeSigma, &pHat);
 
 		//for (size_t j = 0; j < 2 * n; j++) {
 		//	pTrapdoor(j, 0) = p(j, 0);

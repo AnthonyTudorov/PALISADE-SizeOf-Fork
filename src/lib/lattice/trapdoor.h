@@ -122,11 +122,12 @@ public:
 	* @param &u syndrome vector where gaussian that Gaussian sampling is centered around
 	* @param sigma noise distriubution parameter
 	* @param &dgg discrete Gaussian generator for integers
+	* @param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling
 	* @return the sampled vector (matrix)
 	*/
 	static inline RingMat GaussSampV3(size_t n, size_t k, const RingMat& A, 
 		const RLWETrapdoorPair<ILVector2n>& T, const ILVector2n &u,
-		double sigma, DiscreteGaussianGenerator &dgg);
+		double sigma, DiscreteGaussianGenerator &dgg, DiscreteGaussianGenerator &dggLargeSigma);
 
 	/**
 	* Generation of perturbation matrix based on Cholesky decomposition 
@@ -163,11 +164,14 @@ public:
 	*@param s parameter Gaussian distribution
 	*@param sigma standard deviation
 	*@param &Tprime compact trapdoor matrix
+	*@param &dgg discrete Gaussian generator for error sampling
+	*@param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling
 	*@param *perturbationVector perturbation vector;output of the function
-	*@param &dgg discrete Gaussian generator for sampling
 	*/
 	static inline void ZSampleSigmaP(size_t n, double s, double sigma,
-		const RLWETrapdoorPair<ILVector2n> &Tprime, RingMat *perturbationVector, const DiscreteGaussianGenerator& dgg);
+		const RLWETrapdoorPair<ILVector2n> &Tprime,
+		const DiscreteGaussianGenerator& dgg, const DiscreteGaussianGenerator& dggLargeSigma,
+		RingMat *perturbationVector);
 
 };
 
