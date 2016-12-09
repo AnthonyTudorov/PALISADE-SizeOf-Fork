@@ -67,6 +67,7 @@ using namespace NTL;
   }
 */
 
+
 class UnitTestubintvec : public ::testing::Test {
 protected:
   virtual void SetUp() {
@@ -81,12 +82,21 @@ protected:
   }
 };
 
+
+//helper function that bulds BigBinaryVector from a vector of strings
+static ubintvec ubintvecFromStrvec( std::vector<std::string> &s) {
+  ubintvec a(INIT_SIZE, s.size());
+  for (usint i = 0; i< s.size(); i++){
+    a[i]=conv<ubint>(s[i].c_str());
+  }
+  return a;
+}
+
 /* list of tests left to run
 
    //METHODS
    //todo write Div and /= vector scalar and vector vector
-   
-   Exp(const bint_el_t &b)
+   (const bint_el_t &b)
 
    GetDigitAtIndexForBase(usint index, usint base) const;
    
@@ -113,36 +123,36 @@ TEST(UTubintvec,ctor_access_eq_neq){
   // Old fashioned soon to be deprecated way of 
   // setting value of the value at different index locations
 
-  //test SetValAtIndex(string)
-  m.put(0,conv<ZZ>("9868"));  
-  m.put(1,conv<ZZ>("5879"));
-  m.put(2,conv<ZZ>("4554"));
-  m.put(3,conv<ZZ>("2343"));
-  m.put(4,conv<ZZ>("4624"));
+  //test put(string)
+  m.put(0,conv<ubint>("9868"));  
+  m.put(1,conv<ubint>("5879"));
+  m.put(2,conv<ubint>("4554"));
+  m.put(3,conv<ubint>("2343"));
+  m.put(4,conv<ubint>("4624"));
 
   //old fashioned way of expect
   EXPECT_EQ(9868U,m.get(0))
-    << "Failure in SetValAtIndex(str)";
+    << "Failure in put(str)";
   EXPECT_EQ(5879U,m.get(1))
-<< "Failure in SetValAtIndex(str)";
+<< "Failure in put(str)";
   EXPECT_EQ(4554U,m.get(2))
-<< "Failure in SetValAtIndex(str)";
+<< "Failure in put(str)";
   EXPECT_EQ(2343U,m.get(3)) 
-<< "Failure in SetValAtIndex(str)";
+<< "Failure in put(str)";
   EXPECT_EQ(4624U,m.get(4))
-<< "Failure in SetValAtIndex(str)";
+<< "Failure in put(str)";
 
-#if 0
-  EXPECT_EQ(ubint(9868U),m.GetValAtIndex(0))<< "Failure in SetValAtIndex()";
-  EXPECT_EQ(ubint(5879U),m.GetValAtIndex(1))<< "Failure in SetValAtIndex()";
-  EXPECT_EQ(ubint(4554U),m.GetValAtIndex(2))<< "Failure in SetValAtIndex()";
-  EXPECT_EQ(ubint(2343U),m.GetValAtIndex(3))<< "Failure in SetValAtIndex()";
-  EXPECT_EQ(ubint(4624U),m.GetValAtIndex(4))<< "Failure in SetValAtIndex()";
+
+  EXPECT_EQ(ubint(9868U),m.get(0))<< "Failure in put()";
+  EXPECT_EQ(ubint(5879U),m.get(1))<< "Failure in put()";
+  EXPECT_EQ(ubint(4554U),m.get(2))<< "Failure in put()";
+  EXPECT_EQ(ubint(2343U),m.get(3))<< "Failure in put()";
+  EXPECT_EQ(ubint(4624U),m.get(4))<< "Failure in put()";
 
   //new way of setting value of the value at different index locations
-  n[0]="4";
+  n[0]=4;
   n[1]=9;   //int (implied)
-  n[2]=ubint("66"); //ubint
+  n[2]=conv<ubint>("66"); //ubint
   n[3] = 33L;  //long
   n[4] = 7UL;  //unsigned long
 
@@ -153,34 +163,36 @@ TEST(UTubintvec,ctor_access_eq_neq){
   EXPECT_EQ(ubint(33),n[3])<< "Failure in []";
   EXPECT_EQ(ubint(7),n[4])<< "Failure in []";
 
-  //test SetValAtIndex(ubint)
-  n.SetValAtIndex(0,ubint("4")); 
-  n.SetValAtIndex(1,ubint("9"));
-  n.SetValAtIndex(2,ubint("66"));
-  n.SetValAtIndex(3,ubint("33"));
-  n.SetValAtIndex(4,ubint("7"));
+  //test put(ubint)
+  n.put(0,ubint(conv<ubint>("4"))); 
+  n.put(1,ubint(conv<ubint>("9")));
+  n.put(2,ubint(conv<ubint>("66")));
+  n.put(3,ubint(conv<ubint>("33")));
+  n.put(4,ubint(conv<ubint>("7")));
 
 
-  EXPECT_EQ(ubint(4),n[0])<< "Failure in SetValAtIndex(ubint)";
-  EXPECT_EQ(ubint(9),n[1])<< "Failure in SetValAtIndex(ubint)";
-  EXPECT_EQ(ubint(66),n[2])<< "Failure in SetValAtIndex(ubint)";
-  EXPECT_EQ(ubint(33),n[3])<< "Failure in SetValAtIndex(ubint)";
-  EXPECT_EQ(ubint(7),n[4])<< "Failure in SetValAtIndex(ubint)";
+  EXPECT_EQ(ubint(4),n[0])<< "Failure in put(ubint)";
+  EXPECT_EQ(ubint(9),n[1])<< "Failure in put(ubint)";
+  EXPECT_EQ(ubint(66),n[2])<< "Failure in put(ubint)";
+  EXPECT_EQ(ubint(33),n[3])<< "Failure in put(ubint)";
+  EXPECT_EQ(ubint(7),n[4])<< "Failure in put(ubint)";
 
   m+=n;
 
   usint expectedResult[5] = {9872,5888,4620,2376,4631};
 
   for (i=0,j=0;j<5;i++,j++) {
-    EXPECT_EQ (expectedResult[i], (m.GetValAtIndex(j)).ConvertToUsint())
+    EXPECT_EQ (expectedResult[i], (m.get(j)))
       << "Failure testing method_plus_equals";
   }
   //test initializer list of various types
-  ubintvec expectedvecstr(5);
-  expectedvecstr = {"9872","5888","4620","2376","4631"}; //strings
+#if 0
+  //cant do list initialization
+  ubintvec expectedvecstr(INIT_SIZE, 5);
+  expectedvecstr = {conv<ubint>("9872"),conv<ubint>("5888"),conv<ubint>("4620"),conv<ubint>("2376"),conv<ubint>("4631")}; //strings
   EXPECT_EQ (expectedvecstr, m)<< "Failure string initializer list";
-  
-  ubintvec expectedvecint(5);
+
+  ubintvec expectedvecint(INIT_SIZE, 5);
   expectedvecint = {ubint(9872U),ubint(5888U),ubint(4620U),ubint(2376U),ubint(4631U)}; //ubints
   EXPECT_EQ (expectedvecint, m)<< "Failure ubint initializer list";
 
@@ -191,35 +203,35 @@ TEST(UTubintvec,ctor_access_eq_neq){
   EXPECT_EQ (expectedvecint, m)<< "Failure int initializer list";
 
   //test Single()
-  ubintvec s = ubintvec::Single(ubint("3"));
-		      
-  EXPECT_EQ(1, s.size()) <<"Failure Single.size()";
-  EXPECT_EQ(ubint(3), s[0]) <<"Failure Single() value";
+  ubintvec s = ubintvec::Single(ubint(conv<ubint>("3")));
 
+  EXPECT_EQ(1, s.length()) <<"Failure Single.length()";
+  EXPECT_EQ(ubint(3), s[0]) <<"Failure Single() value";
+#endif  		      
   // test assignment of single ubint (puts it in the 0 the position), zeros
   // out the rest
   //test that the vector is zeroed on init like this.
-  ubintvec eqtest(10); 
-  EXPECT_EQ ( 10, eqtest.size()) << "Failure create ubintvec of 10 zeros";
+  ubintvec eqtest(INIT_SIZE, 10); 
+  EXPECT_EQ ( 10, eqtest.length()) << "Failure create ubintvec of 10 zeros";
 
-  for (i = 0; i< eqtest.size(); i++) {
+  for (i = 0; i< eqtest.length(); i++) {
     EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure create ubintvec of zeros";
   }
 
-  // test assignment of single ubint
+#if 0
+  //cant do this test assignment of single ubint
   eqtest = ubint(1);
   EXPECT_EQ (ubint(1),  eqtest[0]) << "Failure assign single ubint 0 index";
-  for (i = 1; i< eqtest.size(); i++) {
+  for (i = 1; i< eqtest.length(); i++) {
     EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure assign single ubint nonzero index";
   }
-
-  // test assignment of single usint
-  eqtest = 5U;
-  EXPECT_EQ (ubint(5U),  eqtest[0]) << "Failure assign single ubint 0 index";
-  for (i = 1; i< eqtest.size(); i++) {
-    EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure assign single ubint nonzero index";
+  // cant do this test assignment of single usint
+  eqtest = 5UL;
+  EXPECT_EQ (ubint(5UL),  eqtest[0]) << "Failure assign single ubint 0 index";
+  for (i = 1; i< eqtest.length(); i++) {
+    EXPECT_EQ ( ubint(0UL), eqtest[i]) << "Failure assign single ubint nonzero index";
   }
-
+#endif
   //test comparisons == and !=
   m = n;
   bool test1 = m==n;
@@ -233,7 +245,7 @@ TEST(UTubintvec,ctor_access_eq_neq){
   EXPECT_FALSE(test1)<<"Failure ==";
   EXPECT_TRUE(test2)<<"Failure !=";
 
-  for (auto i = 0; i < m.size(); i++) {
+  for (auto i = 0; i < m.length(); i++) {
     m[i] = n[i]; //test both lhs and rhs []
   }
   test1 = m==n;
@@ -241,36 +253,37 @@ TEST(UTubintvec,ctor_access_eq_neq){
 
 
 }
-
+#if 0
+// cant to vec%int
 TEST(UTubintvec,mod){
 
-  ubintvec m(10); // calling constructor to create a vector of length 10 zeroed
+  ubintvec m(INIT_SIZE, 10); // calling constructor to create a vector of length 10 zeroed
 
   int i;
   usint j;
 	
   //setting value of the value at different index locations
-  m.SetValAtIndex(0,"987968");
-  m.SetValAtIndex(1,"587679");
-  m.SetValAtIndex(2,"456454");
-  m.SetValAtIndex(3,"234343");
-  m.SetValAtIndex(4,"769789");
-  m.SetValAtIndex(5,"465654");
-  m.SetValAtIndex(6,"79");
-  m.SetValAtIndex(7,"346346");
-  m.SetValAtIndex(8,"325328");
-  m.SetValAtIndex(9,"7698798");	
+  m.put(0,conv<ubint>("987968"));
+  m.put(1,conv<ubint>("587679"));
+  m.put(2,conv<ubint>("456454"));
+  m.put(3,conv<ubint>("234343"));
+  m.put(4,conv<ubint>("769789"));
+  m.put(5,conv<ubint>("465654"));
+  m.put(6,conv<ubint>("79"));
+  m.put(7,conv<ubint>("346346"));
+  m.put(8,conv<ubint>("325328"));
+  m.put(9,conv<ubint>("7698798"));	
 
-  ubint q("233");		//calling costructor of ubint Class to create object for modulus
-  ubintvec calculatedResult = m.Mod(q);
+  ubint q(conv<ubint>("233"));		//calling costructor of ubint Class to create object for modulus
+  ubintvec calculatedResult = m%q;
   usint expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};	// the expected values are stored as one dimensional integer array
 
   for (i=0,j=0;i<10;i++,j++)
     {
-      EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(j)).ConvertToUsint());
+      EXPECT_EQ (expectedResult[i], calculatedResult.get(j) );
     }
 }
-
+#endif
 
 TEST(UTubintvec,basic_vector_scalar_math_1_limb){
   //basic vector math with 1 limb entries
@@ -285,21 +298,25 @@ TEST(UTubintvec,basic_vector_scalar_math_1_limb){
       "100953", "077352",
       "132013", "057029", };
   
-  ubintvec a1(a1sv);
-  ubintvec a1op1(a1.size());
-  ubintvec a1op1test(a1.size());
+  ubintvec a1;
+  a1 = ubintvecFromStrvec(a1sv);
+  ubintvec a1op1(INIT_SIZE,a1.length());
+  ubintvec a1op1test(INIT_SIZE, a1.length());
   
-  ubint myone(ubint::ONE);
+  //ubint myone(ubint::ONE);
+  ubint myone(1);
 
   // test all scalar operations with ONE as the operator term
 
   // add
-  for (usint i = 0; i < a1.size();i ++){ //build test vector
+  for (usint i = 0; i < a1.length();i ++){ //build test vector
     a1op1[i] = a1[i]+myone;
   }
-
-  a1op1test = a1.Add(myone);
+#if 0
+  //a1op1test = a1.add(myone);
+  add(a1op1test, a1, myone); // can't do
   EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar Add()"; 
+
 
   a1op1test = a1 + myone;
   EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar +";   
@@ -308,11 +325,12 @@ TEST(UTubintvec,basic_vector_scalar_math_1_limb){
   a1op1test += myone;
   EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar +=";   
 
+
   // sub
-  for (usint i = 0; i < a1.size();i ++){
+  for (usint i = 0; i < a1.length();i ++){
     a1op1[i] = a1[i]-myone;
   }
-  a1op1test = a1.Sub(myone);
+  a1op1test = a1.sub(myone);
   EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar Sub()"; 
 
   a1op1test = a1 - myone;
@@ -321,14 +339,16 @@ TEST(UTubintvec,basic_vector_scalar_math_1_limb){
   a1op1test = a1;
   a1op1test -= myone;
   EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar -=";   
-
+#endif
   // multiply
-  for (usint i = 0; i < a1.size();i ++){
+  for (usint i = 0; i < a1.length();i ++){
     a1op1[i] = a1[i]*myone;
   }
-  a1op1test = a1.Mul(myone);
+#if 0
+  //a1op1test = a1.mul(myone);
+  mul(a1op1test, a1,myone);
   EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar Mul()"; 
-
+#endif
   a1op1test = a1 * myone;
   EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar *";   
 
@@ -344,38 +364,45 @@ TEST(UTubintvec,basic_vector_vector_math_1_limb){
   //basic vector math with 1 limb entries
   // a1:
   ubintvec a1;
-  a1= {   "127753", "077706",
-	  "017133", "022582",
-	  "112132", "027625",
-	  "126773", "008924",
-	  "125972", "002551",
-	  "113837", "112045",
-	  "100953", "077352",
-	  "132013", "057029",};
+ std::vector<std::string>  a1sv =
+   {"127753", "077706",
+    "017133", "022582",
+    "112132", "027625",
+    "126773", "008924",
+    "125972", "002551",
+    "113837", "112045",
+    "100953", "077352",
+    "132013", "057029",};
+  a1 = ubintvecFromStrvec(a1sv);
+
 
   // b1:
   ubintvec b1;
-  b1 = {"066773", "069572",
-	"142134", "141115",
-	"123182", "155822",
-	"128147", "094818",
-	"135782", "030844",
-	"088634", "099407",
-	"053647", "111689",
-	"028502", "026401", };
+  std::vector<std::string>  b1sv =
+    {"066773", "069572",
+    "142134", "141115",
+    "123182", "155822",
+    "128147", "094818",
+    "135782", "030844",
+    "088634", "099407",
+    "053647", "111689",
+    "028502", "026401", };
+  b1 = ubintvecFromStrvec(b1sv);
 
 
 
   // add1:
   ubintvec add1;
-  add1 = {"194526", "147278",
-	  "159267", "163697",
-	  "235314", "183447",
-	  "254920", "103742",
-	  "261754", "033395",
-	  "202471", "211452",
-	  "154600", "189041",
-	  "160515", "083430", };
+  std::vector<std::string>  add1sv =
+    {"194526", "147278",
+    "159267", "163697",
+    "235314", "183447",
+    "254920", "103742",
+    "261754", "033395",
+    "202471", "211452",
+    "154600", "189041",
+    "160515", "083430", };
+  add1 = ubintvecFromStrvec(add1sv);  
 
   // sub1:
 #if 0 //set to 1 if we allow b>a in subtraction
@@ -401,11 +428,12 @@ TEST(UTubintvec,basic_vector_vector_math_1_limb){
      "047306", "000000",
      "103511", "030628", };
 #endif
-  ubintvec sub1(sub1sv);
+  ubintvec sub1;
+  sub1 = ubintvecFromStrvec(sub1sv);
 
   // mul1:
   ubintvec mul1;
-  mul1 = 
+  std::vector<std::string> mul1sv =
     {"08530451069",
      "05406161832",
      "02435181822",
@@ -422,12 +450,14 @@ TEST(UTubintvec,basic_vector_vector_math_1_limb){
      "08639367528",
      "03762634526",
      "01505622629", };
+  mul1 = ubintvecFromStrvec(mul1sv);
 
   ubintvec c1;
   ubintvec d1;
 
   // test math for case 1
-  c1 = a1.Add(b1);
+  //c1 = a1.add(b1);
+  add(c1, a1,b1);
   EXPECT_EQ (c1, add1) << "Failure 1 limb vector vector Add()";
 
   c1 = a1 + b1;
@@ -437,7 +467,8 @@ TEST(UTubintvec,basic_vector_vector_math_1_limb){
   d1+=b1;
   EXPECT_EQ (d1, add1) << "Failure 1 limb vector vector +=";
 
-  c1 = a1.Sub(b1);
+  //c1 = a1.sub(b1);
+  sub(c1, a1, b1);
   EXPECT_EQ (c1, sub1) << "Failure 1 limb vector vector Sub()";
 
   c1 = a1 - b1;
@@ -447,7 +478,9 @@ TEST(UTubintvec,basic_vector_vector_math_1_limb){
   d1 -= b1;
   EXPECT_EQ (d1, sub1) << "Failure 1 limb vector vector -=";
 
-  c1 = a1.Mul(b1);
+#if 0 //this is defined differntly
+  //c1 = a1.mul(b1);
+  mul(c1,a1,b1);
   EXPECT_EQ (c1, mul1) << "Failure 1 limb vector vector Mul()";
 
   c1 = a1 * b1;
@@ -456,6 +489,7 @@ TEST(UTubintvec,basic_vector_vector_math_1_limb){
   d1 = a1;
   d1 *= b1;
   EXPECT_EQ (d1, mul1) << "Failure 1 limb vector vector *=";
+#endif
 }
 
 
@@ -464,10 +498,11 @@ TEST(UTubintvec,basic_vector_scalar_mod_math_1_limb){
   //todo this is very simple, should probably add sub mul by bigger numbers.
 
   // q1 modulus 1:
-  ubint q1("163841");
+  ubint q1(conv<ubint>("163841"));
 
   //note here is another way to define a ubintvec
   // a1:
+  ubintvec a1;
   std::vector<std::string>  a1sv =
     { "127753", "077706",
       "017133", "022582",
@@ -477,45 +512,47 @@ TEST(UTubintvec,basic_vector_scalar_mod_math_1_limb){
       "113837", "112045",
       "100953", "077352",
       "132013", "057029", };
+  a1 = ubintvecFromStrvec(a1sv);  
+
+  ubintvec a1op1(INIT_SIZE, a1.length());
+  ubintvec a1op1test(INIT_SIZE, a1.length());
   
-  ubintvec a1(a1sv);
-  ubintvec a1op1(a1.size());
-  ubintvec a1op1test(a1.size());
+  ubint myone(1);
   
-  ubint myone(ubint::ONE);
-  
-  for (usint i = 0; i < a1.size();i ++){
+  for (usint i = 0; i < a1.length();i ++){
     a1op1[i] = a1[i]+myone;
     a1op1[i] %= q1;
   }
+#if 0
   a1op1test = a1.ModAdd(myone, q1);
   EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar Add()"; 
 
-  for (usint i = 0; i < a1.size();i ++){
+  for (usint i = 0; i < a1.length();i ++){
     a1op1[i] = a1[i]-myone;
     a1op1[i] %= q1;
   }
   a1op1test = a1.ModSub(myone, q1);
   EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar Sub()"; 
 
-  for (usint i = 0; i < a1.size();i ++){
+  for (usint i = 0; i < a1.length();i ++){
     a1op1[i] = a1[i]*myone;
     a1op1[i] %= q1;
   }
   a1op1test = a1.ModMul(myone, q1);
   EXPECT_EQ(a1op1, a1op1test)<< "Failure vector scalar Mul()"; 
-
+#endif
 }
 
-
+#if 0
 TEST(UTubintvec,basic_vector_vector_mod_math_1_limb){
 
   // q1 modulus 1:
-  ubint q1("163841");
+  ubint q1(conv<ubint>("163841"));
 
   // a1:
   ubintvec a1;
-  a1 = { "127753", "077706",
+  std::vector<std::string>  a1sv =
+ { "127753", "077706",
 	 "017133", "022582",
 	 "112132", "027625",
 	 "126773", "008924",
@@ -523,10 +560,11 @@ TEST(UTubintvec,basic_vector_vector_mod_math_1_limb){
 	 "113837", "112045",
 	 "100953", "077352",
 	 "132013", "057029", };
-
+  a1 = ubintvecFromStrvec(a1sv);
   // b1:
   ubintvec b1;
-  b1 = {"066773", "069572",
+  std::vector<std::string>  b1sv =
+  {"066773", "069572",
 	"142134", "141115",
 	"123182", "155822",
 	"128147", "094818",
@@ -534,10 +572,11 @@ TEST(UTubintvec,basic_vector_vector_mod_math_1_limb){
 	"088634", "099407",
 	"053647", "111689",
 	"028502", "026401", };
- 
+  b1 = ubintvecFromStrvec(b1sv); 
   // modadd1:
   ubintvec modadd1;
-  modadd1 = {"030685", "147278",
+  std::vector<std::string>  modadd1sv
+    = {"030685", "147278",
 	     "159267", "163697",
 	     "071473", "019606",
 	     "091079", "103742",
@@ -545,6 +584,7 @@ TEST(UTubintvec,basic_vector_vector_mod_math_1_limb){
 	     "038630", "047611",
 	     "154600", "025200",
 	     "160515", "083430", };
+  modadd1 = ubintvecFromStrvec(modadd1sv); 
 
   // modsub1:
   std::vector<std::string>  modsub1sv = 
@@ -556,7 +596,9 @@ TEST(UTubintvec,basic_vector_vector_mod_math_1_limb){
      "025203", "012638",
      "047306", "129504",
      "103511", "030628", };
-  ubintvec modsub1(modsub1sv);
+
+  ubintvec modsub1;
+  modsub1 = ubintvecFromStrvec(modsub1sv); 
 
   // modmul1:
   std::vector<std::string>  modmul1sv = 
@@ -568,9 +610,12 @@ TEST(UTubintvec,basic_vector_vector_mod_math_1_limb){
      "008355", "146135",
      "061336", "031598",
      "025961", "087680", };
-  ubintvec modmul1(modmul1sv);
+
+  ubintvec modmul1;
+  modmul1 = ubintvecFromStrvec(modmul1sv); 
 
   ubintvec c1;
+
  //now Mod operations
   c1 = a1.ModAdd(b1,q1);
   EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector vector ModAdd()";    
@@ -581,12 +626,13 @@ TEST(UTubintvec,basic_vector_vector_mod_math_1_limb){
   c1 = a1.ModMul(b1,q1);
   EXPECT_EQ (c1, modmul1) << "Failure 1 limb vector vector ModMul()";   
 
-  c1 = a1.Add(b1);
+  c1 = a1.add(b1);
   c1  %= q1;
   EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector scalar %";   
 
 }
-
+#endif
+#if 0
 TEST(UTubintvec,basic_vector_scalar_math_2_limb){
   //basic vector math with 2 limb entries
   // a2:
@@ -601,13 +647,14 @@ TEST(UTubintvec,basic_vector_scalar_math_2_limb){
      "2293434116159938", "1201413067178193", };
 
   
-  ubintvec a2(a2sv);
-  ubintvec a2op1(a2.size());
-  ubintvec a2op1test(a2.size());
+  ubintvec a2;
+  a2 = ubintvecFromStrvec(a2sv); 
+  ubintvec a2op1(a2.length());
+  ubintvec a2op1test(a2.length());
   
   ubint myone(ubint::ONE);
   
-  for (usint i = 0; i < a2.size();i ++){
+  for (usint i = 0; i < a2.length();i ++){
     a2op1[i] = a2[i]+myone;
   }
   a2op1test = a2.Add(myone);
@@ -616,7 +663,7 @@ TEST(UTubintvec,basic_vector_scalar_math_2_limb){
   a2op1test = a2 + myone;
   EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar +";   
 
-  for (usint i = 0; i < a2.size();i ++){
+  for (usint i = 0; i < a2.length();i ++){
     a2op1[i] = a2[i]-myone;
   }
   a2op1test = a2.Sub(myone);
@@ -625,7 +672,7 @@ TEST(UTubintvec,basic_vector_scalar_math_2_limb){
   a2op1test = a2 - myone;
   EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar -";   
 
-  for (usint i = 0; i < a2.size();i ++){
+  for (usint i = 0; i < a2.length();i ++){
     a2op1[i] = a2[i]*myone;
   }
   a2op1test = a2.Mul(myone);
@@ -635,7 +682,7 @@ TEST(UTubintvec,basic_vector_scalar_math_2_limb){
   EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar *";   
 
 }
-
+#endif
 TEST(UTubintvec,basic_vector_vector_math_2_limb){
 
   // a2:
@@ -648,7 +695,8 @@ TEST(UTubintvec,basic_vector_vector_math_2_limb){
      "3304652649070144", "2032520019613814",
      "0375749152798379", "3933203511673255",
      "2293434116159938", "1201413067178193", };
-  ubintvec a2(a2sv);
+  ubintvec a2;
+  a2 = ubintvecFromStrvec(a2sv); 
 
   // b2:
   std::vector<std::string>  b2sv = 
@@ -661,8 +709,8 @@ TEST(UTubintvec,basic_vector_vector_math_2_limb){
      "3976652902630043", "3238750424196678",
      "2978742255253796", "2124827461185795", };
 
-  ubintvec b2(b2sv);
-
+  ubintvec b2;
+  b2 = ubintvecFromStrvec(b2sv); 
   // add2:
   std::vector<std::string>  add2sv = 
     {"0884123387923218", "0138712237895312",
@@ -673,7 +721,10 @@ TEST(UTubintvec,basic_vector_vector_math_2_limb){
      "5406716417105627", "2152306408779744",
      "4352402055428422", "7171953935869933",
      "5272176371413734", "3326240528363988", };
-  ubintvec add2(add2sv);
+
+  ubintvec add2;
+  add2 = ubintvecFromStrvec(add2sv); 
+
   // sub2:
 #if 0 //set to 1 if we allow b>a in subtraction
   std::vector<std::string>  sub2sv = 
@@ -698,7 +749,8 @@ TEST(UTubintvec,basic_vector_vector_math_2_limb){
      "0000000000000000", "0000000000000000", };
 
 #endif
-  ubintvec sub2(sub2sv);
+  ubintvec sub2;
+  sub2 = ubintvecFromStrvec(sub2sv); 
 
   // mul2:
   std::vector<std::string>  mul2sv = 
@@ -718,15 +770,17 @@ TEST(UTubintvec,basic_vector_vector_math_2_limb){
      "12738664541883618180978992446890",
      "06831549111446250063725117624648",
      "02552795477367678807574345368435", };
-  ubintvec mul2(mul2sv);
+  ubintvec mul2;
 
+  mul2 = ubintvecFromStrvec(mul2sv); 
 
   ubintvec c2;
   ubintvec d2;
 
   // test math for case 
 
-  c2 = a2.Add(b2);
+  //c2 = a2.add(b2);
+  add(c2,a2,b2);
   EXPECT_EQ (c2, add2) << "Failure 2 limb vector vector Add()";
   c2 = a2 + b2;
   EXPECT_EQ (c2, add2) << "Failure 2 limb vector vector +";
@@ -735,7 +789,8 @@ TEST(UTubintvec,basic_vector_vector_math_2_limb){
   EXPECT_EQ (d2, add2) << "Failure 2 limb vector vector +=";
 
 
-  c2 = a2.Sub(b2);
+  //c2 = a2.sub(b2);
+  sub(c2, a2,b2);
   EXPECT_EQ (c2, sub2) << "Failure 2 limb vector vector Sub()";
   c2 = a2 - b2;
   EXPECT_EQ (c2, sub2) << "Failure 2 limb vector vector -";
@@ -743,23 +798,23 @@ TEST(UTubintvec,basic_vector_vector_math_2_limb){
   d2 -= b2;
   EXPECT_EQ (d2, sub2) << "Failure 2 limb vector vector -=";
 
-  c2 = a2.Mul(b2);
+#if 0 //no mul exists
+  c2 = a2.mul(b2);
   EXPECT_EQ (c2, mul2) << "Failure 2 limb vector vector Mul()";
   c2 = a2 * b2;
   EXPECT_EQ (c2, mul2) << "Failure 2 limb vector vector *";
   d2 = a2;
   d2 *= b2;
   EXPECT_EQ (d2, mul2) << "Failure 2 limb vector vector *=";
-
+#endif
 }
-
 
 TEST(UTubintvec,basic_vector_scalar_mod_math_2_limb){
   //basic vector scalar mod math
   //todo this is very simple, should probably add sub mul by bigger numbers.
 
   // q2:
-  ubint q2("4057816419532801");
+  ubint q2(conv<ubint>("4057816419532801"));
   // a2:
   std::vector<std::string>  a2sv = 
     {"0185225172798255", "0098879665709163",
@@ -771,36 +826,38 @@ TEST(UTubintvec,basic_vector_scalar_mod_math_2_limb){
      "0375749152798379", "3933203511673255",
      "2293434116159938", "1201413067178193", };
   
-  ubintvec a2(a2sv);
-  ubintvec a2op1(a2.size());
-  ubintvec a2op1test(a2.size());
+  ubintvec a2;
+  a2 = ubintvecFromStrvec(a2sv); 
+  ubintvec a2op1(INIT_SIZE, a2.length());
+  ubintvec a2op1test(INIT_SIZE, a2.length());
   
-  ubint myone(ubint::ONE);
+  ubint myone(1);
   
-  for (usint i = 0; i < a2.size();i ++){
+  for (usint i = 0; i < a2.length();i ++){
     a2op1[i] = a2[i]+myone;
     a2op1[i] %= q2;
   }
+#if 0
   a2op1test = a2.ModAdd(myone, q2);
   EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Add()"; 
 
-  for (usint i = 0; i < a2.size();i ++){
+  for (usint i = 0; i < a2.length();i ++){
     a2op1[i] = a2[i]-myone;
     a2op1[i] %= q2;
   }
   a2op1test = a2.ModSub(myone, q2);
   EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Sub()"; 
 
-  for (usint i = 0; i < a2.size();i ++){
+  for (usint i = 0; i < a2.length();i ++){
     a2op1[i] = a2[i]*myone;
     a2op1[i] %= q2;
   }
   a2op1test = a2.ModMul(myone, q2);
   EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Mul()"; 
-
+#endif
 }
 
-
+#if 0
 TEST(UTubintvec,basic_vector_vector_mod_math_2_limb){
 
   // q2:
@@ -884,12 +941,13 @@ TEST(UTubintvec,basic_vector_vector_mod_math_2_limb){
 
   
 }
-
+#endif
 TEST(UTubintvec,basic_vector_vector_math_big_numbers){
 
   // test some very big numbers
   ubintvec a3;
-  a3 = { 
+  std::vector<std::string>  a3sv = 
+ { 
     "2259002487796164904665772121894078584543401744155154298312726209247751689172189255653866355964200768484575418973864307364757237946940733747446643725054",
     "1478743816308009734668992873633380110912159803397999015955212019971253231528589466789603074746010444199132421555598329082557053986240265071537647362089",
     "2442250766561334341166822783674395133995556495312318016431141348749482739749788174173081312927274880146329980363424977565638001056841245678661782610982",
@@ -898,9 +956,11 @@ TEST(UTubintvec,basic_vector_vector_math_big_numbers){
     "3022931024526554241483841300690432083112912011870712018209552253068347592628043101662926263810401378532416655773738499681026278335470355055192240903881",
     "2177879458107855257699914331737144896274676269055062432826552808869348125407671199582563543692287114712642299482144959316835614426673048987634699368975",
     "297233451802123294436846683552230198845414118375785255038220841170372509047202030175469239142902723134737621108313142071558385068315554041062888072990"};
+  a3= ubintvecFromStrvec(a3sv); 
 
   ubintvec b3;
-  b3 = {
+  std::vector<std::string>  b3sv = 
+   {
     "1746404952192586268381151521422372143182145525977836700420382237240400642889251297954418325675184427789348433626369450669892557208439401215109489355089",
     "220598825371098531288665964851212313477741334812037568788443848101743931352326362481681721872150902208420539619641973896119680592696228972313317042316",
     "1636408035867347783699588740469182350452165486745277203525427807971352063169622066488977229506420856017031482691439089288020262006748233954177669740311",
@@ -909,9 +969,11 @@ TEST(UTubintvec,basic_vector_vector_math_big_numbers){
     "2329731862150094912355786583702878434766436140738594274867891494713002534085652731920888891507522355867974791619686673574928137376468103839586921126803",
     "3059472316627396548271906051517665887700234192652488639437431254697285170484189458770168152800520702020313091234437806236204196526193455750117363744648",
     "132216870748476988853044482759545262615616157934129470128771906579101230690441206392939162889560305016204867157725209170345968349185675785497832527174"};
+  b3= ubintvecFromStrvec(b3sv); 
 
   ubintvec add3;
-  add3 = {
+  std::vector<std::string>  add3sv = 
+  {
     "4005407439988751173046923643316450727725547270132990998733108446488152332061440553608284681639385196273923852600233758034649795155380134962556133080143",
     "1699342641679108265957658838484592424389901138210036584743655868072997162880915829271284796618161346407552961175240302978676734578936494043850964404405",
     "4078658802428682124866411524143577484447721982057595219956569156720834802919410240662058542433695736163361463054864066853658263063589479632839452351293",
@@ -921,7 +983,7 @@ TEST(UTubintvec,basic_vector_vector_math_big_numbers){
     "5237351774735251805971820383254810783974910461707551072263984063566633295891860658352731696492807816732955390716582765553039810952866504737752063113623",
     "429450322550600283289891166311775461461030276309914725166992747749473739737643236568408402032463028150942488266038351241904353417501229826560720600164",
   };
-
+  add3= ubintvecFromStrvec(add3sv); 
   ubintvec sub3;
 #if 0 // if a <b != 0
   sub3 = {
@@ -936,7 +998,8 @@ TEST(UTubintvec,basic_vector_vector_math_big_numbers){
     "165016581053646305583802200792684936229797960441655784909448934591271278356760823782530076253342418118532753950587932901212416719129878255565055545816",
   };
 #else
-  sub3 = {
+  std::vector<std::string>  sub3sv = 
+ {
     "512597535603578636284620600471706441361256218177317597892343972007351046282937957699448030289016340695226985347494856694864680738501332532337154369965",
     "1258144990936911203380326908782167797434418468585961447166768171869509300176263104307921352873859541990711881935956355186437373393544036099224330319773",
     "805842730693986557467234043205212783543391008567040812905713540778130676580166107684104083420854024129298497671985888277617739050093011724484112870671",
@@ -949,8 +1012,11 @@ TEST(UTubintvec,basic_vector_vector_math_big_numbers){
 
 #endif
 
+  sub3= ubintvecFromStrvec(sub3sv); 
+
   ubintvec mul3;
-  mul3 = {
+  std::vector<std::string>  mul3sv = 
+ {
     "3945133131702594815505313517401955213422212906003207160550224827247798380158544728883063176021386698520393904638342934533842147122672165690895381911371610821805521968761803943619144153796694548166886289821562857014841953651542530764805091829231222294952980980415012824805935628205244762503711091699806",
     "326209148902322443940640858428575655800462302664603787971446127213213943734156672029644165209545417568093927431571229737889388146825783637352297738793838379605489067990018974600686396516030634863264832676726271905502450934842280843356017145798689170307553117850929852381350172055754068242724987158124",
     "3996518780004157625822415090647195375113582969537197325148397412987198668923299617655210998096768023432082550758182396647942738526222744503727730011083759641549078217904703406652423388993758005327181681934139933811259379898260107828051593334782557076645183323051795081283059651277095553321507476695402",
@@ -960,14 +1026,15 @@ TEST(UTubintvec,basic_vector_vector_math_big_numbers){
     "6663161911032458957637091338021552428846954075003065194738662366725753407230661950428910863564465232331799241680463789414149597794741173506193627020975596905904768316492860476695706055515048793725930388147468496386353338682120062327205347835675397402217405736179640771952939314867939122494628633495800",
     "39299276879045000335778052745261012743983854821402827577095882287055142208918031875556030922752660239994854929566549812623040336147884733019208891176315622960662348446192621970759838878368953344844095066240968924128522243769943119204473694089774742680964827784964421418174674383861285589714670430260",
   };
-
+  mul3= ubintvecFromStrvec(mul3sv); 
 
   ubintvec c3;
   ubintvec d3;
 
   // test math for case 
 
-  c3 = a3.Add(b3);
+  //c3 = a3.add(b3);
+  add(c3, a3, b3);
   EXPECT_EQ (c3, add3) << "Failure big number vector vector Add()";
   c3 = a3 + b3;
   EXPECT_EQ (c3, add3) << "Failure big number vector vector +";
@@ -976,7 +1043,8 @@ TEST(UTubintvec,basic_vector_vector_math_big_numbers){
   EXPECT_EQ (d3, add3) << "Failure big number vector vector +=";
 
 
-  c3 = a3.Sub(b3);
+  //c3 = a3.sub(b3);
+  sub(c3,a3,b3);
   EXPECT_EQ (c3, sub3) << "Failure big number vector vector Sub()";
   c3 = a3 - b3;
   EXPECT_EQ (c3, sub3) << "Failure big number vector vector -";
@@ -984,18 +1052,20 @@ TEST(UTubintvec,basic_vector_vector_math_big_numbers){
   d3 -= b3;
   EXPECT_EQ (d3, sub3) << "Failure big number vector vector -=";
 
-  c3 = a3.Mul(b3);
+#if 0
+  //c3 = a3.mul(b3);
+  mul(c3, a3,b3);
   EXPECT_EQ (c3, mul3) << "Failure big number vector vector Mul()";
   // c3 = a3 * b3;
   // EXPECT_EQ (c3, mul3) << "Failure big number vector vector *";
   // d3 = a3;
   // d3 *= b3;
   // EXPECT_EQ (d3, mul3) << "Failure big number vector vector *=";
-
+#endif
 }
 
 
-
+#if 0
 
 TEST(UTubintvec,basic_vector_vector_mod_math_big_numbers){
 
@@ -1072,5 +1142,6 @@ TEST(UTubintvec,basic_vector_vector_mod_math_big_numbers){
   c3 = a3.ModMul(b3,q3);
   EXPECT_EQ (c3, modmul3) << "Failure big number vector vector ModMul()";   
   
-#endif
+
 }
+#endif

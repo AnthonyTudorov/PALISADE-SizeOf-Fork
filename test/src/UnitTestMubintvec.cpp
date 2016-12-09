@@ -80,6 +80,24 @@ protected:
   }
 };
 
+
+//helper function that bulds ubintvec from a vector of strings
+static ubintvec ubintvecFromStrvec( std::vector<std::string> &s) {
+  ubintvec a(INIT_SIZE, s.size());
+  for (usint i = 0; i< s.size(); i++){
+    a[i]=conv<ubint>(s[i].c_str());
+  }
+  return a;
+}
+//helper function that bulds mubintvec from a vector of strings
+static mubintvec mubintvecFromStrvec( std::vector<std::string> &s) {
+  mubintvec a(INIT_SIZE, s.size());
+  for (usint i = 0; i< s.size(); i++){
+    a[i]=to_ZZ_p(conv<ubint>(s[i].c_str()));
+  }
+  return a;
+}
+
 /* list of tests left to run 
 //todo update this. 
 
@@ -109,17 +127,18 @@ Deserialize()
 /*	TESTING BASIC METHODS OF mubintvec CLASS        */
 /************************************************/
 TEST(UTmubintvec,ctor_access_eq_neq){
-#if 0
+
   //note this is the same code as the ubintvec, just to confirm it works
   //as inherited
   ubint q(conv<ubint>("1234567")); // a bigger number
-  
+  ZZ_p::init(q);  
+
   //mubintvec m(5); // calling constructor to create a vector of length 5
   //note all values are zero.
   mubintvec m;
   m.SetLength(5); // calling constructor to create a vector of length 5
   //as of NTL 6.2 you need to set modulus contexts. 
-  ZZ_p::init(q);
+
   //mubintvec n(5,q); // calling contructor with modulus
   mubintvec n(INIT_SIZE, 5);
 
@@ -135,11 +154,11 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   // setting value of the value at different index locations
 
   //test put(string)
-  m.put(0,conv<ZZ_p>("9868"));  
-  m.put(1,conv<ZZ_p>("5879"));
-  m.put(2,conv<ZZ_p>("4554"));
-  m.put(3,conv<ZZ_p>("2343"));
-  m.put(4,conv<ZZ_p>("4624"));
+  m.put(0,to_ZZ_p(conv<ubint>("9868")));  
+  m.put(1,to_ZZ_p(conv<ubint>("5879")));
+  m.put(2,to_ZZ_p(conv<ubint>("4554")));
+  m.put(3,to_ZZ_p(conv<ubint>("2343")));
+  m.put(4,to_ZZ_p(conv<ubint>("4624")));
 
   //old fashioned way of expect
   EXPECT_EQ(9868U,m.get(0))
@@ -153,32 +172,32 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_EQ(4624U,m.get(4))
     << "Failure in put(str)";
 
-  EXPECT_EQ(ubint(9868U),m.get(0))<< "Failure in put()";
-  EXPECT_EQ(ubint(5879U),m.get(1))<< "Failure in put()";
-  EXPECT_EQ(ubint(4554U),m.get(2))<< "Failure in put()";
-  EXPECT_EQ(ubint(2343U),m.get(3))<< "Failure in put()";
-  EXPECT_EQ(ubint(4624U),m.get(4))<< "Failure in put()";
+  EXPECT_EQ(ubint(9868U),rep(m.get(0)))<< "Failure in put()";
+  EXPECT_EQ(ubint(5879U),rep(m.get(1)))<< "Failure in put()";
+  EXPECT_EQ(ubint(4554U),rep(m.get(2)))<< "Failure in put()";
+  EXPECT_EQ(ubint(2343U),rep(m.get(3)))<< "Failure in put()";
+  EXPECT_EQ(ubint(4624U),rep(m.get(4)))<< "Failure in put()";
 
   //new way of setting value of the value at different index locations
-  n[0]=conv<ZZ_p>("4");
+  n[0]=to_ZZ_p(conv<ubint>("4"));
   n[1]=9;   //int (implied)
   n[2]=ZZ_p(66); //ZZ_p
   n[3] = 33L;  //long
   n[4] = 7UL;  //unsigned long
 
   // new way of accessing
-  EXPECT_EQ(ubint(4),n[0])<< "Failure in []";
-  EXPECT_EQ(ubint(9),n[1])<< "Failure in []";
-  EXPECT_EQ(ubint(66),n[2])<< "Failure in []";
-  EXPECT_EQ(ubint(33),n[3])<< "Failure in []";
-  EXPECT_EQ(ubint(7),n[4])<< "Failure in []";
-
+  EXPECT_EQ(ubint(4),rep(n[0]))<< "Failure in []";
+  EXPECT_EQ(ubint(9),rep(n[1]))<< "Failure in []";
+  EXPECT_EQ(ubint(66),rep(n[2]))<< "Failure in []";
+  EXPECT_EQ(ubint(33),rep(n[3]))<< "Failure in []";
+  EXPECT_EQ(ubint(7),rep(n[4]))<< "Failure in []";
+  
   //test put(ubint)
-  n.put(0,ZZ_p(conv<ZZ_p>("4"))); 
-  n.put(1,ZZ_p(conv<ZZ_p>("9")));
-  n.put(2,ZZ_p(conv<ZZ_p>("66")));
-  n.put(3,ZZ_p(conv<ZZ_p>("33")));
-  n.put(4,ZZ_p(conv<ZZ_p>("7")));
+  n.put(0,to_ZZ_p(conv<ubint>("4"))); 
+  n.put(1,to_ZZ_p(conv<ubint>("9")));
+  n.put(2,to_ZZ_p(conv<ubint>("66")));
+  n.put(3,to_ZZ_p(conv<ubint>("33")));
+  n.put(4,to_ZZ_p(conv<ubint>("7")));
 
 
   EXPECT_EQ(ZZ_p(4),n[0])<< "Failure in put(ZZ_p)";
@@ -192,17 +211,22 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   usint expectedResult[5] = {9872,5888,4620,2376,4631};
 
   for (i=0,j=0;j<5;i++,j++) {
-    EXPECT_EQ (expectedResult[i], (m.get(j)))
+    EXPECT_EQ (expectedResult[i], m.get(j))
       << "Failure testing method_plus_equals";
   }
   //test initializer list of various types
+  
+#if 0
+  //can't to list initialization
   mubintvec expectedvecstr(5);
   expectedvecstr = {
     conv<ZZ_p>("9872"),
     conv<ZZ_p>("5888"),
-    conv<ZZ_p>("4620"),conv<ZZ_p>("2376"),conv<ZZ_p>("4631")
+    conv<ZZ_p>("4620"),
+    conv<ZZ_p>("2376"),
+    conv<ZZ_p>("4631")
   }; //strings
-  expectedvecstr.SetModulus(q);
+  // expectedvecstr.SetModulus(q); /no need to reset string 
   EXPECT_EQ (expectedvecstr, m)<< "Failure string initializer list";
   
   mubintvec expectedvecint(5);
@@ -218,35 +242,37 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   
   //test Single()
   
-  mubintvec s = mubintvec::Single(ubint(conv<ubint>("3")),ubint(conv<ubint>("5")));//value 3, mod 5
+  mubintvec s = mubintvec::Single(conv<ubint>("3"), conv<ubint>("5"));//value 3, mod 5
   
-  EXPECT_EQ(1, s.size()) <<"Failure Single.size()";
+  EXPECT_EQ(1, s.length()) <<"Failure Single.size()";
   EXPECT_EQ(ubint(3), s[0]) <<"Failure Single() value";
+#endif  
   
   // test assignment of single ubint (puts it in the 0 the position), zeros
   // out the rest
   //test that the vector is zeroed on init like this.
-  mubintvec eqtest(10); 
-  EXPECT_EQ ( 10, eqtest.size()) << "Failure create mubintvec of 10 zeros";
+  mubintvec eqtest(INIT_SIZE, 10); 
+  EXPECT_EQ ( 10, eqtest.length()) << "Failure create mubintvec of 10 zeros";
   
-  for (i = 0; i< eqtest.size(); i++) {
-    EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure create mubintvec of zeros";
+  for (i = 0; i< eqtest.length(); i++) {
+  EXPECT_EQ ( ZZ_p(0U), eqtest[i]) << "Failure create mubintvec of zeros";
   }
-
+  
+#if 0  
   // test assignment of single ubint
   eqtest = ubint(1);
-  EXPECT_EQ (ubint(1),  eqtest[0]) << "Failure assign single ubint 0 index";
-  for (i = 1; i< eqtest.size(); i++) {
+  EXPECT_EQ (ubint(1), eqtest[0]) << "Failure assign single ubint 0 index";
+  for (i = 1; i< eqtest.length(); i++) {
     EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure assign single ubint nonzero index";
   }
-
+  
   // test assignment of single usint
   eqtest = 5U;
   EXPECT_EQ (ubint(5U),  eqtest[0]) << "Failure assign single ubint 0 index";
-  for (i = 1; i< eqtest.size(); i++) {
+  for (i = 1; i< eqtest.length(); i++) {
     EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure assign single ubint nonzero index";
   }
-
+#endif
   //test comparisons == and !=
   m = n;
   bool test1 = m==n;
@@ -254,37 +280,41 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_TRUE(test1)<<"Failure ==";
   EXPECT_FALSE(test2)<<"Failure !=";
 
+#if 0
+  // does not apply to NTL
   n.SetModulus(n.GetModulus()+ubint::ONE);
   //reset n to a differnt modulus, comparison will fail. 
   test1 = m==n;
   test2 = m!=n;
   EXPECT_FALSE(test1)<<"Failure == different mods";
   EXPECT_TRUE(test2)<<"Failure != different mods";
+
   // set it back 
   n.SetModulus(n.GetModulus()-ubint::ONE);
-
+#endif
   m = n+n;
   test1 = m==n;
   test2 = m!=n;
   EXPECT_FALSE(test1)<<"Failure ==";
   EXPECT_TRUE(test2)<<"Failure !=";
 
-  for (auto i = 0; i < m.size(); i++) {
+  for (auto i = 0; i < m.length(); i++) {
     m[i] = n[i]; //test both lhs and rhs []
-  }
+        }
   test1 = m==n;
   EXPECT_TRUE(test1)<<"Failure [] lhs rhs";
 
   //test more ctors
-
-  ubintvec u(5);
-  u = {
-    conv<ZZ_p>("9872"),
-    conv<ZZ_p>("5888"),
-    conv<ZZ_p>("4620"),
-    conv<ZZ_p>("2376"),
-    conv<ZZ_p>("4631")
-  }; //strings
+  ubintvec u;
+  std::vector<std::string>  usv =
+    {"9872",
+    "5888",
+    "4620",
+    "2376",
+    "4631"
+    }; //strings
+  u = ubintvecFromStrvec(usv);
+#if 0 // cannot have different moduli
 
   mubintvec u2(u);
   u2.SetModulus(q);
@@ -301,58 +331,60 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_FALSE(u != u2) << "Failure mubintvec == ubintvec";
   EXPECT_TRUE(u2 == u) << "Failure ubintvec == uubintvec";
   EXPECT_FALSE(u2 != u) << "Failure ubintvec == mubintvec";
-
+#endif
 }
 
-TEST(UTmubintvec, constructorTest){
+  TEST(UTmubintvec, constructorTest){
 
-  BigBinaryVector m(INIT_SIZE_TYPE, 10);
+  ubintvec m(INIT_SIZE, 10);
   
-  m.put(0,conv<ZZ_p>("48"));
-  m.put(1,conv<ZZ_p>("53"));
-  m.put(2,conv<ZZ_p>("7"));
-  m.put(3,conv<ZZ_p>("178"));
-  m.put(4,conv<ZZ_p>("190"));
-  m.put(5,conv<ZZ_p>("120"));
-  m.put(6,conv<ZZ_p>("79"));
-  m.put(7,conv<ZZ_p>("108"));
-  m.put(8,conv<ZZ_p>("60"));
-  m.put(9,conv<ZZ_p>("12")); 
+  m.put(0,conv<ubint>("48"));
+  m.put(1,conv<ubint>("53"));
+  m.put(2,conv<ubint>("7"));
+  m.put(3,conv<ubint>("178"));
+  m.put(4,conv<ubint>("190"));
+  m.put(5,conv<ubint>("120"));
+  m.put(6,conv<ubint>("79"));
+  m.put(7,conv<ubint>("108"));
+  m.put(8,conv<ubint>("60"));
+  m.put(9,conv<ubint>("12")); 
 
   int expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};  // the expected values are stored as one dimensional integer array
-
-  // mubintvec binvect(m);
-
-  /*for (usint i=0;i<10;i++){
-    EXPECT_EQ (expectedResult[i], (binvect.get(i)).ConvertToInt());
-    }*/
-
+#if 0  
+  mubintvec binvect(m);
+  
+  for (usint i=0;i<10;i++){
+    EXPECT_EQ (expectedResult[i], binvect.get(i));
+  }
+#endif
 }
-
+  
 TEST(UTmubintvec,mod){
+  ubint q(conv<ubint>("233"));		//calling costructor of ubint Class to create object for modulus
+  //set modulus
 
-  mubintvec m(10); // calling constructor to create a vector of length 10 zeroed
+  ZZ_p::init(q); //should take modulus as well.
+
+  mubintvec m(INIT_SIZE, 10); // calling constructor to create a vector of length 10 zeroed
 
   int i;
   usint j;
 	
   //setting value of the value at different index locations
-  m.put(0,conv<ZZ_p>("987968"));
-  m.put(1,conv<ZZ_p>("587679"));
-  m.put(2,conv<ZZ_p>("456454"));
-  m.put(3,conv<ZZ_p>("234343"));
-  m.put(4,conv<ZZ_p>("769789"));
-  m.put(5,conv<ZZ_p>("465654"));
-  m.put(6,conv<ZZ_p>("79"));
-  m.put(7,conv<ZZ_p>("346346"));
-  m.put(8,conv<ZZ_p>("325328"));
-  m.put(9,conv<ZZ_p>("7698798"));	
+  m.put(0,to_ZZ_p(conv<ubint>("987968")));
+  m.put(1,to_ZZ_p(conv<ubint>("587679")));
+  m.put(2,to_ZZ_p(conv<ubint>("456454")));
+  m.put(3,to_ZZ_p(conv<ubint>("234343")));
+  m.put(4,to_ZZ_p(conv<ubint>("769789")));
+  m.put(5,to_ZZ_p(conv<ubint>("465654")));
+  m.put(6,to_ZZ_p(conv<ubint>("79")));
+  m.put(7,to_ZZ_p(conv<ubint>("346346")));
+  m.put(8,to_ZZ_p(conv<ubint>("325328")));
+  m.put(9,to_ZZ_p(conv<ubint>("7698798")));	
 
-  ubint q(conv<ubint>("233"));		//calling costructor of ubint Class to create object for modulus
-  //set modulus
-  m.SetModulus(q); //should take modulus as well.
 
-  mubintvec calculatedResult = m.Mod(q);
+  //mubintvec calculatedResult = m.Mod(q);
+  mubintvec calculatedResult(m); //because m is all ready modded
   usint expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};	// the expected values are stored as one dimensional integer array
 
   for (i=0,j=0;i<10;i++,j++) {
@@ -365,42 +397,50 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
   // q1 modulus 1:
   ubint q1(conv<ubint>("163841"));
   // a1:
-  mubintvec a1(16,q1);
-
-  a1 = { "127753", "077706",
-	 "017133", "022582",
-	 "112132", "027625",
-	 "126773", "008924",
-	 "125972", "002551",
-	 "113837", "112045",
-	 "100953", "077352",
-	 "132013", "057029", };
-
+  //mubintvec a1(16,q1);
+  mubintvec a1(INIT_SIZE, 16);
+  ZZ_p::init(q1);
+  std::vector<std::string> a1sv =
+    {"127753", "077706",
+     "017133", "022582",
+     "112132", "027625",
+     "126773", "008924",
+     "125972", "002551",
+     "113837", "112045",
+     "100953", "077352",
+     "132013", "057029", };
+  a1 = mubintvecFromStrvec(a1sv);
+  
   // b1:
   mubintvec b1;
-  b1.SetModulus(q1);
-  b1 = {"066773", "069572",
-	"142134", "141115",
-	"123182", "155822",
-	"128147", "094818",
-	"135782", "030844",
-	"088634", "099407",
-	"053647", "111689",
-	"028502", "026401", };
- 
+  //  b1.SetModulus(q1);
+  std::vector<std::string> b1sv =
+    {"066773", "069572",
+     "142134", "141115",
+     "123182", "155822",
+     "128147", "094818",
+     "135782", "030844",
+     "088634", "099407",
+     "053647", "111689",
+     "028502", "026401", };
+  b1 = mubintvecFromStrvec(b1sv);
+  
   // modadd1:
   mubintvec modadd1;
-  modadd1 = {"030685", "147278",
-	     "159267", "163697",
-	     "071473", "019606",
-	     "091079", "103742",
-	     "097913", "033395",
-	     "038630", "047611",
-	     "154600", "025200",
-	     "160515", "083430", };
-  modadd1.SetModulus(a1);	// sets modadd1.modulus to the same as a1
-
+  std::vector<std::string> modadd1sv =
+    {"030685", "147278",
+     "159267", "163697",
+     "071473", "019606",
+     "091079", "103742",
+     "097913", "033395",
+     "038630", "047611",
+     "154600", "025200",
+     "160515", "083430", };
+  //modadd1.SetModulus(a1);	// sets modadd1.modulus to the same as a1
+  modadd1 = mubintvecFromStrvec(modadd1sv);
+  
   // modsub1:
+  mubintvec modsub1;
   std::vector<std::string>  modsub1sv = 
     {"060980", "008134",
      "038840", "045308",
@@ -410,9 +450,11 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
      "025203", "012638",
      "047306", "129504",
      "103511", "030628", };
-  mubintvec modsub1(modsub1sv,q1);
-
+  //  mubintvec modsub1(modsub1sv,q1);
+  modsub1 = mubintvecFromStrvec(modsub1sv);
+  
   // modmul1:
+  mubintvec modmul1;
   std::vector<std::string>  modmul1sv = 
     {"069404", "064196",
      "013039", "115321",
@@ -422,16 +464,19 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
      "008355", "146135",
      "061336", "031598",
      "025961", "087680", };
-  mubintvec modmul1(modmul1sv,q1);
-
+  //mubintvec modmul1(modmul1sv,q1);
+  modmul1 = mubintvecFromStrvec(modmul1sv);
   mubintvec c1;
   mubintvec d1;
-
+  
   //now Mod operations
+#if 0
   c1 = a1.ModAdd(b1);
   EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector vector ModAdd()";    
   // test math for case 1
-  c1 = a1.Add(b1);
+#endif
+  //c1 = a1.Add(b1);
+  add(c1, a1, b1);
   EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector vector Add()";
 
   c1 = a1 + b1;
@@ -441,11 +486,13 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
   d1+=b1;
   EXPECT_EQ (d1, modadd1) << "Failure 1 limb vector vector +=";
 
-
+#if 0
   c1 = a1.ModSub(b1);
   EXPECT_EQ (c1, modsub1) << "Failure 1 limb vector vector ModSub()";   
+#endif
 
-  c1 = a1.Sub(b1);
+  //c1 = a1.Sub(b1);
+  sub(c1, a1, b1);
   EXPECT_EQ (c1, modsub1) << "Failure 1 limb vector vector Sub()";
 
   c1 = a1 - b1;
@@ -455,6 +502,7 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
   d1 -= b1;
   EXPECT_EQ (d1, modsub1) << "Failure 1 limb vector vector -=";
 
+#if 0
   c1 = a1.ModMul(b1);
   EXPECT_EQ (c1, modmul1) << "Failure 1 limb vector vector ModMul()";   
 
@@ -467,8 +515,10 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
   d1 = a1;
   d1 *= b1;
   EXPECT_EQ (d1, modmul1) << "Failure 1 limb vector vector *=";
-
+#endif
 }
+
+#if 0
 TEST(UTmubintvec,basic_vector_scalar_mod_math_2_limb){
   //basic vector scalar mod math
   //todo this is very simple, should probably add sub mul by bigger numbers.
@@ -487,12 +537,12 @@ TEST(UTmubintvec,basic_vector_scalar_mod_math_2_limb){
      "2293434116159938", "1201413067178193", };
   
   mubintvec a2(a2sv,q2);
-  mubintvec a2op1(a2.size(),q2);
-  mubintvec a2op1test(a2.size(),q2);
+  mubintvec a2op1(a2.length(),q2);
+  mubintvec a2op1test(a2.length(),q2);
   
   ubint myone(ubint::ONE);
   
-  for (usint i = 0; i < a2.size();i ++){
+  for (usint i = 0; i < a2.length();i ++){
     a2op1[i] = a2[i]+myone;
     a2op1[i] %= q2;
   }
@@ -501,7 +551,7 @@ TEST(UTmubintvec,basic_vector_scalar_mod_math_2_limb){
   a2op1test = a2.Add(myone);
   EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Add()"; 
 
-  for (usint i = 0; i < a2.size();i ++){
+  for (usint i = 0; i < a2.length();i ++){
     a2op1[i] = a2[i]-myone;
     a2op1[i] %= q2;
   }
@@ -510,7 +560,7 @@ TEST(UTmubintvec,basic_vector_scalar_mod_math_2_limb){
 
   a2op1test = a2.Sub(myone);
   EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Sub()"; 
-  for (usint i = 0; i < a2.size();i ++){
+  for (usint i = 0; i < a2.length();i ++){
     a2op1[i] = a2[i]*myone;
     a2op1[i] %= q2;
   }
@@ -742,8 +792,7 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_big_numbers){
   d3 = a3;
   d3 *= b3;
   EXPECT_EQ (d3, modmul3) << "Failure big number vector vector *=";
-#endif
   
 }
-
+#endif
 

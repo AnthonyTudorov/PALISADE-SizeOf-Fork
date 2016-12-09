@@ -43,15 +43,13 @@
 #include <iostream>
 #include <vector>
 
-//#include "binmat.h"
 #include "../../utils/inttypes.h"
 #include "../../utils/serializable.h"
 #include <initializer_list>
 #include "gmpintvec.h"
 #include <NTL/vec_ZZ.h>
-// #include "../cpu_int/binvect.h"
-
-
+#include <NTL/SmartPtr.h>
+#include <NTL/vec_ZZ_p.h>
 /**
  * @namespace gmp_int
  * The namespace of gmp_int

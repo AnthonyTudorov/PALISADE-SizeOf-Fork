@@ -146,6 +146,7 @@ TEST(UTubint,string_conversions_msb){
 
   EXPECT_EQ(msb, 18)<<  "Failure testing 1 limb msb test ";
 #endif
+
   cout<<"GetMSB does not exist"<<endl;
   //create a large ubint with two limbs
   ubint q2;
@@ -158,7 +159,7 @@ TEST(UTubint,string_conversions_msb){
     <<"Failure Convert 2 limb to uint64";
 
 
-#if 0
+
   //test float converstions. 
 
   //cout << "flt mantissa digits "<< FLT_MANT_DIG <<endl;
@@ -168,23 +169,20 @@ TEST(UTubint,string_conversions_msb){
   float testf = 4057816419532801.0F;
   //cout << "sizeoffloat "<< sizeof(float) << endl;  
   //cout << "testf "<< testf << endl;
-  EXPECT_EQ(testf, q2.ConvertToFloat())
+  EXPECT_EQ(testf, conv<float>(q2))
     <<"Failure Convert 2 limb to float";    
 
   double testd = 4057816419532801.0;
   //cout << "sizeofdouble "<< sizeof(double) << endl;  
   //cout << "testd "<< testd << endl;
-  EXPECT_EQ(testd, q2.ConvertToDouble())
+  EXPECT_EQ(testd, conv<double>(q2))
     <<"Failure Convert 2 limb to double";    
-
-  //note we expect a loss of precision
-  EXPECT_NE(testd, (double)q2.ConvertToFloat())
-    <<"Failure Convert 2 limb to float loss of precision";    
-
+  cout<<"cannot convert to long double"<<endl;
+#if 0
   long double testld = 4057816419532801.0L;
   //cout << "sizeoflongdouble "<< sizeof(long double) << endl;  
   //cout << "testld "<< testld << endl;
-  EXPECT_EQ(testld, q2.ConvertToLongDouble())
+  EXPECT_EQ(testld, conv<long double>(q2))
     <<"Failure Convert 2 limb to long double";
 
   //test GetMSB()
@@ -192,20 +190,7 @@ TEST(UTubint,string_conversions_msb){
   //DEBUG("q2 msb "<<msb);
   EXPECT_EQ(msb, 52)<<  "Failure testing 2 limb msb test ";
 #endif
-#if 0 //this 'feature' was removed to match BBI operation.
-  bool thrown = false;
-  try {
-    //test the ctor()
 
-    ubint b;
-    usint bout = b; //should thrown since b is not initialised.
-  } catch (...) {
-    thrown = true;
-  }
-  EXPECT_TRUE(thrown) 
-    << "Failure testing ConvertToUsint() throw on uninitialed ubint";
-#endif
-  cout<<"float conversions not tested"<<endl;
 }
 TEST(UTubint,ctor){    
 
@@ -685,7 +670,7 @@ TEST(UTubint,basic_math){
   {
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
       
-    ZZ a(20489);
+    ubint a(20489);
     ubint b(2034455);
       
     //calculatedResult = a.Sub(b);
