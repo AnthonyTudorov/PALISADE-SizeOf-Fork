@@ -194,6 +194,15 @@ namespace lbcrypto {
 
 		ZSampleSigmaP(n, s, c, T, dgg, dggLargeSigma, &pHat);
 
+		//pHat.SwitchFormat();
+
+		//std::cout << pHat(0, 0) << std::endl;
+		//std::cout << pHat(1, 0) << std::endl;
+		//std::cout << pHat(2, 0) << std::endl;
+		//std::cout << pHat(3, 0) << std::endl;
+
+		//pHat.SwitchFormat();
+
 		// YSP It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
 		// perturbedSyndrome is in the evaluation representation
 		ILVector2n perturbedSyndrome = u - (A.Mult(pHat))(0, 0);

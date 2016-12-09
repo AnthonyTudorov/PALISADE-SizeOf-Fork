@@ -447,31 +447,44 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
+	auto singleAlloc = [=]() { return make_unique<BigBinaryVector>(1, modulus); };
+
 	//Do perturbation sampling
 	RingMat pHat(zero_alloc, k + 2, 1);
 
-	//Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, (2 + k)*n, 1);
+	Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, (2 + k)*n, 1);
 
-	//Matrix<int32_t> pCovarianceMatrix([]()  { return make_unique<int32_t>(); }, 2*n, 2*n);;
+	Matrix<int32_t> pCovarianceMatrix([]()  { return make_unique<int32_t>(); }, 2*n, 2*n);;
 
 	//std::vector<Matrix<int32_t>> pTrapdoors;
 
-	//Matrix<int32_t> pTrapdoor([]() { return make_unique<int32_t>(); }, 2 * n, 1);
+	Matrix<int32_t> pTrapdoor([]() { return make_unique<int32_t>(); }, 2 * n, 1);
 
-	//Matrix<int32_t> pTrapdoorAverage([]() { return make_unique<int32_t>(); }, 2 * n, 1);
+	Matrix<BigBinaryInteger> bbiTrapdoor(BigBinaryInteger::Allocator, 2*n, 1);
+
+	Matrix<int32_t> pTrapdoorAverage([]() { return make_unique<int32_t>(); }, 2 * n, 1);
 
 	size_t count = 100;
 
 	for (size_t i = 0; i < count; i++) {
 		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, dgg, dggLargeSigma, &pHat);
 
-		//for (size_t j = 0; j < 2 * n; j++) {
-		//	pTrapdoor(j, 0) = p(j, 0);
-		//	pTrapdoorAverage(j, 0) = pTrapdoorAverage(j, 0) + p(j, 0);
-		//}
-		////pTrapdoors.push_back(pTrapdoor);
-		//
-		//pCovarianceMatrix = pCovarianceMatrix + pTrapdoor*pTrapdoor.Transpose();
+		//convert to coefficient representation
+		pHat.SwitchFormat();
+
+		for (size_t j = 0; j < n; j++) {
+			bbiTrapdoor(j, 0) = pHat(0, 0).GetValues().GetValAtIndex(j);
+			bbiTrapdoor(j+n, 0) = pHat(1, 0).GetValues().GetValAtIndex(j);
+		}
+
+		pTrapdoor = ConvertToInt32(bbiTrapdoor, modulus);
+
+		for (size_t j = 0; j < 2 * n; j++) {
+			pTrapdoorAverage(j, 0) = pTrapdoorAverage(j, 0) + pTrapdoor(j, 0);
+		}
+		//pTrapdoors.push_back(pTrapdoor);
+		
+		pCovarianceMatrix = pCovarianceMatrix + pTrapdoor*pTrapdoor.Transpose();
 	}
 
 	Matrix<ILVector2n> Tprime0 = eHat;
@@ -511,12 +524,12 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	//std::cout << a << std::endl;
 
-	/*Matrix<int32_t> meanMatrix = pTrapdoorAverage*pTrapdoorAverage.Transpose();
+	Matrix<int32_t> meanMatrix = pTrapdoorAverage*pTrapdoorAverage.Transpose();
 
-	std::cout << double(pCovarianceMatrix(0, 0)) / count - meanMatrix(0, 0) << std::endl;
-	std::cout << double(pCovarianceMatrix(1, 0)) / count - meanMatrix(1, 0) << std::endl;
-	std::cout << double(pCovarianceMatrix(2, 0)) / count - meanMatrix(2, 0) << std::endl;
-	std::cout << double(pCovarianceMatrix(3, 0)) / count - meanMatrix(3, 0) << std::endl;*/
+	//std::cout << (double(pCovarianceMatrix(0, 0)) - meanMatrix(0, 0))/ count << std::endl;
+	//std::cout << (double(pCovarianceMatrix(1, 0)) - meanMatrix(1, 0)) / count << std::endl;
+	//std::cout << (double(pCovarianceMatrix(2, 0)) - meanMatrix(2, 0)) / count << std::endl;
+	//std::cout << (double(pCovarianceMatrix(3, 0)) - meanMatrix(3, 0)) / count << std::endl;
 
 }
 
