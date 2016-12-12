@@ -85,8 +85,8 @@ namespace lbcrypto {
 		const shared_ptr<ILParams> params = u.GetParams();
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
-		//We should convert this to a static variable later
-		double c(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI));
+		//smoothing parameter
+		double c(2 * sqrt(log(2*n*(1 + 1/DG_ERROR)) / M_PI));
 
 		const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
@@ -176,13 +176,13 @@ namespace lbcrypto {
 
 	RingMat RLWETrapdoorUtility::GaussSampV3(size_t n, size_t k, const RingMat& A, 
 		const RLWETrapdoorPair<ILVector2n>& T, const ILVector2n &u,
-		double sigma, DiscreteGaussianGenerator &dgg) {
+		double sigma, DiscreteGaussianGenerator &dgg, DiscreteGaussianGenerator &dggLargeSigma) {
 
 		const shared_ptr<ILParams> params = u.GetParams();
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
 		//We should convert this to a static variable later
-		double c(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI));
+		double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
 
 		const BigBinaryInteger& modulus = A(0, 0).GetModulus();
 
@@ -192,7 +192,16 @@ namespace lbcrypto {
 		//perturbation vector in evaluation representation
 		RingMat pHat(zero_alloc, k + 2, 1);
 
-		ZSampleSigmaP(n, s, c, T, &pHat, dgg);
+		ZSampleSigmaP(n, s, c, T, dgg, dggLargeSigma, &pHat);
+
+		//pHat.SwitchFormat();
+
+		//std::cout << pHat(0, 0) << std::endl;
+		//std::cout << pHat(1, 0) << std::endl;
+		//std::cout << pHat(2, 0) << std::endl;
+		//std::cout << pHat(3, 0) << std::endl;
+
+		//pHat.SwitchFormat();
 
 		// YSP It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
 		// perturbedSyndrome is in the evaluation representation
@@ -220,6 +229,49 @@ namespace lbcrypto {
 		for (size_t row = 2; row < k + 2; ++row)
 			zHatPrime(row, 0) = pHat(row, 0) + zHat(row - 2, 0);
 
+		//This code is helpful in tightening parameter constraints
+
+		//zHatPrime(0, 0).SwitchFormat();
+		//ILVector2n z0 = zHatPrime(0, 0);
+		//zHatPrime(0, 0).SwitchFormat();
+
+		//zHatPrime(1, 0).SwitchFormat();
+		//ILVector2n z1 = zHatPrime(1, 0);
+		//zHatPrime(1, 0).SwitchFormat();
+
+		//std::cout << "z0=" << z0.Norm() << std::endl;
+		//std::cout << "z1=" << z1.Norm() << std::endl;
+
+		//zHatPrime(2, 0).SwitchFormat();
+		//ILVector2n z2 = zHatPrime(2, 0);
+		//zHatPrime(2, 0).SwitchFormat();
+
+		//std::cout << "z2=" << z2.Norm() << std::endl;
+
+		//pHat(0, 0).SwitchFormat();
+		//ILVector2n pHat0 = pHat(0, 0);
+		//pHat(0, 0).SwitchFormat();
+
+		//std::cout << "pHat0=" << pHat0.Norm() << std::endl;
+
+		//pHat(1, 0).SwitchFormat();
+		//ILVector2n pHat1 = pHat(1, 0);
+		//pHat(1, 0).SwitchFormat();
+
+		//std::cout << "pHat1=" << pHat1.Norm() << std::endl;
+
+		//pHat(2, 0).SwitchFormat();
+		//ILVector2n pHat2 = pHat(2, 0);
+		//pHat(2, 0).SwitchFormat();
+
+		//std::cout << "pHat2=" << pHat2.Norm() << std::endl;
+
+		//zHat(0, 0).SwitchFormat();
+		//ILVector2n zHat2 = zHat(0, 0);
+		//zHat(0, 0).SwitchFormat();
+
+		//std::cout << "zHat=" << zHat2.Norm() << std::endl;
+
 		return zHatPrime;
 
 	}
@@ -232,7 +284,7 @@ namespace lbcrypto {
 		TimeVar t1; // for TIC TOC
 		bool dbg_flag = 0; //set to 1 for debug timing...
 		//We should convert this to a static variable later
-		double c(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI));
+		double c(2 * sqrt(log(2*n*(1 + 1/DG_ERROR)) / M_PI));
 
 		const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
@@ -278,7 +330,7 @@ namespace lbcrypto {
 	void RLWETrapdoorUtility::PerturbationMatrixGenAlt(size_t n,size_t k,const RingMat& A,
 		const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt) {
 
-		double r(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI));
+		double r(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
 		double a(r / 2);
 		const BigBinaryInteger& modulus = A(0, 0).GetModulus();
 		
@@ -296,7 +348,9 @@ namespace lbcrypto {
 	}
 
 	void RLWETrapdoorUtility::ZSampleSigmaP(size_t n, double s, double sigma,
-		const RLWETrapdoorPair<ILVector2n>& Tprime, RingMat *perturbationVector, const DiscreteGaussianGenerator & dgg) {
+		const RLWETrapdoorPair<ILVector2n>& Tprime, 
+		const DiscreteGaussianGenerator &dgg, const DiscreteGaussianGenerator &dggLargeSigma,
+		RingMat *perturbationVector) {
 
 		Matrix<ILVector2n> Tprime0 = Tprime.m_e;
 		Matrix<ILVector2n> Tprime1 = Tprime.m_r;
@@ -348,9 +402,16 @@ namespace lbcrypto {
 
 		Matrix<int32_t> p2ZVector([]() { return make_unique<int32_t>(); }, n*k, 1);
 
-		//this loop can be replaced with Peikert's and Yao's inversion methods - more efficient
+		//rejection method was used in the past
+		//for (size_t i = 0; i < n * k; i++) {
+		//	p2ZVector(i, 0) = dgg.GenerateInteger(0, sqrt(s * s - sigma * sigma), n);
+		//}
+
+		//Peikert's inversion method is used
+		int32_t *dggVector = dggLargeSigma.GenerateIntVector(n*k);
+
 		for (size_t i = 0; i < n * k; i++) {
-			p2ZVector(i, 0) = dgg.GenerateInteger(0, sqrt(s * s - sigma * sigma), n);
+			p2ZVector(i, 0) = dggVector[i];
 		}
 
 		//create k ring elements in coefficient representation

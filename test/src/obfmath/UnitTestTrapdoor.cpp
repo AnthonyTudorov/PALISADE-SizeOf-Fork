@@ -372,15 +372,20 @@ TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
 	RingMat rHat = trapPair.second.m_r;
 	//auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
 
-	DiscreteGaussianGenerator dgg(4);
+	double sigma = 4;
+	DiscreteGaussianGenerator dgg(sigma);
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
+
+	double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
+	double s = 40 * sqrt((k + 2)*n);
+	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
 
 	ILVector2n u(dug, params, COEFFICIENT);
 	u.SwitchFormat();
 
 	//  600 is a very rough estimate for s, refer to Durmstradt 4.2 for
 	//      estimation
-	RingMat z = RLWETrapdoorUtility::GaussSampV3(m / 2, k, trapPair.first, trapPair.second, u, stddev, dgg);
+	RingMat z = RLWETrapdoorUtility::GaussSampV3(m / 2, k, trapPair.first, trapPair.second, u, stddev, dgg, dggLargeSigma);
 
 	//Matrix<ILVector2n> uEst = trapPair.first * z;
 
@@ -422,7 +427,8 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	double logTwo = log(val - 1.0) / log(2) + 1.0;
 	usint k = (usint)floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
-	double c(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI));
+	//smoothing parameter
+	double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
 
 	//spectral bound s
 	double s = 40 * std::sqrt(n*(k + 2));
@@ -435,36 +441,52 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
 
-	DiscreteGaussianGenerator dgg(4);
+	double sigma = 4;
+	DiscreteGaussianGenerator dgg(sigma);
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 
+	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
+
 	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+
+	auto singleAlloc = [=]() { return make_unique<BigBinaryVector>(1, modulus); };
 
 	//Do perturbation sampling
 	RingMat pHat(zero_alloc, k + 2, 1);
 
-	//Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, (2 + k)*n, 1);
+	Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, (2 + k)*n, 1);
 
-	//Matrix<int32_t> pCovarianceMatrix([]()  { return make_unique<int32_t>(); }, 2*n, 2*n);;
+	Matrix<int32_t> pCovarianceMatrix([]()  { return make_unique<int32_t>(); }, 2*n, 2*n);;
 
 	//std::vector<Matrix<int32_t>> pTrapdoors;
 
-	//Matrix<int32_t> pTrapdoor([]() { return make_unique<int32_t>(); }, 2 * n, 1);
+	Matrix<int32_t> pTrapdoor([]() { return make_unique<int32_t>(); }, 2 * n, 1);
 
-	//Matrix<int32_t> pTrapdoorAverage([]() { return make_unique<int32_t>(); }, 2 * n, 1);
+	Matrix<BigBinaryInteger> bbiTrapdoor(BigBinaryInteger::Allocator, 2*n, 1);
+
+	Matrix<int32_t> pTrapdoorAverage([]() { return make_unique<int32_t>(); }, 2 * n, 1);
 
 	size_t count = 100;
 
 	for (size_t i = 0; i < count; i++) {
-		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, &pHat, dgg);
+		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, dgg, dggLargeSigma, &pHat);
 
-		//for (size_t j = 0; j < 2 * n; j++) {
-		//	pTrapdoor(j, 0) = p(j, 0);
-		//	pTrapdoorAverage(j, 0) = pTrapdoorAverage(j, 0) + p(j, 0);
-		//}
-		////pTrapdoors.push_back(pTrapdoor);
-		//
-		//pCovarianceMatrix = pCovarianceMatrix + pTrapdoor*pTrapdoor.Transpose();
+		//convert to coefficient representation
+		pHat.SwitchFormat();
+
+		for (size_t j = 0; j < n; j++) {
+			bbiTrapdoor(j, 0) = pHat(0, 0).GetValues().GetValAtIndex(j);
+			bbiTrapdoor(j+n, 0) = pHat(1, 0).GetValues().GetValAtIndex(j);
+		}
+
+		pTrapdoor = ConvertToInt32(bbiTrapdoor, modulus);
+
+		for (size_t j = 0; j < 2 * n; j++) {
+			pTrapdoorAverage(j, 0) = pTrapdoorAverage(j, 0) + pTrapdoor(j, 0);
+		}
+		//pTrapdoors.push_back(pTrapdoor);
+		
+		pCovarianceMatrix = pCovarianceMatrix + pTrapdoor*pTrapdoor.Transpose();
 	}
 
 	Matrix<ILVector2n> Tprime0 = eHat;
@@ -504,12 +526,12 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	//std::cout << a << std::endl;
 
-	/*Matrix<int32_t> meanMatrix = pTrapdoorAverage*pTrapdoorAverage.Transpose();
+	Matrix<int32_t> meanMatrix = pTrapdoorAverage*pTrapdoorAverage.Transpose();
 
-	std::cout << double(pCovarianceMatrix(0, 0)) / count - meanMatrix(0, 0) << std::endl;
-	std::cout << double(pCovarianceMatrix(1, 0)) / count - meanMatrix(1, 0) << std::endl;
-	std::cout << double(pCovarianceMatrix(2, 0)) / count - meanMatrix(2, 0) << std::endl;
-	std::cout << double(pCovarianceMatrix(3, 0)) / count - meanMatrix(3, 0) << std::endl;*/
+	//std::cout << (double(pCovarianceMatrix(0, 0)) - meanMatrix(0, 0))/ count << std::endl;
+	//std::cout << (double(pCovarianceMatrix(1, 0)) - meanMatrix(1, 0)) / count << std::endl;
+	//std::cout << (double(pCovarianceMatrix(2, 0)) - meanMatrix(2, 0)) / count << std::endl;
+	//std::cout << (double(pCovarianceMatrix(3, 0)) - meanMatrix(3, 0)) / count << std::endl;
 
 }
 

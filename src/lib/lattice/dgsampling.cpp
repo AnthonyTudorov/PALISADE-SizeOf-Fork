@@ -46,8 +46,7 @@ namespace lbcrypto {
 		double a(stddev / 2);
 
 		double s = 40 * std::sqrt(perturbationVector->GetRows());
-		//double r(ceil(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI)));
-		//double c(floor(r / 2));
+
 		double b = s*s - 5*a*a;
 
 		Matrix<LargeFloat> sample([]() { return make_unique<LargeFloat>(); }, sigmaSqrt.GetRows(), 1);
@@ -184,6 +183,7 @@ namespace lbcrypto {
 
 	// Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm
 	// Algorithm was provided in a personal communication by Daniele Micciancio
+	// It will be published in GM17 (EuroCrypt)
 
 	void LatticeGaussSampUtility::GaussSampGqV2(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q, int32_t base,
 		DiscreteGaussianGenerator &dgg, Matrix<int32_t> *z)
@@ -249,6 +249,7 @@ namespace lbcrypto {
 
 	// subroutine used by GaussSampGqV2
 	// Algorithm was provided in a personal communication by Daniele Micciancio
+	// It will be published in GM17 (EuroCrypt)
 
 	void LatticeGaussSampUtility::Perturb(double sigma, size_t k, size_t n,
 		const vector<double> &l, const vector<double> &h, int32_t base, DiscreteGaussianGenerator &dgg, vector<int32_t> *p) {
@@ -271,6 +272,7 @@ namespace lbcrypto {
 
 	// subroutine used by GaussSampGqV2
 	// Algorithm was provided in a personal communication by Daniele Micciancio
+	// It will be published in GM17 (EuroCrypt)
 
 	void LatticeGaussSampUtility::SampleC(const Matrix<double> &c, size_t k, size_t n,
 		double sigma, DiscreteGaussianGenerator &dgg, Matrix<double> *a, vector<int32_t> *z)

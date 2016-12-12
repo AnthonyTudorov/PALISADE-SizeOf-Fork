@@ -32,21 +32,21 @@ namespace lbcrypto {
 
 	void DiscreteGaussianGenerator::Initialize() {
 
-		const double pi = 3.1415926;
 		//weightDiscreteGaussian
-		double acc = 0.00000001;
-		float variance = m_std * m_std;
+		double acc = 1e-15;
+		double variance = m_std * m_std;
 
-		//int fin = (int)ceil(sqrt(2 * pi) * m_std * sqrt(-1 * log(acc) / pi));
-		int fin = (int)ceil(m_std * sqrt(-2 * log(acc))); //this value of fin (M) may be too low; 
-																			  // usually the bound of m_std * M is used where M = 20 .. 40
-																			  // see DG14 for details
+		int fin = (int)ceil(m_std * sqrt(-2 * log(acc))); 
+		//this value of fin (M) corresponds to the limit for double precision
+		// usually the bound of m_std * M is used, where M = 20 .. 40 - see DG14 for details
+		// M = 20 corresponds to 1e-87
+		//double mr = 20; // see DG14 for details
+		//int fin = (int)ceil(m_std * mr);
 
 		double cusum = 1.0;
 
 		for (sint x = 1; x <= fin; x++) {
-			cusum = cusum + 2 * exp(-pi * (x * x) / (variance * 2 * pi));
-			//cusum = cusum + 2 * exp(-(x * x) / (variance * 2));  //simplified
+			cusum = cusum + 2 * exp(- x * x / (variance * 2));
 		}
 
 		m_a = 1 / cusum;
@@ -59,17 +59,14 @@ namespace lbcrypto {
 			m_vals.push_back(temp);
 		}
 
-		/*
-		for(usint i=0;i<m_vals.size();i++){
-			std::cout<<m_vals[i]<<std::endl;
-		}
-		std::cout<<std::endl<<std::endl;
-		*/
-
 		// take cumulative summation
 		for (usint i = 1; i < m_vals.size(); i++) {
 			m_vals[i] += m_vals[i - 1];
 		}
+
+		//for (usint i = 0; i<m_vals.size(); i++) {
+		//	std::cout << m_vals[i] << std::endl;
+		//}
 
 		//std::cout<<m_a<<std::endl;
 
@@ -125,12 +122,12 @@ namespace lbcrypto {
 	}
 
 	usint DiscreteGaussianGenerator::FindInVector(const std::vector<double> &S, double search) const {
-		for (usint i = 0; i < S.size(); i++) {
-			if (S[i] >= search) {
-				return i;
-			}
-		}
-		throw std::runtime_error("FindInVector value not found");
+		//STL binary search implementation
+		auto lower = std::lower_bound(S.begin(), S.end(), search);
+		if (lower != S.end())
+			return lower - S.begin();
+		else
+			throw std::runtime_error("FindInVector value not found");
 	}
 
 	BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(const BigBinaryInteger &modulus) const {
