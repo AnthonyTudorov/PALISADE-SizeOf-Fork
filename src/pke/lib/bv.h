@@ -144,6 +144,22 @@ namespace lbcrypto {
 
 				return  LPCryptoParametersRLWE<Element>::operator==(rhs);
 			}
+
+			/**
+			* Gets the mode setting: RLWE or OPTIMIZED.
+			*
+			* @return the mode setting.
+			*/
+			MODE GetMode() const { return m_mode; }
+
+			/**
+			* Configures the mode
+			*/
+			void SetMode(MODE mode) { m_mode = mode; }
+
+	private:
+		//specifies whether the keys are generated from discrete Gaussian distribution or ternary distribution with the norm of unity
+		MODE m_mode;
 	};
 
 

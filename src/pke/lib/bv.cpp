@@ -58,11 +58,21 @@ namespace lbcrypto {
 
 		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 		const DiscreteUniformGenerator dug(elementParams->GetModulus());
+		TernaryUniformGenerator tug;
 
 		//Generate the element "a" of the public key
 		Element a(dug, elementParams, Format::EVALUATION);
+		
 		//Generate the secret key
-		Element s(dgg, elementParams, Format::COEFFICIENT);
+		Element s;
+		//Done in two steps not to use a random polynomial from a pre-computed pool
+		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+		if (cryptoParams->GetMode() == RLWE) {
+			s = Element(dgg, elementParams, Format::COEFFICIENT);
+		}
+		else {
+			s = Element(tug, elementParams, Format::COEFFICIENT);
+		}
 		s.SwitchFormat();
 
 		kp.secretKey->SetPrivateElement(s);
