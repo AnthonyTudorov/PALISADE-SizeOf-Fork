@@ -376,8 +376,9 @@ TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
 	DiscreteGaussianGenerator dgg(sigma);
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 
+	double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
 	double s = 40 * sqrt((k + 2)*n);
-	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - sigma * sigma));
+	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
 
 	ILVector2n u(dug, params, COEFFICIENT);
 	u.SwitchFormat();
@@ -426,7 +427,8 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	double logTwo = log(val - 1.0) / log(2) + 1.0;
 	usint k = (usint)floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
-	double c(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI));
+	//smoothing parameter
+	double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
 
 	//spectral bound s
 	double s = 40 * std::sqrt(n*(k + 2));
@@ -443,7 +445,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	DiscreteGaussianGenerator dgg(sigma);
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 
-	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - sigma * sigma));
+	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
 
 	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 

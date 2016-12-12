@@ -85,8 +85,8 @@ namespace lbcrypto {
 		const shared_ptr<ILParams> params = u.GetParams();
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
-		//We should convert this to a static variable later
-		double c(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI));
+		//smoothing parameter
+		double c(2 * sqrt(log(2*n*(1 + 1/DG_ERROR)) / M_PI));
 
 		const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
@@ -182,7 +182,7 @@ namespace lbcrypto {
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
 		//We should convert this to a static variable later
-		double c(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI));
+		double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
 
 		const BigBinaryInteger& modulus = A(0, 0).GetModulus();
 
@@ -229,6 +229,49 @@ namespace lbcrypto {
 		for (size_t row = 2; row < k + 2; ++row)
 			zHatPrime(row, 0) = pHat(row, 0) + zHat(row - 2, 0);
 
+		//This code is helpful in tightening parameter constraints
+
+		//zHatPrime(0, 0).SwitchFormat();
+		//ILVector2n z0 = zHatPrime(0, 0);
+		//zHatPrime(0, 0).SwitchFormat();
+
+		//zHatPrime(1, 0).SwitchFormat();
+		//ILVector2n z1 = zHatPrime(1, 0);
+		//zHatPrime(1, 0).SwitchFormat();
+
+		//std::cout << "z0=" << z0.Norm() << std::endl;
+		//std::cout << "z1=" << z1.Norm() << std::endl;
+
+		//zHatPrime(2, 0).SwitchFormat();
+		//ILVector2n z2 = zHatPrime(2, 0);
+		//zHatPrime(2, 0).SwitchFormat();
+
+		//std::cout << "z2=" << z2.Norm() << std::endl;
+
+		//pHat(0, 0).SwitchFormat();
+		//ILVector2n pHat0 = pHat(0, 0);
+		//pHat(0, 0).SwitchFormat();
+
+		//std::cout << "pHat0=" << pHat0.Norm() << std::endl;
+
+		//pHat(1, 0).SwitchFormat();
+		//ILVector2n pHat1 = pHat(1, 0);
+		//pHat(1, 0).SwitchFormat();
+
+		//std::cout << "pHat1=" << pHat1.Norm() << std::endl;
+
+		//pHat(2, 0).SwitchFormat();
+		//ILVector2n pHat2 = pHat(2, 0);
+		//pHat(2, 0).SwitchFormat();
+
+		//std::cout << "pHat2=" << pHat2.Norm() << std::endl;
+
+		//zHat(0, 0).SwitchFormat();
+		//ILVector2n zHat2 = zHat(0, 0);
+		//zHat(0, 0).SwitchFormat();
+
+		//std::cout << "zHat=" << zHat2.Norm() << std::endl;
+
 		return zHatPrime;
 
 	}
@@ -241,7 +284,7 @@ namespace lbcrypto {
 		TimeVar t1; // for TIC TOC
 		bool dbg_flag = 0; //set to 1 for debug timing...
 		//We should convert this to a static variable later
-		double c(2 * sqrt(log(2*n*(1 + 1/4e-22)) / M_PI));
+		double c(2 * sqrt(log(2*n*(1 + 1/DG_ERROR)) / M_PI));
 
 		const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
@@ -287,7 +330,7 @@ namespace lbcrypto {
 	void RLWETrapdoorUtility::PerturbationMatrixGenAlt(size_t n,size_t k,const RingMat& A,
 		const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt) {
 
-		double r(2 * sqrt(log(2 * n*(1 + 1 / 4e-22)) / M_PI));
+		double r(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
 		double a(r / 2);
 		const BigBinaryInteger& modulus = A(0, 0).GetModulus();
 		

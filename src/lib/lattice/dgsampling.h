@@ -43,6 +43,10 @@
 
 namespace lbcrypto {
 
+//Statistical error in Gaussian sampling
+//corresponds to statistical error of 2^(-90)
+const double DG_ERROR = 8e-28;
+
 /**
 * @brief Utility class containing operations needed for lattice sampling; Sources: https://eprint.iacr.org/2013/297.pdf & https://eprint.iacr.org/2011/501.pdf
 * This construction is based on the hardness of Ring-LWE problem 
@@ -159,7 +163,7 @@ private:
 		double sigma, DiscreteGaussianGenerator &dgg, Matrix<double> *a, vector<int32_t> *z);
 
 	//subroutine used by ZSampleF
-	//Algorithm utilizes the same permutation algorithm discussed in the paper
+	//Algorithm utilizes the same permutation algorithm discussed in the GM17 paper
 	  static inline Matrix<int32_t> Permute(Matrix<int32_t> * p);
 
 };
