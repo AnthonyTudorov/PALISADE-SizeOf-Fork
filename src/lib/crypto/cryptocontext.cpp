@@ -54,58 +54,6 @@ CryptoContext<T>::Deserialize(const Serialized& serObj)
 	return false;
 }
 
-// FIXME these routines will shortly move into the java wrapper (or the trash)
-//template <class T, class T2>
-//static T* deserializeAndCreate(const std::string& serializedKey, const CryptoContext<T2>* ctx )
-//{
-//	Serialized ser;
-//	if( !SerializableHelper::StringToSerialization(serializedKey, &ser) )
-//		return false;
-//
-//	T *newKey = new T();
-//	if( newKey == 0 ) return newKey;
-//
-//	if( !newKey->Deserialize(ser, ctx) ) {
-//		delete newKey;
-//		return 0;
-//	}
-//
-//	return newKey;
-//}
-//
-//template <typename T>
-//bool CryptoContextImpl<T>::setPublicKey( const std::string& serializedKey )
-//{
-//	LPPublicKey<T> *newKey = deserializeAndCreate<LPPublicKey<T>,T>(serializedKey, this);
-//	if( newKey == 0 ) return false;
-//
-//	if( publicKey ) delete publicKey;
-//	publicKey = newKey;
-//	return true;
-//}
-//
-//template <typename T>
-//bool CryptoContextImpl<T>::setPrivateKey( const std::string& serializedKey )
-//{
-//	LPPrivateKey<T> *newKey = deserializeAndCreate<LPPrivateKey<T>,T>(serializedKey, this);
-//	if( newKey == 0 ) return false;
-//
-//	if( privateKey ) delete privateKey;
-//	privateKey = newKey;
-//	return true;
-//}
-//
-//template <typename T>
-//bool CryptoContextImpl<T>::setEvalKey( const std::string& serializedKey )
-//{
-//	LPEvalKeyRelin<T> *newKey = deserializeAndCreate<LPEvalKeyRelin<T>,T>(serializedKey, this);
-//	if( newKey == 0 ) return false;
-//
-//	if( evalKey ) delete evalKey;
-//	evalKey = newKey;
-//	return true;
-//}
-
 // factory methods for the different schemes
 
 template <typename T>

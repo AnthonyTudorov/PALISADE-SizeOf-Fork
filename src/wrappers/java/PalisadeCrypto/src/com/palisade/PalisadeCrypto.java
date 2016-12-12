@@ -148,27 +148,6 @@ public class PalisadeCrypto {
 			return;
 		}
 		
-		System.out.println("Testing stream stuff...");
-		
-		FileInputStream fr;
-		try {
-			fr = new FileInputStream(args[0]);
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-			return;
-		}
-		String message = "HI:::";
-		try {
-			ctx.writeBytes(message.getBytes(), fr, System.err);
-		} catch( Exception e ) {
-			System.out.println("Exception in write");
-			e.printStackTrace();
-		}
-
-		System.err.flush();
-		System.out.println("...stream test done");
-		
 		System.out.println("Generating some key pairs");
 
 		PalisadeKeypair kPublisher = ctx.generatePalisadeKeyPair("pub");

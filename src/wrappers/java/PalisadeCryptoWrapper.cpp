@@ -29,7 +29,7 @@ public:
 	string									errorMessage;
 	shared_ptr<LPPublicKey<ILVector2n>>		publicKey;
 	shared_ptr<LPPrivateKey<ILVector2n>>	secretKey;
-	shared_ptr<LPEvalKeyRelin<ILVector2n>>	evalKey;
+	shared_ptr<LPEvalKey<ILVector2n>>		evalKey;
 
 	JavaPalisadeCrypto(const CryptoContext<ILVector2n>& ctx) : ctx(ctx), errorMessage("") {}
 };
@@ -94,25 +94,6 @@ JNIEXPORT jobject JNICALL Java_com_palisade_PalisadeCrypto_generatePalisadeKeyPa
 	return kpair;
 }
 
-static jboolean keySetter(JNIEnv *env, jobject thiz, jbyteArray key, bool (CryptoContext<ILVector2n>::*f)(const string&))
-{
-	JavaPalisadeCrypto* cp = getCrypto(env, thiz);
-	if( cp == 0 ) return false;
-
-	CryptoContext<ILVector2n> *ctx = cp->ctx;
-	if( ctx == 0 ) {
-		cp->errorMessage = "No CryptoContext has been set for generateEvalKey";
-		return 0;
-	}
-
-	jboolean isCopy;
-	char *kData = (char *)env->GetByteArrayElements(key, &isCopy);
-	string keyStr(kData, env->GetArrayLength(key));
-	if( isCopy ) env->ReleaseByteArrayElements(key, (jbyte *)kData, JNI_ABORT);
-
-	return (ctx->*f)(keyStr);
-}
-
 JNIEXPORT jboolean JNICALL Java_com_palisade_PalisadeCrypto_setPublicKey
 (JNIEnv *env, jobject thiz, jbyteArray key)
 {
@@ -124,21 +105,50 @@ JNIEXPORT jboolean JNICALL Java_com_palisade_PalisadeCrypto_setPublicKey
 	string keyStr(kData, env->GetArrayLength(key));
 	if( isCopy ) env->ReleaseByteArrayElements(key, (jbyte *)kData, JNI_ABORT);
 
-	cp->publicKey = cp->ctx.deserializePublicKey(X);
+	Serialized serObj;
+	SerializableHelper::StringToSerialization(keyStr, &serObj);
 
-	return keySetter(env, thiz, key, &CryptoContext<ILVector2n>::deserializePublicKey);
+	cp->publicKey = cp->ctx.deserializePublicKey(serObj);
+
+	return cp->publicKey != NULL;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_palisade_PalisadeCrypto_setPrivateKey
 (JNIEnv *env, jobject thiz, jbyteArray key)
 {
-	return keySetter(env, thiz, key, &CryptoContext<ILVector2n>::setPrivateKey);
+	JavaPalisadeCrypto* cp = getCrypto(env, thiz);
+	if( cp == 0 ) return false;
+
+	jboolean isCopy;
+	char *kData = (char *)env->GetByteArrayElements(key, &isCopy);
+	string keyStr(kData, env->GetArrayLength(key));
+	if( isCopy ) env->ReleaseByteArrayElements(key, (jbyte *)kData, JNI_ABORT);
+
+	Serialized serObj;
+	SerializableHelper::StringToSerialization(keyStr, &serObj);
+
+	cp->secretKey = cp->ctx.deserializeSecretKey(serObj);
+
+	return cp->secretKey != NULL;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_palisade_PalisadeCrypto_setEvalKey
 (JNIEnv *env, jobject thiz, jbyteArray key)
 {
-	return keySetter(env, thiz, key, &CryptoContext<ILVector2n>::setEvalKey);
+	JavaPalisadeCrypto* cp = getCrypto(env, thiz);
+	if( cp == 0 ) return false;
+
+	jboolean isCopy;
+	char *kData = (char *)env->GetByteArrayElements(key, &isCopy);
+	string keyStr(kData, env->GetArrayLength(key));
+	if( isCopy ) env->ReleaseByteArrayElements(key, (jbyte *)kData, JNI_ABORT);
+
+	Serialized serObj;
+	SerializableHelper::StringToSerialization(keyStr, &serObj);
+
+	cp->evalKey = cp->ctx.deserializeEvalKey(serObj);
+
+	return cp->evalKey != NULL;
 }
 
 JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_getPalisadeErrorDescription
@@ -147,18 +157,12 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_getPalisadeErrorDe
 	string errorMessage;
 
 	JavaPalisadeCrypto* cp = getCrypto(env, thiz);
-	CryptoContext<ILVector2n> *ctx;
 
 	if( cp == 0 ) {
 		errorMessage = "No Internal Java Crypto Context is available";
 	}
 	else {
-		ctx = cp->ctx;
-		if( ctx == 0 ) {
-			errorMessage = "No CryptoContext has been set";
-		}
-		else
-			errorMessage = cp->errorMessage;
+		errorMessage = cp->errorMessage;
 	}
 
 	int byteCount = errorMessage.length();
@@ -179,12 +183,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_generatePalisadeEv
 {
 	JavaPalisadeCrypto* cp = getCrypto(env, thiz);
 	if( cp == 0 ) {
-		return 0;
-	}
-
-	CryptoContext<ILVector2n> *ctx = cp->ctx;
-	if( ctx == 0 ) {
-		cp->errorMessage = "No CryptoContext has been set for generateEvalKey";
 		return 0;
 	}
 
@@ -212,8 +210,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_generatePalisadeEv
 
 	// deserialize the keys
 
-	LPPublicKeyLTV<ILVector2n> pk(*ctx->getParams());
-	LPPrivateKeyLTV<ILVector2n> sk(*ctx->getParams());
+	shared_ptr<LPPublicKey<ILVector2n>> pk;
+	shared_ptr<LPPrivateKey<ILVector2n>> sk;
 
 	Serialized pkS, skS;
 	if( !SerializableHelper::StringToSerialization(pubKstr, &pkS) ) {
@@ -226,17 +224,17 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_generatePalisadeEv
 		return 0;
 	}
 
-	if( !pk.Deserialize(pkS, ctx) ) {
+	if( (pk = cp->ctx.deserializePublicKey(pkS)) == NULL ) {
 		cp->errorMessage = "Unable to deserialize public key in generateEvalKey";
 		return 0;
 	}
-	if( !sk.Deserialize(skS, ctx) ) {
+	if( (sk = cp->ctx.deserializeSecretKey(skS)) == NULL ) {
 		cp->errorMessage = "Unable to deserialize private key in generateEvalKey";
 		return 0;
 	}
 
-	LPEvalKeyLTV<ILVector2n> evalKey(*ctx->getParams());
-	if( !ctx->getAlgorithm()->ReKeyGen(pk, sk, &evalKey) ) {
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey = cp->ctx.ReKeyGen(pk, sk);
+	if( evalKey == NULL ) {
 		cp->errorMessage = "ReKeyGen failed in generateEvalKey";
 		return 0;
 	}
@@ -244,7 +242,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_generatePalisadeEv
 	Serialized ekS;
 	string	ekStr;
 
-	if ( !evalKey.Serialize(&ekS, idS) ) {
+	if ( !evalKey->Serialize(&ekS) ) {
 		cp->errorMessage = "Unable to serialize eval key in generateEvalKey";
 		return 0;
 	}
@@ -272,12 +270,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_encrypt
 	JavaPalisadeCrypto* cp = getCrypto(env, thiz);
 	if( cp == 0 ) return 0;
 
-	CryptoContext<ILVector2n> *ctx = cp->ctx;
-	if( ctx == 0 ) {
-		cp->errorMessage = "No CryptoContext has been set for encrypt";
-		return 0;
-	}
-
 	if( cleartext == 0 ) {
 		cp->errorMessage = "No cleartext was provided to encrypt";
 		return 0;
@@ -289,34 +281,18 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_encrypt
 	char *clearData = (char *)env->GetByteArrayElements(cleartext, &isCopy);
 	long totalBytes = env->GetArrayLength(cleartext);
 
-	LPPublicKeyLTV<ILVector2n> *encryptionKey = ctx->getPublicKey();
-	if( encryptionKey == 0 ) {
-		cp->errorMessage = "No public key has been set for encrypt";
-		return 0;
-	}
+	BytePlaintextEncoding ptxt(clearData);
 
-	// take the cleartext in chunk-size pieces, encrypt and serialize
-	const char *bufp = clearData;
 	string totalSer = "";
 
-	while( totalBytes > 0 ) {
-		usint s = min(totalBytes, ctx->getChunksize());
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cp->ctx.Encrypt(cp->publicKey, ptxt);
 
-		BytePlaintextEncoding ptxt( bufp, s );
-
-		vector<Ciphertext<ILVector2n>> ciphertext;
-		//ctx->getAlgorithm()->Encrypt(*encryptionKey, ptxt, &ciphertext);
-
-		EncryptResult er = CryptoUtility<ILVector2n>::Encrypt(
-				*ctx->getAlgorithm(),
-				*encryptionKey,
-				ptxt,
-				&ciphertext);
+	for( int i=0; i<ciphertext.size(); i++ ) {
 
 		Serialized txtS;
 		string	txtSer;
 
-		if ( !ciphertext[0].Serialize(&txtS, idS) )
+		if ( !ciphertext[i]->Serialize(&txtS) )
 			break;
 
 		ciphertext.clear();
@@ -325,17 +301,12 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_encrypt
 			break;
 
 		totalSer += txtSer + "$";
-
-		bufp += s;
-		totalBytes -= s;
 	}
 
 	jbyteArray evA = 0;
 
-	if( totalBytes == 0 ) { // got it all!
-		evA = env->NewByteArray(totalSer.length());
-		env->SetByteArrayRegion(evA, 0, totalSer.length(), (jbyte *)totalSer.c_str());
-	}
+	evA = env->NewByteArray(totalSer.length());
+	env->SetByteArrayRegion(evA, 0, totalSer.length(), (jbyte *)totalSer.c_str());
 
 	if( isCopy ) env->ReleaseByteArrayElements(cleartext, (jbyte *)clearData, JNI_ABORT);
 	env->ReleaseStringUTFChars(id, idS);
@@ -354,9 +325,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_reEncrypt
 	JavaPalisadeCrypto* cp = getCrypto(env, thiz);
 	if( cp == 0 ) return 0;
 
-	CryptoContext<ILVector2n> *ctx = cp->ctx;
-	if( ctx == 0 ) return 0;
-
 	const char *idS = env->GetStringUTFChars(id, 0);
 
 	jboolean isCopy;
@@ -366,10 +334,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_reEncrypt
 
 	// deserialize the enc test
 
-	LPEvalKeyLTV<ILVector2n> *encryptionKey = ctx->getEvalKey();
-	if( encryptionKey == 0 ) return 0;
+	if( cp->evalKey == 0 ) return 0;
 
-	Ciphertext<ILVector2n> ciphertext;
+	shared_ptr<Ciphertext<ILVector2n>> ciphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> cipherVec;
 
 	string chunkStr;
 	string result = "";
@@ -387,30 +355,30 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_reEncrypt
 		if( !SerializableHelper::StringToSerialization(chunkStr, &kD) )
 			return 0;
 
-		if( !ciphertext.Deserialize(kD, ctx) )
+		if( (ciphertext = cp->ctx.deserializeCiphertext(kD)) == 0 )
 			return 0;
+		cipherVec.push_back(ciphertext);
+	} while( encBytes > 0 );
 
-		Ciphertext<ILVector2n> newCiphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext = cp->ctx.ReEncrypt(cp->evalKey,cipherVec);
 
-		ctx->getAlgorithm()->ReEncrypt(*encryptionKey, ciphertext, &newCiphertext);
+	for( int i=0; i<newCiphertext.size(); i++ ) {
 
 		Serialized txtS;
 		string	txtSer;
 
-		if ( !newCiphertext.Serialize(&txtS, idS) )
+		if ( newCiphertext[i]->Serialize(&txtS) )
 			return 0;
 
 		if( !SerializableHelper::SerializationToString(txtS, txtSer) )
 			return 0;
 
 		result += txtSer + "$";
-	} while( encBytes > 0 );
+	}
 
 	jbyteArray evA = 0;
-	if( encBytes == 0 ) {
-		evA = env->NewByteArray(result.length());
-		env->SetByteArrayRegion(evA, 0, result.length(), (jbyte *)result.c_str());
-	}
+	evA = env->NewByteArray(result.length());
+	env->SetByteArrayRegion(evA, 0, result.length(), (jbyte *)result.c_str());
 
 	env->ReleaseStringUTFChars(id, idS);
 	if( isCopy ) env->ReleaseByteArrayElements(enctext, (jbyte *)encData, JNI_ABORT);
@@ -428,9 +396,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_decrypt
 	JavaPalisadeCrypto* cp = getCrypto(env, thiz);
 	if( cp == 0 ) return 0;
 
-	CryptoContext<ILVector2n> *ctx = cp->ctx;
-	if( ctx == 0 ) return 0;
-
 	const char *idS = env->GetStringUTFChars(id, 0);
 
 	jboolean isCopy;
@@ -440,10 +405,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_decrypt
 
 	// deserialize the enc text
 
-	LPPrivateKeyLTV<ILVector2n> *decryptionKey = ctx->getPrivateKey();
-	if( decryptionKey == 0 ) return 0;
+	if( cp->secretKey == 0 ) return 0;
 
-	Ciphertext<ILVector2n> ciphertext;
+	shared_ptr<Ciphertext<ILVector2n>> ciphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> cipherVec;
 	BytePlaintextEncoding plaintext;
 
 	string chunkStr;
@@ -462,27 +427,19 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_decrypt
 		if( !SerializableHelper::StringToSerialization(chunkStr, &kD) )
 			break;
 
-		if( !ciphertext.Deserialize(kD, ctx) )
+		if( (ciphertext = cp->ctx.deserializeCiphertext(kD)) == 0 )
 			break;
 
-		vector<Ciphertext<ILVector2n>> ctv;
-		ctv.push_back(ciphertext);
-		DecryptResult result1 = CryptoUtility<ILVector2n>::Decrypt(
-				*ctx->getAlgorithm(),
-				*decryptionKey,
-				ctv,
-				&plaintext);
-		ctv.clear();
-
-		string ptStr(plaintext.begin(), plaintext.end());
-		result += ptStr;
+		cipherVec.push_back(ciphertext);
 	} while( encBytes > 0 );
 
+	DecryptResult result1 = cp->ctx.Decrypt(cp->secretKey, cipherVec, &plaintext);
+
+	string ptStr(plaintext.begin(), plaintext.end());
+
 	jbyteArray evA = 0;
-	if( encBytes == 0 ) {
-		evA = env->NewByteArray(result.length());
-		env->SetByteArrayRegion(evA, 0, result.length(), (jbyte *)result.c_str());
-	}
+	evA = env->NewByteArray(result.length());
+	env->SetByteArrayRegion(evA, 0, result.length(), (jbyte *)result.c_str());
 
 	env->ReleaseStringUTFChars(id, idS);
 	if( isCopy ) env->ReleaseByteArrayElements(enctext, (jbyte *)encData, JNI_ABORT);
@@ -503,12 +460,15 @@ JNIEXPORT jlong JNICALL Java_com_palisade_PalisadeCrypto_openPalisadeCrypto
 	char *parms = (char *)env->GetByteArrayElements(parmJson, &isCopy);
 
 	string cp(parms, env->GetArrayLength(parmJson));
-	CryptoContext<ILVector2n> *ctx = CryptoContextHelper<ILVector2n>::getNewContext( cp );
 	if( isCopy ) env->ReleaseByteArrayElements(parmJson, (jbyte *)parms, JNI_ABORT);
 
-	if( ctx == 0 ) {
+	Serialized kD;
+	if( !SerializableHelper::StringToSerialization(cp, &kD) )
 		return 0;
-	}
+
+	CryptoContext<ILVector2n> ctx = CryptoContextFactory<ILVector2n>::DeserializeAndCreateContext(kD);
+	if( !ctx )
+		return 0;
 
 	JavaPalisadeCrypto	*cparms = new JavaPalisadeCrypto(ctx);
 	return (jlong)cparms;
