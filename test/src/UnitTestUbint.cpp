@@ -361,8 +361,9 @@ TEST(UTubint,left_shift){
     ubint a(conv<ubint>("138712237895312"));
     usint shift = 8;
 
-    //usint msb = a.GetMSB();
-    //DEBUG("a.msb " <<msb);
+    a.SetMSB();
+    usint msb = a.GetMSB();
+    DEBUG("a.msb " <<msb);
 
     ubint calculatedResult = a<<(shift);
     uint64_t expectedResult = 35510332901199872;

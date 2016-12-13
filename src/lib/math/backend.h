@@ -113,9 +113,9 @@
 #include "cpu_int/binvect.cpp"
 #include <initializer_list>
 
-#include "gmp_int/gmpint.cpp" //experimental gmp unsigned big ints
-#include "gmp_int/gmpintvec.cpp" //vectors of such
-#include "gmp_int/mgmpintvec.cpp" //rings of such
+#include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
+#include "gmp_int/gmpintvec.h" //vectors of such
+#include "gmp_int/mgmpintvec.h" //rings of such
 
 #endif
 
@@ -247,7 +247,7 @@ namespace lbcrypto {
 
 	/** Define the mapping for BigBinaryInteger */
 	//typedef gmp_int::myZZ ubint;
-	typedef NTL::ZZ ubint;
+	typedef NTL::myZZ ubint;
 
 	/** Define the mapping for Big Integer Vector */
 	typedef NTL::Vec<NTL::ZZ> ubintvec;
