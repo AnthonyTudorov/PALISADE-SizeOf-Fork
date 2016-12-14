@@ -590,8 +590,6 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
 
 	DEBUG("Eval3: " <<TOC(t1) <<" ms");
 	TIC(t1);	
-	//for(size_t i=0; i<m; i++)
-	//		CrossProd(0,i).SwitchFormat();
 
 	//the norm can be estimated after all elements are converted to coefficient representation
 	CrossProd.SwitchFormat();
