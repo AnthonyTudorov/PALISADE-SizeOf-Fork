@@ -263,7 +263,7 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalM
 	cipherTextResult = scheme->KeySwitch(quadKeySwitchHint, cipherTextResult);
 
 	//scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
-	return this->ModReduce(cipherTextResult);
+	return scheme->ModReduce(cipherTextResult);
 }
 
 template<class Element>
@@ -273,9 +273,12 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(c
 	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
 			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(cipherText1->GetCryptoContext().GetEncryptionAlgorithm());
 
+	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
+			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(cipherText1->GetCryptoContext().GetEncryptionAlgorithm());
+
 	shared_ptr<Ciphertext<Element>> cipherTextResult = scheme->KeySwitch(linearKeySwitchHint, cipherText1);
 
-	return this->ModReduce(cipherTextResult);
+	return scheme->ModReduce(cipherTextResult);
 }
 
 template<class Element>
@@ -773,7 +776,7 @@ bool LPAlgorithmSHELTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPubli
 
 			(*tempPrivateKey)->SetPrivateElement(permutedPrivateKeyElement);
 
-			evalKeys->at(index) = publicKey->GetCryptoContext().GetEncryptionAlgorithm()->ReKeyGen(publicKey, *tempPrivateKey);
+			evalKeys->at(index) = publicKey->GetScheme().ReKeyGen(publicKey, *tempPrivateKey);
 
 			i = i + 2;
 
