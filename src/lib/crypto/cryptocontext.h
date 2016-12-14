@@ -911,7 +911,7 @@ public:
 	static CryptoContext<Element> DeserializeAndCreateContext(const Serialized& serObj) {
 		shared_ptr<LPCryptoParameters<Element>> cp = GetParameterObject(serObj);
 
-		if (cp == false) {
+		if (cp == NULL) {
 			throw std::logic_error("Unable to create crypto parameters");
 		}
 
@@ -938,7 +938,7 @@ public:
 			return false;
 		}
 
-		if (cp == false) {
+		if (cp == NULL) {
 			return false;
 		}
 

@@ -144,7 +144,7 @@ decrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 
 		// Initialize the public key containers.
 		shared_ptr<Ciphertext<ILVector2n>> ct = ctx.deserializeCiphertext(kser);
-		if( ct == false ) {
+		if( ct == NULL ) {
 			cerr << "Could not deserialize ciphertext" << endl;
 			return;
 		}

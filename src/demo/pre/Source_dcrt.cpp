@@ -257,7 +257,7 @@ void NTRU_DCRT() {
 
 	shared_ptr<LPEvalKey<ILVectorArray2n>> evalKey = cc.ReKeyGen(newKp.publicKey, newKp.secretKey);
 
-	if( evalKey == false ) {
+	if( evalKey == NULL ) {
 		cout << "EvalKeyGen failed!!!" << endl;
 	}
 	else {
