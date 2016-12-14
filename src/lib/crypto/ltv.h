@@ -47,13 +47,13 @@ class LPCryptoParametersLTV: public LPCryptoParametersRLWE<Element> {
 public:
 
 	/**
-	 * Constructor that initializes all values to 0.
+	 * Default constructor
 	 */
 	LPCryptoParametersLTV() : LPCryptoParametersRLWE<Element>() {}
 
 	/**
 	 * Copy constructor.
-	 *
+	 * @param rhs - source
 	 */
 	LPCryptoParametersLTV(const LPCryptoParametersLTV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {}
 
@@ -90,12 +90,11 @@ public:
 	 */
 	virtual ~LPCryptoParametersLTV() {}
 
-	//JSON FACILITY
 	/**
-	 * Serialize the object into a Serialized
-	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	 * @param fileFlag is an object-specific parameter for the serialization
-	 * @return true if successfully serialized
+	 * Serialize the LTV Crypto Parameters
+	 *
+	 * @param serObj - rapidJson object for the serializaion
+	 * @return true on success
 	 */
 	bool Serialize(Serialized* serObj) const {
 		if( !serObj->IsObject() )
@@ -112,8 +111,9 @@ public:
 	}
 
 	/**
-	 * Populate the object from the deserialization of the Setialized
-	 * @param serObj contains the serialized object
+	 * Deserialize the LTV Crypto Parameters
+	 *
+	 * @param serObj
 	 * @return true on success
 	 */
 	bool Deserialize(const Serialized& serObj) {
@@ -124,10 +124,9 @@ public:
 	}
 
 	/**
-	 * Creates a new set of parameters for LPCryptoParametersLTV amid a new ILDCRTParams. The new ILDCRTParams will allow for
-	 * SHE operations of the existing depth. Note that the cyclotomic order also changes.
-	 *
-	 * @param *cryptoParams is where the resulting new LPCryptoParametersLTV will be placed in.
+	 * ParameterSelection for LTV Crypto Parameters
+	 * FIXME this will be replaced by the new mechanism for crypto params
+	 * @param cryptoParams
 	 */
 	void ParameterSelection(LPCryptoParametersLTV<ILVectorArray2n> *cryptoParams);
 
@@ -146,6 +145,7 @@ public:
 private:
 
 	//helper function for ParameterSelection. Splits the string 's' by the delimeter 'c'.
+	// FIXME this goes away
 	std::string split(const std::string s, char c){
 		std::string result;
 		const char *str = s.c_str();
@@ -157,6 +157,7 @@ private:
 	}
 
 	//function for parameter selection. The public ParameterSelection function is a wrapper around this function.
+	// FIXME this goes away
 	void ParameterSelection(usint& n, vector<BigBinaryInteger> &moduli);
 };
 
@@ -169,23 +170,23 @@ class LPAlgorithmLTV : public LPEncryptionAlgorithm<Element>, public LPPublicKey
 public:
 
 	/**
-	* Default Constructor
-	*/
+	 * Default Constructor
+	 */
 	LPAlgorithmLTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
+
 	/**
-	* Constructor that initliazes the scheme
-	*
-	*@param &scheme
-	*/
+	 * Construct from scheme
+	 * @param scheme
+	 */
 	LPAlgorithmLTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
 
 	/**
-	* Method for encrypting plaintext using Ring-LWE NTRU
-	*
-	* @param &publicKey public key used for encryption.
-	* @param &plaintext the plaintext input.
-	* @return an instance of EncryptResult related to the ciphertext that is encrypted.
-	*/
+	 * Encrypt method for LTV Scheme
+	 *
+	 * @param publicKey - the encryption key
+	 * @param plaintext - plaintext to be encrypted
+	 * @return a shared pointer to the encrypted Cyphertext
+	 */
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Element &plaintext) const;
 
 	/**
@@ -196,16 +197,24 @@ public:
 	* @param *plaintext the plaintext output.
 	* @return an instance of DecryptResult related to the plaintext that is decrypted
 	*/
+	/**
+	 * Decrypt method for LTV Scheme
+	 *
+	 * @param privateKey - decryption key
+	 * @param ciphertext - Ciphertext to be decrypted
+	 * @param plaintext - Plaintext result of Decrypt operation
+	 * @return DecryptResult indicating success or failure and number of bytes decrypted
+	 */
 	DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		Element *plaintext) const;
 
 	/**
-	* Function to generate public and private keys
-	*
-	* @param cc CryptoContext required for keygen
-	* @return public-private key pair.
-	*/
+	 * KeyGen
+	 *
+	 * @param cc - crypto context in which to generate a key pair
+	 * @return public and private key pair
+	 */
 	virtual LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc) const;
 };
 

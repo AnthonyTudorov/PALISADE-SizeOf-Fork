@@ -1549,23 +1549,23 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionAlgorithmImpl
 	{		
-	public:
-		//@Get Properties
-		/**
-		* Getter method for a refernce to the scheme
-		*
-		*@return the refernce to the scheme.
-		*/
-		const LPPublicKeyEncryptionScheme<Element> &GetScheme() const {return *m_scheme;}
-
-		//@Set Properties
-		/**
-		* Sets the reference to element params
-		*/
-		void SetScheme(const LPPublicKeyEncryptionScheme<Element> &scheme) { m_scheme = &scheme; }
-
+//	public:
+//		//@Get Properties
+//		/**
+//		* Getter method for a refernce to the scheme
+//		*
+//		*@return the refernce to the scheme.
+//		*/
+//		const LPPublicKeyEncryptionScheme<Element> &GetScheme() const {return *m_scheme;}
+//
+//		//@Set Properties
+//		/**
+//		* Sets the reference to element params
+//		*/
+//		void SetScheme(const LPPublicKeyEncryptionScheme<Element> &scheme) { m_scheme = &scheme; }
+//
 	protected:
-		LPPublicKeyEncryptionAlgorithmImpl() : m_scheme(NULL) {}
+//		LPPublicKeyEncryptionAlgorithmImpl() : m_scheme(NULL) {}
 
 		LPPublicKeyEncryptionAlgorithmImpl(const LPPublicKeyEncryptionScheme<Element> &scheme) : m_scheme(&scheme) {}
 

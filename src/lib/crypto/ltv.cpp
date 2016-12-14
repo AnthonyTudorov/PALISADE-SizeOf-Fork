@@ -220,7 +220,7 @@ shared_ptr<Ciphertext<Element>>
 LPLeveledSHEAlgorithmLTV<Element>::RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const {
 
 	//KeySwitching to a cipherText that can be decrypted by a sparse key. 
-	shared_ptr<Ciphertext<Element>> newcipherText = this->GetScheme().KeySwitch(keySwitchHint, cipherText);
+	shared_ptr<Ciphertext<Element>> newcipherText = cipherText->GetCryptoContext().KeySwitch(keySwitchHint, cipherText);
 
 	//Once the keyswitching of the ciphertext has been done, based on the algorithm in the referenced paper, the ciphertext needs to be decomposed.
 	Element keySwitchedCipherTextElement(newcipherText->GetElement());
@@ -254,15 +254,16 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalM
 
 	shared_ptr<Ciphertext<Element>> cipherTextResult;
 
-	const LPPublicKeyEncryptionSchemeLTV<Element> &scheme = dynamic_cast< const LPPublicKeyEncryptionSchemeLTV<Element> &>(this->GetScheme());
+	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
+			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(cipherText1->GetCryptoContext().GetEncryptionAlgorithm());
 
-	cipherTextResult = scheme.EvalMult(cipherText1, cipherText2);
+	cipherTextResult = scheme->EvalMult(cipherText1, cipherText2);
 
 	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(quadKeySwitchHint,*cipherTextResult);
-	cipherTextResult = scheme.KeySwitch(quadKeySwitchHint, cipherTextResult);
+	cipherTextResult = scheme->KeySwitch(quadKeySwitchHint, cipherTextResult);
 
 	//scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
-	return scheme.ModReduce(cipherTextResult);
+	return scheme->ModReduce(cipherTextResult);
 }
 
 template<class Element>
@@ -274,12 +275,13 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(c
 	//		throw std::runtime_error(errMsg);
 	//	}
 
-	const LPPublicKeyEncryptionSchemeLTV<Element> &scheme = dynamic_cast< const LPPublicKeyEncryptionSchemeLTV<Element> &>(this->GetScheme());
+	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
+			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(cipherText1->GetCryptoContext().GetEncryptionAlgorithm());
 
 	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(linearKeySwitchHint,cipherText1);
-	shared_ptr<Ciphertext<Element>> cipherTextResult = scheme.KeySwitch(linearKeySwitchHint, cipherText1);
+	shared_ptr<Ciphertext<Element>> cipherTextResult = scheme->KeySwitch(linearKeySwitchHint, cipherText1);
 
-	return scheme.ModReduce(cipherTextResult);
+	return scheme->ModReduce(cipherTextResult);
 }
 
 template<class Element>
@@ -779,7 +781,7 @@ bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<L
 
 			//const LPPublicKeyEncryptionScheme<Element> *scheme = ciphertext.GetEncryptionAlgorithm();
 
-			evalKeys->at(index) = this->GetScheme().ReKeyGen(publicKey, *tempPrivateKey);
+			evalKeys->at(index) = publicKey->GetScheme().ReKeyGen(publicKey, *tempPrivateKey);
 
 			i = i + 2;
 
