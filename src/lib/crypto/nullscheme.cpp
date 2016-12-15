@@ -226,8 +226,6 @@ LPPublicKeyEncryptionSchemeNull<Element>::LPPublicKeyEncryptionSchemeNull(std::b
 
 	if (mask[PRE])
 		this->m_algorithmPRE = new LPAlgorithmPRENull<Element>(*this);
-	//	if (mask[EVALAUTOMORPHISM])
-	//		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphNull<Element>(*this);
 	if (mask[SHE])
 		this->m_algorithmSHE = new LPAlgorithmSHENull<Element>(*this);
 	//	if (mask[FHE])
@@ -249,10 +247,6 @@ void LPPublicKeyEncryptionSchemeNull<Element>::Enable(PKESchemeFeature feature) 
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPRENull<Element>(*this);
 		break;
-		//	case EVALAUTOMORPHISM:
-		//		if (this->m_algorithmEvalAutomorphism == NULL)
-		//			this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphNull<Element>(*this);
-		//		break;
 	case SHE:
 		if (this->m_algorithmSHE == NULL)
 			this->m_algorithmSHE = new LPAlgorithmSHENull<Element>(*this);

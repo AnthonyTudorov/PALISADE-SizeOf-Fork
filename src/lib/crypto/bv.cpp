@@ -534,17 +534,14 @@ namespace lbcrypto {
 
 		if (mask[PRE])
 			this->m_algorithmPRE = new LPAlgorithmPREBV<Element>(*this);
-		/*
-		if (mask[EVALAUTOMORPHISM])
-		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
-		if (mask[SHE])
-		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
-		if (mask[FHE])
-		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
-		if (mask[LEVELEDSHE])
-		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
-		*/
 
+		if (mask[SHE])
+			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
+
+		/*		if (mask[FHE])
+		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this); */
+		if (mask[LEVELEDSHE])
+			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
 	}
 
 	// Enable for LPPublicKeyEncryptionSchemeLTV
@@ -569,21 +566,9 @@ namespace lbcrypto {
 				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>(*this);
 			break;
 			/*
-			case EVALAUTOMORPHISM:
-			if (this->m_algorithmEvalAutomorphism == NULL)
-			this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
-			break;
-			case SHE:
-			if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
-			break;
 			case FHE:
 			if (this->m_algorithmFHE == NULL)
 			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
-			break;
-			case LEVELEDSHE:
-			if (this->m_algorithmLeveledSHE == NULL)
-			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
 			break;
 			*/
 		}

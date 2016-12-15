@@ -463,8 +463,6 @@ LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitse
 
 	/*if (mask[PRE])
 		this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(*this);
-	if (mask[EVALAUTOMORPHISM])
-		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
 	if (mask[FHE])
 		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
 	if (mask[LEVELEDSHE])
@@ -489,10 +487,6 @@ void LPPublicKeyEncryptionSchemeFV<Element>::Enable(PKESchemeFeature feature) {
 	/*case PRE:
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(*this);
-		break;
-	case EVALAUTOMORPHISM:
-		if (this->m_algorithmEvalAutomorphism == NULL)
-			this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
 		break;
 	case SHE:
 		if (this->m_algorithmSHE == NULL)

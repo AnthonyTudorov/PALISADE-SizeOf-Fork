@@ -88,8 +88,6 @@ namespace lbcrypto {
 			this->m_algorithmEncryption = new LPEncryptionAlgorithmStehleSteinfeld<Element>(*this);
 		if (mask[PRE])
 			this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
-		if (mask[EVALAUTOMORPHISM])
-			this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
 		if (mask[SHE])
 			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
 		if (mask[FHE])
@@ -110,10 +108,6 @@ namespace lbcrypto {
 		case PRE:
 			if (this->m_algorithmPRE == NULL)
 				this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
-			break;
-		case EVALAUTOMORPHISM:
-			if (this->m_algorithmEvalAutomorphism == NULL)
-				this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
 			break;
 		case SHE:
 			if (this->m_algorithmSHE == NULL)

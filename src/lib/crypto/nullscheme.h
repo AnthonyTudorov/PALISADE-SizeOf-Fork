@@ -333,8 +333,34 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element>, public LPPublicKeyEnc
 		 * @param &newPrivateKey private key for the new ciphertext.
 		 * @param *keySwitchHint the key switch hint.
 		 */
-		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const;	
+		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const;
 
+		/**
+		 * Virtual function to define the interface for evaluating ciphertext at an index
+		 *
+		 * @param &ciphertext the input ciphertext.
+		 * @param *newCiphertext the new ciphertext.
+		 */
+		shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, const usint i,
+				const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
+			shared_ptr<Ciphertext<Element>> ans(new Ciphertext<Element>());
+			return ans;
+		}
+
+		/**
+		 * Virtual function to generate all isomorphism keys for a given private key
+		 *
+		 * @param &publicKey encryption key for the new ciphertext.
+		 * @param &origPrivateKey original private key used for decryption.
+		 * @param *evalKeys the evaluation keys.
+		 * @return a vector of re-encryption keys.
+		 */
+		virtual bool EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+			const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
+			const usint size, shared_ptr<LPPrivateKey<Element>> *tempPrivateKey,
+			std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const {
+			return false;
+		}
 };
 
 /**

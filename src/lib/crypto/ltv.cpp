@@ -257,10 +257,10 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalM
 	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
 			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(cipherText1->GetCryptoContext().GetEncryptionAlgorithm());
 
-	cipherTextResult = this->EvalMult(cipherText1, cipherText2);
+	cipherTextResult = scheme->EvalMult(cipherText1, cipherText2);
 
 	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(quadKeySwitchHint,*cipherTextResult);
-	cipherTextResult = this->KeySwitch(quadKeySwitchHint, cipherTextResult);
+	cipherTextResult = scheme->KeySwitch(quadKeySwitchHint, cipherTextResult);
 
 	//scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
 	return this->ModReduce(cipherTextResult);
@@ -270,18 +270,12 @@ template<class Element>
 shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
 	const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const {
 
-	//	if(!(cipherText1.GetCryptoParameters() == cipherTextResult->GetCryptoParameters())){
-	//		std::string errMsg = "LevelReduce crypto parameters are not the same";
-	//		throw std::runtime_error(errMsg);
-	//	}
-
 	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
 			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(cipherText1->GetCryptoContext().GetEncryptionAlgorithm());
 
-	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(linearKeySwitchHint,cipherText1);
 	shared_ptr<Ciphertext<Element>> cipherTextResult = scheme->KeySwitch(linearKeySwitchHint, cipherText1);
 
-	return scheme->ModReduce(cipherTextResult);
+	return this->ModReduce(cipherTextResult);
 }
 
 template<class Element>
@@ -713,7 +707,7 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const 
 
    //Function for extracting a value at a certain index using automorphism operation.
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext,
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext,
 	const usint i, const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
 
 {
@@ -748,7 +742,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(co
 }
 
 template <class Element>
-bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+bool LPAlgorithmSHELTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
 	const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
 	const usint size, shared_ptr<LPPrivateKey<Element>> *tempPrivateKey,
 	std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const
@@ -778,8 +772,6 @@ bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<L
 			//std::cout<< "after " << i << " \n" << permutedPrivateKeyElement.GetValues() << std::endl;
 
 			(*tempPrivateKey)->SetPrivateElement(permutedPrivateKeyElement);
-
-			//const LPPublicKeyEncryptionScheme<Element> *scheme = ciphertext.GetEncryptionAlgorithm();
 
 			evalKeys->at(index) = publicKey->GetCryptoContext().GetEncryptionAlgorithm()->ReKeyGen(publicKey, *tempPrivateKey);
 
@@ -830,8 +822,6 @@ LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bit
 		this->m_algorithmEncryption = new LPAlgorithmLTV<Element>(*this);
 	if (mask[PRE])
 		this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
-	if (mask[EVALAUTOMORPHISM])
-		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
 	if (mask[SHE])
 		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
 	if (mask[FHE])
@@ -853,10 +843,6 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature) {
 	case PRE:
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>(*this);
-		break;
-	case EVALAUTOMORPHISM:
-		if (this->m_algorithmEvalAutomorphism == NULL)
-			this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
 		break;
 	case SHE:
 		if (this->m_algorithmSHE == NULL)
