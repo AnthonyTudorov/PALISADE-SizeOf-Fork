@@ -257,13 +257,13 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalM
 	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
 			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(cipherText1->GetCryptoContext().GetEncryptionAlgorithm());
 
-	cipherTextResult = scheme->EvalMult(cipherText1, cipherText2);
+	cipherTextResult = this->EvalMult(cipherText1, cipherText2);
 
 	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(quadKeySwitchHint,*cipherTextResult);
-	cipherTextResult = scheme->KeySwitch(quadKeySwitchHint, cipherTextResult);
+	cipherTextResult = this->KeySwitch(quadKeySwitchHint, cipherTextResult);
 
 	//scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
-	return scheme->ModReduce(cipherTextResult);
+	return this->ModReduce(cipherTextResult);
 }
 
 template<class Element>
@@ -727,7 +727,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmAutoMorphLTV<Element>::EvalAtIndex(co
 	//permutedCiphertext.SetElement(ciphertext.GetElement().AutomorphismTransform(iInverse));
 	permutedCiphertext->SetElement(ciphertext->GetElement().AutomorphismTransform(autoIndex));
 
-	return this->GetScheme().ReEncrypt(evalKeys[i - 2], permutedCiphertext);
+	return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->ReEncrypt(evalKeys[i - 2], permutedCiphertext);
 
 
 	////debugging
@@ -781,7 +781,7 @@ bool LPAlgorithmAutoMorphLTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<L
 
 			//const LPPublicKeyEncryptionScheme<Element> *scheme = ciphertext.GetEncryptionAlgorithm();
 
-			evalKeys->at(index) = publicKey->GetScheme().ReKeyGen(publicKey, *tempPrivateKey);
+			evalKeys->at(index) = publicKey->GetCryptoContext().GetEncryptionAlgorithm()->ReKeyGen(publicKey, *tempPrivateKey);
 
 			i = i + 2;
 

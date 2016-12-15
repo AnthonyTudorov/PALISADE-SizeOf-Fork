@@ -242,7 +242,7 @@ namespace lbcrypto {
 
 		const shared_ptr<LPEvalKeyRelin<Element>> ekRelin = std::dynamic_pointer_cast<LPEvalKeyRelin<Element>>(ek);
 
-		shared_ptr<Ciphertext<Element>> newCiphertext = this->GetScheme().EvalMult(ciphertext1, ciphertext2);
+		shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
 
 		const Element &c0 = newCiphertext->GetElements().at(0);
 
@@ -345,7 +345,7 @@ namespace lbcrypto {
 
 		originalPrivateKeySquared->SetPrivateElement(std::move(sSquare));
 
-		return this->GetScheme().KeySwitchGen(originalPrivateKeySquared , originalPrivateKey);
+		return this->KeySwitchGen(originalPrivateKeySquared , originalPrivateKey);
 
 	}
 
