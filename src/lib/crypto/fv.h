@@ -261,12 +261,13 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmParamsGenFV : public LPParameterGenerationAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> { //public LPSHEAlgorithm<Element>, 
+	class LPAlgorithmParamsGenFV : public LPParameterGenerationAlgorithm<Element> { //public LPSHEAlgorithm<Element>, 
 	public:
 
-		//inherited constructors
-		LPAlgorithmParamsGenFV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-		LPAlgorithmParamsGenFV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+		/**
+		 * Default constructor
+		 */
+		LPAlgorithmParamsGenFV() {}
 
 		/**
 		* Method for computing all derived parameters based on chosen primitive parameters
@@ -286,12 +287,13 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmFV : public LPEncryptionAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+	class LPAlgorithmFV : public LPEncryptionAlgorithm<Element> {
 	public:
 
-		//inherited constructors
-		LPAlgorithmFV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-		LPAlgorithmFV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+		/**
+		 * Default constructor
+		 */
+		LPAlgorithmFV() {}
 
 		/**
 		* Method for encrypting plaintext using FV
@@ -330,12 +332,13 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmSHEFV : public LPSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> { //public LPSHEAlgorithm<Element>, 
+	class LPAlgorithmSHEFV : public LPSHEAlgorithm<Element> { //public LPSHEAlgorithm<Element>, 
 	public:
 
-		//inherited constructors
-		LPAlgorithmSHEFV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-		LPAlgorithmSHEFV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+		/**
+		 * Default constructor
+		 */
+		LPAlgorithmSHEFV() {}
 
 		/**
 		* Function for homomorphic addition of ciphertexts.
@@ -446,7 +449,7 @@ namespace lbcrypto {
 	class LPPublicKeyEncryptionSchemeFV : public LPPublicKeyEncryptionScheme<Element> {
 	public:
 		LPPublicKeyEncryptionSchemeFV() : LPPublicKeyEncryptionScheme<Element>() {
-			this->m_algorithmParamsGen = new LPAlgorithmParamsGenFV<Element>(*this);
+			this->m_algorithmParamsGen = new LPAlgorithmParamsGenFV<Element>();
 		}
 		LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask);
 

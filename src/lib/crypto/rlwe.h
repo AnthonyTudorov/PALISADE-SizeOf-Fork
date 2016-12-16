@@ -50,7 +50,7 @@ class LPCryptoParametersRLWE : public LPCryptoParameters<Element> {
 public:
 
 	/**
-	 * Constructor that initializes all values to 0.
+	 * Default Constructor
 	 */
 	LPCryptoParametersRLWE() : LPCryptoParameters<Element>() {
 		m_distributionParameter = 0.0f;
@@ -153,37 +153,36 @@ public:
 
 	/**
 	 * Sets the value of standard deviation r for discrete Gaussian distribution
+	 * @param distributionParameter
 	 */
 	void SetDistributionParameter(float distributionParameter) {
 		m_distributionParameter = distributionParameter;
 		m_dgg.SetStd(m_distributionParameter);
-
 	}
 
 	/**
 	 * Sets the values of assurance measure alpha
+	 * @param assuranceMeasure
 	 */
 	void SetAssuranceMeasure(float assuranceMeasure) {m_assuranceMeasure = assuranceMeasure;}
 
 	/**
 	 * Sets the value of security level /delta
+	 * @param securityLevel
 	 */
 	void SetSecurityLevel(float securityLevel) {m_securityLevel = securityLevel;}
 
 	/**
 	 * Sets the value of relinearization window
+	 * @param relinWindow
 	 */
 	void SetRelinWindow(usint relinWindow) { m_relinWindow = relinWindow; }
 
 	/**
 	 * Sets the value of supported computation depth d
+	 * @param depth
 	 */
 	void SetDepth(int depth) {m_depth = depth;}
-
-	/**
-	 * Sets the discrete Gaussian Generator
-	 */
-	void SetDiscreteGaussianGenerator(const DiscreteGaussianGenerator &dgg) {m_dgg = dgg;}
 
 	/**
 	 * == operator to compare to this instance of LPCryptoParametersLTV object.

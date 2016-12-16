@@ -145,8 +145,6 @@ void NTRUPRE(int input) {
 
 	float stdDev = 4;
 
-	DiscreteGaussianGenerator dgg(stdDev);
-
 	//Prepare for parameters.
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
 
@@ -157,7 +155,6 @@ void NTRUPRE(int input) {
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(relWindow);				// Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	ofstream fout;
 	fout.open("output.txt");

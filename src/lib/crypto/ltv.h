@@ -166,19 +166,13 @@ private:
 * @tparam Element a ring element.
 */
 template <class Element>
-class LPAlgorithmLTV : public LPEncryptionAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPAlgorithmLTV : public LPEncryptionAlgorithm<Element> {
 public:
 
 	/**
 	 * Default Constructor
 	 */
-	LPAlgorithmLTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-
-	/**
-	 * Construct from scheme
-	 * @param scheme
-	 */
-	LPAlgorithmLTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+	LPAlgorithmLTV() {}
 
 	/**
 	 * Encrypt method for LTV Scheme
@@ -223,19 +217,13 @@ public:
 * @tparam Element a ring element.
 */
 template <class Element>
-class LPAlgorithmPRELTV : public LPPREAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPAlgorithmPRELTV : public LPPREAlgorithm<Element> {
 public:
 
 	/**
 	* Default constructor
 	*/
-	LPAlgorithmPRELTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-	/**
-	* Constructor that initliazes the scheme
-	*
-	* @param &scheme is a reference to scheme
-	*/
-	LPAlgorithmPRELTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+	LPAlgorithmPRELTV() {}
 
 	/**
 	* Function to generate 1..log(q) encryptions for each bit of the original private key
@@ -264,19 +252,13 @@ public:
 * @tparam Element a ring element.
 */
 template <class Element>
-class LPAlgorithmSHELTV : public LPSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPAlgorithmSHELTV : public LPSHEAlgorithm<Element> {
 public:
 
 	/**
 	* Default constructor
 	*/
-	LPAlgorithmSHELTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-	/**
-	* Constructor that initliazes the scheme
-	*
-	* @param &scheme is a reference to scheme
-	*/
-	LPAlgorithmSHELTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+	LPAlgorithmSHELTV() {}
 
 	/**
 	* Function for evaluation addition on ciphertext.
@@ -381,19 +363,12 @@ public:
 * @tparam Element a ring element.
 */
 template <class Element>
-class LPLeveledSHEAlgorithmLTV : public LPLeveledSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPLeveledSHEAlgorithmLTV : public LPLeveledSHEAlgorithm<Element> {
 public:
 	/**
 	* Default constructor
 	*/
-	LPLeveledSHEAlgorithmLTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-	/**
-	* Constructor that initliazes the scheme
-	*
-	* @param &scheme is a reference to scheme
-	*/
-	LPLeveledSHEAlgorithmLTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
-
+	LPLeveledSHEAlgorithmLTV() {}
 
 	/**
 	* Method for ModReducing CipherText and the Private Key used for encryption.
@@ -456,19 +431,13 @@ public:
 * @tparam Element a ring element.
 */
 template <class Element>
-class LPAlgorithmFHELTV : public LPFHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPAlgorithmFHELTV : public LPFHEAlgorithm<Element> {
 public:
 
 	/**
 	* Default constructor
 	*/
-	LPAlgorithmFHELTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-	/**
-	* Constructor that initliazes the scheme
-	*
-	* @param &scheme is a reference to scheme
-	*/
-	LPAlgorithmFHELTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+	LPAlgorithmFHELTV() {}
 
 	/**
 	* Virtual function to define the interface for evaluation addition on ciphertext.

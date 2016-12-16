@@ -222,16 +222,16 @@ LPPublicKeyEncryptionSchemeNull<Element>::LPPublicKeyEncryptionSchemeNull(std::b
 : LPPublicKeyEncryptionScheme<Element>() {
 
 	if (mask[ENCRYPTION])
-		this->m_algorithmEncryption = new LPAlgorithmNull<Element>(*this);
+		this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
 
 	if (mask[PRE])
-		this->m_algorithmPRE = new LPAlgorithmPRENull<Element>(*this);
+		this->m_algorithmPRE = new LPAlgorithmPRENull<Element>();
 	if (mask[SHE])
-		this->m_algorithmSHE = new LPAlgorithmSHENull<Element>(*this);
+		this->m_algorithmSHE = new LPAlgorithmSHENull<Element>();
 	//	if (mask[FHE])
-	//		this->m_algorithmFHE = new LPAlgorithmFHENull<Element>(*this);
+	//		this->m_algorithmFHE = new LPAlgorithmFHENull<Element>();
 	//	if (mask[LEVELEDSHE])
-	//		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>(*this);
+	//		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>();
 }
 
 // Enable for LPPublicKeyEncryptionSchemeLTV
@@ -241,23 +241,23 @@ void LPPublicKeyEncryptionSchemeNull<Element>::Enable(PKESchemeFeature feature) 
 	{
 	case ENCRYPTION:
 		if (this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPAlgorithmNull<Element>(*this);
+			this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
 		break;
 	case PRE:
 		if (this->m_algorithmPRE == NULL)
-			this->m_algorithmPRE = new LPAlgorithmPRENull<Element>(*this);
+			this->m_algorithmPRE = new LPAlgorithmPRENull<Element>();
 		break;
 	case SHE:
 		if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHENull<Element>(*this);
+			this->m_algorithmSHE = new LPAlgorithmSHENull<Element>();
 		break;
 		//	case FHE:
 		//		if (this->m_algorithmFHE == NULL)
-		//			this->m_algorithmFHE = new LPAlgorithmFHENull<Element>(*this);
+		//			this->m_algorithmFHE = new LPAlgorithmFHENull<Element>();
 		//		break;
 		//	case LEVELEDSHE:
 		//		if (this->m_algorithmLeveledSHE == NULL)
-		//			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>(*this);
+		//			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>();
 		//		break;
 	}
 }

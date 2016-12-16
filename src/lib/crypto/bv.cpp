@@ -530,18 +530,18 @@ namespace lbcrypto {
 		: LPPublicKeyEncryptionScheme<Element>() {
 
 		if (mask[ENCRYPTION])
-			this->m_algorithmEncryption = new LPAlgorithmBV<Element>(*this);
+			this->m_algorithmEncryption = new LPAlgorithmBV<Element>();
 
 		if (mask[PRE])
-			this->m_algorithmPRE = new LPAlgorithmPREBV<Element>(*this);
+			this->m_algorithmPRE = new LPAlgorithmPREBV<Element>();
 
 		if (mask[SHE])
-			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
+			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
 
 		/*		if (mask[FHE])
-		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this); */
+		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(); */
 		if (mask[LEVELEDSHE])
-			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
+			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
 	}
 
 	// Enable for LPPublicKeyEncryptionSchemeLTV
@@ -551,24 +551,24 @@ namespace lbcrypto {
 		{
 		case ENCRYPTION:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmBV<Element>(*this);
+				this->m_algorithmEncryption = new LPAlgorithmBV<Element>();
 			break;
 		case PRE:
 			if (this->m_algorithmPRE == NULL)
-				this->m_algorithmPRE = new LPAlgorithmPREBV<Element>(*this);
+				this->m_algorithmPRE = new LPAlgorithmPREBV<Element>();
 			break;
 		case SHE:
 			if (this->m_algorithmSHE == NULL)
-				this->m_algorithmSHE = new LPAlgorithmSHEBV<Element>(*this);
+				this->m_algorithmSHE = new LPAlgorithmSHEBV<Element>();
 			break;
 		case LEVELEDSHE:
 			if (this->m_algorithmLeveledSHE == NULL)
-				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>(*this);
+				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>();
 			break;
 			/*
 			case FHE:
 			if (this->m_algorithmFHE == NULL)
-			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>();
 			break;
 			*/
 		}

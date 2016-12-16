@@ -104,12 +104,12 @@ public:
 };
 
 template <class Element>
-class LPAlgorithmNull : public LPEncryptionAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPAlgorithmNull : public LPEncryptionAlgorithm<Element> {
 public:
-
-	//inherited constructors
-	LPAlgorithmNull() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-	LPAlgorithmNull(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+	/**
+	 * Default constructor
+	 */
+	LPAlgorithmNull() {}
 
 	/**
 	* Method for encrypting plaintext using Null
@@ -149,12 +149,12 @@ public:
 * @tparam Element a ring element.
 */
 template <class Element>
-class LPAlgorithmPRENull : public LPPREAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPAlgorithmPRENull : public LPPREAlgorithm<Element> {
 public:
-
-	//inherited constructors
-	LPAlgorithmPRENull() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-	LPAlgorithmPRENull(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+	/**
+	 * Default constructor
+	 */
+	LPAlgorithmPRENull() {}
 
 	/**
 	* Function to generate 1..log(q) encryptions for each bit of the original private key
@@ -183,18 +183,12 @@ public:
  * @tparam Element a ring element.
  */
 template <class Element>
-class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 	public:
 		/**
 		* Default constructor
 		*/
-		LPLeveledSHEAlgorithmNull() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
-		/**
-		* Constructor that initliazes the scheme
-		*
-		* @param &scheme is a reference to scheme
-		*/
-		LPLeveledSHEAlgorithmNull(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+		LPLeveledSHEAlgorithmNull() {}
 
 		/**
 		 * Method for ModReducing CipherText and the Private Key used for encryption.
@@ -251,19 +245,13 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element>, public 
 };
 
 template <class Element>
-class LPAlgorithmSHENull : public LPSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 	public:
 
 		/**
 		* Default constructor
 		*/
-		LPAlgorithmSHENull() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
-		/**
-		* Constructor that initliazes the scheme
-		*
-		* @param &scheme is a reference to scheme
-		*/
-		LPAlgorithmSHENull(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+		LPAlgorithmSHENull() {}
 
 		/**
 		* Function for evaluation addition on ciphertext.

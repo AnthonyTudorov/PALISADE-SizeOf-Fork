@@ -1026,26 +1026,6 @@ namespace lbcrypto {
 				const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
 	};
 
-
-
-	/**
-	 * @brief Abstract interface class for LBC AHE algorithms
-	 * @tparam Element a ring element.
-	 */
-	template <class Element>
-	class LPAHEAlgorithm {
-		public:		
-			/**
-			 * Virtual function to define the interface for additive homomorphic evaluation of ciphertext
-			 *
-			 * @param &ciphertext1 the input ciphertext.
-			 * @param &ciphertext2 the input ciphertext.
-			 * @param *newCiphertext the new ciphertext.
-			 */
-			virtual shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
-	};
-
 	/**
 	 * @brief Abstract interface class for LBC SHE algorithms
 	 * @tparam Element a ring element.
@@ -1509,39 +1489,6 @@ namespace lbcrypto {
 		const LPSHEAlgorithm<Element> *m_algorithmSHE;
 		const LPFHEAlgorithm<Element> *m_algorithmFHE;
 		const LPLeveledSHEAlgorithm<Element> *m_algorithmLeveledSHE;
-	};
-
-
-	/**
-	 * @brief main implementation class for public key encryption algorithms
-	 * @tparam Element a ring element.
-	 */
-	template <class Element>
-	class LPPublicKeyEncryptionAlgorithmImpl
-	{		
-//	public:
-//		//@Get Properties
-//		/**
-//		* Getter method for a refernce to the scheme
-//		*
-//		*@return the refernce to the scheme.
-//		*/
-//		const LPPublicKeyEncryptionScheme<Element> &GetScheme() const {return *m_scheme;}
-//
-//		//@Set Properties
-//		/**
-//		* Sets the reference to element params
-//		*/
-//		void SetScheme(const LPPublicKeyEncryptionScheme<Element> &scheme) { m_scheme = &scheme; }
-//
-	protected:
-//		LPPublicKeyEncryptionAlgorithmImpl() : m_scheme(NULL) {}
-
-		LPPublicKeyEncryptionAlgorithmImpl(const LPPublicKeyEncryptionScheme<Element> &scheme) : m_scheme(&scheme) {}
-
-	private:
-		//pointer to the parent scheme
-		const LPPublicKeyEncryptionScheme<Element> *m_scheme;
 	};
 
 } // namespace lbcrypto ends

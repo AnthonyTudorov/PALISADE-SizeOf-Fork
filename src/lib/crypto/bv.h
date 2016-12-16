@@ -152,12 +152,11 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	//template <class Element>
-	//class LPAlgorithmParamsGenBV : public LPParameterGenerationAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> { //public LPSHEAlgorithm<Element>, 
+	//class LPAlgorithmParamsGenBV : public LPParameterGenerationAlgorithm<Element> { //public LPSHEAlgorithm<Element>,
 	//public:
 
 	//	//inherited constructors
-	//	LPAlgorithmParamsGenBV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-	//	LPAlgorithmParamsGenBV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+	//	LPAlgorithmParamsGenBV() {}
 
 	//	/**
 	//	* Method for computing all derived parameters based on chosen primitive parameters
@@ -177,13 +176,13 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmBV : public LPEncryptionAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+	class LPAlgorithmBV : public LPEncryptionAlgorithm<Element> {
 	public:
 
-		//inherited constructors
-		LPAlgorithmBV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-
-		LPAlgorithmBV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+		/**
+		 * Default constructor
+		 */
+		LPAlgorithmBV() {};
 
 		/**
 		* Method for encrypting plaintext using BV
@@ -225,19 +224,13 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmSHEBV : public LPSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+	class LPAlgorithmSHEBV : public LPSHEAlgorithm<Element> {
 	public:
 
 		/**
 		* Default constructor
 		*/
-		LPAlgorithmSHEBV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-		/**
-		* Constructor that initliazes the scheme
-		*
-		* @param &scheme is a reference to scheme
-		*/
-		LPAlgorithmSHEBV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+		LPAlgorithmSHEBV() {}
 
 		/**
 		* Function for evaluation addition on ciphertext.
@@ -342,12 +335,13 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmPREBV : public LPPREAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+	class LPAlgorithmPREBV : public LPPREAlgorithm<Element> {
 	public:
 
-		//inherited constructors
-		LPAlgorithmPREBV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-		LPAlgorithmPREBV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+		/**
+		 * Default constructor
+		 */
+		LPAlgorithmPREBV() {}
 
 		/**
 		* Function to generate 1..log(q) encryptions for each bit of the original private key
@@ -377,18 +371,12 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPLeveledSHEAlgorithmBV : public LPLeveledSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+	class LPLeveledSHEAlgorithmBV : public LPLeveledSHEAlgorithm<Element> {
 	public:
 		/**
 		* Default constructor
 		*/
-		LPLeveledSHEAlgorithmBV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-		/**
-		* Constructor that initliazes the scheme
-		*
-		* @param &scheme is a reference to scheme
-		*/
-		LPLeveledSHEAlgorithmBV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+		LPLeveledSHEAlgorithmBV() {}
 
 		/**
 		* Method for ModReducing CipherText and the Private Key used for encryption.
