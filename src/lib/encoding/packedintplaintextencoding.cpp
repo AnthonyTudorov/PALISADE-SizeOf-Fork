@@ -128,8 +128,6 @@ void PackedIntPlaintextEncoding::Pack(const BigBinaryInteger &modulus, const usi
 	
 	usint n = m / 2; //ring dimension
 
-	BigBinaryVector rootOfUnity(n, modulus);
-
 	usint modInt = modulus.ConvertToInt();
 
 	//Do the precomputation if not initialized
@@ -157,7 +155,7 @@ void PackedIntPlaintextEncoding::Pack(const BigBinaryInteger &modulus, const usi
 	for (usint i = 0; i < n; i++) {
 		//multiply the rowVals with coefficient vectors
 		usint sum = std::inner_product(rowVals.begin(), rowVals.end(), this->begin(), 0);	
-		finalVals.at(i) = sum%modulus.ConvertToInt();
+		finalVals.at(i) = sum%modInt;
 		std::transform(rowVals.begin(), rowVals.end(), rootOfUnityTable.begin(), rowVals.begin(), std::multiplies<usint>());
 	}
 
@@ -167,25 +165,22 @@ void PackedIntPlaintextEncoding::Pack(const BigBinaryInteger &modulus, const usi
 
 void PackedIntPlaintextEncoding::Unpack(const BigBinaryInteger &modulus, const usint m) {
 	usint n = m / 2; //ring dimension
-
-	BigBinaryVector rootOfUnity(n, modulus);
-
-	for (usint i = 1; i < m; i += 2) {
-		rootOfUnity.SetValAtIndex((i - 1) / 2, initRoot.ModExp(BigBinaryInteger(i), modulus));
-	}
-
+	usint modInt = modulus.ConvertToInt();
+	if(this->rootOfUnityTable.size()==0|| this->rootOfUnityTable.size()!=m/2)
+		throw std::logic_error("Problem with root of unity table");
+	
 	std::vector<usint> finalVals;
 	finalVals.reserve(n);
-
-	for (usint i = 0; i < n; i++) {
-		BigBinaryInteger sum(0);
+	usint sum;
+	//Can be done with NTT too
+	for (auto &i: this->rootOfUnityTable) {//for each of the value of rootOfUnity vector find polynomial evaluation
+		sum = 0;
 		for (usint j = 0; j < n; j++) {
-			sum = sum + BigBinaryInteger(this->at(j))*rootOfUnity.GetValAtIndex(i).ModExp(BigBinaryInteger(n-1-j),modulus);
+			sum += std::pow(i, j)*this->at(j);
 		}
-		sum = sum.Mod(modulus);
-		finalVals.push_back(sum.ConvertToInt());
-	}
-
+		sum = sum%modInt;
+		finalVals.push_back(sum);
+	}	
 
 	*this = finalVals;
 

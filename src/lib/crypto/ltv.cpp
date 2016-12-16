@@ -597,15 +597,13 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 	const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
-	throw std::logic_error("this EvalMult is not implemented");
+	shared_ptr<Ciphertext<Element>> newCiphertext = this->GetScheme().EvalMult(ciphertext1, ciphertext2); 
 
-	//	shared_ptr<Ciphertext<Element>> newCiphertext;
-	//
-	//	//invoke the EvalMult without the EvalKey
-	//	newCiphertext = EvalMult(ciphertext1, ciphertext2);
-	//
-	//	//Key Switching operation.
-	//	return KeySwitch( ek, newCiphertext );
+	newCiphertext = this->GetScheme().KeySwitch(ek,newCiphertext);
+
+	return newCiphertext;
+	
+	
 }
 
 

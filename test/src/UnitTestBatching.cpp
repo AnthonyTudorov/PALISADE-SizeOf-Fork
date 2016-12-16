@@ -147,13 +147,14 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	float stdDev = 4;
 
 	usint m = 8;
-	BigBinaryInteger modulus("2199023288321");
-	BigBinaryInteger rootOfUnity("1858080237421");
+	BigBinaryInteger modulus("1");
+	BigBinaryInteger rootOfUnity;
 	usint relWindow = 1;
 
 	DiscreteGaussianGenerator dgg(stdDev);
 
 	lbcrypto::NextQ(modulus, BigBinaryInteger(17), m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+	rootOfUnity = RootOfUnity(m, modulus);
 
 	//Prepare for parameters.
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
@@ -173,6 +174,8 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	std::vector<usint> vectorOfInts2 = { 4,3,2,1 };
 
 	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+
+	std::vector<usint> vectorOfIntsExpected = { 5,5,5,5 };
 
 	//Packing pliantext
 	intArray1.Pack(cryptoParams.GetPlaintextModulus(), cryptoParams.GetElementParams()->GetCyclotomicOrder());
@@ -219,7 +222,7 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext1, &intArrayNew, false);
+	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
 	intArrayNew.Unpack(cryptoParams.GetPlaintextModulus(), cryptoParams.GetElementParams()->GetCyclotomicOrder());
 
 	if (!result.isValid) {
@@ -227,6 +230,75 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 		exit(1);
 	}
 
-	EXPECT_EQ(intArrayNew, vectorOfInts1);
+	EXPECT_EQ(intArrayNew, vectorOfIntsExpected);
+
+}
+
+TEST(UTLTVBATCHING, ILVector2n_EVALMULT) {
+
+	usint m = 8;
+
+	float stdDev = 4;
+
+	BigBinaryInteger q("1");
+	BigBinaryInteger temp;
+
+	lbcrypto::NextQ(q, BigBinaryInteger(17), m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
+	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(/*plaintextmodulus*/ 17,
+		/*ringdim*/ m, /*modulus*/ q.ToString(), rootOfUnity.ToString(),
+		/*relinWindow*/ 1, /*stDev*/ stdDev);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+	cc.Enable(LEVELEDSHE);
+
+	//Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
+
+	//Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp;
+
+	std::vector<usint> vectorOfInts1 = { 1,2,3,4 };
+
+	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+
+	std::vector<usint> vectorOfInts2 = { 4,3,2,1 };
+
+	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+
+	std::vector<usint> vectorOfIntsExpected = { 4,6,6,4 };
+
+	//Packing pliantext
+	intArray1.Pack(BigBinaryInteger(17), m);
+
+	intArray2.Pack(BigBinaryInteger(17), m);
+
+
+	kp = cc.KeyGen();
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
+
+	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
+	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextResults;
+
+	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint = cc.EvalMultKeyGen(kp.secretKey);
+
+	ciphertextResults.insert(ciphertextResults.begin(), cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0), keySwitchHint));
+
+	
+	PackedIntPlaintextEncoding results;
+
+	cc.Decrypt(kp.secretKey, ciphertextResults, &results, false);
+	
+	results.Unpack(BigBinaryInteger(17), m);
+
+	
+	EXPECT_EQ(results, vectorOfIntsExpected);
+
+	ILVector2n::DestroyPreComputedSamples();
 
 }
