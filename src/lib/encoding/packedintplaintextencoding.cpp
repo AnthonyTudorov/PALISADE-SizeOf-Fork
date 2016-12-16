@@ -39,6 +39,8 @@ namespace lbcrypto {
 
 	BigBinaryInteger PackedIntPlaintextEncoding::initRoot = BigBinaryInteger(0);
 
+	std::vector<usint> PackedIntPlaintextEncoding::rootOfUnityTable = std::vector<usint>();
+
 void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger& modulus, ILVectorArray2n *element, size_t startFrom, size_t length) const{
 	//TODO - OPTIMIZE CODE. Please take a look at line 114 temp.SetModulus
 	ILVector2n encodedSingleCrt = element->GetElementAtIndex(0);
@@ -128,45 +130,38 @@ void PackedIntPlaintextEncoding::Pack(const BigBinaryInteger &modulus, const usi
 
 	BigBinaryVector rootOfUnity(n, modulus);
 
-	this->initRoot = RootOfUnity(m, modulus);
+	usint modInt = modulus.ConvertToInt();
 
+	//Do the precomputation if not initialized
+	if (this->initRoot.GetMSB() == 0) {
+		this->initRoot = RootOfUnity(m, modulus);
+		this->rootOfUnityTable.reserve(n);
+		rootOfUnityTable.push_back(initRoot.ConvertToInt());
+		usint omegaSquare = (rootOfUnityTable[0] * rootOfUnityTable[0]) % modInt;
+		for (usint i = 1; i < n; i ++) {
+			rootOfUnityTable.push_back((rootOfUnityTable[i-1]*omegaSquare) % modInt);
+		}
 
-	for (usint i = 1; i < m; i += 2) {
-		rootOfUnity.SetValAtIndex((i - 1) / 2, initRoot.ModExp(BigBinaryInteger(i), modulus));
 	}
+	
 
 	BigBinaryVector Xvals(n, modulus);
-
-	BigBinaryInteger nMinusOne(n - 1);
-	BigBinaryInteger nVal(n);
+	BigBinaryInteger nInverse(n);
+	nInverse = nInverse.ModInverse(modulus);
 	
-	Xvals = rootOfUnity.ModExp(nMinusOne);
-	Xvals = Xvals*nVal;
-	Xvals = Xvals.ModInverse();
-
-	BigBinaryVector packedVals(n, modulus);
+	//Initialize Xvals
+	std::vector<usint> rowVals(n, nInverse.ConvertToInt());
+	std::vector<usint> finalVals(n, 0);
+	std::reverse(this->begin(), this->end());
+	
 	for (usint i = 0; i < n; i++) {
-		packedVals.SetValAtIndex(i, BigBinaryInteger(this->at(i)));
+		//multiply the rowVals with coefficient vectors
+		usint sum = std::inner_product(rowVals.begin(), rowVals.end(), this->begin(), 0);	
+		finalVals.at(i) = sum%modulus.ConvertToInt();
+		std::transform(rowVals.begin(), rowVals.end(), rootOfUnityTable.begin(), rowVals.begin(), std::multiplies<usint>());
 	}
 
-	packedVals = packedVals*Xvals;
-
-	std::vector<usint> finalVals;
-
-	for (BigBinaryInteger i(BigBinaryInteger::ZERO) ; i < nVal; i=i+BigBinaryInteger::ONE) {
-		BigBinaryInteger sum(BigBinaryInteger::ZERO);
-		for (usint j = 0; j < n; j++) {
-			sum = sum + packedVals.GetValAtIndex(j)*rootOfUnity.GetValAtIndex(j).ModExp(i, modulus);
-		}
-		sum = sum.Mod(modulus);
-		finalVals.push_back(sum.ConvertToInt());
-
-	}
-
-	for (usint i = 0; i < n; i++) {
-		this->at(i) = finalVals.at(i);
-	}
-
+	*this = finalVals;
 
 }
 
@@ -191,9 +186,8 @@ void PackedIntPlaintextEncoding::Unpack(const BigBinaryInteger &modulus, const u
 		finalVals.push_back(sum.ConvertToInt());
 	}
 
-	for (usint i = 0; i < n; i++) {
-		this->at(i) = finalVals.at(i);
-	}
+
+	*this = finalVals;
 
 }
 

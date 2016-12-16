@@ -70,8 +70,8 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 	float stdDev = 4;
 
 	usint m = 8;
-	BigBinaryInteger modulus("268441601");
-	BigBinaryInteger rootOfUnity("16947867");
+	BigBinaryInteger modulus("2199023288321");
+	BigBinaryInteger rootOfUnity("1858080237421");
 	usint relWindow = 1;
 
 	DiscreteGaussianGenerator dgg(stdDev);
@@ -89,7 +89,7 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
-	std::vector<usint> vectorOfInts1 = { 8,5,16,9 };
+	std::vector<usint> vectorOfInts1 = { 1,2,3,4 };
 
 	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
 
@@ -147,8 +147,8 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	float stdDev = 4;
 
 	usint m = 8;
-	BigBinaryInteger modulus("268441601");
-	BigBinaryInteger rootOfUnity("16947867");
+	BigBinaryInteger modulus("2199023288321");
+	BigBinaryInteger rootOfUnity("1858080237421");
 	usint relWindow = 1;
 
 	DiscreteGaussianGenerator dgg(stdDev);

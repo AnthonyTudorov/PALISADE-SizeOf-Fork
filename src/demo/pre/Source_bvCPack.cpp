@@ -163,7 +163,8 @@ void EncryptDecrypt() {
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
 	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
-	std::vector<usint> vectorOfInts1 = { 8,5,16,9 };
+	//std::vector<usint> vectorOfInts1 = { 8,5,16,9 };
+	std::vector<usint> vectorOfInts1 = { 1,2,3,4 };
 
 	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
 	intArray1.Pack(cryptoParams.GetPlaintextModulus(), cryptoParams.GetElementParams()->GetCyclotomicOrder());
