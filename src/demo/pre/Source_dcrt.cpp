@@ -470,8 +470,6 @@ void FinalLeveledComputation(){
 		levelPairs[i] = leveledCryptoContexts[i].KeyGen();
 	}
 
-	//key structure stores all the hints 
-	LPLeveledSHEKeyStructure<ILVectorArray2n> keyStruc(finalParams.GetDepth());
 	shared_ptr<LPEvalKey<ILVectorArray2n>> linearKeySwitchHint1;
 	shared_ptr<LPEvalKey<ILVectorArray2n>> linearKeySwitchHint2;
 	shared_ptr<LPEvalKey<ILVectorArray2n>> quadraticKeySwitchHint1;
@@ -488,15 +486,6 @@ void FinalLeveledComputation(){
 	e = levelPairs[1].secretKey->GetPrivateElement();
 	e.DropElementAtIndex(e.GetNumOfElements()-1);
 	levelPairs[1].secretKey->SetPrivateElement(e);
-
-
-	//keyStruc.SetLinearKeySwitchHintForLevel(linearKeySwitchHint1,0);
-	//keyStruc.SetQuadraticKeySwitchHintForLevel(quadraticKeySwitchHint1,0);
-	keyStruc.PushBackLinearKey(linearKeySwitchHint1);
-	keyStruc.PushBackQuadraticKey(quadraticKeySwitchHint1);
-
-	keyStruc.PushBackLinearKey(linearKeySwitchHint2);
-	keyStruc.PushBackQuadraticKey(quadraticKeySwitchHint2);
 
 	//create the ciphertexts for computation
 	ILVectorArray2n element1(dcrtParams);
