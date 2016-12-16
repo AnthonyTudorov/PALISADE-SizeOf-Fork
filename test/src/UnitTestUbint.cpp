@@ -276,7 +276,8 @@ TEST(UTubint,consts){
 
   // test the constants
   a = ubint::ZERO;
-  EXPECT_EQ(ubint(0), a)<< "Failure testing ZERO";
+  //note for some reason ubint(0) is ambiguous?
+  EXPECT_EQ(ubint(0L), a)<< "Failure testing ZERO";
 
   a = ubint::ONE;
   EXPECT_EQ(ubint(1), a)<< "Failure testing ONE";
@@ -1182,7 +1183,7 @@ TEST(UTubint,mod_inverse){
     catch (exception& e){
       thrown = true;
       std::cout<<e.what()<<std::endl;
-      modIresult = ubint(0);
+      modIresult = ubint::ZERO;
     }
 
     EXPECT_FALSE(thrown)
