@@ -78,7 +78,6 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	
 	float stdDev = 4;
-	DiscreteGaussianGenerator dgg(stdDev);
 
 	std::vector<usint> vectorOfInts1 = { 1,0,1,0 };
 
@@ -91,7 +90,6 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
 	cryptoParams.SetRelinWindow(relWindow);						   // Set the relinearization window
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams);
