@@ -526,9 +526,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
 
 	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
 
-	Element c1(ciphertext1->GetElement());
+	const Element& c1 = ciphertext1->GetElement();
 
-	Element c2(ciphertext2->GetElement());
+	const Element& c2 = ciphertext2->GetElement();
 
 	Element cResult = c1 + c2;
 
@@ -549,9 +549,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
 
 	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
 
-	Element c1(ciphertext1->GetElement());
+	const Element& c1 = ciphertext1->GetElement();
 
-	Element c2(ciphertext2->GetElement());
+	const Element& c2 = ciphertext2->GetElement();
 
 	Element cResult = c1 - c2;
 
@@ -577,11 +577,11 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
 
 	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
 
-	Element c1(ciphertext1->GetElement());
+	const Element& c1 = ciphertext1->GetElement();
 
-	Element c2(ciphertext2->GetElement());
+	const Element& c2 = ciphertext2->GetElement();
 
-	Element cResult = c1*c2;
+	Element cResult = c1 * c2;
 
 	newCiphertext->SetElement(cResult);
 
@@ -592,13 +592,14 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 	const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = this->GetScheme().EvalMult(ciphertext1, ciphertext2); 
+	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
+			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(ciphertext1->GetCryptoContext().GetEncryptionAlgorithm());
 
-	newCiphertext = this->GetScheme().KeySwitch(ek,newCiphertext);
+	shared_ptr<Ciphertext<Element>> newCiphertext = scheme->EvalMult(ciphertext1, ciphertext2); 
+
+	newCiphertext = scheme->KeySwitch(ek,newCiphertext);
 
 	return newCiphertext;
-	
-	
 }
 
 
@@ -622,8 +623,8 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::KeySwitchGen(
 
 	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(originalPrivateKey->GetCryptoParameters());
 
-	const Element f1 = originalPrivateKey->GetPrivateElement(); //add const
-	const Element f2 = newPrivateKey->GetPrivateElement(); //add const
+	const Element& f1 = originalPrivateKey->GetPrivateElement();
+	const Element& f2 = newPrivateKey->GetPrivateElement();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	Element e(cryptoParams->GetDiscreteGaussianGenerator(), cryptoParams->GetElementParams(), Format::COEFFICIENT);
@@ -638,7 +639,6 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::KeySwitchGen(
 
 	Element keySwitchHintElement(m * f1 * newKeyInverse);
 
-	/*keySwitchHintElement = m * f1 * newKeyInverse ;*/
 	keySwitchHint->SetA(std::move(keySwitchHintElement));
 	return keySwitchHint;
 }
@@ -680,10 +680,10 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const 
 
 	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(originalPrivateKey->GetCryptoParameters());
 
-	const Element f1 = originalPrivateKey->GetPrivateElement(); //add const
+	const Element& f1 = originalPrivateKey->GetPrivateElement();
 
-	const Element f1Squared(f1*f1); //squaring the key
-	const Element f2 = originalPrivateKey->GetPrivateElement(); //add const
+	const Element f1Squared(f1*f1);
+	const Element& f2 = originalPrivateKey->GetPrivateElement();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	Element e(cryptoParams->GetDiscreteGaussianGenerator(), cryptoParams->GetElementParams(), Format::COEFFICIENT);
@@ -692,15 +692,13 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const 
 
 	Element m(p*e);
 
-	m = p * e;
-
 	m.AddILElementOne();
 
 	Element newKeyInverse = f2.MultiplicativeInverse();
 
 	Element keySwitchHintElement(m * f1Squared * newKeyInverse);
 
-	quadraticKeySwitchHint->SetA(keySwitchHintElement);
+	quadraticKeySwitchHint->SetA(std::move(keySwitchHintElement));
 
 	return quadraticKeySwitchHint;
 }
@@ -712,33 +710,13 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAtIndex(const sh
 
 {
 	usint autoIndex = 2 * i - 1;
-	//usint m = ciphertext.GetElement().GetCyclotomicOrder();
-
-	//usint iInverse = ModInverse(autoIndex,m);
 
 	shared_ptr<Ciphertext<Element>> permutedCiphertext(new Ciphertext<Element>(*ciphertext));
 
-	//permutedCiphertext.SetElement(ciphertext.GetElement().AutomorphismTransform(iInverse));
 	permutedCiphertext->SetElement(ciphertext->GetElement().AutomorphismTransform(autoIndex));
 
+	// FIXME: should use new KeySwitch, NOT ReEncrypt
 	return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->ReEncrypt(evalKeys[i - 2], permutedCiphertext);
-
-
-	////debugging
-
-	//Element orig = ciphertext.GetElement();
-
-	//orig.SwitchFormat();
-
-	//std::cout << "original cipher" << orig.GetValues() << std::endl;
-
-	//Element newEl = permutedCiphertext.GetElement();
-
-	//newEl.SwitchFormat();
-
-	//std::cout << "permuted cipher" << "index " << autoIndex << "\n" << newEl.GetValues() << std::endl;
-
-	////end of debugging
 }
 
 template <class Element>
@@ -761,38 +739,14 @@ bool LPAlgorithmSHELTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPubli
 
 		for (usint index = 0; index < size - 1; index++)
 		{
-			//usint iInverse = ModInverse(i,m);
-
-			//std::cout<< "before " << i << " \n" << privateKeyElement.GetValues() << std::endl;
-
-			//Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(iInverse);
-
 			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(i);
-
-			//std::cout<< "after " << i << " \n" << permutedPrivateKeyElement.GetValues() << std::endl;
 
 			(*tempPrivateKey)->SetPrivateElement(permutedPrivateKeyElement);
 
+			// FIXME: key switch gen
 			evalKeys->at(index) = publicKey->GetCryptoContext().GetEncryptionAlgorithm()->ReKeyGen(publicKey, *tempPrivateKey);
 
 			i = i + 2;
-
-			////debugging
-
-			//Element orig = origPrivateKey.GetPrivateElement();
-
-			//orig.SwitchFormat();
-
-			//std::cout << "original key" << "index " << i<< "\n" << orig.GetValues() << std::endl;
-
-			//Element newEl = tempPrivateKey->GetPrivateElement();
-
-			//newEl.SwitchFormat();
-
-			//std::cout << "permuted key" << "index " << i << "\n" << newEl.GetValues() << std::endl;
-
-			////end of debugging
-
 		}
 
 	}
