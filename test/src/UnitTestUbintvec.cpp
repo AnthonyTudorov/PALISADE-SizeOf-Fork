@@ -166,6 +166,7 @@ TEST(UTubintvec,ctor_access_eq_neq){
   EXPECT_EQ(ubint(7),n[4])<< "Failure in SetValAtIndex(ubint)";
 
 #if 0
+
   m+=n;
 
   usint expectedResult[5] = {9872,5888,4620,2376,4631};
