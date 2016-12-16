@@ -48,13 +48,23 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include "gmpint.h"
 
 namespace NTL {
+
+  const myZZ myZZ::ZERO=myZZ(0);
+  const myZZ myZZ::ONE=myZZ(1);
+  const myZZ myZZ::TWO=myZZ(2);
+  const myZZ myZZ::THREE=myZZ(3);
+  const myZZ myZZ::FOUR=myZZ(4);
+  const myZZ myZZ::FIVE=myZZ(5);
+
   myZZ::myZZ():ZZ() {}
   myZZ::myZZ(long a): ZZ(a) {}
   myZZ::myZZ(INIT_SIZE_TYPE, long k): ZZ(INIT_SIZE, k) {m_MSB=0; }
-  myZZ::myZZ(std::string s): ZZ() {std::cout<<"STRINGCTR"<<std::endl; }
+  myZZ::myZZ(std::string s): ZZ(conv<ZZ>(s.c_str())) {}
+
   myZZ::myZZ(NTL::ZZ &a): ZZ(a) {}
   myZZ::myZZ(const NTL::ZZ &a): ZZ(a) {}
   myZZ::myZZ(NTL::ZZ &&a) : ZZ(a) {}
@@ -63,21 +73,35 @@ namespace NTL {
 //
 //  }
 
-  usint myZZ::GetMSB() const {
+  usint myZZ::GetMSB() {
+    this->SetMSB(); //note no one needs to SetMSB()
     return m_MSB;
   }
 
+
   void myZZ::SetMSB()
   {
-    m_MSB = 0;
+
     size_t sz = this->size();
+    //std::cout<<"size "<<sz <<" ";
+    if (sz==0) { //special case for empty data
+      m_MSB = 0;
+      return;
+    }
 
     m_MSB = (sz-1) * NTL_ZZ_NBITS; //figure out bit location of all but last limb
+    //std::cout<<"msb starts with "<<m_MSB<< " ";
     //could also try
     //m_MSB = NumBytes(*this)*8;
-     const ZZ_limb_t *zlp = ZZ_limbs_get(*this);
-    
-    m_MSB+= GetMSBLimb_t(zlp[sz]); //add the value of that last limb.
+    const ZZ_limb_t *zlp = ZZ_limbs_get(*this);
+    //for (usint i = 0; i < sz; i++){
+    //std::cout<< "limb["<<i<<"] = "<<zlp[i]<<std::endl;
+    //}
+
+    usint tmp = GetMSBLimb_t(zlp[sz-1]); //add the value of that last limb.
+    //std::cout<< "tmp = "<<tmp<<std::endl;
+    m_MSB+=tmp;
+    //std::cout<<"msb ends with "<<m_MSB<< " " <<std::endl;
   }
 
  // inline static usint GetMSBLimb_t(ZZ_limb_t x){
@@ -94,6 +118,29 @@ namespace NTL {
   }
 
   //adapter kit
-  const myZZ& myZZ::zero() {return myZZ(ZZ::zero());}
+  const myZZ& myZZ::zero() {return (ZZ::zero());}
+
+  //palisade conversion methods
+  usint myZZ::ConvertToUsint() const{ return (conv<usint>(*this)); }
+  usint myZZ::ConvertToInt() const{ return (conv<int>(*this)); }
+  uint32_t myZZ::ConvertToUint32() const { return (conv<uint32_t>(*this));}
+
+  uint64_t myZZ::ConvertToUint64() const{ return (conv<uint64_t>(*this));}
+  float myZZ::ConvertToFloat() const{ return (conv<float>(*this));}
+  double myZZ::ConvertToDouble() const{ return (conv<double>(*this));}
+  long double myZZ::ConvertToLongDouble() const {
+    std::cerr<<"can't convert to long double"<<std::endl; 
+    return 0.0L;
+  }
+  
+  const std::string myZZ::ToString() const
+  {
+    //todo Not sure if this string is safe, it may be ephemeral if not returned  by value.
+    std::stringstream result("");
+    result << *this;
+    return result.str();
+  }	
+
 
 } // namespace NTL ends
+
