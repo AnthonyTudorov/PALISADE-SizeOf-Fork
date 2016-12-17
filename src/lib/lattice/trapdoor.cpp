@@ -187,7 +187,8 @@ namespace lbcrypto {
 		const BigBinaryInteger& modulus = A(0, 0).GetModulus();
 
 		//spectral bound s
-		double s = 40 * std::sqrt(n*(k + 2));
+		//double s = 40 * std::sqrt(n*(k + 2));
+		double s = 40 * std::sqrt(n*k);
 
 		//perturbation vector in evaluation representation
 		RingMat pHat(zero_alloc, k + 2, 1);

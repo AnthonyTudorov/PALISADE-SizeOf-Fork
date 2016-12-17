@@ -377,7 +377,8 @@ TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 
 	double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
-	double s = 40 * sqrt((k + 2)*n);
+	//double s = 40 * sqrt((k + 2)*n);
+	double s = 40 * sqrt(k*n);
 	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
 
 	ILVector2n u(dug, params, COEFFICIENT);
@@ -420,9 +421,6 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	//BigBinaryInteger modulus("1237940039285380274899136513");
 	//BigBinaryInteger rootOfUnity("977145384161930579732228319");
 
-
-	float stddev = 4;
-
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
 	double logTwo = log(val - 1.0) / log(2) + 1.0;
 	usint k = (usint)floor(logTwo);// = this->m_cryptoParameters.GetModulus();
@@ -431,17 +429,22 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
 
 	//spectral bound s
-	double s = 40 * std::sqrt(n*(k + 2));
+	double s = 39 * std::sqrt(n*k);
+
+	std::cout << "s = " << s << std::endl;
 
 	//Generate the trapdoor pair
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
 
-	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+	double sigma = 4;
+
+	std::cout << 39 / (c*sigma) << std::endl;
+
+	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, sigma);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
 
-	double sigma = 4;
 	DiscreteGaussianGenerator dgg(sigma);
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 
@@ -466,7 +469,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	Matrix<int32_t> pTrapdoorAverage([]() { return make_unique<int32_t>(); }, 2 * n, 1);
 
-	size_t count = 100;
+	size_t count = 1000;
 
 	for (size_t i = 0; i < count; i++) {
 		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, dgg, dggLargeSigma, &pHat);
