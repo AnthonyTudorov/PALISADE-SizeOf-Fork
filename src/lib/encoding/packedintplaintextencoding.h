@@ -39,6 +39,8 @@
 #include <vector>
 #include <initializer_list>
 #include "plaintext.h"
+#include <functional>
+#include <numeric>
 
 namespace lbcrypto {
 
@@ -111,6 +113,7 @@ public:
 
 private:
 	static BigBinaryInteger initRoot;
+	static std::vector<usint> rootOfUnityTable;
 };
 
 }
