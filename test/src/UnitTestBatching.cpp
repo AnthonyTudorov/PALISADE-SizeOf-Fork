@@ -74,8 +74,6 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 	BigBinaryInteger rootOfUnity("1858080237421");
 	usint relWindow = 1;
 
-	DiscreteGaussianGenerator dgg(stdDev);
-
 	lbcrypto::NextQ(modulus, BigBinaryInteger(17), m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 
 	//Prepare for parameters.
@@ -87,7 +85,6 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4 };
 
@@ -151,8 +148,6 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	BigBinaryInteger rootOfUnity;
 	usint relWindow = 1;
 
-	DiscreteGaussianGenerator dgg(stdDev);
-
 	lbcrypto::NextQ(modulus, BigBinaryInteger(17), m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 	rootOfUnity = RootOfUnity(m, modulus);
 
@@ -165,7 +160,6 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4 };
 
