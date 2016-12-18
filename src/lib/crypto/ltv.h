@@ -28,13 +28,12 @@
  *
  * @section DESCRIPTION
  *
- * This code provides the core proxy re-encryption functionality.
+ * This code provides the definitions for the LTV scheme
  */
 
 #ifndef LBCRYPTO_CRYPTO_LTV_H
 #define LBCRYPTO_CRYPTO_LTV_H
 
-//#include "../crypto/rlwe.h"
 #include "../palisade.h"
 
 namespace lbcrypto {
@@ -48,13 +47,13 @@ class LPCryptoParametersLTV: public LPCryptoParametersRLWE<Element> {
 public:
 
 	/**
-	 * Constructor that initializes all values to 0.
+	 * Default constructor
 	 */
 	LPCryptoParametersLTV() : LPCryptoParametersRLWE<Element>() {}
 
 	/**
 	 * Copy constructor.
-	 *
+	 * @param rhs - source
 	 */
 	LPCryptoParametersLTV(const LPCryptoParametersLTV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {}
 
@@ -91,12 +90,11 @@ public:
 	 */
 	virtual ~LPCryptoParametersLTV() {}
 
-	//JSON FACILITY
 	/**
-	 * Serialize the object into a Serialized
-	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	 * @param fileFlag is an object-specific parameter for the serialization
-	 * @return true if successfully serialized
+	 * Serialize the LTV Crypto Parameters
+	 *
+	 * @param serObj - rapidJson object for the serializaion
+	 * @return true on success
 	 */
 	bool Serialize(Serialized* serObj) const {
 		if( !serObj->IsObject() )
@@ -113,8 +111,9 @@ public:
 	}
 
 	/**
-	 * Populate the object from the deserialization of the Setialized
-	 * @param serObj contains the serialized object
+	 * Deserialize the LTV Crypto Parameters
+	 *
+	 * @param serObj
 	 * @return true on success
 	 */
 	bool Deserialize(const Serialized& serObj) {
@@ -125,10 +124,9 @@ public:
 	}
 
 	/**
-	 * Creates a new set of parameters for LPCryptoParametersLTV amid a new ILDCRTParams. The new ILDCRTParams will allow for
-	 * SHE operations of the existing depth. Note that the cyclotomic order also changes.
-	 *
-	 * @param *cryptoParams is where the resulting new LPCryptoParametersLTV will be placed in.
+	 * ParameterSelection for LTV Crypto Parameters
+	 * FIXME this will be replaced by the new mechanism for crypto params
+	 * @param cryptoParams
 	 */
 	void ParameterSelection(LPCryptoParametersLTV<ILVectorArray2n> *cryptoParams);
 
@@ -147,6 +145,7 @@ public:
 private:
 
 	//helper function for ParameterSelection. Splits the string 's' by the delimeter 'c'.
+	// FIXME this goes away
 	std::string split(const std::string s, char c){
 		std::string result;
 		const char *str = s.c_str();
@@ -158,8 +157,8 @@ private:
 	}
 
 	//function for parameter selection. The public ParameterSelection function is a wrapper around this function.
+	// FIXME this goes away
 	void ParameterSelection(usint& n, vector<BigBinaryInteger> &moduli);
-
 };
 
 /**
@@ -167,27 +166,21 @@ private:
 * @tparam Element a ring element.
 */
 template <class Element>
-class LPAlgorithmLTV : public LPEncryptionAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPAlgorithmLTV : public LPEncryptionAlgorithm<Element> {
 public:
 
 	/**
-	* Default Constructor
-	*/
-	LPAlgorithmLTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-	/**
-	* Constructor that initliazes the scheme
-	*
-	*@param &scheme
-	*/
-	LPAlgorithmLTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+	 * Default Constructor
+	 */
+	LPAlgorithmLTV() {}
 
 	/**
-	* Method for encrypting plaintext using Ring-LWE NTRU
-	*
-	* @param &publicKey public key used for encryption.
-	* @param &plaintext the plaintext input.
-	* @return an instance of EncryptResult related to the ciphertext that is encrypted.
-	*/
+	 * Encrypt method for LTV Scheme
+	 *
+	 * @param publicKey - the encryption key
+	 * @param plaintext - plaintext to be encrypted
+	 * @return a shared pointer to the encrypted Cyphertext
+	 */
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Element &plaintext) const;
 
 	/**
@@ -198,16 +191,24 @@ public:
 	* @param *plaintext the plaintext output.
 	* @return an instance of DecryptResult related to the plaintext that is decrypted
 	*/
+	/**
+	 * Decrypt method for LTV Scheme
+	 *
+	 * @param privateKey - decryption key
+	 * @param ciphertext - Ciphertext to be decrypted
+	 * @param plaintext - Plaintext result of Decrypt operation
+	 * @return DecryptResult indicating success or failure and number of bytes decrypted
+	 */
 	DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		Element *plaintext) const;
 
 	/**
-	* Function to generate public and private keys
-	*
-	* @param cc CryptoContext required for keygen
-	* @return public-private key pair.
-	*/
+	 * KeyGen
+	 *
+	 * @param cc - crypto context in which to generate a key pair
+	 * @return public and private key pair
+	 */
 	virtual LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc) const;
 };
 
@@ -216,19 +217,13 @@ public:
 * @tparam Element a ring element.
 */
 template <class Element>
-class LPAlgorithmPRELTV : public LPPREAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPAlgorithmPRELTV : public LPPREAlgorithm<Element> {
 public:
 
 	/**
 	* Default constructor
 	*/
-	LPAlgorithmPRELTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-	/**
-	* Constructor that initliazes the scheme
-	*
-	* @param &scheme is a reference to scheme
-	*/
-	LPAlgorithmPRELTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+	LPAlgorithmPRELTV() {}
 
 	/**
 	* Function to generate 1..log(q) encryptions for each bit of the original private key
@@ -251,72 +246,19 @@ public:
 };
 
 /**
-* Automorphism-based SHE operations.
-*
-* @brief Template for crypto PRE.
-* @tparam Element a ring element.
-*/
-template <class Element>
-class LPAlgorithmAutoMorphLTV : public LPAutoMorphAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
-public:
-
-	/**
-	* Default Constructor
-	*/
-	LPAlgorithmAutoMorphLTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-	/**
-	* Constructor that initliazes the scheme
-	*
-	* @param &scheme is a reference to scheme
-	*/
-	LPAlgorithmAutoMorphLTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
-
-	/**
-	* Function for evaluating ciphertext at an index; works only with odd indices in the ciphertext
-	*
-	* @param ciphertext the input ciphertext.
-	* @param i index of the item to be "extracted", starts with 2.
-	* @param &evalKeys - reference to the vector of evaluation keys generated by EvalAutomorphismKeyGen.
-	*/
-	shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, const usint i,
-		const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const;
-
-	/**
-	* Generate automophism keys for a given private key; works only with odd indices in the ciphertext
-	*
-	* @param &publicKey original public key.
-	* @param &origPrivateKey original private key.
-	* @param size number of automorphims to be computed; starting from plaintext index 2; maximum is m/2-1
-	* @param *tempPrivateKey used to store permutations of private key; passed as pointer because instances of LPPrivateKey cannot be created within the method itself
-	* @param *evalKeys the evaluation keys; index 0 of the vector corresponds to plaintext index 2, index 1 to plaintex index 3, etc.
-	*/
-	virtual bool EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
-		const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
-		const usint size, shared_ptr<LPPrivateKey<Element>> *tempPrivateKey,
-		std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const;
-
-};
-
-/**
 * Evaluation multiplication for homomorphic encryption operations.
 *
 * @brief Template for crypto PRE.
 * @tparam Element a ring element.
 */
 template <class Element>
-class LPAlgorithmSHELTV : public LPSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPAlgorithmSHELTV : public LPSHEAlgorithm<Element> {
 public:
 
 	/**
 	* Default constructor
 	*/
-	LPAlgorithmSHELTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-	/**
-	* Constructor that initliazes the scheme
-	*
-	* @param &scheme is a reference to scheme
-	*/
-	LPAlgorithmSHELTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+	LPAlgorithmSHELTV() {}
 
 	/**
 	* Function for evaluation addition on ciphertext.
@@ -389,6 +331,30 @@ public:
 	* @return resulting evalkeyswitch hint
 	*/
 	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const;
+
+	/**
+	* Function for evaluating ciphertext at an index; works only with odd indices in the ciphertext
+	*
+	* @param ciphertext the input ciphertext.
+	* @param i index of the item to be "extracted", starts with 2.
+	* @param &evalKeys - reference to the vector of evaluation keys generated by EvalAutomorphismKeyGen.
+	*/
+	shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, const usint i,
+		const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const;
+
+	/**
+	* Generate automophism keys for a given private key; works only with odd indices in the ciphertext
+	*
+	* @param &publicKey original public key.
+	* @param &origPrivateKey original private key.
+	* @param size number of automorphims to be computed; starting from plaintext index 2; maximum is m/2-1
+	* @param *tempPrivateKey used to store permutations of private key; passed as pointer because instances of LPPrivateKey cannot be created within the method itself
+	* @param *evalKeys the evaluation keys; index 0 of the vector corresponds to plaintext index 2, index 1 to plaintex index 3, etc.
+	*/
+	virtual bool EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+		const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
+		const usint size, shared_ptr<LPPrivateKey<Element>> *tempPrivateKey,
+		std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const;
 };
 
 
@@ -397,19 +363,12 @@ public:
 * @tparam Element a ring element.
 */
 template <class Element>
-class LPLeveledSHEAlgorithmLTV : public LPLeveledSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPLeveledSHEAlgorithmLTV : public LPLeveledSHEAlgorithm<Element> {
 public:
 	/**
 	* Default constructor
 	*/
-	LPLeveledSHEAlgorithmLTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-	/**
-	* Constructor that initliazes the scheme
-	*
-	* @param &scheme is a reference to scheme
-	*/
-	LPLeveledSHEAlgorithmLTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
-
+	LPLeveledSHEAlgorithmLTV() {}
 
 	/**
 	* Method for ModReducing CipherText and the Private Key used for encryption.
@@ -472,19 +431,13 @@ public:
 * @tparam Element a ring element.
 */
 template <class Element>
-class LPAlgorithmFHELTV : public LPFHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPAlgorithmFHELTV : public LPFHEAlgorithm<Element> {
 public:
 
 	/**
 	* Default constructor
 	*/
-	LPAlgorithmFHELTV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-	/**
-	* Constructor that initliazes the scheme
-	*
-	* @param &scheme is a reference to scheme
-	*/
-	LPAlgorithmFHELTV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+	LPAlgorithmFHELTV() {}
 
 	/**
 	* Virtual function to define the interface for evaluation addition on ciphertext.
@@ -524,107 +477,6 @@ public:
 	*/
 	void Enable(PKESchemeFeature feature);
 };
-
-/**
-* @brief placeholder for KeySwitchHints, both linear and quadratic, for Leveled SHE operations. Both linear and quadratic keys
-* are stored in two separate vectors. The order in of keys in ascending order is the order of keys required for computation at each level
-* of a leveled SHE operation.
-* @tparam Element a ring element.
-*/
-template <class Element>
-class LPLeveledSHEKeyStructure //: TODO: NISHANT to implement serializable public Serializable
-{
-private:
-	std::vector< shared_ptr<LPEvalKey<Element>> > m_qksh;
-	std::vector< shared_ptr<LPEvalKey<Element>> > m_lksh;
-	usint m_levels;
-
-public:
-	/**
-	*Constructor that initliazes the number of computation levels
-	*
-	* @param levels number of levels
-	*/
-	explicit LPLeveledSHEKeyStructure(usint levels) : m_levels(levels) { m_qksh.reserve(levels); m_lksh.reserve(levels); };
-
-	/**
-	*Get method for LinearKeySwitchHint for a particular level
-	*
-	* @param level is the level to get the keyswitch hint for
-	* @return the LinearKeySwitchHint for the level
-	*/
-	const shared_ptr<LPEvalKey<Element>> GetLinearKeySwitchHintForLevel(usint level) const {
-		if (level>m_levels - 1) {
-			throw std::runtime_error("Level out of range");
-		}
-		else {
-			return m_lksh[level];
-		}
-	};
-
-	/**
-	*Get method for QuadraticKeySwitchHint for a particular level
-	*
-	*
-	* @param level is the level to get the keyswitch hint for
-	* @return the QuadraticKeySwitchHint for the level
-	*/
-	const shared_ptr<LPEvalKey<Element>> GetQuadraticKeySwitchHintForLevel(usint level) const {
-		if (level>m_levels - 1) {
-			throw std::runtime_error("Level out of range");
-		}
-		else {
-			return m_qksh[level];
-		}
-	}
-	/**
-	* Method to add a LinearKeySwitchHint. The added key will be the key for the last level
-	*
-	*@param lksh LinearKeySwitchHintLTV to be added.
-	*/
-	void PushBackLinearKey(const shared_ptr<LPEvalKey<Element>> lksh) {
-		m_lksh.push_back(lksh);
-	}
-	/**
-	* Method to add a QuadraticKeySwitchHint. The added key will be the key for the last level
-	*
-	*@param quad QuadraticKeySwitchHintLTV to be added.
-	*/
-	void PushBackQuadraticKey(const shared_ptr<LPEvalKey<Element>> quad) {
-		m_qksh.push_back(quad);
-	}
-	/**
-	* Method to set LinearKeySwitchHint for a particular level of computation.
-	*
-	*@param lksh LinearKeySwitchHintLTV to be set.
-	*@param level is the level to set the key to.
-	*/
-	void SetLinearKeySwitchHintForLevel(const shared_ptr<LPEvalKey<Element>> lksh, usint level) {
-		if (level>m_levels - 1) {
-			throw std::runtime_error("Level out of range");
-		}
-		else {
-			m_lksh[level] = lksh;
-		}
-	}
-	/**
-	* Method to set QuadraticKeySwitchHint for a particular level of computation.
-	*
-	*@param qksh QuadraticKeySwitchHint to be set.
-	*@param level is the level to set the key to.
-	*/
-	void SetQuadraticKeySwitchHintForLevel(const shared_ptr<LPEvalKey<Element>> qksh, usint level) {
-		if (level>m_levels - 1)
-		{
-			throw std::runtime_error("Level out of range");
-		}
-		else {
-			m_qksh[level] = qksh;
-		}
-	}
-};
-
-
 
 }
 

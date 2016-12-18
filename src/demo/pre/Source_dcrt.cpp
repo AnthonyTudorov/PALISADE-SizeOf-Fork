@@ -470,15 +470,12 @@ void FinalLeveledComputation(){
 		levelPairs[i] = leveledCryptoContexts[i].KeyGen();
 	}
 
-	//key structure stores all the hints 
-	LPLeveledSHEKeyStructure<ILVectorArray2n> keyStruc(finalParams.GetDepth());
 	shared_ptr<LPEvalKey<ILVectorArray2n>> linearKeySwitchHint1;
 	shared_ptr<LPEvalKey<ILVectorArray2n>> linearKeySwitchHint2;
 	shared_ptr<LPEvalKey<ILVectorArray2n>> quadraticKeySwitchHint1;
 	shared_ptr<LPEvalKey<ILVectorArray2n>> quadraticKeySwitchHint2;
 	
 	linearKeySwitchHint1 = cc.KeySwitchGen(kp.secretKey, levelPairs[0].secretKey);
-	//quadraticKeySwitchHint1 = cc.QuadraticEvalMultKeyGen(kp.secretKey, levelPairs[0].secretKey);
 	quadraticKeySwitchHint1 = cc.EvalMultKeyGen(kp.secretKey);
 	auto e = levelPairs[0].secretKey->GetPrivateElement();
 	e.DropElementAtIndex(e.GetNumOfElements()-1);
@@ -489,15 +486,6 @@ void FinalLeveledComputation(){
 	e = levelPairs[1].secretKey->GetPrivateElement();
 	e.DropElementAtIndex(e.GetNumOfElements()-1);
 	levelPairs[1].secretKey->SetPrivateElement(e);
-
-
-	//keyStruc.SetLinearKeySwitchHintForLevel(linearKeySwitchHint1,0);
-	//keyStruc.SetQuadraticKeySwitchHintForLevel(quadraticKeySwitchHint1,0);
-	keyStruc.PushBackLinearKey(linearKeySwitchHint1);
-	keyStruc.PushBackQuadraticKey(quadraticKeySwitchHint1);
-
-	keyStruc.PushBackLinearKey(linearKeySwitchHint2);
-	keyStruc.PushBackQuadraticKey(quadraticKeySwitchHint2);
 
 	//create the ciphertexts for computation
 	ILVectorArray2n element1(dcrtParams);
@@ -594,7 +582,6 @@ void ComposedEvalMultTest(){
 	//FIXME: this is never used??
 	//Generating Quaraditic KeySwitchHint from sk^2 to skNew
 	shared_ptr<LPEvalKey<ILVectorArray2n>> quadraticKeySwitchHint;
-	//quadraticKeySwitchHint = cc.QuadraticEvalMultKeyGen(kp.secretKey, kpNew.secretKey);
 	quadraticKeySwitchHint = cc.EvalMultKeyGen(kp.secretKey);
 
 	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce

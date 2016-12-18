@@ -88,8 +88,6 @@ TEST(UTBVDCRT, ILVector2n_bv_Encrypt_Decrypt_DCRT) {
 		modulus = modulus* moduli[j];
 	}
 
-	DiscreteGaussianGenerator dgg(stdDev);
-
 	//Prepare for parameters.
 	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
 
@@ -99,7 +97,6 @@ TEST(UTBVDCRT, ILVector2n_bv_Encrypt_Decrypt_DCRT) {
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootsOfUnity, m, moduli);
@@ -161,8 +158,6 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 		modulus = modulus* moduli[j];
 	}
 
-	DiscreteGaussianGenerator dgg(stdDev);
-
 	//Prepare for parameters.
 	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
 
@@ -172,7 +167,6 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootsOfUnity, m, moduli);
@@ -266,8 +260,6 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALADD_DCRT) {
 		modulus = modulus* moduli[j];
 	}
 
-	DiscreteGaussianGenerator dgg(stdDev);
-
 	//Prepare for parameters.
 	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
 
@@ -278,7 +270,6 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALADD_DCRT) {
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(1);				// Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(&cryptoParams);
 	cc.Enable(ENCRYPTION);
@@ -338,21 +329,19 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT) {
 	BigBinaryInteger temp;
 
 	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-	DiscreteGaussianGenerator dgg(stdDev);
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 	shared_ptr<ILParams> params(new ILParams(m, q, rootOfUnity));
 
 	//	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(dgg, params);
 
 	LPCryptoParametersBV<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE); // Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
 	cryptoParams.SetRelinWindow(8);						   // Set the relinearization window
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
+
+	//Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(cryptoParams.GetDiscreteGaussianGenerator(), params);
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams);
 	cc.Enable(ENCRYPTION);
@@ -420,9 +409,7 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT_DCRT) {
 		modulus = modulus* init_moduli[i];
 	}
 
-	DiscreteGaussianGenerator dgg(init_stdDev);
 	shared_ptr<ILDCRTParams> params(new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity));
-
 
 	//	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
 
@@ -433,7 +420,6 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT_DCRT) {
 	cryptoParams.SetDistributionParameter(init_stdDev);          // Set the noise parameters.
 	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 	cryptoParams.SetAssuranceMeasure(6);
 	cryptoParams.SetDepth(init_size - 1);
 	cryptoParams.SetSecurityLevel(1.006);
@@ -506,8 +492,6 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 
 	//std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
-	DiscreteGaussianGenerator dgg(stdDev);
-
 	//Prepare for parameters.
 	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
 
@@ -518,7 +502,6 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(&cryptoParams);
 	cc.Enable(ENCRYPTION);
@@ -599,7 +582,6 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
 		modulus = modulus* init_moduli[i];
 	}
 
-	DiscreteGaussianGenerator dgg(init_stdDev);
 	shared_ptr<ILDCRTParams> params(new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity));
 
 
@@ -612,7 +594,6 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
 	cryptoParams.SetDistributionParameter(init_stdDev);          // Set the noise parameters.
 	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 	cryptoParams.SetAssuranceMeasure(6);
 	cryptoParams.SetDepth(init_size - 1);
 	cryptoParams.SetSecurityLevel(1.006);

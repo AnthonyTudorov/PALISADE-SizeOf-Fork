@@ -242,7 +242,7 @@ namespace lbcrypto {
 
 		const shared_ptr<LPEvalKeyRelin<Element>> ekRelin = std::dynamic_pointer_cast<LPEvalKeyRelin<Element>>(ek);
 
-		shared_ptr<Ciphertext<Element>> newCiphertext = this->GetScheme().EvalMult(ciphertext1, ciphertext2);
+		shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
 
 		const Element &c0 = newCiphertext->GetElements().at(0);
 
@@ -345,7 +345,7 @@ namespace lbcrypto {
 
 		originalPrivateKeySquared->SetPrivateElement(std::move(sSquare));
 
-		return this->GetScheme().KeySwitchGen(originalPrivateKeySquared , originalPrivateKey);
+		return this->KeySwitchGen(originalPrivateKeySquared , originalPrivateKey);
 
 	}
 
@@ -530,21 +530,18 @@ namespace lbcrypto {
 		: LPPublicKeyEncryptionScheme<Element>() {
 
 		if (mask[ENCRYPTION])
-			this->m_algorithmEncryption = new LPAlgorithmBV<Element>(*this);
+			this->m_algorithmEncryption = new LPAlgorithmBV<Element>();
 
 		if (mask[PRE])
-			this->m_algorithmPRE = new LPAlgorithmPREBV<Element>(*this);
-		/*
-		if (mask[EVALAUTOMORPHISM])
-		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
-		if (mask[SHE])
-		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
-		if (mask[FHE])
-		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
-		if (mask[LEVELEDSHE])
-		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
-		*/
+			this->m_algorithmPRE = new LPAlgorithmPREBV<Element>();
 
+		if (mask[SHE])
+			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
+
+		/*		if (mask[FHE])
+		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(); */
+		if (mask[LEVELEDSHE])
+			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
 	}
 
 	// Enable for LPPublicKeyEncryptionSchemeLTV
@@ -554,36 +551,24 @@ namespace lbcrypto {
 		{
 		case ENCRYPTION:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmBV<Element>(*this);
+				this->m_algorithmEncryption = new LPAlgorithmBV<Element>();
 			break;
 		case PRE:
 			if (this->m_algorithmPRE == NULL)
-				this->m_algorithmPRE = new LPAlgorithmPREBV<Element>(*this);
+				this->m_algorithmPRE = new LPAlgorithmPREBV<Element>();
 			break;
 		case SHE:
 			if (this->m_algorithmSHE == NULL)
-				this->m_algorithmSHE = new LPAlgorithmSHEBV<Element>(*this);
+				this->m_algorithmSHE = new LPAlgorithmSHEBV<Element>();
 			break;
 		case LEVELEDSHE:
 			if (this->m_algorithmLeveledSHE == NULL)
-				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>(*this);
+				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>();
 			break;
 			/*
-			case EVALAUTOMORPHISM:
-			if (this->m_algorithmEvalAutomorphism == NULL)
-			this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
-			break;
-			case SHE:
-			if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
-			break;
 			case FHE:
 			if (this->m_algorithmFHE == NULL)
-			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
-			break;
-			case LEVELEDSHE:
-			if (this->m_algorithmLeveledSHE == NULL)
-			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
+			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>();
 			break;
 			*/
 		}

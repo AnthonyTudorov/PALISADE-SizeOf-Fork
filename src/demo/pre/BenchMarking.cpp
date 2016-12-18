@@ -279,8 +279,6 @@ void BenchMarking_DCRT(bool intOrByteArray){
 					rootsOfUnity_vector[j] = rootsOfUnity[m][j+1];
 				}
 
-				DiscreteGaussianGenerator dgg(stdDev);
-
 				shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli_vector, rootsOfUnity_vector));
 
 				LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
@@ -288,7 +286,6 @@ void BenchMarking_DCRT(bool intOrByteArray){
 				cryptoParams.SetDistributionParameter(stdDev);
 				cryptoParams.SetRelinWindow(1);
 				cryptoParams.SetElementParams(params);
-				cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 				CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
 				cc.Enable(ENCRYPTION);
@@ -528,8 +525,6 @@ void BenchMarking_SCRT(bool intOrByteArray) {
 				/***************************SETUP START**********************************/
 				cout << "Processing cyclotomic order of " << m << "under " << k << "th iteration" << endl;
 
-				DiscreteGaussianGenerator dgg(stdDev);
-
 				shared_ptr<ILParams> params(new ILParams(m, moduli[m][2], rootsOfUnity[m][2]));
 
 				LPCryptoParametersLTV<ILVector2n> cryptoParams;
@@ -537,7 +532,6 @@ void BenchMarking_SCRT(bool intOrByteArray) {
 				cryptoParams.SetDistributionParameter(stdDev);
 				cryptoParams.SetRelinWindow(1);
 				cryptoParams.SetElementParams(params);
-				cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 			//	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextDCRT(&cryptoParams);
 				

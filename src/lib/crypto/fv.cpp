@@ -457,18 +457,16 @@ LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitse
 	: LPPublicKeyEncryptionScheme<Element>() {
 
 	if (mask[ENCRYPTION])
-		this->m_algorithmEncryption = new LPAlgorithmFV<Element>(*this);
+		this->m_algorithmEncryption = new LPAlgorithmFV<Element>();
 	if (mask[SHE])
-		this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>(*this);
+		this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
 
 	/*if (mask[PRE])
-		this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(*this);
-	if (mask[EVALAUTOMORPHISM])
-		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
+		this->m_algorithmPRE = new LPAlgorithmPREFV<Element>();
 	if (mask[FHE])
-		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>();
 	if (mask[LEVELEDSHE])
-		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
+		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
 	*/
 
 }
@@ -480,31 +478,23 @@ void LPPublicKeyEncryptionSchemeFV<Element>::Enable(PKESchemeFeature feature) {
 	{
 	case ENCRYPTION:
 		if (this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPAlgorithmFV<Element>(*this);
+			this->m_algorithmEncryption = new LPAlgorithmFV<Element>();
 		break;
 	case SHE:
 		if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>(*this);
+			this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
 		break;
 	/*case PRE:
 		if (this->m_algorithmPRE == NULL)
-			this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(*this);
-		break;
-	case EVALAUTOMORPHISM:
-		if (this->m_algorithmEvalAutomorphism == NULL)
-			this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphLTV<Element>(*this);
-		break;
-	case SHE:
-		if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>(*this);
+			this->m_algorithmPRE = new LPAlgorithmPREFV<Element>();
 		break;
 	case FHE:
 		if (this->m_algorithmFHE == NULL)
-			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(*this);
+			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>();
 		break;
 	case LEVELEDSHE:
 		if (this->m_algorithmLeveledSHE == NULL)
-			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>(*this);
+			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
 		break;
 		*/
 	}

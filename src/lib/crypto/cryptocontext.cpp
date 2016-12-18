@@ -281,7 +281,7 @@ CryptoContextFactory<T>::getCryptoContextNull(
 
 template <typename T>
 shared_ptr<LPPublicKey<T>>
-CryptoContext<T>::deserializePublicKey(const Serialized& serObj)
+CryptoContext<T>::deserializePublicKey(const Serialized& serObj) const
 {
 	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
 		return shared_ptr<LPPublicKey<T>>();
@@ -297,7 +297,7 @@ CryptoContext<T>::deserializePublicKey(const Serialized& serObj)
 
 template <typename T>
 shared_ptr<LPPrivateKey<T>>
-CryptoContext<T>::deserializeSecretKey(const Serialized& serObj)
+CryptoContext<T>::deserializeSecretKey(const Serialized& serObj) const
 {
 	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
 		return shared_ptr<LPPrivateKey<T>>();
@@ -313,7 +313,7 @@ CryptoContext<T>::deserializeSecretKey(const Serialized& serObj)
 
 template <typename T>
 shared_ptr<Ciphertext<T>>
-CryptoContext<T>::deserializeCiphertext(const Serialized& serObj)
+CryptoContext<T>::deserializeCiphertext(const Serialized& serObj) const
 {
 	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
 		return shared_ptr<Ciphertext<T>>();
@@ -329,7 +329,7 @@ CryptoContext<T>::deserializeCiphertext(const Serialized& serObj)
 
 template <typename T>
 shared_ptr<LPEvalKey<T>>
-CryptoContext<T>::deserializeEvalKey(const Serialized& serObj)
+CryptoContext<T>::deserializeEvalKey(const Serialized& serObj) const
 {
 	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
 		return shared_ptr<LPEvalKeyNTRURelin<T>>();
@@ -348,7 +348,7 @@ CryptoContext<T>::deserializeEvalKey(const Serialized& serObj)
 
 template <typename T>
 shared_ptr<LPEvalKey<T>>
-CryptoContext<T>::deserializeEvalMultKey(const Serialized& serObj)
+CryptoContext<T>::deserializeEvalMultKey(const Serialized& serObj) const
 {
 	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
 		return shared_ptr<LPEvalKeyNTRURelin<T>>();

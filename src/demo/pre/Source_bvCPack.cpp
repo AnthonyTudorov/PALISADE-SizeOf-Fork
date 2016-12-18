@@ -145,8 +145,6 @@ void EncryptDecrypt() {
 	BigBinaryInteger rootOfUnity(SECURE_PARAMS[0].rootOfUnity);
 	usint relWindow = SECURE_PARAMS[0].relinWindow;
 
-	DiscreteGaussianGenerator dgg(stdDev);
-
 	lbcrypto::NextQ(modulus , BigBinaryInteger(17), m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 
 	
@@ -161,7 +159,6 @@ void EncryptDecrypt() {
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	//std::vector<usint> vectorOfInts1 = { 8,5,16,9 };
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4 };

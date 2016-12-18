@@ -91,7 +91,6 @@ void EvalMultTest() {
 	BigBinaryInteger temp;
 
 	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-	DiscreteGaussianGenerator dgg(stdDev);
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 	ILParams params(m, q, rootOfUnity);
 	std::cout << rootOfUnity << std::endl;
@@ -118,16 +117,14 @@ void EvalMultTest() {
 
 	//	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
 
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(dgg, params);
-
 	LPCryptoParametersBV<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE); // Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
 	cryptoParams.SetRelinWindow(8);						   // Set the relinearization window
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
+	//Precomputations for DGG
+	ILVector2n::PreComputeDggSamples(cryptoParams.GetDiscreteGaussianGenerator(), params);
 															//Initialize the public key containers.
 	LPPublicKey<ILVector2n> pk(cryptoParams);
 	LPPrivateKey<ILVector2n> sk(cryptoParams);
