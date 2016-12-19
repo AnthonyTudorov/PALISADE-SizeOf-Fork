@@ -26,7 +26,7 @@ int main() {
 	start = currentDateTime();
 	scheme.KeyGen(&s_k, &v_k);
 	finish = currentDateTime();
-	std::cout << "Key generation for signature: " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Key generation - Old : " << "\t" << finish - start << " ms" << std::endl;
 
 	std::cout << "Test" << std::endl;
 	Signature<Matrix<ILVector2n>> signature, signature2;
@@ -35,13 +35,31 @@ int main() {
 	start = currentDateTime();
 	scheme.Sign(s_k, text, &signature);
 	finish = currentDateTime();
-	std::cout << "Signing : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
 
 	start = currentDateTime();
 	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text) << std::endl;
 	finish = currentDateTime();
-	std::cout << "Verifying : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Verifying - Old : " << "\t" << finish - start << " ms" << std::endl << std::endl;
 	
+	LPSignKeyGPVGM<ILVector2n> s_k_gm(signParams);
+	LPVerificationKeyGPVGM<ILVector2n> v_k_gm(signParams);
+	LPSignatureSchemeGPVGM<ILVector2n> scheme_gm;
+	start = currentDateTime();
+	scheme_gm.KeyGen(&s_k_gm, &v_k_gm);
+	finish = currentDateTime();
+	std::cout << "Key generation - New : " << "\t" << finish - start << " ms" << std::endl;
+
+
+	start = currentDateTime();
+	scheme_gm.Sign(s_k_gm, text, &signature);
+	finish = currentDateTime();
+	std::cout << "Signing - New : " << "\t" << finish - start << " ms" << std::endl;
+
+	start = currentDateTime();
+	std::cout << "Signature 1-Text 1 verification:" << scheme_gm.Verify(v_k_gm, signature, text) << std::endl;
+	finish = currentDateTime();
+	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl << std::endl;
 	
 	
 	sm = 256;
@@ -60,24 +78,42 @@ int main() {
 
 	silParams = std::make_shared<ILParams>(ilParams);
 	signParams.SetElemParams(silParams);
-
+	std::cout << signParams.GetILParams()->GetCyclotomicOrder() << std::endl<<std::endl;
 	s_k.SetSignatureParameters(signParams);
 	v_k.SetSignatureParameters(signParams);
 
 	start = currentDateTime();
 	scheme.KeyGen(&s_k, &v_k);
 	finish = currentDateTime();
-	std::cout << "Key generation for signature: " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Key generation  - Old : " << "\t" << finish - start << " ms" << std::endl;
 
 	start = currentDateTime();
 	scheme.Sign(s_k, text, &signature);
 	finish = currentDateTime();
-	std::cout << "Signing : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
 
 	start = currentDateTime();
 	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text) << std::endl;
 	finish = currentDateTime();
-	std::cout << "Verifying : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Verifying - Old : " << "\t" << finish - start << " ms" << std::endl << std::endl;
+
+	s_k_gm.SetSignatureParameters(signParams);
+	v_k_gm.SetSignatureParameters(signParams);
+
+	start = currentDateTime();
+	scheme_gm.KeyGen(&s_k_gm, &v_k_gm);
+	finish = currentDateTime();
+	std::cout << "Key generation  - New : " << "\t" << finish - start << " ms" << std::endl;
+
+	start = currentDateTime();
+	scheme_gm.Sign(s_k_gm, text, &signature);
+	finish = currentDateTime();
+	std::cout << "Signing - New : " << "\t" << finish - start << " ms" << std::endl;
+
+	start = currentDateTime();
+	std::cout << "Signature 1-Text 1 verification:" << scheme_gm.Verify(v_k_gm, signature, text) << std::endl;
+	finish = currentDateTime();
+	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl << std::endl;
 	
 	
 	sm = 512;
@@ -96,24 +132,42 @@ int main() {
 
 	silParams = std::make_shared<ILParams>(ilParams);
 	signParams.SetElemParams(silParams);
-
+	std::cout << signParams.GetILParams()->GetCyclotomicOrder() << std::endl << std::endl;
 	s_k.SetSignatureParameters(signParams);
 	v_k.SetSignatureParameters(signParams);
 
 	start = currentDateTime();
 	scheme.KeyGen(&s_k, &v_k);
 	finish = currentDateTime();
-	std::cout << "Key generation for signature: " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Key generation - Old : " << "\t" << finish - start << " ms" << std::endl;
 
 	start = currentDateTime();
 	scheme.Sign(s_k, text, &signature);
 	finish = currentDateTime();
-	std::cout << "Signing : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
 
 	start = currentDateTime();
 	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text) << std::endl;
 	finish = currentDateTime();
-	std::cout << "Verifying : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Verifying -Old : " << "\t" << finish - start << " ms" << std::endl << std::endl;
+
+	s_k_gm.SetSignatureParameters(signParams);
+	v_k_gm.SetSignatureParameters(signParams);
+
+	start = currentDateTime();
+	scheme_gm.KeyGen(&s_k_gm, &v_k_gm);
+	finish = currentDateTime();
+	std::cout << "Key generation - New : " << "\t" << finish - start << " ms" << std::endl;
+
+	start = currentDateTime();
+	scheme_gm.Sign(s_k_gm, text, &signature);
+	finish = currentDateTime();
+	std::cout << "Signing - New : " << "\t" << finish - start << " ms" << std::endl;
+
+	start = currentDateTime();
+	std::cout << "Signature 1-Text 1 verification:" << scheme_gm.Verify(v_k_gm, signature, text) << std::endl;
+	finish = currentDateTime();
+	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl << std::endl;
 
 	
 	sm = 1024;
@@ -128,33 +182,51 @@ int main() {
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 	ILVector2n::PreComputeDggSamples(dgg, silParams);
 	finish = currentDateTime();
-	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
+	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl << std::endl;
 
 
 	silParams = std::make_shared<ILParams>(ilParams);
 	signParams.SetElemParams(silParams);
-
+	std::cout << signParams.GetILParams()->GetCyclotomicOrder() << std::endl << std::endl;
 	s_k.SetSignatureParameters(signParams);
 	v_k.SetSignatureParameters(signParams);
 
 	start = currentDateTime();
 	scheme.KeyGen(&s_k, &v_k);
 	finish = currentDateTime();
-	std::cout << "Key generation for signature: " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Key generation - Old : " << "\t" << finish - start << " ms" << std::endl;
 
 	start = currentDateTime();
 	scheme.Sign(s_k, text, &signature);
 	finish = currentDateTime();
-	std::cout << "Signing : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
 
 	start = currentDateTime();
 	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text) << std::endl;
 	finish = currentDateTime();
-	std::cout << "Verifying : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Verifying - Old : " << "\t" << finish - start << " ms" << std::endl << std::endl;
+
+	s_k_gm.SetSignatureParameters(signParams);
+	v_k_gm.SetSignatureParameters(signParams);
+
+	start = currentDateTime();
+	scheme_gm.KeyGen(&s_k_gm, &v_k_gm);
+	finish = currentDateTime();
+	std::cout << "Key generation - New : " << "\t" << finish - start << " ms" << std::endl;
+
+	start = currentDateTime();
+	scheme_gm.Sign(s_k_gm, text, &signature);
+	finish = currentDateTime();
+	std::cout << "Signing - New : " << "\t" << finish - start << " ms" << std::endl;
+
+	start = currentDateTime();
+	std::cout << "Signature 1-Text 1 verification:" << scheme_gm.Verify(v_k_gm, signature, text) << std::endl;
+	finish = currentDateTime();
+	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl<<std::endl;
 
 	
 	
-	sm = 2048;
+	/*sm = 2048;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("34044212");
 	ilParams.SetCyclotomicOrder(sm);
@@ -170,26 +242,45 @@ int main() {
 
 	silParams = std::make_shared<ILParams>(ilParams);
 	signParams.SetElemParams(silParams);
-
+	std::cout << signParams.GetILParams()->GetCyclotomicOrder() << std::endl << std::endl;
 	s_k.SetSignatureParameters(signParams);
 	v_k.SetSignatureParameters(signParams);
 
 	start = currentDateTime();
 	scheme.KeyGen(&s_k, &v_k);
 	finish = currentDateTime();
-	std::cout << "Key generation for signature: " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Key generation - Old : " << "\t" << finish - start << " ms" << std::endl;
 
 
 	start = currentDateTime();
 	scheme.Sign(s_k, text, &signature);
 	finish = currentDateTime();
-	std::cout << "Signing : " << "\t" << finish - start << " ms" << std::endl;
+	std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
 
 	start = currentDateTime();
 	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text) << std::endl;
 	finish = currentDateTime();
-	std::cout << "Verifying : " << "\t" << finish - start << " ms" << std::endl;
-		
+	std::cout << "Verifying - Old : " << "\t" << finish - start << " ms" << std::endl;
+	
+	s_k_gm.SetSignatureParameters(signParams);
+	v_k_gm.SetSignatureParameters(signParams);
+
+	start = currentDateTime();
+	scheme_gm.KeyGen(&s_k_gm, &v_k_gm);
+	finish = currentDateTime();
+	std::cout << "Key generation - New : " << "\t" << finish - start << " ms" << std::endl;
+
+
+	start = currentDateTime();
+	scheme_gm.Sign(s_k_gm, text, &signature);
+	finish = currentDateTime();
+	std::cout << "Signing - New : " << "\t" << finish - start << " ms" << std::endl;
+
+	start = currentDateTime();
+	std::cout << "Signature 1-Text 1 verification:" << scheme_gm.Verify(v_k_gm, signature, text) << std::endl;
+	finish = currentDateTime();
+	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl;
+*/
 	
 	
 	std::cout << "Execution completed" << std::endl;
