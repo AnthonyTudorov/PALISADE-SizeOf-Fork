@@ -462,13 +462,22 @@ JNIEXPORT jlong JNICALL Java_com_palisade_PalisadeCrypto_openPalisadeCrypto
 	string cp(parms, env->GetArrayLength(parmJson));
 	if( isCopy ) env->ReleaseByteArrayElements(parmJson, (jbyte *)parms, JNI_ABORT);
 
-	Serialized kD;
-	if( !SerializableHelper::StringToSerialization(cp, &kD) )
-		return 0;
+	std::cout << cp << std::endl;
 
-	CryptoContext<ILVector2n> ctx = CryptoContextFactory<ILVector2n>::DeserializeAndCreateContext(kD);
-	if( !ctx )
+	CryptoContext<ILVector2n> ctx = CryptoContextHelper<ILVector2n>::getNewContext( cp );
+
+//
+//	Serialized kD;
+//	if( !SerializableHelper::StringToSerialization(cp, &kD) ) {
+//		std::cout << "Can't deser" << std::endl;
+//		return 0;
+//	}
+//
+//	CryptoContext<ILVector2n> ctx = CryptoContextFactory<ILVector2n>::DeserializeAndCreateContext(kD);
+	if( bool(ctx) == false ) {
+		std::cout << "NO CONTEXT" << std::endl;
 		return 0;
+	}
 
 	JavaPalisadeCrypto	*cparms = new JavaPalisadeCrypto(ctx);
 	return (jlong)cparms;
