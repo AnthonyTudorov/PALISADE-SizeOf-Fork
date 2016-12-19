@@ -37,6 +37,7 @@
  *
  */
 
+
 #include "../../utils/serializable.h"
 #include "mubintvec.h"
 
@@ -618,14 +619,49 @@ namespace exp_int {
   // method to multiply vector by scalar
   template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModMul(const ubint_el_t &b) const{
+#ifdef NO_BARRETT //non barrett way
     mubintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].ModMul(b, ans.m_modulus);
     }
     return ans;
+#else
+
+    mubintvec ans(*this);
+
+    //Precompute the Barrett mu parameter
+    ubint_el_t temp(ubint_el_t::ONE);
+
+    temp<<=2*this->GetModulus().GetMSB()+3;
+
+    ubint_el_t mu = temp.DividedBy(m_modulus);
+
+    //Precompute the Barrett mu values
+    /*ubint temp;
+      uschar gamma;
+      uschar modulusLength = this->GetModulus().GetMSB() ;
+      ubint mu_arr[BARRETT_LEVELS+1];
+      for(usint i=0;i<BARRETT_LEVELS+1;i++) {
+      temp = ubint::ONE;
+      gamma = modulusLength*i/BARRETT_LEVELS;
+      temp<<=modulusLength+gamma+3;
+      mu_arr[i] = temp.DividedBy(this->GetModulus());
+      }*/
+
+    for(usint i=0;i<this->m_data.size();i++){
+      //std::cout<< "before data: "<< ans.m_data[i]<< std::endl;
+      ans.m_data[i] = ans.m_data[i].ModBarrettMul(b,this->m_modulus,mu);
+      //std::cout<< "after data: "<< ans.m_data[i]<< std::endl;
+    }
+
+    return ans;
+
+
+#endif
   }
 
  // method to multiply vector by scalar
+
   template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Mul(const ubint_el_t &b) const{ //overload of ModMul()
     mubintvec ans(*this);
@@ -730,7 +766,7 @@ template<class ubint_el_t>
   // vector elementwise multiply
   template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModMul(const mubintvec &b) const{
-    
+#ifdef NO_BARRETT
     mubintvec ans(*this);
     if(this->m_modulus!=b.m_modulus){
       throw std::logic_error("mubintvec multiplying vectors of different moduli");
@@ -742,15 +778,72 @@ template<class ubint_el_t>
       }
       return ans;
     }
+
+#else // bartett way
+
+    if((this->m_data.size()!=b.m_data.size()) || this->m_modulus!=b.m_modulus ){
+      throw std::logic_error("ModMul called on mubintvecs with different parameters.");
+    }
+    
+    mubintvec ans(*this);
+    
+    //Precompute the Barrett mu parameter
+    ubint_el_t temp(ubint_el_t::ONE);
+    temp<<=2*this->GetModulus().GetMSB()+3;
+    ubint_el_t mu = temp.Div(this->GetModulus());
+    
+    //Precompute the Barrett mu values
+    /*BigBinaryInteger temp;
+      uschar gamma;
+      uschar modulusLength = this->GetModulus().GetMSB() ;
+      BigBinaryInteger mu_arr[BARRETT_LEVELS+1];
+      for(usint i=0;i<BARRETT_LEVELS+1;i++) {
+      temp = BigBinaryInteger::ONE;
+      gamma = modulusLength*i/BARRETT_LEVELS;
+      temp<<=modulusLength+gamma+3;
+      mu_arr[i] = temp.DividedBy(this->GetModulus());
+      }*/
+    
+    for(usint i=0;i<ans.m_data.size();i++){
+      //ans.m_data[i] = ans.m_data[i].ModMul(b.m_data[i],this->m_modulus);
+      ans.m_data[i] = ans.m_data[i].ModBarrettMul(b.m_data[i],this->m_modulus,mu);
+    }
+    return ans;
+
+#endif
   }
-
-
+  
 
   template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Mul(const mubintvec &b) const{ //overload of ModMul
     mubintvec ans(*this);
     ans = ans.ModMul(b);
     return ans;
+  }
+
+  template<class ubint_el_t>
+  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::MultiplyAndRound(const ubint_el_t &p, const ubint_el_t &q) const {
+
+	  mubintvec ans(*this);
+	  ubint_el_t halfQ(this->m_modulus >> 1);
+	  for (usint i = 0; i<this->m_data.size(); i++) {
+		  if (ans.m_data[i] > halfQ) {
+			  ubint_el_t temp = this->m_modulus - ans.m_data[i];
+			  ans.m_data[i] = this->m_modulus - temp.MultiplyAndRound(p, q);
+		  }
+		  else
+			  ans.m_data[i] = ans.m_data[i].MultiplyAndRound(p, q).Mod(this->m_modulus);
+	  }
+	  return ans;
+  }
+
+  template<class ubint_el_t>
+  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::DivideAndRound(const ubint_el_t &q) const {
+	  mubintvec ans(*this);
+	  for (usint i = 0; i<this->m_data.size(); i++) {
+		  ans.m_data[i] = ans.m_data[i].DivideAndRound(q);
+	  }
+	  return ans;
   }
 
   // assignment operators
@@ -809,7 +902,7 @@ template<class ubint_el_t>
 
   // JSON FACILITY - Serialize Operation
   template<class bin_el_t>
-  bool mubintvec<bin_el_t>::Serialize(lbcrypto::Serialized* serObj, const std::string) const {
+  bool mubintvec<bin_el_t>::Serialize(lbcrypto::Serialized* serObj) const {
 
     if( !serObj->IsObject() )
       return false;

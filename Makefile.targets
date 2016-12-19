@@ -89,3 +89,6 @@ cleantargets:
 	$(RM) -rf $(EXTLIBDIR)
 	$(RM) -rf $(BUILDDIR)/lib
 
+
+graphtargets:
+	clang++ --target=x86_64-mingw32 -S -emit-llvm $(CPPFLAGS) $(INC) $(LIBSOURCES)

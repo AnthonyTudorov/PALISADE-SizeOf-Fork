@@ -36,14 +36,18 @@ using std::shared_ptr;
 namespace lbcrypto {
 
 	/*CONSTRUCTORS*/
+	std::map<BigBinaryInteger, std::map<usint, BigBinaryInteger>> *ILVectorArray2n::m_towersize_cri_factors = 0;
+	usint ILVectorArray2n::m_cyclotomicOrder_precompute = 0;
 
 	ILVectorArray2n::ILVectorArray2n() : m_format(EVALUATION), m_cyclotomicOrder(0), m_modulus(1){
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const shared_ptr<ElemParams> params, Format format) : m_format(format)
+	ILVectorArray2n::ILVectorArray2n(const shared_ptr<ElemParams> params, Format format, bool initializeElementToZero)
 	{
-		const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(params);
-			//TODO- ADD Integrety checks for ILDCRTParams IN ILDCRTParams
+		const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(params);
+
+		if( dcrtParams == 0 )
+			throw std::logic_error("ILVectorArray2n must be constructed with an ILDCRTParams");
 
 		m_cyclotomicOrder = params->GetCyclotomicOrder();
 		m_format = format;
@@ -56,7 +60,7 @@ namespace lbcrypto {
 			BigBinaryInteger modulus(dcrtParams->GetModuli()[i]);
 			BigBinaryInteger rootOfUnity(dcrtParams->GetRootsOfUnity()[i]);
 			shared_ptr<ILParams> ip( new ILParams(m_cyclotomicOrder, modulus, rootOfUnity) );
-			m_vectors.push_back(std::move(ILVector2n(ip,format)));
+			m_vectors.push_back(std::move(ILVector2n(ip,format,initializeElementToZero)));
 		}
 	}
 
@@ -97,19 +101,18 @@ namespace lbcrypto {
 	/* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArray2n will be derived from the towers.*/
 	ILVectorArray2n::ILVectorArray2n(const std::vector<ILVector2n> &towers)
 	{
-		std::cout<<towers.size()<<std::endl;
 		usint ringDimension = towers.at(0).GetCyclotomicOrder() / 2;
-		for (usint i = 0; i < towers.size(); i++) {
-			std::cout << i << "," << (towers.at(i).GetCyclotomicOrder() / 2) << std::endl;
+		for (usint i = 1; i < towers.size(); i++) {
 			if (!(towers.at(i).GetCyclotomicOrder() / 2 == ringDimension)) {
-				throw std::logic_error("ILVectors provided to ILVectorArray2n do not have the same parameters. Throwing error.");
+				throw std::logic_error(std::string("ILVectors provided to ILVectorArray2n must have the same parameters"));
 			}
 		}
+
 		m_vectors = towers; // once all the params are correct, set ILVectorArray2n's towers to the passed value
 		m_format = m_vectors[0].GetFormat();
 		m_cyclotomicOrder = m_vectors[0].GetCyclotomicOrder();
 		m_modulus = 1;
-		//TODO: Add a integrity check to acertain if the cyclotomicorder are the same:
+
 		for (usint i = 0; i<towers.size(); i++)
 			m_modulus = m_modulus*m_vectors.at(i).GetModulus();
 	}
@@ -117,7 +120,10 @@ namespace lbcrypto {
 	/*The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers. The algorithm to populate the towers can be seen below.*/
 	ILVectorArray2n::ILVectorArray2n(const DiscreteGaussianGenerator & dgg, const shared_ptr<ElemParams> params, Format format)
 	{
-		const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(params);
+		const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(params);
+
+		if( dcrtParams == 0 )
+			throw std::logic_error("ILVectorArray2n must be constructed with an ILDCRTParams");
 
 		m_modulus = dcrtParams->GetModulus();
 		m_cyclotomicOrder= dcrtParams->GetCyclotomicOrder();
@@ -169,6 +175,45 @@ namespace lbcrypto {
 		}
 	}
 
+	ILVectorArray2n::ILVectorArray2n(const DiscreteUniformGenerator &dug, const shared_ptr<ElemParams> params, Format format) {
+
+		const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(params);
+		m_modulus = dcrtParams->GetModulus();
+		m_cyclotomicOrder = dcrtParams->GetCyclotomicOrder();
+		m_format = format;
+
+		size_t numberOfTowers = dcrtParams->GetModuli().size();
+		m_vectors.reserve(numberOfTowers);
+
+		//dgg generating random values
+		BigBinaryVector vals(dug.GenerateVector(m_cyclotomicOrder / 2));
+
+		BigBinaryInteger modulus;
+		BigBinaryInteger rootOfUnity;
+		BigBinaryInteger temp;
+
+		for (usint i = 0; i < numberOfTowers; i++) {
+
+			modulus = dcrtParams->GetModuli()[i];
+			rootOfUnity = dcrtParams->GetRootsOfUnity()[i];
+
+			shared_ptr<ILParams> ilParams(new ILParams(dcrtParams->GetCyclotomicOrder(), modulus, rootOfUnity));
+			ILVector2n ilvector(ilParams);
+
+			//BigBinaryVector ilDggValues(params.GetCyclotomicOrder() / 2, modulus);
+			vals.SwitchModulus(modulus);
+			
+			ilvector.SetValues(vals , Format::COEFFICIENT); // the random values are set in coefficient format
+			if (m_format == Format::EVALUATION) {  // if the input format is evaluation, then once random values are set in coefficient format, switch the format to achieve what the caller asked for.
+				ilvector.SwitchFormat();
+			}
+			m_vectors.push_back(ilvector);
+
+		}
+
+
+	}
+
 	/*Move constructor*/
 	ILVectorArray2n::ILVectorArray2n(const ILVectorArray2n &&element){
 		m_format = element.m_format;
@@ -213,10 +258,7 @@ namespace lbcrypto {
 
 	// DESTRUCTORS
 
-	ILVectorArray2n::~ILVectorArray2n()
-	{
-
-	}
+	ILVectorArray2n::~ILVectorArray2n() {}
 
 	// GET ACCESSORS
 	const ILVector2n& ILVectorArray2n::GetElementAtIndex (usint i) const
@@ -251,6 +293,66 @@ namespace lbcrypto {
 		return tmp;
 	}
 
+	std::vector<ILVectorArray2n> ILVectorArray2n::BaseDecompose(usint baseBits) const {
+		
+		std::vector< std::vector<ILVector2n> > baseDecomposeElementWise;
+
+		std::vector<ILVectorArray2n> result;
+
+		ILVectorArray2n zero(this->CloneWithParams());
+		zero = { 0,0 };
+				
+		for (usint i= 0 ; i <  this->m_vectors.size(); i++) {
+			baseDecomposeElementWise.push_back(std::move(this->m_vectors.at(i).BaseDecompose(baseBits)));
+		}
+
+		usint maxTowerVectorSize = baseDecomposeElementWise.back().size();
+
+		for (usint i = 0; i < maxTowerVectorSize; i++) {
+			ILVectorArray2n temp;
+			for (usint j = 0; j < this->m_vectors.size(); j++) {
+				if (i<baseDecomposeElementWise.at(j).size())
+					temp.m_vectors.insert(temp.m_vectors.begin()+j,baseDecomposeElementWise.at(j).at(i));
+				else
+					temp.m_vectors.insert(temp.m_vectors.begin() + j, zero.m_vectors.at(j));
+			}
+			result.push_back(std::move(temp));
+		}
+
+		return std::move(result);
+
+	}
+
+	std::vector<ILVectorArray2n> ILVectorArray2n::PowersOfBase(usint baseBits) const {
+
+		std::vector<ILVectorArray2n> result;
+
+		std::vector< std::vector<ILVector2n> > towerVals;
+
+		ILVectorArray2n zero(this->CloneWithParams());
+		zero = {0,0};
+		
+
+		for (usint i = 0; i < this->m_vectors.size(); i++) {
+			towerVals.insert(towerVals.begin()+i,std::move(this->m_vectors[i].PowersOfBase(baseBits)) );
+		}
+
+		usint maxTowerVectorSize = towerVals.back().size();
+
+		for (usint i = 0; i < maxTowerVectorSize; i++) {
+			ILVectorArray2n temp;
+			for (usint j = 0; j < this->m_vectors.size(); j++) {
+				if(i<towerVals.at(j).size())
+					temp.m_vectors.insert(temp.m_vectors.begin()+j,towerVals.at(j).at(i));
+				else
+					temp.m_vectors.insert(temp.m_vectors.begin() + j, zero.m_vectors.at(j));
+			}
+			result.push_back(std::move(temp));
+		}
+
+		return std::move(result);
+	}
+
 	/*VECTOR OPERATIONS*/
 
 	ILVectorArray2n ILVectorArray2n::MultiplicativeInverse() const
@@ -258,9 +360,9 @@ namespace lbcrypto {
 		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
-			tmp.m_vectors[i] = tmp.m_vectors[i].MultiplicativeInverse();
+			tmp.m_vectors[i] = m_vectors[i].MultiplicativeInverse();
 		}
-		return std::move(tmp);
+		return tmp;
 	}
 
 	ILVectorArray2n ILVectorArray2n::ModByTwo() const
@@ -270,7 +372,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = m_vectors[i].ModByTwo();
 		   }
-		return std::move(tmp);
+		return tmp;
 	}
 
 	ILVectorArray2n ILVectorArray2n::SignedMod(const BigBinaryInteger & modulus) const
@@ -280,7 +382,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = m_vectors[i].SignedMod(modulus);
 		}
-		return std::move(tmp);
+		return tmp;
 	}
 
 	ILVectorArray2n ILVectorArray2n::Plus(const ILVectorArray2n &element) const
@@ -290,7 +392,18 @@ namespace lbcrypto {
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] += element.GetElementAtIndex (i);
 		}
-		return std::move(tmp);
+		return tmp;
+	}
+
+	ILVectorArray2n ILVectorArray2n::Negate() const {
+		ILVectorArray2n tmp(this->CloneWithParams());
+		tmp.m_vectors.clear();
+
+		for (usint i = 0; i < this->m_vectors.size(); i++) {
+			tmp.m_vectors.push_back(std::move(this->m_vectors.at(i).Negate()));
+		}
+
+		return tmp;
 	}
 
 	ILVectorArray2n ILVectorArray2n::Minus(const ILVectorArray2n &element) const {
@@ -299,7 +412,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] -= element.GetElementAtIndex (i);
 		}
-		return std::move(tmp);
+		return tmp;
 	}
 
 	const ILVectorArray2n& ILVectorArray2n::operator+=(const ILVectorArray2n &rhs)
@@ -307,7 +420,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < this->GetNumOfElements(); i++) {
 			this->m_vectors.at(i) += rhs.GetElementAtIndex(i);
 		}
-		return std::move(*this);
+		return *this;
 
 	}
 
@@ -315,7 +428,17 @@ namespace lbcrypto {
 		for (usint i = 0; i < this->GetNumOfElements(); i++) {
 			this->m_vectors.at(i) -= rhs.GetElementAtIndex(i);
 		}
-		return std::move(*this);
+		return *this;
+
+	}
+
+	const ILVectorArray2n& ILVectorArray2n::operator*=(const ILVectorArray2n &element) {
+		for (usint i = 0; i < this->m_vectors.size(); i++) {
+			this->m_vectors.at(i) *= element.m_vectors.at(i);
+		}
+
+		return *this;
+
 	}
 
 	bool ILVectorArray2n::operator!=(const ILVectorArray2n &rhs) const {
@@ -390,7 +513,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] += element;
 		}
-		return std::move(tmp);
+		return tmp;
 	}
 
 	ILVectorArray2n ILVectorArray2n::Minus(const BigBinaryInteger &element) const {
@@ -399,7 +522,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] -= element;
 		}
-		return std::move(tmp);
+		return tmp;
 	}
 
 	ILVectorArray2n ILVectorArray2n::Times(const ILVectorArray2n & element) const
@@ -411,7 +534,7 @@ namespace lbcrypto {
 			tmp.m_vectors[i].SetValues(((m_vectors[i].GetValues()).ModMul(element.m_vectors[i].GetValues())), m_format);
 			
 		}
-		return std::move(tmp);
+		return tmp;
 	}
 
 	ILVectorArray2n ILVectorArray2n::Times(const BigBinaryInteger &element) const
@@ -421,7 +544,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = (element*tmp.m_vectors[i]);
 		}
-		return std::move(tmp);
+		return tmp;
 	}
 
 	ILVectorArray2n ILVectorArray2n::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const
@@ -444,6 +567,15 @@ namespace lbcrypto {
 	
 	const ILVectorArray2n& ILVectorArray2n::operator-=(const BigBinaryInteger &rhs){
           return this->Minus(rhs); //TODO-OPTIMIZE
+	}
+
+
+	const ILVectorArray2n& ILVectorArray2n::operator*=(const BigBinaryInteger &element) {
+		for (usint i = 0; i < this->m_vectors.size(); i++) {
+			this->m_vectors.at(i) *= element;
+		}
+
+		return *this;
 	}
 
 	/*OTHER FUNCTIONS*/
@@ -561,7 +693,8 @@ namespace lbcrypto {
 		SwitchFormat();
 	}
 
-	/*This method applies the Chinese Remainder Interpolation on an ILVectoArray2n and produces an ILVector2n. The ILVector2n is the ILVectorArray2n's represantation
+	/*This method applies the Chinese Remainder Interpolation on an ILVectoArray2n and produces an ILVector2n embedded into ILVectorArray2n. 
+	* The ILVector2n is the ILVectorArray2n's represantation
 	* with one single coefficient vector.
 	* How the Algorithm works:
 	* Consider the ILVectorArray2n as a 2-dimensional matrix, denoted as M, with dimension ringDimension * Number of Towers. For breviety , lets say this is r * t
@@ -572,49 +705,81 @@ namespace lbcrypto {
 	*
 	* Once we have the V values, we construct an ILVector2n from V, use qt as it's modulus and calculate a root of unity for parameter selection of the ILVector2n.
 	*/
-	ILVector2n ILVectorArray2n::InterpolateIlArrayVector2n() const
+	ILVectorArray2n ILVectorArray2n::CRTInterpolate() const
 	{
 	  bool dbg_flag = false;
 	  DEBUG("in InterpolateIlArrayVector2n");
-		if(m_vectors.size() == 1) return m_vectors.at(0);
+		if(m_vectors.size() == 1) return *this;
 
 		/*initializing variables for effciency*/
 		usint ringDimension = m_cyclotomicOrder / 2;
 
-		BigBinaryInteger qi; //qi
+		BigBinaryInteger qj; //qj
 
 		BigBinaryInteger bigModulus(m_modulus); //qt
 
-		BigBinaryInteger divideBigModulusByIndexModulus; //qt/qi
+		BigBinaryInteger divideBigModulusByIndexModulus; //qt/qj
 
-		BigBinaryInteger modularInverse; // (qt/qi)^(-1) mod qi
+		BigBinaryInteger modularInverse; // (qt/qj)^(-1) mod qj
 
-		BigBinaryInteger chineseRemainderMultiplier; // qt/qi * [(qt/qi)(-1) mod qi]
+		BigBinaryInteger chineseRemainderMultiplier; // qt/qj * [(qt/qj)(-1) mod qj]
 
-		BigBinaryInteger multiplyValue;// M (r, i) * qt/qi * [(qt/qi)(-1) mod qi]
+		BigBinaryInteger multiplyValue;// M (r, i) * qt/qj * [(qt/qj)(-1) mod qj]
 
 		BigBinaryVector coefficients(ringDimension,m_modulus); // V vector
 
-		BigBinaryInteger interpolateValue("0"); // this will finally be  V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qi *[ (qt/qi)^(-1) mod qi ]}modqt 
+		BigBinaryInteger interpolateValue("0"); // this will finally be  V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qj *[ (qt/qj)^(-1) mod qj ]}modqt 
+		
+		/*With respect to precomputing CRI Factors, 
+		* in this case, the CRI map has either not been initialized or not calcualted for this moduli.
+		* the assumption is that the lower the moduli, the lower the tower number. This case will also take
+		* care of mod reduce.
+		**/
+		if (m_towersize_cri_factors == 0 || m_towersize_cri_factors->find(this->m_modulus) == m_towersize_cri_factors->end()) {
+			std::vector<BigBinaryInteger> moduli;
+			moduli.reserve(m_vectors.size());
+			
+			for (usint i = 0; i < m_vectors.size(); i++) {
+				moduli.push_back(m_vectors.at(i).GetModulus());
+			}
+
+			PreComputeCRIFactors(moduli, m_cyclotomicOrder);
+			m_cyclotomicOrder_precompute = m_cyclotomicOrder;
+		}
+		/* In case there is ring reduction, the moduli values do not change, however the cyclotomic order changes.
+		** However, when both moduli and cyclotomic order change, then it means that it was not a ring reduction only
+		*/
+		else if (m_cyclotomicOrder_precompute != this->m_cyclotomicOrder && bigModulus != this->m_modulus) {
+
+			DestroyPrecomputedCRIFactors(); //destroy precomputed values because there is a new cyclotomic order
+
+			std::vector<BigBinaryInteger> moduli;
+			moduli.reserve(m_vectors.size());
+
+			for (usint i = 0; i < m_vectors.size(); i++) {
+				moduli.push_back(m_vectors.at(i).GetModulus());
+			}
+
+			PreComputeCRIFactors(moduli, m_cyclotomicOrder);
+			m_cyclotomicOrder_precompute = m_cyclotomicOrder;
+		} //This will ensure that the cyclotomic order of the precomputed values is updated due to ring reduction.
+		  // note that reverting back to a non ring-reduce will create a problem if the precomputed values are not destroyed.
+		else {
+			m_cyclotomicOrder_precompute = m_cyclotomicOrder;
+		}
 
 		/*This loop calculates every coefficient of the interpolated valued.*/
 		for (usint i = 0; i < ringDimension; i++) {
 		/*This for loops to calculate V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qi *[ (qt/qi)^(-1) mod qi ]}mod qt, the loop is basically the sigma.
 		Mod qt is done outside the loop*/
 			for (usint j = 0; j < m_vectors.size(); j++) {
+			
+				chineseRemainderMultiplier = m_towersize_cri_factors->at(m_modulus).at(j);
 
-				qi = m_vectors[j].GetModulus(); //qi
+				multiplyValue = (m_vectors[j].GetValAtIndex(i)).Times(chineseRemainderMultiplier); // M (r, i) * qt/qj * [(qt/qj)(-1) mod qj]
 
-				divideBigModulusByIndexModulus = bigModulus.DividedBy(qi); //qt/qi
-
-				modularInverse = divideBigModulusByIndexModulus.Mod(qi).ModInverse(qi); // (qt/qi)^(-1) mod qi
-
-				chineseRemainderMultiplier = divideBigModulusByIndexModulus.Times(modularInverse); // qt/qi * [(qt/qi)(-1) mod qi]
-
-				/*m_vectors[i].GetValAtIndex(index) is M (r, i) with r = index amd r = j. The helper method CalculateChineseRemainderInterpolationCoefficient 
-				calculates qt/qi *[ (qt/qi)^(-1) mod qi ] where the input parameter j is the row that the operation is performed on.*/
-				multiplyValue = (m_vectors[j].GetValAtIndex(i)).Times(chineseRemainderMultiplier); // M (r, i) * qt/qi * [(qt/qi)(-1) mod qi]
 				interpolateValue += multiplyValue;
+
 			}
 
 			interpolateValue = interpolateValue.Mod(m_modulus);
@@ -631,13 +796,21 @@ namespace lbcrypto {
 		DEBUG("X");
 		DEBUG("m_cyclotomicOrder "<<m_cyclotomicOrder);
 		DEBUG("modulus "<< modulus.ToString());
-		ILParams ilParams(m_cyclotomicOrder, modulus);
+//		ILParams ilParams(m_cyclotomicOrder, modulus, BigBinaryInteger::ONE); // Setting the root of unity to ONE as the calculation is expensive and not required.
 		DEBUG("Y");
 
-		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(m_cyclotomicOrder, modulus) ) );
+		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(m_cyclotomicOrder, modulus, BigBinaryInteger::ONE) ) ); // Setting the root of unity to ONE as the calculation is expensive and not required.
 		polynomialReconstructed.SetValues(coefficients,m_format);
 		DEBUG("Z");
-		return polynomialReconstructed;
+
+		ILVectorArray2n interpolatedIL2n;
+		interpolatedIL2n.m_format = this->m_format;
+		interpolatedIL2n.m_cyclotomicOrder = this->m_cyclotomicOrder;
+		interpolatedIL2n.m_modulus = modulus;
+		interpolatedIL2n.m_vectors.push_back(polynomialReconstructed);
+
+		return interpolatedIL2n;
+
 	}
 
 	/*Switch format calls IlVector2n's switchformat*/
@@ -682,10 +855,55 @@ namespace lbcrypto {
 		}
 		return true;
 	}
+	void ILVectorArray2n::PreComputeCRIFactors(const std::vector<BigBinaryInteger>& moduli, const usint cyclotomicOrder)
+	{
+
+		if (m_towersize_cri_factors == 0) {
+			m_towersize_cri_factors = new std::map<BigBinaryInteger, std::map<usint, BigBinaryInteger>>();
+		}
+
+		std::map<usint, BigBinaryInteger> tower_number_to_cri_value_map;
+
+		BigBinaryInteger qj;
+		BigBinaryInteger divideBigModulusByIndexModulus;
+		BigBinaryInteger modularInverse;
+		BigBinaryInteger chineseRemainderMultiplier;
+
+		BigBinaryInteger bigModulus("1");
+
+		for (usint i = 0; i < moduli.size(); i++) {
+			bigModulus = bigModulus * moduli[i];
+		}
+
+		for (usint j = 0; j < moduli.size(); j++) {
+
+			qj = moduli[j]; //qj
+
+			divideBigModulusByIndexModulus = bigModulus.DividedBy(qj); //qt/qj
+
+			modularInverse = divideBigModulusByIndexModulus.Mod(qj).ModInverse(qj); // (qt/qj)^(-1) mod qj
+
+			chineseRemainderMultiplier = divideBigModulusByIndexModulus.Times(modularInverse);
+
+			tower_number_to_cri_value_map[j] = chineseRemainderMultiplier;
+		}
+
+		m_towersize_cri_factors->insert(std::make_pair(bigModulus, tower_number_to_cri_value_map));
+		m_cyclotomicOrder_precompute = cyclotomicOrder;
+	}
+
+	void ILVectorArray2n::DestroyPrecomputedCRIFactors()
+	{
+		if (m_towersize_cri_factors != 0) {
+			m_towersize_cri_factors->clear();
+			delete m_towersize_cri_factors;
+			m_towersize_cri_factors = NULL;
+		}
+	}
 	//JSON FACILITY
 
 	// JSON FACILITY - Serialize Operation
-	bool ILVectorArray2n::Serialize(Serialized* serObj, const std::string fileFlag) const {
+	bool ILVectorArray2n::Serialize(Serialized* serObj) const {
 		if( !serObj->IsObject() )
 			return false;
 

@@ -76,7 +76,7 @@ namespace lbcrypto {
 	/**
 	* @brief Ideal lattice in the double-CRT representation.  This is not fully implemented and is currently only stubs.
 	*/
-	class ILVectorArray2n : public ILElement
+	class ILVectorArray2n : public ILElement<ILVectorArray2n>
 	{
 	public:
 
@@ -90,25 +90,57 @@ namespace lbcrypto {
 		/**
 		* Constructor that initializes parameters.
 		*
-		*@param &params parameter set required for ILVectorArray2n.
+		*@param params parameter set required for ILVectorArray2n.
 		*@param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*@param initializeElementToZero
 		*/
-		ILVectorArray2n(const shared_ptr<ElemParams> params, Format format = EVALUATION);
+		ILVectorArray2n(const shared_ptr<ElemParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 		/**
-		* Constructor based on discrete Gaussian generator.
+		* Constructor based on discrete Gaussian generator. 
 		*
 		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers.
-		* @param &params parameter set required for ILVectorArray2n. 
+		* @param params parameter set required for ILVectorArray2n. 
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 
 		/**
+		* Constructor based on binary Gaussian generator. This is not implemented. Will throw a logic_error.
+		*
+		* @param &bug the input binary uniform generator. The bug will be the seed to populate the towers of the ILVectorArray2n with random numbers.
+		* @param params parameter set required for ILVectorArray2n.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVectorArray2n(const BinaryUniformGenerator &bug, const shared_ptr<ElemParams> params, Format format = EVALUATION) {
+			throw std::logic_error("Cannot use BinaryUniformGenerator with ILVectorArray2n; not implemented");
+		}
+
+		/**
+		* Constructor based on binary Gaussian generator. This is not implemented. Will throw a logic_error.
+		*
+		* @param &tug the input ternary uniform generator. The bug will be the seed to populate the towers of the ILVectorArray2n with random numbers.
+		* @param params parameter set required for ILVectorArray2n.
+		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVectorArray2n(const TernaryUniformGenerator &tug, const shared_ptr<ElemParams> params, Format format = EVALUATION) {
+			throw std::logic_error("Cannot use TernaryUniformGenerator with ILVectorArray2n; not implemented");
+		}
+
+		/**
+		* Constructor based on full methods.
+		*
+		* @param &dug the input discrete Uniform Generator.
+		* @param params the input params.
+		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+		*/
+		ILVectorArray2n(const DiscreteUniformGenerator &dug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
+
+		/**
 		* Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n. 
 		*
 		* @param &element ILVector2n to build other towers from.
-		* @param &params parameter set required for ILVectorArray2n.
+		* @param params parameter set required for ILVectorArray2n.
 		*/
 		ILVectorArray2n(const ILVector2n &element, const shared_ptr<ILDCRTParams> params);
 
@@ -186,6 +218,39 @@ namespace lbcrypto {
 		}
 
 		/**
+		* Next three methods will get triggered if user accidentally uses ILVector2n methods
+		*/
+
+		/**
+		* Get method called by mistake.
+		*
+		* @param i 
+		* @return will throw a logic_error.
+		*/
+		const BigBinaryInteger& GetValAtIndex(usint i) const {
+			throw std::logic_error("GetValAtIndex not implemented for ILVectorArray2n");
+		}
+
+		/**
+		* Set method called by mistake, will throw a logic_error.
+		*
+		* @param index
+		* @param val
+		*/
+        inline void SetValAtIndex(size_t index, int val) {
+			throw std::logic_error("SetValAtIndex not implemented for ILVectorArray2n");
+        }
+		/**
+		* Set method called by mistake, will throw a logic_error.
+		*
+		* @param index
+		* @param val
+		*/
+        inline void SetValAtIndex(size_t index, const BigBinaryInteger& val) {
+			throw std::logic_error("SetValAtIndex not implemented for ILVectorArray2n");
+        }
+
+        /**
 		* Get method of individual towers.
 		*
 		* @param i index of tower to be returned.
@@ -231,7 +296,7 @@ namespace lbcrypto {
 		* @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
 		* @result is the pointer where the base decomposition vector is stored
 		*/
-		void BaseDecompose(usint baseBits, std::vector<ILVectorArray2n> *result) const { };
+		std::vector<ILVectorArray2n> BaseDecompose(usint baseBits) const ;
 
 		/**
 		* Generate a vector of ILVector2n's as {x, base*x, base^2*x, ..., base^{\lfloor {\log q/base} \rfloor}*x, where x is the current ILVector2n object;
@@ -241,9 +306,7 @@ namespace lbcrypto {
 		* @result is the pointer where the base decomposition vector is stored
 		* @return true if operation is successful
 		*/
-		std::vector<ILVectorArray2n> PowersOfBase(usint baseBits) const { 
-			return std::vector<ILVectorArray2n>();
-		}
+		std::vector<ILVectorArray2n> PowersOfBase(usint baseBits) const ;
 
 
 		//VECTOR OPERATIONS
@@ -291,7 +354,7 @@ namespace lbcrypto {
 		/**
 		* Performs an entry-wise subtraction over all elements of each tower with the towers of the ILVectorArray2n on the right hand side.
 		*
-		* @param &rhs is the element to add with.
+		* @param &rhs is the element to subtract from.
 		* @return is the result of the addition.
 		*/
 		const ILVectorArray2n& operator-=(const ILVectorArray2n &rhs);
@@ -372,6 +435,14 @@ namespace lbcrypto {
 		ILVectorArray2n DivideAndRound(const BigBinaryInteger &q) const;
 		
 		/**
+		*Performs a negation operation and returns the result.
+		*
+		* @return is the result of the negation.
+		*/
+		ILVectorArray2n Negate() const;
+
+		
+		/**
 		* Performs an addition operation and returns the result.
 		*
 		* @param &rhs is the element to add with.
@@ -380,12 +451,28 @@ namespace lbcrypto {
 		const ILVectorArray2n& operator+=(const BigBinaryInteger &rhs);
 
 		/**
-		* Performs an addition operation and returns the result.
+		* Performs a subtraction operation and returns the result.
 		*
 		* @param &element is the element to subtract from.
 		* @return is the result of the subtraction.
 		*/
 		const ILVectorArray2n& operator-=(const BigBinaryInteger &element);
+
+		/**
+		* Performs a multiplication operation and returns the result.
+		*
+		* @param &element is the element to multiply by.
+		* @return is the result of the subtraction.
+		*/
+		const ILVectorArray2n& operator*=(const BigBinaryInteger &element);
+
+		/**
+		* Performs an multiplication operation and returns the result.
+		*
+		* @param &element is the element to multiply with.
+		* @return is the result of the multiplication.
+		*/
+		const ILVectorArray2n& operator*=(const ILVectorArray2n &element);
 
 		// multiplicative inverse operation
 		/**
@@ -413,6 +500,24 @@ namespace lbcrypto {
 		// OTHER FUNCTIONS AND UTILITIES 
 
 		/**
+		* Get method that should not be used
+		*
+		* @return will throw a logic_error
+		*/
+		const BigBinaryVector &GetValues() const {
+			throw std::logic_error("GetValues not implemented on ILVectorArray2n");
+		}
+		/**
+		* Set method that should not be used, will throw an error.
+		*
+		* @param &values
+		* @param format
+		*/
+		void SetValues(const BigBinaryVector &values, Format format) {
+			throw std::logic_error("SetValues not implemented on ILVectorArray2n");
+		}
+
+		/**
 		* Prints values of each tower
 		*/
 		void PrintValues() const;
@@ -436,6 +541,7 @@ namespace lbcrypto {
 
 		/**
 		* Returns true if ALL the tower(s) are empty.  
+		*@return true if all towers are empty
 		*/
 		bool IsEmpty() const;
 
@@ -455,10 +561,11 @@ namespace lbcrypto {
 
 		/**
 		* Interpolates the ILVectorArray2n to an ILVector2n based on the Chinese Remainder Transform Interpolation.
+		* and then returns an ILVectorArray2n with that single element
 		*
-		* @return the ILVector2n representation of the ILVectorArray2n.
+		* @return the interpolated ring element embeded into ILVectorArray2n.
 		*/
-		ILVector2n InterpolateIlArrayVector2n() const;
+		ILVectorArray2n CRTInterpolate() const;
 
 		/**
 		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
@@ -491,16 +598,30 @@ namespace lbcrypto {
 		*/
 		bool InverseExists() const;
 
+		/**
+		* Pre computes the CRI factors. CRI factors are used in the chinese remainder interpolation.
+		* Note that different vector of moduli can co-exist as precomputed values.
+		*
+		* @param &moduli is the chain of moduli to construct the CRI factors from
+		*/
+		static void PreComputeCRIFactors(const std::vector<BigBinaryInteger> &moduli, const usint cyclotomicOrder);
+
+		/**
+		* Deletes the static pointer CRI factors pointer
+		*
+		* @param &moduli is the chain of moduli to construct the CRI factors from
+		*/
+		static void DestroyPrecomputedCRIFactors();
+
 		//JSON FACILITY
 		/**
 		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
 		* Invokes nested serialization of BigBinaryVector.
 		*
 		* @param serializationMap stores this object's serialized attribute name value pairs.
-		* @param fileFlag TODO.
-		* @return map updated with the attribute name value pairs required to serialize this object.
+		* @return true on success
 		*/
-		bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
+		bool Serialize(Serialized* serObj) const;
 
 		/**
 		* Populate the object from the deserialization of the Setialized
@@ -520,7 +641,74 @@ namespace lbcrypto {
 		BigBinaryInteger m_modulus;
 
 		usint m_cyclotomicOrder;
+
+		//This table stores constant interpolation values. The map maps a moduli to a each tower of the moduli's CRI factor.
+		static std::map<BigBinaryInteger, std::map<usint, BigBinaryInteger>> *m_towersize_cri_factors;
+
+		//This variable holds the cyclotomic order that the precomputed values are set for
+		static usint m_cyclotomicOrder_precompute;
+
 	};
+
+	/**
+	* Addition operator overload.
+	*
+	* @param &a ILVectorArray2n to be added to the second argument.
+	* @param &b ILVectorArray2n to be added to the first argument.
+	*
+	* @return an ILVectorArray2n with the resulting value.
+	*/
+	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Plus(b); }
+
+	/**
+	* Scalar addition operator overload-add an element to the first index of each tower.
+	*
+	* @param &a ILVectorArray2n to be used for addition.
+	* @param &b BigBinaryInteger to be added to the first index of every tower of argument &a.
+	*
+	* @return an ILVectorArray2n with the resulting value.
+	*/
+	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const BigBinaryInteger &b) { return a.Plus(b); }
+
+	/**
+	* Scalar addition operator overload-add an element to the first index of each tower.
+	*
+	* @param &a BigBinaryInteger to be added to the first index of every tower of argument &b.
+	* @param &b ILVectorArray2n to be used for addition.
+	*
+	* @return an ILVectorArray2n with the resulting value.
+	*/
+	inline ILVectorArray2n operator+(const BigBinaryInteger &a, const ILVectorArray2n &b) { return b.Plus(a); }
+
+	/**
+	* Subtraction operator overload.
+	*
+	* @param &a ILVectorArray2n to be added to the second argument.
+	* @param &b ILVectorArray2n to be added to the first argument.
+	*
+	* @return an ILVectorArray2n with the resulting value.
+	*/
+	inline ILVectorArray2n operator-(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Minus(b); }
+
+	/**
+	* Subtraction operator overload.
+	*
+	* @param &a BigBinaryInteger to be subtracted from the second argument.
+	* @param &b ILVectorArray2n to be operated on.
+	*
+	* @return an ILVectorArray2n with the resulting value.
+	*/
+	inline ILVectorArray2n operator-(const BigBinaryInteger &a, const ILVectorArray2n &b) { return b.Minus(a); }
+
+	/**
+	* Subtraction operator overload.
+	*
+	* @param &b BigBinaryInteger to be subtracted from the first argument.
+	* @param &a ILVectorArray2n to be operated on.
+	*
+	* @return an ILVectorArray2n with the resulting value.
+	*/
+	inline ILVectorArray2n operator-(const ILVectorArray2n &a, const BigBinaryInteger &b) { return a.Minus(b); }
 
 	/**
 	* Multiplication operator overload. 
@@ -552,45 +740,6 @@ namespace lbcrypto {
 	*/
 	inline ILVectorArray2n operator*(const ILVectorArray2n &a,const BigBinaryInteger &b) { return a.Times(b); }
 
-	/**
-	* Addition operator overload. 
-	*
-	* @param &a ILVectorArray2n to be added to the second argument.
-	* @param &b ILVectorArray2n to be added to the first argument.
-	*
-	* @return an ILVectorArray2n with the resulting value.
-	*/
-	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Plus(b); }
-
-	/**
-	* Subtraction operator overload.
-	*
-	* @param &a ILVectorArray2n to be added to the second argument.
-	* @param &b ILVectorArray2n to be added to the first argument.
-	*
-	* @return an ILVectorArray2n with the resulting value.
-	*/
-	inline ILVectorArray2n operator-(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Minus(b); }
-
-	/**
-	* Scalar addition operator overload-add an element to the first index of each tower.
-	*
-	* @param &a ILVectorArray2n to be used for addition.
-	* @param &b BigBinaryInteger to be added to the first index of every tower of argument &a.
-	*
-	* @return an ILVectorArray2n with the resulting value.
-	*/
-	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const BigBinaryInteger &b) { return a.Plus(b); }
-
-	/**
-	* Scalar addition operator overload-add an element to the first index of each tower.
-	*
-	* @param &a BigBinaryInteger to be added to the first index of every tower of argument &b.
-	* @param &b ILVectorArray2n to be used for addition.
-	*
-	* @return an ILVectorArray2n with the resulting value.
-	*/
-	inline ILVectorArray2n operator+(const BigBinaryInteger &a, const ILVectorArray2n &b) { return b.Plus(a); }
 
 } // namespace lbcrypto ends
 

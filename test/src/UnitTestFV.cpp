@@ -248,7 +248,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
 
 	//generate the evaluate key
-	evalKey = cc.EvalMultKeyGen(kp.secretKey, kp.secretKey);
+	evalKey = cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
 
@@ -279,17 +279,19 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 
 	//Set crypto parametes
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-			4, 0, "0", "0",
-			relWindow, stdDev, "0",
-			RLWE, "0", "0", 0, 9, 1.006);
+//	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+//			4, 0, "0", "0",
+//			relWindow, stdDev, "0",
+//			RLWE, "0", "0", 0, 9, 1.006);
+//
+//	cc.GetEncryptionAlgorithm().ParamsGen(cc.GetCryptoParameters(), 0, 1);
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, 0, 1, 0);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
-	cc.GetEncryptionAlgorithm().ParamsGen(cc.GetCryptoParameters(), 0, 1);
-
-	std::cout << "n = " << cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	std::cout << "log2 q = " << log2(cc.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+	//std::cout << "n = " << cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	//std::cout << "log2 q = " << log2(cc.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
@@ -331,7 +333,7 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
 
 	//generate the evaluate key
-	evalKey = cc.EvalMultKeyGen(kp.secretKey, kp.secretKey);
+	evalKey = cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
 
@@ -368,10 +370,10 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
-	cc.GetEncryptionAlgorithm().ParamsGen(cc.GetCryptoParameters(), 0, 1);
+	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 1);
 
-	std::cout << "n = " << cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	std::cout << "log2 q = " << log2(cc.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+	//std::cout << "n = " << cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	//std::cout << "log2 q = " << log2(cc.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
@@ -469,7 +471,7 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
 
 	//generate the evaluate key
-	evalKey= cc.EvalMultKeyGen(kp.secretKey, kp.secretKey);
+	evalKey= cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
 

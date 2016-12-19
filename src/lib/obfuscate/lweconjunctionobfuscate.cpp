@@ -206,7 +206,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 
 	usint n = obfuscatedPattern->GetRingDimension();
 	usint k = obfuscatedPattern->GetLogModulus();
-	std::cout << "BitLength in KeyGen: " << k << std::endl;
+	DEBUG("BitLength in KeyGen: " << k);
 
 	usint l = obfuscatedPattern->GetLength();
 	const shared_ptr<ElemParams> params = obfuscatedPattern->GetParameters();
@@ -214,7 +214,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 	//double s = 1000;
 	//double s = 600;
 	double s = 40*std::sqrt(n*(k+2));
-	std::cout << "parameter s = " << s << std::endl;
+	DEBUG("parameter s = " << s);
 
 #if 0 //original code
 	// Initialize the Pk and Ek matrices.
@@ -315,7 +315,7 @@ template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				DiscreteGaussianGenerator &dgg,
-				BinaryUniformGenerator &dbg,
+				TernaryUniformGenerator &tug,
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
 
 	TimeVar t1; // for TIC TOC
@@ -356,11 +356,11 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	//DBC: this loop has insignificant timing.
 	for(usint i=0; i<=l-1; i++) {
 		//Set the elements s and r to a discrete uniform generated vector.
-		Element elems0(dbg,params,EVALUATION);
+		Element elems0(tug,params,EVALUATION);
 		s_small_0.push_back(elems0);
 		//std::cout << elems0 << std::endl;
 
-		Element	elemr0(dbg,params,EVALUATION);
+		Element	elemr0(tug,params,EVALUATION);
 		r_small_0.push_back(elemr0);
 		//std::cout << elemr0 << std::endl;
 
@@ -372,11 +372,11 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 			r_small_1.push_back(r_small_0.back());
 		} else {
 			//Element elems1(dug,params,EVALUATION);
-			Element elems1(dbg,params,EVALUATION);
+			Element elems1(tug,params,EVALUATION);
 			s_small_1.push_back(elems1);
 
 			//Element	elemr1(dug,params,EVALUATION);
-			Element	elemr1(dbg,params,EVALUATION);
+			Element	elemr1(tug,params,EVALUATION);
 			r_small_1.push_back(elemr1);
 		}
 		
@@ -445,7 +445,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	//std::cout << "encode started for L" << std::endl;
 
 	//Element	elemrl1(dug,params,EVALUATION);
-	Element	elemrl1(dbg,params,EVALUATION);
+	Element	elemrl1(tug,params,EVALUATION);
 
 	Matrix<Element> *Sl = new Matrix<Element>(zero_alloc, m, m);
 	this->Encode(Pk_vector[l],Pk_vector[l+1],Ek_vector[l],Sigma[l],elemrl1*s_prod,dgg,Sl);

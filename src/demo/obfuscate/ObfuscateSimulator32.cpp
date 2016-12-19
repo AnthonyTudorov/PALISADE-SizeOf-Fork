@@ -121,18 +121,18 @@ bool CONJOBF(bool dbg_flag, int n_evals, int dataset) {
 	TIC(t_total); //start timer for total time
 
 	SecureParams const SECURE_PARAMS[] = {
-		{ 16, BigBinaryInteger("75557863725914323420321"), 
-			BigBinaryInteger("12274497033257922715595")}, //log q = 77 bits, n = 8
-		{ 32, BigBinaryInteger("1208925819614629174707521"), 
-			BigBinaryInteger("193814240942483199145482")}, //log q = 81 bits, n = 16
-		{ 64, BigBinaryInteger("19342813113834066795305089"), 
-			BigBinaryInteger("4234348280277576671195402") }, // log q = 85 bits, n = 32
-		{ 128, BigBinaryInteger("618970019642690137449567233"), 
-			BigBinaryInteger("541020383458560877089542400") },  // log q = 90 bits, n = 64
-		{ 256, BigBinaryInteger("9903520314283042199193000193"), 
-			BigBinaryInteger("7913145601236445148616781527") }, // log q = 94 bits, n = 128
-		{ 512, BigBinaryInteger("158456325028528675187087907841"), 
-			BigBinaryInteger("139668608762638314001983516094") }  // log q = 98 bits, n = 256
+		{ 16, BigBinaryInteger("295147905179352825889"),
+		BigBinaryInteger("124721243810329641926") }, //log q = 69 bits, n = 8
+		{ 32, BigBinaryInteger("9444732965739290428129"),
+		BigBinaryInteger("9435634234635383549045") }, //log q = 74 bits, n = 16
+		{ 64, BigBinaryInteger("151115727451828646840833"),
+		BigBinaryInteger("43768632958077729079089") }, // log q = 78 bits, n = 32
+		{ 128, BigBinaryInteger("2417851639229258349415553"),
+		BigBinaryInteger("1516920322058425003297600") },  // log q = 82 bits, n = 64
+		{ 256, BigBinaryInteger("77371252455336267181196801"),
+		BigBinaryInteger("29846242359127323974618793") }, // log q = 87 bits, n = 128
+		{ 512, BigBinaryInteger("1237940039285380274899136513"),
+		BigBinaryInteger("977145384161930579732228319") }  // log q = 91 bits, n = 256
 	};
 
 	//Set element params
@@ -157,7 +157,6 @@ bool CONJOBF(bool dbg_flag, int n_evals, int dataset) {
 	//Set crypto parametes
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev);			// Create the noise generator
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
-	BinaryUniformGenerator bug = BinaryUniformGenerator();			// Create the noise generator
 
 	DEBUG("Cryptosystem initialization: Performing precomputations...");
 
@@ -219,11 +218,11 @@ bool CONJOBF(bool dbg_flag, int n_evals, int dataset) {
 	timeKeyGen = TOC(t1);
 	DEBUG( "Key generation time: " << "\t" << timeKeyGen << " ms");
 
-	BinaryUniformGenerator dbg = BinaryUniformGenerator();	
+	TernaryUniformGenerator tug = TernaryUniformGenerator();	
 
 	DEBUG( "Obfuscation Execution started");
 	TIC(t1);
-	algorithm.Obfuscate(clearPattern,dgg,dbg,&obfuscatedPattern);
+	algorithm.Obfuscate(clearPattern,dgg,tug,&obfuscatedPattern);
 	timeObf = TOC(t1);
 	DEBUG( "Obfuscation time: " << "\t" << timeObf<< " ms");
 

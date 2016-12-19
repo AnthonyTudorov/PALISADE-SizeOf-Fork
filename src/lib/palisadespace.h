@@ -10,17 +10,13 @@
 
 // include this file in order to pull in all the necessary templates
 
-#include "crypto/lwepre.cpp"
-#include "crypto/lweahe.cpp"
-#include "crypto/lweshe.cpp"
-#include "crypto/lwefhe.cpp"
-#include "crypto/lweautomorph.cpp"
 
+#include "crypto/ltv.cpp"
+#include "crypto/stst.cpp"
 #include "crypto/bv.cpp"
 #include "crypto/fv.cpp"
 #include "crypto/nullscheme.cpp"
 
-#include "crypto/lwecrypt.cpp"
 #include "crypto/ciphertext.cpp"
 
 

@@ -31,7 +31,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmNull<Element>::Encrypt(const shared_p
 	copyPlain.SetValues(plaintext.GetValues(), Format::EVALUATION);
 
 	ciphertext->SetElement(copyPlain);
-	ciphertext->SetNorm(BigBinaryInteger::ONE);
 
 	return ciphertext;
 }
@@ -40,11 +39,11 @@ template <class Element>
 DecryptResult LPAlgorithmNull<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		Element *plaintext) const
-		{
+{
 	const Element c = ciphertext->GetElement();
 	*plaintext = c;
 	return DecryptResult(plaintext->GetLength());
-		}
+}
 
 template <class Element>
 shared_ptr<LPEvalKey<Element>> LPAlgorithmPRENull<Element>::ReKeyGen(const shared_ptr<LPKey<Element>> newSK,
@@ -71,10 +70,140 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPRENull<Element>::ReEncrypt(const sha
 	return newCiphertext;
 }
 
+
+/**
+* Function for evaluation addition on ciphertext.
+*
+* @param &ciphertext1 first input ciphertext.
+* @param &ciphertext2 second input ciphertext.
+* @param *newCiphertext the new resulting ciphertext.
+*/
+
+template <class Element>
+shared_ptr<Ciphertext<Element>>
+LPAlgorithmSHENull<Element>::EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
+	const shared_ptr<Ciphertext<Element>> ciphertext2) const
+{
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
+
+	Element c1(ciphertext1->GetElement());
+	Element c2(ciphertext2->GetElement());
+
+	Element cResult = c1 + c2;
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
+
+template <class Element>
+shared_ptr<Ciphertext<Element>>
+LPAlgorithmSHENull<Element>::EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
+	const shared_ptr<Ciphertext<Element>> ciphertext2) const
+{
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
+
+	Element c1(ciphertext1->GetElement());
+	Element c2(ciphertext2->GetElement());
+
+	Element cResult = c1 - c2;
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>>
+LPAlgorithmSHENull<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+	const shared_ptr<Ciphertext<Element>> ciphertext2) const
+{
+	if (typeid(Element) != typeid(ILVector2n)) {
+		throw std::runtime_error("EvalMult only implemented for Null Scheme and element ILVector2n.");
+	}
+
+	if (ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT) {
+		throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
+	}
+
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext2->GetCryptoContext()));
+
+	Element c1(ciphertext1->GetElement());
+
+	Element c2(ciphertext2->GetElement());
+
+	Element cResult(ciphertext1->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
+
+	Element cLarger(ciphertext1->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
+
+	const BigBinaryInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+	int	ringdim = c1.GetCyclotomicOrder() / 2;
+
+	for (int c1e = 0; c1e<ringdim; c1e++) {
+		BigBinaryInteger answer, c1val, c2val, prod;
+		c1val = c1.GetValAtIndex(c1e);
+		if (c1val != BigBinaryInteger::ZERO) {
+			for (int c2e = 0; c2e<ringdim; c2e++) {
+				c2val = c2.GetValAtIndex(c2e);
+				if (c2val != BigBinaryInteger::ZERO) {
+					prod = c1val * c2val;
+
+					int index = (c1e + c2e);
+
+					if (index >= ringdim) {
+						index %= ringdim;
+						cLarger.SetValAtIndex(index, (cLarger.GetValAtIndex(index) + prod) % ptm);
+					}
+					else
+						cResult.SetValAtIndex(index, (cResult.GetValAtIndex(index) + prod) % ptm);
+				}
+			}
+		}
+	}
+
+	// fold cLarger back into the answer
+	for (int i = 0; i<ringdim; i++) {
+		BigBinaryInteger adj;
+		adj = cResult.GetValAtIndex(i) + (ptm - cLarger.GetValAtIndex(i)) % ptm;
+		cResult.SetValAtIndex(i, adj % ptm);
+	}
+
+	// DO NOT USE element's operator* !!!  Element cResult = c1*c2;
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
+/**
+* Function for evaluating multiplication on ciphertext followed by key switching operation.
+* NOT USED IN NULL
+*
+* @param &ciphertext1 first input ciphertext.
+* @param &ciphertext2 second input ciphertext.
+* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+* @param *newCiphertext the new resulting ciphertext.
+*/
+template <class Element>
+shared_ptr<Ciphertext<Element>>
+LPAlgorithmSHENull<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+	const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const
+{
+	//	shared_ptr<Ciphertext<Element>> newCiphertext;
+	//
+	//	//invoke the EvalMult without the EvalKey
+	//	newCiphertext = EvalMult(ciphertext1, ciphertext2);
+	//
+	//	//Key Switching operation.
+	//	return KeySwitch( ek, newCiphertext );
+	return EvalMult(ciphertext1, ciphertext2);
+}
+
+
 template <class Element>
 shared_ptr<LPEvalKey<Element>> LPAlgorithmSHENull<Element>::EvalMultKeyGen(
-			const shared_ptr<LPPrivateKey<Element>> k1,
-			const shared_ptr<LPPrivateKey<Element>> k2) const
+			const shared_ptr<LPPrivateKey<Element>> k1) const
 {
 	shared_ptr<LPEvalKey<Element>> EK( new LPEvalKeyRelin<Element>(k1->GetCryptoContext()) );
 
@@ -87,150 +216,22 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHENull<Element>::EvalMultKeyGen(
 	return EK;
 }
 
-template <class Element>
-shared_ptr<Ciphertext<Element>>
-LPAlgorithmSHENull<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2) const
-{
-	if(ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT){
-		throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
-	}
-
-	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
-
-	Element c1(ciphertext1->GetElement());
-
-	Element c2(ciphertext2->GetElement());
-
-	Element cResult(c1.GetParams(), Format::EVALUATION, true);
-
-	Element cLarger(c1.GetParams(), Format::EVALUATION, true);
-
-	const BigBinaryInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
-	int	ringdim = c1.GetCyclotomicOrder()/2;
-
-	for( int c1e = 0; c1e<ringdim; c1e++ ) {
-		BigBinaryInteger answer, c1val, c2val, prod;
-		c1val = c1.GetValAtIndex(c1e);
-		if( c1val != BigBinaryInteger::ZERO ) {
-			for( int c2e = 0; c2e<ringdim; c2e++ ) {
-				c2val = c2.GetValAtIndex(c2e);
-				if( c2val != BigBinaryInteger::ZERO ) {
-					prod = c1val * c2val;
-
-					int index = (c1e + c2e);
-
-					if( index >= ringdim ) {
-						index %= ringdim;
-						cLarger.SetValAtIndex(index, (cLarger.GetValAtIndex(index) + prod) % ptm );
-					}
-					else
-						cResult.SetValAtIndex(index, (cResult.GetValAtIndex(index) + prod) % ptm );
-				}
-			}
-		}
-	}
-
-	// fold cLarger back into the answer
-	for( int i=0; i<ringdim; i++ ) {
-		BigBinaryInteger adj;
-		adj = cResult.GetValAtIndex(i) + (ptm - cLarger.GetValAtIndex(i))%ptm;
-		cResult.SetValAtIndex(i, adj % ptm );
-	}
-
-	// DO NOT USE element's operator* !!!  Element cResult = c1*c2;
-
-	newCiphertext->SetElement(cResult);
-
-	return newCiphertext;
-}
-
-/**
- * Function for evaluating multiplication on ciphertext followed by key switching operation.
- * NOT USED IN NULL
- *
- * @param &ciphertext1 first input ciphertext.
- * @param &ciphertext2 second input ciphertext.
- * @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
- * @param *newCiphertext the new resulting ciphertext.
- */
-template <class Element>
-shared_ptr<Ciphertext<Element>>
-LPAlgorithmSHENull<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const
-		{
-	//	shared_ptr<Ciphertext<Element>> newCiphertext;
-	//
-	//	//invoke the EvalMult without the EvalKey
-	//	newCiphertext = EvalMult(ciphertext1, ciphertext2);
-	//
-	//	//Key Switching operation.
-	//	return KeySwitch( ek, newCiphertext );
-		}
-
-/**
- * Function for evaluation addition on ciphertext.
- *
- * @param &ciphertext1 first input ciphertext.
- * @param &ciphertext2 second input ciphertext.
- * @param *newCiphertext the new resulting ciphertext.
- */
-
-template <class Element>
-shared_ptr<Ciphertext<Element>>
-LPAlgorithmSHENull<Element>::EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2) const
-{
-	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>( ciphertext1->GetCryptoContext() ) );
-
-	Element c1(ciphertext1->GetElement());
-	Element c2(ciphertext2->GetElement());
-
-	Element cResult = c1+c2;
-
-	newCiphertext->SetElement(cResult);
-
-	return newCiphertext;
-}
-
-
-template <class Element>
-shared_ptr<Ciphertext<Element>>
-LPAlgorithmSHENull<Element>::EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2) const
-{
-	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>( ciphertext1->GetCryptoContext() ) );
-
-	Element c1(ciphertext1->GetElement());
-	Element c2(ciphertext2->GetElement());
-
-	Element cResult = c1 - c2;
-
-	newCiphertext->SetElement(cResult);
-
-	return newCiphertext;
-}
-
 // Constructor for LPPublicKeyEncryptionSchemeNull
 template <class Element>
 LPPublicKeyEncryptionSchemeNull<Element>::LPPublicKeyEncryptionSchemeNull(std::bitset<FEATURESETSIZE> mask)
 : LPPublicKeyEncryptionScheme<Element>() {
 
 	if (mask[ENCRYPTION])
-		this->m_algorithmEncryption = new LPAlgorithmNull<Element>(*this);
+		this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
 
 	if (mask[PRE])
-		this->m_algorithmPRE = new LPAlgorithmPRENull<Element>(*this);
-	//	if (mask[EVALADD])
-	//		this->m_algorithmEvalAdd = new LPAlgorithmAHENull<Element>(*this);
-	//	if (mask[EVALAUTOMORPHISM])
-	//		this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphNull<Element>(*this);
+		this->m_algorithmPRE = new LPAlgorithmPRENull<Element>();
 	if (mask[SHE])
-		this->m_algorithmSHE = new LPAlgorithmSHENull<Element>(*this);
+		this->m_algorithmSHE = new LPAlgorithmSHENull<Element>();
 	//	if (mask[FHE])
-	//		this->m_algorithmFHE = new LPAlgorithmFHENull<Element>(*this);
+	//		this->m_algorithmFHE = new LPAlgorithmFHENull<Element>();
 	//	if (mask[LEVELEDSHE])
-	//		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>(*this);
+	//		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>();
 }
 
 // Enable for LPPublicKeyEncryptionSchemeLTV
@@ -240,31 +241,23 @@ void LPPublicKeyEncryptionSchemeNull<Element>::Enable(PKESchemeFeature feature) 
 	{
 	case ENCRYPTION:
 		if (this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPAlgorithmNull<Element>(*this);
+			this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
 		break;
 	case PRE:
 		if (this->m_algorithmPRE == NULL)
-			this->m_algorithmPRE = new LPAlgorithmPRENull<Element>(*this);
+			this->m_algorithmPRE = new LPAlgorithmPRENull<Element>();
 		break;
-		//	case EVALADD:
-		//		if (this->m_algorithmEvalAdd == NULL)
-		//			this->m_algorithmEvalAdd = new LPAlgorithmAHENull<Element>(*this);
-		//		break;
-		//	case EVALAUTOMORPHISM:
-		//		if (this->m_algorithmEvalAutomorphism == NULL)
-		//			this->m_algorithmEvalAutomorphism = new LPAlgorithmAutoMorphNull<Element>(*this);
-		//		break;
 	case SHE:
 		if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHENull<Element>(*this);
+			this->m_algorithmSHE = new LPAlgorithmSHENull<Element>();
 		break;
 		//	case FHE:
 		//		if (this->m_algorithmFHE == NULL)
-		//			this->m_algorithmFHE = new LPAlgorithmFHENull<Element>(*this);
+		//			this->m_algorithmFHE = new LPAlgorithmFHENull<Element>();
 		//		break;
 		//	case LEVELEDSHE:
 		//		if (this->m_algorithmLeveledSHE == NULL)
-		//			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>(*this);
+		//			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>();
 		//		break;
 	}
 }

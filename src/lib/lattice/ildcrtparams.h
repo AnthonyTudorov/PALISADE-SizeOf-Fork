@@ -213,7 +213,7 @@ public:
 	~ILDCRTParams() {}
 
 	//JSON FACILITY
-	bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
+	bool Serialize(Serialized* serObj) const;
 
 	bool Deserialize(const Serialized& serObj);
 

@@ -41,13 +41,10 @@ Test cases in this file make the following assumptions:
 #include "../../src/lib/lattice/ildcrtparams.h"
 #include "../../src/lib/lattice/ilelement.h"
 #include "../../src/lib/math/distrgen.h"
-#include "../../src/lib/crypto/lwecrypt.h"
-#include "../../src/lib/crypto/lwepre.h"
 #include "../../src/lib/lattice/ilvector2n.h"
 #include "../../src/lib/lattice/ilvectorarray2n.h"
 #include "../../src/lib/utils/utilities.h"
 
-#include "../../src/lib/crypto/lwecrypt.cpp"
 #include "../../src/lib/crypto/ciphertext.cpp"
 
 #include "../../src/lib/utils/debug.h"
@@ -98,7 +95,7 @@ TEST(UTNTT, switch_format_simple_single_crt) {
 	x1 = { 431,3414,1234,7845,2145,7415,5471,8452 };
 
 	ILVector2n x2( x2p, Format::COEFFICIENT );
-	x2 = { 4127,9647,1987,5410,6541,7014,9741,1256 };
+	x2 = { 4127,9647,1987,5410 };
 
 	ILVector2n x1Clone(x1);
 	ILVector2n x2Clone(x2);

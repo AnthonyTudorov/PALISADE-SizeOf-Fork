@@ -39,8 +39,13 @@
 
 #include "../math/largefloat.h"
 #include "../math/matrix.h"
+#include "field2n.h"
 
 namespace lbcrypto {
+
+//Statistical error in Gaussian sampling
+//corresponds to statistical error of 2^(-90)
+const double DG_ERROR = 8e-28;
 
 /**
 * @brief Utility class containing operations needed for lattice sampling; Sources: https://eprint.iacr.org/2013/297.pdf & https://eprint.iacr.org/2011/501.pdf
@@ -119,7 +124,31 @@ public:
 		for (size_t i = 0; i < p.GetRows(); i++) {
 			(*perturbationVector)(i,0) = DiscreteGaussianGenerator::GenerateInteger(p(i,0), sigma, n);
 		}
-	}
+	};
+
+	/**
+	* Subroutine used by ZSampleSigmaP
+	*
+	* @param a field element in DFT format
+	* @param b field element in DFT format
+	* @param d field element in DFT format
+	* @param c a vector of field elements in Coefficient format
+	* @param dgg discrete Gaussian generator
+	* @param *p non-spherical perturbation vector; output of the function
+	*/
+	static inline void ZSampleSigma2x2(const Field2n & a, const Field2n & b,
+		const Field2n & d, const Matrix<Field2n> &c, const DiscreteGaussianGenerator & dgg, Matrix<int32_t>* p);
+
+	/**
+	* Subroutine used by ZSampleSigma2x2
+	*
+	* @param f field element in Coefficient format
+	* @param c field element in Coefficient format
+	* @param dgg discrete Gaussian generator
+	* @param n ring dimension used for rejection sampling
+	*/
+	static inline Matrix<int32_t> ZSampleF(const Field2n &f, const Field2n &c,
+		const DiscreteGaussianGenerator &dgg, size_t n);
 
 private:
 	
@@ -132,6 +161,10 @@ private:
 	// Algorithm was provided in a personal communication by Daniele Micciancio
 	static inline void SampleC(const Matrix<double> &c, size_t k, size_t n, 
 		double sigma, DiscreteGaussianGenerator &dgg, Matrix<double> *a, vector<int32_t> *z);
+
+	//subroutine used by ZSampleF
+	//Algorithm utilizes the same permutation algorithm discussed in the GM17 paper
+	  static inline Matrix<int32_t> Permute(Matrix<int32_t> * p);
 
 };
 

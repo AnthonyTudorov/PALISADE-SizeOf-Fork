@@ -41,13 +41,10 @@ Test cases in this file make the following assumptions:
 #include "../../src/lib/lattice/ildcrtparams.h"
 #include "../../src/lib/lattice/ilelement.h"
 #include "../../src/lib/math/distrgen.h"
-#include "../../src/lib/crypto/lwecrypt.h"
-#include "../../src/lib/crypto/lwepre.h"
 #include "../../src/lib/lattice/ilvector2n.h"
 #include "../../src/lib/lattice/ilvectorarray2n.h"
 #include "../../src/lib/utils/utilities.h"
 
-#include "../../src/lib/crypto/lwecrypt.cpp"
 #include "../../src/lib/crypto/ciphertext.cpp"
 #include "../../src/lib/crypto/cryptocontext.h"
 #include "../../src/lib/utils/cryptocontexthelper.h"
@@ -104,6 +101,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m,
 			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
 	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);
 
 	//Precomputations for FTT
@@ -120,9 +118,10 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
 
-	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint = cc.EvalMultKeyGen(kp.secretKey, kp2.secretKey);
+	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
+	shared_ptr<Ciphertext<ILVector2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
+	newCiphertext.push_back(newCt);
 
 	BytePlaintextEncoding plaintextNew;
 
@@ -152,6 +151,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
+	cc.Enable(SHE);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
@@ -172,9 +172,10 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
 
 	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
-	keySwitchHint = cc.GetEncryptionAlgorithm().EvalMultKeyGen(kp.secretKey, kp2.secretKey);
+	keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
+	shared_ptr<Ciphertext<ILVector2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
+	newCiphertext[0] = newCt;
 
 	IntPlaintextEncoding intArrayNew;
 
@@ -208,7 +209,7 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m,
 			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
 	cc.Enable(ENCRYPTION);
-	cc.Enable(LEVELEDSHE);
+	cc.Enable(SHE);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
@@ -225,9 +226,10 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 	LPKeyPair<ILVector2n> kp2 = cc.KeyGen();
 
 	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
-	keySwitchHint = cc.GetEncryptionAlgorithm().EvalMultKeyGen(kp.secretKey, kp2.secretKey);
+	keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
+	shared_ptr<Ciphertext<ILVector2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
+	newCiphertext[0] = newCt;
 
 	BytePlaintextEncoding plaintextNew;
 
@@ -259,6 +261,7 @@ TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
+	cc.Enable(SHE);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
@@ -311,7 +314,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 		modulus = modulus* moduli[i];
 	}
 
-	DiscreteGaussianGenerator dgg(stdDev);
+	ILVectorArray2n::PreComputeCRIFactors(moduli, m);
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
@@ -320,25 +323,26 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
+	cc.Enable(SHE);
 
 	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext =
 			cc.Encrypt(kp.publicKey, plaintext);
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext;
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext(1);
 
 	LPKeyPair<ILVectorArray2n> kp2 = cc.KeyGen();
 
 	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint;
-	keySwitchHint = cc.GetEncryptionAlgorithm().EvalMultKeyGen(kp.secretKey, kp2.secretKey);
+	keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
+	shared_ptr<Ciphertext<ILVectorArray2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
+	newCiphertext[0] = newCt;
 
 	BytePlaintextEncoding plaintextNewKeySwitch;
 
@@ -359,7 +363,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNewModReduce);
 	
 	EXPECT_EQ(plaintext, plaintextNewModReduce);
-
+	ILVectorArray2n::DestroyPrecomputedCRIFactors();
 }
 
 TEST(UTSHE, ringreduce_single_crt) {
@@ -400,9 +404,10 @@ TEST(UTSHE, ringreduce_single_crt) {
 	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
 
 	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
-	keySwitchHint = cc.GetEncryptionAlgorithm().EvalMultKeyGen(kp.secretKey, kp2.secretKey);
+	keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
+	shared_ptr<Ciphertext<ILVector2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
+	newCiphertext[0] = newCt;
 
 	IntPlaintextEncoding intArrayNew;
 
@@ -451,8 +456,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
 		modulus = modulus* moduli[i];
 	}
-
-	DiscreteGaussianGenerator dgg(stdDev);
+	ILVectorArray2n::PreComputeCRIFactors(moduli, m);
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
@@ -461,7 +465,6 @@ TEST(UTSHE, ringreduce_double_crt) {
 	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
 	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);         // Create the noise generator
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
 	cc.Enable(ENCRYPTION);
@@ -481,9 +484,9 @@ TEST(UTSHE, ringreduce_double_crt) {
 
 	LPKeyPair<ILVectorArray2n> kp2 = cc.SparseKeyGen();
 
-	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint = cc.EvalMultKeyGen(kp.secretKey, kp2.secretKey);
+	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	newCiphertext = cc.KeySwitch(keySwitchHint, ciphertext);
+	newCiphertext[0] = cc.KeySwitch(keySwitchHint, ciphertext[0]);
 
 	IntPlaintextEncoding intArrayNew;
 
@@ -507,6 +510,8 @@ TEST(UTSHE, ringreduce_double_crt) {
 	EXPECT_EQ(intArrayNewRR, intArrayExpected);
 
 	ILVector2n::DestroyPreComputedSamples();
+	ILVectorArray2n::DestroyPrecomputedCRIFactors();
+
 }
 
 TEST(UTSHE, canringreduce) {

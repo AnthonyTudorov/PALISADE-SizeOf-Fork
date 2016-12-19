@@ -57,7 +57,7 @@ class RLWETrapdoorPair {
 public:
 	// matrix of noise polynomials
 	Matrix<Element> m_r;
-	// matirx 
+	// matrix 
 	Matrix<Element> m_e;
 
 	RLWETrapdoorPair();
@@ -88,7 +88,7 @@ public:
 	*/
 	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(const shared_ptr<ElemParams> params, int stddev)
 	{
-		shared_ptr<ILParams> ip( dynamic_cast<ILParams *>(&*params) );
+		shared_ptr<ILParams> ip = std::dynamic_pointer_cast<ILParams>(params);
 		return TrapdoorGen(ip, stddev);
 	}
 
@@ -110,6 +110,24 @@ public:
 
 			const Matrix<LargeFloat> &SigmaP, const ILVector2n &u,
 			double sigma, DiscreteGaussianGenerator &dgg); 
+
+	/**
+	* Gaussian sampling introduced - UCSD version
+	*
+	* @param n ring dimension
+	* @param k matrix sample dimension; k = logq + 2
+	* @param &A public key of the trapdoor pair
+	* @param &T trapdoor itself
+	* @param &SigmaP Cholesky decomposition matrix for the trapdoor
+	* @param &u syndrome vector where gaussian that Gaussian sampling is centered around
+	* @param sigma noise distriubution parameter
+	* @param &dgg discrete Gaussian generator for integers
+	* @param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling
+	* @return the sampled vector (matrix)
+	*/
+	static inline RingMat GaussSampV3(size_t n, size_t k, const RingMat& A, 
+		const RLWETrapdoorPair<ILVector2n>& T, const ILVector2n &u,
+		double sigma, DiscreteGaussianGenerator &dgg, DiscreteGaussianGenerator &dggLargeSigma);
 
 	/**
 	* Generation of perturbation matrix based on Cholesky decomposition 
@@ -138,6 +156,22 @@ public:
 	*/
 	static inline void PerturbationMatrixGenAlt(size_t n,size_t k, const RingMat& A,
 		const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt);
+
+	/**
+	* New method for perturbation generation based by the new paper
+	*
+	*@param n ring dimension
+	*@param s parameter Gaussian distribution
+	*@param sigma standard deviation
+	*@param &Tprime compact trapdoor matrix
+	*@param &dgg discrete Gaussian generator for error sampling
+	*@param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling
+	*@param *perturbationVector perturbation vector;output of the function
+	*/
+	static inline void ZSampleSigmaP(size_t n, double s, double sigma,
+		const RLWETrapdoorPair<ILVector2n> &Tprime,
+		const DiscreteGaussianGenerator& dgg, const DiscreteGaussianGenerator& dggLargeSigma,
+		RingMat *perturbationVector);
 
 };
 

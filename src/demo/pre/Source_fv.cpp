@@ -107,7 +107,7 @@ void EvalMul(int input, MODE mode) {
 
 	start = currentDateTime();
 
-	cc.GetEncryptionAlgorithm().ParamsGen(cc.GetCryptoParameters(), 0, 1);
+	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 1);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -165,7 +165,7 @@ void EvalMul(int input, MODE mode) {
 	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
 
 	//generate the evaluate key
-	evalKey = cc.EvalMultKeyGen(kp.secretKey, kp.secretKey);
+	evalKey = cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
 

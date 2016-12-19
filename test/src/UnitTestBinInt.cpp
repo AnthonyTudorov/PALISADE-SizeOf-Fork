@@ -37,8 +37,6 @@
 #include "../../src/lib/lattice/ilelement.h"
 #include "../../src/lib/lattice/ilvector2n.h"
 #include "../../src/lib/lattice/ilvectorarray2n.h"
-#include "../../src/lib/crypto/lwecrypt.h"
-#include "../../src/lib/crypto/lwepre.h"
 #include "../../src/lib/utils/inttypes.h"
 #include "../../src/lib/utils/utilities.h"
 
@@ -363,6 +361,18 @@ TEST(UTBinInt,basic_math){
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing divided_by_a_greater_than_b";
+  }
+
+
+  {
+	  BigBinaryInteger a("8096");
+	  BigBinaryInteger b("4049");
+
+	  calculatedResult = a.Mod(b);
+	  expectedResult = 4047;
+
+	  EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+		  << "Failure testing Mod";
   }
 
   // TEST CASE FOR VERIFICATION OF ROUNDING OPERATION.

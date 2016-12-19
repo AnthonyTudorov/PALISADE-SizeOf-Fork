@@ -43,6 +43,9 @@
 #ifndef LBCRYPTO_MATH_EXPINT_UBINT_H
 #define LBCRYPTO_MATH_EXPINT_UBINT_H
 
+#define NO_BARRETT //currently barrett is slower than mod
+
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -369,7 +372,7 @@ namespace exp_int{
      * @param &rhs is the ubint to be assigned from.
      * @return assigned ubint ref.
      */
-    const ubint&  operator=(const ubint &rhs);
+     ubint&  operator=(const ubint &rhs);
 
     /**
      * Assignment operator from unsigned integer
@@ -377,7 +380,7 @@ namespace exp_int{
      * @param val is the unsigned integer value that is assigned.
      * @return the assigned ubint ref.
      */
-    inline const ubint& operator=(usint val) {
+    inline ubint& operator=(usint val) {
     //  *this = intTobint(val);
     	  *this = ubint(val);
       return *this;
@@ -389,7 +392,7 @@ namespace exp_int{
      * @param val is the string value that is assigned.
      * @return the assigned ubint ref.
      */
-    inline const ubint& operator=(std::string val) {
+    inline ubint& operator=(std::string val) {
       *this = ubint(val);
       return *this;
     }
@@ -401,7 +404,7 @@ namespace exp_int{
      * @param &&rhs is the ubint to move.
      * @return object of type ubint.
      */
-    const ubint&  operator=(ubint &&rhs);
+    ubint&  operator=(ubint &&rhs);
 
     //Shift Operators
    
@@ -418,8 +421,8 @@ namespace exp_int{
      * @param shift is the amount to shift of type usint.
      * @return the object of type ubint
      */
-    const ubint&  operator<<=(usint shift);
-        
+    ubint&  operator<<=(usint shift);
+
     /**
      * Right shift operator of ubint
      * @param shift is the amount to shift of type usint.
@@ -466,7 +469,7 @@ namespace exp_int{
      *
      * @return the index of the most significant bit.
      */
-    usint GetMSB()const;
+    inline usint GetMSB()const;
 
     //usshort GetMSB()const; //TODO: deprecate shouldn't be using shorts!
 
@@ -577,7 +580,7 @@ namespace exp_int{
      * @param &b is the value to add of type ubint.
      * @return result of the addition operation of type ubint.
      */
-    const ubint& operator+=(const ubint &b);
+    inline ubint& operator+=(const ubint &b);
 
 		
     /**
@@ -586,7 +589,7 @@ namespace exp_int{
      * @param &b is the value to subtract of type ubint.
      * @return result of the subtraction operation of type ubint.
      */
-    const ubint& operator-=(const ubint &b);
+    inline ubint& operator-=(const ubint &b);
 
     /**
      * Multiplication accumulator.
@@ -594,7 +597,7 @@ namespace exp_int{
      * @param &b is the value to multiply by of type ubint.
      * @return result of the multiplication operation of type ubint.
      */
-    const ubint& operator*=(const ubint &b);
+    inline ubint& operator*=(const ubint &b);
 
     /**
      * Division accumulator.
@@ -602,7 +605,7 @@ namespace exp_int{
      * @param &b is the value to divide by of type ubint.
      * @return result of the division operation of type ubint.
      */
-    const ubint& operator/=(const ubint &b);
+    inline ubint& operator/=(const ubint &b);
 
     /**
      * Modulus accumulator.
@@ -610,7 +613,7 @@ namespace exp_int{
      * @param &b is the value to modulo by of type ubint.
      * @return result of the modulo operation of type ubint.
      */
-    const ubint& operator%=(const ubint &b);
+    inline ubint& operator%=(const ubint &b);
 
     /**
      * Subtraction operation.
@@ -983,7 +986,7 @@ namespace exp_int{
      * @param a is the ubint to be compared with.
      * @return  -1 for strictly less than, 0 for equal to and 1 for strictly greater than conditons.
      */
-    sint Compare(const ubint& a) const;
+    inline sint Compare(const ubint& a) const;
 
     /**
      *  Set this int to 1.
@@ -1010,7 +1013,7 @@ namespace exp_int{
      * @param b is the number to be multiplied.
      * @return the ubint after the multiplication.
      */
-    ubint MulIntegerByLimb(limb_t b) const; //todo rename to ubint
+    inline ubint MulIntegerByLimb(limb_t b) const; //todo rename to ubint
 
 
     /**
@@ -1078,7 +1081,10 @@ namespace exp_int{
      * @param defined in ubint.cpp
      */
     
-    int divmnu_vect(ubint& q, ubint& r, const ubint& u, const ubint& v) const;
+    int divqr_vect(ubint& q, ubint& r, const ubint& u, const ubint& v) const;
+
+    int divr_vect(ubint& r, const ubint& u, const ubint& v) const;
+    int divq_vect(ubint& q, const ubint& u, const ubint& v) const;
 
   private: //todo make private again
     //vector storing the native integers. stored little endian
@@ -1126,14 +1132,18 @@ namespace exp_int{
      * @param x is the 32 bit integer.
      * @return the MSB position in the 32 bit number x. Note MSB(1) is 1 NOT zero!!!!!
      */
-    static uint64_t GetMSB32(uint64_t x);
+#if 0
+    inline static uint64_t GetMSB32(uint64_t x);
+#else
+    inline static uint32_t GetMSB32(uint32_t x);
+#endif
     /**
      * function to return the MSB of number.
      * @param x is the number.
      * @return the MSB position in the number x.Note MSB(1) is 1 NOT zero!!!!!
      */
 		
-    static usint GetMSBlimb_t(limb_t x);
+    inline static usint GetMSBlimb_t(limb_t x);
 		
 		
     /**
@@ -1141,8 +1151,8 @@ namespace exp_int{
      * @param x is the number.
      * @return the MSB position in the number x. Note MSB(1) is 1 NOT zero!!!!!
      */
-    static uint64_t GetMSB64(uint64_t x);
-
+    inline static uint64_t GetMSB64(uint64_t x);
+    
     //Dlimb_t is the data type that has twice as many bits in the limb data type.
     typedef typename DoubleDataType<limb_t>::T Dlimb_t;
 

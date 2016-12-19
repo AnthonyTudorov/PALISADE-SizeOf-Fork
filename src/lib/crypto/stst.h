@@ -34,9 +34,18 @@
 #ifndef LBCRYPTO_CRYPTO_STST_H
 #define LBCRYPTO_CRYPTO_STST_H
 
-#include "rlwe.h"
+#include "../palisade.h"
 
 namespace lbcrypto {
+
+	//forward declaration;
+	template <class Element>
+	class LPAlgorithmLTV;
+
+	//forward declaration;
+	template <class Element>
+	class LPPublicKeyEncryptionSchemeLTV;
+
 /**
  * @brief Template for Stehle-Stenfeld crypto parameters.
  * @tparam Element a ring element.
@@ -49,7 +58,7 @@ public:
 	 */
 	LPCryptoParametersStehleSteinfeld() : LPCryptoParametersRLWE<Element>() {
 		m_distributionParameterStSt = 0.0f;
-		m_dggStSt = DiscreteGaussianGenerator();
+		m_dggStSt.SetStd(m_distributionParameterStSt);
 	}
 
 	/**
@@ -58,7 +67,7 @@ public:
 	 */
 	LPCryptoParametersStehleSteinfeld(const LPCryptoParametersStehleSteinfeld &rhs) : LPCryptoParametersRLWE<Element>(rhs) {
 		m_distributionParameterStSt = rhs.m_distributionParameterStSt;
-		m_dggStSt = rhs.m_dggStSt;
+		m_dggStSt.SetStd(m_distributionParameterStSt);
 	}
 
 	/**
@@ -79,8 +88,6 @@ public:
 			float assuranceMeasure,
 			float securityLevel,
 			usint relinWindow,
-			const DiscreteGaussianGenerator &dgg,
-			const DiscreteGaussianGenerator &dggStSt,
 			float distributionParmStst,
 			int depth = 1)
 	: LPCryptoParametersRLWE<Element>(params,
@@ -89,11 +96,9 @@ public:
 			assuranceMeasure,
 			securityLevel,
 			relinWindow,
-			dgg,
 			depth) {
 		m_distributionParameterStSt = distributionParmStst;
-		m_dggStSt = dggStSt;
-
+		m_dggStSt.SetStd(m_distributionParameterStSt);
 	}
 
 
@@ -116,7 +121,10 @@ public:
 	/**
 	 * Sets the value of standard deviation r for discrete Gaussian distribution
 	 */
-	void SetDistributionParameterStSt(float distributionParameterStSt) {m_distributionParameterStSt = distributionParameterStSt;}
+	void SetDistributionParameterStSt(float distributionParameterStSt) {
+		m_distributionParameterStSt = distributionParameterStSt;
+		m_dggStSt.SetStd(m_distributionParameterStSt);
+	}
 
 	/**
 	 * Sets the discrete Gaussian Generator for keys
@@ -129,12 +137,12 @@ public:
 	 * @param fileFlag is an object-specific parameter for the serialization
 	 * @return true if successfully serialized
 	 */
-	bool Serialize(Serialized* serObj, const std::string fileFlag = "") const {
+	bool Serialize(Serialized* serObj) const {
 		if( !serObj->IsObject() )
 			return false;
 
 		SerialItem cryptoParamsMap(rapidjson::kObjectType);
-		if( this->SerializeRLWE(serObj, cryptoParamsMap, fileFlag) == false )
+		if( this->SerializeRLWE(serObj, cryptoParamsMap) == false )
 			return false;
 
 		cryptoParamsMap.AddMember("DistributionParameterStSt", std::to_string(this->GetDistributionParameterStSt()), serObj->GetAllocator());
@@ -181,6 +189,61 @@ private:
 	//Discrete Gaussian Generator for Key Generation
 	DiscreteGaussianGenerator m_dggStSt;
 };
+
+/**
+* @brief Encryption algorithm implementation template for Stehle-Stenfeld scheme,
+* @tparam Element a ring element.
+*/
+template <class Element>
+class LPEncryptionAlgorithmStehleSteinfeld : public LPAlgorithmLTV<Element> {
+public:
+
+	/**
+	* Default constructor
+	*/
+	LPEncryptionAlgorithmStehleSteinfeld() : LPAlgorithmLTV<Element>() {};
+	/**
+	* Constructor that initliazes the scheme
+	*
+	* @param &scheme is a reference to scheme
+	*/
+	LPEncryptionAlgorithmStehleSteinfeld(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPAlgorithmLTV<Element>(scheme) {};
+	/**
+	* Function to generate public and private keys
+	*
+	* @param &publicKey private key used for decryption.
+	* @param &privateKey private key used for decryption.
+	* @return function ran correctly.
+	*/
+	LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc) const;
+};
+
+/**
+* @brief Main public key encryption scheme for Stehle-Stenfeld scheme implementation,
+* @tparam Element a ring element.
+*/
+template <class Element>
+class LPPublicKeyEncryptionSchemeStehleSteinfeld : public LPPublicKeyEncryptionSchemeLTV<Element> {
+public:
+	/**
+	* Inherited constructor
+	*/
+	LPPublicKeyEncryptionSchemeStehleSteinfeld() : LPPublicKeyEncryptionSchemeLTV<Element>() {}
+	/**
+	* Constructor that initalizes the mask
+	*
+	*@param mask the mask to be initialized
+	*/
+	LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask);
+
+	/**
+	* Function to enable a scheme
+	*
+	*@param feature is the feature to enable
+	*/
+	void Enable(PKESchemeFeature feature);
+};
+
 
 }
 

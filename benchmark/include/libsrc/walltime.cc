@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "benchmark/macros.h"
+#include "../benchmark/macros.h"
 #include "internal_macros.h"
 #include "walltime.h"
 

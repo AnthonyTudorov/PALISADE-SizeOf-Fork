@@ -63,7 +63,7 @@ namespace lbcrypto {
 	* @brief Ideal lattice in vector representation or a vector in the double-CRT "matrix".  This is not fully implemented and is currently only stubs.
 	*/
 	//JSON FACILITY
-	class ILVector2n : public ILElement
+	class ILVector2n : public ILElement<ILVector2n>
 	{
 	public:
 
@@ -78,11 +78,10 @@ namespace lbcrypto {
 		* @param &params element parameters.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-        // ILVector2n(const ElemParams &params, Format format = EVALUATION);
-
         ILVector2n(const shared_ptr<ElemParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
+
     	ILVector2n(bool initializeElementToMax, const shared_ptr<ElemParams> params, Format format);
-		// void GenerateNoise(DiscreteGaussianGenerator &dgg, Format format = EVALUATION) ;
+
 
 		/**
 		* Constructor based on full methods.
@@ -121,28 +120,16 @@ namespace lbcrypto {
 		ILVector2n(const DiscreteUniformGenerator &dug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 
         /**
-         *  Create lambda that allocates a zeroed element with the specified
-         *  parameters and format
-         */
-        inline static function<unique_ptr<ILVector2n>()> MakeAllocator(shared_ptr<ILParams> params, Format format) {
-            return [=]() {
-                return lbcrypto::make_unique<ILVector2n>(params, format, true);
-            };
-        }
-
-        /**
          *  Create lambda that allocates a zeroed element for the case when it is called from a templated class
          */
-        inline static function<unique_ptr<ILVector2n>()> MakeAllocator(const shared_ptr<ElemParams> params, Format format) {
-            return [=]() {
-                //return MakeAllocator(*(static_cast<const ILParams*>(params)),format);
-            	ILParams *ip = dynamic_cast<ILParams *>( &*params );
-            	if( ip == 0 )
-            		throw std::logic_error("MakeAllocator was not passed an ILParams");
-            	shared_ptr<ILParams> pcast( ip );
-				return lbcrypto::make_unique<ILVector2n>(pcast, format, true);
-            };
-        }
+		inline static function<unique_ptr<ILVector2n>()> MakeAllocator(const shared_ptr<ElemParams> params, Format format) {
+			return [=]() {
+				shared_ptr<ILParams> ip = std::dynamic_pointer_cast<ILParams>(params);
+				if (ip == 0)
+					throw std::logic_error("MakeAllocator was not passed an ILParams");
+				return lbcrypto::make_unique<ILVector2n>(ip, format, true);
+			};
+		}
 
         /**
           *  Create lambda that allocates a zeroed element with the specified
@@ -503,6 +490,12 @@ namespace lbcrypto {
 		* @return is the result of the multiplication.
 		*/
 		//ILVector2n TimesNoMod(const ILVector2n &element) const;
+		/**
+		* Performs a negation operation and returns the result.
+		*
+		* @return is the result of the negation.
+		*/
+		ILVector2n Negate() const;
 
 		/**
 		* Performs an addition operation and returns the result.
@@ -542,6 +535,13 @@ namespace lbcrypto {
 		* @return is the result of the automorphism transform.
 		*/
 		ILVector2n AutomorphismTransform(const usint &i) const;
+
+		/**
+		* Transpose the ring element using the automorphism operation
+		*
+		* @return is the result of the transposition.
+		*/
+		ILVector2n Transpose() const;
 
 		/**
 		* Performs a multiplicative inverse operation and returns the result.
@@ -596,6 +596,10 @@ namespace lbcrypto {
 		*/
 		void Decompose();
 
+		void ModReduce(const BigBinaryInteger &plaintextModulus) {
+
+		}
+
 		/**
 		* Returns true if the vector is empty/ m_values==NULL  
 		*/
@@ -641,7 +645,7 @@ namespace lbcrypto {
 		* @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
 		* @result is the pointer where the base decomposition vector is stored
 		*/
-		void BaseDecompose(usint baseBits, std::vector<ILVector2n> *result) const;
+		std::vector<ILVector2n> BaseDecompose(usint baseBits) const;
 
 		/**
 		* Generate a vector of ILVector2n's as {x, base*x, base^2*x, ..., base^{\lfloor {\log q/base} \rfloor}*x, where x is the current ILVector2n object;
@@ -667,6 +671,14 @@ namespace lbcrypto {
 		* @return is the resulting vector from shifting right.
 		*/
 		ILVector2n ShiftRight(unsigned int n) const;
+
+		/**
+		* Interpolates based on the Chinese Remainder Transform Interpolation.
+		* Does nothing for ILVector2n. Needed to support the linear CRT interpolation in ILVectorArray2n.
+		*
+		* @return the original ring element.
+		*/
+		ILVector2n CRTInterpolate() const { return *this; }
 
 		/**
 		* Print the pre-computed discrete Gaussian samples.
@@ -710,10 +722,9 @@ namespace lbcrypto {
 		/**
 		* Serialize the object into a Serialized
 		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized* serObj, const std::string fileFlag = "") const;
+		bool Serialize(Serialized* serObj) const;
 
 		/**
 		* Populate the object from the deserialization of the Setialized
@@ -746,8 +757,6 @@ namespace lbcrypto {
 
 		// static variable to store the sample size for each set of ILParams
 		static const usint m_sampleSize = SAMPLE_SIZE;
-
-		bool m_empty;
 
 		// gets a random discrete Gaussian polynomial
 		static const ILVector2n GetPrecomputedVector();

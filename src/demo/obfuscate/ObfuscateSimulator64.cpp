@@ -121,18 +121,18 @@ bool CONJOBF(bool dbg_flag, int n_evals, int dataset) {
 	TIC(t_total); //start timer for total time
 
 	SecureParams const SECURE_PARAMS[] = {
-		{ 16, BigBinaryInteger("5708990770823839524233143877797980545530987489"), 
-			BigBinaryInteger("2871124317108133015614544170810431571900661628")}, //log q = 153 bits, n = 8
-		{ 32, BigBinaryInteger("1461501637330902918203684832716283019655932544737"), 
-			BigBinaryInteger("1120017560001505557243739706136598147391005753651")}, //log q = 161 bits, n = 16
-		{ 64, BigBinaryInteger("1496577676626844588240573268701473812127674924014657"), 
-			BigBinaryInteger("1379841288083111215079428543099078244558789930374468") }, // log q = 170 bits, n = 32
-		{ 128, BigBinaryInteger("191561942608236107294793378393788647952342390272957441"), 
-			BigBinaryInteger("6289792039105881560887448632045421152701129202197138") },  // log q = 178 bits, n = 64
-		{ 256, BigBinaryInteger("49039857307708443467467104868809893875799651909875291649"), 
-			BigBinaryInteger("7800566229932251416411159640097170979111010776670995833") }, // log q = 186 bits, n = 128
-		{ 512, BigBinaryInteger("12554203470773361527671578846415332832204710888928069028353"), 
-			BigBinaryInteger("9168343011585456831297432102331778720794109582842386589685") }  // log q = 194 bits, n = 256
+		{ 16, BigBinaryInteger("43556142965880123323311949751266331066401"), 
+			BigBinaryInteger("14545816447476290645730048328209828657088")}, //log q = 136 bits, n = 8
+		{ 32, BigBinaryInteger("22300745198530623141535718272648361505983617"), 
+			BigBinaryInteger("12659382848989253083234075607466864039877211")}, //log q = 145 bits, n = 16
+		{ 64, BigBinaryInteger("11417981541647679048466287755595961091061977089"), 
+			BigBinaryInteger("1007916608784655986016386977983079921261559660") }, // log q = 154 bits, n = 32
+		{ 128, BigBinaryInteger("5846006549323611672814739330865132078623730184193"), 
+			BigBinaryInteger("3155961817812071825040224700227120407350694039775") },  // log q = 163 bits, n = 64
+		{ 256, BigBinaryInteger("1496577676626844588240573268701473812127674924037889"), 
+			BigBinaryInteger("179133309144684603523262206951399949193599414783215") }, // log q = 171 bits, n = 128
+		{ 512, BigBinaryInteger("766247770432944429179173513575154591809369561091812353"), 
+			BigBinaryInteger("485116680269729587858068920088730516912474628648452514") }  // log q = 180 bits, n = 256
 	};
 
 	//Set element params
@@ -157,7 +157,6 @@ bool CONJOBF(bool dbg_flag, int n_evals, int dataset) {
 	//Set crypto parametes
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev);			// Create the noise generator
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
-	BinaryUniformGenerator bug = BinaryUniformGenerator();			// Create the noise generator
 
 	DEBUG("Cryptosystem initialization: Performing precomputations...");
 
@@ -219,11 +218,11 @@ bool CONJOBF(bool dbg_flag, int n_evals, int dataset) {
 	timeKeyGen = TOC(t1);
 	DEBUG( "Key generation time: " << "\t" << timeKeyGen << " ms");
 
-	BinaryUniformGenerator dbg = BinaryUniformGenerator();	
+	TernaryUniformGenerator tug = TernaryUniformGenerator();	
 
 	DEBUG( "Obfuscation Execution started");
 	TIC(t1);
-	algorithm.Obfuscate(clearPattern,dgg,dbg,&obfuscatedPattern);
+	algorithm.Obfuscate(clearPattern,dgg,tug,&obfuscatedPattern);
 	timeObf = TOC(t1);
 	DEBUG( "Obfuscation time: " << "\t" << timeObf<< " ms");
 

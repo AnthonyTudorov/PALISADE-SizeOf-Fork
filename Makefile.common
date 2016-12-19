@@ -41,7 +41,10 @@ CC := g++ # This is the main compiler
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w -g -fopenmp  ##undefine for parallel debug operation
 #CPPFLAGS += -Wall $(CPPSTD) -w  -DNDEBUG -m64 -Ofast -flto -march=native -funroll-loops ##undefine for single thread best performance operation
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w  -DNDEBUG  -pg ##undefine for single thread best performance operation with gprof profiling 
-CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp  ##undefine for parallel best performance operation
+#CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp  ##undefine for parallel best performance operation
+#CPPFLAGS += -Wall $(CPPSTD) -w  -DNDEBUG -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
+#CPPFLAGS += -Wall $(CPPSTD) -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp -DNDEBUG ##undefine for multithread really best performance operation
+#CPPFLAGS += -Wall $(CPPSTD) -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
 
 
 #fundamental locations in the palisade directory structure

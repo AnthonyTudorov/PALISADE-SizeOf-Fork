@@ -39,8 +39,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <fstream>
 #include <iterator>
 
-#include "../lib/palisade.h"
-#include "../lib/palisadespace.h"
+#include "../../lib/palisade.h"
+#include "../../lib/palisadespace.h"
 
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/crypto/cryptocontext.cpp"
@@ -51,7 +51,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 using namespace lbcrypto;
 
-void NTRUPRE(CryptoContext<ILVector2n>& ctx, bool);
+void NTRUPRE(CryptoContext<ILVector2n>& ctx, string& parmset, bool dojson);
 
 #include "../../lib/utils/serializablehelper.h"
 
@@ -65,7 +65,6 @@ void usage()
 {
 	cout << "args are:" << endl;
 	cout << "-dojson : includes the json tests" << endl;
-	cout << "an arg not beginning with a - is taken as a filename of parameters" << endl;
 }
 
 int
@@ -103,10 +102,14 @@ main(int argc, char *argv[])
 	ctx.Enable(ENCRYPTION);
 	ctx.Enable(PRE);
 
-	NTRUPRE(ctx, doJson);
+	NTRUPRE(ctx, input, doJson);
 
-	//	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	//	NumberTheoreticTransform::GetInstance().Destroy();
+	try {
+		ChineseRemainderTransformFTT::GetInstance().Destroy();
+		NumberTheoreticTransform::GetInstance().Destroy();
+	} catch (...) {
+		// ok if this fails...
+	}
 
 	return 0;
 }
@@ -128,7 +131,7 @@ main(int argc, char *argv[])
 //////////////////////////////////////////////////////////////////////
 
 void
-NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
+NTRUPRE(CryptoContext<ILVector2n>& ctx, string& parmset, bool doJson) {
 
 	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	//BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
@@ -146,11 +149,16 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 
 	//This code is run only when performing execution time measurements
 
-	//	//Precomputations for FTT
-	//	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-	//
-	//	//Precomputations for DGG
-	//	ILVector2n::PreComputeDggSamples(dgg, ilParams);
+	try {
+		//Precomputations for DGG
+		ILVector2n::PreComputeDggSamples(ctx.GetGenerator(), ctx.GetElementParams());
+
+		//Precomputations for TUG
+		TernaryUniformGenerator tug;
+		ILVector2n::PreComputeTugSamples(tug, ctx.GetElementParams());
+	} catch (...) {
+		// ignore if this fails... which it will in some cases, like if there is no generator in use
+	}
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -260,9 +268,13 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
+
+	try {
+
 	start = currentDateTime();
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey = ctx.ReKeyGen(newKp.publicKey, kp.secretKey);
+	evalKey = ctx.ReKeyGen(newKp.publicKey, kp.secretKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -319,6 +331,9 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 	}
 
 	std::cout << "Execution completed." << std::endl;
+	} catch (const exception& e) {
+		cout << "Re Encryption threw exception: " << e.what() << endl;
+	}
 
 	BytePlaintextEncoding newPlaintext("1) SERIALIZE CRYPTO-OBJS TO FILE AS NESTED JSON STRUCTURES\n2) DESERIALIZE JSON FILES INTO CRYPTO-OBJS USED FOR CRYPTO-APIS\n3) Profit!!!!!");
 
@@ -333,7 +348,7 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, bool doJson) {
 		tjp.evalKey = evalKey;
 		tjp.newSK = newKp.secretKey;
 
-		testJson<ILVector2n>("LTV", newPlaintext, &tjp);
+		testJson<ILVector2n>(parmset, newPlaintext, &tjp, !evalKey ? true: false);
 	}
 
 	fout.close();

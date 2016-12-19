@@ -39,11 +39,15 @@
 #include "nbtheory.h"
 #include "../utils/utilities.h"
 #include <chrono>
+#include <complex>
 #include <time.h>
 #include <map>
 #include <fstream>
 #include <thread>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 /**
  * @namespace lbcrypto
  * The namespace of lbcrypto
@@ -255,7 +259,45 @@ private:
 	ChineseRemainderTransformFTT& operator=(ChineseRemainderTransform const&){};
 };
 
+/**
+* @brief Discrete Fourier Transform FFT implemetation.
+*/
+class DiscreteFourierTransform
+{
+public:
+	/**
+	* Virtual FFT forward transform.
+	*
+	* @param A is the element to perform the transform on.
+	* @return is the output result of the transform.
+	*/
+	std::vector<std::complex<double>> FFTForwardTransform(std::vector<std::complex<double>>& A);
 
+	/**
+	* Virtual FFT inverse transform.
+	*
+	* @param A is the element to perform the inverse transform on.
+	* @return is the output result of the inverse transform.
+	*/
+	std::vector<std::complex<double>> FFTInverseTransform(std::vector<std::complex<double>>& A);
+	
+	/**
+	* Virtual forward transform.
+	*
+	* @param A is the element to perform the transform on.
+	* @return is the output result of the transform.
+	*/
+	std::vector<std::complex<double>> ForwardTransform(std::vector<std::complex<double>> A);
+
+	/**
+	* Virtual inverse transform.
+	*
+	* @param A is the element to perform the inverse transform on.
+	* @return is the output result of the inverse transform.
+	*/
+	std::vector<std::complex<double>> InverseTransform(std::vector<std::complex<double>> A);
+private:
+};
 
 
 } // namespace lbcrypto ends

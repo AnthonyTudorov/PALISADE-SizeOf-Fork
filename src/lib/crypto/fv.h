@@ -79,7 +79,6 @@ namespace lbcrypto {
 			 * @param assuranceMeasure assurance level.
 			 * @param securityLevel security level.
 			 * @param relinWindow the size of the relinearization window.
-			 * @param dgg discrete Gaussian generator instance
 			 * @param mode optimization setting (RLWE vs OPTIMIZED)
 			 * @param bigModulus modulus used in polynomial multiplications in EvalMult
 			 * @param bigRootOfUnity root of unity for bigModulus
@@ -91,7 +90,6 @@ namespace lbcrypto {
 				float assuranceMeasure, 
 				float securityLevel, 
 				usint relinWindow,
-				const DiscreteGaussianGenerator &dgg,
 				const BigBinaryInteger &delta,
 				MODE mode,
 				const BigBinaryInteger &bigModulus,
@@ -103,7 +101,6 @@ namespace lbcrypto {
 						assuranceMeasure,
 						securityLevel,
 						relinWindow,
-						dgg,
 						depth) {
 						m_delta = delta;
 						m_mode = mode;
@@ -123,13 +120,18 @@ namespace lbcrypto {
 			* @param fileFlag is an object-specific parameter for the serialization
 			* @return true if successfully serialized
 			*/
-			bool Serialize(Serialized* serObj, const std::string fileFlag = "") const {
+			bool Serialize(Serialized* serObj) const {
 				if( !serObj->IsObject() )
 					return false;
 
 				SerialItem cryptoParamsMap(rapidjson::kObjectType);
-				if( this->SerializeRLWE(serObj, cryptoParamsMap, fileFlag) == false )
+				if( this->SerializeRLWE(serObj, cryptoParamsMap) == false )
 					return false;
+
+				cryptoParamsMap.AddMember("delta", m_delta.ToString(), serObj->GetAllocator());
+				cryptoParamsMap.AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
+				cryptoParamsMap.AddMember("bigmodulus", m_bigModulus.ToString(), serObj->GetAllocator());
+				cryptoParamsMap.AddMember("bigrootofunity", m_bigRootOfUnity.ToString(), serObj->GetAllocator());
 
 				serObj->AddMember("LPCryptoParametersFV", cryptoParamsMap.Move(), serObj->GetAllocator());
 				serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersFV", serObj->GetAllocator());
@@ -146,7 +148,32 @@ namespace lbcrypto {
 				Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersFV");
 				if( mIter == serObj.MemberEnd() ) return false;
 
-				return this->DeserializeRLWE(mIter);
+				if( this->DeserializeRLWE(mIter) == false )
+					return false;
+
+				SerialItem::ConstMemberIterator pIt;
+				if( (pIt = mIter->value.FindMember("delta")) == mIter->value.MemberEnd() )
+					return false;
+				BigBinaryInteger delta(pIt->value.GetString());
+
+				if( (pIt = mIter->value.FindMember("mode")) == mIter->value.MemberEnd() )
+					return false;
+				MODE mode = (MODE)atoi(pIt->value.GetString());
+
+				if( (pIt = mIter->value.FindMember("bigmodulus")) == mIter->value.MemberEnd() )
+					return false;
+				BigBinaryInteger bigmodulus(pIt->value.GetString());
+
+				if( (pIt = mIter->value.FindMember("bigrootofunity")) == mIter->value.MemberEnd() )
+					return false;
+				BigBinaryInteger bigrootofunity(pIt->value.GetString());
+
+				this->SetBigModulus(bigmodulus);
+				this->SetBigRootOfUnity(bigrootofunity);
+				this->SetMode(mode);
+				this->SetDelta(delta);
+
+				return true;
 			}
 
 			/**
@@ -234,12 +261,13 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmParamsGenFV : public LPParameterGenerationAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> { //public LPSHEAlgorithm<Element>, 
+	class LPAlgorithmParamsGenFV : public LPParameterGenerationAlgorithm<Element> { //public LPSHEAlgorithm<Element>, 
 	public:
 
-		//inherited constructors
-		LPAlgorithmParamsGenFV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-		LPAlgorithmParamsGenFV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+		/**
+		 * Default constructor
+		 */
+		LPAlgorithmParamsGenFV() {}
 
 		/**
 		* Method for computing all derived parameters based on chosen primitive parameters
@@ -259,12 +287,13 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmFV : public LPEncryptionAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+	class LPAlgorithmFV : public LPEncryptionAlgorithm<Element> {
 	public:
 
-		//inherited constructors
-		LPAlgorithmFV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-		LPAlgorithmFV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+		/**
+		 * Default constructor
+		 */
+		LPAlgorithmFV() {}
 
 		/**
 		* Method for encrypting plaintext using FV
@@ -303,29 +332,13 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmSHEFV : public LPSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> { //public LPSHEAlgorithm<Element>, 
+	class LPAlgorithmSHEFV : public LPSHEAlgorithm<Element> { //public LPSHEAlgorithm<Element>, 
 	public:
 
-		//inherited constructors
-		LPAlgorithmSHEFV() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-		LPAlgorithmSHEFV(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
-
 		/**
-		* Function to generate 1..log(q) encryptions for each bit of the original private key
-		*
-		* @param &newPrivateKey encryption key for the new ciphertext.
-		* @param &origPrivateKey original private key used for decryption.
-		* @param &ddg discrete Gaussian generator.
-		* @param *evalKey the evaluation key.
-		*/
-		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
-					const shared_ptr<LPPrivateKey<Element>> k1,
-					const shared_ptr<LPPrivateKey<Element>> k2) const;
-		
-		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2) const {
-					std::string errMsg = "LPAlgorithmSHEFV::EvalMult without RelinKey is not applicable for FV SHE Scheme.";
-					throw std::runtime_error(errMsg);
-		}
+		 * Default constructor
+		 */
+		LPAlgorithmSHEFV() {}
 
 		/**
 		* Function for homomorphic addition of ciphertexts.
@@ -345,6 +358,11 @@ namespace lbcrypto {
 		*/
 		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct) const;
 
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2) const {
+			std::string errMsg = "LPAlgorithmSHEFV::EvalMult without RelinKey is not applicable for FV SHE Scheme.";
+			throw std::runtime_error(errMsg);
+		}
+
 		/**
 		* Function for evaluating multiplication on ciphertext followed by key switching operation.
 		*
@@ -354,7 +372,73 @@ namespace lbcrypto {
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1,
-				const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
+			const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
+
+		/**
+		* Method for generating a KeySwitchHint
+		*
+		* @param &originalPrivateKey Original private key used for encryption.
+		* @param &newPrivateKey New private key to generate the keyswitch hint.
+		* @param *keySwitchHint is where the resulting keySwitchHint will be placed.
+		*/
+		shared_ptr<LPEvalKey<Element>> KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
+			std::string errMsg = "LPAlgorithmSHEFV::KeySwitchGen  is not applicable for FV SHE Scheme.";
+			throw std::runtime_error(errMsg);
+		}
+
+		/**
+		* Method for KeySwitching based on a KeySwitchHint
+		*
+		* @param &keySwitchHint Hint required to perform the ciphertext switching.
+		* @param &cipherText Original ciphertext to perform switching on.
+		*/
+		shared_ptr<Ciphertext<Element>> KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint, const shared_ptr<Ciphertext<Element>> cipherText) const {
+			std::string errMsg = "LPAlgorithmSHEFV::KeySwitch  is not applicable for FV SHE Scheme.";
+			throw std::runtime_error(errMsg);
+		}
+
+		/**
+		* Function to generate 1..log(q) encryptions for each bit of the original private key
+		*
+		* @param &newPrivateKey encryption key for the new ciphertext.
+		* @param &origPrivateKey original private key used for decryption.
+		* @param &ddg discrete Gaussian generator.
+		* @param *evalKey the evaluation key.
+		*/
+		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+					const shared_ptr<LPPrivateKey<Element>> k1) const;
+		
+		/**
+		* Function for evaluating ciphertext at an index; works only with odd indices in the ciphertext
+		*
+		* @param ciphertext the input ciphertext.
+		* @param i index of the item to be "extracted", starts with 2.
+		* @param &evalKeys - reference to the vector of evaluation keys generated by EvalAutomorphismKeyGen.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, const usint i,
+			const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
+			std::string errMsg = "LPAlgorithmSHEFV::EvalAtIndex  is not applicable for FV SHE Scheme.";
+			throw std::runtime_error(errMsg);
+		}
+
+
+		/**
+		* Generate automophism keys for a given private key; works only with odd indices in the ciphertext
+		*
+		* @param &publicKey original public key.
+		* @param &origPrivateKey original private key.
+		* @param size number of automorphims to be computed; starting from plaintext index 2; maximum is m/2-1
+		* @param *tempPrivateKey used to store permutations of private key; passed as pointer because instances of LPPrivateKey cannot be created within the method itself
+		* @param *evalKeys the evaluation keys; index 0 of the vector corresponds to plaintext index 2, index 1 to plaintex index 3, etc.
+		*/
+		bool EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+			const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
+			const usint size, shared_ptr<LPPrivateKey<Element>> *tempPrivateKey,
+			std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const {
+			std::string errMsg = "LPAlgorithmSHEFV::EvalAutomorphismKeyGen  is not applicable for FV SHE Scheme.";
+			throw std::runtime_error(errMsg);
+		}
+
 	};
 
 	/**
@@ -365,7 +449,7 @@ namespace lbcrypto {
 	class LPPublicKeyEncryptionSchemeFV : public LPPublicKeyEncryptionScheme<Element> {
 	public:
 		LPPublicKeyEncryptionSchemeFV() : LPPublicKeyEncryptionScheme<Element>() {
-			this->m_algorithmParamsGen = new LPAlgorithmParamsGenFV<Element>(*this);
+			this->m_algorithmParamsGen = new LPAlgorithmParamsGenFV<Element>();
 		}
 		LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask);
 

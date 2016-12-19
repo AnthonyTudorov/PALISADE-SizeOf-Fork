@@ -28,13 +28,13 @@
  *
  * @section DESCRIPTION
  *
- * This code provides the core proxy re-encryption functionality.
+ * This code provides the definitions for the LTV scheme
  */
 
 #ifndef LBCRYPTO_CRYPTO_LTV_H
 #define LBCRYPTO_CRYPTO_LTV_H
 
-#include "../crypto/rlwe.h"
+#include "../palisade.h"
 
 namespace lbcrypto {
 
@@ -47,13 +47,13 @@ class LPCryptoParametersLTV: public LPCryptoParametersRLWE<Element> {
 public:
 
 	/**
-	 * Constructor that initializes all values to 0.
+	 * Default constructor
 	 */
 	LPCryptoParametersLTV() : LPCryptoParametersRLWE<Element>() {}
 
 	/**
 	 * Copy constructor.
-	 *
+	 * @param rhs - source
 	 */
 	LPCryptoParametersLTV(const LPCryptoParametersLTV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {}
 
@@ -75,7 +75,6 @@ public:
 			float assuranceMeasure,
 			float securityLevel,
 			usint relinWindow,
-			const DiscreteGaussianGenerator &dgg,
 			int depth = 1)
 	: LPCryptoParametersRLWE<Element>(
 			params,
@@ -84,7 +83,6 @@ public:
 			assuranceMeasure,
 			securityLevel,
 			relinWindow,
-			dgg,
 			depth) {}
 
 	/**
@@ -92,19 +90,18 @@ public:
 	 */
 	virtual ~LPCryptoParametersLTV() {}
 
-	//JSON FACILITY
 	/**
-	 * Serialize the object into a Serialized
-	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	 * @param fileFlag is an object-specific parameter for the serialization
-	 * @return true if successfully serialized
+	 * Serialize the LTV Crypto Parameters
+	 *
+	 * @param serObj - rapidJson object for the serializaion
+	 * @return true on success
 	 */
-	bool Serialize(Serialized* serObj, const std::string fileFlag = "") const {
+	bool Serialize(Serialized* serObj) const {
 		if( !serObj->IsObject() )
 			return false;
 
 		SerialItem cryptoParamsMap(rapidjson::kObjectType);
-		if( this->SerializeRLWE(serObj, cryptoParamsMap, fileFlag) == false )
+		if( this->SerializeRLWE(serObj, cryptoParamsMap) == false )
 			return false;
 
 		serObj->AddMember("LPCryptoParametersLTV", cryptoParamsMap.Move(), serObj->GetAllocator());
@@ -114,8 +111,9 @@ public:
 	}
 
 	/**
-	 * Populate the object from the deserialization of the Setialized
-	 * @param serObj contains the serialized object
+	 * Deserialize the LTV Crypto Parameters
+	 *
+	 * @param serObj
 	 * @return true on success
 	 */
 	bool Deserialize(const Serialized& serObj) {
@@ -126,42 +124,11 @@ public:
 	}
 
 	/**
-	 * Creates a new set of parameters for LPCryptoParametersLTV amid a new ILDCRTParams. The new ILDCRTParams will allow for
-	 * SHE operations of the existing depth. Note that the cyclotomic order also changes.
-	 *
-	 * @param *cryptoParams is where the resulting new LPCryptoParametersLTV will be placed in.
+	 * ParameterSelection for LTV Crypto Parameters
+	 * FIXME this will be replaced by the new mechanism for crypto params
+	 * @param cryptoParams
 	 */
-	template <class ILVectorArray2n>
-	void ParameterSelection(LPCryptoParametersLTV<ILVectorArray2n> *cryptoParams) {
-
-		//defining moduli outside of recursive call for efficiency
-		std::vector<BigBinaryInteger> moduli(this->m_depth+1);
-		moduli.reserve(this->m_depth+1);
-
-		usint n = this->GetElementParams()->GetCyclotomicOrder()/2;
-		// set the values for n (ring dimension) and chain of moduli
-		this->ParameterSelection(n, moduli);
-
-		cryptoParams->SetAssuranceMeasure(this->m_assuranceMeasure);
-		cryptoParams->SetDepth(this->m_depth);
-		cryptoParams->SetSecurityLevel(this->m_securityLevel);
-		cryptoParams->SetDistributionParameter(this->m_distributionParameter);
-		cryptoParams->SetDiscreteGaussianGenerator(this->m_dgg);
-		cryptoParams->SetPlaintextModulus(this->GetPlaintextModulus());
-
-		std::vector<BigBinaryInteger> rootsOfUnity;
-		rootsOfUnity.reserve(this->m_depth+1);
-		usint m = n*2; //cyclotomic order
-		BigBinaryInteger rootOfUnity;
-
-		for(usint i = 0; i < this->m_depth+1; i++){
-			rootOfUnity = RootOfUnity(m, moduli.at(i));
-			rootsOfUnity.push_back(rootOfUnity);
-		}
-
-		shared_ptr<ElemParams> newElemParams( new ILDCRTParams(m, moduli, rootsOfUnity) );
-		cryptoParams->SetElementParams(newElemParams);
-	}
+	void ParameterSelection(LPCryptoParametersLTV<ILVectorArray2n> *cryptoParams);
 
 	/**
 	 * == operator to compare to this instance of LPCryptoParametersLTV object.
@@ -178,6 +145,7 @@ public:
 private:
 
 	//helper function for ParameterSelection. Splits the string 's' by the delimeter 'c'.
+	// FIXME this goes away
 	std::string split(const std::string s, char c){
 		std::string result;
 		const char *str = s.c_str();
@@ -189,65 +157,327 @@ private:
 	}
 
 	//function for parameter selection. The public ParameterSelection function is a wrapper around this function.
-	void ParameterSelection(usint& n, vector<BigBinaryInteger> &moduli) {
-		int t = this->m_depth + 1;
-		int d = this->m_depth;
-
-		BigBinaryInteger pBigBinaryInteger(this->GetPlaintextModulus());
-		int p = pBigBinaryInteger.ConvertToInt();
-		double w = this->m_assuranceMeasure;
-		double r = this->m_distributionParameter;
-		double rootHermitFactor = this->m_securityLevel;
-
-		double sqrtn = sqrt(n);
-		double q1 = 4 * p * r * sqrtn * w;
-		double q2 = 4 * pow(p, 2) * pow(r, 5) * pow(sqrtn, 3) * pow(w, 5);
-
-		BigBinaryInteger plaintextModulus(p);
-
-		double* q = new double[t];
-		q[0] = q1;
-		for(int i=1; i<t; i++)
-			q[i] = q2;
-
-		double sum = 0.0;
-		for(int i=0; i<t; i++) {
-			sum += log(q[i]);
-		}
-
-		int next = ceil(sum/ (4 * log(rootHermitFactor)));
-		int nprime = pow(2, ceil(log(next)/log(2)));
-		char c = '.';
-
-		if(n == nprime) {
-			sum = 0.0;
-			for(int i=0; i<t; i++) {
-				moduli[i] = BigBinaryInteger(split(std::to_string(q[i]), c));
-				if(i == 0 || i == 1){
-					NextQ(moduli[i], pBigBinaryInteger, n, BigBinaryInteger("4"), BigBinaryInteger("4"));
-				}
-				else{
-					moduli[i] = moduli[i-1];
-					NextQ(moduli[i], pBigBinaryInteger, n, BigBinaryInteger("4"), BigBinaryInteger("4"));
-				}
-				q[i] = moduli[i].ConvertToDouble();
-				sum += log(q[i]);
-			}
-
-			int nprimeCalcFactor = ceil(sum/ (4 * log(rootHermitFactor)));
-			if(nprime < nprimeCalcFactor){
-				n *= 2;
-				ParameterSelection(n, moduli);
-			}
-		} else {
-			n *= 2;
-			ParameterSelection(n, moduli);
-		}
-
-		delete q;
-	}
-
+	// FIXME this goes away
+	void ParameterSelection(usint& n, vector<BigBinaryInteger> &moduli);
 };
+
+/**
+* @brief Encryption algorithm implementation template for Ring-LWE NTRU-based schemes,
+* @tparam Element a ring element.
+*/
+template <class Element>
+class LPAlgorithmLTV : public LPEncryptionAlgorithm<Element> {
+public:
+
+	/**
+	 * Default Constructor
+	 */
+	LPAlgorithmLTV() {}
+
+	/**
+	 * Encrypt method for LTV Scheme
+	 *
+	 * @param publicKey - the encryption key
+	 * @param plaintext - plaintext to be encrypted
+	 * @return a shared pointer to the encrypted Cyphertext
+	 */
+	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Element &plaintext) const;
+
+	/**
+	* Method for decrypting plaintext using Ring-LWE NTRU
+	*
+	* @param &privateKey private key used for decryption.
+	* @param &ciphertext ciphertext id decrypted.
+	* @param *plaintext the plaintext output.
+	* @return an instance of DecryptResult related to the plaintext that is decrypted
+	*/
+	/**
+	 * Decrypt method for LTV Scheme
+	 *
+	 * @param privateKey - decryption key
+	 * @param ciphertext - Ciphertext to be decrypted
+	 * @param plaintext - Plaintext result of Decrypt operation
+	 * @return DecryptResult indicating success or failure and number of bytes decrypted
+	 */
+	DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const shared_ptr<Ciphertext<Element>> ciphertext,
+		Element *plaintext) const;
+
+	/**
+	 * KeyGen
+	 *
+	 * @param cc - crypto context in which to generate a key pair
+	 * @return public and private key pair
+	 */
+	virtual LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc) const;
+};
+
+/**
+* @brief Template for crypto PRE.
+* @tparam Element a ring element.
+*/
+template <class Element>
+class LPAlgorithmPRELTV : public LPPREAlgorithm<Element> {
+public:
+
+	/**
+	* Default constructor
+	*/
+	LPAlgorithmPRELTV() {}
+
+	/**
+	* Function to generate 1..log(q) encryptions for each bit of the original private key
+	*
+	* @param &newPublicKey encryption key for the new ciphertext.
+	* @param origPrivateKey original private key used for decryption.
+	*/
+	shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPKey<Element>> newPublicKey,
+		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const;
+
+	/**
+	* Function to define the interface for re-encypting ciphertext using the array generated by ProxyGen
+	*
+	* @param evalKey the evaluation key.
+	* @param ciphertext the input ciphertext.
+	* @return the resulting Ciphertext
+	*/
+	shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
+		const shared_ptr<Ciphertext<Element>> ciphertext) const;
+};
+
+/**
+* Evaluation multiplication for homomorphic encryption operations.
+*
+* @brief Template for crypto PRE.
+* @tparam Element a ring element.
+*/
+template <class Element>
+class LPAlgorithmSHELTV : public LPSHEAlgorithm<Element> {
+public:
+
+	/**
+	* Default constructor
+	*/
+	LPAlgorithmSHELTV() {}
+
+	/**
+	* Function for evaluation addition on ciphertext.
+	*
+	* @param ciphertext1 first input ciphertext.
+	* @param ciphertext2 second input ciphertext.
+	* @return resulting EvalAdded ciphertext.
+	*/
+
+	shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
+		const shared_ptr<Ciphertext<Element>> ciphertext2) const;
+
+	/**
+	* Function for homomorphic subtraction of ciphertexts.
+	*
+	* @param ciphertext1 the input ciphertext.
+	* @param ciphertext2 the input ciphertext.
+	* @return resutling EvalSub ciphertext.
+	*/
+	shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
+		const shared_ptr<Ciphertext<Element>> ciphertext2) const;
+
+	/**
+	* Function for evaluating multiplication on ciphertext.
+	*
+	* @param ciphertext1 first input ciphertext.
+	* @param ciphertext2 second input ciphertext.
+	* @return resutling EvalMult ciphertext.
+	*/
+	shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+		const shared_ptr<Ciphertext<Element>> ciphertext2) const;
+
+	/**
+	* Function for evaluating multiplication on ciphertext with Eval Key.
+	*
+	* @param ciphertext1 first input ciphertext.
+	* @param ciphertext2 second input ciphertext.
+	* @return resutling EvalMult ciphertext with proper
+	*/
+	shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+		const shared_ptr<Ciphertext<Element>> ciphertext2,
+		const shared_ptr<LPEvalKey<Element>> evalKey) const; // HS- This doesn't look like its implemented.
+	/**
+	* Method for generating a KeySwitchHint
+	*
+	* @param &k1 Original private key used for encryption.
+	* @param &k2 New private key to generate the keyswitch hint.
+    * @result keyswitchhint.
+	*/
+	shared_ptr<LPEvalKey<Element>> KeySwitchGen(
+		const shared_ptr<LPPrivateKey<Element>> k1,
+		const shared_ptr<LPPrivateKey<Element>> k2) const;
+
+	/**
+	* Method for KeySwitching based on a KeySwitchHint
+	*
+	* @param keySwitchHint Hint required to perform the ciphertext switching.
+	* @param cipherText Original ciphertext to perform switching on.
+	* @result the resulting ciphertext
+	*/
+	shared_ptr<Ciphertext<Element>> KeySwitch(
+		const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+		const shared_ptr<Ciphertext<Element>> cipherText) const;
+
+	/**
+	* Function to generate key switch hint on a ciphertext for depth 2.
+	*
+	* @param &newPrivateKey private key for the new ciphertext.
+	* @param *keySwitchHint the key switch hint.
+	* @return resulting evalkeyswitch hint
+	*/
+	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const;
+
+	/**
+	* Function for evaluating ciphertext at an index; works only with odd indices in the ciphertext
+	*
+	* @param ciphertext the input ciphertext.
+	* @param i index of the item to be "extracted", starts with 2.
+	* @param &evalKeys - reference to the vector of evaluation keys generated by EvalAutomorphismKeyGen.
+	*/
+	shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, const usint i,
+		const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const;
+
+	/**
+	* Generate automophism keys for a given private key; works only with odd indices in the ciphertext
+	*
+	* @param &publicKey original public key.
+	* @param &origPrivateKey original private key.
+	* @param size number of automorphims to be computed; starting from plaintext index 2; maximum is m/2-1
+	* @param *tempPrivateKey used to store permutations of private key; passed as pointer because instances of LPPrivateKey cannot be created within the method itself
+	* @param *evalKeys the evaluation keys; index 0 of the vector corresponds to plaintext index 2, index 1 to plaintex index 3, etc.
+	*/
+	virtual bool EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+		const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
+		const usint size, shared_ptr<LPPrivateKey<Element>> *tempPrivateKey,
+		std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const;
+};
+
+
+/**
+* @brief Concrete feature class for Leveled SHELTV operations
+* @tparam Element a ring element.
+*/
+template <class Element>
+class LPLeveledSHEAlgorithmLTV : public LPLeveledSHEAlgorithm<Element> {
+public:
+	/**
+	* Default constructor
+	*/
+	LPLeveledSHEAlgorithmLTV() {}
+
+	/**
+	* Method for ModReducing CipherText and the Private Key used for encryption.
+	*
+	* @param cipherText Ciphertext to perform and apply modreduce on.
+	* @return resulting modreduced ciphertext
+	*/
+	virtual shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const;
+	/**
+	* Method for RingReducing CipherText and the Private Key used for encryption.
+	*
+	* @param cipherText Ciphertext to perform and apply ringreduce on.
+	* @param keySwitchHint is the keyswitchhint from the ciphertext's private key to a sparse key
+	* @return resulting RingReduced ciphertext
+	*/
+	virtual shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const;
+
+	/**
+	* Method for ComposedEvalMult
+	*
+	* @param cipherText1 ciphertext1, first input ciphertext to perform multiplication on.
+	* @param cipherText2 cipherText2, second input ciphertext to perform multiplication on.
+	* @param quadKeySwitchHint is for resultant quadratic secret key after multiplication to the secret key of the particular level.
+	* @return the resulting ciphertext that can be decrypted with the secret key of the particular level.
+	*/
+	virtual shared_ptr<Ciphertext<Element>> ComposedEvalMult(
+		const shared_ptr<Ciphertext<Element>> cipherText1,
+		const shared_ptr<Ciphertext<Element>> cipherText2,
+		const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const;
+
+	/**
+	* Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
+	*
+	* @param cipherText1 is the original ciphertext to be key switched and mod reduced.
+	* @param linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
+	* @return the resulting ciphertext.
+	*/
+	virtual shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
+		const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const;
+	/**
+	* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
+	* and odd indices are set to zero.
+	*
+	* @param cc required cryptocontext.
+	* @return sparsekey pair.
+	*/
+	virtual LPKeyPair<Element> SparseKeyGen(const CryptoContext<Element> cc) const;
+	/**
+	* Function that determines if security requirements are met if ring dimension is reduced by half.
+	*
+	* @param ringDimension is the original ringDimension
+	* @param &moduli is the vector of moduli that is used
+	* @param rootHermiteFactor is the security threshold
+	*/
+	virtual bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const;
+};
+
+/**
+* @brief Template for crypto PRE.
+* @tparam Element a ring element.
+*/
+template <class Element>
+class LPAlgorithmFHELTV : public LPFHEAlgorithm<Element> {
+public:
+
+	/**
+	* Default constructor
+	*/
+	LPAlgorithmFHELTV() {}
+
+	/**
+	* Virtual function to define the interface for evaluation addition on ciphertext.
+	*
+	* @param &ciphertext the input ciphertext.
+	* @param *newCiphertext the new ciphertext.
+	*/
+	void Bootstrap(const Ciphertext<Element> &ciphertext,
+		Ciphertext<Element> *newCiphertext)  const;
+};
+
+
+/**
+* @brief Main public key encryption scheme for LTV implementation,
+* @tparam Element a ring element.
+*/
+template <class Element>
+class LPPublicKeyEncryptionSchemeLTV : public LPPublicKeyEncryptionScheme<Element> {
+public:
+	/**
+	* Inherited constructor
+	*/
+	LPPublicKeyEncryptionSchemeLTV() : LPPublicKeyEncryptionScheme<Element>() {}
+	/**
+	* Constructor that initalizes the mask
+	*
+	*@param mask the mask to be initialized
+	*/
+	LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask);
+
+	//These functions can be implemented later
+	//Initialize(mask);
+	/**
+	* Function to enable a scheme
+	*
+	*@param feature is the feature to enable
+	*/
+	void Enable(PKESchemeFeature feature);
+};
+
 }
 
 #endif

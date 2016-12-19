@@ -33,15 +33,13 @@
 #include "../../../src/lib/math/nbtheory.h"
 #include "../../../src/lib/math/distrgen.h"
 #include "../../../src/lib/lattice/ilvector2n.h"
-#include "../../../src/lib/crypto/lwecrypt.h"
-#include "../../../src/lib/crypto/lwepre.h"
 #include "../../../src/lib/utils/inttypes.h"
 #include "../../../src/lib/utils/utilities.h"
 
 #include "../../../src/lib/lattice/trapdoor.h"
 //#include "../../../src/lib/lattice/trapdoor.cpp"
-#include "../../../src/lib/obfuscate/lweconjunctionobfuscate.h"
-#include "../../../src/lib/obfuscate/lweconjunctionobfuscate.cpp"
+#include "../../../src/lib/obfuscate/lweconjunctionobfuscatev2.h"
+#include "../../../src/lib/obfuscate/lweconjunctionobfuscatev2.cpp"
 
 //using namespace std;
 using namespace lbcrypto;
@@ -350,7 +348,196 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 	//std::cout << z << std::endl;
 
 }
+
+// Test of Gaussian Sampling using the UCSD integer perturbation sampling algorithm
+TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
+
+	usint m = 16;
+	usint n = m / 2;
+
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	float stddev = 4;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = log(val - 1.0) / log(2) + 1.0;
+	usint k = (usint)floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
+	//auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+
+	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+
+	RingMat eHat = trapPair.second.m_e;
+	RingMat rHat = trapPair.second.m_r;
+	//auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
+
+	double sigma = 4;
+	DiscreteGaussianGenerator dgg(sigma);
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
+
+	double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
+	double s = 40 * sqrt((k + 2)*n);
+	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
+
+	ILVector2n u(dug, params, COEFFICIENT);
+	u.SwitchFormat();
+
+	//  600 is a very rough estimate for s, refer to Durmstradt 4.2 for
+	//      estimation
+	RingMat z = RLWETrapdoorUtility::GaussSampV3(m / 2, k, trapPair.first, trapPair.second, u, stddev, dgg, dggLargeSigma);
+
+	//Matrix<ILVector2n> uEst = trapPair.first * z;
+
+	EXPECT_EQ(trapPair.first.GetCols(), z.GetRows())
+		<< "Failure testing number of rows";
+	EXPECT_EQ(m / 2, z(0, 0).GetLength())
+		<< "Failure testing ring dimension for the first ring element";
+
+	ILVector2n uEst = (trapPair.first * z)(0, 0);
+	uEst.SwitchFormat();
+	u.SwitchFormat();
+
+	EXPECT_EQ(u, uEst);
+
+	//std::cout << z << std::endl;
+
+}
+
+// Test  UCSD integer perturbation sampling algorithm
+// So far the test simply runs 100 instances of ZSampleSigmaP
+// and makes sure no exceptions are encountered - this validates that
+// covariance matrices at all steps are positive definite 
+TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
+
+	usint m = 16;
+	//usint m = 512;
+	usint n = m / 2;
+
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+
+	//BigBinaryInteger modulus("1237940039285380274899136513");
+	//BigBinaryInteger rootOfUnity("977145384161930579732228319");
+
+
+	float stddev = 4;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = log(val - 1.0) / log(2) + 1.0;
+	usint k = (usint)floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	//smoothing parameter
+	double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
+
+	//spectral bound s
+	double s = 40 * std::sqrt(n*(k + 2));
+
+	//Generate the trapdoor pair
+	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
+
+	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+
+	RingMat eHat = trapPair.second.m_e;
+	RingMat rHat = trapPair.second.m_r;
+
+	double sigma = 4;
+	DiscreteGaussianGenerator dgg(sigma);
+	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
+
+	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
+
+	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+
+	auto singleAlloc = [=]() { return make_unique<BigBinaryVector>(1, modulus); };
+
+	//Do perturbation sampling
+	RingMat pHat(zero_alloc, k + 2, 1);
+
+	Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, (2 + k)*n, 1);
+
+	Matrix<int32_t> pCovarianceMatrix([]()  { return make_unique<int32_t>(); }, 2*n, 2*n);;
+
+	//std::vector<Matrix<int32_t>> pTrapdoors;
+
+	Matrix<int32_t> pTrapdoor([]() { return make_unique<int32_t>(); }, 2 * n, 1);
+
+	Matrix<BigBinaryInteger> bbiTrapdoor(BigBinaryInteger::Allocator, 2*n, 1);
+
+	Matrix<int32_t> pTrapdoorAverage([]() { return make_unique<int32_t>(); }, 2 * n, 1);
+
+	size_t count = 100;
+
+	for (size_t i = 0; i < count; i++) {
+		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, dgg, dggLargeSigma, &pHat);
+
+		//convert to coefficient representation
+		pHat.SwitchFormat();
+
+		for (size_t j = 0; j < n; j++) {
+			bbiTrapdoor(j, 0) = pHat(0, 0).GetValues().GetValAtIndex(j);
+			bbiTrapdoor(j+n, 0) = pHat(1, 0).GetValues().GetValAtIndex(j);
+		}
+
+		pTrapdoor = ConvertToInt32(bbiTrapdoor, modulus);
+
+		for (size_t j = 0; j < 2 * n; j++) {
+			pTrapdoorAverage(j, 0) = pTrapdoorAverage(j, 0) + pTrapdoor(j, 0);
+		}
+		//pTrapdoors.push_back(pTrapdoor);
+		
+		pCovarianceMatrix = pCovarianceMatrix + pTrapdoor*pTrapdoor.Transpose();
+	}
+
+	Matrix<ILVector2n> Tprime0 = eHat;
+	Matrix<ILVector2n> Tprime1 = rHat;
+
+	// all three polynomials are initialized with "0" coefficients
+	ILVector2n va(params, EVALUATION, 1);
+	ILVector2n vb(params, EVALUATION, 1);
+	ILVector2n vd(params, EVALUATION, 1);
+
+	for (size_t i = 0; i < k; i++) {
+		va = va + Tprime0(0, i)*Tprime0(0, i).Transpose();
+		vb = vb + Tprime1(0, i)*Tprime0(0, i).Transpose();
+		vd = vd + Tprime1(0, i)*Tprime1(0, i).Transpose();
+	}
+
+	//Switch the ring elements (polynomials) to coefficient representation
+	va.SwitchFormat();
+	vb.SwitchFormat();
+	vd.SwitchFormat();
+
+	//Create field elements from ring elements
+	Field2n a(va), b(vb), d(vd);
+
+	double scalarFactor = -s * s * c * c / (s * s - c * c);
+
+	a = a.ScalarMult(scalarFactor);
+	b = b.ScalarMult(scalarFactor);
+	d = d.ScalarMult(scalarFactor);
+
+	a = a + s*s;
+	d = d + s*s;
+
+	//for (size_t j = 0; j < 2 * n; j++) {
+	//	pTrapdoorAverage(j, 0) = pTrapdoorAverage(j, 0) / count;
+	//}
+
+	//std::cout << a << std::endl;
+
+	Matrix<int32_t> meanMatrix = pTrapdoorAverage*pTrapdoorAverage.Transpose();
+
+	//std::cout << (double(pCovarianceMatrix(0, 0)) - meanMatrix(0, 0))/ count << std::endl;
+	//std::cout << (double(pCovarianceMatrix(1, 0)) - meanMatrix(1, 0)) / count << std::endl;
+	//std::cout << (double(pCovarianceMatrix(2, 0)) - meanMatrix(2, 0)) / count << std::endl;
+	//std::cout << (double(pCovarianceMatrix(3, 0)) - meanMatrix(3, 0)) / count << std::endl;
+
+}
+
+
 TEST(UTTrapdoor,EncodeTest_dgg_yes) {
+	bool dbg_flag = false;
 
 	usint m_cyclo = 16;
 	usint n = m_cyclo/2;
@@ -358,7 +545,7 @@ TEST(UTTrapdoor,EncodeTest_dgg_yes) {
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
 	float stddev = 4;
-
+	usint chunkSize = 1;
 
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
 	double logTwo = log(val-1.0)/log(2)+1.0;
@@ -374,14 +561,14 @@ TEST(UTTrapdoor,EncodeTest_dgg_yes) {
 	// Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(dgg, params);
 
-	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(params);
+	ObfuscatedLWEConjunctionPatternV2<ILVector2n> obfuscatedPattern(params,chunkSize);
 	obfuscatedPattern.SetLength(1);
 
 	usint m = obfuscatedPattern.GetLogModulus() + 2;
 
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(BigBinaryInteger(m));
 
-	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
+	LWEConjunctionObfuscationAlgorithmV2<ILVector2n> algorithm;
 
 	algorithm.KeyGen(dgg,&obfuscatedPattern);
 
@@ -406,8 +593,8 @@ TEST(UTTrapdoor,EncodeTest_dgg_yes) {
 	CrossProd.SwitchFormat();
 
 	norm = CrossProd.Norm();
-	std::cout << " Constraint: " << constraint << std::endl;
-	std::cout << " Norm 1: " << norm << std::endl;
+	DEBUG(" Constraint: " << constraint);
+	DEBUG(" Norm 1: " << norm);
 
 
 	//bool result1 = (norm <= constraint);
@@ -423,6 +610,7 @@ TEST(UTTrapdoor,EncodeTest_dgg_yes) {
 	
 }
 TEST(UTTrapdoor,EncodeTest_dgg_no) {
+	bool dbg_flag = false;
 
 	usint m_cyclo = 16;
 	usint n = m_cyclo/2;
@@ -430,6 +618,7 @@ TEST(UTTrapdoor,EncodeTest_dgg_no) {
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
 	float stddev = 4;
+	usint chunkSize = 1;
 
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
 	double logTwo = log(val-1.0)/log(2)+1.0;
@@ -440,12 +629,12 @@ TEST(UTTrapdoor,EncodeTest_dgg_no) {
 	shared_ptr<ILParams> params( new ILParams(m_cyclo, modulus, rootOfUnity) );
     //auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
-	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(params);
+	ObfuscatedLWEConjunctionPatternV2<ILVector2n> obfuscatedPattern(params,chunkSize);
 	obfuscatedPattern.SetLength(1);
 
 	usint m = obfuscatedPattern.GetLogModulus() + 2;
 
-	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
+	LWEConjunctionObfuscationAlgorithmV2<ILVector2n> algorithm;
 
 	DiscreteGaussianGenerator dgg(4);
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(BigBinaryInteger(m));
@@ -474,8 +663,8 @@ TEST(UTTrapdoor,EncodeTest_dgg_no) {
 	CrossProd.SwitchFormat();
 
 	norm = CrossProd.Norm();
-	std::cout << " Constraint: " << constraint << std::endl;
-	std::cout << " Norm 1: " << norm << std::endl;
+	DEBUG( " Constraint: " << constraint );
+	DEBUG( " Norm 1: " << norm );
 
 	//bool result1 = (norm <= constraint);
 

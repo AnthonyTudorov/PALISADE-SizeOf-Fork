@@ -38,8 +38,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <fstream>
 #include <string>
 
-#include "../lib/palisade.h"
-#include "../lib/palisadespace.h"
+#include "../../lib/palisade.h"
+#include "../../lib/palisadespace.h"
 
 #include "../../lib/utils/cryptocontexthelper.h"
 #include "../../lib/crypto/cryptocontext.cpp"
@@ -225,7 +225,7 @@ void NTRUPRE(int input) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	bool successKeyGen=false;
+	//bool successKeyGen=false;
 
 	std::cout <<"\n" <<  "Running key generation..." << std::endl;
 
@@ -243,10 +243,11 @@ void NTRUPRE(int input) {
 	//fout<< currentDateTime()  << " pk = "<<pk.GetPublicElement().GetValues()<<endl;
 	//fout<< currentDateTime()  << " sk = "<<sk.GetPrivateElement().GetValues()<<endl;
 
-	if (!successKeyGen) {
+	if ( !kp.good() ) {
 		std::cout<<"Key generation failed!"<<std::endl;
 		exit(1);
 	}
+
 
 	////////////////////////////////////////////////////////////
 	//Encryption

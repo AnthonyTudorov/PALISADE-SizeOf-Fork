@@ -36,15 +36,21 @@ alldemos: make_demos
 make_demos: \
 	$(BINDIR)/demo/core/LargeFloatSource$(EXESUFFIX) \
 	$(BINDIR)/demo/core/MathSource$(EXESUFFIX) \
+	$(BINDIR)/demo/core/NTTSource$(EXESUFFIX) \
+	$(BINDIR)/demo/core/NTTSource2$(EXESUFFIX) \
 	$(BINDIR)/demo/core/ParallelSource$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSource$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSourceV2$(EXESUFFIX) \
+	$(BINDIR)/demo/obfuscate/ObfuscateSourceV3$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSource_sim$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSourceDbc$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSourceDbcV2$(EXESUFFIX) \
+	$(BINDIR)/demo/obfuscate/ObfuscateSourceDbcV3$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSimulator$(EXESUFFIX) \
         $(BINDIR)/demo/obfuscate/ObfuscateSimulator16$(EXESUFFIX) \
+        $(BINDIR)/demo/obfuscate/ObfuscateSimulator16Loop$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSimulator32$(EXESUFFIX) \
+	$(BINDIR)/demo/obfuscate/ObfuscateSimulator32V3$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSimulator64$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/Source_dcrt$(EXESUFFIX) \
 	$(BINDIR)/demo/pre/Source_json$(EXESUFFIX) \

@@ -24,7 +24,7 @@ public:
 
 	virtual ~LPCryptoParametersNull() {}
 
-	bool Serialize(Serialized* serObj, const std::string fileFlag = "") const {
+	bool Serialize(Serialized* serObj) const {
 		if( !serObj->IsObject() )
 			return false;
 
@@ -32,7 +32,7 @@ public:
 
 		Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
 		const ElemParams& ep = *this->GetElementParams();
-		if( !ep.Serialize(&pser, fileFlag) )
+		if( !ep.Serialize(&pser) )
 			return false;
 
 		cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
@@ -104,12 +104,12 @@ public:
 };
 
 template <class Element>
-class LPAlgorithmNull : public LPEncryptionAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPAlgorithmNull : public LPEncryptionAlgorithm<Element> {
 public:
-
-	//inherited constructors
-	LPAlgorithmNull() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-	LPAlgorithmNull(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+	/**
+	 * Default constructor
+	 */
+	LPAlgorithmNull() {}
 
 	/**
 	* Method for encrypting plaintext using Null
@@ -149,12 +149,12 @@ public:
 * @tparam Element a ring element.
 */
 template <class Element>
-class LPAlgorithmPRENull : public LPPREAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPAlgorithmPRENull : public LPPREAlgorithm<Element> {
 public:
-
-	//inherited constructors
-	LPAlgorithmPRENull() : LPPublicKeyEncryptionAlgorithmImpl<Element>() {};
-	LPAlgorithmPRENull(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+	/**
+	 * Default constructor
+	 */
+	LPAlgorithmPRENull() {}
 
 	/**
 	* Function to generate 1..log(q) encryptions for each bit of the original private key
@@ -183,50 +183,12 @@ public:
  * @tparam Element a ring element.
  */
 template <class Element>
-class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 	public:
 		/**
 		* Default constructor
 		*/
-		LPLeveledSHEAlgorithmNull() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
-		/**
-		* Constructor that initliazes the scheme
-		*
-		* @param &scheme is a reference to scheme
-		*/
-		LPLeveledSHEAlgorithmNull(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
-
-		/**
-		 * Method for generating a KeySwitchHint
-		 *
-		 * @param &originalPrivateKey Original private key used for encryption.
-		 * @param &newPrivateKey New private key to generate the keyswitch hint.
-		 * @param *keySwitchHint is where the resulting keySwitchHint will be placed.
-		 */
-		virtual shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
-				const shared_ptr<LPPrivateKey<Element>> k1,
-				const shared_ptr<LPPrivateKey<Element>> k2) const ;
-
-		/**
-		 * Method for KeySwitching based on a KeySwitchHint
-		 *
-		 * @param &keySwitchHint Hint required to perform the ciphertext switching.
-		 * @param &cipherText Original ciphertext to perform switching on.
-		 */
-		virtual shared_ptr<Ciphertext<Element>> KeySwitch(
-				const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-				const shared_ptr<Ciphertext<Element>> cipherText) const;
-
-		/**
-		* Method for generating a keyswitchhint from originalPrivateKey square to newPrivateKey
-		*
-		* @param &originalPrivateKey that is (in method) squared for the keyswitchhint.
-		* @param &newPrivateKey new private for generating a keyswitchhint to.
-		* @param *quadraticKeySwitchHint the generated keyswitchhint.
-		*/
-		virtual shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
-			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const;
+		LPLeveledSHEAlgorithmNull() {}
 
 		/**
 		 * Method for ModReducing CipherText and the Private Key used for encryption.
@@ -283,23 +245,27 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element>, public 
 };
 
 template <class Element>
-class LPAlgorithmSHENull : public LPSHEAlgorithm<Element>, public LPPublicKeyEncryptionAlgorithmImpl<Element> {
+class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 	public:
 
 		/**
 		* Default constructor
 		*/
-		LPAlgorithmSHENull() : LPPublicKeyEncryptionAlgorithmImpl<Element>(){};
-		/**
-		* Constructor that initliazes the scheme
-		*
-		* @param &scheme is a reference to scheme
-		*/
-		LPAlgorithmSHENull(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPPublicKeyEncryptionAlgorithmImpl<Element>(scheme) {};
+		LPAlgorithmSHENull() {}
 
-		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
-					const shared_ptr<LPPrivateKey<Element>> k1,
-					const shared_ptr<LPPrivateKey<Element>> k2) const;
+		/**
+		* Function for evaluation addition on ciphertext.
+		*
+		* @param &ciphertext1 first input ciphertext.
+		* @param &ciphertext2 second input ciphertext.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+
+		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2) const;
+
+		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
 		/**
 		 * Function for evaluating multiplication on ciphertext.
@@ -323,30 +289,31 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element>, public LPPublicKeyEnc
 				const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const;
 
 		/**
-		 * Function for evaluation addition on ciphertext.
-		 *
-		 * @param &ciphertext1 first input ciphertext.
-		 * @param &ciphertext2 second input ciphertext.
-		 * @param *newCiphertext the new resulting ciphertext.
-		 */
-
-		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Ciphertext<Element>> ciphertext2) const ;
-
-		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Ciphertext<Element>> ciphertext2) const ;
+		* Method for generating a KeySwitchHint
+		*
+		* @param &originalPrivateKey Original private key used for encryption.
+		* @param &newPrivateKey New private key to generate the keyswitch hint.
+		* @param *keySwitchHint is where the resulting keySwitchHint will be placed.
+		*/
+		shared_ptr<LPEvalKey<Element>> KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
+			return shared_ptr<LPEvalKey<Element>>();
+		}
 
 		/**
-		 * Function to generate key switch hint on a ciphertext.
-		 *
-		 * @param &newPrivateKey private key for the new ciphertext.
-		 * @param &origPrivateKey original private key used for decryption.
-		 * @param depth used for decryption.
-		 * @param *keySwitchHint the key switch hint.
-		 */
-		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> newPrivateKey,
-			shared_ptr<LPPrivateKey<Element>> origPrivateKey,
-			usint depth) const;
+		* Function to define key switching operation
+		*
+		* @param &keySwitchHint the evaluation key.
+		* @param &ciphertext the input ciphertext.
+		* @param *newCiphertext the new ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> KeySwitch(
+			const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+			const shared_ptr<Ciphertext<Element>> cipherText) const {
+			shared_ptr<Ciphertext<Element>> ans(new Ciphertext<Element>());
+			return ans;
+		}
+
+
 
 		/**
 		 * Function to generate key switch hint on a ciphertext for depth 2.
@@ -354,19 +321,34 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element>, public LPPublicKeyEnc
 		 * @param &newPrivateKey private key for the new ciphertext.
 		 * @param *keySwitchHint the key switch hint.
 		 */
-		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey) const;
+		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const;
 
 		/**
-		 * Function to define key switching operation
+		 * Virtual function to define the interface for evaluating ciphertext at an index
 		 *
-		 * @param &keySwitchHint the evaluation key.
 		 * @param &ciphertext the input ciphertext.
 		 * @param *newCiphertext the new ciphertext.
 		 */
-		 shared_ptr<Ciphertext<Element>> KeySwitch(
-					const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-					const shared_ptr<Ciphertext<Element>> cipherText) const;
+		shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, const usint i,
+				const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
+			shared_ptr<Ciphertext<Element>> ans(new Ciphertext<Element>());
+			return ans;
+		}
 
+		/**
+		 * Virtual function to generate all isomorphism keys for a given private key
+		 *
+		 * @param &publicKey encryption key for the new ciphertext.
+		 * @param &origPrivateKey original private key used for decryption.
+		 * @param *evalKeys the evaluation keys.
+		 * @return a vector of re-encryption keys.
+		 */
+		virtual bool EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+			const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
+			const usint size, shared_ptr<LPPrivateKey<Element>> *tempPrivateKey,
+			std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const {
+			return false;
+		}
 };
 
 /**

@@ -101,6 +101,8 @@ int main(int argc, char* argv[]){
 
 	errorflag = CONJOBF(dbg_flag, n_evals);
 
+	system("PAUSE");
+
 	return ((int)errorflag);
 
 }
@@ -131,14 +133,9 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
 
 	usint m = 16;
-	//60 bits
-	BigBinaryInteger modulus("1152921504606847009");
-	//27 bits
-	//BigBinaryInteger modulus("67108913");
-	//60 bits
-	BigBinaryInteger rootOfUnity("405107564542978792");
-	//27 bits
-	//BigBinaryInteger rootOfUnity("61564");
+	//54 bits
+	BigBinaryInteger modulus("9007199254741169");
+	BigBinaryInteger rootOfUnity("7629104920968175");
 
 	usint chunkSize = 2;
 
@@ -154,7 +151,7 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	//Set crypto parametes
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev);			// Create the noise generator
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
-	BinaryUniformGenerator bug = BinaryUniformGenerator();			// Create the noise generator
+	TernaryUniformGenerator tug = TernaryUniformGenerator();			// Create the noise generator
 
 	PROFILELOG("Cryptosystem initialization: Performing precomputations...");
 
@@ -220,7 +217,7 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 
 	DEBUG( "Obfuscation Execution started");
 	TIC(t1);
-	algorithm.Obfuscate(clearPattern,dgg,dbg,&obfuscatedPattern);
+	algorithm.Obfuscate(clearPattern,dgg,tug,&obfuscatedPattern);
 	timeObf = TOC(t1);
 	PROFILELOG( "Obfuscation time: " << "\t" << timeObf<< " ms");
 

@@ -165,12 +165,15 @@ template <class Element>
 void LWEConjunctionObfuscationAlgorithmV2<Element>::KeyGen(DiscreteGaussianGenerator &dgg,
 				ObfuscatedLWEConjunctionPatternV2<Element> *obfuscatedPattern) const {
 	TimeVar t1,t2; // for TIC TOC
-	bool dbg_flag = 0;
+	bool dbg_flag = false;
 	TIC(t1);
 
 	usint n = obfuscatedPattern->GetRingDimension();
 	usint k = obfuscatedPattern->GetLogModulus();
-	std::cout << "BitLength in KeyGen: " << k << std::endl;
+
+	DEBUG("BitLength in KeyGen: " << k);
+
+	//std::cout << "BitLength in KeyGen: " << k << std::endl;
 
 	usint l = obfuscatedPattern->GetLength();
 	const shared_ptr<ElemParams> params = obfuscatedPattern->GetParameters();
@@ -180,7 +183,10 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::KeyGen(DiscreteGaussianGener
 	//double s = 1000;
 	//double s = 600;
 	double s = 40*std::sqrt(n*(k+2));
-	std::cout << "parameter s = " << s << std::endl;
+	//double s = 80 * std::sqrt(n);
+	DEBUG("parameter s = " << s);
+
+	//std::cout << "parameter s = " << s << std::endl;
 
 #if 0 //original code
 	// Initialize the Pk and Ek matrices.
@@ -319,10 +325,12 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Encode(
 
 	  // the following takes approx 250 msec
 		Matrix<Element> gaussj = RLWETrapdoorUtility::GaussSamp(n,k,Ai,Ti,sigma,bj(0,i),dgg.GetStd(), dgg);
+//		gaussj(0, 0).PrintValues();
+//		gaussj(1, 0).PrintValues();
 		// the following takes no time
 		for(int32_t j=0; j<m; j++) {
+//			gaussj(j, 0).PrintValues();
 			(*encodedElem)(j,i) = gaussj(j,0);
-
 		}
 
 	}
@@ -348,7 +356,7 @@ template <class Element>
 void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				DiscreteGaussianGenerator &dgg,
-				BinaryUniformGenerator &dbg,
+				TernaryUniformGenerator &tug,
 				ObfuscatedLWEConjunctionPatternV2<Element> *obfuscatedPattern) const {
 
 	TimeVar t1; // for TIC TOC
@@ -427,7 +435,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 			// otherwise use an existing one that has already been created
 			if ((k & chunkMask)==0) {
 				//cout << "entered the non-mask condition " << endl;
-				Element elems1(dbg,params,EVALUATION);
+				Element elems1(tug,params,EVALUATION);
 				sVector.push_back(elems1);
 			}
 			else
@@ -437,7 +445,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 				sVector.push_back(elems1);
 			}
 			
-			Element elemr1(dbg,params,EVALUATION);
+			Element elemr1(tug,params,EVALUATION);
 			rVector.push_back(elemr1);
 
 		}
@@ -503,7 +511,7 @@ void LWEConjunctionObfuscationAlgorithmV2<Element>::Obfuscate(
 
 	//std::cout << "encode started for L" << std::endl;
 
-	Element	elemrl1(dbg,params,EVALUATION);
+	Element	elemrl1(tug,params,EVALUATION);
 
 	Matrix<Element> *Sl = new Matrix<Element>(zero_alloc, m, m);
 	this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],Sigma[adjustedLength],elemrl1*s_prod,dgg,Sl);

@@ -71,6 +71,18 @@ namespace lbcrypto {
 	template <class Element>
 	class LPCryptoParametersStehleSteinfeld;
 
+	template <class Element>
+	inline std::string elementName() {
+		if( typeid(Element) == typeid(ILVector2n) )
+			return "ILVector2n";
+		else if( typeid(Element) == typeid(ILVectorArray2n) )
+			return "ILVectorArray2n";
+		else {
+			std::string msg = "Unrecognized type name for Element: ";
+			throw std::logic_error( msg + typeid(Element).name() );
+		}
+	}
+
 	struct EncryptResult {
 
 		explicit EncryptResult() : isValid(false), numBytesEncrypted(0) {}
@@ -245,37 +257,16 @@ namespace lbcrypto {
 			* @param fileFlag is an object-specific parameter for the serialization
 			* @return true if successfully serialized
 			*/
-			bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+			bool Serialize(Serialized *serObj) const {
 				serObj->SetObject();
 
-				if (!this->GetCryptoParameters()->Serialize(serObj, "")) {
+				serObj->AddMember("Object", "PublicKey", serObj->GetAllocator());
+
+				if (!this->GetCryptoParameters()->Serialize(serObj)) {
 					return false;
 				}
 
-				const Element& pe = this->GetPublicElements().at(0);
-
-				if (!pe.Serialize(serObj, "")) {
-					return false;
-				}
-
-				if (!this->SetIdFlag(serObj, fileFlag))
-					return false;
-
-				return true;
-			}
-
-			/**
-			* Higher level info about the serialization is saved here
-			* @param *serObj to store the the implementing object's serialization specific attributes.
-			* @param flag an object-specific parameter for the serialization
-			* @return true on success
-			*/
-			bool SetIdFlag(Serialized *serObj, const std::string flag) const {
-
-				SerialItem idFlagMap(rapidjson::kObjectType);
-				idFlagMap.AddMember("ID", "LPPublicKey", serObj->GetAllocator());
-				idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
-				serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
+				SerializeVector<Element>("Vectors", elementName<Element>(), this->GetPublicElements(), serObj);
 
 				return true;
 			}
@@ -287,18 +278,19 @@ namespace lbcrypto {
 			*/
 			bool Deserialize(const Serialized &serObj) { 
 
-//				LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-//				if (cryptoParams == 0) return false;
-//
-//				this->m_cryptoParameters = cryptoParams;
+				Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
+				if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "PublicKey" )
+					return false;
 
-				Element json_ilElement;
-				if (json_ilElement.Deserialize(serObj)) {
-					this->SetPublicElementAtIndex(0,json_ilElement);
-					return true;
+				mIt = serObj.FindMember("Vectors");
+
+				if( mIt == serObj.MemberEnd() ) {
+					return false;
 				}
 
-				return false;
+				bool ret = DeserializeVector<Element>("Vectors", elementName<Element>(), mIt, &this->m_h);
+
+				return ret;
 			}
 
 	private:
@@ -501,74 +493,54 @@ namespace lbcrypto {
 
 
 		/**
-		* Higher level info about the serialization is saved here
-		* @param *serObj to store the the implementing object's serialization specific attributes.
-		* @param flag an object-specific parameter for the serialization
-		* @return true on success
-		*/
-		bool SetIdFlag(Serialized *serObj, const std::string flag) const {
-
-			SerialItem idFlagMap(rapidjson::kObjectType);
-			idFlagMap.AddMember("ID", "LPEvalKeyRelin", serObj->GetAllocator());
-			idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
-			serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
-
-			return true;
-		}
-
-		/**
 		* Serialize the object into a Serialized
 		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+		bool Serialize(Serialized *serObj) const {
 			serObj->SetObject();
 
-			if (!this->GetCryptoParameters()->Serialize(serObj, "")) {
+			serObj->AddMember("Object", "EvalKeyRelin", serObj->GetAllocator());
+
+			if (!this->GetCryptoParameters()->Serialize(serObj)) {
 				return false;
 			}
 
-			SerializeVector<Element>("AVector", typeid(Element).name(), this->GetAVector(), serObj);
-			SerializeVector<Element>("BVector", typeid(Element).name(), this->GetBVector(), serObj);
-
-//			const Element& pe = this->GetA();
-//
-//			if (!pe.Serialize(serObj, "")) {
-//				return false;
-//			}
-//
-			if (!this->SetIdFlag(serObj, fileFlag))
-				return false;
+			SerializeVector<Element>("AVector", elementName<Element>(), this->m_rKey[0], serObj);
+			SerializeVector<Element>("BVector", elementName<Element>(), this->m_rKey[1], serObj);
 
 			return true;
 		}
 
-//		/**
-//		* Populate the object from the deserialization of the Serialized
-//		* @param &serObj contains the serialized object
-//		* @return true on success
-//		*/
-//		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
-//			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-//			if (cryptoparams == 0) return false;
-//
-//			this->m_cryptoParameters = cryptoparams;
-//
-////			DeSerializeVector<Element>("AVector", typeid(Element).name(), this->GetAVector(), serObj);
-////			DeSerializeVector<Element>("BVector", typeid(Element).name(), this->GetBVector(), serObj);
-//
-////			Element json_ilelement;
-////			if (json_ilelement.deserialize(serObj)) {
-////				this->SetA(json_ilelement);
-////				return true;
-////			}
-//
-//			return false;
-//		}
-
 		bool Deserialize(const Serialized &serObj) {
-			return false;
+
+			Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
+			if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyRelin" )
+				return false;
+
+			mIt = serObj.FindMember("AVector");
+
+			if( mIt == serObj.MemberEnd() ) {
+				return false;
+			}
+
+			std::vector<Element> deserElem;
+			bool ret = DeserializeVector<Element>("AVector", elementName<Element>(), mIt, &deserElem);
+			this->m_rKey.push_back(deserElem);
+
+			if( !ret ) return ret;
+
+			mIt = serObj.FindMember("BVector");
+
+			if( mIt == serObj.MemberEnd() ) {
+				return false;
+			}
+
+			ret = DeserializeVector<Element>("BVector", elementName<Element>(), mIt, &deserElem);
+			this->m_rKey.push_back(deserElem);
+
+			return ret;
 		}
 	private:
 		//private member to store vector of vector of Element.
@@ -625,38 +597,21 @@ namespace lbcrypto {
 		}
 
 		/**
-		* Higher level info about the serialization is saved here
-		* @param *serObj to store the the implementing object's serialization specific attributes.
-		* @param flag an object-specific parameter for the serialization
-		* @return true on success
-		*/
-		bool SetIdFlag(Serialized *serObj, const std::string flag) const {
-
-			SerialItem idFlagMap(rapidjson::kObjectType);
-			idFlagMap.AddMember("ID", "LPEvalKeyNTRURelin", serObj->GetAllocator());
-			idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
-			serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
-
-			return true;
-		}
-
-		/**
 		* Serialize the object into a Serialized
 		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+		bool Serialize(Serialized *serObj) const {
 			serObj->SetObject();
 
-			if (!this->GetCryptoParameters()->Serialize(serObj, "")) {
+			serObj->AddMember("Object", "EvalKeyNTRURelin", serObj->GetAllocator());
+
+			if (!this->GetCryptoParameters()->Serialize(serObj)) {
 				return false;
 			}
 
-			SerializeVector<Element>("Vectors", "ILVector2n", this->GetAVector(), serObj);
-
-			if (!this->SetIdFlag(serObj, fileFlag))
-				return false;
+			SerializeVector<Element>("Vectors", elementName<Element>(), this->GetAVector(), serObj);
 
 			return true;
 		}
@@ -667,6 +622,10 @@ namespace lbcrypto {
 		* @return true on success
 		*/
 		bool Deserialize(const Serialized &serObj) {
+			Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
+			if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyNTRURelin" )
+				return false;
+
 			SerialItem::ConstMemberIterator it = serObj.FindMember("Vectors");
 
 			if( it == serObj.MemberEnd() ) {
@@ -674,7 +633,7 @@ namespace lbcrypto {
 			}
 
 			std::vector<Element> newElements;
-			if( DeserializeVector<Element>("Vectors", "ILVector2n", it, &newElements) ) {
+			if( DeserializeVector<Element>("Vectors", elementName<Element>(), it, &newElements) ) {
 				this->SetAVector(newElements);
 				return true;
 			}
@@ -739,68 +698,43 @@ namespace lbcrypto {
 		}
 
 		/**
-		* Higher level info about the serialization is saved here
-		* @param *serObj to store the the implementing object's serialization specific attributes.
-		* @param flag an object-specific parameter for the serialization
-		* @return true on success
-		*/
-		bool SetIdFlag(Serialized *serObj, const std::string flag) const {
-
-			SerialItem idFlagMap(rapidjson::kObjectType);
-			idFlagMap.AddMember("ID", "LPEvalKeyNTRU", serObj->GetAllocator());
-			idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
-			serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
-
-			return true;
-		}
-
-		/**
 		* Serialize the object into a Serialized
 		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+		bool Serialize(Serialized *serObj) const {
 			serObj->SetObject();
 
-			if (!this->GetCryptoParameters()->Serialize(serObj, "")) {
+			serObj->AddMember("Object", "EvalKeyNTRU", serObj->GetAllocator());
+
+			if (!this->GetCryptoParameters()->Serialize(serObj)) {
 				return false;
 			}
 
 			const Element& pe = this->GetA();
 
-			if (!pe.Serialize(serObj, "")) {
+			if (!pe.Serialize(serObj)) {
 				return false;
 			}
-
-			if (!this->SetIdFlag(serObj, fileFlag))
-				return false;
 
 			return true;
 		}
 
-//		/**
-//		* Populate the object from the deserialization of the Serialized
-//		* @param &serObj contains the serialized object
-//		* @return true on success
-//		*/
-//		bool Deserialize(const Serialized &serObj, const CryptoContext<Element> *ctx) {
-//			LPCryptoParameters<Element>* cryptoparams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getparams());
-//			if (cryptoparams == 0) return false;
-//
-//			this->m_cryptoParameters = cryptoparams;
-//
-//			Element json_ilelement;
-//			if (json_ilelement.deserialize(serObj)) {
-//				this->SetA(json_ilelement);
-//				return true;
-//			}
-//
-//			return false;
-//		}
-
 		bool Deserialize(const Serialized &serObj) {
-			return false;
+			Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
+			if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyNTRU" )
+				return false;
+
+			Element pe;
+
+			if( !pe.Deserialize(serObj) ) {
+				return false;
+			}
+
+			m_Key = pe;
+
+			return true;
 		}
 
 	private:
@@ -889,18 +823,11 @@ namespace lbcrypto {
 		*/
 		void SetPrivateElement(Element &&x) { m_sk = std::move(x); }
 
-		//JSON FACILITY
-		/**
-		* Serialize the object into a Serialized
-		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param fileFlag is an object-specific parameter for the serialization
-		* @return true if successfully serialized
-		*/
-		bool Serialize(Serialized *serObj, const std::string fileFlag = "") const {
+		bool Serialize(Serialized *serObj) const {
 
 			serObj->SetObject();
-			if (!this->SetIdFlag(serObj, fileFlag))
-				return false;
+
+			serObj->AddMember("Object", "PrivateKey", serObj->GetAllocator());
 
 			if (!this->GetCryptoParameters()->Serialize(serObj))
 				return false;
@@ -909,30 +836,14 @@ namespace lbcrypto {
 		}
 
 		/**
-		* Higher level info about the serialization is saved here
-		* @param *serObj to store the the implementing object's serialization specific attributes.
-		* @param flag an object-specific parameter for the serialization
-		* @return true on success
-		*/
-		bool SetIdFlag(Serialized *serObj, const std::string flag) const {
-			SerialItem idFlagMap(rapidjson::kObjectType);
-			idFlagMap.AddMember("ID", "LPPrivateKey", serObj->GetAllocator());
-			idFlagMap.AddMember("Flag", flag, serObj->GetAllocator());
-			serObj->AddMember("Root", idFlagMap, serObj->GetAllocator());
-
-			return true;
-		}
-
-		/**
 		* Populate the object from the deserialization of the Setialized
 		* @param &serObj contains the serialized object
 		* @return true on success
 		*/
 		bool Deserialize(const Serialized &serObj) { 
-//			LPCryptoParameters<Element>* cryptoParams = DeserializeAndValidateCryptoParameters<Element>(serObj, *ctx->getParams());
-//			if (cryptoParams == 0) return false;
-//
-//			this->m_cryptoParameters = cryptoParams;
+			Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
+			if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "PrivateKey" )
+				return false;
 
 			Element json_ilElement;
 			if (json_ilElement.Deserialize(serObj)) {
@@ -957,6 +868,7 @@ namespace lbcrypto {
 		LPKeyPair(LPPublicKey<Element>* a=0, LPPrivateKey<Element>* b=0) : publicKey(a), secretKey(b) {}
 
 		bool good() { return publicKey && secretKey; }
+		
 	};
 
 	/**
@@ -1030,39 +942,6 @@ namespace lbcrypto {
 		public:	
 
 			/**
-			 * Method for EvalMultKeyGen
-			 *
-			 * @param &originalPrivateKey Original private key used for encryption.
-			 * @param &newPrivateKey New private key to generate the keyswitch hint.
-			 * @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
-			 */
-			virtual shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
-					const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-					const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
-			
-			/**
-			 * Method for KeySwitch
-			 *
-			 * @param &keySwitchHint Hint required to perform the ciphertext switching.
-			 * @param &cipherText Original ciphertext to perform switching on.
-			 */
-			virtual shared_ptr<Ciphertext<Element>> KeySwitch(
-					const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-					const shared_ptr<Ciphertext<Element>> cipherText) const = 0;
-
-			/**
-			 * Method for generating a keyswitchhint from originalPrivateKey square to newPrivateKey
-			 *
-			 * @param &originalPrivateKey that is (in method) squared for the keyswitchhint.
-			 * @param &newPrivateKey new private for generating a keyswitchhint to.
-			 * @param *quadraticKeySwitchHint the generated keyswitchhint.
-			 */
-
-			virtual shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
-				const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-				const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
-
-			/**
 			 * Method for Modulus Reduction.
 			 *
 			 * @param &cipherText Ciphertext to perform mod reduce on.
@@ -1088,7 +967,7 @@ namespace lbcrypto {
 			virtual shared_ptr<Ciphertext<Element>> ComposedEvalMult(
 					const shared_ptr<Ciphertext<Element>> cipherText1,
 					const shared_ptr<Ciphertext<Element>> cipherText2,
-					const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint) const = 0;
+					const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const = 0;
 
 			/**
 			 * Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
@@ -1098,7 +977,7 @@ namespace lbcrypto {
 			 * @param &cipherTextResult is the resulting ciphertext.
 			 */
 			virtual shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
-					const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const = 0;
+					const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const = 0;
 			/**
 			* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
 			* and odd indices are set to zero.
@@ -1147,26 +1026,6 @@ namespace lbcrypto {
 				const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
 	};
 
-
-
-	/**
-	 * @brief Abstract interface class for LBC AHE algorithms
-	 * @tparam Element a ring element.
-	 */
-	template <class Element>
-	class LPAHEAlgorithm {
-		public:		
-			/**
-			 * Virtual function to define the interface for additive homomorphic evaluation of ciphertext
-			 *
-			 * @param &ciphertext1 the input ciphertext.
-			 * @param &ciphertext2 the input ciphertext.
-			 * @param *newCiphertext the new ciphertext.
-			 */
-			virtual shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
-	};
-
 	/**
 	 * @brief Abstract interface class for LBC SHE algorithms
 	 * @tparam Element a ring element.
@@ -1175,20 +1034,13 @@ namespace lbcrypto {
 	class LPSHEAlgorithm {
 		public:
 
-			virtual	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
-					const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-					const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
-
 			/**
-			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext.
-			 *
-			 * @param &ciphertext1 the input ciphertext.
-			 * @param &ciphertext2 the input ciphertext.
-			 * @param *newCiphertext the new ciphertext.
-			 */
-			virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-					const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
-
+			* Virtual function to define the interface for homomorphic addition of ciphertexts.
+			*
+			* @param &ciphertext1 the input ciphertext.
+			* @param &ciphertext2 the input ciphertext.
+			* @param *newCiphertext the new ciphertext.
+			*/
 			virtual shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
 				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
 
@@ -1202,6 +1054,15 @@ namespace lbcrypto {
 			virtual shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
 				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
 
+			/**
+			* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext.
+			*
+			* @param &ciphertext1 the input ciphertext.
+			* @param &ciphertext2 the input ciphertext.
+			* @param *newCiphertext the new ciphertext.
+			*/
+			virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
 
 			/**
 			* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
@@ -1212,36 +1073,40 @@ namespace lbcrypto {
 			* @param *newCiphertext the new resulting ciphertext.
 			*/
 			virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-					const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const = 0;
+				const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const = 0;
 
-	};
-
-	/**
-	 * @brief Abstract interface class for LBC SHE algorithms
-	 * @tparam Element a ring element.
-	 */
-	template <class Element>
-	class LPFHEAlgorithm {
-		public:
-						
 			/**
-			 * Virtual function to define the interface for bootstrapping evaluation of ciphertext
-			 *
-			 * @param &ciphertext the input ciphertext.
-			 * @param *newCiphertext the new ciphertext.
-			 */
-			virtual void Bootstrap(const Ciphertext<Element> &ciphertext,
-				Ciphertext<Element> *newCiphertext) const = 0;
-	};
+			* Method for KeySwitchGen
+			*
+			* @param &originalPrivateKey Original private key used for encryption.
+			* @param &newPrivateKey New private key to generate the keyswitch hint.
+			* @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
+			*/
+			virtual shared_ptr<LPEvalKey<Element>> KeySwitchGen(
+				const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+				const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
 
-	/**
-	 * @brief Abstract interface class for automorphism-based SHE algorithms
-	 * @tparam Element a ring element.
-	 */
-	template <class Element>
-	class LPAutoMorphAlgorithm {
-		public:
-						
+			/**
+			* Method for KeySwitch
+			*
+			* @param &keySwitchHint Hint required to perform the ciphertext switching.
+			* @param &cipherText Original ciphertext to perform switching on.
+			*/
+			virtual shared_ptr<Ciphertext<Element>> KeySwitch(
+				const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+				const shared_ptr<Ciphertext<Element>> cipherText) const = 0;
+
+			/**
+			* Virtual function to define the interface for generating a evaluation key which is used after each multiplication.
+			*
+			* @param &ciphertext1 first input ciphertext.
+			* @param &ciphertext2 second input ciphertext.
+			* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+			* @param *newCiphertext the new resulting ciphertext.
+			*/
+			virtual	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+					const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const = 0;		
+
 			/**
 			 * Virtual function to define the interface for evaluating ciphertext at an index
 			 *
@@ -1265,6 +1130,23 @@ namespace lbcrypto {
 				std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const = 0;
 	};
 
+	/**
+	 * @brief Abstract interface class for LBC SHE algorithms
+	 * @tparam Element a ring element.
+	 */
+	template <class Element>
+	class LPFHEAlgorithm {
+		public:
+
+			/**
+			 * Virtual function to define the interface for bootstrapping evaluation of ciphertext
+			 *
+			 * @param &ciphertext the input ciphertext.
+			 * @param *newCiphertext the new ciphertext.
+			 */
+			virtual void Bootstrap(const Ciphertext<Element> &ciphertext,
+				Ciphertext<Element> *newCiphertext) const = 0;
+	};
 
 	/**
 	 * @brief main implementation class to capture essential cryptoparameters of any LBC system
@@ -1302,6 +1184,11 @@ namespace lbcrypto {
 		 */
 		void SetElementParams(shared_ptr<ElemParams> params) { m_params = params; }
 
+		virtual const DiscreteGaussianGenerator& GetDiscreteGaussianGenerator() const {
+			throw std::logic_error("These parameters do not use a DGG");
+		}
+
+
 	protected:
 		LPCryptoParameters() : m_plaintextModulus(BigBinaryInteger::TWO) {}
 
@@ -1334,7 +1221,7 @@ namespace lbcrypto {
 
 	public:
 		LPPublicKeyEncryptionScheme() :
-			m_algorithmParamsGen(0), m_algorithmEncryption(0), m_algorithmPRE(0), m_algorithmEvalAdd(0), m_algorithmEvalAutomorphism(0),
+			m_algorithmParamsGen(0), m_algorithmEncryption(0), m_algorithmPRE(0),
 			m_algorithmSHE(0), m_algorithmFHE(0), m_algorithmLeveledSHE(0) {}
 
 		virtual ~LPPublicKeyEncryptionScheme() {
@@ -1344,10 +1231,6 @@ namespace lbcrypto {
 				delete this->m_algorithmEncryption;
 			if (this->m_algorithmPRE != NULL)
 				delete this->m_algorithmPRE;
-			if (this->m_algorithmEvalAdd != NULL)
-				delete this->m_algorithmEvalAdd;
-			if (this->m_algorithmEvalAutomorphism != NULL)
-				delete this->m_algorithmEvalAutomorphism;
 			if (this->m_algorithmSHE != NULL)
 				delete this->m_algorithmSHE;
 			if (this->m_algorithmFHE != NULL)
@@ -1366,14 +1249,6 @@ namespace lbcrypto {
 					break;
 				 case PRE:
 					if (m_algorithmPRE!= NULL)
-						flag = true;
-					break;
-				 case EVALADD:
-					if (m_algorithmEvalAdd!= NULL)
-						flag = true;
-					break;
-				 case EVALAUTOMORPHISM:
-					if (m_algorithmEvalAutomorphism!= NULL)
 						flag = true;
 					break;
 				 case SHE:
@@ -1452,17 +1327,6 @@ namespace lbcrypto {
 				}
 		}
 
-		//wrapper for reLinKeyGen method
-		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
-							const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-							const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
-				if(this->IsEnabled(SHE))
-					return this->m_algorithmSHE->EvalMultKeyGen(originalPrivateKey, newPrivateKey);
-				else {
-					throw std::logic_error("EvalMultKeyGen operation has not been enabled");
-				}
-		}
-
 		//wrapper for ReEncrypt method
 		shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
 				const shared_ptr<Ciphertext<Element>> ciphertext) const {
@@ -1474,34 +1338,17 @@ namespace lbcrypto {
 		}
 
 		/////////////////////////////////////////
-		// the functions below are wrappers for things in LPAHEAlgorithm (EVALADD)
-		//
-		// TODO: Add Functions?
-
-		/////////////////////////////////////////
-		// the function below is a wrapper for things in LPAutomorphAlgorithm (EVALAUTOMORPHISM)
-		//
-		// TODO: Add Functions?
-
-		const LPAutoMorphAlgorithm<Element> &GetLPAutoMorphAlgorithm() {
-			if(this->m_algorithmEvalAutomorphism)
-				return *m_algorithmEvalAutomorphism;
-			else
-				throw std::logic_error("Automorphism has not been enabled");
-		}
-
-		/////////////////////////////////////////
 		// the three functions below are wrappers for things in LPSHEAlgorithm (SHE)
 		//
 
 		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Ciphertext<Element>> ciphertext2) const {
+			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 
-					if(this->m_algorithmSHE)
-						return this->m_algorithmSHE->EvalAdd(ciphertext1,ciphertext2);
-					else{
-						throw std::logic_error("EvalAdd operation has not been enabled");
-					}
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalAdd(ciphertext1, ciphertext2);
+			else {
+				throw std::logic_error("EvalAdd operation has not been enabled");
+			}
 		}
 
 		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
@@ -1515,18 +1362,57 @@ namespace lbcrypto {
 		}
 
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Ciphertext<Element>> ciphertext2) const {
-					
-					if(this->m_algorithmSHE)
-						return this->m_algorithmSHE->EvalMult(ciphertext1,ciphertext2);
-					else{
-						throw std::logic_error("EvalMult operation has not been enabled");
-					}
+			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
+
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2);
+			else {
+				throw std::logic_error("EvalMult operation has not been enabled");
+			}
 		}
 
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2,
+			const shared_ptr<LPEvalKey<Element>> evalKey) const {
 
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2, evalKey);
+			else {
+				throw std::logic_error("EvalMult operation has not been enabled");
+			}
+		}
 
+		shared_ptr<LPEvalKey<Element>> KeySwitchGen(
+			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
+			if (this->m_algorithmSHE)
+				return  this->m_algorithmSHE->KeySwitchGen(originalPrivateKey, newPrivateKey);
+			else {
+				throw std::logic_error("KeySwitchGen operation has not been enabled");
+			}
+		}
 
+		shared_ptr<Ciphertext<Element>> KeySwitch(
+			const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+			const shared_ptr<Ciphertext<Element>> cipherText) const {
+
+			if (this->m_algorithmSHE) {
+				return this->m_algorithmSHE->KeySwitch(keySwitchHint, cipherText);
+			}
+			else {
+				throw std::logic_error("KeySwitch operation has not been enabled");
+			}
+		}
+
+		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
+				if(this->m_algorithmSHE)
+					return this->m_algorithmSHE->EvalMultKeyGen(originalPrivateKey);
+				else {
+					throw std::logic_error("EvalMultKeyGen operation has not been enabled");
+				}
+		}
+
+		
 		/////////////////////////////////////////
 		// the functions below are wrappers for things in LPFHEAlgorithm (FHE)
 		//
@@ -1544,39 +1430,6 @@ namespace lbcrypto {
 				}
 		}
 
-		//wrapper for EvalMult method
-		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> evalKey) const {
-					
-					if(this->IsEnabled(SHE))
-						return this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2, evalKey);
-					else{
-						throw std::logic_error("This operation is not supported");
-					}
-		}
-
-		shared_ptr<Ciphertext<Element>> KeySwitch(
-				const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-				const shared_ptr<Ciphertext<Element>> cipherText) const {
-			
-			if(this->m_algorithmLeveledSHE){
-				return this->m_algorithmLeveledSHE->KeySwitch(keySwitchHint,cipherText);
-			}
-			else{
-				throw std::logic_error("KeySwitch operation has not been enabled");
-			}
-		}
-
-		shared_ptr<LPEvalKeyNTRU<Element>> QuadraticEvalMultKeyGen(
-			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
-			if(this->m_algorithmLeveledSHE){
-				return this->m_algorithmLeveledSHE->QuadraticEvalMultKeyGen(originalPrivateKey,newPrivateKey);
-			}
-			else{
-				throw std::logic_error("QuadraticEvalMultKeyGen operation has not been enabled");
-			}
-		}
 
 		shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
 			if(this->m_algorithmLeveledSHE){
@@ -1608,7 +1461,7 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> ComposedEvalMult(
 							const shared_ptr<Ciphertext<Element>> cipherText1,
 							const shared_ptr<Ciphertext<Element>> cipherText2,
-							const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint) const {
+							const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const {
 			if(this->m_algorithmLeveledSHE){
 				return this->m_algorithmLeveledSHE->ComposedEvalMult(cipherText1,cipherText2,quadKeySwitchHint);
 			}
@@ -1633,44 +1486,9 @@ namespace lbcrypto {
 		const LPParameterGenerationAlgorithm<Element> *m_algorithmParamsGen;
 		const LPEncryptionAlgorithm<Element> *m_algorithmEncryption;
 		const LPPREAlgorithm<Element> *m_algorithmPRE;
-		const LPAHEAlgorithm<Element> *m_algorithmEvalAdd;
-		const LPAutoMorphAlgorithm<Element> *m_algorithmEvalAutomorphism;
 		const LPSHEAlgorithm<Element> *m_algorithmSHE;
 		const LPFHEAlgorithm<Element> *m_algorithmFHE;
 		const LPLeveledSHEAlgorithm<Element> *m_algorithmLeveledSHE;
-	};
-
-
-	/**
-	 * @brief main implementation class for public key encryption algorithms
-	 * @tparam Element a ring element.
-	 */
-	template <class Element>
-	class LPPublicKeyEncryptionAlgorithmImpl
-	{		
-	public:
-		//@Get Properties
-		/**
-		* Getter method for a refernce to the scheme
-		*
-		*@return the refernce to the scheme.
-		*/
-		const LPPublicKeyEncryptionScheme<Element> &GetScheme() const {return *m_scheme;}
-
-		//@Set Properties
-		/**
-		* Sets the reference to element params
-		*/
-		void SetScheme(const LPPublicKeyEncryptionScheme<Element> &scheme) { m_scheme = &scheme; }
-
-	protected:
-		LPPublicKeyEncryptionAlgorithmImpl() : m_scheme(NULL) {}
-
-		LPPublicKeyEncryptionAlgorithmImpl(const LPPublicKeyEncryptionScheme<Element> &scheme) : m_scheme(&scheme) {}
-
-	private:
-		//pointer to the parent scheme
-		const LPPublicKeyEncryptionScheme<Element> *m_scheme;
 	};
 
 } // namespace lbcrypto ends

@@ -96,7 +96,8 @@ TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
 		DEBUG("2 i "<<i);
 	}
 	DEBUG("3");	
-	DiscreteGaussianGenerator dgg(stdDev);
+
+	ILVectorArray2n::PreComputeCRIFactors(moduli, m);
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 	DEBUG("4");	
@@ -106,7 +107,6 @@ TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
-	cryptoParams.SetDiscreteGaussianGenerator(dgg);
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
 	cc.Enable(ENCRYPTION);
@@ -124,6 +124,8 @@ TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
 	DEBUG("11");	
 	EXPECT_EQ(plaintextNew, plaintext);
 	DEBUG("Done");	
+	ILVectorArray2n::DestroyPrecomputedCRIFactors();
+
 }
 
 /*Simple Encrypt-Decrypt check for ILVector2n. The assumption is this test case is that everything with respect to lattice and math

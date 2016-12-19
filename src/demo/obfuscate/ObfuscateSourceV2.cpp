@@ -94,14 +94,9 @@ void NTRUPRE(int input) {
 	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
 
 	usint m = 16;
-	//60 bits
-	BigBinaryInteger modulus("1152921504606847009");
-	//27 bits
-	//BigBinaryInteger modulus("67108913");
-	//60 bits
-	BigBinaryInteger rootOfUnity("405107564542978792");
-	//27 bits
-	//BigBinaryInteger rootOfUnity("61564");
+	//54 bits
+	BigBinaryInteger modulus("9007199254741169");
+	BigBinaryInteger rootOfUnity("7629104920968175");
 
 	float stdDev = 4;
 
@@ -113,7 +108,7 @@ void NTRUPRE(int input) {
 	//DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(modulus, stdDev);			// Create the noise generator
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev); // Create the noise generator
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
-	BinaryUniformGenerator bug = BinaryUniformGenerator();			// Create the noise generator
+	TernaryUniformGenerator tug = TernaryUniformGenerator();			// Create the noise generator
 
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
@@ -200,11 +195,9 @@ void NTRUPRE(int input) {
 
 	std::cout << "Key generation ended" << std::endl;
 
-	std::cout << "Key generation time: " << "\t" << diff << " ms" << std::endl;
+	std::cout << "Key generation time: " << "\t" << diff << " ms" << std::endl;	
 
-	BinaryUniformGenerator dbg = BinaryUniformGenerator();	
-
-	algorithm.Obfuscate(clearPattern,dgg,dbg,&obfuscatedPattern);
+	algorithm.Obfuscate(clearPattern,dgg,tug,&obfuscatedPattern);
 	std::cout << "Obfuscation Execution completed." << std::endl;
 
 //	obfuscatedPattern.GetSl();

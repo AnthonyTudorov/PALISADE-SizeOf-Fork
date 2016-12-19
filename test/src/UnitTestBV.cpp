@@ -68,24 +68,39 @@ public:
 TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 
 	usint m = 2048;
-	string modulus("268441601");
-	string rootOfUnity("16947867");
+	//usint m = 8;
+	BigBinaryInteger modulus("268441601");
 	usint relWindow = 1;
+	
+	//lbcrypto::NextQ(modulus, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+	BigBinaryInteger rootOfUnity((RootOfUnity(m, modulus)));
 
 	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	
 	float stdDev = 4;
 
+	std::vector<usint> vectorOfInts1 = { 1,0,1,0 };
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(2, m,
-			modulus, rootOfUnity, relWindow, stdDev);
+	IntPlaintextEncoding intArray1(vectorOfInts1);
+
+	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
+
+	LPCryptoParametersBV<ILVector2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
+	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
+	cryptoParams.SetRelinWindow(relWindow);						   // Set the relinearization window
+	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
+
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams);
 	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
 	cc.Enable(PRE);
 
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(BigBinaryInteger(rootOfUnity), m, BigBinaryInteger(modulus));
+	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
@@ -108,8 +123,13 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
+	//vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
+		//	cc.Encrypt(kp.publicKey, intArray1,false);	// This is the core encryption operation.
+
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-			cc.Encrypt(kp.publicKey, plaintext, false);	// This is the core encryption operation.
+		cc.Encrypt(kp.publicKey, plaintext, false);	// This is the core encryption operation.
+
+	
 
 
 	////////////////////////////////////////////////////////////
@@ -117,10 +137,13 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	////////////////////////////////////////////////////////////
 
 	BytePlaintextEncoding plaintextNew;
+	IntPlaintextEncoding intArrayNew;
 
+	//DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew,false);
 	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew, false);
 
 	EXPECT_EQ(plaintextNew, plaintext);
+	//EXPECT_EQ(intArrayNew, intArray1);
 
 	//PRE SCHEME
 
@@ -137,9 +160,7 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
-
-	evalKey = cc.GetEncryptionAlgorithm().ReKeyGen(newKp.secretKey, kp.secretKey);
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey = cc.KeySwitchGen( kp.secretKey, newKp.secretKey);
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption operation.
@@ -147,9 +168,7 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	////////////////////////////////////////////////////////////
 
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
-
-	newCiphertext = cc.ReEncrypt(evalKey, ciphertext);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext = cc.ReEncrypt(evalKey, ciphertext);
 
 	//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
 
@@ -158,13 +177,15 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	////////////////////////////////////////////////////////////
 
 	BytePlaintextEncoding plaintextNew2;
+	IntPlaintextEncoding intArrayNew2;
 
+	//DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &intArrayNew2,false);
 	DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &plaintextNew2, false);
-
 	/*ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();*/
 	
 	EXPECT_EQ(plaintextNew2, plaintext);
+	//EXPECT_EQ(intArrayNew2, intArray1);
 }
 
 

@@ -17,8 +17,10 @@ using std::string;
 using std::shared_ptr;
 
 namespace lbcrypto {
+
 template <class Element>
 class CryptoContext;
+
 }
 
 #include "math/backend.h"
@@ -34,11 +36,6 @@ class CryptoContext;
 #include "lattice/ilvectorarray2n.h"
 
 #include "crypto/pubkeylp.h"
-#include "crypto/lwepre.h"
-#include "crypto/lweahe.h"
-#include "crypto/lweshe.h"
-#include "crypto/lwefhe.h"
-#include "crypto/lweautomorph.h"
 
 #include "crypto/rlwe.h"
 #include "crypto/ltv.h"
@@ -49,7 +46,6 @@ class CryptoContext;
 
 #include "utils/serializable.h"
 
-#include "crypto/lwecrypt.h"
 #include "crypto/ciphertext.h"
 
 
