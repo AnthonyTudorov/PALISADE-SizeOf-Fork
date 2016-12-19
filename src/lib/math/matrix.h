@@ -355,7 +355,7 @@ namespace lbcrypto {
             inline void SwitchFormat(); 
 
 
-            Matrix<Element> MultiplyCAPS(const Matrix<Element>& other, int nrec=0) const;
+            Matrix<Element> MultiplyCAPS(const Matrix<Element>& other, int nrec=0, int pad = -1) const;
             void multiplyInternalCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc, it_lineardata_t work ) const;
             void strassenDFSCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc, it_lineardata_t workPassThrough ) const;
             void block_multiplyCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor d, it_lineardata_t workPassThrough ) const;

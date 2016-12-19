@@ -707,21 +707,31 @@ Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& ot
 
 
 template<class Element>
-Matrix<Element> Matrix<Element>::MultiplyCAPS(Matrix<Element> const& other,int nrec) const{
+Matrix<Element> Matrix<Element>::MultiplyCAPS(Matrix<Element> const& other,int nrec,int pad) const{
 
 
 	omp_set_num_threads(NUM_THREADS);
 
+	double rowlog;
+	int allrows = rows;
+	int allcols = cols;
 	//std::cout<<"In MultiplyCAPS"<<std::endl;
+	if (pad == -1) {
+		double rowlog = log2(rows);
+		double collog = log2(cols);
+		rowlog = ceil(rowlog);
+		collog = ceil(collog);
+		allrows = (int) pow(2, rowlog);
+		allcols = (int) pow(2, collog);
+		rowpad = allrows - rows;
+		colpad = allcols - cols;
+	} else {
+		rowpad = pad;
+		colpad = pad;
+		allrows = rows + pad;
+		allcols = cols + pad;
+	}
 
-	double rowlog = log2(rows);
-	double collog = log2(cols);
-	rowlog = ceil(rowlog);
-	collog = ceil(collog);
-	int allrows = (int)pow(2,rowlog);
-	int allcols = (int)pow(2,collog);
-	rowpad = allrows - rows;
-	colpad = allcols - cols;
 	numAdd = 0;
 	numSub = 0;
 	numMult = 0;
