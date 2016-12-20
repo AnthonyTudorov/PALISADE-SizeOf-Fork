@@ -10,7 +10,7 @@
 namespace lbcrypto {
 
 template <class Element>
-LPKeyPair<Element> LPAlgorithmNull<Element>::KeyGen(const CryptoContext<Element> cc) const
+LPKeyPair<Element> LPAlgorithmNull<Element>::KeyGen(const CryptoContext<Element> cc, bool makeSparse) const
 {
 	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 

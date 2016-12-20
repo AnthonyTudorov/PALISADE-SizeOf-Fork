@@ -184,14 +184,6 @@ public:
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Element &plaintext) const;
 
 	/**
-	* Method for decrypting plaintext using Ring-LWE NTRU
-	*
-	* @param &privateKey private key used for decryption.
-	* @param &ciphertext ciphertext id decrypted.
-	* @param *plaintext the plaintext output.
-	* @return an instance of DecryptResult related to the plaintext that is decrypted
-	*/
-	/**
 	 * Decrypt method for LTV Scheme
 	 *
 	 * @param privateKey - decryption key
@@ -205,11 +197,14 @@ public:
 
 	/**
 	 * KeyGen
+	 * Note that in "sparse" mode, all even indices are non-zero
+	 * and odd indices are set to zero.
 	 *
 	 * @param cc - crypto context in which to generate a key pair
+	 * @param makeSparse - true to generate a sparse key pair
 	 * @return public and private key pair
 	 */
-	virtual LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc) const;
+	LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse = false) const;
 };
 
 /**
@@ -351,7 +346,7 @@ public:
 	* @param *tempPrivateKey used to store permutations of private key; passed as pointer because instances of LPPrivateKey cannot be created within the method itself
 	* @param *evalKeys the evaluation keys; index 0 of the vector corresponds to plaintext index 2, index 1 to plaintex index 3, etc.
 	*/
-	virtual bool EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+	bool EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
 		const usint size, shared_ptr<LPPrivateKey<Element>> *tempPrivateKey,
 		std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const;
@@ -371,12 +366,13 @@ public:
 	LPLeveledSHEAlgorithmLTV() {}
 
 	/**
-	* Method for ModReducing CipherText and the Private Key used for encryption.
+	* Method for ModReducing CipherText
 	*
 	* @param cipherText Ciphertext to perform and apply modreduce on.
 	* @return resulting modreduced ciphertext
 	*/
-	virtual shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const;
+	shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const;
+
 	/**
 	* Method for RingReducing CipherText and the Private Key used for encryption.
 	*
@@ -384,7 +380,7 @@ public:
 	* @param keySwitchHint is the keyswitchhint from the ciphertext's private key to a sparse key
 	* @return resulting RingReduced ciphertext
 	*/
-	virtual shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const;
+	shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const;
 
 	/**
 	* Method for ComposedEvalMult
@@ -394,7 +390,7 @@ public:
 	* @param quadKeySwitchHint is for resultant quadratic secret key after multiplication to the secret key of the particular level.
 	* @return the resulting ciphertext that can be decrypted with the secret key of the particular level.
 	*/
-	virtual shared_ptr<Ciphertext<Element>> ComposedEvalMult(
+	shared_ptr<Ciphertext<Element>> ComposedEvalMult(
 		const shared_ptr<Ciphertext<Element>> cipherText1,
 		const shared_ptr<Ciphertext<Element>> cipherText2,
 		const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const;
@@ -406,16 +402,9 @@ public:
 	* @param linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
 	* @return the resulting ciphertext.
 	*/
-	virtual shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
+	shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
 		const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const;
-	/**
-	* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
-	* and odd indices are set to zero.
-	*
-	* @param cc required cryptocontext.
-	* @return sparsekey pair.
-	*/
-	virtual LPKeyPair<Element> SparseKeyGen(const CryptoContext<Element> cc) const;
+
 	/**
 	* Function that determines if security requirements are met if ring dimension is reduced by half.
 	*
@@ -423,7 +412,7 @@ public:
 	* @param &moduli is the vector of moduli that is used
 	* @param rootHermiteFactor is the security threshold
 	*/
-	virtual bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const;
+	bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const;
 };
 
 /**

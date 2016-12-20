@@ -41,8 +41,11 @@ namespace lbcrypto {
 
 
 	template <class Element>
-	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(const CryptoContext<Element> cc) const
+	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(const CryptoContext<Element> cc, bool makeSparse) const
 	{
+		if( makeSparse )
+			return LPKeyPair<Element>();
+
 		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc.GetCryptoParameters());
@@ -510,12 +513,6 @@ namespace lbcrypto {
 	shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmBV<Element>::LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
 		const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const {
 		return cipherText1;
-	}
-
-	template <class Element>
-	LPKeyPair<Element> LPLeveledSHEAlgorithmBV<Element>::SparseKeyGen(const CryptoContext<Element> cc) const {
-		LPKeyPair<Element> f;
-		return f;
 	}
 
 	template <class Element>

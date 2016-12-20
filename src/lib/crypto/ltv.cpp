@@ -129,14 +129,11 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<BigBina
 }
 
 template <class Element>
-LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> cc) const
+LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> cc, bool makeSparse) const
 {
 	LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
 
 	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(cc.GetCryptoParameters());
-
-	if (cryptoParams == 0)
-		throw std::logic_error("Wrong type for crypto parameters in LPAlgorithmLTV<Element>::KeyGen");
 
 	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
@@ -149,6 +146,9 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 
 	f = f + BigBinaryInteger::ONE;
 
+	if( makeSparse )
+		f.MakeSparse(BigBinaryInteger::TWO);
+
 	f.SwitchFormat();
 
 	//check if inverse does not exist
@@ -158,6 +158,8 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 		f = temp;
 		f = p*f;
 		f = f + BigBinaryInteger::ONE;
+		if( makeSparse )
+			f.MakeSparse(BigBinaryInteger::TWO);
 		f.SwitchFormat();
 	}
 
@@ -472,6 +474,8 @@ template <class Element>
 shared_ptr<LPEvalKey<Element>> LPAlgorithmPRELTV<Element>::ReKeyGen(const shared_ptr<LPKey<Element>> newPK,
 	const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
 {
+	// FIXME: KeySwitchGen as a subroutine instead
+
 	// create a new ReKey of the proper type, in this context
 	shared_ptr<LPEvalKeyNTRURelin<Element>> ek(new LPEvalKeyNTRURelin<Element>(newPK->GetCryptoContext()));
 
@@ -480,19 +484,11 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmPRELTV<Element>::ReKeyGen(const shared
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParamsLWE =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(newPK->GetCryptoParameters());
 
-	if (cryptoParamsLWE == 0) {
-		throw std::logic_error("Public key is not using RLWE parameters in LPAlgorithmPRELTV<Element>::ReKeyGen");
-	}
-
 	const shared_ptr<ElemParams> elementParams = cryptoParamsLWE->GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const Element &f = origPrivateKey->GetPrivateElement();
 
 	const shared_ptr<LPPublicKey<Element>> newPublicKey = std::dynamic_pointer_cast<LPPublicKey<Element>>(newPK);
-
-	if (newPublicKey == 0) {
-		throw std::logic_error("Public Key argument is not an LPPublicKey in LPAlgorithmPRELTV<Element>::ReKeyGen");
-	}
 
 	const Element &hn = newPublicKey->GetPublicElements().at(0);
 
@@ -532,7 +528,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPRELTV<Element>::ReEncrypt(const shar
 
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
-	Element c(ciphertext->GetElement());
+	const Element& c = ciphertext->GetElement();
 
 	std::vector<Element> digits(c.BaseDecompose(relinWindow));
 
@@ -541,7 +537,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPRELTV<Element>::ReEncrypt(const shar
 	for (usint i = 1; i < digits.size(); ++i)
 		ct += digits[i] * proxy[i];
 
-	newCiphertext->SetElement(ct);
+	newCiphertext->SetElement( std::move(ct) );
 
 	return newCiphertext;
 }
@@ -558,20 +554,13 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPRELTV<Element>::ReEncrypt(const shar
 template<class Element> inline
 shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
 
-	shared_ptr<Ciphertext<Element>> newcipherText(cipherText);
+	shared_ptr<Ciphertext<Element>> newcipherText(new Ciphertext<Element>(cipherText->GetCryptoContext()));
 
-	Element cipherTextElement(newcipherText->GetElement());
+	Element cipherTextElement(cipherText->GetElement());
 
-	BigBinaryInteger plaintextModulus(newcipherText->GetCryptoParameters()->GetPlaintextModulus());
+	const BigBinaryInteger& plaintextModulus = cipherText->GetCryptoParameters()->GetPlaintextModulus();
 
-	// FIXME: note this will not work for ILVector2n yet so we must have a small hack here.
-
-	ILVectorArray2n *ep = dynamic_cast<ILVectorArray2n *>(&cipherTextElement);
-	if (ep == 0) {
-		throw std::logic_error("ModReduce is only implemented for ILVectorArray2n");
-	}
-
-	ep->ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
+	cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
 
 	newcipherText->SetElement(cipherTextElement);
 
@@ -619,22 +608,8 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalM
 	const shared_ptr<Ciphertext<Element>> cipherText2,
 	const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const {
 
-	if (!(cipherText1->GetCryptoParameters() == cipherText2->GetCryptoParameters())) {
-		std::string errMsg = "ComposedEvalMult crypto parameters are not the same";
-		throw std::runtime_error(errMsg);
-	}
+	shared_ptr<Ciphertext<Element>> cipherTextResult = cipherText1->GetCryptoContext().GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2, quadKeySwitchHint);
 
-	shared_ptr<Ciphertext<Element>> cipherTextResult;
-
-	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
-			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(cipherText1->GetCryptoContext().GetEncryptionAlgorithm());
-
-	cipherTextResult = scheme->EvalMult(cipherText1, cipherText2);
-
-	//*cipherTextResult = scheme.m_algorithmLeveledSHE->KeySwitch(quadKeySwitchHint,*cipherTextResult);
-	cipherTextResult = scheme->KeySwitch(quadKeySwitchHint, cipherTextResult);
-
-	//scheme.m_algorithmLeveledSHE->ModReduce(cipherTextResult);
 	return this->ModReduce(cipherTextResult);
 }
 
@@ -642,57 +617,9 @@ template<class Element>
 shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
 	const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const {
 
-	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
-			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(cipherText1->GetCryptoContext().GetEncryptionAlgorithm());
-
-	shared_ptr<Ciphertext<Element>> cipherTextResult = scheme->KeySwitch(linearKeySwitchHint, cipherText1);
+	shared_ptr<Ciphertext<Element>> cipherTextResult = cipherText1->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitch(linearKeySwitchHint, cipherText1);
 
 	return this->ModReduce(cipherTextResult);
-}
-
-template<class Element>
-LPKeyPair<Element> LPLeveledSHEAlgorithmLTV<Element>::SparseKeyGen(const CryptoContext<Element> cc) const
-{
-	LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
-
-	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(cc.GetCryptoParameters());
-
-	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-
-	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-
-	Element f(dgg, elementParams, Format::COEFFICIENT);
-
-	f = p*f;
-
-	f = f + BigBinaryInteger::ONE;
-
-	f.MakeSparse(BigBinaryInteger::TWO);
-
-	f.SwitchFormat();
-
-	//check if inverse does not exist
-	while (!f.InverseExists())
-	{
-		Element temp(dgg, elementParams, Format::COEFFICIENT);
-		f = temp;
-		f = p*f;
-		f = f + BigBinaryInteger::ONE;
-		f.MakeSparse(BigBinaryInteger::TWO);
-		f.SwitchFormat();
-	}
-
-	kp.secretKey->SetPrivateElement(f);
-
-	Element g(dgg, elementParams, Format::COEFFICIENT);
-
-	g.SwitchFormat();
-
-	//public key is generated
-	kp.publicKey->SetPublicElementAtIndex(0, std::move(cryptoParams->GetPlaintextModulus()*g*kp.secretKey->GetPrivateElement().MultiplicativeInverse()));
-
-	return kp;
 }
 
 template<class Element>
@@ -705,7 +632,7 @@ bool LPLeveledSHEAlgorithmLTV<Element>::CanRingReduce(usint ringDimension, const
 	for (usint i = 0; i < moduli.size(); i++) {
 		multipliedModuli = multipliedModuli*  moduli.at(i).ConvertToDouble();
 	}
-	double powerValue = (log(multipliedModuli) / log(2)) / (4 * ringDimension);
+	double powerValue = log2(multipliedModuli) / (4 * ringDimension);
 	double powerOfTwo = pow(2, powerValue);
 
 	return rootHermiteFactor >= powerOfTwo;
