@@ -41,20 +41,18 @@ public class PalisadeCrypto {
 	}
 	
 	/**
-	 * 
-	 * @param id - string to identify the keypair
+	 * generatePalisadeKeypair
 	 * @return a PalisadeKeypair with a public and private key JSON array
 	 */
-	public native PalisadeKeypair generatePalisadeKeyPair(String id);
+	public native PalisadeKeypair generatePalisadeKeyPair();
 	
 	/**
 	 * 
-	 * @param id - string to identify the key
 	 * @param publicKey - subscriber's public key
 	 * @param privateKey - publisher's private key
 	 * @return - serialized JSON array containing the evaluation key
 	 */
-	public native byte[] generatePalisadeEvalKey(String id, byte[] publicKey, byte[] privateKey);
+	public native byte[] generatePalisadeEvalKey(byte[] publicKey, byte[] privateKey);
 
 	/**
 	 * Sets the key to be used for Encryption by deserializing the given key bytes
@@ -79,27 +77,24 @@ public class PalisadeCrypto {
 	
 	/**
 	 * Encrypt using the key set in #setPublicKey
-	 * @param id - identifies the encryption
 	 * @param cleartext - the text to be encrypted
 	 * @return - JSON serialization of the ciphertext
 	 */
-	public native byte[] encrypt(String id, byte[] cleartext);
+	public native byte[] encrypt(byte[] cleartext);
 	
 	/**
 	 * Re-Encrypt using the key set in #setEvalKey
-	 * @param id - identifies the encryption
 	 * @param ciphertext - the JSON serialization of the payload to be re-encrypted
 	 * @return - JSON serialization of the ciphertext
 	 */
-	public native byte[] reEncrypt(String id, byte[] ciphertext);
+	public native byte[] reEncrypt(byte[] ciphertext);
 	
 	/**
 	 * Decrypt using the key set in #setPrivateKey
-	 * @param id - identifies the encryption
 	 * @param ciphertext - the JSON serialization of the payload to be decrypted
 	 * @return - cleartext byte array
 	 */
-	public native byte[] decrypt(String id, byte[] ciphertext);
+	public native byte[] decrypt(byte[] ciphertext);
 	
 	/**
 	 * Finish with this PalisadeCrypto instance
@@ -148,13 +143,13 @@ public class PalisadeCrypto {
 		
 		System.out.println("Generating some key pairs");
 
-		PalisadeKeypair kPublisher = ctx.generatePalisadeKeyPair("pub");
+		PalisadeKeypair kPublisher = ctx.generatePalisadeKeyPair();
 		if( kPublisher == null ) {
 			System.out.println("could not create a publisher keypair: " + new String(ctx.getPalisadeErrorDescription()));
 			return;
 		}
 		
-		PalisadeKeypair kSubscriber = ctx.generatePalisadeKeyPair("sub");
+		PalisadeKeypair kSubscriber = ctx.generatePalisadeKeyPair();
 		if( kSubscriber == null ) {
 			System.out.println("could not create a subscriber keypair: " + new String(ctx.getPalisadeErrorDescription()));
 			return;
@@ -162,7 +157,7 @@ public class PalisadeCrypto {
 		
 		System.out.println("Generating Eval Key");
 
-		byte[] evk = ctx.generatePalisadeEvalKey("pubsub", kSubscriber.getPubK(), kPublisher.getPrivK());
+		byte[] evk = ctx.generatePalisadeEvalKey(kSubscriber.getPubK(), kPublisher.getPrivK());
 
 		if( evk == null ) {
 			System.out.println("could not create an eval key: " + new String(ctx.getPalisadeErrorDescription()));
@@ -180,38 +175,52 @@ public class PalisadeCrypto {
 		}
 		
 		System.out.println("Encrypting...");
-		byte[] enc1 = ctx.encrypt("try", cleartext.getBytes("UTF-8"));
+		byte[] enc1 = ctx.encrypt(cleartext.getBytes("UTF-8"));
 		
 		if( enc1 == null ) {
 			System.out.println("Failed to encrypt: " + new String(ctx.getPalisadeErrorDescription()));
 			return;
 		}
-		
+				
 		System.out.println("Decrypting...");
-		byte[] dec1 = ctx.decrypt("try", enc1);
+		byte[] dec1 = ctx.decrypt(enc1);
 		
 		if( dec1 == null ) {
-			System.out.println("Failed to decrypt");
+			System.out.println("Failed to decrypt" + new String(ctx.getPalisadeErrorDescription()));
 			return;
 		}
-		System.out.println( new String(dec1) );
-
+		String decrypted = new String(dec1, "UTF-8");
+		
+		if( cleartext.compareTo(decrypted) != 0 ) {
+			System.out.println("Mismatch on decrypted payload");
+			System.out.println( decrypted );
+		}
+		else
+			System.out.println("Matched!");
+		
 		ctx.setPrivateKey(kSubscriber.getPrivK());
 		ctx.setEvalKey(evk);
 
-		System.out.println("Encrypting");
-		byte[] cipher = ctx.encrypt("enc", cleartext.getBytes("UTF-8"));
+		System.out.println("Re-Encryption Testing...");
+		
+		System.out.println("Encrypting...");
+		byte[] cipher = ctx.encrypt(cleartext.getBytes("UTF-8"));
 		if( cipher != null ) {
-			if( Arrays.equals(enc1, cipher) ) System.out.println("matches!");
 			
-			System.out.println("Re encrypting");
-			byte[] reEnc = ctx.reEncrypt("re", cipher);
+			System.out.println("Re encrypting...");
+			byte[] reEnc = ctx.reEncrypt(cipher);
 			if( reEnc != null ) {
-				System.out.println("Decrypting");
-				byte[] output = ctx.decrypt("de", reEnc);
+				System.out.println("Decrypting...");
+				byte[] output = ctx.decrypt(reEnc);
 
-				if( output != null ) {	
-					System.out.println( new String(output) );
+				if( output != null ) {
+					String newDe = new String(output, "UTF-8");
+					if( cleartext.compareTo(newDe) != 0 ) {
+						System.out.println("Mismatch on decrypted payload");
+						System.out.println( newDe );
+					}
+					else
+						System.out.println("Matched!");
 				}
 			}
 		}
