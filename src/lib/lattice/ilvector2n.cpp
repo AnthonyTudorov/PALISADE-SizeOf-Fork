@@ -51,7 +51,7 @@ namespace lbcrypto {
 		}
 	}
 
-	ILVector2n::ILVector2n(bool initializeElementToMax, const shared_ptr<ElemParams> params, Format format) : m_values(NULL), m_format(format), m_empty(true) {
+	ILVector2n::ILVector2n(bool initializeElementToMax, const shared_ptr<ElemParams> params, Format format) : m_values(NULL), m_format(format) {
 		if( typeid(*params) != typeid(ILParams) )
 			throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
 
@@ -59,7 +59,7 @@ namespace lbcrypto {
 
 		if(initializeElementToMax) {
 			this->SetValuesToMax();
-			m_empty = false;
+
 		}
 	}
 
