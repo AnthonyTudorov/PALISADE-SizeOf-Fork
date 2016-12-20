@@ -102,7 +102,7 @@ void NTRUPRE(int input) {
 	BigBinaryInteger modulus("9007199254741169");
 	BigBinaryInteger rootOfUnity("7629104920968175");
 
-	float stdDev = 4;
+	double stdDev = SIGMA;
 
 	double diff, start, finish;
 

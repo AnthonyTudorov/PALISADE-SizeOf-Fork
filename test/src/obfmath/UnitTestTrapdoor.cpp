@@ -225,7 +225,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqV2SampTest) {
 	//BigBinaryInteger rootOfUnity("389832");
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
     auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
-	float sigma = 4;
+	double sigma = SIGMA;
 
 	DiscreteGaussianGenerator dgg(sigma);
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
@@ -357,7 +357,7 @@ TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
 
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
-	float stddev = 4;
+	double sigma = SIGMA;
 
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
 	double logTwo = log(val - 1.0) / log(2) + 1.0;
@@ -366,19 +366,20 @@ TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
 	//auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
-	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, sigma);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
 	//auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
 
-	double sigma = 4;
 	DiscreteGaussianGenerator dgg(sigma);
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 
-	double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
+	//double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
+	double c = 2 * SIGMA;
 	//double s = 40 * sqrt((k + 2)*n);
-	double s = 40 * sqrt(k*n);
+	//double s = 40 * sqrt(k*n);
+	double s = SPECTRAL_BOUND(n, k);
 	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
 
 	ILVector2n u(dug, params, COEFFICIENT);
@@ -386,7 +387,7 @@ TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
 
 	//  600 is a very rough estimate for s, refer to Durmstradt 4.2 for
 	//      estimation
-	RingMat z = RLWETrapdoorUtility::GaussSampV3(m / 2, k, trapPair.first, trapPair.second, u, stddev, dgg, dggLargeSigma);
+	RingMat z = RLWETrapdoorUtility::GaussSampV3(m / 2, k, trapPair.first, trapPair.second, u, sigma, dgg, dggLargeSigma);
 
 	//Matrix<ILVector2n> uEst = trapPair.first * z;
 
@@ -411,12 +412,17 @@ TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
 // covariance matrices at all steps are positive definite 
 TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
+	//usint m = 2048;
 	usint m = 16;
 	//usint m = 512;
 	usint n = m / 2;
 
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
+
+	//for m = 2048
+	//BigBinaryInteger modulus("134246401");
+	//BigBinaryInteger rootOfUnity("34044212");
 
 	//BigBinaryInteger modulus("1237940039285380274899136513");
 	//BigBinaryInteger rootOfUnity("977145384161930579732228319");
@@ -426,19 +432,21 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	usint k = (usint)floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	//smoothing parameter
-	double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
+	//double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
+	double c = 2 * SIGMA;
 
 	//spectral bound s
-	double s = 39 * std::sqrt(n*k);
+	double s = SPECTRAL_BOUND(n, k);
 
-	std::cout << "s = " << s << std::endl;
+	//std::cout << "sigma = " << SIGMA << std::endl;
+	//std::cout << "s = " << s << std::endl;
 
 	//Generate the trapdoor pair
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
 
-	double sigma = 4;
+	double sigma = SIGMA;
 
-	std::cout << 39 / (c*sigma) << std::endl;
+	//std::cout << 50 / (c*sigma) << std::endl;
 
 	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, sigma);
 
@@ -469,7 +477,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	Matrix<int32_t> pTrapdoorAverage([]() { return make_unique<int32_t>(); }, 2 * n, 1);
 
-	size_t count = 1000;
+	size_t count = 100;
 
 	for (size_t i = 0; i < count; i++) {
 		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, dgg, dggLargeSigma, &pHat);
