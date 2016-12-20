@@ -8,10 +8,6 @@
 extern "C" {
 #endif
 
-//FIXME: Test
-JNIEXPORT void JNICALL Java_com_palisade_PalisadeCrypto_writeBytes
-  (JNIEnv *, jobject thiz, jbyteArray bytes, jobject inputstream, jobject outstream);
-
 /*
  * Class:     com_palisade_PalisadeCrypto
  * Method:    getPalisadeKeyPair
@@ -35,7 +31,7 @@ JNIEXPORT jboolean JNICALL Java_com_palisade_PalisadeCrypto_setPrivateKey
 JNIEXPORT jboolean JNICALL Java_com_palisade_PalisadeCrypto_setEvalKey
   (JNIEnv *, jobject thiz, jbyteArray key);
 
-JNIEXPORT jbyteArray Java_com_palisade_PalisadeCrypto_getPalisadeErrorDescription
+JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_getPalisadeErrorDescription
   (JNIEnv *, jobject thiz);
 
 
