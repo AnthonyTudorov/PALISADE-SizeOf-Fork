@@ -50,14 +50,14 @@ namespace lbcrypto {
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc.GetCryptoParameters());
 
-		if (cryptoParams == 0)
-			throw std::logic_error("Wrong type for crypto parameters in LPAlgorithmBV<Element>::KeyGen");
-
 		const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
+
 		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+
 		const DiscreteUniformGenerator dug(elementParams->GetModulus());
+
 		TernaryUniformGenerator tug;
 
 		//Generate the element "a" of the public key
@@ -65,6 +65,7 @@ namespace lbcrypto {
 		
 		//Generate the secret key
 		Element s;
+
 		//Done in two steps not to use a random polynomial from a pre-computed pool
 		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 		if (cryptoParams->GetMode() == RLWE) {
@@ -75,8 +76,6 @@ namespace lbcrypto {
 		}
 		s.SwitchFormat();
 
-		kp.secretKey->SetPrivateElement(s);
-
 		//public key is generated and set
 		//privateKey->MakePublicKey(a, publicKey);
 		Element e(dgg, elementParams, Format::COEFFICIENT);
@@ -84,10 +83,11 @@ namespace lbcrypto {
 
 		Element b = a*s + p*e;
 
+		kp.secretKey->SetPrivateElement(std::move(s));
+
 		kp.publicKey->SetPublicElementAtIndex(0, std::move(a));
+
 		kp.publicKey->SetPublicElementAtIndex(1, std::move(b));
-
-
 
 		return kp;
 	}
@@ -98,8 +98,6 @@ namespace lbcrypto {
 	{
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(publicKey->GetCryptoParameters());
-
-		if (cryptoParams == 0) return shared_ptr<Ciphertext<Element>>();
 
 		shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(publicKey->GetCryptoContext()));
 
@@ -135,6 +133,7 @@ namespace lbcrypto {
 	{
 
 		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
+
 		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 		const std::vector<Element> &c = ciphertext->GetElements();
@@ -164,9 +163,9 @@ namespace lbcrypto {
 
 		std::vector<Element> cNew;
 
-		cNew.insert(cNew.begin(), std::move(c1[0] + c2[0]));
+		cNew.push_back(std::move(c1[0] + c2[0]));
 
-		cNew.insert(cNew.begin() + 1, std::move(c1[1] + c2[1]));
+		cNew.push_back(std::move(c1[1] + c2[1]));
 
 		newCiphertext->SetElements(std::move(cNew));
 
@@ -178,11 +177,6 @@ namespace lbcrypto {
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const {
-
-		if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
-			std::string errMsg = "LPAlgorithmSHEFV::EvalSub crypto parameters are not the same";
-			throw std::runtime_error(errMsg);
-		}
 
 		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
 
@@ -214,11 +208,11 @@ namespace lbcrypto {
 
 		std::vector<Element> cNew;
 
-		cNew.insert(cNew.begin(), std::move(c1[0] * c2[0]));
+		cNew.push_back(std::move(c1[0] * c2[0]));
 
-		cNew.insert(cNew.begin() + 1, std::move(c1[0] * c2[1] + c1[1] * c2[0]));
+		cNew.push_back(std::move(c1[0] * c2[1] + c1[1] * c2[0]));
 
-		cNew.insert(cNew.begin() + 2, std::move(c1[1] * c2[1]));
+		cNew.push_back(std::move(c1[1] * c2[1]));
 
 		newCiphertext->SetElements(std::move(cNew));
 

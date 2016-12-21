@@ -55,7 +55,7 @@ namespace lbcrypto {
 		public:
 			
 			/**
-			 * Constructor that initializes all values to 0.
+			 * Default Constructor.
 			 */
 			LPCryptoParametersBV() : LPCryptoParametersRLWE<Element>() {}
 
@@ -94,15 +94,13 @@ namespace lbcrypto {
 						depth) {}
 
 			/**
-			* Destructor
+			* Destructor.
 			*/
 			virtual ~LPCryptoParametersBV() {}
 			
-			//JSON FACILITY
 			/**
 			* Serialize the object into a Serialized
 			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-			* @param fileFlag is an object-specific parameter for the serialization
 			* @return true if successfully serialized
 			*/
 			bool Serialize(Serialized* serObj) const {
@@ -120,7 +118,7 @@ namespace lbcrypto {
 			}
 
 			/**
-			* Populate the object from the deserialization of the Setialized
+			* Populate the object from the deserialization of the Serialized
 			* @param serObj contains the serialized object
 			* @return true on success
 			*/
@@ -133,7 +131,7 @@ namespace lbcrypto {
 
 			
 			/**
-			* == operator to compare to this instance of LPCryptoParametersLTV object. 
+			* == operator to compare to this instance of LPCryptoParametersBV object. 
 			*
 			* @param &rhs LPCryptoParameters to check equality against.
 			*/
@@ -329,8 +327,8 @@ namespace lbcrypto {
 		*/
 		shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, const usint i,
 			const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
-			std::string errMsg = "LPAlgorithmSHEBV::EvalAtIndex  is not applicable for BV SHE Scheme.";
-			throw std::runtime_error(errMsg);
+			std::string errMsg = "LPAlgorithmSHEBV::EvalAtIndex  is not implemented for BV SHE Scheme.";
+			throw std::logic_error(errMsg);
 		}
 
 
@@ -347,7 +345,7 @@ namespace lbcrypto {
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
 			const usint size, shared_ptr<LPPrivateKey<Element>> *tempPrivateKey,
 			std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const {
-			std::string errMsg = "LPAlgorithmSHEBV::EvalAutomorphismKeyGen  is not applicable for BV SHE Scheme.";
+			std::string errMsg = "LPAlgorithmSHEBV::EvalAutomorphismKeyGen  is not implemented for BV SHE Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 	};
