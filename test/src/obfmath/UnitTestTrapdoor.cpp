@@ -328,8 +328,6 @@ TEST(UTTrapdoor,TrapDoorGaussSampTest) {
 	Matrix<LargeFloat> sigmaSqrt([](){ return make_unique<LargeFloat>(); }, n*2, n*2);
 	RLWETrapdoorUtility::PerturbationMatrixGenAlt(n, k, trapPair.first, trapPair.second, s, &sigmaSqrt);
 
-    //  600 is a very rough estimate for s, refer to Durmstradt 4.2 for
-    //      estimation
 	RingMat z = RLWETrapdoorUtility::GaussSamp(m/2, k, trapPair.first, trapPair.second, sigmaSqrt, u, stddev, dgg);
 
 	//Matrix<ILVector2n> uEst = trapPair.first * z;
@@ -375,18 +373,13 @@ TEST(UTTrapdoor, TrapDoorGaussSampV3Test) {
 	DiscreteGaussianGenerator dgg(sigma);
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 
-	//double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
 	double c = 2 * SIGMA;
-	//double s = 40 * sqrt((k + 2)*n);
-	//double s = 40 * sqrt(k*n);
 	double s = SPECTRAL_BOUND(n, k);
 	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
 
 	ILVector2n u(dug, params, COEFFICIENT);
 	u.SwitchFormat();
 
-	//  600 is a very rough estimate for s, refer to Durmstradt 4.2 for
-	//      estimation
 	RingMat z = RLWETrapdoorUtility::GaussSampV3(m / 2, k, trapPair.first, trapPair.second, u, sigma, dgg, dggLargeSigma);
 
 	//Matrix<ILVector2n> uEst = trapPair.first * z;
@@ -414,15 +407,20 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	//usint m = 2048;
 	usint m = 16;
-	//usint m = 512;
+	//usint m = 8192;
 	usint n = m / 2;
 
+	//for m = 16
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
 
 	//for m = 2048
 	//BigBinaryInteger modulus("134246401");
 	//BigBinaryInteger rootOfUnity("34044212");
+
+	//for m = 2^13
+	//BigBinaryInteger modulus("268460033");
+	//BigBinaryInteger rootOfUnity("154905983");
 
 	//BigBinaryInteger modulus("1237940039285380274899136513");
 	//BigBinaryInteger rootOfUnity("977145384161930579732228319");

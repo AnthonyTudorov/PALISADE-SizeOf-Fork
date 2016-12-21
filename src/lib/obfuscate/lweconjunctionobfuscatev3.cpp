@@ -299,10 +299,6 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Obfuscate(
 	usint chunkExponent = 1 << chunkSize;
 	const shared_ptr<ElemParams> params = obfuscatedPattern->GetParameters();
 
-	//double sigma = dgg.GetStd();
-	//double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
-	//double s = 40 * sqrt(m*n);
-
 	double c = 2 * SIGMA;
 	double s = SPECTRAL_BOUND(n, m - 2);
 
