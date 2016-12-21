@@ -928,7 +928,7 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			virtual LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc) const = 0;
+			virtual LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const = 0;
 
 	};
 
@@ -978,14 +978,7 @@ namespace lbcrypto {
 			 */
 			virtual shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
 					const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const = 0;
-			/**
-			* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
-			* and odd indices are set to zero.
-			*
-			* @param *publicKey is the public key to be generated.
-			* @param *privateKey is the private key to be generated.
-			*/
-			virtual LPKeyPair<Element> SparseKeyGen(const CryptoContext<Element> cc) const = 0;
+
 			/**
 			* Function that determines if security requirements are met if ring dimension is reduced by half.
 			*
@@ -1307,9 +1300,9 @@ namespace lbcrypto {
 				}
 		}
 
-		LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc) const {
+		LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse) const {
 				if(this->m_algorithmEncryption)
-					return this->m_algorithmEncryption->KeyGen(cc);
+					return this->m_algorithmEncryption->KeyGen(cc, makeSparse);
 				else {
 					throw std::logic_error("KeyGen operation has not been enabled");
 				}
@@ -1419,17 +1412,8 @@ namespace lbcrypto {
 		// TODO: Add Functions?
 
 		/////////////////////////////////////////
-		// the nine functions below are wrappers for things in LPSHEAlgorithm (SHE)
+		// the functions below are wrappers for things in LPSHEAlgorithm (SHE)
 		//
-
-		LPKeyPair<Element> SparseKeyGen(const CryptoContext<Element> cc) const {
-				if(this->m_algorithmLeveledSHE)
-					return this->m_algorithmLeveledSHE->SparseKeyGen(cc);
-				else {
-					throw std::logic_error("SparseKeyGen operation has not been enabled");
-				}
-		}
-
 
 		shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
 			if(this->m_algorithmLeveledSHE){

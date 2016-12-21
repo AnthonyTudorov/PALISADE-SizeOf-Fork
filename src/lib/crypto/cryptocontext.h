@@ -178,15 +178,16 @@ public:
 	* @return a public/secret key pair
 	*/
 	LPKeyPair<Element> KeyGen() const {
-		return GetEncryptionAlgorithm()->KeyGen(*this);
+		return GetEncryptionAlgorithm()->KeyGen(*this, false);
 	}
 
 	/**
-	* SparseKeyGen generates keys with special structure, and without full entropy, for use in special cases like Ring Reduction
+	* SparseKeyGen generates a key pair with special structure, and without full entropy,
+	* for use in special cases like Ring Reduction
 	* @return a public/secret key pair
 	*/
 	LPKeyPair<Element> SparseKeyGen() const {
-		return GetEncryptionAlgorithm()->SparseKeyGen(*this);
+		return GetEncryptionAlgorithm()->KeyGen(*this, true);
 	}
 
 	/**
