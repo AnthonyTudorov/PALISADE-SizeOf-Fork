@@ -16,6 +16,7 @@ test/build
 .idea
 */**/*.gch
 *.a
+*.class
 
 ## for the moment
 .cproject
