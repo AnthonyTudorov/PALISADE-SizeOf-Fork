@@ -107,7 +107,6 @@ namespace lbcrypto {
 		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
-		//const Element &a = publicKey->GetPublicElement();
 		const Element &a = publicKey->GetPublicElements().at(0);
 		const Element &b = publicKey->GetPublicElements().at(1);
 
@@ -120,10 +119,8 @@ namespace lbcrypto {
 
 		plaintext.SwitchFormat();
 
-		//c1 = b v + p e_0 + m
 		c1 = b*v + p*e0 + plaintext;
 
-		//c2 = a v + p e_1
 		c2 = a*v + p*e1;
 
 		ciphertext->SetElements({ c1,c2 });
@@ -159,11 +156,6 @@ namespace lbcrypto {
 		const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const
 	{
-		if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
-			std::string errMsg = "EvalAdd crypto parameters are not the same";
-			throw std::runtime_error(errMsg);
-		}
-
 		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
 
 		const std::vector<Element> &c1 = ciphertext1->GetElements();
@@ -171,7 +163,6 @@ namespace lbcrypto {
 		const std::vector<Element> &c2 = ciphertext2->GetElements();
 
 		std::vector<Element> cNew;
-
 
 		cNew.insert(cNew.begin(), std::move(c1[0] + c2[0]));
 
@@ -244,11 +235,6 @@ namespace lbcrypto {
 			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 		}
 
-		if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
-			std::string errMsg = "EvalMult crypto parameters are not the same";
-			throw std::runtime_error(errMsg);
-		}
-
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(ek->GetCryptoParameters());
 
 		usint relinWindow = cryptoParamsLWE->GetRelinWindow();
@@ -311,9 +297,6 @@ namespace lbcrypto {
 		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 		shared_ptr<LPEvalKey<Element>> keySwitchHintRelin(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
-
-		if (keySwitchHintRelin == nullptr)
-			throw std::runtime_error("Mismatch in proper Eval Key class type");
 
 		const Element &sNew = newPrivateKey->GetPrivateElement();
 

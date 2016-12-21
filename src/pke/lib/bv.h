@@ -205,7 +205,7 @@ namespace lbcrypto {
 		*
 		* @param &publicKey public key used for encryption.
 		* @param &plaintext the plaintext input.
-		* @param *ciphertext ciphertext which results from encryption.
+		* @return ciphertext which results from encryption.
 		*/
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
 			Element &plaintext) const;
@@ -216,7 +216,7 @@ namespace lbcrypto {
 		* @param &privateKey private key used for decryption.
 		* @param &ciphertext ciphertext id decrypted.
 		* @param *plaintext the plaintext output.
-		* @return the decrypted plaintext returned.
+		* @return the decrypted result returned.
 		*/
 		DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext,
@@ -225,18 +225,16 @@ namespace lbcrypto {
 		/**
 		* Function to generate public and private keys
 		*
-		* @param &publicKey private key used for decryption.
-		* @param &privateKey private key used for decryption.
-		* @return function ran correctly.
+		* @param cc is the cryptoContext which encapsulates the crypto paramaters.
+		* @return KeyPair containting private key and public key.
 		*/
 		LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const;
 
 	};
 
 	/**
-	* Evaluation multiplication for homomorphic encryption operations.
+	* Class for evaluation of homomorphic operations.
 	*
-	* @brief Template for crypto PRE.
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
@@ -251,9 +249,9 @@ namespace lbcrypto {
 		/**
 		* Function for evaluation addition on ciphertext.
 		*
-		* @param &ciphertext1 first input ciphertext.
-		* @param &ciphertext2 second input ciphertext.
-		* @param *newCiphertext the new resulting ciphertext.
+		* @param ciphertext1 first input ciphertext.
+		* @param ciphertext2 second input ciphertext.
+		* @return new resulting ciphertext with homomorphic addition of input ciphertext.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const;
