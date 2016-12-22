@@ -93,7 +93,8 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
-	UnitTestEncryption<ILVector2n>(cc, plaintext);
+	UnitTestEncryption<ILVector2n, BytePlaintextEncoding>(cc, plaintext);
+	//UnitTestEncryption<ILVector2n, IntPlaintextEncoding>(cc, intArray1);
 
 #ifdef OUT
 	//Regular LWE-NTRU encryption algorithm

@@ -33,9 +33,9 @@ std::vector<usint> vectorOfInts1 = { 1,0,1,0 };
 IntPlaintextEncoding intArray1(vectorOfInts1);
 #endif
 
-template <class Element>
+template <class Element, class Ptxt>
 void
-UnitTestEncryption(const CryptoContext<Element>& cc, const Plaintext& plaintext) {
+UnitTestEncryption(const CryptoContext<Element>& cc, const Ptxt& plaintext) {
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
@@ -53,13 +53,13 @@ UnitTestEncryption(const CryptoContext<Element>& cc, const Plaintext& plaintext)
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, plaintext, false);
+	vector<shared_ptr<Ciphertext<Element>>> ciphertext = cc.Encrypt(kp.publicKey, plaintext, false);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	Plaintext plaintextNew;
+	Ptxt plaintextNew;
 
 	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew, false);
 
@@ -72,7 +72,7 @@ UnitTestEncryption(const CryptoContext<Element>& cc, const Plaintext& plaintext)
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
+	LPKeyPair<Element> newKp = cc.KeyGen();
 
 
 	////////////////////////////////////////////////////////////
@@ -80,27 +80,29 @@ UnitTestEncryption(const CryptoContext<Element>& cc, const Plaintext& plaintext)
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey = cc.KeySwitchGen( kp.secretKey, newKp.secretKey );
+	shared_ptr<LPEvalKey<Element>> evalKey = cc.KeySwitchGen( kp.secretKey, newKp.secretKey );
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption operation.
 	// This switches the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext = cc.ReEncrypt(evalKey, ciphertext);
+	vector<shared_ptr<Ciphertext<Element>>> newCiphertext = cc.ReEncrypt(evalKey, ciphertext);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	Plaintext plaintextNew2;
+	Ptxt plaintextNew2;
 
 	result = cc.Decrypt(newKp.secretKey, newCiphertext, &plaintextNew2, false);
 
 	EXPECT_EQ(plaintextNew2, plaintext);
 }
 
-template<> void UnitTestEncryption<ILVector2n>(const CryptoContext<ILVector2n>& cc, const Plaintext& plaintext);
-template<> void UnitTestEncryption<ILVectorArray2n>(const CryptoContext<ILVectorArray2n>& cc, const Plaintext& plaintext);
+template void UnitTestEncryption<ILVector2n>(const CryptoContext<ILVector2n>& cc, const BytePlaintextEncoding& plaintext);
+template void UnitTestEncryption<ILVectorArray2n>(const CryptoContext<ILVectorArray2n>& cc, const BytePlaintextEncoding& plaintext);
+template void UnitTestEncryption<ILVector2n>(const CryptoContext<ILVector2n>& cc, const IntPlaintextEncoding& plaintext);
+template void UnitTestEncryption<ILVectorArray2n>(const CryptoContext<ILVectorArray2n>& cc, const IntPlaintextEncoding& plaintext);
 
 
