@@ -35,6 +35,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "utils/debug.h"
 
+#include "cryptolayertests.h"
+
 using namespace std;
 using namespace lbcrypto;
 
@@ -59,7 +61,6 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	BigBinaryInteger modulus("268441601");
 	usint relWindow = 1;
 	
-	//lbcrypto::NextQ(modulus, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 	BigBinaryInteger rootOfUnity((RootOfUnity(m, modulus)));
 
 	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
@@ -92,6 +93,9 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
+	UnitTestEncryption<ILVector2n>(cc, plaintext);
+
+#ifdef OUT
 	//Regular LWE-NTRU encryption algorithm
 
 	////////////////////////////////////////////////////////////
@@ -173,6 +177,7 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	
 	EXPECT_EQ(plaintextNew2, plaintext);
 	//EXPECT_EQ(intArrayNew2, intArray1);
+#endif
 }
 
 
