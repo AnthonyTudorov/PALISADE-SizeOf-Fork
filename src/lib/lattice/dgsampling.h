@@ -44,8 +44,21 @@
 namespace lbcrypto {
 
 //Statistical error in Gaussian sampling
-//corresponds to statistical error of 2^(-90)
-const double DG_ERROR = 8e-28;
+//corresponds to statistical error of 2^(-80)
+const double DG_ERROR = 8.27181e-25;
+
+//Maximum ring dimension to be supported - up to 560 bits in the modulus
+const int32_t N_MAX = 16384;
+
+//Smoothing parameter also used as a "standard deviation" for generating error polynomials
+const double SIGMA = std::sqrt(std::log(2 * N_MAX / DG_ERROR) / M_PI);
+
+//const double SPECTRAL_CONSTANT = 1.2;
+const double SPECTRAL_CONSTANT = 1.60;
+
+const auto SPECTRAL_BOUND = [](uint32_t n, uint32_t k) -> double { 
+	return SPECTRAL_CONSTANT*SIGMA*SIGMA*(std::sqrt(n*k) + std::sqrt(2*n) + 4.7); 
+};
 
 /**
 * @brief Utility class containing operations needed for lattice sampling; Sources: https://eprint.iacr.org/2013/297.pdf & https://eprint.iacr.org/2011/501.pdf
