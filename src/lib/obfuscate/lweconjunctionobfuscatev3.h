@@ -81,7 +81,7 @@ namespace lbcrypto {
 			 *
 			 * @param *elemParams parameters.
 			 */
-			void SetParameters(ElemParams &elemParams) { m_elemParams = &elemParams;}
+			void SetParameters(shared_ptr<ElemParams> elemParams) { m_elemParams = elemParams;}
 
 			/**
 			 * Gets element params.
@@ -95,6 +95,12 @@ namespace lbcrypto {
 			 * @return the ring dimension
 			 */
 			usint GetRingDimension() const;
+
+			/**
+			* Gets the root Hermite Factor
+			* @return the root Hermite factor
+			*/
+			double GetRootHermiteFactor() const { return m_rootHermiteFactor;  }
 
 			/**
 			 * Gets the pattern length
@@ -113,6 +119,12 @@ namespace lbcrypto {
 			 * @param length the length;
 			 */
 			void SetLength(usint length);
+
+			/**
+			* Sets the root Hermite factor
+			* @param rootHermiteFactor lattice root Hermite factor;
+			*/
+			void SetRootHermiteFactor(double rootHermiteFactor) { m_rootHermiteFactor = rootHermiteFactor; };
 
 			/**
 			 * Sets the number of bits encoded using conjunction obfuscator
@@ -223,6 +235,9 @@ namespace lbcrypto {
 			usint m_length;
 			shared_ptr<ElemParams> m_elemParams;
 
+			//lattice security parameter
+			double m_rootHermiteFactor;
+
 			//number of bits encoded by one matrix
 			usint m_chunkSize;
 
@@ -272,7 +287,19 @@ namespace lbcrypto {
 				ObfuscatedLWEConjunctionPatternV3<Element> * obfuscatedPattern) const;
 
 			/**
+			* Method to generate parameters.
+			*
+			* @param &dgg the discrete Gaussian Generator.
+			* @param &obfuscatedPattern the obfuscated pattern.
+			*/
+			void ParamsGen(DiscreteGaussianGenerator &dgg,
+				ObfuscatedLWEConjunctionPatternV3<Element> *obfuscatedPattern, uint32_t n = 0) const;
+
+			/**
 			 * Method to generate keys.
+			 *
+			 * @param &dgg the discrete Gaussian Generator.
+			 * @param &obfuscatedPattern the obfuscated pattern.
 			 */
 			void KeyGen(DiscreteGaussianGenerator &dgg,
 				ObfuscatedLWEConjunctionPatternV3<Element> *obfuscatedPattern) const;

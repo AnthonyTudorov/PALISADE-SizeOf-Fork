@@ -159,6 +159,90 @@ Matrix<Element>*  ObfuscatedLWEConjunctionPatternV3<Element>::GetS(usint i, cons
 }
 
 template <class Element>
+void LWEConjunctionObfuscationAlgorithmV3<Element>::ParamsGen(DiscreteGaussianGenerator &dgg,
+	ObfuscatedLWEConjunctionPatternV3<Element> *obfuscatedPattern, uint32_t n) const {
+
+	//smoothing parameter - also standard deviation for noise polynomials
+	double sigma = SIGMA;
+	
+	//assurance measure
+	double alpha = 9.0;
+
+	//empirical parameter
+	double beta = 1.3;
+
+	//Bound of the Gaussian error polynomial
+	double Berr = sigma*sqrt(alpha);
+
+	//security parameter
+	double hermiteFactor = obfuscatedPattern->GetRootHermiteFactor();
+
+	uint32_t length = obfuscatedPattern->GetLength() / obfuscatedPattern->GetChunkSize();
+
+	//RLWE security constraint
+	auto nRLWE = [&](double q) -> double { return log2(q / sigma) / (4 * log2(hermiteFactor));  };
+
+	//Correctness constraint
+	auto qCorrectness = [&](uint32_t n, uint32_t m) -> double { return  32*Berr*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2),length);  };
+
+	double qPrev = 1e6;
+	double q = 0;
+
+	//If ring dimension was provided as input
+	if ( n > 0 )
+	{ 
+		//initial value
+		q = qCorrectness(n, floor(log2(qPrev)+1)+2);
+
+		//get a more accurate value of q
+		while (abs(q - qPrev) > 0.001*q) {
+			qPrev = q;
+			q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
+		}
+	}
+	//compute ring dimension and modulus based on the root Hermite factor
+	else
+	{
+		//initial values
+		n = 512;
+		q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
+
+		//needed if the more accurate value of q bumps up the ring dimension requirement
+		//entered at most twice
+		while (nRLWE(q) > n) {
+
+			//get good estimates of n and q
+			while (nRLWE(q) > n) {
+				n = 2 * n;
+				q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
+				qPrev = q;
+			}
+
+			//find a more accurate value of q for this value of n
+			q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
+			while (abs(q - qPrev) > 0.001*q) {
+				qPrev = q;
+				q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
+			}
+
+		}
+	}
+
+	BigBinaryInteger qPrime = FindPrimeModulus(2 * n, floor(log2(q) + 1) + 1);
+	BigBinaryInteger rootOfUnity = RootOfUnity(2 * n, qPrime);
+
+	//std::cout << "q = " << qPrime << std::endl;
+	//std::cout << "rootOfUnity = " << rootOfUnity << std::endl;
+	//std::cout << "n = " << n << std::endl;
+
+	//Prepare for parameters.
+	shared_ptr<ILParams> ilParams(new ILParams(2*n, qPrime, rootOfUnity));
+
+	obfuscatedPattern->SetParameters(ilParams);
+
+}
+
+template <class Element>
 void LWEConjunctionObfuscationAlgorithmV3<Element>::KeyGen(DiscreteGaussianGenerator &dgg,
 				ObfuscatedLWEConjunctionPatternV3<Element> *obfuscatedPattern) const {
 	TimeVar t1,t2; // for TIC TOC

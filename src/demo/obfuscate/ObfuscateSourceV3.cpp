@@ -99,18 +99,39 @@ void NTRUPRE(int input) {
 	//BigBinaryInteger rootOfUnity("21593505674172");
 
 	//54 bits
-	BigBinaryInteger modulus("9007199254741169");
-	BigBinaryInteger rootOfUnity("7629104920968175");
+	//BigBinaryInteger modulus("9007199254741169");
+	//BigBinaryInteger rootOfUnity("7629104920968175");
+
+	usint chunkSize = 2;
+	std::string inputPattern = "1?10?1";
+	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
+
+	ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern;
+	obfuscatedPattern.SetChunkSize(chunkSize);
+	obfuscatedPattern.SetLength(clearPattern.GetLength());
+	obfuscatedPattern.SetRootHermiteFactor(1.006);
+
+	LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm;
 
 	double stdDev = SIGMA;
 
 	double diff, start, finish;
 
 	//Prepare for parameters.
-	shared_ptr<ILParams> ilParams( new ILParams(m,modulus,rootOfUnity) );
+	//shared_ptr<ILParams> ilParams( new ILParams(m,modulus,rootOfUnity) );
 
 	//DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(modulus, stdDev);			// Create the noise generator
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev); // Create the noise generator
+
+	//algorithm.ParamsGen(dgg, &obfuscatedPattern, m / 2);
+	algorithm.ParamsGen(dgg, &obfuscatedPattern);
+
+	const shared_ptr<ILParams> ilParams = std::dynamic_pointer_cast<ILParams>(obfuscatedPattern.GetParameters());
+
+	const BigBinaryInteger &modulus = ilParams->GetModulus();
+	const BigBinaryInteger &rootOfUnity = ilParams->GetRootOfUnity();
+	m = ilParams->GetCyclotomicOrder();
+
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 	TernaryUniformGenerator tug = TernaryUniformGenerator();			// Create the noise generator
 
@@ -137,13 +158,8 @@ void NTRUPRE(int input) {
 	//Generate and test the cleartext pattern
 	////////////////////////////////////////////////////////////
 
-	usint chunkSize = 2;
-	std::string inputPattern = "1?10?1";
 	//	std::string inputPattern = "1?1";
 	//std::string inputPattern = "1";
-	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
-
-	LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm;
 
 	std::cout << " \nCleartext pattern: " << std::endl;
 	std::cout << clearPattern.GetPatternString() << std::endl;
@@ -184,9 +200,6 @@ void NTRUPRE(int input) {
 
 	std::cout << " \nCleartext pattern: " << std::endl;
 	std::cout << clearPattern.GetPatternString() << std::endl;
-
-	ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern(ilParams,chunkSize);
-	obfuscatedPattern.SetLength(clearPattern.GetLength());
 
 	std::cout << "Key generation started" << std::endl;
 
