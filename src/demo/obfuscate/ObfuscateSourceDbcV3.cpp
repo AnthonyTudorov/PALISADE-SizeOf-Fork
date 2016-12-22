@@ -2,15 +2,14 @@
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
 Version:
-	v00.01
+	v00.03
 Last Edited:
-	6/17/2015 4:37AM
+	12/22/2016
 List of Authors:
 	TPOC:
 		Dr. Kurt Rohloff, rohloff@njit.edu
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
-		Gyana Sahu, grs22@njit.edu
 		Dr. David Cousins, dcousins@bbn.com
 
 Description:
@@ -128,33 +127,53 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	TimeVar t1,t_total; //for TIC TOC
 	TIC(t_total); //start timer for total time
 
-	//Set element params
-
-	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
-
 	usint m = 16;
-
-	//60 bits
-	BigBinaryInteger modulus("1152921504606847009");
-	BigBinaryInteger rootOfUnity("405107564542978792");
+	//54 bits
+	//BigBinaryInteger modulus("9007199254741169");
+	//BigBinaryInteger rootOfUnity("7629104920968175");
 
 	usint chunkSize = 2;
 
-	float stdDev = 4;
+	//Generate the test pattern
+	std::string inputPattern = "1?10?1";
+	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
+
+	ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern;
+	obfuscatedPattern.SetChunkSize(chunkSize);
+	obfuscatedPattern.SetLength(clearPattern.GetLength());
+	obfuscatedPattern.SetRootHermiteFactor(1.006);
+
+	LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm;
 
 	//Variables for timing
-	double timeDGGSetup(0.0), timeKeyGen(0.0), timeObf(0.0), timeEval1(0.0), timeEval2(0.0), timeEval3(0.0), timeTotal(0.0);
+	double timeDGGSetup(0.0), timeKeyGen(0.0), timeObf(0.0), timeEval1(0.0), 
+		timeEval2(0.0), timeEval3(0.0), timeTotal(0.0);
 
+	double stdDev = SIGMA;
+	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev);			// Create the noise generator
 
-	//Prepare for parameters.
-	shared_ptr<ILParams> ilParams( new ILParams(m,modulus,rootOfUnity) );
+	//Finds q using the correctness constraint for the given value of n
+	algorithm.ParamsGen(dgg, &obfuscatedPattern, m / 2);
+
+	//this code finds the values of q and n corresponding to the root Hermite factor in obfuscatedPattern
+	//algorithm.ParamsGen(dgg, &obfuscatedPattern);
+
+	const shared_ptr<ILParams> ilParams = std::dynamic_pointer_cast<ILParams>(obfuscatedPattern.GetParameters());
+
+	const BigBinaryInteger &modulus = ilParams->GetModulus();
+	const BigBinaryInteger &rootOfUnity = ilParams->GetRootOfUnity();
+	m = ilParams->GetCyclotomicOrder();
+
+	PROFILELOG( "\nq = " << modulus);
+	PROFILELOG("rootOfUnity = " << rootOfUnity);
+	PROFILELOG("n = " << m / 2 );
+	PROFILELOG(printf("delta=%lf", obfuscatedPattern.GetRootHermiteFactor()));
 
 	//Set crypto parametes
-	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev);			// Create the noise generator
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 	TernaryUniformGenerator tug = TernaryUniformGenerator();			// Create the noise generator
 
-	PROFILELOG("Cryptosystem initialization: Performing precomputations...");
+	PROFILELOG("\nCryptosystem initialization: Performing precomputations...");
 
 	//This code is run only when performing execution time measurements
 
@@ -168,13 +187,8 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	PROFILELOG("DGG Precomputation time: " << "\t" << timeDGGSetup << " ms");
 
 	////////////////////////////////////////////////////////////
-	//Generate and test the cleartext pattern
+	//Test the cleartext pattern
 	////////////////////////////////////////////////////////////
-
-	std::string inputPattern = "1?10?1";
-
-	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
-	LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm;
 
 	DEBUG(" \nCleartext pattern: ");
 	DEBUG(clearPattern.GetPatternString());
@@ -204,9 +218,6 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 
 	std::cout << " \nCleartext pattern: " << std::endl;
 	std::cout << clearPattern.GetPatternString() << std::endl;
-
-	ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern(ilParams,chunkSize);
-	obfuscatedPattern.SetLength(clearPattern.GetLength());
 
 	PROFILELOG( "Key generation started");
 	TIC(t1);

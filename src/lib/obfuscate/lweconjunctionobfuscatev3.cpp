@@ -179,6 +179,9 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::ParamsGen(DiscreteGaussianGe
 
 	uint32_t length = obfuscatedPattern->GetLength() / obfuscatedPattern->GetChunkSize();
 
+	//Computes the root Hermite factor for given values of q and n
+	auto delta = [&](uint32_t n, double q) { return pow(2,log2(q/sigma)/(4*n));  };
+
 	//RLWE security constraint
 	auto nRLWE = [&](double q) -> double { return log2(q / sigma) / (4 * log2(hermiteFactor));  };
 
@@ -231,14 +234,13 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::ParamsGen(DiscreteGaussianGe
 	BigBinaryInteger qPrime = FindPrimeModulus(2 * n, floor(log2(q) + 1) + 1);
 	BigBinaryInteger rootOfUnity = RootOfUnity(2 * n, qPrime);
 
-	//std::cout << "q = " << qPrime << std::endl;
-	//std::cout << "rootOfUnity = " << rootOfUnity << std::endl;
-	//std::cout << "n = " << n << std::endl;
-
 	//Prepare for parameters.
 	shared_ptr<ILParams> ilParams(new ILParams(2*n, qPrime, rootOfUnity));
 
 	obfuscatedPattern->SetParameters(ilParams);
+
+	//Sets, update the root Hermite factor
+	obfuscatedPattern->SetRootHermiteFactor(delta(n, qPrime.ConvertToDouble()));
 
 }
 

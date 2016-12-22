@@ -2,26 +2,16 @@
 /*
 PRE SCHEME PROJECT, Crypto Lab, NJIT
 Version:
-	v00.01
+	v00.03
 Last Edited:
-	6/17/2015 4:37AM
+	12/22/2016
 List of Authors:
 	TPOC:
 		Dr. Kurt Rohloff, rohloff@njit.edu
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
-		Gyana Sahu, grs22@njit.edu
 Description:
-	This code exercises the Proxy Re-Encryption capabilities of the NJIT Lattice crypto library.
-	In this code we:
-		- Generate a key pair.
-		- Encrypt a string of data.
-		- Decrypt the data.
-		- Generate a new key pair.
-		- Generate a proxy re-encryption key.
-		- Re-Encrypt the encrypted data.
-		- Decrypt the re-encrypted data.
-	We configured parameters (namely the ring dimension and ciphertext modulus) to provide a level of security roughly equivalent to a root hermite factor of 1.007 which is generally considered secure and conservatively comparable to AES-128 in terms of computational work factor and may be closer to AES-256.
+	Main simulation test script for conjunction obfuscator
 
 License Information:
 
@@ -47,24 +37,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //using namespace std;
 using namespace lbcrypto;
 
-void NTRUPRE(int input);
+void Run();
 //double currentDateTime();
-
-/**
- * @brief Input parameters for PRE example.
- */
-struct SecureParams {
-	usint m;			///< The ring parameter.
-	BigBinaryInteger modulus;	///< The modulus
-	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
-	usint relinWindow;		///< The relinearization window parameter.
-};
 
 int main(){
 
-	int input = 0;
-
-	NTRUPRE(input);
+	Run();
 
 	std::cin.get();
 
@@ -72,32 +50,10 @@ int main(){
 }
 
 
-//////////////////////////////////////////////////////////////////////
-//	NTRUPRE is where the core functionality is provided.
-//	In this code we:
-//		- Generate a key pair.
-//		- Encrypt a string of data.
-//		- Decrypt the data.
-//		- Generate a new key pair.
-//		- Generate a proxy re-encryption key.
-//		- Re-Encrypt the encrypted data.
-//		- Decrypt the re-encrypted data.
-//////////////////////////////////////////////////////////////////////
-//	We provide two different paramet settings.
-//	The low-security, highly efficient settings are commented out.
-//	The high-security, less efficient settings are enabled by default.
-//////////////////////////////////////////////////////////////////////
-void NTRUPRE(int input) {
-
-	//Set element params
-
-	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
+//Main simulator
+void Run() {
 
 	usint m = 16;
-	//47 bits
-	//BigBinaryInteger modulus("35184372088961");
-	//BigBinaryInteger rootOfUnity("21593505674172");
-
 	//54 bits
 	//BigBinaryInteger modulus("9007199254741169");
 	//BigBinaryInteger rootOfUnity("7629104920968175");
@@ -123,14 +79,22 @@ void NTRUPRE(int input) {
 	//DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(modulus, stdDev);			// Create the noise generator
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev); // Create the noise generator
 
-	//algorithm.ParamsGen(dgg, &obfuscatedPattern, m / 2);
-	algorithm.ParamsGen(dgg, &obfuscatedPattern);
+	//Finds q using the correctness constraint for the given value of n
+	algorithm.ParamsGen(dgg, &obfuscatedPattern, m / 2);
+
+	//this code finds the values of q and n corresponding to the root Hermite factor in obfuscatedPattern
+	//algorithm.ParamsGen(dgg, &obfuscatedPattern);
 
 	const shared_ptr<ILParams> ilParams = std::dynamic_pointer_cast<ILParams>(obfuscatedPattern.GetParameters());
 
 	const BigBinaryInteger &modulus = ilParams->GetModulus();
 	const BigBinaryInteger &rootOfUnity = ilParams->GetRootOfUnity();
 	m = ilParams->GetCyclotomicOrder();
+
+	std::cout << "q = " << modulus<< std::endl;
+	std::cout << "rootOfUnity = " << rootOfUnity << std::endl;
+	std::cout << "n = " << m/2 << std::endl;
+	std::cout << printf("delta=%lf", obfuscatedPattern.GetRootHermiteFactor()) << std::endl;
 
 	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
 	TernaryUniformGenerator tug = TernaryUniformGenerator();			// Create the noise generator
@@ -191,10 +155,6 @@ void NTRUPRE(int input) {
 	////////////////////////////////////////////////////////////
 	//Generate and test the obfuscated pattern
 	////////////////////////////////////////////////////////////
-
-
-//	Ciphertext<ILVector2n> ciphertext;
-//	algorithm.Encrypt(pk,dgg,ptxt,&ciphertext);	// This is the core encryption operation.
 
 	bool result;
 
