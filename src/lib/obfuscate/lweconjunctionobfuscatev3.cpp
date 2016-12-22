@@ -198,7 +198,7 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::ParamsGen(DiscreteGaussianGe
 		q = qCorrectness(n, floor(log2(qPrev)+1)+2);
 
 		//get a more accurate value of q
-		while (abs(q - qPrev) > 0.001*q) {
+		while (std::abs(q - qPrev) > 0.001*q) {
 			qPrev = q;
 			q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
 		}
@@ -223,7 +223,7 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::ParamsGen(DiscreteGaussianGe
 
 			//find a more accurate value of q for this value of n
 			q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
-			while (abs(q - qPrev) > 0.001*q) {
+			while (std::abs(q - qPrev) > 0.001*q) {
 				qPrev = q;
 				q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
 			}

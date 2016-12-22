@@ -134,7 +134,7 @@ bool LPAlgorithmParamsGenFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<El
 
 			q = qFV(n, qPrev);
 
-			while (abs(q - qPrev) > 0.001*q) {
+			while (std::abs(q - qPrev) > 0.001*q) {
 				qPrev = q;
 				q = qFV(n, qPrev);
 			}
