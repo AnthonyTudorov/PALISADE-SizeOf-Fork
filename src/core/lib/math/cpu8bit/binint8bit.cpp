@@ -26,7 +26,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "../../crypto/cryptocontext.h"
 #include "binint8bit.h"
 #include "../nbtheory.h"
 

@@ -35,18 +35,18 @@ class CryptoContext;
 #include "lattice/ilvector2n.h"
 #include "lattice/ilvectorarray2n.h"
 
-#include "crypto/pubkeylp.h"
+#include "pubkeylp.h"
 
-#include "crypto/rlwe.h"
-#include "crypto/ltv.h"
-#include "crypto/stst.h"
-#include "crypto/bv.h"
-#include "crypto/fv.h"
-#include "crypto/nullscheme.h"
+#include "rlwe.h"
+#include "ltv.h"
+#include "stst.h"
+#include "bv.h"
+#include "fv.h"
+#include "nullscheme.h"
 
 #include "utils/serializable.h"
 
-#include "crypto/ciphertext.h"
+#include "ciphertext.h"
 
 
 

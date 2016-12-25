@@ -34,9 +34,9 @@
 #ifndef LBCRYPTO_CRYPTO_RLWE_H
 #define LBCRYPTO_CRYPTO_RLWE_H
 
-#include "../utils/serializable.h"
-#include "../lattice/ilvector2n.h"
-#include "../lattice/ilvectorarray2n.h"
+#include "utils/serializable.h"
+#include "lattice/ilvector2n.h"
+#include "lattice/ilvectorarray2n.h"
 #include <string>
 
 namespace lbcrypto {

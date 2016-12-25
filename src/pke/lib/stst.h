@@ -34,17 +34,29 @@
 #ifndef LBCRYPTO_CRYPTO_STST_H
 #define LBCRYPTO_CRYPTO_STST_H
 
-#include "../palisade.h"
+#include "palisade.h"
 
 namespace lbcrypto {
 
-	//forward declaration;
+	//forward declarations
 	template <class Element>
 	class LPAlgorithmLTV;
 
-	//forward declaration;
 	template <class Element>
 	class LPPublicKeyEncryptionSchemeLTV;
+
+	template <class Element>
+	class LPAlgorithmPRELTV;
+
+	template <class Element>
+	class LPAlgorithmSHELTV;
+
+	template <class Element>
+	class LPAlgorithmFHELTV;
+
+	template <class Element>
+	class LPLeveledSHEAlgorithmLTV;
+
 
 /**
  * @brief Template for Stehle-Stenfeld crypto parameters.
@@ -215,7 +227,49 @@ public:
 	* @param &privateKey private key used for decryption.
 	* @return function ran correctly.
 	*/
-	LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const;
+	LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const {
+		if( makeSparse )
+			return LPKeyPair<Element>();
+
+		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
+
+		const shared_ptr<LPCryptoParametersStehleSteinfeld<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersStehleSteinfeld<Element>>(cc.GetCryptoParameters());
+
+		const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
+		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+
+		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGeneratorStSt();
+
+		Element f(dgg, elementParams, Format::COEFFICIENT);
+
+		f = p*f;
+
+		f = f + BigBinaryInteger::ONE;
+
+		f.SwitchFormat();
+
+		//check if inverse does not exist
+		while (!f.InverseExists())
+		{
+			//std::cout << "inverse does not exist" << std::endl;
+			Element temp(dgg, elementParams, Format::COEFFICIENT);
+			f = temp;
+			f = p*f;
+			f = f + BigBinaryInteger::ONE;
+			f.SwitchFormat();
+		}
+
+		kp.secretKey->SetPrivateElement(f);
+
+		Element g(dgg, elementParams, Format::COEFFICIENT);
+
+		g.SwitchFormat();
+
+		//public key is generated
+		kp.publicKey->SetPublicElementAtIndex(0, cryptoParams->GetPlaintextModulus()*g*kp.secretKey->GetPrivateElement().MultiplicativeInverse());
+
+		return kp;
+	}
 };
 
 /**
@@ -234,14 +288,49 @@ public:
 	*
 	*@param mask the mask to be initialized
 	*/
-	LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask);
+	LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask) {
+		if (mask[ENCRYPTION])
+			this->m_algorithmEncryption = new LPEncryptionAlgorithmStehleSteinfeld<Element>();
+		if (mask[PRE])
+			this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>();
+		if (mask[SHE])
+			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
+		if (mask[FHE])
+			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>();
+		if (mask[LEVELEDSHE])
+			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
+	}
 
 	/**
 	* Function to enable a scheme
 	*
 	*@param feature is the feature to enable
 	*/
-	void Enable(PKESchemeFeature feature);
+	void Enable(PKESchemeFeature feature) {
+		switch (feature)
+		{
+		case ENCRYPTION:
+			if (this->m_algorithmEncryption == NULL)
+				this->m_algorithmEncryption = new LPEncryptionAlgorithmStehleSteinfeld<Element>();
+			break;
+		case PRE:
+			if (this->m_algorithmPRE == NULL)
+				this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>();
+			break;
+		case SHE:
+			if (this->m_algorithmSHE == NULL)
+				this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
+			break;
+		case FHE:
+			if (this->m_algorithmFHE == NULL)
+				this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>();
+			break;
+		case LEVELEDSHE:
+			if (this->m_algorithmLeveledSHE == NULL)
+				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
+			break;
+		}
+	}
 };
 
 

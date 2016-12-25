@@ -40,7 +40,9 @@ Hadi Sajjadpour <ss2959@njit.edu>
 #define LBCRYPTO_CRYPTO_CIPHERTEXT_H
 
 //Includes Section
-#include "../palisade.h"
+#include "palisade.h"
+//#include "../utils/serializablehelper.h"
+//#include "cryptocontext.h"
 
 namespace lbcrypto {
 
@@ -70,12 +72,18 @@ namespace lbcrypto {
 		/**
 		* Copy constructor
 		*/
-		Ciphertext(const Ciphertext<Element> &ciphertext);
+		Ciphertext(const Ciphertext<Element> &ciphertext) {
+			cryptoContext = ciphertext.cryptoContext;
+			m_elements = ciphertext.m_elements;
+		}
 
 		/**
 		* Move constructor
 		*/
-		Ciphertext(Ciphertext<Element> &&ciphertext);
+		Ciphertext(Ciphertext<Element> &&ciphertext) {
+			cryptoContext = std::move(ciphertext.cryptoContext);
+			m_elements = std::move(ciphertext.m_elements);
+		}
 
 		/**
 		* Destructor
@@ -88,7 +96,14 @@ namespace lbcrypto {
 		* @param &rhs the Ciphertext to assign from
 		* @return this Ciphertext
 		*/
-		Ciphertext<Element>& operator=(const Ciphertext<Element> &rhs);
+		Ciphertext<Element>& operator=(const Ciphertext<Element> &rhs) {
+			if (this != &rhs) {
+				this->cryptoContext = rhs.cryptoContext;
+				this->m_elements = rhs.m_elements;
+			}
+
+			return *this;
+		}
 
 		/**
 		* Move Assignment Operator.
@@ -96,7 +111,14 @@ namespace lbcrypto {
 		* @param &rhs the Ciphertext to move from
 		* @return this Ciphertext
 		*/
-		Ciphertext<Element>& operator=(Ciphertext<Element> &&rhs);
+		Ciphertext<Element>& operator=(Ciphertext<Element> &&rhs) {
+			if (this != &rhs) {
+				cryptoContext = std::move(rhs.cryptoContext);
+				m_elements = std::move(rhs.m_elements);
+			}
+
+			return *this;
+		}
 
 		/**
 		* Get a reference to crypto parameters.
@@ -156,14 +178,39 @@ namespace lbcrypto {
 		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized* serObj) const;
+		bool Serialize(Serialized* serObj) const {
+			serObj->SetObject();
+
+			serObj->AddMember("Object", "Ciphertext", serObj->GetAllocator());
+
+			if( !this->GetCryptoParameters()->Serialize(serObj) )
+				return false;
+
+			SerializeVector("Elements", elementName<Element>(), this->m_elements, serObj);
+
+			return true;
+		}
 
 		/**
 		* Populate the object from the deserialization of the Serialized
 		* @param serObj contains the serialized object
 		* @return true on success
 		*/
-		bool Deserialize(const Serialized& serObj);
+		bool Deserialize(const Serialized& serObj) {
+			// deserialization must be done in a crypto context; this object must be initialized before deserializing the elements
+			if( !this->cryptoContext )
+				return false;
+
+			Serialized::ConstMemberIterator mIter = serObj.FindMember("Object");
+			if( mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "Ciphertext" )
+				return false;
+
+			mIter = serObj.FindMember("Elements");
+			if( mIter == serObj.MemberEnd() )
+				return false;
+
+			return DeserializeVector<Element>("Elements", elementName<Element>(), mIter, &this->m_elements);
+		}
 
 	private:
 

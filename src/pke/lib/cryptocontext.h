@@ -38,10 +38,10 @@ Jerry Ryan <gwryan@njit.edu>
 #ifndef SRC_DEMO_PRE_CRYPTOCONTEXT_H_
 #define SRC_DEMO_PRE_CRYPTOCONTEXT_H_
 
-#include "../palisade.h"
-#include "../encoding/plaintext.h"
-#include "../encoding/byteplaintextencoding.h"
-#include "../utils/cryptocontexthelper.h"
+#include "palisade.h"
+#include "encoding/plaintext.h"
+#include "encoding/byteplaintextencoding.h"
+#include "cryptocontexthelper.h"
 
 namespace lbcrypto {
 

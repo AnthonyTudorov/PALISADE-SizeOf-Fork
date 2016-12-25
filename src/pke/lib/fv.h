@@ -39,7 +39,7 @@
 #define LBCRYPTO_CRYPTO_FV_H
 
 //Includes Section
-#include "../palisade.h"
+#include "palisade.h"
 
 namespace lbcrypto {
 

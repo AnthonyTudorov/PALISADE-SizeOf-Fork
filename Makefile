@@ -38,4 +38,4 @@ else
   #  endif
 endif
 
-
+include Makefile.common
