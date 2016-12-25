@@ -31,17 +31,23 @@
 
 CORESRCDIR := src/core
 COREBINDIR := src/core/bin
+CORETESTDIR := src/core/unittest
 
 CORESOURCES := $(shell find $(CORESRCDIR)/lib -name '*.cpp')
 COREUNITSOURCES := $(shell find $(CORESRCDIR)/unittest -name '*.cpp')
-COREDEMOSOURCES := $(shell find $(CORESRCDIR)/demo -name '*.cpp')
+COREDEMOSOURCES += test/include/gtest/gtest-all.cc
 
 COREOBJECTS := $(patsubst $(CORESRCDIR)/%,$(COREBINDIR)/%,$(patsubst %.cpp,%.o,$(CORESOURCES)))
+COREUNITOBJECTS := $(patsubst $(CORESRCDIR)/%,$(COREBINDIR)/%,$(patsubst %.cpp,%.o,$(COREUNITSOURCES)))
+COREUNITOBJECTS += test/include/gtest/gtest-all.o
+
+TEST_TARGET := $(CORETESTDIR)/tests$(EXESUFFIX)
 
 -include $(COREOBJECTS:.o=.d)
+-include $(COREUNITOBJECTS:.o=.d)
 
 .PHONY:allcore
-allcore: $(EXTLIBDIR)/$(PALISADECORELIB)
+allcore: $(EXTLIBDIR)/$(PALISADECORELIB) $(TEST_TARGET)
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADECORELIB): $(COREOBJECTS)
@@ -67,4 +73,33 @@ $(COREBINDIR)/%:
 .PHONY: cleancore
 cleancore:
 	@echo " Cleaning core...";
-	$(RM) -f $(COREOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB)
+	$(RM) -f $(COREOBJECTS) $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB)
+
+TEST_LIB := -pthread -lgomp 
+
+#
+# the following define the componenets of the google test library
+# the source extention
+TEST_LIB_SRCEXT := cc
+
+#the source directory of the google library sources
+TEST_LIB_SRCDIR := test/include/gtest
+
+#this assembles a list of the sources 
+TEST_LIB_SOURCES := $(shell find $(TEST_LIB_SRCDIR) -type f -name *.$(TEST_LIB_SRCEXT))
+# and a corrresponding list of the obj files
+TEST_LIB_OBJECTS := $(patsubst $(TEST_LIB_SRCDIR)/%,$(TEST_BUILD_DIR)/%,$(TEST_LIB_SOURCES:.$(TEST_LIB_SRCEXT)=.o))
+
+# Google Test headers. 
+GTEST_HEADERS =	test/include/gtest/gtest.h
+
+# this links test executable  from objects in the test build directory
+$(TEST_TARGET): $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) 
+	@mkdir -p `dirname $(TEST_TARGET)`
+	$(CC) $(COREUNITOBJECTS) -o $(TEST_TARGET) $(EXTLIBDIR)/$(PALISADECORELIB) ## -pg ##add if using gprof
+
+#used to run tests from make
+.PHONY: runtests
+testcore: $(TEST_TARGET)
+	$(TEST_TARGET)
+

@@ -186,10 +186,10 @@ public:
 	}
 
 
-	bool operator==(const LPCryptoParameters<Element>* cmp) const {
-		const LPCryptoParametersStehleSteinfeld<Element> *el = dynamic_cast<const LPCryptoParametersStehleSteinfeld<Element> *>(cmp);
+	bool operator==(const LPCryptoParameters<Element>& cmp) const {
+		const LPCryptoParametersStehleSteinfeld<Element> *el = dynamic_cast<const LPCryptoParametersStehleSteinfeld<Element> *>(&cmp);
 
-		if( cmp == 0 ) return false;
+		if( el == 0 ) return false;
 
 		return  LPCryptoParametersRLWE<Element>::operator==( cmp ) &&
 				m_distributionParameterStSt == el->GetDistributionParameterStSt();
@@ -214,12 +214,7 @@ public:
 	* Default constructor
 	*/
 	LPEncryptionAlgorithmStehleSteinfeld() : LPAlgorithmLTV<Element>() {};
-	/**
-	* Constructor that initliazes the scheme
-	*
-	* @param &scheme is a reference to scheme
-	*/
-	LPEncryptionAlgorithmStehleSteinfeld(const LPPublicKeyEncryptionScheme<Element> &scheme) : LPAlgorithmLTV<Element>(scheme) {};
+
 	/**
 	* Function to generate public and private keys
 	*

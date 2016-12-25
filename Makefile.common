@@ -61,7 +61,7 @@ HDREXT := h
 $(objects) : %.o : %.cpp
 
 EXTLIB := -lpthread -lgomp -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
-INC := -I src/core/lib $(OMPINCLUDE) $(BOOSTINCLUDE)
+INC := -I src/core/lib -I test $(OMPINCLUDE) $(BOOSTINCLUDE)
 
 #the name of the shared object library for palisade objects.  
 PALISADECORELIB := PALISADEcore$(LIBSUFFIX)
@@ -71,7 +71,7 @@ PALISADETRAPDOORLIB := PALISADEtrapdoor$(LIBSUFFIX)
 # run make for all components. you can run any individual component separately
 #  by invoking   "make alltargets"  for example
 # each corresponding makefile will make the allxxxx target
-all: allcore allpke alltesttargets allbenchmarktargets apidocs 
+all: allcore allpke allbenchmarktargets apidocs 
 
 alljava: all allwrappers
 
@@ -86,8 +86,8 @@ clean: cleancore cleanpke cleantests cleanbenchmarks cleandocs
 include Makefile.core
 include Makefile.pke
 ### FIXME ### include Makefile.wrapper
-include Makefile.demos         #builds the demo executables
-include Makefile.test          #builds the test framework
+## include Makefile.demos         #builds the demo executables
+## include Makefile.test          #builds the test framework
 include Makefile.benchmark     #builds the benchmark framework
 include Makefile.docs          #populates doxgen documentation
 
