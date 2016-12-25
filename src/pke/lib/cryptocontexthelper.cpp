@@ -34,12 +34,12 @@
 * This file implements a helper class for managing and manipulating Crypto Contexts
 */
 
-#include "../palisade.h"
-#include "../palisadespace.h"
+#include "palisade.h"
+#include "palisadespace.h"
 
-#include "../crypto/cryptocontext.h"
-#include "../utils/cryptocontexthelper.h"
-#include "../../../include/rapidjson/filewritestream.h"
+#include "cryptocontext.h"
+#include "cryptocontexthelper.h"
+#include "utils/rapidjson/filewritestream.h"
 
 namespace lbcrypto {
 

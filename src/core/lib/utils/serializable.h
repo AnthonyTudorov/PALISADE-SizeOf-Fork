@@ -44,10 +44,10 @@
 #include <sstream>
 #include <string>
 #define RAPIDJSON_HAS_STDSTRING 1
-#include "../../../include/rapidjson/document.h"
-#include "../../../include/rapidjson/pointer.h"
-#include "../../../include/rapidjson/reader.h"
-#include "../../../include/rapidjson/error/en.h"
+#include "rapidjson/document.h"
+#include "rapidjson/pointer.h"
+#include "rapidjson/reader.h"
+#include "rapidjson/error/en.h"
 
 /**
 * @namespace lbcrypto

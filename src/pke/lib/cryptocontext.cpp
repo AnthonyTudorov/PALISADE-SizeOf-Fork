@@ -35,8 +35,8 @@
 * This file implements the Crypto Context: all the pieces needed to use the palisade library
 */
 
-#include "../crypto/cryptocontext.h"
-#include "../utils/serializablehelper.h"
+#include "cryptocontext.h"
+#include "utils/serializablehelper.h"
 
 namespace lbcrypto {
 

@@ -38,7 +38,7 @@
 #define LBCRYPTO_CRYPTO_BV_H
 
 //Includes Section
-#include "../palisade.h"
+#include "palisade.h"
 
 /**
  * @namespace lbcrypto

@@ -33,7 +33,6 @@
  *
  */
 
-#include "../crypto/cryptocontext.h"
 #include "byteplaintextencoding.h"
 
 namespace lbcrypto {

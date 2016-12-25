@@ -34,7 +34,7 @@
 #ifndef LBCRYPTO_CRYPTO_LTV_H
 #define LBCRYPTO_CRYPTO_LTV_H
 
-#include "../palisade.h"
+#include "palisade.h"
 
 namespace lbcrypto {
 

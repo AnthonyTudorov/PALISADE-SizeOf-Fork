@@ -34,15 +34,15 @@
  */
 
 #define RAPIDJSON_HAS_STDSTRING 1
-#include "../../../include/rapidjson/document.h"
-#include "../../../include/rapidjson/pointer.h"
-#include "../../../include/rapidjson/reader.h"
-#include "../../../include/rapidjson/writer.h"
-#include "../../../include/rapidjson/filereadstream.h"
-#include "../../../include/rapidjson/filewritestream.h"
-#include "../../../include/rapidjson/error/en.h"
-#include "../../../include/rapidjson/prettywriter.h"
-#include "../../../include/rapidjson/stringbuffer.h"
+#include "rapidjson/document.h"
+#include "rapidjson/pointer.h"
+#include "rapidjson/reader.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/filereadstream.h"
+#include "rapidjson/filewritestream.h"
+#include "rapidjson/error/en.h"
+#include "rapidjson/prettywriter.h"
+#include "rapidjson/stringbuffer.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>

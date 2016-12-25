@@ -40,8 +40,8 @@
 #include <string>
 #include <iostream>
 
-#include "../utils/serializablehelper.h"
-#include "../crypto/cryptocontext.h"
+#include "utils/serializablehelper.h"
+#include "cryptocontext.h"
 #include "cryptocontextparametersets.h"
 
 namespace lbcrypto {
