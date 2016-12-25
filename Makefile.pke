@@ -36,7 +36,8 @@ PKESOURCES := $(shell find $(PKESRCDIR)/lib -name '*.cpp')
 PKEUNITSOURCES := $(shell find $(PKESRCDIR)/unittest -name '*.cpp')
 PKEDEMOSOURCES := $(shell find $(PKESRCDIR)/demo -name '*.cpp')
 
-PKEOBJECTS = $(patsubst $(PKESRCDIR)/%,$(PKEBINDIR)/%,$(patsubst %.cpp,%.o,$(PKESOURCES)))
+PKEOBJECTSALL = $(patsubst $(PKESRCDIR)/%,$(PKEBINDIR)/%,$(patsubst %.cpp,%.o,$(PKESOURCES)))
+PKEOBJECTS = $(filter %-impl.o,$(PKEOBJECTSALL))
 
 #this is the actual target that gets called when make is executed
 #(part of all in Makefile) it makes the palisade shared object library

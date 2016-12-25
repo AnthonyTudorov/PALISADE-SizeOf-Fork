@@ -41,8 +41,6 @@ Hadi Sajjadpour <ss2959@njit.edu>
 
 //Includes Section
 #include "palisade.h"
-//#include "../utils/serializablehelper.h"
-//#include "cryptocontext.h"
 
 namespace lbcrypto {
 
