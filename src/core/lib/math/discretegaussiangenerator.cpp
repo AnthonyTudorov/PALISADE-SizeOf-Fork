@@ -36,7 +36,7 @@ namespace lbcrypto {
 		double acc = 1e-15;
 		double variance = m_std * m_std;
 
-		int fin = (int)ceil(m_std * sqrt(-2 * log(acc))); 
+		int fin = (int)ceil(m_std * sqrt(-2 * log(acc)));
 		//this value of fin (M) corresponds to the limit for double precision
 		// usually the bound of m_std * M is used, where M = 20 .. 40 - see DG14 for details
 		// M = 20 corresponds to 1e-87
@@ -46,7 +46,7 @@ namespace lbcrypto {
 		double cusum = 1.0;
 
 		for (sint x = 1; x <= fin; x++) {
-			cusum = cusum + 2 * exp(- x * x / (variance * 2));
+			cusum = cusum + 2 * exp(-x * x / (variance * 2));
 		}
 
 		m_a = 1 / cusum;
@@ -253,8 +253,13 @@ namespace lbcrypto {
 		LargeFloat t = log(n) / log(2)*stddev;  //fix for Visual Studio
 
 		//YSP this double conversion is necessary for uniform_int to work properly; the use of double is justified in this case
+#if defined(_MSC_VER)
 		double dbmean = mean.convert_to<double>();
 		double dbt = t.convert_to<double>();
+#elif defined (__GCC__)
+		double dbmean = (double)mean;
+		double dbt = (double)t;
+#endif
 		int count = 0;
 		std::uniform_int_distribution<int32_t> uniform_int(floor(dbmean - dbt), ceil(dbmean + dbt));
 		boost::random::uniform_real_distribution<LargeFloat> uniform_real(0.0, 1.0);
@@ -283,21 +288,21 @@ namespace lbcrypto {
 		probMatrixSize = 10 * stddev + 2;
 		probMatrix = new uint32_t[probMatrixSize];
 		double error = 1;
-		for (int i = -5*stddev+mean;i <= 5 * stddev+mean;i++) {
-			double prob = pow(M_E, -pow(i - mean , 2) / (2. * stddev * stddev)) / (stddev * sqrt(2.*M_PI));
+		for (int i = -5 * stddev + mean;i <= 5 * stddev + mean;i++) {
+			double prob = pow(M_E, -pow(i - mean, 2) / (2. * stddev * stddev)) / (stddev * sqrt(2.*M_PI));
 
 			error -= prob;
-			probMatrix[int(i+5*stddev-mean)] = prob * pow(2, 32);
+			probMatrix[int(i + 5 * stddev - mean)] = prob * pow(2, 32);
 			//Hamming weights are disabled for now
 			/*
 			for (int j = 0;j < 32;j++) {
 				hammingWeights[j] += ((probMatrix[int(i + m / 2)] >> (31 - j)) & 1);
-				
+
 			}
 			*/
 		}
 		//std::cout << "Error probability: "<< error << std::endl;
-		probMatrix[probMatrixSize-1] = error * pow(2, 32);
+		probMatrix[probMatrixSize - 1] = error * pow(2, 32);
 		//Hamming weights are disabled for now
 		/*
 		for (int k = 0;k< 32;k++) {
@@ -312,8 +317,13 @@ namespace lbcrypto {
 		if (probMatrix != nullptr) {
 			delete[] probMatrix;
 		}
-		double dbmean= mean.convert_to<double>();
+#if defined(_MSC_VER)
+		double dbmean = mean.convert_to<double>();
 		double dbstddev = stddev.convert_to<double>();
+#elif defined (__GCC__)
+		double dbmean = (double)mean;
+		double dbstddev = (double)stddev;
+#endif
 		probMean = dbmean;
 		probMatrixSize = 10 * dbstddev + 2;
 		probMatrix = new uint32_t[probMatrixSize];
@@ -348,7 +358,7 @@ namespace lbcrypto {
 		bool discard = true;
 		std::uniform_int_distribution<int32_t> uniform_int(INT_MIN, INT_MAX);
 		uint32_t seed;
-		char counter=0;
+		char counter = 0;
 		int32_t MAX_ROW = probMatrixSize - 1;
 		while (discard == true) {
 			//The distance
@@ -359,7 +369,7 @@ namespace lbcrypto {
 			short col = 0;
 			bool scanningInitialized = false;
 			//To generate random bit a 32 bit integer is generated in every 32 iterations and each single bit is used in order to save cycles
-			while (hit == 0 && col<=31) {
+			while (hit == 0 && col <= 31) {
 				if (counter % 32 == 0) {
 					seed = uniform_int(GetPRNG());
 					counter = 0;
@@ -368,22 +378,22 @@ namespace lbcrypto {
 				d = 2 * d + (~r & 1);
 				//if (d < hammingWeights[col] || scanningInitialized){
 					//scanningInitialized = true;
-					
-					for (int32_t row = MAX_ROW;row > -1 && hit == 0;row--) {
-						d -= ((probMatrix[row] >> (31 - col)) & 1);
-						if (d == -1) {
-							hit = 1;
-							//If the terminal node is found on the last row, it means that it hit an error column therefore the sample is discarded
-							if (row == MAX_ROW) {
-								//std::cout << "Hit error row, discarding sample..." << std::endl;
-							}
-							else {
-								//Result is the row that the terminal node found in
-								S = row;
-								discard = false;
-							}
+
+				for (int32_t row = MAX_ROW;row > -1 && hit == 0;row--) {
+					d -= ((probMatrix[row] >> (31 - col)) & 1);
+					if (d == -1) {
+						hit = 1;
+						//If the terminal node is found on the last row, it means that it hit an error column therefore the sample is discarded
+						if (row == MAX_ROW) {
+							//std::cout << "Hit error row, discarding sample..." << std::endl;
+						}
+						else {
+							//Result is the row that the terminal node found in
+							S = row;
+							discard = false;
 						}
 					}
+				}
 				//}
 				col++;
 				counter++;
