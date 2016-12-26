@@ -6,9 +6,10 @@
  */
 
 #include "cryptocontext.h"
-#include "ltv.h"
+#include "ltv.cpp"
 
 namespace lbcrypto {
 template class LPCryptoParametersLTV<ILVector2n>;
+template class LPPublicKeyEncryptionSchemeLTV<ILVector2n>;
 template class LPAlgorithmLTV<ILVector2n>;
 }

@@ -10,5 +10,6 @@
 
 namespace lbcrypto {
 template class LPCryptoParametersNull<ILVector2n>;
+template class LPPublicKeyEncryptionSchemeNull<ILVector2n>;
 template class LPAlgorithmNull<ILVector2n>;
 }

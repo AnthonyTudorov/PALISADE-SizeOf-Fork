@@ -800,7 +800,7 @@ public:
 	* @param cryptoParams
 	* @return
 	*/
-	static CryptoContext<Element> getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams);
+	static CryptoContext<Element> getCryptoContextDCRT(LPCryptoParametersLTV<Element>* cryptoParams);
 
 	/**
 	* construct a PALISADE CryptoContext for the StehleSteinfeld Scheme
