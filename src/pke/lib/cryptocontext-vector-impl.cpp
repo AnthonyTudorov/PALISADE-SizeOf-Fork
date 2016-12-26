@@ -9,5 +9,5 @@
 
 namespace lbcrypto {
 template class CryptoContext<ILVector2n>;
+template class CryptoContextFactory<ILVector2n>;
 }
-

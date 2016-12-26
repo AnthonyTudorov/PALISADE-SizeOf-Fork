@@ -177,9 +177,9 @@ CryptoContext<T> CryptoContextFactory<T>::genCryptoContextBV(LPCryptoParametersB
 // FIXME: this is temporary until we better incorporate DCRT
 template <typename T>
 CryptoContext<T>
-CryptoContextFactory<T>::getCryptoContextDCRT(LPCryptoParametersLTV<ILVectorArray2n>* cryptoParams)
+CryptoContextFactory<T>::getCryptoContextDCRT(LPCryptoParametersLTV<T>* cryptoParams)
 {
-	shared_ptr<LPCryptoParametersLTV<ILVectorArray2n>> mycryptoParams( new LPCryptoParametersLTV<ILVectorArray2n>( *cryptoParams ) ); // copy so memory works right
+	shared_ptr<LPCryptoParametersLTV<T>> mycryptoParams( new LPCryptoParametersLTV<T>( *cryptoParams ) ); // copy so memory works right
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
 

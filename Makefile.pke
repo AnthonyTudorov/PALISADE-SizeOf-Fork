@@ -31,6 +31,7 @@
 
 PKESRCDIR := src/pke
 PKEBINDIR := src/pke/bin
+PKETESTDIR := src/pke/unittest
 
 PKESOURCES := $(shell find $(PKESRCDIR)/lib -name '*.cpp')
 PKEUNITSOURCES := $(shell find $(PKESRCDIR)/unittest -name '*.cpp')
@@ -38,6 +39,10 @@ PKEDEMOSOURCES := $(shell find $(PKESRCDIR)/demo -name '*.cpp')
 
 PKEOBJECTSALL = $(patsubst $(PKESRCDIR)/%,$(PKEBINDIR)/%,$(patsubst %.cpp,%.o,$(PKESOURCES)))
 PKEOBJECTS = $(filter %-impl.o,$(PKEOBJECTSALL))
+PKEUNITOBJECTS := $(patsubst $(PKESRCDIR)/%,$(PKEBINDIR)/%,$(patsubst %.cpp,%.o,$(PKEUNITSOURCES)))
+PKEUNITOBJECTS += test/include/gtest/gtest-all.o
+
+PKE_TEST_TARGET := $(PKETESTDIR)/tests$(EXESUFFIX)
 
 #this is the actual target that gets called when make is executed
 #(part of all in Makefile) it makes the palisade shared object library
@@ -45,7 +50,7 @@ PKEOBJECTS = $(filter %-impl.o,$(PKEOBJECTSALL))
 -include $(PKEOBJECTS:.o=.d)
 
 .PHONY:allpke
-allpke: $(EXTLIBDIR)/$(PALISADEPKELIB)
+allpke: $(EXTLIBDIR)/$(PALISADEPKELIB) $(PKE_TEST_TARGET)
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADEPKELIB): $(PKEOBJECTS)
@@ -72,3 +77,27 @@ $(PKEBINDIR)/%:
 cleanpke:
 	@echo " Cleaning pke...";
 	$(RM) -f $(PKEOBJECTS) $(EXTLIBDIR)/$(PALISADEPKELIB)
+
+TEST_LIB := -pthread -lgomp 
+
+#
+# the following define the componenets of the google test library
+# the source extention
+TEST_LIB_SRCEXT := cc
+
+#the source directory of the google library sources
+TEST_LIB_SRCDIR := test/include/gtest
+
+# Google Test headers. 
+GTEST_HEADERS =	test/include/gtest/gtest.h
+
+# this links test executable  from objects in the test build directory
+$(PKE_TEST_TARGET): $(PKEUNITOBJECTS) $(EXTLIBDIR)/$(PALISADEPKELIB) 
+	@mkdir -p `dirname $(PKE_TEST_TARGET)`
+	$(CC) $(PKEUNITOBJECTS) -o $(PKE_TEST_TARGET) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB) 
+
+#used to run tests from make
+.PHONY: testpke
+testpke: $(PKE_TEST_TARGET)
+	$(PKE_TEST_TARGET)
+
