@@ -561,10 +561,12 @@ TEST(UTDistrGen, ParallelDiscreteGaussianGenerator) {
     // now stitch them back together sequentially to preserve order of i
     for (int i=0; i<omp_get_num_threads(); i++) {
 #pragma omp ordered
+    	{
       DEBUG("thread #" << omp_get_thread_num() << " " << "moving "
 	    << (int)dggBigBinaryVectorPvt.size()  << " to starting point" 
 	    << (int)dggBigBinaryVector.size() );
       dggBigBinaryVector.insert(dggBigBinaryVector.end(), dggBigBinaryVectorPvt.begin(), dggBigBinaryVectorPvt.end());
+    	}
     }
   }
 

@@ -46,9 +46,6 @@ PKEDEMOOBJECTS += $(patsubst $(PKESRCDIR)/%,$(PKEBINDIR)/%,$(patsubst %.cpp,%.o,
 
 PKE_TEST_TARGET := $(PKETESTDIR)/tests$(EXESUFFIX)
 
-#this is the actual target that gets called when make is executed
-#(part of all in Makefile) it makes the palisade shared object library
-
 -include $(PKEOBJECTS:.o=.d)
 -include $(PKEUNITOBJECTS:.o=.d)
 -include $(PKEDEMOOBJECTS:.o=.d)
@@ -66,7 +63,7 @@ bin/pke/demo/%$(EXESUFFIX): src/pke/bin/demo/%.o $(EXTLIBDIR)/$(PALISADEPKELIB) 
 $(EXTLIBDIR)/$(PALISADEPKELIB): $(PKEOBJECTS)
 	@echo " -- pke:linking $@ from PKEOBJECTS"
 	mkdir -p $(EXTLIBDIR)
-	$(CC) $(LIBCMD) -o $@ $(PKEOBJECTS) -lgomp
+	$(CC) $(INC) $(LIBCMD) -o $@ $(PKEOBJECTS) -lgomp
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(PKEBINDIR)/%
@@ -102,9 +99,9 @@ TEST_LIB_SRCDIR := test/include/gtest
 GTEST_HEADERS =	test/include/gtest/gtest.h
 
 # this links test executable  from objects in the test build directory
-$(PKE_TEST_TARGET): $(PKEUNITOBJECTS) $(EXTLIBDIR)/$(PALISADEPKELIB) 
+$(PKE_TEST_TARGET): $(PKEUNITOBJECTS) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
 	@mkdir -p `dirname $(PKE_TEST_TARGET)`
-	$(CC) $(PKEUNITOBJECTS) -o $(PKE_TEST_TARGET) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB) 
+	$(CC) $(INC) $(PKEUNITOBJECTS) -o $(PKE_TEST_TARGET) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB) $(EXTLIB)
 
 #used to run tests from make
 .PHONY: testpke
