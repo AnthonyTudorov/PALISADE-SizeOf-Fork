@@ -2,6 +2,7 @@
 
 BOOSTINCLUDE := -I /afs/cad/linux/boost-1.60-sl6/include/
 OMPINCLUDE := 
+CC := g++ # This is the main compiler
 CPPSTD := -std=gnu++11
 
 LIBSUFFIX := .so

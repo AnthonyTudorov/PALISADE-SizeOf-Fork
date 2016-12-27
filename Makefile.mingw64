@@ -2,6 +2,7 @@
 
 BOOSTINCLUDE := -I C:/boost_1_60_0
 OMPINCLUDE := 
+CC := g++ # This is the main compiler
 CPPSTD := -std=gnu++11
 
 LIBCMD := -s -shared -Wl,--subsystem,windows 

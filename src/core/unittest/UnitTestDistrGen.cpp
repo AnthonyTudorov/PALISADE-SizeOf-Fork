@@ -29,21 +29,22 @@
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "../include/gtest/gtest.h"
+#include "include/gtest/gtest.h"
 #include <iostream>
 
-#include "../../src/lib/math/backend.h"
-#include "../../src/lib/utils/inttypes.h"
-#include "../../src/lib/math/nbtheory.h"
-#include "../../src/lib/lattice/elemparams.h"
-#include "../../src/lib/lattice/ilparams.h"
-#include "../../src/lib/lattice/ildcrtparams.h"
-#include "../../src/lib/lattice/ilelement.h"
-#include "../../src/lib/math/distrgen.h"
-#include "../../src/lib/lattice/ilvector2n.h"
-#include "../../src/lib/lattice/ilvectorarray2n.h"
-#include "../../src/lib/utils/utilities.h"
-#include "../../src/lib/utils/debug.h"
+#include "math/backend.h"
+#include "utils/inttypes.h"
+#include "lattice/ilparams.h"
+#include "lattice/ildcrtparams.h"
+#include "math/distrgen.h"
+#include "lattice/ilvector2n.h"
+#include "lattice/ilvectorarray2n.h"
+#include "math/nbtheory.h"
+#include "lattice/elemparams.h"
+#include "lattice/ilelement.h"
+#include "utils/utilities.h"
+#include "utils/debug.h"
+
 #include <omp.h>
 using namespace std;
 using namespace lbcrypto;
@@ -233,7 +234,7 @@ TEST(UTDistrGen, ParallelDiscreteUniformGenerator_LONG ) {
   testParallelDiscreteUniformGenerator(large_modulus, "large_modulus");
 
   BigBinaryInteger huge_modulus("10402635286389262637365363");
-  testParallelDiscreteUniformGenerator(large_modulus, "huge_modulus");
+  testParallelDiscreteUniformGenerator(huge_modulus, "huge_modulus");
 
 }
 
@@ -247,7 +248,7 @@ void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string
   usint size = 500000;
   //usint size = omp_get_max_threads() * 4;
 
-  bool dbg_flag = 0;
+  bool dbg_flag = false;
   vector <BigBinaryInteger> randBigBinaryVector;
 #pragma omp parallel // this is executed in parallel
   {
@@ -265,10 +266,13 @@ void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string
     // now stitch them back together sequentially to preserve order of i
     for (int i=0; i<omp_get_num_threads(); i++) {
 #pragma omp ordered
-      DEBUG("thread #" << omp_get_thread_num() << " " << "moving "
-	    << (int)randBigBinaryVectorPvt.size()  << " to starting point" 
+    	{
+      DEBUG("thread #" << omp_get_thread_num() << " moving "
+	    << (int)randBigBinaryVectorPvt.size()  << " to starting point "
 	    << (int)randBigBinaryVector.size() );
       randBigBinaryVector.insert(randBigBinaryVector.end(), randBigBinaryVectorPvt.begin(), randBigBinaryVectorPvt.end());
+      DEBUG("thread #" << omp_get_thread_num() << " moved");
+    	}
     }
 
   }
@@ -510,10 +514,12 @@ TEST(UTDistrGen, ParallelDiscreteGaussianGenerator) {
     // now stitch them back together sequentially to preserve order of i
     for (int i=0; i<omp_get_num_threads(); i++) {
 #pragma omp ordered
+    	{
       DEBUG("thread #" << omp_get_thread_num() << " " << "moving "
 	    << (int)dggCharVectorPvt.size()  << " to starting point" 
 	    << (int)dggCharVector.size() );
       dggCharVector.insert(dggCharVector.end(), dggCharVectorPvt.begin(), dggCharVectorPvt.end());
+    	}
     }
 
   }
