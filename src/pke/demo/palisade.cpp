@@ -34,15 +34,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 
 #include "../lib/palisade.h"
-#include "../lib/palisadespace.h"
 
-#include "../../lib/utils/cryptocontexthelper.h"
-#include "../../lib/crypto/cryptocontext.cpp"
-#include "../../lib/utils/cryptocontexthelper.cpp"
+#include "../lib/cryptocontexthelper.h"
 
-#include "../../lib/utils/serializablehelper.h"
-#include "../../lib/encoding/byteplaintextencoding.h"
-#include "../../lib/encoding/intplaintextencoding.h"
+#include "utils/serializablehelper.h"
+#include "encoding/byteplaintextencoding.h"
+#include "encoding/intplaintextencoding.h"
 
 using namespace lbcrypto;
 

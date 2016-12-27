@@ -5,8 +5,8 @@
 
 #include <iostream>
 #include <fstream>
-#include "../../lib/utils/inttypes.h"
-#include "../../lib/math/backend.h"
+#include "utils/inttypes.h"
+#include "math/backend.h"
 #if 1
 #include "../../lib/math/nbtheory.h"
 #include "../../lib/math/distrgen.h"
@@ -21,7 +21,7 @@
 #include "time.h"
 #include <chrono>
 #include <exception>
-#include "../../lib/utils/debug.h"
+#include "utils/debug.h"
 #include <omp.h> //open MP header
 
 using namespace std;
