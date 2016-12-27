@@ -60,7 +60,7 @@ allpkedemos: bin/pke/demo/palisade$(EXESUFFIX)
 
 bin/pke/demo/%$(EXESUFFIX): src/pke/bin/demo/%.o $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
 	@mkdir -p $(@D)
-	$(CC) -o $@ $^ $(EXTLIB)
+	$(CC) $(INC) -o $@ $^ $(EXTLIB)
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADEPKELIB): $(PKEOBJECTS)

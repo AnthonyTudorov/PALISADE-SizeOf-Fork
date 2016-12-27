@@ -777,7 +777,7 @@ TEST(UTILVector2n, cyclotomicOrder_test) {
 }
 
 TEST(UTILVectorArray2n, constructors_test) {
-	  bool dbg_flag = false;
+	  bool dbg_flag = true;
   usint m = 8;
   usint towersize = 3;
 
@@ -812,10 +812,10 @@ TEST(UTILVectorArray2n, constructors_test) {
 
   shared_ptr<ILDCRTParams> ildcrtparams( new ILDCRTParams(m, moduli, rootsOfUnity) );
     
-  std::vector<ILVector2n> ilvector2nVector(towersize);
-  ilvector2nVector[0] = ilv0;
-  ilvector2nVector[1] = ilv1;
-  ilvector2nVector[2] = ilv2;
+  std::vector<ILVector2n> ilvector2nVector;
+  ilvector2nVector.push_back(ilv0);
+  ilvector2nVector.push_back(ilv1);
+  ilvector2nVector.push_back(ilv2);
 
   DEBUG("1");
   float stdDev = 4.0;

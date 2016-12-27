@@ -30,7 +30,7 @@
 ################
 
 
-CC := g++ # This is the main compiler
+#### set in platform makefile #### CC := g++ # This is the main compiler
 
 # NOTE select the appropriate set of CPPFLAGS 
 # most code is checked into git with the first line active
