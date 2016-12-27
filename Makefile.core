@@ -32,22 +32,31 @@
 CORESRCDIR := src/core
 COREBINDIR := src/core/bin
 CORETESTDIR := src/core/unittest
+COREDEMODIR := src/core/demo
 
 CORESOURCES := $(shell find $(CORESRCDIR)/lib -name '*.cpp')
 COREUNITSOURCES := $(shell find $(CORESRCDIR)/unittest -name '*.cpp')
-COREDEMOSOURCES += test/include/gtest/gtest-all.cc
+COREDEMOSOURCES := $(shell find $(CORESRCDIR)/demo -name '*.cpp')
 
 COREOBJECTS := $(patsubst $(CORESRCDIR)/%,$(COREBINDIR)/%,$(patsubst %.cpp,%.o,$(CORESOURCES)))
 COREUNITOBJECTS := $(patsubst $(CORESRCDIR)/%,$(COREBINDIR)/%,$(patsubst %.cpp,%.o,$(COREUNITSOURCES)))
 COREUNITOBJECTS += test/include/gtest/gtest-all.o
+COREDEMOOBJECTS := $(patsubst $(CORESRCDIR)/%,$(COREBINDIR)/%,$(patsubst %.cpp,%.o,$(COREDEMOSOURCES)))
 
 TEST_TARGET := $(CORETESTDIR)/tests$(EXESUFFIX)
 
 -include $(COREOBJECTS:.o=.d)
 -include $(COREUNITOBJECTS:.o=.d)
+-include $(COREDEMOOBJECTS:.o=.d)
 
 .PHONY:allcore
-allcore: $(EXTLIBDIR)/$(PALISADECORELIB) $(TEST_TARGET)
+allcore: $(EXTLIBDIR)/$(PALISADECORELIB) $(TEST_TARGET) allcoredemos
+
+allcoredemos: ## there are none!
+
+bin/core/demo/%$(EXESUFFIX): src/core/bin/demo/%.o $(EXTLIBDIR)/$(PALISADELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADECORELIB): $(COREOBJECTS)

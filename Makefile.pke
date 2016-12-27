@@ -32,6 +32,7 @@
 PKESRCDIR := src/pke
 PKEBINDIR := src/pke/bin
 PKETESTDIR := src/pke/unittest
+PKEDEMODIR := src/pke/demo
 
 PKESOURCES := $(shell find $(PKESRCDIR)/lib -name '*.cpp')
 PKEUNITSOURCES := $(shell find $(PKESRCDIR)/unittest -name '*.cpp')
@@ -41,6 +42,7 @@ PKEOBJECTSALL = $(patsubst $(PKESRCDIR)/%,$(PKEBINDIR)/%,$(patsubst %.cpp,%.o,$(
 PKEOBJECTS = $(filter %-impl.o,$(PKEOBJECTSALL))
 PKEUNITOBJECTS := $(patsubst $(PKESRCDIR)/%,$(PKEBINDIR)/%,$(patsubst %.cpp,%.o,$(PKEUNITSOURCES)))
 PKEUNITOBJECTS += test/include/gtest/gtest-all.o
+PKEDEMOOBJECTS += $(patsubst $(PKESRCDIR)/%,$(PKEBINDIR)/%,$(patsubst %.cpp,%.o,$(PKEDEMOSOURCES)))
 
 PKE_TEST_TARGET := $(PKETESTDIR)/tests$(EXESUFFIX)
 
@@ -48,9 +50,17 @@ PKE_TEST_TARGET := $(PKETESTDIR)/tests$(EXESUFFIX)
 #(part of all in Makefile) it makes the palisade shared object library
 
 -include $(PKEOBJECTS:.o=.d)
+-include $(PKEUNITOBJECTS:.o=.d)
+-include $(PKEDEMOOBJECTS:.o=.d)
 
 .PHONY:allpke
-allpke: $(EXTLIBDIR)/$(PALISADEPKELIB) $(PKE_TEST_TARGET)
+allpke: $(EXTLIBDIR)/$(PALISADEPKELIB) $(PKE_TEST_TARGET) allpkedemos
+
+allpkedemos: bin/pke/demo/palisade$(EXESUFFIX)
+
+bin/pke/demo/%$(EXESUFFIX): src/pke/bin/demo/%.o $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB)
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADEPKELIB): $(PKEOBJECTS)

@@ -35,11 +35,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 
 #include <iostream>
-#include "../../lib/math/largefloat.h"
-#include "../../lib/math/matrix.cpp"
-#include "../../lib/lattice/dgsampling.h"
-#include "../../lib/lattice/dgsampling.cpp"
-//#include <limits>
+#include "math/largefloat.h"
+#include "math/matrix.cpp"
+#include "lattice/dgsampling.h"
+#include "lattice/dgsampling.cpp"
 
 //using namespace std;
 using namespace lbcrypto;

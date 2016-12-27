@@ -35,7 +35,6 @@
 */
 
 #include "palisade.h"
-#include "palisadespace.h"
 
 #include "cryptocontext.h"
 #include "cryptocontexthelper.h"
