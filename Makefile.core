@@ -88,7 +88,7 @@ cleancore:
 	@echo " Cleaning core...";
 	$(RM) -f $(COREOBJECTS) $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB)
 
-TEST_LIB := -pthread -lgomp 
+TEST_LIB := -lgomp 
 
 #
 # the following define the componenets of the google test library
@@ -104,7 +104,8 @@ GTEST_HEADERS =	test/include/gtest/gtest.h
 # this links test executable  from objects in the test build directory
 $(TEST_TARGET): $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) 
 	@mkdir -p `dirname $(TEST_TARGET)`
-	$(CC) $(INC) $(COREUNITOBJECTS) -o $(TEST_TARGET) $(EXTLIBDIR)/$(PALISADECORELIB) $(EXTLIB)
+	$(CC) $(INC) $(COREUNITOBJECTS) -o $(TEST_TARGET) -L$(EXTLIBDIR) -lPALISADEcore -lgomp
+	# $(EXTLIBDIR)/$(PALISADECORELIB) $(EXTLIB)
 
 #used to run tests from make
 .PHONY: testcore
