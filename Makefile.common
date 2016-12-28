@@ -60,12 +60,12 @@ HDREXT := h
 
 $(objects) : %.o : %.cpp
 
-EXTLIB := -lpthread -lgomp -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
+EXTLIB := -L$(EXTLIBDIR) -lpthread -lgomp -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
 INC := -I src/core/lib -I test $(OMPINCLUDE) $(BOOSTINCLUDE)
 
 #the name of the shared object library for palisade objects.  
-PALISADECORELIB := PALISADEcore$(LIBSUFFIX)
-PALISADEPKELIB := PALISADEpke$(LIBSUFFIX)
+PALISADECORELIB := libPALISADEcore$(LIBSUFFIX)
+PALISADEPKELIB := libPALISADEpke$(LIBSUFFIX)
 PALISADETRAPDOORLIB := PALISADEtrapdoor$(LIBSUFFIX)
 
 # run make for all components. you can run any individual component separately
