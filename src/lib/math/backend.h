@@ -129,7 +129,7 @@ namespace lbcrypto {
 	/** Define the mapping for BigBinaryInteger
 	    1500 is the maximum bit width supported by BigBinaryIntegers, large enough for most use cases
 		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application - to achieve smaller runtimes**/
-        #define BigBinaryIntegerBitLength 1500 //for documentation on tests
+        #define BigBinaryIntegerBitLength 256 //for documentation on tests
 	typedef cpu_int::BigBinaryInteger<integral_dtype,BigBinaryIntegerBitLength> BigBinaryInteger;
 	
 	/** Define the mapping for BigBinaryVector */
