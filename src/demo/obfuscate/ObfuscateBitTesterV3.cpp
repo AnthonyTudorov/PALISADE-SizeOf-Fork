@@ -98,9 +98,11 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	for (usint n = 128; n < 1024; n = 2 * n)
+	for (usint n = 512; n < 4096; n = 2 * n)
 	{
 		errorflag = CONJOBF(dbg_flag, n_evals, n);
+		if (errorflag)
+			return ((int)errorflag);
 	}
 
 	//system("PAUSE");

@@ -169,7 +169,7 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::ParamsGen(DiscreteGaussianGe
 	double alpha = 9.0;
 
 	//empirical parameter
-	double beta = 1.3;
+	double beta = 6.0;
 
 	//Bound of the Gaussian error polynomial
 	double Berr = sigma*sqrt(alpha);
