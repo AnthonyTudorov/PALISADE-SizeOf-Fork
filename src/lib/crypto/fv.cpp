@@ -250,7 +250,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 
 	c1 = p1*u + e2;
 
-	ciphertext->SetElements(std::move({ c0, c1 }));
+	ciphertext->SetElements({ c0, c1 });
 
 	return ciphertext;
 }
@@ -295,7 +295,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_
 	Element c0 = cipherText1Elements[0] + cipherText2Elements[0];
 	Element c1 = cipherText1Elements[1] + cipherText2Elements[1];
 
-	newCiphertext->SetElements(std::move{ c0, c1 });
+	newCiphertext->SetElements({ c0, c1 });
 	return newCiphertext;
 }
 
@@ -316,7 +316,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_
 	Element c0 = cipherText1Elements[0] - cipherText2Elements[0];
 	Element c1 = cipherText1Elements[1] - cipherText2Elements[1];
 
-	newCiphertext->SetElements(std::move{ c0, c1 });
+	newCiphertext->SetElements({ c0, c1 });
 	return newCiphertext;
 }
 
@@ -405,7 +405,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	}
 
 	//*newCiphertext = ciphertext1;
-	newCiphertext->SetElements(std::move({ ct0, ct1 }));
+	newCiphertext->SetElements({ ct0, ct1 });
 	return newCiphertext;
 
 }
