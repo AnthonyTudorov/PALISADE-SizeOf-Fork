@@ -44,26 +44,26 @@ PKEUNITOBJECTS := $(patsubst $(PKESRCDIR)/%,$(PKEBINDIR)/%,$(patsubst %.cpp,%.o,
 PKEUNITOBJECTS += test/include/gtest/gtest-all.o
 PKEDEMOOBJECTS += $(patsubst $(PKESRCDIR)/%,$(PKEBINDIR)/%,$(patsubst %.cpp,%.o,$(PKEDEMOSOURCES)))
 
-PKE_TEST_TARGET := $(PKETESTDIR)/tests$(EXESUFFIX)
+PKE_TEST_TARGET := $(EXTTESTDIR)/pke/tests$(EXESUFFIX)
 
 -include $(PKEOBJECTS:.o=.d)
 -include $(PKEUNITOBJECTS:.o=.d)
 -include $(PKEDEMOOBJECTS:.o=.d)
 
 .PHONY:allpke
-allpke: $(EXTLIBDIR)/$(PALISADEPKELIB) $(PKE_TEST_TARGET) allpkedemos
+allpke: allcore $(EXTLIBDIR)/$(PALISADEPKELIB) $(PKE_TEST_TARGET) allpkedemos
 
 allpkedemos: bin/pke/demo/palisade$(EXESUFFIX)
 
 bin/pke/demo/%$(EXESUFFIX): src/pke/bin/demo/%.o
 	@mkdir -p $(@D)
-	$(CC) $(INC) -o $@ $^ $(EXTLIB) -lPALISADEpke -lPALISADEcore
+	$(CC) $(CPPFLAGS) $(INC) -o $@ $^ $(EXTLIB) -lPALISADEpke -lPALISADEcore
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADEPKELIB): $(PKEOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB)
 	@echo " -- pke:linking $@ from PKEOBJECTS"
 	mkdir -p $(EXTLIBDIR)
-	$(CC) $(INC) $(LIBCMD) -o $@ $(PKEOBJECTS) -lgomp -L$(EXTLIBDIR) -lPALISADEcore
+	$(CC) $(CPPFLAGS) $(INC) $(LIBCMD) -o $@ $(PKEOBJECTS) -lgomp -L$(EXTLIBDIR) -lPALISADEcore
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(PKEBINDIR)/%
@@ -78,11 +78,21 @@ $(PKEBINDIR)/%:
 		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
 		$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(PKEBINDIR)/%,$(PKESRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 	fi
+	@if [ "$(suffix $@)" = ".ll" ] ;   \
+	then \
+		echo $(CC) -emit-llvm -S $(CPPFLAGS) $(INC) $(patsubst $(PKEBINDIR)/%,$(PKESRCDIR)/%,$(patsubst %.ll,%.cpp,$@)) -o $@ ;\
+		$(CC) -emit-llvm -S $(CPPFLAGS) $(INC) $(patsubst $(PKEBINDIR)/%,$(PKESRCDIR)/%,$(patsubst %.ll,%.cpp,$@)) -o $@ ;\
+	fi
+
+pkepics: $(patsubst %.cpp,%.ll,$(subst $(PKESRCDIR),$(PKEBINDIR),$(PKESOURCES)))
+	@echo done
+
+.PHONY: cleanpke cleanpkepics
+cleanpkepics: 
+	$(RM) -f $(PKEOBJECTS:.o=.ll) $(PKEOBJECTS:.o=.ll.jpg)
 
 #this target is used to cleanup, it is called from the top Makefile
-.PHONY: cleanpke
-cleanpke:
-	@echo " Cleaning pke...";
+cleanpke: cleanpkepics
 	$(RM) -f $(PKEOBJECTS) $(EXTLIBDIR)/$(PALISADEPKELIB)
 
 TEST_LIB := -pthread -lgomp 
@@ -101,7 +111,7 @@ GTEST_HEADERS =	test/include/gtest/gtest.h
 # this links test executable  from objects in the test build directory
 $(PKE_TEST_TARGET): $(PKEUNITOBJECTS) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
 	@mkdir -p `dirname $(PKE_TEST_TARGET)`
-	$(CC) $(INC) $(PKEUNITOBJECTS) -o $(PKE_TEST_TARGET) -L$(EXTLIBDIR) -lPALISADEpke -L$(EXTLIBDIR) -lPALISADEcore
+	$(CC) $(CPPFLAGS) $(INC) $(PKEUNITOBJECTS) -o $(PKE_TEST_TARGET) -L$(EXTLIBDIR) -lPALISADEpke -L$(EXTLIBDIR) -lPALISADEcore -lgomp
 
 #used to run tests from make
 .PHONY: testpke

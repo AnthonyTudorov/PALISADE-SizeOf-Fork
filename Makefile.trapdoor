@@ -1,0 +1,120 @@
+#
+#Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+#All rights reserved.
+#Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+#met:
+#1. Redistributions of source code must retain the above copyright
+#notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright
+#notice, this list of conditions and the following disclaimer in the
+#documentation and/or other materials provided with the distribution.
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+#IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+#TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+#PARTICULAR PURPOSE ARE DISCLAIMED.
+#IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+#ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+#DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+#OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+#STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+#IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+
+
+################
+# Makefile.trapdoor builds the trapdoor components of the PALISADE library
+# Includes unit tests and demos
+################
+
+TRAPDOORSRCDIR := src/trapdoor
+TRAPDOORBINDIR := src/trapdoor/bin
+TRAPDOORTESTDIR := src/trapdoor/unittest
+TRAPDOORDEMODIR := src/trapdoor/demo
+
+TRAPDOORSOURCES := $(shell find $(TRAPDOORSRCDIR)/lib -name '*.cpp')
+TRAPDOORUNITSOURCES := $(shell find $(TRAPDOORSRCDIR)/unittest -name '*.cpp')
+TRAPDOORDEMOSOURCES := $(shell find $(TRAPDOORSRCDIR)/demo -name '*.cpp')
+
+TRAPDOOROBJECTS = $(patsubst $(TRAPDOORSRCDIR)/%,$(TRAPDOORBINDIR)/%,$(patsubst %.cpp,%.o,$(TRAPDOORSOURCES)))
+TRAPDOORUNITOBJECTS := $(patsubst $(TRAPDOORSRCDIR)/%,$(TRAPDOORBINDIR)/%,$(patsubst %.cpp,%.o,$(TRAPDOORUNITSOURCES)))
+TRAPDOORUNITOBJECTS += test/include/gtest/gtest-all.o
+TRAPDOORDEMOOBJECTS += $(patsubst $(TRAPDOORSRCDIR)/%,$(TRAPDOORBINDIR)/%,$(patsubst %.cpp,%.o,$(TRAPDOORDEMOSOURCES)))
+
+TRAPDOOR_TEST_TARGET := $(EXTTESTDIR)/trapdoor/tests$(EXESUFFIX)
+
+-include $(TRAPDOOROBJECTS:.o=.d)
+-include $(TRAPDOORUNITOBJECTS:.o=.d)
+-include $(TRAPDOORDEMOOBJECTS:.o=.d)
+
+.PHONY:alltrapdoor
+alltrapdoor: $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(TRAPDOOR_TEST_TARGET) alltrapdoordemos
+
+alltrapdoordemos: $(patsubst $(TRAPDOORBINDIR)/demo/%,bin/trapdoor/demo/%,$(patsubst %.o,%$(EXESUFFIX),$(TRAPDOORDEMOOBJECTS)))
+
+bin/trapdoor/demo/%$(EXESUFFIX): src/trapdoor/bin/demo/%.o
+	@mkdir -p $(@D)
+	$(CC) $(CPPFLAGS) $(INC) -o $@ $^ $(EXTLIB) -lPALISADEtrapdoor -lPALISADEcore
+
+#this builds the palisade library out of the objects 
+$(EXTLIBDIR)/$(PALISADETRAPDOORLIB): $(TRAPDOOROBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) $(EXTLIBDIR)/$(PALISADEPKELIB)
+	@echo " -- trapdoor:linking $@ from TRAPDOOROBJECTS"
+	echo $(TRAPDOOROBJECTS)
+	mkdir -p $(EXTLIBDIR)
+	$(CC) $(CPPFLAGS) $(INC) $(LIBCMD) -o $@ $(TRAPDOOROBJECTS) -lgomp -L$(EXTLIBDIR) -lPALISADEcore
+
+### #this builds the individual objects that make up the library .
+.PRECIOUS: $(TRAPDOORBINDIR)/%
+$(TRAPDOORBINDIR)/%:
+	@if [ "$(suffix $@)" = ".o" ] ;   \
+	then  \
+		mkdir -p $(@D)  ;\
+		echo $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(TRAPDOORBINDIR)/%,$(TRAPDOORSRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
+		$(CC) -MM $(CPPFLAGS) $(INC) $(patsubst $(TRAPDOORBINDIR)/%,$(TRAPDOORSRCDIR)/%,$(patsubst %.o,%.cpp,$@)) > $(patsubst %.o,%.d,$@) ;\
+		mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)  ;\
+		sed -e 's|.*\.o:|$(TRAPDOORBINDIR)/$*:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)  ;\
+		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
+		$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(TRAPDOORBINDIR)/%,$(TRAPDOORSRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
+	fi
+	@if [ "$(suffix $@)" = ".ll" ] ;   \
+	then \
+		echo $(CC) -emit-llvm -S $(CPPFLAGS) $(INC) $(patsubst $(TRAPDOORBINDIR)/%,$(TRAPDOORSRCDIR)/%,$(patsubst %.ll,%.cpp,$@)) -o $@ ;\
+		$(CC) -emit-llvm -S $(CPPFLAGS) $(INC) $(patsubst $(TRAPDOORBINDIR)/%,$(TRAPDOORSRCDIR)/%,$(patsubst %.ll,%.cpp,$@)) -o $@ ;\
+	fi
+
+trapdoorpics: $(patsubst %.cpp,%.ll,$(subst $(TRAPDOORSRCDIR),$(TRAPDOORBINDIR),$(TRAPDOORSOURCES)))
+	@echo done
+
+.PHONY: cleantrapdoor cleantrapdoorpics
+cleantrapdoorpics: 
+	$(RM) -f $(TRAPDOOROBJECTS:.o=.ll) $(TRAPDOOROBJECTS:.o=.ll.jpg)
+
+#this target is used to cleanup, it is called from the top Makefile
+cleantrapdoor: cleantrapdoorpics
+	$(RM) -f $(TRAPDOOROBJECTS) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB)
+
+TEST_LIB := -pthread -lgomp 
+
+#
+# the following define the componenets of the google test library
+# the source extention
+TEST_LIB_SRCEXT := cc
+
+#the source directory of the google library sources
+TEST_LIB_SRCDIR := test/include/gtest
+
+# Google Test headers. 
+GTEST_HEADERS =	test/include/gtest/gtest.h
+
+# this links test executable  from objects in the test build directory
+$(TRAPDOOR_TEST_TARGET): $(TRAPDOORUNITOBJECTS) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(EXTLIBDIR)/$(PALISADECORELIB)
+	@mkdir -p `dirname $(TRAPDOOR_TEST_TARGET)`
+	$(CC) $(CPPFLAGS) $(INC) $(TRAPDOORUNITOBJECTS) -o $(TRAPDOOR_TEST_TARGET) -L$(EXTLIBDIR) -lPALISADEtrapdoor -L$(EXTLIBDIR) -lPALISADEcore -lgomp
+
+#used to run tests from make
+.PHONY: testtrapdoor
+testtrapdoor: $(TRAPDOOR_TEST_TARGET)
+	$(TRAPDOOR_TEST_TARGET)
+

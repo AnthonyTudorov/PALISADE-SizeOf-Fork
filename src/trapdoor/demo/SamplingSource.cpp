@@ -1,5 +1,5 @@
-#include "../../lib/math/discretegaussiangenerator.h"
-#include "../../lib/utils/debug.h";
+#include "math/discretegaussiangenerator.h"
+#include "utils/debug.h";
 //#include <vld.h>
 using namespace lbcrypto;
 

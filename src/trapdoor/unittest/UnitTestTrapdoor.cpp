@@ -26,20 +26,20 @@
 */
 
 
-#include "../../include/gtest/gtest.h"
+#include "include/gtest/gtest.h"
 #include <iostream>
 
-#include "../../../src/lib/math/backend.h"
-#include "../../../src/lib/math/nbtheory.h"
-#include "../../../src/lib/math/distrgen.h"
-#include "../../../src/lib/lattice/ilvector2n.h"
-#include "../../../src/lib/utils/inttypes.h"
-#include "../../../src/lib/utils/utilities.h"
+#include "math/backend.h"
+#include "math/nbtheory.h"
+#include "math/distrgen.h"
+#include "lattice/ilvector2n.h"
+#include "utils/inttypes.h"
+#include "utils/utilities.h"
 
-#include "../../../src/lib/lattice/trapdoor.h"
+#include "sampling/trapdoor.h"
 //#include "../../../src/lib/lattice/trapdoor.cpp"
-#include "../../../src/lib/obfuscate/lweconjunctionobfuscatev2.h"
-#include "../../../src/lib/obfuscate/lweconjunctionobfuscatev2.cpp"
+#include "obfuscation/lweconjunctionobfuscatev2.h"
+#include "obfuscation/lweconjunctionobfuscatev2.cpp"
 
 //using namespace std;
 using namespace lbcrypto;

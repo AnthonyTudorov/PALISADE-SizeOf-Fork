@@ -38,15 +38,15 @@
 #include <cmath>
 #include <vector>
 #include "obfuscatelp.h"
-#include "../utils/inttypes.h"
-#include "../math/distrgen.h"
-#include "../math/backend.h"
-#include "../lattice/elemparams.h"
-#include "../lattice/ilparams.h"
-#include "../lattice/ildcrtparams.h"
-#include "../lattice/ilelement.h"
-#include "../lattice/trapdoor.h"
-#include "../lattice/trapdoor.cpp"
+#include "utils/inttypes.h"
+#include "math/distrgen.h"
+#include "math/backend.h"
+#include "lattice/elemparams.h"
+#include "lattice/ilparams.h"
+#include "lattice/ildcrtparams.h"
+#include "lattice/ilelement.h"
+#include "../sampling/trapdoor.h"
+#include "../sampling/trapdoor.cpp"
 
 /**
  * @namespace lbcrypto

@@ -37,12 +37,12 @@
 #ifndef LBCRYPTO_LATTICE_TRAPDOOR_H
 #define LBCRYPTO_LATTICE_TRAPDOOR_H
 
-#include "../math/matrix.h"
-#include "../math/matrix.cpp"
-#include "ilvector2n.h"
+#include "math/matrix.h"
+#include "math/matrix.cpp"
+#include "lattice/ilvector2n.h"
 #include "dgsampling.h"
 #include "dgsampling.cpp"
-#include "../utils/debug.h"
+#include "utils/debug.h"
 
 namespace lbcrypto {
 
