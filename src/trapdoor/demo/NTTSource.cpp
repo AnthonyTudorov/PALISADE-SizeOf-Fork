@@ -12,24 +12,24 @@
 
 #include <iostream>
 #include <fstream>
-#include "../../lib/utils/inttypes.h"
-#include "../../lib/math/backend.h"
+#include "utils/inttypes.h"
+#include "math/backend.h"
 #if 1
-#include "../../lib/math/nbtheory.h"
-#include "../../lib/math/distrgen.h"
-#include "../../lib/lattice/elemparams.h"
-#include "../../lib/lattice/ilparams.h"
-#include "../../lib/lattice/ildcrtparams.h"
-#include "../../lib/lattice/ilelement.h"
-//#include "../../lib/crypto/lwecrypt.h"
-#include "../../lib/obfuscate/lweconjunctionobfuscate.h"
-#include "../../lib/obfuscate/lweconjunctionobfuscate.cpp"
-#include "../../lib/obfuscate/obfuscatelp.h"
+#include "math/nbtheory.h"
+#include "math/distrgen.h"
+#include "lattice/elemparams.h"
+#include "lattice/ilparams.h"
+#include "lattice/ildcrtparams.h"
+#include "lattice/ilelement.h"
+//#include/crypto/lwecrypt.h"
+#include "obfuscation/lweconjunctionobfuscate.h"
+#include "obfuscation/lweconjunctionobfuscate.cpp"
+#include "obfuscation/obfuscatelp.h"
 #endif
 #include "time.h"
 #include <chrono>
 #include <exception>
-#include "../../lib/utils/debug.h"
+#include "utils/debug.h"
 #include <omp.h> //open MP header
 
 using namespace std;

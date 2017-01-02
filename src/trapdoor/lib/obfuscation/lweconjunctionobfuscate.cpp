@@ -23,8 +23,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 #include "lweconjunctionobfuscate.h"
-#include "../utils/memory.h"
-#include "../utils/debug.h"
+#include "utils/memory.h"
+#include "utils/debug.h"
 
 namespace lbcrypto {
 

@@ -37,8 +37,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include "math/largefloat.h"
 #include "math/matrix.cpp"
-#include "lattice/dgsampling.h"
-#include "lattice/dgsampling.cpp"
+#include "sampling/dgsampling.h"
+#include "sampling/dgsampling.cpp"
 
 //using namespace std;
 using namespace lbcrypto;

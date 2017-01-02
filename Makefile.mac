@@ -4,7 +4,7 @@ BOOSTINCLUDE := -I /boost_1_61_0
 OMPINCLUDE := -I /opt/local/include/libomp -fopenmp
 #CPPSTD := -std=gnu++0x
 CC := clang++ # This is the main compiler
-CPPSTD := -std=c++0x
+CPPSTD := -std=c++11 -stdlib=libc++
 
 LIBSUFFIX := .dylib
 LIBCMD := -fopenmp -dynamiclib

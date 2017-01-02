@@ -3,21 +3,11 @@
 
 #include <iostream>
 #include <fstream>
-//#include "../../lib/utils/inttypes.h"
-//#include "../../lib/math/backend.h"
-//#include "../../lib/math/nbtheory.h"
-//#include "../../lib/math/distrgen.h"
-//#include "../../lib/lattice/elemparams.h"
-//#include "../../lib/lattice/ilparams.h"
-//#include "../../lib/lattice/ildcrtparams.h"
-//#include "../../lib/lattice/ilelement.h"
-//#include "../../lib/crypto/lwecrypt.h"
-#include "../../lib/obfuscate/lweconjunctionobfuscate.h"
-#include "../../lib/obfuscate/lweconjunctionobfuscate.cpp"
-//#include "../../lib/obfuscate/obfuscatelp.h"
+#include "obfuscation/lweconjunctionobfuscate.h"
+#include "obfuscation/lweconjunctionobfuscate.cpp"
 #include "time.h"
 #include <chrono>
-#include "../../lib/utils/debug.h"
+#include "utils/debug.h"
 #include <omp.h> //open MP header
 
 //using namespace std;

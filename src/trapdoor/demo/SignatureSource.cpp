@@ -1,6 +1,6 @@
-#include "../../lib/crypto/signature/lwesign.h"
-#include "../../lib/crypto/signature/lwesign.cpp"
-#include "../../lib/encoding/byteplaintextencoding.h"
+#include "signature/lwesign.h"
+#include "signature/lwesign.cpp"
+#include "encoding/byteplaintextencoding.h"
 
 using namespace lbcrypto;
 

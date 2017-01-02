@@ -37,12 +37,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <fstream>
 
-#include "../../lib/obfuscate/lweconjunctionobfuscate.h"
-#include "../../lib/obfuscate/lweconjunctionobfuscate.cpp"
+#include "obfuscation/lweconjunctionobfuscate.h"
+#include "obfuscation/lweconjunctionobfuscate.cpp"
 //#include "../../lib/obfuscate/obfuscatelp.h"
 #include "time.h"
 #include <chrono>
-#include "../../lib/utils/debug.h"
+#include "utils/debug.h"
 
 //using namespace std;
 using namespace lbcrypto;

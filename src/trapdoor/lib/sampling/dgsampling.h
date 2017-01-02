@@ -37,9 +37,9 @@
 #ifndef LBCRYPTO_OBFMATH_DGSAMPLING_H
 #define LBCRYPTO_OBFMATH_DGSAMPLING_H
 
-#include "../math/largefloat.h"
-#include "../math/matrix.h"
-#include "field2n.h"
+#include "math/largefloat.h"
+#include "math/matrix.h"
+#include "lattice/field2n.h"
 
 namespace lbcrypto {
 

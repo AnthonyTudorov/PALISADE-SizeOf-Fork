@@ -36,13 +36,13 @@
 
 //Includes Section
 #include <vector>
-#include "../lattice/elemparams.h"
-#include "../lattice/ilparams.h"
-#include "../lattice/ildcrtparams.h"
-#include "../lattice/ilelement.h"
-#include "../utils/inttypes.h"
-#include "../math/distrgen.h"
-#include "../encoding/plaintext.h"
+#include "lattice/elemparams.h"
+#include "lattice/ilparams.h"
+#include "lattice/ildcrtparams.h"
+#include "lattice/ilelement.h"
+#include "utils/inttypes.h"
+#include "math/distrgen.h"
+#include "encoding/plaintext.h"
 
 /**
  * @namespace lbcrypto
