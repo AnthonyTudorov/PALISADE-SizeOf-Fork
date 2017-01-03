@@ -52,9 +52,9 @@ TRAPDOOR_TEST_TARGET := $(EXTTESTDIR)/trapdoor/tests$(EXESUFFIX)
 .PHONY:alltrapdoor
 alltrapdoor: $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(TRAPDOOR_TEST_TARGET) alltrapdoordemos
 
-alltrapdoordemos: $(patsubst $(TRAPDOORBINDIR)/demo/%,bin/trapdoor/demo/%,$(patsubst %.o,%$(EXESUFFIX),$(TRAPDOORDEMOOBJECTS)))
+alltrapdoordemos: $(patsubst $(TRAPDOORBINDIR)/demo/%,bin/demo/trapdoor/%,$(patsubst %.o,%$(EXESUFFIX),$(TRAPDOORDEMOOBJECTS)))
 
-bin/trapdoor/demo/%$(EXESUFFIX): src/trapdoor/bin/demo/%.o
+bin/demo/trapdoor/%$(EXESUFFIX): src/trapdoor/bin/demo/%.o
 	@mkdir -p $(@D)
 	$(CC) $(CPPFLAGS) $(INC) -o $@ $^ $(EXTLIB) -lPALISADEtrapdoor -lPALISADEcore
 

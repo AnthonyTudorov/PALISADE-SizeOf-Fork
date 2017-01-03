@@ -53,9 +53,9 @@ PKE_TEST_TARGET := $(EXTTESTDIR)/pke/tests$(EXESUFFIX)
 .PHONY:allpke
 allpke: allcore $(EXTLIBDIR)/$(PALISADEPKELIB) $(PKE_TEST_TARGET) allpkedemos
 
-allpkedemos: bin/pke/demo/palisade$(EXESUFFIX)
+allpkedemos: bin/demo/pke/palisade$(EXESUFFIX)
 
-bin/pke/demo/%$(EXESUFFIX): src/pke/bin/demo/%.o
+bin/demo/pke/%$(EXESUFFIX): src/pke/bin/demo/%.o
 	@mkdir -p $(@D)
 	$(CC) $(CPPFLAGS) $(INC) -o $@ $^ $(EXTLIB) -lPALISADEpke -lPALISADEcore
 

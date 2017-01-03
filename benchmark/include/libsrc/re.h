@@ -15,6 +15,8 @@
 #ifndef BENCHMARK_RE_H_
 #define BENCHMARK_RE_H_
 
+#define HAVE_STD_REGEX
+
 #if defined(HAVE_STD_REGEX)
 #include <regex>
 #elif defined(HAVE_GNU_POSIX_REGEX)
