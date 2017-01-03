@@ -307,6 +307,18 @@ namespace lbcrypto {
 			 */
 			bool Evaluate(const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
 				 const std::string &testString) const;
+
+			/**
+			 * Method for evaluating the pattern, using the trick of multiplying a chain of matrix
+			 * multiplications by the unity vector.
+			 *
+			 * @param &obfuscatedPattern the obfuscated pattern.
+			 * @param &testString cleartext pattern to test for.
+			 * @return true if the string matches the pattern and false otherwise.
+			 */
+			bool EvaluateACS(const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
+				 const std::string &testString) const;
+
 	};
 
 } // namespace lbcrypto ends

@@ -376,6 +376,13 @@ namespace lbcrypto {
             void block_multiplyCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor d, it_lineardata_t workPassThrough ) const;
             void LinearizeDataCAPS(lineardata_t *lineardataPtr) const;
             void UnlinearizeDataCAPS(lineardata_t *lineardataPtr) const;
+
+
+            /*
+             * Multiply the matrix by a vector whose elements are all 1's.  This causes the elements of each
+             * row of the matrix to be added and placed into the corresponding position in the output vector.
+             */
+            Matrix<Element> MultByUnityVector() const;
         private:
             mutable data_t data;
             size_t rows;

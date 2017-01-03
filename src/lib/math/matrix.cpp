@@ -1281,7 +1281,25 @@ void Matrix<Element>::getData(const data_t &Adata, const data_t &Bdata, const da
     }
 }
 
+/*
+ * Multiply the matrix by a vector of 1's, which is the same as adding all the
+ * elements in the row together.
+ * Return a vector that is a rows x 1 matrix.
+ */
+template<class Element>
+Matrix<Element> Matrix<Element>::MultByUnityVector() const {
+	Matrix<Element> result(allocZero, rows, 1);
 
+#pragma omp parallel for
+	for (int32_t row = 0; row < result.rows; ++row) {
+
+		for (int32_t col= 0; col<cols; ++col){
+			*result.data[row][0] += *data[row][col];
+		}
+	}
+
+	return result;
+}
 
 }
 
