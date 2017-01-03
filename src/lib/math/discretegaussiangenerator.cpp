@@ -127,7 +127,7 @@ namespace lbcrypto {
 		if (lower != S.end())
 			return lower - S.begin();
 		else
-			throw std::runtime_error("FindInVector value not found");
+			throw std::runtime_error("DGG Inversion Sampling. FindInVector value not found: " + std::to_string(search));
 	}
 
 	BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(const BigBinaryInteger &modulus) const {
