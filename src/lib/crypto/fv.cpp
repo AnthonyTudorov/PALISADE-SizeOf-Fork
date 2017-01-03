@@ -50,9 +50,9 @@ bool LPAlgorithmParamsGenFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<El
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsFV = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(cryptoParams);
 
-	float sigma = cryptoParamsFV->GetDistributionParameter();
-	float alpha = cryptoParamsFV->GetAssuranceMeasure();
-	float hermiteFactor = cryptoParamsFV->GetSecurityLevel();
+	double sigma = cryptoParamsFV->GetDistributionParameter();
+	double alpha = cryptoParamsFV->GetAssuranceMeasure();
+	double hermiteFactor = cryptoParamsFV->GetSecurityLevel();
 	double p = cryptoParamsFV->GetPlaintextModulus().ConvertToDouble();
 	uint32_t r = cryptoParamsFV->GetRelinWindow();
 
@@ -183,7 +183,6 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> c
 	Element a(dug, elementParams, Format::EVALUATION);
 
 	//Generate the secret key
-
 	Element s;
 
 	//Done in two steps not to use a random polynomial from a pre-computed pool
@@ -251,7 +250,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 
 	c1 = p1*u + e2;
 
-	ciphertext->SetElements({ c0,c1 });
+	ciphertext->SetElements({ c0, c1 });
 
 	return ciphertext;
 }
@@ -273,10 +272,8 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Elem
 	Element b = c[0] + s*c[1];
 
 	b.SwitchFormat();
-
-	b = b.MultiplyAndRound(p, q);
 	
-	*plaintext = b.SignedMod(p);
+	*plaintext = b.MultiplyAndRound(p, q).SignedMod(p);
 
 	return DecryptResult(plaintext->GetLength());
 }
@@ -292,13 +289,13 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_
 
 	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
 
-	std::vector<Element> cipherText1Elements = ciphertext1->GetElements();
-	std::vector<Element> cipherText2Elements = ciphertext2->GetElements();
+	const std::vector<Element> &cipherText1Elements = ciphertext1->GetElements();
+	const std::vector<Element> &cipherText2Elements = ciphertext2->GetElements();
 
 	Element c0 = cipherText1Elements[0] + cipherText2Elements[0];
 	Element c1 = cipherText1Elements[1] + cipherText2Elements[1];
 
-	newCiphertext->SetElements({ c0,c1 });
+	newCiphertext->SetElements({ c0, c1 });
 	return newCiphertext;
 }
 
@@ -313,13 +310,13 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_
 
 	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
 
-	std::vector<Element> cipherText1Elements = ciphertext1->GetElements();
-	std::vector<Element> cipherText2Elements = ciphertext2->GetElements();
+	const std::vector<Element> &cipherText1Elements = ciphertext1->GetElements();
+	const std::vector<Element> &cipherText2Elements = ciphertext2->GetElements();
 
 	Element c0 = cipherText1Elements[0] - cipherText2Elements[0];
 	Element c1 = cipherText1Elements[1] - cipherText2Elements[1];
 
-	newCiphertext->SetElements({ c0,c1 });
+	newCiphertext->SetElements({ c0, c1 });
 	return newCiphertext;
 }
 
@@ -453,7 +450,6 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::EvalMultKeyGen(
 }
 
 
-
 // Constructor for LPPublicKeyEncryptionSchemeFV
 template <class Element>
 LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask)
@@ -474,7 +470,7 @@ LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitse
 
 }
 
-// Enable for LPPublicKeyEncryptionSchemeLTV
+// Enable for LPPublicKeyEncryptionSchemeFV
 template <class Element>
 void LPPublicKeyEncryptionSchemeFV<Element>::Enable(PKESchemeFeature feature) {
 	switch (feature)
