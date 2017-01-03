@@ -50,18 +50,18 @@
 
 #include <iostream>
 #define _USE_MATH_DEFINES
-#include "../../src/lib/math/backend.h"
+#include "math/backend.h"
 #if 1
-#include "../../src/lib/utils/inttypes.h"
-#include "../../src/lib/math/nbtheory.h"
-#include "../../src/lib/lattice/elemparams.h"
-#include "../../src/lib/lattice/ilparams.h"
-#include "../../src/lib/lattice/ildcrtparams.h"
-#include "../../src/lib/lattice/ilelement.h"
-#include "../../src/lib/math/distrgen.h"
-#include "../../src/lib/lattice/ilvector2n.h"
-#include "../../src/lib/lattice/ilvectorarray2n.h"
-#include "../../src/lib/utils/utilities.h"
+#include "utils/inttypes.h"
+#include "math/nbtheory.h"
+#include "lattice/elemparams.h"
+#include "lattice/ilparams.h"
+#include "lattice/ildcrtparams.h"
+#include "lattice/ilelement.h"
+#include "math/distrgen.h"
+#include "lattice/ilvector2n.h"
+#include "lattice/ilvectorarray2n.h"
+#include "utils/utilities.h"
 #endif
 
 
