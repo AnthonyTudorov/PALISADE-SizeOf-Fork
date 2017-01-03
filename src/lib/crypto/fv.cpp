@@ -435,7 +435,7 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::EvalMultKeyGen(
 	{
 		// Generate a_i vectors
 		Element a(dug, elementParams, Format::EVALUATION);
-		evalKeyElementsGenerated.push_back(std::move(a));
+		evalKeyElementsGenerated.push_back(a);
 
 		// Generate a_i * s + e - PowerOfBase(s^2)
 		Element e(dgg, elementParams, Format::EVALUATION);
