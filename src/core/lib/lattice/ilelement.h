@@ -44,17 +44,14 @@
 */
 namespace lbcrypto {
 
-	// interface for ideal lattices
 	/**
 	* @brief Interface for ideal lattices
 	*/
-	//template is used to implement curiosly recurring template pattern so that abstract data type could be use as in return,
-	//such as in the case of CRTInterpolate
 	template <typename Element>
 	class ILElement : public Serializable
 	{
 	public:
-		virtual ~ILElement() {} //must be virtual since member printvals() is virtual
+		virtual ~ILElement() {}
 
 		/**
 		*Prints all values in either coefficient or evaluation format.
@@ -62,11 +59,18 @@ namespace lbcrypto {
 		virtual void PrintValues() const = 0;
 		
 		/**
-		*Adds one to every entry on the ILElement.
+		*	Adds one to every entry on the ILElement.
 		*/
 		virtual void AddILElementOne() = 0;
 		
+		/**
+		 * GetLength of the Element
+		 * @return length
+		 */
 		virtual usint GetLength() const = 0;
+
+		virtual const BigBinaryInteger& GetModulus() const = 0;
+		virtual const BigBinaryVector& GetValues() const = 0;
 
 		/**
 		* ModReduce reduces the ILVectorArray2n's composite modulus by dropping the last modulus from the chain of moduli as well as dropping the last tower.
