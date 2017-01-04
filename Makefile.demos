@@ -46,6 +46,7 @@ make_demos: \
 	$(BINDIR)/demo/obfuscate/ObfuscateSourceDbc$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSourceDbcV2$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSourceDbcV3$(EXESUFFIX) \
+	$(BINDIR)/demo/obfuscate/ObfuscateBitTesterV3$(EXESUFFIX) \
 	$(BINDIR)/demo/obfuscate/ObfuscateSimulator$(EXESUFFIX) \
         $(BINDIR)/demo/obfuscate/ObfuscateSimulator16$(EXESUFFIX) \
         $(BINDIR)/demo/obfuscate/ObfuscateSimulator16Loop$(EXESUFFIX) \

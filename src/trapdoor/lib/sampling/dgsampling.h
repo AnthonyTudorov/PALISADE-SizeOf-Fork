@@ -54,7 +54,7 @@ const int32_t N_MAX = 16384;
 const double SIGMA = std::sqrt(std::log(2 * N_MAX / DG_ERROR) / M_PI);
 
 //const double SPECTRAL_CONSTANT = 1.2;
-const double SPECTRAL_CONSTANT = 1.60;
+const double SPECTRAL_CONSTANT = 1.80;
 
 const auto SPECTRAL_BOUND = [](uint32_t n, uint32_t k) -> double { 
 	return SPECTRAL_CONSTANT*SIGMA*SIGMA*(std::sqrt(n*k) + std::sqrt(2*n) + 4.7); 
