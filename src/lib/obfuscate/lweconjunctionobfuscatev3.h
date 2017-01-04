@@ -311,16 +311,14 @@ namespace lbcrypto {
 			 * @param &elem a ring element.
 			 * @param &dgg the discrete Gaussian Generator.
 			 * @param &dggLargeSigma the discrete Gaussian Generator for perturbation sampling.
-			 * @param *encodedElem the encoded element.
 			 */
-			void Encode(
+			shared_ptr<Matrix<Element>> Encode(
 				const Matrix<Element> &Ai,
 				const Matrix<Element> &Aj,
 				const RLWETrapdoorPair<ILVector2n> &Ti,
 				const Element &elemS,
 				DiscreteGaussianGenerator &dgg,
-				DiscreteGaussianGenerator &dggLargeSigma,
-				Matrix<Element> *encodedElem) const;
+				DiscreteGaussianGenerator &dggLargeSigma) const;
 
 
 			/**

@@ -286,14 +286,13 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::KeyGen(DiscreteGaussianGener
 }
 
 template <class Element>
-void LWEConjunctionObfuscationAlgorithmV3<Element>::Encode(
+shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithmV3<Element>::Encode(
 				const Matrix<Element> &Ai,
 				const Matrix<Element> &Aj,
 				const RLWETrapdoorPair<ILVector2n> &Ti,
 				const Element &elemS,
 				DiscreteGaussianGenerator &dgg,
-				DiscreteGaussianGenerator &dggLargeSigma,
-				Matrix<Element> *encodedElem) const {
+				DiscreteGaussianGenerator &dggLargeSigma) const {
 
     TimeVar t1,t_total; // for TIC TOC
 	bool dbg_flag = 0;//set to 0 for no debug statements
@@ -321,6 +320,8 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Encode(
 	//std::cout << "Encode: Computed bj, next will do GaussSamp" << std::endl; 
 	TIC(t1);	
 
+	shared_ptr<Matrix<Element>> result(new Matrix<Element>(zero_alloc, m, m));
+
 	//DBC: this loop takes all the time in encode
 	//TODO (dcousins): move gaussj generation out of the loop to enable parallelisation
 	#pragma omp parallel for
@@ -333,13 +334,15 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Encode(
 		// the following takes no time
 		for(int32_t j=0; j<m; j++) {
 //			gaussj(j, 0).PrintValues();
-			(*encodedElem)(j,i) = gaussj(j,0);
+			(*result)(j,i) = gaussj(j,0);
 		}
 
 	}
 
 	DEBUG("Enc: " << " "  << TOC(t1) << " ms");
 	DEBUG("EncTot: " << " "  << TOC(t_total) << " ms");
+
+	return result;
 
 };
 
@@ -489,12 +492,10 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Obfuscate(
 
 		for(usint k=0; k<chunkExponent; k++) {
 
-			shared_ptr<Matrix<Element>> S_i (new Matrix<Element>(zero_alloc, m, m));
-			this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small[i-1][k]*r_small[i-1][k],dgg, dggLargeSigma, S_i.get());
+			shared_ptr<Matrix<Element>> S_i = this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small[i-1][k]*r_small[i-1][k],dgg, dggLargeSigma);
 			SVector.push_back(S_i);
 
-			shared_ptr<Matrix<Element>> R_i (new Matrix<Element>(zero_alloc, m, m));
-			this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],r_small[i-1][k],dgg, dggLargeSigma, R_i.get());
+			shared_ptr<Matrix<Element>> R_i = this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],r_small[i-1][k],dgg, dggLargeSigma);
 			RVector.push_back(R_i);
 
 		}
@@ -514,14 +515,14 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Obfuscate(
 	//Convert to Evaluation representation
 	elemrl1.SwitchFormat();
 
-	shared_ptr<Matrix<Element>> Sl (new Matrix<Element>(zero_alloc, m, m));
-	this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1*s_prod,dgg, dggLargeSigma, Sl.get());
+	shared_ptr<Matrix<Element>> Sl = 
+		this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1*s_prod,dgg, dggLargeSigma);
 
 	//std::cout << "encode 1 for L ran" << std::endl;
 	//std::cout << elemrl1.GetValues() << std::endl;
 
-	shared_ptr<Matrix<Element>> Rl (new Matrix<Element>(zero_alloc, m, m));
-	this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1,dgg, dggLargeSigma, Rl.get());
+	shared_ptr<Matrix<Element>> Rl = 
+		this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1,dgg, dggLargeSigma);
 
 	//std::cout << "encode 2 for L ran" << std::endl;
 
