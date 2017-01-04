@@ -52,11 +52,11 @@ TEST_TARGET := $(EXTTESTDIR)/core/tests$(EXESUFFIX)
 .PHONY:allcore
 allcore: $(EXTLIBDIR)/$(PALISADECORELIB) $(TEST_TARGET) allcoredemos
 
-allcoredemos: ## there are none!
+allcoredemos: $(patsubst $(COREBINDIR)/demo/%,bin/demo/core/%,$(patsubst %.o,%$(EXESUFFIX),$(COREDEMOOBJECTS)))
 
-bin/core/demo/%$(EXESUFFIX): src/core/bin/demo/%.o $(EXTLIBDIR)/$(PALISADELIB)
+bin/demo/core/%$(EXESUFFIX): src/core/bin/demo/%.o
 	@mkdir -p $(@D)
-	$(CC) $(CPPFLAGS) $(INC) -o $@ $^ $(EXTLIB)
+	$(CC) $(CPPFLAGS) $(INC) -o $@ $^ $(EXTLIB) -lPALISADEcore
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADECORELIB): $(COREOBJECTS)

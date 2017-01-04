@@ -38,7 +38,7 @@ BENCHMARK_LIBSRC =  $(wildcard $(BENCHMARK_LIBSRCDIR)/*.cc)
 BENCHMARK_LIBOBJ = $(BENCHMARK_LIBSRC:.cc=.o)
 
 #note the following may need to be set automatically ala cmake
-LIBBENCHMARK_FLAGS = -DHAVE_POSIX_REGEX -DHAVE_STEADY_CLOCK  -std=c++11 -Wall -Wextra -Wshadow -pedantic -pedantic-errors -Wfloat-equal -Wzero-as-null-pointer-constant -fstrict-aliasing -Wstrict-aliasing -Wno-nested-anon-types -O3 -DNDEBUG -Werror 
+LIBBENCHMARK_FLAGS = -DHAVE_STEADY_CLOCK  -std=c++11 -Wall -Wextra -Wshadow -pedantic -pedantic-errors -Wfloat-equal -Wzero-as-null-pointer-constant -fstrict-aliasing -Wstrict-aliasing -Wno-nested-anon-types -O3 -DNDEBUG -Werror 
 
 #this defines the benchmark library archive
 BENCHMARK_LIB = $(BENCHMARK_LIBSRCDIR)/libbenchmark.a
