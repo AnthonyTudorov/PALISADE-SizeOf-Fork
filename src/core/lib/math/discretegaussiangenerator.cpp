@@ -256,7 +256,7 @@ namespace lbcrypto {
 #if defined(_MSC_VER)
 		double dbmean = mean.convert_to<double>();
 		double dbt = t.convert_to<double>();
-#elif defined (__GCC__)
+#else
 		double dbmean = (double)mean;
 		double dbt = (double)t;
 #endif
@@ -320,7 +320,7 @@ namespace lbcrypto {
 #if defined(_MSC_VER)
 		double dbmean = mean.convert_to<double>();
 		double dbstddev = stddev.convert_to<double>();
-#elif defined (__GCC__)
+#else
 		double dbmean = (double)mean;
 		double dbstddev = (double)stddev;
 #endif

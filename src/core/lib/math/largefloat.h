@@ -61,7 +61,7 @@ namespace lbcrypto {
 	/** Define the mapping for type large float */
 #if defined(_MSC_VER)
 	typedef boost::multiprecision::cpp_dec_float_50 LargeFloat;
-#elif defined (__GCC__)
+#else
 	typedef __float128 LargeFloat;
 #endif
 #endif

@@ -47,18 +47,18 @@ using namespace lbcrypto;
 int main()
 {
 
-	LargeFloat seventh = LargeFloat(1) / 7;
+	//LargeFloat seventh = LargeFloat(1) / 7;
 
-	std::cout << std::setprecision(50);
+	//std::cout << std::setprecision(50);
 
 	//std::cout.precision(std::numeric_limits<LargeFloat>::digits10);
-	std::cout << seventh << std::endl;
+	//std::cout << seventh << std::endl;
 
-	Matrix<LargeFloat> sample([](){ return make_unique<LargeFloat>(); }, 10, 1);
+	//Matrix<LargeFloat> sample([](){ return make_unique<LargeFloat>(); }, 10, 1);
 
-	LatticeGaussSampUtility::ContinuousGaussianGenerator(&sample);
+	//LatticeGaussSampUtility::ContinuousGaussianGenerator(&sample);
 
-	std::cout << sample << std::endl;
+	//std::cout << sample << std::endl;
 
 	//std::cin.get();
 
