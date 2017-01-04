@@ -4,22 +4,13 @@
 #include <vector>
 
 
-#include "../../lib/math/backend.h"
-#include "../../lib/utils/inttypes.h"
-#include "../../lib/lattice/ilparams.h"
-#include "../../lib/lattice/ildcrtparams.h"
-#include "../../lib/math/distrgen.h"
-#include "../../lib/lattice/ilvector2n.h"
-#include "../../lib/lattice/ilvectorarray2n.h"
+#include "palisade.h"
 
+#include "cryptocontext.h"
+#include "cryptocontexthelper.h"
 
-#include "../../lib/crypto/cryptocontext.h"
-#include "../../lib/utils/cryptocontexthelper.h"
-#include "../../lib/crypto/cryptocontext.cpp"
-#include "../../lib/utils/cryptocontexthelper.cpp"
-
-#include "../../lib/encoding/byteplaintextencoding.h"
-#include "../../lib/encoding/intplaintextencoding.h"
+#include "encoding/byteplaintextencoding.h"
+#include "encoding/intplaintextencoding.h"
 
 using namespace std;
 using namespace lbcrypto;

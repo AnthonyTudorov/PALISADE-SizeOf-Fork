@@ -39,21 +39,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <fstream>
 #include <iterator>
 
-#include "../../lib/palisade.h"
-#include "../../lib/palisadespace.h"
+#include "palisade.h"
 
-#include "../../lib/utils/cryptocontexthelper.h"
-#include "../../lib/crypto/cryptocontext.cpp"
-#include "../../lib/utils/cryptocontexthelper.cpp"
+#include "cryptocontexthelper.h"
 
-#include "../../lib/utils/debug.h"
-#include "../../lib/encoding/byteplaintextencoding.h"
+#include "utils/debug.h"
+#include "encoding/byteplaintextencoding.h"
 
 using namespace lbcrypto;
 
 void NTRUPRE(CryptoContext<ILVector2n>& ctx, string& parmset, bool dojson);
 
-#include "../../lib/utils/serializablehelper.h"
+#include "utils/serializablehelper.h"
 
 #include "testJson.h"
 #include "testJson.cpp"

@@ -37,19 +37,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <fstream>
 
-#include "../../lib/palisade.h"
-#include "../../lib/palisadespace.h"
+#include "palisade.h"
 
-#include "../../lib/utils/cryptocontexthelper.h"
-#include "../../lib/crypto/cryptocontext.cpp"
-#include "../../lib/utils/cryptocontexthelper.cpp"
+#include "cryptocontexthelper.h"
 
 #include "time.h"
 
 #include <chrono>
-#include "../../lib/utils/debug.h"
-#include "../../lib/encoding/byteplaintextencoding.h"
-#include "../../lib/encoding/intplaintextencoding.h"
+#include "utils/debug.h"
+#include "encoding/byteplaintextencoding.h"
+#include "encoding/intplaintextencoding.h"
 
 //#include "testJson.h"
 //#include "testJson.cpp"

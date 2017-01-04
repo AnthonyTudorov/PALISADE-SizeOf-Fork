@@ -36,11 +36,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <fstream>
-#include "../../lib/crypto/cryptocontext.cpp"
-#include "../../lib/utils/cryptocontexthelper.h"
-#include "../../lib/utils/cryptocontexthelper.cpp"
+#include "cryptocontexthelper.h"
 
-#include "../../lib/encoding/byteplaintextencoding.h"
+#include "encoding/byteplaintextencoding.h"
 
 
 using namespace std;

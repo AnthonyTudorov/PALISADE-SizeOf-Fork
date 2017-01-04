@@ -14,12 +14,9 @@ using std::endl;
 using std::string;
 using std::vector;
 
-#include "../lib/palisade.h"
-#include "../lib/palisadespace.h"
+#include "palisade.h"
 
-#include "../../lib/utils/cryptocontexthelper.h"
-#include "../../lib/crypto/cryptocontext.cpp"
-#include "../../lib/utils/cryptocontexthelper.cpp"
+#include "cryptocontexthelper.h"
 
 using namespace lbcrypto;
 

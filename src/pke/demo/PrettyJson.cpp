@@ -12,16 +12,8 @@
 using namespace std;
 
 #define RAPIDJSON_HAS_STDSTRING 1
-#include "../../../include/rapidjson/document.h"
-#include "../../../include/rapidjson/pointer.h"
-#include "../../../include/rapidjson/reader.h"
-#include "../../../include/rapidjson/writer.h"
-#include "../../../include/rapidjson/filereadstream.h"
-#include "../../../include/rapidjson/filewritestream.h"
-#include "../../../include/rapidjson/error/en.h"
-#include "../../../include/rapidjson/prettywriter.h"
-#include "../../../include/rapidjson/stringbuffer.h"
-#include "../../../src/lib/utils/serializablehelper.h"
+
+#include "utils/serializablehelper.h"
 
 void
 usage(const string& cmd, const string& msg) {

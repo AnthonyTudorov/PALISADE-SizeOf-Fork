@@ -10,19 +10,10 @@
 
 #include <iostream>
 #include <fstream>
-#include "../../lib/math/backend.h"
-#include "../../lib/utils/inttypes.h"
-#include "../../lib/math/nbtheory.h"
-#include "../../lib/lattice/elemparams.h"
-#include "../../lib/lattice/ilparams.h"
-#include "../../lib/lattice/ildcrtparams.h"
-#include "../../lib/lattice/ilelement.h"
-#include "../../lib/math/distrgen.h"
-#include "../../lib/lattice/ilvector2n.h"
-#include "../../lib/lattice/ilvectorarray2n.h"
+#include "palisade.h"
 
-#include "../../lib/encoding/byteplaintextencoding.h"
-#include "../../lib/utils/debug.h"
+#include "encoding/byteplaintextencoding.h"
+#include "utils/debug.h"
 
 using namespace std;
 using namespace lbcrypto;

@@ -8,13 +8,13 @@
 #include <iostream>
 #include <fstream>
 
-#include "../../lib/encoding/byteplaintextencoding.h"
-#include "../../lib/utils/debug.h"
+#include "encoding/byteplaintextencoding.h"
+#include "utils/debug.h"
 
 #include <chrono>
 
-#include "../../lib/utils/serializablehelper.h"
-#include "../../lib/utils/cryptocontexthelper.h"
+#include "utils/serializablehelper.h"
+#include "cryptocontexthelper.h"
 
 using namespace std;
 using namespace lbcrypto;

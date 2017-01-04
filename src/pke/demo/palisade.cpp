@@ -33,9 +33,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 using namespace std;
 
-#include "../lib/palisade.h"
+#include "palisade.h"
 
-#include "../lib/cryptocontexthelper.h"
+#include "cryptocontexthelper.h"
 
 #include "utils/serializablehelper.h"
 #include "encoding/byteplaintextencoding.h"

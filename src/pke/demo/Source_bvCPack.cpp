@@ -38,19 +38,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <fstream>
 
 
-#include "../../lib/palisade.h"
-#include "../../lib/palisadespace.h"
+#include "palisade.h"
 
 
-#include "../../lib/utils/cryptocontexthelper.h"
-#include "../../lib/crypto/cryptocontext.cpp"
-#include "../../lib/utils/cryptocontexthelper.cpp"
+#include "cryptocontexthelper.h"
 
-#include "../../lib/encoding/byteplaintextencoding.h"
-#include "../../lib/encoding/intplaintextencoding.h"
-#include "../../lib/encoding/packedintplaintextencoding.h"
+#include "encoding/byteplaintextencoding.h"
+#include "encoding/intplaintextencoding.h"
+#include "encoding/packedintplaintextencoding.h"
 
-#include "../../lib/utils/debug.h"
+#include "utils/debug.h"
 
 using namespace std;
 using namespace lbcrypto;
