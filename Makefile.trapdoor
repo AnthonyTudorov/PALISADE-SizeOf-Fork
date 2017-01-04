@@ -54,9 +54,9 @@ alltrapdoor: $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(TRAPDOOR_TEST_TARGET) alltrap
 
 alltrapdoordemos: $(patsubst $(TRAPDOORBINDIR)/demo/%,bin/demo/trapdoor/%,$(patsubst %.o,%$(EXESUFFIX),$(TRAPDOORDEMOOBJECTS)))
 
-bin/demo/trapdoor/%$(EXESUFFIX): src/trapdoor/bin/demo/%.o
+bin/demo/trapdoor/%$(EXESUFFIX): src/trapdoor/bin/demo/%.o $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(EXTLIBDIR)/$(PALISADECORELIB)
 	@mkdir -p $(@D)
-	$(CC) $(CPPFLAGS) $(INC) -o $@ $^ $(EXTLIB) -lPALISADEtrapdoor -lPALISADEcore
+	$(CC) $(CPPFLAGS) $(INC) -o $@ $^ $(EXTLIB)
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADETRAPDOORLIB): $(TRAPDOOROBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) $(EXTLIBDIR)/$(PALISADEPKELIB)
@@ -91,9 +91,8 @@ trapdoorpics: $(patsubst %.cpp,%.ll,$(subst $(TRAPDOORSRCDIR),$(TRAPDOORBINDIR),
 cleantrapdoorpics: 
 	$(RM) -f $(TRAPDOOROBJECTS:.o=.ll) $(TRAPDOOROBJECTS:.o=.ll.jpg)
 
-#this target is used to cleanup, it is called from the top Makefile
 cleantrapdoor: cleantrapdoorpics
-	$(RM) -f $(TRAPDOOROBJECTS) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB)
+	$(RM) -fr $(TRAPDOORBINDIR) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) `dirname $(TRAPDOOR_TEST_TARGET)` bin/demo/trapdoor
 
 TEST_LIB := -pthread -lgomp 
 

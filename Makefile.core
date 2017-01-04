@@ -52,11 +52,11 @@ TEST_TARGET := $(EXTTESTDIR)/core/tests$(EXESUFFIX)
 .PHONY:allcore
 allcore: $(EXTLIBDIR)/$(PALISADECORELIB) $(TEST_TARGET) allcoredemos
 
-allcoredemos: $(patsubst $(COREBINDIR)/demo/%,bin/demo/core/%,$(patsubst %.o,%$(EXESUFFIX),$(COREDEMOOBJECTS)))
+allcoredemos: $(EXTLIBDIR)/$(PALISADECORELIB) $(patsubst $(COREBINDIR)/demo/%,bin/demo/core/%,$(patsubst %.o,%$(EXESUFFIX),$(COREDEMOOBJECTS)))
 
-bin/demo/core/%$(EXESUFFIX): src/core/bin/demo/%.o
+bin/demo/core/%$(EXESUFFIX): src/core/bin/demo/%.o $(EXTLIBDIR)/$(PALISADECORELIB)
 	@mkdir -p $(@D)
-	$(CC) $(CPPFLAGS) $(INC) -o $@ $^ $(EXTLIB) -lPALISADEcore
+	$(CC) $(CPPFLAGS) $(INC) -o $@ $^ $(EXTLIB) 
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADECORELIB): $(COREOBJECTS)
@@ -95,7 +95,7 @@ cleancorepics:
 	$(RM) -f $(COREOBJECTS:.o=.ll) $(COREOBJECTS:.o=.ll.jpg)
 
 cleancore: cleancorepics
-	$(RM) -f $(COREOBJECTS) $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB)
+	$(RM) -fr $(COREBINDIR) $(EXTLIBDIR)/$(PALISADECORELIB) `dirname $(TEST_TARGET)` bin/demo/core
 
 TEST_LIB := -lgomp 
 

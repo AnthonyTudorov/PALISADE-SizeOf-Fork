@@ -1,10 +1,7 @@
 #ifndef _SRC_LIB_UTILS_HASHUTIL_CPP
 #define _SRC_LIB_UTILS_HASHUTIL_CPP
 #include "hashutil.h"
-#include <boost/multiprecision/cpp_int.hpp>
 #define RIGHT_ROT(x, n) (( x >> (n % (sizeof(x)*8) ) | ( x << ((sizeof(x)*8) - (n % (sizeof(x)*8))))))
-
-using namespace boost::multiprecision;
 
 const uint32_t HashUtil::k_256[64] = { 0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
 	0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,

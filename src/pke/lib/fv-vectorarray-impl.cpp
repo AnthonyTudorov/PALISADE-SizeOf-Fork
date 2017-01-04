@@ -12,4 +12,5 @@ namespace lbcrypto {
 template class LPCryptoParametersFV<ILVectorArray2n>;
 template class LPPublicKeyEncryptionSchemeFV<ILVectorArray2n>;
 template class LPAlgorithmFV<ILVectorArray2n>;
+template class LPAlgorithmParamsGenFV<ILVectorArray2n>;
 }

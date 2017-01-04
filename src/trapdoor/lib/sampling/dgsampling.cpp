@@ -75,7 +75,7 @@ namespace lbcrypto {
 	void LatticeGaussSampUtility::ContinuousGaussianGenerator(Matrix<LargeFloat> *randomVector)
 	{
 
-		namespace mp = boost::multiprecision;
+		//namespace mp = boost::multiprecision;
 
 		// YSP we use Box-Muller method for generating continuous gaussians included with Boost
 		// please note that <> is used; boost::random::normal_distribution<LargeFloat> was causing a compilation error in Linux

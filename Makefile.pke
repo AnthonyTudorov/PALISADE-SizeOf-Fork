@@ -55,9 +55,9 @@ allpke: allcore $(EXTLIBDIR)/$(PALISADEPKELIB) $(PKE_TEST_TARGET) allpkedemos
 
 allpkedemos: $(patsubst $(PKEBINDIR)/demo/%,bin/demo/pke/%,$(patsubst %.o,%$(EXESUFFIX),$(PKEDEMOOBJECTS)))
 
-bin/demo/pke/%$(EXESUFFIX): src/pke/bin/demo/%.o
+bin/demo/pke/%$(EXESUFFIX): src/pke/bin/demo/%.o $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
 	@mkdir -p $(@D)
-	$(CC) $(CPPFLAGS) $(INC) -o $@ $^ $(EXTLIB) -lPALISADEpke -lPALISADEcore
+	$(CC) $(CPPFLAGS) $(INC) -o $@ $^ $(EXTLIB)
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADEPKELIB): $(PKEOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB)
@@ -93,7 +93,7 @@ cleanpkepics:
 
 #this target is used to cleanup, it is called from the top Makefile
 cleanpke: cleanpkepics
-	$(RM) -f $(PKEOBJECTS) $(EXTLIBDIR)/$(PALISADEPKELIB)
+	$(RM) -fr $(PKEBINDIR) $(EXTLIBDIR)/$(PALISADEPKELIB) `dirname $(PKE_TEST_TARGET)` bin/demo/pke
 
 TEST_LIB := -pthread -lgomp 
 
