@@ -65,21 +65,21 @@ namespace lbcrypto {
 			/**
 			 * Method to define conjunction pattern.
 			 *
-			 * @param &elemParams the parameters being used.
+			 * @param elemParams the parameters being used.
 			 */
 			explicit ObfuscatedLWEConjunctionPatternV3(shared_ptr<ElemParams> elemParams);
 
 			/**
 			 * Constructor with element params and chunk size
 			 *
-			 * @param &elemParams the parameters being used.
+			 * @param elemParams the parameters being used.
 			 */
 			explicit ObfuscatedLWEConjunctionPatternV3(shared_ptr<ElemParams> elemParams, usint chunkSize);
 
 			/**
 			 * Sets elements params.
 			 *
-			 * @param *elemParams parameters.
+			 * @param elemParams parameters.
 			 */
 			void SetParameters(shared_ptr<ElemParams> elemParams) { m_elemParams = elemParams;}
 
@@ -165,7 +165,7 @@ namespace lbcrypto {
 			 * @param ek - vector of encoding keys.
 			 * @param sigma - vector of perturbation matrices.
 			 */
-			void SetKeys(std::vector<Matrix<Element>> *pk, std::vector<RLWETrapdoorPair<ILVector2n>>   *ek) {
+			void SetKeys(shared_ptr<std::vector<Matrix<Element>>> pk, shared_ptr<std::vector<RLWETrapdoorPair<ILVector2n>>>   ek) {
 				this->m_pk = pk;
 				this->m_ek = ek;
 			}
@@ -173,22 +173,22 @@ namespace lbcrypto {
 
 			/**
 			 * Sets the matrices that define the obfuscated pattern.
-			 * @param &S0_vec the S0 vector from the obfuscated pattern definition.
-			 * @param &S1_vec the S1 vector from the obfuscated pattern definition.
-			 * @param &R0_vec the R0 vector from the obfuscated pattern definition.
-			 * @param &R1_vec the S1 vector from the obfuscated pattern definition.
-			 * @param &Sl the Sl vector from the obfuscated pattern definition.
-			 * @param &Rl the Rl vector from the obfuscated pattern definition.
+			 * @param S0_vec the S0 vector from the obfuscated pattern definition.
+			 * @param S1_vec the S1 vector from the obfuscated pattern definition.
+			 * @param R0_vec the R0 vector from the obfuscated pattern definition.
+			 * @param R1_vec the S1 vector from the obfuscated pattern definition.
+			 * @param Sl the Sl vector from the obfuscated pattern definition.
+			 * @param Rl the Rl vector from the obfuscated pattern definition.
 			 */
-			void SetMatrices(vector<vector<Matrix<Element>>> *S_vec,
-					vector<vector<Matrix<Element>>> *R0_vec,
-					Matrix<Element> *Sl, Matrix<Element> *Rl); 
+			void SetMatrices(shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> S_vec,
+				shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> R0_vec,
+				shared_ptr<Matrix<Element>> Sl, shared_ptr<Matrix<Element>> Rl);
 
 			/**
 			 * Gets the S_l matrix used to "close" the conjunction obfuscator.
 			 * @return the S_l matrix.
 			 */
-			Matrix<Element>*  GetSl() const {
+			shared_ptr<Matrix<Element>>  GetSl() const {
 				//this->m_Sl->PrintValues();
 				return this->m_Sl;
 			}
@@ -213,7 +213,7 @@ namespace lbcrypto {
 			 * Gets the R_l matrix used to "close" the conjunction obfuscator.
 			 * @return the R_l matrix.
 			 */
-			Matrix<Element>*  GetRl() const {
+			shared_ptr<Matrix<Element>>  GetRl() const {
 				return this->m_Rl;
 			}
 
@@ -221,13 +221,13 @@ namespace lbcrypto {
 			 * Gets the S matrix that defines the obfuscated pattern.
 			 * @return the S_ib matrix.
 			 */
-			Matrix<Element>* GetS(usint i, const std::string &testVal) const; 
+			shared_ptr<Matrix<Element>> GetS(usint i, const std::string &testVal) const;
 
 			/**
 			 * Gets the matrices that define the obfuscated pattern.
 			 * @return the R_ib matrix.
 			 */
-			Matrix<Element>* GetR(usint i, const std::string &testVal) const; 
+			shared_ptr<Matrix<Element>> GetR(usint i, const std::string &testVal) const;
 
 		private:
 
@@ -241,15 +241,13 @@ namespace lbcrypto {
 			//number of bits encoded by one matrix
 			usint m_chunkSize;
 
-			vector< vector<Matrix<Element>> > *m_S_vec;
-			//vector<Matrix<Element>> *m_S1_vec;
-			vector< vector<Matrix<Element>> > *m_R_vec;
-			//vector<Matrix<Element>> *m_R1_vec;
-			Matrix<Element> *m_Sl;
-			Matrix<Element> *m_Rl;
+			shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_S_vec;
+			shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_R_vec;
+			shared_ptr<Matrix<Element>> m_Sl;
+			shared_ptr<Matrix<Element>> m_Rl;
 
-			std::vector<Matrix<Element>> *m_pk;
-			std::vector<RLWETrapdoorPair<ILVector2n>>   *m_ek;
+			shared_ptr<std::vector<Matrix<Element>>> m_pk;
+			shared_ptr<std::vector<RLWETrapdoorPair<ILVector2n>>>   m_ek;
 
 	};
 
@@ -284,7 +282,7 @@ namespace lbcrypto {
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				DiscreteGaussianGenerator &dgg,
 				TernaryUniformGenerator &tug,
-				ObfuscatedLWEConjunctionPatternV3<Element> * obfuscatedPattern) const;
+				ObfuscatedLWEConjunctionPatternV3<Element> *obfuscatedPattern) const;
 
 			/**
 			* Method to generate parameters.
@@ -313,7 +311,7 @@ namespace lbcrypto {
 			 * @param &elem a ring element.
 			 * @param &dgg the discrete Gaussian Generator.
 			 * @param &dggLargeSigma the discrete Gaussian Generator for perturbation sampling.
-			 * @param &encodedElem the encoded element.
+			 * @param *encodedElem the encoded element.
 			 */
 			void Encode(
 				const Matrix<Element> &Ai,
@@ -322,7 +320,7 @@ namespace lbcrypto {
 				const Element &elemS,
 				DiscreteGaussianGenerator &dgg,
 				DiscreteGaussianGenerator &dggLargeSigma,
-				Matrix<Element> * encodedElem) const;
+				Matrix<Element> *encodedElem) const;
 
 
 			/**
