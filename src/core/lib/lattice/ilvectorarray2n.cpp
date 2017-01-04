@@ -134,7 +134,7 @@ namespace lbcrypto {
 
 		//dgg generating random values
 		
-		sint* dggValues = dgg.GenerateIntVector(params->GetCyclotomicOrder()/2);
+		std::shared_ptr<sint> dggValues = dgg.GenerateIntVector(params->GetCyclotomicOrder()/2);
 
 		BigBinaryInteger modulus;
 		BigBinaryInteger rootOfUnity;
@@ -152,16 +152,15 @@ namespace lbcrypto {
 
 			for(usint j = 0; j < params->GetCyclotomicOrder()/2; j++){
 				// if the random generated value is less than zero, then multiply it by (-1) and subtract the modulus of the current tower to set the coefficient
-				if((int)dggValues[j] < 0){
-					int k = (int)dggValues[j];
-					k = k * (-1);
+				int k = (dggValues.get())[j];
+				if(k < 0){
+					k *= (-1);
 					temp = k;
 					temp = dcrtParams->GetModuli()[i] - temp;
 					ilDggValues.SetValAtIndex(j,temp);
 				}
 				//if greater than or equal to zero, set it the value generated
 				else{				
-					int k = (int)dggValues[j];
 					temp = k;
 					ilDggValues.SetValAtIndex(j,temp);
 				}

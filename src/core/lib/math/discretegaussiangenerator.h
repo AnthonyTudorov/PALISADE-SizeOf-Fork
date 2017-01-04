@@ -37,6 +37,7 @@
 
 #include <math.h>
 #include <random>
+#include <memory>
 
 #include "backend.h"
 #include "distributiongenerator.h"
@@ -92,7 +93,7 @@ public:
 	* @param size The number of values to return.
 	* @return     A pointer to an array of schar values generated with the distribution.
 	*/
-	sint * GenerateIntVector (usint size) const;
+	std::shared_ptr<sint> GenerateIntVector (usint size) const;
 
 	/**
 	* @brief  Returns a generated integer. Uses Peikert's inversion method.

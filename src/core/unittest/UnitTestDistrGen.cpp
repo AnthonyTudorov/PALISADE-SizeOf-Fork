@@ -438,12 +438,12 @@ TEST(UTDistrGen, DiscreteGaussianGenerator) {
     sint stdev = 5;
     usint size = 10000;
     BigBinaryInteger modulus("10403");
-    DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
-    sint* dggCharVector = dgg.GenerateIntVector(size);
+    const DiscreteGaussianGenerator& dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
+    std::shared_ptr<sint> dggCharVector = dgg.GenerateIntVector(size);
 
     double mean = 0;
     for(usint i=0; i<size; i++) {
-      mean += (double) dggCharVector[i];
+      mean += (double) (dggCharVector.get())[i];
       // std::cout << i << "th value is " << std::to_string(dggCharVector[i]) << std::endl;
     }
     mean /= size;
@@ -501,7 +501,7 @@ TEST(UTDistrGen, ParallelDiscreteGaussianGenerator) {
   {
     //private copies of our vector
     vector <sint> dggCharVectorPvt;
-    DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
+    const DiscreteGaussianGenerator& dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
 
     // build the vectors in parallel
 #pragma omp for nowait schedule(static)

@@ -415,14 +415,11 @@ namespace lbcrypto {
 
 		//Peikert's inversion method is used
 		//YSP replace with smart pointers later
-		int32_t *dggVector = dggLargeSigma.GenerateIntVector(n*k);
+		std::shared_ptr<sint> dggVector = dggLargeSigma.GenerateIntVector(n*k);
 
 		for (size_t i = 0; i < n * k; i++) {
-			p2ZVector(i, 0) = dggVector[i];
+			p2ZVector(i, 0) = (dggVector.get())[i];
 		}
-
-		//YSP - replace with smart pointers later
-		delete[] dggVector;
 
 		//create k ring elements in coefficient representation
 		Matrix<ILVector2n> p2 = SplitInt32IntoILVector2nElements(p2ZVector, n, va.GetParams());
