@@ -97,8 +97,6 @@ cleancorepics:
 cleancore: cleancorepics
 	$(RM) -fr $(COREBINDIR) $(EXTLIBDIR)/$(PALISADECORELIB) `dirname $(TEST_TARGET)` bin/demo/core
 
-TEST_LIB := -lgomp 
-
 #
 # the following define the componenets of the google test library
 # the source extention
@@ -113,7 +111,7 @@ GTEST_HEADERS =	test/include/gtest/gtest.h
 # this links test executable  from objects in the test build directory
 $(TEST_TARGET): $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) 
 	@mkdir -p `dirname $(TEST_TARGET)`
-	$(CC) $(CPPFLAGS) $(INC) $(COREUNITOBJECTS) -o $(TEST_TARGET) -L$(EXTLIBDIR) -lPALISADEcore -lgomp
+	$(CC) $(CPPFLAGS) $(INC) $(COREUNITOBJECTS) -o $(TEST_TARGET) -L$(EXTLIBDIR) -lPALISADEcore $(TEST_LIB)
 
 #used to run tests from make
 .PHONY: testcore

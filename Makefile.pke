@@ -95,8 +95,6 @@ cleanpkepics:
 cleanpke: cleanpkepics
 	$(RM) -fr $(PKEBINDIR) $(EXTLIBDIR)/$(PALISADEPKELIB) `dirname $(PKE_TEST_TARGET)` bin/demo/pke
 
-TEST_LIB := -pthread -lgomp 
-
 #
 # the following define the componenets of the google test library
 # the source extention
@@ -111,7 +109,7 @@ GTEST_HEADERS =	test/include/gtest/gtest.h
 # this links test executable  from objects in the test build directory
 $(PKE_TEST_TARGET): $(PKEUNITOBJECTS) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
 	@mkdir -p `dirname $(PKE_TEST_TARGET)`
-	$(CC) $(CPPFLAGS) $(INC) $(PKEUNITOBJECTS) -o $(PKE_TEST_TARGET) -L$(EXTLIBDIR) -lPALISADEpke -L$(EXTLIBDIR) -lPALISADEcore -lgomp
+	$(CC) $(CPPFLAGS) $(INC) $(PKEUNITOBJECTS) -o $(PKE_TEST_TARGET) -L$(EXTLIBDIR) -lPALISADEpke -L$(EXTLIBDIR) -lPALISADEcore $(TEST_LIB)
 
 #used to run tests from make
 .PHONY: testpke

@@ -94,8 +94,6 @@ cleantrapdoorpics:
 cleantrapdoor: cleantrapdoorpics
 	$(RM) -fr $(TRAPDOORBINDIR) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) `dirname $(TRAPDOOR_TEST_TARGET)` bin/demo/trapdoor
 
-TEST_LIB := -pthread -lgomp 
-
 #
 # the following define the componenets of the google test library
 # the source extention
@@ -110,7 +108,7 @@ GTEST_HEADERS =	test/include/gtest/gtest.h
 # this links test executable  from objects in the test build directory
 $(TRAPDOOR_TEST_TARGET): $(TRAPDOORUNITOBJECTS) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(EXTLIBDIR)/$(PALISADECORELIB)
 	@mkdir -p `dirname $(TRAPDOOR_TEST_TARGET)`
-	$(CC) $(CPPFLAGS) $(INC) $(TRAPDOORUNITOBJECTS) -o $(TRAPDOOR_TEST_TARGET) -L$(EXTLIBDIR) -lPALISADEtrapdoor -L$(EXTLIBDIR) -lPALISADEcore -lgomp
+	$(CC) $(CPPFLAGS) $(INC) $(TRAPDOORUNITOBJECTS) -o $(TRAPDOOR_TEST_TARGET) -L$(EXTLIBDIR) -lPALISADEtrapdoor -L$(EXTLIBDIR) -lPALISADEcore $(TEST_LIB)
 
 #used to run tests from make
 .PHONY: testtrapdoor
