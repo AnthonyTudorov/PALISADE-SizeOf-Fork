@@ -165,7 +165,7 @@ TEST(UTubintvec,ctor_access_eq_neq){
   EXPECT_EQ(ubint(33),n[3])<< "Failure in SetValAtIndex(ubint)";
   EXPECT_EQ(ubint(7),n[4])<< "Failure in SetValAtIndex(ubint)";
 
-#if 0
+
 
   m+=n;
 
@@ -175,9 +175,13 @@ TEST(UTubintvec,ctor_access_eq_neq){
     EXPECT_EQ (expectedResult[i], (m.GetValAtIndex(j)).ConvertToUsint())
       << "Failure testing method_plus_equals";
   }
+
   //test initializer list of various types
   ubintvec expectedvecstr(5);
   expectedvecstr = {"9872","5888","4620","2376","4631"}; //strings
+
+  cout << "expectedvecstr: = " << expectedvecstr <<endl;
+
   EXPECT_EQ (expectedvecstr, m)<< "Failure string initializer list";
   
   ubintvec expectedvecint(5);
@@ -203,14 +207,14 @@ TEST(UTubintvec,ctor_access_eq_neq){
   EXPECT_EQ ( 10, eqtest.size()) << "Failure create ubintvec of 10 zeros";
 
   for (i = 0; i< eqtest.size(); i++) {
-    EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure create ubintvec of zeros";
+    EXPECT_EQ ( ubint(0), eqtest[i]) << "Failure create ubintvec of zeros";
   }
 
   // test assignment of single ubint
   eqtest = ubint(1);
   EXPECT_EQ (ubint(1),  eqtest[0]) << "Failure assign single ubint 0 index";
   for (i = 1; i< eqtest.size(); i++) {
-    EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure assign single ubint nonzero index";
+    EXPECT_EQ ( ubint(0), eqtest[i]) << "Failure assign single ubint nonzero index";
   }
 
   // test assignment of single usint
@@ -219,6 +223,7 @@ TEST(UTubintvec,ctor_access_eq_neq){
   for (i = 1; i< eqtest.size(); i++) {
     EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure assign single ubint nonzero index";
   }
+
 
   //test comparisons == and !=
   m = n;
@@ -238,10 +243,9 @@ TEST(UTubintvec,ctor_access_eq_neq){
   }
   test1 = m==n;
   EXPECT_TRUE(test1)<<"Failure [] lhs rhs";
-#endif
 
 }
-#if 0
+
 TEST(UTubintvec,mod){
 
   ubintvec m(10); // calling constructor to create a vector of length 10 zeroed
@@ -271,7 +275,7 @@ TEST(UTubintvec,mod){
     }
 }
 
-
+#if 0
 TEST(UTubintvec,basic_vector_scalar_math_1_limb){
   //basic vector math with 1 limb entries
   // a1:

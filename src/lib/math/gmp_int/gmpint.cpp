@@ -61,7 +61,11 @@ namespace NTL {
   const myZZ myZZ::FIVE=myZZ(5);
 
   myZZ::myZZ():ZZ() {}
+  myZZ::myZZ(int a): ZZ(a) {}
   myZZ::myZZ(long a): ZZ(a) {}
+  myZZ::myZZ(unsigned long a): ZZ(a) {}
+  myZZ::myZZ(const unsigned int &a): ZZ(a) {}
+  myZZ::myZZ(unsigned int &a): ZZ(a) {}
   myZZ::myZZ(INIT_SIZE_TYPE, long k): ZZ(INIT_SIZE, k) {m_MSB=0; }
   myZZ::myZZ(std::string s): ZZ(conv<ZZ>(s.c_str())) {}
   myZZ::myZZ(const char *s): ZZ(conv<ZZ>(s)) {}

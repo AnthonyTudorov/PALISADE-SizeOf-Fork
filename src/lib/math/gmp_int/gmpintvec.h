@@ -51,8 +51,9 @@
 #include "../../utils/serializable.h"
 #include <initializer_list>
 #include "gmpint.h"
-#include <NTL/vec_ZZ.h>
 #include <NTL/vector.h>
+#include <NTL/vec_ZZ.h>
+
 
 
 /**
@@ -79,6 +80,7 @@ template<class myT>
 
    myVec(const NTL::Vec<myT> &a) : Vec<myT>(a) {};
    myVec(NTL::Vec<ZZ> &a) : Vec<ZZ>(a) {};
+   myVec(NTL::Vec<ZZ> &&a) : Vec<ZZ>(a) {};
    myVec(const NTL::Vec<ZZ> &a) : Vec<ZZ>(a) {};
 
    myVec(NTL::Vec<myT> &&a) : Vec<myT>(a) {};
@@ -88,13 +90,22 @@ template<class myT>
   const myVec& operator=(std::initializer_list<myT> rhs);
   const myVec& operator=(std::initializer_list<usint> rhs);
   const myVec& operator=(std::initializer_list<std::string> rhs);
+  const myVec& operator=(std::initializer_list<const char *> rhs);
+  const myVec& operator=(myT &rhs);
+  const myVec& operator=(const myT &rhs);
+  const myVec& operator=(unsigned int &rhs);
+  const myVec& operator=(unsigned int rhs);
+
+  void clear(myVec& x); //why isn't this inhereted?
 
   inline usint size() {return this->length();};
   void SetValAtIndex(usint index, const myT&value);
   void SetValAtIndex(usint index, const char *s);
   void SetValAtIndex(usint index, const std::string& str);
   const myT& GetValAtIndex(size_t index) const;
-  
+
+  inline void push_back(const myT& a) { this->append(a);};
+
   static inline myVec Single(const myZZ val) { 
     myVec vec(1);
     vec[0]=val;
@@ -107,12 +118,38 @@ template<class myT>
   inline myVec Minus(const myVec& b) const {std::cout<<"MINUS"<<std::endl;return this-b;};
   inline myVec Mul(const myVec& b) const {std::cout<<"MUL"<<std::endl; return this*b;};
 
+  inline myVec Mod(const myZZ& b) const {std::cout<<"MOD"<<std::endl; return *this%b;};
+
+  myVec operator+(const myVec& b);
+
+  myVec operator%(const myZZ& b);
+
+#if 0
+myVec operator-(const myVec& a, const myVec& b);
+myVec operator-(const myVec& a);
+#endif
+
+
+inline myVec& operator+=(const myVec& a)
+{ 
+   add(*this, *this, a);
+   return *this;
+};
+
+inline myVec& operator+=(const myT& a)
+{ 
+   add((*this)[0], (*this)[0], a);
+   return *this;
+};
+
+
+  void add(myVec& x, const myVec& a, const myVec& b);
+
 
   inline myVec ModAdd(const myVec& b, const myZZ& modulus) const {std::cout<<"MODADD"<<std::endl; };
   inline myVec ModSub(const myVec& b, const myZZ& modulus) const {std::cout<<"MODSUB"<<std::endl; };
   inline myVec ModMul(const myVec& b, const myZZ& modulus) const {std::cout<<"MODMUL"<<std::endl; };
 
-  // myVec& operator=(const myVec& a) : ;  
 
 
  protected:

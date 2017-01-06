@@ -40,33 +40,30 @@
 #include "../../utils/serializable.h"
 #include "gmpintvec.h"
 
+#include "../../utils/debug.h"
 
 namespace NTL {
 
   // constructor specifying the myvec as a vector of strings
   template<class myT>
   myVec<myT>::myVec(std::vector<std::string> &s){
-    this->SetLength(s.size());
-    for (usint i = 0; i < s.size(); i++){
+    usint len = s.size();
+    this->SetLength(len);
+    for (usint i = 0; i < len; i++){
       (*this)[i] = myT(s[i]);
     }
   }
-  
 
   //Assignment with initializer list of myZZ
   // note, resizes the vector to the length of the initializer list
   template<class myT>
   const myVec<myT>& myVec<myT>::operator=(std::initializer_list<myT> rhs){
+    bool dbg_flag = false;
+    DEBUG("in op=initializerlist <myT>");
     usint len = rhs.size();
-    clear(*this);
+    this->SetLength(len);
     for(usint i=0;i<len;i++){ // this loops over each entry
-      if(i<len) {
-	//this->push_back(myT(*(rhs.begin()+i)));
-	this->append(myT(*(rhs.begin()+i)));
-      } else {
-	//this->push_back(myT::ZERO);
-	this->append(myT::ZERO);
-      }
+      (*this)[i] =  myT(*(rhs.begin()+i));
     }
     return *this;
   }
@@ -74,14 +71,12 @@ namespace NTL {
   //Assignment with initializer list of usints
   template<class myT>
   const myVec<myT>& myVec<myT>::operator=(std::initializer_list<usint> rhs){
+    bool dbg_flag = false;
+    DEBUG("in op=initializerlist <myT>");
     usint len = rhs.size();
-    clear(*this);
+    this->SetLength(len);
     for(usint i=0;i<len;i++){ // this loops over each entry
-      if(i<len) {
-	this->push_back( myT(*(rhs.begin()+i)));
-      } else {
-	this->push_back(myT::ZERO);
-      }
+      (*this)[i] =  myT(*(rhs.begin()+i));
     }
     return *this;
   }
@@ -89,17 +84,138 @@ namespace NTL {
   //Assignment with initializer list of strings
   template<class myT>
   const myVec<myT>& myVec<myT>::operator=(std::initializer_list<std::string> rhs){
+    bool dbg_flag = false;
+    DEBUG("in op=initializerlist <string>");
     usint len = rhs.size();
-    clear(*this);
+    this->SetLength(len);
     for(usint i=0;i<len;i++){ // this loops over each entry
-      if(i<len) {
-	this->push_back( myT(*(rhs.begin()+i)));
-      } else {
-	this->push_back(myT::ZERO);
-      }
+      (*this)[i] =  myT(*(rhs.begin()+i));
     }
     return *this;
   }
+
+  //Assignment with initializer list of const char *
+  //not sure why this isn't taken care of by string above
+  template<class myT>
+  const myVec<myT>& myVec<myT>::operator=(std::initializer_list<const char *> rhs){
+    bool dbg_flag = false;
+    DEBUG("in op=initializerlist const char*");
+    usint len = rhs.size();
+    this->SetLength(len);
+    for(usint i=0;i<len;i++){ // this loops over each entry
+      (*this)[i] =  myT(*(rhs.begin()+i));
+    }
+    return *this;
+  }
+
+  template<class myT>
+  const myVec<myT>& myVec<myT>::operator=(const myT &rhs){
+    bool dbg_flag = false;
+    DEBUG("in op=usint <myT>");
+    this->SetLength(1);
+    (*this)[0] = rhs;
+    return *this;
+  }
+
+  template<class myT>
+  const myVec<myT>& myVec<myT>::operator=(myT &rhs){
+    bool dbg_flag = false;
+    DEBUG("in op=usint <myT>");
+    this->SetLength(1);
+    (*this)[0] =rhs;
+    return *this;
+  }
+
+  template<class myT>
+  const myVec<myT>& myVec<myT>::operator=(unsigned int &rhs){
+    bool dbg_flag = false;
+    DEBUG("in op=usint <myT>");
+    this->SetLength(1);
+    (*this)[0] =rhs;
+    return *this;
+  }
+
+  template<class myT>
+  const myVec<myT>& myVec<myT>::operator=(unsigned int rhs){
+    bool dbg_flag = false;
+    DEBUG("in op=usint <myT>");
+    this->SetLength(1);
+    (*this)[0] =rhs;
+    return *this;
+  }
+
+  template<class myT>
+  void myVec<myT>::clear(myVec<myT>& x){
+    //sets all elements to zero, but does not change length
+    bool dbg_flag = false;
+    DEBUG("in clear myVec");
+    //using NTL_NAMESPACE::clear;
+    long n = x.length();
+    long i;
+    for (i = 0; i < n; i++){
+      NTL_NAMESPACE::clear(x[i]);  
+    }
+  }
+
+  //arithmetic operations
+  //why can't I inheret this?
+  template<class myT>
+  myVec<myT> myVec<myT>::operator+( const myVec<myT>& b)
+  {
+     myVec<myT> res;
+     add(res, *this, b);
+     //NTL_OPT_RETURN(myVec<myT>, res);
+     return(res);
+   }
+MOD is a mess
+  template<class myT>
+  myVec<myT> myVec<myT>::operator%( const myT& b)
+  {
+    unsigned int n = this->length();
+    myVec<myT> res(n);
+    long i;
+    for (i = 0; i < n; i++)
+      (*this)[i]%=b[i];
+    return(res);
+  }
+
+
+  //why can't I inheret this?
+  template<class myT>
+  void  myVec<myT>::add(myVec<myT>& x, const myVec<myT>& a, const myVec<myT>& b)
+{
+#if 1
+  long n = a.length();
+   if (b.length() != n) LogicError("vector add: dimension mismatch");
+
+   x.SetLength(n);
+   long i;
+   for (i = 0; i < n; i++)
+     x[i]=a[i]+b[i];
+     //add(x[i], a[i], b[i]); 
+#else
+   x=a+b;
+#endif
+}
+
+  
+#if 0
+
+vec_ZZ operator-(const vec_ZZ& a, const vec_ZZ& b)
+{
+   vec_ZZ res;
+   sub(res, a, b);
+   NTL_OPT_RETURN(vec_ZZ, res);
+}
+
+
+vec_ZZ operator-(const vec_ZZ& a)
+{
+   vec_ZZ res;
+   negate(res, a);
+   NTL_OPT_RETURN(vec_ZZ, res);
+}
+#endif
 
   // Set value at index from ubint
   template<class myT>
