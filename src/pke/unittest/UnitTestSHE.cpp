@@ -339,7 +339,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	cc.ModReduce(newCiphertext);
 	ILVectorArray2n sk2PrivateElement(kp2.secretKey->GetPrivateElement());
-	sk2PrivateElement.DropElementAtIndex(sk2PrivateElement.GetNumOfElements() - 1);
+	sk2PrivateElement.DropLastElement();
 	kp2.secretKey->SetPrivateElement(sk2PrivateElement);
 
 	BytePlaintextEncoding plaintextNewModReduce;

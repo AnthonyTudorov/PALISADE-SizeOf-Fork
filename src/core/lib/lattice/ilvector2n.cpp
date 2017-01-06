@@ -332,62 +332,63 @@ namespace lbcrypto {
 		}
 	}
 
-	ILVector2n ILVector2n::Plus(const BigBinaryInteger &element) const {
+	ILVector2n ILVector2n::Plus(const BigBinaryInteger &element, bool tothis) const {
 		if (m_format != Format::COEFFICIENT)
 			throw std::logic_error("ILVector2n::Plus can only be called in COEFFICIENT format.\n");
-		ILVector2n tmp(*this);
+
+		ILVector2n tmp = CloneWithParams();
 		*tmp.m_values = GetValues().ModAddAtIndex(0, element);
-		return tmp;
+		return std::move( tmp );
 	}
 
-	ILVector2n ILVector2n::Minus(const BigBinaryInteger &element) const {
-		ILVector2n tmp(*this);
+	ILVector2n ILVector2n::Minus(const BigBinaryInteger &element, bool fromthis) const {
+		ILVector2n tmp = CloneWithParams();
 		*tmp.m_values = GetValues().ModSub(element);
-		return tmp;
+		return std::move( tmp );
 	}
 
-	ILVector2n ILVector2n::Times(const BigBinaryInteger &element) const {
-		ILVector2n tmp(*this);
+	ILVector2n ILVector2n::Times(const BigBinaryInteger &element, bool bythis) const {
+		ILVector2n tmp = CloneWithParams();
 		*tmp.m_values = GetValues().ModMul(element);
-		return tmp;
+		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const {
-		ILVector2n tmp(*this);
+		ILVector2n tmp = CloneWithParams();
 		*tmp.m_values = GetValues().MultiplyAndRound(p, q);
-		return tmp;
+		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::DivideAndRound(const BigBinaryInteger &q) const {
-		ILVector2n tmp(*this);
+		ILVector2n tmp = CloneWithParams();
 		*tmp.m_values = GetValues().DivideAndRound(q);
-		return tmp;
+		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::Negate() const {
-		ILVector2n tmp(*this);
+		ILVector2n tmp = CloneWithParams();
 		*tmp.m_values = m_values->ModMul(this->m_params->GetModulus() - BigBinaryInteger::ONE);
-		return tmp;
+		return std::move( tmp );
 	}
 
 	// VECTOR OPERATIONS
 
-	ILVector2n ILVector2n::Plus(const ILVector2n &element) const {
-		ILVector2n tmp(*this);
+	ILVector2n ILVector2n::Plus(const ILVector2n &element, bool tothis) const {
+		ILVector2n tmp = CloneWithParams();
 		*tmp.m_values = GetValues().ModAdd(*element.m_values);
-		return tmp;
+		return std::move( tmp );
 	}
 
-	ILVector2n ILVector2n::Minus(const ILVector2n &element) const {
-		ILVector2n tmp(*this);
+	ILVector2n ILVector2n::Minus(const ILVector2n &element, bool fromthis) const {
+		ILVector2n tmp = CloneWithParams();
 		*tmp.m_values = GetValues().ModSub(*element.m_values);
-		return tmp;
+		return std::move( tmp );
 	}
 
-	ILVector2n ILVector2n::Times(const ILVector2n &element) const {
-		ILVector2n tmp(*this);
+	ILVector2n ILVector2n::Times(const ILVector2n &element, bool bythis) const {
+		ILVector2n tmp = CloneWithParams();
 		*tmp.m_values = GetValues().ModMul(*element.m_values);
-		return tmp;
+		return std::move( tmp );
 	}
 
 	//multiplication without applying the modulo operation; needed for rounding

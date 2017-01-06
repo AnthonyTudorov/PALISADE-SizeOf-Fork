@@ -186,7 +186,7 @@ namespace lbcrypto {
 		/**
 		* Destructor.
 		*/
-		virtual ~ILVectorArray2n(); //must be virtual since member printvals() is virtual
+		virtual ~ILVectorArray2n();
 
 		//GETTERS
 
@@ -195,7 +195,7 @@ namespace lbcrypto {
 		*
 		* @return the cyclotomic order.
 		*/
-		usint GetCyclotomicOrder() const ;
+		const usint GetCyclotomicOrder() const ;
 
 		/**
 		* Get method of the modulus.
@@ -216,39 +216,6 @@ namespace lbcrypto {
 			}
 			return tot;
 		}
-
-		/**
-		* Next three methods will get triggered if user accidentally uses ILVector2n methods
-		*/
-
-		/**
-		* Get method called by mistake.
-		*
-		* @param i 
-		* @return will throw a logic_error.
-		*/
-		const BigBinaryInteger& GetValAtIndex(usint i) const {
-			throw std::logic_error("GetValAtIndex not implemented for ILVectorArray2n");
-		}
-
-		/**
-		* Set method called by mistake, will throw a logic_error.
-		*
-		* @param index
-		* @param val
-		*/
-        inline void SetValAtIndex(size_t index, int val) {
-			throw std::logic_error("SetValAtIndex not implemented for ILVectorArray2n");
-        }
-		/**
-		* Set method called by mistake, will throw a logic_error.
-		*
-		* @param index
-		* @param val
-		*/
-        inline void SetValAtIndex(size_t index, const BigBinaryInteger& val) {
-			throw std::logic_error("SetValAtIndex not implemented for ILVectorArray2n");
-        }
 
         /**
 		* Get method of individual towers.
@@ -320,6 +287,14 @@ namespace lbcrypto {
 		const ILVectorArray2n& operator=(const ILVectorArray2n &rhs);
 
 		/**
+		* Move Assignment Operator.
+		*
+		* @param &rhs the copied ILVectorArray2n.
+		* @return the resulting ILVectorArray2n.
+		*/
+		const ILVectorArray2n& operator=(ILVectorArray2n &&rhs);
+
+		/**
 		* Initalizer list
 		*
 		* @param &rhs the list to initalized the ILVectorArray2n
@@ -373,7 +348,7 @@ namespace lbcrypto {
 		* @param &element is the element to add with.
 		* @return is the result of the addition.
 		*/
-		ILVectorArray2n Plus(const ILVectorArray2n &element) const;
+		ILVectorArray2n Plus(const ILVectorArray2n &element, bool tothis = false) const;
 
 		/**
 		* Performs a multiplication operation and returns the result.
@@ -381,7 +356,7 @@ namespace lbcrypto {
 		* @param &element is the element to multiply with.
 		* @return is the result of the multiplication.
 		*/
-		ILVectorArray2n Times(const ILVectorArray2n &element) const;
+		ILVectorArray2n Times(const ILVectorArray2n &element, bool bythis = false) const;
 
 		/**
 		* Performs a subtraction operation and returns the result.
@@ -389,7 +364,7 @@ namespace lbcrypto {
 		* @param &element is the element to subtract from.
 		* @return is the result of the subtraction.
 		*/
-		ILVectorArray2n Minus(const ILVectorArray2n &element) const;
+		ILVectorArray2n Minus(const ILVectorArray2n &element, bool fromthis = false) const;
 
 		//SCALAR OPERATIONS
 
@@ -399,7 +374,7 @@ namespace lbcrypto {
 		* @param &element is the element to add entry-wise.
 		* @return is the result of the addition operation.
 		*/
-		ILVectorArray2n Plus(const BigBinaryInteger &element) const;
+		ILVectorArray2n Plus(const BigBinaryInteger &element, bool tothis = false) const;
 
 		/**
 		* Scalar subtraction - subtract an element to all entries.
@@ -407,7 +382,7 @@ namespace lbcrypto {
 		* @param &element is the element to subtract entry-wise.
 		* @return is the return value of the minus operation.
 		*/
-		ILVectorArray2n Minus(const BigBinaryInteger &element) const;
+		ILVectorArray2n Minus(const BigBinaryInteger &element, bool fromthis = false) const;
 
 		/**
 		* Scalar multiplication - multiply all entries.
@@ -415,7 +390,7 @@ namespace lbcrypto {
 		* @param &element is the element to multiply entry-wise.
 		* @return is the return value of the times operation.
 		*/
-		ILVectorArray2n Times(const BigBinaryInteger &element) const;
+		ILVectorArray2n Times(const BigBinaryInteger &element, bool bythis = false) const;
 
 		/**
 		* Scalar multiplication followed by division and rounding operation - operation on all entries.
@@ -441,22 +416,19 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n Negate() const;
 
+		const ILVectorArray2n& operator+=(const BigBinaryInteger &element) {
+			return *this = Plus(element);
+		}
 		
-		/**
-		* Performs an addition operation and returns the result.
-		*
-		* @param &rhs is the element to add with.
-		* @return is the result of the addition.
-		*/
-		const ILVectorArray2n& operator+=(const BigBinaryInteger &rhs);
-
 		/**
 		* Performs a subtraction operation and returns the result.
 		*
 		* @param &element is the element to subtract from.
 		* @return is the result of the subtraction.
 		*/
-		const ILVectorArray2n& operator-=(const BigBinaryInteger &element);
+		const ILVectorArray2n& operator-=(const BigBinaryInteger &element) {
+			return *this = Minus(element);
+		}
 
 		/**
 		* Performs a multiplication operation and returns the result.
@@ -546,11 +518,9 @@ namespace lbcrypto {
 		bool IsEmpty() const;
 
 		/**
-		* Drops the tower at the index passed to it. The resulting ILVectorArray2n will have one less tower.
-		*
-		* @param index is the index of the tower to be dropped.
+		* Drops the last element in the tower. The resulting ILVectorArray2n will have one less tower.
 		*/
-		void DropElementAtIndex(usint index);
+		void DropLastElement();
 
 		/**
 		* ModReduces reduces the ILVectorArray2n's composite modulus by dropping the last modulus from the chain of moduli as well as dropping the last tower.
@@ -650,96 +620,25 @@ namespace lbcrypto {
 
 	};
 
-	/**
-	* Addition operator overload.
-	*
-	* @param &a ILVectorArray2n to be added to the second argument.
-	* @param &b ILVectorArray2n to be added to the first argument.
-	*
-	* @return an ILVectorArray2n with the resulting value.
-	*/
-	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Plus(b); }
+    /**
+     * Subtraction operator overload.  Performs a subtraction in the ring.
+     *
+     * @param &a the first parameter.
+     * @param &b the first parameter.
+     *
+     * @return The result of subtraction in the ring.
+     */
+    inline ILVectorArray2n operator-(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Minus(b); }
 
-	/**
-	* Scalar addition operator overload-add an element to the first index of each tower.
-	*
-	* @param &a ILVectorArray2n to be used for addition.
-	* @param &b BigBinaryInteger to be added to the first index of every tower of argument &a.
-	*
-	* @return an ILVectorArray2n with the resulting value.
-	*/
-	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const BigBinaryInteger &b) { return a.Plus(b); }
-
-	/**
-	* Scalar addition operator overload-add an element to the first index of each tower.
-	*
-	* @param &a BigBinaryInteger to be added to the first index of every tower of argument &b.
-	* @param &b ILVectorArray2n to be used for addition.
-	*
-	* @return an ILVectorArray2n with the resulting value.
-	*/
-	inline ILVectorArray2n operator+(const BigBinaryInteger &a, const ILVectorArray2n &b) { return b.Plus(a); }
-
-	/**
-	* Subtraction operator overload.
-	*
-	* @param &a ILVectorArray2n to be added to the second argument.
-	* @param &b ILVectorArray2n to be added to the first argument.
-	*
-	* @return an ILVectorArray2n with the resulting value.
-	*/
-	inline ILVectorArray2n operator-(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Minus(b); }
-
-	/**
-	* Subtraction operator overload.
-	*
-	* @param &a BigBinaryInteger to be subtracted from the second argument.
-	* @param &b ILVectorArray2n to be operated on.
-	*
-	* @return an ILVectorArray2n with the resulting value.
-	*/
-	inline ILVectorArray2n operator-(const BigBinaryInteger &a, const ILVectorArray2n &b) { return b.Minus(a); }
-
-	/**
-	* Subtraction operator overload.
-	*
-	* @param &b BigBinaryInteger to be subtracted from the first argument.
-	* @param &a ILVectorArray2n to be operated on.
-	*
-	* @return an ILVectorArray2n with the resulting value.
-	*/
-	inline ILVectorArray2n operator-(const ILVectorArray2n &a, const BigBinaryInteger &b) { return a.Minus(b); }
-
-	/**
-	* Multiplication operator overload. 
-	*
-	* @param &a the first ILVectorArray2n.
-	* @param &b the second ILVectorArray2n.
-	*
-	* @return an ILVectorArray2n with the resulting value.
-	*/
-	inline ILVectorArray2n operator*(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Times(b); }
-
-	/**
-	* Scalar multiplication operator overload-multiply all entries.
-	*
-	* @param &a the BigBinaryInteger to multiply by every element of every tower of the second argument.
-	* @param &b the ILVectorArray2n to be multiplied by the first argument.
-	*
-	* @return an ILVectorArray2n with the resulting value.
-	*/
-	inline ILVectorArray2n operator*(const BigBinaryInteger &a, const ILVectorArray2n &b) { return b.Times(a); }
-
-	/**
-	* Scalar multiplication operator overload-multiply all entries.
-	*
-	* @param &a the ILVectorArray2n to multiply by the second argument.
-	* @param &b the BigBinaryInteger to multiply by the first argument.
-	*
-	* @return an ILVectorArray2n with the resulting value.
-	*/
-	inline ILVectorArray2n operator*(const ILVectorArray2n &a,const BigBinaryInteger &b) { return a.Times(b); }
-
+    /**
+     * Subtraction operator overload.  Performs a subtraction in the ring.
+     *
+     * @param &a the first parameter.
+     * @param &b the first parameter.
+     *
+     * @return The result of subtraction in the ring.
+     */
+    inline ILVectorArray2n operator-(const ILVectorArray2n &a, const BigBinaryInteger &b) { return a.Minus(b); }
 
 } // namespace lbcrypto ends
 

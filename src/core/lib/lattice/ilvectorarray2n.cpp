@@ -247,7 +247,7 @@ namespace lbcrypto {
 		return std::move(res);
 	}
 
-	usint ILVectorArray2n::GetCyclotomicOrder() const {
+	const usint ILVectorArray2n::GetCyclotomicOrder() const {
 		return m_cyclotomicOrder;
 	}
 
@@ -356,7 +356,7 @@ namespace lbcrypto {
 
 	ILVectorArray2n ILVectorArray2n::MultiplicativeInverse() const
 	{
-		ILVectorArray2n tmp(*this);
+		ILVectorArray2n tmp = CloneWithParams();
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = m_vectors[i].MultiplicativeInverse();
@@ -366,32 +366,32 @@ namespace lbcrypto {
 
 	ILVectorArray2n ILVectorArray2n::ModByTwo() const
 	{
-		ILVectorArray2n tmp(*this);
+		ILVectorArray2n tmp = CloneWithParams();
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = m_vectors[i].ModByTwo();
-		   }
-		return tmp;
+		}
+		return std::move(tmp);
 	}
 
 	ILVectorArray2n ILVectorArray2n::SignedMod(const BigBinaryInteger & modulus) const
 	{
-		ILVectorArray2n tmp(*this);
+		ILVectorArray2n tmp = CloneWithParams();
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = m_vectors[i].SignedMod(modulus);
 		}
-		return tmp;
+		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Plus(const ILVectorArray2n &element) const
+	ILVectorArray2n ILVectorArray2n::Plus(const ILVectorArray2n &element, bool tothis) const
 	{
-		ILVectorArray2n tmp(*this);
+		ILVectorArray2n tmp = CloneWithParams();
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] += element.GetElementAtIndex (i);
 		}
-		return tmp;
+		return std::move(tmp);
 	}
 
 	ILVectorArray2n ILVectorArray2n::Negate() const {
@@ -402,16 +402,17 @@ namespace lbcrypto {
 			tmp.m_vectors.push_back(std::move(this->m_vectors.at(i).Negate()));
 		}
 
-		return tmp;
+		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Minus(const ILVectorArray2n &element) const {
-		ILVectorArray2n tmp(*this);
+	ILVectorArray2n ILVectorArray2n::Minus(const ILVectorArray2n &element, bool fromthis) const
+	{
+		ILVectorArray2n tmp = CloneWithParams();
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] -= element.GetElementAtIndex (i);
 		}
-		return tmp;
+		return std::move(tmp);
 	}
 
 	const ILVectorArray2n& ILVectorArray2n::operator+=(const ILVectorArray2n &rhs)
@@ -477,6 +478,17 @@ namespace lbcrypto {
 		return *this;
 	}
 
+	const ILVectorArray2n & ILVectorArray2n::operator=(ILVectorArray2n&& rhs)
+	{
+		if (this != &rhs) {
+			m_vectors = std::move(rhs.m_vectors);
+			m_format = std::move(rhs.m_format);
+			m_modulus = std::move(rhs.m_modulus);
+			m_cyclotomicOrder = std::move(rhs.m_cyclotomicOrder);
+		}
+		return *this;
+	}
+
 	ILVectorArray2n& ILVectorArray2n::operator=(std::initializer_list<sint> rhs){
 		usint len = rhs.size();
 		if(!IsEmpty()){
@@ -505,45 +517,45 @@ namespace lbcrypto {
 
 	/*SCALAR OPERATIONS*/
 
-	ILVectorArray2n ILVectorArray2n::Plus(const BigBinaryInteger &element) const
+	ILVectorArray2n ILVectorArray2n::Plus(const BigBinaryInteger &element, bool tothis) const
 	{
-		ILVectorArray2n tmp(*this);
+		ILVectorArray2n tmp = CloneWithParams();
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] += element;
 		}
-		return tmp;
+		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Minus(const BigBinaryInteger &element) const {
-		ILVectorArray2n tmp(*this);
+	ILVectorArray2n ILVectorArray2n::Minus(const BigBinaryInteger &element, bool fromthis) const {
+		ILVectorArray2n tmp = CloneWithParams();
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] -= element;
 		}
-		return tmp;
+		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Times(const ILVectorArray2n & element) const
+	ILVectorArray2n ILVectorArray2n::Times(const ILVectorArray2n & element, bool bythis) const
 	{
-		ILVectorArray2n tmp(*this);
+		ILVectorArray2n tmp = CloneWithParams();
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			//ModMul multiplies and performs a mod operation on the results. The mod is the modulus of each tower.
 			tmp.m_vectors[i].SetValues(((m_vectors[i].GetValues()).ModMul(element.m_vectors[i].GetValues())), m_format);
 			
 		}
-		return tmp;
+		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Times(const BigBinaryInteger &element) const
+	ILVectorArray2n ILVectorArray2n::Times(const BigBinaryInteger &element, bool bythis) const
 	{
-		ILVectorArray2n tmp(*this);
+		ILVectorArray2n tmp = CloneWithParams();
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = (element*tmp.m_vectors[i]);
 		}
-		return tmp;
+		return std::move(tmp);
 	}
 
 	ILVectorArray2n ILVectorArray2n::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const
@@ -559,15 +571,6 @@ namespace lbcrypto {
 		throw std::runtime_error(errMsg);
 		return *this;
 	}
-
-	const ILVectorArray2n& ILVectorArray2n::operator+=(const BigBinaryInteger &rhs){
-         return this->Plus(rhs); //TODO-OPTIMIZE
-	}
-	
-	const ILVectorArray2n& ILVectorArray2n::operator-=(const BigBinaryInteger &rhs){
-          return this->Minus(rhs); //TODO-OPTIMIZE
-	}
-
 
 	const ILVectorArray2n& ILVectorArray2n::operator*=(const BigBinaryInteger &element) {
 		for (usint i = 0; i < this->m_vectors.size(); i++) {
@@ -624,12 +627,12 @@ namespace lbcrypto {
 		return true;
 	}
 
-	void ILVectorArray2n::DropElementAtIndex(usint index){
-		if(index >= m_vectors.size()){
-			throw std::out_of_range("Index of tower being removed is larger than ILVectorArray2n tower\n");
+	void ILVectorArray2n::DropLastElement(){
+		if(m_vectors.size() == 0){
+			throw std::out_of_range("Last element being removed from empty list");
 		}
-		m_modulus = m_modulus /(m_vectors[index].GetModulus());
-		m_vectors.erase(m_vectors.begin() + index);
+		m_modulus = m_modulus /(m_vectors[m_vectors.size()-1].GetModulus());
+		m_vectors.resize(m_vectors.size() - 1);
 	}
 
 	/**
@@ -682,7 +685,7 @@ namespace lbcrypto {
 		}
 
 		//step 4
-		DropElementAtIndex(lastTowerIndex);
+		DropLastElement();
 		std::vector<BigBinaryInteger> qtInverseModQi(m_vectors.size());
 		for(usint i=0; i<m_vectors.size(); i++) {
 			qtInverseModQi[i] = qt.ModInverse(m_vectors[i].GetModulus());

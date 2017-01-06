@@ -29,7 +29,7 @@ namespace lbcrypto {
 		*
 		*@param & element ring element
 		*/
-		Field2n(const ILVector2n & element);
+		explicit Field2n(const ILVector2n & element);
 
 		/** Constructor from a ring element matrix
 		*

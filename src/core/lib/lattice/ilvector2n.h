@@ -226,7 +226,6 @@ namespace lbcrypto {
 		*/
 		const ILVector2n& operator=(std::initializer_list<sint> rhs);
 
-        //CLONE OPERATIONS
 		/**
 		* Clone
 		*
@@ -387,9 +386,7 @@ namespace lbcrypto {
 		* @return is the result of the addition.
 		*/
 		inline const ILVector2n& operator+=(const BigBinaryInteger &element) {
-            ILVector2n result = this->Plus(element);
-            *this = result;
-            return *this;
+            return Plus(element, true);
         }
 
 		/**
@@ -399,9 +396,7 @@ namespace lbcrypto {
 		* @return is the result of the addition.
 		*/
 		inline const ILVector2n& operator-=(const BigBinaryInteger &element) {
-            ILVector2n result = this->Minus(element);
-            *this = result;
-            return *this;
+            return Minus(element, true);
         }
 
         /**
@@ -411,9 +406,7 @@ namespace lbcrypto {
 		* @return is the result of the multiplication.
 		*/
 		inline const ILVector2n& operator*=(const BigBinaryInteger &element) {
-            ILVector2n result = this->Times(element);
-            *this = result;
-            return *this;
+            return Times(element, true);
         }
 
 		/**
@@ -423,7 +416,7 @@ namespace lbcrypto {
 		* @param &element is the element to add entry-wise.
 		* @return is the return of the addition operation.
 		*/
-		ILVector2n Plus(const BigBinaryInteger &element) const;
+		ILVector2n Plus(const BigBinaryInteger &element, bool tothis = false) const;
 
 		/**
 		* Scalar subtraction - subtract an element to all entries.
@@ -431,7 +424,7 @@ namespace lbcrypto {
 		* @param &element is the element to subtract entry-wise.
 		* @return is the return value of the minus operation.
 		*/
-		ILVector2n Minus(const BigBinaryInteger &element) const;
+		ILVector2n Minus(const BigBinaryInteger &element, bool fromthis = false) const;
 
 		/**
 		* Scalar multiplication - multiply all entries.
@@ -439,7 +432,7 @@ namespace lbcrypto {
 		* @param &element is the element to multiply entry-wise.
 		* @return is the return value of the times operation.
 		*/
-		ILVector2n Times(const BigBinaryInteger &element) const;
+		ILVector2n Times(const BigBinaryInteger &element, bool bythis = false) const;
 
 		/**
 		* Scalar multiplication followed by division and rounding operation - operation on all entries.
@@ -465,7 +458,7 @@ namespace lbcrypto {
 		* @param &element is the element to add with.
 		* @return is the result of the addition.
 		*/
-		ILVector2n Plus(const ILVector2n &element) const;
+		ILVector2n Plus(const ILVector2n &element, bool tothis = false) const;
 
 		/**
 		* Performs a subtraction operation and returns the result.
@@ -473,7 +466,7 @@ namespace lbcrypto {
 		* @param &element is the element to subtract with.
 		* @return is the result of the subtraction.
 		*/
-		ILVector2n Minus(const ILVector2n &element) const;
+		ILVector2n Minus(const ILVector2n &element, bool fromthis = false) const;
 
 		/**
 		* Performs a multiplication operation and returns the result.
@@ -481,15 +474,8 @@ namespace lbcrypto {
 		* @param &element is the element to multiply with.
 		* @return is the result of the multiplication.
 		*/
-		ILVector2n Times(const ILVector2n &element) const;
+		ILVector2n Times(const ILVector2n &element, bool bythis = false) const;
 
-		/**
-		* Performs a multiplication operation w/o applying the modulo operation.
-		*
-		* @param &element is the element to multiply with.
-		* @return is the result of the multiplication.
-		*/
-		//ILVector2n TimesNoMod(const ILVector2n &element) const;
 		/**
 		* Performs a negation operation and returns the result.
 		*
@@ -677,14 +663,6 @@ namespace lbcrypto {
 		ILVector2n CRTInterpolate() const { return *this; }
 
 		/**
-		* Print the pre-computed discrete Gaussian samples.
-		*/
-		static void PrintPreComputedSamples() {
-			for (usint i = 0; i < SAMPLE_SIZE; i++)
-				std::cout << m_dggSamples[i].GetValues() << std::endl;
-		}
-
-		/**
 		* Pre computes the Dgg samples.
 		*
 		* @param &dgg the discrete Gaussian Generator.
@@ -763,73 +741,30 @@ namespace lbcrypto {
 
 	// overloaded operators for ILVector2n
 
-	/**
-	* Addition operator overload.  Performs an addition in the ring.
-	*
-	* @param &a the first parameter.
-	* @param &b the first parameter.
-	*
-	* @return The result of addition in the ring.
-	*/
-	inline ILVector2n operator+(const ILVector2n &a, const BigBinaryInteger &b) { return a.Plus(b); }
-
-	/**
-	* Subtraction operator overload.  Performs a subtraction in the ring.
-	*
-	* @param &a the first parameter.
-	* @param &b the first parameter.
-	*
-	* @return The result of subtraction in the ring.
-	*/
-	inline ILVector2n operator-(const ILVector2n &a, const BigBinaryInteger &b) { return a.Minus(b); }
-	//PREV1
-
-	/**
-	* Multiplication operator overload.  Performs a multiplication in the ring.
-	*
-	* @param &a the first parameter.
-	* @param &b the first parameter.
-	*
-	* @return The result of multiplication in the ring.
-	*/
-	inline ILVector2n operator*(const BigBinaryInteger &b, const ILVector2n &a) { return a.Times(b); }
-
-	/**
-	* Addition operator overload.  Performs an addition in the ring.
-	*
-	* @param &a the first parameter.
-	* @param &b the first parameter.
-	*
-	* @return The result of addition in the ring.
-	*/
-	inline ILVector2n operator+(const ILVector2n &a, const ILVector2n &b) { return a.Plus(b); }
-
-	/**
-	* Subtraction operator overload.  Performs a subtraction in the ring.
-	*
-	* @param &a the first parameter.
-	* @param &b the first parameter.
-	*
-	* @return The result of subtraction in the ring.
-	*/
-	inline ILVector2n operator-(const ILVector2n &a, const ILVector2n &b) { return a.Minus(b); }
-
-	//PREV1
-
-	/**
-	* Multiplication operator overload.  Performs a multiplication in the ring.
-	*
-	* @param &a the first parameter.
-	* @param &b the first parameter.
-	*
-	* @return The result of multiplication in the ring.
-	*/
-	inline ILVector2n operator*(const ILVector2n &a, const ILVector2n &b) { return a.Times(b); }
-
     inline std::ostream& operator<<(std::ostream& os, const ILVector2n& vec){
         os << vec.GetValues();
         return os;
     }
+
+    /**
+     * Subtraction operator overload.  Performs a subtraction in the ring.
+     *
+     * @param &a the first parameter.
+     * @param &b the first parameter.
+     *
+     * @return The result of subtraction in the ring.
+     */
+    inline ILVector2n operator-(const ILVector2n &a, const ILVector2n &b) { return a.Minus(b); }
+
+    /**
+     * Subtraction operator overload.  Performs a subtraction in the ring.
+     *
+     * @param &a the first parameter.
+     * @param &b the first parameter.
+     *
+     * @return The result of subtraction in the ring.
+     */
+    inline ILVector2n operator-(const ILVector2n &a, const BigBinaryInteger &b) { return a.Minus(b); }
 
 } // namespace lbcrypto ends
 
