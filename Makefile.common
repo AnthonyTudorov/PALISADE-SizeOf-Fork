@@ -106,6 +106,6 @@ include Makefile.core
 include Makefile.pke
 include Makefile.trapdoor
 ### FIXME ### include Makefile.wrapper
-include Makefile.benchmark     #builds the benchmark framework
+### DISABLED ### include Makefile.benchmark     #builds the benchmark framework
 include Makefile.docs          #populates doxgen documentation
 
