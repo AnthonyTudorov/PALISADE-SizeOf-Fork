@@ -311,14 +311,6 @@ namespace lbcrypto {
 		bool operator==(const ILVectorArray2n &rhs) const;
 
 		/**
-		* Not equal operator compares this ILVectorArray2n to the specified ILVectorArray2n
-		*
-		* @param &rhs is the specified ILVectorArray2n to be compared with this ILVectorArray2n.
-		* @return true if this ILVectorArray2n represents the same values as the specified ILVectorArray2n, false otherwise
-		*/
-        bool operator!=(const ILVectorArray2n &rhs) const;
-
-		/**
 		* Performs an entry-wise addition over all elements of each tower with the towers of the ILVectorArray2n on the right hand side.
 		*
 		* @param &rhs is the element to add with.

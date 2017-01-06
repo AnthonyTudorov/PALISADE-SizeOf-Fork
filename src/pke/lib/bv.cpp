@@ -475,13 +475,6 @@ namespace lbcrypto {
 
 		BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
 
-		// FIXME: note this will not work for ILVector2n yet so we must have a small hack here.
-
-		/*ILVectorArray2n *ep = dynamic_cast<ILVectorArray2n *>(&cipherTextElement);
-		if (ep == 0) {
-			throw std::logic_error("ModReduce is only implemented for ILVectorArray2n");
-		}*/
-
 		for (auto &cipherTextElement : cipherTextElements) {
 			cipherTextElement.ModReduce(plaintextModulus);// this is being done at the lattice layer. The ciphertext is mod reduced.
 		}
@@ -491,24 +484,6 @@ namespace lbcrypto {
 
 		return newcipherText;
 	}
-
-	/*template<> inline
-	shared_ptr<Ciphertext<ILVectorArray2n>> LPLeveledSHEAlgorithmBV<ILVectorArray2n>::ModReduce(shared_ptr<Ciphertext<ILVectorArray2n>> cipherText) const {
-		
-		shared_ptr<Ciphertext<ILVectorArray2n>> newcipherText(cipherText);
-
-		ILVectorArray2n cipherTextElement(cipherText->GetElement());
-
-		BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
-
-		cipherTextElement.ModReduce(plaintextModulus);
-
-		newcipherText->SetElement(cipherTextElement);
-
-		return newcipherText;
-
-	}*/
-
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmBV<Element>::RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const {

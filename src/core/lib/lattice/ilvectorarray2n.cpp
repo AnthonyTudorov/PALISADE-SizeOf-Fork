@@ -356,17 +356,17 @@ namespace lbcrypto {
 
 	ILVectorArray2n ILVectorArray2n::MultiplicativeInverse() const
 	{
-		ILVectorArray2n tmp = CloneWithParams();
+		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = m_vectors[i].MultiplicativeInverse();
 		}
-		return tmp;
+		return std::move(tmp);
 	}
 
 	ILVectorArray2n ILVectorArray2n::ModByTwo() const
 	{
-		ILVectorArray2n tmp = CloneWithParams();
+		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = m_vectors[i].ModByTwo();
@@ -376,7 +376,7 @@ namespace lbcrypto {
 
 	ILVectorArray2n ILVectorArray2n::SignedMod(const BigBinaryInteger & modulus) const
 	{
-		ILVectorArray2n tmp = CloneWithParams();
+		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = m_vectors[i].SignedMod(modulus);
@@ -386,7 +386,7 @@ namespace lbcrypto {
 
 	ILVectorArray2n ILVectorArray2n::Plus(const ILVectorArray2n &element, bool tothis) const
 	{
-		ILVectorArray2n tmp = CloneWithParams();
+		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] += element.GetElementAtIndex (i);
@@ -407,7 +407,7 @@ namespace lbcrypto {
 
 	ILVectorArray2n ILVectorArray2n::Minus(const ILVectorArray2n &element, bool fromthis) const
 	{
-		ILVectorArray2n tmp = CloneWithParams();
+		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] -= element.GetElementAtIndex (i);
@@ -441,10 +441,6 @@ namespace lbcrypto {
 
 	}
 
-	bool ILVectorArray2n::operator!=(const ILVectorArray2n &rhs) const {
-        return !(*this == rhs); 
-    }
-	
 	bool ILVectorArray2n::operator==(const ILVectorArray2n &rhs) const {
 		//check if the format's are the same
 		if (m_format != rhs.m_format) {
@@ -519,7 +515,7 @@ namespace lbcrypto {
 
 	ILVectorArray2n ILVectorArray2n::Plus(const BigBinaryInteger &element, bool tothis) const
 	{
-		ILVectorArray2n tmp = CloneWithParams();
+		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] += element;
@@ -528,7 +524,7 @@ namespace lbcrypto {
 	}
 
 	ILVectorArray2n ILVectorArray2n::Minus(const BigBinaryInteger &element, bool fromthis) const {
-		ILVectorArray2n tmp = CloneWithParams();
+		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] -= element;
@@ -538,7 +534,7 @@ namespace lbcrypto {
 
 	ILVectorArray2n ILVectorArray2n::Times(const ILVectorArray2n & element, bool bythis) const
 	{
-		ILVectorArray2n tmp = CloneWithParams();
+		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			//ModMul multiplies and performs a mod operation on the results. The mod is the modulus of each tower.
@@ -550,7 +546,7 @@ namespace lbcrypto {
 
 	ILVectorArray2n ILVectorArray2n::Times(const BigBinaryInteger &element, bool bythis) const
 	{
-		ILVectorArray2n tmp = CloneWithParams();
+		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = (element*tmp.m_vectors[i]);

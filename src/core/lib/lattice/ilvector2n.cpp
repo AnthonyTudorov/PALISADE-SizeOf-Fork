@@ -337,36 +337,36 @@ namespace lbcrypto {
 			throw std::logic_error("ILVector2n::Plus can only be called in COEFFICIENT format.\n");
 
 		ILVector2n tmp = CloneWithParams();
-		*tmp.m_values = GetValues().ModAddAtIndex(0, element);
+		tmp.SetValues( GetValues().ModAddAtIndex(0, element), this->m_format );
 		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::Minus(const BigBinaryInteger &element, bool fromthis) const {
 		ILVector2n tmp = CloneWithParams();
-		*tmp.m_values = GetValues().ModSub(element);
+		tmp.SetValues( GetValues().ModSub(element), this->m_format );
 		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::Times(const BigBinaryInteger &element, bool bythis) const {
 		ILVector2n tmp = CloneWithParams();
-		*tmp.m_values = GetValues().ModMul(element);
+		tmp.SetValues( GetValues().ModMul(element), this->m_format );
 		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const {
 		ILVector2n tmp = CloneWithParams();
-		*tmp.m_values = GetValues().MultiplyAndRound(p, q);
+		tmp.SetValues( GetValues().MultiplyAndRound(p, q), this->m_format );
 		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::DivideAndRound(const BigBinaryInteger &q) const {
 		ILVector2n tmp = CloneWithParams();
-		*tmp.m_values = GetValues().DivideAndRound(q);
+		tmp.SetValues( GetValues().DivideAndRound(q), this->m_format );
 		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::Negate() const {
-		ILVector2n tmp = CloneWithParams();
+		ILVector2n tmp( *this );
 		*tmp.m_values = m_values->ModMul(this->m_params->GetModulus() - BigBinaryInteger::ONE);
 		return std::move( tmp );
 	}
@@ -375,19 +375,19 @@ namespace lbcrypto {
 
 	ILVector2n ILVector2n::Plus(const ILVector2n &element, bool tothis) const {
 		ILVector2n tmp = CloneWithParams();
-		*tmp.m_values = GetValues().ModAdd(*element.m_values);
+		tmp.SetValues( GetValues().ModAdd(*element.m_values), this->m_format );
 		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::Minus(const ILVector2n &element, bool fromthis) const {
 		ILVector2n tmp = CloneWithParams();
-		*tmp.m_values = GetValues().ModSub(*element.m_values);
+		tmp.SetValues( GetValues().ModSub(*element.m_values), this->m_format );
 		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::Times(const ILVector2n &element, bool bythis) const {
 		ILVector2n tmp = CloneWithParams();
-		*tmp.m_values = GetValues().ModMul(*element.m_values);
+		tmp.SetValues( GetValues().ModMul(*element.m_values), this->m_format );
 		return std::move( tmp );
 	}
 

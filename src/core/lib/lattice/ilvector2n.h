@@ -68,55 +68,55 @@ namespace lbcrypto {
 	public:
 
 		/**
-		* Constructor that initializes nothing.
-		*/
+		 * Default constructor
+		 */
 		ILVector2n();
 
 		/**
-		* Constructor that initializes parameters.
-		*
-		* @param &params element parameters.
-		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
-		*/
-        ILVector2n(const shared_ptr<ElemParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
+		 * Construct given parameters and format
+		 * @param params - element parameters
+		 * @param format - EVALUATION or COEFFICIENT
+		 * @param initializeElementToZero - if true, allocates an empty vector set to all 0s
+		 */
+		ILVector2n(const shared_ptr<ElemParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
     	ILVector2n(bool initializeElementToMax, const shared_ptr<ElemParams> params, Format format);
 
 
 		/**
-		* Constructor based on full methods.
-		*
-		* @param &dgg the input discrete Gaussian Generator.
-		* @param &params the input params.
-		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
-		*/
+		 * Construct with a vector from a given generator
+		 *
+		 * @param &dgg the input discrete Gaussian Generator.
+		 * @param &params the input params.
+		 * @param format - EVALUATION or COEFFICIENT
+		 */
 		ILVector2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION);
-		
+
 		/**
-		* Constructor based on full methods.
-		*
-		* @param &bug the input Binary Uniform Generator.
-		* @param &params the input params.
-		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
-		*/
+		 * Construct with a vector from a given generator
+		 *
+		 * @param &bug the input Binary Uniform Generator.
+		 * @param &params the input params.
+		 * @param format - EVALUATION or COEFFICIENT
+		 */
 		ILVector2n(const BinaryUniformGenerator &bug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 
 		/**
-		* Constructor based on full methods.
-		*
-		* @param &tug the input Ternary Uniform Generator.
-		* @param &params the input params.
-		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
-		*/
+		 * Construct with a vector from a given generator
+		 *
+		 * @param &tug the input Ternary Uniform Generator.
+		 * @param &params the input params.
+		 * @param format - EVALUATION or COEFFICIENT
+		 */
 		ILVector2n(const TernaryUniformGenerator &tug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 
 		/**
-		* Constructor based on full methods.
-		*
-		* @param &dug the input discrete Uniform Generator.
-		* @param &params the input params.
-		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
-		*/
+		 * Construct with a vector from a given generator
+		 *
+		 * @param &dug the input discrete Uniform Generator.
+		 * @param &params the input params.
+		 * @param format - EVALUATION or COEFFICIENT
+		 */
 		ILVector2n(const DiscreteUniformGenerator &dug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 
         /**
@@ -188,59 +188,43 @@ namespace lbcrypto {
             };
         }
 
-		/**
-		* Copy constructor.
-		*
-		* @param &element the copied element.
-		*/
-		ILVector2n(const ILVector2n &element);
+        /**
+         * Copy constructor.
+         *
+         * @param &element the copied element.
+         */
+        ILVector2n(const ILVector2n &element);
 
-		/**
-		* Move constructor.
-		*
-		* @param &&element the copied element.
-		*/
-		ILVector2n(ILVector2n &&element);
+        /**
+         * Move constructor.
+         *
+         * @param &&element the copied element.
+         */
+        ILVector2n(ILVector2n &&element);
 
-		/**
-		* Assignment Operator.
-		*
-		* @param &rhs the ILVector2n to be copied.
-		* @return the resulting ILVector2n.
-		*/
-		const ILVector2n& operator=(const ILVector2n &rhs);
+        /**
+         * Assignment Operator.
+         *
+         * @param &rhs the ILVector2n to be copied.
+         * @return the resulting ILVector2n.
+         */
+        const ILVector2n& operator=(const ILVector2n &rhs);
 
-		/**
-		* Move Operator.
-        *
-		* @param &rhs the ILVector2n to be copied.
-		* @return the resulting ILVector2n.
-        */
+        /**
+         * Move Operator.
+         *
+         * @param &rhs the ILVector2n to be copied.
+         * @return the resulting ILVector2n.
+         */
         const ILVector2n& operator=(ILVector2n &&rhs);
 
-		/**
-		* Initalizer list
-		*
-		* @param &rhs the list to set the ILVector2n to.
-		* @return the resulting ILVector2n.
-		*/
-		const ILVector2n& operator=(std::initializer_list<sint> rhs);
-
-		/**
-		* Clone
-		*
-		* Creates a new ILVector2n and clones only the params. The tower values are empty. The tower values can be filled by another process/function or initializer list.
-		*/
-		ILVector2n CloneWithParams() const ;
-
-		/**
-		* Clone with noise
-		*
-		* Creates a new ILVector2n and clones the params. The tower values will be filled up with noise based on the discrete gaussian.
-		*
-		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVector2n with random numbers.
-		*/
-		ILVector2n CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format) const;
+        /**
+         * Initalizer list
+         *
+         * @param &rhs the list to set the ILVector2n to.
+         * @return the resulting ILVector2n.
+         */
+        const ILVector2n& operator=(std::initializer_list<sint> rhs);
 
 		/**
 		* Assignment Operator. The usint val will be set at index zero and all other indices will be set to zero.
@@ -249,6 +233,23 @@ namespace lbcrypto {
         * @return the resulting vector.
         */
 		const ILVector2n& operator=(usint val);
+
+       /**
+         * Clone
+         *
+         * Creates a new ILVector2n and clones only the params.
+         *  The tower values are empty. The tower values can be filled by another process/function or initializer list.
+         */
+        ILVector2n CloneWithParams() const ;
+
+        /**
+         * Clone with noise
+         *
+         * Creates a new ILVector2n and clones the params. The tower values will be filled up with noise based on the discrete gaussian.
+         *
+         * @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVector2n with random numbers.
+         */
+        ILVector2n CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format) const;
 
 		virtual ~ILVector2n();
 
@@ -269,15 +270,6 @@ namespace lbcrypto {
                 return false;
             }
             return true;
-        }
-		/**
-		* Not equal operator compares this ILVector2n to the specified ILVectorArray2n
-		*
-		* @param &element is the specified ILVector2n to be compared with this ILVectorArray2n.
-		* @return true if this ILVector2n represents the same values as the specified ILVector2n, false otherwise
-		*/
-        inline bool operator!=(const ILVector2n &element) const {
-            return !(*this == element);
         }
 
         //GETTERS
@@ -386,7 +378,7 @@ namespace lbcrypto {
 		* @return is the result of the addition.
 		*/
 		inline const ILVector2n& operator+=(const BigBinaryInteger &element) {
-            return Plus(element, true);
+            return *this = Plus(element, true);
         }
 
 		/**
@@ -396,7 +388,7 @@ namespace lbcrypto {
 		* @return is the result of the addition.
 		*/
 		inline const ILVector2n& operator-=(const BigBinaryInteger &element) {
-            return Minus(element, true);
+            return *this = Minus(element, true);
         }
 
         /**
@@ -406,7 +398,7 @@ namespace lbcrypto {
 		* @return is the result of the multiplication.
 		*/
 		inline const ILVector2n& operator*=(const BigBinaryInteger &element) {
-            return Times(element, true);
+            return *this = Times(element, true);
         }
 
 		/**
