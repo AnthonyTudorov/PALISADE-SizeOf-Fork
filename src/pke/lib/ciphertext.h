@@ -172,6 +172,13 @@ namespace lbcrypto {
 		void SetElements(const std::vector<Element> &elements) { m_elements = elements; }
 
 		/**
+		* Sets the data elements by std::move.
+		*
+		* @param &&element is a polynomial ring element.
+		*/
+		void SetElements(const std::vector<Element> &&elements) { m_elements = std::move(elements); }
+
+		/**
 		* Serialize the object into a Serialized
 		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 		* @return true if successfully serialized

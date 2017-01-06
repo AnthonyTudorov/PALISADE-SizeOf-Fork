@@ -30,9 +30,16 @@
  *
  * This code implements the Brakerski-Vaikuntanathan (BV) homomorphic encryption scheme.
  * The scheme is described at http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf (or alternative Internet source:
- * http://dx.doi.org/10.1007/978-3-642-22792-9_29). Implementation details are provided in
- * {the link to the ACM TISSEC manuscript to be added}.
+ * http://dx.doi.org/10.1007/978-3-642-22792-9_29). 
+ * The levelled Homomorphic scheme is described in
+ * "Fully Homomorphic Encryption without Bootstrapping", Internet Source : https://eprint.iacr.org/2011/277.pdf .
+ * Implementation details are provided in
+ * "Homomorphic Evaluation of the AES Circuit" Internet source : https://eprint.iacr.org/2012/099.pdf .
  */
+
+
+
+
 
 #ifndef LBCRYPTO_CRYPTO_BV_H
 #define LBCRYPTO_CRYPTO_BV_H
@@ -83,6 +90,9 @@ namespace lbcrypto {
 				float assuranceMeasure, 
 				float securityLevel, 
 				usint relinWindow,
+				MODE mode,
+				const BigBinaryInteger &bigModulus,
+				const BigBinaryInteger &bigRootOfUnity,
 				int depth = 1)
 					: LPCryptoParametersRLWE<Element>(
 						params,
@@ -91,7 +101,12 @@ namespace lbcrypto {
 						assuranceMeasure,
 						securityLevel,
 						relinWindow,
-						depth) {}
+						depth) {
+				m_delta = delta;
+				m_mode = mode;
+				m_bigModulus = bigModulus;
+				m_bigRootOfUnity = bigRootOfUnity;			
+			}
 
 			/**
 			* Destructor.
@@ -124,23 +139,30 @@ namespace lbcrypto {
 			*/
 			bool Deserialize(const Serialized& serObj) {
 				Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersBV");
-				if( mIter == serObj.MemberEnd() ) return false;
+				if (mIter == serObj.MemberEnd()) return false;
 
-				return this->DeserializeRLWE(mIter);
-			}
+				if (this->DeserializeRLWE(mIter) == false)
+					return false;
 
-			
-			/**
-			* == operator to compare to this instance of LPCryptoParametersBV object. 
-			*
-			* @param &rhs LPCryptoParameters to check equality against.
-			*/
-			bool operator==(const LPCryptoParameters<Element> &rhs) const {
-				const LPCryptoParametersBV<Element> *el = dynamic_cast<const LPCryptoParametersBV<Element> *>(&rhs);
+				SerialItem::ConstMemberIterator pIt;
 
-				if( el == 0 ) return false;
+				if ((pIt = mIter->value.FindMember("mode")) == mIter->value.MemberEnd())
+					return false;
+				MODE mode = (MODE)atoi(pIt->value.GetString());
 
-				return  LPCryptoParametersRLWE<Element>::operator==(rhs);
+				if ((pIt = mIter->value.FindMember("bigmodulus")) == mIter->value.MemberEnd())
+					return false;
+				BigBinaryInteger bigmodulus(pIt->value.GetString());
+
+				if ((pIt = mIter->value.FindMember("bigrootofunity")) == mIter->value.MemberEnd())
+					return false;
+				BigBinaryInteger bigrootofunity(pIt->value.GetString());
+
+				this->SetBigModulus(bigmodulus);
+				this->SetBigRootOfUnity(bigrootofunity);
+				this->SetMode(mode);
+
+				return true;
 			}
 
 			/**
@@ -151,13 +173,61 @@ namespace lbcrypto {
 			MODE GetMode() const { return m_mode; }
 
 			/**
-			* Configures the mode
+			* Gets the modulus used for polynomial multiplications in EvalMult
+			*
+			* @return the modulus value.
+			*/
+			const BigBinaryInteger& GetBigModulus() const { return m_bigModulus; }
+
+			/**
+			* Gets the primitive root of unity used for polynomial multiplications in EvalMult
+			*
+			* @return the primitive root of unity value.
+			*/
+			const BigBinaryInteger& GetBigRootOfUnity() const { return m_bigRootOfUnity; }
+
+			/**
+			* Configures the mode for generating the secret key polynomial
 			*/
 			void SetMode(MODE mode) { m_mode = mode; }
 
+			/**
+			* Sets the modulus used for polynomial multiplications in EvalMult
+			*/
+			void SetBigModulus(const BigBinaryInteger &bigModulus) { m_bigModulus = bigModulus; }
+
+			/**
+			* Sets primitive root of unity used for polynomial multiplications in EvalMult
+			*/
+			void SetBigRootOfUnity(const BigBinaryInteger &bigRootOfUnity) { m_bigRootOfUnity = bigRootOfUnity; }
+
+			/**
+			* == operator to compare to this instance of LPCryptoParametersBV object.
+			*
+			* @param &rhs LPCryptoParameters to check equality against.
+			*/
+			bool operator==(const LPCryptoParameters<Element> &rhs) const {
+				const LPCryptoParametersBV<Element> *el = dynamic_cast<const LPCryptoParametersBV<Element> *>(&rhs);
+
+				if (el == 0) return false;
+
+				if (m_mode != el->m_mode) return false;
+				if (m_bigModulus != el->m_bigModulus) return false;
+				if (m_bigRootOfUnity != el->m_bigRootOfUnity) return false;
+
+				return  LPCryptoParametersRLWE<Element>::operator==(rhs);
+			}
+
 	private:
-		//specifies whether the keys are generated from discrete Gaussian distribution or ternary distribution with the norm of unity
+		// specifies whether the keys are generated from discrete 
+		// Gaussian distribution or ternary distribution with the norm of unity
 		MODE m_mode;
+
+		// larger modulus that is used in polynomial multiplications within EvalMult (before rounding is done)
+		BigBinaryInteger m_bigModulus;
+
+		// primitive root of unity for m_bigModulus
+		BigBinaryInteger m_bigRootOfUnity;
 	};
 
 

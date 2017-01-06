@@ -18,7 +18,12 @@ Description:
 
 This code implements the Brakerski-Vaikuntanathan (BV) homomorphic encryption scheme.
 The scheme is described at http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf (or alternative Internet source:
-http://dx.doi.org/10.1007/978-3-642-22792-9_29). Implementation details are provided in
+http://dx.doi.org/10.1007/978-3-642-22792-9_29). 
+The levelled Homomorphic scheme is described in 
+"Fully Homomorphic Encryption without Bootstrapping", Internet Source: https://eprint.iacr.org/2011/277.pdf .
+Implementation details are provided in
+"Homomorphic Evaluation of the AES Circuit" Internet source: https://eprint.iacr.org/2012/099.pdf .
+
 {the link to the ACM TISSEC manuscript to be added}.
 
 License Information:
@@ -105,23 +110,38 @@ namespace lbcrypto {
 		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
+		TernaryUniformGenerator tug;
+
 		const Element &a = publicKey->GetPublicElements().at(0);
 		const Element &b = publicKey->GetPublicElements().at(1);
 
-		Element v(dgg, elementParams, Format::EVALUATION);
+
+
+		//Element v(dgg, elementParams, Format::EVALUATION);
+		Element v;
+
+		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+		if (cryptoParams->GetMode() == RLWE)
+			v = Element(dgg, elementParams, Format::EVALUATION);
+		else
+			v = Element(tug, elementParams, Format::EVALUATION);
+
 		Element e0(dgg, elementParams, Format::EVALUATION);
 		Element e1(dgg, elementParams, Format::EVALUATION);
 
-		Element c1(elementParams);
-		Element c2(elementParams);
-
 		plaintext.SwitchFormat();
 
-		c1 = b*v + p*e0 + plaintext;
+		Element c0( b*v + p*e0 + plaintext );
 
-		c2 = a*v + p*e1;
+		Element c1( a*v + p*e1 );
 
-		ciphertext->SetElements({ c1,c2 });
+		std::vector<Element> cVector;
+
+		cVector.push_back(std::move(c0));
+
+		cVector.push_back(std::move(c1));
+
+		ciphertext->SetElements(std::move(cVector));
 
 		return ciphertext;
 	}
@@ -180,13 +200,18 @@ namespace lbcrypto {
 
 		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
 
-		std::vector<Element> cipherText1Elements = ciphertext1->GetElements();
-		std::vector<Element> cipherText2Elements = ciphertext2->GetElements();
+		const std::vector<Element> &c1 = ciphertext1->GetElements();
 
-		Element c0 = cipherText1Elements[0] - cipherText2Elements[0];
-		Element c1 = cipherText1Elements[1] - cipherText2Elements[1];
+		const std::vector<Element> &c2 = ciphertext2->GetElements();
 
-		newCiphertext->SetElements({ c0,c1 });
+		std::vector<Element> cNew;
+
+		cNew.push_back(std::move(c1[0] - c2[0]));
+
+		cNew.push_back(std::move(c1[1] - c2[1]));
+
+		newCiphertext->SetElements(std::move(cNew));
+
 		return newCiphertext;
 	}
 
@@ -267,6 +292,7 @@ namespace lbcrypto {
 
 	}
 	
+
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
 
