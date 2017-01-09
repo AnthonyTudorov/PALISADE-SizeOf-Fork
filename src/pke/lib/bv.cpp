@@ -318,18 +318,25 @@ namespace lbcrypto {
 
 		shared_ptr<LPEvalKey<Element>> keySwitchHintRelin(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
 
+		//Getting a reference to the polynomials of new private key.
 		const Element &sNew = newPrivateKey->GetPrivateElement();
 
+		//Getting a reference to the polynomials of original private key.
 		const Element &s = originalPrivateKey->GetPrivateElement();
 
+		//Getting a refernce to discrete gaussian distribution generator.
 		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
+		//Getting a refernce to ternary distribution generator.
 		const DiscreteUniformGenerator dug(originalKeyParams->GetModulus());
 
+		//Relinearizaiton window is used to calculate the base exponent.
 		usint relinWindow = cryptoParams->GetRelinWindow();
 
+		//Pushes the powers of base exponent of original key polynomial onto evalKeyElements.
 		std::vector<Element> evalKeyElements(s.PowersOfBase(relinWindow));
 
+		//evalKeyElementsGenerated hold the generated noise distribution.
 		std::vector<Element> evalKeyElementsGenerated;
 
 		for (usint i = 0; i < (evalKeyElements.size()); i++)
@@ -356,9 +363,43 @@ namespace lbcrypto {
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint, const shared_ptr<Ciphertext<Element>> cipherText) const {
 
-		shared_ptr<Ciphertext<Element>> x;
+		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(*cipherText));
 
-		return x;
+		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(keySwitchHint->GetCryptoParameters());
+
+		const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
+
+		const shared_ptr<LPEvalKeyRelin<Element>> evalKey = std::static_pointer_cast<LPEvalKeyRelin<Element>>(keySwitchHint);
+
+		const std::vector<Element> &a = evalKey->GetAVector();
+		const std::vector<Element> &b = evalKey->GetBVector();
+
+		usint relinWindow = cryptoParamsLWE->GetRelinWindow();
+
+		const std::vector<Element> &c = cipherText->GetElements();
+
+		std::vector<Element> digitsC1(c[1].BaseDecompose(relinWindow));
+
+
+		Element ct0(c[0] + digitsC1[0] * b[0]);
+		Element ct1(digitsC1[0] * a[0]);
+
+		//Relinearization Step.
+		for (usint i = 1; i < digitsC1.size(); ++i)
+		{
+			ct0 += digitsC1[i] * b[i];
+			ct1 += digitsC1[i] * a[i];
+		}
+
+		std::vector<Element> ctVector;
+
+		ctVector.push_back(std::move(ct0));
+
+		ctVector.push_back(std::move(ct1));
+
+		newCiphertext->SetElements(std::move(ctVector));
+
+		return newCiphertext;
 
 	}
 
