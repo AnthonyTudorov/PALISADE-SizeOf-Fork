@@ -269,9 +269,9 @@ namespace lbcrypto {
 		LPAlgorithmBV() {};
 
 		/**
-		* Method for encrypting plaintext using BV
+		* Method for encrypting plaintext using BV Scheme
 		*
-		* @param &publicKey public key used for encryption.
+		* @param publicKey is the public key used for encryption.
 		* @param &plaintext the plaintext input.
 		* @return ciphertext which results from encryption.
 		*/
@@ -294,6 +294,7 @@ namespace lbcrypto {
 		* Function to generate public and private keys
 		*
 		* @param cc is the cryptoContext which encapsulates the crypto paramaters.
+		* @param makeSparse is a boolean flag that species if the key is sparse(interleaved zeroes) or not.
 		* @return KeyPair containting private key and public key.
 		*/
 		LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const;
@@ -319,7 +320,7 @@ namespace lbcrypto {
 		*
 		* @param ciphertext1 first input ciphertext.
 		* @param ciphertext2 second input ciphertext.
-		* @return new resulting ciphertext with homomorphic addition of input ciphertext.
+		* @return new resulting ciphertext with homomorphic addition of input ciphertexts.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const;
@@ -327,29 +328,29 @@ namespace lbcrypto {
 		/**
 		* Function for homomorphic subtraction of ciphertexts.
 		*
-		* @param &ciphertext1 the input ciphertext.
-		* @param &ciphertext2 the input ciphertext.
-		* @param *newCiphertext the new ciphertext.
+		* @param ciphertext1 the input ciphertext.
+		* @param ciphertext2 the input ciphertext.
+		* @return new resulting ciphertext with homomorphic substraction of input ciphertexts.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1, const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext.
 		*
-		* @param &ciphertext1 first input ciphertext.
-		* @param &ciphertext2 second input ciphertext.
-		* @param *newCiphertext the new resulting ciphertext.
+		* @param ciphertext1 first input ciphertext.
+		* @param ciphertext2 second input ciphertext.
+		* @return new resulting ciphertext with homomorphic multiplication of input ciphertexts.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
 		/**
-		* Function for evaluating multiplication on ciphertext followed by key switching operation.
+		* Function for evaluating multiplication on ciphertext followed by key switching operation to reduce noise.
 		*
-		* @param &ciphertext1 first input ciphertext.
-		* @param &ciphertext2 second input ciphertext.
-		* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-		* @param *newCiphertext the new resulting ciphertext.
+		* @param ciphertext1 first input ciphertext.
+		* @param ciphertext2 second input ciphertext.
+		* @param ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		* @return new resulting ciphertext with homomorphic multiplication of input ciphertexts.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2,
@@ -366,25 +367,26 @@ namespace lbcrypto {
 		/**
 		* Method for generating a KeySwitchHint
 		*
-		* @param &originalPrivateKey Original private key used for encryption.
-		* @param &newPrivateKey New private key to generate the keyswitch hint.
-		* @param *keySwitchHint is where the resulting keySwitchHint will be placed.
+		* @param originalPrivateKey is the original private key used for encryption.
+		* @param newPrivateKey is the new private key to generate the keyswitch hint.
+		* @return resulting keySwitchHint to switch the ciphertext to be decryptable by new private key.
 		*/
 		shared_ptr<LPEvalKey<Element>> KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const;
 
 		/**
 		* Method for KeySwitching based on a KeySwitchHint
 		*
-		* @param &keySwitchHint Hint required to perform the ciphertext switching.
-		* @param &cipherText Original ciphertext to perform switching on.
+		* @param keySwitchHint Hint required to perform the ciphertext switching.
+		* @param cipherText Original ciphertext to perform switching on.
+		* @return cipherText decryptable by new private key.
 		*/
 		shared_ptr<Ciphertext<Element>> KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint, const shared_ptr<Ciphertext<Element>> cipherText) const;
 
 		/**
 		* Function to generate key switch hint on a ciphertext for depth 2.
 		*
-		* @param &newPrivateKey private key for the new ciphertext.
-		* @param *keySwitchHint the key switch hint.
+		* @param originalPrivateKey is the original private key used for generating ciphertext.
+		* @return keySwitchHint generated to switch the ciphertext.
 		*/
 		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const;
 
@@ -436,10 +438,9 @@ namespace lbcrypto {
 		/**
 		* Function to generate 1..log(q) encryptions for each bit of the original private key
 		*
-		* @param &newPrivateKey encryption key for the new ciphertext.
-		* @param &origPrivateKey original private key used for decryption.
-		* @param &ddg discrete Gaussian generator.
-		* @param *evalKey the evaluation key.
+		* @param newPrivateKey encryption key for the new ciphertext.
+		* @param origPrivateKey original private key used for decryption.
+		* @return evalKey the evaluation key for switching the ciphertext decryptable by new private key.
 		*/
 		shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPKey<Element>> newPrivateKey,
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const;
@@ -447,9 +448,9 @@ namespace lbcrypto {
 		/**
 		* Function to define the interface for re-encypting ciphertext using the array generated by ProxyGen
 		*
-		* @param &evalKey the evaluation key.
-		* @param &ciphertext the input ciphertext.
-		* @param *newCiphertext the new ciphertext.
+		* @param evalKey the evaluation key.
+		* @param ciphertext the input ciphertext.
+		* @return resulting ciphertext after evaluation operation.
 		*/
 		shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext) const;
@@ -469,26 +470,27 @@ namespace lbcrypto {
 		LPLeveledSHEAlgorithmBV() {}
 
 		/**
-		* Method for ModReducing CipherText and the Private Key used for encryption.
+		* Method for ModReducing CipherText.
 		*
-		* @param *cipherText Ciphertext to perform and apply modreduce on.
+		* @param cipherText is the ciphertext to perform modreduce on.
+		* @return ciphertext after the modulus reduction performed.
 		*/
 		virtual shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const;
 		/**
-		* Method for RingReducing CipherText and the Private Key used for encryption.
+		* Method for RingReducing CipherText.
 		*
-		* @param *cipherText Ciphertext to perform and apply ringreduce on.
-		* @param *keySwitchHint is the keyswitchhint from the ciphertext's private key to a sparse key
+		* @param cipherText is the ciphertext to perform ringreduce on.
+		* @param keySwitchHint is the keyswitchhint to switch the ciphertext from original private key to a sparse private key.
 		*/
 		virtual shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const;
 
 		/**
 		* Method for Composed EvalMult
 		*
-		* @param &cipherText1 ciphertext1, first input ciphertext to perform multiplication on.
-		* @param &cipherText2 cipherText2, second input ciphertext to perform multiplication on.
-		* @param &quadKeySwitchHint is for resultant quadratic secret key after multiplication to the secret key of the particular level.
-		* @param &cipherTextResult is the resulting ciphertext that can be decrypted with the secret key of the particular level.
+		* @param cipherText1 ciphertext1, first input ciphertext to perform multiplication on.
+		* @param cipherText2 cipherText2, second input ciphertext to perform multiplication on.
+		* @param quadKeySwitchHint is used for EvalMult operation.
+		* @return resulting ciphertext after EvalMult and Modulus Reduction.
 		*/
 		virtual shared_ptr<Ciphertext<Element>> ComposedEvalMult(
 			const shared_ptr<Ciphertext<Element>> cipherText1,
@@ -498,9 +500,9 @@ namespace lbcrypto {
 		/**
 		* Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
 		*
-		* @param &cipherText1 is the original ciphertext to be key switched and mod reduced.
-		* @param &linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
-		* @param &cipherTextResult is the resulting ciphertext.
+		* @param cipherText1 is the original ciphertext to be key switched and mod reduced.
+		* @param linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
+		* @return resulting ciphertext.
 		*/
 		virtual shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
 			const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const;
@@ -511,6 +513,7 @@ namespace lbcrypto {
 		* @param ringDimension is the original ringDimension
 		* @param &moduli is the vector of moduli that is used
 		* @param rootHermiteFactor is the security threshold
+		* @return boolean value that determines if the ring is reducable.
 		*/
 		virtual bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const;
 	};

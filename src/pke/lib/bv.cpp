@@ -489,35 +489,10 @@ namespace lbcrypto {
 	shared_ptr<Ciphertext<Element>> LPAlgorithmPREBV<Element>::ReEncrypt(const shared_ptr<LPEvalKey<Element>> EK,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const
 	{
-		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(*ciphertext));
-
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(EK->GetCryptoParameters());
-
-		const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
-
-		const shared_ptr<LPEvalKeyRelin<Element>> evalKey = std::static_pointer_cast<LPEvalKeyRelin<Element>>(EK);
-
-		const std::vector<Element> &a = evalKey->GetAVector();
-		const std::vector<Element> &b = evalKey->GetBVector();
-
-		usint relinWindow = cryptoParamsLWE->GetRelinWindow();
-
-		const std::vector<Element> &c = ciphertext->GetElements();
-
-		std::vector<Element> digitsC1(c[1].BaseDecompose(relinWindow));
-
 		
-		Element ct0(c[0] + digitsC1[0] * b[0]);
-		Element ct1(digitsC1[0] * a[0]);
+		return ciphertext;
+		//return this->GetScheme()->KeySwitch(EK, ciphertext);
 
-		for (usint i = 1; i < digitsC1.size(); ++i)
-		{
-			ct0 += digitsC1[i] * b[i];
-			ct1 += digitsC1[i] * a[i];
-		}
-
-		newCiphertext->SetElements({ ct0, ct1 });
-		return newCiphertext;
 	}
 
 	template <class Element>
