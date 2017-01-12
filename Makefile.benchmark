@@ -24,7 +24,7 @@
 #
 
 BM_SRCDIR = google/benchmark-master/src
-BM_IFLAGS = -I$(BM_SRCDIR)../include
+BM_IFLAGS = -I$(BM_SRCDIR)/../include
 BM_SRC = $(wildcard $(BM_SRCDIR)/*.cc)
 BM_OBJ = $(BM_SRC:.cc=.o)
 
@@ -33,9 +33,11 @@ BM_LIB = $(BM_SRCDIR)/libbenchmark.a
 
 # this builds objects from sources for benchmark library
 $(BM_SRCDIR)/%.o: $(BM_SRCDIR)/%.cc
-	$(CC) $(CPPFLAGS) $(BM_IFLAGS) -o $@ -c $<
+	$(CC) -DHAVE_STD_REGEX $(CPPFLAGS) $(BM_IFLAGS) -o $@ -c $<
 
 $(BM_LIB) : $(BM_OBJ)
+	ar cr $(BM_LIB) $(BM_OBJ)
+	ranlib $(BM_LIB) 
 
 libbenchmark: $(BM_LIB)
 
