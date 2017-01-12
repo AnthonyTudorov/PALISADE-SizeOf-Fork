@@ -23,6 +23,22 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
+BM_SRCDIR = google/benchmark-master/src
+BM_IFLAGS = -I$(BM_SRCDIR)../include
+BM_SRC = $(wildcard $(BM_SRCDIR)/*.cc)
+BM_OBJ = $(BM_SRC:.cc=.o)
+
+#this defines the benchmark library archive
+BM_LIB = $(BM_SRCDIR)/libbenchmark.a
+
+# this builds objects from sources for benchmark library
+$(BM_SRCDIR)/%.o: $(BM_SRCDIR)/%.cc
+	$(CC) $(CPPFLAGS) $(BM_IFLAGS) -o $@ -c $<
+
+$(BM_LIB) : $(BM_OBJ)
+
+libbenchmark: $(BM_LIB)
+
 #this is the actual target that gets called when make is executed (part of all in Makefile)
 #it makes the library, benchmark examples and the actual palisade  benchmarks
 allbenchmarktargets: make_benchmark_lib make_benchmarks make_benchmark_examples 
