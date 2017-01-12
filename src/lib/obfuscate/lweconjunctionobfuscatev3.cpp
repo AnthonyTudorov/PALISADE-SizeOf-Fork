@@ -47,20 +47,7 @@ ObfuscatedLWEConjunctionPatternV3<Element>::ObfuscatedLWEConjunctionPatternV3() 
 }
 
 template <class Element>
-ObfuscatedLWEConjunctionPatternV3<Element>::~ObfuscatedLWEConjunctionPatternV3() {
-	if (this->m_S_vec != NULL){
-		delete this->m_S_vec;
-		delete this->m_R_vec;
-	
-		delete this->m_Sl;
-		delete this->m_Rl;
-	}
-
-	if (this->m_pk != NULL) {
-		delete this->m_pk;
-		delete this->m_ek;
-	}
-}
+ObfuscatedLWEConjunctionPatternV3<Element>::~ObfuscatedLWEConjunctionPatternV3() {}
 
 template <class Element>
 ObfuscatedLWEConjunctionPatternV3<Element>::ObfuscatedLWEConjunctionPatternV3(shared_ptr<ElemParams> elemParams, usint chunkSize) {
@@ -119,8 +106,8 @@ void ObfuscatedLWEConjunctionPatternV3<Element>::SetModulus(BigBinaryInteger &mo
 
 // Sets the matrices that define the obfuscated pattern.
 template <class Element>
-void ObfuscatedLWEConjunctionPatternV3<Element>::SetMatrices(vector<vector<Matrix<Element>>> *S_vec,
-		vector<vector<Matrix<Element>>> * R_vec, Matrix<Element> * Sl, Matrix<Element> * Rl) {
+void ObfuscatedLWEConjunctionPatternV3<Element>::SetMatrices(shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> S_vec,
+	shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> R_vec, shared_ptr<Matrix<Element>> Sl, shared_ptr<Matrix<Element>> Rl) {
 
 	this->m_S_vec = S_vec;
 	this->m_R_vec = R_vec;
@@ -130,32 +117,109 @@ void ObfuscatedLWEConjunctionPatternV3<Element>::SetMatrices(vector<vector<Matri
 }
 
 template <class Element>
-Matrix<Element>*  ObfuscatedLWEConjunctionPatternV3<Element>::GetR(usint i, const std::string &testVal) const {
-
-	Matrix<Element> *R_ib;
+shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPatternV3<Element>::GetR(usint i, const std::string &testVal) const {
 
 	//extract the string corresponding to chunk size
 	int value = std::stoi(testVal,nullptr,2);
 
-	R_ib = &(this->m_R_vec->at(i).at(value));
+	return this->m_R_vec->at(i).at(value);
 
-	return R_ib;
 }
 
 
 template <class Element>
-Matrix<Element>*  ObfuscatedLWEConjunctionPatternV3<Element>::GetS(usint i, const std::string &testVal) const {
-
-	Matrix<Element> *S_ib;
+shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPatternV3<Element>::GetS(usint i, const std::string &testVal) const {
 
 	//extract the string corresponding to chunk size
 	int value = std::stoi(testVal,nullptr,2);
 
-	vector<Matrix<Element>> temp =  this->m_R_vec->at(i);
+	return this->m_S_vec->at(i).at(value);
+}
 
-	S_ib = &(this->m_S_vec->at(i).at(value));
+template <class Element>
+void LWEConjunctionObfuscationAlgorithmV3<Element>::ParamsGen(DiscreteGaussianGenerator &dgg,
+	ObfuscatedLWEConjunctionPatternV3<Element> *obfuscatedPattern, uint32_t n) const {
 
-	return S_ib;
+	//smoothing parameter - also standard deviation for noise polynomials
+	double sigma = SIGMA;
+	
+	//assurance measure
+	double alpha = 9.0;
+
+	//empirical parameter
+	double beta = 6.0;
+
+	//Bound of the Gaussian error polynomial
+	double Berr = sigma*sqrt(alpha);
+
+	//security parameter
+	double hermiteFactor = obfuscatedPattern->GetRootHermiteFactor();
+
+	uint32_t length = obfuscatedPattern->GetLength() / obfuscatedPattern->GetChunkSize();
+
+	//Computes the root Hermite factor for given values of q and n
+	auto delta = [&](uint32_t n, double q) { return pow(2,log2(q/sigma)/(4*n));  };
+
+	//RLWE security constraint
+	auto nRLWE = [&](double q) -> double { return log2(q / sigma) / (4 * log2(hermiteFactor));  };
+
+	//Correctness constraint
+	auto qCorrectness = [&](uint32_t n, uint32_t m) -> double { return  32*Berr*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2),length);  };
+
+	double qPrev = 1e6;
+	double q = 0;
+
+	//If ring dimension was provided as input
+	if ( n > 0 )
+	{ 
+		//initial value
+		q = qCorrectness(n, floor(log2(qPrev)+1)+2);
+
+		//get a more accurate value of q
+		while (std::abs(q - qPrev) > 0.001*q) {
+			qPrev = q;
+			q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
+		}
+	}
+	//compute ring dimension and modulus based on the root Hermite factor
+	else
+	{
+		//initial values
+		n = 512;
+		q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
+
+		//needed if the more accurate value of q bumps up the ring dimension requirement
+		//entered at most twice
+		while (nRLWE(q) > n) {
+
+			//get good estimates of n and q
+			while (nRLWE(q) > n) {
+				n = 2 * n;
+				q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
+				qPrev = q;
+			}
+
+			//find a more accurate value of q for this value of n
+			q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
+			while (std::abs(q - qPrev) > 0.001*q) {
+				qPrev = q;
+				q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
+			}
+
+		}
+	}
+
+	BigBinaryInteger qPrime = FindPrimeModulus(2 * n, floor(log2(q) + 1) + 1);
+	BigBinaryInteger rootOfUnity = RootOfUnity(2 * n, qPrime);
+
+	//Prepare for parameters.
+	shared_ptr<ILParams> ilParams(new ILParams(2*n, qPrime, rootOfUnity));
+
+	obfuscatedPattern->SetParameters(ilParams);
+
+	//Sets, update the root Hermite factor
+	obfuscatedPattern->SetRootHermiteFactor(delta(n, qPrime.ConvertToDouble()));
+
 }
 
 template <class Element>
@@ -180,8 +244,8 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::KeyGen(DiscreteGaussianGener
 
 	 //parallelized method
 	// Initialize the Pk and Ek matrices.
-	std::vector<Matrix<Element>> *Pk_vector = new std::vector<Matrix<Element>>();
-	std::vector<RLWETrapdoorPair<ILVector2n>>   *Ek_vector = new std::vector<RLWETrapdoorPair<ILVector2n>>();
+	shared_ptr<std::vector<Matrix<Element>>> Pk_vector (new std::vector<Matrix<Element>>());
+	shared_ptr<std::vector<RLWETrapdoorPair<ILVector2n>>>   Ek_vector (new std::vector<RLWETrapdoorPair<ILVector2n>>());
 
 	DEBUG("keygen1: "<<TOC(t1) <<" ms");
 	DEBUG("l = "<<l);
@@ -191,8 +255,8 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::KeyGen(DiscreteGaussianGener
 	{
 		TimeVar tp; // for TIC TOC
 		//private copies of our vectors
-		std::vector<Matrix<Element>> *Pk_vector_pvt = new std::vector<Matrix<Element>>();
-		std::vector<RLWETrapdoorPair<ILVector2n>>   *Ek_vector_pvt = new std::vector<RLWETrapdoorPair<ILVector2n>>();
+		shared_ptr<std::vector<Matrix<Element>>> Pk_vector_pvt (new std::vector<Matrix<Element>>());
+		shared_ptr<std::vector<RLWETrapdoorPair<ILVector2n>>>   Ek_vector_pvt (new std::vector<RLWETrapdoorPair<ILVector2n>>());
 #pragma omp for nowait schedule(static)
 		for(int32_t i=0; i<=adjustedLength+1; i++) {
 			//build private copies in parallel
@@ -222,14 +286,13 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::KeyGen(DiscreteGaussianGener
 }
 
 template <class Element>
-void LWEConjunctionObfuscationAlgorithmV3<Element>::Encode(
+shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithmV3<Element>::Encode(
 				const Matrix<Element> &Ai,
 				const Matrix<Element> &Aj,
 				const RLWETrapdoorPair<ILVector2n> &Ti,
 				const Element &elemS,
 				DiscreteGaussianGenerator &dgg,
-				DiscreteGaussianGenerator &dggLargeSigma,
-				Matrix<Element> *encodedElem) const {
+				DiscreteGaussianGenerator &dggLargeSigma) const {
 
     TimeVar t1,t_total; // for TIC TOC
 	bool dbg_flag = 0;//set to 0 for no debug statements
@@ -257,6 +320,8 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Encode(
 	//std::cout << "Encode: Computed bj, next will do GaussSamp" << std::endl; 
 	TIC(t1);	
 
+	shared_ptr<Matrix<Element>> result(new Matrix<Element>(zero_alloc, m, m));
+
 	//DBC: this loop takes all the time in encode
 	//TODO (dcousins): move gaussj generation out of the loop to enable parallelisation
 	#pragma omp parallel for
@@ -269,13 +334,15 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Encode(
 		// the following takes no time
 		for(int32_t j=0; j<m; j++) {
 //			gaussj(j, 0).PrintValues();
-			(*encodedElem)(j,i) = gaussj(j,0);
+			(*result)(j,i) = gaussj(j,0);
 		}
 
 	}
 
 	DEBUG("Enc: " << " "  << TOC(t1) << " ms");
 	DEBUG("EncTot: " << " "  << TOC(t_total) << " ms");
+
+	return result;
 
 };
 
@@ -299,9 +366,8 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Obfuscate(
 	usint chunkExponent = 1 << chunkSize;
 	const shared_ptr<ElemParams> params = obfuscatedPattern->GetParameters();
 
-	//double sigma = dgg.GetStd();
-	double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
-	double s = 40 * sqrt(m*n);
+	double c = 2 * SIGMA;
+	double s = SPECTRAL_BOUND(n, m - 2);
 
 	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
 
@@ -413,26 +479,24 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Obfuscate(
 	//DBC this setup has insignificant timing
 	std::cout << "Obfuscate: Generated random uniform ring elements" << std::endl;
 
-	std::vector<std::vector<Matrix<Element>>> *S_vec = new std::vector<std::vector<Matrix<Element>>>();
-	std::vector<std::vector<Matrix<Element>>> *R_vec = new std::vector<std::vector<Matrix<Element>>>();
+	shared_ptr<std::vector<std::vector<shared_ptr<Matrix<Element>>>>> S_vec (new std::vector<std::vector<shared_ptr<Matrix<Element>>>>());
+	shared_ptr<std::vector<std::vector<shared_ptr<Matrix<Element>>>>> R_vec (new std::vector<std::vector<shared_ptr<Matrix<Element>>>>());
 
 	//DBC: this loop takes all the time, so we time it with TIC TOC
 	for(usint i=1; i<=adjustedLength; i++) {
 
 		TIC(t1);
 
-		std::vector<Matrix<Element>> SVector;
-		std::vector<Matrix<Element>> RVector;
+		std::vector<shared_ptr<Matrix<Element>>> SVector;
+		std::vector<shared_ptr<Matrix<Element>>> RVector;
 
 		for(usint k=0; k<chunkExponent; k++) {
 
-			Matrix<Element> *S_i = new Matrix<Element>(zero_alloc, m, m);
-			this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small[i-1][k]*r_small[i-1][k],dgg, dggLargeSigma, S_i);
-			SVector.push_back(*S_i);
+			shared_ptr<Matrix<Element>> S_i = this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small[i-1][k]*r_small[i-1][k],dgg, dggLargeSigma);
+			SVector.push_back(S_i);
 
-			Matrix<Element> *R_i = new Matrix<Element>(zero_alloc, m, m);
-			this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],r_small[i-1][k],dgg, dggLargeSigma, R_i);
-			RVector.push_back(*R_i);
+			shared_ptr<Matrix<Element>> R_i = this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],r_small[i-1][k],dgg, dggLargeSigma);
+			RVector.push_back(R_i);
 
 		}
 
@@ -451,14 +515,14 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Obfuscate(
 	//Convert to Evaluation representation
 	elemrl1.SwitchFormat();
 
-	Matrix<Element> *Sl = new Matrix<Element>(zero_alloc, m, m);
-	this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1*s_prod,dgg, dggLargeSigma, Sl);
+	shared_ptr<Matrix<Element>> Sl = 
+		this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1*s_prod,dgg, dggLargeSigma);
 
 	//std::cout << "encode 1 for L ran" << std::endl;
 	//std::cout << elemrl1.GetValues() << std::endl;
 
-	Matrix<Element> *Rl = new Matrix<Element>(zero_alloc, m, m);
-	this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1,dgg, dggLargeSigma, Rl);
+	shared_ptr<Matrix<Element>> Rl = 
+		this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1,dgg, dggLargeSigma);
 
 	//std::cout << "encode 2 for L ran" << std::endl;
 
@@ -466,7 +530,6 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Obfuscate(
 	//Rl.PrintValues();
 	obfuscatedPattern->SetMatrices(S_vec,R_vec,Sl,Rl);
 
-	//obfuscatedPattern->GetSl();
 	DEBUG("Obf2: "<<TOC(t1) <<" ms");
 };
 
@@ -541,8 +604,8 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
 	//S_prod.PrintValues();
 	//R_prod.PrintValues();
 
-	Matrix<Element> *S_ib;
-	Matrix<Element> *R_ib;
+	shared_ptr<Matrix<Element>> S_ib;
+	shared_ptr<Matrix<Element>> R_ib;
 
 	//DEBUG("Eval1: "<<TOC(t1) <<" ms");
 
@@ -575,8 +638,8 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
 	//std::cout << " R_prod: " << std::endl;
 	//R_prod.PrintValues();
 
-	Matrix<Element>* Sl = obfuscatedPattern.GetSl();
-	Matrix<Element>* Rl = obfuscatedPattern.GetRl();
+	shared_ptr<Matrix<Element>> Sl = obfuscatedPattern.GetSl();
+	shared_ptr<Matrix<Element>> Rl = obfuscatedPattern.GetRl();
 	
 	//std::cout << " Sl: " << std::endl;
 	//Sl->PrintValues();

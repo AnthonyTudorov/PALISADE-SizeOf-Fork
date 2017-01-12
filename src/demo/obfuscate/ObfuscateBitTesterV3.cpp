@@ -42,7 +42,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //using namespace std;
 using namespace lbcrypto;
 
-bool CONJOBF(bool dbg_flag, int n_evals); //defined later
+bool CONJOBF(bool dbg_flag, int n_evals, int n); //defined later
 
 
 //main()   need this for Kurts makefile to ignore this.
@@ -98,7 +98,12 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	errorflag = CONJOBF(dbg_flag, n_evals);
+	for (usint n = 8; n < 4096; n = 2 * n)
+	{
+		errorflag = CONJOBF(dbg_flag, n_evals, n);
+		if (errorflag)
+			return ((int)errorflag);
+	}
 
 	//system("PAUSE");
 
@@ -107,7 +112,7 @@ int main(int argc, char* argv[]){
 }
 
 //////////////////////////////////////////////////////////////////////
-bool CONJOBF(bool dbg_flag, int n_evals) {
+bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 
 	//if dbg_flag == true; print debug outputs
 	// n_evals = 1,2,3 number of evaluations to perform
@@ -127,15 +132,15 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	TimeVar t1,t_total; //for TIC TOC
 	TIC(t_total); //start timer for total time
 
-	usint m = 16;
+	usint m = 2*n;
 	//54 bits
 	//BigBinaryInteger modulus("9007199254741169");
 	//BigBinaryInteger rootOfUnity("7629104920968175");
 
-	usint chunkSize = 2;
+	usint chunkSize = 1;
 
 	//Generate the test pattern
-	std::string inputPattern = "1?10?1";
+	std::string inputPattern = "1?10";
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 
 	ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern;
@@ -196,15 +201,15 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	DEBUG(" \nCleartext pattern length: ");
 	DEBUG(clearPattern.GetLength());
 
-	std::string inputStr1 = "111001";
+	std::string inputStr1 = "1010";
 	bool out1 = algorithm.Evaluate(clearPattern,inputStr1);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << out1);
 
-	std::string inputStr2 = "110011";
+	std::string inputStr2 = "1111";
 	bool out2 = algorithm.Evaluate(clearPattern,inputStr2);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << out2);
 	
-	std::string inputStr3 = "101011";
+	std::string inputStr3 = "1110";
 	bool out3 = algorithm.Evaluate(clearPattern,inputStr3);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr3 << " is " << out3);
 

@@ -140,7 +140,7 @@ public:
 	* @param &privateKey private key used for decryption.
 	* @return function ran correctly.
 	*/
-	virtual LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc) const;
+	virtual LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const;
 
 };
 
@@ -195,14 +195,14 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		 *
 		 * @param *cipherText Ciphertext to perform and apply modreduce on.
 		 */
-		virtual shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const;
+		shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const;
 		/**
 		 * Method for RingReducing CipherText and the Private Key used for encryption.
 		 *
 		 * @param *cipherText Ciphertext to perform and apply ringreduce on.
 		 * @param *keySwitchHint is the keyswitchhint from the ciphertext's private key to a sparse key
 		 */
-		virtual shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const ;
+		shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const ;
 
 		/**
 		* Method for ComposedEvalMult
@@ -212,7 +212,7 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		* @param &quadKeySwitchHint is for resultant quadratic secret key after multiplication to the secret key of the particular level.
 		* @param &cipherTextResult is the resulting ciphertext that can be decrypted with the secret key of the particular level.
 		*/
-		virtual shared_ptr<Ciphertext<Element>> ComposedEvalMult(
+		shared_ptr<Ciphertext<Element>> ComposedEvalMult(
 				const shared_ptr<Ciphertext<Element>> cipherText1,
 				const shared_ptr<Ciphertext<Element>> cipherText2,
 				const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint) const ;
@@ -224,16 +224,9 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		* @param &linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
 		* @param &cipherTextResult is the resulting ciphertext.
 		*/
-		virtual shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
+		shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
 				const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const ;
-		/**
-		* Function to generate sparse public and private keys. By sparse it is meant that all even indices are non-zero
-		* and odd indices are set to zero.
-		*
-		* @param *publicKey is the public key to be generated.
-		* @param *privateKey is the private key to be generated.
-		*/
-		virtual LPKeyPair<Element> SparseKeyGen(const CryptoContext<Element> cc) const;
+
 		/**
 		* Function that determines if security requirements are met if ring dimension is reduced by half.
 		*
@@ -241,7 +234,7 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		* @param &moduli is the vector of moduli that is used
 		* @param rootHermiteFactor is the security threshold
 		*/
-		virtual bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const;
+		bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const;
 };
 
 template <class Element>

@@ -29,7 +29,8 @@
  * @section DESCRIPTION
  *
  * This code implements the Fan-Vercauteren (FV) homomorphic encryption scheme.
- * The scheme is described at http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf (or alternative Internet source:
+ * The scheme is described at http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf 
+ * (or alternative Internet source:
  * http://dx.doi.org/10.1007/978-3-642-22792-9_29). Implementation details are provided in
  * {the link to the ACM TISSEC manuscript to be added}.
  */
@@ -40,10 +41,6 @@
 //Includes Section
 #include "../palisade.h"
 
-/**
- * @namespace lbcrypto
- * The namespace of lbcrypto
- */
 namespace lbcrypto {
 
 	/**
@@ -55,7 +52,7 @@ namespace lbcrypto {
 
 		public:
 			/**
-			 * Constructor that initializes all values to 0.
+			 * Default constructor.
 			 */
 			LPCryptoParametersFV() : LPCryptoParametersRLWE<Element>() {
 				m_delta = BigBinaryInteger::ZERO;
@@ -79,6 +76,7 @@ namespace lbcrypto {
 			 * @param assuranceMeasure assurance level.
 			 * @param securityLevel security level.
 			 * @param relinWindow the size of the relinearization window.
+			 * @param delta FV-specific factor that is multiplied by the plaintext polynomial.
 			 * @param mode optimization setting (RLWE vs OPTIMIZED)
 			 * @param bigModulus modulus used in polynomial multiplications in EvalMult
 			 * @param bigRootOfUnity root of unity for bigModulus
@@ -113,11 +111,9 @@ namespace lbcrypto {
 			*/
 			virtual ~LPCryptoParametersFV() {}
 			
-			//JSON FACILITY
 			/**
 			* Serialize the object into a Serialized
 			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-			* @param fileFlag is an object-specific parameter for the serialization
 			* @return true if successfully serialized
 			*/
 			bool Serialize(Serialized* serObj) const {
@@ -210,7 +206,7 @@ namespace lbcrypto {
 			void SetDelta(const BigBinaryInteger &delta) { m_delta = delta; }
 
 			/**
-			* Configures the mode
+			* Configures the mode for generating the secret key polynomial
 			*/
 			void SetMode(MODE mode) { m_mode = mode; }
 
@@ -243,16 +239,18 @@ namespace lbcrypto {
 			}
 
 		private:
-			//factor delta = floor(q/p) that is multipled by the plaintext polynomial in FV (most significant bit ranges are used to represent the message)
+			// factor delta = floor(q/p) that is multipled by the plaintext polynomial 
+			// in FV (most significant bit ranges are used to represent the message)
 			BigBinaryInteger m_delta;
 			
-			//specifies whether the keys are generated from discrete Gaussian distribution or ternary distribution with the norm of unity
+			// specifies whether the keys are generated from discrete 
+			// Gaussian distribution or ternary distribution with the norm of unity
 			MODE m_mode;
 			
-			//larger modulus that is used in polynomial multiplications within EvalMult (before rounding is done)
+			// larger modulus that is used in polynomial multiplications within EvalMult (before rounding is done)
 			BigBinaryInteger m_bigModulus;
 			
-			//primitive root of unity for m_bigModulus
+			// primitive root of unity for m_bigModulus
 			BigBinaryInteger m_bigRootOfUnity;
 	};
 
@@ -261,7 +259,7 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmParamsGenFV : public LPParameterGenerationAlgorithm<Element> { //public LPSHEAlgorithm<Element>, 
+	class LPAlgorithmParamsGenFV : public LPParameterGenerationAlgorithm<Element> { 
 	public:
 
 		/**
@@ -272,7 +270,7 @@ namespace lbcrypto {
 		/**
 		* Method for computing all derived parameters based on chosen primitive parameters
 		*
-		* @param *cryptoParams the crypto parameters object to be populated with parameters.
+		* @param cryptoParams the crypto parameters object to be populated with parameters.
 		* @param evalAddCount number of EvalAdds assuming no EvalMult and KeySwitch operations are performed.
 		* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
 		* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
@@ -283,7 +281,7 @@ namespace lbcrypto {
 	};
 
 	/**
-	* @brief Encryption algorithm implementation template for FV-based schemes,
+	* @brief Encryption algorithm implementation for FV
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
@@ -298,9 +296,9 @@ namespace lbcrypto {
 		/**
 		* Method for encrypting plaintext using FV
 		*
-		* @param &publicKey public key used for encryption.
+		* @param publicKey public key used for encryption.
 		* @param &plaintext the plaintext input.
-		* @param *ciphertext ciphertext which results from encryption.
+		* @return ciphertext which results from encryption.
 		*/
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
 			Element &plaintext) const;
@@ -308,7 +306,7 @@ namespace lbcrypto {
 		/**
 		* Method for decrypting plaintext using FV
 		*
-		* @param &privateKey private key used for decryption.
+		* @param privateKey private key used for decryption.
 		* @param &ciphertext ciphertext id decrypted.
 		* @param *plaintext the plaintext output.
 		* @return the decrypted plaintext returned.
@@ -320,19 +318,19 @@ namespace lbcrypto {
 		/**
 		* Function to generate public and private keys
 		*
-		* @param &publicKey private key used for decryption.
-		* @param &privateKey private key used for decryption.
-		* @return function ran correctly.
+		* @param cc cryptocontext for the keys to be generated.
+		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
+		* @return key pair including the private and public key
 		*/
-		LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc) const;
+		LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const;
 	};
 
 	/**
-	* @brief PRE scheme based on BV.
+	* @brief SHE algotithms implementation for FV.
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmSHEFV : public LPSHEAlgorithm<Element> { //public LPSHEAlgorithm<Element>, 
+	class LPAlgorithmSHEFV : public LPSHEAlgorithm<Element> { 
 	public:
 
 		/**
@@ -343,32 +341,43 @@ namespace lbcrypto {
 		/**
 		* Function for homomorphic addition of ciphertexts.
 		*
-		* @param &ciphertext1 the input ciphertext.
-		* @param &ciphertext2 the input ciphertext.
-		* @param *newCiphertext the new ciphertext.
+		* @param ct1 fist input ciphertext.
+		* @param ct2 second input ciphertext.
+		* @return new ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct) const;
+		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ct1, 
+			const shared_ptr<Ciphertext<Element>> ct) const;
 
 		/**
 		* Function for homomorphic subtraction of ciphertexts.
 		*
-		* @param &ciphertext1 the input ciphertext.
-		* @param &ciphertext2 the input ciphertext.
-		* @param *newCiphertext the new ciphertext.
+		* @param ct1 first input ciphertext.
+		* @param ct2 second input ciphertext.
+		* @return new ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct) const;
+		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ct1, 
+			const shared_ptr<Ciphertext<Element>> ct) const;
 
-		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2) const {
-			std::string errMsg = "LPAlgorithmSHEFV::EvalMult without RelinKey is not applicable for FV SHE Scheme.";
+		/**
+		* Function for evaluating multiplication on ciphertexts.
+		*
+		* @param ciphertext1 first input ciphertext.
+		* @param ciphertext2 second input ciphertext.
+		* @return resulting EvalMult ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1, 
+			const shared_ptr<Ciphertext<Element>> ct2) const {
+			std::string errMsg = "LPAlgorithmSHEFV::EvalMult without RelinKey is not currently implemented for FV SHE Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by key switching operation.
 		*
-		* @param &ciphertext1 first input ciphertext.
-		* @param &ciphertext2 second input ciphertext.
-		* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		* @param ct1 first input ciphertext.
+		* @param ct2 second input ciphertext.
+		* @param ek is the evaluation key to make the newCiphertext 
+		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1,
@@ -377,33 +386,34 @@ namespace lbcrypto {
 		/**
 		* Method for generating a KeySwitchHint
 		*
-		* @param &originalPrivateKey Original private key used for encryption.
-		* @param &newPrivateKey New private key to generate the keyswitch hint.
-		* @param *keySwitchHint is where the resulting keySwitchHint will be placed.
+		* @param originalPrivateKey Original private key used for encryption.
+		* @param newPrivateKey New private key to generate the keyswitch hint.
+		* @return resulting keySwitchHint.
 		*/
-		shared_ptr<LPEvalKey<Element>> KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
+		shared_ptr<LPEvalKey<Element>> KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, 
+			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 			std::string errMsg = "LPAlgorithmSHEFV::KeySwitchGen  is not applicable for FV SHE Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 
 		/**
-		* Method for KeySwitching based on a KeySwitchHint
+		* Method for key switching based on a KeySwitchHint
 		*
-		* @param &keySwitchHint Hint required to perform the ciphertext switching.
+		* @param keySwitchHint Hint required to perform the ciphertext switching.
 		* @param &cipherText Original ciphertext to perform switching on.
+		* @return new ciphertext
 		*/
-		shared_ptr<Ciphertext<Element>> KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint, const shared_ptr<Ciphertext<Element>> cipherText) const {
+		shared_ptr<Ciphertext<Element>> KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint, 
+			const shared_ptr<Ciphertext<Element>> cipherText) const {
 			std::string errMsg = "LPAlgorithmSHEFV::KeySwitch  is not applicable for FV SHE Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 
 		/**
-		* Function to generate 1..log(q) encryptions for each bit of the original private key
+		* Function to generate 1..log(q) encryptions for each bit of the square of the original private key
 		*
-		* @param &newPrivateKey encryption key for the new ciphertext.
-		* @param &origPrivateKey original private key used for decryption.
-		* @param &ddg discrete Gaussian generator.
-		* @param *evalKey the evaluation key.
+		* @param k1 private key.
+		* @return evaluation key.
 		*/
 		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
 					const shared_ptr<LPPrivateKey<Element>> k1) const;
@@ -417,7 +427,7 @@ namespace lbcrypto {
 		*/
 		shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, const usint i,
 			const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
-			std::string errMsg = "LPAlgorithmSHEFV::EvalAtIndex  is not applicable for FV SHE Scheme.";
+			std::string errMsg = "LPAlgorithmSHEFV::EvalAtIndex  is not implemented for FV SHE Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 
@@ -425,17 +435,19 @@ namespace lbcrypto {
 		/**
 		* Generate automophism keys for a given private key; works only with odd indices in the ciphertext
 		*
-		* @param &publicKey original public key.
-		* @param &origPrivateKey original private key.
+		* @param publicKey original public key.
+		* @param origPrivateKey original private key.
 		* @param size number of automorphims to be computed; starting from plaintext index 2; maximum is m/2-1
-		* @param *tempPrivateKey used to store permutations of private key; passed as pointer because instances of LPPrivateKey cannot be created within the method itself
-		* @param *evalKeys the evaluation keys; index 0 of the vector corresponds to plaintext index 2, index 1 to plaintex index 3, etc.
+		* @param *tempPrivateKey used to store permutations of private key; 
+		* passed as pointer because instances of LPPrivateKey cannot be created within the method itself
+		* @param *evalKeys the evaluation keys; index 0 of the vector corresponds to plaintext index 2, 
+		* index 1 to plaintex index 3, etc.
 		*/
 		bool EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
 			const usint size, shared_ptr<LPPrivateKey<Element>> *tempPrivateKey,
 			std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const {
-			std::string errMsg = "LPAlgorithmSHEFV::EvalAutomorphismKeyGen  is not applicable for FV SHE Scheme.";
+			std::string errMsg = "LPAlgorithmSHEFV::EvalAutomorphismKeyGen is not implemented for FV SHE Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 

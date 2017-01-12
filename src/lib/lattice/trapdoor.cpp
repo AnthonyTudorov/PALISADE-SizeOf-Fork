@@ -86,6 +86,7 @@ namespace lbcrypto {
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
 		//smoothing parameter
+		//double c = 2 * SIGMA;
 		double c(2 * sqrt(log(2*n*(1 + 1/DG_ERROR)) / M_PI));
 
 		const BigBinaryInteger& modulus = A(0,0).GetModulus();
@@ -183,12 +184,15 @@ namespace lbcrypto {
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
 		//We should convert this to a static variable later
-		double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
+		//double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
+
+		double c = 2 * SIGMA;
 
 		const BigBinaryInteger& modulus = A(0, 0).GetModulus();
 
 		//spectral bound s
-		double s = 40 * std::sqrt(n*(k + 2));
+		double s = SPECTRAL_BOUND(n,k);
+		//double s = 42 * std::sqrt(n*k);
 
 		//perturbation vector in evaluation representation
 		RingMat pHat(zero_alloc, k + 2, 1);
@@ -284,8 +288,10 @@ namespace lbcrypto {
 		const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt) {
 		TimeVar t1; // for TIC TOC
 		bool dbg_flag = 0; //set to 1 for debug timing...
+		
 		//We should convert this to a static variable later
 		double c(2 * sqrt(log(2*n*(1 + 1/DG_ERROR)) / M_PI));
+		//double c = 2 * SIGMA;
 
 		const BigBinaryInteger& modulus = A(0,0).GetModulus();
 
@@ -332,7 +338,7 @@ namespace lbcrypto {
 		const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt) {
 
 		double r(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
-		double a(r / 2);
+		double a = r/2;
 		const BigBinaryInteger& modulus = A(0, 0).GetModulus();
 		
 		Matrix<ILVector2n> eCoeff = T.m_e;
@@ -409,11 +415,15 @@ namespace lbcrypto {
 		//}
 
 		//Peikert's inversion method is used
+		//YSP replace with smart pointers later
 		int32_t *dggVector = dggLargeSigma.GenerateIntVector(n*k);
 
 		for (size_t i = 0; i < n * k; i++) {
 			p2ZVector(i, 0) = dggVector[i];
 		}
+
+		//YSP - replace with smart pointers later
+		delete[] dggVector;
 
 		//create k ring elements in coefficient representation
 		Matrix<ILVector2n> p2 = SplitInt32IntoILVector2nElements(p2ZVector, n, va.GetParams());

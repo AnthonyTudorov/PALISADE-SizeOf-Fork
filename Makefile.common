@@ -39,9 +39,15 @@ CC := g++ # This is the main compiler
 #CPPFLAGS += -Wall $(CPPSTD) -w -g ## undefine for single thread debug NO OPTIMIZATION operation
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w -g ## undefine for single thread debug operation
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w -g -fopenmp  ##undefine for parallel debug operation
-#CPPFLAGS += -Wall $(CPPSTD) -w  -DNDEBUG -m64 -Ofast -flto -march=native -funroll-loops ##undefine for single thread best performance operation
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w  -DNDEBUG  -pg ##undefine for single thread best performance operation with gprof profiling 
-CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp  ##undefine for parallel best performance operation
+
+
+#main best performance configuration for parallel operation - cross-platform
+CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp -m64  ##undefine for parallel best performance operation with debug
+#CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp -m64 -DNDEBUG  ##undefine for parallel best performance operation with no debug
+
+#THE OPTIONS BELOW SHOULD BE USED WITH CARE AS THEY USE A LOT OF AGGRESSIVE OPTIMIZATION OPTIONS
+#CPPFLAGS += -Wall $(CPPSTD) -w  -DNDEBUG -m64 -Ofast -flto -march=native -funroll-loops ##undefine for single thread best performance operation
 #CPPFLAGS += -Wall $(CPPSTD) -w  -DNDEBUG -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
 #CPPFLAGS += -Wall $(CPPSTD) -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp -DNDEBUG ##undefine for multithread really best performance operation
 #CPPFLAGS += -Wall $(CPPSTD) -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation

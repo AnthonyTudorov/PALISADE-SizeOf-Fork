@@ -69,6 +69,16 @@ namespace lbcrypto {
 		virtual usint GetLength() const = 0;
 
 		/**
+		* ModReduce reduces the ILVectorArray2n's composite modulus by dropping the last modulus from the chain of moduli as well as dropping the last tower.
+		*
+		*@param plaintextModulus is the plaintextModulus used for the ILVectorArray2n
+		*/
+		virtual void ModReduce(const BigBinaryInteger &plaintextModulus) {
+			throw std::logic_error("ModReduce is not implemented");
+		}
+
+
+		/**
 		* Virtual interface for interpolation based on the Chinese Remainder Transform Interpolation.
 		*
 		* @return the original ring element.
