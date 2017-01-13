@@ -80,7 +80,7 @@ PALISADETRAPDOORLIB := libPALISADEtrapdoor$(LIBSUFFIX)
 # run make for all components. you can run any individual component separately
 #  by invoking   "make alltargets"  for example
 # each corresponding makefile will make the allxxxx target
-all: allcore allpke alltrapdoor allbenchmarktargets apidocs 
+all: allcore allpke alltrapdoor ### allbenchmarktargets apidocs 
 
 alljava: all allwrappers
 
