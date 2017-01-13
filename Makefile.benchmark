@@ -67,7 +67,7 @@ BENCHMARK_OBJ =  $(BENCHMARK_SRC:$(BENCHMARK_SRC_DIR)%.cpp=$(BENCHMARK_BUILD_DIR
 
 #define list of executables (1:1 substituion of .cc --> no extention in all .cc files)
 #and puts executables in _BIN_DIR
-BENCHMARK_BIN =  $(BENCHMARK_SRC:$(BENCHMARK_SRC_DIR)%.cpp=$(BENCHMARK_BIN_DIR)%)
+BENCHMARK_BIN =  $(BENCHMARK_SRC:$(BENCHMARK_SRC_DIR)%.cpp=$(BENCHMARK_BIN_DIR)%$(EXESUFFIX))
 
 
 #this is is the Include directive for the palisade code being benchmarked
@@ -92,13 +92,12 @@ $(BENCHMARK_BIN_DIR)/%$(EXESUFFIX): $(BENCHMARK_BUILD_DIR)/%.o
 	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -o $@ -L$(EXTLIBDIR) -lPALISADEpke -lPALISADEcore $(RDYNAMIC) $(BM_LIB) $(EXTLIB)  $(MINGWREGEX)
 	@echo
 
-# this is the target that makes benchmark examples
-.PHONY:make_benchmark_examples
-make_benchmark_examples: $(BENCHMARK_EXAMPLES)
-
 # this is the target that makes the actual benchmarks 
 .PHONY:make_benchmarks
 make_benchmarks: $(BENCHMARK_BIN)
+
+foo:
+	@echo $(BENCHMARK_BIN)
 
 #this target is usesd to cleanup, it is called from the top Makefile
 .PHONEY: cleanbenchmarks
