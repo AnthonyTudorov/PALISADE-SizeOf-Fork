@@ -34,9 +34,9 @@ PKEBINDIR := src/pke/bin
 PKETESTDIR := src/pke/unittest
 PKEDEMODIR := src/pke/demo
 
-PKESOURCES := $(shell find $(PKESRCDIR)/lib -name '*.cpp')
-PKEUNITSOURCES := $(shell find $(PKESRCDIR)/unittest -name '*.cpp')
-PKEDEMOSOURCES := $(shell find $(PKESRCDIR)/demo -name '*.cpp')
+PKESOURCES := $(wildcard $(PKESRCDIR)/lib/*.cpp)
+PKEUNITSOURCES := $(wildcard $(PKESRCDIR)/unittest/*.cpp)
+PKEDEMOSOURCES := $(wildcard $(PKESRCDIR)/demo/*.cpp)
 
 PKEOBJECTSALL = $(patsubst $(PKESRCDIR)/%,$(PKEBINDIR)/%,$(patsubst %.cpp,%.o,$(PKESOURCES)))
 PKEOBJECTS = $(filter %-impl.o,$(PKEOBJECTSALL))
