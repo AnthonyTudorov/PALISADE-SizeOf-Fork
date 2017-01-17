@@ -5,7 +5,7 @@
 !.gitignore
 !*.sln
 !*.vcxproj
-!*.vcxproj.*
+!*.vcxproj.filters
 
 # ...even if they are in subdirectories
 !*/
