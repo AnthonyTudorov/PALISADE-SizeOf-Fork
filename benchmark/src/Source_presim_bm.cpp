@@ -39,15 +39,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define _USE_MATH_DEFINES 
 #include <iostream>
 #include <fstream>
-#include "../../src/lib/palisade.h"
-#include "../../src/lib/palisadespace.h"
+#include "palisade.h"
 
-#include "../../src/lib/utils/cryptocontexthelper.h"
-#include "../../src/lib/crypto/cryptocontext.cpp"
-#include "../../src/lib/utils/cryptocontexthelper.cpp"
+#include "cryptocontexthelper.h"
 
-#include "../../src/lib/encoding/byteplaintextencoding.h"
-#include "../../src/lib/utils/debug.h"
+#include "encoding/byteplaintextencoding.h"
+#include "utils/debug.h"
 #include <vector>
 
 
