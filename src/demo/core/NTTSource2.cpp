@@ -3,7 +3,7 @@
 
 #define PROFILE //need to define in order to turn on timing
 
-#define TEST3
+//#define TEST3
 
 
 

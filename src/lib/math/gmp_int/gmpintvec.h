@@ -112,38 +112,92 @@ template<class myT>
     return vec;
   }
 
+  //modulus
 
-  inline myVec Add(const myVec& b) const {std::cout<<"ADD"<<std::endl; return *this+b;};
-  inline myVec Sub(const myVec& b) const {std::cout<<"SUB"<<std::endl; return *this-b;};
-  inline myVec Minus(const myVec& b) const {std::cout<<"MINUS"<<std::endl;return this-b;};
-  inline myVec Mul(const myVec& b) const {std::cout<<"MUL"<<std::endl; return this*b;};
+  myVec operator%(const myT& b) const;
 
-  inline myVec Mod(const myZZ& b) const {std::cout<<"MOD"<<std::endl; return *this%b;};
+  inline myVec Mod(const myZZ& b) const { return (*this)%b;};
+  
+  //addition
+  inline myVec& operator+=(const myVec& a)
+  { 
+    add(*this, *this, a);
+    return *this;
+  };
 
-  myVec operator+(const myVec& b);
+  inline myVec& operator+=(const myT& a)
+  { 
+    unsigned int n = this->length();
+    for (unsigned int i = 0; i < n; i++){
+      (*this)[i]+=a;
+    }
+    return *this;
+  };
 
-  myVec operator%(const myZZ& b);
+  myVec operator+(const myVec& b) const;
+  myVec operator+(const myT& b) const;
 
-#if 0
-myVec operator-(const myVec& a, const myVec& b);
-myVec operator-(const myVec& a);
-#endif
+  inline myVec Add(const myT& b) const { return (*this)+b;};
 
-
-inline myVec& operator+=(const myVec& a)
-{ 
-   add(*this, *this, a);
-   return *this;
-};
-
-inline myVec& operator+=(const myT& a)
-{ 
-   add((*this)[0], (*this)[0], a);
-   return *this;
-};
+  void add(myVec& x, const myVec& a, const myVec& b) const; //define procedural
 
 
-  void add(myVec& x, const myVec& a, const myVec& b);
+  //Subtraction
+  inline myVec& operator-=(const myVec& a)
+  { 
+    sub(*this, *this, a);
+    return *this;
+  };
+
+  inline myVec& operator-=(const myT& a)
+  { 
+    unsigned int n = this->length();
+    for (unsigned int i = 0; i < n; i++){
+      (*this)[i]-=a;
+    }
+    return *this;
+  };
+
+  
+  myVec operator-(const myVec& b) const;
+  myVec operator-(const myT& a) const;
+
+  inline myVec Sub(const myT& b) const { return (*this)-b;};
+
+  void sub(myVec& x, const myVec& a, const myVec& b) const; //define procedural
+
+
+  //Multiplication
+  inline myVec& operator*=(const myVec& a)
+  { 
+    mul(*this, *this, a);
+    return *this;
+  };
+
+  inline myVec& operator*=(const myT& a)
+  { 
+    unsigned int n = this->length();
+    for (unsigned int i = 0; i < n; i++){
+      (*this)[i]*=a;
+    }
+    return *this;
+  };
+
+  
+  myVec operator*(const myVec& b) const;
+  myVec operator*(const myT& a) const;
+
+  inline myVec Mul(const myT& b) const { return (*this)*b;};
+
+  void mul(myVec& x, const myVec& a, const myVec& b) const; //define procedural
+
+  //not tested yet
+  inline myVec Add(const myVec& b) const {std::cout<<"ADD VEC"<<std::endl; return (*this)+b;};
+
+  inline myVec Sub(const myVec& b) const {std::cout<<"SUB VEC"<<std::endl; return *this-b;};
+  inline myVec Minus(const myVec& b) const {std::cout<<"MINUS VEC"<<std::endl;return this-b;};
+  inline myVec Mul(const myVec& b) const {std::cout<<"MUL VEC"<<std::endl; return this*b;};
+
 
 
   inline myVec ModAdd(const myVec& b, const myZZ& modulus) const {std::cout<<"MODADD"<<std::endl; };

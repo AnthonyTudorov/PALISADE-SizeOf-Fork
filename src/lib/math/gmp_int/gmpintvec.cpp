@@ -158,64 +158,124 @@ namespace NTL {
   }
 
   //arithmetic operations
-  //why can't I inheret this?
+  //modulus
+
   template<class myT>
-  myVec<myT> myVec<myT>::operator+( const myVec<myT>& b)
+  myVec<myT> myVec<myT>::operator%( const myT& b) const
   {
-     myVec<myT> res;
-     add(res, *this, b);
-     //NTL_OPT_RETURN(myVec<myT>, res);
-     return(res);
-   }
-MOD is a mess
+    unsigned int n = this->length();
+    myVec<myT> res(n);
+    for (unsigned int i = 0; i < n; i++){
+      res[i] = (*this)[i]%b;
+    }
+    return(res);
+  }
+
+  //addition of scalar
   template<class myT>
-  myVec<myT> myVec<myT>::operator%( const myT& b)
+  myVec<myT> myVec<myT>::operator+( const myT& b) const
   {
     unsigned int n = this->length();
     myVec<myT> res(n);
     long i;
     for (i = 0; i < n; i++)
-      (*this)[i]%=b[i];
+      res[i] = (*this)[i]+b;
     return(res);
   }
 
-
+  //addition of vector
   //why can't I inheret this?
   template<class myT>
-  void  myVec<myT>::add(myVec<myT>& x, const myVec<myT>& a, const myVec<myT>& b)
-{
-#if 1
-  long n = a.length();
-   if (b.length() != n) LogicError("vector add: dimension mismatch");
+  myVec<myT> myVec<myT>::operator+( const myVec<myT>& b) const
+  {
+     myVec<myT> res;
+     myVec<myT>::add(res, *this, b);
+     //NTL_OPT_RETURN(myVec<myT>, res);
+     return(res);
+  }
 
-   x.SetLength(n);
-   long i;
-   for (i = 0; i < n; i++)
-     x[i]=a[i]+b[i];
-     //add(x[i], a[i], b[i]); 
-#else
-   x=a+b;
-#endif
-}
+  //procedural addition why can't I inheret this?
+  template<class myT>
+  void  myVec<myT>::add(myVec<myT>& x, const myVec<myT>& a, const myVec<myT>& b) const
+  {
+    unsigned int n = a.length();
+    if (b.length() != n) LogicError("vector add: dimension mismatch");
 
+    x.SetLength(n);
+    unsigned int i;
+    for (i = 0; i < n; i++)
+      x[i]=a[i]+b[i];
+  }
   
-#if 0
+  //subtraction of scalar
+  template<class myT>
+  myVec<myT> myVec<myT>::operator-( const myT& b) const
+  {
+    unsigned int n = this->length();
+    myVec<myT> res(n);
+    long i;
+    for (i = 0; i < n; i++)
+      res[i] = (*this)[i]-b;
+    return(res);
+  }
 
-vec_ZZ operator-(const vec_ZZ& a, const vec_ZZ& b)
-{
-   vec_ZZ res;
-   sub(res, a, b);
-   NTL_OPT_RETURN(vec_ZZ, res);
-}
+  //subtraction of vector
+  template<class myT>
+  myVec<myT> myVec<myT>::operator-( const myVec<myT>& b) const
+  {
+     myVec<myT> res;
+     myVec<myT>::sub(res, *this, b);
+     //NTL_OPT_RETURN(myVec<myT>, res);
+     return(res);
+  }
 
+  //procedural subtraction why can't I inheret this?
+  template<class myT>
+  void  myVec<myT>::sub(myVec<myT>& x, const myVec<myT>& a, const myVec<myT>& b) const
+  {
+    unsigned int n = a.length();
+    if (b.length() != n) LogicError("vector add: dimension mismatch");
 
-vec_ZZ operator-(const vec_ZZ& a)
-{
-   vec_ZZ res;
-   negate(res, a);
-   NTL_OPT_RETURN(vec_ZZ, res);
-}
-#endif
+    x.SetLength(n);
+    unsigned int i;
+    for (i = 0; i < n; i++)
+      x[i]=a[i]-b[i];
+  }
+
+  //multiplication of scalar
+  template<class myT>
+  myVec<myT> myVec<myT>::operator*( const myT& b) const
+  {
+    unsigned int n = this->length();
+    myVec<myT> res(n);
+    long i;
+    for (i = 0; i < n; i++)
+      res[i] = (*this)[i]*b;
+    return(res);
+  }
+
+  //multiplication of vector
+  template<class myT>
+  myVec<myT> myVec<myT>::operator*( const myVec<myT>& b) const
+  {
+     myVec<myT> res;
+     myVec<myT>::mul(res, *this, b);
+     //NTL_OPT_RETURN(myVec<myT>, res);
+     return(res);
+  }
+
+  //procedural multiplication why can't I inheret this?
+  template<class myT>
+  void  myVec<myT>::mul(myVec<myT>& x, const myVec<myT>& a, const myVec<myT>& b) const
+  {
+    unsigned int n = a.length();
+    if (b.length() != n) LogicError("vector add: dimension mismatch");
+
+    x.SetLength(n);
+    unsigned int i;
+    for (i = 0; i < n; i++)
+      x[i]=a[i]*b[i];
+  }
 
   // Set value at index from ubint
   template<class myT>

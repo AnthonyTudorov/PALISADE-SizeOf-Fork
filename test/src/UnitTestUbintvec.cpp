@@ -275,7 +275,6 @@ TEST(UTubintvec,mod){
     }
 }
 
-#if 0
 TEST(UTubintvec,basic_vector_scalar_math_1_limb){
   //basic vector math with 1 limb entries
   // a1:
@@ -342,7 +341,7 @@ TEST(UTubintvec,basic_vector_scalar_math_1_limb){
 
 }
 
-
+#if 0
 
 TEST(UTubintvec,basic_vector_vector_math_1_limb){
   //basic vector math with 1 limb entries
