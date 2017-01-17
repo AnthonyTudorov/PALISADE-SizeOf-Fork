@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\bv-vector-impl.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\bv-vectorarray-impl.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\bv.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\ciphertext-vector-impl.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\ciphertext-vectorarray-impl.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\cryptocontext-vector-impl.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\cryptocontext-vectorarray-impl.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\cryptocontext.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\cryptocontexthelper.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\cryptocontextparametersets-impl.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\fv-vector-impl.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\fv-vectorarray-impl.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\fv.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\ltv-vector-impl.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\ltv-vectorarray-impl.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\ltv.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\nullscheme-vector-impl.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\nullscheme-vectorarray-impl.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\stst-vector-impl.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\stst-vectorarray-impl.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\bv.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\ciphertext.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\cryptocontext.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\cryptocontexthelper.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\cryptocontextparametersets.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\fv.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\ltv.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\nullscheme.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\palisade.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\pubkeylp.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\rlwe.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\stst.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+</Project>

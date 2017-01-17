@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\lweconjunctionobfuscate.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\lweconjunctionobfuscatev2.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\lweconjunctionobfuscatev3.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\sampling\dgsampling.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\sampling\trapdoor.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\signature\lwesign.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\lweconjunctionobfuscate.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\lweconjunctionobfuscatev2.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\lweconjunctionobfuscatev3.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\obfuscatelp.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\sampling\dgsampling.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\sampling\trapdoor.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\signature\lwesign.h" />
+  </ItemGroup>
+</Project>
