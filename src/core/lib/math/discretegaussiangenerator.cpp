@@ -96,13 +96,13 @@ namespace lbcrypto {
 		return ans;
 	}
 
-	sint * DiscreteGaussianGenerator::GenerateIntVector(usint size) const {
+	std::shared_ptr<sint> DiscreteGaussianGenerator::GenerateIntVector(usint size) const {
 
 		std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
 		usint val = 0;
 		double seed;
-		sint * ans = new sint[size];
+		std::shared_ptr<sint> ans( new sint[size], std::default_delete<int[]>() );
 
 		for (usint i = 0; i < size; i++) {
 			seed = distribution(GetPRNG()) - 0.5; //we need to use the binary uniform generator rathen than regular continuous distribution; see DG14 for details
@@ -115,7 +115,7 @@ namespace lbcrypto {
 			else {
 				val = -(int)FindInVector(m_vals, (std::abs(seed) - m_a / 2));
 			}
-			ans[i] = val;
+			(ans.get())[i] = val;
 		}
 
 		return ans;
@@ -163,23 +163,21 @@ namespace lbcrypto {
 
 	BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size, const BigBinaryInteger &modulus) const {
 
-		//return ans;
-		sint* result = GenerateIntVector(size);
+		std::shared_ptr<sint> result = GenerateIntVector(size);
 
 		BigBinaryVector ans(size);
 		ans.SetModulus(modulus);
 
 		for (usint i = 0; i < size; i++) {
-			if (result[i] < 0) {
-				result[i] *= -1;
-				ans.SetValAtIndex(i, modulus - UintToBigBinaryInteger(result[i]));
+			sint v = (result.get())[i];
+			if (v < 0) {
+				v *= -1;
+				ans.SetValAtIndex(i, modulus - UintToBigBinaryInteger(v));
 			}
 			else {
-				ans.SetValAtIndex(i, UintToBigBinaryInteger(result[i]));
+				ans.SetValAtIndex(i, UintToBigBinaryInteger(v));
 			}
 		}
-
-		delete[]result;
 
 		return ans;
 	}
