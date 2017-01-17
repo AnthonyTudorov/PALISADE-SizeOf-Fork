@@ -40,7 +40,7 @@
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w  -DNDEBUG  -pg ##undefine for single thread best performance operation with gprof profiling 
 
 #main best performance configuration for parallel operation - cross-platform
-CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp ## -m64  ##undefine for parallel best performance operation with debug
+CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp ### -m64  ##undefine for parallel best performance operation with debug
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp -m64 -DNDEBUG  ##undefine for parallel best performance operation with no debug
 
 #THE OPTIONS BELOW SHOULD BE USED WITH CARE AS THEY USE A LOT OF AGGRESSIVE OPTIMIZATION OPTIONS

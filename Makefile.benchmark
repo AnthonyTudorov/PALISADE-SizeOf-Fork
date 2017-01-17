@@ -23,77 +23,31 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
-#this is the actual target that gets called when make is executed (part of all in Makefile)
-#it makes the library, benchmark examples and the actual palisade  benchmarks
-allbenchmarktargets: make_benchmark_lib make_benchmarks make_benchmark_examples 
-
-# this is where the benchmark library code lives
-BENCHMARK_LIBSRCDIR = benchmark/include/libsrc
-
-#these are the includes for compiling the objects that comprise the library (only)
-BENCHMARK_LIB_INCLUDES := -Ibenchmark/include -Ibenchmark/include/libsrc -Iinclude $(INC)
-
-#define list of source files for the library (all files with .cc in the LIBSRCDIR
-BENCHMARK_LIBSRC =  $(wildcard $(BENCHMARK_LIBSRCDIR)/*.cc)
-BENCHMARK_LIBOBJ = $(BENCHMARK_LIBSRC:.cc=.o)
-
-#note the following may need to be set automatically ala cmake
-LIBBENCHMARK_FLAGS = -DHAVE_STEADY_CLOCK  -std=c++11 -Wall -Wextra -Wshadow -pedantic -pedantic-errors -Wfloat-equal -Wzero-as-null-pointer-constant -fstrict-aliasing -Wstrict-aliasing -Wno-nested-anon-types -O3 -DNDEBUG -Werror 
+BM_SRCDIR = google/benchmark-master/src
+BM_IFLAGS = -I$(BM_SRCDIR)/../include
+BM_SRC = $(wildcard $(BM_SRCDIR)/*.cc)
+BM_OBJ = $(BM_SRC:.cc=.o)
 
 #this defines the benchmark library archive
-BENCHMARK_LIB = $(BENCHMARK_LIBSRCDIR)/libbenchmark.a
+BM_LIB = $(BM_SRCDIR)/libbenchmark.a
+
+#note the following may need to be set automatically ala cmake
+LIBBENCHMARK_FLAGS = -DHAVE_STD_REGEX -DHAVE_STEADY_CLOCK  -std=c++11 -Wall -Wextra -Wshadow -pedantic -pedantic-errors -Wfloat-equal -Wzero-as-null-pointer-constant -fstrict-aliasing -Wstrict-aliasing -Wno-nested-anon-types -O3 -DNDEBUG -Werror 
 
 # this builds objects from sources for benchmark library
-$(BENCHMARK_LIBSRCDIR)/%.o: $(BENCHMARK_LIBSRCDIR)/%.cc
-	@echo " -- benchmark:compiling benchmark library source $@"	
-	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_LIB_INCLUDES) -o $@ -c $<
+$(BM_SRCDIR)/%.o: $(BM_SRCDIR)/%.cc
+	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS) $(BM_IFLAGS) -o $@ -c $<
 
-.PHONY:make_benchmark_lib
-make_benchmark_lib: $(BENCHMARK_LIB)
+$(BM_LIB) : $(BM_OBJ)
+	ar cr $(BM_LIB) $(BM_OBJ)
+	ranlib $(BM_LIB) 
 
-$(BENCHMARK_LIB): $(BENCHMARK_LIBOBJ)
-	@echo " -- benchmark:linking benchmark library $<"	
-	ar cr $(BENCHMARK_LIB) $(BENCHMARK_LIBOBJ)
-	ranlib $(BENCHMARK_LIB) 
-	@echo
+libbenchmark: $(BM_LIB)
 
-########## EXAMPLES BUILD HERE
-# note EXAMPLES build in the same directory as their source.
-# thus only one diretory is needed
-# examples also do not use the palisade library, so they have their own build lines
-# for objects and executables
+allbenchmarktargets: libbenchmark make_benchmarks 
 
-# the one directory everything will live in
-BENCHMARK_EXAMPLES_SRC_DIR = benchmark/examples
-BENCHMARK_EXAMPLES_BIN_DIR = benchmark/examples/bin
-BENCHMARK_EXAMPLES_BUILD_DIR = benchmark/examples/build
-
-#define list of source files (all files with .cc in the BENCHMARK_EXAMPLES_SRC_DIR
-BENCHMARK_EXAMPLES_SRC =  $(wildcard $(BENCHMARK_EXAMPLES_SRC_DIR)/*.cc) 
-
-#define list of objects (1:1 substituion of .cc -->.o for all .cc files)
-BENCHMARK_EXAMPLES_OBJ = $(BENCHMARK_EXAMPLES_SRC:$(BENCHMARK_EXAMPLES_SRC_DIR)%.cc=$(BENCHMARK_EXAMPLES_BUILD_DIR)%.o)
-
-#define list of executables (1:1 substituion of .cc --> no extention in all .cc files)
-BENCHMARK_EXAMPLES = $(BENCHMARK_EXAMPLES_SRC:$(BENCHMARK_EXAMPLES_SRC_DIR)%.cc=$(BENCHMARK_EXAMPLES_BIN_DIR)%)
-
-# this is the include line for generating any benc2hmark object (not in the library)
-BENCHMARK_INCLUDES = -Ibenchmark/include -Iinclude $(BOOSTINCLUDE) $(INC)
-
-# this builds objects from sources for examples
-$(BENCHMARK_EXAMPLES_BUILD_DIR)/%.o: $(BENCHMARK_EXAMPLES_SRC_DIR)/%.cc
-	@echo " -- benchmark:compiling example $@"	
-	@mkdir -p $(BENCHMARK_EXAMPLES_SRC_DIR)/build/
-	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@
-
-# this builds executables from objects for examples
-$(BENCHMARK_EXAMPLES_BIN_DIR)/%$(EXESUFFIX): $(BENCHMARK_EXAMPLES_BUILD_DIR)/%.o
-	@echo " -- benchmark:linking example $@"	
-	@mkdir -p $(BENCHMARK_EXAMPLES_SRC_DIR)/bin/
-	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS)  $<  -o $@ $(RDYNAMIC) $(BENCHMARK_LIB) $(LIB) -lpthread $(MINGWREGEX) 
-
-#this updates the binaries when the objects or libraries are touched
-$(BENCHMARK_EXAMPLES): $(BENCHMARK_EXAMPLES_OBJ)  $(BENCHMARK_LIB)
+# this is where the benchmark library code lives
+BM_LIBSRCDIR = google/benchmark-master/include
 
 ########### PALISADE BENCHMARKS BUILD HERE
 
@@ -113,11 +67,11 @@ BENCHMARK_OBJ =  $(BENCHMARK_SRC:$(BENCHMARK_SRC_DIR)%.cpp=$(BENCHMARK_BUILD_DIR
 
 #define list of executables (1:1 substituion of .cc --> no extention in all .cc files)
 #and puts executables in _BIN_DIR
-BENCHMARK_BIN =  $(BENCHMARK_SRC:$(BENCHMARK_SRC_DIR)%.cpp=$(BENCHMARK_BIN_DIR)%)
+BENCHMARK_BIN =  $(BENCHMARK_SRC:$(BENCHMARK_SRC_DIR)%.cpp=$(BENCHMARK_BIN_DIR)%$(EXESUFFIX))
 
 
 #this is is the Include directive for the palisade code being benchmarked
-BENCHMARK_INC = -Isrc $(INC)
+BENCHMARK_INC = -Isrc/core/lib -Isrc/pke/lib $(BM_IFLAGS) $(BOOSTINCLUDE)
 
 # this builds objects from sources for benchmarks
 $(BENCHMARK_BUILD_DIR)/%.o: $(BENCHMARK_SRC_DIR)/%.cpp
@@ -129,54 +83,22 @@ $(BENCHMARK_BUILD_DIR)/%.o: $(BENCHMARK_SRC_DIR)/%.cpp
 	@rm -f $(patsubst %.o,%.d.tmp,$@)
 
 #this updates the binaries when the objects or libraries are touched
-$(BENCHMARK_BIN): $(BENCHMARK_OBJ) $(BENCHMARK_LIB)
+$(BENCHMARK_BIN): $(BENCHMARK_OBJ) $(BM_LIB)
 
 # this builds executables from objects for benchmarks
 $(BENCHMARK_BIN_DIR)/%$(EXESUFFIX): $(BENCHMARK_BUILD_DIR)/%.o 
 	@echo " -- benchmark:linking $@"
 	@mkdir -p $(BENCHMARK_BIN_DIR)
-	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -o $@ -L$(EXTLIBDIR) -lPALISADEpke -lPALISADEcore $(RDYNAMIC) $(BENCHMARK_LIB) $(EXTLIB)  $(MINGWREGEX)
+	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -o $@ -L$(EXTLIBDIR) -lPALISADEpke -lPALISADEcore $(RDYNAMIC) $(BM_LIB) $(EXTLIB)  $(MINGWREGEX)
 	@echo
-
-# this is the target that makes benchmark examples
-.PHONY:make_benchmark_examples
-make_benchmark_examples: $(BENCHMARK_EXAMPLES)
 
 # this is the target that makes the actual benchmarks 
 .PHONY:make_benchmarks
 make_benchmarks: $(BENCHMARK_BIN)
 
-# this target lets us see what all the strings are define as, as an aid to debugging the
-# Makefile.benchmark 
-# just run make docbenchmarkstrings
-.PHONY:docbenchmarkstrings
-docbenchmarkstrings:
-	@echo 'the following make strings are defined in Makefile.benchmark'
-	@echo 'BENCHMARK_LIB $(BENCHMARK_LIB)' 
-	@echo 'BENCHMARK_LIBOBJ  $(BENCHMARK_LIBOBJ)' 
-	@echo 'BENCHMARK_LIBSRCDIR $(BENCHMARK_LIBSRCDIR)'
-	@echo 'BENCHMARK_LIBSRC $(BENCHMARK_LIBSRC)'
-	@echo
-	@echo 'BENCHMARK_EXAMPLES $(BENCHMARK_EXAMPLES)' 
-	@echo 'BENCHMARK_EXAMPLES_OBJ $(BENCHMARK_EXAMPLES_OBJ)' 
-	@echo
-	@echo 'BENCHMARK_SRC_DIR $(BENCHMARK_SRC_DIR)' 
-	@echo 'BENCHMARK_BIN_DIR $(BENCHMARK_BIN_DIR)'
-	@echo 'BENCHMARK_BUILD_DIR $(BENCHMARK_BUILD_DIR)'
-	@echo 'BENCHMARK_SRC $(BENCHMARK_SRC)'
-	@echo 'BENCHMARK_OBJ $(BENCHMARK_OBJ)'
-	@echo 'BENCHMARK_BIN $(BENCHMARK_BIN)'
-	@echo 'BENCHMARK_INC $(BENCHMARK_INC)'
-	@echo 'INC $(INC)'
-	@echo 'LIB $(LIB)'
-	@echo 'SOLIB $(SOLIB)'
-	@echo 'EXTLIB $(EXTLIB)'
-	@echo 'EXTLIBDIR $(EXTLIBDIR)'
-	@echo 'PALISADELIB $(PALISADELIB)'
-
 #this target is usesd to cleanup, it is called from the top Makefile
 .PHONEY: cleanbenchmarks
 cleanbenchmarks:
 	@echo " Cleaning Benchmarks...";
-	$(RM) -r $(BENCHMARK_BIN_DIR) $(BENCHMARK_BUILD_DIR) $(BENCHMARK_EXAMPLES_BUILD_DIR) $(BENCHMARK_EXAMPLES_BIN_DIR) $(BENCHMARK_LIBSRCDIR)/*.o $(BENCHMARK_LIB)
+	$(RM) -r $(BENCHMARK_BIN_DIR) $(BENCHMARK_BUILD_DIR) $(BM_OBJ) $(BM_LIB)
 
