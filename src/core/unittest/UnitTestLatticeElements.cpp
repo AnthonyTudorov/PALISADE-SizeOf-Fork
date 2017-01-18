@@ -379,7 +379,7 @@ TEST(UTILVector2n, clone_operations) {
   ilv.SetValues(bbv, ilv.GetFormat());
 
   {
-    ILVector2n ilvClone = ilv.CloneWithParams();
+    ILVector2n ilvClone = ilv.CloneParametersOnly();
 
     EXPECT_EQ(ilv.GetCyclotomicOrder(), ilvClone.GetCyclotomicOrder());
     EXPECT_EQ(ilv.GetModulus(), ilvClone.GetModulus());
@@ -922,7 +922,7 @@ TEST(UTILVectorArray2n, constructors_test) {
   DEBUG("6");
   {
     ILVectorArray2n ilva(ilv0, ildcrtparams);
-    ILVectorArray2n ilvaClone(ilva.CloneWithParams());
+    ILVectorArray2n ilvaClone(ilva.CloneParametersOnly());
 
     std::vector<ILVector2n> towersInClone = ilvaClone.GetAllElements();
     

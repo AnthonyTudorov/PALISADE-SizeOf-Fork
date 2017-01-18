@@ -221,13 +221,13 @@ namespace lbcrypto {
 		m_vectors = std::move(element.m_vectors);
 	}
 
-	ILVectorArray2n ILVectorArray2n::CloneWithParams() const{
+	ILVectorArray2n ILVectorArray2n::CloneParametersOnly() const{
 		
 		std::vector<ILVector2n> result;
 		result.reserve(m_vectors.size());
 		
 		for(usint i=0;i<m_vectors.size();i++){
-			result.push_back(std::move(m_vectors.at(i).CloneWithParams()));
+			result.push_back(std::move(m_vectors.at(i).CloneParametersOnly()));
 		}
 
 		ILVectorArray2n res(result);
@@ -298,7 +298,7 @@ namespace lbcrypto {
 
 		std::vector<ILVectorArray2n> result;
 
-		ILVectorArray2n zero(this->CloneWithParams());
+		ILVectorArray2n zero(this->CloneParametersOnly());
 		zero = { 0,0 };
 				
 		for (usint i= 0 ; i <  this->m_vectors.size(); i++) {
@@ -328,7 +328,7 @@ namespace lbcrypto {
 
 		std::vector< std::vector<ILVector2n> > towerVals;
 
-		ILVectorArray2n zero(this->CloneWithParams());
+		ILVectorArray2n zero(this->CloneParametersOnly());
 		zero = {0,0};
 		
 
@@ -384,7 +384,7 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Plus(const ILVectorArray2n &element, bool tothis) const
+	ILVectorArray2n ILVectorArray2n::Plus(const ILVectorArray2n &element) const
 	{
 		ILVectorArray2n tmp(*this);
 
@@ -395,7 +395,7 @@ namespace lbcrypto {
 	}
 
 	ILVectorArray2n ILVectorArray2n::Negate() const {
-		ILVectorArray2n tmp(this->CloneWithParams());
+		ILVectorArray2n tmp(this->CloneParametersOnly());
 		tmp.m_vectors.clear();
 
 		for (usint i = 0; i < this->m_vectors.size(); i++) {
@@ -405,7 +405,7 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Minus(const ILVectorArray2n &element, bool fromthis) const
+	ILVectorArray2n ILVectorArray2n::Minus(const ILVectorArray2n &element) const
 	{
 		ILVectorArray2n tmp(*this);
 
@@ -513,7 +513,7 @@ namespace lbcrypto {
 
 	/*SCALAR OPERATIONS*/
 
-	ILVectorArray2n ILVectorArray2n::Plus(const BigBinaryInteger &element, bool tothis) const
+	ILVectorArray2n ILVectorArray2n::Plus(const BigBinaryInteger &element) const
 	{
 		ILVectorArray2n tmp(*this);
 
@@ -523,7 +523,7 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Minus(const BigBinaryInteger &element, bool fromthis) const {
+	ILVectorArray2n ILVectorArray2n::Minus(const BigBinaryInteger &element) const {
 		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
@@ -532,7 +532,7 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Times(const ILVectorArray2n & element, bool bythis) const
+	ILVectorArray2n ILVectorArray2n::Times(const ILVectorArray2n & element) const
 	{
 		ILVectorArray2n tmp(*this);
 
@@ -544,7 +544,7 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Times(const BigBinaryInteger &element, bool bythis) const
+	ILVectorArray2n ILVectorArray2n::Times(const BigBinaryInteger &element) const
 	{
 		ILVectorArray2n tmp(*this);
 

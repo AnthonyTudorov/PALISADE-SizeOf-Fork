@@ -234,13 +234,25 @@ namespace lbcrypto {
         */
 		const ILVector2n& operator=(usint val);
 
+		/**
+		 * Clone the object by making a copy of it and returning the copy
+		 * @return new Element
+		 */
+		ILVector2n Clone() const { return std::move(ILVector2n(*this)); }
+
+		/**
+		 * Clone the object, but have it contain nothing
+		 * @return new Element
+		 */
+		ILVector2n CloneEmpty() const { return std::move( ILVector2n() ); }
+
        /**
          * Clone
          *
          * Creates a new ILVector2n and clones only the params.
          *  The tower values are empty. The tower values can be filled by another process/function or initializer list.
          */
-        ILVector2n CloneWithParams() const ;
+        ILVector2n CloneParametersOnly() const ;
 
         /**
          * Clone with noise
@@ -251,7 +263,7 @@ namespace lbcrypto {
          */
         ILVector2n CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format) const;
 
-		virtual ~ILVector2n();
+		~ILVector2n();
 
 		/**
 		* Equal operator compares this ILVector2n to the specified ILVector2n
@@ -371,34 +383,37 @@ namespace lbcrypto {
         }
 
 		// SCALAR OPERATIONS
+        // FIXME: these operations might be more efficient if they could be done in-place on the values
         /**
-		* Performs an subtracion operation and returns the result.
+		* Performs += operation and returns the result.
 		*
 		* @param &element is the element to add with.
 		* @return is the result of the addition.
 		*/
 		inline const ILVector2n& operator+=(const BigBinaryInteger &element) {
-            return *this = Plus(element, true);
+			return *this = this->Plus(element);
         }
 
 		/**
-		* Performs an subtracion operation and returns the result.
+		* Performs -= operation and returns the result.
 		*
 		* @param &element is the element to add with.
 		* @return is the result of the addition.
 		*/
 		inline const ILVector2n& operator-=(const BigBinaryInteger &element) {
-            return *this = Minus(element, true);
+			SetValues( GetValues().ModSub(element), this->m_format );
+            return *this;
         }
 
         /**
-		* Performs an multiplication operation and returns the result.
+		* Performs *= operation and returns the result.
 		*
 		* @param &element is the element to multiply with.
 		* @return is the result of the multiplication.
 		*/
 		inline const ILVector2n& operator*=(const BigBinaryInteger &element) {
-            return *this = Times(element, true);
+			SetValues( GetValues().ModMul(element), this->m_format );
+            return *this;
         }
 
 		/**
@@ -408,7 +423,7 @@ namespace lbcrypto {
 		* @param &element is the element to add entry-wise.
 		* @return is the return of the addition operation.
 		*/
-		ILVector2n Plus(const BigBinaryInteger &element, bool tothis = false) const;
+		ILVector2n Plus(const BigBinaryInteger &element) const;
 
 		/**
 		* Scalar subtraction - subtract an element to all entries.
@@ -416,7 +431,7 @@ namespace lbcrypto {
 		* @param &element is the element to subtract entry-wise.
 		* @return is the return value of the minus operation.
 		*/
-		ILVector2n Minus(const BigBinaryInteger &element, bool fromthis = false) const;
+		ILVector2n Minus(const BigBinaryInteger &element) const;
 
 		/**
 		* Scalar multiplication - multiply all entries.
@@ -424,7 +439,7 @@ namespace lbcrypto {
 		* @param &element is the element to multiply entry-wise.
 		* @return is the return value of the times operation.
 		*/
-		ILVector2n Times(const BigBinaryInteger &element, bool bythis = false) const;
+		ILVector2n Times(const BigBinaryInteger &element) const;
 
 		/**
 		* Scalar multiplication followed by division and rounding operation - operation on all entries.
@@ -450,7 +465,7 @@ namespace lbcrypto {
 		* @param &element is the element to add with.
 		* @return is the result of the addition.
 		*/
-		ILVector2n Plus(const ILVector2n &element, bool tothis = false) const;
+		ILVector2n Plus(const ILVector2n &element) const;
 
 		/**
 		* Performs a subtraction operation and returns the result.
@@ -458,7 +473,7 @@ namespace lbcrypto {
 		* @param &element is the element to subtract with.
 		* @return is the result of the subtraction.
 		*/
-		ILVector2n Minus(const ILVector2n &element, bool fromthis = false) const;
+		ILVector2n Minus(const ILVector2n &element) const;
 
 		/**
 		* Performs a multiplication operation and returns the result.
@@ -466,7 +481,7 @@ namespace lbcrypto {
 		* @param &element is the element to multiply with.
 		* @return is the result of the multiplication.
 		*/
-		ILVector2n Times(const ILVector2n &element, bool bythis = false) const;
+		ILVector2n Times(const ILVector2n &element) const;
 
 		/**
 		* Performs a negation operation and returns the result.

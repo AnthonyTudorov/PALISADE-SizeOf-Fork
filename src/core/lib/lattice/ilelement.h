@@ -39,10 +39,6 @@
 #include "../math/nbtheory.h"
 #include "../math/discretegaussiangenerator.h"
 
-/**
- * @namespace lbcrypto
- * The namespace of lbcrypto
- */
 namespace lbcrypto {
 
 /**
@@ -54,10 +50,30 @@ template <typename Element>
 class ILElement : public Serializable
 {
 public:
+	// note that there's no constructor here in the base class; it contains no data to construct
+
 	virtual ~ILElement() {}
 
 	/**
-	 * Clones the element with parameters and noise in the vector
+	 * Clone the object by making a copy of it and returning the copy
+	 * @return new Element
+	 */
+	virtual Element Clone() const = 0;
+
+	/**
+	 * Clone the object, but have it contain nothing
+	 * @return new Element
+	 */
+	virtual Element CloneEmpty() const = 0;
+
+	/**
+	 * Clones the element's parameters, leaves vector initialized to 0
+	 * @return new Element
+	 */
+	virtual Element CloneParametersOnly() const = 0;
+
+	/**
+	 * Clones the element with parameters and with noise for the vector
 	 * @param dgg
 	 * @param format
 	 * @return new Element
@@ -65,39 +81,47 @@ public:
 	virtual Element CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format = EVALUATION) const = 0;
 
 	/**
-	 * Clones the element's parameters, leaves vector initialized to 0
-	 * @return new Element
-	 */
-	virtual Element CloneWithParams() const = 0;
-
-	/**
-	 *Prints all values in either coefficient or evaluation format.
+	 * Test function to prints all values in either coefficient or evaluation format.
+	 * FIXME: it might be better to overload operator<<
 	 */
 	virtual void PrintValues() const = 0;
 
 	/**
-	 *	Adds one to every entry on the ILElement.
+	 * Adds one to every entry of the Element, in place
 	 */
 	virtual void AddILElementOne() = 0;
 
-	virtual Element AutomorphismTransform(const usint& i) const = 0;
-
-	virtual std::vector<Element> BaseDecompose(usint baseBits) const = 0;
-
-	virtual void Decompose() = 0;
-
-	virtual Element DivideAndRound(const BigBinaryInteger &q) const = 0;
-
 	/**
-	 * Get Format of the element
+	 * Performs the Automorphism Transform on the Element
+	 * FIXME: a better comment!
+	 * @param i
 	 * @return
 	 */
-	virtual Format GetFormat() const = 0;
+	virtual Element AutomorphismTransform(const usint& i) const = 0;
 
 	/**
-	 * Get Length of the Element
-	 * @return length
+	 * FIXME: comment
+	 * @param baseBits
+	 * @return
 	 */
+	virtual std::vector<Element> BaseDecompose(usint baseBits) const = 0;
+
+	/**
+	 * FIXME: comment
+	 */
+	virtual void Decompose() = 0;
+
+	/**
+	 * Divide the element by q and round it
+	 * FIXME: comment
+	 * @param q
+	 * @return result of the operation
+	 */
+	virtual Element DivideAndRound(const BigBinaryInteger &q) const = 0;
+
+	// GETTERS
+	virtual Format GetFormat() const = 0;
+
 	virtual usint GetLength() const = 0;
 
 	virtual const BigBinaryInteger& GetModulus() const = 0;
@@ -115,7 +139,9 @@ public:
 	virtual void MakeSparse(const BigBinaryInteger &wFactor) = 0;
 
 	/**
-	 * GetValAtIndex
+	 * Gets the Value in the Element that is At Index and returns it
+	 *
+	 * This is only implemented for some derived classes, so the default implementation throws an exception
 	 *
 	 * @param i
 	 * @return will throw a logic_error.
@@ -125,7 +151,9 @@ public:
 	}
 
 	/**
-	 * SetValAtIndex
+	 * Set the Value in the Element that is At Index
+	 *
+	 * This is only implemented for some derived classes, so the default implementation throws an exception
 	 *
 	 * @param index
 	 * @param val
@@ -133,8 +161,11 @@ public:
 	virtual void SetValAtIndex(size_t index, int val) {
 		throw std::logic_error("SetValAtIndex not implemented");
 	}
+
 	/**
 	 * SetValAtIndex
+	 *
+	 * This is only implemented for some derived classes, so the default implementation throws an exception
 	 *
 	 * @param index
 	 * @param val
@@ -143,12 +174,33 @@ public:
 		throw std::logic_error("SetValAtIndex not implemented");
 	}
 
+	/**
+	 * SetValues allows Element values to be changed; this is used internally by the various operators
+	 *
+	 * @param values
+	 * @param format
+	 */
 	virtual void SetValues(const BigBinaryVector& values, Format format) = 0;
 
+	/**
+	 * ModByTwo operation on the Element
+	 * FIXME: comment
+	 * @return result
+	 */
 	virtual Element ModByTwo() const = 0;
 
+	/**
+	 * Calculate and return the Multiplicative Inverse of the element
+	 * @return
+	 */
 	virtual Element MultiplicativeInverse() const = 0;
 
+	/**
+	 * FIXME: comment
+	 * @param p
+	 * @param q
+	 * @return
+	 */
 	virtual Element MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const = 0;
 
 	/**
@@ -161,20 +213,23 @@ public:
 		throw std::logic_error("ModReduce is not implemented");
 	}
 
-
+	/**
+	 * Calculate a vector of elements by raising the base element to successive powers
+	 * FIXME: comment
+	 * @param baseBits
+	 * @return
+	 */
 	virtual std::vector<Element> PowersOfBase(usint baseBits) const = 0;
 
-	virtual Element Minus(const BigBinaryInteger &element, bool fromthis=false) const = 0;
-
-	virtual Element Minus(const Element &element, bool fromthis=false) const = 0;
-
-	virtual Element Plus(const BigBinaryInteger &element, bool tothis=false) const = 0;
-
-	virtual Element Plus(const Element &element, bool tothis=false) const = 0;
-
-	virtual Element Times(const BigBinaryInteger &element, bool bythis=false) const = 0;
-
-	virtual Element Times(const Element &element, bool bythis=false) const = 0;
+	// The core of the arithmetic operations
+	// When true, the operation is being performed on "this" and the result is to be saved in "this:
+	// Therefoe there's more efficiency in -=, += and *=
+	virtual Element Minus(const BigBinaryInteger &element) const = 0;
+	virtual Element Minus(const Element &element) const = 0;
+	virtual Element Plus(const BigBinaryInteger &element) const = 0;
+	virtual Element Plus(const Element &element) const = 0;
+	virtual Element Times(const BigBinaryInteger &element) const = 0;
+	virtual Element Times(const Element &element) const = 0;
 
 	/**
 	 * Virtual interface for interpolation based on the Chinese Remainder Transform Interpolation.
@@ -189,21 +244,16 @@ public:
 
 	virtual void SwitchFormat() = 0;
 
+	// Serialization
 	virtual bool Deserialize(const Serialized& serObj) = 0;
-
 	virtual bool Serialize(Serialized* serObj) const = 0;
 
+	// Assignment operators
 	virtual const Element& operator=(const Element& rhs) = 0;
-
 	virtual const Element& operator=(Element&& rhs) = 0;
-
 	virtual const Element& operator=(std::initializer_list<sint> rhs) = 0;
 
-	/**
-	 *
-	 * @param &element is the element to add with.
-	 * @return myself
-	 */
+	// overloaded op= operators
 	virtual const Element& operator+=(const BigBinaryInteger &element) = 0;
 
 	virtual const Element& operator-=(const BigBinaryInteger &element) = 0;

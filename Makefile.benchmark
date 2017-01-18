@@ -34,6 +34,8 @@ BM_LIB = $(BM_SRCDIR)/libbenchmark.a
 #note the following may need to be set automatically ala cmake
 LIBBENCHMARK_FLAGS = -DHAVE_STD_REGEX -DHAVE_STEADY_CLOCK  -std=c++11 -Wall -Wextra -Wshadow -pedantic -pedantic-errors -Wfloat-equal -Wzero-as-null-pointer-constant -fstrict-aliasing -Wstrict-aliasing -Wno-nested-anon-types -O3 -DNDEBUG -Werror 
 
+benchmark: libbenchmark benchmarktargets 
+
 # this builds objects from sources for benchmark library
 $(BM_SRCDIR)/%.o: $(BM_SRCDIR)/%.cc
 	$(CC) $(CPPFLAGS) $(LIBBENCHMARK_FLAGS) $(BM_IFLAGS) -o $@ -c $<
@@ -43,8 +45,6 @@ $(BM_LIB) : $(BM_OBJ)
 	ranlib $(BM_LIB) 
 
 libbenchmark: $(BM_LIB)
-
-allbenchmarktargets: libbenchmark make_benchmarks 
 
 # this is where the benchmark library code lives
 BM_LIBSRCDIR = google/benchmark-master/include
@@ -93,8 +93,8 @@ $(BENCHMARK_BIN_DIR)/%$(EXESUFFIX): $(BENCHMARK_BUILD_DIR)/%.o $(EXTLIBDIR)/$(PA
 	@echo
 
 # this is the target that makes the actual benchmarks 
-.PHONY:make_benchmarks
-make_benchmarks: $(BENCHMARK_BIN)
+.PHONY:benchmarktargets
+benchmarktargets: $(BENCHMARK_BIN)
 
 #this target is usesd to cleanup, it is called from the top Makefile
 .PHONEY: cleanbenchmarks

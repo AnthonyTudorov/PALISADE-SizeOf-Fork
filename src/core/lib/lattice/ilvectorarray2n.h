@@ -167,11 +167,23 @@ namespace lbcrypto {
 
 		//CLONE OPERATIONS
 		/**
+		 * Clone the object by making a copy of it and returning the copy
+		 * @return new Element
+		 */
+		ILVectorArray2n Clone() const { return std::move(ILVectorArray2n(*this)); }
+
+		/**
+		 * Clone the object, but have it contain nothing
+		 * @return new Element
+		 */
+		ILVectorArray2n CloneEmpty() const { return std::move( ILVectorArray2n() ); }
+
+ 		/**
 		* Clone
 		*
 		* Creates a new ILVectorArray2n and clones only the params. The tower values are empty. The tower values can be filled by another process/function or initializer list.
 		*/
-		ILVectorArray2n CloneWithParams() const;
+		ILVectorArray2n CloneParametersOnly() const;
 
 		/**
 		* Clone with noise
@@ -186,7 +198,7 @@ namespace lbcrypto {
 		/**
 		* Destructor.
 		*/
-		virtual ~ILVectorArray2n();
+		~ILVectorArray2n();
 
 		//GETTERS
 
@@ -340,7 +352,7 @@ namespace lbcrypto {
 		* @param &element is the element to add with.
 		* @return is the result of the addition.
 		*/
-		ILVectorArray2n Plus(const ILVectorArray2n &element, bool tothis = false) const;
+		ILVectorArray2n Plus(const ILVectorArray2n &element) const;
 
 		/**
 		* Performs a multiplication operation and returns the result.
@@ -348,7 +360,7 @@ namespace lbcrypto {
 		* @param &element is the element to multiply with.
 		* @return is the result of the multiplication.
 		*/
-		ILVectorArray2n Times(const ILVectorArray2n &element, bool bythis = false) const;
+		ILVectorArray2n Times(const ILVectorArray2n &element) const;
 
 		/**
 		* Performs a subtraction operation and returns the result.
@@ -356,7 +368,7 @@ namespace lbcrypto {
 		* @param &element is the element to subtract from.
 		* @return is the result of the subtraction.
 		*/
-		ILVectorArray2n Minus(const ILVectorArray2n &element, bool fromthis = false) const;
+		ILVectorArray2n Minus(const ILVectorArray2n &element) const;
 
 		//SCALAR OPERATIONS
 
@@ -366,7 +378,7 @@ namespace lbcrypto {
 		* @param &element is the element to add entry-wise.
 		* @return is the result of the addition operation.
 		*/
-		ILVectorArray2n Plus(const BigBinaryInteger &element, bool tothis = false) const;
+		ILVectorArray2n Plus(const BigBinaryInteger &element) const;
 
 		/**
 		* Scalar subtraction - subtract an element to all entries.
@@ -374,7 +386,7 @@ namespace lbcrypto {
 		* @param &element is the element to subtract entry-wise.
 		* @return is the return value of the minus operation.
 		*/
-		ILVectorArray2n Minus(const BigBinaryInteger &element, bool fromthis = false) const;
+		ILVectorArray2n Minus(const BigBinaryInteger &element) const;
 
 		/**
 		* Scalar multiplication - multiply all entries.
@@ -382,7 +394,7 @@ namespace lbcrypto {
 		* @param &element is the element to multiply entry-wise.
 		* @return is the return value of the times operation.
 		*/
-		ILVectorArray2n Times(const BigBinaryInteger &element, bool bythis = false) const;
+		ILVectorArray2n Times(const BigBinaryInteger &element) const;
 
 		/**
 		* Scalar multiplication followed by division and rounding operation - operation on all entries.
