@@ -332,7 +332,7 @@ namespace lbcrypto {
 		}
 	}
 
-	ILVector2n ILVector2n::Plus(const BigBinaryInteger &element, bool tothis) const {
+	ILVector2n ILVector2n::Plus(const BigBinaryInteger &element) const {
 		if (m_format != Format::COEFFICIENT)
 			throw std::logic_error("ILVector2n::Plus can only be called in COEFFICIENT format.\n");
 

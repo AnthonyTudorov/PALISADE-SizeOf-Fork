@@ -352,7 +352,7 @@ namespace lbcrypto {
 		* @param &element is the element to add with.
 		* @return is the result of the addition.
 		*/
-		ILVectorArray2n Plus(const ILVectorArray2n &element, bool tothis = false) const;
+		ILVectorArray2n Plus(const ILVectorArray2n &element) const;
 
 		/**
 		* Performs a multiplication operation and returns the result.
@@ -360,7 +360,7 @@ namespace lbcrypto {
 		* @param &element is the element to multiply with.
 		* @return is the result of the multiplication.
 		*/
-		ILVectorArray2n Times(const ILVectorArray2n &element, bool bythis = false) const;
+		ILVectorArray2n Times(const ILVectorArray2n &element) const;
 
 		/**
 		* Performs a subtraction operation and returns the result.
@@ -368,7 +368,7 @@ namespace lbcrypto {
 		* @param &element is the element to subtract from.
 		* @return is the result of the subtraction.
 		*/
-		ILVectorArray2n Minus(const ILVectorArray2n &element, bool fromthis = false) const;
+		ILVectorArray2n Minus(const ILVectorArray2n &element) const;
 
 		//SCALAR OPERATIONS
 
@@ -378,7 +378,7 @@ namespace lbcrypto {
 		* @param &element is the element to add entry-wise.
 		* @return is the result of the addition operation.
 		*/
-		ILVectorArray2n Plus(const BigBinaryInteger &element, bool tothis = false) const;
+		ILVectorArray2n Plus(const BigBinaryInteger &element) const;
 
 		/**
 		* Scalar subtraction - subtract an element to all entries.
@@ -386,7 +386,7 @@ namespace lbcrypto {
 		* @param &element is the element to subtract entry-wise.
 		* @return is the return value of the minus operation.
 		*/
-		ILVectorArray2n Minus(const BigBinaryInteger &element, bool fromthis = false) const;
+		ILVectorArray2n Minus(const BigBinaryInteger &element) const;
 
 		/**
 		* Scalar multiplication - multiply all entries.
@@ -394,7 +394,7 @@ namespace lbcrypto {
 		* @param &element is the element to multiply entry-wise.
 		* @return is the return value of the times operation.
 		*/
-		ILVectorArray2n Times(const BigBinaryInteger &element, bool bythis = false) const;
+		ILVectorArray2n Times(const BigBinaryInteger &element) const;
 
 		/**
 		* Scalar multiplication followed by division and rounding operation - operation on all entries.
