@@ -24,7 +24,7 @@
   2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "../../benchmark/include/benchmark/benchmark_api.h"
+#include "benchmark/benchmark_api.h"
 
 
 /* this is an example of very basic google benchmarks
@@ -50,18 +50,18 @@
 
 #include <iostream>
 #define _USE_MATH_DEFINES
-#include "../../src/lib/math/backend.h"
+#include "math/backend.h"
 #if 1
-#include "../../src/lib/utils/inttypes.h"
-#include "../../src/lib/math/nbtheory.h"
-#include "../../src/lib/lattice/elemparams.h"
-#include "../../src/lib/lattice/ilparams.h"
-#include "../../src/lib/lattice/ildcrtparams.h"
-#include "../../src/lib/lattice/ilelement.h"
-#include "../../src/lib/math/distrgen.h"
-#include "../../src/lib/lattice/ilvector2n.h"
-#include "../../src/lib/lattice/ilvectorarray2n.h"
-#include "../../src/lib/utils/utilities.h"
+#include "utils/inttypes.h"
+#include "math/nbtheory.h"
+#include "lattice/elemparams.h"
+#include "lattice/ilparams.h"
+#include "lattice/ildcrtparams.h"
+#include "lattice/ilelement.h"
+#include "math/distrgen.h"
+#include "lattice/ilvector2n.h"
+#include "lattice/ilvectorarray2n.h"
+#include "utils/utilities.h"
 #endif
 
 
