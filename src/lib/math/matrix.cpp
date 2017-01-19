@@ -676,11 +676,13 @@ template<class Element>
 Matrix<Element> Matrix<Element>::MultiplyCAPS(Matrix<Element> const& other,int nrec,int pad) const{
 
 
-	omp_set_num_threads(NUM_THREADS);
+
 
 	double rowlog;
 	int allrows = rows;
 	int allcols = cols;
+
+	NUM_THREADS = omp_get_max_threads();
 
 	if (pad == -1) {
 		/*
