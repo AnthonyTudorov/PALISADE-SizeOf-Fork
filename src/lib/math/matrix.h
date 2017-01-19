@@ -383,6 +383,13 @@ namespace lbcrypto {
              * row of the matrix to be added and placed into the corresponding position in the output vector.
              */
             Matrix<Element> MultByUnityVector() const;
+
+            /*
+             * Multiply the matrix by a vector of random 1's and 0's, which is the same as adding select
+             * elements in each row together.
+             * Return a vector that is a rows x 1 matrix.
+             */
+            Matrix<Element> MultByRandomVector(std::vector<int> ranvec) const;
         private:
             mutable data_t data;
             size_t rows;

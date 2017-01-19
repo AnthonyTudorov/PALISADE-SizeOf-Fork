@@ -1294,12 +1294,44 @@ Matrix<Element> Matrix<Element>::MultByUnityVector() const {
 	for (int32_t row = 0; row < result.rows; ++row) {
 
 		for (int32_t col= 0; col<cols; ++col){
-			*result.data[row][0] += *data[row][col];
+				*result.data[row][0] += *data[row][col];
 		}
 	}
 
 	return result;
 }
+
+/*
+ * Multiply the matrix by a vector of random 1's and 0's, which is the same as adding select
+ * elements in each row together.
+ * Return a vector that is a rows x 1 matrix.
+ */
+template<class Element>
+Matrix<Element> Matrix<Element>::MultByRandomVector(std::vector<int> ranvec) const {
+	Matrix<Element> result(allocZero, rows, 1);
+//	std::vector<int> ranvec;
+//	ranvec.reserve(cols);
+//	int counter = 0;
+//
+//	for (int i = 0; i < cols; i++){
+//		int zeroOrOne = rand() % 2;
+//		//int zeroOrOne = i % 2;
+//		counter += zeroOrOne;
+//		ranvec.push_back(zeroOrOne);
+//		//std::cout<<"ranvec["<<i<<"] = "<<ranvec[i]<<std::endl;
+//	}
+//	std::cout<<"Number of 1's in vector with "<<cols<<" elements = "<<counter<<std::endl;
+#pragma omp parallel for
+	for (int32_t row = 0; row < result.rows; ++row) {
+
+		for (int32_t col= 0; col<cols; ++col){
+			if (ranvec[col] == 1)
+				*result.data[row][0] += *data[row][col];
+		}
+	}
+	return result;
+}
+
 
 }
 

@@ -42,6 +42,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //using namespace std;
 using namespace lbcrypto;
 
+double CONOBF_run(TimeVar t1, LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm, ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag); //defined later
 bool CONJOBF(bool dbg_flag, int n_evals, int n); //defined later
 
 
@@ -101,14 +102,40 @@ int main(int argc, char* argv[]){
 	for (usint n = 8; n < 4096; n = 2 * n)
 	{
 		errorflag = CONJOBF(dbg_flag, n_evals, n);
-		if (errorflag)
-			return ((int)errorflag);
+//		if (errorflag)
+//			return ((int)errorflag);
 	}
 
 	//system("PAUSE");
 
 	return ((int)errorflag);
 
+}
+//////////////////////////////////////////////////////////////////////
+double CONOBF_run(TimeVar t, LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm, ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag, bool dbg_flag){
+	double timeEval(0.0), runTime(0.0);
+	bool result = false;
+
+	PROFILELOG("Evaluation "<<evalNum<<" started");
+	for (int useRandomVector = 0; useRandomVector < 2; useRandomVector++){
+
+			TIC(t);
+			result = algorithm.EvaluateACS(obfuscatedPattern,inputStr,useRandomVector);
+			runTime = TOC(t);
+			timeEval +=runTime;
+			DEBUG( " \nACS (useRandomVector = "<<useRandomVector<<") Cleartext pattern evaluation of: " << inputStr << " is " << result << ".");
+			PROFILELOG( "ACS Evaluation "<<evalNum<<" (useRandomVector = "<<useRandomVector<<") execution time: " << "\t" << runTime << " ms" );
+			std::cout << "T: Eval "<<evalNum<<" (useRandomVector = "<<useRandomVector<<")  execution time:  " << "\t" << runTime << " ms" << std::endl;
+
+			if (result != expectedResult) {
+				std::cout << "ERROR EVALUATING "<<evalNum<< std::endl;
+				*errorflag |= true;
+			}
+
+	}
+
+
+	return timeEval;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -238,44 +265,49 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	timeObf = TOC(t1);
 	PROFILELOG( "Obfuscation time: " << "\t" << timeObf<< " ms");
 
-	PROFILELOG("Evaluation 1 started");
-	TIC(t1);
-	result1 = algorithm.Evaluate(obfuscatedPattern,inputStr1);
-	timeEval1 = TOC(t1);
-	DEBUG( " \nCleartext pattern evaluation of: " << inputStr1 << " is " << result1 << ".");
-	PROFILELOG( "Evaluation 1 execution time: " << "\t" << timeEval1 << " ms" );
-
 	bool errorflag = false;
-	if (result1 != out1) {
-		std::cout << "ERROR EVALUATING 1"<< std::endl;
-		errorflag |= true;
-	}
+	timeEval1 = CONOBF_run(t1, algorithm, obfuscatedPattern, inputStr1, out1, 1, &errorflag, dbg_flag);
+
+//	PROFILELOG("Evaluation 1 started");
+//	TIC(t1);
+//	result1 = algorithm.EvaluateACS(obfuscatedPattern,inputStr1);
+//	timeEval1 = TOC(t1);
+//	DEBUG( " \nCleartext pattern evaluation of: " << inputStr1 << " is " << result1 << ".");
+//	PROFILELOG( "Evaluation 1 execution time: " << "\t" << timeEval1 << " ms" );
+//
+//
+//	if (result1 != out1) {
+//		std::cout << "ERROR EVALUATING 1"<< std::endl;
+//		errorflag |= true;
+//	}
 
 	if (n_evals > 1)  {
-		PROFILELOG("Evaluation 2 started");
-		TIC(t1);
-		result2 = algorithm.Evaluate(obfuscatedPattern,inputStr2);
-		timeEval2 = TOC(t1);
-		DEBUG( " \nCleartext pattern evaluation of: " << inputStr2 << " is " << result2 << ".");
-		PROFILELOG( "Evaluation 2 execution time: " << "\t" << timeEval2 << " ms" );
-
-		if (result2 != out2) {
-			std::cout << "ERROR EVALUATING 2"<< std::endl;
-			errorflag |= true;
-		}
+		timeEval2 = CONOBF_run(t1, algorithm, obfuscatedPattern, inputStr2, out2, 2, &errorflag, dbg_flag);
+//		PROFILELOG("Evaluation 2 started");
+//		TIC(t1);
+//		result2 = algorithm.EvaluateACS(obfuscatedPattern,inputStr2);
+//		timeEval2 = TOC(t1);
+//		DEBUG( " \nCleartext pattern evaluation of: " << inputStr2 << " is " << result2 << ".");
+//		PROFILELOG( "Evaluation 2 execution time: " << "\t" << timeEval2 << " ms" );
+//
+//		if (result2 != out2) {
+//			std::cout << "ERROR EVALUATING 2"<< std::endl;
+//			errorflag |= true;
+//		}
 	}
 
 	if (n_evals > 2)  {
-		PROFILELOG("Evaluation 3 started");
-		TIC(t1);
-		result3 = algorithm.Evaluate(obfuscatedPattern,inputStr3);
-		timeEval3 = TOC(t1);
-		DEBUG( "\nCleartext pattern evaluation of: " << inputStr3 << " is " << result3 << ".");
-		PROFILELOG( "Evaluation 3 execution time: " << "\t" << timeEval3 << " ms");
-		if (result3 != out3) {
-			std::cout << "ERROR EVALUATING 3"<< std::endl;
-			errorflag |= true;
-		}
+		timeEval3 = CONOBF_run(t1, algorithm, obfuscatedPattern, inputStr3, out3, 3, &errorflag, dbg_flag);
+//		PROFILELOG("Evaluation 3 started");
+//		TIC(t1);
+//		result3 = algorithm.EvaluateACS(obfuscatedPattern,inputStr3);
+//		timeEval3 = TOC(t1);
+//		DEBUG( "\nCleartext pattern evaluation of: " << inputStr3 << " is " << result3 << ".");
+//		PROFILELOG( "Evaluation 3 execution time: " << "\t" << timeEval3 << " ms");
+//		if (result3 != out3) {
+//			std::cout << "ERROR EVALUATING 3"<< std::endl;
+//			errorflag |= true;
+//		}
 	}
 
 	//get the total program run time.

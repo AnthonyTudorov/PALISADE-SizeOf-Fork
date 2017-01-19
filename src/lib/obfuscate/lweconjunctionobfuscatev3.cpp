@@ -164,7 +164,7 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::ParamsGen(DiscreteGaussianGe
 	auto nRLWE = [&](double q) -> double { return log2(q / sigma) / (4 * log2(hermiteFactor));  };
 
 	//Correctness constraint
-	auto qCorrectness = [&](uint32_t n, uint32_t m) -> double { return  32*Berr*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2),length);  };
+	auto qCorrectness = [&](uint32_t n, uint32_t m) -> double { return  32*Berr*sqrt(m)*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2),length);  };
 
 	double qPrev = 1e6;
 	double q = 0;
@@ -676,7 +676,7 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
 template <class Element>
 bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateACS(
 				const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
-				const std::string &testString) const {
+				const std::string &testString, const int useRandomVector) const {
 	//Evaluation of Obfuscated Conjunction Pattern
 	TimeVar t1; // for TIC TOC
 	bool dbg_flag = 1;
@@ -689,6 +689,7 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateACS(
 	usint chunkSize = obfuscatedPattern.GetChunkSize();
 	usint adjustedLength = l/chunkSize;
 	double constraint = obfuscatedPattern.GetConstraint();
+
 
 	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
 
@@ -710,17 +711,31 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateACS(
 
 
 
-	Matrix<Element> *S_ib;
-	Matrix<Element> *R_ib;
+	shared_ptr<Matrix<Element>> S_ib;
+	shared_ptr<Matrix<Element>> R_ib;
+	Matrix<Element> CrossSR = Matrix<Element>(zero_alloc, m, 1);
+	Matrix<Element> CrossRS = Matrix<Element>(zero_alloc, m, 1);
 
-	Matrix<Element>* Sl = obfuscatedPattern.GetSl();
-	Matrix<Element>* Rl = obfuscatedPattern.GetRl();
-	//std::cout << "Sl dimensions: " <<  Sl->GetRows() << ", " << Sl->GetCols() << std::endl;
-	//std::cout << "Rl dimensions: " <<  Rl->GetRows() << ", " << Rl->GetCols() << std::endl;
-	Matrix<Element> CrossSR = Rl->MultByUnityVector();
-	Matrix<Element> CrossRS = Sl->MultByUnityVector();
-	//std::cout << "CrossSR dimensions: " <<  CrossSR.GetRows() << ", " << CrossSR.GetCols() << std::endl;
-	//std::cout << "CrossRS dimensions: " <<  CrossRS.GetRows() << ", " << CrossRS.GetCols() << std::endl;
+	shared_ptr<Matrix<Element>> Sl = obfuscatedPattern.GetSl();
+	shared_ptr<Matrix<Element>> Rl = obfuscatedPattern.GetRl();
+	std::cout << "Sl dimensions: " <<  Sl->GetRows() << ", " << Sl->GetCols() << std::endl;
+	std::cout << "Rl dimensions: " <<  Rl->GetRows() << ", " << Rl->GetCols() << std::endl;
+	if (useRandomVector == 1) {
+		std::vector<int> randvec;
+		randvec.reserve(Rl->GetCols());
+		for (int i = 0; i < Rl->GetCols(); i++) {
+			randvec.push_back(rand() % 2);
+		}
+		std::cout<<"About to set CrossSR and CrossRS from randvec"<<std::endl;
+		CrossSR = Rl->MultByRandomVector(randvec);
+		CrossRS = Sl->MultByRandomVector(randvec);
+	} else {
+		std::cout<<"About to set CrossSR and CrossRS from unity vec"<<std::endl;
+		CrossSR = Rl->MultByUnityVector();
+		CrossRS = Sl->MultByUnityVector();
+	}
+	std::cout << "CrossSR dimensions: " <<  CrossSR.GetRows() << ", " << CrossSR.GetCols() << std::endl;
+	std::cout << "CrossRS dimensions: " <<  CrossRS.GetRows() << ", " << CrossRS.GetCols() << std::endl;
 	//DEBUG("EvalACS1: "<<TOC(t1) <<" ms");
 
 	for (int i=adjustedLength-1; i>=0; i--) 	{
@@ -740,9 +755,9 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateACS(
 			//S_ib->PrintValues();
 			//R_ib->PrintValues();
 
-			CrossSR = (*S_ib) * CrossSR;
+			CrossSR = (*S_ib) * (CrossSR);
 
-			CrossRS = (*R_ib) * CrossRS;
+			CrossRS = (*R_ib) * (CrossRS);
 
 
 		}
@@ -771,9 +786,9 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateACS(
 	//std::cout <<  CrossProd << std::endl;
 
 	norm = CrossProd.Norm();
-	DEBUG("EvalACS: " <<TOC(t1) <<" ms");
+	std::cout <<"EvalACS: " <<TOC(t1) <<" ms"<< std::endl;
 
-	std::cout << " ACS Norm: " << norm << std::endl;
+	std::cout << "ACS Norm: " << norm << std::endl;
 
 	return (norm <= constraint);
 

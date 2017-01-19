@@ -333,14 +333,17 @@ namespace lbcrypto {
 
 			/**
 			 * Method for evaluating the pattern, using the trick of multiplying a chain of matrix
-			 * multiplications by the unity vector.
+			 * multiplications by a vector.
 			 *
 			 * @param &obfuscatedPattern the obfuscated pattern.
 			 * @param &testString cleartext pattern to test for.
+			 * @param useRandomVector, if 1, menas that a vector of random 1s and 0s should be used.
+			 * Else, a vector of all 1s should be used.
+			 * @param useLargeConstraint means that the contraint q/8 should be multiplied by the sqrt of m.
 			 * @return true if the string matches the pattern and false otherwise.
 			 */
 			bool EvaluateACS(const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
-				 const std::string &testString) const;
+					const std::string &testString, const int useRandomVector) const;
 
 	};
 
