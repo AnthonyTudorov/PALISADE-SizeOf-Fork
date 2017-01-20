@@ -277,6 +277,9 @@ namespace NTL {
       x[i]=a[i]*b[i];
   }
 
+
+
+  //////////////////////////////////////////////////
   // Set value at index from ubint
   template<class myT>
   void myVec<myT>::SetValAtIndex(usint index, const myT& value){

@@ -112,19 +112,31 @@ template<class myT>
     return vec;
   }
 
-  //modulus
+  //arithmetic
+  //scalar modulus
 
-  myVec operator%(const myT& b) const;
+  myVec operator%(const myT& b) const; 
 
   inline myVec Mod(const myZZ& b) const { return (*this)%b;};
-  
-  //addition
-  inline myVec& operator+=(const myVec& a)
+
+  //scalar modulo assignment
+  inline myVec& operator%=(const myT& a)
   { 
+    unsigned int n = this->length();
+    for (unsigned int i = 0; i < n; i++){
+      (*this)[i]%=a;
+    }
+    return *this;
+  };
+
+
+
+  inline myVec& operator+=(const myVec& a) {
     add(*this, *this, a);
     return *this;
   };
 
+  //scalar addition assignment
   inline myVec& operator+=(const myT& a)
   { 
     unsigned int n = this->length();
@@ -141,6 +153,8 @@ template<class myT>
 
   void add(myVec& x, const myVec& a, const myVec& b) const; //define procedural
 
+  //vector add
+  inline myVec Add(const myVec& b) const { return (*this)+b;};
 
   //Subtraction
   inline myVec& operator-=(const myVec& a)
@@ -162,10 +176,15 @@ template<class myT>
   myVec operator-(const myVec& b) const;
   myVec operator-(const myT& a) const;
 
+  //scalar
   inline myVec Sub(const myT& b) const { return (*this)-b;};
+  //vector
+  inline myVec Sub(const myVec& b) const { return (*this)-b;};
+
+  //deprecated vector
+  inline myVec Minus(const myVec& b) const { return (*this)-b;};
 
   void sub(myVec& x, const myVec& a, const myVec& b) const; //define procedural
-
 
   //Multiplication
   inline myVec& operator*=(const myVec& a)
@@ -186,25 +205,46 @@ template<class myT>
   
   myVec operator*(const myVec& b) const;
   myVec operator*(const myT& a) const;
-
+  //scalar
   inline myVec Mul(const myT& b) const { return (*this)*b;};
-
+  //vector
+  inline myVec Mul(const myVec& b) const { return (*this)*b;};
   void mul(myVec& x, const myVec& a, const myVec& b) const; //define procedural
 
+
   //not tested yet
-  inline myVec Add(const myVec& b) const {std::cout<<"ADD VEC"<<std::endl; return (*this)+b;};
 
-  inline myVec Sub(const myVec& b) const {std::cout<<"SUB VEC"<<std::endl; return *this-b;};
-  inline myVec Minus(const myVec& b) const {std::cout<<"MINUS VEC"<<std::endl;return this-b;};
-  inline myVec Mul(const myVec& b) const {std::cout<<"MUL VEC"<<std::endl; return this*b;};
+  //scalar then vector
+  //note a more efficient means exists for these
+  inline myVec ModAdd(const myT& b, const myZZ& modulus) const {return ((*this)+b)%modulus;};
+  inline myVec ModAdd(const myVec& b, const myZZ& modulus) const {return ((*this)+b)%modulus;};
 
+  // note that modsub requires us to use the NTL signed subtraction 
+  // rather than the Palisade unsigned subtraction 
+  inline myVec ModSub(const myT& b, const myZZ& modulus) const 
+  {
+    unsigned int n = this->length();
+    myVec<myT> res(n);
+    for (unsigned int i = 0; i < n; i++){
+      NTL_NAMESPACE::sub(res[i],(*this)[i],b);
+      res[i] = res[i]%modulus;
+    }
+    return(res);
+  };
 
+  inline myVec ModSub(const myVec& b, const myZZ& modulus) const 
+  {
+    unsigned int n = this->length();
+    myVec<myT> res(n);
+    for (unsigned int i = 0; i < n; i++){
+      NTL_NAMESPACE::sub(res[i],(*this)[i],b[i]);
+      res[i] = res[i]%modulus;
+    }
+    return(res);
+  };
 
-  inline myVec ModAdd(const myVec& b, const myZZ& modulus) const {std::cout<<"MODADD"<<std::endl; };
-  inline myVec ModSub(const myVec& b, const myZZ& modulus) const {std::cout<<"MODSUB"<<std::endl; };
-  inline myVec ModMul(const myVec& b, const myZZ& modulus) const {std::cout<<"MODMUL"<<std::endl; };
-
-
+  inline myVec ModMul(const myT& b, const myZZ& modulus) const {return ((*this)*b)%modulus;};
+  inline myVec ModMul(const myVec& b, const myZZ& modulus) const {return ((*this)*b)%modulus;};
 
  protected:
   bool IndexCheck(usint) const;

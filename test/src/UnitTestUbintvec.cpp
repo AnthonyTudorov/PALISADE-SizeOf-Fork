@@ -12,7 +12,7 @@
  *
  *  Copyright (c) 2015, New Jersey Institute of Technology (NJIT) All
  *  rights reserved.  Redistribution and use in source and binary forms,
- *  with or without modification, are permitted provided that the
+ *  with or without modification,
  *  following conditions are met: 1. Redistributions of source code must
  *  retain the above copyright notice, this list of conditions and the
  *  following disclaimer.  2. Redistributions in binary form must
@@ -179,9 +179,6 @@ TEST(UTubintvec,ctor_access_eq_neq){
   //test initializer list of various types
   ubintvec expectedvecstr(5);
   expectedvecstr = {"9872","5888","4620","2376","4631"}; //strings
-
-  cout << "expectedvecstr: = " << expectedvecstr <<endl;
-
   EXPECT_EQ (expectedvecstr, m)<< "Failure string initializer list";
   
   ubintvec expectedvecint(5);
@@ -341,7 +338,7 @@ TEST(UTubintvec,basic_vector_scalar_math_1_limb){
 
 }
 
-#if 0
+
 
 TEST(UTubintvec,basic_vector_vector_math_1_limb){
   //basic vector math with 1 limb entries
@@ -381,7 +378,7 @@ TEST(UTubintvec,basic_vector_vector_math_1_limb){
 	  "160515", "083430", };
 
   // sub1:
-#if 0 //set to 1 if we allow b>a in subtraction
+#if 0//set to 1 if we allow b>a in subtraction
   std::vector<std::string>  sub1sv = 
     {"060980", "008134",
      "18446744073709426615", "18446744073709433083",
@@ -450,6 +447,7 @@ TEST(UTubintvec,basic_vector_vector_math_1_limb){
   d1 -= b1;
   EXPECT_EQ (d1, sub1) << "Failure 1 limb vector vector -=";
 
+
   c1 = a1.Mul(b1);
   EXPECT_EQ (c1, mul1) << "Failure 1 limb vector vector Mul()";
 
@@ -459,6 +457,7 @@ TEST(UTubintvec,basic_vector_vector_math_1_limb){
   d1 = a1;
   d1 *= b1;
   EXPECT_EQ (d1, mul1) << "Failure 1 limb vector vector *=";
+
 }
 
 
@@ -589,6 +588,7 @@ TEST(UTubintvec,basic_vector_vector_mod_math_1_limb){
   EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector scalar %";   
 
 }
+
 
 TEST(UTubintvec,basic_vector_scalar_math_2_limb){
   //basic vector math with 2 limb entries
@@ -1076,4 +1076,4 @@ TEST(UTubintvec,basic_vector_vector_mod_math_big_numbers){
   EXPECT_EQ (c3, modmul3) << "Failure big number vector vector ModMul()";   
   
 }
-#endif
+
