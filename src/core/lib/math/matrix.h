@@ -403,7 +403,7 @@ namespace lbcrypto {
             mutable int numSub = 0;
             mutable MatDescriptor desc;
             mutable unique_ptr<Element> zeroUniquePtr = allocZero();
-            mutable int NUM_THREADS;
+            mutable int NUM_THREADS = 1;
 
 			//deep copy of data - used for copy constructor
             void deepCopyData(data_t const& src);

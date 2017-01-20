@@ -135,7 +135,8 @@ double Matrix<Element>::Norm() const {
 
 template<class Element>
 Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
-	omp_set_num_threads(NUM_THREADS);
+	NUM_THREADS = omp_get_max_threads();
+
     if (cols != other.rows) {
         throw invalid_argument("incompatible matrix multiplication");
     }
