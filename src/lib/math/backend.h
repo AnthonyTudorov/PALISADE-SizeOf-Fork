@@ -115,7 +115,7 @@
 
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
 #include "gmp_int/gmpintvec.cpp" //vectors of such
-//#include "gmp_int/mgmpintvec.h" //rings of such
+#include "gmp_int/mgmpintvec.h" //rings of such
 
 #endif
 

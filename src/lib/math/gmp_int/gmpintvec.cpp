@@ -107,11 +107,11 @@ namespace NTL {
     }
     return *this;
   }
-
+//&&&***
   template<class myT>
   const myVec<myT>& myVec<myT>::operator=(const myT &rhs){
     bool dbg_flag = false;
-    DEBUG("in op=usint <myT>");
+    DEBUG("in op=const myT&");
     this->SetLength(1);
     (*this)[0] = rhs;
     return *this;
@@ -120,7 +120,7 @@ namespace NTL {
   template<class myT>
   const myVec<myT>& myVec<myT>::operator=(myT &rhs){
     bool dbg_flag = false;
-    DEBUG("in op=usint <myT>");
+    DEBUG("in op=myT&");
     this->SetLength(1);
     (*this)[0] =rhs;
     return *this;
@@ -129,7 +129,7 @@ namespace NTL {
   template<class myT>
   const myVec<myT>& myVec<myT>::operator=(unsigned int &rhs){
     bool dbg_flag = false;
-    DEBUG("in op=usint <myT>");
+    DEBUG("in op=usint&");
     this->SetLength(1);
     (*this)[0] =rhs;
     return *this;
@@ -138,7 +138,7 @@ namespace NTL {
   template<class myT>
   const myVec<myT>& myVec<myT>::operator=(unsigned int rhs){
     bool dbg_flag = false;
-    DEBUG("in op=usint <myT>");
+    DEBUG("in op=usint");
     this->SetLength(1);
     (*this)[0] =rhs;
     return *this;
@@ -156,6 +156,7 @@ namespace NTL {
       NTL_NAMESPACE::clear(x[i]);  
     }
   }
+/// ARITHMETIC FUNCTIONS
 
   //arithmetic operations
   //modulus
@@ -195,7 +196,6 @@ namespace NTL {
   }
 
   //procedural addition why can't I inheret this?
-  template<class myT>
   void  myVec<myT>::add(myVec<myT>& x, const myVec<myT>& a, const myVec<myT>& b) const
   {
     unsigned int n = a.length();
