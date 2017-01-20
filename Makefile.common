@@ -30,12 +30,7 @@
 ################
 
 
-#<<<<<<< HEAD
-#CC := g++ # This is the main compiler
-#CC := mpic++ # This is the message passing wrapper needed for CAPS (parallel Strassen)
-#=======
-#### set in platform makefile #### CC := g++ # This is the main compiler
-#>>>>>>> master
+
 
 # NOTE select the appropriate set of CPPFLAGS 
 # most code is checked into git with the first line active
@@ -56,15 +51,10 @@ CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp ### -m64  ##undefine for parallel be
 #CPPFLAGS += -Wall $(CPPSTD) -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp -DNDEBUG ##undefine for multithread really best performance operation
 #CPPFLAGS += -Wall $(CPPSTD) -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
 
-#<<<<<<< HEAD
 
-#fundamental locations in the palisade directory structure
-#sources for all palisade code
-#SRCDIR := src
-#=======
 TEST_LIB := -pthread -lgomp 
 
-#>>>>>>> master
+
 #build directory
 BUILDDIR := build
 
@@ -83,16 +73,10 @@ HDREXT := h
 
 $(objects) : %.o : %.cpp
 
-#<<<<<<< HEAD
 
-##EXTLIB := -lpthread -lgomp #-lblas#-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## no profiling
-#EXTLIB := -lpthread -lgomp -pg #-lblas  #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
-
-#INC := -I include $(OMPINCLUDE) $(BOOSTINCLUDE)
-#=======
 EXTLIB := -L$(EXTLIBDIR) -lpthread -lgomp -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
 INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I test $(OMPINCLUDE) $(BOOSTINCLUDE)
-#>>>>>>> master
+
 
 #the name of the shared object library for palisade objects.  
 PALISADECORELIB := libPALISADEcore$(LIBSUFFIX)

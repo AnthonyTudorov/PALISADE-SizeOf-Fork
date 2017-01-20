@@ -1,7 +1,7 @@
 ## for linux
 
-#BOOSTINCLUDE := -I /afs/cad/linux/boost-1.60-sl6/include/
-BOOSTINCLUDE := -I$(BOOST_ROOT)
+BOOSTINCLUDE := -I /afs/cad/linux/boost-1.60-sl6/include/
+
 OMPINCLUDE := 
 
 CC := g++ # This is the main compiler
