@@ -253,7 +253,7 @@ namespace lbcrypto {
 	typedef NTL::myVec<NTL::myZZ> ubintvec;
 
 	/** Define the mapping for modulo Big Integer Vector */
-	//typedef NTL::myVec<NTL::myZZ_p> mubintvec;
+	typedef NTL::myVecP<NTL::myZZ> mubintvec;
 
 
 #endif

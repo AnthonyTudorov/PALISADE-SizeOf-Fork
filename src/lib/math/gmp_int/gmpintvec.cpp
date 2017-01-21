@@ -196,6 +196,7 @@ namespace NTL {
   }
 
   //procedural addition why can't I inheret this?
+  template<class myT>
   void  myVec<myT>::add(myVec<myT>& x, const myVec<myT>& a, const myVec<myT>& b) const
   {
     unsigned int n = a.length();

@@ -56,7 +56,7 @@ namespace NTL {
     for (usint i = 0; i < len; i++){
       (*this)[i] = myT(s[i]);
     }
-    this->m_modulus_state = UNINITIALIZED;
+    this->m_modulus_state = GARBAGE;
 	
   }
 
@@ -106,7 +106,7 @@ namespace NTL {
     for(usint i=0;i<len;i++){ // this loops over each entry
       (*this)[i] =  myT(*(rhs.begin()+i));
     }
-    if (this->m_modulus_state == INITIALIZED) {
+    if (this->m_modulus_state == myVecP<myT>::INITIALIZED) {
       this->Mod(this->m_modulus);
     }
     return *this;
@@ -133,7 +133,7 @@ namespace NTL {
 #if 0
   // move copy allocator
   template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(mubintvec &&rhs){
+  const myVecP<ubint_el_t>& myVecP<ubint_el_t>::operator=(myVecP &&rhs){
     bool dbg_flag = false;
 
     if(this!=&rhs){
@@ -145,7 +145,7 @@ namespace NTL {
     }
 
     return *this;
-    DEBUG("mubintvec move copy CTOR length "<<this->m_data.size()<< " modulus "<<m_modulus.ToString());
+    DEBUG("myVecP move copy CTOR length "<<this->m_data.size()<< " modulus "<<m_modulus.ToString());
   }
 #endif  
 
@@ -175,8 +175,8 @@ namespace NTL {
     DEBUG("in op=usint&");
     this->SetLength(1);
     (*this)[0] =rhs;
-    this->SetModulus(rhs.GetModulus());
-        return *this;
+    this->m_modulus_state = GARBAGE;
+    return *this;
   }
 
   template<class myT>
@@ -185,7 +185,7 @@ namespace NTL {
     DEBUG("in op=usint");
     this->SetLength(1);
     (*this)[0] =rhs;
-        this->SetModulus(rhs.GetModulus());
+    this->m_modulus_state = GARBAGE;
     return *this;
   }
 
@@ -216,7 +216,7 @@ namespace NTL {
   //ACCESSORS
   //stream <<
   template<class ubint_el_t_c>
-  std::ostream& operator<<(std::ostream& os, const mubintvec<ubint_el_t_c> &ptr_obj){
+  std::ostream& operator<<(std::ostream& os, const myVecP<ubint_el_t_c> &ptr_obj){
 
     os<<std::endl;
     for(usint i=0;i<ptr_obj.m_data.size();i++){
@@ -232,36 +232,36 @@ namespace NTL {
 
   //modulus accessors
   template<class ubint_el_t>
-  void mubintvec<ubint_el_t>::SetModulus(const usint& value){
+  void myVecP<ubint_el_t>::SetModulus(const usint& value){
     m_modulus= ubint_el_t(value);
     m_modulus_state = INITIALIZED;
   }
   
   template<class ubint_el_t>
-  void mubintvec<ubint_el_t>::SetModulus(const ubint_el_t& value){
+  void myVecP<ubint_el_t>::SetModulus(const ubint_el_t& value){
     m_modulus= value;
     m_modulus_state = INITIALIZED;
   }
   
   
   template<class ubint_el_t>
-  void mubintvec<ubint_el_t>::SetModulus(const std::string& value){
+  void myVecP<ubint_el_t>::SetModulus(const std::string& value){
     m_modulus= ubint_el_t(value);
     m_modulus_state = INITIALIZED;
   }
 
   
   template<class ubint_el_t>
-  void mubintvec<ubint_el_t>::SetModulus(const mubintvec& value){
+  void myVecP<ubint_el_t>::SetModulus(const myVecP& value){
     m_modulus= ubint_el_t(value.GetModulus());
     m_modulus_state = INITIALIZED;
   }
   
   
   template<class ubint_el_t>
-  const ubint_el_t& mubintvec<ubint_el_t>::GetModulus() const{
+  const ubint_el_t& myVecP<ubint_el_t>::GetModulus() const{
     if (m_modulus_state != INITIALIZED)
-      throw std::logic_error("GetModulus() on uninitialized mubintvec");
+      throw std::logic_error("GetModulus() on uninitialized myVecP");
 
     return(m_modulus);
   }
@@ -280,7 +280,7 @@ namespace NTL {
    *  i' = i-delta
    */	
   template<class ubint_el_t>
-  void mubintvec<ubint_el_t>::SwitchModulus(const ubint_el_t& newModulus) {
+  void myVecP<ubint_el_t>::SwitchModulus(const ubint_el_t& newModulus) {
 	
     ubint_el_t oldModulus(this->m_modulus);
     ubint_el_t n;
@@ -310,7 +310,7 @@ namespace NTL {
   
   //Math functions
   // modulus
-  
+#if 0  
 
   template<class myT>
   myVecP<myT> myVecP<myT>::operator%( const myT& b) const
@@ -323,12 +323,13 @@ namespace NTL {
     return(res);
   }
 
+
   
   template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Mod(const ubint_el_t& modulus) const{
+  myVecP<ubint_el_t> myVecP<ubint_el_t>::Mod(const ubint_el_t& modulus) const{
 
     // previous version
-    //mubintvec ans(*this);
+    //myVecP ans(*this);
     //for(usint i=0;i<this->m_data.size();i++){
     //  ans.m_data[i] = ans.m_data[i].Mod(modulus);
     //}
@@ -341,7 +342,7 @@ namespace NTL {
 	else
 	{
 
-		mubintvec ans(*this);
+		myVecP ans(*this);
 		ubint_el_t halfQ(this->GetModulus() >> 1);
 		for (usint i = 0; i<this->m_data.size(); i++) {
 			ans.m_data[i] = ans.m_data[i].Mod(modulus);
@@ -364,7 +365,7 @@ namespace NTL {
   // %=
   // method to vector with scalar
   template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator%=(const ubint_el_t& modulus) {
+  const myVecP<ubint_el_t>& myVecP<ubint_el_t>::operator%=(const ubint_el_t& modulus) {
 
     *this = this->Mod(modulus);
     return *this;
@@ -373,9 +374,9 @@ namespace NTL {
 
   //method to mod by two
   template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModByTwo() const {
+  myVecP<ubint_el_t> myVecP<ubint_el_t>::ModByTwo() const {
 
-    mubintvec ans(this->GetLength(),this->GetModulus());
+    myVecP ans(this->GetLength(),this->GetModulus());
     ubint_el_t halfQ(this->GetModulus() >> 1);
     for (usint i = 0; i<ans.GetLength(); i++) {
       if (this->GetValAtIndex(i)>halfQ) {
@@ -394,43 +395,46 @@ namespace NTL {
     }
     return ans;
   }
-
+#endif
 //arithmetic. 
 
   // method to add scalar to vector element at index i
-
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModAddAtIndex(usint i, const ubint_el_t &b) const{
+#if 0
+  template<class myT>
+  myVecP<myT> myVecP<myT>::ModAddAtIndex(usint i, const myT &b) const{
     if(i > this->GetLength()-1) {
-      std::string errMsg = "mubintvec::ModAddAtIndex. Index is out of range. i = " + i;
+      std::string errMsg = "myVecP::ModAddAtIndex. Index is out of range. i = " + i;
       throw std::runtime_error(errMsg);
     }
-    mubintvec ans(*this);
+    myVecP ans(*this);
     ans.m_data[i] = ans.m_data[i].ModAdd(b, this->m_modulus);
     return ans;
   }
+#endif
+
+#if 0
 
   // method to add scalar to vector
-    template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModAdd(const ubint_el_t &b) const{
-    mubintvec ans(*this);
+    template<class myT>
+  myVecP<myT> myVecP<myT>::ModAdd(const myT &b) const{
+    myVecP ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].ModAdd(b, ans.m_modulus);
     }
     return ans;
     }
-    
-    template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Add(const ubint_el_t &b) const{ //overload of ModAdd
-    mubintvec ans(*this);
+
+    template<class myT>
+  myVecP<myT> myVecP<myT>::Add(const myT &b) const{ //overload of ModAdd
+    myVecP ans(*this);
     ans = ans.ModAdd(b);
     return ans;
   }
 
 
   // +=  operator to add scalar to vector
-  template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator+=(const ubint_el_t& b) {
+  template<class myT>
+  const myVecP<myT>& myVecP<myT>::operator+=(const myT& b) {
 
     *this = this->ModAdd(b);
     return *this;
@@ -439,9 +443,9 @@ namespace NTL {
 
 
   // method to subtract scalar from vector
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModSub(const ubint_el_t &b) const{
-    mubintvec ans(*this);
+  template<class myT>
+  myVecP<myT> myVecP<myT>::ModSub(const myT &b) const{
+    myVecP ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].ModSub(b, ans.m_modulus);
     }
@@ -449,16 +453,16 @@ namespace NTL {
   }
 
   // method to subtract scalar from vector
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Sub(const ubint_el_t &b) const{ //overload of Modsub()
-    mubintvec ans(*this);
+  template<class myT>
+  myVecP<myT> myVecP<myT>::Sub(const myT &b) const{ //overload of Modsub()
+    myVecP ans(*this);
     ans = ans.ModSub(b);
     return ans;
   }
 
   // -=  operator to subtract scalar from vector
-  template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator-=(const ubint_el_t& b) {
+  template<class myT>
+  const myVecP<myT>& myVecP<myT>::operator-=(const myT& b) {
 
     *this = this->ModSub(b);
     return *this;
@@ -466,24 +470,24 @@ namespace NTL {
   }
 
   // method to multiply vector by scalar
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModMul(const ubint_el_t &b) const{
+  template<class myT>
+  myVecP<myT> myVecP<myT>::ModMul(const myT &b) const{
 #ifdef NO_BARRETT //non barrett way
-    mubintvec ans(*this);
+    myVecP ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].ModMul(b, ans.m_modulus);
     }
     return ans;
 #else
 
-    mubintvec ans(*this);
+    myVecP ans(*this);
 
     //Precompute the Barrett mu parameter
-    ubint_el_t temp(ubint_el_t::ONE);
+    myT temp(myT::ONE);
 
     temp<<=2*this->GetModulus().GetMSB()+3;
 
-    ubint_el_t mu = temp.DividedBy(m_modulus);
+    myT mu = temp.DividedBy(m_modulus);
 
     //Precompute the Barrett mu values
     /*ubint temp;
@@ -511,9 +515,9 @@ namespace NTL {
 
  // method to multiply vector by scalar
 
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Mul(const ubint_el_t &b) const{ //overload of ModMul()
-    mubintvec ans(*this);
+  template<class myT>
+  myVecP<myT> myVecP<myT>::Mul(const myT &b) const{ //overload of ModMul()
+    myVecP ans(*this);
     ans = ans.ModMul(b);
     return ans;
   }
@@ -521,17 +525,17 @@ namespace NTL {
 
 
   // *=  operator to multiply  scalar from vector
-  template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator*=(const ubint_el_t& b) {
+  template<class myT>
+  const myVecP<myT>& myVecP<myT>::operator*=(const myT& b) {
 
     *this = this->ModMul(b);
     return *this;
 
   }
 
-template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModExp(const ubint_el_t &b) const{
-    mubintvec ans(*this);
+template<class myT>
+  myVecP<myT> myVecP<myT>::ModExp(const myT &b) const{
+    myVecP ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].ModExp(b, ans.m_modulus);
     }
@@ -539,10 +543,10 @@ template<class ubint_el_t>
   }
 
 
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModInverse() const{
+  template<class myT>
+  myVecP<myT> myVecP<myT>::ModInverse() const{
 
-    mubintvec ans(*this);
+    myVecP ans(*this);
     //std::cout << ans << std::endl;
     for(usint i=0;i<this->m_data.size();i++){
       //std::cout << ans.m_data[i] << std::endl;
@@ -555,22 +559,22 @@ template<class ubint_el_t>
 
     
  // method to exponentiate vector by scalar 
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Exp(const ubint_el_t &b) const{ //overload of ModExp()
-    mubintvec ans(*this);
+  template<class myT>
+  myVecP<myT> myVecP<myT>::Exp(const myT &b) const{ //overload of ModExp()
+    myVecP ans(*this);
     ans = ans.ModExp(b);
     return ans;
   }
 
   // vector elementwise add
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModAdd(const mubintvec &b) const{
+  template<class myT>
+  myVecP<myT> myVecP<myT>::ModAdd(const myVecP &b) const{
     
-    mubintvec ans(*this);
+    myVecP ans(*this);
     if(this->m_modulus!=b.m_modulus){
-      throw std::logic_error("mubintvec adding vectors of different moduli");
+      throw std::logic_error("myVecP adding vectors of different moduli");
     } else if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("mubintvec adding vectors of different lengths");
+      throw std::logic_error("myVecP adding vectors of different lengths");
     } else {
       for(usint i=0;i<ans.m_data.size();i++){
 	ans.m_data[i] = ans.m_data[i].ModAdd(b.m_data[i], ans.m_modulus);
@@ -579,22 +583,22 @@ template<class ubint_el_t>
     }
   }
 
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Add(const mubintvec &b) const{ //overload of ModAdd
-    mubintvec ans(*this);
+  template<class myT>
+  myVecP<myT> myVecP<myT>::Add(const myVecP &b) const{ //overload of ModAdd
+    myVecP ans(*this);
     ans = ans.ModAdd(b);
     return ans;
   }
 
   // vector elementwise subtract
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModSub(const mubintvec &b) const{
+  template<class myT>
+  myVecP<myT> myVecP<myT>::ModSub(const myVecP &b) const{
     
-    mubintvec ans(*this);
+    myVecP ans(*this);
     if(this->m_modulus!=b.m_modulus){
-      throw std::logic_error("mubintvec subtracting vectors of different moduli");
+      throw std::logic_error("myVecP subtracting vectors of different moduli");
     } else if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("mubintvec subtracting vectors of different lengths");
+      throw std::logic_error("myVecP subtracting vectors of different lengths");
     } else {
 
       for(usint i=0;i<ans.m_data.size();i++){
@@ -604,23 +608,23 @@ template<class ubint_el_t>
     }
   }
 
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Sub(const mubintvec &b) const{ //overload of ModSub
-    mubintvec ans(*this);
+  template<class myT>
+  myVecP<myT> myVecP<myT>::Sub(const myVecP &b) const{ //overload of ModSub
+    myVecP ans(*this);
     ans = ans.ModSub(b);
     return ans;
   }
 
 
   // vector elementwise multiply
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModMul(const mubintvec &b) const{
+  template<class myT>
+  myVecP<myT> myVecP<myT>::ModMul(const myVecP &b) const{
 #ifdef NO_BARRETT
-    mubintvec ans(*this);
+    myVecP ans(*this);
     if(this->m_modulus!=b.m_modulus){
-      throw std::logic_error("mubintvec multiplying vectors of different moduli");
+      throw std::logic_error("myVecP multiplying vectors of different moduli");
     }else if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("mubintvec multiplying vectors of different lengths");
+      throw std::logic_error("myVecP multiplying vectors of different lengths");
     } else {
       for(usint i=0;i<ans.m_data.size();i++){
         ans.m_data[i] = ans.m_data[i].ModMul(b.m_data[i],ans.m_modulus);
@@ -631,15 +635,15 @@ template<class ubint_el_t>
 #else // bartett way
 
     if((this->m_data.size()!=b.m_data.size()) || this->m_modulus!=b.m_modulus ){
-      throw std::logic_error("ModMul called on mubintvecs with different parameters.");
+      throw std::logic_error("ModMul called on myVecPs with different parameters.");
     }
     
-    mubintvec ans(*this);
+    myVecP ans(*this);
     
     //Precompute the Barrett mu parameter
-    ubint_el_t temp(ubint_el_t::ONE);
+    myT temp(myT::ONE);
     temp<<=2*this->GetModulus().GetMSB()+3;
-    ubint_el_t mu = temp.Div(this->GetModulus());
+    myT mu = temp.Div(this->GetModulus());
     
     //Precompute the Barrett mu values
     /*BigBinaryInteger temp;
@@ -663,21 +667,21 @@ template<class ubint_el_t>
   }
   
 
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Mul(const mubintvec &b) const{ //overload of ModMul
-    mubintvec ans(*this);
+  template<class myT>
+  myVecP<myT> myVecP<myT>::Mul(const myVecP &b) const{ //overload of ModMul
+    myVecP ans(*this);
     ans = ans.ModMul(b);
     return ans;
   }
 
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::MultiplyAndRound(const ubint_el_t &p, const ubint_el_t &q) const {
+  template<class myT>
+  myVecP<myT> myVecP<myT>::MultiplyAndRound(const myT &p, const myT &q) const {
 
-	  mubintvec ans(*this);
-	  ubint_el_t halfQ(this->m_modulus >> 1);
+	  myVecP ans(*this);
+	  myT halfQ(this->m_modulus >> 1);
 	  for (usint i = 0; i<this->m_data.size(); i++) {
 		  if (ans.m_data[i] > halfQ) {
-			  ubint_el_t temp = this->m_modulus - ans.m_data[i];
+			  myT temp = this->m_modulus - ans.m_data[i];
 			  ans.m_data[i] = this->m_modulus - temp.MultiplyAndRound(p, q);
 		  }
 		  else
@@ -686,9 +690,9 @@ template<class ubint_el_t>
 	  return ans;
   }
 
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::DivideAndRound(const ubint_el_t &q) const {
-	  mubintvec ans(*this);
+  template<class myT>
+  myVecP<myT> myVecP<myT>::DivideAndRound(const myT &q) const {
+	  myVecP ans(*this);
 	  for (usint i = 0; i<this->m_data.size(); i++) {
 		  ans.m_data[i] = ans.m_data[i].DivideAndRound(q);
 	  }
@@ -697,52 +701,54 @@ template<class ubint_el_t>
 
   // assignment operators
 
-  template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator+=(const mubintvec &b) {
+  template<class myT>
+  const myVecP<myT>& myVecP<myT>::operator+=(const myVecP &b) {
     if(this->m_modulus!=b.m_modulus){
-      throw std::logic_error("mubintvec += vectors of different moduli");
+      throw std::logic_error("myVecP += vectors of different moduli");
     }else if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("mubintvec += vectors of different lengths");
+      throw std::logic_error("myVecP += vectors of different lengths");
     }
 
     *this = *this + b;
     return *this;
   }
 
-  template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator-=(const mubintvec &b) {
+  template<class myT>
+  const myVecP<myT>& myVecP<myT>::operator-=(const myVecP &b) {
     if(this->m_modulus!=b.m_modulus){
-      throw std::logic_error("mubintvec -= vectors of different moduli");
+      throw std::logic_error("myVecP -= vectors of different moduli");
     }else if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("mubintvec -= vectors of different lengths");
+      throw std::logic_error("myVecP -= vectors of different lengths");
     }
     *this = *this - b;
     return *this;
   }
 
 
-  template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator*=(const mubintvec &b) {
+  template<class myT>
+  const myVecP<myT>& myVecP<myT>::operator*=(const myVecP &b) {
     if(this->m_modulus!=b.m_modulus){
-      throw std::logic_error("mubintvec -= vectors of different moduli");
+      throw std::logic_error("myVecP -= vectors of different moduli");
     }else if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("mubintvec -= vectors of different lengths");
+      throw std::logic_error("myVecP -= vectors of different lengths");
     }
     *this = *this * b;
     return *this;
   }
 
-
+#endif    
+#if 0
   //Gets the ind
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::GetDigitAtIndexForBase(usint index, usint base) const{
-    mubintvec ans(*this);
+  template<class myT>
+  myVecP<myT> myVecP<myT>::GetDigitAtIndexForBase(usint index, usint base) const{
+    myVecP ans(*this);
     for(usint i=0; i < this->m_data.size(); i++){
-      ans.m_data[i] = ubint_el_t(ans.m_data[i].GetDigitAtIndexForBase(index,base));
+      ans.m_data[i] = myT(ans.m_data[i].GetDigitAtIndexForBase(index,base));
     }
 
     return ans;
   }
+#endif
 #if 0
 	//this has not  been touched
   //new serialize and deserialise operations
@@ -751,7 +757,7 @@ template<class ubint_el_t>
 
   // JSON FACILITY - Serialize Operation
   template<class bin_el_t>
-  bool mubintvec<bin_el_t>::Serialize(lbcrypto::Serialized* serObj) const {
+  bool myVecP<bin_el_t>::Serialize(lbcrypto::Serialized* serObj) const {
 
     if( !serObj->IsObject() )
       return false;
@@ -768,22 +774,22 @@ template<class ubint_el_t>
       }
       bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
     }
-    serObj->AddMember("mubintvec", bbvMap, serObj->GetAllocator());
+    serObj->AddMember("myVecP", bbvMap, serObj->GetAllocator());
     return true;
   }
 
   // JSON FACILITY - Deserialize Operation
-  template<class ubint_el_t>
-  bool mubintvec<ubint_el_t>::Deserialize(const lbcrypto::Serialized& serObj) {
+  template<class myT>
+  bool myVecP<myT>::Deserialize(const lbcrypto::Serialized& serObj) {
 
-    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("mubintvec");
+    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("myVecP");
     if( mIter == serObj.MemberEnd() )
       return false;
 
     lbcrypto::SerialItem::ConstMemberIterator vIt;
     if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
     return false;
-    ubint_el_t bbiModulus(vIt->value.GetString());
+    myT bbiModulus(vIt->value.GetString());
 
     if( (vIt = mIter->value.FindMember("VectorValues")) == mIter->value.MemberEnd() )
       return false;
@@ -792,7 +798,7 @@ template<class ubint_el_t>
 
     this->m_data.clear();
 
-    ubint_el_t vectorElem;
+    myT vectorElem;
     //usint ePos = 0;
     const char *vp = vIt->value.GetString();
     while( *vp != '\0' ) {
