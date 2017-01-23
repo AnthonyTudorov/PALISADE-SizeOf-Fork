@@ -296,6 +296,22 @@ public:
 	shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2,
 		const shared_ptr<LPEvalKey<Element>> evalKey) const; // HS- This doesn't look like its implemented.
+	
+	/**
+	* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
+	* @param x - matrix of regressors
+	* @param y - vector of dependent variables
+	* @param ek - evaluation key used for EvalMult operations
+	* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
+	*/
+	virtual shared_ptr<Matrix<Ciphertext<Element>>>
+		EvalLinRegression(const shared_ptr<Matrix<Ciphertext<Element>>> x,
+			const shared_ptr<Matrix<Ciphertext<Element>>> y,
+			const shared_ptr<LPEvalKey<Element>> evalKey) const {
+		std::string errMsg = "LPAlgorithmSHELTV::EvalLinRegression is not implemented yet.";
+		throw std::runtime_error(errMsg);
+	}
+															 
 	/**
 	* Method for generating a KeySwitchHint
 	*

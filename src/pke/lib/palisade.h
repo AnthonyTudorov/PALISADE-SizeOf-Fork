@@ -25,6 +25,7 @@ class CryptoContext;
 
 #include "math/backend.h"
 #include "math/distrgen.h"
+#include "math/matrix.h"
 
 #include "utils/inttypes.h"
 

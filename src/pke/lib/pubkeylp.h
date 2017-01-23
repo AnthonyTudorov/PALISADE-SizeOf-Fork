@@ -1069,6 +1069,18 @@ namespace lbcrypto {
 				const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const = 0;
 
 			/**
+			* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
+			* @param x - matrix of regressors
+			* @param y - vector of dependent variables
+			* @param ek - evaluation key used for EvalMult operations
+			* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
+			*/
+			virtual shared_ptr<Matrix<Ciphertext<Element>>>
+				EvalLinRegression(const shared_ptr<Matrix<Ciphertext<Element>>> x,
+					const shared_ptr<Matrix<Ciphertext<Element>>> y,
+					const shared_ptr<LPEvalKey<Element>> evalKey) const = 0;
+
+			/**
 			* Method for KeySwitchGen
 			*
 			* @param &originalPrivateKey Original private key used for encryption.
@@ -1373,6 +1385,27 @@ namespace lbcrypto {
 			else {
 				throw std::logic_error("EvalMult operation has not been enabled");
 			}
+		}
+
+		/**
+		* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
+		* @param x - matrix of regressors
+		* @param y - vector of dependent variables
+		* @param ek - evaluation key used for EvalMult operations
+		* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
+		*/
+		shared_ptr<Matrix<Ciphertext<Element>>>
+			EvalLinRegression(const shared_ptr<Matrix<Ciphertext<Element>>> x,
+				const shared_ptr<Matrix<Ciphertext<Element>>> y,
+				const shared_ptr<LPEvalKey<Element>> evalKey) const
+		{
+
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalLinRegression(x, y, evalKey);
+			else {
+				throw std::logic_error("EvalLinRegression operation has not been enabled");
+			}
+
 		}
 
 		shared_ptr<LPEvalKey<Element>> KeySwitchGen(

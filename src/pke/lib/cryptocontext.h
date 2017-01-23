@@ -561,6 +561,24 @@ public:
 	}
 
 	/**
+	* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
+	* @param x - matrix of regressors
+	* @param y - vector of dependent variables
+	* @param ek - evaluation key used for EvalMult operations
+	* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
+	*/
+	shared_ptr<Matrix<Ciphertext<Element>>>
+		EvalLinRegression(const shared_ptr<Matrix<Ciphertext<Element>>> x,
+			const shared_ptr<Matrix<Ciphertext<Element>>> y,
+			const shared_ptr<LPEvalKey<Element>> ek) const
+	{
+		//if (ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this)
+		//	throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
+
+		return GetEncryptionAlgorithm()->EvalLinRegression(x, y, ek);
+	}
+
+	/**
 	* KeySwitch - PALISADE KeySwitch method
 	* @param keySwitchHint - reference to KeySwitchHint
 	* @param ciphertext - vector of ciphertext
