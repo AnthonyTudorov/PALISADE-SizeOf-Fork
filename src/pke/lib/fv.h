@@ -384,21 +384,6 @@ namespace lbcrypto {
 			const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
 
 		/**
-		* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
-		* @param x - matrix of regressors
-		* @param y - vector of dependent variables
-		* @param ek - evaluation key used for EvalMult operations
-		* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
-		*/
-		virtual shared_ptr<Matrix<Ciphertext<Element>>>
-			EvalLinRegression(const shared_ptr<Matrix<Ciphertext<Element>>> x,
-				const shared_ptr<Matrix<Ciphertext<Element>>> y,
-				const shared_ptr<LPEvalKey<Element>> evalKey) const {
-			std::string errMsg = "LPAlgorithmSHEFV::EvalLinRegression is not implemented yet.";
-			throw std::runtime_error(errMsg);
-		}
-
-		/**
 		* Method for generating a KeySwitchHint
 		*
 		* @param originalPrivateKey Original private key used for encryption.

@@ -1078,7 +1078,12 @@ namespace lbcrypto {
 			virtual shared_ptr<Matrix<Ciphertext<Element>>>
 				EvalLinRegression(const shared_ptr<Matrix<Ciphertext<Element>>> x,
 					const shared_ptr<Matrix<Ciphertext<Element>>> y,
-					const shared_ptr<LPEvalKey<Element>> evalKey) const = 0;
+					const shared_ptr<LPEvalKey<Element>> evalKey) const
+			{
+				
+				shared_ptr<Matrix<Ciphertext<Element>>> result;
+				return result;
+			}
 
 			/**
 			* Method for KeySwitchGen

@@ -40,6 +40,17 @@ Matrix<Element>::Matrix(alloc_func allocZero, size_t rows, size_t cols): rows(ro
     }
 }
 
+//template<class Element>
+//Matrix<Element>::Matrix(std::function<shared_ptr<Element>(void)> allocZero, size_t rows, 
+//		size_t cols) : rows(rows), cols(cols), data(), allocZero(allocZero) {
+//	data.resize(rows);
+//	for (auto row = data.begin(); row != data.end(); ++row) {
+//		for (size_t col = 0; col < cols; ++col) {
+//			row->push_back(allocZero());
+//		}
+//	}
+//}
+
 template<class Element>
 Matrix<Element>::Matrix(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen): rows(rows), cols(cols), data(), allocZero(allocZero) {
     data.resize(rows);

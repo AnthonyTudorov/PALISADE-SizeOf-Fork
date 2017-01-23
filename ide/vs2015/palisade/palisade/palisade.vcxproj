@@ -166,7 +166,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\demo\ObfuscateSourceV3.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\demo\Evaluator.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

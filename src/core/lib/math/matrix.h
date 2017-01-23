@@ -61,6 +61,15 @@ namespace lbcrypto {
             Matrix(alloc_func allocZero, size_t rows, size_t cols);
 
 			/**
+			* Constructor that initializes matrix values using a zero allocator based on shared pointers
+			*
+			* @param &allocZero lambda function for zero initialization.
+			* @param &rows number of rows.
+			* @param &rows number of columns.
+			*/
+			//Matrix(std::function<shared_ptr<Element>(void)> allocZero, size_t rows, size_t cols);
+
+			/**
 			 * Constructor that initializes matrix values using a distribution generation allocator
 			 *
 			 * @param &allocZero lambda function for zero initialization (used for initializing derived matrix objects)
