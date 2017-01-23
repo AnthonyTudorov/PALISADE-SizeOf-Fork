@@ -327,6 +327,25 @@ Matrix<Element> Matrix<Element>::Transpose() const {
     return result;
 }
 
+template<class Element>
+Element Matrix<Element>::Determinant() const {
+	if (rows != cols) 
+		throw invalid_argument("Supported only for square matrix");
+	Element determinant;
+	if (rows < 2)
+		throw invalid_argument("Dimension should be at least two");
+	else if (rows == 2)
+		determinant = this->data(0, 0) * this->data(1, 1) - this.data(1, 0) * this->data(0, 1);
+	else
+	{
+		shared_ptr<Matrix<Element>> result(allocZero, rows - 1, cols - 1);
+		//for (size_t row = 0; row < rows; ++row) {
+		//	for (size_t col = 0; col < cols; ++col) {
+		//		if 
+	}
+	return determinant;
+}
+
 //  add rows to bottom of the matrix
 template<class Element>
 Matrix<Element>& Matrix<Element>::VStack(Matrix<Element> const& other) {

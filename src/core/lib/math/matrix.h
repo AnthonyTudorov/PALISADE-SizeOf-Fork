@@ -299,6 +299,20 @@ namespace lbcrypto {
              */ 
             inline Matrix<Element> Transpose() const;
 
+			/**
+			* Matrix determinant
+			*
+			* @return the determinant of the matrix
+			*/
+			inline Element Determinant() const;
+
+			/**
+			* Cofactor matrix
+			*
+			* @return the cofactor matrix for the givem matrix
+			*/
+			inline Matrix<Element> CofactorMatrix() const;
+
             /**
              * Add rows to bottom of the matrix
 			 *

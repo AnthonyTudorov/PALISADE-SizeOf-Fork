@@ -27,6 +27,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <fstream>
 
+#include "math/matrix.h"
+#include "math/matrix.cpp"
 #include "palisade.h"
 
 #include "cryptocontexthelper.h"
@@ -35,11 +37,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "encoding/intplaintextencoding.h"
 
 #include "utils/debug.h"
-
-namespace lbcrypto {
-	extern template class Ciphertext<ILVector2n>;
-	extern template class Matrix<Ciphertext<ILVector2n>>;
-}
 
 //using namespace std;
 using namespace lbcrypto;
@@ -149,19 +146,19 @@ void EvalLinRegression(MODE mode) {
 	ciphertext5 = cc.Encrypt(kp.publicKey, plaintext5, true);
 	ciphertext6 = cc.Encrypt(kp.publicKey, plaintext6, true);
 
-	auto zeroAlloc = [=]() { return make_unique<Ciphertext<ILVector2n>>(cc); };
+	auto zeroAlloc = [=]() { return make_unique<shared_ptr<Ciphertext<ILVector2n>>>(cc); };
 
-	Matrix<Ciphertext<ILVector2n>> x(zeroAlloc, 2, 2);
+	Matrix<shared_ptr<Ciphertext<ILVector2n>>> x(zeroAlloc, 2, 2);
 
-	x(0, 0) = *ciphertext1[0];
-	x(0, 1) = *ciphertext2[0];
-	x(1, 0) = *ciphertext3[0];
-	x(1, 1) = *ciphertext4[0];
+	x(0, 0) = ciphertext1[0];
+	x(0, 1) = ciphertext2[0];
+	x(1, 0) = ciphertext3[0];
+	x(1, 1) = ciphertext4[0];
 
-	Matrix<Ciphertext<ILVector2n>> y(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Ciphertext<ILVector2n>>> y(zeroAlloc, 2, 1);
 
-	y(0, 0) = *ciphertext5[0];
-	y(1, 0) = *ciphertext6[0];
+	y(0, 0) = ciphertext5[0];
+	y(1, 0) = ciphertext6[0];
 
 	////////////////////////////////////////////////////////////
 	//EvalMult Operation
