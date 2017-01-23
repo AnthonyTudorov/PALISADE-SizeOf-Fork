@@ -252,3 +252,20 @@ TEST(UTMatrix, norm) {
     Matrix<ILVector2n> m = Matrix<ILVector2n>(secureIL2nAlloc(), 2, 2).Identity();
     EXPECT_EQ(1.0, m.Norm());
 }
+
+TEST(UTMatrix, determinant) {
+	
+	Matrix<int32_t> m([]() { return make_unique<int32_t>(); }, 3, 3);
+	m(0, 0) = 1;
+	m(0, 1) = 2;
+	m(0, 2) = 1;
+	m(1, 0) = -1;
+	m(1, 1) = 1;
+	m(1, 2) = 1;
+	m(2, 0) = 1;
+	m(2, 1) = 2;
+	m(2, 2) = 3;
+
+	int32_t determinant = m.Determinant();
+	EXPECT_EQ(6, determinant);
+}

@@ -300,7 +300,7 @@ namespace lbcrypto {
             inline Matrix<Element> Transpose() const;
 
 			/**
-			* Matrix determinant
+			* Matrix determinant - found using Laplace formula with complexity O(d!), where d is the dimension
 			*
 			* @return the determinant of the matrix
 			*/

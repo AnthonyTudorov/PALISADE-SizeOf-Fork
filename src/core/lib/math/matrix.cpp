@@ -327,21 +327,49 @@ Matrix<Element> Matrix<Element>::Transpose() const {
     return result;
 }
 
+// Laplace's formula is used to find the determinant
+// Complexity is O(d!), where d is the dimension
+// The determinant of a matrix is expressed in terms of its minors
+// recursive implementation
 template<class Element>
 Element Matrix<Element>::Determinant() const {
 	if (rows != cols) 
 		throw invalid_argument("Supported only for square matrix");
-	Element determinant;
+	Element determinant = *allocZero();
 	if (rows < 2)
 		throw invalid_argument("Dimension should be at least two");
 	else if (rows == 2)
-		determinant = this->data(0, 0) * this->data(1, 1) - this.data(1, 0) * this->data(0, 1);
+		determinant = *data[0][0] * (*data[1][1]) - *data[1][0] * (*data[0][1]);
 	else
 	{
-		shared_ptr<Matrix<Element>> result(allocZero, rows - 1, cols - 1);
-		//for (size_t row = 0; row < rows; ++row) {
-		//	for (size_t col = 0; col < cols; ++col) {
-		//		if 
+		size_t j1, j2;
+		size_t n = rows;
+
+		Matrix<Element> result(allocZero, rows - 1, cols - 1);
+
+		// for each column in sub-matrix
+		for (j1 = 0; j1 < n; j1++) {
+
+			// build sub-matrix with minor elements excluded
+			for (size_t i = 1; i < n; i++) {
+				j2 = 0;               // start at first sum-matrix column position
+				// loop to copy source matrix less one column
+				for (size_t j = 0; j < n; j++) {
+					if (j == j1) continue; // don't copy the minor column element
+
+					*result.data[i-1][j2] = *data[i][j];  // copy source element into new sub-matrix
+											 // i-1 because new sub-matrix is one row
+											 // (and column) smaller with excluded minors
+					j2++;                  // move to next sub-matrix column position
+				}
+			}
+
+			if (j1 % 2 == 0)
+				determinant = determinant + (*data[0][j1]) * result.Determinant();
+			else
+				determinant = determinant - (*data[0][j1]) * result.Determinant();
+
+		}
 	}
 	return determinant;
 }
