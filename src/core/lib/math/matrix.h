@@ -109,7 +109,7 @@ namespace lbcrypto {
 			 *
 			 * @return the resulting matrix
 			 */
-            inline Matrix<Element>& Fill(Element val); 
+            inline Matrix<Element>& Fill(const Element &val); 
 
 			/**
 			 * In-place change of the current matrix to Identity matrix

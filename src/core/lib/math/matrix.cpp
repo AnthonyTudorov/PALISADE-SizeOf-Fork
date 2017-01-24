@@ -86,7 +86,7 @@ Matrix<Element>& Matrix<Element>::Ones() {
 }
 
 template<class Element>
-Matrix<Element>& Matrix<Element>::Fill(Element val) {
+Matrix<Element>& Matrix<Element>::Fill(const Element &val) {
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
             *data[row][col] = val;

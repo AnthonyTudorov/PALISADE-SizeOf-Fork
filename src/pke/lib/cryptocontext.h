@@ -285,6 +285,25 @@ public:
 	}
 
 	/**
+	* Encrypt a matrix of plaintexts
+	* @param publicKey - for encryption
+	* @param plaintext - to encrypt
+	* @param doPadding - if true, pad the input out to fill the encrypted chunk
+	* @return a vector of pointers to Ciphertexts created by encrypting the plaintext
+	*/
+	shared_ptr<Matrix<Ciphertext<Element>>> EncryptMatrix(
+		const shared_ptr<LPPublicKey<Element>> publicKey,
+		const Matrix<Plaintext> &plaintext) const
+	{
+
+		auto zeroAlloc = [=]() { return make_unique<Ciphertext<Element>>(*this); };
+
+		shared_ptr<Matrix<Ciphertext<Element>>> result(new Matrix<Ciphertext<Element>>(zeroAlloc, plaintext.GetRows(), plaintext.GetCols()));
+
+		return result;
+	}
+
+	/**
 	* Perform an encryption by reading plaintext from a stream, serializing each piece of ciphertext,
 	* and writing the serializations to an output stream
 	* @param publicKey - the encryption key in use
@@ -384,6 +403,21 @@ public:
 		}
 
 		return DecryptResult(plaintext->GetLength());
+	}
+
+	/**
+	* Decrypt method for a matrix of ciphertexts
+	* @param privateKey - for decryption
+	* @param ciphertext - matrix of encrypted ciphertexts
+	* @param plaintext - pointer to the destination martrix of plaintexts
+	* @return size of plaintext
+	*/
+	DecryptResult DecryptMatrix(
+		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const shared_ptr<Matrix<Ciphertext<Element>>>& ciphertext,
+		Matrix<Plaintext> *plaintext) const
+	{
+		return DecryptResult(1);
 	}
 
 	/**
