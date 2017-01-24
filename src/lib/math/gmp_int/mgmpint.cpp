@@ -49,6 +49,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "gmpint.h"
 #include "mgmpint.h"
 
 namespace NTL {
@@ -66,13 +67,13 @@ namespace NTL {
   myZZ_p::myZZ_p(unsigned long a): ZZ_p(a) {}
   myZZ_p::myZZ_p(const unsigned int &a): ZZ_p(a) {}
   myZZ_p::myZZ_p(unsigned int &a): ZZ_p(a) {}
-  myZZ_p::myZZ_p(INIT_SIZE_TYPE, long k): ZZ_p(INIT_SIZE, k) {m_MSB=0; }
+myZZ_p::myZZ_p(INIT_SIZE_TYPE, long k): ZZ_p(INIT_SIZE, k) {m_MSB=0; } //??
   myZZ_p::myZZ_p(std::string s): ZZ_p(conv<ZZ_p>(s.c_str())) {}
   myZZ_p::myZZ_p(const char *s): ZZ_p(conv<ZZ_p>(s)) {}
 
-  myZZ_p::myZZ_p(NTL::ZZ &a): ZZ_p(a) {}
-  myZZ_p::myZZ_p(const NTL::ZZ &a): ZZ_p(a) {}
-  myZZ_p::myZZ_p(NTL::ZZ &&a) : ZZ_p(a) {}
+myZZ_p::myZZ_p(NTL::ZZ &a): ZZ_p(a) {} //??
+myZZ_p::myZZ_p(const NTL::ZZ &a): ZZ_p(a) {}  //??
+myZZ_p::myZZ_p(NTL::ZZ &&a) : ZZ_p(a) {}  //??
 
   myZZ_p::myZZ_p(NTL::ZZ_p &a): ZZ_p(a) {}
   myZZ_p::myZZ_p(const NTL::ZZ_p &a): ZZ_p(a) {}
@@ -126,18 +127,19 @@ namespace NTL {
     return r + bval[x];
   }
 
-  void myZZp::m_setOTM(myZZ &q) 
+  void myZZp::m_setOTM(const myZZ &q) 
   {
     //should test first but for now just set
     m_OTM = q;
     m_OTM_state = INITIALIZED;
   }
-  void myZZp::m_checkOTM(myZZ &q) const {
+  bool myZZp::m_checkOTM(const myZZ &q) const {
     if (m_OTM_state == GARBAGE){
       throw std::logic_error("myZZp::function() called with uninitialized OTM");
     }
+    return (m_OTM == q);
   }
-  myZZ& myZZp::m_getOTM(myZZ &q);
+  myZZ& myZZp::m_getOTM(void) const;
     if (m_OTM_state == GARBAGE){
       throw std::logic_error("myZZp::checkfunction() called with uninitialized OTM");
     } else {
