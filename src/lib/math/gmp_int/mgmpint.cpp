@@ -51,8 +51,15 @@
 #include <sstream>
 #include "gmpint.h"
 #include "mgmpint.h"
+//#include <NTL/ZZ.h>
+//#include <NTL/ZZ_limbs.h>
+
 
 namespace NTL {
+
+  //define the static vriables
+  myZZ myZZ_p::m_OTM = 0;
+  myZZ_p::OTMState myZZ_p::m_OTM_state = GARBAGE;
 
   const myZZ_p myZZ_p::ZERO=myZZ_p(0L);
   const myZZ_p myZZ_p::ONE=myZZ_p(1);
@@ -66,14 +73,14 @@ namespace NTL {
   myZZ_p::myZZ_p(long a): ZZ_p(a) {}
   myZZ_p::myZZ_p(unsigned long a): ZZ_p(a) {}
   myZZ_p::myZZ_p(const unsigned int &a): ZZ_p(a) {}
-  myZZ_p::myZZ_p(unsigned int &a): ZZ_p(a) {}
-myZZ_p::myZZ_p(INIT_SIZE_TYPE, long k): ZZ_p(INIT_SIZE, k) {m_MSB=0; } //??
-  myZZ_p::myZZ_p(std::string s): ZZ_p(conv<ZZ_p>(s.c_str())) {}
-  myZZ_p::myZZ_p(const char *s): ZZ_p(conv<ZZ_p>(s)) {}
+  myZZ_p::myZZ_p(unsigned int &a): ZZ_p(a) {} 
+  //myZZ_p::myZZ_p(INIT_SIZE_TYPE, long k): ZZ_p(INIT_SIZE, k) {m_MSB=0; } 
+  myZZ_p::myZZ_p(std::string s): ZZ_p() {this->_ZZ_p__rep=conv<ZZ>(s.c_str());}
+  myZZ_p::myZZ_p(const char *s): ZZ_p() {this->_ZZ_p__rep=conv<ZZ>(s);}
 
-myZZ_p::myZZ_p(NTL::ZZ &a): ZZ_p(a) {} //??
-myZZ_p::myZZ_p(const NTL::ZZ &a): ZZ_p(a) {}  //??
-myZZ_p::myZZ_p(NTL::ZZ &&a) : ZZ_p(a) {}  //??
+  myZZ_p::myZZ_p(NTL::ZZ &a): ZZ_p() {this->_ZZ_p__rep=a;}
+  myZZ_p::myZZ_p(const NTL::ZZ &a): ZZ_p() {this->_ZZ_p__rep=a;}
+  myZZ_p::myZZ_p(NTL::ZZ &&a) : ZZ_p() {this->_ZZ_p__rep=a;}
 
   myZZ_p::myZZ_p(NTL::ZZ_p &a): ZZ_p(a) {}
   myZZ_p::myZZ_p(const NTL::ZZ_p &a): ZZ_p(a) {}
@@ -92,18 +99,18 @@ myZZ_p::myZZ_p(NTL::ZZ &&a) : ZZ_p(a) {}  //??
   void myZZ_p::SetMSB()
   {
 
-    size_t sz = this->size();
+    size_t sz = this->_ZZ_p__rep.size();
     //std::cout<<"size "<<sz <<" ";
     if (sz==0) { //special case for empty data
       m_MSB = 0;
       return;
     }
 
-    m_MSB = (sz-1) * NTL_ZZ_p_NBITS; //figure out bit location of all but last limb
+    m_MSB = (sz-1) * NTL_ZZ_NBITS; //figure out bit location of all but last limb
     //std::cout<<"msb starts with "<<m_MSB<< " ";
     //could also try
     //m_MSB = NumBytes(*this)*8;
-    const ZZ_p_limb_t *zlp = ZZ_p_limbs_get(*this);
+    const ZZ_limb_t *zlp = ZZ_limbs_get(this->_ZZ_p__rep);
     //for (usint i = 0; i < sz; i++){
     //std::cout<< "limb["<<i<<"] = "<<zlp[i]<<std::endl;
     //}
@@ -114,8 +121,8 @@ myZZ_p::myZZ_p(NTL::ZZ &&a) : ZZ_p(a) {}  //??
     //std::cout<<"msb ends with "<<m_MSB<< " " <<std::endl;
   }
 
- // inline static usint GetMSBLimb_t(ZZ_p_limb_t x){
-  usint myZZ_p::GetMSBLimb_t( ZZ_p_limb_t x){
+ // inline static usint GetMSBLimb_t(ZZ_limb_t x){
+  usint myZZ_p::GetMSBLimb_t( ZZ_limb_t x){
     const usint bval[] =
     {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
 
@@ -127,21 +134,25 @@ myZZ_p::myZZ_p(NTL::ZZ &&a) : ZZ_p(a) {}  //??
     return r + bval[x];
   }
 
-  void myZZp::m_setOTM(const myZZ &q) 
+  void myZZ_p::m_setOTM(const myZZ &q) 
   {
     //should test first but for now just set
     m_OTM = q;
     m_OTM_state = INITIALIZED;
   }
-  bool myZZp::m_checkOTM(const myZZ &q) const {
+
+  bool myZZ_p::m_checkOTM(const myZZ &q) const 
+  {
     if (m_OTM_state == GARBAGE){
-      throw std::logic_error("myZZp::function() called with uninitialized OTM");
+      throw std::logic_error("myZZ_p::function() called with uninitialized OTM");
     }
     return (m_OTM == q);
   }
-  myZZ& myZZp::m_getOTM(void) const;
+
+  myZZ& myZZ_p::m_getOTM(void) const 
+  {
     if (m_OTM_state == GARBAGE){
-      throw std::logic_error("myZZp::checkfunction() called with uninitialized OTM");
+      throw std::logic_error("myZZ_p::checkfunction() called with uninitialized OTM");
     } else {
       return m_OTM;
     }
@@ -158,8 +169,8 @@ myZZ_p::myZZ_p(NTL::ZZ &&a) : ZZ_p(a) {}  //??
   uint32_t myZZ_p::ConvertToUint32() const { return (conv<uint32_t>(*this));}
 
   uint64_t myZZ_p::ConvertToUint64() const{ return (conv<uint64_t>(*this));}
-  float myZZ_p::ConvertToFloat() const{ return (conv<float>(*this));}
-  double myZZ_p::ConvertToDouble() const{ return (conv<double>(*this));}
+  float myZZ_p::ConvertToFloat() const{ return (conv<float>(this->_ZZ_p__rep));}
+  double myZZ_p::ConvertToDouble() const{ return (conv<double>(this->_ZZ_p__rep));}
   long double myZZ_p::ConvertToLongDouble() const {
     std::cerr<<"can't convert to long double"<<std::endl; 
     return 0.0L;

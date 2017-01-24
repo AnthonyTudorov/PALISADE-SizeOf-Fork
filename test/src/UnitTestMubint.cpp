@@ -622,7 +622,7 @@ TEST(UTmubint,basic_vector_vector_mod_math_big_numbers){
   d3 = a3;
   d3 *= b3;
   EXPECT_EQ (d3, modmul3) << "Failure big number vector vector *=";
-#endif
+
   
 }
 
