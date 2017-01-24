@@ -331,6 +331,9 @@ Matrix<Element> Matrix<Element>::Transpose() const {
 // Complexity is O(d!), where d is the dimension
 // The determinant of a matrix is expressed in terms of its minors
 // recursive implementation
+// There are O(d^3) decomposition algorithms that can be implemented to support larger dimensions.
+// Examples include the LU decomposition, the QR decomposition or 
+// the Cholesky decomposition(for positive definite matrices).
 template<class Element>
 Element Matrix<Element>::Determinant() const {
 	if (rows != cols) 
@@ -372,6 +375,56 @@ Element Matrix<Element>::Determinant() const {
 		}
 	}
 	return determinant;
+}
+
+// The cofactor matrix is the matrix of determinants of the minors A_{ij} multiplied by -1^{i+j}
+// The determinant subroutine is used
+template<class Element>
+Matrix<Element> Matrix<Element>::CofactorMatrix() const {
+	
+	if (rows != cols)
+		throw invalid_argument("Supported only for square matrix");
+
+	size_t ii, jj, iNew, jNew;
+
+	size_t n = rows;
+
+	Matrix<Element> result(allocZero, rows, cols);
+
+	for (size_t j = 0; j<n; j++) {
+
+		for (size_t i = 0; i<n; i++) {
+
+			Matrix<Element> c(allocZero, rows - 1, cols - 1);
+
+			/* Form the adjoint a_ij */
+			iNew = 0;
+			for (ii = 0; ii<n; ii++) {
+				if (ii == i)
+					continue;
+				jNew = 0;
+				for (jj = 0; jj<n; jj++) {
+					if (jj == j)
+						continue;
+					*c.data[iNew][jNew] = *data[ii][jj];
+					jNew++;
+				}
+				iNew++;
+			}
+
+			/* Calculate the determinant */
+			auto determinant = c.Determinant();
+
+			/* Fill in the elements of the cofactor */
+			if ((i + j) % 2 == 0)
+				*result.data[i][j] = determinant;
+			else
+				*result.data[i][j] = -determinant;
+		}
+	}
+
+	return result;
+
 }
 
 //  add rows to bottom of the matrix

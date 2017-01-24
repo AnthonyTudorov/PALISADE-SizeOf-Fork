@@ -307,9 +307,9 @@ namespace lbcrypto {
 			inline Element Determinant() const;
 
 			/**
-			* Cofactor matrix
+			* Cofactor matrix - the matrix of determinants of the minors A_{ij} multiplied by -1^{i+j}
 			*
-			* @return the cofactor matrix for the givem matrix
+			* @return the cofactor matrix for the given matrix
 			*/
 			inline Matrix<Element> CofactorMatrix() const;
 
