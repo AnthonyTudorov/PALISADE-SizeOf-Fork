@@ -624,25 +624,15 @@ namespace lbcrypto {
 
 	};
 
-    /**
-     * Subtraction operator overload.  Performs a subtraction in the ring.
-     *
-     * @param &a the first parameter.
-     * @param &b the first parameter.
-     *
-     * @return The result of subtraction in the ring.
-     */
-    inline ILVectorArray2n operator-(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Minus(b); }
-
-    /**
-     * Subtraction operator overload.  Performs a subtraction in the ring.
-     *
-     * @param &a the first parameter.
-     * @param &b the first parameter.
-     *
-     * @return The result of subtraction in the ring.
-     */
-    inline ILVectorArray2n operator-(const ILVectorArray2n &a, const BigBinaryInteger &b) { return a.Minus(b); }
+	// overloaded operators
+	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Plus(b); }
+	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const BigBinaryInteger &b) { return a.Plus(b); }
+	inline ILVectorArray2n operator+(const BigBinaryInteger &a, const ILVectorArray2n &b) { return b.Plus(a); }
+	inline ILVectorArray2n operator-(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Minus(b); }
+	inline ILVectorArray2n operator-(const ILVectorArray2n &a, const BigBinaryInteger &b) { return a.Minus(b); }
+	inline ILVectorArray2n operator*(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Times(b); }
+	inline ILVectorArray2n operator*(const ILVectorArray2n &a, const BigBinaryInteger &b) { return a.Times(b); }
+	inline ILVectorArray2n operator*(const BigBinaryInteger &a, const ILVectorArray2n &b) { return b.Times(a); }
 
 } // namespace lbcrypto ends
 

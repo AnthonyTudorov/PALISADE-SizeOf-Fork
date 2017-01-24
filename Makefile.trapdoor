@@ -78,20 +78,10 @@ $(TRAPDOORBINDIR)/%:
 		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
 		$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(TRAPDOORBINDIR)/%,$(TRAPDOORSRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 	fi
-	@if [ "$(suffix $@)" = ".ll" ] ;   \
-	then \
-		echo $(CC) -emit-llvm -S $(CPPFLAGS) $(INC) $(patsubst $(TRAPDOORBINDIR)/%,$(TRAPDOORSRCDIR)/%,$(patsubst %.ll,%.cpp,$@)) -o $@ ;\
-		$(CC) -emit-llvm -S $(CPPFLAGS) $(INC) $(patsubst $(TRAPDOORBINDIR)/%,$(TRAPDOORSRCDIR)/%,$(patsubst %.ll,%.cpp,$@)) -o $@ ;\
-	fi
 
-trapdoorpics: $(patsubst %.cpp,%.ll,$(subst $(TRAPDOORSRCDIR),$(TRAPDOORBINDIR),$(TRAPDOORSOURCES)))
-	@echo done
+.PHONY: cleantrapdoor 
 
-.PHONY: cleantrapdoor cleantrapdoorpics
-cleantrapdoorpics: 
-	$(RM) -f $(TRAPDOOROBJECTS:.o=.ll) $(TRAPDOOROBJECTS:.o=.ll.jpg)
-
-cleantrapdoor: cleantrapdoorpics
+cleantrapdoor: 
 	$(RM) -fr $(TRAPDOORBINDIR) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) `dirname $(TRAPDOOR_TEST_TARGET)` bin/demo/trapdoor
 
 #

@@ -78,21 +78,11 @@ $(PKEBINDIR)/%:
 		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
 		$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(PKEBINDIR)/%,$(PKESRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 	fi
-	@if [ "$(suffix $@)" = ".ll" ] ;   \
-	then \
-		echo $(CC) -emit-llvm -S $(CPPFLAGS) $(INC) $(patsubst $(PKEBINDIR)/%,$(PKESRCDIR)/%,$(patsubst %.ll,%.cpp,$@)) -o $@ ;\
-		$(CC) -emit-llvm -S $(CPPFLAGS) $(INC) $(patsubst $(PKEBINDIR)/%,$(PKESRCDIR)/%,$(patsubst %.ll,%.cpp,$@)) -o $@ ;\
-	fi
 
-pkepics: $(patsubst %.cpp,%.ll,$(subst $(PKESRCDIR),$(PKEBINDIR),$(PKESOURCES)))
-	@echo done
-
-.PHONY: cleanpke cleanpkepics
-cleanpkepics: 
-	$(RM) -f $(PKEOBJECTS:.o=.ll) $(PKEOBJECTS:.o=.ll.jpg)
+.PHONY: cleanpke 
 
 #this target is used to cleanup, it is called from the top Makefile
-cleanpke: cleanpkepics
+cleanpke: 
 	$(RM) -fr $(PKEBINDIR) $(EXTLIBDIR)/$(PALISADEPKELIB) `dirname $(PKE_TEST_TARGET)` bin/demo/pke
 
 #
