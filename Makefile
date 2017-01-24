@@ -1,7 +1,6 @@
 #Multi OS makefile
 ifeq ($(OS),Windows_NT)
 
-  $(info "Executing for Windows NT")
   #  ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
   #      CCFLAGS += -D AMD64
   #  endif
