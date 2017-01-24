@@ -52,8 +52,6 @@ class ILElement : public Serializable
 public:
 	// note that there's no constructor here in the base class; it contains no data to construct
 
-	virtual ~ILElement() {}
-
 	/**
 	 * Clone the object by making a copy of it and returning the copy
 	 * @return new Element
@@ -80,63 +78,20 @@ public:
 	 */
 	virtual Element CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format = EVALUATION) const = 0;
 
-	/**
-	 * Test function to prints all values in either coefficient or evaluation format.
-	 * FIXME: it might be better to overload operator<<
-	 */
-	virtual void PrintValues() const = 0;
+	virtual ~ILElement() {}
 
-	/**
-	 * Adds one to every entry of the Element, in place
-	 */
-	virtual void AddILElementOne() = 0;
-
-	/**
-	 * Performs the Automorphism Transform on the Element
-	 * FIXME: a better comment!
-	 * @param i
-	 * @return
-	 */
-	virtual Element AutomorphismTransform(const usint& i) const = 0;
-
-	/**
-	 * FIXME: comment
-	 * @param baseBits
-	 * @return
-	 */
-	virtual std::vector<Element> BaseDecompose(usint baseBits) const = 0;
-
-	/**
-	 * FIXME: comment
-	 */
-	virtual void Decompose() = 0;
-
-	/**
-	 * Divide the element by q and round it
-	 * FIXME: comment
-	 * @param q
-	 * @return result of the operation
-	 */
-	virtual Element DivideAndRound(const BigBinaryInteger &q) const = 0;
+	// Assignment operators
+	virtual const Element& operator=(const Element& rhs) = 0;
+	virtual const Element& operator=(Element&& rhs) = 0;
+	virtual const Element& operator=(std::initializer_list<sint> rhs) = 0;
 
 	// GETTERS
 	virtual Format GetFormat() const = 0;
-
 	virtual usint GetLength() const = 0;
-
 	virtual const BigBinaryInteger& GetModulus() const = 0;
-
 	virtual const BigBinaryVector& GetValues() const = 0;
-
 	virtual const usint GetCyclotomicOrder() const = 0;
-
 	virtual Element GetDigitAtIndexForBase(usint index, usint base) const = 0;
-
-	virtual bool InverseExists() const = 0;
-
-	virtual bool IsEmpty() const = 0;
-
-	virtual void MakeSparse(const BigBinaryInteger &wFactor) = 0;
 
 	/**
 	 * Gets the Value in the Element that is At Index and returns it
@@ -162,6 +117,7 @@ public:
 		throw std::logic_error("SetValAtIndex not implemented");
 	}
 
+	// SETTERS
 	/**
 	 * SetValAtIndex
 	 *
@@ -181,6 +137,77 @@ public:
 	 * @param format
 	 */
 	virtual void SetValues(const BigBinaryVector& values, Format format) = 0;
+
+	// OPERATORS
+	virtual Element Minus(const BigBinaryInteger &element) const = 0;
+	virtual Element Minus(const Element &element) const = 0;
+
+	virtual Element Plus(const BigBinaryInteger &element) const = 0;
+	virtual Element Plus(const Element &element) const = 0;
+
+	virtual Element Times(const BigBinaryInteger &element) const = 0;
+	virtual Element Times(const Element &element) const = 0;
+
+	// overloaded op= operators
+	virtual const Element& operator+=(const BigBinaryInteger &element) = 0;
+	virtual const Element& operator-=(const BigBinaryInteger &element) = 0;
+	virtual const Element& operator*=(const BigBinaryInteger &element) = 0;
+
+	virtual const Element& operator+=(const Element &element) = 0;
+	virtual const Element& operator-=(const Element &element) = 0;
+	virtual const Element& operator*=(const Element &element) = 0;
+
+	virtual bool operator==(const Element& element) const = 0;
+
+	inline bool operator!=(const Element &element) const {
+		return !(*this == element);
+	}
+
+	/**
+	 * Adds one to every entry of the Element, in place
+	 */
+	virtual void AddILElementOne() = 0;
+
+	/**
+	 * Performs the Automorphism Transform on the Element
+	 * FIXME: a better comment!
+	 * @param i
+	 * @return
+	 */
+	virtual Element AutomorphismTransform(const usint& i) const = 0;
+
+	/**
+	 * FIXME: comment
+	 * @param baseBits
+	 * @return
+	 */
+	virtual std::vector<Element> BaseDecompose(usint baseBits) const = 0;
+
+	/**
+	 * Virtual interface for interpolation based on the Chinese Remainder Transform Interpolation.
+	 *
+	 * @return the original ring element.
+	 */
+	virtual Element CRTInterpolate() const = 0;
+
+	/**
+	 * FIXME: comment
+	 */
+	virtual void Decompose() = 0;
+
+	/**
+	 * Divide the element by q and round it
+	 * FIXME: comment
+	 * @param q
+	 * @return result of the operation
+	 */
+	virtual Element DivideAndRound(const BigBinaryInteger &q) const = 0;
+
+	virtual bool InverseExists() const = 0;
+
+	virtual bool IsEmpty() const = 0;
+
+	virtual void MakeSparse(const BigBinaryInteger &wFactor) = 0;
 
 	/**
 	 * ModByTwo operation on the Element
@@ -221,54 +248,17 @@ public:
 	 */
 	virtual std::vector<Element> PowersOfBase(usint baseBits) const = 0;
 
-	// The core of the arithmetic operations
-	virtual Element Minus(const BigBinaryInteger &element) const = 0;
-	virtual Element Minus(const Element &element) const = 0;
-	virtual Element Plus(const BigBinaryInteger &element) const = 0;
-	virtual Element Plus(const Element &element) const = 0;
-	virtual Element Times(const BigBinaryInteger &element) const = 0;
-	virtual Element Times(const Element &element) const = 0;
-
 	/**
-	 * Virtual interface for interpolation based on the Chinese Remainder Transform Interpolation.
-	 *
-	 * @return the original ring element.
+	 * Test function to prints all values in either coefficient or evaluation format.
+	 * FIXME: it might be better to overload operator<<
 	 */
-	virtual Element CRTInterpolate() const = 0;
+	virtual void PrintValues() const = 0;
 
 	virtual Element SignedMod(const BigBinaryInteger &modulus) const = 0;
 
 	virtual void SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity) = 0;
 
 	virtual void SwitchFormat() = 0;
-
-	// Serialization
-	virtual bool Deserialize(const Serialized& serObj) = 0;
-	virtual bool Serialize(Serialized* serObj) const = 0;
-
-	// Assignment operators
-	virtual const Element& operator=(const Element& rhs) = 0;
-	virtual const Element& operator=(Element&& rhs) = 0;
-	virtual const Element& operator=(std::initializer_list<sint> rhs) = 0;
-
-	// overloaded op= operators
-	virtual const Element& operator+=(const BigBinaryInteger &element) = 0;
-
-	virtual const Element& operator-=(const BigBinaryInteger &element) = 0;
-
-	virtual const Element& operator*=(const BigBinaryInteger &element) = 0;
-
-	virtual const Element& operator+=(const Element &element) = 0;
-
-	virtual const Element& operator-=(const Element &element) = 0;
-
-	virtual const Element& operator*=(const Element &element) = 0;
-
-	virtual bool operator==(const Element& element) const = 0;
-
-	inline bool operator!=(const Element &element) const {
-		return !(*this == element);
-	}
 };
 
 } // namespace lbcrypto ends
