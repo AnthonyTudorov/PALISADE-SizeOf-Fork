@@ -391,25 +391,7 @@ namespace lbcrypto {
 		return std::move( tmp );
 	}
 
-	//multiplication without applying the modulo operation; needed for rounding
-	//ILVector2n ILVector2n::TimesNoMod(const ILVector2n &element) const {
-	//	if ((m_format != Format::COEFFICIENT) || (element.m_format != Format::COEFFICIENT))
-	//		throw std::runtime_error("ILVector2n::TimesNoMod requires both polynomials to be in COEFFICIENT format.");
-	//	
-	//	//create a polynomial with zero coefficients
-	//	ILVector2n tmp(this->m_params, Format::COEFFICIENT, true);
-
-	//	for (usint i = 0; i < tmp.GetLength(); i++) {
-	//		for (usint j = 0; j < tmp.GetLength(); j++) {
-	//			if ((i + j) < tmp.GetLength())
-	//				tmp.m_values[i + j] += this->m_values[i] * element.m_values[j];
-	//	}
-
-	//	return tmp;
-	//}
-
 	// FIXME: should the parms tests here be done in regular + as well as +=? or in neither place?
-	// FIXME: is it correct that uninitialized variable += variable works like assignment>
 	const ILVector2n& ILVector2n::operator+=(const ILVector2n &element) {
 		if (!(*this->m_params == *element.m_params))
 			throw std::logic_error("operator+= called on ILVector2n's with different params.");
@@ -429,8 +411,7 @@ namespace lbcrypto {
 			throw std::logic_error("operator-= called on ILVector2n's with different params.");
 		if (m_values == NULL)
 			m_values = new BigBinaryVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
-		else
-			SetValues( m_values->ModSub(*element.m_values), this->m_format );
+		SetValues( m_values->ModSub(*element.m_values), this->m_format );
 		return *this;
 	}
 
@@ -444,8 +425,7 @@ namespace lbcrypto {
 
 		if (m_values == NULL)
 			m_values = new BigBinaryVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
-		else
-			SetValues( m_values->ModMul(*element.m_values), this->m_format );
+		SetValues( m_values->ModMul(*element.m_values), this->m_format );
 
 		return *this;
 	}

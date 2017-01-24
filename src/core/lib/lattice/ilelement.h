@@ -222,8 +222,6 @@ public:
 	virtual std::vector<Element> PowersOfBase(usint baseBits) const = 0;
 
 	// The core of the arithmetic operations
-	// When true, the operation is being performed on "this" and the result is to be saved in "this:
-	// Therefoe there's more efficiency in -=, += and *=
 	virtual Element Minus(const BigBinaryInteger &element) const = 0;
 	virtual Element Minus(const Element &element) const = 0;
 	virtual Element Plus(const BigBinaryInteger &element) const = 0;
