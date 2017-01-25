@@ -31,7 +31,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
-	//need to be added because m_dggSamples is static and not initialized
+	// static members
 	std::vector<ILVector2n> ILVector2n::m_dggSamples;
 	shared_ptr<ILParams> ILVector2n::m_dggSamples_params;
 

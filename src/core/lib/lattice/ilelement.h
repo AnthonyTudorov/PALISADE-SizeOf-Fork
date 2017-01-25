@@ -78,6 +78,9 @@ public:
 	 */
 	virtual Element CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format = EVALUATION) const = 0;
 
+	/**
+	 * destructor
+	 */
 	virtual ~ILElement() {}
 
 	// Assignment operators
@@ -86,11 +89,48 @@ public:
 	virtual const Element& operator=(std::initializer_list<sint> rhs) = 0;
 
 	// GETTERS
+	/**
+	 * Get format of the element
+	 *
+	 * @return COEFFICIENT or EVALUATION
+	 */
 	virtual Format GetFormat() const = 0;
+
+	/**
+	 * Get the length of the element.
+	 *
+	 * @return length
+	 */
 	virtual usint GetLength() const = 0;
-	virtual const BigBinaryInteger& GetModulus() const = 0;
-	virtual const BigBinaryVector& GetValues() const = 0;
+
+	/**
+	 * Get modulus of the element
+	 *
+	 * @return the modulus.
+	 */
+	virtual const BigBinaryInteger &GetModulus() const = 0;
+
+	/**
+	 * Get the values for the element
+	 *
+	 * @return the vector.
+	 */
+	virtual const BigBinaryVector &GetValues() const = 0;
+
+	/**
+	 * Get the cyclotomic order
+	 *
+	 * @return order
+	 */
 	virtual const usint GetCyclotomicOrder() const = 0;
+
+	/**
+	 * Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  Used in bit decomposition/relinearization operations.
+	 *
+	 * @param index is the index to get.
+	 * @param base is the base the result should be in.
+	 * @return is the result.
+	 */
 	virtual Element GetDigitAtIndexForBase(usint index, usint base) const = 0;
 
 	/**
@@ -105,6 +145,7 @@ public:
 		throw std::logic_error("GetValAtIndex not implemented");
 	}
 
+	//SETTERS
 	/**
 	 * Set the Value in the Element that is At Index
 	 *
@@ -139,22 +180,102 @@ public:
 	virtual void SetValues(const BigBinaryVector& values, Format format) = 0;
 
 	// OPERATORS
-	virtual Element Minus(const BigBinaryInteger &element) const = 0;
-	virtual Element Minus(const Element &element) const = 0;
-
+	/**
+	 * Scalar addition - add an element to the first index only.
+	 * This operation is only allowed in COEFFICIENT format.
+	 *
+	 * @param &element is the element to add entry-wise.
+	 * @return is the return of the addition operation.
+	 */
 	virtual Element Plus(const BigBinaryInteger &element) const = 0;
+
+	/**
+	 * Scalar subtraction - subtract an element frp, all entries.
+	 *
+	 * @param &element is the element to subtract entry-wise.
+	 * @return is the return value of the minus operation.
+	 */
+	virtual Element Minus(const BigBinaryInteger &element) const = 0;
+
+	/**
+	 * Scalar multiplication - multiply all entries.
+	 *
+	 * @param &element is the element to multiply entry-wise.
+	 * @return is the return value of the times operation.
+	 */
+	virtual Element Times(const BigBinaryInteger &element) const = 0;
+
+	/**
+	 * Performs an addition operation and returns the result.
+	 *
+	 * @param &element is the element to add with.
+	 * @return is the result of the addition.
+	 */
 	virtual Element Plus(const Element &element) const = 0;
 
-	virtual Element Times(const BigBinaryInteger &element) const = 0;
+	/**
+	 * Performs a subtraction operation and returns the result.
+	 *
+	 * @param &element is the element to subtract with.
+	 * @return is the result of the subtraction.
+	 */
+	virtual Element Minus(const Element &element) const = 0;
+
+	/**
+	 * Performs a multiplication operation and returns the result.
+	 *
+	 * @param &element is the element to multiply with.
+	 * @return is the result of the multiplication.
+	 */
 	virtual Element Times(const Element &element) const = 0;
 
 	// overloaded op= operators
+	/**
+	 * Performs += operation with a BigBinaryInteger and returns the result.
+	 *
+	 * @param &element is the element to add
+	 * @return is the result of the addition.
+	 */
 	virtual const Element& operator+=(const BigBinaryInteger &element) = 0;
+
+	/**
+	 * Performs -= operation with a BigBinaryInteger and returns the result.
+	 *
+	 * @param &element is the element to subtract
+	 * @return is the result of the addition.
+	 */
 	virtual const Element& operator-=(const BigBinaryInteger &element) = 0;
+
+	/**
+	 * Performs *= operation with a BigBinaryInteger and returns the result.
+	 *
+	 * @param &element is the element to multiply by
+	 * @return is the result of the multiplication.
+	 */
 	virtual const Element& operator*=(const BigBinaryInteger &element) = 0;
 
+	/**
+	 * Performs an addition operation and returns the result.
+	 *
+	 * @param &element is the element to add
+	 * @return is the result of the addition.
+	 */
 	virtual const Element& operator+=(const Element &element) = 0;
+
+	/**
+	 * Performs an subtraction operation and returns the result.
+	 *
+	 * @param &element is the element to subtract
+	 * @return is the result of the addition.
+	 */
 	virtual const Element& operator-=(const Element &element) = 0;
+
+	/**
+	 * Performs an multiplication operation and returns the result.
+	 *
+	 * @param &element is the element to multiply by
+	 * @return is the result of the multiplication.
+	 */
 	virtual const Element& operator*=(const Element &element) = 0;
 
 	virtual bool operator==(const Element& element) const = 0;
@@ -169,44 +290,61 @@ public:
 	virtual void AddILElementOne() = 0;
 
 	/**
-	 * Performs the Automorphism Transform on the Element
-	 * FIXME: a better comment!
-	 * @param i
-	 * @return
+	 * Performs an automorphism transform operation and returns the result.
+	 *
+	 * @param &i is the element to perform the automorphism transform with.
+	 * @return is the result of the automorphism transform.
 	 */
 	virtual Element AutomorphismTransform(const usint& i) const = 0;
 
 	/**
-	 * FIXME: comment
-	 * @param baseBits
-	 * @return
+	 * Write the element as \sum\limits{i=0}^{\lfloor {\log q/base} \rfloor} {(base^i u_i)} and
+	 * return the vector of {u_0, u_1,...,u_{\lfloor {\log q/base} \rfloor}} \in R_base^{\lceil {\log q/base} \rceil};
+	 * used as a subroutine in the relinearization procedure
+	 *
+	 * @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
+	 * @result is the pointer where the base decomposition vector is stored
 	 */
 	virtual std::vector<Element> BaseDecompose(usint baseBits) const = 0;
 
 	/**
-	 * Virtual interface for interpolation based on the Chinese Remainder Transform Interpolation.
+	 * Interpolates based on the Chinese Remainder Transform Interpolation.
 	 *
-	 * @return the original ring element.
+	 * @return the interpolated ring element.
 	 */
 	virtual Element CRTInterpolate() const = 0;
 
 	/**
-	 * FIXME: comment
+	 * Interleaves values in the ILVector2n with odd indices being all zeros.
 	 */
 	virtual void Decompose() = 0;
 
 	/**
-	 * Divide the element by q and round it
-	 * FIXME: comment
-	 * @param q
-	 * @return result of the operation
+	 * Scalar division followed by rounding operation - operation on all entries.
+	 *
+	 * @param &q is the element to divide entry-wise.
+	 * @return is the return value of the divide, followed by rounding operation.
 	 */
 	virtual Element DivideAndRound(const BigBinaryInteger &q) const = 0;
 
+	/**
+	 * Determines if inverse exists
+	 *
+	 * @return true id there exists a multiplicative inverse.
+	 */
 	virtual bool InverseExists() const = 0;
 
+	/**
+	 * Returns true if the vector is empty/ m_values==NULL
+	 */
 	virtual bool IsEmpty() const = 0;
 
+	/**
+	 * Make the element Sparse for SHE KeyGen operations.
+	 * Sets every index not equal to zero mod the wFactor to zero.
+	 *
+	 * @param &wFactor ratio between the original element's ring dimension and the new ring dimension.
+	 */
 	virtual void MakeSparse(const BigBinaryInteger &wFactor) = 0;
 
 	/**
@@ -223,10 +361,11 @@ public:
 	virtual Element MultiplicativeInverse() const = 0;
 
 	/**
-	 * FIXME: comment
-	 * @param p
-	 * @param q
-	 * @return
+	 * Scalar multiplication followed by division and rounding operation - operation on all entries.
+	 *
+	 * @param &p is the integer muliplicand.
+	 * @param &q is the integer divisor.
+	 * @return is the return value of the multiply, divide and followed by rounding operation.
 	 */
 	virtual Element MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const = 0;
 
@@ -254,10 +393,27 @@ public:
 	 */
 	virtual void PrintValues() const = 0;
 
+	/**
+	 * SignedMod - perform a modulus operation.
+	 * Does proper mapping of [-modulus/2, modulus/2) to [0, modulus)
+	 *
+	 * @param modulus is the modulus to use.
+	 * @return is the return value of the modulus.
+	 */
 	virtual Element SignedMod(const BigBinaryInteger &modulus) const = 0;
 
+	/**
+	 * Switch modulus and adjust the values
+	 *
+	 * @param &modulus is the modulus to be set.
+	 * @param &rootOfUnity is the corresponding root of unity for the modulus
+	 * ASSUMPTION: This method assumes that the caller provides the correct rootOfUnity for the modulus.
+	 */
 	virtual void SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity) = 0;
 
+	/**
+	 * Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
+	 */
 	virtual void SwitchFormat() = 0;
 };
 
