@@ -108,11 +108,11 @@ protected:
 /*	TESTING BASIC METHODS OF mubintvec CLASS        */
 /************************************************/
 TEST(UTmubintvec,ctor_access_eq_neq){
-#if 0
+
   //note this is the same code as the ubintvec, just to confirm it works
   //as inherited
   ubint q("1234567"); // a bigger number
-
+#if 0
   mubintvec m(5); // calling constructor to create a vector of length 5
                  //note all values are zero.
 

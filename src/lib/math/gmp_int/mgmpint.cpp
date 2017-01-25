@@ -61,29 +61,67 @@ namespace NTL {
   myZZ myZZ_p::m_OTM = 0;
   myZZ_p::OTMState myZZ_p::m_OTM_state = GARBAGE;
 
-  const myZZ_p myZZ_p::ZERO=myZZ_p(0L);
-  const myZZ_p myZZ_p::ONE=myZZ_p(1);
-  const myZZ_p myZZ_p::TWO=myZZ_p(2);
-  const myZZ_p myZZ_p::THREE=myZZ_p(3);
-  const myZZ_p myZZ_p::FOUR=myZZ_p(4);
-  const myZZ_p myZZ_p::FIVE=myZZ_p(5);
+  // may have difficulty with not inintializing modulo first.
+  // const myZZ_p myZZ_p::ZERO=myZZ_p(0L);
+  // const myZZ_p myZZ_p::ONE=myZZ_p(1);
+  // const myZZ_p myZZ_p::TWO=myZZ_p(2);
+  // const myZZ_p myZZ_p::THREE=myZZ_p(3);
+  // const myZZ_p myZZ_p::FOUR=myZZ_p(4);
+  // const
+  // myZZ_p myZZ_p::FIVE=myZZ_p(5);
 
+  //constructors without moduli
   myZZ_p::myZZ_p():ZZ_p() {}
   myZZ_p::myZZ_p(int a): ZZ_p(a) {}
   myZZ_p::myZZ_p(long a): ZZ_p(a) {}
   myZZ_p::myZZ_p(unsigned long a): ZZ_p(a) {}
+  myZZ_p::myZZ_p(unsigned int a): ZZ_p(a) {}
   myZZ_p::myZZ_p(const unsigned int &a): ZZ_p(a) {}
   myZZ_p::myZZ_p(unsigned int &a): ZZ_p(a) {} 
-  //myZZ_p::myZZ_p(INIT_SIZE_TYPE, long k): ZZ_p(INIT_SIZE, k) {m_MSB=0; } 
   myZZ_p::myZZ_p(std::string s): ZZ_p() {this->_ZZ_p__rep=conv<ZZ>(s.c_str());}
   myZZ_p::myZZ_p(const char *s): ZZ_p() {this->_ZZ_p__rep=conv<ZZ>(s);}
+  //constructors with explicit myZZ moduli
+  myZZ_p::myZZ_p(int a, myZZ&q): ZZ_p(a) {m_setOTM(q);}
+  myZZ_p::myZZ_p(long a, myZZ&q): ZZ_p(a) {m_setOTM(q);}
+  myZZ_p::myZZ_p(unsigned long a, myZZ&q): ZZ_p(a) {m_setOTM(q);}
+  myZZ_p::myZZ_p(const unsigned int &a, myZZ&q): ZZ_p(a) {m_setOTM(q);}
+  myZZ_p::myZZ_p(unsigned int &a, myZZ&q): ZZ_p(a) {m_setOTM(q);} 
+  myZZ_p::myZZ_p(std::string s, myZZ&q): ZZ_p() {this->_ZZ_p__rep=conv<ZZ>(s.c_str()); m_setOTM(q);}
+  myZZ_p::myZZ_p(const char *s, myZZ&q): ZZ_p() {this->_ZZ_p__rep=conv<ZZ>(s); m_setOTM(q);}
 
+  //constructors with explicit string moduli
+  myZZ_p::myZZ_p(int a, const char *sq): ZZ_p(a) {m_setOTM(sq);}
+  myZZ_p::myZZ_p(long a, const char *sq): ZZ_p(a) {m_setOTM(sq);}
+  myZZ_p::myZZ_p(unsigned long a, const char *sq): ZZ_p(a) {m_setOTM(sq);}
+  myZZ_p::myZZ_p(const unsigned int &a, const char *sq): ZZ_p(a) {m_setOTM(sq);}
+  myZZ_p::myZZ_p(unsigned int &a, const char *sq): ZZ_p(a) {m_setOTM(sq);} 
+  myZZ_p::myZZ_p(std::string s, const char *sq): ZZ_p() {this->_ZZ_p__rep=conv<ZZ>(s.c_str());m_setOTM(sq);}
+  myZZ_p::myZZ_p(const char *s, const char *sq): ZZ_p() {this->_ZZ_p__rep=conv<ZZ>(s); m_setOTM(sq);}
+
+  //copy constructors
   myZZ_p::myZZ_p(NTL::ZZ &a): ZZ_p() {this->_ZZ_p__rep=a;}
   myZZ_p::myZZ_p(const NTL::ZZ &a): ZZ_p() {this->_ZZ_p__rep=a;}
-  myZZ_p::myZZ_p(NTL::ZZ &&a) : ZZ_p() {this->_ZZ_p__rep=a;}
-
   myZZ_p::myZZ_p(NTL::ZZ_p &a): ZZ_p(a) {}
   myZZ_p::myZZ_p(const NTL::ZZ_p &a): ZZ_p(a) {}
+  // copy constructors with myZZ moduli
+  myZZ_p::myZZ_p(NTL::ZZ &a, myZZ&q): ZZ_p() {this->_ZZ_p__rep=a; m_setOTM(q);}
+  myZZ_p::myZZ_p(const NTL::ZZ &a, myZZ&q): ZZ_p() {this->_ZZ_p__rep=a; m_setOTM(q);}
+  myZZ_p::myZZ_p(NTL::ZZ_p &a, myZZ&q): ZZ_p(a) { m_setOTM(q);}
+  myZZ_p::myZZ_p(const NTL::ZZ_p &a, myZZ&q): ZZ_p(a) { m_setOTM(q);}
+  // copy constructors with string constant moduli
+  myZZ_p::myZZ_p(NTL::ZZ &a, const char *sq): ZZ_p() {this->_ZZ_p__rep=a; m_setOTM(sq);}
+  myZZ_p::myZZ_p(const NTL::ZZ &a, const char *sq): ZZ_p() {this->_ZZ_p__rep=a; m_setOTM(sq);}
+  myZZ_p::myZZ_p(NTL::ZZ_p &a, const char *sq): ZZ_p(a) { m_setOTM(sq);}
+  myZZ_p::myZZ_p(const NTL::ZZ_p &a, const char *sq): ZZ_p(a) { m_setOTM(sq);}
+  // copy constructors with unsigned int moduli
+  myZZ_p::myZZ_p(NTL::ZZ &a, unsigned int q): ZZ_p() {this->_ZZ_p__rep=a; m_setOTM(q);}
+  myZZ_p::myZZ_p(const NTL::ZZ &a, unsigned int q): ZZ_p() {this->_ZZ_p__rep=a; m_setOTM(q);}
+  myZZ_p::myZZ_p(NTL::ZZ_p &a, unsigned int q): ZZ_p(a) { m_setOTM(q);}
+  myZZ_p::myZZ_p(const NTL::ZZ_p &a, unsigned int q): ZZ_p(a) { m_setOTM(q);}
+
+
+  //move copy constructors
+  myZZ_p::myZZ_p(NTL::ZZ &&a) : ZZ_p() {this->_ZZ_p__rep=a;}
   myZZ_p::myZZ_p(NTL::ZZ_p &&a) : ZZ_p(a) {}
 
 //  myZZ_p& myZZ_p::operator=(const myZZ_p& rhs) {
@@ -137,6 +175,7 @@ namespace NTL {
   void myZZ_p::m_setOTM(const myZZ &q) 
   {
     //should test first but for now just set
+    ZZ_p::init(q);
     m_OTM = q;
     m_OTM_state = INITIALIZED;
   }
@@ -158,8 +197,23 @@ namespace NTL {
     }
   }
 
-
-
+  //public modulus accessors
+#if 0 //converted to inlines
+  void myZZ_p::SetModulus(const usint& value){
+    m_setOTM(myZZ(value));
+  }
+  
+  void myZZ_p::SetModulus(const myZZ& value){
+    m_setOTM(value);
+  }
+  void myZZ::SetModulus(const std::string& value){
+    m_setOTM(myZZ(value));
+  }
+  
+  const myZZ& myZZp::GetModulus() const{
+    return (m_getOTM());
+  }
+#endif
   //adapter kit
   const myZZ_p& myZZ_p::zero() {return (ZZ_p::zero());}
 
