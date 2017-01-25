@@ -414,7 +414,7 @@ public:
 	*/
 	DecryptResult DecryptMatrix(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const shared_ptr<Matrix<Ciphertext<Element>>>& ciphertext,
+		const shared_ptr<Matrix<Ciphertext<Element>>> ciphertext,
 		Matrix<Plaintext> *plaintext) const
 	{
 		return DecryptResult(1);

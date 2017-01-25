@@ -221,5 +221,41 @@ namespace lbcrypto {
 
 	};
 
+	/**
+	* Addition operator overload.  Performs EvalAdd.
+	*
+	* @tparam Element a ring element.
+	* @param &a the first parameter.
+	* @param &b the first parameter.
+	*
+	* @return The result of addition.
+	*/
+	template <class Element>
+	inline Ciphertext<Element> operator+(const Ciphertext<Element> &a, const Ciphertext<Element> &b) { return *a.GetCryptoContext().EvalAdd(&a,&b); }
+
+	/**
+	* Subtraction operator overload.  Performs EvalSub.
+	*
+	* @tparam Element a ring element.
+	* @param &a the first parameter.
+	* @param &b the first parameter.
+	*
+	* @return The result of subtraction.
+	*/
+	template <class Element>
+	inline Ciphertext<Element> operator-(const Ciphertext<Element> &a, const Ciphertext<Element> &b) { return *a.GetCryptoContext().EvalSub(&a, &b); }
+
+	/**
+	* Multiplication operator overload.  Performs EvalMult.
+	*
+	* @tparam Element a ring element.
+	* @param &a the first parameter.
+	* @param &b the first parameter.
+	*
+	* @return The result of multiplication.
+	*/
+	template <class Element>
+	inline Ciphertext<Element> operator*(const Ciphertext<Element> &a, const Ciphertext<Element> &b) { return *a.GetCryptoContext().EvalMult(&a, &b); }
+
 } // namespace lbcrypto ends
 #endif
