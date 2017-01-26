@@ -197,23 +197,6 @@ namespace NTL {
     }
   }
 
-  //public modulus accessors
-#if 0 //converted to inlines
-  void myZZ_p::SetModulus(const usint& value){
-    m_setOTM(myZZ(value));
-  }
-  
-  void myZZ_p::SetModulus(const myZZ& value){
-    m_setOTM(value);
-  }
-  void myZZ::SetModulus(const std::string& value){
-    m_setOTM(myZZ(value));
-  }
-  
-  const myZZ& myZZp::GetModulus() const{
-    return (m_getOTM());
-  }
-#endif
   //adapter kit
   const myZZ_p& myZZ_p::zero() {return (ZZ_p::zero());}
 
