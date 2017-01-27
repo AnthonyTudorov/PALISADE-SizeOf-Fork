@@ -489,9 +489,7 @@ namespace lbcrypto {
 	shared_ptr<Ciphertext<Element>> LPAlgorithmPREBV<Element>::ReEncrypt(const shared_ptr<LPEvalKey<Element>> EK,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const
 	{
-		
-		return ciphertext;
-		//return this->GetScheme()->KeySwitch(EK, ciphertext);
+		return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitch(EK, ciphertext);
 
 	}
 
