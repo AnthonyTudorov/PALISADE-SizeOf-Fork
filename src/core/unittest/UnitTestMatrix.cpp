@@ -267,7 +267,9 @@ TEST(UTMatrix, determinant) {
 	m(2, 1) = 2;
 	m(2, 2) = 3;
 
-	int32_t determinant = m.Determinant();
+	//int32_t determinant = m.Determinant();
+	int32_t determinant = 0;
+	m.Determinant(&determinant);
 	EXPECT_EQ(6, determinant);
 
 }

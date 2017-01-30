@@ -61,15 +61,6 @@ namespace lbcrypto {
             Matrix(alloc_func allocZero, size_t rows, size_t cols);
 
 			/**
-			* Constructor that initializes matrix values using a zero allocator based on shared pointers
-			*
-			* @param &allocZero lambda function for zero initialization.
-			* @param &rows number of rows.
-			* @param &rows number of columns.
-			*/
-			//Matrix(std::function<shared_ptr<Element>(void)> allocZero, size_t rows, size_t cols);
-
-			/**
 			 * Constructor that initializes matrix values using a distribution generation allocator
 			 *
 			 * @param &allocZero lambda function for zero initialization (used for initializing derived matrix objects)
@@ -299,12 +290,14 @@ namespace lbcrypto {
              */ 
             inline Matrix<Element> Transpose() const;
 
+			// YSP The signature of this method needs to be changed in the future
 			/**
 			* Matrix determinant - found using Laplace formula with complexity O(d!), where d is the dimension
 			*
-			* @return the determinant of the matrix
+			* @param *result where the result is stored
 			*/
-			inline Element Determinant() const;
+			inline void Determinant(Element *result) const;
+			//inline Element Determinant() const;
 
 			/**
 			* Cofactor matrix - the matrix of determinants of the minors A_{ij} multiplied by -1^{i+j}

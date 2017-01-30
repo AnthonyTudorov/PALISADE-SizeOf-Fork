@@ -40,17 +40,6 @@ Matrix<Element>::Matrix(alloc_func allocZero, size_t rows, size_t cols): rows(ro
     }
 }
 
-//template<class Element>
-//Matrix<Element>::Matrix(std::function<shared_ptr<Element>(void)> allocZero, size_t rows, 
-//		size_t cols) : rows(rows), cols(cols), data(), allocZero(allocZero) {
-//	data.resize(rows);
-//	for (auto row = data.begin(); row != data.end(); ++row) {
-//		for (size_t col = 0; col < cols; ++col) {
-//			row->push_back(allocZero());
-//		}
-//	}
-//}
-
 template<class Element>
 Matrix<Element>::Matrix(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen): rows(rows), cols(cols), data(), allocZero(allocZero) {
     data.resize(rows);
@@ -327,6 +316,7 @@ Matrix<Element> Matrix<Element>::Transpose() const {
     return result;
 }
 
+// YSP The signature of this method needs to be changed in the future
 // Laplace's formula is used to find the determinant
 // Complexity is O(d!), where d is the dimension
 // The determinant of a matrix is expressed in terms of its minors
@@ -335,14 +325,14 @@ Matrix<Element> Matrix<Element>::Transpose() const {
 // Examples include the LU decomposition, the QR decomposition or 
 // the Cholesky decomposition(for positive definite matrices).
 template<class Element>
-Element Matrix<Element>::Determinant() const {
+void Matrix<Element>::Determinant(Element *determinant) const {
 	if (rows != cols) 
 		throw invalid_argument("Supported only for square matrix");
-	Element determinant = *allocZero();
+	//auto determinant = *allocZero();
 	if (rows < 2)
 		throw invalid_argument("Dimension should be at least two");
 	else if (rows == 2)
-		determinant = *data[0][0] * (*data[1][1]) - *data[1][0] * (*data[0][1]);
+		*determinant = *data[0][0] * (*data[1][1]) - *data[1][0] * (*data[0][1]);
 	else
 	{
 		size_t j1, j2;
@@ -367,14 +357,23 @@ Element Matrix<Element>::Determinant() const {
 				}
 			}
 
+			auto tempDeterminant = *allocZero();
+			result.Determinant(&tempDeterminant);
+
 			if (j1 % 2 == 0)
-				determinant = determinant + (*data[0][j1]) * result.Determinant();
+				*determinant = *determinant + (*data[0][j1]) * tempDeterminant;
 			else
-				determinant = determinant - (*data[0][j1]) * result.Determinant();
+				*determinant = *determinant - (*data[0][j1]) * tempDeterminant;
+
+			//if (j1 % 2 == 0)
+			//	determinant = determinant + (*data[0][j1]) * result.Determinant();
+			//else
+			//	determinant = determinant - (*data[0][j1]) * result.Determinant();
 
 		}
 	}
-	return determinant;
+	//return determinant;
+	return;
 }
 
 // The cofactor matrix is the matrix of determinants of the minors A_{ij} multiplied by -1^{i+j}
@@ -413,7 +412,9 @@ Matrix<Element> Matrix<Element>::CofactorMatrix() const {
 			}
 
 			/* Calculate the determinant */
-			auto determinant = c.Determinant();
+			auto determinant = *allocZero();
+			c.Determinant(&determinant);
+			//auto determinant = c.Determinant();
 
 			/* Fill in the elements of the cofactor */
 			if ((i + j) % 2 == 0)
