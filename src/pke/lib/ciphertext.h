@@ -210,6 +210,42 @@ namespace lbcrypto {
 			return DeserializeVector<Element>("Elements", elementName<Element>(), mIter, &this->m_elements);
 		}
 
+		/**
+		* Performs an addition operation and returns the result.
+		*
+		* @param &other is the ciphertext to add with.
+		* @return the result of the addition.
+		*/
+		inline const shared_ptr<Ciphertext<Element>> operator+=(const Ciphertext<Element> &other) {
+			shared_ptr<Ciphertext<Element>> b(new Ciphertext<Element>(other));
+			// ciphertext object has no data yet, i.e., it is zero-initialized
+			if (m_elements.size() == 0)
+				return b;
+			else
+			{
+				shared_ptr<Ciphertext<Element>> a(new Ciphertext<Element>(*this));
+				return this->GetCryptoContext().EvalAdd(a, b);
+			}
+		}
+
+		/**
+		* Unary negation operator.
+		*
+		* @param &other is the ciphertext to add with.
+		* @return the result of the addition.
+		*/
+		//inline const shared_ptr<Ciphertext<Element>> operator=() {
+		//	shared_ptr<Ciphertext<Element>> b(new Ciphertext<Element>(other));
+		//	// ciphertext object has no data yet, i.e., it is zero-initialized
+		//	if (m_elements.size() == 0)
+		//		return b;
+		//	else
+		//	{
+		//		shared_ptr<Ciphertext<Element>> a(new Ciphertext<Element>(*this));
+		//		return this->GetCryptoContext().EvalAdd(a, b);
+		//	}
+		//}
+
 	private:
 
 		CryptoContext<Element>	cryptoContext;	/*!< crypto context that this Ciphertext belongs to */
@@ -231,7 +267,11 @@ namespace lbcrypto {
 	* @return The result of addition.
 	*/
 	template <class Element>
-	inline Ciphertext<Element> operator+(const Ciphertext<Element> &a, const Ciphertext<Element> &b) { return *a.GetCryptoContext().EvalAdd(&a,&b); }
+	inline Ciphertext<Element> operator+(const Ciphertext<Element> &a, const Ciphertext<Element> &b) { 
+		shared_ptr<Ciphertext<Element>> aPtr(new Ciphertext<Element>(a));
+		shared_ptr<Ciphertext<Element>> bPtr(new Ciphertext<Element>(b));
+		return *a.GetCryptoContext().EvalAdd(aPtr,bPtr); 
+	}
 
 	/**
 	* Subtraction operator overload.  Performs EvalSub.
@@ -243,8 +283,11 @@ namespace lbcrypto {
 	* @return The result of subtraction.
 	*/
 	template <class Element>
-	inline Ciphertext<Element> operator-(const Ciphertext<Element> &a, const Ciphertext<Element> &b) { return *a.GetCryptoContext().EvalSub(&a, &b); }
-
+	inline Ciphertext<Element> operator-(const Ciphertext<Element> &a, const Ciphertext<Element> &b) {
+		shared_ptr<Ciphertext<Element>> aPtr(new Ciphertext<Element>(a));
+		shared_ptr<Ciphertext<Element>> bPtr(new Ciphertext<Element>(b));
+		return *a.GetCryptoContext().EvalSub(aPtr, bPtr);
+	}
 	/**
 	* Multiplication operator overload.  Performs EvalMult.
 	*
@@ -255,7 +298,10 @@ namespace lbcrypto {
 	* @return The result of multiplication.
 	*/
 	template <class Element>
-	inline Ciphertext<Element> operator*(const Ciphertext<Element> &a, const Ciphertext<Element> &b) { return *a.GetCryptoContext().EvalMult(&a, &b); }
-
+	inline Ciphertext<Element> operator*(const Ciphertext<Element> &a, const Ciphertext<Element> &b) {
+		shared_ptr<Ciphertext<Element>> aPtr(new Ciphertext<Element>(a));
+		shared_ptr<Ciphertext<Element>> bPtr(new Ciphertext<Element>(b));
+		return *a.GetCryptoContext().EvalMult(aPtr, bPtr);
+	}
 } // namespace lbcrypto ends
 #endif

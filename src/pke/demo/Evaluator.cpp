@@ -40,7 +40,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 //using namespace std;
 using namespace lbcrypto;
-void EvalLinRegression(MODE mode);
+void EvalLinRegressionNull();
 //double currentDateTime();
 
 
@@ -48,7 +48,7 @@ void EvalLinRegression(MODE mode);
 
 int main() {
 
-	EvalLinRegression(OPTIMIZED);
+	EvalLinRegressionNull();
 
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();
@@ -58,34 +58,37 @@ int main() {
 	return 0;
 }
 
-void EvalLinRegression(MODE mode) {
+void EvalLinRegressionNull() {
 
-	usint relWindow = 8;
+	//usint relWindow = 8;
 
 	usint plaintextModulus = 256;
+	usint n = 8;
 
-	float stdDev = 4;
+	//float stdDev = 4;
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-		plaintextModulus, 0, "0", "0",
-		relWindow, stdDev, "0", mode, "0", "0", 0, 9, 1.006);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(plaintextModulus,n);
+
+	//CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+	//	plaintextModulus, 0, "0", "0",
+	//	relWindow, stdDev, "0", mode, "0", "0", 0, 9, 1.006);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
 	double diff, start, finish;
 
-	start = currentDateTime();
+	//start = currentDateTime();
 
-	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 1);
+	//cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 1);
 
-	finish = currentDateTime();
-	diff = finish - start;
+	//finish = currentDateTime();
+	//diff = finish - start;
 
-	std::cout << "Parameter generation time: " << "\t" << diff << " ms" << std::endl;
+	//std::cout << "Parameter generation time: " << "\t" << diff << " ms" << std::endl;
 
-	std::cout << "n = " << cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	std::cout << "log2 q = " << log2(cc.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+	//std::cout << "n = " << cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	//std::cout << "log2 q = " << log2(cc.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
@@ -160,32 +163,53 @@ void EvalLinRegression(MODE mode) {
 	y(0, 0) = *ciphertext5[0];
 	y(1, 0) = *ciphertext6[0];
 
-	//Matrix<Ciphertext<ILVector2n>> product = x * y;
+	Matrix<Ciphertext<ILVector2n>> product = x * y;
+
+	std::cout << "matrix product completed successfully" << std::endl;
+	std::cout << "Rows: " << product.GetRows() << std::endl;
+	std::cout << "Columns: " << product.GetCols() << std::endl;
+
+	auto xDeterminant = *zeroAlloc();
+	x.Determinant(&xDeterminant);
+
+	std::cout << "Determinant completed successfully. The value is " << std::endl;
+	xDeterminant.GetElement().PrintValues();
+
+	auto xTranspose = x.Transpose();
+	std::cout << "Transpose completed successfully" << std::endl;
+	std::cout << "Rows: " << xTranspose.GetRows() << std::endl;
+	std::cout << "Columns: " << xTranspose.GetCols() << std::endl;
+
+	//auto xCofactorMatrix = x.CofactorMatrix();
+	//std::cout << "CofactorMatrix completed successfully" << std::endl;
+	//std::cout << "Rows: " << xCofactorMatrix.GetRows() << std::endl;
+	//std::cout << "Columns: " << xCofactorMatrix.GetCols() << std::endl;
+
 
 	////////////////////////////////////////////////////////////
 	//EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
+	//shared_ptr<LPEvalKey<ILVector2n>> evalKey;
 
-	//generate the evaluate key
-	evalKey = cc.EvalMultKeyGen(kp.secretKey);
+	////generate the evaluate key
+	//evalKey = cc.EvalMultKeyGen(kp.secretKey);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
+	//vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult;
+	//shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult;
 
-	start = currentDateTime();
+	//start = currentDateTime();
 
-	ciphertextTempMult = cc.EvalMult(ciphertext1[0], ciphertext2[0], evalKey);
+	//ciphertextTempMult = cc.EvalMult(ciphertext1[0], ciphertext2[0], evalKey);
 
-	finish = currentDateTime();
-	diff = finish - start;
+	//finish = currentDateTime();
+	//diff = finish - start;
 
-	std::cout << "EvalMult execution time: " << "\t" << diff << " ms" << std::endl;
+	//std::cout << "EvalMult execution time: " << "\t" << diff << " ms" << std::endl;
 
-	ciphertextMult.push_back(ciphertextTempMult);
+	//ciphertextMult.push_back(ciphertextTempMult);
 
-	IntPlaintextEncoding plaintextNewMult;
+	//IntPlaintextEncoding plaintextNewMult;
 
 }
