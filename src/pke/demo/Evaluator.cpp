@@ -180,10 +180,10 @@ void EvalLinRegressionNull() {
 	std::cout << "Rows: " << xTranspose.GetRows() << std::endl;
 	std::cout << "Columns: " << xTranspose.GetCols() << std::endl;
 
-	//auto xCofactorMatrix = x.CofactorMatrix();
-	//std::cout << "CofactorMatrix completed successfully" << std::endl;
-	//std::cout << "Rows: " << xCofactorMatrix.GetRows() << std::endl;
-	//std::cout << "Columns: " << xCofactorMatrix.GetCols() << std::endl;
+	auto xCofactorMatrix = x.CofactorMatrix();
+	std::cout << "CofactorMatrix completed successfully" << std::endl;
+	std::cout << "Rows: " << xCofactorMatrix.GetRows() << std::endl;
+	std::cout << "Columns: " << xCofactorMatrix.GetCols() << std::endl;
 
 
 	////////////////////////////////////////////////////////////

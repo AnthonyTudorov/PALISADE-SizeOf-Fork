@@ -329,8 +329,10 @@ void Matrix<Element>::Determinant(Element *determinant) const {
 	if (rows != cols) 
 		throw invalid_argument("Supported only for square matrix");
 	//auto determinant = *allocZero();
-	if (rows < 2)
-		throw invalid_argument("Dimension should be at least two");
+	if (rows < 1)
+		throw invalid_argument("Dimension should be at least one");
+	else if (rows == 1)
+		*determinant = *data[0][0];
 	else if (rows == 2)
 		*determinant = *data[0][0] * (*data[1][1]) - *data[1][0] * (*data[0][1]);
 	else

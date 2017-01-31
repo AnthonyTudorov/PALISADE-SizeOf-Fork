@@ -595,6 +595,20 @@ public:
 	}
 
 	/**
+	* EvalSub - PALISADE Negate method for a ciphertext
+	* @param ct
+	* @return new ciphertext -ct
+	*/
+	shared_ptr<Ciphertext<Element>>
+	EvalNegate(const shared_ptr<Ciphertext<Element>> ct) const
+	{
+		if (ct == NULL || ct->GetCryptoContext() != *this)
+			throw std::logic_error("Information passed to EvalNegate was not generated with this crypto context");
+
+		return GetEncryptionAlgorithm()->EvalNegate(ct);
+	}
+
+	/**
 	* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
 	* @param x - matrix of regressors
 	* @param y - vector of dependent variables

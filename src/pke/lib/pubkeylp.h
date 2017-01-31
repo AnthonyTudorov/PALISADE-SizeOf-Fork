@@ -1086,6 +1086,14 @@ namespace lbcrypto {
 			}
 
 			/**
+			* Virtual function to define the interface for homomorphic negation of ciphertext.
+			*
+			* @param &ciphertext the input ciphertext.
+			* @param *newCiphertext the new ciphertext.
+			*/
+			virtual shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
+
+			/**
 			* Method for KeySwitchGen
 			*
 			* @param &originalPrivateKey Original private key used for encryption.
@@ -1389,6 +1397,15 @@ namespace lbcrypto {
 				return this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2, evalKey);
 			else {
 				throw std::logic_error("EvalMult operation has not been enabled");
+			}
+		}
+
+		shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
+
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalNegate(ciphertext);
+			else {
+				throw std::logic_error("EvalNegate operation has not been enabled");
 			}
 		}
 
