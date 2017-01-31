@@ -70,6 +70,9 @@ protected:
   virtual void SetUp() {
     // Code here will be called before each test
     // (right before the constructor).
+
+    //TODO: (dbc) do I need this here?
+    // any calls to mubint may fail otherwise.
     NTL::ZZ_p::init(NTL::ZZ(1));
   }
 
@@ -142,12 +145,16 @@ TEST(UTmubint,ctor_access_eq_neq){
   EXPECT_TRUE(test1)<<"Failure ==";
   EXPECT_FALSE(test2)<<"Failure !=";
 
-  //n.SetModulus(n.GetModulus()+ubint::ONE); //this confused the compiler? 
+  //n.SetModulus(n.GetModulus()+ubint::ONE); //TODO:: this confused the compiler? //is operator+ inhereted and not operator- ?? that works below. 
   n.SetModulus(ubint(n.GetModulus()+ubint::ONE));
   //reset n to a differnt modulus, comparison will fail. 
   test1 = m==n;
   test2 = m!=n;
+
+  cout<<"DEBUG: note the following fails right now since we are not testing moduli."<<endl;
   EXPECT_FALSE(test1)<<"Failure == different mods";
+
+  cout<<"DEBUG: note the following fails right now since we are not testing moduli."<<endl;
   EXPECT_TRUE(test2)<<"Failure != different mods";
   // set it back 
   n.SetModulus(n.GetModulus()-ubint::ONE);

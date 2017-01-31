@@ -116,7 +116,7 @@
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
 #include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
 #include "gmp_int/gmpintvec.cpp" //vectors of such
-//#include "gmp_int/mgmpintvec.h" //rings of such
+#include "gmp_int/mgmpintvec.cpp" //rings of such
 
 #endif
 
@@ -258,7 +258,7 @@ namespace lbcrypto {
 	typedef NTL::myVec<NTL::myZZ> ubintvec;
 
 	/** Define the mapping for modulo Big Integer Vector */
-	//typedef NTL::myVecP<NTL::myZZ> mubintvec;
+	typedef NTL::myVecP<NTL::myZZ_p> mubintvec;
 
 
 #endif

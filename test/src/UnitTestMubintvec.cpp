@@ -108,11 +108,11 @@ protected:
 /*	TESTING BASIC METHODS OF mubintvec CLASS        */
 /************************************************/
 TEST(UTmubintvec,ctor_access_eq_neq){
-
+  bool dbg_flag = true;
   //note this is the same code as the ubintvec, just to confirm it works
   //as inherited
   ubint q("1234567"); // a bigger number
-#if 0
+
   mubintvec m(5); // calling constructor to create a vector of length 5
                  //note all values are zero.
 
@@ -181,6 +181,8 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_EQ(ubint(33),n[3])<< "Failure in SetValAtIndex(ubint)";
   EXPECT_EQ(ubint(7),n[4])<< "Failure in SetValAtIndex(ubint)";
 
+  DEBUG("1");
+
   m+=n;
 
   usint expectedResult[5] = {9872,5888,4620,2376,4631};
@@ -189,12 +191,14 @@ TEST(UTmubintvec,ctor_access_eq_neq){
     EXPECT_EQ (expectedResult[i], (m.GetValAtIndex(j)).ConvertToUsint())
       << "Failure testing method_plus_equals";
   }
+  DEBUG("2");
   //test initializer list of various types
   mubintvec expectedvecstr(5);
   expectedvecstr = {"9872","5888","4620","2376","4631"}; //strings
   expectedvecstr.SetModulus(q);
   EXPECT_EQ (expectedvecstr, m)<< "Failure string initializer list";
-  
+
+  DEBUG("3");  
   mubintvec expectedvecint(5);
   expectedvecint = {ubint(9872U),ubint(5888U),ubint(4620U),ubint(2376U),ubint(4631U)}; //ubints
   expectedvecint.SetModulus(q);
@@ -205,38 +209,41 @@ TEST(UTmubintvec,ctor_access_eq_neq){
 
   expectedvecint = {9872,5888,4620,2376,4631}; //ints (compiler promotes)
   EXPECT_EQ (expectedvecint, m)<< "Failure int initializer list";
-
+  DEBUG("4");  
   //test Single()
 
   mubintvec s = mubintvec::Single(ubint("3"),ubint("5"));//value 3, mod 5
-		      
+  DEBUG("4.1");  		      
   EXPECT_EQ(1, s.size()) <<"Failure Single.size()";
+  DEBUG("4.2");  		      
   EXPECT_EQ(ubint(3), s[0]) <<"Failure Single() value";
 
   // test assignment of single ubint (puts it in the 0 the position), zeros
   // out the rest
   //test that the vector is zeroed on init like this.
+
+  DEBUG("4.5");  
   mubintvec eqtest(10); 
   EXPECT_EQ ( 10, eqtest.size()) << "Failure create mubintvec of 10 zeros";
 
   for (i = 0; i< eqtest.size(); i++) {
     EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure create mubintvec of zeros";
   }
-
+  DEBUG("4.6");  
   // test assignment of single ubint
   eqtest = ubint(1);
   EXPECT_EQ (ubint(1),  eqtest[0]) << "Failure assign single ubint 0 index";
   for (i = 1; i< eqtest.size(); i++) {
     EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure assign single ubint nonzero index";
   }
-
+  DEBUG("5");  
   // test assignment of single usint
   eqtest = 5U;
   EXPECT_EQ (ubint(5U),  eqtest[0]) << "Failure assign single ubint 0 index";
   for (i = 1; i< eqtest.size(); i++) {
     EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure assign single ubint nonzero index";
   }
-
+#if 0
   //test comparisons == and !=
   m = n;
   bool test1 = m==n;
@@ -726,7 +733,7 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_big_numbers){
   d3 = a3;
   d3 *= b3;
   EXPECT_EQ (d3, modmul3) << "Failure big number vector vector *=";
-#endif
+#endif //big endif to block out large amounts of text
   
 }
 

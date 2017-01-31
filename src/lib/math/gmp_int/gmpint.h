@@ -186,7 +186,10 @@ inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+
 
   //palisade string conversion
   const std::string ToString() const;	
-
+  
+  
+    inline long operator==(const myZZ& b) const
+    { return this->Compare(b) == 0; }
 
 private:
     //adapter kits

@@ -78,14 +78,14 @@ namespace NTL{
 
     myZZ_p();
     // constructors without moduli
-    myZZ_p(int a);
-    myZZ_p(long a);
-    myZZ_p(unsigned long a);
-    myZZ_p(unsigned int a);
-    myZZ_p(const unsigned int &a);
-    myZZ_p(unsigned int &a);
-    myZZ_p(std::string s);
-    myZZ_p(const char * s);
+    explicit myZZ_p(int a);
+    explicit myZZ_p(long a);
+    explicit myZZ_p(unsigned long a);
+    explicit myZZ_p(unsigned int a);
+    explicit myZZ_p(const unsigned int &a);
+    explicit myZZ_p(unsigned int &a);
+    explicit myZZ_p(std::string s);
+    explicit myZZ_p(const char * s);
     //copy
     myZZ_p(NTL::ZZ &a);
     myZZ_p(const NTL::ZZ &a);
@@ -134,16 +134,21 @@ namespace NTL{
 
  
 
-    //  myZZ_p_p& operator=(const myZZ_p &rhs);
-    //myZZ_p( ZZ_p && zzin) : ZZ_p(zzin), m_MSB(5){};
+    //inline myZZ_p& operator=(const unsigned int a) {return myZZ_p((unsigned int)a);}
 
+    //the following may be wrong, i am winging this.
+    inline myZZ_p& operator=(const char * s) {this->_ZZ_p__rep=conv<ZZ>(s);}
+    inline myZZ_p& operator=(int a) {this->_ZZ_p__rep=conv<ZZ>(a);}
+
+    //myZZ_p( ZZ_p && zzin) : ZZ_p(zzin), m_MSB(5){};
+#if 0
     static const myZZ_p ZERO;
     static const myZZ_p ONE;
     static const myZZ_p TWO;
     static const myZZ_p THREE;
     static const myZZ_p FOUR;
     static const myZZ_p FIVE;
-
+#endif
 
     //  void InitMyZZ_p(ZZ_p &&zzin) const {this->m_MSB = 1; return;}
     //adapter kit
@@ -159,7 +164,7 @@ namespace NTL{
     double ConvertToDouble() const;
     long double ConvertToLongDouble() const;
 
-    //stopped here: it has problems finding which clear to use
+    //it has problems finding which clear to use
 
     //read  http://www.prenhall.com/divisions/esm/app/kafura/secure/chapter7/html/7.5_inheritance.htm
     //and see if we can figure out what happened.
@@ -177,6 +182,20 @@ namespace NTL{
     inline sint Compare(const long int& a, const myZZ_p &b) const {return compare(a,this->_ZZ_p__rep); };
 
     inline sint Compare(const myZZ_p& a , const myZZ& b) const {return compare(a._ZZ_p__rep,b); };
+    //comparisons against myZZ_p and ZZ_p
+    inline long operator==(const myZZ_p& b) const
+    { return this->Compare(b) == 0; }
+    inline long operator!=( const myZZ_p& b) const
+    { return this->Compare(b) != 0; }
+    inline long operator<( const myZZ_p& b) const
+    { return this->Compare(b) < 0; }
+    inline long operator>( const myZZ_p& b) const
+    { return this->Compare(b) > 0; }
+    inline long operator<=( const myZZ_p& b) const
+    { return this->Compare(b) <= 0; }
+    inline long operator>=( const myZZ_p& b) const
+    { return this->Compare(b) >= 0; }
+
 
     //comparisons against myZZ_p and ZZ
     inline long operator==(const myZZ& b) const
@@ -322,7 +341,8 @@ namespace NTL{
   { return b.Compare(a) >= 0; }
   inline long operator>=(const myZZ &a, const myZZ_p& b)
   { return b.Compare(a) <= 0; }
-#if 0
+
+#if 1 //these may not be needed!
  //comparison operators with two operands defined outside the class
   inline long operator==(const usint &a, const myZZ_p& b) 
   { return b.Compare(a) == 0; }    
