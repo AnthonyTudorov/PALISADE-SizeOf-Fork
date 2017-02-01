@@ -1075,14 +1075,36 @@ namespace lbcrypto {
 			* @param ek - evaluation key used for EvalMult operations
 			* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
 			*/
-			virtual shared_ptr<Matrix<Ciphertext<Element>>>
+			virtual vector<shared_ptr<Matrix<Ciphertext<Element>>>>
 				EvalLinRegression(const shared_ptr<Matrix<Ciphertext<Element>>> x,
 					const shared_ptr<Matrix<Ciphertext<Element>>> y,
 					const shared_ptr<LPEvalKey<Element>> evalKey) const
 			{
 				
-				shared_ptr<Matrix<Ciphertext<Element>>> result;
+				vector<shared_ptr<Matrix<Ciphertext<Element>>>> result;
+				// multiplication is done in reverse order to minimize the number of inner products
+				Matrix<Ciphertext<Element>> xTransposed = x->Transpose();
+				shared_ptr<Matrix<Ciphertext<Element>>> numerator (new Matrix<Ciphertext<Element>>(xTransposed * (*y)));
+
+				Matrix<Ciphertext<Element>> xCovariance = xTransposed * (*x);
+
+				Matrix<Ciphertext<Element>> cofactorMatrix = xCovariance.CofactorMatrix();
+
+				Matrix<Ciphertext<Element>> adjugateMatrix = cofactorMatrix.Transpose();
+
+				*numerator = adjugateMatrix * (*numerator);
+
+				Ciphertext<Element> determinant;
+				cofactorMatrix.Determinant(&determinant);
+
+				shared_ptr<Matrix<Ciphertext<Element>>> denominator(new Matrix<Ciphertext<Element>>(numerator->GetAllocator(), 1, 1));
+				(*denominator)(0, 0) = determinant;
+
+				result.push_back(numerator);
+				result.push_back(denominator);
+
 				return result;
+
 			}
 
 			/**
@@ -1416,7 +1438,7 @@ namespace lbcrypto {
 		* @param ek - evaluation key used for EvalMult operations
 		* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
 		*/
-		shared_ptr<Matrix<Ciphertext<Element>>>
+		vector<shared_ptr<Matrix<Ciphertext<Element>>>>
 			EvalLinRegression(const shared_ptr<Matrix<Ciphertext<Element>>> x,
 				const shared_ptr<Matrix<Ciphertext<Element>>> y,
 				const shared_ptr<LPEvalKey<Element>> evalKey) const

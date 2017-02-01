@@ -185,15 +185,26 @@ void EvalLinRegressionNull() {
 	std::cout << "Rows: " << xCofactorMatrix.GetRows() << std::endl;
 	std::cout << "Columns: " << xCofactorMatrix.GetCols() << std::endl;
 
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
+
+	//generate the evaluate key
+	evalKey = cc.EvalMultKeyGen(kp.secretKey);
+
+	shared_ptr<Matrix<Ciphertext<ILVector2n>>> xPtr(new Matrix<Ciphertext<ILVector2n>>(x));
+	shared_ptr<Matrix<Ciphertext<ILVector2n>>> yPtr(new Matrix<Ciphertext<ILVector2n>>(y));
+
+	auto result = cc.EvalLinRegression(xPtr, yPtr, evalKey);
+	std::cout << "Linear regression computation completed successfully" << std::endl;
+	std::cout << "Rows in the numerator: " << result[0]->GetRows() << std::endl;
+	std::cout << "Columns in the numerator: " << result[0]->GetCols() << std::endl;
+	std::cout << "Rows in the denominator: " << result[1]->GetRows() << std::endl;
+	std::cout << "Columns in the denominator: " << result[1]->GetCols() << std::endl;
 
 	////////////////////////////////////////////////////////////
 	//EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	//shared_ptr<LPEvalKey<ILVector2n>> evalKey;
 
-	////generate the evaluate key
-	//evalKey = cc.EvalMultKeyGen(kp.secretKey);
 
 	//vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
 

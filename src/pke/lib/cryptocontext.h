@@ -615,7 +615,7 @@ public:
 	* @param ek - evaluation key used for EvalMult operations
 	* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
 	*/
-	shared_ptr<Matrix<Ciphertext<Element>>>
+	vector<shared_ptr<Matrix<Ciphertext<Element>>>>
 		EvalLinRegression(const shared_ptr<Matrix<Ciphertext<Element>>> x,
 			const shared_ptr<Matrix<Ciphertext<Element>>> y,
 			const shared_ptr<LPEvalKey<Element>> ek) const

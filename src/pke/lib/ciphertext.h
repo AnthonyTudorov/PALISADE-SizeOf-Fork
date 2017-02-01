@@ -216,16 +216,20 @@ namespace lbcrypto {
 		* @param &other is the ciphertext to add with.
 		* @return the result of the addition.
 		*/
-		inline const Ciphertext<Element> operator+=(const Ciphertext<Element> &other) {
+		inline const Ciphertext<Element>& operator+=(const Ciphertext<Element> &other) {
 			shared_ptr<Ciphertext<Element>> b(new Ciphertext<Element>(other));
 			// ciphertext object has no data yet, i.e., it is zero-initialized
 			if (m_elements.size() == 0)
-				return other;
+			{
+				cryptoContext = other.cryptoContext;
+				m_elements = other.m_elements;
+			}
 			else
 			{
 				shared_ptr<Ciphertext<Element>> a(new Ciphertext<Element>(*this));
-				return *(this->GetCryptoContext().EvalAdd(a, b));
+				*this = *(cryptoContext.EvalAdd(a, b));
 			}
+			return *this;
 		}
 
 		/**

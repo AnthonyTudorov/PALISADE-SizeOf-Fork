@@ -7,6 +7,7 @@
 
 #include "cryptocontext.cpp"
 #include "cryptocontexthelper.cpp"
+#include "math/matrix.cpp"
 
 namespace lbcrypto {
 template class CryptoContextFactory<ILVector2n>;
