@@ -66,190 +66,194 @@ namespace NTL {
    */
   //JSON FACILITY
 
-template<class myT>
-  class myVec : public NTL::Vec<myT> {
+  template<class myT>
+    class myVec : public NTL::Vec<myT> {
+    
+  public:
+    //ctors with no or int inpiuts
+  myVec() : Vec<myT>() {};
+  myVec(usint n) : Vec<myT>(INIT_SIZE, n) {}; // adapter kit
+  myVec(INIT_SIZE_TYPE, long n) : Vec<myT>(INIT_SIZE, n) {};
+  myVec(INIT_SIZE_TYPE, long n, const myT& a) : Vec<myT>(INIT_SIZE, n, a) {};  
 
- public:
-  
-   myVec() : Vec<myT>() {};
-   myVec(usint n) : Vec<myT>(INIT_SIZE, n) {}; // adapter kit
-   myVec(INIT_SIZE_TYPE, long n) : Vec<myT>(INIT_SIZE, n) {};
-   myVec(INIT_SIZE_TYPE, long n, const myT& a) : Vec<myT>(INIT_SIZE, n, a) {};  
+    //copy ctor
+  myVec(const NTL::Vec<myT> &a) : Vec<myT>(a) {};
+    
+    //copy Ctors with vector inputs    
+    myVec(NTL::Vec<ZZ> &a);
+    myVec(const NTL::Vec<ZZ> &a);
+    //move copy
+    myVec(NTL::Vec<ZZ> &&a);
+    myVec(NTL::Vec<myT> &&a);
+
+    myVec(std::vector<std::string>& s);
 
 
+    //adapters
 
-   myVec(const NTL::Vec<myT> &a) : Vec<myT>(a) {};
-   myVec(NTL::Vec<ZZ> &a) : Vec<ZZ>(a) {};
-   myVec(NTL::Vec<ZZ> &&a) : Vec<ZZ>(a) {};
-   myVec(const NTL::Vec<ZZ> &a) : Vec<ZZ>(a) {};
+    const myVec& operator=(std::initializer_list<myT> rhs);
+    const myVec& operator=(std::initializer_list<usint> rhs);
+    const myVec& operator=(std::initializer_list<std::string> rhs);
+    const myVec& operator=(std::initializer_list<const char *> rhs);
+    const myVec& operator=(myT &rhs);
+    const myVec& operator=(const myT &rhs);
+    const myVec& operator=(unsigned int &rhs);
+    const myVec& operator=(unsigned int rhs);
 
-   myVec(NTL::Vec<myT> &&a) : Vec<myT>(a) {};
+    void clear(myVec& x); //why isn't this inhereted?
 
-  //adapters
-  myVec(std::vector<std::string>& s);
-  const myVec& operator=(std::initializer_list<myT> rhs);
-  const myVec& operator=(std::initializer_list<usint> rhs);
-  const myVec& operator=(std::initializer_list<std::string> rhs);
-  const myVec& operator=(std::initializer_list<const char *> rhs);
-  const myVec& operator=(myT &rhs);
-  const myVec& operator=(const myT &rhs);
-  const myVec& operator=(unsigned int &rhs);
-  const myVec& operator=(unsigned int rhs);
+    inline usint size() {return this->length();};
+    void SetValAtIndex(usint index, const myT&value);
+    void SetValAtIndex(usint index, const char *s);
+    void SetValAtIndex(usint index, const std::string& str);
+    const myT& GetValAtIndex(size_t index) const;
 
-  void clear(myVec& x); //why isn't this inhereted?
+    inline void push_back(const myT& a) { this->append(a);};
 
-  inline usint size() {return this->length();};
-  void SetValAtIndex(usint index, const myT&value);
-  void SetValAtIndex(usint index, const char *s);
-  void SetValAtIndex(usint index, const std::string& str);
-  const myT& GetValAtIndex(size_t index) const;
-
-  inline void push_back(const myT& a) { this->append(a);};
-
-  static inline myVec Single(const myZZ val) { 
-    myVec vec(1);
-    vec[0]=val;
-    return vec;
-  }
-
-  //arithmetic
-  //scalar modulus
-
-  myVec operator%(const myT& b) const; 
-
-  inline myVec Mod(const myZZ& b) const { return (*this)%b;};
-
-  //scalar modulo assignment
-  inline myVec& operator%=(const myT& a)
-  { 
-    unsigned int n = this->length();
-    for (unsigned int i = 0; i < n; i++){
-      (*this)[i]%=a;
+    static inline myVec Single(const myZZ val) { 
+      myVec vec(1);
+      vec[0]=val;
+      return vec;
     }
-    return *this;
-  };
+
+    //arithmetic
+    //scalar modulus
+
+    myVec operator%(const myT& b) const; 
+
+    inline myVec Mod(const myZZ& b) const { return (*this)%b;};
+
+    //scalar modulo assignment
+    inline myVec& operator%=(const myT& a)
+    { 
+      unsigned int n = this->length();
+      for (unsigned int i = 0; i < n; i++){
+	(*this)[i]%=a;
+      }
+      return *this;
+    };
 
 
 
-  inline myVec& operator+=(const myVec& a) {
-    add(*this, *this, a);
-    return *this;
-  };
+    inline myVec& operator+=(const myVec& a) {
+      add(*this, *this, a);
+      return *this;
+    };
 
-  //scalar addition assignment
-  inline myVec& operator+=(const myT& a)
-  { 
-    unsigned int n = this->length();
-    for (unsigned int i = 0; i < n; i++){
-      (*this)[i]+=a;
-    }
-    return *this;
-  };
+    //scalar addition assignment
+    inline myVec& operator+=(const myT& a)
+    { 
+      unsigned int n = this->length();
+      for (unsigned int i = 0; i < n; i++){
+	(*this)[i]+=a;
+      }
+      return *this;
+    };
 
-  myVec operator+(const myVec& b) const;
-  myVec operator+(const myT& b) const;
+    myVec operator+(const myVec& b) const;
+    myVec operator+(const myT& b) const;
 
-  inline myVec Add(const myT& b) const { return (*this)+b;};
+    inline myVec Add(const myT& b) const { return (*this)+b;};
 
-  void add(myVec& x, const myVec& a, const myVec& b) const; //define procedural
+    void add(myVec& x, const myVec& a, const myVec& b) const; //define procedural
 
-  //vector add
-  inline myVec Add(const myVec& b) const { return (*this)+b;};
+    //vector add
+    inline myVec Add(const myVec& b) const { return (*this)+b;};
 
-  //Subtraction
-  inline myVec& operator-=(const myVec& a)
-  { 
-    sub(*this, *this, a);
-    return *this;
-  };
+    //Subtraction
+    inline myVec& operator-=(const myVec& a)
+    { 
+      sub(*this, *this, a);
+      return *this;
+    };
 
-  inline myVec& operator-=(const myT& a)
-  { 
-    unsigned int n = this->length();
-    for (unsigned int i = 0; i < n; i++){
-      (*this)[i]-=a;
-    }
-    return *this;
-  };
-
-  
-  myVec operator-(const myVec& b) const;
-  myVec operator-(const myT& a) const;
-
-  //scalar
-  inline myVec Sub(const myT& b) const { return (*this)-b;};
-  //vector
-  inline myVec Sub(const myVec& b) const { return (*this)-b;};
-
-  //deprecated vector
-  inline myVec Minus(const myVec& b) const { return (*this)-b;};
-
-  void sub(myVec& x, const myVec& a, const myVec& b) const; //define procedural
-
-  //Multiplication
-  inline myVec& operator*=(const myVec& a)
-  { 
-    mul(*this, *this, a);
-    return *this;
-  };
-
-  inline myVec& operator*=(const myT& a)
-  { 
-    unsigned int n = this->length();
-    for (unsigned int i = 0; i < n; i++){
-      (*this)[i]*=a;
-    }
-    return *this;
-  };
+    inline myVec& operator-=(const myT& a)
+    { 
+      unsigned int n = this->length();
+      for (unsigned int i = 0; i < n; i++){
+	(*this)[i]-=a;
+      }
+      return *this;
+    };
 
   
-  myVec operator*(const myVec& b) const;
-  myVec operator*(const myT& a) const;
-  //scalar
-  inline myVec Mul(const myT& b) const { return (*this)*b;};
-  //vector
-  inline myVec Mul(const myVec& b) const { return (*this)*b;};
-  void mul(myVec& x, const myVec& a, const myVec& b) const; //define procedural
+    myVec operator-(const myVec& b) const;
+    myVec operator-(const myT& a) const;
+
+    //scalar
+    inline myVec Sub(const myT& b) const { return (*this)-b;};
+    //vector
+    inline myVec Sub(const myVec& b) const { return (*this)-b;};
+
+    //deprecated vector
+    inline myVec Minus(const myVec& b) const { return (*this)-b;};
+
+    void sub(myVec& x, const myVec& a, const myVec& b) const; //define procedural
+
+    //Multiplication
+    inline myVec& operator*=(const myVec& a)
+    { 
+      mul(*this, *this, a);
+      return *this;
+    };
+
+    inline myVec& operator*=(const myT& a)
+    { 
+      unsigned int n = this->length();
+      for (unsigned int i = 0; i < n; i++){
+	(*this)[i]*=a;
+      }
+      return *this;
+    };
+
+  
+    myVec operator*(const myVec& b) const;
+    myVec operator*(const myT& a) const;
+    //scalar
+    inline myVec Mul(const myT& b) const { return (*this)*b;};
+    //vector
+    inline myVec Mul(const myVec& b) const { return (*this)*b;};
+    void mul(myVec& x, const myVec& a, const myVec& b) const; //define procedural
 
 
-  //not tested yet
+    //not tested yet
 
-  //scalar then vector
-  //note a more efficient means exists for these
-  inline myVec ModAdd(const myT& b, const myZZ& modulus) const {return ((*this)+b)%modulus;};
-  inline myVec ModAdd(const myVec& b, const myZZ& modulus) const {return ((*this)+b)%modulus;};
+    //scalar then vector
+    //note a more efficient means exists for these
+    inline myVec ModAdd(const myT& b, const myZZ& modulus) const {return ((*this)+b)%modulus;};
+    inline myVec ModAdd(const myVec& b, const myZZ& modulus) const {return ((*this)+b)%modulus;};
 
-  // note that modsub requires us to use the NTL signed subtraction 
-  // rather than the Palisade unsigned subtraction 
-  inline myVec ModSub(const myT& b, const myZZ& modulus) const 
-  {
-    unsigned int n = this->length();
-    myVec<myT> res(n);
-    for (unsigned int i = 0; i < n; i++){
-      NTL_NAMESPACE::sub(res[i],(*this)[i],b);
-      res[i] = res[i]%modulus;
-    }
-    return(res);
-  };
+    // note that modsub requires us to use the NTL signed subtraction 
+    // rather than the Palisade unsigned subtraction 
+    inline myVec ModSub(const myT& b, const myZZ& modulus) const 
+    {
+      unsigned int n = this->length();
+      myVec<myT> res(n);
+      for (unsigned int i = 0; i < n; i++){
+	NTL_NAMESPACE::sub(res[i],(*this)[i],b);
+	res[i] = res[i]%modulus;
+      }
+      return(res);
+    };
 
-  inline myVec ModSub(const myVec& b, const myZZ& modulus) const 
-  {
-    unsigned int n = this->length();
-    myVec<myT> res(n);
-    for (unsigned int i = 0; i < n; i++){
-      NTL_NAMESPACE::sub(res[i],(*this)[i],b[i]);
-      res[i] = res[i]%modulus;
-    }
-    return(res);
-  };
+    inline myVec ModSub(const myVec& b, const myZZ& modulus) const 
+    {
+      unsigned int n = this->length();
+      myVec<myT> res(n);
+      for (unsigned int i = 0; i < n; i++){
+	NTL_NAMESPACE::sub(res[i],(*this)[i],b[i]);
+	res[i] = res[i]%modulus;
+      }
+      return(res);
+    };
 
-  inline myVec ModMul(const myT& b, const myZZ& modulus) const {return ((*this)*b)%modulus;};
-  inline myVec ModMul(const myVec& b, const myZZ& modulus) const {return ((*this)*b)%modulus;};
+    inline myVec ModMul(const myT& b, const myZZ& modulus) const {return ((*this)*b)%modulus;};
+    inline myVec ModMul(const myVec& b, const myZZ& modulus) const {return ((*this)*b)%modulus;};
 
- protected:
-  bool IndexCheck(usint) const;
+  protected:
+    bool IndexCheck(usint) const;
 
-}; //template class ends
+  }; //template class ends
 
 } // namespace NTL ends
 

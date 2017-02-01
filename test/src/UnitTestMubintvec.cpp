@@ -243,7 +243,7 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   for (i = 1; i< eqtest.size(); i++) {
     EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure assign single ubint nonzero index";
   }
-#if 0
+
   //test comparisons == and !=
   m = n;
   bool test1 = m==n;
@@ -251,7 +251,8 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_TRUE(test1)<<"Failure ==";
   EXPECT_FALSE(test2)<<"Failure !=";
 
-  n.SetModulus(n.GetModulus()+ubint::ONE);
+  //n.SetModulus(n.GetModulus()+ubint::ONE); //TODO this will not compile?
+  n.SetModulus(ubint(n.GetModulus()+ubint::ONE));
   //reset n to a differnt modulus, comparison will fail. 
   test1 = m==n;
   test2 = m!=n;
@@ -273,7 +274,7 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_TRUE(test1)<<"Failure [] lhs rhs";
 
   //test more ctors
-
+#if 0
   ubintvec u(5);
   u = {"9872","5888","4620","2376","4631"}; //strings
 

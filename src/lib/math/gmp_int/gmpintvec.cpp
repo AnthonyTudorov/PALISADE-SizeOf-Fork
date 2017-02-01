@@ -42,7 +42,46 @@
 
 #include "../../utils/debug.h"
 
+
 namespace NTL {
+
+
+  //copy ctor with vector inputs
+ template<class myT>
+  myVec<myT>::myVec(NTL::Vec<ZZ> &a) : Vec<myT>(INIT_SIZE, a.length()) 
+  {
+    for (auto i=0; i< a.length(); i++) {
+      (*this)[i]=a[i];
+    }
+  }
+
+  //TODO: this may be a movecopy not sure if this is correct
+ template<class myT>
+  myVec<myT>::myVec(NTL::Vec<ZZ> &&a) : Vec<myT>(INIT_SIZE, a.length()) 
+  {
+    //consider using Victor's move(a);
+    for (auto i=0; i< a.length(); i++) {
+      (*this)[i]=a[i];
+    }
+  }
+
+
+ template<class myT>
+  myVec<myT>::myVec(const NTL::Vec<ZZ> &a) : Vec<myT>(INIT_SIZE, a.length()) 
+  {
+    for (auto i=0; i< a.length(); i++) {
+      (*this)[i]=a[i];
+    }
+  }
+
+ template<class myT>
+  myVec<myT>::myVec(NTL::Vec<myT> &&a) : Vec<myT>(INIT_SIZE, a.length()) 
+  {
+    //consider using Victor's move(a);
+    for (auto i=0; i< a.length(); i++) {
+      (*this)[i]=a[i];
+    }
+  }
 
   // constructor specifying the myvec as a vector of strings
   template<class myT>
@@ -107,7 +146,7 @@ namespace NTL {
     }
     return *this;
   }
-//&&&***
+  //&&&***
   template<class myT>
   const myVec<myT>& myVec<myT>::operator=(const myT &rhs){
     bool dbg_flag = false;
@@ -156,7 +195,7 @@ namespace NTL {
       NTL_NAMESPACE::clear(x[i]);  
     }
   }
-/// ARITHMETIC FUNCTIONS
+  /// ARITHMETIC FUNCTIONS
 
   //arithmetic operations
   //modulus
@@ -189,10 +228,10 @@ namespace NTL {
   template<class myT>
   myVec<myT> myVec<myT>::operator+( const myVec<myT>& b) const
   {
-     myVec<myT> res;
-     myVec<myT>::add(res, *this, b);
-     //NTL_OPT_RETURN(myVec<myT>, res);
-     return(res);
+    myVec<myT> res;
+    myVec<myT>::add(res, *this, b);
+    //NTL_OPT_RETURN(myVec<myT>, res);
+    return(res);
   }
 
   //procedural addition why can't I inheret this?
@@ -224,10 +263,10 @@ namespace NTL {
   template<class myT>
   myVec<myT> myVec<myT>::operator-( const myVec<myT>& b) const
   {
-     myVec<myT> res;
-     myVec<myT>::sub(res, *this, b);
-     //NTL_OPT_RETURN(myVec<myT>, res);
-     return(res);
+    myVec<myT> res;
+    myVec<myT>::sub(res, *this, b);
+    //NTL_OPT_RETURN(myVec<myT>, res);
+    return(res);
   }
 
   //procedural subtraction why can't I inheret this?
@@ -259,10 +298,10 @@ namespace NTL {
   template<class myT>
   myVec<myT> myVec<myT>::operator*( const myVec<myT>& b) const
   {
-     myVec<myT> res;
-     myVec<myT>::mul(res, *this, b);
-     //NTL_OPT_RETURN(myVec<myT>, res);
-     return(res);
+    myVec<myT> res;
+    myVec<myT>::mul(res, *this, b);
+    //NTL_OPT_RETURN(myVec<myT>, res);
+    return(res);
   }
 
   //procedural multiplication why can't I inheret this?
@@ -333,3 +372,5 @@ namespace NTL {
 
 
 } // namespace NTL ends
+
+template class NTL::myVec<NTL::myZZ>; //instantiate template here

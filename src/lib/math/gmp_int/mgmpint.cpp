@@ -183,7 +183,8 @@ namespace NTL {
   bool myZZ_p::m_checkOTM(const myZZ &q) const 
   {
     if (m_OTM_state == GARBAGE){
-      throw std::logic_error("myZZ_p::function() called with uninitialized OTM");
+      //throw std::logic_error("myZZ_p::m_checkOTM() called with uninitialized OTM");
+      std::cout<<"myZZ_p::m_checkOTM() called with uninitialized OTM"<<std::endl;
     }
     return (m_OTM == q);
   }
@@ -191,7 +192,8 @@ namespace NTL {
   myZZ& myZZ_p::m_getOTM(void) const 
   {
     if (m_OTM_state == GARBAGE){
-      throw std::logic_error("myZZ_p::checkfunction() called with uninitialized OTM");
+      //throw std::logic_error("myZZ_p::m_getOTM() called with uninitialized OTM");
+      std::cout<<"myZZ_p::m_getOTM() called with uninitialized OTM"<<std::endl;
     } else {
       return m_OTM;
     }

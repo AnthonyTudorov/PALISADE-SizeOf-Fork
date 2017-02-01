@@ -257,7 +257,23 @@ namespace NTL{
       return(res);
     };
 
+    //note b can't be ZZ_p cause it can't hold it's modulus value.
+    inline myZZ_p operator%(const unsigned int &b) const
+    {
+      myZZ_p res;
+      res = (this->_ZZ_p__rep)%b;
+      return(res);
+    };
 
+    inline myZZ_p& operator %=(const myZZ &a) {
+      *this = *this%a;
+      return *this;
+    };
+    inline myZZ_p& operator %=(const unsigned int &a) {
+      *this = *this%a;
+      return *this;
+    };
+  
     //note Mod() == ModBarrett() of all forms. 
     inline myZZ_p Mod(const myZZ& modulus) const {return (this->_ZZ_p__rep)%modulus;};
     inline myZZ_p ModBarrett(const myZZ& modulus, const myZZ& mu) const {return (this->_ZZ_p__rep)%modulus;};
@@ -333,14 +349,14 @@ namespace NTL{
   inline long operator!=(const myZZ &a, const myZZ_p& b) 
   { return b.Compare(a) != 0; }    
   //note inversion of comparison because of swap of operands
-  inline long operator<(const myZZ &a, const myZZ_p& b) 
-  { return b.Compare(a) > 0; }
-  inline long operator>(const myZZ &a, const myZZ_p& b) 
-  { return b.Compare(a) < 0; }
-  inline long operator<=(const myZZ &a, const myZZ_p& b)
-  { return b.Compare(a) >= 0; }
-  inline long operator>=(const myZZ &a, const myZZ_p& b)
-  { return b.Compare(a) <= 0; }
+  //inline long operator<(const myZZ &a, const myZZ_p& b) 
+  //{ return b.Compare(a) > 0; }
+  //  inline long operator>(const myZZ &a, const myZZ_p& b) 
+  //{ return b.Compare(a) < 0; }
+  //inline long operator<=(const myZZ &a, const myZZ_p& b)
+  //{ return b.Compare(a) >= 0; }
+  //inline long operator>=(const myZZ &a, const myZZ_p& b)
+  //{ return b.Compare(a) <= 0; }
 
 #if 1 //these may not be needed!
  //comparison operators with two operands defined outside the class

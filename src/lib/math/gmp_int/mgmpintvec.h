@@ -84,20 +84,25 @@ namespace NTL {
     //constructors without moduli
   myVecP(usint n): Vec<myT>(INIT_SIZE, n) {}; // adapter kit
   myVecP(INIT_SIZE_TYPE, long n): Vec<myT>(INIT_SIZE, n) {};
-  myVecP(INIT_SIZE_TYPE, long n,  myT const& a): Vec<myT>(INIT_SIZE, n, a) {};  //moved const
+  myVecP(INIT_SIZE_TYPE, long n,  myT const& a): Vec<myT>(INIT_SIZE, n, a) {}; 
+
+
     //copy
-  myVecP(NTL::Vec<myT> &a) : Vec<myT>(a) {};
-  myVecP(const NTL::Vec<myT> &a) : Vec<myT>(a) {};
-  myVecP(NTL::Vec<ZZ> &a) : Vec<ZZ>(a) {};
-  myVecP(const NTL::Vec<ZZ> &a) : Vec<ZZ>(a) {};
-  myVecP(NTL::Vec<ZZ_p> &a) : Vec<ZZ_p>(a) {};
-  myVecP(const NTL::Vec<ZZ_p> &a) : Vec<ZZ_p>(a) {};
+    myVecP(NTL::Vec<myT> &a);
+
+    // copy ctors with vector inputs
+    myVecP(const NTL::Vec<myT> &a);
+    //myVecP(NTL::Vec<ZZ> &a);
+    //myVecP(const NTL::Vec<ZZ> &a);
+    //myVecP(NTL::Vec<ZZ_p> &a); //removing all bare ZZ_p
+    //myVecP(const NTL::Vec<ZZ_p> &a);
 
     ///movecopy
-  myVecP(NTL::Vec<myT> &&a) : Vec<myT>(a) {};
-  myVecP(NTL::Vec<ZZ> &&a) : Vec<ZZ>(a) {};
-  myVecP(NTL::Vec<myZZ> &&a) : Vec<myZZ>(a) {};
-  myVecP(NTL::Vec<ZZ_p> &&a) : Vec<ZZ_p>(a) {};
+    //myVecP(NTL::Vec<myT> &&a);
+    myVecP(myVecP<myT> &&a);
+    //myVecP(NTL::Vec<ZZ> &&a);
+    myVecP(myVec<myZZ> &&a);
+    //myVecP(NTL::Vec<ZZ_p> &&a);
     ///%%%%
 
     //constructors with moduli
@@ -109,10 +114,10 @@ namespace NTL {
     //copy with myZZ moduli
     myVecP(NTL::Vec<myT> &a, myZZ &q);
     myVecP(const NTL::Vec<myT> &a, myZZ &q);
-    myVecP(NTL::Vec<ZZ> &a, myZZ &q);
-    myVecP(const NTL::Vec<ZZ> &a, myZZ &q);
-    myVecP(NTL::Vec<ZZ_p> &a, myZZ &q);
-    myVecP(const NTL::Vec<ZZ_p> &a, myZZ &q);
+    //myVecP(NTL::Vec<ZZ> &a, myZZ &q);
+    //myVecP(const NTL::Vec<ZZ> &a, myZZ &q);
+    //myVecP(NTL::Vec<ZZ_p> &a, myZZ &q);
+    //myVecP(const NTL::Vec<ZZ_p> &a, myZZ &q);
 
     //ctor with char * moduli
     myVecP(usint n, const char *sq);
@@ -123,10 +128,10 @@ namespace NTL {
 
     myVecP(NTL::Vec<myT> &a, const char *sq);
     myVecP(const NTL::Vec<myT> &a, const char *sq);
-    myVecP(NTL::Vec<ZZ> &a, const char *sq);
-    myVecP(const NTL::Vec<ZZ> &a, const char *sq);
-    myVecP(NTL::Vec<ZZ_p> &a, const char *sq);
-    myVecP(const NTL::Vec<ZZ_p> &a, const char *sq);
+    //myVecP(NTL::Vec<ZZ> &a, const char *sq);
+    //myVecP(const NTL::Vec<ZZ> &a, const char *sq);
+    //myVecP(NTL::Vec<ZZ_p> &a, const char *sq);
+    //myVecP(const NTL::Vec<ZZ_p> &a, const char *sq);
 
     //ctor with usint moduli
     myVecP(usint n, usint q);
@@ -136,10 +141,10 @@ namespace NTL {
    //copy with unsigned int moduli
     myVecP(NTL::Vec<myT> &a, const usint q);
     myVecP(const NTL::Vec<myT> &a, const usint q);
-    myVecP(NTL::Vec<ZZ> &a, const usint q);
-    myVecP(const NTL::Vec<ZZ> &a, const usint q);
-    myVecP(NTL::Vec<ZZ_p> &a, const usint q);
-    myVecP(const NTL::Vec<ZZ_p> &a, const usint q);
+    //myVecP(NTL::Vec<ZZ> &a, const usint q);
+    //myVecP(const NTL::Vec<ZZ> &a, const usint q);
+    //myVecP(NTL::Vec<ZZ_p> &a, const usint q);
+    //myVecP(const NTL::Vec<ZZ_p> &a, const usint q);
  
     ///%%%%
 
@@ -179,7 +184,9 @@ namespace NTL {
       bool dbg_flag = true;
       DEBUG("single in");
       myVecP vec(1);
+      DEBUG("a");
       vec.SetModulus(modulus);
+      DEBUG("b");
       vec[0]=val;
       DEBUG("single out");
       return vec;
@@ -226,8 +233,8 @@ namespace NTL {
       return *this;
     };
 
-    myVecP operator+(const myVecP& b) const;
-    myVecP operator+(const myT& b) const;
+    myVecP operator+(myVecP const& b) const;
+    myVecP operator+(myT const& b) const;
 
     inline myVecP Add(const myT& b) const { return (*this)+b;};
 
@@ -345,30 +352,47 @@ namespace NTL {
 
 
     //public modulus accessors
+    inline bool isModulusSet(void) const{
+      return(this->m_modulus_state == INITIALIZED);
+    };
+
     inline void SetModulus(const usint& value){
-      this->m_setOTM(myZZ(value));
+      this->m_modulus= myZZ(value);
+      this->m_modulus_state = INITIALIZED;
     };
   
     inline void SetModulus(const myZZ& value){
-      this->m_setOTM(value);
+      this->m_modulus= value;
+      this->m_modulus_state = INITIALIZED;
     };
 
     //the following confuses the compiler?
     inline void SetModulus(const myZZ_p& value){
-      this->m_setOTM(myZZ(value.myZZ_p::GetModulus()));
+      this->m_modulus= myZZ(value.myZZ_p::GetModulus());
+      this->m_modulus_state = INITIALIZED;
     };
 
     inline void SetModulus(const std::string& value){
-      this->m_setOTM(myZZ(value));
+      this->m_modulus = myZZ(value);
     };
   
     inline void SetModulus(const myVecP& value){
-      this->m_setOTM(myZZ(value.myVecP::GetModulus()));
+      this->m_modulus = myZZ(value.myVecP::GetModulus());
     };
 
     inline const myZZ& GetModulus() const{
-      return (this->m_getOTM());
+      if (this->isModulusSet()){
+	return (this->m_modulus);
+      }else{
+	std::cout<<"myZZ GetModulus() on uninitialized modulus"<<std::endl;
+	return 0;
+      }
     };
+    
+    inline void CopyModulus(const myVecP& rhs){
+      this->m_modulus = rhs.m_modulus;
+      this->m_modulus_state = rhs.m_modulus_state;
+    }
 
     inline size_t GetLength(void) const{ //deprecated by size()
       return this->length();
@@ -379,21 +403,19 @@ namespace NTL {
     };
 
 
+#if 0
+    // ostream 
+    friend std::ostream& operator<<(std::ostream& os, const myVecP &ptr_obj);
+#endif
 
   private:
-    void m_setOTM(const myZZ &q);
-    bool m_checkOTM(const myZZ &q) const;
-    bool m_isOTMSet() const;
-    myZZ& m_getOTM(void) const;
-    
-  public: //since global?
-    static myZZ m_OTM;
-    
-    enum OTMState {
+
+    myZZ m_modulus;
+    enum ModulusState {
       GARBAGE,INITIALIZED //note different order, Garbage is the default state
     };
     //enum to store the state of the
-    static OTMState m_OTM_state;
+    ModulusState m_modulus_state;
 
   protected:
     bool IndexCheck(usint) const;
