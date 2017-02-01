@@ -99,7 +99,7 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& out, const IntPlaintextEncoding& item) {
 		for( int i=0; i<item.size(); i++ )
-			out << item.at(i);
+			out << "\t" << item.at(i);
 		return out;
 	}
 };
