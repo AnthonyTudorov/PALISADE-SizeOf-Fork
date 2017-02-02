@@ -279,7 +279,7 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_TRUE(test1)<<"Failure [] lhs rhs";
   DEBUG("9");  
   //test more ctors
-#if 0
+
   ubintvec u(5);
   u = {"9872","5888","4620","2376","4631"}; //strings
 
@@ -295,9 +295,10 @@ TEST(UTmubintvec,ctor_access_eq_neq){
 
   //test comparison between ubintvec and mubintvec
   EXPECT_TRUE(u == u2) << "Failure mubintvec == ubintvec";
-  EXPECT_FALSE(u != u2) << "Failure mubintvec == ubintvec";
-  EXPECT_TRUE(u2 == u) << "Failure ubintvec == uubintvec";
+  EXPECT_FALSE(u != u2) << "Failure mubintvec != ubintvec";
+  EXPECT_TRUE(u2 == u) << "Failure ubintvec == mubintvec";
   EXPECT_FALSE(u2 != u) << "Failure ubintvec == mubintvec";
+#if 0
 
 }
 

@@ -51,7 +51,7 @@ namespace NTL {
   // constructors without moduli
   //&&&
   //copy ctor with vector inputs
-
+  //creation ctors without moduli are marked GARBAGE
   template<class myT>
   myVecP<myT>::myVecP(const NTL::Vec<myT> &a) : Vec<myT>(INIT_SIZE, a.length()) 
   {
@@ -63,6 +63,15 @@ namespace NTL {
 
   template<class myT>
   myVecP<myT>::myVecP(NTL::Vec<myT> &a) : Vec<myT>(INIT_SIZE, a.length()) 
+  {
+    for (auto i=0; i< a.length(); i++) {
+      (*this)[i]=a[i];
+    }
+    this->m_modulus_state == GARBAGE;
+  }
+
+  template<class myT>
+  myVecP<myT>::myVecP(const myVec<myZZ> &a) : Vec<myT>(INIT_SIZE, a.length()) 
   {
     for (auto i=0; i< a.length(); i++) {
       (*this)[i]=a[i];
@@ -157,6 +166,16 @@ namespace NTL {
     (*this) %= q;
   }
 
+  //TODO: we should scrub all code for NTL variables and use our wrapped versions exclusively.
+  template<class myT>
+  myVecP<myT>::myVecP(const myVec<myZZ> &a, myZZ &q) : Vec<myT>(INIT_SIZE, a.length()) 
+  {
+    this->SetModulus(q);
+    for (auto i=0; i< a.length(); i++) {
+      (*this)[i] = a[i]%q;  //must we do this since myZZ could be >=q
+    }
+  }
+
   // template<class myT>
   // myVecP<myT>::myVecP(NTL::Vec<ZZ> &a, myZZ &q) : Vec<myT>(INIT_SIZE, a.length()) 
   // {
@@ -229,6 +248,15 @@ namespace NTL {
     this->SetModulus(myZZ(sq)); 
   }
 
+  template<class myT>
+  myVecP<myT>::myVecP(const myVec<myZZ> &a, const char *sq) : Vec<myT>(INIT_SIZE, a.length()) 
+  {
+    myZZ zzq(sq);
+    this->SetModulus(zzq);
+    for (auto i=0; i< a.length(); i++) {
+      (*this)[i] = a[i]%zzq;  //must we do this since myZZ could be >=q
+    }
+  }
   // template<class myT>
   // myVecP<myT>::myVecP(NTL::Vec<ZZ> &a, const char *sq):Vec<ZZ>(a) 
   // { 
@@ -294,6 +322,15 @@ namespace NTL {
     }
   }
 
+  template<class myT>
+  myVecP<myT>::myVecP(const myVec<myZZ> &a, const usint q) : Vec<myT>(INIT_SIZE, a.length()) 
+  {
+    myZZ zzq(q);
+    this->SetModulus(zzq);
+    for (auto i=0; i< a.length(); i++) {
+      (*this)[i] = a[i]%zzq;  //must we do this since myZZ could be >=q
+    }
+  }
   // template<class myT>
   // myVecP<myT>::myVecP(NTL::Vec<ZZ> &a, const usint q):Vec<ZZ>(a) 
   // { 

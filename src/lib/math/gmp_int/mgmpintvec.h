@@ -92,7 +92,7 @@ namespace NTL {
 
     // copy ctors with vector inputs
     myVecP(const NTL::Vec<myT> &a);
-    //myVecP(NTL::Vec<ZZ> &a);
+    myVecP(const myVec<myZZ> &a);
     //myVecP(const NTL::Vec<ZZ> &a);
     //myVecP(NTL::Vec<ZZ_p> &a); //removing all bare ZZ_p
     //myVecP(const NTL::Vec<ZZ_p> &a);
@@ -114,6 +114,8 @@ namespace NTL {
     //copy with myZZ moduli
     myVecP(NTL::Vec<myT> &a, myZZ &q);
     myVecP(const NTL::Vec<myT> &a, myZZ &q);
+    myVecP(const myVec<myZZ> &a, myZZ &q);
+
     //myVecP(NTL::Vec<ZZ> &a, myZZ &q);
     //myVecP(const NTL::Vec<ZZ> &a, myZZ &q);
     //myVecP(NTL::Vec<ZZ_p> &a, myZZ &q);
@@ -128,6 +130,7 @@ namespace NTL {
 
     myVecP(NTL::Vec<myT> &a, const char *sq);
     myVecP(const NTL::Vec<myT> &a, const char *sq);
+    myVecP(const myVec<myZZ> &a, const char *sq);
     //myVecP(NTL::Vec<ZZ> &a, const char *sq);
     //myVecP(const NTL::Vec<ZZ> &a, const char *sq);
     //myVecP(NTL::Vec<ZZ_p> &a, const char *sq);
@@ -141,6 +144,7 @@ namespace NTL {
    //copy with unsigned int moduli
     myVecP(NTL::Vec<myT> &a, const usint q);
     myVecP(const NTL::Vec<myT> &a, const usint q);
+    myVecP(const myVec<myZZ> &a, const usint q);
     //myVecP(NTL::Vec<ZZ> &a, const usint q);
     //myVecP(const NTL::Vec<ZZ> &a, const usint q);
     //myVecP(NTL::Vec<ZZ_p> &a, const usint q);
@@ -190,7 +194,7 @@ namespace NTL {
       vec[0]=val;
       DEBUG("single out");
       return vec;
-    }
+    };
 
     //comparison. 
 
@@ -213,7 +217,6 @@ namespace NTL {
 	(*this)[i]%=a;
       }
       return *this;
-
     };
 
 
@@ -369,7 +372,6 @@ namespace NTL {
       this->m_modulus= myZZ(value);
       this->m_modulus_state = INITIALIZED;
       ZZ_p::init(this->m_modulus);
-      
     };
   
     inline void SetModulus(const myZZ& value){
@@ -422,7 +424,7 @@ namespace NTL {
       this->m_modulus = rhs.m_modulus;
       this->m_modulus_state = rhs.m_modulus_state;
       ZZ_p::init(this->m_modulus);
-    }
+    };
 
     inline size_t GetLength(void) const{ //deprecated by size()
       return this->length();
@@ -436,7 +438,7 @@ namespace NTL {
     //need to add comparison operators == and !=
     //note these should fail if the modulii are different!
     // inline sint Compare(const myVecP& a) const {return compare(this->_ZZ_p__rep,a._ZZ_p__rep); };
-
+    // myvecP and myvecP
     inline bool operator==(const myVecP& b) const
     { 
       if ((this->SameModulus(b)) && 
@@ -455,7 +457,28 @@ namespace NTL {
     };
     
     inline bool operator!=( const myVecP& b) const
-    { return !(this->operator==(b)); }
+    { return !(this->operator==(b)); };
+
+    // myvecP and myvec<myZZ>
+    inline bool operator==(const myVec<myZZ>& b) const
+    { 
+      if ((this->size()==b.length())) { //TODO: define size() for b
+	//loop over each entry and fail if !=
+	for (auto i = 0; i < this->size(); ++i) {
+	  if ((*this)[i]!=b[i]){
+	    return false;
+	  }
+	}
+	return true;// all entries ==
+	
+      }else{ //fails check of size
+	return false;
+      }
+    };
+    
+    inline bool operator!=( const myVec<myZZ>& b) const
+    { return !(this->operator==(b)); };
+
 
     // inline long operator<( const myZZ_p& b) const
     // { return this->Compare(b) < 0; }
@@ -484,6 +507,29 @@ namespace NTL {
     bool IndexCheck(usint) const;
   }; //template class ends
 
+
+
+  //comparison operators with two operands must be defined outside the class
+  //myVec<myZZ> and myVecP
+  inline long operator==(const myVec<myZZ> &a, const myVecP<myZZ_p> &b) 
+  {
+    if ((a.length()==b.size())) { 
+      //loop over each entry and fail if !=
+      for (auto i = 0; i < a.length(); ++i) {
+	if (a[i]!=b[i]){
+	  return false;
+	}
+      }
+      return true;// all entries ==
+    }else{ //fails check of size
+      return false;
+    }
+  };
+  
+  inline long operator!=(const myVec<myZZ> &a, const myVecP<myZZ_p> &b) 
+  { return !(operator==(a,b)); };
+  
+  
 } // namespace NTL ends
 
 #endif // LBCRYPTO_MATH_GMPINT_MGMPINTVEC_H
