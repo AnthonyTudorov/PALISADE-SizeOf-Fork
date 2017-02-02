@@ -158,7 +158,7 @@ namespace NTL {
     myVecP(std::vector<std::string>& s, const char *sq); // with modulus
     myVecP(std::vector<std::string>& s, const usint q); // with modulusu
 
-
+    const myVecP& operator=(const myVecP &a);
 
 
     const myVecP& operator=(std::initializer_list<myT> rhs);
@@ -180,7 +180,7 @@ namespace NTL {
 
     inline void push_back(const myT& a) { this->append(a);};
 
-    static inline myVecP Single(const myT& val, const myT&modulus) {
+    static inline myVecP Single(const myZZ& val, const myZZ &modulus) {
       bool dbg_flag = true;
       DEBUG("single in");
       myVecP vec(1);
@@ -356,32 +356,58 @@ namespace NTL {
       return(this->m_modulus_state == INITIALIZED);
     };
 
+    //return true if both myVecP have same modulus
+    inline bool SameModulus(const myVecP &a) const{
+      return((this->m_modulus_state == a.m_modulus_state)&&
+	     (this->m_modulus == a.m_modulus));
+    };
+
     inline void SetModulus(const usint& value){
+      bool dbg_flag = true;
+      DEBUG("SetModulus(const usint& "<<value<<")");
+
       this->m_modulus= myZZ(value);
       this->m_modulus_state = INITIALIZED;
+      ZZ_p::init(this->m_modulus);
+      
     };
   
     inline void SetModulus(const myZZ& value){
+      bool dbg_flag = true;
+      DEBUG("SetModulus(const myZZ& "<<value<<")");
       this->m_modulus= value;
       this->m_modulus_state = INITIALIZED;
+      ZZ_p::init(this->m_modulus);
     };
 
     //the following confuses the compiler?
     inline void SetModulus(const myZZ_p& value){
+      bool dbg_flag = true;
+      DEBUG("SetModulus(const myZZ_p& "<<value<<")");
       this->m_modulus= myZZ(value.myZZ_p::GetModulus());
       this->m_modulus_state = INITIALIZED;
+      ZZ_p::init(this->m_modulus);
     };
 
     inline void SetModulus(const std::string& value){
+      bool dbg_flag = true;
+      DEBUG("SetModulus(const string& "<<value<<")");
       this->m_modulus = myZZ(value);
+      ZZ_p::init(this->m_modulus);
     };
   
     inline void SetModulus(const myVecP& value){
+      bool dbg_flag = true;
+      DEBUG("SetModulus(const myVecP& "<<value<<")");
       this->m_modulus = myZZ(value.myVecP::GetModulus());
+      ZZ_p::init(this->m_modulus);
     };
 
     inline const myZZ& GetModulus() const{
+      bool dbg_flag = true;
       if (this->isModulusSet()){
+	DEBUG("GetModulus returns "<<this->m_modulus);
+
 	return (this->m_modulus);
       }else{
 	std::cout<<"myZZ GetModulus() on uninitialized modulus"<<std::endl;
@@ -390,8 +416,12 @@ namespace NTL {
     };
     
     inline void CopyModulus(const myVecP& rhs){
+      bool dbg_flag = true;
+      DEBUG("CopyModulus(const myVecP& modulus is "<<rhs.m_modulus);
+      DEBUG("CopyModulus(const myVecP& modulus_state is "<<rhs.m_modulus_state);
       this->m_modulus = rhs.m_modulus;
       this->m_modulus_state = rhs.m_modulus_state;
+      ZZ_p::init(this->m_modulus);
     }
 
     inline size_t GetLength(void) const{ //deprecated by size()
@@ -402,6 +432,39 @@ namespace NTL {
       return this->length();
     };
 
+
+    //need to add comparison operators == and !=
+    //note these should fail if the modulii are different!
+    // inline sint Compare(const myVecP& a) const {return compare(this->_ZZ_p__rep,a._ZZ_p__rep); };
+
+    inline bool operator==(const myVecP& b) const
+    { 
+      if ((this->SameModulus(b)) && 
+	  (this->size()==b.size())) { 
+	//loop over each entry and fail if !=
+	for (auto i = 0; i < this->size(); ++i) {
+	  if ((*this)[i]!=b[i]){
+	    return false;
+	  }
+	}
+	return true;// all entries ==
+	
+      }else{ //fails check of size and modulus
+	return false;
+      }
+    };
+    
+    inline bool operator!=( const myVecP& b) const
+    { return !(this->operator==(b)); }
+
+    // inline long operator<( const myZZ_p& b) const
+    // { return this->Compare(b) < 0; }
+    // inline long operator>( const myZZ_p& b) const
+    // { return this->Compare(b) > 0; }
+    // inline long operator<=( const myZZ_p& b) const
+    // { return this->Compare(b) <= 0; }
+    // inline long operator>=( const myZZ_p& b) const
+    // { return this->Compare(b) >= 0; }
 
 #if 0
     // ostream 

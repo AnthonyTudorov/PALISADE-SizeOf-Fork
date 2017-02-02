@@ -117,8 +117,11 @@ TEST(UTmubintvec,ctor_access_eq_neq){
                  //note all values are zero.
 
   m.SetModulus(q);
-  mubintvec n(5,q); // calling contructor with modulus
+  //DEBUG("otm is: "<<mubint::modulus());
 
+
+  mubintvec n(5,q); // calling contructor with modulus
+  //DEBUG("otm is: "<<mubint::modulus());
   int i;
   usint j;
 
@@ -182,7 +185,7 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_EQ(ubint(7),n[4])<< "Failure in SetValAtIndex(ubint)";
 
   DEBUG("1");
-
+  //DEBUG("otm is: "<<mubint::modulus());
   m+=n;
 
   usint expectedResult[5] = {9872,5888,4620,2376,4631};
@@ -250,7 +253,7 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   bool test2 = m!=n;
   EXPECT_TRUE(test1)<<"Failure ==";
   EXPECT_FALSE(test2)<<"Failure !=";
-
+  DEBUG("6");  
   //n.SetModulus(n.GetModulus()+ubint::ONE); //TODO this will not compile?
   n.SetModulus(ubint(n.GetModulus()+ubint::ONE));
   //reset n to a differnt modulus, comparison will fail. 
@@ -258,9 +261,10 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   test2 = m!=n;
   EXPECT_FALSE(test1)<<"Failure == different mods";
   EXPECT_TRUE(test2)<<"Failure != different mods";
+  DEBUG("7");  
   // set it back 
   n.SetModulus(n.GetModulus()-ubint::ONE);
-
+  DEBUG("otm is: "<<mubint::modulus());
   m = n+n;
   test1 = m==n;
   test2 = m!=n;
@@ -270,9 +274,10 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   for (auto i = 0; i < m.size(); i++) {
     m[i] = n[i]; //test both lhs and rhs []
   }
+  DEBUG("8");  
   test1 = m==n;
   EXPECT_TRUE(test1)<<"Failure [] lhs rhs";
-
+  DEBUG("9");  
   //test more ctors
 #if 0
   ubintvec u(5);

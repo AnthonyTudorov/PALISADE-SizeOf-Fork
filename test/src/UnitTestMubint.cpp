@@ -145,6 +145,9 @@ TEST(UTmubint,ctor_access_eq_neq){
   EXPECT_TRUE(test1)<<"Failure ==";
   EXPECT_FALSE(test2)<<"Failure !=";
 
+#if 0
+  //we have only one modulus for mubint so this test will not work.
+
   //n.SetModulus(n.GetModulus()+ubint::ONE); //TODO:: this confused the compiler? //is operator+ inhereted and not operator- ?? that works below. 
   n.SetModulus(ubint(n.GetModulus()+ubint::ONE));
   //reset n to a differnt modulus, comparison will fail. 
@@ -158,6 +161,9 @@ TEST(UTmubint,ctor_access_eq_neq){
   EXPECT_TRUE(test2)<<"Failure != different mods";
   // set it back 
   n.SetModulus(n.GetModulus()-ubint::ONE);
+
+#endif
+
 
   m = n+n;
   test1 = m==n;
@@ -183,7 +189,7 @@ TEST(UTmubint,ctor_access_eq_neq){
   EXPECT_TRUE(u2 == u4) << "Failure ctor (ubint,string)";
   EXPECT_TRUE(u2 == u5) << "Failure ctor (ubint,usint)";
 
-  //test comparison between ubintvec and mubint
+  //test comparison between ubint and mubint
   EXPECT_TRUE(u == u2) << "Failure mubint == ubintvec";
 
   EXPECT_FALSE(u != u2) << "Failure mubint == ubintvec";
