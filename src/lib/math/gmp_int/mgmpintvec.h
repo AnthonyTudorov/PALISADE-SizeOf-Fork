@@ -88,22 +88,15 @@ namespace NTL {
 
 
     //copy
-    myVecP(NTL::Vec<myT> &a);
+
+    myVecP(const myVecP<myT> &a);
 
     // copy ctors with vector inputs
-    myVecP(const NTL::Vec<myT> &a);
     myVecP(const myVec<myZZ> &a);
-    //myVecP(const NTL::Vec<ZZ> &a);
-    //myVecP(NTL::Vec<ZZ_p> &a); //removing all bare ZZ_p
-    //myVecP(const NTL::Vec<ZZ_p> &a);
 
     ///movecopy
-    //myVecP(NTL::Vec<myT> &&a);
     myVecP(myVecP<myT> &&a);
-    //myVecP(NTL::Vec<ZZ> &&a);
     myVecP(myVec<myZZ> &&a);
-    //myVecP(NTL::Vec<ZZ_p> &&a);
-    ///%%%%
 
     //constructors with moduli
     //ctor myZZ moduli
@@ -112,8 +105,7 @@ namespace NTL {
     myVecP(INIT_SIZE_TYPE, long n, const myT& a, const myZZ &q);
 
     //copy with myZZ moduli
-    myVecP(NTL::Vec<myT> &a, myZZ &q);
-    myVecP(const NTL::Vec<myT> &a, myZZ &q);
+    myVecP(const myVecP<myT> &a, myZZ &q);
     myVecP(const myVec<myZZ> &a, myZZ &q);
 
     //myVecP(NTL::Vec<ZZ> &a, myZZ &q);
@@ -128,8 +120,8 @@ namespace NTL {
 
     //copy with char * moduli
 
-    myVecP(NTL::Vec<myT> &a, const char *sq);
-    myVecP(const NTL::Vec<myT> &a, const char *sq);
+    //myVecP(NTL::Vec<myT> &a, const char *sq);
+    myVecP(const myVecP<myT> &a, const char *sq);
     myVecP(const myVec<myZZ> &a, const char *sq);
     //myVecP(NTL::Vec<ZZ> &a, const char *sq);
     //myVecP(const NTL::Vec<ZZ> &a, const char *sq);
@@ -142,8 +134,8 @@ namespace NTL {
     myVecP(INIT_SIZE_TYPE, long n, const myT& a, usint q);
 
    //copy with unsigned int moduli
-    myVecP(NTL::Vec<myT> &a, const usint q);
-    myVecP(const NTL::Vec<myT> &a, const usint q);
+    //myVecP(NTL::Vec<myT> &a, const usint q);
+    myVecP(const myVecP<myT> &a, const usint q);
     myVecP(const myVec<myZZ> &a, const usint q);
     //myVecP(NTL::Vec<ZZ> &a, const usint q);
     //myVecP(const NTL::Vec<ZZ> &a, const usint q);

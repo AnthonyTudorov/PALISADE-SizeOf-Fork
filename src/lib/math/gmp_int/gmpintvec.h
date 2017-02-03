@@ -70,32 +70,27 @@ namespace NTL {
     class myVec : public NTL::Vec<myT> {
     
   public:
-    //ctors with no or int inpiuts
+    //ctors with no or int inputs
   myVec() : Vec<myT>() {};
   myVec(usint n) : Vec<myT>(INIT_SIZE, n) {}; // adapter kit
   myVec(INIT_SIZE_TYPE, long n) : Vec<myT>(INIT_SIZE, n) {};
   myVec(INIT_SIZE_TYPE, long n, const myT& a) : Vec<myT>(INIT_SIZE, n, a) {};  
-
-    //copy ctor
-  myVec(const NTL::Vec<myT> &a) : Vec<myT>(a) {};
     
     //copy Ctors with vector inputs    
-    myVec(NTL::Vec<ZZ> &a);
-    myVec(const NTL::Vec<ZZ> &a);
+  myVec(const myVec<myT> &a) : Vec<myT>(a) {};
     //move copy
-    myVec(NTL::Vec<ZZ> &&a);
-    myVec(NTL::Vec<myT> &&a);
-
+    myVec(const myVec<myT> &&a);
+    
     myVec(std::vector<std::string>& s);
-
-
+    
+    
     //adapters
 
     const myVec& operator=(std::initializer_list<myT> rhs);
     const myVec& operator=(std::initializer_list<usint> rhs);
     const myVec& operator=(std::initializer_list<std::string> rhs);
     const myVec& operator=(std::initializer_list<const char *> rhs);
-    const myVec& operator=(myT &rhs);
+    const myVec& operator=(const myVec &rhs);
     const myVec& operator=(const myT &rhs);
     const myVec& operator=(unsigned int &rhs);
     const myVec& operator=(unsigned int rhs);
@@ -132,8 +127,6 @@ namespace NTL {
       }
       return *this;
     };
-
-
 
     inline myVec& operator+=(const myVec& a) {
       add(*this, *this, a);
@@ -214,7 +207,6 @@ namespace NTL {
     //vector
     inline myVec Mul(const myVec& b) const { return (*this)*b;};
     void mul(myVec& x, const myVec& a, const myVec& b) const; //define procedural
-
 
     //not tested yet
 

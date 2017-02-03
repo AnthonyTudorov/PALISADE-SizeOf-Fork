@@ -298,13 +298,12 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_FALSE(u != u2) << "Failure mubintvec != ubintvec";
   EXPECT_TRUE(u2 == u) << "Failure ubintvec == mubintvec";
   EXPECT_FALSE(u2 != u) << "Failure ubintvec == mubintvec";
-#if 0
 
 }
 
 TEST(UTmubintvec, constructorTest){
 
-  BigBinaryVector m(10);
+  mubintvec m(10);
   
   m.SetValAtIndex(0,"48");
   m.SetValAtIndex(1,"53");
@@ -319,11 +318,12 @@ TEST(UTmubintvec, constructorTest){
 
   int expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};  // the expected values are stored as one dimensional integer array
 
-  // mubintvec binvect(m);
+   mubintvec binvect(m);
 
-  /*for (usint i=0;i<10;i++){
+  for (usint i=0;i<10;i++){
     EXPECT_EQ (expectedResult[i], (binvect.GetValAtIndex(i)).ConvertToInt());
-  }*/
+  }
+#if 0
 
 }
 

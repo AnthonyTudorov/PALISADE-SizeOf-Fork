@@ -45,37 +45,8 @@
 
 namespace NTL {
 
-
-  //copy ctor with vector inputs
  template<class myT>
-  myVec<myT>::myVec(NTL::Vec<ZZ> &a) : Vec<myT>(INIT_SIZE, a.length()) 
-  {
-    for (auto i=0; i< a.length(); i++) {
-      (*this)[i]=a[i];
-    }
-  }
-
-  //TODO: this may be a movecopy not sure if this is correct
- template<class myT>
-  myVec<myT>::myVec(NTL::Vec<ZZ> &&a) : Vec<myT>(INIT_SIZE, a.length()) 
-  {
-    //consider using Victor's move(a);
-    for (auto i=0; i< a.length(); i++) {
-      (*this)[i]=a[i];
-    }
-  }
-
-
- template<class myT>
-  myVec<myT>::myVec(const NTL::Vec<ZZ> &a) : Vec<myT>(INIT_SIZE, a.length()) 
-  {
-    for (auto i=0; i< a.length(); i++) {
-      (*this)[i]=a[i];
-    }
-  }
-
- template<class myT>
-  myVec<myT>::myVec(NTL::Vec<myT> &&a) : Vec<myT>(INIT_SIZE, a.length()) 
+  myVec<myT>::myVec(const myVec<myT> &&a) : Vec<myT>(INIT_SIZE, a.length()) 
   {
     //consider using Victor's move(a);
     for (auto i=0; i< a.length(); i++) {
@@ -135,6 +106,7 @@ namespace NTL {
 
   //Assignment with initializer list of const char *
   //not sure why this isn't taken care of by string above
+
   template<class myT>
   const myVec<myT>& myVec<myT>::operator=(std::initializer_list<const char *> rhs){
     bool dbg_flag = false;
@@ -146,18 +118,21 @@ namespace NTL {
     }
     return *this;
   }
-  //&&&***
+
   template<class myT>
-  const myVec<myT>& myVec<myT>::operator=(const myT &rhs){
+  const myVec<myT>& myVec<myT>::operator=(const myVec<myT> &rhs){
     bool dbg_flag = false;
-    DEBUG("in op=const myT&");
-    this->SetLength(1);
-    (*this)[0] = rhs;
+    DEBUG("in op=const myVec<myT>&");
+    usint len = rhs.length(); //TODO: define size()
+    this->SetLength(len);
+    for(usint i=0;i<len;i++){ // this loops over each entry
+      (*this)[i] =  rhs[i];
+    }
     return *this;
   }
 
   template<class myT>
-  const myVec<myT>& myVec<myT>::operator=(myT &rhs){
+  const myVec<myT>& myVec<myT>::operator=(const myT &rhs){
     bool dbg_flag = false;
     DEBUG("in op=myT&");
     this->SetLength(1);
@@ -316,8 +291,6 @@ namespace NTL {
     for (i = 0; i < n; i++)
       x[i]=a[i]*b[i];
   }
-
-
 
   //////////////////////////////////////////////////
   // Set value at index from ubint

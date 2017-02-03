@@ -53,14 +53,14 @@ namespace NTL {
   //copy ctor with vector inputs
   //creation ctors without moduli are marked GARBAGE
   template<class myT>
-  myVecP<myT>::myVecP(const NTL::Vec<myT> &a) : Vec<myT>(INIT_SIZE, a.length()) 
+  myVecP<myT>::myVecP(const myVecP<myT> &a) : Vec<myT>(INIT_SIZE, a.length()) 
   {
     for (auto i=0; i< a.length(); i++) {
       (*this)[i]=a[i];
     }
     this->m_modulus_state == GARBAGE;
   }
-
+#if 0
   template<class myT>
   myVecP<myT>::myVecP(NTL::Vec<myT> &a) : Vec<myT>(INIT_SIZE, a.length()) 
   {
@@ -70,6 +70,7 @@ namespace NTL {
     this->m_modulus_state == GARBAGE;
   }
 
+#endif
   template<class myT>
   myVecP<myT>::myVecP(const myVec<myZZ> &a) : Vec<myT>(INIT_SIZE, a.length()) 
   {
@@ -152,15 +153,17 @@ namespace NTL {
   }
   
   //copy with myZZ moduli
+#if 0
   template<class myT>
   myVecP<myT>::myVecP(NTL::Vec<myT> &a, myZZ &q): Vec<myT>(a)
   {
     this->SetModulus(q);
     (*this) %= q;
   }
+#endif
 
   template<class myT>
-  myVecP<myT>::myVecP(const NTL::Vec<myT> &a, myZZ &q): Vec<myT>(a)
+  myVecP<myT>::myVecP(const myVecP<myT> &a, myZZ &q): Vec<myT>(a)
   {
     this->SetModulus(q);
     (*this) %= q;
@@ -237,17 +240,17 @@ namespace NTL {
   
   //copy with char * moduli
   template<class myT>
-  myVecP<myT>::myVecP(NTL::Vec<myT> &a, const char *sq):Vec<myT>(a) 
+  myVecP<myT>::myVecP(const myVecP<myT> &a, const char *sq):Vec<myT>(a) 
   {
     this->SetModulus(myZZ(sq)); 
   }
-
+#if 0
   template<class myT>
   myVecP<myT>::myVecP(const NTL::Vec<myT> &a, const char *sq):Vec<myT>(a) 
   { 
     this->SetModulus(myZZ(sq)); 
   }
-
+#endif
   template<class myT>
   myVecP<myT>::myVecP(const myVec<myZZ> &a, const char *sq) : Vec<myT>(INIT_SIZE, a.length()) 
   {
@@ -304,6 +307,7 @@ namespace NTL {
   }
 
   //copy with unsigned int moduli
+#if 0
   template<class myT>
   myVecP<myT>::myVecP(NTL::Vec<myT> &a, const usint q):Vec<myT>(a) 
   { 
@@ -312,9 +316,9 @@ namespace NTL {
       (*this)[i] %=q;
     }
   }
-
+#endif
   template<class myT>
-  myVecP<myT>::myVecP(const NTL::Vec<myT> &a, const usint q):Vec<myT>(a) 
+  myVecP<myT>::myVecP(const myVecP<myT> &a, const usint q):Vec<myT>(a) 
   { 
     this->SetModulus(q); 
     for (auto i = 0; i < this->length(); i++){
