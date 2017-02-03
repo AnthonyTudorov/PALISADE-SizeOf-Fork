@@ -36,5 +36,6 @@
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\rlwe.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\stst.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="..\..\..\..\src\pke\lib\rationalciphertext.h" />
   </ItemGroup>
 </Project>

@@ -48,6 +48,7 @@ class CryptoContext;
 #include "utils/serializable.h"
 
 #include "ciphertext.h"
+#include "rationalciphertext.h"
 
 
 

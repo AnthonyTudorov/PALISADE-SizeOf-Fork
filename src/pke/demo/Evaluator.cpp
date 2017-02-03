@@ -141,6 +141,45 @@ void EvalLinRegressionNull() {
 
 	shared_ptr<Matrix<Ciphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
 
+	//testing
+
+	// two constructors
+	RationalCiphertext<ILVector2n> testCipher(cc);
+	RationalCiphertext<ILVector2n> testCipher2((*x)(0,0),(*x)(1,0));
+	RationalCiphertext<ILVector2n> testCipher3((*x)(0, 1), (*x)(1, 1));
+
+
+	std::cout << "First operand" << std::endl;
+	std::cout << testCipher2.GetNumerator()->GetElement() << std::endl;
+
+	std::cout << "second operand" << std::endl;
+	std::cout << testCipher3.GetNumerator()->GetElement() << std::endl;
+
+	RationalCiphertext<ILVector2n> testCipherResult = testCipher2 + testCipher3;
+
+	std::cout << "result of addition" << std::endl;
+	std::cout << testCipherResult.GetNumerator()->GetElement() << std::endl;
+
+	testCipherResult = testCipher2 - testCipher3;
+
+	std::cout << "result of subtraction" << std::endl;
+	std::cout << testCipherResult.GetNumerator()->GetElement() << std::endl;
+
+	testCipherResult = testCipher2 * testCipher3;
+
+	std::cout << "result of multiplication" << std::endl;
+	std::cout << testCipherResult.GetNumerator()->GetElement() << std::endl;
+
+	testCipher2 += testCipher3;
+
+	std::cout << "result of in-place addition" << std::endl;
+	std::cout << testCipher2.GetNumerator()->GetElement() << std::endl;
+
+	testCipher3 = -testCipher2;
+
+	std::cout << "result of negation" << std::endl;
+	std::cout << testCipher3.GetNumerator()->GetElement() << std::endl;
+
 	////////////////////////////////////////////////////////////
 	//Linear Regression
 	////////////////////////////////////////////////////////////

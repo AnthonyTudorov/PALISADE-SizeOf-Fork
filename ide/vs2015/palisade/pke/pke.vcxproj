@@ -192,6 +192,7 @@
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\pubkeylp.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\rlwe.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\stst.h" />
+    <ClInclude Include="..\..\..\..\src\pke\lib\rationalciphertext.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
