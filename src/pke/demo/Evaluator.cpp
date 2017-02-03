@@ -41,7 +41,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //using namespace std;
 using namespace lbcrypto;
 void EvalLinRegressionNull();
-void EvalLinRegressionNullOld();
+void RationalTests();
+void IntegerTests();
 //double currentDateTime();
 
 
@@ -50,6 +51,7 @@ void EvalLinRegressionNullOld();
 int main() {
 
 	EvalLinRegressionNull();
+	RationalTests();
 
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();
@@ -64,12 +66,12 @@ void EvalLinRegressionNull() {
 	//usint relWindow = 8;
 
 	usint plaintextModulus = 256;
-	usint n = 16;
+	usint m = 16;
 
 	//float stdDev = 4;
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(plaintextModulus, n);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(plaintextModulus, m);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -141,12 +143,124 @@ void EvalLinRegressionNull() {
 
 	shared_ptr<Matrix<Ciphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
 
+	////////////////////////////////////////////////////////////
+	//Linear Regression
+	////////////////////////////////////////////////////////////
+
+	auto result = cc.EvalLinRegression(x, y, evalKey);
+	std::cout << "Linear regression computation completed successfully" << std::endl;
+	std::cout << "Rows in the numerator: " << result[0]->GetRows() << std::endl;
+	std::cout << "Columns in the numerator: " << result[0]->GetCols() << std::endl;
+	std::cout << "Rows in the denominator: " << result[1]->GetRows() << std::endl;
+	std::cout << "Columns in the denominator: " << result[1]->GetCols() << std::endl;
+
+	////////////////////////////////////////////////////////////
+	//Decryption
+	////////////////////////////////////////////////////////////
+
+	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
+
+	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result[0], &numerator);
+
+	std::cout << "numerator row 1 = " << numerator(0, 0) << std::endl;
+	std::cout << "numerator row 2 = " << numerator(1, 0) << std::endl;
+
+	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 1, 1);
+
+	DecryptResult result2 = cc.DecryptMatrix(kp.secretKey,result[1], &denominator);
+
+	std::cout << "denominator = " << denominator(0, 0) << std::endl;
+
+}
+
+void RationalTests() {
+
+	//usint relWindow = 8;
+
+	usint plaintextModulus = 256;
+	usint m = 16;
+
+	//float stdDev = 4;
+
+	//Set crypto parametes
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(plaintextModulus, m);
+
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+
+	double diff, start, finish;
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp;
+
+	// Set the plaintext matrices
+
+	auto zeroAlloc = [=]() { return make_unique<IntPlaintextEncoding>(); };
+
+	Matrix<IntPlaintextEncoding> xP = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 2);
+
+	std::vector<uint32_t> vectorOfInts1 = { 1,0,1,1,0,1,0,1 };
+	xP(0, 0) = vectorOfInts1;
+
+	std::vector<uint32_t> vectorOfInts2 = { 1,1,0,1,0,1,1,0 };
+	xP(0, 1) = vectorOfInts2;
+
+	std::vector<uint32_t> vectorOfInts3 = { 1,1,1,1,0,1,0,1 };
+	xP(1, 0) = vectorOfInts3;
+
+	std::vector<uint32_t> vectorOfInts4 = { 1,0,0,1,0,1,1,0 };
+	xP(1, 1) = vectorOfInts4;
+
+	Matrix<IntPlaintextEncoding> yP = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
+
+	std::vector<uint32_t> vectorOfInts5 = { 1,1,1,0,0,1,0,1 };
+	yP(0, 0) = vectorOfInts5;
+
+	std::vector<uint32_t> vectorOfInts6 = { 1,0,0,1,0,1,1,0 };
+	yP(1, 0) = vectorOfInts6;
+
+
+	////////////////////////////////////////////////////////////
+	//Perform the key generation operations.
+	////////////////////////////////////////////////////////////
+
+	std::cout << "Key generation started" << std::endl;
+
+	kp = cc.KeyGen();
+
+	if (!kp.good()) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
+
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
+
+	//generate the evaluate key
+	evalKey = cc.EvalMultKeyGen(kp.secretKey);
+
+	std::cout << "Key generation ended" << std::endl;
+
+	////////////////////////////////////////////////////////////
+	//Encryption
+	////////////////////////////////////////////////////////////
+
+	start = currentDateTime();
+
+	shared_ptr<Matrix<Ciphertext<ILVector2n>>> x = cc.EncryptMatrix(kp.publicKey, xP);
+
+	finish = currentDateTime();
+	diff = finish - start;
+
+	std::cout << "Encryption execution time for the x matrix: " << "\t" << diff << " ms" << std::endl;
+
+	shared_ptr<Matrix<Ciphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
+
 	//testing
 
 	// two constructors
-	RationalCiphertext<ILVector2n> testCipher(cc);
-	RationalCiphertext<ILVector2n> testCipher2((*x)(0,0),(*x)(1,0));
-	RationalCiphertext<ILVector2n> testCipher3((*x)(0, 1), (*x)(1, 1));
+	RationalCiphertext<ILVector2n> testCipher(cc,true);
+	RationalCiphertext<ILVector2n> testCipher2((*x)(0, 0));
+	RationalCiphertext<ILVector2n> testCipher3((*x)(0, 1));
 
 
 	std::cout << "First operand" << std::endl;
@@ -180,38 +294,79 @@ void EvalLinRegressionNull() {
 	std::cout << "result of negation" << std::endl;
 	std::cout << testCipher3.GetNumerator()->GetElement() << std::endl;
 
-	////////////////////////////////////////////////////////////
-	//Linear Regression
-	////////////////////////////////////////////////////////////
-
-	auto result = cc.EvalLinRegression(x, y, evalKey);
-	std::cout << "Linear regression computation completed successfully" << std::endl;
-	std::cout << "Rows in the numerator: " << result[0]->GetRows() << std::endl;
-	std::cout << "Columns in the numerator: " << result[0]->GetCols() << std::endl;
-	std::cout << "Rows in the denominator: " << result[1]->GetRows() << std::endl;
-	std::cout << "Columns in the denominator: " << result[1]->GetCols() << std::endl;
+	IntPlaintextEncoding plaintext1(vectorOfInts1);
+	IntPlaintextEncoding plaintext2(vectorOfInts2);
+	IntPlaintextEncoding plaintext3(vectorOfInts3);
+	IntPlaintextEncoding plaintext4(vectorOfInts4);
+	IntPlaintextEncoding plaintext5(vectorOfInts3);
+	IntPlaintextEncoding plaintext6(vectorOfInts6);
 
 	////////////////////////////////////////////////////////////
-	//Decryption
+	//Encryption
 	////////////////////////////////////////////////////////////
 
-	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext3;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext4;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext5;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext6;
 
-	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result[0], &numerator);
+	ciphertext2 = cc.Encrypt(kp.publicKey, plaintext2, true);
 
-	std::cout << "numerator row 1 = " << numerator(0, 0) << std::endl;
-	std::cout << "numerator row 2 = " << numerator(1, 0) << std::endl;
+	start = currentDateTime();
 
-	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 1, 1);
+	ciphertext1 = cc.Encrypt(kp.publicKey, plaintext1, true);
 
-	DecryptResult result2 = cc.DecryptMatrix(kp.secretKey,result[1], &denominator);
+	finish = currentDateTime();
+	diff = finish - start;
 
-	std::cout << "denominator = " << denominator(0, 0) << std::endl;
+	std::cout << "Encryption execution time: " << "\t" << diff << " ms" << std::endl;
+
+	ciphertext3 = cc.Encrypt(kp.publicKey, plaintext3, true);
+	ciphertext4 = cc.Encrypt(kp.publicKey, plaintext4, true);
+	ciphertext5 = cc.Encrypt(kp.publicKey, plaintext5, true);
+	ciphertext6 = cc.Encrypt(kp.publicKey, plaintext6, true);
+
+	auto zeroAllocRC = [=]() { return make_unique<RationalCiphertext<ILVector2n>>(cc,true); };
+
+	Matrix<RationalCiphertext<ILVector2n>> xC(zeroAllocRC, 2, 2);
+
+	xC(0, 0).SetNumerator(*ciphertext1[0]);
+	xC(0, 1).SetNumerator(*ciphertext2[0]);
+	xC(1, 0).SetNumerator(*ciphertext3[0]);
+	xC(1, 1).SetNumerator(*ciphertext4[0]);
+
+	Matrix<RationalCiphertext<ILVector2n>> yC(zeroAllocRC, 2, 1);
+
+	yC(0, 0).SetNumerator(*ciphertext5[0]);
+	yC(1, 0).SetNumerator(*ciphertext6[0]);
+
+	Matrix<RationalCiphertext<ILVector2n>> product = xC * yC;
+
+	std::cout << "matrix product completed successfully" << std::endl;
+	std::cout << "Rows: " << product.GetRows() << std::endl;
+	std::cout << "Columns: " << product.GetCols() << std::endl;
+
+	auto xDeterminant = *zeroAllocRC();
+	xC.Determinant(&xDeterminant);
+
+	std::cout << "Determinant completed successfully. The value is " << std::endl;
+	xDeterminant.GetNumerator()->GetElement().PrintValues();
+
+	auto xTranspose = xC.Transpose();
+	std::cout << "Transpose completed successfully" << std::endl;
+	std::cout << "Rows: " << xTranspose.GetRows() << std::endl;
+	std::cout << "Columns: " << xTranspose.GetCols() << std::endl;
+
+	auto xCofactorMatrix = xC.CofactorMatrix();
+	std::cout << "CofactorMatrix completed successfully" << std::endl;
+	std::cout << "Rows: " << xCofactorMatrix.GetRows() << std::endl;
+	std::cout << "Columns: " << xCofactorMatrix.GetCols() << std::endl;
 
 }
 
-
-void EvalLinRegressionNullOld() {
+void IntegerTests() {
 
 	//usint relWindow = 8;
 
@@ -338,20 +493,20 @@ void EvalLinRegressionNullOld() {
 	std::cout << "Rows: " << xCofactorMatrix.GetRows() << std::endl;
 	std::cout << "Columns: " << xCofactorMatrix.GetCols() << std::endl;
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
+	//shared_ptr<LPEvalKey<ILVector2n>> evalKey;
 
-	//generate the evaluate key
-	evalKey = cc.EvalMultKeyGen(kp.secretKey);
+	////generate the evaluate key
+	//evalKey = cc.EvalMultKeyGen(kp.secretKey);
 
-	shared_ptr<Matrix<Ciphertext<ILVector2n>>> xPtr(new Matrix<Ciphertext<ILVector2n>>(x));
-	shared_ptr<Matrix<Ciphertext<ILVector2n>>> yPtr(new Matrix<Ciphertext<ILVector2n>>(y));
+	//shared_ptr<Matrix<Ciphertext<ILVector2n>>> xPtr(new Matrix<Ciphertext<ILVector2n>>(x));
+	//shared_ptr<Matrix<Ciphertext<ILVector2n>>> yPtr(new Matrix<Ciphertext<ILVector2n>>(y));
 
-	auto result = cc.EvalLinRegression(xPtr, yPtr, evalKey);
-	std::cout << "Linear regression computation completed successfully" << std::endl;
-	std::cout << "Rows in the numerator: " << result[0]->GetRows() << std::endl;
-	std::cout << "Columns in the numerator: " << result[0]->GetCols() << std::endl;
-	std::cout << "Rows in the denominator: " << result[1]->GetRows() << std::endl;
-	std::cout << "Columns in the denominator: " << result[1]->GetCols() << std::endl;
+	//auto result = cc.EvalLinRegression(xPtr, yPtr, evalKey);
+	//std::cout << "Linear regression computation completed successfully" << std::endl;
+	//std::cout << "Rows in the numerator: " << result[0]->GetRows() << std::endl;
+	//std::cout << "Columns in the numerator: " << result[0]->GetCols() << std::endl;
+	//std::cout << "Rows in the denominator: " << result[1]->GetRows() << std::endl;
+	//std::cout << "Columns in the denominator: " << result[1]->GetCols() << std::endl;
 	
 	
 	

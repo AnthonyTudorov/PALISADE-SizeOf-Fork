@@ -65,19 +65,33 @@ namespace lbcrypto {
 		 *
 		 * @param cc
 		 */
-		RationalCiphertext(CryptoContext<Element> cc) {
+		RationalCiphertext(CryptoContext<Element> cc, bool integerFlag = false) {
 			m_numerator = std::make_shared<Ciphertext<Element>>(cc);
-			m_denominator = std::make_shared<Ciphertext<Element>>(cc);
+			if (!integerFlag)
+				m_denominator = std::make_shared<Ciphertext<Element>>(cc);
+			m_integerFlag = integerFlag;
+		}
+
+		/**
+		* Construct a new rational ciphertext from one ciphertext (integer case)
+		*
+		* @param cc
+		*/
+		RationalCiphertext(const Ciphertext<Element> &numerator) {
+			m_numerator = std::make_shared<Ciphertext<Element>>(numerator);
+			m_integerFlag = true;
 		}
 
 		/**
 		* Construct a new rational ciphertext from two integer ciphertexts
 		*
-		* @param cc
+		* @param &numerator numerator ciphertext
+		* @param &denominator denominator ciphertext
 		*/
 		RationalCiphertext(const Ciphertext<Element> &numerator, const Ciphertext<Element> &denominator) {
 			m_numerator = std::make_shared<Ciphertext<Element>>(numerator);
 			m_denominator = std::make_shared<Ciphertext<Element>>(denominator);
+			m_integerFlag = false;
 		}
 
 		/**
@@ -85,7 +99,9 @@ namespace lbcrypto {
 		*/
 		RationalCiphertext(const RationalCiphertext<Element> &ciphertext) {
 			m_numerator = std::make_shared<Ciphertext<Element>>(*ciphertext.m_numerator);
-			m_denominator = std::make_shared<Ciphertext<Element>>(*ciphertext.m_denominator);
+			if (ciphertext.m_denominator != nullptr)
+				m_denominator = std::make_shared<Ciphertext<Element>>(*ciphertext.m_denominator);
+			m_integerFlag = ciphertext.m_integerFlag;
 		}
 
 		/**
@@ -94,6 +110,7 @@ namespace lbcrypto {
 		RationalCiphertext(RationalCiphertext<Element> &&ciphertext) {
 			m_numerator = ciphertext.m_numerator;
 			m_denominator = ciphertext.m_denominator;
+			m_integerFlag = ciphertext.m_integerFlag;
 		}
 
 		/**
@@ -110,7 +127,9 @@ namespace lbcrypto {
 		RationalCiphertext<Element>& operator=(const RationalCiphertext<Element> &rhs) {
 			if (this != &rhs) {
 				*this->m_numerator = *rhs.m_numerator;
-				*this->m_denominator = *rhs.m_denominator;
+				if (rhs.m_denominator != nullptr)
+					*this->m_denominator = *rhs.m_denominator;
+				this->m_integerFlag = rhs.m_integerFlag;
 			}
 
 			return *this;
@@ -126,6 +145,7 @@ namespace lbcrypto {
 			if (this != &rhs) {
 				this->m_numerator = rhs.m_numerator;
 				this->m_denominator = rhs.m_denominator;
+				this->m_integerFlag = rhs.m_integerFlag;
 			}
 
 			return *this;
@@ -156,6 +176,12 @@ namespace lbcrypto {
 		const shared_ptr<Ciphertext<Element>> GetDenominator() const { return m_denominator; }
 
 		/**
+		* GetIntegerFlag - gets the value of the Integer flag
+		* @return the boolean value for the flag
+		*/
+		bool GetIntegerFlag() const { return m_integerFlag; }
+
+		/**
 		* Sets the numerator element
 		* @param &element ciphertext element.
 		*/
@@ -169,6 +195,7 @@ namespace lbcrypto {
 		*/
 		void SetDenominator(const Ciphertext<Element> &element) {
 			m_denominator = std::make_shared<Ciphertext<Element>>(element);
+			m_integerFlag = false;
 		}
 
 		/**
@@ -226,6 +253,7 @@ namespace lbcrypto {
 			{
 				*m_numerator = *other.m_numerator;
 				*m_denominator = *other.m_denominator;
+				m_integerFlag = other.m_integerFlag;
 			}
 			else
 			{
@@ -257,6 +285,9 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> m_numerator;
 		shared_ptr<Ciphertext<Element>> m_denominator;
 
+		// if m_integerFlag is set to true, the denominator is ignored
+		bool m_integerFlag;
+
 	};
 
 	/**
@@ -271,7 +302,8 @@ namespace lbcrypto {
 	template <class Element>
 	inline RationalCiphertext<Element> operator+(const RationalCiphertext<Element> &a, const RationalCiphertext<Element> &b) { 
 		RationalCiphertext<Element> result(a);
-		result.SetNumerator(*a.GetCryptoContext().EvalAdd(a.GetNumerator(), b.GetNumerator()));
+		if (a.GetIntegerFlag() && b.GetIntegerFlag())
+			result.SetNumerator(*a.GetCryptoContext().EvalAdd(a.GetNumerator(), b.GetNumerator()));
 		return result;
 	}
 
@@ -287,7 +319,8 @@ namespace lbcrypto {
 	template <class Element>
 	inline RationalCiphertext<Element> operator-(const RationalCiphertext<Element> &a, const RationalCiphertext<Element> &b) {
 		RationalCiphertext<Element> result(a);
-		result.SetNumerator(*a.GetCryptoContext().EvalSub(a.GetNumerator(), b.GetNumerator()));
+		if (a.GetIntegerFlag() && b.GetIntegerFlag())
+			result.SetNumerator(*a.GetCryptoContext().EvalSub(a.GetNumerator(), b.GetNumerator()));
 		return result;
 	}
 
@@ -303,7 +336,8 @@ namespace lbcrypto {
 	template <class Element>
 	inline RationalCiphertext<Element> operator*(const RationalCiphertext<Element> &a, const RationalCiphertext<Element> &b) {
 		RationalCiphertext<Element> result(a);
-		result.SetNumerator(*a.GetCryptoContext().EvalMult(a.GetNumerator(), b.GetNumerator()));
+		if (a.GetIntegerFlag() && b.GetIntegerFlag())
+			result.SetNumerator(*a.GetCryptoContext().EvalMult(a.GetNumerator(), b.GetNumerator()));
 		return result;
 	}
 } // namespace lbcrypto ends
