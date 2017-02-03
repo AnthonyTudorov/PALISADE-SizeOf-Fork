@@ -108,11 +108,6 @@ namespace NTL {
     myVecP(const myVecP<myT> &a, myZZ &q);
     myVecP(const myVec<myZZ> &a, myZZ &q);
 
-    //myVecP(NTL::Vec<ZZ> &a, myZZ &q);
-    //myVecP(const NTL::Vec<ZZ> &a, myZZ &q);
-    //myVecP(NTL::Vec<ZZ_p> &a, myZZ &q);
-    //myVecP(const NTL::Vec<ZZ_p> &a, myZZ &q);
-
     //ctor with char * moduli
     myVecP(usint n, const char *sq);
     myVecP(INIT_SIZE_TYPE, long n, const char *sq);
@@ -123,10 +118,6 @@ namespace NTL {
     //myVecP(NTL::Vec<myT> &a, const char *sq);
     myVecP(const myVecP<myT> &a, const char *sq);
     myVecP(const myVec<myZZ> &a, const char *sq);
-    //myVecP(NTL::Vec<ZZ> &a, const char *sq);
-    //myVecP(const NTL::Vec<ZZ> &a, const char *sq);
-    //myVecP(NTL::Vec<ZZ_p> &a, const char *sq);
-    //myVecP(const NTL::Vec<ZZ_p> &a, const char *sq);
 
     //ctor with usint moduli
     myVecP(usint n, usint q);
@@ -134,15 +125,8 @@ namespace NTL {
     myVecP(INIT_SIZE_TYPE, long n, const myT& a, usint q);
 
    //copy with unsigned int moduli
-    //myVecP(NTL::Vec<myT> &a, const usint q);
     myVecP(const myVecP<myT> &a, const usint q);
     myVecP(const myVec<myZZ> &a, const usint q);
-    //myVecP(NTL::Vec<ZZ> &a, const usint q);
-    //myVecP(const NTL::Vec<ZZ> &a, const usint q);
-    //myVecP(NTL::Vec<ZZ_p> &a, const usint q);
-    //myVecP(const NTL::Vec<ZZ_p> &a, const usint q);
- 
-    ///%%%%
 
     //destructor
      ~myVecP();

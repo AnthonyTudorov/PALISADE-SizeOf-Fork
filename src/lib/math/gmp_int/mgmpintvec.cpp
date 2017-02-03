@@ -307,16 +307,6 @@ namespace NTL {
   }
 
   //copy with unsigned int moduli
-#if 0
-  template<class myT>
-  myVecP<myT>::myVecP(NTL::Vec<myT> &a, const usint q):Vec<myT>(a) 
-  { 
-    this->SetModulus(q); 
-    for (auto i = 0; i < this->length(); i++){
-      (*this)[i] %=q;
-    }
-  }
-#endif
   template<class myT>
   myVecP<myT>::myVecP(const myVecP<myT> &a, const usint q):Vec<myT>(a) 
   { 
@@ -447,23 +437,6 @@ namespace NTL {
     return *this;
   }
   //&&&***
-#if 0
-  // move copy allocator
-  template<class ubint_el_t>
-  const myVecP<ubint_el_t>& myVecP<ubint_el_t>::operator=(myVecP &&rhs){
-    bool dbg_flag = true;
-    
-    if(this!=&rhs){
-      this->m_data.swap(rhs.m_data); //swap the two vector contents,
-      if (rhs.m_data.size()>0)
-	rhs.m_data.clear();
-      this->CopyModulus(rhs);
-    }
-    
-    return *this;
-    DEBUG("myVecP move copy CTOR length "<<this->m_data.size()<< " modulus "<<m_modulus.ToString());
-  }
-#endif  
   
   //todo: do we keep current modulus or get it from the myT rhs?
   //not clear.... 
