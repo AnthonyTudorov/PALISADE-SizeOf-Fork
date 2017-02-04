@@ -121,11 +121,6 @@ void EvalLinRegressionNull() {
 		exit(1);
 	}
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
-
-	//generate the evaluate key
-	evalKey = cc.EvalMultKeyGen(kp.secretKey);
-
 	std::cout << "Key generation ended" << std::endl;
 
 	////////////////////////////////////////////////////////////
@@ -134,42 +129,37 @@ void EvalLinRegressionNull() {
 
 	start = currentDateTime();
 
-	shared_ptr<Matrix<Ciphertext<ILVector2n>>> x = cc.EncryptMatrix(kp.publicKey, xP);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc.EncryptMatrix(kp.publicKey, xP);
 
 	finish = currentDateTime();
 	diff = finish - start;
 
 	std::cout << "Encryption execution time for the x matrix: " << "\t" << diff << " ms" << std::endl;
 
-	shared_ptr<Matrix<Ciphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression
 	////////////////////////////////////////////////////////////
 
-	auto result = cc.EvalLinRegression(x, y, evalKey);
+	auto result = cc.EvalLinRegression(x, y);
 	std::cout << "Linear regression computation completed successfully" << std::endl;
-	std::cout << "Rows in the numerator: " << result[0]->GetRows() << std::endl;
-	std::cout << "Columns in the numerator: " << result[0]->GetCols() << std::endl;
-	std::cout << "Rows in the denominator: " << result[1]->GetRows() << std::endl;
-	std::cout << "Columns in the denominator: " << result[1]->GetCols() << std::endl;
+	std::cout << "Rows in the numerator: " << result->GetRows() << std::endl;
+	std::cout << "Columns in the numerator: " << result->GetCols() << std::endl;
 
 	////////////////////////////////////////////////////////////
 	//Decryption
 	////////////////////////////////////////////////////////////
 
 	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result[0], &numerator);
+	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	std::cout << "numerator row 1 = " << numerator(0, 0) << std::endl;
 	std::cout << "numerator row 2 = " << numerator(1, 0) << std::endl;
-
-	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 1, 1);
-
-	DecryptResult result2 = cc.DecryptMatrix(kp.secretKey,result[1], &denominator);
-
-	std::cout << "denominator = " << denominator(0, 0) << std::endl;
+	std::cout << "denominator row 1 = " << denominator(0, 0) << std::endl;
+	std::cout << "denominator row 2 = " << denominator(1, 0) << std::endl;
 
 }
 
@@ -246,14 +236,14 @@ void RationalTests() {
 
 	start = currentDateTime();
 
-	shared_ptr<Matrix<Ciphertext<ILVector2n>>> x = cc.EncryptMatrix(kp.publicKey, xP);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc.EncryptMatrix(kp.publicKey, xP);
 
 	finish = currentDateTime();
 	diff = finish - start;
 
 	std::cout << "Encryption execution time for the x matrix: " << "\t" << diff << " ms" << std::endl;
 
-	shared_ptr<Matrix<Ciphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
 
 	//testing
 
@@ -363,6 +353,14 @@ void RationalTests() {
 	std::cout << "CofactorMatrix completed successfully" << std::endl;
 	std::cout << "Rows: " << xCofactorMatrix.GetRows() << std::endl;
 	std::cout << "Columns: " << xCofactorMatrix.GetCols() << std::endl;
+
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> xPtr(new Matrix<RationalCiphertext<ILVector2n>>(xC));
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> yPtr(new Matrix<RationalCiphertext<ILVector2n>>(yC));
+
+	auto result = cc.EvalLinRegression(xPtr, yPtr);
+	std::cout << "Linear regression computation completed successfully" << std::endl;
+	std::cout << "Rows in the numerator: " << result->GetRows() << std::endl;
+	std::cout << "Columns in the numerator: " << result->GetCols() << std::endl;
 
 }
 
@@ -492,45 +490,5 @@ void IntegerTests() {
 	std::cout << "CofactorMatrix completed successfully" << std::endl;
 	std::cout << "Rows: " << xCofactorMatrix.GetRows() << std::endl;
 	std::cout << "Columns: " << xCofactorMatrix.GetCols() << std::endl;
-
-	//shared_ptr<LPEvalKey<ILVector2n>> evalKey;
-
-	////generate the evaluate key
-	//evalKey = cc.EvalMultKeyGen(kp.secretKey);
-
-	//shared_ptr<Matrix<Ciphertext<ILVector2n>>> xPtr(new Matrix<Ciphertext<ILVector2n>>(x));
-	//shared_ptr<Matrix<Ciphertext<ILVector2n>>> yPtr(new Matrix<Ciphertext<ILVector2n>>(y));
-
-	//auto result = cc.EvalLinRegression(xPtr, yPtr, evalKey);
-	//std::cout << "Linear regression computation completed successfully" << std::endl;
-	//std::cout << "Rows in the numerator: " << result[0]->GetRows() << std::endl;
-	//std::cout << "Columns in the numerator: " << result[0]->GetCols() << std::endl;
-	//std::cout << "Rows in the denominator: " << result[1]->GetRows() << std::endl;
-	//std::cout << "Columns in the denominator: " << result[1]->GetCols() << std::endl;
 	
-	
-	
-	/*Matrix<Ciphertext<ILVector2n>> product = (*x) * (*y);
-
-	std::cout << "matrix product completed successfully" << std::endl;
-	std::cout << "Rows: " << product.GetRows() << std::endl;
-	std::cout << "Columns: " << product.GetCols() << std::endl;
-
-	auto zeroAllocCipher = [=]() { return make_unique<Ciphertext<ILVector2n>>(cc); };
-	auto xDeterminant = *zeroAllocCipher();
-	x->Determinant(&xDeterminant);
-
-	std::cout << "Determinant completed successfully. The value is " << std::endl;
-	xDeterminant.GetElement().PrintValues();
-
-	auto xTranspose = x->Transpose();
-	std::cout << "Transpose completed successfully" << std::endl;
-	std::cout << "Rows: " << xTranspose.GetRows() << std::endl;
-	std::cout << "Columns: " << xTranspose.GetCols() << std::endl;
-
-	auto xCofactorMatrix = x->CofactorMatrix();
-	std::cout << "CofactorMatrix completed successfully" << std::endl;
-	std::cout << "Rows: " << xCofactorMatrix.GetRows() << std::endl;
-	std::cout << "Columns: " << xCofactorMatrix.GetCols() << std::endl;*/
-
 }

@@ -55,6 +55,10 @@ namespace lbcrypto {
 	template <class Element>
 	class Ciphertext;
 
+	//forward declaration of RationalCiphertext class; used to resolve circular header dependency
+	template <class Element>
+	class RationalCiphertext;
+
 	//forward declaration of LPCryptoParameters class;
 	template <class Element>
 	class LPCryptoParameters;
@@ -1075,33 +1079,29 @@ namespace lbcrypto {
 			* @param ek - evaluation key used for EvalMult operations
 			* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
 			*/
-			virtual vector<shared_ptr<Matrix<Ciphertext<Element>>>>
-				EvalLinRegression(const shared_ptr<Matrix<Ciphertext<Element>>> x,
-					const shared_ptr<Matrix<Ciphertext<Element>>> y,
-					const shared_ptr<LPEvalKey<Element>> evalKey) const
+			virtual shared_ptr<Matrix<RationalCiphertext<Element>>>
+				EvalLinRegression(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+					const shared_ptr<Matrix<RationalCiphertext<Element>>> y) const
 			{
 				
-				vector<shared_ptr<Matrix<Ciphertext<Element>>>> result;
 				// multiplication is done in reverse order to minimize the number of inner products
-				Matrix<Ciphertext<Element>> xTransposed = x->Transpose();
-				shared_ptr<Matrix<Ciphertext<Element>>> numerator (new Matrix<Ciphertext<Element>>(xTransposed * (*y)));
+				Matrix<RationalCiphertext<Element>> xTransposed = x->Transpose();
+				shared_ptr<Matrix<RationalCiphertext<Element>>> result (new Matrix<RationalCiphertext<Element>>(xTransposed * (*y)));
 
-				Matrix<Ciphertext<Element>> xCovariance = xTransposed * (*x);
+				Matrix<RationalCiphertext<Element>> xCovariance = xTransposed * (*x);
 
-				Matrix<Ciphertext<Element>> cofactorMatrix = xCovariance.CofactorMatrix();
+				Matrix<RationalCiphertext<Element>> cofactorMatrix = xCovariance.CofactorMatrix();
 
-				Matrix<Ciphertext<Element>> adjugateMatrix = cofactorMatrix.Transpose();
+				Matrix<RationalCiphertext<Element>> adjugateMatrix = cofactorMatrix.Transpose();
 
-				*numerator = adjugateMatrix * (*numerator);
+				*result = adjugateMatrix * (*result);
 
-				Ciphertext<Element> determinant;
-				cofactorMatrix.Determinant(&determinant);
+				RationalCiphertext<Element> determinant;
+				xCovariance.Determinant(&determinant);
 
-				shared_ptr<Matrix<Ciphertext<Element>>> denominator(new Matrix<Ciphertext<Element>>(numerator->GetAllocator(), 1, 1));
-				(*denominator)(0, 0) = determinant;
-
-				result.push_back(numerator);
-				result.push_back(denominator);
+				for (int row = 0; row < result->GetRows(); row++)
+					for (int col = 0; col < result->GetCols(); col++)
+						(*result)(row, col).SetDenominator(*determinant.GetNumerator());
 
 				return result;
 
@@ -1438,14 +1438,13 @@ namespace lbcrypto {
 		* @param ek - evaluation key used for EvalMult operations
 		* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
 		*/
-		vector<shared_ptr<Matrix<Ciphertext<Element>>>>
-			EvalLinRegression(const shared_ptr<Matrix<Ciphertext<Element>>> x,
-				const shared_ptr<Matrix<Ciphertext<Element>>> y,
-				const shared_ptr<LPEvalKey<Element>> evalKey) const
+		shared_ptr<Matrix<RationalCiphertext<Element>>>
+			EvalLinRegression(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+				const shared_ptr<Matrix<RationalCiphertext<Element>>> y) const
 		{
 
 			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalLinRegression(x, y, evalKey);
+				return this->m_algorithmSHE->EvalLinRegression(x, y);
 			else {
 				throw std::logic_error("EvalLinRegression operation has not been enabled");
 			}
