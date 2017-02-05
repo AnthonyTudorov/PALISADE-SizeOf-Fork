@@ -39,14 +39,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../math/nbtheory.h"
 #include "../math/distrgen.h"
 #include "../lattice/ilvector2n.h"
+#include "../lattice/ilvectorarray2n.h"
 #include "../utils/inttypes.h"
 #include "../utils/utilities.h"
 #include "../utils/memory.h"
+#include "../utils/serializablehelper.h"
 
 namespace lbcrypto {
 
 		template<class Element>
-        class Matrix {
+        class Matrix : public Serializable {
             typedef vector<vector<unique_ptr<Element>>> data_t;
             typedef std::function<unique_ptr<Element>(void)> alloc_func;
         
@@ -372,6 +374,34 @@ namespace lbcrypto {
 			 *
              */ 
             inline void SwitchFormat(); 
+
+			/**
+			* Serialize the object into a Serialized
+			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+			* @return true if successfully serialized
+			*/
+			bool Serialize(Serialized* serObj) const {
+				serObj->SetObject();
+std::cout << "SERIALIZING " << rows << ":" << cols << std::endl;
+std::cout << data.size() << std::endl;
+std::cout << data[0].size() << std::endl;
+				SerializeVectorOfVector("Matrix", elementName<Element>(), this->data, serObj);
+
+				return true;
+			}
+
+			/**
+			* Populate the object from the deserialization of the Serialized
+			* @param serObj contains the serialized object
+			* @return true on success
+			*/
+			bool Deserialize(const Serialized& serObj) {
+				Serialized::ConstMemberIterator mIter = serObj.FindMember("Matrix");
+				if( mIter == serObj.MemberEnd() )
+					return false;
+
+				return DeserializeVectorOfVector<Element>("Matrix", elementName<Element>(), mIter, &this->data);
+			}
 
         private:
             data_t data;
