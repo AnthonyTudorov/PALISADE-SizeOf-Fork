@@ -8,7 +8,7 @@
 
 namespace lbcrypto {
 
-	class Field2n :public std::vector<std::complex<double>> {
+	class Field2n :public std::vector<std::complex<double>>, public Serializable {
 	public:
 		/**Default Constructor
 		*/
@@ -151,6 +151,20 @@ namespace lbcrypto {
 		*@return element at the index
 		*/
 		inline const std::complex<double>& operator[](std::size_t idx) const { return (this->at(idx)); }
+
+		/**
+		* Serialize the object into a Serialized
+		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @return true if successfully serialized
+		*/
+		bool Serialize(Serialized* serObj) const { return false; }
+
+		/**
+		* Populate the object from the deserialization of the Serialized
+		* @param serObj contains the serialized object
+		* @return true on success
+		*/
+		bool Deserialize(const Serialized& serObj) { return false; }
 
 	private:
 		//Format of the field element

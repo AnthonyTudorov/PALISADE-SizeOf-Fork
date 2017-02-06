@@ -27,6 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "matrix.h"
 using std::invalid_argument;
+#include "../utils/serializablehelper.h"
 
 namespace lbcrypto {
 
@@ -720,6 +721,85 @@ Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& ot
     }
 
     return result;
+}
+
+template<>
+bool Matrix<int32_t>::Serialize(Serialized* serObj) const {
+	return false;
+}
+
+template<>
+bool Matrix<int32_t>::Deserialize(const Serialized& serObj) {
+	return false;
+}
+
+template<>
+bool Matrix<double>::Serialize(Serialized* serObj) const {
+	return false;
+}
+
+template<>
+bool Matrix<double>::Deserialize(const Serialized& serObj) {
+	return false;
+}
+
+template<>
+bool Matrix<LargeFloat>::Serialize(Serialized* serObj) const {
+	return false;
+}
+
+template<>
+bool Matrix<LargeFloat>::Deserialize(const Serialized& serObj) {
+	return false;
+}
+
+template<>
+bool Matrix<BigBinaryInteger>::Serialize(Serialized* serObj) const {
+	return false;
+}
+
+template<>
+bool Matrix<BigBinaryInteger>::Deserialize(const Serialized& serObj) {
+	return false;
+}
+
+/**
+* Serialize the object into a Serialized
+* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+* @return true if successfully serialized
+*/
+template<class Element>
+bool Matrix<Element>::Serialize(Serialized* serObj) const {
+	serObj->SetObject();
+std::cout << "SERIALIZING " << rows << ":" << cols << std::endl;
+std::cout << data.size() << std::endl;
+std::cout << data[0].size() << std::endl;
+	//SerializeVectorOfVector("Matrix", elementName<Element>(), this->data, serObj);
+
+	std::cout << typeid(Element).name() << std::endl;
+
+	for( int r=0; r<rows; r++ ) {
+		for( int c=0; c<cols; c++ ) {
+			data[r][c]->Serialize(serObj);
+		}
+	}
+
+	return true;
+}
+
+/**
+* Populate the object from the deserialization of the Serialized
+* @param serObj contains the serialized object
+* @return true on success
+*/
+template<class Element>
+bool Matrix<Element>::Deserialize(const Serialized& serObj) {
+	Serialized::ConstMemberIterator mIter = serObj.FindMember("Matrix");
+	if( mIter == serObj.MemberEnd() )
+		return false;
+
+	//return DeserializeVectorOfVector<Element>("Matrix", elementName<Element>(), mIter, &this->data);
+	return true;
 }
 
 

@@ -51,6 +51,8 @@
 
 #include "serializable.h"
 #include "../math/backend.h"
+#include "../lattice/ilvector2n.h"
+#include "../lattice/ilvectorarray2n.h"
 
 #define RAPIDJSON_NO_SIZETYPEDEFINE
 

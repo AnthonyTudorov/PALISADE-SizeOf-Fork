@@ -43,7 +43,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../utils/inttypes.h"
 #include "../utils/utilities.h"
 #include "../utils/memory.h"
-#include "../utils/serializablehelper.h"
 
 namespace lbcrypto {
 
@@ -380,28 +379,14 @@ namespace lbcrypto {
 			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 			* @return true if successfully serialized
 			*/
-			bool Serialize(Serialized* serObj) const {
-				serObj->SetObject();
-std::cout << "SERIALIZING " << rows << ":" << cols << std::endl;
-std::cout << data.size() << std::endl;
-std::cout << data[0].size() << std::endl;
-				SerializeVectorOfVector("Matrix", elementName<Element>(), this->data, serObj);
-
-				return true;
-			}
+			bool Serialize(Serialized* serObj) const;
 
 			/**
 			* Populate the object from the deserialization of the Serialized
 			* @param serObj contains the serialized object
 			* @return true on success
 			*/
-			bool Deserialize(const Serialized& serObj) {
-				Serialized::ConstMemberIterator mIter = serObj.FindMember("Matrix");
-				if( mIter == serObj.MemberEnd() )
-					return false;
-
-				return DeserializeVectorOfVector<Element>("Matrix", elementName<Element>(), mIter, &this->data);
-			}
+			bool Deserialize(const Serialized& serObj);
 
         private:
             data_t data;

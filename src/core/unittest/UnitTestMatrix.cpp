@@ -83,6 +83,10 @@ static function<unique_ptr<ILVector2n>()> fastIL2nAlloc() {
         );
 }
 
+TEST(UTMatrix,serializer) {
+	Matrix<int32_t> m([](){return make_unique<int32_t>();}, 3, 5);
+}
+
 TEST(UTMatrix,basic_il2n_math){
     Matrix<ILVector2n> z(secureIL2nAlloc(), 2,2);
     Matrix<ILVector2n> n = Matrix<ILVector2n>(secureIL2nAlloc(), 2, 2).Ones();
