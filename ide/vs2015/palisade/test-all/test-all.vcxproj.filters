@@ -25,6 +25,7 @@
     <ClCompile Include="..\..\..\..\src\trapdoor\unittest\UnitTestTrapdoor.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\Main_TestAll.cpp" />
     <ClCompile Include="..\..\..\..\test\include\gtest\gtest-all.cc" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestStatisticalEval.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\test\include\gtest\gtest.h" />

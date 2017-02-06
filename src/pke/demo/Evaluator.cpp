@@ -51,7 +51,7 @@ void IntegerTests();
 int main() {
 
 	EvalLinRegressionNull();
-	RationalTests();
+	//RationalTests();
 
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();
@@ -66,7 +66,7 @@ void EvalLinRegressionNull() {
 	//usint relWindow = 8;
 
 	usint plaintextModulus = 256;
-	usint m = 16;
+	usint m = 64;
 
 	//float stdDev = 4;
 
