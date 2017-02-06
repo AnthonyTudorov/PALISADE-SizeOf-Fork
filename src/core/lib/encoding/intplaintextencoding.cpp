@@ -36,6 +36,16 @@
 
 namespace lbcrypto {
 
+// Forms a binary array from an integer; represents the integer as a binary polynomial
+IntPlaintextEncoding::IntPlaintextEncoding(uint32_t value)
+{
+	for (size_t i = 0; i < 32; i++)
+	{
+		// gets i-th bit of the 32-bit integer
+		this->push_back((value >> i) & 1);
+	}
+}
+	
 void IntPlaintextEncoding::Encode(const BigBinaryInteger& modulus, ILVectorArray2n *element, size_t startFrom, size_t length) const{
 	//TODO - OPTIMIZE CODE. Please take a look at line 114 temp.SetModulus
 	ILVector2n encodedSingleCrt = element->GetElementAtIndex(0);
@@ -118,6 +128,26 @@ size_t
 IntPlaintextEncoding::GetChunksize(const usint cyc, const BigBinaryInteger&) const
 {
 	return cyc/2;
+}
+
+// Evaluates the array of integers as a polynomial at x = 2
+int32_t IntPlaintextEncoding::EvalToInt(uint32_t modulus) const
+{
+	int32_t result = 0;
+	uint32_t powerFactor = 1;
+	uint32_t half(modulus >> 1);
+	for (size_t i = 0; i < this->size(); i++) {
+
+		// deal with unsigned representation
+		if (this->at(i) < half)
+			result += powerFactor * this->at(i);
+		else
+			result -= powerFactor * (modulus - this->at(i));
+
+		// multiply the power factor by 2
+		powerFactor <<= 1;
+	}
+	return result;
 }
 
 }
