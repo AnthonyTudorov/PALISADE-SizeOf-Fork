@@ -1079,7 +1079,7 @@ namespace lbcrypto {
 			* @param ek - evaluation key used for EvalMult operations
 			* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
 			*/
-			virtual shared_ptr<Matrix<RationalCiphertext<Element>>>
+			shared_ptr<Matrix<RationalCiphertext<Element>>>
 				EvalLinRegression(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
 					const shared_ptr<Matrix<RationalCiphertext<Element>>> y) const
 			{

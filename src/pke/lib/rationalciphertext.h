@@ -199,26 +199,33 @@ namespace lbcrypto {
 		}
 
 		/**
-		* YSP Jerry will add the code for this one
 		* Serialize the object into a Serialized
 		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 		* @return true if successfully serialized
 		*/
 		bool Serialize(Serialized* serObj) const {
-			//serObj->SetObject();
+			serObj->SetObject();
 
-			//serObj->AddMember("Object", "Ciphertext", serObj->GetAllocator());
+			serObj->AddMember("Object", "RationalCiphertext", serObj->GetAllocator());
 
-			//if( !this->GetCryptoParameters()->Serialize(serObj) )
-			//	return false;
+			Serialized numSer(rapidjson::kObjectType, &serObj->GetAllocator());
+			if( !m_numerator->Serialize(&numSer) )
+				return false;
 
-			//SerializeVector("Elements", elementName<Element>(), this->m_elements, serObj);
+			// note only serialize denominator if it's not an integer
+			Serialized denSer(rapidjson::kObjectType, &serObj->GetAllocator());
+			if( !m_integerFlag && !m_denominator->Serialize(&denSer) )
+				return false;
+
+			serObj->AddMember("isInteger", m_integerFlag ? "1" : "0", serObj->GetAllocator());
+			serObj->AddMember("numerator", numSer.Move(), serObj->GetAllocator());
+			if( !m_integerFlag )
+				serObj->AddMember("denominator", denSer.Move(), serObj->GetAllocator());
 
 			return true;
 		}
 
 		/**
-		* YSP Jerry will add the code for this one
 		* Populate the object from the deserialization of the Serialized
 		* @param serObj contains the serialized object
 		* @return true on success
@@ -228,13 +235,13 @@ namespace lbcrypto {
 			//if( !this->cryptoContext )
 			//	return false;
 
-			//Serialized::ConstMemberIterator mIter = serObj.FindMember("Object");
-			//if( mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "Ciphertext" )
-			//	return false;
+			Serialized::ConstMemberIterator mIter = serObj.FindMember("Object");
+			if( mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "RationalCiphertext" )
+				return false;
 
-			//mIter = serObj.FindMember("Elements");
-			//if( mIter == serObj.MemberEnd() )
-			//	return false;
+			mIter = serObj.FindMember("isInteger");
+			if( mIter == serObj.MemberEnd() )
+				return false;
 
 			//return DeserializeVector<Element>("Elements", elementName<Element>(), mIter, &this->m_elements);
 
