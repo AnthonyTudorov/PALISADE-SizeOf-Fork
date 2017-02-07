@@ -255,7 +255,7 @@ namespace lbcrypto {
 		//FUTURE ENHANCEMENT: current value of error norm
 		//BigBinaryInteger m_norm;
 
-		std::vector<Element> m_elements;		/*!< vector of fing elements for this Ciphertext */
+		std::vector<Element> m_elements;		/*!< vector of ring elements for this Ciphertext */
 
 	};
 

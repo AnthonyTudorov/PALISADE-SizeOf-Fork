@@ -217,7 +217,7 @@ namespace lbcrypto {
 			if( !m_integerFlag && !m_denominator->Serialize(&denSer) )
 				return false;
 
-			serObj->AddMember("isInteger", m_integerFlag ? std::to_string(1) : std::to_string(0), serObj->GetAllocator());
+			serObj->AddMember("isInteger", m_integerFlag ? "1" : "0", serObj->GetAllocator());
 			serObj->AddMember("numerator", numSer.Move(), serObj->GetAllocator());
 			if( !m_integerFlag )
 				serObj->AddMember("denominator", denSer.Move(), serObj->GetAllocator());
@@ -235,39 +235,36 @@ namespace lbcrypto {
 			//if( !this->cryptoContext )
 			//	return false;
 
-std::cout << 1 << std::endl;
 			Serialized::ConstMemberIterator mIter = serObj.FindMember("Object");
 			if( mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "RationalCiphertext" )
 				return false;
 
-			std::cout << 2 << std::endl;
 			mIter = serObj.FindMember("isInteger");
 			if( mIter == serObj.MemberEnd() )
 				return false;
-			std::cout << 3 << "::" << mIter->value.GetString() << std::endl;
+
 			m_integerFlag = (mIter->value.GetString() == "1") ? true : false;
 
 			mIter = serObj.FindMember("numerator");
 			if( mIter == serObj.MemberEnd() )
 				return false;
-			std::cout << 4 << ":::" << std::endl << mIter->name.GetString() << ":" << std::endl << mIter->value.IsObject() << std::endl;
+
 			Serialized oneItem(rapidjson::kObjectType);
-			SerialItem key( mIter->value.MemberBegin()->name, oneItem.GetAllocator() );
-			SerialItem val( mIter->value.MemberBegin()->value, oneItem.GetAllocator() );
-			oneItem.AddMember(key, val, oneItem.GetAllocator());
+			SerialItem val( mIter->value, oneItem.GetAllocator() );
+			val.Swap(oneItem);
 
 			if( !m_numerator->Deserialize(oneItem) ) {
 				return false;
 			}
-			std::cout << 5 << std::endl;
+
 			if( !m_integerFlag ) {
 				mIter = serObj.FindMember("denominator");
 				if( mIter == serObj.MemberEnd() )
 					return false;
 
 				Serialized oneItem(rapidjson::kObjectType);
-				SerialItem key( mIter->value.MemberBegin()->name, oneItem.GetAllocator() );
-				SerialItem val( mIter->value.MemberBegin()->value, oneItem.GetAllocator() );
+				SerialItem val( mIter->value, oneItem.GetAllocator() );
+				val.Swap(oneItem);
 
 				if( !m_denominator->Deserialize(oneItem) ) {
 					return false;
