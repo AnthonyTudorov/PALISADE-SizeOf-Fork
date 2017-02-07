@@ -235,15 +235,47 @@ namespace lbcrypto {
 			//if( !this->cryptoContext )
 			//	return false;
 
+std::cout << 1 << std::endl;
 			Serialized::ConstMemberIterator mIter = serObj.FindMember("Object");
 			if( mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "RationalCiphertext" )
 				return false;
 
+			std::cout << 2 << std::endl;
 			mIter = serObj.FindMember("isInteger");
 			if( mIter == serObj.MemberEnd() )
 				return false;
+			std::cout << 3 << "::" << mIter->value.GetString() << std::endl;
+			m_integerFlag = (mIter->value.GetString() == "1") ? true : false;
 
-			//return DeserializeVector<Element>("Elements", elementName<Element>(), mIter, &this->m_elements);
+			mIter = serObj.FindMember("numerator");
+			if( mIter == serObj.MemberEnd() )
+				return false;
+			std::cout << 4 << ":::" << std::endl << mIter->name.GetString() << ":" << std::endl << mIter->value.IsObject() << std::endl;
+			Serialized oneItem(rapidjson::kObjectType);
+			SerialItem key( mIter->value.MemberBegin()->name, oneItem.GetAllocator() );
+			SerialItem val( mIter->value.MemberBegin()->value, oneItem.GetAllocator() );
+			oneItem.AddMember(key, val, oneItem.GetAllocator());
+
+			if( !m_numerator->Deserialize(oneItem) ) {
+				return false;
+			}
+			std::cout << 5 << std::endl;
+			if( !m_integerFlag ) {
+				mIter = serObj.FindMember("denominator");
+				if( mIter == serObj.MemberEnd() )
+					return false;
+
+				Serialized oneItem(rapidjson::kObjectType);
+				SerialItem key( mIter->value.MemberBegin()->name, oneItem.GetAllocator() );
+				SerialItem val( mIter->value.MemberBegin()->value, oneItem.GetAllocator() );
+
+				if( !m_denominator->Deserialize(oneItem) ) {
+					return false;
+				}
+			}
+			else {
+				m_denominator.reset();
+			}
 
 			return true;
 		}

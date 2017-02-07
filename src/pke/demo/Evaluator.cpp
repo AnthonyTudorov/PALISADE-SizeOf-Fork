@@ -61,6 +61,13 @@ int main() {
 	return 0;
 }
 
+template<typename Element>
+bool operator==(const RationalCiphertext<Element>& lhs, const RationalCiphertext<Element>& rhs) {
+	return lhs.GetIntegerFlag() == rhs.GetIntegerFlag() &&
+			lhs.GetNumerator() == rhs.GetNumerator() &&
+			lhs.GetDenominator() == rhs.GetDenominator();
+}
+
 void EvalLinRegressionNull() {
 
 	//usint relWindow = 8;
@@ -75,6 +82,36 @@ void EvalLinRegressionNull() {
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
+
+	std::cout << "RationalCiphertext s/d test" << std::endl;
+	Ciphertext<ILVector2n> one(cc), two(cc), three(cc);
+	ILVector2n onevec(cc.GetElementParams()), twovec(cc.GetElementParams()), threevec(cc.GetElementParams());
+	onevec = { 1 };
+	twovec = { 2 };
+	threevec = { 3 };
+	one.SetElement(onevec);
+	two.SetElement(twovec);
+	three.SetElement(threevec);
+	RationalCiphertext<ILVector2n> aninteger(three);
+	RationalCiphertext<ILVector2n> areal(one, two);
+
+	Serialized rc;
+	std::cout << "Integer:" << std::endl;
+	if( aninteger.Serialize(&rc) ) {
+		SerializableHelper::SerializationToStream(rc, std::cout);
+		std::cout << std::endl;
+
+		RationalCiphertext<ILVector2n> newOne(cc);
+		if( newOne.Deserialize(rc) ) {
+			std::cout << "Deserialized! " << (aninteger == newOne) << std::endl;
+		}
+	}
+
+	std::cout << "Real:" << std::endl;
+	if( areal.Serialize(&rc) ) {
+		SerializableHelper::SerializationToStream(rc, std::cout);
+	}
+	std::cout << std::endl;
 
 	double diff, start, finish;
 
@@ -137,6 +174,13 @@ void EvalLinRegressionNull() {
 	std::cout << "Encryption execution time for the x matrix: " << "\t" << diff << " ms" << std::endl;
 
 	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
+
+//	std::cout << "MATRIX: " << y->GetRows() << "," << y->GetCols() << std::endl;
+//
+//	Serialized rc;
+//	if( (*y)(0,0).Serialize(&rc) ) {
+//		SerializableHelper::SerializationToStream(rc, std::cout);
+//	}
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression
