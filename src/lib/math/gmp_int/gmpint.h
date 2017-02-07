@@ -191,6 +191,10 @@ inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+
     inline long operator==(const myZZ& b) const
     { return this->Compare(b) == 0; }
 
+  
+    inline long operator!=(const myZZ& b) const
+    { return this->Compare(b) != 0; }
+
 private:
     //adapter kits
   void SetMSB();

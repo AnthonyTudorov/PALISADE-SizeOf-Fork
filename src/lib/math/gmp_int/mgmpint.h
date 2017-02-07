@@ -233,6 +233,24 @@ namespace NTL{
       *this = *this-a;
       return *this;
     };
+
+    ///new
+
+    inline myZZ_p operator*(const myZZ_p &b) const {
+      myZZ_p tmp;
+      mul(tmp, *this, b);
+      return tmp ;
+    };
+    inline myZZ_p& operator *=(const myZZ_p &a) {
+      *this = *this*a;
+      return *this;
+    };
+
+
+
+    ///new
+
+
   
     inline myZZ_p Mul(const myZZ_p& b) const {return *this*b;};
     inline myZZ_p Times(const myZZ_p& b) const {return *this*b;}; //to be deprecated
@@ -266,7 +284,10 @@ namespace NTL{
     };
 
     inline myZZ_p& operator %=(const myZZ &a) {
+      bool dbg_flag = false;
+      DEBUG("mgmpint %= this before mod "<<*this);
       *this = *this%a;
+      DEBUG("mgmpint %= this after mod "<<*this);
       return *this;
     };
     inline myZZ_p& operator %=(const unsigned int &a) {
