@@ -61,6 +61,33 @@ int main() {
 	return 0;
 }
 
+template<typename Element>
+bool operator==(const Ciphertext<Element>& lhs, const Ciphertext<Element>& rhs) {
+	const std::vector<Element> &lhsE = lhs.GetElements();
+	const std::vector<Element> &rhsE = rhs.GetElements();
+
+	if( lhsE.size() != rhsE.size() ) return false;
+
+	for( int i=0; i<lhsE.size(); i++ ) {
+		const Element& lE = lhsE.at(i);
+		const Element& rE = rhsE.at(i);
+
+		if( lE != rE ) return false;
+	}
+
+	return true;
+}
+
+template<typename Element>
+bool operator==(const RationalCiphertext<Element>& lhs, const RationalCiphertext<Element>& rhs) {
+	bool topPart = lhs.GetIntegerFlag() == rhs.GetIntegerFlag() &&
+		*lhs.GetNumerator() == *rhs.GetNumerator();
+	if( !topPart || lhs.GetIntegerFlag() == true )
+		return topPart;
+
+	return *lhs.GetDenominator() == *rhs.GetDenominator();
+}
+
 void EvalLinRegressionNull() {
 
 	//usint relWindow = 8;
@@ -75,6 +102,43 @@ void EvalLinRegressionNull() {
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
+
+	std::cout << "RationalCiphertext s/d test" << std::endl;
+	Ciphertext<ILVector2n> one(cc), two(cc), three(cc);
+	ILVector2n onevec(cc.GetElementParams()), twovec(cc.GetElementParams()), threevec(cc.GetElementParams());
+	onevec = { 1 };
+	twovec = { 2 };
+	threevec = { 3 };
+	one.SetElement(onevec);
+	two.SetElement(twovec);
+	three.SetElement(threevec);
+	RationalCiphertext<ILVector2n> aninteger(three);
+	RationalCiphertext<ILVector2n> areal(one, two);
+
+	Serialized rc;
+	std::cout << "Integer: " << std::flush;
+	if( aninteger.Serialize(&rc) ) {
+		std::cout << "Serialized! " << std::flush;
+
+		RationalCiphertext<ILVector2n> newOne(cc);
+		if( newOne.Deserialize(rc) ) {
+			std::cout << "Deserialized! " << (aninteger == newOne) << std::flush;
+		}
+	}
+	std::cout << std::endl;
+
+
+	Serialized rc2;
+	std::cout << "Real: " << std::flush;
+	if( areal.Serialize(&rc2) ) {
+		std::cout << "Serialized! " << std::flush;
+
+		RationalCiphertext<ILVector2n> newOne(cc);
+		if( newOne.Deserialize(rc2) ) {
+			std::cout << "Deserialized! " << (areal == newOne) << std::flush;
+		}
+	}
+	std::cout << std::endl;
 
 	double diff, start, finish;
 
@@ -137,6 +201,13 @@ void EvalLinRegressionNull() {
 	std::cout << "Encryption execution time for the x matrix: " << "\t" << diff << " ms" << std::endl;
 
 	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
+
+//	std::cout << "MATRIX: " << y->GetRows() << "," << y->GetCols() << std::endl;
+//
+//	Serialized rc;
+//	if( (*y)(0,0).Serialize(&rc) ) {
+//		SerializableHelper::SerializationToStream(rc, std::cout);
+//	}
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression

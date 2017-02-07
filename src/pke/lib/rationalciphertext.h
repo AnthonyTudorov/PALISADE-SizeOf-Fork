@@ -243,7 +243,36 @@ namespace lbcrypto {
 			if( mIter == serObj.MemberEnd() )
 				return false;
 
-			//return DeserializeVector<Element>("Elements", elementName<Element>(), mIter, &this->m_elements);
+			m_integerFlag = (mIter->value.GetString() == "1") ? true : false;
+
+			mIter = serObj.FindMember("numerator");
+			if( mIter == serObj.MemberEnd() )
+				return false;
+
+			Serialized oneItem(rapidjson::kObjectType);
+			SerialItem val( mIter->value, oneItem.GetAllocator() );
+			val.Swap(oneItem);
+
+			if( !m_numerator->Deserialize(oneItem) ) {
+				return false;
+			}
+
+			if( !m_integerFlag ) {
+				mIter = serObj.FindMember("denominator");
+				if( mIter == serObj.MemberEnd() )
+					return false;
+
+				Serialized oneItem(rapidjson::kObjectType);
+				SerialItem val( mIter->value, oneItem.GetAllocator() );
+				val.Swap(oneItem);
+
+				if( !m_denominator->Deserialize(oneItem) ) {
+					return false;
+				}
+			}
+			else {
+				m_denominator.reset();
+			}
 
 			return true;
 		}
