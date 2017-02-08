@@ -24,7 +24,7 @@ bool RationalCiphertext<Element>::Serialize(Serialized* serObj) const {
 	if( !m_integerFlag && !m_denominator->Serialize(&denSer) )
 		return false;
 
-	serObj->AddMember("isInteger", m_integerFlag ? "1" : "0", serObj->GetAllocator());
+	serObj->AddMember("isInteger", m_integerFlag ? std::to_string(1) : std::to_string(0), serObj->GetAllocator());
 	serObj->AddMember("numerator", numSer.Move(), serObj->GetAllocator());
 	if( !m_integerFlag )
 		serObj->AddMember("denominator", denSer.Move(), serObj->GetAllocator());

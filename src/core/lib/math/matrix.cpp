@@ -26,7 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 
 #include "../utils/serializablehelper.h"
-#include "rationalciphertext.h"
+//#include "rationalciphertext.h"
 #include "matrix.h"
 using std::invalid_argument;
 

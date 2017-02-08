@@ -90,7 +90,7 @@ bool Matrix<RationalCiphertext<ILVector2n>>::Deserialize(const Serialized& serOb
 	ccVal.Swap(ccSer);
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::DeserializeAndCreateContext(ccSer);
-	if( cc == false )
+	if( bool(cc) == false )
 		return false;
 
 	this->SetSize(mrows, mcols);
