@@ -203,79 +203,14 @@ namespace lbcrypto {
 		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized* serObj) const {
-			serObj->SetObject();
-
-			serObj->AddMember("Object", "RationalCiphertext", serObj->GetAllocator());
-
-			Serialized numSer(rapidjson::kObjectType, &serObj->GetAllocator());
-			if( !m_numerator->Serialize(&numSer) )
-				return false;
-
-			// note only serialize denominator if it's not an integer
-			Serialized denSer(rapidjson::kObjectType, &serObj->GetAllocator());
-			if( !m_integerFlag && !m_denominator->Serialize(&denSer) )
-				return false;
-
-			serObj->AddMember("isInteger", m_integerFlag ? std::to_string(1) : std::to_string(0), serObj->GetAllocator());
-			serObj->AddMember("numerator", numSer.Move(), serObj->GetAllocator());
-			if( !m_integerFlag )
-				serObj->AddMember("denominator", denSer.Move(), serObj->GetAllocator());
-
-			return true;
-		}
+		bool Serialize(Serialized* serObj) const;
 
 		/**
 		* Populate the object from the deserialization of the Serialized
 		* @param serObj contains the serialized object
 		* @return true on success
 		*/
-		bool Deserialize(const Serialized& serObj) {
-			// deserialization must be done in a crypto context; this object must be initialized before deserializing the elements
-			//if( !this->cryptoContext )
-			//	return false;
-
-			Serialized::ConstMemberIterator mIter = serObj.FindMember("Object");
-			if( mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "RationalCiphertext" )
-				return false;
-
-			mIter = serObj.FindMember("isInteger");
-			if( mIter == serObj.MemberEnd() )
-				return false;
-
-			m_integerFlag = (mIter->value.GetString() == "1") ? true : false;
-
-			mIter = serObj.FindMember("numerator");
-			if( mIter == serObj.MemberEnd() )
-				return false;
-
-			Serialized oneItem(rapidjson::kObjectType);
-			SerialItem val( mIter->value, oneItem.GetAllocator() );
-			val.Swap(oneItem);
-
-			if( !m_numerator->Deserialize(oneItem) ) {
-				return false;
-			}
-
-			if( !m_integerFlag ) {
-				mIter = serObj.FindMember("denominator");
-				if( mIter == serObj.MemberEnd() )
-					return false;
-
-				Serialized oneItem(rapidjson::kObjectType);
-				SerialItem val( mIter->value, oneItem.GetAllocator() );
-				val.Swap(oneItem);
-
-				if( !m_denominator->Deserialize(oneItem) ) {
-					return false;
-				}
-			}
-			else {
-				m_denominator.reset();
-			}
-
-			return true;
-		}
+		bool Deserialize(const Serialized& serObj);
 
 		/**
 		* Performs an addition operation and returns the result.
@@ -314,6 +249,19 @@ namespace lbcrypto {
 				a.m_numerator = this->GetCryptoContext().EvalNegate(this->m_numerator);
 				return a;
 			}
+		}
+
+		inline bool operator==(const RationalCiphertext<Element>& rhs) const {
+			bool topPart = this->GetIntegerFlag() == rhs.GetIntegerFlag() &&
+				*this->GetNumerator() == *rhs.GetNumerator();
+			if( !topPart || this->GetIntegerFlag() == true )
+				return topPart;
+
+			return *this->GetDenominator() == *rhs.GetDenominator();
+		}
+
+		inline bool operator!=(const RationalCiphertext<Element>& rhs) const {
+			return ! ( *this == rhs );
 		}
 
 	private:

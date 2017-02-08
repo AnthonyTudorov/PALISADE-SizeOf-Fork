@@ -839,7 +839,7 @@ public:
 
 
 /**
-* @brief CryptoContextFactory
+* @brief CryptoContextcc
 *
 * A class that contains static methods to generate new crypto contexts from user parameters
 *

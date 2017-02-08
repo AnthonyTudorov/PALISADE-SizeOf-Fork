@@ -40,9 +40,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../math/distrgen.h"
 #include "../lattice/ilvector2n.h"
 #include "../lattice/ilvectorarray2n.h"
+#include "../encoding/intplaintextencoding.h"
 #include "../utils/inttypes.h"
 #include "../utils/utilities.h"
 #include "../utils/memory.h"
+using std::invalid_argument;
 
 namespace lbcrypto {
 
@@ -59,7 +61,14 @@ namespace lbcrypto {
 			 * @param &rows number of rows.
 			 * @param &rows number of columns.
 			 */
-            Matrix(alloc_func allocZero, size_t rows, size_t cols);
+            Matrix(alloc_func allocZero, size_t rows, size_t cols) : rows(rows), cols(cols), data(), allocZero(allocZero) {
+                data.resize(rows);
+                for (auto row = data.begin(); row != data.end(); ++row) {
+                    for (size_t col = 0; col < cols; ++col) {
+                        row->push_back(allocZero());
+                    }
+                }
+            }
 
 			/**
 			 * Constructor that initializes matrix values using a distribution generation allocator
@@ -71,13 +80,37 @@ namespace lbcrypto {
 			 */
             Matrix(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen);
 
+            /**
+             * Constructor of an empty matrix; SetSize must be called on this matrix to use it
+             * Basically this exists to support deserializing
+             *
+			 * @param &allocZero lambda function for zero initialization.
+             */
+            Matrix(alloc_func allocZero) : rows(0), cols(0), data(), allocZero(allocZero) {}
+
+            void SetSize(size_t rows, size_t cols) {
+            	if( this->rows != 0 || this->cols != 0 )
+            		throw std::logic_error("You cannot SetSize on a non-empty matrix");
+
+            	this->rows = rows;
+            	this->cols = cols;
+
+                data.resize(rows);
+                for (auto row = data.begin(); row != data.end(); ++row) {
+                    for (size_t col = 0; col < cols; ++col) {
+                        row->push_back(allocZero());
+                    }
+                }
+            }
+
 			/**
 			 * Copy constructor
 			 *
 			 * @param &other the matrix object to be copied
 			 */
-            Matrix(const Matrix<Element>& other);
-
+            Matrix(const Matrix<Element>& other) : data(), rows(other.rows), cols(other.cols), allocZero(other.allocZero) {
+                deepCopyData(other.data);
+            }
 
 			/**
 			 * Assignment operator
@@ -148,7 +181,26 @@ namespace lbcrypto {
 			 * @param &other the multiplier element
 			 * @return the result of multiplication
              */  
-            inline Matrix<Element> ScalarMult(Element const& other) const; 
+            inline Matrix<Element> ScalarMult(Element const& other) const {
+                Matrix<Element> result(*this);
+            #if 0
+            for (size_t row = 0; row < result.rows; ++row) {
+                    for (size_t col = 0; col < result.cols; ++col) {
+                        *result.data[row][col] = *result.data[row][col] * other;
+                    }
+                }
+            #else
+            #pragma omp parallel for
+            for (int32_t col = 0; col < result.cols; ++col) {
+            	for (int32_t row = 0; row < result.rows; ++row) {
+
+                        *result.data[row][col] = *result.data[row][col] * other;
+                    }
+                }
+
+            #endif
+                return result;
+            }
 
             /**
              * Operator for scalar multiplication
@@ -166,7 +218,20 @@ namespace lbcrypto {
 			 * @param &other the matrix object to compare to
 			 * @return the boolean result
              */ 
-            inline bool Equal(Matrix<Element> const& other) const; 
+            inline bool Equal(Matrix<Element> const& other) const {
+                if (rows != other.rows || cols != other.cols) {
+                    return false;
+                }
+
+                for (size_t i = 0; i < rows; ++i) {
+                    for (size_t j = 0; j < cols; ++j) {
+                        if (*data[i][j] != *other.data[i][j]) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
 
             /**
              * Operator for equality check
@@ -238,7 +303,28 @@ namespace lbcrypto {
 			 * @param &other the matrix to be added
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element> Add(Matrix<Element> const& other) const;
+            inline Matrix<Element> Add(Matrix<Element> const& other) const {
+                if (rows != other.rows || cols != other.cols) {
+                    throw invalid_argument("Addition operands have incompatible dimensions");
+                }
+                Matrix<Element> result(*this);
+            #if 0
+                for (size_t i = 0; i < rows; ++i) {
+                    for (size_t j = 0; j < cols; ++j) {
+                        *result.data[i][j] += *other.data[i][j];
+                    }
+                }
+            #else
+            #pragma omp parallel for
+            for (int32_t j = 0; j < cols; ++j) {
+            for (int32_t i = 0; i < rows; ++i) {
+                        *result.data[i][j] += *other.data[i][j];
+                    }
+                }
+            #endif
+                return result;
+            }
+
 
             /**
              * Operator for matrix addition
@@ -264,7 +350,28 @@ namespace lbcrypto {
 			 * @param &other the matrix to be substracted
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element> Sub(Matrix<Element> const& other) const; 
+            inline Matrix<Element> Sub(Matrix<Element> const& other) const {
+                if (rows != other.rows || cols != other.cols) {
+                    throw invalid_argument("Subtraction operands have incompatible dimensions");
+                }
+                Matrix<Element> result(allocZero, rows, other.cols);
+            #if 0
+                for (size_t i = 0; i < rows; ++i) {
+                    for (size_t j = 0; j < cols; ++j) {
+                        *result.data[i][j] = *data[i][j] - *other.data[i][j];
+                    }
+                }
+            #else
+                #pragma omp parallel for
+            for (int32_t j = 0; j < cols; ++j) {
+            	for (int32_t i = 0; i < rows; ++i) {
+                        *result.data[i][j] = *data[i][j] - *other.data[i][j];
+                    }
+                }
+            #endif
+
+                return result;
+            }
 
             /**
              * Operator for matrix substraction

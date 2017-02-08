@@ -61,33 +61,6 @@ int main() {
 	return 0;
 }
 
-template<typename Element>
-bool operator==(const Ciphertext<Element>& lhs, const Ciphertext<Element>& rhs) {
-	const std::vector<Element> &lhsE = lhs.GetElements();
-	const std::vector<Element> &rhsE = rhs.GetElements();
-
-	if( lhsE.size() != rhsE.size() ) return false;
-
-	for( int i=0; i<lhsE.size(); i++ ) {
-		const Element& lE = lhsE.at(i);
-		const Element& rE = rhsE.at(i);
-
-		if( lE != rE ) return false;
-	}
-
-	return true;
-}
-
-template<typename Element>
-bool operator==(const RationalCiphertext<Element>& lhs, const RationalCiphertext<Element>& rhs) {
-	bool topPart = lhs.GetIntegerFlag() == rhs.GetIntegerFlag() &&
-		*lhs.GetNumerator() == *rhs.GetNumerator();
-	if( !topPart || lhs.GetIntegerFlag() == true )
-		return topPart;
-
-	return *lhs.GetDenominator() == *rhs.GetDenominator();
-}
-
 void EvalLinRegressionNull() {
 
 	//usint relWindow = 8;
@@ -202,12 +175,36 @@ void EvalLinRegressionNull() {
 
 	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
 
-//	std::cout << "MATRIX: " << y->GetRows() << "," << y->GetCols() << std::endl;
-//
-//	Serialized rc;
-//	if( (*y)(0,0).Serialize(&rc) ) {
-//		SerializableHelper::SerializationToStream(rc, std::cout);
-//	}
+	std::cout << "MATRIX: " << y->GetRows() << "," << y->GetCols() << std::endl;
+
+	Serialized rcm;
+	if( y->Serialize(&rcm) ) {
+		std::cout << "Matrix serialized" << std::endl;
+//		SerializableHelper::SerializationToStream(rcm, std::cout);
+//		std::cout << std::endl;
+
+		Matrix<RationalCiphertext<ILVector2n>> newMat( []() { return make_unique<RationalCiphertext<ILVector2n>>(); } );
+		if( newMat.Deserialize(rcm) ) {
+			std::cout << "Matrix deserialized" << std::endl;
+
+			if( y->GetRows() != newMat.GetRows() ) {
+				std::cout << "row # mismatch" << std::endl;
+			}
+			if( y->GetCols() != newMat.GetCols() ) {
+				std::cout << "col # mismatch" << std::endl;
+			}
+
+			for( int r=0; r<y->GetRows(); r++ ) {
+				for( int c=0; c<y->GetCols(); c++ ) {
+					if( (*y)(r,c) != newMat(r,c) ) {
+						std::cout << "element mismatch at " << r << "," << c << std::endl;
+					}
+				}
+			}
+
+			std::cout << "DONE CHECKING" << std::endl;
+		}
+	}
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression
