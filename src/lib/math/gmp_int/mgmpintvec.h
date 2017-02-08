@@ -149,7 +149,10 @@ namespace NTL {
     void clear(myVecP& x); //why isn't this inhereted?
 
     inline usint size() {return this->length();};
+
+    // Note, SetValAtIndex should be deprecated by .at() and []
     void SetValAtIndex(usint index, const myT&value);
+    void SetValAtIndex(usint index, const myZZ&value);
     void SetValAtIndex(usint index, const char *s);
     void SetValAtIndex(usint index, const std::string& str);
     const myT& GetValAtIndex(size_t index) const;
@@ -179,6 +182,8 @@ namespace NTL {
 
     myVecP ModByTwo() const; //defined in cpp
 
+    void SwitchModulus(const myZZ& newModulus);
+
     //scalar modulo assignment
     inline myVecP& operator%=(const myZZ& a)
     { 
@@ -204,12 +209,14 @@ namespace NTL {
       return *this;
     };
     //moretodo
-    myVecP operator+(myVecP const& b) const;
-    myVecP operator+(myZZ const& b) const;
+    myVecP operator+(const myVecP& b) const;
+    myVecP operator+(const myZZ& b) const;
 
     inline myVecP Add(const myZZ& b) const { return (*this)+b;};
     inline myVecP ModAdd(const myZZ& b) const { return (*this)+b;};
     void add(myVecP& x, const myVecP& a, const myVecP& b) const; //define procedural
+
+    myVecP ModAddAtIndex(usint i, const myZZ &b) const;
 
     //vector add
     inline myVecP Add(const myVecP& b) const { ArgCheckVector(b, "myVecP Add()"); return (*this)+b;};
@@ -545,6 +552,7 @@ namespace NTL {
   inline long operator!=(const myVec<myZZ> &a, const myVecP<myZZ_p> &b) 
   { return !(operator==(a,b)); };
   
+
   
 } // namespace NTL ends
 

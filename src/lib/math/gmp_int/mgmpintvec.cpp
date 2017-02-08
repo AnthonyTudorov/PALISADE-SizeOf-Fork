@@ -229,43 +229,6 @@ namespace NTL {
       (*this)[i] = a[i]%zzq;  //must we do this since myZZ could be >=q
     }
   }
-  // template<class myT>
-  // myVecP<myT>::myVecP(NTL::Vec<ZZ> &a, const usint q):Vec<ZZ>(a) 
-  // { 
-  //   this->SetModulus(q); 
-  //   for (auto i = 0; i < this->length(); i++){
-  //     (*this)[i] %=q;
-  //   }
-  // };
-
-  // template<class myT>
-  // myVecP<myT>::myVecP(const NTL::Vec<ZZ> &a, const usint q):Vec<ZZ>(a) 
-  // { 
-  //   this->SetModulus(q); 
-  //   for (auto i = 0; i < this->length(); i++){
-  //     (*this)[i] %=q;
-  //   }
-  // };
-
-  // template<class myT>
-  // myVecP<myT>::myVecP(NTL::Vec<ZZ_p> &a, const usint q):Vec<ZZ_p>(a) 
-  // { 
-  //   this->SetModulus(q); 
-  //   for (auto i = 0; i < this->length(); i++){
-  //     (*this)[i] %=q;
-  //   }
-  // };
-
-  // template<class myT>
-  // myVecP<myT>::myVecP(const NTL::Vec<ZZ_p> &a, const usint q):Vec<ZZ_p>(a) 
-  // { 
-  //   this->SetModulus(q); 
-  //   for (auto i = 0; i < this->length(); i++){
-  //     (*this)[i] %=q;
-  //   }
-  // };
-  //%%%%
-
 
   // constructor specifying the myvec as a vector of strings
   template<class myT>
@@ -315,6 +278,7 @@ namespace NTL {
   
   //Assignment with initializer list of myZZ
   // note, resizes the vector to the length of the initializer list
+  //keeps current modulus
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<myT> rhs){
     bool dbg_flag = false;
@@ -324,12 +288,12 @@ namespace NTL {
     for(usint i=0;i<len;i++){ // this loops over each entry
       (*this)[i] =  myT(*(rhs.begin()+i));
     }
-    //this->m_modulus_state = GARBAGE; keep current lhs
     return *this;
     DEBUG("mubintvec assignment copy CTOR ubint init list length "<<this->length());
   }
 
   //Assignment with initializer list of usints
+  //keeps current modulus
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<usint> rhs){
     bool dbg_flag = false;
@@ -339,13 +303,13 @@ namespace NTL {
     for(usint i=0;i<len;i++){ // this loops over each entry
       (*this)[i] =  myZZ(*(rhs.begin()+i));
     }
-    //this->m_modulus_state = GARBAGE; keep current lhs
     return *this;
     DEBUG("mubintvec assignment copy CTOR usint init list length "<<this->length());
   }
 
 
   //Assignment with initializer list of strings
+  //keeps current modulus
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<std::string> rhs){
     bool dbg_flag = false;
@@ -355,13 +319,13 @@ namespace NTL {
     for(usint i=0;i<len;i++){ // this loops over each entry
       (*this)[i] =  myT(*(rhs.begin()+i));
     }
-    //this->m_modulus_state = GARBAGE; keep current lhs modulus
     return *this;
     DEBUG("mubintvec assignment copy CTOR string init list length "<<this->size());
   }
 
   //Assignment with initializer list of const char *
   //not sure why this isn't taken care of by string above
+  //keeps current modulus
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<const char *> rhs)
   {
@@ -372,34 +336,33 @@ namespace NTL {
     for(usint i=0;i<len;i++){ // this loops over each entry
       (*this)[i] =  (myT(*(rhs.begin()+i)));
     } 
-    //this->m_modulus_state = GARBAGE; keep current lhs. 
     return *this;
   }
   
-  //todo: do we keep current modulus or get it from the myT rhs?
-  //not clear.... 
+
+  //keeps current modulus /TODO: is this the correct thing to do?
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(const myT &rhs)
   {
     bool dbg_flag = false;
     DEBUG("in op=const myT&");
     this->SetLength(1);
-    //this->m_modulus_state = GARBAGE; keep current state
     (*this)[0] = rhs;
     return *this;
   }
-  
+
+  //keeps current modulus  
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(myT &rhs)
   {
     bool dbg_flag = false;
     DEBUG("in op=myT&");
     this->SetLength(1);
-    //this->m_modulus_state = GARBAGE; keep current state
     (*this)[0] =rhs;
     return *this;
   }
   
+  //keeps current modulus
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(unsigned int &rhs)
   {
@@ -407,21 +370,20 @@ namespace NTL {
     DEBUG("in op=usint&");
     this->SetLength(1);
     (*this)[0] =(unsigned int &)rhs;
-    //this->m_modulus_state = GARBAGE; keep current state
     return *this;
   }
   
+  //keeps current modulus
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(unsigned int rhs){
     bool dbg_flag = false;
     DEBUG("in op=usint");
     this->SetLength(1);
     (*this)[0] = (unsigned int)rhs;
-    //this->m_modulus_state = GARBAGE; keep current state
     return *this;
   }
 
-  //do not keep current state
+  //do not keep current modulus but copies from rhs.
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(const myVecP<myT> &rhs)
   {
@@ -441,8 +403,7 @@ namespace NTL {
   template<class myT>
   myVecP<myT>::~myVecP()
   {
-    //std::cout<<"destructor called for vector of size: "<<this->m_data.size()<<"  "<<std::endl;
-    //NTL_NAMESPACE::clear(this->m_OTM); don't clear as this is global?
+
   }
 
   template<class myT>
@@ -482,7 +443,7 @@ namespace NTL {
    }
 #endif  
   
-#if 0
+#if 1
   //Switches the integers in the vector to values corresponding to the new modulus
   //*  Algorithm: Integer i, Old Modulus om, New Modulus nm, delta = abs(om-nm):
   // *  Case 1: om < nm
@@ -493,15 +454,15 @@ namespace NTL {
   // *  i' = i-delta
   //	
   template<class myT>
-  void myVecP<myT>::SwitchModulus(const myT& newModulus) 
+  void myVecP<myT>::SwitchModulus(const myZZ& newModulus) 
   {
   
-    myT oldModulus(this->m_modulus);
-    myT n;
-    myT oldModulusByTwo(oldModulus>>1);
-    myT diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
+    myZZ oldModulus(this->m_modulus);
+    myZZ n;
+    myZZ oldModulusByTwo(oldModulus>>1);
+    myZZ diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
     for (usint i=0; i< this->GetLength(); i++) {
-      n = this->GetValAtIndex(i);
+      n = conv<myZZ>(this->GetValAtIndex(i));
       if(oldModulus < newModulus) {
 	if(n > oldModulusByTwo) {
 	  this->SetValAtIndex(i, n.ModAdd(diff, newModulus));
@@ -658,22 +619,23 @@ namespace NTL {
   
 
   // method to add scalar to vector element at index i
-#if 0
+#if 1
   template<class myT>
-  myVecP<myT> myVecP<myT>::ModAddAtIndex(usint i, const myT &b) const{
+  myVecP<myT> myVecP<myT>::ModAddAtIndex(usint i, const myZZ &b) const{
     if(i > this->GetLength()-1) {
       std::string errMsg = "myVecP::ModAddAtIndex. Index is out of range. i = " + i;
       throw std::runtime_error(errMsg);
     }
-    myVecP ans(*this);
-    ans[i] = ans[i].ModAdd(b, this->m_getOTM());
+    myVecP ans(*this); //copy vector
+    //ans[i] = ans[i].ModAdd(b, this->m_modulus);
+    ans[i] = ans[i]+b; //mod add is default 
     return ans;
   }
 #endif
 
   //subtraction of scalar
   template<class myT>
-  myVecP<myT> myVecP<myT>::operator-(myZZ const& b) const
+  myVecP<myT> myVecP<myT>::operator-(const myZZ& b) const
   {
     unsigned int n = this->length();
     myVecP<myT> res(n);
@@ -687,7 +649,7 @@ namespace NTL {
   //subtraction of vector
   //why can't I inheret this?
   template<class myT>
-  myVecP<myT> myVecP<myT>::operator-(myVecP<myT> const& b) const
+  myVecP<myT> myVecP<myT>::operator-(const myVecP<myT> &b) const
   {
     bool dbg_flag = false;
     DEBUG("in myVecP::operator-");
@@ -1103,9 +1065,19 @@ namespace NTL {
 
 
   //////////////////////////////////////////////////
-  // Set value at index from ubint
+  // Set value at index 
   template<class myT>
   void myVecP<myT>::SetValAtIndex(usint index, const myT& value){
+    if(!this->IndexCheck(index)){
+      throw std::logic_error("myVecP index out of range");
+    }
+    else{
+      this->at(index) = value;
+    }
+  }
+
+  template<class myT>
+  void myVecP<myT>::SetValAtIndex(usint index, const myZZ& value){
     if(!this->IndexCheck(index)){
       throw std::logic_error("myVecP index out of range");
     }
