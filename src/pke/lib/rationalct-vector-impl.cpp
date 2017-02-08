@@ -7,6 +7,7 @@
 
 #include "cryptocontext.h"
 #include "ciphertext.h"
+#include "rationalciphertext.cpp"
 
 namespace lbcrypto {
 extern template class CryptoContext<ILVector2n>;

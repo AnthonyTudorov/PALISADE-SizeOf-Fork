@@ -25,20 +25,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
+#include "../utils/serializablehelper.h"
+//#include "rationalciphertext.h"
 #include "matrix.h"
 using std::invalid_argument;
 
 namespace lbcrypto {
-
-template<class Element>
-Matrix<Element>::Matrix(alloc_func allocZero, size_t rows, size_t cols): rows(rows), cols(cols), data(), allocZero(allocZero) {
-    data.resize(rows);
-    for (auto row = data.begin(); row != data.end(); ++row) {
-        for (size_t col = 0; col < cols; ++col) {
-            row->push_back(allocZero());
-        }
-    }
-}
 
 template<class Element>
 Matrix<Element>::Matrix(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen): rows(rows), cols(cols), data(), allocZero(allocZero) {
@@ -48,11 +40,6 @@ Matrix<Element>::Matrix(alloc_func allocZero, size_t rows, size_t cols, alloc_fu
             row->push_back(allocGen());
         }
     }
-}
-
-template<class Element>
-Matrix<Element>::Matrix(const Matrix<Element>& other) : data(), rows(other.rows), cols(other.cols), allocZero(other.allocZero) {
-    deepCopyData(other.data);
 }
 
 template<class Element>
@@ -167,74 +154,12 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
 }
 
 template<class Element>
-Matrix<Element> Matrix<Element>::ScalarMult(Element const& other) const {
-    Matrix<Element> result(*this);
-#if 0
-for (size_t row = 0; row < result.rows; ++row) {
-        for (size_t col = 0; col < result.cols; ++col) {
-            *result.data[row][col] = *result.data[row][col] * other;
-        }
-    }
-#else
-#pragma omp parallel for
-for (int32_t col = 0; col < result.cols; ++col) {
-	for (int32_t row = 0; row < result.rows; ++row) {
-
-            *result.data[row][col] = *result.data[row][col] * other;
-        }
-    }
-
-#endif
-    return result;
-}
-
-
-template<class Element>
-bool Matrix<Element>::Equal(Matrix<Element> const& other) const {
-    if (rows != other.rows || cols != other.cols) {
-        return false;
-    }
-		
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t j = 0; j < cols; ++j) {
-            if (*data[i][j] != *other.data[i][j]) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-template<class Element>
 void Matrix<Element>::SetFormat(Format format) {
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
             data[row][col]->SetFormat(format);
         }
     }
-}
-
-template<class Element>
-Matrix<Element> Matrix<Element>::Add(Matrix<Element> const& other) const {
-    if (rows != other.rows || cols != other.cols) {
-        throw invalid_argument("Addition operands have incompatible dimensions");
-    }
-    Matrix<Element> result(*this);
-#if 0
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t j = 0; j < cols; ++j) {
-            *result.data[i][j] += *other.data[i][j];
-        }
-    }
-#else
-#pragma omp parallel for
-for (int32_t j = 0; j < cols; ++j) {
-for (int32_t i = 0; i < rows; ++i) {
-            *result.data[i][j] += *other.data[i][j];
-        }
-    }
-#endif
-    return result;
 }
 
 template<class Element>
@@ -257,30 +182,6 @@ for (size_t j = 0; j < cols; ++j) {
     }
 #endif
     return *this;
-}
-
-template<class Element>
-Matrix<Element> Matrix<Element>::Sub(Matrix<Element> const& other) const {
-    if (rows != other.rows || cols != other.cols) {
-        throw invalid_argument("Subtraction operands have incompatible dimensions");
-    }
-    Matrix<Element> result(allocZero, rows, other.cols);
-#if 0
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t j = 0; j < cols; ++j) {
-            *result.data[i][j] = *data[i][j] - *other.data[i][j];
-        }
-    }
-#else
-    #pragma omp parallel for
-for (int32_t j = 0; j < cols; ++j) {
-	for (int32_t i = 0; i < rows; ++i) {
-            *result.data[i][j] = *data[i][j] - *other.data[i][j];
-        }
-    }
-#endif
-
-    return result;
 }
 
 template<class Element>
@@ -722,6 +623,46 @@ Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& ot
     return result;
 }
 
+#ifdef OUT
+/**
+* Serialize the object into a Serialized
+* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+* @return true if successfully serialized
+*/
+template<class Element>
+bool Matrix<Element>::Serialize(Serialized* serObj) const {
+	serObj->SetObject();
+std::cout << "SERIALIZING " << rows << ":" << cols << std::endl;
+std::cout << data.size() << std::endl;
+std::cout << data[0].size() << std::endl;
+	//SerializeVectorOfVector("Matrix", elementName<Element>(), this->data, serObj);
+
+	std::cout << typeid(Element).name() << std::endl;
+
+	for( int r=0; r<rows; r++ ) {
+		for( int c=0; c<cols; c++ ) {
+			data[r][c]->Serialize(serObj);
+		}
+	}
+
+	return true;
+}
+
+/**
+* Populate the object from the deserialization of the Serialized
+* @param serObj contains the serialized object
+* @return true on success
+*/
+template<class Element>
+bool Matrix<Element>::Deserialize(const Serialized& serObj) {
+	Serialized::ConstMemberIterator mIter = serObj.FindMember("Matrix");
+	if( mIter == serObj.MemberEnd() )
+		return false;
+
+	//return DeserializeVectorOfVector<Element>("Matrix", elementName<Element>(), mIter, &this->data);
+	return true;
+}
+#endif
 
 }
 

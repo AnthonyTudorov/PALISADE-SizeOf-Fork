@@ -210,6 +210,26 @@ namespace lbcrypto {
 			return DeserializeVector<Element>("Elements", elementName<Element>(), mIter, &this->m_elements);
 		}
 
+		inline bool operator==(const Ciphertext<Element>& rhs) const {
+			const std::vector<Element> &lhsE = this->GetElements();
+			const std::vector<Element> &rhsE = rhs.GetElements();
+
+			if( lhsE.size() != rhsE.size() ) return false;
+
+			for( int i=0; i<lhsE.size(); i++ ) {
+				const Element& lE = lhsE.at(i);
+				const Element& rE = rhsE.at(i);
+
+				if( lE != rE ) return false;
+			}
+
+			return true;
+		}
+
+		inline bool operator!=(const Ciphertext<Element>& rhs) const {
+			return ! (*this == rhs);
+		}
+
 		/**
 		* Performs an addition operation and returns the result.
 		*

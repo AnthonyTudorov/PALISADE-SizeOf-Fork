@@ -75,18 +75,6 @@ namespace lbcrypto {
 	template <class Element>
 	class LPCryptoParametersStehleSteinfeld;
 
-	template <class Element>
-	inline std::string elementName() {
-		if( typeid(Element) == typeid(ILVector2n) )
-			return "ILVector2n";
-		else if( typeid(Element) == typeid(ILVectorArray2n) )
-			return "ILVectorArray2n";
-		else {
-			std::string msg = "Unrecognized type name for Element: ";
-			throw std::logic_error( msg + typeid(Element).name() );
-		}
-	}
-
 	struct EncryptResult {
 
 		explicit EncryptResult() : isValid(false), numBytesEncrypted(0) {}
