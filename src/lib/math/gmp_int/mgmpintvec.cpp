@@ -61,16 +61,6 @@ namespace NTL {
     this->m_modulus_state == GARBAGE;
   }
 
-  // template<class myT>
-  // myVecP<myT>::myVecP(NTL::Vec<myT> &a) : Vec<myT>(INIT_SIZE, a.length()) 
-  // {
-  //   for (auto i=0; i< a.length(); i++) {
-  //     (*this)[i]=a[i];
-  //   }
-  //   this->m_modulus_state == GARBAGE;
-  // }
-
-
   template<class myT>
   myVecP<myT>::myVecP(const myVec<myZZ> &a) : Vec<myT>(INIT_SIZE, a.length()) 
   {
@@ -80,81 +70,58 @@ namespace NTL {
     this->m_modulus_state == GARBAGE;
   }
 
-  // template<class myT>
-  //  myVecP<myT>::myVecP(NTL::Vec<ZZ> &a) : Vec<myT>(INIT_SIZE, a.length()) 
-  //  {
-  //    for (auto i=0; i< a.length(); i++) {
-  //      (*this)[i]=a[i];
-  //    }
-  //  }
-
-  //  //TODO: this may be a movecopy not sure if this is correct
-  // template<class myT>
-  //  myVecP<myT>::myVecP(NTL::Vec<ZZ> &&a) : Vec<myT>(INIT_SIZE, a.length()) 
-  //  {
-  //   //consider using Victor's move(a);
-  //    for (auto i=0; i< a.length(); i++) {
-  //      (*this)[i]=a[i];
-  //    }
-  //  }
-
-
-  // template<class myT>
-  //  myVecP<myT>::myVecP(const NTL::Vec<ZZ> &a) : Vec<myT>(INIT_SIZE, a.length()) 
-  //  {
-  //    for (auto i=0; i< a.length(); i++) {
-  //      (*this)[i]=a[i];
-  //    }
-  //  }
-
+  //movecopy ctor
   template<class myT>
   myVecP<myT>::myVecP(myVecP<myT> &&a) : Vec<myT>(INIT_SIZE, a.length()) 
   {
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     DEBUG("in myVecP copymove, alength "<<a.length());
     this->CopyModulus(a);
     //consider using Victor's move(a);
-    
+#if 0
     for (auto i=0; i< a.length(); i++) {
       (*this)[i]=a[i];
     }
+#else
+    this->move(a);
+#endif
   }
 
+  //movecopy ctor
   template<class myT>
   myVecP<myT>::myVecP(myVec<myZZ> &&a) : Vec<myT>(INIT_SIZE, a.length()) 
   {
-    //consider using Victor's move(a);
+    // wasn't able to use Victor's move(a);
     for (auto i=0; i< a.length(); i++) {
       (*this)[i]=a[i];
     }
     this->m_modulus_state = GARBAGE;
   }
 
-  //&&&
 
   //constructors with moduli
   //ctor myZZ moduli
   template<class myT>
-  myVecP<myT>::myVecP(unsigned int n, myZZ const &q): Vec<myT>(INIT_SIZE,n)
+  myVecP<myT>::myVecP(const long n, const myZZ &q): Vec<myT>(INIT_SIZE,n)
   {
     this->SetModulus(q);
   }
   
   template<class myT>
-  myVecP<myT>::myVecP(INIT_SIZE_TYPE, long n, const myZZ &q): Vec<myT>(INIT_SIZE,n)
+  myVecP<myT>::myVecP(const INIT_SIZE_TYPE, const long n, const myZZ &q): Vec<myT>(INIT_SIZE,n)
   {
     this->SetModulus(q);
   }
   
   template<class myT>
-  myVecP<myT>::myVecP(INIT_SIZE_TYPE, long n, const myT& a, const myZZ &q): Vec<myT>(INIT_SIZE,n)
+  myVecP<myT>::myVecP(const INIT_SIZE_TYPE, const long n, const myT& a, const myZZ &q): Vec<myT>(INIT_SIZE,n)
   {
     for (auto i = 0; i < n; i++){
       (*this)[i] = a;
     }
     this->SetModulus(q);
   }
-  
+  //stopped here
   //copy with myZZ moduli
 
   // template<class myT>
@@ -182,43 +149,6 @@ namespace NTL {
     }
   }
 
-  // template<class myT>
-  // myVecP<myT>::myVecP(NTL::Vec<ZZ> &a, myZZ &q) : Vec<myT>(INIT_SIZE, a.length()) 
-  // {
-  //   this->SetModulus(q);
-  //   for (auto i=0; i< a.length(); i++) {
-  //     (*this)[i]=a[i]%q;
-  //   }
-  // }
-
-  // template<class myT>
-  // myVecP<myT>::myVecP(const NTL::Vec<ZZ> &a, myZZ &q): Vec<myT>(INIT_SIZE, a.length()) 
-  // {
-  //   this->SetModulus(q);
-  //   for (auto i=0; i< a.length(); i++) {
-  //     (*this)[i]=a[i]%q;
-  //   }
-  // }
-
-
-  // template<class myT>
-  // myVecP<myT>::myVecP(NTL::Vec<ZZ_p> &a, myZZ &q): Vec<myT>(INIT_SIZE, a.length()) 
-  // {
-  //   this->SetModulus(q);
-  //   for (auto i=0; i< a.length(); i++) {
-  //     (*this)[i]=a[i]%q;
-  //   }
-  // }
-
-  // template<class myT>
-  // myVecP<myT>::myVecP(const NTL::Vec<ZZ_p> &a, myZZ &q):Vec<myT>(INIT_SIZE, a.length()) 
-  // {
-  //   this->SetModulus(q);
-  //   for (auto i=0; i< a.length(); i++) {
-  //     (*this)[i]=a[i]%q;
-  //   }
-  // }
-  
   //ctor with char * moduli
   template<class myT>
   myVecP<myT>::myVecP(usint n, const char *sq):Vec<myT>(INIT_SIZE, n)
@@ -248,12 +178,6 @@ namespace NTL {
     this->SetModulus(myZZ(sq)); 
   }
 
-  // template<class myT>
-  // myVecP<myT>::myVecP(const NTL::Vec<myT> &a, const char *sq):Vec<myT>(a) 
-  // { 
-  //   this->SetModulus(myZZ(sq)); 
-  // }
-
   template<class myT>
   myVecP<myT>::myVecP(const myVec<myZZ> &a, const char *sq) : Vec<myT>(INIT_SIZE, a.length()) 
   {
@@ -263,29 +187,6 @@ namespace NTL {
       (*this)[i] = a[i]%zzq;  //must we do this since myZZ could be >=q
     }
   }
-  // template<class myT>
-  // myVecP<myT>::myVecP(NTL::Vec<ZZ> &a, const char *sq):Vec<ZZ>(a) 
-  // { 
-  //   this->SetModulus(myZZ(sq)); 
-  // };
-
-  // template<class myT>
-  // myVecP<myT>::myVecP(const NTL::Vec<ZZ> &a, const char *sq):Vec<ZZ>(a) 
-  // { 
-  //   this->SetModulus(myZZ(sq)); 
-  // };
-
-  // template<class myT>
-  // myVecP<myT>::myVecP(NTL::Vec<ZZ_p> &a, const char *sq):Vec<ZZ_p>(a) 
-  // { 
-  //   this->SetModulus(myZZ(sq)); 
-  // };
-
-  // template<class myT>
-  // myVecP<myT>::myVecP(const NTL::Vec<ZZ_p> &a, const char *sq):Vec<ZZ_p>(a) 
-  // { 
-  //   this->SetModulus(myZZ(sq)); 
-  // };
 
   //ctor with usint moduli
   template<class myT>
@@ -416,7 +317,7 @@ namespace NTL {
   // note, resizes the vector to the length of the initializer list
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<myT> rhs){
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     DEBUG("in op=initializerlist <myT>");
     usint len = rhs.size();
     this->SetLength(len);
@@ -431,7 +332,7 @@ namespace NTL {
   //Assignment with initializer list of usints
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<usint> rhs){
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     DEBUG("in op=initializerlist <myT>");
     usint len = rhs.size();
     this->SetLength(len);
@@ -464,7 +365,7 @@ namespace NTL {
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<const char *> rhs)
   {
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     DEBUG("in op=initializerlist const char*");
     usint len = rhs.size();
     this->SetLength(len);
@@ -480,7 +381,7 @@ namespace NTL {
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(const myT &rhs)
   {
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     DEBUG("in op=const myT&");
     this->SetLength(1);
     //this->m_modulus_state = GARBAGE; keep current state
@@ -491,7 +392,7 @@ namespace NTL {
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(myT &rhs)
   {
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     DEBUG("in op=myT&");
     this->SetLength(1);
     //this->m_modulus_state = GARBAGE; keep current state
@@ -502,7 +403,7 @@ namespace NTL {
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(unsigned int &rhs)
   {
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     DEBUG("in op=usint&");
     this->SetLength(1);
     (*this)[0] =(unsigned int &)rhs;
@@ -512,7 +413,7 @@ namespace NTL {
   
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(unsigned int rhs){
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     DEBUG("in op=usint");
     this->SetLength(1);
     (*this)[0] = (unsigned int)rhs;
@@ -524,7 +425,7 @@ namespace NTL {
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(const myVecP<myT> &rhs)
   {
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     DEBUG("in op=const myVecP<myT>&");
     DEBUG("setting length "<<rhs.length());
     this->SetLength(rhs.length());
@@ -548,7 +449,7 @@ namespace NTL {
   void myVecP<myT>::clear(myVecP<myT>& x)
   {
     //sets all elements to zero, but does not change length
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     DEBUG("in clear myVec");
     //using NTL_NAMESPACE::clear;
     long n = x.length();
@@ -744,7 +645,7 @@ namespace NTL {
   template<class myT>
   myVecP<myT> myVecP<myT>::operator+(myVecP<myT> const& b) const
   {
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     DEBUG("in myVecP::operator+");
     ArgCheckVector(b, "myVecP operator+");
     myVecP<myT> res;
@@ -788,7 +689,7 @@ namespace NTL {
   template<class myT>
   myVecP<myT> myVecP<myT>::operator-(myVecP<myT> const& b) const
   {
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     DEBUG("in myVecP::operator-");
     ArgCheckVector(b, "myVecP::operator-");
     myVecP<myT> res;
@@ -818,7 +719,7 @@ namespace NTL {
   template<class myT>
   myVecP<myT> myVecP<myT>::operator*(myVecP<myT> const& b) const
   {
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     DEBUG("in myVecP::operator*");
     ArgCheckVector(b, "myVecP::operator*");
     myVecP<myT> res;

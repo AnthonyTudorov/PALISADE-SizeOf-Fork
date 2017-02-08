@@ -314,7 +314,7 @@ TEST(UTmubintvec, constructorTest){
 }
 
 TEST(UTmubintvec,mod){
-  bool dbg_flag = true;
+  bool dbg_flag = false;
   mubintvec m(10); // calling constructor to create a vector of length 10 zeroed
 
   int i;
@@ -341,14 +341,13 @@ TEST(UTmubintvec,mod){
   usint expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};	// the expected values are stored as one dimensional integer array
 
   for (i=0;i<10;i++) {
-    //EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(j)).ConvertToUsint());
     EXPECT_EQ (expectedResult[i], calculatedResult[i].ConvertToUsint());
   }
 
 }
 
 TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
-  bool dbg_flag = true;
+  bool dbg_flag = false;
 
   // q1 modulus 1:
   ubint q1("163841");
@@ -424,15 +423,8 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
   EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector vector ModAdd()";    
   
   DEBUG("modadd1 modulus"<<modadd1.GetModulus());
-
   DEBUG("c1 modulus"<<c1.GetModulus());
-  
-  for (auto i = 0; i < modadd1.size(); i++) {
-    DEBUG("i "<<i);
-    cout<<" c1 "<<c1[i]<<" modadd "<<modadd1[i]<<endl;    
-  }
-
-
+  DEBUG("c1 "<<c1<<" modadd "<<modadd1);
   // test math for case 1
   c1 = a1.Add(b1);
   EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector vector Add()";
@@ -470,7 +462,7 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
   d1 = a1;
   d1 *= b1;
   EXPECT_EQ (d1, modmul1) << "Failure 1 limb vector vector *=";
-#if 0
+
 }
 TEST(UTmubintvec,basic_vector_scalar_mod_math_2_limb){
   //basic vector scalar mod math
@@ -745,7 +737,6 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_big_numbers){
   d3 = a3;
   d3 *= b3;
   EXPECT_EQ (d3, modmul3) << "Failure big number vector vector *=";
-#endif //big endif to block out large amounts of text
   
 }
 

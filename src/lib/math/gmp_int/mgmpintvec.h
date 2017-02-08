@@ -82,27 +82,25 @@ namespace NTL {
 
   myVecP(): Vec<myT>() {};
     //constructors without moduli
-  myVecP(usint n): Vec<myT>(INIT_SIZE, n) {}; // adapter kit
-  myVecP(INIT_SIZE_TYPE, long n): Vec<myT>(INIT_SIZE, n) {};
-  myVecP(INIT_SIZE_TYPE, long n,  myT const& a): Vec<myT>(INIT_SIZE, n, a) {}; 
+    explicit myVecP(const usint n): Vec<myT>(INIT_SIZE, n) {}; // adapter kit
+   myVecP(const INIT_SIZE_TYPE, const long n): Vec<myT>(INIT_SIZE, n) {};
+   myVecP(const INIT_SIZE_TYPE, const long n,  myT const& a): Vec<myT>(INIT_SIZE, n, a) {}; 
 
 
     //copy
-
-    myVecP(const myVecP<myT> &a);
-
     // copy ctors with vector inputs
-    myVecP(const myVec<myZZ> &a);
+     explicit myVecP(const myVecP<myT> &a);
+     explicit myVecP(const myVec<myZZ> &a);
 
-    ///movecopy
-    myVecP(myVecP<myT> &&a);
-    myVecP(myVec<myZZ> &&a);
-
-    //constructors with moduli
-    //ctor myZZ moduli
-    myVecP(unsigned int n, myZZ const &q); //moved const
-    myVecP(INIT_SIZE_TYPE, long n, const myZZ &q); //moved const
-    myVecP(INIT_SIZE_TYPE, long n, const myT& a, const myZZ &q);
+     //movecopy
+     myVecP(myVecP<myT> &&a);
+     myVecP(myVec<myZZ> &&a);
+     
+     //constructors with moduli
+     //ctor myZZ moduli
+     myVecP(const long n, const myZZ &q);
+     myVecP(const INIT_SIZE_TYPE, const long n, const myZZ &q);
+     myVecP(const INIT_SIZE_TYPE, const long n, const myT& a, const myZZ &q);
 
     //copy with myZZ moduli
     myVecP(const myVecP<myT> &a, myZZ &q);
@@ -114,8 +112,6 @@ namespace NTL {
     myVecP(INIT_SIZE_TYPE, long n, const myT& a, const char *sq);
 
     //copy with char * moduli
-
-    //myVecP(NTL::Vec<myT> &a, const char *sq);
     myVecP(const myVecP<myT> &a, const char *sq);
     myVecP(const myVec<myZZ> &a, const char *sq);
 
@@ -124,13 +120,13 @@ namespace NTL {
     myVecP(INIT_SIZE_TYPE, long n, usint q);
     myVecP(INIT_SIZE_TYPE, long n, const myT& a, usint q);
 
-   //copy with unsigned int moduli
+    //copy with unsigned int moduli
     myVecP(const myVecP<myT> &a, const usint q);
     myVecP(const myVec<myZZ> &a, const usint q);
-
+    
     //destructor
-     ~myVecP();
-
+    ~myVecP();
+    
     //adapters
     myVecP(std::vector<std::string>& s); //without modulus
     
@@ -348,7 +344,7 @@ namespace NTL {
     };
 
     inline void SetModulus(const usint& value){
-      bool dbg_flag = true;
+      bool dbg_flag = false;
       DEBUG("SetModulus(const usint& "<<value<<")");
       this->m_modulus= myZZ(value);
       this->m_modulus_state = INITIALIZED;
@@ -358,7 +354,7 @@ namespace NTL {
     };
   
     inline void SetModulus(const myZZ& value){
-      bool dbg_flag = true;
+      bool dbg_flag = false;
       DEBUG("SetModulus(const myZZ& "<<value<<")");
       this->m_modulus= value;
       DEBUG("this->modulus = "<<this->m_modulus);
@@ -369,7 +365,7 @@ namespace NTL {
 
     //the following confuses the compiler?
     inline void SetModulus(const myZZ_p& value){
-      bool dbg_flag = true;
+      bool dbg_flag = false;
       DEBUG("SetModulus(const myZZ_p& "<<value<<")");
       this->m_modulus= value.GetModulus();
       DEBUG("this->modulus = "<<this->m_modulus);
@@ -379,7 +375,7 @@ namespace NTL {
     };
 
     inline void SetModulus(const std::string& value){
-      bool dbg_flag = true;
+      bool dbg_flag = false;
       DEBUG("SetModulus(const string& "<<value<<")");
       this->m_modulus = myZZ(value);
       this->m_modulus_state = INITIALIZED;
@@ -389,7 +385,7 @@ namespace NTL {
     };
   
     inline void SetModulus(const myVecP& value){
-      bool dbg_flag = true;
+      bool dbg_flag = false;
       DEBUG("SetModulus(const myVecP& "<<value<<")");
       this->m_modulus = value.GetModulus();
       this->m_modulus_state = INITIALIZED;
@@ -399,7 +395,7 @@ namespace NTL {
     };
 
     inline const myZZ& GetModulus() const{
-      bool dbg_flag = true;
+      bool dbg_flag = false;
       if (this->isModulusSet()){
 	DEBUG("GetModulus returns "<<this->m_modulus);
 	return (this->m_modulus);
@@ -410,7 +406,7 @@ namespace NTL {
     };
     
     inline void CopyModulus(const myVecP& rhs){
-      bool dbg_flag = true;
+      bool dbg_flag = false;
       DEBUG("CopyModulus(const myVecP& modulus is "<<rhs.m_modulus);
       DEBUG("CopyModulus(const myVecP& modulus_state is "<<rhs.m_modulus_state);
       this->m_modulus = rhs.m_modulus;
