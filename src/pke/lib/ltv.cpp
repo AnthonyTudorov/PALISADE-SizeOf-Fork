@@ -319,6 +319,18 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const share
 	return newCiphertext;
 }
 
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
+
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+
+	const Element& c1 = ciphertext->GetElement();
+
+	newCiphertext->SetElement(c1.Negate());
+
+	return newCiphertext;
+}
+
 /**
 * Method for KeySwitching based on a KeySwitchHint
 *

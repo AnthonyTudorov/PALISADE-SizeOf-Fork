@@ -321,6 +321,20 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_
 }
 
 template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
+
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+
+	const std::vector<Element> &cipherTextElements = ciphertext->GetElements();
+
+	Element c0 = cipherTextElements[0].Negate();
+	Element c1 = cipherTextElements[1].Negate();
+
+	newCiphertext->SetElements({ c0, c1 });
+	return newCiphertext;
+}
+
+template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 	const shared_ptr<Ciphertext<Element>> ciphertext2,
 	const shared_ptr<LPEvalKey<Element>> ek) const {

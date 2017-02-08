@@ -51,6 +51,8 @@
 
 #include "serializable.h"
 #include "../math/backend.h"
+#include "../lattice/ilvector2n.h"
+#include "../lattice/ilvectorarray2n.h"
 
 #define RAPIDJSON_NO_SIZETYPEDEFINE
 
@@ -111,6 +113,18 @@ public:
 	static bool ReadSerializationFromFile(const std::string jsonFileName, Serialized* map);
 };
 
+template <class Element>
+inline std::string elementName() {
+	if( typeid(Element) == typeid(ILVector2n) )
+		return "ILVector2n";
+	else if( typeid(Element) == typeid(ILVectorArray2n) )
+		return "ILVectorArray2n";
+	else {
+		std::string msg = "Unrecognized type name for Element: ";
+		throw std::logic_error( msg + typeid(Element).name() );
+	}
+}
+
 template<typename T>
 void SerializeVector(const std::string& vectorName, const std::string& typeName, const std::vector<T> inVector, Serialized* serObj) {
 
@@ -130,6 +144,11 @@ void SerializeVector(const std::string& vectorName, const std::string& typeName,
 	ser.AddMember("Members", serElements, serObj->GetAllocator());
 
 	serObj->AddMember(SerialItem(vectorName, serObj->GetAllocator()), ser, serObj->GetAllocator());
+}
+
+template<typename T>
+void SerializeVectorOfVector(const std::string& vectorName, const std::string& typeName, const std::vector<std::vector<T>> inVector, Serialized* serObj) {
+
 }
 
 template<typename T>
@@ -172,6 +191,11 @@ bool DeserializeVector(const std::string& vectorName, const std::string& typeNam
 	}
 
 	return true;
+}
+
+template<typename T>
+bool DeserializeVectorOfVector(const std::string& vectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, std::vector<std::vector<T>>* outVector) {
+
 }
 
 class IStreamWrapper {

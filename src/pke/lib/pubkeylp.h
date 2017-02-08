@@ -55,6 +55,10 @@ namespace lbcrypto {
 	template <class Element>
 	class Ciphertext;
 
+	//forward declaration of RationalCiphertext class; used to resolve circular header dependency
+	template <class Element>
+	class RationalCiphertext;
+
 	//forward declaration of LPCryptoParameters class;
 	template <class Element>
 	class LPCryptoParameters;
@@ -70,18 +74,6 @@ namespace lbcrypto {
 	//forward declaration of LPCryptoParametersStehleSteinfeld class;
 	template <class Element>
 	class LPCryptoParametersStehleSteinfeld;
-
-	template <class Element>
-	inline std::string elementName() {
-		if( typeid(Element) == typeid(ILVector2n) )
-			return "ILVector2n";
-		else if( typeid(Element) == typeid(ILVectorArray2n) )
-			return "ILVectorArray2n";
-		else {
-			std::string msg = "Unrecognized type name for Element: ";
-			throw std::logic_error( msg + typeid(Element).name() );
-		}
-	}
 
 	struct EncryptResult {
 
@@ -1069,6 +1061,49 @@ namespace lbcrypto {
 				const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const = 0;
 
 			/**
+			* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
+			* @param x - matrix of regressors
+			* @param y - vector of dependent variables
+			* @param ek - evaluation key used for EvalMult operations
+			* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
+			*/
+			shared_ptr<Matrix<RationalCiphertext<Element>>>
+				EvalLinRegression(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+					const shared_ptr<Matrix<RationalCiphertext<Element>>> y) const
+			{
+				
+				// multiplication is done in reverse order to minimize the number of inner products
+				Matrix<RationalCiphertext<Element>> xTransposed = x->Transpose();
+				shared_ptr<Matrix<RationalCiphertext<Element>>> result (new Matrix<RationalCiphertext<Element>>(xTransposed * (*y)));
+
+				Matrix<RationalCiphertext<Element>> xCovariance = xTransposed * (*x);
+
+				Matrix<RationalCiphertext<Element>> cofactorMatrix = xCovariance.CofactorMatrix();
+
+				Matrix<RationalCiphertext<Element>> adjugateMatrix = cofactorMatrix.Transpose();
+
+				*result = adjugateMatrix * (*result);
+
+				RationalCiphertext<Element> determinant;
+				xCovariance.Determinant(&determinant);
+
+				for (int row = 0; row < result->GetRows(); row++)
+					for (int col = 0; col < result->GetCols(); col++)
+						(*result)(row, col).SetDenominator(*determinant.GetNumerator());
+
+				return result;
+
+			}
+
+			/**
+			* Virtual function to define the interface for homomorphic negation of ciphertext.
+			*
+			* @param &ciphertext the input ciphertext.
+			* @param *newCiphertext the new ciphertext.
+			*/
+			virtual shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
+
+			/**
 			* Method for KeySwitchGen
 			*
 			* @param &originalPrivateKey Original private key used for encryption.
@@ -1373,6 +1408,35 @@ namespace lbcrypto {
 			else {
 				throw std::logic_error("EvalMult operation has not been enabled");
 			}
+		}
+
+		shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
+
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalNegate(ciphertext);
+			else {
+				throw std::logic_error("EvalNegate operation has not been enabled");
+			}
+		}
+
+		/**
+		* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
+		* @param x - matrix of regressors
+		* @param y - vector of dependent variables
+		* @param ek - evaluation key used for EvalMult operations
+		* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
+		*/
+		shared_ptr<Matrix<RationalCiphertext<Element>>>
+			EvalLinRegression(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+				const shared_ptr<Matrix<RationalCiphertext<Element>>> y) const
+		{
+
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalLinRegression(x, y);
+			else {
+				throw std::logic_error("EvalLinRegression operation has not been enabled");
+			}
+
 		}
 
 		shared_ptr<LPEvalKey<Element>> KeySwitchGen(

@@ -183,6 +183,7 @@
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\hashutil.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\serializablehelper.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\utilities.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\math\matrixser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\encoding\byteplaintextencoding.h" />

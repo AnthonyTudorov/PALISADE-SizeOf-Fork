@@ -41,6 +41,7 @@ Jerry Ryan <gwryan@njit.edu>
 #include "palisade.h"
 #include "encoding/plaintext.h"
 #include "encoding/byteplaintextencoding.h"
+#include "encoding/intplaintextencoding.h"
 #include "cryptocontexthelper.h"
 
 namespace lbcrypto {
@@ -285,6 +286,44 @@ public:
 	}
 
 	/**
+	* Encrypt a matrix of plaintexts
+	* @param publicKey - for encryption
+	* @param plaintext - to encrypt
+	* @return a vector of pointers to Ciphertexts created by encrypting the plaintext
+	*/
+	shared_ptr<Matrix<RationalCiphertext<Element>>> EncryptMatrix(
+		const shared_ptr<LPPublicKey<Element>> publicKey,
+		const Matrix<IntPlaintextEncoding> &plaintext) const
+	{
+
+		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(*this, true); };
+
+		shared_ptr<Matrix<RationalCiphertext<Element>>> cipherResults(new Matrix<RationalCiphertext<Element>>
+			(zeroAlloc, plaintext.GetRows(), plaintext.GetCols()));
+
+		if (publicKey == NULL || publicKey->GetCryptoContext() != *this)
+			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
+
+		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
+
+		for (int row = 0; row < plaintext.GetRows(); row++)
+		{
+			for (int col = 0; col < plaintext.GetCols(); col++)
+			{
+				Element pt(publicKey->GetCryptoParameters()->GetElementParams());
+				plaintext(row,col).Encode(ptm, &pt);
+
+				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt);
+
+				(*cipherResults)(row, col).SetNumerator(*ciphertext);
+			}
+		}
+
+		return cipherResults;
+
+	}
+
+	/**
 	* Perform an encryption by reading plaintext from a stream, serializing each piece of ciphertext,
 	* and writing the serializations to an output stream
 	* @param publicKey - the encryption key in use
@@ -384,6 +423,63 @@ public:
 		}
 
 		return DecryptResult(plaintext->GetLength());
+	}
+
+	/**
+	* Decrypt method for a matrix of ciphertexts
+	* @param privateKey - for decryption
+	* @param ciphertext - matrix of encrypted ciphertexts
+	* @param plaintext - pointer to the destination martrix of plaintexts
+	* @return size of plaintext
+	*/
+	DecryptResult DecryptMatrix(
+		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const shared_ptr<Matrix<RationalCiphertext<Element>>> ciphertext,
+		Matrix<IntPlaintextEncoding> *numerator,
+		Matrix<IntPlaintextEncoding> *denominator) const
+	{
+
+		// edge case
+		if ((ciphertext->GetCols()== 0) && (ciphertext->GetRows() == 0))
+			return DecryptResult();
+
+		if ((ciphertext->GetCols() != numerator->GetCols())|| (ciphertext->GetRows() != numerator->GetRows()) || 
+			(ciphertext->GetCols() != denominator->GetCols()) || (ciphertext->GetRows() != denominator->GetRows()))
+			throw std::runtime_error("Ciphertext and plaintext matrices have different dimensions");
+
+		if (privateKey == NULL || privateKey->GetCryptoContext() != *this)
+			throw std::runtime_error("Information passed to DecryptMatrix was not generated with this crypto context");
+
+		for (int row = 0; row < ciphertext->GetRows(); row++)
+		{
+			for (int col = 0; col < ciphertext->GetCols(); col++)
+			{
+				if ((*ciphertext)(row, col).GetCryptoContext() != *this)
+					throw std::runtime_error("A ciphertext passed to DecryptMatrix was not generated with this crypto context");
+
+				const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(row, col).GetNumerator();
+
+				Element decryptedNumerator;
+				DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator);
+
+				if (resultN.isValid == false) return resultN;
+
+				(*numerator)(row,col).Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decryptedNumerator);
+
+				const shared_ptr<Ciphertext<Element>> ctD = (*ciphertext)(row, col).GetDenominator();
+
+				Element decryptedDenominator;
+				DecryptResult resultD = GetEncryptionAlgorithm()->Decrypt(privateKey, ctD, &decryptedDenominator);
+
+				if (resultD.isValid == false) return resultD;
+
+				(*denominator)(row, col).Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decryptedDenominator);
+
+			}
+		}
+
+		return DecryptResult((*numerator)(numerator->GetRows()-1,numerator->GetCols()-1).GetLength());
+
 	}
 
 	/**
@@ -561,6 +657,37 @@ public:
 	}
 
 	/**
+	* EvalSub - PALISADE Negate method for a ciphertext
+	* @param ct
+	* @return new ciphertext -ct
+	*/
+	shared_ptr<Ciphertext<Element>>
+	EvalNegate(const shared_ptr<Ciphertext<Element>> ct) const
+	{
+		if (ct == NULL || ct->GetCryptoContext() != *this)
+			throw std::logic_error("Information passed to EvalNegate was not generated with this crypto context");
+
+		return GetEncryptionAlgorithm()->EvalNegate(ct);
+	}
+
+	/**
+	* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
+	* @param x - matrix of regressors
+	* @param y - vector of dependent variables
+	* @param ek - evaluation key used for EvalMult operations
+	* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
+	*/
+	shared_ptr<Matrix<RationalCiphertext<Element>>>
+		EvalLinRegression(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+			const shared_ptr<Matrix<RationalCiphertext<Element>>> y) const
+	{
+		//if (ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this)
+		//	throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
+
+		return GetEncryptionAlgorithm()->EvalLinRegression(x, y);
+	}
+
+	/**
 	* KeySwitch - PALISADE KeySwitch method
 	* @param keySwitchHint - reference to KeySwitchHint
 	* @param ciphertext - vector of ciphertext
@@ -712,7 +839,7 @@ public:
 
 
 /**
-* @brief CryptoContextFactory
+* @brief CryptoContextcc
 *
 * A class that contains static methods to generate new crypto contexts from user parameters
 *

@@ -274,6 +274,14 @@ namespace lbcrypto {
 			const shared_ptr<LPEvalKey<Element>> ek) const;
 
 		/**
+		* Function for homomorphic negation of ciphertexts.
+		*
+		* @param ct first input ciphertext.
+		* @return new ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ct) const;
+
+		/**
 		* Method for generating a KeySwitchHint
 		*
 		* @param &originalPrivateKey Original private key used for encryption.

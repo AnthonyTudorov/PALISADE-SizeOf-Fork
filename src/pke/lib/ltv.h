@@ -296,6 +296,15 @@ public:
 	shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2,
 		const shared_ptr<LPEvalKey<Element>> evalKey) const; // HS- This doesn't look like its implemented.
+
+	/**
+	* Function for homomorphic negation of ciphertexts.
+	*
+	* @param ct first input ciphertext.
+	* @return new ciphertext.
+	*/
+	shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ct) const;
+														 
 	/**
 	* Method for generating a KeySwitchHint
 	*

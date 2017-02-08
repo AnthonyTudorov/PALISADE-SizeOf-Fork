@@ -21,6 +21,10 @@
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\nullscheme-vectorarray-impl.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\stst-vector-impl.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\stst-vectorarray-impl.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\lib\rationalct-vector-impl.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\lib\rationalct-vectorarray-impl.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\lib\rationalciphertext.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\lib\matrixser-impl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\bv.h" />
@@ -36,5 +40,6 @@
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\rlwe.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\pke\lib\stst.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="..\..\..\..\src\pke\lib\rationalciphertext.h" />
   </ItemGroup>
 </Project>
