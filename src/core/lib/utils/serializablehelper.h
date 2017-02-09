@@ -147,11 +147,6 @@ void SerializeVector(const std::string& vectorName, const std::string& typeName,
 }
 
 template<typename T>
-void SerializeVectorOfVector(const std::string& vectorName, const std::string& typeName, const std::vector<std::vector<T>> inVector, Serialized* serObj) {
-
-}
-
-template<typename T>
 bool DeserializeVector(const std::string& vectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, std::vector<T>* outVector) {
 
 	SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
@@ -191,11 +186,6 @@ bool DeserializeVector(const std::string& vectorName, const std::string& typeNam
 	}
 
 	return true;
-}
-
-template<typename T>
-bool DeserializeVectorOfVector(const std::string& vectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, std::vector<std::vector<T>>* outVector) {
-
 }
 
 class IStreamWrapper {

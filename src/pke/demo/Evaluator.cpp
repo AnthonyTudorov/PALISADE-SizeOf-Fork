@@ -100,7 +100,6 @@ void EvalLinRegressionNull() {
 	}
 	std::cout << std::endl;
 
-
 	Serialized rc2;
 	std::cout << "Real: " << std::flush;
 	if( areal.Serialize(&rc2) ) {
@@ -112,6 +111,21 @@ void EvalLinRegressionNull() {
 		}
 	}
 	std::cout << std::endl;
+
+	Matrix<RationalCiphertext<ILVector2n>> mmm([]() { return make_unique<RationalCiphertext<ILVector2n>>(); } );
+	Serialized mmmS;
+	if( SerializableHelper::ReadSerializationFromFile("matrix.json", &mmmS) ) {
+		std::cout << "Trying to deserialize file" << std::endl;
+		if( mmm.Deserialize(mmmS) ) {
+			std::cout << "Deserialized matrix" << std::endl;
+		} else {
+			std::cout << "r,c is" << mmm.GetRows() << "," << mmm.GetCols() << std::endl;
+			const Matrix<RationalCiphertext<ILVector2n>>::data_t& e = mmm.GetData();
+			std::cout << e.size() << std::endl;
+			for( int i=0; i<e.size(); i++ )
+				std::cout << i << ":" << e.at(i).size() << std::endl;
+		}
+	}
 
 	double diff, start, finish;
 

@@ -50,10 +50,10 @@ namespace lbcrypto {
 
 		template<class Element>
         class Matrix : public Serializable {
+        public:
             typedef vector<vector<unique_ptr<Element>>> data_t;
             typedef std::function<unique_ptr<Element>(void)> alloc_func;
         
-        public:
 			/**
 			 * Constructor that initializes matrix values using a zero allocator
 			 *
