@@ -42,8 +42,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //using namespace std;
 using namespace lbcrypto;
 
+double CONOBF_run_ACS(TimeVar t1, LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm, ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag); //defined later
 double CONOBF_run(TimeVar t1, LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm, ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag); //defined later
-bool CONJOBF(bool dbg_flag, int n_evals, int n); //defined later
+bool CONJOBF(bool dbg_flag, int n_evals, int n, bool use_ACS); //defined later
 
 
 //main()   need this for Kurts makefile to ignore this.
@@ -56,7 +57,8 @@ int main(int argc, char* argv[]){
 		std::cout << "  arg2 indicates number of evaluation operations to run.  Possible values are 1, 2 or 3.  Default is 1." << std::endl;
 		std::cout << "If no input is given, then this message is displayed, defaults are assumed and user is prompted for ring dimension." << std::endl;
 	}
-	bool dbg_flag = false; 
+	bool dbg_flag = false;
+	bool use_ACS = false;
 
 	if (argc >= 2 ) {
 		if (atoi(argv[1]) != 0) {
@@ -79,7 +81,13 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	std::cerr  <<"Configured to run " << argv[0] <<" with "<< omp_get_num_procs() << " processor[s] and " << n_evals << " evaluation[s]." << std::endl;
+	if (argc >= 4){
+		if (atoi(argv[3]) == 1){
+			use_ACS = true;
+		}
+	}
+
+	std::cerr  <<"Configured to run " << argv[0] <<" with "<< omp_get_num_procs() << " processor[s] and " << n_evals << " evaluation[s]. use_ACS = " <<use_ACS<< std::endl;
 
 	int nthreads, tid;
 
@@ -99,9 +107,9 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	for (usint n = 8; n < 4096; n = 2 * n)
+	for (usint n = 8; n < 1024; n = 2 * n)
 	{
-		errorflag = CONJOBF(dbg_flag, n_evals, n);
+		errorflag = CONJOBF(dbg_flag, n_evals, n, use_ACS);
 //		if (errorflag)
 //			return ((int)errorflag);
 	}
@@ -112,7 +120,7 @@ int main(int argc, char* argv[]){
 
 }
 //////////////////////////////////////////////////////////////////////
-double CONOBF_run(TimeVar t, LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm, ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag, bool dbg_flag){
+double CONOBF_run_ACS(TimeVar t, LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm, ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag, bool dbg_flag){
 	double timeEval(0.0), runTime(0.0);
 	bool result = false;
 
@@ -139,7 +147,30 @@ double CONOBF_run(TimeVar t, LWEConjunctionObfuscationAlgorithmV3<ILVector2n> al
 }
 
 //////////////////////////////////////////////////////////////////////
-bool CONJOBF(bool dbg_flag, int n_evals, int n) {
+double CONOBF_run(TimeVar t, LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm, ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag, bool dbg_flag){
+	double timeEval(0.0), runTime(0.0);
+	bool result = false;
+
+	PROFILELOG("Evaluation "<<evalNum<<" started");
+	TIC(t);
+	result = algorithm.Evaluate(obfuscatedPattern,inputStr);
+	runTime = TOC(t);
+	timeEval +=runTime;
+	DEBUG( " \n Cleartext pattern evaluation of: " << inputStr << " is " << result << ".");
+	PROFILELOG( "Evaluation "<<evalNum<<": execution time: " << "\t" << runTime << " ms" );
+	std::cout << "T: Eval "<<evalNum<<": execution time:  " << "\t" << runTime << " ms" << std::endl;
+
+	if (result != expectedResult) {
+		std::cout << "ERROR EVALUATING "<<evalNum<< std::endl;
+		*errorflag |= true;
+	}
+
+	return timeEval;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+bool CONJOBF(bool dbg_flag, int n_evals, int n, bool use_ACS) {
 
 	//if dbg_flag == true; print debug outputs
 	// n_evals = 1,2,3 number of evaluations to perform
@@ -266,8 +297,10 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	PROFILELOG( "Obfuscation time: " << "\t" << timeObf<< " ms");
 
 	bool errorflag = false;
-	timeEval1 = CONOBF_run(t1, algorithm, obfuscatedPattern, inputStr1, out1, 1, &errorflag, dbg_flag);
-
+	if (use_ACS)
+		timeEval1 = CONOBF_run_ACS(t1, algorithm, obfuscatedPattern, inputStr1, out1, 1, &errorflag, dbg_flag);
+	else
+		timeEval1 = CONOBF_run(t1, algorithm, obfuscatedPattern, inputStr1, out1, 1, &errorflag, dbg_flag);
 //	PROFILELOG("Evaluation 1 started");
 //	TIC(t1);
 //	result1 = algorithm.EvaluateACS(obfuscatedPattern,inputStr1);
@@ -282,7 +315,10 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 //	}
 
 	if (n_evals > 1)  {
-		timeEval2 = CONOBF_run(t1, algorithm, obfuscatedPattern, inputStr2, out2, 2, &errorflag, dbg_flag);
+		if (use_ACS)
+			timeEval2 = CONOBF_run_ACS(t1, algorithm, obfuscatedPattern, inputStr2, out2, 2, &errorflag, dbg_flag);
+		else
+			timeEval2 = CONOBF_run(t1, algorithm, obfuscatedPattern, inputStr2, out2, 2, &errorflag, dbg_flag);
 //		PROFILELOG("Evaluation 2 started");
 //		TIC(t1);
 //		result2 = algorithm.EvaluateACS(obfuscatedPattern,inputStr2);
@@ -297,7 +333,10 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	}
 
 	if (n_evals > 2)  {
-		timeEval3 = CONOBF_run(t1, algorithm, obfuscatedPattern, inputStr3, out3, 3, &errorflag, dbg_flag);
+		if (use_ACS)
+			timeEval3 = CONOBF_run_ACS(t1, algorithm, obfuscatedPattern, inputStr3, out3, 3, &errorflag, dbg_flag);
+		else
+			timeEval3 = CONOBF_run(t1, algorithm, obfuscatedPattern, inputStr3, out3, 3, &errorflag, dbg_flag);
 //		PROFILELOG("Evaluation 3 started");
 //		TIC(t1);
 //		result3 = algorithm.EvaluateACS(obfuscatedPattern,inputStr3);
