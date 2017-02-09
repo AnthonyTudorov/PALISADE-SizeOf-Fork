@@ -51,7 +51,9 @@ bool RationalCiphertext<Element>::Deserialize(const Serialized& serObj) {
 	if( mIter == serObj.MemberEnd() )
 		return false;
 
-	m_integerFlag = (mIter->value.GetString() == "1") ? true : false;
+	string flagString = mIter->value.GetString();
+
+	m_integerFlag = (flagString == "1") ? true : false;
 
 	mIter = serObj.FindMember("numerator");
 	if( mIter == serObj.MemberEnd() )
