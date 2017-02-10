@@ -35,6 +35,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "utils/debug.h"
 
+#include "cryptolayertests.h"
+
 using namespace std;
 using namespace lbcrypto;
 
@@ -134,6 +136,7 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt) {
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m, q.ToString(), RootOfUnity(m,q).ToString(), 1, stdDev);
 	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
 	cc.Enable(PRE);
 
 	//Precomputations for FTT
@@ -142,17 +145,8 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt) {
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
-	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	UnitTestEncryption<ILVector2n, BytePlaintextEncoding>(cc, plaintext);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-			cc.Encrypt(kp.publicKey, plaintext);
-
-	BytePlaintextEncoding plaintextNew;
-
-	cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
-
-	EXPECT_EQ(plaintextNew, plaintext);
 	ILVector2n::DestroyPreComputedSamples();
 }
 
@@ -235,35 +229,36 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_PRE) {
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
-
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-		cc.Encrypt(kp.publicKey, plaintext);
-
-	BytePlaintextEncoding plaintextNew;
-	cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
-
-	EXPECT_EQ(plaintextNew, plaintext);
-	//PRE SCHEME
-
-	////////////////////////////////////////////////////////////
-	//Perform the second key generation operation.
-	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
-	////////////////////////////////////////////////////////////
-
-	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
-
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey =
-			cc.ReKeyGen(newKp.publicKey, kp.secretKey);
-
-	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext =
-			cc.ReEncrypt(evalKey, ciphertext);
-
-	BytePlaintextEncoding plaintextNew2;
-
-	DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &plaintextNew2);
-
-	EXPECT_EQ(plaintextNew2, plaintext);
+	UnitTestEncryption<ILVector2n, BytePlaintextEncoding>(cc, plaintext);
+//	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+//
+//	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
+//		cc.Encrypt(kp.publicKey, plaintext);
+//
+//	BytePlaintextEncoding plaintextNew;
+//	cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
+//
+//	EXPECT_EQ(plaintextNew, plaintext);
+//	//PRE SCHEME
+//
+//	////////////////////////////////////////////////////////////
+//	//Perform the second key generation operation.
+//	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
+//	////////////////////////////////////////////////////////////
+//
+//	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
+//
+//	shared_ptr<LPEvalKey<ILVector2n>> evalKey =
+//			cc.ReKeyGen(newKp.publicKey, kp.secretKey);
+//
+//	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext =
+//			cc.ReEncrypt(evalKey, ciphertext);
+//
+//	BytePlaintextEncoding plaintextNew2;
+//
+//	DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &plaintextNew2);
+//
+//	EXPECT_EQ(plaintextNew2, plaintext);
 	ILVector2n::DestroyPreComputedSamples();
 
 }
@@ -286,7 +281,7 @@ TEST(UTLTV, ILVector2n_IntPlaintextEncoding_Encrypt_Decrypt) {
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m, q.ToString(), rootOfUnity.ToString(), 1, stdDev);
 	cc.Enable(ENCRYPTION);
-	cc.Enable(LEVELEDSHE);
+	cc.Enable(PRE);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
@@ -294,16 +289,18 @@ TEST(UTLTV, ILVector2n_IntPlaintextEncoding_Encrypt_Decrypt) {
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	UnitTestEncryption<ILVector2n, IntPlaintextEncoding>(cc, intArray);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-			cc.Encrypt(kp.publicKey, intArray, false);
-
-	IntPlaintextEncoding intArrayNew;
-
-	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
-
-	EXPECT_EQ(intArray, intArrayNew);
+//	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+//
+//	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
+//			cc.Encrypt(kp.publicKey, intArray, false);
+//
+//	IntPlaintextEncoding intArrayNew;
+//
+//	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+//
+//	EXPECT_EQ(intArray, intArrayNew);
 
 	ILVector2n::DestroyPreComputedSamples();
 

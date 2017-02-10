@@ -1,27 +1,24 @@
 
-#include "../include/gtest/gtest.h"
+#include "include/gtest/gtest.h"
 #include <iostream>
 #include <vector>
 
-#include "../../src/lib/math/backend.h"
-#include "../../src/lib/utils/inttypes.h"
-#include "../../src/lib/lattice/ilparams.h"
-#include "../../src/lib/lattice/ildcrtparams.h"
-#include "../../src/lib/math/distrgen.h"
-#include "../../src/lib/lattice/ilvector2n.h"
-#include "../../src/lib/lattice/ilvectorarray2n.h"
+#include "math/backend.h"
+#include "utils/inttypes.h"
+#include "lattice/ilparams.h"
+#include "lattice/ildcrtparams.h"
+#include "math/distrgen.h"
+#include "lattice/ilvector2n.h"
+#include "lattice/ilvectorarray2n.h"
 
 
-#include "../../src/lib/crypto/cryptocontext.h"
-#include "../../src/lib/utils/cryptocontexthelper.h"
-#include "../../src/lib/crypto/cryptocontext.cpp"
-#include "../../src/lib/utils/cryptocontexthelper.cpp"
+#include "../lib/cryptocontext.h"
 
-#include "../../src/lib/encoding/byteplaintextencoding.h"
-#include "../../src/lib/encoding/intplaintextencoding.h"
+#include "encoding/byteplaintextencoding.h"
+#include "encoding/intplaintextencoding.h"
 
 
-#include "../../src/lib/utils/debug.h"
+#include "utils/debug.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -79,8 +76,10 @@ UnitTestEncryption(const CryptoContext<Element>& cc, const Ptxt& plaintext) {
 	//Perform the proxy re-encryption key generation operation.
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
+	///
+	/// KeySwitchGen? or ReKeyGen?
 
-	shared_ptr<LPEvalKey<Element>> evalKey = cc.KeySwitchGen( kp.secretKey, newKp.secretKey );
+	shared_ptr<LPEvalKey<Element>> evalKey = cc.ReKeyGen( newKp.publicKey, kp.secretKey );
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption operation.

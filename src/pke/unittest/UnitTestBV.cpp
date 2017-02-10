@@ -67,7 +67,9 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	
 	float stdDev = 4;
 
-	std::vector<usint> vectorOfInts1 = { 1,0,1,0 };
+	std::vector<usint> vectorOfInts1(m/2, 0);
+	std::cout << vectorOfInts1.size() << std::endl;
+	vectorOfInts1[0] = vectorOfInts1[2] = vectorOfInts1[4] = 1;
 
 	IntPlaintextEncoding intArray1(vectorOfInts1);
 
@@ -94,91 +96,7 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 	UnitTestEncryption<ILVector2n, BytePlaintextEncoding>(cc, plaintext);
-	//UnitTestEncryption<ILVector2n, IntPlaintextEncoding>(cc, intArray1);
-
-#ifdef OUT
-	//Regular LWE-NTRU encryption algorithm
-
-	////////////////////////////////////////////////////////////
-	//Perform the key generation operation.
-	////////////////////////////////////////////////////////////
-
-	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
-
-	if (!kp.good()) {
-		std::cout << "Key generation failed!" << std::endl;
-		exit(1);
-	}
-
-	////////////////////////////////////////////////////////////
-	//Encryption
-	////////////////////////////////////////////////////////////
-
-	//vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-		//	cc.Encrypt(kp.publicKey, intArray1,false);	// This is the core encryption operation.
-
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-		cc.Encrypt(kp.publicKey, plaintext, false);	// This is the core encryption operation.
-
-	
-
-
-	////////////////////////////////////////////////////////////
-	//Decryption
-	////////////////////////////////////////////////////////////
-
-	BytePlaintextEncoding plaintextNew;
-	IntPlaintextEncoding intArrayNew;
-
-	//DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew,false);
-	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew, false);
-
-	EXPECT_EQ(plaintextNew, plaintext);
-	//EXPECT_EQ(intArrayNew, intArray1);
-
-	//PRE SCHEME
-
-	////////////////////////////////////////////////////////////
-	//Perform the second key generation operation.
-	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
-	////////////////////////////////////////////////////////////
-
-	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
-
-
-	////////////////////////////////////////////////////////////
-	//Perform the proxy re-encryption key generation operation.
-	// This generates the keys which are used to perform the key switching.
-	////////////////////////////////////////////////////////////
-
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey = cc.KeySwitchGen( kp.secretKey, newKp.secretKey);
-
-	////////////////////////////////////////////////////////////
-	//Perform the proxy re-encryption operation.
-	// This switches the keys which are used to perform the key switching.
-	////////////////////////////////////////////////////////////
-
-
-	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext = cc.ReEncrypt(evalKey, ciphertext);
-
-	//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
-
-	////////////////////////////////////////////////////////////
-	//Decryption
-	////////////////////////////////////////////////////////////
-
-	BytePlaintextEncoding plaintextNew2;
-	IntPlaintextEncoding intArrayNew2;
-
-	//DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &intArrayNew2,false);
-	DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &plaintextNew2, false);
-	/*ChineseRemainderTransformFTT::GetInstance().Destroy();
-	NumberTheoreticTransform::GetInstance().Destroy();*/
-	
-	EXPECT_EQ(plaintextNew2, plaintext);
-	//EXPECT_EQ(intArrayNew2, intArray1);
-#endif
+	UnitTestEncryption<ILVector2n, IntPlaintextEncoding>(cc, intArray1);
 }
 
 
