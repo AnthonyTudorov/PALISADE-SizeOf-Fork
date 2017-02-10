@@ -112,7 +112,7 @@ void EvalLinRegressionNull() {
 	}
 	std::cout << std::endl;
 
-	Matrix<RationalCiphertext<ILVector2n>> mmm([]() { return make_unique<RationalCiphertext<ILVector2n>>(); } );
+	Matrix<RationalCiphertext<ILVector2n>> mmm([cc]() { return make_unique<RationalCiphertext<ILVector2n>>(cc); } );
 	Serialized mmmS;
 	if( SerializableHelper::ReadSerializationFromFile("matrix.json", &mmmS) ) {
 		std::cout << "Trying to deserialize file" << std::endl;
@@ -192,12 +192,12 @@ void EvalLinRegressionNull() {
 	std::cout << "MATRIX: " << y->GetRows() << "," << y->GetCols() << std::endl;
 
 	Serialized rcm;
+	Matrix<RationalCiphertext<ILVector2n>> newMat( [cc]() { return make_unique<RationalCiphertext<ILVector2n>>(cc); } );
 	if( y->Serialize(&rcm) ) {
 		std::cout << "Matrix serialized" << std::endl;
 //		SerializableHelper::SerializationToStream(rcm, std::cout);
 //		std::cout << std::endl;
 
-		Matrix<RationalCiphertext<ILVector2n>> newMat( []() { return make_unique<RationalCiphertext<ILVector2n>>(); } );
 		if( newMat.Deserialize(rcm) ) {
 			std::cout << "Matrix deserialized" << std::endl;
 
@@ -228,6 +228,11 @@ void EvalLinRegressionNull() {
 	std::cout << "Linear regression computation completed successfully" << std::endl;
 	std::cout << "Rows in the numerator: " << result->GetRows() << std::endl;
 	std::cout << "Columns in the numerator: " << result->GetCols() << std::endl;
+
+	auto deserResult = cc.EvalLinRegression(x, std::make_shared<Matrix<RationalCiphertext<ILVector2n>>>(&newMat));
+	std::cout << "Linear regression computation completed successfully" << std::endl;
+	std::cout << "Rows in the numerator: " << deserResult->GetRows() << std::endl;
+	std::cout << "Columns in the numerator: " << deserResult->GetCols() << std::endl;
 
 	////////////////////////////////////////////////////////////
 	//Decryption
