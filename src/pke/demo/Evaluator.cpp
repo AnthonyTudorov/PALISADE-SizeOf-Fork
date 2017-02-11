@@ -229,7 +229,7 @@ void EvalLinRegressionNull() {
 	std::cout << "Rows in the numerator: " << result->GetRows() << std::endl;
 	std::cout << "Columns in the numerator: " << result->GetCols() << std::endl;
 
-	auto deserResult = cc.EvalLinRegression(x, std::make_shared<Matrix<RationalCiphertext<ILVector2n>>>(&newMat));
+	auto deserResult = cc.EvalLinRegression(x, std::make_shared<Matrix<RationalCiphertext<ILVector2n>>>(newMat));
 	std::cout << "Linear regression computation completed successfully" << std::endl;
 	std::cout << "Rows in the numerator: " << deserResult->GetRows() << std::endl;
 	std::cout << "Columns in the numerator: " << deserResult->GetCols() << std::endl;
@@ -247,6 +247,18 @@ void EvalLinRegressionNull() {
 	std::cout << "numerator row 2 = " << numerator(1, 0) << std::endl;
 	std::cout << "denominator row 1 = " << denominator(0, 0) << std::endl;
 	std::cout << "denominator row 2 = " << denominator(1, 0) << std::endl;
+
+	std::cout << "on deserialized" << std::endl;
+	Matrix<IntPlaintextEncoding> numerator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<IntPlaintextEncoding> denominator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
+
+	DecryptResult result2 = cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
+
+	std::cout << "numerator row 1 = " << numerator2(0, 0) << std::endl;
+	std::cout << "numerator row 2 = " << numerator2(1, 0) << std::endl;
+	std::cout << "denominator row 1 = " << denominator2(0, 0) << std::endl;
+	std::cout << "denominator row 2 = " << denominator2(1, 0) << std::endl;
+
 
 }
 
