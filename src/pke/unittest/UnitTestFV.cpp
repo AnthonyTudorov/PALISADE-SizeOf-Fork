@@ -87,40 +87,9 @@ TEST(UTFV, ILVector2n_FV_Encrypt_Decrypt) {
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
-	UnitTestEncryption<ILVector2n, BytePlaintextEncoding>(cc, plaintext);
+	UnitTestEncryption<ILVector2n>(cc);
 
-//	// Initialize the public key containers.
-//	LPKeyPair<ILVector2n> kp;
-//
-//	//Regular FV encryption algorithm
-//
-//	////////////////////////////////////////////////////////////
-//	//Perform the key generation operation.
-//	////////////////////////////////////////////////////////////
-//
-//	kp = cc.KeyGen();
-//
-//	if (!kp.good()) {
-//		std::cout << "Key generation failed!" << std::endl;
-//		exit(1);
-//	}
-//
-//	////////////////////////////////////////////////////////////
-//	//Encryption
-//	////////////////////////////////////////////////////////////
-//
-//	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, plaintext, false);	// This is the core encryption operation.
-//
-//	////////////////////////////////////////////////////////////
-//	//Decryption
-//	////////////////////////////////////////////////////////////
-//
-//	BytePlaintextEncoding plaintextNew;
-//
-//	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew, false);  // This is the core decryption operation.
-//
-//	EXPECT_EQ(plaintextNew, plaintext);
-//
+	ILVector2n::DestroyPreComputedSamples();
 }
 
 //Tests EvalAdd, EvalSub, and EvalMul operations for FV in the RLWE mode

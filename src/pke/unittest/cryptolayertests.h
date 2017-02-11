@@ -11,12 +11,14 @@
 namespace lbcrypto {
 template <class Element> class CryptoContext;
 
-class Plaintext;
 }
 
 using namespace lbcrypto;
 
-template <class Element, class Ptxt>
-void UnitTestEncryption(const CryptoContext<Element>& cc, const Ptxt& plaintext);
+template <class Element>
+void UnitTestEncryption(const CryptoContext<Element>& cc);
+
+template <class Element>
+void UnitTestReEncryption(const CryptoContext<Element>& cc);
 
 #endif /* TEST_SRC_CRYPTOLAYERTESTS_H_ */

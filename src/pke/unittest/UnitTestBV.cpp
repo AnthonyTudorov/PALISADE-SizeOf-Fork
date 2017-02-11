@@ -57,21 +57,12 @@ public:
 TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 
 	usint m = 2048;
-	//usint m = 8;
 	BigBinaryInteger modulus("268441601");
 	usint relWindow = 1;
 	
 	BigBinaryInteger rootOfUnity((RootOfUnity(m, modulus)));
 
-	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-	
 	float stdDev = 4;
-
-	std::vector<usint> vectorOfInts1(m/2, 0);
-	std::cout << vectorOfInts1.size() << std::endl;
-	vectorOfInts1[0] = vectorOfInts1[2] = vectorOfInts1[4] = 1;
-
-	IntPlaintextEncoding intArray1(vectorOfInts1);
 
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
 
@@ -95,8 +86,10 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
-	UnitTestEncryption<ILVector2n, BytePlaintextEncoding>(cc, plaintext);
-	UnitTestEncryption<ILVector2n, IntPlaintextEncoding>(cc, intArray1);
+	UnitTestEncryption<ILVector2n>(cc);
+
+	ILVector2n::DestroyPreComputedSamples();
 }
 
+// FIXME: test re-encrypt too
 
