@@ -64,21 +64,16 @@
 //UTSHEAdvanced.test_eval_add_double_crt takes extremely long (86 sec)
 
 //#define MATHBACKEND 4 //64 bit (currently works for ubuntu, not tested otherwise
+//#define MATHBACKEND 5 // njit and GMP coexistance backend
 
-
-
-
-
-#define MATHBACKEND 5 // njit and GMP coexistance backend
+#define MATHBACKEND 6 // njit BBI and BBV use GMP backend
 
 #if MATHBACKEND == 1
 #include "cpu8bit/binint8bit.h"
 #include "cpu8bit/binvect8bit.h"
-
 #endif
 
 #if MATHBACKEND == 2
-
 #include "cpu_int/binint.cpp"
 #include "cpu_int/binvect.cpp"
 #include <initializer_list>
@@ -87,11 +82,9 @@
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.cpp" //vectors of experimental ubints
 #include "exp_int/mubintvec.cpp" //rings of ubints
-
 #endif
 
 #if MATHBACKEND == 3
-
 #define UBINT_32
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.cpp" //vectors of experimental ubints
@@ -99,16 +92,13 @@
 #endif
 
 #if MATHBACKEND == 4
-
 #define UBINT_64
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.cpp" //vectors of experimental ubints
 #include "exp_int/mubintvec.cpp" //rings of ubints
-
 #endif
 
 #if MATHBACKEND == 5
-
 #include "cpu_int/binint.cpp"
 #include "cpu_int/binvect.cpp"
 #include <initializer_list>
@@ -117,9 +107,14 @@
 #include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
 #include "gmp_int/gmpintvec.h" //vectors of such
 #include "gmp_int/mgmpintvec.h" //rings of such
-
 #endif
 
+#if MATHBACKEND == 6
+#include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
+#include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
+#include "gmp_int/gmpintvec.h" //vectors of such
+#include "gmp_int/mgmpintvec.h" //rings of such
+#endif
 
 /**
  * @namespace lbcrypto
@@ -263,6 +258,40 @@ namespace lbcrypto {
 
 #endif
 
+#if MATHBACKEND == 6
+
+#if 0
+	/** integral_dtype specifies the native data type used for the BigBinaryInteger implementation 
+	    should be uint32_t for most applications **/
+	typedef uint32_t integral_dtype;
+
+	/** makes sure that only supported data type is supplied **/
+	static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provided is not supported in BigBinaryInteger");
+
+#endif
+        /** Define the mapping for BigBinaryInteger **/
+        #define BigBinaryIntegerBitLength 0 //zero indicates ubnused
+
+	/** Define the mapping for BigBinaryInteger */
+	typedef NTL::myZZ BigBinaryInteger;
+	
+	/** Define the mapping for BigBinaryVector */
+        typedef NTL::myVecP<NTL::myZZ_p> BigBinaryVector;
+
+ 	/** Define the mapping for ubint */
+	typedef NTL::myZZ ubint;
+
+	/** Define the mapping for modulo ubint */
+	//typedef gmp_int::myZZ ubint;
+	typedef NTL::myZZ_p mubint;
+
+	/** Define the mapping for ubint Vector */
+	typedef NTL::myVec<NTL::myZZ> ubintvec;
+
+	/** Define the mapping for modulo ubint Vector */
+	typedef NTL::myVecP<NTL::myZZ_p> mubintvec;
+
+#endif
 
 } // namespace lbcrypto ends
 

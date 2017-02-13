@@ -72,6 +72,7 @@
  */
 namespace NTL{
 
+  //class myZZ_p : public NTL::ZZ_p, NTL::ZZ { //ambiguous all over the place
   class myZZ_p : public NTL::ZZ_p {
 
   public:
@@ -152,7 +153,7 @@ namespace NTL{
 
     //  void InitMyZZ_p(ZZ_p &&zzin) const {this->m_MSB = 1; return;}
     //adapter kit
-    usint GetMSB();
+    usint GetMSB() const;
     static const myZZ_p& zero();
 
     //palisade conversion methods 
@@ -229,7 +230,7 @@ namespace NTL{
       sub(tmp, *this, b);
       return tmp ;
     };
-    inline myZZ_p& operator -=(const myZZ_p &a) {
+    inline myZZ_p& operator-=(const myZZ_p &a) {
       *this = *this-a;
       return *this;
     };
@@ -241,10 +242,11 @@ namespace NTL{
       mul(tmp, *this, b);
       return tmp ;
     };
-    inline myZZ_p& operator *=(const myZZ_p &a) {
+    inline myZZ_p& operator*=(const myZZ_p &a) {
       *this = *this*a;
       return *this;
     };
+
 
 
 
@@ -312,6 +314,16 @@ namespace NTL{
 
     inline myZZ_p ModMul(const myZZ_p& b) const {return *this*b;};
 
+    // some library code calls things this way as well because of
+    //mixing of gmpint and mgmpint.
+
+    inline myZZ_p ModMul(const myZZ& b, const myZZ& q) const {
+      myZZ newthis(*this);
+      newthis.ModMul(b, q);
+      myZZ_p ans(newthis);
+      return(ans);
+    };
+
     inline myZZ_p ModBarrettMul(const myZZ_p& b, const myZZ& modulus,const myZZ_p& mu) const {return MulMod(this->_ZZ_p__rep, b._ZZ_p__rep, modulus);};
 
     inline myZZ_p ModBarrettMul(const myZZ_p& b, const myZZ& modulus,const myZZ mu_arr[BARRETT_LEVELS]) const  {return MulMod(this->_ZZ_p__rep, b._ZZ_p__rep, modulus);};
@@ -349,7 +361,7 @@ namespace NTL{
     
     size_t m_MSB;
     
-    usint GetMSBLimb_t( ZZ_limb_t x);
+    usint GetMSBLimb_t( ZZ_limb_t x) const;
     void m_setOTM(const myZZ &q);
     bool m_checkOTM(const myZZ &q) const;
     myZZ& m_getOTM(void) const;

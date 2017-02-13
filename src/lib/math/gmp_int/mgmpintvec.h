@@ -155,6 +155,7 @@ namespace NTL {
     void SetValAtIndex(usint index, const myZZ&value);
     void SetValAtIndex(usint index, const char *s);
     void SetValAtIndex(usint index, const std::string& str);
+
     const myT& GetValAtIndex(size_t index) const;
 
     inline void push_back(const myT& a) { this->append(a);};

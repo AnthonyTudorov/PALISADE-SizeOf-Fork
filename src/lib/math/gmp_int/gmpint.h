@@ -65,7 +65,6 @@
 #include <NTL/ZZ.h>
 #include <NTL/ZZ_limbs.h>
 
-
 /**
  *@namespace NTL
  * The namespace of this code
@@ -75,8 +74,34 @@ namespace NTL{
   //todo: the following will be deprecated
   const usint BARRETT_LEVELS = 8;	
 
+  class myZZ_p; //forward declaration
+
+
+  //log2 cruft
+  /**
+   * @brief  Struct to find log value of N.
+   *Needed in the preprocessing step of ubint to determine bitwidth.
+   *
+   * @tparam N bitwidth.
+   */
+  template <usint N>
+  struct Log2{
+    const static usint value = 1 + Log2<N/2>::value;
+  };
+  /**
+   * @brief Struct to find log 2 value of N.
+   *Base case for recursion.
+   *Needed in the preprocessing step of ubint to determine bitwidth.
+   */
+  template<>
+  struct Log2<2>{
+    const static usint value = 1;
+  }; 
+  
 
 class myZZ : public NTL::ZZ {
+
+  
 
 public:
 
@@ -91,10 +116,10 @@ public:
   myZZ(const char * s);
   myZZ(NTL::ZZ &a);
   myZZ(const NTL::ZZ &a);
+  myZZ(const NTL::myZZ_p &a);
 
   myZZ(NTL::ZZ &&a);
-
-
+  myZZ(const NTL::myZZ_p &&a);
 
 //  myZZ& operator=(const myZZ &rhs);
   //myZZ( ZZ && zzin) : ZZ(zzin), m_MSB(5){};
@@ -103,13 +128,18 @@ public:
   static const myZZ ONE;
   static const myZZ TWO;
   static const myZZ THREE;
-  static const myZZ FOUR;
+  static const myZZ FOUR; 
   static const myZZ FIVE;
 
 
-  //  void InitMyZZ(ZZ &&zzin) const {this->m_MSB = 1; return;}
+
+    /**
+     * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of ubint objects.
+     */
+  // static std::function<unique_ptr<NTL::myZZ>()> Allocator;
+
   //adapter kit
-  usint GetMSB();
+  usint GetMSB() const ;
   static const myZZ& zero();
 
   //palisade conversion methods 
@@ -140,7 +170,19 @@ public:
 
   inline myZZ Sub(const myZZ& b) const  {return((*this<b)? ZZ(0):( *this-b));};  
   inline myZZ Minus(const myZZ& b) const  {return((*this<b)? ZZ(0):( *this-b));}; //to be deprecated
-  inline myZZ operator-(const myZZ &b) const {
+ inline myZZ operator+(const myZZ &b) const {
+    myZZ tmp;
+    add(tmp, *this, b);
+    return tmp ;
+  };
+
+  inline myZZ& operator +=(const myZZ &a) {
+    *this = *this+a;
+    return *this;
+  };
+
+
+ inline myZZ operator-(const myZZ &b) const {
     if (*this < b) { // should return 0
       return ZZ(0);
     }
@@ -148,6 +190,7 @@ public:
     sub(tmp, *this, b);
     return tmp ;
   };
+
   inline myZZ& operator -=(const myZZ &a) {
     if (*this<a) { // note b>a should return 0
       *this = ZZ(0);
@@ -156,6 +199,15 @@ public:
     *this = *this-a;
     return *this;
   };// note this<a should return 0
+
+
+  inline myZZ operator*(const myZZ_p &b) const; 
+
+  inline myZZ& operator*=(const myZZ_p &a);
+
+  
+
+
   
   inline myZZ Mul(const myZZ& b) const {return *this*b;};
   inline myZZ Times(const myZZ& b) const {return *this*b;}; //to be deprecated
@@ -168,7 +220,7 @@ public:
   inline myZZ ModBarrett(const myZZ& modulus, const myZZ& mu) const {return *this%modulus;};
 inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+1]) const  {return *this%modulus;};
    inline myZZ ModInverse(const myZZ& modulus) const {return InvMod(*this%modulus, modulus);};
-   inline myZZ ModAdd(const myZZ& b, const myZZ& modulus) const {return AddMod(*this%modulus, b%modulus, modulus);};
+   inline myZZ ModAdd(const myZZ& b, const myZZ& modulus) const {return myZZ(AddMod(*this%modulus, b%modulus, modulus));};
    inline myZZ ModSub(const myZZ& b, const myZZ& modulus) const
   {
     ZZ newthis(*this%modulus);
@@ -179,7 +231,7 @@ inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+
     return SubMod(newthis, newb, modulus);      
   };
 
-   inline myZZ ModMul(const myZZ& b, const myZZ& modulus) const {return MulMod(*this%modulus, b%modulus, modulus);};
+   inline myZZ ModMul(const myZZ& b, const myZZ& modulus) const {return myZZ(MulMod(*this%modulus, b%modulus, modulus));};
    inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {return MulMod(*this%modulus, b%modulus, modulus);};
    inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ mu_arr[BARRETT_LEVELS]) const  {return MulMod(*this%modulus, b%modulus, modulus);};
    inline myZZ ModExp(const myZZ& b, const myZZ& modulus) const {return PowerMod(*this%modulus, b%modulus, modulus);};
@@ -195,13 +247,61 @@ inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+
     inline long operator!=(const myZZ& b) const
     { return this->Compare(b) != 0; }
 
+    //helper functions
+
+        /**
+     * Convert a string representation of a binary number to a myZZ.
+     * Note: needs renaming to a generic form since the variable type name is
+     * embedded in the function name. Suggest FromBinaryString()
+     * @param bitString the binary num in string.
+     * @return the  number represented as a ubint.
+     */
+    static myZZ FromBinaryString(const std::string& bitString);
+    static myZZ BinaryStringToBigBinaryInt(const std::string& bitString);
+    
+  /**
+     * Get the number of digits using a specific base - only power-of-2 bases are currently supported.
+     *
+     * @param index is the location to return value from in the specific base.
+     * @param base is the base with which to determine length in.
+     * @return the length of the representation in a specific base.
+     */
+    usint GetDigitAtIndexForBase(usint index, usint base) const;
+
+
+    
+    //Serialization functions
+
+    const std::string Serialize() const;
+    const char * Deserialize(const char * str);
+
 private:
     //adapter kits
   void SetMSB();
 
+    /**
+     * Gets the bit at the specified index.
+     *
+     * @param index is the index of the bit to get.
+     * @return resulting bit.
+     */
+  uschar GetBitAtIndex(usint index) const;
+    /**
+     * function to return the ceiling of the input number divided by
+     * the number of bits in the limb data type.  DBC this is to
+     * determine how many limbs are needed for an input bitsize.
+     * @param Number is the number to be divided. 
+     * @return the ceiling of Number/(bits in the limb data type)
+     */
+    static usint ceilIntByUInt(const ZZ_limb_t Number); //todo: rename to MSB2NLimbs()
+
+    //variable to store the log(base 2) of the number of bits in the limb data type.
+    static const usint m_log2LimbBitLength;
+
+
   size_t m_MSB;
 
-  usint GetMSBLimb_t( ZZ_limb_t x);
+  usint GetMSBLimb_t( ZZ_limb_t x) ;
 }; //class ends
   
 }//namespace ends

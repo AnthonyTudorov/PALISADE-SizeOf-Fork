@@ -128,9 +128,29 @@ namespace NTL {
 //
 //  }
 
-  usint myZZ_p::GetMSB() {
-    this->SetMSB(); //note no one needs to SetMSB()
-    return m_MSB;
+  usint myZZ_p::GetMSB() const {
+    //note: originally I did not worry about this, and just set the 
+    //MSB whenever this was called, but then that violated constness in the 
+    // various libraries that used this heavily
+    //this->SetMSB(); //note no one needs to SetMSB()
+    //return m_MSB;
+
+    //SO INSTEAD I am just regenerating the MSB each time
+    size_t sz = this->_ZZ_p__rep.size();
+    usint MSB;
+    //std::cout<<"size "<<sz <<" ";
+    if (sz==0) { //special case for empty data
+      MSB = 0;
+      return(MSB);
+    }
+
+    MSB = (sz-1) * NTL_ZZ_NBITS; //figure out bit location of all but last limb
+    const ZZ_limb_t *zlp = ZZ_limbs_get(this->_ZZ_p__rep);
+    usint tmp = GetMSBLimb_t(zlp[sz-1]); //add the value of that last limb.
+
+    MSB+=tmp;
+
+    return(MSB);
   }
 
 
@@ -160,7 +180,7 @@ namespace NTL {
   }
 
  // inline static usint GetMSBLimb_t(ZZ_limb_t x){
-  usint myZZ_p::GetMSBLimb_t( ZZ_limb_t x){
+  usint myZZ_p::GetMSBLimb_t( ZZ_limb_t x) const{
     const usint bval[] =
     {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
 
