@@ -236,6 +236,16 @@ void EvalLinRegressionNull() {
 		}
 	}
 
+	//code for testing the deserialization of the first argument
+
+	Serialized ser;
+	(void)x->Serialize(&ser);
+	auto alloc = [=]() { return make_unique<RationalCiphertext<ILVector2n>>(cc); };
+	auto c1_ = std::make_shared<Matrix<RationalCiphertext<ILVector2n>>>(alloc);
+	(void)c1_->Deserialize(ser);
+
+	auto result3 = cc.EvalLinRegression(c1_, y);
+
 	////////////////////////////////////////////////////////////
 	//Linear Regression
 	////////////////////////////////////////////////////////////
