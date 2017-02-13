@@ -41,7 +41,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //using namespace std;
 using namespace lbcrypto;
 void EvalLinRegressionNull();
+void EvalLinRegressionNull3();
 void EvalLinRegressionFV();
+void EvalLinRegressionFV3();
 void RationalTests();
 void IntegerTests();
 //double currentDateTime();
@@ -52,16 +54,29 @@ void IntegerTests();
 int main() {
 
 	std::cout << "====================================================== " << std::endl;
-	std::cout << "STARTING NULL SCHEME EXPERIMENTS " << std::endl;
+	std::cout << "STARTING NULL SCHEME EXPERIMENTS FOR 2 REGRESSORS " << std::endl;
 	EvalLinRegressionNull();
 	std::cout << "ENDED NULL SCHEME EXPERIMENTS " << std::endl;
 	std::cout << "====================================================== " << std::endl;
+
 	std::cout << "\n====================================================== " << std::endl;
-	std::cout << "STARTING FV SCHEME EXPERIMENTS " << std::endl;
+	std::cout << "STARTING NULL SCHEME EXPERIMENTS FOR 3 REGRESSORS " << std::endl;
+	EvalLinRegressionNull3();
+	std::cout << "ENDED NULL SCHEME EXPERIMENTS " << std::endl;
+	std::cout << "====================================================== " << std::endl;
+
+	std::cout << "\n====================================================== " << std::endl;
+	std::cout << "STARTING FV SCHEME EXPERIMENTS FOR 2 REGRESSORS" << std::endl;
 	EvalLinRegressionFV();
 	std::cout << "ENDED FV SCHEME EXPERIMENTS " << std::endl;
 	std::cout << "====================================================== " << std::endl;
 	//RationalTests();
+
+	std::cout << "\n====================================================== " << std::endl;
+	std::cout << "STARTING FV SCHEME EXPERIMENTS FOR 3 REGRESSORS " << std::endl;
+	EvalLinRegressionFV3();
+	std::cout << "ENDED FV SCHEME EXPERIMENTS " << std::endl;
+	std::cout << "====================================================== " << std::endl;
 
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();
@@ -260,6 +275,206 @@ void EvalLinRegressionNull() {
 	std::cout << "denominator row 1 = " << denominator2(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "denominator row 2 = " << denominator2(1, 0).EvalToInt(plaintextModulus) << std::endl;
 
+
+}
+
+void EvalLinRegressionNull3() {
+
+	//usint relWindow = 8;
+
+	usint plaintextModulus = 256;
+	usint m = 64;
+
+	//float stdDev = 4;
+
+	//Set crypto parametes
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(plaintextModulus, m);
+
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+
+	std::cout << "RationalCiphertext s/d test" << std::endl;
+	Ciphertext<ILVector2n> one(cc), two(cc), three(cc);
+	ILVector2n onevec(cc.GetElementParams()), twovec(cc.GetElementParams()), threevec(cc.GetElementParams());
+	onevec = { 1 };
+	twovec = { 2 };
+	threevec = { 3 };
+	one.SetElement(onevec);
+	two.SetElement(twovec);
+	three.SetElement(threevec);
+	RationalCiphertext<ILVector2n> aninteger(three);
+	RationalCiphertext<ILVector2n> areal(one, two);
+
+	Serialized rc;
+	std::cout << "Integer: " << std::flush;
+	if (aninteger.Serialize(&rc)) {
+		std::cout << "Serialized! " << std::flush;
+
+		RationalCiphertext<ILVector2n> newOne(cc);
+		if (newOne.Deserialize(rc)) {
+			std::cout << "Deserialized! " << (aninteger == newOne) << std::flush;
+		}
+	}
+	std::cout << std::endl;
+
+	Serialized rc2;
+	std::cout << "Real: " << std::flush;
+	if (areal.Serialize(&rc2)) {
+		std::cout << "Serialized! " << std::flush;
+
+		RationalCiphertext<ILVector2n> newOne(cc);
+		if (newOne.Deserialize(rc2)) {
+			std::cout << "Deserialized! " << (areal == newOne) << std::flush;
+		}
+	}
+	std::cout << std::endl;
+
+	Matrix<RationalCiphertext<ILVector2n>> mmm([cc]() { return make_unique<RationalCiphertext<ILVector2n>>(cc); });
+	Serialized mmmS;
+	if (SerializableHelper::ReadSerializationFromFile("matrix.json", &mmmS)) {
+		std::cout << "Trying to deserialize file" << std::endl;
+		if (mmm.Deserialize(mmmS)) {
+			std::cout << "Deserialized matrix" << std::endl;
+		}
+		else {
+			std::cout << "r,c is" << mmm.GetRows() << "," << mmm.GetCols() << std::endl;
+			const Matrix<RationalCiphertext<ILVector2n>>::data_t& e = mmm.GetData();
+			std::cout << e.size() << std::endl;
+			for (int i = 0; i<e.size(); i++)
+				std::cout << i << ":" << e.at(i).size() << std::endl;
+		}
+	}
+
+	double diff, start, finish;
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp;
+
+	// Set the plaintext matrices
+
+	auto zeroAlloc = [=]() { return make_unique<IntPlaintextEncoding>(); };
+
+	Matrix<IntPlaintextEncoding> xP = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 3);
+
+	for (size_t i = 0; i < 3; ++i) {
+		for (size_t j = 0; j < 3; ++j) {
+			xP(i, j) = 101%(2*i + j + 1);
+		}
+	}
+
+	Matrix<IntPlaintextEncoding> yP = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
+
+	for (size_t i = 0; i < 3; ++i) {
+		for (size_t j = 0; j < 1; ++j) {
+			yP(i, j) = 99%(2 * i + 5*j + 1);
+		}
+	}
+
+	////////////////////////////////////////////////////////////
+	//Perform the key generation operations.
+	////////////////////////////////////////////////////////////
+
+	std::cout << "Key generation started" << std::endl;
+
+	kp = cc.KeyGen();
+
+	if (!kp.good()) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
+
+	cc.EvalMultKeyGen(kp.secretKey);
+
+	std::cout << "Key generation ended" << std::endl;
+
+	////////////////////////////////////////////////////////////
+	//Encryption
+	////////////////////////////////////////////////////////////
+
+	start = currentDateTime();
+
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc.EncryptMatrix(kp.publicKey, xP);
+
+	finish = currentDateTime();
+	diff = finish - start;
+
+	std::cout << "Encryption execution time for the x matrix: " << "\t" << diff << " ms" << std::endl;
+
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
+
+	std::cout << "MATRIX: " << y->GetRows() << "," << y->GetCols() << std::endl;
+
+	Serialized rcm;
+	Matrix<RationalCiphertext<ILVector2n>> newMat([cc]() { return make_unique<RationalCiphertext<ILVector2n>>(cc); });
+	if (y->Serialize(&rcm)) {
+		std::cout << "Matrix serialized" << std::endl;
+		//		SerializableHelper::SerializationToStream(rcm, std::cout);
+		//		std::cout << std::endl;
+
+		if (newMat.Deserialize(rcm)) {
+			std::cout << "Matrix deserialized" << std::endl;
+
+			if (y->GetRows() != newMat.GetRows()) {
+				std::cout << "row # mismatch" << std::endl;
+			}
+			if (y->GetCols() != newMat.GetCols()) {
+				std::cout << "col # mismatch" << std::endl;
+			}
+
+			for (int r = 0; r<y->GetRows(); r++) {
+				for (int c = 0; c<y->GetCols(); c++) {
+					if ((*y)(r, c) != newMat(r, c)) {
+						std::cout << "element mismatch at " << r << "," << c << std::endl;
+					}
+				}
+			}
+
+			std::cout << "DONE CHECKING" << std::endl;
+		}
+	}
+
+	////////////////////////////////////////////////////////////
+	//Linear Regression
+	////////////////////////////////////////////////////////////
+
+	auto result = cc.EvalLinRegression(x, y);
+	std::cout << "Linear regression computation completed successfully" << std::endl;
+	std::cout << "Rows in the numerator: " << result->GetRows() << std::endl;
+	std::cout << "Columns in the numerator: " << result->GetCols() << std::endl;
+
+	auto deserResult = cc.EvalLinRegression(x, std::make_shared<Matrix<RationalCiphertext<ILVector2n>>>(newMat));
+	std::cout << "Linear regression computation completed successfully" << std::endl;
+	std::cout << "Rows in the numerator: " << deserResult->GetRows() << std::endl;
+	std::cout << "Columns in the numerator: " << deserResult->GetCols() << std::endl;
+
+	////////////////////////////////////////////////////////////
+	//Decryption
+	////////////////////////////////////////////////////////////
+
+	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
+	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
+
+	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+
+	std::cout << "numerator row 1 = " << numerator(0, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "numerator row 2 = " << numerator(1, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "numerator row 3 = " << numerator(2, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "denominator row 1 = " << denominator(0, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "denominator row 2 = " << denominator(1, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "denominator row 3 = " << denominator(2, 0).EvalToInt(plaintextModulus) << std::endl;
+
+	std::cout << "on deserialized" << std::endl;
+	Matrix<IntPlaintextEncoding> numerator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
+	Matrix<IntPlaintextEncoding> denominator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
+
+	DecryptResult result2 = cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
+
+	std::cout << "numerator row 1 = " << numerator2(0, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "numerator row 2 = " << numerator2(1, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "numerator row 3 = " << numerator2(2, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "denominator row 1 = " << denominator2(0, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "denominator row 2 = " << denominator2(1, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "denominator row 3 = " << denominator2(2, 0).EvalToInt(plaintextModulus) << std::endl;
 
 }
 
@@ -471,6 +686,223 @@ void EvalLinRegressionFV() {
 	std::cout << "denominator row 2 = " << denominator2(1, 0).EvalToInt(plaintextModulus) << std::endl;
 
 }
+
+void EvalLinRegressionFV3() {
+
+	usint plaintextModulus = 256;
+	usint relWindow = 16;
+	float stdDev = 4;
+
+	//Set crypto parametes
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+		plaintextModulus, 0, "0", "0",
+		relWindow, stdDev, "0",
+		OPTIMIZED, "0", "0", 0, 9, 1.006);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+
+	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 3);
+
+	std::cout << "RationalCiphertext s/d test" << std::endl;
+	Ciphertext<ILVector2n> one(cc), two(cc), three(cc);
+	ILVector2n onevec(cc.GetElementParams()), twovec(cc.GetElementParams()), threevec(cc.GetElementParams());
+	onevec = { 1 };
+	twovec = { 2 };
+	threevec = { 3 };
+	one.SetElement(onevec);
+	two.SetElement(twovec);
+	three.SetElement(threevec);
+	RationalCiphertext<ILVector2n> aninteger(three);
+	RationalCiphertext<ILVector2n> areal(one, two);
+
+	Serialized rc;
+	std::cout << "Integer: " << std::flush;
+	if (aninteger.Serialize(&rc)) {
+		std::cout << "Serialized! " << std::flush;
+
+		RationalCiphertext<ILVector2n> newOne(cc);
+		if (newOne.Deserialize(rc)) {
+			std::cout << "Deserialized! " << (aninteger == newOne) << std::flush;
+		}
+	}
+	std::cout << std::endl;
+
+	Serialized rc2;
+	std::cout << "Real: " << std::flush;
+	if (areal.Serialize(&rc2)) {
+		std::cout << "Serialized! " << std::flush;
+
+		RationalCiphertext<ILVector2n> newOne(cc);
+		if (newOne.Deserialize(rc2)) {
+			std::cout << "Deserialized! " << (areal == newOne) << std::flush;
+		}
+	}
+	std::cout << std::endl;
+
+	Matrix<RationalCiphertext<ILVector2n>> mmm([cc]() { return make_unique<RationalCiphertext<ILVector2n>>(cc); });
+	Serialized mmmS;
+	if (SerializableHelper::ReadSerializationFromFile("matrix.json", &mmmS)) {
+		std::cout << "Trying to deserialize file" << std::endl;
+		if (mmm.Deserialize(mmmS)) {
+			std::cout << "Deserialized matrix" << std::endl;
+		}
+		else {
+			std::cout << "r,c is" << mmm.GetRows() << "," << mmm.GetCols() << std::endl;
+			const Matrix<RationalCiphertext<ILVector2n>>::data_t& e = mmm.GetData();
+			std::cout << e.size() << std::endl;
+			for (int i = 0; i<e.size(); i++)
+				std::cout << i << ":" << e.at(i).size() << std::endl;
+		}
+	}
+
+	double diff, start, finish;
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp;
+
+	// Set the plaintext matrices
+
+	auto zeroAlloc = [=]() { return make_unique<IntPlaintextEncoding>(); };
+
+	Matrix<IntPlaintextEncoding> xP = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 3);
+
+	for (size_t i = 0; i < 3; ++i) {
+		for (size_t j = 0; j < 3; ++j) {
+			xP(i, j) = 101 % (2 * i + j + 1);
+		}
+	}
+
+	Matrix<IntPlaintextEncoding> yP = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
+
+	for (size_t i = 0; i < 3; ++i) {
+		for (size_t j = 0; j < 1; ++j) {
+			yP(i, j) = 99 % (2 * i + 5 * j + 1);
+		}
+	}
+
+	////////////////////////////////////////////////////////////
+	//Perform the key generation operations.
+	////////////////////////////////////////////////////////////
+
+	std::cout << "Key generation started" << std::endl;
+
+	kp = cc.KeyGen();
+
+	if (!kp.good()) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
+
+	cc.EvalMultKeyGen(kp.secretKey);
+
+	std::cout << "Key generation ended" << std::endl;
+
+	////////////////////////////////////////////////////////////
+	//Encryption
+	////////////////////////////////////////////////////////////
+
+	start = currentDateTime();
+
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc.EncryptMatrix(kp.publicKey, xP);
+
+	finish = currentDateTime();
+	diff = finish - start;
+
+	std::cout << "Encryption execution time for the x matrix: " << "\t" << diff << " ms" << std::endl;
+
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
+
+	std::cout << "MATRIX: " << y->GetRows() << "," << y->GetCols() << std::endl;
+
+	Serialized rcm;
+	Matrix<RationalCiphertext<ILVector2n>> newMat([cc]() { return make_unique<RationalCiphertext<ILVector2n>>(cc); });
+	if (y->Serialize(&rcm)) {
+		std::cout << "Matrix serialized" << std::endl;
+		//		SerializableHelper::SerializationToStream(rcm, std::cout);
+		//		std::cout << std::endl;
+
+		if (newMat.Deserialize(rcm)) {
+			std::cout << "Matrix deserialized" << std::endl;
+
+			if (y->GetRows() != newMat.GetRows()) {
+				std::cout << "row # mismatch" << std::endl;
+			}
+			if (y->GetCols() != newMat.GetCols()) {
+				std::cout << "col # mismatch" << std::endl;
+			}
+
+			for (int r = 0; r<y->GetRows(); r++) {
+				for (int c = 0; c<y->GetCols(); c++) {
+					if ((*y)(r, c) != newMat(r, c)) {
+						std::cout << "element mismatch at " << r << "," << c << std::endl;
+					}
+				}
+			}
+
+			std::cout << "DONE CHECKING" << std::endl;
+		}
+	}
+
+	////////////////////////////////////////////////////////////
+	//Linear Regression
+	////////////////////////////////////////////////////////////
+
+	std::cout << "\nComputing linear regression... " << std::endl;
+
+	start = currentDateTime();
+
+	auto result = cc.EvalLinRegression(x, y);
+
+	finish = currentDateTime();
+	diff = finish - start;
+
+	std::cout << "Linear regression execution time: " << "\t" << diff << " ms\n" << std::endl;
+
+	std::cout << "Linear regression computation completed successfully" << std::endl;
+	std::cout << "Rows in the numerator: " << result->GetRows() << std::endl;
+	std::cout << "Columns in the numerator: " << result->GetCols() << std::endl;
+
+	std::cout << "\nComputing linear regression from deserialized data... " << std::endl;
+
+	auto deserResult = cc.EvalLinRegression(x, std::make_shared<Matrix<RationalCiphertext<ILVector2n>>>(newMat));
+	std::cout << "Linear regression computation completed successfully" << std::endl;
+	std::cout << "Rows in the numerator: " << deserResult->GetRows() << std::endl;
+	std::cout << "Columns in the numerator: " << deserResult->GetCols() << std::endl;
+
+	////////////////////////////////////////////////////////////
+	//Decryption
+	////////////////////////////////////////////////////////////
+
+	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
+	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
+
+	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+
+	std::cout << "numerator row 1 = " << numerator(0, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "numerator row 2 = " << numerator(1, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "numerator row 3 = " << numerator(2, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "denominator row 1 = " << denominator(0, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "denominator row 2 = " << denominator(1, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "denominator row 3 = " << denominator(2, 0).EvalToInt(plaintextModulus) << std::endl;
+
+	std::cout << "on deserialized" << std::endl;
+	Matrix<IntPlaintextEncoding> numerator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
+	Matrix<IntPlaintextEncoding> denominator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
+
+	DecryptResult result2 = cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
+
+	std::cout << "numerator row 1 = " << numerator2(0, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "numerator row 2 = " << numerator2(1, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "numerator row 3 = " << numerator2(2, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "denominator row 1 = " << denominator2(0, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "denominator row 2 = " << denominator2(1, 0).EvalToInt(plaintextModulus) << std::endl;
+	std::cout << "denominator row 3 = " << denominator2(2, 0).EvalToInt(plaintextModulus) << std::endl;
+
+}
+
 
 void RationalTests() {
 

@@ -285,9 +285,9 @@ namespace lbcrypto {
 	*/
 	template <class Element>
 	inline RationalCiphertext<Element> operator+(const RationalCiphertext<Element> &a, const RationalCiphertext<Element> &b) { 
-		RationalCiphertext<Element> result(a);
-		if (a.GetIntegerFlag() && b.GetIntegerFlag())
-			result.SetNumerator(*a.GetCryptoContext().EvalAdd(a.GetNumerator(), b.GetNumerator()));
+		RationalCiphertext<Element> result(b);
+		if (a.GetIntegerFlag() && b.GetIntegerFlag() && (a.GetNumerator()!= nullptr))
+			result.SetNumerator(*b.GetCryptoContext().EvalAdd(a.GetNumerator(), b.GetNumerator()));
 		return result;
 	}
 
@@ -302,9 +302,9 @@ namespace lbcrypto {
 	*/
 	template <class Element>
 	inline RationalCiphertext<Element> operator-(const RationalCiphertext<Element> &a, const RationalCiphertext<Element> &b) {
-		RationalCiphertext<Element> result(a);
-		if (a.GetIntegerFlag() && b.GetIntegerFlag())
-			result.SetNumerator(*a.GetCryptoContext().EvalSub(a.GetNumerator(), b.GetNumerator()));
+		RationalCiphertext<Element> result(b);
+		if (a.GetIntegerFlag() && b.GetIntegerFlag() && (a.GetNumerator() != nullptr))
+			result.SetNumerator(*b.GetCryptoContext().EvalSub(a.GetNumerator(), b.GetNumerator()));
 		return result;
 	}
 
@@ -319,9 +319,9 @@ namespace lbcrypto {
 	*/
 	template <class Element>
 	inline RationalCiphertext<Element> operator*(const RationalCiphertext<Element> &a, const RationalCiphertext<Element> &b) {
-		RationalCiphertext<Element> result(a);
-		if (a.GetIntegerFlag() && b.GetIntegerFlag())
-			result.SetNumerator(*a.GetCryptoContext().EvalMult(a.GetNumerator(), b.GetNumerator()));
+		RationalCiphertext<Element> result(b);
+		if (a.GetIntegerFlag() && b.GetIntegerFlag() && (a.GetNumerator() != nullptr))
+			result.SetNumerator(*b.GetCryptoContext().EvalMult(a.GetNumerator(), b.GetNumerator()));
 		return result;
 	}
 } // namespace lbcrypto ends
