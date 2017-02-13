@@ -83,6 +83,7 @@ static function<unique_ptr<ILVector2n>()> fastIL2nAlloc() {
         );
 }
 
+
 static function<unique_ptr<ILVector2n>()> fastUniformIL2nAlloc() {
 	usint m = 16;
 	BigBinaryInteger modulus("67108913");
@@ -92,6 +93,10 @@ static function<unique_ptr<ILVector2n>()> fastUniformIL2nAlloc() {
 			m, modulus, rootOfUnity)),
 		EVALUATION
 	);
+
+TEST(UTMatrix,serializer) {
+	Matrix<int32_t> m([](){return make_unique<int32_t>();}, 3, 5);
+
 }
 
 TEST(UTMatrix,basic_il2n_math){
@@ -308,4 +313,54 @@ TEST(UTMatrix, norm) {
     EXPECT_EQ(1.0, n.Norm());
     Matrix<ILVector2n> m = Matrix<ILVector2n>(secureIL2nAlloc(), 2, 2).Identity();
     EXPECT_EQ(1.0, m.Norm());
+}
+
+// Checks the implementantation of determinant based on a 3x3 matrix
+TEST(UTMatrix, determinant) {
+	
+	Matrix<int32_t> m([]() { return make_unique<int32_t>(); }, 3, 3);
+	m(0, 0) = 1;
+	m(0, 1) = 2;
+	m(0, 2) = 1;
+	m(1, 0) = -1;
+	m(1, 1) = 1;
+	m(1, 2) = 1;
+	m(2, 0) = 1;
+	m(2, 1) = 2;
+	m(2, 2) = 3;
+
+	//int32_t determinant = m.Determinant();
+	int32_t determinant = 0;
+	m.Determinant(&determinant);
+	EXPECT_EQ(6, determinant);
+
+}
+
+// Checks the implementantation of cofactor matrix based on a 3x3 matrix
+TEST(UTMatrix, cofactorMatrix) {
+
+	Matrix<int32_t> m([]() { return make_unique<int32_t>(); }, 3, 3);
+	m(0, 0) = 1;
+	m(0, 1) = 2;
+	m(0, 2) = 0;
+	m(1, 0) = -1;
+	m(1, 1) = 1;
+	m(1, 2) = 1;
+	m(2, 0) = 1;
+	m(2, 1) = 2;
+	m(2, 2) = 3;
+
+	Matrix<int32_t> r([]() { return make_unique<int32_t>(); }, 3, 3);
+	r(0, 0) = 1;
+	r(0, 1) = 4;
+	r(0, 2) = -3;
+	r(1, 0) = -6;
+	r(1, 1) = 3;
+	r(1, 2) = 0;
+	r(2, 0) = 2;
+	r(2, 1) = -1;
+	r(2, 2) = 3;
+
+	EXPECT_EQ(r, m.CofactorMatrix());
+
 }

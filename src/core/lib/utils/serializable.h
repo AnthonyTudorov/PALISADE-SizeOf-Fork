@@ -44,6 +44,7 @@
 #include <sstream>
 #include <string>
 #define RAPIDJSON_HAS_STDSTRING 1
+#define RAPIDJSON_HAS_CXX11_RVALUE_REFS 1
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
 #include "rapidjson/reader.h"

@@ -44,9 +44,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../math/nbtheory.h"
 #include "../math/distrgen.h"
 #include "../lattice/ilvector2n.h"
+#include "../lattice/ilvectorarray2n.h"
+#include "../encoding/intplaintextencoding.h"
 #include "../utils/inttypes.h"
 #include "../utils/utilities.h"
 #include "../utils/memory.h"
+using std::invalid_argument;
 
 namespace lbcrypto {
 
@@ -55,13 +58,13 @@ namespace lbcrypto {
 
 
 		template<class Element>
-        class Matrix {
+        class Matrix : public Serializable {
+        public:
             typedef vector<vector<unique_ptr<Element>>> data_t;
             typedef vector<unique_ptr<Element>> lineardata_t;
             typedef typename vector<unique_ptr<Element>>::iterator it_lineardata_t;
             typedef std::function<unique_ptr<Element>(void)> alloc_func;
         
-        public:
 
 			/**
 			 * Constructor that initializes matrix values using a zero allocator
@@ -70,7 +73,14 @@ namespace lbcrypto {
 			 * @param &rows number of rows.
 			 * @param &rows number of columns.
 			 */
-            Matrix(alloc_func allocZero, size_t rows, size_t cols);
+            Matrix(alloc_func allocZero, size_t rows, size_t cols) : rows(rows), cols(cols), data(), allocZero(allocZero) {
+                data.resize(rows);
+                for (auto row = data.begin(); row != data.end(); ++row) {
+                    for (size_t col = 0; col < cols; ++col) {
+                        row->push_back(allocZero());
+                    }
+                }
+            }
 
 			/**
 			 * Constructor that initializes matrix values using a distribution generation allocator
@@ -82,13 +92,37 @@ namespace lbcrypto {
 			 */
             Matrix(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen);
 
+            /**
+             * Constructor of an empty matrix; SetSize must be called on this matrix to use it
+             * Basically this exists to support deserializing
+             *
+			 * @param &allocZero lambda function for zero initialization.
+             */
+            Matrix(alloc_func allocZero) : rows(0), cols(0), data(), allocZero(allocZero) {}
+
+            void SetSize(size_t rows, size_t cols) {
+            	if( this->rows != 0 || this->cols != 0 )
+            		throw std::logic_error("You cannot SetSize on a non-empty matrix");
+
+            	this->rows = rows;
+            	this->cols = cols;
+
+                data.resize(rows);
+                for (auto row = data.begin(); row != data.end(); ++row) {
+                    for (size_t col = 0; col < cols; ++col) {
+                        row->push_back(allocZero());
+                    }
+                }
+            }
+
 			/**
 			 * Copy constructor
 			 *
 			 * @param &other the matrix object to be copied
 			 */
-            Matrix(const Matrix<Element>& other);
-
+            Matrix(const Matrix<Element>& other) : data(), rows(other.rows), cols(other.cols), allocZero(other.allocZero) {
+                deepCopyData(other.data);
+            }
 
 			/**
 			 * Assignment operator
@@ -112,7 +146,7 @@ namespace lbcrypto {
 			 *
 			 * @return the resulting matrix
 			 */
-            inline Matrix<Element>& Fill(Element val); 
+            inline Matrix<Element>& Fill(const Element &val); 
 
 			/**
 			 * In-place change of the current matrix to Identity matrix
@@ -159,7 +193,26 @@ namespace lbcrypto {
 			 * @param &other the multiplier element
 			 * @return the result of multiplication
              */  
-            inline Matrix<Element> ScalarMult(Element const& other) const; 
+            inline Matrix<Element> ScalarMult(Element const& other) const {
+                Matrix<Element> result(*this);
+            #if 0
+            for (size_t row = 0; row < result.rows; ++row) {
+                    for (size_t col = 0; col < result.cols; ++col) {
+                        *result.data[row][col] = *result.data[row][col] * other;
+                    }
+                }
+            #else
+            #pragma omp parallel for
+            for (int32_t col = 0; col < result.cols; ++col) {
+            	for (int32_t row = 0; row < result.rows; ++row) {
+
+                        *result.data[row][col] = *result.data[row][col] * other;
+                    }
+                }
+
+            #endif
+                return result;
+            }
 
             /**
              * Operator for scalar multiplication
@@ -177,7 +230,20 @@ namespace lbcrypto {
 			 * @param &other the matrix object to compare to
 			 * @return the boolean result
              */ 
-            inline bool Equal(Matrix<Element> const& other) const; 
+            inline bool Equal(Matrix<Element> const& other) const {
+                if (rows != other.rows || cols != other.cols) {
+                    return false;
+                }
+
+                for (size_t i = 0; i < rows; ++i) {
+                    for (size_t j = 0; j < cols; ++j) {
+                        if (*data[i][j] != *other.data[i][j]) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
 
             /**
              * Operator for equality check
@@ -249,7 +315,28 @@ namespace lbcrypto {
 			 * @param &other the matrix to be added
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element> Add(Matrix<Element> const& other) const;
+            inline Matrix<Element> Add(Matrix<Element> const& other) const {
+                if (rows != other.rows || cols != other.cols) {
+                    throw invalid_argument("Addition operands have incompatible dimensions");
+                }
+                Matrix<Element> result(*this);
+            #if 0
+                for (size_t i = 0; i < rows; ++i) {
+                    for (size_t j = 0; j < cols; ++j) {
+                        *result.data[i][j] += *other.data[i][j];
+                    }
+                }
+            #else
+            #pragma omp parallel for
+            for (int32_t j = 0; j < cols; ++j) {
+            for (int32_t i = 0; i < rows; ++i) {
+                        *result.data[i][j] += *other.data[i][j];
+                    }
+                }
+            #endif
+                return result;
+            }
+
 
             /**
              * Operator for matrix addition
@@ -275,7 +362,28 @@ namespace lbcrypto {
 			 * @param &other the matrix to be substracted
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element> Sub(Matrix<Element> const& other) const; 
+            inline Matrix<Element> Sub(Matrix<Element> const& other) const {
+                if (rows != other.rows || cols != other.cols) {
+                    throw invalid_argument("Subtraction operands have incompatible dimensions");
+                }
+                Matrix<Element> result(allocZero, rows, other.cols);
+            #if 0
+                for (size_t i = 0; i < rows; ++i) {
+                    for (size_t j = 0; j < cols; ++j) {
+                        *result.data[i][j] = *data[i][j] - *other.data[i][j];
+                    }
+                }
+            #else
+                #pragma omp parallel for
+            for (int32_t j = 0; j < cols; ++j) {
+            	for (int32_t i = 0; i < rows; ++i) {
+                        *result.data[i][j] = *data[i][j] - *other.data[i][j];
+                    }
+                }
+            #endif
+
+                return result;
+            }
 
             /**
              * Operator for matrix substraction
@@ -301,6 +409,22 @@ namespace lbcrypto {
 			 * @return the resulting matrix
              */ 
             inline Matrix<Element> Transpose() const;
+
+			// YSP The signature of this method needs to be changed in the future
+			/**
+			* Matrix determinant - found using Laplace formula with complexity O(d!), where d is the dimension
+			*
+			* @param *result where the result is stored
+			*/
+			inline void Determinant(Element *result) const;
+			//inline Element Determinant() const;
+
+			/**
+			* Cofactor matrix - the matrix of determinants of the minors A_{ij} multiplied by -1^{i+j}
+			*
+			* @return the cofactor matrix for the given matrix
+			*/
+			inline Matrix<Element> CofactorMatrix() const;
 
             /**
              * Add rows to bottom of the matrix
@@ -370,6 +494,7 @@ namespace lbcrypto {
             inline void SwitchFormat(); 
 
 
+
             Matrix<Element> MultiplyCAPS(const Matrix<Element>& other, int nrec=0, int pad = -1) const;
             void multiplyInternalCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc, it_lineardata_t work ) const;
             void strassenDFSCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc, it_lineardata_t workPassThrough ) const;
@@ -390,6 +515,22 @@ namespace lbcrypto {
              * Return a vector that is a rows x 1 matrix.
              */
             Matrix<Element> MultByRandomVector(std::vector<int> ranvec) const;
+
+			/**
+			* Serialize the object into a Serialized
+			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+			* @return true if successfully serialized
+			*/
+			bool Serialize(Serialized* serObj) const;
+
+			/**
+			* Populate the object from the deserialization of the Serialized
+			* @param serObj contains the serialized object
+			* @return true on success
+			*/
+			bool Deserialize(const Serialized& serObj);
+
+
         private:
             mutable data_t data;
             size_t rows;

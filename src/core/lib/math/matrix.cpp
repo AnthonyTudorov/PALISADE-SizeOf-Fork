@@ -25,22 +25,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
+#include "../utils/serializablehelper.h"
+//#include "rationalciphertext.h"
 #include "matrix.h"
 
 using std::invalid_argument;
 
 namespace lbcrypto {
 
-
-template<class Element>
-Matrix<Element>::Matrix(alloc_func allocZero, size_t rows, size_t cols): rows(rows), cols(cols), data(), allocZero(allocZero) {
-    data.resize(rows);
-    for (auto row = data.begin(); row != data.end(); ++row) {
-        for (size_t col = 0; col < cols; ++col) {
-            row->push_back(allocZero());
-        }
-    }
-}
 
 template<class Element>
 Matrix<Element>::Matrix(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen): rows(rows), cols(cols), data(), allocZero(allocZero) {
@@ -50,11 +42,6 @@ Matrix<Element>::Matrix(alloc_func allocZero, size_t rows, size_t cols, alloc_fu
             row->push_back(allocGen());
         }
     }
-}
-
-template<class Element>
-Matrix<Element>::Matrix(const Matrix<Element>& other) : data(), rows(other.rows), cols(other.cols), allocZero(other.allocZero) {
-    deepCopyData(other.data);
 }
 
 template<class Element>
@@ -77,7 +64,7 @@ Matrix<Element>& Matrix<Element>::Ones() {
 }
 
 template<class Element>
-Matrix<Element>& Matrix<Element>::Fill(Element val) {
+Matrix<Element>& Matrix<Element>::Fill(const Element &val) {
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
             *data[row][col] = val;
@@ -169,74 +156,12 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
 }
 
 template<class Element>
-Matrix<Element> Matrix<Element>::ScalarMult(Element const& other) const {
-    Matrix<Element> result(*this);
-#if 0
-for (size_t row = 0; row < result.rows; ++row) {
-        for (size_t col = 0; col < result.cols; ++col) {
-            *result.data[row][col] = *result.data[row][col] * other;
-        }
-    }
-#else
-#pragma omp parallel for
-for (int32_t col = 0; col < result.cols; ++col) {
-	for (int32_t row = 0; row < result.rows; ++row) {
-
-            *result.data[row][col] = *result.data[row][col] * other;
-        }
-    }
-
-#endif
-    return result;
-}
-
-
-template<class Element>
-bool Matrix<Element>::Equal(Matrix<Element> const& other) const {
-    if (rows != other.rows || cols != other.cols) {
-        return false;
-    }
-		
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t j = 0; j < cols; ++j) {
-            if (*data[i][j] != *other.data[i][j]) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-template<class Element>
 void Matrix<Element>::SetFormat(Format format) {
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
             data[row][col]->SetFormat(format);
         }
     }
-}
-
-template<class Element>
-Matrix<Element> Matrix<Element>::Add(Matrix<Element> const& other) const {
-    if (rows != other.rows || cols != other.cols) {
-        throw invalid_argument("Addition operands have incompatible dimensions");
-    }
-    Matrix<Element> result(*this);
-#if 0
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t j = 0; j < cols; ++j) {
-            *result.data[i][j] += *other.data[i][j];
-        }
-    }
-#else
-#pragma omp parallel for
-for (int32_t j = 0; j < cols; ++j) {
-for (int32_t i = 0; i < rows; ++i) {
-            *result.data[i][j] += *other.data[i][j];
-        }
-    }
-#endif
-    return result;
 }
 
 template<class Element>
@@ -259,30 +184,6 @@ for (size_t j = 0; j < cols; ++j) {
     }
 #endif
     return *this;
-}
-
-template<class Element>
-Matrix<Element> Matrix<Element>::Sub(Matrix<Element> const& other) const {
-    if (rows != other.rows || cols != other.cols) {
-        throw invalid_argument("Subtraction operands have incompatible dimensions");
-    }
-    Matrix<Element> result(allocZero, rows, other.cols);
-#if 0
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t j = 0; j < cols; ++j) {
-            *result.data[i][j] = *data[i][j] - *other.data[i][j];
-        }
-    }
-#else
-    #pragma omp parallel for
-for (int32_t j = 0; j < cols; ++j) {
-	for (int32_t i = 0; i < rows; ++i) {
-            *result.data[i][j] = *data[i][j] - *other.data[i][j];
-        }
-    }
-#endif
-
-    return result;
 }
 
 template<class Element>
@@ -316,6 +217,120 @@ Matrix<Element> Matrix<Element>::Transpose() const {
         }
     }
     return result;
+}
+
+// YSP The signature of this method needs to be changed in the future
+// Laplace's formula is used to find the determinant
+// Complexity is O(d!), where d is the dimension
+// The determinant of a matrix is expressed in terms of its minors
+// recursive implementation
+// There are O(d^3) decomposition algorithms that can be implemented to support larger dimensions.
+// Examples include the LU decomposition, the QR decomposition or 
+// the Cholesky decomposition(for positive definite matrices).
+template<class Element>
+void Matrix<Element>::Determinant(Element *determinant) const {
+	if (rows != cols) 
+		throw invalid_argument("Supported only for square matrix");
+	//auto determinant = *allocZero();
+	if (rows < 1)
+		throw invalid_argument("Dimension should be at least one");
+	else if (rows == 1)
+		*determinant = *data[0][0];
+	else if (rows == 2)
+		*determinant = *data[0][0] * (*data[1][1]) - *data[1][0] * (*data[0][1]);
+	else
+	{
+		size_t j1, j2;
+		size_t n = rows;
+
+		Matrix<Element> result(allocZero, rows - 1, cols - 1);
+
+		// for each column in sub-matrix
+		for (j1 = 0; j1 < n; j1++) {
+
+			// build sub-matrix with minor elements excluded
+			for (size_t i = 1; i < n; i++) {
+				j2 = 0;               // start at first sum-matrix column position
+				// loop to copy source matrix less one column
+				for (size_t j = 0; j < n; j++) {
+					if (j == j1) continue; // don't copy the minor column element
+
+					*result.data[i-1][j2] = *data[i][j];  // copy source element into new sub-matrix
+											 // i-1 because new sub-matrix is one row
+											 // (and column) smaller with excluded minors
+					j2++;                  // move to next sub-matrix column position
+				}
+			}
+
+			auto tempDeterminant = *allocZero();
+			result.Determinant(&tempDeterminant);
+
+			if (j1 % 2 == 0)
+				*determinant = *determinant + (*data[0][j1]) * tempDeterminant;
+			else
+				*determinant = *determinant - (*data[0][j1]) * tempDeterminant;
+
+			//if (j1 % 2 == 0)
+			//	determinant = determinant + (*data[0][j1]) * result.Determinant();
+			//else
+			//	determinant = determinant - (*data[0][j1]) * result.Determinant();
+
+		}
+	}
+	//return determinant;
+	return;
+}
+
+// The cofactor matrix is the matrix of determinants of the minors A_{ij} multiplied by -1^{i+j}
+// The determinant subroutine is used
+template<class Element>
+Matrix<Element> Matrix<Element>::CofactorMatrix() const {
+	
+	if (rows != cols)
+		throw invalid_argument("Supported only for square matrix");
+
+	size_t ii, jj, iNew, jNew;
+
+	size_t n = rows;
+
+	Matrix<Element> result(allocZero, rows, cols);
+
+	for (size_t j = 0; j<n; j++) {
+
+		for (size_t i = 0; i<n; i++) {
+
+			Matrix<Element> c(allocZero, rows - 1, cols - 1);
+
+			/* Form the adjoint a_ij */
+			iNew = 0;
+			for (ii = 0; ii<n; ii++) {
+				if (ii == i)
+					continue;
+				jNew = 0;
+				for (jj = 0; jj<n; jj++) {
+					if (jj == j)
+						continue;
+					*c.data[iNew][jNew] = *data[ii][jj];
+					jNew++;
+				}
+				iNew++;
+			}
+
+			/* Calculate the determinant */
+			auto determinant = *allocZero();
+			c.Determinant(&determinant);
+			//auto determinant = c.Determinant();
+
+			/* Fill in the elements of the cofactor */
+			if ((i + j) % 2 == 0)
+				*result.data[i][j] = determinant;
+			else
+				*result.data[i][j] = -determinant;
+		}
+	}
+
+	return result;
+
 }
 
 //  add rows to bottom of the matrix
@@ -668,6 +683,46 @@ Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& ot
     return result;
 }
 
+#ifdef OUT
+/**
+* Serialize the object into a Serialized
+* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+* @return true if successfully serialized
+*/
+template<class Element>
+bool Matrix<Element>::Serialize(Serialized* serObj) const {
+	serObj->SetObject();
+std::cout << "SERIALIZING " << rows << ":" << cols << std::endl;
+std::cout << data.size() << std::endl;
+std::cout << data[0].size() << std::endl;
+	//SerializeVectorOfVector("Matrix", elementName<Element>(), this->data, serObj);
+
+	std::cout << typeid(Element).name() << std::endl;
+
+	for( int r=0; r<rows; r++ ) {
+		for( int c=0; c<cols; c++ ) {
+			data[r][c]->Serialize(serObj);
+		}
+	}
+
+	return true;
+}
+
+/**
+* Populate the object from the deserialization of the Serialized
+* @param serObj contains the serialized object
+* @return true on success
+*/
+template<class Element>
+bool Matrix<Element>::Deserialize(const Serialized& serObj) {
+	Serialized::ConstMemberIterator mIter = serObj.FindMember("Matrix");
+	if( mIter == serObj.MemberEnd() )
+		return false;
+
+	//return DeserializeVectorOfVector<Element>("Matrix", elementName<Element>(), mIter, &this->data);
+	return true;
+}
+#endif
 
 
 

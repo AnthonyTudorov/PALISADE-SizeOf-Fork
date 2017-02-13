@@ -400,6 +400,25 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			return EvalMult(ciphertext1, ciphertext2);
 		}
 
+		/**
+		* Function for homomorpic negation of ciphertext.
+		*
+		* @param &ciphertext input ciphertext.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+
+		shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
+			shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+
+			const Element& c1 = ciphertext->GetElement();
+
+			Element cResult = c1.Negate();
+
+			newCiphertext->SetElement(std::move(cResult));
+
+			return newCiphertext;
+		}
+
 
 		/**
 		* Method for generating a KeySwitchHint

@@ -55,6 +55,13 @@ public:
 
     IntPlaintextEncoding(std::initializer_list<uint32_t> arr) : std::vector<uint32_t>(arr) {}
 
+	/* Forms a binary array from an integer; 
+	* Represents the integer as a binary polynomial
+	*
+	* @param  value - integer to be converted to binary polynomial representation
+	*/
+	IntPlaintextEncoding(uint32_t value);
+
     IntPlaintextEncoding() : std::vector<uint32_t>() {}
 
 	/** Interface for the operation of converting from current plaintext encoding to ilVectorArray2n.
@@ -97,9 +104,16 @@ public:
 		return lv == rv;
 	}
 
+	/* Evaluates the array of integers as a polynomial at x = 2
+	*  Used together with IntPlaintextEncoding(uint32_t)
+	*
+	* @param  modulus - the modulus that is used to represend the unsigned coefficients
+	*/
+	int32_t EvalToInt(uint32_t modulus) const;
+	
 	friend std::ostream& operator<<(std::ostream& out, const IntPlaintextEncoding& item) {
 		for( int i=0; i<item.size(); i++ )
-			out << item.at(i);
+			out << "\t" << item.at(i);
 		return out;
 	}
 };
