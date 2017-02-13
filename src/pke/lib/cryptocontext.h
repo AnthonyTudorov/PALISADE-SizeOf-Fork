@@ -67,8 +67,9 @@ class CryptoContext : public Serializable {
 	friend class CryptoContextFactory<Element>;
 
 private:
-	shared_ptr<LPCryptoParameters<Element>>				params;	/*!< crypto parameters used for this context */
-	shared_ptr<LPPublicKeyEncryptionScheme<Element>>	scheme;	/*!< algorithm used; accesses all crypto methods */
+	shared_ptr<LPCryptoParameters<Element>>				params;			/*!< crypto parameters used for this context */
+	shared_ptr<LPPublicKeyEncryptionScheme<Element>>	scheme;			/*!< algorithm used; accesses all crypto methods */
+	static vector<shared_ptr<LPEvalKey<Element>>>		evalMultKeys;	/*!< cached evalmult keys */
 
 	/**
 	 * Private methods to compare two contexts; this is only used internally and is not generally available
@@ -212,12 +213,26 @@ public:
 	* @param key
 	* @return new evaluation key
 	*/
-	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) const {
+	void EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) const {
 
 		if( key == NULL || key->GetCryptoContext() != *this )
 			throw std::logic_error("Key passed to EvalMultKeyGen were not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->EvalMultKeyGen(key);
+		shared_ptr<LPEvalKey<Element>> k = GetEncryptionAlgorithm()->EvalMultKeyGen(key);
+		if( evalMultKeys.size() == 0 )
+			evalMultKeys.push_back(k);
+		else
+			evalMultKeys[0] = k;
+	}
+
+	void ClearEvalMultKeyCache() {
+		evalMultKeys.resize(0);
+	}
+
+	const shared_ptr<LPEvalKey<Element>> GetEvalMultKey() const {
+		if( evalMultKeys.size() != 1 )
+			throw std::logic_error("You need to use EvalMultKeyGen so that you have an EvalKey available");
+		return evalMultKeys[0];
 	}
 
 	/**
@@ -637,7 +652,9 @@ public:
 		if( ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->EvalMult(ct1, ct2);
+		auto ek = GetEvalMultKey();
+
+		return GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek);
 	}
 
 	/**
@@ -778,23 +795,21 @@ public:
 	*/
 	std::vector<shared_ptr<Ciphertext<Element>>> ComposedEvalMult(
 		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext1,
-		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext2,
-		const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const
+		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext2) const
 	{
-		if( quadKeySwitchHint == NULL || quadKeySwitchHint->GetCryptoContext() != *this) {
-			throw std::logic_error("Information passed to ComposedEvalMult was not generated with this crypto context");
-		}
 		if (ciphertext1.size() != ciphertext2.size()) {
 			throw std::logic_error("Cannot have ciphertext of different length");
 		}
 
 		vector<shared_ptr<Ciphertext<Element>>> ciphertextResult;
 
+		auto ek = GetEvalMultKey();
+
 		for (int i = 0; i < ciphertext1.size(); i++) {
 			if( ciphertext1[i] == NULL || ciphertext2[i] == NULL || ciphertext1[i]->GetCryptoContext() != *this || ciphertext2[i]->GetCryptoContext() != *this )
 				throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
 
-			shared_ptr<Ciphertext<Element>> e = GetEncryptionAlgorithm()->ComposedEvalMult(ciphertext1[i], ciphertext2[i], quadKeySwitchHint);
+			shared_ptr<Ciphertext<Element>> e = GetEncryptionAlgorithm()->ComposedEvalMult(ciphertext1[i], ciphertext2[i], ek);
 			ciphertextResult.push_back(e);
 		}
 

@@ -268,9 +268,9 @@ TEST(UTLTVBATCHING, ILVector2n_EVALMULT) {
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextResults;
 
-	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint = cc.EvalMultKeyGen(kp.secretKey);
+	cc.EvalMultKeyGen(kp.secretKey);
 
-	ciphertextResults.insert(ciphertextResults.begin(), cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0), keySwitchHint));
+	ciphertextResults.insert(ciphertextResults.begin(), cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0)));
 
 	
 	PackedIntPlaintextEncoding results;

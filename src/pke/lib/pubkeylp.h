@@ -127,7 +127,7 @@ namespace lbcrypto {
 		 * Gets a read-only reference to an LPCryptoParameters-derived class
 		 * @return the crypto parameters.
 		 */
-		const CryptoContext<Element> GetCryptoContext() const { return cryptoContext; }
+		const CryptoContext<Element>& GetCryptoContext() const { return cryptoContext; }
 
 		/**
 		 * Gets a read-only reference to an LPCryptoParameters-derived class
@@ -1071,7 +1071,6 @@ namespace lbcrypto {
 				EvalLinRegression(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
 					const shared_ptr<Matrix<RationalCiphertext<Element>>> y) const
 			{
-				
 				// multiplication is done in reverse order to minimize the number of inner products
 				Matrix<RationalCiphertext<Element>> xTransposed = x->Transpose();
 				shared_ptr<Matrix<RationalCiphertext<Element>>> result (new Matrix<RationalCiphertext<Element>>(xTransposed * (*y)));

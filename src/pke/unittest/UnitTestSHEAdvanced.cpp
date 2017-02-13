@@ -171,6 +171,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 	std::fill(vectorOfInts2.begin() + 4, vectorOfInts2.end(), 0);
 
 	kp = cc.KeyGen();
+	cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
@@ -182,10 +183,6 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 		cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0));
 
 	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
-
-	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint1 = cc.EvalMultKeyGen(kp.secretKey);
-
-	cResult = cc.KeySwitch(keySwitchHint1, cResult);
 
 	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint2 = cc.KeySwitchGen(kp.secretKey, newKp.secretKey);
 
@@ -275,6 +272,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	IntPlaintextEncoding intArray2(vectorOfInts2);
 
 	kp = cc.KeyGen();
+	cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext2;
@@ -290,10 +288,6 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	DEBUG("out " << cResult.at(0)->GetElement().GetLength());
 
 	LPKeyPair<ILVectorArray2n> newKp = cc.KeyGen();
-
-	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint1 = cc.EvalMultKeyGen(kp.secretKey);
-
-	cResult.at(0) = cc.KeySwitch(keySwitchHint1, cResult.at(0));
 
 	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint2 = cc.KeySwitchGen(kp.secretKey, newKp.secretKey);
 
@@ -557,8 +551,8 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	dcrtParamsWith1Tower->PopLastParam();
 	finalParamsOneTower.SetElementParams(dcrtParamsWith1Tower);
 
-	//Generating Quaraditic KeySwitchHint from sk^2 to skNew
-	shared_ptr<LPEvalKey<ILVectorArray2n>> quadraticKeySwitchHint = cc.EvalMultKeyGen(kp.secretKey);
+	//Generating Quadratic KeySwitchHint from sk^2 to skNew
+	cc.EvalMultKeyGen(kp.secretKey);
 
 	shared_ptr<LPEvalKey<ILVectorArray2n>> KeySwitchHint = cc.KeySwitchGen(kp.secretKey, kp1.secretKey);
 
@@ -592,9 +586,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	ciphertextElementOne = cc.Encrypt(kp.publicKey, firstElementEncoding, false);
 	ciphertextElementTwo = cc.Encrypt(kp.publicKey, secondElementEncoding, false);
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cResult =
-		cc.ComposedEvalMult(ciphertextElementOne, ciphertextElementTwo, quadraticKeySwitchHint);
-
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cResult = cc.ComposedEvalMult(ciphertextElementOne, ciphertextElementTwo);
 	cResult.at(0) = cc.KeySwitch(KeySwitchHint, cResult.at(0));
 
 	IntPlaintextEncoding results;

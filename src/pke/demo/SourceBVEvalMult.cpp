@@ -95,11 +95,11 @@ bool EvalMultTest() {
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2 =
 		cc.Encrypt(kp.publicKey, intArray2, false);
 
-	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint = cc.EvalMultKeyGen(kp.secretKey);
+	cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> cResult;
 
-	cResult.insert(cResult.begin(), cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0), keySwitchHint));
+	cResult.insert(cResult.begin(), cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0)));
 
 
 	IntPlaintextEncoding results;

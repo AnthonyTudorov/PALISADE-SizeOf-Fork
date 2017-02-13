@@ -172,6 +172,8 @@ void EvalLinRegressionNull() {
 		exit(1);
 	}
 
+	cc.EvalMultKeyGen(kp.secretKey);
+
 	std::cout << "Key generation ended" << std::endl;
 
 	////////////////////////////////////////////////////////////
@@ -322,10 +324,8 @@ void RationalTests() {
 		exit(1);
 	}
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
-
 	//generate the evaluate key
-	evalKey = cc.EvalMultKeyGen(kp.secretKey);
+	cc.EvalMultKeyGen(kp.secretKey);
 
 	std::cout << "Key generation ended" << std::endl;
 
