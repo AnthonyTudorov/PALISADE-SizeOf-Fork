@@ -27,13 +27,6 @@ bool Matrix<RationalCiphertext<ILVector2n>>::Serialize(Serialized* serObj) const
 	serObj->AddMember("Rows", std::to_string(rows), serObj->GetAllocator());
 	serObj->AddMember("Cols", std::to_string(cols), serObj->GetAllocator());
 
-	const CryptoContext<ILVector2n>& cc = data[0][0]->GetCryptoContext();
-	Serialized ccSer(rapidjson::kObjectType, &serObj->GetAllocator());
-	if( cc.Serialize(&ccSer) == false )
-		return false;
-
-	serObj->AddMember("CryptoContext", ccSer.Move(), serObj->GetAllocator());
-
 	int elCount = 0;
 
 	for( int r=0; r<rows; r++ ) {
@@ -81,15 +74,9 @@ bool Matrix<RationalCiphertext<ILVector2n>>::Deserialize(const Serialized& serOb
 
 	int mcols = std::stoi( mIter->value.GetString() );
 
-	mIter = serObj.FindMember("CryptoContext");
-	if( mIter == serObj.MemberEnd() )
-		return false;
+	auto tempElement = this->allocZero();
+	CryptoContext<ILVector2n> cc = tempElement->GetCryptoContext();
 
-	Serialized ccSer(rapidjson::kObjectType);
-	SerialItem ccVal( mIter->value, ccSer.GetAllocator() );
-	ccVal.Swap(ccSer);
-
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::DeserializeAndCreateContext(ccSer);
 	if( bool(cc) == false )
 		return false;
 
