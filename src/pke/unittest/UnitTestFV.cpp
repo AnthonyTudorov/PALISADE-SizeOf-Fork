@@ -242,14 +242,11 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	//EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
-
-	//generate the evaluate key
-	evalKey = cc.EvalMultKeyGen(kp.secretKey);
+	cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult = cc.EvalMult(ciphertext1[0], ciphertext2[0], evalKey);
+	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult = cc.EvalMult(ciphertext1[0], ciphertext2[0]);
 
 	ciphertextMult.push_back(ciphertextTempMult);
 
@@ -327,14 +324,11 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 	//EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
-
-	//generate the evaluate key
-	evalKey = cc.EvalMultKeyGen(kp.secretKey);
+	cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult = cc.EvalMult(ciphertext1[0], ciphertext2[0], evalKey);
+	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult = cc.EvalMult(ciphertext1[0], ciphertext2[0]);
 
 	ciphertextMult.push_back(ciphertextTempMult);
 
@@ -465,16 +459,13 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	//EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
-
-	//generate the evaluate key
-	evalKey= cc.EvalMultKeyGen(kp.secretKey);
+	cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
 
 	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult;
 
-	ciphertextTempMult = cc.EvalMult(ciphertext1[0], ciphertext2[0], evalKey);
+	ciphertextTempMult = cc.EvalMult(ciphertext1[0], ciphertext2[0]);
 
 	ciphertextMult.push_back(ciphertextTempMult);
 

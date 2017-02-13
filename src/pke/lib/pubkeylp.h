@@ -127,7 +127,7 @@ namespace lbcrypto {
 		 * Gets a read-only reference to an LPCryptoParameters-derived class
 		 * @return the crypto parameters.
 		 */
-		const CryptoContext<Element> GetCryptoContext() const { return cryptoContext; }
+		const CryptoContext<Element>& GetCryptoContext() const { return cryptoContext; }
 
 		/**
 		 * Gets a read-only reference to an LPCryptoParameters-derived class
@@ -1064,14 +1064,12 @@ namespace lbcrypto {
 			* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
 			* @param x - matrix of regressors
 			* @param y - vector of dependent variables
-			* @param ek - evaluation key used for EvalMult operations
 			* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
 			*/
 			shared_ptr<Matrix<RationalCiphertext<Element>>>
 				EvalLinRegression(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
 					const shared_ptr<Matrix<RationalCiphertext<Element>>> y) const
 			{
-				
 				// multiplication is done in reverse order to minimize the number of inner products
 				Matrix<RationalCiphertext<Element>> xTransposed = x->Transpose();
 				shared_ptr<Matrix<RationalCiphertext<Element>>> result (new Matrix<RationalCiphertext<Element>>(xTransposed * (*y)));
@@ -1423,7 +1421,6 @@ namespace lbcrypto {
 		* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
 		* @param x - matrix of regressors
 		* @param y - vector of dependent variables
-		* @param ek - evaluation key used for EvalMult operations
 		* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
 		*/
 		shared_ptr<Matrix<RationalCiphertext<Element>>>

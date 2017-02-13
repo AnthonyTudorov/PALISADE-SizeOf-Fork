@@ -618,11 +618,13 @@ template<class Element>
 shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(
 	const shared_ptr<Ciphertext<Element>> cipherText1,
 	const shared_ptr<Ciphertext<Element>> cipherText2,
-	const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const {
+	const shared_ptr<LPEvalKey<Element>> ek) const {
 
-	shared_ptr<Ciphertext<Element>> cipherTextResult = cipherText1->GetCryptoContext().GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2, quadKeySwitchHint);
+	shared_ptr<Ciphertext<Element>> prod = cipherText1->GetCryptoContext().GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2);
 
-	return this->ModReduce(cipherTextResult);
+	prod = prod->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitch(ek, prod);
+
+	return this->ModReduce(prod);
 }
 
 template<class Element>

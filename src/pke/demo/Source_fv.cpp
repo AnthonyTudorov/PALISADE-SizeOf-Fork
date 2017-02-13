@@ -159,10 +159,8 @@ void EvalMul(int input, MODE mode) {
 	//EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
-
 	//generate the evaluate key
-	evalKey = cc.EvalMultKeyGen(kp.secretKey);
+	cc.EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
 
@@ -170,7 +168,7 @@ void EvalMul(int input, MODE mode) {
 
 	start = currentDateTime();
 
-	ciphertextTempMult = cc.EvalMult(ciphertext1[0], ciphertext2[0], evalKey);
+	ciphertextTempMult = cc.EvalMult(ciphertext1[0], ciphertext2[0]);
 
 	finish = currentDateTime();
 	diff = finish - start;
