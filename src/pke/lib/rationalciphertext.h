@@ -222,8 +222,10 @@ namespace lbcrypto {
 			// ciphertext object has no data yet, i.e., it is zero-initialized
 			if (m_numerator->GetElements().size() == 0)
 			{
-				*m_numerator = *other.m_numerator;
-				*m_denominator = *other.m_denominator;
+				if (other.m_numerator != nullptr)
+					*m_numerator = *other.m_numerator;
+				if (other.m_denominator != nullptr)
+					*m_denominator = *other.m_denominator;
 				m_integerFlag = other.m_integerFlag;
 			}
 			else
