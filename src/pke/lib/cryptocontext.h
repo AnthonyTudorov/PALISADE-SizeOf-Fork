@@ -691,7 +691,6 @@ public:
 	* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
 	* @param x - matrix of regressors
 	* @param y - vector of dependent variables
-	* @param ek - evaluation key used for EvalMult operations
 	* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
 	*/
 	shared_ptr<Matrix<RationalCiphertext<Element>>>

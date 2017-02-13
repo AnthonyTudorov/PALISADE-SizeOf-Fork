@@ -223,3 +223,94 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 
 }
 
+/** Tests linear regression for the FV scheme
+* based on of a design matrix of 2x2 and response vector of 2x1
+* In contrast to the previous test, this one also converts an integer
+* into a binary polynomial
+*/
+TEST(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
+
+	usint plaintextModulus = 256;
+	usint relWindow = 16;
+	float stdDev = 4;
+
+	//Set crypto parametes
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+		plaintextModulus, 0, "0", "0",
+		relWindow, stdDev, "0",
+		OPTIMIZED, "0", "0", 0, 9, 1.006);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+
+	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 3);
+
+	double diff, start, finish;
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp;
+
+	// Set the plaintext matrices
+
+	auto zeroAlloc = [=]() { return make_unique<IntPlaintextEncoding>(); };
+
+	Matrix<IntPlaintextEncoding> xP = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 2);
+
+	xP(0, 0) = 173;
+	xP(0, 1) = 107;
+	xP(1, 0) = 175;
+	xP(1, 1) = 105;
+
+	Matrix<IntPlaintextEncoding> yP = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
+
+	yP(0, 0) = 167;
+	yP(1, 0) = 105;
+
+	////////////////////////////////////////////////////////////
+	//Perform the key generation operations.
+	////////////////////////////////////////////////////////////
+
+	kp = cc.KeyGen();
+
+	cc.EvalMultKeyGen(kp.secretKey);
+
+	////////////////////////////////////////////////////////////
+	//Encryption
+	////////////////////////////////////////////////////////////
+
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc.EncryptMatrix(kp.publicKey, xP);
+
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
+
+	////////////////////////////////////////////////////////////
+	//Linear Regression
+	////////////////////////////////////////////////////////////
+
+	auto result = cc.EvalLinRegression(x, y);
+
+	////////////////////////////////////////////////////////////
+	//Decryption
+	////////////////////////////////////////////////////////////
+
+	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
+
+	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+
+	////////////////////////////////////////////////////////////
+	// Correct output
+	////////////////////////////////////////////////////////////
+
+	int32_t numerator1 = -3528000;
+	int32_t numerator2 = 6193600;
+	int32_t denominatorExpected = 313600;
+
+	EXPECT_EQ(numerator1, numerator(0, 0).EvalToInt(plaintextModulus));
+	EXPECT_EQ(numerator2, numerator(1, 0).EvalToInt(plaintextModulus));
+	EXPECT_EQ(denominatorExpected, denominator(0, 0).EvalToInt(plaintextModulus));
+	EXPECT_EQ(denominatorExpected, denominator(1, 0).EvalToInt(plaintextModulus));
+
+}
+
