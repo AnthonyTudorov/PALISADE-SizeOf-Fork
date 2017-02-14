@@ -345,6 +345,9 @@ namespace lbcrypto {
 			bool EvaluateACS(const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
 					const std::string &testString, const int useRandomVector) const;
 
+			bool EvaluateFast(const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
+				 const std::string &testString) const;
+
 	};
 
 } // namespace lbcrypto ends
