@@ -164,7 +164,7 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::ParamsGen(DiscreteGaussianGe
 	auto nRLWE = [&](double q) -> double { return log2(q / sigma) / (4 * log2(hermiteFactor));  };
 
 	//Correctness constraint
-	auto qCorrectness = [&](uint32_t n, uint32_t m) -> double { return  32*Berr*sqrt(m)*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2),length);  };
+	auto qCorrectness = [&](uint32_t n, uint32_t m) -> double { return  32*Berr*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2),length);  };
 
 	double qPrev = 1e6;
 	double q = 0;
@@ -569,7 +569,7 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
 				const std::string &testString) const {
 	//Evaluation of Obfuscated Conjunction Pattern
 	TimeVar t1; // for TIC TOC
-	bool dbg_flag = 1;
+	bool dbg_flag = 0;
 	TIC(t1);
 
 	usint l = obfuscatedPattern.GetLength();
@@ -607,17 +607,17 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
 	shared_ptr<Matrix<Element>> S_ib;
 	shared_ptr<Matrix<Element>> R_ib;
 
-	//DEBUG("Eval1: "<<TOC(t1) <<" ms");
+	DEBUG("Eval1: "<<TOC(t1) <<" ms");
 
 	for (usint i=0; i<adjustedLength; i++) 	{
-		//TIC(t1);
+		TIC(t1);
 
 		//pragma omp parallel sections
 		{
 			{
 				testVal = testString.substr(i*chunkSize,chunkSize);
-				//std::cout << " Index: " << i << std::endl;
-				//std::cout << " \t Input: \t" << testVal << std::endl;
+				std::cout << " Index: " << i << std::endl;
+				std::cout << " \t Input: \t" << testVal << std::endl;
 			}
 			S_ib = obfuscatedPattern.GetS(i,testVal);
 			R_ib = obfuscatedPattern.GetR(i,testVal);
@@ -630,9 +630,9 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
 			//if (i==0)
 			//	std::cout << "does identity work correctly" << (S_prod == *S_ib) << std::endl;
 		}
-		//DEBUG("Eval2:#"<< i << ": " <<TOC(t1) <<" ms");
+		DEBUG("Eval2:#"<< i << ": " <<TOC(t1) <<" ms");
 	}
-	//TIC(t1);
+	TIC(t1);
 	//std::cout << " S_prod: " << std::endl;
 	//S_prod.PrintValues();
 	//std::cout << " R_prod: " << std::endl;
@@ -651,8 +651,8 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
 	//CrossProd.PrintValues();
 
 
-	//DEBUG("Eval3: " <<TOC(t1) <<" ms");
-	//TIC(t1);
+	DEBUG("Eval3: " <<TOC(t1) <<" ms");
+	TIC(t1);
 
 	//the norm can be estimated after all elements are converted to coefficient representation
 	CrossProd.SwitchFormat();
