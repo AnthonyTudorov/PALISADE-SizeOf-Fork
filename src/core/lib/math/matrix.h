@@ -27,11 +27,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef LBCRYPTO_MATH_MATRIX_H
 #define LBCRYPTO_MATH_MATRIX_H
 
-#include <assert.h>
-#include <stdlib.h>
-
-#include <typeinfo>
-#include <string>
 #include <iostream>
 #include <functional>
 #include <math.h>
@@ -169,7 +164,7 @@ namespace lbcrypto {
 			 * @param &other the multiplier matrix
 			 * @return the result of multiplication
              */  
-            inline virtual Matrix<Element> Mult(Matrix<Element> const& other) const;
+            inline Matrix<Element> Mult(Matrix<Element> const& other) const;
 
             /**
              * Operator for matrix multiplication
@@ -517,11 +512,11 @@ namespace lbcrypto {
 
 
         private:
-            mutable data_t data;
+            data_t data;
             size_t rows;
             size_t cols;
             alloc_func allocZero;
-            mutable int NUM_THREADS = 1;
+            //mutable int NUM_THREADS = 1;
 
 			//deep copy of data - used for copy constructor
             void deepCopyData(data_t const& src);

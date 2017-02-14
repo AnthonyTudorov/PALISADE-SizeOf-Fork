@@ -792,6 +792,7 @@ distributeFrom1ProcCAPS( desc, otherdata.begin(), otherlineardataPtr->begin());
 
 
 multiplyInternalCAPS(otherdata.begin(), thisdata.begin(), resultdata.begin() /*,&(result.lineardata[0])*/, desc, (it_lineardata_t)0);//&(result.lineardata[0])
+//multiplyInternalCAPS(otherdata.begin(), thisdata.begin(), resultdata.begin() /*,&(result.lineardata[0])*/, desc, lineardataPtr->begin());//&(result.lineardata[0])
 
 collectTo1ProcCAPS( desc, resultlineardataPtr->begin(), resultdata.begin() );
 resultdata.clear();
