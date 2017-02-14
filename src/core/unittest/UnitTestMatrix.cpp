@@ -38,6 +38,7 @@
 #include "utils/utilities.h"
 
 #include "math/matrix.cpp"
+#include "math/matrixstrassen.cpp"
 
 //using namespace std;
 using namespace lbcrypto;
@@ -81,6 +82,17 @@ static function<unique_ptr<ILVector2n>()> fastIL2nAlloc() {
         m, modulus, rootOfUnity) ),
         EVALUATION
         );
+}
+
+static function<unique_ptr<ILVector2n>()> fastUniformIL2nAlloc() {
+	usint m = 16;
+	BigBinaryInteger modulus("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	return ILVector2n::MakeDiscreteUniformAllocator(
+		shared_ptr<ILParams>(new ILParams(
+			m, modulus, rootOfUnity)),
+		EVALUATION
+	);
 }
 
 TEST(UTMatrix,serializer) {
@@ -162,6 +174,48 @@ TEST(UTMatrix, scalar_mult){
     //EXPECT_EQ(*two*n, twos);
     //EXPECT_EQ(n**two, twos);
 }
+
+TEST(UTMatrix, ILVector2n_mult_square_matrix) {
+
+	int32_t dimension = 8;
+
+	Matrix<ILVector2n> A = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
+	Matrix<ILVector2n> B = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
+	Matrix<ILVector2n> C = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
+	Matrix<ILVector2n> I = Matrix<ILVector2n>(fastIL2nAlloc(), dimension, dimension).Identity();
+
+	EXPECT_EQ(A, A*I) << "Matrix multiplication of two ILVector2Ns: A = AI - failed.\n";
+	EXPECT_EQ(A, I*A) << "Matrix multiplication of two ILVector2Ns: A = IA - failed.\n";
+
+	EXPECT_EQ((A*B).Transpose(), B.Transpose()*A.Transpose()) << "Matrix multiplication of two ILVector2Ns: (A*B)^T = B^T*A^T - failed.\n";
+
+	EXPECT_EQ(A*B*C, A*(B*C)) << "Matrix multiplication of two ILVector2Ns: A*B*C = A*(B*C) - failed.\n";
+	EXPECT_EQ(A*B*C, (A*B)*C) << "Matrix multiplication of two ILVector2Ns: A*B*C = (A*B)*C - failed.\n";
+
+}
+
+
+
+TEST(UTMatrix, ILVector2n_mult_square_matrix_caps) {
+
+	int32_t dimension = 16;
+
+	MatrixStrassen<ILVector2n> A = MatrixStrassen<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
+	MatrixStrassen<ILVector2n> B = MatrixStrassen<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
+	MatrixStrassen<ILVector2n> C = MatrixStrassen<ILVector2n>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
+	MatrixStrassen<ILVector2n> I = MatrixStrassen<ILVector2n>(fastIL2nAlloc(), dimension, dimension).Identity();
+
+	//EXPECT_EQ((A.Mult(B))(0, 0), (A.MultiplyCAPS(B, 2))(0, 0)) << "CAPS matrix multiplication of two ILVector2Ns doesn't agree with Mult: A.Mult(B), A.MultiplyCAPS(B,2) - failed.\n";
+	EXPECT_EQ(A, A.Mult(I, 2)) << "CAPS matrix multiplication of two ILVector2Ns: A = AI - failed.\n";
+	EXPECT_EQ(A, I.Mult(A, 2)) << "Matrix multiplication of two ILVector2Ns: A = IA - failed.\n";
+
+	EXPECT_EQ((A.Mult(B, 2)).Transpose(), B.Transpose().Mult(A.Transpose(), 2)) << "Matrix multiplication of two ILVector2Ns: (A.MultiplyCAPS(B,2)).Transpose(), B.Transpose().MultiplyCAPS(A.Transpose(),2) - failed.\n";
+
+	EXPECT_EQ(A.Mult(B, 2).Mult(C, 2), A.Mult((B.Mult(C, 2)), 2)) << "Matrix multiplication of two ILVector2Ns: A.MultiplyCAPS(B,2).MultiplyCAPS(C,2), A.MultiplyCAPS((B.MultiplyCAPS(C,2)),2) - failed.\n";
+	EXPECT_EQ(A.Mult(B, 2).Mult(C, 2), (A.Mult(B, 2)).Mult(C, 2)) << "Matrix multiplication of two ILVector2Ns: A.MultiplyCAPS(B,2).MultiplyCAPS(C,2), (A.MultiplyCAPS(B,2)).MultiplyCAPS(C,2) - failed.\n";
+
+}
+
 
 inline void expect_close(double a, double b) {
 	EXPECT_LE(abs(a - b), 10e-8);

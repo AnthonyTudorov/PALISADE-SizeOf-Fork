@@ -184,6 +184,7 @@
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\serializablehelper.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\utilities.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\matrixser.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\math\matrixstrassen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\encoding\byteplaintextencoding.h" />
@@ -255,6 +256,7 @@
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\serializable.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\serializablehelper.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\utilities.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\math\matrixstrassen.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

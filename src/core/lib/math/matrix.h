@@ -169,7 +169,7 @@ namespace lbcrypto {
 			 * @param &other the multiplier matrix
 			 * @return the result of multiplication
              */  
-            inline Matrix<Element> Mult(Matrix<Element> const& other) const;
+            inline virtual Matrix<Element> Mult(Matrix<Element> const& other) const;
 
             /**
              * Operator for matrix multiplication

@@ -27,7 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../utils/serializablehelper.h"
 //#include "rationalciphertext.h"
-#include "strassenmatrix.h"
+#include "matrixstrassen.h"
 
 using std::invalid_argument;
 
@@ -35,7 +35,7 @@ namespace lbcrypto {
 
 
 template<class Element>
-StrassenMatrix<Element>::StrassenMatrix(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen): rows(rows), cols(cols), data(), allocZero(allocZero) {
+MatrixStrassen<Element>::MatrixStrassen(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen): rows(rows), cols(cols), data(), allocZero(allocZero) {
     data.resize(rows);
     for (auto row = data.begin(); row != data.end(); ++row) {
         for (size_t col = 0; col < cols; ++col) {
@@ -45,7 +45,7 @@ StrassenMatrix<Element>::StrassenMatrix(alloc_func allocZero, size_t rows, size_
 }
 
 template<class Element>
-StrassenMatrix<Element>& StrassenMatrix<Element>::operator=(const StrassenMatrix<Element>& other) {
+MatrixStrassen<Element>& MatrixStrassen<Element>::operator=(const MatrixStrassen<Element>& other) {
     rows = other.rows;
     cols = other.cols;
     deepCopyData(other.data);
@@ -53,7 +53,7 @@ StrassenMatrix<Element>& StrassenMatrix<Element>::operator=(const StrassenMatrix
 }
 
 template<class Element>
-StrassenMatrix<Element>& StrassenMatrix<Element>::Ones() {
+MatrixStrassen<Element>& MatrixStrassen<Element>::Ones() {
   //std::cout<<"in Ones"<<std::endl;
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
@@ -64,7 +64,7 @@ StrassenMatrix<Element>& StrassenMatrix<Element>::Ones() {
 }
 
 template<class Element>
-StrassenMatrix<Element>& StrassenMatrix<Element>::Fill(const Element &val) {
+MatrixStrassen<Element>& MatrixStrassen<Element>::Fill(const Element &val) {
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
             *data[row][col] = val;
@@ -74,7 +74,7 @@ StrassenMatrix<Element>& StrassenMatrix<Element>::Fill(const Element &val) {
 }
 
 template<class Element>
-StrassenMatrix<Element>& StrassenMatrix<Element>::Identity() {
+MatrixStrassen<Element>& MatrixStrassen<Element>::Identity() {
   //std::cout<<"in Identity"<<std::endl;
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
@@ -89,8 +89,8 @@ StrassenMatrix<Element>& StrassenMatrix<Element>::Identity() {
 }
 
 template<class Element>
-StrassenMatrix<Element> StrassenMatrix<Element>::GadgetVector() const {
-    StrassenMatrix<Element> g(allocZero, rows, cols);
+MatrixStrassen<Element> MatrixStrassen<Element>::GadgetVector() const {
+    MatrixStrassen<Element> g(allocZero, rows, cols);
     auto two = allocZero();
     *two = 2;
     g(0, 0) = 1;
@@ -101,7 +101,7 @@ StrassenMatrix<Element> StrassenMatrix<Element>::GadgetVector() const {
 }
 
 template<class Element>
-double StrassenMatrix<Element>::Norm() const {
+double MatrixStrassen<Element>::Norm() const {
     double retVal = 0.0;
 	double locVal = 0.0;
 
@@ -122,7 +122,7 @@ double StrassenMatrix<Element>::Norm() const {
 
 
 template<class Element>
-void StrassenMatrix<Element>::SetFormat(Format format) {
+void MatrixStrassen<Element>::SetFormat(Format format) {
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
             data[row][col]->SetFormat(format);
@@ -131,7 +131,7 @@ void StrassenMatrix<Element>::SetFormat(Format format) {
 }
 
 template<class Element>
-StrassenMatrix<Element>& StrassenMatrix<Element>::operator+=(StrassenMatrix<Element> const& other) {
+MatrixStrassen<Element>& MatrixStrassen<Element>::operator+=(MatrixStrassen<Element> const& other) {
     if (rows != other.rows || cols != other.cols) {
         throw invalid_argument("Addition operands have incompatible dimensions");
     }
@@ -153,7 +153,7 @@ for (size_t j = 0; j < cols; ++j) {
 }
 
 template<class Element>
-inline StrassenMatrix<Element>& StrassenMatrix<Element>::operator-=(StrassenMatrix<Element> const& other) {
+inline MatrixStrassen<Element>& MatrixStrassen<Element>::operator-=(MatrixStrassen<Element> const& other) {
     if (rows != other.rows || cols != other.cols) {
         throw invalid_argument("Subtraction operands have incompatible dimensions");
     }
@@ -175,8 +175,8 @@ inline StrassenMatrix<Element>& StrassenMatrix<Element>::operator-=(StrassenMatr
 }
 
 template<class Element>
-StrassenMatrix<Element> StrassenMatrix<Element>::Transpose() const {
-    StrassenMatrix<Element> result(allocZero, cols, rows);
+MatrixStrassen<Element> MatrixStrassen<Element>::Transpose() const {
+    MatrixStrassen<Element> result(allocZero, cols, rows);
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
             result(col, row) = (*this)(row, col);
@@ -194,7 +194,7 @@ StrassenMatrix<Element> StrassenMatrix<Element>::Transpose() const {
 // Examples include the LU decomposition, the QR decomposition or 
 // the Cholesky decomposition(for positive definite matrices).
 template<class Element>
-void StrassenMatrix<Element>::Determinant(Element *determinant) const {
+void MatrixStrassen<Element>::Determinant(Element *determinant) const {
 	if (rows != cols) 
 		throw invalid_argument("Supported only for square matrix");
 	//auto determinant = *allocZero();
@@ -209,7 +209,7 @@ void StrassenMatrix<Element>::Determinant(Element *determinant) const {
 		size_t j1, j2;
 		size_t n = rows;
 
-		StrassenMatrix<Element> result(allocZero, rows - 1, cols - 1);
+		MatrixStrassen<Element> result(allocZero, rows - 1, cols - 1);
 
 		// for each column in sub-matrix
 		for (j1 = 0; j1 < n; j1++) {
@@ -250,7 +250,7 @@ void StrassenMatrix<Element>::Determinant(Element *determinant) const {
 // The cofactor matrix is the matrix of determinants of the minors A_{ij} multiplied by -1^{i+j}
 // The determinant subroutine is used
 template<class Element>
-StrassenMatrix<Element> StrassenMatrix<Element>::CofactorStrassenMatrix() const {
+MatrixStrassen<Element> MatrixStrassen<Element>::CofactorMatrixStrassen() const {
 	
 	if (rows != cols)
 		throw invalid_argument("Supported only for square matrix");
@@ -259,13 +259,13 @@ StrassenMatrix<Element> StrassenMatrix<Element>::CofactorStrassenMatrix() const 
 
 	size_t n = rows;
 
-	StrassenMatrix<Element> result(allocZero, rows, cols);
+	MatrixStrassen<Element> result(allocZero, rows, cols);
 
 	for (size_t j = 0; j<n; j++) {
 
 		for (size_t i = 0; i<n; i++) {
 
-			StrassenMatrix<Element> c(allocZero, rows - 1, cols - 1);
+			MatrixStrassen<Element> c(allocZero, rows - 1, cols - 1);
 
 			/* Form the adjoint a_ij */
 			iNew = 0;
@@ -301,7 +301,7 @@ StrassenMatrix<Element> StrassenMatrix<Element>::CofactorStrassenMatrix() const 
 
 //  add rows to bottom of the matrix
 template<class Element>
-StrassenMatrix<Element>& StrassenMatrix<Element>::VStack(StrassenMatrix<Element> const& other) {
+MatrixStrassen<Element>& MatrixStrassen<Element>::VStack(MatrixStrassen<Element> const& other) {
     if (cols != other.cols) {
         throw invalid_argument("VStack rows not equal size");
     }
@@ -318,7 +318,7 @@ StrassenMatrix<Element>& StrassenMatrix<Element>::VStack(StrassenMatrix<Element>
 
 //  add cols to right of the matrix
 template<class Element>
-inline StrassenMatrix<Element>& StrassenMatrix<Element>::HStack(StrassenMatrix<Element> const& other) {
+inline MatrixStrassen<Element>& MatrixStrassen<Element>::HStack(MatrixStrassen<Element> const& other) {
     if (rows != other.rows) {
         throw invalid_argument("HStack cols not equal size");
     }
@@ -334,7 +334,7 @@ inline StrassenMatrix<Element>& StrassenMatrix<Element>::HStack(StrassenMatrix<E
 }
 
 template<class Element>
-void StrassenMatrix<Element>::PrintValues() const {
+void MatrixStrassen<Element>::PrintValues() const {
     for (size_t col = 0; col < cols; ++col) {
         for (size_t row = 0; row < rows; ++row) {
             data[row][col]->PrintValues();
@@ -345,7 +345,7 @@ void StrassenMatrix<Element>::PrintValues() const {
 }
 
 template<class Element>
-void StrassenMatrix<Element>::SwitchFormat() {
+void MatrixStrassen<Element>::SwitchFormat() {
 
     	for (size_t row = 0; row < rows; ++row) {
     		for (size_t col = 0; col < cols; ++col) {
@@ -356,7 +356,7 @@ void StrassenMatrix<Element>::SwitchFormat() {
 }
 
 template<class Element>
-void StrassenMatrix<Element>::LinearizeDataCAPS(lineardata_t *lineardataPtr) const{
+void MatrixStrassen<Element>::LinearizeDataCAPS(lineardata_t *lineardataPtr) const{
     lineardataPtr->clear();
 
     for (size_t row = 0; row < data.size(); ++row) {
@@ -379,7 +379,7 @@ void StrassenMatrix<Element>::LinearizeDataCAPS(lineardata_t *lineardataPtr) con
 }
 
 template<class Element>
-void StrassenMatrix<Element>::UnlinearizeDataCAPS(lineardata_t *lineardataPtr) const{
+void MatrixStrassen<Element>::UnlinearizeDataCAPS(lineardata_t *lineardataPtr) const{
     	int datasize = cols;
 
     int row = 0;
@@ -414,7 +414,7 @@ void StrassenMatrix<Element>::UnlinearizeDataCAPS(lineardata_t *lineardataPtr) c
 
 
 template<class Element>
-void StrassenMatrix<Element>::deepCopyData(data_t const& src) {
+void MatrixStrassen<Element>::deepCopyData(data_t const& src) {
     data.clear();
     data.resize(src.size());
     for (size_t row = 0; row < src.size(); ++row) {
@@ -424,14 +424,14 @@ void StrassenMatrix<Element>::deepCopyData(data_t const& src) {
     }
 }
 
-inline StrassenMatrix<BigBinaryInteger> Rotate(StrassenMatrix<ILVector2n> const& inMat) {
-    StrassenMatrix<ILVector2n> mat(inMat);
+inline MatrixStrassen<BigBinaryInteger> Rotate(MatrixStrassen<ILVector2n> const& inMat) {
+    MatrixStrassen<ILVector2n> mat(inMat);
     mat.SetFormat(COEFFICIENT);
     size_t n = mat(0,0).GetLength();
     BigBinaryInteger const& modulus = mat(0,0).GetModulus();
     size_t rows = mat.GetRows() * n;
     size_t cols = mat.GetCols() * n;
-    StrassenMatrix<BigBinaryInteger> result(BigBinaryInteger::Allocator, rows, cols);
+    MatrixStrassen<BigBinaryInteger> result(BigBinaryInteger::Allocator, rows, cols);
     for (size_t row = 0; row < mat.GetRows(); ++row) {
         for (size_t col = 0; col < mat.GetCols(); ++col) {
             for (size_t rotRow = 0; rotRow < n; ++rotRow) {
@@ -456,8 +456,8 @@ inline StrassenMatrix<BigBinaryInteger> Rotate(StrassenMatrix<ILVector2n> const&
     *  Each element becomes a square matrix with columns of that element's
     *  rotations in coefficient form.
     */
-StrassenMatrix<BigBinaryVector> RotateVecResult(StrassenMatrix<ILVector2n> const& inMat) {
-    StrassenMatrix<ILVector2n> mat(inMat);
+MatrixStrassen<BigBinaryVector> RotateVecResult(MatrixStrassen<ILVector2n> const& inMat) {
+    MatrixStrassen<ILVector2n> mat(inMat);
     mat.SetFormat(COEFFICIENT);
     size_t n = mat(0,0).GetLength();
     BigBinaryInteger const& modulus = mat(0,0).GetModulus();
@@ -465,7 +465,7 @@ StrassenMatrix<BigBinaryVector> RotateVecResult(StrassenMatrix<ILVector2n> const
     size_t rows = mat.GetRows() * n;
     size_t cols = mat.GetCols() * n;
     auto singleElemBinVecAlloc = [=](){ return make_unique<BigBinaryVector>(1, modulus); };
-    StrassenMatrix<BigBinaryVector> result(singleElemBinVecAlloc, rows, cols);
+    MatrixStrassen<BigBinaryVector> result(singleElemBinVecAlloc, rows, cols);
     for (size_t row = 0; row < mat.GetRows(); ++row) {
         for (size_t col = 0; col < mat.GetCols(); ++col) {
             for (size_t rotRow = 0; rotRow < n; ++rotRow) {
@@ -488,7 +488,7 @@ StrassenMatrix<BigBinaryVector> RotateVecResult(StrassenMatrix<ILVector2n> const
 }
 
 template<class Element>
-inline std::ostream& operator<<(std::ostream& os, const StrassenMatrix<Element>& m){
+inline std::ostream& operator<<(std::ostream& os, const MatrixStrassen<Element>& m){
     os << "[ ";
     for (size_t row = 0; row < m.GetRows(); ++row) {
         os << "[ ";
@@ -501,18 +501,18 @@ inline std::ostream& operator<<(std::ostream& os, const StrassenMatrix<Element>&
     return os;
 }
 
-// YSP removed the StrassenMatrix class because it is not defined for all possible data types
+// YSP removed the MatrixStrassen class because it is not defined for all possible data types
 // needs to be checked to make sure input matrix is used in the right places
 // the assumption is that covariance matrix does not have large coefficients because it is formed by
 // discrete gaussians e and s; this implies int32_t can be used
 // This algorithm can be further improved - see the Darmstadt paper section 4.4
-StrassenMatrix<LargeFloat> Cholesky(const StrassenMatrix<int32_t> &input) {
+MatrixStrassen<LargeFloat> Cholesky(const MatrixStrassen<int32_t> &input) {
     //  http://eprint.iacr.org/2013/297.pdf
     if (input.GetRows() != input.GetCols()) {
         throw invalid_argument("not square");
     }
     size_t rows = input.GetRows();
-    StrassenMatrix<LargeFloat> result([](){ return make_unique<LargeFloat>(); }, rows, rows);
+    MatrixStrassen<LargeFloat> result([](){ return make_unique<LargeFloat>(); }, rows, rows);
 
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < rows; ++j) {
@@ -543,11 +543,11 @@ StrassenMatrix<LargeFloat> Cholesky(const StrassenMatrix<int32_t> &input) {
 }
 
 //  Convert from Z_q to [-q/2, q/2]
-StrassenMatrix<int32_t> ConvertToInt32(const StrassenMatrix<BigBinaryInteger> &input, const BigBinaryInteger& modulus) {
+MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigBinaryInteger> &input, const BigBinaryInteger& modulus) {
     size_t rows = input.GetRows();
     size_t cols = input.GetCols();
     BigBinaryInteger negativeThreshold(modulus / BigBinaryInteger::TWO);
-    StrassenMatrix<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
+    MatrixStrassen<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < cols; ++j) {
             if (input(i,j) > negativeThreshold) {
@@ -560,11 +560,11 @@ StrassenMatrix<int32_t> ConvertToInt32(const StrassenMatrix<BigBinaryInteger> &i
     return result;
 }
 
-StrassenMatrix<int32_t> ConvertToInt32(const StrassenMatrix<BigBinaryVector> &input, const BigBinaryInteger& modulus) {
+MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigBinaryVector> &input, const BigBinaryInteger& modulus) {
     size_t rows = input.GetRows();
     size_t cols = input.GetCols();
     BigBinaryInteger negativeThreshold(modulus / BigBinaryInteger::TWO);
-    StrassenMatrix<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
+    MatrixStrassen<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < cols; ++j) {
             const BigBinaryInteger& elem = input(i,j).GetValAtIndex(0);
@@ -579,13 +579,13 @@ StrassenMatrix<int32_t> ConvertToInt32(const StrassenMatrix<BigBinaryVector> &in
 }
 
 //  split a vector of int32_t into a vector of ring elements with ring dimension n
-StrassenMatrix<ILVector2n> SplitInt32IntoILVector2nElements(StrassenMatrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
+MatrixStrassen<ILVector2n> SplitInt32IntoILVector2nElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
 			
 	auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
 	size_t rows = other.GetRows()/n;
 
-    StrassenMatrix<ILVector2n> result(zero_alloc, rows, 1);
+    MatrixStrassen<ILVector2n> result(zero_alloc, rows, 1);
 
     for (size_t row = 0; row < rows; ++row) {
 		BigBinaryVector tempBBV(n,params->GetModulus());
@@ -613,13 +613,13 @@ StrassenMatrix<ILVector2n> SplitInt32IntoILVector2nElements(StrassenMatrix<int32
 }
 
 //  split a vector of BBI into a vector of ring elements with ring dimension n
-StrassenMatrix<ILVector2n> SplitInt32AltIntoILVector2nElements(StrassenMatrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
+MatrixStrassen<ILVector2n> SplitInt32AltIntoILVector2nElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
 			
 	auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
 
 	size_t rows = other.GetRows();
 
-    StrassenMatrix<ILVector2n> result(zero_alloc, rows, 1);
+    MatrixStrassen<ILVector2n> result(zero_alloc, rows, 1);
 
     for (size_t row = 0; row < rows; ++row) {
 
@@ -656,12 +656,12 @@ StrassenMatrix<ILVector2n> SplitInt32AltIntoILVector2nElements(StrassenMatrix<in
 * @return true if successfully serialized
 */
 template<class Element>
-bool StrassenMatrix<Element>::Serialize(Serialized* serObj) const {
+bool MatrixStrassen<Element>::Serialize(Serialized* serObj) const {
 	serObj->SetObject();
 std::cout << "SERIALIZING " << rows << ":" << cols << std::endl;
 std::cout << data.size() << std::endl;
 std::cout << data[0].size() << std::endl;
-	//SerializeVectorOfVector("StrassenMatrix", elementName<Element>(), this->data, serObj);
+	//SerializeVectorOfVector("MatrixStrassen", elementName<Element>(), this->data, serObj);
 
 	std::cout << typeid(Element).name() << std::endl;
 
@@ -680,12 +680,12 @@ std::cout << data[0].size() << std::endl;
 * @return true on success
 */
 template<class Element>
-bool StrassenMatrix<Element>::Deserialize(const Serialized& serObj) {
-	Serialized::ConstMemberIterator mIter = serObj.FindMember("StrassenMatrix");
+bool MatrixStrassen<Element>::Deserialize(const Serialized& serObj) {
+	Serialized::ConstMemberIterator mIter = serObj.FindMember("MatrixStrassen");
 	if( mIter == serObj.MemberEnd() )
 		return false;
 
-	//return DeserializeVectorOfVector<Element>("StrassenMatrix", elementName<Element>(), mIter, &this->data);
+	//return DeserializeVectorOfVector<Element>("MatrixStrassen", elementName<Element>(), mIter, &this->data);
 	return true;
 }
 #endif
@@ -695,7 +695,7 @@ bool StrassenMatrix<Element>::Deserialize(const Serialized& serObj) {
 
 
 template<class Element>
-StrassenMatrix<Element> StrassenMatrix<Element>::Mult(StrassenMatrix<Element> const& other,int nrec,int pad) const{
+MatrixStrassen<Element> MatrixStrassen<Element>::Mult(MatrixStrassen<Element> const& other,int nrec,int pad) const{
 
 
 
@@ -758,7 +758,7 @@ StrassenMatrix<Element> StrassenMatrix<Element>::Mult(StrassenMatrix<Element> co
 	desc.nprocr = 1;
 
 
-    StrassenMatrix<Element> result(allocZero, rows, other.cols);
+    MatrixStrassen<Element> result(allocZero, rows, other.cols);
 
     other.rowpad = rowpad;
     result.rowpad = rowpad;
@@ -829,7 +829,7 @@ return result;
 
 // nproc is the number of processors that share the matrices, and will be involved in the multiplication
 template<class Element>
-void StrassenMatrix<Element>::multiplyInternalCAPS(it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc,
+void MatrixStrassen<Element>::multiplyInternalCAPS(it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc,
 		it_lineardata_t work) const{
 
 	if (desc.nrec == 0) { // (planned) out of recursion in the data layout, do a regular matrix multiply.  The matrix is now in a 2d block cyclic layout
@@ -858,7 +858,7 @@ void StrassenMatrix<Element>::multiplyInternalCAPS(it_lineardata_t A, it_lineard
 }
 
 template<class Element>
-void StrassenMatrix<Element>::addMatricesCAPS( int numEntries, it_lineardata_t C, it_lineardata_t A, it_lineardata_t B ) const{
+void MatrixStrassen<Element>::addMatricesCAPS( int numEntries, it_lineardata_t C, it_lineardata_t A, it_lineardata_t B ) const{
 
 
 #pragma omp parallel for schedule(static, (numEntries+NUM_THREADS-1)/NUM_THREADS)
@@ -870,7 +870,7 @@ void StrassenMatrix<Element>::addMatricesCAPS( int numEntries, it_lineardata_t C
 }
 
 template<class Element>
-void StrassenMatrix<Element>::subMatricesCAPS( int numEntries, it_lineardata_t C, it_lineardata_t A, it_lineardata_t B ) const{
+void MatrixStrassen<Element>::subMatricesCAPS( int numEntries, it_lineardata_t C, it_lineardata_t A, it_lineardata_t B ) const{
 
 
 #pragma omp parallel for schedule(static, (numEntries+NUM_THREADS-1)/NUM_THREADS)
@@ -882,7 +882,7 @@ void StrassenMatrix<Element>::subMatricesCAPS( int numEntries, it_lineardata_t C
 }
 
 template<class Element>
-void StrassenMatrix<Element>::accessUniquePtrCAPS(it_lineardata_t ptr, Element val) const{
+void MatrixStrassen<Element>::accessUniquePtrCAPS(it_lineardata_t ptr, Element val) const{
 	if (*ptr == 0) {
 
 		*ptr = make_unique<Element>(val);
@@ -893,7 +893,7 @@ void StrassenMatrix<Element>::accessUniquePtrCAPS(it_lineardata_t ptr, Element v
 }
 
 template<class Element>
-void StrassenMatrix<Element>::smartSubtractionCAPS(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const{
+void MatrixStrassen<Element>::smartSubtractionCAPS(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const{
 	Element temp;
 
 	if (*A != 0 && *B != 0){
@@ -916,7 +916,7 @@ void StrassenMatrix<Element>::smartSubtractionCAPS(it_lineardata_t result, it_li
 }
 
 template<class Element>
-void StrassenMatrix<Element>::smartAdditionCAPS(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const{
+void MatrixStrassen<Element>::smartAdditionCAPS(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const{
 	Element temp;
 
 	if (*A != 0 && *B != 0){
@@ -938,7 +938,7 @@ void StrassenMatrix<Element>::smartAdditionCAPS(it_lineardata_t result, it_linea
 }
 // useful to improve cache behavior if there is some overlap.  It is safe for T_i to be the same as S_j* as long as i<j.  That is, operations will happen in the order specified
 template<class Element>
-void StrassenMatrix<Element>::tripleSubMatricesCAPS(int numEntries, it_lineardata_t T1, it_lineardata_t S11, it_lineardata_t S12, it_lineardata_t T2,
+void MatrixStrassen<Element>::tripleSubMatricesCAPS(int numEntries, it_lineardata_t T1, it_lineardata_t S11, it_lineardata_t S12, it_lineardata_t T2,
 		it_lineardata_t S21, it_lineardata_t S22, it_lineardata_t T3, it_lineardata_t S31, it_lineardata_t S32) const{
 
 #pragma omp parallel for schedule(static, (numEntries+NUM_THREADS-1)/NUM_THREADS)
@@ -955,7 +955,7 @@ void StrassenMatrix<Element>::tripleSubMatricesCAPS(int numEntries, it_lineardat
 }
 
 template<class Element>
-void StrassenMatrix<Element>::tripleAddMatricesCAPS(int numEntries, it_lineardata_t T1, it_lineardata_t S11, it_lineardata_t S12, it_lineardata_t T2,
+void MatrixStrassen<Element>::tripleAddMatricesCAPS(int numEntries, it_lineardata_t T1, it_lineardata_t S11, it_lineardata_t S12, it_lineardata_t T2,
 		it_lineardata_t S21, it_lineardata_t S22, it_lineardata_t T3, it_lineardata_t S31, it_lineardata_t S32) const{
 
 #pragma omp parallel for schedule(static, (numEntries+NUM_THREADS-1)/NUM_THREADS)
@@ -971,7 +971,7 @@ void StrassenMatrix<Element>::tripleAddMatricesCAPS(int numEntries, it_lineardat
 }
 
 template<class Element>
-void StrassenMatrix<Element>::addSubMatricesCAPS(int numEntries, it_lineardata_t T1, it_lineardata_t S11, it_lineardata_t S12, it_lineardata_t T2,
+void MatrixStrassen<Element>::addSubMatricesCAPS(int numEntries, it_lineardata_t T1, it_lineardata_t S11, it_lineardata_t S12, it_lineardata_t T2,
 		it_lineardata_t S21, it_lineardata_t S22 ) const{
 
 #pragma omp parallel for schedule(static, (numEntries+NUM_THREADS-1)/NUM_THREADS)
@@ -986,7 +986,7 @@ void StrassenMatrix<Element>::addSubMatricesCAPS(int numEntries, it_lineardata_t
 
 
 template<class Element>
-void StrassenMatrix<Element>::strassenDFSCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc, it_lineardata_t workPassThrough ) const{
+void MatrixStrassen<Element>::strassenDFSCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc, it_lineardata_t workPassThrough ) const{
 #ifdef SANITY_CHECKS
   verifyDescriptor( desc );
 #endif
@@ -1080,7 +1080,7 @@ void StrassenMatrix<Element>::strassenDFSCAPS( it_lineardata_t A, it_lineardata_
 }
 
 template<class Element>
-void StrassenMatrix<Element>::block_multiplyCAPS(it_lineardata_t A,
+void MatrixStrassen<Element>::block_multiplyCAPS(it_lineardata_t A,
 		it_lineardata_t B, it_lineardata_t C, MatDescriptor d,
 		it_lineardata_t work) const{
 	long long lda = d.lda;
@@ -1139,7 +1139,7 @@ void StrassenMatrix<Element>::block_multiplyCAPS(it_lineardata_t A,
 // get the communicators used for gather and scatter when collapsing/expanding a column or a row
 
 template<class Element>
-void StrassenMatrix<Element>::sendBlockCAPS( /*MPI_Comm comm,*/int rank, int target,
+void MatrixStrassen<Element>::sendBlockCAPS( /*MPI_Comm comm,*/int rank, int target,
 		it_lineardata_t O, int bs, int source, it_lineardata_t I,
 		int ldi) const{
 
@@ -1160,7 +1160,7 @@ void StrassenMatrix<Element>::sendBlockCAPS( /*MPI_Comm comm,*/int rank, int tar
 }
 
 template<class Element>
-void StrassenMatrix<Element>::receiveBlockCAPS(  int rank, int target, it_lineardata_t O, int bs, int source, it_lineardata_t I, int ldo ) const{
+void MatrixStrassen<Element>::receiveBlockCAPS(  int rank, int target, it_lineardata_t O, int bs, int source, it_lineardata_t I, int ldo ) const{
 
 
 	if (source == target) {
@@ -1182,7 +1182,7 @@ void StrassenMatrix<Element>::receiveBlockCAPS(  int rank, int target, it_linear
 }
 
 template <class Element>
-void StrassenMatrix<Element>::distributeFrom1ProcRecCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I, int ldi ) const{
+void MatrixStrassen<Element>::distributeFrom1ProcRecCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I, int ldi ) const{
   if( desc.nrec == 0 ) { // base case; put the matrix block-cyclic layout
     //MPI_Comm comm = getComm();
     int rank = getRank();
@@ -1229,12 +1229,12 @@ void StrassenMatrix<Element>::distributeFrom1ProcRecCAPS( MatDescriptor desc, it
 }
 
 template <class Element>
-void StrassenMatrix<Element>::distributeFrom1ProcCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I ) const{
+void MatrixStrassen<Element>::distributeFrom1ProcCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I ) const{
   distributeFrom1ProcRecCAPS( desc, O, I, desc.lda );
 }
 
 template <class Element>
-void StrassenMatrix<Element>::collectTo1ProcRecCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I, int ldo ) const{
+void MatrixStrassen<Element>::collectTo1ProcRecCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I, int ldo ) const{
   if( desc.nrec == 0 ) { // base case; put the matrix block-cyclic layout
     //MPI_Comm comm = getComm();
     int rank = getRank();
@@ -1280,7 +1280,7 @@ void StrassenMatrix<Element>::collectTo1ProcRecCAPS( MatDescriptor desc, it_line
 }
 
 template <class Element>
-void StrassenMatrix<Element>::collectTo1ProcCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I ) const{
+void MatrixStrassen<Element>::collectTo1ProcCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I ) const{
   collectTo1ProcRecCAPS( desc, O, I, desc.lda );
 }
 
@@ -1288,7 +1288,7 @@ void StrassenMatrix<Element>::collectTo1ProcCAPS( MatDescriptor desc, it_lineard
 
 
 template<class Element>
-void StrassenMatrix<Element>::getData(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int row, int inner, int col) const{
+void MatrixStrassen<Element>::getData(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int row, int inner, int col) const{
 	printf("Adata[3][0] = %d\n",(int)(*Adata[3][0]));
 	printf("Bdata[3][0] = %d\n",(int)(*Bdata[3][0]));
 	printf("Cdata[3][0] = %d\n",(int)(*Cdata[3][0]));
@@ -1311,8 +1311,8 @@ void StrassenMatrix<Element>::getData(const data_t &Adata, const data_t &Bdata, 
  * Return a vector that is a rows x 1 matrix.
  */
 template<class Element>
-StrassenMatrix<Element> StrassenMatrix<Element>::MultByUnityVector() const {
-	StrassenMatrix<Element> result(allocZero, rows, 1);
+MatrixStrassen<Element> MatrixStrassen<Element>::MultByUnityVector() const {
+	MatrixStrassen<Element> result(allocZero, rows, 1);
 
 #pragma omp parallel for
 	for (int32_t row = 0; row < result.rows; ++row) {
@@ -1331,8 +1331,8 @@ StrassenMatrix<Element> StrassenMatrix<Element>::MultByUnityVector() const {
  * Return a vector that is a rows x 1 matrix.
  */
 template<class Element>
-StrassenMatrix<Element> StrassenMatrix<Element>::MultByRandomVector(std::vector<int> ranvec) const {
-	StrassenMatrix<Element> result(allocZero, rows, 1);
+MatrixStrassen<Element> MatrixStrassen<Element>::MultByRandomVector(std::vector<int> ranvec) const {
+	MatrixStrassen<Element> result(allocZero, rows, 1);
 //	std::vector<int> ranvec;
 //	ranvec.reserve(cols);
 //	int counter = 0;
@@ -1359,12 +1359,12 @@ StrassenMatrix<Element> StrassenMatrix<Element>::MultByRandomVector(std::vector<
 
 
 template<class Element>
-int StrassenMatrix<Element>::getRank() {
+int MatrixStrassen<Element>::getRank() {
   return rank;
 }
 
 template<class Element>
-void StrassenMatrix<Element>::verifyDescriptor( MatDescriptor desc ) {
+void MatrixStrassen<Element>::verifyDescriptor( MatDescriptor desc ) {
   assert( desc.lda % ((1<<desc.nrec)*desc.bs*desc.nprocr) == 0 );
   assert( desc.lda % ((1<<desc.nrec)*desc.bs*desc.nprocc) == 0 );
   assert( desc.nprocr*desc.nprocc == desc.nproc );
@@ -1372,7 +1372,7 @@ void StrassenMatrix<Element>::verifyDescriptor( MatDescriptor desc ) {
 
 
 template<class Element>
-long long StrassenMatrix<Element>::numEntriesPerProc( MatDescriptor desc ) {
+long long MatrixStrassen<Element>::numEntriesPerProc( MatDescriptor desc ) {
   long long lda = desc.lda;
   return ( (lda*lda) / desc.nproc / desc.nproc_summa );
 }
