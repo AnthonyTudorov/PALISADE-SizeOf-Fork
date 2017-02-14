@@ -30,14 +30,16 @@
 ################
 
 
-#### set in platform makefile #### CC := g++ # This is the main compiler
+
 
 # NOTE select the appropriate set of CPPFLAGS 
 # most code is checked into git with the first line active
+
 #CPPFLAGS += -Wall $(CPPSTD) -w -g ## undefine for single thread debug NO OPTIMIZATION operation
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w -g ## undefine for single thread debug operation
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w -g -fopenmp  ##undefine for parallel debug operation
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w  -DNDEBUG  -pg ##undefine for single thread best performance operation with gprof profiling 
+
 
 #main best performance configuration for parallel operation - cross-platform
 CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp ### -m64  ##undefine for parallel best performance operation with debug
@@ -49,7 +51,9 @@ CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp ### -m64  ##undefine for parallel be
 #CPPFLAGS += -Wall $(CPPSTD) -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp -DNDEBUG ##undefine for multithread really best performance operation
 #CPPFLAGS += -Wall $(CPPSTD) -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
 
+
 TEST_LIB := -pthread -lgomp 
+
 
 #build directory
 BUILDDIR := build
@@ -69,8 +73,10 @@ HDREXT := h
 
 $(objects) : %.o : %.cpp
 
+
 EXTLIB := -L$(EXTLIBDIR) -lpthread -lgomp -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
 INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I test $(OMPINCLUDE) $(BOOSTINCLUDE)
+
 
 #the name of the shared object library for palisade objects.  
 PALISADECORELIB := libPALISADEcore$(LIBSUFFIX)

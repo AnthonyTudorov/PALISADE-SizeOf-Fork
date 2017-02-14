@@ -51,6 +51,19 @@ namespace lbcrypto {
 		}
 	}
 
+	ILVector2n::ILVector2n(bool initializeElementToMax, const shared_ptr<ElemParams> params, Format format) : m_values(NULL), m_format(format) {
+		if( typeid(*params) != typeid(ILParams) )
+			throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
+
+		m_params = std::static_pointer_cast<ILParams>(params);
+
+		if(initializeElementToMax) {
+			this->SetValuesToMax();
+
+		}
+	}
+
+
 	ILVector2n::ILVector2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ElemParams> params, Format format) {
 
 		m_params = std::dynamic_pointer_cast<ILParams>(params);
@@ -292,6 +305,26 @@ namespace lbcrypto {
 		}
 		m_values = new BigBinaryVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
 	}
+
+	void ILVector2n::SetValuesToMax() {
+		if (m_values != NULL) {
+			delete m_values;
+		}
+
+		BigBinaryInteger max = m_params->GetModulus() - BigBinaryInteger::ONE;
+		usint size = m_params->GetCyclotomicOrder()/2;
+		m_values = new BigBinaryVector(m_params->GetCyclotomicOrder()/2, m_params->GetModulus());
+
+
+		for (usint i = 0; i < size; i++) {
+			BigBinaryInteger temp(max);
+			//BigBinaryInteger temp("2475880078570760549798268928");
+			//BigBinaryInteger temp("1111111111");
+			m_values->SetValAtIndex(i, temp);
+		}
+
+	}
+
 
 	void ILVector2n::SetFormat(const Format format) {
 		if (m_format != format) {

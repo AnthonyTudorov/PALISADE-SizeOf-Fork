@@ -80,6 +80,9 @@ namespace lbcrypto {
 		*/
         ILVector2n(const shared_ptr<ElemParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
+    	ILVector2n(bool initializeElementToMax, const shared_ptr<ElemParams> params, Format format);
+
+
 		/**
 		* Constructor based on full methods.
 		*
@@ -127,6 +130,32 @@ namespace lbcrypto {
 				return lbcrypto::make_unique<ILVector2n>(ip, format, true);
 			};
 		}
+
+        /**
+          *  Create lambda that allocates a zeroed element with the specified
+          *  parameters and format
+          */
+         inline static function<unique_ptr<ILVector2n>()> MakeMaxAllocator(shared_ptr<ILParams> params, Format format) {
+             return [=]() {
+                 return lbcrypto::make_unique<ILVector2n>(true, params, format);
+             };
+         }
+
+         /**
+          *  Create lambda that allocates a zeroed element for the case when it is called from a templated class
+          */
+         inline static function<unique_ptr<ILVector2n>()> MakeMaxAllocator(const shared_ptr<ElemParams> params, Format format) {
+             return [=]() {
+                 //return MakeAllocator(*(static_cast<const ILParams*>(params)),format);
+             	ILParams *ip = dynamic_cast<ILParams *>( &*params );
+             	if( ip == 0 )
+             		throw std::logic_error("MakeAllocator was not passed an ILParams");
+             	shared_ptr<ILParams> pcast( ip );
+ 				return lbcrypto::make_unique<ILVector2n>(true, pcast, format);
+             };
+         }
+
+
 
 		/**
 		* Allocator for discrete uniform distribution.
@@ -322,7 +351,7 @@ namespace lbcrypto {
 		* Sets all values to zero.
 		*/
 		void SetValuesToZero();
-
+		void SetValuesToMax();
 		/**
 		* Sets the format.
 		*

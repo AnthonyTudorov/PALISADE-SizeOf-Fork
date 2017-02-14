@@ -108,6 +108,7 @@ namespace lbcrypto {
 		// perturbedSyndrome is in the evaluation representation
 		ILVector2n perturbedSyndrome = u - (A.Mult(pHat))(0, 0);
 
+
 		//Matrix<BigBinaryInteger> zHatBBI(BigBinaryInteger::Allocator, k, n);
 		Matrix<int32_t> zHatBBI([](){ return make_unique<int32_t>(); },  k, n);
 

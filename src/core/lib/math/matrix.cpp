@@ -28,9 +28,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../utils/serializablehelper.h"
 //#include "rationalciphertext.h"
 #include "matrix.h"
+
 using std::invalid_argument;
 
 namespace lbcrypto {
+
 
 template<class Element>
 Matrix<Element>::Matrix(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen): rows(rows), cols(cols), data(), allocZero(allocZero) {
@@ -120,6 +122,8 @@ double Matrix<Element>::Norm() const {
 
 template<class Element>
 Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
+	//NUM_THREADS = omp_get_max_threads();
+
     if (cols != other.rows) {
         throw invalid_argument("incompatible matrix multiplication");
     }
@@ -135,8 +139,6 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
     }
 #else
     #pragma omp parallel for
-
-
     for (int32_t row = 0; row < result.rows; ++row) {
 
 	//if result was zero allocated the following should not be needed
@@ -386,6 +388,7 @@ void Matrix<Element>::SwitchFormat() {
     	}
 
 }
+
 
 template<class Element>
 void Matrix<Element>::deepCopyData(data_t const& src) {
@@ -663,6 +666,50 @@ bool Matrix<Element>::Deserialize(const Serialized& serObj) {
 	return true;
 }
 #endif
+
+
+
+
+/*
+ * Multiply the matrix by a vector of 1's, which is the same as adding all the
+ * elements in the row together.
+ * Return a vector that is a rows x 1 matrix.
+ */
+template<class Element>
+Matrix<Element> Matrix<Element>::MultByUnityVector() const {
+	Matrix<Element> result(allocZero, rows, 1);
+
+#pragma omp parallel for
+	for (int32_t row = 0; row < result.rows; ++row) {
+
+		for (int32_t col= 0; col<cols; ++col){
+				*result.data[row][0] += *data[row][col];
+		}
+	}
+
+	return result;
+}
+
+/*
+ * Multiply the matrix by a vector of random 1's and 0's, which is the same as adding select
+ * elements in each row together.
+ * Return a vector that is a rows x 1 matrix.
+ */
+template<class Element>
+Matrix<Element> Matrix<Element>::MultByRandomVector(std::vector<int> ranvec) const {
+	Matrix<Element> result(allocZero, rows, 1);
+
+#pragma omp parallel for
+	for (int32_t row = 0; row < result.rows; ++row) {
+
+		for (int32_t col= 0; col<cols; ++col){
+			if (ranvec[col] == 1)
+				*result.data[row][0] += *data[row][col];
+		}
+	}
+	return result;
+}
+
 
 }
 

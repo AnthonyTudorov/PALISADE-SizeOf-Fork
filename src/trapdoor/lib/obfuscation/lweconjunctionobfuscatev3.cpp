@@ -632,41 +632,163 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
 		}
 		DEBUG("Eval2:#"<< i << ": " <<TOC(t1) <<" ms");
 	}
-	TIC(t1);	
-	std::cout << " S_prod: " << std::endl;
+	TIC(t1);
+	//std::cout << " S_prod: " << std::endl;
 	//S_prod.PrintValues();
-	std::cout << " R_prod: " << std::endl;
+	//std::cout << " R_prod: " << std::endl;
 	//R_prod.PrintValues();
 
 	shared_ptr<Matrix<Element>> Sl = obfuscatedPattern.GetSl();
 	shared_ptr<Matrix<Element>> Rl = obfuscatedPattern.GetRl();
 	
-	std::cout << " Sl: " << std::endl;
+	//std::cout << " Sl: " << std::endl;
 	//Sl->PrintValues();
-	std::cout << " Rl: " << std::endl;
+	//std::cout << " Rl: " << std::endl;
 	//Rl->PrintValues();
 
-	std::cout << " Cross Product: " << std::endl;
+	//std::cout << " Cross Product: " << std::endl;
 	Matrix<Element> CrossProd = Pk_vector[0]*((S_prod * (*Rl)) - (R_prod * (*Sl)));
 	//CrossProd.PrintValues();
 
 
 	DEBUG("Eval3: " <<TOC(t1) <<" ms");
-	TIC(t1);	
+	TIC(t1);
 
 	//the norm can be estimated after all elements are converted to coefficient representation
 	CrossProd.SwitchFormat();
-	DEBUG("Eval4: " <<TOC(t1) <<" ms");
-	TIC(t1);	
+	//DEBUG("Eval4: " <<TOC(t1) <<" ms");
+	//TIC(t1);
 	//CrossProd.PrintValues();
 
 	//std::cout << "cross product dimensions: " <<  CrossProd.GetRows() << ", " << CrossProd.GetCols() << std::endl;
 	//std::cout <<  CrossProd << std::endl;
 
 	norm = CrossProd.Norm();
-	DEBUG("Eval5: " <<TOC(t1) <<" ms");
+	DEBUG("Eval: " <<TOC(t1) <<" ms");
 
-	std::cout << " Norm: " << norm << std::endl;
+	std::cout << " Original Norm: " << norm << std::endl;
+
+	return (norm <= constraint);
+
+};
+
+
+template <class Element>
+bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateACS(
+				const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
+				const std::string &testString, const int useRandomVector) const {
+	//Evaluation of Obfuscated Conjunction Pattern
+	TimeVar t1; // for TIC TOC
+	bool dbg_flag = 1;
+	TIC(t1);
+
+	usint l = obfuscatedPattern.GetLength();
+	usint n = obfuscatedPattern.GetRingDimension();
+	BigBinaryInteger q(obfuscatedPattern.GetModulus());
+	usint m = obfuscatedPattern.GetLogModulus() + 2;
+	usint chunkSize = obfuscatedPattern.GetChunkSize();
+	usint adjustedLength = l/chunkSize;
+	double constraint = obfuscatedPattern.GetConstraint();
+
+
+	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
+
+	const shared_ptr<ElemParams> params = obfuscatedPattern.GetParameters();
+
+	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+
+	std::cout << "" << std::endl;
+	std::cout << "Pattern length \t l : " << l << std::endl;
+	std::cout << "Ring dimension \t n : " << n << std::endl;
+	std::cout << "Modulus \t q : " << q << std::endl;
+	std::cout << "Num bits \t m : " << m << std::endl;
+	std::cout << "Constraint \t : " << constraint << std::endl;
+
+	bool retVal = true;
+	std::string testVal;
+
+	double norm = constraint;
+
+
+
+	shared_ptr<Matrix<Element>> S_ib;
+	shared_ptr<Matrix<Element>> R_ib;
+	Matrix<Element> CrossSR = Matrix<Element>(zero_alloc, m, 1);
+	Matrix<Element> CrossRS = Matrix<Element>(zero_alloc, m, 1);
+
+	shared_ptr<Matrix<Element>> Sl = obfuscatedPattern.GetSl();
+	shared_ptr<Matrix<Element>> Rl = obfuscatedPattern.GetRl();
+	std::cout << "Sl dimensions: " <<  Sl->GetRows() << ", " << Sl->GetCols() << std::endl;
+	std::cout << "Rl dimensions: " <<  Rl->GetRows() << ", " << Rl->GetCols() << std::endl;
+	if (useRandomVector == 1) {
+		std::vector<int> randvec;
+		randvec.reserve(Rl->GetCols());
+		for (int i = 0; i < Rl->GetCols(); i++) {
+			randvec.push_back(rand() % 2);
+		}
+		std::cout<<"About to set CrossSR and CrossRS from randvec"<<std::endl;
+		CrossSR = Rl->MultByRandomVector(randvec);
+		CrossRS = Sl->MultByRandomVector(randvec);
+	} else {
+		std::cout<<"About to set CrossSR and CrossRS from unity vec"<<std::endl;
+		CrossSR = Rl->MultByUnityVector();
+		CrossRS = Sl->MultByUnityVector();
+	}
+	std::cout << "CrossSR dimensions: " <<  CrossSR.GetRows() << ", " << CrossSR.GetCols() << std::endl;
+	std::cout << "CrossRS dimensions: " <<  CrossRS.GetRows() << ", " << CrossRS.GetCols() << std::endl;
+	//DEBUG("EvalACS1: "<<TOC(t1) <<" ms");
+
+	for (int i=adjustedLength-1; i>=0; i--) 	{
+		//TIC(t1);
+
+		//pragma omp parallel sections
+		{
+			{
+				testVal = testString.substr(i*chunkSize,chunkSize);
+				//std::cout << " Index: " << i << std::endl;
+				//std::cout << " \t Input: \t" << testVal << std::endl;
+			}
+			S_ib = obfuscatedPattern.GetS(i,testVal);
+			R_ib = obfuscatedPattern.GetR(i,testVal);
+			//std::cout << "S_ib dimensions: " <<  S_ib->GetRows() << ", " << S_ib->GetCols() << std::endl;
+			//std::cout << "R_ib dimensions: " <<  R_ib->GetRows() << ", " << R_ib->GetCols() << std::endl;
+			//S_ib->PrintValues();
+			//R_ib->PrintValues();
+
+			CrossSR = (*S_ib) * (CrossSR);
+
+			CrossRS = (*R_ib) * (CrossRS);
+
+
+		}
+		//DEBUG("EvalACS2:#"<< i << ": " <<TOC(t1) <<" ms");
+	}
+	//TIC(t1);
+
+	//std::cout << "Final CrossSR dimensions: " <<  CrossSR.GetRows() << ", " << CrossSR.GetCols() << std::endl;
+	//std::cout << "Final CrossRS dimensions: " <<  CrossRS.GetRows() << ", " << CrossRS.GetCols() << std::endl;
+
+	//std::cout << "Pk_vector[0] dimensions: " <<  Pk_vector[0].GetRows() << ", " << Pk_vector[0].GetCols() << std::endl;
+	Matrix<Element> CrossProd = Pk_vector[0]*(CrossSR - CrossRS);
+
+
+
+	//DEBUG("EvalACS3: " <<TOC(t1) <<" ms");
+	//TIC(t1);
+
+	//the norm can be estimated after all elements are converted to coefficient representation
+	CrossProd.SwitchFormat();
+	//DEBUG("EvalACS4: " <<TOC(t1) <<" ms");
+	//TIC(t1);
+
+
+	//std::cout << "cross product dimensions: " <<  CrossProd.GetRows() << ", " << CrossProd.GetCols() << std::endl;
+	//std::cout <<  CrossProd << std::endl;
+
+	norm = CrossProd.Norm();
+	std::cout <<"EvalACS: " <<TOC(t1) <<" ms"<< std::endl;
+
+	std::cout << "ACS Norm: " << norm << std::endl;
 
 	return (norm <= constraint);
 

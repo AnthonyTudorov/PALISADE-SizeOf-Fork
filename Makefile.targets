@@ -54,7 +54,7 @@ alltargets: $(EXTLIBDIR)/$(PALISADELIB)
 $(EXTLIBDIR)/$(PALISADELIB): $(LIBOBJECTS)
 	@echo " -- targets:linking $@ from LIBOBJECTS"
 	mkdir -p $(EXTLIBDIR)
-	$(CC) $(LIBCMD) -o $@ $(LIBOBJECTS) -lgomp
+	$(CC) $(LIBCMD)  -o $@ $(LIBOBJECTS) -lgomp #-lblas
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(BUILDDIR)/lib/%
