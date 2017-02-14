@@ -53,10 +53,13 @@ using std::invalid_argument;
 
 namespace lbcrypto {
 
+
 		template<class Element>
-        class Matrix : public Serializable {
+        class StrassenMatrix : public Serializable {
         public:
             typedef vector<vector<unique_ptr<Element>>> data_t;
+            typedef vector<unique_ptr<Element>> lineardata_t;
+            typedef typename vector<unique_ptr<Element>>::iterator it_lineardata_t;
             typedef std::function<unique_ptr<Element>(void)> alloc_func;
         
 
@@ -67,7 +70,7 @@ namespace lbcrypto {
 			 * @param &rows number of rows.
 			 * @param &rows number of columns.
 			 */
-            Matrix(alloc_func allocZero, size_t rows, size_t cols) : rows(rows), cols(cols), data(), allocZero(allocZero) {
+            StrassenMatrix(alloc_func allocZero, size_t rows, size_t cols) : rows(rows), cols(cols), data(), allocZero(allocZero) {
                 data.resize(rows);
                 for (auto row = data.begin(); row != data.end(); ++row) {
                     for (size_t col = 0; col < cols; ++col) {
@@ -84,7 +87,7 @@ namespace lbcrypto {
 			 * @param &rows number of columns.
 			 * @param &allocGen lambda function for intialization using a distribution generator.
 			 */
-            Matrix(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen);
+            StrassenMatrix(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen);
 
             /**
              * Constructor of an empty matrix; SetSize must be called on this matrix to use it
@@ -92,7 +95,7 @@ namespace lbcrypto {
              *
 			 * @param &allocZero lambda function for zero initialization.
              */
-            Matrix(alloc_func allocZero) : rows(0), cols(0), data(), allocZero(allocZero) {}
+            StrassenMatrix(alloc_func allocZero) : rows(0), cols(0), data(), allocZero(allocZero) {}
 
             void SetSize(size_t rows, size_t cols) {
             	if( this->rows != 0 || this->cols != 0 )
@@ -114,7 +117,7 @@ namespace lbcrypto {
 			 *
 			 * @param &other the matrix object to be copied
 			 */
-            Matrix(const Matrix<Element>& other) : data(), rows(other.rows), cols(other.cols), allocZero(other.allocZero) {
+            StrassenMatrix(const StrassenMatrix<Element>& other) : data(), rows(other.rows), cols(other.cols), allocZero(other.allocZero) {
                 deepCopyData(other.data);
             }
 
@@ -124,14 +127,14 @@ namespace lbcrypto {
 			 * @param &other the matrix object whose values are to be copied
 			 * @return the resulting matrix
 			 */
-            inline Matrix<Element>& operator=(const Matrix<Element>& other);
+            inline StrassenMatrix<Element>& operator=(const StrassenMatrix<Element>& other);
 
 			/**
 			 * In-place change of the current matrix to a matrix of all ones
 			 *
 			 * @return the resulting matrix
 			 */
-            inline Matrix<Element>& Ones();  
+            inline StrassenMatrix<Element>& Ones();
 
 			/**
 			 * Fill matrix using the same element
@@ -140,21 +143,21 @@ namespace lbcrypto {
 			 *
 			 * @return the resulting matrix
 			 */
-            inline Matrix<Element>& Fill(const Element &val); 
+            inline StrassenMatrix<Element>& Fill(const Element &val);
 
 			/**
 			 * In-place change of the current matrix to Identity matrix
 			 *
 			 * @return the resulting matrix
 			 */
-            inline Matrix<Element>& Identity();
+            inline StrassenMatrix<Element>& Identity();
 
             /**
              * Sets the first row to be powers of two
 			 *
 			 * @return the resulting matrix
              */
-            inline Matrix<Element> GadgetVector() const; 
+            inline StrassenMatrix<Element> GadgetVector() const;
 
             /**
              * Computes the infinity norm
@@ -163,13 +166,7 @@ namespace lbcrypto {
              */            
 			inline double Norm() const;
 
-            /**
-             * Matrix multiplication
-			 *
-			 * @param &other the multiplier matrix
-			 * @return the result of multiplication
-             */  
-            inline Matrix<Element> Mult(Matrix<Element> const& other) const;
+
 
             /**
              * Operator for matrix multiplication
@@ -177,7 +174,7 @@ namespace lbcrypto {
 			 * @param &other the multiplier matrix
 			 * @return the result of multiplication
              */  
-            inline Matrix<Element> operator*(Matrix<Element> const& other) const {
+            inline StrassenMatrix<Element> operator*(StrassenMatrix<Element> const& other) const {
                 return Mult(other);
             }
 
@@ -187,8 +184,8 @@ namespace lbcrypto {
 			 * @param &other the multiplier element
 			 * @return the result of multiplication
              */  
-            inline Matrix<Element> ScalarMult(Element const& other) const {
-                Matrix<Element> result(*this);
+            inline StrassenMatrix<Element> ScalarMult(Element const& other) const {
+                StrassenMatrix<Element> result(*this);
             #if 0
             for (size_t row = 0; row < result.rows; ++row) {
                     for (size_t col = 0; col < result.cols; ++col) {
@@ -214,7 +211,7 @@ namespace lbcrypto {
 			 * @param &other the multiplier element
 			 * @return the result of multiplication
              */ 
-            inline Matrix<Element> operator*(Element const& other) const {
+            inline StrassenMatrix<Element> operator*(Element const& other) const {
                 return ScalarMult(other);
             }
 
@@ -224,7 +221,7 @@ namespace lbcrypto {
 			 * @param &other the matrix object to compare to
 			 * @return the boolean result
              */ 
-            inline bool Equal(Matrix<Element> const& other) const {
+            inline bool Equal(StrassenMatrix<Element> const& other) const {
                 if (rows != other.rows || cols != other.cols) {
                     return false;
                 }
@@ -245,7 +242,7 @@ namespace lbcrypto {
 			 * @param &other the matrix object to compare to
 			 * @return the boolean result
              */ 
-            inline bool operator==(Matrix<Element> const& other) const {
+            inline bool operator==(StrassenMatrix<Element> const& other) const {
                 return Equal(other);
             }
 
@@ -255,7 +252,7 @@ namespace lbcrypto {
 			 * @param &other the matrix object to compare to
 			 * @return the boolean result
              */ 
-            inline bool operator!=(Matrix<Element> const& other) const {
+            inline bool operator!=(StrassenMatrix<Element> const& other) const {
                 return !Equal(other);
             }
 
@@ -304,16 +301,16 @@ namespace lbcrypto {
 
 
             /**
-             * Matrix addition
+             * StrassenMatrix addition
 			 *
 			 * @param &other the matrix to be added
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element> Add(Matrix<Element> const& other) const {
+            inline StrassenMatrix<Element> Add(StrassenMatrix<Element> const& other) const {
                 if (rows != other.rows || cols != other.cols) {
                     throw invalid_argument("Addition operands have incompatible dimensions");
                 }
-                Matrix<Element> result(*this);
+                StrassenMatrix<Element> result(*this);
             #if 0
                 for (size_t i = 0; i < rows; ++i) {
                     for (size_t j = 0; j < cols; ++j) {
@@ -338,7 +335,7 @@ namespace lbcrypto {
 			 * @param &other the matrix to be added
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element> operator+(Matrix<Element> const& other) const {
+            inline StrassenMatrix<Element> operator+(StrassenMatrix<Element> const& other) const {
                 return this->Add(other);
             }
 
@@ -348,19 +345,19 @@ namespace lbcrypto {
 			 * @param &other the matrix to be added
 			 * @return the resulting matrix (same object)
              */ 
-            inline Matrix<Element>& operator+=(Matrix<Element> const& other);
+            inline StrassenMatrix<Element>& operator+=(StrassenMatrix<Element> const& other);
 
             /**
-             * Matrix substraction
+             * StrassenMatrix substraction
 			 *
 			 * @param &other the matrix to be substracted
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element> Sub(Matrix<Element> const& other) const {
+            inline StrassenMatrix<Element> Sub(StrassenMatrix<Element> const& other) const {
                 if (rows != other.rows || cols != other.cols) {
                     throw invalid_argument("Subtraction operands have incompatible dimensions");
                 }
-                Matrix<Element> result(allocZero, rows, other.cols);
+                StrassenMatrix<Element> result(allocZero, rows, other.cols);
             #if 0
                 for (size_t i = 0; i < rows; ++i) {
                     for (size_t j = 0; j < cols; ++j) {
@@ -385,7 +382,7 @@ namespace lbcrypto {
 			 * @param &other the matrix to be substracted
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element> operator-(Matrix<Element> const& other) const {
+            inline StrassenMatrix<Element> operator-(StrassenMatrix<Element> const& other) const {
                 return this->Sub(other);
             }
 
@@ -395,18 +392,18 @@ namespace lbcrypto {
 			 * @param &other the matrix to be substracted
 			 * @return the resulting matrix (same object)
              */ 
-            inline Matrix<Element>& operator-=(Matrix<Element> const& other);
+            inline StrassenMatrix<Element>& operator-=(StrassenMatrix<Element> const& other);
 
             /**
-             * Matrix transposition
+             * StrassenMatrix transposition
 			 *
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element> Transpose() const;
+            inline StrassenMatrix<Element> Transpose() const;
 
 			// YSP The signature of this method needs to be changed in the future
 			/**
-			* Matrix determinant - found using Laplace formula with complexity O(d!), where d is the dimension
+			* StrassenMatrix determinant - found using Laplace formula with complexity O(d!), where d is the dimension
 			*
 			* @param *result where the result is stored
 			*/
@@ -418,7 +415,7 @@ namespace lbcrypto {
 			*
 			* @return the cofactor matrix for the given matrix
 			*/
-			inline Matrix<Element> CofactorMatrix() const;
+			inline StrassenMatrix<Element> CofactorStrassenMatrix() const;
 
             /**
              * Add rows to bottom of the matrix
@@ -426,7 +423,7 @@ namespace lbcrypto {
 			 * @param &other the matrix to be added to the bottom of current matrix
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element>& VStack(Matrix<Element> const& other);
+            inline StrassenMatrix<Element>& VStack(StrassenMatrix<Element> const& other);
 
             /**
              * Add columns the right of the matrix
@@ -434,10 +431,10 @@ namespace lbcrypto {
 			 * @param &other the matrix to be added to the right of current matrix
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element>& HStack(Matrix<Element> const& other);
+            inline StrassenMatrix<Element>& HStack(StrassenMatrix<Element> const& other);
 
             /**
-             * Matrix indexing operator - writeable instance of the element
+             * StrassenMatrix indexing operator - writeable instance of the element
 			 *
 			 * @param &row row index
 			 * @param &col column index
@@ -448,7 +445,7 @@ namespace lbcrypto {
             }
 
             /**
-             * Matrix indexing operator - read-only instance of the element
+             * StrassenMatrix indexing operator - read-only instance of the element
 			 *
 			 * @param &row row index
 			 * @param &col column index
@@ -459,13 +456,13 @@ namespace lbcrypto {
             }
 
 			/**
-			* Matrix row extractor
+			* StrassenMatrix row extractor
 			*
 			* @param &row row index
 			* @return the row at the index
 			*/
-			inline Matrix<Element> ExtractRow(size_t row) const {
-				Matrix<Element> result(this->allocZero,1,this->cols);
+			inline StrassenMatrix<Element> ExtractRow(size_t row) const {
+				StrassenMatrix<Element> result(this->allocZero,1,this->cols);
 				int i = 0;
 				for (auto elem = this->GetData()[row].begin(); elem != this->GetData()[row].end(); ++elem) {
 					result(0,i) = **elem;
@@ -488,18 +485,28 @@ namespace lbcrypto {
             inline void SwitchFormat(); 
 
 
+            /**
+             * StrassenMatrix multiplication
+			 *
+			 * @param &other the multiplier matrix
+			 * @return the result of multiplication
+             */
+            StrassenMatrix<Element> Mult(const StrassenMatrix<Element>& other, int nrec=0, int pad = -1) const;
+
+
+
             /*
              * Multiply the matrix by a vector whose elements are all 1's.  This causes the elements of each
              * row of the matrix to be added and placed into the corresponding position in the output vector.
              */
-            Matrix<Element> MultByUnityVector() const;
+            StrassenMatrix<Element> MultByUnityVector() const;
 
             /*
              * Multiply the matrix by a vector of random 1's and 0's, which is the same as adding select
              * elements in each row together.
              * Return a vector that is a rows x 1 matrix.
              */
-            Matrix<Element> MultByRandomVector(std::vector<int> ranvec) const;
+            StrassenMatrix<Element> MultByRandomVector(std::vector<int> ranvec) const;
 
 			/**
 			* Serialize the object into a Serialized
@@ -517,14 +524,70 @@ namespace lbcrypto {
 
 
         private:
+		   struct MatDescriptor {
+			  int lda;
+			  int nrec;
+			  int nproc;
+			  int nprocr;
+			  int nprocc;
+			  int nproc_summa;
+			  int bs;
+			};
+            const int DESC_SIZE = 7; // number of ints that make up a MatDescriptor
+            const int rank=0,  base=0;
+
+
             mutable data_t data;
             size_t rows;
+            mutable int rowpad = 0;
             size_t cols;
+            mutable int colpad = 0;
             alloc_func allocZero;
+            mutable char *pattern = NULL;
+            mutable int numAdd = 0;
+            mutable int numMult = 0;
+            mutable int numSub = 0;
+            mutable MatDescriptor desc;
+            mutable unique_ptr<Element> zeroUniquePtr = allocZero();
             mutable int NUM_THREADS = 1;
 
-			//deep copy of data - used for copy constructor
+
+
+
+
+
+
+            void multiplyInternalCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc, it_lineardata_t work ) const;
+            void strassenDFSCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor desc, it_lineardata_t workPassThrough ) const;
+            void block_multiplyCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor d, it_lineardata_t workPassThrough ) const;
+            void LinearizeDataCAPS(lineardata_t *lineardataPtr) const;
+            void UnlinearizeDataCAPS(lineardata_t *lineardataPtr) const;
+            int getRank();
+            void verifyDescriptor( MatDescriptor desc );
+            long long numEntriesPerProc( MatDescriptor desc );
+		//deep copy of data - used for copy constructor
             void deepCopyData(data_t const& src);
+            void getData(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int row, int inner, int col) const;
+
+            void accessUniquePtrCAPS(it_lineardata_t ptr, Element val) const;
+            void smartSubtractionCAPS(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const;
+            void smartAdditionCAPS(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const;
+            void addMatricesCAPS( int numEntries, it_lineardata_t C, it_lineardata_t A, it_lineardata_t B ) const;
+            void addSubMatricesCAPS(int numEntries, it_lineardata_t T1, it_lineardata_t S11, it_lineardata_t S12, it_lineardata_t T2,
+            		       it_lineardata_t S21, it_lineardata_t S22 ) const;
+            void subMatricesCAPS( int numEntries, it_lineardata_t C, it_lineardata_t A, it_lineardata_t B ) const;
+            void tripleAddMatricesCAPS(int numEntries, it_lineardata_t T1, it_lineardata_t S11, it_lineardata_t S12, it_lineardata_t T2,
+            		       it_lineardata_t S21, it_lineardata_t S22, it_lineardata_t T3, it_lineardata_t S31, it_lineardata_t S32) const;
+            void tripleSubMatricesCAPS(int numEntries, it_lineardata_t T1, it_lineardata_t S11, it_lineardata_t S12, it_lineardata_t T2,
+            		       it_lineardata_t S21, it_lineardata_t S22, it_lineardata_t T3, it_lineardata_t S31, it_lineardata_t S32) const ;
+
+
+            void distributeFrom1ProcCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I ) const;
+            void collectTo1ProcCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I ) const;
+            void sendBlockCAPS( int rank, int target, it_lineardata_t O, int bs, int source, it_lineardata_t I, int ldi ) const;
+            void receiveBlockCAPS(  int rank, int target, it_lineardata_t O, int bs, int source, it_lineardata_t I, int ldo ) const;
+            void distributeFrom1ProcRecCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I, int ldi ) const;
+            void collectTo1ProcRecCAPS( MatDescriptor desc, it_lineardata_t O, it_lineardata_t I, int ldo ) const;
 
 		};
 
@@ -539,7 +602,7 @@ namespace lbcrypto {
 	* @return the resulting matrix
     */ 
     template<class Element>
-    inline Matrix<Element> operator*(Element const& e, Matrix<Element> const& M) {
+    inline StrassenMatrix<Element> operator*(Element const& e, StrassenMatrix<Element> const& M) {
         return M.ScalarMult(e);
     }
 
@@ -549,7 +612,7 @@ namespace lbcrypto {
 	* @param &inMat the matrix of power-of-2 cyclotomic ring elements to be rotated
 	* @return the resulting matrix of big binary integers
     */ 
-    inline Matrix<BigBinaryInteger> Rotate(Matrix<ILVector2n> const& inMat);
+    inline StrassenMatrix<BigBinaryInteger> Rotate(StrassenMatrix<ILVector2n> const& inMat);
 
 	/**
     *  Each element becomes a square matrix with columns of that element's
@@ -558,7 +621,7 @@ namespace lbcrypto {
 	* @param &inMat the matrix of power-of-2 cyclotomic ring elements to be rotated
 	* @return the resulting matrix of big binary integers
     */ 
-    inline Matrix<BigBinaryVector> RotateVecResult(Matrix<ILVector2n> const& inMat);
+    inline StrassenMatrix<BigBinaryVector> RotateVecResult(StrassenMatrix<ILVector2n> const& inMat);
 
 	/**
     *  Stream output operator
@@ -568,7 +631,7 @@ namespace lbcrypto {
 	* @return the chained stream
     */ 
     template<class Element>
-    inline std::ostream& operator<<(std::ostream& os, const Matrix<Element>& m);
+    inline std::ostream& operator<<(std::ostream& os, const StrassenMatrix<Element>& m);
 
 	/**
     * Gives the Choleshky decomposition of the input matrix. 
@@ -580,7 +643,7 @@ namespace lbcrypto {
 	* @param &input the matrix for which the Cholesky decomposition is to be computed
 	* @return the resulting matrix of floating-point numbers
     */ 
-    inline Matrix<LargeFloat> Cholesky(const Matrix<int32_t> &input); 
+    inline StrassenMatrix<LargeFloat> Cholesky(const StrassenMatrix<int32_t> &input);
 
 	/**
     * Convert a matrix of integers from BigBinaryInteger to int32_t
@@ -590,7 +653,7 @@ namespace lbcrypto {
 	* @param &modulus the ring modulus
 	* @return the resulting matrix of int32_t
     */ 
-    inline Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryInteger> &input, const BigBinaryInteger& modulus);
+    inline StrassenMatrix<int32_t> ConvertToInt32(const StrassenMatrix<BigBinaryInteger> &input, const BigBinaryInteger& modulus);
 
 	/**
     * Convert a matrix of BigBinaryVector to int32_t
@@ -600,7 +663,7 @@ namespace lbcrypto {
 	* @param &modulus the ring modulus
 	* @return the resulting matrix of int32_t
     */ 
-    inline Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryVector> &input, const BigBinaryInteger& modulus); 
+    inline StrassenMatrix<int32_t> ConvertToInt32(const StrassenMatrix<BigBinaryVector> &input, const BigBinaryInteger& modulus);
 
 	/**
     * Split a vector of int32_t into a vector of ring elements with ring dimension n
@@ -610,7 +673,7 @@ namespace lbcrypto {
 	* @param &params ILVector2n element params
 	* @return the resulting matrix of ILVector2n
     */ 
-    inline Matrix<ILVector2n> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
+    inline StrassenMatrix<ILVector2n> SplitInt32IntoILVector2nElements(StrassenMatrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
 
 	/**
     * Another method for splitting a vector of int32_t into a vector of ring elements with ring dimension n
@@ -620,6 +683,6 @@ namespace lbcrypto {
 	* @param &params ILVector2n element params
 	* @return the resulting matrix of ILVector2n
     */ 
-    inline Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
+    inline StrassenMatrix<ILVector2n> SplitInt32AltIntoILVector2nElements(StrassenMatrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
 }
 #endif // LBCRYPTO_MATH_MATRIX_H
