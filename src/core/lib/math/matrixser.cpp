@@ -8,6 +8,7 @@
 #include "../utils/serializablehelper.h"
 #include "../lattice/field2n.h"
 #include "matrix.h"
+#include "matrixstrassen.h"
 using std::invalid_argument;
 
 // this is the implementation of matrixes of things that are in core
@@ -71,6 +72,16 @@ bool Matrix<ILVector2n>::Serialize(Serialized* serObj) const {
 
 template<>
 bool Matrix<ILVector2n>::Deserialize(const Serialized& serObj) {
+	return false;
+}
+
+template<>
+bool MatrixStrassen<ILVector2n>::Serialize(Serialized* serObj) const {
+	return false;
+}
+
+template<>
+bool MatrixStrassen<ILVector2n>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 

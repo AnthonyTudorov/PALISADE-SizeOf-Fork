@@ -791,8 +791,8 @@ distributeFrom1ProcCAPS( desc,thisdata.begin(), lineardataPtr->begin());
 distributeFrom1ProcCAPS( desc, otherdata.begin(), otherlineardataPtr->begin());
 
 
-multiplyInternalCAPS(otherdata.begin(), thisdata.begin(), resultdata.begin() /*,&(result.lineardata[0])*/, desc, (it_lineardata_t)0);//&(result.lineardata[0])
-//multiplyInternalCAPS(otherdata.begin(), thisdata.begin(), resultdata.begin() /*,&(result.lineardata[0])*/, desc, lineardataPtr->begin());//&(result.lineardata[0])
+//multiplyInternalCAPS(otherdata.begin(), thisdata.begin(), resultdata.begin() /*,&(result.lineardata[0])*/, desc, (it_lineardata_t)0);//&(result.lineardata[0])
+multiplyInternalCAPS(otherdata.begin(), thisdata.begin(), resultdata.begin() /*,&(result.lineardata[0])*/, desc, lineardataPtr->begin());//&(result.lineardata[0])
 
 collectTo1ProcCAPS( desc, resultlineardataPtr->begin(), resultdata.begin() );
 resultdata.clear();
@@ -1360,7 +1360,7 @@ MatrixStrassen<Element> MatrixStrassen<Element>::MultByRandomVector(std::vector<
 
 
 template<class Element>
-int MatrixStrassen<Element>::getRank() {
+int MatrixStrassen<Element>::getRank() const {
   return rank;
 }
 
@@ -1373,7 +1373,7 @@ void MatrixStrassen<Element>::verifyDescriptor( MatDescriptor desc ) {
 
 
 template<class Element>
-long long MatrixStrassen<Element>::numEntriesPerProc( MatDescriptor desc ) {
+long long MatrixStrassen<Element>::numEntriesPerProc( MatDescriptor desc ) const {
   long long lda = desc.lda;
   return ( (lda*lda) / desc.nproc / desc.nproc_summa );
 }

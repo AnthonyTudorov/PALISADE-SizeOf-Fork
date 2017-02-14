@@ -539,9 +539,9 @@ namespace lbcrypto {
             void block_multiplyCAPS( it_lineardata_t A, it_lineardata_t B, it_lineardata_t C, MatDescriptor d, it_lineardata_t workPassThrough ) const;
             void LinearizeDataCAPS(lineardata_t *lineardataPtr) const;
             void UnlinearizeDataCAPS(lineardata_t *lineardataPtr) const;
-            int getRank();
+            int getRank() const;
             void verifyDescriptor( MatDescriptor desc );
-            long long numEntriesPerProc( MatDescriptor desc );
+            long long numEntriesPerProc( MatDescriptor desc ) const;
 		//deep copy of data - used for copy constructor
             void deepCopyData(data_t const& src);
             void getData(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int row, int inner, int col) const;
