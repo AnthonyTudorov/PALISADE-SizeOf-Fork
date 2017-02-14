@@ -103,8 +103,8 @@ namespace NTL {
      myVecP(const INIT_SIZE_TYPE, const long n, const myT& a, const myZZ &q);
 
     //copy with myZZ moduli
-    myVecP(const myVecP<myT> &a, myZZ &q);
-    myVecP(const myVec<myZZ> &a, myZZ &q);
+    myVecP(const myVecP<myT> &a, const myZZ &q);
+    myVecP(const myVec<myZZ> &a, const myZZ &q);
 
     //ctor with char * moduli
     myVecP(usint n, const char *sq);
@@ -138,6 +138,7 @@ namespace NTL {
 
 
     const myVecP& operator=(std::initializer_list<myT> rhs);
+    const myVecP& operator=(std::initializer_list<int> rhs);
     const myVecP& operator=(std::initializer_list<usint> rhs);
     const myVecP& operator=(std::initializer_list<std::string> rhs);
     const myVecP& operator=(std::initializer_list<const char *> rhs);
@@ -158,6 +159,18 @@ namespace NTL {
 
     const myT& GetValAtIndex(size_t index) const;
 
+
+  /**
+   * Returns a vector of digit at a specific index for all entries
+   * for a given number base.
+   * TODO: rename this better... what is a digit?
+   * TODO: does this fail for some values of base?
+   * @param index is the index to return the digit from in all entries.
+   * @param base is the base to use for the operation.
+   * @return is the resulting vector.
+   */
+    myVecP  GetDigitAtIndexForBase(usint index, usint base) const;
+  
     inline void push_back(const myT& a) { this->append(a);};
 
     static inline myVecP Single(const myZZ& val, const myZZ &modulus) {
@@ -266,7 +279,7 @@ namespace NTL {
       return *this;
     };
 
-    //scalar multiplicatoin assignments
+    //scalar multiplication assignments
     inline myVecP& operator*=(const myZZ& a)
     { 
       for (auto i = 0; i < this->length(); i++){
@@ -275,7 +288,6 @@ namespace NTL {
       return *this;
     };
 
-  
     myVecP operator*(myVecP const& b) const;
     myVecP operator*(myZZ const& a) const;
 
@@ -288,6 +300,27 @@ namespace NTL {
     inline myVecP ModMul(const myVecP& b) const {return (this->Mul(b));};
 
     void mul(myVecP& x, const myVecP& a, const myVecP& b) const; //define procedural
+
+
+    /**
+     * Scalar exponentiation.
+     *
+     * @param &b is the scalar to modulo exponentiate at all locations.
+     * @return is the result of the exponentiation operation.
+     */
+    myVecP Exp(const myZZ &b) const;
+    myVecP ModExp(const myZZ &b) const;
+
+    myVecP MultiplyAndRound(const myT &p, const myT &q) const;
+    myVecP DivideAndRound(const myT &q) const;
+
+
+  /**
+   * Modulus inverse.
+   *
+   * @return a new vector which is the result of the modulus inverse operation.
+   */
+    myVecP ModInverse(void) const;
 
 #if 0 //unifdef as this gets modified, comes from gmpintvec
     //not tested yet
@@ -489,6 +522,27 @@ namespace NTL {
     // ostream 
     friend std::ostream& operator<<(std::ostream& os, const myVecP &ptr_obj);
 #endif
+
+  //JSON FACILITY
+  /**
+   * Serialize the object into a Serialized 
+   *
+   * @param serObj is used to store the serialized result. It MUST
+   * be a rapidjson Object (SetObject());
+   *
+   * @param fileFlag is an object-specific parameter for the
+   * serialization 
+   *
+   * @return true if successfully serialized
+   */
+  bool Serialize(lbcrypto::Serialized* serObj) const;
+
+  /**
+   * Populate the object from the deserialization of the Setialized
+   * @param serObj contains the serialized object
+   * @return true on success
+   */
+  bool Deserialize(const lbcrypto::Serialized& serObj);
 
   private:
     //utility function to check argument consistency for vector scalar fns

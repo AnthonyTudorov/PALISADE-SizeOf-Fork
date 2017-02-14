@@ -33,12 +33,9 @@
  *
  * @section DESCRIPTION
  *
- * This file contains the main class for unsigned big integers: ubint. Big
- * integers are represented as arrays of machine native unsigned integers. The
- * native integer type is supplied as a template parameter.  Currently
- * implementation based on uint32_t and uint64_t is
- * supported. a native double the base integer size is also needed.
-  */
+ * This file contains the C++ code for implementing the main class for
+ * big integers: gmpint which replaces BBI and uses NTL
+ */
 
 #ifndef LBCRYPTO_MATH_GMPINT_GMPINT_H
 #define LBCRYPTO_MATH_GMPINT_GMPINT_H
@@ -136,7 +133,7 @@ public:
     /**
      * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of ubint objects.
      */
-  // static std::function<unique_ptr<NTL::myZZ>()> Allocator;
+  static std::function<unique_ptr<myZZ>()> Allocator;
 
   //adapter kit
   usint GetMSB() const ;
@@ -170,7 +167,14 @@ public:
 
   inline myZZ Sub(const myZZ& b) const  {return((*this<b)? ZZ(0):( *this-b));};  
   inline myZZ Minus(const myZZ& b) const  {return((*this<b)? ZZ(0):( *this-b));}; //to be deprecated
+
  inline myZZ operator+(const myZZ &b) const {
+    myZZ tmp;
+    add(tmp, *this, b);
+    return tmp ;
+  };
+
+ inline myZZ operator+(const ZZ &b) const {
     myZZ tmp;
     add(tmp, *this, b);
     return tmp ;
@@ -201,19 +205,26 @@ public:
   };// note this<a should return 0
 
 
-  inline myZZ operator*(const myZZ_p &b) const; 
+  myZZ operator*(const myZZ_p &b) const; 
 
-  inline myZZ& operator*=(const myZZ_p &a);
-
-  
-
+  myZZ& operator*=(const myZZ &a);
+  myZZ& operator*=(const myZZ_p &a);
 
   
+
+  inline myZZ operator*(const myZZ& b) const {
+    myZZ tmp;
+    mul(tmp, *this, b);
+    return tmp ;
+  }
   inline myZZ Mul(const myZZ& b) const {return *this*b;};
   inline myZZ Times(const myZZ& b) const {return *this*b;}; //to be deprecated
   inline myZZ Div(const myZZ& b) const {return *this/b;};
   inline myZZ DividedBy(const myZZ& b) const {return *this/b;};
   inline myZZ Exp(const usint p) const {return power(*this,p);};
+
+  myZZ MultiplyAndRound(const myZZ &p, const myZZ &q) const;
+  myZZ DivideAndRound(const myZZ &q) const;
 
   //palisade modular arithmetic methods all inline for speed
   inline myZZ Mod(const myZZ& modulus) const {return *this%modulus;};
@@ -235,6 +246,15 @@ inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+
    inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {return MulMod(*this%modulus, b%modulus, modulus);};
    inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ mu_arr[BARRETT_LEVELS]) const  {return MulMod(*this%modulus, b%modulus, modulus);};
    inline myZZ ModExp(const myZZ& b, const myZZ& modulus) const {return PowerMod(*this%modulus, b%modulus, modulus);};
+
+   inline myZZ operator>>(long n) const {return RightShift(*this, n);};
+   inline myZZ operator<<(long n) const {return LeftShift(*this, n);};
+     
+
+
+
+
+
 
   //palisade string conversion
   const std::string ToString() const;	
@@ -258,8 +278,16 @@ inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+
      */
     static myZZ FromBinaryString(const std::string& bitString);
     static myZZ BinaryStringToBigBinaryInt(const std::string& bitString);
-    
-  /**
+
+    /**
+     * Get the number of digits using a specific base - support for arbitrary base may be needed.
+     *
+     * @param base is the base with which to determine length in.
+     * @return the length of the representation in a specific base.
+     */
+    usint GetLengthForBase(usint base) const {return GetMSB();};
+
+   /**
      * Get the number of digits using a specific base - only power-of-2 bases are currently supported.
      *
      * @param index is the location to return value from in the specific base.
@@ -268,8 +296,9 @@ inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+
      */
     usint GetDigitAtIndexForBase(usint index, usint base) const;
 
+    //variable to store the log(base 2) of the number of bits in the limb data type.
+    static const usint m_log2LimbBitLength;
 
-    
     //Serialization functions
 
     const std::string Serialize() const;
@@ -295,14 +324,13 @@ private:
      */
     static usint ceilIntByUInt(const ZZ_limb_t Number); //todo: rename to MSB2NLimbs()
 
-    //variable to store the log(base 2) of the number of bits in the limb data type.
-    static const usint m_log2LimbBitLength;
 
 
   size_t m_MSB;
 
-  usint GetMSBLimb_t( ZZ_limb_t x) ;
+  usint GetMSBLimb_t( ZZ_limb_t x) const;
 }; //class ends
+
   
 }//namespace ends
 

@@ -36,11 +36,7 @@
  *
  *
  * This file contains the C++ code for implementing the main class for
- * big integers: ubint. Big integers are represented as arrays of
- * native usigned integers. The native integer type is supplied as a
- * template parameter.  Currently implementation based on uint32_t is
- * supported. One needs a native integer 2x the size of the chosen type for
- * certain math operations.
+ * big integers: gmpint which replaces BBI and uses NTLLL
  */
 
 #define _SECURE_SCL 0 // to speed up VS
@@ -86,9 +82,9 @@ namespace NTL {
 
 
   //this is the zero allocator for the palisade matrix class
-  // std::function<unique_ptr<myZZ>> myZZ::Allocator = [](){
-  //   return lbcrypto::make_unique<myZZ>();
-  // };
+  std::function<unique_ptr<myZZ>()> myZZ::Allocator = [](){
+    return lbcrypto::make_unique<NTL::myZZ>();
+   };
 
   usint myZZ::GetMSB() const {
 
@@ -145,7 +141,7 @@ namespace NTL {
   }
 
  // inline static usint GetMSBLimb_t(ZZ_limb_t x){
-  usint myZZ::GetMSBLimb_t( ZZ_limb_t x){
+  usint myZZ::GetMSBLimb_t( ZZ_limb_t x) const {
     const usint bval[] =
     {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
 
@@ -161,7 +157,7 @@ namespace NTL {
   ///&&&
   //Splits the binary string to equi sized chunks and then populates the internal array values.
   myZZ myZZ::FromBinaryString(const std::string& vin){
-    bool dbg_flag = true;		// if true then print dbg output
+    bool dbg_flag = false;		// if true then print dbg output
     DEBUG("FromBinaryString");
 
     std::string v = vin;
@@ -182,20 +178,34 @@ namespace NTL {
     usint len = v.length();
     ///new code here
 
+    const unsigned int bitsPerByte = 8;
     //parse out string 8 bits at a time into array of bytes
     vector<unsigned char> bytes;
+
     DEBUG("input string: "<<v);
-    for (auto i = 0; i < len/sizeof(char); i+=sizeof(char)){
-      std::string bits = v.substr(i, sizeof(char));
+    DEBUG("len/bitsperbyte = "<<len/bitsPerByte);
+    //reverse the string to make code easier
+    std::reverse(v.begin(), v.end());
+    DEBUG("reversedinput string: "<<v);
+
+    DEBUG("len = "<<len);
+    for (auto i = 0; i < len; i+=bitsPerByte){
+      std::string bits = v.substr(0, bitsPerByte);
+      //reverse the bits
+      std::reverse(bits.begin(), bits.end());
       DEBUG("i = "<<i<<" bits: "<<bits);
-      int newlen = len-sizeof(char);
+      int newlen = v.length()-bitsPerByte;
       size_t nbits;
-      
+      DEBUG("newlen = "<<newlen);      
       unsigned char byte = std::stoi(bits, &nbits, 2);
-      DEBUG("byte = "<<byte);
+      DEBUG("byte = "<<(unsigned int)byte);
       bytes.push_back(byte);
-      v = v.substr(i+sizeof(char), newlen);
-    }
+      if (newlen<1)
+	break;
+      v = v.substr(bitsPerByte, newlen);
+      DEBUG("input string now: "<<v);
+   }
+    DEBUG("bytes size now "<<bytes.size());
     for (auto it = bytes.begin(); it != bytes.end(); ++it){
 	DEBUG("bytes ="<< (unsigned int)(*it));
     }
@@ -244,6 +254,7 @@ namespace NTL {
   }
   ///&&&a
 
+
   usint myZZ::GetDigitAtIndexForBase(usint index, usint base) const{
 
     usint digit = 0;
@@ -277,12 +288,6 @@ namespace NTL {
     for(sint i=1;i<bmask_counter;i++)
       bmask<<=1;//generate the bitmask number
     result = temp&bmask;//finds the bit in  bit format
-
-
-
-
-
-
     result>>=bmask_counter-1;//shifting operation gives bit either 1 or 0
     return (uschar)result;
 #else
@@ -314,7 +319,6 @@ namespace NTL {
       return Number>>m_log2LimbBitLength;
   }
 
-
   //adapter kit
   const myZZ& myZZ::zero() {return (ZZ::zero());}
 
@@ -339,17 +343,87 @@ namespace NTL {
     return result.str();
   }	
 
-
+  myZZ myZZ::MultiplyAndRound(const myZZ &p, const myZZ &q) const
+  {
+    
+    myZZ ans(*this);
+    ans *= p;
+    ans = ans.DivideAndRound(q);
+    
+    return ans;
+    
+  }
+  myZZ myZZ::DivideAndRound(const myZZ &q) const 
+  {
+    bool dbg_flag = false;
+    
+    //check for garbage initialization and 0 condition
+    //check for garbage initialization and 0 condition
+    if(q==ZERO)
+      throw std::logic_error("DivideAndRound() Divisor is zero");
+    
+    myZZ halfQ(q>>1);
+    DEBUG("halfq "<<halfQ.ToString());
+    
+    if (*this < q) {
+      if (*this <= halfQ)
+	return myZZ(ZERO);
+      else
+	return myZZ(ONE);
+    }
+    //=============
+    myZZ ans(0);
+    myZZ rv(0);
+    
+    int f;
+    
+    DEBUG( "*this "<<this->ToString());
+    DEBUG("q "<<q.ToString());
+    
+    
+    DivRem(ans, rv, *this,q);
+    
+    //f = divqr_vect(ans, rv,  *this,  q);
+    //if (f!= 0)
+    ///throw std::logic_error("Divqr() error in DivideAndRound");
+    
+    //ans.NormalizeLimbs();
+    //rv.NormalizeLimbs();
+    
+    ans.SetMSB();
+    rv.SetMSB();
+    DEBUG("ans "<<ans.ToString());
+    DEBUG("rv "<<rv.ToString());
+    DEBUG("ans "<<ans.ToString());
+    DEBUG("rv "<<rv.ToString());
+    //==============
+    //Rounding operation from running remainder
+    if (!(rv <= halfQ)) {
+      ans += ONE;
+      DEBUG("added1 ans "<<ans.ToString());
+    }
+    return ans;
+  }
+  
+  
   //various operators on mixed operands
-  inline myZZ operator*(const myZZ_p &b) const {
-    myZZ_p tmp;
+  
+  myZZ myZZ::operator*(const myZZ_p &b) const {
+    myZZ tmp;
     mul(tmp, *this, b._ZZ_p__rep);
     return tmp ;
   }
-  inline myZZ& operator*=(const myZZ_p &a) {
-    *this = *this*a._ZZ_p__rep;
+  
+  myZZ& myZZ::operator*=(const myZZ_p &a) {
+    *this = *this*(myZZ)a._ZZ_p__rep;
     return *this;
   }
+
+  myZZ& myZZ::operator*=(const myZZ &a) {
+    *this = *this*a;
+    return *this;
+  }
+
 
 
   //the following code is new serialize/deserialize code from
@@ -388,7 +462,7 @@ namespace NTL {
    * This function is only used for serialization
    *
    * The scheme here is to take each of the limb_ts in the
-   * ubint and turn it into 6 ascii characters. It's
+   * myZZ and turn it into 6 ascii characters. It's
    * basically Base64 encoding: 6 bits per character times 5 is the
    * first 30 bits. For efficiency's sake, the last two bits are encoded
    * as A,B,C, or D and the code is implemented as unrolled loops
@@ -396,19 +470,15 @@ namespace NTL {
   const std::string myZZ::Serialize() const {
 
     std::string ans = "";
-    //const uint_type *fromP;
-
-    //	sint siz = (m_MSB%m_uintBitLength==0&&m_MSB!=0) ? (m_MSB/m_uintBitLength) : ((sint)m_MSB/m_uintBitLength +1);
-    //int i;
-    //note limbs are now stored little endian in ubint
-    //for(i=m_nSize-1, fromP=m_value+i ; i>=m_nSize-siz ; i--,fromP--) {
-    for (auto fromP = this->rep.begin(); fromP!=this->rep.end(); fromP++){
-      ans += to_base64_char[((*fromP) >> b64_shifts[0]) & B64MASK];
-      ans += to_base64_char[((*fromP) >> b64_shifts[1]) & B64MASK];
-      ans += to_base64_char[((*fromP) >> b64_shifts[2]) & B64MASK];
-      ans += to_base64_char[((*fromP) >> b64_shifts[3]) & B64MASK];
-      ans += to_base64_char[((*fromP) >> b64_shifts[4]) & B64MASK];
-      ans += (((*fromP) >> b64_shifts[5])&0x3) + 'A';
+    //note limbs are now stored little endian in myZZ
+    const ZZ_limb_t *zlp = ZZ_limbs_get(*this);
+    for (auto i = 0; i<this->size(); ++i){
+      ans += to_base64_char[((zlp[i]) >> b64_shifts[0]) & B64MASK];
+      ans += to_base64_char[((zlp[i]) >> b64_shifts[1]) & B64MASK];
+      ans += to_base64_char[((zlp[i]) >> b64_shifts[2]) & B64MASK];
+      ans += to_base64_char[((zlp[i]) >> b64_shifts[3]) & B64MASK];
+      ans += to_base64_char[((zlp[i]) >> b64_shifts[4]) & B64MASK];
+      ans += (((zlp[i]) >> b64_shifts[5])&0x3) + 'A';
     }
 
     return ans;
@@ -421,19 +491,22 @@ namespace NTL {
   const char * myZZ::Deserialize(const char *cp){
     clear(*this);
 
+    vector<ZZ_limb_t> cv;
+
     while( *cp != '\0' && *cp != '|' ) {
-      limb_t converted =  base64_to_value(*cp++) << b64_shifts[0];
+      ZZ_limb_t converted =  base64_to_value(*cp++) << b64_shifts[0];
       converted |= base64_to_value(*cp++) << b64_shifts[1];
       converted |= base64_to_value(*cp++) << b64_shifts[2];
       converted |= base64_to_value(*cp++) << b64_shifts[3];
       converted |= base64_to_value(*cp++) << b64_shifts[4];
       converted |= ((*cp++ - 'A')&0x3) << b64_shifts[5];
-      this->rep().push_back(converted);
+      
+
+
+      cv.push_back(converted);
     }
-
+    ZZ_limbs_set(*this, cv.data(), cv.size());
     SetMSB();
-    m_state = INITIALIZED;
-
     return cp;
   }
 

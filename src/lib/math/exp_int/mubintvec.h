@@ -592,10 +592,6 @@ public:
   
   // auxiliary functions
 
-
-
-
-
   //JSON FACILITY
   /**
    * Serialize the object into a Serialized 

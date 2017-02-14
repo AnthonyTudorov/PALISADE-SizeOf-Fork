@@ -82,9 +82,9 @@ namespace NTL{
     explicit myZZ_p(int a);
     explicit myZZ_p(long a);
     explicit myZZ_p(unsigned long a);
-    explicit myZZ_p(unsigned int a);
-    explicit myZZ_p(const unsigned int &a);
-    explicit myZZ_p(unsigned int &a);
+    explicit myZZ_p(const unsigned int a);
+    // explicit myZZ_p(const unsigned int &a);
+    //explicit myZZ_p(unsigned int &a);
     explicit myZZ_p(std::string s);
     explicit myZZ_p(const char * s);
     //copy
@@ -183,7 +183,7 @@ namespace NTL{
     inline sint Compare(const long int& a, const myZZ_p &b) const {return compare(a,this->_ZZ_p__rep); };
 
     inline sint Compare(const myZZ_p& a , const myZZ& b) const {return compare(a._ZZ_p__rep,b); };
-    //comparisons against myZZ_p and ZZ_p
+    //comparisons against myZZ_p and myZZ_p
     inline long operator==(const myZZ_p& b) const
     { return this->Compare(b) == 0; }
     inline long operator!=( const myZZ_p& b) const
@@ -198,7 +198,7 @@ namespace NTL{
     { return this->Compare(b) >= 0; }
 
 
-    //comparisons against myZZ_p and ZZ
+    //comparisons against myZZ_p and myZZ
     inline long operator==(const myZZ& b) const
     { return this->Compare(b) == 0; }
     inline long operator!=( const myZZ& b) const
@@ -211,6 +211,7 @@ namespace NTL{
     { return this->Compare(b) <= 0; }
     inline long operator>=( const myZZ& b) const
     { return this->Compare(b) >= 0; }
+
     //comparisons with myZZ_p as the second term are defined at the end of the file outside of the object (to allow for two operands
 
     //palisade arithmetic methods all inline for speed
@@ -259,6 +260,24 @@ namespace NTL{
     inline myZZ_p Div(const myZZ_p& b) const {return *this/b;};
     inline myZZ_p DividedBy(const myZZ_p& b) const {return *this/b;};
     inline myZZ_p Exp(const usint p) const {return power(*this,p);};
+
+    /**
+     * Multiply and Rounding operation on a big integer x. Returns [x*p/q] where [] is the rounding operation.
+     *
+     * @param p is the numerator to be multiplied.
+     * @param q is the denominator to be divided.
+     * @return the result of multiply and round.
+     */
+    myZZ_p MultiplyAndRound(const myZZ &p, const myZZ &q) const;
+    
+    /**
+     * Divide and Rounding operation on a big integer x. Returns [x/q] where [] is the rounding operation.
+     *
+     * @param q is the denominator to be divided.
+     * @return the result of divide and round.
+     */
+    myZZ_p DivideAndRound(const myZZ &q) const;
+    
 
 #if 0
     inline myZZ_p operator-(const myZZ_p &b) const {
@@ -354,6 +373,16 @@ namespace NTL{
       return (m_getOTM());
     };
 
+    //TODO: is there a real need for these in higher level crypto operations?
+
+    usint GetDigitAtIndexForBase(usint index, usint base) const ;
+    uschar GetBitAtIndex(usint index) const;
+    usint ceilIntByUInt( const ZZ_limb_t Number) const;
+
+    //Serialization functions
+
+    const std::string Serialize() const;
+    const char * Deserialize(const char * str);
 
   private:
     //adapter kits

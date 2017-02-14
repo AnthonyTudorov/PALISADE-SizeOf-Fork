@@ -121,19 +121,9 @@ namespace NTL {
     }
     this->SetModulus(q);
   }
-  //stopped here
-  //copy with myZZ moduli
-
-  // template<class myT>
-  // myVecP<myT>::myVecP(NTL::Vec<myT> &a, myZZ &q): Vec<myT>(a)
-  // {
-  //   this->SetModulus(q);
-  //   (*this) %= q;
-  // }
-
 
   template<class myT>
-  myVecP<myT>::myVecP(const myVecP<myT> &a, myZZ &q): Vec<myT>(a)
+  myVecP<myT>::myVecP(const myVecP<myT> &a, const myZZ &q): Vec<myT>(a)
   {
     this->SetModulus(q);
     (*this) %= q;
@@ -141,7 +131,7 @@ namespace NTL {
 
   //TODO: we should scrub all code for NTL variables and use our wrapped versions exclusively.
   template<class myT>
-  myVecP<myT>::myVecP(const myVec<myZZ> &a, myZZ &q) : Vec<myT>(INIT_SIZE, a.length()) 
+  myVecP<myT>::myVecP(const myVec<myZZ> &a, const myZZ &q) : Vec<myT>(INIT_SIZE, a.length()) 
   {
     this->SetModulus(q);
     for (auto i=0; i< a.length(); i++) {
@@ -297,7 +287,7 @@ namespace NTL {
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<usint> rhs){
     bool dbg_flag = false;
-    DEBUG("in op=initializerlist <myT>");
+    DEBUG("in op=initializerlist <usint>");
     usint len = rhs.size();
     this->SetLength(len);
     for(usint i=0;i<len;i++){ // this loops over each entry
@@ -305,6 +295,21 @@ namespace NTL {
     }
     return *this;
     DEBUG("mubintvec assignment copy CTOR usint init list length "<<this->length());
+  }
+
+  //Assignment with initializer list of ints
+  //keeps current modulus
+  template<class myT>
+  const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<int> rhs){
+    bool dbg_flag = false;
+    DEBUG("in op=initializerlist <int>");
+    usint len = rhs.size();
+    this->SetLength(len);
+    for(usint i=0;i<len;i++){ // this loops over each entry
+      (*this)[i] =  myZZ(*(rhs.begin()+i));
+    }
+    return *this;
+    DEBUG("mubintvec assignment copy CTOR int init list length "<<this->length());
   }
 
 
@@ -426,21 +431,21 @@ namespace NTL {
   
   //ACCESSORS
 #if 0
-   //stream <<
-   template<class myT>
-   std::ostream& operator<<(std::ostream& os, const myVecP<myT> &ptr_obj)
-   {
+  //stream <<
+  template<class myT>
+  std::ostream& operator<<(std::ostream& os, const myVecP<myT> &ptr_obj)
+  {
     
-     //os<<std::endl;
-     //os<<ptr_obj;
-     //os<<std::endl;
-     for(usint i=0;i<ptr_obj.size();i++){
-       os<<ptr_obj[i] <<", ";
-     }
-     os<<"modulus: "<<ptr_obj.GetModulus();
-     //os <<std::endl;
-     return os;
-   }
+    //os<<std::endl;
+    //os<<ptr_obj;
+    //os<<std::endl;
+    for(usint i=0;i<ptr_obj.size();i++){
+      os<<ptr_obj[i] <<", ";
+    }
+    os<<"modulus: "<<ptr_obj.GetModulus();
+    //os <<std::endl;
+    return os;
+  }
 #endif  
   
 #if 1
@@ -456,7 +461,7 @@ namespace NTL {
   template<class myT>
   void myVecP<myT>::SwitchModulus(const myZZ& newModulus) 
   {
-  
+    
     myZZ oldModulus(this->m_modulus);
     myZZ n;
     myZZ oldModulusByTwo(oldModulus>>1);
@@ -488,7 +493,8 @@ namespace NTL {
   
   
   template<class myT>
-  myVecP<myT> myVecP<myT>::operator%( const myZZ& b) const  {
+  myVecP<myT> myVecP<myT>::operator%( const myZZ& b) const  
+  {
     unsigned int n = this->length();
     myVecP<myT> res(n);
     res.CopyModulus(*this);
@@ -556,16 +562,16 @@ namespace NTL {
   // method to vector with scalar
   // template<class myT> //was inlined in .h
   // const myVecP<myT>& myVecP<myT>::operator%=(const myZZ& modulus) {
-
+  
   //   *this = this->Mod(modulus);
   //   return *this;
-
+  
   // }
-
+  
   //method to mod by two
   template<class myT>
   myVecP<myT> myVecP<myT>::ModByTwo() const {
-
+    
     myVecP ans(this->GetLength(),this->GetModulus());
     myT halfQ(this->GetModulus() >> 1);
     for (usint i = 0; i<ans.GetLength(); i++) {
@@ -585,9 +591,9 @@ namespace NTL {
     }
     return ans;
   }
-
+  
   //arithmetic. 
-
+  
   //addition of scalar
   template<class myT>
   myVecP<myT> myVecP<myT>::operator+(myZZ const& b) const
@@ -617,9 +623,8 @@ namespace NTL {
     return(res);
   }
   
-
+  
   // method to add scalar to vector element at index i
-#if 1
   template<class myT>
   myVecP<myT> myVecP<myT>::ModAddAtIndex(usint i, const myZZ &b) const{
     if(i > this->GetLength()-1) {
@@ -631,8 +636,8 @@ namespace NTL {
     ans[i] = ans[i]+b; //mod add is default 
     return ans;
   }
-#endif
 
+  
   //subtraction of scalar
   template<class myT>
   myVecP<myT> myVecP<myT>::operator-(const myZZ& b) const
@@ -757,40 +762,26 @@ namespace NTL {
     return *this;
 
   }
-
+#endif
   template<class myT>
-  myVecP<myT> myVecP<myT>::ModExp(const myT &b) const{
+  myVecP<myT> myVecP<myT>::ModExp(const myZZ &b) const
+  {
     myVecP ans(*this);
-    for(usint i=0;i<this->m_data.size();i++){
-      ans.m_data[i] = ans.m_data[i].ModExp(b, ans.m_modulus);
+    for(usint i=0;i<this->size();i++){
+      ans[i] = ans[i].ModExp(b, ans.m_modulus);
     }
     return ans;
   }
 
-
-  template<class myT>
-  myVecP<myT> myVecP<myT>::ModInverse() const{
-
-    myVecP ans(*this);
-    //std::cout << ans << std::endl;
-    for(usint i=0;i<this->m_data.size();i++){
-      //std::cout << ans.m_data[i] << std::endl;
-      //ans.m_data[i].PrintValueInDec();
-      ans.m_data[i] = ans.m_data[i].ModInverse(this->m_modulus);
-    }
-    return ans;
-
-  }
-
-    
   // method to exponentiate vector by scalar 
   template<class myT>
-  myVecP<myT> myVecP<myT>::Exp(const myT &b) const{ //overload of ModExp()
+  myVecP<myT> myVecP<myT>::Exp(const myZZ &b) const //overload of ModExp()
+  {
     myVecP ans(*this);
     ans = ans.ModExp(b);
     return ans;
   }
-#endif
+
 
 #if 0
   // vector elementwise multiply
@@ -850,32 +841,43 @@ namespace NTL {
     ans = ans.ModMul(b);
     return ans;
   }
-
+#endif
+  
   template<class myT>
-  myVecP<myT> myVecP<myT>::MultiplyAndRound(const myT &p, const myT &q) const {
-
-    myVecP ans(*this);
-    myT halfQ(this->m_modulus >> 1);
-    for (usint i = 0; i<this->m_data.size(); i++) {
-      if (ans.m_data[i] > halfQ) {
-	myT temp = this->m_modulus - ans.m_data[i];
-	ans.m_data[i] = this->m_modulus - temp.MultiplyAndRound(p, q);
-      }
-      else
-	ans.m_data[i] = ans.m_data[i].MultiplyAndRound(p, q).Mod(this->m_modulus);
-    }
+  myVecP<myT> myVecP<myT>::MultiplyAndRound(const myT &p, const myT &q) const 
+  {
+  myVecP ans(*this);
+  myT halfQ(this->m_modulus >> 1);
+  for (usint i = 0; i<this->size(); i++) {
+  if (ans[i] > halfQ) {
+  myT temp = this->m_modulus - ans[i];
+  ans[i] = this->m_modulus - temp.MultiplyAndRound(p, q);
+}
+  else
+    ans[i] = ans[i].MultiplyAndRound(p, q).Mod(this->m_modulus);
+}
     return ans;
   }
 
   template<class myT>
   myVecP<myT> myVecP<myT>::DivideAndRound(const myT &q) const {
-    myVecP ans(*this);
-    for (usint i = 0; i<this->m_data.size(); i++) {
-      ans.m_data[i] = ans.m_data[i].DivideAndRound(q);
+  myVecP ans(*this);
+    for (usint i = 0; i<this->length(); i++) {
+  ans[i] = ans[i].DivideAndRound(q);
     }
     return ans;
   }
-#endif
+
+  template<class myT>
+  myVecP<myT> myVecP<myT>::ModInverse(void) const
+  {
+    myVecP ans(*this);
+    for(usint i=0;i<this->size();i++){
+      ans[i] = ans[i].ModInverse(this->m_modulus);
+    }
+    return ans;
+  }
+
 
   // assignment operators
 
@@ -910,40 +912,39 @@ namespace NTL {
   // }
 
 
-#if 0
+
   //Gets the ind
   template<class myT>
-  myVecP<myT> myVecP<myT>::GetDigitAtIndexForBase(usint index, usint base) const{
+  myVecP<myT> myVecP<myT>::GetDigitAtIndexForBase(usint index, usint base) const
+  {
     myVecP ans(*this);
-    for(usint i=0; i < this->m_data.size(); i++){
-      ans.m_data[i] = myT(ans.m_data[i].GetDigitAtIndexForBase(index,base));
+    for(usint i=0; i < this->size(); i++){
+      ans[i] = myT(ans[i].GetDigitAtIndexForBase(index,base));
     }
 
     return ans;
   }
-#endif
-#if 0
-  //this has not  been touched
+
   //new serialize and deserialise operations
   //todo: not tested just added to satisfy compilier
   //currently using the same map as bigBinaryVector, with modulus. 
 
   // JSON FACILITY - Serialize Operation
-  template<class bin_el_t>
-  bool myVecP<bin_el_t>::Serialize(lbcrypto::Serialized* serObj) const {
-
+  template<class myT>
+  bool myVecP<myT>::Serialize(lbcrypto::Serialized* serObj) const 
+  {
     if( !serObj->IsObject() )
       return false;
 
     lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
     bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator()); 
 
-    size_t pkVectorLength = this->m_data.size();
+    size_t pkVectorLength = this->size();
     if( pkVectorLength > 0 ) {
-      std::string pkBufferString = this->m_data.at(0).Serialize();
+      std::string pkBufferString = this->at(0).Serialize();
       for (size_t i = 1; i < pkVectorLength; i++) {
 	pkBufferString += "|";
-	pkBufferString += this->m_data.at(i).Serialize();
+	pkBufferString += this->at(i).Serialize();
       }
       bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
     }
@@ -954,37 +955,33 @@ namespace NTL {
   // JSON FACILITY - Deserialize Operation
   template<class myT>
   bool myVecP<myT>::Deserialize(const lbcrypto::Serialized& serObj) {
-
-    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("myVecP");
-    if( mIter == serObj.MemberEnd() )
+  
+  lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("myVecP");
+  if( mIter == serObj.MemberEnd() )
       return false;
 
     lbcrypto::SerialItem::ConstMemberIterator vIt;
     if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
       return false;
+
     myT bbiModulus(vIt->value.GetString());
-
-    if( (vIt = mIter->value.FindMember("VectorValues")) == mIter->value.MemberEnd() )
+  if( (vIt = mIter->value.FindMember("VectorValues")) == 
+    mIter->value.MemberEnd() )
       return false;
-
+    clear(*this);
     this->SetModulus(bbiModulus);
 
-    this->m_data.clear();
-
     myT vectorElem;
-    //usint ePos = 0;
     const char *vp = vIt->value.GetString();
     while( *vp != '\0' ) {
       vp = vectorElem.Deserialize(vp);
-      //this->SetValAtIndex(ePos++, vectorElem);
-      this->m_data.push_back(vectorElem);
+      this->push_back(vectorElem);
       if( *vp == '|' )
 	vp++;
     }
 
     return true;
   }
-#endif
 
   //procedural addition why can't I inheret this?
   template<class myT>
