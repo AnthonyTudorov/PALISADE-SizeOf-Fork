@@ -564,7 +564,7 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
 };
 
 template <class Element>
-bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
+bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateV2(
 				const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
 				const std::string &testString) const {
 	//Evaluation of Obfuscated Conjunction Pattern
@@ -789,6 +789,119 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateACS(
 	std::cout <<"EvalACS: " <<TOC(t1) <<" ms"<< std::endl;
 
 	std::cout << "ACS Norm: " << norm << std::endl;
+
+	return (norm <= constraint);
+
+};
+
+
+template <class Element>
+bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
+				const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
+				const std::string &testString) const {
+
+	//Evaluation of Obfuscated Conjunction Pattern
+	TimeVar t1; // for TIC TOC
+	bool dbg_flag = 0;
+	TIC(t1);
+
+	usint l = obfuscatedPattern.GetLength();
+	usint n = obfuscatedPattern.GetRingDimension();
+	BigBinaryInteger q(obfuscatedPattern.GetModulus());
+	usint m = obfuscatedPattern.GetLogModulus() + 2;
+	usint chunkSize = obfuscatedPattern.GetChunkSize();
+	usint adjustedLength = l/chunkSize;
+	double constraint = obfuscatedPattern.GetConstraint();
+
+	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
+
+	const shared_ptr<ElemParams> params = obfuscatedPattern.GetParameters();
+
+	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+
+	std::cout << "" << std::endl;
+	std::cout << "Pattern length \t l : " << l << std::endl;
+	std::cout << "Ring dimension \t n : " << n << std::endl;
+	std::cout << "Modulus \t q : " << q << std::endl;
+	std::cout << "Num bits \t m : " << m << std::endl;
+	std::cout << "Constraint \t : " << constraint << std::endl;
+
+	bool retVal = true;
+	std::string testVal;
+
+	double norm = constraint;
+
+	Matrix<Element> S_prod = Matrix<Element>(zero_alloc,1,m);
+	Matrix<Element> R_prod = Matrix<Element>(zero_alloc,1,m);
+	S_prod = Pk_vector[0];
+	R_prod = Pk_vector[0];
+
+	//S_prod.PrintValues();
+	//R_prod.PrintValues();
+
+	shared_ptr<Matrix<Element>> S_ib;
+	shared_ptr<Matrix<Element>> R_ib;
+
+	DEBUG("Eval1: "<<TOC(t1) <<" ms");
+
+	for (usint i=0; i<adjustedLength; i++) 	{
+		TIC(t1);
+
+		//pragma omp parallel sections
+		{
+			{
+				testVal = testString.substr(i*chunkSize,chunkSize);
+				std::cout << " Index: " << i << std::endl;
+				std::cout << " \t Input: \t" << testVal << std::endl;
+			}
+			S_ib = obfuscatedPattern.GetS(i,testVal);
+			R_ib = obfuscatedPattern.GetR(i,testVal);
+
+			//S_ib->PrintValues();
+			//R_ib->PrintValues();
+
+			S_prod = S_prod * (*S_ib);
+			R_prod = R_prod * (*R_ib);
+			//if (i==0)
+			//	std::cout << "does identity work correctly" << (S_prod == *S_ib) << std::endl;
+		}
+		DEBUG("Eval2:#"<< i << ": " <<TOC(t1) <<" ms");
+	}
+	TIC(t1);
+	std::cout << " S_prod: " << std::endl;
+	//S_prod.PrintValues();
+	std::cout << " R_prod: " << std::endl;
+	//R_prod.PrintValues();
+
+	shared_ptr<Matrix<Element>> Sl = obfuscatedPattern.GetSl();
+	shared_ptr<Matrix<Element>> Rl = obfuscatedPattern.GetRl();
+
+	std::cout << " Sl: " << std::endl;
+	//Sl->PrintValues();
+	std::cout << " Rl: " << std::endl;
+	//Rl->PrintValues();
+
+	std::cout << " Cross Product: " << std::endl;
+	Matrix<Element> CrossProd = (S_prod * (*Rl)) - (R_prod * (*Sl));
+	//CrossProd.PrintValues();
+
+
+	DEBUG("Eval3: " <<TOC(t1) <<" ms");
+	TIC(t1);
+
+	//the norm can be estimated after all elements are converted to coefficient representation
+	CrossProd.SwitchFormat();
+	DEBUG("Eval4: " <<TOC(t1) <<" ms");
+	TIC(t1);
+	//CrossProd.PrintValues();
+
+	//std::cout << "cross product dimensions: " <<  CrossProd.GetRows() << ", " << CrossProd.GetCols() << std::endl;
+	//std::cout <<  CrossProd << std::endl;
+
+	norm = CrossProd.Norm();
+	DEBUG("Eval5: " <<TOC(t1) <<" ms");
+
+	std::cout << " Norm: " << norm << std::endl;
 
 	return (norm <= constraint);
 

@@ -320,15 +320,14 @@ namespace lbcrypto {
 				DiscreteGaussianGenerator &dgg,
 				DiscreteGaussianGenerator &dggLargeSigma) const;
 
-
 			/**
-			 * Method for evaluating the pattern
+			 * Method for evaluating the pattern - before matrix-vector optimization
 			 *
 			 * @param &obfuscatedPattern the obfuscated pattern.
 			 * @param &testString cleartext pattern to test for.
 			 * @return true if the string matches the pattern and false otherwise.
 			 */
-			bool Evaluate(const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
+			bool EvaluateV2(const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
 				 const std::string &testString) const;
 
 			/**
@@ -344,6 +343,16 @@ namespace lbcrypto {
 			 */
 			bool EvaluateACS(const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
 					const std::string &testString, const int useRandomVector) const;
+
+			/**
+			* Method for evaluating the pattern
+			*
+			* @param &obfuscatedPattern the obfuscated pattern.
+			* @param &testString cleartext pattern to test for.
+			* @return true if the string matches the pattern and false otherwise.
+			*/
+			bool Evaluate(const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
+				 const std::string &testString) const;
 
 	};
 
