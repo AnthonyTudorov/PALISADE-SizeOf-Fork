@@ -564,7 +564,7 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
 };
 
 template <class Element>
-bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
+bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateV2(
 				const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
 				const std::string &testString) const {
 	//Evaluation of Obfuscated Conjunction Pattern
@@ -796,7 +796,7 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateACS(
 
 
 template <class Element>
-bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateFast(
+bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
 				const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
 				const std::string &testString) const {
 
