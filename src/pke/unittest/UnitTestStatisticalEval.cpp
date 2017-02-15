@@ -231,7 +231,7 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 TEST(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 
 	usint plaintextModulus = 256;
-	usint relWindow = 16;
+	usint relWindow = 8;
 	float stdDev = 4;
 
 	//Set crypto parametes
@@ -245,7 +245,7 @@ TEST(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
-	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 3);
+	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 4);
 
 	double diff, start, finish;
 
