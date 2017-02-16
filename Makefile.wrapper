@@ -23,6 +23,14 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
+PYSRCDIR := src/wrappers/python
+PYBINDIR := src/wrappers/python/bin
+
+PYSOURCES := $(shell find $(PYSRCDIR)/lib -name '*.cpp')
+
+PYOBJECTS = $(patsubst $(PYSRCDIR)/%,$(PYBINDIR)/%,$(patsubst %.cpp,%.o,$(PYSOURCES)))
+
+-include $(PYOBJECTS:.o=.d)
 
 ################
 # Makefile.wrapper contains all build instructions for making the
@@ -35,8 +43,8 @@ LIBOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(LIBSOU
 
 -include build/wrappers/java/PalisadeCryptoWrapper.d
 
-.PHONY:allwrappers
-allwrappers: $(EXTLIBDIR)/$(JNILIB) $(EXTLIBDIR)/PalisadeCrypto.jar
+.PHONY:jwrapper pywrapper
+jwrapper: $(EXTLIBDIR)/$(JNILIB) $(EXTLIBDIR)/PalisadeCrypto.jar
 
 #this builds the palisade JNI wrapper library
 $(EXTLIBDIR)/$(JNILIB): $(LIBOBJECTS) build/wrappers/java/PalisadeCryptoWrapper.o

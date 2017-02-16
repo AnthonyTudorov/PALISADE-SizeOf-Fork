@@ -88,7 +88,9 @@ PALISADETRAPDOORLIB := libPALISADEtrapdoor$(LIBSUFFIX)
 # each corresponding makefile will make the allxxxx target
 all: allcore allpke alltrapdoor apidocs 
 
-alljava: all allwrappers
+alljava: allcore allpke jwrapper
+
+allpython: allcore allpke pywrapper
 
 alldemos: allcoredemos allpkedemos alltrapdoordemos
 
