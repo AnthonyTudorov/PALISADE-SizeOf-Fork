@@ -55,10 +55,10 @@ namespace NTL {
   template<class myT>
   myVecP<myT>::myVecP(const myVecP<myT> &a) : Vec<myT>(INIT_SIZE, a.length()) 
   {
+    this->CopyModulus(a);
     for (auto i=0; i< a.length(); i++) {
       (*this)[i]=a[i];
     }
-    this->m_modulus_state == GARBAGE;
   }
 
   template<class myT>
@@ -104,7 +104,11 @@ namespace NTL {
   template<class myT>
   myVecP<myT>::myVecP(const long n, const myZZ &q): Vec<myT>(INIT_SIZE,n)
   {
+    bool dbg_flag = false;
+    DEBUG("myVecP(n,ZZ) n:"<<n);
+    DEBUG("q:"<<q);
     this->SetModulus(q);
+    DEBUG("get modulus "<<GetModulus());
   }
   
   template<class myT>
@@ -603,7 +607,7 @@ namespace NTL {
     res.CopyModulus(*this);
     long i;
     for (i = 0; i < n; i++)
-      res[i] = (*this)[i]+b;
+      res[i] = (*this)[i]+b%m_modulus;
     return(res);
   }
   
@@ -617,7 +621,7 @@ namespace NTL {
     ArgCheckVector(b, "myVecP operator+");
     myVecP<myT> res;
     res.CopyModulus(*this);
-    myVecP<myT>::add(res, *this, b);
+    myVecP<myT>::add(res, *this, b%m_modulus);
     //NTL_OPT_RETURN(myVecP<myT>, res);
     DEBUG("myVecP::operator+ returning modulus "<<res.m_modulus);
     return(res);
@@ -633,7 +637,7 @@ namespace NTL {
     }
     myVecP ans(*this); //copy vector
     //ans[i] = ans[i].ModAdd(b, this->m_modulus);
-    ans[i] = ans[i]+b; //mod add is default 
+    ans[i] = ans[i]+b%m_modulus; //mod add is default 
     return ans;
   }
 
@@ -647,7 +651,7 @@ namespace NTL {
     res.CopyModulus(*this);
     long i;
     for (i = 0; i < n; i++)
-      res[i] = (*this)[i]-b;
+      res[i] = (*this)[i]-b%m_modulus;
     return(res);
   }
 
@@ -677,7 +681,7 @@ namespace NTL {
     res.CopyModulus(*this);
     long i;
     for (i = 0; i < n; i++)
-      res[i] = (*this)[i]*b;
+      res[i] = (*this)[i]*b%m_modulus;
     return(res);
   }
 
@@ -768,7 +772,7 @@ namespace NTL {
   {
     myVecP ans(*this);
     for(usint i=0;i<this->size();i++){
-      ans[i] = ans[i].ModExp(b, ans.m_modulus);
+      ans[i] = ans[i].ModExp(b%m_modulus, ans.m_modulus);
     }
     return ans;
   }
@@ -778,7 +782,7 @@ namespace NTL {
   myVecP<myT> myVecP<myT>::Exp(const myZZ &b) const //overload of ModExp()
   {
     myVecP ans(*this);
-    ans = ans.ModExp(b);
+    ans = ans.ModExp(b%m_modulus);
     return ans;
   }
 
@@ -1069,8 +1073,13 @@ namespace NTL {
       throw std::logic_error("myVecP index out of range");
     }
     else{
-      this->at(index) = value;
+      // must be added modulo
+      if (isModulusSet())
+	this->at(index) = value%m_modulus;
+      else
+	this->at(index) = value;
     }
+
   }
 
   template<class myT>
@@ -1079,7 +1088,10 @@ namespace NTL {
       throw std::logic_error("myVecP index out of range");
     }
     else{
-      this->at(index) = myT(value);
+      if (isModulusSet())
+	this->at(index) = myT(value)%m_modulus;
+      else
+	this->at(index) = myT(value);
     }
   }
 
@@ -1091,7 +1103,10 @@ namespace NTL {
       throw std::logic_error("myVecP index out of range");
     }
     else{
-      this->at(index) = myT(str);
+      if (isModulusSet())
+	this->at(index) = myT(str)%m_modulus;
+      else
+	this->at(index) = myT(str);
     }
   }
   // set value at index from const char*
@@ -1101,7 +1116,10 @@ namespace NTL {
       throw std::logic_error("myVecP index out of range");
     }
     else{
-      this->at(index) = myT(str);
+      if (isModulusSet())
+	this->at(index) = myT(str)%m_modulus;
+      else
+	this->at(index) = myT(str);
     }
   }
 

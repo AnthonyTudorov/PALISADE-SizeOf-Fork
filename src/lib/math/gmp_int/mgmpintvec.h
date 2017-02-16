@@ -218,7 +218,7 @@ namespace NTL {
     inline myVecP& operator+=(const myZZ& a)
     { 
       for (unsigned int i = 0; i < this->length(); i++){
-	(*this)[i]=(*this)[i]+a; //+= not defined yet
+	(*this)[i]=(*this)[i]+a%m_modulus; //+= not defined yet
       }
       return *this;
     };
@@ -226,8 +226,8 @@ namespace NTL {
     myVecP operator+(const myVecP& b) const;
     myVecP operator+(const myZZ& b) const;
 
-    inline myVecP Add(const myZZ& b) const { return (*this)+b;};
-    inline myVecP ModAdd(const myZZ& b) const { return (*this)+b;};
+    inline myVecP Add(const myZZ& b) const { return (*this)+b%m_modulus;};
+    inline myVecP ModAdd(const myZZ& b) const { return (*this)+b%m_modulus;};
     void add(myVecP& x, const myVecP& a, const myVecP& b) const; //define procedural
 
     myVecP ModAddAtIndex(usint i, const myZZ &b) const;
@@ -248,7 +248,7 @@ namespace NTL {
     inline myVecP& operator-=(const myZZ& a)
     { 
       for (auto i = 0; i < this->length(); i++){
-	(*this)[i]-=a;
+	(*this)[i]-=a%m_modulus;
       }
       return *this;
     };
@@ -258,8 +258,8 @@ namespace NTL {
 
 
     //scalar
-    inline myVecP Sub(const myZZ& b) const { return (*this)-b;};
-    inline myVecP ModSub(const myZZ& b) const { return (*this)-b;};
+    inline myVecP Sub(const myZZ& b) const { return (*this)-b%m_modulus;};
+    inline myVecP ModSub(const myZZ& b) const { return (*this)-b%m_modulus;};
 
     //vector
     inline myVecP Sub(const myVecP& b) const {ArgCheckVector(b, "myVecP Sub()");  return (*this)-b;};
@@ -283,7 +283,7 @@ namespace NTL {
     inline myVecP& operator*=(const myZZ& a)
     { 
       for (auto i = 0; i < this->length(); i++){
-	(*this)[i] = (*this)[i]*a; //try this for now. *= seems undefined
+	(*this)[i] = (*this)[i]*a%m_modulus; //try this for now. *= seems undefined
       }
       return *this;
     };
@@ -292,8 +292,8 @@ namespace NTL {
     myVecP operator*(myZZ const& a) const;
 
     //scalar
-    inline myVecP Mul(const myZZ& b) const { return (*this)*b;};
-    inline myVecP ModMul(const myZZ& b) const { return (*this)*b;};
+    inline myVecP Mul(const myZZ& b) const { return (*this)*b%m_modulus;};
+    inline myVecP ModMul(const myZZ& b) const { return (*this)*b%m_modulus;};
 
     //vector
     inline myVecP Mul(const myVecP& b) const {ArgCheckVector(b, "myVecP Mul()"); return (*this)*b;};
@@ -327,8 +327,8 @@ namespace NTL {
 
     //scalar then vector
     //note a more efficient means exists for these
-    inline myVecP ModAdd(const myZZ& b, const myZZ& modulus) const {return ((*this)+b)%modulus;};
-    inline myVecP ModAdd(const myVecP& b, const myZZ& modulus) const {return ((*this)+b)%modulus;};
+    inline myVecP ModAdd(const myZZ& b, const myZZ& modulus) const {return (*this)+b%modulus;};
+    inline myVecP ModAdd(const myVecP& b, const myZZ& modulus) const {return (*this)+b%modulus;};
 
     // note that modsub requires us to use the NTL signed subtraction 
     // rather than the Palisade unsigned subtraction     

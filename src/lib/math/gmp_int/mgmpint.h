@@ -347,7 +347,20 @@ namespace NTL{
 
     inline myZZ_p ModBarrettMul(const myZZ_p& b, const myZZ& modulus,const myZZ mu_arr[BARRETT_LEVELS]) const  {return MulMod(this->_ZZ_p__rep, b._ZZ_p__rep, modulus);};
 
-    inline myZZ_p ModExp(const myZZ_p& b, const myZZ& modulus) const {return PowerMod(this->_ZZ_p__rep, b._ZZ_p__rep, modulus);};
+    inline myZZ_p ModExp(const myZZ_p& b, const myZZ& modulus) const {
+      //return PowerMod(this->_ZZ_p__rep, b._ZZ_p__rep, modulus);};
+      
+      bool dbg_flag = false;
+      myZZ res(*this); 
+      DEBUG("ModExp this :"<< *this);
+      DEBUG("ModExp b:"<< b);
+      DEBUG("ModExp modulus:"<< modulus);
+      PowerMod (res, res%modulus, b._ZZ_p__rep%modulus, modulus); 
+      DEBUG("ModExp res:"<< res);
+      return myZZ_p(res);
+    }; //(this^b)%modulus
+    
+
     //palisade string conversion
     const std::string ToString() const;	
 

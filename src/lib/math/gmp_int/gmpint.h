@@ -245,7 +245,18 @@ inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+
    inline myZZ ModMul(const myZZ& b, const myZZ& modulus) const {return myZZ(MulMod(*this%modulus, b%modulus, modulus));};
    inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {return MulMod(*this%modulus, b%modulus, modulus);};
    inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ mu_arr[BARRETT_LEVELS]) const  {return MulMod(*this%modulus, b%modulus, modulus);};
-   inline myZZ ModExp(const myZZ& b, const myZZ& modulus) const {return PowerMod(*this%modulus, b%modulus, modulus);};
+
+   inline myZZ ModExp(const myZZ& b, const myZZ& modulus) const {
+     bool dbg_flag = false;
+     myZZ res(*this); 
+     DEBUG("ModExp this :"<< *this);
+     DEBUG("ModExp b:"<< b);
+     DEBUG("ModExp modulus:"<< modulus);
+
+     PowerMod (res, res%modulus, b%modulus, modulus); 
+     DEBUG("ModExp res:"<< res);
+     return res;
+    }; //(this^b)%modulus
 
    inline myZZ operator>>(long n) const {return RightShift(*this, n);};
    inline myZZ operator<<(long n) const {return LeftShift(*this, n);};
