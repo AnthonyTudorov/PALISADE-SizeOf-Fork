@@ -1,19 +1,17 @@
 /*
   PALISADE PROJECT, Crypto Lab, NJIT
-  Version: 
-  v00.01 
-  Last Edited: 
-  
+  Version:
+  v00.01
+  Last Edited:
+
   List of Authors:
-  TPOC: 
+  TPOC:
   Dr. Kurt Rohloff, rohloff@njit.edu
   Programmers:
-  Dr. Yuriy Polyakov, polyakov@njit.edu
-  Gyana Sahu, grs22@njit.edu
-  Nishanth Pasham, np386@njit.edu
-  Dr. David Bruce Cousins dcousins@bbn.com [benchmark]
-  Description:	
-  This code benchmarks functions of the math directory  of the PALISADE lattice encryption library.
+  Gerard Ryan (gwryan@njit.edu)
+
+  Description:
+  This code benchmarks functions of the src/lib/lattoce directory  of the PALISADE lattice encryption library.
 
   License Information:
 
@@ -24,29 +22,8 @@
   2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #include "benchmark/benchmark_api.h"
-
-
-/* this is an example of very basic google benchmarks
-   all the benchmarks have
-             no input parameters
-	     cannot runover differnt length operations
-	     some generate an output
-  future examples will show the use of fixtures and templates to reduce
-  the amount of 
-  code needed
-
-  for documentation on google benchmarks see https://github.com/google/benchmark
-  as well as example code in the benchmark/examples directory
-
-  note to increase the number of iterations call it as follows
-             ./BBIMath --benchmark_min_time=4.0
-	    
-
-  increase the min_time (as a float) to increase the # iterations
-
-*/
-
 
 #include <iostream>
 #define _USE_MATH_DEFINES
@@ -68,27 +45,20 @@
 using namespace std;
 using namespace lbcrypto;
 
-//four simple benchmarks to test constructing BBIs
-// typically the code to benchmark is in a 'function' that is then
-// called within the actual benchmark.
+#define BASIC_BENCHMARK_TEST(x) \
+    BENCHMARK(x)->Arg(0)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(16)
 
-// test BBI constants
-static void make_BBI_constants(void) {	// function
-  BigBinaryInteger one(BigBinaryInteger::ONE);
-  BigBinaryInteger two(BigBinaryInteger::TWO);
-  BigBinaryInteger three(BigBinaryInteger::THREE);
-
+static void make_LATTICE_constants(void) {
+	ILVector2n v;
 }
 
-  void BM_BBI_constants(benchmark::State& state) { // benchmark
+void BM_LATTICE_constants(benchmark::State& state) { // benchmark
   while (state.KeepRunning()) {
-    make_BBI_constants();		// note even with -O3 it appears
-                                // this is not optimized out
-                                // though check with your compiler
+	  make_LATTICE_constants();
   }
 }
 
-BENCHMARK(BM_BBI_constants);		// register benchmark
+BASIC_BENCHMARK_TEST(BM_LATTICE_constants);		// register benchmark
 
 // make variables
 
@@ -139,14 +109,14 @@ static void add_BBI(void) {	// function
   BigBinaryInteger c2 = a.Plus(b);
 
   BigBinaryInteger total = c1 - c2;
-  
+
   if (total != zero)
 	  cout << "should be zero: "<<total<<endl;
 
 }
 
-static void BM_BBI2(benchmark::State& state) { // benchmark 
-  
+static void BM_BBI2(benchmark::State& state) { // benchmark
+
   while (state.KeepRunning()) {
    add_BBI();
   }
