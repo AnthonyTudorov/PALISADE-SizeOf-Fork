@@ -18,51 +18,35 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\lweconjunctionobfuscate.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\lweconjunctionobfuscatev2.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\lweconjunctionobfuscatev3.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\sampling\dgsampling.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\sampling\trapdoor.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\signature\lwesign.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\lweconjunctionobfuscate.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\lweconjunctionobfuscatev2.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\lweconjunctionobfuscatev3.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\obfuscatelp.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\sampling\dgsampling.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\sampling\trapdoor.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\signature\lwesign.h" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{A2EC17D5-2F86-4785-848A-58762A65999A}</ProjectGuid>
+    <ProjectGuid>{73ABF35D-8F2E-445E-BF4C-610D1E35C3DE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>trapdoor</RootNamespace>
+    <RootNamespace>pythonwrapper</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectName>pycrypto</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -87,20 +71,24 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\git\palisade-student-edition\src\pke\lib;C:\git\palisade-student-edition\src\core\lib;C:\boost_1_62_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\git\palisade-student-edition\src\pke\lib;C:\git\palisade-student-edition\src\core\lib;C:\boost_1_62_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\git\palisade-student-edition\src\pke\lib;C:\git\palisade-student-edition\src\trapdoor\lib;C:\git\palisade-student-edition\src\core\lib;C:\Python27\include;C:\boost_1_62_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Python27\libs;C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\git\palisade-student-edition\src\pke\lib;C:\git\palisade-student-edition\src\core\lib;C:\boost_1_62_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\git\palisade-student-edition\src\pke\lib;C:\git\palisade-student-edition\src\trapdoor\lib;C:\git\palisade-student-edition\src\core\lib;C:\Python27\include;C:\boost_1_62_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Python27\libs;C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\git\palisade-student-edition\src\pke\lib;C:\git\palisade-student-edition\src\trapdoor\lib;C:\git\palisade-student-edition\src\core\lib;C:\Python27\include;C:\boost_1_62_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Python27\libs;C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\git\palisade-student-edition\src\pke\lib;C:\git\palisade-student-edition\src\core\lib;C:\boost_1_62_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\git\palisade-student-edition\src\pke\lib;C:\git\palisade-student-edition\src\trapdoor\lib;C:\git\palisade-student-edition\src\core\lib;C:\Python27\include;C:\boost_1_62_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Python27\libs;C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -108,12 +96,13 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions);_XKEYCHECK_H</PreprocessorDefinitions>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>C:\Python27\libs;C:\boost_1_62_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -122,12 +111,13 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions);_XKEYCHECK_H</PreprocessorDefinitions>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>C:\Python27\libs;C:\boost_1_62_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -138,14 +128,15 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions);_XKEYCHECK_H</PreprocessorDefinitions>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\Python27\libs;C:\boost_1_62_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -156,16 +147,35 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions);_XKEYCHECK_H</PreprocessorDefinitions>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\Python27\libs;C:\boost_1_62_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\wrappers\python\conjinterface.cpp" />
+    <ClCompile Include="..\..\..\..\src\wrappers\python\pycrypto.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\src\wrappers\python\conjinterface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\core\core.vcxproj">
+      <Project>{ae8deb8d-de67-43b9-a36b-db1ce7517d8c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\pke\pke.vcxproj">
+      <Project>{12a98ba2-2426-476d-9b25-fba1a2639fd6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\trapdoor\trapdoor.vcxproj">
+      <Project>{a2ec17d5-2f86-4785-848a-58762a65999a}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

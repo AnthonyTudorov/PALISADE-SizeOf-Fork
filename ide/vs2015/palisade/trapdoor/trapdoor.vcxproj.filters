@@ -7,8 +7,6 @@
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\sampling\dgsampling.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\sampling\trapdoor.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\signature\lwesign.cpp" />
-    <ClCompile Include="..\..\..\..\src\wrappers\python\pycrypto.cpp" />
-    <ClCompile Include="..\..\..\..\src\wrappers\python\conjinterface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\lweconjunctionobfuscate.h" />
@@ -18,6 +16,5 @@
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\sampling\dgsampling.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\sampling\trapdoor.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\signature\lwesign.h" />
-    <ClInclude Include="..\..\..\..\src\wrappers\python\conjinterface.h" />
   </ItemGroup>
 </Project>
