@@ -75,22 +75,18 @@ namespace NTL {
   myVecP<myT>::myVecP(myVecP<myT> &&a) : Vec<myT>(INIT_SIZE, a.length()) 
   {
     bool dbg_flag = false;
-    DEBUG("in myVecP copymove, alength "<<a.length());
+    DEBUG("in myVecP copymove, myvecP<myT> alength "<<a.length());
     this->CopyModulus(a);
-    //consider using Victor's move(a);
-#if 0
-    for (auto i=0; i< a.length(); i++) {
-      (*this)[i]=a[i];
-    }
-#else
     this->move(a);
-#endif
+
   }
 
   //movecopy ctor
   template<class myT>
   myVecP<myT>::myVecP(myVec<myZZ> &&a) : Vec<myT>(INIT_SIZE, a.length()) 
   {
+    bool dbg_flag = false;
+    DEBUG("in myVecP copymove myVec<myZZ>, alength "<<a.length());
     // wasn't able to use Victor's move(a);
     for (auto i=0; i< a.length(); i++) {
       (*this)[i]=a[i];

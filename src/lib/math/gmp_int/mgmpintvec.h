@@ -82,9 +82,9 @@ namespace NTL {
 
   myVecP(): Vec<myT>() {};
     //constructors without moduli
-    explicit myVecP(const usint n): Vec<myT>(INIT_SIZE, n) {}; // adapter kit
-   myVecP(const INIT_SIZE_TYPE, const long n): Vec<myT>(INIT_SIZE, n) {};
-   myVecP(const INIT_SIZE_TYPE, const long n,  myT const& a): Vec<myT>(INIT_SIZE, n, a) {}; 
+    explicit myVecP(const usint n): Vec<myT>(INIT_SIZE, n) {m_modulus_state = GARBAGE;}; 
+   myVecP(const INIT_SIZE_TYPE, const long n): Vec<myT>(INIT_SIZE, n) {m_modulus_state = GARBAGE;}; 
+   myVecP(const INIT_SIZE_TYPE, const long n,  myT const& a): Vec<myT>(INIT_SIZE, n, a)  {m_modulus_state = GARBAGE;}; 
 
 
     //copy
@@ -452,7 +452,12 @@ namespace NTL {
       DEBUG("CopyModulus(const myVecP& modulus_state is "<<rhs.m_modulus_state);
       this->m_modulus = rhs.m_modulus;
       this->m_modulus_state = rhs.m_modulus_state;
-      ZZ_p::init(this->m_modulus);
+      if (isModulusSet())
+	ZZ_p::init(this->m_modulus);
+      else{
+	std::cout<<"Warning: myZZ_p::CopyModulus() from uninitialized modulus"<<std::endl;
+	this->m_modulus_state = GARBAGE;
+      }
     };
 
     inline size_t GetLength(void) const{ //deprecated by size()
