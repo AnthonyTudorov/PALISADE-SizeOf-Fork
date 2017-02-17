@@ -40,6 +40,7 @@ $(EXTLIBDIR)/$(PALISADEPYLIB): $(PYOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) $(EX
 	@echo " -- pke:linking $@ from PYOBJECTS"
 	mkdir -p $(EXTLIBDIR)
 	$(CC) $(CPPFLAGS) $(INC) $(LIBCMD) -o $@ $(PYOBJECTS) -lpython2.7 $(BOOSTLIB) -lboost_python $(EXTLIBDIR)/$(PALISADECORELIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB)
+	@[ "$(LIBSUFFIX)" = ".dylib" ] && ln $(EXTLIBDIR)/$(PALISADEPYLIB) $(EXTLIBDIR)/$(patsubst %.dylib,%.so,$(PALISADEPYLIB))
 
 ### #this builds the individual objects that make up the py library .
 .PRECIOUS: $(PYBINDIR)/%

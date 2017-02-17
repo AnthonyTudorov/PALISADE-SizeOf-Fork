@@ -1,7 +1,7 @@
 ## for mac OSx
 
 BOOSTINCLUDE := -I /boost_1_61_0
-BOOSTLIB := -L /boost_1_61_0/stage/lib
+BOOSTLIB := -L /boost_1_61_0/stage/lib/
 OMPINCLUDE := -I /opt/local/include/libomp -fopenmp
 #CPPSTD := -std=gnu++0x
 CC := clang++ # This is the main compiler
