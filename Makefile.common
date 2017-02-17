@@ -82,7 +82,7 @@ INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I test $(OMPINCLUDE) 
 PALISADECORELIB := libPALISADEcore$(LIBSUFFIX)
 PALISADEPKELIB := libPALISADEpke$(LIBSUFFIX)
 PALISADETRAPDOORLIB := libPALISADEtrapdoor$(LIBSUFFIX)
-PALISADEPYLIB := libPALISADEpy$(LIBSUFFIX)
+PALISADEPYLIB := pycrypto$(LIBSUFFIX)
 
 # run make for all components. you can run any individual component separately
 #  by invoking   "make alltargets"  for example
