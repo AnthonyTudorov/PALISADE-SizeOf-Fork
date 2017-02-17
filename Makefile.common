@@ -82,6 +82,7 @@ INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I test $(OMPINCLUDE) 
 PALISADECORELIB := libPALISADEcore$(LIBSUFFIX)
 PALISADEPKELIB := libPALISADEpke$(LIBSUFFIX)
 PALISADETRAPDOORLIB := libPALISADEtrapdoor$(LIBSUFFIX)
+PALISADEPYLIB := libPALISADEpy$(LIBSUFFIX)
 
 # run make for all components. you can run any individual component separately
 #  by invoking   "make alltargets"  for example
@@ -90,7 +91,7 @@ all: allcore allpke alltrapdoor apidocs
 
 alljava: allcore allpke jwrapper
 
-allpython: allcore allpke pywrapper
+allpython: allcore allpke alltrapdoor pywrapper
 
 alldemos: allcoredemos allpkedemos alltrapdoordemos
 
@@ -107,7 +108,7 @@ clean: cleancore cleanpke cleantrapdoor cleandocs
 include Makefile.core
 include Makefile.pke
 include Makefile.trapdoor
-### FIXME ### include Makefile.wrapper
+include Makefile.wrapper
 include Makefile.benchmark     #builds the benchmark framework
 include Makefile.docs          #populates doxgen documentation
 
