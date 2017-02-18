@@ -44,4 +44,6 @@ For Windows + Visual Studio 2015
   * Add c:\pythonXX\libs to VC++ library directories
   * Add c:\pythonXX\libs to VC++ Linker directories (Additional Library directories under Linker)
 
-4. Compile as DLL, copy the dll to the folder where python.exe resides (or updated PYTHON_PATH), and rename it as pycrypto.pyd
+4. Compile as DLL, copy the dll to the folder where python.exe resides (or update PYTHON_PATH), and rename it as pycrypto.pyd
+
+5. Run "python test.py" from the src/wrappers/python/ folder
