@@ -138,18 +138,24 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
         }
     }
 #else
-    #pragma omp parallel for
-    for (int32_t row = 0; row < result.rows; ++row) {
-
-	//if result was zero allocated the following should not be needed
-	//for (size_t col = 0; col < result.cols; ++col) { 
-	//    *result.data[row][col] = 0;
-	//}
-	for (int32_t i = 0; i < cols; ++i) {
+    if (rows  == 1) {
+        #pragma omp parallel for
         for (int32_t col = 0; col < result.cols; ++col) {
-                *result.data[row][col] += *data[row][i] * *other.data[i][col];
-            }
+		for (int32_t i = 0; i < cols; ++i) {
+		        *result.data[0][col] += *data[0][i] * *other.data[i][col];
+		    }
         }
+    }
+    else
+    {
+	    #pragma omp parallel for
+	    for (int32_t row = 0; row < result.rows; ++row) {
+		for (int32_t i = 0; i < cols; ++i) {
+		for (int32_t col = 0; col < result.cols; ++col) {
+		        *result.data[row][col] += *data[row][i] * *other.data[i][col];
+		    }
+		}
+	    }
     }
 #endif
     return result;
