@@ -150,7 +150,7 @@ namespace lbcrypto {
 	void NumberTheoreticTransform::Destroy() {
 
 		//delete m_onlyInstance;
-		m_element = NULL;
+		if( m_element != NULL ) delete m_element;
 	}
 
 
@@ -517,8 +517,8 @@ namespace lbcrypto {
 
 	void ChineseRemainderTransform::Destroy() {
 		//delete m_onlyInstance;
-		delete m_rootOfUnityTable;
-		delete m_rootOfUnityInverseTable;
+		if( m_rootOfUnityTable ) delete m_rootOfUnityTable;
+		if( m_rootOfUnityInverseTable ) delete m_rootOfUnityInverseTable;
 	}
 
 	void ChineseRemainderTransformFTT::Destroy() {
