@@ -77,6 +77,14 @@ public:
 	ILVector2n(const shared_ptr<ElemParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 	/**
+	 * Construct given parameters and format
+	 * @param initializeElementToMax - if true, initializes entries in the vector to the maximum value
+	 * @param params - element parameters
+	 * @param format - EVALUATION or COEFFICIENT
+	 */
+    	ILVector2n(bool initializeElementToMax, const shared_ptr<ElemParams> params, Format format);
+
+	/**
 	 * Construct with a vector from a given generator
 	 *
 	 * @param &dgg the input discrete Gaussian Generator.
@@ -335,6 +343,11 @@ public:
 	 * Sets all values to zero.
 	 */
 	void SetValuesToZero();
+
+	/**
+	 * Sets all values to maximum.
+	 */
+	void SetValuesToMax();
 
 	/**
 	 * Sets the format.
