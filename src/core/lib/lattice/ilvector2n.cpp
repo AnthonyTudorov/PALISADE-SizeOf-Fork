@@ -278,7 +278,7 @@ namespace lbcrypto {
 
 	const BigBinaryInteger& ILVector2n::GetValAtIndex(usint i) const
 	{
-	  bool dbg_flag = true;
+	  bool dbg_flag = false;
 		if( m_values == 0 )
 			throw std::logic_error("No values in ILVector2n");
 		DEBUG("i "<<i);

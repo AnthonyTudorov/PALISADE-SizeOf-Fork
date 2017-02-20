@@ -127,7 +127,7 @@ TEST(UTILVector2n, operators_tests) {
 }
 
 TEST(UTILVector2n, getters_tests) {
-  bool dbg_flag = true;
+  bool dbg_flag = false;
   usint m = 8; 
   
   BigBinaryInteger primeModulus("73");
