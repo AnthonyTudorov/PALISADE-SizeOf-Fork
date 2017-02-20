@@ -55,6 +55,8 @@ namespace NTL {
   template<class myT>
   myVecP<myT>::myVecP(const myVecP<myT> &a) : Vec<myT>(INIT_SIZE, a.length()) 
   {
+    bool dbg_flag = true;
+    DEBUG("in myVecP(myVecP&) length "<<a.length());
     this->CopyModulus(a);
     for (auto i=0; i< a.length(); i++) {
       (*this)[i]=a[i];

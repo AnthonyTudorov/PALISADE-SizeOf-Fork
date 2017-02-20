@@ -127,6 +127,7 @@ TEST(UTILVector2n, operators_tests) {
 }
 
 TEST(UTILVector2n, getters_tests) {
+  bool dbg_flag = true;
   usint m = 8; 
   
   BigBinaryInteger primeModulus("73");
@@ -142,7 +143,7 @@ TEST(UTILVector2n, getters_tests) {
   bbv.SetValAtIndex(2, "0");
   bbv.SetValAtIndex(3, "1");
   ilvector2n.SetValues(bbv, ilvector2n.GetFormat());
-
+  
   {
     EXPECT_EQ(primeModulus, ilvector2n.GetModulus()) << "ILVector2n.GetModulus is incorrect.\n";
   }
@@ -166,9 +167,35 @@ TEST(UTILVector2n, getters_tests) {
   {
     EXPECT_EQ(m/2, ilvector2n.GetLength()) << "ILVector2n.GetLength is incorrect.\n";
   }
+  DEBUG("il2vector2n "<<ilvector2n.GetValues());
+  DEBUG("il2vector2n "<<ilvector2n.GetValues());
+  DEBUG("il2vector2n "<<ilvector2n.GetValues().GetValAtIndex(0));
+  DEBUG("il2vector2n "<<ilvector2n.GetValues().GetValAtIndex(1));
+  DEBUG("il2vector2n "<<ilvector2n.GetValues().GetValAtIndex(2));
+  DEBUG("il2vector2n "<<ilvector2n.GetValues().GetValAtIndex(3));
+  EXPECT_EQ(bbv, ilvector2n.GetValues())<<"ILVector2n.GetValues is incorrect.\n";
 
+  BigBinaryVector foo;
+  DEBUG("m "<<m);
+  foo = ilvector2n.GetValues(); //try this
+  for (usint i = 0; i < m/2; ++i) {  
+    DEBUG("i "<<i);
+    DEBUG("foo "<<foo.GetValAtIndex(i));
+    //    DEBUG("il  "<<ilvector2n.GetValAtIndex(i));
+    std::cout<<"il  ";
+    std::cout<<ilvector2n.GetValAtIndex(i);
+    std::cout<<endl;
+    
+  }
   {
     for (usint i = 0; i < m/2; ++i) {
+      DEBUG("i "<<i);
+      DEBUG("bbv "<<bbv.GetValAtIndex(i));
+      DEBUG("ilvector2n " << ilvector2n.GetValues());
+      DEBUG("foo" << foo);
+      DEBUG("fooget" << foo.GetValAtIndex(i));
+      DEBUG("ilvector2n" << ilvector2n.GetValAtIndex(i));
+      DEBUG("foo");
       EXPECT_EQ(bbv.GetValAtIndex(i), ilvector2n.GetValAtIndex(i)) << "ILVector2n.GetValAtIndex is incorrect.\n";
     }
   }
