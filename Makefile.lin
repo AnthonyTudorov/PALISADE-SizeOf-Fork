@@ -1,22 +1,28 @@
 ## for linux
 
 BOOSTINCLUDE := -I /afs/cad/linux/boost-1.60-sl6/include/
+
 OMPINCLUDE := 
+
+##DBC include paths for NTL and GMP
 NTLINCLUDE := -I $(HOME)/sw/include
 GMPINCLUDE := -I $(HOME)/sw/include
 
+##DBC library paths for NTL and GMP
 NTLLIB := $(HOME)/sw/lib/libntl.a
 GMPLIB := $(HOME)/sw/lib/libgmp.a
+
+
+CC := g++ # This is the main compiler
+
 CPPSTD := -std=gnu++11
 
-PALISADELIB := libPALISADE.so
+
+LIBSUFFIX := .so
 LIBCMD := -fPIC -shared -Wl,--export-dynamic
 
 RDYNAMIC := -rdynamic
 
 JNIBUILD :=  
 JNILIB := libPalisadeCryptoWrapper.so
-
-include Makefile.common
-
 

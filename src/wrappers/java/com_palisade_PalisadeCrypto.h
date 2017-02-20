@@ -8,17 +8,13 @@
 extern "C" {
 #endif
 
-//FIXME: Test
-JNIEXPORT void JNICALL Java_com_palisade_PalisadeCrypto_writeBytes
-  (JNIEnv *, jobject thiz, jbyteArray bytes, jobject outstream);
-
 /*
  * Class:     com_palisade_PalisadeCrypto
  * Method:    getPalisadeKeyPair
  * Signature: (Ljava/lang/String;)Lcom/palisade/PalisadeKeypair;
  */
 JNIEXPORT jobject JNICALL Java_com_palisade_PalisadeCrypto_generatePalisadeKeyPair
-  (JNIEnv *, jobject, jstring);
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_palisade_PalisadeCrypto
@@ -26,7 +22,7 @@ JNIEXPORT jobject JNICALL Java_com_palisade_PalisadeCrypto_generatePalisadeKeyPa
  * Signature: ([B[B)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_generatePalisadeEvalKey
-  (JNIEnv *, jobject, jstring, jbyteArray, jbyteArray);
+  (JNIEnv *, jobject, jbyteArray, jbyteArray);
 
 JNIEXPORT jboolean JNICALL Java_com_palisade_PalisadeCrypto_setPublicKey
   (JNIEnv *, jobject thiz, jbyteArray key);
@@ -35,7 +31,7 @@ JNIEXPORT jboolean JNICALL Java_com_palisade_PalisadeCrypto_setPrivateKey
 JNIEXPORT jboolean JNICALL Java_com_palisade_PalisadeCrypto_setEvalKey
   (JNIEnv *, jobject thiz, jbyteArray key);
 
-JNIEXPORT jbyteArray Java_com_palisade_PalisadeCrypto_getPalisadeErrorDescription
+JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_getPalisadeErrorDescription
   (JNIEnv *, jobject thiz);
 
 
@@ -45,7 +41,7 @@ JNIEXPORT jbyteArray Java_com_palisade_PalisadeCrypto_getPalisadeErrorDescriptio
  * Signature: ([B[B)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_encrypt
-  (JNIEnv *, jobject, jstring, jbyteArray);
+  (JNIEnv *, jobject, jbyteArray);
 
 /*
  * Class:     com_palisade_PalisadeCrypto
@@ -53,7 +49,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_encrypt
  * Signature: ([B[B)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_reEncrypt
-  (JNIEnv *, jobject, jstring, jbyteArray);
+  (JNIEnv *, jobject, jbyteArray);
 
 /*
  * Class:     com_palisade_PalisadeCrypto
@@ -61,7 +57,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_reEncrypt
  * Signature: ([B[B)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_decrypt
-  (JNIEnv *, jobject, jstring, jbyteArray);
+  (JNIEnv *, jobject, jbyteArray);
 
 /*
  * Class:     com_palisade_PalisadeCrypto

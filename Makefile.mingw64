@@ -2,19 +2,18 @@
 
 BOOSTINCLUDE := -I C:/boost_1_60_0
 OMPINCLUDE := 
+CC := g++ # This is the main compiler
 CPPSTD := -std=gnu++11
 
-PALISADELIB := libPALISADE.dll
 LIBCMD := -s -shared -Wl,--subsystem,windows 
 
+LIBSUFFIX := .dll
 EXESUFFIX := .exe
 
 MINGWREGEX := -Lc:/Mingw64/mingw64/opt/lib -lregex -lshlwapi
 
 RDYNAMIC := 
 
-JNIBUILD :=  -I "C:/Program Files/java/jdk1.8.0_66/include" -I "C:/Program Files/java/jdk1.8.0_66/include/win32"
+JNIBUILD :=  -I "C:/Program Files/java/jdk1.8.0_91/include" -I "C:/Program Files/java/jdk1.8.0_91/include/win32"
 JNILIB := PalisadeCryptoWrapper.dll
-
-include Makefile.common
 

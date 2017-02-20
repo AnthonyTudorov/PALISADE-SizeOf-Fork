@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{AE8DEB8D-DE67-43B9-A36B-DB1CE7517D8C}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>core</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\boost_1_62_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\boost_1_62_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\boost_1_62_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\boost_1_62_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;%(PreprocessorDefinitions);_XKEYCHECK_H</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;%(PreprocessorDefinitions);_XKEYCHECK_H</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;%(PreprocessorDefinitions);_XKEYCHECK_H</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;%(PreprocessorDefinitions);_XKEYCHECK_H</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\encoding\byteplaintextencoding.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\encoding\intplaintextencoding.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\encoding\packedintplaintextencoding.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\field2n.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\ildcrtparams.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\ilparams.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\ilvector2n.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\ilvectorarray2n.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\binaryuniformgenerator.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\binint8bit.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\binvect8bit.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\dtstruct8bit.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\mempool8bit.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu_int\binint.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu_int\binvect.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\discretegaussiangenerator.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\discreteuniformgenerator.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\distributiongenerator.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\exp_int\mubintvec.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\exp_int\ubint.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\exp_int\ubintvec.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\matrix.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\nbtheory.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\ternaryuniformgenerator.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\transfrm.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\debug.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\hashutil.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\serializablehelper.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\utilities.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\math\matrixser.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\math\matrixstrassen.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\encoding\byteplaintextencoding.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\encoding\intplaintextencoding.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\encoding\packedintplaintextencoding.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\encoding\plaintext.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\elemparams.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\field2n.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\ildcrtparams.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\ilelement.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\ilparams.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\ilvector2n.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\ilvectorarray2n.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\backend.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\binaryuniformgenerator.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\binint8bit.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\binvect8bit.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\dtstruct8bit.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\mempool8bit.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu_int\binint.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu_int\binvect.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu_int\dtstruct.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\discretegaussiangenerator.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\discreteuniformgenerator.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\distrgen.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\distributiongenerator.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\exp_int\mubintvec.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\exp_int\ubint.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\exp_int\ubintvec.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\interface.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\largefloat.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\matrix.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\nbtheory.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\ternaryuniformgenerator.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\transfrm.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\debug.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\hashutil.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\inttypes.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\memory.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\allocators.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\document.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\encodedstream.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\encodings.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\error\en.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\error\error.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\filereadstream.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\filewritestream.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\internal\biginteger.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\internal\diyfp.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\internal\dtoa.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\internal\ieee754.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\internal\itoa.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\internal\meta.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\internal\pow10.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\internal\stack.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\internal\strfunc.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\internal\strtod.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\internal\swap.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\memorybuffer.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\memorystream.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\msinttypes\inttypes.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\msinttypes\stdint.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\pointer.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\prettywriter.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\rapidjson.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\reader.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\stringbuffer.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\rapidjson\writer.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\serializable.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\serializablehelper.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\utilities.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\math\matrixstrassen.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
