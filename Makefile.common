@@ -53,7 +53,6 @@ CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp ### -m64  ##undefine for parallel be
 
 TEST_LIB := -pthread -lgomp  $(NTLLIB) $(GMPLIB)
 
-
 #build directory
 BUILDDIR := build
 
@@ -72,6 +71,7 @@ HDREXT := h
 
 $(objects) : %.o : %.cpp
 
+<<<<<<< HEAD
 #EXTLIB := -L$(EXTLIBDIR) -lpthread -lgomp -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
 
 #DBC added NTL and GML lubraries
@@ -85,6 +85,13 @@ EXTLIB := -L$(EXTLIBDIR) -lpthread -lgomp -pg $(NTLLIB) $(GMPLIB) #-lmongoclient
 INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I test $(OMPINCLUDE) $(BOOSTINCLUDE) $(NTLINCLUDE) $(GMPINCLUDE)
 
 
+=======
+
+EXTLIB := -L$(EXTLIBDIR) -lpthread -lgomp -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
+INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I test $(OMPINCLUDE) $(BOOSTINCLUDE)
+
+
+>>>>>>> master
 #the name of the shared object library for palisade objects.  
 PALISADECORELIB := libPALISADEcore$(LIBSUFFIX)
 PALISADEPKELIB := libPALISADEpke$(LIBSUFFIX)
