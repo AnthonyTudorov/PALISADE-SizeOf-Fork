@@ -18,3 +18,4 @@ JNIBUILD :=
 JNILIB := libPalisadeCryptoWrapper.so
 
 PYINCLUDE := -I/usr/include/python2.7
+LIBPYTHON := -lpython2.7 
