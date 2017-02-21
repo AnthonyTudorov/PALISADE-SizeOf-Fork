@@ -1,6 +1,7 @@
 ## for linux
 
-BOOSTINCLUDE := -I /afs/cad/linux/boost-1.60-sl6/include/
+##BOOSTINCLUDE := -I /afs/cad/linux/boost-1.60-sl6/include/
+BOOSTINCLUDE := 
 
 OMPINCLUDE := 
 
@@ -16,3 +17,5 @@ RDYNAMIC := -rdynamic
 JNIBUILD :=  
 JNILIB := libPalisadeCryptoWrapper.so
 
+PYINCLUDE := -I/usr/include/python2.7
+LIBPYTHON := -lpython2.7 
