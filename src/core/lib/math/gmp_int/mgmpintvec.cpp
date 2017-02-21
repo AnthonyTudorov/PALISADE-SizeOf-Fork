@@ -131,7 +131,6 @@ namespace NTL {
     (*this) %= q;
   }
 
-  //TODO: we should scrub all code for NTL variables and use our wrapped versions exclusively.
   template<class myT>
   myVecP<myT>::myVecP(const myVec<myZZ> &a, const myZZ &q) : Vec<myT>(INIT_SIZE, a.length()) 
   {
@@ -230,7 +229,7 @@ namespace NTL {
     for (usint i = 0; i < len; i++){
       (*this)[i] = myT(s[i]);
     }
-    //this->m_modulus_state = GARBAGE;  keep current state
+    this->m_modulus_state = GARBAGE; 
   }
 
   // constructor specifying the myvec as a vector of strings with modulus
@@ -347,7 +346,8 @@ namespace NTL {
   }
   
 
-  //keeps current modulus /TODO: is this the correct thing to do?
+  //keeps current modulus 
+  //DESIGN QUESTION do we keep modulus or use modulus of rhs?
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(const myT &rhs)
   {
@@ -355,6 +355,7 @@ namespace NTL {
     DEBUG("in op=const myT&");
     this->SetLength(1);
     (*this)[0] = rhs;
+    ModulusCheck("myVecP::op=myT");
     return *this;
   }
 
@@ -366,6 +367,7 @@ namespace NTL {
     DEBUG("in op=myT&");
     this->SetLength(1);
     (*this)[0] =rhs;
+    ModulusCheck("myVecP::op=myT");
     return *this;
   }
   
@@ -428,7 +430,6 @@ namespace NTL {
     NTL_NAMESPACE::clear(this->m_modulus);
   }
   
-  
   //not enabled yet
   
   //ACCESSORS
@@ -450,7 +451,6 @@ namespace NTL {
   }
 #endif  
   
-#if 1
   //Switches the integers in the vector to values corresponding to the new modulus
   //*  Algorithm: Integer i, Old Modulus om, New Modulus nm, delta = abs(om-nm):
   // *  Case 1: om < nm
@@ -486,7 +486,6 @@ namespace NTL {
     }
     this->SetModulus(newModulus);
   }
-#endif
   
   /// ARITHMETIC FUNCTIONS
   
@@ -610,7 +609,6 @@ namespace NTL {
   }
   
   //addition of vector
-  //why can't I inheret this?
   template<class myT>
   myVecP<myT> myVecP<myT>::operator+(myVecP<myT> const& b) const
   {
@@ -634,6 +632,7 @@ namespace NTL {
       throw std::runtime_error(errMsg);
     }
     myVecP ans(*this); //copy vector
+    ModulusCheck("myVecP::ModAddAtIndex");
     //ans[i] = ans[i].ModAdd(b, this->m_modulus);
     ans[i] = ans[i]+b%m_modulus; //mod add is default 
     return ans;
@@ -660,7 +659,7 @@ namespace NTL {
   {
     bool dbg_flag = false;
     DEBUG("in myVecP::operator-");
-    ArgCheckVector(b, "myVecP::operator-");
+    ArgCheckVector(b, "myVecP::op-");
     myVecP<myT> res;
     res.CopyModulus(*this);
     myVecP<myT>::sub(res, *this, b);
@@ -674,6 +673,7 @@ namespace NTL {
   template<class myT>
   myVecP<myT> myVecP<myT>::operator*(myZZ const& b) const
   {
+
     unsigned int n = this->length();
     myVecP<myT> res(n);
     res.CopyModulus(*this);
@@ -699,76 +699,11 @@ namespace NTL {
     return(res);
   }
 
-#if 0
-
-  // method to multiply vector by scalar
-  template<class myT>
-  myVecP<myT> myVecP<myT>::ModMul(const myT &b) const{
-#ifdef NO_BARRETT //non barrett way
-    myVecP ans(*this);
-    for(usint i=0;i<this->m_data.size();i++){
-      ans.m_data[i] = ans.m_data[i].ModMul(b, ans.m_modulus);
-    }
-    return ans;
-#else
-
-    myVecP ans(*this);
-
-    //Precompute the Barrett mu parameter
-    myT temp(myZZ::ONE);
-
-    temp<<=2*this->GetModulus().GetMSB()+3;
-
-    myT mu = temp.DividedBy(m_modulus);
-
-    //Precompute the Barrett mu values
-    /*ubint temp;
-      uschar gamma;
-      uschar modulusLength = this->GetModulus().GetMSB() ;
-      ubint mu_arr[BARRETT_LEVELS+1];
-      for(usint i=0;i<BARRETT_LEVELS+1;i++) {
-      temp = ubint::ONE;
-      gamma = modulusLength*i/BARRETT_LEVELS;
-      temp<<=modulusLength+gamma+3;
-      mu_arr[i] = temp.DividedBy(this->GetModulus());
-      }*/
-
-    for(usint i=0;i<this->m_data.size();i++){
-      //std::cout<< "before data: "<< ans.m_data[i]<< std::endl;
-      ans.m_data[i] = ans.m_data[i].ModBarrettMul(b,this->m_modulus,mu);
-      //std::cout<< "after data: "<< ans.m_data[i]<< std::endl;
-    }
-
-    return ans;
-
-
-#endif
-  }
-
-  // method to multiply vector by scalar
-
-  template<class myT>
-  myVecP<myT> myVecP<myT>::Mul(const myT &b) const{ //overload of ModMul()
-    myVecP ans(*this);
-    ans = ans.ModMul(b);
-    return ans;
-  }
-
-
-
-  // *=  operator to multiply  scalar from vector
-  template<class myT>
-  const myVecP<myT>& myVecP<myT>::operator*=(const myT& b) {
-
-    *this = this->ModMul(b);
-    return *this;
-
-  }
-#endif
   template<class myT>
   myVecP<myT> myVecP<myT>::ModExp(const myZZ &b) const
   {
     myVecP ans(*this);
+    ModulusCheck("myVecP::ModExp");
     for(usint i=0;i<this->size();i++){
       ans[i] = ans[i].ModExp(b%m_modulus, ans.m_modulus);
     }
@@ -780,99 +715,42 @@ namespace NTL {
   myVecP<myT> myVecP<myT>::Exp(const myZZ &b) const //overload of ModExp()
   {
     myVecP ans(*this);
+    ModulusCheck("myVecP::ModExp");
     ans = ans.ModExp(b%m_modulus);
     return ans;
   }
-
-
-#if 0
-  // vector elementwise multiply
-  template<class myT>
-  myVecP<myT> myVecP<myT>::ModMul(const myVecP &b) const{
-#ifdef NO_BARRETT
-    myVecP ans(*this);
-    if(this->m_modulus!=b.m_modulus){
-      throw std::logic_error("myVecP multiplying vectors of different moduli");
-    }else if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("myVecP multiplying vectors of different lengths");
-    } else {
-      for(usint i=0;i<ans.m_data.size();i++){
-        ans.m_data[i] = ans.m_data[i].ModMul(b.m_data[i],ans.m_modulus);
-      }
-      return ans;
-    }
-
-#else // bartett way
-
-    if((this->m_data.size()!=b.m_data.size()) || this->m_modulus!=b.m_modulus ){
-      throw std::logic_error("ModMul called on myVecPs with different parameters.");
-    }
-    
-    myVecP ans(*this);
-    
-    //Precompute the Barrett mu parameter
-    myT temp(myZZ::ONE);
-    temp<<=2*this->GetModulus().GetMSB()+3;
-    myT mu = temp.Div(this->GetModulus());
-    
-    //Precompute the Barrett mu values
-    /*BigBinaryInteger temp;
-      uschar gamma;
-      uschar modulusLength = this->GetModulus().GetMSB() ;
-      BigBinaryInteger mu_arr[BARRETT_LEVELS+1];
-      for(usint i=0;i<BARRETT_LEVELS+1;i++) {
-      temp = BigBinaryInteger::ONE;
-      gamma = modulusLength*i/BARRETT_LEVELS;
-      temp<<=modulusLength+gamma+3;
-      mu_arr[i] = temp.DividedBy(this->GetModulus());
-      }*/
-    
-    for(usint i=0;i<ans.m_data.size();i++){
-      //ans.m_data[i] = ans.m_data[i].ModMul(b.m_data[i],this->m_modulus);
-      ans.m_data[i] = ans.m_data[i].ModBarrettMul(b.m_data[i],this->m_modulus,mu);
-    }
-    return ans;
-
-#endif
-  }
-  
-
-  template<class myT>
-  myVecP<myT> myVecP<myT>::Mul(const myVecP &b) const{ //overload of ModMul
-    myVecP ans(*this);
-    ans = ans.ModMul(b);
-    return ans;
-  }
-#endif
   
   template<class myT>
   myVecP<myT> myVecP<myT>::MultiplyAndRound(const myT &p, const myT &q) const 
   {
-  myVecP ans(*this);
-  myT halfQ(this->m_modulus >> 1);
-  for (usint i = 0; i<this->size(); i++) {
-  if (ans[i] > halfQ) {
-  myT temp = this->m_modulus - ans[i];
-  ans[i] = this->m_modulus - temp.MultiplyAndRound(p, q);
-}
-  else
-    ans[i] = ans[i].MultiplyAndRound(p, q).Mod(this->m_modulus);
-}
+    ModulusCheck("myVecP::MultiplyAndRound");
+    myVecP ans(*this);
+    myT halfQ(this->m_modulus >> 1);
+    for (usint i = 0; i<this->size(); i++) {
+      if (ans[i] > halfQ) {
+	myT temp = this->m_modulus - ans[i];
+	ans[i] = this->m_modulus - temp.MultiplyAndRound(p, q);
+      }
+      else
+	ans[i] = ans[i].MultiplyAndRound(p, q).Mod(this->m_modulus);
+    }
     return ans;
   }
 
   template<class myT>
   myVecP<myT> myVecP<myT>::DivideAndRound(const myT &q) const {
-  myVecP ans(*this);
+    ModulusCheck("myVecP::DivideAndRound");
+    myVecP ans(*this);
     for (usint i = 0; i<this->length(); i++) {
-  ans[i] = ans[i].DivideAndRound(q);
+      ans[i] = ans[i].DivideAndRound(q);
     }
     return ans;
   }
-
+  
   template<class myT>
   myVecP<myT> myVecP<myT>::ModInverse(void) const
   {
+    ModulusCheck("myVecP::ModInverse");
     myVecP ans(*this);
     for(usint i=0;i<this->size();i++){
       ans[i] = ans[i].ModInverse(this->m_modulus);
@@ -880,42 +758,7 @@ namespace NTL {
     return ans;
   }
 
-
-  // assignment operators
-
-  // template<class myT>
-  // const myVecP<myT>& myVecP<myT>::operator+=(const myVecP &b) {
-
-  //   *this = *this + b;
-  //   return *this;
-  // }
-
-  // template<class myT>
-  // const myVecP<myT>& myVecP<myT>::operator-=(const myVecP &b) {
-  //   if(this->m_modulus!=b.m_modulus){
-  //     throw std::logic_error("myVecP -= vectors of different moduli");
-  //   }else if(this->m_data.size()!=b.m_data.size()){
-  //     throw std::logic_error("myVecP -= vectors of different lengths");
-  //   }
-  //   *this = *this - b;
-  //   return *this;
-  // }
-
-
-  // template<class myT>
-  // const myVecP<myT>& myVecP<myT>::operator*=(const myVecP &b) {
-  //   if(this->m_modulus!=b.m_modulus){
-  //     throw std::logic_error("myVecP -= vectors of different moduli");
-  //   }else if(this->m_data.size()!=b.m_data.size()){
-  //     throw std::logic_error("myVecP -= vectors of different lengths");
-  //   }
-  //   *this = *this * b;
-  //   return *this;
-  // }
-
-
-
-  //Gets the ind
+  //not sure what this does..
   template<class myT>
   myVecP<myT> myVecP<myT>::GetDigitAtIndexForBase(usint index, usint base) const
   {
@@ -985,7 +828,7 @@ namespace NTL {
     return true;
   }
 
-  //procedural addition why can't I inheret this?
+  //procedural addition
   template<class myT>
   void  myVecP<myT>::add(myVecP<myT>& x, myVecP<myT> const& a, myVecP<myT> const& b) const
   {
@@ -1009,7 +852,7 @@ namespace NTL {
     DEBUG("myvecp::done");
     //todo make modulus explicit.
   }
-//procedural subtraction why can't I inheret this?
+//procedural subtraction
   template<class myT>
   void  myVecP<myT>::sub(myVecP<myT>& x, myVecP<myT> const& a, myVecP<myT> const& b) const
   {
@@ -1071,13 +914,12 @@ namespace NTL {
       throw std::logic_error("myVecP index out of range");
     }
     else{
-      // must be added modulo
+      // must be set modulo
       if (isModulusSet())
 	this->at(index) = value%m_modulus;
-      else
+      else //must be set directly
 	this->at(index) = value;
     }
-
   }
 
   template<class myT>
@@ -1086,13 +928,13 @@ namespace NTL {
       throw std::logic_error("myVecP index out of range");
     }
     else{
+      // must be set modulo
       if (isModulusSet())
 	this->at(index) = myT(value)%m_modulus;
-      else
+      else //must be set directly
 	this->at(index) = myT(value);
     }
   }
-
 
   // set value at index from string
   template<class myT>
@@ -1101,9 +943,10 @@ namespace NTL {
       throw std::logic_error("myVecP index out of range");
     }
     else{
+      // must be set modulo
       if (isModulusSet())
 	this->at(index) = myT(str)%m_modulus;
-      else
+      else //must be set directly
 	this->at(index) = myT(str);
     }
   }
@@ -1114,9 +957,10 @@ namespace NTL {
       throw std::logic_error("myVecP index out of range");
     }
     else{
+      // must be set modulo
       if (isModulusSet())
 	this->at(index) = myT(str)%m_modulus;
-      else
+      else //must be set directly
 	this->at(index) = myT(str);
     }
   }

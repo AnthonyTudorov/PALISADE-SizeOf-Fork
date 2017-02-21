@@ -148,19 +148,14 @@ public:
   double ConvertToDouble() const;
   long double ConvertToLongDouble() const;
 
-  //stopped here: it has problems finding which clear to use
-
-  //read  http://www.prenhall.com/divisions/esm/app/kafura/secure/chapter7/html/7.5_inheritance.htm
-  //and see if we can figure out what happened.
-
-  //inline void clear(myZZ& a) { clear(*this);}; //why can't I inherit this?
-  //inline void clear(myZZ& a) { clear(a);}; //this compiled but calls ZZ:clear in perpetual loop. 
-  
   //comparison method inline for speed
-  inline sint Compare(const myZZ& a) const {return compare(*this,a); };
-
-
-
+  inline sint Compare(const myZZ& a) const {
+    bool dbg_flag = false;
+    DEBUG("in myZZ unmixed Compare");
+    DEBUG("this "<< *this);
+    DEBUG("a "<< a);
+    return compare(*this,a); };
+  
   //palisade arithmetic methods all inline for speed
   inline myZZ Add(const myZZ& b) const {return *this+b;};
   inline myZZ Plus(const myZZ& b) const {return *this+b;}; //to be deprecated
@@ -272,7 +267,7 @@ inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+
   
   
     inline long operator==(const myZZ& b) const
-    { return this->Compare(b) == 0; }
+    {  return this->Compare(b) == 0; }
 
   
     inline long operator!=(const myZZ& b) const

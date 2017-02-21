@@ -147,6 +147,7 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 }
 
 TEST(UTNTT, switch_format_decompose_single_crt) {
+        bool dbg_flag = true;
 	usint m1 = 16;
 
 	BigBinaryInteger modulus("1");
@@ -182,11 +183,18 @@ TEST(UTNTT, switch_format_decompose_single_crt) {
 	ILVector2n x2Expected(params2, Format::COEFFICIENT);
 	x2Expected = { 4127,1987,6541,9741 };
 
+	DEBUG("x1: "<<x1);
+	DEBUG("x1: "<<x1Expected);
+
+	DEBUG("x2: "<<x2);
+	DEBUG("x2: "<<x2Expected);
+
 	EXPECT_EQ(x1, x1Expected);
 	EXPECT_EQ(x2, x2Expected);
 }
 
 TEST(UTNTT, decomposeMult_double_crt) {
+  bool dbg_flag = true;
 	usint init_m = 16;
 
 	float init_stdDev = 4;
@@ -236,6 +244,10 @@ TEST(UTNTT, decomposeMult_double_crt) {
 
 	resultsEval.SwitchFormat(); // COEF
 
+
+	DEBUG("resultsEval ix 0: "<<resultsEval.GetElementAtIndex(0).GetValues());
+	DEBUG("resultsEval ix 1: "<<resultsEval.GetElementAtIndex(1).GetValues());
+
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(0), BigBinaryInteger::ZERO);
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(1), BigBinaryInteger::ZERO);
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(2), BigBinaryInteger("17728"));
@@ -248,6 +260,7 @@ TEST(UTNTT, decomposeMult_double_crt) {
 }
 
 TEST(UTNTT, decomposeMult_single_crt) {
+  bool dbg_flag = true;
 	usint m1 = 16;
 
 	BigBinaryInteger modulus("17729");
@@ -278,8 +291,34 @@ TEST(UTNTT, decomposeMult_single_crt) {
 
 	resultsEval.SwitchFormat(); // COEF	
 
+
+	BigBinaryVector foo( resultsEval.GetValues());
+	DEBUG("foo: "<<foo);
+	DEBUG("foo&: "<<&foo);
+	BigBinaryVector foo2( resultsEval.GetValues());
+	DEBUG("foo2: "<<foo2);
+	DEBUG("foo&2: "<<&foo2);
+
+	DEBUG(foo.GetValAtIndex(0));
+	DEBUG(foo.GetValAtIndex(1));
+	DEBUG(foo.GetValAtIndex(2));
+	DEBUG(foo.GetValAtIndex(3));
+	EXPECT_EQ(foo.GetValAtIndex(0), BigBinaryInteger::ZERO);
+	EXPECT_EQ(foo.GetValAtIndex(1), BigBinaryInteger::ZERO);
+	EXPECT_EQ(foo.GetValAtIndex(2), BigBinaryInteger("17728"));
+	EXPECT_EQ(foo.GetValAtIndex(3), BigBinaryInteger::ZERO);
+
+	const BigBinaryVector *vp = &(resultsEval.GetValues());
+	DEBUG("vp: "<<vp);
+
+
+	const BigBinaryInteger *p = &(resultsEval.GetValAtIndex(0));
+	DEBUG("p: "<<p);
+	DEBUG("p*: "<<*p);
+
 	EXPECT_EQ(resultsEval.GetValAtIndex(0), BigBinaryInteger::ZERO);
 	EXPECT_EQ(resultsEval.GetValAtIndex(1), BigBinaryInteger::ZERO);
 	EXPECT_EQ(resultsEval.GetValAtIndex(2), BigBinaryInteger("17728"));
 	EXPECT_EQ(resultsEval.GetValAtIndex(3), BigBinaryInteger::ZERO);
+
 }

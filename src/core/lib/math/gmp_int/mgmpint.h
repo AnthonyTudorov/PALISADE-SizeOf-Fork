@@ -174,8 +174,20 @@ namespace NTL{
     //inline void clear(myZZ_p& a) { clear(a);}; //this compiled but calls ZZ_p:clear in perpetual loop. 
   
     //comparison method inline for speed
-    inline sint Compare(const myZZ_p& a) const {return compare(this->_ZZ_p__rep,a._ZZ_p__rep); };
-    inline sint Compare(const myZZ& a) const {return compare(this->_ZZ_p__rep,a); };
+    inline sint Compare(const myZZ_p& a) const {
+      bool dbg_flag = false;
+      sint result = compare(this->_ZZ_p__rep,a._ZZ_p__rep); 
+      DEBUG("in unmixed Compare this "<< *this <<" a "<< a<<" result "<< result);      
+      //return compare(this->_ZZ_p__rep,a._ZZ_p__rep); 
+      return result;
+    };
+    inline sint Compare(const myZZ& a) const {
+      bool dbg_flag = false;
+      sint result = compare(this->_ZZ_p__rep,a);
+      DEBUG("in mixed Compare this "<< *this <<" a "<< a<<" result "<< result);      
+      //return compare(this->_ZZ_p__rep,a); 
+      return result;
+    };
     inline sint Compare(const long int& a) const {return compare(this->_ZZ_p__rep,a); };
 
 
