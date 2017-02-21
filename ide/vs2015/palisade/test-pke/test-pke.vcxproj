@@ -158,6 +158,7 @@
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBatching.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBV.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBVDCRT.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEncryption.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestFV.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestLTV.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHE.cpp" />
@@ -166,6 +167,7 @@
     <ClCompile Include="..\..\..\..\test\include\gtest\gtest-all.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\src\pke\unittest\cryptolayertests.h" />
     <ClInclude Include="..\..\..\..\test\include\gtest\gtest.h" />
   </ItemGroup>
   <ItemGroup>

@@ -36,6 +36,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "utils/debug.h"
 
+#include "cryptolayertests.h"
+
 using namespace std;
 using namespace lbcrypto;
 
@@ -77,6 +79,7 @@ TEST(UTFV, ILVector2n_FV_Encrypt_Decrypt) {
 			2, m, modulus.ToString(), rootOfUnity.ToString(),
 			relWindow, stdDev, delta.ToString());
 	cc.Enable(ENCRYPTION);
+	cc.Enable(PRE);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
@@ -84,38 +87,9 @@ TEST(UTFV, ILVector2n_FV_Encrypt_Decrypt) {
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
-	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp;
+	UnitTestEncryption<ILVector2n>(cc);
 
-	//Regular FV encryption algorithm
-
-	////////////////////////////////////////////////////////////
-	//Perform the key generation operation.
-	////////////////////////////////////////////////////////////
-
-	kp = cc.KeyGen();
-
-	if (!kp.good()) {
-		std::cout << "Key generation failed!" << std::endl;
-		exit(1);
-	}
-
-	////////////////////////////////////////////////////////////
-	//Encryption
-	////////////////////////////////////////////////////////////
-
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, plaintext, false);	// This is the core encryption operation.
-
-	////////////////////////////////////////////////////////////
-	//Decryption
-	////////////////////////////////////////////////////////////
-
-	BytePlaintextEncoding plaintextNew;
-
-	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew, false);  // This is the core decryption operation.
-
-	EXPECT_EQ(plaintextNew, plaintext);
-
+	ILVector2n::DestroyPreComputedSamples();
 }
 
 //Tests EvalAdd, EvalSub, and EvalMul operations for FV in the RLWE mode
