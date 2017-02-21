@@ -12,9 +12,9 @@ For Ubuntu
 
 * Go to the root folder of the repo.
 
-> export LD_LIBRARY_PATH=&acute;pwd&acute;/bin/lib:$LD_LIBRARY_PATH
+> export LD_LIBRARY_PATH=&#96;pwd&#96;/bin/lib:$LD_LIBRARY_PATH
 
-> export PYTHONPATH=&acute;pwd&acute;/bin/lib:$PYTHONPATH
+> export PYTHONPATH=&#96;pwd&#96;/bin/lib:$PYTHONPATH
 
 * Run the following commands
 
