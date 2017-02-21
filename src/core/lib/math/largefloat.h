@@ -62,7 +62,7 @@ namespace lbcrypto {
 #if defined(_MSC_VER)
 	typedef boost::multiprecision::mpf_float_30 LargeFloat;
 #else
-	typedef __float128 LargeFloat;
+	typedef boost::multiprecision::mpf_float_30 LargeFloat;
 #endif
 #endif
 
