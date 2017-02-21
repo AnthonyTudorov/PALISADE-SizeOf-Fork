@@ -473,13 +473,13 @@ void FinalLeveledComputation(){
 	linearKeySwitchHint1 = cc.KeySwitchGen(kp.secretKey, levelPairs[0].secretKey);
 	//UNUSED cc.EvalMultKeyGen(kp.secretKey);
 	auto e = levelPairs[0].secretKey->GetPrivateElement();
-	e.DropElementAtIndex(e.GetNumOfElements()-1);
+	e.DropLastElement();
 	levelPairs[0].secretKey->SetPrivateElement(e);
 
 	linearKeySwitchHint2 = cc.KeySwitchGen(levelPairs[0].secretKey, levelPairs[1].secretKey);
 	//UNUSED cc.EvalMultKeyGen(levelPairs[0].secretKey);
 	e = levelPairs[1].secretKey->GetPrivateElement();
-	e.DropElementAtIndex(e.GetNumOfElements()-1);
+	e.DropLastElement();
 	levelPairs[1].secretKey->SetPrivateElement(e);
 
 	//create the ciphertexts for computation
@@ -576,7 +576,7 @@ void ComposedEvalMultTest(){
 
 	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
 	ILVectorArray2n skNewOldElement(kpNew.secretKey->GetPrivateElement());
-	skNewOldElement.DropElementAtIndex(skNewOldElement.GetNumOfElements() - 1);
+	skNewOldElement.DropLastElement();
 	kpNew.secretKey->SetPrivateElement(skNewOldElement);
 
 }

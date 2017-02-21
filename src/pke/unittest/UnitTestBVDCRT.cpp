@@ -536,7 +536,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 	//drop a tower from the secret key
 	
 	auto skEl(kp.secretKey->GetPrivateElement());
-	skEl.DropElementAtIndex(skEl.GetNumOfElements() - 1);
+	skEl.DropLastElement();
 	kp.secretKey->SetPrivateElement(skEl);
 
 	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew,false);
@@ -620,7 +620,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
 	IntPlaintextEncoding results;
 
 	auto skEl(kp.secretKey->GetPrivateElement());
-	skEl.DropElementAtIndex(skEl.GetNumOfElements() - 1);
+	skEl.DropLastElement();
 	kp.secretKey->SetPrivateElement(skEl);
 
 	cc.Decrypt(kp.secretKey, cResult, &results, false);

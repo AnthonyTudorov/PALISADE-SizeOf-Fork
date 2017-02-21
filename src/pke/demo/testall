@@ -1,7 +1,7 @@
-f=bin/demo/pre
-in=src/demo/pre/plaintextMessage
-inint1=src/demo/pre/intPlaintext1
-inint2=src/demo/pre/intPlaintext2
+f=bin/demo/pke
+in=src/pke/demo/plaintextMessage
+inint1=src/pke/demo/intPlaintext1
+inint2=src/pke/demo/intPlaintext2
 h=LTV3
 g="-use $h"
 

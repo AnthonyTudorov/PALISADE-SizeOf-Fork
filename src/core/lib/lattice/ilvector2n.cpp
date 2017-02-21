@@ -31,7 +31,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
-	//need to be added because m_dggSamples is static and not initialized
+	// static members
 	std::vector<ILVector2n> ILVector2n::m_dggSamples;
 	shared_ptr<ILParams> ILVector2n::m_dggSamples_params;
 
@@ -224,7 +224,7 @@ namespace lbcrypto {
 
 
 
-	ILVector2n ILVector2n::CloneWithParams() const {
+	ILVector2n ILVector2n::CloneParametersOnly() const {
 		ILVector2n result(this->m_params, this->m_format);
 		return std::move(result);
 	}
@@ -335,86 +335,74 @@ namespace lbcrypto {
 	ILVector2n ILVector2n::Plus(const BigBinaryInteger &element) const {
 		if (m_format != Format::COEFFICIENT)
 			throw std::logic_error("ILVector2n::Plus can only be called in COEFFICIENT format.\n");
-		ILVector2n tmp(*this);
-		*tmp.m_values = GetValues().ModAddAtIndex(0, element);
-		return tmp;
+
+		ILVector2n tmp = CloneParametersOnly();
+		tmp.SetValues( GetValues().ModAddAtIndex(0, element), this->m_format );
+		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::Minus(const BigBinaryInteger &element) const {
-		ILVector2n tmp(*this);
-		*tmp.m_values = GetValues().ModSub(element);
-		return tmp;
+		ILVector2n tmp = CloneParametersOnly();
+		tmp.SetValues( GetValues().ModSub(element), this->m_format );
+		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::Times(const BigBinaryInteger &element) const {
-		ILVector2n tmp(*this);
-		*tmp.m_values = GetValues().ModMul(element);
-		return tmp;
+		ILVector2n tmp = CloneParametersOnly();
+		tmp.SetValues( GetValues().ModMul(element), this->m_format );
+		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const {
-		ILVector2n tmp(*this);
-		*tmp.m_values = GetValues().MultiplyAndRound(p, q);
-		return tmp;
+		ILVector2n tmp = CloneParametersOnly();
+		tmp.SetValues( GetValues().MultiplyAndRound(p, q), this->m_format );
+		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::DivideAndRound(const BigBinaryInteger &q) const {
-		ILVector2n tmp(*this);
-		*tmp.m_values = GetValues().DivideAndRound(q);
-		return tmp;
+		ILVector2n tmp = CloneParametersOnly();
+		tmp.SetValues( GetValues().DivideAndRound(q), this->m_format );
+		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::Negate() const {
-		ILVector2n tmp(*this);
+		ILVector2n tmp( *this );
 		*tmp.m_values = m_values->ModMul(this->m_params->GetModulus() - BigBinaryInteger::ONE);
-		return tmp;
+		return std::move( tmp );
 	}
 
 	// VECTOR OPERATIONS
 
 	ILVector2n ILVector2n::Plus(const ILVector2n &element) const {
-		ILVector2n tmp(*this);
-		*tmp.m_values = GetValues().ModAdd(*element.m_values);
-		return tmp;
+		ILVector2n tmp = CloneParametersOnly();
+		tmp.SetValues( GetValues().ModAdd(*element.m_values), this->m_format );
+		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::Minus(const ILVector2n &element) const {
-		ILVector2n tmp(*this);
-		*tmp.m_values = GetValues().ModSub(*element.m_values);
-		return tmp;
+		ILVector2n tmp = CloneParametersOnly();
+		tmp.SetValues( GetValues().ModSub(*element.m_values), this->m_format );
+		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::Times(const ILVector2n &element) const {
-		ILVector2n tmp(*this);
-		*tmp.m_values = GetValues().ModMul(*element.m_values);
-		return tmp;
+		ILVector2n tmp = CloneParametersOnly();
+		tmp.SetValues( GetValues().ModMul(*element.m_values), this->m_format );
+		return std::move( tmp );
 	}
 
-	//multiplication without applying the modulo operation; needed for rounding
-	//ILVector2n ILVector2n::TimesNoMod(const ILVector2n &element) const {
-	//	if ((m_format != Format::COEFFICIENT) || (element.m_format != Format::COEFFICIENT))
-	//		throw std::runtime_error("ILVector2n::TimesNoMod requires both polynomials to be in COEFFICIENT format.");
-	//	
-	//	//create a polynomial with zero coefficients
-	//	ILVector2n tmp(this->m_params, Format::COEFFICIENT, true);
-
-	//	for (usint i = 0; i < tmp.GetLength(); i++) {
-	//		for (usint j = 0; j < tmp.GetLength(); j++) {
-	//			if ((i + j) < tmp.GetLength())
-	//				tmp.m_values[i + j] += this->m_values[i] * element.m_values[j];
-	//	}
-
-	//	return tmp;
-	//}
-
+	// FIXME: should the parms tests here be done in regular + as well as +=? or in neither place?
 	const ILVector2n& ILVector2n::operator+=(const ILVector2n &element) {
 		if (!(*this->m_params == *element.m_params))
 			throw std::logic_error("operator+= called on ILVector2n's with different params.");
 
-		if (m_values == NULL)
+		if (m_values == NULL) {
 			m_values = new BigBinaryVector(*element.m_values);
-		else
-			*this->m_values = this->m_values->ModAdd(*element.m_values);
+			return *this;
+		}
+
+		SetValues( m_values->ModAdd(*element.m_values), this->m_format );
+
 		return *this;
 	}
 
@@ -423,7 +411,7 @@ namespace lbcrypto {
 			throw std::logic_error("operator-= called on ILVector2n's with different params.");
 		if (m_values == NULL)
 			m_values = new BigBinaryVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
-		*this->m_values = this->m_values->ModSub(*element.m_values);
+		SetValues( m_values->ModSub(*element.m_values), this->m_format );
 		return *this;
 	}
 
@@ -437,8 +425,7 @@ namespace lbcrypto {
 
 		if (m_values == NULL)
 			m_values = new BigBinaryVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
-		else
-			*this->m_values = this->m_values->ModMul(*element.m_values);
+		SetValues( m_values->ModMul(*element.m_values), this->m_format );
 
 		return *this;
 	}
@@ -484,10 +471,10 @@ namespace lbcrypto {
 	}
 
 	ILVector2n ILVector2n::MultiplicativeInverse() const {
-		ILVector2n tmp(*this);
-		if (tmp.InverseExists()) {
-			*tmp.m_values = GetValues().ModInverse();
-			return tmp;
+		ILVector2n tmp = CloneParametersOnly();
+		if (InverseExists()) {
+			tmp.SetValues( GetValues().ModInverse(), this->m_format );
+			return std::move( tmp );
 		}
 		else {
 			throw std::logic_error("ILVector2n has no inverse\n");
@@ -495,15 +482,15 @@ namespace lbcrypto {
 	}
 
 	ILVector2n ILVector2n::ModByTwo() const {
-		ILVector2n tmp(*this);
-		*tmp.m_values = GetValues().ModByTwo();
-		return tmp;
+		ILVector2n tmp = CloneParametersOnly();
+		tmp.SetValues( GetValues().ModByTwo(), this->m_format );
+		return std::move( tmp );
 	}
 
 	ILVector2n ILVector2n::SignedMod(const BigBinaryInteger & modulus) const {
-		ILVector2n tmp(*this);
-		*tmp.m_values = GetValues().Mod(modulus);
-		return tmp;
+		ILVector2n tmp = CloneParametersOnly();
+		tmp.SetValues( GetValues().Mod(modulus), this->m_format );
+		return std::move( tmp );
 	}
 
 	void ILVector2n::SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity) {
