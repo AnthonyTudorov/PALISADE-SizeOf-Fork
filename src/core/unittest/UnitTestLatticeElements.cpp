@@ -58,6 +58,7 @@ void testILVectorArray2nConstructorNegative(std::vector<ILVector2n> &towers);
 /*--------------------------------------- TESTING METHODS OF LATTICE ELEMENTS    --------------------------------------------*/
 
 TEST(UTILVector2n, operators_tests) {
+  bool dbg_flag = true;
   usint m = 8;
 
   BigBinaryInteger primeModulus("73");
@@ -111,6 +112,9 @@ TEST(UTILVector2n, operators_tests) {
     ILVector2n ilv1 = ilvector2n1;
     ilv1 -= ilvector2n1;
     for (usint i = 0; i < m/2; ++i) {
+      DEBUG("i "<<i);
+      BigBinaryInteger tmp = ilv1.GetValAtIndex(i);
+      DEBUG("ilv1.Get() "<<tmp);
       EXPECT_EQ(BigBinaryInteger::ZERO, ilv1.GetValAtIndex(i)) << "ILVector2n_operator-=: Operator-= is incorrect.\n";
     }
   }
@@ -120,6 +124,10 @@ TEST(UTILVector2n, operators_tests) {
      ilv1 += ilvector2n1;
      for (usint i = 0; i < m/2; ++i)
      {
+      DEBUG("i "<<i);
+      BigBinaryInteger tmp = ilv1.GetValAtIndex(i);
+      DEBUG("ilv1.Get() "<<tmp);
+
         EXPECT_EQ(BigBinaryInteger::TWO * ilvector2n1.GetValAtIndex(i), ilv1.GetValAtIndex(i)) << "ILVector2n_operator+=: Operator+= is incorrect.\n";
      }
   }
