@@ -40,7 +40,7 @@
 #if LARGEFLOATBACKEND == 1
 
 	//#include <boost/math/constants/constants.hpp>
-#include <boost/multiprecision/cpp_dec_float.hpp>
+#include <boost/multiprecision/gmp.hpp>
 #endif
 
 #include <random>
@@ -56,11 +56,11 @@ namespace lbcrypto {
 #if LARGEFLOATBACKEND == 1
 
 	//defined for floats with 50 significant decimal digits; can be increased to 100 if needed
-	using boost::multiprecision::cpp_dec_float_50;
+	using boost::multiprecision::mpf_float_30;
 
 	/** Define the mapping for type large float */
 #if defined(_MSC_VER)
-	typedef boost::multiprecision::cpp_dec_float_50 LargeFloat;
+	typedef boost::multiprecision::mpf_float_30 LargeFloat;
 #else
 	typedef __float128 LargeFloat;
 #endif

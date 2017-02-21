@@ -2,6 +2,8 @@
 #include "signature/lwesign.cpp"
 #include "encoding/byteplaintextencoding.h"
 
+//#define ONLINE_TIMING 1
+//#define OFFLINE_TIMING 1
 using namespace lbcrypto;
 
 int main() {

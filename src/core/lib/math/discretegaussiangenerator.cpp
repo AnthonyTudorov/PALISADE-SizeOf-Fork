@@ -253,13 +253,13 @@ namespace lbcrypto {
 		LargeFloat t = log(n) / log(2)*stddev;  //fix for Visual Studio
 
 		//YSP this double conversion is necessary for uniform_int to work properly; the use of double is justified in this case
-#if defined(_MSC_VER)
+//#if defined(_MSC_VER)
 		double dbmean = mean.convert_to<double>();
 		double dbt = t.convert_to<double>();
-#else
-		double dbmean = (double)mean;
-		double dbt = (double)t;
-#endif
+//#else
+//		double dbmean = (double)mean;
+//		double dbt = (double)t;
+//#endif
 		int count = 0;
 		std::uniform_int_distribution<int32_t> uniform_int(floor(dbmean - dbt), ceil(dbmean + dbt));
 		boost::random::uniform_real_distribution<LargeFloat> uniform_real(0.0, 1.0);
@@ -317,13 +317,13 @@ namespace lbcrypto {
 		if (probMatrix != nullptr) {
 			delete[] probMatrix;
 		}
-#if defined(_MSC_VER)
+//#if defined(_MSC_VER)
 		double dbmean = mean.convert_to<double>();
 		double dbstddev = stddev.convert_to<double>();
-#else
-		double dbmean = (double)mean;
-		double dbstddev = (double)stddev;
-#endif
+//#else
+//		double dbmean = (double)mean;
+//		double dbstddev = (double)stddev;
+//#endif
 		probMean = dbmean;
 		probMatrixSize = 10 * dbstddev + 2;
 		probMatrix = new uint32_t[probMatrixSize];

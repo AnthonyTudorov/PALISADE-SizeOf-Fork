@@ -179,7 +179,11 @@ private:
 	}
 
 	static inline LargeFloat UnnormalizedGaussianPDF(const LargeFloat &mean, const LargeFloat &sigma, int32_t x) {
+	//#if defined(_MSC_VER)	
 		return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
+	//#else
+	//	return pow(M_E, -pow((long double)x - mean, (long double)2)/(2. * sigma * sigma));
+	//#endif
 	}
 
 	// Gyana to add precomputation methods and data members

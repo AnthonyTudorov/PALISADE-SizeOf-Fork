@@ -74,7 +74,7 @@ HDREXT := h
 $(objects) : %.o : %.cpp
 
 
-EXTLIB := -L$(EXTLIBDIR) -lpthread -lgomp -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
+EXTLIB := -L$(EXTLIBDIR) -lpthread -lgomp -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt -lgmp ## include profiling
 INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I test $(OMPINCLUDE) $(BOOSTINCLUDE)
 
 
