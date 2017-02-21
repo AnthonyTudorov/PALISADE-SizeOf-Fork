@@ -40,7 +40,7 @@
   as well as example code in the benchmark/examples directory
 
   note to increase the number of iterations call it as follows
-             ./BBIMath --benchmark_min_time=4.0
+             ./BBVMath --benchmark_min_time=4.0
 
 
   increase the min_time (as a float) to increase the # iterations
@@ -51,7 +51,6 @@
 #include <iostream>
 #define _USE_MATH_DEFINES
 #include "math/backend.h"
-#if 1
 #include "utils/inttypes.h"
 #include "math/nbtheory.h"
 #include "lattice/elemparams.h"
@@ -62,93 +61,70 @@
 #include "lattice/ilvector2n.h"
 #include "lattice/ilvectorarray2n.h"
 #include "utils/utilities.h"
-#endif
-
 
 using namespace std;
 using namespace lbcrypto;
 
-//four simple benchmarks to test constructing BBIs
+//four simple benchmarks to test constructing BBVs
 // typically the code to benchmark is in a 'function' that is then
 // called within the actual benchmark.
 
-// test BBI constants
-static void make_BBI_constants(void) {	// function
-	BigBinaryInteger one(BigBinaryInteger::ONE);
+static BigBinaryInteger mod("31415");
+
+// test BBV constants
+static void make_BBV_constants(int siz) {	// function
+	BigBinaryVector one(siz, mod);
 }
 
-void BM_BBI_constants(benchmark::State& state) { // benchmark
+void BM_BBV_constants(benchmark::State& state) { // benchmark
 	while (state.KeepRunning()) {
-		make_BBI_constants();		// note even with -O3 it appears
+		make_BBV_constants(state.range(0));		// note even with -O3 it appears
 		// this is not optimized out
 		// though check with your compiler
 	}
 }
 
-BENCHMARK(BM_BBI_constants);		// register benchmark
+BENCHMARK(BM_BBV_constants)->Arg(256)->Arg(512)->Arg(1024)->Arg(2048)->Arg(4096);		// register benchmark
 
-// make variables
+static BigBinaryVector makeVector(int siz) {
 
-static void make_BBI_small_variables (void) {	// function
-	BigBinaryInteger a("10403"), b("103");
+	BigBinaryVector		vec(siz, mod);
+	for( int i=0; i<siz; i++ )
+		vec.SetValAtIndex(i, BigBinaryInteger(i));
+
+	return std::move(vec);
 }
 
-
-void BM_BBI_small_variables(benchmark::State& state) { // benchmark
-	while (state.KeepRunning()) {
-		make_BBI_small_variables();		// note even with -O3 it appears
-		// this is not optimized out
-		// though check with your compiler
-	}
-}
-
-BENCHMARK(BM_BBI_small_variables);		// register benchmark
-
-
-static void make_BBI_large_variables (void) {	// function
-	BigBinaryInteger a("18446744073709551616"), b("18446744073709551617");
-	BigBinaryInteger total = b-a;
-}
-
-void BM_BBI_large_variables(benchmark::State& state) { // benchmark
-	while (state.KeepRunning()) {
-		make_BBI_large_variables();		// note even with -O3 it appears
-		// this is not optimized out
-		// though check with your compiler
-	}
-}
-
-BENCHMARK(BM_BBI_large_variables);		// register benchmark
 
 // add
-static void add_BBI(void) {	// function
-	BigBinaryInteger a("10403"), b("103");
-	BigBinaryInteger c1 = a+b;
+static void add_BBV(int siz) {	// function
+	BigBinaryVector a = makeVector(siz), b = makeVector(siz);
+	BigBinaryVector c1 = a+b;
 }
 
-static void BM_BBI_Addition(benchmark::State& state) { // benchmark
+static void BM_BBV_Addition(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
-		add_BBI();
+		add_BBV(state.range(0));
 	}
 }
 
-BENCHMARK(BM_BBI_Addition);		// register benchmark
+BENCHMARK(BM_BBV_Addition)->Arg(256)->Arg(512)->Arg(1024)->Arg(2048)->Arg(4096);		// register benchmark
 
 // add
-static void mult_BBI(void) {	// function
-	BigBinaryInteger a("10403"), b("103");
-	BigBinaryInteger c1 = a*b;
+static void mult_BBV(int siz) {	// function
+	BigBinaryVector a = makeVector(siz), b = makeVector(siz);
+	BigBinaryVector c1 = a*b;
 }
 
-static void BM_BBI_Multiplication(benchmark::State& state) { // benchmark
+static void BM_BBV_Multiplication(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
-		add_BBI();
+	mult_BBV(state.range(0));
 	}
 }
 
-BENCHMARK(BM_BBI_Multiplication);		// register benchmark
+BENCHMARK(BM_BBV_Multiplication)->Arg(256)->Arg(512)->Arg(1024)->Arg(2048)->Arg(4096);		// register benchmark
 
 
 //execute the benchmarks

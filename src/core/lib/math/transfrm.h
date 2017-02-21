@@ -135,10 +135,10 @@ public:
 	void Destroy();
 private:
 	static NumberTheoreticTransform *m_onlyInstance;
-	NumberTheoreticTransform(){}
+	NumberTheoreticTransform(): m_element(0) {}
 	~NumberTheoreticTransform(){}
-	NumberTheoreticTransform(const NumberTheoreticTransform&){}
-	NumberTheoreticTransform& operator=(NumberTheoreticTransform const&){};
+	NumberTheoreticTransform(const NumberTheoreticTransform&): m_element(0) {}
+//	NumberTheoreticTransform& operator=(NumberTheoreticTransform const&) {}
 	const BigBinaryVector *m_element;
 };
 

@@ -76,7 +76,7 @@ BENCHMARK_INC = -Isrc/core/lib -Isrc/pke/lib $(BM_IFLAGS) $(BOOSTINCLUDE)
 # this builds objects from sources for benchmarks
 $(BENCHMARK_BUILD_DIR)/%.o: $(BENCHMARK_SRC_DIR)/%.cpp
 	@mkdir -p $(BENCHMARK_BUILD_DIR)
-	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) -c -g $< -o $@
 	$(CC) -MM $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $(BENCHMARK_INCLUDES) $< > $(patsubst %.o,%.d,$@)
 	@mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)
 	@sed -e 's|.*\.o:|$@:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)
@@ -86,10 +86,10 @@ $(BENCHMARK_BUILD_DIR)/%.o: $(BENCHMARK_SRC_DIR)/%.cpp
 $(BENCHMARK_BIN): $(BENCHMARK_OBJ) $(BM_LIB)
 
 # this builds executables from objects for benchmarks
-$(BENCHMARK_BIN_DIR)/%$(EXESUFFIX): $(BENCHMARK_BUILD_DIR)/%.o 
+$(BENCHMARK_BIN_DIR)/%$(EXESUFFIX): $(BENCHMARK_BUILD_DIR)/%.o $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
 	@echo " -- benchmark:linking $@"
 	@mkdir -p $(BENCHMARK_BIN_DIR)
-	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -o $@ -L$(EXTLIBDIR) -lPALISADEpke -lPALISADEcore $(RDYNAMIC) $(BM_LIB) $(EXTLIB)  $(MINGWREGEX)
+	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -o $@ $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB) $(RDYNAMIC) $(BM_LIB) $(EXTLIB)  $(MINGWREGEX)
 	@echo
 
 # this is the target that makes the actual benchmarks 
