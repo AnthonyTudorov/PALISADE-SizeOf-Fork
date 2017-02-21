@@ -22,7 +22,7 @@
 using namespace std;
 using namespace lbcrypto;
 
-string parms[] = { "Null", "Null2", "LTV5", "StSt6", "FV2" };
+string parms[] = { "Null", "Null2", "LTV5", /*"StSt6",*/ "FV2" };
 
 static void CustomArguments(benchmark::internal::Benchmark* b) {
 	  for (int i = 0; i < (sizeof(parms)/sizeof(parms[0])); ++i)
@@ -61,6 +61,8 @@ static void eval_LATTICE(CryptoContext<ILVector2n>& cc, SHEfp f) {	// function
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ct1 = cc.Encrypt(kp.publicKey, p1, false);
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ct2 = cc.Encrypt(kp.publicKey, p2, false);
+
+	cc.EvalMultKeyGen(kp.secretKey);
 
 	(*f)(cc, ct1[0], ct2[0]);
 }
