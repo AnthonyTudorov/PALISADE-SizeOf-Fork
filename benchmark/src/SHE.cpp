@@ -22,6 +22,13 @@
 using namespace std;
 using namespace lbcrypto;
 
+string parms[] = { "Null", "Null2", "LTV5", /*"StSt6",*/ "FV2" };
+
+static void CustomArguments(benchmark::internal::Benchmark* b) {
+	  for (int i = 0; i < (sizeof(parms)/sizeof(parms[0])); ++i)
+		  b->Arg(i);
+	}
+
 static std::vector<uint32_t> makeVector(int siz, int ptmi) {
 	std::vector<uint32_t>			elem;
 
