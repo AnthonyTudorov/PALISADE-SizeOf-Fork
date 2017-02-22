@@ -329,7 +329,7 @@ namespace lbcrypto {
      *
      * @return value at index i.
      */
-    const BigBinaryInteger& GetValAtIndex(usint i) const;
+    const BigBinaryInteger GetValAtIndex(usint i) const; //DBC changed from returning reference because it broke several functions otherwise.
 
     /**
      * Get method of the length of the element.
@@ -732,8 +732,8 @@ namespace lbcrypto {
   private:
 
     // stores either coefficient or evaluation representation
-    BigBinaryVector *m_values;
-should be a smart pointer
+    unique_ptr<BigBinaryVector> m_values;
+    
     // 1 for coefficient and 0 for evaluation format
     Format m_format;
 

@@ -269,15 +269,11 @@ TEST(UTNTT, decomposeMult_single_crt) {
 	shared_ptr<ILParams> params2( new ILParams(m1 / 2, modulus, rootOfUnity) );
 
 	ILVector2n x1(params, Format::COEFFICIENT);
+
 	x1 = { 0,0,0,0,0,0,1,0 };
 
 	ILVector2n x2(params, Format::COEFFICIENT);
 	x2 = { 0,0,0,0,0,0,1,0 };
-
-	x1.SwitchFormat();
-	x2.SwitchFormat();
-	x1.SwitchFormat();
-	x2.SwitchFormat();
 
 	x1.Decompose();
 	x2.Decompose();
@@ -288,33 +284,7 @@ TEST(UTNTT, decomposeMult_single_crt) {
 	x2.SwitchFormat();
 
 	resultsEval = x1*x2;
-
 	resultsEval.SwitchFormat(); // COEF	
-
-
-	BigBinaryVector foo( resultsEval.GetValues());
-	DEBUG("foo: "<<foo);
-	DEBUG("foo&: "<<&foo);
-	BigBinaryVector foo2( resultsEval.GetValues());
-	DEBUG("foo2: "<<foo2);
-	DEBUG("foo&2: "<<&foo2);
-
-	DEBUG(foo.GetValAtIndex(0));
-	DEBUG(foo.GetValAtIndex(1));
-	DEBUG(foo.GetValAtIndex(2));
-	DEBUG(foo.GetValAtIndex(3));
-	EXPECT_EQ(foo.GetValAtIndex(0), BigBinaryInteger::ZERO);
-	EXPECT_EQ(foo.GetValAtIndex(1), BigBinaryInteger::ZERO);
-	EXPECT_EQ(foo.GetValAtIndex(2), BigBinaryInteger("17728"));
-	EXPECT_EQ(foo.GetValAtIndex(3), BigBinaryInteger::ZERO);
-
-	const BigBinaryVector *vp = &(resultsEval.GetValues());
-	DEBUG("vp: "<<vp);
-
-
-	const BigBinaryInteger *p = &(resultsEval.GetValAtIndex(0));
-	DEBUG("p: "<<p);
-	DEBUG("p*: "<<*p);
 
 	EXPECT_EQ(resultsEval.GetValAtIndex(0), BigBinaryInteger::ZERO);
 	EXPECT_EQ(resultsEval.GetValAtIndex(1), BigBinaryInteger::ZERO);

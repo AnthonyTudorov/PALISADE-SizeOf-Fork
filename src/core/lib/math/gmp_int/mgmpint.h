@@ -373,6 +373,8 @@ namespace NTL{
     }; //(this^b)%modulus
     
 
+    friend std::ostream& operator<<(std::ostream& os, const myZZ_p&ptr_obj);
+
     //palisade string conversion
     const std::string ToString() const;	
 

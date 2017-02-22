@@ -38,11 +38,11 @@ namespace lbcrypto {
   std::vector<ILVector2n> ILVector2n::m_tugSamples;
   shared_ptr<ILParams> ILVector2n::m_tugSamples_params;
 
-  ILVector2n::ILVector2n() : m_values(NULL), m_format(EVALUATION) {
+  ILVector2n::ILVector2n() : m_values(nullptr), m_format(EVALUATION) {
   }
 
-  ILVector2n::ILVector2n(const shared_ptr<ElemParams> params, Format format, bool initializeElementToZero) : m_values(NULL), m_format(format) {
-    bool dbg_flag = true;
+  ILVector2n::ILVector2n(const shared_ptr<ElemParams> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
+    bool dbg_flag = false;
 
     m_params = std::dynamic_pointer_cast<ILParams>(params);
     if (!m_params)
@@ -53,8 +53,8 @@ namespace lbcrypto {
     }
   }
 
-  ILVector2n::ILVector2n(bool initializeElementToMax, const shared_ptr<ElemParams> params, Format format) : m_values(NULL), m_format(format) {
-    bool dbg_flag = true;
+  ILVector2n::ILVector2n(bool initializeElementToMax, const shared_ptr<ElemParams> params, Format format) : m_values(nullptr), m_format(format) {
+    bool dbg_flag = false;
 
     if( typeid(*params) != typeid(ILParams) )
       throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
@@ -66,67 +66,63 @@ namespace lbcrypto {
 
     }
   }
-
+  //TODO: try to get make_unique to work
 
   ILVector2n::ILVector2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ElemParams> params, Format format) {
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     m_params = std::dynamic_pointer_cast<ILParams>(params);
     if (!m_params)
       throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
 
-
-    if (format == COEFFICIENT)
-      {
+    if (format == COEFFICIENT) {
 	//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
 	usint vectorSize = params->GetCyclotomicOrder() / 2;
-	m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize, params->GetModulus()));
+	unique_ptr<BigBinaryVector> sp(new BigBinaryVector(dgg.GenerateVector(vectorSize, params->GetModulus())));
+	m_values = std::move(sp);
 	(*m_values).SetModulus(params->GetModulus());
-	DEBUG("ILVector2n::ILVector2n(dgg) m_values ="<< m_values);
 	m_format = COEFFICIENT;
-      }
-    else
-      {
+      } else {
 	PreComputeDggSamples(dgg, m_params);
 
 	const ILVector2n randomElement = GetPrecomputedVector();
-	m_values = new BigBinaryVector(*randomElement.m_values);
+	
+	unique_ptr<BigBinaryVector> sp(new BigBinaryVector(*randomElement.m_values));
+	m_values = std::move(sp);
 
 	(*m_values).SetModulus(params->GetModulus());
-	DEBUG("ILVector2n::ILVector2n(dgg) m_values ="<< m_values);
 	m_format = EVALUATION;
       }
   }
 
 
-  ILVector2n::ILVector2n(const DiscreteUniformGenerator &dug, const shared_ptr<ElemParams> params, Format format) {
-    bool dbg_flag = true;
-
+  ILVector2n::ILVector2n(const DiscreteUniformGenerator &dug, const shared_ptr<ElemParams> params, Format format) 
+  {
+    bool dbg_flag = false;
     m_params = std::dynamic_pointer_cast<ILParams>(params);
     if (!m_params)
       throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
 
     usint vectorSize = params->GetCyclotomicOrder() / 2;
-    m_values = new BigBinaryVector(dug.GenerateVector(vectorSize));
+    unique_ptr<BigBinaryVector> sp(new BigBinaryVector(dug.GenerateVector(vectorSize)));
+    m_values = std::move(sp);
     (*m_values).SetModulus(params->GetModulus());
-    DEBUG("ILVector2n::ILVector2n(dug) m_values ="<< m_values);
     m_format = COEFFICIENT;
 
     if (format == EVALUATION)
       this->SwitchFormat();
-    DEBUG("ILVector2n::ILVector2n(dug) after switch m_values ="<< m_values);
   }
 
-  ILVector2n::ILVector2n(const BinaryUniformGenerator &bug, const shared_ptr<ElemParams> params, Format format) {
-    bool dbg_flag = true;
-
+  ILVector2n::ILVector2n(const BinaryUniformGenerator &bug, const shared_ptr<ElemParams> params, Format format) 
+  {
+    bool dbg_flag = false;
     m_params = std::dynamic_pointer_cast<ILParams>(params);
     if (!m_params)
       throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
 
     usint vectorSize = params->GetCyclotomicOrder() / 2;
-    m_values = new BigBinaryVector(bug.GenerateVector(vectorSize, params->GetModulus()));
+    unique_ptr<BigBinaryVector> sp(new BigBinaryVector(bug.GenerateVector(vectorSize, params->GetModulus())));
+    m_values = std::move(sp);
     //(*m_values).SetModulus(ilParams.GetModulus());
-    DEBUG("ILVector2n::ILVector2n(bug) m_values ="<< m_values);
     DEBUG("why does this have no modulus");
     m_format = COEFFICIENT;
 
@@ -135,143 +131,166 @@ namespace lbcrypto {
   }
 
   ILVector2n::ILVector2n(const TernaryUniformGenerator &tug, const shared_ptr<ElemParams> params, Format format) {
-
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     m_params = std::dynamic_pointer_cast<ILParams>(params);
     if (!m_params)
       throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
 
-    if (format == COEFFICIENT)
-      {
+    if (format == COEFFICIENT) {
 	//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
 	usint vectorSize = params->GetCyclotomicOrder() / 2;
-	m_values = new BigBinaryVector(tug.GenerateVector(vectorSize, params->GetModulus()));
+	unique_ptr<BigBinaryVector> sp(new BigBinaryVector(tug.GenerateVector(vectorSize, params->GetModulus())));
+	m_values = std::move(sp);
 	(*m_values).SetModulus(params->GetModulus());
-	DEBUG("ILVector2n::ILVector2n(tug) m_values ="<< m_values);
 	m_format = COEFFICIENT;
-      }
-    else
-      {
+      } else {
 	PreComputeTugSamples(tug, m_params);
 
 	const ILVector2n randomElement = GetPrecomputedTugVector();
-	m_values = new BigBinaryVector(*randomElement.m_values);
+	unique_ptr<BigBinaryVector> sp(new BigBinaryVector(*randomElement.m_values));
+ 	m_values = std::move(sp);
 
 	(*m_values).SetModulus(params->GetModulus());
-	DEBUG("ILVector2n::ILVector2n(tug) m_values ="<< m_values);
 	m_format = EVALUATION;
       }
   }
 
-  ILVector2n::ILVector2n(const ILVector2n &element) : m_params(element.m_params), m_format(element.m_format)
+  ILVector2n::ILVector2n(const ILVector2n &element) 
+    : m_params(element.m_params), m_format(element.m_format)
   {
-    bool dbg_flag = true;
-    if (element.m_values == NULL) {
-      m_values = NULL;
+    bool dbg_flag = false;
+    if (!IsEmpty()){
+      DEBUG("in ctor & m_values was "<<*m_values);
+    } else {
+      DEBUG("in ctor & m_values are empty ");      
     }
-    else {
-      m_values = new BigBinaryVector(*element.m_values);
+    if (element.m_values == nullptr) {
+      DEBUG("in ctor & m_values copy nullptr ");      
+      m_values = nullptr;
+    } else {
+      unique_ptr<BigBinaryVector> sp(new BigBinaryVector(*element.m_values)); //this is a copy
+      m_values = std::move(sp);
+      DEBUG("in ctor & m_values now "<<*m_values);
     }
-    DEBUG("ILVector2n::ILVector2n(&)= m_values ="<< m_values);
+
   }
 
-  ILVector2n::ILVector2n(ILVector2n &&element) : m_params(element.m_params), m_format(element.m_format),
-						 m_values(element.m_values) {
-    bool dbg_flag = true;
-    element.m_values = NULL;
-    DEBUG("ILVector2n::ILVector2n(&&)= m_values ="<< m_values);
+  //this is the move
+  ILVector2n::ILVector2n(ILVector2n &&element) 
+    : m_params(element.m_params),
+      m_format(element.m_format)
+      //m_values(element.m_values) //note this becomes move below
+  {
+    bool dbg_flag = false;
+    if (!IsEmpty()){
+      DEBUG("in ctor && m_values was "<<*m_values);
+    }else{
+      DEBUG("in ctor && m_values was empty");
+    }
+    if (!element.IsEmpty()) {
+      m_values = std::move(element.m_values);
+      DEBUG("in ctor && m_values was "<<*m_values);
+
+    } else{
+      DEBUG("in ctor && m_values remains empty");
+    }      
+    //element.m_values = nullptr; //remove the reference (actually unnecessary with smart pointers now.
   }
 
   const ILVector2n& ILVector2n::operator=(const ILVector2n &rhs) {
-
     if (this != &rhs) {
-      if (m_values == NULL && rhs.m_values != NULL) {
-	m_values = new BigBinaryVector(*rhs.m_values);
-      }
-      else if (rhs.m_values != NULL) {
-	*this->m_values = *rhs.m_values;
+      if (m_values == nullptr && rhs.m_values != nullptr) {
+	unique_ptr<BigBinaryVector> sp(new BigBinaryVector(*rhs.m_values)); 
+	m_values = std::move(sp);
+      } else if (rhs.m_values != nullptr) {
+	*this->m_values = *rhs.m_values; //this is a BBV copy
       }
       this->m_params = rhs.m_params;
       this->m_format = rhs.m_format;
     }
-    DEBUG("ILVector2n::op= m_values ="<< m_values);
     return *this;
   }
 
   const ILVector2n& ILVector2n::operator=(std::initializer_list<sint> rhs) {
-    bool dbg_flag = true;
+    bool dbg_flag = false;
 
     usint len = rhs.size();
-    if (!IsEmpty()) {
-      usint vectorLength = this->m_values->GetLength();
 
+    if (!IsEmpty()) {
+      DEBUG("op= empty");
+      usint vectorLength = this->m_values->GetLength();
+      DEBUG("vectorLength= "<<vectorLength);
+      DEBUG("Len= "<<len);
       for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
 	if (j < len) {
+	  DEBUG("j<len "<<j);	  
 	  SetValAtIndex(j, *(rhs.begin() + j));
-	}
-	else {
+	} else {
+	  DEBUG("j>=len "<<j);	  
 	  SetValAtIndex(j, 0);
 	}
       }
-
-    }
-    else {
-
+    } else {
       BigBinaryVector temp(m_params->GetCyclotomicOrder() / 2);
       temp.SetModulus(m_params->GetModulus());
       temp = rhs;
-      this->SetValues(std::move(temp), m_format);
+      DEBUG("temp "<<temp);
+      //this->SetValues(std::move(temp), m_format);
+      this->SetValues(temp, m_format); //rely on RVO instead of move
+      DEBUG("after set values temp"<<temp);
+      DEBUG("after set values m_values"<<*m_values);
+
     }
-    DEBUG("ILVector2n::op= list sint m_values ="<< m_values);
     return *this;
   }
 
 
   const ILVector2n& ILVector2n::operator=(ILVector2n &&rhs) {
-    bool dbg_flag = true;
-
+    bool dbg_flag = false;
+    if (!IsEmpty()){
+      DEBUG("in op=&& m_values was "<< *m_values);
+    }else{
+      DEBUG("in op=&& m_values is empty");
+    }
     if (this != &rhs) {
-      if (m_values)
-	delete m_values;
-      m_values = rhs.m_values;
-      rhs.m_values = NULL;
+      //if (m_values) //DBC removed delete,
+	//delete m_values; no need to delete smart pointer.
+      m_values = std::move(rhs.m_values); // copy reference
+      //rhs.m_values = nullptr; 
       m_params = rhs.m_params;
       m_format = rhs.m_format;
     }
-    DEBUG("ILVector2n::op= && m_values"<< m_values);
+    DEBUG("in op=&& m_values now "<<*m_values);
     return *this;
   }
 
-
-
   ILVector2n ILVector2n::CloneWithParams() const {
     ILVector2n result(this->m_params, this->m_format);
-    return std::move(result);
+    return std::move(result); //TODO should we instead rely on RVO? 
   }
 
   ILVector2n ILVector2n::CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format) const {
     ILVector2n result(dgg, m_params, format);
-    return std::move(result);
+    return std::move(result); //TODO should we instead rely on RVO? 
   }
 
   //If this is in EVALUATION then just set all the values = val
   const ILVector2n& ILVector2n::operator=(usint val) {
     m_format = EVALUATION;
-    if (m_values == NULL)
-      m_values = new BigBinaryVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
-
+    if (m_values == nullptr){
+      unique_ptr<BigBinaryVector> sp(new BigBinaryVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus()));
+      m_values = std::move(sp);
+    }
     for (size_t i = 0; i < m_values->GetLength(); ++i) {
       this->SetValAtIndex(i, val);
     }
-
     return *this;
-
   }
 
   ILVector2n::~ILVector2n()
   {
-    if (m_values)
-      delete m_values;
+    //if (m_values)
+    //  delete m_values; //DBC removed no need with  smart poiners
   }
 
   const BigBinaryInteger &ILVector2n::GetModulus() const {
@@ -283,10 +302,9 @@ namespace lbcrypto {
   }
 
   const BigBinaryVector &ILVector2n::GetValues() const {
-    bool dbg_flag = true;
-    if (m_values == NULL)
+    bool dbg_flag = false;
+    if (m_values == nullptr)
       throw std::logic_error("No values in ILVector2n");
-    DEBUG("ILVector2n::GetValues m_values"<< m_values);
     return *m_values;
   }
 
@@ -298,17 +316,15 @@ namespace lbcrypto {
     return m_format;
   }
 
-  const BigBinaryInteger& ILVector2n::GetValAtIndex(usint i) const
+  const BigBinaryInteger ILVector2n::GetValAtIndex(usint i) const
   {
-    bool dbg_flag = true;
-    if( m_values == NULL )
+    bool dbg_flag = false;
+    if( m_values == nullptr )
       throw std::logic_error("No values in ILVector2n");
-    DEBUG("ILVector2n::GetValAtIndex m_values"<< m_values);
-    DEBUG("i "<<i);
-    DEBUG("*m_values "<<(*m_values));
-    DEBUG("m_values->GetValAtIndex(i) "<<m_values->GetValAtIndex(i));
-    auto tmp =  m_values->GetValAtIndex(i);
-    DEBUG("tmp "<<tmp);
+
+    DEBUG("GetValAtIndex: m_values->GetValAtIndex("<<i<<") :"<<m_values->GetValAtIndex(i));
+    BigBinaryInteger tmp =  m_values->GetValAtIndex(i); //dbc tmp for debug
+    DEBUG("GetValAtIndex: returning tmp "<<tmp);
     return tmp;
   }
 
@@ -318,42 +334,45 @@ namespace lbcrypto {
     return m_values->GetLength();
   }
 
-  void ILVector2n::SetValues(const BigBinaryVector& values, Format format) {
+  void ILVector2n::SetValues(const BigBinaryVector& values, Format format) 
+  {
+    bool dbg_flag = false;
     if (m_params->GetRootOfUnity() == BigBinaryInteger::ZERO || m_params->GetCyclotomicOrder() / 2 != values.GetLength() || m_params->GetModulus() != values.GetModulus())
       throw std::logic_error("Exisiting m_params do not match with the input parameter BigBinaryVector& values.\n");
-    if (m_values != NULL) {
-      delete m_values;
-    }
-    m_values = new BigBinaryVector(values);
+    // if (m_values != nullptr) { //dbc no need with smart pointers
+    //   delete m_values;
+    // }
+    unique_ptr<BigBinaryVector> sp(new BigBinaryVector(values));
+    m_values = std::move(sp);
+    DEBUG("in SetValues m_values: "<< *m_values);
     m_format = format;
   }
 
   void ILVector2n::SetValuesToZero() {
-    if (m_values != NULL) {
-      delete m_values;
-    }
-    m_values = new BigBinaryVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
+    // if (m_values != nullptr) { //dbc no need with smart pointers
+    //   delete m_values;
+    // }
+    unique_ptr<BigBinaryVector> sp(new BigBinaryVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus()));
+    m_values = std::move(sp);
   }
 
   void ILVector2n::SetValuesToMax() {
-    bool dbg_flag = true;
-    if (m_values != NULL) {
-      DEBUG("DELETION OF MVALUES");
-      delete m_values;
-    }
-
+    bool dbg_flag = false;
+    // if (m_values != nullptr) { //dbc no need with smart pointers
+    //   delete m_values;
+    // }
     BigBinaryInteger max = m_params->GetModulus() - BigBinaryInteger::ONE;
-    usint size = m_params->GetCyclotomicOrder()/2;
-    m_values = new BigBinaryVector(m_params->GetCyclotomicOrder()/2, m_params->GetModulus());
 
+    usint size = m_params->GetCyclotomicOrder()/2;
+    unique_ptr<BigBinaryVector> sp(new BigBinaryVector(m_params->GetCyclotomicOrder()/2, m_params->GetModulus()));
+    m_values = std::move(sp);
 
     for (usint i = 0; i < size; i++) {
-      BigBinaryInteger temp(max);
+      BigBinaryInteger temp(max);//todo: not sure why inside loop?
       //BigBinaryInteger temp("2475880078570760549798268928");
       //BigBinaryInteger temp("1111111111");
       m_values->SetValAtIndex(i, temp);
     }
-
   }
 
 
@@ -438,22 +457,29 @@ namespace lbcrypto {
   //	return tmp;
   //}
 
-  const ILVector2n& ILVector2n::operator+=(const ILVector2n &element) {
+  const ILVector2n& ILVector2n::operator+=(const ILVector2n &element) 
+  {
     if (!(*this->m_params == *element.m_params))
       throw std::logic_error("operator+= called on ILVector2n's with different params.");
 
-    if (m_values == NULL)
-      m_values = new BigBinaryVector(*element.m_values);
-    else
+    if (m_values == nullptr){
+      unique_ptr<BigBinaryVector> sp(new BigBinaryVector(*element.m_values));
+      m_values = std::move(sp);
+    } else {
       *this->m_values = this->m_values->ModAdd(*element.m_values);
+    }
     return *this;
   }
 
-  const ILVector2n& ILVector2n::operator-=(const ILVector2n &element) {
+  const ILVector2n& ILVector2n::operator-=(const ILVector2n &element) 
+  {
     if (!(*this->m_params == *element.m_params))
       throw std::logic_error("operator-= called on ILVector2n's with different params.");
-    if (m_values == NULL)
-      m_values = new BigBinaryVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
+    if (m_values == nullptr) {
+      unique_ptr<BigBinaryVector> sp(new BigBinaryVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus()));
+      m_values = std::move(sp);
+      //TODO:: is this a bug? it is not the same as +=
+    }
     *this->m_values = this->m_values->ModSub(*element.m_values);
     return *this;
   }
@@ -466,11 +492,12 @@ namespace lbcrypto {
     if (!(*this->m_params == *element.m_params))
       throw std::logic_error("operator*= called on ILVector2n's with different params.");
 
-    if (m_values == NULL)
-      m_values = new BigBinaryVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
-    else
+    if (m_values == nullptr) {
+      unique_ptr<BigBinaryVector> sp(new BigBinaryVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus()));
+      m_values = std::move(sp);
+    } else {
       *this->m_values = this->m_values->ModMul(*element.m_values);
-
+    }
     return *this;
   }
 
@@ -531,6 +558,7 @@ namespace lbcrypto {
     return tmp;
   }
 
+  //TODO: why is this called Signed Mod, should BBV.Mod be called signed mod too?
   ILVector2n ILVector2n::SignedMod(const BigBinaryInteger & modulus) const {
     ILVector2n tmp(*this);
     *tmp.m_values = GetValues().Mod(modulus);
@@ -547,25 +575,25 @@ namespace lbcrypto {
   void ILVector2n::SwitchFormat() {
     if (m_format == COEFFICIENT) {
       m_format = EVALUATION;
-      if (m_values != NULL)
+      if (m_values != nullptr) {
 	*m_values = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder());
-    }
-    else {
+      }
+    } else {
       m_format = COEFFICIENT;
-      if (m_values != NULL)
+      if (m_values != nullptr) {
 	*m_values = ChineseRemainderTransformFTT::GetInstance().InverseTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder());
+      }
     }
   }
 
   void ILVector2n::PrintValues() const {
-    if (m_values != NULL) {
+    if (m_values != nullptr) {
       std::cout << *m_values;
       std::cout << " mod:" << m_values->GetModulus() << std::endl;
     }
-    if (m_params.get() != NULL) {
+    if (m_params.get() != nullptr) {
       std::cout << " rootOfUnity: " << this->GetRootOfUnity() << std::endl;
-    }
-    else {
+    } else {
       std::cout << " something's odd: null m_params?!" << std::endl;
     }
     std::cout << std::endl;
@@ -575,7 +603,7 @@ namespace lbcrypto {
     BigBinaryInteger modTemp;
     BigBinaryInteger tempValue;
     usint w;
-    if (m_values != 0) {
+    if (m_values != nullptr) {
       for (usint i = 0; i < m_params->GetCyclotomicOrder() / 2;i++) {
 	w = wFactor.ConvertToInt();
 	if (i%w != 0) {
@@ -610,7 +638,7 @@ namespace lbcrypto {
   }
 
   bool ILVector2n::IsEmpty() const {
-    if (m_values == NULL)
+    if (m_values == nullptr)
       return true;
 
     return false;
@@ -630,13 +658,11 @@ namespace lbcrypto {
     double q = m_params->GetModulus().ConvertToDouble();
 
     for (usint i = 0; i < GetValues().GetLength(); i++) {
-      if (m_values->GetValAtIndex(i) > (m_params->GetModulus() >> 1))
-	{
+      if (m_values->GetValAtIndex(i) > (m_params->GetModulus() >> 1)) {
 	  locVal = q - (m_values->GetValAtIndex(i)).ConvertToDouble();
-	}
-      else
+      } else {
 	locVal = (m_values->GetValAtIndex(i)).ConvertToDouble();
-
+      }
       if (locVal > retVal)
 	retVal = locVal;
     }
@@ -717,7 +743,8 @@ namespace lbcrypto {
 	  {
 	    ILVector2n current(m_dggSamples_params);
 	    usint vectorSize = m_dggSamples_params->GetCyclotomicOrder() / 2;
-	    current.m_values = new BigBinaryVector(dgg.GenerateVector(vectorSize, m_dggSamples_params->GetModulus()));
+	    unique_ptr<BigBinaryVector> sp(new BigBinaryVector(dgg.GenerateVector(vectorSize, m_dggSamples_params->GetModulus())));
+	    current.m_values = std::move(sp);
 	    current.m_values->SetModulus(m_dggSamples_params->GetModulus());
 	    current.m_format = COEFFICIENT;
 
@@ -748,7 +775,8 @@ namespace lbcrypto {
 	  {
 	    ILVector2n current(m_tugSamples_params);
 	    usint vectorSize = m_tugSamples_params->GetCyclotomicOrder() / 2;
-	    current.m_values = new BigBinaryVector(tug.GenerateVector(vectorSize, m_tugSamples_params->GetModulus()));
+	    unique_ptr<BigBinaryVector> sp(new BigBinaryVector(tug.GenerateVector(vectorSize, m_tugSamples_params->GetModulus())));
+	    current.m_values = std::move(sp);
 	    current.m_values->SetModulus(m_tugSamples_params->GetModulus());
 	    current.m_format = COEFFICIENT;
 

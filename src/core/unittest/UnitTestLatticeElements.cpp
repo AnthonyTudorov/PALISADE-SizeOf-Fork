@@ -58,7 +58,7 @@ void testILVectorArray2nConstructorNegative(std::vector<ILVector2n> &towers);
 /*--------------------------------------- TESTING METHODS OF LATTICE ELEMENTS    --------------------------------------------*/
 
 TEST(UTILVector2n, operators_tests) {
-  bool dbg_flag = true;
+  bool dbg_flag = false;
   usint m = 8;
 
   BigBinaryInteger primeModulus("73");
@@ -182,7 +182,7 @@ TEST(UTILVector2n, getters_tests) {
   DEBUG("il2vector2n "<<ilvector2n.GetValues().GetValAtIndex(2));
   DEBUG("il2vector2n "<<ilvector2n.GetValues().GetValAtIndex(3));
   EXPECT_EQ(bbv, ilvector2n.GetValues())<<"ILVector2n.GetValues is incorrect.\n";
-
+#if 0
   BigBinaryVector foo;
   DEBUG("m "<<m);
   foo = ilvector2n.GetValues(); //try this
@@ -195,16 +195,10 @@ TEST(UTILVector2n, getters_tests) {
     std::cout<<endl;
     
   }
+#endif
   {
     for (usint i = 0; i < m/2; ++i) {
-      DEBUG("i "<<i);
-      DEBUG("bbv "<<bbv.GetValAtIndex(i));
-      DEBUG("ilvector2n " << ilvector2n.GetValues());
-      DEBUG("foo" << foo);
-      DEBUG("fooget" << foo.GetValAtIndex(i));
-      DEBUG("ilvector2n" << ilvector2n.GetValAtIndex(i));
-      DEBUG("foo");
-      EXPECT_EQ(bbv.GetValAtIndex(i), ilvector2n.GetValAtIndex(i)) << "ILVector2n.GetValAtIndex is incorrect.\n";
+      EXPECT_EQ(bbv.GetValAtIndex(i), ilvector2n.GetValAtIndex(i)) << "ILVector2n.GetValAtIndex i:"<<i<< "is incorrect.\n";
     }
   }
 

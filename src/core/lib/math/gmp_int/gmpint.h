@@ -256,11 +256,7 @@ inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+
    inline myZZ operator>>(long n) const {return RightShift(*this, n);};
    inline myZZ operator<<(long n) const {return LeftShift(*this, n);};
      
-
-
-
-
-
+   friend std::ostream& operator<<(std::ostream& os, const myZZ&ptr_obj);
 
   //palisade string conversion
   const std::string ToString() const;	

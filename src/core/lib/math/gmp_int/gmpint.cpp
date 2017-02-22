@@ -350,6 +350,12 @@ namespace NTL {
     std::cerr<<"can't convert to long double"<<std::endl; 
     return 0.0L;
   }
+
+  std::ostream& operator<<(std::ostream& os, const myZZ& ptr_obj){
+    os << (ZZ)ptr_obj;
+    return os;
+  }
+  
   
   const std::string myZZ::ToString() const
   {

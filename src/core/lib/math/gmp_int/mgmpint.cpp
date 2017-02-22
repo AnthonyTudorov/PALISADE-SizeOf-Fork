@@ -247,6 +247,11 @@ namespace NTL {
     std::cerr<<"can't convert to long double"<<std::endl; 
     return 0.0L;
   }
+
+  std::ostream& operator<<(std::ostream& os, const myZZ_p& ptr_obj){
+    os << (ZZ_p)ptr_obj;
+    return os;
+  }
   
   const std::string myZZ_p::ToString() const
   {
