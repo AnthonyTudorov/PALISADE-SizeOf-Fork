@@ -35,7 +35,7 @@
 #define LBCRYPTO_LARGE_FLOAT_BACKEND_H
 
  /*! Define the library being used.  Use 1 to represent large floats.*/
-#define LARGEFLOATBACKEND 1  // 1 for boost floating point, and so on
+#define LARGEFLOATBACKEND 2  // 1 for boost floating point, and so on
 
 #if LARGEFLOATBACKEND == 1
 
