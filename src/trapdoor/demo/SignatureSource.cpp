@@ -10,8 +10,8 @@ int main() {
 	double start, finish;
 	DiscreteGaussianGenerator dgg(4);
 	usint sm = 16;
-	BigBinaryInteger smodulus("1152921504606847009");
-	BigBinaryInteger srootOfUnity("405107564542978792");
+	BigBinaryInteger smodulus("1048609");
+	BigBinaryInteger srootOfUnity("389832");
 	ILParams ilParams(sm, smodulus, srootOfUnity);
 	shared_ptr<ILParams> silParams = std::make_shared<ILParams>(ilParams);
 	start = currentDateTime();
@@ -228,7 +228,7 @@ int main() {
 
 	
 	
-	/*sm = 2048;
+	sm = 2048;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("34044212");
 	ilParams.SetCyclotomicOrder(sm);
@@ -282,7 +282,7 @@ int main() {
 	std::cout << "Signature 1-Text 1 verification:" << scheme_gm.Verify(v_k_gm, signature, text) << std::endl;
 	finish = currentDateTime();
 	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl;
-*/
+
 	
 	
 	std::cout << "Execution completed" << std::endl;
