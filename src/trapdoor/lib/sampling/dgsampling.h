@@ -74,7 +74,17 @@ public:
 	* @param stddev standard deviation.
 	* @param *perturbationVector perturbation vector (2+k)n
 	*/
-	static inline void NonSphericalSample(size_t n, const Matrix<LargeFloat> &sigmaSqrt, double stddev, Matrix<int32_t> *perturbationVector);
+	static inline void NonSphericalSample(size_t n, size_t k, const Matrix<LargeFloat> &sigmaSqrt, double stddev, Matrix<int32_t> *perturbationVector);
+
+	/**
+	* Nonspherical sampling that is used to generate perturbation vectors (for spherically distributed premimages in GaussSample)
+	*
+	* @param sigmaP covariance matrix of dimension (2+k)n * (2+k)n.
+	* @param stddev standard deviation.
+	* @param *perturbationVector perturbation vector (2+k)n
+	*/
+	static inline void NonSphericalSampleBB13(size_t n, size_t k, const Matrix<LargeFloat> &sigmaSqrt, double stddev, 
+		DiscreteGaussianGenerator &dggLargeSigma, Matrix<int32_t> *perturbationVector);
 
 	/**
 	* Generates a vector using continuous Guassian distribution with mean = 0 and std = 1; uses Box-Muller method

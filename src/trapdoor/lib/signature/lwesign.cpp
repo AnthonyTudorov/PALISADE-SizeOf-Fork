@@ -63,7 +63,7 @@ namespace lbcrypto {
 		size_t n = verificationKey->GetSignatureParameters().GetILParams()->GetCyclotomicOrder() / 2;
 		double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
 		size_t k = (usint)floor(logTwo);
-		double s = 40 * std::sqrt(n*(2+k));
+		double s = SPECTRAL_BOUND(n, k);
 		Matrix<LargeFloat> sigmaSqrt([]() { return make_unique<LargeFloat>(); }, n*2, n*2);
 		RLWETrapdoorUtility::PerturbationMatrixGenAlt(n,k, keyPair.first, keyPair.second, s, &sigmaSqrt);
 
@@ -81,6 +81,11 @@ namespace lbcrypto {
 		double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
 		size_t k = (usint)floor(logTwo);
 		
+		double c = 2 * SIGMA;
+		double s = SPECTRAL_BOUND(n, k);
+
+		DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
+
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
 		HashUtil util;
 		BytePlaintextEncoding hashedText = util.Hash(plainText,SHA_256);
@@ -106,7 +111,7 @@ namespace lbcrypto {
 		Matrix <LargeFloat> sigmaSqrt = signKey.GetPrivateElement().first;
 		
 		//Generating the signature via Gaussian sampling using the values above
-		Matrix<ILVector2n> zHat = RLWETrapdoorUtility::GaussSamp(n, k, A, T, sigmaSqrt,u, stddev, dgg );
+		Matrix<ILVector2n> zHat = RLWETrapdoorUtility::GaussSampBB13(n, k, A, T, sigmaSqrt,u, stddev, dgg, dggLargeSigma );
 		signatureText->SetElement(zHat);
 
 	}
@@ -200,8 +205,8 @@ namespace lbcrypto {
 		DiscreteGaussianGenerator & dgg = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator();
 
 		//Generating the signature via Gaussian sampling using the values above
-		double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
-		double s = 40 * (sqrt(k+2)*n);
+		double c = 2 * SIGMA;
+		double s = SPECTRAL_BOUND(n, k);
 		DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
 		Matrix<ILVector2n> zHat = RLWETrapdoorUtility::GaussSampV3(n,k,A,T,u,stddev,dgg,dggLargeSigma);
 		signatureText->SetElement(zHat);
