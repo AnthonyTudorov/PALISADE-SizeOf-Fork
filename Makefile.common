@@ -62,7 +62,6 @@ BUILDDIR := build
 BINDIR := bin
 
 #sources for palisade library
-SRCLIBDIR := src/lib
 EXTLIBDIR := bin/lib
 EXTTESTDIR := bin/unittest
 EXTDEMODIR := bin/demo

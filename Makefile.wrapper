@@ -61,9 +61,7 @@ $(PYBINDIR)/%:
 # JNI wrapper for the palisade library object files and the shared library.
 ################
 
-LIBSOURCES := $(shell find $(SRCLIBDIR) -name '*.$(SRCEXT)')
-
-LIBOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(LIBSOURCES)))
+LIBOBJECTS := $(EXTLIBDIR)/$(PALISADECORELIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB)
 
 -include build/wrappers/java/PalisadeCryptoWrapper.d
 
