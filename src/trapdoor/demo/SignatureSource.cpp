@@ -63,7 +63,7 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl << std::endl;
 	
-	
+	/*
 	sm = 256;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("102389487");
@@ -116,7 +116,7 @@ int main() {
 	std::cout << "Signature 1-Text 1 verification:" << scheme_gm.Verify(v_k_gm, signature, text) << std::endl;
 	finish = currentDateTime();
 	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl << std::endl;
-	
+	*/
 	
 	sm = 512;
 	smodulus.SetValue("134246401");
@@ -171,7 +171,7 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl << std::endl;
 
-	
+	/*
 	sm = 1024;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("122451504");
@@ -283,14 +283,14 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl;
 
-	
+	*/
 	
 	std::cout << "Execution completed" << std::endl;
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();
 
-	std::cin.ignore();
-	std::cin.get();
+	//std::cin.ignore();
+	//std::cin.get();
 	
 	return 0;
 }
