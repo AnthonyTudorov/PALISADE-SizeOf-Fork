@@ -270,7 +270,7 @@ TEST(UTLTVBATCHING, ILVector2n_EVALMULT) {
 
 	cc.EvalMultKeyGen(kp.secretKey);
 
-	ciphertextResults.insert(ciphertextResults.begin(), cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0)));
+	ciphertextResults.insert(ciphertextResults.begin(), cc.EvalMult( ciphertext1.at(0), ciphertext2.at(0) ));
 
 	
 	PackedIntPlaintextEncoding results;
