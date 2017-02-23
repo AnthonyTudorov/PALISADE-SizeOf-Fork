@@ -102,6 +102,29 @@ BENCHMARK(BM_evalMult_SHE)->ArgName(parms[2])->Arg(2);
 BENCHMARK(BM_evalMult_SHE)->ArgName(parms[3])->Arg(3);
 BENCHMARK(BM_evalMult_SHE)->ArgName(parms[4])->Arg(4);
 
+void BM_baseDecompose_SHE(benchmark::State& state) { // benchmark
+	CryptoContext<ILVector2n> cc;
+	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
+
+	if( state.thread_index == 0 ) {
+		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(SHE);
+
+		setup_SHE(cc, ct1, ct2);
+	}
+
+	while (state.KeepRunning()) {
+		vector<ILVector2n> ctP = ct1->GetElements()[0].BaseDecompose(8);
+	}
+}
+
+//BENCHMARK(BM_baseDecompose_SHE)->ArgName(parms[0])->Arg(0);
+//BENCHMARK(BM_baseDecompose_SHE)->ArgName(parms[1])->Arg(1);
+BENCHMARK(BM_baseDecompose_SHE)->ArgName(parms[2])->Arg(2);
+BENCHMARK(BM_baseDecompose_SHE)->ArgName(parms[3])->Arg(3);
+BENCHMARK(BM_baseDecompose_SHE)->ArgName(parms[4])->Arg(4);
+
 //execute the benchmarks
 BENCHMARK_MAIN()
 
