@@ -463,28 +463,50 @@ namespace NTL {
   template<class myT>
   void myVecP<myT>::SwitchModulus(const myZZ& newModulus) 
   {
+
+    bool dbg_flag = true;
+    DEBUG("Switch modulus old mod :"<<this->m_modulus);
+    DEBUG("Switch modulus old this :"<<*this);
+
     
     myZZ oldModulus(this->m_modulus);
     myZZ n;
     myZZ oldModulusByTwo(oldModulus>>1);
     myZZ diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
+    DEBUG("Switch modulus diff :"<<diff);
+#ifdef FORCE_NORMALIZATION
+    if (newModulus > oldModulus) {
+      this->SetModulus(newModulus); // set now in order to write correct numbers.
+    }
+#endif
     for (usint i=0; i< this->GetLength(); i++) {
       n = conv<myZZ>(this->GetValAtIndex(i));
+      DEBUG("i,n "<<i<<" "<< n);
       if(oldModulus < newModulus) {
 	if(n > oldModulusByTwo) {
+	  DEBUG("s1 "<<n.ModAdd(diff, newModulus));
 	  this->SetValAtIndex(i, n.ModAdd(diff, newModulus));
 	} else {
+	  DEBUG("s2 "<<n.Mod(newModulus));
 	  this->SetValAtIndex(i, n.Mod(newModulus));
 	}
       } else {
 	if(n > oldModulusByTwo) {
+	  DEBUG("s3 "<<n.ModSub(diff, newModulus));
 	  this->SetValAtIndex(i, n.ModSub(diff, newModulus));
 	} else {
+	  DEBUG("s4 "<<n.Mod(newModulus));
 	  this->SetValAtIndex(i, n.Mod(newModulus));
 	}
       }
     }
-    this->SetModulus(newModulus);
+    DEBUG("Switch modulus this before set :"<<*this);
+    if (newModulus < oldModulus) {
+      this->SetModulus(newModulus); // set now to correct output
+    }
+    DEBUG("Switch modulus new modulus :"<<this->m_modulus);
+    DEBUG("Switch modulus new this :"<<*this);
+
   }
   
   /// ARITHMETIC FUNCTIONS
@@ -915,9 +937,11 @@ namespace NTL {
     }
     else{
       // must be set modulo
+#ifdef FORCE_NORMALIZATION
       if (isModulusSet())
 	this->at(index) = value%m_modulus;
       else //must be set directly
+#endif
 	this->at(index) = value;
     }
   }
@@ -929,9 +953,11 @@ namespace NTL {
     }
     else{
       // must be set modulo
+#ifdef FORCE_NORMALIZATION
       if (isModulusSet())
 	this->at(index) = myT(value)%m_modulus;
       else //must be set directly
+#endif
 	this->at(index) = myT(value);
     }
   }
@@ -944,9 +970,11 @@ namespace NTL {
     }
     else{
       // must be set modulo
+#ifdef FORCE_NORMALIZATION
       if (isModulusSet())
 	this->at(index) = myT(str)%m_modulus;
       else //must be set directly
+#endif
 	this->at(index) = myT(str);
     }
   }
@@ -958,9 +986,11 @@ namespace NTL {
     }
     else{
       // must be set modulo
+#ifdef FORCE_NORMALIZATION
       if (isModulusSet())
 	this->at(index) = myT(str)%m_modulus;
       else //must be set directly
+#endif
 	this->at(index) = myT(str);
     }
   }

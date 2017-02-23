@@ -58,6 +58,11 @@
 #include <NTL/vec_ZZ_p.h>
 #endif
 
+#define FORCE_NORMALIZATION //defining this forces modulo when you write to the vector.
+
+
+
+
 /**
  * @namespace NTL
  * The namespace of this code
@@ -426,7 +431,7 @@ namespace NTL {
       if (isModulusSet())
 	ZZ_p::init(this->m_modulus);
       else{
-	std::cout<<"Warning: myZZ_p::CopyModulus() from uninitialized modulus"<<std::endl;
+	//std::cout<<"Warning: myZZ_p::CopyModulus() from uninitialized modulus"<<std::endl;
 	this->m_modulus_state = GARBAGE;
       }
     };

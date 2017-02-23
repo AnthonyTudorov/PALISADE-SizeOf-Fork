@@ -65,7 +65,6 @@
 #include <NTL/ZZ_p.h>
 #include <NTL/ZZ_limbs.h>
 
-
 /**
  *@namespace NTL
  * The namespace of this code
@@ -289,15 +288,6 @@ namespace NTL{
      * @return the result of divide and round.
      */
     myZZ_p DivideAndRound(const myZZ &q) const;
-    
-
-#if 0
-    inline myZZ_p operator-(const myZZ_p &b) const {
-      myZZ_p tmp;
-      sub(tmp, *this, b);
-      return tmp ;
-    };
-#endif  
 
     //palisade modular arithmetic methods all inline for speed
     //note b can't be ZZ_p cause it can't hold it's modulus value.

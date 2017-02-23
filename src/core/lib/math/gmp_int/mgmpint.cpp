@@ -137,7 +137,9 @@ namespace NTL {
 
   myZZ_p myZZ_p::DivideAndRound(const myZZ &q) const
   {
-
+    myZZ ans(this->_ZZ_p__rep);
+     ans = ans.DivideAndRound(q);
+    return myZZ_p(ans);
   }
 
 
@@ -156,20 +158,15 @@ namespace NTL {
       MSB = 0;
       return(MSB);
     }
-
     MSB = (sz-1) * NTL_ZZ_NBITS; //figure out bit location of all but last limb
     const ZZ_limb_t *zlp = ZZ_limbs_get(this->_ZZ_p__rep);
     usint tmp = GetMSBLimb_t(zlp[sz-1]); //add the value of that last limb.
-
     MSB+=tmp;
-
     return(MSB);
   }
 
-
   void myZZ_p::SetMSB()
   {
-
     size_t sz = this->_ZZ_p__rep.size();
     //std::cout<<"size "<<sz <<" ";
     if (sz==0) { //special case for empty data
@@ -285,19 +282,6 @@ namespace NTL {
     }
     else if (index > m_MSB)
       return 0;
-
-#if 0
-    limb_t result;
-    sint idx =ceilIntByUInt(index)-1;//idx is the index of the limb array
-    limb_t temp = this->m_value[idx];
-    limb_t bmask_counter = index%m_limbBitLength==0? m_limbBitLength:index%m_limbBitLength;//bmask is the bit number in the 8 bit array
-    limb_t bmask = 1;
-    for(sint i=1;i<bmask_counter;i++)
-      bmask<<=1;//generate the bitmask number
-    result = temp&bmask;//finds the bit in  bit format
-    result>>=bmask_counter-1;//shifting operation gives bit either 1 or 0
-    return (uschar)result;
-#else
     ZZ_limb_t result;
     const ZZ_limb_t *zlp = ZZ_limbs_get(this->_ZZ_p__rep); //get access to limb array
     sint idx =ceilIntByUInt(index)-1;//idx is the index of the limb array
@@ -309,7 +293,7 @@ namespace NTL {
     result = temp&bmask;//finds the bit in  bit format
     result>>=bmask_counter-1;//shifting operation gives bit either 1 or 0
     return (uschar)result;
-#endif
+
   }
 
 
@@ -321,7 +305,6 @@ namespace NTL {
 
     if(!Number)
       return 1;
-
     if((Number&mask)!=0)
       return (Number>>myZZ::m_log2LimbBitLength)+1;
     else
@@ -394,9 +377,6 @@ namespace NTL {
       converted |= base64_to_value(*cp++) << b64_shifts[3];
       converted |= base64_to_value(*cp++) << b64_shifts[4];
       converted |= ((*cp++ - 'A')&0x3) << b64_shifts[5];
-      
-
-
       cv.push_back(converted);
     }
 

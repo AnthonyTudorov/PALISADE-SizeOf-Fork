@@ -323,7 +323,7 @@ namespace lbcrypto {
       throw std::logic_error("No values in ILVector2n");
 
     DEBUG("GetValAtIndex: m_values->GetValAtIndex("<<i<<") :"<<m_values->GetValAtIndex(i));
-    BigBinaryInteger tmp =  m_values->GetValAtIndex(i); //dbc tmp for debug
+    BigBinaryInteger tmp(  m_values->GetValAtIndex(i)); //dbc tmp for debug
     DEBUG("GetValAtIndex: returning tmp "<<tmp);
     return tmp;
   }

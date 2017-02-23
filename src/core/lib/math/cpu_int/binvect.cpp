@@ -29,7 +29,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../cpu_int/binvect.h"
 //#include "../nbtheory.h"
 
-
 namespace cpu_int {
 
 //CTORS
@@ -191,29 +190,40 @@ void BigBinaryVector<IntegerType>::SetModulus(const IntegerType& value){
 *  i' = i-delta
 */	
 template<class IntegerType>
-void BigBinaryVector<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
-	
+void BigBinaryVector<IntegerType>::SwitchModulus(const IntegerType& newModulus) {	
+  std::cout<<"Switch modulus old mod :"<<this->m_modulus<<std::endl;
+  std::cout<<"Switch modulus old this :"<<*this<<std::endl;
 	IntegerType oldModulus(this->m_modulus);
 	IntegerType n;
 	IntegerType oldModulusByTwo(oldModulus>>1);
 	IntegerType diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
+	std::cout<<"Switch modulus diff :"<<diff<<std::endl;
 	for(usint i=0; i< this->m_length; i++) {
 		n = this->GetValAtIndex(i);
+		std::cout<<"i,n "<<i<<" "<< n<<std::endl;
 		if(oldModulus < newModulus) {
 			if(n > oldModulusByTwo) {
+			  std::cout<<"s1 "<<n.ModAdd(diff, newModulus)<<std::endl;
 				this->SetValAtIndex(i, n.ModAdd(diff, newModulus));
 			} else {
-				this->SetValAtIndex(i, n.Mod(newModulus));
+			  std::cout<<"s2 "<<n.Mod(newModulus)<<std::endl;
+			        this->SetValAtIndex(i, n.Mod(newModulus));
 			}
 		} else {
 			if(n > oldModulusByTwo) {
-				this->SetValAtIndex(i, n.ModSub(diff, newModulus));
+			  std::cout<<"s3 "<<n.ModSub(diff, newModulus)<<std::endl;				
+			        this->SetValAtIndex(i, n.ModSub(diff, newModulus));
 			} else {
+			  std::cout<<"s4 "<<n.Mod(newModulus)<<std::endl;
 				this->SetValAtIndex(i, n.Mod(newModulus));
 			}
 		}
 	}
+	std::cout<<"Switch modulus this before set :"<<*this<<std::endl;
 	this->SetModulus(newModulus);
+	std::cout<<"Switch modulus new modulus :"<<this->m_modulus<<std::endl;
+	std::cout<<"Switch modulus new this :"<<*this<<std::endl;
+
 }
 
 template<class IntegerType>
