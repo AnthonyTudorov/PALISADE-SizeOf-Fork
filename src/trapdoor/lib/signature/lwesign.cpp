@@ -108,7 +108,7 @@ namespace lbcrypto {
 		RLWETrapdoorPair<ILVector2n> T = signKey.GetPrivateElement().second.second;
 		double stddev = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
 		DiscreteGaussianGenerator & dgg = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator();
-		Matrix <LargeFloat> sigmaSqrt = signKey.GetPrivateElement().first;
+		const Matrix <LargeFloat> &sigmaSqrt = signKey.GetPrivateElement().first;
 		
 		//Generating the signature via Gaussian sampling using the values above
 		Matrix<ILVector2n> zHat = RLWETrapdoorUtility::GaussSampBB13(n, k, A, T, sigmaSqrt,u, stddev, dgg, dggLargeSigma );
