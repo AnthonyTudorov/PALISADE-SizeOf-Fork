@@ -1,0 +1,154 @@
+/*
+ * SHE.cpp
+ *
+ *  Created on: Feb 18, 2017
+ *      Author: gerardryan
+ */
+
+#define _USE_MATH_DEFINES
+#include "benchmark/benchmark_api.h"
+
+bool runOnlyOnce = true;
+
+#include <iostream>
+#include <fstream>
+#include "palisade.h"
+
+#include "cryptocontexthelper.h"
+
+#include "encoding/byteplaintextencoding.h"
+#include "encoding/intplaintextencoding.h"
+
+#include "utils/debug.h"
+
+using namespace std;
+using namespace lbcrypto;
+
+static void initializeBytes(int cyclotomicOrder, const BigBinaryInteger& ptm,
+		BytePlaintextEncoding& plaintextShort,
+		BytePlaintextEncoding& plaintextFull,
+		BytePlaintextEncoding& plaintextLong) {
+	size_t strSize = plaintextShort.GetChunksize(cyclotomicOrder, ptm);
+
+	auto randchar = []() -> char {
+		const char charset[] =
+				"0123456789"
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				"abcdefghijklmnopqrstuvwxyz";
+		const size_t max_index = (sizeof(charset) - 1);
+		return charset[ rand() % max_index ];
+	};
+
+	string shortStr(strSize/2,0);
+	std::generate_n(shortStr.begin(), strSize/2, randchar);
+	plaintextShort = shortStr;
+
+	string fullStr(strSize,0);
+	std::generate_n(fullStr.begin(), strSize, randchar);
+	plaintextFull = fullStr;
+
+	string longStr(strSize*2,0);
+	std::generate_n(longStr.begin(), strSize*2, randchar);
+	plaintextLong = longStr;
+}
+
+
+string parms[] = { "Null", "Null2", "LTV5", "FV1", "FV2" };
+
+static void setup_Encoding(CryptoContext<ILVector2n>& cc,
+		IntPlaintextEncoding& plaintextInt,
+		BytePlaintextEncoding& plaintextShort,
+		BytePlaintextEncoding& plaintextFull,
+		BytePlaintextEncoding& plaintextLong) {
+	int nel = cc.GetElementParams()->GetCyclotomicOrder()/2;
+	const BigBinaryInteger& ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
+	uint32_t ptmi = ptm.ConvertToInt();
+
+	vector<uint32_t> intvec;
+	for( int ii=0; ii<nel; ii++)
+		intvec.push_back( rand() % ptmi );
+	plaintextInt = intvec;
+
+	initializeBytes(nel*2, ptm, plaintextShort, plaintextFull, plaintextLong);
+}
+
+void BM_encoding_Int(benchmark::State& state) { // benchmark
+	CryptoContext<ILVector2n> cc;
+	IntPlaintextEncoding plaintextInt;
+	BytePlaintextEncoding plaintextShort;
+	BytePlaintextEncoding plaintextFull;
+	BytePlaintextEncoding plaintextLong;
+	BigBinaryInteger ptm;
+	usint ptmi;
+	size_t chunkSize;
+
+	if( state.thread_index == 0 ) {
+		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(SHE);
+
+		ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
+		ptmi = ptm.ConvertToInt();
+
+		setup_Encoding(cc, plaintextInt, plaintextShort, plaintextFull, plaintextLong);
+		chunkSize = plaintextInt.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), ptm);
+
+		//ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
+	}
+
+	while (state.KeepRunning()) {
+		ILVector2n pt(cc.GetCryptoParameters()->GetElementParams());
+		plaintextInt.Encode(ptm, &pt, 0, chunkSize);
+	}
+
+	//	ChineseRemainderTransformFTT::GetInstance().Destroy();
+	//	NumberTheoreticTransform::GetInstance().Destroy();
+	//	ILVector2n::DestroyPreComputedSamples();
+}
+
+BENCHMARK(BM_encoding_Int)->ArgName(parms[0])->Arg(0);
+BENCHMARK(BM_encoding_Int)->ArgName(parms[1])->Arg(1);
+BENCHMARK(BM_encoding_Int)->ArgName(parms[2])->Arg(2);
+BENCHMARK(BM_encoding_Int)->ArgName(parms[3])->Arg(3);
+BENCHMARK(BM_encoding_Int)->ArgName(parms[4])->Arg(4);
+
+void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
+	CryptoContext<ILVector2n> cc;
+	IntPlaintextEncoding plaintextInt;
+	BytePlaintextEncoding plaintextShort;
+	BytePlaintextEncoding plaintextFull;
+	BytePlaintextEncoding plaintextLong;
+	BigBinaryInteger ptm;
+	usint ptmi;
+	size_t chunkSize;
+	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
+
+	if( state.thread_index == 0 ) {
+		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(SHE);
+
+		ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
+		ptmi = ptm.ConvertToInt();
+
+		setup_Encoding(cc, plaintextInt, plaintextShort, plaintextFull, plaintextLong);
+		chunkSize = plaintextInt.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), ptm);
+	}
+
+	while (state.KeepRunning()) {
+		ILVector2n pt(cc.GetCryptoParameters()->GetElementParams());
+		plaintextShort.Encode(ptm, &pt, 0, chunkSize);
+	}
+}
+
+BENCHMARK(BM_Encoding_StringShort)->ArgName(parms[0])->Arg(0);
+BENCHMARK(BM_Encoding_StringShort)->ArgName(parms[1])->Arg(1);
+BENCHMARK(BM_Encoding_StringShort)->ArgName(parms[2])->Arg(2);
+BENCHMARK(BM_Encoding_StringShort)->ArgName(parms[3])->Arg(3);
+BENCHMARK(BM_Encoding_StringShort)->ArgName(parms[4])->Arg(4);
+
+//execute the benchmarks
+BENCHMARK_MAIN()
+
+
+
