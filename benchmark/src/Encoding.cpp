@@ -53,7 +53,6 @@ static void initializeBytes(int cyclotomicOrder, const BigBinaryInteger& ptm,
 }
 
 
-
 static void setup_Encoding(CryptoContext<ILVector2n>& cc,
 		IntPlaintextEncoding& plaintextInt,
 		BytePlaintextEncoding& plaintextShort,
