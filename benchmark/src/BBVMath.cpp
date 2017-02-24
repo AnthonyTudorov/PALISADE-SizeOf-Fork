@@ -89,15 +89,18 @@ DO_PARM_BENCHMARK(BM_BBV_Addition)
 
 // add
 static void mult_BBV(benchmark::State& state) {	// function
+	state.PauseTiming();
 	BigBinaryVector a = makeVector(parmArray[state.range(0)]);
 	BigBinaryVector b = makeVector(parmArray[state.range(0)]);
+	state.ResumeTiming();
+
 	BigBinaryVector c1 = a*b;
 }
 
 static void BM_BBV_Multiplication(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
-	mult_BBV(state);
+		mult_BBV(state);
 	}
 }
 
