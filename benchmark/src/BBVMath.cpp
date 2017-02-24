@@ -62,6 +62,8 @@
 #include "lattice/ilvectorarray2n.h"
 #include "utils/utilities.h"
 
+#include "BBVhelper.h"
+
 using namespace std;
 using namespace lbcrypto;
 
@@ -86,26 +88,19 @@ void BM_BBV_constants(benchmark::State& state) { // benchmark
 
 BENCHMARK(BM_BBV_constants)->Arg(256)->Arg(512)->Arg(1024)->Arg(2048)->Arg(4096);		// register benchmark
 
-static BigBinaryVector makeVector(int siz) {
-
-	BigBinaryVector		vec(siz, mod);
-	for( int i=0; i<siz; i++ )
-		vec.SetValAtIndex(i, BigBinaryInteger(i));
-
-	return std::move(vec);
-}
-
-
 // add
-static void add_BBV(int siz) {	// function
-	BigBinaryVector a = makeVector(siz), b = makeVector(siz);
+static void add_BBV(benchmark::State& state) {
+	state.PauseTiming();
+	BigBinaryVector a = makeVector(state.range(0), mod), b = makeVector(state.range(0), mod);
+	state.ResumeTiming();
+
 	BigBinaryVector c1 = a+b;
 }
 
 static void BM_BBV_Addition(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
-		add_BBV(state.range(0));
+		add_BBV(state);
 	}
 }
 
@@ -113,7 +108,7 @@ BENCHMARK(BM_BBV_Addition)->Arg(256)->Arg(512)->Arg(1024)->Arg(2048)->Arg(4096);
 
 // add
 static void mult_BBV(int siz) {	// function
-	BigBinaryVector a = makeVector(siz), b = makeVector(siz);
+	BigBinaryVector a = makeVector(siz, mod), b = makeVector(siz, mod);
 	BigBinaryVector c1 = a*b;
 }
 
