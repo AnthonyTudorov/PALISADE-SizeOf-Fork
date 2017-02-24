@@ -127,7 +127,7 @@ public:
 	* @param n is ring dimension
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	int32_t GenerateInteger (double mean, double stddev, size_t n) const;
+	static int32_t GenerateInteger (double mean, double stddev, size_t n);
 
 	/**
 	* @brief  Returns a generated integer. Uses rejection method. Works with large floating numbers.
@@ -184,6 +184,15 @@ private:
 	//#else
 	//	return pow(M_E, -pow((long double)x - mean, (long double)2)/(2. * sigma * sigma));
 	//#endif
+	}
+
+	static inline LargeFloat UnnormalizedGaussianPDF(const LargeFloat &mean, int32_t x, const LargeFloat &sigmaFactor) {
+		//#if defined(_MSC_VER)	
+
+		return pow(M_E, sigmaFactor*(x - mean)*(x - mean));
+		//#else
+		//	return pow(M_E, -pow((long double)x - mean, (long double)2)/(2. * sigma * sigma));
+		//#endif
 	}
 
 	// Gyana to add precomputation methods and data members

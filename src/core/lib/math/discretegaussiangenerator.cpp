@@ -217,7 +217,7 @@ namespace lbcrypto {
 
 	}
 
-	int32_t DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n) const {
+	int32_t DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n) {
 
 		double t = log(n) / log(2)*stddev;  //this representation of log_2 is used for Visual Studio
 
@@ -264,6 +264,8 @@ namespace lbcrypto {
 		std::uniform_int_distribution<int32_t> uniform_int(floor(dbmean - dbt), ceil(dbmean + dbt));
 		boost::random::uniform_real_distribution<LargeFloat> uniform_real(0.0, 1.0);
 
+		LargeFloat sigmaFactor = -1 / (2. * stddev * stddev);
+
 		while (true) {
 			count++;
 			//  pick random int
@@ -271,7 +273,7 @@ namespace lbcrypto {
 			//  roll the uniform dice
 			LargeFloat dice = uniform_real(GetPRNG());
 			//  check if dice land below pdf
-			if (dice <= UnnormalizedGaussianPDF(mean, stddev, x)) {
+			if (dice <= UnnormalizedGaussianPDF(mean, x, sigmaFactor)) {
 				// std::cout << "Count: " << count << std::endl;
 				return x;
 			}
