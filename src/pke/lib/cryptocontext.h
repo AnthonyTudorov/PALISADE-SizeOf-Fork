@@ -430,7 +430,6 @@ public:
 			DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext[ch], &decrypted);
 
 			if (result.isValid == false) return result;
-
 			plaintext->Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
 			if (ch == lastone && doPadding) {
 				plaintext->Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());

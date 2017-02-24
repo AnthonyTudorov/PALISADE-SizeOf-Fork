@@ -111,17 +111,17 @@ void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVecto
 
 	ilVector->SetValues(temp, Format::EVALUATION); //output was in coefficient format
 	
-	this->Pack(*ilVector, modulus);//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
+	this->Pack(ilVector, modulus);//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
 
 }
 
 void PackedIntPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n *ilVector) {
 
+	this->Unpack(ilVector, modulus); //Format is in COEFFICIENT
+
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
 		this->push_back( ilVector->GetValues().GetValAtIndex(i).ConvertToInt() );
 	}
-
-	this->Unpack(*ilVector, modulus); //Format is in COEFFICIENT
 
 }
 
@@ -130,9 +130,9 @@ size_t PackedIntPlaintextEncoding::GetChunksize(const usint cyc, const BigBinary
 	return cyc/2;
 }
 
-void PackedIntPlaintextEncoding::Pack(ILVector2n &ring,const BigBinaryInteger &modulus) const {
+void PackedIntPlaintextEncoding::Pack(ILVector2n *ring,const BigBinaryInteger &modulus) const {
 	
-	usint n = ring.GetParams()->GetCyclotomicOrder()/2; //ring dimension
+	usint n = ring->GetParams()->GetCyclotomicOrder()/2; //ring dimension
 
 	//Do the precomputation if not initialized
 	if (this->initRoot.GetMSB() == 0) {
@@ -141,9 +141,9 @@ void PackedIntPlaintextEncoding::Pack(ILVector2n &ring,const BigBinaryInteger &m
 
 	//initRoot = BigBinaryInteger::TWO;
 
-	BigBinaryInteger qMod(ring.GetParams()->GetModulus());
+	BigBinaryInteger qMod(ring->GetParams()->GetModulus());
 
-	BigBinaryVector packedVector(ring.GetValues());
+	BigBinaryVector packedVector(ring->GetValues());
 
 	//std::cout << packedVector << std::endl;
 
@@ -155,18 +155,17 @@ void PackedIntPlaintextEncoding::Pack(ILVector2n &ring,const BigBinaryInteger &m
 
 	packedVector.SetModulus(qMod);
 
-	ring.SetValues(packedVector, Format::COEFFICIENT);
-
+	ring->SetValues(packedVector, Format::COEFFICIENT);
 
 }
 
-void PackedIntPlaintextEncoding::Unpack(ILVector2n &ring,const BigBinaryInteger &modulus) const {
+void PackedIntPlaintextEncoding::Unpack(ILVector2n *ring,const BigBinaryInteger &modulus) const {
 
-	usint n = ring.GetParams()->GetCyclotomicOrder() / 2; //ring dimension
+	usint n = ring->GetParams()->GetCyclotomicOrder() / 2; //ring dimension
 
-	BigBinaryInteger qMod(ring.GetParams()->GetModulus());
+	BigBinaryInteger qMod(ring->GetParams()->GetModulus());
 
-	BigBinaryVector packedVector(ring.GetValues());
+	BigBinaryVector packedVector(ring->GetValues());
 
 	//std::cout << packedVector << std::endl;
 
@@ -176,8 +175,7 @@ void PackedIntPlaintextEncoding::Unpack(ILVector2n &ring,const BigBinaryInteger 
 
 	packedVector.SetModulus(qMod);
 
-	ring.SetValues(packedVector, Format::COEFFICIENT);
-
+	ring->SetValues(packedVector, Format::COEFFICIENT);
 
 }
 

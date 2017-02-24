@@ -111,9 +111,9 @@ private:
 	static BigBinaryInteger initRoot;
 	static std::vector<usint> rootOfUnityTable;
 
-	void Pack(ILVector2n &ring,const BigBinaryInteger &modulus) const;
+	void Pack(ILVector2n *ring,const BigBinaryInteger &modulus) const;
 
-	void Unpack(ILVector2n &ring, const BigBinaryInteger &modulus) const;
+	void Unpack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
 
 };
 
