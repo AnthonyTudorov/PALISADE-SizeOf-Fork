@@ -79,9 +79,6 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 
 	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
 
-	//Packing pliantext
-	intArray1.Pack(cryptoParams.GetPlaintextModulus(), cryptoParams.GetElementParams()->GetCyclotomicOrder());
-
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams);
 	cc.Enable(ENCRYPTION);
 
@@ -116,7 +113,6 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 	PackedIntPlaintextEncoding intArrayNew;
 
 	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
-	intArrayNew.Unpack(cryptoParams.GetPlaintextModulus(), cryptoParams.GetElementParams()->GetCyclotomicOrder());
 
 	if (!result.isValid) {
 		std::cout << "Decryption failed!" << std::endl;
@@ -160,11 +156,6 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 
 	std::vector<usint> vectorOfIntsExpected = { 5,5,5,5 };
 
-	//Packing pliantext
-	intArray1.Pack(cryptoParams.GetPlaintextModulus(), cryptoParams.GetElementParams()->GetCyclotomicOrder());
-
-	intArray2.Pack(cryptoParams.GetPlaintextModulus(), cryptoParams.GetElementParams()->GetCyclotomicOrder());
-
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -206,7 +197,6 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	PackedIntPlaintextEncoding intArrayNew;
 
 	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
-	intArrayNew.Unpack(cryptoParams.GetPlaintextModulus(), cryptoParams.GetElementParams()->GetCyclotomicOrder());
 
 	if (!result.isValid) {
 		std::cout << "Decryption failed!" << std::endl;
@@ -252,11 +242,6 @@ TEST(UTLTVBATCHING, ILVector2n_EVALMULT) {
 
 	std::vector<usint> vectorOfIntsExpected = { 4,6,6,4 };
 
-	//Packing pliantext
-	intArray1.Pack(BigBinaryInteger(17), m);
-
-	intArray2.Pack(BigBinaryInteger(17), m);
-
 
 	kp = cc.KeyGen();
 
@@ -276,9 +261,6 @@ TEST(UTLTVBATCHING, ILVector2n_EVALMULT) {
 	PackedIntPlaintextEncoding results;
 
 	cc.Decrypt(kp.secretKey, ciphertextResults, &results, false);
-	
-	results.Unpack(BigBinaryInteger(17), m);
-
 	
 	EXPECT_EQ(results, vectorOfIntsExpected);
 
