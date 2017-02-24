@@ -109,14 +109,20 @@ void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVecto
 		//	Num = BigBinaryInteger::ZERO;
 	}
 
-	ilVector->SetValues(temp,format);
+	ilVector->SetValues(temp, Format::EVALUATION); //output was in coefficient format
+	
+	this->Pack(ilVector, modulus);//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
+
 }
 
 void PackedIntPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n *ilVector) {
 
+	this->Unpack(ilVector, modulus); //Format is in COEFFICIENT
+
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
 		this->push_back( ilVector->GetValues().GetValAtIndex(i).ConvertToInt() );
 	}
+
 }
 
 size_t PackedIntPlaintextEncoding::GetChunksize(const usint cyc, const BigBinaryInteger& ptm) const
@@ -124,65 +130,52 @@ size_t PackedIntPlaintextEncoding::GetChunksize(const usint cyc, const BigBinary
 	return cyc/2;
 }
 
-void PackedIntPlaintextEncoding::Pack(const BigBinaryInteger &modulus, const usint m) {
+void PackedIntPlaintextEncoding::Pack(ILVector2n *ring,const BigBinaryInteger &modulus) const {
 	
-	usint n = m / 2; //ring dimension
-
-	usint modInt = modulus.ConvertToInt();
+	usint n = ring->GetParams()->GetCyclotomicOrder()/2; //ring dimension
 
 	//Do the precomputation if not initialized
 	if (this->initRoot.GetMSB() == 0) {
-		this->initRoot = RootOfUnity(m, modulus);
-		this->rootOfUnityTable.reserve(n);
-		rootOfUnityTable.push_back(initRoot.ConvertToInt());
-		usint omegaSquare = (rootOfUnityTable[0] * rootOfUnityTable[0]) % modInt;
-		for (usint i = 1; i < n; i ++) {
-			rootOfUnityTable.push_back((rootOfUnityTable[i-1]*omegaSquare) % modInt);
-		}
-
-	}
-	
-
-	BigBinaryVector Xvals(n, modulus);
-	BigBinaryInteger nInverse(n);
-	nInverse = nInverse.ModInverse(modulus);
-	
-	//Initialize Xvals
-	std::vector<usint> rowVals(n, nInverse.ConvertToInt());
-	std::vector<usint> finalVals(n, 0);
-	std::reverse(this->begin(), this->end());
-	
-	for (usint i = 0; i < n; i++) {
-		//multiply the rowVals with coefficient vectors
-		usint sum = std::inner_product(rowVals.begin(), rowVals.end(), this->begin(), 0);	
-		finalVals.at(i) = sum%modInt;
-		std::transform(rowVals.begin(), rowVals.end(), rootOfUnityTable.begin(), rowVals.begin(), std::multiplies<usint>());
+		this->initRoot = RootOfUnity(n << 1, modulus);
 	}
 
-	*this = finalVals;
+	//initRoot = BigBinaryInteger::TWO;
+
+	BigBinaryInteger qMod(ring->GetParams()->GetModulus());
+
+	BigBinaryVector packedVector(ring->GetValues());
+
+	//std::cout << packedVector << std::endl;
+
+	packedVector.SetModulus(modulus);
+
+	packedVector = ChineseRemainderTransformFTT::GetInstance().InverseTransform(packedVector, initRoot, n<<1);
+
+	//std::cout << packedVector << std::endl;
+
+	packedVector.SetModulus(qMod);
+
+	ring->SetValues(packedVector, Format::COEFFICIENT);
 
 }
 
-void PackedIntPlaintextEncoding::Unpack(const BigBinaryInteger &modulus, const usint m) {
-	usint n = m / 2; //ring dimension
-	usint modInt = modulus.ConvertToInt();
-	if(this->rootOfUnityTable.size()==0|| this->rootOfUnityTable.size()!=m/2)
-		throw std::logic_error("Problem with root of unity table");
-	
-	std::vector<usint> finalVals;
-	finalVals.reserve(n);
-	usint sum;
-	//Can be done with NTT too
-	for (auto &i: this->rootOfUnityTable) {//for each of the value of rootOfUnity vector find polynomial evaluation
-		sum = 0;
-		for (usint j = 0; j < n; j++) {
-			sum += std::pow(i, j)*this->at(j);
-		}
-		sum = sum%modInt;
-		finalVals.push_back(sum);
-	}	
+void PackedIntPlaintextEncoding::Unpack(ILVector2n *ring,const BigBinaryInteger &modulus) const {
 
-	*this = finalVals;
+	usint n = ring->GetParams()->GetCyclotomicOrder() / 2; //ring dimension
+
+	BigBinaryInteger qMod(ring->GetParams()->GetModulus());
+
+	BigBinaryVector packedVector(ring->GetValues());
+
+	//std::cout << packedVector << std::endl;
+
+	packedVector.SetModulus(modulus);
+
+	packedVector = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(packedVector, initRoot, n << 1);
+
+	packedVector.SetModulus(qMod);
+
+	ring->SetValues(packedVector, Format::COEFFICIENT);
 
 }
 

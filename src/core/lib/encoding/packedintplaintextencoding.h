@@ -68,10 +68,6 @@ public:
 	*/
 	void Encode(const BigBinaryInteger &modulus, ILVectorArray2n *iLVectorArray2n, size_t start_from=0, size_t length=0) const;
 
-	void Pack(const BigBinaryInteger &modulus, const usint m);
-
-	void Unpack(const BigBinaryInteger &modulus, const usint m);
-
 	/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
 	*
 	* @param  modulus - used for encoding.
@@ -114,6 +110,11 @@ public:
 private:
 	static BigBinaryInteger initRoot;
 	static std::vector<usint> rootOfUnityTable;
+
+	void Pack(ILVector2n *ring,const BigBinaryInteger &modulus) const;
+
+	void Unpack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
+
 };
 
 }
