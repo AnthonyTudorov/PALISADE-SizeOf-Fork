@@ -17,12 +17,10 @@
 
 #include "encoding/byteplaintextencoding.h"
 
-#include "utils/debug.h"
+#include "EncryptHelper.h"
 
 using namespace std;
 using namespace lbcrypto;
-
-string parms[] = { "Null", "Null2", "LTV5", "FV1", "FV2" };
 
 static std::vector<uint32_t> makeVector(int siz, int ptmi) {
 	std::vector<uint32_t>			elem;
@@ -73,11 +71,7 @@ void BM_evalAdd_SHE(benchmark::State& state) { // benchmark
 //	ILVector2n::DestroyPreComputedSamples();
 }
 
-BENCHMARK(BM_evalAdd_SHE)->ArgName(parms[0])->Arg(0);
-BENCHMARK(BM_evalAdd_SHE)->ArgName(parms[1])->Arg(1);
-BENCHMARK(BM_evalAdd_SHE)->ArgName(parms[2])->Arg(2);
-BENCHMARK(BM_evalAdd_SHE)->ArgName(parms[3])->Arg(3);
-BENCHMARK(BM_evalAdd_SHE)->ArgName(parms[4])->Arg(4);
+BENCHMARK_PARMS(BM_evalAdd_SHE)
 
 void BM_evalMult_SHE(benchmark::State& state) { // benchmark
 	CryptoContext<ILVector2n> cc;
@@ -96,11 +90,7 @@ void BM_evalMult_SHE(benchmark::State& state) { // benchmark
 	}
 }
 
-BENCHMARK(BM_evalMult_SHE)->ArgName(parms[0])->Arg(0);
-BENCHMARK(BM_evalMult_SHE)->ArgName(parms[1])->Arg(1);
-BENCHMARK(BM_evalMult_SHE)->ArgName(parms[2])->Arg(2);
-BENCHMARK(BM_evalMult_SHE)->ArgName(parms[3])->Arg(3);
-BENCHMARK(BM_evalMult_SHE)->ArgName(parms[4])->Arg(4);
+BENCHMARK_PARMS(BM_evalMult_SHE)
 
 void BM_baseDecompose_SHE(benchmark::State& state) { // benchmark
 	CryptoContext<ILVector2n> cc;
@@ -119,11 +109,7 @@ void BM_baseDecompose_SHE(benchmark::State& state) { // benchmark
 	}
 }
 
-//BENCHMARK(BM_baseDecompose_SHE)->ArgName(parms[0])->Arg(0);
-//BENCHMARK(BM_baseDecompose_SHE)->ArgName(parms[1])->Arg(1);
-BENCHMARK(BM_baseDecompose_SHE)->ArgName(parms[2])->Arg(2);
-BENCHMARK(BM_baseDecompose_SHE)->ArgName(parms[3])->Arg(3);
-BENCHMARK(BM_baseDecompose_SHE)->ArgName(parms[4])->Arg(4);
+BENCHMARK_PARMS(BM_baseDecompose_SHE)
 
 //execute the benchmarks
 BENCHMARK_MAIN()

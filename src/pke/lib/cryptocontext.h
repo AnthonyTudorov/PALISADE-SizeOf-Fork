@@ -965,8 +965,7 @@ public:
 	* @return
 	*/
 	static CryptoContext<Element> getCryptoContextNull(
-		const usint modulus,
-		usint ringdim);
+			const std::string& ptModulus, usint ringdim, const std::string& modulus, const std::string& rootOfUnity);
 
 	// helper for deserialization of contexts
 	static shared_ptr<LPCryptoParameters<Element>> GetParameterObject(const Serialized& serObj) {

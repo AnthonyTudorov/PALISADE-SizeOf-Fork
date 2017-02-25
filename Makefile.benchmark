@@ -32,7 +32,7 @@ BM_OBJ = $(BM_SRC:.cc=.o)
 BM_LIB = $(BM_SRCDIR)/libbenchmark.a
 
 #note the following may need to be set automatically ala cmake
-LIBBENCHMARK_FLAGS = -DHAVE_STD_REGEX -DHAVE_STEADY_CLOCK  -std=c++11 -Wall -Wextra -Wshadow -pedantic -pedantic-errors -Wfloat-equal -Wzero-as-null-pointer-constant -fstrict-aliasing -Wstrict-aliasing -Wno-nested-anon-types -O3 -DNDEBUG -Werror 
+LIBBENCHMARK_FLAGS = -DHAVE_STD_REGEX -DHAVE_STEADY_CLOCK  -std=c++11 -Wall -Wextra -Wshadow -pedantic -pedantic-errors -Wfloat-equal -Wzero-as-null-pointer-constant -fstrict-aliasing -Wstrict-aliasing -Wno-nested-anon-types -O3 -DNDEBUG -Werror -g
 
 benchmark: libbenchmark benchmarktargets 
 

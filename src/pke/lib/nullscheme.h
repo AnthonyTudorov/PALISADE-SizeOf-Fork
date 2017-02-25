@@ -14,6 +14,9 @@ namespace lbcrypto {
 
 template <class Element>
 class LPCryptoParametersNull : public LPCryptoParameters<Element> {
+private:
+	DiscreteGaussianGenerator	m_dgg;
+
 public:
 	LPCryptoParametersNull() : LPCryptoParameters<Element>() {}
 
@@ -23,6 +26,8 @@ public:
 	LPCryptoParametersNull(const LPCryptoParametersNull& rhs) : LPCryptoParameters<Element>(rhs) {}
 
 	virtual ~LPCryptoParametersNull() {}
+
+	const DiscreteGaussianGenerator &GetDiscreteGaussianGenerator() const {return m_dgg;}
 
 	bool Serialize(Serialized* serObj) const {
 		if( !serObj->IsObject() )

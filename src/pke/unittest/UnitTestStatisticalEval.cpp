@@ -53,11 +53,13 @@ public:
 */
 TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 
-	usint plaintextModulus = 256;
+	string plaintextModulus("256");
 	usint m = 64;
+	string modulus("536871233");
+	string rootOfUnity("268585022");
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(plaintextModulus, m);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(plaintextModulus, m, modulus, rootOfUnity);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -151,9 +153,11 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 
 	usint plaintextModulus = 256;
 	usint m = 64;
+	string modulus("536871233");
+	string rootOfUnity("268585022");
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(plaintextModulus, m);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(std::to_string(plaintextModulus), m, modulus, rootOfUnity);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);

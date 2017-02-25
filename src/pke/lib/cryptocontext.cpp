@@ -218,12 +218,11 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::getCryptoContextNull(
-		const usint modulus,
-		usint ringdim)
+		const std::string& ptModulus, usint ringdim, const std::string& modulus, const std::string& rootOfUnity)
 {
-	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger::ONE) );
+	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
-	shared_ptr<LPCryptoParametersNull<T>> params( new LPCryptoParametersNull<T>(ep, BigBinaryInteger(modulus)) );
+	shared_ptr<LPCryptoParametersNull<T>> params( new LPCryptoParametersNull<T>(ep, BigBinaryInteger(ptModulus)) );
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeNull<T>() );
 
 	return CryptoContext<T>(params, scheme);

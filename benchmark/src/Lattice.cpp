@@ -47,111 +47,120 @@
 using namespace std;
 using namespace lbcrypto;
 
+template <class E>
 static void make_LATTICE_empty(shared_ptr<ILParams>& params) {
-	ILVector2n v1(params);
+	E v1(params);
 }
 
+template <class E>
 void BM_LATTICE_empty(benchmark::State& state) { // benchmark
 	if( state.thread_index == 0 ) {
 		;
 	}
 
 	while (state.KeepRunning()) {
-		make_LATTICE_empty(parmArray[state.range(0)]);
+		make_LATTICE_empty<E>(parmArray[state.range(0)]);
 	}
 }
 
-DO_PARM_BENCHMARK(BM_LATTICE_empty)
+DO_PARM_BENCHMARK_TEMPLATE(BM_LATTICE_empty,ILVector2n)
 
-static ILVector2n makeElement(benchmark::State& state, shared_ptr<ILParams> params) {
+template <class E>
+static E makeElement(benchmark::State& state, shared_ptr<ILParams> params) {
 	BigBinaryVector vec = makeVector(params);
-	ILVector2n			elem(params);
+	E			elem(params);
 	elem.SetValues(vec, elem.GetFormat());
 	return std::move(elem);
 }
 
 // make variables
 
+template <class E>
 static void make_LATTICE_vector (benchmark::State& state, shared_ptr<ILParams>& params) {	// function
-	ILVector2n			elem = makeElement(state, params);
+	E			elem = makeElement<E>(state, params);
 }
 
-
+template <class E>
 void BM_LATTICE_vector(benchmark::State& state) { // benchmark
 	if( state.thread_index == 0 ) {
 		;
 	}
 
 	while (state.KeepRunning()) {
-		make_LATTICE_vector(state, parmArray[state.range(0)]);
+		make_LATTICE_vector<E>(state, parmArray[state.range(0)]);
 	}
 }
 
-DO_PARM_BENCHMARK(BM_LATTICE_vector)
+DO_PARM_BENCHMARK_TEMPLATE(BM_LATTICE_vector,ILVector2n)
 
 // add
+template <class E>
 static void add_LATTICE(benchmark::State& state, shared_ptr<ILParams> params) {
 	state.PauseTiming();
-	ILVector2n			a = makeElement(state, params);
-	ILVector2n			b = makeElement(state, params);
+	E			a = makeElement<E>(state, params);
+	E			b = makeElement<E>(state, params);
 	state.ResumeTiming();
 
-	ILVector2n c1 = a+b;
+	E c1 = a+b;
 }
 
+template <class E>
 static void BM_add_LATTICE(benchmark::State& state) { // benchmark
 	if( state.thread_index == 0 ) {
 		;
 	}
 
 	while (state.KeepRunning()) {
-		add_LATTICE(state, parmArray[state.range(0)]);
+		add_LATTICE<E>(state, parmArray[state.range(0)]);
 	}
 }
 
-DO_PARM_BENCHMARK(BM_add_LATTICE)
+DO_PARM_BENCHMARK_TEMPLATE(BM_add_LATTICE,ILVector2n)
 
-// add
+template <class E>
 static void mult_LATTICE(benchmark::State& state, shared_ptr<ILParams>& params) {	// function
 	state.PauseTiming();
-	ILVector2n			a = makeElement(state, params);
-	ILVector2n			b = makeElement(state, params);
+	E			a = makeElement<E>(state, params);
+	E			b = makeElement<E>(state, params);
 	state.ResumeTiming();
 
-	ILVector2n c1 = a*b;
+	E c1 = a*b;
 }
 
+template <class E>
 static void BM_mult_LATTICE(benchmark::State& state) { // benchmark
 	if( state.thread_index == 0 ) {
 		;
 	}
 
 	while (state.KeepRunning()) {
-		mult_LATTICE(state, parmArray[state.range(0)]);
+		mult_LATTICE<E>(state, parmArray[state.range(0)]);
 	}
 }
 
-DO_PARM_BENCHMARK(BM_mult_LATTICE)
+DO_PARM_BENCHMARK_TEMPLATE(BM_mult_LATTICE,ILVector2n)
 
+template <class E>
 static void switchformat_LATTICE(benchmark::State& state, shared_ptr<ILParams>& params) {
 	state.PauseTiming();
-	ILVector2n			a = makeElement(state, params);
+	E			a = makeElement<E>(state, params);
 	state.ResumeTiming();
 
 	a.SwitchFormat();
 }
 
+template <class E>
 static void BM_switchformat_LATTICE(benchmark::State& state) { // benchmark
 	if( state.thread_index == 0 ) {
 		;
 	}
 
 	while (state.KeepRunning()) {
-		switchformat_LATTICE(state, parmArray[state.range(0)]);
+		switchformat_LATTICE<E>(state, parmArray[state.range(0)]);
 	}
 }
 
-DO_PARM_BENCHMARK(BM_switchformat_LATTICE)
+DO_PARM_BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,ILVector2n)
 
 //execute the benchmarks
 BENCHMARK_MAIN()
