@@ -1,5 +1,9 @@
+// run this program and redirect the output into ElementParmsHelper.h
+
 #include <utility>
 #include <iostream>
+#include <sstream>
+#include <string>
 
 #define _USE_MATH_DEFINES
 #include "math/backend.h"
@@ -9,18 +13,38 @@ using namespace std;
 using namespace lbcrypto;
 
 int main( int argc, char *argv[] ) {
-	BigBinaryInteger mod, rootUnity;
-	int shifts[] = { 30, 60, 100, 300, 500 };
+	stringstream	macrocode;
+	stringstream	parmarray;
+	int parmindex = 0;
 
-	for( int o=8; o<1024; o *= 2 ) {
-		cout << o << ":" << endl;
+	BigBinaryInteger mod, rootUnity;
+	int shifts[] = { 30, 60, 100, }; //300, 500 };
+
+	parmarray << "shared_ptr<ILParams> parmArray[] = {" << endl;
+	macrocode << "#define DO_PARM_BENCHMARK(X) \\" << endl;
+
+	for( int o=8; o<=8192; o *= 2 ) {
 		for( int s = 0; s < sizeof(shifts)/sizeof(shifts[0]); s++ ) {
+			string pname = "parm_" + std::to_string(o) + "_" + std::to_string(shifts[s]);
 			mod = FindPrimeModulus(o, shifts[s]);
 			rootUnity = RootOfUnity(o, mod);
 
-			cout << o << ": " << shifts[s] << ": " << mod << ": " << rootUnity << endl;
+			macrocode << "BENCHMARK(X)->ArgName(\"" << pname << "\")->Arg(" << parmindex << "); \\" << endl;
+			parmindex++;
+
+			parmarray << pname << "," << endl;
+
+			cout << "shared_ptr<ILParams> " << pname << "( new ILParams(" << o 
+			<< ", BigBinaryInteger(\"" << mod << "\"), BigBinaryInteger(\"" << rootUnity
+			<< "\")) );" << endl;
 		}
 	}
+
+	cout << endl;
+	cout << parmarray.str() << "};" << endl << endl;
+
+	cout << macrocode.str() << endl;
+	
 
 	return 0;
 }

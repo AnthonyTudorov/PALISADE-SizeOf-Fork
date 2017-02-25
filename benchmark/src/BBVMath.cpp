@@ -63,35 +63,16 @@
 #include "utils/utilities.h"
 
 #include "BBVhelper.h"
+#include "ElementParmsHelper.h"
 
 using namespace std;
 using namespace lbcrypto;
 
-//four simple benchmarks to test constructing BBVs
-// typically the code to benchmark is in a 'function' that is then
-// called within the actual benchmark.
-
-static BigBinaryInteger mod("31415");
-
-// test BBV constants
-static void make_BBV_constants(int siz) {	// function
-	BigBinaryVector one(siz, mod);
-}
-
-void BM_BBV_constants(benchmark::State& state) { // benchmark
-	while (state.KeepRunning()) {
-		make_BBV_constants(state.range(0));		// note even with -O3 it appears
-		// this is not optimized out
-		// though check with your compiler
-	}
-}
-
-BENCHMARK(BM_BBV_constants)->Arg(256)->Arg(512)->Arg(1024)->Arg(2048)->Arg(4096);		// register benchmark
-
 // add
 static void add_BBV(benchmark::State& state) {
 	state.PauseTiming();
-	BigBinaryVector a = makeVector(state.range(0), mod), b = makeVector(state.range(0), mod);
+	BigBinaryVector a = makeVector(parmArray[state.range(0)]);
+	BigBinaryVector b = makeVector(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
 	BigBinaryVector c1 = a+b;
@@ -104,23 +85,23 @@ static void BM_BBV_Addition(benchmark::State& state) { // benchmark
 	}
 }
 
-BENCHMARK(BM_BBV_Addition)->Arg(256)->Arg(512)->Arg(1024)->Arg(2048)->Arg(4096);		// register benchmark
+DO_PARM_BENCHMARK(BM_BBV_Addition)
 
 // add
-static void mult_BBV(int siz) {	// function
-	BigBinaryVector a = makeVector(siz, mod), b = makeVector(siz, mod);
+static void mult_BBV(benchmark::State& state) {	// function
+	BigBinaryVector a = makeVector(parmArray[state.range(0)]);
+	BigBinaryVector b = makeVector(parmArray[state.range(0)]);
 	BigBinaryVector c1 = a*b;
 }
 
 static void BM_BBV_Multiplication(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
-	mult_BBV(state.range(0));
+	mult_BBV(state);
 	}
 }
 
-BENCHMARK(BM_BBV_Multiplication)->Arg(256)->Arg(512)->Arg(1024)->Arg(2048)->Arg(4096);		// register benchmark
-
+DO_PARM_BENCHMARK(BM_BBV_Multiplication)
 
 //execute the benchmarks
 BENCHMARK_MAIN()

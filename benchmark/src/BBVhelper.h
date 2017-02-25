@@ -10,8 +10,8 @@
 #include "math/backend.h"
 using namespace lbcrypto;
 
-inline BigBinaryVector makeVector(int siz, const BigBinaryInteger& modulus) {
-	BigBinaryVector vec(siz, modulus);
+inline BigBinaryVector makeVector(shared_ptr<ILParams> p) {
+	BigBinaryVector vec(p->GetCyclotomicOrder()/2, p->GetModulus());
 
 	return std::move(vec);
 }
