@@ -102,7 +102,6 @@ namespace lbcrypto {
 						securityLevel,
 						relinWindow,
 						depth) {
-				m_delta = delta;
 				m_mode = mode;
 				m_bigModulus = bigModulus;
 				m_bigRootOfUnity = bigRootOfUnity;			

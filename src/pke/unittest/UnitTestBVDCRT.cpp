@@ -93,7 +93,7 @@ TEST(UTBVDCRT, ILVector2n_bv_Encrypt_Decrypt_DCRT) {
 	IntPlaintextEncoding intArray1(vectorOfInts1);
 
 	//CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(5, m, "modulus","rootOfUnity",8,stdDev);
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(&cryptoParams);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(&cryptoParams, MODE::RLWE);
 	cc.Enable(ENCRYPTION);
 
 
@@ -113,8 +113,6 @@ TEST(UTBVDCRT, ILVector2n_bv_Encrypt_Decrypt_DCRT) {
 
 
 	IntPlaintextEncoding intArrayNew;
-
-
 
 	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew,false);  // This is the core decryption operation.
 	
@@ -162,7 +160,7 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 
 	IntPlaintextEncoding intArray1(vectorOfInts1);
 
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(&cryptoParams);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(&cryptoParams, MODE::RLWE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);	
 	cc.Enable(SHE);
@@ -258,7 +256,7 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALADD_DCRT) {
 	cryptoParams.SetRelinWindow(1);				// Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
 
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(&cryptoParams);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(&cryptoParams, MODE::RLWE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
@@ -330,7 +328,7 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT) {
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(cryptoParams.GetDiscreteGaussianGenerator(), params);
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams, MODE::RLWE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);

@@ -157,7 +157,11 @@ CryptoContextFactory<T>::genCryptoContextBV(
 		stDev,
 		0.0, // assuranceMeasure,
 		0.0, // securityLevel,
-		relinWindow) );
+		relinWindow, // Relinearization Window
+		MODE::RLWE, //Mode of noise generation
+		BigBinaryInteger(modulus),
+		BigBinaryInteger(rootOfUnity)
+		) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBV<T>() );
 
@@ -165,9 +169,11 @@ CryptoContextFactory<T>::genCryptoContextBV(
 }
 
 template <typename T>
-CryptoContext<T> CryptoContextFactory<T>::genCryptoContextBV(LPCryptoParametersBV<T>* cryptoParams) {
+CryptoContext<T> CryptoContextFactory<T>::genCryptoContextBV(LPCryptoParametersBV<T>* cryptoParams, MODE mode) {
 
 	shared_ptr<LPCryptoParametersBV<T>> mycryptoParams( new LPCryptoParametersBV<T>(*cryptoParams) ); // copy so memory works right
+
+	mycryptoParams->SetMode(mode);
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBV<T>() );
 
@@ -309,5 +315,6 @@ CryptoContext<T>::deserializeEvalMultKey(const Serialized& serObj) const
 
 	return shared_ptr<LPEvalKeyRelin<T>>();
 }
+
 }
 
