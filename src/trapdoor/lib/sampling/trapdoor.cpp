@@ -446,10 +446,10 @@ namespace lbcrypto {
 		Matrix<BigBinaryInteger> R = Rotate(eCoeff).VStack(Rotate(rCoeff));
 
 
-		Matrix<int32_t> Rint = ConvertToInt32(R, modulus);
+		const Matrix<int32_t> &Rint = ConvertToInt32(R, modulus);
 		int32_t b = s*s - 5 *a *a;
-		Matrix<int32_t> Snk = ((int32_t)(s*s - a*a))*(Matrix<int32_t>(Rint.GetAllocator(), n * 2, n * 2).Identity())- Rint*Rint.Transpose().ScalarMult(double(r*r + 1 / b));
-		*sigmaSqrt = Cholesky(Snk); 
+		const Matrix<int32_t> &Snk = ((int32_t)(s*s - a*a))*(Matrix<int32_t>(Rint.GetAllocator(), n * 2, n * 2).Identity())- Rint*Rint.Transpose().ScalarMult(double(r*r + 1 / b));
+		Cholesky(Snk, *sigmaSqrt); 
 	}
 
 	void RLWETrapdoorUtility::ZSampleSigmaP(size_t n, double s, double sigma,

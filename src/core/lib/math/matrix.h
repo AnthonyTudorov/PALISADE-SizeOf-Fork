@@ -577,6 +577,8 @@ namespace lbcrypto {
     */ 
     inline Matrix<LargeFloat> Cholesky(const Matrix<int32_t> &input); 
 
+	inline void Cholesky(const Matrix<int32_t> &input, Matrix<LargeFloat> &result);
+
 	/**
     * Convert a matrix of integers from BigBinaryInteger to int32_t
 	* Convert from Z_q to [-q/2, q/2]
