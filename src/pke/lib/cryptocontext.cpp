@@ -288,8 +288,6 @@ CryptoContext<T>::deserializeEvalKey(const Serialized& serObj) const
 		return shared_ptr<LPEvalKeyNTRURelin<T>>();
 	}
 
-	//LPEvalKeyNTRURelin
-
 	shared_ptr<LPEvalKeyNTRURelin<T>> key( new LPEvalKeyNTRURelin<T>(*this) );
 
 	if( key->Deserialize(serObj) )

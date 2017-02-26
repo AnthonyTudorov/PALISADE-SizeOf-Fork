@@ -146,8 +146,7 @@ public:
 	DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		Element *plaintext) const {
-		const Element c = ciphertext->GetElement();
-		*plaintext = c;
+		*plaintext = ciphertext->GetElement();
 		return DecryptResult(plaintext->GetLength());
 	}
 
