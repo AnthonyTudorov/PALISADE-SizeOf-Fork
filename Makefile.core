@@ -84,17 +84,6 @@ $(COREBINDIR)/%:
 cleancore: 
 	$(RM) -fr $(COREBINDIR) $(EXTLIBDIR)/$(PALISADECORELIB) `dirname $(TEST_TARGET)` bin/demo/core
 
-#
-# the following define the componenets of the google test library
-# the source extention
-TEST_LIB_SRCEXT := cc
-
-#the source directory of the google library sources
-TEST_LIB_SRCDIR := test/include/gtest
-
-# Google Test headers. 
-GTEST_HEADERS =	test/include/gtest/gtest.h
-
 # this links test executable  from objects in the test build directory
 $(TEST_TARGET): $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) 
 	@mkdir -p `dirname $(TEST_TARGET)`

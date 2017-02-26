@@ -84,17 +84,6 @@ $(TRAPDOORBINDIR)/%:
 cleantrapdoor: 
 	$(RM) -fr $(TRAPDOORBINDIR) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) `dirname $(TRAPDOOR_TEST_TARGET)` bin/demo/trapdoor
 
-#
-# the following define the componenets of the google test library
-# the source extention
-TEST_LIB_SRCEXT := cc
-
-#the source directory of the google library sources
-TEST_LIB_SRCDIR := test/include/gtest
-
-# Google Test headers. 
-GTEST_HEADERS =	test/include/gtest/gtest.h
-
 # this links test executable  from objects in the test build directory
 $(TRAPDOOR_TEST_TARGET): $(TRAPDOORUNITOBJECTS) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(EXTLIBDIR)/$(PALISADECORELIB)
 	@mkdir -p `dirname $(TRAPDOOR_TEST_TARGET)`

@@ -85,17 +85,6 @@ $(PKEBINDIR)/%:
 cleanpke: 
 	$(RM) -fr $(PKEBINDIR) $(EXTLIBDIR)/$(PALISADEPKELIB) `dirname $(PKE_TEST_TARGET)` bin/demo/pke
 
-#
-# the following define the componenets of the google test library
-# the source extention
-TEST_LIB_SRCEXT := cc
-
-#the source directory of the google library sources
-TEST_LIB_SRCDIR := test/include/gtest
-
-# Google Test headers. 
-GTEST_HEADERS =	test/include/gtest/gtest.h
-
 # this links test executable  from objects in the test build directory
 $(PKE_TEST_TARGET): $(PKEUNITOBJECTS) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
 	@mkdir -p `dirname $(PKE_TEST_TARGET)`
