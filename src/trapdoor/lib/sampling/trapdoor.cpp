@@ -449,7 +449,72 @@ namespace lbcrypto {
 		const Matrix<int32_t> &Rint = ConvertToInt32(R, modulus);
 		int32_t b = s*s - 5 *a *a;
 		const Matrix<int32_t> &Snk = ((int32_t)(s*s - a*a))*(Matrix<int32_t>(Rint.GetAllocator(), n * 2, n * 2).Identity())- Rint*Rint.Transpose().ScalarMult(double(r*r + 1 / b));
-		Cholesky(Snk, *sigmaSqrt); 
+		//Cholesky(Snk, *sigmaSqrt); 
+		*sigmaSqrt = Cholesky(Snk);
+	}
+
+	//Alternate method for generation of perturbation matrix based on Cholesky decomposition
+	// see Section 3.2 of https ://eprint.iacr.org/2013/297.pdf for base implementation, Section 4.4 for improvements
+	void RLWETrapdoorUtility::PerturbationMatrixGenOptimized(size_t n, size_t k, const RingMat& A,
+		const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt) {
+
+		double r(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
+		double a = r / 2;
+		const BigBinaryInteger& modulus = A(0, 0).GetModulus();
+
+		//Matrix<ILVector2n> eCoeff = T.m_e;
+		//eCoeff.SwitchFormat();
+		//Matrix<ILVector2n> rCoeff = T.m_r;
+		//rCoeff.SwitchFormat();
+
+		Matrix<ILVector2n> Tprime0 = T.m_e;
+		Matrix<ILVector2n> Tprime1 = T.m_r;
+
+		// k is the bit length
+//		size_t k = Tprime0.GetCols();
+
+		const shared_ptr<ElemParams> params = Tprime0(0, 0).GetParams();
+
+		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+
+		Matrix<ILVector2n> Rint = Matrix<ILVector2n>(zero_alloc, 2, 2);
+
+		for (size_t i = 0; i < k; i++) {
+			Rint(0, 0) = Rint(0, 0) + Tprime0(0, i)*Tprime0(0, i).Transpose();
+			Rint(0, 1) = Rint(0, 1) + Tprime0(0, i)*Tprime1(0, i).Transpose();
+			Rint(1, 0) = Rint(1, 0) + Tprime1(0, i)*Tprime0(0, i).Transpose();
+			Rint(1, 1) = Rint(1, 1) + Tprime1(0, i)*Tprime1(0, i).Transpose();
+		}
+
+		Rint.SwitchFormat();
+		
+		Matrix<BigBinaryInteger> R = Rotate(Rint);
+
+		//std::cout << "cols = " << R.GetCols() << std::endl;
+		//std::cout << "rows = " << R.GetRows() << std::endl;
+
+		const Matrix<int32_t> &RT = ConvertToInt32(R, modulus);
+
+		//Checking starts
+
+		//Matrix<ILVector2n> eCoeff = T.m_e;
+		//eCoeff.SwitchFormat();
+		//Matrix<ILVector2n> rCoeff = T.m_r;
+		//rCoeff.SwitchFormat();
+		//Matrix<BigBinaryInteger> ROld = Rotate(eCoeff).VStack(Rotate(rCoeff));
+
+		//const Matrix<int32_t> &R1 = ConvertToInt32(ROld, modulus);
+
+		//const Matrix<int32_t> &RintCheck = R1*R1.Transpose();
+
+		//std::cout << "result of validation = " << (RT == RintCheck) << std::endl;
+
+		//Checking ends
+
+		int32_t b = s*s - 5 * a *a;
+		const Matrix<int32_t> &Snk = ((int32_t)(s*s - a*a))*(Matrix<int32_t>(RT.GetAllocator(), n * 2, n * 2).Identity()) - RT.ScalarMult(double(r*r + 1 / b));
+		//Cholesky(Snk, *sigmaSqrt); 
+		*sigmaSqrt = Cholesky(Snk);
 	}
 
 	void RLWETrapdoorUtility::ZSampleSigmaP(size_t n, double s, double sigma,

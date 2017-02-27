@@ -65,7 +65,7 @@ namespace lbcrypto {
 		size_t k = (usint)floor(logTwo);
 		double s = SPECTRAL_BOUND(n, k);
 		Matrix<LargeFloat> sigmaSqrt([]() { return make_unique<LargeFloat>(); }, n*2, n*2);
-		RLWETrapdoorUtility::PerturbationMatrixGenAlt(n,k, keyPair.first, keyPair.second, s, &sigmaSqrt);
+		RLWETrapdoorUtility::PerturbationMatrixGenOptimized(n,k, keyPair.first, keyPair.second, s, &sigmaSqrt);
 
 		//Signing key will contain perturbation matrix, public key matrix of the trapdoor and the trapdoor matrices
 		signKey->SetPrivateElement(std::pair<Matrix<LargeFloat>, std::pair<Matrix<ILVector2n>, RLWETrapdoorPair<ILVector2n>>>(sigmaSqrt,keyPair));
