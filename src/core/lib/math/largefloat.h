@@ -35,7 +35,7 @@
 #define LBCRYPTO_LARGE_FLOAT_BACKEND_H
 
  /*! Define the library being used.  Use 1 to represent large floats.*/
-#define LARGEFLOATBACKEND 1  // 1 for boost floating point, and so on
+#define LARGEFLOATBACKEND 3  // 1 for boost floating point, and so on
 
 #if LARGEFLOATBACKEND == 1
 
@@ -49,6 +49,14 @@
 //#include <boost/math/constants/constants.hpp>
 #include <boost/multiprecision/gmp.hpp>
 //#include <boost/multiprecision/cpp_dec_float.hpp>
+#endif
+
+#if LARGEFLOATBACKEND == 3
+
+//#include <boost/math/constants/constants.hpp>
+//#include <boost/multiprecision/mpfr.hpp>
+//#include <boost/multiprecision/cpp_dec_float.hpp>
+//#include <boost/multiprecision/float128.hpp>
 #endif
 
 #include <random>
@@ -76,6 +84,17 @@ namespace lbcrypto {
 	using boost::multiprecision::mpf_float_30;
 	
 	typedef boost::multiprecision::mpf_float_30 LargeFloat;
+
+#endif
+
+#if LARGEFLOATBACKEND == 3
+
+	//defined for floats with 50 significant decimal digits; can be increased to 100 if needed
+	//using boost::multiprecision::float128;
+	
+	//typedef boost::multiprecision::float128 LargeFloat;
+
+        typedef __float128 LargeFloat;
 
 #endif
 

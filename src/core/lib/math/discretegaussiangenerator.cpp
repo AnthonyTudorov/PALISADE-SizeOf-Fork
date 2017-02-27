@@ -254,11 +254,11 @@ namespace lbcrypto {
 
 		//YSP this double conversion is necessary for uniform_int to work properly; the use of double is justified in this case
 //#if defined(_MSC_VER)
-		double dbmean = mean.convert_to<double>();
-		double dbt = t.convert_to<double>();
+		//double dbmean = mean.convert_to<double>();
+		//double dbt = t.convert_to<double>();
 //#else
-//		double dbmean = (double)mean;
-//		double dbt = (double)t;
+		double dbmean = (double)mean;
+		double dbt = (double)t;
 //#endif
 		int count = 0;
 		std::uniform_int_distribution<int32_t> uniform_int(floor(dbmean - dbt), ceil(dbmean + dbt));
@@ -320,11 +320,11 @@ namespace lbcrypto {
 			delete[] probMatrix;
 		}
 //#if defined(_MSC_VER)
-		double dbmean = mean.convert_to<double>();
-		double dbstddev = stddev.convert_to<double>();
+		//double dbmean = mean.convert_to<double>();
+		//double dbstddev = stddev.convert_to<double>();
 //#else
-//		double dbmean = (double)mean;
-//		double dbstddev = (double)stddev;
+		double dbmean = (double)mean;
+		double dbstddev = (double)stddev;
 //#endif
 		probMean = dbmean;
 		probMatrixSize = 10 * dbstddev + 2;

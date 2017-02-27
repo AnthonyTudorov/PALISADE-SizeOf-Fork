@@ -36,7 +36,7 @@
 # most code is checked into git with the first line active
 
 #CPPFLAGS += -Wall $(CPPSTD) -w -g ## undefine for single thread debug NO OPTIMIZATION operation
-CPPFLAGS += -Wall -O3 $(CPPSTD) -w -g #undefine for single thread debug operation
+CPPFLAGS += -Wall -O3 $(CPPSTD) -w #undefine for single thread debug operation
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w -g -fopenmp  ##undefine for parallel debug operation
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w  -DNDEBUG  -pg ##undefine for single thread best performance operation with gprof profiling 
 
@@ -52,7 +52,7 @@ CPPFLAGS += -Wall -O3 $(CPPSTD) -w -g #undefine for single thread debug operatio
 #CPPFLAGS += -Wall $(CPPSTD) -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
 
 
-TEST_LIB := -pthread -lgomp -lgmp
+TEST_LIB := -pthread -lgomp -lmpfr -lgmp
 
 
 #build directory
@@ -74,7 +74,7 @@ HDREXT := h
 $(objects) : %.o : %.cpp
 
 
-EXTLIB := -L$(EXTLIBDIR) -lpthread -lgomp -lgmp -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt -lgmp ## include profiling
+EXTLIB := -L$(EXTLIBDIR) -lpthread -lgomp -lmpfr -lgmp -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt -lgmp ## include profiling
 INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I test $(OMPINCLUDE) $(BOOSTINCLUDE)
 
 

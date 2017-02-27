@@ -171,7 +171,7 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl << std::endl;
 
-	/*
+	
 	sm = 1024;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("122451504");
@@ -283,7 +283,7 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl;
 
-	*/
+	
 	
 	
 	std::cout << "Execution completed" << std::endl;
