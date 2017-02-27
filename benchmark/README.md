@@ -27,6 +27,7 @@ file src/pke/lib/cryptocontextparametersets-impl.cpp) will be benchmarked.
 
 The benchmark programs are
 
+* NBTheory
 * BBIMath
 * BBVMath
 * Encoding

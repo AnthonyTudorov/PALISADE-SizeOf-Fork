@@ -28,27 +28,6 @@
 #define _USE_MATH_DEFINES
 #include "benchmark/benchmark_api.h"
 
-/* this is an example of very basic google benchmarks
-   all the benchmarks have
-             no input parameters
-	     cannot runover differnt length operations
-	     some generate an output
-  future examples will show the use of fixtures and templates to reduce
-  the amount of 
-  code needed
-
-  for documentation on google benchmarks see https://github.com/google/benchmark
-  as well as example code in the benchmark/examples directory
-
-  note to increase the number of iterations call it as follows
-             ./NbTheory --benchmark_min_time=4.0
-	    
-
-  increase the min_time (as a float) to increase the # iterations
-
-*/
-
-
 #include <iostream>
 
 #include "math/backend.h"
@@ -66,65 +45,6 @@
 
 using namespace std;
 using namespace lbcrypto;
-
-//four simple benchmarks to test constructoing BBIs
-// typically the code to benchmark is in a 'function' that is then
-// called within the actual benchmark.
-
-// construct one small BBI
-static void make_BBI1(void) {	// function
-  BigBinaryInteger a("10403");
-}
-
-static void BM_BBI1(benchmark::State& state) { // benchmark
-  while (state.KeepRunning()) {
-    make_BBI1();		// note even with -O3 it appears
-                                // this is not optimized out
-                                // though check with your compiler
-  }
-}
-
-BENCHMARK(BM_BBI1);		// register benchmark
-
-// construct two small BBIs
-static void make_BBI2(void) {	// function
-  BigBinaryInteger a("10403"), b("103");
-}
-
-static void BM_BBI2(benchmark::State& state) { // benchmark 
-  
-  while (state.KeepRunning()) {
-   make_BBI2();
-  }
-}
-
-BENCHMARK(BM_BBI2);		// register benchmark
-
-//construct 3 bbis
-static void make_BBI3(void) {	// function
-  BigBinaryInteger a("10403"), b("10403"), c("10403"); 
-}
-
-static void BM_BBI3(benchmark::State& state) { // benchmark
-  while (state.KeepRunning()) {
-   make_BBI3();
-  }
-}
-
-BENCHMARK(BM_BBI3);		// register benchmark
-
-//construct a large BBI
-static void make_BBI4(void) {	// function
-  BigBinaryInteger a("952229140957");
-}
-
-static void BM_BBI4(benchmark::State& state) { // benchmark
-  while (state.KeepRunning()) {
-    make_BBI4();
-  }
-}
-
-BENCHMARK(BM_BBI4);		// register benchmark
 
 //==================================
 // GCD benchmarks
@@ -282,12 +202,12 @@ BENCHMARK(BM_FACT1);		// register benchmark
 //======================================
 // Prime Modulus tests
 //
-static BigBinaryInteger&  PM_foundPrimeModulus(void){
+static BigBinaryInteger  PM_foundPrimeModulus(void){
   usint m = 2048;
   usint nBits = 30;
 
   BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
-  return (primeModulus);
+  return (std::move(primeModulus));
 
 }
 
