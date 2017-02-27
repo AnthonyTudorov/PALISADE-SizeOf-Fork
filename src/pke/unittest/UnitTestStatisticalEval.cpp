@@ -48,6 +48,8 @@ protected:
 public:
 };
 
+#include "../lib/cryptocontexthelper.h"
+
 /** Tests linear regression for the Null scheme
 * based on of a design matrix of 2x2 and response vector of 2x1
 */
@@ -55,7 +57,7 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 
 	string plaintextModulus("256");
 	usint m = 64;
-	string modulus("536871233");
+	string modulus/*("256"); //*/("536871233");
 	string rootOfUnity("268585022");
 
 	//Set crypto parametes
@@ -63,6 +65,15 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
+
+	Serialized serObj;
+	cc.Serialize(&serObj);
+
+	SerializableHelper::SerializationToStream(serObj, std::cout);
+	std::cout << std::endl;
+
+	std::cout << cc.GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << cc.GetElementParams()->GetModulus() << std::endl;
 
 	double diff, start, finish;
 
@@ -109,6 +120,7 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 
 	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc.EncryptMatrix(kp.publicKey, xP);
 
+
 	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
 
 	////////////////////////////////////////////////////////////
@@ -116,6 +128,7 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	////////////////////////////////////////////////////////////
 
 	auto result = cc.EvalLinRegression(x, y);
+	std::cout << (*result)(0,0).GetNumerator()->GetElement() << std::endl;
 
 	////////////////////////////////////////////////////////////
 	//Decryption

@@ -94,7 +94,7 @@ public:
 
 
 	/**
-	* == operator to compare to this instance of LPCryptoParametersLTV object.
+	* == operator to compare to this instance of LPCryptoParametersNull object.
 	*
 	* @param &rhs LPCryptoParameters to check equality against.
 	*/
