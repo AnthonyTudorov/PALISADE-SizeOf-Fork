@@ -73,7 +73,7 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams, MODE::RLWE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 	cc.Enable(PRE);

@@ -54,16 +54,17 @@ public:
 * plaintext
 * The cyclotomic order is set 2048
 *tower size is set to 3*/
-TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
-	
+TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {	
+
 	float stdDev = 4;
 
 	usint m = 8;
 	BigBinaryInteger modulus("2199023288321");
-	BigBinaryInteger rootOfUnity("1858080237421");
+	BigBinaryInteger rootOfUnity;
 	usint relWindow = 1;
 
-	lbcrypto::NextQ(modulus, BigBinaryInteger(17), m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+	lbcrypto::NextQ(modulus, BigBinaryInteger(17), m, BigBinaryInteger("4000"), BigBinaryInteger("4000"));
+	rootOfUnity = RootOfUnity(m, modulus);
 
 	//Prepare for parameters.
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
@@ -121,6 +122,7 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 
 	EXPECT_EQ(intArrayNew, vectorOfInts1);
 
+	
 }
 
 
@@ -129,11 +131,11 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	float stdDev = 4;
 
 	usint m = 8;
-	BigBinaryInteger modulus("1");
+	BigBinaryInteger modulus("2199023288321");
 	BigBinaryInteger rootOfUnity;
 	usint relWindow = 1;
 
-	lbcrypto::NextQ(modulus, BigBinaryInteger(17), m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+	lbcrypto::NextQ(modulus, BigBinaryInteger(17), m, BigBinaryInteger("4000"), BigBinaryInteger("4000"));
 	rootOfUnity = RootOfUnity(m, modulus);
 
 	//Prepare for parameters.
@@ -213,7 +215,7 @@ TEST(UTLTVBATCHING, ILVector2n_EVALMULT) {
 
 	float stdDev = 4;
 
-	BigBinaryInteger q("1");
+	BigBinaryInteger q("2199023288321");
 	BigBinaryInteger temp;
 
 	lbcrypto::NextQ(q, BigBinaryInteger(17), m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
@@ -255,12 +257,12 @@ TEST(UTLTVBATCHING, ILVector2n_EVALMULT) {
 
 	cc.EvalMultKeyGen(kp.secretKey);
 
-	ciphertextResults.insert(ciphertextResults.begin(), cc.EvalMult( ciphertext1.at(0), ciphertext2.at(0) ));
-
+	ciphertextResults.insert(ciphertextResults.begin(), cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0)));
 	
 	PackedIntPlaintextEncoding results;
 
 	cc.Decrypt(kp.secretKey, ciphertextResults, &results, false);
+
 	
 	EXPECT_EQ(results, vectorOfIntsExpected);
 

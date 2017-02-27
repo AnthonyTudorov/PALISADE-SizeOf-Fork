@@ -933,7 +933,7 @@ public:
 	* @param cryptoParams
 	* @return
 	*/
-	static CryptoContext<Element> genCryptoContextBV(LPCryptoParametersBV<Element>* cryptoParams);
+	static CryptoContext<Element> genCryptoContextBV(LPCryptoParametersBV<Element>* cryptoParams, MODE mode = MODE::RLWE);
 
 	/**
 	* FIXME this is temporary until we better incorporate DCRT
