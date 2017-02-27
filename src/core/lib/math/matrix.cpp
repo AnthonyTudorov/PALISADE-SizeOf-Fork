@@ -510,15 +510,11 @@ Matrix<LargeFloat> Cholesky(const Matrix<int32_t> &input) {
             //result(i, k) = input(i, k) / result(k, k);
             result(i, k) = result(i, k) / result(k, k);
             //  zero upper-right triangle
-            result(k, i) = 0;
+            result(k, i) = 0.0;
         }
         for (size_t j = k+1; j < rows; ++j) {
             for (size_t i = j; i < rows; ++i) {
-				//if (result(i, k) != 0 && result(j, k) != 0) {
 					result(i, j) = result(i, j) - result(i, k) * result(j, k);
-					//result(i, j) = input(i, j) - result(i, k) * result(j, k);
-
-				//}
 			}
         }
     }
