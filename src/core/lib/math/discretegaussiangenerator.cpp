@@ -219,7 +219,7 @@ namespace lbcrypto {
 
 	int32_t DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n) {
 
-		double t = log(n) / log(2)*stddev;  //this representation of log_2 is used for Visual Studio
+		double t = log2(n)*stddev;  //this representation of log_2 is used for Visual Studio
 
 		BigBinaryInteger result;
 
