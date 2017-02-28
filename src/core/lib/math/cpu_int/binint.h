@@ -189,6 +189,16 @@ namespace cpu_int{
 		typedef uint64_t T;
 	};
 
+    /**
+    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
+    * sets T as of type unsigned integer 128 bit if integral datatype is 64bit
+    */
+	template<>
+	struct DoubleDataType<uint64_t>{
+		typedef __uint128_t T;
+	};
+
+
 
     const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
     const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed values) used in the Barrett reductions.
@@ -343,7 +353,7 @@ namespace cpu_int{
     *
     * @return the int representation of the value as usint.
     */
-    usint ConvertToInt() const;
+    uint64_t ConvertToInt() const;
     
 	/**
     * Converts the value to an double.

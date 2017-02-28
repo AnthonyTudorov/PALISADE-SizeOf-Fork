@@ -182,11 +182,11 @@ BigBinaryInteger<uint_type,BITLENGTH>::~BigBinaryInteger()
 *Splits the BigBinaryInteger into bit length of uint data type and then uses shift and add to form the 32 bit unsigned integer.
 */
 template<typename uint_type, usint BITLENGTH>
-usint BigBinaryInteger<uint_type, BITLENGTH>::ConvertToInt() const{
+uint64_t BigBinaryInteger<uint_type, BITLENGTH>::ConvertToInt() const{
 
-	usint result = 0;
+	uint64_t result = 0;
 	//set num to number of equisized chunks
-	usint num = 32 / m_uintBitLength;
+	usint num = 64 / m_uintBitLength;
 
 	usint ceilInt = m_nSize - ceilIntByUInt(m_MSB);
 	//copy the values by shift and add
@@ -1796,7 +1796,7 @@ template<typename uint_type,usint BITLENGTH>
 uint64_t BigBinaryInteger<uint_type,BITLENGTH>::GetMSB32(uint64_t x)
 {
     static const usint bval[] =
-    {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
+    {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5};
 
     uint64_t r = 0;
 	if (x & 0xFFFFFFFF00000000) { r += 32/1; x >>= 32/1; }
