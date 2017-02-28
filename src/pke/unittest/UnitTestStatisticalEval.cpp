@@ -66,15 +66,6 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
-	Serialized serObj;
-	cc.Serialize(&serObj);
-
-	SerializableHelper::SerializationToStream(serObj, std::cout);
-	std::cout << std::endl;
-
-	std::cout << cc.GetCryptoParameters()->GetPlaintextModulus() << std::endl;
-	std::cout << cc.GetElementParams()->GetModulus() << std::endl;
-
 	double diff, start, finish;
 
 	// Initialize the public key containers.
