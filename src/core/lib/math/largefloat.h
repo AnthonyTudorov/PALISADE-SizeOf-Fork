@@ -59,6 +59,14 @@
 //#include <boost/multiprecision/float128.hpp>
 #endif
 
+#if LARGEFLOATBACKEND == 4
+#include <boost/multiprecision/mpfr.hpp>
+#endif
+
+#if LARGEFLOATBACKEND == 5
+#include <boost/multiprecision/cpp_bin_float.hpp>
+#endif
+
 #include <random>
 //#include <boost/multiprecision/random.hpp>
 #include <boost/random.hpp>
@@ -95,6 +103,28 @@ namespace lbcrypto {
 	//typedef boost::multiprecision::float128 LargeFloat;
 
         typedef __float128 LargeFloat;
+
+#endif
+
+#if LARGEFLOATBACKEND == 4
+
+	//defined for floats with 50 significant decimal digits; can be increased to 100 if needed
+	using boost::multiprecision::mpfr_float_30;
+	
+	typedef boost::multiprecision::mpfr_float_30 LargeFloat;
+
+        //typedef __float128 LargeFloat;
+
+#endif
+
+#if LARGEFLOATBACKEND == 5
+
+	//defined for floats with 50 significant decimal digits; can be increased to 100 if needed
+	using boost::multiprecision::cpp_bin_float_quad;
+	
+	typedef boost::multiprecision::cpp_bin_float_quad LargeFloat;
+
+        //typedef __float128 LargeFloat;
 
 #endif
 
