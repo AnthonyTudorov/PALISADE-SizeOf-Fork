@@ -321,8 +321,6 @@ public:
 
 		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 
-		std::cout << this->GetCryptoParameters()->GetPlaintextModulus() << ":::" << ptm << std::endl;
-
 		for (int row = 0; row < plaintext.GetRows(); row++)
 		{
 			for (int col = 0; col < plaintext.GetCols(); col++)

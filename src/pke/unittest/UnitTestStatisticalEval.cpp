@@ -119,7 +119,7 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	////////////////////////////////////////////////////////////
 
 	auto result = cc.EvalLinRegression(x, y);
-	std::cout << (*result)(0,0).GetNumerator()->GetElement() << std::endl;
+	std::cout << "::::::::::" << *(*result)(0,0).GetNumerator() << std::endl;
 
 	////////////////////////////////////////////////////////////
 	//Decryption

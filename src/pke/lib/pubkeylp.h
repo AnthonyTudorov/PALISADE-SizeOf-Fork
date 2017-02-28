@@ -1070,34 +1070,36 @@ namespace lbcrypto {
 				EvalLinRegression(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
 					const shared_ptr<Matrix<RationalCiphertext<Element>>> y) const
 			{
-				std::cout << "x: " << (*x)(0,0).GetNumerator()->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
-				std::cout << "y: " << (*y)(0,0).GetNumerator()->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+				std::cout << "x: " << *(*x)(0,0).GetNumerator() << std::endl;
+				std::cout << "y: " << *(*y)(0,0).GetNumerator() << std::endl;
+
 				// multiplication is done in reverse order to minimize the number of inner products
 				Matrix<RationalCiphertext<Element>> xTransposed = x->Transpose();
-				std::cout << "xTransposed: " << (xTransposed)(0,0).GetNumerator()->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+				std::cout << "xTransposed: " << *(xTransposed)(0,0).GetNumerator() << std::endl;
 				shared_ptr<Matrix<RationalCiphertext<Element>>> result (new Matrix<RationalCiphertext<Element>>(xTransposed * (*y)));
-				std::cout << "result: " << (*result)(0,0).GetNumerator()->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+				std::cout << "result: " << *(*result)(0,0).GetNumerator() << std::endl;
 
 				Matrix<RationalCiphertext<Element>> xCovariance = xTransposed * (*x);
-				std::cout << "xCovariance: " << (xCovariance)(0,0).GetNumerator()->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+				std::cout << "xCovariance: " << *(xCovariance)(0,0).GetNumerator() << std::endl;
 
 				Matrix<RationalCiphertext<Element>> cofactorMatrix = xCovariance.CofactorMatrix();
-				std::cout << "cofactorMatrix: " << (cofactorMatrix)(0,0).GetNumerator()->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+				std::cout << "cofactorMatrix: " << *(cofactorMatrix)(0,0).GetNumerator() << std::endl;
 
 				Matrix<RationalCiphertext<Element>> adjugateMatrix = cofactorMatrix.Transpose();
-				std::cout << "adjugateMatrix: " << (adjugateMatrix)(0,0).GetNumerator()->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+				std::cout << "adjugateMatrix: " << *(adjugateMatrix)(0,0).GetNumerator() << std::endl;
 
+				std::cout << "result b4: " << *(*result)(0,0).GetNumerator() << std::endl;
 				*result = adjugateMatrix * (*result);
-				std::cout << "result: " << (*result)(0,0).GetNumerator()->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+				std::cout << "result after: " << *(*result)(0,0).GetNumerator() << std::endl;
 
 				RationalCiphertext<Element> determinant;
 				xCovariance.Determinant(&determinant);
-				std::cout << "xCovariance: " << (xCovariance)(0,0).GetNumerator()->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+				std::cout << "xCovariance: " << *(xCovariance)(0,0).GetNumerator() << std::endl;
 
 				for (int row = 0; row < result->GetRows(); row++)
 					for (int col = 0; col < result->GetCols(); col++)
 						(*result)(row, col).SetDenominator(*determinant.GetNumerator());
-				std::cout << "result: " << (*result)(0,0).GetNumerator()->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+				std::cout << "result: " << *(*result)(0,0).GetNumerator() << std::endl;
 
 				return result;
 
