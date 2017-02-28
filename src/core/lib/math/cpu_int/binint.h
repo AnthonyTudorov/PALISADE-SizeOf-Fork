@@ -189,6 +189,7 @@ namespace cpu_int{
 		typedef uint64_t T;
 	};
 
+#if !defined(_MSC_VER)
     /**
     * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
     * sets T as of type unsigned integer 128 bit if integral datatype is 64bit
@@ -197,6 +198,7 @@ namespace cpu_int{
 	struct DoubleDataType<uint64_t>{
 		typedef __uint128_t T;
 	};
+#endif
 
 
 
