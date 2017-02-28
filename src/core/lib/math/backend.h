@@ -121,7 +121,7 @@ namespace lbcrypto {
 #if MATHBACKEND == 2
 	/** integral_dtype specifies the native data type used for the BigBinaryInteger implementation 
 	    should be uint32_t for most applications **/
-	typedef uint32_t integral_dtype;
+	typedef uint64_t integral_dtype;
 	typedef uint32_t integral_dtype2;
 
 	/** makes sure that only supported data type is supplied **/
@@ -131,7 +131,7 @@ namespace lbcrypto {
 	    1500 is the maximum bit width supported by BigBinaryIntegers, large enough for most use cases
 		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application - to achieve smaller runtimes**/
 
-        #define BigBinaryIntegerBitLength 1500 //for documentation on tests
+        #define BigBinaryIntegerBitLength 256 //for documentation on tests
 	typedef cpu_int::BigBinaryInteger<integral_dtype,BigBinaryIntegerBitLength> BigBinaryInteger;
 
 	

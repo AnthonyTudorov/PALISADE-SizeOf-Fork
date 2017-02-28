@@ -858,7 +858,7 @@ namespace cpu_int{
 		* @return the MSB position in the 32 bit number x.
 		*/
 		
-		static uint64_t GetMSB32(uint64_t x);
+		static usint GetMSB32(uint64_t x);
 		/**
 		* function to return the MSB of number.
 		* @param x is the number.

@@ -1793,12 +1793,12 @@ bool BigBinaryInteger<uint_type,BITLENGTH>::operator<=(const BigBinaryInteger& a
 }
 
 template<typename uint_type,usint BITLENGTH>
-uint64_t BigBinaryInteger<uint_type,BITLENGTH>::GetMSB32(uint64_t x)
+usint BigBinaryInteger<uint_type,BITLENGTH>::GetMSB32(uint64_t x)
 {
     static const usint bval[] =
-    {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5};
+    {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
 
-    uint64_t r = 0;
+    usint r = 0;
 	if (x & 0xFFFFFFFF00000000) { r += 32/1; x >>= 32/1; }
     if (x & 0x00000000FFFF0000) { r += 32/2; x >>= 32/2; }
     if (x & 0x000000000000FF00) { r += 32/4; x >>= 32/4; }
