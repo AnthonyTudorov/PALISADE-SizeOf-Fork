@@ -144,10 +144,16 @@ public:
 	* @param *perturbationVector non-spherical perturbation vector; output of the function
 	*/
 	static inline void RandomizeRound(size_t n, const Matrix<LargeFloat> &p, const LargeFloat &sigma, Matrix<int32_t> *perturbationVector) {
+#if defined(_MSC_VER)
 		for (size_t i = 0; i < p.GetRows(); i++) {
-			//(*perturbationVector)(i,0) = DiscreteGaussianGenerator::GenerateInteger(p(i,0).convert_to<double>(), sigma.convert_to<double>(), n);
-(*perturbationVector)(i,0) = DiscreteGaussianGenerator::GenerateInteger((double)p(i,0), (double)sigma, n);
+			(*perturbationVector)(i,0) = DiscreteGaussianGenerator::GenerateInteger(p(i,0).convert_to<double>(), sigma.convert_to<double>(), n);
 		}
+#else
+		for (size_t i = 0; i < p.GetRows(); i++) {
+			(*perturbationVector)(i, 0) = DiscreteGaussianGenerator::GenerateInteger((double)p(i, 0), (double)sigma, n);
+		}
+#endif
+		
 	};
 
 	/**
