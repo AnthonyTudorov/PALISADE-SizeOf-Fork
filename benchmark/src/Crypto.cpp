@@ -60,6 +60,7 @@ void BM_keygen(benchmark::State& state) { // benchmark
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
+		try {
 		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
 		cc.Enable(ENCRYPTION);
 		cc.Enable(SHE);
@@ -68,7 +69,9 @@ void BM_keygen(benchmark::State& state) { // benchmark
 				cc.GetElementParams()->GetCyclotomicOrder(),
 				cc.GetElementParams()->GetModulus());
 		ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
+		} catch(...) {
+			cout << "foo" << endl;
+		}
 		state.ResumeTiming();
 	}
 

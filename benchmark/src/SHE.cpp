@@ -97,15 +97,25 @@ void BM_baseDecompose_SHE(benchmark::State& state) { // benchmark
 	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
+		try {
 		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
 		cc.Enable(ENCRYPTION);
 		cc.Enable(SHE);
 
 		setup_SHE(cc, ct1, ct2);
+
+		} catch( ... ) {
+			state.SkipWithError( "Setup exception thrown" );
+		}
 	}
 
 	while (state.KeepRunning()) {
-		vector<ILVector2n> ctP = ct1->GetElements()[0].BaseDecompose(8);
+		try {
+			vector<ILVector2n> ctP = ct1->GetElements()[0].BaseDecompose(2);
+		} catch( ... ) {
+			state.SkipWithError( "Exception thrown" );
+			break;
+		}
 	}
 }
 

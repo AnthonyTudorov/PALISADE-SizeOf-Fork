@@ -18,6 +18,7 @@ bool runOnlyOnce = true;
 
 #include "encoding/byteplaintextencoding.h"
 #include "encoding/intplaintextencoding.h"
+#include "encoding/packedintplaintextencoding.h"
 
 #include "EncryptHelper.h"
 
@@ -55,6 +56,7 @@ static void initializeBytes(int cyclotomicOrder, const BigBinaryInteger& ptm,
 
 static void setup_Encoding(CryptoContext<ILVector2n>& cc,
 		IntPlaintextEncoding& plaintextInt,
+		PackedIntPlaintextEncoding& plaintextPacked,
 		BytePlaintextEncoding& plaintextShort,
 		BytePlaintextEncoding& plaintextFull,
 		BytePlaintextEncoding& plaintextLong) {
@@ -66,6 +68,7 @@ static void setup_Encoding(CryptoContext<ILVector2n>& cc,
 	for( int ii=0; ii<nel; ii++)
 		intvec.push_back( rand() % ptmi );
 	plaintextInt = intvec;
+	plaintextPacked = intvec;
 
 	initializeBytes(nel*2, ptm, plaintextShort, plaintextFull, plaintextLong);
 }
@@ -73,6 +76,7 @@ static void setup_Encoding(CryptoContext<ILVector2n>& cc,
 void BM_encoding_Int(benchmark::State& state) { // benchmark
 	CryptoContext<ILVector2n> cc;
 	IntPlaintextEncoding plaintextInt;
+	PackedIntPlaintextEncoding plaintextPacked;
 	BytePlaintextEncoding plaintextShort;
 	BytePlaintextEncoding plaintextFull;
 	BytePlaintextEncoding plaintextLong;
@@ -89,7 +93,7 @@ void BM_encoding_Int(benchmark::State& state) { // benchmark
 		ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
 		ptmi = ptm.ConvertToInt();
 
-		setup_Encoding(cc, plaintextInt, plaintextShort, plaintextFull, plaintextLong);
+		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
 		chunkSize = plaintextInt.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), ptm);
 		state.ResumeTiming();
 	}
@@ -107,15 +111,53 @@ void BM_encoding_Int(benchmark::State& state) { // benchmark
 	//	ILVector2n::DestroyPreComputedSamples();
 }
 
-BENCHMARK(BM_encoding_Int)->ArgName(parms[0])->Arg(0);
-BENCHMARK(BM_encoding_Int)->ArgName(parms[1])->Arg(1);
-BENCHMARK(BM_encoding_Int)->ArgName(parms[2])->Arg(2);
-BENCHMARK(BM_encoding_Int)->ArgName(parms[3])->Arg(3);
-BENCHMARK(BM_encoding_Int)->ArgName(parms[4])->Arg(4);
+BENCHMARK_PARMS(BM_encoding_Int)
+
+void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
+	CryptoContext<ILVector2n> cc;
+	IntPlaintextEncoding plaintextInt;
+	PackedIntPlaintextEncoding plaintextPacked;
+	BytePlaintextEncoding plaintextShort;
+	BytePlaintextEncoding plaintextFull;
+	BytePlaintextEncoding plaintextLong;
+	BigBinaryInteger ptm;
+	usint ptmi;
+	size_t chunkSize;
+
+	if( state.thread_index == 0 ) {
+		state.PauseTiming();
+		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(SHE);
+
+		ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
+		ptmi = ptm.ConvertToInt();
+
+		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
+		chunkSize = plaintextPacked.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), ptm);
+		state.ResumeTiming();
+	}
+
+	while (state.KeepRunning()) {
+		state.PauseTiming();
+		ILVector2n pt(cc.GetCryptoParameters()->GetElementParams());
+		state.ResumeTiming();
+
+		try {
+			plaintextPacked.Encode(ptm, &pt, 0, chunkSize);
+		} catch( std::exception& e ) {
+			state.SkipWithError( e.what() );
+			break;
+		}
+	}
+}
+
+BENCHMARK_PARMS(BM_encoding_PackedInt)
 
 void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
 	CryptoContext<ILVector2n> cc;
 	IntPlaintextEncoding plaintextInt;
+	PackedIntPlaintextEncoding plaintextPacked;
 	BytePlaintextEncoding plaintextShort;
 	BytePlaintextEncoding plaintextFull;
 	BytePlaintextEncoding plaintextLong;
@@ -134,7 +176,7 @@ void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
 		ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
 		ptmi = ptm.ConvertToInt();
 
-		setup_Encoding(cc, plaintextInt, plaintextShort, plaintextFull, plaintextLong);
+		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
 		chunkSize = plaintextShort.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), ptm);
 
 		if( ptmi != 2 && ptmi != 4 && ptmi !=16 && ptmi != 256 ) {
@@ -154,15 +196,12 @@ void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
 	}
 }
 
-BENCHMARK(BM_Encoding_StringShort)->ArgName(parms[0])->Arg(0);
-BENCHMARK(BM_Encoding_StringShort)->ArgName(parms[1])->Arg(1);
-BENCHMARK(BM_Encoding_StringShort)->ArgName(parms[2])->Arg(2);
-BENCHMARK(BM_Encoding_StringShort)->ArgName(parms[3])->Arg(3);
-BENCHMARK(BM_Encoding_StringShort)->ArgName(parms[4])->Arg(4);
+BENCHMARK_PARMS(BM_Encoding_StringShort)
 
 void BM_Encoding_StringFull(benchmark::State& state) { // benchmark
 	CryptoContext<ILVector2n> cc;
 	IntPlaintextEncoding plaintextInt;
+	PackedIntPlaintextEncoding plaintextPacked;
 	BytePlaintextEncoding plaintextShort;
 	BytePlaintextEncoding plaintextFull;
 	BytePlaintextEncoding plaintextLong;
@@ -181,7 +220,7 @@ void BM_Encoding_StringFull(benchmark::State& state) { // benchmark
 		ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
 		ptmi = ptm.ConvertToInt();
 
-		setup_Encoding(cc, plaintextInt, plaintextShort, plaintextFull, plaintextLong);
+		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
 		chunkSize = plaintextFull.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), ptm);
 
 		if( ptmi != 2 && ptmi != 4 && ptmi !=16 && ptmi != 256 ) {
@@ -201,15 +240,12 @@ void BM_Encoding_StringFull(benchmark::State& state) { // benchmark
 	}
 }
 
-BENCHMARK(BM_Encoding_StringFull)->ArgName(parms[0])->Arg(0);
-BENCHMARK(BM_Encoding_StringFull)->ArgName(parms[1])->Arg(1);
-BENCHMARK(BM_Encoding_StringFull)->ArgName(parms[2])->Arg(2);
-BENCHMARK(BM_Encoding_StringFull)->ArgName(parms[3])->Arg(3);
-BENCHMARK(BM_Encoding_StringFull)->ArgName(parms[4])->Arg(4);
+BENCHMARK_PARMS(BM_Encoding_StringFull)
 
 void BM_Encoding_StringLong(benchmark::State& state) { // benchmark
 	CryptoContext<ILVector2n> cc;
 	IntPlaintextEncoding plaintextInt;
+	PackedIntPlaintextEncoding plaintextPacked;
 	BytePlaintextEncoding plaintextShort;
 	BytePlaintextEncoding plaintextFull;
 	BytePlaintextEncoding plaintextLong;
@@ -228,7 +264,7 @@ void BM_Encoding_StringLong(benchmark::State& state) { // benchmark
 		ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
 		ptmi = ptm.ConvertToInt();
 
-		setup_Encoding(cc, plaintextInt, plaintextShort, plaintextFull, plaintextLong);
+		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
 		chunkSize = plaintextLong.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), ptm);
 
 		if( ptmi != 2 && ptmi != 4 && ptmi !=16 && ptmi != 256 ) {
@@ -249,11 +285,7 @@ void BM_Encoding_StringLong(benchmark::State& state) { // benchmark
 	}
 }
 
-BENCHMARK(BM_Encoding_StringLong)->ArgName(parms[0])->Arg(0);
-BENCHMARK(BM_Encoding_StringLong)->ArgName(parms[1])->Arg(1);
-BENCHMARK(BM_Encoding_StringLong)->ArgName(parms[2])->Arg(2);
-BENCHMARK(BM_Encoding_StringLong)->ArgName(parms[3])->Arg(3);
-BENCHMARK(BM_Encoding_StringLong)->ArgName(parms[4])->Arg(4);
+BENCHMARK_PARMS(BM_Encoding_StringLong)
 
 //execute the benchmarks
 BENCHMARK_MAIN()

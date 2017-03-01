@@ -22,6 +22,11 @@ BENCHMARK(X)->ArgName(parms[2])->Arg(2); \
 BENCHMARK(X)->ArgName(parms[3])->Arg(3); \
 BENCHMARK(X)->ArgName(parms[4])->Arg(4);
 
+#define BENCHMARK_PARMS_NN(X) \
+BENCHMARK(X)->ArgName(parms[2])->Arg(2); \
+BENCHMARK(X)->ArgName(parms[3])->Arg(3); \
+BENCHMARK(X)->ArgName(parms[4])->Arg(4);
+
 #define BENCHMARK_PARMS_TEMPLATE(X,Y) \
 BENCHMARK_TEMPLATE(X,Y)->ArgName(parms[0])->Arg(0); \
 BENCHMARK_TEMPLATE(X,Y)->ArgName(parms[1])->Arg(1); \
