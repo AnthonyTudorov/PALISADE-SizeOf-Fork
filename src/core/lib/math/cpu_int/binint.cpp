@@ -400,7 +400,7 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 
 		uint_type overFlow = 0;
 		uint_type oldVal;
-		uint_type maskVal = (1<<(remShift))-1;
+		uint_type maskVal = ((uint_type)1<<(remShift))-1;
 		uint_type compShiftVal = m_uintBitLength- remShift;
 
 		usint startVal = m_nSize - ceilIntByUInt(ans.m_MSB);
@@ -478,7 +478,7 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 
 		uint_type overFlow = 0;
 		uint_type oldVal;
-		uint_type maskVal = (1<<(remShift))-1;
+		uint_type maskVal = ((uint_type)1<<(remShift))-1;
 		uint_type compShiftVal = m_uintBitLength- remShift;
 
 		usint startVal = m_nSize - ceilIntByUInt(this->m_MSB);
@@ -986,17 +986,17 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Div
 			while(estimateFinder.m_MSB > 0){
 				/*
 				if(expectedProd.m_MSB-b.m_MSB==m_uintBitLength){
-					maskBit= 1<<(m_uintBitLength-1);
+					maskBit= (uint_type)1<<(m_uintBitLength-1);
 				}
 				else
-					maskBit= 1<<(expectedProd.m_MSB-b.m_MSB);
+					maskBit= (uint_type)1<<(expectedProd.m_MSB-b.m_MSB);
 					*/
 				shifts = estimateFinder.m_MSB-b.m_MSB;
 				if(shifts==m_uintBitLength){
-					maskBit= 1<<(m_uintBitLength-1);
+					maskBit= (uint_type)1<<(m_uintBitLength-1);
 				}
 				else
-					maskBit= 1<<(shifts);
+					maskBit= (uint_type)1<<(shifts);
 				
 				if((b.MulIntegerByChar(maskBit))>estimateFinder){
 					maskBit>>=1;
@@ -1942,10 +1942,10 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::D
 			while (estimateFinder.m_MSB > 0) {
 				/*
 				if(expectedProd.m_MSB-b.m_MSB==m_uintBitLength){
-				maskBit= 1<<(m_uintBitLength-1);
+				maskBit= (uint_type)1<<(m_uintBitLength-1);
 				}
 				else
-				maskBit= 1<<(expectedProd.m_MSB-b.m_MSB);
+				maskBit= (uint_type)1<<(expectedProd.m_MSB-b.m_MSB);
 				*/
 				shifts = estimateFinder.m_MSB - q.m_MSB;
 				if (shifts == m_uintBitLength) {
