@@ -24,269 +24,269 @@ Redistribution and use in source and binary forms, with or without modification,
 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-*/
+ */
 
 #include "transfrm.h"
 
 namespace lbcrypto {
 
-	//static Initializations
-	NumberTheoreticTransform* NumberTheoreticTransform::m_onlyInstance = 0;
-	ChineseRemainderTransform* ChineseRemainderTransform::m_onlyInstance = 0;
-	BigBinaryVector* ChineseRemainderTransform::m_rootOfUnityInverseTable = 0;
-	BigBinaryVector* ChineseRemainderTransform::m_rootOfUnityTable = 0;
-	ChineseRemainderTransformFTT* ChineseRemainderTransformFTT::m_onlyInstance = 0;
-	//BigBinaryVector* ChineseRemainderTransformFTT::m_rootOfUnityInverseTable = 0;
-	//BigBinaryVector* ChineseRemainderTransformFTT::m_rootOfUnityTable = 0;
-	//BigBinaryVector* ChineseRemainderTransformFTT::m_phiInverseTable = 0;
-	//BigBinaryVector* ChineseRemainderTransformFTT::m_phiTable = 0;
+//static Initializations
+NumberTheoreticTransform* NumberTheoreticTransform::m_onlyInstance = 0;
+ChineseRemainderTransform* ChineseRemainderTransform::m_onlyInstance = 0;
+BigBinaryVector* ChineseRemainderTransform::m_rootOfUnityInverseTable = 0;
+BigBinaryVector* ChineseRemainderTransform::m_rootOfUnityTable = 0;
+ChineseRemainderTransformFTT* ChineseRemainderTransformFTT::m_onlyInstance = 0;
+//BigBinaryVector* ChineseRemainderTransformFTT::m_rootOfUnityInverseTable = 0;
+//BigBinaryVector* ChineseRemainderTransformFTT::m_rootOfUnityTable = 0;
+//BigBinaryVector* ChineseRemainderTransformFTT::m_phiInverseTable = 0;
+//BigBinaryVector* ChineseRemainderTransformFTT::m_phiTable = 0;
 
-	std::map<std::string, BigBinaryVector> ChineseRemainderTransformFTT::m_rootOfUnityTableByModulus = std::map<std::string, BigBinaryVector>();
-	std::map<std::string, BigBinaryVector> ChineseRemainderTransformFTT::m_rootOfUnityInverseTableByModulus = std::map<std::string, BigBinaryVector>();
+std::map<BigBinaryInteger, BigBinaryVector> ChineseRemainderTransformFTT::m_rootOfUnityTableByModulus;
+std::map<BigBinaryInteger, BigBinaryVector> ChineseRemainderTransformFTT::m_rootOfUnityInverseTableByModulus;
 
 
-	NumberTheoreticTransform& NumberTheoreticTransform::GetInstance() {
-		if (m_onlyInstance == NULL) {
-			m_onlyInstance = new NumberTheoreticTransform();//lazy instantiation
-		}
-		return *m_onlyInstance;
+NumberTheoreticTransform& NumberTheoreticTransform::GetInstance() {
+	if (m_onlyInstance == NULL) {
+		m_onlyInstance = new NumberTheoreticTransform();//lazy instantiation
 	}
+	return *m_onlyInstance;
+}
 
-	//Number Theoretic Transform - ITERATIVE IMPLEMENTATION -  twiddle factor table precomputed
-	BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBinaryVector& element, const BigBinaryVector &rootOfUnityTable, const usint cycloOrder) {
-		
-		usint n = cycloOrder;
-		BigBinaryVector result(n);
-		result.SetModulus(element.GetModulus());
+//Number Theoretic Transform - ITERATIVE IMPLEMENTATION -  twiddle factor table precomputed
+BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBinaryVector& element, const BigBinaryVector &rootOfUnityTable, const usint cycloOrder) {
 
-		//reverse coefficients (bit reversal)
-		usint msb = GetMSB32(n - 1);
-		for (usint i = 0; i<n; i++)
-			result.SetValAtIndex(i, element.GetValAtIndex(ReverseBits(i, msb)));
+	usint n = cycloOrder;
+	BigBinaryVector result(n);
+	result.SetModulus(element.GetModulus());
 
-		BigBinaryInteger omegaFactor;
-		BigBinaryInteger product;
-		BigBinaryInteger butterflyPlus;
-		BigBinaryInteger butterflyMinus;
-		/*Ring dimension factor calculates the ratio between the cyclotomic order of the root of unity table
+	//reverse coefficients (bit reversal)
+	usint msb = GetMSB32(n - 1);
+	for (usint i = 0; i<n; i++)
+		result.SetValAtIndex(i, element.GetValAtIndex(ReverseBits(i, msb)));
+
+	BigBinaryInteger omegaFactor;
+	BigBinaryInteger product;
+	BigBinaryInteger butterflyPlus;
+	BigBinaryInteger butterflyMinus;
+	/*Ring dimension factor calculates the ratio between the cyclotomic order of the root of unity table
 		  that was generated originally and the cyclotomic order of the current BigBinaryVector. The twiddle table
 		  for lower cyclotomic orders is smaller. This trick only works for powers of two cyclotomics.*/ 
-		usint ringDimensionFactor = (rootOfUnityTable.GetLength()) / cycloOrder;
+	usint ringDimensionFactor = (rootOfUnityTable.GetLength()) / cycloOrder;
 
-		//Precompute the Barrett mu parameter
-		BigBinaryInteger temp(BigBinaryInteger::ONE);
-		temp <<= 2 * element.GetModulus().GetMSB() + 3;
-		BigBinaryInteger mu = temp.DividedBy(element.GetModulus());
+	//Precompute the Barrett mu parameter
+	BigBinaryInteger temp(BigBinaryInteger::ONE);
+	temp <<= 2 * element.GetModulus().GetMSB() + 3;
+	BigBinaryInteger mu = temp.DividedBy(element.GetModulus());
 
-		for (usint m = 2; m <= n; m = 2 * m)
+	for (usint m = 2; m <= n; m = 2 * m)
+	{
+
+		for (usint j = 0; j<n; j = j + m)
 		{
-
-			for (usint j = 0; j<n; j = j + m)
+			for (usint i = 0; i <= m / 2 - 1; i++)
 			{
-				for (usint i = 0; i <= m / 2 - 1; i++)
+
+				usint x = (2 * i*n / m ) * ringDimensionFactor;
+
+				const BigBinaryInteger& omega = rootOfUnityTable.GetValAtIndex(x);
+
+				usint indexEven = j + i;
+				usint indexOdd = j + i + m / 2;
+
+				if (result.GetValAtIndex(indexOdd).GetMSB()>0)
 				{
 
-					usint x = (2 * i*n / m ) * ringDimensionFactor;
-
-					const BigBinaryInteger& omega = rootOfUnityTable.GetValAtIndex(x);
-
-					usint indexEven = j + i;
-					usint indexOdd = j + i + m / 2;
-
-					if (result.GetValAtIndex(indexOdd).GetMSB()>0)
-					{
-
-						if (result.GetValAtIndex(indexOdd).GetMSB() == 1)
-							omegaFactor = omega;
-						else
-						{
-							product = omega*result.GetValAtIndex(indexOdd);
-							//omegaFactor = product.ModBarrett(element.GetModulus(),mu_arr);
-							omegaFactor = product.ModBarrett(element.GetModulus(), mu);
-						}
-
-						butterflyPlus = result.GetValAtIndex(indexEven);
-						butterflyPlus += omegaFactor;
-						if (butterflyPlus >= element.GetModulus())
-							butterflyPlus -= element.GetModulus();
-
-						butterflyMinus = result.GetValAtIndex(indexEven);
-						if (result.GetValAtIndex(indexEven) < omegaFactor)
-							butterflyMinus += element.GetModulus();
-						butterflyMinus -= omegaFactor;
-
-						result.SetValAtIndex(indexEven, butterflyPlus);
-						result.SetValAtIndex(indexOdd, butterflyMinus);
-
-					}
+					if (result.GetValAtIndex(indexOdd).GetMSB() == 1)
+						omegaFactor = omega;
 					else
-						result.SetValAtIndex(indexOdd, result.GetValAtIndex(indexEven));
+					{
+						product = omega*result.GetValAtIndex(indexOdd);
+						//omegaFactor = product.ModBarrett(element.GetModulus(),mu_arr);
+						omegaFactor = product.ModBarrett(element.GetModulus(), mu);
+					}
+
+					butterflyPlus = result.GetValAtIndex(indexEven);
+					butterflyPlus += omegaFactor;
+					if (butterflyPlus >= element.GetModulus())
+						butterflyPlus -= element.GetModulus();
+
+					butterflyMinus = result.GetValAtIndex(indexEven);
+					if (result.GetValAtIndex(indexEven) < omegaFactor)
+						butterflyMinus += element.GetModulus();
+					butterflyMinus -= omegaFactor;
+
+					result.SetValAtIndex(indexEven, butterflyPlus);
+					result.SetValAtIndex(indexOdd, butterflyMinus);
 
 				}
+				else
+					result.SetValAtIndex(indexOdd, result.GetValAtIndex(indexEven));
 
 			}
+
+		}
+	}
+
+	return result;
+
+}
+
+//Number Theoretic Transform - ITERATIVE IMPLEMENTATION -  twiddle factor table precomputed
+BigBinaryVector NumberTheoreticTransform::InverseTransformIterative(const BigBinaryVector& element, const BigBinaryVector& rootOfUnityInverseTable, const usint cycloOrder) {
+
+	BigBinaryVector ans = NumberTheoreticTransform::GetInstance().ForwardTransformIterative(element, rootOfUnityInverseTable, cycloOrder);
+
+	ans.SetModulus(element.GetModulus());
+
+	ans = ans.ModMul(UintToBigBinaryInteger(cycloOrder).ModInverse(element.GetModulus()));
+
+	return ans;
+}
+
+void NumberTheoreticTransform::SetElement(const BigBinaryVector &element) {
+	m_element = &element;
+}
+
+void NumberTheoreticTransform::Destroy() {
+
+	//delete m_onlyInstance;
+	if( m_element != NULL ) delete m_element;
+}
+
+
+ChineseRemainderTransform& ChineseRemainderTransform::GetInstance() {
+	if (m_onlyInstance == NULL) {
+		m_onlyInstance = new ChineseRemainderTransform();
+	}
+
+	return *m_onlyInstance;
+}
+
+ChineseRemainderTransformFTT& ChineseRemainderTransformFTT::GetInstance() {
+	if (m_onlyInstance == NULL) {
+		m_onlyInstance = new ChineseRemainderTransformFTT();
+	}
+
+	return *m_onlyInstance;
+}
+
+
+//main CRT Transform - uses iterative FFT as a subroutine
+//includes precomputation of twidle factor table
+BigBinaryVector ChineseRemainderTransform::ForwardTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) {
+
+	if (m_rootOfUnityTable == NULL) {
+		m_rootOfUnityTable = new BigBinaryVector(CycloOrder + 1);  //We may be able to change length to CycloOrder/2
+		BigBinaryInteger x(BigBinaryInteger::ONE);
+		for (usint i = 0; i<CycloOrder / 2; i++) {
+			m_rootOfUnityTable->SetValAtIndex(i, x);
+			m_rootOfUnityTable->SetValAtIndex(i + CycloOrder / 2, element.GetModulus() - x);
+			x = x.ModMul(rootOfUnity, element.GetModulus());
 		}
 
-		return result;
+		m_rootOfUnityTable->SetValAtIndex(CycloOrder, BigBinaryInteger::ONE);
 
 	}
 
-	//Number Theoretic Transform - ITERATIVE IMPLEMENTATION -  twiddle factor table precomputed
-	BigBinaryVector NumberTheoreticTransform::InverseTransformIterative(const BigBinaryVector& element, const BigBinaryVector& rootOfUnityInverseTable, const usint cycloOrder) {
-
-		BigBinaryVector ans = NumberTheoreticTransform::GetInstance().ForwardTransformIterative(element, rootOfUnityInverseTable, cycloOrder);
-
-		ans.SetModulus(element.GetModulus());
-
-		ans = ans.ModMul(UintToBigBinaryInteger(cycloOrder).ModInverse(element.GetModulus()));
-
-		return ans;
+	if (!IsPowerOfTwo(CycloOrder)) {
+		std::cout << "Error in the FFT operation\n\n";
+		exit(-10);
 	}
 
-	void NumberTheoreticTransform::SetElement(const BigBinaryVector &element) {
-		m_element = &element;
+	BigBinaryVector OpFFT;
+	BigBinaryVector InputToFFT = ZeroPadForward(element, CycloOrder);
+
+	if (!IsPowerOfTwo(element.GetLength())) {
+		std::cout << "Input to FFT is not a power of two\n ERROR BEFORE FFT\n";
+		OpFFT = NumberTheoreticTransform::GetInstance().ForwardTransformIterative(InputToFFT, *m_rootOfUnityTable, CycloOrder);
 	}
+	else {
 
-	void NumberTheoreticTransform::Destroy() {
+		//auto start = std::chrono::steady_clock::now();
 
-		//delete m_onlyInstance;
-		if( m_element != NULL ) delete m_element;
-	}
+		OpFFT = NumberTheoreticTransform::GetInstance().ForwardTransformIterative(InputToFFT, *m_rootOfUnityTable, CycloOrder);
 
-
-	ChineseRemainderTransform& ChineseRemainderTransform::GetInstance() {
-		if (m_onlyInstance == NULL) {
-			m_onlyInstance = new ChineseRemainderTransform();
-		}
-
-		return *m_onlyInstance;
-	}
-
-	ChineseRemainderTransformFTT& ChineseRemainderTransformFTT::GetInstance() {
-		if (m_onlyInstance == NULL) {
-			m_onlyInstance = new ChineseRemainderTransformFTT();
-		}
-
-		return *m_onlyInstance;
-	}
-
-
-	//main CRT Transform - uses iterative FFT as a subroutine
-	//includes precomputation of twidle factor table
-	BigBinaryVector ChineseRemainderTransform::ForwardTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) {
-
-		if (m_rootOfUnityTable == NULL) {
-			m_rootOfUnityTable = new BigBinaryVector(CycloOrder + 1);  //We may be able to change length to CycloOrder/2
-			BigBinaryInteger x(BigBinaryInteger::ONE);
-			for (usint i = 0; i<CycloOrder / 2; i++) {
-				m_rootOfUnityTable->SetValAtIndex(i, x);
-				m_rootOfUnityTable->SetValAtIndex(i + CycloOrder / 2, element.GetModulus() - x);
-				x = x.ModMul(rootOfUnity, element.GetModulus());
-			}
-
-			m_rootOfUnityTable->SetValAtIndex(CycloOrder, BigBinaryInteger::ONE);
-
-		}
-
-		if (!IsPowerOfTwo(CycloOrder)) {
-			std::cout << "Error in the FFT operation\n\n";
-			exit(-10);
-		}
-
-		BigBinaryVector OpFFT;
-		BigBinaryVector InputToFFT = ZeroPadForward(element, CycloOrder);
-
-		if (!IsPowerOfTwo(element.GetLength())) {
-			std::cout << "Input to FFT is not a power of two\n ERROR BEFORE FFT\n";
-			OpFFT = NumberTheoreticTransform::GetInstance().ForwardTransformIterative(InputToFFT, *m_rootOfUnityTable, CycloOrder);
-		}
-		else {
-
-			//auto start = std::chrono::steady_clock::now();
-
-			OpFFT = NumberTheoreticTransform::GetInstance().ForwardTransformIterative(InputToFFT, *m_rootOfUnityTable, CycloOrder);
-
-			/*auto end = std::chrono::steady_clock::now();
+		/*auto end = std::chrono::steady_clock::now();
 
 			auto diff = end - start;
 
 			std::cout << std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
 			system("pause");*/
-		}
-
-		BigBinaryVector ans(CycloOrder / 2);
-
-		for (usint i = 0; i<CycloOrder / 2; i++)
-			ans.SetValAtIndex(i, OpFFT.GetValAtIndex(2 * i + 1));
-
-		ans.SetModulus(OpFFT.GetModulus());
-
-		return ans;
 	}
 
-	//main CRT Transform - uses iterative FFT as a subroutine
-	//includes precomputation of inverse twidle factor table
-	BigBinaryVector ChineseRemainderTransform::InverseTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) {
+	BigBinaryVector ans(CycloOrder / 2);
 
-		BigBinaryInteger rootOfUnityInverse = rootOfUnity.ModInverse(element.GetModulus());
+	for (usint i = 0; i<CycloOrder / 2; i++)
+		ans.SetValAtIndex(i, OpFFT.GetValAtIndex(2 * i + 1));
 
-		if (!IsPowerOfTwo(CycloOrder)) {
-			std::cout << "Error in the FFT operation\n\n";
-			exit(-10);
-		}
-		if (m_rootOfUnityInverseTable == NULL) {
-			m_rootOfUnityInverseTable = new BigBinaryVector(CycloOrder + 1);
-			BigBinaryInteger x(BigBinaryInteger::ONE);
-			for (usint i = 0; i<CycloOrder / 2; i++) {
-				m_rootOfUnityInverseTable->SetValAtIndex(i, x);
-				m_rootOfUnityInverseTable->SetValAtIndex(i + CycloOrder / 2, element.GetModulus() - x);
-				x = x.ModMul(rootOfUnityInverse, element.GetModulus());
-			}
+	ans.SetModulus(OpFFT.GetModulus());
 
-			m_rootOfUnityInverseTable->SetValAtIndex(CycloOrder, BigBinaryInteger::ONE);
+	return ans;
+}
 
-		}
+//main CRT Transform - uses iterative FFT as a subroutine
+//includes precomputation of inverse twidle factor table
+BigBinaryVector ChineseRemainderTransform::InverseTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) {
 
-		BigBinaryVector OpIFFT;
-		BigBinaryVector InputToFFT = ZeroPadInverse(element, CycloOrder);
+	BigBinaryInteger rootOfUnityInverse = rootOfUnity.ModInverse(element.GetModulus());
 
-		if (!IsPowerOfTwo(element.GetLength())) {
-			std::cout << "Input to IFFT is not a power of two\n ERROR BEFORE FFT\n";
-			OpIFFT = NumberTheoreticTransform::GetInstance().InverseTransformIterative(InputToFFT, *m_rootOfUnityInverseTable, CycloOrder);
-		}
-		else {
-			OpIFFT = NumberTheoreticTransform::GetInstance().InverseTransformIterative(InputToFFT, *m_rootOfUnityInverseTable, CycloOrder);
+	if (!IsPowerOfTwo(CycloOrder)) {
+		std::cout << "Error in the FFT operation\n\n";
+		exit(-10);
+	}
+	if (m_rootOfUnityInverseTable == NULL) {
+		m_rootOfUnityInverseTable = new BigBinaryVector(CycloOrder + 1);
+		BigBinaryInteger x(BigBinaryInteger::ONE);
+		for (usint i = 0; i<CycloOrder / 2; i++) {
+			m_rootOfUnityInverseTable->SetValAtIndex(i, x);
+			m_rootOfUnityInverseTable->SetValAtIndex(i + CycloOrder / 2, element.GetModulus() - x);
+			x = x.ModMul(rootOfUnityInverse, element.GetModulus());
 		}
 
-		BigBinaryVector ans(CycloOrder / 2);
+		m_rootOfUnityInverseTable->SetValAtIndex(CycloOrder, BigBinaryInteger::ONE);
 
-		for (usint i = 0; i<CycloOrder / 2; i++)
-			ans.SetValAtIndex(i, (OpIFFT).GetValAtIndex(i).ModMul(BigBinaryInteger::TWO, (OpIFFT).GetModulus()));
-
-		ans.SetModulus(OpIFFT.GetModulus());
-
-		return ans;
 	}
 
-	//main Forward CRT Transform - implements FTT - uses iterative NTT as a subroutine
-	//includes precomputation of twidle factor table
-	BigBinaryVector ChineseRemainderTransformFTT::ForwardTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) {
-		if (rootOfUnity == BigBinaryInteger::ONE || rootOfUnity == BigBinaryInteger::ZERO) {
-			std::string errMsg;
-			errMsg = "Root of unity cannot be zero or one to perform a forward transform";
-			throw std::runtime_error(errMsg);
-		}
-		if (!IsPowerOfTwo(CycloOrder)) {
-			std::cout << "Error in the FFT operation\n\n";
-			exit(-10);
-		}
+	BigBinaryVector OpIFFT;
+	BigBinaryVector InputToFFT = ZeroPadInverse(element, CycloOrder);
 
-		//Pre-compute mu for Barrett function
-		BigBinaryInteger temp(BigBinaryInteger::ONE);
-		temp <<= 2 * element.GetModulus().GetMSB() + 3;
-		BigBinaryInteger mu = temp.DividedBy(element.GetModulus());
+	if (!IsPowerOfTwo(element.GetLength())) {
+		std::cout << "Input to IFFT is not a power of two\n ERROR BEFORE FFT\n";
+		OpIFFT = NumberTheoreticTransform::GetInstance().InverseTransformIterative(InputToFFT, *m_rootOfUnityInverseTable, CycloOrder);
+	}
+	else {
+		OpIFFT = NumberTheoreticTransform::GetInstance().InverseTransformIterative(InputToFFT, *m_rootOfUnityInverseTable, CycloOrder);
+	}
 
-		/*
+	BigBinaryVector ans(CycloOrder / 2);
+
+	for (usint i = 0; i<CycloOrder / 2; i++)
+		ans.SetValAtIndex(i, (OpIFFT).GetValAtIndex(i).ModMul(BigBinaryInteger::TWO, (OpIFFT).GetModulus()));
+
+	ans.SetModulus(OpIFFT.GetModulus());
+
+	return ans;
+}
+
+//main Forward CRT Transform - implements FTT - uses iterative NTT as a subroutine
+//includes precomputation of twidle factor table
+BigBinaryVector ChineseRemainderTransformFTT::ForwardTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) {
+	if (rootOfUnity == BigBinaryInteger::ONE || rootOfUnity == BigBinaryInteger::ZERO) {
+		std::string errMsg;
+		errMsg = "Root of unity cannot be zero or one to perform a forward transform";
+		throw std::runtime_error(errMsg);
+	}
+	if (!IsPowerOfTwo(CycloOrder)) {
+		std::cout << "Error in the FFT operation\n\n";
+		exit(-10);
+	}
+
+	//Pre-compute mu for Barrett function
+	BigBinaryInteger temp(BigBinaryInteger::ONE);
+	temp <<= 2 * element.GetModulus().GetMSB() + 3;
+	BigBinaryInteger mu = temp.DividedBy(element.GetModulus());
+
+	/*
 		//Precomputes twiddle factor omega and FTT parameter phi
 		if(m_rootOfUnityTable==NULL){
 		m_rootOfUnityTable = new BigBinaryVector(CycloOrder/2);
@@ -301,21 +301,44 @@ namespace lbcrypto {
 		phi = phi.ModBarrettMul(rootOfUnity,element.GetModulus(),mu);
 		}
 		}
-		*/
+	 */
 
-		BigBinaryVector *rootOfUnityTable = NULL;
+	static int nkeys = 0;
+	if( m_rootOfUnityTableByModulus.size() != nkeys ) {
+#pragma omp critical
+		{
+			std::cout << "in fwd transform, keys are:" << std::endl;
+			for( const auto& kp : m_rootOfUnityTableByModulus ) {
+				std::cout << kp.first << std::endl;
+			}
+			nkeys = m_rootOfUnityTableByModulus.size();
+		}
+	}
 
-		rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus().Serialize()];
+	BigBinaryVector *rootOfUnityTable = NULL;
 
-		if (rootOfUnityTable->GetLength() != 0) {
-			if (rootOfUnityTable->GetValAtIndex(1) != rootOfUnity) {
-				this->m_rootOfUnityTableByModulus.clear();
-				rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus().Serialize()];
+	// check to see if the modulus is in the table, and add it if it isn't
+#pragma omp critical
+	{
+		bool recompute = false;
+		auto mSearch = m_rootOfUnityTableByModulus.find(element.GetModulus());
+
+		if( mSearch != m_rootOfUnityTableByModulus.end() ) {
+			// i found it... make sure it's kosher
+			if( mSearch->second.GetLength() == 0 ) {
+				std::cout << "0 length?" << std::endl;
+				recompute = true;
+			}
+			else if( mSearch->second.GetValAtIndex(1) != rootOfUnity ) {
+				//m_rootOfUnityTableByModulus.erase(element.GetModulus());
+				recompute = true;
+
+				std::cout << "The table is borked for " << element.GetModulus() << ", " << mSearch->second.GetValAtIndex(1) << " != " << rootOfUnity << std::endl;
 			}
 		}
 
-		if (rootOfUnityTable->GetLength() == 0) {
-
+		if( mSearch == m_rootOfUnityTableByModulus.end() || recompute ){
+			std::cout << "fwd Key " << element.GetModulus() << " not found, adding " << CycloOrder / 2 << std::endl;
 			BigBinaryVector rTable(CycloOrder / 2);
 			BigBinaryInteger modulus(element.GetModulus());
 			BigBinaryInteger x(BigBinaryInteger::ONE);
@@ -325,52 +348,139 @@ namespace lbcrypto {
 				x = x.ModBarrettMul(rootOfUnity, modulus, mu);
 			}
 
-			this->m_rootOfUnityTableByModulus[modulus.Serialize()] = std::move(rTable);
+			this->m_rootOfUnityTableByModulus[modulus] = std::move(rTable);
 
-			rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus().Serialize()];
 		}
-
-		BigBinaryVector OpFFT;
-		BigBinaryVector InputToFFT(element);
-
-		usint ringDimensionFactor = rootOfUnityTable->GetLength() / (CycloOrder / 2);
-		//Fermat Theoretic Transform (FTT)
-		for (usint i = 0; i<CycloOrder / 2; i++)
-			InputToFFT.SetValAtIndex(i, element.GetValAtIndex(i).ModBarrettMul(rootOfUnityTable->GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
-
-		OpFFT = NumberTheoreticTransform::GetInstance().ForwardTransformIterative(InputToFFT, this->m_rootOfUnityTableByModulus[element.GetModulus().Serialize()], CycloOrder / 2);
-
-		return OpFFT;
 	}
 
-	//main Inverse CRT Transform - implements FTT - uses iterative NTT as a subroutine
-	//includes precomputation of inverse twidle factor table
-	BigBinaryVector ChineseRemainderTransformFTT::InverseTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) {
-		if (rootOfUnity == BigBinaryInteger::ONE || rootOfUnity == BigBinaryInteger::ZERO) {
-			std::string errMsg;
-			errMsg = "Root of unity cannot be zero or one to perform a forward transform";
-			throw std::runtime_error(errMsg);
+	rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus()];
+
+#ifdef OUT
+	{
+		rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus()];
+
+		if (rootOfUnityTable->GetLength() != 0) {
+			if (rootOfUnityTable->GetValAtIndex(1) != rootOfUnity) {
+				this->m_rootOfUnityTableByModulus.clear();
+				rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus()];
+			}
 		}
-		if (!IsPowerOfTwo(CycloOrder)) {
-			std::cout << "Error in the FFT operation\n\n";
-			exit(-10);
+
+		//#pragma omp single
+		{
+			if (rootOfUnityTable->GetLength() == 0) {
+				BigBinaryVector rTable(CycloOrder / 2);
+				BigBinaryInteger modulus(element.GetModulus());
+				BigBinaryInteger x(BigBinaryInteger::ONE);
+
+				for (usint i = 0; i<CycloOrder / 2; i++) {
+					rTable.SetValAtIndex(i, x);
+					x = x.ModBarrettMul(rootOfUnity, modulus, mu);
+				}
+
+				this->m_rootOfUnityTableByModulus[modulus] = std::move(rTable);
+
+				rootOfUnityTable = &m_rootOfUnityTableByModulus[element.GetModulus()];
+			}
 		}
 
-		//Pre-compute mu for Barrett function
-		BigBinaryInteger temp(BigBinaryInteger::ONE);
-		temp <<= 2 * element.GetModulus().GetMSB() + 3;
-		BigBinaryInteger mu = temp.DividedBy(element.GetModulus());
+	}
+#endif
 
-		BigBinaryVector *rootOfUnityITable = NULL;
+	BigBinaryVector OpFFT;
+	BigBinaryVector InputToFFT(element);
 
-		//std::cout<<m_rootOfUnityTableByModulus[element.GetModulus().Serialize()];
+	usint ringDimensionFactor = rootOfUnityTable->GetLength() / (CycloOrder / 2);
+	//Fermat Theoretic Transform (FTT)
+	for (usint i = 0; i<CycloOrder / 2; i++)
+		InputToFFT.SetValAtIndex(i, element.GetValAtIndex(i).ModBarrettMul(rootOfUnityTable->GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
 
-		rootOfUnityITable = &m_rootOfUnityInverseTableByModulus[element.GetModulus().Serialize()];
+	OpFFT = NumberTheoreticTransform::GetInstance().ForwardTransformIterative(InputToFFT, this->m_rootOfUnityTableByModulus[element.GetModulus()], CycloOrder / 2);
+
+	return OpFFT;
+}
+
+//main Inverse CRT Transform - implements FTT - uses iterative NTT as a subroutine
+//includes precomputation of inverse twidle factor table
+BigBinaryVector ChineseRemainderTransformFTT::InverseTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) {
+	if (rootOfUnity == BigBinaryInteger::ONE || rootOfUnity == BigBinaryInteger::ZERO) {
+		std::string errMsg;
+		errMsg = "Root of unity cannot be zero or one to perform a forward transform";
+		throw std::runtime_error(errMsg);
+	}
+	if (!IsPowerOfTwo(CycloOrder)) {
+		std::cout << "Error in the FFT operation\n\n";
+		exit(-10);
+	}
+
+	//Pre-compute mu for Barrett function
+	BigBinaryInteger temp(BigBinaryInteger::ONE);
+	temp <<= 2 * element.GetModulus().GetMSB() + 3;
+	BigBinaryInteger mu = temp.DividedBy(element.GetModulus());
+
+	BigBinaryVector *rootOfUnityITable = NULL;
+
+	static int nkeys = 0;
+#pragma omp critical
+	if( m_rootOfUnityInverseTableByModulus.size() != nkeys ) {
+		std::cout << "in inv transform, keys are:" << std::endl;
+		for( const auto& kp : m_rootOfUnityInverseTableByModulus ) {
+			std::cout << kp.first << std::endl;
+		}
+		nkeys = m_rootOfUnityInverseTableByModulus.size();
+	}
+
+	// check to see if the modulus is in the table
+#pragma omp critical
+	{
+		bool recompute = false;
+		auto mSearch = m_rootOfUnityInverseTableByModulus.find(element.GetModulus());
+
+		if( mSearch != m_rootOfUnityInverseTableByModulus.end() ) {
+			// i found it... make sure it's kosher
+			if( mSearch->second.GetLength() == 0 ) {
+				std::cout << "0 len?" << std::endl;
+				recompute = true;
+			}
+			if( mSearch->second.GetValAtIndex(1) != rootOfUnity.ModInverse(element.GetModulus()) ) {
+				//m_rootOfUnityInverseTableByModulus.erase(element.GetModulus());
+				recompute = true;
+				std::cout << "The inverse table is borked for " << element.GetModulus() << ", " << mSearch->second.GetValAtIndex(1) << " != " << rootOfUnity.ModInverse(element.GetModulus()) << std::endl;
+			}
+		}
+
+		if( mSearch == m_rootOfUnityInverseTableByModulus.end() || recompute ) {
+			std::cout << "Inverse Key " << element.GetModulus() << " not found, adding" << std::endl;
+			BigBinaryVector TableI(CycloOrder / 2);
+			BigBinaryInteger rootOfUnityInverse = rootOfUnity.ModInverse(element.GetModulus());
+
+			BigBinaryInteger x(BigBinaryInteger::ONE);
+
+			for (usint i = 0; i<CycloOrder / 2; i++) {
+				TableI.SetValAtIndex(i, x);
+				x = x.ModBarrettMul(rootOfUnityInverse, element.GetModulus(), mu);
+			}
+
+			std::cout << "Computed... adding..." << std::endl;
+
+			this->m_rootOfUnityInverseTableByModulus[element.GetModulus()] = std::move(TableI);
+
+			std::cout << "Added!" << std::endl;
+		}
+	}
+
+	rootOfUnityITable = &m_rootOfUnityInverseTableByModulus[element.GetModulus()];
+
+#ifdef OUT
+	{
+		rootOfUnityITable = &m_rootOfUnityInverseTableByModulus[element.GetModulus()];
 
 		if (rootOfUnityITable->GetLength() != 0) {
 			if (rootOfUnityITable->GetValAtIndex(1) != rootOfUnity.ModInverse(element.GetModulus())) {
+				std::cout << "clearing inv table" << std::endl;
 				this->m_rootOfUnityInverseTableByModulus.clear();
-				rootOfUnityITable = &m_rootOfUnityInverseTableByModulus[element.GetModulus().Serialize()];
+				std::cout << "cleared" << std::endl;
+				rootOfUnityITable = &m_rootOfUnityInverseTableByModulus[element.GetModulus()];
 			}
 		}
 
@@ -387,220 +497,222 @@ namespace lbcrypto {
 				x = x.ModBarrettMul(rootOfUnityInverse, element.GetModulus(), mu);
 			}
 
-			//this->m_rootOfUnityInverseTableByModulus.insert(std::make_pair(modulus.Serialize(),TableI));
-			this->m_rootOfUnityInverseTableByModulus[element.GetModulus().Serialize()] = std::move(TableI);
+			//this->m_rootOfUnityInverseTableByModulus.insert(std::make_pair(modulus,TableI));
+			this->m_rootOfUnityInverseTableByModulus[element.GetModulus()] = std::move(TableI);
 
+			rootOfUnityITable = &m_rootOfUnityInverseTableByModulus[element.GetModulus()];
+		}
+	}
+#endif
+
+	BigBinaryVector OpIFFT;
+	OpIFFT = NumberTheoreticTransform::GetInstance().InverseTransformIterative(element, m_rootOfUnityInverseTableByModulus[element.GetModulus()], CycloOrder / 2);
+
+	usint ringDimensionFactor = rootOfUnityITable->GetLength() / (CycloOrder / 2);
+
+	BigBinaryVector rInvTable(this->m_rootOfUnityInverseTableByModulus[element.GetModulus()]);
+	for (usint i = 0; i<CycloOrder / 2; i++)
+		OpIFFT.SetValAtIndex(i, OpIFFT.GetValAtIndex(i).ModBarrettMul(rInvTable.GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
+
+	return OpIFFT;
+}
+
+void ChineseRemainderTransformFTT::PreCompute(const BigBinaryInteger& rootOfUnity, const usint CycloOrder, const BigBinaryInteger &modulus) {
+
+	std::cout << "precompute 1" << std::endl;
+	//Pre-compute mu for Barrett function
+	BigBinaryInteger temp(BigBinaryInteger::ONE);
+	temp <<= 2 * modulus.GetMSB() + 3;
+	BigBinaryInteger mu = temp.DividedBy(modulus);
+
+	BigBinaryInteger x(BigBinaryInteger::ONE);
+
+
+	BigBinaryVector *rootOfUnityTableCheck = NULL;
+	rootOfUnityTableCheck = &m_rootOfUnityTableByModulus[modulus];
+	//Precomputes twiddle factor omega and FTT parameter phi for Forward Transform
+	if (rootOfUnityTableCheck->GetLength() == 0) {
+		BigBinaryVector Table(CycloOrder / 2);
+
+
+		for (usint i = 0; i<CycloOrder / 2; i++) {
+			Table.SetValAtIndex(i, x);
+			x = x.ModBarrettMul(rootOfUnity, modulus, mu);
 		}
 
+		//this->m_rootOfUnityTableByModulus.insert( std::make_pair(modulus,Table));
+		this->m_rootOfUnityTableByModulus[modulus] = std::move(Table);
 
 
-		BigBinaryVector OpIFFT;
-		OpIFFT = NumberTheoreticTransform::GetInstance().InverseTransformIterative(element, m_rootOfUnityInverseTableByModulus[element.GetModulus().Serialize()], CycloOrder / 2);
 
-		usint ringDimensionFactor = rootOfUnityITable->GetLength() / (CycloOrder / 2);
-
-		BigBinaryVector rInvTable(this->m_rootOfUnityInverseTableByModulus[element.GetModulus().Serialize()]);
-		for (usint i = 0; i<CycloOrder / 2; i++)
-			OpIFFT.SetValAtIndex(i, OpIFFT.GetValAtIndex(i).ModBarrettMul(rInvTable.GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
-
-		return OpIFFT;
 	}
 
-	void ChineseRemainderTransformFTT::PreCompute(const BigBinaryInteger& rootOfUnity, const usint CycloOrder, const BigBinaryInteger &modulus) {
+	//Precomputes twiddle factor omega and FTT parameter phi for Inverse Transform
+	BigBinaryVector  *rootOfUnityInverseTableCheck = &m_rootOfUnityInverseTableByModulus[modulus];
+	if (rootOfUnityInverseTableCheck->GetLength() == 0) {
+		BigBinaryVector TableI(CycloOrder / 2);
+		BigBinaryInteger rootOfUnityInverse = rootOfUnity.ModInverse(modulus);
+
+		x = BigBinaryInteger::ONE;
+
+		for (usint i = 0; i<CycloOrder / 2; i++) {
+			TableI.SetValAtIndex(i, x);
+			x = x.ModBarrettMul(rootOfUnityInverse, modulus, mu);
+		}
+
+		this->m_rootOfUnityInverseTableByModulus[modulus] = std::move(TableI);
+
+	}
+
+}
+
+void ChineseRemainderTransformFTT::PreCompute(std::vector<BigBinaryInteger> &rootOfUnity, const usint CycloOrder, std::vector<BigBinaryInteger> &moduliiChain) {
+
+	std::cout << "precompute 2" << std::endl;
+	usint numOfRootU = rootOfUnity.size();
+	usint numModulii = moduliiChain.size();
+
+	if (numOfRootU != numModulii) {
+		throw std::logic_error("size of root of unity and size of moduli chain not of same size");
+		system("pause");
+	}
+
+	for (usint i = numOfRootU; i<numOfRootU; ++i) {
+
+		BigBinaryInteger currentRoot(rootOfUnity[i]);
+		BigBinaryInteger currentMod(moduliiChain[i]);
 
 		//Pre-compute mu for Barrett function
 		BigBinaryInteger temp(BigBinaryInteger::ONE);
-		temp <<= 2 * modulus.GetMSB() + 3;
-		BigBinaryInteger mu = temp.DividedBy(modulus);
+		temp <<= 2 * currentMod.GetMSB() + 3;
+		BigBinaryInteger mu = temp.DividedBy(currentMod);
+
+		if (this->m_rootOfUnityTableByModulus[moduliiChain[i]].GetLength() != 0)
+			continue;
+
+
 
 		BigBinaryInteger x(BigBinaryInteger::ONE);
 
 
-		BigBinaryVector *rootOfUnityTableCheck = NULL;
-		rootOfUnityTableCheck = &m_rootOfUnityTableByModulus[modulus.Serialize()];
-		//Precomputes twiddle factor omega and FTT parameter phi for Forward Transform
-		if (rootOfUnityTableCheck->GetLength() == 0) {
-			BigBinaryVector Table(CycloOrder / 2);
+		//computation of root of unity table
+		BigBinaryVector rTable(CycloOrder / 2);
 
 
-			for (usint i = 0; i<CycloOrder / 2; i++) {
-				Table.SetValAtIndex(i, x);
-				x = x.ModBarrettMul(rootOfUnity, modulus, mu);
-			}
-
-			//this->m_rootOfUnityTableByModulus.insert( std::make_pair(modulus.Serialize(),Table));
-			this->m_rootOfUnityTableByModulus[modulus.Serialize()] = std::move(Table);
-
-
-
+		for (usint i = 0; i<CycloOrder / 2; i++) {
+			rTable.SetValAtIndex(i, x);
+			x = x.ModBarrettMul(currentRoot, currentMod, mu);
 		}
 
-		//Precomputes twiddle factor omega and FTT parameter phi for Inverse Transform
-		BigBinaryVector  *rootOfUnityInverseTableCheck = &m_rootOfUnityInverseTableByModulus[modulus.Serialize()];
-		if (rootOfUnityInverseTableCheck->GetLength() == 0) {
-			BigBinaryVector TableI(CycloOrder / 2);
-			BigBinaryInteger rootOfUnityInverse = rootOfUnity.ModInverse(modulus);
+		this->m_rootOfUnityTableByModulus[currentMod] = std::move(rTable);
 
-			x = BigBinaryInteger::ONE;
+		//computation of root of unity inverse table
+		x = BigBinaryInteger::ONE;
 
-			for (usint i = 0; i<CycloOrder / 2; i++) {
-				TableI.SetValAtIndex(i, x);
-				x = x.ModBarrettMul(rootOfUnityInverse, modulus, mu);
-			}
+		BigBinaryInteger rootOfUnityInverse = currentRoot.ModInverse(currentMod);
 
-			this->m_rootOfUnityInverseTableByModulus[modulus.Serialize()] = std::move(TableI);
+		BigBinaryVector rTableI(CycloOrder / 2);
 
+
+		for (usint i = 0; i<CycloOrder / 2; i++) {
+			rTableI.SetValAtIndex(i, x);
+			x = x.ModBarrettMul(rootOfUnityInverse, currentMod, mu);
 		}
 
-	}
-
-	void ChineseRemainderTransformFTT::PreCompute(std::vector<BigBinaryInteger> &rootOfUnity, const usint CycloOrder, std::vector<BigBinaryInteger> &moduliiChain) {
-
-
-		usint numOfRootU = rootOfUnity.size();
-		usint numModulii = moduliiChain.size();
-
-		if (numOfRootU != numModulii) {
-			throw std::logic_error("size of root of unity and size of moduli chain not of same size");
-			system("pause");
-		}
-
-		for (usint i = numOfRootU; i<numOfRootU; ++i) {
-
-			BigBinaryInteger currentRoot(rootOfUnity[i]);
-			BigBinaryInteger currentMod(moduliiChain[i]);
-
-			//Pre-compute mu for Barrett function
-			BigBinaryInteger temp(BigBinaryInteger::ONE);
-			temp <<= 2 * currentMod.GetMSB() + 3;
-			BigBinaryInteger mu = temp.DividedBy(currentMod);
-
-			if (this->m_rootOfUnityTableByModulus[moduliiChain[i].Serialize()].GetLength() != 0)
-				continue;
-
-
-
-			BigBinaryInteger x(BigBinaryInteger::ONE);
-
-
-			//computation of root of unity table
-			BigBinaryVector rTable(CycloOrder / 2);
-
-
-			for (usint i = 0; i<CycloOrder / 2; i++) {
-				rTable.SetValAtIndex(i, x);
-				x = x.ModBarrettMul(currentRoot, currentMod, mu);
-			}
-
-			this->m_rootOfUnityTableByModulus[currentMod.Serialize()] = std::move(rTable);
-
-			//computation of root of unity inverse table
-			x = BigBinaryInteger::ONE;
-
-			BigBinaryInteger rootOfUnityInverse = currentRoot.ModInverse(currentMod);
-
-			BigBinaryVector rTableI(CycloOrder / 2);
-
-
-			for (usint i = 0; i<CycloOrder / 2; i++) {
-				rTableI.SetValAtIndex(i, x);
-				x = x.ModBarrettMul(rootOfUnityInverse, currentMod, mu);
-			}
-
-			this->m_rootOfUnityInverseTableByModulus[currentMod.Serialize()] = std::move(rTableI);
-
-
-		}
+		this->m_rootOfUnityInverseTableByModulus[currentMod] = std::move(rTableI);
 
 
 	}
 
-	void ChineseRemainderTransform::Destroy() {
-		//delete m_onlyInstance;
-		if( m_rootOfUnityTable ) delete m_rootOfUnityTable;
-		if( m_rootOfUnityInverseTable ) delete m_rootOfUnityInverseTable;
+
+}
+
+void ChineseRemainderTransform::Destroy() {
+	//delete m_onlyInstance;
+	if( m_rootOfUnityTable ) delete m_rootOfUnityTable;
+	if( m_rootOfUnityInverseTable ) delete m_rootOfUnityInverseTable;
+}
+
+void ChineseRemainderTransformFTT::Destroy() {
+	delete m_onlyInstance;
+	//delete m_rootOfUnityTable;
+	//delete m_rootOfUnityInverseTable;
+	//delete m_phiTable;
+	//delete m_phiInverseTable;
+	//m_rootOfUnityTable = NULL;
+	//m_rootOfUnityInverseTable = NULL;
+	//m_phiTable = NULL;
+	//m_phiInverseTable = NULL;
+}
+
+
+std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransform(std::vector<std::complex<double>> & A) {
+	if (A.size()==1) {
+		return A;
 	}
-
-	void ChineseRemainderTransformFTT::Destroy() {
-		delete m_onlyInstance;
-		//delete m_rootOfUnityTable;
-		//delete m_rootOfUnityInverseTable;
-		//delete m_phiTable;
-		//delete m_phiInverseTable;
-		//m_rootOfUnityTable = NULL;
-		//m_rootOfUnityInverseTable = NULL;
-		//m_phiTable = NULL;
-		//m_phiInverseTable = NULL;
-	}
-
-
-	std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransform(std::vector<std::complex<double>> & A) {
-		if (A.size()==1) {
-			return A;
-		}
-		else {
-			int m = A.size();
-			std::vector<std::complex<double>> A_even(m/2);
-			std::vector<std::complex<double>> A_odd(m/2);
-			for (int i = 0;i<m;i++) {
-				if (i % 2 == 0) {
-					A_even[i / 2] = A[i];
-				}
-				else {
-					A_odd[(i-1)/2] = A[i];
-				}
+	else {
+		int m = A.size();
+		std::vector<std::complex<double>> A_even(m/2);
+		std::vector<std::complex<double>> A_odd(m/2);
+		for (int i = 0;i<m;i++) {
+			if (i % 2 == 0) {
+				A_even[i / 2] = A[i];
 			}
-			std::vector<std::complex<double>> P_even = DiscreteFourierTransform::FFTForwardTransform(A_even);
-			std::vector<std::complex<double>> P_odd = DiscreteFourierTransform::FFTForwardTransform(A_odd);
-			std::vector<std::complex<double>> P(m,0);
-
-			for (int j = 0;j<m / 2;j++) {
-				std::complex<double> x = std::polar(1.0, -2 * M_PI * j / m) * P_odd[j];
-				P[j] = P_even[j] + x ;
-				P[j+m/2] = P_even[j] - x;
-			}
-			return P;
-		}
-	}
-
-	std::vector<std::complex<double>> DiscreteFourierTransform::FFTInverseTransform(std::vector<std::complex<double>> & A) {
-		
-		std::vector<std::complex<double>> result = DiscreteFourierTransform::FFTForwardTransform(A);
-		double n = result.size()/2;
-		for(int i=0;i < n;i++) {
-			result[i] = std::complex<double>(result[i].real() / n, result[i].imag() / n);
-			//result[i] =std::complex<double>(result[i].real()/(2*n), result[i].imag()/(2*n));
-		}
-			return result;
-	}
-	std::vector<std::complex<double>> DiscreteFourierTransform::ForwardTransform(std::vector<std::complex<double>> A) {
-		int n = A.size();
-		for (int i = 0;i < n;i++) {
-			A.push_back(0);
-		}
-		std::vector<std::complex<double>> dft = FFTForwardTransform(A);
-		std::vector<std::complex<double>> dftRemainder;
-		for (int i = dft.size() - 1;i > 0;i--) {
-			if (i % 2 != 0) {
-				dftRemainder.push_back(dft.at(i));
-				//dftRemainder.push_back(std::complex<double>(2*dft.at(i).real(), 2 * dft.at(i).imag()));
+			else {
+				A_odd[(i-1)/2] = A[i];
 			}
 		}
-		return dftRemainder;
-	}
-	std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std::vector<std::complex<double>> A) {
-		int n = A.size();
-		std::vector<std::complex<double>> dft;
-		for (int i = 0;i < n;i++) {
-			dft.push_back(0);
-			dft.push_back(A.at(i));
+		std::vector<std::complex<double>> P_even = DiscreteFourierTransform::FFTForwardTransform(A_even);
+		std::vector<std::complex<double>> P_odd = DiscreteFourierTransform::FFTForwardTransform(A_odd);
+		std::vector<std::complex<double>> P(m,0);
+
+		for (int j = 0;j<m / 2;j++) {
+			std::complex<double> x = std::polar(1.0, -2 * M_PI * j / m) * P_odd[j];
+			P[j] = P_even[j] + x ;
+			P[j+m/2] = P_even[j] - x;
 		}
-		std::vector<std::complex<double>> invDft = FFTInverseTransform(dft);
-		std::vector<std::complex<double>> invDftRemainder;
-		for (int i = 0;i<invDft.size()/2;i++) {
-				invDftRemainder.push_back(invDft.at(i));
-		}
-		return invDftRemainder;
+		return P;
 	}
+}
+
+std::vector<std::complex<double>> DiscreteFourierTransform::FFTInverseTransform(std::vector<std::complex<double>> & A) {
+
+	std::vector<std::complex<double>> result = DiscreteFourierTransform::FFTForwardTransform(A);
+	double n = result.size()/2;
+	for(int i=0;i < n;i++) {
+		result[i] = std::complex<double>(result[i].real() / n, result[i].imag() / n);
+		//result[i] =std::complex<double>(result[i].real()/(2*n), result[i].imag()/(2*n));
+	}
+	return result;
+}
+std::vector<std::complex<double>> DiscreteFourierTransform::ForwardTransform(std::vector<std::complex<double>> A) {
+	int n = A.size();
+	for (int i = 0;i < n;i++) {
+		A.push_back(0);
+	}
+	std::vector<std::complex<double>> dft = FFTForwardTransform(A);
+	std::vector<std::complex<double>> dftRemainder;
+	for (int i = dft.size() - 1;i > 0;i--) {
+		if (i % 2 != 0) {
+			dftRemainder.push_back(dft.at(i));
+			//dftRemainder.push_back(std::complex<double>(2*dft.at(i).real(), 2 * dft.at(i).imag()));
+		}
+	}
+	return dftRemainder;
+}
+std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std::vector<std::complex<double>> A) {
+	int n = A.size();
+	std::vector<std::complex<double>> dft;
+	for (int i = 0;i < n;i++) {
+		dft.push_back(0);
+		dft.push_back(A.at(i));
+	}
+	std::vector<std::complex<double>> invDft = FFTInverseTransform(dft);
+	std::vector<std::complex<double>> invDftRemainder;
+	for (int i = 0;i<invDft.size()/2;i++) {
+		invDftRemainder.push_back(invDft.at(i));
+	}
+	return invDftRemainder;
+}
 
 }//namespace ends here

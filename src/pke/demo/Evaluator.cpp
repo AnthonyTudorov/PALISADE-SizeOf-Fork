@@ -92,7 +92,7 @@ void EvalLinRegressionNull() {
 
 	usint plaintextModulus = 256;
 	usint m = 64;
-	string modulus("536871233");
+	string modulus("256");
 	string rootOfUnity("268585022");
 
 	//Set crypto parametes
@@ -294,7 +294,7 @@ void EvalLinRegressionNull3() {
 
 	usint plaintextModulus = 256;
 	usint m = 64;
-	string modulus("536871233");
+	string modulus("256");
 	string rootOfUnity("268585022");
 
 	//Set crypto parametes
@@ -711,9 +711,6 @@ void EvalLinRegressionFV3() {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-
 	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 3);
 
 	std::cout << "RationalCiphertext s/d test" << std::endl;
@@ -920,7 +917,7 @@ void RationalTests() {
 
 	usint plaintextModulus = 256;
 	usint m = 16;
-	string modulus("536871089");
+	string modulus("256");
 	string rootOfUnity("453444631");
 
 	//Set crypto parametes

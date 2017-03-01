@@ -217,14 +217,6 @@ namespace lbcrypto {
 			return DeserializeVector<Element>("Elements", elementName<Element>(), mIter, &this->m_elements);
 		}
 
-		friend std::ostream& operator<<(std::ostream& out, const Ciphertext<Element>& ct) {
-			const Element& e = ct.GetElement();
-			out << e.GetValAtIndex(0);
-			for( int i=1; i<=8; i++ )
-				out << ", " << e.GetValAtIndex(i);
-			return out;
-		}
-
 		inline bool operator==(const Ciphertext<Element>& rhs) const {
 			const std::vector<Element> &lhsE = this->GetElements();
 			const std::vector<Element> &rhsE = rhs.GetElements();

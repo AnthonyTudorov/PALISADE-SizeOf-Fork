@@ -162,5 +162,28 @@ static void BM_switchformat_LATTICE(benchmark::State& state) { // benchmark
 
 DO_PARM_BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,ILVector2n)
 
+template <class E>
+static void doubleswitchformat_LATTICE(benchmark::State& state, shared_ptr<ILParams>& params) {
+	state.PauseTiming();
+	E			a = makeElement<E>(state, params);
+	state.ResumeTiming();
+
+	a.SwitchFormat();
+	a.SwitchFormat();
+}
+
+template <class E>
+static void BM_doubleswitchformat_LATTICE(benchmark::State& state) { // benchmark
+	if( state.thread_index == 0 ) {
+		;
+	}
+
+	while (state.KeepRunning()) {
+		doubleswitchformat_LATTICE<E>(state, parmArray[state.range(0)]);
+	}
+}
+
+DO_PARM_BENCHMARK_TEMPLATE(BM_doubleswitchformat_LATTICE,ILVector2n)
+
 //execute the benchmarks
 BENCHMARK_MAIN()

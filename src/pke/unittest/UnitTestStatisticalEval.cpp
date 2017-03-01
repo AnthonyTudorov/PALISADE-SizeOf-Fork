@@ -57,7 +57,7 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 
 	string plaintextModulus("256");
 	usint m = 64;
-	string modulus/*("256"); //*/("536871233");
+	string modulus("256");
 	string rootOfUnity("268585022");
 
 	//Set crypto parametes
@@ -119,7 +119,6 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	////////////////////////////////////////////////////////////
 
 	auto result = cc.EvalLinRegression(x, y);
-	std::cout << "::::::::::" << *(*result)(0,0).GetNumerator() << std::endl;
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -157,7 +156,7 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 
 	usint plaintextModulus = 256;
 	usint m = 64;
-	string modulus("536871233");
+	string modulus("256");
 	string rootOfUnity("268585022");
 
 	//Set crypto parametes

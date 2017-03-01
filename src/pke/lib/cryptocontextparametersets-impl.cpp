@@ -146,7 +146,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 				{ "parameters", "Null" },
 				{ "plaintextModulus", "256" },
 				{ "ring", "8192" },
-				{ "modulus", "536903681" },
+				{ "modulus", "256" },
 				{ "rootOfUnity", "242542334" }
 		} },
 
@@ -154,7 +154,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 				{ "parameters", "Null" },
 				{ "plaintextModulus", "5" },
 				{ "ring", "8" },
-				{ "modulus", "536871001" },
+				{ "modulus", "256" },
 				{ "rootOfUnity", "322299632" }
 		} }
 
