@@ -275,7 +275,6 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
   ilvector2nVector1[2] = ilvect2;
 
   ILVectorArray2n ilva1(ilvector2nVector1);
-  DEBUG("plus");
   {
     ILVectorArray2n ilvaCopy(ilva.Plus(ilva1));
     // ilvaCopy = ilvaCopy + ilva1;
@@ -283,14 +282,13 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
     {
       ILVector2n ilv = ilvaCopy.GetElementAtIndex(i);
-
-      EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(0));
-      EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(1));
-      EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(2));
-      EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3));
+      
+      EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(0))<<"Failure: Plus()";
+      EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(1))<<"Failure: Plus()";
+      EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(2))<<"Failure: Plus()";
+      EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3))<<"Failure: Plus()";
     }
   }
-  DEBUG("+=");
   {
     ILVectorArray2n ilvaCopy(ilva);
     ilvaCopy += ilva1;
@@ -299,13 +297,12 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     {
       ILVector2n ilv = ilvaCopy.GetElementAtIndex(i);
 
-       EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(0));
-       EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(1));
-       EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(2));
-       EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3));
+       EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(0))<<"Failure: +=";
+       EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(1))<<"Failure: +=";
+       EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(2))<<"Failure: +=";
+       EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3))<<"Failure: +=";
     }
   }
-  DEBUG("Minus");
   {
     ILVectorArray2n ilvaCopy(ilva.Minus(ilva1));
 
@@ -313,13 +310,12 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     {
       ILVector2n ilv = ilvaCopy.GetElementAtIndex(i);
 
-      EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(0));
-      EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(1));
-      EXPECT_EQ(BigBinaryInteger::ONE, ilv.GetValAtIndex(2));
-      EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3));
+      EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(0))<<"Failure: Minus";
+      EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(1))<<"Failure: Minus";
+      EXPECT_EQ(BigBinaryInteger::ONE, ilv.GetValAtIndex(2))<<"Failure: Minus";
+      EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3))<<"Failure: Minus";
     }
   }
-  DEBUG("-=");
   {
     ILVectorArray2n ilvaResult(ilva);
     ilvaResult -= ilva1;
@@ -328,13 +324,12 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     {
       ILVector2n ilv = ilvaResult.GetElementAtIndex(i);
 
-       EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(0));
-       EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(1));
-       EXPECT_EQ(BigBinaryInteger::ONE, ilv.GetValAtIndex(2));
-       EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3));
+       EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(0))<<"Failure: -=";
+       EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(1))<<"Failure: -=";
+       EXPECT_EQ(BigBinaryInteger::ONE, ilv.GetValAtIndex(2))<<"Failure: -=";
+       EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3))<<"Failure: -=";
     }
   }
-  DEBUG("times");
   {
     ILVectorArray2n ilvaResult(ilva.Times(ilva1));
 
@@ -342,13 +337,13 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     {
       ILVector2n ilv = ilvaResult.GetElementAtIndex(i);
 
-      EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(0));
-      EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(1));
-      EXPECT_EQ(BigBinaryInteger("6"), ilv.GetValAtIndex(2));
-      EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(3));
+      EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(0))<<"Failure: Times";
+      EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(1))<<"Failure: Times";
+      EXPECT_EQ(BigBinaryInteger("6"), ilv.GetValAtIndex(2))<<"Failure: Times";
+      EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(3))<<"Failure: Times";
     }
   }
-  DEBUG("AddILElementOne");
+
   {
     ILVectorArray2n ilvaCopy(ilva);
     ilvaCopy.AddILElementOne();
@@ -357,13 +352,16 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     {
       ILVector2n ilv = ilvaCopy.GetElementAtIndex(i);
 
-      EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(0));
-      EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(1));
-      EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(2));
-      EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(3));
+      EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(0))
+<<"Failure: AddILElementOne";
+      EXPECT_EQ(BigBinaryInteger("5"), ilv.GetValAtIndex(1))
+<<"Failure: AddILElementOne";
+      EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(2))
+<<"Failure: AddILElementOne";
+      EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(3))
+<<"Failure: AddILElementOne";
     }
   }
-  DEBUG("MultiplicativeInverse");
   {
     ILVectorArray2n ilvaInv(ilva.MultiplicativeInverse());
 
@@ -371,30 +369,49 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     ILVector2n ilvectInv1 = ilvaInv.GetElementAtIndex(1);
     ILVector2n ilvectInv2 = ilvaInv.GetElementAtIndex(2);
 
-    EXPECT_EQ(BigBinaryInteger("4177"), ilvectInv0.GetValAtIndex(0));
-    EXPECT_EQ(BigBinaryInteger("6265"), ilvectInv0.GetValAtIndex(1));
-    EXPECT_EQ(BigBinaryInteger("5569"), ilvectInv0.GetValAtIndex(2));
-    EXPECT_EQ(BigBinaryInteger("4177"), ilvectInv0.GetValAtIndex(3));
-    EXPECT_EQ(BigBinaryInteger("8353"), ilvectInv0.GetModulus());
-    EXPECT_EQ(BigBinaryInteger("8163"), ilvectInv0.GetRootOfUnity());
+    EXPECT_EQ(BigBinaryInteger("4177"), ilvectInv0.GetValAtIndex(0))
+      <<"Failure: ilvectInv0 MultiplicativeInverse()";
+    EXPECT_EQ(BigBinaryInteger("6265"), ilvectInv0.GetValAtIndex(1))
+      <<"Failure: ilvectInv0 MultiplicativeInverse()";
+    EXPECT_EQ(BigBinaryInteger("5569"), ilvectInv0.GetValAtIndex(2))
+      <<"Failure: ilvectInv0 MultiplicativeInverse()";
+    EXPECT_EQ(BigBinaryInteger("4177"), ilvectInv0.GetValAtIndex(3))
+      <<"Failure: ilvectInv0 MultiplicativeInverse()";
+    EXPECT_EQ(BigBinaryInteger("8353"), ilvectInv0.GetModulus())
+      <<"Failure: ilvectInv0 MultiplicativeInverse() modulus";
+    EXPECT_EQ(BigBinaryInteger("8163"), ilvectInv0.GetRootOfUnity())
+      <<"Failure: ilvectInv0 MultiplicativeInverse() rootOfUnity";
 
-    EXPECT_EQ(BigBinaryInteger("4185"), ilvectInv1.GetValAtIndex(0));
-    EXPECT_EQ(BigBinaryInteger("6277"), ilvectInv1.GetValAtIndex(1));
-    EXPECT_EQ(BigBinaryInteger("2790"), ilvectInv1.GetValAtIndex(2));
-    EXPECT_EQ(BigBinaryInteger("4185"), ilvectInv1.GetValAtIndex(3));
-    EXPECT_EQ(BigBinaryInteger("8369"), ilvectInv1.GetModulus());
-    EXPECT_EQ(BigBinaryInteger("6677"), ilvectInv1.GetRootOfUnity());
+    EXPECT_EQ(BigBinaryInteger("4185"), ilvectInv1.GetValAtIndex(0))
+      <<"Failure: ilvectInv1 MultiplicativeInverse()";
+    EXPECT_EQ(BigBinaryInteger("6277"), ilvectInv1.GetValAtIndex(1))
+      <<"Failure: ilvectInv1 MultiplicativeInverse()";
+    EXPECT_EQ(BigBinaryInteger("2790"), ilvectInv1.GetValAtIndex(2))
+      <<"Failure: ilvectInv1 MultiplicativeInverse()";
+    EXPECT_EQ(BigBinaryInteger("4185"), ilvectInv1.GetValAtIndex(3))
+      <<"Failure: ilvectInv1 MultiplicativeInverse()";
+    EXPECT_EQ(BigBinaryInteger("8369"), ilvectInv1.GetModulus())
+      <<"Failure: ilvectInv1 MultiplicativeInverse() modulus";
+    EXPECT_EQ(BigBinaryInteger("6677"), ilvectInv1.GetRootOfUnity())
+      <<"Failure: ilvectInv1 MultiplicativeInverse() rootOfUnity";
 
-    EXPECT_EQ(BigBinaryInteger("4257"), ilvectInv2.GetValAtIndex(0));
-    EXPECT_EQ(BigBinaryInteger("6385"), ilvectInv2.GetValAtIndex(1));
-    EXPECT_EQ(BigBinaryInteger("2838"), ilvectInv2.GetValAtIndex(2));
-    EXPECT_EQ(BigBinaryInteger("4257"), ilvectInv2.GetValAtIndex(3));
-    EXPECT_EQ(BigBinaryInteger("8513"), ilvectInv2.GetModulus());
-    EXPECT_EQ(BigBinaryInteger("156"), ilvectInv2.GetRootOfUnity());
+    EXPECT_EQ(BigBinaryInteger("4257"), ilvectInv2.GetValAtIndex(0))
+      <<"Failure: ilvectInv2 MultiplicativeInverse()";
+    EXPECT_EQ(BigBinaryInteger("6385"), ilvectInv2.GetValAtIndex(1))
+      <<"Failure: ilvectInv2 MultiplicativeInverse()";
+    EXPECT_EQ(BigBinaryInteger("2838"), ilvectInv2.GetValAtIndex(2))
+      <<"Failure: ilvectInv2 MultiplicativeInverse()";
+    EXPECT_EQ(BigBinaryInteger("4257"), ilvectInv2.GetValAtIndex(3))
+      <<"Failure: ilvectInv2 MultiplicativeInverse()";
+    EXPECT_EQ(BigBinaryInteger("8513"), ilvectInv2.GetModulus())
+      <<"Failure: ilvectInv2 MultiplicativeInverse() modulus";
+    EXPECT_EQ(BigBinaryInteger("156"), ilvectInv2.GetRootOfUnity())
+      <<"Failure: ilvectInv2 MultiplicativeInverse() rootOfUnity";
 
-    EXPECT_THROW(ilva1.MultiplicativeInverse(), std::logic_error);
+    EXPECT_THROW(ilva1.MultiplicativeInverse(), std::logic_error)
+      <<"Failure: throw MultiplicativeInverse()";
   }
-  DEBUG("MakeSparse");
+
   {
     ILVectorArray2n ilvaCopy(ilva);
 
@@ -404,26 +421,30 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     {
       ILVector2n ilv = ilvaCopy.GetElementAtIndex(i);
 
-      EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(1));
-      EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(3));
+      EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(1))
+	<<"Failure MakeSparse() index 1";
+      EXPECT_EQ(BigBinaryInteger::ZERO, ilv.GetValAtIndex(3))
+	<<"Failure MakeSparse() index 3";
     }
   }
-  DEBUG("InverseExists");
+
   {
-    EXPECT_TRUE(ilva.InverseExists());
-    EXPECT_FALSE(ilva1.InverseExists());
+    EXPECT_TRUE(ilva.InverseExists())<<"Failure: ilva.InverseExists()";
+    EXPECT_FALSE(ilva1.InverseExists())<<"Failure: ilva1.InverseExists()";
   }
-  DEBUG("SwitchModulus=====================================");
+
   {
     ILVector2n ilvS0(ilparams0);
-    DEBUG("ilvS0.GetModulus():"<<ilvS0.GetModulus());
+    //DEBUG("ilvS0.GetModulus():"<<ilvS0.GetModulus());
 
     BigBinaryVector bbvS0(m/2, moduli[0]);
-    DEBUG("bbvS0 Modulus:"<<moduli[0]);
-    bbvS0.SetValAtIndex(0, "23462");
-    bbvS0.SetValAtIndex(1, "467986");
-    bbvS0.SetValAtIndex(2, "33863");
-    bbvS0.SetValAtIndex(3, "2113");
+    //DEBUG("bbvS0 Modulus:"<<moduli[0]);
+
+    bbvS0.SetValAtIndexWithoutMod(0, "23462");
+    bbvS0.SetValAtIndexWithoutMod(1, "467986");
+    bbvS0.SetValAtIndexWithoutMod(2, "33863");
+    bbvS0.SetValAtIndexWithoutMod(3, "2113");
+
     ilvS0.SetValues(bbvS0, Format::EVALUATION);
 
     ILVector2n ilvS1(ilvS0);
@@ -486,7 +507,6 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     EXPECT_EQ(rootOfUnity2, ilvectS2.GetRootOfUnity())
       <<"Failure S2 rootOfUnity";
   }
-  DEBUG("SwitchModulusAtIndex=====================================");
   {
     ILVectorArray2n ilvaCopy(ilva);
     BigBinaryInteger modulus2("113");
@@ -497,18 +517,23 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     {
       ILVector2n ilv = ilvaCopy.GetElementAtIndex(i);
 
-      EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(0));
-      EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(1));
-      EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(2));
-      EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3));
+      EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(0))
+	<<"Failure: SwitchModulusAtIndex";
+      EXPECT_EQ(BigBinaryInteger("4"), ilv.GetValAtIndex(1))
+	<<"Failure: SwitchModulusAtIndex";
+      EXPECT_EQ(BigBinaryInteger("3"), ilv.GetValAtIndex(2))
+	<<"Failure: SwitchModulusAtIndex";
+      EXPECT_EQ(BigBinaryInteger::TWO, ilv.GetValAtIndex(3))
+	<<"Failure: SwitchModulusAtIndex";
 
       if(i==0){
-        EXPECT_EQ(modulus2, ilv.GetModulus());
-        EXPECT_EQ(rootOfUnity2, ilv.GetRootOfUnity());
+        EXPECT_EQ(modulus2, ilv.GetModulus())
+	<<"Failure: SwitchModulusAtIndex modulus";
+        EXPECT_EQ(rootOfUnity2, ilv.GetRootOfUnity())
+	<<"Failure: SwitchModulusAtIndex rootOfUnity";
       }
     }
   }
-
 }
 
 TEST(UTILVectorArray2n, decompose_test) {
@@ -607,8 +632,9 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVectorA
     for(usint i=0; i<towersize; i++) {
       for(usint j=0; j<order/2; j++) {
         BigBinaryInteger actualResult(ilvectorarray2nResult.GetElementAtIndex(i).GetValAtIndex(j));
+	//mubint::init(moduli[i]); this gets it to work
         BigBinaryInteger expectedResult((bbv1[i].GetValAtIndex(j) + bbv2[i].GetValAtIndex(j)).Mod(moduli[i]));
-        EXPECT_EQ(actualResult, expectedResult) << "ILVectorArray2n + operation returns incorrect results.";
+        EXPECT_EQ(actualResult, expectedResult) << "ILVectorArray2n + operation returns incorrect results. i "<< i << " j "<<j;
       }
     }
     
@@ -620,8 +646,9 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVectorA
     for(usint i=0; i<towersize; i++) {
       for(usint j=0; j<order/2; j++) {
         BigBinaryInteger actualResult(ilvectorarray2nResult.GetElementAtIndex(i).GetValAtIndex(j));
+	//mubint::init(moduli[i]);
         BigBinaryInteger expectedResult((bbv1[i].GetValAtIndex(j) * bbv2[i].GetValAtIndex(j)).Mod(moduli[i]));
-        EXPECT_EQ(actualResult, expectedResult) << "ILVectorArray2n * operation returns incorrect results.";
+        EXPECT_EQ(actualResult, expectedResult) << "ILVectorArray2n * operation returns incorrect results. i "<< i << " j "<<j;
       }
     }
 

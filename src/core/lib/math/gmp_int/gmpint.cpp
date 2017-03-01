@@ -447,6 +447,21 @@ namespace NTL {
   }
 
 
+#if 0
+  inline long myZZ::operator<(const myZZ_p& b) const
+  { return b.Compare(*this) >= 0; };
+  inline long myZZ::operator>(const myZZ_p& b) const
+  { return b.Compare(*this) <= 0; };
+  inline long myZZ::operator<=(const myZZ_p& b) const
+  { return b.Compare(*this) > 0; }; 
+  inline long myZZ::operator>=( const myZZ_p& b) const
+  { return b.Compare(*this) < 0; };
+  inline long myZZ::operator==(const myZZ_p& b) const
+  { return b.Compare(*this) == 0; };
+  inline long myZZ::operator!=(const myZZ_p& b) const
+  { return b.Compare(*this) != 0; };
+#endif
+
 
   //the following code is new serialize/deserialize code from
   // binint.cpp 

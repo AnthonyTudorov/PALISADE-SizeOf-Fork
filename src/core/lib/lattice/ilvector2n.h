@@ -368,6 +368,9 @@ namespace lbcrypto {
     inline void SetValAtIndex(size_t index, int val) {
       m_values->SetValAtIndex(index, BigBinaryInteger(val));
     }
+    inline void SetValAtIndexWithoutMod(size_t index, int val) {
+      m_values->SetValAtIndexWithoutMod(index, BigBinaryInteger(val));
+    }
 
     /**
      *  Set BigBinaryVector value to val
@@ -377,6 +380,9 @@ namespace lbcrypto {
      */
     inline void SetValAtIndex(size_t index, const BigBinaryInteger& val) {
       m_values->SetValAtIndex(index, val);
+    }
+    inline void SetValAtIndexWithoutMod(size_t index, const BigBinaryInteger& val) {
+      m_values->SetValAtIndexWithoutMod(index, val);
     }
 
     // SCALAR OPERATIONS

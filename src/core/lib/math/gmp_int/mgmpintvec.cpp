@@ -464,7 +464,7 @@ namespace NTL {
   void myVecP<myT>::SwitchModulus(const myZZ& newModulus) 
   {
 
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     DEBUG("Switch modulus old mod :"<<this->m_modulus);
     DEBUG("Switch modulus old this :"<<*this);
 
@@ -475,9 +475,9 @@ namespace NTL {
     myZZ diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
     DEBUG("Switch modulus diff :"<<diff);
 #ifdef FORCE_NORMALIZATION
-    if (newModulus > oldModulus) {
-      this->SetModulus(newModulus); // set now in order to write correct numbers.
-    }
+    //    if (newModulus > oldModulus) {
+    //  this->SetModulus(newModulus); // set now in order to write correct numbers.
+    //  }
 #endif
     for (usint i=0; i< this->GetLength(); i++) {
       n = conv<myZZ>(this->GetValAtIndex(i));
@@ -485,25 +485,25 @@ namespace NTL {
       if(oldModulus < newModulus) {
 	if(n > oldModulusByTwo) {
 	  DEBUG("s1 "<<n.ModAdd(diff, newModulus));
-	  this->SetValAtIndex(i, n.ModAdd(diff, newModulus));
+	  this->SetValAtIndexWithoutMod(i, n.ModAdd(diff, newModulus));
 	} else {
 	  DEBUG("s2 "<<n.Mod(newModulus));
-	  this->SetValAtIndex(i, n.Mod(newModulus));
+	  this->SetValAtIndexWithoutMod(i, n.Mod(newModulus));
 	}
       } else {
 	if(n > oldModulusByTwo) {
 	  DEBUG("s3 "<<n.ModSub(diff, newModulus));
-	  this->SetValAtIndex(i, n.ModSub(diff, newModulus));
+	  this->SetValAtIndexWithoutMod(i, n.ModSub(diff, newModulus));
 	} else {
 	  DEBUG("s4 "<<n.Mod(newModulus));
-	  this->SetValAtIndex(i, n.Mod(newModulus));
+	  this->SetValAtIndexWithoutMod(i, n.Mod(newModulus));
 	}
       }
     }
     DEBUG("Switch modulus this before set :"<<*this);
-    if (newModulus < oldModulus) {
+    //if (newModulus < oldModulus) {
       this->SetModulus(newModulus); // set now to correct output
-    }
+      //}
     DEBUG("Switch modulus new modulus :"<<this->m_modulus);
     DEBUG("Switch modulus new this :"<<*this);
 
@@ -550,7 +550,7 @@ namespace NTL {
 	DEBUG("ans.size"<<ans.size());
 	DEBUG("ans.modulus"<<ans.m_modulus);
 
-	myT halfQ(this->GetModulus() >> 1);
+	myZZ halfQ(this->GetModulus() >> 1);
 	DEBUG("halfQ = "<<halfQ);
 
 	for (usint i = 0; i<this->length(); i++) {
@@ -596,7 +596,7 @@ namespace NTL {
   myVecP<myT> myVecP<myT>::ModByTwo() const {
     
     myVecP ans(this->GetLength(),this->GetModulus());
-    myT halfQ(this->GetModulus() >> 1);
+    myZZ halfQ(this->GetModulus() >> 1);
     for (usint i = 0; i<ans.GetLength(); i++) {
       if (this->GetValAtIndex(i)>halfQ) {
 	if (this->GetValAtIndex(i).Mod(myZZ::TWO) == myZZ::ONE)
@@ -996,7 +996,21 @@ namespace NTL {
   }
 
   template<class myT>
-  const myT& myVecP<myT>::GetValAtIndex(size_t index) const{
+  void myVecP<myT>::SetValAtIndexWithoutMod(usint index, const myZZ& value){
+    if(!this->IndexCheck(index)){
+      throw std::logic_error("myVecP index out of range");
+    }
+    else{
+      //std::cout<<"Warning setting value to index without mod() first"<<std::endl;
+	this->at(index) = myT(value);
+    }
+  }
+
+
+  ///this really has to be myZZ in order to get old palisade to work.
+ 
+  template<class myT>
+  const myZZ& myVecP<myT>::GetValAtIndex(size_t index) const{
     if(!this->IndexCheck(index)){
       throw std::logic_error("myVecP index out of range");
     }

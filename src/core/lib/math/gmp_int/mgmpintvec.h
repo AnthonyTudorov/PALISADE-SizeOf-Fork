@@ -162,7 +162,9 @@ namespace NTL {
     void SetValAtIndex(usint index, const char *s);
     void SetValAtIndex(usint index, const std::string& str);
 
-    const myT& GetValAtIndex(size_t index) const;
+    void SetValAtIndexWithoutMod(usint index, const myZZ&value);
+
+    const myZZ& GetValAtIndex(size_t index) const;
 
 
     /**
@@ -531,6 +533,8 @@ namespace NTL {
     inline void ModulusCheck(std::string msg) const {
       if (!isModulusSet()){
 	std::cout<<msg<<" uninitialized this->modulus"<<std::endl;
+      } else {
+	ZZ_p::init(this->m_modulus); //set global modulus to this 
       }
     };
 
@@ -542,6 +546,7 @@ namespace NTL {
       } else if (!isModulusSet()) {
 	throw std::logic_error(fname+" modulus vector modulus scalar op GARBAGE  moduli");
       }
+      ZZ_p::init(this->m_modulus); //set global modulus to this 
     };
     
     //utility function to check argument consistency for vector vector fns
@@ -554,6 +559,7 @@ namespace NTL {
       }else if(this->size()!=b.size()){
 	throw std::logic_error(fname +" vectors of different lengths");
       }
+      ZZ_p::init(this->m_modulus); //set global modulus to this 
     };
     
     //used to make sure all entries in this are <=current modulus

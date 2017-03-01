@@ -255,7 +255,17 @@ inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+
 
    inline myZZ operator>>(long n) const {return RightShift(*this, n);};
    inline myZZ operator<<(long n) const {return LeftShift(*this, n);};
-     
+
+#if 0
+   // comparison operators to myZZ_p
+   inline long operator<(const myZZ_p& b) const; 
+   inline long operator>(const myZZ_p& b) const;  
+   inline long operator<=(const myZZ_p& b) const; 
+   inline long operator>=( const myZZ_p& b) const; 
+   inline long operator==(const myZZ_p& b) const; 
+   inline long operator!=(const myZZ_p& b) const; 
+#endif
+   
    friend std::ostream& operator<<(std::ostream& os, const myZZ&ptr_obj);
 
   //palisade string conversion
@@ -348,7 +358,7 @@ private:
   usint GetMSBLimb_t( ZZ_limb_t x) const;
 }; //class ends
 
-  
+
 }//namespace ends
 
 #endif //LBCRYPTO_MATH_GMPINT_GMPINT_H
