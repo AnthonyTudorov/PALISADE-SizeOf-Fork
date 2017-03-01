@@ -133,7 +133,16 @@ namespace lbcrypto {
 		*
 		*@param params Parameters to be held, used in ILVector construction
 		*/
-		void SetElemParams(shared_ptr<ILParams> params) { m_params = params; };
+		void SetElemParams(shared_ptr<ILParams> params) { 
+			m_params = params; 
+			const BigBinaryInteger & q = params->GetModulus();
+			size_t n = params->GetCyclotomicOrder() / 2;
+			double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
+			size_t k = (usint)floor(logTwo);
+			double c = 2 * SIGMA;
+			double s = SPECTRAL_BOUND(n, k);
+			dggLargeSigma = DiscreteGaussianGenerator(sqrt(s * s - c * c));
+		};
 
 		/**
 		*Method for accessing the ILParams held in this class
@@ -150,6 +159,13 @@ namespace lbcrypto {
 		DiscreteGaussianGenerator & GetDiscreteGaussianGenerator() { return dgg; }
 
 		/**
+		*Method for accessing the DiscreteGaussianGenerator object held in this class
+		*
+		*@return DiscreteGaussianGenerator object held
+		*/
+		DiscreteGaussianGenerator & GetDiscreteGaussianGeneratorLargeSigma() { return dggLargeSigma; }
+
+		/**
 		*Default constructor
 		*/
 		LPSignatureParameters() {}
@@ -164,6 +180,7 @@ namespace lbcrypto {
 	private:
 		shared_ptr<ILParams> m_params;
 		DiscreteGaussianGenerator dgg;
+		DiscreteGaussianGenerator dggLargeSigma;
 	};
 	/**
 	*  @brief Class holding signing key for Ring LWE variant of GPV signing algorithm. The values held in this class are trapdoor, public key of the trapdoor and the perturbation matrix

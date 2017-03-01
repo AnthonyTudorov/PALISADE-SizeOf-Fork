@@ -81,10 +81,12 @@ namespace lbcrypto {
 		double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
 		size_t k = (usint)floor(logTwo);
 		
-		double c = 2 * SIGMA;
-		double s = SPECTRAL_BOUND(n, k);
+		//double c = 2 * SIGMA;
+		//double s = SPECTRAL_BOUND(n, k);
 
-		DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
+		//DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
+
+		DiscreteGaussianGenerator & dggLargeSigma = signKey.GetSignatureParameters().GetDiscreteGaussianGeneratorLargeSigma();
 
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
 		HashUtil util;
@@ -205,14 +207,14 @@ namespace lbcrypto {
 		DiscreteGaussianGenerator & dgg = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator();
 
 		//Generating the signature via Gaussian sampling using the values above
-		double c = 2 * SIGMA;
-		double s = SPECTRAL_BOUND(n, k);
-		DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
+		//double c = 2 * SIGMA;
+		//double s = SPECTRAL_BOUND(n, k);
+		//DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
+		DiscreteGaussianGenerator & dggLargeSigma = signKey.GetSignatureParameters().GetDiscreteGaussianGeneratorLargeSigma();
 		Matrix<ILVector2n> zHat = RLWETrapdoorUtility::GaussSampV3(n,k,A,T,u,stddev,dgg,dggLargeSigma);
 		signatureText->SetElement(zHat);
 
 	}
-
 	//Method for verifying given object & signature
 	template <class Element>
 	bool LPSignatureSchemeGPVGM<Element>::Verify(LPVerificationKeyGPVGM<Element> &verificationKey,
