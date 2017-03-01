@@ -178,6 +178,10 @@ private:
 		return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
 	}
 
+	static double UnnormalizedGaussianPDFOptimized(const double &mean, const double &sigmaFactor, int32_t x) {
+		return pow(M_E, sigmaFactor*(x - mean)*(x - mean));
+	}
+
 	static inline LargeFloat UnnormalizedGaussianPDF(const LargeFloat &mean, const LargeFloat &sigma, int32_t x) {
 	//#if defined(_MSC_VER)	
 		return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));

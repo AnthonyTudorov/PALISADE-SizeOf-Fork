@@ -219,12 +219,14 @@ namespace lbcrypto {
 
 	int32_t DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n) {
 
-		double t = log2(n)*stddev;  //this representation of log_2 is used for Visual Studio
+		double t = 0.5*log2(2*n)*stddev;  //this representation of log_2 is used for Visual Studio
 
 		BigBinaryInteger result;
 
 		std::uniform_int_distribution<int32_t> uniform_int(floor(mean - t), ceil(mean + t));
 		std::uniform_real_distribution<double> uniform_real(0.0, 1.0);
+
+		double sigmaFactor = -1 / (2. * stddev * stddev);
 
 		bool flagSuccess = false;
 		int32_t x;
@@ -235,7 +237,7 @@ namespace lbcrypto {
 			//  roll the uniform dice
 			double dice = uniform_real(GetPRNG());
 			//  check if dice land below pdf
-			if (dice <= UnnormalizedGaussianPDF(mean, stddev, x)) {
+			if (dice <= UnnormalizedGaussianPDFOptimized(mean, sigmaFactor, x)) {
 				flagSuccess = true;
 			}
 		}
@@ -250,7 +252,7 @@ namespace lbcrypto {
 		*/
 	int32_t DiscreteGaussianGenerator::GenerateInteger(const LargeFloat &mean, const LargeFloat &stddev, size_t n) {
 
-		LargeFloat t = log(n) / log(2)*stddev;  //fix for Visual Studio
+		LargeFloat t = 0.5*log2(2*n)*stddev;
 
 		//YSP this double conversion is necessary for uniform_int to work properly; the use of double is justified in this case
 #if defined(_MSC_VER)
