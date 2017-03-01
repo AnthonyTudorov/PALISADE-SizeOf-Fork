@@ -95,7 +95,8 @@ const uint_type BigBinaryInteger<uint_type,BITLENGTH>::m_uintMax = std::numeric_
 template<typename uint_type,usint BITLENGTH>
 uint_type BigBinaryInteger<uint_type,BITLENGTH>::ceilIntByUInt(const uint_type Number){
 	//mask to perform bitwise AND
-	static uint_type mask = m_uintBitLength-1;
+	//static uint_type mask = m_uintBitLength-1;
+	uint_type mask = m_uintBitLength - 1;
 
 	if(!Number)
 		return 1;
