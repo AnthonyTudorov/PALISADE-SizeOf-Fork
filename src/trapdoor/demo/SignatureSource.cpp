@@ -7,6 +7,7 @@
 using namespace lbcrypto;
 
 int main() {
+	size_t counter = 10;
 	double start, finish;
 	DiscreteGaussianGenerator dgg(4);
 	usint sm = 16;
@@ -32,18 +33,30 @@ int main() {
 
 	std::cout << "Test" << std::endl;
 	Signature<Matrix<ILVector2n>> signature, signature2;
-	BytePlaintextEncoding text("Let's spice things up");
+	
+	std::vector<BytePlaintextEncoding> text{
+		"1 Let's spice things up",
+		"2 Let's spice things up",
+		"3 Let's spice things up",
+		"4 Let's spice things up",
+		"5 Let's spice things up",
+		"6 Let's spice things up",
+		"7 Let's spice things up",
+		"8 Let's spice things up",
+		"9 Let's spice things up",
+		"10 Let's spice things up",
+	};
 
 	start = currentDateTime();
-	scheme.Sign(s_k, text, &signature);
+	scheme.Sign(s_k, text[0], &signature);
 	finish = currentDateTime();
 	std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
 
 	start = currentDateTime();
-	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text) << std::endl;
+	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text[0]) << std::endl;
 	finish = currentDateTime();
 	std::cout << "Verifying - Old : " << "\t" << finish - start << " ms" << std::endl << std::endl;
-	
+
 	LPSignKeyGPVGM<ILVector2n> s_k_gm(signParams);
 	LPVerificationKeyGPVGM<ILVector2n> v_k_gm(signParams);
 	LPSignatureSchemeGPVGM<ILVector2n> scheme_gm;
@@ -54,15 +67,15 @@ int main() {
 
 
 	start = currentDateTime();
-	scheme_gm.Sign(s_k_gm, text, &signature);
+	scheme_gm.Sign(s_k_gm, text[0], &signature);
 	finish = currentDateTime();
 	std::cout << "Signing - New : " << "\t" << finish - start << " ms" << std::endl;
 
 	start = currentDateTime();
-	std::cout << "Signature 1-Text 1 verification:" << scheme_gm.Verify(v_k_gm, signature, text) << std::endl;
+	std::cout << "Signature 1-Text 1 verification:" << scheme_gm.Verify(v_k_gm, signature, text[0]) << std::endl;
 	finish = currentDateTime();
 	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl << std::endl;
-	
+
 	/*
 	sm = 256;
 	smodulus.SetValue("134246401");
@@ -117,7 +130,7 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl << std::endl;
 	*/
-	
+
 	sm = 512;
 	smodulus.SetValue("134246401");
 	srootOfUnity.SetValue("49884309");
@@ -138,20 +151,20 @@ int main() {
 	s_k.SetSignatureParameters(signParams);
 	v_k.SetSignatureParameters(signParams);
 
-	//start = currentDateTime();
-	//scheme.KeyGen(&s_k, &v_k);
-	//finish = currentDateTime();
-	//std::cout << "Key generation - Old : " << "\t" << finish - start << " ms" << std::endl;
+	start = currentDateTime();
+	scheme.KeyGen(&s_k, &v_k);
+	finish = currentDateTime();
+	std::cout << "Key generation - Old : " << "\t" << finish - start << " ms" << std::endl;
 
-	//start = currentDateTime();
-	//scheme.Sign(s_k, text, &signature);
-	//finish = currentDateTime();
-	//std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
+	start = currentDateTime();
+	scheme.Sign(s_k, text[0], &signature);
+	finish = currentDateTime();
+	std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
 
-	//start = currentDateTime();
-	//std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text) << std::endl;
-	//finish = currentDateTime();
-	//std::cout << "Verifying -Old : " << "\t" << finish - start << " ms" << std::endl << std::endl;
+	start = currentDateTime();
+	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text[0]) << std::endl;
+	finish = currentDateTime();
+	std::cout << "Verifying -Old : " << "\t" << finish - start << " ms" << std::endl << std::endl;
 
 	s_k_gm.SetSignatureParameters(signParams);
 	v_k_gm.SetSignatureParameters(signParams);
@@ -161,16 +174,35 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Key generation - New : " << "\t" << finish - start << " ms" << std::endl;
 
-	start = currentDateTime();
-	scheme_gm.Sign(s_k_gm, text, &signature);
-	finish = currentDateTime();
-	std::cout << "Signing - New : " << "\t" << finish - start << " ms" << std::endl;
+	double signTime = 0;
+	double verifyTime = 0;
+	size_t verifyCounter = 0;
+	bool verifyBool = false;
 
-	start = currentDateTime();
-	std::cout << "Signature 1-Text 1 verification:" << scheme_gm.Verify(v_k_gm, signature, text) << std::endl;
-	finish = currentDateTime();
-	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl << std::endl;
+	for (usint i = 0; i < counter; i++) {
 
+		start = currentDateTime();
+		scheme_gm.Sign(s_k_gm, text[i], &signature);
+		finish = currentDateTime();
+
+		signTime += finish - start;
+		//std::cout << "Signing - New : " << "\t" << finish - start << " ms" << std::endl;
+
+		start = currentDateTime();
+		verifyBool = scheme_gm.Verify(v_k_gm, signature, text[i]);
+		finish = currentDateTime();
+
+		verifyTime += finish - start;
+
+		if (verifyBool)
+			verifyCounter++;
+		//std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl << std::endl;
+
+	}
+
+	std::cout << "Signing - New : " << "\t" << signTime/counter << " ms" << std::endl;
+	std::cout << "Verifying - New : " << "\t" << verifyTime / counter << " ms" << std::endl;
+	std::cout << "Verification counter : " << "\t" << verifyCounter << "\n" << std::endl;
 	
 	sm = 1024;
 	smodulus.SetValue("134246401");
@@ -193,20 +225,20 @@ int main() {
 	s_k.SetSignatureParameters(signParams);
 	v_k.SetSignatureParameters(signParams);
 
-	//start = currentDateTime();
-	//scheme.KeyGen(&s_k, &v_k);
-	//finish = currentDateTime();
-	//std::cout << "Key generation - Old : " << "\t" << finish - start << " ms" << std::endl;
+	start = currentDateTime();
+	scheme.KeyGen(&s_k, &v_k);
+	finish = currentDateTime();
+	std::cout << "Key generation - Old : " << "\t" << finish - start << " ms" << std::endl;
 
-	//start = currentDateTime();
-	//scheme.Sign(s_k, text, &signature);
-	//finish = currentDateTime();
-	//std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
+	start = currentDateTime();
+	scheme.Sign(s_k, text[0], &signature);
+	finish = currentDateTime();
+	std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
 
-	//start = currentDateTime();
-	//std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text) << std::endl;
-	//finish = currentDateTime();
-	//std::cout << "Verifying - Old : " << "\t" << finish - start << " ms" << std::endl << std::endl;
+	start = currentDateTime();
+	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text[0]) << std::endl;
+	finish = currentDateTime();
+	std::cout << "Verifying - Old : " << "\t" << finish - start << " ms" << std::endl << std::endl;
 
 	s_k_gm.SetSignatureParameters(signParams);
 	v_k_gm.SetSignatureParameters(signParams);
@@ -216,17 +248,35 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Key generation - New : " << "\t" << finish - start << " ms" << std::endl;
 
-	start = currentDateTime();
-	scheme_gm.Sign(s_k_gm, text, &signature);
-	finish = currentDateTime();
-	std::cout << "Signing - New : " << "\t" << finish - start << " ms" << std::endl;
+	signTime = 0;
+	verifyTime = 0;
+	verifyCounter = 0;
+	verifyBool = false;
 
-	start = currentDateTime();
-	std::cout << "Signature 1-Text 1 verification:" << scheme_gm.Verify(v_k_gm, signature, text) << std::endl;
-	finish = currentDateTime();
-	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl<<std::endl;
+	for (usint i = 0; i < counter; i++) {
 
-	
+		start = currentDateTime();
+		scheme_gm.Sign(s_k_gm, text[0], &signature);
+		finish = currentDateTime();
+
+		signTime += finish - start;
+		//std::cout << "Signing - New : " << "\t" << finish - start << " ms" << std::endl;
+
+		start = currentDateTime();
+		verifyBool = scheme_gm.Verify(v_k_gm, signature, text[0]);
+		finish = currentDateTime();
+
+		verifyTime += finish - start;
+
+		if (verifyBool)
+			verifyCounter++;
+		//std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl << std::endl;
+
+	}
+
+	std::cout << "Signing - New : " << "\t" << signTime / counter << " ms" << std::endl;
+	std::cout << "Verifying - New : " << "\t" << verifyTime / counter << " ms" << std::endl;
+	std::cout << "Verification counter : " << "\t" << verifyCounter << "\n" << std::endl;
 	
 	sm = 2048;
 	smodulus.SetValue("134246401");
@@ -272,20 +322,36 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Key generation - New : " << "\t" << finish - start << " ms" << std::endl;
 
+	signTime = 0;
+	verifyTime = 0;
+	verifyCounter = 0;
+	verifyBool = false;
 
-	start = currentDateTime();
-	scheme_gm.Sign(s_k_gm, text, &signature);
-	finish = currentDateTime();
-	std::cout << "Signing - New : " << "\t" << finish - start << " ms" << std::endl;
+	for (usint i = 0; i < counter; i++) {
 
-	start = currentDateTime();
-	std::cout << "Signature 1-Text 1 verification:" << scheme_gm.Verify(v_k_gm, signature, text) << std::endl;
-	finish = currentDateTime();
-	std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl;
+		start = currentDateTime();
+		scheme_gm.Sign(s_k_gm, text[0], &signature);
+		finish = currentDateTime();
 
-	
-	
-	
+		signTime += finish - start;
+		//std::cout << "Signing - New : " << "\t" << finish - start << " ms" << std::endl;
+
+		start = currentDateTime();
+		verifyBool = scheme_gm.Verify(v_k_gm, signature, text[0]);
+		finish = currentDateTime();
+
+		verifyTime += finish - start;
+
+		if (verifyBool)
+			verifyCounter++;
+		//std::cout << "Verifying - New : " << "\t" << finish - start << " ms" << std::endl << std::endl;
+
+	}
+
+	std::cout << "Signing - New : " << "\t" << signTime / counter << " ms" << std::endl;
+	std::cout << "Verifying - New : " << "\t" << verifyTime / counter << " ms" << std::endl;
+	std::cout << "Verification counter : " << "\t" << verifyCounter << "\n" << std::endl;
+
 	std::cout << "Execution completed" << std::endl;
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();
