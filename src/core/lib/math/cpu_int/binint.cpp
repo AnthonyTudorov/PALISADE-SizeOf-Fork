@@ -26,6 +26,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 #include "binint.h"
 
+#if defined(_MSC_VER)
+	#pragma intrinsic(_BitScanReverse) 
+#endif
 
 namespace cpu_int {
 
@@ -1798,15 +1801,18 @@ bool BigBinaryInteger<uint_type,BITLENGTH>::operator<=(const BigBinaryInteger& a
 template<typename uint_type,usint BITLENGTH>
 usint BigBinaryInteger<uint_type,BITLENGTH>::GetMSB32(uint64_t x)
 {
-    static const usint bval[] =
-    {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
 
-    usint r = 0;
-	if (x & 0xFFFFFFFF00000000) { r += 32/1; x >>= 32/1; }
-    if (x & 0x00000000FFFF0000) { r += 32/2; x >>= 32/2; }
-    if (x & 0x000000000000FF00) { r += 32/4; x >>= 32/4; }
-	if (x & 0x00000000000000F0) { r += 32/8; x >>= 32/8; }
-    return r + bval[x];
+	unsigned long msb = 0;
+
+	if (x!=0)
+
+#if defined(_MSC_VER)
+		_BitScanReverse(&msb, x);
+#else
+		msb = 63 - __builtin_clzl(x);
+#endif
+	return msb;
+
 }
 
 template<typename uint_type,usint BITLENGTH>
