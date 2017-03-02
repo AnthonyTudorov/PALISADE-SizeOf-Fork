@@ -98,10 +98,10 @@ uint_type BigBinaryInteger<uint_type,BITLENGTH>::ceilIntByUInt(const uint_type N
 	//static uint_type mask = m_uintBitLength-1;
 	uint_type mask = m_uintBitLength - 1;
 
-	if(!Number)
+	if ((Number&mask) != 0)
+		return (Number >> m_logUintBitLength) + 1;
+	else if (!Number)
 		return 1;
-	if((Number&mask)!=0)
-		return (Number>>m_logUintBitLength)+1;
 	else
 		return Number>>m_logUintBitLength;
 }
