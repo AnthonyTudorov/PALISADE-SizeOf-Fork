@@ -789,7 +789,8 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 		return *this;
 	}
 	//assigning pointers, A is assigned higher value and B the lower one
-	if(*this>b){
+	if(this->m_MSB > b.m_MSB){
+	//if(*this>b){
 		A = this; B = &b;
 	}
 	else {A = &b; B = this;}
