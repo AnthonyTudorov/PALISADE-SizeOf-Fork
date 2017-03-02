@@ -108,7 +108,7 @@ protected:
 /*	TESTING BASIC METHODS OF mubintvec CLASS        */
 /************************************************/
 TEST(UTmubintvec,ctor_access_eq_neq){
-
+  bool dbg_flag = true;
   //note this is the same code as the ubintvec, just to confirm it works
   //as inherited
   ubint q("1234567"); // a bigger number
@@ -135,6 +135,11 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   m.SetValAtIndex(2,"4554");
   m.SetValAtIndex(3,"2343");
   m.SetValAtIndex(4,"4624");
+
+  DEBUG("m "<<m);
+  EXPECT_EQ(9868U,m.GetValAtIndex(0))
+    << "Failure in SetValAtIndex(0)";
+
 
   //old fashioned way of expect
   EXPECT_EQ(9868U,m.GetValAtIndex(0).ConvertToUsint())

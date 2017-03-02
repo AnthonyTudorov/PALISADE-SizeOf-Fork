@@ -164,8 +164,11 @@ namespace NTL {
 
     void SetValAtIndexWithoutMod(usint index, const myZZ&value);
 
-    const myZZ& GetValAtIndex(size_t index) const;
-
+#if 1
+    const myT& GetValAtIndex(size_t index) const;
+#else
+   const myZZ& GetValAtIndex(size_t index) const;
+#endif
 
     /**
      * Returns a vector of digit at a specific index for all entries

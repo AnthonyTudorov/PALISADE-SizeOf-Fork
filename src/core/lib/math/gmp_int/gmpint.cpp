@@ -339,7 +339,10 @@ namespace NTL {
   const myZZ& myZZ::zero() {return (ZZ::zero());}
 
   //palisade conversion methods
-  usint myZZ::ConvertToUsint() const{ return (conv<usint>(*this)); }
+  usint myZZ::ConvertToUsint() const{
+    std::cout<<"in myZZ::ConvertToUsint() this"<<*this<<std::endl;
+
+ return (conv<usint>(*this)); }
   usint myZZ::ConvertToInt() const{ return (conv<int>(*this)); }
   uint32_t myZZ::ConvertToUint32() const { return (conv<uint32_t>(*this));}
 
