@@ -182,13 +182,13 @@ private:
 		return pow(M_E, sigmaFactor*(x - mean)*(x - mean));
 	}
 
-	static inline LargeFloat UnnormalizedGaussianPDF(const LargeFloat &mean, const LargeFloat &sigma, int32_t x) {
+	//static inline LargeFloat UnnormalizedGaussianPDF(const LargeFloat &mean, const LargeFloat &sigma, int32_t x) {
 	//#if defined(_MSC_VER)	
-		return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
+	//	return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
 	//#else
 	//	return pow(M_E, -pow((long double)x - mean, (long double)2)/(2. * sigma * sigma));
 	//#endif
-	}
+	//}
 
 	static inline LargeFloat UnnormalizedGaussianPDF(const LargeFloat &mean, int32_t x, const LargeFloat &sigmaFactor) {
 		//#if defined(_MSC_VER)	
