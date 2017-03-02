@@ -1738,8 +1738,9 @@ bool BigBinaryInteger<uint_type,BITLENGTH>::operator!=(const BigBinaryInteger& a
 
 template<typename uint_type,usint BITLENGTH>
 bool BigBinaryInteger<uint_type,BITLENGTH>::operator>(const BigBinaryInteger& a)const{
-	
-	if(this->m_state==GARBAGE || a.m_state==GARBAGE)
+
+	if (this->m_state + a.m_state != INITIALIZED)
+	//if(this->m_state==GARBAGE || a.m_state==GARBAGE)
 		throw std::logic_error("ERROR \n");
 
 	if(this->m_MSB<a.m_MSB)
