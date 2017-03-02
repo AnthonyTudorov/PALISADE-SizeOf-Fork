@@ -1805,12 +1805,12 @@ usint BigBinaryInteger<uint_type,BITLENGTH>::GetMSB32(uint64_t x)
 	unsigned long msb = 0;
 
 	if (x!=0)
+	#if defined(_MSC_VER)
+			_BitScanReverse(&msb, x);
+	#else
+			msb = 63 - __builtin_clzl(x);
+	#endif
 
-#if defined(_MSC_VER)
-		_BitScanReverse(&msb, x);
-#else
-		msb = 63 - __builtin_clzl(x);
-#endif
 	return msb;
 
 }

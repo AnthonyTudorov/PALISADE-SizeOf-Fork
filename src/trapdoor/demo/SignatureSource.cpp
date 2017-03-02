@@ -151,20 +151,20 @@ int main() {
 	s_k.SetSignatureParameters(signParams);
 	v_k.SetSignatureParameters(signParams);
 
-	//start = currentDateTime();
-	//scheme.KeyGen(&s_k, &v_k);
-	//finish = currentDateTime();
-	//std::cout << "Key generation - Old : " << "\t" << finish - start << " ms" << std::endl;
+	start = currentDateTime();
+	scheme.KeyGen(&s_k, &v_k);
+	finish = currentDateTime();
+	std::cout << "Key generation - Old : " << "\t" << finish - start << " ms" << std::endl;
 
-	//start = currentDateTime();
-	//scheme.Sign(s_k, text[0], &signature);
-	//finish = currentDateTime();
-	//std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
+	start = currentDateTime();
+	scheme.Sign(s_k, text[0], &signature);
+	finish = currentDateTime();
+	std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
 
-	//start = currentDateTime();
-	//std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text[0]) << std::endl;
-	//finish = currentDateTime();
-	//std::cout << "Verifying -Old : " << "\t" << finish - start << " ms" << std::endl << std::endl;
+	start = currentDateTime();
+	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text[0]) << std::endl;
+	finish = currentDateTime();
+	std::cout << "Verifying -Old : " << "\t" << finish - start << " ms" << std::endl << std::endl;
 
 	s_k_gm.SetSignatureParameters(signParams);
 	v_k_gm.SetSignatureParameters(signParams);
@@ -225,20 +225,20 @@ int main() {
 	s_k.SetSignatureParameters(signParams);
 	v_k.SetSignatureParameters(signParams);
 
-	//start = currentDateTime();
-	//scheme.KeyGen(&s_k, &v_k);
-	//finish = currentDateTime();
-	//std::cout << "Key generation - Old : " << "\t" << finish - start << " ms" << std::endl;
+	start = currentDateTime();
+	scheme.KeyGen(&s_k, &v_k);
+	finish = currentDateTime();
+	std::cout << "Key generation - Old : " << "\t" << finish - start << " ms" << std::endl;
 
-	//start = currentDateTime();
-	//scheme.Sign(s_k, text[0], &signature);
-	//finish = currentDateTime();
-	//std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
+	start = currentDateTime();
+	scheme.Sign(s_k, text[0], &signature);
+	finish = currentDateTime();
+	std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
 
-	//start = currentDateTime();
-	//std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text[0]) << std::endl;
-	//finish = currentDateTime();
-	//std::cout << "Verifying - Old : " << "\t" << finish - start << " ms" << std::endl << std::endl;
+	start = currentDateTime();
+	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text[0]) << std::endl;
+	finish = currentDateTime();
+	std::cout << "Verifying - Old : " << "\t" << finish - start << " ms" << std::endl << std::endl;
 
 	s_k_gm.SetSignatureParameters(signParams);
 	v_k_gm.SetSignatureParameters(signParams);
@@ -298,21 +298,21 @@ int main() {
 	s_k.SetSignatureParameters(signParams);
 	v_k.SetSignatureParameters(signParams);
 
-	//start = currentDateTime();
-	//scheme.KeyGen(&s_k, &v_k);
-	//finish = currentDateTime();
-	//std::cout << "Key generation - Old : " << "\t" << finish - start << " ms" << std::endl;
+	start = currentDateTime();
+	scheme.KeyGen(&s_k, &v_k);
+	finish = currentDateTime();
+	std::cout << "Key generation - Old : " << "\t" << finish - start << " ms" << std::endl;
 
 
-	//start = currentDateTime();
-	//scheme.Sign(s_k, text, &signature);
-	//finish = currentDateTime();
-	//std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
+	start = currentDateTime();
+	scheme.Sign(s_k, text[0], &signature);
+	finish = currentDateTime();
+	std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
 
-	//start = currentDateTime();
-	//std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text) << std::endl;
-	//finish = currentDateTime();
-	//std::cout << "Verifying - Old : " << "\t" << finish - start << " ms" << std::endl;
+	start = currentDateTime();
+	std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text[0]) << std::endl;
+	finish = currentDateTime();
+	std::cout << "Verifying - Old : " << "\t" << finish - start << " ms" << std::endl;
 	
 	s_k_gm.SetSignatureParameters(signParams);
 	v_k_gm.SetSignatureParameters(signParams);
