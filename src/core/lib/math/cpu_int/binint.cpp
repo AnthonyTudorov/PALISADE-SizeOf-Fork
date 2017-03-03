@@ -117,7 +117,7 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger()
 	this->m_value[m_nSize-1] = 0;
 	//MSB set to zero since value set to ZERO
 	this->m_MSB = 0;
-	m_state = INITIALIZED;
+
 }
 
 template<typename uint_type,usint BITLENGTH>
@@ -134,17 +134,12 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(usint init){
 
 	this->m_MSB = msb;
 
-	m_state = INITIALIZED;
-
 }
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const std::string& str){
 	//setting the array values from the string
 	AssignVal(str);
-	//state set
-	m_state = INITIALIZED;
-
 }
 
 template<typename uint_type,usint BITLENGTH>
@@ -155,8 +150,6 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const BigBinaryInteger& 
 	for(int i=m_nSize - tempChar;i<m_nSize;i++){//copy array value
 		m_value[i]=bigInteger.m_value[i];
 	}
-	//set state
-	m_state = INITIALIZED;
 }
 
 template<typename uint_type,usint BITLENGTH>
@@ -167,8 +160,6 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(BigBinaryInteger &&bigIn
 	for (size_t i=0; i < m_nSize; ++i) {
 		m_value[i] = bigInteger.m_value[i];
 	}
-	//set state
-	m_state = bigInteger.m_state;
 }
 
 template<typename uint_type,usint BITLENGTH>
@@ -212,7 +203,6 @@ const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENG
 	usint copyStart = ceilIntByUInt(rhs.m_MSB);
 	if(this!=&rhs){
         this->m_MSB=rhs.m_MSB;
-		this->m_state = rhs.m_state;
 		//copy array value
         for(int i= m_nSize-copyStart;i<m_nSize;i++){
             this->m_value[i]=rhs.m_value[i];
@@ -226,7 +216,6 @@ const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENG
 
 	if(this!=&rhs){
         this->m_MSB = rhs.m_MSB;
-		this->m_state = rhs.m_state;
 		for (size_t i=0; i < m_nSize; ++i) {
 			m_value[i] = rhs.m_value[i];
 		}
@@ -244,8 +233,7 @@ const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENG
 */
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::operator<<(usshort shift) const{
-	if(m_state==State::GARBAGE)
-		throw std::logic_error("Value not initialized");
+
 	if(this->m_MSB==0)
 		return BigBinaryInteger(ZERO);
 
@@ -304,8 +292,6 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 */
 template<typename uint_type,usint BITLENGTH>
 const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator<<=(usshort shift){
-	if(m_state==State::GARBAGE)
-		throw std::logic_error("Value not initialized");
 
 	if(this->m_MSB==0)
 		return *this;
@@ -366,9 +352,6 @@ const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENG
 */
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::operator>>(usshort shift) const{
-	//garbage check
-	if(m_state==State::GARBAGE)
-		throw std::logic_error("Value not initialized");
 
 	//trivial cases
 	if(this->m_MSB==0 || this->m_MSB <= shift)
@@ -439,9 +422,6 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 */
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator>>=(usshort shift){
-	//check for garbage
-	if(m_state==State::GARBAGE)
-		throw std::logic_error("Value not initialized");
 
 	if(this->m_MSB==0 )
 		return *this;
@@ -596,8 +576,6 @@ const char *BigBinaryInteger<uint_type, BITLENGTH>::Deserialize(const char *cp){
 
 	m_MSB = GetMSB32(m_value[i+1])+(counter-1)*32; // 32 should be something better: (sizeof(uint_type)*8 ??
 
-	m_state = INITIALIZED;
-
 	return cp;
 }
 
@@ -616,17 +594,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Plu
 	//two operands A and B for addition, A is the greater one, B is the smaller one
     const BigBinaryInteger* A = NULL;
 	const BigBinaryInteger* B = NULL;
-	//check for garbage initializations
-	if(this->m_state==GARBAGE){
-		if(b.m_state==GARBAGE){
-			return BigBinaryInteger(ZERO);
-		}
-		else
-			return BigBinaryInteger(b);
-	}
-	if(b.m_state==GARBAGE){
-		return BigBinaryInteger(*this);
-	}
+
 	//Assignment of pointers, A assigned the higher value and B assigned the lower value
 	if(*this>b){
 		A = this; B = &b;
@@ -637,7 +605,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Plu
 		return BigBinaryInteger(*A);
 
 	BigBinaryInteger result;
-	result.m_state = INITIALIZED;
+
 	//overflow variable
 	Duint_type ofl=0;
 	//position from A to start addition
@@ -689,13 +657,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Plu
 */
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Minus(const BigBinaryInteger& b) const{
-	//check for garbage initialization
-	if(this->m_state==GARBAGE){
-		return BigBinaryInteger(ZERO);		
-	}
-	if(b.m_state==GARBAGE){
-		return BigBinaryInteger(*this);
-	}
+
 	//return 0 if b is higher than *this as there is no support for negative number
 	if(!(*this>b))
 		return BigBinaryInteger(ZERO);
@@ -749,11 +711,13 @@ template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Times(const BigBinaryInteger& b) const{
 	
 	BigBinaryInteger ans;
-	//check for garbage initialised objects
-	if(b.m_MSB==0 || b.m_state==GARBAGE ||this->m_state==GARBAGE || this->m_MSB==0){
+
+	//if one of them is zero
+	if(b.m_MSB==0 || this->m_MSB==0){
 		ans = ZERO;
 		return ans;
 	}
+
 	//check for trivial condtions
 	if(b.m_MSB==1)
 		return BigBinaryInteger(*this);
@@ -776,21 +740,12 @@ template<typename uint_type,usint BITLENGTH>
 const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGTH>::operator+=(const BigBinaryInteger &b){
 	const BigBinaryInteger* A = NULL;//two operands A and B for addition, A is the greater one, B is the smaller one
 	const BigBinaryInteger* B = NULL;
-	//check for garbage initialisation
-	if(this->m_state==GARBAGE){
-		if(b.m_state==GARBAGE){
-			*this = ZERO;
-			return *this;
-		}
-		else{
-			*this = b;
-			return *this;
-		}
-	}
+
 	//check for trivial cases
-	if(b.m_state==GARBAGE || b.m_MSB==0){
+	if(b.m_MSB==0){
 		return *this;
 	}
+
 	//assigning pointers, A is assigned higher value and B the lower one
 	if(this->m_MSB > b.m_MSB){
 	//if(*this>b){
@@ -845,15 +800,6 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 template<typename uint_type,usint BITLENGTH>
 const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGTH>::operator-=(const BigBinaryInteger &b){
 	
-
-	if(this->m_state==GARBAGE){
-		*this=ZERO;
-		return *this;		
-	}
-	if(b.m_state==GARBAGE){
-		return *this;
-	}
-
 	if(!(*this>b)){
 		*this=ZERO;
 		return *this;
@@ -898,8 +844,6 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::MulIntegerByChar(uint_type b) const{
 	
-	if(this->m_state==GARBAGE)
-		throw std::logic_error("ERROR \n");
 	if(b==0 || this->m_MSB==0)
 		return BigBinaryInteger(ZERO);
 	
@@ -924,7 +868,6 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mul
 	ans.m_MSB = (m_nSize-1-endVal)*m_uintBitLength;
 	//set the MSB after the final computation
 	ans.m_MSB += GetMSBDUint_type(temp);
-	ans.m_state = INITIALIZED;
 
 	return ans;
 }
@@ -935,16 +878,15 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mul
 */
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::DividedBy(const BigBinaryInteger& b) const{
-	//check for garbage initialization and 0 condition
-	if(b.m_state==GARBAGE || b==ZERO)
+	
+	//check for the 0 condition
+	if(b==ZERO)
 		throw std::logic_error("DIVISION BY ZERO");
 
-	if(b.m_MSB>this->m_MSB || this->m_state==GARBAGE)
+	if(b.m_MSB>this->m_MSB)
 		return BigBinaryInteger(ZERO);
 	else if(b==*this)
 		return BigBinaryInteger(ONE);
-	
-		
 	
 	BigBinaryInteger ans;
 	
@@ -970,7 +912,6 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Div
 		running_dividend.m_value[ m_nSize-ncharInDivisor+i] = normalised_dividend.m_value[ m_nSize-ncharInNormalised_dividend+i]; 
 	}
 	running_dividend.m_MSB = GetMSBUint_type(running_dividend.m_value[m_nSize-ncharInDivisor]) + (ncharInDivisor-1)*m_uintBitLength;
-	running_dividend.m_state = INITIALIZED;
 	
 	uint_type estimate=0;
 	uint_type maskBit = 0;
@@ -1044,7 +985,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Div
 	}
 	//Computation of MSB value 
 	ans.m_MSB = GetMSBUint_type(ans.m_value[ansCtr]) + (m_nSize-1-ansCtr)*m_uintBitLength;
-	ans.m_state = INITIALIZED;
+
 	return ans;
 
 }
@@ -1108,13 +1049,6 @@ void BigBinaryInteger<uint_type,BITLENGTH>::SetMSB()
 {
 
 	m_MSB = 0;
-	if(this->m_state==GARBAGE){
-		for(usint i=0;i<m_nSize;i++){
-			m_value[i] = 0;
-		}
-		m_state = INITIALIZED;
-		return;
-	}
 	
 	for(usint i=0;i<m_nSize;i++)//loops to find first nonzero number in char array
 		if((Duint_type)m_value[i]!=0){
@@ -1136,17 +1070,12 @@ void BigBinaryInteger<uint_type, BITLENGTH>::SetMSB(usint guessIdxChar){
 template<typename uint_type, usint BITLENGTH>
 void BigBinaryInteger<uint_type, BITLENGTH>::SetValue(const std::string& str){
 	AssignVal(str);
-	m_state = INITIALIZED;
 }
 
 //Algorithm used: Repeated substraction by a multiple of modulus, which will be referred to as "Classical Modulo Reduction Algorithm"
 //Complexity: O(log(*this)-log(modulus))
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod(const BigBinaryInteger& modulus) const{
-
-	//check for garbage initialisation
-	if(this->m_state==GARBAGE || modulus.m_state==GARBAGE)
-		throw std::logic_error("Error \n");
 
 	//return the same value if value is less than modulus
 	if(*this<modulus){
@@ -1287,9 +1216,6 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 //Extended Euclid algorithm used to find the multiplicative inverse
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModInverse(const BigBinaryInteger& modulus) const{
-
-	if(m_state==GARBAGE || modulus.m_state==GARBAGE)
-		throw std::logic_error("GARBAGE ERROR");
 	
 	BigBinaryInteger result;
 	//std::ofstream f("grs_Modinverse");
@@ -1686,9 +1612,6 @@ template<typename uint_type,usint BITLENGTH>
 sint BigBinaryInteger<uint_type,BITLENGTH>::Compare(const BigBinaryInteger& a) const
 {
 
-	if(this->m_state==GARBAGE || a.m_state==GARBAGE)
-		throw std::logic_error("Error \n");
-
 	if(this->m_MSB<a.m_MSB)
 		return -1;
 	else if(this->m_MSB>a.m_MSB)
@@ -1710,8 +1633,6 @@ sint BigBinaryInteger<uint_type,BITLENGTH>::Compare(const BigBinaryInteger& a) c
 template<typename uint_type,usint BITLENGTH>
 bool BigBinaryInteger<uint_type,BITLENGTH>::operator==(const BigBinaryInteger& a) const{
 
-	if(this->m_state==GARBAGE || a.m_state==GARBAGE)
-		throw std::logic_error("ERROR \n");
 	if(this->m_MSB!=a.m_MSB)
 		return false;
 	else{
@@ -1743,10 +1664,6 @@ bool BigBinaryInteger<uint_type,BITLENGTH>::operator!=(const BigBinaryInteger& a
 template<typename uint_type,usint BITLENGTH>
 bool BigBinaryInteger<uint_type,BITLENGTH>::operator>(const BigBinaryInteger& a)const{
 
-	if (this->m_state + a.m_state != INITIALIZED)
-	//if(this->m_state==GARBAGE || a.m_state==GARBAGE)
-		throw std::logic_error("ERROR \n");
-
 	if(this->m_MSB<a.m_MSB)
 		return false;
 	else if(this->m_MSB>a.m_MSB)
@@ -1771,9 +1688,6 @@ bool BigBinaryInteger<uint_type,BITLENGTH>::operator>=(const BigBinaryInteger& a
 
 template<typename uint_type,usint BITLENGTH>
 bool BigBinaryInteger<uint_type,BITLENGTH>::operator<(const BigBinaryInteger& a) const{
-
-	if(this->m_state==GARBAGE || a.m_state==GARBAGE)
-		throw std::logic_error("ERROR \n");
 
 	if(this->m_MSB<a.m_MSB)
 		return true;
@@ -1871,7 +1785,6 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Bin
 	}
 	value.m_MSB = (cntr - 1)*m_uintBitLength;
 	value.m_MSB += GetMSBUint_type(value.m_value[m_nSize - cntr]);
-	value.m_state = INITIALIZED;
 	return value;
 
 }
@@ -1901,7 +1814,7 @@ template<typename uint_type, usint BITLENGTH>
 BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::DivideAndRound(const BigBinaryInteger &q) const {
 
 	//check for garbage initialization and 0 condition
-	if (q.m_state == GARBAGE || q == ZERO)
+	if (q == ZERO)
 		throw std::logic_error("DIVISION BY ZERO");
 
 	BigBinaryInteger halfQ(q>>1);
@@ -1941,7 +1854,6 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::D
 		running_dividend.m_value[m_nSize - ncharInDivisor + i] = normalised_dividend.m_value[m_nSize - ncharInNormalised_dividend + i];
 	}
 	running_dividend.m_MSB = GetMSBUint_type(running_dividend.m_value[m_nSize - ncharInDivisor]) + (ncharInDivisor - 1)*m_uintBitLength;
-	running_dividend.m_state = INITIALIZED;
 
 	uint_type estimate = 0;
 	uint_type maskBit = 0;
@@ -2015,7 +1927,6 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::D
 	}
 	//Computation of MSB value 
 	ans.m_MSB = GetMSBUint_type(ans.m_value[ansCtr]) + (m_nSize - 1 - ansCtr)*m_uintBitLength;
-	ans.m_state = INITIALIZED;
 
 
 	//std::cout<< "ans "<<ans.ToString()<<std::endl;

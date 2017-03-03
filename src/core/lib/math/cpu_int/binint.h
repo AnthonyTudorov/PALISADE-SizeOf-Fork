@@ -871,9 +871,9 @@ namespace cpu_int{
 		typedef typename DoubleDataType<uint_type>::T Duint_type;
 
 		//enum defination to represent the state of the big binary integer.
-		enum State{
-			INITIALIZED,GARBAGE
-		};
+		//enum State{
+		//	INITIALIZED,GARBAGE
+		//};
 
 		/**
 		* function to return the MSB of number that is of type Duint_type.
@@ -883,7 +883,7 @@ namespace cpu_int{
 		static usint GetMSBDUint_type(Duint_type x);
 		
 		//enum to store the state of the 
-		State m_state;
+		//State m_state;
 
 		/**
 		* function that returns the BigBinaryInteger after multiplication by b.
