@@ -55,6 +55,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 using namespace lbcrypto;
 
+////////////////////////////////////////////////////////////
+// This program demonstrates the use of the PALISADE library to encrypt bytes of text
+//
+// All PALISADE functionality takes place as a part of a CryptoContext, and so the first
+// step in using PALISADE is creating a CryptoContext
+//
+// A CryptoContext can be created on the fly by passing parameters into a method provided
+// in the CryptoContextFactory.
+// A CryptoContext can be custom tuned for your particular application by using parameter generation
+// A CryptoContext can be constructed from one of a group of named, predetermined parameter sets
+//
+// This program uses the "group of named predetermined sets" method. Pass the parameter set name to the
+// program and it will use that set. Pass no names and it will tell you all the available names.
+// Use the -v option and the program will be verbose as it operates
+
 
 int main(int argc, char *argv[])
 {
@@ -62,6 +77,7 @@ int main(int argc, char *argv[])
 	bool beVerbose = false;
 	bool haveName = false;
 
+	// Process parameters, find the parameter set name specified on the command line
 	for( int i=1; i<argc; i++ ) {
 		string parm( argv[i] );
 
@@ -86,6 +102,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	// If a name has been specified, make sure it is recognized
 	if( haveName ) {
 		auto parmfind = CryptoContextParameterSets.find(parmSetName);
 		if( parmfind == CryptoContextParameterSets.end() ) {
@@ -94,8 +111,8 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	// no name specified? print out the names of all available parameter sets
 	if( !haveName ) {
-		// print out available sets
 		cout << "Available crypto parameter sets are:" << endl;
 		CryptoContextHelper<ILVector2n>::printAllParmSetNames(cout);
 		return 1;
@@ -105,29 +122,40 @@ int main(int argc, char *argv[])
 		CryptoContextHelper<ILVector2n>::printParmSet(cout, parmSetName);
 	}
 
-	// Parameter set selected
-
 	// Construct a crypto context for this parameter set
 
 	if( beVerbose ) cout << "Initializing crypto system" << endl;
 
 	CryptoContext<ILVector2n> cc = CryptoContextHelper<ILVector2n>::getNewContext(parmSetName);
 
-	// enable features
+	// enable features that you wish to use
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 
-	// create initial plaintext
-	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-	//BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	// Plaintext in this case is a BytePlaintextEncoding
+	BytePlaintextEncoding plaintext;
 
-#ifdef OUT
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	// The plaintext is broken up into chunks of size chunksize
+	size_t chunksize = plaintext.GetChunksize(cc.GetElementParams()->GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
 
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), std::static_pointer_cast<ILParams>(cc.GetCryptoParameters()->GetElementParams()));
-#endif
+	if( beVerbose ) cout << "Encryption will be in chunks of size " << chunksize << endl;
+
+	// generate a random string of length chunksize
+	auto randchar = []() -> char {
+		const char charset[] =
+				"0123456789"
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				"abcdefghijklmnopqrstuvwxyz";
+		const size_t max_index = (sizeof(charset) - 1);
+		return charset[ rand() % max_index ];
+	};
+
+	string rchars(chunksize,0);
+	std::generate_n(rchars.begin(), chunksize, randchar);
+
+
+	// create a plaintext object from that string
+	plaintext = rchars;
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
@@ -143,13 +171,19 @@ int main(int argc, char *argv[])
 	}
 
 	////////////////////////////////////////////////////////////
-	//Encryption
+	// Encryption
+	//
+	// The Encrypt routine splits the input into chunks of size "chunksize"
+	// and encrypts each chunk into a ciphertext. We expect only one entry
+	// in the resulting table
 	////////////////////////////////////////////////////////////
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 	if( beVerbose ) cout << "Running encryption" << endl;
 
+	// we tell Encrypt not to pad this entry by using false for the third parameter;
+	// if we said true instead, padding would be added on Encrypt and removed on Decrypt
 	ciphertext = cc.Encrypt(kp.publicKey, plaintext, false);
 
 	////////////////////////////////////////////////////////////
@@ -195,11 +229,16 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Generating proxy re-encryption key" << endl;
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey = cc.ReKeyGen(newKp.publicKey, kp.secretKey);
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
+	try {
+		evalKey = cc.ReKeyGen(newKp.publicKey, kp.secretKey);
+	} catch( std::exception& e ) {
+		cout << e.what() << ", cannot proceed with PRE" << endl;
+		return 0;
+	}
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption operation.
-	// This switches the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
@@ -230,9 +269,6 @@ int main(int argc, char *argv[])
 
 
 	if( beVerbose ) cout << "Execution completed" << endl;
-
-	//	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	//	NumberTheoreticTransform::GetInstance().Destroy();
 
 	return 0;
 }
