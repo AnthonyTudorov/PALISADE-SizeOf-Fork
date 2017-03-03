@@ -269,14 +269,14 @@ BigBinaryVector ChineseRemainderTransform::InverseTransform(const BigBinaryVecto
 //main Forward CRT Transform - implements FTT - uses iterative NTT as a subroutine
 //includes precomputation of twidle factor table
 BigBinaryVector ChineseRemainderTransformFTT::ForwardTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) {
+	std::string errMsg;
 	if (rootOfUnity == BigBinaryInteger::ONE || rootOfUnity == BigBinaryInteger::ZERO) {
-		std::string errMsg;
 		errMsg = "Root of unity cannot be zero or one to perform a forward transform";
-		throw std::runtime_error(errMsg);
+		throw std::logic_error(errMsg);
 	}
 	if (!IsPowerOfTwo(CycloOrder)) {
-		std::cout << "Error in the FFT operation\n\n";
-		exit(-10);
+		errMsg = "cyclotomic order must be a power of 2 to perform a forward transform";
+		throw std::logic_error(errMsg);
 	}
 
 	//Pre-compute mu for Barrett function
@@ -332,14 +332,14 @@ BigBinaryVector ChineseRemainderTransformFTT::ForwardTransform(const BigBinaryVe
 //main Inverse CRT Transform - implements FTT - uses iterative NTT as a subroutine
 //includes precomputation of inverse twidle factor table
 BigBinaryVector ChineseRemainderTransformFTT::InverseTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) {
+	std::string errMsg;
 	if (rootOfUnity == BigBinaryInteger::ONE || rootOfUnity == BigBinaryInteger::ZERO) {
-		std::string errMsg;
-		errMsg = "Root of unity cannot be zero or one to perform a forward transform";
-		throw std::runtime_error(errMsg);
+		errMsg = "Root of unity cannot be zero or one to perform an inverse transform";
+		throw std::logic_error(errMsg);
 	}
 	if (!IsPowerOfTwo(CycloOrder)) {
-		std::cout << "Error in the FFT operation\n\n";
-		exit(-10);
+		errMsg = "cyclotomic order must be a power of 2 to perform an inverse transform";
+		throw std::logic_error(errMsg);
 	}
 
 	//Pre-compute mu for Barrett function
@@ -349,6 +349,15 @@ BigBinaryVector ChineseRemainderTransformFTT::InverseTransform(const BigBinaryVe
 
 	BigBinaryVector *rootOfUnityITable = NULL;
 
+	BigBinaryInteger rootofUnityInverse;
+
+	try {
+		rootofUnityInverse = rootOfUnity.ModInverse(element.GetModulus());
+	} catch ( std::exception& e ) {
+		errMsg = std::string(e.what()) + ": rootOfUnity " + rootOfUnity.ToString() + " has no inverse";
+		throw std::logic_error(errMsg);
+	}
+
 	// check to see if the modulus is in the table
 #pragma omp critical
 	{
@@ -357,7 +366,7 @@ BigBinaryVector ChineseRemainderTransformFTT::InverseTransform(const BigBinaryVe
 
 		if( mSearch != m_rootOfUnityInverseTableByModulus.end() ) {
 			// i found it... make sure it's kosher
-			if( mSearch->second.GetLength() == 0 || mSearch->second.GetValAtIndex(1) != rootOfUnity.ModInverse(element.GetModulus()) ) {
+			if( mSearch->second.GetLength() == 0 || mSearch->second.GetValAtIndex(1) != rootofUnityInverse ) {
 				recompute = true;
 			}
 			else
@@ -366,13 +375,12 @@ BigBinaryVector ChineseRemainderTransformFTT::InverseTransform(const BigBinaryVe
 
 		if( mSearch == m_rootOfUnityInverseTableByModulus.end() || recompute ) {
 			BigBinaryVector TableI(CycloOrder / 2);
-			BigBinaryInteger rootOfUnityInverse = rootOfUnity.ModInverse(element.GetModulus());
 
 			BigBinaryInteger x(BigBinaryInteger::ONE);
 
 			for (usint i = 0; i<CycloOrder / 2; i++) {
 				TableI.SetValAtIndex(i, x);
-				x = x.ModBarrettMul(rootOfUnityInverse, element.GetModulus(), mu);
+				x = x.ModBarrettMul(rootofUnityInverse, element.GetModulus(), mu);
 			}
 
 			rootOfUnityITable = &(m_rootOfUnityInverseTableByModulus[element.GetModulus()] = std::move(TableI));

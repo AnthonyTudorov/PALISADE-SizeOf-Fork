@@ -248,7 +248,7 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 	BigBinaryInteger ans(*this);
 	//check for OVERFLOW
 	if((ans.m_MSB+shift) > BITLENGTH )
-		throw std::logic_error("OVERFLOW \n");
+		throw std::logic_error("OVERFLOW");
 
 	usint shiftByUint = shift>>m_logUintBitLength;
 
@@ -308,7 +308,7 @@ const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENG
 
 	//first check whether shifts are possible without overflow
 	if(this->m_MSB+shift > BITLENGTH)
-		throw std::logic_error ("OVERFLOW \n");
+		throw std::logic_error ("OVERFLOW");
 
 	//calculate the no.of shifts
 	usint shiftByUint = shift>>m_logUintBitLength;
@@ -894,7 +894,7 @@ template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::MulIntegerByChar(uint_type b) const{
 	
 	if(this->m_state==GARBAGE)
-		throw std::logic_error("ERROR \n");
+		throw std::logic_error("ERROR");
 	if(b==0 || this->m_MSB==0)
 		return BigBinaryInteger(ZERO);
 	
@@ -1141,7 +1141,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 	//check for garbage initialisation
 	if(this->m_state==GARBAGE || modulus.m_state==GARBAGE)
-		throw std::logic_error("Error \n");
+		throw std::logic_error("Error");
 
 	//return the same value if value is less than modulus
 	if(*this<modulus){
@@ -1287,10 +1287,6 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 		throw std::logic_error("GARBAGE ERROR");
 	
 	BigBinaryInteger result;
-	//std::ofstream f("grs_Modinverse");
-
-	//f << *this <<" THIS VALUE "<< std::endl;
-	//f << modulus << " Modulus value " << std::endl;
 
 	std::vector<BigBinaryInteger> mods;
 	std::vector<BigBinaryInteger> quotient;
@@ -1309,27 +1305,19 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 	//Error if modulus is ZERO
 	if(*this==ZERO){
-		std::cout<<"ZERO HAS NO INVERSE\n";
-		system("pause");
-		throw std::logic_error("MOD INVERSE NOT FOUND");
+		throw std::logic_error("Zero does not have a ModInverse");
 	}
 
 	
 	//NORTH ALGORITHM
 	while(true){
-		
-		//f << first << std::endl;
-		//f << second << std::endl;
-
 		mods.push_back(first.Mod(second));
-		//f << "Mod step passed" << std::endl;
 		quotient.push_back(first.DividedBy(second));
-		//f << "Division step passed" << std::endl;
 		if(mods.back()==ONE)
 			break;
 		if(mods.back()==ZERO){
-			std::cout<<"NO INVERSE FOUND, GOING TO THROW ERROR\n";
-			throw std::logic_error("MOD INVERSE NOT FOUND");
+			std::string msg = this->ToString() + " does not have a ModInverse using " + modulus.ToString();
+			throw std::logic_error(msg);
 		}
 		
 		first = second;
@@ -1359,7 +1347,6 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 	mods.clear();
 	quotient.clear();
-	//f.close();
 
 	return result;
 

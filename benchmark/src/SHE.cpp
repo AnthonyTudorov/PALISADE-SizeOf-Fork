@@ -55,20 +55,18 @@ void BM_evalAdd_SHE(benchmark::State& state) { // benchmark
 	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
+		state.PauseTiming();
 		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
 		cc.Enable(ENCRYPTION);
 		cc.Enable(SHE);
 
 		setup_SHE(cc, ct1, ct2);
+		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
 		shared_ptr<Ciphertext<ILVector2n>> ctP = cc.EvalAdd(ct1, ct2);
 	}
-
-//	ChineseRemainderTransformFTT::GetInstance().Destroy();
-//	NumberTheoreticTransform::GetInstance().Destroy();
-//	ILVector2n::DestroyPreComputedSamples();
 }
 
 BENCHMARK_PARMS(BM_evalAdd_SHE)
@@ -78,11 +76,13 @@ void BM_evalMult_SHE(benchmark::State& state) { // benchmark
 	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
+		state.PauseTiming();
 		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
 		cc.Enable(ENCRYPTION);
 		cc.Enable(SHE);
 
 		setup_SHE(cc, ct1, ct2);
+		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
@@ -97,23 +97,24 @@ void BM_baseDecompose_SHE(benchmark::State& state) { // benchmark
 	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
+		state.PauseTiming();
 		try {
-		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
-		cc.Enable(ENCRYPTION);
-		cc.Enable(SHE);
+			cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+			cc.Enable(ENCRYPTION);
+			cc.Enable(SHE);
 
-		setup_SHE(cc, ct1, ct2);
-
-		} catch( ... ) {
-			state.SkipWithError( "Setup exception thrown" );
+			setup_SHE(cc, ct1, ct2);
+		} catch( std::exception& e ) {
+			state.SkipWithError( "Unable to set up for BaseDecompose" );
 		}
+		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
 		try {
 			vector<ILVector2n> ctP = ct1->GetElements()[0].BaseDecompose(2);
-		} catch( ... ) {
-			state.SkipWithError( "Exception thrown" );
+		} catch( std::exception& e ) {
+			state.SkipWithError( e.what() );
 			break;
 		}
 	}
