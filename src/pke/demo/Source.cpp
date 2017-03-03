@@ -11,8 +11,9 @@ List of Authors:
 	Programmers:
 		Dr. Yuriy Polyakov, polyakov@njit.edu
 		Gyana Sahu, grs22@njit.edu
+		Jerry Ryan, gwryan@njit.edu
 Description:
-	This code exercises the Proxy Re-Encryption capabilities of the NJIT Lattice crypto library.
+	This code demonstrates how to Encrypt and Re-encrypt byte data using the NJIT LATTICE library.
 	In this code we:
 		- Generate a key pair.
 		- Encrypt a string of data.
@@ -21,7 +22,10 @@ Description:
 		- Generate a proxy re-encryption key.
 		- Re-Encrypt the encrypted data.
 		- Decrypt the re-encrypted data.
-	We configured parameters (namely the ring dimension and ciphertext modulus) to provide a level of security roughly equivalent to a root hermite factor of 1.007 which is generally considered secure and conservatively comparable to AES-128 in terms of computational work factor and may be closer to AES-256.
+
+	We configured parameters (namely the ring dimension and ciphertext modulus) to provide a level of security roughly equivalent to
+	a root hermite factor of 1.007 which is generally considered secure and conservatively comparable to AES-128 in terms of computational
+	work factor and may be closer to AES-256.
 
 License Information:
 
@@ -37,6 +41,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <iterator>
 
 #include "palisade.h"
 
@@ -44,229 +49,106 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "encoding/byteplaintextencoding.h"
 
+#include "cryptocontextparametersets.h"
+
 #include "utils/debug.h"
 using namespace std;
 using namespace lbcrypto;
 
-void NTRUPRE(int input);
-//double currentDateTime();
 
-/**
- * @brief Input parameters for PRE example.
- */
-struct SecureParams {
-	usint m;			///< The ring parameter.
-	string modulus;	///< The modulus
-	string rootOfUnity;	///< The rootOfUnity
-	usint relinWindow;		///< The relinearization window parameter.
-};
+int main(int argc, char *argv[])
+{
+	string parmSetName;
+	bool beVerbose = false;
+	bool haveName = false;
 
-#include <iterator>
-int main() {
+	for( int i=1; i<argc; i++ ) {
+		string parm( argv[i] );
 
-	//DiscreteUniformGenerator gen(BigBinaryInteger("100000"));
-	//auto v = gen.GenerateVector(10000);
+		if( parm[0] == '-' ) {
+			if( parm == "-v" )
+				beVerbose = true;
+			else {
+				cout << "Unrecognized parameter " << parm << endl;
+				return 1;
+			}
+		}
 
-	std::cout << "Relinearization window : " << std::endl;
-	std::cout << "0 (r = 1), 1 (r = 2), 2 (r = 4), 3 (r = 8), 4 (r = 16): [0] ";
+		else {
+			if( haveName ) {
+				cout << "Cannot specify multiple parameter set names" << endl;
+				return 1;
+			}
 
-	int input = 0;
-	std::cin >> input;
-	//cleans up the buffer
-	cin.ignore();
+			haveName = true;
+			parmSetName = parm;
 
-	if ((input<0) || (input>4))
-		input = 0;
+		}
+	}
 
-	////NTRUPRE is where the core functionality is provided.
-	NTRUPRE(input);
-	//NTRUPRE(3);
+	auto parmfind = CryptoContextParameterSets.find(parmSetName);
+	if( parmfind == CryptoContextParameterSets.end() ) {
+		cout << "Parameter set " << parmSetName << " is not a recognized name" << endl;
+		haveName = false;
+	}
+
+	if( !haveName ) {
+		// print out available sets
+		cout << "Available crypto parameter sets are:" << endl;
+		CryptoContextHelper<ILVector2n>::printAllParmSetNames(cout);
+		return 1;
+	}
+
+	if( beVerbose ) {
+		CryptoContextHelper<ILVector2n>::printParmSet(cout, parmSetName);
+	}
+
+	// Parameter set selected
+
+	// Construct a crypto context for this parameter set
+
+	if( beVerbose ) cout << "Initializing crypto system" << endl;
+
+	CryptoContext<ILVector2n> cc = CryptoContextHelper<ILVector2n>::getNewContext(parmSetName);
 	
-
-	// The below lines clean up the memory use.
-	//system("pause");
-
-	////Hadi's code
-	//usint m = 16;
-	//BigBinaryInteger rootOfUnity("61564");
-	//Format format = COEFFICIENT;
-
-	//BigBinaryInteger modulu1;
- //   modulu1 = FindPrimeModulus(16, 20);
-	//cout<<modulu1<<endl;
-
- //   BigBinaryInteger rootOfUnity1;
-	//rootOfUnity1 = RootOfUnity(m, modulu1);
-
-	//ILParams ilParams2(m, modulu1, rootOfUnity);
-
-
-	//ILVector2n c2(ilParams2);
-	//usint m2 = 16;
-	//DiscreteGaussianGenerator d2(m2/2, modulu1);
-	//BigBinaryVector x2 = d2.GenerateVector(m2/2);
-	//c2.SetValues(x2, Format::COEFFICIENT);
-
-	//c2.SwitchFormat();
-	//c2.SwitchFormat();
-
-
-	std::cin.get();
-	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	NumberTheoreticTransform::GetInstance().Destroy();
-
-	return 0;
-}
-
-
-// double currentDateTime()
-// {
-
-// 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-
-//     time_t tnow = std::chrono::system_clock::to_time_t(now);
-//     tm *date = localtime(&tnow);
-//     date->tm_hour = 0;
-//     date->tm_min = 0;
-//     date->tm_sec = 0;
-
-//     auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
-
-// 	return std::chrono::duration <double, std::milli>(now - midnight).count();
-// }
-
-//////////////////////////////////////////////////////////////////////
-//	NTRUPRE is where the core functionality is provided.
-//	In this code we:
-//		- Generate a key pair.
-//		- Encrypt a string of data.
-//		- Decrypt the data.
-//		- Generate a new key pair.
-//		- Generate a proxy re-encryption key.
-//		- Re-Encrypt the encrypted data.
-//		- Decrypt the re-encrypted data.
-//////////////////////////////////////////////////////////////////////
-//	We provide two different paramet settings.
-//	The low-security, highly efficient settings are commented out.
-//	The high-security, less efficient settings are enabled by default.
-//////////////////////////////////////////////////////////////////////
-void NTRUPRE(int input) {
-
-	//Set element params
-
-	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
-	/*
-	usint m = 16;
-	BigBinaryInteger modulus("67108913");
-	BigBinaryInteger rootOfUnity("61564");
-	BytePlaintextEncoding plaintext = "N";
-	*/
-
-	// The comments below provide a high-security parameterization for prototype use.  If this code were verified/certified for high-security applications, we would say that the following parameters would be appropriate for "production" use.
-	//usint m = 2048;
-	//BigBinaryInteger modulus("8590983169");
-	//BigBinaryInteger rootOfUnity("4810681236");
-	//BytePlaintextEncoding plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
-
-	const SecureParams SECURE_PARAMS[] = {
-		{ 2048, "268441601", "16947867", 1 }, //r = 1
-		{ 2048, "536881153", "267934765", 2 }, // r = 2
-		{ 2048, "1073750017", "180790047", 4 },  // r = 4
-		{ 2048, "8589987841", "2678760785", 8 }, //r = 8
-		{ 4096, "2199023288321", "1858080237421", 16 }  // r= 16
-		//{ 2048, CalltoModulusComputation(), CalltoRootComputation, 0 }  // r= 16
-	};
-
-	usint m = SECURE_PARAMS[input].m;
-	BigBinaryInteger modulus(SECURE_PARAMS[input].modulus);
-	BigBinaryInteger rootOfUnity(SECURE_PARAMS[input].rootOfUnity);
-	usint relWindow = SECURE_PARAMS[input].relinWindow;
-
-	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-	//BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-
-
-	float stdDev = 4;
-
-	ofstream fout;
-	fout.open ("output.txt");
-
-	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
-
-	double diff, start, finish;
-
-	start = currentDateTime();
-
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, SECURE_PARAMS[input].m,
-			SECURE_PARAMS[input].modulus, SECURE_PARAMS[input].rootOfUnity, SECURE_PARAMS[input].relinWindow, stdDev);
+	// enable features
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 
-	//This code is run only when performing execution time measurements
+	// create initial plaintext
+	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
+	//BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKLNJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 
+#ifdef OUT
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), std::static_pointer_cast<ILParams>(cc.GetCryptoParameters()->GetElementParams()));
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout << "Precomputation time: " << "\t" << diff << " ms" << endl;
-	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
-
-	//Regular LWE-NTRU encryption algorithm
+#endif
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	//bool successKeyGen=false;
+	if( beVerbose ) cout << "Running key generation" << endl;
 
-	std::cout <<"\n" <<  "Running key generation..." << std::endl;
-
-	start = currentDateTime();
-
-	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	//fout<< currentDateTime()  << " pk = "<<pk.GetPublicElement().GetValues()<<endl;
-	//fout<< currentDateTime()  << " sk = "<<sk.GetPrivateElement().GetValues()<<endl;
-
 	if ( !kp.good() ) {
-		std::cout<<"Key generation failed!"<<std::endl;
-		exit(1);
+		cout << "Key generation failed" << endl;
+		return 1;
 	}
-
 
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	// Begin the initial encryption operation.
-	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
-	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
-
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
-	std::cout << "Running encryption..." << std::endl;
-
-	start = currentDateTime();
+	if( beVerbose ) cout << "Running encryption" << endl;
 
 	ciphertext = cc.Encrypt(kp.publicKey, plaintext, false);
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -274,24 +156,18 @@ void NTRUPRE(int input) {
 
 	BytePlaintextEncoding plaintextNew;
 
-	std::cout <<"\n"<< "Running decryption..." << std::endl;
-
-	start = currentDateTime();
+	if( beVerbose ) cout << "Running decryption" << std::endl;
 
 	DecryptResult result = cc.Decrypt(kp.secretKey,ciphertext,&plaintextNew,false);
 
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
-
 	if (!result.isValid) {
-		std::cout<<"Decryption failed!"<<std::endl;
-		exit(1);
+		cout << "Decryption failed" << endl;
+		return 1;
+	}
+
+	if( plaintext != plaintextNew ) {
+		cout << "Mismatch on decryption" << endl;
+		return 1;
 	}
 
 	//PRE SCHEME
@@ -301,56 +177,34 @@ void NTRUPRE(int input) {
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
-
-	start = currentDateTime();
+	if( beVerbose ) cout << "Running second key generation (used for re-encryption)" << endl;
 
 	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
 
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout << "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout << "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
+	if ( !newKp.good() ) {
+		cout << "Key generation failed" << endl;
+		return 1;
+	}
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption key generation operation.
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
-	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
-
-	start = currentDateTime();
+	if( beVerbose ) cout << "Generating proxy re-encryption key" << endl;
 
 	shared_ptr<LPEvalKey<ILVector2n>> evalKey = cc.ReKeyGen(newKp.publicKey, kp.secretKey);
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Re-encryption key generation time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Re-encryption key generation time: "<<"\t"<<diff<<" ms"<<endl;
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption operation.
 	// This switches the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
-
 	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
 
-	std::cout <<"\n"<< "Running re-encryption..." << std::endl;
-
-	start = currentDateTime();
+	if( beVerbose ) cout << "Running re-encryption" << endl;
 
 	newCiphertext = cc.ReEncrypt(evalKey, ciphertext);
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Re-encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Re-encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -358,27 +212,25 @@ void NTRUPRE(int input) {
 
 	BytePlaintextEncoding plaintextNew2;
 
-	std::cout <<"\n"<< "Running decryption of re-encrypted cipher..." << std::endl;
-
-	start = currentDateTime();
+	if( beVerbose ) cout << "Running decryption of re-encrypted cipher" << endl;
 
 	DecryptResult result1 = cc.Decrypt(newKp.secretKey,newCiphertext,&plaintextNew2,false);
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	cout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (PRE Re-Encrypt): "<<plaintextNew2<<"\n"<<endl;
 
 	if (!result1.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}
 
-	std::cout << "Execution completed." << std::endl;
+	if( plaintext != plaintextNew2 ) {
+		cout << "Mismatch on decryption of PRE ciphertext" << endl;
+		return 1;
+	}
 
-	fout.close();
+
+	if( beVerbose ) cout << "Execution completed" << endl;
+
+	//	ChineseRemainderTransformFTT::GetInstance().Destroy();
+	//	NumberTheoreticTransform::GetInstance().Destroy();
+
+	return 0;
 }
