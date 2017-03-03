@@ -234,10 +234,18 @@ namespace NTL {
 
   //palisade conversion methods
   usint myZZ_p::ConvertToUsint() const{
-    std::cout<<"in myZZ_p::ConvertToUsint() this"<<*this<<std::endl;
+    bool dbg_flag = false;
 
- return (conv<usint>(*this)); }
-  usint myZZ_p::ConvertToInt() const{ return (conv<int>(*this)); }
+    DEBUG("in myZZ_p::ConvertToUsint() this "<<*this);
+
+    return (conv<usint>(*this)); 
+  }
+  usint myZZ_p::ConvertToInt() const{ 
+   bool dbg_flag = false;
+
+    DEBUG("in myZZ_p::ConvertToInt() this "<<*this);
+
+    return (conv<int>(*this)); }
   uint32_t myZZ_p::ConvertToUint32() const { return (conv<uint32_t>(*this));}
 
   uint64_t myZZ_p::ConvertToUint64() const{ return (conv<uint64_t>(*this));}

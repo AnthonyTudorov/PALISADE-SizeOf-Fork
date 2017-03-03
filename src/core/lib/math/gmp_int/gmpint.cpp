@@ -74,10 +74,27 @@ namespace NTL {
   myZZ::myZZ(NTL::ZZ &a): ZZ(a) {}
   myZZ::myZZ(const NTL::ZZ &a): ZZ(a) {}
 
-  myZZ::myZZ(const NTL::myZZ_p &a): ZZ(){*this = a._ZZ_p__rep;}
+  //myZZ::myZZ(const NTL::myZZ_p &a): ZZ(){*this = a._ZZ_p__rep;}
+  myZZ::myZZ(const NTL::myZZ_p &a)
+    : ZZ(a._ZZ_p__rep)
+  {
+    bool dbg_flag = false; 
+    DEBUG("in ctor mzz(&mzzp)");
+    DEBUG("a "<<a);
+    DEBUG("arep "<<a._ZZ_p__rep);
+    DEBUG("this "<<*this);
+  };
 
   myZZ::myZZ(NTL::ZZ &&a) : ZZ(a) {}
-  myZZ::myZZ(const NTL::myZZ_p &&a): ZZ(){*this = a._ZZ_p__rep;}
+  //  myZZ::myZZ(const NTL::myZZ_p &&a): ZZ(){*this = a._ZZ_p__rep;}
+  myZZ::myZZ(const NTL::myZZ_p &&a)
+    : ZZ(a._ZZ_p__rep)
+  {
+    bool dbg_flag = false; 
+    DEBUG("in ctor mzz(&&mzzp)");
+    DEBUG("a "<<a);
+    DEBUG("arep "<<a._ZZ_p__rep);
+  };
   
 
   void myZZ::SetValue(const std::string& str) 
@@ -340,10 +357,19 @@ namespace NTL {
 
   //palisade conversion methods
   usint myZZ::ConvertToUsint() const{
-    std::cout<<"in myZZ::ConvertToUsint() this"<<*this<<std::endl;
+    bool dbg_flag = false;
 
+    DEBUG("in myZZ::ConvertToUsint() this.size() "<<this->size());
+    DEBUG("in myZZ::ConvertToUsint() this "<<*this);
+    
  return (conv<usint>(*this)); }
-  usint myZZ::ConvertToInt() const{ return (conv<int>(*this)); }
+  usint myZZ::ConvertToInt() const{
+    bool dbg_flag = false;
+
+    DEBUG("in myZZ::ConvertToInt() this.size() "<<this->size());
+    DEBUG("in myZZ::ConvertToInt() this "<<*this);
+    
+ return (conv<usint>(*this)); }
   uint32_t myZZ::ConvertToUint32() const { return (conv<uint32_t>(*this));}
 
   uint64_t myZZ::ConvertToUint64() const{ return (conv<uint64_t>(*this));}

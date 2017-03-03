@@ -1008,7 +1008,7 @@ namespace NTL {
 
 
   ///this really has to be myZZ in order to get old palisade to work.
-#if 1 
+#if 0 
   template<class myT>
   const myT& myVecP<myT>::GetValAtIndex(size_t index) const{
     bool dbg_flag = false;
@@ -1024,11 +1024,12 @@ namespace NTL {
   }
 #else
   template<class myT>
-  const myZZ& myVecP<myT>::GetValAtIndex(size_t index) const{
+  const myZZ myVecP<myT>::GetValAtIndex(size_t index) const{
     if(!this->IndexCheck(index)){
       throw std::logic_error("myVecP index out of range");
     }
-    return this->at(index);
+    myZZ tmp(this->at(index));
+    return tmp;
   }
 #endif
   //Private functions

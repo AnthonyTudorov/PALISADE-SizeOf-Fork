@@ -295,7 +295,7 @@ TEST(UTmubintvec,ctor_access_eq_neq){
 }
 
 TEST(UTmubintvec, constructorTest){
-
+  bool dbg_flag = true;
   mubintvec m(10);
   
   m.SetValAtIndex(0,"48");
@@ -309,7 +309,15 @@ TEST(UTmubintvec, constructorTest){
   m.SetValAtIndex(8,"60");
   m.SetValAtIndex(9,"12"); 
 
+  DEBUG("m: "<<m);
+
   int expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};  // the expected values are stored as one dimensional integer array
+
+  for (usint i=0;i<10;i++){
+    DEBUG("val "<<i<< " is "<<m.GetValAtIndex(i));
+    EXPECT_EQ (expectedResult[i], (m.GetValAtIndex(i)).ConvertToInt());
+  }
+
 
    mubintvec binvect(m);
 

@@ -164,10 +164,10 @@ namespace NTL {
 
     void SetValAtIndexWithoutMod(usint index, const myZZ&value);
 
-#if 1
+#if 0
     const myT& GetValAtIndex(size_t index) const;
 #else
-   const myZZ& GetValAtIndex(size_t index) const;
+   const myZZ GetValAtIndex(size_t index) const;
 #endif
 
     /**
