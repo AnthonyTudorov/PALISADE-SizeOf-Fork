@@ -619,13 +619,13 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Plu
 	//check for garbage initializations
 	if(this->m_state==GARBAGE){
 		if(b.m_state==GARBAGE){
-			return std::move(BigBinaryInteger(ZERO));
+			return BigBinaryInteger(ZERO);
 		}
 		else
-			return std::move(BigBinaryInteger(b));
+			return BigBinaryInteger(b);
 	}
 	if(b.m_state==GARBAGE){
-		return std::move(BigBinaryInteger(*this));
+		return BigBinaryInteger(*this);
 	}
 	//Assignment of pointers, A assigned the higher value and B assigned the lower value
 	if(*this>b){
@@ -691,14 +691,14 @@ template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Minus(const BigBinaryInteger& b) const{
 	//check for garbage initialization
 	if(this->m_state==GARBAGE){
-		return std::move(BigBinaryInteger(ZERO));		
+		return BigBinaryInteger(ZERO);		
 	}
 	if(b.m_state==GARBAGE){
-		return std::move(BigBinaryInteger(*this));
+		return BigBinaryInteger(*this);
 	}
 	//return 0 if b is higher than *this as there is no support for negative number
 	if(!(*this>b))
-		return std::move(BigBinaryInteger(ZERO));
+		return BigBinaryInteger(ZERO);
 
         // DTS: note: these variables are confusing. if you look close you will find (a) they are only inside the inner if block (cntr=0 is superfluous); (b) current simply equals i (neither changes after the current=i assignment); and (c) the while loop needs to check cntr >= 0 (when m_value[] == 0...)
 	int cntr=0,current=0;
@@ -738,7 +738,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Min
 	result.m_MSB = (m_nSize-endValA-1)*m_uintBitLength + GetMSBUint_type(result.m_value[endValA]);
 
 	//return the result
-	return std::move(result);
+	return result;
 
 }
 
@@ -758,7 +758,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Tim
 	if(b.m_MSB==1)
 		return BigBinaryInteger(*this);
 	if(this->m_MSB==1)
-		return std::move(BigBinaryInteger(b));
+		return BigBinaryInteger(b);
 	
 	//position of B in the array where the multiplication should start
 	uint_type ceilInt = ceilIntByUInt(b.m_MSB);
@@ -940,9 +940,9 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Div
 		throw std::logic_error("DIVISION BY ZERO");
 
 	if(b.m_MSB>this->m_MSB || this->m_state==GARBAGE)
-		return std::move(BigBinaryInteger(ZERO));
+		return BigBinaryInteger(ZERO);
 	else if(b==*this)
-		return std::move(BigBinaryInteger(ONE));
+		return BigBinaryInteger(ONE);
 	
 		
 	
@@ -1150,7 +1150,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 	//return the same value if value is less than modulus
 	if(*this<modulus){
-		return std::move(BigBinaryInteger(*this));
+		return BigBinaryInteger(*this);
 	}
 	//masking operation if modulus is 2
 	if(modulus.m_MSB==2 && modulus.m_value[m_nSize-1]==2){
@@ -1196,7 +1196,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 	}
 
-	return std::move(result);
+	return result;
 }
 
 /**
@@ -1219,7 +1219,7 @@ template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger& mu) const{
 	
 	if(*this<modulus){
-		return std::move(BigBinaryInteger(*this));
+		return BigBinaryInteger(*this);
 	}
 	BigBinaryInteger z(*this);
 	BigBinaryInteger q(*this);
@@ -1394,11 +1394,11 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	//reduce this to a value lower than modulus
 	if(*this>modulus){
 
-		*a = std::move(this->Mod(modulus));
+		*a = this->Mod(modulus);
 	}
 	//reduce b to a value lower than modulus
 	if(b>modulus){
-		*b_op = std::move(b.Mod(modulus));
+		*b_op = b.Mod(modulus);
 	}
 
 	if(*a>=*b_op){
@@ -1417,14 +1417,14 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	BigBinaryInteger* b_op = NULL;
 
 	if(*this>modulus){
-		*a = std::move(this->ModBarrett(modulus,mu));
+		*a = this->ModBarrett(modulus,mu);
 	}
 	else{
 		a = const_cast<BigBinaryInteger*>(this);
 	}
 
 	if(b>modulus){
-		*b_op = std::move(b.ModBarrett(modulus,mu));
+		*b_op = b.ModBarrett(modulus,mu);
 	}
 	else{
 		b_op = const_cast<BigBinaryInteger*>(&b);
@@ -1447,14 +1447,14 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	BigBinaryInteger* b_op = NULL;
 
 	if(*this>modulus){
-		*a = std::move(this->ModBarrett(modulus,mu_arr));
+		*a = this->ModBarrett(modulus,mu_arr);
 	}
 	else{
 		a = const_cast<BigBinaryInteger*>(this);
 	}
 
 	if(b>modulus){
-		*b_op = std::move(b.ModBarrett(modulus,mu_arr));
+		*b_op = b.ModBarrett(modulus,mu_arr);
 	}
 	else{
 		b_op = const_cast<BigBinaryInteger*>(&b);
@@ -1526,12 +1526,12 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 	//if a is greater than q reduce a to its mod value
 	if(*this>modulus)
-		*a = std::move(this->ModBarrett(modulus,mu));
+		*a = this->ModBarrett(modulus,mu);
 
 
 	//if b is greater than q reduce b to its mod value
 	if(b>modulus)
-		*bb = std::move(b.ModBarrett(modulus,mu));
+		*bb = b.ModBarrett(modulus,mu);
 
 	return (*a**bb).ModBarrett(modulus,mu);
 
@@ -1544,13 +1544,13 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 	//if a is greater than q reduce a to its mod value
 	if(*this>modulus)
-		*a = std::move(this->ModBarrett(modulus,mu_arr));
+		*a = this->ModBarrett(modulus,mu_arr);
 	else
 		a = const_cast<BigBinaryInteger*>(this);
 
 	//if b is greater than q reduce b to its mod value
 	if(b>modulus)
-		*bb = std::move(b.ModBarrett(modulus,mu_arr));
+		*bb = b.ModBarrett(modulus,mu_arr);
 	else
 		bb = const_cast<BigBinaryInteger*>(&b);
 
