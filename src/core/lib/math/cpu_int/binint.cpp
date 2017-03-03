@@ -144,23 +144,22 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const std::string& str){
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const BigBinaryInteger& bigInteger){
-	m_MSB=bigInteger.m_MSB; //copy MSB
-	uint_type  tempChar = ceilIntByUInt(bigInteger.m_MSB);
-	//copy array values
-	for(int i=m_nSize - tempChar;i<m_nSize;i++){//copy array value
-		m_value[i]=bigInteger.m_value[i];
-	}
-}
-
-template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(BigBinaryInteger &&bigInteger){
-	//copy MSB
 	m_MSB = bigInteger.m_MSB;
 	//copy array values
 	for (size_t i=0; i < m_nSize; ++i) {
 		m_value[i] = bigInteger.m_value[i];
 	}
 }
+
+//template<typename uint_type,usint BITLENGTH>
+//BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(BigBinaryInteger &&bigInteger){
+//	//copy MSB
+//	m_MSB = bigInteger.m_MSB;
+//	//copy array values
+//	for (size_t i=0; i < m_nSize; ++i) {
+//		m_value[i] = bigInteger.m_value[i];
+//	}
+//}
 
 template<typename uint_type,usint BITLENGTH>
 std::function<unique_ptr<BigBinaryInteger<uint_type,BITLENGTH>>()> BigBinaryInteger<uint_type,BITLENGTH>::Allocator = [](){
@@ -199,30 +198,29 @@ double BigBinaryInteger<uint_type,BITLENGTH>::ConvertToDouble() const{
 
 template<typename uint_type,usint BITLENGTH>
 const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator=(const BigBinaryInteger &rhs){
-	//set position of array to copy from
-	usint copyStart = ceilIntByUInt(rhs.m_MSB);
-	if(this!=&rhs){
-        this->m_MSB=rhs.m_MSB;
-		//copy array value
-        for(int i= m_nSize-copyStart;i<m_nSize;i++){
-            this->m_value[i]=rhs.m_value[i];
-        }
-	}
-    return *this;
-}
-
-template<typename uint_type,usint BITLENGTH>
-const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator=(BigBinaryInteger &&rhs){
 
 	if(this!=&rhs){
-        this->m_MSB = rhs.m_MSB;
+	    this->m_MSB = rhs.m_MSB;
 		for (size_t i=0; i < m_nSize; ++i) {
 			m_value[i] = rhs.m_value[i];
 		}
-    }
-
-    return *this;
+	}
+	
+	return *this;
 }
+
+//template<typename uint_type,usint BITLENGTH>
+//const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator=(BigBinaryInteger &&rhs){
+//
+//	if(this!=&rhs){
+//        this->m_MSB = rhs.m_MSB;
+//		for (size_t i=0; i < m_nSize; ++i) {
+//			m_value[i] = rhs.m_value[i];
+//		}
+//    }
+//
+//    return *this;
+//}
 
 /**
 *	Left Shift is done by splitting the number of shifts into
@@ -708,31 +706,40 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Min
 *  Algorithm used is usual school book shift and add after multiplication, except for that radix is 2^m_bitLength.
 */
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Times(const BigBinaryInteger& b) const{
-	
-	BigBinaryInteger ans;
+void BigBinaryInteger<uint_type, BITLENGTH>::Times(const BigBinaryInteger& b, BigBinaryInteger *ans) const {
+
+	//BigBinaryInteger ans;
 
 	//if one of them is zero
-	if(b.m_MSB==0 || this->m_MSB==0){
-		ans = ZERO;
-		return ans;
+	if (b.m_MSB == 0 || this->m_MSB == 0) {
+		*ans = ZERO;
+		return;
+		//return ans;
 	}
 
-	//check for trivial condtions
-	if(b.m_MSB==1)
-		return BigBinaryInteger(*this);
-	if(this->m_MSB==1)
-		return BigBinaryInteger(b);
+	//check for trivial conditions
+	if (b.m_MSB == 1) {
+		*ans = *this;
+		return;
+	}
+	if (this->m_MSB == 1) {
+		*ans = b;
+		return;
+	}
 	
 	//position of B in the array where the multiplication should start
 	uint_type ceilInt = ceilIntByUInt(b.m_MSB);
 	//Multiplication is done by getting a uint_type from b and multiplying it with *this
 	//after multiplication the result is shifted and added to the final answer
+	BigBinaryInteger temp;
 	for(sint i= m_nSize-1;i>= m_nSize-ceilInt;i--){
-		ans += (this->MulIntegerByChar(b.m_value[i]))<<=( m_nSize-1-i)*m_uintBitLength;
+		this->MulIntegerByCharInPlace(b.m_value[i], &temp);
+		*ans += temp<<=( m_nSize-1-i)*m_uintBitLength;
 	}
 
-	return ans;
+	return;
+
+	//return ans;
 }
 
 
@@ -870,6 +877,43 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mul
 	ans.m_MSB += GetMSBDUint_type(temp);
 
 	return ans;
+}
+
+/** Times operation:
+*  Algorithm used is usual school book multiplication.
+*  This function is used in the Multiplication of two BigBinaryInteger objects
+*/
+template<typename uint_type, usint BITLENGTH>
+void BigBinaryInteger<uint_type, BITLENGTH>::MulIntegerByCharInPlace(uint_type b, BigBinaryInteger *ans) const {
+
+	if (b == 0 || this->m_MSB == 0) {
+		*ans = ZERO;
+		return;
+	}
+
+	//BigBinaryInteger ans;
+	//position in the array to start multiplication
+	usint endVal = m_nSize - ceilIntByUInt(m_MSB);
+	//variable to capture the overflow
+	Duint_type temp = 0;
+	//overflow value
+	uint_type ofl = 0;
+	sint i = m_nSize - 1;
+
+	for (; i >= endVal; i--) {
+		temp = ((Duint_type)m_value[i] * (Duint_type)b) + ofl;
+		ans->m_value[i] = (uint_type)temp;
+		ofl = temp >> m_uintBitLength;
+	}
+	//check if there is any final overflow
+	if (ofl) {
+		ans->m_value[i] = ofl;
+	}
+	ans->m_MSB = (m_nSize - 1 - endVal)*m_uintBitLength;
+	//set the MSB after the final computation
+	ans->m_MSB += GetMSBDUint_type(temp);
+
+	return;
 }
 
 /* Division operation:

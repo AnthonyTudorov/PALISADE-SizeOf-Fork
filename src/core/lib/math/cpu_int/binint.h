@@ -241,14 +241,14 @@ namespace cpu_int{
     *
     * @param bigInteger is the big binary integer to be copied.
     */
-    explicit BigBinaryInteger(const BigBinaryInteger& bigInteger);
+    BigBinaryInteger(const BigBinaryInteger& bigInteger);
 
     /**
     * Basic constructor for move copying a big binary integer
     *
     * @param &&bigInteger is the big binary integer to be moved from.
     */
-    BigBinaryInteger(BigBinaryInteger &&bigInteger);
+    //BigBinaryInteger(BigBinaryInteger &&bigInteger);
     
     /**
     * Destructor.
@@ -280,7 +280,7 @@ namespace cpu_int{
     * @param &&rhs is the big binary integer to move.
     * @return object of type BigBinaryInteger.
     */
-    const BigBinaryInteger&  operator=(BigBinaryInteger &&rhs);
+    //const BigBinaryInteger&  operator=(BigBinaryInteger &&rhs);
 
 //Shift Operators
    
@@ -415,7 +415,7 @@ namespace cpu_int{
     * @param b of type Big Binary Integer is the value to multiply with.
     * @return result of the multiplication operation.
     */
-    BigBinaryInteger Times(const BigBinaryInteger& b) const;
+    void Times(const BigBinaryInteger& b, BigBinaryInteger *ans) const;
 
     /**
     * Division operation.
@@ -704,7 +704,11 @@ namespace cpu_int{
     * @param a is the value to multiply with.
     * @return is the result of the multiplication operation.
     */
-    inline BigBinaryInteger operator*(const BigBinaryInteger &a) const {return this->Times(a);}
+	inline BigBinaryInteger operator*(const BigBinaryInteger &a) const { 
+		BigBinaryInteger result;  
+		this->Times(a, &result); 
+		return result; 
+	}
 
     /**
     * Modulo operation. Classical modular reduction algorithm is used.
@@ -891,6 +895,13 @@ namespace cpu_int{
 		* @return the BigBinaryInteger after the multiplication.
 		*/
         BigBinaryInteger MulIntegerByChar(uint_type b) const;
+
+		/**
+		* function that returns the BigBinaryInteger after multiplication by b.
+		* @param b is the number to be multiplied.
+		* @return the BigBinaryInteger after the multiplication.
+		*/
+		void MulIntegerByCharInPlace(uint_type b, BigBinaryInteger *ans) const;
 		
 		/**
 		* function that returns the decimal value from the binary array a.
