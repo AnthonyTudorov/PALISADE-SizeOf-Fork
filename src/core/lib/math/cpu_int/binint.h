@@ -400,6 +400,14 @@ namespace cpu_int{
     */
     const BigBinaryInteger& operator-=(const BigBinaryInteger &b);
 
+	/**
+	* In-place multiplication.
+	*
+	* @param &b is the value to add of type Big Binary Integer.
+	* @return result of the multiplication operation of type Big Binary Integer.
+	*/
+	const BigBinaryInteger& operator*=(const BigBinaryInteger &b);
+
     /**
     * Subtraction operation.
     *

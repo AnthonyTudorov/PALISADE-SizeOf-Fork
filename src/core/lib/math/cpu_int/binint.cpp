@@ -844,6 +844,14 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 
 }
 
+template<typename uint_type, usint BITLENGTH>
+const BigBinaryInteger<uint_type, BITLENGTH>& BigBinaryInteger<uint_type, BITLENGTH>::operator*=(const BigBinaryInteger &b) {
+	
+	Times(b, this);
+
+	return *this;
+}
+
 /** Times operation:
 *  Algorithm used is usual school book multiplication.
 *  This function is used in the Multiplication of two BigBinaryInteger objects
@@ -1202,11 +1210,11 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	sint beta = -2;
 
 	q>>=n + beta;
-	q=q*mu;
+	q*=mu;
 	q>>=alpha-beta;
 	z-=q*modulus;
 	
-	if(z>=modulus)
+	if(!(z<modulus))
 		z-=modulus;
 	
 	return z;
