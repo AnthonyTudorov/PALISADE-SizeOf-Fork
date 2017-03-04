@@ -17,17 +17,10 @@
 
 #include "encoding/byteplaintextencoding.h"
 
-#include "utils/debug.h"
+#include "EncryptHelper.h"
 
 using namespace std;
 using namespace lbcrypto;
-
-string parms[] = { "Null", "Null2", "LTV5", "StSt6", "FV2" };
-
-static void CustomArguments(benchmark::internal::Benchmark* b) {
-	  for (int i = 0; i < (sizeof(parms)/sizeof(parms[0])); ++i)
-		  b->Arg(i);
-	}
 
 static std::vector<uint32_t> makeVector(int siz, int ptmi) {
 	std::vector<uint32_t>			elem;
@@ -38,18 +31,7 @@ static std::vector<uint32_t> makeVector(int siz, int ptmi) {
 	return std::move(elem);
 }
 
-static void doEvalAdd(CryptoContext<ILVector2n>& cc, shared_ptr<Ciphertext<ILVector2n>> ct1, shared_ptr<Ciphertext<ILVector2n>> ct2) {
-	shared_ptr<Ciphertext<ILVector2n>> ctP = cc.EvalAdd(ct1, ct2);
-}
-
-static void doEvalMult(CryptoContext<ILVector2n>& cc, shared_ptr<Ciphertext<ILVector2n>> ct1, shared_ptr<Ciphertext<ILVector2n>> ct2) {
-	shared_ptr<Ciphertext<ILVector2n>> ctP = cc.EvalMult(ct1, ct2);
-}
-
-typedef void (*SHEfp)(CryptoContext<ILVector2n>& cc, shared_ptr<Ciphertext<ILVector2n>> ct1, shared_ptr<Ciphertext<ILVector2n>> ct2);
-
-
-static void eval_LATTICE(CryptoContext<ILVector2n>& cc, SHEfp f) {	// function
+static void setup_SHE(CryptoContext<ILVector2n>& cc, shared_ptr<Ciphertext<ILVector2n>>& ct1, shared_ptr<Ciphertext<ILVector2n>>& ct2) {
 	int nel = cc.GetElementParams()->GetCyclotomicOrder()/2;
 	const BigBinaryInteger& ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
 	uint32_t ptmi = ptm.ConvertToInt();
@@ -59,55 +41,86 @@ static void eval_LATTICE(CryptoContext<ILVector2n>& cc, SHEfp f) {	// function
 	IntPlaintextEncoding p1( makeVector(nel, ptmi) );
 	IntPlaintextEncoding p2( makeVector(nel, ptmi) );
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ct1 = cc.Encrypt(kp.publicKey, p1, false);
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ct2 = cc.Encrypt(kp.publicKey, p2, false);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ct1V = cc.Encrypt(kp.publicKey, p1, false);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ct2V = cc.Encrypt(kp.publicKey, p2, false);
 
-	(*f)(cc, ct1[0], ct2[0]);
+	cc.EvalMultKeyGen(kp.secretKey);
+
+	ct1 = ct1V[0];
+	ct2 = ct2V[0];
 }
 
-void BM_evalAdd_LATTICE(benchmark::State& state) { // benchmark
+void BM_evalAdd_SHE(benchmark::State& state) { // benchmark
 	CryptoContext<ILVector2n> cc;
+	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
+		state.PauseTiming();
 		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
 		cc.Enable(ENCRYPTION);
 		cc.Enable(SHE);
+
+		setup_SHE(cc, ct1, ct2);
+		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
-		eval_LATTICE(cc, doEvalAdd);		// note even with -O3 it appears
-		// this is not optimized out
-		// though check with your compiler
+		shared_ptr<Ciphertext<ILVector2n>> ctP = cc.EvalAdd(ct1, ct2);
 	}
-
-//	ChineseRemainderTransformFTT::GetInstance().Destroy();
-//	NumberTheoreticTransform::GetInstance().Destroy();
-//	ILVector2n::DestroyPreComputedSamples();
 }
 
-BENCHMARK(BM_evalAdd_LATTICE)->Apply(CustomArguments);;
+BENCHMARK_PARMS(BM_evalAdd_SHE)
 
-void BM_evaMult_LATTICE(benchmark::State& state) { // benchmark
+void BM_evalMult_SHE(benchmark::State& state) { // benchmark
 	CryptoContext<ILVector2n> cc;
+	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
+		state.PauseTiming();
 		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
 		cc.Enable(ENCRYPTION);
 		cc.Enable(SHE);
+
+		setup_SHE(cc, ct1, ct2);
+		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
-		eval_LATTICE(cc, doEvalMult);		// note even with -O3 it appears
-		// this is not optimized out
-		// though check with your compiler
+		shared_ptr<Ciphertext<ILVector2n>> ctP = cc.EvalMult(ct1, ct2);
 	}
-
-//	ChineseRemainderTransformFTT::GetInstance().Destroy();
-//	NumberTheoreticTransform::GetInstance().Destroy();
-//	ILVector2n::DestroyPreComputedSamples();
 }
 
-BENCHMARK(BM_evaMult_LATTICE)->Apply(CustomArguments);
+BENCHMARK_PARMS(BM_evalMult_SHE)
+
+void BM_baseDecompose_SHE(benchmark::State& state) { // benchmark
+	CryptoContext<ILVector2n> cc;
+	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
+
+	if( state.thread_index == 0 ) {
+		state.PauseTiming();
+		try {
+			cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+			cc.Enable(ENCRYPTION);
+			cc.Enable(SHE);
+
+			setup_SHE(cc, ct1, ct2);
+		} catch( std::exception& e ) {
+			state.SkipWithError( "Unable to set up for BaseDecompose" );
+		}
+		state.ResumeTiming();
+	}
+
+	while (state.KeepRunning()) {
+		try {
+			vector<ILVector2n> ctP = ct1->GetElements()[0].BaseDecompose(2);
+		} catch( std::exception& e ) {
+			state.SkipWithError( e.what() );
+			break;
+		}
+	}
+}
+
+BENCHMARK_PARMS(BM_baseDecompose_SHE)
 
 //execute the benchmarks
 BENCHMARK_MAIN()

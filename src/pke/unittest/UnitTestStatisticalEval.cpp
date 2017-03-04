@@ -48,16 +48,20 @@ protected:
 public:
 };
 
+#include "../lib/cryptocontexthelper.h"
+
 /** Tests linear regression for the Null scheme
 * based on of a design matrix of 2x2 and response vector of 2x1
 */
 TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 
-	usint plaintextModulus = 256;
+	string plaintextModulus("256");
 	usint m = 64;
+	string modulus("256");
+	string rootOfUnity("268585022");
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(plaintextModulus, m);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(plaintextModulus, m, modulus, rootOfUnity);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -107,6 +111,7 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 
 	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc.EncryptMatrix(kp.publicKey, xP);
 
+
 	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
 
 	////////////////////////////////////////////////////////////
@@ -151,9 +156,11 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 
 	usint plaintextModulus = 256;
 	usint m = 64;
+	string modulus("256");
+	string rootOfUnity("268585022");
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(plaintextModulus, m);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(std::to_string(plaintextModulus), m, modulus, rootOfUnity);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);

@@ -48,28 +48,39 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "encoding/byteplaintextencoding.h"
 
-#include "utils/debug.h"
-
 using namespace std;
 using namespace lbcrypto;
-void NTRUPRE(int input);
 
+#include "BBVhelper.h"
+#include "ElementParmsHelper.h"
+#include "EncryptHelper.h"
 
-/**
- * @brief Input parameters for PRE example.
- */
-struct SecureParams {
-	usint m;			///< The ring parameter.
-	string modulus;	///< The modulus
-	string rootOfUnity;	///< The rootOfUnity
-	usint relinWindow;		///< The relinearization window parameter.
-};
+void BM_keygen(benchmark::State& state) { // benchmark
+	CryptoContext<ILVector2n> cc;
 
-#include <iterator>
+	if( state.thread_index == 0 ) {
+		state.PauseTiming();
+		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(SHE);
 
-#define BASIC_BENCHMARK_TEST(x) \
-    BENCHMARK(x)->Arg(0)->Arg(1)->Arg(4)->Arg(8)->Arg(16)
+		/**
+		ChineseRemainderTransformFTT::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
+				cc.GetElementParams()->GetCyclotomicOrder(),
+				cc.GetElementParams()->GetModulus());
+		**/
+		ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
+		state.ResumeTiming();
+	}
 
+	while (state.KeepRunning()) {
+		LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	}
+}
+
+BENCHMARK_PARMS(BM_keygen)
+
+#ifdef OUT
 static void BM_SOURCE(benchmark::State& state) {
 
 	// std::cout << "Relinearization window : " << std::endl;
@@ -148,9 +159,6 @@ void NTRUPRE(int input) {
 
 	float stdDev = 4;
 
-	ofstream fout;
-	fout.open ("output.txt");
-
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
 	//Set crypto parametes
@@ -163,22 +171,12 @@ void NTRUPRE(int input) {
 			relWindow,
 			stdDev);
 
-	double diff, start, finish;
-
-	start = currentDateTime();
-
 	//This code is run only when performing execution time measurements
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(BigBinaryInteger(rootOfUnity), m, BigBinaryInteger(modulus));
 
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout << "Precomputation time: " << "\t" << diff << " ms" << endl;
-	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
@@ -192,17 +190,7 @@ void NTRUPRE(int input) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 
-	std::cout <<"\n" <<  "Running key generation..." << std::endl;
-
-	start = currentDateTime();
-
 	kp = cc.KeyGen();
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
 
 	if (!kp.good()) {
 		std::cout<<"Key generation failed!"<<std::endl;
@@ -214,24 +202,10 @@ void NTRUPRE(int input) {
 	////////////////////////////////////////////////////////////
 
 	// Begin the initial encryption operation.
-	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
-	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
-	std::cout << "Running encryption..." << std::endl;
-
-	start = currentDateTime();
-
 	ciphertext = cc.Encrypt(kp.publicKey,plaintext);
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	//cout<<"ciphertext: "<<ciphertext.GetValues()<<endl;
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -239,30 +213,14 @@ void NTRUPRE(int input) {
 
 	BytePlaintextEncoding plaintextNew;
 
-	std::cout <<"\n"<< "Running decryption..." << std::endl;
-
-	start = currentDateTime();
-
 	DecryptResult result = cc.Decrypt(kp.secretKey,ciphertext,&plaintextNew);
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
-
-	//cout << "ciphertext at" << ciphertext.GetIndexAt(2);
 
 	if (!result.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}
-	//PRE SCHEME
 
-	//system("pause");
+	//PRE SCHEME
 
 	////////////////////////////////////////////////////////////
 	//Perform the second key generation operation.
@@ -349,14 +307,10 @@ void NTRUPRE(int input) {
 		exit(1);
 	}
 
-	std::cout << "Execution completed.  Please any key to finish." << std::endl;
-
-	fout.close();
-
-
 }
 
 BASIC_BENCHMARK_TEST(BM_SOURCE); // runs the benchmark over the range of input
+#endif
 
 BENCHMARK_MAIN()
 

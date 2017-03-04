@@ -114,11 +114,13 @@ buildContextFromSerialized(const map<string,string>& s)
 	}
 	else if( parmtype == "Null" ) {
 		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
-				!getValueForName(s, "ring", ring) ) {
+				!getValueForName(s, "ring", ring) ||
+				!getValueForName(s, "modulus", modulus) ||
+				!getValueForName(s, "rootOfUnity", rootOfUnity) ) {
 			return 0;
 		}
-		unsigned long mo = stoul(plaintextModulus);
-		return CryptoContextFactory<Element>::getCryptoContextNull(mo, stoul(ring));
+
+		return CryptoContextFactory<Element>::getCryptoContextNull(plaintextModulus, stoul(ring), modulus, rootOfUnity);
 	}
 
 	return 0;

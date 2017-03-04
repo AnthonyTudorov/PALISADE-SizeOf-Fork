@@ -92,11 +92,11 @@ void EvalLinRegressionNull() {
 
 	usint plaintextModulus = 256;
 	usint m = 64;
-
-	//float stdDev = 4;
+	string modulus("256");
+	string rootOfUnity("268585022");
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(plaintextModulus, m);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(std::to_string(plaintextModulus), m, modulus, rootOfUnity);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -294,11 +294,11 @@ void EvalLinRegressionNull3() {
 
 	usint plaintextModulus = 256;
 	usint m = 64;
-
-	//float stdDev = 4;
+	string modulus("256");
+	string rootOfUnity("268585022");
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(plaintextModulus, m);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(std::to_string(plaintextModulus), m, modulus, rootOfUnity);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -711,9 +711,6 @@ void EvalLinRegressionFV3() {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-
 	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 3);
 
 	std::cout << "RationalCiphertext s/d test" << std::endl;
@@ -920,11 +917,11 @@ void RationalTests() {
 
 	usint plaintextModulus = 256;
 	usint m = 16;
-
-	//float stdDev = 4;
+	string modulus("256");
+	string rootOfUnity("453444631");
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(plaintextModulus, m);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(std::to_string(plaintextModulus), m, modulus, rootOfUnity);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -1119,15 +1116,12 @@ void IntegerTests() {
 
 	usint plaintextModulus = 256;
 	usint n = 8;
-
-	//float stdDev = 4;
+	string modulus("536871001");
+	string rootOfUnity("322299632");
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(plaintextModulus,n);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(std::to_string(plaintextModulus), n, modulus, rootOfUnity);
 
-	//CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-	//	plaintextModulus, 0, "0", "0",
-	//	relWindow, stdDev, "0", mode, "0", "0", 0, 9, 1.006);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 

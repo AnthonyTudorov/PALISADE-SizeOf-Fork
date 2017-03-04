@@ -107,48 +107,59 @@ BENCHMARK(BM_BBI_small_variables);		// register benchmark
 
 static void make_BBI_large_variables (void) {	// function
 	BigBinaryInteger a("18446744073709551616"), b("18446744073709551617");
-	BigBinaryInteger total = b-a;
 }
 
 void BM_BBI_large_variables(benchmark::State& state) { // benchmark
 	while (state.KeepRunning()) {
-		make_BBI_large_variables();		// note even with -O3 it appears
-		// this is not optimized out
-		// though check with your compiler
+		make_BBI_large_variables();
 	}
 }
 
-BENCHMARK(BM_BBI_large_variables);		// register benchmark
+BENCHMARK(BM_BBI_large_variables);
+
+static BigBinaryInteger smalla("10403"), smallb("103");
+static BigBinaryInteger largea("18446744073709551616"), largeb("18446744073709551617");
+
 
 // add
-static void add_BBI(void) {	// function
-	BigBinaryInteger a("10403"), b("103");
+static void add_BBI(benchmark::State& state) {	// function
+	state.PauseTiming();
+	BigBinaryInteger& a = state.range(0) == 0 ? smalla : largea;
+	BigBinaryInteger& b = state.range(0) == 0 ? smallb : largeb;
+	state.ResumeTiming();
+
 	BigBinaryInteger c1 = a+b;
 }
 
 static void BM_BBI_Addition(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
-		add_BBI();
+		add_BBI(state);
 	}
 }
 
-BENCHMARK(BM_BBI_Addition);		// register benchmark
+BENCHMARK(BM_BBI_Addition)->ArgName("Small")->Arg(0);
+BENCHMARK(BM_BBI_Addition)->ArgName("Large")->Arg(1);
 
 // add
-static void mult_BBI(void) {	// function
-	BigBinaryInteger a("10403"), b("103");
+static void mult_BBI(benchmark::State& state) {	// function
+	state.PauseTiming();
+	BigBinaryInteger& a = state.range(0) == 0 ? smalla : largea;
+	BigBinaryInteger& b = state.range(0) == 0 ? smallb : largeb;
+	state.ResumeTiming();
+
 	BigBinaryInteger c1 = a*b;
 }
 
 static void BM_BBI_Multiplication(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
-		add_BBI();
+		mult_BBI(state);
 	}
 }
 
-BENCHMARK(BM_BBI_Multiplication);		// register benchmark
+BENCHMARK(BM_BBI_Multiplication)->ArgName("Small")->Arg(0);
+BENCHMARK(BM_BBI_Multiplication)->ArgName("Large")->Arg(1);
 
 
 //execute the benchmarks

@@ -62,7 +62,6 @@ BUILDDIR := build
 BINDIR := bin
 
 #sources for palisade library
-SRCLIBDIR := src/lib
 EXTLIBDIR := bin/lib
 EXTTESTDIR := bin/unittest
 EXTDEMODIR := bin/demo
@@ -111,4 +110,7 @@ include Makefile.trapdoor
 include Makefile.wrapper
 include Makefile.benchmark     #builds the benchmark framework
 include Makefile.docs          #populates doxgen documentation
+
+test/include/gtest/gtest-all.o: test/include/gtest/gtest-all.cc
+	$(CC) -c $(CPPFLAGS) -o $@ $<
 

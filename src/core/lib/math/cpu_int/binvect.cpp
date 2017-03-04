@@ -150,8 +150,9 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryVector<IntegerType_c> 
 template<class IntegerType>
 void BigBinaryVector<IntegerType>::SetValAtIndex(usint index, const IntegerType& value){
 
-	if(!this->IndexCheck(index)){
-			std::cout<<"Invalid index input \n";
+	if(!this->IndexCheck(index)) {
+		throw std::logic_error("Invalid index input to SetValAtIndex for index "
+				+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
 	}
 	else{
 		this->m_data[index] = value;
@@ -161,7 +162,8 @@ void BigBinaryVector<IntegerType>::SetValAtIndex(usint index, const IntegerType&
 template<class IntegerType>
 void BigBinaryVector<IntegerType>::SetValAtIndex(usint index, const std::string& str){
 	if(!this->IndexCheck(index)){
-		std::cout<<"Invalid index input \n";
+		throw std::logic_error("Invalid index input to SetValAtIndex for index "
+				+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
 	}
 	else{
 		this->m_data[index].SetValue(str);
@@ -171,8 +173,8 @@ void BigBinaryVector<IntegerType>::SetValAtIndex(usint index, const std::string&
 template<class IntegerType>
 const IntegerType& BigBinaryVector<IntegerType>::GetValAtIndex(usint index) const{
 	if(!this->IndexCheck(index)){
-		std::cout<<"Invalid index input \n";
-		return (IntegerType)NULL;
+		throw std::logic_error("Invalid index input to GetValAtIndex for index "
+				+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
 	}
 	return this->m_data[index];
 }
