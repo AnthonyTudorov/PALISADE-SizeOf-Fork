@@ -1210,7 +1210,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	sint beta = -2;
 
 	q>>=n + beta;
-	q*=mu;
+	q=q*mu;
 	q>>=alpha-beta;
 	z-=q*modulus;
 	
