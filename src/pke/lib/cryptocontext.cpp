@@ -147,7 +147,8 @@ CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBV(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-		usint relinWindow, float stDev)
+		usint relinWindow, float stDev,
+		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth)
 {
 	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
@@ -158,10 +159,10 @@ CryptoContextFactory<T>::genCryptoContextBV(
 		0.0, // assuranceMeasure,
 		0.0, // securityLevel,
 		relinWindow, // Relinearization Window
-		MODE::RLWE, //Mode of noise generation
-		BigBinaryInteger(modulus),
-		BigBinaryInteger(rootOfUnity)
-		) );
+		mode, //Mode of noise generation
+		BigBinaryInteger(bigmodulus),
+		BigBinaryInteger(bigrootofunity),
+		depth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBV<T>() );
 

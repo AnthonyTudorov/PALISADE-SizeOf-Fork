@@ -926,7 +926,9 @@ public:
 	static CryptoContext<Element> genCryptoContextBV(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-		usint relinWindow, float stDev);
+		usint relinWindow, float stDev,
+		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
+		int depth = 1);
 
 	/**
 	* FIXME temp function written by GRS
