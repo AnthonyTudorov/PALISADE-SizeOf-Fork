@@ -62,14 +62,18 @@ void BM_keygen(benchmark::State& state) { // benchmark
 		state.PauseTiming();
 		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
 		cc.Enable(ENCRYPTION);
-		cc.Enable(SHE);
+		cc.Enable(PRE);
 
-		/**
+		try {
 		ChineseRemainderTransformFTT::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
 				cc.GetElementParams()->GetCyclotomicOrder(),
 				cc.GetElementParams()->GetModulus());
-		**/
+		} catch( ... ) {}
+
+		try {
 		ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
+		} catch( ... ) {}
+
 		state.ResumeTiming();
 	}
 
@@ -79,6 +83,266 @@ void BM_keygen(benchmark::State& state) { // benchmark
 }
 
 BENCHMARK_PARMS(BM_keygen)
+
+void BM_encrypt(benchmark::State& state) { // benchmark
+	CryptoContext<ILVector2n> cc;
+	LPKeyPair<ILVector2n> kp;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	BytePlaintextEncoding plaintext;
+
+	auto randchar = []() -> char {
+		const char charset[] =
+				"0123456789"
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				"abcdefghijklmnopqrstuvwxyz";
+		const size_t max_index = (sizeof(charset) - 1);
+		return charset[ rand() % max_index ];
+	};
+
+
+	if( state.thread_index == 0 ) {
+		state.PauseTiming();
+		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(PRE);
+
+		try {
+		ChineseRemainderTransformFTT::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
+				cc.GetElementParams()->GetCyclotomicOrder(),
+				cc.GetElementParams()->GetModulus());
+		} catch( ... ) {}
+
+		try {
+			ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
+		} catch( ... ) {}
+
+		size_t strSize = plaintext.GetChunksize(cc.GetElementParams()->GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
+
+		if( strSize == 0 ) {
+			state.SkipWithError( "Chunk size is 0" );
+		}
+
+		string shortStr(strSize,0);
+		std::generate_n(shortStr.begin(), strSize, randchar);
+		plaintext = shortStr;
+
+		state.ResumeTiming();
+	}
+
+	while (state.KeepRunning()) {
+		state.PauseTiming();
+		LPKeyPair<ILVector2n> kp = cc.KeyGen();
+		state.ResumeTiming();
+
+		ciphertext = cc.Encrypt(kp.publicKey, plaintext);
+
+		state.PauseTiming();
+		ciphertext.clear();
+		state.ResumeTiming();
+	}
+}
+
+BENCHMARK_PARMS(BM_encrypt)
+
+void BM_decrypt(benchmark::State& state) { // benchmark
+	CryptoContext<ILVector2n> cc;
+	LPKeyPair<ILVector2n> kp;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	BytePlaintextEncoding plaintext;
+	BytePlaintextEncoding plaintextNew;
+
+	auto randchar = []() -> char {
+		const char charset[] =
+				"0123456789"
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				"abcdefghijklmnopqrstuvwxyz";
+		const size_t max_index = (sizeof(charset) - 1);
+		return charset[ rand() % max_index ];
+	};
+
+
+	if( state.thread_index == 0 ) {
+		state.PauseTiming();
+		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(PRE);
+
+		try {
+		ChineseRemainderTransformFTT::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
+				cc.GetElementParams()->GetCyclotomicOrder(),
+				cc.GetElementParams()->GetModulus());
+		} catch( ... ) {}
+
+		try {
+			ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
+		} catch( ... ) {}
+
+		size_t strSize = plaintext.GetChunksize(cc.GetElementParams()->GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
+
+		if( strSize == 0 ) {
+			state.SkipWithError( "Chunk size is 0" );
+		}
+
+		string shortStr(strSize,0);
+		std::generate_n(shortStr.begin(), strSize, randchar);
+		plaintext = shortStr;
+
+		state.ResumeTiming();
+	}
+
+	while (state.KeepRunning()) {
+		state.PauseTiming();
+		LPKeyPair<ILVector2n> kp = cc.KeyGen();
+		ciphertext = cc.Encrypt(kp.publicKey, plaintext);
+		state.ResumeTiming();
+
+		DecryptResult result = cc.Decrypt(kp.secretKey,ciphertext,&plaintextNew);
+
+		state.PauseTiming();
+		ciphertext.clear();
+		state.ResumeTiming();
+	}
+}
+
+BENCHMARK_PARMS(BM_decrypt)
+
+void BM_rekeygen(benchmark::State& state) { // benchmark
+	CryptoContext<ILVector2n> cc;
+	LPKeyPair<ILVector2n> kp;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	BytePlaintextEncoding plaintext;
+	BytePlaintextEncoding plaintextNew;
+
+	auto randchar = []() -> char {
+		const char charset[] =
+				"0123456789"
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				"abcdefghijklmnopqrstuvwxyz";
+		const size_t max_index = (sizeof(charset) - 1);
+		return charset[ rand() % max_index ];
+	};
+
+
+	if( state.thread_index == 0 ) {
+		state.PauseTiming();
+		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(PRE);
+
+		try {
+		ChineseRemainderTransformFTT::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
+				cc.GetElementParams()->GetCyclotomicOrder(),
+				cc.GetElementParams()->GetModulus());
+		} catch( ... ) {}
+
+		try {
+			ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
+		} catch( ... ) {}
+
+//		size_t strSize = plaintext.GetChunksize(cc.GetElementParams()->GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
+//
+//		if( strSize == 0 ) {
+//			state.SkipWithError( "Chunk size is 0" );
+//		}
+//
+//		string shortStr(strSize,0);
+//		std::generate_n(shortStr.begin(), strSize, randchar);
+//		plaintext = shortStr;
+
+		state.ResumeTiming();
+	}
+
+	while (state.KeepRunning()) {
+		state.PauseTiming();
+		LPKeyPair<ILVector2n> kp = cc.KeyGen();
+		LPKeyPair<ILVector2n> kp2 = cc.KeyGen();
+		state.ResumeTiming();
+
+		shared_ptr<LPEvalKey<ILVector2n>> evalKey;
+
+		try {
+			evalKey = cc.ReKeyGen(kp2.publicKey, kp.secretKey);
+		} catch( std::exception& e ) {
+			state.SkipWithError( e.what() );
+		}
+	}
+}
+
+BENCHMARK_PARMS(BM_rekeygen)
+
+void BM_reencrypt(benchmark::State& state) { // benchmark
+	CryptoContext<ILVector2n> cc;
+	LPKeyPair<ILVector2n> kp;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	BytePlaintextEncoding plaintext;
+	BytePlaintextEncoding plaintextNew;
+
+	auto randchar = []() -> char {
+		const char charset[] =
+				"0123456789"
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				"abcdefghijklmnopqrstuvwxyz";
+		const size_t max_index = (sizeof(charset) - 1);
+		return charset[ rand() % max_index ];
+	};
+
+
+	if( state.thread_index == 0 ) {
+		state.PauseTiming();
+		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(PRE);
+
+		try {
+		ChineseRemainderTransformFTT::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
+				cc.GetElementParams()->GetCyclotomicOrder(),
+				cc.GetElementParams()->GetModulus());
+		} catch( ... ) {}
+
+		try {
+			ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
+		} catch( ... ) {}
+
+		size_t strSize = plaintext.GetChunksize(cc.GetElementParams()->GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
+
+		if( strSize == 0 ) {
+			state.SkipWithError( "Chunk size is 0" );
+		}
+
+		string shortStr(strSize,0);
+		std::generate_n(shortStr.begin(), strSize, randchar);
+		plaintext = shortStr;
+
+		state.ResumeTiming();
+	}
+
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> reciphertext;
+
+	while (state.KeepRunning()) {
+		state.PauseTiming();
+		LPKeyPair<ILVector2n> kp = cc.KeyGen();
+		LPKeyPair<ILVector2n> kp2 = cc.KeyGen();
+		try {
+			evalKey = cc.ReKeyGen(kp2.publicKey, kp.secretKey);
+		} catch( std::exception& e ) {
+			state.SkipWithError( e.what() );
+			continue;
+		}
+
+		ciphertext = cc.Encrypt(kp.publicKey, plaintext);
+		state.ResumeTiming();
+
+		reciphertext = cc.ReEncrypt(evalKey,ciphertext);
+
+		state.PauseTiming();
+		ciphertext.clear();
+		reciphertext.clear();
+		state.ResumeTiming();
+	}
+}
+
+BENCHMARK_PARMS(BM_reencrypt)
 
 #ifdef OUT
 static void BM_SOURCE(benchmark::State& state) {
