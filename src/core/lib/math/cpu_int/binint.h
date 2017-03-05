@@ -400,14 +400,6 @@ namespace cpu_int{
     */
     const BigBinaryInteger& operator-=(const BigBinaryInteger &b);
 
-	/**
-	* In-place multiplication.
-	*
-	* @param &b is the value to add of type Big Binary Integer.
-	* @return result of the multiplication operation of type Big Binary Integer.
-	*/
-	const BigBinaryInteger& operator*=(const BigBinaryInteger &b);
-
     /**
     * Subtraction operation.
     *
@@ -424,14 +416,6 @@ namespace cpu_int{
     * @return result of the multiplication operation.
     */
     void Times(const BigBinaryInteger& b, BigBinaryInteger *ans) const;
-
-	/**
-	* Multiplication operation - in place.
-	*
-	* @param b of type Big Binary Integer is the value to multiply with.
-	* @return result of the multiplication operation.
-	*/
-	const BigBinaryInteger& TimesInPlace(const BigBinaryInteger& b);
 
     /**
     * Division operation.

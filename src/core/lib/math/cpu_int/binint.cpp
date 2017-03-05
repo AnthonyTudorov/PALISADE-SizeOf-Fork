@@ -742,48 +742,6 @@ void BigBinaryInteger<uint_type, BITLENGTH>::Times(const BigBinaryInteger& b, Bi
 	//return ans;
 }
 
-/** Times operation:
-*  Algorithm used is usual school book shift and add after multiplication, except for that radix is 2^m_bitLength.
-*/
-template<typename uint_type, usint BITLENGTH>
-const BigBinaryInteger<uint_type, BITLENGTH>& BigBinaryInteger<uint_type, BITLENGTH>::TimesInPlace(const BigBinaryInteger& b) {
-
-	//BigBinaryInteger ans;
-
-	//if one of them is zero
-	if (b.m_MSB == 0 || this->m_MSB == 0) {
-		*this = ZERO;
-		return *this;
-		//return ans;
-	}
-
-	//check for trivial conditions
-	if (b.m_MSB == 1) {
-		return *this;
-	}
-	if (this->m_MSB == 1) {
-		*this = b;
-		return *this;
-	}
-
-	//position of B in the array where the multiplication should start
-	uint_type ceilInt = ceilIntByUInt(b.m_MSB);
-	//Multiplication is done by getting a uint_type from b and multiplying it with *this
-	//after multiplication the result is shifted and added to the final answer
-	BigBinaryInteger ans;
-	BigBinaryInteger temp;
-	for (sint i = m_nSize - 1; i >= m_nSize - ceilInt; i--) {
-		this->MulIntegerByCharInPlace(b.m_value[i], &temp);
-		ans += temp <<= (m_nSize - 1 - i)*m_uintBitLength;
-	}
-
-	*this = ans;
-
-	return *this;
-
-	//return ans;
-}
-
 
 template<typename uint_type,usint BITLENGTH>
 const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGTH>::operator+=(const BigBinaryInteger &b){
@@ -891,12 +849,6 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::o
 	BigBinaryInteger result;
 	this->Times(a, &result);
 	return result;
-}
-
-template<typename uint_type, usint BITLENGTH>
-const BigBinaryInteger<uint_type, BITLENGTH>& BigBinaryInteger<uint_type, BITLENGTH>::operator*=(const BigBinaryInteger &b) {
-	this->TimesInPlace(b);
-	return *this;
 }
 
 /** Times operation:
