@@ -65,7 +65,6 @@ namespace lbcrypto {
 			result.SetValAtIndex(i, element.GetValAtIndex(ReverseBits(i, msb)));
 
 		BigBinaryInteger omegaFactor;
-		BigBinaryInteger product;
 		BigBinaryInteger butterflyPlus;
 		BigBinaryInteger butterflyMinus;
 		/*Ring dimension factor calculates the ratio between the cyclotomic order of the root of unity table
@@ -100,9 +99,8 @@ namespace lbcrypto {
 							omegaFactor = omega;
 						else
 						{
-							product = omega*result.GetValAtIndex(indexOdd);
-							//omegaFactor = product.ModBarrett(element.GetModulus(),mu_arr);
-							omegaFactor = product.ModBarrett(element.GetModulus(), mu);
+							omegaFactor = omega*result.GetValAtIndex(indexOdd);
+							omegaFactor.ModBarrettInPlace(element.GetModulus(), mu);
 						}
 
 						butterflyPlus = result.GetValAtIndex(indexEven);

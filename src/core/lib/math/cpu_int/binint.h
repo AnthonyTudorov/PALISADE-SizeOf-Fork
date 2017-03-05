@@ -400,14 +400,6 @@ namespace cpu_int{
     */
     const BigBinaryInteger& operator-=(const BigBinaryInteger &b);
 
-	/**
-	* In-place multiplication.
-	*
-	* @param &b is the value to add of type Big Binary Integer.
-	* @return result of the multiplication operation of type Big Binary Integer.
-	*/
-	const BigBinaryInteger& operator*=(const BigBinaryInteger &b);
-
     /**
     * Subtraction operation.
     *
@@ -453,6 +445,17 @@ namespace cpu_int{
     * @return is the result of the modulus operation.
     */
     BigBinaryInteger ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger& mu) const;
+
+	/**
+	* returns the modulus with respect to the input value - In place version.
+	* Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.
+	* See the cpp file for details of the implementation.
+	*
+	* @param modulus is the modulus to perform.
+	* @param mu is the Barrett value.
+	* @return is the result of the modulus operation.
+	*/
+	void ModBarrettInPlace(const BigBinaryInteger& modulus, const BigBinaryInteger& mu);
 
     /**
     * returns the modulus with respect to the input value.
@@ -552,6 +555,19 @@ namespace cpu_int{
     * @return is the result of the modulus multiplication operation.
     */
     BigBinaryInteger ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const;
+
+	/**
+	* Scalar modular multiplication where Barrett modular reduction is used - In-place version
+	* Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo).
+	* Uses one precomputed value \mu.
+	* See the cpp file for details of the implementation.
+	*
+	* @param b is the scalar to multiply.
+	* @param modulus is the modulus to perform operations with.
+	* @param mu is the precomputed Barrett value.
+	* @return is the result of the modulus multiplication operation.
+	*/
+	void ModBarrettMulInPlace(const BigBinaryInteger& b, const BigBinaryInteger& modulus, const BigBinaryInteger& mu);
 
     /**
     * Scalar modular multiplication where Barrett modular reduction is used.
@@ -712,11 +728,7 @@ namespace cpu_int{
     * @param a is the value to multiply with.
     * @return is the result of the multiplication operation.
     */
-	inline BigBinaryInteger operator*(const BigBinaryInteger &a) const { 
-		BigBinaryInteger result;  
-		this->Times(a, &result); 
-		return result; 
-	}
+	inline BigBinaryInteger operator*(const BigBinaryInteger &a) const;
 
     /**
     * Modulo operation. Classical modular reduction algorithm is used.

@@ -845,11 +845,10 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 }
 
 template<typename uint_type, usint BITLENGTH>
-const BigBinaryInteger<uint_type, BITLENGTH>& BigBinaryInteger<uint_type, BITLENGTH>::operator*=(const BigBinaryInteger &b) {
-	
-	Times(b, this);
-
-	return *this;
+BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::operator*(const BigBinaryInteger &a) const{
+	BigBinaryInteger result;
+	this->Times(a, &result);
+	return result;
 }
 
 /** Times operation:
@@ -1210,7 +1209,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	sint beta = -2;
 
 	q>>=n + beta;
-	q=q*mu;
+	q = q*mu;
 	q>>=alpha-beta;
 	z-=q*modulus;
 	
@@ -1218,6 +1217,47 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 		z-=modulus;
 	
 	return z;
+
+}
+
+/**
+Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
+@article{knezevicspeeding,
+title={Speeding Up Barrett and Montgomery Modular Multiplications},
+author={Knezevic, Miroslav and Vercauteren, Frederik and Verbauwhede, Ingrid}
+}
+We use the Generalized Barrett modular reduction algorithm described in Algorithm 2 of the Source. The algorithm was originally
+proposed in J.-F. Dhem. Modified version of the Barrett algorithm. Technical report, 1994 and described in more detail
+in the PhD thesis of the author published at
+http://users.belgacom.net/dhem/these/these_public.pdf (Section 2.2.4).
+We take \alpha equal to n + 3. So in our case, \mu = 2^(n + \alpha) = 2^(2*n + 3).
+Generally speaking, the value of \alpha should be \ge \gamma + 1, where \gamma + n is the number of digits in the dividend.
+We use the upper bound of dividend assuming that none of the dividends will be larger than 2^(2*n + 3). The value of \mu
+is computed by BigBinaryVector::ModMult.
+
+*/
+template<typename uint_type, usint BITLENGTH>
+void BigBinaryInteger<uint_type, BITLENGTH>::ModBarrettInPlace(const BigBinaryInteger& modulus, const BigBinaryInteger& mu) {
+
+	if (*this<modulus) {
+		return;
+	}
+
+	BigBinaryInteger q(*this);
+
+	usint n = modulus.m_MSB;
+	usint alpha = n + 3;
+	sint beta = -2;
+
+	q >>= n + beta;
+	q = q*mu;
+	q >>= alpha - beta;
+	*this -= q*modulus;
+
+	if (!(*this<modulus))
+		*this -= modulus;
+
+	return;
 
 }
 
@@ -1514,6 +1554,59 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	return (*a**bb).ModBarrett(modulus,mu);
 
 }
+
+
+/*
+Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
+@article{knezevicspeeding,
+title={Speeding Up Barrett and Montgomery Modular Multiplications},
+author={Knezevic, Miroslav and Vercauteren, Frederik and Verbauwhede, Ingrid}
+}
+We use the Generalized Barrett modular reduction algorithm described in Algorithm 2 of the Source. The algorithm was originally
+proposed in J.-F. Dhem. Modified version of the Barrett algorithm. Technical report, 1994 and described in more detail
+in the PhD thesis of the author published at
+http://users.belgacom.net/dhem/these/these_public.pdf (Section 2.2.4).
+We take \alpha equal to n + 3. So in our case, \mu = 2^(n + \alpha) = 2^(2*n + 3).
+Generally speaking, the value of \alpha should be \ge \gamma + 1, where \gamma + n is the number of digits in the dividend.
+We use the upper bound of dividend assuming that none of the dividends will be larger than 2^(2*n + 3).
+
+Multiplication and modulo reduction are NOT INTERLEAVED.
+
+Potential improvements:
+1. When working with MATHBACKEND = 1, we tried to compute an evenly distributed array of \mu (the number is approximately equal
+to the number BARRET_LEVELS) but that did not give any performance improvement. So using one pre-computed value of
+\mu was the most efficient option at the time.
+2. We also tried "Interleaved digit-serial modular multiplication with generalized Barrett reduction" Algorithm 3 in the Source but it
+was slower with MATHBACKEND = 1.
+3. Our implementation makes the modulo operation essentially equivalent to two multiplications. If sparse moduli are selected, it can be replaced
+with a single multiplication. The interleaved version of modular multiplication for this case is listed in Algorithm 6 of the source.
+This algorithm would most like give the biggest improvement but it sets constraints on moduli.
+
+*/
+
+template<typename uint_type, usint BITLENGTH>
+void BigBinaryInteger<uint_type, BITLENGTH>::ModBarrettMulInPlace(const BigBinaryInteger& b, const BigBinaryInteger& modulus, const BigBinaryInteger& mu) {
+
+	//BigBinaryInteger* a = const_cast<BigBinaryInteger*>(this);
+	BigBinaryInteger* bb = const_cast<BigBinaryInteger*>(&b);
+
+	//if a is greater than q reduce a to its mod value
+	if (*this>modulus)
+		this->ModBarrettInPlace(modulus, mu);
+
+
+	//if b is greater than q reduce b to its mod value
+	if (b>modulus)
+		*bb = b.ModBarrett(modulus, mu);
+
+	*this = *this**bb;
+
+	this->ModBarrettInPlace(modulus, mu);
+
+	return;
+
+}
+
 
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const{
