@@ -37,13 +37,13 @@ void MultiThreadedRun() {
 		}
 	}
 
-	size_t counter = 20;
+	size_t counter = 500;
 	double start, finish;
 	DiscreteGaussianGenerator dgg(SIGMA);
 
 	usint sm = 2048;
-	BigBinaryInteger smodulus("134246401");
-	BigBinaryInteger srootOfUnity("34044212");
+	BigBinaryInteger smodulus("67127297");
+	BigBinaryInteger srootOfUnity("19715182");
 
 	ILParams ilParams(sm, smodulus, srootOfUnity);
 	shared_ptr<ILParams> silParams = std::make_shared<ILParams>(ilParams);
@@ -67,7 +67,9 @@ void MultiThreadedRun() {
 	LPVerificationKeyGPVGM<ILVector2n> v_k_gm(signParams);
 	LPSignatureSchemeGPVGM<ILVector2n> scheme_gm;
 
-	vector<Signature<Matrix<ILVector2n>>> signature(100);
+	vector<Signature<Matrix<ILVector2n>>> signature(counter);
+
+	scheme_gm.KeyGen(&s_k_gm, &v_k_gm);
 
 	start = currentDateTime();
 	scheme_gm.KeyGen(&s_k_gm, &v_k_gm);
