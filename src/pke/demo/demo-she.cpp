@@ -32,7 +32,7 @@ Redistribution and use in source and binary forms, with or without modification,
 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-*/
+ */
 
 #include <iostream>
 #include <fstream>
@@ -115,10 +115,6 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	if( beVerbose ) {
-		CryptoContextHelper<ILVector2n>::printParmSet(cout, parmSetName);
-	}
-	
 	// Construct a crypto context for this parameter set
 
 	if( beVerbose ) cout << "Initializing crypto system" << endl;
@@ -138,11 +134,17 @@ int main(int argc, char *argv[])
 		// ignore for schemes w/o Param Gen
 	}
 
+	cout << cc.GetElementParams()->GetCyclotomicOrder() << endl;
+	cout << cc.GetCryptoParameters()->GetPlaintextModulus() << endl;
+
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	IntPlaintextEncoding plaintext1(vectorOfInts1);
 
 	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
 	IntPlaintextEncoding plaintext2(vectorOfInts2);
+
+	std::vector<uint32_t> vectorOfIntsAdd = { 3, 1, 2, 3, 2, 2, 1, 1 };
+	IntPlaintextEncoding plaintextAdd(vectorOfIntsAdd);
 
 	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 1, 3, 0, 0, 0, 0, 3, 0, 3, 3, 3, 3, 0, 0 };
 	IntPlaintextEncoding plaintextMult(vectorOfIntsMult);
@@ -186,14 +188,20 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Running decryption on Add result" << std::endl;
 
-	IntPlaintextEncoding plaintextAdd;
+	IntPlaintextEncoding plaintextAddTemp;
 
-	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertextAdd, &plaintextAdd);
+	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertextAdd, &plaintextAddTemp);
 
-	plaintextAdd.resize(plaintext1.size());
+	plaintextAddTemp.resize(plaintextAdd.size());
 
-	if( beVerbose ) cout << plaintext1 << " + \n" << plaintext2 << " = \n" << plaintextAdd << endl;
-
+	if( beVerbose ) {
+		cout << plaintext1 << " + \n" << plaintext2 << " = \n" << plaintextAddTemp;
+		if( plaintextAddTemp == plaintextAdd )
+			cout << " ... CORRECT!";
+		else
+			cout << " ... INCORRECT!";
+		cout << endl;
+	}
 
 	////////////////////////////////////////////////////////////
 	//EvalMult Operation
@@ -222,9 +230,16 @@ int main(int argc, char *argv[])
 
 	result = cc.Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult);
 
-	plaintextNewMult.resize(plaintext1.size()*2);
+	plaintextNewMult.resize(plaintextMult.size());
 
-	if( beVerbose ) cout << plaintext1 << " * \n" << plaintext2 << " = \n" << plaintextNewMult << endl;
+	if( beVerbose ) {
+		cout << plaintext1 << " * \n" << plaintext2 << " = \n" << plaintextNewMult << endl;
+		if( plaintextNewMult == plaintextMult )
+			cout << " ... CORRECT!";
+		else
+			cout << " ... INCORRECT!";
+		cout << endl;
+	}
 
 	return 0;
 }

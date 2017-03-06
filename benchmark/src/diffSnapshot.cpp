@@ -12,6 +12,7 @@
 #include <map>
 using namespace std;
 
+#define _USE_MATH_DEFINES
 #include "utils/serializable.h"
 #include "utils/serializablehelper.h"
 using namespace lbcrypto;
