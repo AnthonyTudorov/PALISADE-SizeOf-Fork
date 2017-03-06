@@ -294,8 +294,6 @@ TEST(UTubint,consts){
   a = ubint::FIVE;
   EXPECT_EQ(ubint(5), a)<< "Failure testing FIVE";
 
-  cout<<"Do constants"<<endl;
-
   //todo: test log constants?
 }
 

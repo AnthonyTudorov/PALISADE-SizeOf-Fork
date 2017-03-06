@@ -147,7 +147,7 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 }
 
 TEST(UTNTT, switch_format_decompose_single_crt) {
-        bool dbg_flag = true;
+        bool dbg_flag = false;
 	usint m1 = 16;
 
 	BigBinaryInteger modulus("1");
@@ -194,7 +194,7 @@ TEST(UTNTT, switch_format_decompose_single_crt) {
 }
 
 TEST(UTNTT, decomposeMult_double_crt) {
-  bool dbg_flag = true;
+  bool dbg_flag = false;
 	usint init_m = 16;
 
 	float init_stdDev = 4;
@@ -260,7 +260,7 @@ TEST(UTNTT, decomposeMult_double_crt) {
 }
 
 TEST(UTNTT, decomposeMult_single_crt) {
-  bool dbg_flag = true;
+  bool dbg_flag = false;
 	usint m1 = 16;
 
 	BigBinaryInteger modulus("17729");

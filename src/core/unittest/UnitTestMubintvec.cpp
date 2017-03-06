@@ -108,7 +108,7 @@ protected:
 /*	TESTING BASIC METHODS OF mubintvec CLASS        */
 /************************************************/
 TEST(UTmubintvec,ctor_access_eq_neq){
-  bool dbg_flag = true;
+  bool dbg_flag = false;
   //note this is the same code as the ubintvec, just to confirm it works
   //as inherited
   ubint q("1234567"); // a bigger number
@@ -295,7 +295,7 @@ TEST(UTmubintvec,ctor_access_eq_neq){
 }
 
 TEST(UTmubintvec, constructorTest){
-  bool dbg_flag = true;
+  bool dbg_flag = false;
   mubintvec m(10);
   
   m.SetValAtIndex(0,"48");
