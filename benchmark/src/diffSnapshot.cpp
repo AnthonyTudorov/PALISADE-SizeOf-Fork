@@ -104,6 +104,11 @@ int main( int argc, char *argv[] )
 		return 1;
 	}
 
+	if( oldCpu != newCpu || oldMhz != newMhz || oldScaling != newScaling ) {
+		cout << "Could not compare: mismatches on contexts between the files" << endl;
+		return 1;
+	}
+
 	// first check to see if there's anything in new that is not in old
 	for( auto np : newStats ) {
 		if( oldStats.find( np.first ) == oldStats.end() ) {
