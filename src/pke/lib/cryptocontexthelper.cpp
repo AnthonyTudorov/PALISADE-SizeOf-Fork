@@ -112,6 +112,20 @@ buildContextFromSerialized(const map<string,string>& s)
 				0, 1, 0);
 
 	}
+	else if( parmtype == "BV" ) {
+		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
+				!getValueForName(s, "ring", ring) ||
+				!getValueForName(s, "modulus", modulus) ||
+				!getValueForName(s, "rootOfUnity", rootOfUnity) ||
+				!getValueForName(s, "relinWindow", relinWindow) ||
+				!getValueForName(s, "stDev", stDev) ) {
+			return 0;
+		}
+
+		return CryptoContextFactory<Element>::genCryptoContextBV(
+				stoul(plaintextModulus), stoul(ring), modulus, rootOfUnity,
+				stoul(relinWindow), stof(stDev));
+	}
 	else if( parmtype == "Null" ) {
 		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
 				!getValueForName(s, "ring", ring) ||
@@ -121,6 +135,9 @@ buildContextFromSerialized(const map<string,string>& s)
 		}
 
 		return CryptoContextFactory<Element>::getCryptoContextNull(plaintextModulus, stoul(ring), modulus, rootOfUnity);
+	}
+	else {
+		throw std::logic_error("Unrecognized parmtype " + parmtype + " in buildContextFromSerialized");
 	}
 
 	return 0;

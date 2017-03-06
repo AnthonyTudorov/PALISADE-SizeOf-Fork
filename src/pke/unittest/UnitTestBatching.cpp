@@ -66,28 +66,20 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 	lbcrypto::NextQ(modulus, BigBinaryInteger(17), m, BigBinaryInteger("4000"), BigBinaryInteger("4000"));
 	rootOfUnity = RootOfUnity(m, modulus);
 
-	//Prepare for parameters.
-	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
-
-	//Set crypto parametes
-	LPCryptoParametersBV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger("17"));  	// Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
-	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
-
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4 };
 
 	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(17,
+			m, modulus.ToString(), rootOfUnity.ToString(), 8, stdDev);
+
 	cc.Enable(ENCRYPTION);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), std::static_pointer_cast<ILParams>(cc.GetCryptoParameters()->GetElementParams()));
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 
 	//Regular LWE-NTRU encryption algorithm
@@ -138,15 +130,15 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	lbcrypto::NextQ(modulus, BigBinaryInteger(17), m, BigBinaryInteger("4000"), BigBinaryInteger("4000"));
 	rootOfUnity = RootOfUnity(m, modulus);
 
-	//Prepare for parameters.
-	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
-
-	//Set crypto parametes
-	LPCryptoParametersBV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger("17"));  	// Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
-	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
+//	//Prepare for parameters.
+//	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
+//
+//	//Set crypto parametes
+//	LPCryptoParametersBV<ILVector2n> cryptoParams;
+//	cryptoParams.SetPlaintextModulus(BigBinaryInteger("17"));  	// Set plaintext modulus.
+//	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
+//	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
+//	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4 };
 
@@ -158,7 +150,8 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 
 	std::vector<usint> vectorOfIntsExpected = { 5,5,5,5 };
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(17,
+			m, modulus.ToString(), rootOfUnity.ToString(), 8, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
@@ -166,7 +159,7 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), std::static_pointer_cast<ILParams>(cc.GetCryptoParameters()->GetElementParams()));
+	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 
 	//Regular LWE-NTRU encryption algorithm

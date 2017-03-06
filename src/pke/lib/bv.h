@@ -64,13 +64,21 @@ namespace lbcrypto {
 			/**
 			 * Default Constructor.
 			 */
-			LPCryptoParametersBV() : LPCryptoParametersRLWE<Element>() {}
+			LPCryptoParametersBV() : LPCryptoParametersRLWE<Element>() {
+				m_mode = RLWE;
+				m_bigModulus = BigBinaryInteger::ZERO;
+				m_bigRootOfUnity = BigBinaryInteger::ZERO;
+			}
 
 			/**
 			 * Copy constructor.
 			 *
 			 */
-			LPCryptoParametersBV(const LPCryptoParametersBV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {}
+			LPCryptoParametersBV(const LPCryptoParametersBV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {
+				m_mode = rhs.m_mode;
+				m_bigModulus = rhs.m_bigModulus;
+				m_bigRootOfUnity = rhs.m_bigRootOfUnity;
+			}
 
 			/**
 			 * Constructor that initializes values.
@@ -127,6 +135,9 @@ namespace lbcrypto {
 
 				serObj->AddMember("LPCryptoParametersBV", cryptoParamsMap.Move(), serObj->GetAllocator());
 				serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBV", serObj->GetAllocator());
+				serObj->AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
+				serObj->AddMember("bigmodulus", m_bigModulus.Serialize(), serObj->GetAllocator());
+				serObj->AddMember("bigrootofunity", m_bigRootOfUnity.Serialize(), serObj->GetAllocator());
 
 				return true;
 			}

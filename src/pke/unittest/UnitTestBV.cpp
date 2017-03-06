@@ -78,17 +78,7 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	cc.Enable(SHE);
 	cc.Enable(PRE);
 
-	//This code is run only when performing execution time measurements
-
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
 	UnitTestEncryption<ILVector2n>(cc);
-
-	ILVector2n::DestroyPreComputedSamples();
 }
 
 // FIXME: test re-encrypt too
