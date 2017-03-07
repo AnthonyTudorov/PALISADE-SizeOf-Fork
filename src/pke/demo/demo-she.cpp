@@ -125,6 +125,10 @@ int main(int argc, char *argv[])
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
+	if( beVerbose ) {
+		CryptoContextHelper<ILVector2n>::printParmSet(cout, parmSetName);
+	}
+
 	// for this demo we reset the plaintext modulus and try ParamsGen
 	cc.GetCryptoParameters()->SetPlaintextModulus(BigBinaryInteger::FOUR);
 
@@ -133,9 +137,6 @@ int main(int argc, char *argv[])
 	} catch(...) {
 		// ignore for schemes w/o Param Gen
 	}
-
-	cout << cc.GetElementParams()->GetCyclotomicOrder() << endl;
-	cout << cc.GetCryptoParameters()->GetPlaintextModulus() << endl;
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	IntPlaintextEncoding plaintext1(vectorOfInts1);

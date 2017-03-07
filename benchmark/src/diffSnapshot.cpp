@@ -130,7 +130,7 @@ int main( int argc, char *argv[] )
 
 		double dpc = (diff * 100.0) / ov;
 		if( dpc > 1.0 )
-			cout << op.first << ": " << dpc << endl;
+			cout << op.first << ": " << dpc << " or " << dpc*ov << " ns." << endl;
 	}
 
 	return 0;
