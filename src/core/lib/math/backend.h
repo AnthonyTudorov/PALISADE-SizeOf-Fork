@@ -54,7 +54,7 @@
 //Please UNCOMMENT the approproate line rather than changing the number on the 
 //uncommented line (and breaking the documentation of the line)
 
-//#define MATHBACKEND 2 //side by side comparison of old and new libraries
+#define MATHBACKEND 2 //side by side comparison of old and new libraries
 //#define MATHBACKEND 3 //32 bit should work with all OS
 
 //NOTE currently MATHBACKEND 4 has issues with the following unit tests
@@ -66,7 +66,7 @@
 //#define MATHBACKEND 4 //64 bit (currently works for ubuntu, not tested otherwise
 //#define MATHBACKEND 5 // njit and GMP coexistance backend
 
-#define MATHBACKEND 6 // njit BBI and BBV use GMP backend
+//#define MATHBACKEND 6 // njit BBI and BBV use GMP backend
 
 #if MATHBACKEND == 1
 #include "cpu8bit/binint8bit.h"

@@ -381,7 +381,11 @@ namespace NTL {
   }
 
   std::ostream& operator<<(std::ostream& os, const myZZ& ptr_obj){
-    os << (ZZ)ptr_obj;
+    bool dbg_flag = false;
+    ZZ tmp = ptr_obj;
+    DEBUG("in operator<< "<<tmp);
+
+    os << tmp;
     return os;
   }
   

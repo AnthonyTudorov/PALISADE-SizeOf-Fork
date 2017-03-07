@@ -343,8 +343,11 @@ namespace lbcrypto {
      *
      * @return value at index i.
      */
-    const BigBinaryInteger  & GetValAtIndex(usint i) const;//DBC changed from returning reference because it broke several functions otherwise. changed back for merge with master... since this is a virtual function.
-
+#if BACKEND <6
+    const BigBinaryInteger  &GetValAtIndex(usint i) const;
+#else
+    const BigBinaryInteger  GetValAtIndex(usint i) const;//DBC changed from returning reference because it broke several functions otherwise. changed back for merge with master... since this is a virtual function.
+#endif
     //SETTERS
     /**
      *  Set BigBinaryVector value to val
@@ -356,7 +359,11 @@ namespace lbcrypto {
       m_values->SetValAtIndex(index, BigBinaryInteger(val));
     }
     inline void SetValAtIndexWithoutMod(size_t index, int val) {
+#if MATHBACKEND <6
+      m_values->SetValAtIndex(index, BigBinaryInteger(val));
+#else
       m_values->SetValAtIndexWithoutMod(index, BigBinaryInteger(val));
+#endif
     }
 
     /**
@@ -369,7 +376,12 @@ namespace lbcrypto {
       m_values->SetValAtIndex(index, val);
     }
     inline void SetValAtIndexWithoutMod(size_t index, const BigBinaryInteger& val) {
+#if MATHBACKEND <6
+      m_values->SetValAtIndex(index, val);
+#else
       m_values->SetValAtIndexWithoutMod(index, val);
+#endif
+
     }
 
     // SCALAR OPERATIONS

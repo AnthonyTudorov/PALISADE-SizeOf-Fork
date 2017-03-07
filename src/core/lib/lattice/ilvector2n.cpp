@@ -336,7 +336,7 @@ namespace lbcrypto {
   Format ILVector2n::GetFormat() const {
     return m_format;
   }
-
+#if BACKEND < 6
   const BigBinaryInteger &ILVector2n::GetValAtIndex(usint i) const
   {
     bool dbg_flag = false;
@@ -344,11 +344,22 @@ namespace lbcrypto {
       throw std::logic_error("No values in ILVector2n");
 
     DEBUG("GetValAtIndex: m_values->GetValAtIndex("<<i<<") :"<<m_values->GetValAtIndex(i));
-    BigBinaryInteger tmp(  m_values->GetValAtIndex(i)); //dbc tmp for debug
+
+    return m_values->GetValAtIndex(i);
+  }
+#else
+  const BigBinaryInteger ILVector2n::GetValAtIndex(usint i) const
+  {
+    bool dbg_flag = false;
+    if( m_values == nullptr )
+      throw std::logic_error("No values in ILVector2n");
+
+    DEBUG("GetValAtIndex: m_values->GetValAtIndex("<<i<<") :"<<m_values->GetValAtIndex(i));
+    const BigBinaryInteger tmp=  m_values->GetValAtIndex(i); //dbc tmp for debug
     DEBUG("GetValAtIndex: returning tmp "<<tmp);
     return tmp;
   }
-
+#endif
   usint ILVector2n::GetLength() const {
     if (m_values == 0)
       throw std::logic_error("No values in ILVector2n");

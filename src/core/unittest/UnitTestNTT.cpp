@@ -194,7 +194,7 @@ TEST(UTNTT, switch_format_decompose_single_crt) {
 }
 
 TEST(UTNTT, decomposeMult_double_crt) {
-  bool dbg_flag = false;
+  bool dbg_flag = true;
 	usint init_m = 16;
 
 	float init_stdDev = 4;
@@ -260,7 +260,7 @@ TEST(UTNTT, decomposeMult_double_crt) {
 }
 
 TEST(UTNTT, decomposeMult_single_crt) {
-  bool dbg_flag = false;
+  bool dbg_flag = true;
 	usint m1 = 16;
 
 	BigBinaryInteger modulus("17729");
@@ -278,13 +278,22 @@ TEST(UTNTT, decomposeMult_single_crt) {
 	x1.Decompose();
 	x2.Decompose();
 
+	DEBUG("x1.Decompose() "<<x1.GetValues());
+	DEBUG("x2.Decompose() "<<x2.GetValues());
+
 	ILVector2n resultsEval(params2, Format::EVALUATION);
 
 	x1.SwitchFormat();
 	x2.SwitchFormat();
 
+	DEBUG("x1.SwitchFormat() "<<x1.GetValues());
+	DEBUG("x2.SwitchFormat() "<<x2.GetValues());
+
 	resultsEval = x1*x2;
+	DEBUG("resultsEval.eval "<<resultsEval.GetValues());
+
 	resultsEval.SwitchFormat(); // COEF	
+	DEBUG("resultsEval.coef "<<resultsEval.GetValues());
 
 	EXPECT_EQ(resultsEval.GetValAtIndex(0), BigBinaryInteger::ZERO);
 	EXPECT_EQ(resultsEval.GetValAtIndex(1), BigBinaryInteger::ZERO);

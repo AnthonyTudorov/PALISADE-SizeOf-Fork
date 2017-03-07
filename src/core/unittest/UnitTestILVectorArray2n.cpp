@@ -601,11 +601,17 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     BigBinaryVector bbvS0(m/2, moduli[0]);
     //DEBUG("bbvS0 Modulus:"<<moduli[0]);
 
+#if BACKEND < 6
+    bbvS0.SetValAtIndex(0, "23462");
+    bbvS0.SetValAtIndex(1, "467986");
+    bbvS0.SetValAtIndex(2, "33863");
+    bbvS0.SetValAtIndex(3, "2113");
+#else
     bbvS0.SetValAtIndexWithoutMod(0, "23462");
     bbvS0.SetValAtIndexWithoutMod(1, "467986");
     bbvS0.SetValAtIndexWithoutMod(2, "33863");
     bbvS0.SetValAtIndexWithoutMod(3, "2113");
-
+#endif
     ilvS0.SetValues(bbvS0, Format::EVALUATION);
 
     ILVector2n ilvS1(ilvS0);

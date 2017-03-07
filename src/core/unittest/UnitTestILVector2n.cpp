@@ -131,10 +131,14 @@ TEST(UTILVector2n, operators_tests) {
 	<< "ILVector2n_operator-=: Operator-= is incorrect @ index "<<i;
     }
   }
-
+  DEBUG("1");
   {
     ILVector2n ilv1 = ilvector2n1;
     ilv1 += ilvector2n1;
+    DEBUG("ilv1 "<<ilv1);
+    BigBinaryInteger tmp(ilv1.GetValAtIndex(0));
+    DEBUG("TMP "<< tmp);
+    DEBUG("ilv1(0) "<< ilv1.GetValAtIndex(0));
     for (usint i = 0; i < m/2; ++i) {
       EXPECT_EQ(BigBinaryInteger::TWO * ilvector2n1.GetValAtIndex(i), ilv1.GetValAtIndex(i)) 
 	<< "ILVector2n_operator+=: Operator+= is incorrect @ index "<<i;

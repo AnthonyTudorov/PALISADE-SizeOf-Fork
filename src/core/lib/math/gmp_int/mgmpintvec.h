@@ -164,11 +164,8 @@ namespace NTL {
 
     void SetValAtIndexWithoutMod(usint index, const myZZ&value);
 
-#if 0
-    const myT& GetValAtIndex(size_t index) const;
-#else
-   const myZZ GetValAtIndex(size_t index) const;
-#endif
+    //DBC could not get & return to work!!!
+    const myZZ GetValAtIndex(size_t index) const;
 
     /**
      * Returns a vector of digit at a specific index for all entries

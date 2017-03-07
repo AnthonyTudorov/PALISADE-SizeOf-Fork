@@ -137,7 +137,7 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   m.SetValAtIndex(4,"4624");
 
   DEBUG("m "<<m);
-  EXPECT_EQ(9868U,m.GetValAtIndex(0))
+  EXPECT_EQ(9868U,m.GetValAtIndex(0).ConvertToUsint())
     << "Failure in SetValAtIndex(0)";
 
 
