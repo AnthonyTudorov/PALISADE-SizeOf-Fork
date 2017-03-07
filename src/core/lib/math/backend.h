@@ -100,6 +100,12 @@
 
 #endif
 
+#include "native64/binint.h"
+#include "native64/binvect.h"
+
+namespace native64 {
+typedef NativeInteger<uint64_t> BigBinaryInteger;
+}
 
 /**
  * @namespace lbcrypto

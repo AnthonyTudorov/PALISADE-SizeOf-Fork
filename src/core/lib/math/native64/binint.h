@@ -1,0 +1,895 @@
+/**
+ * @file
+ * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+ * @version 00_03
+ *
+ * @section LICENSE
+ * 
+ * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification, 
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this 
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this 
+ * list of conditions and the following disclaimer in the documentation and/or other 
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @section DESCRIPTION
+ *
+ * This file contains the main class for big integers: NativeInteger. Big integers are represented
+ * as arrays of native usigned integers. The native integer type is supplied as a template parameter.
+ * Currently implementations based on uint8_t, uint16_t, and uint32_t are supported. The second template parameter
+ * is the maximum bitwidth for the big integer.
+ */
+
+#ifndef LBCRYPTO_MATH_NATIVE_BININT_H
+#define LBCRYPTO_MATH_NATIVE_BININT_H
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <string>
+#include <type_traits>
+#include <typeinfo>
+#include <limits>
+#include <fstream>
+#include <stdexcept>
+#include <functional>
+#include <cstdlib>
+#include <memory>
+#include "../../utils/inttypes.h"
+#include "../../utils/memory.h"
+
+/**
+*@namespace native64
+*/
+namespace native64 {
+
+	/**The following structs are needed for initialization of NativeInteger at the preprocessing stage.
+	*The structs compute certain values using template metaprogramming approach and mostly follow recursion to calculate value(s).
+	*/
+
+    /**
+    * @brief  Struct to find log value of N.
+    *Needed in the preprocessing step of NativeInteger to determine bitwidth.
+	*
+	* @tparam N bitwidth.
+    */
+	template <usint N>
+	struct Log2 {
+		const static usint value = 1 + Log2<N/2>::value;
+	};
+    
+    /**
+    * @brief Struct to find log value of N.
+	*Base case for recursion.
+    *Needed in the preprocessing step of NativeInteger to determine bitwidth.
+    */
+	template<>
+	struct Log2<2> {
+		const static usint value = 1;
+	};
+    
+    /**
+    * @brief Struct to find log value of U where U is a primitive datatype.
+    *Needed in the preprocessing step of NativeInteger to determine bitwidth.
+	*
+	* @tparam U primitive data type.
+    */
+	template <typename U>
+	struct LogDtype {
+		const static usint value = Log2<8*sizeof(U)>::value;
+	};
+    
+    /**
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}
+    *
+	* @tparam Dtype primitive datatype.
+    */
+	template<typename Dtype>
+	struct DataTypeChecker {
+		 const static bool value = false ;
+	};
+
+    /**
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}. 
+    * sets value true if datatype is unsigned integer 8 bit.
+    */
+	template<>
+	struct DataTypeChecker<uint8_t>{
+		const static bool value = true ;
+	};
+
+    /**
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}. 
+    * sets value true if datatype is unsigned integer 16 bit.
+    */
+	template<>
+	struct DataTypeChecker<uint16_t>{
+		const static bool value = true ;	
+	};
+
+    /**
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}.
+    * sets value true if datatype is unsigned integer 32 bit.
+    */
+	template<>
+	struct DataTypeChecker<uint32_t>{
+		const static bool value = true ;	
+	};
+
+    /**
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}.
+    * sets value true if datatype is unsigned integer 64 bit.
+    */
+	template<>
+	struct DataTypeChecker<uint64_t>{
+		const static bool value = true ;	
+	};
+
+	/**
+    * @brief Struct for calculating bit width from data type. 
+	* Sets value to the bitwidth of uint_type
+	*
+	* @tparam uint_type native integer data type.
+    */
+	template <typename uint_type>
+	struct UIntBitWidth {
+		const static int value = 8*sizeof(uint_type);
+	};
+
+    /**
+    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
+	* sets T as of type void for default case
+	* 
+	* @tparam utype primitive integer data type.
+    */
+	template<typename utype>
+	struct DoubleDataType{
+		typedef void T;
+	};
+
+    /**
+    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
+    * Sets T as of type unsigned integer 16 bit if integral datatype is 8bit
+    */
+	template<>
+	struct DoubleDataType<uint8_t>{
+		typedef uint16_t T;
+	};
+
+    /**
+    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
+    * sets T as of type unsigned integer 32 bit if integral datatype is 16bit
+    */
+    template<>
+	struct DoubleDataType<uint16_t>{
+		typedef uint32_t T;
+	};
+
+    /**
+    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
+    * sets T as of type unsigned integer 64 bit if integral datatype is 32bit
+    */
+	template<>
+	struct DoubleDataType<uint32_t>{
+		typedef uint64_t T;
+	};
+
+
+    const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
+    const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed values) used in the Barrett reductions.
+
+
+	/**
+	 * @brief Main class for big integers represented as an array of native (primitive) unsigned integers
+	 * @tparam uint_type native unsigned integer type
+	 * @tparam BITLENGTH maximum bitdwidth supported for big integers
+	 */
+	template<typename uint_type>
+	class NativeInteger
+	{
+
+	public:
+
+    /**
+    * Default constructor.
+    */
+    NativeInteger() : m_value(0) {}
+
+    /**
+    * Basic constructor for specifying the integer.
+    *
+    * @param str is the initial integer represented as a string.
+    */
+    explicit NativeInteger(const std::string& str);
+
+    /**
+    * Basic constructor for initializing big binary integer from an unsigned integer.
+    *
+    * @param init is the initial integer.
+    */
+    explicit NativeInteger(usint init) : m_value(init) {}
+
+    /**
+    * Basic constructor for copying a big binary integer
+    *
+    * @param bigInteger is the big binary integer to be copied.
+    */
+    explicit NativeInteger(const NativeInteger& bigInteger) : m_value(bigInteger.m_value) {}
+
+    /**
+    * Assignment operator
+    *
+    * @param &rhs is the big binary integer to be assigned from.
+    * @return assigned BigBinaryIntegr ref.
+    */
+    const NativeInteger&  operator=(const NativeInteger &rhs) {
+    	this->m_value = rhs.m_value;
+    	return *this;
+    }
+
+	/**
+    * Assignment operator from unsigned integer
+    *
+    * @param val is the unsigned integer value that is assigned.
+    * @return the assigned Big Binary Integer ref.
+    */
+    inline const NativeInteger& operator=(usint val) {
+        this->m_value = val;
+        return *this;
+    }
+
+//Shift Operators
+   
+	/**
+    * Left shift operator of big binary integer
+    * @param shift is the amount to shift of type usshort.
+    * @return the object of type NativeInteger
+    */
+	NativeInteger  operator<<(usshort shift) const {
+		return NativeInteger( m_value << shift );
+	}
+
+    /**
+    * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
+    *
+    * @param shift is the amount to shift of type usshort.
+    * @return the object of type NativeInteger
+    */
+    const NativeInteger&  operator<<=(usshort shift) {
+    	m_value <<= shift;
+    	return *this;
+    }
+        
+    /**
+    * Right shift operator of big binary integer
+    * @param shift is the amount to shift of type usshort.
+    * @return the object of type NativeInteger
+    */
+    NativeInteger  operator>>(usshort shift) const {
+		return NativeInteger( m_value >> shift );
+	}
+
+    /**
+    * Right shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
+    *
+    * @param shift is the amount to shift of type usshort.
+    * @return the object of type NativeInteger
+    */
+    NativeInteger&  operator>>=(usshort shift) {
+    	m_value >>= shift;
+    	return *this;
+    }
+
+//Auxillary Functions
+
+    /**
+    * Prints the value to console in base-r format where r is equal to 2^bitwidth of the integral datatype.
+    */
+    void PrintValueInDec() const {
+    	std::cout << std::dec << m_value << std::endl;
+    }
+
+    /**
+    * Basic set method for setting the value of a big binary integer
+    *
+    * @param str is the string representation of the big binary integer to be copied.
+    */
+    void SetValue(const std::string& str);
+        
+    /**
+    * Basic set method for setting the value of a big binary integer
+    *
+    * @param a is the big binary integer representation of the big binary integer to be assigned.
+    */
+    void SetValue(const NativeInteger& a);
+
+        
+    /**
+    * Returns the MSB location of the value.
+    *
+    * @return the index of the most significant bit.
+    */
+    usshort GetMSB()const;
+
+    /**
+    * Returns the index number of the array in which MSB is located.
+    *
+    * @return the index of array of the most significant bit as usshort.
+    */
+    usshort GetMSBCharNum()const;
+
+    /**
+    * Converts the value to an int.
+    *
+    * @return the int representation of the value as usint.
+    */
+    usint ConvertToInt() const {
+    	return m_value;
+    }
+    
+	/**
+    * Converts the value to an double.
+    *
+    * @return double representation of the value.
+    */
+    double ConvertToDouble() const {
+    	return m_value;
+    }
+
+	/**
+	 * Convert a value from an int to a BigBinaryInt.
+	 *
+	 * @param m the value to convert from.
+	 * @return int represented as a big binary int.
+	 */
+	static NativeInteger intToNativeInteger(usint m) {
+    	return NativeInteger(m);
+    }
+
+//Arithemetic Operations
+
+    /**
+    * Addition operation.
+    *
+    * @param b is the value to add of type Big Binary Integer.
+    * @return result of the addition operation of type BigBinary Integer.
+    */
+    NativeInteger Plus(const NativeInteger& b) const {
+    	return m_value + b.m_value;
+    }
+
+		
+    /**
+    * Addition accumulator.
+    *
+    * @param &b is the value to add of type Big Binary Integer.
+    * @return result of the addition operation of type Big Binary Integer.
+    */
+    const NativeInteger& operator+=(const NativeInteger &b) {
+    	m_value += b.m_value;
+    	return *this;
+    }
+
+		
+    /**
+    * Subtraction accumulator.
+    *
+    * @param &b is the value to subtract of type Big Binary Integer.
+    * @return result of the subtraction operation of type Big Binary Integer.
+    */
+    const NativeInteger& operator-=(const NativeInteger &b) {
+    	m_value -= b.m_value;
+    	return *this;
+    }
+
+    /**
+    * Subtraction operation.
+    *
+    * @param b is the value to subtract of type Big Binary Integer.
+    * @return result of the subtraction operation of type Big Binary Integer.
+    */
+    NativeInteger Minus(const NativeInteger& b) const {
+    	return m_value - b.m_value;
+    }
+
+        
+    /**
+    * Multiplication operation.
+    *
+    * @param b of type Big Binary Integer is the value to multiply with.
+    * @return result of the multiplication operation.
+    */
+    NativeInteger Times(const NativeInteger& b) const;
+
+    /**
+    * Division operation.
+    *
+    * @param b of type NativeInteger is the value to divide by.
+    * @return result of the division operation.
+    */
+    NativeInteger DividedBy(const NativeInteger& b) const;
+
+//modular arithmetic operations
+		
+    /**
+    * returns the modulus with respect to the input value. Classical modular reduction algorithm is used.
+    *
+    * @param modulus is value of the modulus to perform. Its of type NativeInteger.
+    * @return NativeInteger that is the result of the modulus operation.
+    */
+    NativeInteger Mod(const NativeInteger& modulus) const;
+    
+    /**
+    * returns the modulus with respect to the input value.
+	* Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.
+	* See the cpp file for details of the implementation. 
+    *
+    * @param modulus is the modulus to perform.
+    * @param mu is the Barrett value.
+    * @return is the result of the modulus operation.
+    */
+    NativeInteger ModBarrett(const NativeInteger& modulus, const NativeInteger& mu) const;
+
+    /**
+    * returns the modulus with respect to the input value.
+	* Implements generalized Barrett modular reduction algorithm. Uses an array of precomputed values \mu.
+	* See the cpp file for details of the implementation. 
+    *
+    * @param modulus is the modulus to perform operations with.
+    * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
+    * @return result of the modulus operation.
+    */
+    NativeInteger ModBarrett(const NativeInteger& modulus, const NativeInteger mu_arr[BARRETT_LEVELS+1]) const;
+
+    /**
+    * returns the modulus inverse with respect to the input value.
+    *
+    * @param modulus is the modulus to perform.
+    * @return result of the modulus inverse operation.
+    */
+    NativeInteger ModInverse(const NativeInteger& modulus) const;
+
+    /**
+    * Scalar modular addition.
+    *
+    * @param &b is the scalar to add.
+    * @param modulus is the modulus to perform operations with.
+    * @return result of the modulus addition operation.
+    */
+    NativeInteger ModAdd(const NativeInteger& b, const NativeInteger& modulus) const {
+    	return this->Plus(b).Mod(modulus);
+    }
+
+    /**
+    * Modular addition where Barrett modulo reduction is used.
+    *
+    * @param &b is the scalar to add.
+    * @param modulus is the modulus to perform operations with.
+    * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
+    * @return is the result of the modulus addition operation.
+    */
+    NativeInteger ModBarrettAdd(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger mu_arr[BARRETT_LEVELS]) const {
+    	return this->Plus(b).ModBarrett(modulus,mu_arr);
+    }
+
+    /**
+    * Modular addition where Barrett modulo reduction is used.
+    *
+    * @param &b is the scalar to add.
+    * @param modulus is the modulus to perform operations with.
+    * @param mu is one precomputed Barrett value.
+    * @return is the result of the modulus addition operation.
+    */
+    NativeInteger ModBarrettAdd(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger& mu) const {
+    	return this->Plus(b).ModBarrett(modulus,mu);
+    }
+
+    /**
+    * Scalar modular subtraction.
+    *
+    * @param &b is the scalar to subtract.
+    * @param modulus is the modulus to perform operations with.
+    * @return result of the modulus subtraction operation.
+    */
+    NativeInteger ModSub(const NativeInteger& b, const NativeInteger& modulus) const;
+
+    /**
+    * Scalar modular subtraction where Barrett modular reduction is used.
+    *
+    * @param &b is the scalar to subtract.
+    * @param modulus is the modulus to perform operations with.
+    * @param mu is the Barrett value.
+    * @return is the result of the modulus subtraction operation.
+    */
+    NativeInteger ModBarrettSub(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger& mu) const;
+
+    /**
+    * Scalar modular subtraction where Barrett modular reduction is used.
+    *
+    * @param b is the scalar to subtract.
+    * @param modulus is the modulus to perform operations with.
+    * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
+    * @return is the result of the modulus subtraction operation.
+    */
+    NativeInteger ModBarrettSub(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger mu_arr[BARRETT_LEVELS]) const;
+
+    /**
+    * Scalar modulus multiplication.
+    *
+    * @param &b is the scalar to multiply.
+    * @param modulus is the modulus to perform operations with.
+    * @return is the result of the modulus multiplication operation.
+    */
+    NativeInteger ModMul(const NativeInteger& b, const NativeInteger& modulus) const {
+    	uint_type av = this->m_value;
+    	uint_type bv = b.m_value;
+
+    	if( av > modulus.m_value ) av = av%modulus.m_value;
+    	if( bv > modulus.m_value ) bv = bv%modulus.m_value;
+
+    	return NativeInteger((av*bv)%modulus.m_value);
+    }
+
+    /**
+    * Scalar modular multiplication where Barrett modular reduction is used.
+	* Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo). 
+	* Uses one precomputed value \mu.
+	* See the cpp file for details of the implementation. 
+    *
+    * @param b is the scalar to multiply.
+    * @param modulus is the modulus to perform operations with.
+    * @param mu is the precomputed Barrett value.
+    * @return is the result of the modulus multiplication operation.
+    */
+    NativeInteger ModBarrettMul(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger& mu) const;
+
+    /**
+    * Scalar modular multiplication where Barrett modular reduction is used.
+    *
+    * @param &b is the scalar to multiply.
+    * @param modulus is the modulus to perform operations with.
+    * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
+    * @return is the result of the modulus multiplication operation.
+    */
+    NativeInteger ModBarrettMul(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger mu_arr[BARRETT_LEVELS]) const;
+
+    /**
+    * Scalar modular exponentiation. Square-and-multiply algorithm is used.
+    *
+    * @param &b is the scalar to exponentiate.
+    * @param modulus is the modulus to perform operations with.
+    * @return is the result of the modulus exponentiation operation.
+    */
+    NativeInteger ModExp(const NativeInteger& b, const NativeInteger& modulus) const;
+
+    /**
+    * Stores the based 10 equivalent/Decimal value of the NativeInteger in a string object and returns it.
+    *
+    * @return value of this NativeInteger in base 10 represented as a string.
+    */
+    const std::string ToString() const;		
+
+    const std::string Serialize() const;
+    const char * Deserialize(const char * str);
+
+
+    /**
+    * Tests whether the NativeInteger is a power of 2.
+    *
+    * @param m_numToCheck is the value to check.
+    * @return true if the input is a power of 2, false otherwise.
+    */
+    bool CheckIfPowerOfTwo(const NativeInteger& m_numToCheck);
+
+    /**
+    * Get the number of digits using a specific base - support for arbitrary base may be needed.
+    *
+    * @param base is the base with which to determine length in.
+    * @return the length of the representation in a specific base.
+    */
+    usint GetLengthForBase(usint base) const {return GetMSB();}
+
+    /**
+    * Get the number of digits using a specific base - only power-of-2 bases are currently supported.
+    *
+    * @param index is the location to return value from in the specific base.
+    * @param base is the base with which to determine length in.
+    * @return the length of the representation in a specific base.
+    */
+    usint GetDigitAtIndexForBase(usint index, usint base) const;
+
+	/**
+	* Convert a string representation of a binary number to a decimal BigBinaryInt.
+	*
+	* @param bitString the binary num in string.
+	* @return the binary number represented as a big binary int.
+	*/
+    static NativeInteger BinaryStringToBigBinaryInt(const std::string& bitString);
+
+	/**
+	* Exponentiation of a bigBinaryInteger x. Returns x^p
+	*
+	* @param p the exponent.
+	* @return the big binary integer x^p.
+	*/
+    NativeInteger Exp(usint p) const;
+
+	/**
+	* Multiply and Rounding operation on a bigBinaryInteger x. Returns [x*p/q] where [] is the rounding operation.
+	*
+	* @param p is the numerator to be multiplied.
+	* @param q is the denominator to be divided.
+	* @return the result of multiply and round.
+	*/
+	NativeInteger MultiplyAndRound(const NativeInteger &p, const NativeInteger &q) const;
+
+	/**
+	* Divide and Rounding operation on a bigBinaryInteger x. Returns [x/q] where [] is the rounding operation.
+	*
+	* @param q is the denominator to be divided.
+	* @return the result of divide and round.
+	*/
+	NativeInteger DivideAndRound(const NativeInteger &q) const;
+
+    /**
+    * Test equality of the inputs.
+    *
+    * @param a second value to test.
+    * @return true if the inputs are equal.
+    */
+    bool operator==(const NativeInteger& a) const;
+
+    /**
+    * Test inequality of the inputs.
+    *
+    * @param a second value to test.
+    * @return true if the inputs are inequal.
+    */
+    bool operator!=(const NativeInteger& a) const;
+
+    /**
+    * Test if first input is great than the second input.
+    *
+    * @param a second value to test.
+    * @return true if the first inputs is greater.
+    */
+    bool operator> (const NativeInteger& a) const;
+
+    /**
+    * Test if first input is great than or equal to the second input.
+    *
+    * @param a second value to test.
+    * @return true if the first inputs is greater than or equal to the second input.
+    */
+    bool operator>=(const NativeInteger& a) const;
+
+    /**
+    * Test if first input is less than the second input.
+    *
+    * @param a second value to test.
+    * @return true if the first inputs is lesser.
+    */
+    bool operator< (const NativeInteger& a) const;
+
+    /**
+    * Test if first input is less than or equal to the second input.
+    *
+    * @param a second value to test.
+    * @return true if the first inputs is less than or equal to the second input.
+    */
+    bool operator<=(const NativeInteger& a) const;
+
+    //overloaded binary operators based on integer arithmetic and comparison functions
+    /**
+    * Addition operation.
+    *
+    * @param a is the value to add.
+    * @return is the result of the addition operation.
+    */
+    inline NativeInteger operator+(const NativeInteger &a) const {return this->Plus(a);}
+
+    /**
+    * Subtraction operation.
+    *
+    * @param a is the value to subtract.
+    * @return is the result of the subtraction operation.
+    */
+    inline NativeInteger operator-(const NativeInteger &a) const {return this->Minus(a);}
+
+    /**
+    * Multiplication operation.
+    *
+    * @param a is the value to multiply with.
+    * @return is the result of the multiplication operation.
+    */
+    inline NativeInteger operator*(const NativeInteger &a) const {return this->Times(a);}
+
+    /**
+    * Modulo operation. Classical modular reduction algorithm is used.
+    *
+    * @param a is the value to Mod.
+    * @return is the result of the modulus operation.
+    */
+    inline NativeInteger operator%(const NativeInteger &a) const {return this->Mod(a);}
+
+	/**
+	 * Division operation.
+	 *
+	 * @param a is the value to divide.
+	 * @param b is the value to divide by.
+	 * @return is the result of the integral part after division operation.
+	 */
+	inline NativeInteger operator/ (const NativeInteger &a) const {return this->DividedBy(a);}
+
+	/**
+	 * Console output operation.
+	 *
+	 * @param os is the std ostream object.
+	 * @param ptr_obj is NativeInteger to be printed.
+	 * @return is the ostream object.
+	 */
+    template<typename uint_type_c>
+	friend std::ostream& operator<<(std::ostream& os, const NativeInteger<uint_type_c> &ptr_obj);
+    
+	/**
+    * Gets the bit at the specified index.
+    *
+    * @param index is the index of the bit to get.
+    * @return resulting bit.
+    */
+    uschar GetBitAtIndex(usint index) const;
+
+
+	/**
+	* Sets the int value at the specified index.
+	*
+	* @param index is the index of the int to set in the uint array.
+	*/
+	void SetIntAtIndex(usint idx, uint_type value);
+        
+    //constant definations
+        
+    /**
+    * Constant zero.
+    */
+    static const NativeInteger ZERO;
+
+    /**
+    * Constant one.
+    */
+    static const NativeInteger ONE;
+
+    /**
+    * Constant two.
+    */
+    static const NativeInteger TWO;
+
+    /**
+    * Constant three.
+    */
+    static const NativeInteger THREE;
+
+    /**
+    * Constant four.
+    */
+    static const NativeInteger FOUR;
+
+    /**
+    * Constant five.
+    */
+    static const NativeInteger FIVE;
+    
+	/**
+    * Compares the current NativeInteger to NativeInteger a.
+    *
+    * @param a is the NativeInteger to be compared with.
+    * @return  -1 for strictly less than, 0 for equal to and 1 for strictly greater than conditons.
+    */
+    sint Compare(const NativeInteger& a) const;
+
+    /**
+     *  Set this int to 1.
+     */
+	inline void SetIdentity() { *this = NativeInteger::ONE; };
+
+	/**
+	* A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of NativeInteger objects.
+	*/
+	static std::function<unique_ptr<NativeInteger>()> Allocator;
+
+    protected:
+    
+	/**
+    * Converts the string v into base-r integer where r is equal to 2^bitwidth of integral data type.
+    *
+    * @param v The input string
+    */
+    void AssignVal(const std::string& v);
+
+	private:
+
+		// representation as a
+		uint_type m_value;
+
+		//variable to store the bit width of the integral data type.
+		static const uschar m_uintBitLength = sizeof(uint_type)*8;
+
+		//variable to store the maximum value of the integral data type.
+		static const uint_type m_uintMax = std::numeric_limits<uint_type>::max();
+
+		//variable to store the log(base 2) of the number of bits in the integral data type.
+		static const uschar m_logUintBitLength = LogDtype<uint_type>::value;
+
+		//The maximum number of digits in bigbinaryinteger. It is used by the cout(ostream) function for printing the bigbinarynumber.
+		static const usint m_numDigitInPrintval = m_uintBitLength/cpu_int::LOG2_10;
+
+		/**
+		* function to return the ceiling of the number divided by the number of bits in the integral data type.
+		* @param Number is the number to be divided.
+		* @return the ceiling of Number/(bits in the integral data type)
+		*/
+		static uint_type ceilIntByUInt(const uint_type Number);
+
+		/**
+		* function to return the MSB of a 32 bit number.
+		* @param x is the 32 bit integer.
+		* @return the MSB position in the 32 bit number x.
+		*/
+		
+		static uint64_t GetMSB32(uint64_t x);
+		/**
+		* function to return the MSB of number.
+		* @param x is the number.
+		* @return the MSB position in the number x.
+		*/
+		
+		static usint GetMSBUint_type(uint_type x);
+		
+		//Duint_type is the data type that has twice as many bits in the integral data type.
+		typedef typename DoubleDataType<uint_type>::T Duint_type;
+
+		/**
+		* function that returns the NativeInteger after multiplication by b.
+		* @param b is the number to be multiplied.
+		* @return the NativeInteger after the multiplication.
+		*/
+        NativeInteger MulIntegerByChar(uint_type b) const;
+		
+		/**
+		* function that returns the decimal value from the binary array a.
+		* @param a is a pointer to the binary array.
+		* @return the decimal value.
+		*/
+		static uint_type UintInBinaryToDecimal(uschar *a);
+
+		/**
+		* function that mutiplies by 2 to the binary array.
+		* @param a is a pointer to the binary array.
+		*/
+		static void double_bitVal(uschar *a);
+
+		/**
+		* function that adds bit b to the binary array.
+		* @param a is a pointer to the binary array.
+		* @param b is a bit value to be added.
+		*/
+		static void add_bitVal(uschar* a,uschar b);
+	};
+
+}//namespace ends
+
+#endif
