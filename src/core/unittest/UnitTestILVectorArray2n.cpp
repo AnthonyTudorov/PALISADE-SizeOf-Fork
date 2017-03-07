@@ -73,6 +73,167 @@ class UnitTestILVectorArray2n : public ::testing::Test {
   static const usint test = 1;
 };
 
+//forward declaration of helper function
+void testILVectorArray2nConstructorNegative(std::vector<ILVector2n> &towers);
+
+TEST(UTILVectorArray2n, constructors_test) {
+	  bool dbg_flag = false;
+  usint m = 8;
+  usint towersize = 3;
+
+  std::vector<BigBinaryInteger> moduli(towersize);
+  moduli = {BigBinaryInteger("8353"), BigBinaryInteger("8369"), BigBinaryInteger("8513")};
+  std::vector<BigBinaryInteger> rootsOfUnity(towersize);
+  rootsOfUnity = {BigBinaryInteger("8163"), BigBinaryInteger("6677"), BigBinaryInteger("156")};
+
+  BigBinaryInteger modulus(BigBinaryInteger::ONE);
+  for (usint i = 0; i < towersize; ++i)
+  {
+    modulus = modulus * moduli[i];
+  }
+
+  shared_ptr<ILParams> ilparams0( new ILParams(m, moduli[0], rootsOfUnity[0]) );
+  shared_ptr<ILParams> ilparams1( new ILParams(m, moduli[1], rootsOfUnity[1]) );
+  shared_ptr<ILParams> ilparams2( new ILParams(m, moduli[2], rootsOfUnity[2]) );
+  
+  ILVector2n ilv0(ilparams0);
+  BigBinaryVector bbv0(m/2, moduli[0]);
+  bbv0.SetValAtIndex(0, "2");
+  bbv0.SetValAtIndex(1, "4");
+  bbv0.SetValAtIndex(2, "3");
+  bbv0.SetValAtIndex(3, "2");
+  ilv0.SetValues(bbv0, Format::EVALUATION);
+
+  ILVector2n ilv1(ilv0);
+  ilv1.SwitchModulus(moduli[1], rootsOfUnity[1]);
+  
+  ILVector2n ilv2(ilv0);
+  ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
+
+  shared_ptr<ILDCRTParams> ildcrtparams( new ILDCRTParams(m, moduli, rootsOfUnity) );
+    
+  std::vector<ILVector2n> ilvector2nVector;
+  ilvector2nVector.push_back(ilv0);
+  ilvector2nVector.push_back(ilv1);
+  ilvector2nVector.push_back(ilv2);
+
+  DEBUG("1");
+  float stdDev = 4.0;
+  DiscreteGaussianGenerator dgg(stdDev);
+
+  {
+    ILVectorArray2n ilva(ildcrtparams);
+
+    EXPECT_EQ(Format::EVALUATION, ilva.GetFormat());
+    EXPECT_EQ(modulus, ilva.GetModulus());
+    EXPECT_EQ(m, ilva.GetCyclotomicOrder());
+    EXPECT_EQ(towersize, ilva.GetNumOfElements());
+  }
+
+  DEBUG("2");
+  {
+    ILVectorArray2n ilva(ilvector2nVector);
+    
+    EXPECT_EQ(Format::EVALUATION, ilva.GetFormat());
+    EXPECT_EQ(modulus, ilva.GetModulus());
+    //TODO-Nishanth: Uncomment once UTILVector2n.cyclotomicOrder_test passes.
+    EXPECT_EQ(m, ilva.GetCyclotomicOrder());
+    EXPECT_EQ(towersize, ilva.GetNumOfElements());
+
+    DEBUG("2.1");
+	std::vector<ILVector2n> ilvector2nVectorInconsistent(towersize);
+	shared_ptr<ILParams> ilparamsNegativeTestCase( new ILParams(128, BigBinaryInteger("1231"), BigBinaryInteger("213")) );
+	ILVector2n ilvNegative(ilparamsNegativeTestCase);
+	ilvector2nVectorInconsistent[0] = ilvNegative;
+	ilvector2nVectorInconsistent[1] = ilv1;
+	ilvector2nVectorInconsistent[2] = ilv2;
+
+    DEBUG("2.2");
+    for( int ii=0; ii<ilvector2nVectorInconsistent.size(); ii++ ) {
+    	DEBUG(ii << " item " << ilvector2nVectorInconsistent.at(ii).GetParams().use_count());
+    }
+	EXPECT_THROW(testILVectorArray2nConstructorNegative(ilvector2nVectorInconsistent), std::logic_error);
+  }
+
+  DEBUG("3");
+  {
+    ILVectorArray2n ilva(ilv0, ildcrtparams);
+
+    EXPECT_EQ(Format::EVALUATION, ilva.GetFormat());
+    EXPECT_EQ(modulus, ilva.GetModulus());
+    EXPECT_EQ(m, ilva.GetCyclotomicOrder());
+    EXPECT_EQ(towersize, ilva.GetNumOfElements());
+    for (usint i = 0; i < towersize; ++i)
+    {
+      EXPECT_EQ(ilvector2nVector[i], ilva.GetElementAtIndex(i));
+    }
+  }
+
+  DEBUG("4");
+  {
+    ILVectorArray2n ilva0;
+    ILVectorArray2n ilva1(ildcrtparams);
+    ILVectorArray2n ilva2(ilv0, ildcrtparams);
+    ILVectorArray2n ilva3(ilvector2nVector);
+
+    std::vector<ILVectorArray2n> ilvaVector(4);
+    ilvaVector[0] = ilva0;
+    ilvaVector[1] = ilva1;
+    ilvaVector[2] = ilva2;
+    ilvaVector[3] = ilva3;
+
+    //copy constructor
+    ILVectorArray2n ilva0Copy(ilva0);
+    ILVectorArray2n ilva1Copy(ilva1);
+    ILVectorArray2n ilva2Copy(ilva2);
+    ILVectorArray2n ilva3Copy(ilva3);
+
+    std::vector<ILVectorArray2n> ilvaCopyVector(4);
+    ilvaCopyVector[0] = ilva0Copy;
+    ilvaCopyVector[1] = ilva1Copy;
+    ilvaCopyVector[2] = ilva2Copy;
+    ilvaCopyVector[3] = ilva3Copy;
+
+    for (usint i = 0; i < 4; ++i)
+    {
+      EXPECT_EQ(ilvaVector[i].GetFormat(), ilvaCopyVector[i].GetFormat());
+      EXPECT_EQ(ilvaVector[i].GetModulus(), ilvaCopyVector[i].GetModulus());
+      EXPECT_EQ(ilvaVector[i].GetCyclotomicOrder(), ilvaCopyVector[i].GetCyclotomicOrder());
+      EXPECT_EQ(ilvaVector[i].GetNumOfElements(), ilvaCopyVector[i].GetNumOfElements());
+      if(i==0 || i==1) // to ensure that GetElementAtIndex is not called on uninitialized ILVectorArray2n objects.
+        continue;
+      for (usint j = 0; j < towersize; ++j)
+      {
+        EXPECT_EQ(ilvaVector[i].GetElementAtIndex(j), ilvaCopyVector[i].GetElementAtIndex(j));
+      }
+    }
+  }
+
+  DEBUG("5");
+  {
+    ILVectorArray2n ilva(dgg, ildcrtparams);
+
+    EXPECT_EQ(Format::EVALUATION, ilva.GetFormat());
+    EXPECT_EQ(modulus, ilva.GetModulus());
+    EXPECT_EQ(m, ilva.GetCyclotomicOrder());
+    EXPECT_EQ(towersize, ilva.GetNumOfElements());
+  }
+
+  DEBUG("6");
+  {
+    ILVectorArray2n ilva(ilv0, ildcrtparams);
+    ILVectorArray2n ilvaClone(ilva.CloneParametersOnly());
+
+    std::vector<ILVector2n> towersInClone = ilvaClone.GetAllElements();
+    
+
+    EXPECT_EQ(Format::EVALUATION, ilva.GetFormat());
+    EXPECT_EQ(modulus, ilva.GetModulus());
+    EXPECT_EQ(m, ilva.GetCyclotomicOrder());
+  }
+
+}
+
 void testILVectorArray2nConstructorNegative(std::vector<ILVector2n> &towers);
 
 /*--------------------------------------- TESTING METHODS OF LATTICE ELEMENTS    --------------------------------------------*/

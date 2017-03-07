@@ -6,25 +6,31 @@
  *
  * @section LICENSE
  *
+
  * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or other
- * materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
- * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided
+ * with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @section DESCRIPTION
  *
@@ -51,10 +57,6 @@ using std::shared_ptr;
 #include "../math/nbtheory.h"
 #include "../math/transfrm.h"
 
-/**
- * @namespace lbcrypto
- * The namespace of lbcrypto
- */
 namespace lbcrypto {
 
   const usint SAMPLE_SIZE = 30; //!< @brief The maximum number of samples used for random variable sampling.
@@ -62,60 +64,65 @@ namespace lbcrypto {
   /**
    * @brief Ideal lattice in vector representation or a vector in the double-CRT "matrix".  This is not fully implemented and is currently only stubs.
    */
-  //JSON FACILITY
+
   class ILVector2n : public ILElement<ILVector2n>
   {
   public:
 
     /**
-     * Constructor that initializes nothing.
+     * Default constructor
      */
     ILVector2n();
 
     /**
-     * Constructor that initializes parameters.
-     *
-     * @param &params element parameters.
-     * @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+     * Construct given parameters and format
+     * @param params - element parameters
+     * @param format - EVALUATION or COEFFICIENT
+     * @param initializeElementToZero - if true, allocates an empty vector set to all 0s
      */
     ILVector2n(const shared_ptr<ElemParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
+    /**
+     * Construct given parameters and format
+     * @param initializeElementToMax - if true, initializes entries in the vector to the maximum value
+     * @param params - element parameters
+     * @param format - EVALUATION or COEFFICIENT
+     */
     ILVector2n(bool initializeElementToMax, const shared_ptr<ElemParams> params, Format format);
 
-
     /**
-     * Constructor based on full methods.
+     * Construct with a vector from a given generator
      *
      * @param &dgg the input discrete Gaussian Generator.
      * @param &params the input params.
-     * @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+     * @param format - EVALUATION or COEFFICIENT
      */
     ILVector2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 		
     /**
-     * Constructor based on full methods.
+     * Construct with a vector from a given generator
      *
      * @param &bug the input Binary Uniform Generator.
      * @param &params the input params.
-     * @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+     * @param format - EVALUATION or COEFFICIENT
      */
     ILVector2n(const BinaryUniformGenerator &bug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 
     /**
-     * Constructor based on full methods.
+     * Construct with a vector from a given generator
      *
      * @param &tug the input Ternary Uniform Generator.
      * @param &params the input params.
-     * @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+     * @param format - EVALUATION or COEFFICIENT
      */
     ILVector2n(const TernaryUniformGenerator &tug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 
     /**
-     * Constructor based on full methods.
+     * Construct with a vector from a given generator
      *
      * @param &dug the input discrete Uniform Generator.
      * @param &params the input params.
-     * @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+     * @param format - EVALUATION or COEFFICIENT
      */
     ILVector2n(const DiscreteUniformGenerator &dug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
 
@@ -134,26 +141,26 @@ namespace lbcrypto {
     /**
      *  Create lambda that allocates a zeroed element with the specified
      *  parameters and format
-     */
-    inline static function<unique_ptr<ILVector2n>()> MakeMaxAllocator(shared_ptr<ILParams> params, Format format) {
-      return [=]() {
-	return lbcrypto::make_unique<ILVector2n>(true, params, format);
-      };
-    }
+     */ //TODO:DBC verify if this is used anymore
+    //         inline static function<unique_ptr<ILVector2n>()> MakeMaxAllocator(shared_ptr<ILParams> params, Format format) {
+    //             return [=]() {
+    //                 return lbcrypto::make_unique<ILVector2n>(true, params, format);
+    //             };
+    //         }
 
     /**
      *  Create lambda that allocates a zeroed element for the case when it is called from a templated class
-     */
-    inline static function<unique_ptr<ILVector2n>()> MakeMaxAllocator(const shared_ptr<ElemParams> params, Format format) {
-      return [=]() {
-	//return MakeAllocator(*(static_cast<const ILParams*>(params)),format);
-	ILParams *ip = dynamic_cast<ILParams *>( &*params );
-	if( ip == 0 )
-	  throw std::logic_error("MakeAllocator was not passed an ILParams");
-	shared_ptr<ILParams> pcast( ip );
-	return lbcrypto::make_unique<ILVector2n>(true, pcast, format);
-      };
-    }
+     */ //TODO:DBC verify if this is used anymore
+    //         inline static function<unique_ptr<ILVector2n>()> MakeMaxAllocator(const shared_ptr<ElemParams> params, Format format) {
+    //            return [=]() {
+    //                 //return MakeAllocator(*(static_cast<const ILParams*>(params)),format);
+    //             	ILParams *ip = dynamic_cast<ILParams *>( &*params );
+    //             	if( ip == 0 )
+    //             		throw std::logic_error("MakeAllocator was not passed an ILParams");
+    //             	shared_ptr<ILParams> pcast( ip );
+    // 				return lbcrypto::make_unique<ILVector2n>(true, pcast, format);
+    //             };
+    //         }
 
 
 
@@ -162,7 +169,7 @@ namespace lbcrypto {
      *
      * @param params ILParams instance that is is passed.
      * @param resultFormat resultFormat for the polynomials generated.
-     * @param stddev standard deviation for the dicrete gaussian generator.
+     * @param stddev standard deviation for the discrete gaussian generator.
      * @return the resulting vector.
      */
     inline static function<unique_ptr<ILVector2n>()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<ILParams> params, Format resultFormat, int stddev) {
@@ -203,6 +210,41 @@ namespace lbcrypto {
     ILVector2n(ILVector2n &&element);
 
     /**
+     * Clone the object by making a copy of it and returning the copy
+     * @return new Element
+     */
+    ILVector2n Clone() const { return std::move(ILVector2n(*this)); }
+
+    /**
+     * Clone the object, but have it contain nothing
+     * @return new Element
+     */
+    ILVector2n CloneEmpty() const { return std::move( ILVector2n() ); }
+
+    //CLONE OPERATIONS
+    /**
+     * Clone
+     *
+     * Creates a new ILVector2n and clones only the params.
+     *  The tower values are empty. The tower values can be filled by another process/function or initializer list.
+     */
+    ILVector2n CloneParametersOnly() const ;
+
+    /**
+     * Clone with noise
+     *
+     * Creates a new ILVector2n and clones the params. The tower values will be filled up with noise based on the discrete gaussian.
+     *
+     * @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVector2n with random numbers.
+     */
+    ILVector2n CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format) const;
+
+    /**
+     * Destructor
+     */
+    ~ILVector2n();
+
+    /**
      * Assignment Operator.
      *
      * @param &rhs the ILVector2n to be copied.
@@ -211,7 +253,7 @@ namespace lbcrypto {
     const ILVector2n& operator=(const ILVector2n &rhs);
 
     /**
-     * Move Operator.
+     * Move Assignment.
      *
      * @param &rhs the ILVector2n to be copied.
      * @return the resulting ILVector2n.
@@ -226,23 +268,6 @@ namespace lbcrypto {
      */
     const ILVector2n& operator=(std::initializer_list<sint> rhs);
 
-    //CLONE OPERATIONS
-    /**
-     * Clone
-     *
-     * Creates a new ILVector2n and clones only the params. The tower values are empty. The tower values can be filled by another process/function or initializer list.
-     */
-    ILVector2n CloneWithParams() const ;
-
-    /**
-     * Clone with noise
-     *
-     * Creates a new ILVector2n and clones the params. The tower values will be filled up with noise based on the discrete gaussian.
-     *
-     * @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVector2n with random numbers.
-     */
-    ILVector2n CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format) const;
-
     /**
      * Assignment Operator. The usint val will be set at index zero and all other indices will be set to zero.
      *
@@ -250,36 +275,6 @@ namespace lbcrypto {
      * @return the resulting vector.
      */
     const ILVector2n& operator=(usint val);
-
-    virtual ~ILVector2n();
-
-    /**
-     * Equal operator compares this ILVector2n to the specified ILVector2n
-     *
-     * @param &rhs is the specified ILVector2n to be compared with this ILVector2n.
-     * @return true if this ILVector2n represents the same values as the specified ILVectorArray2n, false otherwise
-     */
-    inline bool operator==(const ILVector2n &rhs) const {
-      if (this->GetFormat() != rhs.GetFormat()) {
-	return false;
-      }
-      if(m_params->GetRootOfUnity() != rhs.GetRootOfUnity()) {
-	return false;
-      }
-      if (this->GetValues() != rhs.GetValues()) {
-	return false;
-      }
-      return true;
-    }
-    /**
-     * Not equal operator compares this ILVector2n to the specified ILVectorArray2n
-     *
-     * @param &element is the specified ILVector2n to be compared with this ILVectorArray2n.
-     * @return true if this ILVector2n represents the same values as the specified ILVector2n, false otherwise
-     */
-    inline bool operator!=(const ILVector2n &element) const {
-      return !(*this == element);
-    }
 
     //GETTERS
     /**
@@ -290,75 +285,67 @@ namespace lbcrypto {
     inline const shared_ptr<ILParams> GetParams() const { return m_params; }
 
     /**
-     * Get method of the modulus.
+     * Get format of the element
+     *
+     * @return COEFFICIENT or EVALUATION
+     */
+    Format GetFormat() const;
+
+    /**
+     * Get the length of the element.
+     *
+     * @return length
+     */
+    usint GetLength() const;
+
+    /**
+     * Get modulus of the element
      *
      * @return the modulus.
      */
     const BigBinaryInteger &GetModulus() const;
 
     /**
-     * Get method for cyclotomic order.
-     *
-     * @return the cyclotomic order.
-     */
-    const usint GetCyclotomicOrder() const;
-
-    /**
-     * Get method of the vector.
+     * Get the values for the element
      *
      * @return the vector.
      */
     const BigBinaryVector &GetValues() const;
 
     /**
-     * Get method of the root of unity.
+     * Get the cyclotomic order
+     *
+     * @return order
+     */
+    const usint GetCyclotomicOrder() const;
+
+    /**
+     * Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  Used in bit decomposition/relinearization operations.
+     *
+     * @param index is the index to get.
+     * @param base is the base the result should be in.
+     * @return is the result.
+     */
+    ILVector2n GetDigitAtIndexForBase(usint index, usint base) const;
+
+
+
+    /**
+     * Get the root of unity.
      *
      * @return the root of unity.
      */
     const BigBinaryInteger &GetRootOfUnity() const;
 
-    /**
-     * Get method of the format.
-     *
-     * @return the format.
-     */
-    Format GetFormat() const;
 
     /**
      * Get value of binaryvector at index i.
      *
      * @return value at index i.
      */
-    const BigBinaryInteger GetValAtIndex(usint i) const; //DBC changed from returning reference because it broke several functions otherwise.
-
-    /**
-     * Get method of the length of the element.
-     *
-     * @return the length of the element.
-     */
-    usint GetLength() const;
+    const BigBinaryInteger  & GetValAtIndex(usint i) const;//DBC changed from returning reference because it broke several functions otherwise. changed back for merge with master... since this is a virtual function.
 
     //SETTERS
-    /**
-     * Set method of the values.
-     *
-     * @param values is the set of values of the vector.
-     * @param format is the format.
-     */
-    void SetValues(const BigBinaryVector& values, Format format);
-
-    /**
-     * Sets all values to zero.
-     */
-    void SetValuesToZero();
-    void SetValuesToMax();
-    /**
-     * Sets the format.
-     *
-     * @param format is the Format to be set.
-     */
-    void SetFormat(const Format format);
-
     /**
      *  Set BigBinaryVector value to val
      *
@@ -386,41 +373,31 @@ namespace lbcrypto {
     }
 
     // SCALAR OPERATIONS
-    /**
-     * Performs an subtracion operation and returns the result.
-     *
-     * @param &element is the element to add with.
-     * @return is the result of the addition.
-     */
-    inline const ILVector2n& operator+=(const BigBinaryInteger &element) {
-      ILVector2n result = this->Plus(element);
-      *this = result;
-      return *this;
-    }
 
     /**
-     * Performs an subtracion operation and returns the result.
+     * Set method of the values.
      *
-     * @param &element is the element to add with.
-     * @return is the result of the addition.
+     * @param values is the set of values of the vector.
+     * @param format is the format.
      */
-    inline const ILVector2n& operator-=(const BigBinaryInteger &element) {
-      ILVector2n result = this->Minus(element);
-      *this = result;
-      return *this;
-    }
+    void SetValues(const BigBinaryVector& values, Format format);
 
     /**
-     * Performs an multiplication operation and returns the result.
-     *
-     * @param &element is the element to multiply with.
-     * @return is the result of the multiplication.
+     * Sets all values to zero.
      */
-    inline const ILVector2n& operator*=(const BigBinaryInteger &element) {
-      ILVector2n result = this->Times(element);
-      *this = result;
-      return *this;
-    }
+    void SetValuesToZero();
+
+    /**
+     * Sets all values to maximum.
+     */
+    void SetValuesToMax();
+
+    /**
+     * Sets the format.
+     *
+     * @param format is the Format to be set.
+     */
+    void SetFormat(const Format format);
 
     /**
      * Scalar addition - add an element to the first index only. 
@@ -447,22 +424,6 @@ namespace lbcrypto {
      */
     ILVector2n Times(const BigBinaryInteger &element) const;
 
-    /**
-     * Scalar multiplication followed by division and rounding operation - operation on all entries.
-     *
-     * @param &p is the integer muliplicand.
-     * @param &q is the integer divisor.
-     * @return is the return value of the multiply, divide and followed by rounding operation.
-     */
-    ILVector2n MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const;
-
-    /**
-     * Scalar division followed by rounding operation - operation on all entries.
-     *
-     * @param &q is the element to divide entry-wise.
-     * @return is the return value of the divide, followed by rounding operation.
-     */
-    ILVector2n DivideAndRound(const BigBinaryInteger &q) const;
 
     // VECTOR OPERATIONS
     /**
@@ -488,44 +449,104 @@ namespace lbcrypto {
      * @return is the result of the multiplication.
      */
     ILVector2n Times(const ILVector2n &element) const;
+    /**
+     * Performs += operation with a BigBinaryInteger and returns the result.
+     *
+     * @param &element is the element to add
+     * @return is the result of the addition.
+     */
+    const ILVector2n& operator+=(const BigBinaryInteger &element) {
+      return *this = this->Plus(element);
+    }
+    
+    /**
+     * Performs -= operation with a BigBinaryInteger and returns the result.
+     *
+     * @param &element is the element to subtract
+     * @return is the result of the subtraction.
+     */
+    const ILVector2n& operator-=(const BigBinaryInteger &element) {
+      SetValues( GetValues().ModSub(element), this->m_format );
+      return *this;
+    }
 
     /**
-     * Performs a multiplication operation w/o applying the modulo operation.
+     * Performs *= operation with a BigBinaryInteger and returns the result.
      *
-     * @param &element is the element to multiply with.
+     * @param &element is the element to multiply by
      * @return is the result of the multiplication.
      */
-    //ILVector2n TimesNoMod(const ILVector2n &element) const;
-    /**
-     * Performs a negation operation and returns the result.
-     *
-     * @return is the result of the negation.
-     */
-    ILVector2n Negate() const;
+    const ILVector2n& operator*=(const BigBinaryInteger &element) {
+      SetValues( GetValues().ModMul(element), this->m_format );
+      return *this;
+    }
 
     /**
      * Performs an addition operation and returns the result.
      *
-     * @param &element is the element to add with.
+     * @param &element is the element to add
      * @return is the result of the addition.
      */
     const ILVector2n& operator+=(const ILVector2n &element);
 
     /**
-     * Performs an subtracion operation and returns the result.
+     * Performs an subtraction operation and returns the result.
      *
-     * @param &element is the element to add with.
-     * @return is the result of the addition.
+     * @param &element is the element to subtract
+     * @return is the result of the subtract.
      */
     const ILVector2n& operator-=(const ILVector2n &element);
 
     /**
      * Performs an multiplication operation and returns the result.
      *
-     * @param &element is the element to multiply with.
+     * @param &element is the element to multiply by
      * @return is the result of the multiplication.
      */
     const ILVector2n& operator*=(const ILVector2n &element);
+
+    /**
+     * Equal operator compares this ILVector2n to the specified ILVector2n
+     *
+     * @param &rhs is the specified ILVector2n to be compared with this ILVector2n.
+     * @return true if this ILVector2n represents the same values as the specified ILVectorArray2n, false otherwise
+     */
+    inline bool operator==(const ILVector2n &rhs) const {
+      if (this->GetFormat() != rhs.GetFormat()) {
+	return false;
+      }
+      if(m_params->GetRootOfUnity() != rhs.GetRootOfUnity()) {
+	return false;
+      }
+      if (this->GetValues() != rhs.GetValues()) {
+	return false;
+      }
+      return true;
+    }
+
+    /**
+     * Scalar multiplication followed by division and rounding operation - operation on all entries.
+     *
+     * @param &p is the integer muliplicand.
+     * @param &q is the integer divisor.
+     * @return is the return value of the multiply, divide and followed by rounding operation.
+     */
+    ILVector2n MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const;
+
+    /**
+     * Scalar division followed by rounding operation - operation on all entries.
+     *
+     * @param &q is the element to divide entry-wise.
+     * @return is the return value of the divide, followed by rounding operation.
+     */
+    ILVector2n DivideAndRound(const BigBinaryInteger &q) const;
+
+    /**
+     * Performs a negation operation and returns the result.
+     *
+     * @return is the result of the negation.
+     */
+    ILVector2n Negate() const;
 
     // OTHER METHODS
 
@@ -541,6 +562,14 @@ namespace lbcrypto {
      * @return is the result of the automorphism transform.
      */
     ILVector2n AutomorphismTransform(const usint &i) const;
+
+    /**
+     * Interpolates based on the Chinese Remainder Transform Interpolation.
+     * Does nothing for ILVector2n. Needed to support the linear CRT interpolation in ILVectorArray2n.
+     *
+     * @return the original ring element.
+     */
+    ILVector2n CRTInterpolate() const { return *this; }
 
     /**
      * Transpose the ring element using the automorphism operation
@@ -629,16 +658,6 @@ namespace lbcrypto {
      */
     ILVector2n Round(const BigBinaryInteger& x) const;
 
-    // get digit for a specific based - used for PRE scheme
-    /**
-     * Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  Used in bit decomposition/relinearization operations.
-     *
-     * @param index is the index to get.
-     * @param base is the base the result should be in.
-     * @return is the result.
-     */
-    ILVector2n GetDigitAtIndexForBase(usint index, usint base) const;
-
     /**
      * Write vector x (current value of the ILVector2n object) as \sum\limits{i=0}^{\lfloor {\log q/base} \rfloor} {(base^i u_i)} and 
      * return the vector of {u_0, u_1,...,u_{\lfloor {\log q/base} \rfloor}} \in R_base^{\lceil {\log q/base} \rceil};
@@ -674,13 +693,6 @@ namespace lbcrypto {
      */
     ILVector2n ShiftRight(unsigned int n) const;
 
-    /**
-     * Interpolates based on the Chinese Remainder Transform Interpolation.
-     * Does nothing for ILVector2n. Needed to support the linear CRT interpolation in ILVectorArray2n.
-     *
-     * @return the original ring element.
-     */
-    ILVector2n CRTInterpolate() const { return *this; }
 
     /**
      * Print the pre-computed discrete Gaussian samples.
@@ -720,10 +732,10 @@ namespace lbcrypto {
       m_tugSamples.clear();
     }
 
-    //JSON FACILITY
     /**
      * Serialize the object into a Serialized
-     * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+     * @param serObj is used to store the serialized result. 
+     * It MUST be a rapidjson Object (SetObject());
      * @return true if successfully serialized
      */
     bool Serialize(Serialized* serObj) const;
@@ -739,7 +751,7 @@ namespace lbcrypto {
 
     // stores either coefficient or evaluation representation
     unique_ptr<BigBinaryVector> m_values;
-    
+
     // 1 for coefficient and 0 for evaluation format
     Format m_format;
 
@@ -765,77 +777,25 @@ namespace lbcrypto {
 
     // gets a random polynomial generated using ternary uniform distribution
     static const ILVector2n GetPrecomputedTugVector();
-  };
+
+  }; //class end
 
   // overloaded operators for ILVector2n
-
-  /**
-   * Addition operator overload.  Performs an addition in the ring.
-   *
-   * @param &a the first parameter.
-   * @param &b the first parameter.
-   *
-   * @return The result of addition in the ring.
-   */
-  inline ILVector2n operator+(const ILVector2n &a, const BigBinaryInteger &b) { return a.Plus(b); }
-
-  /**
-   * Subtraction operator overload.  Performs a subtraction in the ring.
-   *
-   * @param &a the first parameter.
-   * @param &b the first parameter.
-   *
-   * @return The result of subtraction in the ring.
-   */
-  inline ILVector2n operator-(const ILVector2n &a, const BigBinaryInteger &b) { return a.Minus(b); }
-  //PREV1
-
-  /**
-   * Multiplication operator overload.  Performs a multiplication in the ring.
-   *
-   * @param &a the first parameter.
-   * @param &b the first parameter.
-   *
-   * @return The result of multiplication in the ring.
-   */
-  inline ILVector2n operator*(const BigBinaryInteger &b, const ILVector2n &a) { return a.Times(b); }
-
-  /**
-   * Addition operator overload.  Performs an addition in the ring.
-   *
-   * @param &a the first parameter.
-   * @param &b the first parameter.
-   *
-   * @return The result of addition in the ring.
-   */
-  inline ILVector2n operator+(const ILVector2n &a, const ILVector2n &b) { return a.Plus(b); }
-
-  /**
-   * Subtraction operator overload.  Performs a subtraction in the ring.
-   *
-   * @param &a the first parameter.
-   * @param &b the first parameter.
-   *
-   * @return The result of subtraction in the ring.
-   */
-  inline ILVector2n operator-(const ILVector2n &a, const ILVector2n &b) { return a.Minus(b); }
-
-  //PREV1
-
-  /**
-   * Multiplication operator overload.  Performs a multiplication in the ring.
-   *
-   * @param &a the first parameter.
-   * @param &b the first parameter.
-   *
-   * @return The result of multiplication in the ring.
-   */
-  inline ILVector2n operator*(const ILVector2n &a, const ILVector2n &b) { return a.Times(b); }
 
   inline std::ostream& operator<<(std::ostream& os, const ILVector2n& vec){
     os << vec.GetValues();
     return os;
   }
+
+  // overloaded operators
+  inline ILVector2n operator+(const ILVector2n &a, const ILVector2n &b) { return a.Plus(b); }
+  inline ILVector2n operator+(const ILVector2n &a, const BigBinaryInteger &b) { return a.Plus(b); }
+  inline ILVector2n operator+(const BigBinaryInteger &a, const ILVector2n &b) { return b.Plus(a); }
+  inline ILVector2n operator-(const ILVector2n &a, const ILVector2n &b) { return a.Minus(b); }
+  inline ILVector2n operator-(const ILVector2n &a, const BigBinaryInteger &b) { return a.Minus(b); }
+  inline ILVector2n operator*(const ILVector2n &a, const ILVector2n &b) { return a.Times(b); }
+  inline ILVector2n operator*(const ILVector2n &a, const BigBinaryInteger &b) { return a.Times(b); }
+  inline ILVector2n operator*(const BigBinaryInteger &a, const ILVector2n &b) { return b.Times(a); }
 
 } // namespace lbcrypto ends
 

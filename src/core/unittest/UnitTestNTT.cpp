@@ -225,7 +225,7 @@ TEST(UTNTT, decomposeMult_double_crt) {
 	ILVectorArray2n x2(params, Format::COEFFICIENT);
 	x2 = { 0,0,0,0,0,0,1,0 };
 
-	ILVectorArray2n resultsEval(x2.CloneWithParams());
+	ILVectorArray2n resultsEval(x2.CloneParametersOnly());
 	resultsEval = { 0,0,0,0,0,0,0,0 };
 	resultsEval.SwitchFormat();
 

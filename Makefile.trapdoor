@@ -34,9 +34,9 @@ TRAPDOORBINDIR := src/trapdoor/bin
 TRAPDOORTESTDIR := src/trapdoor/unittest
 TRAPDOORDEMODIR := src/trapdoor/demo
 
-TRAPDOORSOURCES := $(shell find $(TRAPDOORSRCDIR)/lib -name '*.cpp')
-TRAPDOORUNITSOURCES := $(shell find $(TRAPDOORSRCDIR)/unittest -name '*.cpp')
-TRAPDOORDEMOSOURCES := $(shell find $(TRAPDOORSRCDIR)/demo -name '*.cpp')
+TRAPDOORSOURCES := $(wildcard $(TRAPDOORSRCDIR)/lib/*/*.cpp)
+TRAPDOORUNITSOURCES := $(wildcard $(TRAPDOORSRCDIR)/unittest/*.cpp)
+TRAPDOORDEMOSOURCES := $(wildcard $(TRAPDOORSRCDIR)/demo/*.cpp)
 
 TRAPDOOROBJECTS = $(patsubst $(TRAPDOORSRCDIR)/%,$(TRAPDOORBINDIR)/%,$(patsubst %.cpp,%.o,$(TRAPDOORSOURCES)))
 TRAPDOORUNITOBJECTS := $(patsubst $(TRAPDOORSRCDIR)/%,$(TRAPDOORBINDIR)/%,$(patsubst %.cpp,%.o,$(TRAPDOORUNITSOURCES)))
@@ -78,32 +78,11 @@ $(TRAPDOORBINDIR)/%:
 		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
 		$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(TRAPDOORBINDIR)/%,$(TRAPDOORSRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 	fi
-	@if [ "$(suffix $@)" = ".ll" ] ;   \
-	then \
-		echo $(CC) -emit-llvm -S $(CPPFLAGS) $(INC) $(patsubst $(TRAPDOORBINDIR)/%,$(TRAPDOORSRCDIR)/%,$(patsubst %.ll,%.cpp,$@)) -o $@ ;\
-		$(CC) -emit-llvm -S $(CPPFLAGS) $(INC) $(patsubst $(TRAPDOORBINDIR)/%,$(TRAPDOORSRCDIR)/%,$(patsubst %.ll,%.cpp,$@)) -o $@ ;\
-	fi
 
-trapdoorpics: $(patsubst %.cpp,%.ll,$(subst $(TRAPDOORSRCDIR),$(TRAPDOORBINDIR),$(TRAPDOORSOURCES)))
-	@echo done
+.PHONY: cleantrapdoor 
 
-.PHONY: cleantrapdoor cleantrapdoorpics
-cleantrapdoorpics: 
-	$(RM) -f $(TRAPDOOROBJECTS:.o=.ll) $(TRAPDOOROBJECTS:.o=.ll.jpg)
-
-cleantrapdoor: cleantrapdoorpics
+cleantrapdoor: 
 	$(RM) -fr $(TRAPDOORBINDIR) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) `dirname $(TRAPDOOR_TEST_TARGET)` bin/demo/trapdoor
-
-#
-# the following define the componenets of the google test library
-# the source extention
-TEST_LIB_SRCEXT := cc
-
-#the source directory of the google library sources
-TEST_LIB_SRCDIR := test/include/gtest
-
-# Google Test headers. 
-GTEST_HEADERS =	test/include/gtest/gtest.h
 
 # this links test executable  from objects in the test build directory
 $(TRAPDOOR_TEST_TARGET): $(TRAPDOORUNITOBJECTS) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(EXTLIBDIR)/$(PALISADECORELIB)

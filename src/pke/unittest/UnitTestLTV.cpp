@@ -35,6 +35,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "utils/debug.h"
 
+#include "cryptolayertests.h"
+
 using namespace std;
 using namespace lbcrypto;
 
@@ -99,18 +101,20 @@ TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 
-	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
+//	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
+//
+//	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext = cc.Encrypt(kp.publicKey, plaintext);
+//
+//	BytePlaintextEncoding plaintextNew;
+//
+//	cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
+//
+//	DEBUG("11");
+//	EXPECT_EQ(plaintextNew, plaintext);
+//	DEBUG("Done");
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext =
-		cc.Encrypt(kp.publicKey, plaintext);
+	UnitTestEncryption<ILVectorArray2n>(cc);
 
-	BytePlaintextEncoding plaintextNew;
-
-	cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
-
-	DEBUG("11");	
-	EXPECT_EQ(plaintextNew, plaintext);
-	DEBUG("Done");	
 	ILVectorArray2n::DestroyPrecomputedCRIFactors();
 
 }
@@ -134,6 +138,7 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt) {
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m, q.ToString(), RootOfUnity(m,q).ToString(), 1, stdDev);
 	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
 	cc.Enable(PRE);
 
 	//Precomputations for FTT
@@ -142,17 +147,8 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt) {
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
-	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	UnitTestEncryption<ILVector2n>(cc);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-			cc.Encrypt(kp.publicKey, plaintext);
-
-	BytePlaintextEncoding plaintextNew;
-
-	cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
-
-	EXPECT_EQ(plaintextNew, plaintext);
 	ILVector2n::DestroyPreComputedSamples();
 }
 
@@ -203,6 +199,9 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_Short_Ring) {
 	cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 
 	EXPECT_EQ(plaintextNew, plaintext);
+
+	UnitTestEncryption<ILVector2n>(cc);
+
 	ILVector2n::DestroyPreComputedSamples();
 }
 
@@ -235,77 +234,8 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_PRE) {
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
-
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-		cc.Encrypt(kp.publicKey, plaintext);
-
-	BytePlaintextEncoding plaintextNew;
-	cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
-
-	EXPECT_EQ(plaintextNew, plaintext);
-	//PRE SCHEME
-
-	////////////////////////////////////////////////////////////
-	//Perform the second key generation operation.
-	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
-	////////////////////////////////////////////////////////////
-
-	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
-
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey =
-			cc.ReKeyGen(newKp.publicKey, kp.secretKey);
-
-	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext =
-			cc.ReEncrypt(evalKey, ciphertext);
-
-	BytePlaintextEncoding plaintextNew2;
-
-	DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &plaintextNew2);
-
-	EXPECT_EQ(plaintextNew2, plaintext);
-	ILVector2n::DestroyPreComputedSamples();
-
-}
-
-TEST(UTLTV, ILVector2n_IntPlaintextEncoding_Encrypt_Decrypt) {
-
-	usint m = 16;
-
-	float stdDev = 4;
-
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-
-	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
-
-	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-
-	std::vector<usint> vectorOfInts = {1,0,1,0,1,0,1,0};
-	IntPlaintextEncoding intArray(vectorOfInts);
-
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m, q.ToString(), rootOfUnity.ToString(), 1, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(LEVELEDSHE);
-
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
-
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-			cc.Encrypt(kp.publicKey, intArray, false);
-
-	IntPlaintextEncoding intArrayNew;
-
-	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
-
-	EXPECT_EQ(intArray, intArrayNew);
+	UnitTestReEncryption<ILVector2n>(cc);
 
 	ILVector2n::DestroyPreComputedSamples();
 
 }
-

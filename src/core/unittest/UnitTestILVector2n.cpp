@@ -355,7 +355,7 @@ TEST(UTILVector2n, clone_operations) {
   ilv.SetValues(bbv, ilv.GetFormat());
 
   {
-    ILVector2n ilvClone = ilv.CloneWithParams();
+    ILVector2n ilvClone = ilv.CloneParametersOnly();
 
     EXPECT_EQ(ilv.GetCyclotomicOrder(), ilvClone.GetCyclotomicOrder());
     EXPECT_EQ(ilv.GetModulus(), ilvClone.GetModulus());

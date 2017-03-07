@@ -35,6 +35,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "utils/debug.h"
 
+#include "cryptolayertests.h"
+
 using namespace std;
 using namespace lbcrypto;
 
@@ -55,20 +57,12 @@ public:
 TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 
 	usint m = 2048;
-	//usint m = 8;
 	BigBinaryInteger modulus("268441601");
 	usint relWindow = 1;
 	
-	//lbcrypto::NextQ(modulus, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 	BigBinaryInteger rootOfUnity((RootOfUnity(m, modulus)));
 
-	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-	
 	float stdDev = 4;
-
-	std::vector<usint> vectorOfInts1 = { 1,0,1,0 };
-
-	IntPlaintextEncoding intArray1(vectorOfInts1);
 
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
 
@@ -79,100 +73,13 @@ TEST(UTBV, ILVector2n_bv_Encrypt_Decrypt) {
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams, MODE::RLWE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 	cc.Enable(PRE);
 
-	//This code is run only when performing execution time measurements
-
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
-	//Regular LWE-NTRU encryption algorithm
-
-	////////////////////////////////////////////////////////////
-	//Perform the key generation operation.
-	////////////////////////////////////////////////////////////
-
-	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
-
-	if (!kp.good()) {
-		std::cout << "Key generation failed!" << std::endl;
-		exit(1);
-	}
-
-	////////////////////////////////////////////////////////////
-	//Encryption
-	////////////////////////////////////////////////////////////
-
-	//vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-		//	cc.Encrypt(kp.publicKey, intArray1,false);	// This is the core encryption operation.
-
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-		cc.Encrypt(kp.publicKey, plaintext, false);	// This is the core encryption operation.
-
-	
-
-
-	////////////////////////////////////////////////////////////
-	//Decryption
-	////////////////////////////////////////////////////////////
-
-	BytePlaintextEncoding plaintextNew;
-	IntPlaintextEncoding intArrayNew;
-
-	//DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew,false);
-	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew, false);
-
-	EXPECT_EQ(plaintextNew, plaintext);
-	//EXPECT_EQ(intArrayNew, intArray1);
-
-	//PRE SCHEME
-
-	////////////////////////////////////////////////////////////
-	//Perform the second key generation operation.
-	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
-	////////////////////////////////////////////////////////////
-
-	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
-
-
-	////////////////////////////////////////////////////////////
-	//Perform the proxy re-encryption key generation operation.
-	// This generates the keys which are used to perform the key switching.
-	////////////////////////////////////////////////////////////
-
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey = cc.KeySwitchGen( kp.secretKey, newKp.secretKey);
-
-	////////////////////////////////////////////////////////////
-	//Perform the proxy re-encryption operation.
-	// This switches the keys which are used to perform the key switching.
-	////////////////////////////////////////////////////////////
-
-
-	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext = cc.ReEncrypt(evalKey, ciphertext);
-
-	//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
-
-	////////////////////////////////////////////////////////////
-	//Decryption
-	////////////////////////////////////////////////////////////
-
-	BytePlaintextEncoding plaintextNew2;
-	IntPlaintextEncoding intArrayNew2;
-
-	//DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &intArrayNew2,false);
-	DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &plaintextNew2, false);
-	/*ChineseRemainderTransformFTT::GetInstance().Destroy();
-	NumberTheoreticTransform::GetInstance().Destroy();*/
-	
-	EXPECT_EQ(plaintextNew2, plaintext);
-	//EXPECT_EQ(intArrayNew2, intArray1);
+	UnitTestEncryption<ILVector2n>(cc);
 }
 
+// FIXME: test re-encrypt too
 

@@ -142,16 +142,70 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 				{ "securityLevel", "1.006" }
 		} },
 
+		{ "BV1", {
+				{ "parameters", "BV" },
+				{ "plaintextModulus", "2" },
+				{ "ring", "2048" },
+				{ "modulus", "268441601" },
+				{ "rootOfUnity", "16947867" },
+				{ "relinWindow", "1" },
+				{ "stDev", "4" },
+		} },
+
+		{ "BV2", {
+				{ "parameters", "BV" },
+				{ "plaintextModulus", "2" },
+				{ "ring", "2048" },
+				{ "modulus", "536881153" },
+				{ "rootOfUnity", "267934765" },
+				{ "relinWindow", "2" },
+				{ "stDev", "4" },
+		} },
+
+		{ "BV3", {
+				{ "parameters", "BV" },
+				{ "plaintextModulus", "2" },
+				{ "ring", "2048" },
+				{ "modulus", "1073750017" },
+				{ "rootOfUnity", "180790047" },
+				{ "relinWindow", "4" },
+				{ "stDev", "4" },
+		} },
+
+		{ "BV4", {
+				{ "parameters", "BV" },
+				{ "plaintextModulus", "2" },
+				{ "ring", "2048" },
+				{ "modulus", "8589987841" },
+				{ "rootOfUnity", "2678760785" },
+				{ "relinWindow", "8" },
+				{ "stDev", "4" },
+		} },
+
+		{ "BV5", {
+				{ "parameters", "BV" },
+				{ "plaintextModulus", "2" },
+				{ "ring", "4096" },
+				{ "modulus", "2199023288321" },
+				{ "rootOfUnity", "1858080237421" },
+				{ "relinWindow", "16" },
+				{ "stDev", "4" },
+		} },
+
 		{ "Null", {
 				{ "parameters", "Null" },
 				{ "plaintextModulus", "256" },
 				{ "ring", "8192" },
+				{ "modulus", "256" },
+				{ "rootOfUnity", "242542334" }
 		} },
 
 		{ "Null2", {
 				{ "parameters", "Null" },
 				{ "plaintextModulus", "5" },
 				{ "ring", "8" },
+				{ "modulus", "256" },
+				{ "rootOfUnity", "322299632" }
 		} }
 
 

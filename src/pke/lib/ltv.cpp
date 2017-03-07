@@ -406,12 +406,12 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const 
 {
 	shared_ptr<LPEvalKeyNTRU<Element>> quadraticKeySwitchHint(new LPEvalKeyNTRU<Element>(originalPrivateKey->GetCryptoContext()));
 
-	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(originalPrivateKey->GetCryptoParameters());
+	const auto cryptoParams = originalPrivateKey->GetCryptoParameters();
 
 	const Element& f1 = originalPrivateKey->GetPrivateElement();
+	const Element& f2 = f1;
 
 	const Element f1Squared(f1*f1);
-	const Element& f2 = originalPrivateKey->GetPrivateElement();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	Element e(cryptoParams->GetDiscreteGaussianGenerator(), cryptoParams->GetElementParams(), Format::COEFFICIENT);

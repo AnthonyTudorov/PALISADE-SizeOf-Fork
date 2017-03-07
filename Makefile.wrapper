@@ -23,20 +23,50 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
+PYSRCDIR := src/wrappers/python
+PYBINDIR := src/wrappers/python/bin
+
+PYSOURCES := $(shell find $(PYSRCDIR) -name '*.cpp')
+
+PYOBJECTS = $(patsubst $(PYSRCDIR)/%,$(PYBINDIR)/%,$(patsubst %.cpp,%.o,$(PYSOURCES)))
+
+-include $(PYOBJECTS:.o=.d)
+
+.PHONY: pywrapper
+pywrapper: $(EXTLIBDIR)/$(PALISADEPYLIB)
+
+#this builds the palisade py library out of the objects 
+$(EXTLIBDIR)/$(PALISADEPYLIB): $(PYOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB)
+	@echo " -- pke:linking $@ from PYOBJECTS"
+	mkdir -p $(EXTLIBDIR)
+	$(CC) $(CPPFLAGS) $(INC) $(LIBCMD) -o $@ $(PYOBJECTS) $(LIBPYTHON) $(BOOSTLIB) -lboost_python $(EXTLIBDIR)/$(PALISADECORELIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB)
+	#@[ "$(LIBSUFFIX)" = ".dylib" ] && ln $(EXTLIBDIR)/$(PALISADEPYLIB) $(EXTLIBDIR)/$(patsubst %.dylib,%.so,$(PALISADEPYLIB))
+
+### #this builds the individual objects that make up the py library .
+.PRECIOUS: $(PYBINDIR)/%
+$(PYBINDIR)/%:
+	@if [ "$(suffix $@)" = ".o" ] ;   \
+	then  \
+		mkdir -p $(@D)  ;\
+		echo $(CC) -fPIC $(CPPFLAGS) $(INC) $(PYINCLUDE) -c -o $@ $(patsubst $(PYBINDIR)/%,$(PYSRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
+		$(CC) -MM $(CPPFLAGS) $(INC) $(PYINCLUDE) $(patsubst $(PYBINDIR)/%,$(PYSRCDIR)/%,$(patsubst %.o,%.cpp,$@)) > $(patsubst %.o,%.d,$@) ;\
+		mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)  ;\
+		sed -e 's|.*\.o:|$(PYBINDIR)/$*:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)  ;\
+		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
+		$(CC) -fPIC $(CPPFLAGS) $(INC) $(PYINCLUDE) -c -o $@ $(patsubst $(PYBINDIR)/%,$(PYSRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
+	fi
 
 ################
 # Makefile.wrapper contains all build instructions for making the
 # JNI wrapper for the palisade library object files and the shared library.
 ################
 
-LIBSOURCES := $(shell find $(SRCLIBDIR) -name '*.$(SRCEXT)')
-
-LIBOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(patsubst %.cpp,%.o,$(LIBSOURCES)))
+LIBOBJECTS := $(EXTLIBDIR)/$(PALISADECORELIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB)
 
 -include build/wrappers/java/PalisadeCryptoWrapper.d
 
-.PHONY:allwrappers
-allwrappers: $(EXTLIBDIR)/$(JNILIB) $(EXTLIBDIR)/PalisadeCrypto.jar
+.PHONY:jwrapper
+jwrapper: $(EXTLIBDIR)/$(JNILIB) $(EXTLIBDIR)/PalisadeCrypto.jar
 
 #this builds the palisade JNI wrapper library
 $(EXTLIBDIR)/$(JNILIB): $(LIBOBJECTS) build/wrappers/java/PalisadeCryptoWrapper.o

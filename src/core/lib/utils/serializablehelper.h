@@ -33,6 +33,9 @@
  *
  */
 
+#ifndef LBCRYPTO_SERIALIZABLEHELPER_H
+#define LBCRYPTO_SERIALIZABLEHELPER_H
+
 #define RAPIDJSON_HAS_STDSTRING 1
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
@@ -55,9 +58,6 @@
 #include "../lattice/ilvectorarray2n.h"
 
 #define RAPIDJSON_NO_SIZETYPEDEFINE
-
-#ifndef LBCRYPTO_SERIALIZABLEHELPER_H
-#define LBCRYPTO_SERIALIZABLEHELPER_H
 
 namespace lbcrypto {
 

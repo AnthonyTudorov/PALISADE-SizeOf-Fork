@@ -380,7 +380,7 @@ void BenchMarking_DCRT(bool intOrByteArray){
 					LPKeyPair<ILVectorArray2n> kp_modreduce(kp);
 
 					ILVectorArray2n sk3PrivateElement(kp_modreduce.secretKey->GetPrivateElement());
-					sk3PrivateElement.DropElementAtIndex(sk3PrivateElement.GetNumOfElements() - 1);
+					sk3PrivateElement.DropLastElement();
 					kp_modreduce.secretKey->SetPrivateElement(sk3PrivateElement);
 
 					if (!intOrByteArray) {

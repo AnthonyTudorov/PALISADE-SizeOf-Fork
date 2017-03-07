@@ -36,6 +36,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "utils/debug.h"
 
+#include "cryptolayertests.h"
+
 using namespace std;
 using namespace lbcrypto;
 
@@ -60,12 +62,6 @@ TEST(UTFV, ILVector2n_FV_Encrypt_Decrypt) {
 	BigBinaryInteger rootOfUnity("16947867");
 	usint relWindow = 1;
 
-	//BigBinaryInteger modulus2("1237940039285380274899136513");
-	//BigBinaryInteger rootOfUnity2("1067388930511360414468370668");
-
-	//BigBinaryInteger modulus2("1152921504606877697");
-	//BigBinaryInteger rootOfUnity2("418639631973566421");
-
 	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
 	
 	float stdDev = 4;
@@ -77,53 +73,15 @@ TEST(UTFV, ILVector2n_FV_Encrypt_Decrypt) {
 			2, m, modulus.ToString(), rootOfUnity.ToString(),
 			relWindow, stdDev, delta.ToString());
 	cc.Enable(ENCRYPTION);
+	cc.Enable(PRE);
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
-	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp;
-
-	//Regular FV encryption algorithm
-
-	////////////////////////////////////////////////////////////
-	//Perform the key generation operation.
-	////////////////////////////////////////////////////////////
-
-	kp = cc.KeyGen();
-
-	if (!kp.good()) {
-		std::cout << "Key generation failed!" << std::endl;
-		exit(1);
-	}
-
-	////////////////////////////////////////////////////////////
-	//Encryption
-	////////////////////////////////////////////////////////////
-
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, plaintext, false);	// This is the core encryption operation.
-
-	////////////////////////////////////////////////////////////
-	//Decryption
-	////////////////////////////////////////////////////////////
-
-	BytePlaintextEncoding plaintextNew;
-
-	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew, false);  // This is the core decryption operation.
-
-	EXPECT_EQ(plaintextNew, plaintext);
-
+	UnitTestEncryption<ILVector2n>(cc);
 }
 
 //Tests EvalAdd, EvalSub, and EvalMul operations for FV in the RLWE mode
 TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 	usint m = 2048;
-	//BigBinaryInteger modulus("1152921504606877697");
-	//BigBinaryInteger rootOfUnity("418639631973566421");
 
 	BigBinaryInteger modulus("1099511678977");
 	BigBinaryInteger rootOfUnity("928976858506");
@@ -131,10 +89,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	BigBinaryInteger bigModulus("1237940039285380274899136513");
 	BigBinaryInteger bigRootOfUnity("1067388930511360414468370668");
 
-	//BigBinaryInteger modulus("1267650600228229401496703385601");
-	//BigBinaryInteger rootOfUnity("540976213121087081496420385771");
-
-	BigBinaryInteger plaintextModulus(BigBinaryInteger("64"));
+	BigBinaryInteger plaintextModulus("64");
 
 	float stdDev = 4;
 
@@ -272,20 +227,9 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 	float stdDev = 4;
 
 	//Set crypto parametes
-
-//	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-//			4, 0, "0", "0",
-//			relWindow, stdDev, "0",
-//			RLWE, "0", "0", 0, 9, 1.006);
-//
-//	cc.GetEncryptionAlgorithm().ParamsGen(cc.GetCryptoParameters(), 0, 1);
-
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, 0, 1, 0);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
-
-	//std::cout << "n = " << cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	//std::cout << "log2 q = " << log2(cc.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
@@ -362,9 +306,6 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	cc.Enable(SHE);
 
 	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 1);
-
-	//std::cout << "n = " << cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	//std::cout << "log2 q = " << log2(cc.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;

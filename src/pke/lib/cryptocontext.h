@@ -430,7 +430,6 @@ public:
 			DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext[ch], &decrypted);
 
 			if (result.isValid == false) return result;
-
 			plaintext->Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
 			if (ch == lastone && doPadding) {
 				plaintext->Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
@@ -927,14 +926,16 @@ public:
 	static CryptoContext<Element> genCryptoContextBV(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-		usint relinWindow, float stDev);
+		usint relinWindow, float stDev,
+		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
+		int depth = 1);
 
 	/**
 	* FIXME temp function written by GRS
 	* @param cryptoParams
 	* @return
 	*/
-	static CryptoContext<Element> genCryptoContextBV(LPCryptoParametersBV<Element>* cryptoParams);
+	static CryptoContext<Element> genCryptoContextBV(LPCryptoParametersBV<Element>* cryptoParams, MODE mode = MODE::RLWE);
 
 	/**
 	* FIXME this is temporary until we better incorporate DCRT
@@ -966,8 +967,7 @@ public:
 	* @return
 	*/
 	static CryptoContext<Element> getCryptoContextNull(
-		const usint modulus,
-		usint ringdim);
+			const std::string& ptModulus, usint ringdim, const std::string& modulus, const std::string& rootOfUnity);
 
 	// helper for deserialization of contexts
 	static shared_ptr<LPCryptoParameters<Element>> GetParameterObject(const Serialized& serObj) {

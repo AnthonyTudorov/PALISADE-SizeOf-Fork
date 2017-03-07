@@ -48,28 +48,303 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "encoding/byteplaintextencoding.h"
 
-#include "utils/debug.h"
-
 using namespace std;
 using namespace lbcrypto;
-void NTRUPRE(int input);
+
+#include "BBVhelper.h"
+#include "ElementParmsHelper.h"
+#include "EncryptHelper.h"
+
+void BM_keygen(benchmark::State& state) { // benchmark
+	CryptoContext<ILVector2n> cc;
+
+	if( state.thread_index == 0 ) {
+		state.PauseTiming();
+		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(PRE);
+
+		try {
+		ChineseRemainderTransformFTT::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
+				cc.GetElementParams()->GetCyclotomicOrder(),
+				cc.GetElementParams()->GetModulus());
+		} catch( ... ) {}
+
+		try {
+		ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
+		} catch( ... ) {}
+
+		state.ResumeTiming();
+	}
+
+	while (state.KeepRunning()) {
+		LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	}
+}
+
+BENCHMARK_PARMS(BM_keygen)
+
+void BM_encrypt(benchmark::State& state) { // benchmark
+	CryptoContext<ILVector2n> cc;
+	LPKeyPair<ILVector2n> kp;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	BytePlaintextEncoding plaintext;
+
+	auto randchar = []() -> char {
+		const char charset[] =
+				"0123456789"
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				"abcdefghijklmnopqrstuvwxyz";
+		const size_t max_index = (sizeof(charset) - 1);
+		return charset[ rand() % max_index ];
+	};
 
 
-/**
- * @brief Input parameters for PRE example.
- */
-struct SecureParams {
-	usint m;			///< The ring parameter.
-	string modulus;	///< The modulus
-	string rootOfUnity;	///< The rootOfUnity
-	usint relinWindow;		///< The relinearization window parameter.
-};
+	if( state.thread_index == 0 ) {
+		state.PauseTiming();
+		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(PRE);
 
-#include <iterator>
+		try {
+		ChineseRemainderTransformFTT::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
+				cc.GetElementParams()->GetCyclotomicOrder(),
+				cc.GetElementParams()->GetModulus());
+		} catch( ... ) {}
 
-#define BASIC_BENCHMARK_TEST(x) \
-    BENCHMARK(x)->Arg(0)->Arg(1)->Arg(4)->Arg(8)->Arg(16)
+		try {
+			ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
+		} catch( ... ) {}
 
+		size_t strSize = plaintext.GetChunksize(cc.GetElementParams()->GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
+
+		if( strSize == 0 ) {
+			state.SkipWithError( "Chunk size is 0" );
+		}
+
+		string shortStr(strSize,0);
+		std::generate_n(shortStr.begin(), strSize, randchar);
+		plaintext = shortStr;
+
+		state.ResumeTiming();
+	}
+
+	while (state.KeepRunning()) {
+		state.PauseTiming();
+		LPKeyPair<ILVector2n> kp = cc.KeyGen();
+		state.ResumeTiming();
+
+		ciphertext = cc.Encrypt(kp.publicKey, plaintext);
+
+		state.PauseTiming();
+		ciphertext.clear();
+		state.ResumeTiming();
+	}
+}
+
+BENCHMARK_PARMS(BM_encrypt)
+
+void BM_decrypt(benchmark::State& state) { // benchmark
+	CryptoContext<ILVector2n> cc;
+	LPKeyPair<ILVector2n> kp;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	BytePlaintextEncoding plaintext;
+	BytePlaintextEncoding plaintextNew;
+
+	auto randchar = []() -> char {
+		const char charset[] =
+				"0123456789"
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				"abcdefghijklmnopqrstuvwxyz";
+		const size_t max_index = (sizeof(charset) - 1);
+		return charset[ rand() % max_index ];
+	};
+
+
+	if( state.thread_index == 0 ) {
+		state.PauseTiming();
+		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(PRE);
+
+		try {
+		ChineseRemainderTransformFTT::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
+				cc.GetElementParams()->GetCyclotomicOrder(),
+				cc.GetElementParams()->GetModulus());
+		} catch( ... ) {}
+
+		try {
+			ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
+		} catch( ... ) {}
+
+		size_t strSize = plaintext.GetChunksize(cc.GetElementParams()->GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
+
+		if( strSize == 0 ) {
+			state.SkipWithError( "Chunk size is 0" );
+		}
+
+		string shortStr(strSize,0);
+		std::generate_n(shortStr.begin(), strSize, randchar);
+		plaintext = shortStr;
+
+		state.ResumeTiming();
+	}
+
+	while (state.KeepRunning()) {
+		state.PauseTiming();
+		LPKeyPair<ILVector2n> kp = cc.KeyGen();
+		ciphertext = cc.Encrypt(kp.publicKey, plaintext);
+		state.ResumeTiming();
+
+		DecryptResult result = cc.Decrypt(kp.secretKey,ciphertext,&plaintextNew);
+
+		state.PauseTiming();
+		ciphertext.clear();
+		state.ResumeTiming();
+	}
+}
+
+BENCHMARK_PARMS(BM_decrypt)
+
+void BM_rekeygen(benchmark::State& state) { // benchmark
+	CryptoContext<ILVector2n> cc;
+	LPKeyPair<ILVector2n> kp;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	BytePlaintextEncoding plaintext;
+	BytePlaintextEncoding plaintextNew;
+
+	auto randchar = []() -> char {
+		const char charset[] =
+				"0123456789"
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				"abcdefghijklmnopqrstuvwxyz";
+		const size_t max_index = (sizeof(charset) - 1);
+		return charset[ rand() % max_index ];
+	};
+
+
+	if( state.thread_index == 0 ) {
+		state.PauseTiming();
+		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(PRE);
+
+		try {
+		ChineseRemainderTransformFTT::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
+				cc.GetElementParams()->GetCyclotomicOrder(),
+				cc.GetElementParams()->GetModulus());
+		} catch( ... ) {}
+
+		try {
+			ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
+		} catch( ... ) {}
+
+//		size_t strSize = plaintext.GetChunksize(cc.GetElementParams()->GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
+//
+//		if( strSize == 0 ) {
+//			state.SkipWithError( "Chunk size is 0" );
+//		}
+//
+//		string shortStr(strSize,0);
+//		std::generate_n(shortStr.begin(), strSize, randchar);
+//		plaintext = shortStr;
+
+		state.ResumeTiming();
+	}
+
+	while (state.KeepRunning()) {
+		state.PauseTiming();
+		LPKeyPair<ILVector2n> kp = cc.KeyGen();
+		LPKeyPair<ILVector2n> kp2 = cc.KeyGen();
+		state.ResumeTiming();
+
+		shared_ptr<LPEvalKey<ILVector2n>> evalKey;
+
+		try {
+			evalKey = cc.ReKeyGen(kp2.publicKey, kp.secretKey);
+		} catch( std::exception& e ) {
+			state.SkipWithError( e.what() );
+		}
+	}
+}
+
+BENCHMARK_PARMS(BM_rekeygen)
+
+void BM_reencrypt(benchmark::State& state) { // benchmark
+	CryptoContext<ILVector2n> cc;
+	LPKeyPair<ILVector2n> kp;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	BytePlaintextEncoding plaintext;
+	BytePlaintextEncoding plaintextNew;
+
+	auto randchar = []() -> char {
+		const char charset[] =
+				"0123456789"
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				"abcdefghijklmnopqrstuvwxyz";
+		const size_t max_index = (sizeof(charset) - 1);
+		return charset[ rand() % max_index ];
+	};
+
+
+	if( state.thread_index == 0 ) {
+		state.PauseTiming();
+		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(PRE);
+
+		try {
+		ChineseRemainderTransformFTT::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
+				cc.GetElementParams()->GetCyclotomicOrder(),
+				cc.GetElementParams()->GetModulus());
+		} catch( ... ) {}
+
+		try {
+			ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
+		} catch( ... ) {}
+
+		size_t strSize = plaintext.GetChunksize(cc.GetElementParams()->GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
+
+		if( strSize == 0 ) {
+			state.SkipWithError( "Chunk size is 0" );
+		}
+
+		string shortStr(strSize,0);
+		std::generate_n(shortStr.begin(), strSize, randchar);
+		plaintext = shortStr;
+
+		state.ResumeTiming();
+	}
+
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> reciphertext;
+
+	while (state.KeepRunning()) {
+		state.PauseTiming();
+		LPKeyPair<ILVector2n> kp = cc.KeyGen();
+		LPKeyPair<ILVector2n> kp2 = cc.KeyGen();
+		try {
+			evalKey = cc.ReKeyGen(kp2.publicKey, kp.secretKey);
+		} catch( std::exception& e ) {
+			state.SkipWithError( e.what() );
+			continue;
+		}
+
+		ciphertext = cc.Encrypt(kp.publicKey, plaintext);
+		state.ResumeTiming();
+
+		reciphertext = cc.ReEncrypt(evalKey,ciphertext);
+
+		state.PauseTiming();
+		ciphertext.clear();
+		reciphertext.clear();
+		state.ResumeTiming();
+	}
+}
+
+BENCHMARK_PARMS(BM_reencrypt)
+
+#ifdef OUT
 static void BM_SOURCE(benchmark::State& state) {
 
 	// std::cout << "Relinearization window : " << std::endl;
@@ -148,9 +423,6 @@ void NTRUPRE(int input) {
 
 	float stdDev = 4;
 
-	ofstream fout;
-	fout.open ("output.txt");
-
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
 	//Set crypto parametes
@@ -163,22 +435,12 @@ void NTRUPRE(int input) {
 			relWindow,
 			stdDev);
 
-	double diff, start, finish;
-
-	start = currentDateTime();
-
 	//This code is run only when performing execution time measurements
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(BigBinaryInteger(rootOfUnity), m, BigBinaryInteger(modulus));
 
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout << "Precomputation time: " << "\t" << diff << " ms" << endl;
-	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
@@ -192,17 +454,7 @@ void NTRUPRE(int input) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 
-	std::cout <<"\n" <<  "Running key generation..." << std::endl;
-
-	start = currentDateTime();
-
 	kp = cc.KeyGen();
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
 
 	if (!kp.good()) {
 		std::cout<<"Key generation failed!"<<std::endl;
@@ -214,24 +466,10 @@ void NTRUPRE(int input) {
 	////////////////////////////////////////////////////////////
 
 	// Begin the initial encryption operation.
-	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
-	fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
-	std::cout << "Running encryption..." << std::endl;
-
-	start = currentDateTime();
-
 	ciphertext = cc.Encrypt(kp.publicKey,plaintext);
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	//cout<<"ciphertext: "<<ciphertext.GetValues()<<endl;
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -239,30 +477,14 @@ void NTRUPRE(int input) {
 
 	BytePlaintextEncoding plaintextNew;
 
-	std::cout <<"\n"<< "Running decryption..." << std::endl;
-
-	start = currentDateTime();
-
 	DecryptResult result = cc.Decrypt(kp.secretKey,ciphertext,&plaintextNew);
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
-	fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
-
-	//cout << "ciphertext at" << ciphertext.GetIndexAt(2);
 
 	if (!result.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;
 		exit(1);
 	}
-	//PRE SCHEME
 
-	//system("pause");
+	//PRE SCHEME
 
 	////////////////////////////////////////////////////////////
 	//Perform the second key generation operation.
@@ -349,14 +571,10 @@ void NTRUPRE(int input) {
 		exit(1);
 	}
 
-	std::cout << "Execution completed.  Please any key to finish." << std::endl;
-
-	fout.close();
-
-
 }
 
 BASIC_BENCHMARK_TEST(BM_SOURCE); // runs the benchmark over the range of input
+#endif
 
 BENCHMARK_MAIN()
 

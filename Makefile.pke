@@ -34,9 +34,9 @@ PKEBINDIR := src/pke/bin
 PKETESTDIR := src/pke/unittest
 PKEDEMODIR := src/pke/demo
 
-PKESOURCES := $(shell find $(PKESRCDIR)/lib -name '*.cpp')
-PKEUNITSOURCES := $(shell find $(PKESRCDIR)/unittest -name '*.cpp')
-PKEDEMOSOURCES := $(shell find $(PKESRCDIR)/demo -name '*.cpp')
+PKESOURCES := $(wildcard $(PKESRCDIR)/lib/*.cpp)
+PKEUNITSOURCES := $(wildcard $(PKESRCDIR)/unittest/*.cpp)
+PKEDEMOSOURCES := $(wildcard $(PKESRCDIR)/demo/*.cpp)
 
 PKEOBJECTSALL = $(patsubst $(PKESRCDIR)/%,$(PKEBINDIR)/%,$(patsubst %.cpp,%.o,$(PKESOURCES)))
 PKEOBJECTS = $(filter %-impl.o,$(PKEOBJECTSALL))
@@ -78,33 +78,12 @@ $(PKEBINDIR)/%:
 		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
 		$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(PKEBINDIR)/%,$(PKESRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 	fi
-	@if [ "$(suffix $@)" = ".ll" ] ;   \
-	then \
-		echo $(CC) -emit-llvm -S $(CPPFLAGS) $(INC) $(patsubst $(PKEBINDIR)/%,$(PKESRCDIR)/%,$(patsubst %.ll,%.cpp,$@)) -o $@ ;\
-		$(CC) -emit-llvm -S $(CPPFLAGS) $(INC) $(patsubst $(PKEBINDIR)/%,$(PKESRCDIR)/%,$(patsubst %.ll,%.cpp,$@)) -o $@ ;\
-	fi
 
-pkepics: $(patsubst %.cpp,%.ll,$(subst $(PKESRCDIR),$(PKEBINDIR),$(PKESOURCES)))
-	@echo done
-
-.PHONY: cleanpke cleanpkepics
-cleanpkepics: 
-	$(RM) -f $(PKEOBJECTS:.o=.ll) $(PKEOBJECTS:.o=.ll.jpg)
+.PHONY: cleanpke 
 
 #this target is used to cleanup, it is called from the top Makefile
-cleanpke: cleanpkepics
+cleanpke: 
 	$(RM) -fr $(PKEBINDIR) $(EXTLIBDIR)/$(PALISADEPKELIB) `dirname $(PKE_TEST_TARGET)` bin/demo/pke
-
-#
-# the following define the componenets of the google test library
-# the source extention
-TEST_LIB_SRCEXT := cc
-
-#the source directory of the google library sources
-TEST_LIB_SRCDIR := test/include/gtest
-
-# Google Test headers. 
-GTEST_HEADERS =	test/include/gtest/gtest.h
 
 # this links test executable  from objects in the test build directory
 $(PKE_TEST_TARGET): $(PKEUNITOBJECTS) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)

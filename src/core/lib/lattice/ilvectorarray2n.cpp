@@ -221,13 +221,13 @@ namespace lbcrypto {
 		m_vectors = std::move(element.m_vectors);
 	}
 
-	ILVectorArray2n ILVectorArray2n::CloneWithParams() const{
+	ILVectorArray2n ILVectorArray2n::CloneParametersOnly() const{
 		
 		std::vector<ILVector2n> result;
 		result.reserve(m_vectors.size());
 		
 		for(usint i=0;i<m_vectors.size();i++){
-			result.push_back(std::move(m_vectors.at(i).CloneWithParams()));
+			result.push_back(std::move(m_vectors.at(i).CloneParametersOnly()));
 		}
 
 		ILVectorArray2n res(result);
@@ -247,7 +247,7 @@ namespace lbcrypto {
 		return std::move(res);
 	}
 
-	usint ILVectorArray2n::GetCyclotomicOrder() const {
+	const usint ILVectorArray2n::GetCyclotomicOrder() const {
 		return m_cyclotomicOrder;
 	}
 
@@ -298,7 +298,7 @@ namespace lbcrypto {
 
 		std::vector<ILVectorArray2n> result;
 
-		ILVectorArray2n zero(this->CloneWithParams());
+		ILVectorArray2n zero(this->CloneParametersOnly());
 		zero = { 0,0 };
 				
 		for (usint i= 0 ; i <  this->m_vectors.size(); i++) {
@@ -328,7 +328,7 @@ namespace lbcrypto {
 
 		std::vector< std::vector<ILVector2n> > towerVals;
 
-		ILVectorArray2n zero(this->CloneWithParams());
+		ILVectorArray2n zero(this->CloneParametersOnly());
 		zero = {0,0};
 		
 
@@ -361,7 +361,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = m_vectors[i].MultiplicativeInverse();
 		}
-		return tmp;
+		return std::move(tmp);
 	}
 
 	ILVectorArray2n ILVectorArray2n::ModByTwo() const
@@ -370,8 +370,8 @@ namespace lbcrypto {
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = m_vectors[i].ModByTwo();
-		   }
-		return tmp;
+		}
+		return std::move(tmp);
 	}
 
 	ILVectorArray2n ILVectorArray2n::SignedMod(const BigBinaryInteger & modulus) const
@@ -381,7 +381,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = m_vectors[i].SignedMod(modulus);
 		}
-		return tmp;
+		return std::move(tmp);
 	}
 
 	ILVectorArray2n ILVectorArray2n::Plus(const ILVectorArray2n &element) const
@@ -391,27 +391,28 @@ namespace lbcrypto {
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] += element.GetElementAtIndex (i);
 		}
-		return tmp;
+		return std::move(tmp);
 	}
 
 	ILVectorArray2n ILVectorArray2n::Negate() const {
-		ILVectorArray2n tmp(this->CloneWithParams());
+		ILVectorArray2n tmp(this->CloneParametersOnly());
 		tmp.m_vectors.clear();
 
 		for (usint i = 0; i < this->m_vectors.size(); i++) {
 			tmp.m_vectors.push_back(std::move(this->m_vectors.at(i).Negate()));
 		}
 
-		return tmp;
+		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Minus(const ILVectorArray2n &element) const {
+	ILVectorArray2n ILVectorArray2n::Minus(const ILVectorArray2n &element) const
+	{
 		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] -= element.GetElementAtIndex (i);
 		}
-		return tmp;
+		return std::move(tmp);
 	}
 
 	const ILVectorArray2n& ILVectorArray2n::operator+=(const ILVectorArray2n &rhs)
@@ -440,10 +441,6 @@ namespace lbcrypto {
 
 	}
 
-	bool ILVectorArray2n::operator!=(const ILVectorArray2n &rhs) const {
-        return !(*this == rhs); 
-    }
-	
 	bool ILVectorArray2n::operator==(const ILVectorArray2n &rhs) const {
 		//check if the format's are the same
 		if (m_format != rhs.m_format) {
@@ -473,6 +470,17 @@ namespace lbcrypto {
 			m_format = rhs.m_format;	
 			m_modulus = rhs.m_modulus;
 			m_cyclotomicOrder = rhs.m_cyclotomicOrder;
+		}
+		return *this;
+	}
+
+	const ILVectorArray2n & ILVectorArray2n::operator=(ILVectorArray2n&& rhs)
+	{
+		if (this != &rhs) {
+			m_vectors = std::move(rhs.m_vectors);
+			m_format = std::move(rhs.m_format);
+			m_modulus = std::move(rhs.m_modulus);
+			m_cyclotomicOrder = std::move(rhs.m_cyclotomicOrder);
 		}
 		return *this;
 	}
@@ -512,7 +520,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] += element;
 		}
-		return tmp;
+		return std::move(tmp);
 	}
 
 	ILVectorArray2n ILVectorArray2n::Minus(const BigBinaryInteger &element) const {
@@ -521,7 +529,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] -= element;
 		}
-		return tmp;
+		return std::move(tmp);
 	}
 
 	ILVectorArray2n ILVectorArray2n::Times(const ILVectorArray2n & element) const
@@ -533,7 +541,7 @@ namespace lbcrypto {
 			tmp.m_vectors[i].SetValues(((m_vectors[i].GetValues()).ModMul(element.m_vectors[i].GetValues())), m_format);
 			
 		}
-		return tmp;
+		return std::move(tmp);
 	}
 
 	ILVectorArray2n ILVectorArray2n::Times(const BigBinaryInteger &element) const
@@ -543,7 +551,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = (element*tmp.m_vectors[i]);
 		}
-		return tmp;
+		return std::move(tmp);
 	}
 
 	ILVectorArray2n ILVectorArray2n::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const
@@ -559,15 +567,6 @@ namespace lbcrypto {
 		throw std::runtime_error(errMsg);
 		return *this;
 	}
-
-	const ILVectorArray2n& ILVectorArray2n::operator+=(const BigBinaryInteger &rhs){
-         return this->Plus(rhs); //TODO-OPTIMIZE
-	}
-	
-	const ILVectorArray2n& ILVectorArray2n::operator-=(const BigBinaryInteger &rhs){
-          return this->Minus(rhs); //TODO-OPTIMIZE
-	}
-
 
 	const ILVectorArray2n& ILVectorArray2n::operator*=(const BigBinaryInteger &element) {
 		for (usint i = 0; i < this->m_vectors.size(); i++) {
@@ -624,12 +623,12 @@ namespace lbcrypto {
 		return true;
 	}
 
-	void ILVectorArray2n::DropElementAtIndex(usint index){
-		if(index >= m_vectors.size()){
-			throw std::out_of_range("Index of tower being removed is larger than ILVectorArray2n tower\n");
+	void ILVectorArray2n::DropLastElement(){
+		if(m_vectors.size() == 0){
+			throw std::out_of_range("Last element being removed from empty list");
 		}
-		m_modulus = m_modulus /(m_vectors[index].GetModulus());
-		m_vectors.erase(m_vectors.begin() + index);
+		m_modulus = m_modulus /(m_vectors[m_vectors.size()-1].GetModulus());
+		m_vectors.resize(m_vectors.size() - 1);
 	}
 
 	/**
@@ -682,7 +681,7 @@ namespace lbcrypto {
 		}
 
 		//step 4
-		DropElementAtIndex(lastTowerIndex);
+		DropLastElement();
 		std::vector<BigBinaryInteger> qtInverseModQi(m_vectors.size());
 		for(usint i=0; i<m_vectors.size(); i++) {
 			qtInverseModQi[i] = qt.ModInverse(m_vectors[i].GetModulus());

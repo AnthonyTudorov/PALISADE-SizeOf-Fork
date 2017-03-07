@@ -34,9 +34,9 @@ COREBINDIR := src/core/bin
 CORETESTDIR := src/core/unittest
 COREDEMODIR := src/core/demo
 
-CORESOURCES := $(shell find $(CORESRCDIR)/lib -name '*.cpp')
-COREUNITSOURCES := $(shell find $(CORESRCDIR)/unittest -name '*.cpp')
-COREDEMOSOURCES := $(shell find $(CORESRCDIR)/demo -name '*.cpp')
+CORESOURCES := $(wildcard $(CORESRCDIR)/lib/*/*.cpp)
+COREUNITSOURCES := $(wildcard $(CORESRCDIR)/unittest/*.cpp)
+COREDEMOSOURCES := $(wildcard $(CORESRCDIR)/demo/*.cpp)
 
 COREOBJECTS := $(patsubst $(CORESRCDIR)/%,$(COREBINDIR)/%,$(patsubst %.cpp,%.o,$(CORESOURCES)))
 COREUNITOBJECTS := $(patsubst $(CORESRCDIR)/%,$(COREBINDIR)/%,$(patsubst %.cpp,%.o,$(COREUNITSOURCES)))
@@ -77,40 +77,17 @@ $(COREBINDIR)/%:
 		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
 		$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(COREBINDIR)/%,$(CORESRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 	fi 
-	@if [ "$(suffix $@)" = ".ll" ] ;   \
-	then \
-		echo $@; \
-		$(CC) -emit-llvm -S $(CPPFLAGS) $(INC) $(patsubst $(COREBINDIR)/%,$(CORESRCDIR)/%,$(patsubst %.ll,%.cpp,$@)) -o - | \
-			opt -analyze -std-link-opts -dot-callgraph ;\
-		mv callgraph.dot $@ ;\
-		cat $@ | c++filt -n | dot -Tjpg > $@.jpg ;\
-	fi
-
-corepics: $(patsubst %.cpp,%.ll,$(subst $(CORESRCDIR),$(COREBINDIR),$(CORESOURCES)))
-	@echo done
 
 #this target is used to cleanup, it is called from the top Makefile
-.PHONY: cleancore cleancorepics
-cleancorepics: 
-	$(RM) -f $(COREOBJECTS:.o=.ll) $(COREOBJECTS:.o=.ll.jpg)
+.PHONY: cleancore 
 
-cleancore: cleancorepics
+cleancore: 
 	$(RM) -fr $(COREBINDIR) $(EXTLIBDIR)/$(PALISADECORELIB) `dirname $(TEST_TARGET)` bin/demo/core
-
-#
-# the following define the componenets of the google test library
-# the source extention
-TEST_LIB_SRCEXT := cc
-
-#the source directory of the google library sources
-TEST_LIB_SRCDIR := test/include/gtest
-
-# Google Test headers. 
-GTEST_HEADERS =	test/include/gtest/gtest.h
 
 # this links test executable  from objects in the test build directory
 $(TEST_TARGET): $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) 
 	@mkdir -p `dirname $(TEST_TARGET)`
+	echo 	$(CC) $(CPPFLAGS) $(INC) $(COREUNITOBJECTS) -o $(TEST_TARGET) -L$(EXTLIBDIR) -lPALISADEcore $(TEST_LIB)
 	$(CC) $(CPPFLAGS) $(INC) $(COREUNITOBJECTS) -o $(TEST_TARGET) -L$(EXTLIBDIR) -lPALISADEcore $(TEST_LIB)
 
 #used to run tests from make

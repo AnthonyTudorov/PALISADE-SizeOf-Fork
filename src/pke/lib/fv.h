@@ -65,7 +65,12 @@ namespace lbcrypto {
 			 * Copy constructor.
 			 *
 			 */
-			LPCryptoParametersFV(const LPCryptoParametersFV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {}
+			LPCryptoParametersFV(const LPCryptoParametersFV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {
+				m_delta = rhs.m_delta;
+				m_mode = rhs.m_mode;
+				m_bigModulus = rhs.m_bigModulus;
+				m_bigRootOfUnity = rhs.m_bigRootOfUnity;
+			}
 
 			/**
 			 * Constructor that initializes values.

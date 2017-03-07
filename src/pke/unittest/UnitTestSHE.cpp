@@ -339,7 +339,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	cc.ModReduce(newCiphertext);
 	ILVectorArray2n sk2PrivateElement(kp2.secretKey->GetPrivateElement());
-	sk2PrivateElement.DropElementAtIndex(sk2PrivateElement.GetNumOfElements() - 1);
+	sk2PrivateElement.DropLastElement();
 	kp2.secretKey->SetPrivateElement(sk2PrivateElement);
 
 	BytePlaintextEncoding plaintextNewModReduce;
@@ -550,18 +550,18 @@ TEST(UTSHE, decomposeMult) {
 
 	resultsEval.SwitchFormat();
 
-	ILVector2n x3(x1.CloneWithParams());
+	ILVector2n x3(x1.CloneParametersOnly());
 	x3.SetFormat(Format::COEFFICIENT);
 	x3 = { 0,0,0,1 };
 
-	ILVector2n x4(x1.CloneWithParams());
+	ILVector2n x4(x1.CloneParametersOnly());
 	x4.SetFormat(Format::COEFFICIENT);
 	x4 = { 0,0,0,1 };
 
 	x3.SwitchFormat();
 	x4.SwitchFormat();
 
-	ILVector2n resultsTest(x4.CloneWithParams());
+	ILVector2n resultsTest(x4.CloneParametersOnly());
 
 	resultsTest = x3 * x4;
 

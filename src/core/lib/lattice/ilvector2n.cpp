@@ -18,11 +18,26 @@
 
   Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
   All rights reserved.
-  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-  1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+  1. Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+  COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "ilvector2n.h"
@@ -75,23 +90,23 @@ namespace lbcrypto {
       throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
 
     if (format == COEFFICIENT) {
-	//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
-	usint vectorSize = params->GetCyclotomicOrder() / 2;
-	unique_ptr<BigBinaryVector> sp(new BigBinaryVector(dgg.GenerateVector(vectorSize, params->GetModulus())));
-	m_values = std::move(sp);
-	(*m_values).SetModulus(params->GetModulus());
-	m_format = COEFFICIENT;
-      } else {
-	PreComputeDggSamples(dgg, m_params);
+      //usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
+      usint vectorSize = params->GetCyclotomicOrder() / 2;
+      unique_ptr<BigBinaryVector> sp(new BigBinaryVector(dgg.GenerateVector(vectorSize, params->GetModulus())));
+      m_values = std::move(sp);
+      (*m_values).SetModulus(params->GetModulus());
+      m_format = COEFFICIENT;
+    } else {
+      PreComputeDggSamples(dgg, m_params);
 
-	const ILVector2n randomElement = GetPrecomputedVector();
+      const ILVector2n randomElement = GetPrecomputedVector();
 	
-	unique_ptr<BigBinaryVector> sp(new BigBinaryVector(*randomElement.m_values));
-	m_values = std::move(sp);
+      unique_ptr<BigBinaryVector> sp(new BigBinaryVector(*randomElement.m_values));
+      m_values = std::move(sp);
 
-	(*m_values).SetModulus(params->GetModulus());
-	m_format = EVALUATION;
-      }
+      (*m_values).SetModulus(params->GetModulus());
+      m_format = EVALUATION;
+    }
   }
 
 
@@ -106,10 +121,12 @@ namespace lbcrypto {
     unique_ptr<BigBinaryVector> sp(new BigBinaryVector(dug.GenerateVector(vectorSize)));
     m_values = std::move(sp);
     (*m_values).SetModulus(params->GetModulus());
+
     m_format = COEFFICIENT;
 
     if (format == EVALUATION)
       this->SwitchFormat();
+
   }
 
   ILVector2n::ILVector2n(const BinaryUniformGenerator &bug, const shared_ptr<ElemParams> params, Format format) 
@@ -137,22 +154,22 @@ namespace lbcrypto {
       throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
 
     if (format == COEFFICIENT) {
-	//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
-	usint vectorSize = params->GetCyclotomicOrder() / 2;
-	unique_ptr<BigBinaryVector> sp(new BigBinaryVector(tug.GenerateVector(vectorSize, params->GetModulus())));
-	m_values = std::move(sp);
-	(*m_values).SetModulus(params->GetModulus());
-	m_format = COEFFICIENT;
-      } else {
-	PreComputeTugSamples(tug, m_params);
+      //usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
+      usint vectorSize = params->GetCyclotomicOrder() / 2;
+      unique_ptr<BigBinaryVector> sp(new BigBinaryVector(tug.GenerateVector(vectorSize, params->GetModulus())));
+      m_values = std::move(sp);
+      (*m_values).SetModulus(params->GetModulus());
+      m_format = COEFFICIENT;
+    } else {
+      PreComputeTugSamples(tug, m_params);
 
-	const ILVector2n randomElement = GetPrecomputedTugVector();
-	unique_ptr<BigBinaryVector> sp(new BigBinaryVector(*randomElement.m_values));
- 	m_values = std::move(sp);
+      const ILVector2n randomElement = GetPrecomputedTugVector();
+      unique_ptr<BigBinaryVector> sp(new BigBinaryVector(*randomElement.m_values));
+      m_values = std::move(sp);
 
-	(*m_values).SetModulus(params->GetModulus());
-	m_format = EVALUATION;
-      }
+      (*m_values).SetModulus(params->GetModulus());
+      m_format = EVALUATION;
+    }
   }
 
   ILVector2n::ILVector2n(const ILVector2n &element) 
@@ -172,7 +189,6 @@ namespace lbcrypto {
       m_values = std::move(sp);
       DEBUG("in ctor & m_values now "<<*m_values);
     }
-
   }
 
   //this is the move
@@ -198,6 +214,7 @@ namespace lbcrypto {
   }
 
   const ILVector2n& ILVector2n::operator=(const ILVector2n &rhs) {
+
     if (this != &rhs) {
       if (m_values == nullptr && rhs.m_values != nullptr) {
 	unique_ptr<BigBinaryVector> sp(new BigBinaryVector(*rhs.m_values)); 
@@ -208,6 +225,7 @@ namespace lbcrypto {
       this->m_params = rhs.m_params;
       this->m_format = rhs.m_format;
     }
+
     return *this;
   }
 
@@ -215,7 +233,6 @@ namespace lbcrypto {
     bool dbg_flag = false;
 
     usint len = rhs.size();
-
     if (!IsEmpty()) {
       DEBUG("op= empty");
       usint vectorLength = this->m_values->GetLength();
@@ -254,7 +271,7 @@ namespace lbcrypto {
     }
     if (this != &rhs) {
       //if (m_values) //DBC removed delete,
-	//delete m_values; no need to delete smart pointer.
+      //delete m_values; no need to delete smart pointer.
       m_values = std::move(rhs.m_values); // copy reference
       //rhs.m_values = nullptr; 
       m_params = rhs.m_params;
@@ -264,7 +281,9 @@ namespace lbcrypto {
     return *this;
   }
 
-  ILVector2n ILVector2n::CloneWithParams() const {
+
+
+  ILVector2n ILVector2n::CloneParametersOnly() const {
     ILVector2n result(this->m_params, this->m_format);
     return std::move(result); //TODO should we instead rely on RVO? 
   }
@@ -284,7 +303,9 @@ namespace lbcrypto {
     for (size_t i = 0; i < m_values->GetLength(); ++i) {
       this->SetValAtIndex(i, val);
     }
+
     return *this;
+
   }
 
   ILVector2n::~ILVector2n()
@@ -316,7 +337,7 @@ namespace lbcrypto {
     return m_format;
   }
 
-  const BigBinaryInteger ILVector2n::GetValAtIndex(usint i) const
+  const BigBinaryInteger &ILVector2n::GetValAtIndex(usint i) const
   {
     bool dbg_flag = false;
     if( m_values == nullptr )
@@ -361,8 +382,8 @@ namespace lbcrypto {
     // if (m_values != nullptr) { //dbc no need with smart pointers
     //   delete m_values;
     // }
-    BigBinaryInteger max = m_params->GetModulus() - BigBinaryInteger::ONE;
 
+    BigBinaryInteger max = m_params->GetModulus() - BigBinaryInteger::ONE;
     usint size = m_params->GetCyclotomicOrder()/2;
     unique_ptr<BigBinaryVector> sp(new BigBinaryVector(m_params->GetCyclotomicOrder()/2, m_params->GetModulus()));
     m_values = std::move(sp);
@@ -373,6 +394,7 @@ namespace lbcrypto {
       //BigBinaryInteger temp("1111111111");
       m_values->SetValAtIndex(i, temp);
     }
+
   }
 
 
@@ -385,89 +407,75 @@ namespace lbcrypto {
   ILVector2n ILVector2n::Plus(const BigBinaryInteger &element) const {
     if (m_format != Format::COEFFICIENT)
       throw std::logic_error("ILVector2n::Plus can only be called in COEFFICIENT format.\n");
-    ILVector2n tmp(*this);
-    *tmp.m_values = GetValues().ModAddAtIndex(0, element);
-    return tmp;
+
+    ILVector2n tmp = CloneParametersOnly();
+    tmp.SetValues( GetValues().ModAddAtIndex(0, element), this->m_format );
+    return std::move( tmp );
   }
 
   ILVector2n ILVector2n::Minus(const BigBinaryInteger &element) const {
-    ILVector2n tmp(*this);
-    *tmp.m_values = GetValues().ModSub(element);
-    return tmp;
+    ILVector2n tmp = CloneParametersOnly();
+    tmp.SetValues( GetValues().ModSub(element), this->m_format );
+    return std::move( tmp );
   }
 
   ILVector2n ILVector2n::Times(const BigBinaryInteger &element) const {
-    ILVector2n tmp(*this);
-    *tmp.m_values = GetValues().ModMul(element);
-    return tmp;
+    ILVector2n tmp = CloneParametersOnly();
+    tmp.SetValues( GetValues().ModMul(element), this->m_format );
+    return std::move( tmp );
   }
 
   ILVector2n ILVector2n::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const {
-    ILVector2n tmp(*this);
-    *tmp.m_values = GetValues().MultiplyAndRound(p, q);
-    return tmp;
+    ILVector2n tmp = CloneParametersOnly();
+    tmp.SetValues( GetValues().MultiplyAndRound(p, q), this->m_format );
+    return std::move( tmp );
   }
 
   ILVector2n ILVector2n::DivideAndRound(const BigBinaryInteger &q) const {
-    ILVector2n tmp(*this);
-    *tmp.m_values = GetValues().DivideAndRound(q);
-    return tmp;
+    ILVector2n tmp = CloneParametersOnly();
+    tmp.SetValues( GetValues().DivideAndRound(q), this->m_format );
+    return std::move( tmp );
   }
 
   ILVector2n ILVector2n::Negate() const {
     ILVector2n tmp(*this);
     *tmp.m_values = m_values->ModMul(this->m_params->GetModulus() - BigBinaryInteger::ONE);
-    return tmp;
+    return std::move( tmp );
   }
 
   // VECTOR OPERATIONS
 
   ILVector2n ILVector2n::Plus(const ILVector2n &element) const {
-    ILVector2n tmp(*this);
-    *tmp.m_values = GetValues().ModAdd(*element.m_values);
-    return tmp;
+    ILVector2n tmp = CloneParametersOnly();
+    tmp.SetValues( GetValues().ModAdd(*element.m_values), this->m_format );
+    return std::move( tmp );
   }
 
   ILVector2n ILVector2n::Minus(const ILVector2n &element) const {
-    ILVector2n tmp(*this);
-    *tmp.m_values = GetValues().ModSub(*element.m_values);
-    return tmp;
+    ILVector2n tmp = CloneParametersOnly();
+    tmp.SetValues( GetValues().ModSub(*element.m_values), this->m_format );
+    return std::move( tmp );
   }
 
   ILVector2n ILVector2n::Times(const ILVector2n &element) const {
-    ILVector2n tmp(*this);
-    *tmp.m_values = GetValues().ModMul(*element.m_values);
-    return tmp;
+    ILVector2n tmp = CloneParametersOnly();
+    tmp.SetValues( GetValues().ModMul(*element.m_values), this->m_format );
+    return std::move( tmp );
   }
 
-  //multiplication without applying the modulo operation; needed for rounding
-  //ILVector2n ILVector2n::TimesNoMod(const ILVector2n &element) const {
-  //	if ((m_format != Format::COEFFICIENT) || (element.m_format != Format::COEFFICIENT))
-  //		throw std::runtime_error("ILVector2n::TimesNoMod requires both polynomials to be in COEFFICIENT format.");
-  //	
-  //	//create a polynomial with zero coefficients
-  //	ILVector2n tmp(this->m_params, Format::COEFFICIENT, true);
-
-  //	for (usint i = 0; i < tmp.GetLength(); i++) {
-  //		for (usint j = 0; j < tmp.GetLength(); j++) {
-  //			if ((i + j) < tmp.GetLength())
-  //				tmp.m_values[i + j] += this->m_values[i] * element.m_values[j];
-  //	}
-
-  //	return tmp;
-  //}
-
-  const ILVector2n& ILVector2n::operator+=(const ILVector2n &element) 
-  {
+  // FIXME: should the parms tests here be done in regular + as well as +=? or in neither place?
+  const ILVector2n& ILVector2n::operator+=(const ILVector2n &element) {
     if (!(*this->m_params == *element.m_params))
       throw std::logic_error("operator+= called on ILVector2n's with different params.");
 
     if (m_values == nullptr){
       unique_ptr<BigBinaryVector> sp(new BigBinaryVector(*element.m_values));
       m_values = std::move(sp);
-    } else {
-      *this->m_values = this->m_values->ModAdd(*element.m_values);
+      return *this;
     }
+
+    SetValues( m_values->ModAdd(*element.m_values), this->m_format );
+
     return *this;
   }
 
@@ -480,7 +488,7 @@ namespace lbcrypto {
       m_values = std::move(sp);
       //TODO:: is this a bug? it is not the same as +=
     }
-    *this->m_values = this->m_values->ModSub(*element.m_values);
+    SetValues( m_values->ModSub(*element.m_values), this->m_format );
     return *this;
   }
 
@@ -495,9 +503,9 @@ namespace lbcrypto {
     if (m_values == nullptr) {
       unique_ptr<BigBinaryVector> sp(new BigBinaryVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus()));
       m_values = std::move(sp);
-    } else {
-      *this->m_values = this->m_values->ModMul(*element.m_values);
     }
+    SetValues( m_values->ModMul(*element.m_values), this->m_format );
+
     return *this;
   }
 
@@ -542,10 +550,10 @@ namespace lbcrypto {
   }
 
   ILVector2n ILVector2n::MultiplicativeInverse() const {
-    ILVector2n tmp(*this);
-    if (tmp.InverseExists()) {
-      *tmp.m_values = GetValues().ModInverse();
-      return tmp;
+    ILVector2n tmp = CloneParametersOnly();
+    if (InverseExists()) {
+      tmp.SetValues( GetValues().ModInverse(), this->m_format );
+      return std::move( tmp );
     }
     else {
       throw std::logic_error("ILVector2n has no inverse\n");
@@ -553,16 +561,16 @@ namespace lbcrypto {
   }
 
   ILVector2n ILVector2n::ModByTwo() const {
-    ILVector2n tmp(*this);
-    *tmp.m_values = GetValues().ModByTwo();
-    return tmp;
+    ILVector2n tmp = CloneParametersOnly();
+    tmp.SetValues( GetValues().ModByTwo(), this->m_format );
+    return std::move( tmp );
   }
 
   //TODO: why is this called Signed Mod, should BBV.Mod be called signed mod too?
   ILVector2n ILVector2n::SignedMod(const BigBinaryInteger & modulus) const {
-    ILVector2n tmp(*this);
-    *tmp.m_values = GetValues().Mod(modulus);
-    return tmp;
+    ILVector2n tmp = CloneParametersOnly();
+    tmp.SetValues( GetValues().Mod(modulus), this->m_format );
+    return std::move( tmp );
   }
 
   void ILVector2n::SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity) {
@@ -659,10 +667,11 @@ namespace lbcrypto {
 
     for (usint i = 0; i < GetValues().GetLength(); i++) {
       if (m_values->GetValAtIndex(i) > (m_params->GetModulus() >> 1)) {
-	  locVal = q - (m_values->GetValAtIndex(i)).ConvertToDouble();
-      } else {
-	locVal = (m_values->GetValAtIndex(i)).ConvertToDouble();
+	locVal = q - (m_values->GetValAtIndex(i)).ConvertToDouble();
       }
+      else
+	locVal = (m_values->GetValAtIndex(i)).ConvertToDouble();
+
       if (locVal > retVal)
 	retVal = locVal;
     }

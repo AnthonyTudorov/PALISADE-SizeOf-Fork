@@ -135,10 +135,10 @@ public:
 	void Destroy();
 private:
 	static NumberTheoreticTransform *m_onlyInstance;
-	NumberTheoreticTransform(){}
+	NumberTheoreticTransform(): m_element(0) {}
 	~NumberTheoreticTransform(){}
-	NumberTheoreticTransform(const NumberTheoreticTransform&){}
-	NumberTheoreticTransform& operator=(NumberTheoreticTransform const&){};
+	NumberTheoreticTransform(const NumberTheoreticTransform&): m_element(0) {}
+//	NumberTheoreticTransform& operator=(NumberTheoreticTransform const&) {}
 	const BigBinaryVector *m_element;
 };
 
@@ -246,8 +246,8 @@ public:
 	
 private:
 	static ChineseRemainderTransformFTT *m_onlyInstance;
-	static std::map< std::string,BigBinaryVector > m_rootOfUnityTableByModulus;
-	static std::map<std::string,BigBinaryVector> m_rootOfUnityInverseTableByModulus;
+	static std::map<BigBinaryInteger,BigBinaryVector > m_rootOfUnityTableByModulus;
+	static std::map<BigBinaryInteger,BigBinaryVector> m_rootOfUnityInverseTableByModulus;
 	//static BigBinaryVector *m_rootOfUnityTable;
 	
 	//static BigBinaryVector *m_rootOfUnityInverseTable;

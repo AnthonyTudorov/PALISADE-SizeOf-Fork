@@ -147,7 +147,8 @@ CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBV(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-		usint relinWindow, float stDev)
+		usint relinWindow, float stDev,
+		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth)
 {
 	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
@@ -157,7 +158,11 @@ CryptoContextFactory<T>::genCryptoContextBV(
 		stDev,
 		0.0, // assuranceMeasure,
 		0.0, // securityLevel,
-		relinWindow) );
+		relinWindow, // Relinearization Window
+		mode, //Mode of noise generation
+		BigBinaryInteger(bigmodulus),
+		BigBinaryInteger(bigrootofunity),
+		depth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBV<T>() );
 
@@ -165,9 +170,11 @@ CryptoContextFactory<T>::genCryptoContextBV(
 }
 
 template <typename T>
-CryptoContext<T> CryptoContextFactory<T>::genCryptoContextBV(LPCryptoParametersBV<T>* cryptoParams) {
+CryptoContext<T> CryptoContextFactory<T>::genCryptoContextBV(LPCryptoParametersBV<T>* cryptoParams, MODE mode) {
 
 	shared_ptr<LPCryptoParametersBV<T>> mycryptoParams( new LPCryptoParametersBV<T>(*cryptoParams) ); // copy so memory works right
+
+	mycryptoParams->SetMode(mode);
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBV<T>() );
 
@@ -212,12 +219,11 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::getCryptoContextNull(
-		const usint modulus,
-		usint ringdim)
+		const std::string& ptModulus, usint ringdim, const std::string& modulus, const std::string& rootOfUnity)
 {
-	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger::ONE) );
+	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
-	shared_ptr<LPCryptoParametersNull<T>> params( new LPCryptoParametersNull<T>(ep, BigBinaryInteger(modulus)) );
+	shared_ptr<LPCryptoParametersNull<T>> params( new LPCryptoParametersNull<T>(ep, BigBinaryInteger(ptModulus)) );
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeNull<T>() );
 
 	return CryptoContext<T>(params, scheme);
@@ -283,8 +289,6 @@ CryptoContext<T>::deserializeEvalKey(const Serialized& serObj) const
 		return shared_ptr<LPEvalKeyNTRURelin<T>>();
 	}
 
-	//LPEvalKeyNTRURelin
-
 	shared_ptr<LPEvalKeyNTRURelin<T>> key( new LPEvalKeyNTRURelin<T>(*this) );
 
 	if( key->Deserialize(serObj) )
@@ -309,5 +313,6 @@ CryptoContext<T>::deserializeEvalMultKey(const Serialized& serObj) const
 
 	return shared_ptr<LPEvalKeyRelin<T>>();
 }
+
 }
 
