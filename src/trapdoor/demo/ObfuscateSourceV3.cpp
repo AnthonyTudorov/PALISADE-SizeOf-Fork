@@ -106,6 +106,7 @@ void Run() {
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
 
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(dgg, ilParams);
@@ -197,6 +198,7 @@ void Run() {
 	std::cout << " \nObfuscated pattern evaluation of : " << inputStr3 << " is " << result << "." <<std::endl;
 	//system("pause");
 
+	DiscreteFourierTransform::GetInstance().Destroy();
 }
 
 
