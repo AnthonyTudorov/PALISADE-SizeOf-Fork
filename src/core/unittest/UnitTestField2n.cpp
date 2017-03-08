@@ -173,7 +173,7 @@ TEST(UTField2n, times_with_switch) {
 	for (int i = 0;i < 4;i++) {
 		EXPECT_LE(abs(d.at(i).real() - c.at(i).real()),pow(10,-12));
 	}
-	DiscreteFourierTransform::GetInstance().Destroy();
+	//DiscreteFourierTransform::GetInstance().Destroy();
 }
 
 //TEST FOR SHIFT RIGHT OPERATION
@@ -239,7 +239,7 @@ TEST(UTField2n, transpose_eval) {
 	for (int i = 0; i < 4; i++) {
 		EXPECT_LE(abs(b.at(i).real() - a.at(i).real()), abs(b.at(i).real())*0.0001);
 	}
-	DiscreteFourierTransform::GetInstance().Destroy();
+	//DiscreteFourierTransform::GetInstance().Destroy();
 }
 
 //TEST FOR AUTOMORPHISM OPERATION
@@ -265,7 +265,7 @@ TEST(UTField2n, automorphism) {
 	for (int i = 0; i < 4; i++) {
 		EXPECT_LE(abs(b.at(i).real() - a.at(i).real()), abs(b.at(i).real())*0.0001);
 	}
-	DiscreteFourierTransform::GetInstance().Destroy();
+	//DiscreteFourierTransform::GetInstance().Destroy();
 }
 
 //TEST FOR EXTRACT ODD OPERATION
@@ -389,7 +389,7 @@ TEST(UTField2n, coefficient_evaluation) {
 		EXPECT_LE(abs(a.at(i).real() - b.at(i).real()), abs(b.at(i).real())*0.0001);
 		EXPECT_LE(abs(a.at(i).imag() - b.at(i).imag()), abs(b.at(i).imag())*0.0001);
 	}
-	DiscreteFourierTransform::GetInstance().Destroy();
+	//DiscreteFourierTransform::GetInstance().Destroy();
 }
 
 //TEST FOR EVALUATION TO COEFFICIENT FORMAT CHANGE
@@ -422,7 +422,7 @@ TEST(UTField2n, evaluation_coefficient) {
 	for (int i = 0;i < 8;i++) {
 		EXPECT_LE(abs(a.at(i).real() - b.at(i).real()), abs(a.at(i).real())*0.0001);
 	}
-	DiscreteFourierTransform::GetInstance().Destroy();
+	//DiscreteFourierTransform::GetInstance().Destroy();
 }
 
 
