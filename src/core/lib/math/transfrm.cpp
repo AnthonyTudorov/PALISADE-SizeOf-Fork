@@ -606,16 +606,18 @@ namespace lbcrypto {
 	void DiscreteFourierTransform::Destroy() {
 		if (rootOfUnityTable) {
 			delete rootOfUnityTable;
+			rootOfUnityTable = 0;
 		}
 		if (m_onlyInstance) {
-			delete m_onlyInstance;
+			delete m_onlyInstance; 
+			m_onlyInstance = 0;
 		}
 	}
 	void DiscreteFourierTransform::PreComputeTable(uint32_t s) {
 		size = s;
 		if (rootOfUnityTable) {
 			delete rootOfUnityTable;
-			rootOfUnityTable = nullptr;
+			rootOfUnityTable = 0;
 		}
 		rootOfUnityTable = new std::complex<double>[s];
 		for (int j = 0;j < s;j++) {
@@ -666,6 +668,9 @@ namespace lbcrypto {
 		int n = A.size();
 		for (int i = 0;i < n;i++) {
 			A.push_back(0);
+		}
+		if (rootOfUnityTable == NULL) {
+			PreComputeTable(2 * n);
 		}
 		std::vector<std::complex<double>> dft = FFTForwardTransformAlt(A);
 		std::vector<std::complex<double>> dftRemainder;
