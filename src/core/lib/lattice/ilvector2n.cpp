@@ -29,7 +29,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <fstream>
 #include <cmath>
 
+
 namespace lbcrypto {
+
+template class ILVectorImpl<BigBinaryInteger,BigBinaryVector,ILParams>;
+template class ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryVector,ILNativeParams>;
+
 
 	// static members
 	template<typename IntType, typename VecType, typename ParmType>
@@ -69,13 +74,12 @@ namespace lbcrypto {
 
 
 	template<typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl(const DiscreteGaussianGenerator &dgg, const shared_ptr<ParmType> params, Format format) {
+	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<ParmType> params, Format format) {
 
 		m_params = params;
 
 		if (format == COEFFICIENT)
 		{
-			//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
 			usint vectorSize = params->GetCyclotomicOrder() / 2;
 			m_values = new VecType(dgg.GenerateVector(vectorSize, params->GetModulus()));
 			(*m_values).SetModulus(params->GetModulus());
@@ -235,7 +239,7 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<IntType,VecType,ParmType> ILVectorImpl<IntType,VecType,ParmType>::CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format) const {
+	ILVectorImpl<IntType,VecType,ParmType> ILVectorImpl<IntType,VecType,ParmType>::CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const {
 		ILVectorImpl result(dgg, m_params, format);
 		return std::move(result);
 	}
@@ -713,7 +717,7 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<IntType,VecType,ParmType>::PreComputeDggSamples(const DiscreteGaussianGenerator &dgg, const shared_ptr<ParmType> params) {
+	void ILVectorImpl<IntType,VecType,ParmType>::PreComputeDggSamples(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<ParmType> params) {
 		if (m_dggSamples.size() == 0 || m_dggSamples_params != params)
 		{
 			DestroyPreComputedSamples();

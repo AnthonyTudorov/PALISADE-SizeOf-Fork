@@ -99,7 +99,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(const DiscreteGaussianGenerator &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	ILVectorImpl(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 * Construct with a vector from a given generator
@@ -147,7 +147,7 @@ public:
 	 */
 	inline static function<unique_ptr<ILVectorImpl>()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<ParmType> params, Format resultFormat, int stddev) {
 		return [=]() {
-			DiscreteGaussianGenerator dgg(stddev);
+			DiscreteGaussianGeneratorImpl<IntType,VecType> dgg(stddev);
 			auto ilvec = lbcrypto::make_unique<ILVectorImpl>(dgg, params, COEFFICIENT);
 			ilvec->SetFormat(resultFormat);
 			return ilvec;
@@ -209,7 +209,7 @@ public:
 	 *
 	 * @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorImpl with random numbers.
 	 */
-	ILVectorImpl CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format) const;
+	ILVectorImpl CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const;
 
 	/**
 	 * Destructor
@@ -660,7 +660,7 @@ public:
 	 * @param &dgg the discrete Gaussian Generator.
 	 * @param &params are the relevant ring parameters.
 	 */
-	static void PreComputeDggSamples(const DiscreteGaussianGenerator &dgg, const shared_ptr<ParmType> params);
+	static void PreComputeDggSamples(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<ParmType> params);
 
 	/**
 	 * Pre computes the Tug samples.

@@ -108,7 +108,7 @@ public:
 	 * @param &rhs the ILParams to be copied.
 	 * @return the resulting ILParams.
 	 */
-	ILParamsImpl& operator=(const ILParams &) = default;
+	ILParamsImpl& operator=(const ILParamsImpl &) = default;
 
 	/**
 	 * Move constructor.

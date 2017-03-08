@@ -45,23 +45,29 @@
 
 namespace lbcrypto {
 
+template<typename IntType, typename VecType>
+class DiscreteGaussianGeneratorImpl;
+
+typedef DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector> DiscreteGaussianGenerator;
+
 /**
 * @brief The class for Discrete Gaussion Distribution generator.
 */
-class DiscreteGaussianGenerator : DistributionGenerator {
+template<typename IntType, typename VecType>
+class DiscreteGaussianGeneratorImpl : DistributionGenerator {
 
 public:
 	/**
 	* Default constructor.
 	*/
-	DiscreteGaussianGenerator();
+	DiscreteGaussianGeneratorImpl();
 
 	/**
 	* @brief         Basic constructor for specifying distribution parameter and modulus.
 	* @param modulus The modulus to use to generate discrete values.
 	* @param std     The standard deviation for this Gaussian Distribution.
 	*/
-	DiscreteGaussianGenerator (float std);
+	DiscreteGaussianGeneratorImpl (float std);
 
 	/**
 	* @brief Initializes the generator.
@@ -99,7 +105,7 @@ public:
 	* @brief  Returns a generated integer. Uses Peikert's inversion method.
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	BigBinaryInteger GenerateInteger (const BigBinaryInteger &modulus) const;
+	IntType GenerateInteger (const IntType &modulus) const;
 
 	/**
 	* @brief           Generates a vector of random values within this Discrete Gaussian Distribution. Uses Peikert's inversion method.
@@ -108,7 +114,7 @@ public:
 	* @param  modulus  modulus of the polynomial ring.
 	* @return          The vector of values within this Discrete Gaussian Distribution.
 	*/
-	BigBinaryVector GenerateVector (usint size, const BigBinaryInteger &modulus) const;
+	VecType GenerateVector (usint size, const IntType &modulus) const;
 
 	/**
 	* @brief  Returns a generated integer. Uses rejection method.
@@ -118,7 +124,7 @@ public:
 	* param modulus modulus
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	BigBinaryInteger GenerateInteger (double mean, double stddev, size_t n, const BigBinaryInteger &modulus) const;
+	IntType GenerateInteger (double mean, double stddev, size_t n, const IntType &modulus) const;
 
 	/**
 	* @brief  Returns a generated integer. Uses rejection method.
@@ -169,7 +175,7 @@ public:
 	/**
 	* @brief Destructor
 	*/
-	~DiscreteGaussianGenerator() { if (probMatrix != nullptr) { delete[] probMatrix;} }
+	~DiscreteGaussianGeneratorImpl() { if (probMatrix != nullptr) { delete[] probMatrix;} }
 
 private:
 	usint FindInVector (const std::vector<double> &S, double search) const;

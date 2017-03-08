@@ -10,26 +10,31 @@
 
 namespace lbcrypto {
 
+	template<typename IntType, typename VecType>
 	DiscreteGaussianGenerator::DiscreteGaussianGenerator() : DistributionGenerator() {
 
 		SetStd(1);
 		Initialize();
 	}
 
+	template<typename IntType, typename VecType>
 	DiscreteGaussianGenerator::DiscreteGaussianGenerator(float std) : DistributionGenerator() {
 
 		SetStd(std);
 		Initialize();
 	}
 
+	template<typename IntType, typename VecType>
 	void DiscreteGaussianGenerator::SetStd(float std) {
 		m_std = std;
 	}
 
+	template<typename IntType, typename VecType>
 	float DiscreteGaussianGenerator::GetStd() const {
 		return m_std;
 	}
 
+	template<typename IntType, typename VecType>
 	void DiscreteGaussianGenerator::Initialize() {
 
 		//weightDiscreteGaussian
@@ -72,6 +77,7 @@ namespace lbcrypto {
 
 	}
 
+	template<typename IntType, typename VecType>
 	sint DiscreteGaussianGenerator::GenerateInt() const {
 
 		std::uniform_real_distribution<double> distribution(0.0, 1.0);
@@ -96,6 +102,7 @@ namespace lbcrypto {
 		return ans;
 	}
 
+	template<typename IntType, typename VecType>
 	std::shared_ptr<sint> DiscreteGaussianGenerator::GenerateIntVector(usint size) const {
 
 		std::uniform_real_distribution<double> distribution(0.0, 1.0);
@@ -121,6 +128,7 @@ namespace lbcrypto {
 		return ans;
 	}
 
+	template<typename IntType, typename VecType>
 	usint DiscreteGaussianGenerator::FindInVector(const std::vector<double> &S, double search) const {
 		//STL binary search implementation
 		auto lower = std::lower_bound(S.begin(), S.end(), search);
@@ -130,11 +138,12 @@ namespace lbcrypto {
 			throw std::runtime_error("DGG Inversion Sampling. FindInVector value not found: " + std::to_string(search));
 	}
 
-	BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(const BigBinaryInteger &modulus) const {
+	template<typename IntType, typename VecType>
+	IntType DiscreteGaussianGenerator::GenerateInteger(const IntType &modulus) const {
 
 		int32_t val = 0;
 		double seed;
-		BigBinaryInteger ans;
+		IntType ans;
 		std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
 		seed = distribution(GetPRNG()) - 0.5;
@@ -152,41 +161,43 @@ namespace lbcrypto {
 		if (val < 0)
 		{
 			val *= -1;
-			ans = modulus - UintToBigBinaryInteger(val);
+			ans = modulus - UintToIntType(val);
 		}
 		else
-			ans = BigBinaryInteger(val);
+			ans = IntType(val);
 
 		return ans;
 
 	}
 
-	BigBinaryVector DiscreteGaussianGenerator::GenerateVector(const usint size, const BigBinaryInteger &modulus) const {
+	template<typename IntType, typename VecType>
+	VecType DiscreteGaussianGenerator::GenerateVector(const usint size, const IntType &modulus) const {
 
 		std::shared_ptr<sint> result = GenerateIntVector(size);
 
-		BigBinaryVector ans(size);
+		VecType ans(size);
 		ans.SetModulus(modulus);
 
 		for (usint i = 0; i < size; i++) {
 			sint v = (result.get())[i];
 			if (v < 0) {
 				v *= -1;
-				ans.SetValAtIndex(i, modulus - UintToBigBinaryInteger(v));
+				ans.SetValAtIndex(i, modulus - UintToIntType(v));
 			}
 			else {
-				ans.SetValAtIndex(i, UintToBigBinaryInteger(v));
+				ans.SetValAtIndex(i, UintToIntType(v));
 			}
 		}
 
 		return ans;
 	}
 
-	BigBinaryInteger DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n, const BigBinaryInteger &modulus) const {
+	template<typename IntType, typename VecType>
+	IntType DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n, const IntType &modulus) const {
 
 		double t = log(n) / log(2)*stddev;  //this representation of log_2 is used for Visual Studio
 
-		BigBinaryInteger result;
+		IntType result;
 
 		std::uniform_int_distribution<int32_t> uniform_int(floor(mean - t), ceil(mean + t));
 		std::uniform_real_distribution<double> uniform_real(0.0, 1.0);
@@ -208,20 +219,21 @@ namespace lbcrypto {
 		if (x < 0)
 		{
 			x *= -1;
-			result = modulus - UintToBigBinaryInteger(x);
+			result = modulus - UintToIntType(x);
 		}
 		else
-			result = BigBinaryInteger(x);
+			result = IntType(x);
 
 		return result;
 
 	}
 
+	template<typename IntType, typename VecType>
 	int32_t DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n) const {
 
 		double t = log(n) / log(2)*stddev;  //this representation of log_2 is used for Visual Studio
 
-		BigBinaryInteger result;
+		IntType result;
 
 		std::uniform_int_distribution<int32_t> uniform_int(floor(mean - t), ceil(mean + t));
 		std::uniform_real_distribution<double> uniform_real(0.0, 1.0);
@@ -248,6 +260,7 @@ namespace lbcrypto {
 		*  int32_t is used here as the components are relatively small
 		*  this is a simple inefficient implementation as noted in DG14; will need to be improved
 		*/
+	template<typename IntType, typename VecType>
 	int32_t DiscreteGaussianGenerator::GenerateInteger(const LargeFloat &mean, const LargeFloat &stddev, size_t n) {
 
 		LargeFloat t = log(n) / log(2)*stddev;  //fix for Visual Studio
@@ -272,9 +285,11 @@ namespace lbcrypto {
 			}
 		}
 	}
+
 	/**
 		*Generates the probability matrix of given distribution, which is used in Knuth-Yao method
 	*/
+	template<typename IntType, typename VecType>
 	void DiscreteGaussianGenerator::GenerateProbMatrix(double stddev, double mean) {
 		if (probMatrix != nullptr) {
 			delete[] probMatrix;
@@ -305,9 +320,11 @@ namespace lbcrypto {
 		}
 		*/
 	}
+
 	/**
 	*Generates the probability matrix of given distribution, which is used in Knuth-Yao method (Large Float Version)
 	*/
+	template<typename IntType, typename VecType>
 	void DiscreteGaussianGenerator::GenerateProbMatrix(const LargeFloat & stddev, const LargeFloat & mean) {
 		if (probMatrix != nullptr) {
 			delete[] probMatrix;
@@ -340,9 +357,11 @@ namespace lbcrypto {
 		}
 		*/
 	}
+
 	/**
 	* Returns a generated integer. Uses Knuth-Yao method defined as Algorithm 1 in http://link.springer.com/chapter/10.1007%2F978-3-662-43414-7_19#page-1
 	*/
+	template<typename IntType, typename VecType>
 	int32_t DiscreteGaussianGenerator::GenerateIntegerKnuthYao() {
 		int32_t S = 0;
 		bool discard = true;

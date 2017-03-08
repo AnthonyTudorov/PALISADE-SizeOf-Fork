@@ -117,7 +117,7 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger()
 }
 
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(usint init){
+BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(uint64_t init){
 	//setting the MSB
 	usint msb = GetMSB32(init);
 
