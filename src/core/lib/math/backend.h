@@ -54,7 +54,7 @@
 //Please UNCOMMENT the approproate line rather than changing the number on the 
 //uncommented line (and breaking the documentation of the line)
 
-//#define MATHBACKEND 2 //side by side comparison of old and new libraries
+#define MATHBACKEND 2 //side by side comparison of old and new libraries
 //#define MATHBACKEND 3 //32 bit should work with all OS
 
 //NOTE currently MATHBACKEND 4 has issues with the following unit tests
