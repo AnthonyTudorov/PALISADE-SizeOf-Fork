@@ -137,12 +137,12 @@ BigBinaryVector<IntegerType>::~BigBinaryVector(){
 //ACCESSORS
 template<class IntegerType_c>
 std::ostream& operator<<(std::ostream& os, const BigBinaryVector<IntegerType_c> &ptr_obj){
-
-	os<<std::endl;
-	for(usint i=0;i<ptr_obj.m_length;i++){
-		os<< ptr_obj.m_data[i] <<std::endl;
+        auto len = ptr_obj.m_length;
+        os<<"[";
+	for(usint i=0;i<len;i++){
+	  os<< ptr_obj.m_data[i];
+	  os << ((i == (len-1))?"]":" ");
 	}
-
 	return os;
 }
 

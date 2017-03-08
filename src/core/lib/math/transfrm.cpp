@@ -269,6 +269,7 @@ BigBinaryVector ChineseRemainderTransform::InverseTransform(const BigBinaryVecto
 //main Forward CRT Transform - implements FTT - uses iterative NTT as a subroutine
 //includes precomputation of twidle factor table
 BigBinaryVector ChineseRemainderTransformFTT::ForwardTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) {
+  bool dbg_flag = true;
 	std::string errMsg;
 	if (rootOfUnity == BigBinaryInteger::ONE || rootOfUnity == BigBinaryInteger::ZERO) {
 		errMsg = "Root of unity cannot be zero or one to perform a forward transform";
@@ -284,8 +285,11 @@ BigBinaryVector ChineseRemainderTransformFTT::ForwardTransform(const BigBinaryVe
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	BigBinaryInteger mu = temp.DividedBy(element.GetModulus());
 
+#if 0
 	const BigBinaryVector *rootOfUnityTable = NULL;
-
+#else
+	BigBinaryVector *rootOfUnityTable = NULL;
+#endif
 	// check to see if the modulus is in the table, and add it if it isn't
 #pragma omp critical
 	{
@@ -325,13 +329,14 @@ BigBinaryVector ChineseRemainderTransformFTT::ForwardTransform(const BigBinaryVe
 		InputToFFT.SetValAtIndex(i, element.GetValAtIndex(i).ModBarrettMul(rootOfUnityTable->GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
 
 	OpFFT = NumberTheoreticTransform::GetInstance().ForwardTransformIterative(InputToFFT, *rootOfUnityTable, CycloOrder / 2);
-
+	DEBUG("in FWD rout "<<*rootOfUnityTable);
 	return OpFFT;
 }
 
 //main Inverse CRT Transform - implements FTT - uses iterative NTT as a subroutine
 //includes precomputation of inverse twidle factor table
 BigBinaryVector ChineseRemainderTransformFTT::InverseTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) {
+  bool dbg_flag = true;
 	std::string errMsg;
 	if (rootOfUnity == BigBinaryInteger::ONE || rootOfUnity == BigBinaryInteger::ZERO) {
 		errMsg = "Root of unity cannot be zero or one to perform an inverse transform";
@@ -347,8 +352,11 @@ BigBinaryVector ChineseRemainderTransformFTT::InverseTransform(const BigBinaryVe
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	BigBinaryInteger mu = temp.DividedBy(element.GetModulus());
 
+#if 0
 	const BigBinaryVector *rootOfUnityITable = NULL;
-
+#else
+	BigBinaryVector *rootOfUnityITable = NULL;
+#endif
 	BigBinaryInteger rootofUnityInverse;
 
 	try {
@@ -395,7 +403,8 @@ BigBinaryVector ChineseRemainderTransformFTT::InverseTransform(const BigBinaryVe
 	BigBinaryVector rInvTable(*rootOfUnityITable);
 	for (usint i = 0; i<CycloOrder / 2; i++)
 		OpIFFT.SetValAtIndex(i, OpIFFT.GetValAtIndex(i).ModBarrettMul(rInvTable.GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
-
+	DEBUG("in INV rout "<<*rootOfUnityITable);
+	DEBUG("in INV rinv "<<rInvTable);
 	return OpIFFT;
 }
 

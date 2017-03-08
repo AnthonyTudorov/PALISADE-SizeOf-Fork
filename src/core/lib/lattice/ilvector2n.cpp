@@ -592,16 +592,24 @@ namespace lbcrypto {
   }
 
   void ILVector2n::SwitchFormat() {
+    bool dbg_flag = true;
+    if (m_values == nullptr) {
+      std::string errMsg = "ILVector2n switch format to empty values";
+      throw std::runtime_error(errMsg);
+    }
+    
     if (m_format == COEFFICIENT) {
       m_format = EVALUATION;
-      if (m_values != nullptr) {
-	*m_values = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder());
-      }
+      DEBUG("ILVector2n::SwitchFormat(toEval): values before "<<*m_values);
+      unique_ptr<BigBinaryVector> sp(new BigBinaryVector(ChineseRemainderTransformFTT::GetInstance().ForwardTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder())));
+      m_values = std::move(sp);
+      DEBUG("ILVector2n::SwitchFormat(): values after "<<*m_values);
     } else {
       m_format = COEFFICIENT;
-      if (m_values != nullptr) {
-	*m_values = ChineseRemainderTransformFTT::GetInstance().InverseTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder());
-      }
+      DEBUG("ILVector2n::SwitchFormat(toCoeff): values before "<<*m_values);
+      unique_ptr<BigBinaryVector> sp(new BigBinaryVector(ChineseRemainderTransformFTT::GetInstance().InverseTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder())));
+      m_values = std::move(sp);
+      DEBUG("ILVector2n::SwitchFormat(): values after "<<*m_values);
     }
   }
 

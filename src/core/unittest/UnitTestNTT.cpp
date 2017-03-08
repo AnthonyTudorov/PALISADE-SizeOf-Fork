@@ -282,6 +282,7 @@ TEST(UTNTT, decomposeMult_single_crt) {
 	DEBUG("x2.Decompose() "<<x2.GetValues());
 
 	ILVector2n resultsEval(params2, Format::EVALUATION);
+	DEBUG("resultsEval.modulus"<< resultsEval.GetModulus());
 
 	x1.SwitchFormat();
 	x2.SwitchFormat();
@@ -294,6 +295,7 @@ TEST(UTNTT, decomposeMult_single_crt) {
 
 	resultsEval.SwitchFormat(); // COEF	
 	DEBUG("resultsEval.coef "<<resultsEval.GetValues());
+	DEBUG("resultsEval.modulus"<< resultsEval.GetModulus());
 
 	EXPECT_EQ(resultsEval.GetValAtIndex(0), BigBinaryInteger::ZERO);
 	EXPECT_EQ(resultsEval.GetValAtIndex(1), BigBinaryInteger::ZERO);
