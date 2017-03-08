@@ -355,6 +355,7 @@ TEST(UTField2n, scalar_mult) {
 
 //TEST FOR COEFFICIENT TO EVALUATION FORMAT CHANGE
 TEST(UTField2n, coefficient_evaluation) {
+	DiscreteFourierTransform::GetInstance().PreComputeTable(16);
 	bool dbg_flag = false;
 	DEBUG("Step 1");
 	Field2n a(8, COEFFICIENT, true);
@@ -386,6 +387,7 @@ TEST(UTField2n, coefficient_evaluation) {
 
 //TEST FOR EVALUATION TO COEFFICIENT FORMAT CHANGE
 TEST(UTField2n, evaluation_coefficient) {
+	DiscreteFourierTransform::GetInstance().PreComputeTable(16);
 	bool dbg_flag = false;
 	DEBUG("Step 1");
 	Field2n b(8, EVALUATION, true);
