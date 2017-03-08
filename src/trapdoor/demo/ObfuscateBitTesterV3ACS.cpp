@@ -242,7 +242,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n, bool use_ACS) {
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-	DiscreteFourierTransform::GetInstance().PreComputetable(m);
+	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
 
 	//Precomputations for DGG
 	TIC(t1);
