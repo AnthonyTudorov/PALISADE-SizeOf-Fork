@@ -46,7 +46,7 @@ namespace lbcrypto {
  *
  * Every lattice must implement these pure virtuals in order to properly interoperate with PALISADE PKE
  */
-template <typename Element>
+template <typename Element, typename IntType, typename VecType>
 class ILElement : public Serializable
 {
 public:
@@ -108,14 +108,14 @@ public:
 	 *
 	 * @return the modulus.
 	 */
-	virtual const BigBinaryInteger &GetModulus() const = 0;
+	virtual const IntType &GetModulus() const = 0;
 
 	/**
 	 * Get the values for the element
 	 *
 	 * @return the vector.
 	 */
-	virtual const BigBinaryVector &GetValues() const = 0;
+	virtual const VecType &GetValues() const = 0;
 
 	/**
 	 * Get the cyclotomic order
@@ -141,7 +141,7 @@ public:
 	 * @param i
 	 * @return will throw a logic_error.
 	 */
-	virtual const BigBinaryInteger& GetValAtIndex(usint i) const {
+	virtual const IntType& GetValAtIndex(usint i) const {
 		throw std::logic_error("GetValAtIndex not implemented");
 	}
 
@@ -167,7 +167,7 @@ public:
 	 * @param index
 	 * @param val
 	 */
-	virtual void SetValAtIndex(size_t index, const BigBinaryInteger& val) {
+	virtual void SetValAtIndex(size_t index, const IntType& val) {
 		throw std::logic_error("SetValAtIndex not implemented");
 	}
 
@@ -177,7 +177,7 @@ public:
 	 * @param values
 	 * @param format
 	 */
-	virtual void SetValues(const BigBinaryVector& values, Format format) = 0;
+	virtual void SetValues(const VecType& values, Format format) = 0;
 
 	// OPERATORS
 	/**
@@ -187,7 +187,7 @@ public:
 	 * @param &element is the element to add entry-wise.
 	 * @return is the return of the addition operation.
 	 */
-	virtual Element Plus(const BigBinaryInteger &element) const = 0;
+	virtual Element Plus(const IntType &element) const = 0;
 
 	/**
 	 * Scalar subtraction - subtract an element frp, all entries.
@@ -195,7 +195,7 @@ public:
 	 * @param &element is the element to subtract entry-wise.
 	 * @return is the return value of the minus operation.
 	 */
-	virtual Element Minus(const BigBinaryInteger &element) const = 0;
+	virtual Element Minus(const IntType &element) const = 0;
 
 	/**
 	 * Scalar multiplication - multiply all entries.
@@ -203,7 +203,7 @@ public:
 	 * @param &element is the element to multiply entry-wise.
 	 * @return is the return value of the times operation.
 	 */
-	virtual Element Times(const BigBinaryInteger &element) const = 0;
+	virtual Element Times(const IntType &element) const = 0;
 
 	/**
 	 * Performs an addition operation and returns the result.
@@ -236,7 +236,7 @@ public:
 	 * @param &element is the element to add
 	 * @return is the result of the addition.
 	 */
-	virtual const Element& operator+=(const BigBinaryInteger &element) = 0;
+	virtual const Element& operator+=(const IntType &element) = 0;
 
 	/**
 	 * Performs -= operation with a BigBinaryInteger and returns the result.
@@ -244,7 +244,7 @@ public:
 	 * @param &element is the element to subtract
 	 * @return is the result of the addition.
 	 */
-	virtual const Element& operator-=(const BigBinaryInteger &element) = 0;
+	virtual const Element& operator-=(const IntType &element) = 0;
 
 	/**
 	 * Performs *= operation with a BigBinaryInteger and returns the result.
@@ -252,7 +252,7 @@ public:
 	 * @param &element is the element to multiply by
 	 * @return is the result of the multiplication.
 	 */
-	virtual const Element& operator*=(const BigBinaryInteger &element) = 0;
+	virtual const Element& operator*=(const IntType &element) = 0;
 
 	/**
 	 * Performs an addition operation and returns the result.
@@ -325,7 +325,7 @@ public:
 	 * @param &q is the element to divide entry-wise.
 	 * @return is the return value of the divide, followed by rounding operation.
 	 */
-	virtual Element DivideAndRound(const BigBinaryInteger &q) const = 0;
+	virtual Element DivideAndRound(const IntType &q) const = 0;
 
 	/**
 	 * Determines if inverse exists
@@ -345,7 +345,7 @@ public:
 	 *
 	 * @param &wFactor ratio between the original element's ring dimension and the new ring dimension.
 	 */
-	virtual void MakeSparse(const BigBinaryInteger &wFactor) = 0;
+	virtual void MakeSparse(const IntType &wFactor) = 0;
 
 	/**
 	 * ModByTwo operation on the Element
@@ -367,7 +367,7 @@ public:
 	 * @param &q is the integer divisor.
 	 * @return is the return value of the multiply, divide and followed by rounding operation.
 	 */
-	virtual Element MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const = 0;
+	virtual Element MultiplyAndRound(const IntType &p, const IntType &q) const = 0;
 
 	/**
 	 * ModReduce reduces the composite modulus by dropping the last modulus from the chain of moduli as well as dropping the last tower.
@@ -375,7 +375,7 @@ public:
 	 *
 	 *@param plaintextModulus is the plaintextModulus used for the ILVectorArray2n
 	 */
-	virtual void ModReduce(const BigBinaryInteger &plaintextModulus) {
+	virtual void ModReduce(const IntType &plaintextModulus) {
 		throw std::logic_error("ModReduce is not implemented");
 	}
 
@@ -400,7 +400,7 @@ public:
 	 * @param modulus is the modulus to use.
 	 * @return is the return value of the modulus.
 	 */
-	virtual Element SignedMod(const BigBinaryInteger &modulus) const = 0;
+	virtual Element SignedMod(const IntType &modulus) const = 0;
 
 	/**
 	 * Switch modulus and adjust the values
@@ -409,7 +409,7 @@ public:
 	 * @param &rootOfUnity is the corresponding root of unity for the modulus
 	 * ASSUMPTION: This method assumes that the caller provides the correct rootOfUnity for the modulus.
 	 */
-	virtual void SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity) = 0;
+	virtual void SwitchModulus(const IntType &modulus, const IntType &rootOfUnity) = 0;
 
 	/**
 	 * Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.

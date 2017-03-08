@@ -76,7 +76,7 @@ namespace lbcrypto {
 	/**
 	* @brief Ideal lattice in the double-CRT representation.  This is not fully implemented and is currently only stubs.
 	*/
-	class ILVectorArray2n : public ILElement<ILVectorArray2n>
+	class ILVectorArray2n : public ILElement<ILVectorArray2n,BigBinaryInteger,BigBinaryVector>
 	{
 	public:
 

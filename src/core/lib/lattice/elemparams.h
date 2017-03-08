@@ -77,7 +77,7 @@ namespace lbcrypto {
 	    	return item.doprint(out);
 	    }
 
-		virtual bool operator==(const ElemParams &other) const = 0;
+		virtual bool operator==(const ElemParams<IntegerType> &other) const = 0;
 
 	private:
 		virtual std::ostream& doprint(std::ostream& out) const = 0;

@@ -45,10 +45,17 @@
  */
 namespace lbcrypto {
 
+template<typename IntType>
+class ILParamsImpl;
+
+typedef ILParamsImpl<BigBinaryInteger> ILParams;
+typedef ILParamsImpl<native64::BigBinaryInteger> ILNativeParams;
+
 /**
  * @brief Parameters for ideal lattice: cyclotomic order and modulus.
  */
-class ILParams : public ElemParams<BigBinaryInteger>
+template<typename IntType>
+class ILParamsImpl : public ElemParams<IntType>
 {
 public:
 
@@ -56,7 +63,7 @@ public:
 	 * Constructor that initializes nothing.
 	 * All of the private members will be initialised to zero.
 	 */
-	ILParams(): m_modulus(0), m_order(0), m_rootOfUnity(0) {}
+	ILParamsImpl(): m_modulus(0), m_order(0), m_rootOfUnity(0) {}
 
 	/**
 	 * Constructor for the pre-computed case.
@@ -65,7 +72,7 @@ public:
 	 * @param &modulus the ciphertext modulus.
 	 * @param &rootOfUnity the root of unity used in the ciphertext.
 	 */
-	ILParams(const usint order, const BigBinaryInteger & modulus, const BigBinaryInteger & rootOfUnity) {
+	ILParamsImpl(const usint order, const IntType & modulus, const IntType & rootOfUnity) {
 		m_order = order;
 		m_modulus = modulus;
 		m_rootOfUnity = rootOfUnity;
@@ -77,7 +84,7 @@ public:
 	 * @param &order the order of the ciphertext.
 	 * @param &modulus the ciphertext modulus.
 	 */
-	ILParams(const usint order, const BigBinaryInteger &modulus) {
+	ILParamsImpl(const usint order, const IntType &modulus) {
 		m_order = order;
 		m_modulus = modulus;
 		m_rootOfUnity = RootOfUnity(order, modulus);
@@ -89,7 +96,7 @@ public:
 	 *
 	 * @param &rhs the input set of parameters which is copied.
 	 */
-	ILParams(const ILParams &rhs) {
+	ILParamsImpl(const ILParams &rhs) {
 		m_order = rhs.m_order;
 		m_modulus = rhs.m_modulus;
 		m_rootOfUnity = rhs.m_rootOfUnity;
@@ -101,14 +108,14 @@ public:
 	 * @param &rhs the ILParams to be copied.
 	 * @return the resulting ILParams.
 	 */
-	ILParams& operator=(const ILParams &) = default;
+	ILParamsImpl& operator=(const ILParams &) = default;
 
 	/**
 	 * Move constructor.
 	 *
 	 * @param &rhs the input set of parameters which is copied.
 	 */
-	ILParams(const ILParams &&rhs) {
+	ILParamsImpl(const ILParams &&rhs) {
 		m_order = rhs.m_order;
 		m_modulus = std::move(rhs.m_modulus);
 		m_rootOfUnity = std::move(rhs.m_rootOfUnity);
@@ -117,7 +124,7 @@ public:
 	/**
 	 * Destructor.
 	 */
-	virtual ~ILParams() {
+	virtual ~ILParamsImpl() {
 	}
 
 	/**
@@ -160,7 +167,7 @@ public:
 	 *
 	 * @return the modulus.
 	 */
-	const BigBinaryInteger &GetModulus() const {
+	const IntType &GetModulus() const {
 		return m_modulus;
 	}
 
@@ -169,7 +176,7 @@ public:
 	 *
 	 * @return the root of unity.
 	 */
-	const BigBinaryInteger &GetRootOfUnity() const {
+	const IntType &GetRootOfUnity() const {
 		return m_rootOfUnity;
 	}
 
@@ -206,19 +213,19 @@ public:
 	 * @param &rhs is the specified ILVector2n to be compared with this ILVector2n.
 	 * @return true if this ILVector2n represents the same values as the specified ILVectorArray2n, false otherwise
 	 */
-	bool operator==(const ElemParams& rhs) const {
-		const ILParams *ip = dynamic_cast<const ILParams *>(&rhs);
+	bool operator==(const ElemParams<IntType>& rhs) const {
+//		const ILParamsImpl *ip = dynamic_cast<const ILParamsImpl *>(&rhs);
+//
+//		if( ip == 0 )
+//			return false;
 
-		if( ip == 0 )
-			return false;
-
-		if (m_modulus != ip->GetModulus()) {
+		if (m_modulus != rhs.GetModulus()) {
 			return false;
 		}
-		if (m_order != ip->GetCyclotomicOrder()) {
+		if (m_order != rhs.GetCyclotomicOrder()) {
 			return false;
 		}
-		if (m_rootOfUnity != ip->GetRootOfUnity()) {
+		if (m_rootOfUnity != rhs.GetRootOfUnity()) {
 			return false;
 		}
 		return true;
@@ -230,7 +237,7 @@ public:
 	 * @param &rhs is the specified ILParams to be compared with this ILParams.
 	 * @return true if this ILParams represents the same values as the specified ILParams, false otherwise
 	 */
-	inline bool operator!=(ILParams const &rhs) {
+	inline bool operator!=(ILParamsImpl const &rhs) {
 		return !(*this == rhs);
 	}
 
@@ -261,10 +268,10 @@ private:
 	usint m_order;
 
 	// value of modulus
-	BigBinaryInteger m_modulus;
+	IntType m_modulus;
 
 	// primitive root unity that is used to transform from coefficient to evaluation representation and vice versa
-	BigBinaryInteger m_rootOfUnity;
+	IntType m_rootOfUnity;
 
 };
 

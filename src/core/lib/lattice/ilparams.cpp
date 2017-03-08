@@ -48,6 +48,7 @@ namespace lbcrypto {
 		* @param serObj stores this object's serialized attribute name value pairs.
 		* @return map updated with the attribute name value pairs required to serialize this object.
 		*/
+		template<>
 		bool ILParams::Serialize(Serialized* serObj) const {
 
 			if( !serObj->IsObject() )
@@ -69,6 +70,7 @@ namespace lbcrypto {
 		*
 		* @param serObj stores this object's serialized attribute name value pairs.
 		*/
+		template<>
 		bool ILParams::Deserialize(const Serialized& serObj) {
 
 			Serialized::ConstMemberIterator mIter = serObj.FindMember("ILParams");
