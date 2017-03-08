@@ -12,8 +12,8 @@ void SingleThreadedRun();
 void MultiThreadedRun();
 
 int main() {
-	SingleThreadedRun();
-	//MultiThreadedRun();
+	//SingleThreadedRun();
+	MultiThreadedRun();
 	return 0;
 }
 
@@ -37,7 +37,7 @@ void MultiThreadedRun() {
 		}
 	}
 
-	size_t counter = 500;
+	size_t counter = 50;
 	double start, finish;
 	DiscreteGaussianGenerator dgg(SIGMA);
 
