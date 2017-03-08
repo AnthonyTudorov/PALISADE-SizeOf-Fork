@@ -343,7 +343,7 @@ namespace lbcrypto {
      *
      * @return value at index i.
      */
-#if BACKEND <6
+#if MATHBACKEND <6
     const BigBinaryInteger  &GetValAtIndex(usint i) const;
 #else
     const BigBinaryInteger  GetValAtIndex(usint i) const;//DBC changed from returning reference because it broke several functions otherwise. changed back for merge with master... since this is a virtual function.
@@ -358,6 +358,7 @@ namespace lbcrypto {
     inline void SetValAtIndex(size_t index, int val) {
       m_values->SetValAtIndex(index, BigBinaryInteger(val));
     }
+
     inline void SetValAtIndexWithoutMod(size_t index, int val) {
 #if MATHBACKEND <6
       m_values->SetValAtIndex(index, BigBinaryInteger(val));

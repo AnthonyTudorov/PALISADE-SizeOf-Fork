@@ -336,7 +336,7 @@ namespace lbcrypto {
   Format ILVector2n::GetFormat() const {
     return m_format;
   }
-#if BACKEND < 6
+#if MATHBACKEND < 6
   const BigBinaryInteger &ILVector2n::GetValAtIndex(usint i) const
   {
     bool dbg_flag = false;
@@ -592,7 +592,7 @@ namespace lbcrypto {
   }
 
   void ILVector2n::SwitchFormat() {
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     if (m_values == nullptr) {
       std::string errMsg = "ILVector2n switch format to empty values";
       throw std::runtime_error(errMsg);

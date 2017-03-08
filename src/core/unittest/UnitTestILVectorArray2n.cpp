@@ -376,7 +376,7 @@ TEST(UTILVectorArray2n, operator_test) {
 }
 
 TEST(UTILVectorArray2n, arithmetic_operations_element) {
-  bool dbg_flag = true;
+  bool dbg_flag = false;
   usint m = 8;
   usint towersize = 3;
 
@@ -601,7 +601,7 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     BigBinaryVector bbvS0(m/2, moduli[0]);
     //DEBUG("bbvS0 Modulus:"<<moduli[0]);
 
-#if BACKEND < 6
+#if MATHBACKEND < 6
     bbvS0.SetValAtIndex(0, "23462");
     bbvS0.SetValAtIndex(1, "467986");
     bbvS0.SetValAtIndex(2, "33863");

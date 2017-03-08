@@ -142,7 +142,7 @@ public:
 	 * @return will throw a logic_error.
 	 */
 	//dbc changed this to non ref returna
-#if BACKEND <6
+#if MATHBACKEND <6
 	virtual const BigBinaryInteger& GetValAtIndex(usint i) const {
 #else
 	virtual const BigBinaryInteger GetValAtIndex(usint i) const {

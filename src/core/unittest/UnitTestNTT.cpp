@@ -194,7 +194,7 @@ TEST(UTNTT, switch_format_decompose_single_crt) {
 }
 
 TEST(UTNTT, decomposeMult_double_crt) {
-  bool dbg_flag = true;
+  bool dbg_flag = false;
 	usint init_m = 16;
 
 	float init_stdDev = 4;
@@ -260,7 +260,7 @@ TEST(UTNTT, decomposeMult_double_crt) {
 }
 
 TEST(UTNTT, decomposeMult_single_crt) {
-  bool dbg_flag = true;
+  bool dbg_flag = false;
 	usint m1 = 16;
 
 	BigBinaryInteger modulus("17729");
@@ -274,6 +274,11 @@ TEST(UTNTT, decomposeMult_single_crt) {
 
 	ILVector2n x2(params, Format::COEFFICIENT);
 	x2 = { 0,0,0,0,0,0,1,0 };
+
+	x1.SwitchFormat(); //dbc remember to remove thtese. 
+	x2.SwitchFormat();
+	x1.SwitchFormat();
+	x2.SwitchFormat();
 
 	x1.Decompose();
 	x2.Decompose();

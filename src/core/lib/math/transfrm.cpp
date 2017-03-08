@@ -269,9 +269,12 @@ BigBinaryVector ChineseRemainderTransform::InverseTransform(const BigBinaryVecto
 //main Forward CRT Transform - implements FTT - uses iterative NTT as a subroutine
 //includes precomputation of twidle factor table
 BigBinaryVector ChineseRemainderTransformFTT::ForwardTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) {
-  bool dbg_flag = true;
+  bool dbg_flag = false;
 	std::string errMsg;
-	if (rootOfUnity == BigBinaryInteger::ONE || rootOfUnity == BigBinaryInteger::ZERO) {
+
+	DEBUG("in FWD FFT rootOfUnity "<< rootOfUnity); 
+	DEBUG("in FWD FFT CycloOrder "<< CycloOrder); 	
+if (rootOfUnity == BigBinaryInteger::ONE || rootOfUnity == BigBinaryInteger::ZERO) {
 		errMsg = "Root of unity cannot be zero or one to perform a forward transform";
 		throw std::logic_error(errMsg);
 	}
@@ -285,7 +288,7 @@ BigBinaryVector ChineseRemainderTransformFTT::ForwardTransform(const BigBinaryVe
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	BigBinaryInteger mu = temp.DividedBy(element.GetModulus());
 
-#if 0
+#if MATHBACKEND > 5
 	const BigBinaryVector *rootOfUnityTable = NULL;
 #else
 	BigBinaryVector *rootOfUnityTable = NULL;
@@ -336,7 +339,9 @@ BigBinaryVector ChineseRemainderTransformFTT::ForwardTransform(const BigBinaryVe
 //main Inverse CRT Transform - implements FTT - uses iterative NTT as a subroutine
 //includes precomputation of inverse twidle factor table
 BigBinaryVector ChineseRemainderTransformFTT::InverseTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) {
-  bool dbg_flag = true;
+  bool dbg_flag = false;
+	DEBUG("in INV FFT rootOfUnity "<< rootOfUnity); 
+	DEBUG("in INV FFT CycloOrder "<< CycloOrder); 	
 	std::string errMsg;
 	if (rootOfUnity == BigBinaryInteger::ONE || rootOfUnity == BigBinaryInteger::ZERO) {
 		errMsg = "Root of unity cannot be zero or one to perform an inverse transform";
@@ -352,7 +357,7 @@ BigBinaryVector ChineseRemainderTransformFTT::InverseTransform(const BigBinaryVe
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	BigBinaryInteger mu = temp.DividedBy(element.GetModulus());
 
-#if 0
+#if MATHBACKEND > 5
 	const BigBinaryVector *rootOfUnityITable = NULL;
 #else
 	BigBinaryVector *rootOfUnityITable = NULL;
