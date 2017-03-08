@@ -10,32 +10,35 @@
 
 namespace lbcrypto {
 
+template class DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
+template class DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>;
+
 	template<typename IntType, typename VecType>
-	DiscreteGaussianGenerator::DiscreteGaussianGenerator() : DistributionGenerator() {
+	DiscreteGaussianGeneratorImpl<IntType,VecType>::DiscreteGaussianGeneratorImpl() : DistributionGenerator() {
 
 		SetStd(1);
 		Initialize();
 	}
 
 	template<typename IntType, typename VecType>
-	DiscreteGaussianGenerator::DiscreteGaussianGenerator(float std) : DistributionGenerator() {
+	DiscreteGaussianGeneratorImpl<IntType,VecType>::DiscreteGaussianGeneratorImpl(float std) : DistributionGenerator() {
 
 		SetStd(std);
 		Initialize();
 	}
 
 	template<typename IntType, typename VecType>
-	void DiscreteGaussianGenerator::SetStd(float std) {
+	void DiscreteGaussianGeneratorImpl<IntType,VecType>::SetStd(float std) {
 		m_std = std;
 	}
 
 	template<typename IntType, typename VecType>
-	float DiscreteGaussianGenerator::GetStd() const {
+	float DiscreteGaussianGeneratorImpl<IntType,VecType>::GetStd() const {
 		return m_std;
 	}
 
 	template<typename IntType, typename VecType>
-	void DiscreteGaussianGenerator::Initialize() {
+	void DiscreteGaussianGeneratorImpl<IntType,VecType>::Initialize() {
 
 		//weightDiscreteGaussian
 		double acc = 1e-15;
@@ -78,7 +81,7 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
-	sint DiscreteGaussianGenerator::GenerateInt() const {
+	sint DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInt() const {
 
 		std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
@@ -103,7 +106,7 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
-	std::shared_ptr<sint> DiscreteGaussianGenerator::GenerateIntVector(usint size) const {
+	std::shared_ptr<sint> DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateIntVector(usint size) const {
 
 		std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
@@ -129,7 +132,7 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
-	usint DiscreteGaussianGenerator::FindInVector(const std::vector<double> &S, double search) const {
+	usint DiscreteGaussianGeneratorImpl<IntType,VecType>::FindInVector(const std::vector<double> &S, double search) const {
 		//STL binary search implementation
 		auto lower = std::lower_bound(S.begin(), S.end(), search);
 		if (lower != S.end())
@@ -139,7 +142,7 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
-	IntType DiscreteGaussianGenerator::GenerateInteger(const IntType &modulus) const {
+	IntType DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInteger(const IntType &modulus) const {
 
 		int32_t val = 0;
 		double seed;
@@ -161,7 +164,7 @@ namespace lbcrypto {
 		if (val < 0)
 		{
 			val *= -1;
-			ans = modulus - UintToIntType(val);
+			ans = modulus - IntType(val);
 		}
 		else
 			ans = IntType(val);
@@ -171,7 +174,7 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
-	VecType DiscreteGaussianGenerator::GenerateVector(const usint size, const IntType &modulus) const {
+	VecType DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateVector(const usint size, const IntType &modulus) const {
 
 		std::shared_ptr<sint> result = GenerateIntVector(size);
 
@@ -182,10 +185,10 @@ namespace lbcrypto {
 			sint v = (result.get())[i];
 			if (v < 0) {
 				v *= -1;
-				ans.SetValAtIndex(i, modulus - UintToIntType(v));
+				ans.SetValAtIndex(i, modulus - IntType(v));
 			}
 			else {
-				ans.SetValAtIndex(i, UintToIntType(v));
+				ans.SetValAtIndex(i, IntType(v));
 			}
 		}
 
@@ -193,7 +196,7 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
-	IntType DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n, const IntType &modulus) const {
+	IntType DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInteger(double mean, double stddev, size_t n, const IntType &modulus) const {
 
 		double t = log(n) / log(2)*stddev;  //this representation of log_2 is used for Visual Studio
 
@@ -219,7 +222,7 @@ namespace lbcrypto {
 		if (x < 0)
 		{
 			x *= -1;
-			result = modulus - UintToIntType(x);
+			result = modulus - IntType(x);
 		}
 		else
 			result = IntType(x);
@@ -229,7 +232,7 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
-	int32_t DiscreteGaussianGenerator::GenerateInteger(double mean, double stddev, size_t n) const {
+	int32_t DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInteger(double mean, double stddev, size_t n) const {
 
 		double t = log(n) / log(2)*stddev;  //this representation of log_2 is used for Visual Studio
 
@@ -261,7 +264,7 @@ namespace lbcrypto {
 		*  this is a simple inefficient implementation as noted in DG14; will need to be improved
 		*/
 	template<typename IntType, typename VecType>
-	int32_t DiscreteGaussianGenerator::GenerateInteger(const LargeFloat &mean, const LargeFloat &stddev, size_t n) {
+	int32_t DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInteger(const LargeFloat &mean, const LargeFloat &stddev, size_t n) {
 
 		LargeFloat t = log(n) / log(2)*stddev;  //fix for Visual Studio
 
@@ -290,7 +293,7 @@ namespace lbcrypto {
 		*Generates the probability matrix of given distribution, which is used in Knuth-Yao method
 	*/
 	template<typename IntType, typename VecType>
-	void DiscreteGaussianGenerator::GenerateProbMatrix(double stddev, double mean) {
+	void DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateProbMatrix(double stddev, double mean) {
 		if (probMatrix != nullptr) {
 			delete[] probMatrix;
 		}
@@ -325,7 +328,7 @@ namespace lbcrypto {
 	*Generates the probability matrix of given distribution, which is used in Knuth-Yao method (Large Float Version)
 	*/
 	template<typename IntType, typename VecType>
-	void DiscreteGaussianGenerator::GenerateProbMatrix(const LargeFloat & stddev, const LargeFloat & mean) {
+	void DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateProbMatrix(const LargeFloat & stddev, const LargeFloat & mean) {
 		if (probMatrix != nullptr) {
 			delete[] probMatrix;
 		}
@@ -362,7 +365,7 @@ namespace lbcrypto {
 	* Returns a generated integer. Uses Knuth-Yao method defined as Algorithm 1 in http://link.springer.com/chapter/10.1007%2F978-3-662-43414-7_19#page-1
 	*/
 	template<typename IntType, typename VecType>
-	int32_t DiscreteGaussianGenerator::GenerateIntegerKnuthYao() {
+	int32_t DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateIntegerKnuthYao() {
 		int32_t S = 0;
 		bool discard = true;
 		std::uniform_int_distribution<int32_t> uniform_int(INT_MIN, INT_MAX);

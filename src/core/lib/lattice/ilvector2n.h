@@ -70,6 +70,7 @@ class ILVectorImpl : public ILElement<ILVectorImpl<IntType,VecType,ParmType>,Int
 public:
 
 	typedef ParmType Params;
+	typedef ILVectorImpl<IntType,VecType,ParmType> ILVectorType;
 
 	/**
 	 * Default constructor
@@ -131,9 +132,9 @@ public:
 	/**
 	 *  Create lambda that allocates a zeroed element for the case when it is called from a templated class
 	 */
-	inline static function<unique_ptr<ILVectorImpl>()> MakeAllocator(const shared_ptr<ParmType> params, Format format) {
+	inline static function<unique_ptr<ILVectorType>()> MakeAllocator(const shared_ptr<ParmType> params, Format format) {
 		return [=]() {
-			return lbcrypto::make_unique<ILVectorImpl>(params, format, true);
+			return lbcrypto::make_unique<ILVectorType>(params, format, true);
 		};
 	}
 
@@ -145,10 +146,10 @@ public:
 	 * @param stddev standard deviation for the discrete gaussian generator.
 	 * @return the resulting vector.
 	 */
-	inline static function<unique_ptr<ILVectorImpl>()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<ParmType> params, Format resultFormat, int stddev) {
+	inline static function<unique_ptr<ILVectorType>()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<ParmType> params, Format resultFormat, int stddev) {
 		return [=]() {
 			DiscreteGaussianGeneratorImpl<IntType,VecType> dgg(stddev);
-			auto ilvec = lbcrypto::make_unique<ILVectorImpl>(dgg, params, COEFFICIENT);
+			auto ilvec = lbcrypto::make_unique<ILVectorType>(dgg, params, COEFFICIENT);
 			ilvec->SetFormat(resultFormat);
 			return ilvec;
 		};
@@ -161,10 +162,10 @@ public:
 	 * @param format format for the polynomials generated.
 	 * @return the resulting vector.
 	 */
-	inline static function<unique_ptr<ILVectorImpl>()> MakeDiscreteUniformAllocator(shared_ptr<ParmType> params, Format format) {
+	inline static function<unique_ptr<ILVectorType>()> MakeDiscreteUniformAllocator(shared_ptr<ParmType> params, Format format) {
 		return [=]() {
 			DiscreteUniformGenerator dug(params->GetModulus());
-			return lbcrypto::make_unique<ILVectorImpl>(dug, params, format);
+			return lbcrypto::make_unique<ILVectorType>(dug, params, format);
 		};
 	}
 
@@ -186,13 +187,13 @@ public:
 	 * Clone the object by making a copy of it and returning the copy
 	 * @return new Element
 	 */
-	ILVectorImpl Clone() const { return std::move(ILVectorImpl(*this)); }
+	ILVectorType Clone() const { return std::move(ILVectorImpl(*this)); }
 
 	/**
 	 * Clone the object, but have it contain nothing
 	 * @return new Element
 	 */
-	ILVectorImpl CloneEmpty() const { return std::move( ILVectorImpl() ); }
+	ILVectorType CloneEmpty() const { return std::move( ILVectorImpl() ); }
 
 	/**
 	 * Clone
@@ -200,7 +201,7 @@ public:
 	 * Creates a new ILVectorImpl and clones only the params.
 	 *  The tower values are empty. The tower values can be filled by another process/function or initializer list.
 	 */
-	ILVectorImpl CloneParametersOnly() const ;
+	ILVectorType CloneParametersOnly() const ;
 
 	/**
 	 * Clone with noise
@@ -209,7 +210,7 @@ public:
 	 *
 	 * @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorImpl with random numbers.
 	 */
-	ILVectorImpl CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const;
+	ILVectorType CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const;
 
 	/**
 	 * Destructor

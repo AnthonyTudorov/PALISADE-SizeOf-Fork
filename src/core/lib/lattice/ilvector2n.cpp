@@ -32,8 +32,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
-template class ILVectorImpl<BigBinaryInteger,BigBinaryVector,ILParams>;
-template class ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryVector,ILNativeParams>;
+//template class ILVectorImpl<BigBinaryInteger,BigBinaryVector,ILParams>;
+//template class ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryVector,ILNativeParams>;
 
 
 	// static members
@@ -234,13 +234,13 @@ template class ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryVector
 
 	template<typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<IntType,VecType,ParmType> ILVectorImpl<IntType,VecType,ParmType>::CloneParametersOnly() const {
-		ILVectorImpl result(this->m_params, this->m_format);
+		ILVectorImpl<IntType,VecType,ParmType> result(this->m_params, this->m_format);
 		return std::move(result);
 	}
 
 	template<typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<IntType,VecType,ParmType> ILVectorImpl<IntType,VecType,ParmType>::CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const {
-		ILVectorImpl result(dgg, m_params, format);
+		ILVectorImpl<IntType,VecType,ParmType> result(dgg, m_params, format);
 		return std::move(result);
 	}
 
