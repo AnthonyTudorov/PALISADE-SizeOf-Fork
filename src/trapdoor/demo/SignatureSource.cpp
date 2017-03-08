@@ -37,7 +37,7 @@ void MultiThreadedRun() {
 		}
 	}
 
-	size_t counter = 500;
+	size_t counter = 50;
 	double start, finish;
 	DiscreteGaussianGenerator dgg(SIGMA);
 
@@ -55,6 +55,7 @@ void MultiThreadedRun() {
 	std::cout << "Signature precomputations" << std::endl;
 	start = currentDateTime();
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+	DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
 	ILVector2n::PreComputeDggSamples(dgg, silParams);
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
@@ -132,6 +133,7 @@ void MultiThreadedRun() {
 	std::cout << "Execution completed" << std::endl;
 	ChineseRemainderTransformFTT::GetInstance().Destroy();
 	NumberTheoreticTransform::GetInstance().Destroy();
+	DiscreteFourierTransform::GetInstance().Destroy();
 
 }
 
@@ -150,6 +152,7 @@ void SingleThreadedRun() {
 		finish = currentDateTime();
 		std::cout << "Signature precomputations" << std::endl;
 		ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
 		ILVector2n::PreComputeDggSamples(dgg, silParams);
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 		LPSignatureParameters signParams(silParams, dgg);
@@ -271,6 +274,7 @@ void SingleThreadedRun() {
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();
 		ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
 		ILVector2n::PreComputeDggSamples(dgg, silParams);
 		finish = currentDateTime();
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
@@ -345,6 +349,7 @@ void SingleThreadedRun() {
 		start = currentDateTime();
 		ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 		ILVector2n::PreComputeDggSamples(dgg, silParams);
+		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
 		finish = currentDateTime();
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl << std::endl;
 
@@ -419,6 +424,7 @@ void SingleThreadedRun() {
 		start = currentDateTime();
 		ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 		ILVector2n::PreComputeDggSamples(dgg, silParams);
+		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
 		finish = currentDateTime();
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
@@ -485,6 +491,7 @@ void SingleThreadedRun() {
 		std::cout << "Execution completed" << std::endl;
 		ChineseRemainderTransformFTT::GetInstance().Destroy();
 		NumberTheoreticTransform::GetInstance().Destroy();
+		DiscreteFourierTransform::GetInstance().Destroy();
 
 		//std::cin.ignore();
 		//std::cin.get();

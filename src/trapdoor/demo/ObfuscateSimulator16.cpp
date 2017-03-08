@@ -232,6 +232,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int dataset) {
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
 
 	//Precomputations for DGG
 	TIC(t1);
@@ -355,6 +356,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int dataset) {
 	}
 
 	ILVector2n::DestroyPreComputedSamples();
+	DiscreteFourierTransform::GetInstance().Destroy();
 
 	return (errorflag);
 }
